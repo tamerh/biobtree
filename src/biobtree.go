@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -18,7 +19,11 @@ import (
 	"github.com/urfave/cli"
 )
 
-// global vars
+const version = "1.0.0-rc1"
+const versionTag = "v1.0.0-rc1"
+
+const confURLPath string = "https://raw.githubusercontent.com/tamerh/biobtree/" + versionTag + "/src/conf"
+
 var dataconf map[string]map[string]string
 var appconf map[string]string
 
@@ -33,7 +38,7 @@ func main() {
 
 	app := cli.NewApp()
 	app.Name = "biobtree"
-	app.Version = "1.0.0-rc1"
+	app.Version = version
 	app.Usage = "Bioinformatics tool for search, map, and visualise bionformatics identifers and special keywords with their refered identifiers."
 	app.Copyright = ""
 	app.Authors = []cli.Author{
@@ -261,7 +266,7 @@ func mergeData() (uint64, uint64, uint64) {
 }
 func updateData(datasets []string, targetDatasets []string) (uint64, uint64) {
 
-	log.Println("Update running...datasets->", datasets)
+	log.Println("Update RUNNING...datasets->", datasets)
 	log.Println("Note: Some datasets does not support progress bar. For any issue or error please contact from github page.")
 
 	targetDatasetMap := map[string]bool{}
@@ -455,6 +460,37 @@ func updateData(datasets []string, targetDatasets []string) (uint64, uint64) {
 
 }
 
+func fileExists(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return true, err
+}
+
+func downloadFile(url string, dest string) error {
+	resp, err := http.Get(url)
+	if err != nil {
+		return fmt.Errorf("GET error: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("Status error: %v", resp.StatusCode)
+	}
+
+	data, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return fmt.Errorf("Read body: %v", err)
+	}
+
+	err = ioutil.WriteFile(dest, data, 0700)
+	return err
+}
+
 func initConf(customconfdir string) {
 
 	confdir := "conf"
@@ -462,9 +498,31 @@ func initConf(customconfdir string) {
 		confdir = customconfdir
 	}
 
-	appconfFile := filepath.FromSlash(confdir + "/app.json")
-	dataconfFile := filepath.FromSlash(confdir + "/data.json")
-	sourcedataconfFile := filepath.FromSlash(confdir + "/source.json")
+	exist, err := fileExists(confdir)
+
+	if err != nil {
+		panic("Error while checking file")
+	}
+
+	appConfFilePath := confdir + "/app.json"
+	dataConfFilePath := confdir + "/data.json"
+	sourcedataconfFilePath := confdir + "/source.json"
+
+	if !exist {
+		log.Println("Downloading configuration files.")
+		err := os.Mkdir("conf", 0700)
+		if err != nil {
+			panic("Error while creating conf directory")
+		}
+		downloadFile(confURLPath+"/app.json", appConfFilePath)
+		downloadFile(confURLPath+"/source.json", sourcedataconfFilePath)
+		downloadFile(confURLPath+"/data.json", dataConfFilePath)
+		log.Println("Configuration files downloaded.")
+	}
+
+	appconfFile := filepath.FromSlash(appConfFilePath)
+	dataconfFile := filepath.FromSlash(dataConfFilePath)
+	sourcedataconfFile := filepath.FromSlash(sourcedataconfFilePath)
 
 	f, err := ioutil.ReadFile(appconfFile)
 	if err != nil {

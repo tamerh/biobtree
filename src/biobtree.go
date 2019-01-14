@@ -22,7 +22,7 @@ import (
 const version = "1.0.0-rc1"
 const versionTag = "v1.0.0-rc1"
 
-const confURLPath string = "https://raw.githubusercontent.com/tamerh/biobtree/" + versionTag + "/src/conf"
+const confURLPath string = "https://raw.githubusercontent.com/tamerh/biobtree/" + versionTag
 
 var dataconf map[string]map[string]string
 var appconf map[string]string
@@ -509,15 +509,20 @@ func initConf(customconfdir string) {
 	sourcedataconfFilePath := confdir + "/source.json"
 
 	if !exist {
-		log.Println("Downloading configuration files.")
+		log.Println("Downloading configuration and license files.")
 		err := os.Mkdir("conf", 0700)
 		if err != nil {
 			panic("Error while creating conf directory")
 		}
-		downloadFile(confURLPath+"/app.json", appConfFilePath)
-		downloadFile(confURLPath+"/source.json", sourcedataconfFilePath)
-		downloadFile(confURLPath+"/data.json", dataConfFilePath)
-		log.Println("Configuration files downloaded.")
+		downloadFile(confURLPath+"/src/conf/app.json", appConfFilePath)
+		downloadFile(confURLPath+"/src/conf/source.json", sourcedataconfFilePath)
+		downloadFile(confURLPath+"/src/conf/data.json", dataConfFilePath)
+
+		downloadFile(confURLPath+"/LICENSE", "LICENSE")
+		downloadFile(confURLPath+"/LICENSE.lmdbgo", "LICENSE.lmdbgo")
+		downloadFile(confURLPath+"/LICENSE.mdb", "LICENSE.mdb")
+
+		log.Println("Files downloaded.")
 	}
 
 	appconfFile := filepath.FromSlash(appConfFilePath)

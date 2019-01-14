@@ -24,6 +24,10 @@ const versionTag = "v1.0.0-rc1"
 
 const confURLPath string = "https://raw.githubusercontent.com/tamerh/biobtree/" + versionTag
 
+// for now they are static
+var webuicssfiles = []string{"app.95380e253f42e1540222c408041dc917.css", "app.95380e253f42e1540222c408041dc917.css.map"}
+var webuijsfiles = []string{"app.9310f7ea5073d514af7e.js", "app.9310f7ea5073d514af7e.js.map", "manifest.153f892e737d563221fa.js", "manifest.153f892e737d563221fa.js.map", "vendor.12f6f6a0a52ad7f1cd87.js", "vendor.12f6f6a0a52ad7f1cd87.js.map"}
+
 var dataconf map[string]map[string]string
 var appconf map[string]string
 
@@ -504,9 +508,9 @@ func initConf(customconfdir string) {
 		panic("Error while checking file")
 	}
 
-	appConfFilePath := confdir + "/app.json"
-	dataConfFilePath := confdir + "/data.json"
-	sourcedataconfFilePath := confdir + "/source.json"
+	appConfFilePath := filepath.FromSlash(confdir + "/app.json")
+	dataConfFilePath := filepath.FromSlash(confdir + "/data.json")
+	sourcedataconfFilePath := filepath.FromSlash(confdir + "/source.json")
 
 	if !exist {
 		log.Println("Downloading configuration and license files.")
@@ -523,6 +527,48 @@ func initConf(customconfdir string) {
 		downloadFile(confURLPath+"/LICENSE.mdb", "LICENSE.mdb")
 
 		log.Println("Files downloaded.")
+	}
+
+	exist, err = fileExists("webui")
+
+	if err != nil {
+		panic("Error while checking file")
+	}
+
+	if !exist {
+		log.Println("Downloading web interface files.")
+		err := os.Mkdir("webui", 0700)
+		if err != nil {
+			panic("Error while creating conf directory")
+		}
+		staticFolderPath := filepath.FromSlash("webui/static")
+		jsFolderPath := filepath.FromSlash("webui/static/js")
+		cssFolderPath := filepath.FromSlash("webui/static/css")
+
+		err = os.Mkdir(staticFolderPath, 0700)
+		if err != nil {
+			panic("Error while creating static directory")
+		}
+
+		err = os.Mkdir(jsFolderPath, 0700)
+		if err != nil {
+			panic("Error while creating js directory")
+		}
+		for _, file := range webuijsfiles {
+			jsFile := filepath.FromSlash(jsFolderPath + "/" + file)
+			downloadFile(confURLPath+"/src/webui/static/js/"+file, jsFile)
+		}
+		err = os.Mkdir(cssFolderPath, 0700)
+		if err != nil {
+			panic("Error while creating css directory")
+		}
+		for _, file := range webuicssfiles {
+			cssFile := filepath.FromSlash(cssFolderPath + "/" + file)
+			downloadFile(confURLPath+"/src/webui/static/css/"+file, cssFile)
+		}
+		indexFile := filepath.FromSlash("webui/index.html")
+		downloadFile(confURLPath+"/src/webui/index.html", indexFile)
+		log.Println("files downloaded.")
 	}
 
 	appconfFile := filepath.FromSlash(appConfFilePath)

@@ -1,0 +1,15 @@
+raw/
+out/
+main
+test_data
+.DS_Store
+.vscode/
+ui/node_modules
+ui/package-lock.json
+ui/dist
+my_data/
+tmpindex/
+cpuprof.out
+memprof.out
+tmp/
+out_bkp/

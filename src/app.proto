@@ -1,0 +1,87 @@
+syntax = "proto3";
+
+package pbuf;
+
+service BiobtreeService {
+  rpc Get     (BiobtreeGetRequest)     returns (BiobtreeGetResponse);
+  rpc GetPage (BiobtreeGetPageRequest) returns (BiobtreeGetPageResponse);
+  rpc Filter  (BiobtreeFilterRequest)  returns (BiobtreeFilterResponse);
+  rpc Meta    (BiobtreeMetaRequest)    returns (BiobtreeMetaResponse);
+}
+
+message BiobtreeGetRequest {
+  	repeated string keywords = 1;
+}
+
+message BiobtreeGetPageRequest {
+  	string keyword = 1;
+    int32 dataset=2;
+    int32 page =3;
+    int32 total=4;
+}
+
+message BiobtreeFilterRequest {
+  	string keyword = 1;
+    int32 dataset=2;
+    repeated uint32 filters =3;
+    int32 page =4;
+}
+
+message BiobtreeMetaRequest {
+}
+
+message BiobtreeGetResponse {
+  	repeated Result results =1;
+}
+
+message BiobtreeGetPageResponse {
+  	Result result =1;
+}
+
+message BiobtreeFilterResponse {
+  	Result result =1;
+}
+
+message BiobtreeMetaResponse {
+     map<string, BiobtreeMetaKeyValue> results = 1;
+}
+
+message BiobtreeMetaKeyValue{
+  map<string, string> keyvalues = 1;
+}
+
+// note dataset and domain_id are same thing
+
+message Result {
+ 
+  	//string identifier = 1;
+  	repeated Xref results = 1;
+}
+
+message Xref {
+ 
+  uint32 domain_id = 1;
+  //uint64 uid=2;
+  uint32 count =2;
+  bool is_link=3;
+  repeated XrefEntry entries=4;
+  repeated XrefDomainCount domain_counts=5;
+  // these 2 fields are transient fields not saved to database
+  string identifier=6;
+  string specialKeyword =7; 
+
+}
+
+message XrefEntry {
+
+  uint32 domain_id = 1;
+  string xref_id = 2;
+
+}
+
+message XrefDomainCount {
+
+  uint32 domain_id = 1;
+  uint32 count =2;
+
+}

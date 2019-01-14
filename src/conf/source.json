@@ -1,0 +1,106 @@
+{
+  "uniprot_reviewed": {
+    "id": "1",
+    "name": "Uniprot",
+    "path": "/current_release/knowledgebase/complete/uniprot_sprot.xml.gz",
+    "aliases": "UniProtKB,UniProtKB ID,UniProtKB accession,UniProtKB/Swiss-Prot,UniProtKB/TrEMBL,UniProtKB/Swiss-Prot protein isoforms,TREMBL_VARSPLIC,UniProtKB_accession",
+    "url": "//www.uniprot.org/uniprot/£{id}",
+    "useLocalFile": "no"
+  },
+  "uniprot_unreviewed": {
+    "id": "1",
+    "name": "Uniprot",
+    "path": "/current_release/knowledgebase/complete/uniprot_trembl.xml.gz",
+    "url": "//www.uniprot.org/uniprot/£{id}"
+  },
+  "uniparc": {
+    "id": "2",
+    "name": "Uniparc",
+    "path": "/current_release/uniparc/uniparc_all.xml.gz",
+    "shortened_id": "upi,",
+    "aliases": "UniParc ID",
+    "url": "//www.uniprot.org/uniparc/£{id}",
+    "useLocalFile": "no"
+  },
+  "uniref50": {
+    "id": "3",
+    "name": "Uniref",
+    "path": "/current_release/uniref/uniref50/uniref50.xml.gz",
+    "shortened_id": "uniref50_,5_",
+    "exclusion_xrefs": "uniref100",
+    "aliases": "UniRef50 ID",
+    "url": "//www.uniprot.org/uniref/£{id}",
+    "useLocalFile": "no"
+  },
+  "uniref90": {
+    "id": "4",
+    "name": "Uniref",
+    "path": "/current_release/uniref/uniref90/uniref90.xml.gz",
+    "shortened_id": "uniref90_,9_",
+    "exclusion_xrefs": "uniref50",
+    "aliases": "UniRef90 ID",
+    "url": "//www.uniprot.org/uniref/£{id}",
+    "useLocalFile": "no"
+  },
+  "uniref100": {
+    "id": "5",
+    "name": "Uniref",
+    "path": "/current_release/uniref/uniref100/uniref100.xml.gz",
+    "shortened_id": "uniref100_,1_",
+    "exclusion_xrefs": "uniref90",
+    "aliases": "UniRef100 ID",
+    "url": "//www.uniprot.org/uniref/£{id}",
+    "useLocalFile": "no"
+  },
+  "hgnc": {
+    "id": "144",
+    "name": "HGNC",
+    "path": "/genenames/new/json/hgnc_complete_set.json",
+    "aliases": "HGNC",
+    "url": "https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/£{id}",
+    "useLocalFile": "no"
+  },
+  "chebi": {
+    "id": "56",
+    "name": "",
+    "path": "/chebi/Flat_file_tab_delimited/",
+    "files": "database_accession.tsv",
+    "aliases": "ChEBI",
+    "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=£{id}"
+  },
+  "interpro": {
+    "id": "96",
+    "name": "Interpro",
+    "path": "/interpro/current/interpro.xml.gz",
+    "url": "https://www.ebi.ac.uk/interpro/entry/£{id}",
+    "aliases": "INTERPRO,InterPro"
+  },
+  "taxonomy": {
+    "id": "8",
+    "name": "Taxonomy",
+    "path": "/taxonomy/taxonomy.xml.gz",
+    "url": "//www.uniprot.org/taxonomy/£{id}",
+    "aliases": "NCBITaxonomy,NCBItaxonomy,NCBI_taxonomy_id,common taxon ID,taxonomy,NCBI taxonomy,NCBI Taxonomy"
+  },
+  "literature_mappings": {
+    "id": "227",
+    "name": "literature_mappings",
+    "path": "/pmc/DOI/PMID_PMCID_DOI.csv.gz",
+    "doiPrefix": "https://doi.org/",
+    "url": ""
+  },
+  "hmdb": {
+    "id": "240",
+    "name": "hmdb",
+    "path": "http://www.hmdb.ca/system/downloads/current/hmdb_metabolites.zip",
+    "url": "http://www.hmdb.ca/metabolites/£{id}"
+  },
+  "my_data": {
+    "id": "226",
+    "name": "my_data",
+    "path": "./my_data/my_data.xml.gz",
+    "url": "",
+    "useLocalFile": "yes",
+    "active": "false"
+  }
+}

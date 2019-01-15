@@ -1,3 +1,3 @@
 # biobtree
 
-biobtree first release candidate is availble to download releases section.
+biobtree first release candidate is availble to download at release section.

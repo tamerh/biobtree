@@ -43,6 +43,7 @@ func (g *biobtreegrpc) Start() {
 }
 func (g *biobtreegrpc) Get(ctx context.Context, in *pbuf.BiobtreeGetRequest) (*pbuf.BiobtreeGetResponse, error) {
 
+	fmt.Println("girildi....")
 	res := g.service.search(in.Keywords)
 	grpcRes := pbuf.BiobtreeGetResponse{}
 	grpcRes.Results = res

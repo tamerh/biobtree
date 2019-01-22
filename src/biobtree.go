@@ -19,8 +19,10 @@ import (
 	"github.com/urfave/cli"
 )
 
-const version = "1.0.0-rc1"
-const versionTag = "v1.0.0-rc1"
+const version = "1.0.0-rc2"
+const versionTag = "v1.0.0-rc2"
+
+const latestReleasePath = "https://api.github.com/repos/tamerh/biobtree/releases/latest"
 
 const confURLPath string = "https://raw.githubusercontent.com/tamerh/biobtree/" + versionTag
 
@@ -43,7 +45,7 @@ func main() {
 	app := cli.NewApp()
 	app.Name = "biobtree"
 	app.Version = version
-	app.Usage = "Bioinformatics tool for search, map, and visualise bionformatics identifers and special keywords with their refered identifiers."
+	app.Usage = "A tool to search, map and visualize bioinformatics identifiers and special keywords"
 	app.Copyright = ""
 	app.Authors = []cli.Author{
 		cli.Author{
@@ -495,7 +497,44 @@ func downloadFile(url string, dest string) error {
 	return err
 }
 
+type gitLatestRelease struct {
+	Tag string `json:"tag_name"`
+}
+
+func checkForNewVersion() {
+
+	resp, err := http.Get(latestReleasePath)
+	if err != nil {
+		log.Println("Warn: Versions data could not recieved.")
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		log.Println("Warn: Versions data could not recieved from github api.")
+		return
+	}
+
+	data, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Println("Warn: Versions data could not recieved from github api.")
+		return
+	}
+
+	latestRelease := gitLatestRelease{}
+	if err := json.Unmarshal(data, &latestRelease); err != nil {
+		log.Println("Warn: Versions data could not parsed.")
+		return
+	}
+
+	if latestRelease.Tag != versionTag {
+		log.Println("ATTENTION: There is a new biobtree version available to download.")
+	}
+
+}
 func initConf(customconfdir string) {
+
+	checkForNewVersion()
 
 	confdir := "conf"
 	if len(customconfdir) > 0 {
@@ -522,9 +561,9 @@ func initConf(customconfdir string) {
 		downloadFile(confURLPath+"/src/conf/source.json", sourcedataconfFilePath)
 		downloadFile(confURLPath+"/src/conf/data.json", dataConfFilePath)
 
-		downloadFile(confURLPath+"/LICENSE", "LICENSE")
-		downloadFile(confURLPath+"/LICENSE.lmdbgo", "LICENSE.lmdbgo")
-		downloadFile(confURLPath+"/LICENSE.mdb", "LICENSE.mdb")
+		downloadFile(confURLPath+"/LICENSE.md", "LICENSE.md")
+		downloadFile(confURLPath+"/LICENSE.lmdbgo.md", "LICENSE.lmdbgo.md")
+		downloadFile(confURLPath+"/LICENSE.mdb.md", "LICENSE.mdb.md")
 
 		log.Println("Files downloaded.")
 	}

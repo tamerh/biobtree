@@ -16,18 +16,18 @@ $ biobtree update
 ```
 
 ```sh
-# For only specific dataset d parameters is passed like following, 
+# for only specific dataset d parameters is passed like following, 
 $ biobtree --d hgnc update 
 ```
 
 ```sh
-# From selected dataset if you are intrested only certain target datasets specify t paramater e.g,
-# This command updates hgnc dataset with only related uniprot and pubmed identifers. 
-$ biobtree --d hgnc --t UniProtKB,PubMed  update 
+# if you are intrested only certain target datasets specify t paramater
+# following command updates hgnc dataset with only related uniprot and pubmed identifers
+$ biobtree --d hgnc --t UniProtKB,PubMed update 
 ```
 
 ```sh
-# you can use 2 alternatives Uniprot ftp mirror with f parmater
+# you can use alternative Uniprot ftp mirrors with f parmater. Default is UK.
 $ biobtree --f USA update
 $ biobtree --f Switzerland update 
 ```

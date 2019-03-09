@@ -12,3 +12,6 @@ cpuprof.out
 memprof.out
 tmp/
 out_bkp/
+**/.classpath
+**/.project
+**/.settings

@@ -1,0 +1,46 @@
+strategy:
+  matrix:
+    linux:
+      imageName: "ubuntu-16.04"
+    mac:
+      imageName: "macos-10.13"
+    windows:
+      imageName: "windows-2019"
+pool:
+  vmImage: $(imageName)
+
+variables:
+  biobtree_latest_version: "v1.0.0-rc2"
+  biobtree_latest_linux: "https://github.com/tamerh/biobtree/releases/download/$(biobtree_latest_version)/biobtree_Linux_64bit.tar.gz"
+  biobtree_latest_mac: "https://github.com/tamerh/biobtree/releases/download/$(biobtree_latest_version)/biobtree_MacOS_64bit.tar.gz"
+  biobtree_latest_windows: "https://github.com/tamerh/biobtree/releases/download/$(biobtree_latest_version)/biobtree_Windows_64bit.zip"
+
+steps:
+  - task: Bash@3
+    inputs:
+      targetType: "inline"
+      script: curl -O -J -L $(biobtree_latest_linux) && tar -xzvf biobtree_Linux_64bit.tar.gz && ./biobtree update && ./biobtree generate
+    condition: eq(variables['imageName'],'ubuntu-16.04')
+    displayName: Linux test default datasets
+
+  - task: Bash@3
+    inputs:
+      targetType: "inline"
+      script: curl -O -J -L $(biobtree_latest_mac) && tar -xzvf biobtree_MacOS_64bit.tar.gz && ./biobtree update && ./biobtree generate
+    condition: eq(variables['imageName'],'macos-10.13')
+    displayName: MacOS test default datasets
+
+  - task: Bash@3
+    inputs:
+      targetType: "inline"
+      script: curl -O -J -L $(biobtree_latest_windows) && unzip biobtree_Windows_64bit.zip
+    condition: eq(variables['imageName'],'windows-2019')
+    displayName: Windows download file
+
+  - script: biobtree.exe -d uniprot_reviewed update
+    condition: eq(variables['imageName'],'windows-2019')
+    displayName: Windows test uniprot_reviewed dataset update
+
+  - script: biobtree.exe generate
+    condition: eq(variables['imageName'],'windows-2019')
+    displayName: Windows test default dataset generate

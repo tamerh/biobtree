@@ -5,19 +5,19 @@ Biobtree is a bioinformatics tool to search, map and visualize bioinformatics id
 ## Status
 
 |   | Test |
-|---|:-----:|
-|![Win](https://raw.githubusercontent.com/Microsoft/azure-pipelines-tasks/master/docs/res/win_med.png) **Windows**|[![Build & Test][win-build-badge]][win-build]| 
-|![macOS](https://raw.githubusercontent.com/Microsoft/azure-pipelines-tasks/master/docs/res/apple_med.png) **macOS**|[![Build & Test][macOS-build-badge]][macOS-build]| 
+|---|:-----:| 
 |![Linux](https://raw.githubusercontent.com/Microsoft/azure-pipelines-tasks/master/docs/res/linux_med.png) **Linux**|[![Build & Test][linux-build-badge]][linux-build]|
+|![macOS](https://raw.githubusercontent.com/Microsoft/azure-pipelines-tasks/master/docs/res/apple_med.png) **macOS**|[![Build & Test][macOS-build-badge]][macOS-build]| 
+|![Win](https://raw.githubusercontent.com/Microsoft/azure-pipelines-tasks/master/docs/res/win_med.png) **Windows**|[![Build & Test][win-build-badge]][win-build]|
 
-[win-build-badge]: https://dev.azure.com/biobtree/biobtree/_apis/build/status/tamerh.biobtree?branchName=master&jobName=Job&configuration=linux
-[win-build]: https://dev.azure.com/biobtree/biobtree/_build/latest?definitionId=1&branchName=master
+[linux-build-badge]: https://dev.azure.com/biobtree/biobtree/_apis/build/status/tamerh.biobtree?branchName=master&jobName=Job&configuration=linux
+[linux-build]: https://dev.azure.com/biobtree/biobtree/_build/latest?definitionId=1&branchName=master
 
 [macOS-build-badge]: https://dev.azure.com/biobtree/biobtree/_apis/build/status/tamerh.biobtree?branchName=master&jobName=Job&configuration=mac
 [macOS-build]: https://dev.azure.com/biobtree/biobtree/_build/latest?definitionId=1&branchName=master
 
-[linux-build-badge]: https://dev.azure.com/biobtree/biobtree/_apis/build/status/tamerh.biobtree?branchName=master&jobName=Job&configuration=linux
-[linux-build]: https://dev.azure.com/biobtree/biobtree/_build/latest?definitionId=1&branchName=master
+[win-build-badge]: https://dev.azure.com/biobtree/biobtree/_apis/build/status/tamerh.biobtree?branchName=master&jobName=Job&configuration=linux
+[win-build]: https://dev.azure.com/biobtree/biobtree/_build/latest?definitionId=1&branchName=master
 
 
 #### Usage

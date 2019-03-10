@@ -1,9 +1,12 @@
 # Biobtree
+Biobtree is a bioinformatics tool to search, map and visualize bioinformatics identifiers and special keywords.
 
-Biobtree is a bioinformatics tool to search, map and visualize bioinformatics identifiers and special keywords. Check related [article](https://www.biorxiv.org/content/early/2019/01/16/520841.1) for more detail and cite.
+## Demo
+Biobtree demo with default dataset 
+
+http://134.209.26.55:8888/ui
 
 ## Status
-
 |   | Test |
 |---|:-----:| 
 |![Linux](https://raw.githubusercontent.com/Microsoft/azure-pipelines-tasks/master/docs/res/linux_med.png) **Linux**|[![Build & Test][linux-build-badge]][linux-build]|
@@ -20,12 +23,12 @@ Biobtree is a bioinformatics tool to search, map and visualize bioinformatics id
 [win-build]: https://dev.azure.com/biobtree/biobtree/_build/latest?definitionId=1&branchName=master
 
 
-#### Usage
+## Usage
 
 After installing latest version of Biobtree, from command line 3 main phases needs to be followed. For any problem
 or question feel free to create a issue.
 
-#### 1- Update Phase
+#### Update Phase
 
 ```sh
 # this command updates the default datasets which are 
@@ -50,21 +53,20 @@ $ biobtree --f USA update
 $ biobtree --f Switzerland update 
 ```
 
-#### 2- Generate Phase
+#### Generate Phase
 
 ```sh
 # to generate LMDB database based on updated data following command used
 $ biobtree generate
 ```
 
-#### 3- Web Phase
+#### Web Phase
 
 ```sh
 # to start using web services and web interface following command used
 $ biobtree web
 ```
 
+## Publication
 
-### License
-Biobtree is an open source project with [BSD-3 license](https://opensource.org/licenses/BSD-3-Clause). This means you
-can freely use and redistribute its source code and binary. You should only include 3 license files when using it.
+Biobtree publication is available [here](https://www.biorxiv.org/content/early/2019/01/16/520841.1).

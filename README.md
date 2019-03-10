@@ -2,6 +2,24 @@
 
 Biobtree is a bioinformatics tool to search, map and visualize bioinformatics identifiers and special keywords. Check related [article](https://www.biorxiv.org/content/early/2019/01/16/520841.1) for more detail and cite.
 
+## Status
+
+|   | Test |
+|---|:-----:|
+|![Win](https://raw.githubusercontent.com/Microsoft/azure-pipelines-tasks/master/docs/res/win_med.png) **Windows**|[![Build & Test][win-build-badge]][win-build]| 
+|![macOS](https://raw.githubusercontent.com/Microsoft/azure-pipelines-tasks/master/docs/res/apple_med.png) **macOS**|[![Build & Test][macOS-build-badge]][macOS-build]| 
+|![Linux](https://raw.githubusercontent.com/Microsoft/azure-pipelines-tasks/master/docs/res/linux_med.png) **Linux**|[![Build & Test][linux-build-badge]][linux-build]|
+
+[win-build-badge]: https://dev.azure.com/biobtree/biobtree/_apis/build/status/tamerh.biobtree?branchName=master&jobName=Job&configuration=linux
+[win-build]: https://dev.azure.com/biobtree/biobtree/_build/latest?definitionId=1&branchName=master
+
+[macOS-build-badge]: https://dev.azure.com/biobtree/biobtree/_apis/build/status/tamerh.biobtree?branchName=master&jobName=Job&configuration=mac
+[macOS-build]: https://dev.azure.com/biobtree/biobtree/_build/latest?definitionId=1&branchName=master
+
+[linux-build-badge]: https://dev.azure.com/biobtree/biobtree/_apis/build/status/tamerh.biobtree?branchName=master&jobName=Job&configuration=linux
+[linux-build]: https://dev.azure.com/biobtree/biobtree/_build/latest?definitionId=1&branchName=master
+
+
 #### Usage
 
 After installing latest version of Biobtree, from command line 3 main phases needs to be followed. For any problem

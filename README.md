@@ -4,7 +4,7 @@ Biobtree is a bioinformatics tool to search, map and visualize bioinformatics id
 ## Demo
 Biobtree demo with default dataset 
 
-http://134.209.26.55:8888/ui
+http://138.68.153.225:8888/ui
 
 ## Status
 |   | Test |

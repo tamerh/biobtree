@@ -1,10 +1,13 @@
 # Biobtree
 Biobtree is a bioinformatics tool to search, map and visualize bioinformatics identifiers and special keywords.
 
-## Demo
-Biobtree demo with default dataset 
+## All dataset example 
 
-http://138.68.153.225:8888/ui
+Contains 3.4 billions unique identifiers.
+
+https://www.ebi.ac.uk/~tgur/biobtree/
+
+Note that Bulk Query is disabled.
 
 ## Status
 |   | Test |

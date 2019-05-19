@@ -16,13 +16,13 @@ Note that Bulk Query is disabled.
 |![macOS](https://raw.githubusercontent.com/Microsoft/azure-pipelines-tasks/master/docs/res/apple_med.png) **macOS**|[![Build & Test][macOS-build-badge]][macOS-build]| 
 |![Win](https://raw.githubusercontent.com/Microsoft/azure-pipelines-tasks/master/docs/res/win_med.png) **Windows**|[![Build & Test][win-build-badge]][win-build]|
 
-[linux-build-badge]: https://dev.azure.com/biobtree/biobtree/_apis/build/status/tamerh.biobtree?branchName=master&jobName=Job&configuration=linux
+[linux-build-badge]: https://dev.azure.com/biobtree/biobtree/_apis/build/status/tamerh.biobtree?branchName=master&jobName=Job&configuration=Job%20linux
 [linux-build]: https://dev.azure.com/biobtree/biobtree/_build/latest?definitionId=1&branchName=master
 
-[macOS-build-badge]: https://dev.azure.com/biobtree/biobtree/_apis/build/status/tamerh.biobtree?branchName=master&jobName=Job&configuration=mac
+[macOS-build-badge]: https://dev.azure.com/biobtree/biobtree/_apis/build/status/tamerh.biobtree?branchName=master&jobName=Job&configuration=Job%20mac
 [macOS-build]: https://dev.azure.com/biobtree/biobtree/_build/latest?definitionId=1&branchName=master
 
-[win-build-badge]: https://dev.azure.com/biobtree/biobtree/_apis/build/status/tamerh.biobtree?branchName=master&jobName=Job&configuration=linux
+[win-build-badge]: https://dev.azure.com/biobtree/biobtree/_apis/build/status/tamerh.biobtree?branchName=master&jobName=Job&configuration=Job%20windows
 [win-build]: https://dev.azure.com/biobtree/biobtree/_build/latest?definitionId=1&branchName=master
 
 

@@ -16,21 +16,23 @@
   "uniparc": {
     "id": "2",
     "name": "Uniparc",
-    "path": "/current_release/uniparc/uniparc_all.xml.gz",
+    "path2": "/current_release/uniparc/uniparc_all.xml.gz",
+    "path": "/Users/tgur/Desktop/projects/biobtree/test_data/uniparc.xml.gz",
     "shortened_id": "upi,",
     "aliases": "UniParc ID",
     "url": "//www.uniprot.org/uniparc/£{id}",
-    "useLocalFile": "no"
+    "useLocalFile": "yes"
   },
   "uniref50": {
     "id": "3",
     "name": "Uniref",
-    "path": "/current_release/uniref/uniref50/uniref50.xml.gz",
+    "path2": "/current_release/uniref/uniref50/uniref50.xml.gz",
+    "path": "/Users/tgur/Desktop/projects/biobtree/test_data/uniref.xml.gz",
     "shortened_id": "uniref50_,5_",
     "exclusion_xrefs": "uniref100",
     "aliases": "UniRef50 ID",
     "url": "//www.uniprot.org/uniref/£{id}",
-    "useLocalFile": "no"
+    "useLocalFile": "yes"
   },
   "uniref90": {
     "id": "4",
@@ -51,6 +53,45 @@
     "aliases": "UniRef100 ID",
     "url": "//www.uniprot.org/uniref/£{id}",
     "useLocalFile": "no"
+  },
+  "ensembl": {
+    "aliases": "gene ID,Ensembl",
+    "id": "243",
+    "name": "Ensembl",
+    "url": "https://www.ensembl.org/Multi/Search/Results?q=£{id};site=ensembl_all",
+    "useLocalFile": "yes",
+    "path": "/Users/tgur/Desktop/projects/biobtree/test_data/ensembl.json",
+    "path1": "/Users/tgur/Desktop/projects/mygoparsers/homo_pretty.json"
+  },
+  "ensembl_bacteria": {
+    "aliases": "EnsemblBacteria",
+    "id": "150",
+    "name": "EnsemblBacteria",
+    "url": "http://www.ensemblgenomes.org/id/£{id}"
+  },
+  "ensembl_fungi": {
+    "aliases": "EnsemblFungi",
+    "id": "134",
+    "name": "EnsemblFungi",
+    "url": "http://www.ensemblgenomes.org/id/£{id}"
+  },
+  "ensembl_metazoa": {
+    "aliases": "EnsemblMetazoa",
+    "id": "170",
+    "name": "EnsemblMetazoa",
+    "url": "http://www.ensemblgenomes.org/id/£{id}"
+  },
+  "ensembl_plants": {
+    "aliases": "EnsemblPlants",
+    "id": "40",
+    "name": "EnsemblPlants",
+    "url": "http://www.ensemblgenomes.org/id/£{id}"
+  },
+  "ensembl_protists": {
+    "aliases": "EnsemblProtists",
+    "id": "58",
+    "name": "EnsemblProtists",
+    "url": "http://ensemblgenomes.org/id/£{id}"
   },
   "hgnc": {
     "id": "144",
@@ -73,7 +114,8 @@
     "name": "Interpro",
     "path": "/interpro/current/interpro.xml.gz",
     "url": "https://www.ebi.ac.uk/interpro/entry/£{id}",
-    "aliases": "INTERPRO,InterPro"
+    "aliases": "INTERPRO,InterPro",
+    "useLocalFile": "no"
   },
   "taxonomy": {
     "id": "8",
@@ -92,8 +134,10 @@
   "hmdb": {
     "id": "240",
     "name": "hmdb",
-    "path": "http://www.hmdb.ca/system/downloads/current/hmdb_metabolites.zip",
-    "url": "http://www.hmdb.ca/metabolites/£{id}"
+    "path2": "http://www.hmdb.ca/system/downloads/current/hmdb_metabolites.zip",
+    "path": "http://localhost:8000/hmdb.zip",
+    "url": "http://www.hmdb.ca/metabolites/£{id}",
+    "useLocalFile": "yes"
   },
   "my_data": {
     "id": "226",

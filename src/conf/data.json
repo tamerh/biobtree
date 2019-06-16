@@ -62,6 +62,7 @@
     "url": "http://www.cathdb.info/version/latest/superfamily/£{id}"
   },
   "CATHGENE3D": {
+    "aliases": "Gene3D",
     "id": "237",
     "name": "CATH",
     "url": "http://www.cathdb.info/version/latest/superfamily/£{id}"
@@ -254,37 +255,6 @@
     "name": "EcoGene",
     "url": "http://www.ecogene.org/gene/£{id}"
   },
-  "Ensembl": {
-    "aliases": "gene ID",
-    "id": "174",
-    "name": "Ensembl",
-    "url": "https://www.ensembl.org/Multi/Search/Results?q=£{id};site=ensembl_all"
-  },
-  "EnsemblBacteria": {
-    "id": "150",
-    "name": "EnsemblBacteria",
-    "url": "http://www.ensemblgenomes.org/id/£{id}"
-  },
-  "EnsemblFungi": {
-    "id": "134",
-    "name": "EnsemblFungi",
-    "url": "http://www.ensemblgenomes.org/id/£{id}"
-  },
-  "EnsemblMetazoa": {
-    "id": "170",
-    "name": "EnsemblMetazoa",
-    "url": "http://www.ensemblgenomes.org/id/£{id}"
-  },
-  "EnsemblPlants": {
-    "id": "40",
-    "name": "EnsemblPlants",
-    "url": "http://www.ensemblgenomes.org/id/£{id}"
-  },
-  "EnsemblProtists": {
-    "id": "58",
-    "name": "EnsemblProtists",
-    "url": "http://ensemblgenomes.org/id/£{id}"
-  },
   "EuPathDB": {
     "id": "114",
     "name": "EuPathDB",
@@ -316,11 +286,6 @@
     "id": "155",
     "name": "GO",
     "url": "https://www.ebi.ac.uk/QuickGO/term/£{id}"
-  },
-  "Gene3D": {
-    "id": "102",
-    "name": "Gene3D",
-    "url": "http://www.cathdb.info/superfamily/£{id}"
   },
   "GeneCards": {
     "id": "146",
@@ -662,7 +627,7 @@
   "PROSITE": {
     "id": "17",
     "name": "PROSITE",
-    "url": "https://prosite.expasy.org/doc/£{id}"
+    "url": "https://prosite.expasy.org/£{id}"
   },
   "PROSITE-ProRule": {
     "id": "13",
@@ -1077,6 +1042,195 @@
     "id": "242",
     "name": "HMDB dis.",
     "url": "http://www.hmdb.ca/metabolites/£{id}"
+  },
+  "RNAcentral": {
+    "id": "244",
+    "name": "RNAcentral",
+    "url": "https://rnacentral.org/search?q=£{id}"
+  },
+  "EnsemblHomolog": {
+    "id": "245",
+    "name": "EnsemblHomolog",
+    "url": "https://www.ensembl.org/Multi/Search/Results?q=£{id};site=ensembl_all"
+  },
+  "EnsemblTranscript": {
+    "id": "246",
+    "name": "EnsemblTranscript",
+    "url": "https://www.ensembl.org/Multi/Search/Results?q=£{id};site=ensembl_all"
+  },
+  "EnsemblExon": {
+    "id": "247",
+    "name": "EnsemblExon",
+    "url": "https://www.ensembl.org/Multi/Search/Results?q=£{id};site=ensembl_all"
+  },
+  "affy_hc_g110": {
+    "id": "249",
+    "name": "affy_hc_g110",
+    "url": ""
+  },
+  "affy_hg_focus": {
+    "id": "250",
+    "name": "affy_hg_focus",
+    "url": ""
+  },
+  "affy_hg_u133_plus_2": {
+    "id": "251",
+    "name": "affy_hg_u133_plus_2",
+    "url": ""
+  },
+  "affy_hg_u133a_2": {
+    "id": "252",
+    "name": "affy_hg_u133a_2",
+    "url": ""
+  },
+  "affy_hg_u133a": {
+    "id": "253",
+    "name": "affy_hg_u133a",
+    "url": ""
+  },
+  "affy_hg_u133b": {
+    "id": "254",
+    "name": "affy_hg_u133b",
+    "url": ""
+  },
+  "affy_hg_u95a": {
+    "id": "255",
+    "name": "affy_hg_u95a",
+    "url": ""
+  },
+  "affy_hg_u95av2": {
+    "id": "256",
+    "name": "affy_hg_u95av2",
+    "url": ""
+  },
+  "affy_hg_u95b": {
+    "id": "257",
+    "name": "affy_hg_u95b",
+    "url": ""
+  },
+  "affy_hg_u95c": {
+    "id": "258",
+    "name": "affy_hg_u95c",
+    "url": ""
+  },
+  "affy_hg_u95d": {
+    "id": "259",
+    "name": "affy_hg_u95d",
+    "url": ""
+  },
+  "affy_hg_u95e": {
+    "id": "260",
+    "name": "affy_hg_u95e",
+    "url": ""
+  },
+  "affy_hta_2_0": {
+    "id": "261",
+    "name": "affy_hta_2_0",
+    "url": ""
+  },
+  "affy_huex_1_0_st_v2": {
+    "id": "262",
+    "name": "affy_huex_1_0_st_v2",
+    "url": ""
+  },
+  "affy_hugene_1_0_st_v1": {
+    "id": "263",
+    "name": "affy_hugene_1_0_st_v1",
+    "url": ""
+  },
+  "affy_hugene_2_0_st_v1": {
+    "id": "264",
+    "name": "affy_hugene_2_0_st_v1",
+    "url": ""
+  },
+  "affy_hugenefl": {
+    "id": "265",
+    "name": "affy_hugenefl",
+    "url": ""
+  },
+  "affy_primeview": {
+    "id": "266",
+    "name": "affy_primeview",
+    "url": ""
+  },
+  "affy_u133_x3p": {
+    "id": "267",
+    "name": "affy_u133_x3p",
+    "url": ""
+  },
+  "agilent_cgh_44b": {
+    "id": "268",
+    "name": "agilent_cgh_44b",
+    "url": ""
+  },
+  "agilent_gpl6848": {
+    "id": "269",
+    "name": "agilent_gpl6848",
+    "url": ""
+  },
+  "agilent_sureprint_g3_ge_8x60k": {
+    "id": "270",
+    "name": "agilent_sureprint_g3_ge_8x60k",
+    "url": ""
+  },
+  "agilent_sureprint_g3_ge_8x60k_v2": {
+    "id": "271",
+    "name": "agilent_sureprint_g3_ge_8x60k_v2",
+    "url": ""
+  },
+  "agilent_wholegenome_4x44k_v1": {
+    "id": "272",
+    "name": "agilent_wholegenome_4x44k_v1",
+    "url": ""
+  },
+  "agilent_wholegenome_4x44k_v2": {
+    "id": "273",
+    "name": "agilent_wholegenome_4x44k_v2",
+    "url": ""
+  },
+  "agilent_wholegenome": {
+    "id": "274",
+    "name": "agilent_wholegenome",
+    "url": ""
+  },
+  "codelink_codelink": {
+    "id": "275",
+    "name": "codelink_codelink",
+    "url": ""
+  },
+  "illumina_humanht_12_v3": {
+    "id": "276",
+    "name": "illumina_humanht_12_v3",
+    "url": ""
+  },
+  "illumina_humanht_12_v4": {
+    "id": "277",
+    "name": "illumina_humanht_12_v4",
+    "url": ""
+  },
+  "illumina_humanref_8_v3": {
+    "id": "278",
+    "name": "illumina_humanref_8_v3",
+    "url": ""
+  },
+  "illumina_humanwg_6_v1": {
+    "id": "279",
+    "name": "illumina_humanwg_6_v1",
+    "url": ""
+  },
+  "illumina_humanwg_6_v2": {
+    "id": "280",
+    "name": "illumina_humanwg_6_v2",
+    "url": ""
+  },
+  "illumina_humanwg_6_v3": {
+    "id": "281",
+    "name": "illumina_humanwg_6_v3",
+    "url": ""
+  },
+  "phalanx_onearray": {
+    "id": "282",
+    "name": "phalanx_onearray",
+    "url": ""
   }
-
 }

@@ -34,11 +34,12 @@ var dataconf map[string]map[string]string
 var appconf map[string]string
 
 var fileBufSize = 65536
+var channelOverflowCap = 100000
 
 const newlinebyte = byte('\n')
 
 var chunkLen int
-var chunkIdx string
+var chunkIdx = "df"
 
 func main() {
 
@@ -62,9 +63,9 @@ func main() {
 		},
 		cli.StringFlag{
 			Name: "datasets,d",
-			//Value: "hgnc",
-			Value: "uniprot_reviewed,taxonomy,hgnc,chebi,interpro,my_data,literature_mappings,hmdb",
-			Usage: "change default source datasets. list of datasets are uniprot_reviewed,taxonomy,hgnc,chebi,interpro,uniprot_unreviewed,uniparc,uniref50,uniref90,my_data,literature_mappings,hmdb",
+			Value: "ensembl_fungi",
+			//Value: "uniprot_reviewed,taxonomy,hgnc,chebi,interpro,my_data,literature_mappings,hmdb",
+			Usage: "change default source datasets. list of datasets are uniprot_reviewed,ensembl,taxonomy,hgnc,chebi,interpro,uniprot_unreviewed,uniparc,uniref50,uniref90,my_data,literature_mappings,hmdb",
 		},
 		cli.StringFlag{
 			Name:  "target_datasets,t",
@@ -87,6 +88,12 @@ func main() {
 			Name:   "maxcpu",
 			Hidden: true,
 			Usage:  "sets the maximum number of CPUs that can be executing simultaneously. By default biobtree uses all the CPUs when applicable.",
+		},
+		cli.StringFlag{
+			Name: "species,s",
+			//Value: "literature_mappings",
+			Value: "acremonium_chrysogenum_atcc_11550_gca_000769265",
+			Usage: "Species names for ensembl dataset",
 		},
 	}
 
@@ -117,12 +124,28 @@ func main() {
 					ts = strings.Split(t, ",")
 				}
 
+				s := c.GlobalString("species")
+				var sp []string
+				if len(s) > 0 {
+					sp = strings.Split(s, ",")
+				}
+
+				for _, dd := range d {
+
+					if dd == "ensembl" && len(sp) == 0 {
+						log.Fatal("ERROR:When processing ensembl species must be specified")
+						return nil
+					}
+
+				}
+
 				chunkIdxx := c.GlobalString("idx")
 				if len(chunkIdxx) > 0 {
 					chunkIdx = chunkIdxx
 				} else {
 					chunkIdx = strconv.Itoa(time.Now().Nanosecond())
 				}
+				//fmt.Println("chunkindex", chunkIdx)
 
 				clean := c.GlobalBool("clean")
 				if clean {
@@ -134,7 +157,7 @@ func main() {
 					runtime.GOMAXPROCS(cpu)
 				}
 
-				updateData(d, ts)
+				updateData(d, ts, sp)
 
 				elapsed := time.Since(start)
 				log.Printf("Finished took %s", elapsed)
@@ -224,6 +247,7 @@ func main() {
 				} else {
 					chunkIdx = strconv.Itoa(time.Now().Nanosecond())
 				}
+				//fmt.Println("chunkindex", chunkIdx)
 
 				///updateData(d, []string{})
 
@@ -270,10 +294,9 @@ func mergeData() (uint64, uint64, uint64) {
 	return keywrite, uidindx, links
 
 }
-func updateData(datasets []string, targetDatasets []string) (uint64, uint64) {
+func updateData(datasets []string, targetDatasets, ensemblSpecies []string) (uint64, uint64) {
 
 	log.Println("Update RUNNING...datasets->", datasets)
-	log.Println("Note: Some datasets does not support progress bar. For any issue or error please contact from github page.")
 
 	targetDatasetMap := map[string]bool{}
 
@@ -294,38 +317,10 @@ func updateData(datasets []string, targetDatasets []string) (uint64, uint64) {
 
 		}
 	}
-	hasTargetDatasets := len(targetDatasetMap) > 0
 
 	var wg sync.WaitGroup
-
-	loc := appconf["uniprot_ftp"]
-	uniprotftpAddr := appconf["uniprot_ftp_"+loc]
-	uniprotftpPath := appconf["uniprot_ftp_"+loc+"_path"]
-
-	ebiftp := appconf["ebi_ftp"]
-	ebiftppath := appconf["ebi_ftp_path"]
-
-	channelOverflowCap := 100000
 	var err error
-	if _, ok := appconf["channelOverflowCap"]; ok {
-		channelOverflowCap, err = strconv.Atoi(appconf["channelOverflowCap"])
-		if err != nil {
-			panic("Invalid kvgenCount definition")
-		}
-	}
-
-	var d = &dataUpdate{
-		invalidXrefs:       NewHashMap(300),
-		sampleXrefs:        NewHashMap(400),
-		uniprotFtp:         uniprotftpAddr,
-		uniprotFtpPath:     uniprotftpPath,
-		ebiFtp:             ebiftp,
-		ebiFtpPath:         ebiftppath,
-		targetDatasets:     targetDatasetMap,
-		hasTargets:         hasTargetDatasets,
-		channelOverflowCap: channelOverflowCap,
-		stats:              make(map[string]interface{}),
-	}
+	var d = newDataUpdate(targetDatasetMap, ensemblSpecies)
 
 	var e = make(chan string, channelOverflowCap)
 	//var mergeGateCh = make(chan mergeInfo)
@@ -358,6 +353,7 @@ func updateData(datasets []string, targetDatasets []string) (uint64, uint64) {
 		kv := newkvgen(strconv.Itoa(i))
 		kv.dataChan = &e
 		kv.mergeGateCh = &mergeGateCh
+		kv.wg = &wg
 		go kv.gen()
 		kvgens = append(kvgens, &kv)
 	}
@@ -370,14 +366,15 @@ func updateData(datasets []string, targetDatasets []string) (uint64, uint64) {
 	wgBmerge.Add(1)
 	go binarymerge.start()
 
-	// first read uniprot metadata
-	d.setUniprotMeta()
-
 	for _, data := range datasets {
 		switch data {
 		case "uniprot_reviewed":
 			d.wg.Add(1)
 			go d.updateUniprot("uniprot_reviewed")
+			break
+		case "ensembl","ensembl_bacteria","ensembl_fungi","ensembl_metazoa","ensembl_plants","ensembl_protists":
+			d.wg.Add(1)
+			go d.updateEnsembl(data)
 			break
 		case "taxonomy":
 			d.wg.Add(1)
@@ -434,21 +431,24 @@ func updateData(datasets []string, targetDatasets []string) (uint64, uint64) {
 
 	d.wg.Wait()
 
-	log.Println("Data update process completed. Making last arrangments...")
+	for i := 0; i < len(kvgens); i++ {
+		kvgens[i].wg.Add(1)
+	}
+	close(e)
+	wg.Wait()
 
 	var totalkv uint64
 
 	for i := 0; i < len(kvgens); i++ {
-		var t uint64
-		if len(kvgens)-1 == i {
-			t = kvgens[i].close(true)
-		} else {
-			t = kvgens[i].close(false)
-		}
-		//TODO this is workaround for now prevent race condition
-		time.Sleep(4 * time.Second)
+		totalkv = totalkv + kvgens[i].totalkv
+	}
 
-		totalkv = totalkv + t
+	log.Println("Data update process completed. Making last merges...")
+	fmt.Println("sending merge close signal")
+	// send finish signal to bmerge
+	mergeGateCh <- mergeInfo{
+		close: true,
+		level: 1,
 	}
 
 	wgBmerge.Wait()
@@ -692,6 +692,13 @@ func initConf(customconfdir string) {
 		fileBufSize, err = strconv.Atoi(appconf["fileBufferSize"])
 		if err != nil {
 			panic("Invalid kvgenCount definition")
+		}
+	}
+
+	if _, ok := appconf["channelOverflowCap"]; ok {
+		channelOverflowCap, err = strconv.Atoi(appconf["channelOverflowCap"])
+		if err != nil {
+			panic("Invalid channelOverflowCap definition")
 		}
 	}
 

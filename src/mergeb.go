@@ -19,7 +19,6 @@ type mergeb struct {
 type mergeInfo struct {
 	fname string
 	level int
-	last  bool
 	close bool
 }
 
@@ -49,6 +48,7 @@ func (mb *mergeb) start() {
 	for minfo := range *mb.mergeGateCh {
 
 		if _, ok := bms[minfo.level]; !ok && !mb.stop {
+
 			ch := make(chan mergeInfo, 10000)
 			bm := &binarymerge{
 				level:       minfo.level,
@@ -66,18 +66,16 @@ func (mb *mergeb) start() {
 			//fmt.Println("opening bmerge channel level", minfo.level)
 		}
 
-		if minfo.last {
-
-			*bms[minfo.level].ch <- mergeInfo{
-				close: true,
-			}
+		if minfo.close {
+			fmt.Println("close merge gate")
+			*bms[1].ch <- minfo
 			mb.stop = true
+			continue
+		}
 
-		} else {
+		if !mb.stop {
 
-			if !mb.stop {
-				*bms[minfo.level].ch <- minfo
-			}
+			*bms[minfo.level].ch <- minfo
 
 		}
 
@@ -106,10 +104,15 @@ func (bm *binarymerge) start() {
 
 			continue
 		}
+
 		bm.files[index] = minfo.fname
 		index++
 
 		if index == 2 {
+
+			//mergedFile := appconf["indexDir"] + "/" + strconv.Itoa(bm.level) + "_" + strconv.Itoa(bm.outFileIndex) + "." + chunkIdx + ".index.gz"
+			//fmt.Println("Merging 1->", bm.files[0], " 2->", bm.files[1], " Merged file-->", mergedFile)
+
 			//wg.Add(1)
 			bm.merge(&wg)
 			//wg.Wait()
@@ -128,10 +131,13 @@ func (bm *binarymerge) readLine(ind int) {
 		// at this stage we can also delete this file
 		bm.gzs[ind].Close()
 		bm.ffiles[ind].Close()
+
 		err := os.Remove(filepath.FromSlash(bm.files[ind]))
 		if err != nil {
+			fmt.Println("Cant remove the file", filepath.FromSlash(bm.files[ind]))
 			panic(err)
 		}
+
 		return
 	}
 
@@ -151,6 +157,7 @@ func (bm *binarymerge) merge(wg *sync.WaitGroup) {
 		return
 	}
 	**/
+
 	mergedFile := appconf["indexDir"] + "/" + strconv.Itoa(bm.level) + "_" + strconv.Itoa(bm.outFileIndex) + "." + chunkIdx + ".index.gz"
 	bm.outFileIndex++
 
@@ -186,156 +193,69 @@ func (bm *binarymerge) merge(wg *sync.WaitGroup) {
 	bm.readLine(0)
 	bm.readLine(1)
 
-	var prevLine string
+	sortedCh := make(chan string, 10000)
 
-	// a lot duplicate code which needs refactor but working.
-	for {
-	start:
+	go func() {
+		for {
 
-		if bm.complete[0] && bm.complete[1] {
-			gw.Close()
-			break
+			if bm.lines[0] < bm.lines[1] {
+
+				sortedCh <- bm.lines[0]
+				bm.readLine(0)
+
+				if bm.eof[0] {
+					sortedCh <- bm.lines[1]
+					break
+				}
+
+			} else if bm.lines[0] > bm.lines[1] {
+
+				sortedCh <- bm.lines[1]
+				bm.readLine(1)
+
+				if bm.eof[1] {
+					sortedCh <- bm.lines[0]
+					break
+				}
+
+			} else {
+
+				sortedCh <- bm.lines[1]
+				bm.readLine(0)
+				bm.readLine(1)
+
+				if bm.eof[0] || bm.eof[1] {
+					break
+				}
+
+			}
 		}
 
-		if bm.lines[0] < bm.lines[1] {
-
-			gw.Write([]byte(bm.lines[0]))
-			if bm.eof[0] {
-				bm.complete[0] = true
-				gw.Write([]byte(bm.lines[1]))
-				for {
-					bm.readLine(1)
-					if bm.eof[1] {
-						bm.complete[1] = true
-						prevLine = ""
-						goto start
-					}
-					if len(prevLine) == 0 || prevLine != bm.lines[1] {
-						gw.Write([]byte(bm.lines[1]))
-						prevLine = bm.lines[1]
-					}
+		if !bm.eof[0] {
+			for {
+				bm.readLine(0)
+				if bm.eof[0] {
+					break
 				}
+				sortedCh <- bm.lines[0]
 			}
-			bm.readLine(0)
-
-		} else if bm.lines[1] < bm.lines[0] {
-
-			gw.Write([]byte(bm.lines[1]))
-			if bm.eof[1] {
-				bm.complete[1] = true
-				gw.Write([]byte(bm.lines[0]))
-				for {
-					bm.readLine(0)
-					if bm.eof[0] {
-						bm.complete[0] = true
-						prevLine = ""
-						goto start
-					}
-
-					if len(prevLine) == 0 || prevLine != bm.lines[0] {
-						gw.Write([]byte(bm.lines[0]))
-						prevLine = bm.lines[0]
-					}
-
-				}
-			}
-			bm.readLine(1)
-
-		} else {
-
-			gw.Write([]byte(bm.lines[0]))
-
-			if bm.eof[0] && bm.eof[1] {
-				bm.complete[0] = true
-				bm.complete[1] = true
-				gw.Close()
-				break
-			}
-
-			if bm.eof[0] {
-				bm.complete[0] = true
-				for {
-					bm.readLine(1)
-					if bm.eof[1] {
-						bm.complete[1] = true
-						prevLine = ""
-						goto start
-					}
-					if len(prevLine) == 0 || prevLine != bm.lines[1] {
-						gw.Write([]byte(bm.lines[1]))
-						prevLine = bm.lines[1]
-					}
-
-				}
-			}
-
-			if bm.eof[1] {
-				bm.complete[1] = true
-				for {
-					bm.readLine(0)
-					if bm.eof[0] {
-						bm.complete[0] = true
-						prevLine = ""
-						goto start
-					}
-
-					if len(prevLine) == 0 || prevLine != bm.lines[0] {
-						gw.Write([]byte(bm.lines[0]))
-						prevLine = bm.lines[0]
-					}
-
-				}
-			}
-
-			bm.readLine(0)
-			bm.readLine(1)
-
-			if bm.eof[0] && bm.eof[1] {
-				bm.complete[0] = true
-				bm.complete[1] = true
-				gw.Close()
-				break
-			}
-
-			if bm.eof[0] {
-				bm.complete[0] = true
-				gw.Write([]byte(bm.lines[1]))
-				for {
-					bm.readLine(1)
-					if bm.eof[1] {
-						bm.complete[1] = true
-						prevLine = ""
-						goto start
-					}
-					if len(prevLine) == 0 || prevLine != bm.lines[1] {
-						gw.Write([]byte(bm.lines[1]))
-						prevLine = bm.lines[1]
-					}
-
-				}
-			}
-
-			if bm.eof[1] {
-				bm.complete[1] = true
-				gw.Write([]byte(bm.lines[0]))
-				for {
-					bm.readLine(0)
-					if bm.eof[0] {
-						bm.complete[0] = true
-						prevLine = ""
-						goto start
-					}
-
-					if len(prevLine) == 0 || prevLine != bm.lines[0] {
-						gw.Write([]byte(bm.lines[0]))
-						prevLine = bm.lines[0]
-					}
-
-				}
-			}
-
 		}
 
+		if !bm.eof[1] {
+			for {
+				bm.readLine(1)
+				if bm.eof[1] {
+					break
+				}
+				sortedCh <- bm.lines[1]
+			}
+		}
+		close(sortedCh)
+	}()
+
+	//var prevLine string
+	for line := range sortedCh {
+		gw.Write([]byte(line))
 	}
 
 	gw.Close()

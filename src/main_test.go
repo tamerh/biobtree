@@ -8,9 +8,33 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strconv"
 	"testing"
 	"time"
 )
+
+type teststruct struct {
+	amap2 map[string][]string
+}
+
+func TestScratch(t *testing.T) {
+
+	test := teststruct{}
+
+	amap := map[string]teststruct{}
+	amap["1"] = teststruct{}
+
+	for _, v := range amap {
+		fmt.Println(v)
+		for _, l := range v.amap2["23"] {
+			fmt.Println(l)
+		}
+	}
+
+	for _, v := range test.amap2 {
+		fmt.Println(v)
+	}
+}
 
 func clearDirs() {
 	os.RemoveAll(appconf["outDir"])
@@ -99,8 +123,8 @@ func TestHgnc(t *testing.T) {
 		panic("parsed entry is not 6")
 	}
 
-	if kvs != 26 {
-		panic("key value count is not 26")
+	if kvs < 25 || kvs > 27 { //this is because randomly in each file contains duplicate
+		panic("key value count is not between 25 and  27 instead it is -->" + strconv.FormatUint(kvs, 10))
 	}
 
 	j, k, _ := mergeData()
@@ -369,5 +393,140 @@ func TestSize(t *testing.T) {
 
 	i := 30 << 30
 	fmt.Println(i)
+
+}
+
+func TestEnsembl(t *testing.T) {
+
+	// entry count 6 kv count 26
+	const json = ` {
+		"is_reference": "false",
+		"genes": [ { 
+		"id": "ENSG00000111669",
+		"name": "TPI1",
+		"Interpro": [
+      "IPR020861",
+      "IPR013785",
+      "IPR022896",
+      "IPR000652",
+      "IPR035990"
+    ],
+    "HPA": [
+      "HPA053568",
+      "50924",
+      "53568",
+      "HPA050924"
+    ],
+    "ArrayExpress": [
+      "ENSG00000111669"
+    ],
+    "Gene3D": [
+      "3.20.20.70"
+    ],
+    "MIM_GENE": [
+      "190450"
+    ],  
+      "homologues": [
+        {
+          "gene_tree_id": "ENSGT00390000013354",
+          "stable_id": "ENSGGOG00000002623",
+          "genome_display": "Gorilla",
+          "orthology_type": "ortholog_one2one",
+          "genome": "gorilla_gorilla"
+        },
+        {
+          "gene_tree_id": "ENSGT00390000013354",
+          "stable_id": "ENSPTRG00000004595",
+          "genome_display": "Chimpanzee",
+          "orthology_type": "ortholog_one2one",
+          "genome": "pan_troglodytes"
+				}],
+				"transcripts": [
+        {
+          "RNAcentral": [
+            "URS0000D3B3F5"
+          ],
+          "name": "TPI1-205",
+          "HGNC_trans_name": [
+            "TPI1-205"
+          ],
+          "end": "6870137",
+          "biotype": "retained_intron",
+          "seq_region_name": "12",
+          "UCSC": [
+            "ENST00000482209.1"
+          ],
+          "strand": "1",
+          "exons": [
+            {
+              "seq_region_name": "12",
+              "strand": "1",
+              "id": "ENSE00001883408",
+              "end": "6869773",
+              "start": "6869548"
+            },
+            {
+              "seq_region_name": "12",
+              "strand": "1",
+              "id": "ENSE00001887401",
+              "end": "6870137",
+              "start": "6870036"
+            }
+          ],
+          "id": "ENST00000482209",
+          "xrefs": [
+            {
+              "display_id": "ENST00000482209.1",
+              "primary_id": "ENST00000482209.1",
+              "db_display": "UCSC Stable ID",
+              "info_type": "COORDINATE_OVERLAP",
+              "info_text": "",
+              "dbname": "UCSC"
+            }
+          ],
+          "start": "6869548"
+				}]
+					} 
+		 `
+
+	initConf("")
+
+	os.RemoveAll(appconf["outDir"])
+	_ = os.Mkdir(filepath.FromSlash(appconf["outDir"]), 0700)
+	_ = os.Mkdir(filepath.FromSlash(appconf["indexDir"]), 0700)
+	_ = os.Mkdir(filepath.FromSlash(appconf["dbDir"]), 0700)
+
+	_ = os.Mkdir(filepath.FromSlash("../tmp"), 0700)
+
+	ioutil.WriteFile(filepath.FromSlash("../tmp/ensembl_test.json"), []byte(json), 0700)
+
+	dataconf["ensembl"]["path"] = "../tmp/ensembl_test.json"
+
+	dataconf["ensembl"]["useLocalFile"] = "yes"
+
+	appconf["kvgenCount"] = "4"
+	appconf["kvgenChunkSize"] = "13"
+
+	parsed, kvs := updateData([]string{"ensembl"}, []string{})
+
+	if parsed != 6 {
+		panic("parsed entry is not 6")
+	}
+
+	if kvs != 26 {
+		panic("key value count is not 26")
+	}
+
+	j, k, _ := mergeData()
+
+	if j != 18 {
+		panic("merge write key value is invalid")
+	}
+
+	if k != 18 {
+		panic("merge uid value is invalid")
+	}
+
+	os.RemoveAll(filepath.FromSlash("../tmp"))
 
 }

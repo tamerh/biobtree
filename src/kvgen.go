@@ -26,6 +26,8 @@ type kvgen struct {
 	chunkMergedFileCounter int
 	chunkSizeCounter       uint64
 	totalkv                uint64
+	wg                     *sync.WaitGroup
+	//sync.Mutex
 }
 
 func newkvgen(id string) kvgen {
@@ -42,10 +44,12 @@ func newkvgen(id string) kvgen {
 
 func (k *kvgen) gen() {
 
+	defer k.wg.Done()
+
 	for kv := range *k.dataChan {
 
 		if k.chunkIndex == chunkLen {
-			k.flushChunk(nil, false)
+			k.flushChunk()
 		}
 
 		k.chunk[k.chunkIndex] = kv
@@ -54,58 +58,50 @@ func (k *kvgen) gen() {
 
 	}
 
-}
-
-func (k *kvgen) flushChunk(wg *sync.WaitGroup, last bool) {
-
-	if wg != nil {
-		defer wg.Done()
-	}
-
-	chunkFileName := appconf["indexDir"] + "/" + k.wid + "_" + strconv.Itoa(k.chunkFileCounter) + "." + chunkIdx + ".gz"
-
-	//f, err := os.Create(filepath.FromSlash(chunkFileName))
-	f, err := os.OpenFile(filepath.FromSlash(chunkFileName), os.O_RDWR|os.O_CREATE, 0700)
-	if err != nil {
-		panic(err)
-	}
-
-	gw, err := gzip.NewWriterLevel(f, gzip.BestSpeed)
-	//gw := bufio.NewWriterSize(f, fileBufSize)
-
-	sort.Strings(k.chunk[:k.chunkIndex])
-
-	for i := 0; i < k.chunkIndex; i++ {
-		if i == 0 || k.chunk[i] != k.chunk[i-1] {
-			gw.Write([]byte(k.chunk[i]))
-			gw.Write([]byte(newline))
-		} else {
-			k.totalkv--
-		}
-	}
-
-	gw.Close()
-	f.Close()
-
-	k.chunkFileCounter++
-	k.chunkIndex = 0
-
-	*k.mergeGateCh <- mergeInfo{
-		fname: chunkFileName,
-		level: 1,
-		last:  last,
-	}
+	k.flushChunk()
 
 }
 
-func (k *kvgen) close(last bool) uint64 {
+func (k *kvgen) flushChunk() {
+
+	//k.Lock()
+	//defer k.Unlock()
 
 	if k.chunkIndex > 0 {
-		k.flushChunk(nil, last)
-	} else {
-		// todo rare case if last true
-	}
+		fileCounter := strconv.Itoa(k.chunkFileCounter)
 
-	return k.totalkv
+		chunkFileName := appconf["indexDir"] + "/" + k.wid + "_" + fileCounter + "." + chunkIdx + ".gz"
+
+		//f, err := os.Create(filepath.FromSlash(chunkFileName))
+		f, err := os.OpenFile(filepath.FromSlash(chunkFileName), os.O_RDWR|os.O_CREATE, 0700)
+		if err != nil {
+			panic(err)
+		}
+
+		gw, err := gzip.NewWriterLevel(f, gzip.BestSpeed)
+		//gw := bufio.NewWriterSize(f, fileBufSize)
+
+		sort.Strings(k.chunk[:k.chunkIndex])
+
+		for i := 0; i < k.chunkIndex; i++ {
+			if i == 0 || k.chunk[i] != k.chunk[i-1] {
+				gw.Write([]byte(k.chunk[i]))
+				gw.Write([]byte(newline))
+			} else {
+				k.totalkv--
+			}
+		}
+
+		gw.Close()
+		f.Close()
+
+		k.chunkFileCounter++
+		k.chunkIndex = 0
+
+		*k.mergeGateCh <- mergeInfo{
+			fname: chunkFileName,
+			level: 1,
+		}
+	}
 
 }

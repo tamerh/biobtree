@@ -1,11 +1,11 @@
-package main
+package util
 
 import (
 	"math"
 	"strconv"
 )
 
-type pagekey struct {
+type Pagekey struct {
 	seqCache     map[string]string
 	keyOffsets   map[int]int
 	maxCacheSize int
@@ -15,7 +15,7 @@ type pagekey struct {
 	base26Power5 int
 }
 
-func (p *pagekey) init() {
+func (p *Pagekey) Init() {
 
 	p.seqCache = map[string]string{}
 	p.keyOffsets = map[int]int{}
@@ -33,7 +33,7 @@ func (p *pagekey) init() {
 
 }
 
-func (p *pagekey) key(n int, keyLen int) string {
+func (p *Pagekey) Key(n int, keyLen int) string {
 
 	n = n + p.keyOffsets[keyLen]
 
@@ -59,7 +59,7 @@ func (p *pagekey) key(n int, keyLen int) string {
 	return string(buf)
 }
 
-func (p *pagekey) keyLen(pageSize int) int {
+func (p *Pagekey) KeyLen(pageSize int) int {
 
 	if pageSize <= 26 {
 		return 1

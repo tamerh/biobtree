@@ -1,4 +1,4 @@
-package main
+package service
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	"log"
 	"net"
 
-	"./pbuf"
+	"../pbuf"
 	"google.golang.org/grpc"
 )
 

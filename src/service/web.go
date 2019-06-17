@@ -1,4 +1,4 @@
-package main
+package service
 
 import (
 	"bufio"
@@ -11,14 +11,22 @@ import (
 	"strconv"
 	"strings"
 
-	"./pbuf"
+	"../pbuf"
 )
 
-type web struct {
+var dataconf map[string]map[string]string
+var appconf map[string]string
+
+const spacestr = " "
+
+type Web struct {
 	service service
 }
 
-func (web *web) start() {
+func (web *Web) Start(aconf map[string]string, dconf map[string]map[string]string) {
+
+	appconf = aconf
+	dataconf = dconf
 
 	s := service{}
 	s.init()
@@ -66,7 +74,7 @@ func (web *web) start() {
 
 }
 
-func (web *web) meta(w http.ResponseWriter, r *http.Request) {
+func (web *Web) meta(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Add("content-type", "application/json")
 	w.Header().Add("Access-Control-Allow-Origin", "*")
@@ -96,7 +104,7 @@ func (web *web) meta(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(s))
 
 }
-func (web *web) bulkSearch(w http.ResponseWriter, r *http.Request) {
+func (web *Web) bulkSearch(w http.ResponseWriter, r *http.Request) {
 
 	r.ParseMultipartForm(32 << 20)
 	file, _, err := r.FormFile("file")
@@ -141,7 +149,7 @@ func (web *web) bulkSearch(w http.ResponseWriter, r *http.Request) {
 	return
 
 }
-func (web *web) searchFilter(w http.ResponseWriter, r *http.Request) {
+func (web *Web) searchFilter(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Add("content-type", "application/json")
 	w.Header().Add("Access-Control-Allow-Origin", "*")
@@ -184,7 +192,7 @@ func (web *web) searchFilter(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (web *web) searchPage(w http.ResponseWriter, r *http.Request) {
+func (web *Web) searchPage(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query()["ids"][0]
 	src, _ := strconv.Atoi(r.URL.Query()["src"][0])
 	page, _ := strconv.Atoi(r.URL.Query()["page"][0])
@@ -203,7 +211,7 @@ func (web *web) searchPage(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (web *web) search(w http.ResponseWriter, r *http.Request) {
+func (web *Web) search(w http.ResponseWriter, r *http.Request) {
 	qids, ok := r.URL.Query()["ids"]
 	if !ok || len(qids[0]) < 1 {
 		//log.Println("Url Param 'ids' is missing")

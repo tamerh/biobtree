@@ -1,5 +1,5 @@
 /// non concurent map based on https://github.com/suncat2000/hashmap
-package main
+package util
 
 import (
 	"bytes"

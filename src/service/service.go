@@ -1,4 +1,4 @@
-package main
+package service
 
 import (
 	"encoding/json"
@@ -9,7 +9,9 @@ import (
 	"strconv"
 	"strings"
 
-	"./pbuf"
+	"../db"
+	"../pbuf"
+	"../util"
 	"github.com/bmatsuo/lmdb-go/lmdb"
 	"github.com/golang/protobuf/proto"
 )
@@ -17,7 +19,7 @@ import (
 type service struct {
 	readEnv  *lmdb.Env
 	readDbi  lmdb.DBI
-	pager    *pagekey
+	pager    *util.Pagekey
 	pageSize int
 }
 
@@ -37,9 +39,10 @@ func (s *service) init() {
 
 	totalkvline := meta["totalKVLine"].(float64)
 
-	s.readEnv, s.readDbi = openDB(false, int64(totalkvline))
-	s.pager = &pagekey{}
-	s.pager.init()
+	db := db.DB{}
+	s.readEnv, s.readDbi = db.OpenDB(false, int64(totalkvline), appconf)
+	s.pager = &util.Pagekey{}
+	s.pager.Init()
 
 	s.pageSize = 200
 	if _, ok := appconf["pageSize"]; ok {
@@ -103,8 +106,8 @@ func (s *service) filter(id string, src uint32, filters []uint32, pageInd int) *
 	}
 
 	// now we will search in the pages
-	keyLen := s.pager.keyLen(int(rootRes.Count / uint32(s.pageSize)))
-	domainKey := s.pager.key(int(src), 2)
+	keyLen := s.pager.KeyLen(int(rootRes.Count / uint32(s.pageSize)))
+	domainKey := s.pager.Key(int(src), 2)
 	var pageKey string
 	err := s.readEnv.View(func(txn *lmdb.Txn) (err error) {
 
@@ -114,7 +117,7 @@ func (s *service) filter(id string, src uint32, filters []uint32, pageInd int) *
 			var r1 = pbuf.Result{}
 
 			//k, v, err := cur.Get([]byte(id), nil, lmdb.Next)
-			pageKey = id + spacestr + domainKey + spacestr + s.pager.key(pageInd, keyLen)
+			pageKey = id + spacestr + domainKey + spacestr + s.pager.Key(pageInd, keyLen)
 			v, err := txn.Get(s.readDbi, []byte(pageKey))
 
 			if lmdb.IsNotFound(err) {
@@ -176,9 +179,9 @@ func (s *service) filter(id string, src uint32, filters []uint32, pageInd int) *
 
 func (s *service) page(id string, src int, page int, t int) *pbuf.Result {
 
-	keyLen := s.pager.keyLen(t)
-	pk := s.pager.key(page, keyLen)
-	srckey := s.pager.key(src, 2)
+	keyLen := s.pager.KeyLen(t)
+	pk := s.pager.Key(page, keyLen)
+	srckey := s.pager.Key(src, 2)
 	var key strings.Builder
 	key.WriteString(id)
 	key.WriteString(spacestr)

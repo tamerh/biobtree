@@ -1,4 +1,4 @@
-package main
+package generate
 
 import (
 	"bufio"
@@ -17,7 +17,9 @@ import (
 
 	"github.com/golang/protobuf/proto"
 
-	"./pbuf"
+	"../db"
+	"../pbuf"
+	"../util"
 	"github.com/bmatsuo/lmdb-go/lmdb"
 	pb "gopkg.in/cheggaaa/pb.v1"
 )
@@ -27,9 +29,14 @@ const newliner rune = '\n'
 const spacestr = " "
 const eof = rune(0)
 
+var fileBufSize = 65536
+
+var dataconf map[string]map[string]string
+var appconf map[string]string
+
 var mergebar *pb.ProgressBar
 
-type merge struct {
+type Merge struct {
 	wg                      *sync.WaitGroup
 	wrEnv                   *lmdb.Env
 	wrDbi                   lmdb.DBI
@@ -47,14 +54,14 @@ type merge struct {
 	batchIndex              int
 	batchKeys               [][]byte
 	batchVals               [][]byte
-	pager                   *pagekey
+	pager                   *util.Pagekey
 	totalkvLine             int64
 	protoResBufferPool      *chan []*pbuf.XrefEntry
 	protoCountResBufferPool *chan []*pbuf.XrefDomainCount
 }
 
 type chunkReader struct {
-	d        *merge
+	d        *Merge
 	fileName string
 	r        *bufio.Reader
 	curKey   string
@@ -74,7 +81,10 @@ type kvMessage struct {
 	writekey bool
 }
 
-func (d *merge) Merge() (uint64, uint64, uint64) {
+func (d *Merge) Merge(aconf map[string]string, dconf map[string]map[string]string) (uint64, uint64, uint64) {
+
+	appconf = aconf
+	dataconf = dconf
 
 	d.init()
 
@@ -149,7 +159,7 @@ func (d *merge) Merge() (uint64, uint64, uint64) {
 
 }
 
-func (d *merge) mergeg() {
+func (d *Merge) mergeg() {
 
 	/**
 	all := make([][]kvMessage, d.mergeTotalArrLen)
@@ -205,11 +215,11 @@ func (d *merge) mergeg() {
 				if err != nil {
 					panic("dataset id to integer conversion error. Possible invalid data generation")
 				}
-				keyLen := d.pager.keyLen(pageSize)
+				keyLen := d.pager.KeyLen(pageSize)
 
 				for i := 1; i < len(arrIds); i++ {
 
-					pageKey := kv.key + spacestr + d.pager.key(datasetInt, 2) + spacestr + d.pager.key(i-1, keyLen)
+					pageKey := kv.key + spacestr + d.pager.Key(datasetInt, 2) + spacestr + d.pager.Key(i-1, keyLen)
 					d.batchKeys[d.batchIndex] = []byte(pageKey)
 					valIdx := keyArrIndx[kv.key][domain][i]
 					d.batchVals[d.batchIndex] = d.toProtoPage(pageKey, domain, &all[arrIds[i]], valIdx)
@@ -307,7 +317,7 @@ func (d *merge) mergeg() {
 
 }
 
-func (d *merge) removeFinished() {
+func (d *Merge) removeFinished() {
 
 	var finishedReaders []*chunkReader
 	for _, ch := range d.chunkReaders {
@@ -337,8 +347,10 @@ func (d *merge) removeFinished() {
 
 }
 
-func (d *merge) init() {
+func (d *Merge) init() {
 
+	var wg sync.WaitGroup
+	d.wg = &wg
 	// batchsize
 	var err error
 	d.batchSize = 100000 // default
@@ -391,8 +403,8 @@ func (d *merge) init() {
 
 	d.mergeCh = &ch
 
-	d.pager = &pagekey{}
-	d.pager.init()
+	d.pager = &util.Pagekey{}
+	d.pager.Init()
 
 	files, err := ioutil.ReadDir(appconf["indexDir"])
 	if err != nil {
@@ -456,7 +468,9 @@ func (d *merge) init() {
 		panic(err)
 	}
 
-	d.wrEnv, d.wrDbi = openDB(true, d.totalkvLine)
+	db := db.DB{}
+
+	d.wrEnv, d.wrDbi = db.OpenDB(true, d.totalkvLine, appconf)
 
 	if _, ok := appconf["mergeArraySize"]; ok {
 		d.mergeTotalArrLen, err = strconv.Atoi(appconf["mergeArraySize"])
@@ -495,7 +509,7 @@ func (d *merge) init() {
 	mergebar.Start()
 }
 
-func (d *merge) writeBatch() {
+func (d *Merge) writeBatch() {
 
 	err := d.wrEnv.Update(func(txn *lmdb.Txn) (err error) {
 		i := 0
@@ -521,7 +535,7 @@ func (d *merge) writeBatch() {
 
 }
 
-func (d *merge) close() {
+func (d *Merge) close() {
 
 	d.writeBatch()
 	d.wrEnv.Close()
@@ -643,7 +657,7 @@ func (ch *chunkReader) readKeyValue() {
 
 }
 
-func (d *merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[string]int, kvcounts *map[string]map[string]uint32) []byte {
+func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[string]int, kvcounts *map[string]map[string]uint32) []byte {
 
 	var result = pbuf.Result{}
 	var xrefs = make([]*pbuf.Xref, len(kv))
@@ -740,7 +754,7 @@ func (d *merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 
 }
 
-func (d *merge) toProtoPage(id string, dataset string, v *[]kvMessage, valIdx int) []byte {
+func (d *Merge) toProtoPage(id string, dataset string, v *[]kvMessage, valIdx int) []byte {
 
 	var result = pbuf.Result{}
 	var xrefs [1]*pbuf.Xref
@@ -788,5 +802,14 @@ func (d *merge) toProtoPage(id string, dataset string, v *[]kvMessage, valIdx in
 	*d.protoResBufferPool <- entries
 
 	return data
+
+}
+
+func check(err error) {
+
+	if err != nil {
+		fmt.Println("Error: ", err)
+		panic(err)
+	}
 
 }

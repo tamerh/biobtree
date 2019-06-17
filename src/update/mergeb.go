@@ -1,4 +1,4 @@
-package main
+package update
 
 import (
 	"bufio"
@@ -10,6 +10,8 @@ import (
 	"strconv"
 	"sync"
 )
+
+const newlinebyte = byte('\n')
 
 type mergeb struct {
 	wg          *sync.WaitGroup

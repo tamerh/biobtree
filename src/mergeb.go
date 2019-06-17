@@ -67,7 +67,7 @@ func (mb *mergeb) start() {
 		}
 
 		if minfo.close {
-			fmt.Println("close merge gate")
+			//fmt.Println("close merge gate")
 			*bms[1].ch <- minfo
 			mb.stop = true
 			continue

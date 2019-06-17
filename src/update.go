@@ -11,9 +11,11 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
+	"time"
 
 	"github.com/tamerh/jsparser"
 	"github.com/tamerh/xml-stream-parser"
@@ -30,6 +32,8 @@ var mutex = &sync.Mutex{}
 
 type dataUpdate struct {
 	wg                     *sync.WaitGroup
+	datasets               []string
+	start                  time.Time
 	kvdatachan             *chan string
 	invalidXrefs           HashMaper
 	sampleXrefs            HashMaper
@@ -49,6 +53,14 @@ type dataUpdate struct {
 	selectedEnsemblSpecies []string
 	ensemblSpecies         map[string]bool
 	ensemblRelease         string
+	progChan               chan *progressInfo
+	progInterval           int64
+}
+
+type progressInfo struct {
+	dataset         string
+	currentKBPerSec int64
+	done            bool
 }
 
 func newDataUpdate(targetDatasetMap map[string]bool, ensemblSpecies []string) *dataUpdate {
@@ -59,6 +71,16 @@ func newDataUpdate(targetDatasetMap map[string]bool, ensemblSpecies []string) *d
 
 	ebiftp := appconf["ebi_ftp"]
 	ebiftppath := appconf["ebi_ftp_path"]
+
+	// chunk buffer size
+	var progInterval = 3
+	if _, ok := appconf["progressInterval"]; ok {
+		var err error
+		progInterval, err = strconv.Atoi(appconf["progressInterval"])
+		if err != nil {
+			panic("Invalid progressInterval definition")
+		}
+	}
 
 	return &dataUpdate{
 		invalidXrefs:           NewHashMap(300),
@@ -72,6 +94,53 @@ func newDataUpdate(targetDatasetMap map[string]bool, ensemblSpecies []string) *d
 		channelOverflowCap:     channelOverflowCap,
 		stats:                  make(map[string]interface{}),
 		selectedEnsemblSpecies: ensemblSpecies,
+		progInterval:           int64(progInterval),
+		progChan:               make(chan *progressInfo, 1000),
+		start:                  time.Now(),
+	}
+
+}
+
+func (d *dataUpdate) showProgres() {
+
+	latestProg := map[string]progressInfo{}
+	var result strings.Builder
+
+	for info := range d.progChan {
+
+		latestProg[info.dataset] = *info
+		if len(d.datasets) == len(latestProg) {
+			elapsed := int64(time.Since(d.start).Seconds())
+			result.Reset()
+			result.WriteString("\r")
+			result.WriteString("Processing...Elapsed ")
+			result.WriteString(strconv.FormatInt(elapsed, 10))
+			result.WriteString("s")
+			for _, ds := range d.datasets {
+
+				result.WriteString(" ")
+				result.WriteString(latestProg[ds].dataset)
+				result.WriteString(": ")
+
+				if latestProg[ds].done {
+					result.WriteString("DONE")
+				} else {
+					result.WriteString(strconv.FormatInt(latestProg[ds].currentKBPerSec, 10))
+					delete(latestProg, ds)
+				}
+
+			}
+
+			result.WriteString(" KB/s")
+			fmt.Printf(result.String())
+
+			if len(d.datasets) == len(latestProg) { // this means all done
+				close(d.progChan)
+				fmt.Println("")
+			}
+
+		}
+
 	}
 
 }
@@ -169,7 +238,7 @@ func (d *dataUpdate) addXref(key string, from string, value string, valueFrom st
 	if _, ok := dataconf[valueFrom]; !isLink && !ok {
 		//if appconf["debug"] == "y" {
 		if val, _ := d.invalidXrefs.Get(valueFrom); val == nil {
-			fmt.Println("Warn:Undefined xref name:", valueFrom, "with value", value, " skipped!. Define in data.json to be included")
+			//fmt.Println("Warn:Undefined xref name:", valueFrom, "with value", value, " skipped!. Define in data.json to be included")
 			//not to print again.
 			d.invalidXrefs.Set(valueFrom, "true")
 		}
@@ -210,8 +279,17 @@ func (d *dataUpdate) updateUniprot(source string) {
 	var total uint64
 	var v, x, z xmlparser.XMLElement
 	var entryid string
+	var previous int64
 
 	for r := range p.Stream() {
+
+		elapsed := int64(time.Since(d.start).Seconds())
+		if elapsed > previous+d.progInterval {
+			kbytesPerSecond := int64(p.TotalReadSize) / elapsed / 1024
+			previous = elapsed
+			d.progChan <- &progressInfo{dataset: source, currentKBPerSec: kbytesPerSecond}
+		}
+
 		entryid = r.Childs["name"][0].InnerText
 
 		for _, v = range r.Childs["accession"] {
@@ -258,6 +336,8 @@ func (d *dataUpdate) updateUniprot(source string) {
 
 	}
 
+	d.progChan <- &progressInfo{dataset: source, done: true}
+
 	atomic.AddUint64(&d.totalParsedEntry, total)
 	d.addEntryStat(source, total)
 }
@@ -288,7 +368,17 @@ func (d *dataUpdate) updateUniref(unireftype string) {
 	var ok bool
 	var entryid string
 
+	var previous int64
+
 	for r := range p.Stream() {
+
+		elapsed := int64(time.Since(d.start).Seconds())
+		if elapsed > previous+d.progInterval {
+			kbytesPerSecond := int64(p.TotalReadSize) / elapsed / 1024
+			previous = elapsed
+			d.progChan <- &progressInfo{dataset: unireftype, currentKBPerSec: kbytesPerSecond}
+		}
+
 		// id
 		entryid = r.Attrs["id"]
 
@@ -335,6 +425,8 @@ func (d *dataUpdate) updateUniref(unireftype string) {
 
 	}
 
+	d.progChan <- &progressInfo{dataset: unireftype, done: true}
+
 	atomic.AddUint64(&d.totalParsedEntry, total)
 	d.addEntryStat(unireftype, total)
 
@@ -364,8 +456,17 @@ func (d *dataUpdate) updateUniparc() {
 	var v xmlparser.XMLElement
 	var ok bool
 	var entryid string
+	var previous int64
 
 	for r := range p.Stream() {
+
+		elapsed := int64(time.Since(d.start).Seconds())
+		if elapsed > previous+d.progInterval {
+			kbytesPerSecond := int64(p.TotalReadSize) / elapsed / 1024
+			previous = elapsed
+			d.progChan <- &progressInfo{dataset: "uniparc", currentKBPerSec: kbytesPerSecond}
+		}
+
 		// id
 		entryid = r.Childs["accession"][0].InnerText
 
@@ -399,6 +500,7 @@ func (d *dataUpdate) updateUniparc() {
 
 	}
 
+	d.progChan <- &progressInfo{dataset: "uniparc", done: true}
 	atomic.AddUint64(&d.totalParsedEntry, total)
 	d.addEntryStat("uniparc", total)
 
@@ -423,8 +525,16 @@ func (d *dataUpdate) updateTaxonomy() {
 	var v, z xmlparser.XMLElement
 	var ok bool
 	var entryid string
+	var previous int64
 
 	for r := range p.Stream() {
+
+		elapsed := int64(time.Since(d.start).Seconds())
+		if elapsed > previous+d.progInterval {
+			kbytesPerSecond := int64(p.TotalReadSize) / elapsed / 1024
+			previous = elapsed
+			d.progChan <- &progressInfo{dataset: "taxonomy", currentKBPerSec: kbytesPerSecond}
+		}
 
 		// id
 		entryid = r.Attrs["taxId"]
@@ -444,6 +554,7 @@ func (d *dataUpdate) updateTaxonomy() {
 
 	}
 
+	d.progChan <- &progressInfo{dataset: "taxonomy", done: true}
 	atomic.AddUint64(&d.totalParsedEntry, total)
 
 	d.addEntryStat("taxonomy", total)
@@ -479,7 +590,16 @@ func (d *dataUpdate) updateHgnc() {
 		}
 	}
 
+	var previous int64
+
 	for j := range p.Stream() {
+
+		elapsed := int64(time.Since(d.start).Seconds())
+		if elapsed > previous+d.progInterval {
+			kbytesPerSecond := int64(p.TotalReadSize) / elapsed / 1024
+			previous = elapsed
+			d.progChan <- &progressInfo{dataset: "hgnc", currentKBPerSec: kbytesPerSecond}
+		}
 
 		entryid := j.ObjectVals["hgnc_id"].StringVal
 		if len(entryid) > 0 {
@@ -515,6 +635,8 @@ func (d *dataUpdate) updateHgnc() {
 		total++
 	}
 
+	d.progChan <- &progressInfo{dataset: "hgnc", done: true}
+
 	atomic.AddUint64(&d.totalParsedEntry, total)
 
 	d.addEntryStat("hgnc", total)
@@ -529,6 +651,9 @@ func (d *dataUpdate) updateChebi() {
 	chebiFiles := strings.Split(dataconf["chebi"]["files"], ",")
 
 	//xreftypes := map[string]bool{}
+
+	var previous int64
+	totalRead := 0
 
 	for _, name := range chebiFiles {
 		br, _, ftpFile, localFile, fr, _ := d.getDataReaderNew("chebi", d.ebiFtp, d.ebiFtpPath, chebiPath+name)
@@ -555,6 +680,17 @@ func (d *dataUpdate) updateChebi() {
 			}
 
 			d.addXref(entryid, fr, record[4], record[3], false)
+
+			for _, r := range record {
+				totalRead = totalRead + len(r)
+			}
+
+			elapsed := int64(time.Since(d.start).Seconds())
+			if elapsed > previous+d.progInterval {
+				kbytesPerSecond := int64(totalRead) / elapsed / 1024
+				previous = elapsed
+				d.progChan <- &progressInfo{dataset: "chebi", currentKBPerSec: kbytesPerSecond}
+			}
 
 		}
 
@@ -589,6 +725,8 @@ func (d *dataUpdate) updateChebi() {
 
 	}
 
+	d.progChan <- &progressInfo{dataset: "chebi", done: true}
+
 }
 
 func (d *dataUpdate) updateInterpro() {
@@ -608,8 +746,16 @@ func (d *dataUpdate) updateInterpro() {
 
 	var total uint64
 	var entryid string
-
+	var previous int64
 	for r := range p.Stream() {
+
+		elapsed := int64(time.Since(d.start).Seconds())
+		if elapsed > previous+d.progInterval {
+			kbytesPerSecond := int64(p.TotalReadSize) / elapsed / 1024
+			previous = elapsed
+			d.progChan <- &progressInfo{dataset: "interpro", currentKBPerSec: kbytesPerSecond}
+		}
+
 		// id
 		entryid = r.Attrs["id"]
 
@@ -668,6 +814,7 @@ func (d *dataUpdate) updateInterpro() {
 
 	}
 
+	d.progChan <- &progressInfo{dataset: "interpro", done: true}
 	atomic.AddUint64(&d.totalParsedEntry, total)
 
 	d.addEntryStat("interpro", total)
@@ -706,6 +853,9 @@ func (d *dataUpdate) literatureMappings(source string) {
 	pmcfr := dataconf["PMC"]["id"]
 	doiprefix := dataconf[source]["doiPrefix"]
 
+	var previous int64
+	totalRead := 0
+
 	i := 0
 	for {
 		i++
@@ -741,15 +891,25 @@ func (d *dataUpdate) literatureMappings(source string) {
 			}
 		}
 
+		for _, r := range record {
+			totalRead = totalRead + len(r)
+		}
+
+		elapsed := int64(time.Since(d.start).Seconds())
+		if elapsed > previous+d.progInterval {
+			kbytesPerSecond := int64(totalRead) / elapsed / 1024
+			previous = elapsed
+			d.progChan <- &progressInfo{dataset: source, currentKBPerSec: kbytesPerSecond}
+		}
+
 	}
 
 	ftpfile.Close()
 
+	d.progChan <- &progressInfo{dataset: source, done: true}
+
 }
 
-/**
-pmc part not used
-*/
 func (d *dataUpdate) literatureMappings2(source string) {
 
 	defer d.wg.Done()
@@ -857,8 +1017,16 @@ func (d *dataUpdate) updateHmdb(source string) {
 
 	var fr = dataconf[source]["id"]
 	var hmdbdis = dataconf["hmdb disease"]["id"]
+	var previous int64
 
 	for r := range p.Stream() {
+
+		elapsed := int64(time.Since(d.start).Seconds())
+		if elapsed > previous+d.progInterval {
+			kbytesPerSecond := int64(p.TotalReadSize) / elapsed / 1024
+			previous = elapsed
+			d.progChan <- &progressInfo{dataset: "hmdb", currentKBPerSec: kbytesPerSecond}
+		}
 
 		entryid = r.Childs["accession"][0].InnerText
 
@@ -1014,6 +1182,7 @@ func (d *dataUpdate) updateHmdb(source string) {
 		total++
 	}
 
+	d.progChan <- &progressInfo{dataset: "hmdb", done: true}
 	atomic.AddUint64(&d.totalParsedEntry, total)
 
 	d.addEntryStat(source, total)
@@ -1049,7 +1218,7 @@ func (d *dataUpdate) getEnsemblSetting(ensemblType string) (string, string, []st
 			for _, file := range entries {
 				if strings.HasSuffix(file.Name, "_collection") {
 					client := d.ftpClient(ftpAddress)
-					entries2, err := client.List(ftpJSONPath+"/"+file.Name)
+					entries2, err := client.List(ftpJSONPath + "/" + file.Name)
 					check(err)
 					for _, file2 := range entries2 {
 						fungiAndBacteriaPaths[file2.Name] = ftpJSONPath + "/" + file.Name + "/" + file2.Name + "/" + file2.Name + ".json"
@@ -1076,7 +1245,7 @@ func (d *dataUpdate) getEnsemblSetting(ensemblType string) (string, string, []st
 		} else {
 			for _, sp := range d.selectedEnsemblSpecies {
 				if branch == "fungi" || branch == "bacteria" {
-					if _,ok:=fungiAndBacteriaPaths[sp];!ok{
+					if _, ok := fungiAndBacteriaPaths[sp]; !ok {
 						log.Fatal("Error Species not found check the name")
 						continue
 					}
@@ -1108,11 +1277,11 @@ func (d *dataUpdate) getEnsemblSetting(ensemblType string) (string, string, []st
 
 		var biomartSpeciesName string // this is just the shorcut name of species in biomart folder e.g homo_sapiens-> hsapiens
 		for _, sp := range d.selectedEnsemblSpecies {
-			
+
 			splitted := strings.Split(sp, "_")
-			if len(splitted)>1{
+			if len(splitted) > 1 {
 				biomartSpeciesName = splitted[0][:1] + splitted[len(splitted)-1]
-			}else {
+			} else {
 				panic("Unrecognized species name pattern->" + sp)
 			}
 
@@ -1189,6 +1358,9 @@ func (d *dataUpdate) updateEnsembl(ensemblType string) {
 
 	ensemblTranscriptID := dataconf["EnsemblTranscript"]["id"]
 
+	var total uint64
+	var previous int64
+
 	fr, ftpAddress, jsonPaths, biomartPaths := d.getEnsemblSetting(ensemblType)
 
 	// if local file just ignore ftp jsons
@@ -1214,6 +1386,13 @@ func (d *dataUpdate) updateEnsembl(ensemblType string) {
 
 		for j := range p.Stream() {
 			if j.ObjectVals["id"] != nil {
+
+				elapsed := int64(time.Since(d.start).Seconds())
+				if elapsed > previous+d.progInterval {
+					kbytesPerSecond := int64(p.TotalReadSize) / elapsed / 1024
+					previous = elapsed
+					d.progChan <- &progressInfo{dataset: ensemblType, currentKBPerSec: kbytesPerSecond}
+				}
 
 				entryid := j.ObjectVals["id"].StringVal
 
@@ -1315,6 +1494,7 @@ func (d *dataUpdate) updateEnsembl(ensemblType string) {
 					}
 				}
 			}
+			total++
 		}
 
 		if ftpFile != nil {
@@ -1329,6 +1509,8 @@ func (d *dataUpdate) updateEnsembl(ensemblType string) {
 
 	}
 
+	previous = 0
+	totalRead := 0
 	// probset biomart
 	for _, path := range biomartPaths {
 		// first get the probset machine name
@@ -1342,10 +1524,19 @@ func (d *dataUpdate) updateEnsembl(ensemblType string) {
 
 			scanner := bufio.NewScanner(br2)
 			for scanner.Scan() {
-				t := strings.Split(scanner.Text(), "\t")
+
+				elapsed := int64(time.Since(d.start).Seconds())
+				if elapsed > previous+d.progInterval {
+					kbytesPerSecond := int64(totalRead) / elapsed / 1024
+					previous = elapsed
+					d.progChan <- &progressInfo{dataset: ensemblType, currentKBPerSec: kbytesPerSecond}
+				}
+				s := scanner.Text()
+				t := strings.Split(s, "\t")
 				if len(t) == 3 && t[2] != "\\N" && t[1] != "\\N" {
 					d.addXref(t[2], fr2, t[1], "EnsemblTranscript", false)
 				}
+				totalRead = totalRead + len(s)
 			}
 			if ftpFile2 != nil {
 				ftpFile2.Close()
@@ -1359,5 +1550,10 @@ func (d *dataUpdate) updateEnsembl(ensemblType string) {
 		}
 
 	}
+
+	d.progChan <- &progressInfo{dataset: ensemblType, done: true}
+	atomic.AddUint64(&d.totalParsedEntry, total)
+
+	d.addEntryStat(ensemblType, total)
 
 }

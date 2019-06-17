@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"runtime/pprof"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -63,8 +64,8 @@ func main() {
 		},
 		cli.StringFlag{
 			Name: "datasets,d",
-			Value: "ensembl_fungi",
-			//Value: "uniprot_reviewed,taxonomy,hgnc,chebi,interpro,my_data,literature_mappings,hmdb",
+			//Value: "ensembl_fungi",
+			Value: "uniprot_reviewed,taxonomy,hgnc,chebi,interpro,literature_mappings,hmdb",
 			Usage: "change default source datasets. list of datasets are uniprot_reviewed,ensembl,taxonomy,hgnc,chebi,interpro,uniprot_unreviewed,uniparc,uniref50,uniref90,my_data,literature_mappings,hmdb",
 		},
 		cli.StringFlag{
@@ -321,6 +322,7 @@ func updateData(datasets []string, targetDatasets, ensemblSpecies []string) (uin
 	var wg sync.WaitGroup
 	var err error
 	var d = newDataUpdate(targetDatasetMap, ensemblSpecies)
+	go d.showProgres()
 
 	var e = make(chan string, channelOverflowCap)
 	//var mergeGateCh = make(chan mergeInfo)
@@ -366,13 +368,16 @@ func updateData(datasets []string, targetDatasets, ensemblSpecies []string) (uin
 	wgBmerge.Add(1)
 	go binarymerge.start()
 
+	sort.Strings(datasets)
+	d.datasets = datasets
+
 	for _, data := range datasets {
 		switch data {
 		case "uniprot_reviewed":
 			d.wg.Add(1)
 			go d.updateUniprot("uniprot_reviewed")
 			break
-		case "ensembl","ensembl_bacteria","ensembl_fungi","ensembl_metazoa","ensembl_plants","ensembl_protists":
+		case "ensembl", "ensembl_bacteria", "ensembl_fungi", "ensembl_metazoa", "ensembl_plants", "ensembl_protists":
 			d.wg.Add(1)
 			go d.updateEnsembl(data)
 			break
@@ -444,7 +449,7 @@ func updateData(datasets []string, targetDatasets, ensemblSpecies []string) (uin
 	}
 
 	log.Println("Data update process completed. Making last merges...")
-	fmt.Println("sending merge close signal")
+	//fmt.Println("sending merge close signal")
 	// send finish signal to bmerge
 	mergeGateCh <- mergeInfo{
 		close: true,

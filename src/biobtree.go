@@ -58,10 +58,11 @@ func main() {
 			Usage: "uniprot ftp mirrors. Switzerland, USA or UK",
 		},
 		cli.StringFlag{
-			Name:  "datasets,d",
-			Value: "ensembl_fungi",
+			Name: "datasets,d",
+			//Value: "ensembl",
+			Value: "uniprot_reviewed,taxonomy,hgnc,chebi,interpro,uniprot_unreviewed,uniparc,uniref100,uniref50,uniref90,my_data,literature_mappings,hmdb,ensembl,ensembl_bacteria,ensembl_fungi,ensembl_metazoa,ensembl_plants,ensembl_protists",
 			//Value: "uniprot_reviewed,taxonomy,hgnc,chebi,interpro,literature_mappings,hmdb",
-			Usage: "change default source datasets. list of datasets are uniprot_reviewed,ensembl,taxonomy,hgnc,chebi,interpro,uniprot_unreviewed,uniparc,uniref50,uniref90,my_data,literature_mappings,hmdb,ensembl,ensembl_bacteria,ensembl_fungi,ensembl_metazoa,ensembl_plants,ensembl_protists",
+			Usage: "change default source datasets. list of datasets are uniprot_reviewed,taxonomy,hgnc,chebi,interpro,uniprot_unreviewed,uniparc,uniref50,uniref90,uniref100,my_data,literature_mappings,hmdb,ensembl,ensembl_bacteria,ensembl_fungi,ensembl_metazoa,ensembl_plants,ensembl_protists",
 		},
 		cli.StringFlag{
 			Name:  "target_datasets,t",
@@ -87,8 +88,8 @@ func main() {
 		},
 		cli.StringFlag{
 			Name: "species,s",
-			//Value: "acremonium_chrysogenum_atcc_11550_gca_000769265",
-			Usage: "Species names for ensembl dataset",
+			//Value: "homo_sapiens",
+			Usage: "Species names for ensembl datasets",
 		},
 	}
 

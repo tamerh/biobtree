@@ -13,7 +13,6 @@ type uniparc struct {
 }
 
 func (u *uniparc) update() {
-	u.d.datasets = append(u.d.datasets, u.source)
 
 	br, gz, ftpFile, localFile, fr, _ := u.d.getDataReaderNew(u.source, u.d.uniprotFtp, u.d.uniprotFtpPath, dataconf[u.source]["path"])
 

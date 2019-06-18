@@ -14,7 +14,6 @@ type taxonomy struct {
 
 func (t *taxonomy) update() {
 
-	t.d.datasets = append(t.d.datasets, t.source)
 	var total uint64
 	var v, z xmlparser.XMLElement
 	var ok bool

@@ -131,8 +131,6 @@ func NewDataUpdate(datasets, targetDatasets, ensemblSpecies []string, dconf map[
 
 func (d *DataUpdate) Update() (uint64, uint64) {
 
-	log.Println("Update RUNNING...datasets->", d.datasets)
-
 	var err error
 	var wg sync.WaitGroup
 	var e = make(chan string, channelOverflowCap)
@@ -179,7 +177,8 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 	wgBmerge.Add(1)
 	go binarymerge.start()
 
-	for _, data := range d.datasets {
+	mydataIndex := -1
+	for index, data := range d.datasets {
 		switch data {
 		case "uniprot_reviewed":
 			d.wg.Add(1)
@@ -203,7 +202,7 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			break
 		case "chebi":
 			d.wg.Add(1)
-			c := hgnc{source: "chebi", d: d}
+			c := chebi{source: "chebi", d: d}
 			go c.update()
 			break
 		case "interpro":
@@ -245,6 +244,8 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 				d.wg.Add(1)
 				u := uniprot{source: "my_data", d: d}
 				go u.update()
+			} else {
+				mydataIndex = index
 			}
 			break
 		case "literature_mappings":
@@ -256,6 +257,14 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			panic("ERROR Unrecognized dataset ->" + data)
 		}
 	}
+
+	if mydataIndex != -1 { // remove my_data
+		d.datasets = append(d.datasets[:mydataIndex], d.datasets[mydataIndex+1:]...)
+	}
+
+	sort.Strings(d.datasets)
+
+	log.Println("Update RUNNING...datasets->", d.datasets)
 
 	go d.showProgres()
 
@@ -297,8 +306,6 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 
 func (d *DataUpdate) showProgres() {
 
-	sort.Strings(d.datasets)
-
 	latestProg := map[string]progressInfo{}
 	var result strings.Builder
 
@@ -312,15 +319,20 @@ func (d *DataUpdate) showProgres() {
 			result.WriteString("Processing...Elapsed ")
 			result.WriteString(strconv.FormatInt(elapsed, 10))
 			result.WriteString("s")
-			for _, ds := range d.datasets {
+			for i, ds := range d.datasets {
 
 				result.WriteString(" ")
-				result.WriteString(latestProg[ds].dataset)
-				result.WriteString(": ")
-
+				if len(d.datasets) > 5 {
+					result.WriteString("d")
+					result.WriteString(strconv.FormatInt(int64(i), 10))
+				} else {
+					result.WriteString(latestProg[ds].dataset)
+				}
+				result.WriteString(":")
 				if latestProg[ds].done {
 					result.WriteString("DONE")
 				} else {
+					//result.WriteString(string(latestProg[ds].currentKBPerSec))
 					result.WriteString(strconv.FormatInt(latestProg[ds].currentKBPerSec, 10))
 					delete(latestProg, ds)
 				}

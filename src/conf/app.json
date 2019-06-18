@@ -22,5 +22,6 @@
 	"progressRefreshRate": "2",
 	"kvgenCount": "4",
 	"kvgenChunkSize": "1000000",
-	"batchSize": "100000"
+	"batchSize": "100000",
+	"progressInterval": "10"
 }

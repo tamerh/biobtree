@@ -58,9 +58,9 @@ func main() {
 			Usage: "uniprot ftp mirrors. Switzerland, USA or UK",
 		},
 		cli.StringFlag{
-			Name: "datasets,d",
-			//Value: "ensembl",
-			Value: "uniprot_reviewed,taxonomy,hgnc,chebi,interpro,uniprot_unreviewed,uniparc,uniref100,uniref50,uniref90,my_data,literature_mappings,hmdb,ensembl,ensembl_bacteria,ensembl_fungi,ensembl_metazoa,ensembl_plants,ensembl_protists",
+			Name:  "datasets,d",
+			Value: "ensembl",
+			//Value: "uniprot_reviewed,taxonomy,hgnc,chebi,interpro,uniprot_unreviewed,uniparc,uniref100,uniref50,uniref90,my_data,literature_mappings,hmdb,ensembl,ensembl_bacteria,ensembl_fungi,ensembl_metazoa,ensembl_plants,ensembl_protists",
 			//Value: "uniprot_reviewed,taxonomy,hgnc,chebi,interpro,literature_mappings,hmdb",
 			Usage: "change default source datasets. list of datasets are uniprot_reviewed,taxonomy,hgnc,chebi,interpro,uniprot_unreviewed,uniparc,uniref50,uniref90,uniref100,my_data,literature_mappings,hmdb,ensembl,ensembl_bacteria,ensembl_fungi,ensembl_metazoa,ensembl_plants,ensembl_protists",
 		},

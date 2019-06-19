@@ -23,5 +23,5 @@
 	"kvgenCount": "4",
 	"kvgenChunkSize": "1000000",
 	"batchSize": "100000",
-	"progressInterval": "10"
+	"progressInterval": "5"
 }

@@ -66,9 +66,17 @@ message Xref {
   bool is_link=3;
   repeated XrefEntry entries=4;
   repeated XrefDomainCount domain_counts=5;
+  repeated XrefProp props= 6;
   // these 2 fields are transient fields not saved to database
-  string identifier=6;
-  string specialKeyword =7; 
+  string identifier=7;
+  string specialKeyword =8; 
+
+}
+
+message XrefProp {
+
+  string key =1;
+  repeated string values = 2;
 
 }
 

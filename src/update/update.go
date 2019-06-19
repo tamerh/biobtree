@@ -21,6 +21,7 @@ import (
 )
 
 const textLinkID = "0"
+const textStoreID = "-1"
 
 var fileBufSize = 65536
 var channelOverflowCap = 100000
@@ -431,6 +432,22 @@ func (d *DataUpdate) getDataReaderNew(datatype string, ftpAddr string, ftpPath s
 	}
 
 	return br, gz, ftpfile, nil, from, fileSize
+
+}
+
+func (d *DataUpdate) addProp(key string, from string, value string) {
+
+	key = strings.TrimSpace(key)
+	value = strings.TrimSpace(value)
+	value = strings.Replace(value, tab, "", -1)
+	value = strings.Replace(value, newline, "", -1)
+
+	if len(key) == 0 || len(value) == 0 || len(from) == 0 {
+		return
+	}
+
+	kup := strings.ToUpper(key)
+	*d.kvdatachan <- kup + tab + from + tab + value + tab + textStoreID
 
 }
 

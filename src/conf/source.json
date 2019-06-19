@@ -60,8 +60,8 @@
     "name": "Ensembl",
     "url": "https://www.ensembl.org/Multi/Search/Results?q=£{id};site=ensembl_all",
     "useLocalFile": "no",
-    "path": "/Users/tgur/Desktop/projects/biobtree/test_data/ensembl.json",
-    "path1": "/Users/tgur/Desktop/projects/mygoparsers/homo_pretty.json"
+    "path1": "/Users/tgur/Desktop/projects/biobtree/test_data/ensembl.json",
+    "path": "/Users/tgur/Desktop/projects/mygoparsers/homo_pretty.json"
   },
   "ensembl_bacteria": {
     "aliases": "EnsemblBacteria",

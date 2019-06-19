@@ -172,13 +172,14 @@ func (e *ensembl) update() {
 
 	var total uint64
 	var previous int64
+	var start time.Time
 
 	fr, ftpAddress, jsonPaths, biomartPaths := e.getEnsemblSetting(e.source)
 
 	// if local file just ignore ftp jsons
 	if dataconf[e.source]["useLocalFile"] == "yes" {
 		jsonPaths = nil
-		//biomartPaths = nil
+		biomartPaths = nil
 		jsonPaths = append(jsonPaths, dataconf[e.source]["path"])
 	}
 
@@ -191,17 +192,29 @@ func (e *ensembl) update() {
 		}
 	}
 
+	xrefProps := []string{"name", "description", "start", "end", "biotype", "genome", "strand", "seq_region_name"}
+	xrefProp := func(j *jsparser.JSON, entryid, from string) {
+		for _, propName := range xrefProps {
+			if j.ObjectVals[propName] != nil {
+				e.d.addProp(entryid, from, propName+":"+j.ObjectVals[propName].StringVal)
+			}
+		}
+	}
+
 	for _, path := range jsonPaths {
 
-		//fmt.Println(path)
+		previous = 0
+		start = time.Now()
+
 		br, _, ftpFile, localFile, _, _ := e.d.getDataReaderNew(e.source, ftpAddress, "", path)
 
-		p := jsparser.NewJSONParser(br, "genes").SkipProps([]string{"description", "lineage", "start", "end", "evidence", "coord_system", "sifts", "gene_tree_id", "genome_display", "orthology_type", "genome", "seq_region_name", "strand", "xrefs"})
+		//p := jsparser.NewJSONParser(br, "genes").SkipProps([]string{"lineage", "start", "end", "evidence", "coord_system", "sifts", "gene_tree_id", "genome_display", "orthology_type", "genome", "seq_region_name", "strand", "xrefs"})
+		p := jsparser.NewJSONParser(br, "genes").SkipProps([]string{"lineage", "evidence", "coord_system", "sifts", "xrefs", "gene_tree_id", "orthology_type"})
 
 		for j := range p.Stream() {
 			if j.ObjectVals["id"] != nil {
 
-				elapsed := int64(time.Since(e.d.start).Seconds())
+				elapsed := int64(time.Since(start).Seconds())
 				if elapsed > previous+e.d.progInterval {
 					kbytesPerSecond := int64(p.TotalReadSize) / elapsed / 1024
 					previous = elapsed
@@ -220,9 +233,14 @@ func (e *ensembl) update() {
 
 				if j.ObjectVals["homologues"] != nil {
 					for _, val := range j.ObjectVals["homologues"].ArrayVals {
-						e.d.addXref(entryid, fr, val.ObjectVals["stable_id"].StringVal, "EnsemblHomolog", false)
+						if val.ObjectVals["stable_id"] != nil {
+							e.d.addXref(entryid, fr, val.ObjectVals["stable_id"].StringVal, "EnsemblHomolog", false)
+						}
 					}
 				}
+
+				// store texts
+				xrefProp(j, entryid, fr)
 
 				// maybe these values from configuration
 				xref(j, entryid, fr, "Interpro", "interpro")
@@ -272,6 +290,9 @@ func (e *ensembl) update() {
 								e.d.addXref(tentryid, ensemblTranscriptID, exo.ObjectVals["id"].StringVal, "EnsemblExon", false)
 							}
 						}
+
+						// store texts
+						xrefProp(val, tentryid, ensemblTranscriptID)
 
 						xref(val, tentryid, ensemblTranscriptID, "Interpro", "interpro")
 						xref(val, tentryid, ensemblTranscriptID, "HPA", "HPA")
@@ -325,6 +346,7 @@ func (e *ensembl) update() {
 
 	previous = 0
 	totalRead := 0
+	start = time.Now()
 	// probset biomart
 	for _, path := range biomartPaths {
 		// first get the probset machine name
@@ -339,7 +361,7 @@ func (e *ensembl) update() {
 			scanner := bufio.NewScanner(br2)
 			for scanner.Scan() {
 
-				elapsed := int64(time.Since(e.d.start).Seconds())
+				elapsed := int64(time.Since(start).Seconds())
 				if elapsed > previous+e.d.progInterval {
 					kbytesPerSecond := int64(totalRead) / elapsed / 1024
 					previous = elapsed
@@ -350,7 +372,7 @@ func (e *ensembl) update() {
 				if len(t) == 3 && t[2] != "\\N" && t[1] != "\\N" {
 					e.d.addXref(t[2], fr2, t[1], "EnsemblTranscript", false)
 				}
-				totalRead = totalRead + len(s)
+				totalRead = totalRead + len(s) + 1
 			}
 			if ftpFile2 != nil {
 				ftpFile2.Close()

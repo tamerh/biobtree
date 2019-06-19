@@ -58,6 +58,7 @@ type Merge struct {
 	totalkvLine             int64
 	protoResBufferPool      *chan []*pbuf.XrefEntry
 	protoCountResBufferPool *chan []*pbuf.XrefDomainCount
+	protoPropResBufferPool  *chan []*pbuf.XrefProp
 }
 
 type chunkReader struct {
@@ -184,6 +185,10 @@ func (d *Merge) mergeg() {
 
 	keyArrIds := map[string]map[string][]int{}
 	keyArrIndx := map[string]map[string][]int{}
+
+	keyPropArrIds := map[string]map[string][]int{}
+	keyPropArrIndx := map[string]map[string][]int{}
+
 	kvCounts := map[string]map[string]map[string]uint32{}
 
 	d.wg.Done()
@@ -194,15 +199,22 @@ func (d *Merge) mergeg() {
 
 			rootResult := map[string]*[]kvMessage{}
 			valueIdx := map[string]int{}
+			rootPropResult := map[string]*[]kvMessage{}
+			valuePropIdx := map[string]int{}
 
 			for domain, arrIds := range keyArrIds[kv.key] {
 				rootResult[domain] = &all[arrIds[0]]
 				valueIdx[domain] = keyArrIndx[kv.key][domain][0]
 			}
 
+			for domain, parrIds := range keyPropArrIds[kv.key] {
+				rootPropResult[domain] = &all[parrIds[0]]
+				valuePropIdx[domain] = keyPropArrIndx[kv.key][domain][0]
+			}
+
 			d.batchKeys[d.batchIndex] = []byte(kv.key)
 			kvcounts := kvCounts[kv.key]
-			d.batchVals[d.batchIndex] = d.toProtoRoot(kv.key, rootResult, valueIdx, &kvcounts)
+			d.batchVals[d.batchIndex] = d.toProtoRoot(kv.key, rootResult, valueIdx, rootPropResult, valuePropIdx, &kvcounts)
 			d.batchIndex++
 
 			if d.batchIndex >= d.batchSize {
@@ -243,10 +255,27 @@ func (d *Merge) mergeg() {
 					availables <- arrayID
 				}
 			}
+			for _, v := range keyPropArrIds[kv.key] {
+				for _, arrayID := range v {
+
+					for i := 0; i < d.pageSize; i++ {
+						var emptymes kvMessage
+						all[arrayID][i] = emptymes
+					}
+
+					availables <- arrayID
+				}
+			}
 
 			delete(keyArrIds, kv.key)
 			delete(keyArrIndx, kv.key)
 			delete(kvCounts, kv.key)
+			if _, ok := keyPropArrIds[kv.key]; ok {
+				delete(keyPropArrIds, kv.key)
+			}
+			if _, ok := keyPropArrIndx[kv.key]; ok {
+				delete(keyPropArrIndx, kv.key)
+			}
 
 			continue
 		}
@@ -255,7 +284,50 @@ func (d *Merge) mergeg() {
 			panic("Very few available array left for merge. Define or increase 'mergeArraySize' parameter in configuration file. This will affect of using more memory. Current array size is ->" + strconv.Itoa(d.mergeTotalArrLen))
 		}
 
-		if _, ok := keyArrIds[kv.key]; !ok {
+		if kv.valuedb == "-1" { //  prop value
+			if _, ok := keyPropArrIds[kv.key]; !ok {
+
+				keyPropArrIds[kv.key] = map[string][]int{}
+				arrayID := <-availables
+				arrIds := []int{arrayID}
+				keyPropArrIds[kv.key][kv.db] = arrIds
+
+				keyPropArrIndx[kv.key] = map[string][]int{}
+				arrIdx := []int{1}
+				keyPropArrIndx[kv.key][kv.db] = arrIdx
+
+				all[arrayID][0] = kv
+
+			} else if _, ok := keyPropArrIds[kv.key][kv.db]; !ok {
+
+				arrayID := <-availables
+				arrIds := []int{arrayID}
+				keyPropArrIds[kv.key][kv.db] = arrIds
+
+				arrIdx := []int{1}
+				keyPropArrIndx[kv.key][kv.db] = arrIdx
+
+				all[arrayID][0] = kv
+
+			} else {
+
+				lastArrayIDIdx := len(keyPropArrIds[kv.key][kv.db]) - 1
+				arrayID := keyPropArrIds[kv.key][kv.db][lastArrayIDIdx]
+				idx := keyPropArrIndx[kv.key][kv.db][lastArrayIDIdx]
+
+				if idx == d.pageSize { // this is not supported a key has maximum can have pageSize of properties
+					continue
+				}
+
+				all[arrayID][idx] = kv
+				keyPropArrIndx[kv.key][kv.db][lastArrayIDIdx] = keyPropArrIndx[kv.key][kv.db][lastArrayIDIdx] + 1
+
+			}
+
+			continue
+		}
+
+		if _, ok := keyArrIds[kv.key]; !ok { // xref value
 
 			keyArrIds[kv.key] = map[string][]int{}
 			arrayID := <-availables
@@ -386,6 +458,8 @@ func (d *Merge) init() {
 	d.protoResBufferPool = &protoResPool
 	protoCountResPool := make(chan []*pbuf.XrefDomainCount, d.protoBufferArrLen*2)
 	d.protoCountResBufferPool = &protoCountResPool
+	protoPropResPool := make(chan []*pbuf.XrefProp, d.protoBufferArrLen*2)
+	d.protoPropResBufferPool = &protoPropResPool
 
 	// initiliaze protobufferpools for results.
 	protoPoolIndex := 0
@@ -395,6 +469,8 @@ func (d *Merge) init() {
 		*d.protoResBufferPool <- resultarr
 		countarr := make([]*pbuf.XrefDomainCount, 500) // todo this number must max unique dataset count
 		*d.protoCountResBufferPool <- countarr
+		proparr := make([]*pbuf.XrefProp, d.pageSize)
+		*d.protoPropResBufferPool <- proparr
 		protoPoolIndex++
 
 	}
@@ -566,6 +642,8 @@ func (d *Merge) close() {
 
 }
 
+var totalLine = 0
+
 func (ch *chunkReader) readKeyValue() {
 
 	defer ch.wg.Done()
@@ -613,13 +691,18 @@ func (ch *chunkReader) readKeyValue() {
 
 			mergebar.Increment()
 
-			/**
-						fmt.Println(string(ch.tmprun))
-						fmt.Println("tabindex", tabIndex)
-						fmt.Println("tmplen", len(ch.tmprun))
-						fmt.Println("inde", index)
-			**/
 			line[index] = string(ch.tmprun[:tabIndex])
+
+			/*
+				totalLine++
+				if totalLine > 3000000 {
+					fmt.Println(line)
+					//fmt.Println(string(ch.tmprun))
+					//fmt.Println("tabindex", tabIndex)
+					//fmt.Println("tmplen", len(ch.tmprun))
+					//fmt.Println("inde", index)
+					fmt.Println(len(*ch.d.mergeCh))
+				}*/
 
 			if len(key) > 0 && line[0] != key {
 				ch.nextLine = line
@@ -657,16 +740,18 @@ func (ch *chunkReader) readKeyValue() {
 
 }
 
-func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[string]int, kvcounts *map[string]map[string]uint32) []byte {
+func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[string]int, kvProp map[string]*[]kvMessage, valPropIdx map[string]int, kvcounts *map[string]map[string]uint32) []byte {
 
 	var result = pbuf.Result{}
 	var xrefs = make([]*pbuf.Xref, len(kv))
 
 	index := 0
+	propindex := 0
 	var totalCount uint32
 
 	entriesArr := make([][]*pbuf.XrefEntry, len(kv))
 	countsArr := make([][]*pbuf.XrefDomainCount, len(kv))
+	propsArr := make([][]*pbuf.XrefProp, len(kvProp))
 
 	for k, v := range kv {
 
@@ -690,6 +775,29 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 			entries[i] = &xentry
 		}
 		entriesArr[index] = entries
+
+		if len(*d.protoPropResBufferPool) < 10 {
+			panic("Very few available proto res array left. Define or increase 'protoBufPoolSize' parameter in configuration file. This will slightly effect of using more memory. Current array size is ->" + strconv.Itoa(d.protoBufferArrLen))
+		}
+
+		if _, ok := kvProp[k]; ok { // xref props
+			props := <-*d.protoPropResBufferPool
+			a := 0
+			for a = 0; a < valPropIdx[k]; a++ {
+				var xprop = pbuf.XrefProp{}
+				splitIndex := strings.Index((*kvProp[k])[a].value, ":")
+				if splitIndex != -1 {
+					xprop.Key = (*kvProp[k])[a].value[:splitIndex]
+					xprop.Values = []string{(*kvProp[k])[a].value[splitIndex+1:]} // only one value for now
+					props[a] = &xprop
+					//props = append(props, &xprop)
+				}
+			}
+			xref.Props = props[:a]
+			propsArr[propindex] = props
+			propindex++
+
+		}
 
 		j := 0
 		totalCount = 0
@@ -748,6 +856,10 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 	}
 	for _, arr := range countsArr {
 		*d.protoCountResBufferPool <- arr
+	}
+
+	for i := 0; i < propindex; i++ {
+		*d.protoPropResBufferPool <- propsArr[i]
 	}
 
 	return data

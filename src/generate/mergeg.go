@@ -489,6 +489,14 @@ func (d *Merge) init() {
 
 	var cr []*chunkReader
 
+	tmpRuneSize := 500
+	if _, ok := appconf["tmpRuneSize"]; ok {
+		tmpRuneSize, err = strconv.Atoi(appconf["tmpRuneSize"])
+		if err != nil {
+			panic("Invalid tmpRuneSize definition")
+		}
+	}
+
 	for _, f := range files {
 		if !f.IsDir() && strings.HasSuffix(f.Name(), ".gz") {
 			file, err := os.Open(filepath.FromSlash(appconf["indexDir"] + "/" + f.Name()))
@@ -501,7 +509,7 @@ func (d *Merge) init() {
 			cr = append(cr, &chunkReader{
 				r:        br,
 				complete: false,
-				tmprun:   make([]rune, 500),
+				tmprun:   make([]rune, tmpRuneSize),
 				wg:       d.wg,
 				d:        d,
 			})
@@ -788,12 +796,12 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 				splitIndex := strings.Index((*kvProp[k])[a].value, ":")
 				if splitIndex != -1 {
 					xprop.Key = (*kvProp[k])[a].value[:splitIndex]
-					xprop.Values = []string{(*kvProp[k])[a].value[splitIndex+1:]} // only one value for now
+					xprop.Values = strings.Split((*kvProp[k])[a].value[splitIndex+1:], "`")
 					props[a] = &xprop
 					//props = append(props, &xprop)
 				}
 			}
-			xref.Props = props[:a]
+			xref.Attributes = props[:a]
 			propsArr[propindex] = props
 			propindex++
 

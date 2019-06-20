@@ -139,6 +139,15 @@
     "url": "http://www.hmdb.ca/metabolites/£{id}",
     "useLocalFile": "no"
   },
+  "GO": {
+    "aliases": "GO Molecular Function,GO Cellular Component,GO Biological Process",
+    "id": "155",
+    "name": "GO",
+    "url": "https://www.ebi.ac.uk/QuickGO/term/£{id}",
+    "path1": "/Users/tgur/Desktop/projects/biobtree/test_data/go.owl",
+    "path": "http://purl.obolibrary.org/obo/go.owl",
+    "useLocalFile": "no"
+  },
   "my_data": {
     "id": "226",
     "name": "my_data",

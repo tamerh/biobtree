@@ -42,6 +42,23 @@ func (i *interpro) update() {
 		// id
 		entryid = r.Attrs["id"]
 
+		if _, ok := r.Attrs["short_name"]; ok {
+			i.d.addXref(r.Attrs["short_name"], textLinkID, entryid, i.source, true)
+			i.d.addProp(entryid, fr, "short_name:"+r.Attrs["short_name"])
+		}
+
+		if _, ok := r.Attrs["type"]; ok {
+			i.d.addProp(entryid, fr, "type:"+r.Attrs["type"])
+		}
+
+		if _, ok := r.Attrs["protein_count"]; ok {
+			i.d.addProp(entryid, fr, "protein_count:"+r.Attrs["protein_count"])
+		}
+
+		for _, v := range r.Childs["name"] {
+			i.d.addProp(entryid, fr, "name:"+v.InnerText)
+		}
+
 		for _, x := range r.Childs["pub_list"] {
 			for _, y := range x.Childs["publication"] {
 				for _, z := range y.Childs["db_xref"] {

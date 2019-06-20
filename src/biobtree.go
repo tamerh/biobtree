@@ -59,10 +59,10 @@ func main() {
 		},
 		cli.StringFlag{
 			Name:  "datasets,d",
-			Value: "ensembl",
+			Value: "go",
 			//Value: "uniprot_reviewed,taxonomy,hgnc,chebi,interpro,uniprot_unreviewed,uniparc,uniref100,uniref50,uniref90,my_data,literature_mappings,hmdb,ensembl,ensembl_bacteria,ensembl_fungi,ensembl_metazoa,ensembl_plants,ensembl_protists",
 			//Value: "uniprot_reviewed,taxonomy,hgnc,chebi,interpro,literature_mappings,hmdb",
-			Usage: "change default source datasets. list of datasets are uniprot_reviewed,taxonomy,hgnc,chebi,interpro,uniprot_unreviewed,uniparc,uniref50,uniref90,uniref100,my_data,literature_mappings,hmdb,ensembl,ensembl_bacteria,ensembl_fungi,ensembl_metazoa,ensembl_plants,ensembl_protists",
+			Usage: "change default source datasets. list of datasets are uniprot_reviewed,taxonomy,hgnc,chebi,interpro,uniprot_unreviewed,uniparc,uniref50,uniref90,uniref100,my_data,literature_mappings,hmdb,ensembl,ensembl_bacteria,ensembl_fungi,ensembl_metazoa,ensembl_plants,ensembl_protists,go",
 		},
 		cli.StringFlag{
 			Name:  "target_datasets,t",

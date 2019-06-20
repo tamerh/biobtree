@@ -1,6 +1,7 @@
 package update
 
 import (
+	"strings"
 	"sync/atomic"
 	"time"
 
@@ -43,6 +44,8 @@ func (e *hgnc) update() {
 
 	var previous int64
 
+	var propVal strings.Builder
+
 	for j := range p.Stream() {
 
 		elapsed := int64(time.Since(e.d.start).Seconds())
@@ -66,19 +69,39 @@ func (e *hgnc) update() {
 			a("uniprot_ids", "UniProtKB", j, entryid)
 
 			if _, ok = j.ObjectVals["symbol"]; ok && len(j.ObjectVals["symbol"].ArrayVals) > 0 {
+				propVal.Reset()
 				for _, v = range j.ObjectVals["symbol"].ArrayVals {
 					e.d.addXref(v.StringVal, textLinkID, entryid, "hgnc", true)
+					propVal.WriteString(v.StringVal)
+					propVal.WriteString(propSep)
 				}
+				e.d.addProp(entryid, fr, "symbol:"+propVal.String()[:len(propVal.String())-1])
+
 			} else if _, ok = j.ObjectVals["symbol"]; ok && len(j.ObjectVals["symbol"].StringVal) > 0 {
 				e.d.addXref(j.ObjectVals["symbol"].StringVal, textLinkID, entryid, "hgnc", true)
+				e.d.addProp(entryid, fr, "symbol:"+j.ObjectVals["symbol"].StringVal)
 			}
 
 			if _, ok = j.ObjectVals["name"]; ok && len(j.ObjectVals["name"].ArrayVals) > 0 {
+				propVal.Reset()
 				for _, v = range j.ObjectVals["name"].ArrayVals {
 					e.d.addXref(v.StringVal, textLinkID, entryid, "hgnc", true)
+					propVal.WriteString(v.StringVal)
+					propVal.WriteString(propSep)
 				}
+				e.d.addProp(entryid, fr, "name:"+propVal.String()[:len(propVal.String())-1])
+
 			} else if _, ok = j.ObjectVals["name"]; ok && len(j.ObjectVals["name"].StringVal) > 0 {
 				e.d.addXref(j.ObjectVals["name"].StringVal, textLinkID, entryid, "hgnc", true)
+				e.d.addProp(entryid, fr, "name:"+j.ObjectVals["name"].StringVal)
+			}
+
+			if _, ok = j.ObjectVals["locus_group"]; ok && len(j.ObjectVals["locus_group"].StringVal) > 0 {
+				e.d.addProp(entryid, fr, "locus_group:"+j.ObjectVals["locus_group"].StringVal)
+			}
+
+			if _, ok = j.ObjectVals["location"]; ok && len(j.ObjectVals["location"].StringVal) > 0 {
+				e.d.addProp(entryid, fr, "location:"+j.ObjectVals["location"].StringVal)
 			}
 
 		}

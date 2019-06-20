@@ -281,12 +281,6 @@
     "name": "FooDB",
     "url": "http://foodb.ca/compounds/£{id}"
   },
-  "GO": {
-    "aliases": "GO Molecular Function,GO Cellular Component,GO Biological Process",
-    "id": "155",
-    "name": "GO",
-    "url": "https://www.ebi.ac.uk/QuickGO/term/£{id}"
-  },
   "GeneCards": {
     "id": "146",
     "name": "GeneCards",

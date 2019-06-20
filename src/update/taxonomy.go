@@ -47,6 +47,20 @@ func (t *taxonomy) update() {
 
 		t.d.addXref(r.Attrs["scientificName"], textLinkID, entryid, t.source, true)
 
+		t.d.addProp(entryid, fr, "name:"+r.Attrs["scientificName"])
+
+		if _, ok := r.Attrs["commonName"]; ok {
+			t.d.addProp(entryid, fr, "commonName:"+r.Attrs["commonName"])
+		}
+
+		if _, ok := r.Attrs["rank"]; ok {
+			t.d.addProp(entryid, fr, "rank:"+r.Attrs["rank"])
+		}
+
+		if _, ok := r.Attrs["taxonomicDivision"]; ok {
+			t.d.addProp(entryid, fr, "taxonomicDivision:"+r.Attrs["taxonomicDivision"])
+		}
+
 		//dbreference
 		for _, v = range r.Childs["children"] {
 			if _, ok = v.Childs["taxon"]; ok {

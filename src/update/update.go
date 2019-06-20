@@ -23,6 +23,8 @@ import (
 const textLinkID = "0"
 const textStoreID = "-1"
 
+const propSep = "`"
+
 var fileBufSize = 65536
 var channelOverflowCap = 100000
 
@@ -240,6 +242,11 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			h := hmdb{source: "hmdb", d: d}
 			go h.update()
 			break
+		case "go":
+			d.wg.Add(1)
+			g := gontology{source: "GO", d: d}
+			go g.update()
+			break
 		case "my_data":
 			if dataconf["my_data"]["active"] == "true" {
 				d.wg.Add(1)
@@ -312,8 +319,10 @@ func (d *DataUpdate) showProgres() {
 
 	for info := range d.progChan {
 
+		alldone := false
 		latestProg[info.dataset] = *info
 		if len(d.datasets) == len(latestProg) {
+			alldone = true
 			elapsed := int64(time.Since(d.start).Seconds())
 			result.Reset()
 			result.WriteString("\r")
@@ -334,19 +343,22 @@ func (d *DataUpdate) showProgres() {
 					result.WriteString("DONE")
 				} else {
 					//result.WriteString(string(latestProg[ds].currentKBPerSec))
+					alldone = false
 					result.WriteString(strconv.FormatInt(latestProg[ds].currentKBPerSec, 10))
 					delete(latestProg, ds)
 				}
 
 			}
+			if alldone {
+				close(d.progChan)
+				result.WriteString(" KB/s")
+				fmt.Printf(result.String())
+				fmt.Println("")
+				return
+			}
 
 			result.WriteString(" KB/s")
 			fmt.Printf(result.String())
-
-			if len(d.datasets) == len(latestProg) { // this means all done
-				close(d.progChan)
-				fmt.Println("")
-			}
 
 		}
 
@@ -442,7 +454,7 @@ func (d *DataUpdate) addProp(key string, from string, value string) {
 	value = strings.Replace(value, tab, "", -1)
 	value = strings.Replace(value, newline, "", -1)
 
-	if len(key) == 0 || len(value) == 0 || len(from) == 0 {
+	if len(key) == 0 || len(value) == 0 || len(from) == 0 || len(value) > 500 {
 		return
 	}
 

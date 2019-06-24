@@ -1,6 +1,7 @@
 package update
 
 import (
+	"biobtree/src/pbuf"
 	"bufio"
 	"log"
 	"strings"
@@ -173,6 +174,7 @@ func (e *ensembl) update() {
 	var total uint64
 	var previous int64
 	var start time.Time
+	attr := pbuf.XrefAttr{}
 
 	fr, ftpAddress, jsonPaths, biomartPaths := e.getEnsemblSetting(e.source)
 
@@ -196,7 +198,10 @@ func (e *ensembl) update() {
 	xrefProp := func(j *jsparser.JSON, entryid, from string) {
 		for _, propName := range xrefProps {
 			if j.ObjectVals[propName] != nil {
-				e.d.addProp(entryid, from, propName+":"+j.ObjectVals[propName].StringVal)
+				attr.Values = nil
+				attr.Key = propName
+				attr.Values = append(attr.Values, j.ObjectVals[propName].StringVal)
+				e.d.addProp2(entryid, from, &attr)
 			}
 		}
 	}
@@ -339,8 +344,8 @@ func (e *ensembl) update() {
 			localFile.Close()
 		}
 
-		//TODO GO
-		//TODO PROTEIN FEAUTRES
+		//TODO GO ONLY RELATED ONE
+		//TODO PROTEIN FEAUTRES AND TRANSLATIONS
 
 	}
 

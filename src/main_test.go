@@ -11,29 +11,12 @@ import (
 	"strconv"
 	"testing"
 	"time"
-)
 
-type teststruct struct {
-	amap2 map[string][]string
-}
+	"./util"
+)
 
 func TestScratch(t *testing.T) {
 
-	test := teststruct{}
-
-	amap := map[string]teststruct{}
-	amap["1"] = teststruct{}
-
-	for _, v := range amap {
-		fmt.Println(v)
-		for _, l := range v.amap2["23"] {
-			fmt.Println(l)
-		}
-	}
-
-	for _, v := range test.amap2 {
-		fmt.Println(v)
-	}
 }
 
 func clearDirs() {
@@ -76,7 +59,7 @@ func TestFullSample(t *testing.T) {
 	appconf["kvgenCount"] = "4"
 	appconf["kvgenChunkSize"] = "1000000"
 
-	updateData([]string{"hgnc", "uniprot_reviewed", "uniprot_unreviewed", "uniref100", "uniref90", "uniref50", "uniparc", "taxonomy", "hgnc", "interpro"}, []string{})
+	updateData([]string{"hgnc", "uniprot_reviewed", "uniprot_unreviewed", "uniref100", "uniref90", "uniref50", "uniparc", "taxonomy", "hgnc", "interpro"}, []string{}, []string{}, "1")
 
 	i, j, _ := mergeData()
 
@@ -117,7 +100,7 @@ func TestHgnc(t *testing.T) {
 	appconf["kvgenCount"] = "4"
 	appconf["kvgenChunkSize"] = "13"
 
-	parsed, kvs := updateData([]string{"hgnc"}, []string{})
+	parsed, kvs := updateData([]string{"hgnc"}, []string{}, []string{}, "1")
 
 	if parsed != 6 {
 		panic("parsed entry is not 6")
@@ -173,7 +156,7 @@ func TestKeyLink(t *testing.T) {
 	appconf["kvgenChunkSize"] = "13"
 	appconf["pageSize"] = "2"
 
-	parsed, kvs := updateData([]string{"uniprot_reviewed"}, []string{})
+	parsed, kvs := updateData([]string{"uniprot_reviewed"}, []string{}, []string{}, "1")
 
 	if parsed != 1 {
 		panic("parsed entry is not 1")
@@ -224,7 +207,7 @@ func TestPaging(t *testing.T) {
 	//appconf["kvgenChunkSize"] = "13"
 	appconf["pageSize"] = "2"
 
-	parsed, kvs := updateData([]string{"hgnc"}, []string{})
+	parsed, kvs := updateData([]string{"hgnc"}, []string{}, []string{}, "1")
 
 	if parsed != 5 {
 		panic("parsed entry is not 5")
@@ -250,13 +233,13 @@ func TestPaging(t *testing.T) {
 
 func TestPageKey(t *testing.T) {
 
-	p := &pagekey{}
-	p.init()
+	p := &util.Pagekey{}
+	p.Init()
 
 	page := 25
-	keyLen := p.keyLen(page)
-	first := p.key(0, keyLen)
-	last := p.key(25, keyLen)
+	keyLen := p.KeyLen(page)
+	first := p.Key(0, keyLen)
+	last := p.Key(25, keyLen)
 
 	if first != "a" {
 		panic("invalid page key")
@@ -267,9 +250,9 @@ func TestPageKey(t *testing.T) {
 	}
 
 	page = 676
-	keyLen = p.keyLen(page)
-	first = p.key(0, keyLen)
-	last = p.key(25, keyLen)
+	keyLen = p.KeyLen(page)
+	first = p.Key(0, keyLen)
+	last = p.Key(25, keyLen)
 
 	if first != "aa" {
 		panic("invalid page key")
@@ -310,7 +293,7 @@ func TestTargetDbs(t *testing.T) {
 	appconf["kvgenCount"] = "4"
 	appconf["kvgenChunkSize"] = "13"
 
-	parsed, kvs := updateData([]string{"hgnc"}, []string{"VEGA"})
+	parsed, kvs := updateData([]string{"hgnc"}, []string{"VEGA"}, []string{"VEGA"}, "1")
 
 	if parsed != 6 {
 		panic("parsed entry is not 6")
@@ -360,7 +343,7 @@ func TestDuplicateValue(t *testing.T) {
 	appconf["kvgenCount"] = "1"
 	appconf["kvgenChunkSize"] = "20"
 
-	parsed, kvs := updateData([]string{"hgnc"}, []string{})
+	parsed, kvs := updateData([]string{"hgnc"}, []string{}, []string{}, "1")
 
 	if parsed != 2 {
 		panic("parsed entry is not 2")
@@ -507,7 +490,7 @@ func TestEnsembl(t *testing.T) {
 	appconf["kvgenCount"] = "4"
 	appconf["kvgenChunkSize"] = "13"
 
-	parsed, kvs := updateData([]string{"ensembl"}, []string{})
+	parsed, kvs := updateData([]string{"ensembl"}, []string{}, []string{}, "1")
 
 	if parsed != 6 {
 		panic("parsed entry is not 6")

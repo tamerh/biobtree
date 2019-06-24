@@ -1,10 +1,11 @@
 package update
 
 import (
+	"biobtree/src/pbuf"
 	"sync/atomic"
 	"time"
 
-	"github.com/tamerh/xml-stream-parser"
+	xmlparser "github.com/tamerh/xml-stream-parser"
 )
 
 type taxonomy struct {
@@ -19,6 +20,7 @@ func (t *taxonomy) update() {
 	var ok bool
 	var entryid string
 	var previous int64
+	attr := pbuf.XrefAttr{}
 
 	br, gz, ftpFile, localFile, fr, _ := t.d.getDataReaderNew(t.source, t.d.ebiFtp, t.d.ebiFtpPath, dataconf[t.source]["path"])
 
@@ -47,18 +49,30 @@ func (t *taxonomy) update() {
 
 		t.d.addXref(r.Attrs["scientificName"], textLinkID, entryid, t.source, true)
 
-		t.d.addProp(entryid, fr, "name:"+r.Attrs["scientificName"])
+		attr.Values = nil
+		attr.Key = "name"
+		attr.Values = append(attr.Values, r.Attrs["scientificName"])
+		t.d.addProp2(entryid, fr, &attr)
 
 		if _, ok := r.Attrs["commonName"]; ok {
-			t.d.addProp(entryid, fr, "commonName:"+r.Attrs["commonName"])
+			attr.Values = nil
+			attr.Key = "commonName"
+			attr.Values = append(attr.Values, r.Attrs["commonName"])
+			t.d.addProp2(entryid, fr, &attr)
 		}
 
 		if _, ok := r.Attrs["rank"]; ok {
-			t.d.addProp(entryid, fr, "rank:"+r.Attrs["rank"])
+			attr.Values = nil
+			attr.Key = "rank"
+			attr.Values = append(attr.Values, r.Attrs["rank"])
+			t.d.addProp2(entryid, fr, &attr)
 		}
 
 		if _, ok := r.Attrs["taxonomicDivision"]; ok {
-			t.d.addProp(entryid, fr, "taxonomicDivision:"+r.Attrs["taxonomicDivision"])
+			attr.Values = nil
+			attr.Key = "taxonomicDivision"
+			attr.Values = append(attr.Values, r.Attrs["taxonomicDivision"])
+			t.d.addProp2(entryid, fr, &attr)
 		}
 
 		//dbreference

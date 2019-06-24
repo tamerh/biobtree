@@ -2,22 +2,24 @@
   "uniprot_reviewed": {
     "id": "1",
     "name": "Uniprot",
-    "path": "/current_release/knowledgebase/complete/uniprot_sprot.xml.gz",
+    "path2": "/current_release/knowledgebase/complete/uniprot_sprot.xml.gz",
     "aliases": "UniProtKB,UniProtKB ID,UniProtKB accession,UniProtKB/Swiss-Prot,UniProtKB/TrEMBL,UniProtKB/Swiss-Prot protein isoforms,TREMBL_VARSPLIC,UniProtKB_accession",
     "url": "//www.uniprot.org/uniprot/£{id}",
-    "useLocalFile": "no"
+    "path": "/Users/tgur/go/src/biobtree/test_data/uniprot2.xml.gz",
+    "useLocalFile": "yes"
   },
   "uniprot_unreviewed": {
     "id": "1",
     "name": "Uniprot",
     "path": "/current_release/knowledgebase/complete/uniprot_trembl.xml.gz",
-    "url": "//www.uniprot.org/uniprot/£{id}"
+    "url": "//www.uniprot.org/uniprot/£{id}",
+    "useLocalFile": "no"
   },
   "uniparc": {
     "id": "2",
     "name": "Uniparc",
     "path": "/current_release/uniparc/uniparc_all.xml.gz",
-    "path2": "/Users/tgur/Desktop/projects/biobtree/test_data/uniparc.xml.gz",
+    "path2": "/Users/tgur/go/src/biobtree/test_data/uniparc.xml.gz",
     "shortened_id": "upi,",
     "aliases": "UniParc ID",
     "url": "//www.uniprot.org/uniparc/£{id}",
@@ -27,7 +29,7 @@
     "id": "3",
     "name": "Uniref",
     "path": "/current_release/uniref/uniref50/uniref50.xml.gz",
-    "path2": "/Users/tgur/Desktop/projects/biobtree/test_data/uniref.xml.gz",
+    "path2": "/Users/tgur/go/src/biobtree/test_data/uniref.xml.gz",
     "shortened_id": "uniref50_,5_",
     "exclusion_xrefs": "uniref100",
     "aliases": "UniRef50 ID",
@@ -59,9 +61,9 @@
     "id": "243",
     "name": "Ensembl",
     "url": "https://www.ensembl.org/Multi/Search/Results?q=£{id};site=ensembl_all",
-    "useLocalFile": "no",
-    "path1": "/Users/tgur/Desktop/projects/biobtree/test_data/ensembl.json",
-    "path": "/Users/tgur/Desktop/projects/mygoparsers/homo_pretty.json"
+    "useLocalFile": "yes",
+    "path1": "/Users/tgur/go/src/biobtree/test_data/ensembl.json",
+    "path": "/Users/tgur/go/src/mygoparsers/homo_pretty.json"
   },
   "ensembl_bacteria": {
     "aliases": "EnsemblBacteria",
@@ -144,8 +146,9 @@
     "id": "155",
     "name": "GO",
     "url": "https://www.ebi.ac.uk/QuickGO/term/£{id}",
-    "path1": "/Users/tgur/Desktop/projects/biobtree/test_data/go.owl",
+    "path1": "/Users/tgur/go/src/biobtree/test_data/go.owl",
     "path": "http://purl.obolibrary.org/obo/go.owl",
+    "pathEco": "http://purl.obolibrary.org/obo/eco.owl",
     "useLocalFile": "no"
   },
   "my_data": {

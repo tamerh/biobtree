@@ -15,11 +15,14 @@ import (
 	"sync"
 	"time"
 
+	"github.com/mailru/easyjson"
+
 	"github.com/golang/protobuf/proto"
 
-	"../db"
-	"../pbuf"
-	"../util"
+	"biobtree/src/db"
+	"biobtree/src/pbuf"
+	"biobtree/src/util"
+
 	"github.com/bmatsuo/lmdb-go/lmdb"
 	pb "gopkg.in/cheggaaa/pb.v1"
 )
@@ -58,7 +61,7 @@ type Merge struct {
 	totalkvLine             int64
 	protoResBufferPool      *chan []*pbuf.XrefEntry
 	protoCountResBufferPool *chan []*pbuf.XrefDomainCount
-	protoPropResBufferPool  *chan []*pbuf.XrefProp
+	protoPropResBufferPool  *chan []*pbuf.XrefAttr
 }
 
 type chunkReader struct {
@@ -458,7 +461,7 @@ func (d *Merge) init() {
 	d.protoResBufferPool = &protoResPool
 	protoCountResPool := make(chan []*pbuf.XrefDomainCount, d.protoBufferArrLen*2)
 	d.protoCountResBufferPool = &protoCountResPool
-	protoPropResPool := make(chan []*pbuf.XrefProp, d.protoBufferArrLen*2)
+	protoPropResPool := make(chan []*pbuf.XrefAttr, d.protoBufferArrLen*2)
 	d.protoPropResBufferPool = &protoPropResPool
 
 	// initiliaze protobufferpools for results.
@@ -469,7 +472,7 @@ func (d *Merge) init() {
 		*d.protoResBufferPool <- resultarr
 		countarr := make([]*pbuf.XrefDomainCount, 500) // todo this number must max unique dataset count
 		*d.protoCountResBufferPool <- countarr
-		proparr := make([]*pbuf.XrefProp, d.pageSize)
+		proparr := make([]*pbuf.XrefAttr, d.pageSize)
 		*d.protoPropResBufferPool <- proparr
 		protoPoolIndex++
 
@@ -489,7 +492,7 @@ func (d *Merge) init() {
 
 	var cr []*chunkReader
 
-	tmpRuneSize := 500
+	tmpRuneSize := 50000
 	if _, ok := appconf["tmpRuneSize"]; ok {
 		tmpRuneSize, err = strconv.Atoi(appconf["tmpRuneSize"])
 		if err != nil {
@@ -759,7 +762,7 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 
 	entriesArr := make([][]*pbuf.XrefEntry, len(kv))
 	countsArr := make([][]*pbuf.XrefDomainCount, len(kv))
-	propsArr := make([][]*pbuf.XrefProp, len(kvProp))
+	propsArr := make([][]*pbuf.XrefAttr, len(kvProp))
 
 	for k, v := range kv {
 
@@ -792,14 +795,9 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 			props := <-*d.protoPropResBufferPool
 			a := 0
 			for a = 0; a < valPropIdx[k]; a++ {
-				var xprop = pbuf.XrefProp{}
-				splitIndex := strings.Index((*kvProp[k])[a].value, ":")
-				if splitIndex != -1 {
-					xprop.Key = (*kvProp[k])[a].value[:splitIndex]
-					xprop.Values = strings.Split((*kvProp[k])[a].value[splitIndex+1:], "`")
-					props[a] = &xprop
-					//props = append(props, &xprop)
-				}
+				var xattr = pbuf.XrefAttr{}
+				easyjson.Unmarshal([]byte((*kvProp[k])[a].value), &xattr)
+				props[a] = &xattr
 			}
 			xref.Attributes = props[:a]
 			propsArr[propindex] = props

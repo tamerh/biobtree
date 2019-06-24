@@ -15,15 +15,17 @@ import (
 	"sync"
 	"time"
 
-	util "../util"
+	"github.com/mailru/easyjson"
+
+	"biobtree/src/pbuf"
+	"biobtree/src/util"
+
 	"github.com/jlaffaye/ftp"
 	"github.com/vbauerster/mpb"
 )
 
 const textLinkID = "0"
 const textStoreID = "-1"
-
-const propSep = "`"
 
 var fileBufSize = 65536
 var channelOverflowCap = 100000
@@ -444,6 +446,25 @@ func (d *DataUpdate) getDataReaderNew(datatype string, ftpAddr string, ftpPath s
 	}
 
 	return br, gz, ftpfile, nil, from, fileSize
+
+}
+
+func (d *DataUpdate) addProp2(key, from string, attr *pbuf.XrefAttr) {
+
+	key = strings.TrimSpace(key)
+
+	if len(key) == 0 || len(from) == 0 {
+		return
+	}
+
+	b, _ := easyjson.Marshal(attr)
+
+	if len(b) > 0 {
+
+		kup := strings.ToUpper(key)
+		*d.kvdatachan <- kup + tab + from + tab + string(b) + tab + textStoreID
+
+	}
 
 }
 

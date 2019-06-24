@@ -2,7 +2,6 @@ package service
 
 import (
 	"bufio"
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -12,6 +11,7 @@ import (
 	"strings"
 
 	"../pbuf"
+	"github.com/mailru/easyjson"
 )
 
 var dataconf map[string]map[string]string
@@ -130,7 +130,8 @@ func (web *Web) bulkSearch(w http.ResponseWriter, r *http.Request) {
 	var buf strings.Builder
 	buf.WriteString("[")
 	for i, b := range results {
-		jb, _ := json.Marshal(b)
+		//jb, _ := json.Marshal(b)
+		jb, _ := easyjson.Marshal(b)
 		buf.WriteString(string(jb))
 		if len(results)-1 != i {
 			buf.WriteString(",")
@@ -184,7 +185,8 @@ func (web *Web) searchFilter(w http.ResponseWriter, r *http.Request) {
 
 	var buf strings.Builder
 	buf.WriteString("[")
-	jb, _ := json.Marshal(filteredRes)
+	//jb, _ := json.Marshal(filteredRes)
+	jb, _ := easyjson.Marshal(filteredRes)
 	buf.WriteString(string(jb))
 	buf.WriteString("]")
 	w.Write([]byte(buf.String()))
@@ -201,7 +203,8 @@ func (web *Web) searchPage(w http.ResponseWriter, r *http.Request) {
 	r1 := web.service.page(id, src, page, t)
 	var buf strings.Builder
 	buf.WriteString("[")
-	jb, _ := json.Marshal(r1)
+	//jb, _ := json.Marshal(r1)
+	jb, _ := easyjson.Marshal(r1)
 	buf.WriteString(string(jb))
 	buf.WriteString("]")
 	w.Header().Add("content-type", "application/json")
@@ -227,7 +230,8 @@ func (web *Web) search(w http.ResponseWriter, r *http.Request) {
 	var buf strings.Builder
 	buf.WriteString("[")
 	for i, b := range res {
-		jb, _ := json.Marshal(*b)
+		//jb, _ := json.Marshal(*b)
+		jb, _ := easyjson.Marshal(*b)
 		buf.WriteString(string(jb))
 		if len(res)-1 != i {
 			buf.WriteString(",")

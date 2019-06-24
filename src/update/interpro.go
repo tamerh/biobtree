@@ -1,10 +1,11 @@
 package update
 
 import (
+	"biobtree/src/pbuf"
 	"sync/atomic"
 	"time"
 
-	"github.com/tamerh/xml-stream-parser"
+	xmlparser "github.com/tamerh/xml-stream-parser"
 )
 
 type interpro struct {
@@ -30,6 +31,8 @@ func (i *interpro) update() {
 	var total uint64
 	var entryid string
 	var previous int64
+	attr := pbuf.XrefAttr{}
+
 	for r := range p.Stream() {
 
 		elapsed := int64(time.Since(i.d.start).Seconds())
@@ -44,20 +47,33 @@ func (i *interpro) update() {
 
 		if _, ok := r.Attrs["short_name"]; ok {
 			i.d.addXref(r.Attrs["short_name"], textLinkID, entryid, i.source, true)
-			i.d.addProp(entryid, fr, "short_name:"+r.Attrs["short_name"])
+			attr.Values = nil
+			attr.Key = "short_name"
+			attr.Values = append(attr.Values, r.Attrs["short_name"])
+			i.d.addProp2(entryid, fr, &attr)
 		}
 
 		if _, ok := r.Attrs["type"]; ok {
-			i.d.addProp(entryid, fr, "type:"+r.Attrs["type"])
+			attr.Values = nil
+			attr.Key = "type"
+			attr.Values = append(attr.Values, r.Attrs["type"])
+			i.d.addProp2(entryid, fr, &attr)
 		}
 
 		if _, ok := r.Attrs["protein_count"]; ok {
-			i.d.addProp(entryid, fr, "protein_count:"+r.Attrs["protein_count"])
+
+			attr.Values = nil
+			attr.Key = "protein_count"
+			attr.Values = append(attr.Values, r.Attrs["protein_count"])
+			i.d.addProp2(entryid, fr, &attr)
 		}
 
+		attr.Values = nil
+		attr.Key = "name"
 		for _, v := range r.Childs["name"] {
-			i.d.addProp(entryid, fr, "name:"+v.InnerText)
+			attr.Values = append(attr.Values, v.InnerText)
 		}
+		i.d.addProp2(entryid, fr, &attr)
 
 		for _, x := range r.Childs["pub_list"] {
 			for _, y := range x.Childs["publication"] {

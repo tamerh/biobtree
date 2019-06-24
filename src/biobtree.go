@@ -59,7 +59,7 @@ func main() {
 		},
 		cli.StringFlag{
 			Name:  "datasets,d",
-			Value: "go",
+			Value: "uniprot_reviewed",
 			//Value: "uniprot_reviewed,taxonomy,hgnc,chebi,interpro,uniprot_unreviewed,uniparc,uniref100,uniref50,uniref90,my_data,literature_mappings,hmdb,ensembl,ensembl_bacteria,ensembl_fungi,ensembl_metazoa,ensembl_plants,ensembl_protists",
 			//Value: "uniprot_reviewed,taxonomy,hgnc,chebi,interpro,literature_mappings,hmdb",
 			Usage: "change default source datasets. list of datasets are uniprot_reviewed,taxonomy,hgnc,chebi,interpro,uniprot_unreviewed,uniparc,uniref50,uniref90,uniref100,my_data,literature_mappings,hmdb,ensembl,ensembl_bacteria,ensembl_fungi,ensembl_metazoa,ensembl_plants,ensembl_protists,go",
@@ -87,8 +87,8 @@ func main() {
 			Usage:  "sets the maximum number of CPUs that can be executing simultaneously. By default biobtree uses all the CPUs when applicable.",
 		},
 		cli.StringFlag{
-			Name: "species,s",
-			//Value: "homo_sapiens",
+			Name:  "species,s",
+			Value: "homo_sapiens",
 			Usage: "Species names for ensembl datasets",
 		},
 	}

@@ -6,7 +6,8 @@ import (
 	"log"
 	"net"
 
-	"../pbuf"
+	"biobtree/src/pbuf"
+
 	"google.golang.org/grpc"
 )
 

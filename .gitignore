@@ -15,3 +15,5 @@ out_bkp/
 **/.classpath
 **/.project
 **/.settings
+task.md
+src/ensembl/

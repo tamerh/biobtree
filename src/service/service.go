@@ -9,9 +9,10 @@ import (
 	"strconv"
 	"strings"
 
-	"../db"
-	"../pbuf"
-	"../util"
+	"biobtree/src/db"
+	"biobtree/src/pbuf"
+	"biobtree/src/util"
+
 	"github.com/bmatsuo/lmdb-go/lmdb"
 	"github.com/golang/protobuf/proto"
 )

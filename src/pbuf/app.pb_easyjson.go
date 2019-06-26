@@ -234,170 +234,7 @@ func (v *XrefDomainCount) UnmarshalJSON(data []byte) error {
 func (v *XrefDomainCount) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjsonB46be6a3DecodeBiobtreeTmpBiobtree2(l, v)
 }
-func easyjsonB46be6a3DecodeBiobtreeTmpBiobtree3(in *jlexer.Lexer, out *XrefAttr) {
-	isTopLevel := in.IsStart()
-	if in.IsNull() {
-		if isTopLevel {
-			in.Consumed()
-		}
-		in.Skip()
-		return
-	}
-	in.Delim('{')
-	for !in.IsDelim('}') {
-		key := in.UnsafeString()
-		in.WantColon()
-		if in.IsNull() {
-			in.Skip()
-			in.WantComma()
-			continue
-		}
-		switch key {
-		case "key":
-			out.Key = string(in.String())
-		case "values":
-			if in.IsNull() {
-				in.Skip()
-				out.Values = nil
-			} else {
-				in.Delim('[')
-				if out.Values == nil {
-					if !in.IsDelim(']') {
-						out.Values = make([]string, 0, 4)
-					} else {
-						out.Values = []string{}
-					}
-				} else {
-					out.Values = (out.Values)[:0]
-				}
-				for !in.IsDelim(']') {
-					var v1 string
-					v1 = string(in.String())
-					out.Values = append(out.Values, v1)
-					in.WantComma()
-				}
-				in.Delim(']')
-			}
-		case "childs":
-			if in.IsNull() {
-				in.Skip()
-				out.Childs = nil
-			} else {
-				in.Delim('[')
-				if out.Childs == nil {
-					if !in.IsDelim(']') {
-						out.Childs = make([]*XrefAttr, 0, 8)
-					} else {
-						out.Childs = []*XrefAttr{}
-					}
-				} else {
-					out.Childs = (out.Childs)[:0]
-				}
-				for !in.IsDelim(']') {
-					var v2 *XrefAttr
-					if in.IsNull() {
-						in.Skip()
-						v2 = nil
-					} else {
-						if v2 == nil {
-							v2 = new(XrefAttr)
-						}
-						(*v2).UnmarshalEasyJSON(in)
-					}
-					out.Childs = append(out.Childs, v2)
-					in.WantComma()
-				}
-				in.Delim(']')
-			}
-		default:
-			in.SkipRecursive()
-		}
-		in.WantComma()
-	}
-	in.Delim('}')
-	if isTopLevel {
-		in.Consumed()
-	}
-}
-func easyjsonB46be6a3EncodeBiobtreeTmpBiobtree3(out *jwriter.Writer, in XrefAttr) {
-	out.RawByte('{')
-	first := true
-	_ = first
-	if in.Key != "" {
-		const prefix string = ",\"key\":"
-		first = false
-		out.RawString(prefix[1:])
-		out.String(string(in.Key))
-	}
-	if len(in.Values) != 0 {
-		const prefix string = ",\"values\":"
-		if first {
-			first = false
-			out.RawString(prefix[1:])
-		} else {
-			out.RawString(prefix)
-		}
-		{
-			out.RawByte('[')
-			for v3, v4 := range in.Values {
-				if v3 > 0 {
-					out.RawByte(',')
-				}
-				out.String(string(v4))
-			}
-			out.RawByte(']')
-		}
-	}
-	if len(in.Childs) != 0 {
-		const prefix string = ",\"childs\":"
-		if first {
-			first = false
-			out.RawString(prefix[1:])
-		} else {
-			out.RawString(prefix)
-		}
-		{
-			out.RawByte('[')
-			for v5, v6 := range in.Childs {
-				if v5 > 0 {
-					out.RawByte(',')
-				}
-				if v6 == nil {
-					out.RawString("null")
-				} else {
-					(*v6).MarshalEasyJSON(out)
-				}
-			}
-			out.RawByte(']')
-		}
-	}
-	out.RawByte('}')
-}
-
-// MarshalJSON supports json.Marshaler interface
-func (v XrefAttr) MarshalJSON() ([]byte, error) {
-	w := jwriter.Writer{}
-	easyjsonB46be6a3EncodeBiobtreeTmpBiobtree3(&w, v)
-	return w.Buffer.BuildBytes(), w.Error
-}
-
-// MarshalEasyJSON supports easyjson.Marshaler interface
-func (v XrefAttr) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonB46be6a3EncodeBiobtreeTmpBiobtree3(w, v)
-}
-
-// UnmarshalJSON supports json.Unmarshaler interface
-func (v *XrefAttr) UnmarshalJSON(data []byte) error {
-	r := jlexer.Lexer{Data: data}
-	easyjsonB46be6a3DecodeBiobtreeTmpBiobtree3(&r, v)
-	return r.Error()
-}
-
-// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
-func (v *XrefAttr) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonB46be6a3DecodeBiobtreeTmpBiobtree3(l, v)
-}
-func easyjsonB46be6a3DecodeBiobtreeTmpBiobtree4(in *jlexer.Lexer, out *Xref) {
+func easyjsonB46be6a3DecodeBiobtreeTmpBiobtree3(in *jlexer.Lexer, out *Xref) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -438,17 +275,17 @@ func easyjsonB46be6a3DecodeBiobtreeTmpBiobtree4(in *jlexer.Lexer, out *Xref) {
 					out.Entries = (out.Entries)[:0]
 				}
 				for !in.IsDelim(']') {
-					var v7 *XrefEntry
+					var v1 *XrefEntry
 					if in.IsNull() {
 						in.Skip()
-						v7 = nil
+						v1 = nil
 					} else {
-						if v7 == nil {
-							v7 = new(XrefEntry)
+						if v1 == nil {
+							v1 = new(XrefEntry)
 						}
-						(*v7).UnmarshalEasyJSON(in)
+						(*v1).UnmarshalEasyJSON(in)
 					}
-					out.Entries = append(out.Entries, v7)
+					out.Entries = append(out.Entries, v1)
 					in.WantComma()
 				}
 				in.Delim(']')
@@ -469,52 +306,23 @@ func easyjsonB46be6a3DecodeBiobtreeTmpBiobtree4(in *jlexer.Lexer, out *Xref) {
 					out.DomainCounts = (out.DomainCounts)[:0]
 				}
 				for !in.IsDelim(']') {
-					var v8 *XrefDomainCount
+					var v2 *XrefDomainCount
 					if in.IsNull() {
 						in.Skip()
-						v8 = nil
+						v2 = nil
 					} else {
-						if v8 == nil {
-							v8 = new(XrefDomainCount)
+						if v2 == nil {
+							v2 = new(XrefDomainCount)
 						}
-						(*v8).UnmarshalEasyJSON(in)
+						(*v2).UnmarshalEasyJSON(in)
 					}
-					out.DomainCounts = append(out.DomainCounts, v8)
+					out.DomainCounts = append(out.DomainCounts, v2)
 					in.WantComma()
 				}
 				in.Delim(']')
 			}
 		case "attributes":
-			if in.IsNull() {
-				in.Skip()
-				out.Attributes = nil
-			} else {
-				in.Delim('[')
-				if out.Attributes == nil {
-					if !in.IsDelim(']') {
-						out.Attributes = make([]*XrefAttr, 0, 8)
-					} else {
-						out.Attributes = []*XrefAttr{}
-					}
-				} else {
-					out.Attributes = (out.Attributes)[:0]
-				}
-				for !in.IsDelim(']') {
-					var v9 *XrefAttr
-					if in.IsNull() {
-						in.Skip()
-						v9 = nil
-					} else {
-						if v9 == nil {
-							v9 = new(XrefAttr)
-						}
-						(*v9).UnmarshalEasyJSON(in)
-					}
-					out.Attributes = append(out.Attributes, v9)
-					in.WantComma()
-				}
-				in.Delim(']')
-			}
+			out.Attributes = string(in.String())
 		case "identifier":
 			out.Identifier = string(in.String())
 		case "specialKeyword":
@@ -529,7 +337,7 @@ func easyjsonB46be6a3DecodeBiobtreeTmpBiobtree4(in *jlexer.Lexer, out *Xref) {
 		in.Consumed()
 	}
 }
-func easyjsonB46be6a3EncodeBiobtreeTmpBiobtree4(out *jwriter.Writer, in Xref) {
+func easyjsonB46be6a3EncodeBiobtreeTmpBiobtree3(out *jwriter.Writer, in Xref) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -569,14 +377,14 @@ func easyjsonB46be6a3EncodeBiobtreeTmpBiobtree4(out *jwriter.Writer, in Xref) {
 		}
 		{
 			out.RawByte('[')
-			for v10, v11 := range in.Entries {
-				if v10 > 0 {
+			for v3, v4 := range in.Entries {
+				if v3 > 0 {
 					out.RawByte(',')
 				}
-				if v11 == nil {
+				if v4 == nil {
 					out.RawString("null")
 				} else {
-					(*v11).MarshalEasyJSON(out)
+					(*v4).MarshalEasyJSON(out)
 				}
 			}
 			out.RawByte(']')
@@ -592,20 +400,20 @@ func easyjsonB46be6a3EncodeBiobtreeTmpBiobtree4(out *jwriter.Writer, in Xref) {
 		}
 		{
 			out.RawByte('[')
-			for v12, v13 := range in.DomainCounts {
-				if v12 > 0 {
+			for v5, v6 := range in.DomainCounts {
+				if v5 > 0 {
 					out.RawByte(',')
 				}
-				if v13 == nil {
+				if v6 == nil {
 					out.RawString("null")
 				} else {
-					(*v13).MarshalEasyJSON(out)
+					(*v6).MarshalEasyJSON(out)
 				}
 			}
 			out.RawByte(']')
 		}
 	}
-	if len(in.Attributes) != 0 {
+	if in.Attributes != "" {
 		const prefix string = ",\"attributes\":"
 		if first {
 			first = false
@@ -613,20 +421,7 @@ func easyjsonB46be6a3EncodeBiobtreeTmpBiobtree4(out *jwriter.Writer, in Xref) {
 		} else {
 			out.RawString(prefix)
 		}
-		{
-			out.RawByte('[')
-			for v14, v15 := range in.Attributes {
-				if v14 > 0 {
-					out.RawByte(',')
-				}
-				if v15 == nil {
-					out.RawString("null")
-				} else {
-					(*v15).MarshalEasyJSON(out)
-				}
-			}
-			out.RawByte(']')
-		}
+		out.String(string(in.Attributes))
 	}
 	if in.Identifier != "" {
 		const prefix string = ",\"identifier\":"
@@ -654,27 +449,27 @@ func easyjsonB46be6a3EncodeBiobtreeTmpBiobtree4(out *jwriter.Writer, in Xref) {
 // MarshalJSON supports json.Marshaler interface
 func (v Xref) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonB46be6a3EncodeBiobtreeTmpBiobtree4(&w, v)
+	easyjsonB46be6a3EncodeBiobtreeTmpBiobtree3(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v Xref) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonB46be6a3EncodeBiobtreeTmpBiobtree4(w, v)
+	easyjsonB46be6a3EncodeBiobtreeTmpBiobtree3(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *Xref) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonB46be6a3DecodeBiobtreeTmpBiobtree4(&r, v)
+	easyjsonB46be6a3DecodeBiobtreeTmpBiobtree3(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *Xref) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonB46be6a3DecodeBiobtreeTmpBiobtree4(l, v)
+	easyjsonB46be6a3DecodeBiobtreeTmpBiobtree3(l, v)
 }
-func easyjsonB46be6a3DecodeBiobtreeTmpBiobtree5(in *jlexer.Lexer, out *Result) {
+func easyjsonB46be6a3DecodeBiobtreeTmpBiobtree4(in *jlexer.Lexer, out *Result) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -709,17 +504,17 @@ func easyjsonB46be6a3DecodeBiobtreeTmpBiobtree5(in *jlexer.Lexer, out *Result) {
 					out.Results = (out.Results)[:0]
 				}
 				for !in.IsDelim(']') {
-					var v16 *Xref
+					var v7 *Xref
 					if in.IsNull() {
 						in.Skip()
-						v16 = nil
+						v7 = nil
 					} else {
-						if v16 == nil {
-							v16 = new(Xref)
+						if v7 == nil {
+							v7 = new(Xref)
 						}
-						(*v16).UnmarshalEasyJSON(in)
+						(*v7).UnmarshalEasyJSON(in)
 					}
-					out.Results = append(out.Results, v16)
+					out.Results = append(out.Results, v7)
 					in.WantComma()
 				}
 				in.Delim(']')
@@ -734,7 +529,7 @@ func easyjsonB46be6a3DecodeBiobtreeTmpBiobtree5(in *jlexer.Lexer, out *Result) {
 		in.Consumed()
 	}
 }
-func easyjsonB46be6a3EncodeBiobtreeTmpBiobtree5(out *jwriter.Writer, in Result) {
+func easyjsonB46be6a3EncodeBiobtreeTmpBiobtree4(out *jwriter.Writer, in Result) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -744,14 +539,14 @@ func easyjsonB46be6a3EncodeBiobtreeTmpBiobtree5(out *jwriter.Writer, in Result) 
 		out.RawString(prefix[1:])
 		{
 			out.RawByte('[')
-			for v17, v18 := range in.Results {
-				if v17 > 0 {
+			for v8, v9 := range in.Results {
+				if v8 > 0 {
 					out.RawByte(',')
 				}
-				if v18 == nil {
+				if v9 == nil {
 					out.RawString("null")
 				} else {
-					(*v18).MarshalEasyJSON(out)
+					(*v9).MarshalEasyJSON(out)
 				}
 			}
 			out.RawByte(']')
@@ -763,27 +558,27 @@ func easyjsonB46be6a3EncodeBiobtreeTmpBiobtree5(out *jwriter.Writer, in Result) 
 // MarshalJSON supports json.Marshaler interface
 func (v Result) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonB46be6a3EncodeBiobtreeTmpBiobtree5(&w, v)
+	easyjsonB46be6a3EncodeBiobtreeTmpBiobtree4(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v Result) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonB46be6a3EncodeBiobtreeTmpBiobtree5(w, v)
+	easyjsonB46be6a3EncodeBiobtreeTmpBiobtree4(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *Result) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonB46be6a3DecodeBiobtreeTmpBiobtree5(&r, v)
+	easyjsonB46be6a3DecodeBiobtreeTmpBiobtree4(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *Result) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonB46be6a3DecodeBiobtreeTmpBiobtree5(l, v)
+	easyjsonB46be6a3DecodeBiobtreeTmpBiobtree4(l, v)
 }
-func easyjsonB46be6a3DecodeBiobtreeTmpBiobtree6(in *jlexer.Lexer, out *BiobtreeMetaResponse) {
+func easyjsonB46be6a3DecodeBiobtreeTmpBiobtree5(in *jlexer.Lexer, out *BiobtreeMetaResponse) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -815,17 +610,17 @@ func easyjsonB46be6a3DecodeBiobtreeTmpBiobtree6(in *jlexer.Lexer, out *BiobtreeM
 				for !in.IsDelim('}') {
 					key := string(in.String())
 					in.WantColon()
-					var v19 *BiobtreeMetaKeyValue
+					var v10 *BiobtreeMetaKeyValue
 					if in.IsNull() {
 						in.Skip()
-						v19 = nil
+						v10 = nil
 					} else {
-						if v19 == nil {
-							v19 = new(BiobtreeMetaKeyValue)
+						if v10 == nil {
+							v10 = new(BiobtreeMetaKeyValue)
 						}
-						(*v19).UnmarshalEasyJSON(in)
+						(*v10).UnmarshalEasyJSON(in)
 					}
-					(out.Results)[key] = v19
+					(out.Results)[key] = v10
 					in.WantComma()
 				}
 				in.Delim('}')
@@ -840,7 +635,7 @@ func easyjsonB46be6a3DecodeBiobtreeTmpBiobtree6(in *jlexer.Lexer, out *BiobtreeM
 		in.Consumed()
 	}
 }
-func easyjsonB46be6a3EncodeBiobtreeTmpBiobtree6(out *jwriter.Writer, in BiobtreeMetaResponse) {
+func easyjsonB46be6a3EncodeBiobtreeTmpBiobtree5(out *jwriter.Writer, in BiobtreeMetaResponse) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -850,19 +645,19 @@ func easyjsonB46be6a3EncodeBiobtreeTmpBiobtree6(out *jwriter.Writer, in Biobtree
 		out.RawString(prefix[1:])
 		{
 			out.RawByte('{')
-			v20First := true
-			for v20Name, v20Value := range in.Results {
-				if v20First {
-					v20First = false
+			v11First := true
+			for v11Name, v11Value := range in.Results {
+				if v11First {
+					v11First = false
 				} else {
 					out.RawByte(',')
 				}
-				out.String(string(v20Name))
+				out.String(string(v11Name))
 				out.RawByte(':')
-				if v20Value == nil {
+				if v11Value == nil {
 					out.RawString("null")
 				} else {
-					(*v20Value).MarshalEasyJSON(out)
+					(*v11Value).MarshalEasyJSON(out)
 				}
 			}
 			out.RawByte('}')
@@ -874,27 +669,27 @@ func easyjsonB46be6a3EncodeBiobtreeTmpBiobtree6(out *jwriter.Writer, in Biobtree
 // MarshalJSON supports json.Marshaler interface
 func (v BiobtreeMetaResponse) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonB46be6a3EncodeBiobtreeTmpBiobtree6(&w, v)
+	easyjsonB46be6a3EncodeBiobtreeTmpBiobtree5(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v BiobtreeMetaResponse) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonB46be6a3EncodeBiobtreeTmpBiobtree6(w, v)
+	easyjsonB46be6a3EncodeBiobtreeTmpBiobtree5(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *BiobtreeMetaResponse) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonB46be6a3DecodeBiobtreeTmpBiobtree6(&r, v)
+	easyjsonB46be6a3DecodeBiobtreeTmpBiobtree5(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *BiobtreeMetaResponse) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonB46be6a3DecodeBiobtreeTmpBiobtree6(l, v)
+	easyjsonB46be6a3DecodeBiobtreeTmpBiobtree5(l, v)
 }
-func easyjsonB46be6a3DecodeBiobtreeTmpBiobtree7(in *jlexer.Lexer, out *BiobtreeMetaRequest) {
+func easyjsonB46be6a3DecodeBiobtreeTmpBiobtree6(in *jlexer.Lexer, out *BiobtreeMetaRequest) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -923,7 +718,7 @@ func easyjsonB46be6a3DecodeBiobtreeTmpBiobtree7(in *jlexer.Lexer, out *BiobtreeM
 		in.Consumed()
 	}
 }
-func easyjsonB46be6a3EncodeBiobtreeTmpBiobtree7(out *jwriter.Writer, in BiobtreeMetaRequest) {
+func easyjsonB46be6a3EncodeBiobtreeTmpBiobtree6(out *jwriter.Writer, in BiobtreeMetaRequest) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -933,27 +728,27 @@ func easyjsonB46be6a3EncodeBiobtreeTmpBiobtree7(out *jwriter.Writer, in Biobtree
 // MarshalJSON supports json.Marshaler interface
 func (v BiobtreeMetaRequest) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonB46be6a3EncodeBiobtreeTmpBiobtree7(&w, v)
+	easyjsonB46be6a3EncodeBiobtreeTmpBiobtree6(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v BiobtreeMetaRequest) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonB46be6a3EncodeBiobtreeTmpBiobtree7(w, v)
+	easyjsonB46be6a3EncodeBiobtreeTmpBiobtree6(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *BiobtreeMetaRequest) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonB46be6a3DecodeBiobtreeTmpBiobtree7(&r, v)
+	easyjsonB46be6a3DecodeBiobtreeTmpBiobtree6(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *BiobtreeMetaRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonB46be6a3DecodeBiobtreeTmpBiobtree7(l, v)
+	easyjsonB46be6a3DecodeBiobtreeTmpBiobtree6(l, v)
 }
-func easyjsonB46be6a3DecodeBiobtreeTmpBiobtree8(in *jlexer.Lexer, out *BiobtreeMetaKeyValue) {
+func easyjsonB46be6a3DecodeBiobtreeTmpBiobtree7(in *jlexer.Lexer, out *BiobtreeMetaKeyValue) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -985,9 +780,9 @@ func easyjsonB46be6a3DecodeBiobtreeTmpBiobtree8(in *jlexer.Lexer, out *BiobtreeM
 				for !in.IsDelim('}') {
 					key := string(in.String())
 					in.WantColon()
-					var v21 string
-					v21 = string(in.String())
-					(out.Keyvalues)[key] = v21
+					var v12 string
+					v12 = string(in.String())
+					(out.Keyvalues)[key] = v12
 					in.WantComma()
 				}
 				in.Delim('}')
@@ -1002,7 +797,7 @@ func easyjsonB46be6a3DecodeBiobtreeTmpBiobtree8(in *jlexer.Lexer, out *BiobtreeM
 		in.Consumed()
 	}
 }
-func easyjsonB46be6a3EncodeBiobtreeTmpBiobtree8(out *jwriter.Writer, in BiobtreeMetaKeyValue) {
+func easyjsonB46be6a3EncodeBiobtreeTmpBiobtree7(out *jwriter.Writer, in BiobtreeMetaKeyValue) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -1012,16 +807,16 @@ func easyjsonB46be6a3EncodeBiobtreeTmpBiobtree8(out *jwriter.Writer, in Biobtree
 		out.RawString(prefix[1:])
 		{
 			out.RawByte('{')
-			v22First := true
-			for v22Name, v22Value := range in.Keyvalues {
-				if v22First {
-					v22First = false
+			v13First := true
+			for v13Name, v13Value := range in.Keyvalues {
+				if v13First {
+					v13First = false
 				} else {
 					out.RawByte(',')
 				}
-				out.String(string(v22Name))
+				out.String(string(v13Name))
 				out.RawByte(':')
-				out.String(string(v22Value))
+				out.String(string(v13Value))
 			}
 			out.RawByte('}')
 		}
@@ -1032,27 +827,27 @@ func easyjsonB46be6a3EncodeBiobtreeTmpBiobtree8(out *jwriter.Writer, in Biobtree
 // MarshalJSON supports json.Marshaler interface
 func (v BiobtreeMetaKeyValue) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonB46be6a3EncodeBiobtreeTmpBiobtree8(&w, v)
+	easyjsonB46be6a3EncodeBiobtreeTmpBiobtree7(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v BiobtreeMetaKeyValue) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonB46be6a3EncodeBiobtreeTmpBiobtree8(w, v)
+	easyjsonB46be6a3EncodeBiobtreeTmpBiobtree7(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *BiobtreeMetaKeyValue) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonB46be6a3DecodeBiobtreeTmpBiobtree8(&r, v)
+	easyjsonB46be6a3DecodeBiobtreeTmpBiobtree7(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *BiobtreeMetaKeyValue) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonB46be6a3DecodeBiobtreeTmpBiobtree8(l, v)
+	easyjsonB46be6a3DecodeBiobtreeTmpBiobtree7(l, v)
 }
-func easyjsonB46be6a3DecodeBiobtreeTmpBiobtree9(in *jlexer.Lexer, out *BiobtreeGetResponse) {
+func easyjsonB46be6a3DecodeBiobtreeTmpBiobtree8(in *jlexer.Lexer, out *BiobtreeGetResponse) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -1087,17 +882,17 @@ func easyjsonB46be6a3DecodeBiobtreeTmpBiobtree9(in *jlexer.Lexer, out *BiobtreeG
 					out.Results = (out.Results)[:0]
 				}
 				for !in.IsDelim(']') {
-					var v23 *Result
+					var v14 *Result
 					if in.IsNull() {
 						in.Skip()
-						v23 = nil
+						v14 = nil
 					} else {
-						if v23 == nil {
-							v23 = new(Result)
+						if v14 == nil {
+							v14 = new(Result)
 						}
-						(*v23).UnmarshalEasyJSON(in)
+						(*v14).UnmarshalEasyJSON(in)
 					}
-					out.Results = append(out.Results, v23)
+					out.Results = append(out.Results, v14)
 					in.WantComma()
 				}
 				in.Delim(']')
@@ -1112,7 +907,7 @@ func easyjsonB46be6a3DecodeBiobtreeTmpBiobtree9(in *jlexer.Lexer, out *BiobtreeG
 		in.Consumed()
 	}
 }
-func easyjsonB46be6a3EncodeBiobtreeTmpBiobtree9(out *jwriter.Writer, in BiobtreeGetResponse) {
+func easyjsonB46be6a3EncodeBiobtreeTmpBiobtree8(out *jwriter.Writer, in BiobtreeGetResponse) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -1122,14 +917,14 @@ func easyjsonB46be6a3EncodeBiobtreeTmpBiobtree9(out *jwriter.Writer, in Biobtree
 		out.RawString(prefix[1:])
 		{
 			out.RawByte('[')
-			for v24, v25 := range in.Results {
-				if v24 > 0 {
+			for v15, v16 := range in.Results {
+				if v15 > 0 {
 					out.RawByte(',')
 				}
-				if v25 == nil {
+				if v16 == nil {
 					out.RawString("null")
 				} else {
-					(*v25).MarshalEasyJSON(out)
+					(*v16).MarshalEasyJSON(out)
 				}
 			}
 			out.RawByte(']')
@@ -1141,27 +936,27 @@ func easyjsonB46be6a3EncodeBiobtreeTmpBiobtree9(out *jwriter.Writer, in Biobtree
 // MarshalJSON supports json.Marshaler interface
 func (v BiobtreeGetResponse) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonB46be6a3EncodeBiobtreeTmpBiobtree9(&w, v)
+	easyjsonB46be6a3EncodeBiobtreeTmpBiobtree8(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v BiobtreeGetResponse) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonB46be6a3EncodeBiobtreeTmpBiobtree9(w, v)
+	easyjsonB46be6a3EncodeBiobtreeTmpBiobtree8(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *BiobtreeGetResponse) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonB46be6a3DecodeBiobtreeTmpBiobtree9(&r, v)
+	easyjsonB46be6a3DecodeBiobtreeTmpBiobtree8(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *BiobtreeGetResponse) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonB46be6a3DecodeBiobtreeTmpBiobtree9(l, v)
+	easyjsonB46be6a3DecodeBiobtreeTmpBiobtree8(l, v)
 }
-func easyjsonB46be6a3DecodeBiobtreeTmpBiobtree10(in *jlexer.Lexer, out *BiobtreeGetRequest) {
+func easyjsonB46be6a3DecodeBiobtreeTmpBiobtree9(in *jlexer.Lexer, out *BiobtreeGetRequest) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -1196,9 +991,9 @@ func easyjsonB46be6a3DecodeBiobtreeTmpBiobtree10(in *jlexer.Lexer, out *Biobtree
 					out.Keywords = (out.Keywords)[:0]
 				}
 				for !in.IsDelim(']') {
-					var v26 string
-					v26 = string(in.String())
-					out.Keywords = append(out.Keywords, v26)
+					var v17 string
+					v17 = string(in.String())
+					out.Keywords = append(out.Keywords, v17)
 					in.WantComma()
 				}
 				in.Delim(']')
@@ -1213,7 +1008,7 @@ func easyjsonB46be6a3DecodeBiobtreeTmpBiobtree10(in *jlexer.Lexer, out *Biobtree
 		in.Consumed()
 	}
 }
-func easyjsonB46be6a3EncodeBiobtreeTmpBiobtree10(out *jwriter.Writer, in BiobtreeGetRequest) {
+func easyjsonB46be6a3EncodeBiobtreeTmpBiobtree9(out *jwriter.Writer, in BiobtreeGetRequest) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -1223,11 +1018,11 @@ func easyjsonB46be6a3EncodeBiobtreeTmpBiobtree10(out *jwriter.Writer, in Biobtre
 		out.RawString(prefix[1:])
 		{
 			out.RawByte('[')
-			for v27, v28 := range in.Keywords {
-				if v27 > 0 {
+			for v18, v19 := range in.Keywords {
+				if v18 > 0 {
 					out.RawByte(',')
 				}
-				out.String(string(v28))
+				out.String(string(v19))
 			}
 			out.RawByte(']')
 		}
@@ -1238,27 +1033,27 @@ func easyjsonB46be6a3EncodeBiobtreeTmpBiobtree10(out *jwriter.Writer, in Biobtre
 // MarshalJSON supports json.Marshaler interface
 func (v BiobtreeGetRequest) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonB46be6a3EncodeBiobtreeTmpBiobtree10(&w, v)
+	easyjsonB46be6a3EncodeBiobtreeTmpBiobtree9(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v BiobtreeGetRequest) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonB46be6a3EncodeBiobtreeTmpBiobtree10(w, v)
+	easyjsonB46be6a3EncodeBiobtreeTmpBiobtree9(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *BiobtreeGetRequest) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonB46be6a3DecodeBiobtreeTmpBiobtree10(&r, v)
+	easyjsonB46be6a3DecodeBiobtreeTmpBiobtree9(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *BiobtreeGetRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonB46be6a3DecodeBiobtreeTmpBiobtree10(l, v)
+	easyjsonB46be6a3DecodeBiobtreeTmpBiobtree9(l, v)
 }
-func easyjsonB46be6a3DecodeBiobtreeTmpBiobtree11(in *jlexer.Lexer, out *BiobtreeGetPageResponse) {
+func easyjsonB46be6a3DecodeBiobtreeTmpBiobtree10(in *jlexer.Lexer, out *BiobtreeGetPageResponse) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -1297,7 +1092,7 @@ func easyjsonB46be6a3DecodeBiobtreeTmpBiobtree11(in *jlexer.Lexer, out *Biobtree
 		in.Consumed()
 	}
 }
-func easyjsonB46be6a3EncodeBiobtreeTmpBiobtree11(out *jwriter.Writer, in BiobtreeGetPageResponse) {
+func easyjsonB46be6a3EncodeBiobtreeTmpBiobtree10(out *jwriter.Writer, in BiobtreeGetPageResponse) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -1313,27 +1108,27 @@ func easyjsonB46be6a3EncodeBiobtreeTmpBiobtree11(out *jwriter.Writer, in Biobtre
 // MarshalJSON supports json.Marshaler interface
 func (v BiobtreeGetPageResponse) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonB46be6a3EncodeBiobtreeTmpBiobtree11(&w, v)
+	easyjsonB46be6a3EncodeBiobtreeTmpBiobtree10(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v BiobtreeGetPageResponse) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonB46be6a3EncodeBiobtreeTmpBiobtree11(w, v)
+	easyjsonB46be6a3EncodeBiobtreeTmpBiobtree10(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *BiobtreeGetPageResponse) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonB46be6a3DecodeBiobtreeTmpBiobtree11(&r, v)
+	easyjsonB46be6a3DecodeBiobtreeTmpBiobtree10(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *BiobtreeGetPageResponse) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonB46be6a3DecodeBiobtreeTmpBiobtree11(l, v)
+	easyjsonB46be6a3DecodeBiobtreeTmpBiobtree10(l, v)
 }
-func easyjsonB46be6a3DecodeBiobtreeTmpBiobtree12(in *jlexer.Lexer, out *BiobtreeGetPageRequest) {
+func easyjsonB46be6a3DecodeBiobtreeTmpBiobtree11(in *jlexer.Lexer, out *BiobtreeGetPageRequest) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -1370,7 +1165,7 @@ func easyjsonB46be6a3DecodeBiobtreeTmpBiobtree12(in *jlexer.Lexer, out *Biobtree
 		in.Consumed()
 	}
 }
-func easyjsonB46be6a3EncodeBiobtreeTmpBiobtree12(out *jwriter.Writer, in BiobtreeGetPageRequest) {
+func easyjsonB46be6a3EncodeBiobtreeTmpBiobtree11(out *jwriter.Writer, in BiobtreeGetPageRequest) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -1416,27 +1211,27 @@ func easyjsonB46be6a3EncodeBiobtreeTmpBiobtree12(out *jwriter.Writer, in Biobtre
 // MarshalJSON supports json.Marshaler interface
 func (v BiobtreeGetPageRequest) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonB46be6a3EncodeBiobtreeTmpBiobtree12(&w, v)
+	easyjsonB46be6a3EncodeBiobtreeTmpBiobtree11(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v BiobtreeGetPageRequest) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonB46be6a3EncodeBiobtreeTmpBiobtree12(w, v)
+	easyjsonB46be6a3EncodeBiobtreeTmpBiobtree11(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *BiobtreeGetPageRequest) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonB46be6a3DecodeBiobtreeTmpBiobtree12(&r, v)
+	easyjsonB46be6a3DecodeBiobtreeTmpBiobtree11(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *BiobtreeGetPageRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonB46be6a3DecodeBiobtreeTmpBiobtree12(l, v)
+	easyjsonB46be6a3DecodeBiobtreeTmpBiobtree11(l, v)
 }
-func easyjsonB46be6a3DecodeBiobtreeTmpBiobtree13(in *jlexer.Lexer, out *BiobtreeFilterResponse) {
+func easyjsonB46be6a3DecodeBiobtreeTmpBiobtree12(in *jlexer.Lexer, out *BiobtreeFilterResponse) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -1475,7 +1270,7 @@ func easyjsonB46be6a3DecodeBiobtreeTmpBiobtree13(in *jlexer.Lexer, out *Biobtree
 		in.Consumed()
 	}
 }
-func easyjsonB46be6a3EncodeBiobtreeTmpBiobtree13(out *jwriter.Writer, in BiobtreeFilterResponse) {
+func easyjsonB46be6a3EncodeBiobtreeTmpBiobtree12(out *jwriter.Writer, in BiobtreeFilterResponse) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -1491,27 +1286,27 @@ func easyjsonB46be6a3EncodeBiobtreeTmpBiobtree13(out *jwriter.Writer, in Biobtre
 // MarshalJSON supports json.Marshaler interface
 func (v BiobtreeFilterResponse) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonB46be6a3EncodeBiobtreeTmpBiobtree13(&w, v)
+	easyjsonB46be6a3EncodeBiobtreeTmpBiobtree12(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v BiobtreeFilterResponse) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonB46be6a3EncodeBiobtreeTmpBiobtree13(w, v)
+	easyjsonB46be6a3EncodeBiobtreeTmpBiobtree12(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *BiobtreeFilterResponse) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonB46be6a3DecodeBiobtreeTmpBiobtree13(&r, v)
+	easyjsonB46be6a3DecodeBiobtreeTmpBiobtree12(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *BiobtreeFilterResponse) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonB46be6a3DecodeBiobtreeTmpBiobtree13(l, v)
+	easyjsonB46be6a3DecodeBiobtreeTmpBiobtree12(l, v)
 }
-func easyjsonB46be6a3DecodeBiobtreeTmpBiobtree14(in *jlexer.Lexer, out *BiobtreeFilterRequest) {
+func easyjsonB46be6a3DecodeBiobtreeTmpBiobtree13(in *jlexer.Lexer, out *BiobtreeFilterRequest) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -1550,9 +1345,9 @@ func easyjsonB46be6a3DecodeBiobtreeTmpBiobtree14(in *jlexer.Lexer, out *Biobtree
 					out.Filters = (out.Filters)[:0]
 				}
 				for !in.IsDelim(']') {
-					var v29 uint32
-					v29 = uint32(in.Uint32())
-					out.Filters = append(out.Filters, v29)
+					var v20 uint32
+					v20 = uint32(in.Uint32())
+					out.Filters = append(out.Filters, v20)
 					in.WantComma()
 				}
 				in.Delim(']')
@@ -1569,7 +1364,7 @@ func easyjsonB46be6a3DecodeBiobtreeTmpBiobtree14(in *jlexer.Lexer, out *Biobtree
 		in.Consumed()
 	}
 }
-func easyjsonB46be6a3EncodeBiobtreeTmpBiobtree14(out *jwriter.Writer, in BiobtreeFilterRequest) {
+func easyjsonB46be6a3EncodeBiobtreeTmpBiobtree13(out *jwriter.Writer, in BiobtreeFilterRequest) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -1599,11 +1394,11 @@ func easyjsonB46be6a3EncodeBiobtreeTmpBiobtree14(out *jwriter.Writer, in Biobtre
 		}
 		{
 			out.RawByte('[')
-			for v30, v31 := range in.Filters {
-				if v30 > 0 {
+			for v21, v22 := range in.Filters {
+				if v21 > 0 {
 					out.RawByte(',')
 				}
-				out.Uint32(uint32(v31))
+				out.Uint32(uint32(v22))
 			}
 			out.RawByte(']')
 		}
@@ -1624,23 +1419,23 @@ func easyjsonB46be6a3EncodeBiobtreeTmpBiobtree14(out *jwriter.Writer, in Biobtre
 // MarshalJSON supports json.Marshaler interface
 func (v BiobtreeFilterRequest) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonB46be6a3EncodeBiobtreeTmpBiobtree14(&w, v)
+	easyjsonB46be6a3EncodeBiobtreeTmpBiobtree13(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v BiobtreeFilterRequest) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonB46be6a3EncodeBiobtreeTmpBiobtree14(w, v)
+	easyjsonB46be6a3EncodeBiobtreeTmpBiobtree13(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *BiobtreeFilterRequest) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonB46be6a3DecodeBiobtreeTmpBiobtree14(&r, v)
+	easyjsonB46be6a3DecodeBiobtreeTmpBiobtree13(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *BiobtreeFilterRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonB46be6a3DecodeBiobtreeTmpBiobtree14(l, v)
+	easyjsonB46be6a3DecodeBiobtreeTmpBiobtree13(l, v)
 }

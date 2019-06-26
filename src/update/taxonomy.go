@@ -1,9 +1,11 @@
 package update
 
 import (
-	"biobtree/src/pbuf"
+	"strconv"
 	"sync/atomic"
 	"time"
+
+	"github.com/mailru/easyjson"
 
 	xmlparser "github.com/tamerh/xml-stream-parser"
 )
@@ -20,7 +22,6 @@ func (t *taxonomy) update() {
 	var ok bool
 	var entryid string
 	var previous int64
-	attr := pbuf.XrefAttr{}
 
 	br, gz, ftpFile, localFile, fr, _ := t.d.getDataReaderNew(t.source, t.d.ebiFtp, t.d.ebiFtpPath, dataconf[t.source]["path"])
 
@@ -49,31 +50,25 @@ func (t *taxonomy) update() {
 
 		t.d.addXref(r.Attrs["scientificName"], textLinkID, entryid, t.source, true)
 
-		attr.Values = nil
-		attr.Key = "name"
-		attr.Values = append(attr.Values, r.Attrs["scientificName"])
-		t.d.addProp2(entryid, fr, &attr)
+		attr := TaxoAttr{}
+		attr.Name = r.Attrs["scientificName"]
 
 		if _, ok := r.Attrs["commonName"]; ok {
-			attr.Values = nil
-			attr.Key = "commonName"
-			attr.Values = append(attr.Values, r.Attrs["commonName"])
-			t.d.addProp2(entryid, fr, &attr)
+			attr.CommonName = r.Attrs["commonName"]
 		}
 
 		if _, ok := r.Attrs["rank"]; ok {
-			attr.Values = nil
-			attr.Key = "rank"
-			attr.Values = append(attr.Values, r.Attrs["rank"])
-			t.d.addProp2(entryid, fr, &attr)
+			c, err := strconv.Atoi(r.Attrs["rank"])
+			if err == nil {
+				attr.Rank = c
+			}
 		}
 
 		if _, ok := r.Attrs["taxonomicDivision"]; ok {
-			attr.Values = nil
-			attr.Key = "taxonomicDivision"
-			attr.Values = append(attr.Values, r.Attrs["taxonomicDivision"])
-			t.d.addProp2(entryid, fr, &attr)
+			attr.TaxonomicDivision = r.Attrs["taxonomicDivision"]
 		}
+		b, _ := easyjson.Marshal(attr)
+		t.d.addProp3(entryid, fr, b)
 
 		//dbreference
 		for _, v = range r.Childs["children"] {

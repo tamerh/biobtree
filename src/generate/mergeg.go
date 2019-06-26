@@ -15,8 +15,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/mailru/easyjson"
-
 	"github.com/golang/protobuf/proto"
 
 	"biobtree/src/db"
@@ -61,7 +59,6 @@ type Merge struct {
 	totalkvLine             int64
 	protoResBufferPool      *chan []*pbuf.XrefEntry
 	protoCountResBufferPool *chan []*pbuf.XrefDomainCount
-	protoPropResBufferPool  *chan []*pbuf.XrefAttr
 }
 
 type chunkReader struct {
@@ -461,8 +458,6 @@ func (d *Merge) init() {
 	d.protoResBufferPool = &protoResPool
 	protoCountResPool := make(chan []*pbuf.XrefDomainCount, d.protoBufferArrLen*2)
 	d.protoCountResBufferPool = &protoCountResPool
-	protoPropResPool := make(chan []*pbuf.XrefAttr, d.protoBufferArrLen*2)
-	d.protoPropResBufferPool = &protoPropResPool
 
 	// initiliaze protobufferpools for results.
 	protoPoolIndex := 0
@@ -472,8 +467,6 @@ func (d *Merge) init() {
 		*d.protoResBufferPool <- resultarr
 		countarr := make([]*pbuf.XrefDomainCount, 500) // todo this number must max unique dataset count
 		*d.protoCountResBufferPool <- countarr
-		proparr := make([]*pbuf.XrefAttr, d.pageSize)
-		*d.protoPropResBufferPool <- proparr
 		protoPoolIndex++
 
 	}
@@ -492,7 +485,7 @@ func (d *Merge) init() {
 
 	var cr []*chunkReader
 
-	tmpRuneSize := 50000
+	tmpRuneSize := 500000
 	if _, ok := appconf["tmpRuneSize"]; ok {
 		tmpRuneSize, err = strconv.Atoi(appconf["tmpRuneSize"])
 		if err != nil {
@@ -757,12 +750,10 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 	var xrefs = make([]*pbuf.Xref, len(kv))
 
 	index := 0
-	propindex := 0
 	var totalCount uint32
 
 	entriesArr := make([][]*pbuf.XrefEntry, len(kv))
 	countsArr := make([][]*pbuf.XrefDomainCount, len(kv))
-	propsArr := make([][]*pbuf.XrefAttr, len(kvProp))
 
 	for k, v := range kv {
 
@@ -787,21 +778,12 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 		}
 		entriesArr[index] = entries
 
-		if len(*d.protoPropResBufferPool) < 10 {
-			panic("Very few available proto res array left. Define or increase 'protoBufPoolSize' parameter in configuration file. This will slightly effect of using more memory. Current array size is ->" + strconv.Itoa(d.protoBufferArrLen))
-		}
+		if _, ok := kvProp[k]; ok { // xref attributes
 
-		if _, ok := kvProp[k]; ok { // xref props
-			props := <-*d.protoPropResBufferPool
-			a := 0
-			for a = 0; a < valPropIdx[k]; a++ {
-				var xattr = pbuf.XrefAttr{}
-				easyjson.Unmarshal([]byte((*kvProp[k])[a].value), &xattr)
-				props[a] = &xattr
+			for a := 0; a < valPropIdx[k]; a++ {
+				xref.Attributes = (*kvProp[k])[a].value
+				break // for now only first value takes into account
 			}
-			xref.Attributes = props[:a]
-			propsArr[propindex] = props
-			propindex++
 
 		}
 
@@ -862,10 +844,6 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 	}
 	for _, arr := range countsArr {
 		*d.protoCountResBufferPool <- arr
-	}
-
-	for i := 0; i < propindex; i++ {
-		*d.protoPropResBufferPool <- propsArr[i]
 	}
 
 	return data

@@ -1,12 +1,13 @@
 package update
 
 import (
-	"biobtree/src/pbuf"
 	"bufio"
 	"net/http"
 	"strings"
 	"sync/atomic"
 	"time"
+
+	"github.com/mailru/easyjson"
 
 	xmlparser "github.com/tamerh/xml-stream-parser"
 )
@@ -31,10 +32,9 @@ func (g *gontology) update() {
 	var total uint64
 	var entryid string
 	var previous int64
-	//var propVal strings.Builder
 	var start time.Time
 
-	attr := pbuf.XrefAttr{}
+	attr := GoAttr{}
 
 	for _, path := range ontologies {
 
@@ -88,32 +88,26 @@ func (g *gontology) update() {
 						}
 					}
 
-					if r.Childs["oboInOwl:hasExactSynonym"] != nil {
+					attr.Reset()
 
-						attr.Values = nil
-						attr.Key = "synonym"
+					if r.Childs["oboInOwl:hasExactSynonym"] != nil {
 						for _, syn := range r.Childs["oboInOwl:hasExactSynonym"] {
-							attr.Values = append(attr.Values, syn.InnerText)
+							attr.Synonyms = append(attr.Synonyms, syn.InnerText)
 						}
-						g.d.addProp2(entryid, fr, &attr)
 					}
 
 					if r.Childs["rdfs:label"] != nil {
-
-						attr.Values = nil
-						attr.Key = "name"
-						attr.Values = append(attr.Values, r.Childs["rdfs:label"][0].InnerText)
-						g.d.addProp2(entryid, fr, &attr)
+						attr.Label = r.Childs["rdfs:label"][0].InnerText
 					}
 
 					if r.Childs["oboInOwl:hasOBONamespace"] != nil {
 
-						attr.Values = nil
-						attr.Key = "type"
-						attr.Values = append(attr.Values, r.Childs["oboInOwl:hasOBONamespace"][0].InnerText)
-						g.d.addProp2(entryid, fr, &attr)
+						attr.Type = r.Childs["oboInOwl:hasOBONamespace"][0].InnerText
 
 					}
+
+					b, _ := easyjson.Marshal(attr)
+					g.d.addProp3(entryid, fr, b)
 
 				}
 

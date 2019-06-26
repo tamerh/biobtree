@@ -10,7 +10,8 @@ import (
 	"strconv"
 	"strings"
 
-	"../pbuf"
+	"biobtree/src/pbuf"
+
 	"github.com/mailru/easyjson"
 )
 

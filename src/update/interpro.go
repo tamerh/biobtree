@@ -1,9 +1,11 @@
 package update
 
 import (
-	"biobtree/src/pbuf"
+	"strconv"
 	"sync/atomic"
 	"time"
+
+	"github.com/mailru/easyjson"
 
 	xmlparser "github.com/tamerh/xml-stream-parser"
 )
@@ -31,7 +33,7 @@ func (i *interpro) update() {
 	var total uint64
 	var entryid string
 	var previous int64
-	attr := pbuf.XrefAttr{}
+	attr := InterproAtrr{}
 
 	for r := range p.Stream() {
 
@@ -45,35 +47,30 @@ func (i *interpro) update() {
 		// id
 		entryid = r.Attrs["id"]
 
+		attr.Reset()
+
 		if _, ok := r.Attrs["short_name"]; ok {
 			i.d.addXref(r.Attrs["short_name"], textLinkID, entryid, i.source, true)
-			attr.Values = nil
-			attr.Key = "short_name"
-			attr.Values = append(attr.Values, r.Attrs["short_name"])
-			i.d.addProp2(entryid, fr, &attr)
+			attr.ShortName = r.Attrs["short_name"]
 		}
 
 		if _, ok := r.Attrs["type"]; ok {
-			attr.Values = nil
-			attr.Key = "type"
-			attr.Values = append(attr.Values, r.Attrs["type"])
-			i.d.addProp2(entryid, fr, &attr)
+			attr.Type = r.Attrs["type"]
 		}
 
 		if _, ok := r.Attrs["protein_count"]; ok {
-
-			attr.Values = nil
-			attr.Key = "protein_count"
-			attr.Values = append(attr.Values, r.Attrs["protein_count"])
-			i.d.addProp2(entryid, fr, &attr)
+			c, err := strconv.Atoi(r.Attrs["protein_count"])
+			if err != nil {
+				attr.ProteinCount = c
+			}
 		}
 
-		attr.Values = nil
-		attr.Key = "name"
 		for _, v := range r.Childs["name"] {
-			attr.Values = append(attr.Values, v.InnerText)
+			attr.Name = append(attr.Name, v.InnerText)
 		}
-		i.d.addProp2(entryid, fr, &attr)
+
+		b, _ := easyjson.Marshal(attr)
+		i.d.addProp3(entryid, fr, b)
 
 		for _, x := range r.Childs["pub_list"] {
 			for _, y := range x.Childs["publication"] {

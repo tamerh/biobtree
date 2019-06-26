@@ -1,10 +1,12 @@
 package update
 
 import (
-	"biobtree/src/pbuf"
+	"strconv"
 	"strings"
 	"sync/atomic"
 	"time"
+
+	"github.com/mailru/easyjson"
 
 	xmlparser "github.com/tamerh/xml-stream-parser"
 )
@@ -15,7 +17,7 @@ type uniprot struct {
 	d        *DataUpdate
 }
 
-func (u *uniprot) processDbReference(entryid string, v *xmlparser.XMLElement, attr *pbuf.XrefAttr) {
+func (u *uniprot) processDbReference(entryid string, v *xmlparser.XMLElement) {
 
 	switch v.Attrs["type"] {
 
@@ -27,10 +29,10 @@ func (u *uniprot) processDbReference(entryid string, v *xmlparser.XMLElement, at
 				targetEmblID := strings.Split(z.Attrs["value"], ".")[0]
 				u.d.addXref(emblID, dataconf[v.Attrs["type"]]["id"], targetEmblID, z.Attrs["type"], false)
 			} else if _, ok := z.Attrs["type"]; ok && z.Attrs["type"] == "molecule type" {
-				attr.Values = nil
-				attr.Key = "molecule_type"
-				attr.Values = append(attr.Values, z.Attrs["value"])
-				u.d.addProp2(v.Attrs["id"], dataconf[v.Attrs["type"]]["id"], attr)
+				attr := CommonAttr{}
+				attr.MoleculeType = z.Attrs["value"]
+				b, _ := easyjson.Marshal(attr)
+				u.d.addProp3(v.Attrs["id"], dataconf[v.Attrs["type"]]["id"], b)
 			}
 		}
 	case "RefSeq":
@@ -46,11 +48,21 @@ func (u *uniprot) processDbReference(entryid string, v *xmlparser.XMLElement, at
 		u.d.addXref(entryid, u.sourceID, v.Attrs["id"], v.Attrs["type"], false)
 		for _, z := range v.Childs["property"] {
 			switch z.Attrs["type"] {
-			case "method", "chains", "resolution":
-				attr.Values = nil
-				attr.Key = z.Attrs["type"]
-				attr.Values = append(attr.Values, z.Attrs["value"])
-				u.d.addProp2(v.Attrs["id"], dataconf[v.Attrs["type"]]["id"], attr)
+			case "method":
+				attr := CommonAttr{}
+				attr.Method = z.Attrs["value"]
+				b, _ := easyjson.Marshal(attr)
+				u.d.addProp3(v.Attrs["id"], dataconf[v.Attrs["type"]]["id"], b)
+			case "chains":
+				attr := CommonAttr{}
+				attr.Chains = z.Attrs["value"]
+				b, _ := easyjson.Marshal(attr)
+				u.d.addProp3(v.Attrs["id"], dataconf[v.Attrs["type"]]["id"], b)
+			case "resolution":
+				attr := CommonAttr{}
+				attr.Resuloution = z.Attrs["value"]
+				b, _ := easyjson.Marshal(attr)
+				u.d.addProp3(v.Attrs["id"], dataconf[v.Attrs["type"]]["id"], b)
 			}
 		}
 	case "DrugBank":
@@ -58,10 +70,10 @@ func (u *uniprot) processDbReference(entryid string, v *xmlparser.XMLElement, at
 		for _, z := range v.Childs["property"] {
 			switch z.Attrs["type"] {
 			case "generic name":
-				attr.Values = nil
-				attr.Key = "name"
-				attr.Values = append(attr.Values, z.Attrs["value"])
-				u.d.addProp2(v.Attrs["id"], dataconf[v.Attrs["type"]]["id"], attr)
+				attr := CommonAttr{}
+				attr.Name = z.Attrs["value"]
+				b, _ := easyjson.Marshal(attr)
+				u.d.addProp3(v.Attrs["id"], dataconf[v.Attrs["type"]]["id"], b)
 			}
 		}
 	case "Ensembl":
@@ -71,10 +83,10 @@ func (u *uniprot) processDbReference(entryid string, v *xmlparser.XMLElement, at
 		for _, z := range v.Childs["property"] {
 			switch z.Attrs["type"] {
 			case "disease":
-				attr.Values = nil
-				attr.Key = "disease"
-				attr.Values = append(attr.Values, z.Attrs["value"])
-				u.d.addProp2(v.Attrs["id"], dataconf[v.Attrs["type"]]["id"], attr)
+				attr := CommonAttr{}
+				attr.DiseaseName = z.Attrs["value"]
+				b, _ := easyjson.Marshal(attr)
+				u.d.addProp3(v.Attrs["id"], dataconf[v.Attrs["type"]]["id"], b)
 			}
 		}
 	case "Reactome":
@@ -82,14 +94,134 @@ func (u *uniprot) processDbReference(entryid string, v *xmlparser.XMLElement, at
 		for _, z := range v.Childs["property"] {
 			switch z.Attrs["type"] {
 			case "pathway name":
-				attr.Values = nil
-				attr.Key = "pathway_name"
-				attr.Values = append(attr.Values, z.Attrs["value"])
-				u.d.addProp2(v.Attrs["id"], dataconf[v.Attrs["type"]]["id"], attr)
+				attr := CommonAttr{}
+				attr.PathwayName = z.Attrs["value"]
+				b, _ := easyjson.Marshal(attr)
+				u.d.addProp3(v.Attrs["id"], dataconf[v.Attrs["type"]]["id"], b)
 			}
 		}
 	default:
 		u.d.addXref(entryid, u.sourceID, v.Attrs["id"], v.Attrs["type"], false)
+
+	}
+
+}
+
+func (u *uniprot) processSequence(entryid string, r *xmlparser.XMLElement, attr *UniprotAttr) {
+
+	if r.Childs["sequence"] != nil {
+		seq := r.Childs["sequence"][0]
+
+		attr.Sequence = UniSequence{}
+		seqq := strings.Replace(seq.InnerText, "\n", "", -1)
+		attr.Sequence.Seq = seqq
+
+		if _, ok := seq.Attrs["length"]; ok {
+			c, err := strconv.Atoi(seq.Attrs["length"])
+			if err == nil {
+				attr.Sequence.Length = c
+			}
+		}
+
+		if _, ok := seq.Attrs["mass"]; ok {
+			c, err := strconv.Atoi(seq.Attrs["mass"])
+			if err == nil {
+				attr.Sequence.Mass = c
+			}
+		}
+
+		if _, ok := seq.Attrs["checksum"]; ok {
+			attr.Sequence.Checksum = seq.Attrs["checksum"]
+		}
+
+	}
+}
+
+func (u *uniprot) processFeatures(entryid string, r *xmlparser.XMLElement, attr *UniprotAttr) {
+
+	evidences := map[string]string{} // for now value is just the evidence id there is also reference to evidence
+	for _, e := range r.Childs["evidence"] {
+		if _, ok := e.Attrs["key"]; ok {
+			if _, ok := e.Attrs["type"]; ok {
+				evidences[e.Attrs["key"]] = e.Attrs["type"]
+			}
+		}
+	}
+
+	for _, f := range r.Childs["feature"] {
+
+		feature := UniFeature{}
+		if _, ok := f.Attrs["type"]; ok {
+			feature.Type = strings.Replace(f.Attrs["type"], " ", "_", -1)
+		}
+
+		if _, ok := f.Attrs["description"]; ok {
+			feature.Description = f.Attrs["description"]
+		}
+
+		if _, ok := f.Attrs["id"]; ok {
+			feature.ID = f.Attrs["id"]
+		}
+
+		if _, ok := f.Attrs["evidence"]; ok {
+			evKeys := strings.Split(f.Attrs["evidence"], " ")
+			for _, key := range evKeys {
+				if _, ok := evidences[key]; ok {
+					feature.Evidences = append(feature.Evidences, evidences[key])
+				}
+			}
+		}
+
+		if f.Childs["original"] != nil {
+			if f.Childs["variation"] != nil {
+				feature.Original = f.Childs["original"][0].InnerText
+				feature.Variatian = f.Childs["variation"][0].InnerText
+			}
+		}
+
+		if f.Childs["location"] != nil {
+			loc := f.Childs["location"][0]
+
+			if loc.Childs["begin"] != nil && loc.Childs["end"] != nil {
+
+				uniloc := UniLocation{}
+				if _, ok := loc.Childs["begin"][0].Attrs["position"]; ok {
+
+					c, err := strconv.Atoi(loc.Childs["begin"][0].Attrs["position"])
+					if err == nil {
+						uniloc.Begin = c
+					}
+
+				}
+
+				if _, ok := loc.Childs["end"][0].Attrs["position"]; ok {
+
+					c, err := strconv.Atoi(loc.Childs["end"][0].Attrs["position"])
+					if err == nil {
+						uniloc.End = c
+					}
+
+				}
+				feature.Loc = uniloc
+
+			} else if loc.Childs["position"] != nil {
+
+				if _, ok := loc.Childs["position"][0].Attrs["position"]; ok {
+
+					uniloc := UniLocation{}
+
+					c, err := strconv.Atoi(loc.Childs["position"][0].Attrs["position"])
+					if err == nil { // same for begin and end
+						uniloc.Begin = c
+						uniloc.End = c
+					}
+					feature.Loc = uniloc
+
+				}
+
+			}
+
+		}
 
 	}
 
@@ -116,14 +248,12 @@ func (u *uniprot) update() {
 	defer gz.Close()
 	defer u.d.wg.Done()
 
-	p := xmlparser.NewXMLParser(br, "entry").SkipElements([]string{"comment", "feature", "sequence"})
+	p := xmlparser.NewXMLParser(br, "entry").SkipElements([]string{"comment"})
 
 	var total uint64
 	var v, x, z xmlparser.XMLElement
 	var entryid string
 	var previous int64
-	//var propVal strings.Builder
-	attr := pbuf.XrefAttr{}
 
 	for r := range p.Stream() {
 
@@ -140,67 +270,44 @@ func (u *uniprot) update() {
 
 		entryid = r.Childs["name"][0].InnerText
 
-		attr.Values = nil
-		attr.Key = "accession"
+		attr := UniprotAttr{}
+
 		for _, v = range r.Childs["accession"] {
 			u.d.addXref(v.InnerText, textLinkID, entryid, u.source, true)
-			attr.Values = append(attr.Values, v.InnerText)
-		}
-		if len(attr.Values) > 0 {
-			u.d.addProp2(entryid, fr, &attr)
+			attr.Accession = append(attr.Accession, v.InnerText)
 		}
 
 		if trembl && r.Childs["gene"] != nil {
 			// for now just for trembl since gene name can come from ensembl but think again
 			//if it is not the case all the time otherwise this could be active when there is no ensembl reference
 			x = r.Childs["gene"][0]
-			attr.Values = nil
-			attr.Key = "gene"
 
 			for _, z = range x.Childs["name"] {
-				attr.Values = append(attr.Values, z.InnerText)
+				attr.Gene = append(attr.Gene, z.InnerText)
 			}
-			if len(attr.Values) > 0 {
-				u.d.addProp2(entryid, fr, &attr)
-			}
+
 		}
 
 		if r.Childs["protein"] != nil {
 
 			x = r.Childs["protein"][0]
 
-			attr.Values = nil
-			attr.Key = "name"
 			for _, v = range x.Childs["recommendedName"] {
 				for _, z = range v.Childs["fullName"] {
-					attr.Values = append(attr.Values, z.InnerText)
+					attr.Name = append(attr.Name, z.InnerText)
 				}
 			}
-			if len(attr.Values) > 0 {
-				u.d.addProp2(entryid, fr, &attr)
-			}
 
-			attr.Values = nil
-			attr.Key = "alternative_name"
 			for _, v = range x.Childs["alternativeName"] {
 				for _, z = range v.Childs["fullName"] {
-					attr.Values = append(attr.Values, z.InnerText)
+					attr.AltName = append(attr.AltName, z.InnerText)
 				}
 			}
-			if len(attr.Values) > 0 {
-				u.d.addProp2(entryid, fr, &attr)
-			}
-
-			attr.Values = nil
-			attr.Key = "submitted_name"
 
 			for _, v = range x.Childs["submittedName"] {
 				for _, z = range v.Childs["fullName"] {
-					attr.Values = append(attr.Values, z.InnerText)
+					attr.SubName = append(attr.SubName, z.InnerText)
 				}
-			}
-			if len(attr.Values) > 0 {
-				u.d.addProp2(entryid, fr, &attr)
 			}
 
 		}
@@ -216,7 +323,7 @@ func (u *uniprot) update() {
 		}
 
 		for _, ref := range r.Childs["dbReference"] {
-			u.processDbReference(entryid, &ref, &attr)
+			u.processDbReference(entryid, &ref)
 		}
 
 		// maybe  more info can be added for the literatuere for later searches e.g scope,title, interaction etc
@@ -227,6 +334,14 @@ func (u *uniprot) update() {
 				}
 			}
 		}
+
+		u.processFeatures(entryid, r, &attr)
+
+		u.processSequence(entryid, r, &attr)
+
+		b, _ := easyjson.Marshal(attr)
+
+		u.d.addProp3(entryid, fr, b)
 
 		total++
 

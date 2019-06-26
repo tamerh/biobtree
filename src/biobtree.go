@@ -14,9 +14,10 @@ import (
 	"strings"
 	"time"
 
-	"./generate"
-	"./service"
-	"./update"
+	"biobtree/src/generate"
+	"biobtree/src/service"
+	"biobtree/src/update"
+
 	"github.com/urfave/cli"
 )
 
@@ -59,7 +60,7 @@ func main() {
 		},
 		cli.StringFlag{
 			Name:  "datasets,d",
-			Value: "uniprot_reviewed",
+			Value: "ensembl",
 			//Value: "uniprot_reviewed,taxonomy,hgnc,chebi,interpro,uniprot_unreviewed,uniparc,uniref100,uniref50,uniref90,my_data,literature_mappings,hmdb,ensembl,ensembl_bacteria,ensembl_fungi,ensembl_metazoa,ensembl_plants,ensembl_protists",
 			//Value: "uniprot_reviewed,taxonomy,hgnc,chebi,interpro,literature_mappings,hmdb",
 			Usage: "change default source datasets. list of datasets are uniprot_reviewed,taxonomy,hgnc,chebi,interpro,uniprot_unreviewed,uniparc,uniref50,uniref90,uniref100,my_data,literature_mappings,hmdb,ensembl,ensembl_bacteria,ensembl_fungi,ensembl_metazoa,ensembl_plants,ensembl_protists,go",
@@ -509,10 +510,16 @@ func initConf(customconfdir string) {
 		appconf["indexDir"] = appconf["outDir"] + "/index"
 	}
 
+	_, ok = appconf["ensemblDir"]
+	if !ok {
+		appconf["ensemblDir"] = appconf["rootDir"] + "/ensembl"
+	}
+
 	//create dirs if missing
 	_ = os.Mkdir(filepath.FromSlash(appconf["outDir"]), 0700)
 	_ = os.Mkdir(filepath.FromSlash(appconf["indexDir"]), 0700)
 	_ = os.Mkdir(filepath.FromSlash(appconf["dbDir"]), 0700)
+	_ = os.Mkdir(filepath.FromSlash(appconf["ensemblDir"]), 0700)
 
 	if _, ok := appconf["fileBufferSize"]; ok {
 		fileBufSize, err = strconv.Atoi(appconf["fileBufferSize"])

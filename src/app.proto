@@ -66,18 +66,11 @@ message Xref {
   bool is_link=3;
   repeated XrefEntry entries=4;
   repeated XrefDomainCount domain_counts=5;
-  repeated XrefAttr attributes= 6;
+  string attributes= 6;
   // these 2 fields are transient fields not saved to database
+  // todo remove
   string identifier=7;
   string specialKeyword =8; 
-
-}
-
-message XrefAttr {
-
-  string key =1;
-  repeated string values = 2;
-  repeated XrefAttr childs = 3;
 
 }
 

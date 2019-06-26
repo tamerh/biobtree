@@ -15,9 +15,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/mailru/easyjson"
-
-	"biobtree/src/pbuf"
 	"biobtree/src/util"
 
 	"github.com/jlaffaye/ftp"
@@ -449,6 +446,7 @@ func (d *DataUpdate) getDataReaderNew(datatype string, ftpAddr string, ftpPath s
 
 }
 
+/**
 func (d *DataUpdate) addProp2(key, from string, attr *pbuf.XrefAttr) {
 
 	key = strings.TrimSpace(key)
@@ -467,7 +465,22 @@ func (d *DataUpdate) addProp2(key, from string, attr *pbuf.XrefAttr) {
 	}
 
 }
+**/
 
+func (d *DataUpdate) addProp3(key, from string, attr []byte) {
+
+	key = strings.TrimSpace(key)
+
+	if len(key) == 0 || len(from) == 0 || len(attr) == 0 {
+		return
+	}
+
+	kup := strings.ToUpper(key)
+	*d.kvdatachan <- kup + tab + from + tab + string(attr) + tab + textStoreID
+
+}
+
+/**
 func (d *DataUpdate) addProp(key string, from string, value string) {
 
 	key = strings.TrimSpace(key)
@@ -483,6 +496,7 @@ func (d *DataUpdate) addProp(key string, from string, value string) {
 	*d.kvdatachan <- kup + tab + from + tab + value + tab + textStoreID
 
 }
+**/
 
 func (d *DataUpdate) addXref(key string, from string, value string, valueFrom string, isLink bool) {
 

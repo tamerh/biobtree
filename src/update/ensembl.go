@@ -1,12 +1,18 @@
 package update
 
 import (
-	"biobtree/src/pbuf"
 	"bufio"
+	json "encoding/json"
+	"io/ioutil"
 	"log"
+	"os"
+	"path/filepath"
+	"strconv"
 	"strings"
 	"sync/atomic"
 	"time"
+
+	"github.com/mailru/easyjson"
 
 	"github.com/tamerh/jsparser"
 )
@@ -16,27 +22,90 @@ type ensembl struct {
 	d      *DataUpdate
 }
 
-func (e *ensembl) getEnsemblSetting(ensemblType string) (string, string, []string, []string) {
+type ensemblPaths struct {
+	Version  int                 `json:"version"`
+	Jsons    map[string][]string `json:"jsons"`
+	Biomarts map[string][]string `json:"biomarts"`
+}
 
-	//var selectedSpecies []string
-	//jsonFilePaths := map[string]string{}
-	//biomartFilePaths := map[string][]string{}
-	var jsonFilePaths []string
-	var biomartFilePaths []string
-	var fr string
+func (e *ensembl) getEnsemblPaths() (*ensemblPaths, string) {
 
-	if len(e.d.selectedEnsemblSpecies) == 1 && e.d.selectedEnsemblSpecies[0] == "all" {
-		e.d.selectedEnsemblSpecies = nil
-	}
+	var branch string
 	var ftpAddress string
 	var ftpJSONPath string
 	var ftpMysqlPath string
 	var ftpBiomartFolder string
-	var branch string
+	var version int
+	ensembls := ensemblPaths{}
+	pathFile := filepath.FromSlash(appconf["ensemblDir"] + "/" + e.source + ".paths.json")
+	var err error
 
-	allSpeciesPaths := map[string]string{} // this is needed because their json might under a collection
+	switch e.source {
+
+	case "ensembl":
+		ftpAddress = appconf["ensembl_ftp"]
+		ftpJSONPath = appconf["ensembl_ftp_json_path"]
+		ftpMysqlPath = appconf["ensembl_ftp_mysql_path"]
+		branch = "ensembl"
+	case "ensembl_bacteria":
+		ftpAddress = appconf["ensembl_genomes_ftp"]
+		ftpJSONPath = strings.Replace(appconf["ensembl_genomes_ftp_json_path"], "$(branch)", "bacteria", 1)
+		ftpMysqlPath = strings.Replace(appconf["ensembl_genomes_ftp_mysql_path"], "$(branch)", "bacteria", 1)
+		branch = "bacteria"
+	case "ensembl_fungi":
+		ftpAddress = appconf["ensembl_genomes_ftp"]
+		ftpJSONPath = strings.Replace(appconf["ensembl_genomes_ftp_json_path"], "$(branch)", "fungi", 1)
+		ftpMysqlPath = strings.Replace(appconf["ensembl_genomes_ftp_mysql_path"], "$(branch)", "fungi", 1)
+		branch = "fungi"
+	case "ensembl_metazoa":
+		ftpAddress = appconf["ensembl_genomes_ftp"]
+		ftpJSONPath = strings.Replace(appconf["ensembl_genomes_ftp_json_path"], "$(branch)", "metazoa", 1)
+		ftpMysqlPath = strings.Replace(appconf["ensembl_genomes_ftp_mysql_path"], "$(branch)", "metazoa", 1)
+		branch = "metazoa"
+	case "ensembl_plants":
+		ftpAddress = appconf["ensembl_genomes_ftp"]
+		ftpJSONPath = strings.Replace(appconf["ensembl_genomes_ftp_json_path"], "$(branch)", "plants", 1)
+		ftpMysqlPath = strings.Replace(appconf["ensembl_genomes_ftp_mysql_path"], "$(branch)", "plants", 1)
+		branch = "plants"
+	case "ensembl_protists":
+		ftpAddress = appconf["ensembl_genomes_ftp"]
+		ftpJSONPath = strings.Replace(appconf["ensembl_genomes_ftp_json_path"], "$(branch)", "protists", 1)
+		ftpMysqlPath = strings.Replace(appconf["ensembl_genomes_ftp_mysql_path"], "$(branch)", "protists", 1)
+		branch = "protists"
+	}
+
+	// first get Latest version
+	client := e.d.ftpClient(ftpAddress)
+	entries2, err := client.List("/pub")
+	check(err)
+	for _, file2 := range entries2 {
+		if strings.HasPrefix(file2.Name, "release-") {
+
+			c, err := strconv.Atoi(strings.Split(file2.Name, "-")[1])
+			check(err)
+			if c > version {
+				version = c
+			}
+		}
+	}
+
+	exist := e.fileExists(pathFile)
+	if exist {
+		f, err := os.Open(pathFile)
+		check(err)
+		b, err := ioutil.ReadAll(f)
+		check(err)
+		err = json.Unmarshal(b, &ensembls)
+		check(err)
+		if version == ensembls.Version { // if same version no need to generate
+			return &ensembls, ftpAddress
+		}
+	}
+
+	ensembls = ensemblPaths{Jsons: map[string][]string{}, Biomarts: map[string][]string{}, Version: version}
 
 	setJSONs := func() {
+
 		client := e.d.ftpClient(ftpAddress)
 		entries, err := client.List(ftpJSONPath)
 		check(err)
@@ -47,30 +116,13 @@ func (e *ensembl) getEnsemblSetting(ensemblType string) (string, string, []strin
 				entries2, err := client.List(ftpJSONPath + "/" + file.Name)
 				check(err)
 				for _, file2 := range entries2 {
-					allSpeciesPaths[file2.Name] = ftpJSONPath + "/" + file.Name + "/" + file2.Name + "/" + file2.Name + ".json"
+					ensembls.Jsons[file2.Name] = append(ensembls.Jsons[file2.Name], ftpJSONPath+"/"+file.Name+"/"+file2.Name+"/"+file2.Name+".json")
 				}
 			} else {
-				allSpeciesPaths[file.Name] = ftpJSONPath + "/" + file.Name + "/" + file.Name + ".json"
+				ensembls.Jsons[file.Name] = append(ensembls.Jsons[file.Name], ftpJSONPath+"/"+file.Name+"/"+file.Name+".json")
 			}
 		}
 
-		if e.d.selectedEnsemblSpecies == nil { // if all selected
-
-			for _, v := range allSpeciesPaths {
-				jsonFilePaths = append(jsonFilePaths, v)
-			}
-
-		} else {
-			for _, sp := range e.d.selectedEnsemblSpecies {
-
-				if _, ok := allSpeciesPaths[sp]; !ok {
-					log.Println("WARN Species ->", sp, "not found in ensembl ", branch, "if you specify multiple ensembl IGNORE this")
-					continue
-				} else {
-					jsonFilePaths = append(jsonFilePaths, allSpeciesPaths[sp])
-				}
-			}
-		}
 	}
 
 	setBiomarts := func() {
@@ -90,76 +142,97 @@ func (e *ensembl) getEnsemblSetting(ensemblType string) (string, string, []strin
 
 		}
 
-		var biomartSpeciesName string // this is just the shorcut name of species in biomart folder e.g homo_sapiens-> hsapiens
-		for _, sp := range e.d.selectedEnsemblSpecies {
+		client := e.d.ftpClient(ftpAddress)
+		entries, err := client.List(ftpMysqlPath + "/" + ftpBiomartFolder + "/*__efg_*.gz")
+		check(err)
+		//var biomartFiles []string
+		for _, file := range entries {
+			species := strings.Split(file.Name, "_")[0]
 
-			splitted := strings.Split(sp, "_")
-			if len(splitted) > 1 {
-				biomartSpeciesName = splitted[0][:1] + splitted[len(splitted)-1]
-			} else {
-				panic("Unrecognized species name pattern->" + sp)
-			}
+			ensembls.Biomarts[species] = append(ensembls.Biomarts[species], ftpMysqlPath+"/"+ftpBiomartFolder+"/"+file.Name)
 
-			// now get list of probset files
-			client := e.d.ftpClient(ftpAddress)
-			entries, err := client.List(ftpMysqlPath + "/" + ftpBiomartFolder + "/" + biomartSpeciesName + "*__efg_*.gz")
-			check(err)
-			//var biomartFiles []string
-			for _, file := range entries {
-				biomartFilePaths = append(biomartFilePaths, ftpMysqlPath+"/"+ftpBiomartFolder+"/"+file.Name)
-			}
-			//biomartFilePaths[sp] = biomartFiles
 		}
+
 	}
+
 	switch e.source {
 
 	case "ensembl":
-		fr = dataconf["ensembl"]["id"]
-		ftpAddress = appconf["ensembl_ftp"]
-		ftpJSONPath = appconf["ensembl_ftp_json_path"]
-		ftpMysqlPath = appconf["ensembl_ftp_mysql_path"]
-		branch = "ensembl"
 		setJSONs()
 		setBiomarts()
 	case "ensembl_bacteria":
-		fr = dataconf["ensembl_bacteria"]["id"]
-		ftpAddress = appconf["ensembl_genomes_ftp"]
-		ftpJSONPath = strings.Replace(appconf["ensembl_genomes_ftp_json_path"], "$(branch)", "bacteria", 1)
-		ftpMysqlPath = strings.Replace(appconf["ensembl_genomes_ftp_mysql_path"], "$(branch)", "bacteria", 1)
-		branch = "bacteria"
 		setJSONs()
 	case "ensembl_fungi":
-		fr = dataconf["ensembl_fungi"]["id"]
-		ftpAddress = appconf["ensembl_genomes_ftp"]
-		ftpJSONPath = strings.Replace(appconf["ensembl_genomes_ftp_json_path"], "$(branch)", "fungi", 1)
-		ftpMysqlPath = strings.Replace(appconf["ensembl_genomes_ftp_mysql_path"], "$(branch)", "fungi", 1)
-		branch = "fungi"
 		setJSONs()
 		setBiomarts()
 	case "ensembl_metazoa":
-		fr = dataconf["ensembl_metazoa"]["id"]
-		ftpAddress = appconf["ensembl_genomes_ftp"]
-		ftpJSONPath = strings.Replace(appconf["ensembl_genomes_ftp_json_path"], "$(branch)", "metazoa", 1)
-		ftpMysqlPath = strings.Replace(appconf["ensembl_genomes_ftp_mysql_path"], "$(branch)", "metazoa", 1)
-		branch = "metazoa"
 		setJSONs()
 		setBiomarts()
 	case "ensembl_plants":
-		fr = dataconf["ensembl_plants"]["id"]
-		ftpAddress = appconf["ensembl_genomes_ftp"]
-		ftpJSONPath = strings.Replace(appconf["ensembl_genomes_ftp_json_path"], "$(branch)", "plants", 1)
-		ftpMysqlPath = strings.Replace(appconf["ensembl_genomes_ftp_mysql_path"], "$(branch)", "plants", 1)
-		branch = "plants"
 		setJSONs()
 		setBiomarts()
 	case "ensembl_protists":
-		fr = dataconf["ensembl_protists"]["id"]
-		ftpAddress = appconf["ensembl_genomes_ftp"]
-		ftpJSONPath = strings.Replace(appconf["ensembl_genomes_ftp_json_path"], "$(branch)", "protists", 1)
-		ftpMysqlPath = strings.Replace(appconf["ensembl_genomes_ftp_mysql_path"], "$(branch)", "protists", 1)
-		branch = "protists"
 		setJSONs()
 		setBiomarts()
+	}
+
+	data, err := json.Marshal(ensembls)
+	check(err)
+
+	ioutil.WriteFile(filepath.FromSlash(appconf["ensemblDir"]+"/"+e.source+".paths.json"), data, 0770)
+
+	return &ensembls, ftpAddress
+
+}
+
+func (e *ensembl) getEnsemblSetting(ensemblType string) (string, string, []string, []string) {
+
+	var jsonFilePaths []string
+	var biomartFilePaths []string
+	fr := dataconf["ensembl_plants"]["id"]
+
+	if len(e.d.selectedEnsemblSpecies) == 1 && e.d.selectedEnsemblSpecies[0] == "all" {
+		e.d.selectedEnsemblSpecies = nil
+	}
+
+	ensemblPaths, ftpAddress := e.getEnsemblPaths()
+
+	if e.d.selectedEnsemblSpecies == nil { // if all selected
+
+		for _, v := range ensemblPaths.Jsons {
+			for _, vv := range v {
+				jsonFilePaths = append(jsonFilePaths, vv)
+			}
+		}
+
+	} else {
+		for _, sp := range e.d.selectedEnsemblSpecies {
+
+			if _, ok := ensemblPaths.Jsons[sp]; !ok {
+				log.Println("WARN Species ->", sp, "not found in ensembl ", e.source, "if you specify multiple ensembl IGNORE this")
+				continue
+			} else {
+				for _, vv := range ensemblPaths.Jsons[sp] {
+					jsonFilePaths = append(jsonFilePaths, vv)
+				}
+			}
+		}
+	}
+
+	var biomartSpeciesName string // this is just the shorcut name of species in biomart folder e.g homo_sapiens-> hsapiens
+	for _, sp := range e.d.selectedEnsemblSpecies {
+
+		splitted := strings.Split(sp, "_")
+		if len(splitted) > 1 {
+			biomartSpeciesName = splitted[0][:1] + splitted[len(splitted)-1]
+		} else {
+			panic("Unrecognized species name pattern->" + sp)
+		}
+
+		for _, vv := range ensemblPaths.Biomarts[biomartSpeciesName] {
+			biomartFilePaths = append(biomartFilePaths, vv)
+		}
+
 	}
 
 	return fr, ftpAddress, jsonFilePaths, biomartFilePaths
@@ -167,6 +240,7 @@ func (e *ensembl) getEnsemblSetting(ensemblType string) (string, string, []strin
 }
 
 func (e *ensembl) update() {
+
 	defer e.d.wg.Done()
 
 	ensemblTranscriptID := dataconf["EnsemblTranscript"]["id"]
@@ -174,7 +248,6 @@ func (e *ensembl) update() {
 	var total uint64
 	var previous int64
 	var start time.Time
-	attr := pbuf.XrefAttr{}
 
 	fr, ftpAddress, jsonPaths, biomartPaths := e.getEnsemblSetting(e.source)
 
@@ -194,16 +267,52 @@ func (e *ensembl) update() {
 		}
 	}
 
-	xrefProps := []string{"name", "description", "start", "end", "biotype", "genome", "strand", "seq_region_name"}
+	//xrefProps := []string{"name", "description", "start", "end", "biotype", "genome", "strand", "seq_region_name"}
 	xrefProp := func(j *jsparser.JSON, entryid, from string) {
-		for _, propName := range xrefProps {
-			if j.ObjectVals[propName] != nil {
-				attr.Values = nil
-				attr.Key = propName
-				attr.Values = append(attr.Values, j.ObjectVals[propName].StringVal)
-				e.d.addProp2(entryid, from, &attr)
+
+		attr := EnsemblAttr{}
+
+		if j.ObjectVals["name"] != nil {
+			attr.Name = j.ObjectVals["name"].StringVal
+		}
+
+		if j.ObjectVals["description"] != nil {
+			attr.Description = j.ObjectVals["description"].StringVal
+		}
+
+		if j.ObjectVals["biotype"] != nil {
+			attr.Biotype = j.ObjectVals["biotype"].StringVal
+		}
+
+		if j.ObjectVals["genome"] != nil {
+			attr.Genome = j.ObjectVals["genome"].StringVal
+		}
+
+		if j.ObjectVals["strand"] != nil {
+			attr.Strand = j.ObjectVals["strand"].StringVal
+		}
+
+		if j.ObjectVals["seq_region_name"] != nil {
+			attr.SeqRegionName = j.ObjectVals["seq_region_name"].StringVal
+		}
+
+		if j.ObjectVals["start"] != nil {
+			c, err := strconv.Atoi(j.ObjectVals["start"].StringVal)
+			if err == nil {
+				attr.Start = c
 			}
 		}
+
+		if j.ObjectVals["end"] != nil {
+			c, err := strconv.Atoi(j.ObjectVals["end"].StringVal)
+			if err == nil {
+				attr.End = c
+			}
+		}
+
+		b, _ := easyjson.Marshal(attr)
+		e.d.addProp3(entryid, fr, b)
+
 	}
 
 	for _, path := range jsonPaths {
@@ -397,4 +506,18 @@ func (e *ensembl) update() {
 
 	e.d.addEntryStat(e.source, total)
 
+}
+
+func (e *ensembl) fileExists(name string) bool {
+
+	if _, err := os.Stat(name); err == nil {
+		return true
+	} else if os.IsNotExist(err) {
+		return false
+	} else {
+		// Schrodinger: file may or may not exist. See err for details.
+		// Therefore, do *NOT* use !os.IsNotExist(err) to test for file existence
+		check(err)
+		return false
+	}
 }

@@ -1,9 +1,10 @@
 package update
 
 import (
-	"biobtree/src/pbuf"
 	"sync/atomic"
 	"time"
+
+	"github.com/mailru/easyjson"
 
 	"github.com/tamerh/jsparser"
 )
@@ -30,7 +31,7 @@ func (e *hgnc) update() {
 	var ok bool
 	var v *jsparser.JSON
 	var total uint64
-	attr := pbuf.XrefAttr{}
+	attr := HgncAttr{}
 
 	a := func(jid string, dbid string, j *jsparser.JSON, entryid string) {
 
@@ -67,57 +68,42 @@ func (e *hgnc) update() {
 			a("refseq_accession", "RefSeq", j, entryid)
 			a("uniprot_ids", "UniProtKB", j, entryid)
 
+			attr.Reset()
+
+			// todo check again most of the symbol and name has single value
 			if _, ok = j.ObjectVals["symbol"]; ok && len(j.ObjectVals["symbol"].ArrayVals) > 0 {
 
-				attr.Values = nil
-				attr.Key = "symbol"
 				for _, v = range j.ObjectVals["symbol"].ArrayVals {
 					e.d.addXref(v.StringVal, textLinkID, entryid, "hgnc", true)
-					attr.Values = append(attr.Values, v.StringVal)
+					attr.Symbol = append(attr.Symbol, v.StringVal)
 				}
-
-				e.d.addProp2(entryid, fr, &attr)
 
 			} else if _, ok = j.ObjectVals["symbol"]; ok && len(j.ObjectVals["symbol"].StringVal) > 0 {
 				e.d.addXref(j.ObjectVals["symbol"].StringVal, textLinkID, entryid, "hgnc", true)
-				attr.Values = nil
-				attr.Key = "symbol"
-				attr.Values = append(attr.Values, j.ObjectVals["symbol"].StringVal)
-				e.d.addProp2(entryid, fr, &attr)
+				attr.Symbol = append(attr.Symbol, j.ObjectVals["symbol"].StringVal)
 			}
 
 			if _, ok = j.ObjectVals["name"]; ok && len(j.ObjectVals["name"].ArrayVals) > 0 {
-
-				attr.Values = nil
-				attr.Key = "name"
 				for _, v = range j.ObjectVals["name"].ArrayVals {
 					e.d.addXref(v.StringVal, textLinkID, entryid, "hgnc", true)
-					attr.Values = append(attr.Values, v.StringVal)
+					attr.Name = append(attr.Name, v.StringVal)
 				}
-
-				e.d.addProp2(entryid, fr, &attr)
 
 			} else if _, ok = j.ObjectVals["name"]; ok && len(j.ObjectVals["name"].StringVal) > 0 {
 				e.d.addXref(j.ObjectVals["name"].StringVal, textLinkID, entryid, "hgnc", true)
-				attr.Values = nil
-				attr.Key = "name"
-				attr.Values = append(attr.Values, j.ObjectVals["name"].StringVal)
-				e.d.addProp2(entryid, fr, &attr)
+				attr.Name = append(attr.Name, j.ObjectVals["name"].StringVal)
 			}
 
 			if _, ok = j.ObjectVals["locus_group"]; ok && len(j.ObjectVals["locus_group"].StringVal) > 0 {
-				attr.Values = nil
-				attr.Key = "locus_group"
-				attr.Values = append(attr.Values, j.ObjectVals["locus_group"].StringVal)
-				e.d.addProp2(entryid, fr, &attr)
+				attr.LocusGroup = j.ObjectVals["locus_group"].StringVal
 			}
 
 			if _, ok = j.ObjectVals["location"]; ok && len(j.ObjectVals["location"].StringVal) > 0 {
-				attr.Values = nil
-				attr.Key = "location"
-				attr.Values = append(attr.Values, j.ObjectVals["location"].StringVal)
-				e.d.addProp2(entryid, fr, &attr)
+				attr.Location = j.ObjectVals["location"].StringVal
 			}
+
+			b, _ := easyjson.Marshal(attr)
+			e.d.addProp3(entryid, fr, b)
 
 		}
 

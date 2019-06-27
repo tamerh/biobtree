@@ -118,6 +118,8 @@ func (e *ensembl) getEnsemblPaths() (*ensemblPaths, string) {
 				for _, file2 := range entries2 {
 					ensembls.Jsons[file2.Name] = append(ensembls.Jsons[file2.Name], ftpJSONPath+"/"+file.Name+"/"+file2.Name+"/"+file2.Name+".json")
 				}
+				time.Sleep(2 * time.Second) // for not to kicked out from ensembl ftp
+
 			} else {
 				ensembls.Jsons[file.Name] = append(ensembls.Jsons[file.Name], ftpJSONPath+"/"+file.Name+"/"+file.Name+".json")
 			}
@@ -267,6 +269,16 @@ func (e *ensembl) update() {
 		}
 	}
 
+	xrefGO := func(j *jsparser.JSON, entryid, from string) {
+
+		if j.ObjectVals["GO"] != nil {
+			for _, val := range j.ObjectVals["GO"].ArrayVals {
+				e.d.addXref(entryid, from, val.ObjectVals["term"].StringVal, "GO", false)
+			}
+		}
+
+	}
+
 	//xrefProps := []string{"name", "description", "start", "end", "biotype", "genome", "strand", "seq_region_name"}
 	xrefProp := func(j *jsparser.JSON, entryid, from string) {
 
@@ -388,6 +400,7 @@ func (e *ensembl) update() {
 				xref(j, entryid, fr, "HGNC", "hgnc")
 				xref(j, entryid, fr, "RefSeq_ncRNA_predicted", "RefSeq")
 				xref(j, entryid, fr, "HAMAP", "HAMAP")
+				xrefGO(j, entryid, fr) // go terms are also under xrefs with source information.
 
 				if j.ObjectVals["transcripts"] != nil {
 					for _, val := range j.ObjectVals["transcripts"].ArrayVals {
@@ -439,6 +452,7 @@ func (e *ensembl) update() {
 						xref(val, tentryid, ensemblTranscriptID, "HGNC", "hgnc")
 						xref(val, tentryid, ensemblTranscriptID, "RefSeq_ncRNA_predicted", "RefSeq")
 						xref(val, tentryid, ensemblTranscriptID, "HAMAP", "HAMAP")
+						xrefGO(val, tentryid, ensemblTranscriptID)
 
 					}
 				}
@@ -452,10 +466,9 @@ func (e *ensembl) update() {
 		if localFile != nil {
 			localFile.Close()
 		}
+		//TODO protein features and translations
 
-		//TODO GO ONLY RELATED ONE
-		//TODO PROTEIN FEAUTRES AND TRANSLATIONS
-
+		time.Sleep(2 * time.Second) // for not to kicked out from ensembl ftp
 	}
 
 	previous = 0
@@ -498,7 +511,7 @@ func (e *ensembl) update() {
 		} else {
 			log.Println("Warn: new prob mapping found. It must be defined in configuration", probsetMachine)
 		}
-
+		time.Sleep(2 * time.Second) // for not to kicked out from ensembl ftp
 	}
 
 	e.d.progChan <- &progressInfo{dataset: e.source, done: true}

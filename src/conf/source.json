@@ -61,7 +61,7 @@
     "id": "243",
     "name": "Ensembl",
     "url": "https://www.ensembl.org/Multi/Search/Results?q=£{id};site=ensembl_all",
-    "useLocalFile": "no",
+    "useLocalFile": "yes",
     "path": "/Users/tgur/go/src/biobtree/test_data/ensembl.json",
     "path1": "/Users/tgur/go/src/mygoparsers/homo_pretty.json"
   },

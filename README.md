@@ -3,7 +3,7 @@ Biobtree is a bioinformatics tool to search, map and visualize bioinformatics id
 
 ## Announcement
 
-- Soon ensembl datasets including probe identfiers mappings will be integrated with new features and more documentation.
+- Soon new datasets will be integrated with major new features, more documentation and example usecase. Also related paper will be updated based on reviewers revisions.
 
 [comment]: <> (## All dataset example Contains 3.4 billions unique identifiers.https://www.ebi.ac.uk/~tgur/biobtree/ Note that Bulk Query is disabled.)
 

@@ -3,7 +3,6 @@ out/
 .vscode/
 web/node_modules
 web/package-lock.json
-web/dist
 cpuprof.out
 memprof.out
 tmp/

@@ -87,39 +87,26 @@ func (c *Conf) Init(rootDir, versionTag string, webuicssfiles, webuijsfiles []st
 
 	if !exist {
 		log.Println("Downloading web interface files.")
-		err := os.Mkdir("website", 0700)
-		if err != nil {
-			panic("Error while creating conf directory")
-		}
-		staticFolderPath := filepath.FromSlash("website/static")
-		jsFolderPath := filepath.FromSlash("website/static/js")
-		cssFolderPath := filepath.FromSlash("website/static/css")
+		_ = os.Mkdir("website", 0700)
+		staticFolderPath := filepath.FromSlash("website")
+		jsFolderPath := filepath.FromSlash("website/js")
+		cssFolderPath := filepath.FromSlash("website/css")
 
-		err = os.Mkdir(staticFolderPath, 0700)
-		if err != nil {
-			panic("Error while creating static directory")
-		}
-
-		err = os.Mkdir(jsFolderPath, 0700)
-		if err != nil {
-			panic("Error while creating js directory")
-		}
+		_ = os.Mkdir(staticFolderPath, 0700)
+		_ = os.Mkdir(jsFolderPath, 0700)
 		for _, file := range c.webuijsfiles {
 			jsFile := filepath.FromSlash(jsFolderPath + "/" + file)
-			downloadFile(c.confURLPath+"/website/js/"+file, jsFile)
+			downloadFile(c.confURLPath+"/web/dist/js/"+file, jsFile)
 		}
-		err = os.Mkdir(cssFolderPath, 0700)
-		if err != nil {
-			panic("Error while creating css directory")
-		}
+		_ = os.Mkdir(cssFolderPath, 0700)
 		for _, file := range c.webuicssfiles {
 			cssFile := filepath.FromSlash(cssFolderPath + "/" + file)
-			downloadFile(c.confURLPath+"/website/css/"+file, cssFile)
+			downloadFile(c.confURLPath+"/web/dist/css/"+file, cssFile)
 		}
 		indexFile := filepath.FromSlash("website/index.html")
-		downloadFile(c.confURLPath+"/website/index.html", indexFile)
+		downloadFile(c.confURLPath+"/web/dist/index.html", indexFile)
 		mysytleFile := filepath.FromSlash("website/mystyles.css")
-		downloadFile(c.confURLPath+"/website/mystyles.css", mysytleFile)
+		downloadFile(c.confURLPath+"/web/dist/mystyles.css", mysytleFile)
 		log.Println("files downloaded.")
 	}
 
@@ -314,7 +301,7 @@ func (c *Conf) checkForNewVersion() {
 	}
 
 	if latestRelease.Tag != c.versionTag {
-		log.Println("Warning: There is a new biobtree version available to download.")
+		log.Println("Warning: There is a new biobtree version available to download.-->", latestRelease.Tag)
 	}
 
 }

@@ -1,0 +1,216 @@
+{
+  "uniprot": {
+    "id": "1",
+    "name": "Uniprot",
+    "path": "/current_release/knowledgebase/complete/uniprot_sprot.xml.gz",
+    "aliases": "UniProtKB,uniprotkb,UniProtKB accession,UniProtKB/Swiss-Prot,UniProtKB/TrEMBL,UniProtKB/Swiss-Prot protein isoforms,TREMBL_VARSPLIC,UniProtKB_accession,uniprot_unreviewed",
+    "url": "//www.uniprot.org/uniprot/£{id}",
+    "pathTrembl": "/current_release/knowledgebase/complete/uniprot_trembl.xml.gz",
+    "useLocalFile": "no",
+    "hasFilter": "yes"
+  },
+  "ensembl": {
+    "aliases": "gene ID,Ensembl",
+    "id": "2",
+    "name": "Ensembl",
+    "url": "https://www.ensembl.org/Multi/Search/Results?q=£{id};site=ensembl_all",
+    "path": "homo_pretty.json",
+    "useLocalFile": "no",
+    "hasFilter": "yes"
+  },
+  "taxonomy": {
+    "id": "3",
+    "name": "Taxonomy",
+    "path": "/taxonomy/taxonomy.xml.gz",
+    "url": "//www.uniprot.org/taxonomy/£{id}",
+    "aliases": "NCBITaxonomy,NCBItaxonomy,NCBI_taxonomy_id,common taxon ID,NCBI taxonomy,NCBI Taxonomy",
+    "hasFilter": "yes"
+  },
+  "go": {
+    "aliases": "GO Molecular Function,GO Cellular Component,GO Biological Process,GO",
+    "id": "4",
+    "name": "GO",
+    "url": "https://www.ebi.ac.uk/QuickGO/term/£{id}",
+    "path": "http://purl.obolibrary.org/obo/go.owl",
+    "pathEco": "http://purl.obolibrary.org/obo/eco.owl",
+    "useLocalFile": "no",
+    "hasFilter": "yes"
+  },
+  "hgnc": {
+    "id": "5",
+    "name": "HGNC",
+    "path": "/genenames/new/json/hgnc_complete_set.json",
+    "aliases": "HGNC",
+    "url": "https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/£{id}",
+    "useLocalFile": "no",
+    "hasFilter": "yes"
+  },
+  "uniparc": {
+    "id": "6",
+    "name": "Uniparc",
+    "path": "/current_release/uniparc/uniparc_all.xml.gz",
+    "shortened_id": "upi,",
+    "aliases": "UniParc ID",
+    "url": "//www.uniprot.org/uniparc/£{id}",
+    "useLocalFile": "no"
+  },
+  "uniref50": {
+    "id": "7",
+    "name": "Uniref",
+    "path": "/current_release/uniref/uniref50/uniref50.xml.gz",
+    "shortened_id": "uniref50_,5_",
+    "exclusion_xrefs": "uniref100",
+    "aliases": "UniRef50 ID",
+    "url": "//www.uniprot.org/uniref/£{id}",
+    "useLocalFile": "no"
+  },
+  "uniref90": {
+    "id": "8",
+    "name": "Uniref",
+    "path": "/current_release/uniref/uniref90/uniref90.xml.gz",
+    "shortened_id": "uniref90_,9_",
+    "exclusion_xrefs": "uniref50",
+    "aliases": "UniRef90 ID",
+    "url": "//www.uniprot.org/uniref/£{id}",
+    "useLocalFile": "no"
+  },
+  "uniref100": {
+    "id": "9",
+    "name": "Uniref",
+    "path": "/current_release/uniref/uniref100/uniref100.xml.gz",
+    "shortened_id": "uniref100_,1_",
+    "exclusion_xrefs": "uniref90",
+    "aliases": "UniRef100 ID",
+    "url": "//www.uniprot.org/uniref/£{id}",
+    "useLocalFile": "no"
+  },
+  "chebi": {
+    "id": "10",
+    "name": "chebi",
+    "path": "/chebi/Flat_file_tab_delimited/",
+    "files": "database_accession.tsv",
+    "aliases": "ChEBI",
+    "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=£{id}"
+  },
+  "interpro": {
+    "id": "11",
+    "name": "Interpro",
+    "path": "/interpro/current/interpro.xml.gz",
+    "url": "https://www.ebi.ac.uk/interpro/entry/£{id}",
+    "aliases": "INTERPRO,InterPro",
+    "useLocalFile": "no",
+    "hasFilter": "yes"
+  },
+  "literature_mappings": {
+    "id": "12",
+    "name": "literature_mappings",
+    "path": "/pmc/DOI/PMID_PMCID_DOI.csv.gz",
+    "doiPrefix": "https://doi.org/",
+    "url": ""
+  },
+  "hmdb": {
+    "id": "13",
+    "name": "hmdb",
+    "aliases": "HMDB,HMDB accession",
+    "path": "http://www.hmdb.ca/system/downloads/current/hmdb_metabolites.zip",
+    "path2": "http://localhost:8000/hmdb.zip",
+    "url": "http://www.hmdb.ca/metabolites/£{id}",
+    "useLocalFile": "no",
+    "hasFilter": "yes"
+  },
+  "my_data": {
+    "id": "14",
+    "name": "my_data",
+    "path": "./my_data/my_data.xml.gz",
+    "url": "",
+    "useLocalFile": "yes",
+    "active": "false"
+  },
+  "chembl_document": {
+    "name": "chembl_document",
+    "id": "15",
+    "url": "https://www.ebi.ac.uk/chembl/document_report_card/£{id}/",
+    "path": "/chembl/ChEMBL-RDF/latest/",
+    "pathDocumentPattern": "chembl*document.ttl.gz",
+    "pathJournalPattern": "chembl*journal.ttl.gz",
+    "useLocalFile": "no",
+    "hasFilter": "yes"
+  },
+  "chembl_assay": {
+    "name": "chembl_assay",
+    "id": "16",
+    "url": "https://www.ebi.ac.uk/chembl/assay_report_card/£{id}/",
+    "path": "/chembl/ChEMBL-RDF/latest/",
+    "pathAssayPattern": "chembl*assay.ttl.gz",
+    "pathAssaySourcePattern": "chembl*source.ttl.gz",
+    "useLocalFile": "no",
+    "hasFilter": "yes"
+  },
+  "chembl_activity": {
+    "name": "chembl_activity",
+    "id": "17",
+    "url": "#",
+    "path": "/chembl/ChEMBL-RDF/latest/",
+    "pathActivityPattern": "chembl*activity.ttl.gz",
+    "useLocalFile": "no",
+    "hasFilter": "yes"
+  },
+  "chembl_molecule": {
+    "name": "chembl_molecule",
+    "id": "18",
+    "url": "https://www.ebi.ac.uk/chembl/compound_report_card/£{id}/",
+    "path": "/chembl/ChEMBL-RDF/latest/",
+    "pathMoleculePattern": "chembl*molecule.ttl.gz",
+    "pathBioComponentPattern": "chembl*biocmpt.ttl.gz",
+    "pathIndicationPattern": "chembl*indication.ttl.gz",
+    "pathChebiPattern": "chembl*molecule_chebi_ls.ttl.gz",
+    "pathHierarchyPattern": "chembl*molhierarchy.ttl.gz",
+    "useLocalFile": "no",
+    "hasFilter": "yes"
+  },
+  "chembl_target_component": {
+    "name": "chembl_target_component",
+    "id": "19",
+    "url": "#",
+    "path": "/chembl/ChEMBL-RDF/latest/",
+    "pathTargetComponentPattern": "chembl*targetcmpt.ttl.gz",
+    "pathProteinTargetClassificationPattern": "chembl*protclass.ttl.gz",
+    "pathUniprotMappingPattern": "chembl*targetcmpt_uniprot_ls.ttl.gz",
+    "useLocalFile": "no",
+    "hasFilter": "yes"
+  },
+  "chembl_target": {
+    "name": "chembl_target",
+    "id": "20",
+    "url": "https://www.ebi.ac.uk/chembl/target_report_card/£{id}/",
+    "path": "/chembl/ChEMBL-RDF/latest/",
+    "pathTargetPattern": "chembl*target.ttl.gz",
+    "pathTargetRelPattern": "chembl*targetrel.ttl.gz",
+    "pathBindingSitePattern": "chembl*bindingsite.ttl.gz",
+    "pathProteinTargetClassificationPattern": "chembl*protclass.ttl.gz",
+    "pathSingleTargetComponentMappingPattern": "chembl*singletarget_targetcmpt_ls.ttl.gz",
+    "pathComplexTargetComponentMappingPattern": "chembl*complextarget_targetcmpt_ls.ttl.gz",
+    "pathGroupTargetComponentMappingPattern": "chembl*grouptarget_targetcmpt_ls.ttl.gz",
+    "pathMechanismPattern": "chembl*moa.ttl.gz",
+    "useLocalFile": "no",
+    "hasFilter": "yes"
+  },
+  "chembl_cell_line": {
+    "name": "chembl_cell_line",
+    "id": "21",
+    "url": "https://www.ebi.ac.uk/chembl/cell_line_report_card/£{id}/",
+    "path": "/chembl/ChEMBL-RDF/latest/",
+    "pathCelllinePattern": "chembl*cellline.ttl.gz",
+    "useLocalFile": "no",
+    "hasFilter": "yes"
+  },
+  "efo": {
+    "aliases": "EFO",
+    "id": "22",
+    "name": "EFO",
+    "url": "http://www.ebi.ac.uk/efo/£{id}",
+    "path": "http://www.ebi.ac.uk/efo/efo.owl",
+    "useLocalFile": "no",
+    "hasFilter": "yes"
+  }
+}

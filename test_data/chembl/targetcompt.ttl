@@ -1,0 +1,64 @@
+@prefix bao: <http://www.bioassayontology.org/bao#> .
+@prefix bibo: <http://purl.org/ontology/bibo/> .
+@prefix cco: <http://rdf.ebi.ac.uk/terms/chembl#> .
+@prefix chembl: <http://rdf.ebi.ac.uk/resource/chembl/> .
+@prefix chembl_activity: <http://rdf.ebi.ac.uk/resource/chembl/activity/> .
+@prefix chembl_assay: <http://rdf.ebi.ac.uk/resource/chembl/assay/> .
+@prefix chembl_binding_site: <http://rdf.ebi.ac.uk/resource/chembl/binding_site/> .
+@prefix chembl_bio_cmpt: <http://rdf.ebi.ac.uk/resource/chembl/biocomponent/> .
+@prefix chembl_cell_line: <http://rdf.ebi.ac.uk/resource/chembl/cell_line/> .
+@prefix chembl_document: <http://rdf.ebi.ac.uk/resource/chembl/document/> .
+@prefix chembl_indication: <http://rdf.ebi.ac.uk/resource/chembl/drug_indication/> .
+@prefix chembl_journal: <http://rdf.ebi.ac.uk/resource/chembl/journal/> .
+@prefix chembl_moa: <http://rdf.ebi.ac.uk/resource/chembl/drug_mechanism/> .
+@prefix chembl_molecule: <http://rdf.ebi.ac.uk/resource/chembl/molecule/> .
+@prefix chembl_protclass: <http://rdf.ebi.ac.uk/resource/chembl/protclass/> .
+@prefix chembl_source: <http://rdf.ebi.ac.uk/resource/chembl/source/> .
+@prefix chembl_target: <http://rdf.ebi.ac.uk/resource/chembl/target/> .
+@prefix chembl_target_cmpt: <http://rdf.ebi.ac.uk/resource/chembl/targetcomponent/> .
+@prefix cheminf: <http://semanticscience.org/resource/> .
+@prefix cito: <http://purl.org/spar/cito/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix doi: <http://dx.doi.org/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix freq: <http://purl.org/cld/freq/> .
+@prefix mio: <http://www.ebi.ac.uk/ontology-lookup/?termId=> .
+@prefix oborel: <http://purl.obolibrary.org/obo#> .
+@prefix ops: <http://www.openphacts.org/units/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix pav: <http://purl.org/pav/> .
+@prefix qudt: <http://qudt.org/vocab/unit#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sd: <http://www.w3.org/ns/sparql-service-description#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix uniprot: <http://purl.uniprot.org/uniprot/> .
+@prefix voag: <http://voag.linkedmodel.org/voag#> .
+@prefix void: <http://rdfs.org/ns/void#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+chembl_target_cmpt:CHEMBL_TC_47 a cco:TargetComponent ;
+        rdfs:label "CHEMBL_TC_47" ;
+        cco:chemblId "CHEMBL_TC_47" ;
+        cco:componentType "PROTEIN" ;
+        dcterms:description "Gamma-aminobutyric acid receptor subunit beta-2" ;
+        cco:taxonomy <http://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=9606> , <http://identifiers.org/taxonomy/9606> .
+
+<http://identifiers.org/taxonomy/9606> rdfs:label "Homo sapiens (Identifiers.org)" .
+
+<http://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=9606> rdfs:label "Homo sapiens (NCBI Taxonomy)" .
+
+chembl_target_cmpt:CHEMBL_TC_47 cco:organismName "Homo sapiens" ;
+        cco:targetCmptXref uniprot:P47870 .
+
+uniprot:P47870 a cco:UniprotRef ;
+        rdfs:label "CHEMBL_TC_47 UniProt Reference: P47870" .
+
+chembl_target_cmpt:CHEMBL_TC_47 cco:proteinSequence "MWRVRKRGYFGIWSFPLIIAAVCAQSVNDPSNMSLVKETVDRLLKGYDIRLRPDFGGPPVAVGMNIDIASIDMVSEVNMDYTLTMYFQQAWRDKRLSYNVIPLNLTLDNRVADQLWVPDTYFLNDKKSFVHGVTVKNRMIRLHPDGTVLYGLRITTTAACMMDLRRYPLDEQNCTLEIESYGYTTDDIEFYWRGDDNAVTGVTKIELPQFSIVDYKLITKKVVFSTGSYPRLSLSFKLKRNIGYFILQTYMPSILITILSWVSFWINYDASAARVALGITTVLTMTTINTHLRETLPKIPYVKAIDMYLMGCFVFVFMALLEYALVNYIFFGRGPQRQKKAAEKAASANNEKMRLDVNKIFYKDIKQNGTQYRSLWDPTGNLSPTRRTTNYDFSLYTMDPHENILLSTLEIKNEMATSEAVMGLGDPRSTMLAYDASSIQYRKAGLPRHSFGRNALERHVAQKKSRLRRRASQLKITIPDLTDVNAIDRWSRIFFPVVFSFFNIVYWLYYVN" ;
+        cco:targetCmptXref <http://identifiers.org/ensembl/ENSG00000145864> .
+
+<http://identifiers.org/ensembl/ENSG00000145864> a cco:EnsemblGeneRef ;
+        rdfs:label "CHEMBL_TC_47 ENSEMBL Reference: ENSG00000145864" .
+
+chembl_target_cmpt:CHEMBL_TC_47 skos:altLabel "GABA(A) receptor subunit beta-2" , "GABRB2" ;
+        cco:targetCmptXref <http://identifiers.org/obo.go/GO:0004888> .

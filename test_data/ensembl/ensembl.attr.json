@@ -1,0 +1,10 @@
+{
+  "name": "TPI1",
+  "description": "triosephosphate isomerase 1 [Source:HGNC Symbol;Acc:HGNC:12009]",
+  "start": 6867119,
+  "end": 6870948,
+  "biotype": "protein_coding",
+  "genome": "homo_sapiens",
+  "strand": "1",
+  "seq_region_name": "12"
+}

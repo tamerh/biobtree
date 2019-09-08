@@ -1,0 +1,112 @@
+@prefix bao: <http://www.bioassayontology.org/bao#> .
+@prefix bibo: <http://purl.org/ontology/bibo/> .
+@prefix cco: <http://rdf.ebi.ac.uk/terms/chembl#> .
+@prefix chembl: <http://rdf.ebi.ac.uk/resource/chembl/> .
+@prefix chembl_activity: <http://rdf.ebi.ac.uk/resource/chembl/activity/> .
+@prefix chembl_assay: <http://rdf.ebi.ac.uk/resource/chembl/assay/> .
+@prefix chembl_binding_site: <http://rdf.ebi.ac.uk/resource/chembl/binding_site/> .
+@prefix chembl_bio_cmpt: <http://rdf.ebi.ac.uk/resource/chembl/biocomponent/> .
+@prefix chembl_cell_line: <http://rdf.ebi.ac.uk/resource/chembl/cell_line/> .
+@prefix chembl_document: <http://rdf.ebi.ac.uk/resource/chembl/document/> .
+@prefix chembl_indication: <http://rdf.ebi.ac.uk/resource/chembl/drug_indication/> .
+@prefix chembl_journal: <http://rdf.ebi.ac.uk/resource/chembl/journal/> .
+@prefix chembl_moa: <http://rdf.ebi.ac.uk/resource/chembl/drug_mechanism/> .
+@prefix chembl_molecule: <http://rdf.ebi.ac.uk/resource/chembl/molecule/> .
+@prefix chembl_protclass: <http://rdf.ebi.ac.uk/resource/chembl/protclass/> .
+@prefix chembl_source: <http://rdf.ebi.ac.uk/resource/chembl/source/> .
+@prefix chembl_target: <http://rdf.ebi.ac.uk/resource/chembl/target/> .
+@prefix chembl_target_cmpt: <http://rdf.ebi.ac.uk/resource/chembl/targetcomponent/> .
+@prefix cheminf: <http://semanticscience.org/resource/> .
+@prefix cito: <http://purl.org/spar/cito/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix doi: <http://dx.doi.org/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix freq: <http://purl.org/cld/freq/> .
+@prefix mio: <http://www.ebi.ac.uk/ontology-lookup/?termId=> .
+@prefix oborel: <http://purl.obolibrary.org/obo#> .
+@prefix ops: <http://www.openphacts.org/units/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix pav: <http://purl.org/pav/> .
+@prefix qudt: <http://qudt.org/vocab/unit#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sd: <http://www.w3.org/ns/sparql-service-description#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix uniprot: <http://purl.uniprot.org/uniprot/> .
+@prefix voag: <http://voag.linkedmodel.org/voag#> .
+@prefix void: <http://rdfs.org/ns/void#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+chembl_assay:CHEMBL615155 a cco:Assay ;
+        rdfs:label "CHEMBL615155" ;
+        cco:chemblId "CHEMBL615155" ;
+        dcterms:description "Inhibitory activity against human placenta 17-beta-hydroxysteroid dehydrogenase type 2 (17-beta-HSD type 2)" ;
+        cco:assayType "Binding" ;
+        cco:targetConfDesc "Homologous single protein target assigned" ;
+        cco:targetConfScore "8"^^xsd:int ;
+        cco:targetRelType "H" ;
+        cco:targetRelDesc "Homologous protein target assigned" ;
+        bao:BAO_0000205 bao:BAO_0000019 ;
+        cco:hasTarget chembl_target:CHEMBL2789 .
+
+chembl_target:CHEMBL2789 cco:hasAssay chembl_assay:CHEMBL615155 .
+
+chembl_assay:CHEMBL615155 cco:hasSource chembl_source:CHEMBL_SRC_1 .
+
+chembl_source:CHEMBL_SRC_1 cco:hasAssay chembl_assay:CHEMBL615155 .
+
+chembl_assay:CHEMBL615155 cco:hasDocument chembl_document:CHEMBL1149930 .
+
+chembl_document:CHEMBL1149930 cco:hasAssay chembl_assay:CHEMBL615155 .
+
+chembl_assay:CHEMBL615155 cco:hasActivity chembl_activity:CHEMBL_ACT_196379 .
+
+chembl_activity:CHEMBL_ACT_196379 cco:hasAssay chembl_assay:CHEMBL615155 .
+
+chembl_assay:CHEMBL615156 a cco:Assay ;
+        rdfs:label "CHEMBL615156" ;
+        cco:chemblId "CHEMBL615156" ;
+        dcterms:description "Inhibitory constant against human placenta 17-beta-hydroxysteroid dehydrogenase type 2 (17-beta-HSD type 2)" ;
+        cco:assayType "Binding" ;
+        cco:targetConfDesc "Homologous single protein target assigned" ;
+        cco:targetConfScore "8"^^xsd:int ;
+        cco:targetRelType "H" ;
+        cco:targetRelDesc "Homologous protein target assigned" ;
+        bao:BAO_0000205 bao:BAO_0000019 ;
+        cco:hasTarget chembl_target:CHEMBL2789 .
+
+chembl_assay:CHEMBL615155 cco:hasSource chembl_source:CHEMBL_SRC_1 .
+
+chembl_source:CHEMBL_SRC_1 cco:hasAssay chembl_assay:CHEMBL615155 .
+
+chembl_assay:CHEMBL615155 cco:hasDocument chembl_document:CHEMBL1149930 .
+
+chembl_document:CHEMBL1149930 cco:hasAssay chembl_assay:CHEMBL615155 .
+
+chembl_assay:CHEMBL615155 cco:hasActivity chembl_activity:CHEMBL_ACT_196379 .
+
+chembl_activity:CHEMBL_ACT_196379 cco:hasAssay chembl_assay:CHEMBL615155 .
+
+chembl_assay:CHEMBL615156 a cco:Assay ;
+        rdfs:label "CHEMBL615156" ;
+        cco:chemblId "CHEMBL615156" ;
+        dcterms:description "Inhibitory constant against human placenta 17-beta-hydroxysteroid dehydrogenase type 2 (17-beta-HSD type 2)" ;
+        cco:assayType "Binding" ;
+        cco:targetConfDesc "Homologous single protein target assigned" ;
+        cco:targetConfScore "8"^^xsd:int ;
+        cco:targetRelType "H" ;
+        cco:targetRelDesc "Homologous protein target assigned" ;
+        bao:BAO_0000205 bao:BAO_0000019 ;
+        cco:hasTarget chembl_target:CHEMBL2789 .
+
+chembl_target:CHEMBL2789 cco:hasAssay chembl_assay:CHEMBL615156 .
+
+chembl_assay:CHEMBL615156 cco:hasSource chembl_source:CHEMBL_SRC_1 .
+
+chembl_source:CHEMBL_SRC_1 cco:hasAssay chembl_assay:CHEMBL615156 .
+
+chembl_assay:CHEMBL615156 cco:hasDocument chembl_document:CHEMBL1149930 .
+
+chembl_document:CHEMBL1149930 cco:hasAssay chembl_assay:CHEMBL615156 .
+
+chembl_assay:CHEMBL615156 cco:hasActivity chembl_activity:CHEMBL_ACT_196380 .

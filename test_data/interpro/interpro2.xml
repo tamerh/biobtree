@@ -1,0 +1,598 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE interprodb SYSTEM "test.dtd">
+<interprodb>
+<interpro id="IPR000001" protein_count="6430" short_name="Kringle" type="Domain">
+<name>Kringle</name>
+<abstract>
+<p>Kringles are autonomous structural domains, found throughout the blood clotting and fibrinolytic proteins. Kringle domains are believed to play a role in binding mediators (e.g., membranes, other proteins or phospholipids), and in the regulation of proteolytic activity [<cite idref="PUB00002414"/>, <cite idref="PUB00001541"/>, <cite idref="PUB00003257"/>]. 
+Kringle domains [<cite idref="PUB00003400"/>, <cite idref="PUB00000803"/>, <cite idref="PUB00001620"/>] are characterised by a triple loop, 3-disulphide bridge structure, whose  conformation is defined by a number of hydrogen bonds and small pieces of  anti-parallel beta-sheet. They are found in a varying number  of  copies  in some plasma proteins including prothrombin and urokinase-type plasminogen activator, which are serine proteases belonging to MEROPS peptidase family S1A.
+</p>
+</abstract>
+<pub_list>
+<publication id="PUB00000803">
+<author_list>Patthy L.</author_list>
+<title>Evolution of the proteases of blood coagulation and fibrinolysis by assembly from modules.</title>
+<db_xref db="PUBMED" dbkey="3891096"/>
+<journal>Cell</journal>
+<location issue="3" pages="657-63" volume="41"/>
+<year>1985</year>
+</publication>
+<publication id="PUB00001541">
+<author_list>Patthy L, Trexler M, Vali Z, Banyai L, Varadi A.</author_list>
+<title>Kringles: modules specialized for protein binding. Homology of the gelatin-binding region of fibronectin with the kringle structures of proteases.</title>
+<db_xref db="PUBMED" dbkey="6373375"/>
+<journal>FEBS Lett.</journal>
+<location issue="1" pages="131-6" volume="171"/>
+<year>1984</year>
+</publication>
+<publication id="PUB00002414">
+<author_list>McMullen BA, Fujikawa K.</author_list>
+<title>Amino acid sequence of the heavy chain of human alpha-factor XIIa (activated Hageman factor).</title>
+<db_xref db="PUBMED" dbkey="3886654"/>
+<journal>J. Biol. Chem.</journal>
+<location issue="9" pages="5328-41" volume="260"/>
+<year>1985</year>
+</publication>
+<publication id="PUB00001620">
+<author_list>Ikeo K, Takahashi K, Gojobori T.</author_list>
+<title>Evolutionary origin of numerous kringles in human and simian apolipoprotein(a).</title>
+<db_xref db="PUBMED" dbkey="1879523"/>
+<journal>FEBS Lett.</journal>
+<location issue="1-2" pages="146-8" volume="287"/>
+<year>1991</year>
+</publication>
+<publication id="PUB00003257">
+<author_list>Atkinson RA, Williams RJ.</author_list>
+<title>Solution structure of the kringle 4 domain from human plasminogen by 1H nuclear magnetic resonance spectroscopy and distance geometry.</title>
+<db_xref db="PUBMED" dbkey="2157850"/>
+<journal>J. Mol. Biol.</journal>
+<location issue="3" pages="541-52" volume="212"/>
+<year>1990</year>
+</publication>
+<publication id="PUB00003400">
+<author_list>Castellino FJ, Beals JM.</author_list>
+<title>The genetic relationships between the kringle domains of human plasminogen, prothrombin, tissue plasminogen activator, urokinase, and coagulation factor XII.</title>
+<db_xref db="PUBMED" dbkey="3131537"/>
+<journal>J. Mol. Evol.</journal>
+<location issue="4" pages="358-69" volume="26"/>
+<year>1987</year>
+</publication>
+</pub_list>
+<contains>
+<rel_ref ipr_ref="IPR018056"/>
+</contains>
+<found_in>
+<rel_ref ipr_ref="IPR001314"/>
+<rel_ref ipr_ref="IPR003966"/>
+<rel_ref ipr_ref="IPR014394"/>
+<rel_ref ipr_ref="IPR017076"/>
+<rel_ref ipr_ref="IPR016247"/>
+</found_in>
+<member_list>
+    <db_xref protein_count="6229" db="PFAM" dbkey="PF00051" name="Kringle"/>
+    <db_xref protein_count="6406" db="PROFILE" dbkey="PS50070" name="KRINGLE_2"/>
+    <db_xref protein_count="6270" db="SMART" dbkey="SM00130" name="KR"/>
+    <db_xref protein_count="5175" db="CDD" dbkey="cd00108" name="KR"/>
+</member_list>
+<external_doc_list>
+<db_xref db="MSDsite" dbkey="PS00021"/>
+<db_xref db="PANDIT" dbkey="PF00051"/>
+<db_xref db="PROSITEDOC" dbkey="PDOC00020"/>
+</external_doc_list>
+<structure_db_links>
+<db_xref db="PDB" dbkey="1a0h"/>
+<db_xref db="PDB" dbkey="1a2c"/>
+<db_xref db="PDB" dbkey="1a3b"/>
+<db_xref db="PDB" dbkey="1a3e"/>
+<db_xref db="PDB" dbkey="1a46"/>
+<db_xref db="PDB" dbkey="1a4w"/>
+<db_xref db="PDB" dbkey="1a5g"/>
+<db_xref db="PDB" dbkey="1a5h"/>
+<db_xref db="PDB" dbkey="1a61"/>
+<db_xref db="PDB" dbkey="1abi"/>
+<db_xref db="PDB" dbkey="1abj"/>
+<db_xref db="PDB" dbkey="1ad8"/>
+<db_xref db="PDB" dbkey="1ae8"/>
+<db_xref db="PDB" dbkey="1afe"/>
+<db_xref db="PDB" dbkey="1aht"/>
+<db_xref db="PDB" dbkey="1ai8"/>
+<db_xref db="PDB" dbkey="1aix"/>
+<db_xref db="PDB" dbkey="1awf"/>
+<db_xref db="PDB" dbkey="1awh"/>
+<db_xref db="PDB" dbkey="1ay6"/>
+<db_xref db="PDB" dbkey="1b2i"/>
+<db_xref db="PDB" dbkey="1b5g"/>
+<db_xref db="PDB" dbkey="1b7x"/>
+<db_xref db="PDB" dbkey="1ba8"/>
+<db_xref db="PDB" dbkey="1bb0"/>
+<db_xref db="PDB" dbkey="1bcu"/>
+<db_xref db="PDB" dbkey="1bda"/>
+<db_xref db="PDB" dbkey="1bht"/>
+<db_xref db="PDB" dbkey="1bhx"/>
+<db_xref db="PDB" dbkey="1bml"/>
+<db_xref db="PDB" dbkey="1bmm"/>
+<db_xref db="PDB" dbkey="1bmn"/>
+<db_xref db="PDB" dbkey="1bth"/>
+<db_xref db="PDB" dbkey="1bui"/>
+<db_xref db="PDB" dbkey="1c1u"/>
+<db_xref db="PDB" dbkey="1c1v"/>
+<db_xref db="PDB" dbkey="1c1w"/>
+<db_xref db="PDB" dbkey="1c4u"/>
+<db_xref db="PDB" dbkey="1c4v"/>
+<db_xref db="PDB" dbkey="1c4y"/>
+<db_xref db="PDB" dbkey="1c5l"/>
+<db_xref db="PDB" dbkey="1c5n"/>
+<db_xref db="PDB" dbkey="1c5o"/>
+<db_xref db="PDB" dbkey="1ca8"/>
+<db_xref db="PDB" dbkey="1cea"/>
+<db_xref db="PDB" dbkey="1ceb"/>
+<db_xref db="PDB" dbkey="1d3d"/>
+<db_xref db="PDB" dbkey="1d3p"/>
+<db_xref db="PDB" dbkey="1d3q"/>
+<db_xref db="PDB" dbkey="1d3t"/>
+<db_xref db="PDB" dbkey="1d4p"/>
+<db_xref db="PDB" dbkey="1d6w"/>
+<db_xref db="PDB" dbkey="1d9i"/>
+<db_xref db="PDB" dbkey="1ddj"/>
+<db_xref db="PDB" dbkey="1de7"/>
+<db_xref db="PDB" dbkey="1dit"/>
+<db_xref db="PDB" dbkey="1dm4"/>
+<db_xref db="PDB" dbkey="1doj"/>
+<db_xref db="PDB" dbkey="1dwb"/>
+<db_xref db="PDB" dbkey="1dwc"/>
+<db_xref db="PDB" dbkey="1dwd"/>
+<db_xref db="PDB" dbkey="1dwe"/>
+<db_xref db="PDB" dbkey="1dx5"/>
+<db_xref db="PDB" dbkey="1e0f"/>
+<db_xref db="PDB" dbkey="1eb1"/>
+<db_xref db="PDB" dbkey="1eoj"/>
+<db_xref db="PDB" dbkey="1eol"/>
+<db_xref db="PDB" dbkey="1fpc"/>
+<db_xref db="PDB" dbkey="1fph"/>
+<db_xref db="PDB" dbkey="1g30"/>
+<db_xref db="PDB" dbkey="1g32"/>
+<db_xref db="PDB" dbkey="1g37"/>
+<db_xref db="PDB" dbkey="1ghv"/>
+<db_xref db="PDB" dbkey="1ghw"/>
+<db_xref db="PDB" dbkey="1ghx"/>
+<db_xref db="PDB" dbkey="1ghy"/>
+<db_xref db="PDB" dbkey="1gj4"/>
+<db_xref db="PDB" dbkey="1gj5"/>
+<db_xref db="PDB" dbkey="1gmn"/>
+<db_xref db="PDB" dbkey="1gmo"/>
+<db_xref db="PDB" dbkey="1gp9"/>
+<db_xref db="PDB" dbkey="1h8d"/>
+<db_xref db="PDB" dbkey="1h8i"/>
+<db_xref db="PDB" dbkey="1hag"/>
+<db_xref db="PDB" dbkey="1hah"/>
+<db_xref db="PDB" dbkey="1hai"/>
+<db_xref db="PDB" dbkey="1hao"/>
+<db_xref db="PDB" dbkey="1hap"/>
+<db_xref db="PDB" dbkey="1hbt"/>
+<db_xref db="PDB" dbkey="1hdt"/>
+<db_xref db="PDB" dbkey="1hgt"/>
+<db_xref db="PDB" dbkey="1hlt"/>
+<db_xref db="PDB" dbkey="1hpj"/>
+<db_xref db="PDB" dbkey="1hpk"/>
+<db_xref db="PDB" dbkey="1hut"/>
+<db_xref db="PDB" dbkey="1hxe"/>
+<db_xref db="PDB" dbkey="1hxf"/>
+<db_xref db="PDB" dbkey="1i5k"/>
+<db_xref db="PDB" dbkey="1i71"/>
+<db_xref db="PDB" dbkey="1ihs"/>
+<db_xref db="PDB" dbkey="1iht"/>
+<db_xref db="PDB" dbkey="1jfn"/>
+<db_xref db="PDB" dbkey="1jmo"/>
+<db_xref db="PDB" dbkey="1jou"/>
+<db_xref db="PDB" dbkey="1jwt"/>
+<db_xref db="PDB" dbkey="1k21"/>
+<db_xref db="PDB" dbkey="1k22"/>
+<db_xref db="PDB" dbkey="1kdu"/>
+<db_xref db="PDB" dbkey="1ki0"/>
+<db_xref db="PDB" dbkey="1kiv"/>
+<db_xref db="PDB" dbkey="1krn"/>
+<db_xref db="PDB" dbkey="1kts"/>
+<db_xref db="PDB" dbkey="1ktt"/>
+<db_xref db="PDB" dbkey="1l4d"/>
+<db_xref db="PDB" dbkey="1l4z"/>
+<db_xref db="PDB" dbkey="1lhc"/>
+<db_xref db="PDB" dbkey="1lhd"/>
+<db_xref db="PDB" dbkey="1lhe"/>
+<db_xref db="PDB" dbkey="1lhf"/>
+<db_xref db="PDB" dbkey="1lhg"/>
+<db_xref db="PDB" dbkey="1mh0"/>
+<db_xref db="PDB" dbkey="1mu6"/>
+<db_xref db="PDB" dbkey="1mu8"/>
+<db_xref db="PDB" dbkey="1mue"/>
+<db_xref db="PDB" dbkey="1nk1"/>
+<db_xref db="PDB" dbkey="1nl1"/>
+<db_xref db="PDB" dbkey="1nl2"/>
+<db_xref db="PDB" dbkey="1nm6"/>
+<db_xref db="PDB" dbkey="1no9"/>
+<db_xref db="PDB" dbkey="1nrn"/>
+<db_xref db="PDB" dbkey="1nro"/>
+<db_xref db="PDB" dbkey="1nrp"/>
+<db_xref db="PDB" dbkey="1nrq"/>
+<db_xref db="PDB" dbkey="1nrr"/>
+<db_xref db="PDB" dbkey="1nrs"/>
+<db_xref db="PDB" dbkey="1nt1"/>
+<db_xref db="PDB" dbkey="1nu7"/>
+<db_xref db="PDB" dbkey="1nu9"/>
+<db_xref db="PDB" dbkey="1ny2"/>
+<db_xref db="PDB" dbkey="1nzq"/>
+<db_xref db="PDB" dbkey="1o0d"/>
+<db_xref db="PDB" dbkey="1o2g"/>
+<db_xref db="PDB" dbkey="1o5g"/>
+<db_xref db="PDB" dbkey="1ook"/>
+<db_xref db="PDB" dbkey="1oyt"/>
+<db_xref db="PDB" dbkey="1p8v"/>
+<db_xref db="PDB" dbkey="1pk2"/>
+<db_xref db="PDB" dbkey="1pk4"/>
+<db_xref db="PDB" dbkey="1pkr"/>
+<db_xref db="PDB" dbkey="1pmk"/>
+<db_xref db="PDB" dbkey="1pml"/>
+<db_xref db="PDB" dbkey="1ppb"/>
+<db_xref db="PDB" dbkey="1qbv"/>
+<db_xref db="PDB" dbkey="1qhr"/>
+<db_xref db="PDB" dbkey="1qj1"/>
+<db_xref db="PDB" dbkey="1qj6"/>
+<db_xref db="PDB" dbkey="1qj7"/>
+<db_xref db="PDB" dbkey="1qrz"/>
+<db_xref db="PDB" dbkey="1qur"/>
+<db_xref db="PDB" dbkey="1rd3"/>
+<db_xref db="PDB" dbkey="1riw"/>
+<db_xref db="PDB" dbkey="1rjx"/>
+<db_xref db="PDB" dbkey="1rtf"/>
+<db_xref db="PDB" dbkey="1sb1"/>
+<db_xref db="PDB" dbkey="1sfq"/>
+<db_xref db="PDB" dbkey="1sg8"/>
+<db_xref db="PDB" dbkey="1sgi"/>
+<db_xref db="PDB" dbkey="1shh"/>
+<db_xref db="PDB" dbkey="1sl3"/>
+<db_xref db="PDB" dbkey="1sr5"/>
+<db_xref db="PDB" dbkey="1t4u"/>
+<db_xref db="PDB" dbkey="1t4v"/>
+<db_xref db="PDB" dbkey="1ta2"/>
+<db_xref db="PDB" dbkey="1ta6"/>
+<db_xref db="PDB" dbkey="1tb6"/>
+<db_xref db="PDB" dbkey="1tbz"/>
+<db_xref db="PDB" dbkey="1thp"/>
+<db_xref db="PDB" dbkey="1thr"/>
+<db_xref db="PDB" dbkey="1ths"/>
+<db_xref db="PDB" dbkey="1tmb"/>
+<db_xref db="PDB" dbkey="1tmt"/>
+<db_xref db="PDB" dbkey="1tmu"/>
+<db_xref db="PDB" dbkey="1tom"/>
+<db_xref db="PDB" dbkey="1tpg"/>
+<db_xref db="PDB" dbkey="1tpk"/>
+<db_xref db="PDB" dbkey="1tq0"/>
+<db_xref db="PDB" dbkey="1tq7"/>
+<db_xref db="PDB" dbkey="1twx"/>
+<db_xref db="PDB" dbkey="1uma"/>
+<db_xref db="PDB" dbkey="1urk"/>
+<db_xref db="PDB" dbkey="1uvs"/>
+<db_xref db="PDB" dbkey="1vr1"/>
+<db_xref db="PDB" dbkey="1vzq"/>
+<db_xref db="PDB" dbkey="1w7g"/>
+<db_xref db="PDB" dbkey="1way"/>
+<db_xref db="PDB" dbkey="1wbg"/>
+<db_xref db="PDB" dbkey="1xm1"/>
+<db_xref db="PDB" dbkey="1xmn"/>
+<db_xref db="PDB" dbkey="1ype"/>
+<db_xref db="PDB" dbkey="1ypg"/>
+<db_xref db="PDB" dbkey="1ypj"/>
+<db_xref db="PDB" dbkey="1ypk"/>
+<db_xref db="PDB" dbkey="1ypl"/>
+<db_xref db="PDB" dbkey="1ypm"/>
+<db_xref db="PDB" dbkey="1z71"/>
+<db_xref db="PDB" dbkey="1z8i"/>
+<db_xref db="PDB" dbkey="1z8j"/>
+<db_xref db="PDB" dbkey="1zgi"/>
+<db_xref db="PDB" dbkey="1zgv"/>
+<db_xref db="PDB" dbkey="1zrb"/>
+<db_xref db="PDB" dbkey="2a0q"/>
+<db_xref db="PDB" dbkey="2a2x"/>
+<db_xref db="PDB" dbkey="2a45"/>
+<db_xref db="PDB" dbkey="2afq"/>
+<db_xref db="PDB" dbkey="2ank"/>
+<db_xref db="PDB" dbkey="2anm"/>
+<db_xref db="PDB" dbkey="2b5t"/>
+<db_xref db="PDB" dbkey="2bdy"/>
+<db_xref db="PDB" dbkey="2bvr"/>
+<db_xref db="PDB" dbkey="2bvs"/>
+<db_xref db="PDB" dbkey="2bvx"/>
+<db_xref db="PDB" dbkey="2bxt"/>
+<db_xref db="PDB" dbkey="2bxu"/>
+<db_xref db="PDB" dbkey="2c8w"/>
+<db_xref db="PDB" dbkey="2c8x"/>
+<db_xref db="PDB" dbkey="2c8y"/>
+<db_xref db="PDB" dbkey="2c8z"/>
+<db_xref db="PDB" dbkey="2c90"/>
+<db_xref db="PDB" dbkey="2c93"/>
+<db_xref db="PDB" dbkey="2cf8"/>
+<db_xref db="PDB" dbkey="2cf9"/>
+<db_xref db="PDB" dbkey="2cn0"/>
+<db_xref db="PDB" dbkey="2doh"/>
+<db_xref db="PDB" dbkey="2doi"/>
+<db_xref db="PDB" dbkey="2fd6"/>
+<db_xref db="PDB" dbkey="2feb"/>
+<db_xref db="PDB" dbkey="2feq"/>
+<db_xref db="PDB" dbkey="2fes"/>
+<db_xref db="PDB" dbkey="2gde"/>
+<db_xref db="PDB" dbkey="2gp9"/>
+<db_xref db="PDB" dbkey="2h9t"/>
+<db_xref db="PDB" dbkey="2hgf"/>
+<db_xref db="PDB" dbkey="2hgt"/>
+<db_xref db="PDB" dbkey="2hnt"/>
+<db_xref db="PDB" dbkey="2hpp"/>
+<db_xref db="PDB" dbkey="2hpq"/>
+<db_xref db="PDB" dbkey="2hwl"/>
+<db_xref db="PDB" dbkey="2i9a"/>
+<db_xref db="PDB" dbkey="2i9b"/>
+<db_xref db="PDB" dbkey="2jh0"/>
+<db_xref db="PDB" dbkey="2jh5"/>
+<db_xref db="PDB" dbkey="2jh6"/>
+<db_xref db="PDB" dbkey="2k4r"/>
+<db_xref db="PDB" dbkey="2k51"/>
+<db_xref db="PDB" dbkey="2knf"/>
+<db_xref db="PDB" dbkey="2l0s"/>
+<db_xref db="PDB" dbkey="2od3"/>
+<db_xref db="PDB" dbkey="2pf1"/>
+<db_xref db="PDB" dbkey="2pf2"/>
+<db_xref db="PDB" dbkey="2pgb"/>
+<db_xref db="PDB" dbkey="2pgq"/>
+<db_xref db="PDB" dbkey="2pk4"/>
+<db_xref db="PDB" dbkey="2pks"/>
+<db_xref db="PDB" dbkey="2pw8"/>
+<db_xref db="PDB" dbkey="2qj2"/>
+<db_xref db="PDB" dbkey="2qj4"/>
+<db_xref db="PDB" dbkey="2r2m"/>
+<db_xref db="PDB" dbkey="2spt"/>
+<db_xref db="PDB" dbkey="2thf"/>
+<db_xref db="PDB" dbkey="2uuf"/>
+<db_xref db="PDB" dbkey="2uuj"/>
+<db_xref db="PDB" dbkey="2uuk"/>
+<db_xref db="PDB" dbkey="2v3h"/>
+<db_xref db="PDB" dbkey="2v3o"/>
+<db_xref db="PDB" dbkey="2zc9"/>
+<db_xref db="PDB" dbkey="2zda"/>
+<db_xref db="PDB" dbkey="2zdv"/>
+<db_xref db="PDB" dbkey="2zf0"/>
+<db_xref db="PDB" dbkey="2zff"/>
+<db_xref db="PDB" dbkey="2zfp"/>
+<db_xref db="PDB" dbkey="2zfq"/>
+<db_xref db="PDB" dbkey="2zfr"/>
+<db_xref db="PDB" dbkey="2zg0"/>
+<db_xref db="PDB" dbkey="2zgb"/>
+<db_xref db="PDB" dbkey="2zgx"/>
+<db_xref db="PDB" dbkey="2zhe"/>
+<db_xref db="PDB" dbkey="2zhf"/>
+<db_xref db="PDB" dbkey="2zhq"/>
+<db_xref db="PDB" dbkey="2zhw"/>
+<db_xref db="PDB" dbkey="2zi2"/>
+<db_xref db="PDB" dbkey="2ziq"/>
+<db_xref db="PDB" dbkey="2znk"/>
+<db_xref db="PDB" dbkey="2zo3"/>
+<db_xref db="PDB" dbkey="3b23"/>
+<db_xref db="PDB" dbkey="3b9f"/>
+<db_xref db="PDB" dbkey="3bef"/>
+<db_xref db="PDB" dbkey="3bei"/>
+<db_xref db="PDB" dbkey="3bf6"/>
+<db_xref db="PDB" dbkey="3biu"/>
+<db_xref db="PDB" dbkey="3biv"/>
+<db_xref db="PDB" dbkey="3bt1"/>
+<db_xref db="PDB" dbkey="3bt2"/>
+<db_xref db="PDB" dbkey="3bv9"/>
+<db_xref db="PDB" dbkey="3c1k"/>
+<db_xref db="PDB" dbkey="3c27"/>
+<db_xref db="PDB" dbkey="3d49"/>
+<db_xref db="PDB" dbkey="3da9"/>
+<db_xref db="PDB" dbkey="3dd2"/>
+<db_xref db="PDB" dbkey="3dhk"/>
+<db_xref db="PDB" dbkey="3dt0"/>
+<db_xref db="PDB" dbkey="3dux"/>
+<db_xref db="PDB" dbkey="3e6p"/>
+<db_xref db="PDB" dbkey="3ee0"/>
+<db_xref db="PDB" dbkey="3egk"/>
+<db_xref db="PDB" dbkey="3eq0"/>
+<db_xref db="PDB" dbkey="3f68"/>
+<db_xref db="PDB" dbkey="3gic"/>
+<db_xref db="PDB" dbkey="3gis"/>
+<db_xref db="PDB" dbkey="3hat"/>
+<db_xref db="PDB" dbkey="3hkj"/>
+<db_xref db="PDB" dbkey="3hms"/>
+<db_xref db="PDB" dbkey="3hmt"/>
+<db_xref db="PDB" dbkey="3hn4"/>
+<db_xref db="PDB" dbkey="3jz1"/>
+<db_xref db="PDB" dbkey="3jz2"/>
+<db_xref db="PDB" dbkey="3k65"/>
+<db_xref db="PDB" dbkey="3kiv"/>
+<db_xref db="PDB" dbkey="3laq"/>
+<db_xref db="PDB" dbkey="3ldx"/>
+<db_xref db="PDB" dbkey="3lu9"/>
+<db_xref db="PDB" dbkey="3mkp"/>
+<db_xref db="PDB" dbkey="3nxp"/>
+<db_xref db="PDB" dbkey="3p17"/>
+<db_xref db="PDB" dbkey="3p6z"/>
+<db_xref db="PDB" dbkey="3p70"/>
+<db_xref db="PDB" dbkey="3pmh"/>
+<db_xref db="PDB" dbkey="3po1"/>
+<db_xref db="PDB" dbkey="3qdz"/>
+<db_xref db="PDB" dbkey="3qgn"/>
+<db_xref db="PDB" dbkey="3qlp"/>
+<db_xref db="PDB" dbkey="3qto"/>
+<db_xref db="PDB" dbkey="3qtv"/>
+<db_xref db="PDB" dbkey="3qwc"/>
+<db_xref db="PDB" dbkey="3qx5"/>
+<db_xref db="PDB" dbkey="3r3g"/>
+<db_xref db="PDB" dbkey="3rlw"/>
+<db_xref db="PDB" dbkey="3rly"/>
+<db_xref db="PDB" dbkey="3rm0"/>
+<db_xref db="PDB" dbkey="3rm2"/>
+<db_xref db="PDB" dbkey="3rml"/>
+<db_xref db="PDB" dbkey="3rmm"/>
+<db_xref db="PDB" dbkey="3rmn"/>
+<db_xref db="PDB" dbkey="3rmo"/>
+<db_xref db="PDB" dbkey="3s7h"/>
+<db_xref db="PDB" dbkey="3s7k"/>
+<db_xref db="PDB" dbkey="3sha"/>
+<db_xref db="PDB" dbkey="3shc"/>
+<db_xref db="PDB" dbkey="3si3"/>
+<db_xref db="PDB" dbkey="3si4"/>
+<db_xref db="PDB" dbkey="3sp8"/>
+<db_xref db="PDB" dbkey="3sqe"/>
+<db_xref db="PDB" dbkey="3sqh"/>
+<db_xref db="PDB" dbkey="3sv2"/>
+<db_xref db="PDB" dbkey="3t5f"/>
+<db_xref db="PDB" dbkey="3tu7"/>
+<db_xref db="PDB" dbkey="3u69"/>
+<db_xref db="PDB" dbkey="3u73"/>
+<db_xref db="PDB" dbkey="3u8o"/>
+<db_xref db="PDB" dbkey="3u8r"/>
+<db_xref db="PDB" dbkey="3u8t"/>
+<db_xref db="PDB" dbkey="3u98"/>
+<db_xref db="PDB" dbkey="3u9a"/>
+<db_xref db="PDB" dbkey="3utu"/>
+<db_xref db="PDB" dbkey="3uwj"/>
+<db_xref db="PDB" dbkey="3vxe"/>
+<db_xref db="PDB" dbkey="4a5t"/>
+<db_xref db="PDB" dbkey="4ax9"/>
+<db_xref db="PDB" dbkey="4ayv"/>
+<db_xref db="PDB" dbkey="4ayy"/>
+<db_xref db="PDB" dbkey="4az2"/>
+<db_xref db="PDB" dbkey="4bah"/>
+<db_xref db="PDB" dbkey="4bak"/>
+<db_xref db="PDB" dbkey="4bam"/>
+<db_xref db="PDB" dbkey="4ban"/>
+<db_xref db="PDB" dbkey="4bao"/>
+<db_xref db="PDB" dbkey="4baq"/>
+<db_xref db="PDB" dbkey="4boh"/>
+<db_xref db="PDB" dbkey="4bv5"/>
+<db_xref db="PDB" dbkey="4bv7"/>
+<db_xref db="PDB" dbkey="4bvc"/>
+<db_xref db="PDB" dbkey="4bvd"/>
+<db_xref db="PDB" dbkey="4bvv"/>
+<db_xref db="PDB" dbkey="4bvw"/>
+<db_xref db="PDB" dbkey="4ch2"/>
+<db_xref db="PDB" dbkey="4ch8"/>
+<db_xref db="PDB" dbkey="4cik"/>
+<db_xref db="PDB" dbkey="4d3c"/>
+<db_xref db="PDB" dbkey="4dih"/>
+<db_xref db="PDB" dbkey="4dii"/>
+<db_xref db="PDB" dbkey="4dt7"/>
+<db_xref db="PDB" dbkey="4dur"/>
+<db_xref db="PDB" dbkey="4dy7"/>
+<db_xref db="PDB" dbkey="4e05"/>
+<db_xref db="PDB" dbkey="4e06"/>
+<db_xref db="PDB" dbkey="4e7r"/>
+<db_xref db="PDB" dbkey="4h6s"/>
+<db_xref db="PDB" dbkey="4h6t"/>
+<db_xref db="PDB" dbkey="4hfp"/>
+<db_xref db="PDB" dbkey="4htc"/>
+<db_xref db="PDB" dbkey="4hzh"/>
+<db_xref db="PDB" dbkey="4i7y"/>
+<db_xref db="PDB" dbkey="4iua"/>
+<db_xref db="PDB" dbkey="4kiv"/>
+<db_xref db="PDB" dbkey="4loy"/>
+<db_xref db="PDB" dbkey="4lxb"/>
+<db_xref db="PDB" dbkey="4lz1"/>
+<db_xref db="PDB" dbkey="4lz4"/>
+<db_xref db="PDB" dbkey="4mlf"/>
+<db_xref db="PDB" dbkey="4nzq"/>
+<db_xref db="PDB" dbkey="4o03"/>
+<db_xref db="PDB" dbkey="4rkj"/>
+<db_xref db="PDB" dbkey="4rko"/>
+<db_xref db="PDB" dbkey="4rn6"/>
+<db_xref db="PDB" dbkey="4thn"/>
+<db_xref db="PDB" dbkey="4ud9"/>
+<db_xref db="PDB" dbkey="4udw"/>
+<db_xref db="PDB" dbkey="4ue7"/>
+<db_xref db="PDB" dbkey="4ueh"/>
+<db_xref db="PDB" dbkey="4ufd"/>
+<db_xref db="PDB" dbkey="4ufe"/>
+<db_xref db="PDB" dbkey="4uff"/>
+<db_xref db="PDB" dbkey="4ufg"/>
+<db_xref db="PDB" dbkey="4yes"/>
+<db_xref db="PDB" dbkey="5a2m"/>
+<db_xref db="PDB" dbkey="5af9"/>
+<db_xref db="PDB" dbkey="5afy"/>
+<db_xref db="PDB" dbkey="5afz"/>
+<db_xref db="PDB" dbkey="5ahg"/>
+<db_xref db="PDB" dbkey="5cmx"/>
+<db_xref db="PDB" dbkey="5coe"/>
+<db_xref db="PDB" dbkey="5cp9"/>
+<db_xref db="PDB" dbkey="5cs1"/>
+<db_xref db="PDB" dbkey="5cs3"/>
+<db_xref db="PDB" dbkey="5cs5"/>
+<db_xref db="PDB" dbkey="5cs9"/>
+<db_xref db="PDB" dbkey="5csq"/>
+<db_xref db="PDB" dbkey="5ct1"/>
+<db_xref db="PDB" dbkey="5ct2"/>
+<db_xref db="PDB" dbkey="5ct3"/>
+<db_xref db="PDB" dbkey="5do4"/>
+<db_xref db="PDB" dbkey="5e8e"/>
+<db_xref db="PDB" dbkey="5ew1"/>
+<db_xref db="PDB" dbkey="5ew2"/>
+<db_xref db="PDB" dbkey="5gds"/>
+<db_xref db="PDB" dbkey="5hpg"/>
+<db_xref db="PDB" dbkey="5jdu"/>
+<db_xref db="PDB" dbkey="5l6n"/>
+<db_xref db="PDB" dbkey="7kme"/>
+<db_xref db="PDB" dbkey="8kme"/>
+<db_xref db="CATH" dbkey="2.10.25.10"/>
+<db_xref db="CATH" dbkey="2.40.10.10"/>
+<db_xref db="CATH" dbkey="2.40.20.10"/>
+<db_xref db="CATH" dbkey="3.50.4.10"/>
+<db_xref db="SCOP" dbkey="b.47.1.2"/>
+<db_xref db="SCOP" dbkey="g.10.1.1"/>
+<db_xref db="SCOP" dbkey="g.14.1.1"/>
+<db_xref db="SCOP" dbkey="g.3.11.1"/>
+<db_xref db="SCOP" dbkey="g.32.1.1"/>
+</structure_db_links>
+<taxonomy_distribution>
+<taxon_data name="Caenorhabditis elegans" proteins_count="3"/>
+<taxon_data name="Eukaryota" proteins_count="2"/>
+<taxon_data name="Eukaryota" proteins_count="21"/>
+<taxon_data name="Bacteria" proteins_count="2"/>
+<taxon_data name="Cyanobacteria" proteins_count="2"/>
+<taxon_data name="PlastidGroup" proteins_count="2"/>
+<taxon_data name="Eukaryota" proteins_count="6225"/>
+<taxon_data name="PlastidGroup" proteins_count="16"/>
+<taxon_data name="Eukaryota" proteins_count="16"/>
+<taxon_data name="Eukaryota" proteins_count="24"/>
+<taxon_data name="PlastidGroup" proteins_count="24"/>
+<taxon_data name="GreenPlants" proteins_count="24"/>
+<taxon_data name="Eukaryota" proteins_count="109"/>
+<taxon_data name="PlastidGroup" proteins_count="109"/>
+<taxon_data name="Eukaryota" proteins_count="25"/>
+<taxon_data name="PlastidGroup" proteins_count="25"/>
+<taxon_data name="PlastidGroup" proteins_count="21"/>
+<taxon_data name="Bacteria" proteins_count="4"/>
+<taxon_data name="Eukaryota" proteins_count="6422"/>
+<taxon_data name="Metazoa" proteins_count="6216"/>
+<taxon_data name="Nematoda" proteins_count="282"/>
+<taxon_data name="Bacteria" proteins_count="1"/>
+<taxon_data name="GreenPlants" proteins_count="22"/>
+<taxon_data name="Metazoa" proteins_count="6155"/>
+<taxon_data name="Chordata" proteins_count="4658"/>
+<taxon_data name="GreenPlants" proteins_count="2"/>
+<taxon_data name="Arthropoda" proteins_count="471"/>
+<taxon_data name="Arthropoda" proteins_count="27"/>
+<taxon_data name="Bacteria" proteins_count="8"/>
+<taxon_data name="Chordata" proteins_count="4944"/>
+<taxon_data name="Chordata" proteins_count="185"/>
+<taxon_data name="FruitFly" proteins_count="3"/>
+<taxon_data name="Human" proteins_count="84"/>
+<taxon_data name="Mouse" proteins_count="43"/>
+<taxon_data name="Metazoa" proteins_count="2"/>
+<taxon_data name="Nematoda" proteins_count="141"/>
+<taxon_data name="Nematoda" proteins_count="141"/>
+<taxon_data name="Bacteria" proteins_count="1"/>
+<taxon_data name="Chordata" proteins_count="101"/>
+<taxon_data name="Metazoa" proteins_count="32"/>
+<taxon_data name="Metazoa" proteins_count="55"/>
+<taxon_data name="Metazoa" proteins_count="4"/>
+<taxon_data name="Arthropoda" proteins_count="444"/>
+</taxonomy_distribution>
+</interpro>
+</interprodb>

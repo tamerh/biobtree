@@ -1,0 +1,185 @@
+@prefix bao: <http://www.bioassayontology.org/bao#> .
+@prefix bibo: <http://purl.org/ontology/bibo/> .
+@prefix cco: <http://rdf.ebi.ac.uk/terms/chembl#> .
+@prefix chembl: <http://rdf.ebi.ac.uk/resource/chembl/> .
+@prefix chembl_activity: <http://rdf.ebi.ac.uk/resource/chembl/activity/> .
+@prefix chembl_assay: <http://rdf.ebi.ac.uk/resource/chembl/assay/> .
+@prefix chembl_binding_site: <http://rdf.ebi.ac.uk/resource/chembl/binding_site/> .
+@prefix chembl_bio_cmpt: <http://rdf.ebi.ac.uk/resource/chembl/biocomponent/> .
+@prefix chembl_cell_line: <http://rdf.ebi.ac.uk/resource/chembl/cell_line/> .
+@prefix chembl_document: <http://rdf.ebi.ac.uk/resource/chembl/document/> .
+@prefix chembl_indication: <http://rdf.ebi.ac.uk/resource/chembl/drug_indication/> .
+@prefix chembl_journal: <http://rdf.ebi.ac.uk/resource/chembl/journal/> .
+@prefix chembl_moa: <http://rdf.ebi.ac.uk/resource/chembl/drug_mechanism/> .
+@prefix chembl_molecule: <http://rdf.ebi.ac.uk/resource/chembl/molecule/> .
+@prefix chembl_protclass: <http://rdf.ebi.ac.uk/resource/chembl/protclass/> .
+@prefix chembl_source: <http://rdf.ebi.ac.uk/resource/chembl/source/> .
+@prefix chembl_target: <http://rdf.ebi.ac.uk/resource/chembl/target/> .
+@prefix chembl_target_cmpt: <http://rdf.ebi.ac.uk/resource/chembl/targetcomponent/> .
+@prefix cheminf: <http://semanticscience.org/resource/> .
+@prefix cito: <http://purl.org/spar/cito/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix doi: <http://dx.doi.org/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix freq: <http://purl.org/cld/freq/> .
+@prefix mio: <http://www.ebi.ac.uk/ontology-lookup/?termId=> .
+@prefix oborel: <http://purl.obolibrary.org/obo#> .
+@prefix ops: <http://www.openphacts.org/units/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix pav: <http://purl.org/pav/> .
+@prefix qudt: <http://qudt.org/vocab/unit#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sd: <http://www.w3.org/ns/sparql-service-description#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix uniprot: <http://purl.uniprot.org/uniprot/> .
+@prefix voag: <http://voag.linkedmodel.org/voag#> .
+@prefix void: <http://rdfs.org/ns/void#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+
+chembl_molecule:CHEMBL6939 a cco:SmallMolecule ;
+        rdfs:label "CHEMBL6939" ;
+        cco:chemblId "CHEMBL6939" ;
+        skos:prefLabel "CHEMBL6939" ;
+        cco:highestDevelopmentPhase "0"^^xsd:int ;
+        cco:hasDocument chembl_document:CHEMBL1123868 .
+
+chembl_document:CHEMBL1123868 cco:hasMolecule chembl_molecule:CHEMBL6939 .
+
+chembl_molecule:CHEMBL6939 cco:substanceType "Small molecule" ;
+        cheminf:SIO_000008 <http://rdf.ebi.ac.uk/resource/chembl/molecule/CHEMBL6939#standard_inchi> .
+
+<http://rdf.ebi.ac.uk/resource/chembl/molecule/CHEMBL6939#standard_inchi> a cheminf:CHEMINF_000113 ;
+        cheminf:SIO_000300 "InChI=1S/C17H27NO3/c1-13(2)18-9-16(19)12-21-17-7-5-15(6-8-17)11-20-10-14-3-4-14/h5-8,13-14,16,18-19H,3-4,9-12H2,1-2H3" ;
+        rdfs:label "CHEMBL6939 Standard InChi" .
+
+chembl_molecule:CHEMBL6939 cheminf:SIO_000008 <http://rdf.ebi.ac.uk/resource/chembl/molecule/CHEMBL6939#standard_inchi_key> .
+
+<http://rdf.ebi.ac.uk/resource/chembl/molecule/CHEMBL6939#standard_inchi_key> a cheminf:CHEMINF_000059 ;
+        cheminf:SIO_000300 "UOKWVICUCYNXFO-UHFFFAOYSA-N" ;
+        rdfs:label "CHEMBL6939 Standard InChi Key: UOKWVICUCYNXFO-UHFFFAOYSA-N" .
+
+chembl_molecule:CHEMBL6939 cheminf:SIO_000008 <http://rdf.ebi.ac.uk/resource/chembl/molecule/CHEMBL6939#canonical_smiles> .
+
+<http://rdf.ebi.ac.uk/resource/chembl/molecule/CHEMBL6939#canonical_smiles> a cheminf:CHEMINF_000018 ;
+        cheminf:SIO_000300 "CC(C)NCC(O)COc1ccc(COCC2CC2)cc1" ;
+        rdfs:label "CHEMBL6939 Canonical Smiles" .
+
+chembl_molecule:CHEMBL6939 cheminf:SIO_000008 <http://rdf.ebi.ac.uk/resource/chembl/molecule/CHEMBL6939#alogp> .
+
+<http://rdf.ebi.ac.uk/resource/chembl/molecule/CHEMBL6939#alogp> a cheminf:CHEMINF_000305 ;
+        cheminf:SIO_000300 "2.35"^^xsd:double ;
+        rdfs:label "CHEMBL6939 ALogP: 2.35" .
+
+chembl_molecule:CHEMBL6939 cheminf:SIO_000008 <http://rdf.ebi.ac.uk/resource/chembl/molecule/CHEMBL6939#mw_freebase> .
+
+<http://rdf.ebi.ac.uk/resource/chembl/molecule/CHEMBL6939#mw_freebase> a cheminf:CHEMINF_000350 ;
+        cheminf:SIO_000300 "293.41"^^xsd:double ;
+        rdfs:label "CHEMBL6939 Freebase Molecular Weight: 293.41" .
+
+chembl_molecule:CHEMBL6939 cheminf:SIO_000008 <http://rdf.ebi.ac.uk/resource/chembl/molecule/CHEMBL6939#canonical_smiles> .
+
+<http://rdf.ebi.ac.uk/resource/chembl/molecule/CHEMBL6939#canonical_smiles> a cheminf:CHEMINF_000018 ;
+        cheminf:SIO_000300 "CC(C)NCC(O)COc1ccc(COCC2CC2)cc1" ;
+        rdfs:label "CHEMBL6939 Canonical Smiles" .
+
+chembl_molecule:CHEMBL6939 cheminf:SIO_000008 <http://rdf.ebi.ac.uk/resource/chembl/molecule/CHEMBL6939#alogp> .
+
+<http://rdf.ebi.ac.uk/resource/chembl/molecule/CHEMBL6939#alogp> a cheminf:CHEMINF_000305 ;
+        cheminf:SIO_000300 "2.35"^^xsd:double ;
+        rdfs:label "CHEMBL6939 ALogP: 2.35" .
+
+chembl_molecule:CHEMBL6939 cheminf:SIO_000008 <http://rdf.ebi.ac.uk/resource/chembl/molecule/CHEMBL6939#mw_freebase> .
+
+<http://rdf.ebi.ac.uk/resource/chembl/molecule/CHEMBL6939#mw_freebase> a cheminf:CHEMINF_000350 ;
+        cheminf:SIO_000300 "293.41"^^xsd:double ;
+        rdfs:label "CHEMBL6939 Freebase Molecular Weight: 293.41" .
+
+chembl_molecule:CHEMBL6939 cheminf:SIO_000008 <http://rdf.ebi.ac.uk/resource/chembl/molecule/CHEMBL6939#hba> .
+
+<http://rdf.ebi.ac.uk/resource/chembl/molecule/CHEMBL6939#hba> a cheminf:CHEMINF_000309 ;
+        cheminf:SIO_000300 "4.0"^^xsd:double ;
+        rdfs:label "CHEMBL6939 Hydrogen Bond Acceptors: 4" .
+
+chembl_molecule:CHEMBL6939 cheminf:SIO_000008 <http://rdf.ebi.ac.uk/resource/chembl/molecule/CHEMBL6939#hbd> .
+
+<http://rdf.ebi.ac.uk/resource/chembl/molecule/CHEMBL6939#hbd> a cheminf:CHEMINF_000310 ;
+        cheminf:SIO_000300 "2.0"^^xsd:double ;
+        rdfs:label "CHEMBL6939 Hydrogen Bond Donors: 2" .
+
+chembl_molecule:CHEMBL6939 cheminf:SIO_000008 <http://rdf.ebi.ac.uk/resource/chembl/molecule/CHEMBL6939#psa> .
+
+<http://rdf.ebi.ac.uk/resource/chembl/molecule/CHEMBL6939#psa> a cheminf:CHEMINF_000308 ;
+        cheminf:SIO_000300 "50.72"^^xsd:double ;
+        rdfs:label "CHEMBL6939 Polar Surface Area: 50.72" .
+
+<http://rdf.ebi.ac.uk/resource/chembl/molecule/CHEMBL6939#num_ro5_violations> a cheminf:CHEMINF_000312 ;
+        cheminf:SIO_000300 "0.0"^^xsd:double ;
+        rdfs:label "CHEMBL6939 RO5 Violations: 0" .
+
+chembl_molecule:CHEMBL6939 cheminf:SIO_000008 <http://rdf.ebi.ac.uk/resource/chembl/molecule/CHEMBL6939#acd_most_apka> .
+
+<http://rdf.ebi.ac.uk/resource/chembl/molecule/CHEMBL6939#acd_most_apka> a cheminf:CHEMINF_000324 ;
+        cheminf:SIO_000300 "13.86"^^xsd:double ;
+        rdfs:label "CHEMBL6939 ACD Most Acidic pKa: 13.86" .
+
+chembl_molecule:CHEMBL6939 cheminf:SIO_000008 <http://rdf.ebi.ac.uk/resource/chembl/molecule/CHEMBL6939#acd_most_bpka> .
+
+<http://rdf.ebi.ac.uk/resource/chembl/molecule/CHEMBL6939#acd_most_bpka> a cheminf:CHEMINF_000325 ;
+        cheminf:SIO_000300 "9.42"^^xsd:double ;
+        rdfs:label "CHEMBL6939 ACD Most Basic pKa: 9.42" .
+
+chembl_molecule:CHEMBL6939 cheminf:SIO_000008 <http://rdf.ebi.ac.uk/resource/chembl/molecule/CHEMBL6939#acd_logp> .
+
+<http://rdf.ebi.ac.uk/resource/chembl/molecule/CHEMBL6939#acd_logp> a cheminf:CHEMINF_000321 ;
+        cheminf:SIO_000300 "2.25"^^xsd:double ;
+        rdfs:label "CHEMBL6939 ACD LogP: 2.25" .
+
+chembl_molecule:CHEMBL6939 cheminf:SIO_000008 <http://rdf.ebi.ac.uk/resource/chembl/molecule/CHEMBL6939#acd_logd> .
+
+<http://rdf.ebi.ac.uk/resource/chembl/molecule/CHEMBL6939#acd_logd> a cheminf:CHEMINF_000323 ;
+        cheminf:SIO_000300 "0.16"^^xsd:double ;
+        rdfs:label "CHEMBL6939 ACD LogD: 0.16" .
+
+chembl_molecule:CHEMBL6939 cheminf:SIO_000008 <http://rdf.ebi.ac.uk/resource/chembl/molecule/CHEMBL6939#molecular_species> .
+
+<http://rdf.ebi.ac.uk/resource/chembl/molecule/CHEMBL6939#molecular_species> a cheminf:CHEMINF_000326 ;
+        cheminf:SIO_000300 "BASE" ;
+        rdfs:label "CHEMBL6939 Molecular Species: BASE" .
+
+chembl_molecule:CHEMBL6939 cheminf:SIO_000008 <http://rdf.ebi.ac.uk/resource/chembl/molecule/CHEMBL6939#full_mwt> .
+
+chembl_molecule:CHEMBL22 cco:hasDocument chembl_document:CHEMBL3244140 .
+
+chembl_document:CHEMBL3244140 cco:hasMolecule chembl_molecule:CHEMBL22 .
+
+chembl_molecule:CHEMBL22 cco:hasDocument chembl_document:CHEMBL3039007 .
+
+chembl_document:CHEMBL3039007 cco:hasMolecule chembl_molecule:CHEMBL22 .
+
+chembl_molecule:CHEMBL22 cco:hasDocument chembl_document:CHEMBL1649147 .
+
+chembl_document:CHEMBL1649147 cco:hasMolecule chembl_molecule:CHEMBL22 .
+
+chembl_molecule:CHEMBL22 cco:hasDocument chembl_document:CHEMBL1129575 .
+
+chembl_document:CHEMBL1129575 cco:hasMolecule chembl_molecule:CHEMBL22 .
+
+chembl_molecule:CHEMBL22 cco:hasDocument chembl_document:CHEMBL1132261 .
+
+chembl_document:CHEMBL1132261 cco:hasMolecule chembl_molecule:CHEMBL22 .
+
+chembl_molecule:CHEMBL22 cco:hasDocument chembl_document:CHEMBL1122538 .
+
+chembl_document:CHEMBL1122538 cco:hasMolecule chembl_molecule:CHEMBL22 .
+
+chembl_molecule:CHEMBL22 cco:hasDocument chembl_document:CHEMBL1122258 .
+
+chembl_document:CHEMBL1122258 cco:hasMolecule chembl_molecule:CHEMBL22 .
+
+chembl_molecule:CHEMBL22 cco:hasDocument chembl_document:CHEMBL2016442 .
+
+chembl_document:CHEMBL2016442 cco:hasMolecule chembl_molecule:CHEMBL22 .
+
+chembl_molecule:CHEMBL22 cco:hasDocument chembl_document:CHEMBL1142066 .

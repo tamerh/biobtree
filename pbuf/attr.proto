@@ -1,0 +1,353 @@
+syntax = "proto3";
+
+package pbuf;
+
+message GoAttr {
+  string type =1;
+  string name =2;
+  repeated string synonyms=3;
+}
+
+message EfoAttr {
+  string type =1;
+  string name =2;
+  repeated string synonyms=3;
+}
+
+message HgncAttr {
+  repeated string names =1;
+  repeated string symbols = 2;
+  string locus_group = 3;
+  string location = 4;
+  
+  repeated string aliases=5;
+  string locus_type=6;
+  repeated string prev_names=7;
+  repeated string prev_symbols=8;
+  string status=9;
+  repeated string gene_groups=10;
+}
+
+message InterproAttr {
+  repeated string names = 1;
+  string short_name =2;
+  string type = 3;
+  int32 protein_count = 4;
+}
+
+message EnsemblAttr  {
+  string name =1;
+  string description =2;
+  int32 start =3;
+  int32 end =4;
+  string biotype =5;
+  string genome =6;
+  string strand =7;
+  string seq_region_name =8;
+  ensemblbranch branch=9;
+}
+
+  enum ensemblbranch {
+    NONE=0;
+    ENSEMBL=1;
+    BACTERIA=2;
+    FUNGI=3;
+    METAZOA=4;
+    PLANT=5;
+    PROTIST=6;
+  }
+
+message TaxoAttr {
+  string name =1;
+  string common_name =2;
+  int32 rank =3;
+  string taxonomic_division =4;
+}
+
+message  EnaAttr {
+  string type =1;
+}
+
+message  PdbAttr {
+  string method =1;
+  string chains =2;
+  string resolution =3;
+}
+
+message  DrugbankAttr {
+  string name =1;
+}
+
+message  OrphanetAttr {
+  string disease =1;
+}
+
+message  ReactomeAttr {
+  string pathway =1;
+}
+
+message UniprotAttr {
+ repeated string accessions =1;
+ repeated string genes =2;
+ repeated string names =3;
+ repeated string alternative_names =4;
+ repeated string submitted_names =5;
+ UniSequence sequence=7;
+ bool reviewed=8;
+}
+
+message UniSequence {
+  string seq =1;
+  int32 mass =2;
+}
+
+message UniprotFeatureAttr {
+ string type =1;
+ string description =2;
+ string id =3;
+ repeated UniprotFeatureEvidence evidences =4;
+ string original =5;
+ string variation =6;
+ UniLocation location=7;
+}
+
+message UniprotFeatureEvidence {
+  string type=1;
+  string source=2;
+  string id=3;
+}
+
+
+message UniLocation {
+   int32 begin=1;
+   int32 end=2;
+}
+
+message ChemblAttr {
+  ChemblDocument doc=1;
+  ChemblAssay assay=2;
+  ChemblActivity activity=3;
+  ChemblMolecule molecule=4;
+  ChemblTarget target=5;
+  ChemblTargetComponent targetComponent=6;
+  ChemblCellLine cellLine=7;
+}
+
+message ChemblDocument {
+  string title=1;
+  string type =2;
+  string journal=3;
+  string journalShortName=4;
+}
+
+message ChemblActivity {
+  
+  string type=1;
+  string relation =2;
+  double value=3;
+  string units=4;
+  string standardType=5;
+  string standardRelation=6;
+  double standardValue=7;
+  string standardUnits=8;
+  string dataValidityIssue=9;
+  string dataValidityComment=10; 
+  double pChembl=11;
+  string activityComment=12;
+  string potentialDuplicate=13;
+  string bao=14;
+  
+}
+message ChemblMolecule { 
+  string desc=1;
+  int32 highestDevelopmentPhase =2;
+  repeated string altNames=3;
+  repeated string atcClassification=4;
+  string isBiotherapeutic=5;
+  string helmNotation=6;
+  string hracClassification=7;
+  string fracClassification=8;
+  string iracClassification=9;
+  string type=10;
+  string bioComponentType =11;
+  string bioComponentDescription=12;
+  string bioComponentSquence=13;
+  string bioComponentTaxo=14;
+  repeated ChemblIndication indications=15;
+  string parent=16;
+  repeated string childs=17;
+  ChemblMechanism mechanism=18;
+  string inchi=19;
+  string name=20;
+  string inchiKey=21;
+  string smiles=22;
+  double alogp=23;
+  double weightFreebase=24;
+  double hba=25;
+  double hbd=26;
+  double psa=27;
+  double rtb=28;
+  string ro3Pass=29;
+  double numRo5Violations=30;
+  double acdMostApka=31;
+  double acdMostBpka=32;
+  double acdLogp=33;
+  double acdLogd=34;
+  string molecularSpecies=35;
+  double weight=36;
+  double aromaticRings=37;
+  double heavyAtoms=38;
+  string formula=39;  
+  double weightMonoisotopic=40;
+  double qedWeighted=41;
+}
+
+message ChemblIndication {
+	string efoName=1;                 
+	string meshHeading=2;
+	int32 highestDevelopmentPhase=3;
+	string efo=4;
+	string mesh=5;
+  ChemblMechanism mechanism=6;
+}
+
+message ChemblTarget {
+  string title=1;
+  string isSpeciesGroup=2;
+  string type=3;
+  repeated string subsetofs=4;
+  repeated string equivalents=5;
+  repeated string subsets=6;
+  repeated string overlaps=7;
+  ChemblBindingSite bindingSite=8;
+  repeated ChemblProteinTargetClassification ptclassifications=9;
+  // target_components maps to target both via xref and here  because connection has property like single,group,complex
+  repeated ChemblTargetComponentInfo components=10; 
+  ChemblMechanism mechanism=11;
+  string tax=12;
+}
+
+message ChemblProteinTargetClassification {
+  string className=1;
+  string classLevel=2;
+  string classPath=3;
+}
+
+message ChemblCellLine {
+  string desc=1;
+  string cellosaurusId=2;
+  string efo=3;
+  string clo=4;
+  string tax=5;
+  repeated string cellxref=6;
+}
+
+message ChemblTargetComponentInfo {
+    string type =1;
+    string acc=2;
+}
+
+message ChemblTargetComponent {
+  string desc=1;
+  string altLabel=2;
+  string type=3;
+  repeated ChemblProteinTargetClassification ptclassifications=4;
+  string acc=5; // target component represents an uniprot or ensembl identifier
+  string tax=6;
+}
+
+message ChemblAssay {
+  string desc=1;
+  string type =2;
+  string targetConfDesc=3;
+  string targetRelType=4;
+  string targetRelDesc=5;
+  int32 targetConfScore=6;
+  string subCellFrac=7;
+  string testType=8;
+  string strain=9;
+  string cellType=10; 
+  string tissue=11;
+  string tax=12;
+  string category=13;
+  string source=14;
+  string sourceDesc=15;
+  string bao=16;
+}
+
+message ChemblBindingSite {
+    string name=1;
+    ChemblMechanism mechanism=2;
+}
+
+message ChemblMechanism {
+    string desc=1;
+    string action=2;
+}
+
+message HmdbAttr {
+  string name =1;
+  string desc =2;
+  repeated string accessions =3;
+  repeated string synonyms =4;
+  repeated string diseases =5;
+  string formula =6;
+  double averageWeight=7;
+  double monisotopicWeight=8;
+  string iupacName=9;
+  string smiles=10;
+  string inchi=11;
+  string inchiKey=12;
+  //HmdbTaxonomy taxonomy = 13;
+  HmdbPredictedProps props=14;
+  HmdbExperimentalProps experimentalProps=15;
+  repeated string cellularLocations=16;
+  repeated string biospecimens=17;
+  repeated string tissueLocations=18;
+  repeated string pathways=19;
+}
+
+message HmdbPredictedProps {
+  int32   rotatableBondCount=1;
+  int32   physiologicalCharge=2;
+  string  ruleOfFive=3;
+  double  pkaStrongestAcidic=4;
+  double  monoMass=5;
+  string  ghose_filter=6;
+  double  refractivity=7;
+  double  formalCharge=8;
+  double  bioavailability=9;
+  string  solubility=10;
+  double  pka_strongest_basic=11;
+  double  polarSurfaceArea= 12;
+  string  veberRule=13;
+  string  mddrLikeRule=14;
+  double  logp=15;
+  double  polarizability=16;
+  int32   donorCount=17;
+  double  averageMass=18;
+  int32   acceptorCount=19;
+  int32   numberOfRings=20;
+  double  logs=21;
+}
+
+message HmdbExperimentalProps {
+  string boolingPoint=1;
+  string meltingPoint=2;
+  double logp=3;
+  string waterSolubility=4;
+}
+
+/**
+message HmdbTaxonomy {
+  string desc=1;
+  string parent=2;
+  string kingdom=3;
+  string class=4;
+  string subClass=5;
+  string framework=6;
+}
+**/
+
+
+  

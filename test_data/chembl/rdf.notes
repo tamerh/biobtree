@@ -1,0 +1,544 @@
+// chembl_*_target.ttl 
+subject
+
+predicates
+http://www.w3.org/2000/01/rdf-schema#label
+http://purl.org/dc/terms/title
+hasTargetComponent
+isTargetForCellLine
+isSpeciesGroup
+http://www.w3.org/1999/02/22-rdf-syntax-ns#type
+chemblId
+targetType
+taxonomy
+organismName
+
+label and title is looking same.
+
+target types:CELL-LINE,ORGANISM,SINGLE PROTEIN
+
+{/target/CHEMBL2242 http://www.w3.org/1999/02/22-rdf-syntax-ns#type SingleProtein}
+{/target/CHEMBL2242 chemblId CHEMBL2242}
+{/target/CHEMBL2242 http://www.w3.org/2000/01/rdf-schema#label Glutathione S-transferase Mu 3}
+{/target/CHEMBL2242 http://purl.org/dc/terms/title Glutathione S-transferase Mu 3}
+{/target/CHEMBL2242 targetType SINGLE PROTEIN}
+{/target/CHEMBL2242 taxonomy http://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=9606}
+{/target/CHEMBL2242 organismName Homo sapiens}
+{/target/CHEMBL2242 hasTargetComponent /targetcomponent/CHEMBL_TC_583}
+{/target/CHEMBL612246 isTargetForCellLine /cell_line/CHEMBL3307786}
+{/target/CHEMBL2364672 isSpeciesGroup true}
+---------------------------------------------------
+organismName
+http://purl.org/dc/terms/title
+targetType
+taxonomy
+hasTargetComponent
+isTargetForCellLine
+isSpeciesGroup
+http://www.w3.org/1999/02/22-rdf-syntax-ns#type
+chemblId
+http://www.w3.org/2000/01/rdf-schema#label
+
+
+**************************************************************************
+
+// chembl_*_targetrel
+{/target/CHEMBL2247 relSubsetOf /target/CHEMBL2111337}
+{/target/CHEMBL1809 relEquivalentTo /target/CHEMBL2364669}
+{/target/CHEMBL3856161 relHasSubset /target/CHEMBL3713007}
+{/target/CHEMBL4106121 relOverlapsWith /target/CHEMBL4106122}
+---------------------------------------------------
+relHasSubset
+relOverlapsWith
+relSubsetOf
+relEquivalentTo
+
+**************************************************************************
+// chembl_*_targetcmpt_uniprot_ls.ttl
+{/targetcomponent/CHEMBL_TC_17428 http://www.w3.org/2004/02/skos/core#exactMatch http://purl.uniprot.org/uniprot/P08587}
+---------------------------------------------------
+http://rdfs.org/ns/void#inDataset
+http://www.w3.org/2004/02/skos/core#exactMatch
+
+**************************************************************************
+// chembl_*document.ttl
+subject
+/document
+
+{/document/CHEMBL1121978 http://www.w3.org/1999/02/22-rdf-syntax-ns#type Document}
+{/document/CHEMBL1121978 chemblId CHEMBL1121978}
+{/document/CHEMBL1121978 hasJournal /journal/CHEMBL_JRN_30}
+{/document/CHEMBL1121978 http://www.w3.org/2000/01/rdf-schema#label CHEMBL1121978}
+{/document/CHEMBL1121978 documentType PUBLICATION}
+{/document/CHEMBL1121978 http://purl.org/dc/terms/title Ultra-short-acting beta-adrenergic receptor blocking agents. 2. (Aryloxy)propanolamines containing esters on the aryl function.}
+{/document/CHEMBL1121978 http://purl.org/ontology/bibo/issue 12}
+{/document/CHEMBL1121978 http://purl.org/ontology/bibo/volume 25}
+{/document/CHEMBL1121978 http://purl.org/ontology/bibo/pageStart 1408}
+{/document/CHEMBL1121978 http://purl.org/ontology/bibo/pageEnd 1412}
+{/document/CHEMBL1121978 http://purl.org/dc/terms/date 1982}
+{/document/CHEMBL1121978 http://purl.org/ontology/bibo/doi 10.1021/jm00354a003}
+{/document/CHEMBL1121978 http://purl.org/ontology/bibo/pmid http://identifiers.org/pubmed/6130154}
+
+
+predicates
+chemblId
+http://www.w3.org/2000/01/rdf-schema#label
+http://purl.org/dc/terms/title
+http://purl.org/ontology/bibo/issue
+http://purl.org/dc/terms/date
+http://purl.org/ontology/bibo/doi
+http://www.w3.org/1999/02/22-rdf-syntax-ns#type
+hasJournal
+documentType
+http://purl.org/ontology/bibo/volume
+http://purl.org/ontology/bibo/pageStart
+http://purl.org/ontology/bibo/pageEnd
+http://purl.org/ontology/bibo/pmid
+
+**************************************************************************
+// chembl_*_assay.ttl
+
+{/assay/CHEMBL615155 http://www.w3.org/1999/02/22-rdf-syntax-ns#type Assay}
+{/assay/CHEMBL615155 http://www.w3.org/2000/01/rdf-schema#label CHEMBL615155}
+{/assay/CHEMBL615155 chemblId CHEMBL615155}
+{/assay/CHEMBL615155 http://purl.org/dc/terms/description Inhibitory activity against human placenta 17-beta-hydroxysteroid dehydrogenase type 2 (17-beta-HSD type 2)}
+{/assay/CHEMBL615155 assayType Binding}
+{/assay/CHEMBL615155 targetConfDesc Homologous single protein target assigned}
+{/assay/CHEMBL615155 targetConfScore 8}
+{/assay/CHEMBL615155 targetRelType H}
+{/assay/CHEMBL615155 targetRelDesc Homologous protein target assigned}
+{/assay/CHEMBL615155 http://www.bioassayontology.org/bao#BAO_0000205 http://www.bioassayontology.org/bao#BAO_0000019}
+{/assay/CHEMBL615155 hasTarget /target/CHEMBL2789}
+{/assay/CHEMBL615155 hasSource /source/CHEMBL_SRC_1}
+{/assay/CHEMBL615155 hasDocument /document/CHEMBL1149930}
+{/assay/CHEMBL615155 hasActivity /activity/CHEMBL_ACT_196379}
+{/assay/CHEMBL615157 taxonomy http://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=9606}
+{/assay/CHEMBL615157 organismName Homo sapiens}
+{/assay/CHEMBL615159 assayTissue Testis}
+{/assay/CHEMBL615160 assayCellType CHO}
+{/assay/CHEMBL615160 hasCellLine /cell_line/CHEMBL3308072}
+{/assay/CHEMBL615178 assaySubCellFrac Membrane}
+{/assay/CHEMBL615308 assayTestType In vivo}
+{/assay/CHEMBL1072699 assayStrain ATCC 90030}
+{/assay/CHEMBL1963790 assayCategory other}
+{/assay/CHEMBL1963790 assayXref http://pubchem.ncbi.nlm.nih.gov/assay/assay.cgi?aid=493040169}
+
+subject
+/assay/
+predicates
+
+targetConfDesc
+hasDocument
+organismName
+hasSource
+assayTissue
+hasCellLine
+assayTestType
+assayStrain
+http://purl.org/dc/terms/description
+targetConfScore
+targetRelDesc
+hasTarget
+assayCellType
+http://www.bioassayontology.org/bao#BAO_0000205
+hasActivity
+taxonomy
+http://www.w3.org/1999/02/22-rdf-syntax-ns#type
+http://www.w3.org/2000/01/rdf-schema#label
+chemblId
+assayType
+targetRelType
+assaySubCellFrac
+assayCategory
+assayXref
+
+
+--not in assay turtle--
+subject activity
+/activity/CHEMBL_ACT_196379 
+
+predicates
+hasAssay 
+
+object
+/assay/CHEMBL615155
+
+subject document
+/document/CHEMBL1125407
+predicates
+hasAssay 
+object 
+/assay/CHEMBL615155
+
+subject cell line 
+subject
+/cell_line/CHEMBL3308072 
+predicates
+isCellLineForAssay 
+object
+/assay/CHEMBL615160
+
+**************************************************************************
+// chembl_*_cellline.ttl
+{/cell_line/CHEMBL3307241 http://www.w3.org/1999/02/22-rdf-syntax-ns#type CellLine}
+{/cell_line/CHEMBL3307241 http://www.w3.org/2000/01/rdf-schema#label DC3F}
+{/cell_line/CHEMBL3307241 chemblId CHEMBL3307241}
+{/cell_line/CHEMBL3307241 http://purl.org/dc/terms/description DC3F}
+{/cell_line/CHEMBL3307241 taxonomy http://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=10029}
+{/cell_line/CHEMBL3307241 organismName Cricetulus griseus}
+{/cell_line/CHEMBL3307241 cellosaurusId CVCL_4704}
+{/cell_line/CHEMBL3307242 hasEFO http://www.ebi.ac.uk/efo/EFO_0002312}
+{/cell_line/CHEMBL3307242 hasCLO http://purl.obolibrary.org/obo/CLO_0008331}
+{/cell_line/CHEMBL3307242 cellXref http://life.ccs.miami.edu/life/summary?mode=CellLine&source=LINCS&input=LCL-2024}
+---------------------------------------------------
+http://www.w3.org/2000/01/rdf-schema#label
+taxonomy
+hasEFO
+hasCLO
+cellXref
+http://www.w3.org/1999/02/22-rdf-syntax-ns#type
+chemblId
+http://purl.org/dc/terms/description
+organismName
+cellosaurusId
+
+**************************************************************************
+// chembl_*_activity.ttl
+subject
+/activity/CHEMBL_ACT_93229
+predicates
+
+chemblId
+relation
+dataValidityComment
+activityComment
+http://www.w3.org/1999/02/22-rdf-syntax-ns#type
+standardRelation
+hasMolecule
+hasDocument
+http://www.bioassayontology.org/bao#BAO_0000208
+http://www.w3.org/2000/01/rdf-schema#label
+units
+standardType
+standardValue
+standardUnits
+hasUnitOnto
+hasQUDT
+dataValidityIssue
+type
+potentialDuplicate
+pChembl
+value
+
+
+sample triplets
+{/activity/CHEMBL_ACT_93229 http://www.w3.org/1999/02/22-rdf-syntax-ns#type Activity}
+{/activity/CHEMBL_ACT_93229 http://www.w3.org/2000/01/rdf-schema#label CHEMBL_ACT_93229}
+{/activity/CHEMBL_ACT_93229 chemblId CHEMBL_ACT_93229}
+{/activity/CHEMBL_ACT_93229 type Survival}
+{/activity/CHEMBL_ACT_93229 relation =}
+{/activity/CHEMBL_ACT_93229 value 100.0}
+{/activity/CHEMBL_ACT_93229 units %}
+{/activity/CHEMBL_ACT_93229 standardType Survival}
+{/activity/CHEMBL_ACT_93229 standardRelation =}
+{/activity/CHEMBL_ACT_93229 standardValue 100.0}
+{/activity/CHEMBL_ACT_93229 standardUnits %}
+{/activity/CHEMBL_ACT_93229 hasUnitOnto http://purl.obolibrary.org/obo/UO_0000187}
+{/activity/CHEMBL_ACT_93229 hasQUDT http://qudt.org/vocab/unit#Percent}
+{/activity/CHEMBL_ACT_93229 hasMolecule /molecule/CHEMBL282282}
+{/activity/CHEMBL_ACT_93229 hasDocument /document/CHEMBL1127894}
+{/activity/CHEMBL_ACT_93229 http://www.bioassayontology.org/bao#BAO_0000208 http://www.bioassayontology.org/bao#BAO_0000179}
+{/activity/CHEMBL_ACT_99399 dataValidityIssue true}
+{/activity/CHEMBL_ACT_99399 dataValidityComment Outside typical range}
+{/activity/CHEMBL_ACT_104454 pChembl 8.19}
+{/activity/CHEMBL_ACT_102418 activityComment Not Determined}
+{/activity/CHEMBL_ACT_50286 potentialDuplicate true}
+
+**************************************************************************
+// chembl_*_bindingsite.ttl
+
+{/binding_site/CHEMBL_BS_2 http://www.w3.org/1999/02/22-rdf-syntax-ns#type BindingSite}
+{/binding_site/CHEMBL_BS_2 http://www.w3.org/2000/01/rdf-schema#label CHEMBL_BS_2}
+{/binding_site/CHEMBL_BS_2 chemblId CHEMBL_BS_2}
+{/binding_site/CHEMBL_BS_2 hasTarget /target/CHEMBL1743320}
+{/binding_site/CHEMBL_BS_2 bindingSiteName UDP-glucuronosyltransferase 1-10, UDPGT domain}
+---------------------------------------------------
+http://www.w3.org/1999/02/22-rdf-syntax-ns#type
+http://www.w3.org/2000/01/rdf-schema#label
+chemblId
+hasTarget
+bindingSiteName
+
+**************************************************************************
+// chembl_*biocompt.ttl
+componentType
+RNA
+PROTEIN
+{/biocomponent/CHEMBL_BC_6398 http://www.w3.org/1999/02/22-rdf-syntax-ns#type BioComponent}
+{/biocomponent/CHEMBL_BC_6398 http://www.w3.org/2000/01/rdf-schema#label CHEMBL_BC_6398}
+{/biocomponent/CHEMBL_BC_6398 chemblId CHEMBL_BC_6398}
+{/biocomponent/CHEMBL_BC_6398 componentType PROTEIN}
+{/biocomponent/CHEMBL_BC_6398 http://purl.org/dc/terms/description Demcizumab light chain}
+{/biocomponent/CHEMBL_BC_6398 proteinSequence DIVMTQSPDSLAVSLGERATISCRASESVDNYGISFMKWFQQKPGQPPKLLIYAASNQGSGVPDRFSGSGSGTDFTLTISSLQAEDVAVYYCQQSKEVPWTFGGGTKVEIKRTVAAPSVFIFPPSDEQLKSGTASVVCLLNNFYPREAKVQWKVDNALQSGNSQESVTEQDSKDSTYSLSSTLTLSKADYEKHKVYACEVTHQGLSSPVTKSFNRGEC}
+{/biocomponent/CHEMBL_BC_6399 taxonomy http://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=9606}
+{/biocomponent/CHEMBL_BC_6399 organismName Homo sapiens}
+---------------------------------------------------
+http://www.w3.org/2000/01/rdf-schema#label
+chemblId
+componentType
+http://purl.org/dc/terms/description
+proteinSequence
+taxonomy
+organismName
+http://www.w3.org/1999/02/22-rdf-syntax-ns#type
+
+**************************************************************************
+// chembl_*_complextarget_targetcmpt_ls.ttl
+target -> target component mappings
+
+{/target/CHEMBL614865 http://www.w3.org/2004/02/skos/core#relatedMatch /targetcomponent/CHEMBL_TC_7143}
+---------------------------------------------------
+http://www.w3.org/2004/02/skos/core#relatedMatch
+
+**************************************************************************
+chembl_*_grouptarget_targetcmpt_ls.ttl
+
+target -> target_component
+
+{/target/CHEMBL1907606 http://www.w3.org/2004/02/skos/core#relatedMatch /targetcomponent/CHEMBL_TC_37}
+---------------------------------------------------
+http://www.w3.org/2004/02/skos/core#relatedMatch
+
+
+**************************************************************************
+chembl_*_indication.ttl
+
+type is only DrugIndication
+
+{/drug_indication/CHEMBL_IND_62807 http://www.w3.org/1999/02/22-rdf-syntax-ns#type DrugIndication}
+{/drug_indication/CHEMBL_IND_62807 http://www.w3.org/2000/01/rdf-schema#label CHEMBL_IND_62807}
+{/drug_indication/CHEMBL_IND_62807 chemblId CHEMBL_IND_62807}
+{/drug_indication/CHEMBL_IND_62807 hasMolecule /molecule/CHEMBL22}
+{/drug_indication/CHEMBL_IND_62807 highestDevelopmentPhase 4}
+{/drug_indication/CHEMBL_IND_62807 hasMesh http://identifiers.org/mesh/D011020}
+{/drug_indication/CHEMBL_IND_62807 hasMeshHeading Pneumonia, Pneumocystis}
+{/drug_indication/CHEMBL_IND_62807 hasEFO http://www.ebi.ac.uk/efo/EFO_0007448}
+{/drug_indication/CHEMBL_IND_62807 hasEFOName pneumocystosis}
+{/molecule/CHEMBL22 hasDrugIndication /drug_indication/CHEMBL_IND_62807}
+---------------------------------------------------
+hasEFOName
+http://www.w3.org/2000/01/rdf-schema#label
+hasMeshHeading
+hasEFO
+highestDevelopmentPhase
+hasMesh
+http://www.w3.org/1999/02/22-rdf-syntax-ns#type
+chemblId
+hasMolecule
+
+
+**************************************************************************
+
+chembl_25.0_journal.ttl
+
+{/journal/CHEMBL_JRN_2 http://www.w3.org/1999/02/22-rdf-syntax-ns#type Journal}
+{/journal/CHEMBL_JRN_2 chemblId CHEMBL_JRN_2}
+{/journal/CHEMBL_JRN_2 http://www.w3.org/2000/01/rdf-schema#label Gastroenterology}
+{/journal/CHEMBL_JRN_2 http://purl.org/dc/terms/title Gastroenterology.}
+{/journal/CHEMBL_JRN_2 http://purl.org/ontology/bibo/shortTitle Gastroenterology}
+{/journal/CHEMBL_JRN_2 http://purl.org/ontology/bibo/issn 0016-5085}
+{/journal/CHEMBL_JRN_2 http://purl.org/ontology/bibo/eissn 1528-0012}
+---------------------------------------------------
+http://purl.org/ontology/bibo/shortTitle
+http://purl.org/ontology/bibo/issn
+http://purl.org/ontology/bibo/eissn
+http://www.w3.org/1999/02/22-rdf-syntax-ns#type
+chemblId
+http://www.w3.org/2000/01/rdf-schema#label
+http://purl.org/dc/terms/title
+
+
+**************************************************************************
+drug_mechanism
+chembl_25.0_moa.ttl
+
+{/drug_mechanism/CHEMBL_MEC_1664 http://www.w3.org/1999/02/22-rdf-syntax-ns#type Mechanism}
+{/drug_mechanism/CHEMBL_MEC_1664 http://www.w3.org/2000/01/rdf-schema#label CHEMBL_MEC_1664}
+{/drug_mechanism/CHEMBL_MEC_1664 chemblId CHEMBL_MEC_1664}
+{/drug_mechanism/CHEMBL_MEC_1664 hasMolecule /molecule/CHEMBL22}
+{/drug_mechanism/CHEMBL_MEC_1664 hasTarget /target/CHEMBL2364669}
+{/drug_mechanism/CHEMBL_MEC_1664 mechanismDescription Bacterial dihydrofolate reductase inhibitor}
+{/drug_mechanism/CHEMBL_MEC_1664 mechanismActionType INHIBITOR}
+{/drug_mechanism/CHEMBL_MEC_1588 hasBindingSite /binding_site/CHEMBL_BS_2617}
+---------------------------------------------------
+mechanismDescription
+mechanismActionType
+hasBindingSite
+http://www.w3.org/1999/02/22-rdf-syntax-ns#type
+http://www.w3.org/2000/01/rdf-schema#label
+chemblId
+hasMolecule
+hasTarget
+
+
+**************************************************************************
+
+molecule.ttl
+
+{/molecule/CHEMBL6939 http://www.w3.org/1999/02/22-rdf-syntax-ns#type SmallMolecule}
+{/molecule/CHEMBL6939 http://www.w3.org/2000/01/rdf-schema#label CHEMBL6939}
+{/molecule/CHEMBL6939 chemblId CHEMBL6939}
+{/molecule/CHEMBL6939 http://www.w3.org/2004/02/skos/core#prefLabel CHEMBL6939}
+{/molecule/CHEMBL6939 highestDevelopmentPhase 0}
+{/molecule/CHEMBL6939 hasDocument /document/CHEMBL1123868}
+{/molecule/CHEMBL6939 substanceType Small molecule}
+{/molecule/CHEMBL6939 http://semanticscience.org/resource/SIO_000008 /molecule/CHEMBL6939#standard_inchi}
+{/molecule/CHEMBL6939#standard_inchi http://semanticscience.org/resource/SIO_000300 InChI=1S/C17H27NO3/c1-13(2)18-9-16(19)12-21-17-7-5-15(6-8-17)11-20-10-14-3-4-14/h5-8,13-14,16,18-19H,3-4,9-12H2,1-2H3}
+{/molecule/CHEMBL6939 http://www.w3.org/2004/02/skos/core#altLabel 1-(4-Cyclopropylmethoxymethyl-phenoxy)-3-isopropylamino-propan-2-ol}
+{/molecule/CHEMBL6939 http://xmlns.com/foaf/0.1/depiction https://www.ebi.ac.uk/chembl/compound/displayimage_large/CHEMBL6939}
+{/molecule/CHEMBL22 http://www.w3.org/2004/02/skos/core#exactMatch http://purl.obolibrary.org/obo/CHEBI_45924}
+{/molecule/CHEMBL22 moleculeXref http://en.wikipedia.org/wiki/Trimethoprim}
+{/molecule/CHEMBL22 atcClassification J01EA01}
+{/molecule/CHEMBL7003 isBiotherapeutic true}
+{/molecule/CHEMBL7003 helmNotation PEPTIDE1{[dGlp].E.[dP].[am]}$$$$}
+{/molecule/CHEMBL1201558 http://purl.org/dc/terms/description Interferon alpha-2 precursor (Interferon alpha-A) (LeIF A)}
+{/molecule/CHEMBL1201558 hasBioComponent /biocomponent/CHEMBL_BC_6682}
+{/molecule/CHEMBL8659 hracClassification Z}
+{/molecule/CHEMBL10118 fracClassification C3}
+{/molecule/CHEMBL17888 iracClassification C10}
+
+predicates
+
+http://www.w3.org/2004/02/skos/core#exactMatch
+http://purl.org/dc/terms/description
+hasBioComponent
+fracClassification
+http://www.w3.org/2000/01/rdf-schema#label
+hasDocument
+http://semanticscience.org/resource/SIO_000300
+http://xmlns.com/foaf/0.1/depiction
+hracClassification
+highestDevelopmentPhase
+substanceType
+http://www.w3.org/2004/02/skos/core#prefLabel
+http://semanticscience.org/resource/SIO_000008
+http://www.w3.org/2004/02/skos/core#altLabel
+atcClassification
+isBiotherapeutic
+iracClassification
+http://www.w3.org/1999/02/22-rdf-syntax-ns#type
+chemblId
+moleculeXref
+helmNotation
+
+
+**************************************************************************
+chembl_*_molecule_chebi_ls.ttl
+molecule chebi mappings
+{/molecule/CHEMBL5 http://www.w3.org/2004/02/skos/core#exactMatch http://purl.obolibrary.org/obo/CHEBI_100147}
+---------------------------------------------------
+http://www.w3.org/2004/02/skos/core#exactMatch
+
+
+**************************************************************************
+chembl_*_molhierarchy.ttl
+molecule hierarchy ---> in web page under the alternative forms
+
+{/molecule/CHEMBL2237501 hasParentMolecule /molecule/CHEMBL22}
+{/molecule/CHEMBL22 hasChildMolecule /molecule/CHEMBL2237501}
+---------------------------------------------------
+hasParentMolecule
+hasChildMolecule
+
+**************************************************************************
+protclass.ttl
+
+{/protclass/CHEMBL_PC_544 http://www.w3.org/1999/02/22-rdf-syntax-ns#type ProteinClassification}
+{/protclass/CHEMBL_PC_544 http://www.w3.org/2000/01/rdf-schema#label Adrenergic receptor}
+{/protclass/CHEMBL_PC_544 chemblId CHEMBL_PC_544}
+{/protclass/CHEMBL_PC_544 http://www.w3.org/2004/02/skos/core#prefLabel Adrenergic receptor}
+{/protclass/CHEMBL_PC_544 classLevel L5}
+{/protclass/CHEMBL_PC_544 classPath /Protein class/Membrane receptor/7TM1/SmallMol/Monoamine receptor/Adrenergic receptor}
+{/protclass/CHEMBL_PC_544 http://www.w3.org/2000/01/rdf-schema#subClassOf /protclass/CHEMBL_PC_1266}
+{/protclass/CHEMBL_PC_1266 http://www.w3.org/2004/02/skos/core#narrower /protclass/CHEMBL_PC_544}
+{/protclass/CHEMBL_PC_544 http://www.w3.org/2004/02/skos/core#broader /protclass/CHEMBL_PC_1266}
+{/protclass/CHEMBL_PC_544 hasTargetComponentDescendant /targetcomponent/CHEMBL_TC_25}
+{/protclass/CHEMBL_PC_544 hasTargetDescendant /target/CHEMBL2289}
+---------------------------------------------------
+classPath
+http://www.w3.org/2004/02/skos/core#narrower
+http://www.w3.org/2004/02/skos/core#broader
+hasTargetComponentDescendant
+http://www.w3.org/1999/02/22-rdf-syntax-ns#type
+chemblId
+http://www.w3.org/2004/02/skos/core#prefLabel
+hasTargetDescendant
+http://www.w3.org/2000/01/rdf-schema#label
+classLevel
+http://www.w3.org/2000/01/rdf-schema#subClassOf
+
+
+**************************************************************************
+chembl_25.0_singletarget_targetcmpt_ls.ttl
+
+singletarget targetcomponent mappings
+
+{/target/CHEMBL2051 http://www.w3.org/2004/02/skos/core#exactMatch /targetcomponent/CHEMBL_TC_391}
+---------------------------------------------------
+http://www.w3.org/2004/02/skos/core#exactMatch
+
+**************************************************************************
+source.ttl 
+related with assays
+
+{/source/CHEMBL_SRC_30 http://www.w3.org/1999/02/22-rdf-syntax-ns#type Source}
+{/source/CHEMBL_SRC_30 http://www.w3.org/2000/01/rdf-schema#label K4DD}
+{/source/CHEMBL_SRC_30 http://purl.org/dc/terms/description K4DD Project}
+{/source/CHEMBL_SRC_30 chemblId CHEMBL_SRC_30}
+---------------------------------------------------
+http://www.w3.org/1999/02/22-rdf-syntax-ns#type
+http://www.w3.org/2000/01/rdf-schema#label
+http://purl.org/dc/terms/description
+chemblId
+
+
+**************************************************************************
+targetcompt.ttl
+{/targetcomponent/CHEMBL_TC_47 http://www.w3.org/1999/02/22-rdf-syntax-ns#type TargetComponent}
+{/targetcomponent/CHEMBL_TC_47 http://www.w3.org/2000/01/rdf-schema#label CHEMBL_TC_47}
+{/targetcomponent/CHEMBL_TC_47 chemblId CHEMBL_TC_47}
+{/targetcomponent/CHEMBL_TC_47 componentType PROTEIN}
+{/targetcomponent/CHEMBL_TC_47 http://purl.org/dc/terms/description Gamma-aminobutyric acid receptor subunit beta-2}
+{/targetcomponent/CHEMBL_TC_47 taxonomy http://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=9606}
+{/targetcomponent/CHEMBL_TC_47 organismName Homo sapiens}
+{/targetcomponent/CHEMBL_TC_47 targetCmptXref http://purl.uniprot.org/uniprot/P47870}
+{/targetcomponent/CHEMBL_TC_47 proteinSequence MWRVRKRGYFGIWSFPLIIAAVCAQSVNDPSNMSLVKETVDRLLKGYDIRLRPDFGGPPVAVGMNIDIASIDMVSEVNMDYTLTMYFQQAWRDKRLSYNVIPLNLTLDNRVADQLWVPDTYFLNDKKSFVHGVTVKNRMIRLHPDGTVLYGLRITTTAACMMDLRRYPLDEQNCTLEIESYGYTTDDIEFYWRGDDNAVTGVTKIELPQFSIVDYKLITKKVVFSTGSYPRLSLSFKLKRNIGYFILQTYMPSILITILSWVSFWINYDASAARVALGITTVLTMTTINTHLRETLPKIPYVKAIDMYLMGCFVFVFMALLEYALVNYIFFGRGPQRQKKAAEKAASANNEKMRLDVNKIFYKDIKQNGTQYRSLWDPTGNLSPTRRTTNYDFSLYTMDPHENILLSTLEIKNEMATSEAVMGLGDPRSTMLAYDASSIQYRKAGLPRHSFGRNALERHVAQKKSRLRRRASQLKITIPDLTDVNAIDRWSRIFFPVVFSFFNIVYWLYYVN}
+{/targetcomponent/CHEMBL_TC_47 http://www.w3.org/2004/02/skos/core#altLabel GABA(A) receptor subunit beta-2}
+---------------------------------------------------
+taxonomy
+http://www.w3.org/2004/02/skos/core#altLabel
+http://www.w3.org/1999/02/22-rdf-syntax-ns#type
+componentType
+http://purl.org/dc/terms/description
+organismName
+targetCmptXref
+proteinSequence
+http://www.w3.org/2000/01/rdf-schema#label
+chemblId
+
+
+**************************************************************************
+targetcompt_uniprot_ls.ttl
+
+{/targetcomponent/CHEMBL_TC_55 http://www.w3.org/2004/02/skos/core#exactMatch http://purl.uniprot.org/uniprot/Q00987}
+---------------------------------------------------
+http://www.w3.org/2004/02/skos/core#exactMatch
+
+**************************************************************************
+unichem.ttl
+SKIPPED
+
+**************************************************************************
+cco.ttl && void.ttl
+definitions
+

@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns="http://purl.obolibrary.org/obo/go.owl#" xml:base="http://purl.obolibrary.org/obo/go.owl" 
+  xmlns:dc="http://purl.org/dc/elements/1.1/" 
+  xmlns:go="http://purl.obolibrary.org/obo/go#" 
+  xmlns:obo="http://purl.obolibrary.org/obo/" 
+  xmlns:owl="http://www.w3.org/2002/07/owl#" 
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+  xmlns:xml="http://www.w3.org/XML/1998/namespace" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema#" 
+  xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" 
+  xmlns:terms="http://www.geneontology.org/formats/oboInOwl#http://purl.org/dc/terms/" 
+  xmlns:oboInOwl="http://www.geneontology.org/formats/oboInOwl#">
+  <owl:Ontology rdf:about="http://purl.obolibrary.org/obo/go.owl">
+    <owl:versionIRI rdf:resource="http://purl.obolibrary.org/obo/go/releases/2019-06-10/go.owl"/>
+    <dc:license rdf:resource="http://creativecommons.org/licenses/by/4.0/"/>
+    <oboInOwl:default-namespace rdf:datatype="http://www.w3.org/2001/XMLSchema#string">gene_ontology</oboInOwl:default-namespace>
+    <oboInOwl:hasOBOFormatVersion rdf:datatype="http://www.w3.org/2001/XMLSchema#string">1.2</oboInOwl:hasOBOFormatVersion>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Includes Ontology(OntologyID(OntologyIRI(&lt;http://purl.obolibrary.org/obo/go/never_in_taxon.owl&gt;))) [Axioms: 18 Logical Axioms: 0]</rdfs:comment>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">cvs version: $Revision: 38972$</rdfs:comment>
+  </owl:Ontology>
+
+
+
+  <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Annotation properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+  <!-- http://purl.obolibrary.org/obo/GO_0046158 -->
+
+  <owl:Class rdf:about="http://purl.obolibrary.org/obo/GO_0046158">
+    <rdfs:subClassOf rdf:resource="http://purl.obolibrary.org/obo/GO_0019748"/>
+    <rdfs:subClassOf rdf:resource="http://purl.obolibrary.org/obo/GO_0043474"/>
+    <rdfs:subClassOf>
+      <owl:Restriction>
+        <owl:onProperty rdf:resource="http://purl.obolibrary.org/obo/BFO_0000050"/>
+        <owl:someValuesFrom rdf:resource="http://purl.obolibrary.org/obo/GO_0033060"/>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+    <obo:IAO_0000115 rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The chemical reactions and pathways involving ocellus pigments, any general or particular coloring matter in living organisms, found or utilized in the ocellus, a minute simple eye found in many invertebrates.</obo:IAO_0000115>
+
+    <oboInOwl:hasExactSynonym rdf:datatype="http://www.w3.org/2001/XMLSchema#string">(S)-2,3-epoxysqualene mutase (cyclizing, lanosterol-forming)</oboInOwl:hasExactSynonym>
+    <oboInOwl:hasExactSynonym rdf:datatype="http://www.w3.org/2001/XMLSchema#string">2,3-epoxysqualene lanosterol cyclase activity</oboInOwl:hasExactSynonym>
+    <oboInOwl:hasExactSynonym rdf:datatype="http://www.w3.org/2001/XMLSchema#string">2,3-epoxysqualene--lanosterol cyclase activity</oboInOwl:hasExactSynonym>
+    <oboInOwl:hasExactSynonym rdf:datatype="http://www.w3.org/2001/XMLSchema#string">2,3-epoxysqualene-lanosterol cyclase activity</oboInOwl:hasExactSynonym>
+    <oboInOwl:hasExactSynonym rdf:datatype="http://www.w3.org/2001/XMLSchema#string">2,3-oxidosqualene-lanosterol cyclase activity</oboInOwl:hasExactSynonym>
+    <oboInOwl:hasExactSynonym rdf:datatype="http://www.w3.org/2001/XMLSchema#string">OSC</oboInOwl:hasExactSynonym>
+    <oboInOwl:hasExactSynonym rdf:datatype="http://www.w3.org/2001/XMLSchema#string">lanosterol 2,3-oxidosqualene cyclase activity</oboInOwl:hasExactSynonym>
+    <oboInOwl:hasExactSynonym rdf:datatype="http://www.w3.org/2001/XMLSchema#string">oxidosqualene--lanosterol cyclase activity</oboInOwl:hasExactSynonym>
+    <oboInOwl:hasExactSynonym rdf:datatype="http://www.w3.org/2001/XMLSchema#string">oxidosqualene-lanosterol cyclase activity</oboInOwl:hasExactSynonym>
+    <oboInOwl:hasExactSynonym rdf:datatype="http://www.w3.org/2001/XMLSchema#string">oxidosqualene:lanosterol cyclase activity</oboInOwl:hasExactSynonym>
+    <oboInOwl:hasExactSynonym rdf:datatype="http://www.w3.org/2001/XMLSchema#string">squalene 2,3-epoxide:lanosterol cyclase activity</oboInOwl:hasExactSynonym>
+    <oboInOwl:hasExactSynonym rdf:datatype="http://www.w3.org/2001/XMLSchema#string">squalene-2,3-oxide-lanosterol cyclase activity</oboInOwl:hasExactSynonym>
+    <oboInOwl:hasExactSynonym rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ocellus pigment metabolism</oboInOwl:hasExactSynonym>
+    <oboInOwl:hasExactSynonym rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ocellus pigment metabolism2</oboInOwl:hasExactSynonym>
+    <oboInOwl:hasOBONamespace rdf:datatype="http://www.w3.org/2001/XMLSchema#string">biological_process</oboInOwl:hasOBONamespace>
+    <oboInOwl:id rdf:datatype="http://www.w3.org/2001/XMLSchema#string">GO:0046158</oboInOwl:id>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ocellus pigment metabolic process</rdfs:label>
+  </owl:Class>
+
+</rdf:RDF>

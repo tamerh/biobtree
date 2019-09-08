@@ -1,0 +1,45 @@
+{
+  "is_reference": "false",
+  "genes": [{
+        "id": "ENSG00000111669",
+        "name": "TPI1",
+        "Interpro": [
+          "IPR020861",
+          "IPR013785"
+        ],
+        "MIM_GENE": [
+          "190450"
+        ],
+        "homologues": [{
+          "gene_tree_id": "ENSGT00390000013354",
+          "stable_id": "ENSGGOG00000002623",
+          "genome_display": "Gorilla",
+          "orthology_type": "ortholog_one2one",
+          "genome": "gorilla_gorilla"
+        }],
+        "transcripts": [{
+          "RNAcentral": [
+            "URS0000D3B3F5"
+          ],
+          "name": "TPI1-205",
+          "HGNC_trans_name": [
+            "TPI1-205"
+          ],
+          "end": "6870137",
+          "biotype": "retained_intron",
+          "seq_region_name": "12",
+          "UCSC": [
+            "ENST00000482209.1"
+          ],
+          "strand": "1",
+          "exons": [{
+            "seq_region_name": "12",
+            "strand": "1",
+            "id": "ENSE00001883408",
+            "end": "6869773",
+            "start": "6869548"
+          }],
+          "id": "ENST00000482209",
+          "start": "6869548"
+        }]
+      }

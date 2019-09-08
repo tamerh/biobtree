@@ -1,0 +1,4526 @@
+{
+	"id": "b52f6690-6e37-4752-b1b7-cd77acf28e29",
+	"name": "biobtree_default",
+	"allTests": [],
+	"timestamp": "2019-09-04T12:08:10.030Z",
+	"collection_id": "5ba72448-7dbd-4b86-a467-efa4f8caa5eb",
+	"folder_id": 0,
+	"target_type": "collection",
+	"environment_id": "ef274fdf-719c-4d25-91cc-28de5014e690",
+	"data": [],
+	"delay": 0,
+	"count": 1,
+	"collection": {
+		"id": "5ba72448-7dbd-4b86-a467-efa4f8caa5eb",
+		"name": "biobtree_default",
+		"description": "",
+		"auth": null,
+		"events": null,
+		"variables": [],
+		"order": [],
+		"folders_order": [
+			"08445a4d-c080-4b03-86a6-c036c58d4798",
+			"367d6311-0a94-456d-9245-da9ddf1f1164",
+			"a9b62a82-e972-4ed3-9cdb-f849533dc5be",
+			"be074beb-82ff-4b74-a1cd-ce9e09a63af1",
+			"6b5c1c95-5cfe-4335-8e3f-e0be03f249b2"
+		],
+		"owner": "4654466",
+		"favorite": false,
+		"isFavorite": true
+	},
+	"folder": null,
+	"environment": null,
+	"globals": [],
+	"results": [
+		{
+			"name": "meta",
+			"id": "08a3ebbe-e8eb-4dab-b361-f4ac847da878",
+			"url": "http://wp-p3s-f7:8888/ws/meta",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"Meta": true
+			},
+			"testPassFailCounts": {
+				"Meta": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"53"
+			],
+			"allTests": [
+				{
+					"Meta": true
+				}
+			],
+			"time": "53",
+			"totalRequestTime": "53",
+			"iterationResults": {}
+		},
+		{
+			"name": "getResults",
+			"id": "5bfbc47f-4c01-4dab-a0d8-8dd0f1850be0",
+			"url": "http://wp-p3s-f7:8888/ws/?i=p53_human",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"Test get ids": true
+			},
+			"testPassFailCounts": {
+				"Test get ids": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"21"
+			],
+			"allTests": [
+				{
+					"Test get ids": true
+				}
+			],
+			"time": "21",
+			"totalRequestTime": "21",
+			"iterationResults": {}
+		},
+		{
+			"name": "getEntry",
+			"id": "05de46e9-b1b6-4bb3-ac48-a050ac964bc3",
+			"url": "http://wp-p3s-f7:8888/ws/entry/?i=p04637&s=uniprot",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"Get entry": true
+			},
+			"testPassFailCounts": {
+				"Get entry": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"21"
+			],
+			"allTests": [
+				{
+					"Get entry": true
+				}
+			],
+			"time": "21",
+			"totalRequestTime": "21",
+			"iterationResults": {}
+		},
+		{
+			"name": "filterResult",
+			"id": "a43ad330-226e-41ce-86c3-b09d1ecade6e",
+			"url": "http://wp-p3s-f7:8888/ws/filter/?i=p04637&s=uniprot&f=go",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"Get Filter result": true
+			},
+			"testPassFailCounts": {
+				"Get Filter result": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"21"
+			],
+			"allTests": [
+				{
+					"Get Filter result": true
+				}
+			],
+			"time": "21",
+			"totalRequestTime": "21",
+			"iterationResults": {}
+		},
+		{
+			"name": "getPage",
+			"id": "65024572-a076-4d66-9b6d-1c226670b0d3",
+			"url": "http://wp-p3s-f7:8888/ws/page/?i=p04637&s=uniprot&p=1&t=16",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"paging": true
+			},
+			"testPassFailCounts": {
+				"paging": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"19"
+			],
+			"allTests": [
+				{
+					"paging": true
+				}
+			],
+			"time": "19",
+			"totalRequestTime": "19",
+			"iterationResults": {}
+		},
+		{
+			"name": "resolve protein identifiers",
+			"id": "e9b2354b-1305-44e7-815d-9577e55a93ac",
+			"url": "http://wp-p3s-f7:8888/ws/?i=shh_human,P53_HUMAN",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"Test get ids": true
+			},
+			"testPassFailCounts": {
+				"Test get ids": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"39"
+			],
+			"allTests": [
+				{
+					"Test get ids": true
+				}
+			],
+			"time": "39",
+			"totalRequestTime": "39",
+			"iterationResults": {}
+		},
+		{
+			"name": "protein name",
+			"id": "e6cdb497-fa56-4b1c-8aec-c356476ccf42",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=filter(uniprot.names.exists(a%2Ca%3D%3D%22Sonic%20hedgehog%20protein%22))",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"Test uniprot name": true
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"27"
+			],
+			"allTests": [
+				{
+					"Test uniprot name": true
+				}
+			],
+			"time": "27",
+			"totalRequestTime": "27",
+			"iterationResults": {}
+		},
+		{
+			"name": "protein sequence mass",
+			"id": "7910a59a-348f-4273-8689-3a447dd4fb9f",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=filter(uniprot.sequence.mass%20%3E%2045000)",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"Test uniprot name": true
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"21"
+			],
+			"allTests": [
+				{
+					"Test uniprot name": true
+				}
+			],
+			"time": "21",
+			"totalRequestTime": "21",
+			"iterationResults": {}
+		},
+		{
+			"name": "protein sequence size",
+			"id": "d271a6dc-14fa-4e5a-bf63-21cf7c194cc0",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=filter(size(uniprot.sequence.seq)%20%3E%20400)",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"Test uniprot name": true
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"22"
+			],
+			"allTests": [
+				{
+					"Test uniprot name": true
+				}
+			],
+			"time": "22",
+			"totalRequestTime": "22",
+			"iterationResults": {}
+		},
+		{
+			"name": "protein go term",
+			"id": "475a4181-4918-4c2c-b7f5-c8b2f4a16ae2",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=map(go).filter(go.type%3D%3D%22molecular_function%22)",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"Test uniprot name": true
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"279"
+			],
+			"allTests": [
+				{
+					"Test uniprot name": true
+				}
+			],
+			"time": "279",
+			"totalRequestTime": "279",
+			"iterationResults": {}
+		},
+		{
+			"name": "protein go term cellular",
+			"id": "2f2b49da-e025-4a13-b220-8cc598eaa30e",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=map(go).filter(go.type%3D%3D%22cellular_component%22)",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"Test uniprot name": true
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"247"
+			],
+			"allTests": [
+				{
+					"Test uniprot name": true
+				}
+			],
+			"time": "247",
+			"totalRequestTime": "247",
+			"iterationResults": {}
+		},
+		{
+			"name": "protein go term boolean",
+			"id": "94dd3a9b-5366-4b7c-99ba-6dafed68f26b",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=map(go).filter(go.name.contains(%22binding%22)%20%7C%7C%20go.name.contains(%22activity%22))",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"Test uniprot name": true
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"265"
+			],
+			"allTests": [
+				{
+					"Test uniprot name": true
+				}
+			],
+			"time": "265",
+			"totalRequestTime": "265",
+			"iterationResults": {}
+		},
+		{
+			"name": "protein feature helix type",
+			"id": "e27f643a-a888-42a7-b5ae-b5eec067cff3",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=map(ufeature).filter(ufeature.type%3D%3D%22helix%22)",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"Test uniprot name": true
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"52"
+			],
+			"allTests": [
+				{
+					"Test uniprot name": true
+				}
+			],
+			"time": "52",
+			"totalRequestTime": "52",
+			"iterationResults": {}
+		},
+		{
+			"name": "protein feature sequence variant",
+			"id": "d33b47ef-4c82-49f7-ba2e-e7c9f8781dd6",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=map(ufeature).filter(ufeature.type%3D%3D%22sequence%20variant%22)",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"Test uniprot name": true
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"29"
+			],
+			"allTests": [
+				{
+					"Test uniprot name": true
+				}
+			],
+			"time": "29",
+			"totalRequestTime": "29",
+			"iterationResults": {}
+		},
+		{
+			"name": "protein feature location",
+			"id": "ff83dc23-46a0-431f-ae0a-06db50068142",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=map(ufeature).filter(ufeature.location.begin%3E0%20%26%26%20ufeature.location.end%3C300)",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"Test uniprot name": true
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"29"
+			],
+			"allTests": [
+				{
+					"Test uniprot name": true
+				}
+			],
+			"time": "29",
+			"totalRequestTime": "29",
+			"iterationResults": {}
+		},
+		{
+			"name": "protein feature description",
+			"id": "643979d5-bb13-4909-8b52-09f4fe9b441f",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=map(ufeature).filter(ufeature.description.contains(%22cancer%22))",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"Test uniprot name": true
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"33"
+			],
+			"allTests": [
+				{
+					"Test uniprot name": true
+				}
+			],
+			"time": "33",
+			"totalRequestTime": "33",
+			"iterationResults": {}
+		},
+		{
+			"name": "protein feature description contains",
+			"id": "2c332f55-9aba-43ca-b6ec-6fee3430ab81",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=map(ufeature).filter(ufeature.description.contains(%22tumor%22))",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"Test uniprot name": true
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"48"
+			],
+			"allTests": [
+				{
+					"Test uniprot name": true
+				}
+			],
+			"time": "48",
+			"totalRequestTime": "48",
+			"iterationResults": {}
+		},
+		{
+			"name": "protein feature specific variant",
+			"id": "da046d8c-bf9e-4e63-adb0-175538c739f4",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=map(ufeature).filter(ufeature.original%3D%3D%22I%22%20%26%26%20ufeature.variation%3D%3D%22S%22)",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"Test uniprot name": true
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"47"
+			],
+			"allTests": [
+				{
+					"Test uniprot name": true
+				}
+			],
+			"time": "47",
+			"totalRequestTime": "47",
+			"iterationResults": {}
+		},
+		{
+			"name": "protein feature maps variantid",
+			"id": "48c2c77c-f153-483e-8265-7a0633c748d0",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=map(ufeature).filter(ufeature.original%3D%3D%22I%22%20%26%26%20ufeature.variation%3D%3D%22S%22).map(variantid)",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"Test uniprot name": true
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"33"
+			],
+			"allTests": [
+				{
+					"Test uniprot name": true
+				}
+			],
+			"time": "33",
+			"totalRequestTime": "33",
+			"iterationResults": {}
+		},
+		{
+			"name": "protein feature has evidences",
+			"id": "262cfe10-f561-47a3-a135-3300f14512ac",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=map(ufeature).filter(size(ufeature.evidences)%3E1)",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"Test uniprot name": true
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"55"
+			],
+			"allTests": [
+				{
+					"Test uniprot name": true
+				}
+			],
+			"time": "55",
+			"totalRequestTime": "55",
+			"iterationResults": {}
+		},
+		{
+			"name": "protein feature has experimental evidence",
+			"id": "19ca9d15-9c36-4674-b5eb-9377a2523aba",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=map(ufeature).filter(ufeature.evidences.exists(a%2Ca.type%3D%3D%22ECO%3A0000269%22))",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"Test uniprot name": true
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"33"
+			],
+			"allTests": [
+				{
+					"Test uniprot name": true
+				}
+			],
+			"time": "33",
+			"totalRequestTime": "33",
+			"iterationResults": {}
+		},
+		{
+			"name": "protein feature has pubmed evidence",
+			"id": "fbac2055-fdcd-49fd-b73e-da61f8bb9b7a",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=map(ufeature).filter(ufeature.evidences.exists(a%2Ca.source%3D%3D%22pubmed%22))",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"Test uniprot name": true
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"34"
+			],
+			"allTests": [
+				{
+					"Test uniprot name": true
+				}
+			],
+			"time": "34",
+			"totalRequestTime": "34",
+			"iterationResults": {}
+		},
+		{
+			"name": "protein feature pdb evidence",
+			"id": "cd8dab34-b444-4517-9e6a-2e7452a4c402",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=map(ufeature).filter(ufeature.evidences.exists(a%2Ca.source%3D%3D%22pdb%22))",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"Test uniprot name": true
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"39"
+			],
+			"allTests": [
+				{
+					"Test uniprot name": true
+				}
+			],
+			"time": "39",
+			"totalRequestTime": "39",
+			"iterationResults": {}
+		},
+		{
+			"name": "protein ENA type mRNA",
+			"id": "6ebbdcc6-1a5c-49c9-9499-bcfc03b0811b",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=map(ena).filter(ena.type%3D%3D%22mrna%22)",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"Test uniprot name": true
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"34"
+			],
+			"allTests": [
+				{
+					"Test uniprot name": true
+				}
+			],
+			"time": "34",
+			"totalRequestTime": "34",
+			"iterationResults": {}
+		},
+		{
+			"name": "protein ENA type genomic DNA",
+			"id": "16e8e1a9-8a0d-43c6-9e7a-688f7df29065",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=map(ena).filter(ena.type%3D%3D%22genomic_dna%22)",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"Test uniprot name": true
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"24"
+			],
+			"allTests": [
+				{
+					"Test uniprot name": true
+				}
+			],
+			"time": "24",
+			"totalRequestTime": "24",
+			"iterationResults": {}
+		},
+		{
+			"name": "protein pdb method NMR",
+			"id": "28846222-a370-4507-8449-0e1157960b96",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=map(pdb).filter(pdb.method%3D%3D%22nmr%22)",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"Test uniprot name": true
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"25"
+			],
+			"allTests": [
+				{
+					"Test uniprot name": true
+				}
+			],
+			"time": "25",
+			"totalRequestTime": "25",
+			"iterationResults": {}
+		},
+		{
+			"name": "protein pdb chains",
+			"id": "6fed6777-88f7-4042-9a37-2f8a5cebcb04",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=map(pdb).filter(pdb.chains%3D%3D%22A%2FC%3D95-292%22)",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"Test uniprot name": true
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"32"
+			],
+			"allTests": [
+				{
+					"Test uniprot name": true
+				}
+			],
+			"time": "32",
+			"totalRequestTime": "32",
+			"iterationResults": {}
+		},
+		{
+			"name": "protein pdb resolution",
+			"id": "38bfd475-1338-4cfc-8266-4a8dfd068484",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=map(pdb).filter(pdb.resolution%3D%3D%222.60%20A%22)",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"Test uniprot name": true
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"47"
+			],
+			"allTests": [
+				{
+					"Test uniprot name": true
+				}
+			],
+			"time": "47",
+			"totalRequestTime": "47",
+			"iterationResults": {}
+		},
+		{
+			"name": "protein pdb method or chains",
+			"id": "f40092a4-773a-4d18-91a3-7a097a518af1",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=map(pdb).filter(pdb.method%3D%3D%22nmr%22%20%7C%7C%20pdb.chains%3D%3D%22C%2FD%3D1-177%22)",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"Test uniprot name": true
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"25"
+			],
+			"allTests": [
+				{
+					"Test uniprot name": true
+				}
+			],
+			"time": "25",
+			"totalRequestTime": "25",
+			"iterationResults": {}
+		},
+		{
+			"name": "protein reactome activation pathways",
+			"id": "918f68cb-31dc-4bc3-a14e-21eb0d5f9ad8",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=map(reactome).filter(reactome.pathway.contains(%22activation%22))",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"Test uniprot name": true
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"30"
+			],
+			"allTests": [
+				{
+					"Test uniprot name": true
+				}
+			],
+			"time": "30",
+			"totalRequestTime": "30",
+			"iterationResults": {}
+		},
+		{
+			"name": "protein reactome signaling pathways",
+			"id": "5f98f4ba-41bc-4647-a575-52f08a86d3d6",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=map(reactome).filter(reactome.pathway.contains(%22signaling%22))",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"Test uniprot name": true
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"29"
+			],
+			"allTests": [
+				{
+					"Test uniprot name": true
+				}
+			],
+			"time": "29",
+			"totalRequestTime": "29",
+			"iterationResults": {}
+		},
+		{
+			"name": "protein reactome regulation pathways",
+			"id": "92e36340-4eb3-4e58-a28a-813f34fb55d4",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=map(reactome).filter(reactome.pathway.contains(%22Regulation%22))",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"Test uniprot name": true
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"29"
+			],
+			"allTests": [
+				{
+					"Test uniprot name": true
+				}
+			],
+			"time": "29",
+			"totalRequestTime": "29",
+			"iterationResults": {}
+		},
+		{
+			"name": "protein orphanet disease name",
+			"id": "067dcaf7-370b-44a4-ae40-8299d8a6341b",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=map(orphanet).filter(orphanet.disease.contains(%22cancer%22))",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"Test uniprot name": true
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"23"
+			],
+			"allTests": [
+				{
+					"Test uniprot name": true
+				}
+			],
+			"time": "23",
+			"totalRequestTime": "23",
+			"iterationResults": {}
+		},
+		{
+			"name": "protein durgs by drugbank",
+			"id": "be9a64fb-ebe4-43bd-b029-d7e5e37dc831",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=map(drugbank)",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"Test uniprot name": true
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"20"
+			],
+			"allTests": [
+				{
+					"Test uniprot name": true
+				}
+			],
+			"time": "20",
+			"totalRequestTime": "20",
+			"iterationResults": {}
+		},
+		{
+			"name": "protein to refseqs",
+			"id": "295790a4-5456-4518-9297-d6064a7d5ccb",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=map(refseq)",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"Test uniprot name": true
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"19"
+			],
+			"allTests": [
+				{
+					"Test uniprot name": true
+				}
+			],
+			"time": "19",
+			"totalRequestTime": "19",
+			"iterationResults": {}
+		},
+		{
+			"name": "taxonomy children",
+			"id": "8e1a2d61-eb06-4b62-b61b-c4a677d06116",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=9606&m=map(taxchild)",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"taxonomy childs": true
+			},
+			"testPassFailCounts": {
+				"taxonomy childs": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"22"
+			],
+			"allTests": [
+				{
+					"taxonomy childs": true
+				}
+			],
+			"time": "22",
+			"totalRequestTime": "22",
+			"iterationResults": {}
+		},
+		{
+			"name": "taxonomy grand children",
+			"id": "f8a4cc6a-f9ef-4130-a871-8f312ed15a06",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=862507&m=map(taxchild).map(taxchild)",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"taxonomy childs": true
+			},
+			"testPassFailCounts": {
+				"taxonomy childs": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"25"
+			],
+			"allTests": [
+				{
+					"taxonomy childs": true
+				}
+			],
+			"time": "25",
+			"totalRequestTime": "25",
+			"iterationResults": {}
+		},
+		{
+			"name": "taxonomy grand^3 parent",
+			"id": "4ab50222-fc94-4e50-ad24-040cedf5939d",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=10090&m=map(taxparent).map(taxparent).map(taxparent)",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"taxonomy childs": true
+			},
+			"testPassFailCounts": {
+				"taxonomy childs": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"21"
+			],
+			"allTests": [
+				{
+					"taxonomy childs": true
+				}
+			],
+			"time": "21",
+			"totalRequestTime": "21",
+			"iterationResults": {}
+		},
+		{
+			"name": "taxonomy Asian children",
+			"id": "29483dca-cc18-4d65-8e7c-4bea0a43eab3",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=10090&m=map(taxchild).filter(taxonomy.common_name.contains(%22Asian%22))",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"taxonomy childs": true
+			},
+			"testPassFailCounts": {
+				"taxonomy childs": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"44"
+			],
+			"allTests": [
+				{
+					"taxonomy childs": true
+				}
+			],
+			"time": "44",
+			"totalRequestTime": "44",
+			"iterationResults": {}
+		},
+		{
+			"name": "taxonomy European children",
+			"id": "66123805-84b2-4336-956b-459249b1cd78",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=10090&m=map(taxchild).filter(taxonomy.common_name.contains(%22European%22))",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"taxonomy childs": true
+			},
+			"testPassFailCounts": {
+				"taxonomy childs": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"44"
+			],
+			"allTests": [
+				{
+					"taxonomy childs": true
+				}
+			],
+			"time": "44",
+			"totalRequestTime": "44",
+			"iterationResults": {}
+		},
+		{
+			"name": "taxonomy grand children by division",
+			"id": "805b260c-cc21-4d98-b569-ebde0ec694a6",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=862507&m=map(taxchild).map(taxchild).filter(taxonomy.taxonomic_division%3D%3D%22ROD%22)",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"taxonomy childs": true
+			},
+			"testPassFailCounts": {
+				"taxonomy childs": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"51"
+			],
+			"allTests": [
+				{
+					"taxonomy childs": true
+				}
+			],
+			"time": "51",
+			"totalRequestTime": "51",
+			"iterationResults": {}
+		},
+		{
+			"name": "ensembl entry",
+			"id": "4fa97f6c-8109-48f5-bd0f-406a6448c534",
+			"url": "http://wp-p3s-f7:8888/ws/?i=ENSG00000139618",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"getentry": true
+			},
+			"testPassFailCounts": {
+				"getentry": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"19"
+			],
+			"allTests": [
+				{
+					"getentry": true
+				}
+			],
+			"time": "19",
+			"totalRequestTime": "19",
+			"iterationResults": {}
+		},
+		{
+			"name": "ensembl gene transcripts",
+			"id": "266834de-a178-4f5e-81ac-73a2c2c17d57",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=tp53&m=map(transcript)",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"genetranscripts": true
+			},
+			"testPassFailCounts": {
+				"genetranscripts": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"22"
+			],
+			"allTests": [
+				{
+					"genetranscripts": true
+				}
+			],
+			"time": "22",
+			"totalRequestTime": "22",
+			"iterationResults": {}
+		},
+		{
+			"name": "ensembl transcript by type",
+			"id": "8cbd35cb-8b44-498a-a2f0-a60980014a63",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=ENSG00000073910&m=map(transcript).filter(transcript.biotype%3D%3D%22protein_coding%22)",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"genetranscripts": true
+			},
+			"testPassFailCounts": {
+				"genetranscripts": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"20"
+			],
+			"allTests": [
+				{
+					"genetranscripts": true
+				}
+			],
+			"time": "20",
+			"totalRequestTime": "20",
+			"iterationResults": {}
+		},
+		{
+			"name": "ensembl exons",
+			"id": "7aac0bd5-4fb4-466b-9576-5789839f6bd1",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=ENSG00000141510&m=map(transcript).map(exon)",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"geneexons": true
+			},
+			"testPassFailCounts": {
+				"geneexons": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"21"
+			],
+			"allTests": [
+				{
+					"geneexons": true
+				}
+			],
+			"time": "21",
+			"totalRequestTime": "21",
+			"iterationResults": {}
+		},
+		{
+			"name": "ensembl gene exons by region",
+			"id": "ec33e4ad-0ac9-4e71-a67c-30d22d0b61fb",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=tp53&m=map(transcript).filter(transcript.biotype%3D%3D%22protein_coding%22).map(exon).filter(exon.seq_region_name%3D%3D%2217%22)",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"geneexons": true
+			},
+			"testPassFailCounts": {
+				"geneexons": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"268"
+			],
+			"allTests": [
+				{
+					"geneexons": true
+				}
+			],
+			"time": "268",
+			"totalRequestTime": "268",
+			"iterationResults": {}
+		},
+		{
+			"name": "ensembl gene exons by location",
+			"id": "f9038d8d-56d7-4dc8-9112-45c081c98350",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=tp53&m=map(transcript).filter(transcript.biotype%3D%3D%22protein_coding%22).map(exon).filter(exon.end%20%3E%3D%207687538)",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"geneexons": true
+			},
+			"testPassFailCounts": {
+				"geneexons": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"36"
+			],
+			"allTests": [
+				{
+					"geneexons": true
+				}
+			],
+			"time": "36",
+			"totalRequestTime": "36",
+			"iterationResults": {}
+		},
+		{
+			"name": "ensembl Ortholog",
+			"id": "0c9ad969-9393-4cf2-a41b-bdf35ebf549f",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=ENSG00000139618&m=map(ortholog)",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"genetranscripts": true
+			},
+			"testPassFailCounts": {
+				"genetranscripts": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"21"
+			],
+			"allTests": [
+				{
+					"genetranscripts": true
+				}
+			],
+			"time": "21",
+			"totalRequestTime": "21",
+			"iterationResults": {}
+		},
+		{
+			"name": "ensembl Paralog",
+			"id": "456f94b4-a948-44ee-aeb1-040010ef5d18",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=ENSG00000073910&m=map(paralog)",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"genetranscripts": true
+			},
+			"testPassFailCounts": {
+				"genetranscripts": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"18"
+			],
+			"allTests": [
+				{
+					"genetranscripts": true
+				}
+			],
+			"time": "18",
+			"totalRequestTime": "18",
+			"iterationResults": {}
+		},
+		{
+			"name": "chembl Compound",
+			"id": "9df5f545-ceb7-4424-9023-7f8a8ce9d9ba",
+			"url": "http://wp-p3s-f7:8888/ws/?i=GSK2606414",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"getentry": true
+			},
+			"testPassFailCounts": {
+				"getentry": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"18"
+			],
+			"allTests": [
+				{
+					"getentry": true
+				}
+			],
+			"time": "18",
+			"totalRequestTime": "18",
+			"iterationResults": {}
+		},
+		{
+			"name": "chembl Compound By Smiles",
+			"id": "84d87419-6705-495d-a821-8f3f47ce013f",
+			"url": "http://wp-p3s-f7:8888/ws/?i=Cn1cc(c2ccc3N(CCc3c2)C(=O)Cc4cccc(c4)C(F)(F)F)c5c(N)ncnc15",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"getentry": true
+			},
+			"testPassFailCounts": {
+				"getentry": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"18"
+			],
+			"allTests": [
+				{
+					"getentry": true
+				}
+			],
+			"time": "18",
+			"totalRequestTime": "18",
+			"iterationResults": {}
+		},
+		{
+			"name": "chembl Compound By Inchi Key",
+			"id": "bf8d9ffb-a107-420f-bf6b-0580fef9af9c",
+			"url": "http://wp-p3s-f7:8888/ws/?i=SIXVRXARNAVBTC-UHFFFAOYSA-N",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"getentry": true
+			},
+			"testPassFailCounts": {
+				"getentry": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"19"
+			],
+			"allTests": [
+				{
+					"getentry": true
+				}
+			],
+			"time": "19",
+			"totalRequestTime": "19",
+			"iterationResults": {}
+		},
+		{
+			"name": "chembl Compound Activities",
+			"id": "309b00d6-94ff-4a4b-93e6-8f08f2a237f3",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=GSK2606414&m=map(chembl_activity)",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"compoundActivities": true
+			},
+			"testPassFailCounts": {
+				"compoundActivities": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"19"
+			],
+			"allTests": [
+				{
+					"compoundActivities": true
+				}
+			],
+			"time": "19",
+			"totalRequestTime": "19",
+			"iterationResults": {}
+		},
+		{
+			"name": "chembl Compound Activities Filter Bao",
+			"id": "1b537ed2-4f03-4d2c-9872-def65f707b65",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=GSK2606414&m=map(chembl_activity).filter(chembl.activity.bao%3D%3D%22BAO_0000190%22)",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"compoundActivitiesFilterBao": true
+			},
+			"testPassFailCounts": {
+				"compoundActivitiesFilterBao": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"24"
+			],
+			"allTests": [
+				{
+					"compoundActivitiesFilterBao": true
+				}
+			],
+			"time": "24",
+			"totalRequestTime": "24",
+			"iterationResults": {}
+		},
+		{
+			"name": "chembl Compound Activities Filter Value",
+			"id": "fb95c1c0-87fa-4295-bb5c-0d1c4eef1ee3",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=GSK2606414&m=map(chembl_activity).filter(chembl.activity.value%20%3E%2010.0)",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"compoundActivitiesFilterBao": true
+			},
+			"testPassFailCounts": {
+				"compoundActivitiesFilterBao": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"21"
+			],
+			"allTests": [
+				{
+					"compoundActivitiesFilterBao": true
+				}
+			],
+			"time": "21",
+			"totalRequestTime": "21",
+			"iterationResults": {}
+		},
+		{
+			"name": "chembl Compound Activities AND",
+			"id": "51ddc616-83c4-471a-baee-5e89dc8d7a24",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=GSK2606414&m=map(chembl_activity).filter(chembl.activity.value%20%3E%2010.0%20%26%26%20chembl.activity.bao%3D%3D%22BAO_0000190%22)",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"compoundActivitiesFilterBao": true
+			},
+			"testPassFailCounts": {
+				"compoundActivitiesFilterBao": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"22"
+			],
+			"allTests": [
+				{
+					"compoundActivitiesFilterBao": true
+				}
+			],
+			"time": "22",
+			"totalRequestTime": "22",
+			"iterationResults": {}
+		},
+		{
+			"name": "chembl Compound Activities OR",
+			"id": "20120600-b7d4-46bb-b9b6-2d0e20803508",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=GSK2606414&m=map(chembl_activity).filter(chembl.activity.value%3E10.0%20%7C%7C%20chembl.activity.pChembl%3E5.0)",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"compoundActivitiesFilterOr": true
+			},
+			"testPassFailCounts": {
+				"compoundActivitiesFilterOr": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"23"
+			],
+			"allTests": [
+				{
+					"compoundActivitiesFilterOr": true
+				}
+			],
+			"time": "23",
+			"totalRequestTime": "23",
+			"iterationResults": {}
+		},
+		{
+			"name": "chembl Compound Targets",
+			"id": "c12efb84-bb5b-4022-955d-72c2b8b81ce5",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=GSK2606414&m=map(chembl_activity).map(chembl_document).map(chembl_assay).map(chembl_target)",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"compoundActivitiesFilterOr": false
+			},
+			"testPassFailCounts": {
+				"compoundActivitiesFilterOr": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				"38"
+			],
+			"allTests": [
+				{
+					"compoundActivitiesFilterOr": false
+				}
+			],
+			"time": "38",
+			"totalRequestTime": "38",
+			"iterationResults": {}
+		},
+		{
+			"name": "chembl Document",
+			"id": "a0d11c6f-b84d-4db6-a211-4435a7efdf40",
+			"url": "http://wp-p3s-f7:8888/ws/?i=CHEMBL3421631",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"getentry": true
+			},
+			"testPassFailCounts": {
+				"getentry": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"19"
+			],
+			"allTests": [
+				{
+					"getentry": true
+				}
+			],
+			"time": "19",
+			"totalRequestTime": "19",
+			"iterationResults": {}
+		},
+		{
+			"name": "chembl Document Activities",
+			"id": "bea3d37f-f4d2-4dc9-8669-3336348ec5fb",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=CHEMBL1121978&m=map(chembl_activity)",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"getentry": false
+			},
+			"testPassFailCounts": {
+				"getentry": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				"21"
+			],
+			"allTests": [
+				{
+					"getentry": false
+				}
+			],
+			"time": "21",
+			"totalRequestTime": "21",
+			"iterationResults": {}
+		},
+		{
+			"name": "chembl Document Assay",
+			"id": "2ad780ea-1373-4df5-986f-618be73e6e70",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=CHEMBL3421631&m=map(chembl_assay)",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"getentry": false
+			},
+			"testPassFailCounts": {
+				"getentry": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				"20"
+			],
+			"allTests": [
+				{
+					"getentry": false
+				}
+			],
+			"time": "20",
+			"totalRequestTime": "20",
+			"iterationResults": {}
+		},
+		{
+			"name": "chembl Document Assay Filter",
+			"id": "ad068a78-8ccb-49b6-b94d-3bd6d8a7fcb9",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=CHEMBL3421631&m=map(chembl_assay).filter(chembl.assay.type%3D%3D%22Functional%22%20%7C%7C%20chembl.assay.type%3D%3D%22Binding%22)",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"getentry": true
+			},
+			"testPassFailCounts": {
+				"getentry": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"23"
+			],
+			"allTests": [
+				{
+					"getentry": true
+				}
+			],
+			"time": "23",
+			"totalRequestTime": "23",
+			"iterationResults": {}
+		},
+		{
+			"name": "chembl Document Cell Line",
+			"id": "15978174-156f-434a-a0da-950aac4c5355",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=CHEMBL3421631&m=map(chembl_assay).map(chembl_cell_line)",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"getentry": true
+			},
+			"testPassFailCounts": {
+				"getentry": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"19"
+			],
+			"allTests": [
+				{
+					"getentry": true
+				}
+			],
+			"time": "19",
+			"totalRequestTime": "19",
+			"iterationResults": {}
+		},
+		{
+			"name": "chembl Document Cell Line Filter",
+			"id": "46d93fd3-1bc6-4ae6-bfe6-9dc8033d3c44",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=CHEMBL3421631&m=map(chembl_assay).map(chembl_cell_line).filter(chembl.cellLine.tax%3D%3D%229615%22%20%7C%7C%20chembl.cellLine.efo%3D%3D%22EFO_0002841%22)",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"getentry": true
+			},
+			"testPassFailCounts": {
+				"getentry": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"28"
+			],
+			"allTests": [
+				{
+					"getentry": true
+				}
+			],
+			"time": "28",
+			"totalRequestTime": "28",
+			"iterationResults": {}
+		},
+		{
+			"name": "chembl Document Targets",
+			"id": "d22ae82e-ca88-4242-a5e7-ef65918680e3",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=CHEMBL3421631&m=map(chembl_assay).map(chembl_target)",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"getentry": true
+			},
+			"testPassFailCounts": {
+				"getentry": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"22"
+			],
+			"allTests": [
+				{
+					"getentry": true
+				}
+			],
+			"time": "22",
+			"totalRequestTime": "22",
+			"iterationResults": {}
+		},
+		{
+			"name": "chembl Document Target Protein",
+			"id": "eb2cbb66-4265-4e7c-a769-ec52e4768528",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=CHEMBL3421631&m=map(chembl_assay).map(chembl_target).filter(chembl.target.type%3D%3D%22single_protein%22)",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"getentry": true
+			},
+			"testPassFailCounts": {
+				"getentry": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"49"
+			],
+			"allTests": [
+				{
+					"getentry": true
+				}
+			],
+			"time": "49",
+			"totalRequestTime": "49",
+			"iterationResults": {}
+		},
+		{
+			"name": "chembl Document Target Tissue",
+			"id": "4ba1690b-9389-4c5a-8b1d-897652ef52a2",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=CHEMBL3421631&m=map(chembl_assay).map(chembl_target).filter(chembl.target.type%3D%3D%22tissue%22)",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"getDocumentTargetTissue": true
+			},
+			"testPassFailCounts": {
+				"getDocumentTargetTissue": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"43"
+			],
+			"allTests": [
+				{
+					"getDocumentTargetTissue": true
+				}
+			],
+			"time": "43",
+			"totalRequestTime": "43",
+			"iterationResults": {}
+		},
+		{
+			"name": "chembl Document Target Organism",
+			"id": "b7e83e39-767d-40d7-a3d1-1e6e425b9916",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=CHEMBL3421631&m=map(chembl_assay).map(chembl_target).filter(chembl.target.type%3D%3D%22organism%22)",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"getDocumentTargetTissue": true
+			},
+			"testPassFailCounts": {
+				"getDocumentTargetTissue": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"43"
+			],
+			"allTests": [
+				{
+					"getDocumentTargetTissue": true
+				}
+			],
+			"time": "43",
+			"totalRequestTime": "43",
+			"iterationResults": {}
+		},
+		{
+			"name": "chembl Document Target Protein Uniprot",
+			"id": "3c667757-827a-4ce1-a648-137b67d74ec0",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=CHEMBL3421631&m=map(chembl_assay).map(chembl_target).map(chembl_target_component).map(uniprot)",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"getDocumentTargetProteinUniprot": true
+			},
+			"testPassFailCounts": {
+				"getDocumentTargetProteinUniprot": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"25"
+			],
+			"allTests": [
+				{
+					"getDocumentTargetProteinUniprot": true
+				}
+			],
+			"time": "25",
+			"totalRequestTime": "25",
+			"iterationResults": {}
+		},
+		{
+			"name": "chembl Document Molecule",
+			"id": "d16dd092-5640-4f82-9cb9-8db4c5db3a13",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=CHEMBL3421631&m=map(chembl_molecule)",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"getDocumentMolecule": false
+			},
+			"testPassFailCounts": {
+				"getDocumentMolecule": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				"39"
+			],
+			"allTests": [
+				{
+					"getDocumentMolecule": false
+				}
+			],
+			"time": "39",
+			"totalRequestTime": "39",
+			"iterationResults": {}
+		},
+		{
+			"name": "chembl Document Molecule Filter",
+			"id": "357cab4f-13db-4402-a3f1-5f56b1564c66",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=CHEMBL3421631&m=map(chembl_molecule).filter(chembl.molecule.heavyAtoms%20%3C%2030.0%20%26%26%20chembl.molecule.aromaticRings%20%3C2.0)",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"getDocumentMolecule": true
+			},
+			"testPassFailCounts": {
+				"getDocumentMolecule": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"22"
+			],
+			"allTests": [
+				{
+					"getDocumentMolecule": true
+				}
+			],
+			"time": "22",
+			"totalRequestTime": "22",
+			"iterationResults": {}
+		},
+		{
+			"name": "chembl Assay",
+			"id": "2877f0fd-b027-4fc8-948b-b5a852c31343",
+			"url": "http://wp-p3s-f7:8888/ws/?i=CHEMBL615156",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"getAssay": true
+			},
+			"testPassFailCounts": {
+				"getAssay": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"17"
+			],
+			"allTests": [
+				{
+					"getAssay": true
+				}
+			],
+			"time": "17",
+			"totalRequestTime": "17",
+			"iterationResults": {}
+		},
+		{
+			"name": "chembl Assay Targets",
+			"id": "89c17314-54a3-43f1-a330-19482b28f222",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=CHEMBL615156&m=map(chembl_target)",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"getentry": true
+			},
+			"testPassFailCounts": {
+				"getentry": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"18"
+			],
+			"allTests": [
+				{
+					"getentry": true
+				}
+			],
+			"time": "18",
+			"totalRequestTime": "18",
+			"iterationResults": {}
+		},
+		{
+			"name": "chembl Assay Cell Line",
+			"id": "028de4de-b7fb-421a-9651-9ded2ce178f9",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=CHEMBL3424821&m=map(chembl_cell_line)",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"getAssayCellLine": true
+			},
+			"testPassFailCounts": {
+				"getAssayCellLine": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"17"
+			],
+			"allTests": [
+				{
+					"getAssayCellLine": true
+				}
+			],
+			"time": "17",
+			"totalRequestTime": "17",
+			"iterationResults": {}
+		},
+		{
+			"name": "chembl Assay Target Protein",
+			"id": "4e683829-5c0b-4b0b-914e-ac105e999fdd",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=CHEMBL615156&m=map(chembl_target).filter(chembl.target.type%3D%3D%22single_protein%22)",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"getentry": true
+			},
+			"testPassFailCounts": {
+				"getentry": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"20"
+			],
+			"allTests": [
+				{
+					"getentry": true
+				}
+			],
+			"time": "20",
+			"totalRequestTime": "20",
+			"iterationResults": {}
+		},
+		{
+			"name": "chembl Assay Target Protein Uniprot",
+			"id": "ba8939df-fadf-42a5-86c7-ba1956e8635c",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=CHEMBL615156&m=map(chembl_target).map(chembl_target_component).map(uniprot)",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"getDocumentTargetProteinUniprot": true
+			},
+			"testPassFailCounts": {
+				"getDocumentTargetProteinUniprot": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"19"
+			],
+			"allTests": [
+				{
+					"getDocumentTargetProteinUniprot": true
+				}
+			],
+			"time": "19",
+			"totalRequestTime": "19",
+			"iterationResults": {}
+		},
+		{
+			"name": "chembl Activity",
+			"id": "7e9a5e46-2846-4b67-b7ec-5b24d0a86ac0",
+			"url": "http://wp-p3s-f7:8888/ws/?i=CHEMBL_ACT_93229",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"getActivity": true
+			},
+			"testPassFailCounts": {
+				"getActivity": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"17"
+			],
+			"allTests": [
+				{
+					"getActivity": true
+				}
+			],
+			"time": "17",
+			"totalRequestTime": "17",
+			"iterationResults": {}
+		},
+		{
+			"name": "chembl Activity Filter",
+			"id": "3edf8c3b-9843-4cba-b2a0-5eeb8dcde661",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=CHEMBL_ACT_93229&m=filter(chembl.activity.bao%3D%3D%22BAO_0000179%22).map(chembl_molecule)",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"getActivityFilter": true
+			},
+			"testPassFailCounts": {
+				"getActivityFilter": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"20"
+			],
+			"allTests": [
+				{
+					"getActivityFilter": true
+				}
+			],
+			"time": "20",
+			"totalRequestTime": "20",
+			"iterationResults": {}
+		},
+		{
+			"name": "chembl Target Component",
+			"id": "f6703570-f94d-4f95-9a13-b832bb7492a5",
+			"url": "http://wp-p3s-f7:8888/ws/?i=CHEMBL_TC_47",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"getAssay": true
+			},
+			"testPassFailCounts": {
+				"getAssay": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"18"
+			],
+			"allTests": [
+				{
+					"getAssay": true
+				}
+			],
+			"time": "18",
+			"totalRequestTime": "18",
+			"iterationResults": {}
+		},
+		{
+			"name": "chembl Target",
+			"id": "1e5b3068-a3fa-488c-b90f-23acc3a11e47",
+			"url": "http://wp-p3s-f7:8888/ws/?i=CHEMBL2242",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"getAssay": true
+			},
+			"testPassFailCounts": {
+				"getAssay": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"18"
+			],
+			"allTests": [
+				{
+					"getAssay": true
+				}
+			],
+			"time": "18",
+			"totalRequestTime": "18",
+			"iterationResults": {}
+		},
+		{
+			"name": "chembl Target Protein Uniprot",
+			"id": "84ae4586-a35d-45c1-982a-49d32a8dcbd8",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=CHEMBL2789&m=filter(chembl.target.type%3D%3D%22single_protein%22).map(chembl_target_component).map(uniprot)",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"getDocumentTargetProteinUniprot": true
+			},
+			"testPassFailCounts": {
+				"getDocumentTargetProteinUniprot": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"20"
+			],
+			"allTests": [
+				{
+					"getDocumentTargetProteinUniprot": true
+				}
+			],
+			"time": "20",
+			"totalRequestTime": "20",
+			"iterationResults": {}
+		},
+		{
+			"name": "chembl Cell Line",
+			"id": "d6e9f030-c1ba-4e9d-8bfc-de63b74cee9b",
+			"url": "http://wp-p3s-f7:8888/ws/?i=CHEMBL3307241",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"getAssay": true
+			},
+			"testPassFailCounts": {
+				"getAssay": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"19"
+			],
+			"allTests": [
+				{
+					"getAssay": true
+				}
+			],
+			"time": "19",
+			"totalRequestTime": "19",
+			"iterationResults": {}
+		},
+		{
+			"name": "chembl Cell Line Assay",
+			"id": "856342c2-561b-4349-9e9c-3ca04faeb3ae",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=CHEMBL3307241&m=map(chembl_assay)",
+			"totalTime": 0,
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"tests": {
+				"getentry": true
+			},
+			"testPassFailCounts": {
+				"getentry": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				"19"
+			],
+			"allTests": [
+				{
+					"getentry": true
+				}
+			],
+			"time": "19",
+			"totalRequestTime": "19",
+			"iterationResults": {}
+		}
+	],
+	"totalPass": 79,
+	"totalFail": 4,
+	"totalTime": 3233,
+	"lifecycle": "done",
+	"requests": [
+		{
+			"name": "meta",
+			"id": "08a3ebbe-e8eb-4dab-b361-f4ac847da878",
+			"url": "http://wp-p3s-f7:8888/ws/meta",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"Meta": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "getResults",
+			"id": "5bfbc47f-4c01-4dab-a0d8-8dd0f1850be0",
+			"url": "http://wp-p3s-f7:8888/ws/?i=p53_human",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"Test get ids": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "getEntry",
+			"id": "05de46e9-b1b6-4bb3-ac48-a050ac964bc3",
+			"url": "http://wp-p3s-f7:8888/ws/entry/?i=p04637&s=uniprot",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"Get entry": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "filterResult",
+			"id": "a43ad330-226e-41ce-86c3-b09d1ecade6e",
+			"url": "http://wp-p3s-f7:8888/ws/filter/?i=p04637&s=uniprot&f=go",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"Get Filter result": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "getPage",
+			"id": "65024572-a076-4d66-9b6d-1c226670b0d3",
+			"url": "http://wp-p3s-f7:8888/ws/page/?i=p04637&s=uniprot&p=1&t=16",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"paging": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "resolve protein identifiers",
+			"id": "e9b2354b-1305-44e7-815d-9577e55a93ac",
+			"url": "http://wp-p3s-f7:8888/ws/?i=shh_human,P53_HUMAN",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"Test get ids": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "protein name",
+			"id": "e6cdb497-fa56-4b1c-8aec-c356476ccf42",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=filter(uniprot.names.exists(a%2Ca%3D%3D%22Sonic%20hedgehog%20protein%22))",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "protein sequence mass",
+			"id": "7910a59a-348f-4273-8689-3a447dd4fb9f",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=filter(uniprot.sequence.mass%20%3E%2045000)",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "protein sequence size",
+			"id": "d271a6dc-14fa-4e5a-bf63-21cf7c194cc0",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=filter(size(uniprot.sequence.seq)%20%3E%20400)",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "protein go term",
+			"id": "475a4181-4918-4c2c-b7f5-c8b2f4a16ae2",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=map(go).filter(go.type%3D%3D%22molecular_function%22)",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "protein go term cellular",
+			"id": "2f2b49da-e025-4a13-b220-8cc598eaa30e",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=map(go).filter(go.type%3D%3D%22cellular_component%22)",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "protein go term boolean",
+			"id": "94dd3a9b-5366-4b7c-99ba-6dafed68f26b",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=map(go).filter(go.name.contains(%22binding%22)%20%7C%7C%20go.name.contains(%22activity%22))",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "protein feature helix type",
+			"id": "e27f643a-a888-42a7-b5ae-b5eec067cff3",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=map(ufeature).filter(ufeature.type%3D%3D%22helix%22)",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "protein feature sequence variant",
+			"id": "d33b47ef-4c82-49f7-ba2e-e7c9f8781dd6",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=map(ufeature).filter(ufeature.type%3D%3D%22sequence%20variant%22)",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "protein feature location",
+			"id": "ff83dc23-46a0-431f-ae0a-06db50068142",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=map(ufeature).filter(ufeature.location.begin%3E0%20%26%26%20ufeature.location.end%3C300)",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "protein feature description",
+			"id": "643979d5-bb13-4909-8b52-09f4fe9b441f",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=map(ufeature).filter(ufeature.description.contains(%22cancer%22))",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "protein feature description contains",
+			"id": "2c332f55-9aba-43ca-b6ec-6fee3430ab81",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=map(ufeature).filter(ufeature.description.contains(%22tumor%22))",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "protein feature specific variant",
+			"id": "da046d8c-bf9e-4e63-adb0-175538c739f4",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=map(ufeature).filter(ufeature.original%3D%3D%22I%22%20%26%26%20ufeature.variation%3D%3D%22S%22)",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "protein feature maps variantid",
+			"id": "48c2c77c-f153-483e-8265-7a0633c748d0",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=map(ufeature).filter(ufeature.original%3D%3D%22I%22%20%26%26%20ufeature.variation%3D%3D%22S%22).map(variantid)",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "protein feature has evidences",
+			"id": "262cfe10-f561-47a3-a135-3300f14512ac",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=map(ufeature).filter(size(ufeature.evidences)%3E1)",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "protein feature has experimental evidence",
+			"id": "19ca9d15-9c36-4674-b5eb-9377a2523aba",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=map(ufeature).filter(ufeature.evidences.exists(a%2Ca.type%3D%3D%22ECO%3A0000269%22))",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "protein feature has pubmed evidence",
+			"id": "fbac2055-fdcd-49fd-b73e-da61f8bb9b7a",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=map(ufeature).filter(ufeature.evidences.exists(a%2Ca.source%3D%3D%22pubmed%22))",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "protein feature pdb evidence",
+			"id": "cd8dab34-b444-4517-9e6a-2e7452a4c402",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=map(ufeature).filter(ufeature.evidences.exists(a%2Ca.source%3D%3D%22pdb%22))",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "protein ENA type mRNA",
+			"id": "6ebbdcc6-1a5c-49c9-9499-bcfc03b0811b",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=map(ena).filter(ena.type%3D%3D%22mrna%22)",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "protein ENA type genomic DNA",
+			"id": "16e8e1a9-8a0d-43c6-9e7a-688f7df29065",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=map(ena).filter(ena.type%3D%3D%22genomic_dna%22)",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "protein pdb method NMR",
+			"id": "28846222-a370-4507-8449-0e1157960b96",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=map(pdb).filter(pdb.method%3D%3D%22nmr%22)",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "protein pdb chains",
+			"id": "6fed6777-88f7-4042-9a37-2f8a5cebcb04",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=map(pdb).filter(pdb.chains%3D%3D%22A%2FC%3D95-292%22)",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "protein pdb resolution",
+			"id": "38bfd475-1338-4cfc-8266-4a8dfd068484",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=map(pdb).filter(pdb.resolution%3D%3D%222.60%20A%22)",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "protein pdb method or chains",
+			"id": "f40092a4-773a-4d18-91a3-7a097a518af1",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=map(pdb).filter(pdb.method%3D%3D%22nmr%22%20%7C%7C%20pdb.chains%3D%3D%22C%2FD%3D1-177%22)",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "protein reactome activation pathways",
+			"id": "918f68cb-31dc-4bc3-a14e-21eb0d5f9ad8",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=map(reactome).filter(reactome.pathway.contains(%22activation%22))",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "protein reactome signaling pathways",
+			"id": "5f98f4ba-41bc-4647-a575-52f08a86d3d6",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=map(reactome).filter(reactome.pathway.contains(%22signaling%22))",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "protein reactome regulation pathways",
+			"id": "92e36340-4eb3-4e58-a28a-813f34fb55d4",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=map(reactome).filter(reactome.pathway.contains(%22Regulation%22))",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "protein orphanet disease name",
+			"id": "067dcaf7-370b-44a4-ae40-8299d8a6341b",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=map(orphanet).filter(orphanet.disease.contains(%22cancer%22))",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "protein durgs by drugbank",
+			"id": "be9a64fb-ebe4-43bd-b029-d7e5e37dc831",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=map(drugbank)",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "protein to refseqs",
+			"id": "295790a4-5456-4518-9297-d6064a7d5ccb",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=shh_human,P53_HUMAN&m=map(refseq)",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"Test uniprot name": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "taxonomy children",
+			"id": "8e1a2d61-eb06-4b62-b61b-c4a677d06116",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=9606&m=map(taxchild)",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"taxonomy childs": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "taxonomy grand children",
+			"id": "f8a4cc6a-f9ef-4130-a871-8f312ed15a06",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=862507&m=map(taxchild).map(taxchild)",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"taxonomy childs": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "taxonomy grand^3 parent",
+			"id": "4ab50222-fc94-4e50-ad24-040cedf5939d",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=10090&m=map(taxparent).map(taxparent).map(taxparent)",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"taxonomy childs": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "taxonomy Asian children",
+			"id": "29483dca-cc18-4d65-8e7c-4bea0a43eab3",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=10090&m=map(taxchild).filter(taxonomy.common_name.contains(%22Asian%22))",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"taxonomy childs": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "taxonomy European children",
+			"id": "66123805-84b2-4336-956b-459249b1cd78",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=10090&m=map(taxchild).filter(taxonomy.common_name.contains(%22European%22))",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"taxonomy childs": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "taxonomy grand children by division",
+			"id": "805b260c-cc21-4d98-b569-ebde0ec694a6",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=862507&m=map(taxchild).map(taxchild).filter(taxonomy.taxonomic_division%3D%3D%22ROD%22)",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"taxonomy childs": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "ensembl entry",
+			"id": "4fa97f6c-8109-48f5-bd0f-406a6448c534",
+			"url": "http://wp-p3s-f7:8888/ws/?i=ENSG00000139618",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"getentry": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "ensembl gene transcripts",
+			"id": "266834de-a178-4f5e-81ac-73a2c2c17d57",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=tp53&m=map(transcript)",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"genetranscripts": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "ensembl transcript by type",
+			"id": "8cbd35cb-8b44-498a-a2f0-a60980014a63",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=ENSG00000073910&m=map(transcript).filter(transcript.biotype%3D%3D%22protein_coding%22)",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"genetranscripts": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "ensembl exons",
+			"id": "7aac0bd5-4fb4-466b-9576-5789839f6bd1",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=ENSG00000141510&m=map(transcript).map(exon)",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"geneexons": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "ensembl gene exons by region",
+			"id": "ec33e4ad-0ac9-4e71-a67c-30d22d0b61fb",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=tp53&m=map(transcript).filter(transcript.biotype%3D%3D%22protein_coding%22).map(exon).filter(exon.seq_region_name%3D%3D%2217%22)",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"geneexons": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "ensembl gene exons by location",
+			"id": "f9038d8d-56d7-4dc8-9112-45c081c98350",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=tp53&m=map(transcript).filter(transcript.biotype%3D%3D%22protein_coding%22).map(exon).filter(exon.end%20%3E%3D%207687538)",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"geneexons": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "ensembl Ortholog",
+			"id": "0c9ad969-9393-4cf2-a41b-bdf35ebf549f",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=ENSG00000139618&m=map(ortholog)",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"genetranscripts": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "ensembl Paralog",
+			"id": "456f94b4-a948-44ee-aeb1-040010ef5d18",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=ENSG00000073910&m=map(paralog)",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"genetranscripts": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "chembl Compound",
+			"id": "9df5f545-ceb7-4424-9023-7f8a8ce9d9ba",
+			"url": "http://wp-p3s-f7:8888/ws/?i=GSK2606414",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"getentry": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "chembl Compound By Smiles",
+			"id": "84d87419-6705-495d-a821-8f3f47ce013f",
+			"url": "http://wp-p3s-f7:8888/ws/?i=Cn1cc(c2ccc3N(CCc3c2)C(=O)Cc4cccc(c4)C(F)(F)F)c5c(N)ncnc15",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"getentry": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "chembl Compound By Inchi Key",
+			"id": "bf8d9ffb-a107-420f-bf6b-0580fef9af9c",
+			"url": "http://wp-p3s-f7:8888/ws/?i=SIXVRXARNAVBTC-UHFFFAOYSA-N",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"getentry": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "chembl Compound Activities",
+			"id": "309b00d6-94ff-4a4b-93e6-8f08f2a237f3",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=GSK2606414&m=map(chembl_activity)",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"compoundActivities": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "chembl Compound Activities Filter Bao",
+			"id": "1b537ed2-4f03-4d2c-9872-def65f707b65",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=GSK2606414&m=map(chembl_activity).filter(chembl.activity.bao%3D%3D%22BAO_0000190%22)",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"compoundActivitiesFilterBao": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "chembl Compound Activities Filter Value",
+			"id": "fb95c1c0-87fa-4295-bb5c-0d1c4eef1ee3",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=GSK2606414&m=map(chembl_activity).filter(chembl.activity.value%20%3E%2010.0)",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"compoundActivitiesFilterBao": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "chembl Compound Activities AND",
+			"id": "51ddc616-83c4-471a-baee-5e89dc8d7a24",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=GSK2606414&m=map(chembl_activity).filter(chembl.activity.value%20%3E%2010.0%20%26%26%20chembl.activity.bao%3D%3D%22BAO_0000190%22)",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"compoundActivitiesFilterBao": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "chembl Compound Activities OR",
+			"id": "20120600-b7d4-46bb-b9b6-2d0e20803508",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=GSK2606414&m=map(chembl_activity).filter(chembl.activity.value%3E10.0%20%7C%7C%20chembl.activity.pChembl%3E5.0)",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"compoundActivitiesFilterOr": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "chembl Compound Targets",
+			"id": "c12efb84-bb5b-4022-955d-72c2b8b81ce5",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=GSK2606414&m=map(chembl_activity).map(chembl_document).map(chembl_assay).map(chembl_target)",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"compoundActivitiesFilterOr": {
+					"pass": 0,
+					"fail": 1
+				}
+			}
+		},
+		{
+			"name": "chembl Document",
+			"id": "a0d11c6f-b84d-4db6-a211-4435a7efdf40",
+			"url": "http://wp-p3s-f7:8888/ws/?i=CHEMBL3421631",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"getentry": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "chembl Document Activities",
+			"id": "bea3d37f-f4d2-4dc9-8669-3336348ec5fb",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=CHEMBL1121978&m=map(chembl_activity)",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"getentry": {
+					"pass": 0,
+					"fail": 1
+				}
+			}
+		},
+		{
+			"name": "chembl Document Assay",
+			"id": "2ad780ea-1373-4df5-986f-618be73e6e70",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=CHEMBL3421631&m=map(chembl_assay)",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"getentry": {
+					"pass": 0,
+					"fail": 1
+				}
+			}
+		},
+		{
+			"name": "chembl Document Assay Filter",
+			"id": "ad068a78-8ccb-49b6-b94d-3bd6d8a7fcb9",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=CHEMBL3421631&m=map(chembl_assay).filter(chembl.assay.type%3D%3D%22Functional%22%20%7C%7C%20chembl.assay.type%3D%3D%22Binding%22)",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"getentry": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "chembl Document Cell Line",
+			"id": "15978174-156f-434a-a0da-950aac4c5355",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=CHEMBL3421631&m=map(chembl_assay).map(chembl_cell_line)",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"getentry": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "chembl Document Cell Line Filter",
+			"id": "46d93fd3-1bc6-4ae6-bfe6-9dc8033d3c44",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=CHEMBL3421631&m=map(chembl_assay).map(chembl_cell_line).filter(chembl.cellLine.tax%3D%3D%229615%22%20%7C%7C%20chembl.cellLine.efo%3D%3D%22EFO_0002841%22)",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"getentry": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "chembl Document Targets",
+			"id": "d22ae82e-ca88-4242-a5e7-ef65918680e3",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=CHEMBL3421631&m=map(chembl_assay).map(chembl_target)",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"getentry": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "chembl Document Target Protein",
+			"id": "eb2cbb66-4265-4e7c-a769-ec52e4768528",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=CHEMBL3421631&m=map(chembl_assay).map(chembl_target).filter(chembl.target.type%3D%3D%22single_protein%22)",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"getentry": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "chembl Document Target Tissue",
+			"id": "4ba1690b-9389-4c5a-8b1d-897652ef52a2",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=CHEMBL3421631&m=map(chembl_assay).map(chembl_target).filter(chembl.target.type%3D%3D%22tissue%22)",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"getDocumentTargetTissue": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "chembl Document Target Organism",
+			"id": "b7e83e39-767d-40d7-a3d1-1e6e425b9916",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=CHEMBL3421631&m=map(chembl_assay).map(chembl_target).filter(chembl.target.type%3D%3D%22organism%22)",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"getDocumentTargetTissue": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "chembl Document Target Protein Uniprot",
+			"id": "3c667757-827a-4ce1-a648-137b67d74ec0",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=CHEMBL3421631&m=map(chembl_assay).map(chembl_target).map(chembl_target_component).map(uniprot)",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"getDocumentTargetProteinUniprot": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "chembl Document Molecule",
+			"id": "d16dd092-5640-4f82-9cb9-8db4c5db3a13",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=CHEMBL3421631&m=map(chembl_molecule)",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"getDocumentMolecule": {
+					"pass": 0,
+					"fail": 1
+				}
+			}
+		},
+		{
+			"name": "chembl Document Molecule Filter",
+			"id": "357cab4f-13db-4402-a3f1-5f56b1564c66",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=CHEMBL3421631&m=map(chembl_molecule).filter(chembl.molecule.heavyAtoms%20%3C%2030.0%20%26%26%20chembl.molecule.aromaticRings%20%3C2.0)",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"getDocumentMolecule": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "chembl Assay",
+			"id": "2877f0fd-b027-4fc8-948b-b5a852c31343",
+			"url": "http://wp-p3s-f7:8888/ws/?i=CHEMBL615156",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"getAssay": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "chembl Assay Targets",
+			"id": "89c17314-54a3-43f1-a330-19482b28f222",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=CHEMBL615156&m=map(chembl_target)",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"getentry": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "chembl Assay Cell Line",
+			"id": "028de4de-b7fb-421a-9651-9ded2ce178f9",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=CHEMBL3424821&m=map(chembl_cell_line)",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"getAssayCellLine": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "chembl Assay Target Protein",
+			"id": "4e683829-5c0b-4b0b-914e-ac105e999fdd",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=CHEMBL615156&m=map(chembl_target).filter(chembl.target.type%3D%3D%22single_protein%22)",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"getentry": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "chembl Assay Target Protein Uniprot",
+			"id": "ba8939df-fadf-42a5-86c7-ba1956e8635c",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=CHEMBL615156&m=map(chembl_target).map(chembl_target_component).map(uniprot)",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"getDocumentTargetProteinUniprot": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "chembl Activity",
+			"id": "7e9a5e46-2846-4b67-b7ec-5b24d0a86ac0",
+			"url": "http://wp-p3s-f7:8888/ws/?i=CHEMBL_ACT_93229",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"getActivity": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "chembl Activity Filter",
+			"id": "3edf8c3b-9843-4cba-b2a0-5eeb8dcde661",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=CHEMBL_ACT_93229&m=filter(chembl.activity.bao%3D%3D%22BAO_0000179%22).map(chembl_molecule)",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"getActivityFilter": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "chembl Target Component",
+			"id": "f6703570-f94d-4f95-9a13-b832bb7492a5",
+			"url": "http://wp-p3s-f7:8888/ws/?i=CHEMBL_TC_47",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"getAssay": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "chembl Target",
+			"id": "1e5b3068-a3fa-488c-b90f-23acc3a11e47",
+			"url": "http://wp-p3s-f7:8888/ws/?i=CHEMBL2242",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"getAssay": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "chembl Target Protein Uniprot",
+			"id": "84ae4586-a35d-45c1-982a-49d32a8dcbd8",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=CHEMBL2789&m=filter(chembl.target.type%3D%3D%22single_protein%22).map(chembl_target_component).map(uniprot)",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"getDocumentTargetProteinUniprot": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "chembl Cell Line",
+			"id": "d6e9f030-c1ba-4e9d-8bfc-de63b74cee9b",
+			"url": "http://wp-p3s-f7:8888/ws/?i=CHEMBL3307241",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"getAssay": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		},
+		{
+			"name": "chembl Cell Line Assay",
+			"id": "856342c2-561b-4349-9e9c-3ca04faeb3ae",
+			"url": "http://wp-p3s-f7:8888/ws/map/?i=CHEMBL3307241&m=map(chembl_assay)",
+			"time": "2019-09-04T12:08:10.030Z",
+			"responseCode": {
+				"code": 200,
+				"name": "OK",
+				"detail": {
+					"name": "OK",
+					"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+				}
+			},
+			"testPassFailCounts": {
+				"getentry": {
+					"pass": 1,
+					"fail": 0
+				}
+			}
+		}
+	],
+	"synced": false
+}

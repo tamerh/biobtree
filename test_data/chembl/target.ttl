@@ -1,0 +1,66 @@
+@prefix bao: <http://www.bioassayontology.org/bao#> .
+@prefix bibo: <http://purl.org/ontology/bibo/> .
+@prefix cco: <http://rdf.ebi.ac.uk/terms/chembl#> .
+@prefix chembl: <http://rdf.ebi.ac.uk/resource/chembl/> .
+@prefix chembl_activity: <http://rdf.ebi.ac.uk/resource/chembl/activity/> .
+@prefix chembl_assay: <http://rdf.ebi.ac.uk/resource/chembl/assay/> .
+@prefix chembl_binding_site: <http://rdf.ebi.ac.uk/resource/chembl/binding_site/> .
+@prefix chembl_bio_cmpt: <http://rdf.ebi.ac.uk/resource/chembl/biocomponent/> .
+@prefix chembl_cell_line: <http://rdf.ebi.ac.uk/resource/chembl/cell_line/> .
+@prefix chembl_document: <http://rdf.ebi.ac.uk/resource/chembl/document/> .
+@prefix chembl_indication: <http://rdf.ebi.ac.uk/resource/chembl/drug_indication/> .
+@prefix chembl_journal: <http://rdf.ebi.ac.uk/resource/chembl/journal/> .
+@prefix chembl_moa: <http://rdf.ebi.ac.uk/resource/chembl/drug_mechanism/> .
+@prefix chembl_molecule: <http://rdf.ebi.ac.uk/resource/chembl/molecule/> .
+@prefix chembl_protclass: <http://rdf.ebi.ac.uk/resource/chembl/protclass/> .
+@prefix chembl_source: <http://rdf.ebi.ac.uk/resource/chembl/source/> .
+@prefix chembl_target: <http://rdf.ebi.ac.uk/resource/chembl/target/> .
+@prefix chembl_target_cmpt: <http://rdf.ebi.ac.uk/resource/chembl/targetcomponent/> .
+@prefix cheminf: <http://semanticscience.org/resource/> .
+@prefix cito: <http://purl.org/spar/cito/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix doi: <http://dx.doi.org/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix freq: <http://purl.org/cld/freq/> .
+@prefix mio: <http://www.ebi.ac.uk/ontology-lookup/?termId=> .
+@prefix oborel: <http://purl.obolibrary.org/obo#> .
+@prefix ops: <http://www.openphacts.org/units/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix pav: <http://purl.org/pav/> .
+@prefix qudt: <http://qudt.org/vocab/unit#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sd: <http://www.w3.org/ns/sparql-service-description#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix uniprot: <http://purl.uniprot.org/uniprot/> .
+@prefix voag: <http://voag.linkedmodel.org/voag#> .
+@prefix void: <http://rdfs.org/ns/void#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+chembl_target:CHEMBL2242 a cco:SingleProtein ;
+	cco:chemblId "CHEMBL2242" ;
+	rdfs:label "Glutathione S-transferase Mu 3" ;
+	dcterms:title "Glutathione S-transferase Mu 3" ;
+	cco:targetType "SINGLE PROTEIN" ;
+	cco:taxonomy <http://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=9606> , <http://identifiers.org/taxonomy/9606> ;
+	cco:organismName "Homo sapiens" ;
+	cco:hasTargetComponent chembl_target_cmpt:CHEMBL_TC_583 .
+
+chembl_target_cmpt:CHEMBL_TC_583 cco:hasTarget chembl_target:CHEMBL2242 .
+
+chembl_target:CHEMBL612245 a cco:Organism ;
+	cco:chemblId "CHEMBL612245" ;
+	rdfs:label "Sporothrix schenckii" ;
+	dcterms:title "Sporothrix schenckii" ;
+	cco:targetType "ORGANISM" ;
+	cco:taxonomy <http://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=29908> , <http://identifiers.org/taxonomy/29908> ;
+	cco:organismName "Sporothrix schenckii" .
+
+chembl_target:CHEMBL612246 a cco:CellLineTarget ;
+	cco:chemblId "CHEMBL612246" ;
+	rdfs:label "Clone 62" ;
+	dcterms:title "Clone 62" ;
+	cco:targetType "CELL-LINE" ;
+	cco:isTargetForCellLine chembl_cell_line:CHEMBL3307786 .
+
+chembl_cell_line:CHEMBL3307786 cco:isCellLineForTarget chembl_target:CHEMBL612246 .

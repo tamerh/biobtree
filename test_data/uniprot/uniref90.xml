@@ -1,0 +1,81 @@
+<UniRef xmlns="http://uniprot.org/uniref" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://uniprot.org/uniref http://www.uniprot.org/docs/uniref.xsd" version="2018_10" releaseDate="2018-11-07">
+<entry id="UniRef90_D8T9V7" updated="2018-09-12">
+<name>Cluster: Uncharacterized protein</name>
+<property type="member count" value="2"/>
+<property type="common taxon" value="Selaginella moellendorffii"/>
+<property type="common taxon ID" value="88036"/>
+<representativeMember>
+<dbReference type="UniProtKB ID" id="D8T9V7_SELML">
+<property type="UniProtKB accession" value="D8T9V7"/>
+<property type="UniParc ID" value="UPI0001E02D4B"/>
+<property type="UniRef100 ID" value="UniRef100_D8T9V7"/>
+<property type="UniRef50 ID" value="UniRef50_Q93ZC2"/>
+<property type="protein name" value="Uncharacterized protein"/>
+<property type="source organism" value="Selaginella moellendorffii (Spikemoss)"/>
+<property type="NCBI taxonomy" value="88036"/>
+<property type="length" value="411"/>
+<property type="isSeed" value="true"/>
+</dbReference>
+<sequence length="411" checksum="87316F7C46AA96C2">
+MSTKERPTLGGTRIKTRKRNIAIPLDPSSFADAIVQIYLDHAGDLELTAKSIEASDLDFS RYGDTFFEVVFTGGRNQPGTTKPEDGERQPYAVLNCEATRPSILPYVLYIQKIIRRRPFL IKNLENVMRRLLQSLELFDADDRKKLAIFTTLALSQKLSGLPPETVFAALLNDSLVAKGT VLGFCTETFKEYLLENSLDDLISLLKRAKMEDRLVELFPMQKRTPEAFAEHFRKEGLGVL VEYHDKKVFDVKLKELRTSLADQISANADMGEVIETVKSRRKESLLPDVDVVRTVWDALM DAVQWSGKNQQQNVNLALRQVKTWGSLLGEVCTSAKLEMELMYKIQVHCYEDAKLMKLFP EMVRALYDQDVLAEDTILTWFRKGANPKGRQIFAKSLEPFVQWLEEAEEEE
+</sequence>
+</representativeMember>
+<member>
+<dbReference type="UniProtKB ID" id="D8R954_SELML">
+<property type="UniProtKB accession" value="D8R954"/>
+<property type="UniParc ID" value="UPI0001DFBFE5"/>
+<property type="UniRef100 ID" value="UniRef100_D8R954"/>
+<property type="protein name" value="Uncharacterized protein"/>
+<property type="source organism" value="Selaginella moellendorffii (Spikemoss)"/>
+<property type="NCBI taxonomy" value="88036"/>
+<property type="length" value="411"/>
+</dbReference>
+</member>
+</entry>
+
+<entry id="UniRef90_D8QQK1" updated="2018-05-23">
+<name>Cluster: Uncharacterized protein</name>
+<property type="member count" value="3"/>
+<property type="common taxon" value="Selaginella moellendorffii"/>
+<property type="common taxon ID" value="88036"/>
+<property type="GO Molecular Function" value="GO:0032977"/>
+<property type="GO Cellular Component" value="GO:0016021"/>
+<representativeMember>
+<dbReference type="UniProtKB ID" id="D8QQK1_SELML">
+<property type="UniProtKB accession" value="D8QQK1"/>
+<property type="UniParc ID" value="UPI0001DFECCB"/>
+<property type="UniRef100 ID" value="UniRef100_D8QQK1"/>
+<property type="UniRef50 ID" value="UniRef50_D8QQK1"/>
+<property type="protein name" value="Uncharacterized protein"/>
+<property type="source organism" value="Selaginella moellendorffii (Spikemoss)"/>
+<property type="NCBI taxonomy" value="88036"/>
+<property type="length" value="315"/>
+</dbReference>
+<sequence length="315" checksum="77CC3D1553C03599">
+MSESAAESIRFPETLADAAQEIVSGAAGATYDLSKEIVLAVSESFPWTAAVQYVIYATHV VTGLPWWLSIALTTVAVRTMVLPLVIYQVKSTARFALLRPDLEKIKVDMEQANYDPVALA ENKRKMAELFAKHKTDPFTPLIGALLQGPIFMCFFFGLRTMAEKMDSFKEGGAFWFTDLT TPDELYILPFITTATFLITVELNAVDGMQGQPNQKTMKNILRGMGVLFLPLTAQFPKALF CYWVTSNLWSMLQGALLRNKKFKAYLDIPDTSHLGTPAPPPTITSSKPPARKAITPPPGV SFNPGDSKKARRLVH
+</sequence>
+</representativeMember>
+<member>
+<dbReference type="UniProtKB ID" id="D8R8C9_SELML">
+<property type="UniProtKB accession" value="D8R8C9"/>
+<property type="UniParc ID" value="UPI0001DFD3D5"/>
+<property type="UniRef100 ID" value="UniRef100_D8R8C9"/>
+<property type="protein name" value="Uncharacterized protein"/>
+<property type="source organism" value="Selaginella moellendorffii (Spikemoss)"/>
+<property type="NCBI taxonomy" value="88036"/>
+<property type="length" value="411"/>
+<property type="isSeed" value="true"/>
+</dbReference>
+</member>
+<member>
+<dbReference type="UniParc ID" id="UPI000D1CD5FB">
+<property type="UniRef100 ID" value="UniRef100_D8QQK1"/>
+<property type="protein name" value="mitochondrial inner membrane protein OXA1"/>
+<property type="source organism" value="Selaginella moellendorffii"/>
+<property type="NCBI taxonomy" value="88036"/>
+<property type="length" value="411"/>
+</dbReference>
+</member>
+</entry>
+
+</UniRef>

@@ -1,0 +1,138 @@
+syntax = "proto3";
+
+import "attr.proto";
+
+package pbuf;
+
+service BiobtreeService {
+  rpc Get        (BiobtreeGetRequest)       returns (BiobtreeGetResponse);
+  rpc GetPage    (BiobtreeGetPageRequest)   returns (BiobtreeGetPageResponse);
+  rpc Filter     (BiobtreeFilterRequest)    returns (BiobtreeFilterResponse);
+  rpc MapFilter  (BiobtreeMapFilterRequest) returns (BiobtreeMapFilterResponse);
+  rpc Meta       (BiobtreeMetaRequest)      returns (BiobtreeMetaResponse);
+}
+
+message BiobtreeGetRequest {
+  	repeated string keywords = 1;
+}
+
+message BiobtreeGetPageRequest {
+  	string keyword = 1;
+    int32 dataset=2;
+    int32 page =3;
+    int32 total=4;
+}
+
+message BiobtreeFilterRequest {
+  	string keyword = 1;
+    int32 dataset=2;
+    repeated uint32 filters =3;
+    int32 page =4;
+}
+
+message BiobtreeMapFilterRequest {
+  	repeated string keywords = 1;
+    string mapFilterQuery = 2;
+}
+
+message BiobtreeMetaRequest {
+}
+
+message BiobtreeGetResponse {
+  	repeated Result results =1;
+}
+
+message BiobtreeGetPageResponse {
+  	Result result =1;
+}
+
+message BiobtreeFilterResponse {
+  	Result result =1;
+}
+
+message BiobtreeMapFilterResponse {
+  
+  repeated MapFilterResult results =1;
+
+}
+
+message BiobtreeMetaResponse {
+     map<string, BiobtreeMetaKeyValue> results = 1;
+}
+
+message BiobtreeMetaKeyValue{
+  map<string, string> keyvalues = 1;
+}
+
+message Result {
+  	repeated Xref results = 1;
+    string nextpage=2;
+}
+
+message MapFilterResult {
+  	repeated MapFilter results = 1;
+    string nextpage=2; 
+}
+
+message MapFilter {
+  	 Xref source = 1;
+     repeated Xref targets = 2;
+}
+
+message Xref {
+
+  uint32 domain_id = 1;
+  bool is_link=2;
+  //these 2 fields are transient fields not saved to database
+  string identifier=3;
+  string keyword =4; 
+
+  oneof attributes{
+
+    bool empty = 5 ;
+    UniprotAttr uniprot=6;
+    GoAttr gontology=7;
+    HgncAttr hgnc= 8;
+    InterproAttr interpro= 9;
+    EnsemblAttr ensembl= 10;
+    TaxoAttr taxonomy= 11;
+    HmdbAttr hmdb= 12;
+    EnaAttr ena= 13;
+    PdbAttr pdb= 14;
+    DrugbankAttr drugbank= 15;
+    OrphanetAttr orphanet= 16;
+    ReactomeAttr reactome= 17;
+    ChemblAttr chembl=18;
+    UniprotFeatureAttr ufeature=19;
+    EfoAttr efo=25;
+
+  }
+
+  uint32 count =20;
+  repeated XrefEntry entries=21;
+  repeated XrefDomainCount domain_counts=22;
+  map<uint32,PageInfo> domainPages=23;
+  repeated string pages=24;
+}
+
+message PageInfo {
+  repeated string pages=1;
+}
+
+message XrefEntry {
+
+  uint32 domain_id = 1;
+  string xref_id = 2;
+
+}
+
+message XrefDomainCount {
+
+  uint32 domain_id = 1;
+  uint32 count =2;
+
+}
+
+message Alias {
+    repeated string identifiers = 1;
+}

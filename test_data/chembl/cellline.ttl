@@ -1,0 +1,78 @@
+@prefix bao: <http://www.bioassayontology.org/bao#> .
+@prefix bibo: <http://purl.org/ontology/bibo/> .
+@prefix cco: <http://rdf.ebi.ac.uk/terms/chembl#> .
+@prefix chembl: <http://rdf.ebi.ac.uk/resource/chembl/> .
+@prefix chembl_activity: <http://rdf.ebi.ac.uk/resource/chembl/activity/> .
+@prefix chembl_assay: <http://rdf.ebi.ac.uk/resource/chembl/assay/> .
+@prefix chembl_binding_site: <http://rdf.ebi.ac.uk/resource/chembl/binding_site/> .
+@prefix chembl_bio_cmpt: <http://rdf.ebi.ac.uk/resource/chembl/biocomponent/> .
+@prefix chembl_cell_line: <http://rdf.ebi.ac.uk/resource/chembl/cell_line/> .
+@prefix chembl_document: <http://rdf.ebi.ac.uk/resource/chembl/document/> .
+@prefix chembl_indication: <http://rdf.ebi.ac.uk/resource/chembl/drug_indication/> .
+@prefix chembl_journal: <http://rdf.ebi.ac.uk/resource/chembl/journal/> .
+@prefix chembl_moa: <http://rdf.ebi.ac.uk/resource/chembl/drug_mechanism/> .
+@prefix chembl_molecule: <http://rdf.ebi.ac.uk/resource/chembl/molecule/> .
+@prefix chembl_protclass: <http://rdf.ebi.ac.uk/resource/chembl/protclass/> .
+@prefix chembl_source: <http://rdf.ebi.ac.uk/resource/chembl/source/> .
+@prefix chembl_target: <http://rdf.ebi.ac.uk/resource/chembl/target/> .
+@prefix chembl_target_cmpt: <http://rdf.ebi.ac.uk/resource/chembl/targetcomponent/> .
+@prefix cheminf: <http://semanticscience.org/resource/> .
+@prefix cito: <http://purl.org/spar/cito/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix doi: <http://dx.doi.org/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix freq: <http://purl.org/cld/freq/> .
+@prefix mio: <http://www.ebi.ac.uk/ontology-lookup/?termId=> .
+@prefix oborel: <http://purl.obolibrary.org/obo#> .
+@prefix ops: <http://www.openphacts.org/units/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix pav: <http://purl.org/pav/> .
+@prefix qudt: <http://qudt.org/vocab/unit#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sd: <http://www.w3.org/ns/sparql-service-description#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix uniprot: <http://purl.uniprot.org/uniprot/> .
+@prefix voag: <http://voag.linkedmodel.org/voag#> .
+@prefix void: <http://rdfs.org/ns/void#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+chembl_cell_line:CHEMBL3307241 a cco:CellLine ;
+        rdfs:label "DC3F" ;
+        cco:chemblId "CHEMBL3307241" ;
+        dcterms:description "DC3F" ;
+        cco:taxonomy <http://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=10029> , <http://identifiers.org/taxonomy/10029> ;
+        cco:organismName "Cricetulus griseus" ;
+        cco:cellosaurusId "CVCL_4704" .
+
+chembl_cell_line:CHEMBL3307242 a cco:CellLine ;
+        rdfs:label "P3HR-1" ;
+        cco:chemblId "CHEMBL3307242" ;
+        dcterms:description "P3HR-1" ;
+        cco:taxonomy <http://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=9606> , <http://identifiers.org/taxonomy/9606> ;
+        cco:organismName "Homo sapiens" ;
+        cco:hasEFO <http://www.ebi.ac.uk/efo/EFO_0002312> ;
+        cco:hasCLO <http://purl.obolibrary.org/obo/CLO_0008331> ;
+        cco:cellXref <http://life.ccs.miami.edu/life/summary?mode=CellLine&source=LINCS&input=LCL-2024> .
+
+<http://life.ccs.miami.edu/life/summary?mode=CellLine&source=LINCS&input=LCL-2024> a cco:LincsCellRef ;
+        rdfs:label "CHEMBL3307242 LINCS Project Reference: LCL-2024" .
+
+chembl_cell_line:CHEMBL3307242 cco:cellosaurusId "CVCL_2676" .
+
+chembl_cell_line:CHEMBL3307243 a cco:CellLine ;
+        rdfs:label "UCLA P-3" ;
+        cco:chemblId "CHEMBL3307243" ;
+        dcterms:description "UCLA P-3" ;
+        cco:taxonomy <http://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=9606> , <http://identifiers.org/taxonomy/9606> ;
+        cco:organismName "Homo sapiens" ;
+        cco:cellosaurusId "CVCL_N513" .
+
+chembl_cell_line:CHEMBL3307244 a cco:CellLine ;
+        rdfs:label "UMSCC22B" ;
+        cco:chemblId "CHEMBL3307244" ;
+        dcterms:description "UMSCC22B" ;
+        cco:taxonomy <http://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=9606> , <http://identifiers.org/taxonomy/9606> ;
+        cco:organismName "Homo sapiens" ;
+        cco:cellosaurusId "CVCL_7732" .
+        

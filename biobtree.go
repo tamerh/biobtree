@@ -20,8 +20,8 @@ import (
 	"github.com/urfave/cli"
 )
 
-const version = "1.1.0-rc2"
-const versionTag = "v1.1.0-rc2"
+const version = "1.1.0-rc3"
+const versionTag = "v1.1.0-rc3"
 
 // for now they are static
 var webuicssfiles = []string{"app.042a53a9.css", "chunk-vendors.1f68ba2f.css"}

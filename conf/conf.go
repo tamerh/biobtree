@@ -87,12 +87,15 @@ func (c *Conf) Init(rootDir, versionTag string, webuicssfiles, webuijsfiles []st
 
 	if !exist {
 		log.Println("Downloading web interface files.")
-		_ = os.Mkdir("website", 0700)
-		staticFolderPath := filepath.FromSlash("website")
-		jsFolderPath := filepath.FromSlash("website/js")
-		cssFolderPath := filepath.FromSlash("website/css")
 
+		_ = os.Mkdir("website", 0700)
+
+		staticFolderPath := filepath.FromSlash("website/ui")
 		_ = os.Mkdir(staticFolderPath, 0700)
+
+		jsFolderPath := filepath.FromSlash("website/ui/js")
+		cssFolderPath := filepath.FromSlash("website/ui/css")
+
 		_ = os.Mkdir(jsFolderPath, 0700)
 		for _, file := range c.webuijsfiles {
 			jsFile := filepath.FromSlash(jsFolderPath + "/" + file)

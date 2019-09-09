@@ -38,6 +38,7 @@ var mutex = &sync.Mutex{}
 var config *conf.Conf
 
 type DataUpdate struct {
+	totalParsedEntry              uint64
 	wg                            *sync.WaitGroup
 	inDatasets                    []string // input datasets can contain alias like chembl
 	datasets2                     []string // after resolving the input datasets
@@ -53,7 +54,6 @@ type DataUpdate struct {
 	ebiFtpPath                    string
 	uniprotEntryCounts            map[string]uint64
 	p                             *mpb.Progress
-	totalParsedEntry              uint64
 	stats                         map[string]interface{}
 	targetDatasets                map[string]bool
 	hasTargets                    bool

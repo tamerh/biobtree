@@ -62,7 +62,7 @@ func (c *Conf) Init(rootDir, versionTag string, webuicssfiles, webuijsfiles []st
 	sourcedataconfFilePath := filepath.FromSlash(confdir + "/source.dataset.json")
 
 	if !exist {
-		log.Println("Downloading configuration and license files.")
+		log.Println("Downloading configuration files.")
 		err := os.Mkdir("conf", 0700)
 		if err != nil {
 			panic("Error while creating conf directory")
@@ -90,11 +90,8 @@ func (c *Conf) Init(rootDir, versionTag string, webuicssfiles, webuijsfiles []st
 
 		_ = os.Mkdir("website", 0700)
 
-		staticFolderPath := filepath.FromSlash("website/ui")
-		_ = os.Mkdir(staticFolderPath, 0700)
-
-		jsFolderPath := filepath.FromSlash("website/ui/js")
-		cssFolderPath := filepath.FromSlash("website/ui/css")
+		jsFolderPath := filepath.FromSlash("website/js")
+		cssFolderPath := filepath.FromSlash("website/css")
 
 		_ = os.Mkdir(jsFolderPath, 0700)
 		for _, file := range c.webuijsfiles {
@@ -304,7 +301,7 @@ func (c *Conf) checkForNewVersion() {
 	}
 
 	if latestRelease.Tag != c.versionTag {
-		log.Println("Warning: There is a new biobtree version available to download.-->", latestRelease.Tag)
+		log.Println("Warning: There is a new biobtree version available to download")
 	}
 
 }

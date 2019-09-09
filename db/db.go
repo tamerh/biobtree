@@ -36,6 +36,7 @@ func (d *DB) OpenDB(write bool, totalKV int64, appconf map[string]string) (*lmdb
 			panic("lmdbAllocSize must be greater than 1")
 		}
 	} else {
+		// todo with go 1.13 add underscore
 		if totalKV < 1000000 { //1M
 			lmdbAllocSize = 1000000000 // 1GB
 		} else if totalKV < 50000000 { //50M

@@ -29,7 +29,7 @@ var webuijsfiles = []string{"app.60410bbb.js", "app.60410bbb.js.map", "chunk-ven
 
 var config *conf.Conf
 
-var defaultDataset = "uniprot,go,hgnc,chebi,taxonomy,interpro,hmdb,literature_mappings,ensembl"
+var defaultDataset = "uniprot,go,hgnc,chebi,taxonomy,interpro,ensembl"
 
 //var defaultDataset = "uniprot,go,hgnc,chebi,taxonomy,interpro,hmdb,literature_mappings,chembl,efo"
 //var defaultDataset = "efo"
@@ -62,7 +62,7 @@ func main() {
 		},
 		cli.StringFlag{
 			Name:  "target_datasets,t",
-			Usage: "specify target datasets. By default all datasets are included. Speeds up process. See data.json files for full list of datasets",
+			Usage: "specify target datasets. By default all datasets are included. Speeds up all process. Useful if only certain mappings are interested.",
 		},
 		cli.StringFlag{
 			Name:  "idx,i",
@@ -115,7 +115,7 @@ func main() {
 		},
 		{
 			Name:  "generate",
-			Usage: "merge data from update phase and generate LMDB database",
+			Usage: "merge chunks from update and generate LMDB database",
 			Action: func(c *cli.Context) error {
 				return runGenerateCommand(c)
 			},
@@ -128,17 +128,11 @@ func main() {
 			},
 		},
 		{
-			Name:  "alias",
-			Usage: "Recreates alias db this is used if new aliases wants to added while keeping existing state",
+			Name:   "alias",
+			Usage:  "Recreates alias db this is used if new aliases wants to added while keeping existing state",
+			Hidden: true,
 			Action: func(c *cli.Context) error {
 				return runAliasCommand(c)
-			},
-		},
-		{
-			Name:  "query",
-			Usage: "runs query from command line",
-			Action: func(c *cli.Context) error {
-				return runQueryCommand(c)
 			},
 		},
 		{
@@ -176,18 +170,6 @@ func runAliasCommand(c *cli.Context) error {
 	return nil
 }
 
-func runQueryCommand(c *cli.Context) error {
-	// todo
-	ids := strings.Split(c.GlobalString("ids"), ",")
-
-	if len(ids) == 0 {
-		log.Fatal("Error:ids must be specified for query")
-		return nil
-	}
-
-	//mapfil := c.GlobalString("mapfil")
-	return nil
-}
 func runStartCommand(c *cli.Context) error {
 
 	err := runUpdateCommand(c)

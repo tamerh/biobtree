@@ -8,6 +8,7 @@ memprof.out
 tmp/
 out_bkp/
 out_def/
+out_bacteria/
 out/
 **/.classpath
 **/.project

@@ -28,6 +28,8 @@ type mpInPage struct {
 // rootPage is like search paging and second level paging is for each  mapping
 func (s *service) mapFilter(ids []string, idsDomain uint32, mapFilterQuery, page string) (*pbuf.MapFilterResult, error) {
 
+	startTime := time.Now()
+
 	result := pbuf.MapFilterResult{}
 
 	cacheKey := s.mapFilterCacheKey(ids, idsDomain, mapFilterQuery, page)
@@ -78,6 +80,11 @@ startMapping:
 	}
 
 	for _, xref := range inputXrefs {
+
+		if time.Since(startTime).Seconds() > s.mapFilterTimeoutDuration {
+			err := fmt.Errorf("Query time out. Consider reviewing the query or use local version if this is demo version")
+			return nil, err
+		}
 
 		var newpages map[int]*mpPage
 		var finaltargets []*pbuf.Xref
@@ -463,11 +470,6 @@ func (s *service) xrefMapping(queries []query.Query, xref *pbuf.Xref, inPages ma
 	for {
 	start:
 
-		if time.Since(startTime).Seconds() > s.mapFilterTimeoutDuration {
-			err := fmt.Errorf("Query time out. Consider reviewing the query or use local version if this is demo version")
-			return nil, nil, err
-		}
-
 		q := queries[qind]
 
 		if sourceEntries[qind] == nil {
@@ -502,6 +504,11 @@ func (s *service) xrefMapping(queries []query.Query, xref *pbuf.Xref, inPages ma
 					}
 
 				}
+			}
+
+			if time.Since(startTime).Seconds() > s.mapFilterTimeoutDuration {
+				err := fmt.Errorf("Query time out. Consider reviewing the query or use local version if this is demo version")
+				return nil, nil, err
 			}
 
 			//now try next page
@@ -574,6 +581,11 @@ func (s *service) xrefMapping(queries []query.Query, xref *pbuf.Xref, inPages ma
 			}
 
 			if !nextSourceFound {
+
+				if time.Since(startTime).Seconds() > s.mapFilterTimeoutDuration {
+					err := fmt.Errorf("Query time out. Consider reviewing the query or use local version if this is demo version")
+					return nil, nil, err
+				}
 
 				hasNext, err := s.moveNextPage(sourceEntries, sources[qind], inPages, qind, q.MapDatasetID)
 

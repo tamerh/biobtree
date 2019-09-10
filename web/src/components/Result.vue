@@ -289,7 +289,7 @@ export default {
       }
       if (this.app_model.queries[this.selectedQueryIndex].searchTerm.length == 1) {
         this.$notify({
-          group: "xrefmap",
+          group: "appwarn",
           title: "",
           text: "Query must be at least 2 characters"
         });

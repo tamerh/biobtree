@@ -103,7 +103,7 @@
           <br />
           <div class="columns is-gapless">
             <div class="column">
-              <p class="logoColor title is-size-5">Apply chain mappings</p>
+              <p class="logoColor title is-size-5">Apply Chain Mappings</p>
             </div>
           </div>
 
@@ -216,11 +216,8 @@ export default {
   },
   data() {
     return {
-      // searchTerm: 'brca2,tpi1,rs1,homo sapiens,219572,vav_human,tpis_mouse,Q29371,PRJEB3215,NP_005419.2,1.1.1.44,1.11.1.6,GO:0008081,28472374,10.1038/NATURE12211,JP2006507841',
-      //searchTerm: 'UNIREF50_P18031,9606,G8H4L5_9HIV1,',
-      //searchTerm:'ENSACAG00000012216',
-      searchTerm: "vav_human,p53_human",
-      mapFilterTerm: "map(go)",
+      searchTerm: "",
+      mapFilterTerm: "",
       showExample: true,
       aboutActive: false,
       bulkActive: false,
@@ -231,8 +228,8 @@ export default {
       topSearchBoxSize: 70,
       burgerBarActive: false,
       searchPlaceHolder:
-        "Search identifier,accession, hgnc gene symbol or species name seperated by comma",
-      mapFilterPlaceHolder: "Chains of MapFilters e.g map(go).filter(type='biological_process')",
+        "Search identifiers or special keywords like gene name with comma seperated e.g  vav_human,shh",
+      mapFilterPlaceHolder: 'Apply chain MapFilters e.g map(go).filter(go.type=="biological_process")',
       mobile: false,
       nextPageKey: "",
       searchLoading: false,
@@ -290,17 +287,31 @@ export default {
           this.$notify({
             group: "error",
             title: "",
-            text: msg
+            text: msg,
+            duration: 5000
           });
           break;
         case 0:
           this.$notify({
             group: "appwarn",
             title: "",
-            text: msg
+            text: msg,
+            duration: 5000
           });
           break;
+        case 1:
+          this.$notify({
+            group: "success",
+            title: "",
+            text: msg
+          });
         default:
+          this.$notify({
+            group: "appwarn",
+            title: "",
+            text: msg,
+            duration: 5000
+          });
           break;
       }
     },
@@ -343,11 +354,7 @@ export default {
         return false;
       }
       if (this.searchTerm.length == 1) {
-        this.$notify({
-          group: "appwarn",
-          title: "",
-          text: "Query must be at least 2 characters"
-        });
+        this.notifyUser(0, "Query must be at least 2 characters");
         return false;
       }
       return true;
@@ -370,11 +377,7 @@ export default {
         return false;
       }
       if (this.searchTerm.length == 1) {
-        this.$notify({
-          group: "appwarn",
-          title: "",
-          text: "Query must be at least 2 characters"
-        });
+        this.notifyUser(0, "Query must be at least 2 characters");
         return false;
       }
 
@@ -399,11 +402,7 @@ export default {
     },
     popStateChange: function (e) {
 
-      this.$notify({
-        group: "appwarn",
-        title: "",
-        text: "Back button not supported at the moment please click biobtree to go the main page"
-      });
+      this.notifyUser(0, "Back button not supported at the moment please click biobtree to go the main page");
       return;
 
       let search = document.location.search;
@@ -489,11 +488,8 @@ export default {
         this.app_model.resetBoxColors();
       }
 
-      this.$notify({
-        group: "success",
-        title: "",
-        text: "Settings applied."
-      });
+      this.notifyUser(1, "Settings applied.");
+
     },
     useCaseQuery: function (query) {
       this.searchTerm = query;

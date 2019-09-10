@@ -105,11 +105,6 @@ export default {
         return false;
       }
       if (this.app_model.queries[qindex].searchTerm.length == 1) {
-        this.$notify({
-          group: "xrefmap",
-          title: "",
-          text: "Query must be at least 2 characters"
-        });
         return false;
       }
 
@@ -120,7 +115,7 @@ export default {
       if (this.app_model.queries[qindex].searchTerm.startsWith("alias:")) {
         var alias = this.app_model.queries[qindex].searchTerm.split("alias:")[1];
         if (alias.length <= 1) {
-          this.notifyUser(0, "Alias input length must be greater than 1");
+          return false;
         }
         this.mapFilterLoading = true;
         this.$root.$data.fetcher.mapFilter(

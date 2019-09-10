@@ -362,6 +362,7 @@ export default {
           let callback_params = [start, end];
           this.$root.$data.fetcher.searchByFilter(
             sub_result,
+            this.xref_conf[sub_result.domain_id].id,
             this.processFilteredResults4Paging.bind(this),
             callback_params
           );

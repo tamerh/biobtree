@@ -165,7 +165,7 @@ func (web *Web) bulkSearch(w http.ResponseWriter, r *http.Request) {
 			buf.WriteString(string(jb))
 			buf.WriteString("]")
 			w.Write([]byte(buf.String()))
-			w.WriteHeader(http.StatusInternalServerError)
+			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
@@ -214,11 +214,22 @@ func (web *Web) searchFilter(w http.ResponseWriter, r *http.Request) {
 		buf.WriteString(string(jb))
 		buf.WriteString("]")
 		w.Write([]byte(buf.String()))
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	id := r.URL.Query()["i"][0]
+	ids, ok := r.URL.Query()["i"]
+
+	if !ok || len(ids[0]) < 1 {
+		err := fmt.Errorf("i param is missing")
+		errStr := errString{Err: err.Error()}
+		jb, _ := ffjson.Marshal(errStr)
+		buf.WriteString(string(jb))
+		w.Write([]byte(buf.String()))
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
 	fids, ok := r.URL.Query()["f"]
 
 	if !ok || len(fids[0]) < 1 {
@@ -227,7 +238,7 @@ func (web *Web) searchFilter(w http.ResponseWriter, r *http.Request) {
 		jb, _ := ffjson.Marshal(errStr)
 		buf.WriteString(string(jb))
 		w.Write([]byte(buf.String()))
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
@@ -243,7 +254,7 @@ func (web *Web) searchFilter(w http.ResponseWriter, r *http.Request) {
 			jb, _ := ffjson.Marshal(errStr)
 			buf.WriteString(string(jb))
 			w.Write([]byte(buf.String()))
-			w.WriteHeader(http.StatusInternalServerError)
+			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 		filters = append(filters, uint32(filtersrc))
@@ -257,7 +268,7 @@ func (web *Web) searchFilter(w http.ResponseWriter, r *http.Request) {
 		jb, _ := ffjson.Marshal(errStr)
 		buf.WriteString(string(jb))
 		w.Write([]byte(buf.String()))
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
@@ -266,7 +277,7 @@ func (web *Web) searchFilter(w http.ResponseWriter, r *http.Request) {
 		pageInd, _ = strconv.Atoi(r.URL.Query()["last_filter_page"][0])
 	}
 
-	filteredRes, err := web.service.filter(id, src, filters, pageInd)
+	filteredRes, err := web.service.filter(ids[0], src, filters, pageInd)
 
 	if err != nil {
 		buf.WriteString("[")
@@ -275,7 +286,7 @@ func (web *Web) searchFilter(w http.ResponseWriter, r *http.Request) {
 		buf.WriteString(string(jb))
 		buf.WriteString("]")
 		w.Write([]byte(buf.String()))
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
@@ -304,24 +315,45 @@ func (web *Web) entry(w http.ResponseWriter, r *http.Request) {
 		buf.WriteString(string(jb))
 		buf.WriteString("]")
 		w.Write([]byte(buf.String()))
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	// todo add validation
-	id := r.URL.Query()["i"][0]
-	dataset := r.URL.Query()["s"][0]
-	src, ok := config.DataconfIDStringToInt[dataset]
+	ids, ok := r.URL.Query()["i"]
+
+	if !ok || len(ids[0]) < 1 {
+		err := fmt.Errorf("i param is missing")
+		errStr := errString{Err: err.Error()}
+		jb, _ := ffjson.Marshal(errStr)
+		buf.WriteString(string(jb))
+		w.Write([]byte(buf.String()))
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	dataset, ok := r.URL.Query()["s"]
+
+	if !ok || len(dataset[0]) < 1 {
+		err := fmt.Errorf("s param is missing")
+		errStr := errString{Err: err.Error()}
+		jb, _ := ffjson.Marshal(errStr)
+		buf.WriteString(string(jb))
+		w.Write([]byte(buf.String()))
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	src, ok := config.DataconfIDStringToInt[dataset[0]]
 	if !ok {
 		err := fmt.Errorf("invalid s param")
 		errStr := errString{Err: err.Error()}
 		jb, _ := ffjson.Marshal(errStr)
 		buf.WriteString(string(jb))
 		w.Write([]byte(buf.String()))
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	r1, err := web.service.getLmdbResult2(strings.ToUpper(id), src)
+	r1, err := web.service.getLmdbResult2(strings.ToUpper(ids[0]), src)
 
 	if err != nil {
 		buf.WriteString("[")
@@ -330,7 +362,7 @@ func (web *Web) entry(w http.ResponseWriter, r *http.Request) {
 		buf.WriteString(string(jb))
 		buf.WriteString("]")
 		w.Write([]byte(buf.String()))
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
@@ -359,7 +391,7 @@ func (web *Web) searchPage(w http.ResponseWriter, r *http.Request) {
 		buf.WriteString(string(jb))
 		buf.WriteString("]")
 		w.Write([]byte(buf.String()))
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
@@ -372,7 +404,7 @@ func (web *Web) searchPage(w http.ResponseWriter, r *http.Request) {
 		jb, _ := ffjson.Marshal(errStr)
 		buf.WriteString(string(jb))
 		w.Write([]byte(buf.String()))
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
@@ -398,7 +430,6 @@ func (web *Web) searchPage(w http.ResponseWriter, r *http.Request) {
 	buf.WriteString(string(jb))
 	buf.WriteString("]")
 	w.Write([]byte(buf.String()))
-	w.WriteHeader(http.StatusInternalServerError)
 	return
 
 }
@@ -418,7 +449,7 @@ func (web *Web) search(w http.ResponseWriter, r *http.Request) {
 		buf.WriteString(string(jb))
 		buf.WriteString("]")
 		w.Write([]byte(buf.String()))
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
@@ -431,7 +462,7 @@ func (web *Web) search(w http.ResponseWriter, r *http.Request) {
 		jb, _ := ffjson.Marshal(errStr)
 		buf.WriteString(string(jb))
 		w.Write([]byte(buf.String()))
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 	if strings.HasPrefix(qids[0], "alias:") {
@@ -441,7 +472,7 @@ func (web *Web) search(w http.ResponseWriter, r *http.Request) {
 			jb, _ := ffjson.Marshal(errStr)
 			buf.WriteString(string(jb))
 			w.Write([]byte(buf.String()))
-			w.WriteHeader(http.StatusInternalServerError)
+			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 		ids, err = web.service.aliasIDs(qids[0][6:])
@@ -474,7 +505,7 @@ func (web *Web) search(w http.ResponseWriter, r *http.Request) {
 			jb, _ := ffjson.Marshal(errStr)
 			buf.WriteString(string(jb))
 			w.Write([]byte(buf.String()))
-			w.WriteHeader(http.StatusInternalServerError)
+			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
@@ -536,7 +567,7 @@ func (web *Web) mapFilter(w http.ResponseWriter, r *http.Request) {
 		buf.WriteString(string(jb))
 		buf.WriteString("]")
 		w.Write([]byte(buf.String()))
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
@@ -549,7 +580,7 @@ func (web *Web) mapFilter(w http.ResponseWriter, r *http.Request) {
 		jb, _ := ffjson.Marshal(errStr)
 		buf.WriteString(string(jb))
 		w.Write([]byte(buf.String()))
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 	if strings.HasPrefix(qids[0], "alias:") {
@@ -559,7 +590,7 @@ func (web *Web) mapFilter(w http.ResponseWriter, r *http.Request) {
 			jb, _ := ffjson.Marshal(errStr)
 			buf.WriteString(string(jb))
 			w.Write([]byte(buf.String()))
-			w.WriteHeader(http.StatusInternalServerError)
+			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 		ids, err = web.service.aliasIDs(qids[0][6:])
@@ -573,7 +604,7 @@ func (web *Web) mapFilter(w http.ResponseWriter, r *http.Request) {
 		buf.WriteString(`{"Err":"m parameter is required"}`)
 		buf.WriteString("]")
 		w.Write([]byte(buf.String()))
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
@@ -590,7 +621,7 @@ func (web *Web) mapFilter(w http.ResponseWriter, r *http.Request) {
 			jb, _ := ffjson.Marshal(errStr)
 			buf.WriteString(string(jb))
 			w.Write([]byte(buf.String()))
-			w.WriteHeader(http.StatusInternalServerError)
+			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
@@ -608,7 +639,7 @@ func (web *Web) mapFilter(w http.ResponseWriter, r *http.Request) {
 		jb, _ := ffjson.Marshal(errStr)
 		buf.WriteString(string(jb))
 		w.Write([]byte(buf.String()))
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 

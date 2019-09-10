@@ -67,9 +67,8 @@ type Merge struct {
 }
 
 type chunkReader struct {
-	d *Merge
-	//fileName string
-	path     string
+	d        *Merge
+	file     *os.File
 	r        *bufio.Reader
 	curKey   string
 	complete bool
@@ -458,9 +457,10 @@ func (d *Merge) removeFinished() {
 
 		if !d.keepUpdateFiles {
 			for _, ch := range finishedReaders {
-				err := os.Remove(ch.path)
+				ch.file.Close()
+				err := os.Remove(ch.file.Name())
 				if err != nil {
-					panic("Error while deleting processed file")
+					panic(err)
 				}
 			}
 		}
@@ -558,7 +558,7 @@ func (d *Merge) init() {
 				tmprun:   make([]rune, tmpRuneSize),
 				wg:       d.wg,
 				d:        d,
-				path:     path,
+				file:     file,
 			})
 			//todo
 			//defer gz.Close()

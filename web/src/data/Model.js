@@ -61,7 +61,7 @@ export default class XrefModel {
             filter: "",
             edit: false,
             loading: false,
-            attributes: false,
+            attributes: true,
             retrieved: false,
             showDatasets: false,
             selectedDataset: "",

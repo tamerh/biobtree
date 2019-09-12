@@ -308,8 +308,8 @@ export default {
     },
     mapFilter: function () {
       if (this.validQuery2()) {
-        var mUri = "./?s=" + encodeURIComponent(this.searchTerm) + "&m=" + encodeURIComponent(this.mapFilterTerm);
-        history.pushState("", "page", mUri);
+        //var mUri = "./?s=" + encodeURIComponent(this.searchTerm) + "&m=" + encodeURIComponent(this.mapFilterTerm);
+        //history.pushState("", "page", mUri);
         this.mapFilterLoading = true;
         this.mainPageActive = false;
         this.settingsActive = false;
@@ -325,7 +325,7 @@ export default {
     },
     search: function () {
       if (this.validQuery()) {
-        history.pushState("", "page", "./?s=" + encodeURIComponent(this.searchTerm));
+        //history.pushState("", "page", "./?s=" + encodeURIComponent(this.searchTerm));
         this.searchLoading = true;
         this.mainPageActive = false;
         this.settingsActive = false;
@@ -393,7 +393,8 @@ export default {
     },
     popStateChange: function (e) {
 
-      this.notifyUser(0, "Back button not supported at the moment please click biobtree to go the main page");
+      // for now just go to main page.
+      this.goToMain();
       return;
 
       let search = document.location.search;

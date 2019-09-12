@@ -361,6 +361,7 @@ export default {
       return false;
     },
     selectQuery: function (index) {
+      this.app_model.queries[this.selectedQueryIndex].attributes=false;
       this.selectedQueryIndex = index;
       if (this.app_model.queries[index].type == 0) {
         this.$refs.searchComp.selectQuery(this.selectedQueryIndex);

@@ -108,8 +108,8 @@ export default {
         return false;
       }
 
-      var mUri = "./?s=" + encodeURIComponent(this.app_model.queries[qindex].searchTerm) + "&m=" + encodeURIComponent(this.app_model.queries[qindex].mapFilterTerm);
-      history.pushState("", "page", mUri);
+      //var mUri = "./?s=" + encodeURIComponent(this.app_model.queries[qindex].searchTerm) + "&m=" + encodeURIComponent(this.app_model.queries[qindex].mapFilterTerm);
+      //history.pushState("", "page", mUri);
       let callback_params = [qindex, ""];
       this.mapFilterActive = true;
       if (this.app_model.queries[qindex].searchTerm.startsWith("alias:")) {

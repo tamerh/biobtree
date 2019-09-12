@@ -361,13 +361,14 @@ export default {
       return false;
     },
     selectQuery: function (index) {
-      this.app_model.queries[this.selectedQueryIndex].attributes=false;
+      this.app_model.queries[this.selectedQueryIndex].attributes = false;
       this.selectedQueryIndex = index;
       if (this.app_model.queries[index].type == 0) {
         this.$refs.searchComp.selectQuery(this.selectedQueryIndex);
       } else if (this.app_model.queries[index].type == 1) {
         this.$refs.mapFilterComp.selectQuery(this.selectedQueryIndex);
       }
+      this.app_model.queries[this.selectedQueryIndex].attributes = true;
     },
     reset: function () {
       this.selectedQueryIndex = 0;

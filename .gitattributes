@@ -1,3 +1,4 @@
-web/dist/* linguist-vendored=false
-web/public/* linguist-vendored=false
+web/dist/* linguist-vendored
+web/public/* linguist-vendored
 web/dist/* linguist-generated=true
+web/public/* linguist-generated=true

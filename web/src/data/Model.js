@@ -264,7 +264,7 @@ export default class XrefModel {
 
             result.url = domain_conf.url.replace("£{id}", encodeURIComponent(result.identifier.substring(0, result.identifier.indexOf("_"))));
 
-        } else if (domain_conf.id == "ensembl") {
+        } else if (domain_conf.id == "ensembl" || domain_conf.id == "transcript") {
 
             if (result.Attributes.Empty) { // data not indexed
                 result.url = "";

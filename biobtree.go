@@ -20,12 +20,12 @@ import (
 	"github.com/urfave/cli"
 )
 
-const version = "1.1.0-rc3"
-const versionTag = "v1.1.0-rc3"
+const version = "1.1.0-rc4"
+const versionTag = "v1.1.0-rc4"
 
 // for now they are static
-var webuicssfiles = []string{"app.042a53a9.css", "chunk-vendors.1f68ba2f.css"}
-var webuijsfiles = []string{"app.60410bbb.js", "app.60410bbb.js.map", "chunk-vendors.cee4d7e8.js", "chunk-vendors.cee4d7e8.js.map"}
+var webuicssfiles = []string{"app.2d1c9110.css", "chunk-vendors.1f68ba2f.css"}
+var webuijsfiles = []string{"app.d58e3cc2.js", "app.d58e3cc2.js.map", "chunk-vendors.cee4d7e8.js", "chunk-vendors.cee4d7e8.js.map"}
 
 var config *conf.Conf
 

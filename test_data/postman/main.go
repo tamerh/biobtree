@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/url"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/tamerh/jsparser"
@@ -17,15 +18,16 @@ import (
 type queryExample struct {
 	Name           string `json:"name"`
 	Typee          string `json:"type"`
+	Source         string `json:"source"`
 	SearchTerm     string `json:"searchTerm"`
 	MapfFilterTerm string `json:"mapFilterTerm"`
 }
 
-var categories = []string{"protein", "taxonomy", "chembl", "ensembl", "mix"}
+var categories = []string{"mix", "gene", "protein", "chembl", "taxonomy"}
 
 func main() {
 
-	f, err := os.Open("postman_result.json")
+	f, err := os.Open("biobtree_default.postman_test_run.json")
 
 	if err != nil {
 		panic(err)
@@ -46,13 +48,14 @@ func main() {
 			if _, ok := results[category]; !ok {
 				results[category] = []queryExample{}
 			}
-			typee, searchTerm, mapfFilterTerm, ok := getTestParams(json.ObjectVals["url"].StringVal)
+			typee, searchTerm, mapfFilterTerm, source, ok := getTestParams(json.ObjectVals["url"].StringVal)
 			if !ok {
 				continue
 			}
 			newExample := queryExample{
 				Name:           json.ObjectVals["name"].StringVal,
 				Typee:          typee,
+				Source:         source,
 				SearchTerm:     searchTerm,
 				MapfFilterTerm: mapfFilterTerm,
 			}
@@ -61,7 +64,13 @@ func main() {
 		}
 	}
 
-	data, err := json.Marshal(results)
+	sortedresults := map[string][]queryExample{}
+
+	for i, cat := range categories {
+		sortedresults[strconv.Itoa(i)+"_"+cat] = results[cat]
+	}
+
+	data, err := json.Marshal(sortedresults)
 	if err != nil {
 		panic(err)
 	}
@@ -72,7 +81,7 @@ func main() {
 
 }
 
-func getTestParams(urlval string) (string, string, string, bool) {
+func getTestParams(urlval string) (string, string, string, string, bool) {
 
 	u, err := url.Parse(urlval)
 	if err != nil {
@@ -81,13 +90,17 @@ func getTestParams(urlval string) (string, string, string, bool) {
 
 	params := u.Query()
 
-	if len(params.Get("i")) > 0 && len(params.Get("m")) > 0 {
-		return "1", params.Get("i"), params.Get("m"), true
+	if len(params.Get("i")) > 0 && len(params.Get("m")) > 0 && len(params.Get("s")) > 0 {
+		return "1", params.Get("i"), params.Get("m"), params.Get("s"), true
+	} else if len(params.Get("i")) > 0 && len(params.Get("m")) > 0 {
+		return "1", params.Get("i"), params.Get("m"), "", true
+	} else if len(params.Get("i")) > 0 && len(params.Get("s")) > 0 {
+		return "0", params.Get("i"), "", params.Get("s"), true
 	} else if len(params.Get("i")) > 0 {
-		return "0", params.Get("i"), "", true
+		return "0", params.Get("i"), "", "", true
 	}
 
-	return "", "", "", false
+	return "", "", "", "", false
 
 }
 

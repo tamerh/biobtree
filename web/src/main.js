@@ -49,8 +49,7 @@ new Vue({
     template: '<App :xref_conf="this.xref_conf" :app_conf="this.app_conf" :app_model="this.model" :usecases="this.usecases"/>',
     beforeMount() {
         var endpoint = "http://localhost:8888/ws/";
-        //var endpoint = "https://www.ebi.ac.uk/~tgur/xrefmap/api.php?ids=";
-        //var endpoint = "http://----:8888/ws/"
+        //var endpoint = "http://-------:8888/ws/"
 
         this.fetcher = new Fetch(endpoint)
         var request = new XMLHttpRequest();
@@ -59,12 +58,6 @@ new Vue({
 
         if (request.status === 200) {
             this.xref_conf = JSON.parse(request.responseText)
-            // todo this is workaround for now
-            this.xref_conf[2].bacteriaUrl = "http://bacteria.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit"
-            this.xref_conf[2].fungiUrl = "http://fungi.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit"
-            this.xref_conf[2].metazoaUrl = "http://metazoa.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit"
-            this.xref_conf[2].plantsUrl = "http://plants.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit"
-            this.xref_conf[2].protistsUrl = "http://protists.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit"
         }
 
         this.app_conf = AppConf;

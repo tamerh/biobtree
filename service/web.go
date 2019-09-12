@@ -47,25 +47,35 @@ func (web *Web) Start(c *conf.Conf) {
 	var b strings.Builder
 	b.WriteString("{")
 	keymap := map[string]bool{}
+	optionalFields := []string{"bacteriaUrl", "fungiUrl", "metazoaUrl", "plantsUrl", "protistsUr"}
 	for k := range config.Dataconf {
 		if config.Dataconf[k]["_alias"] == "" { // not send the alias
 			id := config.Dataconf[k]["id"]
 			if _, ok := keymap[id]; !ok {
-				b.WriteString("\"" + id + "\":{")
+				b.WriteString(`"` + id + `":{`)
 
 				if len(config.Dataconf[k]["name"]) > 0 {
-					b.WriteString("\"name\":\"" + config.Dataconf[k]["name"] + "\",")
+					b.WriteString(`"name":"` + config.Dataconf[k]["name"] + `",`)
 				} else {
-					b.WriteString("\"name\":\"" + k + "\",")
+					b.WriteString(`"name":"` + k + `",`)
 				}
 
 				if len(config.Dataconf[k]["linkdataset"]) > 0 {
-					b.WriteString("\"linkdataset\":\"" + config.Dataconf[k]["linkdataset"] + "\",")
+					b.WriteString(`"linkdataset":"` + config.Dataconf[k]["linkdataset"] + `",`)
 				}
 
-				b.WriteString("\"id\":\"" + k + "\",")
+				b.WriteString(`"id":"` + k + `",`)
 
-				b.WriteString("\"url\":\"" + config.Dataconf[k]["url"] + "\"},")
+				b.WriteString(`"url":"` + config.Dataconf[k]["url"] + `"`)
+
+				for _, field := range optionalFields {
+					if _, ok := config.Dataconf[k][field]; ok {
+						b.WriteString(`,`)
+						b.WriteString(`"` + field + `":"` + config.Dataconf[k][field] + `"`)
+					}
+				}
+				b.WriteString(`},`)
+
 				keymap[id] = true
 			}
 		}

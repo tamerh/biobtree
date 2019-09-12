@@ -128,7 +128,7 @@
             <div class="column"></div>
           </div>
 
-          <usecase v-on:catusecases="execCatUseCases" v-on:usecase="execUseCase" :usecases="usecases"></usecase>
+          <!-- <usecase v-on:catusecases="execCatUseCases" v-on:usecase="execUseCase" :usecases="usecases"></usecase> -->
           
         </div>
       </div>

@@ -1,2 +1,2 @@
-web/dist/* linguist-vendored
-web/public/* linguist-vendored
+web/dist/* linguist-vendored=false
+web/public/* linguist-vendored=false

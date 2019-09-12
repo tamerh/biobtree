@@ -41,16 +41,7 @@
 
           <div class="navbar-end">
             <a v-show="!mainPageActive" class="navbar-item" @click="goToSettings">Settings</a>
-            <div class="navbar-item">
-              <div class="field is-grouped">
-                <p class="control">
-                  <a class="bd-tw-button button" target="_blank" href="https://github.com/tamerh/biobtree">
-                    <span class="icon"><i class="fab fa-github"></i></span>
-                    <span>Github</span>
-                  </a>
-                </p>
-              </div>
-            </div>
+            <a v-show="!mainPageActive" class="navbar-item" target="_blank" href="https://github.com/tamerh/biobtree"><span class="icon"><i class="fab fa-github"></i></span></a>
           </div>
            </div>
 
@@ -706,7 +697,7 @@ ul.tree li:last-child:before {
 
 .pageTitle {
   color: firebrick;
-  padding: 12px;
+  padding-top: 8px;
 }
 
 .resultTitle {

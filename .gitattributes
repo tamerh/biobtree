@@ -1,2 +1,3 @@
 web/dist/* linguist-vendored=false
 web/public/* linguist-vendored=false
+web/dist/* linguist-generated=true

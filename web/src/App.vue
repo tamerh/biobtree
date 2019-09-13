@@ -556,6 +556,7 @@ export default {
       this.app_conf.page_size = 9;
       this.app_conf.page_size_new = 9;
       this.searchPlaceHolder = "Search";
+      this.mapFilterPlaceHolder = "Apply Mapping";
       this.mobile = true;
     } else if (window.innerWidth <= 1500) {
       this.topSearchBoxSize = 35;

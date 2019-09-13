@@ -117,7 +117,7 @@ export default {
         if (alias.length <= 1) {
           return false;
         }
-        this.mapFilterLoading = true;
+        this.app_model.queries[qindex].loading = true;
         this.$root.$data.fetcher.mapFilter(
           this.app_model.queries[qindex].searchTerm,
           this.app_model.queries[qindex].mapFilterTerm,
@@ -126,7 +126,7 @@ export default {
           this.processMapFilter.bind(this),
           callback_params)
       } else {
-        this.mapFilterLoading = true;
+        this.app_model.queries[qindex].loading = true;
         this.$root.$data.fetcher.mapFilter(
           this.app_model.queries[qindex].searchTerm,
           this.app_model.queries[qindex].mapFilterTerm,

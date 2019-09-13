@@ -19,14 +19,14 @@ steps:
   - task: Bash@3
     inputs:
       targetType: "inline"
-      script: curl -O -J -L $(biobtree_latest_linux) && tar -xzvf biobtree_Linux_64bit.tar.gz && ./biobtree -d hgnc start
+      script: curl -O -J -L $(biobtree_latest_linux) && tar -xzvf biobtree_Linux_64bit.tar.gz && chmod 777 biobtree && ./biobtree -d hgnc update && ./biobtree -d hgnc generate
     condition: eq(variables['imageName'],'ubuntu-16.04')
     displayName: Linux test default datasets
 
   - task: Bash@3
     inputs:
       targetType: "inline"
-      script: curl -O -J -L $(biobtree_latest_mac) && tar -xzvf biobtree_MacOS_64bit.tar.gz && ./biobtree -d hgnc start
+      script: curl -O -J -L $(biobtree_latest_mac) && tar -xzvf biobtree_MacOS_64bit.tar.gz && ./biobtree -d hgnc update && ./biobtree -d hgnc generate
     condition: eq(variables['imageName'],'macos-10.13')
     displayName: MacOS test default datasets
 
@@ -37,7 +37,10 @@ steps:
     condition: eq(variables['imageName'],'windows-2019')
     displayName: Windows download file
 
-  - script: biobtree.exe -d hgnc start
+  - script: biobtree.exe -d hgnc update
     condition: eq(variables['imageName'],'windows-2019')
     displayName: Windows test uniprot_reviewed dataset update
     
+  - script: biobtree.exe generate
+    condition: eq(variables['imageName'],'windows-2019')
+    displayName: Windows test default dataset generate

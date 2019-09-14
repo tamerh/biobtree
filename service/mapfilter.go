@@ -41,7 +41,7 @@ func (s *service) mapFilter(ids []string, idsDomain uint32, mapFilterQuery, page
 			fmt.Println(err)
 			return nil, err
 		}
-		//fmt.Println("Coming from cacheeee")
+
 		return &result, nil
 
 	}
@@ -676,7 +676,7 @@ func (s *service) getEntries(xref *pbuf.Xref, mapDatasetID uint32, mpage *mpPage
 			return source.Entries, nil
 		}
 
-		return xref.Entries[mpage.entryIndex:], nil
+		return source.Entries[mpage.entryIndex:], nil
 
 	}
 

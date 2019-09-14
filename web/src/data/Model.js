@@ -144,8 +144,6 @@ export default class XrefModel {
 
         let resultIndex = queryIndex - this.previousSearchQueryCount(queryIndex);
 
-        console.log("result length-->" + this.all_map_results.length);
-
         if (resp == null) {
             this.app_comp.notifyUser(0, "No mapping found");
             this.all_map_results.splice(resultIndex, 1, []); //stay at the same page
@@ -165,7 +163,6 @@ export default class XrefModel {
             return "";
         }
 
-        console.log("resultIndex-->" + resultIndex)
         this.all_map_results.splice(resultIndex, 1, resp.results); // this way is needed to notify the vue about this change
 
         for (let key in this.all_map_results[resultIndex]) {

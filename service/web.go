@@ -47,7 +47,7 @@ func (web *Web) Start(c *conf.Conf) {
 	var b strings.Builder
 	b.WriteString("{")
 	keymap := map[string]bool{}
-	optionalFields := []string{"bacteriaUrl", "fungiUrl", "metazoaUrl", "plantsUrl", "protistsUr"}
+	optionalFields := []string{"bacteriaUrl", "fungiUrl", "metazoaUrl", "plantsUrl", "protistsUrl"}
 	for k := range config.Dataconf {
 		if config.Dataconf[k]["_alias"] == "" { // not send the alias
 			id := config.Dataconf[k]["id"]

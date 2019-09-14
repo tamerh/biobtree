@@ -280,7 +280,7 @@ export default {
             group: "error",
             title: "",
             text: msg,
-            duration: 5000
+            duration: 4000
           });
           break;
         case 0:
@@ -288,7 +288,7 @@ export default {
             group: "appwarn",
             title: "",
             text: msg,
-            duration: 5000
+            duration: 4000
           });
           break;
         case 1:
@@ -302,7 +302,7 @@ export default {
             group: "appwarn",
             title: "",
             text: msg,
-            duration: 5000
+            duration: 4000
           });
           break;
       }
@@ -363,6 +363,7 @@ export default {
     validQuery2: function () {
       this.searchTerm = this.searchTerm.trim();
       if (this.searchTerm.length == 0) {
+        this.notifyUser(0, "Search term required for mapping");
         return false;
       }
       if (this.searchTerm.length == 1) {
@@ -507,14 +508,7 @@ export default {
     },
     execUseCase: function (usecase) {
 
-      if (usecase.type == 0) {
-        this.searchTerm = usecase.searchTerm;
-        this.search();
-      } else if (usecase.type == 1) {
-        this.searchTerm = usecase.searchTerm;
-        this.mapFilterTerm = usecase.mapFilterTerm;
-        this.mapFilter();
-      }
+      this.execCatUseCases([usecase]);
 
     },
     execCatUseCases: function (catusecases) {

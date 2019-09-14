@@ -46,7 +46,7 @@ new Vue({
     components: {
         App
     },
-    template: '<App :xref_conf="this.xref_conf" :app_conf="this.app_conf" :app_model="this.model" :usecases="this.usecases"/>',
+    template: '<App :xref_conf="this.xref_conf" :app_conf="this.app_conf" :app_model="this.model" :fetcher="this.fetcher" :usecases="this.usecases"/>',
     beforeMount() {
         var endpoint = "http://localhost:8888/ws/";
         //var endpoint = "http://-------:8888/ws/"

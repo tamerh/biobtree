@@ -214,6 +214,8 @@
 import VueJsonPretty from "vue-json-pretty";
 import MapFilter from "./MapFilter.vue";
 import Search from "./Search.vue";
+import Model from '../data/Model.js'
+
 
 export default {
   name: "biobtree-result",
@@ -226,7 +228,7 @@ export default {
       type: Object,
       required: true
     },
-    app_model: {
+    fetcher: {
       type: Object,
       required: true
     },
@@ -242,13 +244,19 @@ export default {
       restUrl: "",
       showUrl: false,
       selectedQueryIndex: 0,
-      options: []
+      options: [],
+      app_model: null
     };
   },
   components: {
     VueJsonPretty,
     "map-filter": MapFilter,
     "search-main": Search,
+  },
+  beforeMount() {
+    this.app_model = new Model(this.fetcher, this.xref_conf, this.app_conf);
+    //set this app to model for event handlings
+    this.app_model.setAppComp(this);
   },
   methods: {
     findDataset: function (query) {
@@ -372,10 +380,21 @@ export default {
     },
     reset: function () {
       this.selectedQueryIndex = 0;
+      this.app_model.reset();
     },
     newSearch() {
       this.app_model.queries[this.selectedQueryIndex].nextPageKey = "";
       this.search();
+    },
+    freshMapFilterQuery: function (searchTerm, mapFilterTerm) {
+      this.selectedQueryIndex = 0;
+      this.$refs.mapFilterComp.reset();
+      this.app_model.freshMapFilterQuery(searchTerm, mapFilterTerm);
+    },
+    freshSearchQuery: function (searchTerm) {
+      this.selectedQueryIndex = 0;
+      this.$refs.searchComp.reset();
+      this.app_model.freshSearchQuery(searchTerm);
     },
     deleteQuery: function (index) {
 
@@ -404,6 +423,30 @@ export default {
       } else {
         this.showExample = true;
       }
+    },
+    resetPaging: function () {
+      this.app_model.resetPaging();
+    },
+    resetBoxColors: function () {
+      this.app_model.resetPaging();
+    },
+    freshUseCaseQueries: function (catusecases) {
+
+      this.selectedQueryIndex = 0;
+      this.$refs.searchComp.reset();
+      this.$refs.mapFilterComp.reset();
+
+      this.app_model.freshUseCaseQueries(catusecases);
+
+      if (this.app_model.queries[0].type == 0) {
+        this.search();
+      } else if (this.app_model.queries[0].type == 1) {
+        this.mapFilter();
+      }
+
+    },
+    notifyUser: function (status, msg) {
+      this.$emit("notifyuser", status, msg);
     }
   }
 };

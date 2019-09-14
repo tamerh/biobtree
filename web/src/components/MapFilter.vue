@@ -150,6 +150,9 @@ export default {
       if (this.app_model.queries[index].searchTerm.length > 0 && this.app_model.queries[index].mapFilterTerm.length > 0 && !this.app_model.queries[index].retrieved) {
         this.mapFilter(index);
       }
+    },
+    reset: function () {
+      this.resultIndex = 0;
     }
   }
 };

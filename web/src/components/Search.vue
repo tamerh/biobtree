@@ -84,6 +84,9 @@ export default {
       if (this.app_model.queries[index].searchTerm.length > 0 && !this.app_model.queries[index].retrieved) {
         this.search(index);
       }
+    },
+    reset: function () {
+      this.resultIndex = 0;
     }
   }
 };

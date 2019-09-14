@@ -148,7 +148,8 @@
           :mobile="mobile"
           :xref_conf="xref_conf"
           :app_conf="app_conf"
-          :app_model="app_model"
+          :fetcher="app_model"
+          v-on:notifyuser="notifyUser"
           ref="resultComp">
       </biobtree-result>
 
@@ -181,6 +182,10 @@ export default {
   name: "App",
   props: {
     app_model: {
+      type: Object,
+      required: true
+    },
+    fetcher: {
       type: Object,
       required: true
     },
@@ -236,7 +241,6 @@ export default {
       this.mainPageActive = true;
       this.bulkActive = false;
       this.resultActive = false;
-      this.app_model.reset();
       this.$refs.resultComp.reset();
       history.pushState("", "page", "./?m");
     },
@@ -246,7 +250,6 @@ export default {
       this.settingsActive = false;
       this.aboutActive = false;
       this.bulkActive = true;
-      this.app_model.reset();
       this.$refs.resultComp.reset();
       history.pushState("", "page", "./?b");
     },
@@ -256,7 +259,6 @@ export default {
       this.settingsActive = false;
       this.aboutActive = true;
       this.bulkActive = false;
-      this.app_model.reset();
       this.$refs.resultComp.reset();
       history.pushState("", "page", "./?a");
     },
@@ -267,7 +269,6 @@ export default {
       this.settingsActive = true;
       this.bulkActive = false;
       this.resultActive = false;
-      this.app_model.reset();
       this.$refs.resultComp.reset();
       history.pushState("", "page", "./?s");
     },
@@ -315,8 +316,7 @@ export default {
         this.settingsActive = false;
         this.aboutActive = false;
         this.bulkActive = false;
-        this.app_model.freshMapFilterQuery(this.searchTerm, this.mapFilterTerm);
-        this.$refs.resultComp.reset();
+        this.$refs.resultComp.freshMapFilterQuery(this.searchTerm, this.mapFilterTerm);
         this.resultActive = true;
         this.$refs.resultComp.mapFilter();
         this.mapFilterLoading = false;
@@ -331,8 +331,7 @@ export default {
         this.settingsActive = false;
         this.aboutActive = false;
         this.bulkActive = false;
-        this.app_model.freshSearchQuery(this.searchTerm);
-        this.$refs.resultComp.reset();
+        this.$refs.resultComp.freshSearchQuery(this.searchTerm);
         this.resultActive = true;
         this.$refs.resultComp.search();
         this.searchLoading = false;
@@ -358,8 +357,7 @@ export default {
     },
     mapNoHistory: function () {
       if (this.validQuery()) {
-        this.app_model.mapFilter(this.searchTerm, this.mapFilterTerm);
-        this.mainPageActive = false;
+        this.mapFilter(this.searchTerm, this.mapFilterTerm);
       }
     },
     validQuery2: function () {
@@ -413,33 +411,33 @@ export default {
         this.bulkActive = false;
       } else if (search === "?m") {
         this.searchTerm = "";
-        this.app_model.reset();
+        this.$refs.resultComp.reset();
         this.mainPageActive = true;
         this.settingsActive = false;
         this.aboutActive = false;
         this.bulkActive = false;
       } else if (search === "?a") {
         this.searchTerm = "";
-        this.app_model.reset();
+        this.$refs.resultComp.reset();
         this.mainPageActive = false;
         this.settingsActive = false;
         this.aboutActive = true;
       } else if (search === "?s") {
         this.searchTerm = "";
-        this.app_model.reset();
+        this.$refs.resultComp.reset();
         this.mainPageActive = false;
         this.settingsActive = true;
         this.aboutActive = false;
         this.bulkActive = false;
       } else if (search === "?b") {
         this.searchTerm = "";
-        this.app_model.reset();
+        this.$refs.resultComp.reset();
         this.settingsActive = false;
         this.aboutActive = false;
         this.bulkActive = true;
       } else {
         this.searchTerm = "";
-        this.app_model.reset();
+        this.$refs.resultComp.reset();
         this.mainPageActive = true;
         this.settingsActive = false;
         this.aboutActive = false;
@@ -450,15 +448,15 @@ export default {
 
       if (new_page_value != this.app_conf.page_size) {
         this.app_conf.page_size = new_page_value;
-        this.app_model.resetPaging();
+        this.$refs.resultComp.resetPaging();
       }
 
       //if(this.app_conf.global_filter_datasets !== this.app_conf.global_filter_datasets_new){
-      this.app_conf.global_filter_datasets = this.app_conf.global_filter_datasets_new;
-      this.app_model.setGlobHasFilter(
-        this.app_conf.global_filter_datasets &&
-        this.app_conf.global_filter_datasets.length > 0
-      );
+      //this.app_conf.global_filter_datasets = this.app_conf.global_filter_datasets_new;
+      //this.app_model.setGlobHasFilter(
+      // this.app_conf.global_filter_datasets &&
+      // this.app_conf.global_filter_datasets.length > 0
+      //);
       //}
 
       let colorChanged = false;
@@ -477,7 +475,7 @@ export default {
       }
 
       if (colorChanged) {
-        this.app_model.resetBoxColors();
+        this.$refs.resultComp.resetBoxColors();
       }
 
       this.notifyUser(1, "Settings applied.");
@@ -530,18 +528,9 @@ export default {
       this.settingsActive = false;
       this.aboutActive = false;
       this.bulkActive = false;
-      this.app_model.freshUseCaseQueries(catusecases);
-      this.$refs.resultComp.reset();
+      this.$refs.resultComp.freshUseCaseQueries(catusecases);
       this.resultActive = true;
-
       history.pushState("", "page", "./?r");
-
-      if (this.app_model.queries[0].type == 0) {
-        this.$refs.resultComp.search();
-      } else if (this.app_model.queries[0].type == 1) {
-        this.$refs.resultComp.mapFilter();
-      }
-
       this.searchLoading = false;
 
     }

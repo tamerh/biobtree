@@ -26,22 +26,25 @@ type Conf struct {
 	DataconfIDStringToInt map[string]uint32
 	DataconfIDToPageKey   map[uint32]string // uniprot -> 1 -> ab
 	FilterableDatasets    map[string]bool
-	confURLPath           string
+	githubRawPath         string
+	githubContentPath     string
 	versionTag            string
-	webuicssfiles         []string
-	webuijsfiles          []string
 }
 
 type gitLatestRelease struct {
 	Tag string `json:"tag_name"`
 }
 
-func (c *Conf) Init(rootDir, versionTag string, webuicssfiles, webuijsfiles []string, optionalDatasetActive bool) {
+type gitContent struct {
+	Name   string `json:"name"`
+	RawURL string `json:"download_url"`
+}
 
-	c.confURLPath = "https://raw.githubusercontent.com/tamerh/biobtree/" + versionTag
+func (c *Conf) Init(rootDir, versionTag string, optionalDatasetActive bool) {
+
+	c.githubRawPath = "https://raw.githubusercontent.com/tamerh/biobtree/" + versionTag
+	c.githubContentPath = "https://api.github.com/repos/tamerh/biobtree/contents/"
 	c.versionTag = versionTag
-	c.webuicssfiles = webuicssfiles
-	c.webuijsfiles = webuijsfiles
 
 	c.checkForNewVersion()
 
@@ -67,14 +70,14 @@ func (c *Conf) Init(rootDir, versionTag string, webuicssfiles, webuijsfiles []st
 		if err != nil {
 			panic("Error while creating conf directory")
 		}
-		downloadFile(c.confURLPath+"/conf/application.param.json", appConfFilePath)
-		downloadFile(c.confURLPath+"/conf/source.dataset.json", sourcedataconfFilePath)
-		downloadFile(c.confURLPath+"/conf/default.dataset.json", defaultDataConfFilePath)
-		downloadFile(c.confURLPath+"/conf/optional.dataset.json", optionalDataConfFilePath)
+		downloadFile(c.githubRawPath+"/conf/application.param.json", appConfFilePath)
+		downloadFile(c.githubRawPath+"/conf/source.dataset.json", sourcedataconfFilePath)
+		downloadFile(c.githubRawPath+"/conf/default.dataset.json", defaultDataConfFilePath)
+		downloadFile(c.githubRawPath+"/conf/optional.dataset.json", optionalDataConfFilePath)
 
-		downloadFile(c.confURLPath+"/LICENSE.md", "LICENSE.md")
-		downloadFile(c.confURLPath+"/LICENSE.lmdbgo.md", "LICENSE.lmdbgo.md")
-		downloadFile(c.confURLPath+"/LICENSE.mdb.md", "LICENSE.mdb.md")
+		downloadFile(c.githubRawPath+"/LICENSE.md", "LICENSE.md")
+		downloadFile(c.githubRawPath+"/LICENSE.lmdbgo.md", "LICENSE.lmdbgo.md")
+		downloadFile(c.githubRawPath+"/LICENSE.mdb.md", "LICENSE.mdb.md")
 
 		log.Println("Files downloaded.")
 	}
@@ -86,28 +89,7 @@ func (c *Conf) Init(rootDir, versionTag string, webuicssfiles, webuijsfiles []st
 	}
 
 	if !exist {
-		log.Println("Downloading web interface files.")
-
-		_ = os.Mkdir("website", 0700)
-
-		jsFolderPath := filepath.FromSlash("website/js")
-		cssFolderPath := filepath.FromSlash("website/css")
-
-		_ = os.Mkdir(jsFolderPath, 0700)
-		for _, file := range c.webuijsfiles {
-			jsFile := filepath.FromSlash(jsFolderPath + "/" + file)
-			downloadFile(c.confURLPath+"/web/dist/js/"+file, jsFile)
-		}
-		_ = os.Mkdir(cssFolderPath, 0700)
-		for _, file := range c.webuicssfiles {
-			cssFile := filepath.FromSlash(cssFolderPath + "/" + file)
-			downloadFile(c.confURLPath+"/web/dist/css/"+file, cssFile)
-		}
-		indexFile := filepath.FromSlash("website/index.html")
-		downloadFile(c.confURLPath+"/web/dist/index.html", indexFile)
-		mysytleFile := filepath.FromSlash("website/mystyles.css")
-		downloadFile(c.confURLPath+"/web/dist/mystyles.css", mysytleFile)
-		log.Println("files downloaded.")
+		c.retrieveWebFiles()
 	}
 
 	appconfFile := filepath.FromSlash(appConfFilePath)
@@ -274,6 +256,58 @@ func (c *Conf) Init(rootDir, versionTag string, webuicssfiles, webuijsfiles []st
 
 }
 
+func (c *Conf) retrieveWebFiles() {
+
+	_ = os.Mkdir("website", 0700)
+
+	log.Println("Downloading web interface files.")
+
+	indexFile := filepath.FromSlash("website/index.html")
+	downloadFile(c.githubRawPath+"/web/dist/index.html", indexFile)
+	mysytleFile := filepath.FromSlash("website/mystyles.css")
+	downloadFile(c.githubRawPath+"/web/dist/mystyles.css", mysytleFile)
+
+	jsFolderPath := filepath.FromSlash("website/js")
+	cssFolderPath := filepath.FromSlash("website/css")
+	_ = os.Mkdir(jsFolderPath, 0700)
+	_ = os.Mkdir(cssFolderPath, 0700)
+
+	jspath := c.githubContentPath + "web/dist/js?ref=" + c.versionTag
+
+	data, err := downloadFileBytes(jspath)
+	if err != nil {
+		panic(err)
+	}
+	jsresults := []gitContent{}
+	if err := json.Unmarshal(data, &jsresults); err != nil {
+		panic(err)
+	}
+
+	for _, content := range jsresults {
+		jsFile := filepath.FromSlash(jsFolderPath + "/" + content.Name)
+		downloadFile(content.RawURL, jsFile)
+	}
+
+	csspath := c.githubContentPath + "web/dist/css?ref=" + c.versionTag
+
+	data, err = downloadFileBytes(csspath)
+	if err != nil {
+		panic(err)
+	}
+	cssresults := []gitContent{}
+	if err := json.Unmarshal(data, &cssresults); err != nil {
+		panic(err)
+	}
+
+	for _, content := range cssresults {
+		cssFile := filepath.FromSlash(cssFolderPath + "/" + content.Name)
+		downloadFile(content.RawURL, cssFile)
+	}
+
+	log.Println("files downloaded.")
+
+}
+
 func (c *Conf) checkForNewVersion() {
 
 	resp, err := http.Get(latestReleasePath)
@@ -324,6 +358,25 @@ func downloadFile(url string, dest string) error {
 
 	err = ioutil.WriteFile(dest, data, 0700)
 	return err
+}
+
+func downloadFileBytes(url string) ([]byte, error) {
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, fmt.Errorf("GET error: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("Status error: %v", resp.StatusCode)
+	}
+
+	data, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("Read body: %v", err)
+	}
+
+	return data, nil
 }
 
 func fileExists(path string) (bool, error) {

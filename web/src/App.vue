@@ -309,7 +309,7 @@ export default {
     mapFilter: function () {
       if (this.validQuery2()) {
         //var mUri = "./?s=" + encodeURIComponent(this.searchTerm) + "&m=" + encodeURIComponent(this.mapFilterTerm);
-        //history.pushState("", "page", mUri);
+        history.pushState("", "page", "./?r");
         this.mapFilterLoading = true;
         this.mainPageActive = false;
         this.settingsActive = false;
@@ -325,7 +325,7 @@ export default {
     },
     search: function () {
       if (this.validQuery()) {
-        //history.pushState("", "page", "./?s=" + encodeURIComponent(this.searchTerm));
+        history.pushState("", "page", "./?r");
         this.searchLoading = true;
         this.mainPageActive = false;
         this.settingsActive = false;
@@ -533,6 +533,8 @@ export default {
       this.app_model.freshUseCaseQueries(catusecases);
       this.$refs.resultComp.reset();
       this.resultActive = true;
+
+      history.pushState("", "page", "./?r");
 
       if (this.app_model.queries[0].type == 0) {
         this.$refs.resultComp.search();

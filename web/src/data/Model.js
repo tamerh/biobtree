@@ -34,9 +34,9 @@ export default class XrefModel {
         for (let i = 0; i < usecases.length; i++) {
             const usecase = usecases[i];
             if (usecase.type == 0) {
-                this.newQuery(0, usecase.searchTerm, "", usecase.name);
+                this.newQuery(0, usecase.searchTerm, "", usecase.name, usecase.source, usecase.source);
             } else if (usecase.type == 1) {
-                this.newQuery(1, usecase.searchTerm, usecase.mapFilterTerm, usecase.name);
+                this.newQuery(1, usecase.searchTerm, usecase.mapFilterTerm, usecase.name, usecase.source, usecase.source);
             }
         }
 
@@ -48,7 +48,16 @@ export default class XrefModel {
         this.queries = [];
     }
 
-    newQuery(type, searchTerm, mapFilterTerm, namee) {
+
+    newQuery(type, searchTerm, mapFilterTerm, namee, source, sourceName) {
+
+        if (!source) {
+            source = "";
+        }
+
+        if (!sourceName) {
+            sourceName = "";
+        }
 
         this.queries.push({
             name: namee,
@@ -64,8 +73,8 @@ export default class XrefModel {
             attributes: true,
             retrieved: false,
             showDatasets: false,
-            selectedDataset: "",
-            selectedDatasetName: ""
+            selectedDataset: source,
+            selectedDatasetName: sourceName
         });
 
         if (type == 1) {

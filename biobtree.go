@@ -23,10 +23,6 @@ import (
 const version = "1.1.0"
 const versionTag = "v1.1.0"
 
-// for now they are static
-var webuicssfiles = []string{"app.71f9271d.css", "chunk-vendors.1f68ba2f.css"}
-var webuijsfiles = []string{"app.425fd86c.js", "app.425fd86c.js.map", "chunk-vendors.cee4d7e8.js", "chunk-vendors.cee4d7e8.js.map"}
-
 var config *conf.Conf
 
 var defaultDataset = "uniprot,go,hgnc,chebi,taxonomy,interpro,ensembl"
@@ -159,7 +155,7 @@ func runAliasCommand(c *cli.Context) error {
 	confdir := c.GlobalString("confdir")
 	includeOptionals := c.GlobalBool("include_optionals")
 	config = &conf.Conf{}
-	config.Init(confdir, versionTag, webuicssfiles, webuijsfiles, includeOptionals)
+	config.Init(confdir, versionTag, includeOptionals)
 
 	var ali = update.Alias{}
 	ali.Merge(config)
@@ -188,7 +184,7 @@ func runUpdateCommand(c *cli.Context) error {
 	includeOptionals := c.GlobalBool("include_optionals")
 
 	config = &conf.Conf{}
-	config.Init(confdir, versionTag, webuicssfiles, webuijsfiles, includeOptionals)
+	config.Init(confdir, versionTag, includeOptionals)
 
 	//var datasets []string
 	//datasetsmap := map[string]bool{}
@@ -269,7 +265,7 @@ func runGenerateCommand(c *cli.Context) error {
 	confdir := c.GlobalString("confdir")
 
 	config = &conf.Conf{}
-	config.Init(confdir, versionTag, webuicssfiles, webuijsfiles, true)
+	config.Init(confdir, versionTag, true)
 
 	cpu := c.GlobalInt(" maxcpu")
 	if cpu > 1 {
@@ -297,7 +293,7 @@ func runWebCommand(c *cli.Context) error {
 	confdir := c.GlobalString("confdir")
 
 	config = &conf.Conf{}
-	config.Init(confdir, versionTag, webuicssfiles, webuijsfiles, true)
+	config.Init(confdir, versionTag, true)
 
 	cpu := c.GlobalInt(" maxcpu")
 	if cpu > 1 {
@@ -316,7 +312,7 @@ func runProfileCommand(c *cli.Context) error {
 	confdir := c.GlobalString("confdir")
 
 	config = &conf.Conf{}
-	config.Init(confdir, versionTag, webuicssfiles, webuijsfiles, true)
+	config.Init(confdir, versionTag, true)
 
 	os.Remove("memprof.out")
 	os.Remove("cpuprof.out")

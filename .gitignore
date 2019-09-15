@@ -22,6 +22,7 @@ notes.txt
 test_data/usecases/*
 test_data/vegeta/input.txt
 test_data/vegeta/results.bin
+test_data/vegeta/*.html
 test_data/postman/*test_run.json
 genomes_ensembl_bacteria.json
 genomes_ensembl.json

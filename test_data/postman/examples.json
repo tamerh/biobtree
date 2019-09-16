@@ -3,7 +3,7 @@
     "name": "mix search identifiers",
     "type": "0",
     "source": "",
-    "searchTerm": "RAG1_HUMAN,ENSMUSG00000023456,GO:0002020,CHEMBL2242,AC020895,hsa:7409",
+    "searchTerm": "RAG1_HUMAN,ENSMUSG00000023456,GO:0002020,CHEMBL2242,AC020895,HMDB0000001,hsa:7409",
     "mapFilterTerm": ""
   }, {
     "name": "mix proteins to go term biological",
@@ -24,11 +24,23 @@
     "searchTerm": "SHH_HUMAN,P53_HUMAN,RAG1_HUMAN,CLOCK_HUMAN,BMAL1_HUMAN,AICDA_HUMAN,AT5G3_HUMAN",
     "mapFilterTerm": "map(interpro).filter(interpro.type==\"Domain\")"
   }, {
-    "name": "mix ensembl human genes to mouse Ortholog genes",
+    "name": "mix species orthologs",
+    "type": "1",
+    "source": "",
+    "searchTerm": "Hyphopichia burtonii NRRL Y-1933",
+    "mapFilterTerm": "map(ensembl).map(ortholog)"
+  }, {
+    "name": "mix ensembl human genes to mouse ortholog genes",
     "type": "1",
     "source": "",
     "searchTerm": "SHH,VAV1,TP53",
     "mapFilterTerm": "filter(ensembl.genome==\"homo_sapiens\").map(ortholog).filter(ensembl.genome==\"mus_musculus\")"
+  }, {
+    "name": "mix symbiodinium gene paralog",
+    "type": "1",
+    "source": "",
+    "searchTerm": "STRG",
+    "mapFilterTerm": "map(paralog)"
   }, {
     "name": "mix kinase activity goterm to hgnc genes",
     "type": "1",
@@ -42,11 +54,17 @@
     "searchTerm": "202763_at,209310_s_at,207500_at",
     "mapFilterTerm": "map(transcript).map(ensembl).filter(ensembl.genome==\"homo_sapiens\").map(hgnc).filter(hgnc.location==\"4q35.1\")"
   }, {
-    "name": "mix crispr cas9 genes by genomes to transcript",
+    "name": "mix ensembl gene non coding transcripts",
+    "type": "1",
+    "source": "",
+    "searchTerm": "ENSG00000141968",
+    "mapFilterTerm": "map(transcript).filter(transcript.biotype !=\"protein_coding\")"
+  }, {
+    "name": "mix streptococcus crispr cas9 genes to protein",
     "type": "1",
     "source": "",
     "searchTerm": "cas9",
-    "mapFilterTerm": "filter(ensembl.genome==\"campylobacter_coli_gca_001717605\").map(transcript)"
+    "mapFilterTerm": "filter(ensembl.genome.contains(\"streptococcus\")).map(uniprot)"
   }, {
     "name": "mix inflammatory bowel disease to chembl molecules phase 3,4",
     "type": "1",
@@ -139,7 +157,7 @@
     "searchTerm": "PMS2,MLH1,MSH2,MSH6,STK11,BMPR1A,SMAD4,BRCA1,BRCA2,TP53,PTEN,PALB2,TSC1,TSC2,FLCN,MET,CDKN2A,RB1",
     "mapFilterTerm": "map(uniprot).filter(uniprot.reviewed).map(go).filter(go.type==\"cellular_component\")"
   }, {
-    "name": "gene ensembl id to transcripts by type",
+    "name": "gene ensembl id to protein coding transcripts",
     "type": "1",
     "source": "",
     "searchTerm": "ENSG00000073910",
@@ -198,12 +216,6 @@
     "source": "",
     "searchTerm": "ENSG00000073910",
     "mapFilterTerm": "map(paralog)"
-  }, {
-    "name": "gene gene to Paralog",
-    "type": "1",
-    "source": "",
-    "searchTerm": "FRY",
-    "mapFilterTerm": "filter(ensembl.genome==\"homo_sapiens\").map(paralog)"
   }, {
     "name": "gene gene name to paralog transcripts",
     "type": "1",
@@ -449,7 +461,7 @@
   }, {
     "name": "chembl cancer related genes to targets",
     "type": "1",
-    "source": "",
+    "source": "hgnc",
     "searchTerm": "PMS2,MLH1,MSH2,MSH6,STK11,BMPR1A,SMAD4,BRCA1,BRCA2,TP53,PTEN,PALB2,TSC1,TSC2,FLCN,MET,CDKN2A,RB1",
     "mapFilterTerm": "map(uniprot).map(chembl_target_component).map(chembl_target)"
   }, {

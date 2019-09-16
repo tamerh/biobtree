@@ -1,3 +1,4 @@
+**/*html linguist-vendored
 web/dist/* linguist-vendored
 web/public/* linguist-vendored
 web/dist/* linguist-generated=true

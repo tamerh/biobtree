@@ -288,7 +288,7 @@ func (s *service) filter(id string, src uint32, filters []uint32, pageInd int) (
 	if pageInd == 0 {
 		for _, f := range rootRes.Entries {
 			for _, filter := range filters {
-				if f.DomainId == filter {
+				if f.Dataset == filter {
 					filtered = append(filtered, f)
 				}
 			}
@@ -300,8 +300,8 @@ func (s *service) filter(id string, src uint32, filters []uint32, pageInd int) (
 			//filteredRes.Identifier = "1"
 			var xrefs = make([]*pbuf.Xref, 1)
 			var xref = pbuf.Xref{}
-			xref.DomainId = src
-			xref.DomainCounts = rootRes.DomainCounts
+			xref.Dataset = src
+			xref.DatasetCounts = rootRes.DatasetCounts
 			xref.Entries = filtered
 			xrefs[0] = &xref
 			filteredRes.Results = xrefs
@@ -314,8 +314,8 @@ func (s *service) filter(id string, src uint32, filters []uint32, pageInd int) (
 	// now we will go throught pages that includes filtered datasets.
 	targetPages := map[string]bool{}
 	for _, f := range filters {
-		if _, ok := rootRes.GetDomainPages()[f]; ok {
-			for _, k := range rootRes.GetDomainPages()[f].Pages {
+		if _, ok := rootRes.GetDatasetPages()[f]; ok {
+			for _, k := range rootRes.GetDatasetPages()[f].Pages {
 				targetPages[k] = true
 			}
 		}
@@ -357,7 +357,7 @@ func (s *service) filter(id string, src uint32, filters []uint32, pageInd int) (
 
 			target = nil
 			for _, e := range r1.Results {
-				if e.DomainId == src {
+				if e.Dataset == src {
 					target = e
 					break
 				}
@@ -366,7 +366,7 @@ func (s *service) filter(id string, src uint32, filters []uint32, pageInd int) (
 			if target != nil {
 				for _, f := range target.Entries {
 					for _, filter := range filters {
-						if f.DomainId == filter {
+						if f.Dataset == filter {
 							filtered = append(filtered, f)
 						}
 					}
@@ -390,8 +390,8 @@ func (s *service) filter(id string, src uint32, filters []uint32, pageInd int) (
 	var filteredRes = pbuf.Result{}
 	var xrefs = make([]*pbuf.Xref, 1)
 	var xref = pbuf.Xref{}
-	xref.DomainId = src
-	xref.DomainCounts = rootRes.DomainCounts
+	xref.Dataset = src
+	xref.DatasetCounts = rootRes.DatasetCounts
 	xref.Entries = filtered
 	xref.Identifier = strconv.Itoa(pageInd)
 	xrefs[0] = &xref
@@ -557,14 +557,14 @@ func (s *service) search(ids []string, idsDomain uint32, page string, q *query.Q
 						linkIndex := 0
 						for _, b := range xref.Entries { //link entries
 
-							xref2, err := s.getLmdbResult2(b.XrefId, b.DomainId)
+							xref2, err := s.getLmdbResult2(b.Identifier, b.Dataset)
 							//s.tobedeleted(xref2)
 
 							if err != nil {
 								return nil, err
 							}
 
-							if idsDomain > 0 && xref2.DomainId != idsDomain {
+							if idsDomain > 0 && xref2.Dataset != idsDomain {
 								continue
 							}
 
@@ -585,24 +585,24 @@ func (s *service) search(ids []string, idsDomain uint32, page string, q *query.Q
 							}
 
 							xref2.Keyword = id
-							xref2.Identifier = b.XrefId
+							xref2.Identifier = b.Identifier
 							if q != nil { // filter xref. It is repetitive can be moved to 1 place
-								q.MapDataset = config.DataconfIDIntToString[xref2.DomainId]
-								q.MapDatasetID = xref2.DomainId
+								q.MapDataset = config.DataconfIDIntToString[xref2.Dataset]
+								q.MapDatasetID = xref2.Dataset
 								if len(q.Filter) > 0 {
 									b, err := s.execCelGo(q, xref2)
 									if err != nil {
 										return nil, err
 									}
 									if b {
-										if _, ok := config.Dataconf[config.DataconfIDIntToString[xref2.DomainId]]["linkdataset"]; !ok {
+										if _, ok := config.Dataconf[config.DataconfIDIntToString[xref2.Dataset]]["linkdataset"]; !ok {
 											xrefs = append(xrefs, xref2)
 											totalResult++
 										}
 									}
 								}
 							} else {
-								if _, ok := config.Dataconf[config.DataconfIDIntToString[xref2.DomainId]]["linkdataset"]; !ok {
+								if _, ok := config.Dataconf[config.DataconfIDIntToString[xref2.Dataset]]["linkdataset"]; !ok {
 									xrefs = append(xrefs, xref2)
 									totalResult++
 								}
@@ -620,7 +620,7 @@ func (s *service) search(ids []string, idsDomain uint32, page string, q *query.Q
 
 						for pageIndex, page := range xref.Pages {
 							pageKey := id + spacestr + config.DataconfIDToPageKey[0] + spacestr + page
-							xrefPage, err := s.getLmdbResult2(pageKey, xref.DomainId)
+							xrefPage, err := s.getLmdbResult2(pageKey, xref.Dataset)
 							if err != nil {
 								return nil, err
 							}
@@ -633,13 +633,13 @@ func (s *service) search(ids []string, idsDomain uint32, page string, q *query.Q
 							linkIndex := 0
 							for _, b := range xrefPage.Entries {
 
-								xref2, err := s.getLmdbResult2(b.XrefId, b.DomainId)
+								xref2, err := s.getLmdbResult2(b.Identifier, b.Dataset)
 								s.tobedeleted(xref2)
 								if err != nil {
 									return nil, err
 								}
 
-								if idsDomain > 0 && xref2.DomainId != idsDomain {
+								if idsDomain > 0 && xref2.Dataset != idsDomain {
 									continue
 								}
 
@@ -664,11 +664,11 @@ func (s *service) search(ids []string, idsDomain uint32, page string, q *query.Q
 								}
 
 								xref2.Keyword = id
-								xref2.Identifier = b.XrefId
+								xref2.Identifier = b.Identifier
 
 								if q != nil {
-									q.MapDataset = config.DataconfIDIntToString[xref2.DomainId]
-									q.MapDatasetID = xref2.DomainId
+									q.MapDataset = config.DataconfIDIntToString[xref2.Dataset]
+									q.MapDatasetID = xref2.Dataset
 									if len(q.Filter) > 0 {
 										b, err := s.execCelGo(q, xref2)
 										if err != nil {
@@ -676,7 +676,7 @@ func (s *service) search(ids []string, idsDomain uint32, page string, q *query.Q
 										}
 										if b {
 
-											if _, ok := config.Dataconf[config.DataconfIDIntToString[xref2.DomainId]]["linkdataset"]; !ok {
+											if _, ok := config.Dataconf[config.DataconfIDIntToString[xref2.Dataset]]["linkdataset"]; !ok {
 												xrefs = append(xrefs, xref2)
 												totalResult++
 											}
@@ -685,7 +685,7 @@ func (s *service) search(ids []string, idsDomain uint32, page string, q *query.Q
 									}
 								} else {
 
-									if _, ok := config.Dataconf[config.DataconfIDIntToString[xref2.DomainId]]["linkdataset"]; !ok {
+									if _, ok := config.Dataconf[config.DataconfIDIntToString[xref2.Dataset]]["linkdataset"]; !ok {
 										xrefs = append(xrefs, xref2)
 										totalResult++
 									}
@@ -697,7 +697,7 @@ func (s *service) search(ids []string, idsDomain uint32, page string, q *query.Q
 					}
 				} else {
 
-					if idsDomain > 0 && xref.DomainId != idsDomain {
+					if idsDomain > 0 && xref.Dataset != idsDomain {
 						continue
 					}
 
@@ -715,8 +715,8 @@ func (s *service) search(ids []string, idsDomain uint32, page string, q *query.Q
 					xref.Identifier = id
 
 					if q != nil {
-						q.MapDataset = config.DataconfIDIntToString[xref.DomainId]
-						q.MapDatasetID = xref.DomainId
+						q.MapDataset = config.DataconfIDIntToString[xref.Dataset]
+						q.MapDatasetID = xref.Dataset
 						if len(q.Filter) > 0 {
 							b, err := s.execCelGo(q, xref)
 							if err != nil {
@@ -729,7 +729,7 @@ func (s *service) search(ids []string, idsDomain uint32, page string, q *query.Q
 						}
 					} else {
 
-						if _, ok := config.Dataconf[config.DataconfIDIntToString[xref.DomainId]]["linkdataset"]; !ok {
+						if _, ok := config.Dataconf[config.DataconfIDIntToString[xref.Dataset]]["linkdataset"]; !ok {
 							xrefs = append(xrefs, xref)
 							totalResult++
 						}
@@ -792,7 +792,7 @@ func (s *service) searchPage(ids []string, page string) (*pbuf.Result, error) {
 					}
 					for linkIndex, b := range xref.Entries {
 
-						xref2, err := s.getLmdbResult2(b.XrefId, b.DomainId)
+						xref2, err := s.getLmdbResult2(b.Identifier, b.Dataset)
 						if err != nil {
 							return nil, err
 						}
@@ -804,7 +804,7 @@ func (s *service) searchPage(ids []string, page string) (*pbuf.Result, error) {
 						}
 
 						xref2.Keyword = id
-						xref2.Identifier = b.XrefId
+						xref2.Identifier = b.Identifier
 						xrefs = append(xrefs, xref2)
 						totalResult++
 					}
@@ -893,7 +893,7 @@ func (s *service) getLmdbResult2(identifier string, domainID uint32) (*pbuf.Xref
 	// in result get target xref result
 	var targetXref *pbuf.Xref
 	for _, xref := range r.Results {
-		if xref.DomainId == domainID {
+		if xref.Dataset == domainID {
 			targetXref = xref
 			targetXref.Identifier = identifier
 			break
@@ -901,9 +901,7 @@ func (s *service) getLmdbResult2(identifier string, domainID uint32) (*pbuf.Xref
 	}
 
 	if targetXref == nil {
-		//remove
-		//fmt.Println("Getting entry failed id ->", identifier, " dataset->", domainID)
-		err := fmt.Errorf("Entry not found identifier %s dataset  %s", identifier, config.DataconfIDIntToString[domainID])
+		err := fmt.Errorf("Entry not found identifier %s dataset  %s. Make sure it is actual identifier not keyword", identifier, config.DataconfIDIntToString[domainID])
 		return nil, err
 	}
 

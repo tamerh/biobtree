@@ -14,7 +14,7 @@
           <td>{{index2+1}}</td>
           <td>
             <template v-if="index2>0">〃</template>
-            <template v-if="index2==0">{{xref_conf[sub_res.source.domain_id].name}} - </template>
+            <template v-if="index2==0">{{xref_conf[sub_res.source.dataset].name}} - </template>
             <template v-if="!app_model.queries[queryIndex].attributes && index2==0 && sub_res.source.keyword && sub_res.source.keyword.length>0">{{sub_res.source.keyword}} - </template>
             <template v-if="!app_model.queries[queryIndex].attributes && index2==0">{{sub_res.source.identifier}}</template>
             <template v-if="app_model.queries[queryIndex].attributes && index2==0">

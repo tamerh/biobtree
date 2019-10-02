@@ -81,7 +81,7 @@ message MapFilter {
 
 message Xref {
 
-  uint32 domain_id = 1;
+  uint32 dataset = 1;
   bool is_link=2;
   //these 2 fields are transient fields not saved to database
   string identifier=3;
@@ -110,8 +110,8 @@ message Xref {
 
   uint32 count =20;
   repeated XrefEntry entries=21;
-  repeated XrefDomainCount domain_counts=22;
-  map<uint32,PageInfo> domainPages=23;
+  repeated XrefDomainCount dataset_counts=22;
+  map<uint32,PageInfo> datasetPages=23;
   repeated string pages=24;
 }
 
@@ -121,14 +121,14 @@ message PageInfo {
 
 message XrefEntry {
 
-  uint32 domain_id = 1;
-  string xref_id = 2;
+  uint32 dataset = 1;
+  string identifier = 2;
 
 }
 
 message XrefDomainCount {
 
-  uint32 domain_id = 1;
+  uint32 dataset = 1;
   uint32 count =2;
 
 }

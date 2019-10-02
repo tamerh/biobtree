@@ -4573,9 +4573,9 @@ func (j *Xref) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 	_ = obj
 	_ = err
 	buf.WriteString(`{ `)
-	if j.DomainId != 0 {
-		buf.WriteString(`"domain_id":`)
-		fflib.FormatBits2(buf, uint64(j.DomainId), 10, false)
+	if j.Dataset != 0 {
+		buf.WriteString(`"dataset":`)
+		fflib.FormatBits2(buf, uint64(j.Dataset), 10, false)
 		buf.WriteByte(',')
 	}
 	if j.IsLink != false {
@@ -4638,11 +4638,11 @@ func (j *Xref) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		}
 		buf.WriteByte(',')
 	}
-	if len(j.DomainCounts) != 0 {
-		buf.WriteString(`"domain_counts":`)
-		if j.DomainCounts != nil {
+	if len(j.DatasetCounts) != 0 {
+		buf.WriteString(`"dataset_counts":`)
+		if j.DatasetCounts != nil {
 			buf.WriteString(`[`)
-			for i, v := range j.DomainCounts {
+			for i, v := range j.DatasetCounts {
 				if i != 0 {
 					buf.WriteString(`,`)
 				}
@@ -4668,10 +4668,10 @@ func (j *Xref) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		}
 		buf.WriteByte(',')
 	}
-	if len(j.DomainPages) != 0 {
+	if len(j.DatasetPages) != 0 {
 		/* Falling back. type=map[uint32]*pbuf.PageInfo kind=map */
-		buf.WriteString(`"domainPages":`)
-		err = buf.Encode(j.DomainPages)
+		buf.WriteString(`"datasetPages":`)
+		err = buf.Encode(j.DatasetPages)
 		if err != nil {
 			return err
 		}
@@ -4702,7 +4702,7 @@ const (
 	ffjtXrefbase = iota
 	ffjtXrefnosuchkey
 
-	ffjtXrefDomainId
+	ffjtXrefDataset
 
 	ffjtXrefIsLink
 
@@ -4716,14 +4716,14 @@ const (
 
 	ffjtXrefEntries
 
-	ffjtXrefDomainCounts
+	ffjtXrefDatasetCounts
 
-	ffjtXrefDomainPages
+	ffjtXrefDatasetPages
 
 	ffjtXrefPages
 )
 
-var ffjKeyXrefDomainId = []byte("domain_id")
+var ffjKeyXrefDataset = []byte("dataset")
 
 var ffjKeyXrefIsLink = []byte("is_link")
 
@@ -4737,9 +4737,9 @@ var ffjKeyXrefCount = []byte("count")
 
 var ffjKeyXrefEntries = []byte("entries")
 
-var ffjKeyXrefDomainCounts = []byte("domain_counts")
+var ffjKeyXrefDatasetCounts = []byte("dataset_counts")
 
-var ffjKeyXrefDomainPages = []byte("domainPages")
+var ffjKeyXrefDatasetPages = []byte("datasetPages")
 
 var ffjKeyXrefPages = []byte("pages")
 
@@ -4822,18 +4822,18 @@ mainparse:
 
 				case 'd':
 
-					if bytes.Equal(ffjKeyXrefDomainId, kn) {
-						currentKey = ffjtXrefDomainId
+					if bytes.Equal(ffjKeyXrefDataset, kn) {
+						currentKey = ffjtXrefDataset
 						state = fflib.FFParse_want_colon
 						goto mainparse
 
-					} else if bytes.Equal(ffjKeyXrefDomainCounts, kn) {
-						currentKey = ffjtXrefDomainCounts
+					} else if bytes.Equal(ffjKeyXrefDatasetCounts, kn) {
+						currentKey = ffjtXrefDatasetCounts
 						state = fflib.FFParse_want_colon
 						goto mainparse
 
-					} else if bytes.Equal(ffjKeyXrefDomainPages, kn) {
-						currentKey = ffjtXrefDomainPages
+					} else if bytes.Equal(ffjKeyXrefDatasetPages, kn) {
+						currentKey = ffjtXrefDatasetPages
 						state = fflib.FFParse_want_colon
 						goto mainparse
 					}
@@ -4883,14 +4883,14 @@ mainparse:
 					goto mainparse
 				}
 
-				if fflib.EqualFoldRight(ffjKeyXrefDomainPages, kn) {
-					currentKey = ffjtXrefDomainPages
+				if fflib.EqualFoldRight(ffjKeyXrefDatasetPages, kn) {
+					currentKey = ffjtXrefDatasetPages
 					state = fflib.FFParse_want_colon
 					goto mainparse
 				}
 
-				if fflib.EqualFoldRight(ffjKeyXrefDomainCounts, kn) {
-					currentKey = ffjtXrefDomainCounts
+				if fflib.EqualFoldRight(ffjKeyXrefDatasetCounts, kn) {
+					currentKey = ffjtXrefDatasetCounts
 					state = fflib.FFParse_want_colon
 					goto mainparse
 				}
@@ -4931,8 +4931,8 @@ mainparse:
 					goto mainparse
 				}
 
-				if fflib.AsciiEqualFold(ffjKeyXrefDomainId, kn) {
-					currentKey = ffjtXrefDomainId
+				if fflib.EqualFoldRight(ffjKeyXrefDataset, kn) {
+					currentKey = ffjtXrefDataset
 					state = fflib.FFParse_want_colon
 					goto mainparse
 				}
@@ -4954,8 +4954,8 @@ mainparse:
 			if tok == fflib.FFTok_left_brace || tok == fflib.FFTok_left_bracket || tok == fflib.FFTok_integer || tok == fflib.FFTok_double || tok == fflib.FFTok_string || tok == fflib.FFTok_bool || tok == fflib.FFTok_null {
 				switch currentKey {
 
-				case ffjtXrefDomainId:
-					goto handle_DomainId
+				case ffjtXrefDataset:
+					goto handle_Dataset
 
 				case ffjtXrefIsLink:
 					goto handle_IsLink
@@ -4975,11 +4975,11 @@ mainparse:
 				case ffjtXrefEntries:
 					goto handle_Entries
 
-				case ffjtXrefDomainCounts:
-					goto handle_DomainCounts
+				case ffjtXrefDatasetCounts:
+					goto handle_DatasetCounts
 
-				case ffjtXrefDomainPages:
-					goto handle_DomainPages
+				case ffjtXrefDatasetPages:
+					goto handle_DatasetPages
 
 				case ffjtXrefPages:
 					goto handle_Pages
@@ -4998,9 +4998,9 @@ mainparse:
 		}
 	}
 
-handle_DomainId:
+handle_Dataset:
 
-	/* handler: j.DomainId type=uint32 kind=uint32 quoted=false*/
+	/* handler: j.Dataset type=uint32 kind=uint32 quoted=false*/
 
 	{
 		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
@@ -5020,7 +5020,7 @@ handle_DomainId:
 				return fs.WrapErr(err)
 			}
 
-			j.DomainId = uint32(tval)
+			j.Dataset = uint32(tval)
 
 		}
 	}
@@ -5239,9 +5239,9 @@ handle_Entries:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
-handle_DomainCounts:
+handle_DatasetCounts:
 
-	/* handler: j.DomainCounts type=[]*pbuf.XrefDomainCount kind=slice quoted=false*/
+	/* handler: j.DatasetCounts type=[]*pbuf.XrefDomainCount kind=slice quoted=false*/
 
 	{
 
@@ -5252,16 +5252,16 @@ handle_DomainCounts:
 		}
 
 		if tok == fflib.FFTok_null {
-			j.DomainCounts = nil
+			j.DatasetCounts = nil
 		} else {
 
-			j.DomainCounts = []*XrefDomainCount{}
+			j.DatasetCounts = []*XrefDomainCount{}
 
 			wantVal := true
 
 			for {
 
-				var tmpJDomainCounts *XrefDomainCount
+				var tmpJDatasetCounts *XrefDomainCount
 
 				tok = fs.Scan()
 				if tok == fflib.FFTok_error {
@@ -5282,20 +5282,20 @@ handle_DomainCounts:
 					wantVal = true
 				}
 
-				/* handler: tmpJDomainCounts type=*pbuf.XrefDomainCount kind=ptr quoted=false*/
+				/* handler: tmpJDatasetCounts type=*pbuf.XrefDomainCount kind=ptr quoted=false*/
 
 				{
 					if tok == fflib.FFTok_null {
 
-						tmpJDomainCounts = nil
+						tmpJDatasetCounts = nil
 
 					} else {
 
-						if tmpJDomainCounts == nil {
-							tmpJDomainCounts = new(XrefDomainCount)
+						if tmpJDatasetCounts == nil {
+							tmpJDatasetCounts = new(XrefDomainCount)
 						}
 
-						err = tmpJDomainCounts.UnmarshalJSONFFLexer(fs, fflib.FFParse_want_key)
+						err = tmpJDatasetCounts.UnmarshalJSONFFLexer(fs, fflib.FFParse_want_key)
 						if err != nil {
 							return err
 						}
@@ -5303,7 +5303,7 @@ handle_DomainCounts:
 					state = fflib.FFParse_after_value
 				}
 
-				j.DomainCounts = append(j.DomainCounts, tmpJDomainCounts)
+				j.DatasetCounts = append(j.DatasetCounts, tmpJDatasetCounts)
 
 				wantVal = false
 			}
@@ -5313,9 +5313,9 @@ handle_DomainCounts:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
-handle_DomainPages:
+handle_DatasetPages:
 
-	/* handler: j.DomainPages type=map[uint32]*pbuf.PageInfo kind=map quoted=false*/
+	/* handler: j.DatasetPages type=map[uint32]*pbuf.PageInfo kind=map quoted=false*/
 
 	{
 
@@ -5326,10 +5326,10 @@ handle_DomainPages:
 		}
 
 		if tok == fflib.FFTok_null {
-			j.DomainPages = nil
+			j.DatasetPages = nil
 		} else {
 
-			j.DomainPages = make(map[uint32]*PageInfo, 0)
+			j.DatasetPages = make(map[uint32]*PageInfo, 0)
 
 			wantVal := true
 
@@ -5337,7 +5337,7 @@ handle_DomainPages:
 
 				var k uint32
 
-				var tmpJDomainPages *PageInfo
+				var tmpJDatasetPages *PageInfo
 
 				tok = fs.Scan()
 				if tok == fflib.FFTok_error {
@@ -5390,20 +5390,20 @@ handle_DomainPages:
 				}
 
 				tok = fs.Scan()
-				/* handler: tmpJDomainPages type=*pbuf.PageInfo kind=ptr quoted=false*/
+				/* handler: tmpJDatasetPages type=*pbuf.PageInfo kind=ptr quoted=false*/
 
 				{
 					if tok == fflib.FFTok_null {
 
-						tmpJDomainPages = nil
+						tmpJDatasetPages = nil
 
 					} else {
 
-						if tmpJDomainPages == nil {
-							tmpJDomainPages = new(PageInfo)
+						if tmpJDatasetPages == nil {
+							tmpJDatasetPages = new(PageInfo)
 						}
 
-						err = tmpJDomainPages.UnmarshalJSONFFLexer(fs, fflib.FFParse_want_key)
+						err = tmpJDatasetPages.UnmarshalJSONFFLexer(fs, fflib.FFParse_want_key)
 						if err != nil {
 							return err
 						}
@@ -5411,7 +5411,7 @@ handle_DomainPages:
 					state = fflib.FFParse_after_value
 				}
 
-				j.DomainPages[k] = tmpJDomainPages
+				j.DatasetPages[k] = tmpJDatasetPages
 
 				wantVal = false
 			}
@@ -5539,9 +5539,9 @@ func (j *XrefDomainCount) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 	_ = obj
 	_ = err
 	buf.WriteString(`{ `)
-	if j.DomainId != 0 {
-		buf.WriteString(`"domain_id":`)
-		fflib.FormatBits2(buf, uint64(j.DomainId), 10, false)
+	if j.Dataset != 0 {
+		buf.WriteString(`"dataset":`)
+		fflib.FormatBits2(buf, uint64(j.Dataset), 10, false)
 		buf.WriteByte(',')
 	}
 	if j.Count != 0 {
@@ -5558,12 +5558,12 @@ const (
 	ffjtXrefDomainCountbase = iota
 	ffjtXrefDomainCountnosuchkey
 
-	ffjtXrefDomainCountDomainId
+	ffjtXrefDomainCountDataset
 
 	ffjtXrefDomainCountCount
 )
 
-var ffjKeyXrefDomainCountDomainId = []byte("domain_id")
+var ffjKeyXrefDomainCountDataset = []byte("dataset")
 
 var ffjKeyXrefDomainCountCount = []byte("count")
 
@@ -5638,8 +5638,8 @@ mainparse:
 
 				case 'd':
 
-					if bytes.Equal(ffjKeyXrefDomainCountDomainId, kn) {
-						currentKey = ffjtXrefDomainCountDomainId
+					if bytes.Equal(ffjKeyXrefDomainCountDataset, kn) {
+						currentKey = ffjtXrefDomainCountDataset
 						state = fflib.FFParse_want_colon
 						goto mainparse
 					}
@@ -5652,8 +5652,8 @@ mainparse:
 					goto mainparse
 				}
 
-				if fflib.AsciiEqualFold(ffjKeyXrefDomainCountDomainId, kn) {
-					currentKey = ffjtXrefDomainCountDomainId
+				if fflib.EqualFoldRight(ffjKeyXrefDomainCountDataset, kn) {
+					currentKey = ffjtXrefDomainCountDataset
 					state = fflib.FFParse_want_colon
 					goto mainparse
 				}
@@ -5675,8 +5675,8 @@ mainparse:
 			if tok == fflib.FFTok_left_brace || tok == fflib.FFTok_left_bracket || tok == fflib.FFTok_integer || tok == fflib.FFTok_double || tok == fflib.FFTok_string || tok == fflib.FFTok_bool || tok == fflib.FFTok_null {
 				switch currentKey {
 
-				case ffjtXrefDomainCountDomainId:
-					goto handle_DomainId
+				case ffjtXrefDomainCountDataset:
+					goto handle_Dataset
 
 				case ffjtXrefDomainCountCount:
 					goto handle_Count
@@ -5695,9 +5695,9 @@ mainparse:
 		}
 	}
 
-handle_DomainId:
+handle_Dataset:
 
-	/* handler: j.DomainId type=uint32 kind=uint32 quoted=false*/
+	/* handler: j.Dataset type=uint32 kind=uint32 quoted=false*/
 
 	{
 		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
@@ -5717,7 +5717,7 @@ handle_DomainId:
 				return fs.WrapErr(err)
 			}
 
-			j.DomainId = uint32(tval)
+			j.Dataset = uint32(tval)
 
 		}
 	}
@@ -5798,14 +5798,14 @@ func (j *XrefEntry) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 	_ = obj
 	_ = err
 	buf.WriteString(`{ `)
-	if j.DomainId != 0 {
-		buf.WriteString(`"domain_id":`)
-		fflib.FormatBits2(buf, uint64(j.DomainId), 10, false)
+	if j.Dataset != 0 {
+		buf.WriteString(`"dataset":`)
+		fflib.FormatBits2(buf, uint64(j.Dataset), 10, false)
 		buf.WriteByte(',')
 	}
-	if len(j.XrefId) != 0 {
-		buf.WriteString(`"xref_id":`)
-		fflib.WriteJsonString(buf, string(j.XrefId))
+	if len(j.Identifier) != 0 {
+		buf.WriteString(`"identifier":`)
+		fflib.WriteJsonString(buf, string(j.Identifier))
 		buf.WriteByte(',')
 	}
 	buf.Rewind(1)
@@ -5817,14 +5817,14 @@ const (
 	ffjtXrefEntrybase = iota
 	ffjtXrefEntrynosuchkey
 
-	ffjtXrefEntryDomainId
+	ffjtXrefEntryDataset
 
-	ffjtXrefEntryXrefId
+	ffjtXrefEntryIdentifier
 )
 
-var ffjKeyXrefEntryDomainId = []byte("domain_id")
+var ffjKeyXrefEntryDataset = []byte("dataset")
 
-var ffjKeyXrefEntryXrefId = []byte("xref_id")
+var ffjKeyXrefEntryIdentifier = []byte("identifier")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *XrefEntry) UnmarshalJSON(input []byte) error {
@@ -5889,30 +5889,30 @@ mainparse:
 
 				case 'd':
 
-					if bytes.Equal(ffjKeyXrefEntryDomainId, kn) {
-						currentKey = ffjtXrefEntryDomainId
+					if bytes.Equal(ffjKeyXrefEntryDataset, kn) {
+						currentKey = ffjtXrefEntryDataset
 						state = fflib.FFParse_want_colon
 						goto mainparse
 					}
 
-				case 'x':
+				case 'i':
 
-					if bytes.Equal(ffjKeyXrefEntryXrefId, kn) {
-						currentKey = ffjtXrefEntryXrefId
+					if bytes.Equal(ffjKeyXrefEntryIdentifier, kn) {
+						currentKey = ffjtXrefEntryIdentifier
 						state = fflib.FFParse_want_colon
 						goto mainparse
 					}
 
 				}
 
-				if fflib.AsciiEqualFold(ffjKeyXrefEntryXrefId, kn) {
-					currentKey = ffjtXrefEntryXrefId
+				if fflib.SimpleLetterEqualFold(ffjKeyXrefEntryIdentifier, kn) {
+					currentKey = ffjtXrefEntryIdentifier
 					state = fflib.FFParse_want_colon
 					goto mainparse
 				}
 
-				if fflib.AsciiEqualFold(ffjKeyXrefEntryDomainId, kn) {
-					currentKey = ffjtXrefEntryDomainId
+				if fflib.EqualFoldRight(ffjKeyXrefEntryDataset, kn) {
+					currentKey = ffjtXrefEntryDataset
 					state = fflib.FFParse_want_colon
 					goto mainparse
 				}
@@ -5934,11 +5934,11 @@ mainparse:
 			if tok == fflib.FFTok_left_brace || tok == fflib.FFTok_left_bracket || tok == fflib.FFTok_integer || tok == fflib.FFTok_double || tok == fflib.FFTok_string || tok == fflib.FFTok_bool || tok == fflib.FFTok_null {
 				switch currentKey {
 
-				case ffjtXrefEntryDomainId:
-					goto handle_DomainId
+				case ffjtXrefEntryDataset:
+					goto handle_Dataset
 
-				case ffjtXrefEntryXrefId:
-					goto handle_XrefId
+				case ffjtXrefEntryIdentifier:
+					goto handle_Identifier
 
 				case ffjtXrefEntrynosuchkey:
 					err = fs.SkipField(tok)
@@ -5954,9 +5954,9 @@ mainparse:
 		}
 	}
 
-handle_DomainId:
+handle_Dataset:
 
-	/* handler: j.DomainId type=uint32 kind=uint32 quoted=false*/
+	/* handler: j.Dataset type=uint32 kind=uint32 quoted=false*/
 
 	{
 		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
@@ -5976,7 +5976,7 @@ handle_DomainId:
 				return fs.WrapErr(err)
 			}
 
-			j.DomainId = uint32(tval)
+			j.Dataset = uint32(tval)
 
 		}
 	}
@@ -5984,9 +5984,9 @@ handle_DomainId:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
-handle_XrefId:
+handle_Identifier:
 
-	/* handler: j.XrefId type=string kind=string quoted=false*/
+	/* handler: j.Identifier type=string kind=string quoted=false*/
 
 	{
 
@@ -6002,7 +6002,7 @@ handle_XrefId:
 
 			outBuf := fs.Output.Bytes()
 
-			j.XrefId = string(string(outBuf))
+			j.Identifier = string(string(outBuf))
 
 		}
 	}

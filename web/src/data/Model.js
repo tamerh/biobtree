@@ -264,7 +264,7 @@ export default class XrefModel {
 
     setEntryUrl(result) {
 
-        let domain_conf = this.xref_conf[result.domain_id];
+        let domain_conf = this.xref_conf[result.dataset];
 
         if (domain_conf.id == "ufeature") {
 
@@ -307,7 +307,7 @@ export default class XrefModel {
 
     prepareFilter(result) {
 
-        let domain_counts = result.domain_counts;
+        let domain_counts = result.dataset_counts;
         //first sort by count
         domain_counts.sort(function (a, b) {
             if (a.count < b.count) return 1;
@@ -318,9 +318,9 @@ export default class XrefModel {
             let domain_count = domain_counts[key3];
             domain_count.selected = true;
             try {
-                domain_count.filterLabel = this.xref_conf[domain_count.domain_id].name + '(' + domain_count.count.toLocaleString() + ')';
+                domain_count.filterLabel = this.xref_conf[domain_count.dataset].name + '(' + domain_count.count.toLocaleString() + ')';
             } catch (e) {
-                domain_count.filterLabel = domain_count.domain_id;
+                domain_count.filterLabel = domain_count.dataset;
             }
         }
 
@@ -335,8 +335,8 @@ export default class XrefModel {
 
         if (result.hasFilter) { //if filter active total count is equal to selected ones
             let filter_total = 0;
-            for (let key in result.domain_counts) {
-                let domain_count = result.domain_counts[key];
+            for (let key in result.dataset_counts) {
+                let domain_count = result.dataset_counts[key];
                 if (domain_count.selected) {
                     filter_total += domain_count.count;
                 }
@@ -369,19 +369,19 @@ export default class XrefModel {
 
             let entry = result.entries[key];
 
-            let domain_conf = this.xref_conf[entry.domain_id];
+            let domain_conf = this.xref_conf[entry.dataset];
             if (domain_conf.trim_after) {
-                entry.url = domain_conf.url.replace("£{id}", encodeURIComponent(entry.xref_id.substring(0, entry.xref_id.indexOf(domain_conf.trim_after))));
+                entry.url = domain_conf.url.replace("£{id}", encodeURIComponent(entry.identifier.substring(0, entry.identifier.indexOf(domain_conf.trim_after))));
             } else {
-                entry.url = domain_conf.url.replace("£{id}", encodeURIComponent(entry.xref_id));
+                entry.url = domain_conf.url.replace("£{id}", encodeURIComponent(entry.identifier));
             }
 
-            if (entry.xref_id.length <= 12) {
-                entry.label = entry.xref_id;
+            if (entry.identifier.length <= 12) {
+                entry.label = entry.identifier;
                 entry.title = '';
             } else {
-                entry.label = entry.xref_id.substring(0, 10) + '...';
-                entry.title = entry.xref_id;
+                entry.label = entry.identifier.substring(0, 10) + '...';
+                entry.title = entry.identifier;
             }
 
             entry.style = {
@@ -404,7 +404,7 @@ export default class XrefModel {
         if (this.hasGlobalFilter) {
 
             let datasets = this.app_conf.global_filter_datasets;
-            let domain_counts = result.domain_counts;
+            let domain_counts = result.dataset_counts;
             //first unselect all 
             for (let key in domain_counts) {
                 domain_counts[key].selected = false;
@@ -414,7 +414,7 @@ export default class XrefModel {
             for (let index = 0; index < datasets.length; index++) {
                 const element = datasets[index];
                 for (let key2 in domain_counts) {
-                    if (domain_counts[key2].domain_id === element.id) {
+                    if (domain_counts[key2].dataset === element.id) {
                         found = true;
                         domain_counts[key2].selected = true;
                     }
@@ -435,7 +435,7 @@ export default class XrefModel {
                 for (var key in domain_counts) {
                     let domain_count = domain_counts[key];
                     if (domain_count.selected) {
-                        filters += domain_count.domain_id + ',';
+                        filters += domain_count.dataset + ',';
                     }
                 }
 
@@ -500,7 +500,7 @@ export default class XrefModel {
             let result = results[key];
             for (let key2 in result.results) {
                 let sub_result = result.results[key2];
-                if (sub_result.identifier === result_org.identifier && sub_result.domain_id === result_org.domain_id) {
+                if (sub_result.identifier === result_org.identifier && sub_result.dataset === result_org.dataset) {
                     // now add all the result entries to existing entries
                     //eclipse issue
                     //sub_result_org.entries.push(...sub_result.entries);

@@ -103,8 +103,8 @@ startMapping:
 				}
 			} else {
 				if _, ok := pages[xref.Identifier]; ok {
-					if _, ok := pages[xref.Identifier][xref.DomainId]; ok {
-						finaltargets, newpages, err = s.xrefMapping(queries, xref, pages[xref.Identifier][xref.DomainId])
+					if _, ok := pages[xref.Identifier][xref.Dataset]; ok {
+						finaltargets, newpages, err = s.xrefMapping(queries, xref, pages[xref.Identifier][xref.Dataset])
 						if err != nil { // todo maybe in this case it should continue??
 							return nil, err
 						}
@@ -126,16 +126,16 @@ startMapping:
 
 		mapfil := pbuf.MapFilter{}
 		xref.Entries = nil
-		xref.DomainCounts = nil
+		xref.DatasetCounts = nil
 		xref.Count = 0
-		xref.DomainPages = nil
+		xref.DatasetPages = nil
 		xref.Pages = nil
 		mapfil.Source = xref
 		for _, tar := range finaltargets {
 			tar.Entries = nil
-			tar.DomainCounts = nil
+			tar.DatasetCounts = nil
 			tar.Count = 0
-			tar.DomainPages = nil
+			tar.DatasetPages = nil
 			tar.Pages = nil
 		}
 		mapfil.Targets = finaltargets
@@ -355,7 +355,7 @@ func (s *service) setResultPaging(source *pbuf.Xref, pages map[int]*mpPage) stri
 	// first source id and domain_id
 	b.WriteString(source.Identifier)
 	b.WriteString(pagingSep2)
-	b.WriteString(strconv.Itoa(int(source.DomainId)))
+	b.WriteString(strconv.Itoa(int(source.Dataset)))
 	b.WriteString(pagingSep2)
 
 	sort.Ints(sorted)
@@ -443,7 +443,7 @@ func (s *service) xrefMapping(queries []query.Query, xref *pbuf.Xref, inPages ma
 		for i := 0; i < len(inPages); i++ {
 
 			if i == 0 {
-				mapDatasetID = xref.DomainId
+				mapDatasetID = xref.Dataset
 			} else {
 				mapDatasetID = queries[i-1].MapDatasetID
 			}
@@ -489,7 +489,7 @@ func (s *service) xrefMapping(queries []query.Query, xref *pbuf.Xref, inPages ma
 
 				inPages[qind].entryIndex++
 
-				if entry.DomainId == q.MapDatasetID {
+				if entry.Dataset == q.MapDatasetID {
 
 					filterRes, target, err := s.applyFilter(entry, &q)
 					if err != nil {
@@ -497,9 +497,9 @@ func (s *service) xrefMapping(queries []query.Query, xref *pbuf.Xref, inPages ma
 					}
 
 					if filterRes {
-						if _, ok := targetkeys[config.DataconfIDIntToString[target.DomainId]+"_"+target.Identifier]; !ok {
+						if _, ok := targetkeys[config.DataconfIDIntToString[target.Dataset]+"_"+target.Identifier]; !ok {
 							targets = append(targets, target)
-							targetkeys[config.DataconfIDIntToString[target.DomainId]+"_"+target.Identifier] = true
+							targetkeys[config.DataconfIDIntToString[target.Dataset]+"_"+target.Identifier] = true
 						}
 					}
 
@@ -554,7 +554,7 @@ func (s *service) xrefMapping(queries []query.Query, xref *pbuf.Xref, inPages ma
 		searchNextSource:
 			nextSourceFound := false
 			for entryIndex, entry := range sourceEntries[qind] {
-				if entry.DomainId == q.MapDatasetID {
+				if entry.Dataset == q.MapDatasetID {
 
 					filterRes, nextsource, err := s.applyFilter(entry, &q)
 
@@ -666,9 +666,9 @@ func (s *service) getEntries(xref *pbuf.Xref, mapDatasetID uint32, mpage *mpPage
 
 	} else {
 
-		page := xref.DomainPages[mapDatasetID].Pages[mpage.page]
-		pageKey := xref.Identifier + spacestr + config.DataconfIDToPageKey[xref.DomainId] + spacestr + page
-		source, err := s.getLmdbResult2(pageKey, xref.DomainId)
+		page := xref.DatasetPages[mapDatasetID].Pages[mpage.page]
+		pageKey := xref.Identifier + spacestr + config.DataconfIDToPageKey[xref.Dataset] + spacestr + page
+		source, err := s.getLmdbResult2(pageKey, xref.Dataset)
 		if err != nil {
 			return nil, err
 		}
@@ -687,7 +687,7 @@ func (s *service) getEntries(xref *pbuf.Xref, mapDatasetID uint32, mpage *mpPage
 func (s *service) moveNextPage(entryMap map[int][]*pbuf.XrefEntry, source *pbuf.Xref, inPages map[int]*mpPage, index int, MapDatasetID uint32) (bool, error) {
 
 	var err error
-	if _, ok := source.DomainPages[MapDatasetID]; ok && inPages[index].page+1 < len(source.DomainPages[MapDatasetID].Pages) {
+	if _, ok := source.DatasetPages[MapDatasetID]; ok && inPages[index].page+1 < len(source.DatasetPages[MapDatasetID].Pages) {
 		inPages[index].page = inPages[index].page + 1
 		inPages[index].entryIndex = 0
 		entryMap[index], err = s.getEntries(source, MapDatasetID, inPages[index])
@@ -707,7 +707,7 @@ func (s *service) moveEntries(sourceEntries map[int][]*pbuf.XrefEntry, source *p
 		sourceEntries[qind] = sourceEntries[qind][entryIndex+1:]
 		inPages[qind].entryIndex = inPages[qind].entryIndex + 1
 	} else {
-		if _, ok := source.DomainPages[MapDatasetID]; ok && inPages[qind].page+1 < len(source.DomainPages[MapDatasetID].Pages) {
+		if _, ok := source.DatasetPages[MapDatasetID]; ok && inPages[qind].page+1 < len(source.DatasetPages[MapDatasetID].Pages) {
 			inPages[qind].page = inPages[qind].page + 1
 			inPages[qind].entryIndex = 0
 			sourceEntries[qind] = nil // because maybe not needed to fill
@@ -720,7 +720,7 @@ func (s *service) moveEntries(sourceEntries map[int][]*pbuf.XrefEntry, source *p
 
 func (s *service) applyFilter(entry *pbuf.XrefEntry, q *query.Query) (bool, *pbuf.Xref, error) {
 
-	target, err := s.getLmdbResult2(entry.XrefId, entry.DomainId)
+	target, err := s.getLmdbResult2(entry.Identifier, entry.Dataset)
 	if err != nil {
 		return false, nil, err
 	}
@@ -746,7 +746,7 @@ func (s *service) execCelGo(query *query.Query, targetXref *pbuf.Xref) (bool, er
 	}
 
 	// look in cache f_ is just differentiate with mapfilter can be better...
-	cacheKey := "f_" + targetXref.Identifier + "_" + strconv.Itoa(int(targetXref.DomainId)) + query.Filter
+	cacheKey := "f_" + targetXref.Identifier + "_" + strconv.Itoa(int(targetXref.Dataset)) + query.Filter
 	if entry, err := s.filterResultCache.Get(cacheKey); err == nil {
 		if entry[0] == '1' {
 			return true, nil

@@ -1,9 +1,9 @@
 <template>
   <li>
     <a
-      :href="xref_conf[""+sel_sub_res.domain_id].url.replace("£{id}",sel_sub_res.identifier)"
+      :href="xref_conf[""+sel_sub_res.dataset].url.replace("£{id}",sel_sub_res.identifier)"
       target="_blank"
-    >{{ xref_conf[""+sel_sub_res.domain_id+""].name}} {{ sel_sub_res.identifier}}</a>
+    >{{ xref_conf[""+sel_sub_res.dataset+""].name}} {{ sel_sub_res.identifier}}</a>
     <ul v-if="sel_sub_res.selectedXrefs.length>0">
       <template v-for="sel_sub_res2 in sel_sub_res.selectedXrefs">
         <tree-view

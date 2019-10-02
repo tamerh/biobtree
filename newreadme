@@ -1,0 +1,20 @@
+
+about 
+
+
+installation...
+
+biobtree executable file for windows,mac and linux can be found under the releases section.
+once it has been downloaded it can be started with following ways.
+
+installing genomes.....
+
+Additional parameters can be explored with 
+biobtree help 
+
+
+
+Integration your data...
+
+if you have a data with large and multi level mappings such as cross references. you can 
+integrate it to the biobtree..

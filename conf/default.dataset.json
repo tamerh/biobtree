@@ -1366,5 +1366,10 @@
     "url": "http://www.ebi.ac.uk/efo/£{id}",
     "linkdataset": "efo",
     "hasFilter": "yes"
+  },
+  "eprotein": {
+    "name": "Ensembl Protein",
+    "id": "294",
+    "url": "https://www.ensembl.org/Multi/Search/Results?q=£{id};site=ensembl_all"
   }
 }

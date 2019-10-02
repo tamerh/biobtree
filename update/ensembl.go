@@ -354,6 +354,7 @@ func (e *ensembl) update() {
 	defer e.d.wg.Done()
 
 	ensemblTranscriptID := config.Dataconf["transcript"]["id"]
+	ensemblProteinID := config.Dataconf["eprotein"]["id"]
 	orthologID := config.Dataconf["ortholog"]["id"]
 	paralogID := config.Dataconf["paralog"]["id"]
 	exonsID := config.Dataconf["exon"]["id"]
@@ -366,7 +367,7 @@ func (e *ensembl) update() {
 
 	// if local file just ignore ftp jsons
 	if config.Dataconf["ensembl"]["useLocalFile"] == "yes" {
-		jsonPaths = nil
+		jsonPaths = map[string][]string{}
 		biomartPaths = nil
 		jsonPaths["local"] = []string{config.Dataconf["ensembl"]["path"]}
 	}
@@ -503,7 +504,7 @@ func (e *ensembl) update() {
 					xref(j, entryid, fr, "PANTHER", "PANTHER")
 					xref(j, entryid, fr, "Reactome", "Reactome")
 					xref(j, entryid, fr, "RNAcentral", "RNAcentral")
-					xref(j, entryid, fr, "Uniprot/SPTREMBL", "uniprot_unreviewed")
+					xref(j, entryid, fr, "Uniprot/SPTREMBL", "uniprot")
 					xref(j, entryid, fr, "protein_id", "EMBL")
 					xref(j, entryid, fr, "KEGG_Enzyme", "KEGG")
 					xref(j, entryid, fr, "EMBL", "EMBL")
@@ -569,6 +570,14 @@ func (e *ensembl) update() {
 								}
 							}
 
+							if val.ObjectVals["translations"] != nil {
+								for _, eprotein := range val.ObjectVals["translations"].ArrayVals {
+									e.d.addXref(tentryid, ensemblTranscriptID, eprotein.ObjectVals["id"].StringVal, "eprotein", false)
+									xref(eprotein, eprotein.ObjectVals["id"].StringVal, ensemblProteinID, "Uniprot/SWISSPROT", "uniprot")
+									xref(eprotein, eprotein.ObjectVals["id"].StringVal, ensemblProteinID, "Uniprot/SPTREMBL", "uniprot")
+								}
+							}
+
 							// store texts
 							xrefProp(val, tentryid, ensemblTranscriptID)
 
@@ -582,7 +591,7 @@ func (e *ensembl) update() {
 							xref(val, tentryid, ensemblTranscriptID, "PANTHER", "PANTHER")
 							xref(val, tentryid, ensemblTranscriptID, "Reactome", "Reactome")
 							xref(val, tentryid, ensemblTranscriptID, "RNAcentral", "RNAcentral")
-							xref(val, tentryid, ensemblTranscriptID, "Uniprot/SPTREMBL", "uniprot_unreviewed")
+							xref(val, tentryid, ensemblTranscriptID, "Uniprot/SPTREMBL", "uniprot")
 							xref(val, tentryid, ensemblTranscriptID, "protein_id", "EMBL")
 							xref(val, tentryid, ensemblTranscriptID, "KEGG_Enzyme", "KEGG")
 							xref(val, tentryid, ensemblTranscriptID, "EMBL", "EMBL")
@@ -617,7 +626,6 @@ func (e *ensembl) update() {
 			if localFile != nil {
 				localFile.Close()
 			}
-			//TODO protein features and translations
 
 			time.Sleep(time.Duration(e.pauseDurationSeconds) * time.Second) // for not to kicked out from ensembl ftp
 		}

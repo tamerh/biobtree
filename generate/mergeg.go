@@ -819,7 +819,7 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 			// this is mostly because of invalid data e.g extra tab or kvmessage broken
 			panic("Error while converting to int16 for domain id->" + k)
 		}
-		xref.DomainId = uint32(did)
+		xref.Dataset = uint32(did)
 
 		if len(*d.protoResBufferPool) < 10 {
 			panic("Very few available proto res array left. Define or increase 'protoBufPoolSize' parameter in configuration file. This will slightly effect of using more memory. Current array size is ->" + strconv.Itoa(d.protoBufferArrLen))
@@ -830,12 +830,12 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 		i := 0
 		for i = 0; i < valIdx[k]; i++ {
 			var xentry = pbuf.XrefEntry{}
-			xentry.XrefId = (*v)[i].value
+			xentry.Identifier = (*v)[i].value
 			d1, err := strconv.ParseInt((*v)[i].valuedb, 10, 16)
 			if err != nil {
 				panic("Error while converting to int16 ->" + (*v)[i].String())
 			}
-			xentry.DomainId = uint32(d1)
+			xentry.Dataset = uint32(d1)
 			entries[i] = &xentry
 		}
 		entriesArr[index] = entries
@@ -843,7 +843,7 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 		if _, ok := kvProp[k]; ok && valPropIdx[k] > 0 { // xref attributes
 
 			// todo think again following 2 switch with interface
-			switch config.DataconfIDIntToString[xref.DomainId] {
+			switch config.DataconfIDIntToString[xref.Dataset] {
 			case "uniprot":
 				attr := &pbuf.UniprotAttr{}
 				barr := []byte((*kvProp[k])[0].value)
@@ -951,7 +951,7 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 			if err != nil {
 				panic("Error while converting to int16 val->" + x + " key->" + id)
 			}
-			xcount.DomainId = uint32(did)
+			xcount.Dataset = uint32(did)
 			xcount.Count = y
 			//d.protoCountResBuffer[j] = &xcount
 			counts[j] = &xcount
@@ -961,7 +961,7 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 		countsArr[index] = counts
 
 		xref.Entries = entries[:i]
-		xref.DomainCounts = counts[:j]
+		xref.DatasetCounts = counts[:j]
 		xref.Count = totalCount
 		d.totalValue = d.totalValue + uint64(totalCount)
 		d.uidIndex++
@@ -997,7 +997,7 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 				sort.Strings(pagesArr)
 				xref.Pages = pagesArr
 			}
-			xref.DomainPages = pageinfoFinal
+			xref.DatasetPages = pageinfoFinal
 		}
 
 		xrefs[index] = &xref
@@ -1041,12 +1041,12 @@ func (d *Merge) toProtoPage(id string, dataset string, v *[]kvMessage, valIdx in
 
 	for i = 0; i < valIdx; i++ {
 		var xentry = pbuf.XrefEntry{}
-		xentry.XrefId = (*v)[i].value
+		xentry.Identifier = (*v)[i].value
 		d1, err := strconv.ParseInt((*v)[i].valuedb, 10, 16)
 		if err != nil {
 			panic("Error while converting to int16 ->" + (*v)[i].valuedb)
 		}
-		xentry.DomainId = uint32(d1)
+		xentry.Dataset = uint32(d1)
 		entries[i] = &xentry
 		totalCount++
 	}
@@ -1058,7 +1058,7 @@ func (d *Merge) toProtoPage(id string, dataset string, v *[]kvMessage, valIdx in
 	if err != nil {
 		panic("Error while converting to int16 ->" + dataset)
 	}
-	xref.DomainId = uint32(did)
+	xref.Dataset = uint32(did)
 	xrefs[0] = &xref
 
 	//	result.Identifier = id

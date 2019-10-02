@@ -6,8 +6,8 @@
       <a
         :href='sub_res.url'
         target='_blank'
-      >{{ xref_conf[""+sub_res.domain_id+""].name}} {{ sub_res.identifier}} {{ sub_res.keyword }}</a>
-      <!-- 		        <a :href='xref_conf[""+sub_res.domain_id].url.replace("£{id}",sub_res.identifier)' target='_blank'><i class="fas fa-external-link-alt fa-1x"></i></a>  -->
+      >{{ xref_conf[""+sub_res.dataset+""].name}} {{ sub_res.identifier}} {{ sub_res.keyword }}</a>
+      <!-- 		        <a :href='xref_conf[""+sub_res.dataset].url.replace("£{id}",sub_res.identifier)' target='_blank'><i class="fas fa-external-link-alt fa-1x"></i></a>  -->
       <a
         class="actionIcon icon"
         title="Remove"
@@ -60,9 +60,9 @@
               :style="entry.style"
             >
               <p>
-                {{ xref_conf[""+entry.domain_id+""].name}}
+                {{ xref_conf[""+entry.dataset+""].name}}
                 <a
-                  @click='selectXref(sub_res.identifier,sub_res.domain_id,entry.xref_id,entry.domain_id,sub_res,entry)'
+                  @click='selectXref(sub_res.identifier,sub_res.dataset,entry.identifier,entry.dataset,sub_res,entry)'
                   v-show="!entry.selected"
                 ><i class="fas fa-plus-circle plusi"></i></a>
               </p>
@@ -74,7 +74,7 @@
               ><small>{{ entry.label }}</small></a>
               </p>
               <p>
-                <!-- 						<a :href='xref_conf[""+entry.domain_id].url.replace("£{id}",entry.xref_id)' -->
+                <!-- 						<a :href='xref_conf[""+entry.dataset].url.replace("£{id}",entry.xref_id)' -->
                 <!-- 						   target='_blank'><i class="fas fa-external-link-alt fa-1x"></i></a> -->
               </p>
             </div>
@@ -107,7 +107,7 @@
           <p class="has-text-centered"><strong>Filter mapped references by dataset</strong> &nbsp; &nbsp; </p>
           <p><a @click="selectAllFilter(sub_res)">Select all</a> &nbsp; <a @click="deSelectAllFilter(sub_res)">Select none</a></p>
           <div class="flex-container2">
-            <div v-for="domain_count in sub_res.domain_counts">
+            <div v-for="domain_count in sub_res.dataset_counts">
               <label class="checkbox">
                 <input
                   type="checkbox"
@@ -162,9 +162,9 @@
         <div class="modal-content box">
           <p><strong>Summary view</strong></p>
           <p class="tree"> <a
-              :href='xref_conf[""+sub_res.domain_id].url.replace("£{id}",sub_res.identifier)'
+              :href='xref_conf[""+sub_res.dataset].url.replace("£{id}",sub_res.identifier)'
               target='_blank'
-            >{{ xref_conf[""+sub_res.domain_id+""].name}} {{ sub_res.identifier}}</a></p>
+            >{{ xref_conf[""+sub_res.dataset+""].name}} {{ sub_res.identifier}}</a></p>
           <ul class="tree">
             <template v-for="sel_sub_res in sub_res.selectedXrefs">
               <tree-view
@@ -298,14 +298,14 @@ export default {
     },
     applyFilter: function (sub_result) {
       this.filterLoading = true;
-      let domain_counts = sub_result.domain_counts;
+      let domain_counts = sub_result.dataset_counts;
       let filters = "";
       let filterSet = new Set();
       for (var key in domain_counts) {
         let domain_count = domain_counts[key];
         if (domain_count.selected) {
-          filters += this.xref_conf[domain_count.domain_id].id + ",";
-          filterSet.add(this.xref_conf[domain_count.domain_id].id);
+          filters += this.xref_conf[domain_count.dataset].id + ",";
+          filterSet.add(this.xref_conf[domain_count.dataset].id);
         }
       }
 
@@ -316,7 +316,7 @@ export default {
         sub_result.hasFilter = true;
         this.$root.$data.fetcher.searchEntry(
           sub_result.identifier,
-          this.xref_conf[sub_result.domain_id].id,
+          this.xref_conf[sub_result.dataset].id,
           this.processResetFilter.bind(this),
           callback_params
         );
@@ -327,7 +327,7 @@ export default {
 
       this.$root.$data.fetcher.searchByFilter(
         sub_result,
-        this.xref_conf[sub_result.domain_id].id,
+        this.xref_conf[sub_result.dataset].id,
         this.processFilteredResults.bind(this),
         callback_params
       );
@@ -362,7 +362,7 @@ export default {
           let callback_params = [start, end];
           this.$root.$data.fetcher.searchByFilter(
             sub_result,
-            this.xref_conf[sub_result.domain_id].id,
+            this.xref_conf[sub_result.dataset].id,
             this.processFilteredResults4Paging.bind(this),
             callback_params
           );
@@ -370,7 +370,7 @@ export default {
           let callback_params = [sub_result, start, end];
           this.$root.$data.fetcher.searchByPageIndex(
             sub_result.identifier,
-            this.xref_conf[sub_result.domain_id].id,
+            this.xref_conf[sub_result.dataset].id,
             sub_result.serverPage,
             sub_result.maxServerPage,
             this.processPagingResults.bind(this),
@@ -396,7 +396,7 @@ export default {
         let s = parent_sub_res.selectedXrefs[key];
         if (
           s.identifier === sub_res.identifier &&
-          s.domain_id === sub_res.domain_id
+          s.dataset === sub_res.dataset
         ) {
           parent_sub_res.selectedXrefs.splice(key, 1);
           break;
@@ -406,8 +406,8 @@ export default {
       for (let key in parent_sub_res.entries) {
         let entry = parent_sub_res.entries[key];
         if (
-          sub_res.identifier === entry.xref_id &&
-          entry.domain_id === sub_res.domain_id
+          sub_res.identifier === entry.identifier &&
+          entry.dataset === sub_res.dataset
         ) {
           entry.selected = false;
           entry.style["background-color"] = this.app_conf.box_color;
@@ -423,15 +423,15 @@ export default {
     },
 
     selectAllFilter(sub_res) {
-      for (let key in sub_res.domain_counts) {
-        let domain_count = sub_res.domain_counts[key];
+      for (let key in sub_res.dataset_counts) {
+        let domain_count = sub_res.dataset_counts[key];
         domain_count.selected = true;
       }
     },
 
     deSelectAllFilter(sub_res) {
-      for (let key in sub_res.domain_counts) {
-        let domain_count = sub_res.domain_counts[key];
+      for (let key in sub_res.dataset_counts) {
+        let domain_count = sub_res.dataset_counts[key];
         domain_count.selected = false;
       }
     }

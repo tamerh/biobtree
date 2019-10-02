@@ -35,7 +35,7 @@ func main() {
 	app := cli.NewApp()
 	app.Name = "biobtree"
 	app.Version = version
-	app.Usage = "A tool to search, map and visualize bioinformatics identifiers and special keywords"
+	app.Usage = "A tool to search and map bioinformatics identifiers and special keywords"
 	app.Copyright = ""
 	app.Authors = []cli.Author{
 		cli.Author{

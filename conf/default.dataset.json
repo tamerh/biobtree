@@ -1371,5 +1371,24 @@
     "name": "Ensembl Protein",
     "id": "294",
     "url": "https://www.ensembl.org/Multi/Search/Results?q=£{id};site=ensembl_all"
+  },
+  "affy_unibasa_gossypiisysyng001a": {
+    "name": "affy_unibasa_gossypiisysyng001a",
+    "id": "295",
+    "url": ""
+  },
+  "ecochild": {
+    "name": "ECO Child",
+    "id": "296",
+    "url": "https://www.ebi.ac.uk/QuickGO/term/£{id}",
+    "linkdataset": "eco",
+    "hasFilter": "yes"
+  },
+  "ecoparent": {
+    "name": "ECO Parent",
+    "id": "297",
+    "url": "https://www.ebi.ac.uk/QuickGO/term/£{id}",
+    "linkdataset": "eco",
+    "hasFilter": "yes"
   }
 }

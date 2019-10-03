@@ -91,7 +91,7 @@ message Xref {
 
     bool empty = 5 ;
     UniprotAttr uniprot=6;
-    GoAttr gontology=7;
+    OntologyAttr ontology=7;
     HgncAttr hgnc= 8;
     InterproAttr interpro= 9;
     EnsemblAttr ensembl= 10;
@@ -104,7 +104,6 @@ message Xref {
     ReactomeAttr reactome= 17;
     ChemblAttr chembl=18;
     UniprotFeatureAttr ufeature=19;
-    EfoAttr efo=25;
 
   }
 

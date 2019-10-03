@@ -2,13 +2,7 @@ syntax = "proto3";
 
 package pbuf;
 
-message GoAttr {
-  string type =1;
-  string name =2;
-  repeated string synonyms=3;
-}
-
-message EfoAttr {
+message OntologyAttr {
   string type =1;
   string name =2;
   repeated string synonyms=3;

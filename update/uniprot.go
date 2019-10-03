@@ -114,6 +114,16 @@ func (u *uniprot) processDbReference(entryid string, r *xmlparser.XMLElement) {
 					u.d.addProp3(v.Attrs["id"], config.Dataconf[v.Attrs["type"]]["id"], b)
 				}
 			}
+		case "GO":
+			u.d.addXref(entryid, u.sourceID, v.Attrs["id"], v.Attrs["type"], false)
+			for _, z := range v.Childs["property"] {
+				switch z.Attrs["type"] {
+				case "evidence":
+					if strings.HasPrefix(z.Attrs["value"], "ECO:") {
+						u.d.addXref(entryid, u.sourceID, z.Attrs["value"], "eco", false)
+					}
+				}
+			}
 		default:
 			u.d.addXref(entryid, u.sourceID, v.Attrs["id"], v.Attrs["type"], false)
 		}

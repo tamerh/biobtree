@@ -40,7 +40,7 @@ type gitContent struct {
 	RawURL string `json:"download_url"`
 }
 
-func (c *Conf) Init(rootDir, versionTag string, optionalDatasetActive bool) {
+func (c *Conf) Init(rootDir, versionTag string, optionalDatasetActive bool, outDir string) {
 
 	c.githubRawPath = "https://raw.githubusercontent.com/tamerh/biobtree/" + versionTag
 	c.githubContentPath = "https://api.github.com/repos/tamerh/biobtree/contents/"
@@ -208,6 +208,9 @@ func (c *Conf) Init(rootDir, versionTag string, optionalDatasetActive bool) {
 		}
 	}
 
+	if len(outDir) > 0 {
+		c.Appconf["outDir"] = outDir
+	}
 	_, ok := c.Appconf["outDir"]
 	if !ok {
 		c.Appconf["outDir"] = c.Appconf["rootDir"] + "out"

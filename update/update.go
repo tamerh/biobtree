@@ -305,13 +305,19 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			break
 		case "go":
 			d.wg.Add(1)
-			g := gontology{source: data, d: d}
+			g := ontology{source: data, d: d, prefixURL: "http://purl.obolibrary.org/obo/", idPrefix: "GO:"}
 			d.datasets2 = append(d.datasets2, data)
 			go g.update()
 			break
 		case "efo":
 			d.wg.Add(1)
-			g := efo{source: data, d: d}
+			g := ontology{source: data, d: d, prefixURL: "http://www.ebi.ac.uk/efo/", idPrefix: "EFO:"}
+			d.datasets2 = append(d.datasets2, data)
+			go g.update()
+			break
+		case "eco":
+			d.wg.Add(1)
+			g := ontology{source: data, d: d, prefixURL: "http://purl.obolibrary.org/obo/", idPrefix: "ECO:"}
 			d.datasets2 = append(d.datasets2, data)
 			go g.update()
 			break

@@ -37,7 +37,15 @@
     "name": "GO",
     "url": "https://www.ebi.ac.uk/QuickGO/term/£{id}",
     "path": "http://purl.obolibrary.org/obo/go.owl",
-    "pathEco": "http://purl.obolibrary.org/obo/eco.owl",
+    "useLocalFile": "no",
+    "hasFilter": "yes"
+  },
+  "eco": {
+    "aliases": "ECO",
+    "id": "23",
+    "name": "ECO",
+    "url": "https://www.ebi.ac.uk/QuickGO/term/£{id}",
+    "path": "http://purl.obolibrary.org/obo/eco.owl",
     "useLocalFile": "no",
     "hasFilter": "yes"
   },

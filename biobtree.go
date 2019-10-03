@@ -25,9 +25,9 @@ const versionTag = "v1.1.1"
 
 var config *conf.Conf
 
-var defaultDataset = "uniprot,go,hgnc,chebi,taxonomy,interpro,ensembl"
+var defaultDataset = "uniprot,go,eco,efo,hgnc,chebi,taxonomy,interpro,ensembl"
 
-//var defaultDataset = "uniprot,go,hgnc,chebi,taxonomy,interpro,hmdb,literature_mappings,chembl,efo"
+//var defaultDataset = "uniprot,go,hgnc,chebi,taxonomy,interpro,hmdb,literature_mappings,chembl"
 //var defaultDataset = "efo"
 
 func main() {
@@ -63,6 +63,10 @@ func main() {
 		cli.StringFlag{
 			Name:  "idx,i",
 			Usage: "for indexing in multiple machine. Set unique number or text for each process. No need to specify for single process",
+		},
+		cli.StringFlag{
+			Name:  "out_dir",
+			Usage: "change the output directory by default it is out folder in the same directory",
 		},
 		cli.StringFlag{
 			Name:   "confdir",
@@ -153,9 +157,10 @@ func runAliasCommand(c *cli.Context) error {
 	log.Println("Alias running...")
 	start := time.Now()
 	confdir := c.GlobalString("confdir")
+	outDir := c.GlobalString("out_dir")
 	includeOptionals := c.GlobalBool("include_optionals")
 	config = &conf.Conf{}
-	config.Init(confdir, versionTag, includeOptionals)
+	config.Init(confdir, versionTag, includeOptionals, outDir)
 
 	var ali = update.Alias{}
 	ali.Merge(config)
@@ -180,11 +185,11 @@ func runUpdateCommand(c *cli.Context) error {
 	start := time.Now()
 
 	confdir := c.GlobalString("confdir")
-
+	outDir := c.GlobalString("out_dir")
 	includeOptionals := c.GlobalBool("include_optionals")
 
 	config = &conf.Conf{}
-	config.Init(confdir, versionTag, includeOptionals)
+	config.Init(confdir, versionTag, includeOptionals, outDir)
 
 	//var datasets []string
 	//datasetsmap := map[string]bool{}
@@ -263,9 +268,10 @@ func runGenerateCommand(c *cli.Context) error {
 	start := time.Now()
 
 	confdir := c.GlobalString("confdir")
+	outDir := c.GlobalString("out_dir")
 
 	config = &conf.Conf{}
-	config.Init(confdir, versionTag, true)
+	config.Init(confdir, versionTag, true, outDir)
 
 	cpu := c.GlobalInt(" maxcpu")
 	if cpu > 1 {
@@ -291,9 +297,9 @@ func runGenerateCommand(c *cli.Context) error {
 func runWebCommand(c *cli.Context) error {
 
 	confdir := c.GlobalString("confdir")
-
+	outDir := c.GlobalString("out_dir")
 	config = &conf.Conf{}
-	config.Init(confdir, versionTag, true)
+	config.Init(confdir, versionTag, true, outDir)
 
 	cpu := c.GlobalInt(" maxcpu")
 	if cpu > 1 {
@@ -310,9 +316,9 @@ func runWebCommand(c *cli.Context) error {
 func runProfileCommand(c *cli.Context) error {
 
 	confdir := c.GlobalString("confdir")
-
+	outDir := c.GlobalString("out_dir")
 	config = &conf.Conf{}
-	config.Init(confdir, versionTag, true)
+	config.Init(confdir, versionTag, true, outDir)
 
 	os.Remove("memprof.out")
 	os.Remove("cpuprof.out")

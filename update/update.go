@@ -228,19 +228,19 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 
 			d.wg.Add(1)
 			e := ensembl{source: "ensembl_metazoa", d: d, branch: pbuf.Ensemblbranch_METAZOA}
-			d.datasets2 = append(d.datasets2, data)
+			//d.datasets2 = append(d.datasets2, data)
 			go e.update()
 			d.wg.Wait()
 
 			d.wg.Add(1)
 			e = ensembl{source: "ensembl_plants", d: d, branch: pbuf.Ensemblbranch_PLANT}
-			d.datasets2 = append(d.datasets2, data)
+			//d.datasets2 = append(d.datasets2, data)
 			go e.update()
 			d.wg.Wait()
 
 			d.wg.Add(1)
 			e = ensembl{source: "ensembl_protists", d: d, branch: pbuf.Ensemblbranch_PROTIST}
-			d.datasets2 = append(d.datasets2, data)
+			//d.datasets2 = append(d.datasets2, data)
 			go e.update()
 			d.wg.Wait()
 
@@ -367,7 +367,7 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 	for i, data := range d.datasets2 {
 		fmt.Print(strconv.Itoa(i)+"-", data, " ")
 	}
-	fmt.Println()
+	fmt.Println("Please wait processing...")
 
 	go d.showProgres()
 
@@ -485,10 +485,28 @@ func (d *DataUpdate) ftpClient(ftpAddr string) *ftp.ServerConn {
 
 func (d *DataUpdate) addEntryStat(source string, total uint64) {
 
-	var entrysize = map[string]uint64{}
+	var entrysize = map[string]interface{}{}
 	entrysize["entrySize"] = total
 	mutex.Lock()
 	d.stats[source] = entrysize
+	mutex.Unlock()
+
+}
+
+func (d *DataUpdate) addMeta(source string, meta map[string]interface{}) {
+
+	mutex.Lock()
+
+	if _, ok := d.stats[source]; ok {
+
+		for k, v := range meta {
+			d.stats[source].(map[string]interface{})[k] = v
+		}
+
+	} else {
+		d.stats[source] = meta
+	}
+
 	mutex.Unlock()
 
 }

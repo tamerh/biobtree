@@ -43,47 +43,7 @@ func (web *Web) Start(c *conf.Conf) {
 	}
 	rpc.Start()
 
-	//setup meta res
-	var b strings.Builder
-	b.WriteString("{")
-	keymap := map[string]bool{}
-	optionalFields := []string{"bacteriaUrl", "fungiUrl", "metazoaUrl", "plantsUrl", "protistsUrl"}
-	for k := range config.Dataconf {
-		if config.Dataconf[k]["_alias"] == "" { // not send the alias
-			id := config.Dataconf[k]["id"]
-			if _, ok := keymap[id]; !ok {
-				b.WriteString(`"` + id + `":{`)
-
-				if len(config.Dataconf[k]["name"]) > 0 {
-					b.WriteString(`"name":"` + config.Dataconf[k]["name"] + `",`)
-				} else {
-					b.WriteString(`"name":"` + k + `",`)
-				}
-
-				if len(config.Dataconf[k]["linkdataset"]) > 0 {
-					b.WriteString(`"linkdataset":"` + config.Dataconf[k]["linkdataset"] + `",`)
-				}
-
-				b.WriteString(`"id":"` + k + `",`)
-
-				b.WriteString(`"url":"` + config.Dataconf[k]["url"] + `"`)
-
-				for _, field := range optionalFields {
-					if _, ok := config.Dataconf[k][field]; ok {
-						b.WriteString(`,`)
-						b.WriteString(`"` + field + `":"` + config.Dataconf[k][field] + `"`)
-					}
-				}
-				b.WriteString(`},`)
-
-				keymap[id] = true
-			}
-		}
-	}
-	s2 := b.String()
-	s2 = s2[:len(s2)-1]
-	s2 = s2 + "}"
-	web.metaRes = []byte(s2)
+	web.initMeta()
 
 	//setup ws and static points
 	searchGz := gziphandler.GzipHandler(http.HandlerFunc(web.search))
@@ -139,6 +99,50 @@ func (web *Web) checkRequest(r *http.Request) error {
 		return fmt.Errorf("Only GET supported")
 	}
 
+}
+
+func (web *Web) initMeta() {
+
+	var b strings.Builder
+	b.WriteString("{")
+	keymap := map[string]bool{}
+	optionalFields := []string{"bacteriaUrl", "fungiUrl", "metazoaUrl", "plantsUrl", "protistsUrl"}
+	for k := range config.Dataconf {
+		if config.Dataconf[k]["_alias"] == "" { // not send the alias
+			id := config.Dataconf[k]["id"]
+			if _, ok := keymap[id]; !ok {
+				b.WriteString(`"` + id + `":{`)
+
+				if len(config.Dataconf[k]["name"]) > 0 {
+					b.WriteString(`"name":"` + config.Dataconf[k]["name"] + `",`)
+				} else {
+					b.WriteString(`"name":"` + k + `",`)
+				}
+
+				if len(config.Dataconf[k]["linkdataset"]) > 0 {
+					b.WriteString(`"linkdataset":"` + config.Dataconf[k]["linkdataset"] + `",`)
+				}
+
+				b.WriteString(`"id":"` + k + `",`)
+
+				b.WriteString(`"url":"` + config.Dataconf[k]["url"] + `"`)
+
+				for _, field := range optionalFields {
+					if _, ok := config.Dataconf[k][field]; ok {
+						b.WriteString(`,`)
+						b.WriteString(`"` + field + `":"` + config.Dataconf[k][field] + `"`)
+					}
+				}
+				b.WriteString(`},`)
+
+				keymap[id] = true
+			}
+		}
+	}
+	s2 := b.String()
+	s2 = s2[:len(s2)-1]
+	s2 = s2 + "}"
+	web.metaRes = []byte(s2)
 }
 
 func (web *Web) meta(w http.ResponseWriter, r *http.Request) {
@@ -283,8 +287,8 @@ func (web *Web) searchFilter(w http.ResponseWriter, r *http.Request) {
 	}
 
 	pageInd := 0
-	if len(r.URL.Query()["last_filter_page"]) > 0 {
-		pageInd, _ = strconv.Atoi(r.URL.Query()["last_filter_page"][0])
+	if len(r.URL.Query()["p"]) > 0 {
+		pageInd, _ = strconv.Atoi(r.URL.Query()["p"][0])
 	}
 
 	filteredRes, err := web.service.filter(ids[0], src, filters, pageInd)

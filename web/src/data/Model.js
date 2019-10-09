@@ -270,7 +270,11 @@ export default class XrefModel {
 
             result.url = domain_conf.url.replace("£{id}", encodeURIComponent(result.identifier.substring(0, result.identifier.indexOf("_"))));
 
-        } else if (domain_conf.id == "ensembl" || domain_conf.id == "transcript") {
+        } else if (domain_conf.id == "variantid") {
+
+            result.url = domain_conf.url.replace("£{id}", encodeURIComponent(result.identifier.toLowerCase()));
+
+        } else if (domain_conf.id == "ensembl" || domain_conf.id == "transcript" || domain_conf.id == "exon") {
 
             if (result.Attributes.Empty) { // data not indexed
                 result.url = "";
@@ -297,6 +301,7 @@ export default class XrefModel {
                     default:
                         break;
                 }
+                result.url = result.url.replace("£{sp}", result.Attributes.Ensembl.genome);
             }
 
         } else {

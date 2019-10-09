@@ -27,7 +27,8 @@ var config *conf.Conf
 
 var defaultDataset = "uniprot,go,eco,efo,hgnc,chebi,taxonomy,interpro,ensembl"
 
-//var defaultDataset = "uniprot,go,hgnc,chebi,taxonomy,interpro,hmdb,literature_mappings,chembl"
+//var defaultDataset = "uniprot,go,eco,efo,hgnc,chebi,taxonomy,interpro,hmdb,literature_mappings,chembl,ensembl"
+
 //var defaultDataset = "efo"
 
 func main() {
@@ -75,7 +76,7 @@ func main() {
 		},
 		cli.BoolFlag{
 			Name:  "keep",
-			Usage: "keep existing updated data. Used during parallel data updates",
+			Usage: "Keep existing updated data",
 		},
 		cli.BoolFlag{
 			Name:  "include_optionals",

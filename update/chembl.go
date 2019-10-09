@@ -378,7 +378,7 @@ func (c *chembl) updateCellline() {
 				attr := pbuf.ChemblAttr{CellLine: &pbuf.ChemblCellLine{Efo: efoid}}
 				b, _ := ffjson.Marshal(attr)
 				c.d.addProp3(id, fr, b)
-				c.d.addXref(id, fr, efoid, "efo", false)
+				c.d.addXref(id, fr, strings.Replace(efoid, "_", ":", 1), "efo", false)
 			case "hasCLO":
 				cloid := c.getChemblID(triple.Obj.String())
 				attr := pbuf.ChemblAttr{CellLine: &pbuf.ChemblCellLine{Clo: cloid}}
@@ -838,11 +838,11 @@ func (c *chembl) updateIndications() {
 				efoid := c.getChemblID(triple.Obj.String())
 				if _, ok := c.indications[id]; ok {
 					ind := c.indications[id]
-					ind.Efo = efoid
+					ind.Efo = strings.Replace(efoid, "_", ":", 1)
 					c.indications[id] = ind
 				} else {
 					ind := pbuf.ChemblIndication{}
-					ind.Efo = efoid
+					ind.Efo = strings.Replace(efoid, "_", ":", 1)
 					c.indications[id] = &ind
 				}
 			case "hasMesh":

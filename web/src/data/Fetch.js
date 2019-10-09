@@ -74,7 +74,7 @@ export default class Fetch {
         let url = this.endpoint + "filter/?i=" + sub_result.identifier + '&s=' + domain_id + '&f=' + sub_result.filters;
 
         if (sub_result.lastFilteredPageKey && sub_result.lastFilteredPageKey.length > 0) {
-            url += "&last_filter_page=" + sub_result.lastFilteredPageKey;
+            url += "&p=" + sub_result.lastFilteredPageKey;
         }
 
         fetch(url)

@@ -53,6 +53,11 @@
     "name": "Exon",
     "id": "39",
     "url": "https://www.ensembl.org/Multi/Search/Results?q=£{id};site=ensembl_all",
+    "bacteriaUrl": "http://bacteria.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
+    "fungiUrl": "http://fungi.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
+    "metazoaUrl": "http://metazoa.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
+    "plantsUrl": "http://plants.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
+    "protistsUrl": "http://protists.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
     "hasFilter": "yes"
   },
   "ortholog": {
@@ -77,7 +82,7 @@
     "fungiUrl": "http://fungi.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
     "metazoaUrl": "http://metazoa.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
     "plantsUrl": "http://plants.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
-    "protistsUr": "http://protists.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
+    "protistsUrl": "http://protists.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
     "hasFilter": "yes"
   },
   "expressionatlas": {

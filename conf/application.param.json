@@ -26,7 +26,7 @@
 	"progressInterval": "5",
 	"maxMappingResult": "75",
 	"maxSearchResult": "10",
-	"mapFilterTimeoutDuration": "60",
+	"mapFilterTimeoutDuration": "120",
 	"cacheMaxEntrySize": "25000",
 	"cacheHardMaxSize": "1024"
 }

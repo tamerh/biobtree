@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "5ba72448-7dbd-4b86-a467-efa4f8caa5eb",
+		"_postman_id": "917f5656-51da-49f0-b801-cf2f0a2ae237",
 		"name": "biobtree_default",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -58,7 +58,7 @@
 									"pm.test(\"Test get ids\", function () {",
 									"    var r = pm.response.json();",
 									"    pm.expect(r.results.length).to.eql(1);",
-									"    pm.expect(r.results[0].domain_id).to.eql(1);",
+									"    pm.expect(r.results[0].dataset).to.eql(1);",
 									"});",
 									""
 								],
@@ -119,7 +119,7 @@
 								"exec": [
 									"pm.test(\"Get entry\", function () {",
 									"    var result = pm.response.json();",
-									"    pm.expect(result[0].domain_id).to.eql(1);",
+									"    pm.expect(result[0].dataset).to.eql(1);",
 									"    pm.expect(result[0].entries.length).to.be.above(30);",
 									"});",
 									""
@@ -189,7 +189,7 @@
 									"    pm.expect(result.length).to.eql(1);",
 									"    pm.expect(result[0].results.length).to.eql(1);",
 									"    pm.expect(result[0].results[0].entries.length).to.be.above(10);",
-									"    pm.expect(result[0].results[0].entries[0].domain_id).to.eql(4);",
+									"    pm.expect(result[0].results[0].entries[0].dataset).to.eql(4);",
 									"    ",
 									"});"
 								],
@@ -241,7 +241,7 @@
 									"    var result = pm.response.json();",
 									"    pm.expect(result.length).to.eql(1);",
 									"    pm.expect(result[0].results.length).to.eql(1);",
-									"    pm.expect(result[0].results[0].domain_id).to.eql(1);",
+									"    pm.expect(result[0].results[0].dataset).to.eql(1);",
 									"    pm.expect(result[0].results[0].count).to.eql(200);",
 									"});"
 								],
@@ -285,7 +285,8 @@
 					},
 					"response": []
 				}
-			]
+			],
+			"protocolProfileBehavior": {}
 		},
 		{
 			"name": "mix",
@@ -301,7 +302,7 @@
 									"pm.test(\"Testgetids\", function () {",
 									"    var r = pm.response.json();",
 									"    pm.expect(r.results.length).to.eql(8);",
-									"    pm.expect(r.results[0].domain_id).to.eql(1);",
+									"    pm.expect(r.results[0].dataset).to.eql(1);",
 									"    pm.expect(r.results[0].identifier).to.eql(\"P15918\");",
 									"",
 									"});",
@@ -382,10 +383,10 @@
 									"    pm.expect(r.results[1].source.identifier).to.eql(\"P04637\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
 									"    pm.expect(r.results[1].targets.length).to.be.above(0);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(4);",
-									"    pm.expect(r.results[1].targets[0].domain_id).to.eql(4);",
-									"    pm.expect(r.results[0].targets[0].Attributes.Gontology.type).to.eql(\"biological_process\");",
-									"    pm.expect(r.results[1].targets[0].Attributes.Gontology.type).to.eql(\"biological_process\");",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(4);",
+									"    pm.expect(r.results[1].targets[0].dataset).to.eql(4);",
+									"    pm.expect(r.results[0].targets[0].Attributes.Ontology.type).to.eql(\"biological_process\");",
+									"    pm.expect(r.results[1].targets[0].Attributes.Ontology.type).to.eql(\"biological_process\");",
 									"    ",
 									"});"
 								],
@@ -633,7 +634,7 @@
 									"    pm.expect(r.results.length).to.eql(1);",
 									"    pm.expect(r.results[0].source.identifier).to.eql(\"GO:0004707\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(9);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(5);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(5);",
 									"    ",
 									"});"
 								],
@@ -801,8 +802,8 @@
 									"    pm.expect(r.results.length).to.eql(1);",
 									"    pm.expect(r.results[0].source.identifier).to.eql(\"EFO_0003767\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(18);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(18);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(18);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(18);",
 									"",
 									"});"
 								],
@@ -875,10 +876,10 @@
 									"    pm.expect(r.results[0].source.identifier).to.eql(\"862507\");",
 									"    pm.expect(r.results[0].targets.length).to.eql(4);",
 									"    ",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(3);",
-									"    pm.expect(r.results[0].targets[1].domain_id).to.eql(3);",
-									"    pm.expect(r.results[0].targets[2].domain_id).to.eql(3);",
-									"    pm.expect(r.results[0].targets[3].domain_id).to.eql(3);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(3);",
+									"    pm.expect(r.results[0].targets[1].dataset).to.eql(3);",
+									"    pm.expect(r.results[0].targets[2].dataset).to.eql(3);",
+									"    pm.expect(r.results[0].targets[3].dataset).to.eql(3);",
 									"    ",
 									"    pm.expect(r.results[0].targets[0].identifier).to.eql(\"135827\");",
 									"    pm.expect(r.results[0].targets[1].identifier).to.eql(\"135828\");",
@@ -919,7 +920,8 @@
 					},
 					"response": []
 				}
-			]
+			],
+			"protocolProfileBehavior": {}
 		},
 		{
 			"name": "gene",
@@ -1994,7 +1996,7 @@
 									"    pm.expect(r.results.length).to.eql(1);",
 									"    pm.expect(r.results[0].source.identifier).to.eql(\"ENSG00000141510\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(5);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(39);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(39);",
 									"    ",
 									"});"
 								],
@@ -2171,7 +2173,7 @@
 									"    pm.expect(r.results.length).to.eql(1);",
 									"    pm.expect(r.results[0].source.identifier).to.eql(\"ENSG00000139618\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(5);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(2);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(2);",
 									"    ",
 									"});"
 								],
@@ -2292,7 +2294,7 @@
 									"    pm.expect(r.results.length).to.eql(1);",
 									"    pm.expect(r.results[0].source.identifier).to.eql(\"ENSG00000073910\");",
 									"    pm.expect(r.results[0].targets.length).to.eql(1);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(2);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(2);",
 									"    pm.expect(r.results[0].targets[0].identifier).to.eql(\"ENSG00000075539\");",
 									"    ",
 									"});"
@@ -2354,7 +2356,7 @@
 									"    pm.expect(r.results.length).to.eql(1);",
 									"    pm.expect(r.results[0].source.identifier).to.eql(\"ENSG00000073910\");",
 									"    pm.expect(r.results[0].targets.length).to.eql(1);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(2);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(2);",
 									"    pm.expect(r.results[0].targets[0].identifier).to.eql(\"ENSG00000075539\");",
 									"    ",
 									"});"
@@ -2416,7 +2418,7 @@
 									"    pm.expect(r.results.length).to.eql(1);",
 									"    pm.expect(r.results[0].source.identifier).to.eql(\"ENSG00000073910\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(5);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(42);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(42);",
 									"    pm.expect(r.results[0].targets[0].identifier).to.eql(\"ENST00000358350\");",
 									"    ",
 									"});"
@@ -2478,7 +2480,7 @@
 									"    pm.expect(r.results.length).to.eql(2);",
 									"    pm.expect(r.results[0].source.identifier).to.eql(\"NM_005359\");",
 									"    pm.expect(r.results[0].targets.length).to.eq(1);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(11);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(11);",
 									"    pm.expect(r.results[0].targets[0].identifier).to.eql(\"IPR013790\");",
 									"    ",
 									"});"
@@ -2540,10 +2542,10 @@
 									"    pm.expect(r.results.length).to.eql(2);",
 									"    pm.expect(r.results[0].source.identifier).to.eql(\"NM_005359\");",
 									"    pm.expect(r.results[0].targets.length).to.eq(3);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(11);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(11);",
 									"    pm.expect(r.results[0].targets[0].identifier).to.eql(\"IPR001132\");",
 									"    pm.expect(r.results[1].targets.length).to.eq(4);",
-									"    pm.expect(r.results[1].targets[0].domain_id).to.eql(11);",
+									"    pm.expect(r.results[1].targets[0].dataset).to.eql(11);",
 									"    pm.expect(r.results[1].targets[0].identifier).to.eql(\"IPR011615\");",
 									"    ",
 									"});"
@@ -2605,7 +2607,7 @@
 									"    pm.expect(r.results.length).to.eql(1);",
 									"    pm.expect(r.results[0].source.identifier).to.eql(\"GO:0004707\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(9);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(2);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(2);",
 									"    ",
 									"});"
 								],
@@ -2663,7 +2665,8 @@
 						]
 					}
 				}
-			]
+			],
+			"protocolProfileBehavior": {}
 		},
 		{
 			"name": "protein",
@@ -2679,9 +2682,9 @@
 									"pm.test(\"Testgetids\", function () {",
 									"    var r = pm.response.json();",
 									"    pm.expect(r.results.length).to.eql(7);",
-									"    pm.expect(r.results[0].domain_id).to.eql(1);",
+									"    pm.expect(r.results[0].dataset).to.eql(1);",
 									"    pm.expect(r.results[0].identifier).to.eql(\"P15918\");",
-									"    pm.expect(r.results[1].domain_id).to.eql(1);",
+									"    pm.expect(r.results[1].dataset).to.eql(1);",
 									"    pm.expect(r.results[1].keyword).to.eql(\"CLOCK_HUMAN\");",
 									"",
 									"});",
@@ -2938,10 +2941,10 @@
 									"    ",
 									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
 									"    pm.expect(r.results[1].targets.length).to.be.above(0);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(4);",
-									"    pm.expect(r.results[1].targets[0].domain_id).to.eql(4);",
-									"    pm.expect(r.results[0].targets[0].Attributes.Gontology.type).to.eql(\"molecular_function\");",
-									"    pm.expect(r.results[1].targets[0].Attributes.Gontology.type).to.eql(\"molecular_function\");",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(4);",
+									"    pm.expect(r.results[1].targets[0].dataset).to.eql(4);",
+									"    pm.expect(r.results[0].targets[0].Attributes.Ontology.type).to.eql(\"molecular_function\");",
+									"    pm.expect(r.results[1].targets[0].Attributes.Ontology.type).to.eql(\"molecular_function\");",
 									"    ",
 									"});"
 								],
@@ -3005,10 +3008,10 @@
 									"    pm.expect(r.results[1].source.identifier).to.eql(\"P04637\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
 									"    pm.expect(r.results[1].targets.length).to.be.above(0);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(4);",
-									"    pm.expect(r.results[1].targets[0].domain_id).to.eql(4);",
-									"    pm.expect(r.results[0].targets[0].Attributes.Gontology.type).to.eql(\"cellular_component\");",
-									"    pm.expect(r.results[1].targets[0].Attributes.Gontology.type).to.eql(\"cellular_component\");",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(4);",
+									"    pm.expect(r.results[1].targets[0].dataset).to.eql(4);",
+									"    pm.expect(r.results[0].targets[0].Attributes.Ontology.type).to.eql(\"cellular_component\");",
+									"    pm.expect(r.results[1].targets[0].Attributes.Ontology.type).to.eql(\"cellular_component\");",
 									"    ",
 									"});"
 								],
@@ -3072,10 +3075,10 @@
 									"    pm.expect(r.results[1].source.identifier).to.eql(\"P04637\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
 									"    pm.expect(r.results[1].targets.length).to.be.above(0);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(4);",
-									"    pm.expect(r.results[1].targets[0].domain_id).to.eql(4);",
-									"    pm.expect(r.results[0].targets[0].Attributes.Gontology.name.includes(\"binding\") || r.results[0].targets[0].Attributes.Gontology.name.includes(\"activity\")).to.be.true;",
-									"     pm.expect(r.results[1].targets[0].Attributes.Gontology.name.includes(\"binding\") || r.results[0].targets[0].Attributes.Gontology.name.includes(\"activity\")).to.be.true;",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(4);",
+									"    pm.expect(r.results[1].targets[0].dataset).to.eql(4);",
+									"    pm.expect(r.results[0].targets[0].Attributes.Ontology.name.includes(\"binding\") || r.results[0].targets[0].Attributes.Gontology.name.includes(\"activity\")).to.be.true;",
+									"     pm.expect(r.results[1].targets[0].Attributes.Ontology.name.includes(\"binding\") || r.results[0].targets[0].Attributes.Gontology.name.includes(\"activity\")).to.be.true;",
 									"});"
 								],
 								"type": "text/javascript"
@@ -3138,10 +3141,10 @@
 									"    pm.expect(r.results[1].source.identifier).to.eql(\"P15918\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
 									"    pm.expect(r.results[1].targets.length).to.be.above(0);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(4);",
-									"    pm.expect(r.results[1].targets[0].domain_id).to.eql(4);",
-									"    pm.expect(r.results[0].targets[0].Attributes.Gontology.name.includes(\"binding\") || r.results[0].targets[0].Attributes.Gontology.name.includes(\"activity\")).to.be.true;",
-									"     pm.expect(r.results[1].targets[0].Attributes.Gontology.name.includes(\"binding\") || r.results[0].targets[0].Attributes.Gontology.name.includes(\"activity\")).to.be.true;",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(4);",
+									"    pm.expect(r.results[1].targets[0].dataset).to.eql(4);",
+									"    pm.expect(r.results[0].targets[0].Attributes.Ontology.name.includes(\"binding\") || r.results[0].targets[0].Attributes.Gontology.name.includes(\"activity\")).to.be.true;",
+									"     pm.expect(r.results[1].targets[0].Attributes.Ontology.name.includes(\"binding\") || r.results[0].targets[0].Attributes.Gontology.name.includes(\"activity\")).to.be.true;",
 									"});"
 								],
 								"type": "text/javascript"
@@ -3264,8 +3267,8 @@
 									"    pm.expect(r.results[1].source.identifier).to.eql(\"P04637\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
 									"    pm.expect(r.results[1].targets.length).to.be.above(0);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(38);",
-									"    pm.expect(r.results[1].targets[0].domain_id).to.eql(38);  ",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(38);",
+									"    pm.expect(r.results[1].targets[0].dataset).to.eql(38);  ",
 									"});"
 								],
 								"type": "text/javascript"
@@ -3328,8 +3331,8 @@
 									"    pm.expect(r.results[1].source.identifier).to.eql(\"P04637\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
 									"    pm.expect(r.results[1].targets.length).to.be.above(0);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(38);",
-									"    pm.expect(r.results[1].targets[0].domain_id).to.eql(38);  ",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(38);",
+									"    pm.expect(r.results[1].targets[0].dataset).to.eql(38);  ",
 									"});"
 								],
 								"type": "text/javascript"
@@ -3392,8 +3395,8 @@
 									"    pm.expect(r.results[1].source.identifier).to.eql(\"O15516\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
 									"    pm.expect(r.results[1].targets.length).to.be.above(0);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(66);",
-									"    pm.expect(r.results[1].targets[0].domain_id).to.eql(66);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(66);",
+									"    pm.expect(r.results[1].targets[0].dataset).to.eql(66);",
 									"});"
 								],
 								"type": "text/javascript"
@@ -3519,7 +3522,7 @@
 									"    pm.expect(r.results[0].source.keyword).to.eql(\"SHH_HUMAN\");",
 									"    pm.expect(r.results[0].source.identifier).to.eql(\"Q15465\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(72);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(72);",
 									"    ",
 									"});"
 								],
@@ -3583,8 +3586,8 @@
 									"    pm.expect(r.results[1].source.identifier).to.eql(\"P04637\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
 									"    pm.expect(r.results[1].targets.length).to.be.above(0);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(72);",
-									"    pm.expect(r.results[1].targets[0].domain_id).to.eql(72);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(72);",
+									"    pm.expect(r.results[1].targets[0].dataset).to.eql(72);",
 									"    ",
 									"});"
 								],
@@ -3645,7 +3648,7 @@
 									"    pm.expect(r.results[0].source.keyword).to.eql(\"HER2\");",
 									"    pm.expect(r.results[0].source.identifier).to.eql(\"HGNC:3430\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(72);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(72);",
 									"",
 									"});"
 								],
@@ -3708,7 +3711,7 @@
 									"    pm.expect(r.results[1].source.keyword).to.eql(\"P53_HUMAN\");",
 									"    pm.expect(r.results[1].source.identifier).to.eql(\"P04637\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(72);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(72);",
 									"    pm.expect(r.results[0].targets[0].Attributes.Ufeature.location.end<300).to.be.true;",
 									"    pm.expect(r.results[1].targets[0].Attributes.Ufeature.location.end<300).to.be.true;",
 									"    ",
@@ -3771,7 +3774,7 @@
 									"    pm.expect(r.results[0].source.keyword).to.eql(\"P53_HUMAN\");",
 									"    pm.expect(r.results[0].source.identifier).to.eql(\"P04637\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(72);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(72);",
 									"    ",
 									"});"
 								],
@@ -3832,7 +3835,7 @@
 									"    pm.expect(r.results[0].source.keyword).to.eql(\"P53_HUMAN\");",
 									"    pm.expect(r.results[0].source.identifier).to.eql(\"P04637\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(72);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(72);",
 									"    ",
 									"});"
 								],
@@ -3882,7 +3885,7 @@
 									"    pm.expect(r.results[0].source.keyword).to.eql(\"P53_HUMAN\");",
 									"    pm.expect(r.results[0].source.identifier).to.eql(\"P04637\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(73);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(73);",
 									"    pm.expect(r.results[0].targets[0].identifier).to.eql(\"RS730882027\");",
 									"    ",
 									"});"
@@ -3958,8 +3961,8 @@
 									"    pm.expect(r.results[1].source.identifier).to.eql(\"P04637\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
 									"    pm.expect(r.results[1].targets.length).to.be.above(0);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(72);",
-									"    pm.expect(r.results[1].targets[0].domain_id).to.eql(72);  ",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(72);",
+									"    pm.expect(r.results[1].targets[0].dataset).to.eql(72);  ",
 									"});"
 								],
 								"type": "text/javascript"
@@ -4022,8 +4025,8 @@
 									"    pm.expect(r.results[1].source.identifier).to.eql(\"P04637\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
 									"    pm.expect(r.results[1].targets.length).to.be.above(0);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(72);",
-									"    pm.expect(r.results[1].targets[0].domain_id).to.eql(72);  ",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(72);",
+									"    pm.expect(r.results[1].targets[0].dataset).to.eql(72);  ",
 									"});"
 								],
 								"type": "text/javascript"
@@ -4086,8 +4089,8 @@
 									"    pm.expect(r.results[1].source.identifier).to.eql(\"P04637\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
 									"    pm.expect(r.results[1].targets.length).to.be.above(0);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(72);",
-									"    pm.expect(r.results[1].targets[0].domain_id).to.eql(72);  ",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(72);",
+									"    pm.expect(r.results[1].targets[0].dataset).to.eql(72);  ",
 									"});"
 								],
 								"type": "text/javascript"
@@ -4150,8 +4153,8 @@
 									"    pm.expect(r.results[1].source.identifier).to.eql(\"P04637\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
 									"    pm.expect(r.results[1].targets.length).to.be.above(0);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(72);",
-									"    pm.expect(r.results[1].targets[0].domain_id).to.eql(72);  ",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(72);",
+									"    pm.expect(r.results[1].targets[0].dataset).to.eql(72);  ",
 									"});"
 								],
 								"type": "text/javascript"
@@ -4211,7 +4214,7 @@
 									"    pm.expect(r.results[0].source.keyword).to.eql(\"P53_HUMAN\");",
 									"    pm.expect(r.results[0].source.identifier).to.eql(\"P04637\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(58);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(58);",
 									"});"
 								],
 								"type": "text/javascript"
@@ -4271,7 +4274,7 @@
 									"    pm.expect(r.results[0].source.keyword).to.eql(\"P53_HUMAN\");",
 									"    pm.expect(r.results[0].source.identifier).to.eql(\"P04637\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(58);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(58);",
 									"});"
 								],
 								"type": "text/javascript"
@@ -4331,7 +4334,7 @@
 									"    pm.expect(r.results[0].source.keyword).to.eql(\"P53_HUMAN\");",
 									"    pm.expect(r.results[0].source.identifier).to.eql(\"P04637\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(58);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(58);",
 									"});"
 								],
 								"type": "text/javascript"
@@ -4391,7 +4394,7 @@
 									"    pm.expect(r.results[0].source.keyword).to.eql(\"P53_HUMAN\");",
 									"    pm.expect(r.results[0].source.identifier).to.eql(\"P04637\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(58);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(58);",
 									"});"
 								],
 								"type": "text/javascript"
@@ -4451,7 +4454,7 @@
 									"    pm.expect(r.results[0].source.keyword).to.eql(\"P53_HUMAN\");",
 									"    pm.expect(r.results[0].source.identifier).to.eql(\"P04637\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(65);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(65);",
 									"});"
 								],
 								"type": "text/javascript"
@@ -4511,7 +4514,7 @@
 									"    pm.expect(r.results[0].source.keyword).to.eql(\"P53_HUMAN\");",
 									"    pm.expect(r.results[0].source.identifier).to.eql(\"P04637\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(65);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(65);",
 									"});"
 								],
 								"type": "text/javascript"
@@ -4571,7 +4574,7 @@
 									"    pm.expect(r.results[0].source.keyword).to.eql(\"P53_HUMAN\");",
 									"    pm.expect(r.results[0].source.identifier).to.eql(\"P04637\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(65);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(65);",
 									"});"
 								],
 								"type": "text/javascript"
@@ -4631,7 +4634,7 @@
 									"    pm.expect(r.results[0].source.keyword).to.eql(\"P53_HUMAN\");",
 									"    pm.expect(r.results[0].source.identifier).to.eql(\"P04637\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(55);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(55);",
 									"});"
 								],
 								"type": "text/javascript"
@@ -4691,7 +4694,7 @@
 									"    pm.expect(r.results[0].source.keyword).to.eql(\"P53_HUMAN\");",
 									"    pm.expect(r.results[0].source.identifier).to.eql(\"P04637\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(36);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(36);",
 									"});"
 								],
 								"type": "text/javascript"
@@ -4726,7 +4729,8 @@
 					},
 					"response": []
 				}
-			]
+			],
+			"protocolProfileBehavior": {}
 		},
 		{
 			"name": "taxonomy",
@@ -4755,9 +4759,9 @@
 									"    pm.expect(r.results.length).to.eql(1);",
 									"    pm.expect(r.results[0].source.identifier).to.eql(\"9606\");",
 									"    pm.expect(r.results[0].targets.length).to.eql(2);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(3);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(3);",
 									"    pm.expect(r.results[0].targets[0].identifier).to.eql(\"63221\");",
-									"    pm.expect(r.results[0].targets[1].domain_id).to.eql(3);",
+									"    pm.expect(r.results[0].targets[1].dataset).to.eql(3);",
 									"    pm.expect(r.results[0].targets[1].identifier).to.eql(\"741158\");",
 									"",
 									"});"
@@ -4876,7 +4880,7 @@
 									"    pm.expect(r.results.length).to.eql(1);",
 									"    pm.expect(r.results[0].source.identifier).to.eql(\"10090\");",
 									"    pm.expect(r.results[0].targets.length).to.eql(1);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(3);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(3);",
 									"    pm.expect(r.results[0].targets[0].identifier).to.eql(\"39107\");",
 									"});"
 								],
@@ -4936,9 +4940,9 @@
 									"    pm.expect(r.results.length).to.eql(1);",
 									"    pm.expect(r.results[0].source.identifier).to.eql(\"10090\");",
 									"    pm.expect(r.results[0].targets.length).to.eql(2);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(3);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(3);",
 									"    pm.expect(r.results[0].targets[0].identifier).to.eql(\"10091\");",
-									"    pm.expect(r.results[0].targets[1].domain_id).to.eql(3);",
+									"    pm.expect(r.results[0].targets[1].dataset).to.eql(3);",
 									"    pm.expect(r.results[0].targets[1].identifier).to.eql(\"35531\");",
 									"});"
 								],
@@ -4998,9 +5002,9 @@
 									"    pm.expect(r.results.length).to.eql(1);",
 									"    pm.expect(r.results[0].source.identifier).to.eql(\"10090\");",
 									"    pm.expect(r.results[0].targets.length).to.eql(2);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(3);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(3);",
 									"    pm.expect(r.results[0].targets[0].identifier).to.eql(\"10092\");",
-									"    pm.expect(r.results[0].targets[1].domain_id).to.eql(3);",
+									"    pm.expect(r.results[0].targets[1].dataset).to.eql(3);",
 									"    pm.expect(r.results[0].targets[1].identifier).to.eql(\"39442\");",
 									"});"
 								],
@@ -5036,7 +5040,8 @@
 					},
 					"response": []
 				}
-			]
+			],
+			"protocolProfileBehavior": {}
 		},
 		{
 			"name": "chembl",
@@ -5054,7 +5059,7 @@
 									"    var r = pm.response.json();",
 									"    pm.expect(r.results.length).to.eql(1)",
 									"    pm.expect(r.results[0].identifier).to.eql(\"CHEMBL2242\");",
-									"    pm.expect(r.results[0].domain_id).to.eql(20);",
+									"    pm.expect(r.results[0].dataset).to.eql(20);",
 									"    pm.expect(r.results[0].Attributes.Chembl.target.type).to.eql(\"single_protein\");",
 									"    pm.expect(r.results[0].Attributes.Chembl.target.type).to.eql(\"single_protein\");",
 									"",
@@ -5100,7 +5105,7 @@
 									"    var r = pm.response.json();",
 									"    pm.expect(r.results.length).to.eql(1)",
 									"    pm.expect(r.results[0].identifier).to.eql(\"CHEMBL_TC_47\");",
-									"    pm.expect(r.results[0].domain_id).to.eql(19);",
+									"    pm.expect(r.results[0].dataset).to.eql(19);",
 									"    pm.expect(r.results[0].Attributes.Chembl.targetComponent.type).to.eql(\"protein\");",
 									"",
 									"});"
@@ -5146,8 +5151,8 @@
 									"    pm.expect(r.results.length).to.eql(1);",
 									"    pm.expect(r.results[0].source.identifier).to.eql(\"CHEMBL2789\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(1);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(1);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(1);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(1);",
 									"",
 									"});",
 									"",
@@ -5210,8 +5215,8 @@
 									"    pm.expect(r.results.length).to.eql(1);",
 									"    pm.expect(r.results[0].source.identifier).to.eql(\"STK11\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(20);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(20);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(20);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(20);",
 									"",
 									"});",
 									"",
@@ -5274,8 +5279,8 @@
 									"    pm.expect(r.results.length).to.eql(1);",
 									"    pm.expect(r.results[0].source.keyword).to.eql(\"TP53\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(20);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(20);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(20);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(20);",
 									"",
 									"});",
 									"",
@@ -5468,7 +5473,7 @@
 									"    pm.expect(r.results.length).to.eql(1);",
 									"    pm.expect(r.results[0].source.identifier).to.eql(\"CHEMBL2171124\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(5);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(17);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(17);",
 									"});"
 								],
 								"type": "text/javascript"
@@ -5528,7 +5533,7 @@
 									"    pm.expect(r.results.length).to.eql(1);",
 									"    pm.expect(r.results[0].source.identifier).to.eql(\"CHEMBL2171124\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(5);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(17);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(17);",
 									"});"
 								],
 								"type": "text/javascript"
@@ -5588,7 +5593,7 @@
 									"    pm.expect(r.results.length).to.eql(1);",
 									"    pm.expect(r.results[0].source.identifier).to.eql(\"CHEMBL2171124\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(5);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(17);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(17);",
 									"     pm.expect(r.results[0].targets[0].Attributes.Chembl.activity.value).to.be.above(10);",
 									"});"
 								],
@@ -5649,7 +5654,7 @@
 									"    pm.expect(r.results.length).to.eql(1);",
 									"    pm.expect(r.results[0].source.identifier).to.eql(\"CHEMBL2171124\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(5);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(17);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(17);",
 									"    pm.expect(r.results[0].targets[0].Attributes.Chembl.activity.value).to.be.above(10);",
 									"    pm.expect(r.results[0].targets[0].Attributes.Chembl.activity.bao).to.eql(\"BAO_0000190\");",
 									"});"
@@ -5710,7 +5715,7 @@
 									"    pm.expect(r.results.length).to.eql(1);",
 									"    pm.expect(r.results[0].source.identifier).to.eql(\"CHEMBL2171124\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(5);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(17);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(17);",
 									"    pm.expect(r.results[0].targets[0].Attributes.Chembl.activity.value>10 || result[0].targets[0].Attributes.Chembl.activity.pChembl>5).to.be.true;",
 									"    pm.expect(r.results[0].targets[4].Attributes.Chembl.activity.value>10 || result[0].targets[4].Attributes.Chembl.activity.pChembl>5).to.be.true;",
 									"});"
@@ -5771,7 +5776,7 @@
 									"    pm.expect(r.results.length).to.eql(1);",
 									"    pm.expect(r.results[0].source.identifier).to.eql(\"CHEMBL2171124\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(30);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(20);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(20);",
 									"});"
 								],
 								"type": "text/javascript"
@@ -5876,7 +5881,7 @@
 									"    pm.expect(r.results.length).to.eql(1);",
 									"    pm.expect(r.results[0].source.identifier).to.eql(\"CHEMBL1121978\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(30);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(17);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(17);",
 									"    ",
 									"});"
 								],
@@ -5937,7 +5942,7 @@
 									"    pm.expect(r.results.length).to.eql(1);",
 									"    pm.expect(r.results[0].source.identifier).to.eql(\"CHEMBL3421631\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(47);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(16);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(16);",
 									"    ",
 									"});"
 								],
@@ -5998,7 +6003,7 @@
 									"    pm.expect(r.results.length).to.eql(1);",
 									"    pm.expect(r.results[0].source.identifier).to.eql(\"CHEMBL3421631\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(17);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(16);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(16);",
 									"pm.expect(r.results[0].targets[0].Attributes.Chembl.assay.type==\"Functional\" || r.results[0].targets[0].Attributes.Chembl.assay.type==\"Binding\").to.be.true;",
 									"    ",
 									"});"
@@ -6060,7 +6065,7 @@
 									"    pm.expect(r.results.length).to.eql(1);",
 									"    pm.expect(r.results[0].source.identifier).to.eql(\"CHEMBL3421631\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(4);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(21);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(21);",
 									"    ",
 									"});"
 								],
@@ -6121,7 +6126,7 @@
 									"    pm.expect(r.results.length).to.eql(1);",
 									"    pm.expect(r.results[0].source.identifier).to.eql(\"CHEMBL3421631\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(1);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(21);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(21);",
 									"    ",
 									"});"
 								],
@@ -6182,7 +6187,7 @@
 									"    pm.expect(r.results.length).to.eql(1);",
 									"    pm.expect(r.results[0].source.identifier).to.eql(\"CHEMBL3421631\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(14);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(20);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(20);",
 									"    ",
 									"});"
 								],
@@ -6243,7 +6248,7 @@
 									"    pm.expect(r.results.length).to.eql(1);",
 									"    pm.expect(r.results[0].source.identifier).to.eql(\"CHEMBL3421631\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(2);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(20);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(20);",
 									"    ",
 									"});"
 								],
@@ -6304,7 +6309,7 @@
 									"    pm.expect(r.results.length).to.eql(1);",
 									"    pm.expect(r.results[0].source.identifier).to.eql(\"CHEMBL3421631\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(1);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(20);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(20);",
 									"    pm.expect(r.results[0].targets[0].Attributes.Chembl.target.type).to.eql(\"tissue\");",
 									"    ",
 									"});"
@@ -6366,7 +6371,7 @@
 									"    pm.expect(r.results.length).to.eql(1);",
 									"    pm.expect(r.results[0].source.identifier).to.eql(\"CHEMBL3421631\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(20);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(20);",
 									"    pm.expect(r.results[0].targets[0].Attributes.Chembl.target.type).to.eql(\"organism\");",
 									"    ",
 									"});"
@@ -6428,8 +6433,8 @@
 									"    pm.expect(r.results.length).to.eql(1);",
 									"    pm.expect(r.results[0].source.identifier).to.eql(\"CHEMBL3421631\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(1);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(1);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(1);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(1);",
 									"",
 									"});",
 									"",
@@ -6492,7 +6497,7 @@
 									"    pm.expect(r.results.length).to.eql(1);",
 									"    pm.expect(r.results[0].source.identifier).to.eql(\"CHEMBL3421631\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(35);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(18);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(18);",
 									"    ",
 									"});"
 								],
@@ -6553,7 +6558,7 @@
 									"    pm.expect(r.results.length).to.eql(1);",
 									"    pm.expect(r.results[0].source.identifier).to.eql(\"CHEMBL3421631\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(18);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(18);",
 									"    pm.expect(r.results[0].targets[0].Attributes.Chembl.molecule.heavyAtoms<30 && r.results[0].targets[0].Attributes.Chembl.molecule.aromaticRings <2.0).to.be.true;",
 									"    ",
 									"});"
@@ -6670,7 +6675,7 @@
 									"    pm.expect(r.results.length).to.eql(1);",
 									"    pm.expect(r.results[0].source.identifier).to.eql(\"CHEMBL615156\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(20);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(20);",
 									"    ",
 									"});"
 								],
@@ -6731,7 +6736,7 @@
 									"    pm.expect(r.results.length).to.eql(1);",
 									"    pm.expect(r.results[0].source.identifier).to.eql(\"CHEMBL3424821\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(21);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(21);",
 									"    ",
 									"});"
 								],
@@ -6792,7 +6797,7 @@
 									"    pm.expect(r.results.length).to.eql(1);",
 									"    pm.expect(r.results[0].source.identifier).to.eql(\"CHEMBL615156\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(20);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(20);",
 									"    ",
 									"});"
 								],
@@ -6853,8 +6858,8 @@
 									"    pm.expect(r.results.length).to.eql(1);",
 									"    pm.expect(r.results[0].source.identifier).to.eql(\"CHEMBL615156\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(1);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(1);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(1);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(1);",
 									"",
 									"});",
 									"",
@@ -6916,7 +6921,7 @@
 									"    var r = pm.response.json();",
 									"    pm.expect(r.results.length).to.eql(1)",
 									"    pm.expect(r.results[0].identifier).to.eql(\"CHEMBL_ACT_93229\");",
-									"    pm.expect(r.results[0].domain_id).to.eql(17);",
+									"    pm.expect(r.results[0].dataset).to.eql(17);",
 									"    pm.expect(r.results[0].Attributes.Chembl.activity.type).to.eql(\"survival\");",
 									"    pm.expect(r.results[0].Attributes.Chembl.activity.value).to.eql(100);",
 									"    ",
@@ -6963,7 +6968,7 @@
 									"    pm.expect(r.results.length).to.eql(1);",
 									"    pm.expect(r.results[0].source.identifier).to.eql(\"CHEMBL_ACT_93229\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(18);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(18);",
 									"    ",
 									"});"
 								],
@@ -7023,7 +7028,7 @@
 									"    var r = pm.response.json();",
 									"    pm.expect(r.results.length).to.eql(1)",
 									"    pm.expect(r.results[0].identifier).to.eql(\"CHEMBL3307241\");",
-									"    pm.expect(r.results[0].domain_id).to.eql(21);",
+									"    pm.expect(r.results[0].dataset).to.eql(21);",
 									"    pm.expect(r.results[0].Attributes.Chembl.cellLine.desc).to.eql(\"DC3F\");",
 									"    pm.expect(r.results[0].Attributes.Chembl.cellLine.tax).to.eql(\"10029\");",
 									"",
@@ -7070,7 +7075,7 @@
 									"    pm.expect(r.results.length).to.eql(1);",
 									"    pm.expect(r.results[0].source.identifier).to.eql(\"CHEMBL3307241\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(5);",
-									"    pm.expect(r.results[0].targets[0].domain_id).to.eql(16);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(16);",
 									"    ",
 									"});"
 								],
@@ -7117,7 +7122,9 @@
 					},
 					"response": []
 				}
-			]
+			],
+			"protocolProfileBehavior": {}
 		}
-	]
+	],
+	"protocolProfileBehavior": {}
 }

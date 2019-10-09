@@ -313,7 +313,8 @@ export default {
       sub_result.lastFilteredPageKey = null;
       if (domain_counts.length == filterSet.size) { // if all selected it is normal request
         callback_params[0] = sub_result
-        sub_result.hasFilter = true;
+        sub_result.hasFilter = false;
+        sub_result.filters = "";
         this.$root.$data.fetcher.searchEntry(
           sub_result.identifier,
           this.xref_conf[sub_result.dataset].id,
@@ -342,6 +343,7 @@ export default {
     processResetFilter: function (results, callback_params) {
 
       this.filterLoading = false;
+      console.log(results[0]);
       this.app_model.resetResult(results[0], callback_params[0]);
 
     },

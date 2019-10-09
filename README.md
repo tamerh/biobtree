@@ -2,9 +2,9 @@
 
 <!--[![Build Status](https://dev.azure.com/biobtree/biobtree/_apis/build/status/tamerh.biobtree?branchName=master)](https://dev.azure.com/biobtree/biobtree/_build/latest?definitionId=1&branchName=master) -->
 
-Biobtree is a bioinformatics tool which process large diverse datasets effectively and provide uniform search and mapping functionalities with web interface and web services for genomic research.
+Biobtree is a bioinformatics tool which process large datasets effectively and provide uniform search and mapping functionalities with web interface and web services for genomic research.
 
-https://www.ebi.ac.uk/~tgur/biobtree/ **Running instance with all the datasets and example use cases**
+https://www.ebi.ac.uk/~tgur/biobtree/ Running instance with all the datasets and example use cases
 
 
 ### Getting started

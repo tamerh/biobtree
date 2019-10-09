@@ -399,7 +399,8 @@ export default class XrefModel {
     resetResult(result, result_org) {
 
         this.prepareEntries(result.entries);
-        result_org.entries = result.entries
+        result_org.entries = result.entries;
+        result_org.count = result.count
         this.prepareResult(result_org, null, 0);
 
     }

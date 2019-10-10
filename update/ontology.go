@@ -137,7 +137,13 @@ func (g *ontology) update() {
 				}
 
 				if r.Childs["rdfs:label"] != nil {
+
 					attr.Name = r.Childs["rdfs:label"][0].InnerText
+
+					if g.source == "efo" {
+						g.d.addXref(attr.Name, textLinkID, entryid, g.source, true)
+					}
+
 				}
 
 				if r.Childs["oboInOwl:hasOBONamespace"] != nil {

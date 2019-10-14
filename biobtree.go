@@ -76,7 +76,7 @@ func main() {
 		},
 		cli.BoolFlag{
 			Name:  "keep",
-			Usage: "Keep existing updated data",
+			Usage: "Keep existing data from update command",
 		},
 		cli.BoolFlag{
 			Name:  "include_optionals",
@@ -102,28 +102,35 @@ func main() {
 	app.Commands = []cli.Command{
 		{
 			Name:  "start",
-			Usage: "start is a shortcut command which runs update,generate and web consecutively",
+			Usage: "Shortcut command to execute update, generate and web",
 			Action: func(c *cli.Context) error {
 				return runStartCommand(c)
 			},
 		},
 		{
+			Name:  "build",
+			Usage: "Shortcut command to execute update and generate. ",
+			Action: func(c *cli.Context) error {
+				return runBuildCommand(c)
+			},
+		},
+		{
 			Name:  "update",
-			Usage: "update produce chunk files for selected datasets",
+			Usage: "Fetch selected datsets and produce chunk files",
 			Action: func(c *cli.Context) error {
 				return runUpdateCommand(c)
 			},
 		},
 		{
 			Name:  "generate",
-			Usage: "merge chunks from update and generate LMDB database",
+			Usage: "Merge chunks from update command and generate LMDB database",
 			Action: func(c *cli.Context) error {
 				return runGenerateCommand(c)
 			},
 		},
 		{
 			Name:  "web",
-			Usage: "runs web services and web interface",
+			Usage: "Start web server for ws, ui and grpc",
 			Action: func(c *cli.Context) error {
 				return runWebCommand(c)
 			},
@@ -177,6 +184,14 @@ func runStartCommand(c *cli.Context) error {
 	err := runUpdateCommand(c)
 	err = runGenerateCommand(c)
 	err = runWebCommand(c)
+	return err
+
+}
+
+func runBuildCommand(c *cli.Context) error {
+
+	err := runUpdateCommand(c)
+	err = runGenerateCommand(c)
 	return err
 
 }
@@ -264,7 +279,7 @@ func runUpdateCommand(c *cli.Context) error {
 
 func runGenerateCommand(c *cli.Context) error {
 
-	log.Println("Generate running...")
+	log.Println("Generate running please wait...")
 
 	start := time.Now()
 

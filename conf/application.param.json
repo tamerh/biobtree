@@ -15,6 +15,7 @@
 	"ensembl_genomes_ftp": "ftp.ensemblgenomes.org:21",
 	"ensembl_genomes_ftp_json_path": "/pub/current/$(branch)/json",
 	"ensembl_genomes_ftp_mysql_path": "/pub/current/$(branch)/mysql",
+	"ensembl_version_url": "http://rest.ensembl.org/info/eg_version?content-type=application/json",
 	"chembl_ftp_path": "/pub/databases/chembl/ChEMBL-RDF/latest/",
 	"httpPort": "8888",
 	"grpcPort": "7777",

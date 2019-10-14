@@ -62,6 +62,10 @@ func (web *Web) Start(c *conf.Conf) {
 	http.Handle("/ws/meta/", metaGz)
 	fs := http.FileServer(http.Dir("website"))
 	http.Handle("/ui/", http.StripPrefix("/ui/", fs))
+	if _, ok := config.Appconf["disableGenomes"]; !ok {
+		fsgenomes := http.FileServer(http.Dir("ensembl"))
+		http.Handle("/genomes/", http.StripPrefix("/genomes/", fsgenomes))
+	}
 
 	//start web server with rest endpoints and ui
 	var port string

@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
 	"path/filepath"
 	"sort"
@@ -137,6 +138,11 @@ func NewDataUpdate(datasets, targetDatasets, ensemblSpecies []string, ensemblSpe
 
 func (d *DataUpdate) Update() (uint64, uint64) {
 
+	log.Println("Update running please wait...")
+
+	// first always set/check ensembl path since they are listed as genomes
+	d.setEnsemblPaths()
+
 	var err error
 	var wg sync.WaitGroup
 	var e = make(chan string, channelOverflowCap)
@@ -220,6 +226,7 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			default:
 				panic("undefined ensembl branch")
 			}
+
 			e := ensembl{source: data, d: d, branch: branch}
 			d.datasets2 = append(d.datasets2, data)
 			go e.update()
@@ -363,11 +370,10 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 
 	sort.Strings(d.datasets2)
 
-	log.Println("Update running...")
 	for i, data := range d.datasets2 {
 		fmt.Print(strconv.Itoa(i)+"-", data, " ")
 	}
-	fmt.Println("Please wait processing...")
+	fmt.Println("")
 
 	go d.showProgres()
 
@@ -414,6 +420,68 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 
 	return d.totalParsedEntry, totalkv
 
+}
+
+type ensemblGLatestVersion struct {
+	Version int `json:"version"`
+}
+
+func (d *DataUpdate) setEnsemblPaths() {
+
+	if _, ok := config.Appconf["disableEnsemblReleaseCheck"]; !ok {
+
+		if d.hasEnsemblNewRelease() {
+
+			ensembls := [6]ensembl{}
+			ensembls[0] = ensembl{source: "ensembl", d: d, branch: pbuf.Ensemblbranch_ENSEMBL}
+			ensembls[1] = ensembl{source: "ensembl_bacteria", d: d, branch: pbuf.Ensemblbranch_BACTERIA}
+			ensembls[2] = ensembl{source: "ensembl_fungi", d: d, branch: pbuf.Ensemblbranch_FUNGI}
+			ensembls[3] = ensembl{source: "ensembl_metazoa", d: d, branch: pbuf.Ensemblbranch_METAZOA}
+			ensembls[4] = ensembl{source: "ensembl_plants", d: d, branch: pbuf.Ensemblbranch_PLANT}
+			ensembls[5] = ensembl{source: "ensembl_protists", d: d, branch: pbuf.Ensemblbranch_PROTIST}
+
+			for _, ens := range ensembls {
+				ens.updateEnsemblPaths()
+				time.Sleep(time.Duration(2) * time.Second) // just for not to kicked out from ensembl ftp
+			}
+
+		}
+	}
+
+}
+
+func (d *DataUpdate) hasEnsemblNewRelease() bool {
+
+	epaths := ensemblPaths{}
+	pathFile := filepath.FromSlash(config.Appconf["ensemblDir"] + "/ensembl_metazoa.paths.json")
+	if !fileExists(pathFile) {
+		return true
+	}
+	f, err := os.Open(pathFile)
+	check(err)
+	b, err := ioutil.ReadAll(f)
+	check(err)
+	err = json.Unmarshal(b, &epaths)
+	check(err)
+
+	if _, ok := config.Appconf["ensembl_version_url"]; !ok {
+		log.Fatal("Missing ensembl_version_url param")
+	}
+
+	egversion := ensemblGLatestVersion{}
+	res, err := http.Get(config.Appconf["ensembl_version_url"])
+	if err != nil {
+		log.Fatal("Error while getting ensembl release info from its rest service. This error could be temporary try again later or use param disableEnsemblReleaseCheck", err)
+	}
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		log.Fatal("Error while getting ensembl release info from its rest service.  This error could be temporary try again later or use param disableEnsemblReleaseCheck", err)
+	}
+	err = json.Unmarshal(body, &egversion)
+
+	//fmt.Println(egversion.Version)
+	//fmt.Println(epaths.Version)
+	return egversion.Version != epaths.Version
 }
 
 func (d *DataUpdate) showProgres() {

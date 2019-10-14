@@ -1,5 +1,1 @@
-**/*html linguist-vendored
-web/dist/* linguist-vendored
-web/public/* linguist-vendored
-web/dist/* linguist-generated=true
-web/public/* linguist-generated=true
+*.* linguist-language=Go

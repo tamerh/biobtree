@@ -238,7 +238,7 @@ func (c *Conf) Init(rootDir, versionTag string, optionalDatasetActive bool, outD
 
 	_, ok = c.Appconf["ensemblDir"]
 	if !ok {
-		c.Appconf["ensemblDir"] = c.Appconf["rootDir"] + "conf/ensembl"
+		c.Appconf["ensemblDir"] = c.Appconf["rootDir"] + "ensembl"
 	}
 
 	//create dirs if missing

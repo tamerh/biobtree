@@ -33,14 +33,44 @@ type ensemblPaths struct {
 
 func (e *ensembl) getEnsemblPaths() (*ensemblPaths, string) {
 
+	ensembls := ensemblPaths{}
+	pathFile := filepath.FromSlash(config.Appconf["ensemblDir"] + "/" + e.source + ".paths.json")
+
+	f, err := os.Open(pathFile)
+	check(err)
+	b, err := ioutil.ReadAll(f)
+	check(err)
+	err = json.Unmarshal(b, &ensembls)
+	check(err)
+
+	var ftpAddress string
+	switch e.source {
+	case "ensembl":
+		ftpAddress = config.Appconf["ensembl_ftp"]
+	case "ensembl_bacteria":
+		ftpAddress = config.Appconf["ensembl_genomes_ftp"]
+	case "ensembl_fungi":
+		ftpAddress = config.Appconf["ensembl_genomes_ftp"]
+	case "ensembl_metazoa":
+		ftpAddress = config.Appconf["ensembl_genomes_ftp"]
+	case "ensembl_plants":
+		ftpAddress = config.Appconf["ensembl_genomes_ftp"]
+	case "ensembl_protists":
+		ftpAddress = config.Appconf["ensembl_genomes_ftp"]
+	}
+
+	return &ensembls, ftpAddress
+
+}
+
+func (e *ensembl) updateEnsemblPaths() (*ensemblPaths, string) {
+
 	var branch string
 	var ftpAddress string
 	var ftpJSONPath string
 	var ftpMysqlPath string
 	var ftpBiomartFolder string
 	var version int
-	ensembls := ensemblPaths{}
-	pathFile := filepath.FromSlash(config.Appconf["ensemblDir"] + "/" + e.source + ".paths.json")
 	var err error
 
 	switch e.source {
@@ -77,35 +107,7 @@ func (e *ensembl) getEnsemblPaths() (*ensemblPaths, string) {
 		branch = "protists"
 	}
 
-	// first get Latest version
-	client := e.d.ftpClient(ftpAddress)
-	entries2, err := client.List("/pub")
-	check(err)
-	for _, file2 := range entries2 {
-		if strings.HasPrefix(file2.Name, "release-") {
-
-			c, err := strconv.Atoi(strings.Split(file2.Name, "-")[1])
-			check(err)
-			if c > version {
-				version = c
-			}
-		}
-	}
-
-	exist := e.fileExists(pathFile)
-	if exist {
-		f, err := os.Open(pathFile)
-		check(err)
-		b, err := ioutil.ReadAll(f)
-		check(err)
-		err = json.Unmarshal(b, &ensembls)
-		check(err)
-		if version == ensembls.Version { // if same version no need to generate
-			return &ensembls, ftpAddress
-		}
-	}
-
-	ensembls = ensemblPaths{Jsons: map[string][]string{}, Biomarts: map[string][]string{}, Version: version}
+	ensembls := ensemblPaths{Jsons: map[string][]string{}, Biomarts: map[string][]string{}, Version: version}
 
 	setJSONs := func() {
 
@@ -121,7 +123,7 @@ func (e *ensembl) getEnsemblPaths() (*ensemblPaths, string) {
 				for _, file2 := range entries2 {
 					ensembls.Jsons[file2.Name] = append(ensembls.Jsons[file2.Name], ftpJSONPath+"/"+file.Name+"/"+file2.Name+"/"+file2.Name+".json")
 				}
-				time.Sleep(time.Duration(e.pauseDurationSeconds) * time.Second) // for not to kicked out from ensembl ftp
+				time.Sleep(time.Duration(e.pauseDurationSeconds/2) * time.Second) // for not to kicked out from ensembl ftp
 
 			} else {
 				ensembls.Jsons[file.Name] = append(ensembls.Jsons[file.Name], ftpJSONPath+"/"+file.Name+"/"+file.Name+".json")
@@ -138,8 +140,10 @@ func (e *ensembl) getEnsemblPaths() (*ensemblPaths, string) {
 			client := e.d.ftpClient(ftpAddress)
 			entries, err := client.List(ftpMysqlPath + "/" + branch + "_mart_*")
 			check(err)
+			//ee := ftpMysqlPath + "/" + branch + "_mart_*"
+			//fmt.Println(ee)
 			if len(entries) != 1 {
-				log.Fatal("Error:More than one mart folder found for biomart")
+				log.Fatal("Error: Expected to find 1 biomart folder but found ", +len(entries))
 			}
 			if len(entries) == 1 {
 				ftpBiomartFolder = entries[0].Name
@@ -682,7 +686,7 @@ func (e *ensembl) update() {
 
 }
 
-func (e *ensembl) fileExists(name string) bool {
+func fileExists(name string) bool {
 
 	if _, err := os.Stat(name); err == nil {
 		return true

@@ -84,7 +84,7 @@ func (c *Conf) Init(rootDir, versionTag string, optionalDatasetActive bool, outD
 
 	ensemblDir := rootDir + "ensembl"
 
-	exist, err = fileExists(confdir)
+	exist, err = fileExists(ensemblDir)
 
 	if err != nil {
 		panic("Error while checking file")

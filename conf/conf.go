@@ -82,6 +82,30 @@ func (c *Conf) Init(rootDir, versionTag string, optionalDatasetActive bool, outD
 		log.Println("Files downloaded.")
 	}
 
+	ensemblDir := rootDir + "ensembl"
+
+	exist, err = fileExists(confdir)
+
+	if err != nil {
+		panic("Error while checking file")
+	}
+
+	if !exist {
+		log.Println("Downloading ensembl path files.")
+		err := os.Mkdir("conf", 0700)
+		if err != nil {
+			panic("Error while creating conf directory")
+		}
+
+		downloadFile(c.githubRawPath+"/ensembl/ensembl.paths.json", filepath.FromSlash(ensemblDir+"/ensembl.paths.json"))
+		downloadFile(c.githubRawPath+"/ensembl/ensembl_fungi.paths.json", filepath.FromSlash(ensemblDir+"/ensembl_fungi.paths.json"))
+		downloadFile(c.githubRawPath+"/ensembl/ensembl_metazoa.paths.json", filepath.FromSlash(ensemblDir+"/ensembl_metazoa.paths.json"))
+		downloadFile(c.githubRawPath+"/ensembl/ensembl_plants.paths.json", filepath.FromSlash(ensemblDir+"/ensembl_plants.paths.json"))
+		downloadFile(c.githubRawPath+"/ensembl/ensembl_protists.paths.json", filepath.FromSlash(ensemblDir+"/ensembl_protists.paths.json"))
+		downloadFile(c.githubRawPath+"/ensembl/ensembl_bacteria.paths.json", filepath.FromSlash(ensemblDir+"/ensembl_bacteria.paths.json"))
+
+	}
+
 	exist, err = fileExists(rootDir + "website")
 
 	if err != nil {

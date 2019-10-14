@@ -26,6 +26,5 @@ test_data/vegeta/*.html
 test_data/postman/*test_run.json
 genomes_ensembl_bacteria.json
 genomes_ensembl.json
-ensembl/*.json
 website/
 api.php

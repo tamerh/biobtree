@@ -92,9 +92,9 @@ func (c *Conf) Init(rootDir, versionTag string, optionalDatasetActive bool, outD
 
 	if !exist {
 		log.Println("Downloading ensembl path files.")
-		err := os.Mkdir("conf", 0700)
+		err := os.Mkdir("ensembl", 0700)
 		if err != nil {
-			panic("Error while creating conf directory")
+			panic("Error while creating ensembl directory")
 		}
 
 		downloadFile(c.githubRawPath+"/ensembl/ensembl.paths.json", filepath.FromSlash(ensemblDir+"/ensembl.paths.json"))

@@ -329,12 +329,16 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			go g.update()
 			break
 		case "my_data":
-			if config.Dataconf[data]["active"] == "true" {
+
+			if len(config.Dataconf[data]["path"]) > 0 {
 				d.wg.Add(1)
 				u := uniprot{source: data, d: d}
 				d.datasets2 = append(d.datasets2, data)
 				go u.update()
+			} else {
+				log.Fatal("Missing source path for my_data ")
 			}
+
 			break
 		case "literature_mappings":
 			d.wg.Add(1)

@@ -17,7 +17,7 @@ import (
 var fileBufSize = 65536
 var channelOverflowCap = 100000
 
-const latestReleasePath = "https://api.github.com/repos/tamerh/biobtree/releases/latest"
+const latestReleasePath = "https://github.com/tamerh/biobtree/releases/latest"
 
 type Conf struct {
 	Appconf               map[string]string
@@ -29,10 +29,6 @@ type Conf struct {
 	githubRawPath         string
 	githubContentPath     string
 	versionTag            string
-}
-
-type gitLatestRelease struct {
-	Tag string `json:"tag_name"`
 }
 
 type gitContent struct {
@@ -342,27 +338,12 @@ func (c *Conf) checkForNewVersion() {
 		log.Println("Warn: Versions data could not recieved.")
 		return
 	}
-	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		log.Println("Warn: Versions data could not recieved from github api.")
-		return
-	}
+	finalURL := resp.Request.URL.String()
+	splitteURL := strings.Split(finalURL, "/")
 
-	data, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Println("Warn: Versions data could not recieved from github api.")
-		return
-	}
-
-	latestRelease := gitLatestRelease{}
-	if err := json.Unmarshal(data, &latestRelease); err != nil {
-		log.Println("Warn: Versions data could not parsed.")
-		return
-	}
-
-	if latestRelease.Tag != c.versionTag {
-		log.Println("Warning: There is a new biobtree version available to download")
+	if len(splitteURL) > 0 && splitteURL[len(splitteURL)-1] != c.versionTag {
+		log.Println("New biobtree version " + splitteURL[len(splitteURL)-1] + " is available to download")
 	}
 
 }

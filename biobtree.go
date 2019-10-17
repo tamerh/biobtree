@@ -28,8 +28,13 @@ var config *conf.Conf
 var defaultDataset = "uniprot,go,eco,efo,hgnc,chebi,taxonomy,interpro,ensembl"
 
 //var defaultDataset = "uniprot,go,eco,efo,hgnc,chebi,taxonomy,interpro,hmdb,literature_mappings,chembl,ensembl"
-
 //var defaultDataset = "efo"
+
+var allDatasets = []string{"uniprot", "go", "eco", "efo", "hgnc", "chebi", "taxonomy",
+	"interpro", "hmdb", "literature_mappings", "ensembl",
+	"uniparc", "uniref50", "uniref90", "uniref100", "my_data", "uniprot_unreviewed",
+	"ensembl_bacteria", "ensembl_fungi", "ensembl_metazoa", "ensembl_plants", "ensembl_protists",
+	"chembl_document", "chembl_assay", "chembl_activity", "chembl_molecule", "chembl_target", "chembl_target_component", "chembl_cell_line"}
 
 func main() {
 
@@ -97,6 +102,14 @@ func main() {
 			//Value: "homo_sapiens",
 			Usage: "Genome names pattern for ensembl datasets. e.g 'salmonella' which gets all genomes of salmonella species in ensembl",
 		},
+	}
+
+	// add dataset local flags
+	for _, dataset := range allDatasets {
+		app.Flags = append(app.Flags, cli.StringFlag{
+			Name:   dataset + ".file",
+			Hidden: true,
+		})
 	}
 
 	app.Commands = []cli.Command{
@@ -266,6 +279,14 @@ func runUpdateCommand(c *cli.Context) error {
 	cpu := c.GlobalInt("maxcpu")
 	if cpu > 1 {
 		runtime.GOMAXPROCS(cpu)
+	}
+
+	// check local file path settings
+	for _, dset := range allDatasets {
+		if len(c.GlobalString(dset+".file")) > 0 {
+			config.Dataconf[dset]["path"] = c.GlobalString(dset + ".file")
+			config.Dataconf[dset]["useLocalFile"] = "yes"
+		}
 	}
 
 	update.NewDataUpdate(d, ts, sp, spatterns, config, chunkIdxx).Update()

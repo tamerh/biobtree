@@ -140,10 +140,9 @@
   "my_data": {
     "id": "14",
     "name": "my_data",
-    "path": "./my_data/my_data.xml.gz",
+    "path": "",
     "url": "",
-    "useLocalFile": "yes",
-    "active": "false"
+    "useLocalFile": "yes"
   },
   "chembl_document": {
     "name": "chembl_document",

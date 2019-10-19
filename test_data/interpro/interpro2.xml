@@ -595,4 +595,278 @@ Kringle domains [<cite idref="PUB00003400"/>, <cite idref="PUB00000803"/>, <cite
 <taxon_data name="Arthropoda" proteins_count="444"/>
 </taxonomy_distribution>
 </interpro>
+
+
+<interpro id="IPR017907" protein_count="127220" short_name="Znf_RING_CS" type="Conserved_site">
+  <name>Zinc finger, RING-type, conserved site</name>
+  <abstract>
+<p>Zinc finger (Znf) domains are relatively small protein motifs which contain multiple finger-like protrusions that make tandem contacts with their target molecule. Some of these domains bind zinc, but many do not; instea
+d binding other metals such as iron, or no metal at all. For example, some family members form salt bridges to stabilise the finger-like folds. They were first identified as a DNA-binding motif in transcription factor TFII
+IA from Xenopus laevis (African clawed frog), however they are now recognised to bind DNA, RNA, protein and/or lipid substrates [<cite idref="PUB00035807"/>, <cite idref="PUB00035805"/>, <cite idref="PUB00035806"/>, <cite 
+idref="PUB00035804"/>, <cite idref="PUB00014077"/>]. Their binding properties depend on the amino acid sequence of the finger domains and of the linker between fingers, as well as on the higher-order structures and the num
+ber of fingers. Znf domains are often found in clusters, where fingers can have different binding specificities. There are many superfamilies of Znf motifs, varying in both sequence and structure. They display considerable
+ versatility in binding modes, even between members of the same class (e.g. some bind DNA, others protein), suggesting that Znf motifs are stable scaffolds that have evolved specialised functions. For example, Znf-containi
+ng proteins function in gene transcription, translation, mRNA trafficking, cytoskeleton organisation, epithelial development, cell adhesion, protein folding, chromatin remodelling and zinc sensing, to name but a few [<cite
+ idref="PUB00035812"/>].  Zinc-binding motifs are stable structures, and they rarely undergo conformational changes upon binding their target. </p>
+<p>A number of eukaryotic and viral proteins contain a conserved cysteine-rich domain of 40 to 60 residues (called C3HC4 zinc-finger or 'RING' finger) [<cite idref="PUB00001094"/>] that binds two atoms of zinc. There are t
+wo different variants, the C3HC4-type and the C3H2C3-type, which is clearly related despite the different cysteine/histidine pattern. The latter type is sometimes referred to as "RING-H2 finger". The 3D structure [<cite id
+ref="PUB00017951"/>] of the zinc ligation system is referred to as the "cross-brace" motif. This atypical conformation is also shared by the FYVE (see <db_xref db="PROSITEDOC" dbkey="PDOC50178"/>) and PHD (see <db_xref db=
+"PROSITEDOC" dbkey="PDOC50016"/>) domains. Many proteins containing a RING finger play a key role in the ubiquitination pathway. The ubiquitination pathway generally involves three types of enzyme, know as E1, E2 and E3. E
+1 and E2 are ubiquitin conjugating enzymes. E1 acts first and passes ubiquitin to E2. E3 are ubiquitin protein ligases, responsible for substrate recognition. It has been shown [<cite idref="PUB00017952"/>, <cite idref="PU
+B00017953"/>] that several RING fingers act as E3 enzymes in the ubiquitination process.</p>
+</abstract>
+  <pub_list>
+    <publication id="PUB00001094">
+      <author_list>Borden KL, Freemont PS.</author_list>
+      <title>The RING finger domain: a recent example of a sequence-structure family.</title>
+      <db_xref db="PUBMED" dbkey="8804826"/>
+      <journal>Curr. Opin. Struct. Biol.</journal>
+      <location issue="3" pages="395-401" volume="6"/>
+      <year>1996</year>
+    </publication>
+    <publication id="PUB00014077">
+      <author_list>Matthews JM, Sunde M.</author_list>
+      <title>Zinc fingers--folds for many occasions.</title>
+      <db_xref db="PUBMED" dbkey="12665246"/>
+      <journal>IUBMB Life</journal>
+      <location issue="6" pages="351-5" volume="54"/>
+      <year>2002</year>
+    </publication>
+    <publication id="PUB00017951">
+      <author_list>Borden KL, Boddy MN, Lally J, O'Reilly NJ, Martin S, Howe K, Solomon E, Freemont PS.</author_list>
+      <title>The solution structure of the RING finger domain from the acute promyelocytic leukaemia proto-oncoprotein PML.</title>
+      <db_xref db="PUBMED" dbkey="7729428"/>
+      <journal>EMBO J.</journal>
+      <location issue="7" pages="1532-41" volume="14"/>
+      <year>1995</year>
+    </publication>
+    <publication id="PUB00017952">
+      <author_list>Lorick KL, Jensen JP, Fang S, Ong AM, Hatakeyama S, Weissman AM.</author_list>
+      <title>RING fingers mediate ubiquitin-conjugating enzyme (E2)-dependent ubiquitination.</title>
+      <db_xref db="PUBMED" dbkey="10500182"/>
+      <journal>Proc. Natl. Acad. Sci. U.S.A.</journal>
+      <location issue="20" pages="11364-9" volume="96"/>
+      <year>1999</year>
+    </publication>
+    <publication id="PUB00017953">
+      <author_list>Yokouchi M, Kondo T, Houghton A, Bartkiewicz M, Horne WC, Zhang H, Yoshimura A, Baron R.</author_list>
+      <title>Ligand-induced ubiquitination of the epidermal growth factor receptor involves the interaction of the c-Cbl RING finger and UbcH7.</title>
+      <db_xref db="PUBMED" dbkey="10531381"/>
+      <journal>J. Biol. Chem.</journal>
+      <location issue="44" pages="31707-12" volume="274"/>
+      <year>1999</year>
+    </publication>
+ <publication id="PUB00035804">
+      <author_list>Gamsjaeger R, Liew CK, Loughlin FE, Crossley M, Mackay JP.</author_list>
+      <title>Sticky fingers: zinc-fingers as protein-recognition motifs.</title>
+      <db_xref db="PUBMED" dbkey="17210253"/>
+      <journal>Trends Biochem. Sci.</journal>
+      <location issue="2" pages="63-70" volume="32"/>
+      <year>2007</year>
+    </publication>
+    <publication id="PUB00035805">
+      <author_list>Hall TM.</author_list>
+      <title>Multiple modes of RNA recognition by zinc finger proteins.</title>
+      <db_xref db="PUBMED" dbkey="15963892"/>
+      <journal>Curr. Opin. Struct. Biol.</journal>
+      <location issue="3" pages="367-73" volume="15"/>
+      <year>2005</year>
+    </publication>
+    <publication id="PUB00035806">
+      <author_list>Brown RS.</author_list>
+      <title>Zinc finger proteins: getting a grip on RNA.</title>
+      <db_xref db="PUBMED" dbkey="15718139"/>
+      <journal>Curr. Opin. Struct. Biol.</journal>
+      <location issue="1" pages="94-8" volume="15"/>
+      <year>2005</year>
+    </publication>
+    <publication id="PUB00035807">
+      <author_list>Klug A.</author_list>
+      <title>Zinc finger peptides for the regulation of gene expression.</title>
+      <db_xref db="PUBMED" dbkey="10529348"/>
+      <journal>J. Mol. Biol.</journal>
+      <location issue="2" pages="215-8" volume="293"/>
+      <year>1999</year>
+    </publication>
+    <publication id="PUB00035812">
+      <author_list>Laity JH, Lee BM, Wright PE.</author_list>
+      <title>Zinc finger proteins: new insights into structural and functional diversity.</title>
+      <db_xref db="PUBMED" dbkey="11179890"/>
+      <journal>Curr. Opin. Struct. Biol.</journal>
+      <location issue="1" pages="39-46" volume="11"/>
+      <year>2001</year>
+    </publication>
+  </pub_list>
+  <found_in>
+    <rel_ref ipr_ref="IPR001841"/>
+    <rel_ref ipr_ref="IPR004575"/>
+    <rel_ref ipr_ref="IPR004580"/>
+    <rel_ref ipr_ref="IPR011364"/>
+    <rel_ref ipr_ref="IPR012227"/>
+    <rel_ref ipr_ref="IPR016398"/>
+    <rel_ref ipr_ref="IPR017335"/>
+    <rel_ref ipr_ref="IPR018957"/>
+  </found_in>
+ <member_list>
+    <db_xref protein_count="127220" db="PROSITE" dbkey="PS00518" name="ZF_RING_1"/>
+  </member_list>
+  <structure_db_links>
+    <db_xref db="PDB" dbkey="1bor"/>
+    <db_xref db="PDB" dbkey="1chc"/>
+    <db_xref db="PDB" dbkey="1fbv"/>
+    <db_xref db="PDB" dbkey="1g25"/>
+    <db_xref db="PDB" dbkey="1jm7"/>
+    <db_xref db="PDB" dbkey="1rmd"/>
+    <db_xref db="PDB" dbkey="1z6u"/>
+    <db_xref db="PDB" dbkey="2ckl"/>
+    <db_xref db="PDB" dbkey="2csy"/>
+    <db_xref db="PDB" dbkey="2ct2"/>
+    <db_xref db="PDB" dbkey="2e6s"/>
+    <db_xref db="PDB" dbkey="2ea6"/>
+    <db_xref db="PDB" dbkey="2eci"/>
+    <db_xref db="PDB" dbkey="2ecj"/>
+    <db_xref db="PDB" dbkey="2ecn"/>
+    <db_xref db="PDB" dbkey="2ecv"/>
+    <db_xref db="PDB" dbkey="2ecw"/>
+    <db_xref db="PDB" dbkey="2egp"/>
+    <db_xref db="PDB" dbkey="2h0d"/>
+    <db_xref db="PDB" dbkey="2jmd"/>
+    <db_xref db="PDB" dbkey="2k4d"/>
+    <db_xref db="PDB" dbkey="2ldr"/>
+    <db_xref db="PDB" dbkey="2lgg"/>
+    <db_xref db="PDB" dbkey="2lgk"/>
+    <db_xref db="PDB" dbkey="2lgl"/>
+    <db_xref db="PDB" dbkey="2xeu"/>
+    <db_xref db="PDB" dbkey="2y1m"/>
+    <db_xref db="PDB" dbkey="2y1n"/>
+    <db_xref db="PDB" dbkey="2y43"/>
+    <db_xref db="PDB" dbkey="2ysj"/>
+    <db_xref db="PDB" dbkey="3asl"/>
+    <db_xref db="PDB" dbkey="3fl2"/>
+    <db_xref db="PDB" dbkey="3hcs"/>
+    <db_xref db="PDB" dbkey="3hct"/>
+    <db_xref db="PDB" dbkey="3hcu"/>
+    <db_xref db="PDB" dbkey="3knv"/>
+    <db_xref db="PDB" dbkey="3ng2"/>
+    <db_xref db="PDB" dbkey="3rpg"/>
+    <db_xref db="PDB" dbkey="3shb"/>
+    <db_xref db="PDB" dbkey="3sou"/>
+    <db_xref db="PDB" dbkey="3sow"/>
+    <db_xref db="PDB" dbkey="3sox"/>
+    <db_xref db="PDB" dbkey="3t6r"/>
+    <db_xref db="PDB" dbkey="3vk6"/>
+    <db_xref db="PDB" dbkey="3zni"/>
+    <db_xref db="PDB" dbkey="3zvy"/>
+    <db_xref db="PDB" dbkey="3zvz"/>
+    <db_xref db="PDB" dbkey="4a49"/>
+    <db_xref db="PDB" dbkey="4a4b"/>
+    <db_xref db="PDB" dbkey="4a4c"/>
+    <db_xref db="PDB" dbkey="4ap4"/>
+    <db_xref db="PDB" dbkey="4auq"/>
+    <db_xref db="PDB" dbkey="4ayc"/>
+    <db_xref db="PDB" dbkey="4ppe"/>
+    <db_xref db="PDB" dbkey="4r8p"/>
+    <db_xref db="PDB" dbkey="4s3o"/>
+    <db_xref db="PDB" dbkey="4tkp"/>
+    <db_xref db="PDB" dbkey="5ait"/>
+    <db_xref db="PDB" dbkey="5aiu"/>
+    <db_xref db="PDB" dbkey="5din"/>
+    <db_xref db="PDB" dbkey="5dka"/>
+     <db_xref db="PDB" dbkey="5eya"/>
+    <db_xref db="PDB" dbkey="5fer"/>
+    <db_xref db="PDB" dbkey="5fey"/>
+    <db_xref db="PDB" dbkey="5j3x"/>
+    <db_xref db="PDB" dbkey="5trb"/>
+    <db_xref db="CATH" dbkey="3.30.40.10"/>
+    <db_xref db="SCOP" dbkey="g.44.1.1"/>
+  </structure_db_links>
+  <taxonomy_distribution>
+    <taxon_data name="Caenorhabditis elegans" proteins_count="101"/>
+    <taxon_data name="Eukaryota" proteins_count="124"/>
+    <taxon_data name="Fungi" proteins_count="232"/>
+    <taxon_data name="OtherEukaryotes" proteins_count="625"/>
+    <taxon_data name="Eukaryota" proteins_count="49"/>
+    <taxon_data name="Fungi" proteins_count="48"/>
+    <taxon_data name="Eukaryota" proteins_count="2404"/>
+    <taxon_data name="Bacteria" proteins_count="85"/>
+    <taxon_data name="Eukaryota" proteins_count="721"/>
+    <taxon_data name="Eukaryota" proteins_count="625"/>
+    <taxon_data name="Arthropoda" proteins_count="8527"/>
+    <taxon_data name="Bacteria" proteins_count="265"/>
+    <taxon_data name="Chordata" proteins_count="61939"/>
+    <taxon_data name="Eukaryota" proteins_count="125700"/>
+    <taxon_data name="Fungi" proteins_count="22550"/>
+    <taxon_data name="Mouse" proteins_count="416"/>
+    <taxon_data name="Nematoda" proteins_count="4076"/>
+    <taxon_data name="PlastidGroup" proteins_count="2404"/>
+    <taxon_data name="Nematoda" proteins_count="641"/>
+    <taxon_data name="PlastidGroup" proteins_count="49"/>
+    <taxon_data name="Fungi" proteins_count="4562"/>
+    <taxon_data name="GreenPlants" proteins_count="16721"/>
+    <taxon_data name="PlastidGroup" proteins_count="721"/>
+    <taxon_data name="Unclassified" proteins_count="2"/>
+    <taxon_data name="PlastidGroup" proteins_count="124"/>
+    <taxon_data name="Bacteria" proteins_count="4"/>
+    <taxon_data name="Saccharomyces cerevisiae" proteins_count="87"/>
+    <taxon_data name="Metazoa" proteins_count="388"/>
+    <taxon_data name="PlastidGroup" proteins_count="70"/>
+    <taxon_data name="Eukaryota" proteins_count="70"/>
+    <taxon_data name="Bacteria" proteins_count="2"/>
+    <taxon_data name="Cyanobacteria" proteins_count="2"/>
+    <taxon_data name="OtherEukaryotes" proteins_count="124"/>
+    <taxon_data name="Eukaryota" proteins_count="124"/>
+    <taxon_data name="PlastidGroup" proteins_count="1995"/>
+    <taxon_data name="Eukaryota" proteins_count="1995"/>
+    <taxon_data name="Eukaryota" proteins_count="17496"/>
+ <taxon_data name="PlastidGroup" proteins_count="1995"/>
+    <taxon_data name="Eukaryota" proteins_count="1995"/>
+    <taxon_data name="Eukaryota" proteins_count="17496"/>
+    <taxon_data name="PlastidGroup" proteins_count="17496"/>
+    <taxon_data name="GreenPlants" proteins_count="17496"/>
+    <taxon_data name="Bacteria" proteins_count="1"/>
+    <taxon_data name="Eukaryota" proteins_count="101836"/>
+    <taxon_data name="Fungi" proteins_count="78"/>
+    <taxon_data name="Virus" proteins_count="8"/>
+    <taxon_data name="Fungi" proteins_count="95"/>
+    <taxon_data name="Bacteria" proteins_count="8"/>
+    <taxon_data name="Bacteria" proteins_count="51"/>
+    <taxon_data name="Eukaryota" proteins_count="35"/>
+    <taxon_data name="OtherEukaryotes" proteins_count="35"/>
+    <taxon_data name="Eukaryota" proteins_count="72"/>
+    <taxon_data name="OtherEukaryotes" proteins_count="72"/>
+    <taxon_data name="Bacteria" proteins_count="13"/>
+    <taxon_data name="Eukaryota" proteins_count="19"/>
+    <taxon_data name="OtherEukaryotes" proteins_count="19"/>
+    <taxon_data name="Arabidopsis thaliana" proteins_count="293"/>
+    <taxon_data name="Archaea" proteins_count="34"/>
+    <taxon_data name="FruitFly" proteins_count="138"/>
+    <taxon_data name="Human" proteins_count="586"/>
+    <taxon_data name="Metazoa" proteins_count="79159"/>
+    <taxon_data name="Rice" proteins_count="400"/>
+    <taxon_data name="Viruses" proteins_count="1191"/>
+    <taxon_data name="Virus" proteins_count="1191"/>
+    <taxon_data name="Arthropoda" proteins_count="1131"/>
+    <taxon_data name="Bacteria" proteins_count="61"/>
+    <taxon_data name="Chordata" proteins_count="319"/>
+    <taxon_data name="Fungi" proteins_count="15829"/>
+    <taxon_data name="GreenPlants" proteins_count="775"/>
+    <taxon_data name="Metazoa" proteins_count="78659"/>
+    <taxon_data name="Unclassified" proteins_count="28"/>
+    <taxon_data name="Archaea" proteins_count="7"/>
+    <taxon_data name="Chordata" proteins_count="61360"/>
+    <taxon_data name="Metazoa" proteins_count="15"/>
+    <taxon_data name="Nematoda" proteins_count="3435"/>
+    <taxon_data name="Archaea" proteins_count="23"/>
+    <taxon_data name="Arthropoda" proteins_count="7396"/>
+    <taxon_data name="Bacteria" proteins_count="18"/>
+    <taxon_data name="Chordata" proteins_count="260"/>
+    <taxon_data name="Fungi" proteins_count="434"/>
+    <taxon_data name="Metazoa" proteins_count="541"/>
+    <taxon_data name="Eukaryota" proteins_count="130"/>
+    <taxon_data name="OtherEukaryotes" proteins_count="130"/>
+    <taxon_data name="Fungi" proteins_count="2111"/>
+    <taxon_data name="Metazoa" proteins_count="97"/>
+    <taxon_data name="Fungi" proteins_count="366"/>
+  </taxonomy_distribution>
+</interpro>
 </interprodb>

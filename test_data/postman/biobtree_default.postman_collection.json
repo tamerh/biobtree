@@ -800,7 +800,7 @@
 									"    ",
 									"    var r = pm.response.json();",
 									"    pm.expect(r.results.length).to.eql(1);",
-									"    pm.expect(r.results[0].source.identifier).to.eql(\"EFO_0003767\");",
+									"    pm.expect(r.results[0].source.identifier).to.eql(\"EFO:0003767\");",
 									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
 									"    pm.expect(r.results[0].targets[0].dataset).to.eql(18);",
 									"    pm.expect(r.results[0].targets[0].dataset).to.eql(18);",

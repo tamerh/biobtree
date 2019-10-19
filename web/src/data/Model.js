@@ -299,6 +299,7 @@ export default class XrefModel {
                         result.url = domain_conf.protistsUrl.replace("£{id}", encodeURIComponent(result.identifier));
                         break;
                     default:
+                        result.url = "";
                         break;
                 }
                 result.url = result.url.replace("£{sp}", result.Attributes.Ensembl.genome);

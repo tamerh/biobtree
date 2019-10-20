@@ -271,8 +271,46 @@ func (s *service) aliasIDs(alias string) ([]string, error) {
 
 }
 
-func (s *service) meta() *pbuf.BiobtreeMetaResponse {
-	return nil
+func (s *service) meta() *pbuf.MetaResponse {
+
+	meta := pbuf.MetaResponse{}
+	results := map[string]*pbuf.MetaKeyValue{}
+
+	optionalFields := []string{"bacteriaUrl", "fungiUrl", "metazoaUrl", "plantsUrl", "protistsUrl"}
+	for k := range config.Dataconf {
+		if config.Dataconf[k]["_alias"] == "" { // not send the alias
+			id := config.Dataconf[k]["id"]
+			if _, ok := results[id]; !ok {
+				datasetConf := map[string]string{}
+				keyvals := &pbuf.MetaKeyValue{}
+
+				if len(config.Dataconf[k]["name"]) > 0 {
+					datasetConf["name"] = config.Dataconf[k]["name"]
+				} else {
+					datasetConf["name"] = k
+				}
+
+				if len(config.Dataconf[k]["linkdataset"]) > 0 {
+					datasetConf["linkdataset"] = config.Dataconf[k]["linkdataset"]
+				}
+
+				datasetConf["id"] = k
+				datasetConf["url"] = config.Dataconf[k]["url"]
+
+				for _, field := range optionalFields {
+					if _, ok := config.Dataconf[k][field]; ok {
+						datasetConf[field] = config.Dataconf[k][field]
+					}
+				}
+				keyvals.Keyvalues = datasetConf
+				results[id] = keyvals
+			}
+		}
+	}
+
+	meta.Results = results
+	return &meta
+
 }
 
 func (s *service) filter(id string, src uint32, filters []uint32, pageInd int) (*pbuf.Result, error) {

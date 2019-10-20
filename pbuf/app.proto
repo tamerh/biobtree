@@ -5,62 +5,75 @@ import "attr.proto";
 package pbuf;
 
 service BiobtreeService {
-  rpc Get        (BiobtreeGetRequest)       returns (BiobtreeGetResponse);
-  rpc GetPage    (BiobtreeGetPageRequest)   returns (BiobtreeGetPageResponse);
-  rpc Filter     (BiobtreeFilterRequest)    returns (BiobtreeFilterResponse);
-  rpc MapFilter  (BiobtreeMapFilterRequest) returns (BiobtreeMapFilterResponse);
-  rpc Meta       (BiobtreeMetaRequest)      returns (BiobtreeMetaResponse);
+  rpc Search    (SearchRequest)  returns (SearchResponse);
+  rpc Mapping   (MappingRequest) returns (MappingResponse);
+  rpc Entry     (EntryRequest)    returns (EntryResponse);
+  rpc Page      (PageRequest)    returns (PageResponse);
+  rpc Filter    (FilterRequest)  returns (FilterResponse);
+  rpc Meta      (MetaRequest)    returns (MetaResponse);
 }
 
-message BiobtreeGetRequest {
-  	repeated string keywords = 1;
+message SearchRequest {
+  	repeated string terms=1;
+    string dataset=2;
+    string page=3;
+    string query=4;
 }
 
-message BiobtreeGetPageRequest {
-  	string keyword = 1;
-    int32 dataset=2;
+message SearchResponse {
+  	Result results =1;
+}
+
+message MappingRequest {
+  	repeated string terms = 1;
+    string dataset=2;
+    string query = 3;
+    string page =4;
+}
+
+message MappingResponse {
+    MapFilterResult results =1;
+}
+
+message EntryRequest {
+  	string identifier = 1;
+    string dataset=2;
+}
+
+message EntryResponse {
+  	Xref result =1;
+}
+
+message PageRequest {
+  	string identifier = 1;
+    string dataset=2;
     int32 page =3;
     int32 total=4;
 }
 
-message BiobtreeFilterRequest {
-  	string keyword = 1;
-    int32 dataset=2;
-    repeated uint32 filters =3;
+message PageResponse {
+  	Result result =1;
+}
+
+message FilterRequest {
+  	string identifier = 1;
+    string dataset=2;
+    repeated string filters =3;
     int32 page =4;
 }
 
-message BiobtreeMapFilterRequest {
-  	repeated string keywords = 1;
-    string mapFilterQuery = 2;
-}
-
-message BiobtreeMetaRequest {
-}
-
-message BiobtreeGetResponse {
-  	repeated Result results =1;
-}
-
-message BiobtreeGetPageResponse {
+message FilterResponse {
   	Result result =1;
 }
 
-message BiobtreeFilterResponse {
-  	Result result =1;
+message MetaRequest {
 }
 
-message BiobtreeMapFilterResponse {
-  
-  repeated MapFilterResult results =1;
-
+message MetaResponse {
+   map<string, MetaKeyValue> results = 1;
 }
 
-message BiobtreeMetaResponse {
-     map<string, BiobtreeMetaKeyValue> results = 1;
-}
-
-message BiobtreeMetaKeyValue{
+message MetaKeyValue{
   map<string, string> keyvalues = 1;
 }
 

@@ -22,48 +22,299 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
-type BiobtreeGetRequest struct {
-	Keywords             []string `protobuf:"bytes,1,rep,name=keywords,proto3" json:"keywords,omitempty"`
+type SearchRequest struct {
+	Terms                []string `protobuf:"bytes,1,rep,name=terms,proto3" json:"terms,omitempty"`
+	Dataset              string   `protobuf:"bytes,2,opt,name=dataset,proto3" json:"dataset,omitempty"`
+	Page                 string   `protobuf:"bytes,3,opt,name=page,proto3" json:"page,omitempty"`
+	Query                string   `protobuf:"bytes,4,opt,name=query,proto3" json:"query,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *BiobtreeGetRequest) Reset()         { *m = BiobtreeGetRequest{} }
-func (m *BiobtreeGetRequest) String() string { return proto.CompactTextString(m) }
-func (*BiobtreeGetRequest) ProtoMessage()    {}
-func (*BiobtreeGetRequest) Descriptor() ([]byte, []int) {
+func (m *SearchRequest) Reset()         { *m = SearchRequest{} }
+func (m *SearchRequest) String() string { return proto.CompactTextString(m) }
+func (*SearchRequest) ProtoMessage()    {}
+func (*SearchRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_e0f9056a14b86d47, []int{0}
 }
 
-func (m *BiobtreeGetRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_BiobtreeGetRequest.Unmarshal(m, b)
+func (m *SearchRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_SearchRequest.Unmarshal(m, b)
 }
-func (m *BiobtreeGetRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_BiobtreeGetRequest.Marshal(b, m, deterministic)
+func (m *SearchRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_SearchRequest.Marshal(b, m, deterministic)
 }
-func (m *BiobtreeGetRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_BiobtreeGetRequest.Merge(m, src)
+func (m *SearchRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SearchRequest.Merge(m, src)
 }
-func (m *BiobtreeGetRequest) XXX_Size() int {
-	return xxx_messageInfo_BiobtreeGetRequest.Size(m)
+func (m *SearchRequest) XXX_Size() int {
+	return xxx_messageInfo_SearchRequest.Size(m)
 }
-func (m *BiobtreeGetRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_BiobtreeGetRequest.DiscardUnknown(m)
+func (m *SearchRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_SearchRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_BiobtreeGetRequest proto.InternalMessageInfo
+var xxx_messageInfo_SearchRequest proto.InternalMessageInfo
 
-func (m *BiobtreeGetRequest) GetKeywords() []string {
+func (m *SearchRequest) GetTerms() []string {
 	if m != nil {
-		return m.Keywords
+		return m.Terms
 	}
 	return nil
 }
 
-type BiobtreeGetPageRequest struct {
-	Keyword              string   `protobuf:"bytes,1,opt,name=keyword,proto3" json:"keyword,omitempty"`
-	Dataset              int32    `protobuf:"varint,2,opt,name=dataset,proto3" json:"dataset,omitempty"`
+func (m *SearchRequest) GetDataset() string {
+	if m != nil {
+		return m.Dataset
+	}
+	return ""
+}
+
+func (m *SearchRequest) GetPage() string {
+	if m != nil {
+		return m.Page
+	}
+	return ""
+}
+
+func (m *SearchRequest) GetQuery() string {
+	if m != nil {
+		return m.Query
+	}
+	return ""
+}
+
+type SearchResponse struct {
+	Results              *Result  `protobuf:"bytes,1,opt,name=results,proto3" json:"results,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *SearchResponse) Reset()         { *m = SearchResponse{} }
+func (m *SearchResponse) String() string { return proto.CompactTextString(m) }
+func (*SearchResponse) ProtoMessage()    {}
+func (*SearchResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_e0f9056a14b86d47, []int{1}
+}
+
+func (m *SearchResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_SearchResponse.Unmarshal(m, b)
+}
+func (m *SearchResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_SearchResponse.Marshal(b, m, deterministic)
+}
+func (m *SearchResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SearchResponse.Merge(m, src)
+}
+func (m *SearchResponse) XXX_Size() int {
+	return xxx_messageInfo_SearchResponse.Size(m)
+}
+func (m *SearchResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_SearchResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SearchResponse proto.InternalMessageInfo
+
+func (m *SearchResponse) GetResults() *Result {
+	if m != nil {
+		return m.Results
+	}
+	return nil
+}
+
+type MappingRequest struct {
+	Terms                []string `protobuf:"bytes,1,rep,name=terms,proto3" json:"terms,omitempty"`
+	Dataset              string   `protobuf:"bytes,2,opt,name=dataset,proto3" json:"dataset,omitempty"`
+	Query                string   `protobuf:"bytes,3,opt,name=query,proto3" json:"query,omitempty"`
+	Page                 string   `protobuf:"bytes,4,opt,name=page,proto3" json:"page,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *MappingRequest) Reset()         { *m = MappingRequest{} }
+func (m *MappingRequest) String() string { return proto.CompactTextString(m) }
+func (*MappingRequest) ProtoMessage()    {}
+func (*MappingRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_e0f9056a14b86d47, []int{2}
+}
+
+func (m *MappingRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_MappingRequest.Unmarshal(m, b)
+}
+func (m *MappingRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_MappingRequest.Marshal(b, m, deterministic)
+}
+func (m *MappingRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MappingRequest.Merge(m, src)
+}
+func (m *MappingRequest) XXX_Size() int {
+	return xxx_messageInfo_MappingRequest.Size(m)
+}
+func (m *MappingRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_MappingRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MappingRequest proto.InternalMessageInfo
+
+func (m *MappingRequest) GetTerms() []string {
+	if m != nil {
+		return m.Terms
+	}
+	return nil
+}
+
+func (m *MappingRequest) GetDataset() string {
+	if m != nil {
+		return m.Dataset
+	}
+	return ""
+}
+
+func (m *MappingRequest) GetQuery() string {
+	if m != nil {
+		return m.Query
+	}
+	return ""
+}
+
+func (m *MappingRequest) GetPage() string {
+	if m != nil {
+		return m.Page
+	}
+	return ""
+}
+
+type MappingResponse struct {
+	Results              *MapFilterResult `protobuf:"bytes,1,opt,name=results,proto3" json:"results,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}         `json:"-"`
+	XXX_unrecognized     []byte           `json:"-"`
+	XXX_sizecache        int32            `json:"-"`
+}
+
+func (m *MappingResponse) Reset()         { *m = MappingResponse{} }
+func (m *MappingResponse) String() string { return proto.CompactTextString(m) }
+func (*MappingResponse) ProtoMessage()    {}
+func (*MappingResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_e0f9056a14b86d47, []int{3}
+}
+
+func (m *MappingResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_MappingResponse.Unmarshal(m, b)
+}
+func (m *MappingResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_MappingResponse.Marshal(b, m, deterministic)
+}
+func (m *MappingResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MappingResponse.Merge(m, src)
+}
+func (m *MappingResponse) XXX_Size() int {
+	return xxx_messageInfo_MappingResponse.Size(m)
+}
+func (m *MappingResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MappingResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MappingResponse proto.InternalMessageInfo
+
+func (m *MappingResponse) GetResults() *MapFilterResult {
+	if m != nil {
+		return m.Results
+	}
+	return nil
+}
+
+type EntryRequest struct {
+	Identifier           string   `protobuf:"bytes,1,opt,name=identifier,proto3" json:"identifier,omitempty"`
+	Dataset              string   `protobuf:"bytes,2,opt,name=dataset,proto3" json:"dataset,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *EntryRequest) Reset()         { *m = EntryRequest{} }
+func (m *EntryRequest) String() string { return proto.CompactTextString(m) }
+func (*EntryRequest) ProtoMessage()    {}
+func (*EntryRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_e0f9056a14b86d47, []int{4}
+}
+
+func (m *EntryRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_EntryRequest.Unmarshal(m, b)
+}
+func (m *EntryRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_EntryRequest.Marshal(b, m, deterministic)
+}
+func (m *EntryRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EntryRequest.Merge(m, src)
+}
+func (m *EntryRequest) XXX_Size() int {
+	return xxx_messageInfo_EntryRequest.Size(m)
+}
+func (m *EntryRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_EntryRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_EntryRequest proto.InternalMessageInfo
+
+func (m *EntryRequest) GetIdentifier() string {
+	if m != nil {
+		return m.Identifier
+	}
+	return ""
+}
+
+func (m *EntryRequest) GetDataset() string {
+	if m != nil {
+		return m.Dataset
+	}
+	return ""
+}
+
+type EntryResponse struct {
+	Result               *Xref    `protobuf:"bytes,1,opt,name=result,proto3" json:"result,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *EntryResponse) Reset()         { *m = EntryResponse{} }
+func (m *EntryResponse) String() string { return proto.CompactTextString(m) }
+func (*EntryResponse) ProtoMessage()    {}
+func (*EntryResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_e0f9056a14b86d47, []int{5}
+}
+
+func (m *EntryResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_EntryResponse.Unmarshal(m, b)
+}
+func (m *EntryResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_EntryResponse.Marshal(b, m, deterministic)
+}
+func (m *EntryResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EntryResponse.Merge(m, src)
+}
+func (m *EntryResponse) XXX_Size() int {
+	return xxx_messageInfo_EntryResponse.Size(m)
+}
+func (m *EntryResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_EntryResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_EntryResponse proto.InternalMessageInfo
+
+func (m *EntryResponse) GetResult() *Xref {
+	if m != nil {
+		return m.Result
+	}
+	return nil
+}
+
+type PageRequest struct {
+	Identifier           string   `protobuf:"bytes,1,opt,name=identifier,proto3" json:"identifier,omitempty"`
+	Dataset              string   `protobuf:"bytes,2,opt,name=dataset,proto3" json:"dataset,omitempty"`
 	Page                 int32    `protobuf:"varint,3,opt,name=page,proto3" json:"page,omitempty"`
 	Total                int32    `protobuf:"varint,4,opt,name=total,proto3" json:"total,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -71,428 +322,303 @@ type BiobtreeGetPageRequest struct {
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *BiobtreeGetPageRequest) Reset()         { *m = BiobtreeGetPageRequest{} }
-func (m *BiobtreeGetPageRequest) String() string { return proto.CompactTextString(m) }
-func (*BiobtreeGetPageRequest) ProtoMessage()    {}
-func (*BiobtreeGetPageRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_e0f9056a14b86d47, []int{1}
+func (m *PageRequest) Reset()         { *m = PageRequest{} }
+func (m *PageRequest) String() string { return proto.CompactTextString(m) }
+func (*PageRequest) ProtoMessage()    {}
+func (*PageRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_e0f9056a14b86d47, []int{6}
 }
 
-func (m *BiobtreeGetPageRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_BiobtreeGetPageRequest.Unmarshal(m, b)
+func (m *PageRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_PageRequest.Unmarshal(m, b)
 }
-func (m *BiobtreeGetPageRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_BiobtreeGetPageRequest.Marshal(b, m, deterministic)
+func (m *PageRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_PageRequest.Marshal(b, m, deterministic)
 }
-func (m *BiobtreeGetPageRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_BiobtreeGetPageRequest.Merge(m, src)
+func (m *PageRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_PageRequest.Merge(m, src)
 }
-func (m *BiobtreeGetPageRequest) XXX_Size() int {
-	return xxx_messageInfo_BiobtreeGetPageRequest.Size(m)
+func (m *PageRequest) XXX_Size() int {
+	return xxx_messageInfo_PageRequest.Size(m)
 }
-func (m *BiobtreeGetPageRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_BiobtreeGetPageRequest.DiscardUnknown(m)
+func (m *PageRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_PageRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_BiobtreeGetPageRequest proto.InternalMessageInfo
+var xxx_messageInfo_PageRequest proto.InternalMessageInfo
 
-func (m *BiobtreeGetPageRequest) GetKeyword() string {
+func (m *PageRequest) GetIdentifier() string {
 	if m != nil {
-		return m.Keyword
+		return m.Identifier
 	}
 	return ""
 }
 
-func (m *BiobtreeGetPageRequest) GetDataset() int32 {
+func (m *PageRequest) GetDataset() string {
 	if m != nil {
 		return m.Dataset
 	}
-	return 0
+	return ""
 }
 
-func (m *BiobtreeGetPageRequest) GetPage() int32 {
+func (m *PageRequest) GetPage() int32 {
 	if m != nil {
 		return m.Page
 	}
 	return 0
 }
 
-func (m *BiobtreeGetPageRequest) GetTotal() int32 {
+func (m *PageRequest) GetTotal() int32 {
 	if m != nil {
 		return m.Total
 	}
 	return 0
 }
 
-type BiobtreeFilterRequest struct {
-	Keyword              string   `protobuf:"bytes,1,opt,name=keyword,proto3" json:"keyword,omitempty"`
-	Dataset              int32    `protobuf:"varint,2,opt,name=dataset,proto3" json:"dataset,omitempty"`
-	Filters              []uint32 `protobuf:"varint,3,rep,packed,name=filters,proto3" json:"filters,omitempty"`
+type PageResponse struct {
+	Result               *Result  `protobuf:"bytes,1,opt,name=result,proto3" json:"result,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *PageResponse) Reset()         { *m = PageResponse{} }
+func (m *PageResponse) String() string { return proto.CompactTextString(m) }
+func (*PageResponse) ProtoMessage()    {}
+func (*PageResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_e0f9056a14b86d47, []int{7}
+}
+
+func (m *PageResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_PageResponse.Unmarshal(m, b)
+}
+func (m *PageResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_PageResponse.Marshal(b, m, deterministic)
+}
+func (m *PageResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_PageResponse.Merge(m, src)
+}
+func (m *PageResponse) XXX_Size() int {
+	return xxx_messageInfo_PageResponse.Size(m)
+}
+func (m *PageResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_PageResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_PageResponse proto.InternalMessageInfo
+
+func (m *PageResponse) GetResult() *Result {
+	if m != nil {
+		return m.Result
+	}
+	return nil
+}
+
+type FilterRequest struct {
+	Identifier           string   `protobuf:"bytes,1,opt,name=identifier,proto3" json:"identifier,omitempty"`
+	Dataset              string   `protobuf:"bytes,2,opt,name=dataset,proto3" json:"dataset,omitempty"`
+	Filters              []string `protobuf:"bytes,3,rep,name=filters,proto3" json:"filters,omitempty"`
 	Page                 int32    `protobuf:"varint,4,opt,name=page,proto3" json:"page,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *BiobtreeFilterRequest) Reset()         { *m = BiobtreeFilterRequest{} }
-func (m *BiobtreeFilterRequest) String() string { return proto.CompactTextString(m) }
-func (*BiobtreeFilterRequest) ProtoMessage()    {}
-func (*BiobtreeFilterRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_e0f9056a14b86d47, []int{2}
+func (m *FilterRequest) Reset()         { *m = FilterRequest{} }
+func (m *FilterRequest) String() string { return proto.CompactTextString(m) }
+func (*FilterRequest) ProtoMessage()    {}
+func (*FilterRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_e0f9056a14b86d47, []int{8}
 }
 
-func (m *BiobtreeFilterRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_BiobtreeFilterRequest.Unmarshal(m, b)
+func (m *FilterRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_FilterRequest.Unmarshal(m, b)
 }
-func (m *BiobtreeFilterRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_BiobtreeFilterRequest.Marshal(b, m, deterministic)
+func (m *FilterRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_FilterRequest.Marshal(b, m, deterministic)
 }
-func (m *BiobtreeFilterRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_BiobtreeFilterRequest.Merge(m, src)
+func (m *FilterRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_FilterRequest.Merge(m, src)
 }
-func (m *BiobtreeFilterRequest) XXX_Size() int {
-	return xxx_messageInfo_BiobtreeFilterRequest.Size(m)
+func (m *FilterRequest) XXX_Size() int {
+	return xxx_messageInfo_FilterRequest.Size(m)
 }
-func (m *BiobtreeFilterRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_BiobtreeFilterRequest.DiscardUnknown(m)
+func (m *FilterRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_FilterRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_BiobtreeFilterRequest proto.InternalMessageInfo
+var xxx_messageInfo_FilterRequest proto.InternalMessageInfo
 
-func (m *BiobtreeFilterRequest) GetKeyword() string {
+func (m *FilterRequest) GetIdentifier() string {
 	if m != nil {
-		return m.Keyword
+		return m.Identifier
 	}
 	return ""
 }
 
-func (m *BiobtreeFilterRequest) GetDataset() int32 {
+func (m *FilterRequest) GetDataset() string {
 	if m != nil {
 		return m.Dataset
 	}
-	return 0
+	return ""
 }
 
-func (m *BiobtreeFilterRequest) GetFilters() []uint32 {
+func (m *FilterRequest) GetFilters() []string {
 	if m != nil {
 		return m.Filters
 	}
 	return nil
 }
 
-func (m *BiobtreeFilterRequest) GetPage() int32 {
+func (m *FilterRequest) GetPage() int32 {
 	if m != nil {
 		return m.Page
 	}
 	return 0
 }
 
-type BiobtreeMapFilterRequest struct {
-	Keywords             []string `protobuf:"bytes,1,rep,name=keywords,proto3" json:"keywords,omitempty"`
-	MapFilterQuery       string   `protobuf:"bytes,2,opt,name=mapFilterQuery,proto3" json:"mapFilterQuery,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *BiobtreeMapFilterRequest) Reset()         { *m = BiobtreeMapFilterRequest{} }
-func (m *BiobtreeMapFilterRequest) String() string { return proto.CompactTextString(m) }
-func (*BiobtreeMapFilterRequest) ProtoMessage()    {}
-func (*BiobtreeMapFilterRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_e0f9056a14b86d47, []int{3}
-}
-
-func (m *BiobtreeMapFilterRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_BiobtreeMapFilterRequest.Unmarshal(m, b)
-}
-func (m *BiobtreeMapFilterRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_BiobtreeMapFilterRequest.Marshal(b, m, deterministic)
-}
-func (m *BiobtreeMapFilterRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_BiobtreeMapFilterRequest.Merge(m, src)
-}
-func (m *BiobtreeMapFilterRequest) XXX_Size() int {
-	return xxx_messageInfo_BiobtreeMapFilterRequest.Size(m)
-}
-func (m *BiobtreeMapFilterRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_BiobtreeMapFilterRequest.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_BiobtreeMapFilterRequest proto.InternalMessageInfo
-
-func (m *BiobtreeMapFilterRequest) GetKeywords() []string {
-	if m != nil {
-		return m.Keywords
-	}
-	return nil
-}
-
-func (m *BiobtreeMapFilterRequest) GetMapFilterQuery() string {
-	if m != nil {
-		return m.MapFilterQuery
-	}
-	return ""
-}
-
-type BiobtreeMetaRequest struct {
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *BiobtreeMetaRequest) Reset()         { *m = BiobtreeMetaRequest{} }
-func (m *BiobtreeMetaRequest) String() string { return proto.CompactTextString(m) }
-func (*BiobtreeMetaRequest) ProtoMessage()    {}
-func (*BiobtreeMetaRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_e0f9056a14b86d47, []int{4}
-}
-
-func (m *BiobtreeMetaRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_BiobtreeMetaRequest.Unmarshal(m, b)
-}
-func (m *BiobtreeMetaRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_BiobtreeMetaRequest.Marshal(b, m, deterministic)
-}
-func (m *BiobtreeMetaRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_BiobtreeMetaRequest.Merge(m, src)
-}
-func (m *BiobtreeMetaRequest) XXX_Size() int {
-	return xxx_messageInfo_BiobtreeMetaRequest.Size(m)
-}
-func (m *BiobtreeMetaRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_BiobtreeMetaRequest.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_BiobtreeMetaRequest proto.InternalMessageInfo
-
-type BiobtreeGetResponse struct {
-	Results              []*Result `protobuf:"bytes,1,rep,name=results,proto3" json:"results,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}  `json:"-"`
-	XXX_unrecognized     []byte    `json:"-"`
-	XXX_sizecache        int32     `json:"-"`
-}
-
-func (m *BiobtreeGetResponse) Reset()         { *m = BiobtreeGetResponse{} }
-func (m *BiobtreeGetResponse) String() string { return proto.CompactTextString(m) }
-func (*BiobtreeGetResponse) ProtoMessage()    {}
-func (*BiobtreeGetResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_e0f9056a14b86d47, []int{5}
-}
-
-func (m *BiobtreeGetResponse) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_BiobtreeGetResponse.Unmarshal(m, b)
-}
-func (m *BiobtreeGetResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_BiobtreeGetResponse.Marshal(b, m, deterministic)
-}
-func (m *BiobtreeGetResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_BiobtreeGetResponse.Merge(m, src)
-}
-func (m *BiobtreeGetResponse) XXX_Size() int {
-	return xxx_messageInfo_BiobtreeGetResponse.Size(m)
-}
-func (m *BiobtreeGetResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_BiobtreeGetResponse.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_BiobtreeGetResponse proto.InternalMessageInfo
-
-func (m *BiobtreeGetResponse) GetResults() []*Result {
-	if m != nil {
-		return m.Results
-	}
-	return nil
-}
-
-type BiobtreeGetPageResponse struct {
+type FilterResponse struct {
 	Result               *Result  `protobuf:"bytes,1,opt,name=result,proto3" json:"result,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *BiobtreeGetPageResponse) Reset()         { *m = BiobtreeGetPageResponse{} }
-func (m *BiobtreeGetPageResponse) String() string { return proto.CompactTextString(m) }
-func (*BiobtreeGetPageResponse) ProtoMessage()    {}
-func (*BiobtreeGetPageResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_e0f9056a14b86d47, []int{6}
-}
-
-func (m *BiobtreeGetPageResponse) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_BiobtreeGetPageResponse.Unmarshal(m, b)
-}
-func (m *BiobtreeGetPageResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_BiobtreeGetPageResponse.Marshal(b, m, deterministic)
-}
-func (m *BiobtreeGetPageResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_BiobtreeGetPageResponse.Merge(m, src)
-}
-func (m *BiobtreeGetPageResponse) XXX_Size() int {
-	return xxx_messageInfo_BiobtreeGetPageResponse.Size(m)
-}
-func (m *BiobtreeGetPageResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_BiobtreeGetPageResponse.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_BiobtreeGetPageResponse proto.InternalMessageInfo
-
-func (m *BiobtreeGetPageResponse) GetResult() *Result {
-	if m != nil {
-		return m.Result
-	}
-	return nil
-}
-
-type BiobtreeFilterResponse struct {
-	Result               *Result  `protobuf:"bytes,1,opt,name=result,proto3" json:"result,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *BiobtreeFilterResponse) Reset()         { *m = BiobtreeFilterResponse{} }
-func (m *BiobtreeFilterResponse) String() string { return proto.CompactTextString(m) }
-func (*BiobtreeFilterResponse) ProtoMessage()    {}
-func (*BiobtreeFilterResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_e0f9056a14b86d47, []int{7}
-}
-
-func (m *BiobtreeFilterResponse) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_BiobtreeFilterResponse.Unmarshal(m, b)
-}
-func (m *BiobtreeFilterResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_BiobtreeFilterResponse.Marshal(b, m, deterministic)
-}
-func (m *BiobtreeFilterResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_BiobtreeFilterResponse.Merge(m, src)
-}
-func (m *BiobtreeFilterResponse) XXX_Size() int {
-	return xxx_messageInfo_BiobtreeFilterResponse.Size(m)
-}
-func (m *BiobtreeFilterResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_BiobtreeFilterResponse.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_BiobtreeFilterResponse proto.InternalMessageInfo
-
-func (m *BiobtreeFilterResponse) GetResult() *Result {
-	if m != nil {
-		return m.Result
-	}
-	return nil
-}
-
-type BiobtreeMapFilterResponse struct {
-	Results              []*MapFilterResult `protobuf:"bytes,1,rep,name=results,proto3" json:"results,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}           `json:"-"`
-	XXX_unrecognized     []byte             `json:"-"`
-	XXX_sizecache        int32              `json:"-"`
-}
-
-func (m *BiobtreeMapFilterResponse) Reset()         { *m = BiobtreeMapFilterResponse{} }
-func (m *BiobtreeMapFilterResponse) String() string { return proto.CompactTextString(m) }
-func (*BiobtreeMapFilterResponse) ProtoMessage()    {}
-func (*BiobtreeMapFilterResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_e0f9056a14b86d47, []int{8}
-}
-
-func (m *BiobtreeMapFilterResponse) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_BiobtreeMapFilterResponse.Unmarshal(m, b)
-}
-func (m *BiobtreeMapFilterResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_BiobtreeMapFilterResponse.Marshal(b, m, deterministic)
-}
-func (m *BiobtreeMapFilterResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_BiobtreeMapFilterResponse.Merge(m, src)
-}
-func (m *BiobtreeMapFilterResponse) XXX_Size() int {
-	return xxx_messageInfo_BiobtreeMapFilterResponse.Size(m)
-}
-func (m *BiobtreeMapFilterResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_BiobtreeMapFilterResponse.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_BiobtreeMapFilterResponse proto.InternalMessageInfo
-
-func (m *BiobtreeMapFilterResponse) GetResults() []*MapFilterResult {
-	if m != nil {
-		return m.Results
-	}
-	return nil
-}
-
-type BiobtreeMetaResponse struct {
-	Results              map[string]*BiobtreeMetaKeyValue `protobuf:"bytes,1,rep,name=results,proto3" json:"results,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
-	XXX_NoUnkeyedLiteral struct{}                         `json:"-"`
-	XXX_unrecognized     []byte                           `json:"-"`
-	XXX_sizecache        int32                            `json:"-"`
-}
-
-func (m *BiobtreeMetaResponse) Reset()         { *m = BiobtreeMetaResponse{} }
-func (m *BiobtreeMetaResponse) String() string { return proto.CompactTextString(m) }
-func (*BiobtreeMetaResponse) ProtoMessage()    {}
-func (*BiobtreeMetaResponse) Descriptor() ([]byte, []int) {
+func (m *FilterResponse) Reset()         { *m = FilterResponse{} }
+func (m *FilterResponse) String() string { return proto.CompactTextString(m) }
+func (*FilterResponse) ProtoMessage()    {}
+func (*FilterResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_e0f9056a14b86d47, []int{9}
 }
 
-func (m *BiobtreeMetaResponse) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_BiobtreeMetaResponse.Unmarshal(m, b)
+func (m *FilterResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_FilterResponse.Unmarshal(m, b)
 }
-func (m *BiobtreeMetaResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_BiobtreeMetaResponse.Marshal(b, m, deterministic)
+func (m *FilterResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_FilterResponse.Marshal(b, m, deterministic)
 }
-func (m *BiobtreeMetaResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_BiobtreeMetaResponse.Merge(m, src)
+func (m *FilterResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_FilterResponse.Merge(m, src)
 }
-func (m *BiobtreeMetaResponse) XXX_Size() int {
-	return xxx_messageInfo_BiobtreeMetaResponse.Size(m)
+func (m *FilterResponse) XXX_Size() int {
+	return xxx_messageInfo_FilterResponse.Size(m)
 }
-func (m *BiobtreeMetaResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_BiobtreeMetaResponse.DiscardUnknown(m)
+func (m *FilterResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_FilterResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_BiobtreeMetaResponse proto.InternalMessageInfo
+var xxx_messageInfo_FilterResponse proto.InternalMessageInfo
 
-func (m *BiobtreeMetaResponse) GetResults() map[string]*BiobtreeMetaKeyValue {
+func (m *FilterResponse) GetResult() *Result {
+	if m != nil {
+		return m.Result
+	}
+	return nil
+}
+
+type MetaRequest struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *MetaRequest) Reset()         { *m = MetaRequest{} }
+func (m *MetaRequest) String() string { return proto.CompactTextString(m) }
+func (*MetaRequest) ProtoMessage()    {}
+func (*MetaRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_e0f9056a14b86d47, []int{10}
+}
+
+func (m *MetaRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_MetaRequest.Unmarshal(m, b)
+}
+func (m *MetaRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_MetaRequest.Marshal(b, m, deterministic)
+}
+func (m *MetaRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MetaRequest.Merge(m, src)
+}
+func (m *MetaRequest) XXX_Size() int {
+	return xxx_messageInfo_MetaRequest.Size(m)
+}
+func (m *MetaRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_MetaRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MetaRequest proto.InternalMessageInfo
+
+type MetaResponse struct {
+	Results              map[string]*MetaKeyValue `protobuf:"bytes,1,rep,name=results,proto3" json:"results,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	XXX_NoUnkeyedLiteral struct{}                 `json:"-"`
+	XXX_unrecognized     []byte                   `json:"-"`
+	XXX_sizecache        int32                    `json:"-"`
+}
+
+func (m *MetaResponse) Reset()         { *m = MetaResponse{} }
+func (m *MetaResponse) String() string { return proto.CompactTextString(m) }
+func (*MetaResponse) ProtoMessage()    {}
+func (*MetaResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_e0f9056a14b86d47, []int{11}
+}
+
+func (m *MetaResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_MetaResponse.Unmarshal(m, b)
+}
+func (m *MetaResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_MetaResponse.Marshal(b, m, deterministic)
+}
+func (m *MetaResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MetaResponse.Merge(m, src)
+}
+func (m *MetaResponse) XXX_Size() int {
+	return xxx_messageInfo_MetaResponse.Size(m)
+}
+func (m *MetaResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MetaResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MetaResponse proto.InternalMessageInfo
+
+func (m *MetaResponse) GetResults() map[string]*MetaKeyValue {
 	if m != nil {
 		return m.Results
 	}
 	return nil
 }
 
-type BiobtreeMetaKeyValue struct {
+type MetaKeyValue struct {
 	Keyvalues            map[string]string `protobuf:"bytes,1,rep,name=keyvalues,proto3" json:"keyvalues,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
 	XXX_unrecognized     []byte            `json:"-"`
 	XXX_sizecache        int32             `json:"-"`
 }
 
-func (m *BiobtreeMetaKeyValue) Reset()         { *m = BiobtreeMetaKeyValue{} }
-func (m *BiobtreeMetaKeyValue) String() string { return proto.CompactTextString(m) }
-func (*BiobtreeMetaKeyValue) ProtoMessage()    {}
-func (*BiobtreeMetaKeyValue) Descriptor() ([]byte, []int) {
-	return fileDescriptor_e0f9056a14b86d47, []int{10}
+func (m *MetaKeyValue) Reset()         { *m = MetaKeyValue{} }
+func (m *MetaKeyValue) String() string { return proto.CompactTextString(m) }
+func (*MetaKeyValue) ProtoMessage()    {}
+func (*MetaKeyValue) Descriptor() ([]byte, []int) {
+	return fileDescriptor_e0f9056a14b86d47, []int{12}
 }
 
-func (m *BiobtreeMetaKeyValue) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_BiobtreeMetaKeyValue.Unmarshal(m, b)
+func (m *MetaKeyValue) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_MetaKeyValue.Unmarshal(m, b)
 }
-func (m *BiobtreeMetaKeyValue) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_BiobtreeMetaKeyValue.Marshal(b, m, deterministic)
+func (m *MetaKeyValue) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_MetaKeyValue.Marshal(b, m, deterministic)
 }
-func (m *BiobtreeMetaKeyValue) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_BiobtreeMetaKeyValue.Merge(m, src)
+func (m *MetaKeyValue) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MetaKeyValue.Merge(m, src)
 }
-func (m *BiobtreeMetaKeyValue) XXX_Size() int {
-	return xxx_messageInfo_BiobtreeMetaKeyValue.Size(m)
+func (m *MetaKeyValue) XXX_Size() int {
+	return xxx_messageInfo_MetaKeyValue.Size(m)
 }
-func (m *BiobtreeMetaKeyValue) XXX_DiscardUnknown() {
-	xxx_messageInfo_BiobtreeMetaKeyValue.DiscardUnknown(m)
+func (m *MetaKeyValue) XXX_DiscardUnknown() {
+	xxx_messageInfo_MetaKeyValue.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_BiobtreeMetaKeyValue proto.InternalMessageInfo
+var xxx_messageInfo_MetaKeyValue proto.InternalMessageInfo
 
-func (m *BiobtreeMetaKeyValue) GetKeyvalues() map[string]string {
+func (m *MetaKeyValue) GetKeyvalues() map[string]string {
 	if m != nil {
 		return m.Keyvalues
 	}
@@ -511,7 +637,7 @@ func (m *Result) Reset()         { *m = Result{} }
 func (m *Result) String() string { return proto.CompactTextString(m) }
 func (*Result) ProtoMessage()    {}
 func (*Result) Descriptor() ([]byte, []int) {
-	return fileDescriptor_e0f9056a14b86d47, []int{11}
+	return fileDescriptor_e0f9056a14b86d47, []int{13}
 }
 
 func (m *Result) XXX_Unmarshal(b []byte) error {
@@ -558,7 +684,7 @@ func (m *MapFilterResult) Reset()         { *m = MapFilterResult{} }
 func (m *MapFilterResult) String() string { return proto.CompactTextString(m) }
 func (*MapFilterResult) ProtoMessage()    {}
 func (*MapFilterResult) Descriptor() ([]byte, []int) {
-	return fileDescriptor_e0f9056a14b86d47, []int{12}
+	return fileDescriptor_e0f9056a14b86d47, []int{14}
 }
 
 func (m *MapFilterResult) XXX_Unmarshal(b []byte) error {
@@ -605,7 +731,7 @@ func (m *MapFilter) Reset()         { *m = MapFilter{} }
 func (m *MapFilter) String() string { return proto.CompactTextString(m) }
 func (*MapFilter) ProtoMessage()    {}
 func (*MapFilter) Descriptor() ([]byte, []int) {
-	return fileDescriptor_e0f9056a14b86d47, []int{13}
+	return fileDescriptor_e0f9056a14b86d47, []int{15}
 }
 
 func (m *MapFilter) XXX_Unmarshal(b []byte) error {
@@ -677,7 +803,7 @@ func (m *Xref) Reset()         { *m = Xref{} }
 func (m *Xref) String() string { return proto.CompactTextString(m) }
 func (*Xref) ProtoMessage()    {}
 func (*Xref) Descriptor() ([]byte, []int) {
-	return fileDescriptor_e0f9056a14b86d47, []int{14}
+	return fileDescriptor_e0f9056a14b86d47, []int{16}
 }
 
 func (m *Xref) XXX_Unmarshal(b []byte) error {
@@ -999,7 +1125,7 @@ func (m *PageInfo) Reset()         { *m = PageInfo{} }
 func (m *PageInfo) String() string { return proto.CompactTextString(m) }
 func (*PageInfo) ProtoMessage()    {}
 func (*PageInfo) Descriptor() ([]byte, []int) {
-	return fileDescriptor_e0f9056a14b86d47, []int{15}
+	return fileDescriptor_e0f9056a14b86d47, []int{17}
 }
 
 func (m *PageInfo) XXX_Unmarshal(b []byte) error {
@@ -1039,7 +1165,7 @@ func (m *XrefEntry) Reset()         { *m = XrefEntry{} }
 func (m *XrefEntry) String() string { return proto.CompactTextString(m) }
 func (*XrefEntry) ProtoMessage()    {}
 func (*XrefEntry) Descriptor() ([]byte, []int) {
-	return fileDescriptor_e0f9056a14b86d47, []int{16}
+	return fileDescriptor_e0f9056a14b86d47, []int{18}
 }
 
 func (m *XrefEntry) XXX_Unmarshal(b []byte) error {
@@ -1086,7 +1212,7 @@ func (m *XrefDomainCount) Reset()         { *m = XrefDomainCount{} }
 func (m *XrefDomainCount) String() string { return proto.CompactTextString(m) }
 func (*XrefDomainCount) ProtoMessage()    {}
 func (*XrefDomainCount) Descriptor() ([]byte, []int) {
-	return fileDescriptor_e0f9056a14b86d47, []int{17}
+	return fileDescriptor_e0f9056a14b86d47, []int{19}
 }
 
 func (m *XrefDomainCount) XXX_Unmarshal(b []byte) error {
@@ -1132,7 +1258,7 @@ func (m *Alias) Reset()         { *m = Alias{} }
 func (m *Alias) String() string { return proto.CompactTextString(m) }
 func (*Alias) ProtoMessage()    {}
 func (*Alias) Descriptor() ([]byte, []int) {
-	return fileDescriptor_e0f9056a14b86d47, []int{18}
+	return fileDescriptor_e0f9056a14b86d47, []int{20}
 }
 
 func (m *Alias) XXX_Unmarshal(b []byte) error {
@@ -1161,19 +1287,21 @@ func (m *Alias) GetIdentifiers() []string {
 }
 
 func init() {
-	proto.RegisterType((*BiobtreeGetRequest)(nil), "pbuf.BiobtreeGetRequest")
-	proto.RegisterType((*BiobtreeGetPageRequest)(nil), "pbuf.BiobtreeGetPageRequest")
-	proto.RegisterType((*BiobtreeFilterRequest)(nil), "pbuf.BiobtreeFilterRequest")
-	proto.RegisterType((*BiobtreeMapFilterRequest)(nil), "pbuf.BiobtreeMapFilterRequest")
-	proto.RegisterType((*BiobtreeMetaRequest)(nil), "pbuf.BiobtreeMetaRequest")
-	proto.RegisterType((*BiobtreeGetResponse)(nil), "pbuf.BiobtreeGetResponse")
-	proto.RegisterType((*BiobtreeGetPageResponse)(nil), "pbuf.BiobtreeGetPageResponse")
-	proto.RegisterType((*BiobtreeFilterResponse)(nil), "pbuf.BiobtreeFilterResponse")
-	proto.RegisterType((*BiobtreeMapFilterResponse)(nil), "pbuf.BiobtreeMapFilterResponse")
-	proto.RegisterType((*BiobtreeMetaResponse)(nil), "pbuf.BiobtreeMetaResponse")
-	proto.RegisterMapType((map[string]*BiobtreeMetaKeyValue)(nil), "pbuf.BiobtreeMetaResponse.ResultsEntry")
-	proto.RegisterType((*BiobtreeMetaKeyValue)(nil), "pbuf.BiobtreeMetaKeyValue")
-	proto.RegisterMapType((map[string]string)(nil), "pbuf.BiobtreeMetaKeyValue.KeyvaluesEntry")
+	proto.RegisterType((*SearchRequest)(nil), "pbuf.SearchRequest")
+	proto.RegisterType((*SearchResponse)(nil), "pbuf.SearchResponse")
+	proto.RegisterType((*MappingRequest)(nil), "pbuf.MappingRequest")
+	proto.RegisterType((*MappingResponse)(nil), "pbuf.MappingResponse")
+	proto.RegisterType((*EntryRequest)(nil), "pbuf.EntryRequest")
+	proto.RegisterType((*EntryResponse)(nil), "pbuf.EntryResponse")
+	proto.RegisterType((*PageRequest)(nil), "pbuf.PageRequest")
+	proto.RegisterType((*PageResponse)(nil), "pbuf.PageResponse")
+	proto.RegisterType((*FilterRequest)(nil), "pbuf.FilterRequest")
+	proto.RegisterType((*FilterResponse)(nil), "pbuf.FilterResponse")
+	proto.RegisterType((*MetaRequest)(nil), "pbuf.MetaRequest")
+	proto.RegisterType((*MetaResponse)(nil), "pbuf.MetaResponse")
+	proto.RegisterMapType((map[string]*MetaKeyValue)(nil), "pbuf.MetaResponse.ResultsEntry")
+	proto.RegisterType((*MetaKeyValue)(nil), "pbuf.MetaKeyValue")
+	proto.RegisterMapType((map[string]string)(nil), "pbuf.MetaKeyValue.KeyvaluesEntry")
 	proto.RegisterType((*Result)(nil), "pbuf.Result")
 	proto.RegisterType((*MapFilterResult)(nil), "pbuf.MapFilterResult")
 	proto.RegisterType((*MapFilter)(nil), "pbuf.MapFilter")
@@ -1188,76 +1316,78 @@ func init() {
 func init() { proto.RegisterFile("app.proto", fileDescriptor_e0f9056a14b86d47) }
 
 var fileDescriptor_e0f9056a14b86d47 = []byte{
-	// 1094 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xa4, 0x56, 0xeb, 0x6e, 0x1b, 0x45,
-	0x14, 0xae, 0xef, 0xf6, 0x49, 0x9c, 0xcb, 0x34, 0x97, 0xc9, 0x12, 0x8a, 0x59, 0x45, 0x25, 0x41,
-	0x10, 0xa2, 0x20, 0x21, 0x54, 0xb5, 0x40, 0x9a, 0x6b, 0x69, 0x50, 0xcb, 0x42, 0xab, 0xfe, 0xa2,
-	0x1a, 0xdb, 0x63, 0x67, 0x65, 0x7b, 0x76, 0x99, 0x9d, 0x0d, 0xf1, 0xc3, 0xf0, 0x10, 0x3c, 0x00,
-	0xcf, 0xc3, 0x6b, 0xa0, 0xb9, 0xad, 0x67, 0x37, 0x4e, 0x04, 0xea, 0xbf, 0x3d, 0xe7, 0x7c, 0xe7,
-	0x9b, 0x6f, 0xe6, 0xcc, 0x9e, 0x39, 0xd0, 0x22, 0x71, 0xbc, 0x1f, 0xf3, 0x48, 0x44, 0xa8, 0x1a,
-	0x77, 0xd3, 0x81, 0x07, 0x44, 0x08, 0xae, 0x3d, 0xfe, 0x01, 0xa0, 0xe7, 0x61, 0xd4, 0x15, 0x9c,
-	0xd2, 0x73, 0x2a, 0x02, 0xfa, 0x7b, 0x4a, 0x13, 0x81, 0x3c, 0x68, 0x8e, 0xe8, 0xf4, 0x8f, 0x88,
-	0xf7, 0x13, 0x5c, 0xea, 0x54, 0x76, 0x5b, 0x41, 0x66, 0xfb, 0xd7, 0xb0, 0xe1, 0x64, 0xbc, 0x26,
-	0x43, 0x6a, 0xb3, 0x30, 0x34, 0x0c, 0x0a, 0x97, 0x3a, 0xa5, 0xdd, 0x56, 0x60, 0x4d, 0x19, 0xe9,
-	0x13, 0x41, 0x12, 0x2a, 0x70, 0xb9, 0x53, 0xda, 0xad, 0x05, 0xd6, 0x44, 0x08, 0xaa, 0x31, 0x19,
-	0x52, 0x5c, 0x51, 0x6e, 0xf5, 0x8d, 0xd6, 0xa0, 0x26, 0x22, 0x41, 0xc6, 0xb8, 0xaa, 0x9c, 0xda,
-	0xf0, 0xa7, 0xb0, 0x6e, 0xd7, 0x3d, 0x0b, 0xc7, 0x82, 0xf2, 0x0f, 0x59, 0x16, 0x43, 0x63, 0xa0,
-	0x48, 0x12, 0x5c, 0xe9, 0x54, 0x76, 0xdb, 0x81, 0x35, 0x33, 0x41, 0xd5, 0x99, 0x20, 0xff, 0x37,
-	0xc0, 0x76, 0xe9, 0x9f, 0x48, 0x9c, 0x5f, 0xfd, 0x9e, 0xa3, 0x42, 0x8f, 0x61, 0x69, 0x62, 0xf1,
-	0x3f, 0xa7, 0x94, 0x4f, 0x95, 0x8c, 0x56, 0x50, 0xf0, 0xfa, 0xeb, 0xf0, 0x30, 0xe3, 0xa7, 0x82,
-	0x18, 0x6a, 0xff, 0xd9, 0xcc, 0xad, 0x6a, 0x93, 0xc4, 0x11, 0x4b, 0x28, 0x7a, 0x0c, 0x0d, 0x4e,
-	0x93, 0x74, 0x2c, 0xf4, 0x82, 0x0b, 0x87, 0x8b, 0xfb, 0xb2, 0xac, 0xfb, 0x81, 0x72, 0x06, 0x36,
-	0xe8, 0x7f, 0x0f, 0x9b, 0xb7, 0x0a, 0x65, 0x28, 0x76, 0xa0, 0xae, 0x51, 0xea, 0xc4, 0x8a, 0x0c,
-	0x26, 0xe6, 0x7f, 0x37, 0xab, 0xb4, 0xdd, 0xf3, 0xff, 0xca, 0xbf, 0x84, 0xad, 0x39, 0xc7, 0x66,
-	0x28, 0xbe, 0x2a, 0xee, 0x62, 0x5d, 0x73, 0xb8, 0xc8, 0xdc, 0x76, 0xfe, 0x2a, 0xc1, 0x5a, 0xfe,
-	0x94, 0x0c, 0xd3, 0x51, 0x91, 0xe9, 0x33, 0xcd, 0x34, 0x0f, 0x6c, 0x24, 0x26, 0xa7, 0x4c, 0xf0,
-	0x69, 0xc6, 0xed, 0xbd, 0x85, 0x45, 0x37, 0x80, 0x56, 0xa0, 0x32, 0xa2, 0x53, 0x73, 0x9d, 0xe4,
-	0x27, 0x3a, 0x80, 0xda, 0x35, 0x19, 0xa7, 0x54, 0x55, 0x70, 0xe1, 0xd0, 0xbb, 0xbd, 0xc4, 0x4b,
-	0x3a, 0x7d, 0x2b, 0x11, 0x81, 0x06, 0x3e, 0x29, 0x7f, 0x5b, 0xf2, 0xff, 0x2c, 0x68, 0xb6, 0x18,
-	0x74, 0x0e, 0xad, 0x11, 0x9d, 0x2a, 0xa0, 0x55, 0xbd, 0x77, 0x37, 0xe5, 0xfe, 0x4b, 0x8b, 0xd5,
-	0xba, 0x67, 0xb9, 0xde, 0x53, 0x58, 0xca, 0x07, 0xe7, 0x68, 0x5f, 0x73, 0xb5, 0xb7, 0x5c, 0x7d,
-	0x3f, 0x42, 0x5d, 0xef, 0x1b, 0xed, 0x14, 0x0f, 0x11, 0xb4, 0x9c, 0x77, 0x9c, 0x0e, 0xb2, 0x73,
-	0x92, 0x97, 0x9d, 0xd1, 0x1b, 0xa1, 0x7e, 0x10, 0x4d, 0x96, 0xd9, 0xfe, 0x3b, 0x58, 0x2e, 0xd4,
-	0x0e, 0xed, 0x15, 0x49, 0x97, 0x8b, 0x35, 0xfe, 0x4f, 0xcc, 0x6f, 0xa0, 0x95, 0x65, 0x20, 0x1f,
-	0xea, 0x49, 0x94, 0xf2, 0x1e, 0x35, 0x57, 0xcf, 0xd5, 0x69, 0x22, 0x72, 0x33, 0x82, 0xf0, 0x21,
-	0x15, 0x09, 0x2e, 0xdf, 0xde, 0x8c, 0x09, 0xf9, 0x7f, 0x37, 0xa1, 0x2a, 0x3d, 0x6e, 0x9b, 0x90,
-	0x9c, 0xed, 0x59, 0x9b, 0xd8, 0x84, 0x46, 0x98, 0xbc, 0x1f, 0x87, 0x6c, 0xa4, 0x44, 0x35, 0x83,
-	0x7a, 0x98, 0x5c, 0x86, 0x6c, 0x84, 0x1e, 0x01, 0x84, 0x7d, 0xca, 0x44, 0x38, 0x08, 0x29, 0x57,
-	0xcd, 0xab, 0x15, 0x38, 0x1e, 0xb7, 0x27, 0x55, 0xf3, 0x3d, 0x69, 0x03, 0x6a, 0x74, 0x12, 0x8b,
-	0x29, 0xae, 0x49, 0xc2, 0x8b, 0x07, 0x81, 0x36, 0xd1, 0x97, 0xd0, 0x48, 0x59, 0x28, 0x9b, 0x32,
-	0xae, 0xab, 0x8d, 0xad, 0x6a, 0xcd, 0x6f, 0xb4, 0xf3, 0x48, 0x08, 0x7e, 0xf1, 0x20, 0xb0, 0x18,
-	0x74, 0x00, 0xcd, 0x88, 0x89, 0x68, 0x1c, 0x0d, 0xa7, 0xb8, 0xa1, 0xf0, 0x48, 0xe3, 0x5f, 0x19,
-	0xaf, 0x49, 0xc8, 0x50, 0x68, 0x07, 0xaa, 0x57, 0x43, 0xd6, 0xc3, 0x4d, 0x85, 0x5e, 0xd2, 0xe8,
-	0x8b, 0x21, 0xeb, 0x19, 0xa4, 0x8a, 0x4a, 0xde, 0x90, 0x09, 0xca, 0x63, 0x1e, 0xe1, 0x96, 0xcb,
-	0xfb, 0xc2, 0x78, 0x2d, 0xaf, 0x45, 0x49, 0xe1, 0x94, 0x25, 0x74, 0xd2, 0x1d, 0x63, 0x70, 0x85,
-	0x9f, 0x6a, 0xa7, 0x15, 0x6e, 0x30, 0xe8, 0x0b, 0x68, 0x0a, 0x72, 0x13, 0xb1, 0x68, 0x32, 0xc5,
-	0x0b, 0xae, 0x94, 0x5f, 0xc9, 0x4d, 0x46, 0x6e, 0x11, 0x4a, 0xf4, 0xa4, 0xdf, 0xc5, 0x8b, 0x39,
-	0xd1, 0x93, 0x7e, 0x37, 0x13, 0x3d, 0xe9, 0x77, 0xd1, 0xa7, 0x50, 0xa1, 0x8c, 0xe0, 0xb6, 0x02,
-	0xb5, 0xed, 0xf2, 0xc4, 0x60, 0x64, 0x4c, 0x42, 0xe2, 0x7e, 0x17, 0x2f, 0xb9, 0x90, 0xd7, 0x19,
-	0x8d, 0x8c, 0xc9, 0xad, 0xf7, 0x79, 0x3a, 0xec, 0x12, 0x36, 0xc2, 0xcb, 0xee, 0xd6, 0x4f, 0x8c,
-	0xd7, 0xaa, 0xb3, 0x28, 0x55, 0x04, 0x1e, 0x5f, 0x11, 0x46, 0x05, 0x5e, 0xc9, 0x15, 0xc1, 0x78,
-	0xb3, 0x22, 0x18, 0x5b, 0x66, 0x70, 0x4a, 0x7a, 0x22, 0x9a, 0x50, 0xbc, 0xea, 0x66, 0x04, 0xc6,
-	0x6b, 0x33, 0x2c, 0x0a, 0x7d, 0x0e, 0xf5, 0xde, 0x95, 0x3a, 0x5d, 0xa4, 0xf0, 0x2b, 0x1a, 0x7f,
-	0x7c, 0xe5, 0x1c, 0xae, 0x41, 0xa0, 0x6f, 0xa0, 0x99, 0x0e, 0x28, 0x11, 0x29, 0xa7, 0xf8, 0xa1,
-	0x42, 0xe3, 0xdc, 0x25, 0x3a, 0xd3, 0x31, 0xbb, 0x86, 0xc5, 0xca, 0x06, 0xd1, 0x8b, 0x52, 0x26,
-	0xf0, 0x9a, 0xba, 0xfe, 0xda, 0x90, 0x7f, 0x2f, 0x65, 0x82, 0x87, 0x34, 0xc1, 0xeb, 0xee, 0xdf,
-	0x2b, 0xff, 0x19, 0xd3, 0x3f, 0x4d, 0x1c, 0x3d, 0x85, 0x25, 0xf3, 0xcb, 0xbc, 0x57, 0xb9, 0x09,
-	0xde, 0x70, 0x7b, 0xba, 0xcc, 0x38, 0x89, 0x26, 0x24, 0x64, 0xc7, 0x32, 0x1a, 0xb4, 0x0d, 0x58,
-	0x59, 0x09, 0xfa, 0x01, 0x16, 0x8d, 0x43, 0x3e, 0x52, 0x09, 0xde, 0x54, 0xb9, 0xdb, 0xb3, 0xdc,
-	0xfd, 0x13, 0x27, 0xac, 0x97, 0xce, 0x65, 0xc8, 0x0d, 0xc4, 0x2a, 0x15, 0xab, 0x17, 0x58, 0x1b,
-	0xde, 0x2b, 0x58, 0xbd, 0x95, 0xe8, 0xb6, 0xc7, 0xb6, 0x6e, 0x8f, 0x3b, 0xf9, 0xd6, 0x6e, 0x2e,
-	0x99, 0x4c, 0x79, 0xc1, 0x06, 0x91, 0xd3, 0x2e, 0x9f, 0x2f, 0x82, 0x1a, 0x9d, 0xc2, 0x6e, 0x2a,
-	0x68, 0xe2, 0x77, 0xa0, 0x69, 0x41, 0x33, 0x01, 0x25, 0x47, 0x80, 0x7f, 0x0a, 0xad, 0xec, 0xb0,
-	0xee, 0xe9, 0x32, 0xf9, 0x66, 0x52, 0x2e, 0x36, 0x13, 0xff, 0x08, 0x96, 0x0b, 0x27, 0x78, 0x0f,
-	0x59, 0x56, 0xcb, 0xb2, 0x53, 0x4b, 0x7f, 0x0f, 0x6a, 0x47, 0xe3, 0x90, 0x24, 0xa8, 0x03, 0x0b,
-	0x33, 0x66, 0x2b, 0xd7, 0x75, 0x1d, 0xfe, 0x53, 0x86, 0x65, 0xfb, 0x08, 0xfd, 0x42, 0xf9, 0x75,
-	0xd8, 0xa3, 0xe8, 0x09, 0x54, 0xce, 0xe5, 0xd4, 0x94, 0x7f, 0xa2, 0x66, 0x03, 0xa3, 0xb7, 0x35,
-	0x27, 0x62, 0x9e, 0xe7, 0x33, 0x68, 0x98, 0xf1, 0x03, 0x6d, 0xdf, 0x42, 0x39, 0xe3, 0xa3, 0xf7,
-	0xf1, 0x1d, 0x51, 0xc3, 0x73, 0x0c, 0x75, 0xf3, 0x04, 0x7c, 0x94, 0x07, 0xe6, 0xe6, 0x31, 0x6f,
-	0x7b, 0x7e, 0xd0, 0x90, 0x5c, 0xba, 0x4f, 0xc9, 0xa3, 0xc2, 0x8b, 0x5b, 0x18, 0xed, 0xbc, 0x4f,
-	0xee, 0x8c, 0x1b, 0xb6, 0x67, 0x50, 0x95, 0xcf, 0x34, 0xda, 0x9a, 0x37, 0x70, 0x68, 0x0e, 0xef,
-	0xee, 0x59, 0xa4, 0x5b, 0x57, 0x23, 0xf8, 0xd7, 0xff, 0x06, 0x00, 0x00, 0xff, 0xff, 0x67, 0x7f,
-	0x1e, 0x26, 0xa1, 0x0b, 0x00, 0x00,
+	// 1124 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xa4, 0x56, 0xdb, 0x6e, 0xdb, 0x46,
+	0x10, 0x8d, 0xee, 0xd2, 0xe8, 0x62, 0x7b, 0x6d, 0x27, 0x0b, 0xa1, 0x68, 0x1d, 0xc2, 0x28, 0x9c,
+	0xa2, 0x76, 0x03, 0xbb, 0x30, 0xd2, 0x22, 0x40, 0x6b, 0xc7, 0x0e, 0x9c, 0xa6, 0x6e, 0x02, 0xa6,
+	0x29, 0xf2, 0x16, 0x2c, 0xa5, 0x95, 0xc4, 0x4a, 0x5a, 0xd2, 0xcb, 0x65, 0x62, 0x7d, 0x44, 0x3f,
+	0xa0, 0x1f, 0xd3, 0xa7, 0xfe, 0x58, 0xb1, 0x37, 0x72, 0x49, 0xbb, 0x41, 0x9b, 0xbc, 0x71, 0x66,
+	0xce, 0xcc, 0x9e, 0xdd, 0xb9, 0x70, 0xa0, 0x43, 0xe2, 0xf8, 0x20, 0xe6, 0x91, 0x88, 0x50, 0x3d,
+	0x0e, 0xd2, 0xc9, 0x10, 0x88, 0x10, 0x5c, 0x6b, 0xbc, 0x10, 0xfa, 0xaf, 0x28, 0xe1, 0xa3, 0x99,
+	0x4f, 0xaf, 0x52, 0x9a, 0x08, 0xb4, 0x05, 0x0d, 0x41, 0xf9, 0x32, 0xc1, 0x95, 0x9d, 0xda, 0x5e,
+	0xc7, 0xd7, 0x02, 0xc2, 0xd0, 0x1a, 0x13, 0x41, 0x12, 0x2a, 0x70, 0x75, 0xa7, 0xb2, 0xd7, 0xf1,
+	0xad, 0x88, 0x10, 0xd4, 0x63, 0x32, 0xa5, 0xb8, 0xa6, 0xd4, 0xea, 0x5b, 0xc6, 0xb8, 0x4a, 0x29,
+	0x5f, 0xe1, 0xba, 0x52, 0x6a, 0xc1, 0x7b, 0x04, 0x03, 0x7b, 0x54, 0x12, 0x47, 0x2c, 0xa1, 0xe8,
+	0x4b, 0x68, 0x71, 0x9a, 0xa4, 0x0b, 0x21, 0x4f, 0xab, 0xec, 0x75, 0x0f, 0x7b, 0x07, 0x92, 0xe0,
+	0x81, 0xaf, 0x94, 0xbe, 0x35, 0x7a, 0xbf, 0xc3, 0xe0, 0x92, 0xc4, 0x71, 0xc8, 0xa6, 0x1f, 0xcb,
+	0x32, 0x63, 0x54, 0x73, 0x18, 0x65, 0xdc, 0xeb, 0x39, 0x77, 0xef, 0x14, 0xd6, 0xb2, 0xb3, 0x0c,
+	0xcd, 0x6f, 0xca, 0x34, 0xb7, 0x35, 0xcd, 0x4b, 0x12, 0x3f, 0x0d, 0x17, 0x82, 0xf2, 0x32, 0xdf,
+	0x0b, 0xe8, 0x9d, 0x33, 0xc1, 0x57, 0x96, 0xed, 0xe7, 0x00, 0xe1, 0x98, 0x32, 0x11, 0x4e, 0x42,
+	0xca, 0x55, 0x8c, 0x8e, 0xef, 0x68, 0xfe, 0x9d, 0xb7, 0x77, 0x04, 0x7d, 0x13, 0xc9, 0x70, 0xf1,
+	0xa0, 0xa9, 0x4f, 0x31, 0x54, 0x40, 0x53, 0x79, 0xc3, 0xe9, 0xc4, 0x37, 0x16, 0xef, 0x0a, 0xba,
+	0x2f, 0xc9, 0x94, 0x7e, 0xf2, 0xe9, 0x85, 0xdc, 0x36, 0xf2, 0xdc, 0x8a, 0x48, 0x90, 0x85, 0x7a,
+	0xb4, 0x86, 0xaf, 0x05, 0xef, 0x5b, 0xe8, 0xe9, 0x23, 0x0d, 0xcd, 0xdd, 0x12, 0xcd, 0x62, 0x62,
+	0x2d, 0xd1, 0xf7, 0xd0, 0xb7, 0x0f, 0xf8, 0xa9, 0x54, 0x31, 0xb4, 0x26, 0x2a, 0x54, 0x82, 0x6b,
+	0xaa, 0x24, 0xac, 0x58, 0x48, 0xb2, 0xb9, 0x84, 0x77, 0x0c, 0x83, 0x2c, 0x73, 0xff, 0x87, 0x70,
+	0x1f, 0xba, 0x97, 0x54, 0x10, 0x43, 0xd7, 0xfb, 0xb3, 0x02, 0x3d, 0x2d, 0x9b, 0x28, 0xdf, 0xb9,
+	0x95, 0x52, 0xdb, 0xeb, 0x1e, 0x7e, 0x61, 0x2a, 0xc5, 0x01, 0x99, 0x98, 0x89, 0xce, 0xab, 0xc5,
+	0x0f, 0x7f, 0x81, 0x9e, 0x6b, 0x40, 0xeb, 0x50, 0x9b, 0xd3, 0x95, 0x79, 0x03, 0xf9, 0x89, 0xf6,
+	0xa0, 0xf1, 0x8e, 0x2c, 0x52, 0xaa, 0xae, 0xde, 0x3d, 0x44, 0x79, 0xe8, 0xe7, 0x74, 0xf5, 0x9b,
+	0xb4, 0xf8, 0x1a, 0xf0, 0x7d, 0xf5, 0x51, 0xc5, 0xfb, 0xc3, 0x70, 0xb3, 0x36, 0xf4, 0x03, 0x74,
+	0xe6, 0x74, 0xa5, 0x00, 0x96, 0xdd, 0xfd, 0x9b, 0x21, 0x0e, 0x9e, 0x5b, 0x8c, 0xe6, 0x97, 0xfb,
+	0x0c, 0x1f, 0xc3, 0xa0, 0x68, 0xbc, 0x85, 0xe3, 0x96, 0xcb, 0xb1, 0xe3, 0xf2, 0xf9, 0x09, 0x9a,
+	0xfa, 0x7e, 0x68, 0xb7, 0xfc, 0x48, 0x6e, 0x0d, 0x5b, 0x13, 0x1a, 0x42, 0x9b, 0xd1, 0x6b, 0xa1,
+	0x52, 0xa7, 0x83, 0x65, 0xb2, 0xf7, 0x46, 0xf5, 0xa8, 0xdb, 0x7b, 0xe8, 0x41, 0x39, 0xe8, 0x5a,
+	0xb9, 0x47, 0xff, 0x53, 0xe4, 0xd7, 0xd0, 0xc9, 0x3c, 0x64, 0xaf, 0x25, 0x51, 0xca, 0x47, 0xf4,
+	0xb6, 0x5e, 0xd3, 0x16, 0x79, 0x19, 0x41, 0xf8, 0x94, 0x8a, 0x04, 0x57, 0x6f, 0x5e, 0xc6, 0x98,
+	0xbc, 0xbf, 0xda, 0x50, 0x97, 0x1a, 0xb7, 0x80, 0x65, 0xcc, 0x7e, 0x5e, 0xc0, 0xf7, 0xa0, 0x15,
+	0x26, 0x6f, 0x17, 0x21, 0x9b, 0x2b, 0x52, 0x6d, 0xbf, 0x19, 0x26, 0x3f, 0x87, 0x6c, 0x5e, 0xea,
+	0x89, 0xda, 0x6d, 0x3d, 0x31, 0xa7, 0xab, 0xf7, 0x11, 0x1f, 0x9b, 0x39, 0x66, 0x45, 0x74, 0x17,
+	0x1a, 0x74, 0x19, 0x8b, 0x15, 0x6e, 0xc8, 0x80, 0x17, 0x77, 0x7c, 0x2d, 0xa2, 0x7d, 0x68, 0xa5,
+	0x2c, 0x94, 0xf3, 0x1f, 0x37, 0xd5, 0xc5, 0x36, 0x34, 0xe7, 0xd7, 0x5a, 0x79, 0x22, 0x04, 0xbf,
+	0xb8, 0xe3, 0x5b, 0x0c, 0x7a, 0x08, 0xed, 0x88, 0x89, 0x68, 0x11, 0x4d, 0x57, 0xb8, 0xe5, 0x96,
+	0xde, 0x0b, 0xa3, 0x35, 0x0e, 0x19, 0x0a, 0xed, 0x42, 0x7d, 0x36, 0x65, 0x23, 0xdc, 0x56, 0xe8,
+	0x81, 0x46, 0x5f, 0x4c, 0xd9, 0xc8, 0x20, 0x95, 0x55, 0xc6, 0x0d, 0x99, 0xa0, 0x3c, 0xe6, 0x11,
+	0xee, 0xb8, 0x71, 0x9f, 0x19, 0xad, 0x8d, 0x6b, 0x51, 0x92, 0x38, 0x65, 0x09, 0x5d, 0x06, 0x0b,
+	0x0c, 0x2e, 0xf1, 0x73, 0xad, 0xb4, 0xc4, 0x0d, 0x06, 0x7d, 0x0d, 0x6d, 0x41, 0xae, 0x23, 0x16,
+	0x2d, 0x57, 0xb8, 0xeb, 0x52, 0xf9, 0x95, 0x5c, 0x67, 0xc1, 0x2d, 0x42, 0x91, 0x5e, 0x8e, 0x03,
+	0xdc, 0x2b, 0x90, 0x5e, 0x8e, 0x83, 0x8c, 0xf4, 0x72, 0x1c, 0xa0, 0xfb, 0x50, 0xa3, 0x8c, 0xe0,
+	0xbe, 0x02, 0xf5, 0xed, 0xf1, 0xc4, 0x60, 0xa4, 0x4d, 0x42, 0xe2, 0x71, 0x80, 0x07, 0x2e, 0xe4,
+	0x65, 0x16, 0x46, 0xda, 0xe4, 0xd5, 0xc7, 0x3c, 0x9d, 0x06, 0x84, 0xcd, 0xf1, 0x9a, 0x7b, 0xf5,
+	0x33, 0xa3, 0xb5, 0xec, 0x2c, 0x4a, 0x25, 0x81, 0xc7, 0x33, 0xc2, 0xa8, 0xc0, 0xeb, 0x85, 0x24,
+	0x18, 0x6d, 0x96, 0x04, 0x23, 0x4b, 0x0f, 0x4e, 0xc9, 0x48, 0x44, 0x4b, 0x8a, 0x37, 0x5c, 0x0f,
+	0xdf, 0x68, 0xad, 0x87, 0x45, 0xa1, 0xaf, 0xa0, 0x39, 0x9a, 0xa9, 0xd7, 0x45, 0x0a, 0xbf, 0xae,
+	0xf1, 0x4f, 0x66, 0xce, 0xe3, 0x1a, 0x04, 0x3a, 0x86, 0x76, 0x3a, 0xa1, 0x44, 0xa4, 0x9c, 0xe2,
+	0x4d, 0x85, 0xc6, 0x85, 0x22, 0x7a, 0xaa, 0x6d, 0xf6, 0x0c, 0x8b, 0x95, 0x03, 0x62, 0x14, 0xa5,
+	0x4c, 0xe0, 0x2d, 0x55, 0xfe, 0x5a, 0x90, 0xdd, 0x4b, 0x99, 0xe0, 0x21, 0x4d, 0xf0, 0xb6, 0xdb,
+	0xbd, 0xb2, 0x67, 0xcc, 0x9c, 0x34, 0x76, 0xf4, 0x18, 0x06, 0xa6, 0x65, 0xde, 0x2a, 0xdf, 0x04,
+	0xdf, 0x55, 0x1e, 0xdb, 0xb9, 0xc7, 0x59, 0xb4, 0x24, 0x21, 0x7b, 0x22, 0xad, 0x7e, 0xdf, 0x80,
+	0x95, 0x94, 0xa0, 0x1f, 0xa1, 0x67, 0x14, 0xf2, 0x77, 0x95, 0xe0, 0x7b, 0xca, 0xf7, 0xb3, 0xdc,
+	0xf7, 0xe0, 0xcc, 0x31, 0xeb, 0xa3, 0x0b, 0x1e, 0xf2, 0x02, 0xb1, 0x72, 0xc5, 0x7a, 0xf3, 0x50,
+	0xc2, 0xf0, 0x05, 0x6c, 0xdc, 0x70, 0x74, 0xc7, 0x63, 0x5f, 0x8f, 0xc7, 0xdd, 0xe2, 0x08, 0x37,
+	0x45, 0x26, 0x5d, 0x9e, 0xb1, 0x49, 0xe4, 0x8c, 0xcb, 0xd3, 0x1e, 0xa8, 0x2d, 0x2d, 0x0c, 0x52,
+	0x41, 0x13, 0x6f, 0x07, 0xda, 0x16, 0x94, 0x13, 0xa8, 0x38, 0x04, 0xbc, 0x73, 0xe8, 0x64, 0x8f,
+	0xf5, 0x81, 0x29, 0x53, 0x1c, 0x26, 0xd5, 0xf2, 0x30, 0xf1, 0x4e, 0x60, 0xad, 0xf4, 0x82, 0x1f,
+	0x08, 0x96, 0xe5, 0xb2, 0xea, 0xe4, 0xd2, 0x7b, 0x00, 0x8d, 0x93, 0x45, 0x48, 0x12, 0xb4, 0x03,
+	0xdd, 0x3c, 0xb2, 0xa5, 0xeb, 0xaa, 0x0e, 0xff, 0xae, 0xc2, 0xda, 0x69, 0x18, 0x05, 0x82, 0x53,
+	0xfa, 0x8a, 0xf2, 0x77, 0xe1, 0x88, 0xa2, 0x23, 0x68, 0xea, 0x2d, 0x11, 0x6d, 0xea, 0xd7, 0x29,
+	0xac, 0xa7, 0xc3, 0xad, 0xa2, 0xd2, 0xfc, 0x77, 0x8f, 0xa1, 0x65, 0x96, 0x36, 0xb4, 0x95, 0xcd,
+	0x7d, 0x67, 0x5f, 0x1c, 0x6e, 0x97, 0xb4, 0xc6, 0xef, 0x21, 0x34, 0xf4, 0x8b, 0x21, 0xdb, 0xc9,
+	0xf9, 0xd6, 0x36, 0xdc, 0x2c, 0xe8, 0x8c, 0xc7, 0x3e, 0xd4, 0x65, 0x26, 0xd0, 0x46, 0x9e, 0x3a,
+	0x8b, 0x47, 0xae, 0xca, 0xc0, 0x8f, 0xa0, 0x69, 0x7e, 0x26, 0x26, 0x5a, 0x61, 0xdf, 0xb1, 0xb7,
+	0x29, 0xed, 0x22, 0xfb, 0x50, 0x97, 0xbf, 0x64, 0x7b, 0x86, 0xb3, 0x71, 0x0c, 0xd1, 0xcd, 0x7d,
+	0x22, 0x68, 0xaa, 0x4d, 0xfe, 0xe8, 0x9f, 0x00, 0x00, 0x00, 0xff, 0xff, 0x18, 0x06, 0x14, 0x9c,
+	0xe8, 0x0b, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -1272,11 +1402,12 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type BiobtreeServiceClient interface {
-	Get(ctx context.Context, in *BiobtreeGetRequest, opts ...grpc.CallOption) (*BiobtreeGetResponse, error)
-	GetPage(ctx context.Context, in *BiobtreeGetPageRequest, opts ...grpc.CallOption) (*BiobtreeGetPageResponse, error)
-	Filter(ctx context.Context, in *BiobtreeFilterRequest, opts ...grpc.CallOption) (*BiobtreeFilterResponse, error)
-	MapFilter(ctx context.Context, in *BiobtreeMapFilterRequest, opts ...grpc.CallOption) (*BiobtreeMapFilterResponse, error)
-	Meta(ctx context.Context, in *BiobtreeMetaRequest, opts ...grpc.CallOption) (*BiobtreeMetaResponse, error)
+	Search(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*SearchResponse, error)
+	Mapping(ctx context.Context, in *MappingRequest, opts ...grpc.CallOption) (*MappingResponse, error)
+	Entry(ctx context.Context, in *EntryRequest, opts ...grpc.CallOption) (*EntryResponse, error)
+	Page(ctx context.Context, in *PageRequest, opts ...grpc.CallOption) (*PageResponse, error)
+	Filter(ctx context.Context, in *FilterRequest, opts ...grpc.CallOption) (*FilterResponse, error)
+	Meta(ctx context.Context, in *MetaRequest, opts ...grpc.CallOption) (*MetaResponse, error)
 }
 
 type biobtreeServiceClient struct {
@@ -1287,26 +1418,44 @@ func NewBiobtreeServiceClient(cc *grpc.ClientConn) BiobtreeServiceClient {
 	return &biobtreeServiceClient{cc}
 }
 
-func (c *biobtreeServiceClient) Get(ctx context.Context, in *BiobtreeGetRequest, opts ...grpc.CallOption) (*BiobtreeGetResponse, error) {
-	out := new(BiobtreeGetResponse)
-	err := c.cc.Invoke(ctx, "/pbuf.BiobtreeService/Get", in, out, opts...)
+func (c *biobtreeServiceClient) Search(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*SearchResponse, error) {
+	out := new(SearchResponse)
+	err := c.cc.Invoke(ctx, "/pbuf.BiobtreeService/Search", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *biobtreeServiceClient) GetPage(ctx context.Context, in *BiobtreeGetPageRequest, opts ...grpc.CallOption) (*BiobtreeGetPageResponse, error) {
-	out := new(BiobtreeGetPageResponse)
-	err := c.cc.Invoke(ctx, "/pbuf.BiobtreeService/GetPage", in, out, opts...)
+func (c *biobtreeServiceClient) Mapping(ctx context.Context, in *MappingRequest, opts ...grpc.CallOption) (*MappingResponse, error) {
+	out := new(MappingResponse)
+	err := c.cc.Invoke(ctx, "/pbuf.BiobtreeService/Mapping", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *biobtreeServiceClient) Filter(ctx context.Context, in *BiobtreeFilterRequest, opts ...grpc.CallOption) (*BiobtreeFilterResponse, error) {
-	out := new(BiobtreeFilterResponse)
+func (c *biobtreeServiceClient) Entry(ctx context.Context, in *EntryRequest, opts ...grpc.CallOption) (*EntryResponse, error) {
+	out := new(EntryResponse)
+	err := c.cc.Invoke(ctx, "/pbuf.BiobtreeService/Entry", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *biobtreeServiceClient) Page(ctx context.Context, in *PageRequest, opts ...grpc.CallOption) (*PageResponse, error) {
+	out := new(PageResponse)
+	err := c.cc.Invoke(ctx, "/pbuf.BiobtreeService/Page", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *biobtreeServiceClient) Filter(ctx context.Context, in *FilterRequest, opts ...grpc.CallOption) (*FilterResponse, error) {
+	out := new(FilterResponse)
 	err := c.cc.Invoke(ctx, "/pbuf.BiobtreeService/Filter", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -1314,17 +1463,8 @@ func (c *biobtreeServiceClient) Filter(ctx context.Context, in *BiobtreeFilterRe
 	return out, nil
 }
 
-func (c *biobtreeServiceClient) MapFilter(ctx context.Context, in *BiobtreeMapFilterRequest, opts ...grpc.CallOption) (*BiobtreeMapFilterResponse, error) {
-	out := new(BiobtreeMapFilterResponse)
-	err := c.cc.Invoke(ctx, "/pbuf.BiobtreeService/MapFilter", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *biobtreeServiceClient) Meta(ctx context.Context, in *BiobtreeMetaRequest, opts ...grpc.CallOption) (*BiobtreeMetaResponse, error) {
-	out := new(BiobtreeMetaResponse)
+func (c *biobtreeServiceClient) Meta(ctx context.Context, in *MetaRequest, opts ...grpc.CallOption) (*MetaResponse, error) {
+	out := new(MetaResponse)
 	err := c.cc.Invoke(ctx, "/pbuf.BiobtreeService/Meta", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -1334,55 +1474,92 @@ func (c *biobtreeServiceClient) Meta(ctx context.Context, in *BiobtreeMetaReques
 
 // BiobtreeServiceServer is the server API for BiobtreeService service.
 type BiobtreeServiceServer interface {
-	Get(context.Context, *BiobtreeGetRequest) (*BiobtreeGetResponse, error)
-	GetPage(context.Context, *BiobtreeGetPageRequest) (*BiobtreeGetPageResponse, error)
-	Filter(context.Context, *BiobtreeFilterRequest) (*BiobtreeFilterResponse, error)
-	MapFilter(context.Context, *BiobtreeMapFilterRequest) (*BiobtreeMapFilterResponse, error)
-	Meta(context.Context, *BiobtreeMetaRequest) (*BiobtreeMetaResponse, error)
+	Search(context.Context, *SearchRequest) (*SearchResponse, error)
+	Mapping(context.Context, *MappingRequest) (*MappingResponse, error)
+	Entry(context.Context, *EntryRequest) (*EntryResponse, error)
+	Page(context.Context, *PageRequest) (*PageResponse, error)
+	Filter(context.Context, *FilterRequest) (*FilterResponse, error)
+	Meta(context.Context, *MetaRequest) (*MetaResponse, error)
 }
 
 func RegisterBiobtreeServiceServer(s *grpc.Server, srv BiobtreeServiceServer) {
 	s.RegisterService(&_BiobtreeService_serviceDesc, srv)
 }
 
-func _BiobtreeService_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(BiobtreeGetRequest)
+func _BiobtreeService_Search_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SearchRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BiobtreeServiceServer).Get(ctx, in)
+		return srv.(BiobtreeServiceServer).Search(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/pbuf.BiobtreeService/Get",
+		FullMethod: "/pbuf.BiobtreeService/Search",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BiobtreeServiceServer).Get(ctx, req.(*BiobtreeGetRequest))
+		return srv.(BiobtreeServiceServer).Search(ctx, req.(*SearchRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _BiobtreeService_GetPage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(BiobtreeGetPageRequest)
+func _BiobtreeService_Mapping_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MappingRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BiobtreeServiceServer).GetPage(ctx, in)
+		return srv.(BiobtreeServiceServer).Mapping(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/pbuf.BiobtreeService/GetPage",
+		FullMethod: "/pbuf.BiobtreeService/Mapping",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BiobtreeServiceServer).GetPage(ctx, req.(*BiobtreeGetPageRequest))
+		return srv.(BiobtreeServiceServer).Mapping(ctx, req.(*MappingRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BiobtreeService_Entry_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EntryRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BiobtreeServiceServer).Entry(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/pbuf.BiobtreeService/Entry",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BiobtreeServiceServer).Entry(ctx, req.(*EntryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BiobtreeService_Page_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PageRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BiobtreeServiceServer).Page(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/pbuf.BiobtreeService/Page",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BiobtreeServiceServer).Page(ctx, req.(*PageRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _BiobtreeService_Filter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(BiobtreeFilterRequest)
+	in := new(FilterRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -1394,31 +1571,13 @@ func _BiobtreeService_Filter_Handler(srv interface{}, ctx context.Context, dec f
 		FullMethod: "/pbuf.BiobtreeService/Filter",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BiobtreeServiceServer).Filter(ctx, req.(*BiobtreeFilterRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _BiobtreeService_MapFilter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(BiobtreeMapFilterRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(BiobtreeServiceServer).MapFilter(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/pbuf.BiobtreeService/MapFilter",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BiobtreeServiceServer).MapFilter(ctx, req.(*BiobtreeMapFilterRequest))
+		return srv.(BiobtreeServiceServer).Filter(ctx, req.(*FilterRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _BiobtreeService_Meta_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(BiobtreeMetaRequest)
+	in := new(MetaRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -1430,7 +1589,7 @@ func _BiobtreeService_Meta_Handler(srv interface{}, ctx context.Context, dec fun
 		FullMethod: "/pbuf.BiobtreeService/Meta",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BiobtreeServiceServer).Meta(ctx, req.(*BiobtreeMetaRequest))
+		return srv.(BiobtreeServiceServer).Meta(ctx, req.(*MetaRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1440,20 +1599,24 @@ var _BiobtreeService_serviceDesc = grpc.ServiceDesc{
 	HandlerType: (*BiobtreeServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Get",
-			Handler:    _BiobtreeService_Get_Handler,
+			MethodName: "Search",
+			Handler:    _BiobtreeService_Search_Handler,
 		},
 		{
-			MethodName: "GetPage",
-			Handler:    _BiobtreeService_GetPage_Handler,
+			MethodName: "Mapping",
+			Handler:    _BiobtreeService_Mapping_Handler,
+		},
+		{
+			MethodName: "Entry",
+			Handler:    _BiobtreeService_Entry_Handler,
+		},
+		{
+			MethodName: "Page",
+			Handler:    _BiobtreeService_Page_Handler,
 		},
 		{
 			MethodName: "Filter",
 			Handler:    _BiobtreeService_Filter_Handler,
-		},
-		{
-			MethodName: "MapFilter",
-			Handler:    _BiobtreeService_MapFilter_Handler,
 		},
 		{
 			MethodName: "Meta",

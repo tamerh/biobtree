@@ -1,83 +1,75 @@
 var UseCases = {
   "mix": [{
-    "name": "search identifiers",
-    "type": "0",
-    "source": "",
-    "searchTerm": "RAG1_HUMAN,ENSMUSG00000023456,GO:0002020,CHEMBL2242,AC020895,HMDB0000001,hsa:7409",
-    "mapFilterTerm": ""
-  }, {
-    "name": "proteins to go term biological",
-    "type": "1",
-    "source": "",
-    "searchTerm": "SHH_HUMAN,P53_HUMAN,RAG1_HUMAN",
-    "mapFilterTerm": "map(go).filter(go.type==\"biological_process\")"
-  }, {
-    "name": "cancer related genes to protein mutation features",
-    "type": "1",
-    "source": "hgnc",
-    "searchTerm": "PMS2,MLH1,MSH2,MSH6,STK11,BMPR1A,SMAD4,BRCA1,BRCA2,TP53,PTEN,PALB2,TSC1,TSC2,FLCN,MET,CDKN2A,RB1",
-    "mapFilterTerm": "map(uniprot).map(ufeature).filter(ufeature.type==\"mutagenesis site\")"
-  }, {
-    "name": "proteins to interpro with Domain type",
-    "type": "1",
-    "source": "",
-    "searchTerm": "SHH_HUMAN,P53_HUMAN,RAG1_HUMAN,CLOCK_HUMAN,BMAL1_HUMAN,AICDA_HUMAN,AT5G3_HUMAN",
-    "mapFilterTerm": "map(interpro).filter(interpro.type==\"Domain\")"
-  }, {
-    "name": "species orthologs",
-    "type": "1",
-    "source": "",
-    "searchTerm": "Hyphopichia burtonii NRRL Y-1933",
-    "mapFilterTerm": "map(ensembl).map(ortholog)"
-  }, {
-    "name": "ensembl human genes to mouse ortholog genes",
-    "type": "1",
-    "source": "",
-    "searchTerm": "SHH,VAV1,TP53",
-    "mapFilterTerm": "filter(ensembl.genome==\"homo_sapiens\").map(ortholog).filter(ensembl.genome==\"mus_musculus\")"
-  }, {
-    "name": "symbiodinium gene paralog",
-    "type": "1",
-    "source": "",
-    "searchTerm": "STRG",
-    "mapFilterTerm": "map(paralog)"
-  }, {
-    "name": "kinase activity goterm to hgnc genes",
-    "type": "1",
-    "source": "",
-    "searchTerm": "GO:0004707",
-    "mapFilterTerm": "map(ensembl).filter(ensembl.branch==1 \u0026\u0026 ensembl.genome==\"homo_sapiens\").map(hgnc)"
-  }, {
-    "name": "probe id to ensembl then hgnc by location",
-    "type": "1",
-    "source": "",
-    "searchTerm": "202763_at,209310_s_at,207500_at",
-    "mapFilterTerm": "map(transcript).map(ensembl).filter(ensembl.genome==\"homo_sapiens\").map(hgnc).filter(hgnc.location==\"4q35.1\")"
-  }, {
-    "name": "ensembl gene non coding transcripts",
-    "type": "1",
-    "source": "",
-    "searchTerm": "ENSG00000141968",
-    "mapFilterTerm": "map(transcript).filter(transcript.biotype !=\"protein_coding\")"
-  }, {
-    "name": "streptococcus crispr cas9 genes to protein",
-    "type": "1",
-    "source": "",
-    "searchTerm": "cas9",
-    "mapFilterTerm": "filter(ensembl.genome.contains(\"streptococcus\")).map(uniprot)"
-  }, {
-    "name": "inflammatory bowel disease to chembl molecules phase 3,4",
-    "type": "1",
-    "source": "",
-    "searchTerm": "inflammatory bowel disease",
-    "mapFilterTerm": "map(chembl_molecule).filter(chembl.molecule.highestDevelopmentPhase\u003e2)"
-  }, {
-    "name": "taxid to its grand children by division",
-    "type": "1",
-    "source": "",
-    "searchTerm": "862507",
-    "mapFilterTerm": "map(taxchild).map(taxchild).filter(taxonomy.taxonomic_division==\"ROD\")"
-  }],
+      "name": "search identifiers",
+      "type": "0",
+      "source": "",
+      "searchTerm": "RAG1_HUMAN,ENSMUSG00000023456,GO:0002020,CHEMBL2242,AC020895,hsa:7409",
+      "mapFilterTerm": ""
+    },
+    {
+      "name": "proteins to go term biological",
+      "type": "1",
+      "source": "",
+      "searchTerm": "SHH_HUMAN,P53_HUMAN,RAG1_HUMAN",
+      "mapFilterTerm": "map(go).filter(go.type==\"biological_process\")"
+    },
+    {
+      "name": "cancer related genes to protein mutation features",
+      "type": "1",
+      "source": "hgnc",
+      "searchTerm": "PMS2,MLH1,MSH2,MSH6,STK11,BMPR1A,SMAD4,BRCA1,BRCA2,TP53,PTEN,PALB2,TSC1,TSC2,FLCN,MET,CDKN2A,RB1",
+      "mapFilterTerm": "map(uniprot).map(ufeature).filter(ufeature.type==\"mutagenesis site\")"
+    },
+    {
+      "name": "proteins to interpro with Domain type",
+      "type": "1",
+      "source": "",
+      "searchTerm": "SHH_HUMAN,P53_HUMAN,RAG1_HUMAN,CLOCK_HUMAN,BMAL1_HUMAN,AICDA_HUMAN,AT5G3_HUMAN",
+      "mapFilterTerm": "map(interpro).filter(interpro.type==\"Domain\")"
+    },
+    {
+      "name": "ensembl human genes to mouse Ortholog genes",
+      "type": "1",
+      "source": "",
+      "searchTerm": "SHH,VAV1,TP53",
+      "mapFilterTerm": "filter(ensembl.genome==\"homo_sapiens\").map(ortholog).filter(ensembl.genome==\"mus_musculus\")"
+    },
+    {
+      "name": "kinase activity goterm to hgnc genes",
+      "type": "1",
+      "source": "",
+      "searchTerm": "GO:0004707",
+      "mapFilterTerm": "map(ensembl).map(hgnc)"
+    },
+    {
+      "name": "probe id to ensembl then hgnc by location",
+      "type": "1",
+      "source": "",
+      "searchTerm": "202763_at,209310_s_at,207500_at",
+      "mapFilterTerm": "map(transcript).map(ensembl).filter(ensembl.genome==\"homo_sapiens\").map(hgnc).filter(hgnc.location==\"4q35.1\")"
+    },
+    {
+      "name": "crispr cas9 genes by genomes to transcript",
+      "type": "1",
+      "source": "",
+      "searchTerm": "cas9",
+      "mapFilterTerm": "filter(ensembl.genome==\"campylobacter_coli_gca_001717605\").map(transcript)"
+    },
+    {
+      "name": "inflammatory bowel disease to chembl molecules phase 3,4",
+      "type": "1",
+      "source": "",
+      "searchTerm": "inflammatory bowel disease",
+      "mapFilterTerm": "map(chembl_molecule).filter(chembl.molecule.highestDevelopmentPhase>2)"
+    },
+    {
+      "name": "taxid to its grand children by division",
+      "type": "1",
+      "source": "",
+      "searchTerm": "862507",
+      "mapFilterTerm": "map(taxchild).map(taxchild).filter(taxonomy.taxonomic_division==\"ROD\")"
+    }
+  ],
   "gene": [{
     "name": "search crispr cas9 genes",
     "type": "0",
@@ -657,37 +649,87 @@ var UseCases = {
     "searchTerm": "CHEMBL3307241",
     "mapFilterTerm": "map(chembl_assay)"
   }],
-  "taxonomy": [{
-    "name": "children",
-    "type": "1",
-    "source": "",
-    "searchTerm": "9606",
-    "mapFilterTerm": "map(taxchild)"
-  }, {
-    "name": "grand children",
-    "type": "1",
-    "source": "",
-    "searchTerm": "862507",
-    "mapFilterTerm": "map(taxchild).map(taxchild)"
-  }, {
-    "name": "grand^2 parent",
-    "type": "1",
-    "source": "",
-    "searchTerm": "10090",
-    "mapFilterTerm": "map(taxparent).map(taxparent).map(taxparent)"
-  }, {
-    "name": "Asian children",
-    "type": "1",
-    "source": "",
-    "searchTerm": "10090",
-    "mapFilterTerm": "map(taxchild).filter(taxonomy.common_name.contains(\"Asian\"))"
-  }, {
-    "name": "European children",
-    "type": "1",
-    "source": "",
-    "searchTerm": "10090",
-    "mapFilterTerm": "map(taxchild).filter(taxonomy.common_name.contains(\"European\"))"
-  }]
+  "taxonomy&ontology": [{
+      "name": "taxonomy children",
+      "type": "1",
+      "source": "",
+      "searchTerm": "9606",
+      "mapFilterTerm": "map(taxchild)"
+    }, {
+      "name": "taxonomy grand children",
+      "type": "1",
+      "source": "",
+      "searchTerm": "862507",
+      "mapFilterTerm": "map(taxchild).map(taxchild)"
+    }, {
+      "name": "taxonomy grand^2 parent",
+      "type": "1",
+      "source": "",
+      "searchTerm": "10090",
+      "mapFilterTerm": "map(taxparent).map(taxparent).map(taxparent)"
+    }, {
+      "name": "taxonomy Asian children",
+      "type": "1",
+      "source": "",
+      "searchTerm": "10090",
+      "mapFilterTerm": "map(taxchild).filter(taxonomy.common_name.contains(\"Asian\"))"
+    }, {
+      "name": "taxonomy European children",
+      "type": "1",
+      "source": "",
+      "searchTerm": "10090",
+      "mapFilterTerm": "map(taxchild).filter(taxonomy.common_name.contains(\"European\"))"
+    },
+    {
+      "name": "go term parent",
+      "type": "1",
+      "source": "",
+      "searchTerm": "GO:0004707",
+      "mapFilterTerm": "map(goparent)"
+    },
+    {
+      "name": "go term parent type",
+      "type": "1",
+      "source": "",
+      "searchTerm": "GO:0004707",
+      "mapFilterTerm": "map(goparent).filter(go.type==\"biological_process\")"
+    },
+    {
+      "name": "efo disaease name",
+      "type": "0",
+      "source": "",
+      "searchTerm": "inflammatory bowel disease",
+      "mapFilterTerm": ""
+    },
+    {
+      "name": "efo children",
+      "type": "1",
+      "source": "",
+      "searchTerm": "EFO:0003767",
+      "mapFilterTerm": "map(efochild)"
+    },
+    {
+      "name": "efo parent",
+      "type": "1",
+      "source": "",
+      "searchTerm": "EFO:0000384",
+      "mapFilterTerm": "map(efoparent)"
+    },
+    {
+      "name": "eco children",
+      "type": "1",
+      "source": "",
+      "searchTerm": "ECO:0000269",
+      "mapFilterTerm": "map(ecochild)"
+    },
+    {
+      "name": "eco parent",
+      "type": "1",
+      "source": "",
+      "searchTerm": "ECO:0007742",
+      "mapFilterTerm": "map(ecoparent)"
+    }
+  ]
 };
 
 export default UseCases;

@@ -53,7 +53,7 @@ func main() {
 				continue
 			}
 			newExample := queryExample{
-				Name:           json.ObjectVals["name"].StringVal,
+				Name:           json.ObjectVals["name"].StringVal[strings.Index(json.ObjectVals["name"].StringVal, " ")+1:],
 				Typee:          typee,
 				Source:         source,
 				SearchTerm:     searchTerm,

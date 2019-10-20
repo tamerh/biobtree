@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "917f5656-51da-49f0-b801-cf2f0a2ae237",
+		"_postman_id": "f449f0a6-0d4f-474a-b722-8f0659b6611d",
 		"name": "biobtree_default",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -617,7 +617,7 @@
 							"script": {
 								"id": "5266b7c5-f72a-4d6d-b1ed-d4b875e4800e",
 								"exec": [
-									"var encoded = encodeURIComponent('map(ensembl).filter(ensembl.branch==1 && ensembl.genome==\"homo_sapiens\").map(hgnc)');",
+									"var encoded = encodeURIComponent('map(ensembl).map(hgnc)');",
 									"pm.environment.set(\"filter\", encoded);"
 								],
 								"type": "text/javascript"
@@ -4736,7 +4736,7 @@
 			"name": "taxonomy",
 			"item": [
 				{
-					"name": "taxonomy children",
+					"name": "taxonomy taxonomy children",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -4799,7 +4799,7 @@
 					"response": []
 				},
 				{
-					"name": "taxonomy grand children",
+					"name": "taxonomy  taxonomy grand children",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -4857,7 +4857,7 @@
 					"response": []
 				},
 				{
-					"name": "taxonomy grand^2 parent",
+					"name": "taxonomy taxonomy grand^2 parent",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -4917,7 +4917,7 @@
 					"response": []
 				},
 				{
-					"name": "taxonomy Asian children",
+					"name": "taxonomy taxonomy Asian children",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -4979,7 +4979,7 @@
 					"response": []
 				},
 				{
-					"name": "taxonomy European children",
+					"name": "taxonomy taxonomy European children",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -5030,6 +5030,412 @@
 								{
 									"key": "i",
 									"value": "10090"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "taxonomy go term parent",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "cb6a05aa-bfd2-45c8-bb3a-6726b21afec0",
+								"exec": [
+									"var encoded = encodeURIComponent('map(goparent)');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "a3d31fe9-7ae1-4ce9-bf97-1b6f76e013cc",
+								"exec": [
+									"pm.test(\"goparent\", function () {",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).to.eql(1);",
+									"    pm.expect(r.results[0].source.identifier).to.eql(\"GO:0004707\");",
+									"    pm.expect(r.results[0].targets.length).to.eql(2);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(4);",
+									"    pm.expect(r.results[0].targets[0].identifier).to.eql(\"GO:0000165\");",
+									"    pm.expect(r.results[0].targets[1].dataset).to.eql(4);",
+									"    pm.expect(r.results[0].targets[1].identifier).to.eql(\"GO:0004674\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=GO:0004707&m={{filter}}",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [
+								{
+									"key": "i",
+									"value": "GO:0004707"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "taxonomy go term parent type",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "cb6a05aa-bfd2-45c8-bb3a-6726b21afec0",
+								"exec": [
+									"var encoded = encodeURIComponent('map(goparent).filter(go.type==\"biological_process\")');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "a3d31fe9-7ae1-4ce9-bf97-1b6f76e013cc",
+								"exec": [
+									"pm.test(\"goparenttype\", function () {",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).to.eql(1);",
+									"    pm.expect(r.results[0].source.identifier).to.eql(\"GO:0004707\");",
+									"    pm.expect(r.results[0].targets.length).to.eql(1);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(4);",
+									"    pm.expect(r.results[0].targets[0].identifier).to.eql(\"GO:0000165\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=GO:0004707&m={{filter}}",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [
+								{
+									"key": "i",
+									"value": "GO:0004707"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "taxonomy efo disaease name",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "cb6a05aa-bfd2-45c8-bb3a-6726b21afec0",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "a3d31fe9-7ae1-4ce9-bf97-1b6f76e013cc",
+								"exec": [
+									"pm.test(\"efoname\", function () {",
+									"      var r = pm.response.json();",
+									"    pm.expect(r.results.length).to.eql(1);",
+									"    pm.expect(r.results[0].dataset).to.eql(22);",
+									"    pm.expect(r.results[0].identifier).to.eql(\"EFO:0003767\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/?i=inflammatory bowel disease",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								""
+							],
+							"query": [
+								{
+									"key": "i",
+									"value": "inflammatory bowel disease"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "taxonomy efo children",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "cb6a05aa-bfd2-45c8-bb3a-6726b21afec0",
+								"exec": [
+									"var encoded = encodeURIComponent('map(efochild)');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "a3d31fe9-7ae1-4ce9-bf97-1b6f76e013cc",
+								"exec": [
+									"pm.test(\"efochildren\", function () {",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).to.eql(1);",
+									"    pm.expect(r.results[0].source.identifier).to.eql(\"EFO:0003767\");",
+									"    pm.expect(r.results[0].targets.length).to.eql(5);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=EFO:0003767&m={{filter}}",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [
+								{
+									"key": "i",
+									"value": "EFO:0003767"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "taxonomy efo parent",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "cb6a05aa-bfd2-45c8-bb3a-6726b21afec0",
+								"exec": [
+									"var encoded = encodeURIComponent('map(efoparent)');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "a3d31fe9-7ae1-4ce9-bf97-1b6f76e013cc",
+								"exec": [
+									"pm.test(\"efoparent\", function () {",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).to.eql(1);",
+									"    pm.expect(r.results[0].source.identifier).to.eql(\"EFO:0000384\");",
+									"    pm.expect(r.results[0].targets.length).to.eql(2);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=EFO:0000384&m={{filter}}",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [
+								{
+									"key": "i",
+									"value": "EFO:0000384"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "taxonomy eco children",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "cb6a05aa-bfd2-45c8-bb3a-6726b21afec0",
+								"exec": [
+									"var encoded = encodeURIComponent('map(ecochild)');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "a3d31fe9-7ae1-4ce9-bf97-1b6f76e013cc",
+								"exec": [
+									"pm.test(\"ecochildren\", function () {",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).to.eql(1);",
+									"    pm.expect(r.results[0].source.identifier).to.eql(\"ECO:0000269\");",
+									"    pm.expect(r.results[0].targets.length).to.be.above(15);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=ECO:0000269&m={{filter}}",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [
+								{
+									"key": "i",
+									"value": "ECO:0000269"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "taxonomy eco parent",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "cb6a05aa-bfd2-45c8-bb3a-6726b21afec0",
+								"exec": [
+									"var encoded = encodeURIComponent('map(ecoparent)');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "a3d31fe9-7ae1-4ce9-bf97-1b6f76e013cc",
+								"exec": [
+									"pm.test(\"ecoparent\", function () {",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).to.eql(1);",
+									"    pm.expect(r.results[0].source.identifier).to.eql(\"ECO:0007742\");",
+									"    pm.expect(r.results[0].targets.length).to.eql(2);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=ECO:0007742&m={{filter}}",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [
+								{
+									"key": "i",
+									"value": "ECO:0007742"
 								},
 								{
 									"key": "m",
@@ -5941,7 +6347,7 @@
 									"    var r = pm.response.json();",
 									"    pm.expect(r.results.length).to.eql(1);",
 									"    pm.expect(r.results[0].source.identifier).to.eql(\"CHEMBL3421631\");",
-									"    pm.expect(r.results[0].targets.length).to.be.above(47);",
+									"    pm.expect(r.results[0].targets.length).to.be.above(15);",
 									"    pm.expect(r.results[0].targets[0].dataset).to.eql(16);",
 									"    ",
 									"});"

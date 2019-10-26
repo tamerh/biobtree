@@ -5,7 +5,7 @@ export default class Fetch {
 
     search(id, page, filter, source, callback, callback_params) {
         // id.replace(/ /g, '') white space clear
-        let url = this.endpoint + "?i=" + encodeURIComponent(id);
+        let url = this.endpoint + "?u=y&d=y&i=" + encodeURIComponent(id);
 
         if (page.length > 0) {
             url = url + "&p=" + page;

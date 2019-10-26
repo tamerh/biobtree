@@ -7,7 +7,6 @@
         :href='sub_res.url'
         target='_blank'
       >{{ xref_conf[""+sub_res.dataset+""].name}} {{ sub_res.identifier}} {{ sub_res.keyword }}</a>
-      <!-- 		        <a :href='xref_conf[""+sub_res.dataset].url.replace("£{id}",sub_res.identifier)' target='_blank'><i class="fas fa-external-link-alt fa-1x"></i></a>  -->
       <a
         class="actionIcon icon"
         title="Remove"
@@ -66,16 +65,8 @@
                   v-show="!entry.selected"
                 ><i class="fas fa-plus-circle plusi"></i></a>
               </p>
-              <a
-                class="exlinkcolor"
-                :href='entry.url'
-                target='_blank'
-                :title="entry.title"
-              ><small>{{ entry.label }}</small></a>
-              </p>
               <p>
-                <!-- 						<a :href='xref_conf[""+entry.dataset].url.replace("£{id}",entry.xref_id)' -->
-                <!-- 						   target='_blank'><i class="fas fa-external-link-alt fa-1x"></i></a> -->
+              <small>{{ entry.label }}</small>
               </p>
             </div>
           </div>
@@ -162,7 +153,7 @@
         <div class="modal-content box">
           <p><strong>Summary view</strong></p>
           <p class="tree"> <a
-              :href='xref_conf[""+sub_res.dataset].url.replace("£{id}",sub_res.identifier)'
+              :href="sub_res.url"
               target='_blank'
             >{{ xref_conf[""+sub_res.dataset+""].name}} {{ sub_res.identifier}}</a></p>
           <ul class="tree">

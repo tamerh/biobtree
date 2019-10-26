@@ -165,20 +165,6 @@ export default class XrefModel {
 
         this.all_map_results.splice(resultIndex, 1, resp.results); // this way is needed to notify the vue about this change
 
-        for (let key in this.all_map_results[resultIndex]) {
-
-            this.setEntryUrl(this.all_map_results[resultIndex][key].source);
-
-
-            let results = this.all_map_results[resultIndex][key].targets;
-
-            for (let key2 in results) {
-
-                this.setEntryUrl(results[key2]);
-
-            }
-        }
-
         if (resp.nextpage && resp.nextpage.length > 0) {
             return resp.nextpage;
         }
@@ -253,62 +239,11 @@ export default class XrefModel {
         result.depth = depth;
         // check the labels
 
-        this.setEntryUrl(result);
-
         this.preparePaging(result);
 
         this.prepareFilter(result);
 
         this.applyGlobFilter(result);
-    }
-
-    setEntryUrl(result) {
-
-        let domain_conf = this.xref_conf[result.dataset];
-
-        if (domain_conf.id == "ufeature") {
-
-            result.url = domain_conf.url.replace("£{id}", encodeURIComponent(result.identifier.substring(0, result.identifier.indexOf("_"))));
-
-        } else if (domain_conf.id == "variantid") {
-
-            result.url = domain_conf.url.replace("£{id}", encodeURIComponent(result.identifier.toLowerCase()));
-
-        } else if (domain_conf.id == "ensembl" || domain_conf.id == "transcript" || domain_conf.id == "exon") {
-
-            if (result.Attributes.Empty) { // data not indexed
-                result.url = "";
-            } else {
-                switch (result.Attributes.Ensembl.branch) {
-                    case 1:
-                        result.url = domain_conf.url.replace("£{id}", encodeURIComponent(result.identifier));
-                        break;
-                    case 2:
-                        result.url = domain_conf.bacteriaUrl.replace("£{id}", encodeURIComponent(result.identifier));
-                        break;
-                    case 3:
-                        result.url = domain_conf.fungiUrl.replace("£{id}", encodeURIComponent(result.identifier));
-                        break;
-                    case 4:
-                        result.url = domain_conf.metazoaUrl.replace("£{id}", encodeURIComponent(result.identifier));
-                        break;
-                    case 5:
-                        result.url = domain_conf.plantsUrl.replace("£{id}", encodeURIComponent(result.identifier));
-                        break;
-                    case 6:
-                        result.url = domain_conf.protistsUrl.replace("£{id}", encodeURIComponent(result.identifier));
-                        break;
-                    default:
-                        result.url = "";
-                        break;
-                }
-                result.url = result.url.replace("£{sp}", result.Attributes.Ensembl.genome);
-            }
-
-        } else {
-            result.url = domain_conf.url.replace("£{id}", encodeURIComponent(result.identifier));
-        }
-
     }
 
     prepareFilter(result) {
@@ -374,13 +309,6 @@ export default class XrefModel {
         for (let key in result.entries) {
 
             let entry = result.entries[key];
-
-            let domain_conf = this.xref_conf[entry.dataset];
-            if (domain_conf.trim_after) {
-                entry.url = domain_conf.url.replace("£{id}", encodeURIComponent(entry.identifier.substring(0, entry.identifier.indexOf(domain_conf.trim_after))));
-            } else {
-                entry.url = domain_conf.url.replace("£{id}", encodeURIComponent(entry.identifier));
-            }
 
             if (entry.identifier.length <= 12) {
                 entry.label = entry.identifier;

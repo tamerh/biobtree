@@ -125,18 +125,12 @@ startMapping:
 		}
 
 		mapfil := pbuf.MapFilter{}
-		xref.Entries = nil
-		xref.DatasetCounts = nil
-		xref.Count = 0
-		xref.DatasetPages = nil
-		xref.Pages = nil
+		s.makeLite(xref)
+		s.setURL(xref)
 		mapfil.Source = xref
-		for _, tar := range finaltargets {
-			tar.Entries = nil
-			tar.DatasetCounts = nil
-			tar.Count = 0
-			tar.DatasetPages = nil
-			tar.Pages = nil
+		for _, targ := range finaltargets {
+			s.makeLite(targ)
+			s.setURL(targ)
 		}
 		mapfil.Targets = finaltargets
 		// create next page string
@@ -219,7 +213,7 @@ func (s *service) inputXrefs(ids []string, idsDomain uint32, filterq *query.Quer
 
 	if pages == nil {
 
-		res, err := s.search(ids, idsDomain, rootPage, filterq)
+		res, err := s.search(ids, idsDomain, rootPage, filterq, false, false)
 
 		if err != nil {
 			return nil, "", err

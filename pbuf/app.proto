@@ -5,12 +5,13 @@ import "attr.proto";
 package pbuf;
 
 service BiobtreeService {
-  rpc Search    (SearchRequest)  returns (SearchResponse);
-  rpc Mapping   (MappingRequest) returns (MappingResponse);
-  rpc Entry     (EntryRequest)    returns (EntryResponse);
-  rpc Page      (PageRequest)    returns (PageResponse);
-  rpc Filter    (FilterRequest)  returns (FilterResponse);
-  rpc Meta      (MetaRequest)    returns (MetaResponse);
+  rpc Search        (SearchRequest)         returns (SearchResponse);
+  rpc Mapping       (MappingRequest)        returns (MappingResponse);
+  rpc Entry         (EntryRequest)          returns (EntryResponse);
+  rpc Page          (PageRequest)           returns (PageResponse);
+  rpc Filter        (FilterRequest)         returns (FilterResponse);
+  rpc Meta          (MetaRequest)           returns (MetaResponse);
+  rpc ListGenomes   (ListGenomesRequest)    returns (ListGenomesResponse);
 }
 
 message SearchRequest {
@@ -18,6 +19,8 @@ message SearchRequest {
     string dataset=2;
     string page=3;
     string query=4;
+    bool detail=5;
+    bool url=6;
 }
 
 message SearchResponse {
@@ -77,6 +80,14 @@ message MetaKeyValue{
   map<string, string> keyvalues = 1;
 }
 
+message ListGenomesRequest {
+  	string type = 1;
+}
+
+message ListGenomesResponse {
+    string results = 1;
+}
+
 message Result {
   	repeated Xref results = 1;
     string nextpage=2;
@@ -96,9 +107,8 @@ message Xref {
 
   uint32 dataset = 1;
   bool is_link=2;
-  //these 2 fields are transient fields not saved to database
-  string identifier=3;
-  string keyword =4; 
+  string identifier=3;// transient
+  string keyword =4;  // transient
 
   oneof attributes{
 
@@ -125,6 +135,7 @@ message Xref {
   repeated XrefDomainCount dataset_counts=22;
   map<uint32,PageInfo> datasetPages=23;
   repeated string pages=24;
+  string url =25; // transient
 }
 
 message PageInfo {

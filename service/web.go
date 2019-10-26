@@ -3,7 +3,6 @@ package service
 import (
 	"biobtree/conf"
 	"biobtree/query"
-	"bufio"
 	"fmt"
 	"log"
 	"net/http"
@@ -43,25 +42,27 @@ func (web *Web) Start(c *conf.Conf) {
 	}
 	rpc.Start()
 
-	web.initMeta()
+	//setup rest ws
+	web.metaRes = []byte(s.metajson())
 
-	//setup ws and static points
 	searchGz := gziphandler.GzipHandler(http.HandlerFunc(web.search))
 	searchEntryGz := gziphandler.GzipHandler(http.HandlerFunc(web.entry))
 	mapFilterGz := gziphandler.GzipHandler(http.HandlerFunc(web.mapFilter))
 	searchPageGz := gziphandler.GzipHandler(http.HandlerFunc(web.searchPage))
 	searchFilterGz := gziphandler.GzipHandler(http.HandlerFunc(web.searchFilter))
-	bulkSearchGz := gziphandler.GzipHandler(http.HandlerFunc(web.bulkSearch))
 	metaGz := gziphandler.GzipHandler(http.HandlerFunc(web.meta))
 	http.Handle("/ws/", searchGz)
 	http.Handle("/ws/entry/", searchEntryGz)
 	http.Handle("/ws/map/", mapFilterGz)
 	http.Handle("/ws/page/", searchPageGz)
 	http.Handle("/ws/filter/", searchFilterGz)
-	http.Handle("/bulk/", bulkSearchGz)
 	http.Handle("/ws/meta/", metaGz)
+
+	//web ui
 	fs := http.FileServer(http.Dir("website"))
 	http.Handle("/ui/", http.StripPrefix("/ui/", fs))
+
+	// genomes
 	if _, ok := config.Appconf["disableGenomes"]; !ok {
 		fsgenomes := http.FileServer(http.Dir("ensembl"))
 		http.Handle("/genomes/", http.StripPrefix("/genomes/", fsgenomes))
@@ -83,9 +84,8 @@ func (web *Web) Start(c *conf.Conf) {
 		exec.Command("rundll32", "url.dll,FileProtocolHandler", url).Start()
 	case "darwin":
 		exec.Command("open", url).Start()
-		//	default:
-		//	err = fmt.Errorf("unsupported platform")
 	}
+
 	log.Println("REST started at port->", port)
 	uiURL := "localhost:" + port + "/ui"
 	log.Println("Web interface url->", uiURL)
@@ -105,114 +105,12 @@ func (web *Web) checkRequest(r *http.Request) error {
 
 }
 
-func (web *Web) initMeta() {
-
-	var b strings.Builder
-	b.WriteString("{")
-	keymap := map[string]bool{}
-	optionalFields := []string{"bacteriaUrl", "fungiUrl", "metazoaUrl", "plantsUrl", "protistsUrl"}
-	for k := range config.Dataconf {
-		if config.Dataconf[k]["_alias"] == "" { // not send the alias
-			id := config.Dataconf[k]["id"]
-			if _, ok := keymap[id]; !ok {
-				b.WriteString(`"` + id + `":{`)
-
-				if len(config.Dataconf[k]["name"]) > 0 {
-					b.WriteString(`"name":"` + config.Dataconf[k]["name"] + `",`)
-				} else {
-					b.WriteString(`"name":"` + k + `",`)
-				}
-
-				if len(config.Dataconf[k]["linkdataset"]) > 0 {
-					b.WriteString(`"linkdataset":"` + config.Dataconf[k]["linkdataset"] + `",`)
-				}
-
-				b.WriteString(`"id":"` + k + `",`)
-
-				b.WriteString(`"url":"` + config.Dataconf[k]["url"] + `"`)
-
-				for _, field := range optionalFields {
-					if _, ok := config.Dataconf[k][field]; ok {
-						b.WriteString(`,`)
-						b.WriteString(`"` + field + `":"` + config.Dataconf[k][field] + `"`)
-					}
-				}
-				b.WriteString(`},`)
-
-				keymap[id] = true
-			}
-		}
-	}
-	s2 := b.String()
-	s2 = s2[:len(s2)-1]
-	s2 = s2 + "}"
-	web.metaRes = []byte(s2)
-}
-
 func (web *Web) meta(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Add("content-type", "application/json")
 	w.Header().Add("Access-Control-Allow-Origin", "*")
 
 	w.Write(web.metaRes)
-
-}
-
-func (web *Web) bulkSearch(w http.ResponseWriter, r *http.Request) {
-
-	r.ParseMultipartForm(32 << 20)
-	file, _, err := r.FormFile("file")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	var results []pbuf.Result
-	var buf strings.Builder
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-
-		t := strings.ToUpper(strings.TrimSpace(scanner.Text()))
-		tarr := []string{t}
-		r1, err := web.service.search(tarr, 0, "", nil) // todo
-
-		if err != nil {
-			buf.WriteString("[")
-			errStr := errString{Err: err.Error()}
-			jb, _ := ffjson.Marshal(errStr)
-			buf.WriteString(string(jb))
-			buf.WriteString("]")
-			w.Write([]byte(buf.String()))
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		//TODO	for _, res := range r1 {
-		results = append(results, *r1)
-		//		}
-
-	}
-
-	buf.WriteString("[")
-	for i, b := range results {
-		//jb, _ := json.Marshal(b)
-		jb, _ := ffjson.Marshal(b)
-		buf.WriteString(string(jb))
-		if len(results)-1 != i {
-			buf.WriteString(",")
-		}
-	}
-	buf.WriteString("]")
-
-	result := []byte(buf.String())
-	w.Header().Add("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Content-Type", "text/plain")
-	w.Header().Set("Content-length", strconv.Itoa(len(result)))
-	w.Header().Set("Content-Disposition", "attachment; filename=test.txt")
-	w.Write(result)
-	//io.Copy(w, bytes.NewBufferString(buf.String()))
-
-	return
 
 }
 
@@ -384,6 +282,8 @@ func (web *Web) entry(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	web.service.setURL(r1)
+
 	buf.WriteString("[")
 	//jb, _ := json.Marshal(r1)
 	jb, _ := ffjson.Marshal(r1)
@@ -529,7 +429,10 @@ func (web *Web) search(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	res, err := web.service.search(ids, src, page, filterq)
+	_, detail := r.URL.Query()["d"]
+	_, url := r.URL.Query()["u"]
+
+	res, err := web.service.search(ids, src, page, filterq, detail, url)
 
 	if err != nil {
 		buf.WriteString("[")

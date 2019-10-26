@@ -1,7 +1,7 @@
 <template>
   <li>
     <a
-      :href="xref_conf[""+sel_sub_res.dataset].url.replace("£{id}",sel_sub_res.identifier)"
+      :href="sel_sub_res.url"
       target="_blank"
     >{{ xref_conf[""+sel_sub_res.dataset+""].name}} {{ sel_sub_res.identifier}}</a>
     <ul v-if="sel_sub_res.selectedXrefs.length>0">

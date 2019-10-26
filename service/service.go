@@ -276,7 +276,6 @@ func (s *service) meta() *pbuf.MetaResponse {
 	meta := pbuf.MetaResponse{}
 	results := map[string]*pbuf.MetaKeyValue{}
 
-	optionalFields := []string{"bacteriaUrl", "fungiUrl", "metazoaUrl", "plantsUrl", "protistsUrl"}
 	for k := range config.Dataconf {
 		if config.Dataconf[k]["_alias"] == "" { // not send the alias
 			id := config.Dataconf[k]["id"]
@@ -295,13 +294,7 @@ func (s *service) meta() *pbuf.MetaResponse {
 				}
 
 				datasetConf["id"] = k
-				datasetConf["url"] = config.Dataconf[k]["url"]
 
-				for _, field := range optionalFields {
-					if _, ok := config.Dataconf[k][field]; ok {
-						datasetConf[field] = config.Dataconf[k][field]
-					}
-				}
 				keyvals.Keyvalues = datasetConf
 				results[id] = keyvals
 			}
@@ -310,6 +303,42 @@ func (s *service) meta() *pbuf.MetaResponse {
 
 	meta.Results = results
 	return &meta
+
+}
+
+func (s *service) metajson() string {
+
+	var b strings.Builder
+	b.WriteString("{")
+	keymap := map[string]bool{}
+	for k := range config.Dataconf {
+		if config.Dataconf[k]["_alias"] == "" { // not send the alias
+			id := config.Dataconf[k]["id"]
+			if _, ok := keymap[id]; !ok {
+				b.WriteString(`"` + id + `":{`)
+
+				if len(config.Dataconf[k]["name"]) > 0 {
+					b.WriteString(`"name":"` + config.Dataconf[k]["name"] + `",`)
+				} else {
+					b.WriteString(`"name":"` + k + `",`)
+				}
+
+				if len(config.Dataconf[k]["linkdataset"]) > 0 {
+					b.WriteString(`"linkdataset":"` + config.Dataconf[k]["linkdataset"] + `",`)
+				}
+
+				b.WriteString(`"id":"` + k + `"`)
+
+				b.WriteString(`},`)
+
+				keymap[id] = true
+			}
+		}
+	}
+	s2 := b.String()
+	s2 = s2[:len(s2)-1]
+	s2 = s2 + "}"
+	return s2
 
 }
 
@@ -528,19 +557,89 @@ func (s *service) searchPageInfo(page string) (*searchPageInfo, error) {
 	}
 
 }
-func (s *service) tobedeleted(xref *pbuf.Xref) {
 
-	/**
-	xref.Attributes = nil
-	xref.DomainPages = nil
-	xref.DomainCounts = nil
-	**/
+func (s *service) setURL(xref *pbuf.Xref) {
+
+	if xref.Dataset == 72 { // ufeature
+		xref.Url = strings.Replace(config.Dataconf[config.DataconfIDIntToString[xref.Dataset]]["url"], "£{id}", xref.Identifier[:strings.Index(xref.Identifier, "_")], -1)
+
+	} else if xref.Dataset == 73 { // variantid
+
+		xref.Url = strings.Replace(config.Dataconf[config.DataconfIDIntToString[xref.Dataset]]["url"], "£{id}", strings.ToLower(xref.Identifier), -1)
+
+	} else if xref.Dataset == 2 || xref.Dataset == 42 || xref.Dataset == 39 { // ensembl,transcript exon
+
+		if xref.GetEmpty() { // data not indexed
+			xref.Url = "#"
+		} else {
+			switch xref.GetEnsembl().Branch {
+			case 1:
+				xref.Url = strings.Replace(config.Dataconf[config.DataconfIDIntToString[xref.Dataset]]["url"], "£{id}", xref.Identifier, -1)
+				break
+			case 2:
+				xref.Url = strings.Replace(config.Dataconf[config.DataconfIDIntToString[xref.Dataset]]["bacteriaUrl"], "£{id}", xref.Identifier, -1)
+				break
+			case 3:
+				xref.Url = strings.Replace(config.Dataconf[config.DataconfIDIntToString[xref.Dataset]]["fungiUrl"], "£{id}", xref.Identifier, -1)
+				break
+			case 4:
+				xref.Url = strings.Replace(config.Dataconf[config.DataconfIDIntToString[xref.Dataset]]["metazoaUrl"], "£{id}", xref.Identifier, -1)
+				break
+			case 5:
+				xref.Url = strings.Replace(config.Dataconf[config.DataconfIDIntToString[xref.Dataset]]["plantsUrl"], "£{id}", xref.Identifier, -1)
+				break
+			case 6:
+				xref.Url = strings.Replace(config.Dataconf[config.DataconfIDIntToString[xref.Dataset]]["protistsUrl"], "£{id}", xref.Identifier, -1)
+				break
+			default:
+				xref.Url = "#"
+				break
+			}
+			xref.Url = strings.Replace(xref.Url, "£{sp}", xref.GetEnsembl().Genome, -1)
+		}
+
+	} else {
+		xref.Url = strings.Replace(config.Dataconf[config.DataconfIDIntToString[xref.Dataset]]["url"], "£{id}", xref.Identifier, -1)
+	}
+
 }
 
-func (s *service) search(ids []string, idsDomain uint32, page string, q *query.Query) (*pbuf.Result, error) {
+func (s *service) makeLite(xref *pbuf.Xref) {
+	xref.Entries = nil
+	xref.DatasetPages = nil
+	xref.Pages = nil
+	xref.DatasetCounts = nil
+}
+
+func (s *service) makeLiteAll(res *pbuf.Result) {
+
+	for _, xref := range res.Results {
+		s.makeLite(xref)
+	}
+
+}
+
+func (s *service) setAllURL(res *pbuf.Result) {
+
+	for _, xref := range res.Results {
+		s.setURL(xref)
+	}
+
+}
+
+func (s *service) search(ids []string, idsDomain uint32, page string, q *query.Query, detail, buildURL bool) (*pbuf.Result, error) {
 
 	//todo remove duplicate parts
 	result := &pbuf.Result{}
+
+	if !detail {
+		defer s.makeLiteAll(result)
+	}
+
+	if buildURL {
+		defer s.setAllURL(result)
+	}
+
 	var xrefs []*pbuf.Xref
 	totalResult := 0
 	var err error
@@ -579,7 +678,6 @@ func (s *service) search(ids []string, idsDomain uint32, page string, q *query.Q
 
 			for _, xref := range result.Results {
 
-				//s.tobedeleted(xref)
 				if xref.IsLink {
 
 					skipRootLinks := false
@@ -597,7 +695,6 @@ func (s *service) search(ids []string, idsDomain uint32, page string, q *query.Q
 						for _, b := range xref.Entries { //link entries
 
 							xref2, err := s.getLmdbResult2(b.Identifier, b.Dataset)
-							//s.tobedeleted(xref2)
 
 							if err != nil {
 								return nil, err
@@ -673,7 +770,7 @@ func (s *service) search(ids []string, idsDomain uint32, page string, q *query.Q
 							for _, b := range xrefPage.Entries {
 
 								xref2, err := s.getLmdbResult2(b.Identifier, b.Dataset)
-								s.tobedeleted(xref2)
+
 								if err != nil {
 									return nil, err
 								}

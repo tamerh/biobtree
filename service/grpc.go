@@ -3,8 +3,10 @@ package service
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net"
+	"path/filepath"
 	"strings"
 
 	"biobtree/pbuf"
@@ -71,7 +73,9 @@ func (g *biobtreegrpc) Search(ctx context.Context, in *pbuf.SearchRequest) (*pbu
 			return nil, fmt.Errorf("Invalid dataset")
 		}
 	}
-	res, err := g.service.search(in.Terms, src, in.Page, filterq)
+
+	res, err := g.service.search(in.Terms, src, in.Page, filterq, in.Detail, in.Url)
+
 	if err != nil {
 		return nil, err
 	}
@@ -136,6 +140,7 @@ func (g *biobtreegrpc) Entry(ctx context.Context, in *pbuf.EntryRequest) (*pbuf.
 	if err != nil {
 		return nil, err
 	}
+	g.service.setURL(res)
 	grpcRes.Result = res
 	return &grpcRes, nil
 
@@ -215,5 +220,23 @@ func (g *biobtreegrpc) Filter(ctx context.Context, in *pbuf.FilterRequest) (*pbu
 func (g *biobtreegrpc) Meta(ctx context.Context, in *pbuf.MetaRequest) (*pbuf.MetaResponse, error) {
 
 	return g.service.meta(), nil
+
+}
+
+func (g *biobtreegrpc) ListGenomes(ctx context.Context, in *pbuf.ListGenomesRequest) (*pbuf.ListGenomesResponse, error) {
+
+	switch in.Type {
+	case "ensembl", "ensembl_bacteria", "ensembl_fungi", "ensembl_metazoa", "ensembl_plants", "ensembl_protists":
+
+		content, err := ioutil.ReadFile(filepath.FromSlash("ensembl/" + in.Type + ".paths.json"))
+		if err != nil {
+			return nil, err
+		}
+		grpcRes := pbuf.ListGenomesResponse{}
+		grpcRes.Results = string(content)
+		return &grpcRes, nil
+	default:
+		return nil, fmt.Errorf("Invalid genome type valid types are 'ensembl', 'ensembl_bacteria', 'ensembl_fungi', 'ensembl_metazoa', 'ensembl_plants', 'ensembl_protists'")
+	}
 
 }

@@ -7,7 +7,8 @@
     "url": "//www.uniprot.org/uniprot/£{id}",
     "pathTrembl": "/current_release/knowledgebase/complete/uniprot_trembl.xml.gz",
     "useLocalFile": "no",
-    "hasFilter": "yes"
+    "hasFilter": "yes",
+    "attrs": "[]accessions,[]genes,[]names,[]alternative_names,[]submitted_names,sequence.seq,sequence.mass,reviewed"
   },
   "ensembl": {
     "aliases": "gene ID,Ensembl",
@@ -27,7 +28,8 @@
     "protistsUrlSearch": "http://protists.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
     "path": "ensembl.json",
     "useLocalFile": "no",
-    "hasFilter": "yes"
+    "hasFilter": "yes",
+    "attrs": "name,description,start,end,biotype,genome,strand,seq_region_name,branch"
   },
   "taxonomy": {
     "id": "3",
@@ -35,7 +37,8 @@
     "path": "/taxonomy/taxonomy.xml.gz",
     "url": "//www.uniprot.org/taxonomy/£{id}",
     "aliases": "NCBITaxonomy,NCBItaxonomy,NCBI_taxonomy_id,common taxon ID,NCBI taxonomy,NCBI Taxonomy",
-    "hasFilter": "yes"
+    "hasFilter": "yes",
+    "attrs": "name,common_name,rank,taxonomic_division"
   },
   "go": {
     "aliases": "GO Molecular Function,GO Cellular Component,GO Biological Process,GO",
@@ -44,7 +47,8 @@
     "url": "https://www.ebi.ac.uk/QuickGO/term/£{id}",
     "path": "http://purl.obolibrary.org/obo/go.owl",
     "useLocalFile": "no",
-    "hasFilter": "yes"
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms"
   },
   "eco": {
     "aliases": "ECO",
@@ -53,7 +57,8 @@
     "url": "https://www.ebi.ac.uk/QuickGO/term/£{id}",
     "path": "http://purl.obolibrary.org/obo/eco.owl",
     "useLocalFile": "no",
-    "hasFilter": "yes"
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms"
   },
   "hgnc": {
     "id": "5",
@@ -62,7 +67,8 @@
     "aliases": "HGNC",
     "url": "https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/£{id}",
     "useLocalFile": "no",
-    "hasFilter": "yes"
+    "hasFilter": "yes",
+    "attrs": "[]names,[]symbols,locus_group,[]aliases,locus_type,[]prev_names,[]prev_symbols,status,[]gene_groups"
   },
   "uniparc": {
     "id": "6",
@@ -118,7 +124,8 @@
     "url": "https://www.ebi.ac.uk/interpro/entry/£{id}",
     "aliases": "INTERPRO,InterPro",
     "useLocalFile": "no",
-    "hasFilter": "yes"
+    "hasFilter": "yes",
+    "attrs": "[]names,short_name,type,protein_count"
   },
   "literature_mappings": {
     "id": "12",
@@ -135,7 +142,8 @@
     "path2": "http://localhost:8000/hmdb.zip",
     "url": "http://www.hmdb.ca/metabolites/£{id}",
     "useLocalFile": "no",
-    "hasFilter": "yes"
+    "hasFilter": "yes",
+    "attrs": "name,desc,[]accessions,[]synonyms,[]diseases,formula,averageWeight,monisotopicWeight,iupacName,smiles,inchi,inchiKey,[]cellularLocations,[]biospecimens,[]tissueLocations,[]pathways,props.rotatableBondCount,props.physiologicalCharge,props.ruleOfFive,props.pkaStrongestAcidic,props.monoMass,props.ghose_filter,props.refractivity,props.formalCharge,props.bioavailability,props.solubility,props.pka_strongest_basic,props.polarSurfaceArea,props.veberRule,props.mddrLikeRule,props.logp,props.polarizability,props.donorCount,props.averageMass,props.acceptorCount,props.numberOfRings,props.logs,experimentalProps.boolingPoint,experimentalProps.meltingPoint,experimentalProps.logp,experimentalProps.waterSolubility"
   },
   "my_data": {
     "id": "14",
@@ -162,7 +170,8 @@
     "pathAssayPattern": "chembl*assay.ttl.gz",
     "pathAssaySourcePattern": "chembl*source.ttl.gz",
     "useLocalFile": "no",
-    "hasFilter": "yes"
+    "hasFilter": "yes",
+    "attrs": "title,type,journal,journalShortName"
   },
   "chembl_activity": {
     "name": "chembl_activity",
@@ -171,7 +180,8 @@
     "path": "/chembl/ChEMBL-RDF/latest/",
     "pathActivityPattern": "chembl*activity.ttl.gz",
     "useLocalFile": "no",
-    "hasFilter": "yes"
+    "hasFilter": "yes",
+    "attrs": "type,relation,value,units,standardType,standardRelation,standardValue,standardUnits,dataValidityIssue,dataValidityComment,pChembl,activityComment,potentialDuplicate,bao"
   },
   "chembl_molecule": {
     "name": "chembl_molecule",
@@ -184,7 +194,8 @@
     "pathChebiPattern": "chembl*molecule_chebi_ls.ttl.gz",
     "pathHierarchyPattern": "chembl*molhierarchy.ttl.gz",
     "useLocalFile": "no",
-    "hasFilter": "yes"
+    "hasFilter": "yes",
+    "attrs": "desc,highestDevelopmentPhase,[]altNames,[]atcClassification,isBiotherapeutic,helmNotation,hracClassification,fracClassification,iracClassification,type,bioComponentType,bioComponentDescription,bioComponentSquence,bioComponentTaxo,parent,[]childs,mechanism.desc,mechanism.action,inchi,name,inchiKey,smiles,alogp,weightFreebase,hba,hbd,psa,rtb,ro3Pass,numRo5Violations,acdMostApka,acdMostBpka,acdLogp,acdLogd,molecularSpecies,weight,aromaticRings,heavyAtoms,formula,weightMonoisotopic,qedWeighted,[]indications.efoName,[]indications.meshHeading,[]indications.highestDevelopmentPhase,[]indications.efo,[]indications.mesh,[]indications.mechanism.desc,[]indications.mechanism.action"
   },
   "chembl_target_component": {
     "name": "chembl_target_component",
@@ -195,7 +206,8 @@
     "pathProteinTargetClassificationPattern": "chembl*protclass.ttl.gz",
     "pathUniprotMappingPattern": "chembl*targetcmpt_uniprot_ls.ttl.gz",
     "useLocalFile": "no",
-    "hasFilter": "yes"
+    "hasFilter": "yes",
+    "attrs": "desc,altLabel,type,acc,tax,[]ptclassifications.className,[]ptclassifications.classLevel,[]ptclassifications.classPath"
   },
   "chembl_target": {
     "name": "chembl_target",
@@ -211,7 +223,8 @@
     "pathGroupTargetComponentMappingPattern": "chembl*grouptarget_targetcmpt_ls.ttl.gz",
     "pathMechanismPattern": "chembl*moa.ttl.gz",
     "useLocalFile": "no",
-    "hasFilter": "yes"
+    "hasFilter": "yes",
+    "attrs": "title,isSpeciesGroup,type,[]subsetofs,[]equivalents,[]subsets,[]overlaps,bindingSite.name,bindingSite.mechanism.desc,bindingSite.mechanism.action,[]ptclassifications.className,[]ptclassifications.classLevel,[]ptclassifications.classPath,[]components.type,[]components.acc,mechanism.desc,mechanism.action,tax"
   },
   "chembl_cell_line": {
     "name": "chembl_cell_line",
@@ -220,7 +233,8 @@
     "path": "/chembl/ChEMBL-RDF/latest/",
     "pathCelllinePattern": "chembl*cellline.ttl.gz",
     "useLocalFile": "no",
-    "hasFilter": "yes"
+    "hasFilter": "yes",
+    "attrs": "desc,cellosaurusId,efo,clo,tax,[]cellxref"
   },
   "efo": {
     "aliases": "EFO",
@@ -229,6 +243,7 @@
     "url": "http://www.ebi.ac.uk/efo/£{id}",
     "path": "http://www.ebi.ac.uk/efo/efo.owl",
     "useLocalFile": "no",
-    "hasFilter": "yes"
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms"
   }
 }

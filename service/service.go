@@ -293,6 +293,10 @@ func (s *service) meta() *pbuf.MetaResponse {
 					datasetConf["linkdataset"] = config.Dataconf[k]["linkdataset"]
 				}
 
+				if _, ok := config.Dataconf[k]["attrs"]; ok {
+					datasetConf["attrs"] = config.Dataconf[k]["attrs"]
+				}
+
 				datasetConf["id"] = k
 
 				keyvals.Keyvalues = datasetConf
@@ -325,6 +329,10 @@ func (s *service) metajson() string {
 
 				if len(config.Dataconf[k]["linkdataset"]) > 0 {
 					b.WriteString(`"linkdataset":"` + config.Dataconf[k]["linkdataset"] + `",`)
+				}
+
+				if _, ok := config.Dataconf[k]["attrs"]; ok {
+					b.WriteString(`"attrs":"` + config.Dataconf[k]["attrs"] + `",`)
 				}
 
 				b.WriteString(`"id":"` + k + `"`)

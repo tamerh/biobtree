@@ -98,7 +98,7 @@ https://f1000research.com/articles/8-145/v2
 
 ### Building source 
 
-biobtree is written with GO for the data processing and Vue.js for the web application part. To build and the create biobtree executable install go>=1.12 and run
+biobtree is written with GO for the data processing and Vue.js for the web application part. To build and the create biobtree executable install go>=1.13 and run
 
 ```sh
 go build

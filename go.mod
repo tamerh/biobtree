@@ -1,6 +1,6 @@
 module biobtree
 
-go 1.12
+go 1.13
 
 require (
 	github.com/NYTimes/gziphandler v1.1.1
@@ -16,13 +16,16 @@ require (
 	github.com/mattn/go-colorable v0.1.4 // indirect
 	github.com/mattn/go-isatty v0.0.9 // indirect
 	github.com/mattn/go-runewidth v0.0.4 // indirect
-	github.com/pquerna/ffjson v0.0.0-20181028064349-e517b90714f7
+	github.com/pquerna/ffjson v0.0.0-20190930134022-aa0246cd15f7
 	github.com/tamerh/jsparser v1.0.0
 	github.com/tamerh/rdf v0.0.0-20190712184806-55b841cd359c
 	github.com/tamerh/xml-stream-parser v1.1.4
 	github.com/urfave/cli v1.20.0
 	github.com/vbauerster/mpb v3.4.0+incompatible
-	google.golang.org/grpc v1.22.1
+	golang.org/x/net v0.0.0-20191027093000-83d349e8ac1a // indirect
+	golang.org/x/sys v0.0.0-20191026070338-33540a1f6037 // indirect
+	google.golang.org/genproto v0.0.0-20191009194640-548a555dbc03 // indirect
+	google.golang.org/grpc v1.24.0
 	gopkg.in/cheggaaa/pb.v1 v1.0.28
 	gopkg.in/yaml.v2 v2.2.4 // indirect
 )

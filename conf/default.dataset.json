@@ -34,7 +34,8 @@
     "name": "DrugBank",
     "id": "36",
     "url": "https://www.drugbank.ca/drugs/£{id}",
-    "hasFilter": "yes"
+    "hasFilter": "yes",
+    "attrs": "name"
   },
   "ec": {
     "aliases": "EC,Intenz",
@@ -47,7 +48,8 @@
     "name": "ENA",
     "id": "38",
     "url": "//www.ebi.ac.uk/ena/data/view/£{id}",
-    "hasFilter": "yes"
+    "hasFilter": "yes",
+    "attrs": "type"
   },
   "exon": {
     "name": "Exon",
@@ -58,7 +60,8 @@
     "metazoaUrl": "http://metazoa.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
     "plantsUrl": "http://plants.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
     "protistsUrl": "http://protists.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
-    "hasFilter": "yes"
+    "hasFilter": "yes",
+    "attrs": "start,end,strand,seq_region_name"
   },
   "ortholog": {
     "name": "Ortholog",
@@ -72,7 +75,8 @@
     "id": "41",
     "url": "https://www.ensembl.org/Multi/Search/Results?q=£{id};site=ensembl_all",
     "linkdataset": "ensembl",
-    "hasFilter": "yes"
+    "hasFilter": "yes",
+    "attrs": "name,description,start,end,biotype,genome,strand,seq_region_name,branch"
   },
   "transcript": {
     "name": "Transcript",
@@ -83,7 +87,8 @@
     "metazoaUrl": "http://metazoa.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
     "plantsUrl": "http://plants.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
     "protistsUrl": "http://protists.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
-    "hasFilter": "yes"
+    "hasFilter": "yes",
+    "attrs": "name,start,end,biotype,strand,seq_region_name,branch"
   },
   "expressionatlas": {
     "aliases": "ExpressionAtlas",
@@ -162,7 +167,8 @@
     "name": "Orphanet",
     "id": "55",
     "url": "https://www.orpha.net/consor/cgi-bin/OC_Exp.php?Lng=GB&Expert=£{id}",
-    "hasFilter": "yes"
+    "hasFilter": "yes",
+    "attrs": "disease"
   },
   "panther": {
     "aliases": "PANTHER",
@@ -180,7 +186,8 @@
     "aliases": "PDB",
     "name": "PDBe",
     "id": "58",
-    "url": "https://www.ebi.ac.uk/pdbe/entry/pdb/£{id}"
+    "url": "https://www.ebi.ac.uk/pdbe/entry/pdb/£{id}",
+    "attrs": "method,chains,resolution"
   },
   "pdbechem": {
     "aliases": "PDBeChem,PDBeChem accession",
@@ -217,7 +224,8 @@
     "name": "Reactome",
     "id": "65",
     "url": "https://www.reactome.org/content/detail/£{id}",
-    "hasFilter": "yes"
+    "hasFilter": "yes",
+    "attrs": "pathway"
   },
   "refseq": {
     "aliases": "RefSeq,nucleotide sequence ID",
@@ -253,7 +261,8 @@
     "name": "Protein Feature",
     "id": "72",
     "url": "//www.uniprot.org/uniprot/£{id}",
-    "hasFilter": "yes"
+    "hasFilter": "yes",
+    "attrs": "type,description,id,original,variation,location.begin,location.end,[]evidences.type,[]evidences.source,[]evidences.id"
   },
   "variantid": {
     "name": "variantid",
@@ -265,14 +274,16 @@
     "id": "74",
     "url": "",
     "linkdataset": "taxonomy",
-    "hasFilter": "yes"
+    "hasFilter": "yes",
+    "attrs": "name,common_name,rank,taxonomic_division"
   },
   "taxparent": {
     "name": "Tax Parent",
     "id": "75",
     "url": "",
     "linkdataset": "taxonomy",
-    "hasFilter": "yes"
+    "hasFilter": "yes",
+    "attrs": "name,common_name,rank,taxonomic_division"
   },
   "affy_bovine": {
     "name": "affy_bovine",
@@ -1349,28 +1360,32 @@
     "id": "290",
     "url": "https://www.ebi.ac.uk/QuickGO/term/£{id}",
     "linkdataset": "go",
-    "hasFilter": "yes"
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms"
   },
   "goparent": {
     "name": "GO Parent",
     "id": "291",
     "url": "https://www.ebi.ac.uk/QuickGO/term/£{id}",
     "linkdataset": "go",
-    "hasFilter": "yes"
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms"
   },
   "efochild": {
     "name": "EFO Child",
     "id": "292",
     "url": "http://www.ebi.ac.uk/efo/£{id}",
     "linkdataset": "efo",
-    "hasFilter": "yes"
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms"
   },
   "efoparent": {
     "name": "EFO Parent",
     "id": "293",
     "url": "http://www.ebi.ac.uk/efo/£{id}",
     "linkdataset": "efo",
-    "hasFilter": "yes"
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms"
   },
   "eprotein": {
     "name": "Ensembl Protein",
@@ -1387,13 +1402,15 @@
     "id": "296",
     "url": "https://www.ebi.ac.uk/QuickGO/term/£{id}",
     "linkdataset": "eco",
-    "hasFilter": "yes"
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms"
   },
   "ecoparent": {
     "name": "ECO Parent",
     "id": "297",
     "url": "https://www.ebi.ac.uk/QuickGO/term/£{id}",
     "linkdataset": "eco",
-    "hasFilter": "yes"
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms"
   }
 }

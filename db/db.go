@@ -36,26 +36,27 @@ func (d *DB) OpenDB(write bool, totalKV int64, appconf map[string]string) (*lmdb
 			panic("lmdbAllocSize must be greater than 1")
 		}
 	} else {
-		// todo with go 1.13 add underscore
-		if totalKV < 1000000 { //1M
-			lmdbAllocSize = 1000000000 // 1GB
-		} else if totalKV < 50000000 { //50M
-			lmdbAllocSize = 5000000000 // 5GB
-		} else if totalKV < 100000000 { //100M
-			lmdbAllocSize = 10000000000 // 10GB
-		} else if totalKV < 150000000 { //150M
-			lmdbAllocSize = 15000000000 // 15GB
-		} else if totalKV < 200000000 { //200M
-			lmdbAllocSize = 20000000000 // 20GB
-		} else if totalKV < 300000000 { //300M
-			lmdbAllocSize = 30000000000 // 30GB
-		} else if totalKV < 500000000 { //500M
-			lmdbAllocSize = 50000000000 // 50GB
-		} else if totalKV < 1000000000 { //1B
-			lmdbAllocSize = 100000000000 // 100GB
+
+		if totalKV < 1_000_000 { //1M
+			lmdbAllocSize = 1_000_000_000 // 1GB
+		} else if totalKV < 50_000_000 {
+			lmdbAllocSize = 5_000_000_000
+		} else if totalKV < 100_000_000 {
+			lmdbAllocSize = 10_000_000_000
+		} else if totalKV < 150_000_000 {
+			lmdbAllocSize = 15_000_000_000
+		} else if totalKV < 200_000_000 {
+			lmdbAllocSize = 20_000_000_000
+		} else if totalKV < 300_000_000 {
+			lmdbAllocSize = 30_000_000_000
+		} else if totalKV < 500_000_000 {
+			lmdbAllocSize = 50_000_000_000
+		} else if totalKV < 1_000_000_000 {
+			lmdbAllocSize = 100_000_000_000
 		} else { // todo review again
 			lmdbAllocSize = 1.4 * 1000 * 1000 * 1000 * 1000 // TB
 		}
+
 	}
 
 	err = env.SetMapSize(lmdbAllocSize)

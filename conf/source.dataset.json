@@ -160,7 +160,8 @@
     "pathDocumentPattern": "chembl*document.ttl.gz",
     "pathJournalPattern": "chembl*journal.ttl.gz",
     "useLocalFile": "no",
-    "hasFilter": "yes"
+    "hasFilter": "yes",
+    "attrs": "chembl.doc.title,chembl.doc.type,chembl.doc.journal,chembl.doc.journalShortName"
   },
   "chembl_assay": {
     "name": "chembl_assay",
@@ -171,7 +172,7 @@
     "pathAssaySourcePattern": "chembl*source.ttl.gz",
     "useLocalFile": "no",
     "hasFilter": "yes",
-    "attrs": "title,type,journal,journalShortName"
+    "attrs": "chembl.assay.desc,chembl.assay.type,chembl.assay.targetConfDesc,chembl.assay.targetRelType,chembl.assay.targetRelDesc,chembl.assay.targetConfScore,chembl.assay.subCellFrac,chembl.assay.testType,chembl.assay.strain,chembl.assay.cellType,chembl.assay.tissue,chembl.assay.tax,chembl.assay.category,chembl.assay.source,chembl.assay.sourceDesc,chembl.assay.bao"
   },
   "chembl_activity": {
     "name": "chembl_activity",
@@ -181,7 +182,7 @@
     "pathActivityPattern": "chembl*activity.ttl.gz",
     "useLocalFile": "no",
     "hasFilter": "yes",
-    "attrs": "type,relation,value,units,standardType,standardRelation,standardValue,standardUnits,dataValidityIssue,dataValidityComment,pChembl,activityComment,potentialDuplicate,bao"
+    "attrs": "chembl.activity.type,chembl.activity.relation,chembl.activity.value,chembl.activity.units,chembl.activity.standardType,chembl.activity.standardRelation,chembl.activity.standardValue,chembl.activity.standardUnits,chembl.activity.dataValidityIssue,chembl.activity.dataValidityComment,chembl.activity.pChembl,chembl.activity.activityComment,chembl.activity.potentialDuplicate,chembl.activity.bao"
   },
   "chembl_molecule": {
     "name": "chembl_molecule",
@@ -195,7 +196,7 @@
     "pathHierarchyPattern": "chembl*molhierarchy.ttl.gz",
     "useLocalFile": "no",
     "hasFilter": "yes",
-    "attrs": "desc,highestDevelopmentPhase,[]altNames,[]atcClassification,isBiotherapeutic,helmNotation,hracClassification,fracClassification,iracClassification,type,bioComponentType,bioComponentDescription,bioComponentSquence,bioComponentTaxo,parent,[]childs,mechanism.desc,mechanism.action,inchi,name,inchiKey,smiles,alogp,weightFreebase,hba,hbd,psa,rtb,ro3Pass,numRo5Violations,acdMostApka,acdMostBpka,acdLogp,acdLogd,molecularSpecies,weight,aromaticRings,heavyAtoms,formula,weightMonoisotopic,qedWeighted,[]indications.efoName,[]indications.meshHeading,[]indications.highestDevelopmentPhase,[]indications.efo,[]indications.mesh,[]indications.mechanism.desc,[]indications.mechanism.action"
+    "attrs": "chembl.molecule.desc,chembl.molecule.highestDevelopmentPhase,chembl.molecule.[]altNames,chembl.molecule.[]atcClassification,chembl.molecule.isBiotherapeutic,chembl.molecule.helmNotation,chembl.molecule.hracClassification,chembl.molecule.fracClassification,chembl.molecule.iracClassification,chembl.molecule.type,chembl.molecule.bioComponentType,chembl.molecule.bioComponentDescription,chembl.molecule.bioComponentSquence,chembl.molecule.bioComponentTaxo,chembl.molecule.parent,chembl.molecule.[]childs,chembl.molecule.mechanism.desc,chembl.molecule.mechanism.action,chembl.molecule.inchi,chembl.molecule.name,chembl.molecule.inchiKey,chembl.molecule.smiles,chembl.molecule.alogp,chembl.molecule.weightFreebase,chembl.molecule.hba,chembl.molecule.hbd,chembl.molecule.psa,chembl.molecule.rtb,chembl.molecule.ro3Pass,chembl.molecule.numRo5Violations,chembl.molecule.acdMostApka,chembl.molecule.acdMostBpka,chembl.molecule.acdLogp,chembl.molecule.acdLogd,chembl.molecule.molecularSpecies,chembl.molecule.weight,chembl.molecule.aromaticRings,chembl.molecule.heavyAtoms,chembl.molecule.formula,chembl.molecule.weightMonoisotopic,chembl.molecule.qedWeighted,chembl.molecule.[]indications.efoName,chembl.molecule.[]indications.meshHeading,chembl.molecule.[]indications.highestDevelopmentPhase,chembl.molecule.[]indications.efo,chembl.molecule.[]indications.mesh,chembl.molecule.[]indications.mechanism.desc,chembl.molecule.[]indications.mechanism.action"
   },
   "chembl_target_component": {
     "name": "chembl_target_component",
@@ -207,7 +208,7 @@
     "pathUniprotMappingPattern": "chembl*targetcmpt_uniprot_ls.ttl.gz",
     "useLocalFile": "no",
     "hasFilter": "yes",
-    "attrs": "desc,altLabel,type,acc,tax,[]ptclassifications.className,[]ptclassifications.classLevel,[]ptclassifications.classPath"
+    "attrs": "chembl.targetComponent.desc,chembl.targetComponent.altLabel,chembl.targetComponent.type,chembl.targetComponent.acc,chembl.targetComponent.tax,chembl.targetComponent.[]ptclassifications.className,chembl.targetComponent.[]ptclassifications.classLevel,chembl.targetComponent.[]ptclassifications.classPath"
   },
   "chembl_target": {
     "name": "chembl_target",
@@ -224,7 +225,7 @@
     "pathMechanismPattern": "chembl*moa.ttl.gz",
     "useLocalFile": "no",
     "hasFilter": "yes",
-    "attrs": "title,isSpeciesGroup,type,[]subsetofs,[]equivalents,[]subsets,[]overlaps,bindingSite.name,bindingSite.mechanism.desc,bindingSite.mechanism.action,[]ptclassifications.className,[]ptclassifications.classLevel,[]ptclassifications.classPath,[]components.type,[]components.acc,mechanism.desc,mechanism.action,tax"
+    "attrs": "chembl.target.title,chembl.target.isSpeciesGroup,chembl.target.type,chembl.target.[]subsetofs,chembl.target.[]equivalents,chembl.target.[]subsets,chembl.target.[]overlaps,chembl.target.bindingSite.name,chembl.target.bindingSite.mechanism.desc,chembl.target.bindingSite.mechanism.action,chembl.target.[]ptclassifications.className,chembl.target.[]ptclassifications.classLevel,chembl.target.[]ptclassifications.classPath,chembl.target.[]components.type,chembl.target.[]components.acc,chembl.target.mechanism.desc,chembl.target.mechanism.action,chembl.target.tax"
   },
   "chembl_cell_line": {
     "name": "chembl_cell_line",
@@ -234,7 +235,7 @@
     "pathCelllinePattern": "chembl*cellline.ttl.gz",
     "useLocalFile": "no",
     "hasFilter": "yes",
-    "attrs": "desc,cellosaurusId,efo,clo,tax,[]cellxref"
+    "attrs": "chembl.cellLine.desc,chembl.cellLine.cellosaurusId,chembl.cellLine.efo,chembl.cellLine.clo,chembl.cellLine.tax,chembl.cellLine.[]cellxref"
   },
   "efo": {
     "aliases": "EFO",

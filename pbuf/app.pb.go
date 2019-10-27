@@ -8,6 +8,8 @@ import (
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
 	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 	math "math"
 )
 
@@ -1599,6 +1601,32 @@ type BiobtreeServiceServer interface {
 	Filter(context.Context, *FilterRequest) (*FilterResponse, error)
 	Meta(context.Context, *MetaRequest) (*MetaResponse, error)
 	ListGenomes(context.Context, *ListGenomesRequest) (*ListGenomesResponse, error)
+}
+
+// UnimplementedBiobtreeServiceServer can be embedded to have forward compatible implementations.
+type UnimplementedBiobtreeServiceServer struct {
+}
+
+func (*UnimplementedBiobtreeServiceServer) Search(ctx context.Context, req *SearchRequest) (*SearchResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Search not implemented")
+}
+func (*UnimplementedBiobtreeServiceServer) Mapping(ctx context.Context, req *MappingRequest) (*MappingResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Mapping not implemented")
+}
+func (*UnimplementedBiobtreeServiceServer) Entry(ctx context.Context, req *EntryRequest) (*EntryResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Entry not implemented")
+}
+func (*UnimplementedBiobtreeServiceServer) Page(ctx context.Context, req *PageRequest) (*PageResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Page not implemented")
+}
+func (*UnimplementedBiobtreeServiceServer) Filter(ctx context.Context, req *FilterRequest) (*FilterResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Filter not implemented")
+}
+func (*UnimplementedBiobtreeServiceServer) Meta(ctx context.Context, req *MetaRequest) (*MetaResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Meta not implemented")
+}
+func (*UnimplementedBiobtreeServiceServer) ListGenomes(ctx context.Context, req *ListGenomesRequest) (*ListGenomesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListGenomes not implemented")
 }
 
 func RegisterBiobtreeServiceServer(s *grpc.Server, srv BiobtreeServiceServer) {

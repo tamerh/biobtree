@@ -269,12 +269,6 @@
     "id": "544",
     "url": "http://mammoth.bcm.tmc.edu/cgi-bin/report_maker_ls/uniprotTraceServerResults.pl?identifier=£{id}"
   },
-  "flybase": {
-    "aliases": "FlyBase",
-    "name": "FlyBase",
-    "id": "545",
-    "url": "http://flybase.org/reports/£{id}.html"
-  },
   "foodb": {
     "aliases": "FooDB,FooDB accession",
     "name": "FooDB",
@@ -754,12 +748,6 @@
     "name": "SSF",
     "id": "625",
     "url": ""
-  },
-  "supfam": {
-    "aliases": "SUPFAM",
-    "name": "SUPFAM",
-    "id": "626",
-    "url": "http://supfam.org/SUPERFAMILY/cgi-bin/scop.cgi?ipid=£{id}"
   },
   "swiss-2dpage": {
     "aliases": "SWISS-2DPAGE",

@@ -36,7 +36,6 @@ func (web *Web) Start(c *conf.Conf) {
 
 	web.service = s
 
-	// start grpc
 	rpc := biobtreegrpc{
 		service: s,
 	}
@@ -46,17 +45,18 @@ func (web *Web) Start(c *conf.Conf) {
 	web.metaRes = []byte(s.metajson())
 
 	searchGz := gziphandler.GzipHandler(http.HandlerFunc(web.search))
+	metaGz := gziphandler.GzipHandler(http.HandlerFunc(web.meta))
 	searchEntryGz := gziphandler.GzipHandler(http.HandlerFunc(web.entry))
 	mapFilterGz := gziphandler.GzipHandler(http.HandlerFunc(web.mapFilter))
 	searchPageGz := gziphandler.GzipHandler(http.HandlerFunc(web.searchPage))
 	searchFilterGz := gziphandler.GzipHandler(http.HandlerFunc(web.searchFilter))
-	metaGz := gziphandler.GzipHandler(http.HandlerFunc(web.meta))
+
 	http.Handle("/ws/", searchGz)
+	http.Handle("/ws/meta/", metaGz)
 	http.Handle("/ws/entry/", searchEntryGz)
 	http.Handle("/ws/map/", mapFilterGz)
 	http.Handle("/ws/page/", searchPageGz)
 	http.Handle("/ws/filter/", searchFilterGz)
-	http.Handle("/ws/meta/", metaGz)
 
 	//web ui
 	fs := http.FileServer(http.Dir("website"))

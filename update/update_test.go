@@ -20,7 +20,7 @@ var loadConf = initConf()
 func initConf() bool {
 
 	c := conf.Conf{}
-	c.Init("../", "", []string{}, []string{}, true)
+	c.Init("../", "", true, "")
 	config = &c
 	return true
 
@@ -55,7 +55,7 @@ func TestHgnc(t *testing.T) {
 	config.Appconf["kvgenCount"] = "4"
 	config.Appconf["kvgenChunkSize"] = "13"
 
-	d := NewDataUpdate([]string{"hgnc"}, []string{}, []string{}, config, "1")
+	d := NewDataUpdate([]string{"hgnc"}, []string{}, []string{}, []string{}, config, "1")
 
 	parsed, kvs := d.Update()
 
@@ -68,7 +68,7 @@ func TestHgnc(t *testing.T) {
 	}
 
 	var m = generate.Merge{}
-	j, k, _ := m.Merge(config)
+	j, k, _ := m.Merge(config, false)
 
 	if j != 18 {
 		panic("merge write key value is invalid")
@@ -110,7 +110,7 @@ func TestKeyLink(t *testing.T) {
 	config.Appconf["kvgenChunkSize"] = "13"
 	config.Appconf["pageSize"] = "2"
 
-	d := NewDataUpdate([]string{"uniprot"}, []string{}, []string{}, config, "1")
+	d := NewDataUpdate([]string{"uniprot"}, []string{}, []string{}, []string{}, config, "1")
 
 	parsed, kvs := d.Update()
 
@@ -123,7 +123,7 @@ func TestKeyLink(t *testing.T) {
 	}
 
 	var m = generate.Merge{}
-	j, k, l := m.Merge(config)
+	j, k, l := m.Merge(config, false)
 
 	if j != 8 {
 		panic("merge write key value is invalid")
@@ -160,7 +160,7 @@ func TestPaging(t *testing.T) {
 	//c.Appconf["kvgenChunkSize"] = "13"
 	config.Appconf["pageSize"] = "2"
 
-	d := NewDataUpdate([]string{"hgnc"}, []string{}, []string{}, config, "1")
+	d := NewDataUpdate([]string{"hgnc"}, []string{}, []string{}, []string{}, config, "1")
 
 	parsed, kvs := d.Update()
 
@@ -173,7 +173,7 @@ func TestPaging(t *testing.T) {
 	}
 
 	var m = generate.Merge{}
-	j, k, _ := m.Merge(config)
+	j, k, _ := m.Merge(config, false)
 
 	if j != 19 { // todo empty xref key hgnc:2 is not written??
 		panic("merge write key value is invalid")
@@ -207,7 +207,7 @@ func TestTargetDbs(t *testing.T) {
 	config.Appconf["kvgenCount"] = "4"
 	config.Appconf["kvgenChunkSize"] = "13"
 
-	d := NewDataUpdate([]string{"hgnc"}, []string{"VEGA"}, []string{}, config, "1")
+	d := NewDataUpdate([]string{"hgnc"}, []string{"VEGA"}, []string{}, []string{}, config, "1")
 
 	parsed, kvs := d.Update()
 
@@ -220,7 +220,7 @@ func TestTargetDbs(t *testing.T) {
 	}
 
 	var m = generate.Merge{}
-	j, k, _ := m.Merge(config)
+	j, k, _ := m.Merge(config, false)
 
 	if j != 10 {
 		panic("merge write key value is invalid")
@@ -253,7 +253,7 @@ func TestDuplicateValue(t *testing.T) {
 	config.Appconf["kvgenCount"] = "1"
 	config.Appconf["kvgenChunkSize"] = "20"
 
-	d := NewDataUpdate([]string{"hgnc"}, []string{}, []string{}, config, "1")
+	d := NewDataUpdate([]string{"hgnc"}, []string{}, []string{}, []string{}, config, "1")
 
 	parsed, kvs := d.Update()
 
@@ -266,7 +266,7 @@ func TestDuplicateValue(t *testing.T) {
 	}
 
 	var m = generate.Merge{}
-	j, k, _ := m.Merge(config)
+	j, k, _ := m.Merge(config, false)
 
 	if j != 3 {
 		panic("merge write key value is invalid")
@@ -345,7 +345,7 @@ func TestEnsembl(t *testing.T) {
 	config.Appconf["kvgenCount"] = "4"
 	config.Appconf["kvgenChunkSize"] = "13"
 
-	d := NewDataUpdate([]string{"ensembl"}, []string{}, []string{}, config, "1")
+	d := NewDataUpdate([]string{"ensembl"}, []string{}, []string{}, []string{}, config, "1")
 
 	parsed, kvs := d.Update()
 
@@ -358,7 +358,7 @@ func TestEnsembl(t *testing.T) {
 	}
 
 	var m = generate.Merge{}
-	j, k, l := m.Merge(config)
+	j, k, l := m.Merge(config, false)
 
 	if j != 11 {
 		panic("merge write key value is invalid")
@@ -402,12 +402,12 @@ func TestSamples(t *testing.T) {
 	config.Appconf["kvgenCount"] = "4"
 	config.Appconf["kvgenChunkSize"] = "1000000"
 
-	d := NewDataUpdate([]string{"uniprot", "uniref100", "uniref90", "uniref50", "uniparc", "taxonomy", "interpro"}, []string{}, []string{}, config, "1")
+	d := NewDataUpdate([]string{"uniprot", "uniref100", "uniref90", "uniref50", "uniparc", "taxonomy", "interpro"}, []string{}, []string{}, []string{}, config, "1")
 
 	d.Update()
 
 	var m = generate.Merge{}
-	i, j, _ := m.Merge(config)
+	i, j, _ := m.Merge(config, false)
 
 	fmt.Println("lmdb key value size", i)
 	fmt.Println("max uid", j)

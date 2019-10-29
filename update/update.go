@@ -434,7 +434,8 @@ func (d *DataUpdate) setEnsemblPaths() {
 
 	if _, ok := config.Appconf["disableEnsemblReleaseCheck"]; !ok {
 
-		if d.hasEnsemblNewRelease() {
+		hasNewRelease, version := d.hasEnsemblNewRelease()
+		if hasNewRelease {
 
 			ensembls := [6]ensembl{}
 			ensembls[0] = ensembl{source: "ensembl", d: d, branch: pbuf.Ensemblbranch_ENSEMBL}
@@ -445,7 +446,7 @@ func (d *DataUpdate) setEnsemblPaths() {
 			ensembls[5] = ensembl{source: "ensembl_protists", d: d, branch: pbuf.Ensemblbranch_PROTIST}
 
 			for _, ens := range ensembls {
-				ens.updateEnsemblPaths()
+				ens.updateEnsemblPaths(version)
 				time.Sleep(time.Duration(2) * time.Second) // just for not to kicked out from ensembl ftp
 			}
 
@@ -454,12 +455,13 @@ func (d *DataUpdate) setEnsemblPaths() {
 
 }
 
-func (d *DataUpdate) hasEnsemblNewRelease() bool {
+func (d *DataUpdate) hasEnsemblNewRelease() (bool, int) {
 
 	epaths := ensemblPaths{}
 	pathFile := filepath.FromSlash(config.Appconf["ensemblDir"] + "/ensembl_metazoa.paths.json")
 	if !fileExists(pathFile) {
-		return true
+
+		return true, d.getLatestEnsemblVersion()
 	}
 	f, err := os.Open(pathFile)
 	check(err)
@@ -472,6 +474,14 @@ func (d *DataUpdate) hasEnsemblNewRelease() bool {
 		log.Fatal("Missing ensembl_version_url param")
 	}
 
+	latestVersion := d.getLatestEnsemblVersion()
+
+	return latestVersion != epaths.Version, latestVersion
+
+}
+
+func (d *DataUpdate) getLatestEnsemblVersion() int {
+
 	egversion := ensemblGLatestVersion{}
 	res, err := http.Get(config.Appconf["ensembl_version_url"])
 	if err != nil {
@@ -482,10 +492,7 @@ func (d *DataUpdate) hasEnsemblNewRelease() bool {
 		log.Fatal("Error while getting ensembl release info from its rest service.  This error could be temporary try again later or use param disableEnsemblReleaseCheck", err)
 	}
 	err = json.Unmarshal(body, &egversion)
-
-	//fmt.Println(egversion.Version)
-	//fmt.Println(epaths.Version)
-	return egversion.Version != epaths.Version
+	return egversion.Version
 }
 
 func (d *DataUpdate) showProgres() {

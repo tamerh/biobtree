@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
@@ -45,7 +46,7 @@ type service struct {
 func (s *service) init() {
 
 	meta := make(map[string]interface{})
-	f, err := ioutil.ReadFile(config.Appconf["dbDir"] + "/db.meta.json")
+	f, err := ioutil.ReadFile(filepath.FromSlash(config.Appconf["dbDir"] + "/db.meta.json"))
 	if err != nil {
 		log.Fatalln("Error while reading meta information file which should be produced with generate command. Please make sure you did previous steps correctly.")
 		fmt.Printf("Error: %v", err)

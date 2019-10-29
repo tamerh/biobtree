@@ -213,7 +213,7 @@ func (s *service) inputXrefs(ids []string, idsDomain uint32, filterq *query.Quer
 
 	if pages == nil {
 
-		res, err := s.search(ids, idsDomain, rootPage, filterq, false, false)
+		res, err := s.search(ids, idsDomain, rootPage, filterq, true, false)
 
 		if err != nil {
 			return nil, "", err

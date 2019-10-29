@@ -20,8 +20,8 @@ import (
 	"github.com/urfave/cli"
 )
 
-const version = "1.1.4"
-const versionTag = "v1.1.4"
+const version = "1.2.0"
+const versionTag = "v1.2.0"
 
 var config *conf.Conf
 
@@ -146,6 +146,13 @@ func main() {
 			Usage: "Start web server for ws, ui and grpc",
 			Action: func(c *cli.Context) error {
 				return runWebCommand(c)
+			},
+		},
+		{
+			Name:  "install",
+			Usage: "Install configuration files. Used for genomes and datasets listing",
+			Action: func(c *cli.Context) error {
+				return runInstallCommand(c)
 			},
 		},
 		{
@@ -345,6 +352,17 @@ func runWebCommand(c *cli.Context) error {
 
 	web := service.Web{}
 	web.Start(config)
+
+	return nil
+
+}
+
+func runInstallCommand(c *cli.Context) error {
+
+	confdir := c.GlobalString("confdir")
+	outDir := c.GlobalString("out_dir")
+	config = &conf.Conf{}
+	config.Init(confdir, versionTag, true, outDir)
 
 	return nil
 

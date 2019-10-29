@@ -63,14 +63,13 @@ func (e *ensembl) getEnsemblPaths() (*ensemblPaths, string) {
 
 }
 
-func (e *ensembl) updateEnsemblPaths() (*ensemblPaths, string) {
+func (e *ensembl) updateEnsemblPaths(version int) (*ensemblPaths, string) {
 
 	var branch string
 	var ftpAddress string
 	var ftpJSONPath string
 	var ftpMysqlPath string
 	var ftpBiomartFolder string
-	var version int
 	var err error
 
 	switch e.source {

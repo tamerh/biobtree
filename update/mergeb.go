@@ -1,7 +1,7 @@
 package update
 
 import (
-	"biobtree/conf"
+	"biobtree/configs"
 	"bufio"
 	"compress/gzip"
 	"fmt"
@@ -39,7 +39,7 @@ type binarymerge struct {
 	complete     [2]bool
 	eof          [2]bool
 	wg           *sync.WaitGroup
-	conf         *conf.Conf
+	conf         *configs.Conf
 	//mb           *mergeb
 }
 

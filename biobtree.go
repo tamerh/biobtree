@@ -1,7 +1,7 @@
 package main
 
 import (
-	"biobtree/conf"
+	"biobtree/configs"
 	"biobtree/generate"
 	"biobtree/service"
 	"biobtree/update"
@@ -23,7 +23,7 @@ import (
 const version = "1.2.0"
 const versionTag = "v1.2.0"
 
-var config *conf.Conf
+var config *configs.Conf
 
 var defaultDataset = "uniprot,go,eco,efo,hgnc,chebi,taxonomy,interpro,ensembl"
 
@@ -187,7 +187,7 @@ func runAliasCommand(c *cli.Context) error {
 	confdir := c.GlobalString("confdir")
 	outDir := c.GlobalString("out_dir")
 	includeOptionals := c.GlobalBool("include_optionals")
-	config = &conf.Conf{}
+	config = &configs.Conf{}
 	config.Init(confdir, versionTag, includeOptionals, outDir)
 
 	var ali = update.Alias{}
@@ -224,7 +224,7 @@ func runUpdateCommand(c *cli.Context) error {
 	outDir := c.GlobalString("out_dir")
 	includeOptionals := c.GlobalBool("include_optionals")
 
-	config = &conf.Conf{}
+	config = &configs.Conf{}
 	config.Init(confdir, versionTag, includeOptionals, outDir)
 
 	//var datasets []string
@@ -314,7 +314,7 @@ func runGenerateCommand(c *cli.Context) error {
 	confdir := c.GlobalString("confdir")
 	outDir := c.GlobalString("out_dir")
 
-	config = &conf.Conf{}
+	config = &configs.Conf{}
 	config.Init(confdir, versionTag, true, outDir)
 
 	cpu := c.GlobalInt(" maxcpu")
@@ -342,7 +342,7 @@ func runWebCommand(c *cli.Context) error {
 
 	confdir := c.GlobalString("confdir")
 	outDir := c.GlobalString("out_dir")
-	config = &conf.Conf{}
+	config = &configs.Conf{}
 	config.Init(confdir, versionTag, true, outDir)
 
 	cpu := c.GlobalInt(" maxcpu")
@@ -361,7 +361,7 @@ func runInstallCommand(c *cli.Context) error {
 
 	confdir := c.GlobalString("confdir")
 	outDir := c.GlobalString("out_dir")
-	config = &conf.Conf{}
+	config = &configs.Conf{}
 	config.Init(confdir, versionTag, true, outDir)
 
 	return nil
@@ -372,7 +372,7 @@ func runProfileCommand(c *cli.Context) error {
 
 	confdir := c.GlobalString("confdir")
 	outDir := c.GlobalString("out_dir")
-	config = &conf.Conf{}
+	config = &configs.Conf{}
 	config.Init(confdir, versionTag, true, outDir)
 
 	os.Remove("memprof.out")

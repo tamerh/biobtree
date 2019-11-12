@@ -1,7 +1,7 @@
 package service
 
 import (
-	"biobtree/conf"
+	"biobtree/configs"
 	"biobtree/query"
 	"fmt"
 	"log"
@@ -18,7 +18,7 @@ import (
 	"github.com/pquerna/ffjson/ffjson"
 )
 
-var config *conf.Conf
+var config *configs.Conf
 
 const spacestr = " "
 
@@ -27,7 +27,7 @@ type Web struct {
 	metaRes []byte
 }
 
-func (web *Web) Start(c *conf.Conf) {
+func (web *Web) Start(c *configs.Conf) {
 
 	config = c
 

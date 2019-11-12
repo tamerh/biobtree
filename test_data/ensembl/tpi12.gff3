@@ -1,0 +1,2 @@
+12  ensembl_havana  gene  6867119 6870948 . + . ID=gene:ENSG00000111669;Name=TPI1;biotype=protein_coding;description=triosephosphate isomerase 1 [Source:HGNC Symbol%3BAcc:HGNC:12009];gene_id=ENSG00000111669;logic_name=ensembl_havana_gene_homo_s
+apiens;version=15

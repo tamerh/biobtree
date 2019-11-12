@@ -29,6 +29,7 @@ type ensemblPaths struct {
 	Version  int                 `json:"version"`
 	Jsons    map[string][]string `json:"jsons"`
 	Biomarts map[string][]string `json:"biomarts"`
+	Gff3s    map[string][]string `json:"gff3s"`
 }
 
 func (e *ensembl) getEnsemblPaths() (*ensemblPaths, string) {
@@ -68,6 +69,7 @@ func (e *ensembl) updateEnsemblPaths(version int) (*ensemblPaths, string) {
 	var branch string
 	var ftpAddress string
 	var ftpJSONPath string
+	var ftpGFF3Path string
 	var ftpMysqlPath string
 	var ftpBiomartFolder string
 	var err error
@@ -77,36 +79,42 @@ func (e *ensembl) updateEnsemblPaths(version int) (*ensemblPaths, string) {
 	case "ensembl":
 		ftpAddress = config.Appconf["ensembl_ftp"]
 		ftpJSONPath = config.Appconf["ensembl_ftp_json_path"]
+		ftpGFF3Path = config.Appconf["ensembl_ftp_gff3_path"]
 		ftpMysqlPath = config.Appconf["ensembl_ftp_mysql_path"]
 		branch = "ensembl"
 	case "ensembl_bacteria":
 		ftpAddress = config.Appconf["ensembl_genomes_ftp"]
 		ftpJSONPath = strings.Replace(config.Appconf["ensembl_genomes_ftp_json_path"], "$(branch)", "bacteria", 1)
+		ftpGFF3Path = strings.Replace(config.Appconf["ensembl_genomes_ftp_gff3_path"], "$(branch)", "bacteria", 1)
 		ftpMysqlPath = strings.Replace(config.Appconf["ensembl_genomes_ftp_mysql_path"], "$(branch)", "bacteria", 1)
 		branch = "bacteria"
 	case "ensembl_fungi":
 		ftpAddress = config.Appconf["ensembl_genomes_ftp"]
 		ftpJSONPath = strings.Replace(config.Appconf["ensembl_genomes_ftp_json_path"], "$(branch)", "fungi", 1)
+		ftpGFF3Path = strings.Replace(config.Appconf["ensembl_genomes_ftp_gff3_path"], "$(branch)", "fungi", 1)
 		ftpMysqlPath = strings.Replace(config.Appconf["ensembl_genomes_ftp_mysql_path"], "$(branch)", "fungi", 1)
 		branch = "fungi"
 	case "ensembl_metazoa":
 		ftpAddress = config.Appconf["ensembl_genomes_ftp"]
 		ftpJSONPath = strings.Replace(config.Appconf["ensembl_genomes_ftp_json_path"], "$(branch)", "metazoa", 1)
+		ftpGFF3Path = strings.Replace(config.Appconf["ensembl_genomes_gff3_json_path"], "$(branch)", "metazoa", 1)
 		ftpMysqlPath = strings.Replace(config.Appconf["ensembl_genomes_ftp_mysql_path"], "$(branch)", "metazoa", 1)
 		branch = "metazoa"
 	case "ensembl_plants":
 		ftpAddress = config.Appconf["ensembl_genomes_ftp"]
 		ftpJSONPath = strings.Replace(config.Appconf["ensembl_genomes_ftp_json_path"], "$(branch)", "plants", 1)
+		ftpGFF3Path = strings.Replace(config.Appconf["ensembl_genomes_ftp_gff3_path"], "$(branch)", "plants", 1)
 		ftpMysqlPath = strings.Replace(config.Appconf["ensembl_genomes_ftp_mysql_path"], "$(branch)", "plants", 1)
 		branch = "plants"
 	case "ensembl_protists":
 		ftpAddress = config.Appconf["ensembl_genomes_ftp"]
 		ftpJSONPath = strings.Replace(config.Appconf["ensembl_genomes_ftp_json_path"], "$(branch)", "protists", 1)
+		ftpGFF3Path = strings.Replace(config.Appconf["ensembl_genomes_ftp_gff3_path"], "$(branch)", "protists", 1)
 		ftpMysqlPath = strings.Replace(config.Appconf["ensembl_genomes_ftp_mysql_path"], "$(branch)", "protists", 1)
 		branch = "protists"
 	}
 
-	ensembls := ensemblPaths{Jsons: map[string][]string{}, Biomarts: map[string][]string{}, Version: version}
+	ensembls := ensemblPaths{Jsons: map[string][]string{}, Biomarts: map[string][]string{}, Gff3s: map[string][]string{}, Version: version}
 
 	setJSONs := func() {
 
@@ -128,6 +136,7 @@ func (e *ensembl) updateEnsemblPaths(version int) (*ensemblPaths, string) {
 				ensembls.Jsons[file.Name] = append(ensembls.Jsons[file.Name], ftpJSONPath+"/"+file.Name+"/"+file.Name+".json")
 			}
 		}
+		client.Quit()
 
 	}
 
@@ -165,6 +174,48 @@ func (e *ensembl) updateEnsemblPaths(version int) (*ensemblPaths, string) {
 			ensembls.Biomarts[species] = append(ensembls.Biomarts[species], ftpMysqlPath+"/"+ftpBiomartFolder+"/"+file.Name)
 
 		}
+		client.Quit()
+
+	}
+
+	setGFF3 := func() {
+
+		client := e.d.ftpClient(ftpAddress)
+		entries, err := client.List(ftpGFF3Path)
+		check(err)
+
+		for _, file := range entries {
+			if strings.HasSuffix(file.Name, "_collection") {
+				entriesSub, err := client.List(ftpGFF3Path + "/" + file.Name)
+				check(err)
+				for _, file2 := range entriesSub {
+
+					entriesSubSub, err := client.List(ftpGFF3Path + "/" + file.Name + "/" + file2.Name)
+					check(err)
+					for _, file3 := range entriesSubSub {
+
+						if strings.HasSuffix(file3.Name, "chr.gff3.gz") || strings.HasSuffix(file3.Name, "chromosome.Chromosome.gff3.gz") {
+							ensembls.Gff3s[file2.Name] = append(ensembls.Gff3s[file2.Name], ftpGFF3Path+"/"+file.Name+"/"+file2.Name+"/"+file3.Name)
+						}
+
+					}
+
+				}
+				//time.Sleep(time.Duration(e.pauseDurationSeconds/2) * time.Second) // for not to kicked out from ensembl ftp
+
+			} else {
+
+				entriesSub, err := client.List(ftpGFF3Path + "/" + file.Name)
+				check(err)
+				for _, file2 := range entriesSub {
+					if strings.HasSuffix(file2.Name, "chr.gff3.gz") || strings.HasSuffix(file2.Name, "chromosome.Chromosome.gff3.gz") {
+						ensembls.Gff3s[file.Name] = append(ensembls.Gff3s[file.Name], ftpGFF3Path+"/"+file.Name+"/"+file2.Name)
+					}
+				}
+
+			}
+		}
+		client.Quit()
 
 	}
 
@@ -173,20 +224,26 @@ func (e *ensembl) updateEnsemblPaths(version int) (*ensemblPaths, string) {
 	case "ensembl":
 		setJSONs()
 		setBiomarts()
+		setGFF3()
 	case "ensembl_bacteria":
 		setJSONs()
+		setGFF3()
 	case "ensembl_fungi":
 		setJSONs()
 		setBiomarts()
+		setGFF3()
 	case "ensembl_metazoa":
 		setJSONs()
 		setBiomarts()
+		setGFF3()
 	case "ensembl_plants":
 		setJSONs()
 		setBiomarts()
+		setGFF3()
 	case "ensembl_protists":
 		setJSONs()
 		setBiomarts()
+		setGFF3()
 	}
 
 	data, err := json.Marshal(ensembls)
@@ -520,7 +577,7 @@ func (e *ensembl) update() {
 					xref(j, entryid, fr, "Prosite_profiles", "PROSITE")
 					xref(j, entryid, fr, "RefSeq_mRNA", "RefSeq")
 					xref(j, entryid, fr, "Pfam", "Pfam")
-					xref(j, entryid, fr, "CCDS", "RefSeq")
+					xref(j, entryid, fr, "CCDS", "CCDS")
 					xref(j, entryid, fr, "Prosite_patterns", "PROSITE")
 					xref(j, entryid, fr, "Uniprot/SWISSPROT", "uniprot")
 					xref(j, entryid, fr, "UCSC", "UCSC")
@@ -607,7 +664,7 @@ func (e *ensembl) update() {
 							xref(val, tentryid, ensemblTranscriptID, "Prosite_profiles", "PROSITE")
 							xref(val, tentryid, ensemblTranscriptID, "RefSeq_mRNA", "RefSeq")
 							xref(val, tentryid, ensemblTranscriptID, "Pfam", "Pfam")
-							xref(val, tentryid, ensemblTranscriptID, "CCDS", "RefSeq")
+							xref(val, tentryid, ensemblTranscriptID, "CCDS", "CCDS")
 							xref(val, tentryid, ensemblTranscriptID, "Prosite_patterns", "PROSITE")
 							xref(val, tentryid, ensemblTranscriptID, "Uniprot/SWISSPROT", "uniprot")
 							xref(val, tentryid, ensemblTranscriptID, "UCSC", "UCSC")

@@ -1,0 +1,18 @@
+1       ena     gene    598362  601522  .       +       .       ID=gene:BRADI_1g00830v3;biotype=protein_coding;description=hypothetical protein;gene_id=BRADI_1g00830v3;logic_name=ena
+1       ena     mRNA    598362  601522  .       +       .       ID=transcript:KQK11989;Parent=gene:BRADI_1g00830v3;biotype=protein_coding;transcript_id=KQK11989
+1       ena     five_prime_UTR  598362  598459  .       +       .       Parent=transcript:KQK11989
+1       ena     exon    598362  598569  .       +       .       Parent=transcript:KQK11989;Name=KQK11989-1;constitutive=1;ensembl_end_phase=2;ensembl_phase=0;exon_id=KQK11989-1;rank=1
+1       ena     CDS     598460  598569  .       +       0       ID=CDS:KQK11989;Parent=transcript:KQK11989;protein_id=KQK11989
+1       ena     exon    598691  598747  .       +       .       Parent=transcript:KQK11989;Name=KQK11989-2;constitutive=1;ensembl_end_phase=2;ensembl_phase=2;exon_id=KQK11989-2;rank=2
+1       ena     CDS     598691  598747  .       +       1       ID=CDS:KQK11989;Parent=transcript:KQK11989;protein_id=KQK11989
+1       ena     exon    599071  599196  .       +       .       Parent=transcript:KQK11989;Name=KQK11989-3;constitutive=1;ensembl_end_phase=2;ensembl_phase=2;exon_id=KQK11989-3;rank=3
+1       ena     CDS     599071  599196  .       +       1       ID=CDS:KQK11989;Parent=transcript:KQK11989;protein_id=KQK11989
+1       ena     exon    599766  599841  .       +       .       Parent=transcript:KQK11989;Name=KQK11989-4;constitutive=1;ensembl_end_phase=0;ensembl_phase=2;exon_id=KQK11989-4;rank=4
+1       ena     CDS     599766  599841  .       +       1       ID=CDS:KQK11989;Parent=transcript:KQK11989;protein_id=KQK11989
+1       ena     exon    599979  600071  .       +       .       Parent=transcript:KQK11989;Name=KQK11989-5;constitutive=1;ensembl_end_phase=0;ensembl_phase=0;exon_id=KQK11989-5;rank=5
+1       ena     CDS     599979  600071  .       +       0       ID=CDS:KQK11989;Parent=transcript:KQK11989;protein_id=KQK11989
+1       ena     exon    600161  600274  .       +       .       Parent=transcript:KQK11989;Name=KQK11989-6;constitutive=1;ensembl_end_phase=0;ensembl_phase=0;exon_id=KQK11989-6;rank=6
+1       ena     CDS     600161  600274  .       +       0       ID=CDS:KQK11989;Parent=transcript:KQK11989;protein_id=KQK11989
+1       ena     CDS     600378  600431  .       +       0       ID=CDS:KQK11989;Parent=transcript:KQK11989;protein_id=KQK11989
+1       ena     exon    600378  601522  .       +       .       Parent=transcript:KQK11989;Name=KQK11989-7;constitutive=1;ensembl_end_phase=2;ensembl_phase=0;exon_id=KQK11989-7;rank=7
+1       ena     three_prime_UTR 600432  601522  .       +       .       Parent=transcript:KQK11989

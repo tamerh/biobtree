@@ -1,7 +1,7 @@
 package generate
 
 import (
-	"biobtree/conf"
+	"biobtree/configs"
 	"bufio"
 	"compress/gzip"
 	"encoding/json"
@@ -37,7 +37,7 @@ const eof = rune(0)
 
 var fileBufSize = 65536
 
-var config *conf.Conf
+var config *configs.Conf
 
 var mergebar *pb.ProgressBar
 
@@ -87,7 +87,7 @@ type kvMessage struct {
 	writekey bool
 }
 
-func (d *Merge) Merge(c *conf.Conf, keep bool) (uint64, uint64, uint64) {
+func (d *Merge) Merge(c *configs.Conf, keep bool) (uint64, uint64, uint64) {
 
 	config = c
 

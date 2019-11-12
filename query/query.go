@@ -1,14 +1,14 @@
 package query
 
 import (
-	"biobtree/conf"
+	"biobtree/configs"
 	"fmt"
 	"strings"
 
 	"github.com/google/cel-go/cel"
 )
 
-var config *conf.Conf
+var config *configs.Conf
 
 type QueryParser struct {
 }
@@ -21,7 +21,7 @@ type Query struct {
 	Program       cel.Program
 }
 
-func (q *QueryParser) Init(c *conf.Conf) {
+func (q *QueryParser) Init(c *configs.Conf) {
 
 	config = c
 

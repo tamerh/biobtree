@@ -1,7 +1,7 @@
 package query
 
 import (
-	"biobtree/conf"
+	"biobtree/configs"
 	"testing"
 )
 
@@ -12,8 +12,8 @@ var err error
 
 func initConf() bool {
 
-	c := conf.Conf{}
-	c.Init("../", "", []string{}, []string{}, true)
+	c := configs.Conf{}
+	//c.Init("../", "", []string{}, []string{}, true)
 	qparser.Init(&c)
 	return true
 

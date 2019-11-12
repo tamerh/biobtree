@@ -1,7 +1,7 @@
 package update
 
 import (
-	"biobtree/conf"
+	"biobtree/configs"
 	"biobtree/pbuf"
 	"bufio"
 	"compress/gzip"
@@ -36,7 +36,7 @@ var chunkIdx = "df"
 
 var mutex = &sync.Mutex{}
 
-var config *conf.Conf
+var config *configs.Conf
 
 type DataUpdate struct {
 	totalParsedEntry              uint64
@@ -73,7 +73,7 @@ type progressInfo struct {
 	done            bool
 }
 
-func NewDataUpdate(datasets, targetDatasets, ensemblSpecies []string, ensemblSpeciesPattern []string, conf *conf.Conf, chkIdx string) *DataUpdate {
+func NewDataUpdate(datasets, targetDatasets, ensemblSpecies []string, ensemblSpeciesPattern []string, conf *configs.Conf, chkIdx string) *DataUpdate {
 
 	chunkIdx = chkIdx
 	config = conf

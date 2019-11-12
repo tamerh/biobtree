@@ -1,7 +1,7 @@
 package update
 
 import (
-	"biobtree/conf"
+	"biobtree/configs"
 	"biobtree/db"
 	"biobtree/pbuf"
 	"bufio"
@@ -161,7 +161,7 @@ func (a *Alias) close() {
 }
 
 // Merge runs at generate phase to write all alias in files to lmdb
-func (a *Alias) Merge(conf *conf.Conf) {
+func (a *Alias) Merge(conf *configs.Conf) {
 
 	config = conf
 

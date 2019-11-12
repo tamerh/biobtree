@@ -22,6 +22,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/google/cel-go/cel"
 	"github.com/google/cel-go/checker/decls"
+	exprpb "google.golang.org/genproto/googleapis/api/expr/v1alpha1"
 )
 
 const pagingSep2 = ","
@@ -171,6 +172,12 @@ func (s *service) init() {
 			decls.NewIdent("reactome", decls.NewObjectType("pbuf.ReactomeAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("chembl", decls.NewObjectType("pbuf.ChemblAttr"), nil)),
+		cel.Declarations(
+			decls.NewFunction("overlaps",
+				decls.NewInstanceOverload("any_greet_int_int",
+					[]*exprpb.Type{decls.Any, decls.Int, decls.Int},
+					decls.Bool)),
+		),
 	)
 
 	if err != nil { // handle properly

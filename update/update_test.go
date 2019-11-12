@@ -1,7 +1,7 @@
 package update
 
 import (
-	"biobtree/conf"
+	"biobtree/configs"
 	"biobtree/generate"
 	"bytes"
 	"compress/gzip"
@@ -19,7 +19,7 @@ var loadConf = initConf()
 
 func initConf() bool {
 
-	c := conf.Conf{}
+	c := configs.Conf{}
 	c.Init("../", "", true, "")
 	config = &c
 	return true

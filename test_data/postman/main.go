@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/url"
@@ -60,6 +61,36 @@ func main() {
 				MapfFilterTerm: mapfFilterTerm,
 			}
 			results[category] = append(results[category], newExample)
+
+		}
+	}
+
+	for k, v := range results {
+		fmt.Println("cat:" + k)
+		fmt.Println()
+		fmt.Println()
+		fmt.Println()
+		fmt.Println()
+		fmt.Println()
+		fmt.Println()
+		for _, q := range v {
+			fmt.Println()
+			fmt.Println("#" + q.Name)
+			if q.Typee == "0" {
+				if len(q.Source) > 0 {
+					fmt.Println("bb.search('" + strings.ToLower(q.SearchTerm) + "',source='" + q.Source + "')")
+				} else {
+					fmt.Println("bb.search('" + strings.ToLower(q.SearchTerm) + "')")
+				}
+
+			} else if q.Typee == "1" {
+				if len(q.Source) > 0 {
+					fmt.Println("bb.mapping('" + strings.ToLower(q.SearchTerm) + "','" + q.MapfFilterTerm + "',source='" + q.Source + "')")
+				} else {
+					fmt.Println("bb.mapping('" + strings.ToLower(q.SearchTerm) + "','" + q.MapfFilterTerm + "')")
+				}
+
+			}
 
 		}
 	}

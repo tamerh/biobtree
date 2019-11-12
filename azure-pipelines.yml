@@ -10,7 +10,7 @@ pool:
   vmImage: $(imageName)
 
 variables:
-  biobtree_latest_version: "v1.1.1"
+  biobtree_latest_version: "v1.2.0"
   biobtree_latest_linux: "https://github.com/tamerh/biobtree/releases/download/$(biobtree_latest_version)/biobtree_Linux_64bit.tar.gz"
   biobtree_latest_mac: "https://github.com/tamerh/biobtree/releases/download/$(biobtree_latest_version)/biobtree_MacOS_64bit.tar.gz"
   biobtree_latest_windows: "https://github.com/tamerh/biobtree/releases/download/$(biobtree_latest_version)/biobtree_Windows_64bit.zip"

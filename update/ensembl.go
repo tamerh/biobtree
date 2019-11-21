@@ -280,7 +280,7 @@ func (e *ensembl) getEnsemblSetting(ensemblType string) (string, string, map[str
 					paths = append(paths, vv)
 					gff3FilePaths[sp] = paths
 				} else {
-					paths := jsonFilePaths[sp]
+					paths := gff3FilePaths[sp]
 					paths = append(paths, vv)
 					gff3FilePaths[sp] = paths
 				}
@@ -325,7 +325,7 @@ func (e *ensembl) getEnsemblSetting(ensemblType string) (string, string, map[str
 								paths = append(paths, vv)
 								gff3FilePaths[sp] = paths
 							} else {
-								paths := jsonFilePaths[sp]
+								paths := gff3FilePaths[sp]
 								paths = append(paths, vv)
 								gff3FilePaths[sp] = paths
 							}
@@ -373,6 +373,7 @@ func (e *ensembl) getEnsemblSetting(ensemblType string) (string, string, map[str
 					continue
 				} else {
 					jsonFilePaths[sp] = ensemblPaths.Jsons[sp]
+					gff3FilePaths[sp] = ensemblPaths.Gff3s[sp]
 				}
 			}
 
@@ -545,6 +546,8 @@ func (e *ensembl) update() {
 
 						currTranscript = &pbuf.EnsemblAttr{}
 
+						currTranscript.Source = fields[1]
+
 						currTranscriptID = idAttr[1]
 						e.d.addXref(currGeneID, fr, idAttr[1], "transcript", false)
 
@@ -613,7 +616,7 @@ func (e *ensembl) update() {
 						e.d.addXref(currTranscriptID, ensemblTranscriptID, idAttr[1], "eprotein", false)
 
 					}
-				} else if fields[1] == "exon" {
+				} else if fields[2] == "exon" {
 
 					if _, ok := attrsMap["Name"]; ok {
 
@@ -642,7 +645,7 @@ func (e *ensembl) update() {
 
 					}
 
-				} else if fields[1] == "five_prime_UTR" {
+				} else if fields[2] == "five_prime_UTR" {
 
 					c, err := strconv.Atoi(fields[3])
 					if err == nil {
@@ -654,7 +657,7 @@ func (e *ensembl) update() {
 						currTranscript.Utr5End = int32(c)
 					}
 
-				} else if fields[1] == "three_prime_UTR" {
+				} else if fields[2] == "three_prime_UTR" {
 
 					c, err := strconv.Atoi(fields[3])
 					if err == nil {
@@ -681,201 +684,153 @@ func (e *ensembl) update() {
 				client.Quit()
 			}
 
-			time.Sleep(time.Duration(e.pauseDurationSeconds) * time.Second) // for not to kicked out from ensembl ftp
+			// time.Sleep(time.Duration(e.pauseDurationSeconds) * time.Second) // for not to kicked out from ensembl ftp
 
 		}
 	}
 
-	for _, paths := range jsonPaths {
+	if _, ok := config.Appconf["ensembl_all"]; ok && config.Appconf["ensembl_all"] == "y" {
 
-		for _, path := range paths {
+		for _, paths := range jsonPaths {
 
-			previous = 0
-			start = time.Now()
+			for _, path := range paths {
 
-			br, _, ftpFile, client, localFile, _ := e.d.getDataReaderNew("ensembl", ftpAddress, "", path)
+				previous = 0
+				start = time.Now()
 
-			p := jsparser.NewJSONParser(br, "genes").SkipProps([]string{"lineage", "evidence", "coord_system", "sifts", "xrefs", "gene_tree_id", "orthology_type"})
+				br, _, ftpFile, client, localFile, _ := e.d.getDataReaderNew("ensembl", ftpAddress, "", path)
 
-			for j := range p.Stream() {
-				if j.ObjectVals["id"] != nil {
+				p := jsparser.NewJSONParser(br, "genes").SkipProps([]string{"lineage", "evidence", "coord_system", "sifts", "xrefs", "gene_tree_id", "orthology_type", "exons"})
 
-					elapsed := int64(time.Since(start).Seconds())
-					if elapsed > previous+e.d.progInterval {
-						kbytesPerSecond := int64(p.TotalReadSize) / elapsed / 1024
-						previous = elapsed
-						e.d.progChan <- &progressInfo{dataset: e.source, currentKBPerSec: kbytesPerSecond}
-					}
+				for j := range p.Stream() {
+					if j.ObjectVals["id"] != nil {
 
-					entryid := j.ObjectVals["id"].StringVal
+						elapsed := int64(time.Since(start).Seconds())
+						if elapsed > previous+e.d.progInterval {
+							kbytesPerSecond := int64(p.TotalReadSize) / elapsed / 1024
+							previous = elapsed
+							e.d.progChan <- &progressInfo{dataset: e.source, currentKBPerSec: kbytesPerSecond}
+						}
 
-					if j.ObjectVals["name"] != nil {
-						e.d.addXref(j.ObjectVals["name"].StringVal, textLinkID, entryid, "ensembl", true)
-					}
+						entryid := j.ObjectVals["id"].StringVal
 
-					if j.ObjectVals["taxon_id"] != nil {
-						e.d.addXref(entryid, fr, j.ObjectVals["taxon_id"].StringVal, "taxonomy", false)
-					}
+						if j.ObjectVals["taxon_id"] != nil {
+							e.d.addXref(entryid, fr, j.ObjectVals["taxon_id"].StringVal, "taxonomy", false)
+						}
 
-					if j.ObjectVals["homologues"] != nil {
-						for _, val := range j.ObjectVals["homologues"].ArrayVals {
-							if val.ObjectVals["stable_id"] != nil {
-								stableID := val.ObjectVals["stable_id"].StringVal
-								if val.ObjectVals["genome"] != nil && j.ObjectVals["genome"] != nil && val.ObjectVals["genome"].StringVal == j.ObjectVals["genome"].StringVal {
-									e.d.addXref2(entryid, fr, stableID, "paralog")
-									e.d.addXref2(stableID, paralogID, stableID, "ensembl")
-								} else {
-									e.d.addXref2(entryid, fr, stableID, "ortholog")
-									e.d.addXref2(stableID, orthologID, stableID, "ensembl")
+						if j.ObjectVals["homologues"] != nil {
+							for _, val := range j.ObjectVals["homologues"].ArrayVals {
+								if val.ObjectVals["stable_id"] != nil {
+									stableID := val.ObjectVals["stable_id"].StringVal
+									if val.ObjectVals["genome"] != nil && j.ObjectVals["genome"] != nil && val.ObjectVals["genome"].StringVal == j.ObjectVals["genome"].StringVal {
+										e.d.addXref2(entryid, fr, stableID, "paralog")
+										e.d.addXref2(stableID, paralogID, stableID, "ensembl")
+									} else {
+										e.d.addXref2(entryid, fr, stableID, "ortholog")
+										e.d.addXref2(stableID, orthologID, stableID, "ensembl")
+									}
 								}
 							}
 						}
-					}
 
-					// store texts
-					e.xrefProp(j, entryid, fr)
+						// maybe these values from configuration
+						e.xref(j, entryid, fr, "Interpro", "interpro")
+						e.xref(j, entryid, fr, "HPA", "HPA")
+						e.xref(j, entryid, fr, "ArrayExpress", "ExpressionAtlas")
+						e.xref(j, entryid, fr, "GENE3D", "CATHGENE3D")
+						e.xref(j, entryid, fr, "MIM_GENE", "MIM")
+						e.xref(j, entryid, fr, "RefSeq_peptide", "RefSeq")
+						e.xref(j, entryid, fr, "EntrezGene", "GeneID")
+						e.xref(j, entryid, fr, "PANTHER", "PANTHER")
+						e.xref(j, entryid, fr, "Reactome", "Reactome")
+						e.xref(j, entryid, fr, "RNAcentral", "RNAcentral")
+						e.xref(j, entryid, fr, "Uniprot/SPTREMBL", "uniprot")
+						e.xref(j, entryid, fr, "protein_id", "EMBL")
+						e.xref(j, entryid, fr, "KEGG_Enzyme", "KEGG")
+						e.xref(j, entryid, fr, "EMBL", "EMBL")
+						e.xref(j, entryid, fr, "CDD", "CDD")
+						e.xref(j, entryid, fr, "TIGRfam", "TIGRFAMs")
+						e.xref(j, entryid, fr, "ChEMBL", "ChEMBL")
+						e.xref(j, entryid, fr, "UniParc", "uniparc")
+						e.xref(j, entryid, fr, "PDB", "PDB")
+						e.xref(j, entryid, fr, "SuperFamily", "SUPFAM")
+						e.xref(j, entryid, fr, "Prosite_profiles", "PROSITE")
+						e.xref(j, entryid, fr, "RefSeq_mRNA", "RefSeq")
+						e.xref(j, entryid, fr, "Pfam", "Pfam")
+						e.xref(j, entryid, fr, "CCDS", "CCDS")
+						e.xref(j, entryid, fr, "Prosite_patterns", "PROSITE")
+						e.xref(j, entryid, fr, "Uniprot/SWISSPROT", "uniprot")
+						e.xref(j, entryid, fr, "UCSC", "UCSC")
+						e.xref(j, entryid, fr, "HGNC", "hgnc")
+						e.xref(j, entryid, fr, "RefSeq_ncRNA_predicted", "RefSeq")
+						e.xref(j, entryid, fr, "HAMAP", "HAMAP")
+						e.xrefGO(j, entryid, fr) // go terms are also under xrefs with source information.
 
-					// maybe these values from configuration
-					e.xref(j, entryid, fr, "Interpro", "interpro")
-					e.xref(j, entryid, fr, "HPA", "HPA")
-					e.xref(j, entryid, fr, "ArrayExpress", "ExpressionAtlas")
-					e.xref(j, entryid, fr, "GENE3D", "CATHGENE3D")
-					e.xref(j, entryid, fr, "MIM_GENE", "MIM")
-					e.xref(j, entryid, fr, "RefSeq_peptide", "RefSeq")
-					e.xref(j, entryid, fr, "EntrezGene", "GeneID")
-					e.xref(j, entryid, fr, "PANTHER", "PANTHER")
-					e.xref(j, entryid, fr, "Reactome", "Reactome")
-					e.xref(j, entryid, fr, "RNAcentral", "RNAcentral")
-					e.xref(j, entryid, fr, "Uniprot/SPTREMBL", "uniprot")
-					e.xref(j, entryid, fr, "protein_id", "EMBL")
-					e.xref(j, entryid, fr, "KEGG_Enzyme", "KEGG")
-					e.xref(j, entryid, fr, "EMBL", "EMBL")
-					e.xref(j, entryid, fr, "CDD", "CDD")
-					e.xref(j, entryid, fr, "TIGRfam", "TIGRFAMs")
-					e.xref(j, entryid, fr, "ChEMBL", "ChEMBL")
-					e.xref(j, entryid, fr, "UniParc", "uniparc")
-					e.xref(j, entryid, fr, "PDB", "PDB")
-					e.xref(j, entryid, fr, "SuperFamily", "SUPFAM")
-					e.xref(j, entryid, fr, "Prosite_profiles", "PROSITE")
-					e.xref(j, entryid, fr, "RefSeq_mRNA", "RefSeq")
-					e.xref(j, entryid, fr, "Pfam", "Pfam")
-					e.xref(j, entryid, fr, "CCDS", "CCDS")
-					e.xref(j, entryid, fr, "Prosite_patterns", "PROSITE")
-					e.xref(j, entryid, fr, "Uniprot/SWISSPROT", "uniprot")
-					e.xref(j, entryid, fr, "UCSC", "UCSC")
-					//xref(j, entryid, fr, "Uniprot_gn", "uniprot")
-					e.xref(j, entryid, fr, "HGNC", "hgnc")
-					e.xref(j, entryid, fr, "RefSeq_ncRNA_predicted", "RefSeq")
-					e.xref(j, entryid, fr, "HAMAP", "HAMAP")
-					e.xrefGO(j, entryid, fr) // go terms are also under xrefs with source information.
+						if j.ObjectVals["transcripts"] != nil {
+							for _, val := range j.ObjectVals["transcripts"].ArrayVals {
+								tentryid := val.ObjectVals["id"].StringVal
 
-					if j.ObjectVals["transcripts"] != nil {
-						for _, val := range j.ObjectVals["transcripts"].ArrayVals {
-							tentryid := val.ObjectVals["id"].StringVal
-
-							e.d.addXref(entryid, fr, tentryid, "transcript", false)
-
-							/** this is excluded for now can be included if wanted
-							if val.ObjectVals["name"] != nil {
-								e.d.addXref(val.ObjectVals["name"].StringVal, textLinkID, tentryid, "transcript", true)
-							}
-							**/
-
-							if val.ObjectVals["exons"] != nil {
-								for _, exo := range val.ObjectVals["exons"].ArrayVals {
-									e.d.addXref(tentryid, ensemblTranscriptID, exo.ObjectVals["id"].StringVal, "exon", false)
-									attr := pbuf.EnsemblAttr{}
-									if exo.ObjectVals["seq_region_name"] != nil {
-										attr.SeqRegion = exo.ObjectVals["seq_region_name"].StringVal
+								if val.ObjectVals["translations"] != nil {
+									for _, eprotein := range val.ObjectVals["translations"].ArrayVals {
+										e.xref(eprotein, eprotein.ObjectVals["id"].StringVal, ensemblProteinID, "Uniprot/SWISSPROT", "uniprot")
+										e.xref(eprotein, eprotein.ObjectVals["id"].StringVal, ensemblProteinID, "Uniprot/SPTREMBL", "uniprot")
 									}
-
-									if exo.ObjectVals["strand"] != nil {
-										attr.Strand = exo.ObjectVals["strand"].StringVal
-									}
-
-									if exo.ObjectVals["start"] != nil {
-										c, err := strconv.Atoi(exo.ObjectVals["start"].StringVal)
-										if err == nil {
-											attr.Start = int32(c)
-										}
-									}
-
-									if exo.ObjectVals["end"] != nil {
-										c, err := strconv.Atoi(exo.ObjectVals["end"].StringVal)
-										if err == nil {
-											attr.End = int32(c)
-										}
-									}
-									b, _ := ffjson.Marshal(attr)
-									e.d.addProp3(exo.ObjectVals["id"].StringVal, exonsID, b)
-
 								}
+
+								e.xref(val, tentryid, ensemblTranscriptID, "Interpro", "interpro")
+								e.xref(val, tentryid, ensemblTranscriptID, "HPA", "HPA")
+								e.xref(val, tentryid, ensemblTranscriptID, "ArrayExpress", "ExpressionAtlas")
+								e.xref(val, tentryid, ensemblTranscriptID, "GENE3D", "CATHGENE3D")
+								e.xref(val, tentryid, ensemblTranscriptID, "MIM_GENE", "MIM")
+								e.xref(val, tentryid, ensemblTranscriptID, "RefSeq_peptide", "RefSeq")
+								e.xref(val, tentryid, ensemblTranscriptID, "EntrezGene", "GeneID")
+								e.xref(val, tentryid, ensemblTranscriptID, "PANTHER", "PANTHER")
+								e.xref(val, tentryid, ensemblTranscriptID, "Reactome", "Reactome")
+								e.xref(val, tentryid, ensemblTranscriptID, "RNAcentral", "RNAcentral")
+								e.xref(val, tentryid, ensemblTranscriptID, "Uniprot/SPTREMBL", "uniprot")
+								e.xref(val, tentryid, ensemblTranscriptID, "protein_id", "EMBL")
+								e.xref(val, tentryid, ensemblTranscriptID, "KEGG_Enzyme", "KEGG")
+								e.xref(val, tentryid, ensemblTranscriptID, "EMBL", "EMBL")
+								e.xref(val, tentryid, ensemblTranscriptID, "CDD", "CDD")
+								e.xref(val, tentryid, ensemblTranscriptID, "TIGRfam", "TIGRFAMs")
+								e.xref(val, tentryid, ensemblTranscriptID, "ChEMBL", "ChEMBL")
+								e.xref(val, tentryid, ensemblTranscriptID, "UniParc", "uniparc")
+								e.xref(val, tentryid, ensemblTranscriptID, "PDB", "PDB")
+								e.xref(val, tentryid, ensemblTranscriptID, "SuperFamily", "SUPFAM")
+								e.xref(val, tentryid, ensemblTranscriptID, "Prosite_profiles", "PROSITE")
+								e.xref(val, tentryid, ensemblTranscriptID, "RefSeq_mRNA", "RefSeq")
+								e.xref(val, tentryid, ensemblTranscriptID, "Pfam", "Pfam")
+								e.xref(val, tentryid, ensemblTranscriptID, "CCDS", "CCDS")
+								e.xref(val, tentryid, ensemblTranscriptID, "Prosite_patterns", "PROSITE")
+								e.xref(val, tentryid, ensemblTranscriptID, "Uniprot/SWISSPROT", "uniprot")
+								e.xref(val, tentryid, ensemblTranscriptID, "UCSC", "UCSC")
+								e.xref(val, tentryid, ensemblTranscriptID, "Uniprot_gn", "uniprot")
+								e.xref(val, tentryid, ensemblTranscriptID, "HGNC", "hgnc")
+								e.xref(val, tentryid, ensemblTranscriptID, "RefSeq_ncRNA_predicted", "RefSeq")
+								e.xref(val, tentryid, ensemblTranscriptID, "HAMAP", "HAMAP")
+								e.xrefGO(val, tentryid, ensemblTranscriptID)
+
 							}
-
-							if val.ObjectVals["translations"] != nil {
-								for _, eprotein := range val.ObjectVals["translations"].ArrayVals {
-									e.d.addXref(tentryid, ensemblTranscriptID, eprotein.ObjectVals["id"].StringVal, "eprotein", false)
-									e.xref(eprotein, eprotein.ObjectVals["id"].StringVal, ensemblProteinID, "Uniprot/SWISSPROT", "uniprot")
-									e.xref(eprotein, eprotein.ObjectVals["id"].StringVal, ensemblProteinID, "Uniprot/SPTREMBL", "uniprot")
-								}
-							}
-
-							// store texts
-							e.xrefProp(val, tentryid, ensemblTranscriptID)
-
-							e.xref(val, tentryid, ensemblTranscriptID, "Interpro", "interpro")
-							e.xref(val, tentryid, ensemblTranscriptID, "HPA", "HPA")
-							e.xref(val, tentryid, ensemblTranscriptID, "ArrayExpress", "ExpressionAtlas")
-							e.xref(val, tentryid, ensemblTranscriptID, "GENE3D", "CATHGENE3D")
-							e.xref(val, tentryid, ensemblTranscriptID, "MIM_GENE", "MIM")
-							e.xref(val, tentryid, ensemblTranscriptID, "RefSeq_peptide", "RefSeq")
-							e.xref(val, tentryid, ensemblTranscriptID, "EntrezGene", "GeneID")
-							e.xref(val, tentryid, ensemblTranscriptID, "PANTHER", "PANTHER")
-							e.xref(val, tentryid, ensemblTranscriptID, "Reactome", "Reactome")
-							e.xref(val, tentryid, ensemblTranscriptID, "RNAcentral", "RNAcentral")
-							e.xref(val, tentryid, ensemblTranscriptID, "Uniprot/SPTREMBL", "uniprot")
-							e.xref(val, tentryid, ensemblTranscriptID, "protein_id", "EMBL")
-							e.xref(val, tentryid, ensemblTranscriptID, "KEGG_Enzyme", "KEGG")
-							e.xref(val, tentryid, ensemblTranscriptID, "EMBL", "EMBL")
-							e.xref(val, tentryid, ensemblTranscriptID, "CDD", "CDD")
-							e.xref(val, tentryid, ensemblTranscriptID, "TIGRfam", "TIGRFAMs")
-							e.xref(val, tentryid, ensemblTranscriptID, "ChEMBL", "ChEMBL")
-							e.xref(val, tentryid, ensemblTranscriptID, "UniParc", "uniparc")
-							e.xref(val, tentryid, ensemblTranscriptID, "PDB", "PDB")
-							e.xref(val, tentryid, ensemblTranscriptID, "SuperFamily", "SUPFAM")
-							e.xref(val, tentryid, ensemblTranscriptID, "Prosite_profiles", "PROSITE")
-							e.xref(val, tentryid, ensemblTranscriptID, "RefSeq_mRNA", "RefSeq")
-							e.xref(val, tentryid, ensemblTranscriptID, "Pfam", "Pfam")
-							e.xref(val, tentryid, ensemblTranscriptID, "CCDS", "CCDS")
-							e.xref(val, tentryid, ensemblTranscriptID, "Prosite_patterns", "PROSITE")
-							e.xref(val, tentryid, ensemblTranscriptID, "Uniprot/SWISSPROT", "uniprot")
-							e.xref(val, tentryid, ensemblTranscriptID, "UCSC", "UCSC")
-							e.xref(val, tentryid, ensemblTranscriptID, "Uniprot_gn", "uniprot")
-							e.xref(val, tentryid, ensemblTranscriptID, "HGNC", "hgnc")
-							e.xref(val, tentryid, ensemblTranscriptID, "RefSeq_ncRNA_predicted", "RefSeq")
-							e.xref(val, tentryid, ensemblTranscriptID, "HAMAP", "HAMAP")
-							e.xrefGO(val, tentryid, ensemblTranscriptID)
-
 						}
 					}
+					total++
 				}
-				total++
+
+				if ftpFile != nil {
+					ftpFile.Close()
+				}
+				if localFile != nil {
+					localFile.Close()
+				}
+
+				if client != nil {
+					client.Quit()
+				}
+
+				time.Sleep(time.Duration(e.pauseDurationSeconds) * time.Second) // for not to kicked out from ensembl ftp
 			}
 
-			if ftpFile != nil {
-				ftpFile.Close()
-			}
-			if localFile != nil {
-				localFile.Close()
-			}
-
-			if client != nil {
-				client.Quit()
-			}
-
-			time.Sleep(time.Duration(e.pauseDurationSeconds) * time.Second) // for not to kicked out from ensembl ftp
 		}
-
 	}
 
 	previous = 0
@@ -922,7 +877,7 @@ func (e *ensembl) update() {
 		} else {
 			log.Println("Warn: new prob mapping found. It must be defined in configuration", probsetMachine)
 		}
-		time.Sleep(time.Duration(e.pauseDurationSeconds) * time.Second) // for not to kicked out from ensembl ftp
+		// time.Sleep(time.Duration(e.pauseDurationSeconds) * time.Second) // for not to kicked out from ensembl ftp
 	}
 
 	e.d.progChan <- &progressInfo{dataset: e.source, done: true}

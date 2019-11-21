@@ -87,6 +87,10 @@ func main() {
 			Name:  "include_optionals",
 			Usage: "when this flag sets optional dataset which defined in the optional.dataset.json file includes for mapping. by default it is false",
 		},
+		cli.BoolFlag{
+			Name:  "ensembl_all",
+			Usage: "Due to current size by default only genomic coordinates and probset mappings data are processed. If this parameter set all mappings proccessed which take relatively longer time",
+		},
 		cli.IntFlag{
 			Name:   "maxcpu",
 			Hidden: true,
@@ -227,8 +231,11 @@ func runUpdateCommand(c *cli.Context) error {
 	config = &configs.Conf{}
 	config.Init(confdir, versionTag, includeOptionals, outDir)
 
-	//var datasets []string
-	//datasetsmap := map[string]bool{}
+	if c.GlobalBool("ensembl_all") {
+		config.Appconf["ensembl_all"] = "y"
+	} else {
+		config.Appconf["ensembl_all"] = "n"
+	}
 
 	indataset := c.GlobalString("datasets")
 

@@ -26,7 +26,7 @@ func (c *chebi) update() {
 	totalRead := 0
 
 	for _, name := range chebiFiles {
-		br, _, ftpFile, localFile, _ := c.d.getDataReaderNew(c.source, c.d.ebiFtp, c.d.ebiFtpPath, chebiPath+name)
+		br, _, ftpFile, client, localFile, _ := c.d.getDataReaderNew(c.source, c.d.ebiFtp, c.d.ebiFtpPath, chebiPath+name)
 
 		r := csv.NewReader(br)
 		r.Comma = '	'
@@ -91,6 +91,9 @@ func (c *chebi) update() {
 		}
 		if localFile != nil {
 			localFile.Close()
+		}
+		if client != nil {
+			client.Quit()
 		}
 
 	}

@@ -590,7 +590,7 @@ func (d *DataUpdate) addMeta(source string, meta map[string]interface{}) {
 
 }
 
-func (d *DataUpdate) getDataReaderNew(datatype string, ftpAddr string, ftpPath string, filePath string) (*bufio.Reader, *gzip.Reader, *ftp.Response, *os.File, int64) {
+func (d *DataUpdate) getDataReaderNew(datatype string, ftpAddr string, ftpPath string, filePath string) (*bufio.Reader, *gzip.Reader, *ftp.Response, *ftp.ServerConn, *os.File, int64) {
 
 	var ftpfile *ftp.Response
 	var client *ftp.ServerConn
@@ -611,11 +611,11 @@ func (d *DataUpdate) getDataReaderNew(datatype string, ftpAddr string, ftpPath s
 			gz, err := gzip.NewReader(file)
 			check(err)
 			br := bufio.NewReaderSize(gz, fileBufSize)
-			return br, gz, nil, file, fileSize
+			return br, gz, nil, nil, file, fileSize
 		}
 
 		br := bufio.NewReaderSize(file, fileBufSize)
-		return br, nil, nil, file, fileSize
+		return br, nil, nil, nil, file, fileSize
 
 	}
 
@@ -641,7 +641,7 @@ func (d *DataUpdate) getDataReaderNew(datatype string, ftpAddr string, ftpPath s
 		br = bufio.NewReaderSize(ftpfile, fileBufSize)
 	}
 
-	return br, gz, ftpfile, nil, fileSize
+	return br, gz, ftpfile, client, nil, fileSize
 
 }
 

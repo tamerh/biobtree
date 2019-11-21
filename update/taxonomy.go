@@ -28,7 +28,7 @@ func (t *taxonomy) update() {
 	frparent := config.Dataconf["taxparent"]["id"]
 	frchild := config.Dataconf["taxchild"]["id"]
 
-	br, gz, ftpFile, localFile, _ := t.d.getDataReaderNew(t.source, t.d.ebiFtp, t.d.ebiFtpPath, config.Dataconf[t.source]["path"])
+	br, gz, ftpFile, client, localFile, _ := t.d.getDataReaderNew(t.source, t.d.ebiFtp, t.d.ebiFtpPath, config.Dataconf[t.source]["path"])
 
 	if ftpFile != nil {
 		defer ftpFile.Close()
@@ -38,6 +38,10 @@ func (t *taxonomy) update() {
 	}
 	defer gz.Close()
 	defer t.d.wg.Done()
+
+	if client != nil {
+		defer client.Quit()
+	}
 
 	p := xmlparser.NewXMLParser(br, "taxon").SkipElements([]string{"lineage"})
 

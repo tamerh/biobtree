@@ -854,7 +854,7 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)
 				xref.Attributes = &pbuf.Xref_Ufeature{attr}
-			case "ensembl", "transcript", "exon":
+			case "ensembl", "transcript", "exon", "cds":
 				attr := &pbuf.EnsemblAttr{}
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)

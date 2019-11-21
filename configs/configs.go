@@ -73,7 +73,7 @@ func (c *Conf) Init(rootDir, bbBinaryVersion string, optionalDatasetActive bool,
 		panic(err)
 	}
 
-	if c.Appconf["version"] != latestConfVersion {
+	if c.Appconf["conf_version"] != latestConfVersion {
 
 		c.Appconf = map[string]string{}
 		c.retrConfFiles(latestConfVersion, rootDir)

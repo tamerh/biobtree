@@ -309,7 +309,7 @@ func (u *uniprot) update() {
 		u.ensmeblRefs = map[string][]string{}
 	}
 
-	br, gz, ftpFile, localFile, _ := u.d.getDataReaderNew(u.source, u.d.uniprotFtp, u.d.uniprotFtpPath, dataPath)
+	br, gz, ftpFile, client, localFile, _ := u.d.getDataReaderNew(u.source, u.d.uniprotFtp, u.d.uniprotFtpPath, dataPath)
 
 	fr := config.Dataconf[u.source]["id"]
 	fr2 := config.Dataconf["ufeature"]["id"]
@@ -328,6 +328,10 @@ func (u *uniprot) update() {
 	}
 	defer gz.Close()
 	defer u.d.wg.Done()
+
+	if client != nil {
+		defer client.Quit()
+	}
 
 	p := xmlparser.NewXMLParser(br, "entry").SkipElements([]string{"comment"})
 

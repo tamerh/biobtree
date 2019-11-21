@@ -1,2 +1,13 @@
 12  ensembl_havana  gene  6867119 6870948 . + . ID=gene:ENSG00000111669;Name=TPI1;biotype=protein_coding;description=triosephosphate isomerase 1 [Source:HGNC Symbol%3BAcc:HGNC:12009];gene_id=ENSG00000111669;logic_name=ensembl_havana_gene_homo_s
 apiens;version=15
+
+
+12      .       biological_region       6867229 6868229 998     .       .       external_name=oe %3D 0.91;logic_name=cpg
+12      .       biological_region       6867472 6867479 0.999   -       .       logic_name=eponine
+12      .       biological_region       6867792 6867868 1       -       .       external_name=rank %3D 2;logic_name=firstef
+12      .       biological_region       6868051 6868509 1       +       .       external_name=rank %3D 2;logic_name=firstef
+12      .       biological_region       6868051 6868636 1       +       .       external_name=rank %3D 1;logic_name=firstef
+12      .       biological_region       6868051 6868768 1       +       .       external_name=rank %3D 4;logic_name=firstef
+12      .       biological_region       6868051 6868987 1       +       .       external_name=rank %3D 3;logic_name=firstef
+
+

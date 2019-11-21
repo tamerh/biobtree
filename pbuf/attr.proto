@@ -37,19 +37,26 @@ message EnsemblAttr  {
   string biotype =5;
   string genome =6;
   string strand =7;
-  string seq_region_name =8;
+  string seq_region =8;
   ensemblbranch branch=9;
+  int32 utr5Start =10;
+  int32 utr5End =11;
+  int32 utr3Start =12;
+  int32 utr3End =13;
+  int32 version =14;
+  string source =15;
+  int32 frame =16;
 }
 
-  enum ensemblbranch {
-    NONE=0;
-    ENSEMBL=1;
-    BACTERIA=2;
-    FUNGI=3;
-    METAZOA=4;
-    PLANT=5;
-    PROTIST=6;
-  }
+enum ensemblbranch {
+  NONE=0;
+  ENSEMBL=1;
+  BACTERIA=2;
+  FUNGI=3;
+  METAZOA=4;
+  PLANT=5;
+  PROTIST=6;
+}
 
 message TaxoAttr {
   string name =1;

@@ -4,7 +4,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/tamerh/xml-stream-parser"
+	xmlparser "github.com/tamerh/xml-stream-parser"
 )
 
 type uniparc struct {
@@ -15,7 +15,7 @@ type uniparc struct {
 func (u *uniparc) update() {
 
 	fr := config.Dataconf[u.source]["id"]
-	br, gz, ftpFile, localFile, _ := u.d.getDataReaderNew(u.source, u.d.uniprotFtp, u.d.uniprotFtpPath, config.Dataconf[u.source]["path"])
+	br, gz, ftpFile, client, localFile, _ := u.d.getDataReaderNew(u.source, u.d.uniprotFtp, u.d.uniprotFtpPath, config.Dataconf[u.source]["path"])
 
 	if ftpFile != nil {
 		defer ftpFile.Close()
@@ -25,6 +25,10 @@ func (u *uniparc) update() {
 	}
 	defer gz.Close()
 	defer u.d.wg.Done()
+
+	if client != nil {
+		defer client.Quit()
+	}
 
 	p := xmlparser.NewXMLParser(br, "entry").SkipElements([]string{"sequence"})
 

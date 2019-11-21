@@ -15,13 +15,17 @@ type uniref struct {
 func (u *uniref) update() {
 
 	fr := config.Dataconf[u.source]["id"]
-	br, gz, ftpFile, localFile, _ := u.d.getDataReaderNew(u.source, u.d.uniprotFtp, u.d.uniprotFtpPath, config.Dataconf[u.source]["path"])
+	br, gz, ftpFile, client, localFile, _ := u.d.getDataReaderNew(u.source, u.d.uniprotFtp, u.d.uniprotFtpPath, config.Dataconf[u.source]["path"])
 
 	if ftpFile != nil {
 		defer ftpFile.Close()
 	}
 	if localFile != nil {
 		defer localFile.Close()
+	}
+
+	if client != nil {
+		defer client.Quit()
 	}
 
 	defer gz.Close()
@@ -64,7 +68,6 @@ func (u *uniref) update() {
 				}
 				**/
 
-			
 				if _, ok = z.Childs["property"]; ok {
 					for _, x := range z.Childs["property"] {
 						if _, ok = validRefs[x.Attrs["type"]]; ok {
@@ -72,7 +75,7 @@ func (u *uniref) update() {
 						}
 					}
 				}
-			
+
 			}
 		}
 
@@ -84,7 +87,7 @@ func (u *uniref) update() {
 				if _, ok = validRefs[z.Attrs["type"]]; ok {
 					u.d.addXref(entryid, fr, z.Attrs["id"], z.Attrs["type"], false)
 				}			**/
-				
+
 				if _, ok = z.Childs["property"]; ok {
 					for _, x := range z.Childs["property"] {
 						if _, ok = validRefs[x.Attrs["type"]]; ok {
@@ -92,7 +95,7 @@ func (u *uniref) update() {
 						}
 					}
 				}
-	
+
 			}
 		}
 

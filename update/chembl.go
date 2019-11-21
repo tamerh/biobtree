@@ -82,7 +82,7 @@ func (c *chembl) updateProteinTargetClasses() {
 	c.protclasses = map[string]*pbuf.ChemblProteinTargetClassification{}
 
 	protclassFtpPath := c.getFtpPath(config.Dataconf["chembl_target"]["pathProteinTargetClassificationPattern"])
-	br, gz, ftpFile, localFile, _ := c.d.getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, protclassFtpPath)
+	br, gz, ftpFile, client, localFile, _ := c.d.getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, protclassFtpPath)
 
 	dec := rdf.NewTripleDecoder(br, rdf.Turtle)
 
@@ -132,6 +132,10 @@ func (c *chembl) updateProteinTargetClasses() {
 	if localFile != nil {
 		localFile.Close()
 	}
+
+	if client != nil {
+		client.Quit()
+	}
 	gz.Close()
 
 }
@@ -141,7 +145,7 @@ func (c *chembl) updateBiocomponents() {
 	c.biocomponents = map[string]*biocomponent{}
 
 	biocomponentFtpPath := c.getFtpPath(config.Dataconf["chembl_molecule"]["pathBioComponentPattern"])
-	br, gz, ftpFile, localFile, _ := c.d.getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, biocomponentFtpPath)
+	br, gz, ftpFile, client, localFile, _ := c.d.getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, biocomponentFtpPath)
 
 	dec := rdf.NewTripleDecoder(br, rdf.Turtle)
 
@@ -201,6 +205,10 @@ func (c *chembl) updateBiocomponents() {
 	if localFile != nil {
 		localFile.Close()
 	}
+
+	if client != nil {
+		client.Quit()
+	}
 	gz.Close()
 
 }
@@ -210,7 +218,7 @@ func (c *chembl) updateBindingSites() {
 	c.bindingSites = map[string]*pbuf.ChemblBindingSite{}
 
 	bindingSiteFtpPath := c.getFtpPath(config.Dataconf["chembl_target"]["pathBindingSitePattern"])
-	br, gz, ftpFile, localFile, _ := c.d.getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, bindingSiteFtpPath)
+	br, gz, ftpFile, client, localFile, _ := c.d.getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, bindingSiteFtpPath)
 
 	dec := rdf.NewTripleDecoder(br, rdf.Turtle)
 
@@ -232,6 +240,10 @@ func (c *chembl) updateBindingSites() {
 	if localFile != nil {
 		localFile.Close()
 	}
+
+	if client != nil {
+		client.Quit()
+	}
 	gz.Close()
 
 	// now mechanism which use binding sites
@@ -245,7 +257,7 @@ func (c *chembl) updateMechanisms() {
 
 	//first for just mechanisms name and action type
 	mechanismFtpPath := c.getFtpPath(config.Dataconf["chembl_target"]["pathMechanismPattern"])
-	br, gz, ftpFile, localFile, _ := c.d.getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, mechanismFtpPath)
+	br, gz, ftpFile, client, localFile, _ := c.d.getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, mechanismFtpPath)
 
 	dec := rdf.NewTripleDecoder(br, rdf.Turtle)
 
@@ -284,10 +296,13 @@ func (c *chembl) updateMechanisms() {
 	if localFile != nil {
 		localFile.Close()
 	}
+	if client != nil {
+		client.Quit()
+	}
 	gz.Close()
 
 	// now set it for bindings , molecule and target
-	br, gz, ftpFile, localFile, _ = c.d.getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, mechanismFtpPath)
+	br, gz, ftpFile, client, localFile, _ = c.d.getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, mechanismFtpPath)
 
 	dec = rdf.NewTripleDecoder(br, rdf.Turtle)
 
@@ -324,6 +339,9 @@ func (c *chembl) updateMechanisms() {
 	if localFile != nil {
 		localFile.Close()
 	}
+	if client != nil {
+		client.Quit()
+	}
 	gz.Close()
 
 }
@@ -332,13 +350,16 @@ func (c *chembl) updateCellline() {
 
 	fr := config.Dataconf["chembl_cell_line"]["id"]
 	celllineFtpPath := c.getFtpPath(config.Dataconf["chembl_cell_line"]["pathCelllinePattern"])
-	br, gz, ftpFile, localFile, _ := c.d.getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, celllineFtpPath)
+	br, gz, ftpFile, client, localFile, _ := c.d.getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, celllineFtpPath)
 
 	if ftpFile != nil {
 		defer ftpFile.Close()
 	}
 	if localFile != nil {
 		defer localFile.Close()
+	}
+	if client != nil {
+		defer client.Quit()
 	}
 
 	defer gz.Close()
@@ -400,7 +421,7 @@ func (c *chembl) updateTarget() {
 	// binding site
 	fr := config.Dataconf["chembl_target"]["id"]
 	bindingSiteFtpPath := c.getFtpPath(config.Dataconf["chembl_target"]["pathBindingSitePattern"])
-	br, gz, ftpFile, localFile, _ := c.d.getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, bindingSiteFtpPath)
+	br, gz, ftpFile, client, localFile, _ := c.d.getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, bindingSiteFtpPath)
 
 	dec := rdf.NewTripleDecoder(br, rdf.Turtle)
 
@@ -429,11 +450,14 @@ func (c *chembl) updateTarget() {
 	if localFile != nil {
 		localFile.Close()
 	}
+	if client != nil {
+		client.Quit()
+	}
 	gz.Close()
 
 	// protein target class
 	protclassFtpPath := c.getFtpPath(config.Dataconf["chembl_target"]["pathProteinTargetClassificationPattern"])
-	br, gz, ftpFile, localFile, _ = c.d.getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, protclassFtpPath)
+	br, gz, ftpFile, client, localFile, _ = c.d.getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, protclassFtpPath)
 
 	dec = rdf.NewTripleDecoder(br, rdf.Turtle)
 
@@ -461,11 +485,14 @@ func (c *chembl) updateTarget() {
 	if localFile != nil {
 		localFile.Close()
 	}
+	if client != nil {
+		client.Quit()
+	}
 	gz.Close()
 
 	// target
 	targetFtpPath := c.getFtpPath(config.Dataconf["chembl_target"]["pathTargetPattern"])
-	br, gz, ftpFile, localFile, _ = c.d.getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, targetFtpPath)
+	br, gz, ftpFile, client, localFile, _ = c.d.getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, targetFtpPath)
 
 	dec = rdf.NewTripleDecoder(br, rdf.Turtle)
 
@@ -516,11 +543,14 @@ func (c *chembl) updateTarget() {
 	if localFile != nil {
 		localFile.Close()
 	}
+	if client != nil {
+		client.Quit()
+	}
 	gz.Close()
 
 	// target relations
 	targetRelFtpPath := c.getFtpPath(config.Dataconf["chembl_target"]["pathTargetRelPattern"])
-	br, gz, ftpFile, localFile, _ = c.d.getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, targetRelFtpPath)
+	br, gz, ftpFile, client, localFile, _ = c.d.getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, targetRelFtpPath)
 
 	dec = rdf.NewTripleDecoder(br, rdf.Turtle)
 
@@ -563,11 +593,14 @@ func (c *chembl) updateTarget() {
 	if localFile != nil {
 		localFile.Close()
 	}
+	if client != nil {
+		client.Quit()
+	}
 	gz.Close()
 
 	// single target -> target_component
 	singleTargetComptMappingFtpPath := c.getFtpPath(config.Dataconf["chembl_target"]["pathSingleTargetComponentMappingPattern"])
-	br, gz, ftpFile, localFile, _ = c.d.getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, singleTargetComptMappingFtpPath)
+	br, gz, ftpFile, client, localFile, _ = c.d.getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, singleTargetComptMappingFtpPath)
 
 	dec = rdf.NewTripleDecoder(br, rdf.Turtle)
 
@@ -594,11 +627,14 @@ func (c *chembl) updateTarget() {
 	if localFile != nil {
 		localFile.Close()
 	}
+	if client != nil {
+		client.Quit()
+	}
 	gz.Close()
 
 	// complex target -> target_component
 	complexTargetComptMappingFtpPath := c.getFtpPath(config.Dataconf["chembl_target"]["pathComplexTargetComponentMappingPattern"])
-	br, gz, ftpFile, localFile, _ = c.d.getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, complexTargetComptMappingFtpPath)
+	br, gz, ftpFile, client, localFile, _ = c.d.getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, complexTargetComptMappingFtpPath)
 
 	dec = rdf.NewTripleDecoder(br, rdf.Turtle)
 
@@ -625,11 +661,14 @@ func (c *chembl) updateTarget() {
 	if localFile != nil {
 		localFile.Close()
 	}
+	if client != nil {
+		client.Quit()
+	}
 	gz.Close()
 
 	// group target -> target_component
 	groupTargetComptMappingFtpPath := c.getFtpPath(config.Dataconf["chembl_target"]["pathGroupTargetComponentMappingPattern"])
-	br, gz, ftpFile, localFile, _ = c.d.getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, groupTargetComptMappingFtpPath)
+	br, gz, ftpFile, client, localFile, _ = c.d.getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, groupTargetComptMappingFtpPath)
 
 	dec = rdf.NewTripleDecoder(br, rdf.Turtle)
 
@@ -656,6 +695,9 @@ func (c *chembl) updateTarget() {
 	if localFile != nil {
 		localFile.Close()
 	}
+	if client != nil {
+		client.Quit()
+	}
 	gz.Close()
 
 }
@@ -663,13 +705,17 @@ func (c *chembl) updateTarget() {
 func (c *chembl) updateTargetComponent() {
 	fr := config.Dataconf["chembl_target_component"]["id"]
 	targetComptFtpPath := c.getFtpPath(config.Dataconf["chembl_target_component"]["pathTargetComponentPattern"])
-	br, gz, ftpFile, localFile, _ := c.d.getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, targetComptFtpPath)
+	br, gz, ftpFile, client, localFile, _ := c.d.getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, targetComptFtpPath)
 
 	if ftpFile != nil {
 		defer ftpFile.Close()
 	}
 	if localFile != nil {
 		defer localFile.Close()
+	}
+
+	if client != nil {
+		defer client.Quit()
 	}
 
 	defer gz.Close()
@@ -706,7 +752,7 @@ func (c *chembl) updateTargetComponent() {
 
 	// protein target class
 	protclassFtpPath := c.getFtpPath(config.Dataconf["chembl_target_component"]["pathProteinTargetClassificationPattern"])
-	br, gz, ftpFile, localFile, _ = c.d.getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, protclassFtpPath)
+	br, gz, ftpFile, client, localFile, _ = c.d.getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, protclassFtpPath)
 
 	dec = rdf.NewTripleDecoder(br, rdf.Turtle)
 
@@ -733,11 +779,15 @@ func (c *chembl) updateTargetComponent() {
 	if localFile != nil {
 		localFile.Close()
 	}
+
+	if client != nil {
+		client.Quit()
+	}
 	gz.Close()
 
 	// component xref mapping this is essentially allows gene,protein ids to map the target_component and target
 	uniprotMappingFtpPath := c.getFtpPath(config.Dataconf["chembl_target_component"]["pathUniprotMappingPattern"])
-	br, gz, ftpFile, localFile, _ = c.d.getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, uniprotMappingFtpPath)
+	br, gz, ftpFile, client, localFile, _ = c.d.getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, uniprotMappingFtpPath)
 
 	dec = rdf.NewTripleDecoder(br, rdf.Turtle)
 
@@ -777,6 +827,9 @@ func (c *chembl) updateTargetComponent() {
 	if localFile != nil {
 		localFile.Close()
 	}
+	if client != nil {
+		client.Quit()
+	}
 	gz.Close()
 
 }
@@ -786,7 +839,7 @@ func (c *chembl) updateIndications() {
 	c.indications = map[string]*pbuf.ChemblIndication{}
 
 	indicationFtpPath := c.getFtpPath(config.Dataconf["chembl_molecule"]["pathIndicationPattern"])
-	br, gz, ftpFile, localFile, _ := c.d.getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, indicationFtpPath)
+	br, gz, ftpFile, client, localFile, _ := c.d.getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, indicationFtpPath)
 
 	dec := rdf.NewTripleDecoder(br, rdf.Turtle)
 
@@ -868,6 +921,9 @@ func (c *chembl) updateIndications() {
 	if localFile != nil {
 		localFile.Close()
 	}
+	if client != nil {
+		client.Quit()
+	}
 	gz.Close()
 
 }
@@ -879,7 +935,7 @@ func (c *chembl) updateMolecule() {
 	// set indications
 	fr := config.Dataconf["chembl_molecule"]["id"]
 	indicationFtpPath := c.getFtpPath(config.Dataconf["chembl_molecule"]["pathIndicationPattern"])
-	br, gz, ftpFile, localFile, _ := c.d.getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, indicationFtpPath)
+	br, gz, ftpFile, client, localFile, _ := c.d.getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, indicationFtpPath)
 
 	dec := rdf.NewTripleDecoder(br, rdf.Turtle)
 
@@ -911,12 +967,15 @@ func (c *chembl) updateMolecule() {
 	if localFile != nil {
 		localFile.Close()
 	}
+	if client != nil {
+		client.Quit()
+	}
 
 	gz.Close()
 
 	// set_molecule
 	moleculeFtpPath := c.getFtpPath(config.Dataconf["chembl_molecule"]["pathMoleculePattern"])
-	br, gz, ftpFile, localFile, _ = c.d.getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, moleculeFtpPath)
+	br, gz, ftpFile, client, localFile, _ = c.d.getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, moleculeFtpPath)
 
 	dec = rdf.NewTripleDecoder(br, rdf.Turtle)
 
@@ -1160,11 +1219,15 @@ func (c *chembl) updateMolecule() {
 		localFile.Close()
 	}
 
+	if client != nil {
+		client.Quit()
+	}
+
 	gz.Close()
 
 	// chebi molecule
 	chebiFtpPath := c.getFtpPath(config.Dataconf["chembl_molecule"]["pathChebiPattern"])
-	br, gz, ftpFile, localFile, _ = c.d.getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, chebiFtpPath)
+	br, gz, ftpFile, client, localFile, _ = c.d.getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, chebiFtpPath)
 
 	dec = rdf.NewTripleDecoder(br, rdf.Turtle)
 
@@ -1187,12 +1250,15 @@ func (c *chembl) updateMolecule() {
 	if localFile != nil {
 		localFile.Close()
 	}
+	if client != nil {
+		client.Quit()
+	}
 
 	gz.Close()
 
 	//molecule Hierarchy
 	hieararchyFtpPath := c.getFtpPath(config.Dataconf["chembl_molecule"]["pathHierarchyPattern"])
-	br, gz, ftpFile, localFile, _ = c.d.getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, hieararchyFtpPath)
+	br, gz, ftpFile, client, localFile, _ = c.d.getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, hieararchyFtpPath)
 	dec = rdf.NewTripleDecoder(br, rdf.Turtle)
 	for triple, err := dec.Decode(); err != io.EOF; triple, err = dec.Decode() {
 
@@ -1221,6 +1287,10 @@ func (c *chembl) updateMolecule() {
 		localFile.Close()
 	}
 
+	if client != nil {
+		client.Quit()
+	}
+
 	gz.Close()
 
 }
@@ -1228,7 +1298,7 @@ func (c *chembl) updateMolecule() {
 func (c *chembl) updateActivity() {
 	fr := config.Dataconf["chembl_activity"]["id"]
 	activityFtpPath := c.getFtpPath(config.Dataconf["chembl_activity"]["pathActivityPattern"])
-	br, gz, ftpFile, localFile, _ := c.d.getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, activityFtpPath)
+	br, gz, ftpFile, client, localFile, _ := c.d.getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, activityFtpPath)
 
 	if ftpFile != nil {
 		defer ftpFile.Close()
@@ -1236,7 +1306,9 @@ func (c *chembl) updateActivity() {
 	if localFile != nil {
 		defer localFile.Close()
 	}
-
+	if client != nil {
+		defer client.Quit()
+	}
 	defer gz.Close()
 	defer c.d.wg.Done()
 
@@ -1358,7 +1430,7 @@ func (c *chembl) updateAssay() {
 	assaySources := map[string]*assaysource{}
 	fr := config.Dataconf["chembl_assay"]["id"]
 	assaySourceFtpPath := c.getFtpPath(config.Dataconf["chembl_assay"]["pathAssaySourcePattern"])
-	br, gz, ftpFile, localFile, _ := c.d.getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, assaySourceFtpPath)
+	br, gz, ftpFile, client, localFile, _ := c.d.getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, assaySourceFtpPath)
 
 	dec := rdf.NewTripleDecoder(br, rdf.Turtle)
 
@@ -1400,10 +1472,13 @@ func (c *chembl) updateAssay() {
 	if localFile != nil {
 		localFile.Close()
 	}
+	if client != nil {
+		client.Quit()
+	}
 	gz.Close()
 
 	assayFtpPath := c.getFtpPath(config.Dataconf["chembl_assay"]["pathAssayPattern"])
-	br, gz, ftpFile, localFile, _ = c.d.getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, assayFtpPath)
+	br, gz, ftpFile, client, localFile, _ = c.d.getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, assayFtpPath)
 
 	dec = rdf.NewTripleDecoder(br, rdf.Turtle)
 
@@ -1542,6 +1617,9 @@ func (c *chembl) updateAssay() {
 	if localFile != nil {
 		localFile.Close()
 	}
+	if client != nil {
+		client.Quit()
+	}
 	gz.Close()
 
 }
@@ -1553,7 +1631,7 @@ func (c *chembl) updateDocument() {
 	// JOURNALS
 	fr := config.Dataconf["chembl_document"]["id"]
 	journalFtpPath := c.getFtpPath(config.Dataconf["chembl_document"]["pathJournalPattern"])
-	br, gz, ftpFile, _, _ := c.d.getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, journalFtpPath)
+	br, gz, ftpFile, client, _, _ := c.d.getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, journalFtpPath)
 
 	journalData := map[string][2]string{}
 	dec := rdf.NewTripleDecoder(br, rdf.Turtle)
@@ -1590,10 +1668,13 @@ func (c *chembl) updateDocument() {
 	}
 	ftpFile.Close()
 	gz.Close()
+	if client != nil {
+		client.Quit()
+	}
 
 	// DOCUMENTS
 	documentFtpPath := c.getFtpPath(config.Dataconf["chembl_document"]["pathDocumentPattern"])
-	br, gz, ftpFile, _, _ = c.d.getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, documentFtpPath)
+	br, gz, ftpFile, client, _, _ = c.d.getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, documentFtpPath)
 
 	dec = rdf.NewTripleDecoder(br, rdf.Turtle)
 	for triple, err := dec.Decode(); err != io.EOF; triple, err = dec.Decode() {
@@ -1641,6 +1722,9 @@ func (c *chembl) updateDocument() {
 	}
 	ftpFile.Close()
 	gz.Close()
+	if client != nil {
+		client.Quit()
+	}
 
 }
 

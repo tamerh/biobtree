@@ -29,3 +29,6 @@ genomes_ensembl_bacteria.json
 genomes_ensembl.json
 website/
 api.php
+conf/
+ensembl/
+conf

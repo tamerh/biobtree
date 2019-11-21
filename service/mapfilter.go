@@ -795,6 +795,8 @@ func (s *service) execCelGo(query *query.Query, targetXref *pbuf.Xref) (bool, er
 		out, _, err = query.Program.Eval(map[string]interface{}{"transcript": targetXref.GetEnsembl()})
 	case "exon":
 		out, _, err = query.Program.Eval(map[string]interface{}{"exon": targetXref.GetEnsembl()})
+	case "cds":
+		out, _, err = query.Program.Eval(map[string]interface{}{"cds": targetXref.GetEnsembl()})
 	case "taxonomy":
 		out, _, err = query.Program.Eval(map[string]interface{}{"taxonomy": targetXref.GetTaxonomy()})
 	case "hgnc":

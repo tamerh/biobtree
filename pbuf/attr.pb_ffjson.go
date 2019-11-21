@@ -9469,14 +9469,49 @@ func (j *EnsemblAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.WriteJsonString(buf, string(j.Strand))
 		buf.WriteByte(',')
 	}
-	if len(j.SeqRegionName) != 0 {
-		buf.WriteString(`"seq_region_name":`)
-		fflib.WriteJsonString(buf, string(j.SeqRegionName))
+	if len(j.SeqRegion) != 0 {
+		buf.WriteString(`"seq_region":`)
+		fflib.WriteJsonString(buf, string(j.SeqRegion))
 		buf.WriteByte(',')
 	}
 	if j.Branch != 0 {
 		buf.WriteString(`"branch":`)
 		fflib.FormatBits2(buf, uint64(j.Branch), 10, j.Branch < 0)
+		buf.WriteByte(',')
+	}
+	if j.Utr5Start != 0 {
+		buf.WriteString(`"utr5Start":`)
+		fflib.FormatBits2(buf, uint64(j.Utr5Start), 10, j.Utr5Start < 0)
+		buf.WriteByte(',')
+	}
+	if j.Utr5End != 0 {
+		buf.WriteString(`"utr5End":`)
+		fflib.FormatBits2(buf, uint64(j.Utr5End), 10, j.Utr5End < 0)
+		buf.WriteByte(',')
+	}
+	if j.Utr3Start != 0 {
+		buf.WriteString(`"utr3Start":`)
+		fflib.FormatBits2(buf, uint64(j.Utr3Start), 10, j.Utr3Start < 0)
+		buf.WriteByte(',')
+	}
+	if j.Utr3End != 0 {
+		buf.WriteString(`"utr3End":`)
+		fflib.FormatBits2(buf, uint64(j.Utr3End), 10, j.Utr3End < 0)
+		buf.WriteByte(',')
+	}
+	if j.Version != 0 {
+		buf.WriteString(`"version":`)
+		fflib.FormatBits2(buf, uint64(j.Version), 10, j.Version < 0)
+		buf.WriteByte(',')
+	}
+	if len(j.Source) != 0 {
+		buf.WriteString(`"source":`)
+		fflib.WriteJsonString(buf, string(j.Source))
+		buf.WriteByte(',')
+	}
+	if j.Frame != 0 {
+		buf.WriteString(`"frame":`)
+		fflib.FormatBits2(buf, uint64(j.Frame), 10, j.Frame < 0)
 		buf.WriteByte(',')
 	}
 	buf.Rewind(1)
@@ -9502,9 +9537,23 @@ const (
 
 	ffjtEnsemblAttrStrand
 
-	ffjtEnsemblAttrSeqRegionName
+	ffjtEnsemblAttrSeqRegion
 
 	ffjtEnsemblAttrBranch
+
+	ffjtEnsemblAttrUtr5Start
+
+	ffjtEnsemblAttrUtr5End
+
+	ffjtEnsemblAttrUtr3Start
+
+	ffjtEnsemblAttrUtr3End
+
+	ffjtEnsemblAttrVersion
+
+	ffjtEnsemblAttrSource
+
+	ffjtEnsemblAttrFrame
 )
 
 var ffjKeyEnsemblAttrName = []byte("name")
@@ -9521,9 +9570,23 @@ var ffjKeyEnsemblAttrGenome = []byte("genome")
 
 var ffjKeyEnsemblAttrStrand = []byte("strand")
 
-var ffjKeyEnsemblAttrSeqRegionName = []byte("seq_region_name")
+var ffjKeyEnsemblAttrSeqRegion = []byte("seq_region")
 
 var ffjKeyEnsemblAttrBranch = []byte("branch")
+
+var ffjKeyEnsemblAttrUtr5Start = []byte("utr5Start")
+
+var ffjKeyEnsemblAttrUtr5End = []byte("utr5End")
+
+var ffjKeyEnsemblAttrUtr3Start = []byte("utr3Start")
+
+var ffjKeyEnsemblAttrUtr3End = []byte("utr3End")
+
+var ffjKeyEnsemblAttrVersion = []byte("version")
+
+var ffjKeyEnsemblAttrSource = []byte("source")
+
+var ffjKeyEnsemblAttrFrame = []byte("frame")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *EnsemblAttr) UnmarshalJSON(input []byte) error {
@@ -9615,6 +9678,14 @@ mainparse:
 						goto mainparse
 					}
 
+				case 'f':
+
+					if bytes.Equal(ffjKeyEnsemblAttrFrame, kn) {
+						currentKey = ffjtEnsemblAttrFrame
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 'g':
 
 					if bytes.Equal(ffjKeyEnsemblAttrGenome, kn) {
@@ -9643,12 +9714,90 @@ mainparse:
 						state = fflib.FFParse_want_colon
 						goto mainparse
 
-					} else if bytes.Equal(ffjKeyEnsemblAttrSeqRegionName, kn) {
-						currentKey = ffjtEnsemblAttrSeqRegionName
+					} else if bytes.Equal(ffjKeyEnsemblAttrSeqRegion, kn) {
+						currentKey = ffjtEnsemblAttrSeqRegion
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyEnsemblAttrSource, kn) {
+						currentKey = ffjtEnsemblAttrSource
 						state = fflib.FFParse_want_colon
 						goto mainparse
 					}
 
+				case 'u':
+
+					if bytes.Equal(ffjKeyEnsemblAttrUtr5Start, kn) {
+						currentKey = ffjtEnsemblAttrUtr5Start
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyEnsemblAttrUtr5End, kn) {
+						currentKey = ffjtEnsemblAttrUtr5End
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyEnsemblAttrUtr3Start, kn) {
+						currentKey = ffjtEnsemblAttrUtr3Start
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyEnsemblAttrUtr3End, kn) {
+						currentKey = ffjtEnsemblAttrUtr3End
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'v':
+
+					if bytes.Equal(ffjKeyEnsemblAttrVersion, kn) {
+						currentKey = ffjtEnsemblAttrVersion
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyEnsemblAttrFrame, kn) {
+					currentKey = ffjtEnsemblAttrFrame
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyEnsemblAttrSource, kn) {
+					currentKey = ffjtEnsemblAttrSource
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyEnsemblAttrVersion, kn) {
+					currentKey = ffjtEnsemblAttrVersion
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyEnsemblAttrUtr3End, kn) {
+					currentKey = ffjtEnsemblAttrUtr3End
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyEnsemblAttrUtr3Start, kn) {
+					currentKey = ffjtEnsemblAttrUtr3Start
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyEnsemblAttrUtr5End, kn) {
+					currentKey = ffjtEnsemblAttrUtr5End
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyEnsemblAttrUtr5Start, kn) {
+					currentKey = ffjtEnsemblAttrUtr5Start
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.SimpleLetterEqualFold(ffjKeyEnsemblAttrBranch, kn) {
@@ -9657,8 +9806,8 @@ mainparse:
 					goto mainparse
 				}
 
-				if fflib.EqualFoldRight(ffjKeyEnsemblAttrSeqRegionName, kn) {
-					currentKey = ffjtEnsemblAttrSeqRegionName
+				if fflib.EqualFoldRight(ffjKeyEnsemblAttrSeqRegion, kn) {
+					currentKey = ffjtEnsemblAttrSeqRegion
 					state = fflib.FFParse_want_colon
 					goto mainparse
 				}
@@ -9743,11 +9892,32 @@ mainparse:
 				case ffjtEnsemblAttrStrand:
 					goto handle_Strand
 
-				case ffjtEnsemblAttrSeqRegionName:
-					goto handle_SeqRegionName
+				case ffjtEnsemblAttrSeqRegion:
+					goto handle_SeqRegion
 
 				case ffjtEnsemblAttrBranch:
 					goto handle_Branch
+
+				case ffjtEnsemblAttrUtr5Start:
+					goto handle_Utr5Start
+
+				case ffjtEnsemblAttrUtr5End:
+					goto handle_Utr5End
+
+				case ffjtEnsemblAttrUtr3Start:
+					goto handle_Utr3Start
+
+				case ffjtEnsemblAttrUtr3End:
+					goto handle_Utr3End
+
+				case ffjtEnsemblAttrVersion:
+					goto handle_Version
+
+				case ffjtEnsemblAttrSource:
+					goto handle_Source
+
+				case ffjtEnsemblAttrFrame:
+					goto handle_Frame
 
 				case ffjtEnsemblAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -9953,9 +10123,9 @@ handle_Strand:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
-handle_SeqRegionName:
+handle_SeqRegion:
 
-	/* handler: j.SeqRegionName type=string kind=string quoted=false*/
+	/* handler: j.SeqRegion type=string kind=string quoted=false*/
 
 	{
 
@@ -9971,7 +10141,7 @@ handle_SeqRegionName:
 
 			outBuf := fs.Output.Bytes()
 
-			j.SeqRegionName = string(string(outBuf))
+			j.SeqRegion = string(string(outBuf))
 
 		}
 	}
@@ -10002,6 +10172,212 @@ handle_Branch:
 			}
 
 			j.Branch = Ensemblbranch(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Utr5Start:
+
+	/* handler: j.Utr5Start type=int32 kind=int32 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for int32", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseInt(fs.Output.Bytes(), 10, 32)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.Utr5Start = int32(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Utr5End:
+
+	/* handler: j.Utr5End type=int32 kind=int32 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for int32", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseInt(fs.Output.Bytes(), 10, 32)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.Utr5End = int32(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Utr3Start:
+
+	/* handler: j.Utr3Start type=int32 kind=int32 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for int32", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseInt(fs.Output.Bytes(), 10, 32)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.Utr3Start = int32(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Utr3End:
+
+	/* handler: j.Utr3End type=int32 kind=int32 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for int32", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseInt(fs.Output.Bytes(), 10, 32)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.Utr3End = int32(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Version:
+
+	/* handler: j.Version type=int32 kind=int32 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for int32", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseInt(fs.Output.Bytes(), 10, 32)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.Version = int32(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Source:
+
+	/* handler: j.Source type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Source = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Frame:
+
+	/* handler: j.Frame type=int32 kind=int32 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for int32", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseInt(fs.Output.Bytes(), 10, 32)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.Frame = int32(tval)
 
 		}
 	}

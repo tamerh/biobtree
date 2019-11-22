@@ -5,8 +5,8 @@ go 1.13
 require (
 	github.com/NYTimes/gziphandler v1.1.1
 	github.com/VividCortex/ewma v1.1.1 // indirect
-	github.com/allegro/bigcache v1.2.1
 	github.com/bmatsuo/lmdb-go v1.8.0
+	github.com/dgraph-io/ristretto v0.0.0-20191114170855-99d1bbbf28e6
 	github.com/golang/protobuf v1.3.2
 	github.com/google/cel-go v0.3.0
 	github.com/imdario/mergo v0.3.7

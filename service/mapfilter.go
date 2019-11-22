@@ -34,9 +34,11 @@ func (s *service) mapFilter(ids []string, idsDomain uint32, mapFilterQuery, page
 
 	cacheKey := s.mapFilterCacheKey(ids, idsDomain, mapFilterQuery, page)
 
-	if resultFromCache, err := s.filterResultCache.Get(cacheKey); err == nil {
+	resultFromCache, found := s.filterResultCache.Get(cacheKey)
 
-		err := proto.Unmarshal(resultFromCache, &result)
+	if found {
+
+		err := proto.Unmarshal(resultFromCache.([]byte), &result)
 		if err != nil {
 			fmt.Println(err)
 			return nil, err
@@ -157,13 +159,15 @@ startMapping:
 
 	// set cache
 	setCache := func() error {
-		resultBytes, err := proto.Marshal(&result) // saving as json also can be option
+		resultBytes, err := proto.Marshal(&result)
 		if err != nil {
 			err := fmt.Errorf("Error while setting result to cache")
 			return err
 		}
-		//fmt.Println("cache size->", strconv.Itoa(len(resultBytes)))
-		err = s.filterResultCache.Set(cacheKey, resultBytes)
+
+		//TODO for now with marshall and unmarshall but should be with estimated size of result to set cost
+		s.filterResultCache.Set(cacheKey, resultBytes, int64(len(resultBytes)))
+
 		return err
 	}
 
@@ -741,12 +745,12 @@ func (s *service) execCelGo(query *query.Query, targetXref *pbuf.Xref) (bool, er
 
 	// look in cache f_ is just differentiate with mapfilter can be better...
 	cacheKey := "f_" + targetXref.Identifier + "_" + strconv.Itoa(int(targetXref.Dataset)) + query.Filter
-	if entry, err := s.filterResultCache.Get(cacheKey); err == nil {
-		if entry[0] == '1' {
+	entry, found := s.filterResultCache.Get(cacheKey)
+	if found {
+		if entry.(bool) {
 			return true, nil
-		} else if entry[0] == '0' {
-			return false, nil
 		}
+		return false, nil
 	}
 
 	/**
@@ -771,7 +775,7 @@ func (s *service) execCelGo(query *query.Query, targetXref *pbuf.Xref) (bool, er
 			return false, err
 		}
 
-		prg, err := s.celgoEnv.Program(checked)
+		prg, err := s.celgoEnv.Program(checked, s.celProgOpts)
 
 		if err != nil {
 			err := fmt.Errorf("program construction error: %s", err)
@@ -833,18 +837,18 @@ func (s *service) execCelGo(query *query.Query, targetXref *pbuf.Xref) (bool, er
 
 		var res, ok bool
 		if res, ok = out.Value().(bool); !ok {
-			s.filterResultCache.Set(cacheKey, []byte{'0'})
+			s.filterResultCache.Set(cacheKey, false, 1)
 			return false, nil
 		}
 
 		if res { // todo think again conversion
-			s.filterResultCache.Set(cacheKey, []byte{'1'})
+			s.filterResultCache.Set(cacheKey, true, 1)
 			return true, nil
 		}
 
 	}
 
-	s.filterResultCache.Set(cacheKey, []byte{'0'})
+	s.filterResultCache.Set(cacheKey, false, 1)
 	return false, nil
 
 }

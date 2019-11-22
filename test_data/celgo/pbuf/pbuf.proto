@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package pbuf;
+
+message Xref{
+
+  oneof attributes{
+    UniAttr uattr=1;
+    GoAttr  gattr= 2;
+  }
+
+}
+
+message GoAttr {
+  string type =1;
+  string label =2;
+  repeated string synonyms=3;
+  repeated string locus_group=4;
+
+}
+
+message UniAttr{
+
+  repeated string accessions =1;
+  string name =2; 
+  int32 start=3;
+  int32 end=4;
+}

@@ -12,7 +12,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/allegro/bigcache"
+	"github.com/dgraph-io/ristretto"
 
 	"biobtree/db"
 	"biobtree/pbuf"
@@ -22,6 +22,9 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/google/cel-go/cel"
 	"github.com/google/cel-go/checker/decls"
+	typescelgo "github.com/google/cel-go/common/types"
+	"github.com/google/cel-go/common/types/ref"
+	"github.com/google/cel-go/interpreter/functions"
 	exprpb "google.golang.org/genproto/googleapis/api/expr/v1alpha1"
 )
 
@@ -41,7 +44,8 @@ type service struct {
 	mapFilterTimeoutDuration float64
 	qparser                  *query.QueryParser
 	celgoEnv                 cel.Env
-	filterResultCache        *bigcache.BigCache
+	filterResultCache        *ristretto.Cache
+	celProgOpts              cel.ProgramOption
 }
 
 func (s *service) init() {
@@ -147,6 +151,8 @@ func (s *service) init() {
 		cel.Declarations(
 			decls.NewIdent("exon", decls.NewObjectType("pbuf.EnsemblAttr"), nil)),
 		cel.Declarations(
+			decls.NewIdent("cds", decls.NewObjectType("pbuf.EnsemblAttr"), nil)),
+		cel.Declarations(
 			decls.NewIdent("taxonomy", decls.NewObjectType("pbuf.TaxoAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("hgnc", decls.NewObjectType("pbuf.HgncAttr"), nil)),
@@ -174,8 +180,22 @@ func (s *service) init() {
 			decls.NewIdent("chembl", decls.NewObjectType("pbuf.ChemblAttr"), nil)),
 		cel.Declarations(
 			decls.NewFunction("overlaps",
-				decls.NewInstanceOverload("any_greet_int_int",
-					[]*exprpb.Type{decls.Any, decls.Int, decls.Int},
+				decls.NewOverload("overlaps_int_int",
+					[]*exprpb.Type{decls.Int, decls.Int},
+					decls.Bool),
+				decls.NewInstanceOverload("overlaps_int_int",
+					[]*exprpb.Type{decls.NewObjectType("pbuf.EnsemblAttr"), decls.Int, decls.Int},
+					decls.Bool)),
+			decls.NewFunction("within",
+				decls.NewOverload("within_int_int",
+					[]*exprpb.Type{decls.Int, decls.Int},
+					decls.Bool),
+				decls.NewInstanceOverload("within_int_int",
+					[]*exprpb.Type{decls.NewObjectType("pbuf.EnsemblAttr"), decls.Int, decls.Int},
+					decls.Bool)),
+			decls.NewFunction("covers",
+				decls.NewInstanceOverload("covers_int",
+					[]*exprpb.Type{decls.NewObjectType("pbuf.EnsemblAttr"), decls.Int},
 					decls.Bool)),
 		),
 	)
@@ -184,13 +204,51 @@ func (s *service) init() {
 		panic(err)
 	}
 
-	maxEntrySize := 25000
-	if _, ok := config.Appconf["cacheMaxEntrySize"]; ok {
-		maxEntrySize, err = strconv.Atoi(config.Appconf["cacheMaxEntrySize"])
-		if err != nil {
-			panic("Invalid mapFilterTimeoutDuration definition")
-		}
-	}
+	s.celProgOpts = cel.Functions(
+		&functions.Overload{
+			Operator: "overlaps",
+			Function: func(args ...ref.Val) ref.Val {
+
+				arg1 := int32(args[1].Value().(int64))
+				arg2 := int32(args[2].Value().(int64))
+
+				if arg1 > arg2 {
+					return typescelgo.Bool(false)
+				}
+
+				a := args[0].Value().(*pbuf.EnsemblAttr)
+
+				return typescelgo.Bool(a.Start <= arg1 && arg1 <= a.End) || (a.Start <= arg2 && arg2 <= a.End)
+
+			}},
+		&functions.Overload{
+			Operator: "within",
+			Function: func(args ...ref.Val) ref.Val {
+
+				arg1 := int32(args[1].Value().(int64))
+				arg2 := int32(args[2].Value().(int64))
+
+				if arg1 > arg2 {
+					return typescelgo.Bool(false)
+				}
+
+				ensembl := args[0].Value().(*pbuf.EnsemblAttr)
+
+				return typescelgo.Bool(ensembl.Start >= arg1 && ensembl.End <= arg2)
+
+			}},
+		&functions.Overload{
+			Operator: "covers",
+			Binary: func(lhs ref.Val, rhs ref.Val) ref.Val {
+
+				arg1 := int32(rhs.Value().(int64))
+
+				ensembl := lhs.Value().(*pbuf.EnsemblAttr)
+
+				return typescelgo.Bool(ensembl.Start <= arg1 && arg1 <= ensembl.End)
+
+			}},
+	)
 
 	cacheHardMaxSize := 1024
 	if _, ok := config.Appconf["cacheHardMaxSize"]; ok {
@@ -200,48 +258,14 @@ func (s *service) init() {
 		}
 	}
 
-	// init filter cache
-	config := bigcache.Config{
-		// number of shards (must be a power of 2)
-		Shards: 1024,
+	s.filterResultCache, err = ristretto.NewCache(&ristretto.Config{
+		NumCounters: 1e7,                                   // number of keys to track frequency of (10M).
+		MaxCost:     int64(cacheHardMaxSize) * 1024 * 1024, // maximum cost of cache.
+		BufferItems: 64,                                    // number of keys per Get buffer.
+	})
 
-		// time after which entry can be evicted
-		//LifeWindow: 10 * time.Minute,
-		LifeWindow: 0,
-		// Interval between removing expired entries (clean up).
-		// If set to <= 0 then no action is performed.
-		// Setting to < 1 second is counterproductive — bigcache has a one second resolution.
-		CleanWindow: 0,
-
-		// rps * lifeWindow, used only in initial memory allocation
-		MaxEntriesInWindow: 1000 * 10 * 60,
-
-		// max entry size in bytes, used only in initial memory allocation
-		MaxEntrySize: maxEntrySize,
-
-		// prints information about additional memory allocation
-		Verbose: true,
-
-		// cache will not allocate more memory than this limit, value in MB
-		// if value is reached then the oldest entries can be overridden for the new ones
-		// 0 value means no size limit
-		HardMaxCacheSize: cacheHardMaxSize,
-
-		// callback fired when the oldest entry is removed because of its expiration time or no space left
-		// for the new entry, or because delete was called. A bitmask representing the reason will be returned.
-		// Default value is nil which means no callback and it prevents from unwrapping the oldest entry.
-		OnRemove: nil,
-
-		// OnRemoveWithReason is a callback fired when the oldest entry is removed because of its expiration time or no space left
-		// for the new entry, or because delete was called. A constant representing the reason will be passed through.
-		// Default value is nil which means no callback and it prevents from unwrapping the oldest entry.
-		// Ignored if OnRemove is specified.
-		OnRemoveWithReason: nil,
-	}
-
-	s.filterResultCache, err = bigcache.NewBigCache(config)
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 
 }

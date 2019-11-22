@@ -91,6 +91,11 @@ func main() {
 			Name:  "ensembl_all",
 			Usage: "Due to current size by default only genomic coordinates and probset mappings data are processed. If this parameter set all mappings proccessed which take relatively longer time",
 		},
+		cli.BoolFlag{
+			Name:   "no-timezone-check",
+			Usage:  "By default from user timezone it is checked that if user using the tool from US (between gmt -4 and gmt -9) if this is true then US ftp mirrors are used for applicable datasets e.g uniprot.",
+			Hidden: true,
+		},
 		cli.IntFlag{
 			Name:   "maxcpu",
 			Hidden: true,
@@ -252,6 +257,20 @@ func runUpdateCommand(c *cli.Context) error {
 	}
 
 	config.Appconf["uniprot_ftp"] = c.GlobalString("uniprot_ftp")
+
+	noZoneCheck := c.GlobalBool("no-timezone-check")
+
+	if len(config.Appconf["uniprot_ftp"]) == 0 && !noZoneCheck {
+
+		t := time.Now()
+		_, offset := t.Zone()
+
+		if offset <= -14400 && offset >= -32400 {
+			log.Println("Uniprot USA ftp mirror set")
+			config.Appconf["uniprot_ftp"] = "USA"
+		}
+
+	}
 
 	t := c.GlobalString("target_datasets")
 	var ts []string

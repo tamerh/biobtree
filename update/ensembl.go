@@ -16,6 +16,7 @@ import (
 
 	"github.com/pquerna/ffjson/ffjson"
 	"github.com/tamerh/jsparser"
+	xmlparser "github.com/tamerh/xml-stream-parser"
 )
 
 type ensembl struct {
@@ -27,6 +28,7 @@ type ensembl struct {
 
 type ensemblPaths struct {
 	Version  int                 `json:"version"`
+	Taxids   map[string]int      `json:"taxids"`
 	Jsons    map[string][]string `json:"jsons"`
 	Biomarts map[string][]string `json:"biomarts"`
 	Gff3s    map[string][]string `json:"gff3s"`
@@ -73,6 +75,7 @@ func (e *ensembl) updateEnsemblPaths(version int) (*ensemblPaths, string) {
 	var ftpMysqlPath string
 	var ftpBiomartFolder string
 	var err error
+	isEG := true
 
 	switch e.source {
 
@@ -82,6 +85,7 @@ func (e *ensembl) updateEnsemblPaths(version int) (*ensemblPaths, string) {
 		ftpGFF3Path = config.Appconf["ensembl_ftp_gff3_path"]
 		ftpMysqlPath = config.Appconf["ensembl_ftp_mysql_path"]
 		branch = "ensembl"
+		isEG = false
 	case "ensembl_bacteria":
 		ftpAddress = config.Appconf["ensembl_genomes_ftp"]
 		ftpJSONPath = strings.Replace(config.Appconf["ensembl_genomes_ftp_json_path"], "$(branch)", "bacteria", 1)
@@ -114,7 +118,18 @@ func (e *ensembl) updateEnsemblPaths(version int) (*ensemblPaths, string) {
 		branch = "protists"
 	}
 
-	ensembls := ensemblPaths{Jsons: map[string][]string{}, Biomarts: map[string][]string{}, Gff3s: map[string][]string{}, Version: version}
+	ensembls := ensemblPaths{Taxids: map[string]int{}, Jsons: map[string][]string{}, Biomarts: map[string][]string{}, Gff3s: map[string][]string{}, Version: version}
+
+	// first get taxidmap
+
+	taxidMap := map[string]int{}
+	taxidMapEG := map[string]int{}
+
+	if isEG {
+		taxidMapEG = e.taxidMapEG()
+	} else {
+		taxidMap = e.taxidMap()
+	}
 
 	setJSONs := func() {
 
@@ -129,11 +144,37 @@ func (e *ensembl) updateEnsemblPaths(version int) (*ensemblPaths, string) {
 				check(err)
 				for _, file2 := range entries2 {
 					ensembls.Jsons[file2.Name] = append(ensembls.Jsons[file2.Name], ftpJSONPath+"/"+file.Name+"/"+file2.Name+"/"+file2.Name+".json")
+
+					if isEG {
+						if _, ok := taxidMapEG[file2.Name]; ok {
+							ensembls.Taxids[file2.Name] = taxidMapEG[file2.Name]
+						}
+					} else {
+						if _, ok := taxidMap[file2.Name]; ok {
+							ensembls.Taxids[file2.Name] = taxidMap[file2.Name]
+						} else if strings.HasPrefix(file2.Name, "mus_musculus") { //trick
+							ensembls.Taxids[file2.Name] = taxidMap["mus_musculus"]
+						}
+					}
+
 				}
-				time.Sleep(time.Duration(e.pauseDurationSeconds/2) * time.Second) // for not to kicked out from ensembl ftp
+				//time.Sleep(time.Duration(e.pauseDurationSeconds/2) * time.Second) // for not to kicked out from ensembl ftp
 
 			} else {
 				ensembls.Jsons[file.Name] = append(ensembls.Jsons[file.Name], ftpJSONPath+"/"+file.Name+"/"+file.Name+".json")
+
+				if isEG {
+					if _, ok := taxidMapEG[file.Name]; ok {
+						ensembls.Taxids[file.Name] = taxidMapEG[file.Name]
+					}
+				} else {
+					if _, ok := taxidMap[file.Name]; ok {
+						ensembls.Taxids[file.Name] = taxidMap[file.Name]
+					} else if strings.HasPrefix(file.Name, "mus_musculus") { //trick
+						ensembls.Taxids[file.Name] = taxidMap["mus_musculus"]
+					}
+				}
+
 			}
 		}
 		client.Quit()
@@ -192,12 +233,24 @@ func (e *ensembl) updateEnsemblPaths(version int) (*ensemblPaths, string) {
 
 					entriesSubSub, err := client.List(ftpGFF3Path + "/" + file.Name + "/" + file2.Name)
 					check(err)
+					found := false
 					for _, file3 := range entriesSubSub {
 
 						if strings.HasSuffix(file3.Name, "chr.gff3.gz") || strings.HasSuffix(file3.Name, "chromosome.Chromosome.gff3.gz") {
 							ensembls.Gff3s[file2.Name] = append(ensembls.Gff3s[file2.Name], ftpGFF3Path+"/"+file.Name+"/"+file2.Name+"/"+file3.Name)
+							found = true
+							break
 						}
 
+					}
+
+					if !found { // if still not found retrieve the file with gff3.gz without abinitio
+						for _, file3 := range entriesSubSub {
+							if strings.HasSuffix(file3.Name, "chr.gff3.gz") && !strings.Contains(file3.Name, "abinitio") {
+								ensembls.Gff3s[file2.Name] = append(ensembls.Gff3s[file2.Name], ftpGFF3Path+"/"+file.Name+"/"+file2.Name+"/"+file3.Name)
+								break
+							}
+						}
 					}
 
 				}
@@ -207,9 +260,20 @@ func (e *ensembl) updateEnsemblPaths(version int) (*ensemblPaths, string) {
 
 				entriesSub, err := client.List(ftpGFF3Path + "/" + file.Name)
 				check(err)
+				found := false
 				for _, file2 := range entriesSub {
 					if strings.HasSuffix(file2.Name, "chr.gff3.gz") || strings.HasSuffix(file2.Name, "chromosome.Chromosome.gff3.gz") {
 						ensembls.Gff3s[file.Name] = append(ensembls.Gff3s[file.Name], ftpGFF3Path+"/"+file.Name+"/"+file2.Name)
+						found = true
+						break
+					}
+				}
+				if !found { // if still not found retrieve the file with gff3.gz without abinitio
+					for _, file2 := range entriesSub {
+						if strings.HasSuffix(file2.Name, "gff3.gz") && !strings.Contains(file2.Name, "abinitio") {
+							ensembls.Gff3s[file.Name] = append(ensembls.Gff3s[file.Name], ftpGFF3Path+"/"+file.Name+"/"+file2.Name)
+							break
+						}
 					}
 				}
 
@@ -255,9 +319,84 @@ func (e *ensembl) updateEnsemblPaths(version int) (*ensemblPaths, string) {
 
 }
 
-func (e *ensembl) getEnsemblSetting(ensemblType string) (string, string, map[string][]string, map[string][]string, []string) {
+func (e *ensembl) taxidMapEG() map[string]int {
+
+	br, _, ftpFile, client, _, _ := e.d.getDataReaderNew("ensembl", config.Appconf["ensembl_genomes_ftp"], "", config.Appconf["ensembl_genomes_ftp_meta_path"])
+
+	if ftpFile != nil {
+		defer ftpFile.Close()
+	}
+
+	if client != nil {
+		defer client.Quit()
+	}
+
+	scanner := bufio.NewScanner(br)
+	taxIDMapEG := map[string]int{}
+
+	for scanner.Scan() {
+
+		l := scanner.Text()
+
+		if l[0] == '#' {
+			continue
+		}
+
+		fields := strings.Split(string(l), tab)
+
+		id, err := strconv.Atoi(fields[3])
+		if err != nil {
+			log.Fatal("invalid taxid " + fields[3])
+		}
+
+		taxIDMapEG[fields[1]] = id
+
+	}
+	return taxIDMapEG
+
+}
+
+func (e *ensembl) taxidMap() map[string]int {
+
+	br, gz, ftpFile, client, localFile, _ := e.d.getDataReaderNew("taxonomy", e.d.ebiFtp, e.d.ebiFtpPath, config.Dataconf["taxonomy"]["path"])
+
+	if ftpFile != nil {
+		defer ftpFile.Close()
+	}
+	if localFile != nil {
+		defer localFile.Close()
+	}
+	defer gz.Close()
+
+	if client != nil {
+		defer client.Quit()
+	}
+
+	p := xmlparser.NewXMLParser(br, "taxon").SkipElements([]string{"lineage"})
+
+	taxNameIDMap := map[string]int{}
+
+	for r := range p.Stream() {
+
+		// id
+		id, err := strconv.Atoi(r.Attrs["taxId"])
+		if err != nil {
+			log.Fatal("invalid taxid " + r.Attrs["taxId"])
+		}
+
+		name := strings.ToLower(strings.Replace(r.Attrs["scientificName"], " ", "_", -1))
+
+		taxNameIDMap[name] = id
+	}
+
+	return taxNameIDMap
+
+}
+
+func (e *ensembl) getEnsemblSetting(ensemblType string) (string, string, map[string]int, map[string][]string, map[string][]string, []string) {
 
 	//set files
+	taxids := map[string]int{}
 	gff3FilePaths := map[string][]string{}
 	jsonFilePaths := map[string][]string{}
 	var biomartFilePaths []string
@@ -286,6 +425,9 @@ func (e *ensembl) getEnsemblSetting(ensemblType string) (string, string, map[str
 				}
 			}
 		}
+
+		//taxids
+		taxids = ensemblPaths.Taxids
 
 		//jsons
 		for sp, v := range ensemblPaths.Jsons {
@@ -324,6 +466,10 @@ func (e *ensembl) getEnsemblSetting(ensemblType string) (string, string, map[str
 								var paths []string
 								paths = append(paths, vv)
 								gff3FilePaths[sp] = paths
+								// set taxid
+								if _, ok := ensemblPaths.Taxids[sp]; ok {
+									taxids[sp] = ensemblPaths.Taxids[sp]
+								}
 							} else {
 								paths := gff3FilePaths[sp]
 								paths = append(paths, vv)
@@ -374,6 +520,11 @@ func (e *ensembl) getEnsemblSetting(ensemblType string) (string, string, map[str
 				} else {
 					jsonFilePaths[sp] = ensemblPaths.Jsons[sp]
 					gff3FilePaths[sp] = ensemblPaths.Gff3s[sp]
+					// set taxid
+					if _, ok := ensemblPaths.Taxids[sp]; ok {
+						taxids[sp] = ensemblPaths.Taxids[sp]
+					}
+
 				}
 			}
 
@@ -397,7 +548,7 @@ func (e *ensembl) getEnsemblSetting(ensemblType string) (string, string, map[str
 
 	}
 
-	return fr, ftpAddress, gff3FilePaths, jsonFilePaths, biomartFilePaths
+	return fr, ftpAddress, taxids, gff3FilePaths, jsonFilePaths, biomartFilePaths
 
 }
 
@@ -425,7 +576,7 @@ func (e *ensembl) update() {
 	var previous int64
 	var start time.Time
 
-	fr, ftpAddress, gff3Paths, jsonPaths, biomartPaths := e.getEnsemblSetting(e.source)
+	fr, ftpAddress, taxids, gff3Paths, jsonPaths, biomartPaths := e.getEnsemblSetting(e.source)
 
 	// if local file just ignore ftp jsons
 	if config.Dataconf["ensembl"]["useLocalFile"] == "yes" {
@@ -514,6 +665,10 @@ func (e *ensembl) update() {
 
 						if _, ok := attrsMap["biotype"]; ok {
 							attr.Biotype = attrsMap["biotype"]
+						}
+
+						if _, ok := taxids[genome]; ok {
+							e.d.addXref(currGeneID, fr, strconv.Itoa(taxids[genome]), "taxonomy", false)
 						}
 
 						attr.Genome = genome
@@ -714,10 +869,6 @@ func (e *ensembl) update() {
 
 						entryid := j.ObjectVals["id"].StringVal
 
-						if j.ObjectVals["taxon_id"] != nil {
-							e.d.addXref(entryid, fr, j.ObjectVals["taxon_id"].StringVal, "taxonomy", false)
-						}
-
 						if j.ObjectVals["homologues"] != nil {
 							for _, val := range j.ObjectVals["homologues"].ArrayVals {
 								if val.ObjectVals["stable_id"] != nil {
@@ -827,7 +978,7 @@ func (e *ensembl) update() {
 					client.Quit()
 				}
 
-				time.Sleep(time.Duration(e.pauseDurationSeconds) * time.Second) // for not to kicked out from ensembl ftp
+				//time.Sleep(time.Duration(e.pauseDurationSeconds) * time.Second) // for not to kicked out from ensembl ftp
 			}
 
 		}

@@ -25,7 +25,8 @@ const versionTag = "v1.2.0"
 
 var config *configs.Conf
 
-var defaultDataset = "uniprot,go,eco,efo,hgnc,chebi,taxonomy,interpro,ensembl"
+var cachedDataset = []string{"uniprot", "go", "eco", "efo", "hgnc", "chebi", "taxonomy", "interpro", "hmdb"}
+var defaultDataset = "ensembl"
 
 //var defaultDataset = "uniprot,go,eco,efo,hgnc,chebi,taxonomy,interpro,hmdb,literature_mappings,chembl,ensembl"
 //var defaultDataset = "efo"
@@ -52,7 +53,7 @@ func main() {
 
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
-			Name:  "uniprot_ftp,f",
+			Name:  "uniprot-ftp,f",
 			Value: "UK",
 			Usage: "uniprot ftp mirrors. Switzerland, USA or UK",
 		},
@@ -63,7 +64,7 @@ func main() {
 			Usage: "change default source datasets if value starts with + sign it means default dataset and given dataset. List of datasets are uniprot,taxonomy,hgnc,chebi,interpro,uniparc,uniref50,uniref90,uniref100,my_data,uniprot_unreviewed,literature_mappings,hmdb,ensembl,ensembl_bacteria,ensembl_fungi,ensembl_metazoa,ensembl_plants,ensembl_protists,go",
 		},
 		cli.StringFlag{
-			Name:  "target_datasets,t",
+			Name:  "target-datasets,t",
 			Usage: "specify target datasets. By default all datasets are included. Speeds up all process. Useful if only certain mappings are interested.",
 		},
 		cli.StringFlag{
@@ -71,7 +72,7 @@ func main() {
 			Usage: "for indexing in multiple machine. Set unique number or text for each process. No need to specify for single process",
 		},
 		cli.StringFlag{
-			Name:  "out_dir",
+			Name:  "out-dir",
 			Usage: "change the output directory by default it is out folder in the same directory",
 		},
 		cli.StringFlag{
@@ -84,12 +85,16 @@ func main() {
 			Usage: "Keep existing data from update command",
 		},
 		cli.BoolFlag{
-			Name:  "include_optionals",
+			Name:  "include-optionals",
 			Usage: "when this flag sets optional dataset which defined in the optional.dataset.json file includes for mapping. by default it is false",
 		},
 		cli.BoolFlag{
-			Name:  "ensembl_all",
+			Name:  "ensembl-all",
 			Usage: "Due to current size by default only genomic coordinates and probset mappings data are processed. If this parameter set all mappings proccessed which take relatively longer time",
+		},
+		cli.BoolFlag{
+			Name:  "override-cache,x",
+			Usage: "By default uniprot,go,eco,efo,hgnc,chebi,taxonomy,interpro,hmdb datasets are retrieved via cache. Use this param to invalidate these cache and directly retrieve the datasets",
 		},
 		cli.BoolFlag{
 			Name:   "no-timezone-check",
@@ -102,12 +107,12 @@ func main() {
 			Usage:  "sets the maximum number of CPUs that can be executing simultaneously. By default biobtree uses all the CPUs when applicable.",
 		},
 		cli.StringFlag{
-			Name:  "ensembl_genome,s",
+			Name:  "ensembl-genome,s",
 			Value: "homo_sapiens",
 			Usage: "Genome names for ensembl datasets",
 		},
 		cli.StringFlag{
-			Name: "ensembl_genome_pattern,sp",
+			Name: "ensembl-genome-pattern,sp",
 			//Value: "homo_sapiens",
 			Usage: "Genome names pattern for ensembl datasets. e.g 'salmonella' which gets all genomes of salmonella species in ensembl",
 		},
@@ -194,8 +199,8 @@ func runAliasCommand(c *cli.Context) error {
 	log.Println("Alias running...")
 	start := time.Now()
 	confdir := c.GlobalString("confdir")
-	outDir := c.GlobalString("out_dir")
-	includeOptionals := c.GlobalBool("include_optionals")
+	outDir := c.GlobalString("out-dir")
+	includeOptionals := c.GlobalBool("include-optionals")
 	config = &configs.Conf{}
 	config.Init(confdir, versionTag, includeOptionals, outDir)
 
@@ -230,13 +235,14 @@ func runUpdateCommand(c *cli.Context) error {
 	start := time.Now()
 
 	confdir := c.GlobalString("confdir")
-	outDir := c.GlobalString("out_dir")
-	includeOptionals := c.GlobalBool("include_optionals")
+	outDir := c.GlobalString("out-dir")
+	includeOptionals := c.GlobalBool("include-optionals")
+	overrideCache := c.GlobalBool("override-cache")
 
 	config = &configs.Conf{}
 	config.Init(confdir, versionTag, includeOptionals, outDir)
 
-	if c.GlobalBool("ensembl_all") {
+	if c.GlobalBool("ensembl-all") {
 		config.Appconf["ensembl_all"] = "y"
 	} else {
 		config.Appconf["ensembl_all"] = "n"
@@ -256,7 +262,21 @@ func runUpdateCommand(c *cli.Context) error {
 		return nil
 	}
 
-	config.Appconf["uniprot_ftp"] = c.GlobalString("uniprot_ftp")
+	keep := c.GlobalBool("keep")
+	if !keep {
+		config.CleanOutDirs(overrideCache)
+	} else if overrideCache {
+		config.CleanCacheFiles()
+	}
+
+	hasCacheFiles := config.HasCacheFiles()
+
+	if hasCacheFiles && slicesIntersect(d, cachedDataset) {
+		log.Fatal("Dataset is already in the cache you can generate the database or either select a dataset not in the cache or to invalidate all the cache use -x param")
+		return nil
+	}
+
+	config.Appconf["uniprot_ftp"] = c.GlobalString("uniprot-ftp")
 
 	noZoneCheck := c.GlobalBool("no-timezone-check")
 
@@ -272,19 +292,19 @@ func runUpdateCommand(c *cli.Context) error {
 
 	}
 
-	t := c.GlobalString("target_datasets")
+	t := c.GlobalString("target-datasets")
 	var ts []string
 	if len(t) > 0 {
 		ts = strings.Split(t, ",")
 	}
 
-	s := c.GlobalString("ensembl_genome")
+	s := c.GlobalString("ensembl-genome")
 	var sp []string
 	if len(s) > 0 {
 		sp = strings.Split(s, ",")
 	}
 
-	spattern := c.GlobalString("ensembl_genome_pattern")
+	spattern := c.GlobalString("ensembl-genome-pattern")
 	var spatterns []string
 	if len(spattern) > 0 {
 		spatterns = strings.Split(spattern, ",")
@@ -302,11 +322,6 @@ func runUpdateCommand(c *cli.Context) error {
 	chunkIdxx := c.GlobalString("idx")
 	if len(chunkIdxx) == 0 {
 		chunkIdxx = strconv.Itoa(time.Now().Nanosecond())
-	}
-
-	keep := c.GlobalBool("keep")
-	if !keep {
-		config.CleanOutDirs()
 	}
 
 	cpu := c.GlobalInt("maxcpu")
@@ -338,7 +353,7 @@ func runGenerateCommand(c *cli.Context) error {
 	start := time.Now()
 
 	confdir := c.GlobalString("confdir")
-	outDir := c.GlobalString("out_dir")
+	outDir := c.GlobalString("out-dir")
 
 	config = &configs.Conf{}
 	config.Init(confdir, versionTag, true, outDir)
@@ -367,7 +382,7 @@ func runGenerateCommand(c *cli.Context) error {
 func runWebCommand(c *cli.Context) error {
 
 	confdir := c.GlobalString("confdir")
-	outDir := c.GlobalString("out_dir")
+	outDir := c.GlobalString("out-dir")
 	config = &configs.Conf{}
 	config.Init(confdir, versionTag, true, outDir)
 
@@ -386,7 +401,7 @@ func runWebCommand(c *cli.Context) error {
 func runInstallCommand(c *cli.Context) error {
 
 	confdir := c.GlobalString("confdir")
-	outDir := c.GlobalString("out_dir")
+	outDir := c.GlobalString("out-dir")
 	config = &configs.Conf{}
 	config.Init(confdir, versionTag, true, outDir)
 
@@ -397,7 +412,7 @@ func runInstallCommand(c *cli.Context) error {
 func runProfileCommand(c *cli.Context) error {
 
 	confdir := c.GlobalString("confdir")
-	outDir := c.GlobalString("out_dir")
+	outDir := c.GlobalString("out-dir")
 	config = &configs.Conf{}
 	config.Init(confdir, versionTag, true, outDir)
 
@@ -407,7 +422,7 @@ func runProfileCommand(c *cli.Context) error {
 	start := time.Now()
 
 	d := strings.Split(c.GlobalString("datasets"), ",")
-	config.Appconf["uniprot_ftp"] = c.GlobalString("uniprot_ftp")
+	config.Appconf["uniprot_ftp"] = c.GlobalString("uniprot-ftp")
 
 	if len(d) == 0 {
 		log.Println("Error:datasets must be specified")
@@ -456,5 +471,19 @@ func check(err error) {
 		fmt.Println("Error: ", err)
 		panic(err)
 	}
+
+}
+
+func slicesIntersect(s1, s2 []string) bool {
+
+	for _, i1 := range s1 {
+		for _, i2 := range s2 {
+			if i1 == i2 {
+				return true
+			}
+		}
+	}
+
+	return false
 
 }

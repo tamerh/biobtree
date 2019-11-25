@@ -61,10 +61,10 @@ type DataUpdate struct {
 	channelOverflowCap            int
 	selectedEnsemblSpecies        []string
 	selectedEnsemblSpeciesPattern []string
+	ensemblRelease                string
+	progChan                      chan *progressInfo
+	progInterval                  int64
 	//ensemblSpecies         map[string]bool
-	ensemblRelease string
-	progChan       chan *progressInfo
-	progInterval   int64
 }
 
 type progressInfo struct {
@@ -437,19 +437,19 @@ func (d *DataUpdate) setEnsemblPaths() {
 		hasNewRelease, version := d.hasEnsemblNewRelease()
 		if hasNewRelease {
 
+			log.Println("Ensembl meta data is updating")
 			ensembls := [6]ensembl{}
-			ensembls[0] = ensembl{source: "ensembl", d: d, branch: pbuf.Ensemblbranch_ENSEMBL}
-			ensembls[1] = ensembl{source: "ensembl_bacteria", d: d, branch: pbuf.Ensemblbranch_BACTERIA}
-			ensembls[2] = ensembl{source: "ensembl_fungi", d: d, branch: pbuf.Ensemblbranch_FUNGI}
+			ensembls[0] = ensembl{source: "ensembl_fungi", d: d, branch: pbuf.Ensemblbranch_FUNGI}
+			ensembls[1] = ensembl{source: "ensembl", d: d, branch: pbuf.Ensemblbranch_ENSEMBL}
+			ensembls[2] = ensembl{source: "ensembl_bacteria", d: d, branch: pbuf.Ensemblbranch_BACTERIA}
 			ensembls[3] = ensembl{source: "ensembl_metazoa", d: d, branch: pbuf.Ensemblbranch_METAZOA}
 			ensembls[4] = ensembl{source: "ensembl_plants", d: d, branch: pbuf.Ensemblbranch_PLANT}
 			ensembls[5] = ensembl{source: "ensembl_protists", d: d, branch: pbuf.Ensemblbranch_PROTIST}
 
 			for _, ens := range ensembls {
 				ens.updateEnsemblPaths(version)
-				time.Sleep(time.Duration(2) * time.Second) // just for not to kicked out from ensembl ftp
 			}
-
+			log.Println("Ensembl meta data update done")
 		}
 	}
 

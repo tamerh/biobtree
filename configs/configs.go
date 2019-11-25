@@ -262,7 +262,8 @@ func (c *Conf) checkForNewVersion() {
 
 func (c *Conf) retrConfFiles(confVersion, confDir string) {
 
-	confPath := "https://github.com/tamerh/biobtree-conf/archive/" + confVersion + ".zip"
+	log.Println("Pulling configuration and default dataset files ...")
+	confPath := "https://github.com/tamerh/biobtree-conf/releases/download/" + confVersion + "/biobtree-conf-" + confVersion + ".zip"
 
 	resp, err := http.Get(confPath)
 	if err != nil {
@@ -283,6 +284,7 @@ func (c *Conf) retrConfFiles(confVersion, confDir string) {
 	if err != nil {
 		log.Fatal("Unzip file", err)
 	}
+	log.Println("Pulling done.")
 
 }
 

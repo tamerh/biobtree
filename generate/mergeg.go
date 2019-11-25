@@ -458,9 +458,11 @@ func (d *Merge) removeFinished() {
 		if !d.keepUpdateFiles {
 			for _, ch := range finishedReaders {
 				ch.file.Close()
-				err := os.Remove(ch.file.Name())
-				if err != nil {
-					panic(err)
+				if !strings.Contains(ch.file.Name(), "cache") {
+					err := os.Remove(ch.file.Name())
+					if err != nil {
+						panic(err)
+					}
 				}
 			}
 		}
@@ -675,12 +677,10 @@ func (d *Merge) close() {
 	if _, ok := config.Appconf["keepChunks"]; ok && config.Appconf["keepChunks"] == "yes" {
 		keepChunks = true
 	}
-	if !keepChunks {
-		err := os.RemoveAll(config.Appconf["indexDir"])
 
-		if err != nil {
-			log.Print("Warn:Error cleaning the index dir check you have right permission")
-		}
+	if !keepChunks {
+
+		config.CleanNonCacheFiles()
 
 	}
 

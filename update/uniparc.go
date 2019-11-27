@@ -15,7 +15,7 @@ type uniparc struct {
 func (u *uniparc) update() {
 
 	fr := config.Dataconf[u.source]["id"]
-	br, gz, ftpFile, client, localFile, _ := u.d.getDataReaderNew(u.source, u.d.uniprotFtp, u.d.uniprotFtpPath, config.Dataconf[u.source]["path"])
+	br, gz, ftpFile, client, localFile, _ := getDataReaderNew(u.source, u.d.uniprotFtp, u.d.uniprotFtpPath, config.Dataconf[u.source]["path"])
 
 	if ftpFile != nil {
 		defer ftpFile.Close()

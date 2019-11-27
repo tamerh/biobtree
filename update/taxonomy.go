@@ -28,7 +28,7 @@ func (t *taxonomy) update() {
 	frparent := config.Dataconf["taxparent"]["id"]
 	frchild := config.Dataconf["taxchild"]["id"]
 
-	br, gz, ftpFile, client, localFile, _ := t.d.getDataReaderNew(t.source, t.d.ebiFtp, t.d.ebiFtpPath, config.Dataconf[t.source]["path"])
+	br, gz, ftpFile, client, localFile, _ := getDataReaderNew(t.source, t.d.ebiFtp, t.d.ebiFtpPath, config.Dataconf[t.source]["path"])
 
 	if ftpFile != nil {
 		defer ftpFile.Close()

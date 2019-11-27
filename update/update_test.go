@@ -55,7 +55,7 @@ func TestHgnc(t *testing.T) {
 	config.Appconf["kvgenCount"] = "4"
 	config.Appconf["kvgenChunkSize"] = "13"
 
-	d := NewDataUpdate([]string{"hgnc"}, []string{}, []string{}, []string{}, config, "1")
+	d := NewDataUpdate(map[string]bool{"hgnc": true}, []string{}, []string{}, []string{}, []int{}, config, "1")
 
 	parsed, kvs := d.Update()
 
@@ -110,7 +110,7 @@ func TestKeyLink(t *testing.T) {
 	config.Appconf["kvgenChunkSize"] = "13"
 	config.Appconf["pageSize"] = "2"
 
-	d := NewDataUpdate([]string{"uniprot"}, []string{}, []string{}, []string{}, config, "1")
+	d := NewDataUpdate(map[string]bool{"uniprot": true}, []string{}, []string{}, []string{}, []int{}, config, "1")
 
 	parsed, kvs := d.Update()
 
@@ -160,7 +160,7 @@ func TestPaging(t *testing.T) {
 	//c.Appconf["kvgenChunkSize"] = "13"
 	config.Appconf["pageSize"] = "2"
 
-	d := NewDataUpdate([]string{"hgnc"}, []string{}, []string{}, []string{}, config, "1")
+	d := NewDataUpdate(map[string]bool{"hgnc": true}, []string{}, []string{}, []string{}, []int{}, config, "1")
 
 	parsed, kvs := d.Update()
 
@@ -207,7 +207,7 @@ func TestTargetDbs(t *testing.T) {
 	config.Appconf["kvgenCount"] = "4"
 	config.Appconf["kvgenChunkSize"] = "13"
 
-	d := NewDataUpdate([]string{"hgnc"}, []string{"VEGA"}, []string{}, []string{}, config, "1")
+	d := NewDataUpdate(map[string]bool{"hgnc": true}, []string{"VEGA"}, []string{}, []string{}, []int{}, config, "1")
 
 	parsed, kvs := d.Update()
 
@@ -253,7 +253,7 @@ func TestDuplicateValue(t *testing.T) {
 	config.Appconf["kvgenCount"] = "1"
 	config.Appconf["kvgenChunkSize"] = "20"
 
-	d := NewDataUpdate([]string{"hgnc"}, []string{}, []string{}, []string{}, config, "1")
+	d := NewDataUpdate(map[string]bool{"hgnc": true}, []string{}, []string{}, []string{}, []int{}, config, "1")
 
 	parsed, kvs := d.Update()
 
@@ -345,7 +345,7 @@ func TestEnsembl(t *testing.T) {
 	config.Appconf["kvgenCount"] = "4"
 	config.Appconf["kvgenChunkSize"] = "13"
 
-	d := NewDataUpdate([]string{"ensembl"}, []string{}, []string{}, []string{}, config, "1")
+	d := NewDataUpdate(map[string]bool{"ensembl": true}, []string{}, []string{}, []string{}, []int{}, config, "1")
 
 	parsed, kvs := d.Update()
 
@@ -402,7 +402,7 @@ func TestSamples(t *testing.T) {
 	config.Appconf["kvgenCount"] = "4"
 	config.Appconf["kvgenChunkSize"] = "1000000"
 
-	d := NewDataUpdate([]string{"uniprot", "uniref100", "uniref90", "uniref50", "uniparc", "taxonomy", "interpro"}, []string{}, []string{}, []string{}, config, "1")
+	d := NewDataUpdate(map[string]bool{"uniprot": true, "uniref100": true, "uniref90": true, "uniref50": true, "uniparc": true, "taxonomy": true, "interpro": true}, []string{}, []string{}, []string{}, []int{}, config, "1")
 
 	d.Update()
 

@@ -17,7 +17,7 @@ type hgnc struct {
 func (e *hgnc) update() {
 
 	fr := config.Dataconf["hgnc"]["id"]
-	br, _, ftpFile, client, localFile, _ := e.d.getDataReaderNew("hgnc", e.d.ebiFtp, e.d.ebiFtpPath, config.Dataconf["hgnc"]["path"])
+	br, _, ftpFile, client, localFile, _ := getDataReaderNew("hgnc", e.d.ebiFtp, e.d.ebiFtpPath, config.Dataconf["hgnc"]["path"])
 
 	if ftpFile != nil {
 		defer ftpFile.Close()

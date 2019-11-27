@@ -3,14 +3,10 @@ package update
 import (
 	"biobtree/configs"
 	"biobtree/pbuf"
-	"bufio"
-	"compress/gzip"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
-	"net/http"
-	"os"
 	"path/filepath"
 	"sort"
 	"strconv"
@@ -20,7 +16,6 @@ import (
 
 	"biobtree/util"
 
-	"github.com/jlaffaye/ftp"
 	"github.com/vbauerster/mpb"
 )
 
@@ -39,32 +34,33 @@ var mutex = &sync.Mutex{}
 var config *configs.Conf
 
 type DataUpdate struct {
-	totalParsedEntry              uint64
-	wg                            *sync.WaitGroup
-	inDatasets                    []string // input datasets can contain alias like chembl
-	datasets2                     []string // after resolving the input datasets
-	start                         time.Time
-	kvdatachan                    *chan string
-	invalidXrefs                  util.HashMaper
-	sampleXrefs                   util.HashMaper
-	sampleCount                   int
-	sampleWritten                 bool
-	uniprotFtp                    string
-	uniprotFtpPath                string
-	ebiFtp                        string
-	ebiFtpPath                    string
-	uniprotEntryCounts            map[string]uint64
-	p                             *mpb.Progress
-	stats                         map[string]interface{}
-	targetDatasets                map[string]bool
-	hasTargets                    bool
-	channelOverflowCap            int
-	selectedEnsemblSpecies        []string
-	selectedEnsemblSpeciesPattern []string
-	ensemblRelease                string
-	progChan                      chan *progressInfo
-	progInterval                  int64
-	//ensemblSpecies         map[string]bool
+	totalParsedEntry uint64
+	wg               *sync.WaitGroup
+	//inDatasets             []string // input datasets can contain alias like chembl
+	inDatasets             map[string]bool
+	datasets2              []string // after resolving the input datasets
+	start                  time.Time
+	kvdatachan             *chan string
+	invalidXrefs           util.HashMaper
+	sampleXrefs            util.HashMaper
+	sampleCount            int
+	sampleWritten          bool
+	uniprotFtp             string
+	uniprotFtpPath         string
+	ebiFtp                 string
+	ebiFtpPath             string
+	uniprotEntryCounts     map[string]uint64
+	p                      *mpb.Progress
+	stats                  map[string]interface{}
+	targetDatasets         map[string]bool
+	hasTargets             bool
+	channelOverflowCap     int
+	selectedGenomes        []string
+	selectedGenomesPattern []string
+	selectedTaxids         []int
+	ensemblRelease         string
+	progChan               chan *progressInfo
+	progInterval           int64
 }
 
 type progressInfo struct {
@@ -73,7 +69,7 @@ type progressInfo struct {
 	done            bool
 }
 
-func NewDataUpdate(datasets, targetDatasets, ensemblSpecies []string, ensemblSpeciesPattern []string, conf *configs.Conf, chkIdx string) *DataUpdate {
+func NewDataUpdate(datasets map[string]bool, targetDatasets, ensemblSpecies, ensemblSpeciesPattern []string, genometaxids []int, conf *configs.Conf, chkIdx string) *DataUpdate {
 
 	chunkIdx = chkIdx
 	config = conf
@@ -116,22 +112,23 @@ func NewDataUpdate(datasets, targetDatasets, ensemblSpecies []string, ensemblSpe
 	}
 
 	return &DataUpdate{
-		invalidXrefs:                  util.NewHashMap(300),
-		sampleXrefs:                   util.NewHashMap(400),
-		uniprotFtp:                    uniprotftpAddr,
-		uniprotFtpPath:                uniprotftpPath,
-		ebiFtp:                        ebiftp,
-		ebiFtpPath:                    ebiftppath,
-		targetDatasets:                targetDatasetMap,
-		hasTargets:                    len(targetDatasetMap) > 0,
-		channelOverflowCap:            channelOverflowCap,
-		stats:                         make(map[string]interface{}),
-		selectedEnsemblSpecies:        ensemblSpecies,
-		selectedEnsemblSpeciesPattern: ensemblSpeciesPattern,
-		progInterval:                  int64(progInterval),
-		progChan:                      make(chan *progressInfo, 1000),
-		start:                         time.Now(),
-		inDatasets:                    datasets,
+		invalidXrefs:           util.NewHashMap(300),
+		sampleXrefs:            util.NewHashMap(400),
+		uniprotFtp:             uniprotftpAddr,
+		uniprotFtpPath:         uniprotftpPath,
+		ebiFtp:                 ebiftp,
+		ebiFtpPath:             ebiftppath,
+		targetDatasets:         targetDatasetMap,
+		hasTargets:             len(targetDatasetMap) > 0,
+		channelOverflowCap:     channelOverflowCap,
+		stats:                  make(map[string]interface{}),
+		selectedGenomes:        ensemblSpecies,
+		selectedGenomesPattern: ensemblSpeciesPattern,
+		selectedTaxids:         genometaxids,
+		progInterval:           int64(progInterval),
+		progChan:               make(chan *progressInfo, 1000),
+		start:                  time.Now(),
+		inDatasets:             datasets,
 	}
 
 }
@@ -140,8 +137,20 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 
 	log.Println("Update running please wait...")
 
-	// first always set/check ensembl path since they are listed as genomes
-	d.setEnsemblPaths()
+	// first check update for ensembl meta
+	checkEnsemblUpdate()
+
+	// select ensembls
+	ensembls := d.selectEnsembls()
+
+	if len(ensembls) <= 0 && len(d.inDatasets) <= 0 {
+		fmt.Println("No genome found for indexing")
+		return 0, 0
+	}
+
+	for ens := range ensembls { // if ensembl is not selected from command line
+		d.inDatasets[ens] = true
+	}
 
 	var err error
 	var wg sync.WaitGroup
@@ -199,7 +208,7 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 	wgBmerge.Add(1)
 	go binarymerge.start()
 
-	for _, data := range d.inDatasets {
+	for data := range d.inDatasets {
 		switch data {
 		case "uniprot":
 			d.wg.Add(1)
@@ -208,29 +217,16 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			go u.update()
 			break
 		case "ensembl", "ensembl_bacteria", "ensembl_fungi", "ensembl_metazoa", "ensembl_plants", "ensembl_protists":
-			d.wg.Add(1)
-			var branch pbuf.Ensemblbranch
-			switch data {
-			case "ensembl":
-				branch = pbuf.Ensemblbranch_ENSEMBL
-			case "ensembl_bacteria":
-				branch = pbuf.Ensemblbranch_BACTERIA
-			case "ensembl_fungi":
-				branch = pbuf.Ensemblbranch_FUNGI
-			case "ensembl_metazoa":
-				branch = pbuf.Ensemblbranch_METAZOA
-			case "ensembl_plants":
-				branch = pbuf.Ensemblbranch_PLANT
-			case "ensembl_protists":
-				branch = pbuf.Ensemblbranch_PROTIST
-			default:
-				panic("undefined ensembl branch")
+
+			if _, ok := ensembls[data]; ok {
+				d.wg.Add(1)
+				d.datasets2 = append(d.datasets2, data)
+				e := ensembls[data]
+				go e.update()
 			}
 
-			e := ensembl{source: data, d: d, branch: branch}
-			d.datasets2 = append(d.datasets2, data)
-			go e.update()
 			break
+
 		case "ensembltmp":
 
 			d.wg.Add(1)
@@ -426,75 +422,6 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 
 }
 
-type ensemblGLatestVersion struct {
-	Version int `json:"version"`
-}
-
-func (d *DataUpdate) setEnsemblPaths() {
-
-	if _, ok := config.Appconf["disableEnsemblReleaseCheck"]; !ok {
-
-		hasNewRelease, version := d.hasEnsemblNewRelease()
-		if hasNewRelease {
-
-			log.Println("Ensembl meta data is updating")
-			ensembls := [6]ensembl{}
-			ensembls[0] = ensembl{source: "ensembl_fungi", d: d, branch: pbuf.Ensemblbranch_FUNGI}
-			ensembls[1] = ensembl{source: "ensembl", d: d, branch: pbuf.Ensemblbranch_ENSEMBL}
-			ensembls[2] = ensembl{source: "ensembl_bacteria", d: d, branch: pbuf.Ensemblbranch_BACTERIA}
-			ensembls[3] = ensembl{source: "ensembl_metazoa", d: d, branch: pbuf.Ensemblbranch_METAZOA}
-			ensembls[4] = ensembl{source: "ensembl_plants", d: d, branch: pbuf.Ensemblbranch_PLANT}
-			ensembls[5] = ensembl{source: "ensembl_protists", d: d, branch: pbuf.Ensemblbranch_PROTIST}
-
-			for _, ens := range ensembls {
-				ens.updateEnsemblPaths(version)
-			}
-			log.Println("Ensembl meta data update done")
-		}
-	}
-
-}
-
-func (d *DataUpdate) hasEnsemblNewRelease() (bool, int) {
-
-	epaths := ensemblPaths{}
-	pathFile := filepath.FromSlash(config.Appconf["ensemblDir"] + "/ensembl_metazoa.paths.json")
-	if !fileExists(pathFile) {
-
-		return true, d.getLatestEnsemblVersion()
-	}
-	f, err := os.Open(pathFile)
-	check(err)
-	b, err := ioutil.ReadAll(f)
-	check(err)
-	err = json.Unmarshal(b, &epaths)
-	check(err)
-
-	if _, ok := config.Appconf["ensembl_version_url"]; !ok {
-		log.Fatal("Missing ensembl_version_url param")
-	}
-
-	latestVersion := d.getLatestEnsemblVersion()
-
-	return latestVersion != epaths.Version, latestVersion
-
-}
-
-func (d *DataUpdate) getLatestEnsemblVersion() int {
-
-	egversion := ensemblGLatestVersion{}
-	res, err := http.Get(config.Appconf["ensembl_version_url"])
-	if err != nil {
-		log.Fatal("Error while getting ensembl release info from its rest service. This error could be temporary try again later or use param disableEnsemblReleaseCheck", err)
-	}
-	body, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		log.Fatal("Error while getting ensembl release info from its rest service.  This error could be temporary try again later or use param disableEnsemblReleaseCheck", err)
-	}
-	err = json.Unmarshal(body, &egversion)
-	return egversion.Version
-}
-
 func (d *DataUpdate) showProgres() {
 
 	latestProg := map[string]progressInfo{}
@@ -549,19 +476,6 @@ func (d *DataUpdate) showProgres() {
 
 }
 
-func (d *DataUpdate) ftpClient(ftpAddr string) *ftp.ServerConn {
-
-	client, err := ftp.Dial(ftpAddr)
-	if err != nil {
-		panic("Error in ftp connection:" + err.Error())
-	}
-
-	if err := client.Login("anonymous", ""); err != nil {
-		panic("Error in ftp login with anonymous:" + err.Error())
-	}
-	return client
-}
-
 func (d *DataUpdate) addEntryStat(source string, total uint64) {
 
 	var entrysize = map[string]interface{}{}
@@ -587,61 +501,6 @@ func (d *DataUpdate) addMeta(source string, meta map[string]interface{}) {
 	}
 
 	mutex.Unlock()
-
-}
-
-func (d *DataUpdate) getDataReaderNew(datatype string, ftpAddr string, ftpPath string, filePath string) (*bufio.Reader, *gzip.Reader, *ftp.Response, *ftp.ServerConn, *os.File, int64) {
-
-	var ftpfile *ftp.Response
-	var client *ftp.ServerConn
-	var file *os.File
-	var err error
-	var fileSize int64
-
-	if _, ok := config.Dataconf[datatype]["useLocalFile"]; ok && config.Dataconf[datatype]["useLocalFile"] == "yes" {
-
-		file, err = os.Open(filepath.FromSlash(filePath))
-		check(err)
-
-		fileStat, err := file.Stat()
-		check(err)
-		fileSize = fileStat.Size()
-
-		if filepath.Ext(file.Name()) == ".gz" {
-			gz, err := gzip.NewReader(file)
-			check(err)
-			br := bufio.NewReaderSize(gz, fileBufSize)
-			return br, gz, nil, nil, file, fileSize
-		}
-
-		br := bufio.NewReaderSize(file, fileBufSize)
-		return br, nil, nil, nil, file, fileSize
-
-	}
-
-	// with ftp
-	client = d.ftpClient(ftpAddr)
-	path := ftpPath + filePath
-
-	fileSize, err = client.FileSize(path)
-
-	check(err)
-	ftpfile, err = client.Retr(path)
-	check(err)
-
-	var br *bufio.Reader
-	var gz *gzip.Reader
-
-	if filepath.Ext(path) == ".gz" {
-		gz, err = gzip.NewReader(ftpfile)
-		check(err)
-		br = bufio.NewReaderSize(gz, fileBufSize)
-
-	} else {
-		br = bufio.NewReaderSize(ftpfile, fileBufSize)
-	}
-
-	return br, gz, ftpfile, client, nil, fileSize
 
 }
 
@@ -723,6 +582,53 @@ func (d *DataUpdate) addXref2(key string, from string, value string, valueFrom s
 	vup := strings.ToUpper(value)
 	*d.kvdatachan <- kup + tab + from + tab + vup + tab + config.Dataconf[valueFrom]["id"]
 
+}
+
+func (d *DataUpdate) selectEnsembls() map[string]ensembl {
+
+	allEnsembls := []string{"ensembl", "ensembl_fungi", "ensembl_bacteria", "ensembl_metazoa", "ensembl_plants", "ensembl_protists"}
+
+	selectedEnsembls := []string{}
+	for _, src := range allEnsembls { // this is to check command line ensembl datasets if yes genome selection will be only within those ones otherwise all
+		if _, ok := d.inDatasets[src]; ok {
+			selectedEnsembls = append(selectedEnsembls, src)
+		}
+	}
+
+	if len(selectedEnsembls) == 0 {
+		selectedEnsembls = allEnsembls
+	}
+
+	ensembls := map[string]ensembl{}
+
+	for _, src := range selectedEnsembls {
+		switch src {
+		case "ensembl":
+			ensembls["ensembl"] = ensembl{source: src, d: d, branch: pbuf.Ensemblbranch_ENSEMBL, ftpAddress: config.Appconf["ensembl_ftp"]}
+		case "ensembl_bacteria":
+			ensembls[src] = ensembl{source: src, d: d, branch: pbuf.Ensemblbranch_BACTERIA, ftpAddress: config.Appconf["ensembl_genomes_ftp"]}
+		case "ensembl_fungi":
+			ensembls[src] = ensembl{source: src, d: d, branch: pbuf.Ensemblbranch_FUNGI, ftpAddress: config.Appconf["ensembl_genomes_ftp"]}
+		case "ensembl_metazoa":
+			ensembls[src] = ensembl{source: src, d: d, branch: pbuf.Ensemblbranch_METAZOA, ftpAddress: config.Appconf["ensembl_genomes_ftp"]}
+		case "ensembl_plants":
+			ensembls[src] = ensembl{source: src, d: d, branch: pbuf.Ensemblbranch_PLANT, ftpAddress: config.Appconf["ensembl_genomes_ftp"]}
+		case "ensembl_protists":
+			ensembls[src] = ensembl{source: src, d: d, branch: pbuf.Ensemblbranch_PROTIST, ftpAddress: config.Appconf["ensembl_genomes_ftp"]}
+		}
+	}
+
+	// select genomes
+	res := map[string]ensembl{}
+	for src, ens := range ensembls {
+
+		if ens.selectGenomes() {
+			res[src] = ens
+		}
+
+	}
+
+	return res
 }
 
 func check(err error) {

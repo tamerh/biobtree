@@ -309,7 +309,7 @@ func (u *uniprot) update() {
 		u.ensmeblRefs = map[string][]string{}
 	}
 
-	br, gz, ftpFile, client, localFile, _ := u.d.getDataReaderNew(u.source, u.d.uniprotFtp, u.d.uniprotFtpPath, dataPath)
+	br, gz, ftpFile, client, localFile, _ := getDataReaderNew(u.source, u.d.uniprotFtp, u.d.uniprotFtpPath, dataPath)
 
 	fr := config.Dataconf[u.source]["id"]
 	fr2 := config.Dataconf["ufeature"]["id"]

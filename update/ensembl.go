@@ -4,10 +4,8 @@ import (
 	"biobtree/pbuf"
 	"bufio"
 	json "encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
-	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -16,400 +14,39 @@ import (
 
 	"github.com/pquerna/ffjson/ffjson"
 	"github.com/tamerh/jsparser"
-	xmlparser "github.com/tamerh/xml-stream-parser"
 )
 
 type ensembl struct {
 	source               string
+	ftpAddress           string
 	branch               pbuf.Ensemblbranch
 	d                    *DataUpdate
 	pauseDurationSeconds int
+	// selected genomes paths and taxids
+	taxids       map[string]int
+	gff3Paths    map[string][]string
+	jsonPaths    map[string][]string
+	biomartPaths []string
 }
 
-type ensemblPaths struct {
-	Version  int                 `json:"version"`
-	Taxids   map[string]int      `json:"taxids"`
-	Jsons    map[string][]string `json:"jsons"`
-	Biomarts map[string][]string `json:"biomarts"`
-	Gff3s    map[string][]string `json:"gff3s"`
-}
-
-func (e *ensembl) getEnsemblPaths() (*ensemblPaths, string) {
-
-	ensembls := ensemblPaths{}
-	pathFile := filepath.FromSlash(config.Appconf["ensemblDir"] + "/" + e.source + ".paths.json")
-
-	f, err := os.Open(pathFile)
-	check(err)
-	b, err := ioutil.ReadAll(f)
-	check(err)
-	err = json.Unmarshal(b, &ensembls)
-	check(err)
-
-	var ftpAddress string
-	switch e.source {
-	case "ensembl":
-		ftpAddress = config.Appconf["ensembl_ftp"]
-	case "ensembl_bacteria":
-		ftpAddress = config.Appconf["ensembl_genomes_ftp"]
-	case "ensembl_fungi":
-		ftpAddress = config.Appconf["ensembl_genomes_ftp"]
-	case "ensembl_metazoa":
-		ftpAddress = config.Appconf["ensembl_genomes_ftp"]
-	case "ensembl_plants":
-		ftpAddress = config.Appconf["ensembl_genomes_ftp"]
-	case "ensembl_protists":
-		ftpAddress = config.Appconf["ensembl_genomes_ftp"]
-	}
-
-	return &ensembls, ftpAddress
-
-}
-
-func (e *ensembl) updateEnsemblPaths(version int) (*ensemblPaths, string) {
-
-	var branch string
-	var ftpAddress string
-	var ftpJSONPath string
-	var ftpGFF3Path string
-	var ftpMysqlPath string
-	var ftpBiomartFolder string
-	var err error
-	isEG := true
-
-	switch e.source {
-
-	case "ensembl":
-		ftpAddress = config.Appconf["ensembl_ftp"]
-		ftpJSONPath = config.Appconf["ensembl_ftp_json_path"]
-		ftpGFF3Path = config.Appconf["ensembl_ftp_gff3_path"]
-		ftpMysqlPath = config.Appconf["ensembl_ftp_mysql_path"]
-		branch = "ensembl"
-		isEG = false
-	case "ensembl_bacteria":
-		ftpAddress = config.Appconf["ensembl_genomes_ftp"]
-		ftpJSONPath = strings.Replace(config.Appconf["ensembl_genomes_ftp_json_path"], "$(branch)", "bacteria", 1)
-		ftpGFF3Path = strings.Replace(config.Appconf["ensembl_genomes_ftp_gff3_path"], "$(branch)", "bacteria", 1)
-		ftpMysqlPath = strings.Replace(config.Appconf["ensembl_genomes_ftp_mysql_path"], "$(branch)", "bacteria", 1)
-		branch = "bacteria"
-	case "ensembl_fungi":
-		ftpAddress = config.Appconf["ensembl_genomes_ftp"]
-		ftpJSONPath = strings.Replace(config.Appconf["ensembl_genomes_ftp_json_path"], "$(branch)", "fungi", 1)
-		ftpGFF3Path = strings.Replace(config.Appconf["ensembl_genomes_ftp_gff3_path"], "$(branch)", "fungi", 1)
-		ftpMysqlPath = strings.Replace(config.Appconf["ensembl_genomes_ftp_mysql_path"], "$(branch)", "fungi", 1)
-		branch = "fungi"
-	case "ensembl_metazoa":
-		ftpAddress = config.Appconf["ensembl_genomes_ftp"]
-		ftpJSONPath = strings.Replace(config.Appconf["ensembl_genomes_ftp_json_path"], "$(branch)", "metazoa", 1)
-		ftpGFF3Path = strings.Replace(config.Appconf["ensembl_genomes_gff3_json_path"], "$(branch)", "metazoa", 1)
-		ftpMysqlPath = strings.Replace(config.Appconf["ensembl_genomes_ftp_mysql_path"], "$(branch)", "metazoa", 1)
-		branch = "metazoa"
-	case "ensembl_plants":
-		ftpAddress = config.Appconf["ensembl_genomes_ftp"]
-		ftpJSONPath = strings.Replace(config.Appconf["ensembl_genomes_ftp_json_path"], "$(branch)", "plants", 1)
-		ftpGFF3Path = strings.Replace(config.Appconf["ensembl_genomes_ftp_gff3_path"], "$(branch)", "plants", 1)
-		ftpMysqlPath = strings.Replace(config.Appconf["ensembl_genomes_ftp_mysql_path"], "$(branch)", "plants", 1)
-		branch = "plants"
-	case "ensembl_protists":
-		ftpAddress = config.Appconf["ensembl_genomes_ftp"]
-		ftpJSONPath = strings.Replace(config.Appconf["ensembl_genomes_ftp_json_path"], "$(branch)", "protists", 1)
-		ftpGFF3Path = strings.Replace(config.Appconf["ensembl_genomes_ftp_gff3_path"], "$(branch)", "protists", 1)
-		ftpMysqlPath = strings.Replace(config.Appconf["ensembl_genomes_ftp_mysql_path"], "$(branch)", "protists", 1)
-		branch = "protists"
-	}
-
-	ensembls := ensemblPaths{Taxids: map[string]int{}, Jsons: map[string][]string{}, Biomarts: map[string][]string{}, Gff3s: map[string][]string{}, Version: version}
-
-	// first get taxidmap
-
-	taxidMap := map[string]int{}
-	taxidMapEG := map[string]int{}
-
-	if isEG {
-		taxidMapEG = e.taxidMapEG()
-	} else {
-		taxidMap = e.taxidMap()
-	}
-
-	setJSONs := func() {
-
-		client := e.d.ftpClient(ftpAddress)
-		entries, err := client.List(ftpJSONPath)
-		check(err)
-
-		for _, file := range entries {
-			if strings.HasSuffix(file.Name, "_collection") {
-				//client := e.d.ftpClient(ftpAddress)
-				entries2, err := client.List(ftpJSONPath + "/" + file.Name)
-				check(err)
-				for _, file2 := range entries2 {
-					ensembls.Jsons[file2.Name] = append(ensembls.Jsons[file2.Name], ftpJSONPath+"/"+file.Name+"/"+file2.Name+"/"+file2.Name+".json")
-
-					if isEG {
-						if _, ok := taxidMapEG[file2.Name]; ok {
-							ensembls.Taxids[file2.Name] = taxidMapEG[file2.Name]
-						}
-					} else {
-						if _, ok := taxidMap[file2.Name]; ok {
-							ensembls.Taxids[file2.Name] = taxidMap[file2.Name]
-						} else if strings.HasPrefix(file2.Name, "mus_musculus") { //trick
-							ensembls.Taxids[file2.Name] = taxidMap["mus_musculus"]
-						}
-					}
-
-				}
-				//time.Sleep(time.Duration(e.pauseDurationSeconds/2) * time.Second) // for not to kicked out from ensembl ftp
-
-			} else {
-				ensembls.Jsons[file.Name] = append(ensembls.Jsons[file.Name], ftpJSONPath+"/"+file.Name+"/"+file.Name+".json")
-
-				if isEG {
-					if _, ok := taxidMapEG[file.Name]; ok {
-						ensembls.Taxids[file.Name] = taxidMapEG[file.Name]
-					}
-				} else {
-					if _, ok := taxidMap[file.Name]; ok {
-						ensembls.Taxids[file.Name] = taxidMap[file.Name]
-					} else if strings.HasPrefix(file.Name, "mus_musculus") { //trick
-						ensembls.Taxids[file.Name] = taxidMap["mus_musculus"]
-					}
-				}
-
-			}
-		}
-		client.Quit()
-
-	}
-
-	setBiomarts := func() {
-
-		// todo setup biomart release not handled at the moment
-		if e.d.ensemblRelease == "" {
-			// find the biomart folder
-			client := e.d.ftpClient(ftpAddress)
-			entries, err := client.List(ftpMysqlPath + "/" + branch + "_mart_*")
-			check(err)
-			//ee := ftpMysqlPath + "/" + branch + "_mart_*"
-			//fmt.Println(ee)
-			if len(entries) != 1 {
-				log.Fatal("Error: Expected to find 1 biomart folder but found ", +len(entries))
-			}
-			if len(entries) == 1 {
-				ftpBiomartFolder = entries[0].Name
-			}
-			//fmt.Println("biomart folder name", ftpBiomartFolder)
-			//fmt.Println("mysqlpath", ftpMysqlPath)
-
-		}
-
-		//fmt.Println("biomart folder nam", ftpBiomartFolder)
-		//fmt.Println("mysqlpath", ftpMysqlPath)
-
-		client := e.d.ftpClient(ftpAddress)
-		entries, err := client.List(ftpMysqlPath + "/" + ftpBiomartFolder + "/*__efg_*.gz")
-		check(err)
-		//var biomartFiles []string
-		for _, file := range entries {
-			species := strings.Split(file.Name, "_")[0]
-
-			ensembls.Biomarts[species] = append(ensembls.Biomarts[species], ftpMysqlPath+"/"+ftpBiomartFolder+"/"+file.Name)
-
-		}
-		client.Quit()
-
-	}
-
-	setGFF3 := func() {
-
-		client := e.d.ftpClient(ftpAddress)
-		entries, err := client.List(ftpGFF3Path)
-		check(err)
-
-		for _, file := range entries {
-			if strings.HasSuffix(file.Name, "_collection") {
-				entriesSub, err := client.List(ftpGFF3Path + "/" + file.Name)
-				check(err)
-				for _, file2 := range entriesSub {
-
-					entriesSubSub, err := client.List(ftpGFF3Path + "/" + file.Name + "/" + file2.Name)
-					check(err)
-					found := false
-					for _, file3 := range entriesSubSub {
-
-						if strings.HasSuffix(file3.Name, "chr.gff3.gz") || strings.HasSuffix(file3.Name, "chromosome.Chromosome.gff3.gz") {
-							ensembls.Gff3s[file2.Name] = append(ensembls.Gff3s[file2.Name], ftpGFF3Path+"/"+file.Name+"/"+file2.Name+"/"+file3.Name)
-							found = true
-							break
-						}
-
-					}
-
-					if !found { // if still not found retrieve the file with gff3.gz without abinitio
-						for _, file3 := range entriesSubSub {
-							if strings.HasSuffix(file3.Name, "chr.gff3.gz") && !strings.Contains(file3.Name, "abinitio") {
-								ensembls.Gff3s[file2.Name] = append(ensembls.Gff3s[file2.Name], ftpGFF3Path+"/"+file.Name+"/"+file2.Name+"/"+file3.Name)
-								break
-							}
-						}
-					}
-
-				}
-				//time.Sleep(time.Duration(e.pauseDurationSeconds/2) * time.Second) // for not to kicked out from ensembl ftp
-
-			} else {
-
-				entriesSub, err := client.List(ftpGFF3Path + "/" + file.Name)
-				check(err)
-				found := false
-				for _, file2 := range entriesSub {
-					if strings.HasSuffix(file2.Name, "chr.gff3.gz") || strings.HasSuffix(file2.Name, "chromosome.Chromosome.gff3.gz") {
-						ensembls.Gff3s[file.Name] = append(ensembls.Gff3s[file.Name], ftpGFF3Path+"/"+file.Name+"/"+file2.Name)
-						found = true
-						break
-					}
-				}
-				if !found { // if still not found retrieve the file with gff3.gz without abinitio
-					for _, file2 := range entriesSub {
-						if strings.HasSuffix(file2.Name, "gff3.gz") && !strings.Contains(file2.Name, "abinitio") {
-							ensembls.Gff3s[file.Name] = append(ensembls.Gff3s[file.Name], ftpGFF3Path+"/"+file.Name+"/"+file2.Name)
-							break
-						}
-					}
-				}
-
-			}
-		}
-		client.Quit()
-
-	}
-
-	switch e.source {
-
-	case "ensembl":
-		setJSONs()
-		setBiomarts()
-		setGFF3()
-	case "ensembl_bacteria":
-		setJSONs()
-		setGFF3()
-	case "ensembl_fungi":
-		setJSONs()
-		setBiomarts()
-		setGFF3()
-	case "ensembl_metazoa":
-		setJSONs()
-		setBiomarts()
-		setGFF3()
-	case "ensembl_plants":
-		setJSONs()
-		setBiomarts()
-		setGFF3()
-	case "ensembl_protists":
-		setJSONs()
-		setBiomarts()
-		setGFF3()
-	}
-
-	data, err := json.Marshal(ensembls)
-	check(err)
-
-	ioutil.WriteFile(filepath.FromSlash(config.Appconf["ensemblDir"]+"/"+e.source+".paths.json"), data, 0770)
-
-	return &ensembls, ftpAddress
-
-}
-
-func (e *ensembl) taxidMapEG() map[string]int {
-
-	br, _, ftpFile, client, _, _ := e.d.getDataReaderNew("ensembl", config.Appconf["ensembl_genomes_ftp"], "", config.Appconf["ensembl_genomes_ftp_meta_path"])
-
-	if ftpFile != nil {
-		defer ftpFile.Close()
-	}
-
-	if client != nil {
-		defer client.Quit()
-	}
-
-	scanner := bufio.NewScanner(br)
-	taxIDMapEG := map[string]int{}
-
-	for scanner.Scan() {
-
-		l := scanner.Text()
-
-		if l[0] == '#' {
-			continue
-		}
-
-		fields := strings.Split(string(l), tab)
-
-		id, err := strconv.Atoi(fields[3])
-		if err != nil {
-			log.Fatal("invalid taxid " + fields[3])
-		}
-
-		taxIDMapEG[fields[1]] = id
-
-	}
-	return taxIDMapEG
-
-}
-
-func (e *ensembl) taxidMap() map[string]int {
-
-	br, gz, ftpFile, client, localFile, _ := e.d.getDataReaderNew("taxonomy", e.d.ebiFtp, e.d.ebiFtpPath, config.Dataconf["taxonomy"]["path"])
-
-	if ftpFile != nil {
-		defer ftpFile.Close()
-	}
-	if localFile != nil {
-		defer localFile.Close()
-	}
-	defer gz.Close()
-
-	if client != nil {
-		defer client.Quit()
-	}
-
-	p := xmlparser.NewXMLParser(br, "taxon").SkipElements([]string{"lineage"})
-
-	taxNameIDMap := map[string]int{}
-
-	for r := range p.Stream() {
-
-		// id
-		id, err := strconv.Atoi(r.Attrs["taxId"])
-		if err != nil {
-			log.Fatal("invalid taxid " + r.Attrs["taxId"])
-		}
-
-		name := strings.ToLower(strings.Replace(r.Attrs["scientificName"], " ", "_", -1))
-
-		taxNameIDMap[name] = id
-	}
-
-	return taxNameIDMap
-
-}
-
-func (e *ensembl) getEnsemblSetting(ensemblType string) (string, string, map[string]int, map[string][]string, map[string][]string, []string) {
+func (e *ensembl) selectGenomes() bool {
 
 	//set files
 	taxids := map[string]int{}
 	gff3FilePaths := map[string][]string{}
 	jsonFilePaths := map[string][]string{}
 	var biomartFilePaths []string
-	fr := config.Dataconf["ensembl"]["id"]
 
-	if len(e.d.selectedEnsemblSpecies) == 1 && e.d.selectedEnsemblSpecies[0] == "all" {
-		e.d.selectedEnsemblSpecies = nil
-		e.d.selectedEnsemblSpeciesPattern = nil
+	if len(e.d.selectedGenomes) == 1 && e.d.selectedGenomes[0] == "all" {
+		e.d.selectedGenomes = nil
+		e.d.selectedGenomesPattern = nil
+		e.d.selectedTaxids = nil
 	}
 
-	ensemblPaths, ftpAddress := e.getEnsemblPaths()
+	// first retrieve the path
+	ensemblPaths := e.getEnsemblPaths()
 
-	if len(e.d.selectedEnsemblSpecies) == 0 && len(e.d.selectedEnsemblSpeciesPattern) == 0 { // if all selected
+	if len(e.d.selectedGenomes) == 0 && len(e.d.selectedGenomesPattern) == 0 && len(e.d.selectedTaxids) == 0 { // if all selected
 
 		//gff3
 		for sp, v := range ensemblPaths.Gff3s {
@@ -453,12 +90,13 @@ func (e *ensembl) getEnsemblSetting(ensemblType string) (string, string, map[str
 
 	} else {
 
-		if len(e.d.selectedEnsemblSpeciesPattern) > 0 { // if pattern selected
+		if len(e.d.selectedGenomesPattern) > 0 { // if pattern selected
 
-			e.d.selectedEnsemblSpecies = nil
+			e.d.selectedGenomes = nil
 
-			for _, pattern := range e.d.selectedEnsemblSpeciesPattern {
+			for _, pattern := range e.d.selectedGenomesPattern {
 
+				// set gff3 and selected genomes for use in common biomart func below
 				for sp, v := range ensemblPaths.Gff3s {
 					if strings.Contains(strings.ToUpper(sp), strings.ToUpper(pattern)) {
 						for _, vv := range v {
@@ -476,10 +114,10 @@ func (e *ensembl) getEnsemblSetting(ensemblType string) (string, string, map[str
 								gff3FilePaths[sp] = paths
 							}
 						}
-						e.d.selectedEnsemblSpecies = append(e.d.selectedEnsemblSpecies, sp)
+						e.d.selectedGenomes = append(e.d.selectedGenomes, sp)
 					}
 				}
-
+				// set jsons
 				for sp, v := range ensemblPaths.Jsons {
 					if strings.Contains(strings.ToUpper(sp), strings.ToUpper(pattern)) {
 						for _, vv := range v {
@@ -498,47 +136,58 @@ func (e *ensembl) getEnsemblSetting(ensemblType string) (string, string, map[str
 
 			}
 
-			selected := map[string]string{} // just show in file better
+			e.writeSelectedGenomes()
 
-			for _, sp := range e.d.selectedEnsemblSpecies {
-				selected[sp] = ""
+		} else {
+
+			hasTaxids := false
+			if len(e.d.selectedTaxids) > 0 {
+
+				e.d.selectedGenomes = nil
+				hasTaxids = true
+
+				for _, tax := range e.d.selectedTaxids {
+
+					if _, ok := ensemblPaths.TaxidsRev[tax]; ok {
+
+						for _, genome := range ensemblPaths.TaxidsRev[tax] {
+							e.d.selectedGenomes = append(e.d.selectedGenomes, genome)
+						}
+
+					}
+
+				}
+
 			}
-			data, err := json.Marshal(selected)
-			check(err)
 
-			ioutil.WriteFile(filepath.FromSlash(config.Appconf["rootDir"]+"/genomes_"+e.source+".json"), data, 0770)
+			for _, sp := range e.d.selectedGenomes {
 
-			fmt.Println("Genomes are selected based on pattern. Check 'genomes_" + e.source + ".json' file in this directory for full list")
-
-		} else { // if specific species selected
-
-			for _, sp := range e.d.selectedEnsemblSpecies {
-
-				if _, ok := ensemblPaths.Jsons[sp]; !ok {
-					log.Println("WARN Species ->", sp, "not found in ensembl ", e.source, "if you specify multiple ensembl ignore this")
-					continue
-				} else {
+				if _, ok := ensemblPaths.Jsons[sp]; ok {
 					jsonFilePaths[sp] = ensemblPaths.Jsons[sp]
 					gff3FilePaths[sp] = ensemblPaths.Gff3s[sp]
 					// set taxid
 					if _, ok := ensemblPaths.Taxids[sp]; ok {
 						taxids[sp] = ensemblPaths.Taxids[sp]
 					}
-
 				}
+
+			}
+
+			if hasTaxids {
+				e.writeSelectedGenomes()
 			}
 
 		}
 
-		// set biomart for selected species
+		// biomart
 		var biomartSpeciesName string // this is just the shorcut name of species in biomart folder e.g homo_sapiens-> hsapiens
-		for _, sp := range e.d.selectedEnsemblSpecies {
+		for _, sp := range e.d.selectedGenomes {
 
 			splitted := strings.Split(sp, "_")
 			if len(splitted) > 1 {
 				biomartSpeciesName = splitted[0][:1] + splitted[len(splitted)-1]
 			} else {
-				panic("Unrecognized species name pattern->" + sp)
+				log.Fatal("Unrecognized species name pattern->" + sp)
 			}
 
 			for _, vv := range ensemblPaths.Biomarts[biomartSpeciesName] {
@@ -548,7 +197,14 @@ func (e *ensembl) getEnsemblSetting(ensemblType string) (string, string, map[str
 
 	}
 
-	return fr, ftpAddress, taxids, gff3FilePaths, jsonFilePaths, biomartFilePaths
+	// set results
+	e.taxids = taxids
+	e.gff3Paths = gff3FilePaths
+	e.jsonPaths = jsonFilePaths
+	e.biomartPaths = biomartFilePaths
+
+	// this shows that we found genomes or not.
+	return len(gff3FilePaths) > 0
 
 }
 
@@ -575,24 +231,23 @@ func (e *ensembl) update() {
 	var total uint64
 	var previous int64
 	var start time.Time
-
-	fr, ftpAddress, taxids, gff3Paths, jsonPaths, biomartPaths := e.getEnsemblSetting(e.source)
+	fr := config.Dataconf["ensembl"]["id"]
 
 	// if local file just ignore ftp jsons
 	if config.Dataconf["ensembl"]["useLocalFile"] == "yes" {
-		jsonPaths = nil
-		gff3Paths = map[string][]string{}
-		biomartPaths = nil
-		gff3Paths["local"] = []string{config.Dataconf["ensembl"]["path"]}
+		e.jsonPaths = nil
+		e.gff3Paths = map[string][]string{}
+		e.biomartPaths = nil
+		e.gff3Paths["local"] = []string{config.Dataconf["ensembl"]["path"]}
 	}
 
-	for genome, paths := range gff3Paths {
+	for genome, paths := range e.gff3Paths {
 		for _, path := range paths {
 
 			previous = 0
 			start = time.Now()
 
-			br, _, ftpFile, client, localFile, _ := e.d.getDataReaderNew("ensembl", ftpAddress, "", path)
+			br, _, ftpFile, client, localFile, _ := getDataReaderNew("ensembl", e.ftpAddress, "", path)
 
 			scanner := bufio.NewScanner(br)
 
@@ -667,8 +322,8 @@ func (e *ensembl) update() {
 							attr.Biotype = attrsMap["biotype"]
 						}
 
-						if _, ok := taxids[genome]; ok {
-							e.d.addXref(currGeneID, fr, strconv.Itoa(taxids[genome]), "taxonomy", false)
+						if _, ok := e.taxids[genome]; ok {
+							e.d.addXref(currGeneID, fr, strconv.Itoa(e.taxids[genome]), "taxonomy", false)
 						}
 
 						attr.Genome = genome
@@ -846,14 +501,14 @@ func (e *ensembl) update() {
 
 	if _, ok := config.Appconf["ensembl_all"]; ok && config.Appconf["ensembl_all"] == "y" {
 
-		for _, paths := range jsonPaths {
+		for _, paths := range e.jsonPaths {
 
 			for _, path := range paths {
 
 				previous = 0
 				start = time.Now()
 
-				br, _, ftpFile, client, localFile, _ := e.d.getDataReaderNew("ensembl", ftpAddress, "", path)
+				br, _, ftpFile, client, localFile, _ := getDataReaderNew("ensembl", e.ftpAddress, "", path)
 
 				p := jsparser.NewJSONParser(br, "genes").SkipProps([]string{"lineage", "evidence", "coord_system", "sifts", "xrefs", "gene_tree_id", "orthology_type", "exons"})
 
@@ -988,7 +643,7 @@ func (e *ensembl) update() {
 	totalRead := 0
 	start = time.Now()
 	// probset biomart
-	for _, path := range biomartPaths {
+	for _, path := range e.biomartPaths {
 		// first get the probset machine name
 		f := strings.Split(path, "/")
 		probsetMachine := strings.Split(f[len(f)-1], "__")[1][4:]
@@ -996,7 +651,7 @@ func (e *ensembl) update() {
 
 		if probsetConf != nil {
 			fr2 := config.Dataconf[probsetMachine]["id"]
-			br2, _, ftpFile2, client, localFile2, _ := e.d.getDataReaderNew(probsetMachine, ftpAddress, "", path)
+			br2, _, ftpFile2, client, localFile2, _ := getDataReaderNew(probsetMachine, e.ftpAddress, "", path)
 
 			scanner := bufio.NewScanner(br2)
 			for scanner.Scan() {
@@ -1109,16 +764,22 @@ func (e *ensembl) xrefProp(j *jsparser.JSON, entryid, from string) {
 
 }
 
-func fileExists(name string) bool {
+func (e *ensembl) writeSelectedGenomes() {
 
-	if _, err := os.Stat(name); err == nil {
-		return true
-	} else if os.IsNotExist(err) {
-		return false
-	} else {
-		// Schrodinger: file may or may not exist. See err for details.
-		// Therefore, do *NOT* use !os.IsNotExist(err) to test for file existence
-		check(err)
-		return false
+	if len(e.d.selectedGenomes) == 0 {
+		return
 	}
+
+	selected := map[string]string{} // just show in file better
+
+	for _, sp := range e.d.selectedGenomes {
+		selected[sp] = ""
+	}
+	data, err := json.Marshal(selected)
+	check(err)
+
+	ioutil.WriteFile(filepath.FromSlash(config.Appconf["rootDir"]+"/genomes_"+e.source+".json"), data, 0770)
+
+	log.Println("For reference 'genomes_" + e.source + ".json' file created with selected genome list")
+
 }

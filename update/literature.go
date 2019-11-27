@@ -24,7 +24,7 @@ type literature struct {
 func (l *literature) update() {
 	var ftpfile *ftp.Response
 	var client *ftp.ServerConn
-	client = l.d.ftpClient(l.d.ebiFtp)
+	client = ftpClient(l.d.ebiFtp)
 
 	// first doi pm and pmcid mappings
 	path := l.d.ebiFtpPath + config.Dataconf[l.source]["path"]
@@ -118,7 +118,7 @@ func (l *literature) literatureMappings2NotUsed(source string) {
 
 	var ftpfile *ftp.Response
 	var client *ftp.ServerConn
-	client = l.d.ftpClient(l.d.ebiFtp)
+	client = ftpClient(l.d.ebiFtp)
 
 	// first doi pm and pmcid mappings
 	path := l.d.ebiFtpPath + "/pmc/PMCLiteMetadata/PMCLiteMetadata.tgz"

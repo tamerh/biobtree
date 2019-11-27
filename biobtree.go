@@ -26,7 +26,7 @@ const versionTag = "v1.2.0"
 var config *configs.Conf
 
 var cachedDataset = []string{"uniprot", "go", "eco", "efo", "hgnc", "chebi", "taxonomy", "interpro", "hmdb"}
-var defaultDataset = "ensembl"
+var defaultDataset = ""
 
 //var defaultDataset = "uniprot,go,eco,efo,hgnc,chebi,taxonomy,interpro,hmdb,literature_mappings,chembl,ensembl"
 //var defaultDataset = "efo"
@@ -107,14 +107,18 @@ func main() {
 			Usage:  "sets the maximum number of CPUs that can be executing simultaneously. By default biobtree uses all the CPUs when applicable.",
 		},
 		cli.StringFlag{
-			Name:  "ensembl-genome,s",
-			Value: "homo_sapiens",
+			Name:  "genome,s",
 			Usage: "Genome names for ensembl datasets",
 		},
 		cli.StringFlag{
-			Name: "ensembl-genome-pattern,sp",
+			Name: "genome-pattern,sp",
 			//Value: "homo_sapiens",
 			Usage: "Genome names pattern for ensembl datasets. e.g 'salmonella' which gets all genomes of salmonella species in ensembl",
+		},
+		cli.StringFlag{
+			Name: "genome-taxids,tax",
+			//Value: "homo_sapiens",
+			Usage: "Process all the genomes belongs to given taxonomy ids seperated by comma",
 		},
 	}
 
@@ -250,16 +254,59 @@ func runUpdateCommand(c *cli.Context) error {
 
 	indataset := c.GlobalString("datasets")
 
-	if strings.HasPrefix(indataset, "+") { // add default dataset
-		indataset = indataset[1:]
-		indataset = indataset + "," + defaultDataset
+	d := map[string]bool{}
+	ds := []string{}
+
+	if len(indataset) > 0 {
+		if strings.HasPrefix(indataset, "+") { // add default dataset
+			indataset = indataset[1:]
+			indataset = indataset + "," + defaultDataset
+		}
+
+		ds := strings.Split(indataset, ",")
+		for _, dt := range ds {
+			d[dt] = true
+		}
 	}
 
-	d := strings.Split(indataset, ",")
+	genomeSelectionWay := 0
+	s := c.GlobalString("genome")
+	var sp []string
+	if len(s) > 0 {
+		genomeSelectionWay++
+		sp = strings.Split(s, ",")
+	}
 
-	if len(d) == 0 {
-		log.Fatal("Error:datasets must be specified")
+	spattern := c.GlobalString("genome-pattern")
+	var spatterns []string
+	if len(spattern) > 0 {
+		genomeSelectionWay++
+		spatterns = strings.Split(spattern, ",")
+	}
+
+	genometaxidsStr := c.GlobalString("genome-taxids")
+	var genometaxids []int
+	if len(genometaxidsStr) > 0 {
+		genomeSelectionWay++
+		for _, s := range strings.Split(genometaxidsStr, ",") {
+			taxid, err := strconv.Atoi(s)
+			if err != nil {
+				log.Fatalf("Invalid taxonomy id %s", s)
+			}
+			genometaxids = append(genometaxids, taxid)
+		}
+	}
+
+	if genomeSelectionWay > 1 {
+		log.Fatal("Genome can be selected with one way among 3 selection paramters.")
 		return nil
+	}
+
+	if len(d) == 0 && len(sp) == 0 && len(spatterns) == 0 && len(genometaxids) == 0 {
+
+		log.Fatal("Datasets or genome must be selected.")
+		return nil
+
 	}
 
 	keep := c.GlobalBool("keep")
@@ -271,7 +318,7 @@ func runUpdateCommand(c *cli.Context) error {
 
 	hasCacheFiles := config.HasCacheFiles()
 
-	if hasCacheFiles && slicesIntersect(d, cachedDataset) {
+	if hasCacheFiles && slicesIntersect(ds, cachedDataset) {
 		log.Fatal("Dataset is already in the cache you can generate the database or either select a dataset not in the cache or to invalidate all the cache use -x param")
 		return nil
 	}
@@ -298,27 +345,6 @@ func runUpdateCommand(c *cli.Context) error {
 		ts = strings.Split(t, ",")
 	}
 
-	s := c.GlobalString("ensembl-genome")
-	var sp []string
-	if len(s) > 0 {
-		sp = strings.Split(s, ",")
-	}
-
-	spattern := c.GlobalString("ensembl-genome-pattern")
-	var spatterns []string
-	if len(spattern) > 0 {
-		spatterns = strings.Split(spattern, ",")
-	}
-
-	/**
-	for _, dd := range d {
-		if dd == "ensembl" && len(sp) == 0 {
-			log.Fatal("ERROR:When processing ensembl species must be specified")
-			return nil
-		}
-	}
-	**/
-
 	chunkIdxx := c.GlobalString("idx")
 	if len(chunkIdxx) == 0 {
 		chunkIdxx = strconv.Itoa(time.Now().Nanosecond())
@@ -337,7 +363,7 @@ func runUpdateCommand(c *cli.Context) error {
 		}
 	}
 
-	update.NewDataUpdate(d, ts, sp, spatterns, config, chunkIdxx).Update()
+	update.NewDataUpdate(d, ts, sp, spatterns, genometaxids, config, chunkIdxx).Update()
 
 	elapsed := time.Since(start)
 	log.Printf("Update took %s", elapsed)

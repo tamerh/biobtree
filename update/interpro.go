@@ -18,7 +18,7 @@ type interpro struct {
 func (i *interpro) update() {
 
 	fr := config.Dataconf[i.source]["id"]
-	br, gz, ftpFile, client, localFile, _ := i.d.getDataReaderNew(i.source, i.d.ebiFtp, i.d.ebiFtpPath, config.Dataconf[i.source]["path"])
+	br, gz, ftpFile, client, localFile, _ := getDataReaderNew(i.source, i.d.ebiFtp, i.d.ebiFtpPath, config.Dataconf[i.source]["path"])
 
 	if ftpFile != nil {
 		defer ftpFile.Close()

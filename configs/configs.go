@@ -34,7 +34,7 @@ type Conf struct {
 	versionTag            string
 }
 
-func (c *Conf) Init(rootDir, bbBinaryVersion string, optionalDatasetActive bool, outDir string) {
+func (c *Conf) Init(rootDir, bbBinaryVersion, outDir, confExtension string, optionalDatasetActive bool) {
 
 	c.versionTag = bbBinaryVersion
 
@@ -57,7 +57,7 @@ func (c *Conf) Init(rootDir, bbBinaryVersion string, optionalDatasetActive bool,
 	ensemblExist, err := fileExists(ensemblDir)
 
 	if !confExist || !websiteExist || !ensemblExist {
-		c.retrConfFiles(latestConfVersion, rootDir)
+		c.retrConfFiles(latestConfVersion, confExtension, rootDir)
 	}
 
 	// STEP 1 First read application param and if it is outdated retrieve latest ones and overwrite it.
@@ -76,7 +76,7 @@ func (c *Conf) Init(rootDir, bbBinaryVersion string, optionalDatasetActive bool,
 	if c.Appconf["conf_version"] != latestConfVersion {
 
 		c.Appconf = map[string]string{}
-		c.retrConfFiles(latestConfVersion, rootDir)
+		c.retrConfFiles(latestConfVersion, confExtension, rootDir)
 
 		f, err := ioutil.ReadFile(appconfFile)
 		if err != nil {
@@ -260,10 +260,10 @@ func (c *Conf) checkForNewVersion() {
 
 }
 
-func (c *Conf) retrConfFiles(confVersion, confDir string) {
+func (c *Conf) retrConfFiles(confVersion, confExt, confDir string) {
 
 	log.Println("Pulling configuration and default dataset files ...")
-	confPath := "https://github.com/tamerh/biobtree-conf/releases/download/" + confVersion + "/biobtree-conf-" + confVersion + ".zip"
+	confPath := "https://github.com/tamerh/biobtree-conf/releases/download/" + confVersion + "/biobtree-conf-" + confVersion + confExt + ".zip"
 
 	resp, err := http.Get(confPath)
 	if err != nil {

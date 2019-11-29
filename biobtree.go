@@ -80,6 +80,11 @@ func main() {
 			Hidden: true,
 			Usage:  "to change default config directory while developing",
 		},
+		cli.StringFlag{
+			Name:   "conf-extension",
+			Hidden: true,
+			Usage:  "to retrieve specific biobtree-conf for different cache configuration",
+		},
 		cli.BoolFlag{
 			Name:  "keep",
 			Usage: "Keep existing data from update command",
@@ -90,7 +95,11 @@ func main() {
 		},
 		cli.BoolFlag{
 			Name:  "ensembl-all",
-			Usage: "Due to current size by default only genomic coordinates and probset mappings data are processed. If this parameter set all mappings proccessed which take relatively longer time",
+			Usage: "For ensembls by default only genomic coordinates and probset mappings data are processed. If this parameter set all mappings proccessed which cause relatively longer processing time",
+		},
+		cli.BoolFlag{
+			Name:  "ensembl-orthologs",
+			Usage: "For ensembls by default orthologs mappings are not included. If this paramter is set orthologs identifiers processed which cause relatively longer processing time",
 		},
 		cli.BoolFlag{
 			Name:  "override-cache,x",
@@ -119,6 +128,10 @@ func main() {
 			Name: "genome-taxids,tax",
 			//Value: "homo_sapiens",
 			Usage: "Process all the genomes belongs to given taxonomy ids seperated by comma",
+		},
+		cli.BoolFlag{
+			Name:  "no-web-popup,np",
+			Usage: "When opening the web application don't trigger opening popup",
 		},
 	}
 
@@ -206,7 +219,7 @@ func runAliasCommand(c *cli.Context) error {
 	outDir := c.GlobalString("out-dir")
 	includeOptionals := c.GlobalBool("include-optionals")
 	config = &configs.Conf{}
-	config.Init(confdir, versionTag, includeOptionals, outDir)
+	config.Init(confdir, versionTag, outDir, "", includeOptionals)
 
 	var ali = update.Alias{}
 	ali.Merge(config)
@@ -240,11 +253,12 @@ func runUpdateCommand(c *cli.Context) error {
 
 	confdir := c.GlobalString("confdir")
 	outDir := c.GlobalString("out-dir")
+	confExtension := c.GlobalString("conf-extension")
 	includeOptionals := c.GlobalBool("include-optionals")
 	overrideCache := c.GlobalBool("override-cache")
 
 	config = &configs.Conf{}
-	config.Init(confdir, versionTag, includeOptionals, outDir)
+	config.Init(confdir, versionTag, outDir, confExtension, includeOptionals)
 
 	if c.GlobalBool("ensembl-all") {
 		config.Appconf["ensembl_all"] = "y"
@@ -363,7 +377,7 @@ func runUpdateCommand(c *cli.Context) error {
 		}
 	}
 
-	update.NewDataUpdate(d, ts, sp, spatterns, genometaxids, config, chunkIdxx).Update()
+	update.NewDataUpdate(d, ts, sp, spatterns, genometaxids, c.GlobalBool("ensembl-orthologs"), config, chunkIdxx).Update()
 
 	elapsed := time.Since(start)
 	log.Printf("Update took %s", elapsed)
@@ -382,7 +396,7 @@ func runGenerateCommand(c *cli.Context) error {
 	outDir := c.GlobalString("out-dir")
 
 	config = &configs.Conf{}
-	config.Init(confdir, versionTag, true, outDir)
+	config.Init(confdir, versionTag, outDir, "", true)
 
 	cpu := c.GlobalInt(" maxcpu")
 	if cpu > 1 {
@@ -410,7 +424,7 @@ func runWebCommand(c *cli.Context) error {
 	confdir := c.GlobalString("confdir")
 	outDir := c.GlobalString("out-dir")
 	config = &configs.Conf{}
-	config.Init(confdir, versionTag, true, outDir)
+	config.Init(confdir, versionTag, outDir, "", true)
 
 	cpu := c.GlobalInt(" maxcpu")
 	if cpu > 1 {
@@ -418,7 +432,7 @@ func runWebCommand(c *cli.Context) error {
 	}
 
 	web := service.Web{}
-	web.Start(config)
+	web.Start(config, c.GlobalBool("no-web-popup"))
 
 	return nil
 
@@ -429,7 +443,7 @@ func runInstallCommand(c *cli.Context) error {
 	confdir := c.GlobalString("confdir")
 	outDir := c.GlobalString("out-dir")
 	config = &configs.Conf{}
-	config.Init(confdir, versionTag, true, outDir)
+	config.Init(confdir, versionTag, outDir, "", true)
 
 	return nil
 
@@ -440,7 +454,7 @@ func runProfileCommand(c *cli.Context) error {
 	confdir := c.GlobalString("confdir")
 	outDir := c.GlobalString("out-dir")
 	config = &configs.Conf{}
-	config.Init(confdir, versionTag, true, outDir)
+	config.Init(confdir, versionTag, outDir, "", true)
 
 	os.Remove("memprof.out")
 	os.Remove("cpuprof.out")

@@ -27,7 +27,7 @@ type Web struct {
 	metaRes []byte
 }
 
-func (web *Web) Start(c *configs.Conf) {
+func (web *Web) Start(c *configs.Conf, nowebpopup bool) {
 
 	config = c
 
@@ -76,14 +76,18 @@ func (web *Web) Start(c *configs.Conf) {
 		port = "8888"
 	}
 
-	url := "http://localhost:" + port + "/ui"
-	switch runtime.GOOS {
-	case "linux":
-		exec.Command("xdg-open", url).Start()
-	case "windows":
-		exec.Command("rundll32", "url.dll,FileProtocolHandler", url).Start()
-	case "darwin":
-		exec.Command("open", url).Start()
+	if !nowebpopup {
+
+		url := "http://localhost:" + port + "/ui"
+		switch runtime.GOOS {
+		case "linux":
+			exec.Command("xdg-open", url).Start()
+		case "windows":
+			exec.Command("rundll32", "url.dll,FileProtocolHandler", url).Start()
+		case "darwin":
+			exec.Command("open", url).Start()
+		}
+
 	}
 
 	log.Println("REST started at port->", port)

@@ -58,6 +58,7 @@ type DataUpdate struct {
 	selectedGenomes        []string
 	selectedGenomesPattern []string
 	selectedTaxids         []int
+	orthologsActive        bool
 	progChan               chan *progressInfo
 	progInterval           int64
 }
@@ -68,7 +69,7 @@ type progressInfo struct {
 	done            bool
 }
 
-func NewDataUpdate(datasets map[string]bool, targetDatasets, ensemblSpecies, ensemblSpeciesPattern []string, genometaxids []int, conf *configs.Conf, chkIdx string) *DataUpdate {
+func NewDataUpdate(datasets map[string]bool, targetDatasets, ensemblSpecies, ensemblSpeciesPattern []string, genometaxids []int, orthologs bool, conf *configs.Conf, chkIdx string) *DataUpdate {
 
 	chunkIdx = chkIdx
 	config = conf
@@ -128,6 +129,7 @@ func NewDataUpdate(datasets map[string]bool, targetDatasets, ensemblSpecies, ens
 		progChan:               make(chan *progressInfo, 1000),
 		start:                  time.Now(),
 		inDatasets:             datasets,
+		orthologsActive:        orthologs,
 	}
 
 }

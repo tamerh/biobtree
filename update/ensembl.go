@@ -534,8 +534,10 @@ func (e *ensembl) update() {
 										e.d.addXref2(entryid, fr, stableID, "paralog")
 										e.d.addXref2(stableID, paralogID, stableID, "ensembl")
 									} else {
-										e.d.addXref2(entryid, fr, stableID, "ortholog")
-										e.d.addXref2(stableID, orthologID, stableID, "ensembl")
+										if e.d.orthologsActive {
+											e.d.addXref2(entryid, fr, stableID, "ortholog")
+											e.d.addXref2(stableID, orthologID, stableID, "ensembl")
+										}
 									}
 								}
 							}

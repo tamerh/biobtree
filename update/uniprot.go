@@ -298,9 +298,19 @@ func (u *uniprot) processFeatures(entryid string, r *xmlparser.XMLElement) {
 
 }
 
-func (u *uniprot) update() {
+func (u *uniprot) update(taxoids []int) {
 
 	var dataPath string
+
+	taxofilter := true
+	taxoidMap := map[int]bool{}
+	if len(taxoids) == 0 {
+		taxofilter = false
+	} else {
+		for _, taxo := range taxoids {
+			taxoidMap[taxo] = true
+		}
+	}
 
 	if u.trembl {
 		dataPath = config.Dataconf[u.source]["pathTrembl"]
@@ -342,6 +352,7 @@ func (u *uniprot) update() {
 
 	//index := 0
 
+uniloop:
 	for r := range p.Stream() {
 
 		elapsed := int64(time.Since(u.d.start).Seconds())
@@ -352,10 +363,33 @@ func (u *uniprot) update() {
 		}
 
 		if r.Childs["accession"] == nil {
-			log.Println("entry skipped due to the loss of accession", r)
+			log.Println("uniprot entry skipped no accession", r)
 			continue
 		}
+
 		entryid = r.Childs["accession"][0].InnerText
+
+		for _, v = range r.Childs["organism"] {
+			for _, z = range v.Childs["dbReference"] {
+
+				taxoid, err := strconv.Atoi(z.Attrs["id"])
+				if err != nil {
+					continue
+				}
+				if taxofilter {
+					if _, ok := taxoidMap[taxoid]; !ok {
+						continue uniloop
+					}
+				}
+
+				u.d.addXref(entryid, fr, z.Attrs["id"], z.Attrs["type"], false)
+
+				for _, x := range z.Childs["property"] {
+					u.d.addXref(z.Attrs["id"], config.Dataconf[z.Attrs["type"]]["id"], x.Attrs["value"], x.Attrs["type"], false)
+				}
+
+			}
+		}
 
 		attr := pbuf.UniprotAttr{}
 
@@ -411,16 +445,6 @@ func (u *uniprot) update() {
 				}
 			}
 
-		}
-
-		for _, v = range r.Childs["organism"] {
-			for _, z = range v.Childs["dbReference"] {
-
-				u.d.addXref(entryid, fr, z.Attrs["id"], z.Attrs["type"], false)
-				for _, x := range z.Childs["property"] {
-					u.d.addXref(z.Attrs["id"], config.Dataconf[z.Attrs["type"]]["id"], x.Attrs["value"], x.Attrs["type"], false)
-				}
-			}
 		}
 
 		u.processDbReference(entryid, r)

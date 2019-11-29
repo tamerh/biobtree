@@ -37,16 +37,18 @@ func (e *ensembl) selectGenomes() bool {
 	jsonFilePaths := map[string][]string{}
 	var biomartFilePaths []string
 
+	allGenomes := false
 	if len(e.d.selectedGenomes) == 1 && e.d.selectedGenomes[0] == "all" {
 		e.d.selectedGenomes = nil
 		e.d.selectedGenomesPattern = nil
 		e.d.selectedTaxids = nil
+		allGenomes = true
 	}
 
 	// first retrieve the path
 	ensemblPaths := e.getEnsemblPaths()
 
-	if len(e.d.selectedGenomes) == 0 && len(e.d.selectedGenomesPattern) == 0 && len(e.d.selectedTaxids) == 0 { // if all selected
+	if allGenomes { // if all selected
 
 		//gff3
 		for sp, v := range ensemblPaths.Gff3s {
@@ -494,7 +496,7 @@ func (e *ensembl) update() {
 				client.Quit()
 			}
 
-			// time.Sleep(time.Duration(e.pauseDurationSeconds) * time.Second) // for not to kicked out from ensembl ftp
+			time.Sleep(time.Duration(e.pauseDurationSeconds) * time.Second) // for not to kicked out from ensembl ftp
 
 		}
 	}
@@ -633,7 +635,7 @@ func (e *ensembl) update() {
 					client.Quit()
 				}
 
-				//time.Sleep(time.Duration(e.pauseDurationSeconds) * time.Second) // for not to kicked out from ensembl ftp
+				time.Sleep(time.Duration(e.pauseDurationSeconds) * time.Second) // for not to kicked out from ensembl ftp
 			}
 
 		}
@@ -683,7 +685,7 @@ func (e *ensembl) update() {
 		} else {
 			log.Println("Warn: new prob mapping found. It must be defined in configuration", probsetMachine)
 		}
-		// time.Sleep(time.Duration(e.pauseDurationSeconds) * time.Second) // for not to kicked out from ensembl ftp
+		time.Sleep(time.Duration(e.pauseDurationSeconds) * time.Second) // for not to kicked out from ensembl ftp
 	}
 
 	e.d.progChan <- &progressInfo{dataset: e.source, done: true}

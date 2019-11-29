@@ -87,11 +87,15 @@ func getLatestEnsemblVersion() int {
 	if err != nil {
 		log.Fatal("Error while getting ensembl release info from its rest service. This error could be temporary try again later or use param disableEnsemblReleaseCheck", err)
 	}
+	if res.StatusCode != 200 {
+		log.Fatal("Error while getting ensembl release info from its rest service. This error could be temporary try again later or use param disableEnsemblReleaseCheck")
+	}
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		log.Fatal("Error while getting ensembl release info from its rest service.  This error could be temporary try again later or use param disableEnsemblReleaseCheck", err)
 	}
 	err = json.Unmarshal(body, &egversion)
+
 	return egversion.Version
 }
 
@@ -238,31 +242,23 @@ func (e *ensembl) updateEnsemblMeta(version int) (*ensemblPaths, string) {
 	setBiomarts := func() {
 
 		// todo setup biomart release not handled at the moment
-		if e.d.ensemblRelease == "" {
-			// find the biomart folder
-			client := ftpClient(ftpAddress)
-			entries, err := client.List(ftpMysqlPath + "/" + branch + "_mart_*")
-			check(err)
-			//ee := ftpMysqlPath + "/" + branch + "_mart_*"
-			//fmt.Println(ee)
-			if len(entries) != 1 {
-				log.Fatal("Error: Expected to find 1 biomart folder but found ", +len(entries))
-			}
-			if len(entries) == 1 {
-				ftpBiomartFolder = entries[0].Name
-			}
-			//fmt.Println("biomart folder name", ftpBiomartFolder)
-			//fmt.Println("mysqlpath", ftpMysqlPath)
+		// find the biomart folder
+		client := ftpClient(ftpAddress)
+		entries, err := client.List(ftpMysqlPath + "/" + branch + "_mart_*")
+		check(err)
 
+		if len(entries) != 1 {
+			log.Fatal("Error: Expected to find 1 biomart folder but found ", +len(entries))
 		}
-
-		//fmt.Println("biomart folder nam", ftpBiomartFolder)
+		if len(entries) == 1 {
+			ftpBiomartFolder = entries[0].Name
+		}
+		//fmt.Println("biomart folder name", ftpBiomartFolder)
 		//fmt.Println("mysqlpath", ftpMysqlPath)
 
-		client := ftpClient(ftpAddress)
-		entries, err := client.List(ftpMysqlPath + "/" + ftpBiomartFolder + "/*__efg_*.gz")
+		entries, err = client.List(ftpMysqlPath + "/" + ftpBiomartFolder + "/*__efg_*.gz")
 		check(err)
-		//var biomartFiles []string
+
 		for _, file := range entries {
 			species := strings.Split(file.Name, "_")[0]
 

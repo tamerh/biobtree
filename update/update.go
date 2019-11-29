@@ -58,7 +58,6 @@ type DataUpdate struct {
 	selectedGenomes        []string
 	selectedGenomesPattern []string
 	selectedTaxids         []int
-	ensemblRelease         string
 	progChan               chan *progressInfo
 	progInterval           int64
 }
@@ -214,7 +213,7 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			d.wg.Add(1)
 			u := uniprot{source: data, d: d}
 			d.datasets2 = append(d.datasets2, data)
-			go u.update()
+			go u.update(d.selectedTaxids)
 			break
 		case "ensembl", "ensembl_bacteria", "ensembl_fungi", "ensembl_metazoa", "ensembl_plants", "ensembl_protists":
 
@@ -330,7 +329,7 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 				d.wg.Add(1)
 				u := uniprot{source: data, d: d}
 				d.datasets2 = append(d.datasets2, data)
-				go u.update()
+				go u.update(nil)
 			} else {
 				log.Fatal("Missing source path for my_data ")
 			}
@@ -346,7 +345,7 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			d.wg.Add(1)
 			u2 := uniprot{source: data, d: d, trembl: true}
 			d.datasets2 = append(d.datasets2, data)
-			go u2.update()
+			go u2.update(d.selectedTaxids)
 			break
 		case "chembl":
 			chemblDatasets := []string{"chembl_document", "chembl_assay", "chembl_activity", "chembl_molecule", "chembl_target", "chembl_target_component", "chembl_cell_line"}

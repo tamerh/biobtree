@@ -214,6 +214,8 @@ func (e *ensembl) update() {
 
 	defer e.d.wg.Done()
 
+	sourceMap := map[string]string{"ensembl_havana": "eh", "ensembl": "e", "havana": "h"}
+
 	ensemblTranscriptID := config.Dataconf["transcript"]["id"]
 	ensemblProteinID := config.Dataconf["cds"]["id"]
 	orthologID := config.Dataconf["ortholog"]["id"]
@@ -358,14 +360,16 @@ func (e *ensembl) update() {
 
 						currTranscript = &pbuf.EnsemblAttr{}
 
-						currTranscript.Source = fields[1]
+						if _, ok := sourceMap[fields[1]]; ok {
+							currTranscript.Source = sourceMap[fields[1]]
+						}
 
 						currTranscriptID = idAttr[1]
 						e.d.addXref(currGeneID, fr, idAttr[1], "transcript", false)
 
-						if _, ok := attrsMap["Name"]; ok {
-							currTranscript.Name = attrsMap["Name"]
-						}
+						// if _, ok := attrsMap["Name"]; ok {
+						// 	currTranscript.Name = attrsMap["Name"]
+						// }
 
 						if _, ok := attrsMap["biotype"]; ok {
 							currTranscript.Biotype = attrsMap["biotype"]
@@ -501,7 +505,7 @@ func (e *ensembl) update() {
 		}
 	}
 
-	if _, ok := config.Appconf["ensembl_all"]; ok && config.Appconf["ensembl_all"] == "y" {
+	if e.d.orthologsActive {
 
 		for _, paths := range e.jsonPaths {
 
@@ -534,9 +538,14 @@ func (e *ensembl) update() {
 										e.d.addXref2(entryid, fr, stableID, "paralog")
 										e.d.addXref2(stableID, paralogID, stableID, "ensembl")
 									} else {
-										if e.d.orthologsActive {
+										if e.d.orthologsAllActive {
 											e.d.addXref2(entryid, fr, stableID, "ortholog")
 											e.d.addXref2(stableID, orthologID, stableID, "ensembl")
+										} else if e.d.orthologsActive && val.ObjectVals["genome"] != nil {
+											if _, ok := e.taxids[val.ObjectVals["genome"].StringVal]; ok {
+												e.d.addXref2(entryid, fr, stableID, "ortholog")
+												e.d.addXref2(stableID, orthologID, stableID, "ensembl")
+											}
 										}
 									}
 								}
@@ -544,37 +553,40 @@ func (e *ensembl) update() {
 						}
 
 						// maybe these values from configuration
-						e.xref(j, entryid, fr, "Interpro", "interpro")
-						e.xref(j, entryid, fr, "HPA", "HPA")
-						e.xref(j, entryid, fr, "ArrayExpress", "ExpressionAtlas")
-						e.xref(j, entryid, fr, "GENE3D", "CATHGENE3D")
-						e.xref(j, entryid, fr, "MIM_GENE", "MIM")
 						e.xref(j, entryid, fr, "RefSeq_peptide", "RefSeq")
 						e.xref(j, entryid, fr, "EntrezGene", "GeneID")
-						e.xref(j, entryid, fr, "PANTHER", "PANTHER")
 						e.xref(j, entryid, fr, "Reactome", "Reactome")
-						e.xref(j, entryid, fr, "RNAcentral", "RNAcentral")
 						e.xref(j, entryid, fr, "Uniprot/SPTREMBL", "uniprot")
-						e.xref(j, entryid, fr, "protein_id", "EMBL")
 						e.xref(j, entryid, fr, "KEGG_Enzyme", "KEGG")
-						e.xref(j, entryid, fr, "EMBL", "EMBL")
 						e.xref(j, entryid, fr, "CDD", "CDD")
-						e.xref(j, entryid, fr, "TIGRfam", "TIGRFAMs")
-						e.xref(j, entryid, fr, "ChEMBL", "ChEMBL")
-						e.xref(j, entryid, fr, "UniParc", "uniparc")
-						e.xref(j, entryid, fr, "PDB", "PDB")
-						e.xref(j, entryid, fr, "SuperFamily", "SUPFAM")
-						e.xref(j, entryid, fr, "Prosite_profiles", "PROSITE")
 						e.xref(j, entryid, fr, "RefSeq_mRNA", "RefSeq")
-						e.xref(j, entryid, fr, "Pfam", "Pfam")
 						e.xref(j, entryid, fr, "CCDS", "CCDS")
-						e.xref(j, entryid, fr, "Prosite_patterns", "PROSITE")
 						e.xref(j, entryid, fr, "Uniprot/SWISSPROT", "uniprot")
 						e.xref(j, entryid, fr, "UCSC", "UCSC")
-						e.xref(j, entryid, fr, "HGNC", "hgnc")
 						e.xref(j, entryid, fr, "RefSeq_ncRNA_predicted", "RefSeq")
-						e.xref(j, entryid, fr, "HAMAP", "HAMAP")
 						e.xrefGO(j, entryid, fr) // go terms are also under xrefs with source information.
+						// e.xref(j, entryid, fr, "HGNC", "hgnc")
+
+						if e.d.orthologsAllActive {
+							e.xref(j, entryid, fr, "Interpro", "interpro")
+							e.xref(j, entryid, fr, "HPA", "HPA")
+							e.xref(j, entryid, fr, "ArrayExpress", "ExpressionAtlas")
+							e.xref(j, entryid, fr, "GENE3D", "CATHGENE3D")
+							e.xref(j, entryid, fr, "MIM_GENE", "MIM")
+							e.xref(j, entryid, fr, "PANTHER", "PANTHER")
+							e.xref(j, entryid, fr, "RNAcentral", "RNAcentral")
+							e.xref(j, entryid, fr, "protein_id", "EMBL")
+							e.xref(j, entryid, fr, "EMBL", "EMBL")
+							e.xref(j, entryid, fr, "TIGRfam", "TIGRFAMs")
+							e.xref(j, entryid, fr, "ChEMBL", "ChEMBL")
+							e.xref(j, entryid, fr, "UniParc", "uniparc")
+							e.xref(j, entryid, fr, "PDB", "PDB")
+							e.xref(j, entryid, fr, "SuperFamily", "SUPFAM")
+							e.xref(j, entryid, fr, "Prosite_profiles", "PROSITE")
+							e.xref(j, entryid, fr, "Pfam", "Pfam")
+							e.xref(j, entryid, fr, "Prosite_patterns", "PROSITE")
+							e.xref(j, entryid, fr, "HAMAP", "HAMAP")
+						}
 
 						if j.ObjectVals["transcripts"] != nil {
 							for _, val := range j.ObjectVals["transcripts"].ArrayVals {
@@ -587,38 +599,40 @@ func (e *ensembl) update() {
 									}
 								}
 
-								e.xref(val, tentryid, ensemblTranscriptID, "Interpro", "interpro")
-								e.xref(val, tentryid, ensemblTranscriptID, "HPA", "HPA")
-								e.xref(val, tentryid, ensemblTranscriptID, "ArrayExpress", "ExpressionAtlas")
-								e.xref(val, tentryid, ensemblTranscriptID, "GENE3D", "CATHGENE3D")
-								e.xref(val, tentryid, ensemblTranscriptID, "MIM_GENE", "MIM")
 								e.xref(val, tentryid, ensemblTranscriptID, "RefSeq_peptide", "RefSeq")
 								e.xref(val, tentryid, ensemblTranscriptID, "EntrezGene", "GeneID")
-								e.xref(val, tentryid, ensemblTranscriptID, "PANTHER", "PANTHER")
 								e.xref(val, tentryid, ensemblTranscriptID, "Reactome", "Reactome")
-								e.xref(val, tentryid, ensemblTranscriptID, "RNAcentral", "RNAcentral")
 								e.xref(val, tentryid, ensemblTranscriptID, "Uniprot/SPTREMBL", "uniprot")
-								e.xref(val, tentryid, ensemblTranscriptID, "protein_id", "EMBL")
 								e.xref(val, tentryid, ensemblTranscriptID, "KEGG_Enzyme", "KEGG")
-								e.xref(val, tentryid, ensemblTranscriptID, "EMBL", "EMBL")
 								e.xref(val, tentryid, ensemblTranscriptID, "CDD", "CDD")
-								e.xref(val, tentryid, ensemblTranscriptID, "TIGRfam", "TIGRFAMs")
-								e.xref(val, tentryid, ensemblTranscriptID, "ChEMBL", "ChEMBL")
-								e.xref(val, tentryid, ensemblTranscriptID, "UniParc", "uniparc")
-								e.xref(val, tentryid, ensemblTranscriptID, "PDB", "PDB")
-								e.xref(val, tentryid, ensemblTranscriptID, "SuperFamily", "SUPFAM")
-								e.xref(val, tentryid, ensemblTranscriptID, "Prosite_profiles", "PROSITE")
 								e.xref(val, tentryid, ensemblTranscriptID, "RefSeq_mRNA", "RefSeq")
-								e.xref(val, tentryid, ensemblTranscriptID, "Pfam", "Pfam")
 								e.xref(val, tentryid, ensemblTranscriptID, "CCDS", "CCDS")
-								e.xref(val, tentryid, ensemblTranscriptID, "Prosite_patterns", "PROSITE")
 								e.xref(val, tentryid, ensemblTranscriptID, "Uniprot/SWISSPROT", "uniprot")
 								e.xref(val, tentryid, ensemblTranscriptID, "UCSC", "UCSC")
 								e.xref(val, tentryid, ensemblTranscriptID, "Uniprot_gn", "uniprot")
-								e.xref(val, tentryid, ensemblTranscriptID, "HGNC", "hgnc")
 								e.xref(val, tentryid, ensemblTranscriptID, "RefSeq_ncRNA_predicted", "RefSeq")
-								e.xref(val, tentryid, ensemblTranscriptID, "HAMAP", "HAMAP")
+								// e.xref(val, tentryid, ensemblTranscriptID, "HGNC", "hgnc")
 								e.xrefGO(val, tentryid, ensemblTranscriptID)
+								if e.d.orthologsAllActive {
+									e.xref(val, tentryid, ensemblTranscriptID, "Interpro", "interpro")
+									e.xref(val, tentryid, ensemblTranscriptID, "HPA", "HPA")
+									e.xref(val, tentryid, ensemblTranscriptID, "ArrayExpress", "ExpressionAtlas")
+									e.xref(val, tentryid, ensemblTranscriptID, "GENE3D", "CATHGENE3D")
+									e.xref(val, tentryid, ensemblTranscriptID, "MIM_GENE", "MIM")
+									e.xref(val, tentryid, ensemblTranscriptID, "PANTHER", "PANTHER")
+									e.xref(val, tentryid, ensemblTranscriptID, "RNAcentral", "RNAcentral")
+									e.xref(val, tentryid, ensemblTranscriptID, "protein_id", "EMBL")
+									e.xref(val, tentryid, ensemblTranscriptID, "EMBL", "EMBL")
+									e.xref(val, tentryid, ensemblTranscriptID, "TIGRfam", "TIGRFAMs")
+									e.xref(val, tentryid, ensemblTranscriptID, "ChEMBL", "ChEMBL")
+									e.xref(val, tentryid, ensemblTranscriptID, "UniParc", "uniparc")
+									e.xref(val, tentryid, ensemblTranscriptID, "PDB", "PDB")
+									e.xref(val, tentryid, ensemblTranscriptID, "SuperFamily", "SUPFAM")
+									e.xref(val, tentryid, ensemblTranscriptID, "Prosite_profiles", "PROSITE")
+									e.xref(val, tentryid, ensemblTranscriptID, "Pfam", "Pfam")
+									e.xref(val, tentryid, ensemblTranscriptID, "Prosite_patterns", "PROSITE")
+									e.xref(val, tentryid, ensemblTranscriptID, "HAMAP", "HAMAP")
+								}
 
 							}
 						}

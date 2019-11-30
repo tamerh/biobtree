@@ -34,7 +34,7 @@ type Conf struct {
 	versionTag            string
 }
 
-func (c *Conf) Init(rootDir, bbBinaryVersion, outDir, confExtension string, optionalDatasetActive bool) {
+func (c *Conf) Init(rootDir, bbBinaryVersion, outDir, preBuildSet string, optionalDatasetActive bool) {
 
 	c.versionTag = bbBinaryVersion
 
@@ -57,7 +57,7 @@ func (c *Conf) Init(rootDir, bbBinaryVersion, outDir, confExtension string, opti
 	ensemblExist, err := fileExists(ensemblDir)
 
 	if !confExist || !websiteExist || !ensemblExist {
-		c.retrConfFiles(latestConfVersion, confExtension, rootDir)
+		c.retrConfFiles(latestConfVersion, preBuildSet, rootDir)
 	}
 
 	// STEP 1 First read application param and if it is outdated retrieve latest ones and overwrite it.
@@ -76,7 +76,7 @@ func (c *Conf) Init(rootDir, bbBinaryVersion, outDir, confExtension string, opti
 	if c.Appconf["conf_version"] != latestConfVersion {
 
 		c.Appconf = map[string]string{}
-		c.retrConfFiles(latestConfVersion, confExtension, rootDir)
+		c.retrConfFiles(latestConfVersion, preBuildSet, rootDir)
 
 		f, err := ioutil.ReadFile(appconfFile)
 		if err != nil {
@@ -260,12 +260,34 @@ func (c *Conf) checkForNewVersion() {
 
 }
 
-func (c *Conf) retrConfFiles(confVersion, confExt, confDir string) {
+func (c *Conf) retrConfFiles(confVersion, preBuildSet, confDir string) {
 
-	log.Println("Pulling configuration and default dataset files ...")
-	confPath := "https://github.com/tamerh/biobtree-conf/releases/download/" + confVersion + "/biobtree-conf-" + confVersion + confExt + ".zip"
+	log.Println("Pulling configuration and dataset files ...")
+	confPath := "https://github.com/tamerh/biobtree-conf/archive/" + confVersion + ".zip"
 
-	resp, err := http.Get(confPath)
+	err := c.unzip(confPath, confDir, confVersion)
+	if err != nil {
+		log.Fatal("Unzip file", err)
+	}
+
+	if len(preBuildSet) > 0 {
+
+		preDataPath := "https://github.com/tamerh/biobtree-conf/releases/download/" + confVersion + "/biobtree-conf-" + confVersion + "-" + preBuildSet + ".zip"
+
+		err := c.unzip(preDataPath, confDir, confVersion)
+		if err != nil {
+			log.Fatal("Unzip file", err)
+		}
+
+	}
+
+	log.Println("Pulling done.")
+
+}
+
+func (c *Conf) unzip(path string, dest, confVersion string) error {
+
+	resp, err := http.Get(path)
 	if err != nil {
 		log.Fatalf("GET error: %v", err)
 	}
@@ -275,20 +297,10 @@ func (c *Conf) retrConfFiles(confVersion, confExt, confDir string) {
 		log.Fatalf("Status error: %v", resp.StatusCode)
 	}
 
-	data, err := ioutil.ReadAll(resp.Body)
+	zipcontent, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.Fatalf("Read body: %v", err)
 	}
-
-	err = c.unzip(data, confDir, confVersion)
-	if err != nil {
-		log.Fatal("Unzip file", err)
-	}
-	log.Println("Pulling done.")
-
-}
-
-func (c *Conf) unzip(zipcontent []byte, dest, confVersion string) error {
 
 	r, err := zip.NewReader(bytes.NewReader(zipcontent), int64(len(zipcontent)))
 

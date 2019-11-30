@@ -59,6 +59,8 @@ type DataUpdate struct {
 	selectedGenomesPattern []string
 	selectedTaxids         []int
 	orthologsActive        bool
+	orthologsAllActive     bool
+	skipEnsembl            bool
 	progChan               chan *progressInfo
 	progInterval           int64
 }
@@ -69,7 +71,7 @@ type progressInfo struct {
 	done            bool
 }
 
-func NewDataUpdate(datasets map[string]bool, targetDatasets, ensemblSpecies, ensemblSpeciesPattern []string, genometaxids []int, orthologs bool, conf *configs.Conf, chkIdx string) *DataUpdate {
+func NewDataUpdate(datasets map[string]bool, targetDatasets, ensemblSpecies, ensemblSpeciesPattern []string, genometaxids []int, skipEnsembl, orthologs, orthologsAll bool, conf *configs.Conf, chkIdx string) *DataUpdate {
 
 	chunkIdx = chkIdx
 	config = conf
@@ -130,6 +132,8 @@ func NewDataUpdate(datasets map[string]bool, targetDatasets, ensemblSpecies, ens
 		start:                  time.Now(),
 		inDatasets:             datasets,
 		orthologsActive:        orthologs,
+		orthologsAllActive:     orthologsAll,
+		skipEnsembl:            skipEnsembl,
 	}
 
 }
@@ -149,8 +153,10 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 		return 0, 0
 	}
 
-	for ens := range ensembls { // if ensembl is not selected from command line
-		d.inDatasets[ens] = true
+	if !d.skipEnsembl {
+		for ens := range ensembls { // if ensembl is not selected from command line
+			d.inDatasets[ens] = true
+		}
 	}
 
 	var err error

@@ -81,9 +81,8 @@ func main() {
 			Usage:  "to change default config directory while developing",
 		},
 		cli.StringFlag{
-			Name:   "conf-extension",
-			Hidden: true,
-			Usage:  "to retrieve specific biobtree-conf for different cache configuration",
+			Name:  "pre-build-data,p",
+			Usage: "pre build data provided for common datasets and genomes with the value set1,set2,set3 .",
 		},
 		cli.BoolFlag{
 			Name:  "keep",
@@ -94,12 +93,12 @@ func main() {
 			Usage: "when this flag sets optional dataset which defined in the optional.dataset.json file includes for mapping. by default it is false",
 		},
 		cli.BoolFlag{
-			Name:  "ensembl-all",
-			Usage: "For ensembls by default only genomic coordinates and probset mappings data are processed. If this parameter set all mappings proccessed which cause relatively longer processing time",
+			Name:  "ensembl-orthologs,eo",
+			Usage: "For ensembls by default only gff3 files are processed. For orthologs and other mappings this parameter must be set",
 		},
 		cli.BoolFlag{
-			Name:  "ensembl-orthologs",
-			Usage: "For ensembls by default orthologs mappings are not included. If this paramter is set orthologs identifiers processed which cause relatively longer processing time",
+			Name:  "ensembl-orthologs-all,eoa",
+			Usage: "When ensembl-orthologs is set only given taxonomies orthologs are processed if this parameter is set all orthologs and some extra mappings are included",
 		},
 		cli.BoolFlag{
 			Name:  "override-cache,x",
@@ -125,13 +124,16 @@ func main() {
 			Usage: "Genome names pattern for ensembl datasets. e.g 'salmonella' which gets all genomes of salmonella species in ensembl",
 		},
 		cli.StringFlag{
-			Name: "genome-taxids,tax",
-			//Value: "homo_sapiens",
+			Name:  "genome-taxids,tax",
 			Usage: "Process all the genomes belongs to given taxonomy ids seperated by comma",
 		},
 		cli.BoolFlag{
 			Name:  "no-web-popup,np",
 			Usage: "When opening the web application don't trigger opening popup",
+		},
+		cli.BoolFlag{
+			Name:  "skip-ensembl,se",
+			Usage: "During uniprot data update when taxids selected this paramater is used to just index uniprot",
 		},
 	}
 
@@ -253,18 +255,12 @@ func runUpdateCommand(c *cli.Context) error {
 
 	confdir := c.GlobalString("confdir")
 	outDir := c.GlobalString("out-dir")
-	confExtension := c.GlobalString("conf-extension")
+	preBuildSet := c.GlobalString("pre-build-data")
 	includeOptionals := c.GlobalBool("include-optionals")
 	overrideCache := c.GlobalBool("override-cache")
 
 	config = &configs.Conf{}
-	config.Init(confdir, versionTag, outDir, confExtension, includeOptionals)
-
-	if c.GlobalBool("ensembl-all") {
-		config.Appconf["ensembl_all"] = "y"
-	} else {
-		config.Appconf["ensembl_all"] = "n"
-	}
+	config.Init(confdir, versionTag, outDir, preBuildSet, includeOptionals)
 
 	indataset := c.GlobalString("datasets")
 
@@ -377,7 +373,7 @@ func runUpdateCommand(c *cli.Context) error {
 		}
 	}
 
-	update.NewDataUpdate(d, ts, sp, spatterns, genometaxids, c.GlobalBool("ensembl-orthologs"), config, chunkIdxx).Update()
+	update.NewDataUpdate(d, ts, sp, spatterns, genometaxids, c.GlobalBool("skip-ensembl"), c.GlobalBool("ensembl-orthologs"), c.GlobalBool("ensembl-orthologs-all"), config, chunkIdxx).Update()
 
 	elapsed := time.Since(start)
 	log.Printf("Update took %s", elapsed)

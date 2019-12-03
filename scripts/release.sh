@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 cd ..
 
 if [[ "$OSTYPE" == "linux-gnu" ]]; then

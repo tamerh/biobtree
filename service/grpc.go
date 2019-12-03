@@ -43,7 +43,6 @@ func (g *biobtreegrpc) Start() {
 		log.Fatalf("failed to serve: %s", err)
 	}
 	**/
-	log.Println("gRPC started at port->", port)
 
 }
 func (g *biobtreegrpc) Search(ctx context.Context, in *pbuf.SearchRequest) (*pbuf.SearchResponse, error) {

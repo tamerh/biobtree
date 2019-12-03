@@ -81,6 +81,11 @@ func main() {
 			Usage:  "to change default config directory while developing",
 		},
 		cli.StringFlag{
+			Name:   "lmdb-alloc-size,lmdbsize",
+			Hidden: true,
+			Usage:  "specify lmdb alloc size",
+		},
+		cli.StringFlag{
 			Name:  "pre-build-data,p",
 			Usage: "pre build data provided for common datasets and genomes with the value set1,set2,set3 .",
 		},
@@ -390,9 +395,14 @@ func runGenerateCommand(c *cli.Context) error {
 
 	confdir := c.GlobalString("confdir")
 	outDir := c.GlobalString("out-dir")
+	lmdbAllocSize := c.GlobalString("lmdb-alloc-size")
 
 	config = &configs.Conf{}
 	config.Init(confdir, versionTag, outDir, "", true)
+
+	if len(lmdbAllocSize) > 0 {
+		config.Appconf["lmdbAllocSize"] = lmdbAllocSize
+	}
 
 	cpu := c.GlobalInt(" maxcpu")
 	if cpu > 1 {

@@ -63,11 +63,11 @@ prepCache(){
 
     #EXCLUDES="--exclude=biobtree --exclude=data.sh  --exclude=LICENSE* --exclude=*website* --exclude=*ensembl* --exclude=*conf* --exclude=*.git* --exclude=*build.sh  --exclude=*notes.txt --exclude=*.zip --exclude=*.DS_Store*"
 
-    zip -9 -r biobtree-conf-${VERSION}-${1}r.zip out
+    tar -czvf biobtree-conf-${VERSION}-${1}r.tar.gz out/
 
-    ./biobtree generate
+    ./biobtree --lmdbsize ${2} generate
 
-    zip -9 -r biobtree-conf-${VERSION}-${1}d.zip out
+    tar -czvf biobtree-conf-${VERSION}-${1}d.tar.gz out/
 
     rm -rf out
 
@@ -95,20 +95,20 @@ clearConfs
 # ./biobtree -d hgnc --idx cacheset1 update
 # prepCache "set1"
 
-### CACHE 1 datasets with above ensembl genomes except mouse strains.
+### CACHE 1 datasets with above ensembl genomes except mouse strains. ~ 5.2 db size
 
 ./biobtree -d hgnc,hmdb,uniprot,taxonomy,go,efo,eco,chebi,interpro -tax 9606,10090,4932,3702,7227,6239,562,511145,83333,7955,9031,10116 -x --skip-ensembl -idx cacheset1 update
 ./biobtree -tax 9606,4932,3702,7227,6239,562,511145,83333,7955,9031,10116 -keep --ensembl-orthologs -idx cacheset12 update
 ./biobtree --genome mus_musculus -keep --ensembl-orthologs -idx cacheset13 update
-prepCache "set1"
+prepCache "set1" "5600000000"
 
 ### CACHE 2 datasets with ensembl human and all mouse strains genomes
 ./biobtree -d hgnc,hmdb,uniprot,taxonomy,go,efo,eco,chebi,interpro -tax 9606,10090 -x -idx cacheset2 update
-prepCache "set2"
+prepCache "set2" "4100000000"
 
-### CACHE 3 datasets with no esembl and full uniprot
+### CACHE 3 datasets with no esembl and full uniprot ~ 3.2 db size
 ./biobtree -d hgnc,hmdb,uniprot,taxonomy,go,efo,eco,chebi,interpro -x -idx cacheset3 update
-prepCache "set3"
+prepCache "set3" "3600000000"
 
 
 clearConfs

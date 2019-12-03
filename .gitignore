@@ -33,3 +33,4 @@ conf/
 ensembl/
 conf
 *.json
+!scripts/data/data.sh

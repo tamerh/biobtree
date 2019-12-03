@@ -90,10 +90,9 @@ func (web *Web) Start(c *configs.Conf, nowebpopup bool) {
 
 	}
 
-	log.Println("REST started at port->", port)
 	uiURL := "localhost:" + port + "/ui"
-	log.Println("Web interface url->", uiURL)
-	fmt.Println("biobtree web is running...")
+	log.Println("Web UI url->", uiURL)
+	log.Println("biobtree web is running...")
 	log.Fatal(http.ListenAndServe(":"+port, nil))
 
 }

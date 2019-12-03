@@ -262,7 +262,7 @@ func (c *Conf) checkForNewVersion() {
 
 func (c *Conf) retrConfFiles(confVersion, preBuildSet, confDir string) {
 
-	log.Println("Pulling configuration and dataset files ...")
+	log.Println("Pulling configuration files ...")
 	confPath := "https://github.com/tamerh/biobtree-conf/archive/" + confVersion + ".zip"
 
 	err := c.unzip(confPath, confDir, confVersion)
@@ -271,6 +271,8 @@ func (c *Conf) retrConfFiles(confVersion, preBuildSet, confDir string) {
 	}
 
 	if len(preBuildSet) > 0 {
+
+		log.Println("Pulling pre-build data files ...")
 
 		preDataPath := "https://github.com/tamerh/biobtree-conf/releases/download/" + confVersion + "/biobtree-conf-" + confVersion + "-" + preBuildSet + ".zip"
 

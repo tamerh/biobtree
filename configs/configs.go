@@ -326,7 +326,7 @@ func (c *Conf) unzip(path string, dest, confVersion string) error {
 			}
 		}()
 
-		path := filepath.Join(dest, strings.TrimPrefix(f.Name, "biobtree-conf-"+confVersion+string(filepath.Separator)))
+		path := filepath.Join(dest, strings.TrimPrefix(f.Name, "biobtree-conf-"+confVersion+"/"))
 
 		if len(path) <= 1 { // Root folder TODO CHECK windows
 			return nil

@@ -113,6 +113,10 @@ func NewDataUpdate(datasets map[string]bool, targetDatasets, ensemblSpecies, ens
 		}
 	}
 
+	if orthologsAll {
+		orthologs = true
+	}
+
 	return &DataUpdate{
 		invalidXrefs:           util.NewHashMap(300),
 		sampleXrefs:            util.NewHashMap(400),

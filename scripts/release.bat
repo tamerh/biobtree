@@ -10,4 +10,4 @@ IF EXIST [biobtree_Windwos_64bit.zip] (
 
 go build
 
-7z.exe a biobtree_Windwos_64bit.zip biobtree.exe
+7z.exe a biobtree_Windows_64bit.zip biobtree.exe

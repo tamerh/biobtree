@@ -95,6 +95,10 @@ clearConfs
 # ./biobtree -d hgnc --idx cacheset1 update
 # prepCache "set1"
 
+### CACHE 0 small demo dataset for biobtreeR ~ 36 MB db size
+./biobtree -d go,hgnc,uniprot,ensembl,interpro --uniprot.file ../../test_data/RdemoData/uniprot_sample.xml.gz --interpro.file ../../test_data/RdemoData/interpro_sample.xml.gz --ensembl.file ../../test_data/RdemoData/human.chr.21.gff3.gz --go.file ../../test_data/RdemoData/go_sample.owl -tax 9606 -idx demo update
+prepCache "demo" "36000000"
+
 ### CACHE 1 datasets with above ensembl genomes except mouse strains. ~ 5.2 db size
 
 ./biobtree -d hgnc,hmdb,uniprot,taxonomy,go,efo,eco,chebi,interpro -tax 9606,10090,4932,3702,7227,6239,562,511145,83333,7955,9031,10116 -x --skip-ensembl -idx cacheset1 update
@@ -109,6 +113,5 @@ prepCache "set2" "4100000000"
 ### CACHE 3 datasets with no esembl and full uniprot ~ 3.2 db size
 ./biobtree -d hgnc,hmdb,uniprot,taxonomy,go,efo,eco,chebi,interpro -x -idx cacheset3 update
 prepCache "set3" "3600000000"
-
 
 clearConfs

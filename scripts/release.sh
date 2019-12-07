@@ -10,9 +10,13 @@ elif [[ "$OSTYPE" == "darwin"* ]]; then
     OS="MacOS"
 fi
 
-rm biobtree 
+if [ -f biobtree ]; then
+    rm biobtree
+fi
 
-rm -rf biobtree_*.tar.gz 
+if [ -f biobtree_*.tar.gz ]; then
+    rm -rf biobtree_*.tar.gz
+fi
 
 go build
 

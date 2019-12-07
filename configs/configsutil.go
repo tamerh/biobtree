@@ -137,125 +137,29 @@ func (c *Conf) createReverseConf() {
 
 }
 
-func (c *Conf) CleanOutDirs(cleanCaches bool) {
+func (c *Conf) CleanOutDirs() {
 
-	if cleanCaches {
-
-		err := os.RemoveAll(filepath.FromSlash(c.Appconf["outDir"]))
-
-		if err != nil {
-			log.Fatal("Error cleaning the out dir check you have right permission")
-		}
-		err = os.Mkdir(filepath.FromSlash(c.Appconf["outDir"]), 0700)
-		if err != nil {
-			log.Fatal("Error creating dir", c.Appconf["outDir"], "check you have right permission ")
-		}
-		err = os.Mkdir(filepath.FromSlash(c.Appconf["indexDir"]), 0700)
-		if err != nil {
-			log.Fatal("Error creating dir", c.Appconf["indexDir"], "check you have right permission ")
-		}
-		err = os.Mkdir(filepath.FromSlash(c.Appconf["dbDir"]), 0700)
-		if err != nil {
-			log.Fatal("Error creating dir", c.Appconf["dbDir"], "check you have right permission ")
-		}
-
-		err = os.Mkdir(filepath.FromSlash(c.Appconf["idDir"]), 0700)
-		if err != nil {
-			log.Fatal("Error creating dir", c.Appconf["dbDir"], "check you have right permission ")
-		}
-
-	} else {
-
-		err := os.RemoveAll(filepath.FromSlash(c.Appconf["dbDir"]))
-
-		if err != nil {
-			log.Fatal("Error cleaning the db dir check you have right permission")
-		}
-
-		err = os.Mkdir(filepath.FromSlash(c.Appconf["dbDir"]), 0700)
-		if err != nil {
-			log.Fatal("Error creating dir", c.Appconf["dbDir"], "check you have right permission ")
-		}
-
-		err = os.RemoveAll(filepath.FromSlash(c.Appconf["idDir"]))
-		if err != nil {
-			log.Fatal("Error cleaning the idir dir check you have right permission")
-		}
-
-		err = os.Mkdir(filepath.FromSlash(c.Appconf["idDir"]), 0700)
-		if err != nil {
-			log.Fatal("Error creating dir", c.Appconf["idDir"], "check you have right permission ")
-		}
-
-		c.CleanNonCacheFiles()
-
-	}
-
-}
-
-func (c *Conf) CleanNonCacheFiles() {
-
-	// delete files which are not cache
-	files, err := ioutil.ReadDir(filepath.FromSlash(c.Appconf["indexDir"]))
+	err := os.RemoveAll(filepath.FromSlash(c.Appconf["outDir"]))
 
 	if err != nil {
-		return
+		log.Fatal("Error cleaning the out dir check you have right permission")
 	}
-
-	for _, f := range files {
-
-		if !strings.Contains(f.Name(), "cache") {
-
-			err := os.Remove(filepath.FromSlash(c.Appconf["indexDir"] + "/" + f.Name()))
-			if err != nil {
-				log.Fatal(err)
-			}
-
-		}
-
-	}
-
-}
-
-func (c *Conf) CleanCacheFiles() {
-
-	files, err := ioutil.ReadDir(filepath.FromSlash(c.Appconf["indexDir"]))
-
+	err = os.Mkdir(filepath.FromSlash(c.Appconf["outDir"]), 0700)
 	if err != nil {
-		return
+		log.Fatal("Error creating dir", c.Appconf["outDir"], "check you have right permission ")
 	}
-
-	for _, f := range files {
-
-		if strings.Contains(f.Name(), "cache") {
-
-			err := os.Remove(filepath.FromSlash(c.Appconf["indexDir"] + "/" + f.Name()))
-			if err != nil {
-				log.Fatal(err)
-			}
-
-		}
-
-	}
-
-}
-
-func (c *Conf) HasCacheFiles() bool {
-
-	files, err := ioutil.ReadDir(filepath.FromSlash(c.Appconf["indexDir"]))
-
+	err = os.Mkdir(filepath.FromSlash(c.Appconf["indexDir"]), 0700)
 	if err != nil {
-		return false
+		log.Fatal("Error creating dir", c.Appconf["indexDir"], "check you have right permission ")
+	}
+	err = os.Mkdir(filepath.FromSlash(c.Appconf["dbDir"]), 0700)
+	if err != nil {
+		log.Fatal("Error creating dir", c.Appconf["dbDir"], "check you have right permission ")
 	}
 
-	for _, f := range files {
-
-		if strings.Contains(f.Name(), "cache") {
-			return true
-		}
-
+	err = os.Mkdir(filepath.FromSlash(c.Appconf["idDir"]), 0700)
+	if err != nil {
+		log.Fatal("Error creating dir", c.Appconf["idDir"], "check you have right permission ")
 	}
-
-	return false
 
 }

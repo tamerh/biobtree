@@ -455,17 +455,6 @@ func (d *Merge) removeFinished() {
 		}
 		d.chunkReaders = updatedReaders
 
-		if !d.keepUpdateFiles {
-			for _, ch := range finishedReaders {
-				ch.file.Close()
-				if !strings.Contains(ch.file.Name(), "cache") {
-					err := os.Remove(ch.file.Name())
-					if err != nil {
-						panic(err)
-					}
-				}
-			}
-		}
 	}
 
 }
@@ -546,12 +535,15 @@ func (d *Merge) init() {
 
 	for _, f := range files {
 		if !f.IsDir() && strings.HasSuffix(f.Name(), ".gz") {
+
 			path := filepath.FromSlash(config.Appconf["indexDir"] + "/" + f.Name())
 			file, err := os.Open(path)
 			gz, err := gzip.NewReader(file)
+
 			if err == io.EOF { //zero file
 				continue
 			}
+
 			check(err)
 			br := bufio.NewReaderSize(gz, fileBufSize)
 			cr = append(cr, &chunkReader{
@@ -562,9 +554,7 @@ func (d *Merge) init() {
 				d:        d,
 				file:     file,
 			})
-			//todo
-			//defer gz.Close()
-			//defer file.Close()
+
 		}
 	}
 	d.chunkReaders = cr
@@ -673,14 +663,28 @@ func (d *Merge) close() {
 	d.writeBatch()
 	d.wrEnv.Close()
 
-	var keepChunks bool
-	if _, ok := config.Appconf["keepChunks"]; ok && config.Appconf["keepChunks"] == "yes" {
-		keepChunks = true
-	}
+	if !d.keepUpdateFiles {
 
-	if !keepChunks {
+		files, err := ioutil.ReadDir(filepath.FromSlash(config.Appconf["indexDir"]))
 
-		config.CleanNonCacheFiles()
+		if err == nil {
+
+			for _, f := range files {
+
+				if !f.IsDir() && strings.HasSuffix(f.Name(), ".gz") {
+
+					err := os.Remove(filepath.FromSlash(config.Appconf["indexDir"] + "/" + f.Name()))
+					if err != nil {
+						log.Printf("Database successfully created but index files could not deleted please delete manually %v\n", err)
+						break
+					}
+
+				}
+			}
+
+		} else {
+			log.Printf("Database successfully created but index files could not deleted please delete manually %v\n", err)
+		}
 
 	}
 
@@ -690,10 +694,15 @@ func (d *Merge) close() {
 	mergeStats["totalKVLine"] = d.totalkvLine
 	data, err := json.Marshal(mergeStats)
 	if err != nil {
-		fmt.Println("Error while writing merge metadata")
+		log.Printf("Database successfully created but meta file could not created %v\n", err)
+		return
 	}
 
-	ioutil.WriteFile(filepath.FromSlash(config.Appconf["dbDir"]+"/db.meta.json"), data, 0770)
+	err = ioutil.WriteFile(filepath.FromSlash(config.Appconf["dbDir"]+"/db.meta.json"), data, 0770)
+
+	if err != nil {
+		log.Printf("Database successfully created but meta file could not created %v\n", err)
+	}
 
 }
 

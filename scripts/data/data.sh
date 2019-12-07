@@ -67,7 +67,7 @@ prepCache(){
 
     ./biobtree --lmdbsize ${2} generate
 
-    tar -czvf biobtree-conf-${VERSION}-${1}d.tar.gz out/
+    tar -czvf biobtree-conf-${VERSION}-${1}.tar.gz out/
 
     rm -rf out
 

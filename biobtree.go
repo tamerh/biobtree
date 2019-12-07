@@ -86,8 +86,8 @@ func main() {
 			Usage:  "specify lmdb alloc size",
 		},
 		cli.StringFlag{
-			Name:  "pre-build-data,p",
-			Usage: "pre build data provided for common datasets and genomes with the value set1,set2,set3 .",
+			Name:  "pre-built,p",
+			Usage: "With this command pre built data automatically installed. Please check README for values of this parameter with data that are included for each value",
 		},
 		cli.BoolFlag{
 			Name:  "keep",
@@ -104,10 +104,6 @@ func main() {
 		cli.BoolFlag{
 			Name:  "ensembl-orthologs-all,eoa",
 			Usage: "When ensembl-orthologs is set only given taxonomies orthologs are processed if this parameter is set all orthologs and some extra mappings are included",
-		},
-		cli.BoolFlag{
-			Name:  "override-cache,x",
-			Usage: "By default uniprot,go,eco,efo,hgnc,chebi,taxonomy,interpro,hmdb datasets are retrieved via cache. Use this param to invalidate these cache and directly retrieve the datasets",
 		},
 		cli.BoolFlag{
 			Name:   "no-timezone-check",
@@ -226,7 +222,7 @@ func runAliasCommand(c *cli.Context) error {
 	outDir := c.GlobalString("out-dir")
 	includeOptionals := c.GlobalBool("include-optionals")
 	config = &configs.Conf{}
-	config.Init(confdir, versionTag, outDir, "", includeOptionals)
+	config.Init(confdir, versionTag, outDir, includeOptionals)
 
 	var ali = update.Alias{}
 	ali.Merge(config)
@@ -260,17 +256,14 @@ func runUpdateCommand(c *cli.Context) error {
 
 	confdir := c.GlobalString("confdir")
 	outDir := c.GlobalString("out-dir")
-	preBuildSet := c.GlobalString("pre-build-data")
 	includeOptionals := c.GlobalBool("include-optionals")
-	overrideCache := c.GlobalBool("override-cache")
 
 	config = &configs.Conf{}
-	config.Init(confdir, versionTag, outDir, preBuildSet, includeOptionals)
+	config.Init(confdir, versionTag, outDir, includeOptionals)
 
 	indataset := c.GlobalString("datasets")
 
 	d := map[string]bool{}
-	ds := []string{}
 
 	if len(indataset) > 0 {
 		if strings.HasPrefix(indataset, "+") { // add default dataset
@@ -278,10 +271,10 @@ func runUpdateCommand(c *cli.Context) error {
 			indataset = indataset + "," + defaultDataset
 		}
 
-		ds := strings.Split(indataset, ",")
-		for _, dt := range ds {
+		for _, dt := range strings.Split(indataset, ",") {
 			d[dt] = true
 		}
+
 	}
 
 	genomeSelectionWay := 0
@@ -326,16 +319,7 @@ func runUpdateCommand(c *cli.Context) error {
 
 	keep := c.GlobalBool("keep")
 	if !keep {
-		config.CleanOutDirs(overrideCache)
-	} else if overrideCache {
-		config.CleanCacheFiles()
-	}
-
-	hasCacheFiles := config.HasCacheFiles()
-
-	if hasCacheFiles && slicesIntersect(ds, cachedDataset) {
-		log.Fatal("Dataset is already in the cache you can generate the database or either select a dataset not in the cache or to invalidate all the cache use -x param")
-		return nil
+		config.CleanOutDirs()
 	}
 
 	config.Appconf["uniprot_ftp"] = c.GlobalString("uniprot-ftp")
@@ -398,7 +382,7 @@ func runGenerateCommand(c *cli.Context) error {
 	lmdbAllocSize := c.GlobalString("lmdb-alloc-size")
 
 	config = &configs.Conf{}
-	config.Init(confdir, versionTag, outDir, "", true)
+	config.Init(confdir, versionTag, outDir, true)
 
 	if len(lmdbAllocSize) > 0 {
 		config.Appconf["lmdbAllocSize"] = lmdbAllocSize
@@ -430,7 +414,7 @@ func runWebCommand(c *cli.Context) error {
 	confdir := c.GlobalString("confdir")
 	outDir := c.GlobalString("out-dir")
 	config = &configs.Conf{}
-	config.Init(confdir, versionTag, outDir, "", true)
+	config.Init(confdir, versionTag, outDir, true)
 
 	cpu := c.GlobalInt(" maxcpu")
 	if cpu > 1 {
@@ -448,8 +432,9 @@ func runInstallCommand(c *cli.Context) error {
 
 	confdir := c.GlobalString("confdir")
 	outDir := c.GlobalString("out-dir")
+	preBuildSet := c.GlobalString("pre-built")
 	config = &configs.Conf{}
-	config.Init(confdir, versionTag, outDir, "", true)
+	config.Install(confdir, versionTag, outDir, preBuildSet, true)
 
 	return nil
 
@@ -460,7 +445,7 @@ func runProfileCommand(c *cli.Context) error {
 	confdir := c.GlobalString("confdir")
 	outDir := c.GlobalString("out-dir")
 	config = &configs.Conf{}
-	config.Init(confdir, versionTag, outDir, "", true)
+	config.Init(confdir, versionTag, outDir, true)
 
 	os.Remove("memprof.out")
 	os.Remove("cpuprof.out")
@@ -517,19 +502,5 @@ func check(err error) {
 		fmt.Println("Error: ", err)
 		panic(err)
 	}
-
-}
-
-func slicesIntersect(s1, s2 []string) bool {
-
-	for _, i1 := range s1 {
-		for _, i2 := range s2 {
-			if i1 == i2 {
-				return true
-			}
-		}
-	}
-
-	return false
 
 }

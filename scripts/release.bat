@@ -4,8 +4,8 @@ IF EXIST [biobtree.exe] (
     del /F biobtree.exe
 )
 
-IF EXIST [biobtree_Windwos_64bit.zip] (
-    del /F biobtree_Windwos_64bit.zip
+IF EXIST [biobtree_Windows_64bit.zip] (
+    del /F biobtree_Windows_64bit.zip
 )
 
 go build

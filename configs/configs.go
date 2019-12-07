@@ -1,9 +1,12 @@
 package configs
 
 import (
+	"archive/tar"
 	"archive/zip"
 	"biobtree/util"
+	"bufio"
 	"bytes"
+	"compress/gzip"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -34,7 +37,35 @@ type Conf struct {
 	versionTag            string
 }
 
-func (c *Conf) Init(rootDir, bbBinaryVersion, outDir, preBuildSet string, optionalDatasetActive bool) {
+func (c *Conf) Install(rootDir, bbBinaryVersion, outDir, preBuildSet string, optionalDatasetActive bool) {
+
+	dirs := []string{}
+	dirs = append(dirs, rootDir+"conf")
+	dirs = append(dirs, rootDir+"ensembl")
+	dirs = append(dirs, rootDir+"website")
+	dirs = append(dirs, rootDir+"out")
+
+	for _, dir := range dirs {
+
+		err := os.RemoveAll(filepath.FromSlash(dir))
+
+		if err != nil {
+			log.Fatalf("Error %v when deleting folder  %v\n", err, dir)
+		}
+
+	}
+
+	latestConfVersion := c.latestConfVersion()
+
+	c.retrConfFiles(latestConfVersion, rootDir)
+
+	if len(preBuildSet) > 0 {
+		c.retrPreBuiltDBFiles(latestConfVersion, preBuildSet, rootDir)
+	}
+
+}
+
+func (c *Conf) Init(rootDir, bbBinaryVersion, outDir string, optionalDatasetActive bool) {
 
 	c.versionTag = bbBinaryVersion
 
@@ -57,7 +88,7 @@ func (c *Conf) Init(rootDir, bbBinaryVersion, outDir, preBuildSet string, option
 	ensemblExist, err := fileExists(ensemblDir)
 
 	if !confExist || !websiteExist || !ensemblExist {
-		c.retrConfFiles(latestConfVersion, preBuildSet, rootDir)
+		c.retrConfFiles(latestConfVersion, rootDir)
 	}
 
 	// STEP 1 First read application param and if it is outdated retrieve latest ones and overwrite it.
@@ -75,17 +106,7 @@ func (c *Conf) Init(rootDir, bbBinaryVersion, outDir, preBuildSet string, option
 
 	if c.Appconf["conf_version"] != latestConfVersion {
 
-		c.Appconf = map[string]string{}
-		c.retrConfFiles(latestConfVersion, preBuildSet, rootDir)
-
-		f, err := ioutil.ReadFile(appconfFile)
-		if err != nil {
-			log.Fatalf("Error: %v", err)
-		}
-
-		if err := json.Unmarshal(f, &c.Appconf); err != nil {
-			log.Fatalf("Error: %v", err)
-		}
+		log.Println("Note: There is a new data and configuration release. To use latest data install or build database again")
 
 	}
 	// set root dir if passed
@@ -260,30 +281,74 @@ func (c *Conf) checkForNewVersion() {
 
 }
 
-func (c *Conf) retrConfFiles(confVersion, preBuildSet, confDir string) {
+func (c *Conf) retrConfFiles(confVersion, confDir string) {
 
-	log.Println("Pulling configuration files ...")
 	confPath := "https://github.com/tamerh/biobtree-conf/archive/" + confVersion + ".zip"
+
+	log.Printf("Pulling configuration files from %s \n", confPath)
 
 	err := c.unzip(confPath, confDir, confVersion)
 	if err != nil {
 		log.Fatal("Unzip file", err)
 	}
 
+	log.Println("Pulling done.")
+
+}
+
+func (c *Conf) retrPreBuiltDBFiles(confVersion, preBuildSet, confDir string) {
+
 	if len(preBuildSet) > 0 {
 
-		log.Println("Pulling pre-build data files ...")
+		preDataPath := "https://github.com/tamerh/biobtree-conf/releases/download/" + confVersion + "/biobtree-conf-" + confVersion + "-set" + preBuildSet + ".tar.gz"
 
-		preDataPath := "https://github.com/tamerh/biobtree-conf/releases/download/" + confVersion + "/biobtree-conf-" + confVersion + "-" + preBuildSet + ".zip"
+		log.Printf("Pulling pre-build db files from %s \n", preDataPath)
 
-		err := c.unzip(preDataPath, confDir, confVersion)
+		resp, err := http.Get(preDataPath)
+
+		br := bufio.NewReaderSize(resp.Body, fileBufSize)
+
+		uncompressedStream, err := gzip.NewReader(br)
 		if err != nil {
-			log.Fatal("Unzip file", err)
+			log.Fatal("ExtractTarGz: NewReader failed")
 		}
 
-	}
+		tarReader := tar.NewReader(uncompressedStream)
 
-	log.Println("Pulling done.")
+		for true {
+			header, err := tarReader.Next()
+
+			if err == io.EOF {
+				break
+			}
+
+			if err != nil {
+				log.Fatalf("ExtractTarGz: Next() failed: %s", err.Error())
+			}
+
+			switch header.Typeflag {
+			case tar.TypeDir:
+				if err := os.Mkdir(header.Name, 0755); err != nil {
+					log.Fatalf("ExtractTarGz: Mkdir() failed: %s", err.Error())
+				}
+			case tar.TypeReg:
+				outFile, err := os.Create(header.Name)
+				if err != nil {
+					log.Fatalf("ExtractTarGz: Create() failed: %s", err.Error())
+				}
+				if _, err := io.Copy(outFile, tarReader); err != nil {
+					log.Fatalf("ExtractTarGz: Copy() failed: %s", err.Error())
+				}
+				outFile.Close()
+			default:
+				log.Fatalf("ExtractTarGz: uknown type: %x in %s", header.Typeflag, header.Name)
+			}
+
+		}
+
+		log.Println("Pulling done.")
+
+	}
 
 }
 

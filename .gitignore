@@ -15,7 +15,6 @@ out/
 **/.settings
 task.md
 biobtree
-lsf.sh
 notes.txt
 *.txt
 *.log

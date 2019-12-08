@@ -32,19 +32,19 @@ type ensemblGLatestVersion struct {
 
 func checkEnsemblUpdate() {
 
-	if _, ok := config.Appconf["disableEnsemblReleaseCheck"]; !ok {
+	if config.Appconf["disableEnsemblReleaseCheck"] != "y" {
 
 		hasNewRelease, version := hasEnsemblNewRelease()
 		if hasNewRelease {
 
 			log.Println("Ensembl meta data is updating")
-			ensembls := [6]ensembl{}
-			ensembls[0] = ensembl{source: "ensembl_fungi", branch: pbuf.Ensemblbranch_FUNGI}
-			ensembls[1] = ensembl{source: "ensembl", branch: pbuf.Ensemblbranch_ENSEMBL}
-			ensembls[2] = ensembl{source: "ensembl_bacteria", branch: pbuf.Ensemblbranch_BACTERIA}
-			ensembls[3] = ensembl{source: "ensembl_metazoa", branch: pbuf.Ensemblbranch_METAZOA}
-			ensembls[4] = ensembl{source: "ensembl_plants", branch: pbuf.Ensemblbranch_PLANT}
-			ensembls[5] = ensembl{source: "ensembl_protists", branch: pbuf.Ensemblbranch_PROTIST}
+			ensembls := []ensembl{}
+			ensembls = append(ensembls, ensembl{source: "ensembl_fungi", branch: pbuf.Ensemblbranch_FUNGI})
+			ensembls = append(ensembls, ensembl{source: "ensembl", branch: pbuf.Ensemblbranch_ENSEMBL})
+			ensembls = append(ensembls, ensembl{source: "ensembl_bacteria", branch: pbuf.Ensemblbranch_BACTERIA})
+			ensembls = append(ensembls, ensembl{source: "ensembl_metazoa", branch: pbuf.Ensemblbranch_METAZOA})
+			ensembls = append(ensembls, ensembl{source: "ensembl_plants", branch: pbuf.Ensemblbranch_PLANT})
+			ensembls = append(ensembls, ensembl{source: "ensembl_protists", branch: pbuf.Ensemblbranch_PROTIST})
 
 			for _, ens := range ensembls {
 				ens.updateEnsemblMeta(version)
@@ -159,7 +159,7 @@ func (e *ensembl) updateEnsemblMeta(version int) (*ensemblPaths, string) {
 	case "ensembl_metazoa":
 		ftpAddress = config.Appconf["ensembl_genomes_ftp"]
 		ftpJSONPath = strings.Replace(config.Appconf["ensembl_genomes_ftp_json_path"], "$(branch)", "metazoa", 1)
-		ftpGFF3Path = strings.Replace(config.Appconf["ensembl_genomes_gff3_json_path"], "$(branch)", "metazoa", 1)
+		ftpGFF3Path = strings.Replace(config.Appconf["ensembl_genomes_ftp_gff3_path"], "$(branch)", "metazoa", 1)
 		ftpMysqlPath = strings.Replace(config.Appconf["ensembl_genomes_ftp_mysql_path"], "$(branch)", "metazoa", 1)
 		branch = "metazoa"
 	case "ensembl_plants":
@@ -296,7 +296,7 @@ func (e *ensembl) updateEnsemblMeta(version int) (*ensemblPaths, string) {
 
 					if !found { // if still not found retrieve the file with gff3.gz without abinitio
 						for _, file3 := range entriesSubSub {
-							if strings.HasSuffix(file3.Name, "chr.gff3.gz") && !strings.Contains(file3.Name, "abinitio") {
+							if strings.HasSuffix(file3.Name, "gff3.gz") && !strings.Contains(file3.Name, "abinitio") {
 								ensembls.Gff3s[file2.Name] = append(ensembls.Gff3s[file2.Name], ftpGFF3Path+"/"+file.Name+"/"+file2.Name+"/"+file3.Name)
 								break
 							}
@@ -309,9 +309,11 @@ func (e *ensembl) updateEnsemblMeta(version int) (*ensemblPaths, string) {
 			} else {
 
 				entriesSub, err := client.List(ftpGFF3Path + "/" + file.Name)
+
 				check(err)
 				found := false
 				for _, file2 := range entriesSub {
+
 					if strings.HasSuffix(file2.Name, "chr.gff3.gz") || strings.HasSuffix(file2.Name, "chromosome.Chromosome.gff3.gz") {
 						ensembls.Gff3s[file.Name] = append(ensembls.Gff3s[file.Name], ftpGFF3Path+"/"+file.Name+"/"+file2.Name)
 						found = true
@@ -364,6 +366,10 @@ func (e *ensembl) updateEnsemblMeta(version int) (*ensemblPaths, string) {
 	check(err)
 
 	ioutil.WriteFile(filepath.FromSlash(config.Appconf["ensemblDir"]+"/"+e.source+".paths.json"), data, 0770)
+
+	if len(ensembls.Jsons) != len(ensembls.Gff3s) {
+		log.Fatal("Ensembl json and gff3 file counts does not match")
+	}
 
 	return &ensembls, ftpAddress
 

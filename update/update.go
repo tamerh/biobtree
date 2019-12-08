@@ -153,7 +153,7 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 	ensembls := d.selectEnsembls()
 
 	if len(ensembls) <= 0 && len(d.inDatasets) <= 0 {
-		fmt.Println("No genome found for indexing")
+		log.Println("No genome found for indexing")
 		return 0, 0
 	}
 
@@ -230,39 +230,14 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 		case "ensembl", "ensembl_bacteria", "ensembl_fungi", "ensembl_metazoa", "ensembl_plants", "ensembl_protists":
 
 			if _, ok := ensembls[data]; ok {
+
 				d.wg.Add(1)
 				d.datasets2 = append(d.datasets2, data)
 				e := ensembls[data]
 				go e.update()
+
 			}
-
 			break
-
-		case "ensembltmp":
-
-			d.wg.Add(1)
-			e := ensembl{source: "ensembl_metazoa", d: d, branch: pbuf.Ensemblbranch_METAZOA}
-			//d.datasets2 = append(d.datasets2, data)
-			go e.update()
-			d.wg.Wait()
-
-			d.wg.Add(1)
-			e = ensembl{source: "ensembl_plants", d: d, branch: pbuf.Ensemblbranch_PLANT}
-			//d.datasets2 = append(d.datasets2, data)
-			go e.update()
-			d.wg.Wait()
-
-			d.wg.Add(1)
-			e = ensembl{source: "ensembl_protists", d: d, branch: pbuf.Ensemblbranch_PROTIST}
-			//d.datasets2 = append(d.datasets2, data)
-			go e.update()
-			d.wg.Wait()
-
-			d.wg.Add(1)
-			e = ensembl{source: "ensembl_fungi", d: d, branch: pbuf.Ensemblbranch_FUNGI}
-			d.datasets2 = append(d.datasets2, data)
-			go e.update()
-
 		case "taxonomy":
 			d.wg.Add(1)
 			t := taxonomy{source: data, d: d}
@@ -645,8 +620,7 @@ func (d *DataUpdate) selectEnsembls() map[string]ensembl {
 func check(err error) {
 
 	if err != nil {
-		fmt.Println("Error: ", err)
-		panic(err)
+		log.Fatal("Error: ", err)
 	}
 
 }

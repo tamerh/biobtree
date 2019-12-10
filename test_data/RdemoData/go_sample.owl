@@ -1,0 +1,204 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns="http://purl.obolibrary.org/obo/go.owl#" xml:base="http://purl.obolibrary.org/obo/go.owl" 
+  xmlns:dc="http://purl.org/dc/elements/1.1/" 
+  xmlns:go="http://purl.obolibrary.org/obo/go#" 
+  xmlns:obo="http://purl.obolibrary.org/obo/" 
+  xmlns:owl="http://www.w3.org/2002/07/owl#" 
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+  xmlns:xml="http://www.w3.org/XML/1998/namespace" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema#" 
+  xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" 
+  xmlns:terms="http://www.geneontology.org/formats/oboInOwl#http://purl.org/dc/terms/" 
+  xmlns:oboInOwl="http://www.geneontology.org/formats/oboInOwl#">
+
+  <owl:Class rdf:about="http://purl.obolibrary.org/obo/GO_0000276">
+    <owl:equivalentClass>
+      <owl:Class>
+        <owl:intersectionOf rdf:parseType="Collection">
+          <rdf:Description rdf:about="http://purl.obolibrary.org/obo/GO_0045263"/>
+          <owl:Restriction>
+            <owl:onProperty rdf:resource="http://purl.obolibrary.org/obo/BFO_0000050"/>
+            <owl:someValuesFrom rdf:resource="http://purl.obolibrary.org/obo/GO_0005739"/>
+          </owl:Restriction>
+        </owl:intersectionOf>
+      </owl:Class>
+    </owl:equivalentClass>
+    <rdfs:subClassOf rdf:resource="http://purl.obolibrary.org/obo/GO_0045263"/>
+    <rdfs:subClassOf rdf:resource="http://purl.obolibrary.org/obo/GO_0098800"/>
+    <rdfs:subClassOf>
+      <owl:Restriction>
+        <owl:onProperty rdf:resource="http://purl.obolibrary.org/obo/BFO_0000050"/>
+        <owl:someValuesFrom rdf:resource="http://purl.obolibrary.org/obo/GO_0005753"/>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+    <obo:IAO_0000115 rdf:datatype="http://www.w3.org/2001/XMLSchema#string">All non-F1 subunits of the mitochondrial hydrogen-transporting ATP synthase, i
+ncluding integral and peripheral mitochondrial inner membrane proteins.</obo:IAO_0000115>
+    <oboInOwl:hasOBONamespace rdf:datatype="http://www.w3.org/2001/XMLSchema#string">cellular_component</oboInOwl:hasOBONamespace>
+    <oboInOwl:id rdf:datatype="http://www.w3.org/2001/XMLSchema#string">GO:0000276</oboInOwl:id>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">mitochondrial proton-transporting ATP synthase complex, coupling factor F(o)</rdfs:label>
+  </owl:Class>
+
+
+  <owl:Class rdf:about="http://purl.obolibrary.org/obo/GO_0005741">
+    <rdfs:subClassOf rdf:resource="http://purl.obolibrary.org/obo/GO_0031966"/>
+    <rdfs:subClassOf rdf:resource="http://purl.obolibrary.org/obo/GO_0031968"/>
+    <obo:IAO_0000115 rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The outer, i.e. cytoplasm-facing, lipid bilayer of the mitochondrial envelope.
+    </obo:IAO_0000115>
+    <oboInOwl:hasDbXref rdf:datatype="http://www.w3.org/2001/XMLSchema#string">MIPS_funcat:70.16.01</oboInOwl:hasDbXref>
+    <oboInOwl:hasDbXref rdf:datatype="http://www.w3.org/2001/XMLSchema#string">NIF_Subcellular:sao1289741256</oboInOwl:hasDbXref>
+    <oboInOwl:hasDbXref rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Wikipedia:Outer_mitochondrial_membrane</oboInOwl:hasDbXref>
+    <oboInOwl:hasExactSynonym rdf:datatype="http://www.w3.org/2001/XMLSchema#string">outer mitochondrial membrane</oboInOwl:hasExactSynonym>
+    <oboInOwl:hasOBONamespace rdf:datatype="http://www.w3.org/2001/XMLSchema#string">cellular_component</oboInOwl:hasOBONamespace>
+    <oboInOwl:id rdf:datatype="http://www.w3.org/2001/XMLSchema#string">GO:0005741</oboInOwl:id>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">mitochondrial outer membrane</rdfs:label>
+  </owl:Class>
+
+  <owl:Class rdf:about="http://purl.obolibrary.org/obo/GO_0006754">
+    <rdfs:subClassOf rdf:resource="http://purl.obolibrary.org/obo/GO_0009152"/>
+    <rdfs:subClassOf rdf:resource="http://purl.obolibrary.org/obo/GO_0009206"/>
+    <rdfs:subClassOf rdf:resource="http://purl.obolibrary.org/obo/GO_0017144"/>
+    <rdfs:subClassOf rdf:resource="http://purl.obolibrary.org/obo/GO_0046034"/>
+    <obo:IAO_0000115 rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The chemical reactions and pathways resulting in the formation of ATP, adenosi
+ne 5&apos;-triphosphate, a universally important coenzyme and enzyme regulator.</obo:IAO_0000115>
+    <oboInOwl:hasAlternativeId rdf:datatype="http://www.w3.org/2001/XMLSchema#string">GO:0006758</oboInOwl:hasAlternativeId>
+    <oboInOwl:hasAlternativeId rdf:datatype="http://www.w3.org/2001/XMLSchema#string">GO:0006759</oboInOwl:hasAlternativeId>
+    <oboInOwl:hasExactSynonym rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ATP anabolism</oboInOwl:hasExactSynonym>
+    <oboInOwl:hasExactSynonym rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ATP biosynthesis</oboInOwl:hasExactSynonym>
+    <oboInOwl:hasExactSynonym rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ATP formation</oboInOwl:hasExactSynonym>
+    <oboInOwl:hasExactSynonym rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ATP synthesis</oboInOwl:hasExactSynonym>
+    <oboInOwl:hasNarrowSynonym rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ATP regeneration</oboInOwl:hasNarrowSynonym>
+    <oboInOwl:hasOBONamespace rdf:datatype="http://www.w3.org/2001/XMLSchema#string">biological_process</oboInOwl:hasOBONamespace>
+    <oboInOwl:id rdf:datatype="http://www.w3.org/2001/XMLSchema#string">GO:0006754</oboInOwl:id>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ATP biosynthetic process</rdfs:label>
+  </owl:Class>
+
+
+  <owl:Class rdf:about="http://purl.obolibrary.org/obo/GO_0008289">
+    <rdfs:subClassOf rdf:resource="http://purl.obolibrary.org/obo/GO_0005488"/>
+    <obo:IAO_0000115 rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Interacting selectively and non-covalently with a lipid.</obo:IAO_0000115>
+    <oboInOwl:hasDbXref rdf:datatype="http://www.w3.org/2001/XMLSchema#string">MIPS_funcat:16.09</oboInOwl:hasDbXref>
+    <oboInOwl:hasOBONamespace rdf:datatype="http://www.w3.org/2001/XMLSchema#string">molecular_function</oboInOwl:hasOBONamespace>
+    <oboInOwl:id rdf:datatype="http://www.w3.org/2001/XMLSchema#string">GO:0008289</oboInOwl:id>
+    <oboInOwl:inSubset rdf:resource="http://purl.obolibrary.org/obo/go#goslim_agr"/>
+    <oboInOwl:inSubset rdf:resource="http://purl.obolibrary.org/obo/go#goslim_candida"/>
+    <oboInOwl:inSubset rdf:resource="http://purl.obolibrary.org/obo/go#goslim_chembl"/>
+    <oboInOwl:inSubset rdf:resource="http://purl.obolibrary.org/obo/go#goslim_flybase_ribbon"/>
+    <oboInOwl:inSubset rdf:resource="http://purl.obolibrary.org/obo/go#goslim_generic"/>
+    <oboInOwl:inSubset rdf:resource="http://purl.obolibrary.org/obo/go#goslim_mouse"/>
+    <oboInOwl:inSubset rdf:resource="http://purl.obolibrary.org/obo/go#goslim_pir"/>
+    <oboInOwl:inSubset rdf:resource="http://purl.obolibrary.org/obo/go#goslim_plant"/>
+    <oboInOwl:inSubset rdf:resource="http://purl.obolibrary.org/obo/go#goslim_yeast"/>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">lipid binding</rdfs:label>
+  </owl:Class>
+
+  <owl:Class rdf:about="http://purl.obolibrary.org/obo/GO_0015986">
+    <rdfs:subClassOf rdf:resource="http://purl.obolibrary.org/obo/GO_0006754"/>
+    <rdfs:subClassOf rdf:resource="http://purl.obolibrary.org/obo/GO_0015985"/>
+    <obo:IAO_0000115 rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The transport of protons across a membrane to generate an electrochemical grad
+ient (proton-motive force) that powers ATP synthesis.</obo:IAO_0000115>
+    <oboInOwl:hasBroadSynonym rdf:datatype="http://www.w3.org/2001/XMLSchema#string">chemiosmosis</oboInOwl:hasBroadSynonym>
+    <oboInOwl:hasOBONamespace rdf:datatype="http://www.w3.org/2001/XMLSchema#string">biological_process</oboInOwl:hasOBONamespace>
+    <oboInOwl:id rdf:datatype="http://www.w3.org/2001/XMLSchema#string">GO:0015986</oboInOwl:id>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ATP synthesis coupled proton transport</rdfs:label>
+  </owl:Class>
+
+  <owl:Class rdf:about="http://purl.obolibrary.org/obo/GO_0016021">
+    <rdfs:subClassOf rdf:resource="http://purl.obolibrary.org/obo/GO_0031224"/>
+    <obo:IAO_0000115 rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The component of a membrane consisting of the gene products and protein comple
+xes having at least some part of their peptide sequence embedded in the hydrophobic region of the membrane.</obo:IAO_0000115>
+    <oboInOwl:hasDbXref rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Wikipedia:Transmembrane_protein</oboInOwl:hasDbXref>
+    <oboInOwl:hasNarrowSynonym rdf:datatype="http://www.w3.org/2001/XMLSchema#string">integral to membrane</oboInOwl:hasNarrowSynonym>
+    <oboInOwl:hasOBONamespace rdf:datatype="http://www.w3.org/2001/XMLSchema#string">cellular_component</oboInOwl:hasOBONamespace>
+    <oboInOwl:hasRelatedSynonym rdf:datatype="http://www.w3.org/2001/XMLSchema#string">transmembrane</oboInOwl:hasRelatedSynonym>
+    <oboInOwl:id rdf:datatype="http://www.w3.org/2001/XMLSchema#string">GO:0016021</oboInOwl:id>
+    <oboInOwl:inSubset rdf:resource="http://purl.obolibrary.org/obo/go#goslim_chembl"/>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">integral component of membrane</rdfs:label>
+  </owl:Class>
+
+  <owl:Class rdf:about="http://purl.obolibrary.org/obo/GO_0042407">
+    <rdfs:subClassOf rdf:resource="http://purl.obolibrary.org/obo/GO_0007007"/>
+    <obo:IAO_0000115 rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The assembly of cristae, the inwards folds of the inner mitochondrial membrane
+.</obo:IAO_0000115>
+    <oboInOwl:hasOBONamespace rdf:datatype="http://www.w3.org/2001/XMLSchema#string">biological_process</oboInOwl:hasOBONamespace>
+    <oboInOwl:id rdf:datatype="http://www.w3.org/2001/XMLSchema#string">GO:0042407</oboInOwl:id>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">cristae formation</rdfs:label>
+  </owl:Class>
+
+
+  <owl:Class rdf:about="http://purl.obolibrary.org/obo/GO_0042776">
+    <owl:equivalentClass>
+      <owl:Class>
+        <owl:intersectionOf rdf:parseType="Collection">
+          <rdf:Description rdf:about="http://purl.obolibrary.org/obo/GO_0015986"/>
+          <owl:Restriction>
+            <owl:onProperty rdf:resource="http://purl.obolibrary.org/obo/BFO_0000066"/>
+            <owl:someValuesFrom rdf:resource="http://purl.obolibrary.org/obo/GO_0005739"/>
+          </owl:Restriction>
+        </owl:intersectionOf>
+      </owl:Class>
+    </owl:equivalentClass>
+    <rdfs:subClassOf rdf:resource="http://purl.obolibrary.org/obo/GO_0006119"/>
+    <rdfs:subClassOf rdf:resource="http://purl.obolibrary.org/obo/GO_0015986"/>
+    <rdfs:subClassOf rdf:resource="http://purl.obolibrary.org/obo/GO_0046907"/>
+    <rdfs:subClassOf rdf:resource="http://purl.obolibrary.org/obo/GO_1990542"/>
+    <rdfs:subClassOf>
+      <owl:Restriction>
+        <owl:onProperty rdf:resource="http://purl.obolibrary.org/obo/BFO_0000066"/>
+        <owl:someValuesFrom rdf:resource="http://purl.obolibrary.org/obo/GO_0005739"/>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+    <obo:IAO_0000115 rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The transport of protons across a mitochondrial membrane to generate an electr
+ochemical gradient (proton-motive force) that powers ATP synthesis.</obo:IAO_0000115>
+    <oboInOwl:hasBroadSynonym rdf:datatype="http://www.w3.org/2001/XMLSchema#string">mitochondrial proton transport</oboInOwl:hasBroadSynonym>
+    <oboInOwl:hasOBONamespace rdf:datatype="http://www.w3.org/2001/XMLSchema#string">biological_process</oboInOwl:hasOBONamespace>
+    <oboInOwl:id rdf:datatype="http://www.w3.org/2001/XMLSchema#string">GO:0042776</oboInOwl:id>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">mitochondrial ATP synthesis coupled proton transport</rdfs:label>
+  </owl:Class>
+
+
+  <owl:Class rdf:about="http://purl.obolibrary.org/obo/GO_0045263">
+    <rdfs:subClassOf rdf:resource="http://purl.obolibrary.org/obo/GO_0033177"/>
+    <rdfs:subClassOf rdf:resource="http://purl.obolibrary.org/obo/GO_0044424"/>
+    <rdfs:subClassOf>
+      <owl:Restriction>
+        <owl:onProperty rdf:resource="http://purl.obolibrary.org/obo/BFO_0000050"/>
+        <owl:someValuesFrom rdf:resource="http://purl.obolibrary.org/obo/GO_0045259"/>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+    <obo:IAO_0000115 rdf:datatype="http://www.w3.org/2001/XMLSchema#string">All non-F1 subunits of a hydrogen-transporting ATP synthase, including integra
+l and peripheral membrane proteins.</obo:IAO_0000115>
+    <oboInOwl:hasExactSynonym rdf:datatype="http://www.w3.org/2001/XMLSchema#string">hydrogen-transporting ATP synthase complex, coupling factor F(o)</obo
+InOwl:hasExactSynonym>
+    <oboInOwl:hasExactSynonym rdf:datatype="http://www.w3.org/2001/XMLSchema#string">hydrogen-transporting ATP synthase, F0 sector</oboInOwl:hasExactSynon
+ym>
+    <oboInOwl:hasExactSynonym rdf:datatype="http://www.w3.org/2001/XMLSchema#string">proton-transporting ATP synthase complex, coupling factor F(0)</oboIn
+Owl:hasExactSynonym>
+    <oboInOwl:hasNarrowSynonym rdf:datatype="http://www.w3.org/2001/XMLSchema#string">hydrogen-transporting ATP synthase, coupling factor CF(0)</oboInOwl:
+hasNarrowSynonym>
+    <oboInOwl:hasOBONamespace rdf:datatype="http://www.w3.org/2001/XMLSchema#string">cellular_component</oboInOwl:hasOBONamespace>
+    <oboInOwl:id rdf:datatype="http://www.w3.org/2001/XMLSchema#string">GO:0045263</oboInOwl:id>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">proton-transporting ATP synthase complex, coupling factor F(o)</rdfs:label>
+  </owl:Class>
+
+  <owl:Class rdf:about="http://purl.obolibrary.org/obo/GO_0046933">
+    <rdfs:subClassOf rdf:resource="http://purl.obolibrary.org/obo/GO_0009678"/>
+    <rdfs:subClassOf rdf:resource="http://purl.obolibrary.org/obo/GO_0019829"/>
+    <rdfs:subClassOf rdf:resource="http://purl.obolibrary.org/obo/GO_0044769"/>
+    <obo:IAO_0000115 rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Enables the transfer of protons from one side of a membrane to the other accor
+ding to the reaction: ADP + H2O + phosphate + H+(in) = ATP + H+(out), by a rotational mechanism.</obo:IAO_0000115>
+    <oboInOwl:hasDbXref rdf:datatype="http://www.w3.org/2001/XMLSchema#string">MetaCyc:ATPSYN-RXN</oboInOwl:hasDbXref>
+    <oboInOwl:hasDbXref rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Reactome:R-HSA-164832</oboInOwl:hasDbXref>
+    <oboInOwl:hasExactSynonym rdf:datatype="http://www.w3.org/2001/XMLSchema#string">H+-transporting ATP synthase activity</oboInOwl:hasExactSynonym>
+    <oboInOwl:hasExactSynonym rdf:datatype="http://www.w3.org/2001/XMLSchema#string">hydrogen ion translocating F-type ATPase activity</oboInOwl:hasExactS
+ynonym>
+    <oboInOwl:hasExactSynonym rdf:datatype="http://www.w3.org/2001/XMLSchema#string">hydrogen ion transporting ATP synthase activity, rotational mechanism
+    </oboInOwl:hasExactSynonym>
+    <oboInOwl:hasExactSynonym rdf:datatype="http://www.w3.org/2001/XMLSchema#string">hydrogen ion transporting two-sector ATPase activity</oboInOwl:hasExa
+ctSynonym>
+    <oboInOwl:hasOBONamespace rdf:datatype="http://www.w3.org/2001/XMLSchema#string">molecular_function</oboInOwl:hasOBONamespace>
+    <oboInOwl:id rdf:datatype="http://www.w3.org/2001/XMLSchema#string">GO:0046933</oboInOwl:id>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">proton-transporting ATP synthase activity, rotational mechanism</rdfs:label>
+  </owl:Class>
+
+
+</rdf:RDF>

@@ -34,9 +34,8 @@ var mutex = &sync.Mutex{}
 var config *configs.Conf
 
 type DataUpdate struct {
-	totalParsedEntry uint64
-	wg               *sync.WaitGroup
-	//inDatasets             []string // input datasets can contain alias like chembl
+	totalParsedEntry       uint64
+	wg                     *sync.WaitGroup
 	inDatasets             map[string]bool
 	datasets2              []string // after resolving the input datasets
 	start                  time.Time
@@ -69,6 +68,7 @@ type progressInfo struct {
 	dataset         string
 	currentKBPerSec int64
 	done            bool
+	waiting         bool
 }
 
 func NewDataUpdate(datasets map[string]bool, targetDatasets, ensemblSpecies, ensemblSpeciesPattern []string, genometaxids []int, skipEnsembl, orthologs, orthologsAll bool, conf *configs.Conf, chkIdx string) *DataUpdate {
@@ -157,9 +157,9 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 		return 0, 0
 	}
 
-	if !d.skipEnsembl {
-		for ens := range ensembls { // if ensembl is not selected from command line
-			d.inDatasets[ens] = true
+	for ens := range ensembls { // remove from here because ensembl handled differently after selection
+		if _, ok := d.inDatasets[ens]; ok {
+			delete(d.inDatasets, ens)
 		}
 	}
 
@@ -219,6 +219,16 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 	wgBmerge.Add(1)
 	go binarymerge.start()
 
+	// first start ensembls
+	if len(ensembls) > 0 && !d.skipEnsembl {
+		for ens := range ensembls {
+			d.datasets2 = append(d.datasets2, ens) // for the progress bar
+			d.progChan <- &progressInfo{dataset: ens, waiting: true}
+			d.wg.Add(1)
+		}
+		go d.updateEnsembls(ensembls)
+	}
+
 	for data := range d.inDatasets {
 		switch data {
 		case "uniprot":
@@ -226,17 +236,6 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			u := uniprot{source: data, d: d}
 			d.datasets2 = append(d.datasets2, data)
 			go u.update(d.selectedTaxids)
-			break
-		case "ensembl", "ensembl_bacteria", "ensembl_fungi", "ensembl_metazoa", "ensembl_plants", "ensembl_protists":
-
-			if _, ok := ensembls[data]; ok {
-
-				d.wg.Add(1)
-				d.datasets2 = append(d.datasets2, data)
-				e := ensembls[data]
-				go e.update()
-
-			}
 			break
 		case "taxonomy":
 			d.wg.Add(1)
@@ -350,7 +349,7 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			go c.update()
 			break
 		default:
-			panic("ERROR Unrecognized dataset ->" + data)
+			log.Fatal("ERROR Unrecognized dataset ->" + data)
 		}
 	}
 
@@ -437,6 +436,9 @@ func (d *DataUpdate) showProgres() {
 				result.WriteString(":")
 				if latestProg[ds].done {
 					result.WriteString("DONE")
+				} else if latestProg[ds].waiting {
+					result.WriteString("Waiting")
+					alldone = false
 				} else {
 					//result.WriteString(string(latestProg[ds].currentKBPerSec))
 					alldone = false

@@ -29,6 +29,15 @@ type ensembl struct {
 	biomartPaths []string
 }
 
+// ensembls runs one by one from one place.
+func (d *DataUpdate) updateEnsembls(ensembls map[string]ensembl) {
+
+	for _, ensembl := range ensembls {
+		ensembl.update()
+	}
+
+}
+
 func (e *ensembl) selectGenomes() bool {
 
 	//set files
@@ -228,7 +237,7 @@ func (e *ensembl) update() {
 		var err error
 		e.pauseDurationSeconds, err = strconv.Atoi(config.Appconf["ensemblPauseDuration"])
 		if err != nil {
-			panic("Invalid ensemblPauseDuration definition")
+			log.Fatal("Invalid ensemblPauseDuration definition")
 		}
 	}
 
@@ -248,6 +257,7 @@ func (e *ensembl) update() {
 	for genome, paths := range e.gff3Paths {
 		for _, path := range paths {
 
+			totalRead := 0
 			previous = 0
 			start = time.Now()
 
@@ -262,6 +272,14 @@ func (e *ensembl) update() {
 			for scanner.Scan() {
 
 				l := scanner.Text()
+				totalRead += len(l)
+
+				elapsed := int64(time.Since(start).Seconds())
+				if elapsed > previous+e.d.progInterval {
+					kbytesPerSecond := int64(totalRead) / elapsed / 1024
+					previous = elapsed
+					e.d.progChan <- &progressInfo{dataset: e.source, currentKBPerSec: kbytesPerSecond}
+				}
 
 				if l[0] == '#' {
 					continue
@@ -519,6 +537,7 @@ func (e *ensembl) update() {
 				p := jsparser.NewJSONParser(br, "genes").SkipProps([]string{"lineage", "evidence", "coord_system", "sifts", "xrefs", "gene_tree_id", "orthology_type", "exons"})
 
 				for j := range p.Stream() {
+
 					if j.ObjectVals["id"] != nil {
 
 						elapsed := int64(time.Since(start).Seconds())

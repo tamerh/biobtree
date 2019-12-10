@@ -30,6 +30,11 @@ website/
 api.php
 conf/
 ensembl/
+conf/
+website/
 conf
+ensembl
+conf
+website
 *.json
 !scripts/data/data.sh

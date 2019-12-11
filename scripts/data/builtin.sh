@@ -28,11 +28,9 @@ prepCache(){
 
     cd ../..
 
-    #EXCLUDES="--exclude=biobtree --exclude=data.sh  --exclude=LICENSE* --exclude=*website* --exclude=*ensembl* --exclude=*conf* --exclude=*.git* --exclude=*build.sh  --exclude=*notes.txt --exclude=*.zip --exclude=*.DS_Store*"
-
     tar -czvf biobtree-conf-${VERSION}-${1}r.tar.gz out/
 
-    ./biobtree --keep --lmdbsize ${2} generate
+    ./biobtree --lmdbsize ${2} generate
 
     tar -czvf biobtree-conf-${VERSION}-${1}d.tar.gz out/
 
@@ -78,3 +76,4 @@ prepCache "set2" "4100000000"
 ./biobtree -d hgnc,hmdb,uniprot,taxonomy,go,efo,eco,chebi,interpro -idx cacheset3 update
 prepCache "set3" "3600000000"
 
+echo "All done."

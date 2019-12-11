@@ -254,12 +254,12 @@ func (e *ensembl) update() {
 		e.gff3Paths["local"] = []string{config.Dataconf["ensembl"]["path"]}
 	}
 
+	totalRead := 0
+	previous = 0
+	start = time.Now()
+
 	for genome, paths := range e.gff3Paths {
 		for _, path := range paths {
-
-			totalRead := 0
-			previous = 0
-			start = time.Now()
 
 			br, _, ftpFile, client, localFile, _ := getDataReaderNew("ensembl", e.ftpAddress, "", path)
 
@@ -677,7 +677,7 @@ func (e *ensembl) update() {
 	}
 
 	previous = 0
-	totalRead := 0
+	totalRead = 0
 	start = time.Now()
 	// probset biomart
 	for _, path := range e.biomartPaths {

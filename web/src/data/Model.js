@@ -57,10 +57,15 @@ export default class XrefModel {
             sourceName = "";
         }
 
+        var mapFilterTermFormatted = "";
+        if (mapFilterTerm.length > 0) {
+            mapFilterTermFormatted = hljs.highlight("go", mapFilterTerm).value
+        }
         this.queries.push({
             name: namee,
             type: type,
             mapFilterTerm: mapFilterTerm,
+            mapFilterTermFormatted: mapFilterTermFormatted,
             searchTerm: searchTerm,
             restURL: "",
             nextPageKey: "",

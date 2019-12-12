@@ -13,6 +13,9 @@ import Model from './data/Model.js'
 import AppConf from './conf/AppConf.js'
 import UseCases from './conf/UseCases.js'
 
+import '@/highlight.pack.js';
+
+
 Vue.use(Notifications)
 
 

@@ -57,26 +57,22 @@
       </div>
 
 
-    <div class="control has-icons-left"> 
-          <p class="control is-expanded field has-addons">
-            <input
-              class="input is-normal control"
-              ref="searchbox"
-              type="search"
-              maxlength="300"
-              placeholder="MapFilter query"
-              v-model="app_model.queries[selectedQueryIndex].mapFilterTerm"
-              v-on:keyup.enter="mapFilter"
-            />
-            <span class="icon is-normal is-left">
+    <div  class="actions"> 
+            <span class="mapfilterspan">
               <i class="fa fa-map-signs"></i>
             </span>
+
+            <span :ref="'mfQ'+selectedQueryIndex" contenteditable="true"  class="mapfilterspan mapfiltersize single-line"
+                :id="'mfQ'+selectedQueryIndex"
+                @focusout="updateMapFilterTerm($event,selectedQueryIndex)" v-html="app_model.queries[selectedQueryIndex].mapFilterTermFormatted"
+                @blur="updateMapFilterTerm($event,selectedQueryIndex)" v-on:keyup.enter="mapFilter">
+            </span>
+          
             <span class="control">
             <a 
             :class="{ 'is-loading' : app_model.queries[selectedQueryIndex].loading,'button':true, 'is-success':true, 'is-normal':true}"
             @click="mapFilter">Map</a>
           </span>
-          </p>
       </div>
 
       <div class="actions" v-show="app_model.queries[selectedQueryIndex].retrieved">
@@ -215,7 +211,7 @@ import VueJsonPretty from "vue-json-pretty";
 import MapFilter from "./MapFilter.vue";
 import Search from "./Search.vue";
 import Model from '../data/Model.js'
-
+import 'highlight.js/styles/lightfair.css';
 
 export default {
   name: "biobtree-result",
@@ -259,6 +255,12 @@ export default {
     this.app_model.setAppComp(this);
   },
   methods: {
+    updateMapFilterTerm(e, selectedQueryIndex) {
+
+      this.app_model.queries[selectedQueryIndex].mapFilterTermFormatted = hljs.highlight("go", e.target.textContent).value
+      this.app_model.queries[selectedQueryIndex].mapFilterTerm = e.target.textContent
+
+    },
     findDataset: function (query) {
       if (query.length >= 3) {
         this.options = [];
@@ -323,6 +325,7 @@ export default {
 
     },
     mapFilter: function () {
+
       if (this.app_model.queries[this.selectedQueryIndex].searchTerm.length == 0) {
         return false;
       }
@@ -482,5 +485,24 @@ a[target^="_blank"]:after {
 .actions > div > span {
   font-size: 0.875em;
   padding: 0.5em;
+}
+
+.actions > span {
+  margin-top: 3px;
+}
+
+.mapfilterspan {
+  background: white;
+  padding: 6px;
+  /* box-shadow: inset 0 1px 2px rgba(10, 10, 10, 0.1);
+  border-color: #dbdbdb;
+  border-radius: 4px; */
+  border: 1px solid transparent;
+}
+
+.mapfiltersize {
+  width: 94%;
+  overflow: hidden;
+  white-space: nowrap;
 }
 </style>

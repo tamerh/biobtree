@@ -60,7 +60,7 @@ new Vue({
         request.send(null);
 
         if (request.status === 200) {
-            this.xref_conf = JSON.parse(request.responseText)
+            this.xref_conf = JSON.parse(request.responseText).datasets
         }
 
         this.app_conf = AppConf;

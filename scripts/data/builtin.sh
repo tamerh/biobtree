@@ -21,10 +21,10 @@ prepCache(){
     cd tmp
     gunzip *.gz
 
-    LC_ALL=C $GNUSORT -m -u * > ../cache.${1}.index
+    LC_ALL=C $GNUSORT -m -u * > ../merged.${1}.index
     cd ..
     rm -rf tmp
-    gzip cache.${1}.index
+    gzip merged.${1}.index
 
     cd ../..
 
@@ -32,7 +32,7 @@ prepCache(){
 
     ./biobtree --lmdbsize ${2} generate
 
-    tar -czvf biobtree-conf-${VERSION}-${1}d.tar.gz out/
+    tar -czvf biobtree-conf-${VERSION}-${1}.tar.gz out/
 
     rm -rf out
 
@@ -59,21 +59,22 @@ prepCache(){
 prepCache "demo" "36000000"
 
 ### CACHE 1 datasets with above ensembl genomes except mouse strains. ~ 5.2 db size
-./biobtree --d hgnc,hmdb,uniprot,taxonomy,go,efo,eco,chebi,interpro -tax 9606,10090,4932,3702,7227,6239,562,511145,83333,7955,9031,10116 --skip-ensembl -idx cacheset1 update
-./biobtree --d ensembl --tax 9606,4932,7227,6239,7955,9031,10116 -keep --ensembl-orthologs -idx cacheset12 update
-./biobtree --d ensembl_bacteria --tax 562,511145,83333 --keep --ensembl-orthologs -idx cacheset13 update
-./biobtree --d ensembl_plants --tax 3702 --keep --ensembl-orthologs -idx cacheset14 update
-./biobtree --d ensembl --genome mus_musculus -keep --ensembl-orthologs -idx cacheset15 update
+./biobtree --d hgnc,hmdb,uniprot,taxonomy,go,efo,eco,chebi,interpro -tax 9606,10090,4932,3702,7227,6239,562,511145,83333,7955,9031,10116 --skip-ensembl -idx builtinset1 update
+./biobtree --d ensembl --tax 9606,4932,7227,6239,7955,9031,10116 -keep --ensembl-orthologs -idx builtinset12 update
+./biobtree --d ensembl_bacteria --tax 562,511145,83333 --keep --ensembl-orthologs -idx builtinset13 update
+./biobtree --d ensembl_plants --tax 3702 --keep --ensembl-orthologs -idx builtinset14 update
+./biobtree --d ensembl --genome mus_musculus -keep --ensembl-orthologs -idx builtinset15 update
 
-prepCache "set1" "5600000000"
+prepCache "builtinset1" "5600000000"
 
 ### CACHE 2 datasets with ensembl human and all mouse strains genomes
-./biobtree -d hgnc,hmdb,uniprot,taxonomy,go,efo,eco,chebi,interpro -tax 9606,10090 -idx cacheset2 update
-prepCache "set2" "4100000000"
+./biobtree -d hgnc,hmdb,uniprot,taxonomy,go,efo,eco,chebi,interpro -tax 9606,10090 -idx builtinset2 update
+prepCache "builtinset2" "4100000000"
 
 
 ### CACHE 3 datasets with no esembl and full uniprot ~ 3.2 db size
-./biobtree -d hgnc,hmdb,uniprot,taxonomy,go,efo,eco,chebi,interpro -idx cacheset3 update
-prepCache "set3" "3600000000"
+./biobtree -d hgnc,hmdb,uniprot,taxonomy,go,efo,eco,chebi,interpro -idx builtinset3 update
+prepCache "builtinset3" "3600000000"
+
 
 echo "All done."

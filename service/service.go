@@ -345,7 +345,7 @@ func (s *service) meta() *pbuf.MetaResponse {
 func (s *service) metajson() string {
 
 	var b strings.Builder
-	b.WriteString("{")
+	b.WriteString(`{ "datasets":{`)
 	keymap := map[string]bool{}
 	for k := range config.Dataconf {
 		if config.Dataconf[k]["_alias"] == "" { // not send the alias
@@ -378,6 +378,37 @@ func (s *service) metajson() string {
 	s2 := b.String()
 	s2 = s2[:len(s2)-1]
 	s2 = s2 + "}"
+
+	// additional params
+	// mark builtin db if exist
+	s2 = s2 + `, "appparams":{`
+
+	files, err := ioutil.ReadDir(config.Appconf["indexDir"])
+	if err != nil {
+		log.Fatal(err)
+	}
+
+loop:
+	for _, f := range files {
+		if !f.IsDir() {
+			switch f.Name() {
+			case "builtinset1.meta.json":
+				s2 = s2 + `"builtinset":"1"`
+				break loop
+			case "builtinset2.meta.json":
+				s2 = s2 + `"builtinset":"2"`
+				break loop
+			case "builtinset3.meta.json":
+				s2 = s2 + `"builtinset":"3"`
+				break loop
+			case "builtinset4.meta.json":
+				s2 = s2 + `"builtinset":"4"`
+				break loop
+			}
+		}
+	}
+
+	s2 = s2 + `}}`
 	return s2
 
 }

@@ -694,33 +694,4 @@ ul.tree li:last-child:before {
   font-weight: bold;
   padding-right: 85px;
 }
-
-.single-line div {
-  display: none;
-}
-
-.single-line div > br {
-  display: none;
-}
-
-.single-line div br {
-  display: none;
-}
-
-[contenteditable="true"].single-line div {
-  display: none;
-}
-
-[contenteditable="true"].single-line br {
-  display: none;
-}
-
-[contenteditable="true"].single-line div > br {
-  display: none;
-}
-
-[contenteditable="true"].single-line * {
-  display: inline;
-  white-space: nowrap;
-}
 </style>

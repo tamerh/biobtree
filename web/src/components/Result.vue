@@ -58,14 +58,14 @@
 
 
     <div  class="actions"> 
-            <span class="mapfilterspan">
+            <span class="mapfilterspan" title="ctrl+enter to execute query">
               <i class="fa fa-map-signs"></i>
             </span>
 
-            <span :ref="'mfQ'+selectedQueryIndex" contenteditable="true"  class="mapfilterspan mapfiltersize single-line"
+            <span :ref="'mfQ'+selectedQueryIndex" contenteditable="true"  class="mapfilterspan mapfiltersize"
                 :id="'mfQ'+selectedQueryIndex"
                 @focusout="updateMapFilterTerm($event,selectedQueryIndex)" v-html="app_model.queries[selectedQueryIndex].mapFilterTermFormatted"
-                @blur="updateMapFilterTerm($event,selectedQueryIndex)" v-on:keyup.enter="mapFilter">
+                @blur="updateMapFilterTerm($event,selectedQueryIndex)"  @keyup.ctrl.13="onCtrlEnter($event,selectedQueryIndex)">
             </span>
           
             <span class="control">
@@ -256,10 +256,13 @@ export default {
   },
   methods: {
     updateMapFilterTerm(e, selectedQueryIndex) {
-
       this.app_model.queries[selectedQueryIndex].mapFilterTermFormatted = hljs.highlight("go", e.target.textContent).value
       this.app_model.queries[selectedQueryIndex].mapFilterTerm = e.target.textContent
-
+    },
+    onCtrlEnter(e, selectedQueryIndex) {
+      this.updateMapFilterTerm(e, selectedQueryIndex);
+      e.target.blur()
+      this.mapFilter();
     },
     findDataset: function (query) {
       if (query.length >= 3) {

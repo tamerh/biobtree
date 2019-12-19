@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -10,8 +11,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-
-	"github.com/tamerh/jsparser"
 )
 
 // this creates example json file for the usecase in the web interface
@@ -25,44 +24,113 @@ type queryExample struct {
 }
 
 var categories = []string{"mix", "gene", "protein", "chembl", "taxonomy"}
+var results = map[string][]queryExample{}
+var db string
 
-func main() {
+func newResult(category, name, res string) {
 
-	f, err := os.Open("biobtree_default.postman_test_run.json")
-
-	if err != nil {
-		panic(err)
+	if len(category) == 0 || len(name) == 0 || len(res) == 0 {
+		return
 	}
 
-	br := bufio.NewReader(f)
+	resSplit := strings.Split(res, " ")
 
-	jsparser := jsparser.NewJSONParser(br, "results")
+	if len(resSplit) != 6 {
+		fmt.Println(resSplit)
+		log.Fatal("invalid result" + res)
+	}
 
-	results := map[string][]queryExample{}
+	if _, ok := results[category]; !ok {
+		results[category] = []queryExample{}
+	}
 
-	for json := range jsparser.Stream() {
+	typee, searchTerm, mapfFilterTerm, source, ok := getTestParams(resSplit[1])
 
-		ok, category := getCategory(json.ObjectVals["name"].StringVal)
+	if !ok {
+		return
+	}
 
-		if ok {
+	newExample := queryExample{
+		Name:           name,
+		Typee:          typee,
+		Source:         source,
+		SearchTerm:     searchTerm,
+		MapfFilterTerm: mapfFilterTerm,
+	}
+	results[category] = append(results[category], newExample)
 
-			if _, ok := results[category]; !ok {
-				results[category] = []queryExample{}
+}
+func main() {
+
+	flag.StringVar(&db, "db", "builtin1", "")
+	flag.Parse()
+
+	file, err := os.Open("newman_result.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+
+	alt := '↳'
+	tick := '✓'
+	box := '❏'
+	isfirst := true
+	var curCategory, curName, curRes string
+	curSuccess := false
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		liner := []rune(line)
+
+		if len(liner) == 0 {
+			continue
+		}
+
+		if liner[0] == box {
+
+			if len(curCategory) > 0 && curCategory != string(liner[2:]) {
+				newResult(curCategory, curName, curRes)
+				curName = ""
+				curRes = ""
 			}
-			typee, searchTerm, mapfFilterTerm, source, ok := getTestParams(json.ObjectVals["url"].StringVal)
-			if !ok {
-				continue
+			curCategory = string(liner[2:])
+
+		} else if liner[0] == alt { // new test
+
+			if !isfirst { // print previous test
+				if !curSuccess {
+					panic("Failed tests check generated file")
+				}
+				newResult(curCategory, curName, curRes)
+				curName = ""
+				curRes = ""
+				curSuccess = false
+			} else {
+				isfirst = false
 			}
-			newExample := queryExample{
-				Name:           json.ObjectVals["name"].StringVal[strings.Index(json.ObjectVals["name"].StringVal, " ")+1:],
-				Typee:          typee,
-				Source:         source,
-				SearchTerm:     searchTerm,
-				MapfFilterTerm: mapfFilterTerm,
-			}
-			results[category] = append(results[category], newExample)
+			curName = string(liner[2:])
+
+		} else if line[0:3] == "GET" {
+
+			curRes = line
+
+		} else if liner[0] == tick { //test result
+
+			curSuccess = true
 
 		}
+
+	}
+
+	// last test
+	if !curSuccess {
+		panic("Failed tests check generated file")
+	}
+	newResult(curCategory, curName, curRes)
+
+	if err := scanner.Err(); err != nil {
+		log.Fatal(err)
 	}
 
 	for k, v := range results {
@@ -98,7 +166,11 @@ func main() {
 	sortedresults := map[string][]queryExample{}
 
 	for i, cat := range categories {
-		sortedresults[strconv.Itoa(i)+"_"+cat] = results[cat]
+		if _, ok := results[cat]; ok {
+			if len(results[cat]) > 0 {
+				sortedresults[strconv.Itoa(i)+"_"+cat] = results[cat]
+			}
+		}
 	}
 
 	data, err := json.Marshal(sortedresults)
@@ -106,9 +178,7 @@ func main() {
 		panic(err)
 	}
 
-	ioutil.WriteFile("examples.json", data, 0770)
-
-	//fmt.Println(results)
+	ioutil.WriteFile(db+".json", data, 0770)
 
 }
 
@@ -133,14 +203,4 @@ func getTestParams(urlval string) (string, string, string, string, bool) {
 
 	return "", "", "", "", false
 
-}
-
-func getCategory(testname string) (bool, string) {
-
-	for _, cat := range categories {
-		if strings.HasPrefix(testname, cat) {
-			return true, cat
-		}
-	}
-	return false, ""
 }

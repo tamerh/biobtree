@@ -76,5 +76,9 @@ prepCache "builtinset2" "4100000000"
 ./biobtree -d hgnc,hmdb,uniprot,taxonomy,go,efo,eco,chebi,interpro -idx builtinset3 update
 prepCache "builtinset3" "3600000000"
 
+### CACHE 4 datasets with no esembl and full uniprot and chembl ~ 11.5 db size
+./biobtree -d chembl,hgnc,hmdb,uniprot,taxonomy,go,efo,eco,chebi,interpro -idx builtinset4 update
+prepCache "builtinset4" "12000000000"
 
+### set4 
 echo "All done."

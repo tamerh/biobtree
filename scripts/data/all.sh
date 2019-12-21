@@ -25,7 +25,7 @@ for dt in "${DATASETS[@]}"
     arrDataset=(${dt//;/ })
     rm -rf ${2}/${arrDataset[0]}
     mkdir -p ${2}/${arrDataset[0]}
-    bsub -oo ${arrDataset[0]}.log -P "${arrDataset[0]}" -n $JOB_CPU -M $JOB_MEMORY -R "rusage[mem=${JOB_MEMORY}] span[hosts=1]" -J "${arrDataset[0]}" -q "$1" ./biobtree $BB_DEFAULT_PARAM -d ${arrDataset[2]} --out-dir "${2}/${arrDataset[0]}" -idx ${arrDataset[0]} update
+    bsub -oo ${arrDataset[0]}.log -P "${arrDataset[0]}" -n $JOB_CPU -M $JOB_MEMORY -R "rusage[mem=${JOB_MEMORY}] span[hosts=1]" -J "${arrDataset[0]}" -q "$1" ./biobtree $BB_DEFAULT_PARAM -d ${arrDataset[1]} --out-dir "${2}/${arrDataset[0]}" -idx ${arrDataset[0]} update
     done
 
 declare -a ENS_DATASETS=("ensembl_fungi" "ensembl_metazoa" "ensembl_protists" "ensembl_plants" "ensembl" "ensembl_bacteria")

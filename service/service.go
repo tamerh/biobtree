@@ -404,6 +404,9 @@ loop:
 			case "builtinset4.meta.json":
 				s2 = s2 + `"builtinset":"4"`
 				break loop
+			case "def.meta.json": // this used when indexing all
+				s2 = s2 + `"builtinset":"0"`
+				break loop
 			}
 		}
 	}

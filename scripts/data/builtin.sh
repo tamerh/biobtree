@@ -64,19 +64,19 @@ prepCache "demo" "36000000"
 ./biobtree --d ensembl_bacteria --tax 562,511145,83333 --keep --ensembl-orthologs -idx builtinset13 update
 ./biobtree --d ensembl_plants --tax 3702 --keep --ensembl-orthologs -idx builtinset14 update
 ./biobtree --d ensembl --genome mus_musculus -keep --ensembl-orthologs -idx builtinset15 update
-prepCache "builtinset1" "5600000000"
+prepCache "set1" "5600000000"
 
 ### CACHE 2 datasets with ensembl human and all mouse strains genomes
 ./biobtree -d hgnc,hmdb,uniprot,taxonomy,go,efo,eco,chebi,interpro -tax 9606,10090 -idx builtinset2 update
-prepCache "builtinset2" "4100000000"
+prepCache "set2" "4100000000"
 
 ### CACHE 3 datasets with no esembl and full uniprot ~ 3.2 db size
 ./biobtree -d hgnc,hmdb,uniprot,taxonomy,go,efo,eco,chebi,interpro -idx builtinset3 update
-prepCache "builtinset3" "3600000000"
+prepCache "set3" "3600000000"
 
 ### CACHE 4 datasets with no esembl and full uniprot and chembl ~ 11.5 db size
 ./biobtree -d chembl,hgnc,hmdb,uniprot,taxonomy,go,efo,eco,chebi,interpro -idx builtinset4 update
-prepCache "builtinset4" "12000000000"
+prepCache "set4" "12000000000"
 
 ### set4 
 echo "All done."

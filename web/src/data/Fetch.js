@@ -1,11 +1,23 @@
 export default class Fetch {
     constructor(endp) {
         this.endpoint = endp;
+
+        this.endpointSearch = endp;
+        this.endpointEntry = endp;
+        this.endpointMapfilter = endp;
+        this.endpointFilter = endp;
+        this.endpointPage = endp;
+
+        // this.endpointSearch = "https://www.ebi.ac.uk/~tgur/biobtree/search.php";
+        // this.endpointEntry = "https://www.ebi.ac.uk/~tgur/biobtree/entry.php";
+        // this.endpointMapfilter = "https://www.ebi.ac.uk/~tgur/biobtree/mapfilter.php";
+        // this.endpointFilter = "https://www.ebi.ac.uk/~tgur/biobtree/searchfilter.php";
+        // this.endpointPage = "https://www.ebi.ac.uk/~tgur/biobtree/searchpage.php";
     }
 
     search(id, page, filter, source, callback, callback_params) {
         // id.replace(/ /g, '') white space clear
-        let url = this.endpoint + "?u=y&d=y&i=" + encodeURIComponent(id);
+        let url = this.endpointSearch + "?u=y&d=y&i=" + encodeURIComponent(id);
 
         if (page.length > 0) {
             url = url + "&p=" + page;
@@ -31,7 +43,7 @@ export default class Fetch {
     }
 
     searchEntry(id, domain_id, callback, callback_params) {
-        fetch(this.endpoint + "entry/?i=" + encodeURIComponent(id) + "&s=" + domain_id)
+        fetch(this.endpointEntry + "?i=" + encodeURIComponent(id) + "&s=" + domain_id)
             .then(res => res.json())
             .then((out) => {
                 callback(out, callback_params);
@@ -43,7 +55,7 @@ export default class Fetch {
 
     mapFilter(id, mapfilter, page, source, callback, callback_params) {
 
-        var url = this.endpoint + "map/?i=" + encodeURIComponent(id);
+        var url = this.endpointMapfilter + "?i=" + encodeURIComponent(id);
 
         url = url + "&m=" + encodeURIComponent(mapfilter);
 
@@ -71,7 +83,7 @@ export default class Fetch {
 
     searchByFilter(sub_result, domain_id, callback, callback_params) {
 
-        let url = this.endpoint + "filter/?i=" + sub_result.identifier + '&s=' + domain_id + '&f=' + sub_result.filters;
+        let url = this.endpointFilter + "?i=" + sub_result.identifier + '&s=' + domain_id + '&f=' + sub_result.filters;
 
         if (sub_result.lastFilteredPageKey && sub_result.lastFilteredPageKey.length > 0) {
             url += "&p=" + sub_result.lastFilteredPageKey;
@@ -91,7 +103,7 @@ export default class Fetch {
 
     searchByPageIndex(id, source_domain, page, page_total, callback, callback_params) {
 
-        fetch(this.endpoint + "page/?i=" + id + '&s=' + source_domain + '&p=' + page + '&t=' + page_total)
+        fetch(this.endpointPage + "?i=" + id + '&s=' + source_domain + '&p=' + page + '&t=' + page_total)
             .then(res => res.json())
             .then((out) => {
                 callback(out, callback_params);
@@ -100,7 +112,5 @@ export default class Fetch {
                 throw err
             });
     }
-
-
 
 }

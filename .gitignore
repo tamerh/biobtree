@@ -30,4 +30,4 @@ api.php
 /ensembl
 /website
 /conf
-*.json
+/*.json

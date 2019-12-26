@@ -13,10 +13,11 @@ import Model from './data/Model.js'
 import AppConf from './conf/AppConf.js'
 
 import '@/highlight.pack.js';
-import UseCases1 from './conf/UseCases1'
-import UseCases3 from './conf/UseCases3'
-import UseCases4 from './conf/UseCases4'
-import UseCases from './conf/UseCases.js'
+
+import UseCases1 from './conf/UseCases1.json'
+import UseCases3 from './conf/UseCases3.json'
+import UseCases4 from './conf/UseCases4.json'
+import UseCases from './conf/UseCases.json'
 
 
 Vue.use(Notifications)
@@ -46,7 +47,7 @@ new Vue({
             xref_conf: null,
             model: null,
             app_conf: null,
-            usecases: null
+            usecases: {}
         }
     },
     components: {
@@ -72,13 +73,33 @@ new Vue({
 
         if (meta.appparams.builtinset) {
             if (meta.appparams.builtinset == "0") {
-                this.usecases = UseCases;
+                this.usecases = {
+                    'mix': UseCases.mix,
+                    'gene': UseCases.gene,
+                    'protein': UseCases.protein,
+                    'chembl': UseCases.protein,
+                    'taxonomy&ontologies': UseCases.taxonomy
+                };
             } else if (meta.appparams.builtinset == "1" || meta.appparams.builtinset == "2") {
-                this.usecases = UseCases1;
+                this.usecases = {
+                    'mix': UseCases1.mix,
+                    'gene': UseCases1.gene,
+                    'protein': UseCases1.protein,
+                    'taxonomy&ontologies': UseCases1.taxonomy
+                };
             } else if (meta.appparams.builtinset == "3") {
-                this.usecases = UseCases3;
+                this.usecases = {
+                    'mix': UseCases3.mix,
+                    'protein': UseCases3.protein,
+                    'taxonomy&ontologies': UseCases3.taxonomy
+                };
             } else if (meta.appparams.builtinset == "4") {
-                this.usecases = UseCases4;
+                this.usecases = {
+                    'mix': UseCases4.mix,
+                    'protein': UseCases4.protein,
+                    'chembl': UseCases4.protein,
+                    'taxonomy&ontologies': UseCases4.taxonomy
+                };
             }
         }
 

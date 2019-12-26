@@ -8,7 +8,7 @@ require (
 	github.com/bmatsuo/lmdb-go v1.8.0
 	github.com/dgraph-io/ristretto v0.0.0-20191114170855-99d1bbbf28e6
 	github.com/golang/protobuf v1.3.2
-	github.com/google/cel-go v0.3.0
+	github.com/google/cel-go v0.3.2
 	github.com/imdario/mergo v0.3.7
 	github.com/jlaffaye/ftp v0.0.0-20190721194432-7cd8b0bcf3fc
 	github.com/krolaw/zipstream v0.0.0-20180621105154-0a2661891f94

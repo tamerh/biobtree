@@ -1,14 +1,13 @@
 #!/bin/bash
-set -u
+set -e
 
-newman run --environment biobtree_local.postman_environment.json  biobtree_builtindb1.postman_collection.json > newman_result.json
-go run main.go -db builtin1usecases
+rm -rf UseCases*.json
+
+newman run --environment biobtree.postman_environment.json biobtree_usecases.postman_collection.json > newman_result.json
+go run main.go -db UseCases1 -cat "mix,gene,protein,chembl,taxonomy"
+go run main.go -db UseCases3 -cat "mix,protein,taxonomy"
+go run main.go -db UseCases4 -cat "mix,protein,chembl,taxonomy"
+go run main.go -db UseCases  -cat "mix,mix_4all,gene_4all,gene,protein,chembl,taxonomy"
 rm newman_result.json
 
-newman run --environment biobtree_local.postman_environment.json  biobtree_builtindb4.postman_collection.json > newman_result.json
-go run main.go -db builtin4usecases
-rm newman_result.json
-
-newman run --environment biobtree_remote.postman_environment.json  biobtree_all.postman_collection.json > newman_result.json
-go run main.go -db builtin0usecases
-rm newman_result.json
+# TODO run against builtindbs

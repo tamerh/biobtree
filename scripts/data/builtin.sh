@@ -66,7 +66,7 @@ prepCache "demo" "36000000"
 ./biobtree --d ensembl --genome mus_musculus -keep --ensembl-orthologs -idx builtinset15 update
 prepCache "set1" "5600000000"
 
-### CACHE 2 datasets with ensembl human and all mouse strains genomes
+### CACHE 2 datasets with ensembl human and all mouse strains genomes ~ 4 db size
 ./biobtree -d hgnc,hmdb,uniprot,taxonomy,go,efo,eco,chebi,interpro -tax 9606,10090 -idx builtinset2 update
 prepCache "set2" "4100000000"
 

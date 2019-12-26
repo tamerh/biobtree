@@ -9,7 +9,6 @@ import (
 	"log"
 	"net/url"
 	"os"
-	"strconv"
 	"strings"
 )
 
@@ -23,15 +22,19 @@ type queryExample struct {
 	MapfFilterTerm string `json:"mapFilterTerm"`
 }
 
-var categories = []string{"mix", "gene", "protein", "chembl", "taxonomy"}
+//var categories = []string{"mix", "gene", "protein", "chembl", "taxonomy"}
+
+var categories = []string{}
 var results = map[string][]queryExample{}
-var db string
+var db, categoriesStr string
 
 func newResult(category, name, res string) {
 
 	if len(category) == 0 || len(name) == 0 || len(res) == 0 {
 		return
 	}
+
+	category = strings.Split(category, "_")[0]
 
 	resSplit := strings.Split(res, " ")
 
@@ -63,7 +66,10 @@ func newResult(category, name, res string) {
 func main() {
 
 	flag.StringVar(&db, "db", "builtin1", "")
+	flag.StringVar(&categoriesStr, "cat", "", "")
 	flag.Parse()
+
+	categories = strings.Split(categoriesStr, ",")
 
 	file, err := os.Open("newman_result.json")
 	if err != nil {
@@ -136,11 +142,6 @@ func main() {
 	for k, v := range results {
 		fmt.Println("cat:" + k)
 		fmt.Println()
-		fmt.Println()
-		fmt.Println()
-		fmt.Println()
-		fmt.Println()
-		fmt.Println()
 		for _, q := range v {
 			fmt.Println()
 			fmt.Println("#" + q.Name)
@@ -163,17 +164,17 @@ func main() {
 		}
 	}
 
-	sortedresults := map[string][]queryExample{}
+	filteredRes := map[string][]queryExample{}
 
-	for i, cat := range categories {
+	for _, cat := range categories {
 		if _, ok := results[cat]; ok {
 			if len(results[cat]) > 0 {
-				sortedresults[strconv.Itoa(i)+"_"+cat] = results[cat]
+				filteredRes[cat] = results[cat]
 			}
 		}
 	}
 
-	data, err := json.Marshal(sortedresults)
+	data, err := json.Marshal(filteredRes)
 	if err != nil {
 		panic(err)
 	}

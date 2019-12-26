@@ -6,7 +6,7 @@
   <div v-for="(catcases,index) in usecases" class="columns">
     <div class="column"></div>
     <div class="tags column is-four-fifths" >
-        <a class="is-link" @click="execCatUseCases(catcases)">all <template v-if="index!='mix'">{{index}}</template> base examples</a>
+        <a class="is-link" @click="execCatUseCases(catcases)">{{index}} <template v-if="index!='mix'">centric</template>  examples</a>
         <a v-for="(usecase,index2) in catcases" class="tag" @click="execUseCase(usecase)">{{usecase.name}}</a>
     </div>
     <div class="column"></div>    

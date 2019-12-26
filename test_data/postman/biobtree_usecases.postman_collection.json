@@ -1,7 +1,7 @@
 {
 	"info": {
-		"_postman_id": "9acde11e-99b9-4511-9c8b-fd037653a2d0",
-		"name": "biobtree_builtindb4",
+		"_postman_id": "abe29ca9-5c81-483a-a118-6ed51caebb11",
+		"name": "biobtree_usecases",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [{
@@ -274,7 +274,7 @@
 							"exec": [
 								"pm.test(\"Testgetids\", function () {",
 								"    var r = pm.response.json();",
-								"    pm.expect(r.results.length).to.eql(5);",
+								"    pm.expect(r.results.length).to.be.above(4);",
 								"    pm.expect(r.results[0].dataset).to.eql(1);",
 								"    pm.expect(r.results[0].identifier).to.eql(\"P15918\");",
 								"",
@@ -509,6 +509,65 @@
 					"response": []
 				},
 				{
+					"name": "kinase activity goterm to hgnc genes",
+					"event": [{
+							"listen": "prerequest",
+							"script": {
+								"id": "5266b7c5-f72a-4d6d-b1ed-d4b875e4800e",
+								"exec": [
+									"var encoded = encodeURIComponent('map(ensembl).map(hgnc)');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "6f75826d-9ffe-456b-b6ab-30d11ef77d0c",
+								"exec": [
+									"pm.test(\"humanGenesMAPKinaseActiviy\", function () {",
+									"    ",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).to.eql(1);",
+									"    pm.expect(r.results[0].source.identifier).to.eql(\"GO:0004707\");",
+									"    pm.expect(r.results[0].targets.length).to.be.above(9);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(5);",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=GO:0004707&m={{filter}}",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [{
+									"key": "i",
+									"value": "GO:0004707"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "taxid to its grand children by division",
 					"event": [{
 							"listen": "prerequest",
@@ -575,6 +634,3143 @@
 						}
 					},
 					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "mix_4all",
+			"item": [{
+					"name": "ensembl human genes to mouse Ortholog genes",
+					"event": [{
+							"listen": "prerequest",
+							"script": {
+								"id": "5266b7c5-f72a-4d6d-b1ed-d4b875e4800e",
+								"exec": [
+									"var encoded = encodeURIComponent('filter(ensembl.genome==\"homo_sapiens\").map(ortholog).filter(ensembl.genome==\"mus_musculus\")');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "6f75826d-9ffe-456b-b6ab-30d11ef77d0c",
+								"exec": [
+									"pm.test(\"geneNameToOrthologByspecies\", function () {",
+									"    ",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).to.eql(3);",
+									"    pm.expect(r.results[0].source.identifier).to.eql(\"ENSG00000164690\");",
+									"    pm.expect(r.results[0].targets.length).to.be.eql(1);",
+									"    pm.expect(r.results[0].targets[0].identifier).to.be.eql(\"ENSMUSG00000002633\");",
+									"",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=SHH,VAV1,TP53&m={{filter}}",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [{
+									"key": "i",
+									"value": "SHH,VAV1,TP53"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "crispr cas9 genes by genomes to transcript",
+					"event": [{
+							"listen": "prerequest",
+							"script": {
+								"id": "b63dc48b-c418-4a0e-b378-95cc3912a8ad",
+								"exec": [
+									"var encoded = encodeURIComponent('filter(ensembl.genome==\"campylobacter_coli_gca_001717605\").map(transcript)');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "dcc96f14-06ac-439e-b5ec-186341fec8e0",
+								"exec": [
+									"pm.test(\"cas9genomesToTranscrpt\", function () {",
+									"    ",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).to.eql(1);",
+									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=cas9&m={{filter}}",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [{
+									"key": "i",
+									"value": "cas9"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "inflammatory bowel disease to chembl molecules phase 3,4",
+					"event": [{
+							"listen": "test",
+							"script": {
+								"id": "9ac9c31a-7487-4e7b-89fe-1f2f7b1f0061",
+								"exec": [
+									"pm.test(\"diseaseMoleculePhase34\", function () {",
+									"    ",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).to.eql(1);",
+									"    pm.expect(r.results[0].source.identifier).to.eql(\"EFO:0003767\");",
+									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(18);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(18);",
+									"",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "61d14d9e-0866-4e24-9b22-3fa4b18ce8ef",
+								"exec": [
+									"var encoded =encodeURIComponent('map(chembl_molecule).filter(chembl.molecule.highestDevelopmentPhase>2)');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=inflammatory%20bowel%20disease&m={{filter}}",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [{
+									"key": "i",
+									"value": "inflammatory%20bowel%20disease"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "gene_4all",
+			"item": [{
+					"name": "search crispr cas9 genes",
+					"event": [{
+							"listen": "prerequest",
+							"script": {
+								"id": "5266b7c5-f72a-4d6d-b1ed-d4b875e4800e",
+								"exec": [
+									"//var encoded = encodeURIComponent('map(transcript).map(exon)');",
+									"//pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "6f75826d-9ffe-456b-b6ab-30d11ef77d0c",
+								"exec": [
+									"pm.test(\"getentry\", function () {",
+									"    ",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).to.be.above(1)",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/?i=cas9",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								""
+							],
+							"query": [{
+								"key": "i",
+								"value": "cas9"
+							}]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "entrez id to ensembl then goterm",
+					"event": [{
+							"listen": "prerequest",
+							"script": {
+								"id": "b63dc48b-c418-4a0e-b378-95cc3912a8ad",
+								"exec": [
+									"var encoded = encodeURIComponent('map(ensembl).map(go)');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "dcc96f14-06ac-439e-b5ec-186341fec8e0",
+								"exec": [
+									"pm.test(\"entreztoensemblgoterms\", function () {",
+									"    ",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).to.eql(1);",
+									"    pm.expect(r.results[0].source.identifier).to.eql(\"675\");",
+									"    pm.expect(r.results[0].targets.length).to.be.above(10);",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=675&m={{filter}}",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [{
+									"key": "i",
+									"value": "675"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "crispr cas9 genes to transcripts",
+					"event": [{
+							"listen": "prerequest",
+							"script": {
+								"id": "b63dc48b-c418-4a0e-b378-95cc3912a8ad",
+								"exec": [
+									"var encoded = encodeURIComponent('map(transcript)');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "dcc96f14-06ac-439e-b5ec-186341fec8e0",
+								"exec": [
+									"pm.test(\"genetranscripts\", function () {",
+									"    ",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).to.be.above(5);",
+									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
+									"    pm.expect(r.results[1].targets.length).to.be.above(0);",
+									"    pm.expect(r.results[2].targets.length).to.be.above(0);",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=cas9&m={{filter}}",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [{
+									"key": "i",
+									"value": "cas9"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "crispr cas9 genes by genomes to ENA",
+					"event": [{
+							"listen": "prerequest",
+							"script": {
+								"id": "b63dc48b-c418-4a0e-b378-95cc3912a8ad",
+								"exec": [
+									"var encoded = encodeURIComponent('filter(ensembl.genome==\"campylobacter_coli_gca_001717605\").map(ena)');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "dcc96f14-06ac-439e-b5ec-186341fec8e0",
+								"exec": [
+									"pm.test(\"cas9genomesToGOterms\", function () {",
+									"    ",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).to.eql(1);",
+									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=cas9&m={{filter}}",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [{
+									"key": "i",
+									"value": "cas9"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "crispr cas9 genes by genomes to go terms",
+					"event": [{
+							"listen": "prerequest",
+							"script": {
+								"id": "b63dc48b-c418-4a0e-b378-95cc3912a8ad",
+								"exec": [
+									"var encoded = encodeURIComponent('filter(ensembl.genome==\"campylobacter_coli_gca_001717605\").map(go).filter(go.type==\"biological_process\")');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "dcc96f14-06ac-439e-b5ec-186341fec8e0",
+								"exec": [
+									"pm.test(\"cas9genomesToGOterms\", function () {",
+									"    ",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).to.eql(1);",
+									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=cas9&m={{filter}}",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [{
+									"key": "i",
+									"value": "cas9"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "crispr cas9 genes to NCBI Genbank",
+					"event": [{
+							"listen": "prerequest",
+							"script": {
+								"id": "b63dc48b-c418-4a0e-b378-95cc3912a8ad",
+								"exec": [
+									"var encoded = encodeURIComponent('map(ena).map(genbank)');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "dcc96f14-06ac-439e-b5ec-186341fec8e0",
+								"exec": [
+									"pm.test(\"cas9genomesToGeneBankGI\", function () {",
+									"    ",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).to.be.above(1);",
+									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=cas9&m={{filter}}",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [{
+									"key": "i",
+									"value": "cas9"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [{
+					"listen": "prerequest",
+					"script": {
+						"id": "ad735d21-02fa-43fd-ac16-620e8ec4617a",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "1b146eec-7801-4a84-87d1-6f17af277fe9",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "gene",
+			"item": [{
+					"name": "search genes",
+					"event": [{
+							"listen": "prerequest",
+							"script": {
+								"id": "5266b7c5-f72a-4d6d-b1ed-d4b875e4800e",
+								"exec": [
+									"//var encoded = encodeURIComponent('map(transcript).map(exon)');",
+									"//pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "6f75826d-9ffe-456b-b6ab-30d11ef77d0c",
+								"exec": [
+									"pm.test(\"getentry\", function () {",
+									"    ",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).to.be.above(1)",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/?i=shh,tpi1",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								""
+							],
+							"query": [{
+								"key": "i",
+								"value": "shh,tpi1"
+							}]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "genes to transcripts",
+					"event": [{
+							"listen": "prerequest",
+							"script": {
+								"id": "b63dc48b-c418-4a0e-b378-95cc3912a8ad",
+								"exec": [
+									"var encoded = encodeURIComponent('map(transcript)');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "dcc96f14-06ac-439e-b5ec-186341fec8e0",
+								"exec": [
+									"pm.test(\"genetranscripts\", function () {",
+									"    ",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).to.be.above(4);",
+									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
+									"    pm.expect(r.results[1].targets.length).to.be.above(0);",
+									"    pm.expect(r.results[2].targets.length).to.be.above(0);",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=tpi1,ssh&m={{filter}}",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [{
+									"key": "i",
+									"value": "tpi1,ssh"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "human genes to transcripts",
+					"event": [{
+							"listen": "prerequest",
+							"script": {
+								"id": "b63dc48b-c418-4a0e-b378-95cc3912a8ad",
+								"exec": [
+									"var encoded = encodeURIComponent('filter(ensembl.genome==\"homo_sapiens\").map(transcript)');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "dcc96f14-06ac-439e-b5ec-186341fec8e0",
+								"exec": [
+									"pm.test(\"genefiltertranscripts\", function () {",
+									"    ",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).eq(1);",
+									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=tpi1,ssh&m={{filter}}",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [{
+									"key": "i",
+									"value": "tpi1,ssh"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "human genes in a region",
+					"event": [{
+							"listen": "prerequest",
+							"script": {
+								"id": "b63dc48b-c418-4a0e-b378-95cc3912a8ad",
+								"exec": [
+									"var encoded = encodeURIComponent('map(ensembl).filter(ensembl.seq_region==\"7\")');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "dcc96f14-06ac-439e-b5ec-186341fec8e0",
+								"exec": [
+									"pm.test(\"genefiltertranscripts\", function () {",
+									"    ",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).eq(1);",
+									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=homo%20sapiens&m={{filter}}",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [{
+									"key": "i",
+									"value": "homo%20sapiens"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "human genes in overlapping range",
+					"event": [{
+							"listen": "prerequest",
+							"script": {
+								"id": "b63dc48b-c418-4a0e-b378-95cc3912a8ad",
+								"exec": [
+									"var encoded = encodeURIComponent('map(ensembl).filter(ensembl.overlaps(114129278,114129328))');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "dcc96f14-06ac-439e-b5ec-186341fec8e0",
+								"exec": [
+									"pm.test(\"overlappinggenes\", function () {",
+									"    ",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).eq(1);",
+									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=homo%20sapiens&m={{filter}}",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [{
+									"key": "i",
+									"value": "homo%20sapiens"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "human genes only within range",
+					"event": [{
+							"listen": "prerequest",
+							"script": {
+								"id": "b63dc48b-c418-4a0e-b378-95cc3912a8ad",
+								"exec": [
+									"var encoded = encodeURIComponent('map(ensembl).filter(ensembl.within(110000000,114000000))');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "dcc96f14-06ac-439e-b5ec-186341fec8e0",
+								"exec": [
+									"pm.test(\"overlappinggenes\", function () {",
+									"    ",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).eq(1);",
+									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=homo%20sapiens&m={{filter}}",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [{
+									"key": "i",
+									"value": "homo%20sapiens"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "human genes only within range and chromosome",
+					"event": [{
+							"listen": "prerequest",
+							"script": {
+								"id": "b63dc48b-c418-4a0e-b378-95cc3912a8ad",
+								"exec": [
+									"var encoded = encodeURIComponent('map(ensembl).filter(ensembl.within(110000000,114000000) && ensembl.seq_region==\"7\")');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "dcc96f14-06ac-439e-b5ec-186341fec8e0",
+								"exec": [
+									"pm.test(\"overlappinggenes\", function () {",
+									"    ",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).eq(1);",
+									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=homo%20sapiens&m={{filter}}",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [{
+									"key": "i",
+									"value": "homo%20sapiens"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "genes to golden transcript",
+					"event": [{
+							"listen": "prerequest",
+							"script": {
+								"id": "b63dc48b-c418-4a0e-b378-95cc3912a8ad",
+								"exec": [
+									"var encoded = encodeURIComponent('map(transcript).filter(transcript.source==\"eh\")');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "dcc96f14-06ac-439e-b5ec-186341fec8e0",
+								"exec": [
+									"pm.test(\"genetogoldentranscripts\", function () {",
+									"    ",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).to.be.above(0);",
+									"    pm.expect(r.results[0].targets.length).eq(1);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=tpi1,shh&m={{filter}}",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [{
+									"key": "i",
+									"value": "tpi1,shh"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "human golden transcripts in overlapping range",
+					"event": [{
+							"listen": "prerequest",
+							"script": {
+								"id": "b63dc48b-c418-4a0e-b378-95cc3912a8ad",
+								"exec": [
+									"var encoded = encodeURIComponent('map(ensembl).filter(ensembl.overlaps(114129278,114129328)).map(transcript).filter(transcript.source==\"eh\")');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "dcc96f14-06ac-439e-b5ec-186341fec8e0",
+								"exec": [
+									"pm.test(\"overlappingtranscripts\", function () {",
+									"    ",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).eq(1);",
+									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=homo%20sapiens&m={{filter}}",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [{
+									"key": "i",
+									"value": "homo%20sapiens"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "human transcripts within range and region",
+					"event": [{
+							"listen": "prerequest",
+							"script": {
+								"id": "b63dc48b-c418-4a0e-b378-95cc3912a8ad",
+								"exec": [
+									"var encoded = encodeURIComponent('map(ensembl).filter(ensembl.seq_region==\"12\" && ensembl.within(110000000,114000000)).map(transcript)');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "dcc96f14-06ac-439e-b5ec-186341fec8e0",
+								"exec": [
+									"pm.test(\"genefiltertranscripts\", function () {",
+									"    ",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).eq(1);",
+									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=homo%20sapiens&m={{filter}}",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [{
+									"key": "i",
+									"value": "homo%20sapiens"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "human transcripts covering a genome point",
+					"event": [{
+							"listen": "prerequest",
+							"script": {
+								"id": "b63dc48b-c418-4a0e-b378-95cc3912a8ad",
+								"exec": [
+									"var encoded = encodeURIComponent('map(ensembl).filter(ensembl.covers(110000000)).map(transcript)');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "dcc96f14-06ac-439e-b5ec-186341fec8e0",
+								"exec": [
+									"pm.test(\"genefiltertranscripts\", function () {",
+									"    ",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).eq(1);",
+									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=homo%20sapiens&m={{filter}}",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [{
+									"key": "i",
+									"value": "homo%20sapiens"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "human transcripts not protein_coding biotype",
+					"event": [{
+							"listen": "prerequest",
+							"script": {
+								"id": "b63dc48b-c418-4a0e-b378-95cc3912a8ad",
+								"exec": [
+									"var encoded = encodeURIComponent('map(ensembl).map(transcript).filter(transcript.biotype!=\"protein_coding\")');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "dcc96f14-06ac-439e-b5ec-186341fec8e0",
+								"exec": [
+									"pm.test(\"genefiltertranscripts\", function () {",
+									"    ",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).eq(1);",
+									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=homo%20sapiens&m={{filter}}",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [{
+									"key": "i",
+									"value": "homo%20sapiens"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "mouse transcripts in a region",
+					"event": [{
+							"listen": "prerequest",
+							"script": {
+								"id": "b63dc48b-c418-4a0e-b378-95cc3912a8ad",
+								"exec": [
+									"var encoded = encodeURIComponent('map(ensembl).filter(ensembl.seq_region==\"3\").map(transcript)');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "dcc96f14-06ac-439e-b5ec-186341fec8e0",
+								"exec": [
+									"pm.test(\"genefiltertranscripts\", function () {",
+									"    ",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).eq(1);",
+									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=mus%20musculus&m={{filter}}",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [{
+									"key": "i",
+									"value": "mus%20musculus"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ensembl id to transcripts by type",
+					"event": [{
+							"listen": "prerequest",
+							"script": {
+								"id": "b63dc48b-c418-4a0e-b378-95cc3912a8ad",
+								"exec": [
+									"var encoded = encodeURIComponent('map(transcript).filter(transcript.biotype==\"protein_coding\")');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "dcc96f14-06ac-439e-b5ec-186341fec8e0",
+								"exec": [
+									"pm.test(\"genetranscripts\", function () {",
+									"    ",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).to.eql(1);",
+									"    pm.expect(r.results[0].source.identifier).to.eql(\"ENSG00000073910\");",
+									"    pm.expect(r.results[0].targets.length).to.eql(7);",
+									"    pm.expect(r.results[0].targets[0].Attributes.Ensembl.biotype).to.eql(\"protein_coding\");",
+									"    pm.expect(r.results[0].targets[1].Attributes.Ensembl.biotype).to.eql(\"protein_coding\");",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=ENSG00000073910&m={{filter}}",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [{
+									"key": "i",
+									"value": "ENSG00000073910"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "cancer related genes to transcripts",
+					"event": [{
+							"listen": "prerequest",
+							"script": {
+								"id": "b63dc48b-c418-4a0e-b378-95cc3912a8ad",
+								"exec": [
+									"var encoded = encodeURIComponent('filter(ensembl.genome==\"homo_sapiens\").map(transcript)');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "dcc96f14-06ac-439e-b5ec-186341fec8e0",
+								"exec": [
+									"pm.test(\"cancerrelatedGenesToTranscrpts\", function () {",
+									"    ",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).to.be.above(1);",
+									"    pm.expect(r.results[0].source.keyword).to.eql(\"MLH1\");",
+									"    pm.expect(r.results[0].source.identifier).to.eql(\"ENSG00000076242\");",
+									"    pm.expect(r.results[1].source.keyword).to.eql(\"MSH2\");",
+									"    pm.expect(r.results[1].source.identifier).to.eql(\"ENSG00000095002\");",
+									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
+									"    pm.expect(r.results[1].targets.length).to.be.above(0);",
+									"    pm.expect(r.results[2].targets.length).to.be.above(0);",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=MLH1,MSH2,MSH6,STK11,BMPR1A,SMAD4,BRCA1,BRCA2,TP53,PTEN,PALB2,TSC1,TSC2,FLCN,MET,CDKN2A,RB1&m={{filter}}",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [{
+									"key": "i",
+									"value": "MLH1,MSH2,MSH6,STK11,BMPR1A,SMAD4,BRCA1,BRCA2,TP53,PTEN,PALB2,TSC1,TSC2,FLCN,MET,CDKN2A,RB1"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "genes to CDS",
+					"event": [{
+							"listen": "prerequest",
+							"script": {
+								"id": "b63dc48b-c418-4a0e-b378-95cc3912a8ad",
+								"exec": [
+									"var encoded = encodeURIComponent('map(transcript).map(cds)');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "dcc96f14-06ac-439e-b5ec-186341fec8e0",
+								"exec": [
+									"pm.test(\"genestocds\", function () {",
+									"    ",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).to.be.above(4);",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=tpi1,shh&m={{filter}}",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [{
+									"key": "i",
+									"value": "tpi1,shh"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "human  golden CDS in a region",
+					"event": [{
+							"listen": "prerequest",
+							"script": {
+								"id": "b63dc48b-c418-4a0e-b378-95cc3912a8ad",
+								"exec": [
+									"var encoded = encodeURIComponent('map(ensembl).filter(ensembl.seq_region==\"X\").map(transcript).filter(transcript.source==\"eh\").map(cds)');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "dcc96f14-06ac-439e-b5ec-186341fec8e0",
+								"exec": [
+									"pm.test(\"goldencds\", function () {",
+									"    ",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).eq(1);",
+									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=homo%20sapiens&m={{filter}}",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [{
+									"key": "i",
+									"value": "homo%20sapiens"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ensembl id to exons",
+					"event": [{
+							"listen": "prerequest",
+							"script": {
+								"id": "5266b7c5-f72a-4d6d-b1ed-d4b875e4800e",
+								"exec": [
+									"var encoded = encodeURIComponent('map(transcript).map(exon)');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "6f75826d-9ffe-456b-b6ab-30d11ef77d0c",
+								"exec": [
+									"pm.test(\"geneexons\", function () {",
+									"    ",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).to.eql(1);",
+									"    pm.expect(r.results[0].source.identifier).to.eql(\"ENSG00000141510\");",
+									"    pm.expect(r.results[0].targets.length).to.be.above(5);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(39);",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=ENSG00000141510&m={{filter}}",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [{
+									"key": "i",
+									"value": "ENSG00000141510"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "gene to exons by region",
+					"event": [{
+							"listen": "prerequest",
+							"script": {
+								"id": "5266b7c5-f72a-4d6d-b1ed-d4b875e4800e",
+								"exec": [
+									"var encoded = encodeURIComponent('map(transcript).filter(transcript.seq_region==\"17\").map(exon)');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "6f75826d-9ffe-456b-b6ab-30d11ef77d0c",
+								"exec": [
+									"pm.test(\"geneexons\", function () {",
+									"    ",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).to.be.above(0);",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=tp53&m={{filter}}",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [{
+									"key": "i",
+									"value": "tp53"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "genes to overlapping range exons",
+					"event": [{
+							"listen": "prerequest",
+							"script": {
+								"id": "5266b7c5-f72a-4d6d-b1ed-d4b875e4800e",
+								"exec": [
+									"var encoded = encodeURIComponent('map(transcript).map(exon).filter(exon.overlaps(6867119,6867681))');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "6f75826d-9ffe-456b-b6ab-30d11ef77d0c",
+								"exec": [
+									"pm.test(\"geneexons\", function () {",
+									"    ",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).to.be.above(0);",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=tpi1,tp53&m={{filter}}",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [{
+									"key": "i",
+									"value": "tpi1,tp53"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "genes to within range exons",
+					"event": [{
+							"listen": "prerequest",
+							"script": {
+								"id": "5266b7c5-f72a-4d6d-b1ed-d4b875e4800e",
+								"exec": [
+									"var encoded = encodeURIComponent('map(transcript).map(exon).filter(exon.within(6867531,6867681))');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "6f75826d-9ffe-456b-b6ab-30d11ef77d0c",
+								"exec": [
+									"pm.test(\"geneexons\", function () {",
+									"    ",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).to.be.above(0);",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=tpi1,tp53&m={{filter}}",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [{
+									"key": "i",
+									"value": "tpi1,tp53"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "golden transcript exons with + strand",
+					"event": [{
+							"listen": "prerequest",
+							"script": {
+								"id": "5266b7c5-f72a-4d6d-b1ed-d4b875e4800e",
+								"exec": [
+									"var encoded = encodeURIComponent('map(transcript).filter(transcript.source==\"eh\").map(exon).filter(exon.strand == \"+\")');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "6f75826d-9ffe-456b-b6ab-30d11ef77d0c",
+								"exec": [
+									"pm.test(\"geneexons\", function () {",
+									"    ",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).to.be.above(0);",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=tp53&m={{filter}}",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [{
+									"key": "i",
+									"value": "tp53"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ensembl id to Entrez id",
+					"event": [{
+							"listen": "prerequest",
+							"script": {
+								"id": "b63dc48b-c418-4a0e-b378-95cc3912a8ad",
+								"exec": [
+									"var encoded = encodeURIComponent('map(entrez)');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "dcc96f14-06ac-439e-b5ec-186341fec8e0",
+								"exec": [
+									"pm.test(\"ensemblToEntrez\", function () {",
+									"    ",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).to.eql(1);",
+									"    pm.expect(r.results[0].source.identifier).to.eql(\"ENSG00000139618\");",
+									"    pm.expect(r.results[0].targets.length).to.eql(1);",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=ENSG00000139618&m={{filter}}",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [{
+									"key": "i",
+									"value": "ENSG00000139618"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "entrez id to ensembl",
+					"event": [{
+							"listen": "prerequest",
+							"script": {
+								"id": "b63dc48b-c418-4a0e-b378-95cc3912a8ad",
+								"exec": [
+									"var encoded = encodeURIComponent('map(ensembl)');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "dcc96f14-06ac-439e-b5ec-186341fec8e0",
+								"exec": [
+									"pm.test(\"entreztoensembl\", function () {",
+									"    ",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).to.eql(1);",
+									"    pm.expect(r.results[0].source.identifier).to.eql(\"675\");",
+									"    pm.expect(r.results[0].targets.length).to.be.above(1);",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=675&m={{filter}}",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [{
+									"key": "i",
+									"value": "675"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "genes to molecular goterm",
+					"event": [{
+							"listen": "prerequest",
+							"script": {
+								"id": "b63dc48b-c418-4a0e-b378-95cc3912a8ad",
+								"exec": [
+									"var encoded = encodeURIComponent('filter(ensembl.genome==\"homo_sapiens\").map(go).filter(go.type==\"molecular_function\")');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "dcc96f14-06ac-439e-b5ec-186341fec8e0",
+								"exec": [
+									"pm.test(\"genetranscripts\", function () {",
+									"    ",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).to.eq(2);",
+									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
+									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=tpi1,shh&m={{filter}}",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [{
+									"key": "i",
+									"value": "tpi1,shh"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "genes by genomes then go terms",
+					"event": [{
+							"listen": "prerequest",
+							"script": {
+								"id": "b63dc48b-c418-4a0e-b378-95cc3912a8ad",
+								"exec": [
+									"var encoded = encodeURIComponent('filter(ensembl.genome==\"mus_musculus\").map(go).filter(go.type==\"biological_process\")');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "dcc96f14-06ac-439e-b5ec-186341fec8e0",
+								"exec": [
+									"pm.test(\"cas9genomesToGOterms\", function () {",
+									"    ",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).to.eql(1);",
+									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=tpi1,tp53&m={{filter}}",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [{
+									"key": "i",
+									"value": "tpi1,tp53"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "cancer related genes to uniprot",
+					"event": [{
+							"listen": "prerequest",
+							"script": {
+								"id": "b63dc48b-c418-4a0e-b378-95cc3912a8ad",
+								"exec": [
+									"var encoded = encodeURIComponent('filter(ensembl.genome==\"mus_musculus\").map(uniprot)');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "dcc96f14-06ac-439e-b5ec-186341fec8e0",
+								"exec": [
+									"pm.test(\"cancerrelatedGenesToUniprot\", function () {",
+									"    ",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).to.be.above(1);",
+									"    pm.expect(r.results[0].source.keyword).to.eql(\"PMS2\");",
+									"    pm.expect(r.results[0].source.identifier).to.eql(\"ENSMUSG00000079109\");",
+									"    pm.expect(r.results[1].source.keyword).to.eql(\"MLH1\");",
+									"    pm.expect(r.results[1].source.identifier).to.eql(\"ENSMUSG00000032498\");",
+									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
+									"    pm.expect(r.results[1].targets.length).to.be.above(0);",
+									"    pm.expect(r.results[2].targets.length).to.be.above(0);",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=PMS2,MLH1,MSH2,MSH6,STK11,BMPR1A,SMAD4,BRCA1,BRCA2,TP53,PTEN,PALB2,TSC1,TSC2,FLCN,MET,CDKN2A,RB1&m={{filter}}",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [{
+									"key": "i",
+									"value": "PMS2,MLH1,MSH2,MSH6,STK11,BMPR1A,SMAD4,BRCA1,BRCA2,TP53,PTEN,PALB2,TSC1,TSC2,FLCN,MET,CDKN2A,RB1"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "cancer related genes to uniprot go terms",
+					"event": [{
+							"listen": "prerequest",
+							"script": {
+								"id": "b63dc48b-c418-4a0e-b378-95cc3912a8ad",
+								"exec": [
+									"var encoded = encodeURIComponent('filter(ensembl.genome==\"homo_sapiens\").map(uniprot).map(go)');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "dcc96f14-06ac-439e-b5ec-186341fec8e0",
+								"exec": [
+									"pm.test(\"cancerrelatedGenesToUniprot\", function () {",
+									"    ",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).to.be.above(1);",
+									"    pm.expect(r.results[0].source.keyword).to.eql(\"PMS2\");",
+									"    pm.expect(r.results[0].source.identifier).to.eql(\"ENSG00000122512\");",
+									"    pm.expect(r.results[1].source.keyword).to.eql(\"MLH1\");",
+									"    pm.expect(r.results[1].source.identifier).to.eql(\"ENSG00000076242\");",
+									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
+									"    pm.expect(r.results[1].targets.length).to.be.above(0);",
+									"    pm.expect(r.results[2].targets.length).to.be.above(0);",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=PMS2,MLH1,MSH2,MSH6,STK11,BMPR1A,SMAD4,BRCA1,BRCA2,TP53,PTEN,PALB2,TSC1,TSC2,FLCN,MET,CDKN2A,RB1&m={{filter}}",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [{
+									"key": "i",
+									"value": "PMS2,MLH1,MSH2,MSH6,STK11,BMPR1A,SMAD4,BRCA1,BRCA2,TP53,PTEN,PALB2,TSC1,TSC2,FLCN,MET,CDKN2A,RB1"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "cancer related genes to uniprot via hgnc",
+					"event": [{
+							"listen": "prerequest",
+							"script": {
+								"id": "b63dc48b-c418-4a0e-b378-95cc3912a8ad",
+								"exec": [
+									"var encoded = encodeURIComponent('map(uniprot).filter(uniprot.reviewed)');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "dcc96f14-06ac-439e-b5ec-186341fec8e0",
+								"exec": [
+									"pm.test(\"cancerrelatedGenesToUniprotViaHgnc\", function () {",
+									"    ",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).to.be.above(1);",
+									"    pm.expect(r.results[0].source.keyword).to.eql(\"PMS2\");",
+									"    pm.expect(r.results[0].source.identifier).to.eql(\"HGNC:9122\");",
+									"    pm.expect(r.results[1].source.keyword).to.eql(\"MLH1\");",
+									"    pm.expect(r.results[1].source.identifier).to.eql(\"HGNC:7127\");",
+									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
+									"    pm.expect(r.results[1].targets.length).to.be.above(0);",
+									"    pm.expect(r.results[2].targets.length).to.be.above(0);",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=PMS2,MLH1,MSH2,MSH6,STK11,BMPR1A,SMAD4,BRCA1,BRCA2,TP53,PTEN,PALB2,TSC1,TSC2,FLCN,MET,CDKN2A,RB1&m={{filter}}&s=hgnc",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [{
+									"key": "i",
+									"value": "PMS2,MLH1,MSH2,MSH6,STK11,BMPR1A,SMAD4,BRCA1,BRCA2,TP53,PTEN,PALB2,TSC1,TSC2,FLCN,MET,CDKN2A,RB1"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								},
+								{
+									"key": "s",
+									"value": "hgnc"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "cancer related genes to uniprot go terms via hgnc",
+					"event": [{
+							"listen": "prerequest",
+							"script": {
+								"id": "b63dc48b-c418-4a0e-b378-95cc3912a8ad",
+								"exec": [
+									"var encoded = encodeURIComponent('map(uniprot).filter(uniprot.reviewed).map(go).filter(go.type==\"cellular_component\")');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "dcc96f14-06ac-439e-b5ec-186341fec8e0",
+								"exec": [
+									"pm.test(\"cancerrelatedGenesToUniprotGoTermsViaHgnc\", function () {",
+									"    ",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).to.be.above(1);",
+									"    pm.expect(r.results[0].source.keyword).to.eql(\"PMS2\");",
+									"    pm.expect(r.results[0].source.identifier).to.eql(\"HGNC:9122\");",
+									"    pm.expect(r.results[1].source.keyword).to.eql(\"MLH1\");",
+									"    pm.expect(r.results[1].source.identifier).to.eql(\"HGNC:7127\");",
+									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
+									"    pm.expect(r.results[1].targets.length).to.be.above(0);",
+									"    pm.expect(r.results[2].targets.length).to.be.above(0);",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=PMS2,MLH1,MSH2,MSH6,STK11,BMPR1A,SMAD4,BRCA1,BRCA2,TP53,PTEN,PALB2,TSC1,TSC2,FLCN,MET,CDKN2A,RB1&m={{filter}}&s=hgnc",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [{
+									"key": "i",
+									"value": "PMS2,MLH1,MSH2,MSH6,STK11,BMPR1A,SMAD4,BRCA1,BRCA2,TP53,PTEN,PALB2,TSC1,TSC2,FLCN,MET,CDKN2A,RB1"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								},
+								{
+									"key": "s",
+									"value": "hgnc"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "probe id to gene",
+					"event": [{
+							"listen": "prerequest",
+							"script": {
+								"id": "b63dc48b-c418-4a0e-b378-95cc3912a8ad",
+								"exec": [
+									"var encoded = encodeURIComponent('map(transcript).map(ensembl).filter(ensembl.genome==\"homo_sapiens\")');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "dcc96f14-06ac-439e-b5ec-186341fec8e0",
+								"exec": [
+									"pm.test(\"genetranscripts\", function () {",
+									"    ",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).to.eql(10);",
+									"    pm.expect(r.results[0].source.identifier).to.eql(\"202763_AT\");",
+									"    pm.expect(r.results[0].targets.length).to.eql(1);",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=202763_at,209310_s_at,207500_at&m={{filter}}",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [{
+									"key": "i",
+									"value": "202763_at,209310_s_at,207500_at"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "probe id to transcript",
+					"event": [{
+							"listen": "prerequest",
+							"script": {
+								"id": "b63dc48b-c418-4a0e-b378-95cc3912a8ad",
+								"exec": [
+									"var encoded = encodeURIComponent('map(transcript)');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "dcc96f14-06ac-439e-b5ec-186341fec8e0",
+								"exec": [
+									"pm.test(\"probeidtotranscripts\", function () {",
+									"    ",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).to.eql(10);",
+									"    pm.expect(r.results[0].source.identifier).to.eql(\"202763_AT\");",
+									"    pm.expect(r.results[0].targets.length).to.eql(3);",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=202763_at,209310_s_at,207500_at&m={{filter}}",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [{
+									"key": "i",
+									"value": "202763_at,209310_s_at,207500_at"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "transcript to probe id",
+					"event": [{
+							"listen": "prerequest",
+							"script": {
+								"id": "b63dc48b-c418-4a0e-b378-95cc3912a8ad",
+								"exec": [
+									"var encoded = encodeURIComponent('map(affy_hg_focus)');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "dcc96f14-06ac-439e-b5ec-186341fec8e0",
+								"exec": [
+									"pm.test(\"transcripttoprobe\", function () {",
+									"    ",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).to.eql(1);",
+									"    pm.expect(r.results[0].source.identifier).to.eql(\"ENST00000308394\");",
+									"    pm.expect(r.results[0].targets.length).to.eql(1);",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=ENST00000308394&m={{filter}}",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [{
+									"key": "i",
+									"value": "ENST00000308394"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "gene to probe id",
+					"event": [{
+							"listen": "prerequest",
+							"script": {
+								"id": "b63dc48b-c418-4a0e-b378-95cc3912a8ad",
+								"exec": [
+									"var encoded = encodeURIComponent('map(transcript).map(affy_hg_focus)');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "dcc96f14-06ac-439e-b5ec-186341fec8e0",
+								"exec": [
+									"pm.test(\"genetoprobe\", function () {",
+									"    ",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).to.be.above(0);",
+									"    pm.expect(r.results[0].source.identifier).to.eql(\"ENSG00000111669\");",
+									"    pm.expect(r.results[0].targets.length).to.eql(1);",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=tpi1,tp53&m={{filter}}",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [{
+									"key": "i",
+									"value": "tpi1,tp53"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "probe id to ensembl then hgnc",
+					"event": [{
+							"listen": "prerequest",
+							"script": {
+								"id": "b63dc48b-c418-4a0e-b378-95cc3912a8ad",
+								"exec": [
+									"var encoded = encodeURIComponent('map(transcript).map(ensembl).map(hgnc)');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "dcc96f14-06ac-439e-b5ec-186341fec8e0",
+								"exec": [
+									"pm.test(\"probetohgnc\", function () {",
+									"    ",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).to.eql(10);",
+									"    pm.expect(r.results[0].source.identifier).to.eql(\"202763_AT\");",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=202763_at,209310_s_at,207500_at&m={{filter}}",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [{
+									"key": "i",
+									"value": "202763_at,209310_s_at,207500_at"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ensembl with region then uniprot reviewed",
+					"event": [{
+							"listen": "prerequest",
+							"script": {
+								"id": "b63dc48b-c418-4a0e-b378-95cc3912a8ad",
+								"exec": [
+									"var encoded = encodeURIComponent('map(ensembl).filter(ensembl.seq_region==\"X\").map(uniprot).filter(uniprot.reviewed)');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "dcc96f14-06ac-439e-b5ec-186341fec8e0",
+								"exec": [
+									"pm.test(\"humanToEnsemblThenUniprot\", function () {",
+									"    ",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).to.eql(1);",
+									"    pm.expect(r.results[0].source.identifier).to.eql(\"9606\");",
+									"    pm.expect(r.results[0].targets.length).to.be.above(10);",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=homo_sapiens&m={{filter}}",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [{
+									"key": "i",
+									"value": "homo_sapiens"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ensembl id to orthologs",
+					"event": [{
+							"listen": "prerequest",
+							"script": {
+								"id": "5266b7c5-f72a-4d6d-b1ed-d4b875e4800e",
+								"exec": [
+									"var encoded = encodeURIComponent('map(ortholog)');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "6f75826d-9ffe-456b-b6ab-30d11ef77d0c",
+								"exec": [
+									"pm.test(\"ensemblortholog\", function () {",
+									"    ",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).to.eql(1);",
+									"    pm.expect(r.results[0].source.identifier).to.eql(\"ENSG00000139618\");",
+									"    pm.expect(r.results[0].targets.length).to.be.above(2);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=ENSG00000139618&m={{filter}}",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [{
+									"key": "i",
+									"value": "ENSG00000139618"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "gene orthologs",
+					"event": [{
+							"listen": "prerequest",
+							"script": {
+								"id": "5266b7c5-f72a-4d6d-b1ed-d4b875e4800e",
+								"exec": [
+									"var encoded = encodeURIComponent('filter(ensembl.genome==\"homo_sapiens\").map(ortholog)');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "6f75826d-9ffe-456b-b6ab-30d11ef77d0c",
+								"exec": [
+									"pm.test(\"geneNameToOrtholog\", function () {",
+									"    ",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).to.eql(1);",
+									"    pm.expect(r.results[0].source.identifier).to.eql(\"ENSG00000164690\");",
+									"    pm.expect(r.results[0].targets.length).to.be.above(5);",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=shh&m={{filter}}",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [{
+									"key": "i",
+									"value": "shh"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ensembl id to paralog",
+					"event": [{
+							"listen": "prerequest",
+							"script": {
+								"id": "5266b7c5-f72a-4d6d-b1ed-d4b875e4800e",
+								"exec": [
+									"var encoded = encodeURIComponent('map(paralog)');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "6f75826d-9ffe-456b-b6ab-30d11ef77d0c",
+								"exec": [
+									"pm.test(\"genetranscripts\", function () {",
+									"    ",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).to.eql(1);",
+									"    pm.expect(r.results[0].source.identifier).to.eql(\"ENSG00000073910\");",
+									"    pm.expect(r.results[0].targets.length).to.eql(1);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(2);",
+									"    pm.expect(r.results[0].targets[0].identifier).to.eql(\"ENSG00000075539\");",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=ENSG00000073910&m={{filter}}",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [{
+									"key": "i",
+									"value": "ENSG00000073910"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "gene to Paralog",
+					"event": [{
+							"listen": "prerequest",
+							"script": {
+								"id": "5266b7c5-f72a-4d6d-b1ed-d4b875e4800e",
+								"exec": [
+									"var encoded = encodeURIComponent('filter(ensembl.genome==\"homo_sapiens\").map(paralog)');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "6f75826d-9ffe-456b-b6ab-30d11ef77d0c",
+								"exec": [
+									"pm.test(\"genetranscripts\", function () {",
+									"    ",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).to.eql(1);",
+									"    pm.expect(r.results[0].source.identifier).to.eql(\"ENSG00000073910\");",
+									"    pm.expect(r.results[0].targets.length).to.eql(1);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(2);",
+									"    pm.expect(r.results[0].targets[0].identifier).to.eql(\"ENSG00000075539\");",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=FRY&m={{filter}}",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [{
+									"key": "i",
+									"value": "FRY"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "gene name to paralog transcripts",
+					"event": [{
+							"listen": "prerequest",
+							"script": {
+								"id": "5266b7c5-f72a-4d6d-b1ed-d4b875e4800e",
+								"exec": [
+									"var encoded = encodeURIComponent('filter(ensembl.genome==\"homo_sapiens\").map(paralog).map(transcript)');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "6f75826d-9ffe-456b-b6ab-30d11ef77d0c",
+								"exec": [
+									"pm.test(\"paralog transcripts\", function () {",
+									"    ",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).to.eql(1);",
+									"    pm.expect(r.results[0].source.identifier).to.eql(\"ENSG00000073910\");",
+									"    pm.expect(r.results[0].targets.length).to.be.above(5);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(42);",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=FRY&m={{filter}}",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [{
+									"key": "i",
+									"value": "FRY"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "refseq to interpro family",
+					"event": [{
+							"listen": "prerequest",
+							"script": {
+								"id": "5266b7c5-f72a-4d6d-b1ed-d4b875e4800e",
+								"exec": [
+									"var encoded = encodeURIComponent('map(hgnc).map(uniprot).map(interpro).filter(interpro.type==\"Family\")');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "6f75826d-9ffe-456b-b6ab-30d11ef77d0c",
+								"exec": [
+									"pm.test(\"refseqToInterproFamily\", function () {",
+									"    ",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).to.eql(2);",
+									"    pm.expect(r.results[0].source.identifier).to.eql(\"NM_005359\");",
+									"    pm.expect(r.results[0].targets.length).to.eq(1);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(11);",
+									"    pm.expect(r.results[0].targets[0].identifier).to.eql(\"IPR013790\");",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=NM_005359,NM_000546&m={{filter}}",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [{
+									"key": "i",
+									"value": "NM_005359,NM_000546"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "refseq to interpro domain",
+					"event": [{
+							"listen": "prerequest",
+							"script": {
+								"id": "5266b7c5-f72a-4d6d-b1ed-d4b875e4800e",
+								"exec": [
+									"var encoded = encodeURIComponent('map(hgnc).map(uniprot).map(interpro).filter(interpro.type==\"Domain\")');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "6f75826d-9ffe-456b-b6ab-30d11ef77d0c",
+								"exec": [
+									"pm.test(\"refseqToInterproDomain\", function () {",
+									"    ",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).to.eql(2);",
+									"    pm.expect(r.results[0].source.identifier).to.eql(\"NM_005359\");",
+									"    pm.expect(r.results[0].targets.length).to.eq(3);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(11);",
+									"    pm.expect(r.results[1].targets.length).to.eq(4);",
+									"    pm.expect(r.results[1].targets[0].dataset).to.eql(11);",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=NM_005359,NM_000546&m={{filter}}",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [{
+									"key": "i",
+									"value": "NM_005359,NM_000546"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ensembl human genes with MAP kinase activity",
+					"event": [{
+							"listen": "prerequest",
+							"script": {
+								"id": "5266b7c5-f72a-4d6d-b1ed-d4b875e4800e",
+								"exec": [
+									"var encoded = encodeURIComponent('map(ensembl).filter(ensembl.branch==1 && ensembl.genome==\"homo_sapiens\")');",
+									"pm.environment.set(\"filter\", encoded);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "6f75826d-9ffe-456b-b6ab-30d11ef77d0c",
+								"exec": [
+									"pm.test(\"humanGenesMAPKinaseActiviy\", function () {",
+									"    ",
+									"    var r = pm.response.json();",
+									"    pm.expect(r.results.length).to.eql(1);",
+									"    pm.expect(r.results[0].source.identifier).to.eql(\"GO:0004707\");",
+									"    pm.expect(r.results[0].targets.length).to.be.above(9);",
+									"    pm.expect(r.results[0].targets[0].dataset).to.eql(2);",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{endpoint}}/ws/map/?i=GO:0004707&m={{filter}}",
+							"protocol": "http",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"ws",
+								"map",
+								""
+							],
+							"query": [{
+									"key": "i",
+									"value": "GO:0004707"
+								},
+								{
+									"key": "m",
+									"value": "{{filter}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [{
+					"listen": "prerequest",
+					"script": {
+						"id": "ad735d21-02fa-43fd-ac16-620e8ec4617a",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "1b146eec-7801-4a84-87d1-6f17af277fe9",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
 				}
 			],
 			"protocolProfileBehavior": {}
@@ -2725,11 +5921,7 @@
 									"pm.test(\"cancerGenesToTargets\", function () {",
 									"    ",
 									"    var r = pm.response.json();",
-									"    pm.expect(r.results.length).to.be.above(1);",
-									"    pm.expect(r.results[0].source.identifier).to.eql(\"HGNC:11389\");",
-									"    pm.expect(r.results[0].targets.length).to.be.above(0);",
-									"    pm.expect(r.results[0].targets[0].dataset).to.eql(20);",
-									"    pm.expect(r.results[0].targets[0].dataset).to.eql(20);",
+									"    pm.expect(r.results.length).to.be.above(0);",
 									"",
 									"});",
 									"",

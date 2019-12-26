@@ -3,10 +3,10 @@ export default class Fetch {
         this.endpoint = endp;
 
         this.endpointSearch = endp;
-        this.endpointEntry = endp;
-        this.endpointMapfilter = endp;
-        this.endpointFilter = endp;
-        this.endpointPage = endp;
+        this.endpointEntry = endp + "entry/";
+        this.endpointMapfilter = endp + "map/";
+        this.endpointFilter = endp + "filter/";
+        this.endpointPage = endp + "page/";
 
         // this.endpointSearch = "https://www.ebi.ac.uk/~tgur/biobtree/search.php";
         // this.endpointEntry = "https://www.ebi.ac.uk/~tgur/biobtree/entry.php";

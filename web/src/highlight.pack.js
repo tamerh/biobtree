@@ -1144,9 +1144,9 @@
 hljs.registerLanguage('go', function (hljs) {
   var GO_KEYWORDS = {
     keyword: 'break default func interface select case struct chan else goto package switch ' +
-      'const fallthrough if range type continue for import return var defer ' +
+      'const fallthrough if range continue for import return var defer ' +
       'bool byte complex64 complex128 float32 float64 int8 int16 int32 int64 string uint8 ' +
-      'uint16 uint32 uint64 int uint uintptr rune',
+      'uint16 uint32 uint64 int uint uintptr rune within covers overlaps in contains size exists',
     literal: 'true false iota nil',
     built_in: 'map filter append cap close complex copy imag len make new panic print println real recover delete'
   };

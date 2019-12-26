@@ -24,13 +24,17 @@ type queryExample struct {
 
 //var categories = []string{"mix", "gene", "protein", "chembl", "taxonomy"}
 
-var categories = []string{}
+var categories = map[string]bool{}
 var results = map[string][]queryExample{}
 var db, categoriesStr string
 
 func newResult(category, name, res string) {
 
 	if len(category) == 0 || len(name) == 0 || len(res) == 0 {
+		return
+	}
+
+	if _, ok := categories[category]; !ok {
 		return
 	}
 
@@ -69,7 +73,9 @@ func main() {
 	flag.StringVar(&categoriesStr, "cat", "", "")
 	flag.Parse()
 
-	categories = strings.Split(categoriesStr, ",")
+	for _, cat := range strings.Split(categoriesStr, ",") {
+		categories[cat] = true
+	}
 
 	file, err := os.Open("newman_result.json")
 	if err != nil {
@@ -164,17 +170,7 @@ func main() {
 		}
 	}
 
-	filteredRes := map[string][]queryExample{}
-
-	for _, cat := range categories {
-		if _, ok := results[cat]; ok {
-			if len(results[cat]) > 0 {
-				filteredRes[cat] = results[cat]
-			}
-		}
-	}
-
-	data, err := json.Marshal(filteredRes)
+	data, err := json.Marshal(results)
 	if err != nil {
 		panic(err)
 	}

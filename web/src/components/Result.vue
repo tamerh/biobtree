@@ -80,6 +80,7 @@
           <span><label class="checkbox"><input type="checkbox" v-model="app_model.queries[selectedQueryIndex].attributes"> Attributes</label></span>
           <span><label class="checkbox"><input type="checkbox" v-model="app_model.queries[selectedQueryIndex].showDatasets">Set dataset <label class="has-text-info has-text-weight-bold" v-show="app_model.queries[this.selectedQueryIndex].selectedDatasetName.length>0">{{this.app_model.queries[this.selectedQueryIndex].selectedDatasetName}}</label></label></span>
           <span><label class="checkbox"><input type="checkbox" v-model="showUrl">REST url</label></span>
+          <span><a @click="exportMapping"><i class="fas fa-file-export"></i> Export</a></span>
         </div>
 
         <div v-show="showUrl">
@@ -342,6 +343,9 @@ export default {
     mapFilterMore: function () {
       this.app_model.queries[this.selectedQueryIndex].loading = true;
       this.$refs.mapFilterComp.mapFilter(this.selectedQueryIndex);
+    },
+    exportMapping: function () {
+      this.$refs.mapFilterComp.exportModalActive = true;
     },
     resultDivClass: function (index) {
       if (index % 2 == 0) {

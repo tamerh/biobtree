@@ -56,8 +56,7 @@ export default class Fetch {
     mapFilter(id, mapfilter, page, source, callback, callback_params) {
 
         var url = this.endpointMapfilter + "?i=" + encodeURIComponent(id);
-
-        url = url + "&m=" + encodeURIComponent(mapfilter);
+        url = url + "&m=" + encodeURIComponent(mapfilter).replace(/%A0/g, "%20").replace(/%C2/g, "%20"); // workaround related with contenteditable
 
         if (page.length > 0) {
             url = url + "&p=" + page

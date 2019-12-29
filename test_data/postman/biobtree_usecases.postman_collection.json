@@ -2937,7 +2937,7 @@
 							"script": {
 								"id": "b63dc48b-c418-4a0e-b378-95cc3912a8ad",
 								"exec": [
-									"var encoded = encodeURIComponent('map(transcript).map(ensembl).filter(ensembl.genome==\"homo_sapiens\")');",
+									"var encoded = encodeURIComponent('map(transcript).map(ensembl)');",
 									"pm.environment.set(\"filter\", encoded);"
 								],
 								"type": "text/javascript"

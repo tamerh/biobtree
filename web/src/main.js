@@ -77,7 +77,7 @@ new Vue({
                     'mix': UseCases.mix,
                     'gene': UseCases.gene,
                     'protein': UseCases.protein,
-                    'chembl': UseCases.protein,
+                    'chembl': UseCases.chembl,
                     'taxonomy&ontologies': UseCases.taxonomy
                 };
             } else if (meta.appparams.builtinset == "1" || meta.appparams.builtinset == "2") {
@@ -97,7 +97,7 @@ new Vue({
                 this.usecases = {
                     'mix': UseCases4.mix,
                     'protein': UseCases4.protein,
-                    'chembl': UseCases4.protein,
+                    'chembl': UseCases4.chembl,
                     'taxonomy&ontologies': UseCases4.taxonomy
                 };
             }

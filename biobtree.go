@@ -25,12 +25,6 @@ const versionTag = "v1.6.0"
 
 var config *configs.Conf
 
-var cachedDataset = []string{"uniprot", "go", "eco", "efo", "hgnc", "chebi", "taxonomy", "interpro", "hmdb"}
-var defaultDataset = ""
-
-//var defaultDataset = "uniprot,go,eco,efo,hgnc,chebi,taxonomy,interpro,hmdb,literature_mappings,chembl,ensembl"
-//var defaultDataset = "efo"
-
 var allDatasets = []string{"uniprot", "go", "eco", "efo", "hgnc", "chebi", "taxonomy",
 	"interpro", "hmdb", "literature_mappings", "ensembl",
 	"uniparc", "uniref50", "uniref90", "uniref100", "my_data", "uniprot_unreviewed",
@@ -58,8 +52,7 @@ func main() {
 			Usage: "uniprot ftp mirrors. Switzerland, USA or UK",
 		},
 		cli.StringFlag{
-			Name:  "datasets,d",
-			Value: defaultDataset,
+			Name: "datasets,d",
 			//Value: "uniprot_reviewed,taxonomy,hgnc,chebi,interpro,uniprot_unreviewed,uniparc,uniref100,uniref50,uniref90,my_data,literature_mappings,hmdb,ensembl,ensembl_bacteria,ensembl_fungi,ensembl_metazoa,ensembl_plants,ensembl_protists",
 			Usage: "change default source datasets if value starts with + sign it means default dataset and given dataset. List of datasets are uniprot,taxonomy,hgnc,chebi,interpro,uniparc,uniref50,uniref90,uniref100,my_data,uniprot_unreviewed,literature_mappings,hmdb,ensembl,ensembl_bacteria,ensembl_fungi,ensembl_metazoa,ensembl_plants,ensembl_protists,go",
 		},
@@ -266,15 +259,9 @@ func runUpdateCommand(c *cli.Context) error {
 	d := map[string]bool{}
 
 	if len(indataset) > 0 {
-		if strings.HasPrefix(indataset, "+") { // add default dataset
-			indataset = indataset[1:]
-			indataset = indataset + "," + defaultDataset
-		}
-
 		for _, dt := range strings.Split(indataset, ",") {
 			d[dt] = true
 		}
-
 	}
 
 	genomeSelectionWay := 0

@@ -2,63 +2,70 @@
 
 <!--[![Build Status](https://dev.azure.com/biobtree/biobtree/_apis/build/status/tamerh.biobtree?branchName=master)](https://dev.azure.com/biobtree/biobtree/_build/latest?definitionId=1&branchName=master) -->
 
-Biobtree is a bioinformatics tool which process large datasets effectively and provide uniform search and mapping functionalities with web interface and web services for genomic research.
+Biobtree is a bioinformatics tool which allows mapping the bioinformatics datasets
+via identifiers and special keywors with simple or advance chain query capability.
 
-https://www.ebi.ac.uk/~tgur/biobtree/ Running instance with all the datasets and example use cases
+## Features
+
+* **Datasets** - supports wide datasets such as `Ensembl` `Uniprot` `ChEMBL` `HMDB` `Taxonomy` `GO` `EFO` `HGNC` `ECO` `Uniparc` `Uniref`  with tens of more via cross references
+by retrieving latest data from providers
+
+* **MapReduce** - processes small or large datasets based on users selection and build B+ tree based uniform local database via specialized MapReduce based tecnique with efficient storage usage
+
+* **Query** - Allow simple or advance chain queries between datasets with intiutive syntax which allows writing RDF or graph like queries
+
+* **Genome** - supports querying full Ensembl genomes coordinates with `transcript`, `CDS`, `exon`, `utr` with several attiributes, mapped datasets and identifiers such as `ortholog` ,`paralog` or probe identifers belongs `Affymetrix` or `Illumina`
+
+* **Protein** - Uniprot proteins including protein features with variations and mapped datasets.
+
+* **Chemistry** - `ChEMBL` and `HMDB` datasets supported for chemistry and drug releated analaysis
+
+* **Web UI** - Web interface for easy explorations and examples
+
+* **Web Services** - REST or gRPC services
+
+* **R & Python** - [Bioconductor R](https://github.com/tamerh/biobtreeR) and [Python](https://github.com/tamerh/biobtreePy) wrapper packages to use from existing pipelines easier with built-in databases
+
+## Demo
+
+Demo instance of biobtree web interface which covers all the datasets with query examples
+
+https://www.ebi.ac.uk/~tgur/biobtree/ 
+
+### Usage
+
+First install [latest](https://github.com/tamerh/biobtree/releases/latest) biobtree executable available for Windows, Mac or Linux. Then extract the downloaded file to a new folder and open a terminal in this new folder directory and starts the biobtree. Alternatively R and Python based wrapper packages can be used instead of using executable directly.
 
 
-### Getting started
-
-First install [latest](https://github.com/tamerh/biobtree/releases/latest) biobtree executable available for Windows, Mac or Linux. Then extract the downloaded file to a new folder and open a terminal in this new folder directory and starts the biobtree.
+#### Starting biobtree with built-in databases
 
 ```sh
 # Windows
-biobtree.exe start
+biobtree.exe --pre-built 1 install 
+biobtree.exe web
 
 # Mac or Linux
-./biobtree start 
+./biobtree --pre-built 1 install
+./biobtree web
 ```
-This command fetches and process default datasets which are  `taxonomy` `ensembl(homo_sapiens)` `uniprot(reviewed)` `hgnc` `go` `eco` `efo` `chebi` `interpro`. When processing data completed biobtree web interface opens with address http://localhost:8888/ui and web services can be used.
 
-### Starting biobtree with different datasets, species or options
+#### Starting biobtree with different datasets or genomes
 ```sh
 
-# to start biobtree with previously processed datasets use web instead of start
-biobtree web 
+# build ensembl genomes by tax id with uniprot&taxonomy datasets
+biobtree  --tax 595,984254 -d "uniprot,taxonomy" build 
 
-# process specific datasets only 
-biobtree -d "uniprot,taxonomy,hgnc" start
+# build datasets only 
+biobtree -d "uniprot,taxonomy,hgnc" build 
+biobtree -d "hgnc,chembl,hmdb" build
 
-# default datasets plus chembl and hmdb via + symbol 
-biobtree -d "+chembl,hmdb" start
-
-# multiple genomes seperated by comma
-biobtree -s "homo_sapiens,mus_musculus" start
-
-# ensembl genomes metazoa,fungi,plants,protists,bacteria 
-biobtree -d "+ensembl_metazoa" -s "caenorhabditis_elegans,drosophila_melanogaster" start
-biobtree -d "+ensembl_fungi" -s "saccharomyces_cerevisiae" start
-biobtree -d "+ensembl_plants,ensembl_protists" -s "arabidopsis_thaliana,phytophthora_parasitica" start
-biobtree -d "+ensembl_bacteria" -s "salmonella_enterica" start
-
-# genomes also can be selected with comma seperated name patterns via -sp option
-# following command process all the genomes which contains one of the given term in its name 
-# list of selected genomes also written to a json file starts with genomes_*.json in the same directory for later reference
-biobtree -d "+ensembl_bacteria" -sp "serovar_infantis,serovar_virchow" start
-
-# to select all the genomes for ensembl or ensembl genomes use all 
-biobtree -d "+ensembl_plants" -s "all" start
+# once data is built start web for using ws and ui
+biobtree web
 
 # to see all options and datasets use help
 biobtree help
 
 ```
-
-
-<!--### Using biobtree from R 
-
-Although webservices can be used directly from any language it requires some effort using from exsiting piplelines. To address this and provide more convinient interface to biobtree, dedicated [biobtreeR](https://github.com/tamerh/biobtreeR) bioconductor R package can be used. Similar Python package will be also added. -->
-
 
 ### Web service endpoints
 ```sh
@@ -85,16 +92,16 @@ localhost:8888/ws/page/?i={identifier}&s={dataset}&p={page}&t={total}
 
 ```
 
-### Integrating your dataset
+<!-- ### Integrating your dataset
 
 User data can be integrated to biobtree. Since biobtree has capability to process large datasets, this feature creates an alternative for  mapping related data to be indexed with biobtree. Data should be gzipped and in an xml format compliant with UniProt xml schema [definition](ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot.xsd). Once data has been prepared, file location needs to be configured in biobtree configuration file which is located at `conf/source.dataset.json`. After these configuration dataset used similarly with other dataset like 
 
 ```sh
 biobtree -d "+my_data" start
-```
+``` -->
 
 ### Article
-https://f1000research.com/articles/8-145/v2
+https://f1000research.com/articles/8-145/v2 (Currently being updated)
 
 ### Building source 
 

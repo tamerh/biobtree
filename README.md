@@ -18,7 +18,9 @@ by retrieving latest data from providers
 
 * **Protein** - Uniprot proteins including protein features with variations and mapped datasets.
 
-* **Chemistry** - `ChEMBL` and `HMDB` datasets supported for chemistry and drug releated analaysis
+* **Chemistry** - `ChEMBL` and `HMDB` datasets supported for chemistry, disease and drug releated analaysis
+
+* **Taxonomy & Ontologies** - `Taxonomy` `GO` `EFO` data with child and parent query capability
 
 * **Web UI** - Web interface for easy explorations and examples
 
@@ -34,22 +36,9 @@ https://www.ebi.ac.uk/~tgur/biobtree/
 
 ### Usage
 
-First install [latest](https://github.com/tamerh/biobtree/releases/latest) biobtree executable available for Windows, Mac or Linux. Then extract the downloaded file to a new folder and open a terminal in this new folder directory and starts the biobtree. Alternatively R and Python based wrapper packages can be used instead of using executable directly.
+First install [latest](https://github.com/tamerh/biobtree/releases/latest) biobtree executable available for Windows, Mac or Linux. Then extract the downloaded file to a new folder and open a terminal in this new folder directory and starts the biobtree. Alternatively R and Python based [biobtreeR](https://github.com/tamerh/biobtreeR) and [biobtreePy](https://github.com/tamerh/biobtreePy) wrapper packages can be used instead of using the executable directly for eaiser integration.
 
-
-#### Starting biobtree with built-in databases
-
-```sh
-# Windows
-biobtree.exe --pre-built 1 install 
-biobtree.exe web
-
-# Mac or Linux
-./biobtree --pre-built 1 install
-./biobtree web
-```
-
-#### Starting biobtree with different datasets or genomes
+#### Starting biobtree with target datasets or genomes
 ```sh
 
 # build ensembl genomes by tax id with uniprot&taxonomy datasets
@@ -67,8 +56,18 @@ biobtree help
 
 ```
 
-### Web service endpoints
+#### Starting biobtree with built-in databases
+
 ```sh
+# 4 built-in database provided with commonly studied datasets and organism genomes
+# Check following file for each database content https://github.com/tamerh/biobtreeR/blob/master/R/buildData.R
+
+biobtree --pre-built 1 install
+biobtree web
+```
+
+### Web service endpoints
+```ruby
 # Meta
 # datasets meta informations 
 localhost:8888/ws/meta

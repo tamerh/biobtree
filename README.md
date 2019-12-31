@@ -20,7 +20,7 @@ by retrieving latest data from providers
 
 * **Chemistry** - `ChEMBL` and `HMDB` datasets supported for chemistry, disease and drug releated analaysis
 
-* **Taxonomy & Ontologies** - `Taxonomy` `GO` `EFO` data with child and parent query capability
+* **Taxonomy & Ontologies** - `Taxonomy` `GO` `EFO` `ECO` data with mapping to other datasets and child and parent query capability
 
 * **Web UI** - Web interface for easy explorations and examples
 

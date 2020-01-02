@@ -1,5 +1,5 @@
 <template>
-  <div class="resultContainer container is-fullhd" v-if="usecases!=null">
+  <div class="resultContainer container is-fullhd" v-if="usecases.mix!=null">
   <p></p>
   <p class="logoColor title is-size-5" style="padding-bottom:5px">Example Use Cases</p>  
 

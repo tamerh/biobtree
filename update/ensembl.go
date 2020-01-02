@@ -23,10 +23,11 @@ type ensembl struct {
 	d                    *DataUpdate
 	pauseDurationSeconds int
 	// selected genomes paths and taxids
-	taxids       map[string]int
-	gff3Paths    map[string][]string
-	jsonPaths    map[string][]string
-	biomartPaths []string
+	taxids         map[string]int
+	orthologTaxids map[string]int
+	gff3Paths      map[string][]string
+	jsonPaths      map[string][]string
+	biomartPaths   []string
 }
 
 // ensembls runs one by one from one place.
@@ -42,6 +43,7 @@ func (e *ensembl) selectGenomes() bool {
 
 	//set files
 	taxids := map[string]int{}
+	orthologTaxids := map[string]int{}
 	gff3FilePaths := map[string][]string{}
 	jsonFilePaths := map[string][]string{}
 	var biomartFilePaths []string
@@ -208,7 +210,25 @@ func (e *ensembl) selectGenomes() bool {
 
 	}
 
+	// set selected ortholog taxids
+	if e.d.orthologsActive && !e.d.orthologsAllActive {
+
+		if len(e.d.orthologsIDs) > 0 {
+			for tax := range e.d.orthologsIDs {
+				if _, ok := ensemblPaths.TaxidsRev[tax]; ok {
+					for _, genome := range ensemblPaths.TaxidsRev[tax] {
+						orthologTaxids[genome] = tax
+					}
+				}
+			}
+		} else {
+			orthologTaxids = taxids
+		}
+
+	}
+
 	// set results
+	e.orthologTaxids = orthologTaxids
 	e.taxids = taxids
 	e.gff3Paths = gff3FilePaths
 	e.jsonPaths = jsonFilePaths
@@ -561,7 +581,7 @@ func (e *ensembl) update() {
 											e.d.addXref2(entryid, fr, stableID, "ortholog")
 											e.d.addXref2(stableID, orthologID, stableID, "ensembl")
 										} else if e.d.orthologsActive && val.ObjectVals["genome"] != nil {
-											if _, ok := e.taxids[val.ObjectVals["genome"].StringVal]; ok {
+											if _, ok := e.orthologTaxids[val.ObjectVals["genome"].StringVal]; ok {
 												e.d.addXref2(entryid, fr, stableID, "ortholog")
 												e.d.addXref2(stableID, orthologID, stableID, "ensembl")
 											}

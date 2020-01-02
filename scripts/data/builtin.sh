@@ -12,6 +12,8 @@ fi
 VERSION=$1
 
 
+mkdir -p builtins
+
 prepCache(){
 
     cd out/index
@@ -28,7 +30,7 @@ prepCache(){
 
     cd ../..
 
-    tar -czvf biobtree-conf-${VERSION}-${1}r.tar.gz out/
+    tar -czvf builtins/biobtree-conf-${VERSION}-${1}r.tar.gz out/
 
     ./biobtree --lmdbsize ${2} generate
 
@@ -60,10 +62,10 @@ prepCache "demo" "36000000"
 
 ### CACHE 1 datasets with above ensembl genomes except mouse strains. ~ 5.2 db size
 ./biobtree --d hgnc,hmdb,uniprot,taxonomy,go,efo,eco,chebi,interpro -tax 9606,10090,4932,3702,7227,6239,562,511145,83333,7955,9031,10116 --skip-ensembl -idx builtinset1 update
-./biobtree --d ensembl --tax 9606,4932,7227,6239,7955,9031,10116 -keep --ensembl-orthologs -idx builtinset12 update
-./biobtree --d ensembl_bacteria --tax 562,511145,83333 --keep --ensembl-orthologs -idx builtinset13 update
-./biobtree --d ensembl_plants --tax 3702 --keep --ensembl-orthologs -idx builtinset14 update
-./biobtree --d ensembl --genome mus_musculus -keep --ensembl-orthologs -idx builtinset15 update
+./biobtree --d ensembl --tax 9606,4932,7227,6239,7955,9031,10116 -keep --otaxids 9606,10090,4932,3702,7227,6239,562,511145,83333,7955,9031,10116 -idx builtinset12 update
+./biobtree --d ensembl_bacteria --genome "escherichia_coli,escherichia_coli_str_k_12_substr_mg1655,escherichia_coli_k_12" --keep --otaxids 9606,10090,4932,3702,7227,6239,562,511145,83333,7955,9031,10116 -idx builtinset13 update
+./biobtree --d ensembl_plants --tax 3702 --keep --otaxids 9606,10090,4932,3702,7227,6239,562,511145,83333,7955,9031,10116 -idx builtinset14 update
+./biobtree --d ensembl --genome mus_musculus -keep --otaxids 9606,10090,4932,3702,7227,6239,562,511145,83333,7955,9031,10116  -idx builtinset15 update
 prepCache "set1" "5600000000"
 
 ### CACHE 2 datasets with ensembl human and all mouse strains genomes ~ 4 db size

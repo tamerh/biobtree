@@ -94,6 +94,10 @@ func main() {
 			Name:  "ensembl-orthologs,eo",
 			Usage: "For ensembls by default only gff3 files are processed. For orthologs and other mappings this parameter must be set",
 		},
+		cli.StringFlag{
+			Name:  "ensembl-orthologs-taxids,otaxids",
+			Usage: "This param has same affect as 'ensembl-orthologs' but in addition fetched given comma seperated taxid ortholog data",
+		},
 		cli.BoolFlag{
 			Name:  "ensembl-orthologs-all,eoa",
 			Usage: "When ensembl-orthologs is set only given taxonomies orthologs are processed if this parameter is set all orthologs and some extra mappings are included",
@@ -349,7 +353,21 @@ func runUpdateCommand(c *cli.Context) error {
 		}
 	}
 
-	update.NewDataUpdate(d, ts, sp, spatterns, genometaxids, c.GlobalBool("skip-ensembl"), c.GlobalBool("ensembl-orthologs"), c.GlobalBool("ensembl-orthologs-all"), config, chunkIdxx).Update()
+	eo := c.GlobalBool("ensembl-orthologs")
+
+	orthologIDs := map[int]bool{}
+	if len(c.GlobalString("ensembl-orthologs-taxids")) > 0 {
+		eo = true
+		for _, tax := range strings.Split(c.GlobalString("ensembl-orthologs-taxids"), ",") {
+			taxid, err := strconv.Atoi(tax)
+			if err != nil {
+				log.Fatalf("Invalid taxonomy id %s", s)
+			}
+			orthologIDs[taxid] = true
+		}
+	}
+
+	update.NewDataUpdate(d, ts, sp, spatterns, genometaxids, c.GlobalBool("skip-ensembl"), orthologIDs, eo, c.GlobalBool("ensembl-orthologs-all"), config, chunkIdxx).Update()
 
 	elapsed := time.Since(start)
 	log.Printf("Update took %s", elapsed)

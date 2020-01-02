@@ -96,7 +96,7 @@ func main() {
 		},
 		cli.StringFlag{
 			Name:  "ensembl-orthologs-taxids,otaxids",
-			Usage: "This param has same affect as 'ensembl-orthologs' but in addition fetched given comma seperated taxid ortholog data",
+			Usage: "This param has same affect as 'ensembl-orthologs' but in addition fetched given comma seperated taxid for orthologs",
 		},
 		cli.BoolFlag{
 			Name:  "ensembl-orthologs-all,eoa",

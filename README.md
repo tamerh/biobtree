@@ -10,7 +10,7 @@ via identifiers and special keywors with simple or advance chain query capabilit
 * **Datasets** - supports wide datasets such as `Ensembl` `Uniprot` `ChEMBL` `HMDB` `Taxonomy` `GO` `EFO` `HGNC` `ECO` `Uniparc` `Uniref`  with tens of more via cross references
 by retrieving latest data from providers
 
-* **MapReduce** - processes small or large datasets based on users selection and build B+ tree based uniform local database via specialized MapReduce based tecnique with efficient storage usage
+* **MapReduce** - processes small or large datasets based on users selection and build B+ tree based uniform local database via specialized MapReduce based tecnique with efficient storage usage 
 
 * **Query** - Allow simple or advance chain queries between datasets with intiutive syntax which allows writing RDF or graph like queries
 
@@ -60,7 +60,8 @@ biobtree help
 
 ```sh
 # 4 built-in database provided with commonly studied datasets and organism genomes
-# Check following file for each database content https://github.com/tamerh/biobtreeR/blob/master/R/buildData.R
+# Check following func doc for each database content 
+# https://github.com/tamerh/biobtreeR/blob/master/R/buildData.R
 
 biobtree --pre-built 1 install
 biobtree web
@@ -99,8 +100,8 @@ User data can be integrated to biobtree. Since biobtree has capability to proces
 biobtree -d "+my_data" start
 ``` -->
 
-### Article
-https://f1000research.com/articles/8-145/v2 (Currently being updated)
+### Publication
+https://f1000research.com/articles/8-145/v3
 
 ### Building source 
 

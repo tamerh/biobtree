@@ -30,7 +30,7 @@ type ensemblGLatestVersion struct {
 	Version int `json:"version"`
 }
 
-func checkEnsemblUpdate() {
+func checkEnsemblUpdate(du *DataUpdate) {
 
 	if config.Appconf["disableEnsemblReleaseCheck"] != "y" {
 
@@ -39,12 +39,12 @@ func checkEnsemblUpdate() {
 
 			log.Println("Ensembl meta data is updating")
 			ensembls := []ensembl{}
-			ensembls = append(ensembls, ensembl{source: "ensembl_fungi", branch: pbuf.Ensemblbranch_FUNGI})
-			ensembls = append(ensembls, ensembl{source: "ensembl", branch: pbuf.Ensemblbranch_ENSEMBL})
-			ensembls = append(ensembls, ensembl{source: "ensembl_bacteria", branch: pbuf.Ensemblbranch_BACTERIA})
-			ensembls = append(ensembls, ensembl{source: "ensembl_metazoa", branch: pbuf.Ensemblbranch_METAZOA})
-			ensembls = append(ensembls, ensembl{source: "ensembl_plants", branch: pbuf.Ensemblbranch_PLANT})
-			ensembls = append(ensembls, ensembl{source: "ensembl_protists", branch: pbuf.Ensemblbranch_PROTIST})
+			ensembls = append(ensembls, ensembl{source: "ensembl_fungi", branch: pbuf.Ensemblbranch_FUNGI, d: du})
+			ensembls = append(ensembls, ensembl{source: "ensembl", branch: pbuf.Ensemblbranch_ENSEMBL, d: du})
+			ensembls = append(ensembls, ensembl{source: "ensembl_bacteria", branch: pbuf.Ensemblbranch_BACTERIA, d: du})
+			ensembls = append(ensembls, ensembl{source: "ensembl_metazoa", branch: pbuf.Ensemblbranch_METAZOA, d: du})
+			ensembls = append(ensembls, ensembl{source: "ensembl_plants", branch: pbuf.Ensemblbranch_PLANT, d: du})
+			ensembls = append(ensembls, ensembl{source: "ensembl_protists", branch: pbuf.Ensemblbranch_PROTIST, d: du})
 
 			for _, ens := range ensembls {
 				ens.updateEnsemblMeta(version)

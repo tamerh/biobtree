@@ -19,6 +19,13 @@ import UseCases3 from './conf/UseCases3.json'
 import UseCases4 from './conf/UseCases4.json'
 import UseCases from './conf/UseCases.json'
 
+// trim function
+if (typeof String.prototype.trim != 'function') { // detect native implementation
+    String.prototype.trim = function () {
+        return this.replace(/^\s+/, '').replace(/\s+$/, '');
+    };
+}
+
 
 Vue.use(Notifications)
 
@@ -105,4 +112,4 @@ new Vue({
 
         this.model = new Model(this.fetcher, this.xref_conf, this.app_conf);
     }
-})
+});

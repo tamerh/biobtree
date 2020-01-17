@@ -149,7 +149,7 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 	log.Println("Update running please wait...")
 
 	// first check update for ensembl meta
-	checkEnsemblUpdate()
+	checkEnsemblUpdate(d)
 
 	// select ensembls
 	ensembls := d.selectEnsembls()

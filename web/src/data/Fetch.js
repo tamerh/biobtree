@@ -17,7 +17,7 @@ export default class Fetch {
 
     search(id, page, filter, source, callback, callback_params) {
         // id.replace(/ /g, '') white space clear
-        let url = this.endpointSearch + "?u=y&d=y&i=" + encodeURIComponent(id);
+        let url = this.endpointSearch + "?u=y&d=y&i=" + encodeURIComponent(id.trim());
 
         if (page.length > 0) {
             url = url + "&p=" + page;
@@ -43,7 +43,7 @@ export default class Fetch {
     }
 
     searchEntry(id, domain_id, callback, callback_params) {
-        fetch(this.endpointEntry + "?i=" + encodeURIComponent(id) + "&s=" + domain_id)
+        fetch(this.endpointEntry + "?i=" + encodeURIComponent(id.trim()) + "&s=" + domain_id)
             .then(res => res.json())
             .then((out) => {
                 callback(out, callback_params);
@@ -55,7 +55,7 @@ export default class Fetch {
 
     mapFilter(id, mapfilter, page, source, callback, callback_params) {
 
-        var url = this.endpointMapfilter + "?i=" + encodeURIComponent(id);
+        var url = this.endpointMapfilter + "?i=" + encodeURIComponent(id.trim());
         url = url + "&m=" + encodeURIComponent(mapfilter).replace(/%A0/g, "%20").replace(/%C2/g, "%20"); // workaround related with contenteditable
 
         if (page.length > 0) {

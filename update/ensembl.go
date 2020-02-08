@@ -353,9 +353,9 @@ func (e *ensembl) update() {
 				attrsMap[attrs[:eqIndex]] = attrs[eqIndex+1:]
 
 				if _, ok := attrsMap["ID"]; ok {
-					idAttr := strings.Split(attrsMap["ID"], ":")
+					idAttr := strings.SplitN(attrsMap["ID"], ":", 2)
 					if len(idAttr) != 2 {
-						continue
+						continue // this is not truely right but it will panic anyway
 					}
 					switch idAttr[0] {
 					case "gene":

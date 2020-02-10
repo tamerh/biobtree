@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"os"
 	"path/filepath"
 	"sort"
 	"strconv"
@@ -53,13 +52,11 @@ func (s *service) init() {
 	meta := make(map[string]interface{})
 	f, err := ioutil.ReadFile(filepath.FromSlash(config.Appconf["dbDir"] + "/db.meta.json"))
 	if err != nil {
-		log.Fatalln("Error while reading meta information file which should be produced with generate command. Please make sure you did previous steps correctly.")
-		fmt.Printf("Error: %v", err)
-		os.Exit(1)
+		log.Fatalln("Error while reading meta information file which should be produced with generate command. Please make sure you did previous steps correctly.", err)
 	}
 
 	if err := json.Unmarshal(f, &meta); err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	totalkvline := meta["totalKVLine"].(float64)
@@ -107,9 +104,7 @@ func (s *service) init() {
 	meta2 := make(map[string]interface{})
 	f, err = ioutil.ReadFile(config.Appconf["aliasDbDir"] + "/alias.meta.json")
 	if err != nil {
-		log.Fatalln("Error while reading meta information file which should be produced with generate command. Please make sure you did previous steps correctly.")
-		fmt.Printf("Error: %v", err)
-		os.Exit(1)
+		log.Fatalln("Error while reading meta information file which should be produced with generate command. Please make sure you did previous steps correctly.", err)
 	}
 
 	if err := json.Unmarshal(f, &meta2); err != nil {

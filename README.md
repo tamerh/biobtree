@@ -22,6 +22,8 @@ by retrieving latest data from providers
 
 * **Taxonomy & Ontologies** - `Taxonomy` `GO` `EFO` `ECO` data with mapping to other datasets and child and parent query capability
 
+* **Your data** - Your custom data can be integrated with or without relation to other datasets
+
 * **Web UI** - Web interface for easy explorations and examples
 
 * **Web Services** - REST or gRPC services

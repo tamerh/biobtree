@@ -103,7 +103,7 @@ biobtree -d "+my_data" start
 ``` -->
 
 ### Publication
-https://f1000research.com/articles/8-145/v3
+https://f1000research.com/articles/8-145
 
 ### Building source 
 

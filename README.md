@@ -5,6 +5,12 @@
 Biobtree is a bioinformatics tool which allows mapping the bioinformatics datasets
 via identifiers and special keywors with simple or advance chain query capability.
 
+## Demo
+
+Demo of web interface which covers all the datasets with examples
+
+https://www.ebi.ac.uk/~tgur/biobtree/
+
 ## Features
 
 * **Datasets** - supports wide datasets such as `Ensembl` `Uniprot` `ChEMBL` `HMDB` `Taxonomy` `GO` `EFO` `HGNC` `ECO` `Uniparc` `Uniref`  with tens of more via cross references
@@ -29,12 +35,6 @@ by retrieving latest data from providers
 * **Web Services** - REST or gRPC services
 
 * **R & Python** - [Bioconductor R](https://github.com/tamerh/biobtreeR) and [Python](https://github.com/tamerh/biobtreePy) wrapper packages to use from existing pipelines easier with built-in databases
-
-## Demo
-
-Demo instance of biobtree web interface which covers all the datasets with query examples
-
-https://www.ebi.ac.uk/~tgur/biobtree/ 
 
 ### Usage
 

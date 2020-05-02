@@ -199,7 +199,7 @@ func (e *ensembl) updateEnsemblMeta(version int) (*ensemblPaths, string) {
 			client.Quit()
 			time.Sleep(time.Duration(e.pauseDurationSeconds*5) * time.Second)
 			client = ftpClient(ftpAddress)
-			entries, err := client.List(ftpJSONPath)
+			entries, err = client.List(ftpJSONPath)
 			check(err)
 		}
 
@@ -210,7 +210,7 @@ func (e *ensembl) updateEnsemblMeta(version int) (*ensemblPaths, string) {
 					client.Quit()
 					time.Sleep(time.Duration(e.pauseDurationSeconds*5) * time.Second)
 					client = ftpClient(ftpAddress)
-					entries2, err := client.List(ftpJSONPath + "/" + file.Name)
+					entries2, err = client.List(ftpJSONPath + "/" + file.Name)
 					check(err)
 				}
 				for _, file2 := range entries2 {
@@ -309,7 +309,7 @@ func (e *ensembl) updateEnsemblMeta(version int) (*ensemblPaths, string) {
 						client.Quit()
 						time.Sleep(time.Duration(e.pauseDurationSeconds*5) * time.Second)
 						client = ftpClient(ftpAddress)
-						entriesSubSub, err := client.List(ftpGFF3Path + "/" + file.Name + "/" + file2.Name)
+						entriesSubSub, err = client.List(ftpGFF3Path + "/" + file.Name + "/" + file2.Name)
 						check(err)
 					}
 					found := false
@@ -342,7 +342,7 @@ func (e *ensembl) updateEnsemblMeta(version int) (*ensemblPaths, string) {
 					client.Quit()
 					time.Sleep(time.Duration(e.pauseDurationSeconds*5) * time.Second)
 					client = ftpClient(ftpAddress)
-					entriesSub, err := client.List(ftpGFF3Path + "/" + file.Name)
+					entriesSub, err = client.List(ftpGFF3Path + "/" + file.Name)
 					check(err)
 				}
 				found := false

@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
 	xmlparser "github.com/tamerh/xml-stream-parser"
 )
@@ -193,13 +194,25 @@ func (e *ensembl) updateEnsemblMeta(version int) (*ensemblPaths, string) {
 
 		client := ftpClient(ftpAddress)
 		entries, err := client.List(ftpJSONPath)
-		check(err)
+
+		if err != nil { // retry
+			client.Quit()
+			time.Sleep(time.Duration(e.pauseDurationSeconds*5) * time.Second)
+			client = ftpClient(ftpAddress)
+			entries, err := client.List(ftpJSONPath)
+			check(err)
+		}
 
 		for _, file := range entries {
 			if strings.HasSuffix(file.Name, "_collection") {
-				//client := e.d.ftpClient(ftpAddress)
 				entries2, err := client.List(ftpJSONPath + "/" + file.Name)
-				check(err)
+				if err != nil { // retry
+					client.Quit()
+					time.Sleep(time.Duration(e.pauseDurationSeconds*5) * time.Second)
+					client = ftpClient(ftpAddress)
+					entries2, err := client.List(ftpJSONPath + "/" + file.Name)
+					check(err)
+				}
 				for _, file2 := range entries2 {
 					ensembls.Jsons[file2.Name] = append(ensembls.Jsons[file2.Name], ftpJSONPath+"/"+file.Name+"/"+file2.Name+"/"+file2.Name+".json")
 
@@ -216,8 +229,6 @@ func (e *ensembl) updateEnsemblMeta(version int) (*ensemblPaths, string) {
 					}
 
 				}
-				//time.Sleep(time.Duration(e.pauseDurationSeconds/2) * time.Second) // for not to kicked out from ensembl ftp
-
 			} else {
 				ensembls.Jsons[file.Name] = append(ensembls.Jsons[file.Name], ftpJSONPath+"/"+file.Name+"/"+file.Name+".json")
 
@@ -253,8 +264,6 @@ func (e *ensembl) updateEnsemblMeta(version int) (*ensemblPaths, string) {
 		if len(entries) == 1 {
 			ftpBiomartFolder = entries[0].Name
 		}
-		//fmt.Println("biomart folder name", ftpBiomartFolder)
-		//fmt.Println("mysqlpath", ftpMysqlPath)
 
 		entries, err = client.List(ftpMysqlPath + "/" + ftpBiomartFolder + "/*__efg_*.gz")
 		check(err)
@@ -273,16 +282,36 @@ func (e *ensembl) updateEnsemblMeta(version int) (*ensemblPaths, string) {
 
 		client := ftpClient(ftpAddress)
 		entries, err := client.List(ftpGFF3Path)
-		check(err)
+
+		if err != nil { // retry
+			client.Quit()
+			time.Sleep(time.Duration(e.pauseDurationSeconds*5) * time.Second)
+			client = ftpClient(ftpAddress)
+			entries, err = client.List(ftpGFF3Path)
+			check(err)
+		}
 
 		for _, file := range entries {
 			if strings.HasSuffix(file.Name, "_collection") {
 				entriesSub, err := client.List(ftpGFF3Path + "/" + file.Name)
-				check(err)
+				
+				if err != nil { // retry
+					client.Quit()
+					time.Sleep(time.Duration(e.pauseDurationSeconds*5) * time.Second)
+					client = ftpClient(ftpAddress)
+					entriesSub, err = client.List(ftpGFF3Path + "/" + file.Name)
+					check(err)
+				}
 				for _, file2 := range entriesSub {
 
 					entriesSubSub, err := client.List(ftpGFF3Path + "/" + file.Name + "/" + file2.Name)
-					check(err)
+					if err != nil { // retry
+						client.Quit()
+						time.Sleep(time.Duration(e.pauseDurationSeconds*5) * time.Second)
+						client = ftpClient(ftpAddress)
+						entriesSubSub, err := client.List(ftpGFF3Path + "/" + file.Name + "/" + file2.Name)
+						check(err)
+					}
 					found := false
 					for _, file3 := range entriesSubSub {
 
@@ -304,13 +333,18 @@ func (e *ensembl) updateEnsemblMeta(version int) (*ensemblPaths, string) {
 					}
 
 				}
-				//time.Sleep(time.Duration(e.pauseDurationSeconds/2) * time.Second) // for not to kicked out from ensembl ftp
 
 			} else {
 
 				entriesSub, err := client.List(ftpGFF3Path + "/" + file.Name)
 
-				check(err)
+				if err != nil { // retry
+					client.Quit()
+					time.Sleep(time.Duration(e.pauseDurationSeconds*5) * time.Second)
+					client = ftpClient(ftpAddress)
+					entriesSub, err := client.List(ftpGFF3Path + "/" + file.Name)
+					check(err)
+				}
 				found := false
 				for _, file2 := range entriesSub {
 

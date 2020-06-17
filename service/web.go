@@ -399,6 +399,9 @@ func (web *Web) search(w http.ResponseWriter, r *http.Request) {
 		ids, err = web.service.aliasIDs(qids[0][6:])
 	} else {
 		ids = strings.Split(qids[0], ",")
+		for i := 0; i < len(ids); i++ {
+			ids[i] = strings.TrimSpace(ids[i])
+		}
 	}
 
 	pages, ok := r.URL.Query()["p"]
@@ -520,6 +523,9 @@ func (web *Web) mapFilter(w http.ResponseWriter, r *http.Request) {
 		ids, err = web.service.aliasIDs(qids[0][6:])
 	} else {
 		ids = strings.Split(qids[0], ",")
+		for i := 0; i < len(ids); i++ {
+			ids[i] = strings.TrimSpace(ids[i])
+		}
 	}
 
 	mapfil, ok := r.URL.Query()["m"]

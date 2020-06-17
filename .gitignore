@@ -31,3 +31,4 @@ api.php
 /website
 /conf
 /*.json
+web/dist/*

@@ -304,7 +304,7 @@
 							}]
 						},
 						"url": {
-							"raw": "http://{{endpoint}}/ws/?i=RAG1_HUMAN,ENSMUSG00000023456,GO:0002020,AC020895,hsa:7409",
+							"raw": "http://{{endpoint}}/ws/?i=RAG1_HUMAN,%20ENSMUSG00000023456,%20GO:0002020,%20AC020895,hsa:7409",
 							"protocol": "http",
 							"host": [
 								"{{endpoint}}"
@@ -315,7 +315,7 @@
 							],
 							"query": [{
 								"key": "i",
-								"value": "RAG1_HUMAN,ENSMUSG00000023456,GO:0002020,AC020895,hsa:7409"
+								"value": "RAG1_HUMAN,%20ENSMUSG00000023456,%20GO:0002020,%20AC020895,hsa:7409"
 							}]
 						}
 					},

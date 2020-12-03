@@ -68,6 +68,8 @@ github.com/stretchr/testify v1.3.0/go.mod h1:M5WIy9Dh21IEIfnGCwXGc5bZfKNJtfHm1UV
 github.com/tamerh/cel-go v0.6.0/go.mod h1:Xlh5JJULQOZmC/upAh1O9yZIFPnmz7bd8jl4RIJsiI4=
 github.com/tamerh/jsparser v1.0.0 h1:dPaRb/6hmU78bN2dhszDVfs3Xky2wqn3DvLfRQMxNHI=
 github.com/tamerh/jsparser v1.0.0/go.mod h1:Dbrn+kGS04Vak3MYe5YpN9/mwh7QWecqBLxBw3T8vSw=
+github.com/tamerh/jsparser v1.4.0 h1:1Hu5UEb7DyRxKNe1z4tnqEI0/JqiOALeQE3BdDbzu2M=
+github.com/tamerh/jsparser v1.4.0/go.mod h1:Dbrn+kGS04Vak3MYe5YpN9/mwh7QWecqBLxBw3T8vSw=
 github.com/tamerh/rdf v0.0.0-20190712184806-55b841cd359c h1:4CEzV7tek/peOgmR2G46azrxgh26yS1y2yXnx306Ocw=
 github.com/tamerh/rdf v0.0.0-20190712184806-55b841cd359c/go.mod h1:1j9e5v5J2IPoDkyV82FmrQAemfNog9zgR94ECINAGeA=
 github.com/tamerh/xml-stream-parser v1.1.4 h1:SXdAVQrCCRSOpKBqkIyTw64JN6KErfJvCRUwg58mCY8=

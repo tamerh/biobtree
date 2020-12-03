@@ -34,18 +34,21 @@ func (e *hgnc) update() {
 	p := jsparser.NewJSONParser(br, "docs")
 
 	var ok bool
-	var v *jsparser.JSON
 	var total uint64
 	attr := pbuf.HgncAttr{}
 
 	a := func(jid string, dbid string, j *jsparser.JSON, entryid string) {
 
-		if _, ok = j.ObjectVals[jid]; ok && len(j.ObjectVals[jid].ArrayVals) > 0 {
-			for _, v = range j.ObjectVals[jid].ArrayVals {
-				e.d.addXref(entryid, fr, v.StringVal, dbid, false)
+		switch t := j.ObjectVals[jid].(type) {
+		case string:
+			e.d.addXref(entryid, fr, t, dbid, false)
+		case (*jsparser.JSON):
+			if _, ok = j.ObjectVals[jid]; ok && len(j.ObjectVals[jid].(*jsparser.JSON).ArrayVals) > 0 {
+				for _, v := range j.ObjectVals[jid].(*jsparser.JSON).ArrayVals {
+					e.d.addXref(entryid, fr, v.(string), dbid, false)
+				}
 			}
-		} else if _, ok = j.ObjectVals[jid]; ok {
-			e.d.addXref(entryid, fr, j.ObjectVals[jid].StringVal, dbid, false)
+		default:
 		}
 	}
 
@@ -60,7 +63,7 @@ func (e *hgnc) update() {
 			e.d.progChan <- &progressInfo{dataset: "hgnc", currentKBPerSec: kbytesPerSecond}
 		}
 
-		entryid := j.ObjectVals["hgnc_id"].StringVal
+		entryid := j.ObjectVals["hgnc_id"].(string)
 		if len(entryid) > 0 {
 
 			a("cosmic", "COSMIC", j, entryid)
@@ -76,90 +79,113 @@ func (e *hgnc) update() {
 
 			attr.Reset()
 
-			if _, ok = j.ObjectVals["symbol"]; ok && len(j.ObjectVals["symbol"].ArrayVals) > 0 {
-
-				for _, v = range j.ObjectVals["symbol"].ArrayVals {
-					e.d.addXref(v.StringVal, textLinkID, entryid, "hgnc", true)
-					attr.Symbols = append(attr.Symbols, v.StringVal)
+			switch t := j.ObjectVals["symbol"].(type) {
+			case string:
+				e.d.addXref(t, textLinkID, entryid, "hgnc", true)
+				attr.Symbols = append(attr.Symbols, t)
+			case (*jsparser.JSON):
+				if _, ok = j.ObjectVals["symbol"]; ok && len(t.ArrayVals) > 0 { // this line maybe althogether not necessary
+					for _, v := range t.ArrayVals {
+						e.d.addXref(v.(string), textLinkID, entryid, "hgnc", true)
+						attr.Symbols = append(attr.Symbols, v.(string))
+					}
 				}
-
-			} else if _, ok = j.ObjectVals["symbol"]; ok && len(j.ObjectVals["symbol"].StringVal) > 0 {
-				e.d.addXref(j.ObjectVals["symbol"].StringVal, textLinkID, entryid, "hgnc", true)
-				attr.Symbols = append(attr.Symbols, j.ObjectVals["symbol"].StringVal)
+			default:
 			}
 
-			if _, ok = j.ObjectVals["alias_symbol"]; ok && len(j.ObjectVals["alias_symbol"].ArrayVals) > 0 {
-
-				for _, v = range j.ObjectVals["alias_symbol"].ArrayVals {
-					e.d.addXref(v.StringVal, textLinkID, entryid, "hgnc", true)
-					attr.Aliases = append(attr.Aliases, v.StringVal)
+			switch t := j.ObjectVals["alias_symbol"].(type) {
+			case string:
+				e.d.addXref(t, textLinkID, entryid, "hgnc", true)
+				attr.Aliases = append(attr.Aliases, t)
+			case (*jsparser.JSON):
+				if _, ok = j.ObjectVals["alias_symbol"]; ok && len(t.ArrayVals) > 0 {
+					for _, v := range t.ArrayVals {
+						e.d.addXref(v.(string), textLinkID, entryid, "hgnc", true)
+						attr.Aliases = append(attr.Aliases, v.(string))
+					}
 				}
-
-			} else if _, ok = j.ObjectVals["alias_symbol"]; ok && len(j.ObjectVals["alias_symbol"].StringVal) > 0 {
-				e.d.addXref(j.ObjectVals["alias_symbol"].StringVal, textLinkID, entryid, "hgnc", true)
-				attr.Aliases = append(attr.Aliases, j.ObjectVals["alias_symbol"].StringVal)
+			default:
 			}
 
-			if _, ok = j.ObjectVals["prev_symbol"]; ok && len(j.ObjectVals["prev_symbol"].ArrayVals) > 0 {
-
-				for _, v = range j.ObjectVals["prev_symbol"].ArrayVals {
-					e.d.addXref(v.StringVal, textLinkID, entryid, "hgnc", true)
-					attr.PrevSymbols = append(attr.PrevSymbols, v.StringVal)
+			switch t := j.ObjectVals["prev_symbol"].(type) {
+			case string:
+				e.d.addXref(t, textLinkID, entryid, "hgnc", true)
+				attr.PrevSymbols = append(attr.PrevSymbols, t)
+			case (*jsparser.JSON):
+				if _, ok = j.ObjectVals["prev_symbol"]; ok && len(t.ArrayVals) > 0 {
+					for _, v := range t.ArrayVals {
+						e.d.addXref(v.(string), textLinkID, entryid, "hgnc", true)
+						attr.PrevSymbols = append(attr.PrevSymbols, v.(string))
+					}
 				}
-
-			} else if _, ok = j.ObjectVals["prev_symbol"]; ok && len(j.ObjectVals["prev_symbol"].StringVal) > 0 {
-				e.d.addXref(j.ObjectVals["prev_symbol"].StringVal, textLinkID, entryid, "hgnc", true)
-				attr.PrevSymbols = append(attr.PrevSymbols, j.ObjectVals["prev_symbol"].StringVal)
+			default:
 			}
 
-			if _, ok = j.ObjectVals["name"]; ok && len(j.ObjectVals["name"].ArrayVals) > 0 {
-				for _, v = range j.ObjectVals["name"].ArrayVals {
-					//e.d.addXref(v.StringVal, textLinkID, entryid, "hgnc", true)
-					attr.Names = append(attr.Names, v.StringVal)
+			switch t := j.ObjectVals["name"].(type) {
+			case string:
+				// e.d.addXref(t, textLinkID, entryid, "hgnc", true)
+				attr.Names = append(attr.Names, t)
+			case (*jsparser.JSON):
+				if _, ok = j.ObjectVals["name"]; ok && len(t.ArrayVals) > 0 {
+					for _, v := range t.ArrayVals {
+						// e.d.addXref(v.(string), textLinkID, entryid, "hgnc", true)
+						attr.Names = append(attr.Names, v.(string))
+					}
 				}
-
-			} else if _, ok = j.ObjectVals["name"]; ok && len(j.ObjectVals["name"].StringVal) > 0 {
-				//e.d.addXref(j.ObjectVals["name"].StringVal, textLinkID, entryid, "hgnc", true)
-				attr.Names = append(attr.Names, j.ObjectVals["name"].StringVal)
+			default:
 			}
 
-			if _, ok = j.ObjectVals["prev_name"]; ok && len(j.ObjectVals["prev_name"].ArrayVals) > 0 {
-				for _, v = range j.ObjectVals["prev_name"].ArrayVals {
-					attr.PrevNames = append(attr.PrevNames, v.StringVal)
+			switch t := j.ObjectVals["prev_name"].(type) {
+			case string:
+				attr.PrevNames = append(attr.PrevNames, t)
+			case (*jsparser.JSON):
+				if _, ok = j.ObjectVals["prev_name"]; ok && len(t.ArrayVals) > 0 {
+					for _, v := range t.ArrayVals {
+						attr.PrevNames = append(attr.PrevNames, v.(string))
+					}
 				}
-
-			} else if _, ok = j.ObjectVals["prev_name"]; ok && len(j.ObjectVals["prev_name"].StringVal) > 0 {
-				attr.PrevNames = append(attr.PrevNames, j.ObjectVals["prev_name"].StringVal)
+			default:
 			}
 
-			if _, ok = j.ObjectVals["locus_group"]; ok && len(j.ObjectVals["locus_group"].StringVal) > 0 {
-				e.d.addXref(j.ObjectVals["locus_group"].StringVal, textLinkID, entryid, "hgnc", true)
-				attr.LocusGroup = j.ObjectVals["locus_group"].StringVal
+			switch t := j.ObjectVals["locus_group"].(type) {
+			case string:
+				e.d.addXref(t, textLinkID, entryid, "hgnc", true)
+				attr.LocusGroup = t
+			default:
 			}
 
-			if _, ok = j.ObjectVals["locus_type"]; ok && len(j.ObjectVals["locus_type"].StringVal) > 0 {
-				e.d.addXref(j.ObjectVals["locus_type"].StringVal, textLinkID, entryid, "hgnc", true)
-				attr.LocusType = j.ObjectVals["locus_type"].StringVal
+			switch t := j.ObjectVals["locus_type"].(type) {
+			case string:
+				e.d.addXref(t, textLinkID, entryid, "hgnc", true)
+				attr.LocusType = t
+			default:
 			}
 
-			if _, ok = j.ObjectVals["location"]; ok && len(j.ObjectVals["location"].StringVal) > 0 {
-				e.d.addXref(j.ObjectVals["location"].StringVal, textLinkID, entryid, "hgnc", true)
-				attr.Location = j.ObjectVals["location"].StringVal
+			switch t := j.ObjectVals["location"].(type) {
+			case string:
+				e.d.addXref(t, textLinkID, entryid, "hgnc", true)
+				attr.Location = t
+			default:
 			}
 
-			if _, ok = j.ObjectVals["status"]; ok && len(j.ObjectVals["status"].StringVal) > 0 {
-				attr.Status = j.ObjectVals["status"].StringVal
+			switch t := j.ObjectVals["status"].(type) {
+			case string:
+				attr.Status = t
+			default:
 			}
 
-			if _, ok = j.ObjectVals["gene_group"]; ok && len(j.ObjectVals["gene_group"].ArrayVals) > 0 {
-				for _, v = range j.ObjectVals["gene_group"].ArrayVals {
-					e.d.addXref(v.StringVal, textLinkID, entryid, "hgnc", true)
-					attr.GeneGroups = append(attr.PrevNames, v.StringVal)
+			switch t := j.ObjectVals["gene_group"].(type) {
+			case string:
+				e.d.addXref(t, textLinkID, entryid, "hgnc", true)
+				attr.GeneGroups = append(attr.GeneGroups, t)
+			case (*jsparser.JSON):
+				if _, ok = j.ObjectVals["gene_group"]; ok && len(t.ArrayVals) > 0 {
+					for _, v := range t.ArrayVals {
+						e.d.addXref(v.(string), textLinkID, entryid, "hgnc", true)
+						attr.GeneGroups = append(attr.GeneGroups, v.(string))
+					}
 				}
-
-			} else if _, ok = j.ObjectVals["gene_group"]; ok && len(j.ObjectVals["gene_group"].StringVal) > 0 {
-				e.d.addXref(j.ObjectVals["gene_group"].StringVal, textLinkID, entryid, "hgnc", true)
-				attr.GeneGroups = append(attr.PrevNames, j.ObjectVals["gene_group"].StringVal)
+			default:
 			}
 
 			b, _ := ffjson.Marshal(attr)

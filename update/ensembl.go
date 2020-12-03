@@ -581,21 +581,21 @@ func (e *ensembl) update() {
 							e.d.progChan <- &progressInfo{dataset: e.source, currentKBPerSec: kbytesPerSecond}
 						}
 
-						entryid := j.ObjectVals["id"].StringVal
+						entryid := j.ObjectVals["id"].(string)
 
 						if j.ObjectVals["homologues"] != nil {
-							for _, val := range j.ObjectVals["homologues"].ArrayVals {
-								if val.ObjectVals["stable_id"] != nil {
-									stableID := val.ObjectVals["stable_id"].StringVal
-									if val.ObjectVals["genome"] != nil && j.ObjectVals["genome"] != nil && val.ObjectVals["genome"].StringVal == j.ObjectVals["genome"].StringVal {
+							for _, val := range j.ObjectVals["homologues"].(*jsparser.JSON).ArrayVals {
+								if val.(*jsparser.JSON).ObjectVals["stable_id"] != nil {
+									stableID := val.(*jsparser.JSON).ObjectVals["stable_id"].(string)
+									if val.(*jsparser.JSON).ObjectVals["genome"] != nil && j.ObjectVals["genome"] != nil && val.(*jsparser.JSON).ObjectVals["genome"].(string) == j.ObjectVals["genome"].(string) {
 										e.d.addXref2(entryid, fr, stableID, "paralog")
 										e.d.addXref2(stableID, paralogID, stableID, "ensembl")
 									} else {
 										if e.d.orthologsAllActive {
 											e.d.addXref2(entryid, fr, stableID, "ortholog")
 											e.d.addXref2(stableID, orthologID, stableID, "ensembl")
-										} else if e.d.orthologsActive && val.ObjectVals["genome"] != nil {
-											if _, ok := e.orthologGenomes[val.ObjectVals["genome"].StringVal]; ok {
+										} else if e.d.orthologsActive && val.(*jsparser.JSON).ObjectVals["genome"] != nil {
+											if _, ok := e.orthologGenomes[val.(*jsparser.JSON).ObjectVals["genome"].(string)]; ok {
 												e.d.addXref2(entryid, fr, stableID, "ortholog")
 												e.d.addXref2(stableID, orthologID, stableID, "ensembl")
 											}
@@ -642,49 +642,49 @@ func (e *ensembl) update() {
 						}
 
 						if j.ObjectVals["transcripts"] != nil {
-							for _, val := range j.ObjectVals["transcripts"].ArrayVals {
-								tentryid := val.ObjectVals["id"].StringVal
+							for _, val := range j.ObjectVals["transcripts"].(*jsparser.JSON).ArrayVals {
+								tentryid := val.(*jsparser.JSON).ObjectVals["id"].(string)
 
-								if val.ObjectVals["translations"] != nil {
-									for _, eprotein := range val.ObjectVals["translations"].ArrayVals {
-										e.xref(eprotein, eprotein.ObjectVals["id"].StringVal, ensemblProteinID, "Uniprot/SWISSPROT", "uniprot")
-										e.xref(eprotein, eprotein.ObjectVals["id"].StringVal, ensemblProteinID, "Uniprot/SPTREMBL", "uniprot")
+								if val.(*jsparser.JSON).ObjectVals["translations"] != nil {
+									for _, eprotein := range val.(*jsparser.JSON).ObjectVals["translations"].(*jsparser.JSON).ArrayVals {
+										e.xref(eprotein.(*jsparser.JSON), eprotein.(*jsparser.JSON).ObjectVals["id"].(string), ensemblProteinID, "Uniprot/SWISSPROT", "uniprot")
+										e.xref(eprotein.(*jsparser.JSON), eprotein.(*jsparser.JSON).ObjectVals["id"].(string), ensemblProteinID, "Uniprot/SPTREMBL", "uniprot")
 									}
 								}
 
-								e.xref(val, tentryid, ensemblTranscriptID, "RefSeq_peptide", "RefSeq")
-								e.xref(val, tentryid, ensemblTranscriptID, "EntrezGene", "GeneID")
-								e.xref(val, tentryid, ensemblTranscriptID, "Reactome", "Reactome")
-								e.xref(val, tentryid, ensemblTranscriptID, "Uniprot/SPTREMBL", "uniprot")
-								e.xref(val, tentryid, ensemblTranscriptID, "KEGG_Enzyme", "KEGG")
-								e.xref(val, tentryid, ensemblTranscriptID, "CDD", "CDD")
-								e.xref(val, tentryid, ensemblTranscriptID, "RefSeq_mRNA", "RefSeq")
-								e.xref(val, tentryid, ensemblTranscriptID, "CCDS", "CCDS")
-								e.xref(val, tentryid, ensemblTranscriptID, "Uniprot/SWISSPROT", "uniprot")
-								e.xref(val, tentryid, ensemblTranscriptID, "UCSC", "UCSC")
-								e.xref(val, tentryid, ensemblTranscriptID, "Uniprot_gn", "uniprot")
-								e.xref(val, tentryid, ensemblTranscriptID, "RefSeq_ncRNA_predicted", "RefSeq")
+								e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "RefSeq_peptide", "RefSeq")
+								e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "EntrezGene", "GeneID")
+								e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "Reactome", "Reactome")
+								e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "Uniprot/SPTREMBL", "uniprot")
+								e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "KEGG_Enzyme", "KEGG")
+								e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "CDD", "CDD")
+								e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "RefSeq_mRNA", "RefSeq")
+								e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "CCDS", "CCDS")
+								e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "Uniprot/SWISSPROT", "uniprot")
+								e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "UCSC", "UCSC")
+								e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "Uniprot_gn", "uniprot")
+								e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "RefSeq_ncRNA_predicted", "RefSeq")
 								// e.xref(val, tentryid, ensemblTranscriptID, "HGNC", "hgnc")
-								e.xrefGO(val, tentryid, ensemblTranscriptID)
+								e.xrefGO(val.(*jsparser.JSON), tentryid, ensemblTranscriptID)
 								if e.d.orthologsAllActive {
-									e.xref(val, tentryid, ensemblTranscriptID, "Interpro", "interpro")
-									e.xref(val, tentryid, ensemblTranscriptID, "HPA", "HPA")
-									e.xref(val, tentryid, ensemblTranscriptID, "ArrayExpress", "ExpressionAtlas")
-									e.xref(val, tentryid, ensemblTranscriptID, "GENE3D", "CATHGENE3D")
-									e.xref(val, tentryid, ensemblTranscriptID, "MIM_GENE", "MIM")
-									e.xref(val, tentryid, ensemblTranscriptID, "PANTHER", "PANTHER")
-									e.xref(val, tentryid, ensemblTranscriptID, "RNAcentral", "RNAcentral")
-									e.xref(val, tentryid, ensemblTranscriptID, "protein_id", "EMBL")
-									e.xref(val, tentryid, ensemblTranscriptID, "EMBL", "EMBL")
-									e.xref(val, tentryid, ensemblTranscriptID, "TIGRfam", "TIGRFAMs")
-									e.xref(val, tentryid, ensemblTranscriptID, "ChEMBL", "ChEMBL")
-									e.xref(val, tentryid, ensemblTranscriptID, "UniParc", "uniparc")
-									e.xref(val, tentryid, ensemblTranscriptID, "PDB", "PDB")
-									e.xref(val, tentryid, ensemblTranscriptID, "SuperFamily", "SUPFAM")
-									e.xref(val, tentryid, ensemblTranscriptID, "Prosite_profiles", "PROSITE")
-									e.xref(val, tentryid, ensemblTranscriptID, "Pfam", "Pfam")
-									e.xref(val, tentryid, ensemblTranscriptID, "Prosite_patterns", "PROSITE")
-									e.xref(val, tentryid, ensemblTranscriptID, "HAMAP", "HAMAP")
+									e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "Interpro", "interpro")
+									e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "HPA", "HPA")
+									e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "ArrayExpress", "ExpressionAtlas")
+									e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "GENE3D", "CATHGENE3D")
+									e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "MIM_GENE", "MIM")
+									e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "PANTHER", "PANTHER")
+									e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "RNAcentral", "RNAcentral")
+									e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "protein_id", "EMBL")
+									e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "EMBL", "EMBL")
+									e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "TIGRfam", "TIGRFAMs")
+									e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "ChEMBL", "ChEMBL")
+									e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "UniParc", "uniparc")
+									e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "PDB", "PDB")
+									e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "SuperFamily", "SUPFAM")
+									e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "Prosite_profiles", "PROSITE")
+									e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "Pfam", "Pfam")
+									e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "Prosite_patterns", "PROSITE")
+									e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "HAMAP", "HAMAP")
 								}
 
 							}
@@ -767,8 +767,8 @@ func (e *ensembl) update() {
 func (e *ensembl) xref(j *jsparser.JSON, entryid, from, propName, dbid string) {
 
 	if j.ObjectVals[propName] != nil {
-		for _, val := range j.ObjectVals[propName].ArrayVals {
-			e.d.addXref(entryid, from, val.StringVal, dbid, false)
+		for _, val := range j.ObjectVals[propName].(*jsparser.JSON).ArrayVals {
+			e.d.addXref(entryid, from, val.(string), dbid, false)
 		}
 	}
 }
@@ -776,9 +776,9 @@ func (e *ensembl) xref(j *jsparser.JSON, entryid, from, propName, dbid string) {
 func (e *ensembl) xrefGO(j *jsparser.JSON, entryid, from string) {
 
 	if j.ObjectVals["GO"] != nil {
-		for _, val := range j.ObjectVals["GO"].ArrayVals {
-			if _, ok := val.ObjectVals["term"]; ok {
-				e.d.addXref(entryid, from, val.ObjectVals["term"].StringVal, "GO", false)
+		for _, val := range j.ObjectVals["GO"].(*jsparser.JSON).ArrayVals {
+			if _, ok := val.(*jsparser.JSON).ObjectVals["term"]; ok {
+				e.d.addXref(entryid, from, val.(*jsparser.JSON).ObjectVals["term"].(string), "GO", false)
 			}
 		}
 	}
@@ -793,38 +793,38 @@ func (e *ensembl) xrefProp(j *jsparser.JSON, entryid, from string) {
 	attr.Branch = e.branch
 
 	if j.ObjectVals["name"] != nil {
-		attr.Name = j.ObjectVals["name"].StringVal
+		attr.Name = j.ObjectVals["name"].(string)
 	}
 
 	if j.ObjectVals["description"] != nil {
-		attr.Description = j.ObjectVals["description"].StringVal
+		attr.Description = j.ObjectVals["description"].(string)
 	}
 
 	if j.ObjectVals["biotype"] != nil {
-		attr.Biotype = j.ObjectVals["biotype"].StringVal
+		attr.Biotype = j.ObjectVals["biotype"].(string)
 	}
 
 	if j.ObjectVals["genome"] != nil {
-		attr.Genome = j.ObjectVals["genome"].StringVal
+		attr.Genome = j.ObjectVals["genome"].(string)
 	}
 
 	if j.ObjectVals["strand"] != nil {
-		attr.Strand = j.ObjectVals["strand"].StringVal
+		attr.Strand = j.ObjectVals["strand"].(string)
 	}
 
 	if j.ObjectVals["seq_region_name"] != nil {
-		attr.SeqRegion = j.ObjectVals["seq_region_name"].StringVal
+		attr.SeqRegion = j.ObjectVals["seq_region_name"].(string)
 	}
 
 	if j.ObjectVals["start"] != nil {
-		c, err := strconv.Atoi(j.ObjectVals["start"].StringVal)
+		c, err := strconv.Atoi(j.ObjectVals["start"].(string))
 		if err == nil {
 			attr.Start = int32(c)
 		}
 	}
 
 	if j.ObjectVals["end"] != nil {
-		c, err := strconv.Atoi(j.ObjectVals["end"].StringVal)
+		c, err := strconv.Atoi(j.ObjectVals["end"].(string))
 		if err == nil {
 			attr.End = int32(c)
 		}

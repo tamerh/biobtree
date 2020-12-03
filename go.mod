@@ -16,7 +16,7 @@ require (
 	github.com/mattn/go-isatty v0.0.9 // indirect
 	github.com/mattn/go-runewidth v0.0.4 // indirect
 	github.com/pquerna/ffjson v0.0.0-20190930134022-aa0246cd15f7
-	github.com/tamerh/jsparser v1.0.0
+	github.com/tamerh/jsparser v1.4.0
 	github.com/tamerh/rdf v0.0.0-20190712184806-55b841cd359c
 	github.com/tamerh/xml-stream-parser v1.1.4
 	github.com/urfave/cli v1.20.0

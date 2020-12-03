@@ -317,7 +317,7 @@ message HmdbPredictedProps {
   string  ghose_filter=6;
   double  refractivity=7;
   double  formalCharge=8;
-  double  bioavailability=9;
+  string  bioavailability=9;
   string  solubility=10;
   double  pka_strongest_basic=11;
   double  polarSurfaceArea= 12;

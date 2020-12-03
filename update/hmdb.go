@@ -84,9 +84,7 @@ func (h *hmdb) getPredictedProps(r *xmlparser.XMLElement) *pbuf.HmdbPredictedPro
 					check(err)
 					result.FormalCharge = cc
 				case "bioavailability":
-					cc, err := strconv.ParseFloat(strings.TrimSpace(val), 64)
-					check(err)
-					result.FormalCharge = cc
+					result.Bioavailability = val
 				case "solubility":
 					result.Solubility = val
 				case "pka_strongest_basic":

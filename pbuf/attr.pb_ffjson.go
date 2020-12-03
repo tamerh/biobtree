@@ -13342,9 +13342,9 @@ func (j *HmdbPredictedProps) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.AppendFloat(buf, float64(j.FormalCharge), 'g', -1, 64)
 		buf.WriteByte(',')
 	}
-	if j.Bioavailability != 0 {
+	if len(j.Bioavailability) != 0 {
 		buf.WriteString(`"bioavailability":`)
-		fflib.AppendFloat(buf, float64(j.Bioavailability), 'g', -1, 64)
+		fflib.WriteJsonString(buf, string(j.Bioavailability))
 		buf.WriteByte(',')
 	}
 	if len(j.Solubility) != 0 {
@@ -14159,27 +14159,23 @@ handle_FormalCharge:
 
 handle_Bioavailability:
 
-	/* handler: j.Bioavailability type=float64 kind=float64 quoted=false*/
+	/* handler: j.Bioavailability type=string kind=string quoted=false*/
 
 	{
-		if tok != fflib.FFTok_double && tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
-			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for float64", tok))
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
 		}
-	}
-
-	{
 
 		if tok == fflib.FFTok_null {
 
 		} else {
 
-			tval, err := fflib.ParseFloat(fs.Output.Bytes(), 64)
+			outBuf := fs.Output.Bytes()
 
-			if err != nil {
-				return fs.WrapErr(err)
-			}
-
-			j.Bioavailability = float64(tval)
+			j.Bioavailability = string(string(outBuf))
 
 		}
 	}

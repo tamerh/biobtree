@@ -26,19 +26,24 @@ if [[ ! -f biobtree ]]; then
 fi
 
 
-waitJobsForCompletion() {
-    sleep 600
-    echo "Starting check if jobs are finished with following command--> bjobs -P $@ | wc -l"
+waitJob() { 
+
+    if [[ -z $2 ]]; then
+       # sleep is to make sure job is registered
+       sleep 600
+    fi
+
+    echo "wating the job to be finished"
+
     while [ true ]
-    do
-        BJOBS_RESULT=`bjobs -P $@ | wc -l`
-        
+    do  
+        BJOBS_RESULT=`bjobs -P $1 | wc -l`
+
         if [ "$BJOBS_RESULT" == 0  ]
         then
-            echo "All jobs are now finished"
+            echo "job is finished"
             break
         fi
         sleep 120
     done
-    echo "Check on jobs completed"
 }

@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "core-js": "^2.6.5",
-    "highlight.js": "^9.17.0",
+    "highlight.js": "^10.4.1",
     "vue": "^2.6.10",
     "vue-json-pretty": "^1.6.0",
     "vue-multiselect": "^2.1.0",

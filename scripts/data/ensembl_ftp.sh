@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# experimental currently not in use 
 # Workaround script related with issue when there is a new ensembl release to build the paths
 # Output of this script used with local ftp server
 

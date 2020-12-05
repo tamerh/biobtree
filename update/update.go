@@ -30,8 +30,9 @@ var idChunkLen int
 var chunkIdx = "df"
 
 var mutex = &sync.Mutex{}
-
 var config *configs.Conf
+
+var allEnsembls = []string{"ensembl", "ensembl_fungi", "ensembl_bacteria", "ensembl_metazoa", "ensembl_plants", "ensembl_protists"}
 
 type DataUpdate struct {
 	totalParsedEntry       uint64
@@ -154,15 +155,15 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 	// select ensembls
 	ensembls := d.selectEnsembls()
 
-	if len(ensembls) <= 0 && len(d.inDatasets) <= 0 {
-		log.Println("No genome found for indexing")
-		return 0, 0
-	}
-
-	for ens := range ensembls { // remove from here because ensembl handled differently after selection
+	for _,ens := range allEnsembls { // remove from here because ensembl handled differently after selection
 		if _, ok := d.inDatasets[ens]; ok {
 			delete(d.inDatasets, ens)
 		}
+	}
+
+	if len(ensembls) <= 0 && len(d.inDatasets) <= 0 {
+		log.Println("No genome found for indexing")
+		return 0, 0
 	}
 
 	var err error
@@ -575,8 +576,6 @@ func (d *DataUpdate) addXref2(key string, from string, value string, valueFrom s
 }
 
 func (d *DataUpdate) selectEnsembls() map[string]ensembl {
-
-	allEnsembls := []string{"ensembl", "ensembl_fungi", "ensembl_bacteria", "ensembl_metazoa", "ensembl_plants", "ensembl_protists"}
 
 	selectedEnsembls := []string{}
 	for _, src := range allEnsembls { // this is to check command line ensembl datasets if yes genome selection will be only within those ones otherwise all

@@ -39,9 +39,9 @@ for dt in "${DATASETS[@]}"
     bsub -oo ${arrDataset[0]}.log -P "${arrDataset[0]}" -n $JOB_CPU -M $JOB_MEMORY -R "rusage[mem=${JOB_MEMORY}] span[hosts=1]" -J "${arrDataset[0]}" -q "$1" ./biobtree $BB_DEFAULT_PARAM -d ${arrDataset[1]} --out-dir "${2}/${arrDataset[0]}" -idx ${arrDataset[0]} update
     done
 
-# Ensembls are recommended to be processed one by one like here via wait to avoid being temporarily rejected from Ensembl servers due to the high traffic and limitation.
-# In addition biobtree also has its internal configurable sleeps to avoid being rejected
-# So ideally this works but if you get any connection related error wait for a while and try again for the given dataset manually.
+# Ensembls are processed one by one like here via wait to avoid being temporarily rejected from Ensembl servers
+# biobtree also has its internal configurable sleep to avoid being rejected
+# So ideally this works but if you get any connection related error wait for a while and try again for the given dataset manually to avoid repating previous steps.
 declare -a ENS_DATASETS=("ensembl_fungi" "ensembl_metazoa" "ensembl_protists" "ensembl_plants" "ensembl" "ensembl_bacteria")
 BB_ENSEMBL_PARAM="--eoa --genome all"
 for ens in "${ENS_DATASETS[@]}"
@@ -53,7 +53,7 @@ for ens in "${ENS_DATASETS[@]}"
     sleep 300
     done
 
-# Now make sure all the jobs are finished
+# Non-ensembl jobs should finish by now. But make sure they are finished before generate phase
 for dt in "${DATASETS[@]}"
     do
     arrDataset=(${dt//;/ })
@@ -63,7 +63,7 @@ for dt in "${DATASETS[@]}"
 
 ################################################ GENERATE phase ################################################
 
-# validate  meta jsons are created
+# validate by checking meta jsons are created
 for dt in "${DATASETS[@]}"
     do
     arrDataset=(${dt//;/ })
@@ -81,7 +81,7 @@ for ens in "${ENS_DATASETS[@]}"
     fi
     done
 
-# now move all indexes to the root for final generation and clean update phase folders.
+# move all indexes to the root for generate and clean update phase folders.
 
 mkdir -p ${2}/index
 

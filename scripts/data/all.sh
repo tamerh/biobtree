@@ -99,7 +99,7 @@ for ens in "${ENS_DATASETS[@]}"
     done
 
  
-# Generate process. It is not CPU intensive but ideally requires a dedicated machine with large available memory such as 128GB.
+# Generate process. It is not CPU intensive but ideally requires a dedicated machine with large available memory
 
 nohup ./biobtree --keep --out-dir ${2} generate > generate.log 2>&1  & 
 

@@ -988,6 +988,9 @@ func (c *chembl) updateMolecule() {
 			c.previous = elapsed
 			c.d.progChan <- &progressInfo{dataset: c.source, currentKBPerSec: kbytesPerSecond}
 		}
+		if triple.Subj == nil || triple.Obj == nil || triple.Pred == nil { // workaround for macos
+			continue
+		}
 		c.totalRead = c.totalRead + len(triple.Subj.String()) + len(triple.Obj.String()) + len(triple.Pred.String())
 
 		if strings.HasPrefix(triple.Subj.String(), "/molecule/") {
@@ -1321,6 +1324,9 @@ func (c *chembl) updateActivity() {
 			kbytesPerSecond := int64(c.totalRead) / elapsed / 1024
 			c.previous = elapsed
 			c.d.progChan <- &progressInfo{dataset: c.source, currentKBPerSec: kbytesPerSecond}
+		}
+		if triple.Subj == nil || triple.Obj == nil || triple.Pred == nil { // workaround for macos
+			continue
 		}
 		c.totalRead = c.totalRead + len(triple.Subj.String()) + len(triple.Obj.String()) + len(triple.Pred.String())
 

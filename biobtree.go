@@ -20,8 +20,8 @@ import (
 	"github.com/urfave/cli"
 )
 
-const version = "1.7.0"
-const versionTag = "v1.7.0"
+const version = "1.8.0"
+const versionTag = "v1.8.0"
 
 var config *configs.Conf
 

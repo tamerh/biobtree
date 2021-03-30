@@ -191,7 +191,7 @@ func (bm *binarymerge) merge(wg *sync.WaitGroup) {
 
 	f, err := os.Create(filepath.FromSlash(mergedFile))
 	check(err)
-	gw, err := gzip.NewWriterLevel(f, gzip.BestSpeed)
+	gw, err := gzip.NewWriterLevel(f, gzip.BestCompression)
 
 	// for initial read from both
 	bm.readLine(0)

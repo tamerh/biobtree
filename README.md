@@ -5,7 +5,7 @@
 Biobtree is a bioinformatics tool which allows mapping the bioinformatics datasets
 via identifiers and special keywors with simple or advance chain query capability.
 
-<!---
+<!--- -->
 
 ## Demo
 
@@ -13,7 +13,6 @@ Demo of web interface which covers all the datasets with examples
 
 https://www.ebi.ac.uk/~tgur/biobtree/
 
--->
 
 ## Features
 

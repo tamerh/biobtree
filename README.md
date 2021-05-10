@@ -9,7 +9,7 @@ via identifiers and special keywors with simple or advance chain query capabilit
 
 ## Demo
 
-Demo of web interface which covers all the datasets with examples
+Demo of web interface which covers all the datasets with examples. This demo covers relatively old data from 2020 for the latest data use the tool directly.
 
 https://www.ebi.ac.uk/~tgur/biobtree/
 

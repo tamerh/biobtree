@@ -64,7 +64,7 @@ biobtree help
 #### Starting biobtree with built-in databases
 
 ```sh
-# 4 built-in database provided with commonly studied datasets and organism genomes
+# 4 built-in database provided with commonly studied datasets and organism genomes in order to speed up database build process
 # Check following func doc for each database content 
 # https://github.com/tamerh/biobtreeR/blob/master/R/buildData.R
 

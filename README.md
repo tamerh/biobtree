@@ -71,6 +71,7 @@ biobtree help
 biobtree --pre-built 1 install
 biobtree web
 ```
+Builting databases updated regularly at least for each Ensembl release and all builtin database files along with configuration files are hosted in spererate github [repository](https://github.com/tamerh/biobtree-conf)
 
 ### Web service endpoints
 ```ruby

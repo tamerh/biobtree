@@ -791,7 +791,7 @@ func (c *chembl) updateTargetComponent() {
 
 	dec = rdf.NewTripleDecoder(br, rdf.Turtle)
 
-	for triple, err := dec.Decode(); err != io.EOF; triple, err = dec.Decode() {
+	for triple, err := dec.Decode(); err != io.EOF && triple.Subj != nil; triple, err = dec.Decode() {
 
 		elapsed := int64(time.Since(c.d.start).Seconds())
 		if elapsed > c.previous+c.d.progInterval {
@@ -799,6 +799,7 @@ func (c *chembl) updateTargetComponent() {
 			c.previous = elapsed
 			c.d.progChan <- &progressInfo{dataset: c.source, currentKBPerSec: kbytesPerSecond}
 		}
+
 		c.totalRead = c.totalRead + len(triple.Subj.String()) + len(triple.Obj.String()) + len(triple.Pred.String())
 
 		if strings.HasPrefix(triple.Subj.String(), "/targetcomponent/") {

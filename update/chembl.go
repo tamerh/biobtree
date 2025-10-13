@@ -2,7 +2,11 @@ package update
 
 import (
 	"biobtree/pbuf"
+	"fmt"
 	"io"
+	"io/ioutil"
+	"net/http"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -874,15 +878,16 @@ func (c *chembl) updateIndications() {
 			case "highestDevelopmentPhase":
 
 				id := c.getChemblID(triple.Subj.String())
-				cc, err := strconv.ParseInt(triple.Obj.String(), 10, 32)
+				ccFloat, err := strconv.ParseFloat(triple.Obj.String(), 64)
 				check(err)
+			cc := int32(ccFloat)
 				if _, ok := c.indications[id]; ok {
 					ind := c.indications[id]
-					ind.HighestDevelopmentPhase = int32(cc)
+					ind.HighestDevelopmentPhase = cc
 					c.indications[id] = ind
 				} else {
 					ind := pbuf.ChemblIndication{}
-					ind.HighestDevelopmentPhase = int32(cc)
+					ind.HighestDevelopmentPhase = cc
 					c.indications[id] = &ind
 				}
 
@@ -1008,10 +1013,11 @@ func (c *chembl) updateMolecule() {
 				c.d.addProp3(id, fr, b)
 			case "highestDevelopmentPhase":
 				id := c.getChemblID(triple.Subj.String())
-				cc, err := strconv.ParseInt(triple.Obj.String(), 10, 32)
+				ccFloat, err := strconv.ParseFloat(triple.Obj.String(), 64)
 				check(err)
+				cc := int32(ccFloat)
 				if cc > 0 { // think again
-					attr := pbuf.ChemblAttr{Molecule: &pbuf.ChemblMolecule{HighestDevelopmentPhase: int32(cc)}}
+					attr := pbuf.ChemblAttr{Molecule: &pbuf.ChemblMolecule{HighestDevelopmentPhase: cc}}
 					b, _ = ffjson.Marshal(attr)
 					c.d.addProp3(id, fr, b)
 				}
@@ -1776,6 +1782,17 @@ func (c *chembl) getTaxID(uri string) string {
 
 func (c *chembl) getFtpPath(regexFileName string) string {
 
+	// Try HTTPS directory listing first (EBI has migrated from FTP to HTTPS)
+	if strings.HasPrefix(c.d.ebiFtp, "ftp.ebi.ac.uk") {
+		httpsURL := "https://ftp.ebi.ac.uk" + c.ftpPath
+		filename, err := c.getHTTPFilePath(httpsURL, regexFileName)
+		if err == nil {
+			return filename
+		}
+		fmt.Printf("HTTPS listing failed, falling back to FTP: %v\n", err)
+	}
+
+	// Fall back to FTP
 	client := ftpClient(c.d.ebiFtp)
 	entries, err := client.List(c.ftpPath + regexFileName)
 	check(err)
@@ -1786,4 +1803,84 @@ func (c *chembl) getFtpPath(regexFileName string) string {
 
 	return entries[0].Name
 
+}
+
+// getHTTPFilePath fetches directory listing via HTTP and finds files matching the pattern
+func (c *chembl) getHTTPFilePath(baseURL string, pattern string) (string, error) {
+	// Convert glob pattern to regex (correct order matters!)
+	// e.g., "chembl*molecule.ttl.gz" -> "chembl.*molecule\.ttl\.gz"
+
+	// Step 1: Replace * with a placeholder to protect it
+	regexPattern := strings.ReplaceAll(pattern, "*", "<<<WILDCARD>>>")
+
+	// Step 2: Escape regex special characters (including dots)
+	regexPattern = regexp.QuoteMeta(regexPattern)
+
+	// Step 3: Replace placeholder with .*
+	regexPattern = strings.ReplaceAll(regexPattern, "<<<WILDCARD>>>", ".*")
+
+	// Step 4: Add anchors
+	regexPattern = "^" + regexPattern + "$"
+
+	re, err := regexp.Compile(regexPattern)
+	if err != nil {
+		return "", fmt.Errorf("invalid pattern: %v", err)
+	}
+
+	// Fetch directory listing
+	resp, err := http.Get(baseURL)
+	if err != nil {
+		return "", fmt.Errorf("HTTP GET failed: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("HTTP status: %d", resp.StatusCode)
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return "", fmt.Errorf("reading response failed: %v", err)
+	}
+
+	// Parse HTML to extract filenames
+	// EBI directory listings contain links like: <a href="chembl_36.0_molecule.ttl.gz">
+	html := string(body)
+
+	// Extract all hrefs from the HTML
+	hrefRegex := regexp.MustCompile(`href="([^"]+)"`)
+	matches := hrefRegex.FindAllStringSubmatch(html, -1)
+
+	var matchedFiles []string
+	var allFiles []string // For debugging
+	for _, match := range matches {
+		if len(match) > 1 {
+			filename := match[1]
+			// Skip parent directory and URLs
+			if filename == "../" || strings.HasPrefix(filename, "http") || strings.Contains(filename, "?") {
+				continue
+			}
+			allFiles = append(allFiles, filename)
+			// Match against our pattern
+			if re.MatchString(filename) {
+				matchedFiles = append(matchedFiles, filename)
+			}
+		}
+	}
+
+	if len(matchedFiles) != 1 {
+		// Debug output
+		fmt.Printf("DEBUG: pattern='%s', regex='%s'\n", pattern, regexPattern)
+		fmt.Printf("DEBUG: found %d files total, showing first 10: %v\n", len(allFiles), allFiles[:min(10, len(allFiles))])
+		return "", fmt.Errorf("expected 1 match for pattern %s, found %d: %v", pattern, len(matchedFiles), matchedFiles)
+	}
+
+	return matchedFiles[0], nil
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }

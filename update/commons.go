@@ -3,8 +3,10 @@ package update
 import (
 	"bufio"
 	"compress/gzip"
+	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/jlaffaye/ftp"
 )
@@ -38,7 +40,39 @@ func getDataReaderNew(datatype string, ftpAddr string, ftpPath string, filePath 
 
 	}
 
-	// with ftp
+	// Try HTTPS for EBI (FTP protocol has been disabled)
+	if strings.HasPrefix(ftpAddr, "ftp.ebi.ac.uk") {
+		httpsURL := "https://ftp.ebi.ac.uk" + ftpPath + filePath
+		resp, err := http.Get(httpsURL)
+		if err == nil && resp.StatusCode == http.StatusOK {
+			fileSize = resp.ContentLength
+
+			var br *bufio.Reader
+			var gz *gzip.Reader
+
+			if filepath.Ext(filePath) == ".gz" {
+				gz, err = gzip.NewReader(resp.Body)
+				if err != nil {
+					resp.Body.Close()
+					check(err)
+				}
+				br = bufio.NewReaderSize(gz, fileBufSize)
+				// For .gz files, gz.Close() will close the underlying resp.Body
+				// so we return nil for the file parameter
+				return br, gz, nil, nil, nil, fileSize
+			} else {
+				// Non-.gz files: EBI datasets are typically always .gz, so this path is rarely used
+				br = bufio.NewReaderSize(resp.Body, fileBufSize)
+				return br, nil, nil, nil, nil, fileSize
+			}
+		}
+		// If HTTPS fails, fall through to try FTP
+		if resp != nil && resp.Body != nil {
+			resp.Body.Close()
+		}
+	}
+
+	// Fall back to FTP
 	client = ftpClient(ftpAddr)
 	path := ftpPath + filePath
 

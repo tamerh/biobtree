@@ -2,6 +2,11 @@ package update
 
 import (
 	"biobtree/pbuf"
+	"bufio"
+	"net/http"
+	"os"
+	"path/filepath"
+	"strings"
 	"sync/atomic"
 	"time"
 
@@ -17,18 +22,41 @@ type hgnc struct {
 func (e *hgnc) update() {
 
 	fr := config.Dataconf["hgnc"]["id"]
-	br, _, ftpFile, client, localFile, _ := getDataReaderNew("hgnc", e.d.ebiFtp, e.d.ebiFtpPath, config.Dataconf["hgnc"]["path"])
+	path := config.Dataconf["hgnc"]["path"]
 
-	if ftpFile != nil {
-		defer ftpFile.Close()
-	}
-	if localFile != nil {
-		defer localFile.Close()
-	}
+	var br *bufio.Reader
+	var httpResp *http.Response
+	var localFile *os.File
+
 	defer e.d.wg.Done()
 
-	if client != nil {
-		defer client.Quit()
+	// Support both local files and HTTP(S) downloads
+	if config.Dataconf["hgnc"]["useLocalFile"] == "yes" {
+		file, err := os.Open(filepath.FromSlash(path))
+		check(err)
+		br = bufio.NewReaderSize(file, fileBufSize)
+		localFile = file
+		defer localFile.Close()
+	} else if strings.HasPrefix(path, "http://") || strings.HasPrefix(path, "https://") {
+		// HTTP(S) download (like ontology.go)
+		resp, err := http.Get(path)
+		check(err)
+		br = bufio.NewReaderSize(resp.Body, fileBufSize)
+		httpResp = resp
+		defer httpResp.Body.Close()
+	} else {
+		// Fall back to FTP for backward compatibility
+		br2, _, ftpFile, client, localFile2, _ := getDataReaderNew("hgnc", e.d.ebiFtp, e.d.ebiFtpPath, path)
+		br = br2
+		if ftpFile != nil {
+			defer ftpFile.Close()
+		}
+		if localFile2 != nil {
+			defer localFile2.Close()
+		}
+		if client != nil {
+			defer client.Quit()
+		}
 	}
 
 	p := jsparser.NewJSONParser(br, "docs")

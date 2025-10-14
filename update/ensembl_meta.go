@@ -439,6 +439,22 @@ func (e *ensembl) updateEnsemblMeta(version int) (*ensemblPaths, string) {
 		}
 	}
 
+	// Cleanup: Remove GFF3 entries that don't have corresponding JSON files
+	// This handles the reverse case
+	var missingJson []string
+	for species := range ensembls.Gff3s {
+		if _, hasJson := ensembls.Jsons[species]; !hasJson {
+			missingJson = append(missingJson, species)
+		}
+	}
+	if len(missingJson) > 0 {
+		log.Printf("Warning: Found %d species with GFF3 but no JSON files, removing them: %v", len(missingJson), missingJson)
+		for _, species := range missingJson {
+			delete(ensembls.Gff3s, species)
+			delete(ensembls.Taxids, species)
+		}
+	}
+
 	data, err := json.Marshal(ensembls)
 	check(err)
 

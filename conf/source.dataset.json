@@ -63,7 +63,7 @@
   "hgnc": {
     "id": "5",
     "name": "HGNC",
-    "path": "https://storage.googleapis.com/public-download-files/hgnc/json/json/hgnc_complete_set.json",
+    "path": "/genenames/new/json/hgnc_complete_set.json",
     "aliases": "HGNC",
     "url": "https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/£{id}",
     "useLocalFile": "no",
@@ -120,7 +120,7 @@
   "interpro": {
     "id": "11",
     "name": "Interpro",
-    "path": "/interpro/current_release/interpro.xml.gz",
+    "path": "/interpro/current/interpro.xml.gz",
     "url": "https://www.ebi.ac.uk/interpro/entry/£{id}",
     "aliases": "INTERPRO,InterPro",
     "useLocalFile": "no",

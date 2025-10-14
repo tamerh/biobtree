@@ -58,12 +58,27 @@ func checkEnsemblUpdate(du *DataUpdate) {
 
 func hasEnsemblNewRelease() (bool, int) {
 
+	// Check if ALL required paths.json files exist
+	requiredFiles := []string{
+		"ensembl.paths.json",
+		"ensembl_fungi.paths.json",
+		"ensembl_bacteria.paths.json",
+		"ensembl_metazoa.paths.json",
+		"ensembl_plants.paths.json",
+		"ensembl_protists.paths.json",
+	}
+
+	for _, filename := range requiredFiles {
+		pathFile := filepath.FromSlash(config.Appconf["ensemblDir"] + "/" + filename)
+		if !fileExists(pathFile) {
+			log.Printf("Missing ensembl file: %s - triggering metadata update", filename)
+			return true, getLatestEnsemblVersion()
+		}
+	}
+
+	// All files exist, now check version
 	epaths := ensemblPaths{}
 	pathFile := filepath.FromSlash(config.Appconf["ensemblDir"] + "/ensembl_metazoa.paths.json")
-	if !fileExists(pathFile) {
-
-		return true, getLatestEnsemblVersion()
-	}
 	f, err := os.Open(pathFile)
 	check(err)
 	b, err := ioutil.ReadAll(f)
@@ -204,6 +219,11 @@ func (e *ensembl) updateEnsemblMeta(version int) (*ensemblPaths, string) {
 		}
 
 		for _, file := range entries {
+			// Skip metadata directories (symlinks like current_json, current_gff3)
+			if strings.HasPrefix(file.Name, "current_") {
+				continue
+			}
+
 			if strings.HasSuffix(file.Name, "_collection") {
 				entries2, err := client.List(ftpJSONPath + "/" + file.Name)
 				if err != nil { // retry
@@ -252,18 +272,20 @@ func (e *ensembl) updateEnsemblMeta(version int) (*ensemblPaths, string) {
 
 	setBiomarts := func() {
 
-		// todo setup biomart release not handled at the moment
-		// find the biomart folder
+		// Note: This only works for main Ensembl (not EnsemblGenomes)
+		// EnsemblGenomes changed their biomart structure in recent years
 		client := ftpClient(ftpAddress)
-		entries, err := client.List(ftpMysqlPath + "/" + branch + "_mart_*")
+
+		pattern := ftpMysqlPath + "/" + branch + "_mart_*"
+		entries, err := client.List(pattern)
 		check(err)
 
 		if len(entries) != 1 {
-			log.Fatal("Error: Expected to find 1 biomart folder but found ", +len(entries))
+			log.Printf("Error: Expected to find 1 biomart folder but found %d for pattern: %s", len(entries), pattern)
+			log.Fatal("Biomart folder mismatch")
 		}
-		if len(entries) == 1 {
-			ftpBiomartFolder = entries[0].Name
-		}
+
+		ftpBiomartFolder = entries[0].Name
 
 		entries, err = client.List(ftpMysqlPath + "/" + ftpBiomartFolder + "/*__efg_*.gz")
 		check(err)
@@ -292,9 +314,14 @@ func (e *ensembl) updateEnsemblMeta(version int) (*ensemblPaths, string) {
 		}
 
 		for _, file := range entries {
+			// Skip metadata directories (symlinks like current_json, current_gff3)
+			if strings.HasPrefix(file.Name, "current_") {
+				continue
+			}
+
 			if strings.HasSuffix(file.Name, "_collection") {
 				entriesSub, err := client.List(ftpGFF3Path + "/" + file.Name)
-				
+
 				if err != nil { // retry
 					client.Quit()
 					time.Sleep(time.Duration(e.pauseDurationSeconds*5) * time.Second)
@@ -373,27 +400,43 @@ func (e *ensembl) updateEnsemblMeta(version int) (*ensemblPaths, string) {
 
 	case "ensembl":
 		setJSONs()
-		setBiomarts()
+		setBiomarts() // Only main Ensembl has biomarts
 		setGFF3()
 	case "ensembl_bacteria":
 		setJSONs()
 		setGFF3()
 	case "ensembl_fungi":
 		setJSONs()
-		setBiomarts()
+		// Skip biomarts - EnsemblGenomes changed biomart structure
 		setGFF3()
 	case "ensembl_metazoa":
 		setJSONs()
-		setBiomarts()
+		// Skip biomarts - EnsemblGenomes changed biomart structure
 		setGFF3()
 	case "ensembl_plants":
 		setJSONs()
-		setBiomarts()
+		// Skip biomarts - EnsemblGenomes changed biomart structure
 		setGFF3()
 	case "ensembl_protists":
 		setJSONs()
-		setBiomarts()
+		// Skip biomarts - EnsemblGenomes changed biomart structure
 		setGFF3()
+	}
+
+	// Cleanup: Remove JSON entries that don't have corresponding GFF3 files
+	// This handles Ensembl data inconsistencies where some species have JSON but no GFF3
+	var missingGff3 []string
+	for species := range ensembls.Jsons {
+		if _, hasGff3 := ensembls.Gff3s[species]; !hasGff3 {
+			missingGff3 = append(missingGff3, species)
+		}
+	}
+	if len(missingGff3) > 0 {
+		log.Printf("Warning: Found %d species with JSON but no GFF3 files, removing them: %v", len(missingGff3), missingGff3)
+		for _, species := range missingGff3 {
+			delete(ensembls.Jsons, species)
+			delete(ensembls.Taxids, species)
+		}
 	}
 
 	data, err := json.Marshal(ensembls)

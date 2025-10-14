@@ -19,6 +19,17 @@ type hmdb struct {
 	d      *DataUpdate
 }
 
+
+// parseFloatValue extracts and parses the numeric part from values like "-0.467 (est)"
+func parseFloatValue(val string) (float64, error) {
+	val = strings.TrimSpace(val)
+	// Split by space and take the first part (the number)
+	parts := strings.Fields(val)
+	if len(parts) > 0 {
+		return strconv.ParseFloat(parts[0], 64)
+	}
+	return strconv.ParseFloat(val, 64)
+}
 func (h *hmdb) getExperimentalProps(r *xmlparser.XMLElement) *pbuf.HmdbExperimentalProps {
 
 	result := pbuf.HmdbExperimentalProps{}
@@ -36,7 +47,7 @@ func (h *hmdb) getExperimentalProps(r *xmlparser.XMLElement) *pbuf.HmdbExperimen
 				case "boiling_point":
 					result.BoolingPoint = val
 				case "logp":
-					cc, err := strconv.ParseFloat(strings.TrimSpace(val), 64)
+					cc, err := parseFloatValue(val)
 					check(err)
 					result.Logp = cc
 				}
@@ -66,21 +77,21 @@ func (h *hmdb) getPredictedProps(r *xmlparser.XMLElement) *pbuf.HmdbPredictedPro
 				case "rule_of_five":
 					result.RuleOfFive = val
 				case "pka_strongest_acidic":
-					cc, err := strconv.ParseFloat(strings.TrimSpace(val), 64)
+					cc, err := parseFloatValue(val)
 					check(err)
 					result.PkaStrongestAcidic = cc
 				case "mono_mass":
-					cc, err := strconv.ParseFloat(strings.TrimSpace(val), 64)
+					cc, err := parseFloatValue(val)
 					check(err)
 					result.PkaStrongestAcidic = cc
 				case "ghose_filter":
 					result.GhoseFilter = val
 				case "refractivity":
-					cc, err := strconv.ParseFloat(strings.TrimSpace(val), 64)
+					cc, err := parseFloatValue(val)
 					check(err)
 					result.Refractivity = cc
 				case "formal_charge":
-					cc, err := strconv.ParseFloat(strings.TrimSpace(val), 64)
+					cc, err := parseFloatValue(val)
 					check(err)
 					result.FormalCharge = cc
 				case "bioavailability":
@@ -88,11 +99,11 @@ func (h *hmdb) getPredictedProps(r *xmlparser.XMLElement) *pbuf.HmdbPredictedPro
 				case "solubility":
 					result.Solubility = val
 				case "pka_strongest_basic":
-					cc, err := strconv.ParseFloat(strings.TrimSpace(val), 64)
+					cc, err := parseFloatValue(val)
 					check(err)
 					result.PkaStrongestBasic = cc
 				case "polar_surface_area":
-					cc, err := strconv.ParseFloat(strings.TrimSpace(val), 64)
+					cc, err := parseFloatValue(val)
 					check(err)
 					result.PolarSurfaceArea = cc
 				case "veber_rule":
@@ -100,11 +111,11 @@ func (h *hmdb) getPredictedProps(r *xmlparser.XMLElement) *pbuf.HmdbPredictedPro
 				case "mddr_like_rule":
 					result.MddrLikeRule = val
 				case "logp":
-					cc, err := strconv.ParseFloat(strings.TrimSpace(val), 64)
+					cc, err := parseFloatValue(val)
 					check(err)
 					result.Logp = cc
 				case "polarizability":
-					cc, err := strconv.ParseFloat(strings.TrimSpace(val), 64)
+					cc, err := parseFloatValue(val)
 					check(err)
 					result.Polarizability = cc
 				case "donor_count":
@@ -112,7 +123,7 @@ func (h *hmdb) getPredictedProps(r *xmlparser.XMLElement) *pbuf.HmdbPredictedPro
 					check(err)
 					result.DonorCount = int32(cc)
 				case "average_mass":
-					cc, err := strconv.ParseFloat(strings.TrimSpace(val), 64)
+					cc, err := parseFloatValue(val)
 					check(err)
 					result.AverageMass = cc
 				case "acceptor_count":
@@ -124,7 +135,7 @@ func (h *hmdb) getPredictedProps(r *xmlparser.XMLElement) *pbuf.HmdbPredictedPro
 					check(err)
 					result.NumberOfRings = int32(cc)
 				case "logs":
-					cc, err := strconv.ParseFloat(strings.TrimSpace(val), 64)
+					cc, err := parseFloatValue(val)
 					check(err)
 					result.Logs = cc
 				}

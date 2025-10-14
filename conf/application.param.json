@@ -34,5 +34,5 @@
 	"mapFilterTimeoutDuration": "300",
 	"cacheMaxEntrySize": "25000",
 	"cacheHardMaxSize": "1024",
-	"disableEnsemblReleaseCheck": "y"
+	"disableEnsemblReleaseCheck": "n"
 }

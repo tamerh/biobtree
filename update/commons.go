@@ -3,6 +3,7 @@ package update
 import (
 	"bufio"
 	"compress/gzip"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -62,6 +63,55 @@ func getDataReaderNew(datatype string, ftpAddr string, ftpPath string, filePath 
 				return br, gz, nil, nil, nil, fileSize
 			} else {
 				// Non-.gz files: EBI datasets are typically always .gz, so this path is rarely used
+				br = bufio.NewReaderSize(resp.Body, fileBufSize)
+				return br, nil, nil, nil, nil, fileSize
+			}
+		}
+		// If HTTPS fails, fall through to try FTP
+		if resp != nil && resp.Body != nil {
+			resp.Body.Close()
+		}
+	}
+
+	// Try HTTPS for Ensembl (FTP protocol may have been disabled)
+	if strings.HasPrefix(ftpAddr, "ftp.ensembl.org") || strings.HasPrefix(ftpAddr, "ftp.ensemblgenomes.org") {
+		// Strip port if present (e.g., "ftp.ensembl.org:21" -> "ftp.ensembl.org")
+		hostOnly := strings.Split(ftpAddr, ":")[0]
+
+		// Map to the correct EBI domain for HTTPS (certificate only valid for .ebi.ac.uk)
+		if hostOnly == "ftp.ensembl.org" {
+			hostOnly = "ftp.ensembl.ebi.ac.uk"
+		} else if hostOnly == "ftp.ensemblgenomes.org" {
+			hostOnly = "ftp.ensemblgenomes.ebi.ac.uk"
+		}
+
+		httpsURL := "https://" + hostOnly + ftpPath + filePath
+
+		// Debug output
+		log.Printf("DEBUG Ensembl: Trying HTTPS URL: %s\n", httpsURL)
+
+		resp, err := http.Get(httpsURL)
+		if err != nil {
+			log.Printf("DEBUG Ensembl: HTTPS request failed: %v\n", err)
+		} else {
+			log.Printf("DEBUG Ensembl: HTTPS status code: %d\n", resp.StatusCode)
+		}
+
+		if err == nil && resp.StatusCode == http.StatusOK {
+			fileSize = resp.ContentLength
+
+			var br *bufio.Reader
+			var gz *gzip.Reader
+
+			if filepath.Ext(filePath) == ".gz" {
+				gz, err = gzip.NewReader(resp.Body)
+				if err != nil {
+					resp.Body.Close()
+					check(err)
+				}
+				br = bufio.NewReaderSize(gz, fileBufSize)
+				return br, gz, nil, nil, nil, fileSize
+			} else {
 				br = bufio.NewReaderSize(resp.Body, fileBufSize)
 				return br, nil, nil, nil, nil, fileSize
 			}

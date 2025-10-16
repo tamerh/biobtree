@@ -46,7 +46,8 @@ func (e *hgnc) update() {
 		defer httpResp.Body.Close()
 	} else {
 		// Fall back to FTP for backward compatibility
-		br2, _, ftpFile, client, localFile2, _ := getDataReaderNew("hgnc", e.d.ebiFtp, e.d.ebiFtpPath, path)
+		br2, _, ftpFile, client, localFile2, _, err := getDataReaderNew("hgnc", e.d.ebiFtp, e.d.ebiFtpPath, path)
+		check(err)
 		br = br2
 		if ftpFile != nil {
 			defer ftpFile.Close()

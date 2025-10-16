@@ -470,7 +470,8 @@ func (e *ensembl) updateEnsemblMeta(version int) (*ensemblPaths, string) {
 
 func (e *ensembl) taxidMapEG() map[string]int {
 
-	br, _, ftpFile, client, _, _ := getDataReaderNew("ensembl", config.Appconf["ensembl_genomes_ftp"], "", config.Appconf["ensembl_genomes_ftp_meta_path"])
+	br, _, ftpFile, client, _, _, err := getDataReaderNew("ensembl", config.Appconf["ensembl_genomes_ftp"], "", config.Appconf["ensembl_genomes_ftp_meta_path"])
+	check(err)
 
 	if ftpFile != nil {
 		defer ftpFile.Close()
@@ -507,7 +508,8 @@ func (e *ensembl) taxidMapEG() map[string]int {
 
 func (e *ensembl) taxidMap() map[string]int {
 
-	br, gz, ftpFile, client, localFile, _ := getDataReaderNew("taxonomy", e.d.ebiFtp, e.d.ebiFtpPath, config.Dataconf["taxonomy"]["path"])
+	br, gz, ftpFile, client, localFile, _, err := getDataReaderNew("taxonomy", e.d.ebiFtp, e.d.ebiFtpPath, config.Dataconf["taxonomy"]["path"])
+	check(err)
 
 	if ftpFile != nil {
 		defer ftpFile.Close()

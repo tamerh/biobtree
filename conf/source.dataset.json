@@ -63,7 +63,7 @@
   "hgnc": {
     "id": "5",
     "name": "HGNC",
-    "path": "/genenames/new/json/hgnc_complete_set.json",
+    "path": "https://storage.googleapis.com/public-download-files/hgnc/json/json/hgnc_complete_set.json",
     "aliases": "HGNC",
     "url": "https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/£{id}",
     "useLocalFile": "no",
@@ -73,7 +73,8 @@
   "uniparc": {
     "id": "6",
     "name": "Uniparc",
-    "path": "/current_release/uniparc/uniparc_all.xml.gz",
+    "path": "/current_release/uniparc/xml/all/",
+    "filePattern": "uniparc_p*.xml.gz",
     "shortened_id": "upi,",
     "aliases": "UniParc ID",
     "url": "//www.uniprot.org/uniparc/£{id}",
@@ -112,15 +113,15 @@
   "chebi": {
     "id": "10",
     "name": "chebi",
-    "path": "/chebi/Flat_file_tab_delimited/",
-    "files": "database_accession.tsv",
+    "path": "/chebi/flat_files/",
+    "files": "database_accession.tsv.gz",
     "aliases": "ChEBI",
     "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=£{id}"
   },
   "interpro": {
     "id": "11",
     "name": "Interpro",
-    "path": "/interpro/current/interpro.xml.gz",
+    "path": "/interpro/current_release/interpro.xml.gz",
     "url": "https://www.ebi.ac.uk/interpro/entry/£{id}",
     "aliases": "INTERPRO,InterPro",
     "useLocalFile": "no",
@@ -192,7 +193,6 @@
     "pathMoleculePattern": "chembl*molecule.ttl.gz",
     "pathBioComponentPattern": "chembl*biocmpt.ttl.gz",
     "pathIndicationPattern": "chembl*indication.ttl.gz",
-    "pathChebiPattern": "chembl*molecule_chebi_ls.ttl.gz",
     "pathHierarchyPattern": "chembl*molhierarchy.ttl.gz",
     "useLocalFile": "no",
     "hasFilter": "yes",

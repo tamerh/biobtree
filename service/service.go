@@ -17,7 +17,6 @@ import (
 	"biobtree/pbuf"
 	"biobtree/util"
 
-	"github.com/bmatsuo/lmdb-go/lmdb"
 	"github.com/golang/protobuf/proto"
 	"github.com/google/cel-go/cel"
 	"github.com/google/cel-go/checker/decls"
@@ -32,10 +31,10 @@ const pagingSep3 = "[]"
 const pagingSep4 = "]["
 
 type service struct {
-	readEnv                  *lmdb.Env
-	readDbi                  lmdb.DBI
-	aliasEnv                 *lmdb.Env
-	aliasDbi                 lmdb.DBI
+	readEnv                  db.Env
+	readDbi                  db.DBI
+	aliasEnv                 db.Env
+	aliasDbi                 db.DBI
 	pager                    *util.Pagekey
 	pageSize                 int
 	resultPageSize           int
@@ -62,7 +61,7 @@ func (s *service) init() {
 	totalkvline := meta["totalKVLine"].(float64)
 
 	db1 := db.DB{}
-	s.readEnv, s.readDbi = db1.OpenDB(false, int64(totalkvline), config.Appconf)
+	s.readEnv, s.readDbi = db1.OpenDBNew(false, int64(totalkvline), config.Appconf)
 	s.pager = &util.Pagekey{}
 	s.pager.Init()
 
@@ -115,7 +114,7 @@ func (s *service) init() {
 
 	db2 := db.DB{}
 
-	s.aliasEnv, s.aliasDbi = db2.OpenAliasDB(false, aliasDataSize, config.Appconf)
+	s.aliasEnv, s.aliasDbi = db2.OpenAliasDBNew(false, aliasDataSize, config.Appconf)
 
 	s.qparser = &query.QueryParser{}
 	s.qparser.Init(config)
@@ -268,11 +267,11 @@ func (s *service) init() {
 func (s *service) aliasIDs(alias string) ([]string, error) {
 
 	var v []byte
-	err := s.aliasEnv.View(func(txn *lmdb.Txn) (err error) {
+	err := s.aliasEnv.View(func(txn db.Txn) (err error) {
 
 		v, err = txn.Get(s.aliasDbi, []byte(alias))
 
-		if lmdb.IsNotFound(err) {
+		if db.IsNotFound(err) {
 			err := fmt.Errorf("undefined alias ->" + alias)
 			return err
 		}
@@ -469,7 +468,7 @@ func (s *service) filter(id string, src uint32, filters []uint32, pageInd int) (
 	//keyLen := s.pager.KeyLen(int(rootRes.Count / uint32(s.pageSize)))
 	domainKey := config.DataconfIDToPageKey[src]
 
-	err = s.readEnv.View(func(txn *lmdb.Txn) (err error) {
+	err = s.readEnv.View(func(txn db.Txn) (err error) {
 
 		var target *pbuf.Xref
 		for _, page := range targetPagesArr[pageInd:] {
@@ -480,7 +479,7 @@ func (s *service) filter(id string, src uint32, filters []uint32, pageInd int) (
 			pageKey := id + spacestr + domainKey + spacestr + page
 			v, err := txn.Get(s.readDbi, []byte(pageKey))
 
-			if lmdb.IsNotFound(err) {
+			if db.IsNotFound(err) {
 				return nil
 			}
 			if err != nil {
@@ -1040,11 +1039,11 @@ func (s *service) searchPage(ids []string, page string) (*pbuf.Result, error) {
 func (s *service) getLmdbResult(identifier string) (*pbuf.Result, error) {
 
 	var v []byte
-	err := s.readEnv.View(func(txn *lmdb.Txn) (err error) {
+	err := s.readEnv.View(func(txn db.Txn) (err error) {
 
 		v, err = txn.Get(s.readDbi, []byte(identifier))
 
-		if lmdb.IsNotFound(err) {
+		if db.IsNotFound(err) {
 			return nil
 		}
 		if err != nil {
@@ -1071,12 +1070,12 @@ func (s *service) getLmdbResult(identifier string) (*pbuf.Result, error) {
 func (s *service) getLmdbResult2(identifier string, domainID uint32) (*pbuf.Xref, error) {
 
 	var v []byte
-	err := s.readEnv.View(func(txn *lmdb.Txn) (err error) {
+	err := s.readEnv.View(func(txn db.Txn) (err error) {
 		//cur, err := txn.OpenCursor(s.readDbi)
 		//_, v, err := cur.Get([]byte(identifier), nil, lmdb.SetKey)
 		v, err = txn.Get(s.readDbi, []byte(identifier))
 
-		if lmdb.IsNotFound(err) {
+		if db.IsNotFound(err) {
 			return nil
 		}
 		if err != nil {

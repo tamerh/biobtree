@@ -295,7 +295,11 @@ func (e *ensembl) update() {
 	for genome, paths := range e.gff3Paths {
 		for _, path := range paths {
 
-			br, _, ftpFile, client, localFile, _ := getDataReaderNew("ensembl", e.ftpAddress, "", path)
+			br, _, ftpFile, client, localFile, _, err := getDataReaderNew("ensembl", e.ftpAddress, "", path)
+			if err != nil {
+				log.Printf("Warning: Failed to retrieve GFF3 file for genome %s at path %s: %v - skipping", genome, path, err)
+				continue
+			}
 
 			scanner := bufio.NewScanner(br)
 
@@ -566,7 +570,11 @@ func (e *ensembl) update() {
 				previous = 0
 				start = time.Now()
 
-				br, _, ftpFile, client, localFile, _ := getDataReaderNew("ensembl", e.ftpAddress, "", path)
+				br, _, ftpFile, client, localFile, _, err := getDataReaderNew("ensembl", e.ftpAddress, "", path)
+				if err != nil {
+					log.Printf("Warning: Failed to retrieve JSON file at path %s: %v - skipping", path, err)
+					continue
+				}
 
 				p := jsparser.NewJSONParser(br, "genes").SkipProps([]string{"lineage", "evidence", "coord_system", "sifts", "xrefs", "gene_tree_id", "orthology_type", "exons"})
 
@@ -722,7 +730,11 @@ func (e *ensembl) update() {
 
 		if probsetConf != nil {
 			fr2 := config.Dataconf[probsetMachine]["id"]
-			br2, _, ftpFile2, client, localFile2, _ := getDataReaderNew(probsetMachine, e.ftpAddress, "", path)
+			br2, _, ftpFile2, client, localFile2, _, err := getDataReaderNew(probsetMachine, e.ftpAddress, "", path)
+			if err != nil {
+				log.Printf("Warning: Failed to retrieve biomart file at path %s: %v - skipping", path, err)
+				continue
+			}
 
 			scanner := bufio.NewScanner(br2)
 			for scanner.Scan() {

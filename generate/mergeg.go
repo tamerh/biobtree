@@ -26,7 +26,6 @@ import (
 	"biobtree/pbuf"
 	"biobtree/util"
 
-	"github.com/bmatsuo/lmdb-go/lmdb"
 	pb "gopkg.in/cheggaaa/pb.v1"
 )
 
@@ -43,8 +42,8 @@ var mergebar *pb.ProgressBar
 
 type Merge struct {
 	wg                      *sync.WaitGroup
-	wrEnv                   *lmdb.Env
-	wrDbi                   lmdb.DBI
+	wrEnv                   db.Env
+	wrDbi                   db.DBI
 	chunkReaders            []*chunkReader
 	mergeCh                 *chan kvMessage
 	mergeTotalArrLen        int
@@ -591,9 +590,9 @@ func (d *Merge) init() {
 		panic(err)
 	}
 
-	db := db.DB{}
+	database := db.DB{}
 
-	d.wrEnv, d.wrDbi = db.OpenDB(true, d.totalkvLine, config.Appconf)
+	d.wrEnv, d.wrDbi = database.OpenDBNew(true, d.totalkvLine, config.Appconf)
 
 	if _, ok := config.Appconf["mergeArraySize"]; ok {
 		d.mergeTotalArrLen, err = strconv.Atoi(config.Appconf["mergeArraySize"])
@@ -634,10 +633,10 @@ func (d *Merge) init() {
 
 func (d *Merge) writeBatch() {
 
-	err := d.wrEnv.Update(func(txn *lmdb.Txn) (err error) {
+	err := d.wrEnv.Update(func(txn db.Txn) (err error) {
 		i := 0
 		for i = 0; i < d.batchIndex; i++ { // todo missing error check??
-			txn.Put(d.wrDbi, d.batchKeys[i], d.batchVals[i], lmdb.Append)
+			txn.Put(d.wrDbi, d.batchKeys[i], d.batchVals[i], 0x10) // 0x10 is lmdb.Append
 		}
 		d.totalKeyWrite = d.totalKeyWrite + uint64(i)
 		return err

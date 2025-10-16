@@ -130,3 +130,53 @@ To build the web package run
 ```sh
 npm run build
 ```
+
+### Database Backend
+
+Biobtree supports both **LMDB** and **MDBX** database backends through a clean abstraction layer.
+
+**Default:** LMDB (proven stability, mature codebase)
+**Optional:** MDBX (auto-growing database, easier sizing)
+**Performance:** Identical in real-world workloads (extensively tested)
+
+#### Configuration
+
+To switch backends, add to `conf/application.param.json`:
+
+```json
+{
+  "dbBackend": "lmdb"  // or "mdbx"
+}
+```
+
+LMDB is used by default if not specified.
+
+#### Why LMDB Default?
+
+Extensive testing (REST, gRPC, NFS, local storage) showed:
+- ✅ Identical performance in all scenarios
+- ✅ LMDB more mature and proven
+- ✅ Both perform excellently for biobtree's workload
+
+Use MDBX if you prefer auto-growing database (no manual size calculation needed).
+
+#### Documentation & Benchmarks
+
+Complete documentation and benchmark tools:
+
+📁 **`examples/mdbx_benchmarks/`**
+
+- `MDBX_INTEGRATION.md` - Complete technical guide
+- `MDBX_INTEGRATION_SUMMARY.md` - Executive summary
+- `QUICK_START.md` - Benchmark quick start
+- `README.md` - Benchmark scripts documentation
+
+To run performance comparisons:
+
+```bash
+cd examples/mdbx_benchmarks
+./benchmark_lmdb_vs_mdbx.sh      # REST API benchmark
+./benchmark_grpc.sh              # gRPC benchmark
+```
+
+See `examples/mdbx_benchmarks/QUICK_START.md` for detailed instructions.

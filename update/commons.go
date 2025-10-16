@@ -12,7 +12,7 @@ import (
 	"github.com/jlaffaye/ftp"
 )
 
-func getDataReaderNew(datatype string, ftpAddr string, ftpPath string, filePath string) (*bufio.Reader, *gzip.Reader, *ftp.Response, *ftp.ServerConn, *os.File, int64) {
+func getDataReaderNew(datatype string, ftpAddr string, ftpPath string, filePath string) (*bufio.Reader, *gzip.Reader, *ftp.Response, *ftp.ServerConn, *os.File, int64, error) {
 
 	var ftpfile *ftp.Response
 	var client *ftp.ServerConn
@@ -23,21 +23,29 @@ func getDataReaderNew(datatype string, ftpAddr string, ftpPath string, filePath 
 	if _, ok := config.Dataconf[datatype]["useLocalFile"]; ok && config.Dataconf[datatype]["useLocalFile"] == "yes" {
 
 		file, err = os.Open(filepath.FromSlash(filePath))
-		check(err)
+		if err != nil {
+			return nil, nil, nil, nil, nil, 0, err
+		}
 
 		fileStat, err := file.Stat()
-		check(err)
+		if err != nil {
+			file.Close()
+			return nil, nil, nil, nil, nil, 0, err
+		}
 		fileSize = fileStat.Size()
 
 		if filepath.Ext(file.Name()) == ".gz" {
 			gz, err := gzip.NewReader(file)
-			check(err)
+			if err != nil {
+				file.Close()
+				return nil, nil, nil, nil, nil, 0, err
+			}
 			br := bufio.NewReaderSize(gz, fileBufSize)
-			return br, gz, nil, nil, file, fileSize
+			return br, gz, nil, nil, file, fileSize, nil
 		}
 
 		br := bufio.NewReaderSize(file, fileBufSize)
-		return br, nil, nil, nil, file, fileSize
+		return br, nil, nil, nil, file, fileSize, nil
 
 	}
 
@@ -55,16 +63,16 @@ func getDataReaderNew(datatype string, ftpAddr string, ftpPath string, filePath 
 				gz, err = gzip.NewReader(resp.Body)
 				if err != nil {
 					resp.Body.Close()
-					check(err)
+					return nil, nil, nil, nil, nil, 0, err
 				}
 				br = bufio.NewReaderSize(gz, fileBufSize)
 				// For .gz files, gz.Close() will close the underlying resp.Body
 				// so we return nil for the file parameter
-				return br, gz, nil, nil, nil, fileSize
+				return br, gz, nil, nil, nil, fileSize, nil
 			} else {
 				// Non-.gz files: EBI datasets are typically always .gz, so this path is rarely used
 				br = bufio.NewReaderSize(resp.Body, fileBufSize)
-				return br, nil, nil, nil, nil, fileSize
+				return br, nil, nil, nil, nil, fileSize, nil
 			}
 		}
 		// If HTTPS fails, fall through to try FTP
@@ -73,9 +81,43 @@ func getDataReaderNew(datatype string, ftpAddr string, ftpPath string, filePath 
 		}
 	}
 
-	// Try HTTPS for Ensembl (FTP protocol may have been disabled)
-	if strings.HasPrefix(ftpAddr, "ftp.ensembl.org") || strings.HasPrefix(ftpAddr, "ftp.ensemblgenomes.org") {
-		// Strip port if present (e.g., "ftp.ensembl.org:21" -> "ftp.ensembl.org")
+	// For Ensembl: Try FTP first (HTTPS has certificate issues), then HTTPS as fallback
+	isEnsembl := strings.HasPrefix(ftpAddr, "ftp.ensembl.org") || strings.HasPrefix(ftpAddr, "ftp.ensemblgenomes.org")
+
+	if isEnsembl {
+		// Try FTP first
+		client = ftpClient(ftpAddr)
+		path := ftpPath + filePath
+
+		fileSize, err = client.FileSize(path)
+		if err == nil {
+			ftpfile, err = client.Retr(path)
+			if err == nil {
+				var br *bufio.Reader
+				var gz *gzip.Reader
+
+				if filepath.Ext(path) == ".gz" {
+					gz, err = gzip.NewReader(ftpfile)
+					if err != nil {
+						ftpfile.Close()
+						client.Quit()
+						return nil, nil, nil, nil, nil, 0, err
+					}
+					br = bufio.NewReaderSize(gz, fileBufSize)
+				} else {
+					br = bufio.NewReaderSize(ftpfile, fileBufSize)
+				}
+
+				return br, gz, ftpfile, client, nil, fileSize, nil
+			}
+		}
+
+		// FTP failed, clean up and try HTTPS as fallback
+		if client != nil {
+			client.Quit()
+		}
+
+		// Try HTTPS fallback
 		hostOnly := strings.Split(ftpAddr, ":")[0]
 
 		// Map to the correct EBI domain for HTTPS (certificate only valid for .ebi.ac.uk)
@@ -87,17 +129,17 @@ func getDataReaderNew(datatype string, ftpAddr string, ftpPath string, filePath 
 
 		httpsURL := "https://" + hostOnly + ftpPath + filePath
 
-		// Debug output
-		log.Printf("DEBUG Ensembl: Trying HTTPS URL: %s\n", httpsURL)
+		log.Printf("DEBUG Ensembl: FTP failed, trying HTTPS URL: %s\n", httpsURL)
 
 		resp, err := http.Get(httpsURL)
 		if err != nil {
 			log.Printf("DEBUG Ensembl: HTTPS request failed: %v\n", err)
-		} else {
-			log.Printf("DEBUG Ensembl: HTTPS status code: %d\n", resp.StatusCode)
+			return nil, nil, nil, nil, nil, 0, err
 		}
 
-		if err == nil && resp.StatusCode == http.StatusOK {
+		log.Printf("DEBUG Ensembl: HTTPS status code: %d\n", resp.StatusCode)
+
+		if resp.StatusCode == http.StatusOK {
 			fileSize = resp.ContentLength
 
 			var br *bufio.Reader
@@ -107,44 +149,56 @@ func getDataReaderNew(datatype string, ftpAddr string, ftpPath string, filePath 
 				gz, err = gzip.NewReader(resp.Body)
 				if err != nil {
 					resp.Body.Close()
-					check(err)
+					return nil, nil, nil, nil, nil, 0, err
 				}
 				br = bufio.NewReaderSize(gz, fileBufSize)
-				return br, gz, nil, nil, nil, fileSize
+				return br, gz, nil, nil, nil, fileSize, nil
 			} else {
 				br = bufio.NewReaderSize(resp.Body, fileBufSize)
-				return br, nil, nil, nil, nil, fileSize
+				return br, nil, nil, nil, nil, fileSize, nil
 			}
 		}
-		// If HTTPS fails, fall through to try FTP
-		if resp != nil && resp.Body != nil {
+
+		// HTTPS also failed
+		if resp.Body != nil {
 			resp.Body.Close()
 		}
+		return nil, nil, nil, nil, nil, 0, err
 	}
 
-	// Fall back to FTP
+	// For other FTP servers (not Ensembl, not EBI)
 	client = ftpClient(ftpAddr)
 	path := ftpPath + filePath
 
 	fileSize, err = client.FileSize(path)
+	if err != nil {
+		client.Quit()
+		return nil, nil, nil, nil, nil, 0, err
+	}
 
-	check(err)
 	ftpfile, err = client.Retr(path)
-	check(err)
+	if err != nil {
+		client.Quit()
+		return nil, nil, nil, nil, nil, 0, err
+	}
 
 	var br *bufio.Reader
 	var gz *gzip.Reader
 
 	if filepath.Ext(path) == ".gz" {
 		gz, err = gzip.NewReader(ftpfile)
-		check(err)
+		if err != nil {
+			ftpfile.Close()
+			client.Quit()
+			return nil, nil, nil, nil, nil, 0, err
+		}
 		br = bufio.NewReaderSize(gz, fileBufSize)
 
 	} else {
 		br = bufio.NewReaderSize(ftpfile, fileBufSize)
 	}
 
-	return br, gz, ftpfile, client, nil, fileSize
+	return br, gz, ftpfile, client, nil, fileSize, nil
 
 }
 

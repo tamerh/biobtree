@@ -319,7 +319,8 @@ func (u *uniprot) update(taxoids []int) {
 		u.ensmeblRefs = map[string][]string{}
 	}
 
-	br, gz, ftpFile, client, localFile, _ := getDataReaderNew(u.source, u.d.uniprotFtp, u.d.uniprotFtpPath, dataPath)
+	br, gz, ftpFile, client, localFile, _, err := getDataReaderNew(u.source, u.d.uniprotFtp, u.d.uniprotFtpPath, dataPath)
+	check(err)
 
 	fr := config.Dataconf[u.source]["id"]
 	fr2 := config.Dataconf["ufeature"]["id"]

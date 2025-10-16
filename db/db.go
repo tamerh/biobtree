@@ -11,6 +11,51 @@ import (
 type DB struct {
 }
 
+// OpenDBNew opens a database with backend selection support
+// This is the new recommended method that supports both LMDB and MDBX
+func (d *DB) OpenDBNew(write bool, totalKV int64, appconf map[string]string) (Env, DBI) {
+	backend := GetBackendFromConfig(appconf)
+	env, dbi, err := d.OpenDBWithBackend(backend, write, totalKV, appconf)
+	if err != nil {
+		panic(err)
+	}
+
+	// Log reader check only for LMDB
+	if backend == BackendLMDB {
+		staleReaders, err := env.ReaderCheck()
+		if err != nil {
+			panic("Error while checking lmdb stale readers.")
+		}
+		if staleReaders > 0 {
+			log.Printf("cleared %d reader slots from dead processes", staleReaders)
+		}
+	}
+
+	return env, dbi
+}
+
+// OpenAliasDBNew opens an alias database with backend selection support
+func (d *DB) OpenAliasDBNew(write bool, size int64, appconf map[string]string) (Env, DBI) {
+	backend := GetBackendFromConfig(appconf)
+	env, dbi, err := d.OpenAliasDBWithBackend(backend, write, size, appconf)
+	if err != nil {
+		panic(err)
+	}
+
+	// Log reader check only for LMDB
+	if backend == BackendLMDB {
+		staleReaders, err := env.ReaderCheck()
+		if err != nil {
+			panic("Error while checking lmdb stale readers.")
+		}
+		if staleReaders > 0 {
+			log.Printf("cleared %d reader slots from dead processes", staleReaders)
+		}
+	}
+
+	return env, dbi
+}
+
 func (d *DB) OpenDB(write bool, totalKV int64, appconf map[string]string) (*lmdb.Env, lmdb.DBI) {
 
 	var err error

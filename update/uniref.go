@@ -15,7 +15,8 @@ type uniref struct {
 func (u *uniref) update() {
 
 	fr := config.Dataconf[u.source]["id"]
-	br, gz, ftpFile, client, localFile, _ := getDataReaderNew(u.source, u.d.uniprotFtp, u.d.uniprotFtpPath, config.Dataconf[u.source]["path"])
+	br, gz, ftpFile, client, localFile, _, err := getDataReaderNew(u.source, u.d.uniprotFtp, u.d.uniprotFtpPath, config.Dataconf[u.source]["path"])
+	check(err)
 
 	if ftpFile != nil {
 		defer ftpFile.Close()

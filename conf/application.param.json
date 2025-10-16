@@ -21,7 +21,7 @@
 	"ensembl_genomes_ftp_meta_path": "/pub/current/species.txt",
 	"ensembl_version_url": "http://rest.ensembl.org/info/eg_version?content-type=application/json",
 	"chembl_ftp_path": "/pub/databases/chembl/ChEMBL-RDF/latest/",
-	"httpPort": "8888",
+	"httpPort": "9292",
 	"grpcPort": "7777",
 	"keepChunks": "yes",
 	"progressRefreshRate": "2",
@@ -34,5 +34,6 @@
 	"mapFilterTimeoutDuration": "300",
 	"cacheMaxEntrySize": "25000",
 	"cacheHardMaxSize": "1024",
-	"disableEnsemblReleaseCheck": "n"
+	"disableEnsemblReleaseCheck": "y",
+	"dbBackend": "lmdb"
 }

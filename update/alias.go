@@ -17,8 +17,6 @@ import (
 	"strings"
 
 	"github.com/golang/protobuf/proto"
-
-	"github.com/bmatsuo/lmdb-go/lmdb"
 )
 
 type idFileInfo struct {
@@ -207,8 +205,8 @@ func (a *Alias) Merge(conf *configs.Conf) {
 		panic(err)
 	}
 
-	db := db.DB{}
-	l, dbi := db.OpenAliasDB(true, int64(totalSize), config.Appconf)
+	database := db.DB{}
+	l, dbi := database.OpenAliasDBNew(true, int64(totalSize), config.Appconf)
 
 	for k, v := range allAliasConf {
 
@@ -245,10 +243,10 @@ func (a *Alias) Merge(conf *configs.Conf) {
 			err := fmt.Errorf("Empty alias content not allowed path ->" + path)
 			panic(err)
 		}
-		err = l.Update(func(txn *lmdb.Txn) (err error) {
+		err = l.Update(func(txn db.Txn) (err error) {
 			i := 0
 			for i = 0; i < 20; i++ {
-				txn.Put(dbi, []byte(strconv.Itoa(i)), []byte("test"+strconv.Itoa(i)), lmdb.Create)
+				txn.Put(dbi, []byte(strconv.Itoa(i)), []byte("test"+strconv.Itoa(i)), 0x40000)
 			}
 
 			var aa = pbuf.Alias{}
@@ -259,7 +257,7 @@ func (a *Alias) Merge(conf *configs.Conf) {
 				panic(err)
 			}
 
-			txn.Put(dbi, []byte(k), data, lmdb.Create)
+			txn.Put(dbi, []byte(k), data, 0x40000)
 
 			return err
 		})

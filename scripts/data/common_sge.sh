@@ -1,7 +1,10 @@
 #!/bin/bash
 
-if [[ "$OSTYPE" == "linux-gnu" ]]; then
+echo ostpe is $OSTYPE
+
+if [[ "$OSTYPE" == "linux-gnu" || "$OSTYPE" == "linux" ]]; then
   GNUSORT="sort"
+  echo "Using linux sort"
 elif [[ "$OSTYPE" == "darwin"* ]]; then
   GNUSORT="/usr/local/opt/coreutils/libexec/gnubin/sort"
 fi
@@ -9,7 +12,7 @@ fi
 
 if [[ ! -f biobtree ]]; then
 
-    if [[ "$OSTYPE" == "linux-gnu" ]]; then
+    if [[ "$OSTYPE" == "linux-gnu" || "$OSTYPE" == "linux" ]]; then
         OS="Linux"
     elif [[ "$OSTYPE" == "darwin"* ]]; then
         OS="MacOS"

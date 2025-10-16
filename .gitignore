@@ -3,5 +3,11 @@ notes.txt
 .vscode/
 out/
 *.zip
+logs/
 website/
+out_full/
+*.log
+*.tmp
+run*.sh
+out_full2/
 biobtree

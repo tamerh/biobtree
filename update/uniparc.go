@@ -1,6 +1,9 @@
 package update
 
 import (
+	"log"
+	"path/filepath"
+	"sort"
 	"sync/atomic"
 	"time"
 
@@ -14,78 +17,141 @@ type uniparc struct {
 
 func (u *uniparc) update() {
 
-	fr := config.Dataconf[u.source]["id"]
-	br, gz, ftpFile, client, localFile, _ := getDataReaderNew(u.source, u.d.uniprotFtp, u.d.uniprotFtpPath, config.Dataconf[u.source]["path"])
-
-	if ftpFile != nil {
-		defer ftpFile.Close()
-	}
-	if localFile != nil {
-		defer localFile.Close()
-	}
-	defer gz.Close()
 	defer u.d.wg.Done()
 
-	if client != nil {
+	fr := config.Dataconf[u.source]["id"]
+	basePath := config.Dataconf[u.source]["path"]
+	filePattern := config.Dataconf[u.source]["filePattern"]
+
+	var files []string
+
+	// Get list of files matching the pattern
+	if config.Dataconf[u.source]["useLocalFile"] == "yes" {
+		// Local file mode
+		localPath := filepath.FromSlash(basePath)
+		matches, err := filepath.Glob(filepath.Join(localPath, filePattern))
+		check(err)
+		files = matches
+	} else {
+		// FTP mode - list files from FTP
+		client := ftpClient(u.d.uniprotFtp)
+		err := client.ChangeDir(u.d.uniprotFtpPath + basePath)
+		check(err)
 		defer client.Quit()
+
+		entries, err := client.List("")
+		check(err)
+
+		for _, entry := range entries {
+			matched, _ := filepath.Match(filePattern, entry.Name)
+			if matched {
+				files = append(files, basePath+entry.Name)
+			}
+		}
 	}
 
-	p := xmlparser.NewXMLParser(br, "entry").SkipElements([]string{"sequence"})
+	// Sort files to ensure consistent processing order
+	sort.Strings(files)
+
+	if len(files) == 0 {
+		log.Printf("Warning: No UniParc files found matching pattern %s in %s", filePattern, basePath)
+		return
+	}
+
+	log.Printf("Processing %d UniParc files", len(files))
 
 	// we are excluding uniprot subreference because they are already coming from uniprot. this may be optional
 	propExclusionsRefs := map[string]bool{}
 	propExclusionsRefs["UniProtKB/Swiss-Prot"] = true
 	propExclusionsRefs["UniProtKB/TrEMBL"] = true
 
-	var total uint64
-	var v xmlparser.XMLElement
-	var ok bool
-	var entryid string
+	var totalEntries uint64
 	var previous int64
+	var totalRead int64
 
-	for r := range p.Stream() {
+	// Process each file sequentially
+	for fileIdx, filePath := range files {
+		log.Printf("Processing UniParc file %d/%d: %s", fileIdx+1, len(files), filepath.Base(filePath))
 
-		elapsed := int64(time.Since(u.d.start).Seconds())
-		if elapsed > previous+u.d.progInterval {
-			kbytesPerSecond := int64(p.TotalReadSize) / elapsed / 1024
-			previous = elapsed
-			u.d.progChan <- &progressInfo{dataset: u.source, currentKBPerSec: kbytesPerSecond}
+		br, gz, ftpFile, client, localFile, _, err := getDataReaderNew(u.source, u.d.uniprotFtp, u.d.uniprotFtpPath, filePath)
+		if err != nil {
+			log.Printf("Warning: Failed to retrieve UniParc file %s: %v - skipping", filePath, err)
+			continue
 		}
 
-		// id
-		entryid = r.Childs["accession"][0].InnerText
+		p := xmlparser.NewXMLParser(br, "entry").SkipElements([]string{"sequence"})
 
-		//dbreference
-		for _, v = range r.Childs["dbReference"] {
+		var v xmlparser.XMLElement
+		var ok bool
+		var entryid string
+		var fileEntries uint64
 
-			u.d.addXref(entryid, fr, v.Attrs["id"], v.Attrs["type"], false)
+		for r := range p.Stream() {
 
-			if _, ok = propExclusionsRefs[v.Attrs["type"]]; !ok {
-				for _, z := range v.Childs["property"] {
-					u.d.addXref(v.Attrs["id"], config.Dataconf[v.Attrs["type"]]["id"], z.Attrs["value"], z.Attrs["type"], false)
+			elapsed := int64(time.Since(u.d.start).Seconds())
+			totalRead += int64(p.TotalReadSize)
+			if elapsed > previous+u.d.progInterval {
+				kbytesPerSecond := totalRead / elapsed / 1024
+				previous = elapsed
+				u.d.progChan <- &progressInfo{
+					dataset:         u.source,
+					currentKBPerSec: kbytesPerSecond,
 				}
 			}
 
-		}
-		// signatureSequenceMatch
-		/**
-		for _, v = range r.Elements["signatureSequenceMatch"] {
+			// id
+			entryid = r.Childs["accession"][0].InnerText
 
-			u.d.addXref(entryid, fr, v.Attrs["id"], v.Attrs["database"], false)
+			//dbreference
+			for _, v = range r.Childs["dbReference"] {
 
-			if _, ok = v.Childs["ipr"]; ok {
-				for _, z = range v.Childs["ipr"] {
-					u.d.addXref(entryid, fr, z.Attrs["id"], "INTERPRO", false)
+				u.d.addXref(entryid, fr, v.Attrs["id"], v.Attrs["type"], false)
+
+				if _, ok = propExclusionsRefs[v.Attrs["type"]]; !ok {
+					for _, z := range v.Childs["property"] {
+						u.d.addXref(v.Attrs["id"], config.Dataconf[v.Attrs["type"]]["id"], z.Attrs["value"], z.Attrs["type"], false)
+					}
+				}
+
+			}
+			// signatureSequenceMatch
+			/**
+			for _, v = range r.Elements["signatureSequenceMatch"] {
+
+				u.d.addXref(entryid, fr, v.Attrs["id"], v.Attrs["database"], false)
+
+				if _, ok = v.Childs["ipr"]; ok {
+					for _, z = range v.Childs["ipr"] {
+						u.d.addXref(entryid, fr, z.Attrs["id"], "INTERPRO", false)
+					}
 				}
 			}
+			*/
+
+			fileEntries++
 		}
-		*/
 
-		total++
+		totalEntries += fileEntries
+		log.Printf("Completed UniParc file %d/%d: %s (%d entries)", fileIdx+1, len(files), filepath.Base(filePath), fileEntries)
 
+		// Close resources for this file
+		if gz != nil {
+			gz.Close()
+		}
+		if ftpFile != nil {
+			ftpFile.Close()
+		}
+		if localFile != nil {
+			localFile.Close()
+		}
+		if client != nil {
+			client.Quit()
+		}
 	}
 
 	u.d.progChan <- &progressInfo{dataset: u.source, done: true}
-	atomic.AddUint64(&u.d.totalParsedEntry, total)
-	u.d.addEntryStat(u.source, total)
+	atomic.AddUint64(&u.d.totalParsedEntry, totalEntries)
+	u.d.addEntryStat(u.source, totalEntries)
+
+	log.Printf("UniParc processing complete: %d total entries from %d files", totalEntries, len(files))
 }

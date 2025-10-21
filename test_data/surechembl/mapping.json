@@ -1,0 +1,504 @@
+{
+  "mappings": [
+    {
+      "patent_id": 1,
+      "compound_id": 1,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 2,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 3,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 4,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 5,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 6,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 7,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 7,
+      "field_id": 2
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 8,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 8,
+      "field_id": 2
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 9,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 10,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 11,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 11,
+      "field_id": 2
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 12,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 12,
+      "field_id": 2
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 13,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 13,
+      "field_id": 2
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 14,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 15,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 16,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 17,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 17,
+      "field_id": 2
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 18,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 19,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 19,
+      "field_id": 2
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 20,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 21,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 21,
+      "field_id": 2
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 22,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 23,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 24,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 25,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 26,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 27,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 28,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 29,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 29,
+      "field_id": 2
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 30,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 31,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 32,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 33,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 33,
+      "field_id": 2
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 34,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 35,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 35,
+      "field_id": 2
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 36,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 37,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 38,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 38,
+      "field_id": 2
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 39,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 39,
+      "field_id": 2
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 40,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 40,
+      "field_id": 2
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 41,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 43,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 44,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 44,
+      "field_id": 2
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 45,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 45,
+      "field_id": 2
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 46,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 46,
+      "field_id": 2
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 47,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 47,
+      "field_id": 2
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 48,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 49,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 50,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 51,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 52,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 53,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 54,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 55,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 56,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 57,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 57,
+      "field_id": 2
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 58,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 59,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 60,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 60,
+      "field_id": 2
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 61,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 61,
+      "field_id": 2
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 62,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 62,
+      "field_id": 2
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 63,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 64,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 65,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 66,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 67,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 68,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 69,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 70,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 71,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 72,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 73,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 73,
+      "field_id": 2
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 74,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 74,
+      "field_id": 2
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 75,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 76,
+      "field_id": 1
+    },
+    {
+      "patent_id": 1,
+      "compound_id": 77,
+      "field_id": 1
+    }
+  ]
+}

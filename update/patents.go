@@ -1,0 +1,387 @@
+package update
+
+import (
+	"biobtree/pbuf"
+	"bufio"
+	"fmt"
+	"os"
+	"path/filepath"
+	"strconv"
+	"strings"
+	"time"
+
+	"github.com/pquerna/ffjson/ffjson"
+	"github.com/tamerh/jsparser"
+)
+
+type patents struct {
+	source   string
+	d        *DataUpdate
+	dataPath string
+}
+
+func (p *patents) update() {
+	defer p.d.wg.Done()
+
+	// Process patents metadata
+	totalPatents, err := p.processPatents()
+	if err != nil {
+		panic(fmt.Sprintf("Error processing patents: %v", err))
+	}
+	fmt.Printf("Completed processing patents: %d records\n", totalPatents)
+
+	// Process compounds
+	totalCompounds, err := p.processCompounds()
+	if err != nil {
+		panic(fmt.Sprintf("Error processing compounds: %v", err))
+	}
+	fmt.Printf("Completed processing compounds: %d records\n", totalCompounds)
+
+	// Process patent-compound mappings
+	totalMappings, err := p.processMappings()
+	if err != nil {
+		panic(fmt.Sprintf("Error processing mappings: %v", err))
+	}
+	fmt.Printf("Completed processing mappings: %d records\n", totalMappings)
+
+	// Add entry statistics
+	p.d.addEntryStat(p.source, uint64(totalPatents))
+	p.d.addEntryStat("patent_compound", uint64(totalCompounds))
+
+	p.d.progChan <- &progressInfo{dataset: p.source, done: true}
+}
+
+// parseStringList parses Python string list representation into Go string slice
+// Input: "['item1' 'item2' 'item3']" or "['item1', 'item2']"
+// Output: []string{"item1", "item2", "item3"}
+func parseStringList(s string) []string {
+	if s == "" || s == "[]" {
+		return nil
+	}
+
+	// Remove brackets and newlines
+	s = strings.TrimSpace(s)
+	s = strings.Trim(s, "[]")
+	s = strings.ReplaceAll(s, "\n", " ")
+
+	// Split by quotes and extract items
+	var items []string
+	parts := strings.Split(s, "'")
+
+	for i, part := range parts {
+		// Items are at odd indices (1, 3, 5, ...)
+		if i%2 == 1 {
+			item := strings.TrimSpace(part)
+			if item != "" {
+				items = append(items, item)
+			}
+		}
+	}
+
+	return items
+}
+
+func (p *patents) processPatents() (int, error) {
+	patentsFile := filepath.Join(p.dataPath, "patents.json")
+	file, err := os.Open(patentsFile)
+	if err != nil {
+		return 0, fmt.Errorf("failed to open patents file: %w", err)
+	}
+	defer file.Close()
+
+	fr := config.Dataconf[p.source]["id"]
+
+	// Use jsparser for streaming JSON
+	br := bufio.NewReader(file)
+	parser := jsparser.NewJSONParser(br, "patents")
+
+	count := 0
+	var previous int64
+
+	for j := range parser.Stream() {
+		count++
+
+		elapsed := int64(time.Since(p.d.start).Seconds())
+		if elapsed > previous+p.d.progInterval {
+			kbytesPerSecond := int64(parser.TotalReadSize) / elapsed / 1024
+			previous = elapsed
+			p.d.progChan <- &progressInfo{dataset: p.source, currentKBPerSec: kbytesPerSecond}
+		}
+
+		// Extract fields from JSON object
+		patentNumber := getString(j, "patent_number")
+		if patentNumber == "" {
+			continue
+		}
+
+		title := getString(j, "title")
+		country := getString(j, "country")
+		pubDate := getString(j, "publication_date")
+		familyIDStr := getString(j, "family_id")
+
+		cpcStr := getString(j, "cpc")
+		ipcrStr := getString(j, "ipcr")
+		ipcStr := getString(j, "ipc")
+		eclaStr := getString(j, "ecla")
+		assigneeStr := getString(j, "asignee")
+
+		// Parse array fields
+		cpcList := parseStringList(cpcStr)
+		ipcrList := parseStringList(ipcrStr)
+		ipcList := parseStringList(ipcStr)
+		eclaList := parseStringList(eclaStr)
+		asigneeList := parseStringList(assigneeStr)
+
+		// Store patent attributes
+		attr := pbuf.PatentAttr{
+			Title:           title,
+			Country:         country,
+			PublicationDate: pubDate,
+			FamilyId:        familyIDStr,
+			Cpc:             cpcList,
+			Ipcr:            ipcrList,
+			Ipc:             ipcList,
+			Ecla:            eclaList,
+			Asignee:         asigneeList,
+		}
+
+		b, _ := ffjson.Marshal(attr)
+		p.d.addProp3(patentNumber, fr, b)
+
+		// Patent ↔ Patent Family
+		if familyIDStr != "" && familyIDStr != "0" {
+			p.d.addXref(patentNumber, fr, familyIDStr, "patent_family", false)
+		}
+
+		// Patent ↔ IPC codes
+		for _, ipc := range ipcList {
+			ipcClean := strings.TrimSpace(ipc)
+			if ipcClean != "" {
+				p.d.addXref(patentNumber, fr, ipcClean, "ipc", false)
+			}
+		}
+
+		// Patent ↔ CPC codes
+		for _, cpc := range cpcList {
+			cpcClean := strings.TrimSpace(cpc)
+			if cpcClean != "" {
+				p.d.addXref(patentNumber, fr, cpcClean, "cpc", false)
+			}
+		}
+
+		// Patent ↔ Assignees (with normalization)
+		for _, assignee := range asigneeList {
+			normalized := normalizeCompanyName(assignee)
+			if normalized != "" {
+				p.d.addXref(patentNumber, fr, normalized, "assignee", false)
+			}
+		}
+	}
+
+	return count, nil
+}
+
+func (p *patents) processCompounds() (int, error) {
+	compoundsFile := filepath.Join(p.dataPath, "compounds.json")
+	file, err := os.Open(compoundsFile)
+	if err != nil {
+		return 0, fmt.Errorf("failed to open compounds file: %w", err)
+	}
+	defer file.Close()
+
+	// Use jsparser for streaming JSON
+	br := bufio.NewReader(file)
+	parser := jsparser.NewJSONParser(br, "compounds")
+
+	count := 0
+	var previous int64
+
+	for j := range parser.Stream() {
+		count++
+
+		elapsed := int64(time.Since(p.d.start).Seconds())
+		if elapsed > previous+p.d.progInterval {
+			kbytesPerSecond := int64(parser.TotalReadSize) / elapsed / 1024
+			previous = elapsed
+			p.d.progChan <- &progressInfo{dataset: p.source, currentKBPerSec: kbytesPerSecond}
+		}
+
+		compoundID := getString(j, "id")
+		if compoundID == "" || compoundID == "0" {
+			continue
+		}
+
+		inchiKey := getString(j, "inchi_key")
+		smiles := getString(j, "smiles")
+
+		// InChI Key → Patent Compound (link - will auto-connect to ChEMBL via linkdataset)
+		if inchiKey != "" {
+			p.d.addXref(inchiKey, textLinkID, compoundID, "patent_compound", true)
+		}
+
+		// SMILES → Patent Compound (link)
+		if smiles != "" {
+			p.d.addXref(smiles, textLinkID, compoundID, "patent_compound", true)
+		}
+	}
+
+	return count, nil
+}
+
+func (p *patents) processMappings() (int, error) {
+	mappingFile := filepath.Join(p.dataPath, "mapping.json")
+	file, err := os.Open(mappingFile)
+	if err != nil {
+		return 0, fmt.Errorf("failed to open mapping file: %w", err)
+	}
+	defer file.Close()
+
+	fr := config.Dataconf[p.source]["id"]
+
+	// We need to map patent IDs (strings) back to patent numbers
+	// Build a map from patent.id → patent.patent_number
+	patentIDMap, err := p.buildPatentIDMap()
+	if err != nil {
+		return 0, fmt.Errorf("failed to build patent ID map: %w", err)
+	}
+
+	// Use jsparser for streaming JSON
+	br := bufio.NewReader(file)
+	parser := jsparser.NewJSONParser(br, "mappings")
+
+	count := 0
+	var previous int64
+
+	for j := range parser.Stream() {
+		count++
+
+		elapsed := int64(time.Since(p.d.start).Seconds())
+		if elapsed > previous+p.d.progInterval {
+			kbytesPerSecond := int64(parser.TotalReadSize) / elapsed / 1024
+			previous = elapsed
+			p.d.progChan <- &progressInfo{dataset: p.source, currentKBPerSec: kbytesPerSecond}
+		}
+
+		patentID := getString(j, "patent_id")
+		compoundID := getString(j, "compound_id")
+
+		if patentID == "" || patentID == "0" || compoundID == "" || compoundID == "0" {
+			continue
+		}
+
+		// Get patent number from patent ID
+		patentNumber, ok := patentIDMap[patentID]
+		if !ok {
+			// Patent not in our dataset
+			continue
+		}
+
+		// Patent ↔ Patent Compound (bidirectional)
+		p.d.addXref(patentNumber, fr, compoundID, "patent_compound", false)
+	}
+
+	return count, nil
+}
+
+func (p *patents) buildPatentIDMap() (map[string]string, error) {
+	patentsFile := filepath.Join(p.dataPath, "patents.json")
+	file, err := os.Open(patentsFile)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	idMap := make(map[string]string)
+
+	// Use jsparser for streaming JSON
+	br := bufio.NewReader(file)
+	parser := jsparser.NewJSONParser(br, "patents")
+
+	var previous int64
+	for j := range parser.Stream() {
+		elapsed := int64(time.Since(p.d.start).Seconds())
+		if elapsed > previous+p.d.progInterval {
+			kbytesPerSecond := int64(parser.TotalReadSize) / elapsed / 1024
+			previous = elapsed
+			p.d.progChan <- &progressInfo{dataset: p.source, currentKBPerSec: kbytesPerSecond}
+		}
+
+		id := getString(j, "id")
+		patentNumber := getString(j, "patent_number")
+
+		if id != "" && id != "0" && patentNumber != "" {
+			idMap[id] = patentNumber
+		}
+	}
+
+	return idMap, nil
+}
+
+// Helper functions to extract values from jsparser.JSON
+func getString(j *jsparser.JSON, key string) string {
+	if j.ObjectVals[key] != nil {
+		switch v := j.ObjectVals[key].(type) {
+		case string:
+			return v
+		case float64:
+			// Convert numbers to strings
+			return strconv.FormatFloat(v, 'f', 0, 64)
+		case int64:
+			return strconv.FormatInt(v, 10)
+		case int:
+			return strconv.Itoa(v)
+		}
+	}
+	return ""
+}
+
+func normalizeCompanyName(name string) string {
+	// Normalize company names for consistent xrefs
+	name = strings.TrimSpace(name)
+	if name == "" {
+		return ""
+	}
+
+	// Convert to uppercase
+	name = strings.ToUpper(name)
+
+	// Remove country codes in parentheses: (US), (GB), (DE), etc.
+	name = strings.ReplaceAll(name, " (US)", "")
+	name = strings.ReplaceAll(name, " (GB)", "")
+	name = strings.ReplaceAll(name, " (DE)", "")
+	name = strings.ReplaceAll(name, " (FR)", "")
+	name = strings.ReplaceAll(name, " (JP)", "")
+	name = strings.ReplaceAll(name, " (CN)", "")
+	name = strings.ReplaceAll(name, " (CH)", "")
+	name = strings.ReplaceAll(name, " (NL)", "")
+	name = strings.ReplaceAll(name, " (DK)", "")
+	name = strings.ReplaceAll(name, " (SE)", "")
+	name = strings.ReplaceAll(name, " (BM)", "")
+
+	// Remove legal suffixes
+	suffixes := []string{
+		" INC.", " INC", " INCORPORATED",
+		" LTD.", " LTD", " LIMITED",
+		" LLC", " LLC.",
+		" GMBH", " GMBH.",
+		" AG", " AG.",
+		" SA", " SA.",
+		" NV", " NV.",
+		" CO.", " CO", " COMPANY",
+		" CORPORATION", " CORP.", " CORP",
+		" AND COMPANY",
+	}
+
+	for _, suffix := range suffixes {
+		name = strings.TrimSuffix(name, suffix)
+	}
+
+	// Handle "E. I." → "EI", "E.I." → "EI"
+	name = strings.ReplaceAll(name, "E. I. ", "EI ")
+	name = strings.ReplaceAll(name, "E.I. ", "EI ")
+
+	// Clean up multiple spaces
+	name = strings.Join(strings.Fields(name), " ")
+
+	return strings.TrimSpace(name)
+}

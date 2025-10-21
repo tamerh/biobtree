@@ -503,12 +503,6 @@
     "id": "584",
     "url": "https://www.orthodb.org/?query=£{id}"
   },
-  "patent": {
-    "aliases": "Patent,Patent accession",
-    "name": "Patent",
-    "id": "585",
-    "url": "http://v3.espacenet.com/textdoc?DB=EPODOC&IDX=£{id}"
-  },
   "paxdb": {
     "aliases": "PaxDb",
     "name": "PaxDb",

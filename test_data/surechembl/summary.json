@@ -1,0 +1,37 @@
+{
+  "created": "2025-10-20",
+  "source": "test_out/raw_data/patents/surechembl/2025-10-01/",
+  "sample_size": {
+    "patents": 10,
+    "compounds": 50,
+    "mappings": 100
+  },
+  "example_patent": {
+    "id": 1,
+    "patent_number": "US-5153197-A",
+    "country": "US",
+    "title": "Treatment of hypertension with angiotensin II blocking imidazoles",
+    "assignees": [
+      "E. I. DU PONT DE NEMOURS AND COMPANY (US)",
+      "E.I. DU PONT DE NEMOURS AND COMPANY",
+      "DU PONT (US)"
+    ],
+    "ipc_codes": [
+      "A61K 31/41",
+      " A61K 31/495",
+      " C07D 257/04",
+      " C07F 9/28"
+    ]
+  },
+  "example_compound": {
+    "id": 1,
+    "smiles": "Cc1ccccc1",
+    "inchi_key": "YXFVVABEGXRONW-UHFFFAOYSA-N",
+    "mol_weight": 92.1384
+  },
+  "example_mapping": {
+    "patent_id": 1,
+    "compound_id": 1,
+    "field_id": 1
+  }
+}

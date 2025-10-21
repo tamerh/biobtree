@@ -246,5 +246,15 @@
     "useLocalFile": "no",
     "hasFilter": "yes",
     "attrs": "type,name,[]synonyms"
+  },
+  "patent": {
+    "aliases": "Patent,Patent accession",
+    "id": "24",
+    "name": "Patent",
+    "url": "https://patents.google.com/patent/£{id}",
+    "path": "/data/scc/ag-gruber/GROUP/tgur/x/bioyoda_dev2/test_out/raw_data/patents/surechembl/2025-10-01/",
+    "useLocalFile": "yes",
+    "hasFilter": "yes",
+    "attrs": "title,country,publication_date,family_id,[]cpc,[]ipcr,[]ipc,[]ecla,[]asignee"
   }
 }

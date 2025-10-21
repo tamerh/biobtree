@@ -3,6 +3,7 @@ package update
 import (
 	"bufio"
 	"compress/gzip"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -159,11 +160,11 @@ func getDataReaderNew(datatype string, ftpAddr string, ftpPath string, filePath 
 			}
 		}
 
-		// HTTPS also failed
+		// HTTPS also failed - return proper error
 		if resp.Body != nil {
 			resp.Body.Close()
 		}
-		return nil, nil, nil, nil, nil, 0, err
+		return nil, nil, nil, nil, nil, 0, fmt.Errorf("HTTPS request failed with status %d for URL: %s", resp.StatusCode, httpsURL)
 	}
 
 	// For other FTP servers (not Ensembl, not EBI)

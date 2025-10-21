@@ -350,5 +350,16 @@ message HmdbTaxonomy {
 }
 **/
 
+message PatentAttr {
+  string title =1;
+  string country =2;
+  string publication_date =3;
+  string family_id =4;
+  repeated string cpc =5;
+  repeated string ipcr =6;
+  repeated string ipc =7;
+  repeated string ecla =8;
+  repeated string asignee =9;
+}
 
-  
+

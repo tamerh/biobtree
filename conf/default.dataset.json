@@ -1430,5 +1430,23 @@
     "name": "affy_ht_hg_u133_plus_pm",
     "id": "300",
     "url": ""
+  },
+  "agilent_gpl19072": {
+    "name": "agilent_gpl19072",
+    "id": "301",
+    "url": ""
+  },
+  "patent_compound": {
+    "name": "Patent Compound",
+    "id": "302",
+    "url": "",
+    "linkdataset": "chembl_molecule",
+    "hasFilter": "yes"
+  },
+  "patent_family": {
+    "name": "Patent Family",
+    "id": "303",
+    "url": "",
+    "hasFilter": "yes"
   }
 }

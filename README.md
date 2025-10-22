@@ -112,13 +112,73 @@ biobtree -d "+my_data" start
 ### Publication
 https://f1000research.com/articles/8-145
 
-### Building source 
+### Configuration
 
-biobtree is written with GO for the data processing and Vue.js for the web application part. To build and the create biobtree executable install go>=1.13 and run
+Biobtree uses configuration files located in the `conf/` directory:
+
+```
+conf/
+├── application.param.json      # Application settings
+├── default.dataset.json        # Default datasets
+├── optional.dataset.json       # Optional datasets
+├── source.dataset.json         # Data source configurations
+└── ensembl/                    # Ensembl genome metadata
+    ├── ensembl.paths.json
+    ├── ensembl_bacteria.paths.json
+    ├── ensembl_fungi.paths.json
+    ├── ensembl_metazoa.paths.json
+    ├── ensembl_plants.paths.json
+    └── ensembl_protists.paths.json
+```
+
+#### Disabling Remote Configuration Checks
+
+By default, biobtree checks for new configuration releases from GitHub. To disable this (useful for offline environments or when using custom configurations):
+
+Add to `conf/application.param.json`:
+
+```json
+{
+  "disableRemoteConfigCheck": "y",
+  "disableEnsemblReleaseCheck": "y"
+}
+```
+
+**Settings:**
+- `disableRemoteConfigCheck`: Disables GitHub configuration version checks and automatic downloads
+- `disableEnsemblReleaseCheck`: Disables Ensembl release version checks and metadata updates
+
+**Behavior:**
+- When disabled, biobtree uses only local configuration files
+- First-time installations will still download configs if directories don't exist
+- Useful for air-gapped systems, custom deployments, or development environments
+
+### Building from source
+
+biobtree is written with GO for the data processing and Vue.js for the web application part.
+
+#### Building the biobtree binary
+
+Requirements: Go >= 1.13
 
 ```sh
-go build
+# Using Makefile (recommended)
+make build
+
+# Or directly
+cd src && go build -o ../biobtree
+
+# See all available commands
+make help
 ```
+
+**Makefile commands:**
+- `make build` - Build biobtree binary
+- `make run` - Build and run biobtree
+- `make proto` - Regenerate protobuf code (only needed when .proto files change)
+- `make clean` - Clean build artifacts
+
+#### Building the web application
 
 To build the web application for development in the web directory run
 

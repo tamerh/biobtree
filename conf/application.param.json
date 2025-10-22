@@ -35,5 +35,6 @@
 	"cacheMaxEntrySize": "25000",
 	"cacheHardMaxSize": "1024",
 	"disableEnsemblReleaseCheck": "y",
+	"disableRemoteConfigCheck": "y",
 	"dbBackend": "lmdb"
 }

@@ -32,6 +32,8 @@ by retrieving latest data from providers
 
 * **Patents** - `SureChEMBL` patent data with 43M+ patents, 30M+ compounds, and patent-compound mappings for drug discovery and IP analysis
 
+* **Clinical Trials** - `ClinicalTrials.gov` data with trial metadata, conditions, interventions, publications, and automatic drug mapping to ChEMBL molecules
+
 * **Taxonomy & Ontologies** - `Taxonomy` `GO` `EFO` `ECO` data with mapping to other datasets and child and parent query capability
 
 * **Your data** - Your custom data can be integrated with or without relation to other datasets
@@ -52,9 +54,12 @@ First install [latest](https://github.com/tamerh/biobtree/releases/latest) biobt
 # build ensembl genomes by tax id with uniprot&taxonomy datasets
 biobtree  --tax 595,984254 -d "uniprot,taxonomy" build 
 
-# build datasets only 
-biobtree -d "uniprot,taxonomy,hgnc" build 
+# build datasets only
+biobtree -d "uniprot,taxonomy,hgnc" build
 biobtree -d "hgnc,chembl,hmdb" build
+
+# build with clinical trials (requires ChEMBL for drug mapping)
+biobtree -d "chembl,clinical_trials" build
 
 # once data is built start web for using ws and ui
 biobtree web
@@ -457,6 +462,45 @@ INCHI_KEY ↔ SURECHEMBL_COMPOUND_ID
 - 4 = Title
 - 5 = Image
 - 6 = MOL attachment
+
+## Clinical Trials Integration
+
+Clinical trials data from ClinicalTrials.gov is integrated with smart drug-to-ChEMBL mapping capabilities.
+
+### Features
+
+- **Trial Metadata**: NCT ID, title, phase, status, study type
+- **Conditions**: Disease and medical conditions associated with trials
+- **Interventions**: Drug names, dosages, descriptions with automatic normalization
+- **Publications**: Cross-references to PubMed articles (PMIDs)
+- **Smart Drug Mapping**: Automatic mapping of intervention names to ChEMBL molecules
+  - Multi-attempt lookup (full name, base name, split combinations)
+  - Handles drug combinations (e.g., "Edaravone Dexborneol" → 2 ChEMBL IDs)
+  - Chemical suffix removal (e.g., "Medroxyprogesterone 17-Acetate" → "Medroxyprogesterone")
+  - Case-insensitive, formulation-agnostic
+
+### Cross-References Created
+
+- **NCT ↔ ChEMBL**: Clinical trials linked to drug molecules
+- **NCT ↔ PMID**: Clinical trials linked to publications
+- **Text Search**: Search trials by intervention name, phase, or status
+
+### Configuration
+
+To enable ChEMBL drug mapping, configure lookup database path in `conf/application.param.json`:
+
+```json
+{
+  "lookupDbDir": "/path/to/biobtree/out/db",
+  "lookupAliasDbDir": "/path/to/biobtree/out/aliasdb"
+}
+```
+
+### TODO
+
+- Disease ontology mapping (conditions → DisGeNET/UMLS)
+- Sponsor normalization for patent linkage
+- Geographic search by facility location
 
 ### Documentation
 

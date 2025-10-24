@@ -36,5 +36,7 @@
 	"cacheHardMaxSize": "1024",
 	"disableEnsemblReleaseCheck": "y",
 	"disableRemoteConfigCheck": "y",
-	"dbBackend": "lmdb"
+	"dbBackend": "lmdb",
+	"lookupDbDir": "/data/scc/ag-gruber/GROUP/tgur/x/bioyoda_dev2/biobtreev2/out_def2/def/db",
+	"lookupAliasDbDir": "/data/scc/ag-gruber/GROUP/tgur/x/bioyoda_dev2/biobtreev2/out_def2/def/aliasdb"
 }

@@ -6,6 +6,12 @@
 # go get -u github.com/golang/protobuf/protoc-gen-go
 # go get -u google.golang.org/grpc
 
+# Add Go bin to PATH if not already present
+GOPATH=$(go env GOPATH)
+if [[ ":$PATH:" != *":$GOPATH/bin:"* ]]; then
+    export PATH=$PATH:$GOPATH/bin
+fi
+
 mkdir -p biobtree
 rm biobtree/*
 

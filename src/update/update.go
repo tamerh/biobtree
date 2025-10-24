@@ -300,6 +300,12 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			d.datasets2 = append(d.datasets2, data)
 			go p.update()
 			break
+		case "clinical_trials":
+			d.wg.Add(1)
+			ct := clinicalTrials{source: data, d: d, dataPath: config.Dataconf[data]["path"]}
+			d.datasets2 = append(d.datasets2, data)
+			go ct.update()
+			break
 		case "go":
 			d.wg.Add(1)
 			g := ontology{source: data, d: d, prefixURL: "http://purl.obolibrary.org/obo/", idPrefix: "GO:"}

@@ -1,0 +1,1222 @@
+[
+  {
+    "nct_id": "NCT06401707",
+    "brief_title": "PeRampanel fOr Status ePilEpticus pRophylaxis Post-cardiac Arrest",
+    "official_title": "PeRampanel fOr Status ePilEpticus pRophylaxis Post-cardiac Arrest",
+    "brief_summary": "Brain injury is the main cause of death and disability for patients surviving cardiac arrest resuscitation and seizures are diagnosed in up to a third of these patients. The investigators are proposing a pilot randomized placebo-controlled clinical trial to evaluate the safety and feasibility of perampanel use for post-cardiac arrest status epilepticus (PCARSE) prevention after cardiac arrest.",
+    "overall_status": "RECRUITING",
+    "phase": "PHASE2",
+    "study_type": "INTERVENTIONAL",
+    "enrollment": 52,
+    "start_date": "2024-05-20",
+    "completion_date": "2026-10-20",
+    "eligibility": {
+      "criteria": "Inclusion Criteria:~* Age ≥18 years old~* Non-traumatic, out-of-hospital cardiac arrest~* Comatose on admission - defined as not following commands~* Return of spontaneous circulation (ROSC) within less than 45 minutes from the time of cardiac arrest (defined as the time of 911 or EMS (emergency medical services) witnessed arrest)~* Admission to the intensive care unit at Zuckerberg San Francisco General Hospital~Exclusion Criteria:~* Acute cerebral hemorrhage or infarction~* Pregnancy~* Prisoner~* Severe kidney function impairment with creatinine clearance inferior to 30 ml/min~* Severe liver impairment with liver function tests five times above the upper limit of normal~* Electrographic or electroclinical seizures diagnosis using American Clinical Neurophysiology criteria confirmed by an epileptologist after cardiac arrest",
+      "gender": "ALL",
+      "minimum_age": "18 Years",
+      "maximum_age": "nan"
+    },
+    "outcomes": [
+      {
+        "outcome_type": "secondary",
+        "measure": "Incidence of post-cardiac arrest refractory status epilepticus",
+        "description": "percentage of participants with post-cardiac arrest refractory status epilepticus in perampanel or placebo arms."
+      },
+      {
+        "outcome_type": "secondary",
+        "measure": "Incidence of post-cardiac arrest seizures",
+        "description": "percentage of participants with post-cardiac arrest seizures in perampanel or placebo arms."
+      },
+      {
+        "outcome_type": "secondary",
+        "measure": "Treatment intensity of post-cardiac arrest refractory status epilepticus",
+        "description": "number of anti-seizure medications and anesthetics needed for post-cardiac arrest status epilepticus control in perampanel or placebo arms."
+      },
+      {
+        "outcome_type": "secondary",
+        "measure": "Time to start of post-cardiac arrest refractory status epilepticus",
+        "description": "percentage of participants with post-cardiac arrest refractory status epilepticus in perampanel or placebo arms."
+      },
+      {
+        "outcome_type": "secondary",
+        "measure": "Neurological function at 180 days",
+        "description": "Distribution of modified Rankin Scale (mRS) score at 180 days in perampanel or placebo arms (mRS range 0 to 6, with higher scores indicating worse outcome)"
+      },
+      {
+        "outcome_type": "primary",
+        "measure": "Safety and tolerability of perampanel",
+        "description": "percentage of participants who are able to complete the 5-day course of perampanel or placebo."
+      },
+      {
+        "outcome_type": "primary",
+        "measure": "Adverse and Serious Adverse Events",
+        "description": "percentage of participants with treatment-related adverse and serious adverse events in perampanel or placebo arms."
+      }
+    ],
+    "interventions": [
+      {
+        "intervention_type": "DRUG",
+        "name": "Perampanel",
+        "description": "Perampanel is a non-competitive AMPA glutamate receptor antagonist."
+      },
+      {
+        "intervention_type": "DRUG",
+        "name": "Placebo",
+        "description": "Placebo"
+      }
+    ],
+    "conditions": [
+      "Heart Arrest",
+      "Seizures",
+      "Status Epilepticus"
+    ],
+    "sponsors": [
+      {
+        "name": "University of California, San Francisco",
+        "agency_class": "OTHER",
+        "role": "lead"
+      }
+    ],
+    "facilities": [
+      {
+        "name": "Zuckerberg San Francisco General Hospital",
+        "city": "San Francisco",
+        "state": "California",
+        "country": "United States",
+        "status": "RECRUITING"
+      }
+    ],
+    "study_arms": [
+      {
+        "title": "Perampanel",
+        "type": "ACTIVE_COMPARATOR",
+        "description": "Perampanel oral load of 24mg upon randomization followed by 8mg oral dose daily for four more days (second dose one day after load and total treatment duration is 5 days)"
+      },
+      {
+        "title": "Placebo",
+        "type": "PLACEBO_COMPARATOR",
+        "description": "Placebo oral load upon randomization followed by daily placebo oral dose administration for four more days (second dose one day after load and total placebo administration duration is 5 days)"
+      }
+    ],
+    "publications": [
+      {
+        "pmid": "30159874",
+        "reference_type": "BACKGROUND",
+        "citation": "Beretta S, Padovano G, Stabile A, Coppo A, Bogliun G, Avalli L, Ferrarese C. Efficacy and safety of perampanel oral loading in postanoxic super-refractory status epilepticus: A pilot study. Epilepsia. 2018 Oct;59 Suppl 2:243-248. doi: 10.1111/epi.14492. Epub 2018 Aug 29."
+      },
+      {
+        "pmid": "33475321",
+        "reference_type": "BACKGROUND",
+        "citation": "Hirsch LJ, Fong MWK, Leitinger M, LaRoche SM, Beniczky S, Abend NS, Lee JW, Wusthoff CJ, Hahn CD, Westover MB, Gerard EE, Herman ST, Haider HA, Osman G, Rodriguez-Ruiz A, Maciel CB, Gilmore EJ, Fernandez A, Rosenthal ES, Claassen J, Husain AM, Yoo JY, So EL, Kaplan PW, Nuwer MR, van Putten M, Sutter R, Drislane FW, Trinka E, Gaspard N. American Clinical Neurophysiology Society's Standardized Critical Care EEG Terminology: 2021 Version. J Clin Neurophysiol. 2021 Jan 1;38(1):1-29. doi: 10.1097/WNP.0000000000000806. No abstract available."
+      }
+    ]
+  },
+  {
+    "nct_id": "NCT06794424",
+    "brief_title": "Impact of Ziwig Endotest® on the Management of Patients with Clinical Symptoms of Endometriosis Inconsistent with Their Imaging Work-up",
+    "official_title": "Impact of Ziwig Endotest® on the Decision and Management of Patients with Chronic Disabling Pelvic Pain Strongly Suggestive of Endometriosis and Presenting with a Negative or Uncertain Baseline Imaging Workup",
+    "brief_summary": "The goal of this study is to evaluate the impact of Ziiwg Endotest on patient management decisions before and after the test. The main questions it aims to answer are:~* Does the test reduce the intention and number of laparoscopies in women whose decision to undergo laparoscopy was made before the test result was obtained?~* Does the test change management decisions in women with no prior indication for diagnostic laparoscopy?~Study will compare the patient management decision before and after the test.~The acts and procedures performed as part of this research are :~* Aa saliva sampling (Ziwig Endotest) at inclusion~* A mutidisciplinary meeting post test (if applicable)~* Completion at inclusion and 6 month of a quality-of-life questionnaire (EHP-5)~* Completion at inclusion and 6 month of a VAS for pain~* Completion at inclusion and 6 month of a Likert satisfaction scale~* A test results Announcement consultation~* A visit at 6 months.",
+    "overall_status": "NOT_YET_RECRUITING",
+    "phase": "nan",
+    "study_type": "INTERVENTIONAL",
+    "enrollment": 2500,
+    "start_date": "2025-02-01",
+    "completion_date": "2026-09-01",
+    "eligibility": {
+      "criteria": "Inclusion Criteria:~1. Female aged 18 to 43~2. Strong clinical suspicion of endometriosis based on the following suggestive symptoms: chronic pelvic pain (\\> 6 months) that is suggestive and disabling (ENA ≥ 8, absenteeism or resistance to level 1 analgesics) ± deep dyspareunia or painful hematuria/micturition with menstrual rhythm or painful rectal discharge/defecation with menstrual rhythm.~3. Endovaginal ultrasound and MRI (unless contraindicated, in which case only one of the 2 examinations is required\\*) less than 1 year old and of sufficient quality , in compliance with the endometriosis protocol recommended by the HAS\\*\\*.~4. Clinical-radiological discrepancy confirmed by the investigating gynecologist and a referent radiologist at the investigating center, in compliance with the protocol's positivity criteria and the French ENDOVALIRM guidelines (for characterizing deep lesions on MRI) and/or the ESUR 2017 guidelines (for ovarian lesions) and/or the SUR-US 2024 guidelines (for ultrasound).~5. Woman has dated and signed the consent form.~6. Speaks and understands French~7. Affiliated with the French healthcare system~Exclusion Criteria:~1. Endometriosis diagnosed according to imaging protocol positivity criteria~2. Differential diagnosis and/or adenomyosis made~3. History of isolated dysmenorrhea well controlled by hormonal contraception and no immediate desire for pregnancy,~4. Absence of pelvic pain strongly suggestive of endometriosis.~5. Isolated fatigue~6. Aetiological work-up incomplete or pending before deciding on initial medical decision (infertility work-up in progress, waiting for specialist opinion (algologist, psychologist, etc.), waiting for important test results),~7. Infertility work-up (current or previous), with no signs suggestive of endometriosis.~8. Search for recurrence of known endometriosis~9. Laparoscopy for gynecological reasons other than suspected endometriosis~10. History of cancer~11. Pregnant or breast-feeding women~12. Current bacterial or viral infection or less than one month old~13. Participation in an interventional study or in the exclusion period of an interventional study",
+      "gender": "FEMALE",
+      "minimum_age": "18 Years",
+      "maximum_age": "43 Years"
+    },
+    "outcomes": [
+      {
+        "outcome_type": "primary",
+        "measure": "Change in the number of laparoscopies related to the test result in women whose decision to undergo laparoscopy was made in multidiscplinary meeting before the test result was obtained. MCID 20%",
+        "description": "The criterion is estimated after the test result is known.~Each of these criteria is estimated independently at 3 different times:~1. After knowledge of the test result, management decided by the physician who carried out the inclusion consultation or at the PCR.~2. At the end of the consultation, shared decision~3. At 6 months: by the adjudication committee: positive opinion~A hierarchical sequential analysis will be carried out independently according to the following scheme:~Sequence 1: decisional impact of the test on the management decision, if conclusive compared with MCID (main criterion) → sequence 2: decisional impact of the test on the medical decision shared with the patient, if conclusive compared with MCID → sequence 3: percentage of favorable adjudications, conclusive if higher than MCID (highest level of evidence of clinical utility)"
+      },
+      {
+        "outcome_type": "primary",
+        "measure": "Changes in subject management related to Ziwig Endotest® result) in women with no prior indication for diagnostic laparoscopy. MCID 30%.",
+        "description": "The criterion is estimated after the test result is known.~Each of these criteria is estimated independently at 3 different times:~1. After knowledge of the test result, management decided by the physician who carried out the inclusion consultation or at the PCR.~2. At the end of the consultation, shared decision~3. At 6 months: by the adjudication committee: positive opinion~A hierarchical sequential analysis will be carried out independently according to the following scheme:~Sequence 1: decisional impact of the test on the management decision, if conclusive compared with MCID (main criterion) → sequence 2: decisional impact of the test on the medical decision shared with the patient, if conclusive compared with MCID → sequence 3: percentage of favorable adjudications, conclusive if higher than MCID (highest level of evidence of clinical utility)"
+      }
+    ],
+    "interventions": [
+      {
+        "intervention_type": "DIAGNOSTIC_TEST",
+        "name": "Ziwig Endotest®",
+        "description": "Saliva sampling for Endometriosis diagnostic"
+      }
+    ],
+    "conditions": [
+      "Endometriosis"
+    ],
+    "sponsors": [
+      {
+        "name": "Monitoring Force Group",
+        "agency_class": "INDUSTRY",
+        "role": "collaborator"
+      },
+      {
+        "name": "ZIWIG",
+        "agency_class": "INDUSTRY",
+        "role": "lead"
+      }
+    ],
+    "facilities": [],
+    "study_arms": [
+      {
+        "title": "Performing Ziwig Endotest®",
+        "type": "EXPERIMENTAL",
+        "description": "nan"
+      }
+    ],
+    "publications": []
+  },
+  {
+    "nct_id": "NCT03814122",
+    "brief_title": "Action-based Cognitive Remediation for First Episode Psychosis",
+    "official_title": "Examining the Effectiveness of Action-based Cognitive Remediation for First Episode Psychosis",
+    "brief_summary": "Cognitive impairments are a core and enduring feature of first-episode psychosis and schizophrenia, and are associated with significant functional impairment. Cognitive remediation (CR) is a behavioural intervention that has been found to have a small to moderate effect on cognition in individuals with schizophrenia, and recent studies suggests that it leads to improved cognition in persons with first-episode psychosis. Results from a CR feasibility project that was conducted through the Winnipeg Regional Health Authority's Early Psychosis Prevention and Intervention Service (EPPIS) showed promising findings. Specifically, large effect sizes were found in the areas of verbal learning and self-esteem. Moreover, the intervention was found to be acceptable to the participants. However, the findings are limited by the sample size and lack of control group.~In this proposed study, the investigators seek to expand the scientific support for treating neurocognitive impairments in order to increase functional productivity associated with first-episode psychosis. A novel group CR program, action-based cognitive remediation (ABCR), has been developed by Dr. C. Bowie (co-investigator) to promote the generalization of cognitive skills to real-world activities. ABCR has been found to improve both cognition and functional competence in persons with schizophrenia. The primary outcome measure will examine whether ABCR results in improved executive functioning in persons with first-episode psychosis compared to psychiatric rehabilitation alone. Secondary outcome measures (e.g., memory, processing speed, self-esteem, emotional functioning, adaptive functioning) will also be analyzed.",
+    "overall_status": "COMPLETED",
+    "phase": "nan",
+    "study_type": "INTERVENTIONAL",
+    "enrollment": 13,
+    "start_date": "2019-02-13",
+    "completion_date": "2019-11-30",
+    "eligibility": {
+      "criteria": "Inclusion Criteria:~* Involved in the Winnipeg Regional Health Authority's Early Psychosis Prevention and Intervention Service~* Must be at least 18 years old~* Be proficient in English~* Have stable medication orders for 3 months~* Have capacity to voluntarily consent to participate in the treatment study~Exclusion Criteria:~* Organic brain damage~* Intellectual disability",
+      "gender": "ALL",
+      "minimum_age": "18 Years",
+      "maximum_age": "37 Years"
+    },
+    "outcomes": [
+      {
+        "outcome_type": "secondary",
+        "measure": "Change in Cognitive Functioning; Screen for Cognitive Impairment in Psychiatry (Purdon, 2005).",
+        "description": "Scale for screening cognitive deficits in persons with schizophrenia and psychiatry, including verbal learning and memory, auditory working memory, verbal fluency and visuomotor tracking. Total score reported as a z-score (range of -3 to +3). Higher values indicate better performance."
+      },
+      {
+        "outcome_type": "secondary",
+        "measure": "Change in Psychotic Symptoms; Brief Psychotic Rating Scale (Overall & Gorham, 1962).",
+        "description": "A 24-item measure commonly used in research and clinical settings that is designed to quantify the severity of positive and negative symptoms of psychosis. Scale ranges from 24-168. Higher values indicate greater number and severity of symptoms."
+      },
+      {
+        "outcome_type": "secondary",
+        "measure": "Change in Functional Skills; Canadian Objective Life Skills (COALS) (McDermid Vaz & Heinrichs)",
+        "description": "Participants are examined with a series of role-playing tasks for their comprehension and planning of recreational activities, financial skills in handling money and writing checks, use of a telephone for instrumental communication, and ability to use information from bus schedules and maps to use public transportation effectively. Total score ranges from 0-60. Higher value indicates better performance."
+      },
+      {
+        "outcome_type": "secondary",
+        "measure": "Change in Visual Memory; Brief visuospatial memory test-revised (Benedict, 1997).",
+        "description": "Commonly-used neuropsychological measure of visual learning and memory that uses a multiple-figural test to assess immediate memory, delayed memory and recognition abilities. Recall scores are reported as t-scores (range: \\<20-80) and higher values indicate better performance. Please note that a copy of the test protocol cannot be provided due to copyright protection, but more information can be found at: http://www4.parinc.com/Products/Product.aspx?ProductID=BVMT."
+      },
+      {
+        "outcome_type": "secondary",
+        "measure": "Change in Self-Esteem; Rosenberg Self-Esteem Scale (Rosenberg, 1965).",
+        "description": "A 10-item measure that is commonly used to measure self-esteem. Respondents are asked to read a list of statements dealing with general feelings about themselves and rate each one on a four-point scale from SD =Strongly Disagree (score of 0) to SA =Strongly Agree (score of 3). Scores are summed to provide a total score for the measure. Total score ranges from 0-30, with higher values indicating higher self-esteem."
+      },
+      {
+        "outcome_type": "secondary",
+        "measure": "Change in Disability Beliefs; World Health Organization Disability Assessment Schedule II (World Health Organization)",
+        "description": "36-item self-administered measure that assesses disability in adults over 18 years. Total score ranges from 0-144 with higher scores indicating greater perceived disability."
+      },
+      {
+        "outcome_type": "secondary",
+        "measure": "Change in Illness Beliefs; Personal Beliefs About Illness Questionnaire-Revised (Birchwood, Jackson, Brunet, Holden & Barton, 2012).",
+        "description": "20-item, self-report measure that assesses common psychological reactions related to loss, social marginalization, shame, entrapment, and control in persons with a first-episode psychosis. Total score ranges from 0-60. Higher scores indicate negative reactions to the diagnosis."
+      },
+      {
+        "outcome_type": "secondary",
+        "measure": "Change in Perceived Competence; Perceived Competence for Learning Scale",
+        "description": "4-item self-report measure assessing person's feeling of competence to master learning material. Total score ranges from 4-28. Higher scores indicate greater perceived competence."
+      },
+      {
+        "outcome_type": "primary",
+        "measure": "Change in Executive Functioning; Wisconsin Card Sorting Test (Heaton and PAR Staff, 2005).",
+        "description": "Commonly used neuropsychological computerized test to assess the ability to form abstract concepts, to shift and maintain set, and to utilize feedback. Total number of categories completed and perseverative errors (reported as t-score with range \\<20 to \\>80) will be reported. Higher values indicate better outcome. More information can be found at: http://www4.parinc.com/Products/Product.aspx?ProductID=WCST"
+      }
+    ],
+    "interventions": [
+      {
+        "intervention_type": "BEHAVIORAL",
+        "name": "Action-based cognitive remediation",
+        "description": "Action-Based Cognitive Remediation (ABCR) is a new program that was developed to address the challenges of transferring cognitive gains to improved quality of life and reduced disability. ABCR combines traditional cognitive training with an added behavioural component (e.g., role-plays, simulations of real world tasks) to foster learning through rehearsal and procedural memory which increases the likelihood of participants bridging cognitive strategies into real-world activities. ABCR also includes goal setting and behavioural activation procedures to stimulate transfer of in-session gains to everyday life changes."
+      },
+      {
+        "intervention_type": "OTHER",
+        "name": "Waitlist Control Group",
+        "description": "Receive treatment-as-usual through regular early psychosis programming."
+      }
+    ],
+    "conditions": [
+      "Cognitive Impairment",
+      "Psychosis"
+    ],
+    "sponsors": [
+      {
+        "name": "Queen's University",
+        "agency_class": "OTHER",
+        "role": "collaborator"
+      },
+      {
+        "name": "University of Manitoba",
+        "agency_class": "OTHER",
+        "role": "lead"
+      }
+    ],
+    "facilities": [
+      {
+        "name": "Crisis Response Centre",
+        "city": "Winnipeg",
+        "state": "Manitoba",
+        "country": "Canada",
+        "status": "nan"
+      }
+    ],
+    "study_arms": [
+      {
+        "title": "ABCR Treatment Group",
+        "type": "EXPERIMENTAL",
+        "description": "Group that is immediately administered action-based cognitive remediation intervention."
+      },
+      {
+        "title": "Waitlist Control Group",
+        "type": "ACTIVE_COMPARATOR",
+        "description": "Group that is waitlisted (i.e., receives treatment-as-usual) and after approximately 8 weeks received action-based cognitive remediation intervention"
+      }
+    ],
+    "publications": []
+  },
+  {
+    "nct_id": "NCT03302611",
+    "brief_title": "Trial of Surf and Hike Therapy for Major Depressive Disorder",
+    "official_title": "A Randomized Controlled Trial of Surf and Hike Therapy for Active-duty Service Members With Major Depressive Disorder",
+    "brief_summary": "This study uses a randomized controlled trial design to compare the psychological effects of surf therapy to hike therapy in active duty service members who have been diagnosed with major depressive disorder.",
+    "overall_status": "COMPLETED",
+    "phase": "nan",
+    "study_type": "INTERVENTIONAL",
+    "enrollment": 110,
+    "start_date": "2018-01-01",
+    "completion_date": "2020-09-01",
+    "eligibility": {
+      "criteria": "Inclusion Criteria:~* Be a military service member seeking surf or hike therapy as part of the Wounded, Ill, and Injured Wellness program at Naval Medical Center San Diego;~* Have medical clearance to participate in these programs;~* Have a current diagnosis of Major Depressive Disorder based on DSM-5 criteria.~Exclusion Criteria:~* Service members who are currently receiving surf or hike therapy (i.e., have already started attending program sessions);~* Service members who are currently pregnant",
+      "gender": "ALL",
+      "minimum_age": "18 Years",
+      "maximum_age": "nan"
+    },
+    "outcomes": [
+      {
+        "outcome_type": "other",
+        "measure": "Pain Rating Scale (PRS)",
+        "description": "The PRS is a self-report measure that assesses current level of pain. It consists of one item rated on an 11-point scale from 0 (no pain) to 10 (worst possible pain)."
+      },
+      {
+        "outcome_type": "secondary",
+        "measure": "PTSD Checklist (PCL-5)",
+        "description": "The PCL-5 is a self-report instrument assessing PTSD symptom severity."
+      },
+      {
+        "outcome_type": "secondary",
+        "measure": "Generalized Anxiety Disorder (GAD-7)",
+        "description": "The GAD-7 is a self-report instrument that assesses the presence and severity of generalized anxiety disorder."
+      },
+      {
+        "outcome_type": "secondary",
+        "measure": "Short Form Health Survey - 36 Item, Version 2 (SF-36)",
+        "description": "The SF-36 is a widely used questionnaire that assesses functioning physical and mental health based on eight summary measures."
+      },
+      {
+        "outcome_type": "secondary",
+        "measure": "Positive and Negative Affect scales (PANAS)",
+        "description": "PANAS is a self-report instrument that measures the extent of 20 feelings and emotions experienced within the past few hours."
+      },
+      {
+        "outcome_type": "secondary",
+        "measure": "Insomnia Severity Index (ISI)",
+        "description": "The ISI is a 7-item self-report measure that assesses the nature, severity, and impact of insomnia."
+      },
+      {
+        "outcome_type": "secondary",
+        "measure": "Patient Health Questionnaire (PHQ-9)",
+        "description": "The PHQ-9 is a self-report instrument that assesses the presence and severity"
+      },
+      {
+        "outcome_type": "primary",
+        "measure": "Montgomery-Asberg Depression Rating Scale (MADRS)",
+        "description": "The MADRS is a widely used, semi-structured, clinical-interview assessment of depression symptom severity that is intended to be sensitive to change following an intervention."
+      }
+    ],
+    "interventions": [
+      {
+        "intervention_type": "BEHAVIORAL",
+        "name": "Physical Activity-based Interventions",
+        "description": "Participants will be randomized to one of two physical activity-based interventions, surf or hike therapy."
+      }
+    ],
+    "conditions": [
+      "Major Depressive Disorder"
+    ],
+    "sponsors": [
+      {
+        "name": "Naval Health Research Center",
+        "agency_class": "FED",
+        "role": "collaborator"
+      },
+      {
+        "name": "United States Naval Medical Center, San Diego",
+        "agency_class": "FED",
+        "role": "lead"
+      }
+    ],
+    "facilities": [
+      {
+        "name": "Naval Medical Center San Diego",
+        "city": "San Diego",
+        "state": "California",
+        "country": "United States",
+        "status": "nan"
+      }
+    ],
+    "study_arms": [
+      {
+        "title": "Surf Therapy",
+        "type": "EXPERIMENTAL",
+        "description": "Participants receive a physical activity-based intervention, which in this arm is surf therapy. Each service member is paired with a surf instructor who typically works with them each week for the length of the program."
+      },
+      {
+        "title": "Hike Therapy",
+        "type": "ACTIVE_COMPARATOR",
+        "description": "Participants receive a physical activity-based intervention, which in this arm is hike therapy. During hike therapy, service members may hike together or at a self-selected pace."
+      }
+    ],
+    "publications": [
+      {
+        "pmid": "31485546",
+        "reference_type": "BACKGROUND",
+        "citation": "Walter KH, Otis NP, Glassman LH, Ray TN, Michalewicz-Kragh B, Kobayashi Elliott KT, Thomsen CJ. Comparison of surf and hike therapy for active duty service members with major depressive disorder: Study protocol for a randomized controlled trial of novel interventions in a naturalistic setting. Contemp Clin Trials Commun. 2019 Aug 21;16:100435. doi: 10.1016/j.conctc.2019.100435. eCollection 2019 Dec."
+      },
+      {
+        "pmid": "36805672",
+        "reference_type": "RESULT",
+        "citation": "Walter KH, Otis NP, Ray TN, Glassman LH, Beltran JL, Kobayashi Elliott KT, Michalewicz-Kragh B. A randomized controlled trial of surf and hike therapy for U.S. active duty service members with major depressive disorder. BMC Psychiatry. 2023 Feb 17;23(1):109. doi: 10.1186/s12888-022-04452-7."
+      },
+      {
+        "pmid": "38976384",
+        "reference_type": "RESULT",
+        "citation": "Otis NP, Walter KH, Glassman LH, Ray TN, Kobayashi Elliott KT, Michalewicz-Kragh B. Comorbidity of depression and posttraumatic stress disorder: Outcomes from a randomized controlled trial of surf and hike therapies among service members. Psychol Trauma. 2024 Dec;16(Suppl 3):S688-S697. doi: 10.1037/tra0001673. Epub 2024 Jul 8."
+      },
+      {
+        "pmid": "38397730",
+        "reference_type": "RESULT",
+        "citation": "Glassman LH, Otis NP, Kobayashi Elliott KT, Michalewicz-Kragh B, Walter KH. Gender Differences in Psychological Outcomes Following Surf versus Hike Therapy among U.S. Service Members. Int J Environ Res Public Health. 2024 Feb 19;21(2):241. doi: 10.3390/ijerph21020241."
+      },
+      {
+        "pmid": "37359884",
+        "reference_type": "RESULT",
+        "citation": "Walter KH, Otis NP, Miggantz EL, Ray TN, Glassman LH, Beltran JL, Kobayashi Elliott KT, Michalewicz-Kragh B. Psychological and functional outcomes following a randomized controlled trial of surf and hike therapy for U.S. service members. Front Psychol. 2023 Jun 8;14:1185774. doi: 10.3389/fpsyg.2023.1185774. eCollection 2023."
+      }
+    ]
+  },
+  {
+    "nct_id": "NCT01148420",
+    "brief_title": "DMPA & High Dose Oral Progestin (MPA) Tablets in Outpatient Treatment of Acute Excessive Vaginal Bleeding",
+    "official_title": "Pilot Trial of Use of DMPA Injection and High Dose MPA Tablets in Outpatient",
+    "brief_summary": "The purpose of this study is to investigate the effectiveness and acceptability of high dose MPA (20mg oral 3 times a day) for 3 days combined with an injection of DMPA 150 mg intramuscularly in the treatment of acute heavy, prolonged uterine bleeding who have been identified as being eligible for outpatient management",
+    "overall_status": "COMPLETED",
+    "phase": "PHASE4",
+    "study_type": "INTERVENTIONAL",
+    "enrollment": 48,
+    "start_date": "2009-01-31",
+    "completion_date": "2012-07-31",
+    "eligibility": {
+      "criteria": "Inclusion Criteria:~* Age 18- 50~* Non-pregnant~* Candidate for outpatient management~* Able to understand and follow instructions~* Vital signs stable~* No severe anemia~* No medical conditions requiring transfusion~Exclusion Criteria:~* Pregnancy~* Breast cancer current or in last 5 years~* Allergy to MPA or DMPA~* Previous hormonal therapies~* Unstable vital signs~* Bleeding excessive enough to require surgical therapy or hospital admission~* Desire for pregnancy in next 6 months",
+      "gender": "FEMALE",
+      "minimum_age": "18 Years",
+      "maximum_age": "50 Years"
+    },
+    "outcomes": [
+      {
+        "outcome_type": "secondary",
+        "measure": "Patient Perception of the Acceptability of the Treatment",
+        "description": "Results from a survey question that assessed the subjects' satisfaction with the therapy on a scale of 1-3. 1 = poor; 2 = good; 3 = excellent."
+      },
+      {
+        "outcome_type": "secondary",
+        "measure": "Satisfaction and Willingness to Recommend Treatment",
+        "description": "Participants were asked whether they would recommend this treatment to a friend"
+      },
+      {
+        "outcome_type": "primary",
+        "measure": "Cessation of Bleeding Within 5 Days",
+        "description": "Patients were called within 24 hours and 48 hours following their first study visit to ascertain their bleeding status and their use of medication, as well as any significant side effects they msy have been experiencing. Patients were asked to return to the clinic on day 3 for a repeat hemoglobin and interval history. Those women who were still having any bleeding on day 3 were contacted on day 5"
+      }
+    ],
+    "interventions": [
+      {
+        "intervention_type": "DRUG",
+        "name": "Medroxyprogesterone 17-Acetate",
+        "description": "Medroxyprogesterone 20mg orally 3 times a day for 3 days"
+      },
+      {
+        "intervention_type": "DRUG",
+        "name": "medroxyprogesterone acetate",
+        "description": "Depo Provera 150mg Intramuscular injection"
+      }
+    ],
+    "conditions": [
+      "Dysfunctional Uterine Bleeding"
+    ],
+    "sponsors": [
+      {
+        "name": "Women's Health Care Clinic, Torrance, California",
+        "agency_class": "OTHER",
+        "role": "lead"
+      }
+    ],
+    "facilities": [
+      {
+        "name": "Harbor-UCLA Urgent Care",
+        "city": "Torrance",
+        "state": "California",
+        "country": "United States",
+        "status": "nan"
+      }
+    ],
+    "study_arms": [
+      {
+        "title": "DMPA & MPA",
+        "type": "EXPERIMENTAL",
+        "description": "150 mg intramuscularly received DMPA and two 10 mg tablets of MPA every 8 hours for 3 days"
+      }
+    ],
+    "publications": [
+      {
+        "pmid": "17012455",
+        "reference_type": "BACKGROUND",
+        "citation": "Munro MG, Mainor N, Basu R, Brisinger M, Barreda L. Oral medroxyprogesterone acetate and combination oral contraceptives for acute uterine bleeding: a randomized controlled trial. Obstet Gynecol. 2006 Oct;108(4):924-9. doi: 10.1097/01.AOG.0000238343.62063.22."
+      }
+    ]
+  },
+  {
+    "nct_id": "NCT00427271",
+    "brief_title": "Aspirin and Enalapril in Microalbuminuric Type 2 Diabetes Mellitus Patients",
+    "official_title": "Aspirin and the Antiproteinuric Effect of Enalapril in Microalbuminuric Type 2 Diabetes Mellitus Patients: a Randomized, Double-Blind, Placebo-Controlled Study",
+    "brief_summary": "Research design: randomized, double-blind, placebo-controlled crossover study to evaluate the putative interference of low-dose aspirin (for 8 weeks) on enalapril antiproteinuric properties in microalbuminuric type 2 diabetes mellitus patients",
+    "overall_status": "UNKNOWN",
+    "phase": "PHASE4",
+    "study_type": "INTERVENTIONAL",
+    "enrollment": 20,
+    "start_date": "2003-03-31",
+    "completion_date": "2007-01-31",
+    "eligibility": {
+      "criteria": "Inclusion Criteria:~* type 2 diabetes mellitus microalbuminuria~Exclusion Criteria:~* ischemic heart disease peptic disease",
+      "gender": "ALL",
+      "minimum_age": "30 Years",
+      "maximum_age": "80 Years"
+    },
+    "outcomes": [
+      {
+        "outcome_type": "primary",
+        "measure": "urinary albumin excretion",
+        "description": "nan"
+      },
+      {
+        "outcome_type": "primary",
+        "measure": "glomerular filtration rate",
+        "description": "nan"
+      }
+    ],
+    "interventions": [
+      {
+        "intervention_type": "DRUG",
+        "name": "aspirin",
+        "description": "nan"
+      }
+    ],
+    "conditions": [
+      "Diabetes Mellitus",
+      "Microalbuminuria"
+    ],
+    "sponsors": [
+      {
+        "name": "Hospital de Clinicas de Porto Alegre",
+        "agency_class": "OTHER",
+        "role": "lead"
+      }
+    ],
+    "facilities": [
+      {
+        "name": "Hospital de Clínicas de Porto Aelgre",
+        "city": "Porto Alegre",
+        "state": "Rio Grande do Sul",
+        "country": "Brazil",
+        "status": "RECRUITING"
+      }
+    ],
+    "study_arms": [],
+    "publications": []
+  },
+  {
+    "nct_id": "NCT05249920",
+    "brief_title": "Treatment of Acute Ischemic STroke With Edaravone Dexborneol II (TASTE-2)",
+    "official_title": "Treatment of Acute Ischemic STroke With Edaravone Dexborneol Ⅱ (TASTE-2)",
+    "brief_summary": "This study is a multicentre, randomized, double-blind, placebo parallel controlled, investigator-sponsored study that aims to investigate the efficacy and safety of Edaravone Dexborneol treatment in patients with acute ischemic stroke who had received early reperfusion therapy.",
+    "overall_status": "COMPLETED",
+    "phase": "PHASE3",
+    "study_type": "INTERVENTIONAL",
+    "enrollment": 1362,
+    "start_date": "2022-03-18",
+    "completion_date": "2023-05-19",
+    "eligibility": {
+      "criteria": "Inclusion Criteria:~1. 18 - 80 years, male or female;~2. Clinically diagnosed as acute anterior ischemic stroke, artery occlusion occurred at the terminal of the intracranial carotid artery, T-shaped bifurcation or M1 segment of the middle cerebral artery;~3. Within 24 hours of stroke onset;~4. Eligible for other imaging indications for bridging therapy or direct mechanical thrombectomy:~   ASPECTS ≥6 certified by the latest brain CT imaging; Patients within 6-16 hours after stroke onset should meet the mismatch criteria, which was defined as infarction core volume \\<70 ml, mismatch ratio ≥1.8 and the ischemic volume \\> 15 ml (DEFUSE-3 Criteria); or NIHSS score ≥ 10 with infarction -core volume \\< 31 cm3, or NIHSS score ≥ 20 with infarction core volume ≤ 51 cm3 (DAWN Criteria); Patients within 16-24 hours after stroke onset should meet the mismatch criteria, which was defined as NIHSS score ≥ 10 with infarction-core volume \\< 31 cm3, or NIHSS score ≥ 20 with infarction-core volume ≤ 51 cm3 (DAWN Criteria);~5. Planned to receive bridging therapy (endovascular therapy after intravenous alteplase) or direct endovascular therapy;~6. Pre-morbid modified Rankin Scale ≤1;~7. 6 ≤ NIHSS ≤ 25 before endovascular therapy;~8. Signed informed consent from subjects or legally authorized representatives~Exclusion Criteria:~1. CT indicates intracranial hemorrhagic diseases, such as hemorrhagic stroke, subdural hematoma, ventricular hemorrhage, or subarachnoid hemorrhage, etc.;~2. Had been given any intravenous thrombolytic drug other than alteplase before bridging therapy;~3. Hypersensitive to edaravone, (+)-2- dexborneol or auxiliary materials;~4. Prior receipt of edaravone or any other neuroprotective drugs;~5. History of congenital or acquired hemorrhagic disease, coagulation factor deficiency disease, or thrombocytopenic disease, etc.;~6. Systolic blood pressure ≥180 mmHg or diastolic blood pressure ≥110 mmHg after antihypertensive treatment;~7. Serum alanine aminotransferase (ALT) or aspartate transaminase (AST) elevates over 3 times of upper limit of normal;~8. Recent or current serum creatinine is known to exceed 1.5 times the upper limit of normal, or estimated glomerular filtration rate (eGFR) \\< 60 mL/min;~9. Pregnancy, lactation, or planned pregnancy within 90 days;~10. Those who cannot complete informed consent or follow-up treatment due to severe mental disorder or dementia;~11. Those with a malignant tumor, severe systemic diseases, or predict survival time \\<90 days;~12. Participate in another interventional clinical study within 30 days before randomization or participate in another interventional clinical study.",
+      "gender": "ALL",
+      "minimum_age": "18 Years",
+      "maximum_age": "80 Years"
+    },
+    "outcomes": [
+      {
+        "outcome_type": "secondary",
+        "measure": "Excellent functional outcome",
+        "description": "Rate of excellent functional outcome defined as a mRS score 0-1"
+      },
+      {
+        "outcome_type": "secondary",
+        "measure": "NIHSS score change",
+        "description": "The change of NIHSS score defined as the NIHSS score of day 10-14 minus that of baseline"
+      },
+      {
+        "outcome_type": "secondary",
+        "measure": "NIHSS score decreases ≥4",
+        "description": "Defined as the proportion of patients with NIHSS score decrease ≥ 4 from day 10-14 to baseline"
+      },
+      {
+        "outcome_type": "secondary",
+        "measure": "All-cause mortality",
+        "description": "All-cause mortality at 90 days after randomization"
+      },
+      {
+        "outcome_type": "secondary",
+        "measure": "Symptomatic intracranial hemorrhage (sICH)",
+        "description": "The proportion of patients who experienced sICH"
+      },
+      {
+        "outcome_type": "secondary",
+        "measure": "Neurological deterioration",
+        "description": "Defined as the NIHSS score increases ≥4 from day 1 to baseline"
+      },
+      {
+        "outcome_type": "secondary",
+        "measure": "Stroke recurrence",
+        "description": "Defined as a new ischemic or hemorrhagic stroke occurred within 90 days after randomization"
+      },
+      {
+        "outcome_type": "secondary",
+        "measure": "Adverse events (AE)",
+        "description": "The proportion of patients who experienced AE"
+      },
+      {
+        "outcome_type": "primary",
+        "measure": "Favorable functional outcome",
+        "description": "Rate of favorable functional outcome defined as a modified Rankin Scale (mRS, scores range from 0 to 6, with 0 to 2 indicating favorable outcome and 3 to 6 indicating unfavorable outcome including 6 as death) score of 0-2"
+      },
+      {
+        "outcome_type": "primary",
+        "measure": "Incidence of severe adverse event (Safety outcome)",
+        "description": "The incidence of Severe Adverse Event (SAE) emerged during the whole study period"
+      }
+    ],
+    "interventions": [
+      {
+        "intervention_type": "DRUG",
+        "name": "Edaravone Dexborneol Concentrated Solution for injection",
+        "description": "Edaravone and Dexborneol Concentrated Solution for Injection, 15 ml (37.5 mg, containing edaravone 30 mg and dexborneol 7.5 mg) in 3 ampoule bottles, twice a day for 10 to 14 days."
+      },
+      {
+        "intervention_type": "DRUG",
+        "name": "Edaravone Dexborneol placebo",
+        "description": "Edaravone and Dexborneol placebo, 15 ml in 3 ampoule bottles, twice a day for 10 to 14 days."
+      }
+    ],
+    "conditions": [
+      "Acute Ischemic Stroke",
+      "Mechanical Thrombectomy",
+      "Edaravone Dexborneol",
+      "Phase III"
+    ],
+    "sponsors": [
+      {
+        "name": "Beijing Tiantan Hospital",
+        "agency_class": "OTHER",
+        "role": "lead"
+      }
+    ],
+    "facilities": [
+      {
+        "name": "Beijing Tiantan Hospital, Capital Medical University",
+        "city": "Beijing",
+        "state": "Beijing Municipality",
+        "country": "China",
+        "status": "nan"
+      }
+    ],
+    "study_arms": [
+      {
+        "title": "Edaravone Dexborneol group",
+        "type": "EXPERIMENTAL",
+        "description": "Patients in this arm will be given Edaravone Dexborneol Concentrated Solution for injection twice a day for 10 to 14 days."
+      },
+      {
+        "title": "Edaravone Dexborneol Placebo group",
+        "type": "PLACEBO_COMPARATOR",
+        "description": "Patients in this arm will be given a placebo of Edaravone Dexborneol for injection twice a day for 10 to 14 days."
+      }
+    ],
+    "publications": [
+      {
+        "pmid": "32087818",
+        "reference_type": "BACKGROUND",
+        "citation": "Hill MD, Goyal M, Menon BK, Nogueira RG, McTaggart RA, Demchuk AM, Poppe AY, Buck BH, Field TS, Dowlatshahi D, van Adel BA, Swartz RH, Shah RA, Sauvageau E, Zerna C, Ospel JM, Joshi M, Almekhlafi MA, Ryckborst KJ, Lowerison MW, Heard K, Garman D, Haussen D, Cutting SM, Coutts SB, Roy D, Rempel JL, Rohr AC, Iancu D, Sahlas DJ, Yu AYX, Devlin TG, Hanel RA, Puetz V, Silver FL, Campbell BCV, Chapot R, Teitelbaum J, Mandzia JL, Kleinig TJ, Turkel-Parrella D, Heck D, Kelly ME, Bharatha A, Bang OY, Jadhav A, Gupta R, Frei DF, Tarpley JW, McDougall CG, Holmin S, Rha JH, Puri AS, Camden MC, Thomalla G, Choe H, Phillips SJ, Schindler JL, Thornton J, Nagel S, Heo JH, Sohn SI, Psychogios MN, Budzik RF, Starkman S, Martin CO, Burns PA, Murphy S, Lopez GA, English J, Tymianski M; ESCAPE-NA1 Investigators. Efficacy and safety of nerinetide for the treatment of acute ischaemic stroke (ESCAPE-NA1): a multicentre, double-blind, randomised controlled trial. Lancet. 2020 Mar 14;395(10227):878-887. doi: 10.1016/S0140-6736(20)30258-0. Epub 2020 Feb 20."
+      },
+      {
+        "pmid": "33588596",
+        "reference_type": "BACKGROUND",
+        "citation": "Xu J, Wang A, Meng X, Yalkun G, Xu A, Gao Z, Chen H, Ji Y, Xu J, Geng D, Zhu R, Liu B, Dong A, Mu H, Lu Z, Li S, Zheng H, Chen X, Wang Y, Zhao X, Wang Y; TASTE Trial Investigatorsdagger. Edaravone Dexborneol Versus Edaravone Alone for the Treatment of Acute Ischemic Stroke: A Phase III, Randomized, Double-Blind, Comparative Trial. Stroke. 2021 Mar;52(3):772-780. doi: 10.1161/STROKEAHA.120.031197. Epub 2021 Feb 16."
+      }
+    ]
+  },
+  {
+    "nct_id": "NCT02042001",
+    "brief_title": "Switching From Efavirenz/Atripla to Rilpivirine Among Patients With Neurocognitive or Neuropsychological Side Effects",
+    "official_title": "A Pilot Randomized Controlled Trial of Switch to Tenofovir Disoproxil Fumarate/Emtricitabine/Rilpivirine (TDF/FTC/RPV) Versus Continue TDF/FTC/Efavirenz (EFV) Treatment Among Virologically Suppressed, HIV-1 Infected Subjects With Mild or Asymptomatic EFV-related Neurocognitive or Neuropsychological Side Effects",
+    "brief_summary": "Despite long-term use in clinical practice, chronic treatment with efavirenz (EFV) has been associated with persistent central nervous system symptoms or mild or even asymptomatic neurocognitive impairment. Whether switching to rilpivirine (RPV) containing regimen is beneficial among patients who experience mild or asymptomatic neurocognitive/neuropsychiatric adverse events during EFV has not been explored yet.~The proposed pilot study will examine whether switching from single tablet regimen TDF/FTC/EFV to single tablet regimen TDF/FTC/RPV is associated with neurocognitive/neuropsychiatric improvement among HIV-infected patients with mild/asymptomatic neurocognitive impairment or neuropsychiatric symptoms during EFV-containing antiretroviral treatment.~Patients under stable treatment with TDF/FTC/EFV, confirmed HIV-1 RNA viral load \\< 50 copies/mL and altered scores in depression, quality of sleep or anxiety tests and/or alteration in 1 or more domains as assessed by neuropsychological assessment, will be randomized to immediate or deferred (24 weeks) switch to TDF/FTC/RPV. Neurocognitive and neuropsychiatric tests will be repeated after 12, 24 and 48 weeks of follow-up and variations will be compared between groups.",
+    "overall_status": "COMPLETED",
+    "phase": "PHASE4",
+    "study_type": "INTERVENTIONAL",
+    "enrollment": 74,
+    "start_date": "2015-07-01",
+    "completion_date": "2018-01-15",
+    "eligibility": {
+      "criteria": "Inclusion Criteria:~* Age ≥18 years old and ability to sign informed consent~* Continuative treatment with TDF/FTC/EFV for ≥180 days~* HIV-1 RNA viral load \\< 50 copies/mL in two consecutive determinations (including screening)~* No history of treatment failure and/or evidence of any mutations associated with resistance to NRTI or NNRTI~* No contraindication to treatment with study drugs~* Any one of the following conditions:~  (i) Altered scores in depression, quality of sleep or anxiety tests (ii) Alteration in 1 or more domains as assessed by neuropsychological assessment~Exclusion Criteria:~* Ongoing treatment or predictable need of treatment with proton pump inhibitors~* New AIDS defining condition diagnosed within the 21 days prior to screening~* Previous diagnosis of AIDS dementia complex~* Current alcohol or substance dependence~* Major psychiatric disorders~* Decompensated cirrhosis~* Plasma creatinine \\>1.2 mg/dl or estimated glomerular filtration rate \\<60 ml/min (MDRD formula)~* AST, ALT or plasma bilirubin \\>3 times upper limit of normal~* Any other clinical condition or prior therapy that would make the subject unsuitable for the study or unable to comply with the dosing/food requirements",
+      "gender": "ALL",
+      "minimum_age": "18 Years",
+      "maximum_age": "nan"
+    },
+    "outcomes": [
+      {
+        "outcome_type": "other",
+        "measure": "Resistance",
+        "description": "Number of patients with genotypic resistance at failure"
+      },
+      {
+        "outcome_type": "other",
+        "measure": "Immunological response",
+        "description": "Change From Baseline in CD4+ and CD8+ T-Lymphocyte Cell Counts at Weeks 12 and 24"
+      },
+      {
+        "outcome_type": "secondary",
+        "measure": "Symptoms",
+        "description": "Proportion of patients with self-reported improvement in treatment-related symptoms"
+      },
+      {
+        "outcome_type": "secondary",
+        "measure": "Quality of Life",
+        "description": "Proportion of patients with self-reported improvement in quality of life"
+      },
+      {
+        "outcome_type": "secondary",
+        "measure": "Cognitive failure",
+        "description": "Proportion of patients with improvement in Cognitive Failure Questionnaire"
+      },
+      {
+        "outcome_type": "secondary",
+        "measure": "Viral suppression",
+        "description": "Proportion of patients with HIV-RNA \\<50 copies/ml after 12 weeks of treatment (ITT-M=F)"
+      },
+      {
+        "outcome_type": "secondary",
+        "measure": "Viral failure",
+        "description": "Proportion of patients with HIV-RNA \\<400 copies/ml after 12 weeks (ITT-M=F)"
+      },
+      {
+        "outcome_type": "secondary",
+        "measure": "Virological efficacy",
+        "description": "Proportion of patients with HIV-RNA \\<50 copies/ml after 24 weeks (ITT-M=F)"
+      },
+      {
+        "outcome_type": "secondary",
+        "measure": "Safety & Tolerability",
+        "description": "Proportion of patients discontinuing treatment for intolerance to study drugs or due to side effects"
+      },
+      {
+        "outcome_type": "primary",
+        "measure": "Neuropsychiatric side effects",
+        "description": "Proportion of patients with improvement in depression, anxiety or quality of sleep scores, evaluated either as a binary (Yes/No) or on a continuous scale"
+      },
+      {
+        "outcome_type": "primary",
+        "measure": "Neurocognitive side effects",
+        "description": "\\- Proportion of patients with improvement in neurocognitive performances in either one of the 7 domains investigated, evaluated either as a binary (Abnormal/Normal) or on a continuous scale (deficit score)"
+      },
+      {
+        "outcome_type": "primary",
+        "measure": "Composite neuropsychiatric/neurocognitive",
+        "description": "Proportion of patients with improvement in either one of the previous binary end-point (composite end-point)"
+      }
+    ],
+    "interventions": [
+      {
+        "intervention_type": "DRUG",
+        "name": "Immediate switch to TDF/FTC/RPV",
+        "description": "nan"
+      },
+      {
+        "intervention_type": "DRUG",
+        "name": "Switch to TDF/FTC/RPV after 24 weeks",
+        "description": "Patients will continue current EFV-containing regimen up to week 24 and then will be switched to TDF/FTC/RPV"
+      }
+    ],
+    "conditions": [
+      "Impaired Cognition",
+      "Depression/Anxiety",
+      "Poor Quality Sleep",
+      "Quality of Life",
+      "HIV-1 Infection"
+    ],
+    "sponsors": [
+      {
+        "name": "Gilead Sciences",
+        "agency_class": "INDUSTRY",
+        "role": "collaborator"
+      },
+      {
+        "name": "Azienda Ospedaliera San Gerardo di Monza",
+        "agency_class": "OTHER",
+        "role": "lead"
+      }
+    ],
+    "facilities": [
+      {
+        "name": "Clinic of Infectious Diseases, AO San Gerardo",
+        "city": "Monza",
+        "state": "MB",
+        "country": "Italy",
+        "status": "nan"
+      },
+      {
+        "name": "Spedali Civili - University of Brescia",
+        "city": "Brescia",
+        "state": "nan",
+        "country": "Italy",
+        "status": "nan"
+      },
+      {
+        "name": "Clinica di Malattie Infettive, Ospedale San Martino",
+        "city": "Genova",
+        "state": "nan",
+        "country": "Italy",
+        "status": "nan"
+      },
+      {
+        "name": "AO San Paolo - University of Milan",
+        "city": "Milan",
+        "state": "nan",
+        "country": "Italy",
+        "status": "nan"
+      },
+      {
+        "name": "Ospedale Amedeo di Savoia - University of Turin",
+        "city": "Torino",
+        "state": "nan",
+        "country": "Italy",
+        "status": "nan"
+      }
+    ],
+    "study_arms": [
+      {
+        "title": "Immediate Switch",
+        "type": "EXPERIMENTAL",
+        "description": "Immediate switch to TDF/FTC/RPV"
+      },
+      {
+        "title": "Deferred Switch",
+        "type": "ACTIVE_COMPARATOR",
+        "description": "Switch to TDF/FTC/RPV after 24 weeks"
+      }
+    ],
+    "publications": []
+  },
+  {
+    "nct_id": "NCT01996540",
+    "brief_title": "The Role of Early Systematic Best Palliative Care Versus on Request Palliative Care Consultation During Standard Oncologic Treatment for Patients With Advanced Gastric or Pancreatic Cancers: a Randomized, Controlled, Multicenter Trial.",
+    "official_title": "The Role of Early Systematic Best Palliative Care Versus on Request Palliative Care Consultation During Standard Oncologic Treatment for Patients With Advanced Gastric or Pancreatic Cancers: a Randomized, Controlled, Multicenter Trial.",
+    "brief_summary": "Title: The role of early systematic best palliative care versus on request palliative care consultation during standard oncologic treatment for patients with advanced gastric or pancreatic cancers: a randomized, controlled, multicenter trial.~Description of Study Treatment:~1. Interventional arm Patients will receive standard oncologic care and will be assigned to early systematic best palliative care. They will meet a member of the palliative care team within 2 weeks after enrolment. Thereafter, they shall be visited by a palliative care team member every 2 weeks until death. Patients assigned to this experimental arm will be evaluated if the total of palliative care visits between T0 (day of enrollment) and T1 (12±3 weeks) is ≥3. Palliative care visits and intervention has to be oriented by the General guidelines for palliative care: specific attention will be paid to assessing physical and psychosocial symptoms, establishing goals of care, assisting decision making regarding treatment, and coordinating care on the basis of the individual needs of the patients.~   The doctor expert in palliative care, with regular visits in the experimental arm, must be a physician dedicated full time to palliative care, that can directly prescribe drugs and other interventions, and with a particular attention to physical, psychological, and spiritual needs.~   Palliative care doctor must have the possibility to decide about organizational arrangements.~   He has to perform the palliative care visit according to Temel indications.~2. Standard arm Patients will receive standard oncologic care and will be assigned to on request palliative care consultation. They will be not scheduled to meet with the palliative care service unless a meeting will be requested by the patients, the family, or the oncologist. After the time of evaluation (T1) patients will be followed by the palliative care services as needed.~Patient completes QoL (Quality of Life) and mood questionnaires at baseline and at 12 weeks ± 3.~Patients will receive standard antineoplastic treatment in both arms of the study according to best clinical practice in each participating centre.",
+    "overall_status": "COMPLETED",
+    "phase": "nan",
+    "study_type": "INTERVENTIONAL",
+    "enrollment": 394,
+    "start_date": "2012-08-31",
+    "completion_date": "2018-11-30",
+    "eligibility": {
+      "criteria": "Inclusion Criteria:~1. diagnosis of inoperable locally advanced and/or metastatic gastric or pancreatic cancers within the previous eight weeks, any T, any N, M+ or T4 inoperable (neoadjuvant excluded);~2. patients eligible for chemotherapy and/or new target drugs treatments for metastatic or advanced disease;~3. ECOG PS 0-2 (Appendix A);~4. life expectancy \\>2 months;~5. both sex;~6. age ≥18 years;~7. all ethnic background;~8. subjects who are, in the opinion of the Investigator, able to understand this study and to cooperate with the study procedures;~9. written informed consent (Appendix B);~10. palliative care visit must be performed by a dedicated physician/team different from the medical oncology group.~Exclusion Criteria:~1. patients already receiving care from the palliative care service;~2. prior chemotherapy and/or new target drugs treatments for metastatic or advanced disease.",
+      "gender": "ALL",
+      "minimum_age": "18 Years",
+      "maximum_age": "nan"
+    },
+    "outcomes": [
+      {
+        "outcome_type": "secondary",
+        "measure": "Hospital Anxiety and Depression Scale (HADS)",
+        "description": "Mood will be assessed with the use of Hospital Anxiety and Depression Scale (HADS), which is 14-item instrument composed of two subscales and screens for symptoms of anxiety and depression."
+      },
+      {
+        "outcome_type": "secondary",
+        "measure": "Impact of families satisfaction",
+        "description": "The impact of families satisfaction about care will be evaluated by an Italian version of FAMCARE questionnaire."
+      },
+      {
+        "outcome_type": "secondary",
+        "measure": "Overall survival (OS)",
+        "description": "It is the time from the date of randomization to the date of death due to any cause."
+      },
+      {
+        "outcome_type": "primary",
+        "measure": "Quality of Life (QoL)",
+        "description": "It is the change in the score from T0 (day of enrollment) to T1 (12±3 weeks) on the Trial Outcome Index (TOI) \\[which is the sum of the scores of specific subscale FACT-Ga or FACT-Hep Functional Assessment of Cancer Therapy-Gastric cancer (FACT-Ga) and Functional Assessment of Cancer Therapy-Hepatobiliary cancers (FACT-Hep) scales, concerning physical symptoms, physical and functional well being\\]."
+      }
+    ],
+    "interventions": [
+      {
+        "intervention_type": "OTHER",
+        "name": "Interventional arm: Early best palliative care",
+        "description": "Patients will receive standard oncologic care and will be assigned to early systematic best palliative care. They will meet a member of the palliative care team within 2 weeks after enrolment. Thereafter, they shall be visited by a palliative care team member every 2 weeks until death."
+      }
+    ],
+    "conditions": [
+      "Pancreatic Neoplasm",
+      "Gastric Neoplasm"
+    ],
+    "sponsors": [
+      {
+        "name": "Istituto Romagnolo per lo Studio dei Tumori Dino Amadori IRST S.r.l. IRCCS",
+        "agency_class": "OTHER",
+        "role": "lead"
+      }
+    ],
+    "facilities": [
+      {
+        "name": "Palliative Care Clinic IRCCS IRST",
+        "city": "Meldola",
+        "state": "FC",
+        "country": "Italy",
+        "status": "nan"
+      },
+      {
+        "name": "U.O Oncologia medica",
+        "city": "Lugo",
+        "state": "RA",
+        "country": "Italy",
+        "status": "nan"
+      },
+      {
+        "name": "S. Donato, Arezzo",
+        "city": "Arezzo",
+        "state": "nan",
+        "country": "Italy",
+        "status": "nan"
+      },
+      {
+        "name": "Centro di Riferimento Oncologico CRO",
+        "city": "Aviano",
+        "state": "nan",
+        "country": "Italy",
+        "status": "nan"
+      },
+      {
+        "name": "Ospedale degli Infermi,",
+        "city": "Biella",
+        "state": "nan",
+        "country": "Italy",
+        "status": "nan"
+      },
+      {
+        "name": "Ospedale Businco, Cagliari",
+        "city": "Cagliari",
+        "state": "nan",
+        "country": "Italy",
+        "status": "nan"
+      },
+      {
+        "name": "Policlinico Universitario, Cagliari",
+        "city": "Cagliari",
+        "state": "nan",
+        "country": "Italy",
+        "status": "nan"
+      },
+      {
+        "name": "ASL AL, Casale Monferrato",
+        "city": "Casale Monferrato",
+        "state": "nan",
+        "country": "Italy",
+        "status": "nan"
+      },
+      {
+        "name": "Irst-Cesena",
+        "city": "Cesena",
+        "state": "nan",
+        "country": "Italy",
+        "status": "nan"
+      },
+      {
+        "name": "Sant'Anna",
+        "city": "Como",
+        "state": "nan",
+        "country": "Italy",
+        "status": "nan"
+      },
+      {
+        "name": "PO M.Santo, Cosenza",
+        "city": "Cosenza",
+        "state": "nan",
+        "country": "Italy",
+        "status": "nan"
+      },
+      {
+        "name": "Istituti Ospitalieri, Cremona",
+        "city": "Cremona",
+        "state": "nan",
+        "country": "Italy",
+        "status": "nan"
+      },
+      {
+        "name": "Sant'Anna, Ferrara",
+        "city": "Ferrara",
+        "state": "nan",
+        "country": "Italy",
+        "status": "nan"
+      },
+      {
+        "name": "S.Giovanni Di Dio, Firenze",
+        "city": "Florence",
+        "state": "nan",
+        "country": "Italy",
+        "status": "nan"
+      },
+      {
+        "name": "S.Maria Annunziata,",
+        "city": "Florence",
+        "state": "nan",
+        "country": "Italy",
+        "status": "nan"
+      },
+      {
+        "name": "E.O. Galliera",
+        "city": "Genova",
+        "state": "nan",
+        "country": "Italy",
+        "status": "nan"
+      },
+      {
+        "name": "Aulss 12,",
+        "city": "Mestre",
+        "state": "nan",
+        "country": "Italy",
+        "status": "nan"
+      },
+      {
+        "name": "Istituto Nazionale Tumori, Milano",
+        "city": "Milan",
+        "state": "nan",
+        "country": "Italy",
+        "status": "nan"
+      },
+      {
+        "name": "Ospedale Sacco, Milano",
+        "city": "Milan",
+        "state": "nan",
+        "country": "Italy",
+        "status": "nan"
+      },
+      {
+        "name": "S.PAOLO",
+        "city": "Milan",
+        "state": "nan",
+        "country": "Italy",
+        "status": "nan"
+      },
+      {
+        "name": "IOV",
+        "city": "Padua",
+        "state": "nan",
+        "country": "Italy",
+        "status": "nan"
+      },
+      {
+        "name": "San Matteo",
+        "city": "Pavia",
+        "state": "nan",
+        "country": "Italy",
+        "status": "nan"
+      },
+      {
+        "name": "Guglielmo da Saliceto",
+        "city": "Piacenza",
+        "state": "nan",
+        "country": "Italy",
+        "status": "nan"
+      },
+      {
+        "name": "Arcispedale S. Maria Nuova",
+        "city": "Reggio Emilia",
+        "state": "nan",
+        "country": "Italy",
+        "status": "nan"
+      },
+      {
+        "name": "Fatebenefratelli,",
+        "city": "Roma",
+        "state": "nan",
+        "country": "Italy",
+        "status": "nan"
+      },
+      {
+        "name": "SS Trinità,",
+        "city": "Sora - Frosinone",
+        "state": "nan",
+        "country": "Italy",
+        "status": "nan"
+      },
+      {
+        "name": "Gradinego",
+        "city": "Torino",
+        "state": "nan",
+        "country": "Italy",
+        "status": "nan"
+      },
+      {
+        "name": "AOP 9, Trapani",
+        "city": "Trapani",
+        "state": "nan",
+        "country": "Italy",
+        "status": "nan"
+      },
+      {
+        "name": "S. Maria Gruccia, Valdarno",
+        "city": "Valdarno",
+        "state": "nan",
+        "country": "Italy",
+        "status": "nan"
+      },
+      {
+        "name": "AULSS 12, Venezia",
+        "city": "Venezia",
+        "state": "nan",
+        "country": "Italy",
+        "status": "nan"
+      }
+    ],
+    "study_arms": [
+      {
+        "title": "Interventional arm",
+        "type": "EXPERIMENTAL",
+        "description": "Interventional arm"
+      },
+      {
+        "title": "Standard arm",
+        "type": "NO_INTERVENTION",
+        "description": "Standard arm"
+      }
+    ],
+    "publications": [
+      {
+        "pmid": "30357555",
+        "reference_type": "DERIVED",
+        "citation": "Scarpi E, Dall'Agata M, Zagonel V, Gamucci T, Berte R, Sansoni E, Amaducci E, Broglia CM, Alquati S, Garetto F, Schiavon S, Quadrini S, Orlandi E, Casadei Gardini A, Ruscelli S, Ferrari D, Pino MS, Bortolussi R, Negri F, Stragliotto S, Narducci F, Valgiusti M, Farolfi A, Nanni O, Rossi R, Maltoni M; Early Palliative Care Italian Study Group (EPCISG). Systematic vs. on-demand early palliative care in gastric cancer patients: a randomized clinical trial assessing patient and healthcare service outcomes. Support Care Cancer. 2019 Jul;27(7):2425-2434. doi: 10.1007/s00520-018-4517-2. Epub 2018 Oct 24."
+      },
+      {
+        "pmid": "27821313",
+        "reference_type": "DERIVED",
+        "citation": "Maltoni M, Scarpi E, Dall'Agata M, Schiavon S, Biasini C, Codeca C, Broglia CM, Sansoni E, Bortolussi R, Garetto F, Fioretto L, Cattaneo MT, Giacobino A, Luzzani M, Luchena G, Alquati S, Quadrini S, Zagonel V, Cavanna L, Ferrari D, Pedrazzoli P, Frassineti GL, Galiano A, Casadei Gardini A, Monti M, Nanni O; Early Palliative Care Italian Study Group (EPCISG). Systematic versus on-demand early palliative care: A randomised clinical trial assessing quality of care and treatment aggressiveness near the end of life. Eur J Cancer. 2016 Dec;69:110-118. doi: 10.1016/j.ejca.2016.10.004. Epub 2016 Nov 4."
+      },
+      {
+        "pmid": "27472648",
+        "reference_type": "DERIVED",
+        "citation": "Maltoni M, Scarpi E, Dall'Agata M, Zagonel V, Berte R, Ferrari D, Broglia CM, Bortolussi R, Trentin L, Valgiusti M, Pini S, Farolfi A, Casadei Gardini A, Nanni O, Amadori D; Early Palliative Care Italian Study Group (EPCISG). Systematic versus on-demand early palliative care: results from a multicentre, randomised clinical trial. Eur J Cancer. 2016 Sep;65:61-8. doi: 10.1016/j.ejca.2016.06.007. Epub 2016 Jul 26."
+      }
+    ]
+  },
+  {
+    "nct_id": "NCT00685282",
+    "brief_title": "The Effect of Stress on DNA Integrity and the Effect of Cognitive Behavioral Therapy on Stress and Infertility in Women",
+    "official_title": "The Effect of Stress on DNA Integrity and the Effect of Cognitive Behavioral Therapy on Stress and Infertility in Women Undergoing IVF Treatment.",
+    "brief_summary": "The general hypothesis of the research is that stress decreases fertility and that Cognitive Behavioral Therapy will reduce stress and increase fertility. Secondarily, we hypothesize that stress has a detrimental effect on DNA integrity and that stress reduction will reduce DNA damage in the cell.",
+    "overall_status": "COMPLETED",
+    "phase": "nan",
+    "study_type": "INTERVENTIONAL",
+    "enrollment": 70,
+    "start_date": "2008-11-30",
+    "completion_date": "2011-02-28",
+    "eligibility": {
+      "criteria": "Inclusion Criteria:~* women between the ages of 18-35 without children undergoing IVF treatment~Exclusion Criteria:~* undergoing treatment for a DSM-IV axis I psychiatric illness.",
+      "gender": "FEMALE",
+      "minimum_age": "18 Years",
+      "maximum_age": "35 Years"
+    },
+    "outcomes": [
+      {
+        "outcome_type": "secondary",
+        "measure": "DNA damage/ γH2AX",
+        "description": "nan"
+      },
+      {
+        "outcome_type": "secondary",
+        "measure": "decreased stress",
+        "description": "nan"
+      },
+      {
+        "outcome_type": "primary",
+        "measure": "pregnancy",
+        "description": "nan"
+      }
+    ],
+    "interventions": [
+      {
+        "intervention_type": "BEHAVIORAL",
+        "name": "Cognitive Behavioral Therapy",
+        "description": "The intervention (CBT) will focus on teaching specific skills which are adapted for women undergoing fertility related problems. Through the sessions the participants will learn relaxation techniques such as breathing, progressive relaxation, and guided imagery. Furthermore, suggestions for making healthier choices for coping and for releasing tension will be reviewed and discussed, with an emphasis on making healthy lifestyle changes with balance and perspective rather than in a punishing or depriving way. Each session will consist of: 20 minutes of stress-reduction behavioral relaxation, 40 minutes of cognitive restructuring and 30 minutes personal tailoring of the behavioral homework between each session."
+      }
+    ],
+    "conditions": [
+      "Infertility",
+      "Stress"
+    ],
+    "sponsors": [
+      {
+        "name": "Ben-Gurion University of the Negev",
+        "agency_class": "OTHER",
+        "role": "collaborator"
+      },
+      {
+        "name": "Soroka University Medical Center",
+        "agency_class": "OTHER",
+        "role": "lead"
+      }
+    ],
+    "facilities": [
+      {
+        "name": "IVF Clinic Soroka UMC",
+        "city": "Beersheba",
+        "state": "nan",
+        "country": "Israel",
+        "status": "nan"
+      }
+    ],
+    "study_arms": [
+      {
+        "title": "COGNITIVE BEHAVIORAL INTERVENTIONS",
+        "type": "OTHER",
+        "description": "PSYCHOLOGICAL INTERVENTIONS TO INCLUDE, RELAXATION, STRESS REDUCTION, GUIDED IMAGERY, BREATHING EXERCISES"
+      }
+    ],
+    "publications": []
+  }
+]

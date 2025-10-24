@@ -5,7 +5,7 @@ out/
 *.zip
 logs/
 website/
-out_full/
+out*/
 *.log
 *.tmp
 run*.sh

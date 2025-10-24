@@ -362,4 +362,19 @@ message PatentAttr {
   repeated string asignee =9;
 }
 
+message ClinicalTrialAttr {
+  string brief_title =1;
+  string overall_status =2;
+  string phase =3;
+  string study_type =4;
+  repeated Intervention interventions =5;
+  repeated string conditions =6;
+}
+
+message Intervention {
+  string type =1;
+  string name =2;
+  string description =3;
+}
+
 

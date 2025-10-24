@@ -256,5 +256,15 @@
     "useLocalFile": "yes",
     "hasFilter": "yes",
     "attrs": "title,country,publication_date,family_id,[]cpc,[]ipcr,[]ipc,[]ecla,[]asignee"
+  },
+  "clinical_trials": {
+    "aliases": "Clinical Trial,ClinicalTrial,NCT",
+    "id": "25",
+    "name": "Clinical Trials",
+    "url": "https://clinicaltrials.gov/study/£{id}",
+    "path": "test_data/clinical_trials/",
+    "useLocalFile": "yes",
+    "hasFilter": "yes",
+    "attrs": "brief_title,overall_status,phase,study_type,[]interventions"
   }
 }

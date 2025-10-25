@@ -37,6 +37,6 @@
 	"disableEnsemblReleaseCheck": "y",
 	"disableRemoteConfigCheck": "y",
 	"dbBackend": "lmdb",
-	"lookupDbDir": "/data/scc/ag-gruber/GROUP/tgur/x/bioyoda_dev2/biobtreev2/out_def2/def/db",
-	"lookupAliasDbDir": "/data/scc/ag-gruber/GROUP/tgur/x/bioyoda_dev2/biobtreev2/out_def2/def/aliasdb"
+	"lookupDbDir": "/data/scc/ag-gruber/GROUP/tgur/x/bioyoda_dev2/biobtreev2/out2/db",
+	"lookupAliasDbDir": "/data/scc/ag-gruber/GROUP/tgur/x/bioyoda_dev2/biobtreev2/out2/def/aliasdb"
 }

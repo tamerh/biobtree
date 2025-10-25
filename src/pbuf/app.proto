@@ -128,6 +128,7 @@ message Xref {
     ChemblAttr chembl=18;
     UniprotFeatureAttr ufeature=19;
     PatentAttr patent=26;
+    ClinicalTrialAttr clinical_trials=27;
 
   }
 

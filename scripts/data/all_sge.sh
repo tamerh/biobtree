@@ -86,13 +86,13 @@ mkdir -p logs
 
 ################################################ UPDATE phase ################################################
 
-JOB_CPU=8
-JOB_MEMORY=16000
+JOB_CPU=16
+JOB_MEMORY=32000
 # Runtime: 7 days in seconds (604800)
 JOB_RUNTIME=604800
 BB_DEFAULT_PARAM="--include-optionals"
 
-declare -a DATASETS=("def;uniprot,go,eco,hgnc,taxonomy,interpro,hmdb,literature_mappings,chembl,efo" "uniref;uniref50,uniref90,uniref100" "uniparc;uniparc" "uniprot_unreviewed;uniprot_unreviewed")
+declare -a DATASETS=("def;uniprot,go,eco,hgnc,taxonomy,interpro,hmdb,literature_mappings,chembl,efo,mondo" "uniref;uniref50,uniref90,uniref100" "uniparc;uniparc" "uniprot_unreviewed;uniprot_unreviewed")
 declare -a SUBMITTED_DATASETS=()
 for dt in "${DATASETS[@]}"
     do

@@ -810,11 +810,18 @@ func (k *kvMessage) String() string {
 func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[string]int, kvProp map[string]*[]kvMessage, valPropIdx map[string]int, kvcounts *map[string]map[string]uint32, pageInfos map[int]map[string]*pbuf.PageInfo) []byte {
 
 	var result = pbuf.Result{}
-	var xrefs = make([]*pbuf.Xref, len(kv))
+
+	// Calculate total number of xrefs needed (kv entries + property-only entries)
+	xrefCount := len(kv)
+	if xrefCount == 0 && len(kvProp) > 0 {
+		xrefCount = len(kvProp)
+	}
+	var xrefs = make([]*pbuf.Xref, xrefCount)
 
 	index := 0
 	var totalCount uint32
 
+	// Keep original sizes for entriesArr and countsArr for kv loop
 	entriesArr := make([][]*pbuf.XrefEntry, len(kv))
 	countsArr := make([][]*pbuf.XrefDomainCount, len(kv))
 
@@ -877,11 +884,21 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)
 				xref.Attributes = &pbuf.Xref_Hgnc{attr}
-			case "go", "eco", "efo":
+			case "go", "eco", "efo", "mondo":
 				attr := &pbuf.OntologyAttr{}
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)
 				xref.Attributes = &pbuf.Xref_Ontology{attr}
+			case "patent":
+				attr := &pbuf.PatentAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Patent{attr}
+			case "clinical_trials":
+				attr := &pbuf.ClinicalTrialAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_ClinicalTrials{attr}
 			case "interpro":
 				attr := &pbuf.InterproAttr{}
 				barr := []byte((*kvProp[k])[0].value)
@@ -1006,6 +1023,49 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 		xrefs[index] = &xref
 		index++
 		d.totalKey++
+	}
+
+	// Handle entries with only properties but no xrefs (e.g., MONDO entries)
+	if len(kv) == 0 && len(kvProp) > 0 {
+		for k := range kvProp {
+			var xref = pbuf.Xref{}
+			did, err := strconv.ParseInt(k, 10, 16)
+			if err != nil {
+				panic("Error while converting to int16 for domain id->" + k)
+			}
+			xref.Dataset = uint32(did)
+			xref.Attributes = &pbuf.Xref_Empty{Empty: true}
+
+			// Set attributes based on dataset type
+			if valPropIdx[k] > 0 {
+				switch config.DataconfIDIntToString[xref.Dataset] {
+				case "go", "eco", "efo", "mondo":
+					attr := &pbuf.OntologyAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_Ontology{attr}
+				case "patent":
+					attr := &pbuf.PatentAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_Patent{attr}
+				case "clinical_trials":
+					attr := &pbuf.ClinicalTrialAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_ClinicalTrials{attr}
+				}
+			}
+
+			// No entries or counts for property-only entries
+			xref.Entries = []*pbuf.XrefEntry{}
+			xref.DatasetCounts = []*pbuf.XrefDomainCount{}
+			xref.Count = 0
+
+			xrefs[index] = &xref
+			index++
+			d.totalKey++
+		}
 	}
 
 	//result.Identifier = id

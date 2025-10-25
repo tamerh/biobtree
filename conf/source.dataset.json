@@ -247,6 +247,16 @@
     "hasFilter": "yes",
     "attrs": "type,name,[]synonyms"
   },
+  "mondo": {
+    "aliases": "MONDO,Monarch Disease Ontology",
+    "id": "26",
+    "name": "MONDO",
+    "url": "https://monarchinitiative.org/disease/£{id}",
+    "path": "https://github.com/monarch-initiative/mondo/releases/download/v2025-10-07/mondo.obo",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "name,[]synonyms"
+  },
   "patent": {
     "aliases": "Patent,Patent accession",
     "id": "24",
@@ -262,7 +272,8 @@
     "id": "25",
     "name": "Clinical Trials",
     "url": "https://clinicaltrials.gov/study/£{id}",
-    "path": "test_data/clinical_trials/",
+    "path": "/data/scc/ag-gruber/GROUP/tgur/x/bioyoda_dev2/snapshots/raw_data/clinical_trials/chunked",
+    "path2": "test_data/clinical_trials/",
     "useLocalFile": "yes",
     "hasFilter": "yes",
     "attrs": "brief_title,overall_status,phase,study_type,[]interventions"

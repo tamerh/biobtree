@@ -8,7 +8,9 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/golang/protobuf/proto"
@@ -16,16 +18,48 @@ import (
 )
 
 type clinicalTrials struct {
-	source      string
-	d           *DataUpdate
-	dataPath    string
-	lookupEnv   db.Env
-	lookupDbi   db.DBI
-	hasLookupDB bool
+	source             string
+	d                  *DataUpdate
+	dataPath           string
+	lookupEnv          db.Env
+	lookupDbi          db.DBI
+	hasLookupDB        bool
+	medicalTermMappings *MedicalTermMappings
+	loggedMappings     map[string]bool  // Track logged conditions to avoid duplicates
+	loggedMisses       map[string]bool  // Track logged misses to avoid duplicates
+	mu                 sync.Mutex       // Mutex for thread-safe map access
+}
+
+type MedicalTermMappings struct {
+	SpecificPatterns    map[string]string   `json:"specific_patterns"`
+	AnatomicalTerms     map[string]string   `json:"anatomical_terms"`
+	QualifiersRemove    QualifiersToRemove  `json:"qualifiers_to_remove"`
+	DiseaseCorrections  map[string]string   `json:"disease_corrections"`
+	SpellingVariations  map[string]string   `json:"spelling_variations"`
+	CancerQualifiers    CancerQualifiers    `json:"cancer_qualifiers"`
+	CancerAbbreviations map[string]string   `json:"cancer_abbreviations"`
+}
+
+type QualifiersToRemove struct {
+	Prefixes []string `json:"prefixes"`
+	Suffixes []string `json:"suffixes"`
+}
+
+type CancerQualifiers struct {
+	StageQualifiers     []string `json:"stage_qualifiers"`
+	MetastasisQualifiers []string `json:"metastasis_qualifiers"`
+	ReceptorPatterns    []string `json:"receptor_patterns"`
 }
 
 func (ct *clinicalTrials) update() {
 	defer ct.d.wg.Done()
+
+	// Initialize tracking maps for unique logging
+	ct.loggedMappings = make(map[string]bool)
+	ct.loggedMisses = make(map[string]bool)
+
+	// Load medical term mappings configuration
+	ct.loadMedicalTermMappings()
 
 	// Initialize lookup database for ChEMBL mapping (if configured)
 	ct.initLookupDB()
@@ -86,6 +120,70 @@ func (ct *clinicalTrials) closeLookupDB() {
 	if ct.hasLookupDB {
 		ct.lookupEnv.Close()
 	}
+}
+
+// Load medical term mappings from JSON configuration file
+func (ct *clinicalTrials) loadMedicalTermMappings() {
+	configPath := filepath.FromSlash("conf/medical_term_mappings.json")
+
+	data, err := ioutil.ReadFile(configPath)
+	if err != nil {
+		fmt.Printf("Warning: Could not load medical term mappings (%v), using basic normalization only\n", err)
+		ct.medicalTermMappings = &MedicalTermMappings{
+			SpecificPatterns:    make(map[string]string),
+			AnatomicalTerms:     make(map[string]string),
+			DiseaseCorrections:  make(map[string]string),
+			SpellingVariations:  make(map[string]string),
+			CancerAbbreviations: make(map[string]string),
+			QualifiersRemove:    QualifiersToRemove{Prefixes: []string{}, Suffixes: []string{}},
+			CancerQualifiers:    CancerQualifiers{StageQualifiers: []string{}, MetastasisQualifiers: []string{}, ReceptorPatterns: []string{}},
+		}
+		return
+	}
+
+	// Parse the JSON structure
+	var rawConfig struct {
+		SpecificPatterns struct {
+			Mappings map[string]string `json:"mappings"`
+		} `json:"specific_patterns"`
+		AnatomicalTerms struct {
+			Mappings map[string]string `json:"mappings"`
+		} `json:"anatomical_terms"`
+		QualifiersRemove  QualifiersToRemove `json:"qualifiers_to_remove"`
+		DiseaseCorrections struct {
+			Mappings map[string]string `json:"mappings"`
+		} `json:"disease_corrections"`
+		SpellingVariations struct {
+			Mappings map[string]string `json:"mappings"`
+		} `json:"spelling_variations"`
+		CancerQualifiers    CancerQualifiers `json:"cancer_qualifiers"`
+		CancerAbbreviations struct {
+			Mappings map[string]string `json:"mappings"`
+		} `json:"cancer_abbreviations"`
+	}
+
+	if err := json.Unmarshal(data, &rawConfig); err != nil {
+		fmt.Printf("Warning: Could not parse medical term mappings (%v), using basic normalization only\n", err)
+		return
+	}
+
+	ct.medicalTermMappings = &MedicalTermMappings{
+		SpecificPatterns:    rawConfig.SpecificPatterns.Mappings,
+		AnatomicalTerms:     rawConfig.AnatomicalTerms.Mappings,
+		QualifiersRemove:    rawConfig.QualifiersRemove,
+		DiseaseCorrections:  rawConfig.DiseaseCorrections.Mappings,
+		SpellingVariations:  rawConfig.SpellingVariations.Mappings,
+		CancerQualifiers:    rawConfig.CancerQualifiers,
+		CancerAbbreviations: rawConfig.CancerAbbreviations.Mappings,
+	}
+
+	fmt.Printf("Loaded medical term mappings: %d specific, %d anatomical, %d qualifiers, %d cancer qualifiers\n",
+		len(ct.medicalTermMappings.SpecificPatterns),
+		len(ct.medicalTermMappings.AnatomicalTerms),
+		len(ct.medicalTermMappings.QualifiersRemove.Prefixes)+len(ct.medicalTermMappings.QualifiersRemove.Suffixes),
+		len(ct.medicalTermMappings.CancerQualifiers.StageQualifiers)+
+		len(ct.medicalTermMappings.CancerQualifiers.MetastasisQualifiers)+
+		len(ct.medicalTermMappings.CancerQualifiers.ReceptorPatterns))
 }
 
 // Lookup identifier in biobtree database and return results
@@ -205,17 +303,512 @@ func (ct *clinicalTrials) createChEMBLXrefs(nctID string, fr string, chemblIDs m
 	}
 }
 
+// Map clinical trial condition to MONDO disease ontology
+func (ct *clinicalTrials) mapConditionToMONDO(nctID string, condition string, mondoDatasetID uint32, fr string) {
+	if !ct.hasLookupDB {
+		return
+	}
+
+	// Track found MONDO IDs to prevent duplicates
+	foundMONDOs := make(map[string]bool)
+
+	// ATTEMPT 1: Try exact condition name
+	ct.lookupAndCollectMONDO(condition, mondoDatasetID, foundMONDOs)
+	if len(foundMONDOs) > 0 {
+		ct.logMappingSuccess(condition, "1_EXACT", condition, len(foundMONDOs))
+		ct.createMONDOXrefs(nctID, fr, foundMONDOs)
+		return
+	}
+
+	// ATTEMPT 2: Try disease corrections (covid19 → COVID-19, hiv → HIV infection)
+	if ct.medicalTermMappings != nil {
+		for original, corrected := range ct.medicalTermMappings.DiseaseCorrections {
+			if strings.EqualFold(condition, original) {
+				ct.lookupAndCollectMONDO(corrected, mondoDatasetID, foundMONDOs)
+				if len(foundMONDOs) > 0 {
+					ct.logMappingSuccess(condition, "2_CORRECTION", corrected, len(foundMONDOs))
+					ct.createMONDOXrefs(nctID, fr, foundMONDOs)
+					return
+				}
+			}
+		}
+	}
+
+	// ATTEMPT 3: Try spelling variations (British/American, common typos)
+	if ct.medicalTermMappings != nil {
+		spellingVariant := ct.applySpellingVariations(condition)
+		if spellingVariant != condition {
+			ct.lookupAndCollectMONDO(spellingVariant, mondoDatasetID, foundMONDOs)
+			if len(foundMONDOs) > 0 {
+				ct.logMappingSuccess(condition, "3_SPELLING", spellingVariant, len(foundMONDOs))
+				ct.createMONDOXrefs(nctID, fr, foundMONDOs)
+				return
+			}
+		}
+	}
+
+	// ATTEMPT 3b: Try cancer abbreviations (NSCLC → non-small cell lung cancer)
+	if ct.medicalTermMappings != nil {
+		cancerAbbrevVariant := ct.applyCancerAbbreviations(condition)
+		if cancerAbbrevVariant != condition {
+			ct.lookupAndCollectMONDO(cancerAbbrevVariant, mondoDatasetID, foundMONDOs)
+			if len(foundMONDOs) > 0 {
+				ct.logMappingSuccess(condition, "3b_CANCER_ABBREV", cancerAbbrevVariant, len(foundMONDOs))
+				ct.createMONDOXrefs(nctID, fr, foundMONDOs)
+				return
+			}
+		}
+	}
+
+	// ATTEMPT 3c: Try removing cancer-specific qualifiers (stage, receptor, metastatic)
+	// This is BEFORE general qualifiers to be more aggressive with cancer terms
+	if ct.medicalTermMappings != nil {
+		withoutCancerQualifiers := ct.removeCancerQualifiers(condition)
+		if withoutCancerQualifiers != condition {
+			ct.lookupAndCollectMONDO(withoutCancerQualifiers, mondoDatasetID, foundMONDOs)
+			if len(foundMONDOs) > 0 {
+				ct.logMappingSuccess(condition, "3c_CANCER_QUALIFIERS", withoutCancerQualifiers, len(foundMONDOs))
+				ct.createMONDOXrefs(nctID, fr, foundMONDOs)
+				return
+			}
+		}
+	}
+
+	// ATTEMPT 4: Remove parentheses and their contents
+	// Example: "Heart Arrest (Cardiac)" → "Heart Arrest"
+	simplifiedCondition := removeParentheses(condition)
+	if simplifiedCondition != condition {
+		ct.lookupAndCollectMONDO(simplifiedCondition, mondoDatasetID, foundMONDOs)
+		if len(foundMONDOs) > 0 {
+			ct.logMappingSuccess(condition, "4_NO_PARENS", simplifiedCondition, len(foundMONDOs))
+			ct.createMONDOXrefs(nctID, fr, foundMONDOs)
+			return
+		}
+	}
+
+	// ATTEMPT 5: Try slash/or splitting (HIV/AIDS → try both)
+	slashVariations := ct.splitSlashOr(condition)
+	for _, variation := range slashVariations {
+		ct.lookupAndCollectMONDO(variation, mondoDatasetID, foundMONDOs)
+		if len(foundMONDOs) > 0 {
+			ct.logMappingSuccess(condition, "5_SLASH_SPLIT", variation, len(foundMONDOs))
+			ct.createMONDOXrefs(nctID, fr, foundMONDOs)
+			return
+		}
+	}
+
+	// ATTEMPT 6: Try specific medical term patterns (heart attack → myocardial infarction)
+	if ct.medicalTermMappings != nil {
+		variations := ct.applySpecificPatterns(condition)
+		for _, variation := range variations {
+			ct.lookupAndCollectMONDO(variation, mondoDatasetID, foundMONDOs)
+			if len(foundMONDOs) > 0 {
+				ct.logMappingSuccess(condition, "6_SPECIFIC_PATTERN", variation, len(foundMONDOs))
+				ct.createMONDOXrefs(nctID, fr, foundMONDOs)
+				return
+			}
+		}
+	}
+
+	// ATTEMPT 7: Remove medical qualifiers (Acute, Chronic, Mild, etc.)
+	if ct.medicalTermMappings != nil {
+		withoutQualifiers := ct.removeQualifiers(condition)
+		if withoutQualifiers != condition {
+			ct.lookupAndCollectMONDO(withoutQualifiers, mondoDatasetID, foundMONDOs)
+			if len(foundMONDOs) > 0 {
+				ct.logMappingSuccess(condition, "7_NO_QUALIFIERS", withoutQualifiers, len(foundMONDOs))
+				ct.createMONDOXrefs(nctID, fr, foundMONDOs)
+				return
+			}
+		}
+	}
+
+	// ATTEMPT 8: Try word order normalization (Amyloidosis Cardiac → Cardiac Amyloidosis)
+	wordOrderVariation := ct.tryWordOrderSwap(condition)
+	if wordOrderVariation != condition {
+		ct.lookupAndCollectMONDO(wordOrderVariation, mondoDatasetID, foundMONDOs)
+		if len(foundMONDOs) > 0 {
+			ct.logMappingSuccess(condition, "8_WORD_ORDER", wordOrderVariation, len(foundMONDOs))
+			ct.createMONDOXrefs(nctID, fr, foundMONDOs)
+			return
+		}
+	}
+
+	// ATTEMPT 9: Try anatomical term variations (heart → cardiac, kidney → renal)
+	if ct.medicalTermMappings != nil {
+		anatomicalVariations := ct.applyAnatomicalTerms(condition)
+		for _, variation := range anatomicalVariations {
+			ct.lookupAndCollectMONDO(variation, mondoDatasetID, foundMONDOs)
+			if len(foundMONDOs) > 0 {
+				ct.logMappingSuccess(condition, "9_ANATOMICAL", variation, len(foundMONDOs))
+				ct.createMONDOXrefs(nctID, fr, foundMONDOs)
+				return
+			}
+		}
+	}
+
+	// ATTEMPT 10: Try singular/plural variations
+	// "Seizures" → "Seizure", "Cardiovascular Diseases" → "Cardiovascular Disease"
+	singularCondition := toSingular(condition)
+	if singularCondition != condition {
+		ct.lookupAndCollectMONDO(singularCondition, mondoDatasetID, foundMONDOs)
+		if len(foundMONDOs) > 0 {
+			ct.logMappingSuccess(condition, "10_SINGULAR", singularCondition, len(foundMONDOs))
+		}
+	}
+
+	// Create all unique xrefs found
+	if len(foundMONDOs) > 0 {
+		ct.createMONDOXrefs(nctID, fr, foundMONDOs)
+	} else {
+		// Log conditions that failed all mapping attempts (unique only)
+		ct.logMappingMiss(condition)
+	}
+}
+
+// Lookup condition name and collect MONDO IDs into the map
+func (ct *clinicalTrials) lookupAndCollectMONDO(condition string, mondoDatasetID uint32, mondoIDs map[string]bool) {
+	result, err := ct.lookup(condition)
+	if err != nil || result == nil || len(result.Results) == 0 {
+		return
+	}
+
+	for _, xref := range result.Results {
+		if xref.IsLink {
+			// Text link - actual xrefs are in Entries
+			for _, entry := range xref.Entries {
+				if entry.Dataset == mondoDatasetID {
+					mondoIDs[entry.Identifier] = true
+				}
+			}
+		} else if xref.Dataset == mondoDatasetID {
+			mondoIDs[xref.Identifier] = true
+		}
+	}
+}
+
+// Create MONDO cross-references
+func (ct *clinicalTrials) createMONDOXrefs(nctID string, fr string, mondoIDs map[string]bool) {
+	for mondoID := range mondoIDs {
+		ct.d.addXref(nctID, fr, mondoID, "mondo", false)
+	}
+}
+
+// Log mapping success (unique conditions only)
+func (ct *clinicalTrials) logMappingSuccess(original string, attempt string, mapped string, count int) {
+	ct.mu.Lock()
+	defer ct.mu.Unlock()
+
+	key := fmt.Sprintf("%s|%s", original, attempt)
+	if !ct.loggedMappings[key] {
+		ct.loggedMappings[key] = true
+		fmt.Printf("MONDO_MAP_SUCCESS: ATTEMPT=%s ORIGINAL='%s' MAPPED='%s' FOUND=%d\n", attempt, original, mapped, count)
+	}
+}
+
+// Log mapping miss (unique conditions only)
+func (ct *clinicalTrials) logMappingMiss(condition string) {
+	ct.mu.Lock()
+	defer ct.mu.Unlock()
+
+	if !ct.loggedMisses[condition] {
+		ct.loggedMisses[condition] = true
+		fmt.Printf("MONDO_MAPPING_MISS: CONDITION='%s'\n", condition)
+	}
+}
+
+// removeParentheses removes text in parentheses
+// Example: "Heart Arrest (Cardiac)" → "Heart Arrest"
+func removeParentheses(s string) string {
+	reParens := regexp.MustCompile(`\s*\([^)]*\)`)
+	return strings.TrimSpace(reParens.ReplaceAllString(s, ""))
+}
+
+// toSingular attempts simple plural → singular conversion
+// Example: "Seizures" → "Seizure", "Diseases" → "Disease"
+func toSingular(s string) string {
+	// Handle "Diseases" → "Disease"
+	if strings.HasSuffix(s, "eases") {
+		return s[:len(s)-1] // Remove 's'
+	}
+	// Handle "Injuries" → "Injury"
+	if strings.HasSuffix(s, "ies") && len(s) > 3 {
+		return s[:len(s)-3] + "y"
+	}
+	// Handle "Tumors" → "Tumor", but keep "-sis" (Sepsis, Thrombosis)
+	if strings.HasSuffix(s, "s") && !strings.HasSuffix(s, "sis") && !strings.HasSuffix(s, "us") {
+		return s[:len(s)-1]
+	}
+	return s
+}
+
+// applySpecificPatterns tries high-priority exact phrase replacements
+func (ct *clinicalTrials) applySpecificPatterns(condition string) []string {
+	var variations []string
+	lower := strings.ToLower(condition)
+
+	for original, synonym := range ct.medicalTermMappings.SpecificPatterns {
+		if strings.Contains(lower, original) {
+			variation := strings.ReplaceAll(lower, original, synonym)
+			if variation != lower {
+				variations = append(variations, variation)
+			}
+		}
+		// Also try reverse mapping
+		if strings.Contains(lower, synonym) {
+			variation := strings.ReplaceAll(lower, synonym, original)
+			if variation != lower {
+				variations = append(variations, variation)
+			}
+		}
+	}
+
+	return variations
+}
+
+// applyAnatomicalTerms tries general anatomical term replacements
+func (ct *clinicalTrials) applyAnatomicalTerms(condition string) []string {
+	var variations []string
+	lower := strings.ToLower(condition)
+
+	for original, synonym := range ct.medicalTermMappings.AnatomicalTerms {
+		// Use word boundaries to avoid partial replacements
+		// "heart disease" → "cardiac disease", but not "sheart" → "scardiac"
+		if strings.Contains(lower, " "+original+" ") ||
+		   strings.HasPrefix(lower, original+" ") ||
+		   strings.HasSuffix(lower, " "+original) ||
+		   lower == original {
+			variation := strings.ReplaceAll(lower, original, synonym)
+			if variation != lower {
+				variations = append(variations, variation)
+			}
+		}
+	}
+
+	return variations
+}
+
+// removeQualifiers strips temporal/severity modifiers from condition names
+func (ct *clinicalTrials) removeQualifiers(condition string) string {
+	result := condition
+	lower := strings.ToLower(condition)
+
+	// Remove prefixes
+	for _, prefix := range ct.medicalTermMappings.QualifiersRemove.Prefixes {
+		prefixPattern := prefix + " "
+		if strings.HasPrefix(lower, prefixPattern) {
+			// Preserve original case for the rest of the string
+			result = condition[len(prefixPattern):]
+			lower = strings.ToLower(result)
+		}
+	}
+
+	// Remove suffixes
+	for _, suffix := range ct.medicalTermMappings.QualifiersRemove.Suffixes {
+		if strings.Contains(lower, " "+suffix) {
+			idx := strings.Index(lower, " "+suffix)
+			if idx > 0 {
+				result = condition[:idx]
+				lower = strings.ToLower(result)
+			}
+		}
+	}
+
+	return strings.TrimSpace(result)
+}
+
+// applySpellingVariations handles British/American spelling and common typos
+func (ct *clinicalTrials) applySpellingVariations(condition string) string {
+	lower := strings.ToLower(condition)
+
+	for british, american := range ct.medicalTermMappings.SpellingVariations {
+		if strings.Contains(lower, british) {
+			return strings.ReplaceAll(lower, british, american)
+		}
+	}
+
+	return condition
+}
+
+// splitSlashOr splits conditions like "HIV/AIDS" or "Recurrent/Advanced Cancer"
+func (ct *clinicalTrials) splitSlashOr(condition string) []string {
+	var variations []string
+
+	// Split on slash
+	if strings.Contains(condition, "/") {
+		parts := strings.Split(condition, "/")
+		for _, part := range parts {
+			trimmed := strings.TrimSpace(part)
+			if trimmed != "" && trimmed != condition {
+				variations = append(variations, trimmed)
+			}
+		}
+	}
+
+	// Split on " or "
+	if strings.Contains(strings.ToLower(condition), " or ") {
+		parts := strings.Split(condition, " or ")
+		for _, part := range parts {
+			trimmed := strings.TrimSpace(part)
+			if trimmed != "" && trimmed != condition {
+				variations = append(variations, trimmed)
+			}
+		}
+	}
+
+	return variations
+}
+
+// tryWordOrderSwap handles reversed word order like "Amyloidosis Cardiac" → "Cardiac Amyloidosis"
+func (ct *clinicalTrials) tryWordOrderSwap(condition string) string {
+	words := strings.Fields(condition)
+
+	// Only swap if exactly 2 words
+	if len(words) == 2 {
+		// Swap if second word looks like an adjective (ends in -ic, -al, -ous, etc.)
+		secondLower := strings.ToLower(words[1])
+		if strings.HasSuffix(secondLower, "ic") ||
+		   strings.HasSuffix(secondLower, "al") ||
+		   strings.HasSuffix(secondLower, "ous") ||
+		   strings.HasSuffix(secondLower, "ar") {
+			return words[1] + " " + words[0]
+		}
+	}
+
+	return condition
+}
+
+// applyCancerAbbreviations expands cancer abbreviations and normalizes hyphenation
+// Examples: "NSCLC" → "non-small cell lung cancer", "head-and-neck" → "head and neck"
+func (ct *clinicalTrials) applyCancerAbbreviations(condition string) string {
+	lower := strings.ToLower(condition)
+
+	for abbrev, expanded := range ct.medicalTermMappings.CancerAbbreviations {
+		if strings.Contains(lower, abbrev) {
+			return strings.ReplaceAll(lower, abbrev, expanded)
+		}
+	}
+
+	return condition
+}
+
+// removeCancerQualifiers removes cancer-specific qualifiers (stage, receptor markers, metastatic)
+// This is more aggressive than general qualifier removal and runs BEFORE it
+// Examples:
+//   "Stage III Colorectal Cancer" → "Colorectal Cancer"
+//   "HER2 Positive Metastatic Breast Cancer" → "Breast Cancer"
+//   "Early-stage Non-small Cell Lung Cancer" → "Non-small Cell Lung Cancer"
+func (ct *clinicalTrials) removeCancerQualifiers(condition string) string {
+	result := strings.TrimSpace(condition)
+	lower := strings.ToLower(result)
+
+	// Remove stage qualifiers
+	for _, stageQual := range ct.medicalTermMappings.CancerQualifiers.StageQualifiers {
+		stageQualLower := strings.ToLower(stageQual)
+		// Try as prefix
+		if strings.HasPrefix(lower, stageQualLower+" ") {
+			result = strings.TrimSpace(result[len(stageQual)+1:])
+			lower = strings.ToLower(result)
+		}
+		// Try as suffix
+		if strings.HasSuffix(lower, " "+stageQualLower) {
+			result = strings.TrimSpace(result[:len(result)-len(stageQual)-1])
+			lower = strings.ToLower(result)
+		}
+		// Try in middle (with spaces)
+		if strings.Contains(lower, " "+stageQualLower+" ") {
+			result = strings.ReplaceAll(result, " "+stageQual+" ", " ")
+			result = strings.TrimSpace(result)
+			lower = strings.ToLower(result)
+		}
+	}
+
+	// Remove metastasis qualifiers
+	for _, metaQual := range ct.medicalTermMappings.CancerQualifiers.MetastasisQualifiers {
+		metaQualLower := strings.ToLower(metaQual)
+		// Try as prefix
+		if strings.HasPrefix(lower, metaQualLower+" ") {
+			result = strings.TrimSpace(result[len(metaQual)+1:])
+			lower = strings.ToLower(result)
+		}
+		// Try as suffix
+		if strings.HasSuffix(lower, " "+metaQualLower) {
+			result = strings.TrimSpace(result[:len(result)-len(metaQual)-1])
+			lower = strings.ToLower(result)
+		}
+		// Try in middle (with spaces)
+		if strings.Contains(lower, " "+metaQualLower+" ") {
+			result = strings.ReplaceAll(result, " "+metaQual+" ", " ")
+			result = strings.TrimSpace(result)
+			lower = strings.ToLower(result)
+		}
+	}
+
+	// Remove receptor patterns (more complex as they can be anywhere)
+	for _, receptorPattern := range ct.medicalTermMappings.CancerQualifiers.ReceptorPatterns {
+		receptorLower := strings.ToLower(receptorPattern)
+		// Try as prefix
+		if strings.HasPrefix(lower, receptorLower+" ") {
+			result = strings.TrimSpace(result[len(receptorPattern)+1:])
+			lower = strings.ToLower(result)
+		}
+		// Try as suffix
+		if strings.HasSuffix(lower, " "+receptorLower) {
+			result = strings.TrimSpace(result[:len(result)-len(receptorPattern)-1])
+			lower = strings.ToLower(result)
+		}
+		// Try in middle (with spaces)
+		if strings.Contains(lower, " "+receptorLower+" ") {
+			result = strings.ReplaceAll(result, " "+receptorPattern+" ", " ")
+			result = strings.TrimSpace(result)
+			lower = strings.ToLower(result)
+		}
+	}
+
+	return result
+}
+
 func (ct *clinicalTrials) processTrials() (int, error) {
-	trialsFile := filepath.Join(ct.dataPath, "trials.json")
-	fmt.Printf("Opening clinical trials file: %s\n", trialsFile)
+	// Read all JSON files from the directory
+	files, err := ioutil.ReadDir(ct.dataPath)
+	if err != nil {
+		return 0, fmt.Errorf("failed to read clinical trials directory: %w", err)
+	}
+
+	totalTrials := 0
+	fr := config.Dataconf[ct.source]["id"]
+	chemblDatasetID := uint32(18)   // chembl_molecule dataset ID
+	mondoDatasetID := uint32(26)    // mondo dataset ID
+
+	// Process each JSON file in the directory
+	for _, fileInfo := range files {
+		if fileInfo.IsDir() || !strings.HasSuffix(fileInfo.Name(), ".json") {
+			continue
+		}
+
+		trialsFile := filepath.Join(ct.dataPath, fileInfo.Name())
+		fmt.Printf("Processing clinical trials file: %s\n", trialsFile)
+
+		trialsProcessed, err := ct.processTrialsFile(trialsFile, fr, chemblDatasetID, mondoDatasetID)
+		if err != nil {
+			fmt.Printf("Warning: Error processing file %s: %v\n", trialsFile, err)
+			continue
+		}
+
+		totalTrials += trialsProcessed
+		fmt.Printf("Processed %d trials from %s (total so far: %d)\n", trialsProcessed, fileInfo.Name(), totalTrials)
+	}
+
+	fmt.Printf("Completed processing all clinical trials files: %d total trials\n", totalTrials)
+	return totalTrials, nil
+}
+
+func (ct *clinicalTrials) processTrialsFile(trialsFile string, fr string, chemblDatasetID uint32, mondoDatasetID uint32) (int, error) {
 	file, err := os.Open(trialsFile)
 	if err != nil {
 		return 0, fmt.Errorf("failed to open trials file: %w", err)
 	}
 	defer file.Close()
-
-	fr := config.Dataconf[ct.source]["id"]
-	chemblDatasetID := uint32(18) // chembl_molecule dataset ID
 
 	// Use json.Decoder for streaming (handles array format)
 	decoder := json.NewDecoder(file)
@@ -312,14 +905,16 @@ func (ct *clinicalTrials) processTrials() (int, error) {
 			ct.d.addXref(studyType, textLinkID, nctID, ct.source, true)
 		}
 
-		// TODO: Map conditions to disease ontology (DisGeNET or similar)
-		// Once disease ontology is integrated into biobtree, create proper cross-references:
-		// for _, condition := range conditions {
-		//     if condition != "" {
-		//         // Map condition name to disease ontology ID (e.g., UMLS, MESH, OMIM)
-		//         // ct.d.addXref(diseaseID, linkID, nctID, ct.source, false)
-		//     }
-		// }
+		// Map conditions to MONDO disease ontology
+		for _, condition := range conditions {
+			if condition != "" {
+				// Create text search xref for condition
+				ct.d.addXref(condition, textLinkID, nctID, ct.source, true)
+
+				// Map condition to MONDO disease IDs if lookup DB available
+				ct.mapConditionToMONDO(nctID, condition, mondoDatasetID, fr)
+			}
+		}
 
 		// Extract and link publications (PMIDs)
 		publications := ct.extractPublications(trialData)

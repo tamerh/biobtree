@@ -62,7 +62,7 @@ new Vue({
     },
     template: '<App :xref_conf="this.xref_conf" :app_conf="this.app_conf" :app_model="this.model" :fetcher="this.fetcher" :usecases="this.usecases"/>',
     beforeMount() {
-        var endpoint = "http://localhost:8888/ws/";
+        var endpoint = "http://localhost:9292/ws/";
 
         this.fetcher = new Fetch(endpoint)
         var request = new XMLHttpRequest();

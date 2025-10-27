@@ -157,6 +157,8 @@ func (s *service) init() {
 		cel.Declarations(
 			decls.NewIdent("eco", decls.NewObjectType("pbuf.OntologyAttr"), nil)),
 		cel.Declarations(
+			decls.NewIdent("mondo", decls.NewObjectType("pbuf.OntologyAttr"), nil)),
+		cel.Declarations(
 			decls.NewIdent("interpro", decls.NewObjectType("pbuf.InterproAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("ena", decls.NewObjectType("pbuf.EnaAttr"), nil)),

@@ -23,6 +23,10 @@ func (m *mondo) update() {
 	var br *bufio.Reader
 	fr := config.Dataconf[m.source]["id"]
 	path := config.Dataconf[m.source]["path"]
+	frparentStr := m.source + "parent"
+	frchildStr := m.source + "child"
+	frparent := config.Dataconf[frparentStr]["id"]
+	frchild := config.Dataconf[frchildStr]["id"]
 
 	defer m.d.wg.Done()
 
@@ -47,6 +51,7 @@ func (m *mondo) update() {
 
 	var currentID string
 	var attr pbuf.OntologyAttr
+	var parents []string
 	inTerm := false
 	isObsolete := false
 
@@ -68,6 +73,7 @@ func (m *mondo) update() {
 			// Save previous term if it exists and is valid
 			if inTerm && currentID != "" && !isObsolete {
 				m.saveEntry(currentID, fr, &attr)
+				m.saveParentChildRelations(currentID, fr, frparent, frchild, parents)
 				total++
 			}
 
@@ -75,6 +81,7 @@ func (m *mondo) update() {
 			inTerm = true
 			isObsolete = false
 			currentID = ""
+			parents = []string{}
 			attr = pbuf.OntologyAttr{
 				Synonyms: []string{},
 			}
@@ -97,6 +104,12 @@ func (m *mondo) update() {
 			if synonym != "" {
 				attr.Synonyms = append(attr.Synonyms, synonym)
 			}
+		} else if strings.HasPrefix(line, "is_a: MONDO:") {
+			// Parse parent relationship: is_a: MONDO:0000001 ! disease or disorder
+			parentID := extractParentID(line)
+			if parentID != "" {
+				parents = append(parents, parentID)
+			}
 		} else if strings.HasPrefix(line, "xref: ") {
 			// Parse xref line: xref: DATABASE:ID {props}
 			m.parseXref(line, currentID, fr)
@@ -108,6 +121,7 @@ func (m *mondo) update() {
 	// Save last term
 	if inTerm && currentID != "" && !isObsolete {
 		m.saveEntry(currentID, fr, &attr)
+		m.saveParentChildRelations(currentID, fr, frparent, frchild, parents)
 		total++
 	}
 
@@ -125,16 +139,24 @@ func (m *mondo) saveEntry(id string, datasetID string, attr *pbuf.OntologyAttr) 
 	b, _ := ffjson.Marshal(attr)
 	m.d.addProp3(id, datasetID, b)
 
-	// Create text search xrefs for disease name
+	// Deduplicate search terms to avoid duplicate text xrefs
+	searchTerms := make(map[string]bool)
+
+	// Add disease name to search terms
 	if attr.Name != "" {
-		m.d.addXref(attr.Name, textLinkID, id, m.source, true)
+		searchTerms[attr.Name] = true
 	}
 
-	// Create text search xrefs for all synonyms
+	// Add all synonyms to search terms (will automatically deduplicate)
 	for _, synonym := range attr.Synonyms {
 		if synonym != "" {
-			m.d.addXref(synonym, textLinkID, id, m.source, true)
+			searchTerms[synonym] = true
 		}
+	}
+
+	// Create text search xrefs for all unique terms
+	for term := range searchTerms {
+		m.d.addXref(term, textLinkID, id, m.source, true)
 	}
 }
 
@@ -176,44 +198,163 @@ func (m *mondo) parseXref(line string, mondoID string, mondoDatasetID string) {
 		return
 	}
 
-	// Map known databases to biobtree dataset IDs
-	// We can expand this list as needed
-	var targetDatasetID string
+	// Map known databases to biobtree dataset names (not IDs!)
+	// addXref expects dataset names like "efo", "orphanet", not IDs like "22", "55"
+	var targetDatasetName string
 	var targetID string
 
-	if strings.HasPrefix(xrefID, "DOID:") {
-		// Disease Ontology - not currently in biobtree
-		return
-	} else if strings.HasPrefix(xrefID, "OMIM:") || strings.HasPrefix(xrefID, "OMIMPS:") {
-		// OMIM - not currently in biobtree
-		return
+	if strings.HasPrefix(xrefID, "EFO:") {
+		// EFO is dataset 22 in biobtree
+		targetDatasetName = "efo"
+		targetID = xrefID
 	} else if strings.HasPrefix(xrefID, "Orphanet:") {
-		// Orphanet - not currently in biobtree
+		// Orphanet is dataset 55 in biobtree (10,344 xrefs available)
+		targetDatasetName = "orphanet"
+		targetID = xrefID
+	} else if strings.HasPrefix(xrefID, "HGNC:") {
+		// HGNC is dataset 5 in biobtree (55 xrefs available)
+		targetDatasetName = "hgnc"
+		targetID = xrefID
+	} else if strings.HasPrefix(xrefID, "PMID:") {
+		// PMID via literature_mappings is dataset 12 (30 xrefs available)
+		targetDatasetName = "literature_mappings"
+		targetID = xrefID
+	} else if strings.HasPrefix(xrefID, "OMIM:") {
+		// OMIM is "mim" dataset 51 in biobtree (10,038 xrefs available)
+		targetDatasetName = "mim"
+		// Strip "OMIM:" prefix, keep only the numeric ID
+		targetID = strings.TrimPrefix(xrefID, "OMIM:")
+	} else if strings.HasPrefix(xrefID, "OMIMPS:") {
+		// OMIM Phenotypic Series also maps to "mim" dataset 51 (601 xrefs available)
+		targetDatasetName = "mim"
+		// Strip "OMIMPS:" prefix, keep only the numeric ID
+		targetID = strings.TrimPrefix(xrefID, "OMIMPS:")
+	} else if strings.HasPrefix(xrefID, "DOID:") {
+		// TODO: Disease Ontology - not currently in biobtree (11,866 xrefs available)
+		// Would provide comprehensive disease classification
 		return
 	} else if strings.HasPrefix(xrefID, "MESH:") {
-		// MeSH - not currently in biobtree
+		// TODO: MeSH - not currently in biobtree (8,378 xrefs available)
+		// Medical Subject Headings - would enable PubMed literature linking
 		return
 	} else if strings.HasPrefix(xrefID, "NCIT:") {
-		// NCI Thesaurus - not currently in biobtree
+		// TODO: NCI Thesaurus - not currently in biobtree (7,550 xrefs available)
+		// Cancer-focused terminology from National Cancer Institute
 		return
-	} else if strings.HasPrefix(xrefID, "EFO:") {
-		// EFO is dataset 22 in biobtree
-		targetDatasetID = "22"
-		targetID = xrefID
 	} else if strings.HasPrefix(xrefID, "UMLS:") {
-		// UMLS - not currently in biobtree
+		// TODO: UMLS - not currently in biobtree (21,381 xrefs available)
+		// Unified Medical Language System - comprehensive medical terminology
 		return
-	} else if strings.HasPrefix(xrefID, "ICD") {
-		// ICD codes - not currently in biobtree
+	} else if strings.HasPrefix(xrefID, "MEDGEN:") {
+		// TODO: MEDGEN - not currently in biobtree (21,381 xrefs available)
+		// NCBI's gene-disease relationships database
+		return
+	} else if strings.HasPrefix(xrefID, "GARD:") {
+		// TODO: GARD - not currently in biobtree (10,730 xrefs available)
+		// Genetic and Rare Diseases Information Center
+		return
+	} else if strings.HasPrefix(xrefID, "SCTID:") {
+		// TODO: SNOMED CT - not currently in biobtree (9,278 xrefs available)
+		// Clinical terminology standard
+		return
+	} else if strings.HasPrefix(xrefID, "ICD9:") {
+		// TODO: ICD-9 - not currently in biobtree (5,732 xrefs available)
+		// International Classification of Diseases version 9
+		return
+	} else if strings.HasPrefix(xrefID, "ICD10") {
+		// TODO: ICD-10 variants - not currently in biobtree (2,918 xrefs available)
+		// ICD10CM, ICD10WHO, ICD10EXP
+		return
+	} else if strings.HasPrefix(xrefID, "icd11.foundation:") {
+		// TODO: ICD-11 - not currently in biobtree (4,170 xrefs available)
+		// Latest version of International Classification of Diseases
+		return
+	} else if strings.HasPrefix(xrefID, "NANDO:") {
+		// TODO: NANDO - not currently in biobtree (2,345 xrefs available)
+		// Nanbyo Disease Ontology (Japanese rare diseases)
+		return
+	} else if strings.HasPrefix(xrefID, "MedDRA:") {
+		// TODO: MedDRA - not currently in biobtree (1,488 xrefs available)
+		// Medical Dictionary for Regulatory Activities
+		return
+	} else if strings.HasPrefix(xrefID, "NORD:") {
+		// TODO: NORD - not currently in biobtree (908 xrefs available)
+		// National Organization for Rare Disorders
+		return
+	} else if strings.HasPrefix(xrefID, "HP:") {
+		// TODO: Human Phenotype Ontology - not currently in biobtree (579 xrefs available)
+		// Phenotypic abnormalities in human disease
 		return
 	} else {
-		// Unknown xref type, skip for now
+		// Unknown xref type, skip
 		return
 	}
 
 	// Create bidirectional cross-reference if we found a mapping
-	if targetDatasetID != "" && targetID != "" {
-		m.d.addXref(mondoID, mondoDatasetID, targetID, targetDatasetID, false)
-		m.d.addXref(targetID, targetDatasetID, mondoID, mondoDatasetID, false)
+	if targetDatasetName != "" && targetID != "" {
+		// mondoID (e.g., MONDO:0005138) in mondo dataset -> targetID (e.g., EFO:0001071) in target dataset
+		// addXref expects: (key, fromDatasetID, value, toDatasetName, isLink)
+		m.d.addXref(mondoID, mondoDatasetID, targetID, targetDatasetName, false)
+		// Reverse: targetID in target dataset -> mondoID in mondo dataset
+		// Need to get the target dataset ID from config
+		targetDatasetID := config.Dataconf[targetDatasetName]["id"]
+		m.d.addXref(targetID, targetDatasetID, mondoID, m.source, false)
+	}
+}
+
+// extractParentID extracts the parent MONDO ID from an is_a line
+// Example: is_a: MONDO:0000001 ! disease or disorder
+// Example: is_a: MONDO:0000001 {source="..."} ! disease or disorder
+func extractParentID(line string) string {
+	line = strings.TrimPrefix(line, "is_a: ")
+
+	// Find the space, exclamation mark, or opening brace (whichever comes first)
+	endIdx := len(line)
+
+	spaceIdx := strings.Index(line, " ")
+	braceIdx := strings.Index(line, "{")
+	exclamIdx := strings.Index(line, "!")
+
+	// Find the minimum valid index
+	if spaceIdx != -1 && spaceIdx < endIdx {
+		endIdx = spaceIdx
+	}
+	if braceIdx != -1 && braceIdx < endIdx {
+		endIdx = braceIdx
+	}
+	if exclamIdx != -1 && exclamIdx < endIdx {
+		endIdx = exclamIdx
+	}
+
+	parentID := strings.TrimSpace(line[:endIdx])
+
+	// Validate it's a MONDO ID
+	if strings.HasPrefix(parentID, "MONDO:") {
+		return parentID
+	}
+
+	return ""
+}
+
+// saveParentChildRelations creates parent/child cross-references for hierarchical relationships
+func (m *mondo) saveParentChildRelations(childID string, mondoDatasetID string,
+	parentDatasetID string, childDatasetID string, parents []string) {
+
+	for _, parentID := range parents {
+		if parentID == "" || parentID == childID {
+			continue
+		}
+
+		// Create parent relationships
+		// childID -> parent link
+		m.d.addXref2(childID, mondoDatasetID, parentID, m.source+"parent")
+		// parent term itself links back to parent dataset
+		m.d.addXref2(parentID, parentDatasetID, parentID, m.source)
+
+		// Create child relationships
+		// parentID -> child link
+		m.d.addXref2(parentID, mondoDatasetID, childID, m.source+"child")
+		// child term itself links back to child dataset
+		m.d.addXref2(childID, childDatasetID, childID, m.source)
 	}
 }

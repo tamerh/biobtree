@@ -198,6 +198,54 @@ To build the web package run
 npm run build
 ```
 
+### Adding New Datasets
+
+To integrate a new dataset into biobtree, the following components must be modified:
+
+#### 1. Configuration Files
+- **`conf/source.dataset.json`**: Add basic dataset definition (name, id, path, useLocalFile)
+- **`conf/default.dataset.json`**: Add full metadata (url, attrs, hasFilter)
+- For hierarchical datasets (ontologies): Also add `datasetnameParent` and `datasetnameChild` definitions
+
+#### 2. Protocol Buffers
+- **`pbuf/pbuf.proto`**: Define attribute structure as a protobuf message
+- Compile with: `make proto` (generates `pbuf.pb.go`)
+
+#### 3. Data Parser
+- **`src/update/datasetname.go`**: Create parser implementing `update()` method
+- Key operations:
+  - Save entries: `addProp3(id, datasetID, marshaledAttrs)`
+  - Text search: `addXref(term, textLinkID, id, datasetName, true)`
+  - Cross-references: `addXref(fromID, fromDatasetID, toID, toDatasetName, false)`
+  - **Important**: Second parameter must be dataset **ID** (numeric), fourth parameter must be dataset **name** (string)
+
+#### 4. Merge Logic
+- **`src/generate/mergeg.go`**: Add dataset to `xref` struct and unmarshal case for your dataset ID
+- Without this, attributes will appear empty in responses
+
+#### 5. Filter Support (Optional)
+If `hasFilter="yes"`:
+- **`src/service/service.go`**: Add CEL declaration
+- **`src/service/mapfilter.go`**: Add filter evaluation case
+
+#### Build Order
+```sh
+# 1. Compile protobuf
+make proto
+
+# 2. Build biobtree
+make build
+
+# 3. Build database
+./biobtree -d "datasetname" build
+```
+
+**Common Pitfalls:**
+- Using dataset name instead of ID in `addXref` parameter 2 causes "dataset id to integer conversion error"
+- Forgetting `make proto` after changing `.proto` files
+- Not adding dataset ID case in `mergeg.go` results in empty attributes
+- Not creating bidirectional cross-references
+
 ### Database Backend
 
 Biobtree supports both **LMDB** and **MDBX** database backends through a clean abstraction layer.

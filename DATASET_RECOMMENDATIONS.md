@@ -1,3 +1,11 @@
+ If you want to add more datasets later, the biggest opportunities are:
+  1. OMIM - 10,038 xrefs (genetic disorders)
+  2. DOID - 11,866 xrefs (Disease Ontology)
+  3. GARD - 10,730 xrefs (rare diseases)
+  4. MESH - 8,378 xrefs (medical terminology)
+  5. NCIT - 7,550 xrefs (NCI Thesaurus)
+  
+
 # BiobtreeV2 Dataset Expansion Recommendations
 
 Based on research of current bioinformatics databases (2025 NAR Database Issue) and analysis of BiobtreeV2's existing capabilities, here are recommendations for high-value datasets to integrate.

@@ -1448,5 +1448,21 @@
     "id": "303",
     "url": "",
     "hasFilter": "yes"
+  },
+  "mondochild": {
+    "name": "MONDO Child",
+    "id": "304",
+    "url": "https://monarchinitiative.org/disease/£{id}",
+    "linkdataset": "mondo",
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms"
+  },
+  "mondoparent": {
+    "name": "MONDO Parent",
+    "id": "305",
+    "url": "https://monarchinitiative.org/disease/£{id}",
+    "linkdataset": "mondo",
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms"
   }
 }

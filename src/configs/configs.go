@@ -35,6 +35,11 @@ type Conf struct {
 	githubRawPath         string
 	githubContentPath     string
 	versionTag            string
+
+	// Test mode fields
+	TestMode      bool   // Whether in test mode
+	TestOutputDir string // e.g., "test_out"
+	TestRefDir    string // e.g., "test_out/reference"
 }
 
 func (c *Conf) Install(rootDir, bbBinaryVersion, outDir, preBuildSet string, optionalDatasetActive bool) {
@@ -500,4 +505,62 @@ func cloneDataConf(confVal map[string]string) map[string]string {
 		clone[clonekey] = cloneval
 	}
 	return clone
+}
+
+// Test mode helper methods
+
+// IsTestMode checks if test mode is enabled
+func (c *Conf) IsTestMode() bool {
+	return c.TestMode
+}
+
+// GetTestLimit returns the test entry limit for a dataset
+// Returns -1 if no limit (process full dataset) or if not in test mode
+func (c *Conf) GetTestLimit(dataset string) int {
+	if !c.TestMode {
+		return -1 // No limit in production mode
+	}
+
+	dsConfig, exists := c.Dataconf[dataset]
+	if !exists {
+		return -1 // Dataset not found, no limit
+	}
+
+	// Check for test_entries_count parameter
+	if testCountStr, ok := dsConfig["test_entries_count"]; ok {
+		testCount, err := strconv.Atoi(testCountStr)
+		if err != nil {
+			log.Printf("Warning: invalid test_entries_count for %s: %s", dataset, testCountStr)
+			return -1
+		}
+		return testCount
+	}
+
+	return -1 // No limit specified = full dataset
+}
+
+// GetTestSpecies returns the list of test species for Ensembl
+// Returns nil if not in test mode or no species specified
+func (c *Conf) GetTestSpecies() []string {
+	if !c.TestMode {
+		return nil
+	}
+
+	ensemblConfig, exists := c.Dataconf["ensembl"]
+	if !exists {
+		return nil
+	}
+
+	// Check for test_species parameter
+	if speciesStr, ok := ensemblConfig["test_species"]; ok {
+		// Parse comma-separated species list
+		species := strings.Split(speciesStr, ",")
+		// Trim whitespace
+		for i := range species {
+			species[i] = strings.TrimSpace(species[i])
+		}
+		return species
+	}
+
+	return nil
 }

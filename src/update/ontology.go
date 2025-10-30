@@ -38,6 +38,16 @@ func (g *ontology) update() {
 	var previous int64
 	var start time.Time
 
+	// Test mode support
+	testLimit := config.GetTestLimit(g.source)
+	var idLogFile *os.File
+	if config.IsTestMode() {
+		idLogFile = openIDLogFile(config.TestRefDir, g.source+"_ids.txt")
+		if idLogFile != nil {
+			defer idLogFile.Close()
+		}
+	}
+
 	if config.Dataconf[g.source]["useLocalFile"] == "yes" {
 		file, err := os.Open(filepath.FromSlash(path))
 		check(err)
@@ -155,11 +165,25 @@ func (g *ontology) update() {
 
 				g.d.addProp3(entryid, fr, b)
 
+				// Log ID in test mode
+				if idLogFile != nil {
+					logProcessedID(idLogFile, entryid)
+				}
+
+				total++
+
+				// Check test limit
+				if shouldStopProcessing(testLimit, int(total)) {
+					g.d.progChan <- &progressInfo{dataset: g.source, done: true}
+					atomic.AddUint64(&g.d.totalParsedEntry, total)
+					g.d.addEntryStat(g.source, total)
+					return
+				}
+
 			}
 
 		}
 
-		total++
 	}
 
 	g.d.progChan <- &progressInfo{dataset: g.source, done: true}

@@ -1,0 +1,902 @@
+{
+  "allergome": {
+    "aliases": "Allergome",
+    "name": "Allergome",
+    "id": "500",
+    "url": "http://www.allergome.org/script/dettaglio.php?id_molecule=£{id}"
+  },
+  "arachnoserver": {
+    "aliases": "ArachnoServer",
+    "name": "ArachnoServer",
+    "id": "501",
+    "url": "http://www.arachnoserver.org/toxincard.html?id=£{id}"
+  },
+  "araport": {
+    "aliases": "Araport",
+    "name": "Araport",
+    "id": "502",
+    "url": "https://apps.araport.org/thalemine/portal.do?externalids=£{id}"
+  },
+  "beilstein": {
+    "aliases": "Beilstein,Beilstein Registry Number",
+    "name": "Beilstein",
+    "id": "503",
+    "url": ""
+  },
+  "bgee": {
+    "aliases": "Bgee",
+    "name": "Bgee",
+    "id": "504",
+    "url": "https://bgee.org/?page=gene&gene_id=£{id}"
+  },
+  "bindingdb": {
+    "aliases": "BindingDB",
+    "name": "BindingDB",
+    "id": "505",
+    "url": "http://www.bindingdb.org/uniprot/£{id}"
+  },
+  "biocyc": {
+    "aliases": "BioCyc",
+    "name": "BioCyc",
+    "id": "506",
+    "url": "http://biocyc.org/getid?id=£{id}"
+  },
+  "biogrid": {
+    "aliases": "BioGrid",
+    "name": "BioGrid",
+    "id": "507",
+    "url": "https://thebiogrid.org/£{id}"
+  },
+  "biomuta": {
+    "aliases": "BioMuta",
+    "name": "BioMuta",
+    "id": "508",
+    "url": "https://hive.biochemistry.gwu.edu/tools/biomuta/biomuta.php?gene=£{id}"
+  },
+  "brenda": {
+    "aliases": "BRENDA",
+    "name": "BRENDA",
+    "id": "509",
+    "url": "http://brenda-enzymes.org/enzyme.php?ecno=£{id}"
+  },
+  "carbonyldb": {
+    "aliases": "CarbonylDB",
+    "name": "CarbonylDB",
+    "id": "510",
+    "url": "http://digbio.missouri.edu/CarbonylDB/index.php/detail/protein/£{id}"
+  },
+  "cas": {
+    "aliases": "CAS,CAS Registry Number",
+    "name": "ChemIDplus",
+    "id": "511",
+    "url": "https://chem.nlm.nih.gov/chemidplus/rn/£{id}"
+  },
+  "cazy": {
+    "aliases": "CAZY",
+    "name": "CAZY",
+    "id": "512",
+    "url": "http://www.cazy.org/fam/£{id}.html"
+  },
+  "cgd": {
+    "aliases": "CGD",
+    "name": "CGD",
+    "id": "513",
+    "url": "http://www.candidagenome.org/cgi-bin/locus.pl?dbid=£{id}"
+  },
+  "chemidplus": {
+    "aliases": "ChemIDplus,ChemIDplus accession",
+    "name": "ChemIDplus",
+    "id": "514",
+    "url": "https://chem.nlm.nih.gov/chemidplus/sid/startswith/£{id}"
+  },
+  "chemspider": {
+    "aliases": "ChemSpider,Chemspider accession",
+    "name": "ChemSpider",
+    "id": "515",
+    "url": "http://www.chemspider.com/Chemical-Structure.£{id}.html"
+  },
+  "chitars": {
+    "aliases": "ChiTaRS",
+    "name": "ChiTaRS",
+    "id": "516",
+    "url": "http://chitars.md.biu.ac.il/bin/search.pl?searchtype=gene_name&searchstr=£{id}&%d=1"
+  },
+  "cleanex": {
+    "aliases": "CleanEx",
+    "name": "CleanEx",
+    "id": "517",
+    "url": "https://cleanex.vital-it.ch/cgi-bin/get_doc?db=cleanex&format=nice&entry=£{id}"
+  },
+  "collectf": {
+    "aliases": "CollecTF",
+    "name": "CollecTF",
+    "id": "518",
+    "url": "http://www.collectf.org/£{id}"
+  },
+  "come": {
+    "aliases": "COMe,COMe accession",
+    "name": "COMe",
+    "id": "519",
+    "url": "http://www.flymine.org/come/entry?gn=£{id}"
+  },
+  "complexportal": {
+    "aliases": "ComplexPortal",
+    "name": "ComplexPortal",
+    "id": "520",
+    "url": "https://www.ebi.ac.uk/complexportal/complex/£{id}"
+  },
+  "compluyeast-2dpage": {
+    "aliases": "COMPLUYEAST-2DPAGE",
+    "name": "COMPLUYEAST-2DPAGE",
+    "id": "521",
+    "url": "http://compluyeast2dpage.dacya.ucm.es/cgi-bin/2d/2d.cgi?ac=£{id}"
+  },
+  "conoserver": {
+    "aliases": "ConoServer",
+    "name": "ConoServer",
+    "id": "522",
+    "url": "http://www.conoserver.org/?page=card&table=protein&id=£{id}"
+  },
+  "corum": {
+    "aliases": "CORUM",
+    "name": "CORUM",
+    "id": "523",
+    "url": "http://mips.helmholtz-muenchen.de/corum/#?uniprotID=£{id}"
+  },
+  "cosmic": {
+    "aliases": "COSMIC",
+    "name": "COSMIC",
+    "id": "524",
+    "url": "https://cancer.sanger.ac.uk/cosmic/gene/analysis?ln=£{id}"
+  },
+  "ctd": {
+    "aliases": "CTD",
+    "name": "CTD",
+    "id": "525",
+    "url": "http://ctdbase.org/detail.go?type=gene&db=GENE&acc=£{id}"
+  },
+  "depod": {
+    "aliases": "DEPOD",
+    "name": "DEPOD",
+    "id": "526",
+    "url": "http://depod.bioss.uni-freiburg.de/showp.php?AC=£{id}"
+  },
+  "dictybase": {
+    "aliases": "dictyBase",
+    "name": "dictyBase",
+    "id": "527",
+    "url": "http://dictybase.org/db/cgi-bin/gene_page.pl?primary_id=£{id}"
+  },
+  "dip": {
+    "aliases": "DIP",
+    "name": "DIP",
+    "id": "528",
+    "url": "https://dip.doe-mbi.ucla.edu/dip/Browse.cgi?ID=£{id}"
+  },
+  "disgenet": {
+    "aliases": "DisGeNET",
+    "name": "DisGeNET",
+    "id": "529",
+    "url": "http://disgenet.org/search?q=£{id}"
+  },
+  "disprot": {
+    "aliases": "DisProt",
+    "name": "DisProt",
+    "id": "530",
+    "url": "http://www.disprot.org/£{id}"
+  },
+  "dmdm": {
+    "aliases": "DMDM",
+    "name": "DMDM",
+    "id": "531",
+    "url": "http://bioinf.umbc.edu/dmdm/gene_prot_page.php?search_type=protein&id=£{id}"
+  },
+  "dnasu": {
+    "aliases": "DNASU",
+    "name": "DNASU",
+    "id": "532",
+    "url": "https://dnasu.org/DNASU/AdvancedSearchOptions.do?geneName=£{id}"
+  },
+  "drugcentral": {
+    "aliases": "Drug Central,Drug Central accession",
+    "name": "DrugCentral",
+    "id": "533",
+    "url": "http://drugcentral.org/drugcard/£{id}"
+  },
+  "echobase": {
+    "aliases": "EchoBASE",
+    "name": "EchoBASE",
+    "id": "534",
+    "url": "http://www.york.ac.uk/res/thomas/Gene.cfm?recordID=£{id}"
+  },
+  "ecmdb": {
+    "aliases": "ECMDB,ECMDB accession",
+    "name": "ECMDB",
+    "id": "535",
+    "url": "http://ecmdb.ca/compounds/£{id}"
+  },
+  "ecogene": {
+    "aliases": "EcoGene",
+    "name": "EcoGene",
+    "id": "536",
+    "url": "http://www.ecogene.org/gene/£{id}"
+  },
+  "eggnog": {
+    "aliases": "eggNOG",
+    "name": "eggNOG",
+    "id": "537",
+    "url": "http://eggnogdb.embl.de/#/app/results?seqid=£{id}&target_nogs=£{id}"
+  },
+  "elm": {
+    "aliases": "ELM",
+    "name": "ELM",
+    "id": "538",
+    "url": "http://elm.eu.org/instances.html?q=£{id}"
+  },
+  "epd": {
+    "aliases": "EPD",
+    "name": "EPD",
+    "id": "539",
+    "url": "https://www.peptracker.com/epd/analytics/?protein_id=£{id}"
+  },
+  "epo": {
+    "aliases": "EPO",
+    "name": "EPO",
+    "id": "540",
+    "url": "https://www.ebi.ac.uk/Tools/dbfetch/?db=patent_prt;id=£{id}"
+  },
+  "esther": {
+    "aliases": "ESTHER",
+    "name": "ESTHER",
+    "id": "541",
+    "url": "http://bioweb.supagro.inra.fr/ESTHER/gene_locus?name=£{id}&class=Gene_locus"
+  },
+  "euhcvdb": {
+    "aliases": "euHCVdb",
+    "name": "euHCVdb",
+    "id": "542",
+    "url": "https://euhcvdb.ibcp.fr/euHCVdb/do/displayHCVEntry?primaryAC=£{id}"
+  },
+  "eupathdb": {
+    "aliases": "EuPathDB",
+    "name": "EuPathDB",
+    "id": "543",
+    "url": "http://www.eupathdb.org/gene/£{id}"
+  },
+  "evolutionarytrace": {
+    "aliases": "EvolutionaryTrace",
+    "name": "EvolutionaryTrace",
+    "id": "544",
+    "url": "http://mammoth.bcm.tmc.edu/cgi-bin/report_maker_ls/uniprotTraceServerResults.pl?identifier=£{id}"
+  },
+  "foodb": {
+    "aliases": "FooDB,FooDB accession",
+    "name": "FooDB",
+    "id": "546",
+    "url": "http://foodb.ca/compounds/£{id}"
+  },
+  "genecards": {
+    "aliases": "GeneCards",
+    "name": "GeneCards",
+    "id": "547",
+    "url": "http://www.genecards.org/cgi-bin/carddisp.pl?gene=£{id}"
+  },
+  "genedb": {
+    "aliases": "GeneDB",
+    "name": "GeneDB",
+    "id": "548",
+    "url": "http://www.genedb.org/gene/£{id}"
+  },
+  "genereviews": {
+    "aliases": "GeneReviews",
+    "name": "GeneReviews",
+    "id": "549",
+    "url": "https://www.ncbi.nlm.nih.gov/books/NBK1116/?term=£{id}"
+  },
+  "genetree": {
+    "aliases": "GeneTree",
+    "name": "GeneTree",
+    "id": "550",
+    "url": "http://www.ensemblgenomes.org/id-genetree/£{id}"
+  },
+  "genevisible": {
+    "aliases": "Genevisible",
+    "name": "Genevisible",
+    "id": "551",
+    "url": "https://genevisible.com/tissues/%d/UniProt/£{id}"
+  },
+  "genomernai": {
+    "aliases": "GenomeRNAi",
+    "name": "GenomeRNAi",
+    "id": "552",
+    "url": "http://genomernai.org/genedetails/£{id}"
+  },
+  "glyconnect": {
+    "aliases": "GlyConnect",
+    "name": "GlyConnect",
+    "id": "553",
+    "url": "https://glyconnect.expasy.org/browser/proteins/£{id}"
+  },
+  "glytoucan": {
+    "aliases": "GlyTouCan,GlyTouCan accession",
+    "name": "GlyTouCan",
+    "id": "554",
+    "url": "https://glytoucan.org/Structures/Glycans/£{id}"
+  },
+  "gramene": {
+    "aliases": "Gramene",
+    "name": "Gramene",
+    "id": "555",
+    "url": "http://ensembl.gramene.org/id/£{id}"
+  },
+  "guidetopharmacology": {
+    "aliases": "GuidetoPHARMACOLOGY",
+    "name": "G.Pharma.",
+    "id": "556",
+    "url": "http://www.guidetopharmacology.org/GRAC/ObjectDisplayForward?objectId=£{id}"
+  },
+  "h-invdb": {
+    "aliases": "H-InvDB",
+    "name": "H-InvDB",
+    "id": "557",
+    "url": "http://h-invitational.jp/hinv/spsoup/locus_view?hix_id=£{id}"
+  },
+  "hogenom": {
+    "aliases": "HOGENOM",
+    "name": "HOGENOM",
+    "id": "558",
+    "url": "http://doua.prabi.fr/cgi-bin/view-tree.pl?query=£{id}&db=HOGENOM6"
+  },
+  "hovergen": {
+    "aliases": "HOVERGEN",
+    "name": "HOVERGEN",
+    "id": "559",
+    "url": "http://pbil.univ-lyon1.fr/cgi-bin/acnuc-ac2tree?query=£{id}&db=HOVERGEN"
+  },
+  "hpa": {
+    "aliases": "HPA",
+    "name": "HPA",
+    "id": "560",
+    "url": "http://www.proteinatlas.org/tissue_profile.php?antibody_id=£{id}"
+  },
+  "imgt_gene-db": {
+    "aliases": "IMGT_GENE-DB",
+    "name": "IMGT_GENE-DB",
+    "id": "561",
+    "url": "http://www.imgt.org/IMGT_GENE-DB/GENElect?query=2+£{id}&species=Homo+sapiens"
+  },
+  "inparanoid": {
+    "aliases": "InParanoid",
+    "name": "InParanoid",
+    "id": "562",
+    "url": "http://inparanoid.sbc.su.se/cgi-bin/gene_search.cgi?id=£{id}"
+  },
+  "iptmnet": {
+    "aliases": "iPTMnet",
+    "name": "iPTMnet",
+    "id": "563",
+    "url": "http://research.bioinformatics.udel.edu/iptmnet/entry/£{id}"
+  },
+  "iuphar": {
+    "aliases": "IUPHAR",
+    "name": "IUPHAR",
+    "id": "564",
+    "url": "http://www.guidetopharmacology.org/GRAC/LigandDisplayForward?ligandId=£{id}"
+  },
+  "jpo": {
+    "aliases": "JPO",
+    "name": "JPO",
+    "id": "565",
+    "url": "https://www.ebi.ac.uk/Tools/dbfetch/dbfetch?db=patent_prt;id=£{id}"
+  },
+  "kipo": {
+    "aliases": "KIPO",
+    "name": "KIPO",
+    "id": "566",
+    "url": "https://www.ebi.ac.uk/Tools/dbfetch/dbfetch?db=patent_prt;id=£{id}"
+  },
+  "knapsack": {
+    "aliases": "KNApSAcK,KNApSAcK accession",
+    "name": "KNApSAcK",
+    "id": "567",
+    "url": "http://kanaya.naist.jp/knapsack_jsp/information.jsp?word=£{id}"
+  },
+  "legiolist": {
+    "aliases": "LegioList",
+    "name": "LegioList",
+    "id": "568",
+    "url": "http://genolist.pasteur.fr/LegioList/genome.cgi?external_query+£{id}"
+  },
+  "leproma": {
+    "aliases": "Leproma",
+    "name": "Leproma",
+    "id": "569",
+    "url": "https://mycobrowser.epfl.ch/genes/£{id}"
+  },
+  "lincs": {
+    "aliases": "LINCS,LINCS accession",
+    "name": "LINCS",
+    "id": "570",
+    "url": "http://lincsportal.ccs.miami.edu/datasets/#/view/£{id}"
+  },
+  "lipidmapsclass": {
+    "aliases": "LIPID MAPS class,LIPID MAPS class accession",
+    "name": "LIPID MAPS",
+    "id": "571",
+    "url": "http://www.lipidmaps.org/data/LMSDRecord.php?LMID=£{id}"
+  },
+  "lipidmapsinstance": {
+    "aliases": "LIPID MAPS instance,LIPID MAPS instance accession",
+    "name": "LIPID MAPS",
+    "id": "572",
+    "url": "http://www.lipidmaps.org/data/LMSDRecord.php?&LMID=£{id}"
+  },
+  "maizegdb": {
+    "aliases": "MaizeGDB",
+    "name": "MaizeGDB",
+    "id": "573",
+    "url": "https://www.maizegdb.org/data_center/gene_product?id=£{id}"
+  },
+  "malacards": {
+    "aliases": "MalaCards",
+    "name": "MalaCards",
+    "id": "574",
+    "url": "http://www.malacards.org/search/eliteGene/£{id}"
+  },
+  "maxqb": {
+    "aliases": "MaxQB",
+    "name": "MaxQB",
+    "id": "575",
+    "url": "http://maxqb.biochem.mpg.de/mxdb/protein/show/£{id}"
+  },
+  "merops": {
+    "aliases": "MEROPS",
+    "name": "MEROPS",
+    "id": "576",
+    "url": "https://www.ebi.ac.uk/merops/cgi-bin/famsum?family=£{id}"
+  },
+  "mgi": {
+    "aliases": "MGI",
+    "name": "MGI",
+    "id": "577",
+    "url": "http://www.informatics.jax.org/marker/£{id}"
+  },
+  "mint": {
+    "aliases": "MINT",
+    "name": "MINT",
+    "id": "578",
+    "url": "https://mint.bio.uniroma2.it/cgi-bin/protein.py?id=£{id}"
+  },
+  "moondb": {
+    "aliases": "MoonDB",
+    "name": "MoonDB",
+    "id": "579",
+    "url": "http://moondb.hb.univ-amu.fr/protein/£{id}"
+  },
+  "mycoclap": {
+    "aliases": "mycoCLAP",
+    "name": "mycoCLAP",
+    "id": "580",
+    "url": "https://mycoclap.fungalgenomics.ca/mycoCLAP/clap/GeneView/£{id}"
+  },
+  "nextprot": {
+    "aliases": "neXtProt",
+    "name": "neXtProt",
+    "id": "581",
+    "url": "https://www.nextprot.org/entry/£{id}"
+  },
+  "ogp": {
+    "aliases": "OGP",
+    "name": "OGP",
+    "id": "582",
+    "url": "http://usc_ogp_2ddatabase.cesga.es/cgi-bin/2d/2d.cgi?£{id}"
+  },
+  "oma": {
+    "aliases": "OMA",
+    "name": "OMA",
+    "id": "583",
+    "url": "https://omabrowser.org/cgi-bin/gateway.pl?f=DisplayGroup&p1=£{id}"
+  },
+  "orthodb": {
+    "aliases": "OrthoDB",
+    "name": "OrthoDB",
+    "id": "584",
+    "url": "https://www.orthodb.org/?query=£{id}"
+  },
+  "patent": {
+    "aliases": "Patent,Patent accession",
+    "name": "Patent",
+    "id": "585",
+    "url": "http://v3.espacenet.com/textdoc?DB=EPODOC&IDX=£{id}"
+  },
+  "paxdb": {
+    "aliases": "PaxDb",
+    "name": "PaxDb",
+    "id": "586",
+    "url": "https://pax-db.org/#!protein/£{id}"
+  },
+  "peptideatlas": {
+    "aliases": "PeptideAtlas",
+    "name": "PeptideAtlas",
+    "id": "587",
+    "url": "https://db.systemsbiology.net/sbeams/cgi/PeptideAtlas/Search?action=GO&search_key=£{id}"
+  },
+  "peroxibase": {
+    "aliases": "PeroxiBase",
+    "name": "PeroxiBase",
+    "id": "588",
+    "url": "http://peroxibase.toulouse.inra.fr"
+  },
+  "phosphositeplus": {
+    "aliases": "PhosphoSitePlus",
+    "name": "PhosphoSitePlus",
+    "id": "589",
+    "url": "https://www.phosphosite.org/uniprotAccAction?id=£{id}"
+  },
+  "phylomedb": {
+    "aliases": "PhylomeDB",
+    "name": "PhylomeDB",
+    "id": "590",
+    "url": "http://phylomedb.org/?q=search_tree&seqid=£{id}"
+  },
+  "pir": {
+    "aliases": "PIR",
+    "name": "PIR",
+    "id": "591",
+    "url": "https://pir.georgetown.edu/cgi-bin/ipcSF?id=£{id}"
+  },
+  "pirsf": {
+    "aliases": "PIRSF",
+    "name": "PIRSF",
+    "id": "592",
+    "url": "https://pir.georgetown.edu/cgi-bin/ipcSF?id=£{id}"
+  },
+  "pirsr": {
+    "aliases": "PIRSR",
+    "name": "PIRSR",
+    "id": "593",
+    "url": "https://pir.georgetown.edu/cgi-bin/ipcSF?id=£{id}"
+  },
+  "pmap-cutdb": {
+    "aliases": "PMAP-CutDB",
+    "name": "PMAP-CutDB",
+    "id": "594",
+    "url": "http://substrate.burnham.org/lookup/uniprot/£{id}"
+  },
+  "pombase": {
+    "aliases": "PomBase",
+    "name": "PomBase",
+    "id": "595",
+    "url": "https://www.pombase.org/spombe/result/£{id}"
+  },
+  "ppdb": {
+    "aliases": "PPDB,PPDB accession",
+    "name": "PPDB",
+    "id": "596",
+    "url": "https://sitem.herts.ac.uk/aeru/ppdb/en/Reports/£{id}.htm"
+  },
+  "prf": {
+    "aliases": "PRF",
+    "name": "SEQDB",
+    "id": "597",
+    "url": "http://www.prf.or.jp/cgi-bin/seqget.pl?id=£{id}"
+  },
+  "priam": {
+    "aliases": "PRIAM",
+    "name": "PRIAM",
+    "id": "598",
+    "url": "http://priam.prabi.fr/cgi-bin/ReqPRIAM_png.pl?priam_ac=£{id}"
+  },
+  "prints": {
+    "aliases": "PRINTS",
+    "name": "PRINTS",
+    "id": "599",
+    "url": "http://umber.sbs.man.ac.uk/cgi-bin/dbbrowser/sprint/searchprintss.cgi?display_opts=Prints&category=None&queryform=false&prints_accn=£{id}"
+  },
+  "pro": {
+    "aliases": "PRO",
+    "name": "PRO",
+    "id": "600",
+    "url": "http://research.bioinformatics.udel.edu/pro/entry/£{id}"
+  },
+  "prodom": {
+    "aliases": "ProDom",
+    "name": "ProDom",
+    "id": "601",
+    "url": "http://prodom.prabi.fr/prodom/current/cgi-bin/request.pl?question=SPTR&query=£{id}"
+  },
+  "profile": {
+    "aliases": "PROFILE",
+    "name": "PROFILE",
+    "id": "602",
+    "url": "https://prosite.expasy.org/£{id}"
+  },
+  "promex": {
+    "aliases": "ProMEX",
+    "name": "ProMEX",
+    "id": "603",
+    "url": "http://promex.pph.univie.ac.at/promex/?ac=£{id}"
+  },
+  "proteinmodelportal": {
+    "aliases": "ProteinModelPortal",
+    "name": "ProteinModelPortal",
+    "id": "604",
+    "url": "https://www.proteinmodelportal.org/query/uniprot/£{id}"
+  },
+  "proteomicsdb": {
+    "aliases": "ProteomicsDB",
+    "name": "ProteomicsDB",
+    "id": "605",
+    "url": "https://www.proteomicsdb.org/proteomicsdb/#human/proteinDetails/£{id}"
+  },
+  "pseudocap": {
+    "aliases": "PseudoCAP",
+    "name": "PseudoCAP",
+    "id": "606",
+    "url": "http://www.pseudomonas.com/feature/show?locus_tag=£{id}"
+  },
+  "reax": {
+    "aliases": "Reax,Reaxys Registry Number",
+    "name": "Reax",
+    "id": "607",
+    "url": ""
+  },
+  "rebase": {
+    "aliases": "REBASE",
+    "name": "REBASE",
+    "id": "608",
+    "url": "http://rebase.neb.com/rebase/enz/£{id}.html"
+  },
+  "reproduction-2dpage": {
+    "aliases": "REPRODUCTION-2DPAGE",
+    "name": "REPRODUCTION-2DPAGE",
+    "id": "609",
+    "url": "http://reprod.njmu.edu.cn/cgi-bin/2d/2d.cgi?£{id}"
+  },
+  "resid": {
+    "aliases": "RESID,RESID accession",
+    "name": "RESID",
+    "id": "610",
+    "url": ""
+  },
+  "rgd": {
+    "aliases": "RGD",
+    "name": "RGD",
+    "id": "611",
+    "url": "http://rgd.mcw.edu/tools/genes/genes_view.cgi?id=£{id}"
+  },
+  "rulebase": {
+    "aliases": "RuleBase",
+    "name": "RuleBase",
+    "id": "612",
+    "url": ""
+  },
+  "saas": {
+    "aliases": "SAAS",
+    "name": "SAAS",
+    "id": "613",
+    "url": ""
+  },
+  "sabio-rk": {
+    "aliases": "SABIO-RK",
+    "name": "SABIO-RK",
+    "id": "614",
+    "url": "http://sabiork.h-its.org/newSearch?q=sabioreactionid:£{id}"
+  },
+  "sam": {
+    "aliases": "SAM",
+    "name": "SAM",
+    "id": "615",
+    "url": ""
+  },
+  "scop": {
+    "aliases": "SCOP",
+    "name": "SCOP",
+    "id": "616",
+    "url": ""
+  },
+  "seed": {
+    "aliases": "SEED",
+    "name": "SEED",
+    "id": "617",
+    "url": ""
+  },
+  "sfld": {
+    "aliases": "SFLD",
+    "name": "SFLD",
+    "id": "618",
+    "url": "http://sfld.rbvi.ucsf.edu/django/lookup/£{id}"
+  },
+  "sgd": {
+    "aliases": "SGD",
+    "name": "SGD",
+    "id": "619",
+    "url": "https://www.yeastgenome.org/locus/£{id}"
+  },
+  "signalink": {
+    "aliases": "SignaLink",
+    "name": "SignaLink",
+    "id": "620",
+    "url": "http://signalink.org/protein/£{id}"
+  },
+  "signor": {
+    "aliases": "SIGNOR",
+    "name": "SIGNOR",
+    "id": "621",
+    "url": "https://signor.uniroma2.it/relation_result.php?id=£{id}"
+  },
+  "smart": {
+    "aliases": "SMART",
+    "name": "SMART",
+    "id": "622",
+    "url": "http://smart.embl.de/smart/do_annotation.pl?DOMAIN=£{id}"
+  },
+  "smid": {
+    "aliases": "SMID,SMID accession",
+    "name": "SMID",
+    "id": "623",
+    "url": ""
+  },
+  "smr": {
+    "aliases": "SMR",
+    "name": "SMR",
+    "id": "624",
+    "url": "https://swissmodel.expasy.org/repository/uniprot/£{id}?csm=£{id}"
+  },
+  "ssf": {
+    "aliases": "SSF",
+    "name": "SSF",
+    "id": "625",
+    "url": ""
+  },
+  "swiss-2dpage": {
+    "aliases": "SWISS-2DPAGE",
+    "name": "SWISS-2DPAGE",
+    "id": "627",
+    "url": "https://world-2dpage.expasy.org/swiss-2dpage/protein/ac=£{id}"
+  },
+  "swisslipids": {
+    "aliases": "SwissLipids",
+    "name": "SwissLipids",
+    "id": "628",
+    "url": "http://www.swisslipids.org/#/entity/£{id}/"
+  },
+  "swisspalm": {
+    "aliases": "SwissPalm",
+    "name": "SwissPalm",
+    "id": "629",
+    "url": "https://swisspalm.org/proteins/£{id}"
+  },
+  "tair": {
+    "aliases": "TAIR",
+    "name": "TAIR",
+    "id": "630",
+    "url": "http://www.arabidopsis.org/servlets/TairObject?accession=£{id}"
+  },
+  "tcdb": {
+    "aliases": "TCDB",
+    "name": "TCDB",
+    "id": "631",
+    "url": "http://www.tcdb.org/search/result.php?tc=£{id}"
+  },
+  "tigrfams": {
+    "aliases": "TIGRFAMs",
+    "name": "TIGRFAMs",
+    "id": "632",
+    "url": "http://tigrfams.jcvi.org/cgi-bin/HmmReportPage.cgi?acc=£{id}"
+  },
+  "topdownproteomics": {
+    "aliases": "TopDownProteomics",
+    "name": "TopDownProteomics",
+    "id": "633",
+    "url": "http://repository.topdownproteomics.org/Proteoforms?query=£{id}"
+  },
+  "treefam": {
+    "aliases": "TreeFam",
+    "name": "TreeFam",
+    "id": "634",
+    "url": "http://www.treefam.org/family/£{id}"
+  },
+  "trome": {
+    "aliases": "TROME",
+    "name": "TROME",
+    "id": "635",
+    "url": ""
+  },
+  "tuberculist": {
+    "aliases": "TubercuList",
+    "name": "TubercuList",
+    "id": "636",
+    "url": "https://mycobrowser.epfl.ch/genes/£{id}"
+  },
+  "ucd-2dpage": {
+    "aliases": "UCD-2DPAGE",
+    "name": "UCD-2DPAGE",
+    "id": "637",
+    "url": "http://proteomics-portal.ucd.ie/cgi-bin/2d/2d.cgi?£{id}"
+  },
+  "ucsc": {
+    "aliases": "UCSC",
+    "name": "UCSC",
+    "id": "638",
+    "url": "https://genome.cse.ucsc.edu/cgi-bin/hgGene?hgg_gene=£{id}"
+  },
+  "unicarbkb": {
+    "aliases": "UniCarbKB",
+    "name": "UniCarbKB",
+    "id": "639",
+    "url": "http://www.unicarbkb.org/proteinsummary/£{id}/annotated"
+  },
+  "unilectin": {
+    "aliases": "UniLectin",
+    "name": "UniLectin",
+    "id": "640",
+    "url": "https://www.unilectin.eu/curated/protein/£{id}"
+  },
+  "unimes": {
+    "aliases": "UNIMES",
+    "name": "UNIMES",
+    "id": "641",
+    "url": ""
+  },
+  "unipathway": {
+    "aliases": "UniPathway",
+    "name": "UniPathway",
+    "id": "642",
+    "url": "http://www.unipathway.org?upid=£{id}&entryac=£{id}"
+  },
+  "uspto": {
+    "aliases": "USPTO",
+    "name": "USPTO",
+    "id": "643",
+    "url": ""
+  },
+  "vectorbase": {
+    "aliases": "VectorBase",
+    "name": "VectorBase",
+    "id": "644",
+    "url": "https://www.vectorbase.org/id/£{id}"
+  },
+  "vega": {
+    "aliases": "VEGA",
+    "name": "VEGA",
+    "id": "645",
+    "url": "http://vega.archive.ensembl.org/Multi/Search/Results?q=£{id};site=vega"
+  },
+  "vsdb": {
+    "aliases": "VSDB,VSDB accession",
+    "name": "VSDB",
+    "id": "646",
+    "url": ""
+  },
+  "world-2dpage": {
+    "aliases": "World-2DPAGE",
+    "name": "World-2DPAGE",
+    "id": "647",
+    "url": "https://world-2dpage.expasy.org/repository/protein/ac=£{id}"
+  },
+  "wormbase": {
+    "aliases": "WormBase",
+    "name": "WormBase",
+    "id": "648",
+    "url": "https://parasite.wormbase.org/Multi/Search/Results?species=all;idx=;q=£{id};site=ensemblunit"
+  },
+  "xenbase": {
+    "aliases": "Xenbase",
+    "name": "Xenbase",
+    "id": "649",
+    "url": "http://www.xenbase.org/gene/showgene.do?method=display&geneId=£{id}"
+  },
+  "ymdb": {
+    "aliases": "YMDB,YMDB accession",
+    "name": "YMDB",
+    "id": "650",
+    "url": ""
+  },
+  "zfin": {
+    "aliases": "ZFIN",
+    "name": "ZFIN",
+    "id": "651",
+    "url": "http://zfin.org/cgi-bin/webdriver?MIval=aa-markerview.apg&OID=£{id}"
+  }
+}

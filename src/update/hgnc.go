@@ -30,6 +30,16 @@ func (e *hgnc) update() {
 
 	defer e.d.wg.Done()
 
+	// Test mode: get limit and open ID log file
+	testLimit := config.GetTestLimit("hgnc")
+	var idLogFile *os.File
+	if config.IsTestMode() {
+		idLogFile = openIDLogFile(config.TestRefDir, "hgnc_ids.txt")
+		if idLogFile != nil {
+			defer idLogFile.Close()
+		}
+	}
+
 	// Support both local files and HTTP(S) downloads
 	if config.Dataconf["hgnc"]["useLocalFile"] == "yes" {
 		file, err := os.Open(filepath.FromSlash(path))
@@ -82,6 +92,7 @@ func (e *hgnc) update() {
 	}
 
 	var previous int64
+	var entryCount int64
 
 	for j := range p.Stream() {
 
@@ -94,6 +105,11 @@ func (e *hgnc) update() {
 
 		entryid := j.ObjectVals["hgnc_id"].(string)
 		if len(entryid) > 0 {
+
+			// Test mode: log ID
+			if idLogFile != nil {
+				logProcessedID(idLogFile, entryid)
+			}
 
 			a("cosmic", "COSMIC", j, entryid)
 			a("omim_id", "MIM", j, entryid)
@@ -223,6 +239,13 @@ func (e *hgnc) update() {
 		}
 
 		total++
+		entryCount++
+
+		// Test mode: check if limit reached
+		if shouldStopProcessing(testLimit, int(entryCount)) {
+			e.d.progChan <- &progressInfo{dataset: "hgnc", done: true}
+			break
+		}
 	}
 
 	e.d.progChan <- &progressInfo{dataset: "hgnc", done: true}

@@ -3,6 +3,7 @@ package update
 import (
 	"biobtree/pbuf"
 	"log"
+	"os"
 	"strconv"
 	"strings"
 	"sync/atomic"
@@ -300,6 +301,16 @@ func (u *uniprot) processFeatures(entryid string, r *xmlparser.XMLElement) {
 
 func (u *uniprot) update(taxoids []int) {
 
+	// Test mode: get limit and open ID log file
+	testLimit := config.GetTestLimit("uniprot")
+	var idLogFile *os.File
+	if config.IsTestMode() {
+		idLogFile = openIDLogFile(config.TestRefDir, "uniprot_ids.txt")
+		if idLogFile != nil {
+			defer idLogFile.Close()
+		}
+	}
+
 	var dataPath string
 
 	taxofilter := true
@@ -467,7 +478,18 @@ uniloop:
 
 		u.d.addProp3(entryid, fr, b)
 
+		// Test mode: log ID
+		if idLogFile != nil {
+			logProcessedID(idLogFile, entryid)
+		}
+
 		total++
+
+		// Test mode: check if limit reached
+		if shouldStopProcessing(testLimit, int(total)) {
+			u.d.progChan <- &progressInfo{dataset: u.source, done: true}
+			break
+		}
 
 	}
 

@@ -8,7 +8,8 @@
     "pathTrembl": "/current_release/knowledgebase/complete/uniprot_trembl.xml.gz",
     "useLocalFile": "no",
     "hasFilter": "yes",
-    "attrs": "[]accessions,[]genes,[]names,[]alternative_names,[]submitted_names,sequence.seq,sequence.mass,reviewed"
+    "attrs": "[]accessions,[]genes,[]names,[]alternative_names,[]submitted_names,sequence.seq,sequence.mass,reviewed",
+    "test_entries_count": "100"
   },
   "ensembl": {
     "aliases": "gene ID,Ensembl",
@@ -38,7 +39,8 @@
     "url": "//www.uniprot.org/taxonomy/£{id}",
     "aliases": "NCBITaxonomy,NCBItaxonomy,NCBI_taxonomy_id,common taxon ID,NCBI taxonomy,NCBI Taxonomy",
     "hasFilter": "yes",
-    "attrs": "name,common_name,rank,taxonomic_division"
+    "attrs": "name,common_name,rank,taxonomic_division",
+    "test_entries_count": "100"
   },
   "go": {
     "aliases": "GO Molecular Function,GO Cellular Component,GO Biological Process,GO",
@@ -48,7 +50,8 @@
     "path": "http://purl.obolibrary.org/obo/go.owl",
     "useLocalFile": "no",
     "hasFilter": "yes",
-    "attrs": "type,name,[]synonyms"
+    "attrs": "type,name,[]synonyms",
+    "test_entries_count": "100"
   },
   "eco": {
     "aliases": "ECO",
@@ -68,7 +71,8 @@
     "url": "https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/£{id}",
     "useLocalFile": "no",
     "hasFilter": "yes",
-    "attrs": "[]names,[]symbols,locus_group,[]aliases,locus_type,[]prev_names,[]prev_symbols,status,[]gene_groups"
+    "attrs": "[]names,[]symbols,locus_group,[]aliases,locus_type,[]prev_names,[]prev_symbols,status,[]gene_groups",
+    "test_entries_count": "100"
   },
   "uniparc": {
     "id": "6",

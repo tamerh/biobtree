@@ -1,0 +1,69 @@
+{
+  "common_tests": [
+    {
+      "name": "Lookup by HGNC ID",
+      "type": "id_lookup",
+      "id": "@reference[0].hgnc_id"
+    },
+    {
+      "name": "Lookup by gene symbol",
+      "type": "symbol_lookup",
+      "symbol": "@reference[0].symbol"
+    },
+    {
+      "name": "Lookup by alias symbol",
+      "type": "alias_lookup",
+      "alias": "@reference[1].alias_symbol[0]",
+      "expected_id": "@reference[1].hgnc_id"
+    },
+    {
+      "name": "Lookup by previous symbol",
+      "type": "alias_lookup",
+      "alias": "@reference[1].prev_symbol[0]",
+      "expected_id": "@reference[1].hgnc_id"
+    },
+    {
+      "name": "Check attributes present",
+      "type": "attribute_check",
+      "id": "@reference[0].hgnc_id"
+    },
+    {
+      "name": "Check UniProt cross-reference",
+      "type": "xref_exists",
+      "id": "@reference[0].hgnc_id",
+      "xref_type": "uniprot",
+      "expected": "@reference[0].uniprot_ids[0]"
+    },
+    {
+      "name": "Check Ensembl cross-reference",
+      "type": "xref_exists",
+      "id": "@reference[0].hgnc_id",
+      "xref_type": "ensembl",
+      "expected": "@reference[0].ensembl_gene_id"
+    },
+    {
+      "name": "Lookup multiple IDs",
+      "type": "multi_lookup",
+      "count": 3,
+      "id_field": "hgnc_id"
+    },
+    {
+      "name": "Case-insensitive symbol search",
+      "type": "case_insensitive",
+      "symbol": "@reference[0].symbol"
+    },
+    {
+      "name": "Check RefSeq cross-reference",
+      "type": "xref_exists",
+      "id": "@reference[0].hgnc_id",
+      "xref_type": "refseq",
+      "expected": "@reference[0].refseq_accession[0]"
+    },
+    {
+      "name": "Invalid ID handling",
+      "type": "invalid_id",
+      "invalid_id": "HGNC:99999999"
+    }
+  ],
+  "custom_tests": []
+}

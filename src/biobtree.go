@@ -159,6 +159,13 @@ func main() {
 			},
 		},
 		{
+			Name:  "test",
+			Usage: "Build database in test mode with limited datasets for testing",
+			Action: func(c *cli.Context) error {
+				return runTestCommand(c)
+			},
+		},
+		{
 			Name:  "update",
 			Usage: "Fetch selected datsets and produce chunk files",
 			Action: func(c *cli.Context) error {
@@ -247,6 +254,120 @@ func runBuildCommand(c *cli.Context) error {
 
 }
 
+func runTestCommand(c *cli.Context) error {
+
+	log.Println("════════════════════════════════════════════════════════════")
+	log.Println("  BiobtreeV2 Test Mode")
+	log.Println("════════════════════════════════════════════════════════════")
+	log.Println()
+
+	start := time.Now()
+
+	// Initialize configuration with test output directory
+	confdir := c.GlobalString("confdir")
+	// Force test output directory (ignore --out-dir flag)
+	testOutDir := "test_out"
+	includeOptionals := c.GlobalBool("include-optionals")
+
+	config = &configs.Conf{}
+	config.Init(confdir, versionTag, testOutDir, includeOptionals)
+
+	// Enable test mode
+	config.TestMode = true
+	config.TestOutputDir = testOutDir
+	config.TestRefDir = testOutDir + "/reference"
+
+	// Create test directories
+	testDirs := []string{
+		"test_out",
+		"test_out/db",
+		"test_out/aliasdb",
+		"test_out/reference",
+		"test_out/logs",
+	}
+
+	log.Println("Step 1: Creating test directories...")
+	for _, dir := range testDirs {
+		if err := os.MkdirAll(dir, 0755); err != nil {
+			log.Fatalf("Error creating directory %s: %v", dir, err)
+		}
+	}
+	log.Println("✓ Test directories created")
+	log.Println()
+
+	// Show which datasets will be processed with limits
+	// Only show datasets that have test_entries_count configured
+	log.Println("Step 2: Test configuration:")
+	log.Println("  Datasets with test limits configured:")
+	hasTestConfig := false
+	for dsName, dsConfig := range config.Dataconf {
+		// Only show if test_entries_count is explicitly configured
+		if _, ok := dsConfig["test_entries_count"]; ok {
+			limit := config.GetTestLimit(dsName)
+			if limit > 0 {
+				log.Printf("    - %s: %d entries", dsName, limit)
+				hasTestConfig = true
+			} else if limit == -1 {
+				log.Printf("    - %s: FULL dataset", dsName)
+				hasTestConfig = true
+			}
+		}
+	}
+
+	if !hasTestConfig {
+		log.Println("    (No datasets have test_entries_count configured)")
+		log.Println("    (All selected datasets will be processed in FULL)")
+	}
+
+	// Show Ensembl species if configured
+	testSpecies := config.GetTestSpecies()
+	if len(testSpecies) > 0 {
+		log.Printf("  Ensembl test species: %v", testSpecies)
+	}
+
+	// Show which datasets will actually be processed
+	indataset := c.GlobalString("datasets")
+	if len(indataset) > 0 {
+		log.Printf("  Datasets to process (-d flag): %s", indataset)
+	} else {
+		log.Println("  No datasets specified with -d flag")
+		log.Println("  Use: ./biobtree -d \"hgnc\" test")
+	}
+	log.Println()
+
+	// Run update and generate
+	log.Println("Step 3: Running data processing (update + generate)...")
+	log.Println()
+
+	err := runUpdateCommand(c)
+	if err != nil {
+		log.Printf("✗ Update failed: %v", err)
+		return err
+	}
+
+	err = runGenerateCommand(c)
+	if err != nil {
+		log.Printf("✗ Generate failed: %v", err)
+		return err
+	}
+
+	elapsed := time.Since(start)
+
+	log.Println()
+	log.Println("════════════════════════════════════════════════════════════")
+	log.Println("✓ Test database build complete")
+	log.Printf("  Time: %s", elapsed)
+	log.Println("  Output: test_out/db/")
+	log.Println("  Reference IDs: test_out/reference/")
+	log.Println()
+	log.Println("Next steps:")
+	log.Println("  1. Start web service: ./biobtree web --db-dir test_out/db --port 8889")
+	log.Println("  2. Run validation:    python3 tests/validate_biobtree.py")
+	log.Println("════════════════════════════════════════════════════════════")
+
+	return nil
+}
+
 func runUpdateCommand(c *cli.Context) error {
 
 	start := time.Now()
@@ -255,8 +376,11 @@ func runUpdateCommand(c *cli.Context) error {
 	outDir := c.GlobalString("out-dir")
 	includeOptionals := c.GlobalBool("include-optionals")
 
-	config = &configs.Conf{}
-	config.Init(confdir, versionTag, outDir, includeOptionals)
+	// Only initialize config if not already initialized (e.g., by test command)
+	if config == nil || !config.TestMode {
+		config = &configs.Conf{}
+		config.Init(confdir, versionTag, outDir, includeOptionals)
+	}
 
 	indataset := c.GlobalString("datasets")
 
@@ -386,8 +510,11 @@ func runGenerateCommand(c *cli.Context) error {
 	outDir := c.GlobalString("out-dir")
 	lmdbAllocSize := c.GlobalString("lmdb-alloc-size")
 
-	config = &configs.Conf{}
-	config.Init(confdir, versionTag, outDir, true)
+	// Only initialize config if not already initialized (e.g., by test command)
+	if config == nil || !config.TestMode {
+		config = &configs.Conf{}
+		config.Init(confdir, versionTag, outDir, true)
+	}
 
 	if len(lmdbAllocSize) > 0 {
 		config.Appconf["lmdbAllocSize"] = lmdbAllocSize

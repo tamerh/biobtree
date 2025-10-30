@@ -238,3 +238,41 @@ func contains(s []string, e string) bool {
 	}
 	return false
 }
+
+// Test mode utility functions
+
+// openIDLogFile opens a file for logging processed IDs in test mode
+// Returns nil if file cannot be created (non-fatal)
+func openIDLogFile(referenceDir, filename string) *os.File {
+	// Create reference directory if it doesn't exist
+	if err := os.MkdirAll(referenceDir, 0755); err != nil {
+		log.Printf("Warning: cannot create reference directory %s: %v", referenceDir, err)
+		return nil
+	}
+
+	// Create log file
+	filePath := filepath.Join(referenceDir, filename)
+	file, err := os.Create(filePath)
+	if err != nil {
+		log.Printf("Warning: cannot create ID log file %s: %v", filePath, err)
+		return nil
+	}
+
+	log.Printf("[TEST MODE] Logging IDs to: %s", filePath)
+	return file
+}
+
+// logProcessedID logs a single ID to the reference file
+func logProcessedID(file *os.File, id string) {
+	if file != nil {
+		file.WriteString(id + "\n")
+	}
+}
+
+// shouldStopProcessing checks if the processing should stop based on test limit
+func shouldStopProcessing(testLimit int, currentCount int) bool {
+	if testLimit <= 0 {
+		return false // No limit
+	}
+	return currentCount >= testLimit
+}

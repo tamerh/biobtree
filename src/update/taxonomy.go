@@ -2,6 +2,7 @@ package update
 
 import (
 	"biobtree/pbuf"
+	"os"
 	"strconv"
 	"strings"
 	"sync/atomic"
@@ -27,6 +28,16 @@ func (t *taxonomy) update() {
 	fr := config.Dataconf[t.source]["id"]
 	frparent := config.Dataconf["taxparent"]["id"]
 	frchild := config.Dataconf["taxchild"]["id"]
+
+	// Test mode support
+	testLimit := config.GetTestLimit(t.source)
+	var idLogFile *os.File
+	if config.IsTestMode() {
+		idLogFile = openIDLogFile(config.TestRefDir, t.source+"_ids.txt")
+		if idLogFile != nil {
+			defer idLogFile.Close()
+		}
+	}
 
 	br, gz, ftpFile, client, localFile, _, err := getDataReaderNew(t.source, t.d.ebiFtp, t.d.ebiFtpPath, config.Dataconf[t.source]["path"])
 	check(err)
@@ -99,7 +110,20 @@ func (t *taxonomy) update() {
 			t.d.addXref2(r.Attrs["parentTaxId"], frparent, r.Attrs["parentTaxId"], "taxonomy")
 		}
 
+		// Log ID in test mode
+		if idLogFile != nil {
+			logProcessedID(idLogFile, entryid)
+		}
+
 		total++
+
+		// Check test limit
+		if shouldStopProcessing(testLimit, int(total)) {
+			t.d.progChan <- &progressInfo{dataset: t.source, done: true}
+			atomic.AddUint64(&t.d.totalParsedEntry, total)
+			t.d.addEntryStat(t.source, total)
+			return
+		}
 
 	}
 

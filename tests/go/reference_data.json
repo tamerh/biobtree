@@ -1,0 +1,3327 @@
+{
+  "metadata": {
+    "total_ids": 100,
+    "fetched": 100,
+    "failed": 0
+  },
+  "entries": [
+    {
+      "id": "GO:0000001",
+      "isObsolete": false,
+      "name": "mitochondrion inheritance",
+      "definition": {
+        "text": "The distribution of mitochondria, including the mitochondrial genome, into daughter cells after mitosis or meiosis, mediated by interactions between mitochondria and the cytoskeleton.",
+        "xrefs": [
+          {
+            "dbCode": "PMID",
+            "dbId": "10873824"
+          },
+          {
+            "dbCode": "PMID",
+            "dbId": "11389764"
+          }
+        ]
+      },
+      "synonyms": [
+        {
+          "name": "mitochondrial inheritance",
+          "type": "exact"
+        }
+      ],
+      "aspect": "biological_process",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000002",
+      "isObsolete": true,
+      "name": "obsolete mitochondrial genome maintenance",
+      "definition": {
+        "text": "OBSOLETE. The maintenance of the structure and integrity of the mitochondrial genome; includes replication and segregation of the mitochondrial chromosome."
+      },
+      "comment": "This term described phenotypic observations for multiple processes (including transport/lipid metabolism/ DNA metabolism/ fission/ fusion etc)",
+      "aspect": "biological_process",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000003",
+      "isObsolete": true,
+      "name": "obsolete reproduction",
+      "definition": {
+        "text": "OBSOLETE. The production of new individuals that contain some portion of genetic material inherited from one or more parent organisms.",
+        "xrefs": [
+          {
+            "dbCode": "ISBN",
+            "dbId": "0198506732"
+          }
+        ]
+      },
+      "comment": "The reason for obsoletion is that this term is equivalent to reproductive process.",
+      "synonyms": [
+        {
+          "name": "reproductive physiological process",
+          "type": "exact"
+        }
+      ],
+      "aspect": "biological_process",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000005",
+      "isObsolete": true,
+      "name": "obsolete ribosomal chaperone activity",
+      "definition": {
+        "text": "OBSOLETE. Assists in the correct assembly of ribosomes or ribosomal subunits in vivo, but is not a component of the assembled ribosome when performing its normal biological function.",
+        "xrefs": [
+          {
+            "dbCode": "PMID",
+            "dbId": "12150913"
+          }
+        ]
+      },
+      "comment": "This term was made obsolete because it refers to a class of gene products and a biological process rather than a molecular function.",
+      "synonyms": [
+        {
+          "name": "ribosomal chaperone activity",
+          "type": "exact"
+        }
+      ],
+      "aspect": "molecular_function",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000006",
+      "isObsolete": false,
+      "name": "high-affinity zinc transmembrane transporter activity",
+      "definition": {
+        "text": "Enables the transfer of zinc ions (Zn2+) from one side of a membrane to the other, probably powered by proton motive force. In high-affinity transport the transporter is able to bind the solute even if it is only present at very low concentrations.",
+        "xrefs": [
+          {
+            "dbCode": "TC",
+            "dbId": "2.A.5.1.1"
+          }
+        ]
+      },
+      "synonyms": [
+        {
+          "name": "high affinity zinc uptake transmembrane transporter activity",
+          "type": "exact"
+        },
+        {
+          "name": "high-affinity zinc uptake transmembrane transporter activity",
+          "type": "related"
+        }
+      ],
+      "aspect": "molecular_function",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000007",
+      "isObsolete": false,
+      "name": "low-affinity zinc ion transmembrane transporter activity",
+      "definition": {
+        "text": "Enables the transfer of a solute or solutes from one side of a membrane to the other according to the reaction: Zn2+ = Zn2+, probably powered by proton motive force. In low-affinity transport the transporter is able to bind the solute only if it is present at very high concentrations.",
+        "xrefs": [
+          {
+            "dbCode": "ISBN",
+            "dbId": "0815340729"
+          }
+        ]
+      },
+      "aspect": "molecular_function",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000008",
+      "isObsolete": true,
+      "name": "obsolete thioredoxin",
+      "definition": {
+        "text": "OBSOLETE. A small disulfide-containing redox protein that serves as a general protein disulfide oxidoreductase. Interacts with a broad range of proteins by a redox mechanism, based on the reversible oxidation of 2 cysteine thiol groups to a disulfide, accompanied by the transfer of 2 electrons and 2 protons. The net result is the covalent interconversion of a disulfide and a dithiol."
+      },
+      "comment": "This term was made obsolete because it represents gene products.",
+      "synonyms": [
+        {
+          "name": "thioredoxin",
+          "type": "exact"
+        }
+      ],
+      "aspect": "molecular_function",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000009",
+      "isObsolete": false,
+      "name": "alpha-1,6-mannosyltransferase activity",
+      "definition": {
+        "text": "Catalysis of the transfer of a mannose residue to an oligosaccharide, forming an alpha-(1->6) linkage.",
+        "xrefs": [
+          {
+            "dbCode": "PMID",
+            "dbId": "2644248"
+          }
+        ]
+      },
+      "synonyms": [
+        {
+          "name": "1,6-alpha-mannosyltransferase activity",
+          "type": "exact"
+        }
+      ],
+      "children": [
+        {
+          "id": "GO:0033164",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0102704",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0000136",
+          "relation": "capable_of"
+        },
+        {
+          "id": "GO:0052917",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0120563",
+          "relation": "is_a"
+        }
+      ],
+      "aspect": "molecular_function",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000010",
+      "isObsolete": false,
+      "name": "heptaprenyl diphosphate synthase activity",
+      "definition": {
+        "text": "Catalysis of the reaction: (2E,6E)-farnesyl diphosphate + 4 isopentenyl diphosphate = 4 diphosphate + all-trans-heptaprenyl diphosphate.",
+        "xrefs": [
+          {
+            "dbCode": "PMID",
+            "dbId": "9708911"
+          },
+          {
+            "dbCode": "RHEA",
+            "dbId": "27794"
+          }
+        ]
+      },
+      "synonyms": [
+        {
+          "name": "all-trans-heptaprenyl-diphosphate synthase activity",
+          "type": "exact"
+        },
+        {
+          "name": "trans-hexaprenyltranstransferase activity",
+          "type": "exact"
+        },
+        {
+          "name": "heptaprenyl pyrophosphate synthase activity",
+          "type": "related"
+        },
+        {
+          "name": "heptaprenyl pyrophosphate synthetase activity",
+          "type": "related"
+        },
+        {
+          "name": "HepPP synthase activity",
+          "type": "related"
+        }
+      ],
+      "aspect": "molecular_function",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000011",
+      "isObsolete": false,
+      "name": "vacuole inheritance",
+      "definition": {
+        "text": "The distribution of vacuoles into daughter cells after mitosis or meiosis, mediated by interactions between vacuoles and the cytoskeleton.",
+        "xrefs": [
+          {
+            "dbCode": "PMID",
+            "dbId": "10873824"
+          },
+          {
+            "dbCode": "PMID",
+            "dbId": "14616069"
+          }
+        ]
+      },
+      "aspect": "biological_process",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000012",
+      "isObsolete": false,
+      "name": "single strand break repair",
+      "definition": {
+        "text": "The repair of single strand breaks in DNA. Repair of such breaks is mediated by the same enzyme systems as are used in base excision repair.",
+        "xrefs": [
+          {
+            "dbCode": "PMID",
+            "dbId": "18626472"
+          }
+        ]
+      },
+      "children": [
+        {
+          "id": "GO:1990396",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:1903518",
+          "relation": "positively_regulates"
+        },
+        {
+          "id": "GO:1903823",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:1903516",
+          "relation": "regulates"
+        },
+        {
+          "id": "GO:1903517",
+          "relation": "negatively_regulates"
+        }
+      ],
+      "aspect": "biological_process",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000014",
+      "isObsolete": false,
+      "name": "single-stranded DNA endodeoxyribonuclease activity",
+      "definition": {
+        "text": "Catalysis of the hydrolysis of ester linkages within a single-stranded deoxyribonucleic acid molecule by creating internal breaks."
+      },
+      "synonyms": [
+        {
+          "name": "single-stranded DNA specific endodeoxyribonuclease activity",
+          "type": "related"
+        },
+        {
+          "name": "ssDNA-specific endodeoxyribonuclease activity",
+          "type": "related"
+        }
+      ],
+      "children": [
+        {
+          "id": "GO:1990599",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:1990600",
+          "relation": "positively_regulates"
+        },
+        {
+          "id": "GO:1990601",
+          "relation": "is_a"
+        }
+      ],
+      "aspect": "molecular_function",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000015",
+      "isObsolete": false,
+      "name": "phosphopyruvate hydratase complex",
+      "definition": {
+        "text": "A multimeric enzyme complex, usually a dimer or an octamer, that catalyzes the conversion of 2-phospho-D-glycerate to phosphoenolpyruvate and water.",
+        "xrefs": [
+          {
+            "dbCode": "ISBN",
+            "dbId": "0198506732"
+          }
+        ]
+      },
+      "synonyms": [
+        {
+          "name": "enolase complex",
+          "type": "exact"
+        }
+      ],
+      "aspect": "cellular_component",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000016",
+      "isObsolete": false,
+      "name": "lactase activity",
+      "definition": {
+        "text": "Catalysis of the reaction: lactose + H2O = D-glucose + D-galactose.",
+        "xrefs": [
+          {
+            "dbCode": "PMID",
+            "dbId": "12023280"
+          }
+        ]
+      },
+      "synonyms": [
+        {
+          "name": "lactose galactohydrolase activity",
+          "type": "exact"
+        }
+      ],
+      "aspect": "molecular_function",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000017",
+      "isObsolete": false,
+      "name": "alpha-glucoside transport",
+      "definition": {
+        "text": "The directed movement of alpha-glucosides into, out of or within a cell, or between cells, by means of some agent such as a transporter or pore. Alpha-glucosides are glycosides in which the sugar group is a glucose residue, and the anomeric carbon of the bond is in an alpha configuration.",
+        "xrefs": [
+          {
+            "dbCode": "ISBN",
+            "dbId": "0198506732"
+          },
+          {
+            "dbCode": "PMID",
+            "dbId": "9919658"
+          }
+        ]
+      },
+      "children": [
+        {
+          "id": "GO:0015151",
+          "relation": "part_of"
+        }
+      ],
+      "aspect": "biological_process",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000018",
+      "isObsolete": false,
+      "name": "regulation of DNA recombination",
+      "definition": {
+        "text": "Any process that modulates the frequency, rate or extent of DNA recombination, a DNA metabolic process in which a new genotype is formed by reassortment of genes resulting in gene combinations different from those that were present in the parents.",
+        "xrefs": [
+          {
+            "dbCode": "ISBN",
+            "dbId": "0198506732"
+          }
+        ]
+      },
+      "children": [
+        {
+          "id": "GO:1903110",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0045910",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0010520",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0061806",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0045191",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0072695",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0000019",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0045911",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0010569",
+          "relation": "is_a"
+        }
+      ],
+      "aspect": "biological_process",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000019",
+      "isObsolete": false,
+      "name": "regulation of mitotic recombination",
+      "definition": {
+        "text": "Any process that modulates the frequency, rate or extent of DNA recombination during mitosis."
+      },
+      "synonyms": [
+        {
+          "name": "regulation of recombination within rDNA repeats",
+          "type": "narrow"
+        }
+      ],
+      "children": [
+        {
+          "id": "GO:0032207",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0045951",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0045950",
+          "relation": "is_a"
+        }
+      ],
+      "aspect": "biological_process",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000020",
+      "isObsolete": true,
+      "name": "obsolete negative regulation of recombination within rDNA repeats",
+      "definition": {
+        "text": "OBSOLETE. Any process that stops, prevents, or reduces the frequency, rate or extent of genetic recombination within the DNA of the genes coding for ribosomal RNA.",
+        "xrefs": [
+          {
+            "dbCode": "ISBN",
+            "dbId": "0198506732"
+          }
+        ]
+      },
+      "comment": "This term was made obsolete because it describes a substrate-specific process.",
+      "synonyms": [
+        {
+          "name": "negative regulation of recombination within rDNA repeats",
+          "type": "exact"
+        }
+      ],
+      "aspect": "biological_process",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000022",
+      "isObsolete": false,
+      "name": "mitotic spindle elongation",
+      "definition": {
+        "text": "The cell cycle process in which the distance is lengthened between poles of the mitotic spindle. Mitotic spindle elongation begins during mitotic prophase and ends during mitotic anaphase B.",
+        "xrefs": [
+          {
+            "dbCode": "PMID",
+            "dbId": "19686686"
+          }
+        ]
+      },
+      "synonyms": [
+        {
+          "name": "microtubule sliding involved in mitotic spindle elongation",
+          "type": "related"
+        },
+        {
+          "name": "spindle elongation during mitosis",
+          "type": "exact"
+        }
+      ],
+      "children": [
+        {
+          "id": "GO:1902846",
+          "relation": "positively_regulates"
+        },
+        {
+          "id": "GO:0032888",
+          "relation": "regulates"
+        },
+        {
+          "id": "GO:1902845",
+          "relation": "negatively_regulates"
+        },
+        {
+          "id": "GO:0061805",
+          "relation": "part_of"
+        },
+        {
+          "id": "GO:0061804",
+          "relation": "part_of"
+        },
+        {
+          "id": "GO:0051256",
+          "relation": "part_of"
+        }
+      ],
+      "aspect": "biological_process",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000023",
+      "isObsolete": false,
+      "name": "maltose metabolic process",
+      "definition": {
+        "text": "The chemical reactions and pathways involving the disaccharide maltose (4-O-alpha-D-glucopyranosyl-D-glucopyranose), an intermediate in the catabolism of glycogen and starch.",
+        "xrefs": [
+          {
+            "dbCode": "ISBN",
+            "dbId": "0198506732"
+          }
+        ]
+      },
+      "synonyms": [
+        {
+          "name": "maltose metabolism",
+          "type": "exact"
+        },
+        {
+          "name": "malt sugar metabolism",
+          "type": "exact"
+        },
+        {
+          "name": "malt sugar metabolic process",
+          "type": "exact"
+        }
+      ],
+      "children": [
+        {
+          "id": "GO:0000024",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0000025",
+          "relation": "is_a"
+        }
+      ],
+      "aspect": "biological_process",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000024",
+      "isObsolete": false,
+      "name": "maltose biosynthetic process",
+      "definition": {
+        "text": "The chemical reactions and pathways resulting in the formation of the disaccharide maltose (4-O-alpha-D-glucopyranosyl-D-glucopyranose).",
+        "xrefs": [
+          {
+            "dbCode": "ISBN",
+            "dbId": "0198506732"
+          }
+        ]
+      },
+      "synonyms": [
+        {
+          "name": "maltose formation",
+          "type": "exact"
+        },
+        {
+          "name": "maltose synthesis",
+          "type": "exact"
+        },
+        {
+          "name": "maltose biosynthesis",
+          "type": "exact"
+        },
+        {
+          "name": "maltose anabolism",
+          "type": "exact"
+        },
+        {
+          "name": "malt sugar biosynthetic process",
+          "type": "exact"
+        },
+        {
+          "name": "malt sugar biosynthesis",
+          "type": "exact"
+        }
+      ],
+      "aspect": "biological_process",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000025",
+      "isObsolete": false,
+      "name": "maltose catabolic process",
+      "definition": {
+        "text": "The chemical reactions and pathways resulting in the breakdown of the disaccharide maltose (4-O-alpha-D-glucopyranosyl-D-glucopyranose).",
+        "xrefs": [
+          {
+            "dbCode": "ISBN",
+            "dbId": "0198506732"
+          }
+        ]
+      },
+      "synonyms": [
+        {
+          "name": "maltose degradation",
+          "type": "exact"
+        },
+        {
+          "name": "maltose breakdown",
+          "type": "exact"
+        },
+        {
+          "name": "malt sugar catabolism",
+          "type": "exact"
+        },
+        {
+          "name": "malt sugar catabolic process",
+          "type": "exact"
+        },
+        {
+          "name": "maltose hydrolysis",
+          "type": "narrow"
+        }
+      ],
+      "aspect": "biological_process",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000026",
+      "isObsolete": false,
+      "name": "alpha-1,2-mannosyltransferase activity",
+      "definition": {
+        "text": "Catalysis of the transfer of a mannose residue to an oligosaccharide, forming an alpha-(1->2) linkage.",
+        "xrefs": [
+          {
+            "dbCode": "PMID",
+            "dbId": "10521541"
+          }
+        ]
+      },
+      "children": [
+        {
+          "id": "GO:0120564",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0052918",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0004377",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0120565",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0052926",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0047241",
+          "relation": "is_a"
+        }
+      ],
+      "aspect": "molecular_function",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000027",
+      "isObsolete": false,
+      "name": "ribosomal large subunit assembly",
+      "definition": {
+        "text": "The aggregation, arrangement and bonding together of constituent RNAs and proteins to form the large ribosomal subunit.",
+        "xrefs": [
+          {
+            "dbCode": "PMID",
+            "dbId": "30467428"
+          }
+        ]
+      },
+      "synonyms": [
+        {
+          "name": "60S ribosomal subunit assembly",
+          "type": "narrow"
+        },
+        {
+          "name": "50S ribosomal subunit assembly",
+          "type": "narrow"
+        }
+      ],
+      "children": [
+        {
+          "id": "GO:1902775",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0140714",
+          "relation": "capable_of_part_of"
+        },
+        {
+          "id": "GO:0180023",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:1902626",
+          "relation": "part_of"
+        }
+      ],
+      "aspect": "biological_process",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000028",
+      "isObsolete": false,
+      "name": "ribosomal small subunit assembly",
+      "definition": {
+        "text": "The aggregation, arrangement and bonding together of constituent RNAs and proteins to form the small ribosomal subunit.",
+        "xrefs": [
+          {
+            "dbCode": "PMID",
+            "dbId": "30467428"
+          }
+        ]
+      },
+      "synonyms": [
+        {
+          "name": "40S ribosomal subunit assembly",
+          "type": "narrow"
+        },
+        {
+          "name": "30S ribosomal subunit assembly",
+          "type": "narrow"
+        }
+      ],
+      "children": [
+        {
+          "id": "GO:0180026",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0180025",
+          "relation": "is_a"
+        }
+      ],
+      "aspect": "biological_process",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000030",
+      "isObsolete": false,
+      "name": "mannosyltransferase activity",
+      "definition": {
+        "text": "Catalysis of the transfer of a mannosyl group to an acceptor molecule, typically another carbohydrate or a lipid."
+      },
+      "children": [
+        {
+          "id": "GO:0019187",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0016438",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0000009",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0000026",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0004376",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0051751",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0004169",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0004582",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0120562",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0000033",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0103064",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0031501",
+          "relation": "capable_of"
+        },
+        {
+          "id": "GO:0047267",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0047252",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0047264",
+          "relation": "is_a"
+        }
+      ],
+      "aspect": "molecular_function",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000031",
+      "isObsolete": false,
+      "name": "mannosylphosphate transferase activity",
+      "definition": {
+        "text": "Catalysis of the reaction: GDP-alpha-D-mannose + n {[alpha-D-Man-(1->2)-alpha-D-Man-(1->2)]-alpha-D-Man-(1->6)}60-(Man9GlcNAc2-[protein] = phosphorylated {[alpha-D-Man-(1->2)-alpha-D-Man-(1->2)]-alpha-D-Man-(1->6)}60-(Man9GlcNAc2-[protein] + n GMP + n H+ or GDP-alpha-D-mannose + alpha-D-Man-(1->3)-alpha-D-Man-(1->3)-alpha-D-Man-(1->2)-alpha-D-Man-(1->2)-alpha-D-Man-3-O-(Ser/Thr)-[protein] = alpha-D-Man-(1->3)-alpha-D-Man-(1->3)-[alpha-D-Man-6P-]-alpha-D-Man-(1->2)-alpha-D-Man-(1->2)-alpha-D-Man-3-O-(Ser/Thr)-[protein] + GMP + H+.",
+        "xrefs": [
+          {
+            "dbCode": "MetaCyc",
+            "dbId": "RXN-22693"
+          },
+          {
+            "dbCode": "MetaCyc",
+            "dbId": "RXN-22694"
+          }
+        ]
+      },
+      "aspect": "molecular_function",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000032",
+      "isObsolete": false,
+      "name": "cell wall mannoprotein biosynthetic process",
+      "definition": {
+        "text": "The chemical reactions and pathways resulting in the formation of cell wall mannoproteins, any cell wall protein that contains covalently bound mannose residues."
+      },
+      "synonyms": [
+        {
+          "name": "cell wall mannoprotein anabolism",
+          "type": "exact"
+        },
+        {
+          "name": "cell wall mannoprotein biosynthesis",
+          "type": "exact"
+        },
+        {
+          "name": "cell wall mannoprotein synthesis",
+          "type": "exact"
+        },
+        {
+          "name": "cell wall mannoprotein formation",
+          "type": "exact"
+        }
+      ],
+      "aspect": "biological_process",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000033",
+      "isObsolete": false,
+      "name": "alpha-1,3-mannosyltransferase activity",
+      "definition": {
+        "text": "Catalysis of the transfer of a mannose residue to an oligosaccharide, forming an alpha-(1->3) linkage.",
+        "xrefs": [
+          {
+            "dbCode": "PMID",
+            "dbId": "10521541"
+          }
+        ]
+      },
+      "children": [
+        {
+          "id": "GO:0052925",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0004378",
+          "relation": "is_a"
+        }
+      ],
+      "aspect": "molecular_function",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000034",
+      "isObsolete": false,
+      "name": "adenine deaminase activity",
+      "definition": {
+        "text": "Catalysis of the reaction: adenine + H+ + H2O = hypoxanthine + NH4+.",
+        "xrefs": [
+          {
+            "dbCode": "RHEA",
+            "dbId": "23688"
+          }
+        ]
+      },
+      "synonyms": [
+        {
+          "name": "adenine aminase activity",
+          "type": "related"
+        },
+        {
+          "name": "adenase activity",
+          "type": "related"
+        },
+        {
+          "name": "adenine aminohydrolase activity",
+          "type": "related"
+        },
+        {
+          "name": "ADase activity",
+          "type": "related"
+        }
+      ],
+      "aspect": "molecular_function",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000035",
+      "isObsolete": false,
+      "name": "acyl binding",
+      "definition": {
+        "text": "Binding to an acyl group, any group formally derived by removal of the hydroxyl group from the acid function of a carboxylic acid.",
+        "xrefs": [
+          {
+            "dbCode": "ISBN",
+            "dbId": "0198506732"
+          }
+        ]
+      },
+      "synonyms": [
+        {
+          "name": "acyl-CoA or acyl binding",
+          "type": "broad"
+        }
+      ],
+      "aspect": "molecular_function",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000036",
+      "isObsolete": false,
+      "name": "acyl carrier activity",
+      "definition": {
+        "text": "Binding an acyl group and presenting it for processing or offloading to a cognate enzyme. Covalently binds the acyl group via a phosphopantetheine prosthetic group and mediates protein-protein interactions with the enzyme conferring specificity. The acyl carrier protein (ACP) presents substrates to enzymes involved in fatty acid biosynthesis or in polyketide secondary metabolite biosynthesis."
+      },
+      "synonyms": [
+        {
+          "name": "ACP phosphopantetheine attachment site binding involved in fatty acid biosynthetic process",
+          "type": "exact"
+        }
+      ],
+      "aspect": "molecular_function",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000038",
+      "isObsolete": false,
+      "name": "very long-chain fatty acid metabolic process",
+      "definition": {
+        "text": "The chemical reactions and pathways involving a very long-chain fatty acid. A very long-chain fatty acid has an aliphatic tail containing more than 22 carbons."
+      },
+      "comment": "While there is not universal consensus on the lengths of short-, medium-, long- and very-long-chain fatty acids, the GO uses the definitions in ChEBI (see CHEBI:26666, CHEBI:59554, CHEBI:15904 and CHEBI:27283).",
+      "synonyms": [
+        {
+          "name": "very-long-chain fatty acid metabolic process",
+          "type": "exact"
+        },
+        {
+          "name": "very long chain fatty acid metabolic process",
+          "type": "exact"
+        },
+        {
+          "name": "very-long-chain fatty acid metabolism",
+          "type": "exact"
+        }
+      ],
+      "children": [
+        {
+          "id": "GO:0042761",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0042760",
+          "relation": "is_a"
+        }
+      ],
+      "aspect": "biological_process",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000039",
+      "isObsolete": true,
+      "name": "obsolete plasma membrane long-chain fatty acid transporter",
+      "definition": {
+        "text": "OBSOLETE. (Was not defined before being made obsolete)."
+      },
+      "comment": "This term was made obsolete because it describes a gene product and it contains component information.",
+      "synonyms": [
+        {
+          "name": "plasma membrane long-chain fatty acid transporter",
+          "type": "exact"
+        }
+      ],
+      "aspect": "molecular_function",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000041",
+      "isObsolete": false,
+      "name": "transition metal ion transport",
+      "definition": {
+        "text": "The directed movement of transition metal ions into, out of or within a cell, or between cells, by means of some agent such as a transporter or pore. A transition metal is an element whose atom has an incomplete d-subshell of extranuclear electrons, or which gives rise to a cation or cations with an incomplete d-subshell. Transition metals often have more than one valency state. Biologically relevant transition metals include vanadium, manganese, iron, copper, cobalt, nickel, molybdenum and silver.",
+        "xrefs": [
+          {
+            "dbCode": "ISBN",
+            "dbId": "0198506732"
+          }
+        ]
+      },
+      "synonyms": [
+        {
+          "name": "transition metal transport",
+          "type": "exact"
+        }
+      ],
+      "children": [
+        {
+          "id": "GO:0006824",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0015694",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0006825",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0015691",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0006828",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0006829",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0015673",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0006826",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0015676",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0015675",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0046915",
+          "relation": "part_of"
+        }
+      ],
+      "aspect": "biological_process",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000044",
+      "isObsolete": true,
+      "name": "obsolete ascorbate stabilization",
+      "definition": {
+        "text": "OBSOLETE. The reduction of the ascorbate free radical to a stable form."
+      },
+      "comment": "This term was made obsolete because it is defined as a function term and is in the process ontology.",
+      "synonyms": [
+        {
+          "name": "vitamin C stabilization",
+          "type": "exact"
+        },
+        {
+          "name": "ascorbate stabilization",
+          "type": "exact"
+        }
+      ],
+      "aspect": "biological_process",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000045",
+      "isObsolete": false,
+      "name": "autophagosome assembly",
+      "definition": {
+        "text": "The formation of a double membrane-bounded structure, the autophagosome, that occurs when a specialized membrane sac, called the isolation membrane, starts to enclose a portion of the cytoplasm.",
+        "xrefs": [
+          {
+            "dbCode": "PMID",
+            "dbId": "9412464"
+          }
+        ]
+      },
+      "synonyms": [
+        {
+          "name": "PAS formation",
+          "type": "narrow"
+        },
+        {
+          "name": "autophagic vacuole assembly",
+          "type": "exact"
+        },
+        {
+          "name": "autophagic vacuole formation",
+          "type": "related"
+        },
+        {
+          "name": "autophagosome biosynthesis",
+          "type": "exact"
+        },
+        {
+          "name": "autophagosome formation",
+          "type": "exact"
+        }
+      ],
+      "children": [
+        {
+          "id": "GO:2000786",
+          "relation": "positively_regulates"
+        },
+        {
+          "id": "GO:2000785",
+          "relation": "regulates"
+        },
+        {
+          "id": "GO:0034497",
+          "relation": "part_of"
+        },
+        {
+          "id": "GO:1990462",
+          "relation": "capable_of_part_of"
+        },
+        {
+          "id": "GO:0000407",
+          "relation": "capable_of_part_of"
+        },
+        {
+          "id": "GO:0061753",
+          "relation": "part_of"
+        },
+        {
+          "id": "GO:0034274",
+          "relation": "capable_of_part_of"
+        },
+        {
+          "id": "GO:0061736",
+          "relation": "part_of"
+        },
+        {
+          "id": "GO:1902902",
+          "relation": "negatively_regulates"
+        },
+        {
+          "id": "GO:0062079",
+          "relation": "capable_of_part_of"
+        },
+        {
+          "id": "GO:1990316",
+          "relation": "capable_of_part_of"
+        },
+        {
+          "id": "GO:0061739",
+          "relation": "part_of"
+        },
+        {
+          "id": "GO:0035032",
+          "relation": "capable_of_part_of"
+        },
+        {
+          "id": "GO:0061908",
+          "relation": "capable_of_part_of"
+        }
+      ],
+      "aspect": "biological_process",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000047",
+      "isObsolete": true,
+      "name": "obsolete Rieske iron-sulfur protein",
+      "definition": {
+        "text": "OBSOLETE. (Was not defined before being made obsolete)."
+      },
+      "comment": "This term was made obsolete because it represents a gene product.",
+      "synonyms": [
+        {
+          "name": "Rieske iron-sulfur protein",
+          "type": "exact"
+        },
+        {
+          "name": "Rieske iron-sulphur protein",
+          "type": "exact"
+        }
+      ],
+      "aspect": "molecular_function",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000048",
+      "isObsolete": false,
+      "name": "peptidyltransferase activity",
+      "definition": {
+        "text": "Catalysis of the reaction: peptidyl-tRNA(1) + aminoacyl-tRNA(2) = tRNA(1) + peptidylaminoacyl-tRNA(2). This reaction is catalyzed by a ribozyme.",
+        "xrefs": [
+          {
+            "dbCode": "PMID",
+            "dbId": "11433365"
+          },
+          {
+            "dbCode": "PMID",
+            "dbId": "9242921"
+          }
+        ]
+      },
+      "aspect": "molecular_function",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000049",
+      "isObsolete": false,
+      "name": "tRNA binding",
+      "definition": {
+        "text": "Binding to a transfer RNA."
+      },
+      "synonyms": [
+        {
+          "name": "base pairing with tRNA",
+          "type": "narrow"
+        }
+      ],
+      "children": [
+        {
+          "id": "GO:1990856",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0030557",
+          "relation": "is_a"
+        }
+      ],
+      "aspect": "molecular_function",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000050",
+      "isObsolete": false,
+      "name": "urea cycle",
+      "definition": {
+        "text": "The sequence of reactions by which arginine is synthesized from ornithine, then cleaved to yield urea and regenerate ornithine. The overall reaction equation is NH3 + CO2 + aspartate + 3 ATP + 2 H2O = urea + fumarate + 2 ADP + 2 phosphate + AMP + diphosphate.",
+        "xrefs": [
+          {
+            "dbCode": "ISBN",
+            "dbId": "0198506732"
+          }
+        ]
+      },
+      "synonyms": [
+        {
+          "name": "urea biosynthesis",
+          "type": "exact"
+        },
+        {
+          "name": "ornithine cycle",
+          "type": "exact"
+        },
+        {
+          "name": "urea biosynthetic process",
+          "type": "exact"
+        }
+      ],
+      "aspect": "biological_process",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000051",
+      "isObsolete": true,
+      "name": "obsolete urea cycle intermediate metabolic process",
+      "definition": {
+        "text": "OBSOLETE. The chemical reactions and pathways involving any of the intermediate compounds involved in the urea cycle, a cyclic metabolic pathway that converts waste nitrogen in the form of ammonium to urea.",
+        "xrefs": [
+          {
+            "dbCode": "ISBN",
+            "dbId": "0198506732"
+          }
+        ]
+      },
+      "comment": "This term was made obsolete because it is a grouping term that is not useful, but has caused true path violations.",
+      "synonyms": [
+        {
+          "name": "urea cycle intermediate metabolism",
+          "type": "exact"
+        },
+        {
+          "name": "urea cycle intermediate metabolic process",
+          "type": "exact"
+        }
+      ],
+      "aspect": "biological_process",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000052",
+      "isObsolete": false,
+      "name": "citrulline metabolic process",
+      "definition": {
+        "text": "The chemical reactions and pathways involving citrulline, N5-carbamoyl-L-ornithine, an alpha amino acid not found in proteins.",
+        "xrefs": [
+          {
+            "dbCode": "ISBN",
+            "dbId": "0198506732"
+          }
+        ]
+      },
+      "synonyms": [
+        {
+          "name": "citrulline metabolism",
+          "type": "exact"
+        }
+      ],
+      "children": [
+        {
+          "id": "GO:0019241",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0019240",
+          "relation": "is_a"
+        }
+      ],
+      "aspect": "biological_process",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000053",
+      "isObsolete": false,
+      "name": "argininosuccinate metabolic process",
+      "definition": {
+        "text": "The chemical reactions and pathways involving argininosuccinate, 2-(N(omega)-arginino)succinate, an intermediate in the ornithine-urea cycle, where it is synthesized from citrulline and aspartate.",
+        "xrefs": [
+          {
+            "dbCode": "ISBN",
+            "dbId": "0198506732"
+          }
+        ]
+      },
+      "synonyms": [
+        {
+          "name": "argininosuccinate metabolism",
+          "type": "exact"
+        }
+      ],
+      "aspect": "biological_process",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000054",
+      "isObsolete": false,
+      "name": "ribosomal subunit export from nucleus",
+      "definition": {
+        "text": "The directed movement of a ribosomal subunit from the nucleus into the cytoplasm."
+      },
+      "synonyms": [
+        {
+          "name": "ribosome export from nucleus",
+          "type": "related"
+        },
+        {
+          "name": "ribosomal subunit export out of nucleus",
+          "type": "exact"
+        },
+        {
+          "name": "ribosomal subunit export from cell nucleus",
+          "type": "exact"
+        },
+        {
+          "name": "ribosomal subunit transport from nucleus to cytoplasm",
+          "type": "exact"
+        },
+        {
+          "name": "ribosomal subunit-nucleus export",
+          "type": "exact"
+        }
+      ],
+      "children": [
+        {
+          "id": "GO:2000200",
+          "relation": "regulates"
+        },
+        {
+          "id": "GO:2000202",
+          "relation": "positively_regulates"
+        },
+        {
+          "id": "GO:2000201",
+          "relation": "negatively_regulates"
+        },
+        {
+          "id": "GO:0000056",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0000055",
+          "relation": "is_a"
+        }
+      ],
+      "aspect": "biological_process",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000055",
+      "isObsolete": false,
+      "name": "ribosomal large subunit export from nucleus",
+      "definition": {
+        "text": "The directed movement of a ribosomal large subunit from the nucleus into the cytoplasm."
+      },
+      "synonyms": [
+        {
+          "name": "ribosomal large subunit transport from nucleus to cytoplasm",
+          "type": "exact"
+        },
+        {
+          "name": "ribosomal large subunit export out of nucleus",
+          "type": "exact"
+        },
+        {
+          "name": "50S ribosomal subunit export from nucleus",
+          "type": "narrow"
+        },
+        {
+          "name": "60S ribosomal subunit export from nucleus",
+          "type": "narrow"
+        },
+        {
+          "name": "ribosomal large subunit-nucleus export",
+          "type": "exact"
+        },
+        {
+          "name": "ribosomal large subunit export from cell nucleus",
+          "type": "exact"
+        }
+      ],
+      "children": [
+        {
+          "id": "GO:2000203",
+          "relation": "regulates"
+        },
+        {
+          "id": "GO:2000205",
+          "relation": "positively_regulates"
+        },
+        {
+          "id": "GO:2000204",
+          "relation": "negatively_regulates"
+        }
+      ],
+      "aspect": "biological_process",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000056",
+      "isObsolete": false,
+      "name": "ribosomal small subunit export from nucleus",
+      "definition": {
+        "text": "The directed movement of a ribosomal small subunit from the nucleus into the cytoplasm."
+      },
+      "synonyms": [
+        {
+          "name": "ribosomal small subunit-nucleus export",
+          "type": "exact"
+        },
+        {
+          "name": "ribosomal small subunit export from cell nucleus",
+          "type": "exact"
+        },
+        {
+          "name": "30S ribosomal subunit export from nucleus",
+          "type": "narrow"
+        },
+        {
+          "name": "40S ribosomal subunit export from nucleus",
+          "type": "narrow"
+        },
+        {
+          "name": "ribosomal small subunit export out of nucleus",
+          "type": "exact"
+        },
+        {
+          "name": "ribosomal small subunit transport from nucleus to cytoplasm",
+          "type": "exact"
+        }
+      ],
+      "children": [
+        {
+          "id": "GO:2000208",
+          "relation": "positively_regulates"
+        },
+        {
+          "id": "GO:2000207",
+          "relation": "negatively_regulates"
+        },
+        {
+          "id": "GO:2000206",
+          "relation": "regulates"
+        }
+      ],
+      "aspect": "biological_process",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000059",
+      "isObsolete": true,
+      "name": "obsolete protein import into nucleus, docking",
+      "definition": {
+        "text": "OBSOLETE. A protein complex assembly process that contributes to protein import into the nucleus, and that results in the association of a cargo protein, a carrier protein such as an importin alpha/beta heterodimer, and a nucleoporin located at the periphery of the nuclear pore complex.",
+        "xrefs": [
+          {
+            "dbCode": "PMID",
+            "dbId": "14570049"
+          },
+          {
+            "dbCode": "PMID",
+            "dbId": "7878057"
+          },
+          {
+            "dbCode": "PMID",
+            "dbId": "9126736"
+          }
+        ]
+      },
+      "comment": "This term was made obsolete because the transient assembly is better captured as a protein-protein association, if at all.",
+      "synonyms": [
+        {
+          "name": "protein docking during protein import into nucleus",
+          "type": "exact"
+        },
+        {
+          "name": "protein docking during protein transport from cytoplasm to nucleus",
+          "type": "exact"
+        },
+        {
+          "name": "protein-nucleus import, docking",
+          "type": "exact"
+        },
+        {
+          "name": "protein transport from cytoplasm to nucleus, docking",
+          "type": "exact"
+        },
+        {
+          "name": "protein docking during protein-nucleus import",
+          "type": "exact"
+        }
+      ],
+      "aspect": "biological_process",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000060",
+      "isObsolete": true,
+      "name": "obsolete protein import into nucleus, translocation",
+      "definition": {
+        "text": "OBSOLETE. A protein transport process that contributes to protein import into the nucleus, and that results in the vectorial transfer of a cargo-carrier protein complex through the nuclear pore complex from the cytoplasmic side to the nucleoplasmic side of the nuclear envelope.",
+        "xrefs": [
+          {
+            "dbCode": "ISBN",
+            "dbId": "0198506732"
+          },
+          {
+            "dbCode": "PMID",
+            "dbId": "14570049"
+          },
+          {
+            "dbCode": "PMID",
+            "dbId": "9126736"
+          }
+        ]
+      },
+      "comment": "This term has been obsoleted because it represents a substep of the parent (GO:0006606 protein import into nucleus), has been incorrectly used.",
+      "synonyms": [
+        {
+          "name": "protein translocation during protein import into nucleus",
+          "type": "exact"
+        },
+        {
+          "name": "protein import into cell nucleus, translocation",
+          "type": "exact"
+        },
+        {
+          "name": "protein translocation during protein transport from cytoplasm to nucleus",
+          "type": "exact"
+        },
+        {
+          "name": "protein translocation during protein-nucleus import",
+          "type": "exact"
+        },
+        {
+          "name": "protein transport from cytoplasm to nucleus, translocation",
+          "type": "exact"
+        },
+        {
+          "name": "protein-nucleus import, translocation",
+          "type": "exact"
+        }
+      ],
+      "aspect": "biological_process",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000061",
+      "isObsolete": true,
+      "name": "obsolete protein import into nucleus, substrate release",
+      "definition": {
+        "text": "OBSOLETE. A protein complex disassembly process that contributes to protein import into the nucleus, and that results in the dissociation of the cargo protein and the carrier (such as an importin alpha/beta heterodimer) from each other and from the nuclear pore complex.",
+        "xrefs": [
+          {
+            "dbCode": "PMID",
+            "dbId": "14570049"
+          },
+          {
+            "dbCode": "PMID",
+            "dbId": "9126736"
+          },
+          {
+            "dbCode": "PMID",
+            "dbId": "9687515"
+          }
+        ]
+      },
+      "comment": "This term has been obsoleted because it represents a substep of the parent (GO:0006606 protein import into nucleus), has been incorrectly used.",
+      "synonyms": [
+        {
+          "name": "protein substrate release during protein transport from cytoplasm to nucleus",
+          "type": "exact"
+        },
+        {
+          "name": "protein substrate release during protein import into nucleus",
+          "type": "exact"
+        },
+        {
+          "name": "protein substrate release during protein-nucleus import",
+          "type": "exact"
+        },
+        {
+          "name": "protein import into cell nucleus, substrate release",
+          "type": "exact"
+        },
+        {
+          "name": "protein-nucleus import, substrate release",
+          "type": "exact"
+        },
+        {
+          "name": "protein transport from cytoplasm to nucleus, substrate release",
+          "type": "exact"
+        }
+      ],
+      "aspect": "biological_process",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000062",
+      "isObsolete": false,
+      "name": "fatty-acyl-CoA binding",
+      "definition": {
+        "text": "Binding to a fatty-acyl-CoA, any derivative of coenzyme A in which the sulfhydryl group is in thiolester linkage with a fatty acyl group.",
+        "xrefs": [
+          {
+            "dbCode": "ISBN",
+            "dbId": "0198506732"
+          }
+        ]
+      },
+      "synonyms": [
+        {
+          "name": "fatty-acyl binding",
+          "type": "broad"
+        },
+        {
+          "name": "fatty-acyl-coenzyme A binding",
+          "type": "exact"
+        }
+      ],
+      "children": [
+        {
+          "id": "GO:0036042",
+          "relation": "is_a"
+        }
+      ],
+      "aspect": "molecular_function",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000064",
+      "isObsolete": false,
+      "name": "L-ornithine transmembrane transporter activity",
+      "definition": {
+        "text": "Enables the transfer of L-ornithine from one side of a membrane to the other. L-ornithine is 2,5-diaminopentanoic acid.",
+        "xrefs": [
+          {
+            "dbCode": "ISBN",
+            "dbId": "0815340729"
+          }
+        ]
+      },
+      "synonyms": [
+        {
+          "name": "L-ornithine transporter activity",
+          "type": "broad"
+        },
+        {
+          "name": "histidine/arginine/lysine/ornithine porter activity",
+          "type": "related"
+        }
+      ],
+      "children": [
+        {
+          "id": "GO:0015496",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0097627",
+          "relation": "is_a"
+        }
+      ],
+      "aspect": "molecular_function",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000067",
+      "isObsolete": true,
+      "name": "obsolete DNA replication and chromosome cycle",
+      "definition": {
+        "text": "OBSOLETE. (Was not defined before being made obsolete)."
+      },
+      "comment": "This term was made obsolete because it has been superseded by more accurate terms to represent the biological processes occurring, and it is not clear that this term represents a useful entity.",
+      "synonyms": [
+        {
+          "name": "DNA replication and chromosome cycle",
+          "type": "exact"
+        }
+      ],
+      "aspect": "biological_process",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000070",
+      "isObsolete": false,
+      "name": "mitotic sister chromatid segregation",
+      "definition": {
+        "text": "The cell cycle process in which replicated homologous chromosomes are organized and then physically separated and apportioned to two sets during the mitotic cell cycle. Each replicated chromosome, composed of two sister chromatids, aligns at the cell equator, paired with its homologous partner. One homolog of each morphologic type goes into each of the resulting chromosome sets."
+      },
+      "synonyms": [
+        {
+          "name": "mitotic sister-chromatid adhesion release",
+          "type": "narrow"
+        },
+        {
+          "name": "mitotic chromosome segregation",
+          "type": "exact"
+        }
+      ],
+      "children": [
+        {
+          "id": "GO:0007080",
+          "relation": "part_of"
+        },
+        {
+          "id": "GO:0033048",
+          "relation": "negatively_regulates"
+        },
+        {
+          "id": "GO:0051306",
+          "relation": "part_of"
+        },
+        {
+          "id": "GO:0062033",
+          "relation": "positively_regulates"
+        },
+        {
+          "id": "GO:0033047",
+          "relation": "regulates"
+        },
+        {
+          "id": "GO:0007076",
+          "relation": "part_of"
+        },
+        {
+          "id": "GO:0090307",
+          "relation": "part_of"
+        },
+        {
+          "id": "GO:0007079",
+          "relation": "part_of"
+        },
+        {
+          "id": "GO:0000022",
+          "relation": "part_of"
+        }
+      ],
+      "aspect": "biological_process",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000072",
+      "isObsolete": true,
+      "name": "obsolete M phase specific microtubule process",
+      "definition": {
+        "text": "OBSOLETE. A microtubule-based process that occurs only during M phase of the cell cycle."
+      },
+      "comment": "This term was made obsolete because terms already exist for centrosome/spindle organization which would be more suitable for the existing annotations, and the phase could be captured as an annotation extension if necessary.",
+      "synonyms": [
+        {
+          "name": "M-phase specific microtubule process",
+          "type": "exact"
+        },
+        {
+          "name": "M phase specific microtubule process",
+          "type": "exact"
+        }
+      ],
+      "aspect": "biological_process",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000073",
+      "isObsolete": false,
+      "name": "initial mitotic spindle pole body separation",
+      "definition": {
+        "text": "The release of duplicated mitotic spindle pole bodies (SPBs) that begins with the nucleation of microtubules from each SPB within the nucleus, leading to V-shaped spindle microtubules. Interpolar microtubules that elongate from each pole are interconnected, forming overlapping microtubules. Capturing and antiparallel sliding apart of microtubules promotes the initial separation of the SPB."
+      },
+      "children": [
+        {
+          "id": "GO:0010697",
+          "relation": "negatively_regulates"
+        },
+        {
+          "id": "GO:0010696",
+          "relation": "positively_regulates"
+        },
+        {
+          "id": "GO:0010695",
+          "relation": "regulates"
+        }
+      ],
+      "aspect": "biological_process",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000075",
+      "isObsolete": false,
+      "name": "cell cycle checkpoint signaling",
+      "definition": {
+        "text": "A signaling process that controls cell cycle progression by monitoring the integrity of specific cell cycle events. A cell cycle checkpoint begins with detection of deficiencies or defects and ends with signal transduction."
+      },
+      "comment": "This term should not be used in direct manual annotation as it should always be possible to minimally designate mitotic or meiotic checkpoint, and usually to additionally specify the checkpoint (i.e mitotic spindle assembly checkpoint, mitotic DNA damage checkpoint etc). Note also that the effector processes are not part of the checkpoint but are positively regulated by the checkpoint signaling and should not be annotated here.",
+      "synonyms": [
+        {
+          "name": "G2/M transition checkpoint",
+          "type": "narrow"
+        },
+        {
+          "name": "G2/M checkpoint",
+          "type": "narrow"
+        },
+        {
+          "name": "G1/S transition checkpoint",
+          "type": "narrow"
+        },
+        {
+          "name": "G1/S checkpoint",
+          "type": "narrow"
+        },
+        {
+          "name": "signal transduction involved in G2/M transition checkpoint",
+          "type": "exact"
+        },
+        {
+          "name": "cell cycle checkpoint",
+          "type": "exact"
+        },
+        {
+          "name": "signal transduction involved in cell cycle checkpoint",
+          "type": "exact"
+        }
+      ],
+      "children": [
+        {
+          "id": "GO:0031577",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:1901977",
+          "relation": "negatively_regulates"
+        },
+        {
+          "id": "GO:1901976",
+          "relation": "regulates"
+        },
+        {
+          "id": "GO:1901978",
+          "relation": "positively_regulates"
+        },
+        {
+          "id": "GO:0007093",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0031570",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0033313",
+          "relation": "is_a"
+        }
+      ],
+      "aspect": "biological_process",
+      "usage": "None"
+    },
+    {
+      "id": "GO:0000076",
+      "isObsolete": false,
+      "name": "DNA replication checkpoint signaling",
+      "definition": {
+        "text": "A signal transduction process that contributes to a DNA replication checkpoint, that prevents the initiation of nuclear division until DNA replication is complete, thereby ensuring that progeny inherit a full complement of the genome.",
+        "xrefs": [
+          {
+            "dbCode": "PMID",
+            "dbId": "11728327"
+          },
+          {
+            "dbCode": "PMID",
+            "dbId": "12537518"
+          }
+        ]
+      },
+      "synonyms": [
+        {
+          "name": "signal transduction involved in DNA replication checkpoint",
+          "type": "exact"
+        },
+        {
+          "name": "DNA replication checkpoint",
+          "type": "exact"
+        }
+      ],
+      "children": [
+        {
+          "id": "GO:0033315",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0033314",
+          "relation": "is_a"
+        }
+      ],
+      "aspect": "biological_process",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000077",
+      "isObsolete": false,
+      "name": "DNA damage checkpoint signaling",
+      "definition": {
+        "text": "A signal transduction process that contributes to a DNA damage checkpoint."
+      },
+      "synonyms": [
+        {
+          "name": "signal transduction involved in DNA damage checkpoint",
+          "type": "exact"
+        },
+        {
+          "name": "DNA damage checkpoint",
+          "type": "exact"
+        },
+        {
+          "name": "DNA damage response, signal transduction resulting in cell cycle arrest",
+          "type": "narrow"
+        }
+      ],
+      "children": [
+        {
+          "id": "GO:2000002",
+          "relation": "negatively_regulates"
+        },
+        {
+          "id": "GO:2000001",
+          "relation": "regulates"
+        },
+        {
+          "id": "GO:2000003",
+          "relation": "positively_regulates"
+        },
+        {
+          "id": "GO:0044773",
+          "relation": "is_a"
+        }
+      ],
+      "aspect": "biological_process",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000078",
+      "isObsolete": true,
+      "name": "obsolete cytokinesis after mitosis checkpoint",
+      "definition": {
+        "text": "OBSOLETE. A mitotic cell cycle checkpoint that detects whether chromosome segregation is complete and negatively regulates cytokinesis following mitosis."
+      },
+      "comment": "The reason this term was made obsolete is that the two terms cytokinesis checkpoint (GO:0031565) and cytokinesis after mitosis (GO:0000078) were conflated in meaning.",
+      "synonyms": [
+        {
+          "name": "cell shape checkpoint",
+          "type": "exact"
+        },
+        {
+          "name": "cell morphogenesis checkpoint",
+          "type": "exact"
+        }
+      ],
+      "aspect": "biological_process",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000079",
+      "isObsolete": false,
+      "name": "regulation of cyclin-dependent protein serine/threonine kinase activity",
+      "definition": {
+        "text": "Any process that modulates the frequency, rate or extent of cyclin-dependent protein serine/threonine kinase activity."
+      },
+      "synonyms": [
+        {
+          "name": "regulation of cyclin-dependent protein kinase activity",
+          "type": "broad"
+        },
+        {
+          "name": "regulation of CDK activity",
+          "type": "exact"
+        }
+      ],
+      "children": [
+        {
+          "id": "GO:0045736",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0045737",
+          "relation": "is_a"
+        }
+      ],
+      "aspect": "biological_process",
+      "usage": "None"
+    },
+    {
+      "id": "GO:0000080",
+      "isObsolete": false,
+      "name": "mitotic G1 phase",
+      "definition": {
+        "text": "The cell cycle 'gap' phase which is the interval between the completion of DNA segregation by mitosis and the beginning of DNA synthesis."
+      },
+      "comment": "Note that this term should not be used for direct annotation. If you are trying to make an annotation to x phase, it is likely that the correct annotation is 'regulation of x/y phase transition' or to a process which occurs during the reported phase (i.e mitotic DNA replication for mitotic S-phase). To capture the phase when a specific location or process is observed, the phase term can be used in an annotation extension (PMID:24885854) applied to a cellular component term (with the relation exists_during) or a biological process term (with the relation happens_during).",
+      "synonyms": [
+        {
+          "name": "G1 phase of mitotic cell cycle",
+          "type": "exact"
+        }
+      ],
+      "aspect": "biological_process",
+      "usage": "None"
+    },
+    {
+      "id": "GO:0000082",
+      "isObsolete": false,
+      "name": "G1/S transition of mitotic cell cycle",
+      "definition": {
+        "text": "The mitotic cell cycle transition by which a cell in G1 commits to S phase. The process begins with the build up of G1 cyclin-dependent kinase (G1 CDK), resulting in the activation of transcription of G1 cyclins. The process ends with the positive feedback of the G1 cyclins on the G1 CDK which commits the cell to S phase, in which DNA replication is initiated."
+      },
+      "children": [
+        {
+          "id": "GO:2000045",
+          "relation": "regulates"
+        },
+        {
+          "id": "GO:1900087",
+          "relation": "positively_regulates"
+        },
+        {
+          "id": "GO:2000134",
+          "relation": "negatively_regulates"
+        }
+      ],
+      "aspect": "biological_process",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000083",
+      "isObsolete": true,
+      "name": "obsolete regulation of transcription involved in G1/S transition of mitotic cell cycle",
+      "definition": {
+        "text": "OBSOLETE. Any process that regulates transcription such that the target genes are involved in the transition between G1 and S phase of the mitotic cell cycle."
+      },
+      "comment": "This term was obsoleted because it represents a GO-CAM model.",
+      "aspect": "biological_process",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000084",
+      "isObsolete": false,
+      "name": "mitotic S phase",
+      "definition": {
+        "text": "The cell cycle phase, following G1, during which DNA synthesis takes place as part of a mitotic cell cycle."
+      },
+      "comment": "Note that this term should not be used for direct annotation. If you are trying to make an annotation to x phase, it is likely that the correct annotation is 'regulation of x/y phase transition' or to a process which occurs during the reported phase (i.e mitotic DNA replication for mitotic S-phase). To capture the phase when a specific location or process is observed, the phase term can be used in an annotation extension (PMID:24885854) applied to a cellular component term (with the relation exists_during) or a biological process term (with the relation happens_during).",
+      "synonyms": [
+        {
+          "name": "S-phase of mitotic cell cycle",
+          "type": "exact"
+        },
+        {
+          "name": "S phase of mitotic cell cycle",
+          "type": "exact"
+        }
+      ],
+      "aspect": "biological_process",
+      "usage": "None"
+    },
+    {
+      "id": "GO:0000085",
+      "isObsolete": false,
+      "name": "mitotic G2 phase",
+      "definition": {
+        "text": "The cell cycle 'gap' phase which is the interval between the completion of DNA synthesis and the beginning of DNA segregation by mitosis."
+      },
+      "comment": "Note that this term should not be used for direct annotation. If you are trying to make an annotation to x phase, it is likely that the correct annotation is 'regulation of x/y phase transition' or to a process which occurs during the reported phase (i.e mitotic DNA replication for mitotic S-phase). To capture the phase when a specific location or process is observed, the phase term can be used in an annotation extension (PMID:24885854) applied to a cellular component term (with the relation exists_during) or a biological process term (with the relation happens_during).",
+      "synonyms": [
+        {
+          "name": "G2 phase of mitotic cell cycle",
+          "type": "exact"
+        }
+      ],
+      "aspect": "biological_process",
+      "usage": "None"
+    },
+    {
+      "id": "GO:0000086",
+      "isObsolete": false,
+      "name": "G2/M transition of mitotic cell cycle",
+      "definition": {
+        "text": "The mitotic cell cycle transition by which a cell in G2 commits to M phase. The process begins when the kinase activity of M cyclin/CDK complex reaches a threshold high enough for the cell cycle to proceed. This is accomplished by activating a positive feedback loop that results in the accumulation of unphosphorylated and active M cyclin/CDK complex."
+      },
+      "synonyms": [
+        {
+          "name": "mitotic G2/M transition",
+          "type": "exact"
+        }
+      ],
+      "children": [
+        {
+          "id": "GO:0010389",
+          "relation": "regulates"
+        },
+        {
+          "id": "GO:0010972",
+          "relation": "negatively_regulates"
+        },
+        {
+          "id": "GO:0010971",
+          "relation": "positively_regulates"
+        }
+      ],
+      "aspect": "biological_process",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000087",
+      "isObsolete": false,
+      "name": "mitotic M phase",
+      "definition": {
+        "text": "A cell cycle phase during which nuclear division occurs, and which is comprises the phases: prophase, metaphase, anaphase and telophase and occurs as part of a mitotic cell cycle."
+      },
+      "comment": "Note that this term should not be used for direct annotation. If you are trying to make an annotation to x phase, it is likely that the correct annotation is 'regulation of x/y phase transition' or to a process which occurs during the reported phase (i.e mitotic DNA replication for mitotic S-phase). To capture the phase when a specific location or process is observed, the phase term can be used in an annotation extension (PMID:24885854) applied to a cellular component term (with the relation exists_during) or a biological process term (with the relation happens_during).",
+      "synonyms": [
+        {
+          "name": "M-phase of mitotic cell cycle",
+          "type": "exact"
+        },
+        {
+          "name": "M phase of mitotic cell cycle",
+          "type": "exact"
+        }
+      ],
+      "children": [
+        {
+          "id": "GO:0000236",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0000090",
+          "relation": "part_of"
+        },
+        {
+          "id": "GO:0000093",
+          "relation": "part_of"
+        },
+        {
+          "id": "GO:0000088",
+          "relation": "part_of"
+        },
+        {
+          "id": "GO:0000089",
+          "relation": "part_of"
+        }
+      ],
+      "aspect": "biological_process",
+      "usage": "None"
+    },
+    {
+      "id": "GO:0000088",
+      "isObsolete": false,
+      "name": "mitotic prophase",
+      "definition": {
+        "text": "The cell cycle phase which is the first stage of M phase of mitosis and during which chromosomes condense and the two daughter centrioles and their asters migrate toward the poles of the cell."
+      },
+      "comment": "Note that this term should not be used for direct annotation. If you are trying to make an annotation to x phase, it is likely that the correct annotation is 'regulation of x/y phase transition' or to a process which occurs during the reported phase (i.e mitotic DNA replication for mitotic S-phase). To capture the phase when a specific location or process is observed, the phase term can be used in an annotation extension (PMID:24885854) applied to a cellular component term (with the relation exists_during) or a biological process term (with the relation happens_during).",
+      "aspect": "biological_process",
+      "usage": "None"
+    },
+    {
+      "id": "GO:0000089",
+      "isObsolete": false,
+      "name": "mitotic metaphase",
+      "definition": {
+        "text": "The cell cycle phase, following prophase, during which chromosomes become aligned on the equatorial plate of the cell as part of a mitotic cell cycle."
+      },
+      "comment": "Note that this term should not be used for direct annotation. If you are trying to make an annotation to x phase, it is likely that the correct annotation is 'regulation of x/y phase transition' or to a process which occurs during the reported phase (i.e mitotic DNA replication for mitotic S-phase). To capture the phase when a specific location or process is observed, the phase term can be used in an annotation extension (PMID:24885854) applied to a cellular component term (with the relation exists_during) or a biological process term (with the relation happens_during).",
+      "aspect": "biological_process",
+      "usage": "None"
+    },
+    {
+      "id": "GO:0000090",
+      "isObsolete": false,
+      "name": "mitotic anaphase",
+      "definition": {
+        "text": "The cell cycle phase during which chromosomes separate and migrate towards the poles of the spindle the as part of a mitotic cell cycle."
+      },
+      "comment": "Note that this term should not be used for direct annotation. If you are trying to make an annotation to x phase, it is likely that the correct annotation is 'regulation of x/y phase transition' or to a process which occurs during the reported phase (i.e mitotic DNA replication for mitotic S-phase). To capture the phase when a specific location or process is observed, the phase term can be used in an annotation extension (PMID:24885854) applied to a cellular component term (with the relation exists_during) or a biological process term (with the relation happens_during).",
+      "children": [
+        {
+          "id": "GO:0000092",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0000091",
+          "relation": "is_a"
+        }
+      ],
+      "aspect": "biological_process",
+      "usage": "None"
+    },
+    {
+      "id": "GO:0000091",
+      "isObsolete": false,
+      "name": "mitotic anaphase A",
+      "definition": {
+        "text": "The cell cycle phase during which the kinetochore microtubules shorten as chromosomes move toward the spindle poles as part of mitosis."
+      },
+      "comment": "Note that this term should not be used for direct annotation. If you are trying to make an annotation to x phase, it is likely that the correct annotation is 'regulation of x/y phase transition' or to a process which occurs during the reported phase (i.e mitotic DNA replication for mitotic S-phase). To capture the phase when a specific location or process is observed, the phase term can be used in an annotation extension (PMID:24885854) applied to a cellular component term (with the relation exists_during) or a biological process term (with the relation happens_during).",
+      "aspect": "biological_process",
+      "usage": "None"
+    },
+    {
+      "id": "GO:0000092",
+      "isObsolete": false,
+      "name": "mitotic anaphase B",
+      "definition": {
+        "text": "The cell cycle phase during which the polar microtubules elongate and the two poles of the spindle move farther apart as part of mitosis."
+      },
+      "comment": "Note that this term should not be used for direct annotation. If you are trying to make an annotation to x phase, it is likely that the correct annotation is 'regulation of x/y phase transition' or to a process which occurs during the reported phase (i.e mitotic DNA replication for mitotic S-phase). To capture the phase when a specific location or process is observed, the phase term can be used in an annotation extension (PMID:24885854) applied to a cellular component term (with the relation exists_during) or a biological process term (with the relation happens_during).",
+      "aspect": "biological_process",
+      "usage": "None"
+    },
+    {
+      "id": "GO:0000093",
+      "isObsolete": false,
+      "name": "mitotic telophase",
+      "definition": {
+        "text": "The cell cycle phase which follows anaphase during M phase of mitosis and during which the chromosomes arrive at the poles of the cell and the division of the cytoplasm starts."
+      },
+      "comment": "Note that this term should not be used for direct annotation. If you are trying to make an annotation to x phase, it is likely that the correct annotation is 'regulation of x/y phase transition' or to a process which occurs during the reported phase (i.e mitotic DNA replication for mitotic S-phase). To capture the phase when a specific location or process is observed, the phase term can be used in an annotation extension (PMID:24885854) applied to a cellular component term (with the relation exists_during) or a biological process term (with the relation happens_during).",
+      "aspect": "biological_process",
+      "usage": "None"
+    },
+    {
+      "id": "GO:0000094",
+      "isObsolete": true,
+      "name": "obsolete septin assembly and septum formation",
+      "definition": {
+        "text": "OBSOLETE. (Was not defined before being made obsolete)."
+      },
+      "comment": "This term was made obsolete because it was not defined and the string name implied two separate processes.",
+      "synonyms": [
+        {
+          "name": "septin assembly and septum formation",
+          "type": "exact"
+        }
+      ],
+      "aspect": "biological_process",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000095",
+      "isObsolete": false,
+      "name": "S-adenosyl-L-methionine transmembrane transporter activity",
+      "definition": {
+        "text": "Enables the transfer of S-adenosylmethionine from one side of a membrane to the other. S-adenosylmethionine is S-(5'-adenosyl)-L-methionine, an important intermediate in one-carbon metabolism."
+      },
+      "synonyms": [
+        {
+          "name": "SAM transmembrane transporter activity",
+          "type": "exact"
+        },
+        {
+          "name": "S-adenosyl methionine permease activity",
+          "type": "exact"
+        },
+        {
+          "name": "S-adenosylmethionine transmembrane transporter activity",
+          "type": "exact"
+        },
+        {
+          "name": "S-adenosyl methionine transporter activity",
+          "type": "exact"
+        },
+        {
+          "name": "S-adenosylmethionine transporter activity",
+          "type": "broad"
+        },
+        {
+          "name": "S-adenosylmethionine permease activity",
+          "type": "exact"
+        }
+      ],
+      "children": [
+        {
+          "id": "GO:0180003",
+          "relation": "is_a"
+        }
+      ],
+      "aspect": "molecular_function",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000096",
+      "isObsolete": false,
+      "name": "sulfur amino acid metabolic process",
+      "definition": {
+        "text": "The chemical reactions and pathways involving amino acids containing sulfur, comprising cysteine, homocysteine, methionine and selenocysteine."
+      },
+      "synonyms": [
+        {
+          "name": "sulphur amino acid metabolic process",
+          "type": "exact"
+        },
+        {
+          "name": "sulfur amino acid metabolism",
+          "type": "exact"
+        },
+        {
+          "name": "sulphur amino acid metabolism",
+          "type": "exact"
+        }
+      ],
+      "children": [
+        {
+          "id": "GO:0050667",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0052698",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0006555",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0006534",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0000098",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0000097",
+          "relation": "is_a"
+        }
+      ],
+      "aspect": "biological_process",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000097",
+      "isObsolete": false,
+      "name": "sulfur amino acid biosynthetic process",
+      "definition": {
+        "text": "The chemical reactions and pathways resulting in the formation of amino acids containing sulfur, comprising cysteine, methionine and selenocysteine."
+      },
+      "synonyms": [
+        {
+          "name": "sulfur amino acid anabolism",
+          "type": "exact"
+        },
+        {
+          "name": "sulfur amino acid biosynthesis",
+          "type": "exact"
+        },
+        {
+          "name": "sulphur amino acid biosynthetic process",
+          "type": "exact"
+        },
+        {
+          "name": "sulphur amino acid biosynthesis",
+          "type": "exact"
+        },
+        {
+          "name": "sulfur amino acid synthesis",
+          "type": "exact"
+        },
+        {
+          "name": "sulfur amino acid formation",
+          "type": "exact"
+        }
+      ],
+      "children": [
+        {
+          "id": "GO:0009086",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0052699",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0071268",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0019344",
+          "relation": "is_a"
+        }
+      ],
+      "aspect": "biological_process",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000098",
+      "isObsolete": false,
+      "name": "sulfur amino acid catabolic process",
+      "definition": {
+        "text": "The chemical reactions and pathways resulting in the breakdown of amino acids containing sulfur, comprising cysteine, methionine and selenocysteine."
+      },
+      "synonyms": [
+        {
+          "name": "sulfur amino acid breakdown",
+          "type": "exact"
+        },
+        {
+          "name": "sulfur amino acid catabolism",
+          "type": "exact"
+        },
+        {
+          "name": "sulfur amino acid degradation",
+          "type": "exact"
+        },
+        {
+          "name": "sulphur amino acid catabolism",
+          "type": "exact"
+        },
+        {
+          "name": "sulphur amino acid catabolic process",
+          "type": "exact"
+        }
+      ],
+      "children": [
+        {
+          "id": "GO:0009087",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0052700",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0043418",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0009093",
+          "relation": "is_a"
+        }
+      ],
+      "aspect": "biological_process",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000099",
+      "isObsolete": false,
+      "name": "sulfur amino acid transmembrane transporter activity",
+      "definition": {
+        "text": "Enables the transfer of sulfur amino acids from one side of a membrane to the other. Sulphur amino acids contain sulfur in the form of cystine, methionine or their derivatives.",
+        "xrefs": [
+          {
+            "dbCode": "ISBN",
+            "dbId": "0815340729"
+          }
+        ]
+      },
+      "synonyms": [
+        {
+          "name": "sulphur amino acid transmembrane transporter activity",
+          "type": "exact"
+        },
+        {
+          "name": "sulfur amino acid transporter activity",
+          "type": "broad"
+        },
+        {
+          "name": "sulphur amino acid transporter activity",
+          "type": "broad"
+        }
+      ],
+      "children": [
+        {
+          "id": "GO:0015327",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0033229",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0015184",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0000514",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0043865",
+          "relation": "is_a"
+        }
+      ],
+      "aspect": "molecular_function",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000100",
+      "isObsolete": false,
+      "name": "S-methylmethionine transmembrane transporter activity",
+      "definition": {
+        "text": "Enables the transfer of S-methylmethionine from one side of a membrane to the other."
+      },
+      "synonyms": [
+        {
+          "name": "S-methylmethionine permease activity",
+          "type": "exact"
+        },
+        {
+          "name": "S-methylmethionine transporter activity",
+          "type": "broad"
+        }
+      ],
+      "aspect": "molecular_function",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000101",
+      "isObsolete": false,
+      "name": "sulfur amino acid transport",
+      "definition": {
+        "text": "The directed movement of amino acids containing sulfur (cystine, methionine and their derivatives) into, out of or within a cell, or between cells, by means of some agent such as a transporter or pore."
+      },
+      "synonyms": [
+        {
+          "name": "sulphur amino acid transport",
+          "type": "exact"
+        }
+      ],
+      "children": [
+        {
+          "id": "GO:0042883",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0015811",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0015821",
+          "relation": "is_a"
+        }
+      ],
+      "aspect": "biological_process",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000102",
+      "isObsolete": false,
+      "name": "L-methionine secondary active transmembrane transporter activity",
+      "definition": {
+        "text": "Enables the transfer of L-methionine from one side of a membrane to the other, up its concentration gradient. The transporter binds the solute and undergoes a series of conformational changes. Transport works equally well in either direction and is driven by a chemiosmotic source of energy. Secondary active transporters include symporters and antiporters."
+      },
+      "synonyms": [
+        {
+          "name": "L-methionine porter activity",
+          "type": "related"
+        }
+      ],
+      "aspect": "molecular_function",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000103",
+      "isObsolete": false,
+      "name": "sulfate assimilation",
+      "definition": {
+        "text": "The pathways by which inorganic sulfate is processed and incorporated into sulfated compounds."
+      },
+      "synonyms": [
+        {
+          "name": "sulphate assimilation",
+          "type": "exact"
+        },
+        {
+          "name": "sulfate assimilation, phosphoadenylyl sulfate reduction by an oxidoreductase, acting on sulfur group of donors, NAD or NADP as acceptor",
+          "type": "narrow"
+        },
+        {
+          "name": "sulphate assimilation, phosphoadenylyl sulphate reduction by an oxidoreductase, acting on sulphur group of donors, NAD or NADP as acceptor",
+          "type": "narrow"
+        }
+      ],
+      "children": [
+        {
+          "id": "GO:0010134",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:1900058",
+          "relation": "regulates"
+        },
+        {
+          "id": "GO:1900059",
+          "relation": "positively_regulates"
+        },
+        {
+          "id": "GO:0019379",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0019420",
+          "relation": "is_a"
+        }
+      ],
+      "aspect": "biological_process",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000104",
+      "isObsolete": false,
+      "name": "succinate dehydrogenase activity",
+      "definition": {
+        "text": "Catalysis of the reaction: succinate + acceptor = fumarate + reduced acceptor.",
+        "xrefs": [
+          {
+            "dbCode": "RHEA",
+            "dbId": "16357"
+          }
+        ]
+      },
+      "synonyms": [
+        {
+          "name": "fumaric hydrogenase activity",
+          "type": "related"
+        },
+        {
+          "name": "succinodehydrogenase activity",
+          "type": "exact"
+        },
+        {
+          "name": "succinic dehydrogenase activity",
+          "type": "broad"
+        },
+        {
+          "name": "fumarate reductase activity",
+          "type": "exact"
+        },
+        {
+          "name": "fumarate dehydrogenase activity",
+          "type": "exact"
+        },
+        {
+          "name": "succinyl dehydrogenase activity",
+          "type": "exact"
+        },
+        {
+          "name": "succinic acid dehydrogenase activity",
+          "type": "exact"
+        },
+        {
+          "name": "succinate oxidoreductase activity",
+          "type": "exact"
+        }
+      ],
+      "children": [
+        {
+          "id": "GO:0160308",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0008177",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0016156",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:1904231",
+          "relation": "positively_regulates"
+        }
+      ],
+      "aspect": "molecular_function",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000105",
+      "isObsolete": false,
+      "name": "L-histidine biosynthetic process",
+      "definition": {
+        "text": "The chemical reactions and pathways resulting in the formation of L-histidine, 2-amino-3-(1H-imidazol-4-yl)propanoic acid."
+      },
+      "synonyms": [
+        {
+          "name": "histidine biosynthesis",
+          "type": "exact"
+        },
+        {
+          "name": "histidine biosynthetic process",
+          "type": "broad"
+        },
+        {
+          "name": "histidine formation",
+          "type": "exact"
+        },
+        {
+          "name": "histidine anabolism",
+          "type": "exact"
+        },
+        {
+          "name": "histidine synthesis",
+          "type": "exact"
+        }
+      ],
+      "children": [
+        {
+          "id": "GO:0120213",
+          "relation": "regulates"
+        },
+        {
+          "id": "GO:0120214",
+          "relation": "negatively_regulates"
+        },
+        {
+          "id": "GO:0120215",
+          "relation": "positively_regulates"
+        }
+      ],
+      "aspect": "biological_process",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000107",
+      "isObsolete": false,
+      "name": "imidazoleglycerol-phosphate synthase activity",
+      "definition": {
+        "text": "Catalysis of the reaction: phosphoribulosylformimino-AICAR-P + L-glutamine = D-erythro-imidazole-glycerol-phosphate + aminoimidazole carboxamide ribonucleotide + L-glutamate + 2 H+.",
+        "xrefs": [
+          {
+            "dbCode": "RHEA",
+            "dbId": "24793"
+          }
+        ]
+      },
+      "synonyms": [
+        {
+          "name": "imidazoleglycerol phosphate synthase activity",
+          "type": "exact"
+        },
+        {
+          "name": "imidazole-glycerol-phosphate synthase activity",
+          "type": "related"
+        },
+        {
+          "name": "imidazole glycerol phosphate synthase activity",
+          "type": "exact"
+        },
+        {
+          "name": "glutamine amidotransferase:cyclase activity",
+          "type": "broad"
+        }
+      ],
+      "children": [
+        {
+          "id": "GO:0009382",
+          "relation": "capable_of"
+        }
+      ],
+      "aspect": "molecular_function",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000108",
+      "isObsolete": true,
+      "name": "obsolete repairosome",
+      "definition": {
+        "text": "OBSOLETE. A stable complex of proteins that carry out the DNA damage recognition and incision reactions characteristic of nucleotide excision repair (NER), such as DNA damage recognition, DNA helix unwinding, and endonucleolytic cleavage at sites flanking damaged DNA; includes TFIIH subunits and additional polypeptides; may form in the absence of DNA damage.",
+        "xrefs": [
+          {
+            "dbCode": "PMID",
+            "dbId": "10681587"
+          },
+          {
+            "dbCode": "PMID",
+            "dbId": "9852079"
+          }
+        ]
+      },
+      "comment": "This term was made obsolete because 'repairosome' has fallen out of use in the literature, and the large complex described in the definition has not been confirmed to exist. The term has also confused annotators.",
+      "synonyms": [
+        {
+          "name": "repairosome",
+          "type": "exact"
+        }
+      ],
+      "aspect": "cellular_component",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000109",
+      "isObsolete": false,
+      "name": "nucleotide-excision repair complex",
+      "definition": {
+        "text": "Any complex formed of proteins that act in nucleotide-excision repair.",
+        "xrefs": [
+          {
+            "dbCode": "PMID",
+            "dbId": "10915862"
+          }
+        ]
+      },
+      "comment": "Note that process information is included in the term and definition for the purpose of describing and distinguishing the complex.",
+      "synonyms": [
+        {
+          "name": "UvrB-UvrC complex",
+          "type": "narrow"
+        },
+        {
+          "name": "UvrBC complex",
+          "type": "narrow"
+        }
+      ],
+      "children": [
+        {
+          "id": "GO:0000111",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0000112",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0000110",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0000113",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0070312",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0071942",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0070522",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0070912",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0070913",
+          "relation": "is_a"
+        }
+      ],
+      "aspect": "cellular_component",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000110",
+      "isObsolete": false,
+      "name": "nucleotide-excision repair factor 1 complex",
+      "definition": {
+        "text": "One of several protein complexes involved in nucleotide-excision repair; possesses DNA damage recognition and endodeoxynuclease activities. In S. cerevisiae, it is composed of Rad1p, Rad10p, and Rad14p; in human the subunits are ERCC4/XPF, ERCC1 and XPA, respectively.",
+        "xrefs": [
+          {
+            "dbCode": "PMID",
+            "dbId": "10915862"
+          }
+        ]
+      },
+      "comment": "Note that process and function information are included in the term and definition for the purpose of describing and distinguishing the complex.",
+      "synonyms": [
+        {
+          "name": "NEF1 complex",
+          "type": "exact"
+        },
+        {
+          "name": "XPA-ERCC1-ERCC4 complex",
+          "type": "exact"
+        }
+      ],
+      "aspect": "cellular_component",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000111",
+      "isObsolete": false,
+      "name": "nucleotide-excision repair factor 2 complex",
+      "definition": {
+        "text": "One of several protein complexes involved in nucleotide-excision repair; possesses damaged DNA binding activity. In S. cerevisiae, it is composed of Rad4p and Rad23p.",
+        "xrefs": [
+          {
+            "dbCode": "PMID",
+            "dbId": "10915862"
+          }
+        ]
+      },
+      "comment": "Note that process and function information are included in the term and definition for the purpose of describing and distinguishing the complex.",
+      "synonyms": [
+        {
+          "name": "NEF2 complex",
+          "type": "exact"
+        }
+      ],
+      "aspect": "cellular_component",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000112",
+      "isObsolete": false,
+      "name": "nucleotide-excision repair factor 3 complex",
+      "definition": {
+        "text": "One of several protein complexes involved in nucleotide-excision repair; possesses endodeoxynuclease and DNA helicase activities. In S. cerevisiae, it is composed of Rad2p and the core TFIIH-Ssl2p complex (core TFIIH is composed of Rad3p, Tfb1p, Tfb2p, Ssl1p, Tfb4p and Tfb5p. Note that Ssl2p is also called Rad25p).",
+        "xrefs": [
+          {
+            "dbCode": "PMID",
+            "dbId": "10915862"
+          },
+          {
+            "dbCode": "PMID",
+            "dbId": "14500720"
+          },
+          {
+            "dbCode": "PMID",
+            "dbId": "7813015"
+          }
+        ]
+      },
+      "comment": "Note that process and function information are included in the term and definition for the purpose of describing and distinguishing the complex.",
+      "synonyms": [
+        {
+          "name": "NEF3 complex",
+          "type": "exact"
+        }
+      ],
+      "children": [
+        {
+          "id": "GO:0000440",
+          "relation": "part_of"
+        }
+      ],
+      "aspect": "cellular_component",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000113",
+      "isObsolete": false,
+      "name": "nucleotide-excision repair factor 4 complex",
+      "definition": {
+        "text": "One of several protein complexes involved in nucleotide-excision repair; possesses DNA damage recognition and DNA-dependent ATPase activities. In S. cerevisiae, it is composed of Rad7p and Rad16p.",
+        "xrefs": [
+          {
+            "dbCode": "PMID",
+            "dbId": "10915862"
+          }
+        ]
+      },
+      "comment": "Note that process and function information are included in the term and definition for the purpose of describing and distinguishing the complex.",
+      "synonyms": [
+        {
+          "name": "NEF4 complex",
+          "type": "exact"
+        }
+      ],
+      "aspect": "cellular_component",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000114",
+      "isObsolete": true,
+      "name": "obsolete regulation of transcription involved in G1 phase of mitotic cell cycle",
+      "definition": {
+        "text": "OBSOLETE. Any process that regulates transcription such that the target genes are transcribed as part of the G1 phase of the mitotic cell cycle."
+      },
+      "comment": "This term was made obsolete because it is unclear exactly what it means. It could mean either 'regulation of transcription during phase X' or 'regulation of transition between phase X and phase Y'.",
+      "synonyms": [
+        {
+          "name": "regulation of transcription from RNA polymerase II promoter during G1 phase of cell cycle",
+          "type": "exact"
+        },
+        {
+          "name": "G1-specific transcription in mitotic cell cycle",
+          "type": "related"
+        },
+        {
+          "name": "regulation of transcription involved in G1 phase of mitotic cell cycle",
+          "type": "exact"
+        }
+      ],
+      "aspect": "biological_process",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000115",
+      "isObsolete": true,
+      "name": "obsolete regulation of transcription involved in S phase of mitotic cell cycle",
+      "definition": {
+        "text": "OBSOLETE. A cell cycle process that regulates transcription such that the target genes are transcribed as part of the S phase of the mitotic cell cycle."
+      },
+      "comment": "This term was made obsolete because it is unclear exactly what it means. It could mean either 'regulation of transcription during phase X' or 'regulation of transition between phase X and phase Y'.",
+      "synonyms": [
+        {
+          "name": "regulation of transcription involved in S phase of mitotic cell cycle",
+          "type": "exact"
+        },
+        {
+          "name": "regulation of transcription involved in S-phase of mitotic cell cycle",
+          "type": "exact"
+        },
+        {
+          "name": "regulation of transcription from RNA polymerase II promoter during S-phase of mitotic cell cycle",
+          "type": "related"
+        },
+        {
+          "name": "S-phase-specific transcription in mitotic cell cycle",
+          "type": "related"
+        },
+        {
+          "name": "S-specific transcription in mitotic cell cycle",
+          "type": "exact"
+        }
+      ],
+      "aspect": "biological_process",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000116",
+      "isObsolete": true,
+      "name": "obsolete regulation of transcription involved in G2-phase of mitotic cell cycle",
+      "definition": {
+        "text": "OBSOLETE. Any process that regulates transcription such that the target genes are transcribed as part of the G2 phase of the mitotic cell cycle."
+      },
+      "comment": "This term was made obsolete because it is unclear exactly what it means. It could mean either 'regulation of transcription during phase X' or 'regulation of transition between phase X and phase Y'.",
+      "synonyms": [
+        {
+          "name": "regulation of transcription from RNA polymerase II during G2-phase of mitotic cell cycle",
+          "type": "related"
+        },
+        {
+          "name": "G2-specific transcription in mitotic cell cycle",
+          "type": "related"
+        },
+        {
+          "name": "regulation of transcription involved in G2-phase of mitotic cell cycle",
+          "type": "exact"
+        }
+      ],
+      "aspect": "biological_process",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000117",
+      "isObsolete": true,
+      "name": "obsolete regulation of transcription involved in G2/M transition of mitotic cell cycle",
+      "definition": {
+        "text": "OBSOLETE. Any process that regulates transcription such that the target genes are transcribed as part of the G2/M transition of the mitotic cell cycle."
+      },
+      "comment": "This term was obsoleted because it represents a GO-CAM model.",
+      "synonyms": [
+        {
+          "name": "G2/M-specific transcription in mitotic cell cycle",
+          "type": "related"
+        },
+        {
+          "name": "regulation of transcription from RNA polymerase II promoter during G2/M transition of mitotic cell cycle",
+          "type": "related"
+        }
+      ],
+      "aspect": "biological_process",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000118",
+      "isObsolete": false,
+      "name": "histone deacetylase complex",
+      "definition": {
+        "text": "A protein complex that possesses histone deacetylase activity."
+      },
+      "comment": "Note that this term represents a location, not a function; the activity possessed by this complex is mentioned in the definition for the purpose of describing and distinguishing the complex. The function of this complex is represented by the molecular function term 'histone deacetylase activity ; GO:0004407'.",
+      "synonyms": [
+        {
+          "name": "HDAC complex",
+          "type": "exact"
+        }
+      ],
+      "children": [
+        {
+          "id": "GO:0070211",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0070823",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0070822",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0070210",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0034967",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0000812",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0016581",
+          "relation": "is_a"
+        }
+      ],
+      "aspect": "cellular_component",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000120",
+      "isObsolete": false,
+      "name": "RNA polymerase I transcription regulator complex",
+      "definition": {
+        "text": "A transcription factor complex that acts at a regulatory region of a gene transcribed by RNA polymerase I."
+      },
+      "synonyms": [
+        {
+          "name": "RNA polymerase I transcription factor complex",
+          "type": "narrow"
+        }
+      ],
+      "children": [
+        {
+          "id": "GO:0070860",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0000500",
+          "relation": "is_a"
+        },
+        {
+          "id": "GO:0005668",
+          "relation": "is_a"
+        }
+      ],
+      "aspect": "cellular_component",
+      "usage": "Unrestricted"
+    },
+    {
+      "id": "GO:0000121",
+      "isObsolete": false,
+      "name": "sn-glycerol 1-phosphatase activity",
+      "definition": {
+        "text": "Catalysis of the reaction: H2O + sn-glycerol 1-phosphate = glycerol + phosphate.",
+        "xrefs": [
+          {
+            "dbCode": "RHEA",
+            "dbId": "46084"
+          }
+        ]
+      },
+      "synonyms": [
+        {
+          "name": "glycerol-1-phosphate phosphohydrolase activity",
+          "type": "related"
+        },
+        {
+          "name": "alpha-glycerol phosphatase activity",
+          "type": "related"
+        },
+        {
+          "name": "glycerol 3-phosphatase activity",
+          "type": "related"
+        },
+        {
+          "name": "alpha-glycerophosphatase activity",
+          "type": "related"
+        },
+        {
+          "name": "glycerol-3-phosphate phosphatase activity",
+          "type": "related"
+        },
+        {
+          "name": "glycerol 3-phosphate phosphohydrolase activity",
+          "type": "related"
+        },
+        {
+          "name": "glycerol-1-phosphatase activity",
+          "type": "broad"
+        }
+      ],
+      "aspect": "molecular_function",
+      "usage": "Unrestricted"
+    }
+  ]
+}

@@ -2,6 +2,7 @@ package update
 
 import (
 	"biobtree/pbuf"
+	"os"
 	"strconv"
 	"sync/atomic"
 	"time"
@@ -34,9 +35,20 @@ func (i *interpro) update() {
 		defer client.Quit()
 	}
 
+	// Test mode: get limit and open ID log file
+	testLimit := config.GetTestLimit(i.source)
+	var idLogFile *os.File
+	if config.IsTestMode() {
+		idLogFile = openIDLogFile(config.TestRefDir, i.source+"_ids.txt")
+		if idLogFile != nil {
+			defer idLogFile.Close()
+		}
+	}
+
 	p := xmlparser.NewXMLParser(br, i.source).SkipElements([]string{"abstract", "p"})
 
 	var total uint64
+	var entryCount int64
 	var entryid string
 	var previous int64
 	attr := pbuf.InterproAttr{}
@@ -52,6 +64,11 @@ func (i *interpro) update() {
 
 		// id
 		entryid = r.Attrs["id"]
+
+		// Test mode: log ID
+		if idLogFile != nil {
+			logProcessedID(idLogFile, entryid)
+		}
 
 		attr.Reset()
 
@@ -130,6 +147,13 @@ func (i *interpro) update() {
 		**/
 
 		total++
+		entryCount++
+
+		// Test mode: check if limit reached
+		if shouldStopProcessing(testLimit, int(entryCount)) {
+			i.d.progChan <- &progressInfo{dataset: i.source, done: true}
+			break
+		}
 
 	}
 

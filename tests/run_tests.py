@@ -183,7 +183,7 @@ def main():
         return 1
 
     # Build test database
-    datasets = "hgnc,uniprot,go,taxonomy,uniparc,uniref100,uniref50,uniref90,eco,chebi"
+    datasets = "hgnc,uniprot,go,taxonomy,uniparc,uniref100,uniref50,uniref90,eco,chebi,interpro"
     if not build_test_database(biobtree_path, datasets, cwd=project_root):
         return 1
 
@@ -216,6 +216,7 @@ def main():
             script_dir / "uniref90" / "test_uniref90.py",
             script_dir / "eco" / "test_eco.py",
             script_dir / "chebi" / "test_chebi.py",
+            script_dir / "interpro" / "test_interpro.py",
         ]
 
         results = {}

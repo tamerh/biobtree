@@ -136,7 +136,8 @@
     "aliases": "INTERPRO,InterPro",
     "useLocalFile": "no",
     "hasFilter": "yes",
-    "attrs": "[]names,short_name,type,protein_count"
+    "attrs": "[]names,short_name,type,protein_count",
+    "test_entries_count": "20"
   },
   "literature_mappings": {
     "id": "12",

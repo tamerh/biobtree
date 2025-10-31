@@ -2,6 +2,7 @@ package update
 
 import (
 	"log"
+	"os"
 	"path/filepath"
 	"sort"
 	"sync/atomic"
@@ -22,6 +23,16 @@ func (u *uniparc) update() {
 	fr := config.Dataconf[u.source]["id"]
 	basePath := config.Dataconf[u.source]["path"]
 	filePattern := config.Dataconf[u.source]["filePattern"]
+
+	// Test mode support
+	testLimit := config.GetTestLimit(u.source)
+	var idLogFile *os.File
+	if config.IsTestMode() {
+		idLogFile = openIDLogFile(config.TestRefDir, u.source+"_ids.txt")
+		if idLogFile != nil {
+			defer idLogFile.Close()
+		}
+	}
 
 	var files []string
 
@@ -128,11 +139,28 @@ func (u *uniparc) update() {
 			}
 			*/
 
+			// Log ID in test mode
+			if idLogFile != nil {
+				logProcessedID(idLogFile, entryid)
+			}
+
 			fileEntries++
+
+			// Check test limit
+			if shouldStopProcessing(testLimit, int(totalEntries+fileEntries)) {
+				log.Printf("Test limit reached (%d entries), stopping UniParc processing", totalEntries+fileEntries)
+				break
+			}
 		}
 
 		totalEntries += fileEntries
 		log.Printf("Completed UniParc file %d/%d: %s (%d entries)", fileIdx+1, len(files), filepath.Base(filePath), fileEntries)
+
+		// Check if we need to stop processing more files due to test limit
+		if shouldStopProcessing(testLimit, int(totalEntries)) {
+			log.Printf("Test limit reached after processing file %d/%d (%d total entries)", fileIdx+1, len(files), totalEntries)
+			break
+		}
 
 		// Close resources for this file
 		if gz != nil {

@@ -82,7 +82,8 @@
     "shortened_id": "upi,",
     "aliases": "UniParc ID",
     "url": "//www.uniprot.org/uniparc/£{id}",
-    "useLocalFile": "no"
+    "useLocalFile": "no",
+    "test_entries_count": "10"
   },
   "uniref50": {
     "id": "7",
@@ -92,7 +93,8 @@
     "exclusion_xrefs": "uniref100",
     "aliases": "UniRef50 ID",
     "url": "//www.uniprot.org/uniref/£{id}",
-    "useLocalFile": "no"
+    "useLocalFile": "no",
+    "test_entries_count": "10"
   },
   "uniref90": {
     "id": "8",
@@ -102,7 +104,8 @@
     "exclusion_xrefs": "uniref50",
     "aliases": "UniRef90 ID",
     "url": "//www.uniprot.org/uniref/£{id}",
-    "useLocalFile": "no"
+    "useLocalFile": "no",
+    "test_entries_count": "10"
   },
   "uniref100": {
     "id": "9",
@@ -112,7 +115,8 @@
     "exclusion_xrefs": "uniref90",
     "aliases": "UniRef100 ID",
     "url": "//www.uniprot.org/uniref/£{id}",
-    "useLocalFile": "no"
+    "useLocalFile": "no",
+    "test_entries_count": "10"
   },
   "chebi": {
     "id": "10",

@@ -1,6 +1,7 @@
 package update
 
 import (
+	"os"
 	"sync/atomic"
 	"time"
 
@@ -15,6 +16,17 @@ type uniref struct {
 func (u *uniref) update() {
 
 	fr := config.Dataconf[u.source]["id"]
+
+	// Test mode support
+	testLimit := config.GetTestLimit(u.source)
+	var idLogFile *os.File
+	if config.IsTestMode() {
+		idLogFile = openIDLogFile(config.TestRefDir, u.source+"_ids.txt")
+		if idLogFile != nil {
+			defer idLogFile.Close()
+		}
+	}
+
 	br, gz, ftpFile, client, localFile, _, err := getDataReaderNew(u.source, u.d.uniprotFtp, u.d.uniprotFtpPath, config.Dataconf[u.source]["path"])
 	check(err)
 
@@ -63,11 +75,15 @@ func (u *uniref) update() {
 		for _, v = range r.Childs["representativeMember"] {
 			for _, z = range v.Childs["dbReference"] {
 
-				/**
+				// In production, xrefs to UniParc/UniProt are created bidirectionally from those datasets,
+				// so we don't need to create them here to avoid duplicate data for large datasets.
+				// In test mode, we only process 100 entries per dataset, so the referenced IDs might not
+				// be in the test subset. We create the xrefs here to make UniRef IDs searchable in tests.
 				if _, ok = validRefs[z.Attrs["type"]]; ok {
-					u.d.addXref(entryid, fr, z.Attrs["id"], z.Attrs["type"], false)
+					if config.IsTestMode() {
+						u.d.addXref(entryid, fr, z.Attrs["id"], z.Attrs["type"], false)
+					}
 				}
-				**/
 
 				if _, ok = z.Childs["property"]; ok {
 					for _, x := range z.Childs["property"] {
@@ -84,10 +100,13 @@ func (u *uniref) update() {
 		for _, v = range r.Childs["member"] {
 			for _, z = range v.Childs["dbReference"] {
 
-				/**
+				// Same reasoning as representativeMember: only create in test mode to avoid
+				// duplicate data in production while ensuring tests work correctly.
 				if _, ok = validRefs[z.Attrs["type"]]; ok {
-					u.d.addXref(entryid, fr, z.Attrs["id"], z.Attrs["type"], false)
-				}			**/
+					if config.IsTestMode() {
+						u.d.addXref(entryid, fr, z.Attrs["id"], z.Attrs["type"], false)
+					}
+				}
 
 				if _, ok = z.Childs["property"]; ok {
 					for _, x := range z.Childs["property"] {
@@ -100,7 +119,17 @@ func (u *uniref) update() {
 			}
 		}
 
+		// Log ID in test mode
+		if idLogFile != nil {
+			logProcessedID(idLogFile, entryid)
+		}
+
 		total++
+
+		// Check test limit
+		if shouldStopProcessing(testLimit, int(total)) {
+			break
+		}
 
 	}
 

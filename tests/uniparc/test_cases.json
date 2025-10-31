@@ -1,0 +1,54 @@
+{
+  "common_tests": [
+    {
+      "name": "Lookup by UniParc ID",
+      "type": "id_lookup",
+      "id": "@reference[0].uniParcId"
+    },
+    {
+      "name": "Check attributes present",
+      "type": "attribute_check",
+      "id": "@reference[0].uniParcId"
+    },
+    {
+      "name": "Check EMBL cross-reference",
+      "type": "xref_exists",
+      "id": "@reference[0].uniParcId",
+      "xref_type": "EMBL",
+      "expected": "AAB86878"
+    },
+    {
+      "name": "Check Ensembl cross-reference",
+      "type": "xref_exists",
+      "id": "@reference[0].uniParcId",
+      "xref_type": "Ensembl",
+      "expected": "ENSP00000307218"
+    },
+    {
+      "name": "Check RefSeq cross-reference",
+      "type": "xref_exists",
+      "id": "@reference[0].uniParcId",
+      "xref_type": "RefSeq",
+      "expected": "NP_000653"
+    },
+    {
+      "name": "Check UniProtKB cross-reference",
+      "type": "xref_exists",
+      "id": "@reference[0].uniParcId",
+      "xref_type": "UniProtKB",
+      "expected": "P18440"
+    },
+    {
+      "name": "Lookup multiple IDs",
+      "type": "multi_lookup",
+      "count": 3,
+      "id_field": "uniParcId"
+    },
+    {
+      "name": "Invalid ID handling",
+      "type": "invalid_id",
+      "invalid_id": "UPI9999999999"
+    }
+  ],
+  "custom_tests": []
+}

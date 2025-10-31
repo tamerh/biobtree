@@ -1,0 +1,54 @@
+{
+  "common_tests": [
+    {
+      "name": "Lookup by UniRef50 ID",
+      "type": "id_lookup",
+      "id": "@reference[0].id"
+    },
+    {
+      "name": "Check attributes present",
+      "type": "attribute_check",
+      "id": "@reference[0].id"
+    },
+    {
+      "name": "Check UniParc cross-reference",
+      "type": "xref_exists",
+      "id": "@reference[0].id",
+      "xref_type": "uniparc",
+      "expected": "@reference[0].representativeMember.uniparcId"
+    },
+    {
+      "name": "Check UniProt cross-reference (seed)",
+      "type": "xref_exists",
+      "id": "@reference[0].id",
+      "xref_type": "uniprot",
+      "expected": "@reference[0].seedId"
+    },
+    {
+      "name": "Check UniRef90 cross-reference",
+      "type": "xref_exists",
+      "id": "@reference[0].id",
+      "xref_type": "uniref90",
+      "expected": "@reference[0].representativeMember.uniref90Id"
+    },
+    {
+      "name": "Check UniRef100 cross-reference",
+      "type": "xref_exists",
+      "id": "@reference[0].id",
+      "xref_type": "uniref100",
+      "expected": "@reference[0].representativeMember.uniref100Id"
+    },
+    {
+      "name": "Lookup multiple IDs",
+      "type": "multi_lookup",
+      "count": 3,
+      "id_field": "id"
+    },
+    {
+      "name": "Invalid ID handling",
+      "type": "invalid_id",
+      "invalid_id": "UniRef50_INVALID9999"
+    }
+  ],
+  "custom_tests": []
+}

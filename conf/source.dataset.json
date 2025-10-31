@@ -61,7 +61,8 @@
     "path": "http://purl.obolibrary.org/obo/eco.owl",
     "useLocalFile": "no",
     "hasFilter": "yes",
-    "attrs": "type,name,[]synonyms"
+    "attrs": "type,name,[]synonyms",
+    "test_entries_count": "100"
   },
   "hgnc": {
     "id": "5",

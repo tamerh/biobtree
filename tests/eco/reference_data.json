@@ -1,0 +1,868 @@
+{
+  "metadata": {
+    "total_ids": 100,
+    "fetched": 100,
+    "failed": 0
+  },
+  "entries": [
+    {
+      "id": "ECO:0000000",
+      "name": "evidence",
+      "description": "A type of information that is used to support an assertion.",
+      "type": "eco",
+      "synonyms": [
+        "evidence code",
+        "evidence_code"
+      ]
+    },
+    {
+      "id": "ECO:0000001",
+      "name": "inference from background scientific knowledge",
+      "description": "A type of curator inference where conclusions are drawn based on the background scientific knowledge of the curator.",
+      "type": "eco"
+    },
+    {
+      "id": "ECO:0000002",
+      "name": "direct assay evidence",
+      "description": "A type of experimental evidence resulting from the direct measurement of some aspect of a biological feature.",
+      "type": "eco"
+    },
+    {
+      "id": "ECO:0000003",
+      "name": "reconstitution assay evidence",
+      "description": "A type of direct assay evidence based on reconstructing a biological sample from its disassociated state to its original state.",
+      "type": "eco"
+    },
+    {
+      "id": "ECO:0000004",
+      "name": "cell fractionation evidence",
+      "description": "A type of fractionation evidence where sub-cellular components are separated based on their physical properties such as density in a sucrose density gradient.",
+      "type": "eco",
+      "synonyms": [
+        "cell fractionation"
+      ]
+    },
+    {
+      "id": "ECO:0000005",
+      "name": "enzymatic activity assay evidence",
+      "description": "A type of protein assay evidence where the catalytic activity of an enzyme is determined.",
+      "type": "eco",
+      "synonyms": [
+        "enzyme assay evidence",
+        "enzyme assays"
+      ]
+    },
+    {
+      "id": "ECO:0000006",
+      "name": "experimental evidence",
+      "description": "A type of evidence that is the output of a scientific procedure performed to make a discovery, test a hypothesis, or demonstrate a known fact.",
+      "type": "eco"
+    },
+    {
+      "id": "ECO:0000007",
+      "name": "immunofluorescence evidence",
+      "description": "A type of protein detection assay evidence where a fluorescently labeled antibody is used to detect the presence or localization of a biomolecule within a cell.",
+      "type": "eco",
+      "synonyms": [
+        "immunofluorescence"
+      ]
+    },
+    {
+      "id": "ECO:0000008",
+      "name": "expression pattern evidence",
+      "description": "A type of experimental evidence that is based on characterization of gene expression.",
+      "type": "eco"
+    },
+    {
+      "id": "ECO:0000009",
+      "name": "transcript expression evidence",
+      "description": "A type of expression pattern evidence where abundance of a transcript is analyzed.",
+      "type": "eco",
+      "synonyms": [
+        "transcript expression level evidence",
+        "transcriptomics evidence"
+      ]
+    },
+    {
+      "id": "ECO:0000010",
+      "name": "protein expression evidence",
+      "description": "A type of expression pattern evidence resulting from protein abundance quantification techniques.",
+      "type": "eco",
+      "synonyms": [
+        "protein expression level evidence"
+      ]
+    },
+    {
+      "id": "ECO:0000011",
+      "name": "genetic interaction evidence",
+      "description": "A type of experimental phenotypic evidence resulting from the effect that a given gene has on another gene or genes, and the products.",
+      "type": "eco"
+    },
+    {
+      "id": "ECO:0000012",
+      "name": "functional complementation evidence",
+      "description": "A type of genetic interaction evidence where a wild-type copy of the gene in question is inserted into a mutant cell to see if it restores the wild-type phenotype in the mutant background.",
+      "type": "eco",
+      "synonyms": [
+        "functional complementation"
+      ]
+    },
+    {
+      "id": "ECO:0000013",
+      "name": "transgenic rescue experiment evidence",
+      "description": "A type of functional complementation evidence resulting from the introduction of a transgene to prevent, or \"rescue\" an organism from a condition.",
+      "type": "eco"
+    },
+    {
+      "id": "ECO:0000015",
+      "name": "mutant phenotype evidence",
+      "description": "A type of experimental phenotypic evidence in which an observable phenotypic difference results from a change or mutation in DNA.",
+      "type": "eco"
+    },
+    {
+      "id": "ECO:0000016",
+      "name": "loss-of-function mutant phenotype evidence",
+      "description": "A type of mutant phenotype evidence where a phenotype is associated with altered gene product which lacks the molecular function of the wild-type gene.",
+      "type": "eco"
+    },
+    {
+      "id": "ECO:0000017",
+      "name": "ectopic expression evidence",
+      "description": "A type of experimental phenotypic evidence where a transgenic strain carrying the construct of a promoter cDNA fusion in which a gene of interest is driven by a defined promoter or enhancer is ectopically expressed in the defined pattern to characterize potential cellular properties and functions of a protein of interest.",
+      "type": "eco",
+      "synonyms": [
+        "analysis of overexpression/ectopic expression phenotype"
+      ]
+    },
+    {
+      "id": "ECO:0000018",
+      "name": "anti-sense experiment evidence",
+      "description": "A type of mutant phenotype evidence where a phenotype is observed while expressing an anti-sense version of a gene product in a wild-type (for that gene product) background.",
+      "type": "eco",
+      "synonyms": [
+        "anti-sense experiments"
+      ]
+    },
+    {
+      "id": "ECO:0000019",
+      "name": "RNAi evidence",
+      "description": "A type of mutant phenotype evidence where an RNA construct is introduced into a cell and the expression of the gene bearing its complementary sequence is suppressed.",
+      "type": "eco",
+      "synonyms": [
+        "RNAi experiment"
+      ]
+    },
+    {
+      "id": "ECO:0000020",
+      "name": "protein inhibition evidence",
+      "description": "A type of direct assay evidence based on the inhibition of the molecular function of a protein.",
+      "type": "eco",
+      "synonyms": [
+        "specific protein inhibition evidence"
+      ]
+    },
+    {
+      "id": "ECO:0000021",
+      "name": "physical interaction evidence",
+      "description": "A type of experimental evidence that is based on characterization of an interaction between a gene product and another molecule.",
+      "type": "eco"
+    },
+    {
+      "id": "ECO:0000022",
+      "name": "co-purification evidence",
+      "description": "A type of physical interaction evidence where a cellular component subunit is isolated as part of purification of its larger complex.",
+      "type": "eco",
+      "synonyms": [
+        "co-purification"
+      ]
+    },
+    {
+      "id": "ECO:0000023",
+      "name": "affinity evidence",
+      "description": "A type of physical interaction evidence that depends on the strength of the interaction between two entities.",
+      "type": "eco",
+      "synonyms": [
+        "ligand binding evidence"
+      ]
+    },
+    {
+      "id": "ECO:0000024",
+      "name": "protein binding evidence",
+      "description": "A type of affinity evidence resulting from the binding of a molecule to a protein or protein complex.",
+      "type": "eco"
+    },
+    {
+      "id": "ECO:0000025",
+      "name": "bait-prey hybrid interaction evidence",
+      "description": "A type of protein binding evidence where proteins of interest (bait and prey) are covalently linked to incomplete fragments of a third protein (reporter) and expressed in vivo, at which time interaction between bait and prey proteins brings reporter fragments in close enough proximity to allow them to reform and become a functional reporter protein.",
+      "type": "eco",
+      "synonyms": [
+        "bait-prey protein pull-down evidence"
+      ]
+    },
+    {
+      "id": "ECO:0000026",
+      "name": "obsolete nucleic acid hybridization evidence",
+      "description": "OBSOLETE. A type of experimental genomic evidence resulting from a process in which single stranded nucleic acids are allowed to interact so that complexes, or hybrids, are formed by molecules with sufficiently similar, complementary sequences.",
+      "type": "eco",
+      "isObsolete": true
+    },
+    {
+      "id": "ECO:0000027",
+      "name": "structural similarity evidence",
+      "description": "A type of similarity evidence based on structural similarity of an annotated gene or gene product to another gene or group of genes.",
+      "type": "eco"
+    },
+    {
+      "id": "ECO:0000028",
+      "name": "motif similarity evidence",
+      "description": "A type of match to sequence model evidence that is based on the presence of a recognized domain or motif in a gene product's (usually protein) primary sequence.",
+      "type": "eco",
+      "synonyms": [
+        "recognized domains"
+      ]
+    },
+    {
+      "id": "ECO:0000029",
+      "name": "match to InterPro member signature evidence",
+      "description": "A type of match to sequence model evidence resulting from a positive match of a protein, or set of proteins to a predictive model (signature) in the InterPro database.",
+      "type": "eco"
+    },
+    {
+      "id": "ECO:0000030",
+      "name": "BLAST evidence used in manual assertion",
+      "description": "A type of BLAST evidence that is used in a manual assertion.",
+      "type": "eco",
+      "synonyms": [
+        "curated BLAST analysis"
+      ]
+    },
+    {
+      "id": "ECO:0000031",
+      "name": "protein BLAST evidence used in manual assertion",
+      "description": "A type of protein BLAST evidence that is used in a manual assertion.",
+      "type": "eco",
+      "synonyms": [
+        "curated protein BLAST analysis"
+      ]
+    },
+    {
+      "id": "ECO:0000032",
+      "name": "nucleotide BLAST evidence used in manual assertion",
+      "description": "A type of nucleotide BLAST evidence that is used in a manual assertion.",
+      "type": "eco",
+      "synonyms": [
+        "curated nucleic acid BLAST analysis"
+      ]
+    },
+    {
+      "id": "ECO:0000033",
+      "name": "author statement supported by traceable reference",
+      "description": "A type of author statement in which the author makes a statement that is not supported by information in that particular publication, but rather can be traced to a reference cited by that publication.",
+      "type": "eco",
+      "synonyms": [
+        "traceable author statement"
+      ]
+    },
+    {
+      "id": "ECO:0000034",
+      "name": "author statement without traceable support",
+      "description": "A type of author statement that is not associated with results presented or a cited reference.",
+      "type": "eco",
+      "synonyms": [
+        "non-traceable author statement"
+      ]
+    },
+    {
+      "id": "ECO:0000035",
+      "name": "no evidence data found",
+      "description": "A type of curator inference that results when research finds no evidence information in the scientific literature, at reference databases, or from other resources.",
+      "type": "eco"
+    },
+    {
+      "id": "ECO:0000037",
+      "name": "obsolete not_recorded",
+      "description": "The evidence not_recorded appears in some legacy annotations; it should not be used for new annotations.",
+      "type": "eco",
+      "isObsolete": true
+    },
+    {
+      "id": "ECO:0000038",
+      "name": "transient rescue experiment evidence",
+      "description": "A type of functional complementation evidence resulting from the introduction of nucleic acids, which are not permanently incorporated into the genome, to temporarily prevent, or \"rescue\" an organism from a condition.",
+      "type": "eco"
+    },
+    {
+      "id": "ECO:0000039",
+      "name": "obsolete protein assay evidence",
+      "description": "OBSOLETE. A type of direct assay evidence resulting from determining the presence, abundance, structure, function, or activity of proteins.",
+      "type": "eco",
+      "isObsolete": true
+    },
+    {
+      "id": "ECO:0000040",
+      "name": "immunological assay evidence",
+      "description": "A type of affinity evidence resulting from quantitation of the analyte which depends on the reaction of an antigen (analyte) and an antibody.",
+      "type": "eco"
+    },
+    {
+      "id": "ECO:0000041",
+      "name": "similarity evidence",
+      "description": "A type of evidence resulting from comparing likeness of distinct biological entities.",
+      "type": "eco",
+      "synonyms": [
+        "IS",
+        "inferred from similarity"
+      ]
+    },
+    {
+      "id": "ECO:0000042",
+      "name": "gain-of-function mutant phenotypic evidence",
+      "description": "A type of mutant phenotype evidence resulting from an altered gene product which possesses a new molecular function or a new pattern of gene expression.",
+      "type": "eco",
+      "synonyms": [
+        "gain-of-function mutant phenotype evidence"
+      ]
+    },
+    {
+      "id": "ECO:0000044",
+      "name": "sequence similarity evidence",
+      "description": "A type of similarity based on biomolecular sequence.",
+      "type": "eco"
+    },
+    {
+      "id": "ECO:0000045",
+      "name": "spatial pattern of protein expression evidence",
+      "description": "A type of protein expression evidence that accounts for the position of RNA translation to a protein product ranging in scale from differing tissues to regions of an anatomical structure.",
+      "type": "eco"
+    },
+    {
+      "id": "ECO:0000047",
+      "name": "spatial pattern of transcript expression evidence",
+      "description": "A type of transcript expression evidence that accounts for the position of transcription ranging in scale from the position of genes on the chromosome to differing tissues to regions of an anatomical structure.",
+      "type": "eco"
+    },
+    {
+      "id": "ECO:0000049",
+      "name": "reporter gene assay evidence",
+      "description": "A type of expression pattern evidence that is based on the expression pattern of a reporter gene.",
+      "type": "eco",
+      "synonyms": [
+        "expression of a reporter gene"
+      ]
+    },
+    {
+      "id": "ECO:0000050",
+      "name": "voucher specimen phenotypic analysis evidence",
+      "description": "A type of experimental phenotypic evidence based on an authors phenotypic description of a species (or higher-level group), which explicitly references an observation made of a voucher specimen (a specimen with a permanent museum catalog).",
+      "type": "eco",
+      "synonyms": [
+        "IVS",
+        "voucher specimen analysis evidence"
+      ]
+    },
+    {
+      "id": "ECO:0000051",
+      "name": "genetic similarity evidence",
+      "description": "A type of similarity based on genotype without respect to expression.",
+      "type": "eco",
+      "synonyms": [
+        "IGTS",
+        "inferred from genetic similarity"
+      ]
+    },
+    {
+      "id": "ECO:0000052",
+      "name": "suppressor/enhancer interaction phenotypic evidence",
+      "description": "A type of genetic interaction evidence resulting from a second mutation that either suppresses or enhances the phenotype expressed from an original mutation.",
+      "type": "eco",
+      "synonyms": [
+        "suppressor/enhancer interaction evidence",
+        "'traditional' genetic interactions (e.g. suppressors, synthetic lethals)"
+      ]
+    },
+    {
+      "id": "ECO:0000053",
+      "name": "automatically integrated combinatorial evidence used in automatic assertion",
+      "description": "A type of automatically integrated combinatorial evidence that is used in an automatic assertion.",
+      "type": "eco"
+    },
+    {
+      "id": "ECO:0000054",
+      "name": "double mutant phenotypic evidence",
+      "description": "A type of mutant phenotype evidence resulting from an experiment typically constructed to determine if two different genes have an observable genetic interaction (functional connection) as the result of a mutation occurring in the alleles of the two genes of interest.",
+      "type": "eco",
+      "synonyms": [
+        "double mutant phenotype evidence",
+        "double mutant analysis"
+      ]
+    },
+    {
+      "id": "ECO:0000055",
+      "name": "obsolete array experiment evidence",
+      "description": "This general 'array experiment' term should not be used - replace with the specific type of array (e.g. ECO:0000097, ECO:0000062, ECO:0000104, etc.)",
+      "type": "eco",
+      "isObsolete": true
+    },
+    {
+      "id": "ECO:0000056",
+      "name": "epistatic interaction phenotypic evidence",
+      "description": "A type of genetic interaction evidence resulting from the suppression of one allelic effect by an allele at another genetic locus.",
+      "type": "eco",
+      "synonyms": [
+        "epistatic interaction evidence",
+        "epistatic interactions"
+      ]
+    },
+    {
+      "id": "ECO:0000057",
+      "name": "phenotypic similarity evidence",
+      "description": "A type of similarity based on the expression of a genotype in an environment.",
+      "type": "eco",
+      "synonyms": [
+        "IPTS",
+        "phenotype similarity evidence",
+        "inferred from phenotypic similarity"
+      ]
+    },
+    {
+      "id": "ECO:0000058",
+      "name": "expression microarray evidence",
+      "description": "A type of transcript expression evidence resulting from simultaneous profiling of the expression levels of thousands of genes in a single experiment allowing analysis of genes and their networks.",
+      "type": "eco",
+      "synonyms": [
+        "differential gene expression evidence from microarray experiment"
+      ]
+    },
+    {
+      "id": "ECO:0000059",
+      "name": "experimental phenotypic evidence",
+      "description": "A type of experimental evidence that is based on an observable characteristic trait, which is the result of the expression of an organisms genotype in an environment.",
+      "type": "eco",
+      "synonyms": [
+        "inferred from phenotype"
+      ]
+    },
+    {
+      "id": "ECO:0000060",
+      "name": "positional similarity evidence",
+      "description": "A type of phenotypic similarity evidence based on the similarity of stucture locations or arrangements.",
+      "type": "eco",
+      "synonyms": [
+        "IPS"
+      ]
+    },
+    {
+      "id": "ECO:0000061",
+      "name": "quantitative trait analysis evidence",
+      "description": "A type of phenotypic evidence that is based on a gene product that is associated with a quantitative trait locus, but has not been cloned.",
+      "type": "eco",
+      "synonyms": [
+        "QTL analysis evidence",
+        "quantitative trait analysis"
+      ]
+    },
+    {
+      "id": "ECO:0000062",
+      "name": "cRNA to DNA expression microarray evidence",
+      "description": "A type of expression microarray evidence where expression level is quantified by sample biotin-labeled cRNA (transcribed from an unknown RNA sample) hybridized to DNA oligonuclotides immoblized on a solid surface.",
+      "type": "eco",
+      "synonyms": [
+        "genomic microarray evidence"
+      ]
+    },
+    {
+      "id": "ECO:0000063",
+      "name": "compositional similarity evidence",
+      "description": "A type of phenotypic similarity evidence based on the similarity of the histological makeup of structures.",
+      "type": "eco",
+      "synonyms": [
+        "ICS"
+      ]
+    },
+    {
+      "id": "ECO:0000064",
+      "name": "functional complementation in heterologous system evidence",
+      "description": "A type of functional complementation evidence that is based on the insertion of a wild-type copy of a gene into a heterologous organism, with the mutation occurring in a homologous gene.",
+      "type": "eco",
+      "synonyms": [
+        "functional complementation in heterologous system"
+      ]
+    },
+    {
+      "id": "ECO:0000066",
+      "name": "yeast one-hybrid evidence",
+      "description": "A type of bait-prey hybrid interaction evidence that is based on a protein-DNA complementation assay where a single promoter acts as bait and is screened against a library of prey transcription factors.",
+      "type": "eco",
+      "synonyms": [
+        "yeast one-hybrid assay"
+      ]
+    },
+    {
+      "id": "ECO:0000067",
+      "name": "developmental similarity evidence",
+      "description": "A type of phenotypic similarity evidence based on the similarity of embryological or post-embryonic orgin of structures.",
+      "type": "eco",
+      "synonyms": [
+        "IDS"
+      ]
+    },
+    {
+      "id": "ECO:0000068",
+      "name": "yeast 2-hybrid evidence",
+      "description": "A type of bait-prey hybrid interaction evidence that is based on detection of protein-protein interaction by activation of a yeast reporter gene after a bait protein fused to a DNA-binding domain (which has been transfected into a yeast cell) is used to screen a cDNA library of clones fused to an activation domain.",
+      "type": "eco",
+      "synonyms": [
+        "yeast two-hybrid assay"
+      ]
+    },
+    {
+      "id": "ECO:0000069",
+      "name": "differential methylation hybridization evidence",
+      "description": "A type of in vitro methylation assay evidence where methylation-sensitive restriction enzymes are utilized to compare differential methylation between two samples by first shearing DNA, followed by end-blunting, ligation of linkers, methylation sensitive restriction, PCR using linker primers, dye labeling and relative quantification of methylated DNA fragments by two-colored array hybridization to a CpG island microarray for visual assessment.",
+      "type": "eco",
+      "synonyms": [
+        "CpG island microarray evidence"
+      ]
+    },
+    {
+      "id": "ECO:0000070",
+      "name": "co-immunoprecipitation evidence",
+      "description": "A type of immunoprecipitation evidence that involves precipitating two or more proteins via binding to an antibody specific to a single protein, followed by protein identification.",
+      "type": "eco",
+      "synonyms": [
+        "co-immunoprecipitation"
+      ]
+    },
+    {
+      "id": "ECO:0000071",
+      "name": "morphological similarity evidence",
+      "description": "A type of phenotypic similarity evidence based on the similarity of shape, structure, or configuration in structures.",
+      "type": "eco",
+      "synonyms": [
+        "IMS"
+      ]
+    },
+    {
+      "id": "ECO:0000072",
+      "name": "obsolete Sos-recruitment assay evidence",
+      "description": null,
+      "type": "eco",
+      "isObsolete": true
+    },
+    {
+      "id": "ECO:0000073",
+      "name": "obsolete experimental genomic evidence",
+      "description": "OBSOLETE. A type of experimental evidence that is based on the characterization of an attribute of the genome underlying a gene product.",
+      "type": "eco",
+      "synonyms": [
+        "inferred from genomic analysis"
+      ],
+      "isObsolete": true
+    },
+    {
+      "id": "ECO:0000074",
+      "name": "split-ubiquitin functional complementation evidence",
+      "description": "A type of protein fragment functional complementation evidence that is based on detection of protein-protein interaction between a bait and prey protein by in vivo reconstitution of split-ubiquitin (when bait and prey interact) and release of a reporter protein.",
+      "type": "eco",
+      "synonyms": [
+        "split-ubiquitin assay"
+      ]
+    },
+    {
+      "id": "ECO:0000075",
+      "name": "gene expression similarity evidence",
+      "description": "A type of phenotypic similarity evidence that is based on the categorization of genes by the similarity of expression profiles.",
+      "type": "eco",
+      "synonyms": [
+        "IGES"
+      ]
+    },
+    {
+      "id": "ECO:0000076",
+      "name": "far-Western blotting evidence",
+      "description": "A type of physical interaction evidence that is based on detection of protein-protein interactions by separation of target proteins by SDS-PAGE which are blotted to a membrane, followed by denaturation and renaturation, probing with purified bait proteins, and detection of the target-bait complexes.",
+      "type": "eco",
+      "synonyms": [
+        "far-Western analysis"
+      ]
+    },
+    {
+      "id": "ECO:0000077",
+      "name": "methylation-specific polymerase chain reaction evidence",
+      "description": "A type of in vitro methylation assay evidence resulting from initial modification of DNA by sodium bisulfite, converting all unmethylated cytosines to uracil, and subsequent amplification with primers specific for methylated versus unmethylated DNA.",
+      "type": "eco",
+      "synonyms": [
+        "MS-PCR",
+        "MSP",
+        "methylation-specific PCR evidence"
+      ]
+    },
+    {
+      "id": "ECO:0000078",
+      "name": "southern hybridization evidence",
+      "description": "A type of DNA detection assay evidence that is based on detection of a specific DNA sequence by hybridization of labeled probes to any immobilized DNA fragment with sequence similarity.",
+      "type": "eco",
+      "synonyms": [
+        "Southern blot",
+        "Southern blotting"
+      ]
+    },
+    {
+      "id": "ECO:0000079",
+      "name": "affinity chromatography evidence",
+      "description": "A type of affinity evidence that results from separation of biochemical mixtures by selective binding of a compound to an immobilized compound on a polymeric matrix, subsequent removal of unattached components, and then displacement of the bound compound.",
+      "type": "eco",
+      "synonyms": [
+        "affinity chromatography"
+      ]
+    },
+    {
+      "id": "ECO:0000080",
+      "name": "phylogenetic evidence",
+      "description": "A type of similarity that indicates common ancestry.",
+      "type": "eco",
+      "synonyms": [
+        "IP"
+      ]
+    },
+    {
+      "id": "ECO:0000081",
+      "name": "targeting sequence prediction evidence",
+      "description": "A type of motif similarity evidence that is based on detection of a targeting sequence in the primary sequence of a protein through computational prediction and/or a manual examination of the sequence.",
+      "type": "eco",
+      "synonyms": [
+        "targeting sequence prediction"
+      ]
+    },
+    {
+      "id": "ECO:0000082",
+      "name": "obsolete polymerase chain reaction evidence",
+      "description": "OBSOLETE. A type of experimental genomic evidence where DNA polymerase is used to synthesize new strand of DNA complementary to the offered template strand.",
+      "type": "eco",
+      "synonyms": [
+        "PCR evidence"
+      ],
+      "isObsolete": true
+    },
+    {
+      "id": "ECO:0000083",
+      "name": "transmembrane domain prediction evidence",
+      "description": "A type of motif similarity evidence that is based on detection of one, or more, transmembrane domains in the primary sequence of a protein through computational prediction and/or a manual examination of the sequence.",
+      "type": "eco",
+      "synonyms": [
+        "transmembrane domain prediction"
+      ]
+    },
+    {
+      "id": "ECO:0000084",
+      "name": "gene neighbors evidence",
+      "description": "A type of genomic context evidence in which a gene product's identity is supported on the basis of the identity of neighboring genes.",
+      "type": "eco",
+      "synonyms": [
+        "inferred from genome cluster",
+        "ICL"
+      ]
+    },
+    {
+      "id": "ECO:0000085",
+      "name": "immunoprecipitation evidence",
+      "description": "A type of protein binding evidence where an antibody specific for a target protein is used to precipitate the target protein along with any other molecules (e.g. protein, nucleic acid) that are bound to the target protein.",
+      "type": "eco",
+      "synonyms": [
+        "immunoprecipitation"
+      ]
+    },
+    {
+      "id": "ECO:0000086",
+      "name": "amplification of intermethylated sites evidence",
+      "description": "A type of in vitro methylation assay evidence resulting from a genome-wide estimate of DNA methylation by differential enzymatic digestion of genomic DNA with methylation-sensitive and methylation-insensitive isoschizomers, followed by restrained PCR amplification of sequences methylated at both ends and resolving the PCR products in a denaturing polyacrylamide-sequencing gel to generate fingerprints that consist of multiple anonymous bands that represent the DNA methylome of the cell.",
+      "type": "eco",
+      "synonyms": [
+        "AIMS"
+      ]
+    },
+    {
+      "id": "ECO:0000087",
+      "name": "immunolocalization evidence",
+      "description": "A type of microscopy evidence where antibodies are used to detect the location of molecules or other structures within cells or tissues.",
+      "type": "eco",
+      "synonyms": [
+        "immunolocalization"
+      ]
+    },
+    {
+      "id": "ECO:0000088",
+      "name": "biological system reconstruction evidence",
+      "description": "A type of curator inference that is based on a combination of experimental evidences or existing models of that system in a related species used for the reconstruction of a biological system.",
+      "type": "eco",
+      "synonyms": [
+        "ISR",
+        "inferred from system reconstruction"
+      ]
+    },
+    {
+      "id": "ECO:0000089",
+      "name": "restriction landmark genomic scanning evidence",
+      "description": "A type of DNA detection assay evidence resulting from the use of restriction enzymes for direct end-labeling of DNA (creating landmarks), followed by high-resolution two-dimensional electrophoresis to visualize the landmarks.",
+      "type": "eco",
+      "synonyms": [
+        "RLGS evidence",
+        "restriction landmark genome scanning evidence"
+      ]
+    },
+    {
+      "id": "ECO:0000090",
+      "name": "immunogold labelling evidence",
+      "description": "A type of immunolocalization evidence where the antibodies are labeled with colloidal gold particles whose location is then detected via microscopy.",
+      "type": "eco",
+      "synonyms": [
+        "immunogold labelling"
+      ]
+    },
+    {
+      "id": "ECO:0000092",
+      "name": "epitope-tagged protein immunolocalization evidence",
+      "description": "A type of immunolocalization evidence in which recombinant proteins fused with epitopes are recognized by antibodies.",
+      "type": "eco",
+      "synonyms": [
+        "immunolocalization of epitope-tagged protein"
+      ]
+    },
+    {
+      "id": "ECO:0000093",
+      "name": "array-based sequence capture evidence",
+      "description": "A type of DNA detection assay evidence evidence where gene sequence or variation is determined or detected by fluorescently-labeled DNA fragments hybridized to sequence-specific oligonucleotides immobilized on an array.",
+      "type": "eco",
+      "synonyms": [
+        "DNA microarray",
+        "oligonucleotide microarray evidence",
+        "SNP array evidence",
+        "single nucleotide polymorphism array evidence"
+      ]
+    },
+    {
+      "id": "ECO:0000094",
+      "name": "obsolete biological assay evidence",
+      "description": "The children of 'biological assay evidence' have been moved under 'direct assay evidence', and this term has been deprecated with no children left.",
+      "type": "eco",
+      "isObsolete": true
+    },
+    {
+      "id": "ECO:0000095",
+      "name": "cell growth regulation assay evidence",
+      "description": "A type of cell growth assay evidence that measures one or more aspects of cell growth over a specified time period to indicate an induced or repressed regulatory effect.",
+      "type": "eco",
+      "synonyms": [
+        "growth curve analysis"
+      ]
+    },
+    {
+      "id": "ECO:0000096",
+      "name": "electrophoretic mobility shift assay evidence",
+      "description": "A type of affinity evidence based on an electrophoretic mobility shift of macromolecules, where proteins, nucleic acids, or both, are combined and the resulting mixtures are electrophoresed under native conditions through polyacrylamide or agarose gel to detect interactions/complexes between proteins and/or nucleic acid.",
+      "type": "eco",
+      "synonyms": [
+        "EMSA: electrophoretic mobility shift assay",
+        "Gel retardation assay",
+        "electrophoretic mobility shift assay"
+      ]
+    },
+    {
+      "id": "ECO:0000097",
+      "name": "cDNA to DNA expression microarray evidence",
+      "description": "A type of expression microarray evidence where expression level is quantified by fluroescently-labeled cDNA (reverse transcribed from an unknown RNA sample) hybridized to DNA immobilized on a solid surface.",
+      "type": "eco",
+      "synonyms": [
+        "DNA microarray",
+        "RNA microarray"
+      ]
+    },
+    {
+      "id": "ECO:0000098",
+      "name": "obsolete in situ hybridization evidence",
+      "description": "OBSOLETE. A type of nucleic acid hybridization evidence based on localization of a specific segment of DNA or RNA by the application of a complementary strand of nucleic acid to which a reporter molecule is attached.",
+      "type": "eco",
+      "synonyms": [
+        "in situ hybridization"
+      ],
+      "isObsolete": true
+    },
+    {
+      "id": "ECO:0000100",
+      "name": "fractionation evidence",
+      "description": "A type of direct assay evidence resulting from the separation of various cell components while preserving their individual functions.",
+      "type": "eco"
+    },
+    {
+      "id": "ECO:0000101",
+      "name": "Affymetrix GeneChip evidence",
+      "description": "A type of cRNA to DNA expression microarray evidence resulting from the use of a proprietary Affymetrix GeneChip System for analyzing complex genetic information.",
+      "type": "eco",
+      "synonyms": [
+        "Affymetrix array experiment evidence"
+      ]
+    },
+    {
+      "id": "ECO:0000102",
+      "name": "co-fractionation evidence",
+      "description": "A type of fractionation evidence resulting from a protein fractionated with other compounds, factors, or macromolecules.",
+      "type": "eco",
+      "synonyms": [
+        "co-fractionation"
+      ]
+    },
+    {
+      "id": "ECO:0000104",
+      "name": "DNA to cDNA expression microarray evidence",
+      "description": "A type of expression microarray evidence where expression levels are quantified by hybridization of fluorescently-labeled DNA to cDNA (reverse transcribed from an unknown RNA sample) immobilized on a solid surface.",
+      "type": "eco",
+      "synonyms": [
+        "REM evidence",
+        "RNA expression microarray evidence",
+        "microarray RNA expression level evidence",
+        "transcript levels (e.g. microarray data)"
+      ]
+    },
+    {
+      "id": "ECO:0000105",
+      "name": "Nimblegen array evidence",
+      "description": "A type of cDNA to DNA expression microarray evidence resulting from the use of a proprietary NimbleGen array to measure expression levels.",
+      "type": "eco"
+    },
+    {
+      "id": "ECO:0000106",
+      "name": "northern blot evidence",
+      "description": "A type of transcript expression evidence based on electrophoresis and probing to determine levels of RNA expression using a complementary hybridization probe on the separated RNA samples.",
+      "type": "eco",
+      "synonyms": [
+        "RNA blot evidence",
+        "northern assay evidence",
+        "transcript levels (e.g. Northerns)"
+      ]
+    },
+    {
+      "id": "ECO:0000109",
+      "name": "reverse transcription polymerase chain reaction evidence",
+      "description": "A type of RNA detection assay evidence where an RNA transcript is reverse transcribed into cDNA and amplified to qualitatively detect gene expression.",
+      "type": "eco",
+      "synonyms": [
+        "reverse transcription polymerase chain reaction transcription evidence",
+        "RT-PCR",
+        "transcript levels (e.g. RT-PCR)"
+      ]
+    },
+    {
+      "id": "ECO:0000110",
+      "name": "RNA protection assay evidence",
+      "description": "A type of nuclease protection assay evidence where mRNA is hybridized with radiolabeled RNA probes after which RNAse is added to digest the unbound, nonresistant single-stranded overhang regions, later the remaining probe target hybrids are purified and resolved on denaturing polyacrylamide gel, and quantified by autoradiography.",
+      "type": "eco",
+      "synonyms": [
+        "ribonuclease protection assay",
+        "RPA",
+        "RNA protection assay",
+        "RNAse protection assay"
+      ]
+    }
+  ]
+}

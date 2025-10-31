@@ -135,7 +135,7 @@ def run_dataset_tests(test_script: Path, api_url: str) -> int:
         return 1
 
 
-def build_test_database(biobtree_path: Path, datasets: str) -> bool:
+def build_test_database(biobtree_path: Path, datasets: str, cwd: Path = None) -> bool:
     """Build test database with specified datasets"""
     print("=" * 60)
     print("  Step 1: Building Test Database")
@@ -147,7 +147,8 @@ def build_test_database(biobtree_path: Path, datasets: str) -> bool:
         result = subprocess.run(
             [str(biobtree_path), "-d", datasets, "test"],
             capture_output=False,
-            text=True
+            text=True,
+            cwd=str(cwd) if cwd else None
         )
 
         if result.returncode == 0:
@@ -182,8 +183,8 @@ def main():
         return 1
 
     # Build test database
-    datasets = "hgnc,uniprot,go,taxonomy,uniparc,uniref100,uniref50,uniref90,eco"
-    if not build_test_database(biobtree_path, datasets):
+    datasets = "hgnc,uniprot,go,taxonomy,uniparc,uniref100,uniref50,uniref90,eco,chebi"
+    if not build_test_database(biobtree_path, datasets, cwd=project_root):
         return 1
 
     print()
@@ -214,6 +215,7 @@ def main():
             script_dir / "uniref50" / "test_uniref50.py",
             script_dir / "uniref90" / "test_uniref90.py",
             script_dir / "eco" / "test_eco.py",
+            script_dir / "chebi" / "test_chebi.py",
         ]
 
         results = {}

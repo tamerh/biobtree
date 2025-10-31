@@ -125,7 +125,8 @@
     "path": "/chebi/flat_files/",
     "files": "database_accession.tsv.gz",
     "aliases": "ChEBI",
-    "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=£{id}"
+    "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=£{id}",
+    "test_entries_count": "100"
   },
   "interpro": {
     "id": "11",

@@ -4,7 +4,9 @@ import (
 	"encoding/csv"
 	"io"
 	"log"
+	"os"
 	"strings"
+	"sync/atomic"
 	"time"
 )
 
@@ -19,6 +21,20 @@ func (c *chebi) update() {
 	fr := config.Dataconf[c.source]["id"]
 	chebiPath := config.Dataconf[c.source]["path"]
 	chebiFiles := strings.Split(config.Dataconf[c.source]["files"], ",")
+
+	// Test mode support
+	testLimit := config.GetTestLimit(c.source)
+	var idLogFile *os.File
+	if config.IsTestMode() {
+		idLogFile = openIDLogFile(config.TestRefDir, c.source+"_ids.txt")
+		if idLogFile != nil {
+			defer idLogFile.Close()
+		}
+	}
+
+	// Track unique ChEBI IDs (same ID may appear for multiple xrefs)
+	seenIDs := make(map[string]bool)
+	var uniqueCount uint64
 
 	//xreftypes := map[string]bool{}
 
@@ -37,14 +53,28 @@ func (c *chebi) update() {
 			if err == io.EOF {
 				break
 			}
-			if record[3] == "TYPE" {
-				continue
-			}
 			if err != nil {
 				log.Fatal(err)
 			}
+			// Skip header row
+			if record[3] == "TYPE" || record[1] == "compound_id" {
+				continue
+			}
 
 			entryid := "CHEBI:" + record[1]
+
+			// Log ID in test mode (only once per unique ID)
+			// Do this BEFORE checking if target database is configured
+			if idLogFile != nil && !seenIDs[entryid] {
+				logProcessedID(idLogFile, entryid)
+				seenIDs[entryid] = true
+				uniqueCount++
+
+				// Check test limit right after logging new ID
+				if shouldStopProcessing(testLimit, int(uniqueCount)) {
+					goto done
+				}
+			}
 
 			if _, ok := config.Dataconf[record[3]]; !ok {
 				continue
@@ -99,5 +129,9 @@ func (c *chebi) update() {
 
 	}
 
+done:
 	c.d.progChan <- &progressInfo{dataset: c.source, done: true}
+
+	atomic.AddUint64(&c.d.totalParsedEntry, uniqueCount)
+	c.d.addEntryStat(c.source, uniqueCount)
 }

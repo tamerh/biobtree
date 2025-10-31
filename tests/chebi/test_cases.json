@@ -1,0 +1,26 @@
+{
+  "_comment": "ChEBI Test Cases - Note: ChEBI only stores cross-references, not primary searchable entries",
+  "_note": "ChEBI data structure: ChEBI parses database_accession.tsv which contains mappings from ChEBI IDs to other databases (UniProt, GO, etc.). These are stored as inverse cross-references on the target database entries, not as primary ChEBI entries.",
+
+  "common_tests": [
+    {
+      "name": "ChEBI IDs file exists",
+      "type": "file_exists",
+      "file": "chebi_ids.txt",
+      "description": "Verify ChEBI IDs were logged during database build"
+    },
+    {
+      "name": "ChEBI processed 100 IDs",
+      "type": "id_count",
+      "expected_count": 100,
+      "description": "Verify test limit of 100 ChEBI IDs was respected"
+    }
+  ],
+
+  "custom_tests": [
+    {
+      "name": "ChEBI cross-references information",
+      "description": "Custom test to explain ChEBI's cross-reference structure"
+    }
+  ]
+}

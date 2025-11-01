@@ -185,7 +185,7 @@ Examples:
   %(prog)s hmdb,go,taxonomy   # Run multiple specific tests
 
 Available datasets:
-  hgnc, uniprot, go, taxonomy, eco, chebi, interpro, hmdb
+  hgnc, uniprot, go, taxonomy, eco, efo, chebi, interpro, hmdb
   (uniparc, uniref100, uniref50, uniref90 - currently disabled due to FTP issues)
         """
     )
@@ -211,6 +211,7 @@ Available datasets:
         'go': script_dir / "go" / "test_go.py",
         'taxonomy': script_dir / "taxonomy" / "test_taxonomy.py",
         'eco': script_dir / "eco" / "test_eco.py",
+        'efo': script_dir / "efo" / "test_efo.py",
         'chebi': script_dir / "chebi" / "test_chebi.py",
         'interpro': script_dir / "interpro" / "test_interpro.py",
         'hmdb': script_dir / "hmdb" / "test_hmdb.py",

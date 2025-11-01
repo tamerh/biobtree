@@ -257,7 +257,8 @@
     "path": "http://www.ebi.ac.uk/efo/efo.owl",
     "useLocalFile": "no",
     "hasFilter": "yes",
-    "attrs": "type,name,[]synonyms"
+    "attrs": "type,name,[]synonyms",
+    "test_entries_count": "100"
   },
   "mondo": {
     "aliases": "MONDO,Monarch Disease Ontology",

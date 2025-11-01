@@ -185,7 +185,7 @@ Examples:
   %(prog)s hmdb,go,taxonomy   # Run multiple specific tests
 
 Available datasets:
-  hgnc, uniprot, go, taxonomy, eco, efo, chebi, interpro, hmdb
+  hgnc, uniprot, go, taxonomy, eco, efo, chebi, interpro, hmdb, chembl_document, chembl_molecule, chembl_activity, chembl_assay, chembl_target, chembl_cell_line
   (uniparc, uniref100, uniref50, uniref90 - currently disabled due to FTP issues)
         """
     )
@@ -215,6 +215,12 @@ Available datasets:
         'chebi': script_dir / "chebi" / "test_chebi.py",
         'interpro': script_dir / "interpro" / "test_interpro.py",
         'hmdb': script_dir / "hmdb" / "test_hmdb.py",
+        'chembl_document': script_dir / "chembl_document" / "test_chembl_document.py",
+        'chembl_molecule': script_dir / "chembl_molecule" / "test_chembl_molecule.py",
+        'chembl_activity': script_dir / "chembl_activity" / "test_chembl_activity.py",
+        'chembl_assay': script_dir / "chembl_assay" / "test_chembl_assay.py",
+        'chembl_target': script_dir / "chembl_target" / "test_chembl_target.py",
+        'chembl_cell_line': script_dir / "chembl_cell_line" / "test_chembl_cell_line.py",
         # Temporarily disabled due to FTP issues:
         # 'uniparc': script_dir / "uniparc" / "test_uniparc.py",
         # 'uniref100': script_dir / "uniref100" / "test_uniref100.py",
@@ -246,8 +252,14 @@ Available datasets:
         print(f"{Colors.RED}Error:{Colors.NC} biobtree not found at {biobtree_path}")
         return 1
 
-    # Build test database with selected datasets
-    datasets_str = ','.join(selected_datasets)
+    # Add dataset dependencies for database build
+    # (tests may validate data from related datasets)
+    build_datasets = selected_datasets.copy()
+    if 'chembl_target' in selected_datasets and 'chembl_target_component' not in build_datasets:
+        build_datasets.append('chembl_target_component')
+
+    # Build test database with selected datasets (including dependencies)
+    datasets_str = ','.join(build_datasets)
     if not build_test_database(biobtree_path, datasets_str, cwd=project_root):
         return 1
 

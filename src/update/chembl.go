@@ -6,6 +6,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -357,6 +358,20 @@ func (c *chembl) updateMechanisms() {
 
 func (c *chembl) updateCellline() {
 
+	// Test mode: get limit and open ID log file
+	testLimit := config.GetTestLimit(c.source)
+	var idLogFile *os.File
+	if config.IsTestMode() {
+		idLogFile = openIDLogFile(config.TestRefDir, c.source+"_ids.txt")
+		if idLogFile != nil {
+			defer idLogFile.Close()
+		}
+	}
+
+	// Track processed cell lines in test mode
+	processedCellLines := make(map[string]bool)
+	var cellLineCount int
+
 	fr := config.Dataconf["chembl_cell_line"]["id"]
 	celllineFtpPath := c.getFtpPath(config.Dataconf["chembl_cell_line"]["pathCelllinePattern"])
 	br, gz, ftpFile, client, localFile, _, err := getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, celllineFtpPath)
@@ -388,7 +403,31 @@ func (c *chembl) updateCellline() {
 		c.totalRead = c.totalRead + len(triple.Subj.String()) + len(triple.Obj.String()) + len(triple.Pred.String())
 
 		if strings.HasPrefix(triple.Subj.String(), "/cell_line/") {
+			// Test mode: stop early if we've already processed enough cell lines
+			if config.IsTestMode() && shouldStopProcessing(testLimit, cellLineCount) {
+				if ftpFile != nil {
+					ftpFile.Close()
+				}
+				if localFile != nil {
+					localFile.Close()
+				}
+				if client != nil {
+					client.Quit()
+				}
+				gz.Close()
+				return
+			}
+
 			id := c.getChemblID(triple.Subj.String())
+
+			// Test mode: track cell line ID on FIRST appearance (any predicate)
+			// Only count actual cell line IDs, not blank nodes (which contain "#")
+			if idLogFile != nil && !processedCellLines[id] && !strings.Contains(id, "#") {
+				logProcessedID(idLogFile, id)
+				processedCellLines[id] = true
+				cellLineCount++
+			}
+
 			switch triple.Pred.String() {
 			case "http://purl.org/dc/terms/description":
 				attr := pbuf.ChemblAttr{CellLine: &pbuf.ChemblCellLine{Desc: triple.Obj.String()}}
@@ -427,6 +466,20 @@ func (c *chembl) updateCellline() {
 func (c *chembl) updateTarget() {
 
 	defer c.d.wg.Done()
+
+	// Test mode: get limit and open ID log file
+	testLimit := config.GetTestLimit(c.source)
+	var idLogFile *os.File
+	if config.IsTestMode() {
+		idLogFile = openIDLogFile(config.TestRefDir, c.source+"_ids.txt")
+		if idLogFile != nil {
+			defer idLogFile.Close()
+		}
+	}
+
+	// Track processed targets in test mode
+	processedTargets := make(map[string]bool)
+	var targetCount int
 
 	// binding site
 	fr := config.Dataconf["chembl_target"]["id"]
@@ -511,6 +564,21 @@ func (c *chembl) updateTarget() {
 
 	for triple, err := dec.Decode(); err != io.EOF; triple, err = dec.Decode() {
 
+		// Test mode: stop early if we've already processed enough targets
+		if config.IsTestMode() && shouldStopProcessing(testLimit, targetCount) {
+			if ftpFile != nil {
+				ftpFile.Close()
+			}
+			if localFile != nil {
+				localFile.Close()
+			}
+			if client != nil {
+				client.Quit()
+			}
+			gz.Close()
+			return
+		}
+
 		elapsed := int64(time.Since(c.d.start).Seconds())
 		if elapsed > c.previous+c.d.progInterval {
 			kbytesPerSecond := int64(c.totalRead) / elapsed / 1024
@@ -520,7 +588,15 @@ func (c *chembl) updateTarget() {
 		c.totalRead = c.totalRead + len(triple.Subj.String()) + len(triple.Obj.String()) + len(triple.Pred.String())
 
 		if strings.HasPrefix(triple.Subj.String(), "/target/") {
+			// Test mode: track target ID on FIRST appearance (any predicate)
+			// Only count actual target IDs, not blank nodes (which contain "#")
 			id := c.getChemblID(triple.Subj.String())
+			if idLogFile != nil && !processedTargets[id] && !strings.Contains(id, "#") {
+				logProcessedID(idLogFile, id)
+				processedTargets[id] = true
+				targetCount++
+			}
+
 			switch triple.Pred.String() {
 			case "http://purl.org/dc/terms/title":
 				attr := pbuf.ChemblAttr{Target: &pbuf.ChemblTarget{Title: triple.Obj.String()}}
@@ -720,6 +796,21 @@ func (c *chembl) updateTarget() {
 }
 
 func (c *chembl) updateTargetComponent() {
+
+	// Test mode: get limit and open ID log file
+	testLimit := config.GetTestLimit(c.source)
+	var idLogFile *os.File
+	if config.IsTestMode() {
+		idLogFile = openIDLogFile(config.TestRefDir, c.source+"_ids.txt")
+		if idLogFile != nil {
+			defer idLogFile.Close()
+		}
+	}
+
+	// Track processed target components in test mode
+	processedComponents := make(map[string]bool)
+	var componentCount int
+
 	fr := config.Dataconf["chembl_target_component"]["id"]
 	targetComptFtpPath := c.getFtpPath(config.Dataconf["chembl_target_component"]["pathTargetComponentPattern"])
 	br, gz, ftpFile, client, localFile, _, err := getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, targetComptFtpPath)
@@ -813,6 +904,21 @@ func (c *chembl) updateTargetComponent() {
 
 	for triple, err := dec.Decode(); err != io.EOF && triple.Subj != nil; triple, err = dec.Decode() {
 
+		// Test mode: stop early if we've already processed enough target components
+		if config.IsTestMode() && shouldStopProcessing(testLimit, componentCount) {
+			if ftpFile != nil {
+				ftpFile.Close()
+			}
+			if localFile != nil {
+				localFile.Close()
+			}
+			if client != nil {
+				client.Quit()
+			}
+			gz.Close()
+			return
+		}
+
 		elapsed := int64(time.Since(c.d.start).Seconds())
 		if elapsed > c.previous+c.d.progInterval {
 			kbytesPerSecond := int64(c.totalRead) / elapsed / 1024
@@ -823,7 +929,15 @@ func (c *chembl) updateTargetComponent() {
 		c.totalRead = c.totalRead + len(triple.Subj.String()) + len(triple.Obj.String()) + len(triple.Pred.String())
 
 		if strings.HasPrefix(triple.Subj.String(), "/targetcomponent/") {
+			// Test mode: track target component ID on FIRST appearance (any predicate)
+			// Only count actual component IDs, not blank nodes (which contain "#")
 			id := c.getChemblID(triple.Subj.String())
+			if idLogFile != nil && !processedComponents[id] && !strings.Contains(id, "#") {
+				logProcessedID(idLogFile, id)
+				processedComponents[id] = true
+				componentCount++
+			}
+
 			switch triple.Pred.String() {
 			case "http://www.w3.org/2004/02/skos/core#exactMatch":
 				xrefid := c.getChemblID(triple.Obj.String())
@@ -955,8 +1069,23 @@ func (c *chembl) updateMolecule() {
 
 	defer c.d.wg.Done()
 
-	// set indications
+	// Test mode: get limit and open ID log file
+	testLimit := config.GetTestLimit(c.source)
+	var idLogFile *os.File
+	if config.IsTestMode() {
+		idLogFile = openIDLogFile(config.TestRefDir, c.source+"_ids.txt")
+		if idLogFile != nil {
+			defer idLogFile.Close()
+		}
+	}
+
+	// Track processed molecules in test mode
+	processedMols := make(map[string]bool)
+	var molCount int
+
 	fr := config.Dataconf["chembl_molecule"]["id"]
+
+	// set indications
 	indicationFtpPath := c.getFtpPath(config.Dataconf["chembl_molecule"]["pathIndicationPattern"])
 	br, gz, ftpFile, client, localFile, _, err := getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, indicationFtpPath)
 	check(err)
@@ -971,6 +1100,12 @@ func (c *chembl) updateMolecule() {
 				indid := c.getChemblID(triple.Obj.String())
 				if _, ok := c.indications[indid]; ok {
 					id := c.getChemblID(triple.Subj.String())
+
+					// Test mode: only process molecules in our test set
+					if config.IsTestMode() && !processedMols[id] {
+						continue
+					}
+
 					chemMol := pbuf.ChemblMolecule{Indications: []*pbuf.ChemblIndication{c.indications[indid]}}
 					attr := pbuf.ChemblAttr{Molecule: &chemMol}
 					b, _ := ffjson.Marshal(attr)
@@ -997,7 +1132,7 @@ func (c *chembl) updateMolecule() {
 
 	gz.Close()
 
-	// set_molecule
+	// set_molecule (main molecule file - always process this)
 	moleculeFtpPath := c.getFtpPath(config.Dataconf["chembl_molecule"]["pathMoleculePattern"])
 	br, gz, ftpFile, client, localFile, _, err = getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, moleculeFtpPath)
 	check(err)
@@ -1006,6 +1141,21 @@ func (c *chembl) updateMolecule() {
 
 	var b []byte
 	for triple, err := dec.Decode(); err != io.EOF; triple, err = dec.Decode() {
+
+		// Test mode: stop early if we've already processed enough molecules
+		if config.IsTestMode() && shouldStopProcessing(testLimit, molCount) {
+			if ftpFile != nil {
+				ftpFile.Close()
+			}
+			if localFile != nil {
+				localFile.Close()
+			}
+			if client != nil {
+				client.Quit()
+			}
+			gz.Close()
+			return
+		}
 
 		elapsed := int64(time.Since(c.d.start).Seconds())
 		if elapsed > c.previous+c.d.progInterval {
@@ -1019,9 +1169,17 @@ func (c *chembl) updateMolecule() {
 		c.totalRead = c.totalRead + len(triple.Subj.String()) + len(triple.Obj.String()) + len(triple.Pred.String())
 
 		if strings.HasPrefix(triple.Subj.String(), "/molecule/") {
+			// Test mode: track molecule ID on FIRST appearance (any predicate)
+			// Only count actual CHEMBL IDs, not blank nodes (which contain "#")
+			id := c.getChemblID(triple.Subj.String())
+			if idLogFile != nil && !processedMols[id] && !strings.Contains(id, "#") {
+				logProcessedID(idLogFile, id)
+				processedMols[id] = true
+				molCount++
+			}
+
 			switch triple.Pred.String() {
 			case "http://purl.org/dc/terms/description":
-				id := c.getChemblID(triple.Subj.String())
 				attr := pbuf.ChemblAttr{Molecule: &pbuf.ChemblMolecule{Desc: triple.Obj.String()}}
 				b, _ = ffjson.Marshal(attr)
 				c.d.addProp3(id, fr, b)
@@ -1298,15 +1456,20 @@ func (c *chembl) updateMolecule() {
 	for triple, err := dec.Decode(); err != io.EOF; triple, err = dec.Decode() {
 
 		if strings.HasPrefix(triple.Subj.String(), "/molecule/") {
+			id := c.getChemblID(triple.Subj.String())
+
+			// Test mode: only process molecules in our test set
+			if config.IsTestMode() && !processedMols[id] {
+				continue
+			}
+
 			switch triple.Pred.String() {
 			case "hasChildMolecule":
-				id := c.getChemblID(triple.Subj.String())
 				childid := c.getChemblID(triple.Obj.String())
 				attr := pbuf.ChemblAttr{Molecule: &pbuf.ChemblMolecule{Childs: []string{childid}}}
 				b, _ = ffjson.Marshal(attr)
 				c.d.addProp3(id, fr, b)
 			case "hasParentMolecule":
-				id := c.getChemblID(triple.Subj.String())
 				parentid := c.getChemblID(triple.Obj.String())
 				attr := pbuf.ChemblAttr{Molecule: &pbuf.ChemblMolecule{Parent: parentid}}
 				b, _ = ffjson.Marshal(attr)
@@ -1331,6 +1494,20 @@ func (c *chembl) updateMolecule() {
 }
 
 func (c *chembl) updateActivity() {
+	// Test mode: get limit and open ID log file
+	testLimit := config.GetTestLimit(c.source)
+	var idLogFile *os.File
+	if config.IsTestMode() {
+		idLogFile = openIDLogFile(config.TestRefDir, c.source+"_ids.txt")
+		if idLogFile != nil {
+			defer idLogFile.Close()
+		}
+	}
+
+	// Track processed activities in test mode
+	processedActivities := make(map[string]bool)
+	var activityCount int
+
 	fr := config.Dataconf["chembl_activity"]["id"]
 	activityFtpPath := c.getFtpPath(config.Dataconf["chembl_activity"]["pathActivityPattern"])
 	br, gz, ftpFile, client, localFile, _, err := getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, activityFtpPath)
@@ -1352,6 +1529,11 @@ func (c *chembl) updateActivity() {
 
 	for triple, err := dec.Decode(); err != io.EOF; triple, err = dec.Decode() {
 
+		// Test mode: stop early if we've already processed enough activities
+		if config.IsTestMode() && shouldStopProcessing(testLimit, activityCount) {
+			return
+		}
+
 		elapsed := int64(time.Since(c.d.start).Seconds())
 		if elapsed > c.previous+c.d.progInterval {
 			kbytesPerSecond := int64(c.totalRead) / elapsed / 1024
@@ -1364,9 +1546,17 @@ func (c *chembl) updateActivity() {
 		c.totalRead = c.totalRead + len(triple.Subj.String()) + len(triple.Obj.String()) + len(triple.Pred.String())
 
 		if strings.HasPrefix(triple.Subj.String(), "/activity/") {
+			// Test mode: track activity ID on FIRST appearance (any predicate)
+			// Only count actual activity IDs, not blank nodes (which contain "#")
+			id := c.getChemblID(triple.Subj.String())
+			if idLogFile != nil && !processedActivities[id] && !strings.Contains(id, "#") {
+				logProcessedID(idLogFile, id)
+				processedActivities[id] = true
+				activityCount++
+			}
+
 			switch triple.Pred.String() {
 			case "type":
-				id := c.getChemblID(triple.Subj.String())
 				attr := pbuf.ChemblAttr{Activity: &pbuf.ChemblActivity{Type: strings.ToLower(triple.Obj.String())}}
 				b, _ := ffjson.Marshal(attr)
 				c.d.addProp3(id, fr, b)
@@ -1466,6 +1656,20 @@ func (c *chembl) updateAssay() {
 
 	defer c.d.wg.Done()
 
+	// Test mode: get limit and open ID log file
+	testLimit := config.GetTestLimit(c.source)
+	var idLogFile *os.File
+	if config.IsTestMode() {
+		idLogFile = openIDLogFile(config.TestRefDir, c.source+"_ids.txt")
+		if idLogFile != nil {
+			defer idLogFile.Close()
+		}
+	}
+
+	// Track processed assays in test mode
+	processedAssays := make(map[string]bool)
+	var assayCount int
+
 	assaySources := map[string]*assaysource{}
 	fr := config.Dataconf["chembl_assay"]["id"]
 	assaySourceFtpPath := c.getFtpPath(config.Dataconf["chembl_assay"]["pathAssaySourcePattern"])
@@ -1525,6 +1729,21 @@ func (c *chembl) updateAssay() {
 
 	for triple, err := dec.Decode(); err != io.EOF; triple, err = dec.Decode() {
 
+		// Test mode: stop early if we've already processed enough assays
+		if config.IsTestMode() && shouldStopProcessing(testLimit, assayCount) {
+			if ftpFile != nil {
+				ftpFile.Close()
+			}
+			if localFile != nil {
+				localFile.Close()
+			}
+			if client != nil {
+				client.Quit()
+			}
+			gz.Close()
+			return
+		}
+
 		elapsed := int64(time.Since(c.d.start).Seconds())
 		if elapsed > c.previous+c.d.progInterval {
 			kbytesPerSecond := int64(c.totalRead) / elapsed / 1024
@@ -1535,41 +1754,43 @@ func (c *chembl) updateAssay() {
 
 		if strings.HasPrefix(triple.Subj.String(), "/assay/") {
 
+			// Test mode: track assay ID on FIRST appearance (any predicate)
+			// Only count actual assay IDs, not blank nodes (which contain "#")
+			id := c.getChemblID(triple.Subj.String())
+			if idLogFile != nil && !processedAssays[id] && !strings.Contains(id, "#") {
+				logProcessedID(idLogFile, id)
+				processedAssays[id] = true
+				assayCount++
+			}
+
 			switch triple.Pred.String() {
 			case "http://purl.org/dc/terms/description":
-				id := c.getChemblID(triple.Subj.String())
 				attr := pbuf.ChemblAttr{Assay: &pbuf.ChemblAssay{Desc: triple.Obj.String()}}
 				b, _ := ffjson.Marshal(attr)
 				c.d.addProp3(id, fr, b)
 			case "assayType":
-				id := c.getChemblID(triple.Subj.String())
 				attr := pbuf.ChemblAttr{Assay: &pbuf.ChemblAssay{Type: triple.Obj.String()}}
 				b, _ := ffjson.Marshal(attr)
 				c.d.addProp3(id, fr, b)
 			case "targetConfDesc":
-				id := c.getChemblID(triple.Subj.String())
 				attr := pbuf.ChemblAttr{Assay: &pbuf.ChemblAssay{TargetConfDesc: triple.Obj.String()}}
 				b, _ := ffjson.Marshal(attr)
 				c.d.addProp3(id, fr, b)
 			case "targetConfScore":
 				cc, err := strconv.Atoi(triple.Obj.String())
 				check(err)
-				id := c.getChemblID(triple.Subj.String())
 				attr := pbuf.ChemblAttr{Assay: &pbuf.ChemblAssay{TargetConfScore: int32(cc)}}
 				b, _ := ffjson.Marshal(attr)
 				c.d.addProp3(id, fr, b)
 			case "targetRelType":
-				id := c.getChemblID(triple.Subj.String())
 				attr := pbuf.ChemblAttr{Assay: &pbuf.ChemblAssay{TargetRelType: triple.Obj.String()}}
 				b, _ := ffjson.Marshal(attr)
 				c.d.addProp3(id, fr, b)
 			case "targetRelDesc":
-				id := c.getChemblID(triple.Subj.String())
 				attr := pbuf.ChemblAttr{Assay: &pbuf.ChemblAssay{TargetRelDesc: triple.Obj.String()}}
 				b, _ := ffjson.Marshal(attr)
 				c.d.addProp3(id, fr, b)
 			case "http://www.bioassayontology.org/bao#BAO_0000205":
-				id := c.getChemblID(triple.Subj.String())
 				baoidarr := strings.Split(c.getChemblID(triple.Obj.String()), "#")
 				baoid := ""
 				if len(baoidarr) == 2 {
@@ -1581,16 +1802,13 @@ func (c *chembl) updateAssay() {
 				b, _ := ffjson.Marshal(attr)
 				c.d.addProp3(id, fr, b)
 			case "assayTissue":
-				id := c.getChemblID(triple.Subj.String())
 				attr := pbuf.ChemblAttr{Assay: &pbuf.ChemblAssay{Tissue: triple.Obj.String()}}
 				b, _ := ffjson.Marshal(attr)
 				c.d.addProp3(id, fr, b)
 			case "hasTarget":
-				id := c.getChemblID(triple.Subj.String())
 				docid := c.getChemblID(triple.Obj.String())
 				c.d.addXref(id, fr, docid, "chembl_target", false)
 			case "hasSource":
-				id := c.getChemblID(triple.Subj.String())
 				sourceid := c.getChemblID(triple.Obj.String())
 				if _, ok := assaySources[sourceid]; ok {
 					attr := pbuf.ChemblAttr{Assay: &pbuf.ChemblAssay{Source: strings.ToLower(assaySources[sourceid].name), SourceDesc: assaySources[sourceid].description}}
@@ -1598,51 +1816,41 @@ func (c *chembl) updateAssay() {
 					c.d.addProp3(id, fr, b)
 				}
 			case "hasDocument":
-				id := c.getChemblID(triple.Subj.String())
 				docid := c.getChemblID(triple.Obj.String())
 				c.d.addXref(id, fr, docid, "chembl_document", false)
 			case "hasActivity":
-				id := c.getChemblID(triple.Subj.String())
 				docid := c.getChemblID(triple.Obj.String())
 				c.d.addXref(id, fr, docid, "chembl_activity", false)
 			case "taxonomy":
-				id := c.getChemblID(triple.Subj.String())
 				taxid := c.getTaxID(triple.Obj.String())
 				attr := pbuf.ChemblAttr{Assay: &pbuf.ChemblAssay{Tax: taxid}}
 				b, _ := ffjson.Marshal(attr)
 				c.d.addProp3(id, fr, b)
 				c.d.addXref(id, fr, taxid, "taxonomy", false)
 			case "hasCellLine":
-				id := c.getChemblID(triple.Subj.String())
 				docid := c.getChemblID(triple.Obj.String())
 				c.d.addXref(id, fr, docid, "chembl_cell_line", false)
 			case "assayXref":
-				id := c.getChemblID(triple.Subj.String())
 				attr := pbuf.ChemblAttr{Assay: &pbuf.ChemblAssay{Tissue: triple.Obj.String()}}
 				b, _ := ffjson.Marshal(attr)
 				c.d.addProp3(id, fr, b)
 			case "assayCellType":
-				id := c.getChemblID(triple.Subj.String())
 				attr := pbuf.ChemblAttr{Assay: &pbuf.ChemblAssay{CellType: triple.Obj.String()}}
 				b, _ := ffjson.Marshal(attr)
 				c.d.addProp3(id, fr, b)
 			case "assaySubCellFrac":
-				id := c.getChemblID(triple.Subj.String())
 				attr := pbuf.ChemblAttr{Assay: &pbuf.ChemblAssay{SubCellFrac: triple.Obj.String()}}
 				b, _ := ffjson.Marshal(attr)
 				c.d.addProp3(id, fr, b)
 			case "assayTestType":
-				id := c.getChemblID(triple.Subj.String())
 				attr := pbuf.ChemblAttr{Assay: &pbuf.ChemblAssay{TestType: triple.Obj.String()}}
 				b, _ := ffjson.Marshal(attr)
 				c.d.addProp3(id, fr, b)
 			case "assayStrain":
-				id := c.getChemblID(triple.Subj.String())
 				attr := pbuf.ChemblAttr{Assay: &pbuf.ChemblAssay{Strain: triple.Obj.String()}}
 				b, _ := ffjson.Marshal(attr)
 				c.d.addProp3(id, fr, b)
 			case "assayCategory":
-				id := c.getChemblID(triple.Subj.String())
 				attr := pbuf.ChemblAttr{Assay: &pbuf.ChemblAssay{Category: triple.Obj.String()}}
 				b, _ := ffjson.Marshal(attr)
 				c.d.addProp3(id, fr, b)
@@ -1668,6 +1876,20 @@ func (c *chembl) updateAssay() {
 func (c *chembl) updateDocument() {
 
 	defer c.d.wg.Done()
+
+	// Test mode: get limit and open ID log file
+	testLimit := config.GetTestLimit(c.source)
+	var idLogFile *os.File
+	if config.IsTestMode() {
+		idLogFile = openIDLogFile(config.TestRefDir, c.source+"_ids.txt")
+		if idLogFile != nil {
+			defer idLogFile.Close()
+		}
+	}
+
+	// Track processed documents in test mode
+	processedDocs := make(map[string]bool)
+	var docCount int
 
 	// JOURNALS
 	fr := config.Dataconf["chembl_document"]["id"]
@@ -1737,6 +1959,19 @@ func (c *chembl) updateDocument() {
 		switch triple.Pred.String() {
 		case "documentType":
 			id := c.getChemblID(triple.Subj.String())
+
+			// Test mode: log ID (only once per document) and check limit
+			if idLogFile != nil && !processedDocs[id] {
+				logProcessedID(idLogFile, id)
+				processedDocs[id] = true
+				docCount++
+
+				// Check if we've reached the test limit
+				if shouldStopProcessing(testLimit, docCount) {
+					goto done
+				}
+			}
+
 			attr := pbuf.ChemblAttr{Doc: &pbuf.ChemblDocument{Type: strings.ToLower(triple.Obj.String())}}
 			b, _ := ffjson.Marshal(attr)
 			c.d.addProp3(id, fr, b)
@@ -1767,6 +2002,8 @@ func (c *chembl) updateDocument() {
 			//case "http://purl.org/dc/terms/date":
 		}
 	}
+
+done:
 	if ftpFile != nil {
 		ftpFile.Close()
 	}

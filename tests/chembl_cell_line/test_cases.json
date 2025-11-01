@@ -1,0 +1,28 @@
+{
+  "description": "ChEMBL Cell Line declarative test cases",
+  "tests": [
+    {
+      "name": "Lookup by cell line ID",
+      "type": "lookup",
+      "id_field": "cell_chembl_id",
+      "check_found": true
+    },
+    {
+      "name": "Check attributes present",
+      "type": "attributes",
+      "id_field": "cell_chembl_id",
+      "check_has_data": true
+    },
+    {
+      "name": "Lookup multiple cell line IDs",
+      "type": "batch_lookup",
+      "id_field": "cell_chembl_id",
+      "sample_size": 3
+    },
+    {
+      "name": "Invalid ID handling",
+      "type": "invalid_id",
+      "invalid_id": "CHEMBL_INVALID_999999"
+    }
+  ]
+}

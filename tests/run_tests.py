@@ -142,17 +142,24 @@ def run_dataset_tests(test_script: Path, api_url: str) -> int:
         return 1
 
 
-def build_test_database(biobtree_path: Path, datasets: str, cwd: Path = None) -> bool:
+def build_test_database(biobtree_path: Path, datasets: str, cwd: Path = None, genome_taxids: str = None) -> bool:
     """Build test database with specified datasets"""
     print("=" * 60)
     print("  Step 1: Building Test Database")
     print("=" * 60)
     print(f"  Datasets: {datasets}")
+    if genome_taxids:
+        print(f"  Genome taxids: {genome_taxids}")
     print()
 
     try:
+        cmd = [str(biobtree_path), "-d", datasets]
+        if genome_taxids:
+            cmd.extend(["--genome-taxids", genome_taxids])
+        cmd.append("test")
+
         result = subprocess.run(
-            [str(biobtree_path), "-d", datasets, "test"],
+            cmd,
             capture_output=False,
             text=True,
             cwd=str(cwd) if cwd else None
@@ -185,7 +192,7 @@ Examples:
   %(prog)s hmdb,go,taxonomy   # Run multiple specific tests
 
 Available datasets:
-  hgnc, uniprot, go, taxonomy, eco, efo, chebi, interpro, hmdb, chembl_document, chembl_molecule, chembl_activity, chembl_assay, chembl_target, chembl_cell_line
+  hgnc, uniprot, go, taxonomy, eco, efo, chebi, interpro, hmdb, chembl_document, chembl_molecule, chembl_activity, chembl_assay, chembl_target, chembl_cell_line, ensembl, ensembl_bacteria, ensembl_fungi, ensembl_metazoa, ensembl_plants, ensembl_protists
   (uniparc, uniref100, uniref50, uniref90 - currently disabled due to FTP issues)
         """
     )
@@ -221,6 +228,12 @@ Available datasets:
         'chembl_assay': script_dir / "chembl_assay" / "test_chembl_assay.py",
         'chembl_target': script_dir / "chembl_target" / "test_chembl_target.py",
         'chembl_cell_line': script_dir / "chembl_cell_line" / "test_chembl_cell_line.py",
+        'ensembl': script_dir / "ensembl" / "test_ensembl.py",
+        'ensembl_bacteria': script_dir / "ensembl_bacteria" / "test_ensembl_bacteria.py",
+        'ensembl_fungi': script_dir / "ensembl_fungi" / "test_ensembl_fungi.py",
+        'ensembl_metazoa': script_dir / "ensembl_metazoa" / "test_ensembl_metazoa.py",
+        'ensembl_plants': script_dir / "ensembl_plants" / "test_ensembl_plants.py",
+        'ensembl_protists': script_dir / "ensembl_protists" / "test_ensembl_protists.py",
         # Temporarily disabled due to FTP issues:
         # 'uniparc': script_dir / "uniparc" / "test_uniparc.py",
         # 'uniref100': script_dir / "uniref100" / "test_uniref100.py",
@@ -258,9 +271,25 @@ Available datasets:
     if 'chembl_target' in selected_datasets and 'chembl_target_component' not in build_datasets:
         build_datasets.append('chembl_target_component')
 
+    # Handle Ensembl datasets: when any Ensembl division is selected, build all with genome-taxids
+    ensembl_datasets = {'ensembl', 'ensembl_bacteria', 'ensembl_fungi', 'ensembl_metazoa', 'ensembl_plants', 'ensembl_protists'}
+    selected_ensembl = [d for d in selected_datasets if d in ensembl_datasets]
+
+    genome_taxids = None
+    if selected_ensembl:
+        # When any Ensembl division is selected, build all divisions with their respective genome taxids
+        # Taxids: homo_sapiens (9606), escherichia_coli (1268975), aspergillus_fumigatus (330879),
+        #         drosophila_melanogaster (7227), arabidopsis_thaliana (3702), plasmodium_falciparum (36329)
+        genome_taxids = "9606,1268975,330879,7227,3702,36329"
+
+        # Ensure all Ensembl divisions are built together (they share genomes)
+        for ensembl_ds in ensembl_datasets:
+            if ensembl_ds not in build_datasets:
+                build_datasets.append(ensembl_ds)
+
     # Build test database with selected datasets (including dependencies)
     datasets_str = ','.join(build_datasets)
-    if not build_test_database(biobtree_path, datasets_str, cwd=project_root):
+    if not build_test_database(biobtree_path, datasets_str, cwd=project_root, genome_taxids=genome_taxids):
         return 1
 
     print()

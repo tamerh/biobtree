@@ -30,7 +30,8 @@
     "path": "ensembl.json",
     "useLocalFile": "no",
     "hasFilter": "yes",
-    "attrs": "name,description,start,end,biotype,genome,strand,seq_region,branch"
+    "attrs": "name,description,start,end,biotype,genome,strand,seq_region,branch",
+    "test_entries_count": "20"
   },
   "taxonomy": {
     "id": "3",

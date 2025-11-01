@@ -4,12 +4,45 @@
 **Last Updated:** 2025-11-01
 **Status:** Production Ready
 
-This directory contains the testing infrastructure for biobtree datasets. Tests are run via the orchestrator (`python3 tests/run_tests.py <dataset>`) from the parent directory, which handles database builds, server lifecycle, and test execution.
+---
+
+## ⚠️ HOW TO RUN TESTS ⚠️
+
+**CRITICAL**: Tests MUST be run via the orchestrator from the **root biobtree directory** (biobtreev2/)
+
+```bash
+# ✓ CORRECT - Always run from biobtreev2/ (root directory)
+cd /path/to/biobtreev2
+python3 tests/run_tests.py <dataset>
+
+# Examples:
+python3 tests/run_tests.py ensembl
+python3 tests/run_tests.py hmdb,go,taxonomy
+python3 tests/run_tests.py all
+
+# ✗ WRONG - Never run from tests/ directory
+cd tests && python3 run_tests.py <dataset>  # WILL FAIL
+
+# ✗ WRONG - Never run test scripts directly
+cd tests/ensembl && python3 test_ensembl.py  # WILL FAIL
+```
+
+**Why?** The orchestrator (`tests/run_tests.py`) handles:
+- Building test database with correct parameters
+- Starting/stopping web server
+- Setting correct working directory
+- Cleaning up processes
+
+**Always use the orchestrator from the root directory!**
+
+---
+
+This directory contains the testing infrastructure for biobtree datasets.
 
 ## Test Coverage
 
-- **19 Datasets**: HGNC, UniProt, GO, Taxonomy, UniParc, UniRef100, UniRef50, UniRef90, ECO, EFO, ChEBI, InterPro, HMDB, ChEMBL Document, ChEMBL Molecule, ChEMBL Activity, ChEMBL Assay, ChEMBL Target (with Target Component), ChEMBL Cell Line
-- **224 Total Tests**: 139 declarative (JSON) + 85 custom (Python)
+- **25 Datasets**: HGNC, UniProt, GO, Taxonomy, UniParc, UniRef100, UniRef50, UniRef90, ECO, EFO, ChEBI, InterPro, HMDB, ChEMBL Document, ChEMBL Molecule, ChEMBL Activity, ChEMBL Assay, ChEMBL Target (with Target Component), ChEMBL Cell Line, Ensembl, Ensembl Bacteria, Ensembl Fungi, Ensembl Metazoa, Ensembl Plants, Ensembl Protists
+- **266 Total Tests**: 163 declarative (JSON) + 103 custom (Python)
 - **9 Test Types**: ID lookup, symbol lookup, name lookup, alias lookup, cross-references, attribute checks, multi-lookup, case-insensitive, invalid ID handling
 
 ### Dataset-Specific Notes
@@ -25,6 +58,11 @@ This directory contains the testing infrastructure for biobtree datasets. Tests 
 - chembl_assay: 10 tests (screening assays, protocols)
 - chembl_target: 14 tests (drug targets + component validation)
 - chembl_cell_line: 10 tests (cell line information)
+
+**Ensembl**: Six divisions (ensembl, ensembl_bacteria, ensembl_fungi, ensembl_metazoa, ensembl_plants, ensembl_protists) with genome-specific test data. Uses `--genome-taxids` parameter to select 1 species per division (20 genes each). Test builds: ~4.7s for all 6 divisions. Each division: 7 tests (4 declarative + 3 custom).
+- Test taxids: 9606 (human), 1268975 (E. coli), 330879 (A. fumigatus), 7227 (D. melanogaster), 3702 (A. thaliana), 36329 (P. falciparum)
+- All divisions built together when any one is selected (shared genome infrastructure)
+- **Limitation**: Ensembl Genomes API (rest.ensemblgenomes.org) has SSL certificate issues - reference data extraction only works for main Ensembl division (rest.ensembl.org). Test IDs generated from genome files instead.
 
 ## Philosophy
 

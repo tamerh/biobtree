@@ -521,7 +521,14 @@ func (c *Conf) GetTestLimit(dataset string) int {
 		return -1 // No limit in production mode
 	}
 
-	dsConfig, exists := c.Dataconf[dataset]
+	// Normalize Ensembl division names to "ensembl"
+	// e.g., "ensembl_plants" -> "ensembl", "ensembl_bacteria" -> "ensembl"
+	lookupDataset := dataset
+	if strings.HasPrefix(dataset, "ensembl_") {
+		lookupDataset = "ensembl"
+	}
+
+	dsConfig, exists := c.Dataconf[lookupDataset]
 	if !exists {
 		return -1 // Dataset not found, no limit
 	}

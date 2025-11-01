@@ -6,6 +6,7 @@ import (
 	json "encoding/json"
 	"io/ioutil"
 	"log"
+	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -292,8 +293,26 @@ func (e *ensembl) update() {
 	previous = 0
 	start = time.Now()
 
+	// Test mode: get limit and open ID log file
+	testLimit := config.GetTestLimit(e.source)
+	var idLogFile *os.File
+	if config.IsTestMode() {
+		idLogFile = openIDLogFile(config.TestRefDir, e.source+"_ids.txt")
+		if idLogFile != nil {
+			defer idLogFile.Close()
+		}
+	}
+
+	// Track processed genes per genome in test mode
+	processedGenesPerGenome := make(map[string]int)
+
 	for genome, paths := range e.gff3Paths {
 		for _, path := range paths {
+
+			// Test mode: skip remaining files if this genome has reached its limit
+			if config.IsTestMode() && shouldStopProcessing(testLimit, processedGenesPerGenome[genome]) {
+				break // Skip remaining files for this genome
+			}
 
 			br, _, ftpFile, client, localFile, _, err := getDataReaderNew("ensembl", e.ftpAddress, "", path)
 			if err != nil {
@@ -307,6 +326,7 @@ func (e *ensembl) update() {
 			var currTranscriptID string
 			var currGeneID string
 
+		scanLoop:
 			for scanner.Scan() {
 
 				l := scanner.Text()
@@ -363,9 +383,24 @@ func (e *ensembl) update() {
 					}
 					switch idAttr[0] {
 					case "gene":
+						// Test mode: exit early if this genome has reached its limit
+						if config.IsTestMode() && shouldStopProcessing(testLimit, processedGenesPerGenome[genome]) {
+							break scanLoop
+						}
+
 						attr := pbuf.EnsemblAttr{}
 
 						currGeneID = idAttr[1]
+
+						// Test mode: track and log gene ID for this genome
+						if idLogFile != nil {
+							logProcessedID(idLogFile, genome+":"+currGeneID)
+							processedGenesPerGenome[genome]++
+							// Check again after incrementing - if we've hit the limit, break immediately
+							if shouldStopProcessing(testLimit, processedGenesPerGenome[genome]) {
+								break scanLoop
+							}
+						}
 
 						attr.Branch = e.branch
 
@@ -556,12 +591,19 @@ func (e *ensembl) update() {
 				client.Quit()
 			}
 
-			time.Sleep(time.Duration(e.pauseDurationSeconds) * time.Second) // for not to kicked out from ensembl ftp
+			// Skip sleep in test mode after reaching limit
+			if !config.IsTestMode() || !shouldStopProcessing(testLimit, processedGenesPerGenome[genome]) {
+				time.Sleep(time.Duration(e.pauseDurationSeconds) * time.Second) // for not to kicked out from ensembl ftp
+			}
 
 		}
 	}
 
 	if e.d.orthologsActive {
+
+		// Test mode: skip JSON/xref processing in test mode
+		if config.IsTestMode() {
+		} else {
 
 		for _, paths := range e.jsonPaths {
 
@@ -716,12 +758,18 @@ func (e *ensembl) update() {
 			}
 
 		}
+		} // End of else block for test mode skip
 	}
 
 	previous = 0
 	totalRead = 0
 	start = time.Now()
 	// probset biomart
+
+	// Test mode: skip BioMart processing in test mode
+	if config.IsTestMode() {
+	} else {
+
 	for _, path := range e.biomartPaths {
 		// first get the probset machine name
 		f := strings.Split(path, "/")
@@ -768,6 +816,7 @@ func (e *ensembl) update() {
 		}
 		time.Sleep(time.Duration(e.pauseDurationSeconds) * time.Second) // for not to kicked out from ensembl ftp
 	}
+	} // End of else block for test mode skip
 
 	e.d.progChan <- &progressInfo{dataset: e.source, done: true}
 	atomic.AddUint64(&e.d.totalParsedEntry, total)

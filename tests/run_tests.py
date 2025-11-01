@@ -4,6 +4,12 @@ Main Test Orchestrator
 
 Manages biobtree web server and runs all dataset tests.
 Runs biobtree from tests/tmp to avoid polluting directories with downloaded files.
+
+Usage:
+  python3 run_tests.py                    # Run all tests
+  python3 run_tests.py hmdb               # Run only HMDB tests
+  python3 run_tests.py hgnc,uniprot       # Run HGNC and UniProt tests
+  python3 run_tests.py hmdb,go,taxonomy   # Run multiple specific tests
 """
 
 import sys
@@ -12,6 +18,7 @@ import time
 import subprocess
 import signal
 import shutil
+import argparse
 from pathlib import Path
 
 try:
@@ -166,14 +173,70 @@ def build_test_database(biobtree_path: Path, datasets: str, cwd: Path = None) ->
 
 
 def main():
+    # Parse command-line arguments
+    parser = argparse.ArgumentParser(
+        description='Run biobtree test suite',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  %(prog)s                    # Run all tests
+  %(prog)s hmdb               # Run only HMDB tests
+  %(prog)s hgnc,uniprot       # Run HGNC and UniProt tests
+  %(prog)s hmdb,go,taxonomy   # Run multiple specific tests
+
+Available datasets:
+  hgnc, uniprot, go, taxonomy, eco, chebi, interpro, hmdb
+  (uniparc, uniref100, uniref50, uniref90 - currently disabled due to FTP issues)
+        """
+    )
+    parser.add_argument(
+        'datasets',
+        nargs='?',
+        default='all',
+        help='Comma-separated list of datasets to test (default: all)'
+    )
+    args = parser.parse_args()
+
     script_dir = Path(__file__).parent
     project_root = script_dir.parent
     out_dir = project_root / "test_out"
     db_dir = out_dir / "db"
     biobtree_path = project_root / "biobtree"
 
+    # Define all available datasets and their test scripts
+    # Temporarily commenting out FTP datasets due to connection issues
+    all_datasets = {
+        'hgnc': script_dir / "hgnc" / "test_hgnc.py",
+        'uniprot': script_dir / "uniprot" / "test_uniprot.py",
+        'go': script_dir / "go" / "test_go.py",
+        'taxonomy': script_dir / "taxonomy" / "test_taxonomy.py",
+        'eco': script_dir / "eco" / "test_eco.py",
+        'chebi': script_dir / "chebi" / "test_chebi.py",
+        'interpro': script_dir / "interpro" / "test_interpro.py",
+        'hmdb': script_dir / "hmdb" / "test_hmdb.py",
+        # Temporarily disabled due to FTP issues:
+        # 'uniparc': script_dir / "uniparc" / "test_uniparc.py",
+        # 'uniref100': script_dir / "uniref100" / "test_uniref100.py",
+        # 'uniref50': script_dir / "uniref50" / "test_uniref50.py",
+        # 'uniref90': script_dir / "uniref90" / "test_uniref90.py",
+    }
+
+    # Parse dataset selection
+    if args.datasets.lower() == 'all':
+        selected_datasets = list(all_datasets.keys())
+    else:
+        selected_datasets = [d.strip().lower() for d in args.datasets.split(',')]
+        # Validate dataset names
+        invalid = [d for d in selected_datasets if d not in all_datasets]
+        if invalid:
+            print(f"{Colors.RED}Error:{Colors.NC} Unknown dataset(s): {', '.join(invalid)}")
+            print(f"Available datasets: {', '.join(all_datasets.keys())}")
+            return 1
+
     print("=" * 60)
     print("  Biobtree Test Suite Orchestrator")
+    print("=" * 60)
+    print(f"  Selected datasets: {', '.join(selected_datasets)}")
     print("=" * 60)
     print()
 
@@ -182,9 +245,9 @@ def main():
         print(f"{Colors.RED}Error:{Colors.NC} biobtree not found at {biobtree_path}")
         return 1
 
-    # Build test database
-    datasets = "hgnc,uniprot,go,taxonomy,uniparc,uniref100,uniref50,uniref90,eco,chebi,interpro"
-    if not build_test_database(biobtree_path, datasets, cwd=project_root):
+    # Build test database with selected datasets
+    datasets_str = ','.join(selected_datasets)
+    if not build_test_database(biobtree_path, datasets_str, cwd=project_root):
         return 1
 
     print()
@@ -204,24 +267,10 @@ def main():
 
         print()
 
-        # Run individual dataset tests
-        test_scripts = [
-            script_dir / "hgnc" / "test_hgnc.py",
-            script_dir / "uniprot" / "test_uniprot.py",
-            script_dir / "go" / "test_go.py",
-            script_dir / "taxonomy" / "test_taxonomy.py",
-            script_dir / "uniparc" / "test_uniparc.py",
-            script_dir / "uniref100" / "test_uniref100.py",
-            script_dir / "uniref50" / "test_uniref50.py",
-            script_dir / "uniref90" / "test_uniref90.py",
-            script_dir / "eco" / "test_eco.py",
-            script_dir / "chebi" / "test_chebi.py",
-            script_dir / "interpro" / "test_interpro.py",
-        ]
-
+        # Run selected dataset tests
         results = {}
-        for test_script in test_scripts:
-            dataset_name = test_script.parent.name
+        for dataset_name in selected_datasets:
+            test_script = all_datasets[dataset_name]
             exit_code = run_dataset_tests(test_script, server.base_url)
             results[dataset_name] = exit_code
             if exit_code != 0:

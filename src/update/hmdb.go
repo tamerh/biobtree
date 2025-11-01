@@ -3,7 +3,9 @@ package update
 import (
 	"biobtree/pbuf"
 	"bufio"
+	"io"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"sync/atomic"
@@ -176,19 +178,44 @@ func (h *hmdb) update() {
 
 	defer h.d.wg.Done()
 
-	resp, err := http.Get(config.Dataconf[h.source]["path"])
+	// Test mode: get limit and open ID log file
+	testLimit := config.GetTestLimit(h.source)
+	var idLogFile *os.File
+	if config.IsTestMode() {
+		idLogFile = openIDLogFile(config.TestRefDir, h.source+"_ids.txt")
+		if idLogFile != nil {
+			defer idLogFile.Close()
+		}
+	}
+
+	// In test mode, use path2 (local test file) instead of downloading full data
+	var zipReader io.ReadCloser
+	if config.IsTestMode() && config.Dataconf[h.source]["path2"] != "" {
+		// Use local test file
+		testFilePath := config.Dataconf[h.source]["path2"]
+		localFile, err := os.Open(testFilePath)
+		check(err)
+		defer localFile.Close()
+		zipReader = localFile
+	} else {
+		// Download from remote URL
+		resp, err := http.Get(config.Dataconf[h.source]["path"])
+		check(err)
+		defer resp.Body.Close()
+		zipReader = resp.Body
+	}
+
+	zips := zipstream.NewReader(zipReader)
+
+	_, err := zips.Next()
 	check(err)
-	defer resp.Body.Close()
-
-	zips := zipstream.NewReader(resp.Body)
-
-	zips.Next()
 
 	br := bufio.NewReaderSize(zips, fileBufSize)
 
 	p := xmlparser.NewXMLParser(br, "metabolite").SkipElements([]string{"taxonomy,ontology"})
 
 	var total uint64
+	var entryCount int64
 	var v, z xmlparser.XMLElement
 	var ok bool
 	var entryid string
@@ -213,6 +240,11 @@ func (h *hmdb) update() {
 		attr := pbuf.HmdbAttr{}
 
 		entryid = r.Childs["accession"][0].InnerText
+
+		// Test mode: log ID
+		if idLogFile != nil {
+			logProcessedID(idLogFile, entryid)
+		}
 
 		// secondary accs
 		for _, v = range r.Childs["secondary_accessions"] {
@@ -421,6 +453,13 @@ func (h *hmdb) update() {
 		b, _ := ffjson.Marshal(attr)
 		h.d.addProp3(entryid, fr, b)
 		total++
+		entryCount++
+
+		// Test mode: check if limit reached and break immediately
+		if shouldStopProcessing(testLimit, int(entryCount)) {
+			h.d.progChan <- &progressInfo{dataset: h.source, done: true}
+			break
+		}
 	}
 
 	h.d.progChan <- &progressInfo{dataset: h.source, done: true}

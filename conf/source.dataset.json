@@ -151,11 +151,12 @@
     "name": "hmdb",
     "aliases": "HMDB,HMDB accession",
     "path": "http://www.hmdb.ca/system/downloads/current/hmdb_metabolites.zip",
-    "path2": "http://localhost:8000/hmdb.zip",
+    "path2": "tests/hmdb/hmdb_test.zip",
     "url": "http://www.hmdb.ca/metabolites/£{id}",
     "useLocalFile": "no",
     "hasFilter": "yes",
-    "attrs": "name,desc,[]accessions,[]synonyms,[]diseases,formula,averageWeight,monisotopicWeight,iupacName,smiles,inchi,inchiKey,[]cellularLocations,[]biospecimens,[]tissueLocations,[]pathways,props.rotatableBondCount,props.physiologicalCharge,props.ruleOfFive,props.pkaStrongestAcidic,props.monoMass,props.ghose_filter,props.refractivity,props.formalCharge,props.bioavailability,props.solubility,props.pka_strongest_basic,props.polarSurfaceArea,props.veberRule,props.mddrLikeRule,props.logp,props.polarizability,props.donorCount,props.averageMass,props.acceptorCount,props.numberOfRings,props.logs,experimentalProps.boolingPoint,experimentalProps.meltingPoint,experimentalProps.logp,experimentalProps.waterSolubility"
+    "attrs": "name,desc,[]accessions,[]synonyms,[]diseases,formula,averageWeight,monisotopicWeight,iupacName,smiles,inchi,inchiKey,[]cellularLocations,[]biospecimens,[]tissueLocations,[]pathways,props.rotatableBondCount,props.physiologicalCharge,props.ruleOfFive,props.pkaStrongestAcidic,props.monoMass,props.ghose_filter,props.refractivity,props.formalCharge,props.bioavailability,props.solubility,props.pka_strongest_basic,props.polarSurfaceArea,props.veberRule,props.mddrLikeRule,props.logp,props.polarizability,props.donorCount,props.averageMass,props.acceptorCount,props.numberOfRings,props.logs,experimentalProps.boolingPoint,experimentalProps.meltingPoint,experimentalProps.logp,experimentalProps.waterSolubility",
+    "test_entries_count": "20"
   },
   "my_data": {
     "id": "14",

@@ -45,7 +45,13 @@ class TestRunner:
         """Load reference data from JSON file"""
         with open(self.reference_file) as f:
             data = json.load(f)
-            self.reference_data = data.get("entries", [])
+            # Support both formats: dict with "entries" key or plain list
+            if isinstance(data, list):
+                self.reference_data = data
+            elif isinstance(data, dict):
+                self.reference_data = data.get("entries", [])
+            else:
+                self.reference_data = []
             print(f"Loaded {len(self.reference_data)} reference entries")
 
     def load_test_cases(self):

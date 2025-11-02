@@ -9,8 +9,14 @@ Supports both JSON-defined tests and Python test functions.
 import json
 from pathlib import Path
 from typing import Dict, List, Callable, Tuple, Optional
-from .test_types import create_test
-from .query_helpers import QueryHelper
+
+# Handle both relative and absolute imports (for direct execution and subprocess)
+try:
+    from .test_types import create_test
+    from .query_helpers import QueryHelper
+except ImportError:
+    from test_types import create_test
+    from query_helpers import QueryHelper
 
 
 class Colors:

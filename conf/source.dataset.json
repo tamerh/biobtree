@@ -276,7 +276,8 @@
     "path": "https://github.com/monarch-initiative/mondo/releases/download/v2025-10-07/mondo.obo",
     "useLocalFile": "no",
     "hasFilter": "yes",
-    "attrs": "name,[]synonyms"
+    "attrs": "name,[]synonyms",
+    "test_entries_count": "100"
   },
   "patent": {
     "aliases": "Patent,Patent accession",

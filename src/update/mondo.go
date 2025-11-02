@@ -30,6 +30,16 @@ func (m *mondo) update() {
 
 	defer m.d.wg.Done()
 
+	// Test mode support
+	testLimit := config.GetTestLimit(m.source)
+	var idLogFile *os.File
+	if config.IsTestMode() {
+		idLogFile = openIDLogFile(config.TestRefDir, m.source+"_ids.txt")
+		if idLogFile != nil {
+			defer idLogFile.Close()
+		}
+	}
+
 	var total uint64
 	var previous int64
 	var start time.Time
@@ -75,6 +85,16 @@ func (m *mondo) update() {
 				m.saveEntry(currentID, fr, &attr)
 				m.saveParentChildRelations(currentID, fr, frparent, frchild, parents)
 				total++
+
+				// Log ID in test mode
+				if idLogFile != nil {
+					logProcessedID(idLogFile, currentID)
+				}
+
+				// Check test limit
+				if shouldStopProcessing(testLimit, int(total)) {
+					goto done
+				}
 			}
 
 			// Reset for new term
@@ -123,8 +143,14 @@ func (m *mondo) update() {
 		m.saveEntry(currentID, fr, &attr)
 		m.saveParentChildRelations(currentID, fr, frparent, frchild, parents)
 		total++
+
+		// Log ID in test mode
+		if idLogFile != nil {
+			logProcessedID(idLogFile, currentID)
+		}
 	}
 
+done:
 	if err := scanner.Err(); err != nil {
 		panic(err)
 	}

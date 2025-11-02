@@ -41,8 +41,8 @@ This directory contains the testing infrastructure for biobtree datasets.
 
 ## Test Coverage
 
-- **25 Datasets**: HGNC, UniProt, GO, Taxonomy, UniParc, UniRef100, UniRef50, UniRef90, ECO, EFO, ChEBI, InterPro, HMDB, ChEMBL Document, ChEMBL Molecule, ChEMBL Activity, ChEMBL Assay, ChEMBL Target (with Target Component), ChEMBL Cell Line, Ensembl, Ensembl Bacteria, Ensembl Fungi, Ensembl Metazoa, Ensembl Plants, Ensembl Protists
-- **266 Total Tests**: 163 declarative (JSON) + 103 custom (Python)
+- **26 Datasets**: HGNC, UniProt, GO, Taxonomy, UniParc, UniRef100, UniRef50, UniRef90, ECO, EFO, ChEBI, InterPro, HMDB, ChEMBL Document, ChEMBL Molecule, ChEMBL Activity, ChEMBL Assay, ChEMBL Target (with Target Component), ChEMBL Cell Line, Ensembl, Ensembl Bacteria, Ensembl Fungi, Ensembl Metazoa, Ensembl Plants, Ensembl Protists, MONDO
+- **276 Total Tests**: 167 declarative (JSON) + 109 custom (Python)
 - **9 Test Types**: ID lookup, symbol lookup, name lookup, alias lookup, cross-references, attribute checks, multi-lookup, case-insensitive, invalid ID handling
 
 ### Dataset-Specific Notes
@@ -63,6 +63,8 @@ This directory contains the testing infrastructure for biobtree datasets.
 - Test taxids: 9606 (human), 1268975 (E. coli), 330879 (A. fumigatus), 7227 (D. melanogaster), 3702 (A. thaliana), 36329 (P. falciparum)
 - All divisions built together when any one is selected (shared genome infrastructure)
 - **Limitation**: Ensembl Genomes API (rest.ensemblgenomes.org) has SSL certificate issues - reference data extraction only works for main Ensembl division (rest.ensembl.org). Test IDs generated from genome files instead.
+
+**MONDO**: Uses OBO file parsing for reference data extraction (more reliable than EBI OLS API). 100 test disease terms covering disease hierarchies, synonyms, cross-references, and text search. 10 tests (4 declarative + 6 custom). Test builds: ~2.7s.
 
 ## Philosophy
 

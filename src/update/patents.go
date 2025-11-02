@@ -15,9 +15,10 @@ import (
 )
 
 type patents struct {
-	source   string
-	d        *DataUpdate
-	dataPath string
+	source        string
+	d             *DataUpdate
+	dataPath      string
+	testPatentIDs map[string]bool // Track patent IDs in test mode
 }
 
 func (p *patents) update() {
@@ -91,6 +92,17 @@ func (p *patents) processPatents() (int, error) {
 
 	fr := config.Dataconf[p.source]["id"]
 
+	// Test mode setup
+	testLimit := config.GetTestLimit(p.source)
+	var idLogFile *os.File
+	if config.IsTestMode() {
+		p.testPatentIDs = make(map[string]bool)
+		idLogFile = openIDLogFile(config.TestRefDir, p.source+"_ids.txt")
+		if idLogFile != nil {
+			defer idLogFile.Close()
+		}
+	}
+
 	// Use jsparser for streaming JSON
 	br := bufio.NewReader(file)
 	parser := jsparser.NewJSONParser(br, "patents")
@@ -112,6 +124,16 @@ func (p *patents) processPatents() (int, error) {
 		patentNumber := getString(j, "patent_number")
 		if patentNumber == "" {
 			continue
+		}
+
+		// Test mode: Track patent IDs and check limit
+		if config.IsTestMode() {
+			if _, exists := p.testPatentIDs[patentNumber]; !exists {
+				p.testPatentIDs[patentNumber] = true
+				if idLogFile != nil {
+					logProcessedID(idLogFile, patentNumber)
+				}
+			}
 		}
 
 		title := getString(j, "title")
@@ -175,6 +197,11 @@ func (p *patents) processPatents() (int, error) {
 			if normalized != "" {
 				p.d.addXref(patentNumber, fr, normalized, "assignee", false)
 			}
+		}
+
+		// Test mode: Check if we've reached the limit
+		if shouldStopProcessing(testLimit, len(p.testPatentIDs)) {
+			break
 		}
 	}
 
@@ -310,7 +337,14 @@ func (p *patents) buildPatentIDMap() (map[string]string, error) {
 		patentNumber := getString(j, "patent_number")
 
 		if id != "" && id != "0" && patentNumber != "" {
-			idMap[id] = patentNumber
+			// Test mode: Only include patents we processed
+			if config.IsTestMode() {
+				if p.testPatentIDs != nil && p.testPatentIDs[patentNumber] {
+					idMap[id] = patentNumber
+				}
+			} else {
+				idMap[id] = patentNumber
+			}
 		}
 	}
 

@@ -41,8 +41,8 @@ This directory contains the testing infrastructure for biobtree datasets.
 
 ## Test Coverage
 
-- **26 Datasets**: HGNC, UniProt, GO, Taxonomy, UniParc, UniRef100, UniRef50, UniRef90, ECO, EFO, ChEBI, InterPro, HMDB, ChEMBL Document, ChEMBL Molecule, ChEMBL Activity, ChEMBL Assay, ChEMBL Target (with Target Component), ChEMBL Cell Line, Ensembl, Ensembl Bacteria, Ensembl Fungi, Ensembl Metazoa, Ensembl Plants, Ensembl Protists, MONDO
-- **276 Total Tests**: 167 declarative (JSON) + 109 custom (Python)
+- **27 Datasets**: HGNC, UniProt, GO, Taxonomy, UniParc, UniRef100, UniRef50, UniRef90, ECO, EFO, ChEBI, InterPro, HMDB, ChEMBL Document, ChEMBL Molecule, ChEMBL Activity, ChEMBL Assay, ChEMBL Target (with Target Component), ChEMBL Cell Line, Ensembl, Ensembl Bacteria, Ensembl Fungi, Ensembl Metazoa, Ensembl Plants, Ensembl Protists, MONDO, Patent
+- **292 Total Tests**: 176 declarative (JSON) + 116 custom (Python)
 - **9 Test Types**: ID lookup, symbol lookup, name lookup, alias lookup, cross-references, attribute checks, multi-lookup, case-insensitive, invalid ID handling
 
 ### Dataset-Specific Notes
@@ -65,6 +65,8 @@ This directory contains the testing infrastructure for biobtree datasets.
 - **Limitation**: Ensembl Genomes API (rest.ensemblgenomes.org) has SSL certificate issues - reference data extraction only works for main Ensembl division (rest.ensembl.org). Test IDs generated from genome files instead.
 
 **MONDO**: Uses OBO file parsing for reference data extraction (more reliable than EBI OLS API). 100 test disease terms covering disease hierarchies, synonyms, cross-references, and text search. 10 tests (4 declarative + 6 custom). Test builds: ~2.7s.
+
+**Patent**: Uses local SureChEMBL data files (10 patents, 50 compounds, 100 mappings). Tests validate patent metadata (title, country, publication date), classification codes (IPC/CPC), assignees, patent families, and patent-compound relationships. 16 tests (9 declarative + 7 custom). Test builds: ~2.3s. Note: InChI Key/SMILES searchability requires ChEMBL integration.
 
 ## Philosophy
 

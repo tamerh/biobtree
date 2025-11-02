@@ -28,6 +28,7 @@ type clinicalTrials struct {
 	loggedMappings     map[string]bool  // Track logged conditions to avoid duplicates
 	loggedMisses       map[string]bool  // Track logged misses to avoid duplicates
 	mu                 sync.Mutex       // Mutex for thread-safe map access
+	testTrialIDs       map[string]bool  // Track trial IDs in test mode
 }
 
 type MedicalTermMappings struct {
@@ -775,6 +776,17 @@ func (ct *clinicalTrials) processTrials() (int, error) {
 		return 0, fmt.Errorf("failed to read clinical trials directory: %w", err)
 	}
 
+	// Test mode setup
+	testLimit := config.GetTestLimit(ct.source)
+	var idLogFile *os.File
+	if config.IsTestMode() {
+		ct.testTrialIDs = make(map[string]bool)
+		idLogFile = openIDLogFile(config.TestRefDir, ct.source+"_ids.txt")
+		if idLogFile != nil {
+			defer idLogFile.Close()
+		}
+	}
+
 	totalTrials := 0
 	fr := config.Dataconf[ct.source]["id"]
 	chemblDatasetID := uint32(18)   // chembl_molecule dataset ID
@@ -789,7 +801,7 @@ func (ct *clinicalTrials) processTrials() (int, error) {
 		trialsFile := filepath.Join(ct.dataPath, fileInfo.Name())
 		fmt.Printf("Processing clinical trials file: %s\n", trialsFile)
 
-		trialsProcessed, err := ct.processTrialsFile(trialsFile, fr, chemblDatasetID, mondoDatasetID)
+		trialsProcessed, err := ct.processTrialsFile(trialsFile, fr, chemblDatasetID, mondoDatasetID, idLogFile)
 		if err != nil {
 			fmt.Printf("Warning: Error processing file %s: %v\n", trialsFile, err)
 			continue
@@ -797,13 +809,18 @@ func (ct *clinicalTrials) processTrials() (int, error) {
 
 		totalTrials += trialsProcessed
 		fmt.Printf("Processed %d trials from %s (total so far: %d)\n", trialsProcessed, fileInfo.Name(), totalTrials)
+
+		// Test mode: Check if we've reached the limit
+		if shouldStopProcessing(testLimit, len(ct.testTrialIDs)) {
+			break
+		}
 	}
 
 	fmt.Printf("Completed processing all clinical trials files: %d total trials\n", totalTrials)
 	return totalTrials, nil
 }
 
-func (ct *clinicalTrials) processTrialsFile(trialsFile string, fr string, chemblDatasetID uint32, mondoDatasetID uint32) (int, error) {
+func (ct *clinicalTrials) processTrialsFile(trialsFile string, fr string, chemblDatasetID uint32, mondoDatasetID uint32, idLogFile *os.File) (int, error) {
 	file, err := os.Open(trialsFile)
 	if err != nil {
 		return 0, fmt.Errorf("failed to open trials file: %w", err)
@@ -818,20 +835,15 @@ func (ct *clinicalTrials) processTrialsFile(trialsFile string, fr string, chembl
 		return 0, fmt.Errorf("failed to read opening bracket: %w", err)
 	}
 
+	// Test mode setup
+	testLimit := config.GetTestLimit(ct.source)
+
 	uniqueTrials := 0
 	var previous int64
 	startTime := time.Now()
 
 	// Iterate through array elements (no deduplication needed - raw format has unique NCT_IDs)
 	for decoder.More() {
-		uniqueTrials++
-
-		elapsed := int64(time.Since(startTime).Seconds())
-		if elapsed > previous+ct.d.progInterval {
-			previous = elapsed
-			ct.d.progChan <- &progressInfo{dataset: ct.source, currentKBPerSec: 0}
-		}
-
 		// Read trial object
 		var trialData map[string]interface{}
 		if err := decoder.Decode(&trialData); err != nil {
@@ -842,6 +854,28 @@ func (ct *clinicalTrials) processTrialsFile(trialsFile string, fr string, chembl
 		nctID := getStringFromMap(trialData, "nct_id")
 		if nctID == "" {
 			continue
+		}
+
+		// Test mode: Track trial IDs and check limit
+		if config.IsTestMode() {
+			if _, exists := ct.testTrialIDs[nctID]; !exists {
+				ct.testTrialIDs[nctID] = true
+				if idLogFile != nil {
+					logProcessedID(idLogFile, nctID)
+				}
+			}
+			// Check if we've reached the limit
+			if shouldStopProcessing(testLimit, len(ct.testTrialIDs)) {
+				break
+			}
+		}
+
+		uniqueTrials++
+
+		elapsed := int64(time.Since(startTime).Seconds())
+		if elapsed > previous+ct.d.progInterval {
+			previous = elapsed
+			ct.d.progChan <- &progressInfo{dataset: ct.source, currentKBPerSec: 0}
 		}
 
 		// Extract core trial metadata

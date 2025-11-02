@@ -1,0 +1,65 @@
+{
+  "common_tests": [
+    {
+      "name": "ID Lookup - First Trial",
+      "type": "id_lookup",
+      "id": "@reference[0].nct_id",
+      "expected": {
+        "should_find": true,
+        "has_title": true
+      }
+    },
+    {
+      "name": "ID Lookup - Second Trial",
+      "type": "id_lookup",
+      "id": "@reference[1].nct_id",
+      "expected": {
+        "should_find": true,
+        "has_title": true
+      }
+    },
+    {
+      "name": "ID Lookup - Third Trial",
+      "type": "id_lookup",
+      "id": "@reference[2].nct_id",
+      "expected": {
+        "should_find": true,
+        "has_title": true
+      }
+    },
+    {
+      "name": "Trial with Phase",
+      "type": "attribute_check",
+      "id": "@reference[0].nct_id",
+      "attributes": ["phase"]
+    },
+    {
+      "name": "Trial with Study Type",
+      "type": "attribute_check",
+      "id": "@reference[0].nct_id",
+      "attributes": ["study_type"]
+    },
+    {
+      "name": "Trial with Overall Status",
+      "type": "attribute_check",
+      "id": "@reference[0].nct_id",
+      "attributes": ["overall_status"]
+    },
+    {
+      "name": "Multi-Lookup - Multiple Trials",
+      "type": "multi_lookup",
+      "count": 3,
+      "id_field": "nct_id"
+    },
+    {
+      "name": "Case Insensitive - Lowercase NCT ID",
+      "type": "case_insensitive",
+      "symbol": "@reference[0].nct_id"
+    },
+    {
+      "name": "Invalid ID - Should Return Empty",
+      "type": "invalid_id",
+      "id": "NCT99999999"
+    }
+  ]
+}

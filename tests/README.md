@@ -41,8 +41,8 @@ This directory contains the testing infrastructure for biobtree datasets.
 
 ## Test Coverage
 
-- **27 Datasets**: HGNC, UniProt, GO, Taxonomy, UniParc, UniRef100, UniRef50, UniRef90, ECO, EFO, ChEBI, InterPro, HMDB, ChEMBL Document, ChEMBL Molecule, ChEMBL Activity, ChEMBL Assay, ChEMBL Target (with Target Component), ChEMBL Cell Line, Ensembl, Ensembl Bacteria, Ensembl Fungi, Ensembl Metazoa, Ensembl Plants, Ensembl Protists, MONDO, Patent
-- **292 Total Tests**: 176 declarative (JSON) + 116 custom (Python)
+- **28 Datasets**: HGNC, UniProt, GO, Taxonomy, UniParc, UniRef100, UniRef50, UniRef90, ECO, EFO, ChEBI, InterPro, HMDB, ChEMBL Document, ChEMBL Molecule, ChEMBL Activity, ChEMBL Assay, ChEMBL Target (with Target Component), ChEMBL Cell Line, Ensembl, Ensembl Bacteria, Ensembl Fungi, Ensembl Metazoa, Ensembl Plants, Ensembl Protists, MONDO, Patent, Clinical Trials
+- **308 Total Tests**: 185 declarative (JSON) + 123 custom (Python)
 - **9 Test Types**: ID lookup, symbol lookup, name lookup, alias lookup, cross-references, attribute checks, multi-lookup, case-insensitive, invalid ID handling
 
 ### Dataset-Specific Notes
@@ -67,6 +67,8 @@ This directory contains the testing infrastructure for biobtree datasets.
 **MONDO**: Uses OBO file parsing for reference data extraction (more reliable than EBI OLS API). 100 test disease terms covering disease hierarchies, synonyms, cross-references, and text search. 10 tests (4 declarative + 6 custom). Test builds: ~2.7s.
 
 **Patent**: Uses local SureChEMBL data files (10 patents, 50 compounds, 100 mappings). Tests validate patent metadata (title, country, publication date), classification codes (IPC/CPC), assignees, patent families, and patent-compound relationships. 16 tests (9 declarative + 7 custom). Test builds: ~2.3s. Note: InChI Key/SMILES searchability requires ChEMBL integration.
+
+**Clinical Trials**: Uses local test data (10 trials from test_data/clinical_trials/). Tests validate trial metadata (title, phase, status, study_type), interventions (drugs, therapies), medical conditions, and MONDO disease mappings. 16 tests (9 declarative + 7 custom). Test builds: ~2.3s. Source: Local JSON file with complete trial data including eligibility, outcomes, and facilities. Note: ChEMBL drug molecule cross-references require ChEMBL dataset integration.
 
 ## Philosophy
 

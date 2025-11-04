@@ -27,7 +27,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 def load_test_ids() -> List[str]:
     """Load HMDB IDs from the test reference file."""
-    ids_file = Path("../../test_out/reference/hmdb_ids.txt")
+    ids_file = Path("hmdb_ids.txt")
     if not ids_file.exists():
         print(f"Error: {ids_file} not found. Run 'make test' first.")
         sys.exit(1)

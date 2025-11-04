@@ -106,9 +106,66 @@ localhost:8888/ws/page/?i={identifier}&s={dataset}&p={page}&t={total}
 
 ```
 
+### Query Syntax
+
+Biobtree supports intuitive query syntax for mapping identifiers across datasets.
+
+#### CLI Query Command
+```bash
+# Query from command line (always returns detailed, pretty-printed JSON)
+biobtree query "<identifiers> >> <dataset> >> <dataset>"
+
+# Specify database location
+biobtree --out-dir <path> query "<query>"
+```
+
+#### Basic Mapping Syntax
+```bash
+# Simple lookup (no mapping)
+biobtree query "P27348"
+
+# Map through single dataset
+biobtree query "P27348 >> hgnc"
+
+# Map through multiple datasets (multi-hop)
+biobtree query "P27348 >> hgnc >> chembl"
+biobtree query "ENSG00000134308 >> uniprot >> hgnc"
+
+# Multiple identifiers
+biobtree query "P27348,Q04917 >> hgnc"
+biobtree query "cas9 >> uniprot >> hgnc"
+```
+
+#### Filter Syntax
+Use `[]` brackets to filter results at any step:
+
+```bash
+# Filter on boolean field
+biobtree query "ENSG00000134308 >> uniprot[uniprot.reviewed==true] >> hgnc"
+
+# Filter on string field
+biobtree query "P27348 >> go[go.type==\"biological_process\"]"
+
+# Filter before mapping
+biobtree query "9606 >> [ensembl.genome==\"homo_sapiens\"] >> transcript"
+
+# Multiple filters in chain
+biobtree query "cas9 >> uniprot[uniprot.reviewed==true] >> hgnc[hgnc.status==\"Approved\"]"
+
+# Complex filter expressions (CEL syntax)
+biobtree query "P27348 >> ensembl[ensembl.overlaps(114129278,114129328)]"
+biobtree query "hgnc >> chembl[chembl.molecule.highestDevelopmentPhase>2]"
+```
+
+**Old Syntax (Still Supported)**:
+```ruby
+# Web API with old function-style syntax
+localhost:8888/ws/map/?i=P27348&m=map(uniprot).filter(uniprot.reviewed==true).map(hgnc)
+```
+
 <!-- ### Integrating your dataset
 
-User data can be integrated to biobtree. Since biobtree has capability to process large datasets, this feature creates an alternative for  mapping related data to be indexed with biobtree. Data should be gzipped and in an xml format compliant with UniProt xml schema [definition](ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot.xsd). Once data has been prepared, file location needs to be configured in biobtree configuration file which is located at `conf/source.dataset.json`. After these configuration dataset used similarly with other dataset like 
+User data can be integrated to biobtree. Since biobtree has capability to process large datasets, this feature creates an alternative for  mapping related data to be indexed with biobtree. Data should be gzipped and in an xml format compliant with UniProt xml schema [definition](ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot.xsd). Once data has been prepared, file location needs to be configured in biobtree configuration file which is located at `conf/source.dataset.json`. After these configuration dataset used similarly with other dataset like
 
 ```sh
 biobtree -d "+my_data" start

@@ -216,6 +216,10 @@ func (p *patents) processCompounds() (int, error) {
 	}
 	defer file.Close()
 
+	// Test mode setup
+	testLimit := config.GetTestLimit(p.source)
+	processedCompounds := make(map[string]bool) // Track unique compound IDs processed
+
 	// Use jsparser for streaming JSON
 	br := bufio.NewReader(file)
 	parser := jsparser.NewJSONParser(br, "compounds")
@@ -250,6 +254,18 @@ func (p *patents) processCompounds() (int, error) {
 		if smiles != "" {
 			p.d.addXref(smiles, textLinkID, compoundID, "patent_compound", true)
 		}
+
+		// Test mode: Track processed compounds
+		if config.IsTestMode() {
+			if _, exists := processedCompounds[compoundID]; !exists {
+				processedCompounds[compoundID] = true
+			}
+
+			// Check if we've reached the test limit
+			if shouldStopProcessing(testLimit, len(processedCompounds)) {
+				break
+			}
+		}
 	}
 
 	return count, nil
@@ -271,6 +287,10 @@ func (p *patents) processMappings() (int, error) {
 	if err != nil {
 		return 0, fmt.Errorf("failed to build patent ID map: %w", err)
 	}
+
+	// Test mode setup
+	testLimit := config.GetTestLimit(p.source)
+	processedMappings := 0
 
 	// Use jsparser for streaming JSON
 	br := bufio.NewReader(file)
@@ -299,12 +319,22 @@ func (p *patents) processMappings() (int, error) {
 		// Get patent number from patent ID
 		patentNumber, ok := patentIDMap[patentID]
 		if !ok {
-			// Patent not in our dataset
+			// Patent not in our dataset (or filtered out in test mode)
 			continue
 		}
 
 		// Patent ↔ Patent Compound (bidirectional)
 		p.d.addXref(patentNumber, fr, compoundID, "patent_compound", false)
+
+		// Test mode: Count processed mappings and check limit
+		if config.IsTestMode() {
+			processedMappings++
+			// Use a reasonable multiplier (e.g., 3x) to get enough mappings
+			// for the limited patents/compounds we're testing
+			if shouldStopProcessing(testLimit*3, processedMappings) {
+				break
+			}
+		}
 	}
 
 	return count, nil

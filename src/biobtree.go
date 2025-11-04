@@ -187,6 +187,20 @@ func main() {
 			},
 		},
 		{
+			Name:      "query",
+			Usage:     "Query biobtree database from CLI (always detailed, pretty-printed)",
+			ArgsUsage: "<query_string>",
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "dataset,s",
+					Usage: "Filter results by dataset name (e.g., uniprot, string)",
+				},
+			},
+			Action: func(c *cli.Context) error {
+				return runQueryCommand(c)
+			},
+		},
+		{
 			Name:  "install",
 			Usage: "Install configuration files. Used for genomes and datasets listing",
 			Action: func(c *cli.Context) error {
@@ -558,6 +572,25 @@ func runWebCommand(c *cli.Context) error {
 
 	return nil
 
+}
+
+func runQueryCommand(c *cli.Context) error {
+	// 1. Check arguments
+	if c.NArg() == 0 {
+		return fmt.Errorf("query string required\nUsage: biobtree --out-dir <dir> query \"<query_string>\"\nExamples:\n  biobtree query P27348\n  biobtree query \"CHEMBL203 >> surechembl >> patent\"")
+	}
+	queryStr := c.Args().First()
+
+	// 2. Initialize config (same as web command)
+	confdir := c.GlobalString("confdir")
+	outDir := c.GlobalString("out-dir")
+	config = &configs.Conf{}
+	config.Init(confdir, versionTag, outDir, true)
+
+	// 3. Execute query via CLI handler
+	cliHandler := service.CLI{}
+	datasetFilter := c.String("dataset")
+	return cliHandler.Query(config, queryStr, datasetFilter)
 }
 
 func runInstallCommand(c *cli.Context) error {

@@ -233,12 +233,6 @@
     "id": "66",
     "url": "https://www.ncbi.nlm.nih.gov/protein/£{id}"
   },
-  "string": {
-    "aliases": "STRING",
-    "name": "STRING",
-    "id": "67",
-    "url": "https://string-db.org/network/£{id}"
-  },
   "supfam": {
     "aliases": "SUPFAM",
     "name": "SUPFAM",

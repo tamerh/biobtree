@@ -377,4 +377,22 @@ message Intervention {
   string description =3;
 }
 
+message StringAttr {
+  string string_id =1;
+  int32 organism_taxid =2;
+  string preferred_name =3;
+  int32 protein_size =4;
+  string annotation =5;
+  repeated StringInteraction interactions =6;
+}
+
+message StringInteraction {
+  string partner =1;
+  int32 score =2;
+  bool has_experimental =3;
+  bool has_database =4;
+  bool has_textmining =5;
+  bool has_coexpression =6;
+}
+
 

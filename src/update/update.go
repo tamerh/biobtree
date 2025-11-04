@@ -306,6 +306,12 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			d.datasets2 = append(d.datasets2, data)
 			go ct.update()
 			break
+		case "string":
+			d.wg.Add(1)
+			str := stringProcessor{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go str.update(d.selectedTaxids)
+			break
 		case "go":
 			d.wg.Add(1)
 			g := ontology{source: data, d: d, prefixURL: "http://purl.obolibrary.org/obo/", idPrefix: "GO:"}
@@ -602,8 +608,9 @@ func (d *DataUpdate) selectEnsembls() map[string]ensembl {
 		}
 	}
 
+	// Only process ensembl if explicitly included in datasets (-d parameter)
 	if len(selectedEnsembls) == 0 {
-		selectedEnsembls = allEnsembls
+		return map[string]ensembl{}
 	}
 
 	ensembls := map[string]ensembl{}

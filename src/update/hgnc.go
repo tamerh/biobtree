@@ -121,6 +121,7 @@ func (e *hgnc) update() {
 			a("pubmed_id", "PubMed", j, entryid)
 			a("refseq_accession", "RefSeq", j, entryid)
 			a("uniprot_ids", "UniProtKB", j, entryid)
+			a("uniprot_ids", "string", j, entryid)
 
 			attr.Reset()
 

@@ -237,6 +237,7 @@ Available datasets:
         'mondo': script_dir / "mondo" / "test_mondo.py",
         'patent': script_dir / "patent" / "test_patent.py",
         'clinical_trials': script_dir / "clinical_trials" / "test_clinical_trials.py",
+        'string': script_dir / "string" / "test_string.py",
         # Temporarily disabled due to FTP issues:
         # 'uniparc': script_dir / "uniparc" / "test_uniparc.py",
         # 'uniref100': script_dir / "uniref100" / "test_uniref100.py",
@@ -289,6 +290,18 @@ Available datasets:
         for ensembl_ds in ensembl_datasets:
             if ensembl_ds not in build_datasets:
                 build_datasets.append(ensembl_ds)
+
+    # Handle STRING dataset: requires taxonomy ID (human: 9606)
+    if 'string' in selected_datasets:
+        # STRING test data is for human only
+        if genome_taxids and genome_taxids != "9606":
+            # Already has taxids from Ensembl - keep them
+            pass
+        else:
+            genome_taxids = "9606"
+        # STRING requires UniProt for mapping
+        if 'uniprot' not in build_datasets:
+            build_datasets.append('uniprot')
 
     # Build test database with selected datasets (including dependencies)
     datasets_str = ','.join(build_datasets)

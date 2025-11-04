@@ -17829,6 +17829,1045 @@ done:
 }
 
 // MarshalJSON marshal bytes to json - template
+func (j *StringAttr) MarshalJSON() ([]byte, error) {
+	var buf fflib.Buffer
+	if j == nil {
+		buf.WriteString("null")
+		return buf.Bytes(), nil
+	}
+	err := j.MarshalJSONBuf(&buf)
+	if err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
+}
+
+// MarshalJSONBuf marshal buff to json - template
+func (j *StringAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
+	if j == nil {
+		buf.WriteString("null")
+		return nil
+	}
+	var err error
+	var obj []byte
+	_ = obj
+	_ = err
+	buf.WriteString(`{ `)
+	if len(j.StringId) != 0 {
+		buf.WriteString(`"string_id":`)
+		fflib.WriteJsonString(buf, string(j.StringId))
+		buf.WriteByte(',')
+	}
+	if j.OrganismTaxid != 0 {
+		buf.WriteString(`"organism_taxid":`)
+		fflib.FormatBits2(buf, uint64(j.OrganismTaxid), 10, j.OrganismTaxid < 0)
+		buf.WriteByte(',')
+	}
+	if len(j.PreferredName) != 0 {
+		buf.WriteString(`"preferred_name":`)
+		fflib.WriteJsonString(buf, string(j.PreferredName))
+		buf.WriteByte(',')
+	}
+	if j.ProteinSize != 0 {
+		buf.WriteString(`"protein_size":`)
+		fflib.FormatBits2(buf, uint64(j.ProteinSize), 10, j.ProteinSize < 0)
+		buf.WriteByte(',')
+	}
+	if len(j.Annotation) != 0 {
+		buf.WriteString(`"annotation":`)
+		fflib.WriteJsonString(buf, string(j.Annotation))
+		buf.WriteByte(',')
+	}
+	if len(j.Interactions) != 0 {
+		buf.WriteString(`"interactions":`)
+		if j.Interactions != nil {
+			buf.WriteString(`[`)
+			for i, v := range j.Interactions {
+				if i != 0 {
+					buf.WriteString(`,`)
+				}
+
+				{
+
+					if v == nil {
+						buf.WriteString("null")
+					} else {
+
+						err = v.MarshalJSONBuf(buf)
+						if err != nil {
+							return err
+						}
+
+					}
+
+				}
+			}
+			buf.WriteString(`]`)
+		} else {
+			buf.WriteString(`null`)
+		}
+		buf.WriteByte(',')
+	}
+	buf.Rewind(1)
+	buf.WriteByte('}')
+	return nil
+}
+
+const (
+	ffjtStringAttrbase = iota
+	ffjtStringAttrnosuchkey
+
+	ffjtStringAttrStringId
+
+	ffjtStringAttrOrganismTaxid
+
+	ffjtStringAttrPreferredName
+
+	ffjtStringAttrProteinSize
+
+	ffjtStringAttrAnnotation
+
+	ffjtStringAttrInteractions
+)
+
+var ffjKeyStringAttrStringId = []byte("string_id")
+
+var ffjKeyStringAttrOrganismTaxid = []byte("organism_taxid")
+
+var ffjKeyStringAttrPreferredName = []byte("preferred_name")
+
+var ffjKeyStringAttrProteinSize = []byte("protein_size")
+
+var ffjKeyStringAttrAnnotation = []byte("annotation")
+
+var ffjKeyStringAttrInteractions = []byte("interactions")
+
+// UnmarshalJSON umarshall json - template of ffjson
+func (j *StringAttr) UnmarshalJSON(input []byte) error {
+	fs := fflib.NewFFLexer(input)
+	return j.UnmarshalJSONFFLexer(fs, fflib.FFParse_map_start)
+}
+
+// UnmarshalJSONFFLexer fast json unmarshall - template ffjson
+func (j *StringAttr) UnmarshalJSONFFLexer(fs *fflib.FFLexer, state fflib.FFParseState) error {
+	var err error
+	currentKey := ffjtStringAttrbase
+	_ = currentKey
+	tok := fflib.FFTok_init
+	wantedTok := fflib.FFTok_init
+
+mainparse:
+	for {
+		tok = fs.Scan()
+		//	println(fmt.Sprintf("debug: tok: %v  state: %v", tok, state))
+		if tok == fflib.FFTok_error {
+			goto tokerror
+		}
+
+		switch state {
+
+		case fflib.FFParse_map_start:
+			if tok != fflib.FFTok_left_bracket {
+				wantedTok = fflib.FFTok_left_bracket
+				goto wrongtokenerror
+			}
+			state = fflib.FFParse_want_key
+			continue
+
+		case fflib.FFParse_after_value:
+			if tok == fflib.FFTok_comma {
+				state = fflib.FFParse_want_key
+			} else if tok == fflib.FFTok_right_bracket {
+				goto done
+			} else {
+				wantedTok = fflib.FFTok_comma
+				goto wrongtokenerror
+			}
+
+		case fflib.FFParse_want_key:
+			// json {} ended. goto exit. woo.
+			if tok == fflib.FFTok_right_bracket {
+				goto done
+			}
+			if tok != fflib.FFTok_string {
+				wantedTok = fflib.FFTok_string
+				goto wrongtokenerror
+			}
+
+			kn := fs.Output.Bytes()
+			if len(kn) <= 0 {
+				// "" case. hrm.
+				currentKey = ffjtStringAttrnosuchkey
+				state = fflib.FFParse_want_colon
+				goto mainparse
+			} else {
+				switch kn[0] {
+
+				case 'a':
+
+					if bytes.Equal(ffjKeyStringAttrAnnotation, kn) {
+						currentKey = ffjtStringAttrAnnotation
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'i':
+
+					if bytes.Equal(ffjKeyStringAttrInteractions, kn) {
+						currentKey = ffjtStringAttrInteractions
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'o':
+
+					if bytes.Equal(ffjKeyStringAttrOrganismTaxid, kn) {
+						currentKey = ffjtStringAttrOrganismTaxid
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'p':
+
+					if bytes.Equal(ffjKeyStringAttrPreferredName, kn) {
+						currentKey = ffjtStringAttrPreferredName
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyStringAttrProteinSize, kn) {
+						currentKey = ffjtStringAttrProteinSize
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 's':
+
+					if bytes.Equal(ffjKeyStringAttrStringId, kn) {
+						currentKey = ffjtStringAttrStringId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				}
+
+				if fflib.EqualFoldRight(ffjKeyStringAttrInteractions, kn) {
+					currentKey = ffjtStringAttrInteractions
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyStringAttrAnnotation, kn) {
+					currentKey = ffjtStringAttrAnnotation
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyStringAttrProteinSize, kn) {
+					currentKey = ffjtStringAttrProteinSize
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyStringAttrPreferredName, kn) {
+					currentKey = ffjtStringAttrPreferredName
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyStringAttrOrganismTaxid, kn) {
+					currentKey = ffjtStringAttrOrganismTaxid
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyStringAttrStringId, kn) {
+					currentKey = ffjtStringAttrStringId
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				currentKey = ffjtStringAttrnosuchkey
+				state = fflib.FFParse_want_colon
+				goto mainparse
+			}
+
+		case fflib.FFParse_want_colon:
+			if tok != fflib.FFTok_colon {
+				wantedTok = fflib.FFTok_colon
+				goto wrongtokenerror
+			}
+			state = fflib.FFParse_want_value
+			continue
+		case fflib.FFParse_want_value:
+
+			if tok == fflib.FFTok_left_brace || tok == fflib.FFTok_left_bracket || tok == fflib.FFTok_integer || tok == fflib.FFTok_double || tok == fflib.FFTok_string || tok == fflib.FFTok_bool || tok == fflib.FFTok_null {
+				switch currentKey {
+
+				case ffjtStringAttrStringId:
+					goto handle_StringId
+
+				case ffjtStringAttrOrganismTaxid:
+					goto handle_OrganismTaxid
+
+				case ffjtStringAttrPreferredName:
+					goto handle_PreferredName
+
+				case ffjtStringAttrProteinSize:
+					goto handle_ProteinSize
+
+				case ffjtStringAttrAnnotation:
+					goto handle_Annotation
+
+				case ffjtStringAttrInteractions:
+					goto handle_Interactions
+
+				case ffjtStringAttrnosuchkey:
+					err = fs.SkipField(tok)
+					if err != nil {
+						return fs.WrapErr(err)
+					}
+					state = fflib.FFParse_after_value
+					goto mainparse
+				}
+			} else {
+				goto wantedvalue
+			}
+		}
+	}
+
+handle_StringId:
+
+	/* handler: j.StringId type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.StringId = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_OrganismTaxid:
+
+	/* handler: j.OrganismTaxid type=int32 kind=int32 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for int32", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseInt(fs.Output.Bytes(), 10, 32)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.OrganismTaxid = int32(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_PreferredName:
+
+	/* handler: j.PreferredName type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.PreferredName = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_ProteinSize:
+
+	/* handler: j.ProteinSize type=int32 kind=int32 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for int32", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseInt(fs.Output.Bytes(), 10, 32)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.ProteinSize = int32(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Annotation:
+
+	/* handler: j.Annotation type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Annotation = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Interactions:
+
+	/* handler: j.Interactions type=[]*pbuf.StringInteraction kind=slice quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_left_brace && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for ", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+			j.Interactions = nil
+		} else {
+
+			j.Interactions = []*StringInteraction{}
+
+			wantVal := true
+
+			for {
+
+				var tmpJInteractions *StringInteraction
+
+				tok = fs.Scan()
+				if tok == fflib.FFTok_error {
+					goto tokerror
+				}
+				if tok == fflib.FFTok_right_brace {
+					break
+				}
+
+				if tok == fflib.FFTok_comma {
+					if wantVal == true {
+						// TODO(pquerna): this isn't an ideal error message, this handles
+						// things like [,,,] as an array value.
+						return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
+					}
+					continue
+				} else {
+					wantVal = true
+				}
+
+				/* handler: tmpJInteractions type=*pbuf.StringInteraction kind=ptr quoted=false*/
+
+				{
+					if tok == fflib.FFTok_null {
+
+						tmpJInteractions = nil
+
+					} else {
+
+						if tmpJInteractions == nil {
+							tmpJInteractions = new(StringInteraction)
+						}
+
+						err = tmpJInteractions.UnmarshalJSONFFLexer(fs, fflib.FFParse_want_key)
+						if err != nil {
+							return err
+						}
+					}
+					state = fflib.FFParse_after_value
+				}
+
+				j.Interactions = append(j.Interactions, tmpJInteractions)
+
+				wantVal = false
+			}
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+wantedvalue:
+	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
+wrongtokenerror:
+	return fs.WrapErr(fmt.Errorf("ffjson: wanted token: %v, but got token: %v output=%s", wantedTok, tok, fs.Output.String()))
+tokerror:
+	if fs.BigError != nil {
+		return fs.WrapErr(fs.BigError)
+	}
+	err = fs.Error.ToError()
+	if err != nil {
+		return fs.WrapErr(err)
+	}
+	panic("ffjson-generated: unreachable, please report bug.")
+done:
+
+	return nil
+}
+
+// MarshalJSON marshal bytes to json - template
+func (j *StringInteraction) MarshalJSON() ([]byte, error) {
+	var buf fflib.Buffer
+	if j == nil {
+		buf.WriteString("null")
+		return buf.Bytes(), nil
+	}
+	err := j.MarshalJSONBuf(&buf)
+	if err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
+}
+
+// MarshalJSONBuf marshal buff to json - template
+func (j *StringInteraction) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
+	if j == nil {
+		buf.WriteString("null")
+		return nil
+	}
+	var err error
+	var obj []byte
+	_ = obj
+	_ = err
+	buf.WriteString(`{ `)
+	if len(j.Partner) != 0 {
+		buf.WriteString(`"partner":`)
+		fflib.WriteJsonString(buf, string(j.Partner))
+		buf.WriteByte(',')
+	}
+	if j.Score != 0 {
+		buf.WriteString(`"score":`)
+		fflib.FormatBits2(buf, uint64(j.Score), 10, j.Score < 0)
+		buf.WriteByte(',')
+	}
+	if j.HasExperimental != false {
+		if j.HasExperimental {
+			buf.WriteString(`"has_experimental":true`)
+		} else {
+			buf.WriteString(`"has_experimental":false`)
+		}
+		buf.WriteByte(',')
+	}
+	if j.HasDatabase != false {
+		if j.HasDatabase {
+			buf.WriteString(`"has_database":true`)
+		} else {
+			buf.WriteString(`"has_database":false`)
+		}
+		buf.WriteByte(',')
+	}
+	if j.HasTextmining != false {
+		if j.HasTextmining {
+			buf.WriteString(`"has_textmining":true`)
+		} else {
+			buf.WriteString(`"has_textmining":false`)
+		}
+		buf.WriteByte(',')
+	}
+	if j.HasCoexpression != false {
+		if j.HasCoexpression {
+			buf.WriteString(`"has_coexpression":true`)
+		} else {
+			buf.WriteString(`"has_coexpression":false`)
+		}
+		buf.WriteByte(',')
+	}
+	buf.Rewind(1)
+	buf.WriteByte('}')
+	return nil
+}
+
+const (
+	ffjtStringInteractionbase = iota
+	ffjtStringInteractionnosuchkey
+
+	ffjtStringInteractionPartner
+
+	ffjtStringInteractionScore
+
+	ffjtStringInteractionHasExperimental
+
+	ffjtStringInteractionHasDatabase
+
+	ffjtStringInteractionHasTextmining
+
+	ffjtStringInteractionHasCoexpression
+)
+
+var ffjKeyStringInteractionPartner = []byte("partner")
+
+var ffjKeyStringInteractionScore = []byte("score")
+
+var ffjKeyStringInteractionHasExperimental = []byte("has_experimental")
+
+var ffjKeyStringInteractionHasDatabase = []byte("has_database")
+
+var ffjKeyStringInteractionHasTextmining = []byte("has_textmining")
+
+var ffjKeyStringInteractionHasCoexpression = []byte("has_coexpression")
+
+// UnmarshalJSON umarshall json - template of ffjson
+func (j *StringInteraction) UnmarshalJSON(input []byte) error {
+	fs := fflib.NewFFLexer(input)
+	return j.UnmarshalJSONFFLexer(fs, fflib.FFParse_map_start)
+}
+
+// UnmarshalJSONFFLexer fast json unmarshall - template ffjson
+func (j *StringInteraction) UnmarshalJSONFFLexer(fs *fflib.FFLexer, state fflib.FFParseState) error {
+	var err error
+	currentKey := ffjtStringInteractionbase
+	_ = currentKey
+	tok := fflib.FFTok_init
+	wantedTok := fflib.FFTok_init
+
+mainparse:
+	for {
+		tok = fs.Scan()
+		//	println(fmt.Sprintf("debug: tok: %v  state: %v", tok, state))
+		if tok == fflib.FFTok_error {
+			goto tokerror
+		}
+
+		switch state {
+
+		case fflib.FFParse_map_start:
+			if tok != fflib.FFTok_left_bracket {
+				wantedTok = fflib.FFTok_left_bracket
+				goto wrongtokenerror
+			}
+			state = fflib.FFParse_want_key
+			continue
+
+		case fflib.FFParse_after_value:
+			if tok == fflib.FFTok_comma {
+				state = fflib.FFParse_want_key
+			} else if tok == fflib.FFTok_right_bracket {
+				goto done
+			} else {
+				wantedTok = fflib.FFTok_comma
+				goto wrongtokenerror
+			}
+
+		case fflib.FFParse_want_key:
+			// json {} ended. goto exit. woo.
+			if tok == fflib.FFTok_right_bracket {
+				goto done
+			}
+			if tok != fflib.FFTok_string {
+				wantedTok = fflib.FFTok_string
+				goto wrongtokenerror
+			}
+
+			kn := fs.Output.Bytes()
+			if len(kn) <= 0 {
+				// "" case. hrm.
+				currentKey = ffjtStringInteractionnosuchkey
+				state = fflib.FFParse_want_colon
+				goto mainparse
+			} else {
+				switch kn[0] {
+
+				case 'h':
+
+					if bytes.Equal(ffjKeyStringInteractionHasExperimental, kn) {
+						currentKey = ffjtStringInteractionHasExperimental
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyStringInteractionHasDatabase, kn) {
+						currentKey = ffjtStringInteractionHasDatabase
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyStringInteractionHasTextmining, kn) {
+						currentKey = ffjtStringInteractionHasTextmining
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyStringInteractionHasCoexpression, kn) {
+						currentKey = ffjtStringInteractionHasCoexpression
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'p':
+
+					if bytes.Equal(ffjKeyStringInteractionPartner, kn) {
+						currentKey = ffjtStringInteractionPartner
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 's':
+
+					if bytes.Equal(ffjKeyStringInteractionScore, kn) {
+						currentKey = ffjtStringInteractionScore
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				}
+
+				if fflib.EqualFoldRight(ffjKeyStringInteractionHasCoexpression, kn) {
+					currentKey = ffjtStringInteractionHasCoexpression
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyStringInteractionHasTextmining, kn) {
+					currentKey = ffjtStringInteractionHasTextmining
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyStringInteractionHasDatabase, kn) {
+					currentKey = ffjtStringInteractionHasDatabase
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyStringInteractionHasExperimental, kn) {
+					currentKey = ffjtStringInteractionHasExperimental
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyStringInteractionScore, kn) {
+					currentKey = ffjtStringInteractionScore
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyStringInteractionPartner, kn) {
+					currentKey = ffjtStringInteractionPartner
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				currentKey = ffjtStringInteractionnosuchkey
+				state = fflib.FFParse_want_colon
+				goto mainparse
+			}
+
+		case fflib.FFParse_want_colon:
+			if tok != fflib.FFTok_colon {
+				wantedTok = fflib.FFTok_colon
+				goto wrongtokenerror
+			}
+			state = fflib.FFParse_want_value
+			continue
+		case fflib.FFParse_want_value:
+
+			if tok == fflib.FFTok_left_brace || tok == fflib.FFTok_left_bracket || tok == fflib.FFTok_integer || tok == fflib.FFTok_double || tok == fflib.FFTok_string || tok == fflib.FFTok_bool || tok == fflib.FFTok_null {
+				switch currentKey {
+
+				case ffjtStringInteractionPartner:
+					goto handle_Partner
+
+				case ffjtStringInteractionScore:
+					goto handle_Score
+
+				case ffjtStringInteractionHasExperimental:
+					goto handle_HasExperimental
+
+				case ffjtStringInteractionHasDatabase:
+					goto handle_HasDatabase
+
+				case ffjtStringInteractionHasTextmining:
+					goto handle_HasTextmining
+
+				case ffjtStringInteractionHasCoexpression:
+					goto handle_HasCoexpression
+
+				case ffjtStringInteractionnosuchkey:
+					err = fs.SkipField(tok)
+					if err != nil {
+						return fs.WrapErr(err)
+					}
+					state = fflib.FFParse_after_value
+					goto mainparse
+				}
+			} else {
+				goto wantedvalue
+			}
+		}
+	}
+
+handle_Partner:
+
+	/* handler: j.Partner type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Partner = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Score:
+
+	/* handler: j.Score type=int32 kind=int32 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for int32", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseInt(fs.Output.Bytes(), 10, 32)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.Score = int32(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_HasExperimental:
+
+	/* handler: j.HasExperimental type=bool kind=bool quoted=false*/
+
+	{
+		if tok != fflib.FFTok_bool && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for bool", tok))
+		}
+	}
+
+	{
+		if tok == fflib.FFTok_null {
+
+		} else {
+			tmpb := fs.Output.Bytes()
+
+			if bytes.Compare([]byte{'t', 'r', 'u', 'e'}, tmpb) == 0 {
+
+				j.HasExperimental = true
+
+			} else if bytes.Compare([]byte{'f', 'a', 'l', 's', 'e'}, tmpb) == 0 {
+
+				j.HasExperimental = false
+
+			} else {
+				err = errors.New("unexpected bytes for true/false value")
+				return fs.WrapErr(err)
+			}
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_HasDatabase:
+
+	/* handler: j.HasDatabase type=bool kind=bool quoted=false*/
+
+	{
+		if tok != fflib.FFTok_bool && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for bool", tok))
+		}
+	}
+
+	{
+		if tok == fflib.FFTok_null {
+
+		} else {
+			tmpb := fs.Output.Bytes()
+
+			if bytes.Compare([]byte{'t', 'r', 'u', 'e'}, tmpb) == 0 {
+
+				j.HasDatabase = true
+
+			} else if bytes.Compare([]byte{'f', 'a', 'l', 's', 'e'}, tmpb) == 0 {
+
+				j.HasDatabase = false
+
+			} else {
+				err = errors.New("unexpected bytes for true/false value")
+				return fs.WrapErr(err)
+			}
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_HasTextmining:
+
+	/* handler: j.HasTextmining type=bool kind=bool quoted=false*/
+
+	{
+		if tok != fflib.FFTok_bool && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for bool", tok))
+		}
+	}
+
+	{
+		if tok == fflib.FFTok_null {
+
+		} else {
+			tmpb := fs.Output.Bytes()
+
+			if bytes.Compare([]byte{'t', 'r', 'u', 'e'}, tmpb) == 0 {
+
+				j.HasTextmining = true
+
+			} else if bytes.Compare([]byte{'f', 'a', 'l', 's', 'e'}, tmpb) == 0 {
+
+				j.HasTextmining = false
+
+			} else {
+				err = errors.New("unexpected bytes for true/false value")
+				return fs.WrapErr(err)
+			}
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_HasCoexpression:
+
+	/* handler: j.HasCoexpression type=bool kind=bool quoted=false*/
+
+	{
+		if tok != fflib.FFTok_bool && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for bool", tok))
+		}
+	}
+
+	{
+		if tok == fflib.FFTok_null {
+
+		} else {
+			tmpb := fs.Output.Bytes()
+
+			if bytes.Compare([]byte{'t', 'r', 'u', 'e'}, tmpb) == 0 {
+
+				j.HasCoexpression = true
+
+			} else if bytes.Compare([]byte{'f', 'a', 'l', 's', 'e'}, tmpb) == 0 {
+
+				j.HasCoexpression = false
+
+			} else {
+				err = errors.New("unexpected bytes for true/false value")
+				return fs.WrapErr(err)
+			}
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+wantedvalue:
+	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
+wrongtokenerror:
+	return fs.WrapErr(fmt.Errorf("ffjson: wanted token: %v, but got token: %v output=%s", wantedTok, tok, fs.Output.String()))
+tokerror:
+	if fs.BigError != nil {
+		return fs.WrapErr(fs.BigError)
+	}
+	err = fs.Error.ToError()
+	if err != nil {
+		return fs.WrapErr(err)
+	}
+	panic("ffjson-generated: unreachable, please report bug.")
+done:
+
+	return nil
+}
+
+// MarshalJSON marshal bytes to json - template
 func (j *TaxoAttr) MarshalJSON() ([]byte, error) {
 	var buf fflib.Buffer
 	if j == nil {

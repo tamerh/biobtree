@@ -300,5 +300,19 @@
     "hasFilter": "yes",
     "attrs": "brief_title,overall_status,phase,study_type,[]interventions",
     "test_entries_count": "20"
+  },
+  "string": {
+    "aliases": "STRING",
+    "id": "27",
+    "name": "STRING",
+    "url": "https://string-db.org/network/£{id}",
+    "downloadUrlLinks": "https://stringdb-downloads.org/download/protein.links.detailed.v12.0/{taxid}.protein.links.detailed.v12.0.txt.gz",
+    "downloadUrlAliases": "https://stringdb-downloads.org/download/protein.aliases.v12.0/{taxid}.protein.aliases.v12.0.txt.gz",
+    "downloadUrlInfo": "https://stringdb-downloads.org/download/protein.info.v12.0/{taxid}.protein.info.v12.0.txt.gz",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "scoreThreshold": "400",
+    "attrs": "string_id,organism_taxid,preferred_name,protein_size,annotation,[]interactions.partner,[]interactions.score,[]interactions.has_experimental,[]interactions.has_database,[]interactions.has_textmining,[]interactions.has_coexpression",
+    "test_entries_count": "50"
   }
 }

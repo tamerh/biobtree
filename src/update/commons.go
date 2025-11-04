@@ -50,6 +50,36 @@ func getDataReaderNew(datatype string, ftpAddr string, ftpPath string, filePath 
 
 	}
 
+	// Handle direct HTTPS URLs (e.g., STRING, HGNC, etc.)
+	if strings.HasPrefix(filePath, "https://") || strings.HasPrefix(filePath, "http://") {
+		resp, err := http.Get(filePath)
+		if err != nil {
+			return nil, nil, nil, nil, nil, 0, fmt.Errorf("HTTP GET failed for %s: %v", filePath, err)
+		}
+		if resp.StatusCode != http.StatusOK {
+			resp.Body.Close()
+			return nil, nil, nil, nil, nil, 0, fmt.Errorf("HTTP GET failed with status %d for %s", resp.StatusCode, filePath)
+		}
+
+		fileSize = resp.ContentLength
+
+		var br *bufio.Reader
+		var gz *gzip.Reader
+
+		if filepath.Ext(filePath) == ".gz" {
+			gz, err = gzip.NewReader(resp.Body)
+			if err != nil {
+				resp.Body.Close()
+				return nil, nil, nil, nil, nil, 0, err
+			}
+			br = bufio.NewReaderSize(gz, fileBufSize)
+			return br, gz, nil, nil, nil, fileSize, nil
+		} else {
+			br = bufio.NewReaderSize(resp.Body, fileBufSize)
+			return br, nil, nil, nil, nil, fileSize, nil
+		}
+	}
+
 	// Try HTTPS for EBI (FTP protocol has been disabled)
 	if strings.HasPrefix(ftpAddr, "ftp.ebi.ac.uk") {
 		httpsURL := "https://ftp.ebi.ac.uk" + ftpPath + filePath

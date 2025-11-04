@@ -38,11 +38,26 @@ func (cli *CLI) Query(conf *configs.Conf, queryStr string, datasetFilter string)
 	var err error
 
 	if strings.Contains(queryStr, ">>") {
-		// Chain/map query
-		ids := []string{strings.TrimSpace(strings.Split(queryStr, ">>")[0])}
-		result, err = cli.service.mapFilter(ids, datasetID, queryStr, "")
+		// Chain/map query: "P27348 >> hgnc" or "cas9 >> uniprot >> hgnc"
+		// Split by first >> to separate IDs from mapping chain
+		parts := strings.SplitN(queryStr, ">>", 2)
+
+		// Part 1: Identifiers (can be comma-separated)
+		idsStr := strings.TrimSpace(parts[0])
+		ids := strings.Split(idsStr, ",")
+		for i := range ids {
+			ids[i] = strings.TrimSpace(ids[i])
+		}
+
+		// Part 2: Mapping query (may have more >>)
+		mappingQuery := ""
+		if len(parts) > 1 {
+			mappingQuery = strings.TrimSpace(parts[1])
+		}
+
+		result, err = cli.service.mapFilter(ids, datasetID, mappingQuery, "")
 	} else {
-		// Simple lookup
+		// Simple lookup (no >>)
 		ids := strings.Split(queryStr, ",")
 		for i := range ids {
 			ids[i] = strings.TrimSpace(ids[i])

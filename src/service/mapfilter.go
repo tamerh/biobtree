@@ -370,6 +370,53 @@ func (s *service) setResultPaging(source *pbuf.Xref, pages map[int]*mpPage) stri
 // parse mapping query and injects linkdataset queries if needed
 func (s *service) prepareQueries(mapFilterQuery string) ([]query.Query, error) {
 
+	// Detect new syntax: doesn't start with map( or filter(
+	// This routes to ParserV2 for the new intuitive syntax
+	trimmed := strings.TrimSpace(mapFilterQuery)
+	if !strings.HasPrefix(trimmed, "map(") && !strings.HasPrefix(trimmed, "filter(") {
+		// New syntax - use V2 parser
+		parser := query.NewParserV2(config)
+		queries, err := parser.Parse(mapFilterQuery)
+		if err != nil {
+			return nil, err
+		}
+
+		// Handle link datasets (same logic as old parser)
+		hasLinkDataset := false
+		for _, q := range queries {
+			if q.IsLinkDataset {
+				hasLinkDataset = true
+				break
+			}
+		}
+		if hasLinkDataset {
+			var newqueries []query.Query
+			for index, q := range queries {
+				if q.IsLinkDataset {
+					if index == 0 {
+						//err := fmt.Errorf("Query cannot start with linkdataset")
+						//return nil, err
+					}
+					q2 := query.Query{}
+					q2.MapDatasetID = config.DataconfIDStringToInt[config.Dataconf[q.MapDataset]["linkdataset"]]
+					q2.MapDataset = config.Dataconf[q.MapDataset]["linkdataset"]
+
+					if len(q.Filter) > 0 {
+						q2.Filter = q.Filter
+						q.Filter = ""
+					}
+					newqueries = append(newqueries, q)
+					newqueries = append(newqueries, q2)
+				} else {
+					newqueries = append(newqueries, q)
+				}
+			}
+			return newqueries, nil
+		}
+		return queries, nil
+	}
+
+	// Old syntax - use existing parser
 	queries, err := s.qparser.Parse(mapFilterQuery)
 
 	if err != nil {

@@ -45,45 +45,59 @@ See **Currently Integrated Datasets** section above for details.
 
 ---
 
-### 2. AlphaFold Protein Structure Database
+### 2. AlphaFold Protein Structure Database - 📋 PLANNED (Swiss-Prot Subset)
 
 **Priority:** ⭐⭐⭐⭐
 
 | Attribute | Details |
 |-----------|---------|
 | **License** | ✅ Open Access (CC-BY-4.0) - commercial use OK |
-| **Size** | Very Large (214M+ structures) |
-| **Update Frequency** | Continuous |
-| **API** | REST API + FTP |
-| **Download** | Per-species downloads available |
+| **Size** | Swiss-Prot: 550K structures (28.5GB) / Full: 214M+ |
+| **Update Frequency** | Monthly (version 6 current) |
+| **FTP** | https://ftp.ebi.ac.uk/pub/databases/alphafold/ |
+| **Format** | PDB/mmCIF with pLDDT in B-factor column |
 
-**Data Content:**
-- 214M+ predicted protein structures (2024)
-- Covers nearly entire UniProt
-- Confidence scores (pLDDT)
-- 3D coordinates
-- PAE (predicted aligned error)
+**Integration Strategy:**
+Start with **Swiss-Prot subset only** (550,122 reviewed proteins), expand later if needed
+
+**Data to Store (Metadata Only):**
+```
+- AlphaFold ID (AF-Q9Y6K9-F1)
+- Global pLDDT score (82.0)
+- Fraction very high confidence (0.623)
+- Fraction confident (0.136)
+- Fraction low (0.055)
+- Fraction very low (0.186)
+- Model version + date
+```
+
+**Data Source:**
+- File: `swissprot_pdb_v6.tar` (28.5GB)
+- Contains PDB.gz files with pLDDT scores in B-factor column (positions 60-66)
+- Stream TAR, extract scores, calculate metrics on-the-fly
+- No structure files stored (link to AlphaFold DB instead)
 
 **Cross-References:**
-- ✅ UniProt IDs → Direct mapping to biobtree
-- ✅ Ensembl IDs → Available
+- ✅ UniProt IDs → Direct bidirectional mapping
+- Separate "alphafold" dataset (like STRING model)
 
 **Value Proposition:**
-- Structural context for ALL proteins
-- Enables structure-based drug design
-- Complements sequence data with 3D information
-- AI-predicted but highly accurate
-
-**Implementation Considerations:**
-- **Selective Integration:** Don't download all 214M structures
-- **Strategy 1:** Link to AlphaFold IDs only, fetch on demand
-- **Strategy 2:** Download structures for organisms in biobtree only
-- **Strategy 3:** Download high-confidence structures only (pLDDT > 70)
+- **Confidence-based filtering** - Find proteins with high-quality models
+- **Drug discovery** - Prioritize targets with good structures
+- **Research gap analysis** - Identify proteins needing experimental structures
+- **Query capability** - Filter by structure quality (not just availability)
+- **Marketing value** - AlphaFold extremely popular in research community
 
 **Example Queries:**
 ```bash
-# Gene → protein → structure
-biobtree query "HGNC:EGFR >> uniprot >> alphafold"
+# High confidence drug targets
+biobtree query "chembl >> target >> uniprot >> alphafold [globalPLDDT > 80]"
+
+# Disease genes without good structures (research gaps)
+biobtree query "mondo >> hpo >> hgnc >> uniprot >> alphafold [fractionVeryLow > 0.3]"
+
+# Pathway proteins with structural coverage
+biobtree query "reactome:pathway >> uniprot >> alphafold [fractionVeryHigh > 0.7]"
 
 # Patent compound → targets → structures
 biobtree query "US-patent >> surechembl >> chembl >> uniprot >> alphafold"

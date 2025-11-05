@@ -348,6 +348,12 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			d.datasets2 = append(d.datasets2, data)
 			go h.update()
 			break
+		case "alphafold":
+			d.wg.Add(1)
+			af := alphafoldProcessor{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go af.update()
+			break
 		case "my_data":
 
 			if len(config.Dataconf[data]["path"]) > 0 {

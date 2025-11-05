@@ -2,262 +2,262 @@
   "cath": {
     "aliases": "CATH",
     "name": "CATH",
-    "id": "30",
-    "url": "http://www.cathdb.info/version/latest/superfamily/£{id}"
+    "id": "80",
+    "url": "http://www.cathdb.info/version/latest/superfamily/\u00a3{id}"
   },
   "cathgene3d": {
     "aliases": "CATHGENE3D,Gene3D",
     "name": "CATH",
-    "id": "31",
-    "url": "http://www.cathdb.info/version/latest/superfamily/£{id}"
+    "id": "81",
+    "url": "http://www.cathdb.info/version/latest/superfamily/\u00a3{id}"
   },
   "ccds": {
     "aliases": "CCDS",
     "name": "CCDS",
-    "id": "32",
-    "url": "https://www.ncbi.nlm.nih.gov/gene/?term=£{id}"
+    "id": "82",
+    "url": "https://www.ncbi.nlm.nih.gov/gene/?term=\u00a3{id}"
   },
   "cdd": {
     "aliases": "CDD",
     "name": "CDD",
-    "id": "33",
-    "url": "https://www.ncbi.nlm.nih.gov/Structure/cdd/cddsrv.cgi?uid=£{id}"
+    "id": "83",
+    "url": "https://www.ncbi.nlm.nih.gov/Structure/cdd/cddsrv.cgi?uid=\u00a3{id}"
   },
   "doi": {
     "aliases": "DOI",
     "name": "DOI",
-    "id": "35",
-    "url": "https://doi.org/£{id}"
+    "id": "85",
+    "url": "https://doi.org/\u00a3{id}"
   },
   "drugbank": {
     "aliases": "DrugBank,DrugBank accession",
     "name": "DrugBank",
-    "id": "36",
-    "url": "https://www.drugbank.ca/drugs/£{id}",
+    "id": "86",
+    "url": "https://www.drugbank.ca/drugs/\u00a3{id}",
     "hasFilter": "yes",
     "attrs": "name"
   },
   "ec": {
     "aliases": "EC,Intenz",
     "name": "Intenz",
-    "id": "37",
-    "url": "https://www.ebi.ac.uk/intenz/query?cmd=SearchEC&ec=£{id}"
+    "id": "87",
+    "url": "https://www.ebi.ac.uk/intenz/query?cmd=SearchEC&ec=\u00a3{id}"
   },
   "ena": {
     "aliases": "EMBL,EMBL_CON,TREMBLNEW,EMBLWGS,REMTREMBL,EMBL_TPA,EMBL_TSA,protein sequence ID,embl",
     "name": "ENA",
-    "id": "38",
-    "url": "//www.ebi.ac.uk/ena/data/view/£{id}",
+    "id": "88",
+    "url": "//www.ebi.ac.uk/ena/data/view/\u00a3{id}",
     "hasFilter": "yes",
     "attrs": "type"
   },
   "exon": {
     "name": "Exon",
-    "id": "39",
-    "url": "https://www.ensembl.org/Multi/Search/Results?q=£{id};site=ensembl_all",
-    "bacteriaUrl": "http://bacteria.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
-    "fungiUrl": "http://fungi.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
-    "metazoaUrl": "http://metazoa.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
-    "plantsUrl": "http://plants.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
-    "protistsUrl": "http://protists.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
+    "id": "89",
+    "url": "https://www.ensembl.org/Multi/Search/Results?q=\u00a3{id};site=ensembl_all",
+    "bacteriaUrl": "http://bacteria.ensembl.org/Multi/Search/Results?species=all;idx=;q=\u00a3{id};;site=ensemblunit",
+    "fungiUrl": "http://fungi.ensembl.org/Multi/Search/Results?species=all;idx=;q=\u00a3{id};;site=ensemblunit",
+    "metazoaUrl": "http://metazoa.ensembl.org/Multi/Search/Results?species=all;idx=;q=\u00a3{id};;site=ensemblunit",
+    "plantsUrl": "http://plants.ensembl.org/Multi/Search/Results?species=all;idx=;q=\u00a3{id};;site=ensemblunit",
+    "protistsUrl": "http://protists.ensembl.org/Multi/Search/Results?species=all;idx=;q=\u00a3{id};;site=ensemblunit",
     "hasFilter": "yes",
     "attrs": "start,end,strand,seq_region"
   },
   "ortholog": {
     "name": "Ortholog",
-    "id": "40",
-    "url": "https://www.ensembl.org/Multi/Search/Results?q=£{id};site=ensembl_all",
+    "id": "90",
+    "url": "https://www.ensembl.org/Multi/Search/Results?q=\u00a3{id};site=ensembl_all",
     "linkdataset": "ensembl",
     "hasFilter": "yes"
   },
   "paralog": {
     "name": "Paralog",
-    "id": "41",
-    "url": "https://www.ensembl.org/Multi/Search/Results?q=£{id};site=ensembl_all",
+    "id": "91",
+    "url": "https://www.ensembl.org/Multi/Search/Results?q=\u00a3{id};site=ensembl_all",
     "linkdataset": "ensembl",
     "hasFilter": "yes",
     "attrs": "name,description,start,end,biotype,genome,strand,seq_region,branch"
   },
   "transcript": {
     "name": "Transcript",
-    "id": "42",
-    "url": "https://www.ensembl.org/Multi/Search/Results?q=£{id};site=ensembl_all",
-    "bacteriaUrl": "http://bacteria.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
-    "fungiUrl": "http://fungi.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
-    "metazoaUrl": "http://metazoa.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
-    "plantsUrl": "http://plants.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
-    "protistsUrl": "http://protists.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
+    "id": "92",
+    "url": "https://www.ensembl.org/Multi/Search/Results?q=\u00a3{id};site=ensembl_all",
+    "bacteriaUrl": "http://bacteria.ensembl.org/Multi/Search/Results?species=all;idx=;q=\u00a3{id};;site=ensemblunit",
+    "fungiUrl": "http://fungi.ensembl.org/Multi/Search/Results?species=all;idx=;q=\u00a3{id};;site=ensemblunit",
+    "metazoaUrl": "http://metazoa.ensembl.org/Multi/Search/Results?species=all;idx=;q=\u00a3{id};;site=ensemblunit",
+    "plantsUrl": "http://plants.ensembl.org/Multi/Search/Results?species=all;idx=;q=\u00a3{id};;site=ensemblunit",
+    "protistsUrl": "http://protists.ensembl.org/Multi/Search/Results?species=all;idx=;q=\u00a3{id};;site=ensemblunit",
     "hasFilter": "yes",
     "attrs": "name,start,end,biotype,strand,seq_region,utr5Start,utr5End,utr3Start,utr3End,source"
   },
   "expressionatlas": {
     "aliases": "ExpressionAtlas",
     "name": "E.Atlas",
-    "id": "43",
-    "url": "https://www.ebi.ac.uk/gxa/genes/£{id}"
+    "id": "93",
+    "url": "https://www.ebi.ac.uk/gxa/genes/\u00a3{id}"
   },
   "flybase": {
     "aliases": "FlyBase",
     "name": "FlyBase",
-    "id": "44",
-    "url": "http://flybase.org/reports/£{id}.html"
+    "id": "94",
+    "url": "http://flybase.org/reports/\u00a3{id}.html"
   },
   "entrez": {
     "aliases": "GeneID",
     "name": "Entrez",
-    "id": "45",
-    "url": "https://www.ncbi.nlm.nih.gov/gene/£{id}"
+    "id": "95",
+    "url": "https://www.ncbi.nlm.nih.gov/gene/\u00a3{id}"
   },
   "hamap": {
     "aliases": "HAMAP",
     "name": "HAMAP",
-    "id": "46",
-    "url": "https://hamap.expasy.org/signature/£{id}"
+    "id": "96",
+    "url": "https://hamap.expasy.org/signature/\u00a3{id}"
   },
   "intact": {
     "aliases": "IntAct",
     "name": "IntAct",
-    "id": "47",
-    "url": "https://www.ebi.ac.uk//intact/pages/interactions/interactions.xhtml?query=£{id}&filter=ac"
+    "id": "97",
+    "url": "https://www.ebi.ac.uk//intact/pages/interactions/interactions.xhtml?query=\u00a3{id}&filter=ac"
   },
   "kegg": {
     "aliases": "KEGG,KEGG COMPOUND accession,KEGG GLYCAN accession,KEGG DRUG accession",
     "name": "KEGG",
-    "id": "48",
-    "url": "https://www.genome.jp/dbget-bin/www_bfind_sub?mode=bfind&max_hit=1&dbkey=alldb&keywords=£{id}"
+    "id": "98",
+    "url": "https://www.genome.jp/dbget-bin/www_bfind_sub?mode=bfind&max_hit=1&dbkey=alldb&keywords=\u00a3{id}"
   },
   "kegg map": {
     "aliases": "KEGG MAP",
     "name": "KEGG MAP",
-    "id": "49",
+    "id": "99",
     "url": ""
   },
   "ko": {
     "aliases": "KO",
     "name": "KO",
-    "id": "50",
-    "url": "https://www.genome.jp/dbget-bin/www_bget?ko:£{id}"
+    "id": "100",
+    "url": "https://www.genome.jp/dbget-bin/www_bget?ko:\u00a3{id}"
   },
   "mim": {
     "aliases": "MIM",
     "name": "MIM",
-    "id": "51",
-    "url": "https://www.omim.org/entry/£{id}"
+    "id": "101",
+    "url": "https://www.omim.org/entry/\u00a3{id}"
   },
   "metacyc": {
     "aliases": "MetaCyc,MetaCyc accession,METACYC",
     "name": "MetaCyc",
-    "id": "52",
-    "url": "https://metacyc.org/compound?orgid=META&id=£{id}"
+    "id": "102",
+    "url": "https://metacyc.org/compound?orgid=META&id=\u00a3{id}"
   },
   "genbank": {
     "aliases": "NCBI_GI",
     "name": "NCBI GeneBank",
-    "id": "53",
-    "url": "https://www.ncbi.nlm.nih.gov/nuccore/£{id}"
+    "id": "103",
+    "url": "https://www.ncbi.nlm.nih.gov/nuccore/\u00a3{id}"
   },
   "opentargets": {
     "aliases": "OpenTargets",
     "name": "OpenTargets",
-    "id": "54",
-    "url": "https://www.targetvalidation.org/target/£{id}/associations"
+    "id": "104",
+    "url": "https://www.targetvalidation.org/target/\u00a3{id}/associations"
   },
   "orphanet": {
     "aliases": "Orphanet",
     "name": "Orphanet",
-    "id": "55",
-    "url": "https://www.orpha.net/consor/cgi-bin/OC_Exp.php?Lng=GB&Expert=£{id}",
+    "id": "105",
+    "url": "https://www.orpha.net/consor/cgi-bin/OC_Exp.php?Lng=GB&Expert=\u00a3{id}",
     "hasFilter": "yes",
     "attrs": "disease"
   },
   "panther": {
     "aliases": "PANTHER",
     "name": "Panther",
-    "id": "56",
-    "url": "//www.pantherdb.org/panther/family.do?clsAccession=£{id}"
+    "id": "106",
+    "url": "//www.pantherdb.org/panther/family.do?clsAccession=\u00a3{id}"
   },
   "patric": {
     "aliases": "PATRIC",
     "name": "PATRIC",
-    "id": "57",
-    "url": "https://www.patricbrc.org/search/?keyword(%22£{id}%22)"
+    "id": "107",
+    "url": "https://www.patricbrc.org/search/?keyword(%22\u00a3{id}%22)"
   },
   "pdb": {
     "aliases": "PDB",
     "name": "PDBe",
-    "id": "58",
-    "url": "https://www.ebi.ac.uk/pdbe/entry/pdb/£{id}",
+    "id": "108",
+    "url": "https://www.ebi.ac.uk/pdbe/entry/pdb/\u00a3{id}",
     "attrs": "method,chains,resolution"
   },
   "pdbechem": {
     "aliases": "PDBeChem,PDBeChem accession",
     "name": "PDBeChem",
-    "id": "59",
-    "url": "https://www.ebi.ac.uk/pdbe/entry/pdb/£{id}"
+    "id": "109",
+    "url": "https://www.ebi.ac.uk/pdbe/entry/pdb/\u00a3{id}"
   },
   "pfam": {
     "aliases": "Pfam,PFAM",
     "name": "PFAM",
-    "id": "61",
-    "url": "http://pfam.xfam.org/family/£{id}"
+    "id": "111",
+    "url": "http://pfam.xfam.org/family/\u00a3{id}"
   },
   "proteomes": {
     "aliases": "Proteomes,proteome_id",
     "name": "Proteomes",
-    "id": "62",
-    "url": "https://www.uniprot.org/proteomes/£{id}"
+    "id": "112",
+    "url": "https://www.uniprot.org/proteomes/\u00a3{id}"
   },
   "pubmed": {
     "aliases": "PubMed,PubMed citation,PUBMED,pmc,PMC,PubMed Central citation",
     "name": "PubMed",
-    "id": "63",
-    "url": "https://europepmc.org/search?query=£{id}"
+    "id": "113",
+    "url": "https://europepmc.org/search?query=\u00a3{id}"
   },
   "rnacentral": {
     "aliases": "RNAcentral",
     "name": "RNAcentral",
-    "id": "64",
-    "url": "https://rnacentral.org/search?q=£{id}"
+    "id": "114",
+    "url": "https://rnacentral.org/search?q=\u00a3{id}"
   },
   "refseq": {
     "aliases": "RefSeq,nucleotide sequence ID",
     "name": "Refseq",
-    "id": "66",
-    "url": "https://www.ncbi.nlm.nih.gov/protein/£{id}"
+    "id": "116",
+    "url": "https://www.ncbi.nlm.nih.gov/protein/\u00a3{id}"
   },
   "supfam": {
     "aliases": "SUPFAM",
     "name": "SUPFAM",
-    "id": "68",
-    "url": "http://supfam.org/SUPERFAMILY/cgi-bin/scop.cgi?ipid=£{id}"
+    "id": "118",
+    "url": "http://supfam.org/SUPERFAMILY/cgi-bin/scop.cgi?ipid=\u00a3{id}"
   },
   "vgnc": {
     "aliases": "VGNC",
     "name": "VGNC",
-    "id": "69",
-    "url": "https://vertebrate.genenames.org/data/gene-symbol-report/#!/vgnc_id/£{id}"
+    "id": "119",
+    "url": "https://vertebrate.genenames.org/data/gene-symbol-report/#!/vgnc_id/\u00a3{id}"
   },
   "wbparasite": {
     "aliases": "WBParaSite",
     "name": "WBParaSite",
-    "id": "70",
-    "url": "http://ensemblgenomes.org/id/£{id}"
+    "id": "120",
+    "url": "http://ensemblgenomes.org/id/\u00a3{id}"
   },
   "ufeature": {
     "name": "Protein Feature",
-    "id": "72",
-    "url": "//www.uniprot.org/uniprot/£{id}",
+    "id": "122",
+    "url": "//www.uniprot.org/uniprot/\u00a3{id}",
     "hasFilter": "yes",
     "attrs": "type,description,id,original,variation,location.begin,location.end,[]evidences.type,[]evidences.source,[]evidences.id"
   },
   "variantid": {
     "name": "variantid",
-    "id": "73",
-    "url": "https://www.ncbi.nlm.nih.gov/snp/£{id}"
+    "id": "123",
+    "url": "https://www.ncbi.nlm.nih.gov/snp/\u00a3{id}"
   },
   "taxchild": {
     "name": "Tax Childs",
-    "id": "74",
+    "id": "124",
     "url": "",
     "linkdataset": "taxonomy",
     "hasFilter": "yes",
@@ -265,7 +265,7 @@
   },
   "taxparent": {
     "name": "Tax Parent",
-    "id": "75",
+    "id": "125",
     "url": "",
     "linkdataset": "taxonomy",
     "hasFilter": "yes",
@@ -273,1102 +273,1102 @@
   },
   "affy_bovine": {
     "name": "affy_bovine",
-    "id": "76",
+    "id": "126",
     "url": ""
   },
   "affy_c_elegans": {
     "name": "affy_c_elegans",
-    "id": "77",
+    "id": "127",
     "url": ""
   },
   "affy_canine_2": {
     "name": "affy_canine_2",
-    "id": "78",
+    "id": "128",
     "url": ""
   },
   "affy_chicken": {
     "name": "affy_chicken",
-    "id": "79",
+    "id": "129",
     "url": ""
   },
   "affy_chogene_2_0_st_v1": {
     "name": "affy_chogene_2_0_st_v1",
-    "id": "80",
+    "id": "130",
     "url": ""
   },
   "affy_chogene_2_1_st_v1": {
     "name": "affy_chogene_2_1_st_v1",
-    "id": "81",
+    "id": "131",
     "url": ""
   },
   "affy_cint06a520380f": {
     "name": "affy_cint06a520380f",
-    "id": "82",
+    "id": "132",
     "url": ""
   },
   "affy_cyngene_1_0_st_v1": {
     "name": "affy_cyngene_1_0_st_v1",
-    "id": "83",
+    "id": "133",
     "url": ""
   },
   "affy_cyrgene_1_0_st_v1": {
     "name": "affy_cyrgene_1_0_st_v1",
-    "id": "84",
+    "id": "134",
     "url": ""
   },
   "affy_drosgenome1": {
     "name": "affy_drosgenome1",
-    "id": "85",
+    "id": "135",
     "url": ""
   },
   "affy_drosophila_2": {
     "name": "affy_drosophila_2",
-    "id": "86",
+    "id": "136",
     "url": ""
   },
   "affy_equgene_1_0_st_v1": {
     "name": "affy_equgene_1_0_st_v1",
-    "id": "87",
+    "id": "137",
     "url": ""
   },
   "affy_equgene_1_1_st_v1": {
     "name": "affy_equgene_1_1_st_v1",
-    "id": "88",
+    "id": "138",
     "url": ""
   },
   "affy_felgene_1_0_st_v1": {
     "name": "affy_felgene_1_0_st_v1",
-    "id": "89",
+    "id": "139",
     "url": ""
   },
   "affy_felgene_1_1_st_v1": {
     "name": "affy_felgene_1_1_st_v1",
-    "id": "90",
+    "id": "140",
     "url": ""
   },
   "affy_gpl19230": {
     "name": "affy_gpl19230",
-    "id": "91",
+    "id": "141",
     "url": ""
   },
   "affy_hc_g110": {
     "name": "affy_hc_g110",
-    "id": "92",
+    "id": "142",
     "url": ""
   },
   "affy_hg_focus": {
     "name": "affy_hg_focus",
-    "id": "93",
+    "id": "143",
     "url": ""
   },
   "affy_hg_u133_plus_2": {
     "name": "affy_hg_u133_plus_2",
-    "id": "94",
+    "id": "144",
     "url": ""
   },
   "affy_hg_u133a": {
     "name": "affy_hg_u133a",
-    "id": "95",
+    "id": "145",
     "url": ""
   },
   "affy_hg_u133a_2": {
     "name": "affy_hg_u133a_2",
-    "id": "96",
+    "id": "146",
     "url": ""
   },
   "affy_hg_u133b": {
     "name": "affy_hg_u133b",
-    "id": "97",
+    "id": "147",
     "url": ""
   },
   "affy_hg_u95a": {
     "name": "affy_hg_u95a",
-    "id": "98",
+    "id": "148",
     "url": ""
   },
   "affy_hg_u95av2": {
     "name": "affy_hg_u95av2",
-    "id": "99",
+    "id": "149",
     "url": ""
   },
   "affy_hg_u95b": {
     "name": "affy_hg_u95b",
-    "id": "100",
+    "id": "150",
     "url": ""
   },
   "affy_hg_u95c": {
     "name": "affy_hg_u95c",
-    "id": "101",
+    "id": "151",
     "url": ""
   },
   "affy_hg_u95d": {
     "name": "affy_hg_u95d",
-    "id": "102",
+    "id": "152",
     "url": ""
   },
   "affy_hg_u95e": {
     "name": "affy_hg_u95e",
-    "id": "103",
+    "id": "153",
     "url": ""
   },
   "affy_hta_2_0": {
     "name": "affy_hta_2_0",
-    "id": "104",
+    "id": "154",
     "url": ""
   },
   "affy_huex_1_0_st_v2": {
     "name": "affy_huex_1_0_st_v2",
-    "id": "105",
+    "id": "155",
     "url": ""
   },
   "affy_hugene_1_0_st_v1": {
     "name": "affy_hugene_1_0_st_v1",
-    "id": "106",
+    "id": "156",
     "url": ""
   },
   "affy_hugene_2_0_st_v1": {
     "name": "affy_hugene_2_0_st_v1",
-    "id": "107",
+    "id": "157",
     "url": ""
   },
   "affy_hugenefl": {
     "name": "affy_hugenefl",
-    "id": "108",
+    "id": "158",
     "url": ""
   },
   "affy_mg_u74a": {
     "name": "affy_mg_u74a",
-    "id": "109",
+    "id": "159",
     "url": ""
   },
   "affy_mg_u74av2": {
     "name": "affy_mg_u74av2",
-    "id": "110",
+    "id": "160",
     "url": ""
   },
   "affy_mg_u74b": {
     "name": "affy_mg_u74b",
-    "id": "111",
+    "id": "161",
     "url": ""
   },
   "affy_mg_u74bv2": {
     "name": "affy_mg_u74bv2",
-    "id": "112",
+    "id": "162",
     "url": ""
   },
   "affy_mg_u74c": {
     "name": "affy_mg_u74c",
-    "id": "113",
+    "id": "163",
     "url": ""
   },
   "affy_mg_u74cv2": {
     "name": "affy_mg_u74cv2",
-    "id": "114",
+    "id": "164",
     "url": ""
   },
   "affy_moe430a": {
     "name": "affy_moe430a",
-    "id": "115",
+    "id": "165",
     "url": ""
   },
   "affy_moe430b": {
     "name": "affy_moe430b",
-    "id": "116",
+    "id": "166",
     "url": ""
   },
   "affy_moex_1_0_st_v1": {
     "name": "affy_moex_1_0_st_v1",
-    "id": "117",
+    "id": "167",
     "url": ""
   },
   "affy_mogene_1_0_st_v1": {
     "name": "affy_mogene_1_0_st_v1",
-    "id": "118",
+    "id": "168",
     "url": ""
   },
   "affy_mogene_2_1_st_v1": {
     "name": "affy_mogene_2_1_st_v1",
-    "id": "119",
+    "id": "169",
     "url": ""
   },
   "affy_mouse430_2": {
     "name": "affy_mouse430_2",
-    "id": "120",
+    "id": "170",
     "url": ""
   },
   "affy_mouse430a_2": {
     "name": "affy_mouse430a_2",
-    "id": "121",
+    "id": "171",
     "url": ""
   },
   "affy_mu11ksuba": {
     "name": "affy_mu11ksuba",
-    "id": "122",
+    "id": "172",
     "url": ""
   },
   "affy_mu11ksubb": {
     "name": "affy_mu11ksubb",
-    "id": "123",
+    "id": "173",
     "url": ""
   },
   "affy_platypus_exon": {
     "name": "affy_platypus_exon",
-    "id": "124",
+    "id": "174",
     "url": ""
   },
   "affy_porcine": {
     "name": "affy_porcine",
-    "id": "125",
+    "id": "175",
     "url": ""
   },
   "affy_primeview": {
     "name": "affy_primeview",
-    "id": "126",
+    "id": "176",
     "url": ""
   },
   "affy_rae230a": {
     "name": "affy_rae230a",
-    "id": "127",
+    "id": "177",
     "url": ""
   },
   "affy_rae230b": {
     "name": "affy_rae230b",
-    "id": "128",
+    "id": "178",
     "url": ""
   },
   "affy_raex_1_0_st_v1": {
     "name": "affy_raex_1_0_st_v1",
-    "id": "129",
+    "id": "179",
     "url": ""
   },
   "affy_ragene_1_0_st_v1": {
     "name": "affy_ragene_1_0_st_v1",
-    "id": "130",
+    "id": "180",
     "url": ""
   },
   "affy_ragene_2_1_st_v1": {
     "name": "affy_ragene_2_1_st_v1",
-    "id": "131",
+    "id": "181",
     "url": ""
   },
   "affy_rat230_2": {
     "name": "affy_rat230_2",
-    "id": "132",
+    "id": "182",
     "url": ""
   },
   "affy_rg_u34a": {
     "name": "affy_rg_u34a",
-    "id": "133",
+    "id": "183",
     "url": ""
   },
   "affy_rg_u34b": {
     "name": "affy_rg_u34b",
-    "id": "134",
+    "id": "184",
     "url": ""
   },
   "affy_rg_u34c": {
     "name": "affy_rg_u34c",
-    "id": "135",
+    "id": "185",
     "url": ""
   },
   "affy_rhegene_1_0_st_v1": {
     "name": "affy_rhegene_1_0_st_v1",
-    "id": "136",
+    "id": "186",
     "url": ""
   },
   "affy_rhegene_1_1_st_v1": {
     "name": "affy_rhegene_1_1_st_v1",
-    "id": "137",
+    "id": "187",
     "url": ""
   },
   "affy_rhesus": {
     "name": "affy_rhesus",
-    "id": "138",
+    "id": "188",
     "url": ""
   },
   "affy_rn_u34": {
     "name": "affy_rn_u34",
-    "id": "139",
+    "id": "189",
     "url": ""
   },
   "affy_rt_u34": {
     "name": "affy_rt_u34",
-    "id": "140",
+    "id": "190",
     "url": ""
   },
   "affy_u133_x3p": {
     "name": "affy_u133_x3p",
-    "id": "141",
+    "id": "191",
     "url": ""
   },
   "affy_x_tropicalis": {
     "name": "affy_x_tropicalis",
-    "id": "142",
+    "id": "192",
     "url": ""
   },
   "affy_yeast_2": {
     "name": "affy_yeast_2",
-    "id": "143",
+    "id": "193",
     "url": ""
   },
   "affy_yg_s98": {
     "name": "affy_yg_s98",
-    "id": "144",
+    "id": "194",
     "url": ""
   },
   "affy_zebgene_1_0_st_v1": {
     "name": "affy_zebgene_1_0_st_v1",
-    "id": "145",
+    "id": "195",
     "url": ""
   },
   "affy_zebgene_1_1_st_v1": {
     "name": "affy_zebgene_1_1_st_v1",
-    "id": "146",
+    "id": "196",
     "url": ""
   },
   "affy_zebrafish": {
     "name": "affy_zebrafish",
-    "id": "147",
+    "id": "197",
     "url": ""
   },
   "agilent_012795": {
     "name": "agilent_012795",
-    "id": "148",
+    "id": "198",
     "url": ""
   },
   "agilent_015061": {
     "name": "agilent_015061",
-    "id": "149",
+    "id": "199",
     "url": ""
   },
   "agilent_020186": {
     "name": "agilent_020186",
-    "id": "150",
+    "id": "200",
     "url": ""
   },
   "agilent_037725_hamarrayv": {
     "name": "agilent_037725_hamarrayv",
-    "id": "151",
+    "id": "201",
     "url": ""
   },
   "agilent_059389_chicken_ge_8x60k": {
     "name": "agilent_059389_chicken_ge_8x60k",
-    "id": "152",
+    "id": "202",
     "url": ""
   },
   "agilent_agilent_8x15k": {
     "name": "agilent_agilent_8x15k",
-    "id": "153",
+    "id": "203",
     "url": ""
   },
   "agilent_arraystar": {
     "name": "agilent_arraystar",
-    "id": "154",
+    "id": "204",
     "url": ""
   },
   "agilent_cgh_44b": {
     "name": "agilent_cgh_44b",
-    "id": "155",
+    "id": "205",
     "url": ""
   },
   "agilent_cho2agl44v1": {
     "name": "agilent_cho2agl44v1",
-    "id": "156",
+    "id": "206",
     "url": ""
   },
   "agilent_g2518a": {
     "name": "agilent_g2518a",
-    "id": "157",
+    "id": "207",
     "url": ""
   },
   "agilent_g2519f": {
     "name": "agilent_g2519f",
-    "id": "158",
+    "id": "208",
     "url": ""
   },
   "agilent_gpl10157": {
     "name": "agilent_gpl10157",
-    "id": "159",
+    "id": "209",
     "url": ""
   },
   "agilent_gpl10158": {
     "name": "agilent_gpl10158",
-    "id": "160",
+    "id": "210",
     "url": ""
   },
   "agilent_gpl10248": {
     "name": "agilent_gpl10248",
-    "id": "161",
+    "id": "211",
     "url": ""
   },
   "agilent_gpl13394": {
     "name": "agilent_gpl13394",
-    "id": "162",
+    "id": "212",
     "url": ""
   },
   "agilent_gpl13522": {
     "name": "agilent_gpl13522",
-    "id": "163",
+    "id": "213",
     "url": ""
   },
   "agilent_gpl13723": {
     "name": "agilent_gpl13723",
-    "id": "164",
+    "id": "214",
     "url": ""
   },
   "agilent_gpl13795": {
     "name": "agilent_gpl13795",
-    "id": "165",
+    "id": "215",
     "url": ""
   },
   "agilent_gpl13914": {
     "name": "agilent_gpl13914",
-    "id": "166",
+    "id": "216",
     "url": ""
   },
   "agilent_gpl14144": {
     "name": "agilent_gpl14144",
-    "id": "167",
+    "id": "217",
     "url": ""
   },
   "agilent_gpl14629": {
     "name": "agilent_gpl14629",
-    "id": "168",
+    "id": "218",
     "url": ""
   },
   "agilent_gpl14664": {
     "name": "agilent_gpl14664",
-    "id": "169",
+    "id": "219",
     "url": ""
   },
   "agilent_gpl15189": {
     "name": "agilent_gpl15189",
-    "id": "170",
+    "id": "220",
     "url": ""
   },
   "agilent_gpl15190": {
     "name": "agilent_gpl15190",
-    "id": "171",
+    "id": "221",
     "url": ""
   },
   "agilent_gpl15204": {
     "name": "agilent_gpl15204",
-    "id": "172",
+    "id": "222",
     "url": ""
   },
   "agilent_gpl15217": {
     "name": "agilent_gpl15217",
-    "id": "173",
+    "id": "223",
     "url": ""
   },
   "agilent_gpl15450": {
     "name": "agilent_gpl15450",
-    "id": "174",
+    "id": "224",
     "url": ""
   },
   "agilent_gpl15747": {
     "name": "agilent_gpl15747",
-    "id": "175",
+    "id": "225",
     "url": ""
   },
   "agilent_gpl15799": {
     "name": "agilent_gpl15799",
-    "id": "176",
+    "id": "226",
     "url": ""
   },
   "agilent_gpl16032": {
     "name": "agilent_gpl16032",
-    "id": "177",
+    "id": "227",
     "url": ""
   },
   "agilent_gpl16776": {
     "name": "agilent_gpl16776",
-    "id": "178",
+    "id": "228",
     "url": ""
   },
   "agilent_gpl17465": {
     "name": "agilent_gpl17465",
-    "id": "179",
+    "id": "229",
     "url": ""
   },
   "agilent_gpl17670": {
     "name": "agilent_gpl17670",
-    "id": "180",
+    "id": "230",
     "url": ""
   },
   "agilent_gpl17686": {
     "name": "agilent_gpl17686",
-    "id": "181",
+    "id": "231",
     "url": ""
   },
   "agilent_gpl17689": {
     "name": "agilent_gpl17689",
-    "id": "182",
+    "id": "232",
     "url": ""
   },
   "agilent_gpl18520": {
     "name": "agilent_gpl18520",
-    "id": "183",
+    "id": "233",
     "url": ""
   },
   "agilent_gpl18606": {
     "name": "agilent_gpl18606",
-    "id": "184",
+    "id": "234",
     "url": ""
   },
   "agilent_gpl19384": {
     "name": "agilent_gpl19384",
-    "id": "185",
+    "id": "235",
     "url": ""
   },
   "agilent_gpl19516": {
     "name": "agilent_gpl19516",
-    "id": "186",
+    "id": "236",
     "url": ""
   },
   "agilent_gpl19564": {
     "name": "agilent_gpl19564",
-    "id": "187",
+    "id": "237",
     "url": ""
   },
   "agilent_gpl19666": {
     "name": "agilent_gpl19666",
-    "id": "188",
+    "id": "238",
     "url": ""
   },
   "agilent_gpl20686": {
     "name": "agilent_gpl20686",
-    "id": "189",
+    "id": "239",
     "url": ""
   },
   "agilent_gpl20834": {
     "name": "agilent_gpl20834",
-    "id": "190",
+    "id": "240",
     "url": ""
   },
   "agilent_gpl20900": {
     "name": "agilent_gpl20900",
-    "id": "191",
+    "id": "241",
     "url": ""
   },
   "agilent_gpl20908": {
     "name": "agilent_gpl20908",
-    "id": "192",
+    "id": "242",
     "url": ""
   },
   "agilent_gpl21244": {
     "name": "agilent_gpl21244",
-    "id": "193",
+    "id": "243",
     "url": ""
   },
   "agilent_gpl21361": {
     "name": "agilent_gpl21361",
-    "id": "194",
+    "id": "244",
     "url": ""
   },
   "agilent_gpl21860": {
     "name": "agilent_gpl21860",
-    "id": "195",
+    "id": "245",
     "url": ""
   },
   "agilent_gpl22083": {
     "name": "agilent_gpl22083",
-    "id": "196",
+    "id": "246",
     "url": ""
   },
   "agilent_gpl23036": {
     "name": "agilent_gpl23036",
-    "id": "197",
+    "id": "247",
     "url": ""
   },
   "agilent_gpl23307": {
     "name": "agilent_gpl23307",
-    "id": "198",
+    "id": "248",
     "url": ""
   },
   "agilent_gpl23389": {
     "name": "agilent_gpl23389",
-    "id": "199",
+    "id": "249",
     "url": ""
   },
   "agilent_gpl6848": {
     "name": "agilent_gpl6848",
-    "id": "200",
+    "id": "250",
     "url": ""
   },
   "agilent_gpl7244": {
     "name": "agilent_gpl7244",
-    "id": "201",
+    "id": "251",
     "url": ""
   },
   "agilent_gpl7301": {
     "name": "agilent_gpl7301",
-    "id": "202",
+    "id": "252",
     "url": ""
   },
   "agilent_gpl7302": {
     "name": "agilent_gpl7302",
-    "id": "203",
+    "id": "253",
     "url": ""
   },
   "agilent_gpl7735": {
     "name": "agilent_gpl7735",
-    "id": "204",
+    "id": "254",
     "url": ""
   },
   "agilent_gpl7801": {
     "name": "agilent_gpl7801",
-    "id": "205",
+    "id": "255",
     "url": ""
   },
   "agilent_gpl8304": {
     "name": "agilent_gpl8304",
-    "id": "206",
+    "id": "256",
     "url": ""
   },
   "agilent_gpl9060": {
     "name": "agilent_gpl9060",
-    "id": "207",
+    "id": "257",
     "url": ""
   },
   "agilent_gpl9074": {
     "name": "agilent_gpl9074",
-    "id": "208",
+    "id": "258",
     "url": ""
   },
   "agilent_sureprint_g3_ge_8x60k": {
     "name": "agilent_sureprint_g3_ge_8x60k",
-    "id": "209",
+    "id": "259",
     "url": ""
   },
   "agilent_sureprint_g3_ge_8x60k_v2": {
     "name": "agilent_sureprint_g3_ge_8x60k_v2",
-    "id": "210",
+    "id": "260",
     "url": ""
   },
   "agilent_sureprint_gpl7083_4x44k": {
     "name": "agilent_sureprint_gpl7083_4x44k",
-    "id": "211",
+    "id": "261",
     "url": ""
   },
   "agilent_sureprnt_gpl16709_4x44k": {
     "name": "agilent_sureprnt_gpl16709_4x44k",
-    "id": "212",
+    "id": "262",
     "url": ""
   },
   "agilent_wholegenome": {
     "name": "agilent_wholegenome",
-    "id": "213",
+    "id": "263",
     "url": ""
   },
   "agilent_wholegenome_4x44k": {
     "name": "agilent_wholegenome_4x44k",
-    "id": "214",
+    "id": "264",
     "url": ""
   },
   "agilent_wholegenome_4x44k_v1": {
     "name": "agilent_wholegenome_4x44k_v1",
-    "id": "215",
+    "id": "265",
     "url": ""
   },
   "agilent_wholegenome_4x44k_v2": {
     "name": "agilent_wholegenome_4x44k_v2",
-    "id": "216",
+    "id": "266",
     "url": ""
   },
   "agilent_wholegenome_4x44k_v3": {
     "name": "agilent_wholegenome_4x44k_v3",
-    "id": "217",
+    "id": "267",
     "url": ""
   },
   "codelink_codelink": {
     "name": "codelink_codelink",
-    "id": "218",
+    "id": "268",
     "url": ""
   },
   "illumina_humanht_12_v3": {
     "name": "illumina_humanht_12_v3",
-    "id": "219",
+    "id": "269",
     "url": ""
   },
   "illumina_humanht_12_v4": {
     "name": "illumina_humanht_12_v4",
-    "id": "220",
+    "id": "270",
     "url": ""
   },
   "illumina_humanref_8_v3": {
     "name": "illumina_humanref_8_v3",
-    "id": "221",
+    "id": "271",
     "url": ""
   },
   "illumina_humanwg_6_v1": {
     "name": "illumina_humanwg_6_v1",
-    "id": "222",
+    "id": "272",
     "url": ""
   },
   "illumina_humanwg_6_v2": {
     "name": "illumina_humanwg_6_v2",
-    "id": "223",
+    "id": "273",
     "url": ""
   },
   "illumina_humanwg_6_v3": {
     "name": "illumina_humanwg_6_v3",
-    "id": "224",
+    "id": "274",
     "url": ""
   },
   "illumina_mouseref_8": {
     "name": "illumina_mouseref_8",
-    "id": "225",
+    "id": "275",
     "url": ""
   },
   "illumina_mousewg_6_v1": {
     "name": "illumina_mousewg_6_v1",
-    "id": "226",
+    "id": "276",
     "url": ""
   },
   "illumina_mousewg_6_v2": {
     "name": "illumina_mousewg_6_v2",
-    "id": "227",
+    "id": "277",
     "url": ""
   },
   "illumina_ratref_12_v1": {
     "name": "illumina_ratref_12_v1",
-    "id": "228",
+    "id": "278",
     "url": ""
   },
   "leiden_leiden2": {
     "name": "leiden_leiden2",
-    "id": "229",
+    "id": "279",
     "url": ""
   },
   "leiden_leiden3": {
     "name": "leiden_leiden3",
-    "id": "230",
+    "id": "280",
     "url": ""
   },
   "nimblegen_gpl10076": {
     "name": "nimblegen_gpl10076",
-    "id": "231",
+    "id": "281",
     "url": ""
   },
   "nimblegen_gpl10392": {
     "name": "nimblegen_gpl10392",
-    "id": "232",
+    "id": "282",
     "url": ""
   },
   "nimblegen_gpl13318": {
     "name": "nimblegen_gpl13318",
-    "id": "233",
+    "id": "283",
     "url": ""
   },
   "nimblegen_gpl13762": {
     "name": "nimblegen_gpl13762",
-    "id": "234",
+    "id": "284",
     "url": ""
   },
   "nimblegen_gpl13784": {
     "name": "nimblegen_gpl13784",
-    "id": "235",
+    "id": "285",
     "url": ""
   },
   "nimblegen_gpl14375": {
     "name": "nimblegen_gpl14375",
-    "id": "236",
+    "id": "286",
     "url": ""
   },
   "nimblegen_gpl14562": {
     "name": "nimblegen_gpl14562",
-    "id": "237",
+    "id": "287",
     "url": ""
   },
   "nimblegen_gpl14607": {
     "name": "nimblegen_gpl14607",
-    "id": "238",
+    "id": "288",
     "url": ""
   },
   "nimblegen_gpl14994": {
     "name": "nimblegen_gpl14994",
-    "id": "239",
+    "id": "289",
     "url": ""
   },
   "nimblegen_gpl17210": {
     "name": "nimblegen_gpl17210",
-    "id": "240",
+    "id": "290",
     "url": ""
   },
   "nimblegen_gpl21301": {
     "name": "nimblegen_gpl21301",
-    "id": "241",
+    "id": "291",
     "url": ""
   },
   "nimblegen_gpl21560": {
     "name": "nimblegen_gpl21560",
-    "id": "242",
+    "id": "292",
     "url": ""
   },
   "nimblegen_gpl22527": {
     "name": "nimblegen_gpl22527",
-    "id": "243",
+    "id": "293",
     "url": ""
   },
   "nimblegen_gpl7338": {
     "name": "nimblegen_gpl7338",
-    "id": "244",
+    "id": "294",
     "url": ""
   },
   "nimblegen_gpl8673": {
     "name": "nimblegen_gpl8673",
-    "id": "245",
+    "id": "295",
     "url": ""
   },
   "nimblegen_nimblegen_13k": {
     "name": "nimblegen_nimblegen_13k",
-    "id": "246",
+    "id": "296",
     "url": ""
   },
   "phalanx_onearray": {
     "name": "phalanx_onearray",
-    "id": "247",
+    "id": "297",
     "url": ""
   },
   "slri_gpl3518": {
     "name": "slri_gpl3518",
-    "id": "248",
+    "id": "298",
     "url": ""
   },
   "ucsf_gpl9450": {
     "name": "ucsf_gpl9450",
-    "id": "249",
+    "id": "299",
     "url": ""
   },
   "wustl_wustl_c_elegans": {
     "name": "wustl_wustl_c_elegans",
-    "id": "250",
+    "id": "300",
     "url": ""
   },
   "affy_aragene": {
     "name": "affy_aragene",
-    "id": "251",
+    "id": "301",
     "url": ""
   },
   "affy_ath1_121501": {
     "name": "affy_ath1_121501",
-    "id": "252",
+    "id": "302",
     "url": ""
   },
   "affy_barley1": {
     "name": "affy_barley1",
-    "id": "253",
+    "id": "303",
     "url": ""
   },
   "affy_cotton": {
     "name": "affy_cotton",
-    "id": "254",
+    "id": "304",
     "url": ""
   },
   "affy_gpl16720": {
     "name": "affy_gpl16720",
-    "id": "255",
+    "id": "305",
     "url": ""
   },
   "affy_maize": {
     "name": "affy_maize",
-    "id": "256",
+    "id": "306",
     "url": ""
   },
   "affy_medgene": {
     "name": "affy_medgene",
-    "id": "257",
+    "id": "307",
     "url": ""
   },
   "affy_medicago": {
     "name": "affy_medicago",
-    "id": "258",
+    "id": "308",
     "url": ""
   },
   "affy_poplar": {
     "name": "affy_poplar",
-    "id": "259",
+    "id": "309",
     "url": ""
   },
   "affy_rcngene": {
     "name": "affy_rcngene",
-    "id": "260",
+    "id": "310",
     "url": ""
   },
   "affy_rice": {
     "name": "affy_rice",
-    "id": "261",
+    "id": "311",
     "url": ""
   },
   "affy_rjpgene": {
     "name": "affy_rjpgene",
-    "id": "262",
+    "id": "312",
     "url": ""
   },
   "affy_soybean": {
     "name": "affy_soybean",
-    "id": "263",
+    "id": "313",
     "url": ""
   },
   "affy_soygene": {
     "name": "affy_soygene",
-    "id": "264",
+    "id": "314",
     "url": ""
   },
   "affy_tomato": {
     "name": "affy_tomato",
-    "id": "265",
+    "id": "315",
     "url": ""
   },
   "affy_tomgene": {
     "name": "affy_tomgene",
-    "id": "266",
+    "id": "316",
     "url": ""
   },
   "affy_vitis_vinifera": {
     "name": "affy_vitis_vinifera",
-    "id": "267",
+    "id": "317",
     "url": ""
   },
   "affy_wheat": {
     "name": "affy_wheat",
-    "id": "268",
+    "id": "318",
     "url": ""
   },
   "agilent_g2519f_015058": {
     "name": "agilent_g2519f_015058",
-    "id": "269",
+    "id": "319",
     "url": ""
   },
   "agilent_g2519f_015059": {
     "name": "agilent_g2519f_015059",
-    "id": "270",
+    "id": "320",
     "url": ""
   },
   "agilent_g2519f_015241": {
     "name": "agilent_g2519f_015241",
-    "id": "271",
+    "id": "321",
     "url": ""
   },
   "agilent_g2519f_016047": {
     "name": "agilent_g2519f_016047",
-    "id": "272",
+    "id": "322",
     "url": ""
   },
   "agilent_g2519f_016772": {
     "name": "agilent_g2519f_016772",
-    "id": "273",
+    "id": "323",
     "url": ""
   },
   "agilent_g2519f_021113": {
     "name": "agilent_g2519f_021113",
-    "id": "274",
+    "id": "324",
     "url": ""
   },
   "agilent_g2519f_021169": {
     "name": "agilent_g2519f_021169",
-    "id": "275",
+    "id": "325",
     "url": ""
   },
   "agilent_g2519f_021623": {
     "name": "agilent_g2519f_021623",
-    "id": "276",
+    "id": "326",
     "url": ""
   },
   "agilent_g2519f_022270": {
     "name": "agilent_g2519f_022270",
-    "id": "277",
+    "id": "327",
     "url": ""
   },
   "agilent_g2519f_022297": {
     "name": "agilent_g2519f_022297",
-    "id": "278",
+    "id": "328",
     "url": ""
   },
   "agilent_g2519f_022520": {
     "name": "agilent_g2519f_022520",
-    "id": "279",
+    "id": "329",
     "url": ""
   },
   "agilent_g2519f_022523": {
     "name": "agilent_g2519f_022523",
-    "id": "280",
+    "id": "330",
     "url": ""
   },
   "agilent_g2519f_022524": {
     "name": "agilent_g2519f_022524",
-    "id": "281",
+    "id": "331",
     "url": ""
   },
   "agilent_g4136a_011839": {
     "name": "agilent_g4136a_011839",
-    "id": "282",
+    "id": "332",
     "url": ""
   },
   "agilent_g4136b_013324": {
     "name": "agilent_g4136b_013324",
-    "id": "283",
+    "id": "333",
     "url": ""
   },
   "agilent_g4138a_012106": {
     "name": "agilent_g4138a_012106",
-    "id": "284",
+    "id": "334",
     "url": ""
   },
   "agilent_g4142a_012600": {
     "name": "agilent_g4142a_012600",
-    "id": "285",
+    "id": "335",
     "url": ""
   },
   "catma_catma_v5": {
     "name": "catma_catma_v5",
-    "id": "286",
+    "id": "336",
     "url": ""
   },
   "nsf_bgiyale": {
     "name": "nsf_bgiyale",
-    "id": "287",
+    "id": "337",
     "url": ""
   },
   "nsf_nsf20k": {
     "name": "nsf_nsf20k",
-    "id": "288",
+    "id": "338",
     "url": ""
   },
   "nsf_nsf45k": {
     "name": "nsf_nsf45k",
-    "id": "289",
+    "id": "339",
     "url": ""
   },
   "gochild": {
     "name": "GO Child",
-    "id": "290",
-    "url": "https://www.ebi.ac.uk/QuickGO/term/£{id}",
+    "id": "340",
+    "url": "https://www.ebi.ac.uk/QuickGO/term/\u00a3{id}",
     "linkdataset": "go",
     "hasFilter": "yes",
     "attrs": "type,name,[]synonyms"
   },
   "goparent": {
     "name": "GO Parent",
-    "id": "291",
-    "url": "https://www.ebi.ac.uk/QuickGO/term/£{id}",
+    "id": "341",
+    "url": "https://www.ebi.ac.uk/QuickGO/term/\u00a3{id}",
     "linkdataset": "go",
     "hasFilter": "yes",
     "attrs": "type,name,[]synonyms"
   },
   "efochild": {
     "name": "EFO Child",
-    "id": "292",
-    "url": "http://www.ebi.ac.uk/efo/£{id}",
+    "id": "342",
+    "url": "http://www.ebi.ac.uk/efo/\u00a3{id}",
     "linkdataset": "efo",
     "hasFilter": "yes",
     "attrs": "type,name,[]synonyms"
   },
   "efoparent": {
     "name": "EFO Parent",
-    "id": "293",
-    "url": "http://www.ebi.ac.uk/efo/£{id}",
+    "id": "343",
+    "url": "http://www.ebi.ac.uk/efo/\u00a3{id}",
     "linkdataset": "efo",
     "hasFilter": "yes",
     "attrs": "type,name,[]synonyms"
@@ -1376,109 +1376,109 @@
   "cds": {
     "aliases": "eprotein",
     "name": "CDS",
-    "id": "294",
-    "url": "https://www.ensembl.org/Multi/Search/Results?q=£{id};site=ensembl_all",
+    "id": "344",
+    "url": "https://www.ensembl.org/Multi/Search/Results?q=\u00a3{id};site=ensembl_all",
     "hasFilter": "yes",
     "attrs": "start,end,strand,seq_region,frame"
   },
   "affy_unibasa_gossypiisysyng001a": {
     "name": "affy_unibasa_gossypiisysyng001a",
-    "id": "295",
+    "id": "345",
     "url": ""
   },
   "ecochild": {
     "name": "ECO Child",
-    "id": "296",
-    "url": "https://www.ebi.ac.uk/QuickGO/term/£{id}",
+    "id": "346",
+    "url": "https://www.ebi.ac.uk/QuickGO/term/\u00a3{id}",
     "linkdataset": "eco",
     "hasFilter": "yes",
     "attrs": "type,name,[]synonyms"
   },
   "ecoparent": {
     "name": "ECO Parent",
-    "id": "297",
-    "url": "https://www.ebi.ac.uk/QuickGO/term/£{id}",
+    "id": "347",
+    "url": "https://www.ebi.ac.uk/QuickGO/term/\u00a3{id}",
     "linkdataset": "eco",
     "hasFilter": "yes",
     "attrs": "type,name,[]synonyms"
   },
   "agilent_gpl26966": {
     "name": "agilent_gpl26966",
-    "id": "298",
+    "id": "348",
     "url": ""
   },
   "affy_hugene_2_1_st_v1": {
     "name": "affy_hugene_2_1_st_v1",
-    "id": "299",
+    "id": "349",
     "url": ""
   },
   "affy_ht_hg_u133_plus_pm": {
     "name": "affy_ht_hg_u133_plus_pm",
-    "id": "300",
+    "id": "350",
     "url": ""
   },
   "agilent_gpl19072": {
     "name": "agilent_gpl19072",
-    "id": "301",
+    "id": "351",
     "url": ""
   },
   "patent_compound": {
     "name": "Patent Compound",
-    "id": "302",
+    "id": "352",
     "url": "",
     "linkdataset": "chembl_molecule",
     "hasFilter": "yes"
   },
   "patent_family": {
     "name": "Patent Family",
-    "id": "303",
+    "id": "353",
     "url": "",
     "hasFilter": "yes"
   },
   "mondochild": {
     "name": "MONDO Child",
-    "id": "304",
-    "url": "https://monarchinitiative.org/disease/£{id}",
+    "id": "354",
+    "url": "https://monarchinitiative.org/disease/\u00a3{id}",
     "linkdataset": "mondo",
     "hasFilter": "yes",
     "attrs": "type,name,[]synonyms"
   },
   "mondoparent": {
     "name": "MONDO Parent",
-    "id": "305",
-    "url": "https://monarchinitiative.org/disease/£{id}",
+    "id": "355",
+    "url": "https://monarchinitiative.org/disease/\u00a3{id}",
     "linkdataset": "mondo",
     "hasFilter": "yes",
     "attrs": "type,name,[]synonyms"
   },
   "reactomeparent": {
     "name": "Reactome Parent",
-    "id": "306",
-    "url": "https://reactome.org/content/detail/£{id}",
+    "id": "356",
+    "url": "https://reactome.org/content/detail/\u00a3{id}",
     "linkdataset": "reactome",
     "hasFilter": "yes",
     "attrs": "name,tax_id"
   },
   "reactomechild": {
     "name": "Reactome Child",
-    "id": "307",
-    "url": "https://reactome.org/content/detail/£{id}",
+    "id": "357",
+    "url": "https://reactome.org/content/detail/\u00a3{id}",
     "linkdataset": "reactome",
     "hasFilter": "yes",
     "attrs": "name,tax_id"
   },
   "hpoparent": {
     "name": "HPO Parent",
-    "id": "308",
-    "url": "https://hpo.jax.org/browse/term/£{id}",
+    "id": "358",
+    "url": "https://hpo.jax.org/browse/term/\u00a3{id}",
     "linkdataset": "hpo",
     "hasFilter": "yes",
     "attrs": "name,[]synonyms,definition"
   },
   "hpochild": {
     "name": "HPO Child",
-    "id": "309",
-    "url": "https://hpo.jax.org/browse/term/£{id}",
+    "id": "359",
+    "url": "https://hpo.jax.org/browse/term/\u00a3{id}",
     "linkdataset": "hpo",
     "hasFilter": "yes",
     "attrs": "name,[]synonyms,definition"

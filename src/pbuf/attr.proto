@@ -401,4 +401,14 @@ message StringInteraction {
   bool has_coexpression =6;
 }
 
+message AlphaFoldAttr {
+  double global_metric =1;                  // Average pLDDT score for the entire structure
+  double fraction_pldddt_very_high =2;      // Fraction of residues with pLDDT > 90
+  double fraction_pldddt_confident =3;      // Fraction of residues with pLDDT between 70-90
+  double fraction_pldddt_low =4;            // Fraction of residues with pLDDT between 50-70
+  double fraction_pldddt_very_low =5;       // Fraction of residues with pLDDT < 50
+  string model_entity_id =6;                // AlphaFold model identifier (e.g., AF-Q9Y6K9-F1)
+  string gene =7;                           // Gene symbol
+}
+
 

@@ -344,5 +344,16 @@
     "hasFilter": "yes",
     "attrs": "name,[]synonyms,definition",
     "test_entries_count": "100"
+  },
+  "alphafold": {
+    "aliases": "AlphaFold,AlphaFold DB",
+    "id": "30",
+    "name": "AlphaFold",
+    "url": "https://alphafold.ebi.ac.uk/entry/£{id}",
+    "path": "https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/swissprot_pdb_v6.tar",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "global_metric,fraction_pldddt_very_high,fraction_pldddt_confident,fraction_pldddt_low,fraction_pldddt_very_low,model_entity_id,gene",
+    "test_entries_count": "20"
   }
 }

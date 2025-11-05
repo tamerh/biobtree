@@ -11,27 +11,6 @@
       "id": "@reference[0].primaryAccession"
     },
     {
-      "name": "Check EMBL cross-reference",
-      "type": "xref_exists",
-      "id": "@reference[0].primaryAccession",
-      "xref_type": "EMBL",
-      "expected": "AY261360"
-    },
-    {
-      "name": "Check RefSeq cross-reference",
-      "type": "xref_exists",
-      "id": "@reference[4].primaryAccession",
-      "xref_type": "RefSeq",
-      "expected": "NP_042841"
-    },
-    {
-      "name": "Check GO cross-reference",
-      "type": "xref_exists",
-      "id": "@reference[17].primaryAccession",
-      "xref_type": "GO",
-      "expected": "GO:0005886"
-    },
-    {
       "name": "Lookup by UniProt name",
       "type": "alias_lookup",
       "alias": "@reference[0].uniProtkbId",

@@ -153,6 +153,14 @@ Common patterns defined in `test_cases.json`:
 ### Custom (Python)
 Dataset-specific tests using `@test` decorator. Full access to TestRunner API for complex logic.
 
+**Helper Methods** (cross-reference validation):
+- `runner.get_xrefs(result, "taxonomy")` - Get xrefs filtered by dataset name
+- `runner.has_xref(result, "ensembl", "ENSG00000139618")` - Check if xref exists
+- `runner.get_xref_count(result, "go")` - Count xrefs for dataset
+- `runner.get_xref_datasets(result)` - List all dataset names with xrefs
+
+Dataset names are case-insensitive and support aliases (dynamically loaded from config files).
+
 ### Reference Value Resolution
 Use `@reference[index].field` in JSON tests to reference `reference_data.json` values
 

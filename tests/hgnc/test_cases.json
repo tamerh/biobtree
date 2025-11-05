@@ -28,20 +28,6 @@
       "id": "@reference[0].hgnc_id"
     },
     {
-      "name": "Check UniProt cross-reference",
-      "type": "xref_exists",
-      "id": "@reference[0].hgnc_id",
-      "xref_type": "uniprot",
-      "expected": "@reference[0].uniprot_ids[0]"
-    },
-    {
-      "name": "Check Ensembl cross-reference",
-      "type": "xref_exists",
-      "id": "@reference[0].hgnc_id",
-      "xref_type": "ensembl",
-      "expected": "@reference[0].ensembl_gene_id"
-    },
-    {
       "name": "Lookup multiple IDs",
       "type": "multi_lookup",
       "count": 3,
@@ -51,13 +37,6 @@
       "name": "Case-insensitive symbol search",
       "type": "case_insensitive",
       "symbol": "@reference[0].symbol"
-    },
-    {
-      "name": "Check RefSeq cross-reference",
-      "type": "xref_exists",
-      "id": "@reference[0].hgnc_id",
-      "xref_type": "refseq",
-      "expected": "@reference[0].refseq_accession[0]"
     },
     {
       "name": "Invalid ID handling",

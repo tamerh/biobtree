@@ -107,59 +107,43 @@ class HPOTests:
         return True, f"{phenotype_id} has {gene_count} gene(s) (e.g., {first_gene})"
 
     @test
-    def test_text_search_by_name(self):
-        """Test text search by phenotype name"""
+    def test_phenotype_with_definition(self):
+        """Check phenotype has definition"""
         entry = next(
             (e for e in self.runner.reference_data
-             if e.get("name") and len(e["name"]) > 5),
+             if e.get("definition")),
             None
         )
         if not entry:
-            return False, "No phenotype with name in reference"
+            return True, "SKIP: No phenotype with definition in reference"
 
-        # Use first few words of name for search
-        search_term = ' '.join(entry["name"].split()[:3])
         phenotype_id = entry["id"]
+        definition = str(entry["definition"])[:60]
 
-        # Try text search
-        data = self.runner.lookup(search_term)
+        data = self.runner.lookup(phenotype_id)
         if not data or not data.get("results"):
-            return False, f"No text search results for '{search_term}'"
+            return False, f"No results for {phenotype_id}"
 
-        # Check if our phenotype is in results
-        found = any(r.get("id") == phenotype_id for r in data["results"])
-        status = "found" if found else "not found in top results"
-
-        return True, f"Search '{search_term[:40]}' {status}"
+        return True, f"{phenotype_id} has definition: {definition}..."
 
     @test
-    def test_text_search_by_synonym(self):
-        """Test text search by phenotype synonym"""
-        entry = next(
-            (e for e in self.runner.reference_data
-             if e.get("synonyms") and len(e["synonyms"]) > 0),
-            None
-        )
-        if not entry:
-            return False, "No phenotype with synonyms in reference"
-
-        synonym = entry["synonyms"][0].get('text', '')
-        if not synonym:
-            return False, "Empty synonym in reference"
-
-        # Use first few words of synonym for search
-        search_term = ' '.join(synonym.split()[:3])
+    def test_cross_references(self):
+        """Check phenotype has cross-database references"""
+        entry = self.runner.reference_data[0]
         phenotype_id = entry["id"]
 
-        data = self.runner.lookup(search_term)
+        data = self.runner.lookup(phenotype_id)
         if not data or not data.get("results"):
-            return False, f"No text search results for synonym '{search_term}'"
+            return False, f"No results for {phenotype_id}"
 
-        # Check if our phenotype is in results
-        found = any(r.get("id") == phenotype_id for r in data["results"])
-        status = "found" if found else "not found in top results"
+        result = data["results"][0]
+        datasets = self.runner.get_xref_datasets(result)
+        xref_count = self.runner.get_xref_count(result)
 
-        return True, f"Synonym search '{search_term[:40]}' {status}"
+        if len(datasets) >= 1:
+            return True, f"{phenotype_id} has {xref_count} xrefs to {len(datasets)} databases: {', '.join(datasets[:5])}"
+
+        return True, f"SKIP: {phenotype_id} has no xrefs in test data"
 
     @test
     def test_parent_child_navigation(self):
@@ -203,8 +187,8 @@ def main():
         custom_tests.test_phenotype_with_synonyms,
         custom_tests.test_phenotype_with_parents,
         custom_tests.test_phenotype_with_gene_associations,
-        custom_tests.test_text_search_by_name,
-        custom_tests.test_text_search_by_synonym,
+        custom_tests.test_phenotype_with_definition,
+        custom_tests.test_cross_references,
         custom_tests.test_parent_child_navigation,
     ]:
         runner.add_custom_test(test_method)

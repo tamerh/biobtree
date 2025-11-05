@@ -136,13 +136,11 @@ class UniProtTests:
 
         result = data["results"][0]
 
-        # Check if entry has cross-references (entries field)
-        if result.get("count", 0) > 0 and result.get("entries"):
-            taxonomy_entries = [x for x in result["entries"] if x.get("dataset") == 3]
-            if taxonomy_entries and taxonomy_entries[0].get("identifier") == taxon_id:
-                return True, f"{uniprot_id} → taxonomy:{taxon_id}"
+        # Use new helper method - much cleaner!
+        if self.runner.has_xref(result, "taxonomy", taxon_id):
+            return True, f"{uniprot_id} → taxonomy:{taxon_id}"
 
-        return True, f"SKIP: {uniprot_id} taxonomy xref not validated (entries format may vary)"
+        return True, f"SKIP: {uniprot_id} taxonomy xref not validated"
 
     @test
     def test_ensembl_xref(self):
@@ -165,11 +163,15 @@ class UniProtTests:
 
         result = data["results"][0]
 
-        # Check if entry has Ensembl cross-references
-        if result.get("count", 0) > 0 and result.get("entries"):
-            ensembl_entries = [x for x in result["entries"] if x.get("dataset") == 2]  # dataset 2 = ensembl
-            if ensembl_entries:
-                return True, f"{uniprot_id} → ensembl:{ensembl_entries[0].get('identifier')} (and {len(ensembl_entries)-1} more)"
+        # Use new helper methods - much cleaner!
+        if self.runner.has_xref(result, "ensembl"):
+            ensembl_xrefs = self.runner.get_xrefs(result, "ensembl")
+            ensembl_id = ensembl_xrefs[0].get('identifier')
+            count = len(ensembl_xrefs)
+            if count > 1:
+                return True, f"{uniprot_id} → ensembl:{ensembl_id} (and {count-1} more)"
+            else:
+                return True, f"{uniprot_id} → ensembl:{ensembl_id}"
 
         return True, f"SKIP: {uniprot_id} Ensembl xref not validated"
 
@@ -218,11 +220,10 @@ class UniProtTests:
 
         result = data["results"][0]
 
-        # Check if entry has feature cross-references
-        if result.get("count", 0) > 0 and result.get("entries"):
-            feature_entries = [x for x in result["entries"] if x.get("dataset") == 72]
-            if feature_entries:
-                return True, f"{uniprot_id} has {len(feature_entries)} feature(s): {', '.join(list(feature_types)[:3])}"
+        # Use new helper method - much cleaner!
+        if self.runner.has_xref(result, "ufeature"):
+            feature_count = self.runner.get_xref_count(result, "ufeature")
+            return True, f"{uniprot_id} has {feature_count} feature(s): {', '.join(list(feature_types)[:3])}"
 
         return True, f"SKIP: {uniprot_id} feature xrefs not validated"
 
@@ -247,13 +248,12 @@ class UniProtTests:
 
         result = data["results"][0]
 
-        # Check count and dataset_counts for variety
-        xref_count = result.get("count", 0)
-        if xref_count >= 2:
-            dataset_counts = result.get("dataset_counts", [])
-            num_datasets = len(dataset_counts)
-            if num_datasets >= 2:
-                return True, f"{uniprot_id} has {num_datasets} xref types ({xref_count} total xrefs)"
+        # Use new helper methods - one line instead of 5!
+        datasets = self.runner.get_xref_datasets(result)
+        xref_count = self.runner.get_xref_count(result)
+
+        if len(datasets) >= 2:
+            return True, f"{uniprot_id} has {len(datasets)} xref types ({xref_count} total): {', '.join(datasets[:5])}"
 
         return True, f"SKIP: {uniprot_id} has limited xrefs in test data"
 

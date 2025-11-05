@@ -8,6 +8,61 @@ Each test type is a class that knows how to execute a specific type of test.
 
 from typing import Dict, Any, Tuple, Optional
 import requests
+import json
+from pathlib import Path
+
+
+def _load_dataset_mappings():
+    """
+    Load dataset name-to-ID mappings from configuration files.
+
+    This is a simplified version for use in test_types.py.
+    Returns name_to_id and aliases_to_id dictionaries.
+    """
+    conf_dir = Path(__file__).parent.parent.parent / "conf"
+
+    name_to_id = {}
+    aliases_to_id = {}
+
+    config_files = [
+        conf_dir / "source.dataset.json",
+        conf_dir / "default.dataset.json",
+        conf_dir / "optional.dataset.json"
+    ]
+
+    for config_file in config_files:
+        if not config_file.exists():
+            continue
+
+        try:
+            with open(config_file) as f:
+                datasets = json.load(f)
+
+            for dataset_name, config in datasets.items():
+                dataset_id = int(config.get("id", 0))
+
+                if dataset_id == 0:
+                    continue
+
+                # Store primary name (lowercase)
+                name_to_id[dataset_name.lower()] = dataset_id
+
+                # Store aliases (lowercase)
+                if "aliases" in config:
+                    aliases = config["aliases"].split(",")
+                    for alias in aliases:
+                        alias = alias.strip().lower()
+                        if alias:
+                            aliases_to_id[alias] = dataset_id
+
+        except Exception:
+            continue
+
+    return name_to_id, aliases_to_id
+
+
+# Load dataset mappings once at module level
+_DATASET_NAME_TO_ID, _DATASET_ALIASES_TO_ID = _load_dataset_mappings()
 
 
 class BaseTest:
@@ -145,13 +200,40 @@ class XrefExistsTest(BaseTest):
         if not data.get("results"):
             return False, f"No results for {entry_id}"
 
-        # For now, just verify the entry was found
-        # In the future, we can validate the actual xref exists
-        msg = f"{entry_id} → expects {xref_type}"
-        if expected_xref:
-            msg += f" {expected_xref}"
+        result = data["results"][0]
+        entries = result.get("entries", [])
 
-        return True, msg
+        # Get dataset ID for this xref type (case-insensitive)
+        xref_type_lower = xref_type.lower() if xref_type else None
+        dataset_id = None
+
+        if xref_type_lower:
+            # Try direct name lookup first
+            dataset_id = _DATASET_NAME_TO_ID.get(xref_type_lower)
+
+            # If not found, try aliases
+            if dataset_id is None:
+                dataset_id = _DATASET_ALIASES_TO_ID.get(xref_type_lower)
+
+        if dataset_id is None:
+            return False, f"Unknown xref type: {xref_type}"
+
+        # Find xrefs for this dataset
+        xrefs = [x for x in entries if x.get("dataset") == dataset_id]
+
+        if not xrefs:
+            return False, f"{entry_id} missing {xref_type} xref"
+
+        # If specific identifier expected, validate it
+        if expected_xref:
+            found = any(x.get("identifier") == str(expected_xref) for x in xrefs)
+            if not found:
+                xref_ids = [x.get("identifier") for x in xrefs[:3]]
+                return False, f"{entry_id} missing {xref_type}:{expected_xref} (found: {', '.join(xref_ids)})"
+            return True, f"{entry_id} → {xref_type}:{expected_xref} ✓"
+
+        # Otherwise just confirm xref type exists
+        return True, f"{entry_id} → {xref_type} ({len(xrefs)} xrefs) ✓"
 
 
 class AttributeCheckTest(BaseTest):

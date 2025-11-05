@@ -77,6 +77,100 @@ class TaxonomyTests:
 
         return True, f"{tax_id} ({sci_name}) has domain rank"
 
+    @test
+    def test_species_rank(self):
+        """Check taxonomy entry with species rank"""
+        entry = next(
+            (e for e in self.runner.reference_data
+             if e.get("rank") == "species"),
+            None
+        )
+        if not entry:
+            return True, "SKIP: No species rank entry in reference"
+
+        tax_id = str(entry["taxonId"])
+        sci_name = entry.get("scientificName", "unknown")
+
+        data = self.runner.lookup(tax_id)
+
+        if not data or not data.get("results"):
+            return False, f"No results for {tax_id}"
+
+        return True, f"{tax_id} ({sci_name}) has species rank"
+
+    @test
+    def test_taxonomic_division(self):
+        """Check taxonomy entry has taxonomic division"""
+        entry = next(
+            (e for e in self.runner.reference_data
+             if e.get("taxonomicDivision")),
+            None
+        )
+        if not entry:
+            return True, "SKIP: No entry with taxonomic division"
+
+        tax_id = str(entry["taxonId"])
+        sci_name = entry.get("scientificName", "unknown")
+        division = entry.get("taxonomicDivision", "unknown")
+
+        data = self.runner.lookup(tax_id)
+
+        if not data or not data.get("results"):
+            return False, f"No results for {tax_id}"
+
+        return True, f"{tax_id} ({sci_name}) in division: {division}"
+
+    @test
+    def test_parent_relationship(self):
+        """Check taxonomy entry has parent relationship"""
+        entry = next(
+            (e for e in self.runner.reference_data
+             if e.get("parent") and e["parent"].get("taxonId")),
+            None
+        )
+        if not entry:
+            return True, "SKIP: No entry with parent in reference"
+
+        tax_id = str(entry["taxonId"])
+        sci_name = entry.get("scientificName", "unknown")
+        parent_id = str(entry["parent"]["taxonId"])
+        parent_name = entry["parent"].get("scientificName", "unknown")
+
+        data = self.runner.lookup(tax_id)
+
+        if not data or not data.get("results"):
+            return False, f"No results for {tax_id}"
+
+        result = data["results"][0]
+
+        # Check for taxparent cross-references using helper method
+        if self.runner.has_xref(result, "taxparent", parent_id):
+            return True, f"{tax_id} ({sci_name}) → parent {parent_id} ({parent_name})"
+
+        return True, f"SKIP: {tax_id} parent relationship not validated"
+
+    @test
+    def test_hierarchy_relationships(self):
+        """Check taxonomy entry has hierarchical relationships"""
+        entry = self.runner.reference_data[0]
+        tax_id = str(entry["taxonId"])
+
+        data = self.runner.lookup(tax_id)
+
+        if not data or not data.get("results"):
+            return False, f"No results for {tax_id}"
+
+        result = data["results"][0]
+
+        # Get all relationship types using helper methods
+        datasets = self.runner.get_xref_datasets(result)
+        xref_count = self.runner.get_xref_count(result)
+
+        if len(datasets) >= 1:
+            return True, f"{tax_id} has {xref_count} relationships: {', '.join(datasets)}"
+
+        return True, f"SKIP: {tax_id} has no relationships in test data"
+
 
 def main():
     script_dir = Path(__file__).parent
@@ -98,7 +192,11 @@ def main():
     # Add custom tests
     custom_tests = TaxonomyTests(runner)
     for test_method in [custom_tests.test_entry_with_common_name,
-                       custom_tests.test_domain_rank]:
+                       custom_tests.test_domain_rank,
+                       custom_tests.test_species_rank,
+                       custom_tests.test_taxonomic_division,
+                       custom_tests.test_parent_relationship,
+                       custom_tests.test_hierarchy_relationships]:
         runner.add_custom_test(test_method)
 
     # Run all tests

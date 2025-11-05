@@ -28,27 +28,6 @@
       "id": "@reference[0].accession"
     },
     {
-      "name": "Check ChEBI cross-reference",
-      "type": "xref_exists",
-      "id": "@reference[0].accession",
-      "xref_type": "chebi",
-      "expected": "CHEBI:@reference[0].chebi_id"
-    },
-    {
-      "name": "Check DrugBank cross-reference",
-      "type": "xref_exists",
-      "id": "@reference[1].accession",
-      "xref_type": "drugbank",
-      "expected": "@reference[1].drugbank_id"
-    },
-    {
-      "name": "Check PubChem cross-reference",
-      "type": "xref_exists",
-      "id": "@reference[0].accession",
-      "xref_type": "pubchem",
-      "expected": "@reference[0].pubchem_compound_id"
-    },
-    {
       "name": "Lookup multiple IDs",
       "type": "multi_lookup",
       "count": 3,

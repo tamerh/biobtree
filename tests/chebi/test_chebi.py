@@ -68,32 +68,40 @@ class ChEBITests:
         return (
             True,
             "ChEBI stores cross-references FROM ChEBI IDs TO other databases. "
-            "ChEBI IDs are not directly searchable in biobtree. "
+            "ChEBI IDs ARE searchable via bidirectional xrefs, but no compound metadata stored. "
             "Cross-references are stored on target database entries (UniProt, GO, etc.)."
         )
 
     @test
-    def test_chebi_id_not_searchable(self):
-        """Verify that ChEBI IDs are not directly searchable (expected behavior)"""
+    def test_chebi_id_no_metadata(self):
+        """Verify that ChEBI IDs return no metadata (expected for xref-only dataset)"""
         # Get a ChEBI ID from our test set
         script_dir = Path(__file__).parent
         id_file = script_dir / "chebi_ids.txt"
         with open(id_file, 'r') as f:
             chebi_id = f.readline().strip()
 
-        # Try to search for it - this SHOULD fail
+        # Query for it - may return xrefs (bidirectional) but no attributes
         data = self.runner.query.lookup(chebi_id)
 
         if data and data.get("results"):
+            # ChEBI ID found via bidirectional xrefs - this is expected
+            # But should have no compound attributes (name, formula, etc.)
+            result = data["results"][0]
+            if result.get("attributes"):
+                return (
+                    False,
+                    f"Unexpected: {chebi_id} has attributes. "
+                    "ChEBI xref-only dataset should not store compound metadata."
+                )
             return (
-                False,
-                f"Unexpected: {chebi_id} is directly searchable. "
-                "ChEBI should only store cross-references, not primary entries."
+                True,
+                f"{chebi_id} searchable via bidirectional xrefs but no metadata (expected)"
             )
 
         return (
             True,
-            f"{chebi_id} is not directly searchable (expected for cross-reference-only dataset)"
+            f"{chebi_id} not found in test DB (may be expected in isolated build)"
         )
 
     @test
@@ -172,7 +180,7 @@ def main():
     for test_method in [
         custom_tests.test_chebi_ids_logged,
         custom_tests.test_chebi_cross_reference_structure,
-        custom_tests.test_chebi_id_not_searchable,
+        custom_tests.test_chebi_id_no_metadata,
         custom_tests.test_sample_entries_for_chebi_xrefs
     ]:
         runner.add_custom_test(test_method)

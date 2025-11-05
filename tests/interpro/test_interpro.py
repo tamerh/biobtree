@@ -100,6 +100,49 @@ class InterProTests:
 
         return True, f"{interpro_id} has {db_count} member database(s): {', '.join(member_dbs[:3])}"
 
+    @test
+    def test_entry_with_short_name(self):
+        """Check InterPro entry has short name (searchable)"""
+        entry = next(
+            (e for e in self.runner.reference_data
+             if e.get("metadata", {}).get("name", {}).get("short")),
+            None
+        )
+        if not entry:
+            return True, "SKIP: No entry with short_name in reference"
+
+        interpro_id = entry["id"]
+        short_name = entry.get("metadata", {}).get("name", {}).get("short", "unknown")
+
+        data = self.runner.lookup(interpro_id)
+
+        if not data or not data.get("results"):
+            return False, f"No results for {interpro_id}"
+
+        return True, f"{interpro_id} has short name: {short_name}"
+
+    @test
+    def test_hierarchy_relationships(self):
+        """Check InterPro entry has hierarchical or cross-database relationships"""
+        entry = self.runner.reference_data[0]
+        interpro_id = entry["id"]
+
+        data = self.runner.lookup(interpro_id)
+
+        if not data or not data.get("results"):
+            return False, f"No results for {interpro_id}"
+
+        result = data["results"][0]
+
+        # Get all relationship types using helper methods
+        datasets = self.runner.get_xref_datasets(result)
+        xref_count = self.runner.get_xref_count(result)
+
+        if len(datasets) >= 1:
+            return True, f"{interpro_id} has {xref_count} xrefs to {len(datasets)} databases: {', '.join(datasets[:5])}"
+
+        return True, f"SKIP: {interpro_id} has no xrefs in test data"
+
 
 def main():
     script_dir = Path(__file__).parent
@@ -122,7 +165,9 @@ def main():
     custom_tests = InterProTests(runner)
     for test_method in [custom_tests.test_entry_with_type,
                        custom_tests.test_entry_with_protein_count,
-                       custom_tests.test_entry_with_member_databases]:
+                       custom_tests.test_entry_with_member_databases,
+                       custom_tests.test_entry_with_short_name,
+                       custom_tests.test_hierarchy_relationships]:
         runner.add_custom_test(test_method)
 
     # Run all tests

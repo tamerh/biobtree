@@ -198,6 +198,39 @@ Most parsers support test mode automatically. Add for new datasets:
 
 **ChEMBL Target**: Automatically includes chembl_target_component in build (dependency in run_tests.py)
 
+## Dataset README Guidelines
+
+Each dataset directory should include a `README.md` documenting dataset-specific information. The README should be **concise** and focus only on what makes the dataset unique.
+
+### What to Include (Dataset-Specific Only)
+
+✅ **Overview**: Brief description of the dataset and data source
+✅ **Integration Architecture**: Storage model, cross-references, special features (CRITICAL - this is the core unique content)
+✅ **Use Cases**: Biological/scientific scenarios enabled by this dataset integration (replace generic query examples)
+✅ **Test Cases**: Current tests and recommended additions
+✅ **Performance Notes**: Dataset sizes, processing times, special considerations
+✅ **Known Limitations**: Dataset-specific issues, disabled features, workarounds
+✅ **Future Work**: Potential enhancements specific to this dataset
+✅ **Maintenance**: Release frequency, update patterns (if unique to dataset)
+✅ **References**: Citation and license (no detailed links)
+
+### What to Exclude (Common to All Datasets)
+
+❌ **Files section**: Standard structure documented here
+❌ **Dataset statistics**: Test entry counts, file listings
+❌ **Extracting reference data**: Common workflow documented here
+❌ **Reference data format**: Available in reference_data.json file
+❌ **Building with test data**: Common commands documented here
+❌ **Query examples**: Use biological use cases instead
+❌ **Detailed reference links**: Just citation + license
+❌ **Maintenance procedures**: Common workflow unless dataset-specific
+
+### Example Structure
+
+See `tests/reactome/README.md` and `tests/uniprot/README.md` as reference templates.
+
+**Key Principle**: Keep it focused on what's special about this dataset. Avoid repeating information that applies to all datasets.
+
 ## Adding New Datasets
 
 1. Add `test_entries_count` to `conf/source.dataset.json`

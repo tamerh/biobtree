@@ -1,510 +1,622 @@
- If you want to add more datasets later, the biggest opportunities are:
-  1. OMIM - 10,038 xrefs (genetic disorders)
-  2. DOID - 11,866 xrefs (Disease Ontology)
-  3. GARD - 10,730 xrefs (rare diseases)
-  4. MESH - 8,378 xrefs (medical terminology)
-  5. NCIT - 7,550 xrefs (NCI Thesaurus)
-  
+# BiobtreeV2 Dataset Recommendations (2025)
 
-# BiobtreeV2 Dataset Expansion Recommendations
+This document provides a comprehensive analysis of potential datasets for integration into BiobtreeV2, based on recent bioinformatics literature (2024-2025 NAR Database Issues), biological knowledge graph research, and current biobtree capabilities.
 
-Based on research of current bioinformatics databases (2025 NAR Database Issue) and analysis of BiobtreeV2's existing capabilities, here are recommendations for high-value datasets to integrate.
-
-## Current BiobtreeV2 Datasets
-
-**Genomics & Proteomics:**
-- Ensembl (genomes, transcripts, genes)
-- UniProt (proteins)
-- Uniparc, Uniref
-- HGNC (human gene nomenclature)
-
-**Chemistry & Drug Discovery:**
-- ChEMBL (bioactivity data)
-- HMDB (human metabolome)
-- SureChEMBL (patents & compounds)
-
-**Ontologies & Taxonomy:**
-- GO (Gene Ontology)
-- EFO (Experimental Factor Ontology)
-- ECO (Evidence & Conclusion Ontology)
-- NCBI Taxonomy
+**Key Considerations:**
+- ✅ Open access/free academic use ONLY (biobtree will be commercial)
+- 🔗 Strong cross-references to existing biobtree datasets
+- 📊 Manageable data size and update frequency
+- 💡 High scientific value and query potential
 
 ---
 
-## Top Priority Datasets (⭐⭐⭐)
+## Currently Integrated Datasets (2025)
 
-### 1. STRING - Protein-Protein Interactions
+### Core Datasets
+| Dataset | Type | Status | Size | Description |
+|---------|------|--------|------|-------------|
+| **Ensembl** | Genomics | ✅ Integrated | Large | Genomes, genes, transcripts across species |
+| **UniProt** | Proteins | ✅ Integrated | Large | Protein sequences, annotations, features |
+| **Uniparc/Uniref** | Proteins | ✅ Integrated | Large | Protein sequence archives and clusters |
+| **HGNC** | Gene Nomenclature | ✅ Integrated | Small | Human gene symbols and nomenclature |
+| **ChEMBL** | Chemistry | ✅ Integrated | Large | Bioactivity data, drug-like molecules |
+| **HMDB** | Metabolomics | ✅ Integrated | Medium | Human metabolome compounds |
+| **SureChEMBL** | Patents | ✅ Integrated | Very Large | 43M+ patents, 30M+ compounds |
+| **ClinicalTrials.gov** | Clinical | ✅ Integrated | Medium | Trial metadata, interventions, conditions |
+| **Reactome** | Pathways | ✅ Integrated | Medium | 23K+ curated pathways, 16 species |
+| **STRING** | Interactions | ✅ Integrated | Large | Protein-protein interactions, 24M+ proteins |
+| **Mondo** | Disease Ontology | ✅ Integrated | Small | Unified disease ontology |
+| **HPO** | Phenotype Ontology | ✅ Integrated | Small | Human phenotypes, gene-phenotype associations |
+| **GO** | Ontology | ✅ Integrated | Medium | Gene Ontology terms |
+| **EFO** | Ontology | ✅ Integrated | Medium | Experimental Factor Ontology |
+| **ECO** | Ontology | ✅ Integrated | Small | Evidence & Conclusion Ontology |
+| **Taxonomy** | Taxonomy | ✅ Integrated | Medium | NCBI Taxonomy |
+| **InterPro** | Protein Families | ✅ Integrated | Medium | Protein domains and families |
 
-**Why Add:**
-- Already have proteins (UniProt), genes (HGNC, Ensembl) - adding interaction networks enables pathway/network analysis
-- Critical for systems biology approaches
+---
 
-**Data:**
-- 24M+ proteins across 3000+ organisms
-- Functional, physical, and regulatory networks (now separated)
-- Confidence scores for interactions
-- Gene set enrichment analysis capabilities
+## High Priority Datasets (⭐⭐⭐)
 
-**API/Access:**
-- REST API: https://string-db.org/
-- Bulk downloads available
-- Well-documented
+### 1. HPO (Human Phenotype Ontology) - ✅ INTEGRATED (2025)
+
+**Status:** ✅ **Integrated and tested** (16,000+ phenotypes, gene-phenotype associations, hierarchical relationships)
+
+See **Currently Integrated Datasets** section above for details.
+
+---
+
+### 2. AlphaFold Protein Structure Database
+
+**Priority:** ⭐⭐⭐⭐
+
+| Attribute | Details |
+|-----------|---------|
+| **License** | ✅ Open Access (CC-BY-4.0) - commercial use OK |
+| **Size** | Very Large (214M+ structures) |
+| **Update Frequency** | Continuous |
+| **API** | REST API + FTP |
+| **Download** | Per-species downloads available |
+
+**Data Content:**
+- 214M+ predicted protein structures (2024)
+- Covers nearly entire UniProt
+- Confidence scores (pLDDT)
+- 3D coordinates
+- PAE (predicted aligned error)
 
 **Cross-References:**
-- UniProt IDs
-- Ensembl gene IDs
+- ✅ UniProt IDs → Direct mapping to biobtree
+- ✅ Ensembl IDs → Available
+
+**Value Proposition:**
+- Structural context for ALL proteins
+- Enables structure-based drug design
+- Complements sequence data with 3D information
+- AI-predicted but highly accurate
+
+**Implementation Considerations:**
+- **Selective Integration:** Don't download all 214M structures
+- **Strategy 1:** Link to AlphaFold IDs only, fetch on demand
+- **Strategy 2:** Download structures for organisms in biobtree only
+- **Strategy 3:** Download high-confidence structures only (pLDDT > 70)
+
+**Example Queries:**
+```bash
+# Gene → protein → structure
+biobtree query "HGNC:EGFR >> uniprot >> alphafold"
+
+# Patent compound → targets → structures
+biobtree query "US-patent >> surechembl >> chembl >> uniprot >> alphafold"
+
+# Check structure availability
+biobtree query "P00533 >> alphafold" # Returns structure ID and confidence
+```
+
+**Implementation Effort:** Medium (need storage strategy for structures)
+
+---
+
+### 3. BioGRID - Protein Interactions (Complement to STRING)
+
+**Priority:** ⭐⭐⭐
+
+| Attribute | Details |
+|-----------|---------|
+| **License** | ✅ Open Access (MIT License) |
+| **Size** | ~500MB compressed |
+| **Update Frequency** | Monthly |
+| **API** | REST API available |
+| **Download** | Multiple formats (TSV, PSI-MI XML) |
+
+**Data Content:**
+- 2.9M+ protein and genetic interactions
+- 87,393 publications curated
+- Experimental evidence codes
+- Physical vs genetic interactions
+- Post-translational modifications
+
+**Cross-References:**
+- ✅ UniProt IDs
+- ✅ Ensembl IDs
+- ✅ HGNC symbols
+- PubMed IDs
+
+**Value Proposition:**
+- **Complements STRING:** BioGRID = experimental only, STRING = computational + experimental
+- More detailed interaction types
+- Experimental evidence annotations
+- PTM data
+- Curated from literature
+
+**Note:** Significant overlap with STRING, but provides orthogonal validation and additional experimental detail.
+
+**Example Queries:**
+```bash
+# Compare STRING vs BioGRID interactions
+biobtree query "P53 >> string"
+biobtree query "P53 >> biogrid"
+
+# Find experimentally validated interactions
+biobtree query "HGNC:BRCA1 >> uniprot >> biogrid[biogrid.experimental==true]"
+```
+
+**Implementation Effort:** Low-Medium (similar structure to STRING)
+
+---
+
+### 4. RNAcentral - Non-coding RNA Database
+
+**Priority:** ⭐⭐⭐
+
+| Attribute | Details |
+|-----------|---------|
+| **License** | ✅ Open Access (CC-BY-4.0) |
+| **Size** | ~2GB compressed |
+| **Update Frequency** | Quarterly |
+| **API** | REST API available |
+| **Download** | FASTA, JSON, RDF |
+
+**Data Content:**
+- 18M+ ncRNA sequences (2024)
+- 44 RNA databases integrated
+- Secondary structure (13M+ sequences)
+- Wide range of organisms
+- RNA types: miRNA, lncRNA, rRNA, tRNA, etc.
+
+**Cross-References:**
+- ✅ Ensembl gene IDs
+- ✅ UniProt (for RNA-binding proteins)
+- PubMed IDs
+- GO terms
 - RefSeq
 
+**Value Proposition:**
+- Biobtree currently lacks ncRNA data
+- Critical for gene regulation studies
+- miRNA-target interactions
+- lncRNA functional annotations
+- Completes the "central dogma" (DNA→RNA→Protein)
+
 **Example Queries:**
 ```bash
-# Find all EGFR interaction partners
-biobtree query "HGNC:EGFR >> uniprot >> string >> uniprot"
+# Find miRNAs for a gene
+biobtree query "HGNC:EGFR >> ensembl >> rnacentral[rnacentral.type=='miRNA']"
 
-# Patent compounds → targets → interaction networks
-biobtree query "US-20110053848-A1 >> surechembl >> chembl >> uniprot >> string"
+# Regulatory RNA → pathways
+biobtree query "miR-21 >> rnacentral >> ensembl >> uniprot >> reactome"
 
-# Gene → orthologs → conserved interactions
-biobtree query "BRCA1 >> ensembl >> ortholog >> string"
+# Disease → genes → regulatory RNAs
+biobtree query "disease:cancer >> disgenet >> ensembl >> rnacentral"
 ```
 
-**Implementation Effort:** Medium
-- TSV/XML format downloads
-- ~5-10GB compressed data
-- Clear identifier mappings
+**Implementation Effort:** Medium (RNA-specific data types, secondary structures)
 
 ---
 
-### 2. Reactome - Pathway Database
+### 5. Bgee - Gene Expression Database
 
-**Why Add:**
-- Complements GO ontology with detailed biological pathways
-- Curated, high-quality pathway annotations
-- Excellent cross-references to existing datasets
+**Priority:** ⭐⭐⭐
 
-**Data:**
-- 2,500+ curated pathways (human-focused)
-- Reactions, complexes, interactions
-- Disease pathways
-- Drug/compound pathways
+| Attribute | Details |
+|-----------|---------|
+| **License** | ✅ Open Access (CC0 - public domain) |
+| **Size** | ~10GB (processed data) |
+| **Update Frequency** | Annual |
+| **API** | REST API + R package |
+| **Download** | TSV files per species |
 
-**API/Access:**
-- REST API: https://reactome.org/
-- GraphQL endpoint available
-- RDF/OWL downloads
-- Regular releases
+**Data Content (2024 Update):**
+- Bulk RNA-seq: 14,000+ libraries
+- Single-cell RNA-seq: hundreds of curated 10X datasets
+- Multiple species (emphasis on vertebrates)
+- Tissue/developmental stage annotations
+- Curated, standardized, processed
 
 **Cross-References:**
-- UniProt
-- ChEMBL
-- Ensembl
-- GO terms
-- Disease ontologies
+- ✅ Ensembl gene IDs
+- ✅ UniProt IDs
+- Anatomy ontologies (Uberon)
 
-**Example Queries:**
-```bash
-# Compound → targets → pathways
-biobtree query "CHEMBL203 >> chembl >> uniprot >> reactome"
-
-# Patent → compounds → pathways → diseases
-biobtree query "US-patent-123 >> surechembl >> chembl >> uniprot >> reactome >> disease"
-
-# Gene → pathways → related genes
-biobtree query "HGNC:EGFR >> reactome >> uniprot >> hgnc"
-```
-
-**Implementation Effort:** Medium
-- Well-structured data model
-- ~2-3GB data
-- Clear documentation
-
----
-
-### 3. ClinicalTrials.gov - Clinical Trial Registry
-
-**Why Add:**
-- **Perfect complement to patent data!**
-- Links compounds/drugs to clinical outcomes
-- Tracks drug development pipeline
-- Essential for translational research
-
-**Data:**
-- 480,000+ clinical trials worldwide
-- Interventions (drugs, biologics, devices)
-- Diseases/conditions
-- Trial status, phases, outcomes
-- Sponsor information
-
-**API/Access:**
-- REST API: https://clinicaltrials.gov/api/
-- XML/JSON bulk downloads
-- Updated daily
-- ~500MB compressed
-
-**Cross-References:**
-- Drug names (can link to ChEMBL, DrugBank)
-- NCT IDs (unique identifiers)
-- Disease terms
-- Gene/protein names in trial descriptions
-
-**Example Queries:**
-```bash
-# Find trials for aspirin
-biobtree query "CHEMBL203 >> clinical_trials"
-
-# Patent → compounds → trials
-biobtree query "US-20110053848-A1 >> surechembl >> chembl >> clinical_trials"
-
-# Gene → drugs → trials
-biobtree query "HGNC:EGFR >> uniprot >> chembl >> clinical_trials"
-
-# Competitor analysis: assignee → patents → compounds → trials
-biobtree query "assignee:AstraZeneca >> patent >> surechembl >> clinical_trials"
-```
-
-**Implementation Effort:** Medium-High
-- Large dataset but well-structured
-- Need fuzzy matching for drug names
-- Regular updates recommended
-
----
-
-### 4. DrugBank - Approved Drugs Database
-
-**Why Add:**
-- FDA/EMA approved drugs with extensive annotations
-- Natural bridge between ChEMBL and clinical use
-- Small molecule and biologic drugs
-- Drug-drug interactions
-
-**Data:**
-- 15,000+ drugs (2,800+ FDA approved)
-- Drug targets (proteins)
-- Pharmacology data
-- Chemical structures (SMILES, InChI)
-- Drug-drug interactions
-- Metabolism pathways
-
-**API/Access:**
-- Requires registration (free for academic)
-- XML/JSON/CSV downloads
-- REST API available
-- ~200MB compressed
-
-**Cross-References:**
-- ChEMBL IDs
-- UniProt IDs
-- PubChem CIDs
-- Patent numbers
-- Clinical trial IDs
-- KEGG, Reactome pathways
-
-**Example Queries:**
-```bash
-# Map patented compounds to approved drugs
-biobtree query "US-patent >> surechembl >> chembl >> drugbank"
-
-# Find all EGFR inhibitors (approved drugs)
-biobtree query "HGNC:EGFR >> uniprot >> drugbank"
-
-# Drug → targets → pathways
-biobtree query "drugbank:DB00945 >> uniprot >> reactome"
-
-# Drug-drug interaction check
-biobtree query "drugbank:DB00945 >> drug_interaction >> drugbank"
-```
-
-**Implementation Effort:** Low-Medium
-- Clean, well-structured XML
-- Clear identifier mappings
-- ~200MB data
-
----
-
-### 5. DisGeNET - Gene-Disease Associations
-
-**Why Add:**
-- Connects genes/proteins/variants to diseases
-- Integrates data from GWAS, animal models, literature
-- Essential for disease-focused queries
-
-**Data:**
-- 1,134,942 gene-disease associations (GDAs)
-- 369,554 variant-disease associations (VDAs)
-- 30,170 genes
-- 30,000+ diseases/phenotypes
-- Evidence scores and sources
-
-**API/Access:**
-- REST API: https://www.disgenet.org/
-- TSV downloads
-- Cytoscape plugin available
-- ~500MB compressed
-
-**Cross-References:**
-- HGNC gene symbols
-- UniProt IDs
-- Ensembl IDs
-- Disease ontologies (UMLS, MeSH, OMIM, etc.)
-- dbSNP (variants)
-
-**Example Queries:**
-```bash
-# Gene to diseases
-biobtree query "HGNC:BRCA1 >> disgenet >> disease"
-
-# Patent → compound → target → disease
-biobtree query "US-patent >> surechembl >> chembl >> uniprot >> disgenet"
-
-# Disease → genes → drugs
-biobtree query "disease:cancer >> disgenet >> uniprot >> chembl >> drugbank"
-```
-
-**Implementation Effort:** Low
-- Simple TSV format
-- Straightforward mappings
-- Moderate size
-
----
-
-## Secondary Priority Datasets (⭐⭐)
-
-### 6. PubChem - Comprehensive Chemical Database
-
-**Why Add:**
-- Massive compound database (100M+ compounds)
-- Complements ChEMBL/HMDB with broader chemical space
-- Bioassay data
-
-**Data:**
-- 111M+ compounds
-- 1.5M+ bioassays
-- Chemical structures, properties
-- Patent references
-
-**Considerations:**
-- **Very large dataset** (~100GB+ raw data)
-- May want to integrate selectively (e.g., only compounds with bioactivity)
-- Strong overlap with ChEMBL
-
-**Implementation Effort:** High (due to size)
-
----
-
-### 7. GTEx - Genotype-Tissue Expression
-
-**Why Add:**
-- Links genes to tissue-specific expression
-- Enables tissue-context queries
-- Useful for drug side-effect prediction
-
-**Data:**
-- RNA-seq from 54 human tissues
-- 17,382 samples from 948 donors
-- Gene expression levels
-
-**API/Access:**
-- Portal: https://gtexportal.org/
-- BigQuery dataset
-- ~10GB compressed
+**Value Proposition:**
+- Tissue-specific expression context
+- Enables "where is this gene expressed?" queries
+- Drug side-effect prediction (off-target tissues)
+- Developmental biology insights
+- Single-cell data integration (2024 feature)
 
 **Example Queries:**
 ```bash
 # Gene expression in specific tissue
-biobtree query "HGNC:EGFR >> gtex:lung"
+biobtree query "HGNC:EGFR >> bgee:lung"
 
-# Drug target expression profile
-biobtree query "drugbank:DB00945 >> uniprot >> gtex"
+# Drug target → expression profile
+biobtree query "drugbank:DB00945 >> uniprot >> bgee"
+
+# Find tissue-specific disease genes
+biobtree query "disease:cancer >> disgenet >> ensembl >> bgee:breast"
 ```
 
-**Implementation Effort:** Medium-High
-- Large dataset
-- Expression values (quantitative data)
+**Implementation Effort:** Medium-High (quantitative data, tissue annotations)
 
 ---
 
-### 8. PDB - Protein Data Bank (3D Structures)
+## Medium Priority Datasets (⭐⭐)
 
-**Why Add:**
-- 3D structures for structure-based drug design
+### Summary Table
+
+| Dataset | Type | License | Size | Value | Effort |
+|---------|------|---------|------|-------|--------|
+| **PubChem** | Chemistry | ✅ Public Domain | Very Large (100GB+) | Comprehensive compound space | High |
+| **ClinVar** | Variants | ✅ Public Domain | ~5GB | Clinical variant interpretation | Medium |
+| **dbSNP** | Variants | ✅ Public Domain | Large | Genetic variants | Medium |
+| **PDB** | Structures | ✅ Public Domain | Large | Experimental 3D structures | Medium |
+| **GTEx** | Expression | ✅ Open Access | ~10GB | Human tissue expression | High |
+| **OMIM** | Disease | ⚠️ Registration required | ~100MB | Genetic disorders | Low |
+| **miRBase** | RNA | ✅ Public Domain | Small (~10MB) | miRNA sequences & annotations | Low |
+| **PeptideAtlas** | Proteomics | ✅ Open Access | Medium | Observed peptides/proteins | Medium |
+| **DisGeNET** | Disease | ❌ CC BY-NC-SA | ~500MB | Gene-disease associations | Low (no commercial) |
+
+### 6. PubChem - Comprehensive Chemical Database
+
+**License:** ✅ Public Domain
+**Priority:** ⭐⭐ (due to size)
+
+**Pros:**
+- 111M+ compounds (vs ChEMBL's ~2M)
+- 1.5M+ bioassays
+- Patent references
+- Free, comprehensive
+
+**Cons:**
+- **Massive size** (~100GB+ raw)
+- Significant overlap with ChEMBL
+- Lower quality/curation than ChEMBL
+
+**Recommendation:**
+- Skip full integration initially
+- Consider selective import (compounds with bioactivity data only)
+- Or use as backup/lookup service via API
+
+---
+
+### 7. ClinVar - Clinical Variant Database
+
+**License:** ✅ Public Domain
+**Priority:** ⭐⭐
+
+**Data:**
+- 2.5M+ variants
+- Clinical significance (pathogenic, benign, etc.)
+- Disease associations
+- Expert-curated
+
+**Value:**
+- Essential for clinical genomics
+- Variant interpretation
+- Precision medicine
+
+**Cross-refs:** Ensembl, HGNC, OMIM, dbSNP
+
+**Recommendation:** Good complement to DisGeNET for variant-level data
+
+---
+
+### 8. PDB - Protein Data Bank (Experimental Structures)
+
+**License:** ✅ Public Domain
+**Priority:** ⭐⭐
+
+**Data:**
+- 210,000+ experimental structures
+- X-ray, NMR, cryo-EM
 - Protein-ligand complexes
-- Complements UniProt sequence data
 
-**Data:**
-- 200,000+ structures
-- X-ray, NMR, cryo-EM structures
+**Value:**
+- Complements AlphaFold (experimental vs predicted)
+- Gold standard structures
+- Ligand binding sites
 
-**Implementation Effort:** Medium
-- Well-structured format (PDBx/mmCIF)
-- Large file sizes for structures
+**Note:** AlphaFold covers more proteins, but PDB has experimental validation
 
 ---
 
-### 9. IntAct / BioGRID - Molecular Interactions
+### 9. OMIM - Online Mendelian Inheritance in Man
 
-**Why Add:**
-- Complements STRING with curated experimental data
-- More detailed interaction types
+**License:** ⚠️ **Registration Required** (free academic, restricted commercial)
+**Priority:** ⭐⭐
 
 **Data:**
-- Protein-protein interactions
-- Experimental evidence codes
-
-**Note:** Significant overlap with STRING
-
----
-
-### 10. OMIM - Online Mendelian Inheritance in Man
-
-**Why Add:**
-- Human genetic disorders
+- 25,000+ genetic disorder entries
 - Gene-phenotype relationships
 - Clinical descriptions
 
+**⚠️ Commercial Use Restriction:**
+- Requires license for commercial applications
+- Biobtree commercial use = need license or exclude dataset
+
+**Recommendation:**
+- **Do NOT integrate** if biobtree will be commercial without OMIM license
+- HPO is a good alternative (includes data from OMIM but with open license)
+
+---
+
+## Low Priority / Specialized Datasets (⭐)
+
+### Summary Table
+
+| Dataset | Type | Why Low Priority |
+|---------|------|------------------|
+| **KEGG** | Pathways | ❌ **Commercial license required** |
+| **DrugBank** | Drugs | ❌ **Commercial license required** (~$5k+/year) |
+| **MetaboLights** | Metabolomics | Specialized, HMDB already integrated |
+| **PRIDE** | Proteomics | Raw data repository, specialized |
+| **GEO** | Expression | Raw data repository, Bgee provides processed |
+| **PeptideAtlas** | Proteomics | Specialized, medium value |
+
+### Commercial Datasets (For Reference Only)
+
+⚠️ **Cannot be integrated into commercial biobtree without licensing:**
+
+| Dataset | License Cost | Notes |
+|---------|-------------|-------|
+| **KEGG** | ~$2,000+/year | Pathways (Reactome is free alternative) |
+| **DrugBank** | ~$5,000+/year | Approved drugs, targets |
+| **DisGeNET** | License required | Gene-disease associations (HPO is free alternative) |
+| **OMIM** | License required | Genetic disorders (HPO alternative) |
+| **HGMD** | License required | Disease mutations |
+| **MetaBase** | Commercial | Metabolic pathways |
+
+---
+
+## Knowledge Graph & AI-Focused Resources (2024-2025)
+
+Recent biomedical knowledge graph research highlights these resources:
+
+### 10. Petagraph (2024)
+
+**License:** ✅ Open Access
+**Priority:** ⭐ (specialized)
+
 **Data:**
-- 25,000+ entries
-- Gene-disease relationships
+- 32M+ nodes, 118M+ relationships
+- Integrates 180+ ontologies
+- Quantitative genomics data
 
-**Implementation Effort:** Low
-- API available
-- Requires license for commercial use
-
----
-
-## Implementation Strategy Recommendations
-
-### Phase 1: Core Network & Clinical Data (High ROI)
-1. **DrugBank** - Easiest to implement, immediate value
-2. **ClinicalTrials.gov** - Perfect complement to patents
-3. **STRING** - Adds network dimension
-
-**Estimated Timeline:** 2-3 months
-**Data Size:** ~3-5GB total
-
-### Phase 2: Disease & Pathway Context
-4. **DisGeNET** - Gene-disease links
-5. **Reactome** - Pathway annotations
-
-**Estimated Timeline:** 2 months
-**Data Size:** ~3GB
-
-### Phase 3: Specialized/Advanced (Optional)
-6. **GTEx** - Tissue expression
-7. **PubChem** (selective) - Extended chemical space
-8. **PDB** - 3D structures
+**Note:** More of a framework/schema than standalone dataset. Potential for schema alignment.
 
 ---
 
-## Killer Query Examples with New Datasets
+### 11. BioKG/iKraph (2024)
 
-### Drug Discovery Pipeline
+**License:** ✅ Academic access (https://biokde.insilicom.com)
+**Priority:** ⭐ (specialized)
+
+**Data:**
+- Extracted from PubMed abstracts
+- 40 public databases integrated
+- High-throughput genomics inferences
+
+**Note:** Focus on literature-mined relationships. Potential overlap with existing data.
+
+---
+
+## Implementation Recommendations
+
+### Phase 1: Phenotype/Disease & Structure Context (6-8 months)
+**Goal:** Add phenotype/disease associations and structural biology
+
+1. **HPO (Human Phenotype Ontology)** (Priority 1) - 2 months
+   - Gene-phenotype associations
+   - Immediate high value
+   - Simple integration (standard OBO format)
+   - **Commercial use OK**
+
+2. **AlphaFold** (Priority 2) - 3 months
+   - Link to structure IDs (don't download all structures)
+   - Implement on-demand structure fetching
+   - Focus on human proteome initially
+
+3. **BioGRID** (Priority 3) - 2 months
+   - Complement STRING with experimental interactions
+   - Add PTM data
+
+**Expected Impact:**
+- Phenotype/disease-focused queries enabled
+- Clinical genomics applications
+- Structure-based drug design queries
+- Enhanced interaction networks
+
+---
+
+### Phase 2: RNA & Expression (4-6 months)
+**Goal:** Add gene regulation and expression context
+
+4. **RNAcentral** (Priority 4) - 3 months
+   - ncRNA integration
+   - miRNA-target interactions
+   - Fill gap in RNA biology
+
+5. **Bgee** (Priority 5) - 3 months
+   - Tissue expression
+   - Developmental stages
+   - Single-cell data
+
+**Expected Impact:**
+- Complete central dogma coverage
+- Tissue-specific queries
+- Gene regulation insights
+
+---
+
+### Phase 3: Clinical Genomics (Optional, 4-6 months)
+
+6. **ClinVar** - 2 months
+   - Variant interpretation
+   - Clinical significance
+
+7. **miRBase** - 1 month
+   - miRNA complement to RNAcentral
+   - Small, focused dataset
+
+8. **PDB** (selective) - 2 months
+   - Experimental structures for key proteins
+   - Link to structures, don't download all
+
+---
+
+## Dataset Selection Decision Matrix
+
+### Must-Have Criteria (All Required)
+- ✅ Open access/free for commercial use
+- ✅ API or bulk download available
+- ✅ Regular updates maintained
+- ✅ Strong cross-references to existing biobtree data
+- ✅ Manageable size or selective download possible
+
+### High-Value Indicators (2+ Required)
+- 🔗 Fills gap in current biobtree coverage
+- 🔗 Enables new query types
+- 🔗 High citation/usage in literature
+- 🔗 Complements existing datasets
+- 🔗 Low implementation effort
+
+### Red Flags (Any Disqualifies)
+- ❌ Commercial license required
+- ❌ Restrictive redistribution terms
+- ❌ No clear update schedule
+- ❌ Poor/no documentation
+- ❌ Proprietary data format
+
+---
+
+## Summary: Top 5 Recommendations
+
+| Rank | Dataset | Effort | Impact | Timeline | Commercial OK? |
+|------|---------|--------|--------|----------|----------------|
+| 1 | **HPO** | Low | ⭐⭐⭐⭐⭐ | 2 months | ✅ YES (CC BY 4.0) |
+| 2 | **AlphaFold DB** | Medium | ⭐⭐⭐⭐⭐ | 3 months | ✅ YES (CC BY 4.0) |
+| 3 | **BioGRID** | Low | ⭐⭐⭐⭐ | 2 months | ✅ YES (MIT License) |
+| 4 | **RNAcentral** | Medium | ⭐⭐⭐⭐ | 3 months | ✅ YES (CC BY 4.0) |
+| 5 | **Bgee** | Medium-High | ⭐⭐⭐⭐ | 3 months | ✅ YES (CC0) |
+
+**Total Effort:** ~13 months for all 5
+**Recommended Approach:** Phase 1 (HPO + AlphaFold + BioGRID) first
+
+✅ **All top 5 recommendations are commercially compatible!**
+
+---
+
+## Killer Query Examples (With New Datasets)
+
+### Drug Discovery & Target Validation
 ```bash
-# Patent → Compound → Target → Disease → Clinical Trial
-"US-patent >> surechembl >> chembl >> uniprot >> disgenet >> clinical_trials"
+# Complete drug discovery pipeline with phenotypes
+"phenotype:cognitive_impairment >> hpo >> uniprot >> alphafold >> chembl >> clinical_trials"
 
-# Competitor drug pipeline
-"assignee:Pfizer >> patent >> surechembl >> chembl >> drugbank >> clinical_trials"
+# Patent landscape with structure & phenotype
+"US-patent >> surechembl >> chembl >> uniprot >> alphafold >> hpo"
+
+# Find druggable targets with structural data
+"phenotype:tumor >> hpo >> uniprot >> alphafold[alphafold.pLDDT>80] >> chembl"
 ```
 
-### Target Validation
+### Systems Biology
 ```bash
-# Gene → Disease → Drugs → Clinical Evidence
-"HGNC:EGFR >> disgenet >> drugbank >> clinical_trials"
+# Gene → Structure → Interactions → Pathways → Phenotype
+"HGNC:EGFR >> uniprot >> alphafold >> string >> reactome >> hpo"
 
-# Gene → Protein Interactions → Pathways
-"BRCA1 >> uniprot >> string >> reactome"
+# miRNA regulation → protein → phenotype
+"miR-21 >> rnacentral >> ensembl >> uniprot >> hpo"
+
+# Tissue-specific phenotype networks
+"phenotype:diabetes >> hpo >> ensembl >> bgee:pancreas >> string"
 ```
 
-### Chemical Biology
+### Clinical Genomics
 ```bash
-# Compound → Targets → Interactions → Pathways → Diseases
-"CHEMBL203 >> chembl >> uniprot >> string >> reactome >> disgenet"
+# Variant → Clinical significance → Gene → Phenotype → Drugs
+"rs123456 >> clinvar >> ensembl >> hpo >> uniprot >> chembl"
+
+# Gene expression + phenotype + drugs
+"HGNC:TP53 >> bgee:lung >> hpo >> uniprot >> chembl >> clinical_trials"
 ```
 
-### Patent Landscape Analysis
+### Comparative Interactomics
 ```bash
-# Technology area → Patents → Compounds → Approved Drugs
-"ipc:A61K31 >> patent >> surechembl >> chembl >> drugbank"
+# Compare experimental vs predicted interactions
+"P53 >> biogrid[biogrid.experimental==true]"
+"P53 >> string[string.score>900]"
 
-# Patent family → Clinical development
-"family:12345 >> patent >> surechembl >> chembl >> clinical_trials"
+# Structurally characterized interactions
+"HGNC:BRCA1 >> uniprot >> biogrid >> alphafold"
 ```
 
 ---
 
-## Data Integration Priorities
+## Data Size Summary
 
-**Best Overall ROI:**
-1. **DrugBank** - Small, clean, high value
-2. **STRING** - Network context for all proteins
-3. **ClinicalTrials.gov** - Natural extension of patent data
+### Full Integration (All 5 Top Datasets)
+- **Compressed:** ~15-20GB
+- **Uncompressed:** ~60-80GB
+- **With AlphaFold structures (selective):** +20-50GB
 
-**Best for Drug Discovery:**
-1. ClinicalTrials.gov
-2. DrugBank
-3. DisGeNET
-4. Reactome
-
-**Best for Systems Biology:**
-1. STRING
-2. Reactome
-3. GTEx (if tissue context needed)
+### Storage Strategy Recommendations
+1. **Metadata-only for large datasets** (AlphaFold, PubChem)
+2. **Link to external APIs** for on-demand data
+3. **Selective organism downloads** (human, model organisms)
+4. **Compressed storage** for bulk data
 
 ---
 
-## Technical Considerations
+## Update Frequency Considerations
 
-### Data Size Estimates (Total)
-- Phase 1: ~5GB compressed, ~20GB uncompressed
-- Phase 2: ~3GB compressed, ~10GB uncompressed
-- Phase 3: ~50GB+ (if including PubChem/GTEx)
+| Dataset | Release Cycle | Download Time | Processing Time |
+|---------|---------------|---------------|-----------------|
+| HPO | Monthly | ~15 min | ~30 min |
+| AlphaFold | Continuous | N/A (link only) | Minutes |
+| BioGRID | Monthly | ~30 min | ~1 hour |
+| RNAcentral | Quarterly | ~2 hours | ~4 hours |
+| Bgee | Annual | ~3 hours | ~6 hours |
 
-### Update Frequencies
-- STRING: Annual major releases
-- Reactome: Quarterly
-- ClinicalTrials.gov: Daily (practical: monthly)
-- DrugBank: Quarterly
-- DisGeNET: Annual
-
-### API Rate Limits
-- Most databases: 1-10 requests/second
-- Bulk downloads recommended for initial build
-- Incremental updates via API
-
----
-
-## Questions to Consider
-
-1. **Research Focus**: Drug discovery vs. systems biology vs. clinical genomics?
-2. **User Base**: Who are the primary users? What queries matter most?
-3. **Infrastructure**: Storage/compute capacity for large datasets?
-4. **Update Cadence**: How frequently rebuild the database?
-5. **Commercial Use**: Any licensing restrictions?
-
----
-
-## Recommendation Summary
-
-**Start with these 3:**
-1. ✅ **DrugBank** - Quick win, immediate value, easy implementation
-2. ✅ **ClinicalTrials.gov** - Unique value, perfect complement to patents
-3. ✅ **STRING** - Game-changer for network analysis
-
-These three will:
-- Extend your patent→drug pipeline to clinical outcomes
-- Add network/pathway context to all protein data
-- Enable competitive intelligence on drug development
-- Require moderate implementation effort (~3 months)
-- Add ~5GB total data
-
-**Next priority:** Reactome + DisGeNET for pathway and disease context.
+**Recommendation:** Quarterly full rebuilds, monthly incremental updates for BioGRID
 
 ---
 
 ## References
 
-- 2025 Nucleic Acids Research Database Issue: https://academic.oup.com/nar/issue/53/D1
-- STRING: https://string-db.org/
-- Reactome: https://reactome.org/
-- ClinicalTrials.gov: https://clinicaltrials.gov/
-- DrugBank: https://go.drugbank.com/
-- DisGeNET: https://www.disgenet.org/
+### Database Issues
+- 2025 NAR Database Issue: https://academic.oup.com/nar/issue/53/D1
+- 2024 NAR Database Issue: https://academic.oup.com/nar/issue/52/D1
+
+### Knowledge Graph Research (2024)
+- Petagraph (2024): Scientific Data, https://www.nature.com/articles/s41597-024-04070-w
+- BioKG (2024): Nature Machine Intelligence, https://www.nature.com/articles/s42256-025-01014-w
+- TarKG (2024): Bioinformatics, https://academic.oup.com/bioinformatics/article/40/10/btae598/7818343
+
+### Dataset URLs
+- **HPO**: https://hpo.jax.org/
+- **AlphaFold DB**: https://alphafold.ebi.ac.uk/
+- **BioGRID**: https://thebiogrid.org/
+- **RNAcentral**: https://rnacentral.org/
+- **Bgee**: https://www.bgee.org/
+- **ClinVar**: https://www.ncbi.nlm.nih.gov/clinvar/
+- **PubChem**: https://pubchem.ncbi.nlm.nih.gov/
+- **PDB**: https://www.rcsb.org/
+- **ClinGen**: https://www.clinicalgenome.org/
+- **DisGeNET** (commercial): https://www.disgenet.org/
+
+---
+
+## Change Log
+
+- **2025-01-06:** Complete rewrite with 2024-2025 research
+  - Updated with Reactome ✅, STRING ✅, Clinical Trials ✅, Patents ✅ as integrated
+  - **CORRECTED:** Replaced DisGeNET (NC license) with HPO as top priority
+  - HPO, AlphaFold DB, RNAcentral, Bgee, BioGRID as top priorities
+  - All top 5 recommendations verified for commercial compatibility ✅
+  - Simplified format with tables for easier scanning
+  - Added commercial license warnings (KEGG, DrugBank, DisGeNET, OMIM)
+  - Included 2024 knowledge graph research
+  - Added implementation phases and timelines
+
+- **Previous:** Original recommendations (STRING, Reactome, Clinical Trials now integrated)

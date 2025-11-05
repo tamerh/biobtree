@@ -332,5 +332,17 @@
     "hasFilter": "yes",
     "attrs": "name,tax_id,alt_names,is_disease_pathway",
     "test_entries_count": "50"
+  },
+  "hpo": {
+    "aliases": "HPO,Human Phenotype Ontology",
+    "id": "29",
+    "name": "HPO",
+    "url": "https://hpo.jax.org/browse/term/£{id}",
+    "path": "http://purl.obolibrary.org/obo/hp.obo",
+    "genes_to_phenotype_path": "https://github.com/obophenotype/human-phenotype-ontology/releases/download/v2025-10-22/genes_to_phenotype.txt",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "name,[]synonyms,definition",
+    "test_entries_count": "100"
   }
 }

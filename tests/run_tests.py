@@ -235,6 +235,7 @@ Available datasets:
         'ensembl_plants': script_dir / "ensembl_plants" / "test_ensembl_plants.py",
         'ensembl_protists': script_dir / "ensembl_protists" / "test_ensembl_protists.py",
         'mondo': script_dir / "mondo" / "test_mondo.py",
+        'hpo': script_dir / "hpo" / "test_hpo.py",
         'patent': script_dir / "patent" / "test_patent.py",
         'clinical_trials': script_dir / "clinical_trials" / "test_clinical_trials.py",
         'string': script_dir / "string" / "test_string.py",

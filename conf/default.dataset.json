@@ -219,14 +219,6 @@
     "id": "64",
     "url": "https://rnacentral.org/search?q=£{id}"
   },
-  "reactome": {
-    "aliases": "Reactome,REACTOME",
-    "name": "Reactome",
-    "id": "65",
-    "url": "https://www.reactome.org/content/detail/£{id}",
-    "hasFilter": "yes",
-    "attrs": "pathway"
-  },
   "refseq": {
     "aliases": "RefSeq,nucleotide sequence ID",
     "name": "Refseq",
@@ -1474,5 +1466,21 @@
     "linkdataset": "reactome",
     "hasFilter": "yes",
     "attrs": "name,tax_id"
+  },
+  "hpoparent": {
+    "name": "HPO Parent",
+    "id": "308",
+    "url": "https://hpo.jax.org/browse/term/£{id}",
+    "linkdataset": "hpo",
+    "hasFilter": "yes",
+    "attrs": "name,[]synonyms,definition"
+  },
+  "hpochild": {
+    "name": "HPO Child",
+    "id": "309",
+    "url": "https://hpo.jax.org/browse/term/£{id}",
+    "linkdataset": "hpo",
+    "hasFilter": "yes",
+    "attrs": "name,[]synonyms,definition"
   }
 }

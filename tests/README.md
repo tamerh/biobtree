@@ -208,36 +208,142 @@ Most parsers support test mode automatically. Add for new datasets:
 
 ## Dataset README Guidelines
 
-Each dataset directory should include a `README.md` documenting dataset-specific information. The README should be **concise** and focus only on what makes the dataset unique.
+Each dataset directory should include a `README.md` following a **standardized format** for consistency. The README should be concise and focus on dataset-specific information.
+
+### Standard README Format
+
+All dataset READMEs should follow this structure:
+
+```markdown
+# {Dataset Name} Dataset
+
+## Overview
+Brief description (2-3 sentences) covering:
+- What the dataset is and its purpose
+- Key statistics (total entries, coverage)
+- Scientific importance and main applications
+
+**Source**: Data source URL or organization
+**Data Type**: Brief description of what data it contains
+
+## Integration Architecture
+
+### Storage Model
+**Primary Entries**: ID format and storage approach
+**Searchable Text Links**: What text searches are indexed
+**Attributes Stored**: What's in the protobuf attributes
+**Cross-References**: What other datasets link to/from this one
+
+### Special Features
+Unique aspects of this dataset's integration:
+- Novel storage patterns
+- Special indexing
+- Bidirectional links
+- Text search capabilities
+- Hierarchical relationships
+
+## Use Cases
+
+6 biological/scientific scenarios (not query examples):
+**1. {Use Case Name}**
+```
+Query: {Scientific question} → {What you query} → {Result}
+Use: {Real-world application}
+```
+
+## Test Cases
+
+**Current Tests** (N total):
+- X declarative tests (list types)
+- Y custom tests (list what they test)
+
+**Coverage**:
+- ✅ What's tested
+- ✅ What's validated
+
+**Recommended Additions**:
+- Future test ideas
+- Missing coverage areas
+
+## Performance
+
+- **Test Build**: ~Xs (N entries)
+- **Data Source**: Where data comes from
+- **Update Frequency**: How often updated
+- **Total Entries**: Size of full dataset
+- **Special notes**: Large file sizes, slow downloads, etc.
+
+## Known Limitations
+
+Dataset-specific issues:
+- What doesn't work
+- What's not stored
+- Workarounds needed
+- API issues
+
+## Future Work
+
+- Potential enhancements
+- Missing features
+- Integration improvements
+- Test additions
+
+## Maintenance
+
+- **Release Schedule**: Update frequency
+- **Data Format**: File format details
+- **Test Data**: How many test entries
+- **License**: Usage terms
+- **Special notes**: Version info, coordination with other resources
+
+## References
+
+- **Citation**: Primary publication
+- **Website**: Official URL
+- **License**: Terms of use
+```
 
 ### What to Include (Dataset-Specific Only)
 
-✅ **Overview**: Brief description of the dataset and data source
+✅ **Overview**: Brief description (2-3 sentences max) of dataset and data source
 ✅ **Integration Architecture**: Storage model, cross-references, special features (CRITICAL - this is the core unique content)
-✅ **Use Cases**: Biological/scientific scenarios enabled by this dataset integration (replace generic query examples)
-✅ **Test Cases**: Current tests and recommended additions
-✅ **Performance Notes**: Dataset sizes, processing times, special considerations
+✅ **Use Cases**: 6 biological/scientific scenarios enabled by this dataset (NOT generic curl examples)
+✅ **Test Cases**: Current tests (declarative + custom) and recommended additions
+✅ **Performance**: Test build time, data source, update frequency, dataset size
 ✅ **Known Limitations**: Dataset-specific issues, disabled features, workarounds
 ✅ **Future Work**: Potential enhancements specific to this dataset
-✅ **Maintenance**: Release frequency, update patterns (if unique to dataset)
-✅ **References**: Citation and license (no detailed links)
+✅ **Maintenance**: Release frequency, data format, test data size, license
+✅ **References**: Citation, website, license (concise - no detailed links)
 
 ### What to Exclude (Common to All Datasets)
 
-❌ **Files section**: Standard structure documented here
-❌ **Dataset statistics**: Test entry counts, file listings
-❌ **Extracting reference data**: Common workflow documented here
+❌ **Files section**: Standard structure documented in tests/README.md
+❌ **Dataset statistics**: Detailed file listings, test entry counts
+❌ **Extracting reference data**: Common workflow documented in tests/README.md
 ❌ **Reference data format**: Available in reference_data.json file
-❌ **Building with test data**: Common commands documented here
-❌ **Query examples**: Use biological use cases instead
-❌ **Detailed reference links**: Just citation + license
+❌ **Building with test data**: Common commands documented in tests/README.md
+❌ **Query examples**: Replace with biological use cases showing scientific applications
+❌ **Detailed API documentation**: Just the essentials
 ❌ **Maintenance procedures**: Common workflow unless dataset-specific
+❌ **Overly detailed explanations**: Keep it concise and focused
 
-### Example Structure
+### Example READMEs
 
-See `tests/reactome/README.md` and `tests/uniprot/README.md` as reference templates.
+**Good examples following standard format**:
+- `tests/hpo/README.md` - Ontology with hierarchies and gene associations
+- `tests/hmdb/README.md` - Metabolomics database with chemical properties
+- `tests/interpro/README.md` - Protein signatures with member database integration
+- `tests/mondo/README.md` - Disease ontology with cross-database mappings
+- `tests/efo/README.md` - Experimental factors ontology with text search
+- `tests/eco/README.md` - Evidence codes ontology
+- `tests/alphafold/README.md` - Protein structures with confidence scores
 
-**Key Principle**: Keep it focused on what's special about this dataset. Avoid repeating information that applies to all datasets.
+**Key Principles**:
+1. **Consistency**: All READMEs follow same structure and section order
+2. **Conciseness**: 150-250 lines maximum, focus on unique aspects
+3. **Scientific context**: Use cases show real biological applications, not just queries
+4. **Integration focus**: Emphasize how data is stored, linked, and searched in biobtree
+5. **Avoid repetition**: Don't duplicate information already in tests/README.md
 
 ## Adding New Datasets
 

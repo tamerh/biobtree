@@ -1458,5 +1458,21 @@
     "linkdataset": "mondo",
     "hasFilter": "yes",
     "attrs": "type,name,[]synonyms"
+  },
+  "reactomeparent": {
+    "name": "Reactome Parent",
+    "id": "306",
+    "url": "https://reactome.org/content/detail/£{id}",
+    "linkdataset": "reactome",
+    "hasFilter": "yes",
+    "attrs": "name,tax_id"
+  },
+  "reactomechild": {
+    "name": "Reactome Child",
+    "id": "307",
+    "url": "https://reactome.org/content/detail/£{id}",
+    "linkdataset": "reactome",
+    "hasFilter": "yes",
+    "attrs": "name,tax_id"
   }
 }

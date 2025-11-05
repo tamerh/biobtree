@@ -83,8 +83,14 @@ message  OrphanetAttr {
   string disease =1;
 }
 
-message  ReactomeAttr {
-  string pathway =1;
+message  ReactomePathwayAttr {
+  string name =1;
+  int32 tax_id =2;
+  repeated string alt_names =3;  // Alternative/synonym names for pathway
+                                  // TODO: Populate from pre-generated file (see analysis/reactome/REACTOME_ENHANCEMENTS.md)
+                                  // Source: Reactome API 'name' field (array of alternative names)
+                                  // Future: Generate ReactomeAltNames.txt via extract_reference_data.py for all pathways
+  bool is_disease_pathway =4;    // True if pathway is disease-related (from HumanDiseasePathways.txt)
 }
 
 message UniprotAttr {

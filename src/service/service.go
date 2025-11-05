@@ -133,7 +133,7 @@ func (s *service) init() {
 		cel.Types(&pbuf.PdbAttr{}),
 		cel.Types(&pbuf.DrugbankAttr{}),
 		cel.Types(&pbuf.OrphanetAttr{}),
-		cel.Types(&pbuf.ReactomeAttr{}),
+		cel.Types(&pbuf.ReactomePathwayAttr{}),
 		cel.Declarations(
 			decls.NewIdent("uniprot", decls.NewObjectType("pbuf.UniprotAttr"), nil)),
 		cel.Declarations(
@@ -171,7 +171,7 @@ func (s *service) init() {
 		cel.Declarations(
 			decls.NewIdent("orphanet", decls.NewObjectType("pbuf.OrphanetAttr"), nil)),
 		cel.Declarations(
-			decls.NewIdent("reactome", decls.NewObjectType("pbuf.ReactomeAttr"), nil)),
+			decls.NewIdent("reactome", decls.NewObjectType("pbuf.ReactomePathwayAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("chembl", decls.NewObjectType("pbuf.ChemblAttr"), nil)),
 		cel.Declarations(

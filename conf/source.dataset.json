@@ -314,5 +314,23 @@
     "scoreThreshold": "400",
     "attrs": "string_id,organism_taxid,preferred_name,protein_size,annotation,[]interactions.partner,[]interactions.score,[]interactions.has_experimental,[]interactions.has_database,[]interactions.has_textmining,[]interactions.has_coexpression",
     "test_entries_count": "50"
+  },
+  "reactome": {
+    "aliases": "Reactome,Reactome Pathways",
+    "id": "28",
+    "name": "Reactome",
+    "url": "https://reactome.org/content/detail/£{id}",
+    "downloadUrlPathways": "https://reactome.org/download/current/ReactomePathways.txt",
+    "downloadUrlRelation": "https://reactome.org/download/current/ReactomePathwaysRelation.txt",
+    "downloadUrlUniProt": "https://reactome.org/download/current/UniProt2Reactome.txt",
+    "downloadUrlChEBI": "https://reactome.org/download/current/ChEBI2Reactome.txt",
+    "downloadUrlGoTerms": "https://reactome.org/download/current/Pathways2GoTerms_human.txt",
+    "downloadUrlEnsembl": "https://reactome.org/download/current/Ensembl2Reactome.txt",
+    "downloadUrlDiseasePathways": "https://reactome.org/download/current/HumanDiseasePathways.txt",
+    "path": "test_data/reactome/",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "name,tax_id,alt_names,is_disease_pathway",
+    "test_entries_count": "50"
   }
 }

@@ -192,7 +192,7 @@ Examples:
   %(prog)s hmdb,go,taxonomy   # Run multiple specific tests
 
 Available datasets:
-  hgnc, uniprot, go, taxonomy, eco, efo, chebi, interpro, hmdb, chembl_document, chembl_molecule, chembl_activity, chembl_assay, chembl_target, chembl_cell_line, ensembl, ensembl_bacteria, ensembl_fungi, ensembl_metazoa, ensembl_plants, ensembl_protists, mondo, patent, clinical_trials
+  hgnc, uniprot, go, taxonomy, eco, efo, chebi, interpro, hmdb, chembl_document, chembl_molecule, chembl_activity, chembl_assay, chembl_target, chembl_cell_line, ensembl, ensembl_bacteria, ensembl_fungi, ensembl_metazoa, ensembl_plants, ensembl_protists, mondo, patent, clinical_trials, string, reactome
   (uniparc, uniref100, uniref50, uniref90 - currently disabled due to FTP issues)
         """
     )
@@ -238,6 +238,7 @@ Available datasets:
         'patent': script_dir / "patent" / "test_patent.py",
         'clinical_trials': script_dir / "clinical_trials" / "test_clinical_trials.py",
         'string': script_dir / "string" / "test_string.py",
+        'reactome': script_dir / "reactome" / "test_reactome.py",
         # Temporarily disabled due to FTP issues:
         # 'uniparc': script_dir / "uniparc" / "test_uniparc.py",
         # 'uniref100': script_dir / "uniref100" / "test_uniref100.py",

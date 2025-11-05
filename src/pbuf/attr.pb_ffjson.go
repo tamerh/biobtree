@@ -17630,7 +17630,7 @@ done:
 }
 
 // MarshalJSON marshal bytes to json - template
-func (j *ReactomeAttr) MarshalJSON() ([]byte, error) {
+func (j *ReactomePathwayAttr) MarshalJSON() ([]byte, error) {
 	var buf fflib.Buffer
 	if j == nil {
 		buf.WriteString("null")
@@ -17644,7 +17644,7 @@ func (j *ReactomeAttr) MarshalJSON() ([]byte, error) {
 }
 
 // MarshalJSONBuf marshal buff to json - template
-func (j *ReactomeAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
+func (j *ReactomePathwayAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 	if j == nil {
 		buf.WriteString("null")
 		return nil
@@ -17654,9 +17654,38 @@ func (j *ReactomeAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 	_ = obj
 	_ = err
 	buf.WriteString(`{ `)
-	if len(j.Pathway) != 0 {
-		buf.WriteString(`"pathway":`)
-		fflib.WriteJsonString(buf, string(j.Pathway))
+	if len(j.Name) != 0 {
+		buf.WriteString(`"name":`)
+		fflib.WriteJsonString(buf, string(j.Name))
+		buf.WriteByte(',')
+	}
+	if j.TaxId != 0 {
+		buf.WriteString(`"tax_id":`)
+		fflib.FormatBits2(buf, uint64(j.TaxId), 10, j.TaxId < 0)
+		buf.WriteByte(',')
+	}
+	if len(j.AltNames) != 0 {
+		buf.WriteString(`"alt_names":`)
+		if j.AltNames != nil {
+			buf.WriteString(`[`)
+			for i, v := range j.AltNames {
+				if i != 0 {
+					buf.WriteString(`,`)
+				}
+				fflib.WriteJsonString(buf, string(v))
+			}
+			buf.WriteString(`]`)
+		} else {
+			buf.WriteString(`null`)
+		}
+		buf.WriteByte(',')
+	}
+	if j.IsDiseasePathway != false {
+		if j.IsDiseasePathway {
+			buf.WriteString(`"is_disease_pathway":true`)
+		} else {
+			buf.WriteString(`"is_disease_pathway":false`)
+		}
 		buf.WriteByte(',')
 	}
 	buf.Rewind(1)
@@ -17665,24 +17694,36 @@ func (j *ReactomeAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 }
 
 const (
-	ffjtReactomeAttrbase = iota
-	ffjtReactomeAttrnosuchkey
+	ffjtReactomePathwayAttrbase = iota
+	ffjtReactomePathwayAttrnosuchkey
 
-	ffjtReactomeAttrPathway
+	ffjtReactomePathwayAttrName
+
+	ffjtReactomePathwayAttrTaxId
+
+	ffjtReactomePathwayAttrAltNames
+
+	ffjtReactomePathwayAttrIsDiseasePathway
 )
 
-var ffjKeyReactomeAttrPathway = []byte("pathway")
+var ffjKeyReactomePathwayAttrName = []byte("name")
+
+var ffjKeyReactomePathwayAttrTaxId = []byte("tax_id")
+
+var ffjKeyReactomePathwayAttrAltNames = []byte("alt_names")
+
+var ffjKeyReactomePathwayAttrIsDiseasePathway = []byte("is_disease_pathway")
 
 // UnmarshalJSON umarshall json - template of ffjson
-func (j *ReactomeAttr) UnmarshalJSON(input []byte) error {
+func (j *ReactomePathwayAttr) UnmarshalJSON(input []byte) error {
 	fs := fflib.NewFFLexer(input)
 	return j.UnmarshalJSONFFLexer(fs, fflib.FFParse_map_start)
 }
 
 // UnmarshalJSONFFLexer fast json unmarshall - template ffjson
-func (j *ReactomeAttr) UnmarshalJSONFFLexer(fs *fflib.FFLexer, state fflib.FFParseState) error {
+func (j *ReactomePathwayAttr) UnmarshalJSONFFLexer(fs *fflib.FFLexer, state fflib.FFParseState) error {
 	var err error
-	currentKey := ffjtReactomeAttrbase
+	currentKey := ffjtReactomePathwayAttrbase
 	_ = currentKey
 	tok := fflib.FFTok_init
 	wantedTok := fflib.FFTok_init
@@ -17728,29 +17769,71 @@ mainparse:
 			kn := fs.Output.Bytes()
 			if len(kn) <= 0 {
 				// "" case. hrm.
-				currentKey = ffjtReactomeAttrnosuchkey
+				currentKey = ffjtReactomePathwayAttrnosuchkey
 				state = fflib.FFParse_want_colon
 				goto mainparse
 			} else {
 				switch kn[0] {
 
-				case 'p':
+				case 'a':
 
-					if bytes.Equal(ffjKeyReactomeAttrPathway, kn) {
-						currentKey = ffjtReactomeAttrPathway
+					if bytes.Equal(ffjKeyReactomePathwayAttrAltNames, kn) {
+						currentKey = ffjtReactomePathwayAttrAltNames
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'i':
+
+					if bytes.Equal(ffjKeyReactomePathwayAttrIsDiseasePathway, kn) {
+						currentKey = ffjtReactomePathwayAttrIsDiseasePathway
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'n':
+
+					if bytes.Equal(ffjKeyReactomePathwayAttrName, kn) {
+						currentKey = ffjtReactomePathwayAttrName
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 't':
+
+					if bytes.Equal(ffjKeyReactomePathwayAttrTaxId, kn) {
+						currentKey = ffjtReactomePathwayAttrTaxId
 						state = fflib.FFParse_want_colon
 						goto mainparse
 					}
 
 				}
 
-				if fflib.SimpleLetterEqualFold(ffjKeyReactomeAttrPathway, kn) {
-					currentKey = ffjtReactomeAttrPathway
+				if fflib.EqualFoldRight(ffjKeyReactomePathwayAttrIsDiseasePathway, kn) {
+					currentKey = ffjtReactomePathwayAttrIsDiseasePathway
 					state = fflib.FFParse_want_colon
 					goto mainparse
 				}
 
-				currentKey = ffjtReactomeAttrnosuchkey
+				if fflib.EqualFoldRight(ffjKeyReactomePathwayAttrAltNames, kn) {
+					currentKey = ffjtReactomePathwayAttrAltNames
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyReactomePathwayAttrTaxId, kn) {
+					currentKey = ffjtReactomePathwayAttrTaxId
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyReactomePathwayAttrName, kn) {
+					currentKey = ffjtReactomePathwayAttrName
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				currentKey = ffjtReactomePathwayAttrnosuchkey
 				state = fflib.FFParse_want_colon
 				goto mainparse
 			}
@@ -17767,10 +17850,19 @@ mainparse:
 			if tok == fflib.FFTok_left_brace || tok == fflib.FFTok_left_bracket || tok == fflib.FFTok_integer || tok == fflib.FFTok_double || tok == fflib.FFTok_string || tok == fflib.FFTok_bool || tok == fflib.FFTok_null {
 				switch currentKey {
 
-				case ffjtReactomeAttrPathway:
-					goto handle_Pathway
+				case ffjtReactomePathwayAttrName:
+					goto handle_Name
 
-				case ffjtReactomeAttrnosuchkey:
+				case ffjtReactomePathwayAttrTaxId:
+					goto handle_TaxId
+
+				case ffjtReactomePathwayAttrAltNames:
+					goto handle_AltNames
+
+				case ffjtReactomePathwayAttrIsDiseasePathway:
+					goto handle_IsDiseasePathway
+
+				case ffjtReactomePathwayAttrnosuchkey:
 					err = fs.SkipField(tok)
 					if err != nil {
 						return fs.WrapErr(err)
@@ -17784,9 +17876,9 @@ mainparse:
 		}
 	}
 
-handle_Pathway:
+handle_Name:
 
-	/* handler: j.Pathway type=string kind=string quoted=false*/
+	/* handler: j.Name type=string kind=string quoted=false*/
 
 	{
 
@@ -17802,7 +17894,146 @@ handle_Pathway:
 
 			outBuf := fs.Output.Bytes()
 
-			j.Pathway = string(string(outBuf))
+			j.Name = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_TaxId:
+
+	/* handler: j.TaxId type=int32 kind=int32 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for int32", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseInt(fs.Output.Bytes(), 10, 32)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.TaxId = int32(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_AltNames:
+
+	/* handler: j.AltNames type=[]string kind=slice quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_left_brace && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for ", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+			j.AltNames = nil
+		} else {
+
+			j.AltNames = []string{}
+
+			wantVal := true
+
+			for {
+
+				var tmpJAltNames string
+
+				tok = fs.Scan()
+				if tok == fflib.FFTok_error {
+					goto tokerror
+				}
+				if tok == fflib.FFTok_right_brace {
+					break
+				}
+
+				if tok == fflib.FFTok_comma {
+					if wantVal == true {
+						// TODO(pquerna): this isn't an ideal error message, this handles
+						// things like [,,,] as an array value.
+						return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
+					}
+					continue
+				} else {
+					wantVal = true
+				}
+
+				/* handler: tmpJAltNames type=string kind=string quoted=false*/
+
+				{
+
+					{
+						if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+							return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+						}
+					}
+
+					if tok == fflib.FFTok_null {
+
+					} else {
+
+						outBuf := fs.Output.Bytes()
+
+						tmpJAltNames = string(string(outBuf))
+
+					}
+				}
+
+				j.AltNames = append(j.AltNames, tmpJAltNames)
+
+				wantVal = false
+			}
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_IsDiseasePathway:
+
+	/* handler: j.IsDiseasePathway type=bool kind=bool quoted=false*/
+
+	{
+		if tok != fflib.FFTok_bool && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for bool", tok))
+		}
+	}
+
+	{
+		if tok == fflib.FFTok_null {
+
+		} else {
+			tmpb := fs.Output.Bytes()
+
+			if bytes.Compare([]byte{'t', 'r', 'u', 'e'}, tmpb) == 0 {
+
+				j.IsDiseasePathway = true
+
+			} else if bytes.Compare([]byte{'f', 'a', 'l', 's', 'e'}, tmpb) == 0 {
+
+				j.IsDiseasePathway = false
+
+			} else {
+				err = errors.New("unexpected bytes for true/false value")
+				return fs.WrapErr(err)
+			}
 
 		}
 	}

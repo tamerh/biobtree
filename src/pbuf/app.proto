@@ -124,7 +124,7 @@ message Xref {
     PdbAttr pdb= 14;
     DrugbankAttr drugbank= 15;
     OrphanetAttr orphanet= 16;
-    ReactomeAttr reactome= 17;
+    ReactomePathwayAttr reactome= 17;
     ChemblAttr chembl=18;
     UniprotFeatureAttr ufeature=19;
     PatentAttr patent=26;
@@ -149,6 +149,10 @@ message XrefEntry {
 
   uint32 dataset = 1;
   string identifier = 2;
+  string evidence = 3;  // Evidence code for relationship quality (used by Reactome: TAS, IEA, IEP)
+                        // TAS = Traceable Author Statement (manually curated)
+                        // IEA = Inferred by Electronic Annotation (computationally inferred)
+                        // Other datasets can add their own fields (e.g., confidence scores)
 
 }
 

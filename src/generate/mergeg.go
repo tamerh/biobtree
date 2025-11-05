@@ -73,7 +73,7 @@ type chunkReader struct {
 	complete bool
 	eof      bool
 	tmprun   []rune
-	nextLine [4]string
+	nextLine [5]string  // Extended to support evidence field (optional 5th field)
 	wg       *sync.WaitGroup
 	active   bool
 }
@@ -83,6 +83,7 @@ type kvMessage struct {
 	db       string
 	value    string
 	valuedb  string
+	evidence string  // Optional evidence code (e.g., TAS, IEA for Reactome)
 	writekey bool
 }
 
@@ -723,15 +724,16 @@ func (ch *chunkReader) readKeyValue() {
 		//ch.newDomainKey(ch.nextLine[1], ch.nextLine[2], ch.nextLine[3])
 
 		*ch.d.mergeCh <- kvMessage{
-			key:     ch.nextLine[0],
-			db:      ch.nextLine[1],
-			value:   ch.nextLine[2],
-			valuedb: ch.nextLine[3],
+			key:      ch.nextLine[0],
+			db:       ch.nextLine[1],
+			value:    ch.nextLine[2],
+			valuedb:  ch.nextLine[3],
+			evidence: ch.nextLine[4], // Optional evidence field
 		}
 
 	}
 
-	var line [4]string
+	var line [5]string  // Extended to support optional evidence field
 	var c rune
 	index := 0
 	tabIndex := 0
@@ -778,10 +780,11 @@ func (ch *chunkReader) readKeyValue() {
 			}
 
 			*ch.d.mergeCh <- kvMessage{
-				key:     line[0],
-				db:      line[1],
-				value:   line[2],
-				valuedb: line[3],
+				key:      line[0],
+				db:       line[1],
+				value:    line[2],
+				valuedb:  line[3],
+				evidence: line[4], // Include evidence field (optional 5th field)
 			}
 
 			index = 0
@@ -851,6 +854,7 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 				panic("Error while converting to int16 ->" + (*v)[i].String())
 			}
 			xentry.Dataset = uint32(d1)
+			xentry.Evidence = (*v)[i].evidence  // Set evidence code if present
 			entries[i] = &xentry
 		}
 		entriesArr[index] = entries
@@ -935,7 +939,7 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 				ffjson.Unmarshal(barr, attr)
 				xref.Attributes = &pbuf.Xref_Orphanet{attr}
 			case "reactome":
-				attr := &pbuf.ReactomeAttr{}
+				attr := &pbuf.ReactomePathwayAttr{}
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)
 				xref.Attributes = &pbuf.Xref_Reactome{attr}
@@ -1120,6 +1124,7 @@ func (d *Merge) toProtoPage(id string, dataset string, v *[]kvMessage, valIdx in
 			panic("Error while converting to int16 ->" + (*v)[i].valuedb)
 		}
 		xentry.Dataset = uint32(d1)
+		xentry.Evidence = (*v)[i].evidence  // Set evidence code if present
 		entries[i] = &xentry
 		totalCount++
 	}

@@ -7110,6 +7110,11 @@ func (j *XrefEntry) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.WriteJsonString(buf, string(j.Identifier))
 		buf.WriteByte(',')
 	}
+	if len(j.Evidence) != 0 {
+		buf.WriteString(`"evidence":`)
+		fflib.WriteJsonString(buf, string(j.Evidence))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -7122,11 +7127,15 @@ const (
 	ffjtXrefEntryDataset
 
 	ffjtXrefEntryIdentifier
+
+	ffjtXrefEntryEvidence
 )
 
 var ffjKeyXrefEntryDataset = []byte("dataset")
 
 var ffjKeyXrefEntryIdentifier = []byte("identifier")
+
+var ffjKeyXrefEntryEvidence = []byte("evidence")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *XrefEntry) UnmarshalJSON(input []byte) error {
@@ -7197,6 +7206,14 @@ mainparse:
 						goto mainparse
 					}
 
+				case 'e':
+
+					if bytes.Equal(ffjKeyXrefEntryEvidence, kn) {
+						currentKey = ffjtXrefEntryEvidence
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 'i':
 
 					if bytes.Equal(ffjKeyXrefEntryIdentifier, kn) {
@@ -7205,6 +7222,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyXrefEntryEvidence, kn) {
+					currentKey = ffjtXrefEntryEvidence
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.SimpleLetterEqualFold(ffjKeyXrefEntryIdentifier, kn) {
@@ -7241,6 +7264,9 @@ mainparse:
 
 				case ffjtXrefEntryIdentifier:
 					goto handle_Identifier
+
+				case ffjtXrefEntryEvidence:
+					goto handle_Evidence
 
 				case ffjtXrefEntrynosuchkey:
 					err = fs.SkipField(tok)
@@ -7305,6 +7331,32 @@ handle_Identifier:
 			outBuf := fs.Output.Bytes()
 
 			j.Identifier = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Evidence:
+
+	/* handler: j.Evidence type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Evidence = string(string(outBuf))
 
 		}
 	}
@@ -10172,7 +10224,7 @@ mainparse:
 
 handle_Reactome:
 
-	/* handler: j.Reactome type=pbuf.ReactomeAttr kind=struct quoted=false*/
+	/* handler: j.Reactome type=pbuf.ReactomePathwayAttr kind=struct quoted=false*/
 
 	{
 		if tok == fflib.FFTok_null {
@@ -10182,7 +10234,7 @@ handle_Reactome:
 		} else {
 
 			if j.Reactome == nil {
-				j.Reactome = new(ReactomeAttr)
+				j.Reactome = new(ReactomePathwayAttr)
 			}
 
 			err = j.Reactome.UnmarshalJSONFFLexer(fs, fflib.FFParse_want_key)

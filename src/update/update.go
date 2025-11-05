@@ -312,6 +312,12 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			d.datasets2 = append(d.datasets2, data)
 			go str.update(d.selectedTaxids)
 			break
+		case "reactome":
+			d.wg.Add(1)
+			r := reactome{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go r.update()
+			break
 		case "go":
 			d.wg.Add(1)
 			g := ontology{source: data, d: d, prefixURL: "http://purl.obolibrary.org/obo/", idPrefix: "GO:"}
@@ -533,9 +539,17 @@ func (d *DataUpdate) addProp3(key, from string, attr []byte) {
 }
 
 func (d *DataUpdate) addXref(key string, from string, value string, valueFrom string, isLink bool) {
+	// Backward compatible - calls new function with empty evidence
+	d.addXrefWithEvidence(key, from, value, valueFrom, isLink, "")
+}
+
+// addXrefWithEvidence adds cross-reference with optional evidence code
+// evidence: Optional evidence/quality metadata (e.g., "TAS", "IEA" for Reactome)
+func (d *DataUpdate) addXrefWithEvidence(key string, from string, value string, valueFrom string, isLink bool, evidence string) {
 
 	key = strings.TrimSpace(key)
 	value = strings.TrimSpace(value)
+	evidence = strings.TrimSpace(evidence)
 
 	if len(key) == 0 || len(value) == 0 || len(from) == 0 {
 		return
@@ -559,10 +573,21 @@ func (d *DataUpdate) addXref(key string, from string, value string, valueFrom st
 
 	kup := strings.ToUpper(key)
 	vup := strings.ToUpper(value)
-	*d.kvdatachan <- kup + tab + from + tab + vup + tab + config.Dataconf[valueFrom]["id"]
+
+	// Storage format: KEY <tab> FROM <tab> VALUE <tab> DATASETID <tab> EVIDENCE (optional)
+	dataLine := kup + tab + from + tab + vup + tab + config.Dataconf[valueFrom]["id"]
+	if evidence != "" {
+		dataLine += tab + evidence
+	}
+	*d.kvdatachan <- dataLine
 
 	if !isLink {
-		*d.kvdatachan <- vup + tab + config.Dataconf[valueFrom]["id"] + tab + kup + tab + from
+		// Reverse mapping also includes evidence
+		reverseDataLine := vup + tab + config.Dataconf[valueFrom]["id"] + tab + kup + tab + from
+		if evidence != "" {
+			reverseDataLine += tab + evidence
+		}
+		*d.kvdatachan <- reverseDataLine
 	}
 
 }

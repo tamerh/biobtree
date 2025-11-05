@@ -109,8 +109,8 @@ func (u *uniprot) processDbReference(entryid string, r *xmlparser.XMLElement) {
 			for _, z := range v.Childs["property"] {
 				switch z.Attrs["type"] {
 				case "pathway name":
-					attr := pbuf.ReactomeAttr{}
-					attr.Pathway = z.Attrs["value"]
+					attr := pbuf.ReactomePathwayAttr{}
+					attr.Name = z.Attrs["value"]
 					b, _ := ffjson.Marshal(attr)
 					u.d.addProp3(v.Attrs["id"], config.Dataconf[v.Attrs["type"]]["id"], b)
 				}

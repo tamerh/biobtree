@@ -1,19 +1,9 @@
 # Biobtree
 
-<!--[![Build Status](https://dev.azure.com/biobtree/biobtree/_apis/build/status/tamerh.biobtree?branchName=master)](https://dev.azure.com/biobtree/biobtree/_build/latest?definitionId=1&branchName=master) -->
 
 Biobtree is a bioinformatics tool which allows mapping the bioinformatics datasets
 via identifiers and special keywors with simple or advance chain query capability.
 
-<!--- 
-
-## Demo
-
-Demo of web interface which covers all the datasets with examples. This demo covers relatively old data from 2020 for the latest data use the tool directly.
-
-https://www.ebi.ac.uk/~tgur/biobtree/
-
--->
 
 ## Features
 
@@ -33,6 +23,8 @@ by retrieving latest data from providers
 * **Patents** - `SureChEMBL` patent data with 43M+ patents, 30M+ compounds, and patent-compound mappings for drug discovery and IP analysis
 
 * **Clinical Trials** - `ClinicalTrials.gov` data with trial metadata, conditions, interventions, publications, and automatic drug mapping to ChEMBL molecules
+
+* **Pathways** - `Reactome` pathway database with 23K+ curated pathways across 16 species, including protein/gene/compound participants, pathway hierarchy, GO mappings, disease annotations, and evidence codes (TAS/IEA) for curation quality
 
 * **Taxonomy & Ontologies** - `Taxonomy` `GO` `EFO` `ECO` data with mapping to other datasets and child and parent query capability
 

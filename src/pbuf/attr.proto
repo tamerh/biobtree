@@ -411,4 +411,14 @@ message AlphaFoldAttr {
   string gene =7;                           // Gene symbol
 }
 
+message RnacentralAttr {
+  string rna_type =1;                       // RNA type (e.g., rRNA, miRNA, lncRNA, tRNA, snoRNA)
+  string description =2;                    // Description from FASTA header
+  int32 length =3;                          // Sequence length in nucleotides
+  int32 organism_count =4;                  // Number of distinct organisms
+  repeated string databases =5;             // List of source databases (e.g., ENA, RefSeq, miRBase)
+  bool is_active =6;                        // Whether this is an active (non-obsolete) entry
+  string md5 =7;                            // MD5 checksum of the sequence
+}
+
 

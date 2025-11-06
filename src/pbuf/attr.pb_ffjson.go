@@ -18579,6 +18579,593 @@ done:
 }
 
 // MarshalJSON marshal bytes to json - template
+func (j *RnacentralAttr) MarshalJSON() ([]byte, error) {
+	var buf fflib.Buffer
+	if j == nil {
+		buf.WriteString("null")
+		return buf.Bytes(), nil
+	}
+	err := j.MarshalJSONBuf(&buf)
+	if err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
+}
+
+// MarshalJSONBuf marshal buff to json - template
+func (j *RnacentralAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
+	if j == nil {
+		buf.WriteString("null")
+		return nil
+	}
+	var err error
+	var obj []byte
+	_ = obj
+	_ = err
+	buf.WriteString(`{ `)
+	if len(j.RnaType) != 0 {
+		buf.WriteString(`"rna_type":`)
+		fflib.WriteJsonString(buf, string(j.RnaType))
+		buf.WriteByte(',')
+	}
+	if len(j.Description) != 0 {
+		buf.WriteString(`"description":`)
+		fflib.WriteJsonString(buf, string(j.Description))
+		buf.WriteByte(',')
+	}
+	if j.Length != 0 {
+		buf.WriteString(`"length":`)
+		fflib.FormatBits2(buf, uint64(j.Length), 10, j.Length < 0)
+		buf.WriteByte(',')
+	}
+	if j.OrganismCount != 0 {
+		buf.WriteString(`"organism_count":`)
+		fflib.FormatBits2(buf, uint64(j.OrganismCount), 10, j.OrganismCount < 0)
+		buf.WriteByte(',')
+	}
+	if len(j.Databases) != 0 {
+		buf.WriteString(`"databases":`)
+		if j.Databases != nil {
+			buf.WriteString(`[`)
+			for i, v := range j.Databases {
+				if i != 0 {
+					buf.WriteString(`,`)
+				}
+				fflib.WriteJsonString(buf, string(v))
+			}
+			buf.WriteString(`]`)
+		} else {
+			buf.WriteString(`null`)
+		}
+		buf.WriteByte(',')
+	}
+	if j.IsActive != false {
+		if j.IsActive {
+			buf.WriteString(`"is_active":true`)
+		} else {
+			buf.WriteString(`"is_active":false`)
+		}
+		buf.WriteByte(',')
+	}
+	if len(j.Md5) != 0 {
+		buf.WriteString(`"md5":`)
+		fflib.WriteJsonString(buf, string(j.Md5))
+		buf.WriteByte(',')
+	}
+	buf.Rewind(1)
+	buf.WriteByte('}')
+	return nil
+}
+
+const (
+	ffjtRnacentralAttrbase = iota
+	ffjtRnacentralAttrnosuchkey
+
+	ffjtRnacentralAttrRnaType
+
+	ffjtRnacentralAttrDescription
+
+	ffjtRnacentralAttrLength
+
+	ffjtRnacentralAttrOrganismCount
+
+	ffjtRnacentralAttrDatabases
+
+	ffjtRnacentralAttrIsActive
+
+	ffjtRnacentralAttrMd5
+)
+
+var ffjKeyRnacentralAttrRnaType = []byte("rna_type")
+
+var ffjKeyRnacentralAttrDescription = []byte("description")
+
+var ffjKeyRnacentralAttrLength = []byte("length")
+
+var ffjKeyRnacentralAttrOrganismCount = []byte("organism_count")
+
+var ffjKeyRnacentralAttrDatabases = []byte("databases")
+
+var ffjKeyRnacentralAttrIsActive = []byte("is_active")
+
+var ffjKeyRnacentralAttrMd5 = []byte("md5")
+
+// UnmarshalJSON umarshall json - template of ffjson
+func (j *RnacentralAttr) UnmarshalJSON(input []byte) error {
+	fs := fflib.NewFFLexer(input)
+	return j.UnmarshalJSONFFLexer(fs, fflib.FFParse_map_start)
+}
+
+// UnmarshalJSONFFLexer fast json unmarshall - template ffjson
+func (j *RnacentralAttr) UnmarshalJSONFFLexer(fs *fflib.FFLexer, state fflib.FFParseState) error {
+	var err error
+	currentKey := ffjtRnacentralAttrbase
+	_ = currentKey
+	tok := fflib.FFTok_init
+	wantedTok := fflib.FFTok_init
+
+mainparse:
+	for {
+		tok = fs.Scan()
+		//	println(fmt.Sprintf("debug: tok: %v  state: %v", tok, state))
+		if tok == fflib.FFTok_error {
+			goto tokerror
+		}
+
+		switch state {
+
+		case fflib.FFParse_map_start:
+			if tok != fflib.FFTok_left_bracket {
+				wantedTok = fflib.FFTok_left_bracket
+				goto wrongtokenerror
+			}
+			state = fflib.FFParse_want_key
+			continue
+
+		case fflib.FFParse_after_value:
+			if tok == fflib.FFTok_comma {
+				state = fflib.FFParse_want_key
+			} else if tok == fflib.FFTok_right_bracket {
+				goto done
+			} else {
+				wantedTok = fflib.FFTok_comma
+				goto wrongtokenerror
+			}
+
+		case fflib.FFParse_want_key:
+			// json {} ended. goto exit. woo.
+			if tok == fflib.FFTok_right_bracket {
+				goto done
+			}
+			if tok != fflib.FFTok_string {
+				wantedTok = fflib.FFTok_string
+				goto wrongtokenerror
+			}
+
+			kn := fs.Output.Bytes()
+			if len(kn) <= 0 {
+				// "" case. hrm.
+				currentKey = ffjtRnacentralAttrnosuchkey
+				state = fflib.FFParse_want_colon
+				goto mainparse
+			} else {
+				switch kn[0] {
+
+				case 'd':
+
+					if bytes.Equal(ffjKeyRnacentralAttrDescription, kn) {
+						currentKey = ffjtRnacentralAttrDescription
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyRnacentralAttrDatabases, kn) {
+						currentKey = ffjtRnacentralAttrDatabases
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'i':
+
+					if bytes.Equal(ffjKeyRnacentralAttrIsActive, kn) {
+						currentKey = ffjtRnacentralAttrIsActive
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'l':
+
+					if bytes.Equal(ffjKeyRnacentralAttrLength, kn) {
+						currentKey = ffjtRnacentralAttrLength
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'm':
+
+					if bytes.Equal(ffjKeyRnacentralAttrMd5, kn) {
+						currentKey = ffjtRnacentralAttrMd5
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'o':
+
+					if bytes.Equal(ffjKeyRnacentralAttrOrganismCount, kn) {
+						currentKey = ffjtRnacentralAttrOrganismCount
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'r':
+
+					if bytes.Equal(ffjKeyRnacentralAttrRnaType, kn) {
+						currentKey = ffjtRnacentralAttrRnaType
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyRnacentralAttrMd5, kn) {
+					currentKey = ffjtRnacentralAttrMd5
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyRnacentralAttrIsActive, kn) {
+					currentKey = ffjtRnacentralAttrIsActive
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyRnacentralAttrDatabases, kn) {
+					currentKey = ffjtRnacentralAttrDatabases
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyRnacentralAttrOrganismCount, kn) {
+					currentKey = ffjtRnacentralAttrOrganismCount
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyRnacentralAttrLength, kn) {
+					currentKey = ffjtRnacentralAttrLength
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyRnacentralAttrDescription, kn) {
+					currentKey = ffjtRnacentralAttrDescription
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyRnacentralAttrRnaType, kn) {
+					currentKey = ffjtRnacentralAttrRnaType
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				currentKey = ffjtRnacentralAttrnosuchkey
+				state = fflib.FFParse_want_colon
+				goto mainparse
+			}
+
+		case fflib.FFParse_want_colon:
+			if tok != fflib.FFTok_colon {
+				wantedTok = fflib.FFTok_colon
+				goto wrongtokenerror
+			}
+			state = fflib.FFParse_want_value
+			continue
+		case fflib.FFParse_want_value:
+
+			if tok == fflib.FFTok_left_brace || tok == fflib.FFTok_left_bracket || tok == fflib.FFTok_integer || tok == fflib.FFTok_double || tok == fflib.FFTok_string || tok == fflib.FFTok_bool || tok == fflib.FFTok_null {
+				switch currentKey {
+
+				case ffjtRnacentralAttrRnaType:
+					goto handle_RnaType
+
+				case ffjtRnacentralAttrDescription:
+					goto handle_Description
+
+				case ffjtRnacentralAttrLength:
+					goto handle_Length
+
+				case ffjtRnacentralAttrOrganismCount:
+					goto handle_OrganismCount
+
+				case ffjtRnacentralAttrDatabases:
+					goto handle_Databases
+
+				case ffjtRnacentralAttrIsActive:
+					goto handle_IsActive
+
+				case ffjtRnacentralAttrMd5:
+					goto handle_Md5
+
+				case ffjtRnacentralAttrnosuchkey:
+					err = fs.SkipField(tok)
+					if err != nil {
+						return fs.WrapErr(err)
+					}
+					state = fflib.FFParse_after_value
+					goto mainparse
+				}
+			} else {
+				goto wantedvalue
+			}
+		}
+	}
+
+handle_RnaType:
+
+	/* handler: j.RnaType type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.RnaType = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Description:
+
+	/* handler: j.Description type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Description = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Length:
+
+	/* handler: j.Length type=int32 kind=int32 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for int32", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseInt(fs.Output.Bytes(), 10, 32)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.Length = int32(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_OrganismCount:
+
+	/* handler: j.OrganismCount type=int32 kind=int32 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for int32", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseInt(fs.Output.Bytes(), 10, 32)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.OrganismCount = int32(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Databases:
+
+	/* handler: j.Databases type=[]string kind=slice quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_left_brace && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for ", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+			j.Databases = nil
+		} else {
+
+			j.Databases = []string{}
+
+			wantVal := true
+
+			for {
+
+				var tmpJDatabases string
+
+				tok = fs.Scan()
+				if tok == fflib.FFTok_error {
+					goto tokerror
+				}
+				if tok == fflib.FFTok_right_brace {
+					break
+				}
+
+				if tok == fflib.FFTok_comma {
+					if wantVal == true {
+						// TODO(pquerna): this isn't an ideal error message, this handles
+						// things like [,,,] as an array value.
+						return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
+					}
+					continue
+				} else {
+					wantVal = true
+				}
+
+				/* handler: tmpJDatabases type=string kind=string quoted=false*/
+
+				{
+
+					{
+						if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+							return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+						}
+					}
+
+					if tok == fflib.FFTok_null {
+
+					} else {
+
+						outBuf := fs.Output.Bytes()
+
+						tmpJDatabases = string(string(outBuf))
+
+					}
+				}
+
+				j.Databases = append(j.Databases, tmpJDatabases)
+
+				wantVal = false
+			}
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_IsActive:
+
+	/* handler: j.IsActive type=bool kind=bool quoted=false*/
+
+	{
+		if tok != fflib.FFTok_bool && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for bool", tok))
+		}
+	}
+
+	{
+		if tok == fflib.FFTok_null {
+
+		} else {
+			tmpb := fs.Output.Bytes()
+
+			if bytes.Compare([]byte{'t', 'r', 'u', 'e'}, tmpb) == 0 {
+
+				j.IsActive = true
+
+			} else if bytes.Compare([]byte{'f', 'a', 'l', 's', 'e'}, tmpb) == 0 {
+
+				j.IsActive = false
+
+			} else {
+				err = errors.New("unexpected bytes for true/false value")
+				return fs.WrapErr(err)
+			}
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Md5:
+
+	/* handler: j.Md5 type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Md5 = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+wantedvalue:
+	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
+wrongtokenerror:
+	return fs.WrapErr(fmt.Errorf("ffjson: wanted token: %v, but got token: %v output=%s", wantedTok, tok, fs.Output.String()))
+tokerror:
+	if fs.BigError != nil {
+		return fs.WrapErr(fs.BigError)
+	}
+	err = fs.Error.ToError()
+	if err != nil {
+		return fs.WrapErr(err)
+	}
+	panic("ffjson-generated: unreachable, please report bug.")
+done:
+
+	return nil
+}
+
+// MarshalJSON marshal bytes to json - template
 func (j *StringAttr) MarshalJSON() ([]byte, error) {
 	var buf fflib.Buffer
 	if j == nil {

@@ -7,7 +7,7 @@ via identifiers and special keywors with simple or advance chain query capabilit
 
 ## Features
 
-* **Datasets** - supports wide datasets such as `Ensembl` `Uniprot` `ChEMBL` `HMDB` `Taxonomy` `GO` `EFO` `HPO` `HGNC` `ECO` `Uniparc` `Uniref`  with tens of more via cross references
+* **Datasets** - supports wide datasets such as `Ensembl` `Uniprot` `ChEMBL` `HMDB` `Taxonomy` `GO` `EFO` `HPO` `HGNC` `ECO` `Uniparc` `Uniref` `RNACentral`  with tens of more via cross references
 by retrieving latest data from providers
 
 * **MapReduce** - processes small or large datasets based on users selection and build B+ tree based uniform local database via specialized MapReduce based tecnique with efficient storage usage 
@@ -25,6 +25,8 @@ by retrieving latest data from providers
 * **Clinical Trials** - `ClinicalTrials.gov` data with trial metadata, conditions, interventions, publications, and automatic drug mapping to ChEMBL molecules
 
 * **Pathways** - `Reactome` pathway database with 23K+ curated pathways across 16 species, including protein/gene/compound participants, pathway hierarchy, GO mappings, disease annotations, and evidence codes (TAS/IEA) for curation quality
+
+* **Non-Coding RNAs** - `RNACentral` database with 49.8M+ unique ncRNA sequences aggregated from 56 expert databases, including rRNA, miRNA, lncRNA, tRNA, and other RNA types with comprehensive metadata
 
 * **Taxonomy & Ontologies** - `Taxonomy` `GO` `EFO` `ECO` `HPO` `MONDO` data with mapping to other datasets and child and parent query capability
 

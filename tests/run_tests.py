@@ -192,8 +192,10 @@ Examples:
   %(prog)s hmdb,go,taxonomy   # Run multiple specific tests
 
 Available datasets:
-  hgnc, uniprot, go, taxonomy, eco, efo, chebi, interpro, hmdb, chembl_document, chembl_molecule, chembl_activity, chembl_assay, chembl_target, chembl_cell_line, ensembl, ensembl_bacteria, ensembl_fungi, ensembl_metazoa, ensembl_plants, ensembl_protists, mondo, patent, clinical_trials, string, reactome, alphafold
-  (uniparc, uniref100, uniref50, uniref90 - currently disabled due to FTP issues)
+  hgnc, uniprot, go, taxonomy, eco, efo, chebi, interpro, hmdb, chembl_document, chembl_molecule, chembl_activity, chembl_assay, chembl_target, chembl_cell_line, ensembl, mondo, hpo, patent, clinical_trials, string, reactome, alphafold, rnacentral, uniparc, uniref50, uniref90, uniref100
+
+  Temporarily disabled (Ensembl Genomes API SSL issues):
+  ensembl_bacteria, ensembl_fungi, ensembl_metazoa, ensembl_plants, ensembl_protists
         """
     )
     parser.add_argument(
@@ -205,47 +207,48 @@ Available datasets:
     args = parser.parse_args()
 
     script_dir = Path(__file__).parent
+    datasets_dir = script_dir / "datasets"  # All dataset tests now under datasets/
     project_root = script_dir.parent
     out_dir = project_root / "test_out"
     db_dir = out_dir / "db"
     biobtree_path = project_root / "biobtree"
 
     # Define all available datasets and their test scripts
-    # Temporarily commenting out FTP datasets due to connection issues
     all_datasets = {
-        'hgnc': script_dir / "hgnc" / "test_hgnc.py",
-        'uniprot': script_dir / "uniprot" / "test_uniprot.py",
-        'go': script_dir / "go" / "test_go.py",
-        'taxonomy': script_dir / "taxonomy" / "test_taxonomy.py",
-        'eco': script_dir / "eco" / "test_eco.py",
-        'efo': script_dir / "efo" / "test_efo.py",
-        'chebi': script_dir / "chebi" / "test_chebi.py",
-        'interpro': script_dir / "interpro" / "test_interpro.py",
-        'hmdb': script_dir / "hmdb" / "test_hmdb.py",
-        'chembl_document': script_dir / "chembl_document" / "test_chembl_document.py",
-        'chembl_molecule': script_dir / "chembl_molecule" / "test_chembl_molecule.py",
-        'chembl_activity': script_dir / "chembl_activity" / "test_chembl_activity.py",
-        'chembl_assay': script_dir / "chembl_assay" / "test_chembl_assay.py",
-        'chembl_target': script_dir / "chembl_target" / "test_chembl_target.py",
-        'chembl_cell_line': script_dir / "chembl_cell_line" / "test_chembl_cell_line.py",
-        'ensembl': script_dir / "ensembl" / "test_ensembl.py",
-        'ensembl_bacteria': script_dir / "ensembl_bacteria" / "test_ensembl_bacteria.py",
-        'ensembl_fungi': script_dir / "ensembl_fungi" / "test_ensembl_fungi.py",
-        'ensembl_metazoa': script_dir / "ensembl_metazoa" / "test_ensembl_metazoa.py",
-        'ensembl_plants': script_dir / "ensembl_plants" / "test_ensembl_plants.py",
-        'ensembl_protists': script_dir / "ensembl_protists" / "test_ensembl_protists.py",
-        'mondo': script_dir / "mondo" / "test_mondo.py",
-        'hpo': script_dir / "hpo" / "test_hpo.py",
-        'patent': script_dir / "patent" / "test_patent.py",
-        'clinical_trials': script_dir / "clinical_trials" / "test_clinical_trials.py",
-        'string': script_dir / "string" / "test_string.py",
-        'reactome': script_dir / "reactome" / "test_reactome.py",
-        'alphafold': script_dir / "alphafold" / "test_alphafold.py",
-        # Temporarily disabled due to FTP issues:
-        # 'uniparc': script_dir / "uniparc" / "test_uniparc.py",
-        # 'uniref100': script_dir / "uniref100" / "test_uniref100.py",
-        # 'uniref50': script_dir / "uniref50" / "test_uniref50.py",
-        # 'uniref90': script_dir / "uniref90" / "test_uniref90.py",
+        'hgnc': datasets_dir / "hgnc" / "test_hgnc.py",
+        'uniprot': datasets_dir / "uniprot" / "test_uniprot.py",
+        'go': datasets_dir / "go" / "test_go.py",
+        'taxonomy': datasets_dir / "taxonomy" / "test_taxonomy.py",
+        'eco': datasets_dir / "eco" / "test_eco.py",
+        'efo': datasets_dir / "efo" / "test_efo.py",
+        'chebi': datasets_dir / "chebi" / "test_chebi.py",
+        'interpro': datasets_dir / "interpro" / "test_interpro.py",
+        'hmdb': datasets_dir / "hmdb" / "test_hmdb.py",
+        'chembl_document': datasets_dir / "chembl_document" / "test_chembl_document.py",
+        'chembl_molecule': datasets_dir / "chembl_molecule" / "test_chembl_molecule.py",
+        'chembl_activity': datasets_dir / "chembl_activity" / "test_chembl_activity.py",
+        'chembl_assay': datasets_dir / "chembl_assay" / "test_chembl_assay.py",
+        'chembl_target': datasets_dir / "chembl_target" / "test_chembl_target.py",
+        'chembl_cell_line': datasets_dir / "chembl_cell_line" / "test_chembl_cell_line.py",
+        'ensembl': datasets_dir / "ensembl" / "test_ensembl.py",
+        # Temporarily disabled due to Ensembl Genomes API SSL issues
+        # 'ensembl_bacteria': datasets_dir / "ensembl_bacteria" / "test_ensembl_bacteria.py",
+        # 'ensembl_fungi': datasets_dir / "ensembl_fungi" / "test_ensembl_fungi.py",
+        # 'ensembl_metazoa': datasets_dir / "ensembl_metazoa" / "test_ensembl_metazoa.py",
+        # 'ensembl_plants': datasets_dir / "ensembl_plants" / "test_ensembl_plants.py",
+        # 'ensembl_protists': datasets_dir / "ensembl_protists" / "test_ensembl_protists.py",
+        'mondo': datasets_dir / "mondo" / "test_mondo.py",
+        'hpo': datasets_dir / "hpo" / "test_hpo.py",
+        'patent': datasets_dir / "patent" / "test_patent.py",
+        'clinical_trials': datasets_dir / "clinical_trials" / "test_clinical_trials.py",
+        'string': datasets_dir / "string" / "test_string.py",
+        'reactome': datasets_dir / "reactome" / "test_reactome.py",
+        'alphafold': datasets_dir / "alphafold" / "test_alphafold.py",
+        'rnacentral': datasets_dir / "rnacentral" / "test_rnacentral.py",
+        'uniparc': datasets_dir / "uniparc" / "test_uniparc.py",
+        'uniref50': datasets_dir / "uniref50" / "test_uniref50.py",
+        'uniref90': datasets_dir / "uniref90" / "test_uniref90.py",
+        'uniref100': datasets_dir / "uniref100" / "test_uniref100.py",
     }
 
     # Parse dataset selection

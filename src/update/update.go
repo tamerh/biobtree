@@ -354,6 +354,12 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			d.datasets2 = append(d.datasets2, data)
 			go af.update()
 			break
+		case "rnacentral":
+			d.wg.Add(1)
+			rc := rnacentralProcessor{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go rc.update()
+			break
 		case "my_data":
 
 			if len(config.Dataconf[data]["path"]) > 0 {

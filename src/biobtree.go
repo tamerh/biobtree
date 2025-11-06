@@ -306,6 +306,20 @@ func runTestCommand(c *cli.Context) error {
 			log.Fatalf("Error creating directory %s: %v", dir, err)
 		}
 	}
+
+	// Clear reference directory to remove old ID files from previous test runs
+	refDir := testOutDir + "/reference"
+	if entries, err := os.ReadDir(refDir); err == nil {
+		for _, entry := range entries {
+			if !entry.IsDir() && strings.HasSuffix(entry.Name(), "_ids.txt") {
+				filePath := refDir + "/" + entry.Name()
+				if err := os.Remove(filePath); err != nil {
+					log.Printf("Warning: Could not remove old reference file %s: %v", filePath, err)
+				}
+			}
+		}
+	}
+
 	log.Println("✓ Test directories created")
 	log.Println()
 

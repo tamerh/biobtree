@@ -913,6 +913,11 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)
 				xref.Attributes = &pbuf.Xref_Alphafold{attr}
+			case "rnacentral":
+				attr := &pbuf.RnacentralAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Rnacentral{attr}
 			case "interpro":
 				attr := &pbuf.InterproAttr{}
 				barr := []byte((*kvProp[k])[0].value)
@@ -1078,6 +1083,11 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 					barr := []byte((*kvProp[k])[0].value)
 					ffjson.Unmarshal(barr, attr)
 					xref.Attributes = &pbuf.Xref_Alphafold{attr}
+				case "rnacentral":
+					attr := &pbuf.RnacentralAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_Rnacentral{attr}
 				}
 			}
 

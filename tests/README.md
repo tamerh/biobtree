@@ -92,12 +92,14 @@ tests/
       test_types.py             # Common test patterns
       query_helpers.py          # Query helper methods
 
-   <dataset>/                   # Per-dataset tests
-       test_cases.json          # Declarative tests (JSON)
-       test_<dataset>.py        # Custom tests + main
-       extract_reference_data.py # Fetch from source API
-       reference_data.json      # Complete API response data
-       <dataset>_ids.txt        # Fixed test IDs
+   datasets/                    # Dataset-specific tests
+      <dataset>/                # Per-dataset folder
+          test_cases.json       # Declarative tests (JSON)
+          test_<dataset>.py     # Custom tests + main
+          extract_reference_data.py # Fetch from source API
+          reference_data.json   # Complete API response data
+          <dataset>_ids.txt     # Fixed test IDs
+          README.md             # Dataset documentation
 ```
 
 ## Test Workflow
@@ -114,8 +116,8 @@ Creates database in `test_out/db/` and logs IDs to `test_out/reference/<dataset>
 ### 3. Extract Reference Data
 Copy IDs to test directory and run extraction script:
 ```bash
-cd tests/<dataset>
-cp ../../test_out/reference/<dataset>_ids.txt .
+cd tests/datasets/<dataset>
+cp ../../../test_out/reference/<dataset>_ids.txt .
 python3 extract_reference_data.py
 ```
 **Important**: Always fetch COMPLETE API response (not selective fields) to preserve all data for future tests
@@ -200,7 +202,7 @@ Most parsers support test mode automatically. Add for new datasets:
 
 ## Special Cases
 
-**HMDB**: Static test file due to zipstream limitations. Parser checks `path2` config in test mode.
+**HMDB**: Static test file (`tests/datasets/hmdb/hmdb_test.zip`) due to zipstream limitations. Parser checks `path2` config in test mode.
 
 **ChEMBL**: Smart tracking for sparse RDF data. Blank node filtering. Activity IDs need reformatting (CHEMBL_ACT_93229).
 

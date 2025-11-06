@@ -25,6 +25,7 @@ This document provides a comprehensive analysis of potential datasets for integr
 | **ClinicalTrials.gov** | Clinical | ✅ Integrated | Medium | Trial metadata, interventions, conditions |
 | **Reactome** | Pathways | ✅ Integrated | Medium | 23K+ curated pathways, 16 species |
 | **STRING** | Interactions | ✅ Integrated | Large | Protein-protein interactions, 24M+ proteins |
+| **RNACentral** | Non-coding RNA | ✅ Integrated | Medium | 49.8M+ ncRNA sequences from 56 databases |
 | **Mondo** | Disease Ontology | ✅ Integrated | Small | Unified disease ontology |
 | **HPO** | Phenotype Ontology | ✅ Integrated | Small | Human phenotypes, gene-phenotype associations |
 | **GO** | Ontology | ✅ Integrated | Medium | Gene Ontology terms |
@@ -158,52 +159,55 @@ biobtree query "HGNC:BRCA1 >> uniprot >> biogrid[biogrid.experimental==true]"
 
 ---
 
-### 4. RNAcentral - Non-coding RNA Database
+### 4. RNAcentral - Non-coding RNA Database - ✅ INTEGRATED (2025)
 
-**Priority:** ⭐⭐⭐
+**Status:** ✅ **Integrated and tested** (49.8M+ ncRNA sequences, RNA type annotations, metadata-only storage)
 
 | Attribute | Details |
 |-----------|---------|
 | **License** | ✅ Open Access (CC-BY-4.0) |
-| **Size** | ~2GB compressed |
-| **Update Frequency** | Quarterly |
+| **Size** | 8.4GB compressed (active FASTA) |
+| **Update Frequency** | Quarterly (Release 25) |
 | **API** | REST API available |
-| **Download** | FASTA, JSON, RDF |
+| **Download** | FASTA streaming from EMBL-EBI FTP |
 
-**Data Content:**
-- 18M+ ncRNA sequences (2024)
-- 44 RNA databases integrated
-- Secondary structure (13M+ sequences)
-- Wide range of organisms
-- RNA types: miRNA, lncRNA, rRNA, tRNA, etc.
+**Integrated Data:**
+- 49.8M+ unique ncRNA sequences (Release 25)
+- 56 expert databases aggregated
+- RNA types: rRNA, miRNA, lncRNA, tRNA, snoRNA, etc.
+- Metadata-only storage (sequences via API)
+- Organism distribution tracking
+- Active/obsolete status
+
+**Attributes Stored:**
+- RNA type classification
+- Sequence length
+- Description
+- Organism count
+- Source databases
+- Active status
+- MD5 checksum
 
 **Cross-References:**
-- ✅ Ensembl gene IDs
-- ✅ UniProt (for RNA-binding proteins)
-- PubMed IDs
-- GO terms
-- RefSeq
+- ✅ RNACentral ID keyword lookup
+- Future: Ensembl, RefSeq, miRBase (via id_mapping.tsv)
 
-**Value Proposition:**
-- Biobtree currently lacks ncRNA data
-- Critical for gene regulation studies
-- miRNA-target interactions
-- lncRNA functional annotations
+**Value Delivered:**
+- Fills ncRNA gap in biobtree
+- Gene regulation studies
+- RNA annotation for genome assemblies
 - Completes the "central dogma" (DNA→RNA→Protein)
 
 **Example Queries:**
 ```bash
-# Find miRNAs for a gene
-biobtree query "HGNC:EGFR >> ensembl >> rnacentral[rnacentral.type=='miRNA']"
+# Basic RNA lookup
+biobtree query "URS000149A9AF >> rnacentral"
 
-# Regulatory RNA → pathways
-biobtree query "miR-21 >> rnacentral >> ensembl >> uniprot >> reactome"
-
-# Disease → genes → regulatory RNAs
-biobtree query "disease:cancer >> disgenet >> ensembl >> rnacentral"
+# Find by RNA type (future with filters)
+biobtree query "gene >> ensembl >> rnacentral[rnacentral.rna_type=='miRNA']"
 ```
 
-**Implementation Effort:** Medium (RNA-specific data types, secondary structures)
+**Implementation Details:** Streaming FASTA parser, intelligent RNA type detection, 100 test entries with 15 tests (9 declarative + 6 custom)
 
 ---
 
@@ -445,10 +449,11 @@ Recent biomedical knowledge graph research highlights these resources:
 ### Phase 2: RNA & Expression (4-6 months)
 **Goal:** Add gene regulation and expression context
 
-4. **RNAcentral** (Priority 4) - 3 months
-   - ncRNA integration
-   - miRNA-target interactions
-   - Fill gap in RNA biology
+4. **RNAcentral** (Priority 4) - ✅ **COMPLETED** (2025)
+   - ✅ ncRNA integration (49.8M sequences)
+   - ✅ RNA type classification
+   - ✅ Metadata-only storage
+   - Future: miRNA-target interactions via id_mapping
 
 5. **Bgee** (Priority 5) - 3 months
    - Tissue expression
@@ -456,8 +461,8 @@ Recent biomedical knowledge graph research highlights these resources:
    - Single-cell data
 
 **Expected Impact:**
-- Complete central dogma coverage
-- Tissue-specific queries
+- ✅ Central dogma coverage complete (DNA→RNA→Protein)
+- Tissue-specific queries (pending Bgee)
 - Gene regulation insights
 
 ---
@@ -505,16 +510,16 @@ Recent biomedical knowledge graph research highlights these resources:
 
 ## Summary: Top 5 Recommendations
 
-| Rank | Dataset | Effort | Impact | Timeline | Commercial OK? |
-|------|---------|--------|--------|----------|----------------|
-| 1 | **HPO** | Low | ⭐⭐⭐⭐⭐ | 2 months | ✅ YES (CC BY 4.0) |
-| 2 | **AlphaFold DB** | Medium | ⭐⭐⭐⭐⭐ | 3 months | ✅ YES (CC BY 4.0) |
-| 3 | **BioGRID** | Low | ⭐⭐⭐⭐ | 2 months | ✅ YES (MIT License) |
-| 4 | **RNAcentral** | Medium | ⭐⭐⭐⭐ | 3 months | ✅ YES (CC BY 4.0) |
-| 5 | **Bgee** | Medium-High | ⭐⭐⭐⭐ | 3 months | ✅ YES (CC0) |
+| Rank | Dataset | Effort | Impact | Status | Commercial OK? |
+|------|---------|--------|--------|--------|----------------|
+| 1 | **HPO** | Low | ⭐⭐⭐⭐⭐ | ✅ **Integrated** | ✅ YES (CC BY 4.0) |
+| 2 | **AlphaFold DB** | Medium | ⭐⭐⭐⭐⭐ | ✅ **Integrated** | ✅ YES (CC BY 4.0) |
+| 3 | **BioGRID** | Low | ⭐⭐⭐⭐ | 📋 Planned | ✅ YES (MIT License) |
+| 4 | **RNAcentral** | Medium | ⭐⭐⭐⭐ | ✅ **Integrated** | ✅ YES (CC BY 4.0) |
+| 5 | **Bgee** | Medium-High | ⭐⭐⭐⭐ | 📋 Planned | ✅ YES (CC0) |
 
-**Total Effort:** ~13 months for all 5
-**Recommended Approach:** Phase 1 (HPO + AlphaFold + BioGRID) first
+**Progress:** 3/5 completed (HPO, AlphaFold, RNAcentral)
+**Remaining Effort:** ~5 months for BioGRID + Bgee
 
 ✅ **All top 5 recommendations are commercially compatible!**
 
@@ -622,6 +627,14 @@ Recent biomedical knowledge graph research highlights these resources:
 ---
 
 ## Change Log
+
+- **2025-11-06:** RNAcentral integration complete
+  - ✅ RNAcentral integrated with 49.8M+ ncRNA sequences
+  - Streaming FASTA parser with intelligent RNA type detection
+  - Metadata-only storage (rna_type, length, description, organism_count, databases, is_active)
+  - 15 comprehensive tests (9 declarative + 6 custom)
+  - Progress: 3/5 top priorities completed (HPO ✅, AlphaFold ✅, RNAcentral ✅)
+  - Completes central dogma coverage: DNA (Ensembl) → RNA (RNACentral) → Protein (UniProt)
 
 - **2025-01-06:** Complete rewrite with 2024-2025 research
   - Updated with Reactome ✅, STRING ✅, Clinical Trials ✅, Patents ✅ as integrated

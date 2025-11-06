@@ -152,7 +152,7 @@
     "name": "hmdb",
     "aliases": "HMDB,HMDB accession",
     "path": "http://www.hmdb.ca/system/downloads/current/hmdb_metabolites.zip",
-    "path2": "tests/hmdb/hmdb_test.zip",
+    "path2": "tests/datasets/hmdb/hmdb_test.zip",
     "url": "http://www.hmdb.ca/metabolites/£{id}",
     "useLocalFile": "no",
     "hasFilter": "yes",
@@ -355,5 +355,17 @@
     "hasFilter": "yes",
     "attrs": "global_metric,fraction_pldddt_very_high,fraction_pldddt_confident,fraction_pldddt_low,fraction_pldddt_very_low,model_entity_id,gene",
     "test_entries_count": "20"
+  },
+  "rnacentral": {
+    "aliases": "RNAcentral,RNA Central",
+    "id": "31",
+    "name": "RNAcentral",
+    "url": "https://rnacentral.org/rna/£{id}",
+    "path": "https://ftp.ebi.ac.uk/pub/databases/RNAcentral/current_release/sequences/rnacentral_active.fasta.gz",
+    "pathIdMapping": "https://ftp.ebi.ac.uk/pub/databases/RNAcentral/current_release/id_mapping/id_mapping.tsv.gz",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "rna_type,description,length,organism_count,[]databases,is_active,md5",
+    "test_entries_count": "100"
   }
 }

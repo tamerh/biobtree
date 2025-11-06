@@ -128,11 +128,9 @@ startMapping:
 
 		mapfil := pbuf.MapFilter{}
 		s.makeLite(xref)
-		s.setURL(xref)
 		mapfil.Source = xref
 		for _, targ := range finaltargets {
 			s.makeLite(targ)
-			s.setURL(targ)
 		}
 		mapfil.Targets = finaltargets
 		// create next page string
@@ -172,6 +170,9 @@ startMapping:
 	}
 
 	// return result
+	// Enrich with all transient fields (dataset_name, url)
+	EnrichMapFilterResult(&result)
+
 	if newRootPage == "" && len(respaging.String()) == 0 {
 		setCache()
 		return &result, nil

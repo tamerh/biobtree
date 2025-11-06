@@ -285,8 +285,6 @@ func (web *Web) entry(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	web.service.setURL(r1)
-
 	buf.WriteString("[")
 	//jb, _ := json.Marshal(r1)
 	jb, _ := ffjson.Marshal(r1)

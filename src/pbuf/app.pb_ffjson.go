@@ -5828,6 +5828,11 @@ func (j *Xref) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.FormatBits2(buf, uint64(j.Dataset), 10, false)
 		buf.WriteByte(',')
 	}
+	if len(j.DatasetName) != 0 {
+		buf.WriteString(`"dataset_name":`)
+		fflib.WriteJsonString(buf, string(j.DatasetName))
+		buf.WriteByte(',')
+	}
 	if j.IsLink != false {
 		if j.IsLink {
 			buf.WriteString(`"is_link":true`)
@@ -5959,6 +5964,8 @@ const (
 
 	ffjtXrefDataset
 
+	ffjtXrefDatasetName
+
 	ffjtXrefIsLink
 
 	ffjtXrefIdentifier
@@ -5981,6 +5988,8 @@ const (
 )
 
 var ffjKeyXrefDataset = []byte("dataset")
+
+var ffjKeyXrefDatasetName = []byte("dataset_name")
 
 var ffjKeyXrefIsLink = []byte("is_link")
 
@@ -6083,6 +6092,11 @@ mainparse:
 
 					if bytes.Equal(ffjKeyXrefDataset, kn) {
 						currentKey = ffjtXrefDataset
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyXrefDatasetName, kn) {
+						currentKey = ffjtXrefDatasetName
 						state = fflib.FFParse_want_colon
 						goto mainparse
 
@@ -6204,6 +6218,12 @@ mainparse:
 					goto mainparse
 				}
 
+				if fflib.EqualFoldRight(ffjKeyXrefDatasetName, kn) {
+					currentKey = ffjtXrefDatasetName
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
 				if fflib.EqualFoldRight(ffjKeyXrefDataset, kn) {
 					currentKey = ffjtXrefDataset
 					state = fflib.FFParse_want_colon
@@ -6229,6 +6249,9 @@ mainparse:
 
 				case ffjtXrefDataset:
 					goto handle_Dataset
+
+				case ffjtXrefDatasetName:
+					goto handle_DatasetName
 
 				case ffjtXrefIsLink:
 					goto handle_IsLink
@@ -6297,6 +6320,32 @@ handle_Dataset:
 			}
 
 			j.Dataset = uint32(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_DatasetName:
+
+	/* handler: j.DatasetName type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.DatasetName = string(string(outBuf))
 
 		}
 	}
@@ -7105,6 +7154,11 @@ func (j *XrefEntry) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.FormatBits2(buf, uint64(j.Dataset), 10, false)
 		buf.WriteByte(',')
 	}
+	if len(j.DatasetName) != 0 {
+		buf.WriteString(`"dataset_name":`)
+		fflib.WriteJsonString(buf, string(j.DatasetName))
+		buf.WriteByte(',')
+	}
 	if len(j.Identifier) != 0 {
 		buf.WriteString(`"identifier":`)
 		fflib.WriteJsonString(buf, string(j.Identifier))
@@ -7126,12 +7180,16 @@ const (
 
 	ffjtXrefEntryDataset
 
+	ffjtXrefEntryDatasetName
+
 	ffjtXrefEntryIdentifier
 
 	ffjtXrefEntryEvidence
 )
 
 var ffjKeyXrefEntryDataset = []byte("dataset")
+
+var ffjKeyXrefEntryDatasetName = []byte("dataset_name")
 
 var ffjKeyXrefEntryIdentifier = []byte("identifier")
 
@@ -7204,6 +7262,11 @@ mainparse:
 						currentKey = ffjtXrefEntryDataset
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyXrefEntryDatasetName, kn) {
+						currentKey = ffjtXrefEntryDatasetName
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 'e':
@@ -7236,6 +7299,12 @@ mainparse:
 					goto mainparse
 				}
 
+				if fflib.EqualFoldRight(ffjKeyXrefEntryDatasetName, kn) {
+					currentKey = ffjtXrefEntryDatasetName
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
 				if fflib.EqualFoldRight(ffjKeyXrefEntryDataset, kn) {
 					currentKey = ffjtXrefEntryDataset
 					state = fflib.FFParse_want_colon
@@ -7261,6 +7330,9 @@ mainparse:
 
 				case ffjtXrefEntryDataset:
 					goto handle_Dataset
+
+				case ffjtXrefEntryDatasetName:
+					goto handle_DatasetName
 
 				case ffjtXrefEntryIdentifier:
 					goto handle_Identifier
@@ -7305,6 +7377,32 @@ handle_Dataset:
 			}
 
 			j.Dataset = uint32(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_DatasetName:
+
+	/* handler: j.DatasetName type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.DatasetName = string(string(outBuf))
 
 		}
 	}

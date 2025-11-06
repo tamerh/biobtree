@@ -106,6 +106,7 @@ message MapFilter {
 message Xref {
 
   uint32 dataset = 1;
+  string dataset_name = 31; // transient - populated at response time
   bool is_link=2;
   string identifier=3;// transient
   string keyword =4;  // transient
@@ -150,6 +151,7 @@ message PageInfo {
 message XrefEntry {
 
   uint32 dataset = 1;
+  string dataset_name = 4; // transient - populated at response time
   string identifier = 2;
   string evidence = 3;  // Evidence code for relationship quality (used by Reactome: TAS, IEA, IEP)
                         // TAS = Traceable Author Statement (manually curated)

@@ -628,51 +628,6 @@ func (s *service) searchPageInfo(page string) (*searchPageInfo, error) {
 
 }
 
-func (s *service) setURL(xref *pbuf.Xref) {
-
-	if xref.Dataset == 72 { // ufeature
-		xref.Url = strings.Replace(config.Dataconf[config.DataconfIDIntToString[xref.Dataset]]["url"], "£{id}", xref.Identifier[:strings.Index(xref.Identifier, "_")], -1)
-
-	} else if xref.Dataset == 73 { // variantid
-
-		xref.Url = strings.Replace(config.Dataconf[config.DataconfIDIntToString[xref.Dataset]]["url"], "£{id}", strings.ToLower(xref.Identifier), -1)
-
-	} else if xref.Dataset == 2 || xref.Dataset == 42 || xref.Dataset == 39 { // ensembl,transcript exon
-
-		if xref.GetEmpty() { // data not indexed
-			xref.Url = "#"
-		} else {
-			switch xref.GetEnsembl().Branch {
-			case 1:
-				xref.Url = strings.Replace(config.Dataconf[config.DataconfIDIntToString[xref.Dataset]]["url"], "£{id}", xref.Identifier, -1)
-				break
-			case 2:
-				xref.Url = strings.Replace(config.Dataconf[config.DataconfIDIntToString[xref.Dataset]]["bacteriaUrl"], "£{id}", xref.Identifier, -1)
-				break
-			case 3:
-				xref.Url = strings.Replace(config.Dataconf[config.DataconfIDIntToString[xref.Dataset]]["fungiUrl"], "£{id}", xref.Identifier, -1)
-				break
-			case 4:
-				xref.Url = strings.Replace(config.Dataconf[config.DataconfIDIntToString[xref.Dataset]]["metazoaUrl"], "£{id}", xref.Identifier, -1)
-				break
-			case 5:
-				xref.Url = strings.Replace(config.Dataconf[config.DataconfIDIntToString[xref.Dataset]]["plantsUrl"], "£{id}", xref.Identifier, -1)
-				break
-			case 6:
-				xref.Url = strings.Replace(config.Dataconf[config.DataconfIDIntToString[xref.Dataset]]["protistsUrl"], "£{id}", xref.Identifier, -1)
-				break
-			default:
-				xref.Url = "#"
-				break
-			}
-			xref.Url = strings.Replace(xref.Url, "£{sp}", xref.GetEnsembl().Genome, -1)
-		}
-
-	} else {
-		xref.Url = strings.Replace(config.Dataconf[config.DataconfIDIntToString[xref.Dataset]]["url"], "£{id}", xref.Identifier, -1)
-	}
-
-}
 
 func (s *service) makeLite(xref *pbuf.Xref) {
 	xref.Entries = nil
@@ -689,13 +644,6 @@ func (s *service) makeLiteAll(res *pbuf.Result) {
 
 }
 
-func (s *service) setAllURL(res *pbuf.Result) {
-
-	for _, xref := range res.Results {
-		s.setURL(xref)
-	}
-
-}
 
 func (s *service) search(ids []string, idsDomain uint32, page string, q *query.Query, detail, buildURL bool) (*pbuf.Result, error) {
 
@@ -706,9 +654,6 @@ func (s *service) search(ids []string, idsDomain uint32, page string, q *query.Q
 		defer s.makeLiteAll(result)
 	}
 
-	if buildURL {
-		defer s.setAllURL(result)
-	}
 
 	var xrefs []*pbuf.Xref
 	totalResult := 0
@@ -952,6 +897,10 @@ func (s *service) search(ids []string, idsDomain uint32, page string, q *query.Q
 	}
 
 	result.Results = xrefs
+
+	// Enrich with all transient fields (dataset_name, url)
+	EnrichResult(result)
+
 	return result, nil
 
 }
@@ -1034,6 +983,10 @@ func (s *service) searchPage(ids []string, page string) (*pbuf.Result, error) {
 	}
 
 	result.Results = xrefs
+
+	// Enrich with all transient fields (dataset_name, url)
+	EnrichResult(result)
+
 	return result, nil
 
 }
@@ -1110,6 +1063,9 @@ func (s *service) getLmdbResult2(identifier string, domainID uint32) (*pbuf.Xref
 		err := fmt.Errorf("Entry not found identifier %s dataset  %s. Make sure it is actual identifier not keyword", identifier, config.DataconfIDIntToString[domainID])
 		return nil, err
 	}
+
+	// Enrich with all transient fields (dataset_name, url)
+	EnrichXref(targetXref)
 
 	return targetXref, nil
 

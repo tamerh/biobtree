@@ -139,7 +139,6 @@ func (g *biobtreegrpc) Entry(ctx context.Context, in *pbuf.EntryRequest) (*pbuf.
 	if err != nil {
 		return nil, err
 	}
-	g.service.setURL(res)
 	grpcRes.Result = res
 	return &grpcRes, nil
 

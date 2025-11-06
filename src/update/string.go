@@ -43,7 +43,7 @@ func (s *stringProcessor) update(selectedTaxids []int) {
 		}
 	}
 
-	fmt.Printf("STRING score threshold: %d\n", s.scoreThreshold)
+	// fmt.Printf("STRING score threshold: %d\n", s.scoreThreshold)
 
 	// Test mode support
 	testLimit := config.GetTestLimit(s.source)
@@ -64,7 +64,7 @@ func (s *stringProcessor) update(selectedTaxids []int) {
 	}
 
 	for _, taxid := range selectedTaxids {
-		fmt.Printf("Processing STRING data for taxid %d...\n", taxid)
+		// fmt.Printf("Processing STRING data for taxid %d...\n", taxid)
 
 		// Step 1: Build STRING_ID → UniProt mapping from aliases file
 		aliasMap, err := s.buildAliasMap(taxid)
@@ -72,7 +72,7 @@ func (s *stringProcessor) update(selectedTaxids []int) {
 			log.Printf("Error building alias map for taxid %d: %v", taxid, err)
 			continue
 		}
-		fmt.Printf("  Loaded %d STRING ID → UniProt mappings\n", len(aliasMap))
+		// fmt.Printf("  Loaded %d STRING ID → UniProt mappings\n", len(aliasMap))
 
 		// Step 2: Load protein info (names, sizes, annotations)
 		proteinInfo, err := s.loadProteinInfo(taxid)
@@ -80,7 +80,7 @@ func (s *stringProcessor) update(selectedTaxids []int) {
 			log.Printf("Error loading protein info for taxid %d: %v", taxid, err)
 			continue
 		}
-		fmt.Printf("  Loaded %d protein annotations\n", len(proteinInfo))
+		// fmt.Printf("  Loaded %d protein annotations\n", len(proteinInfo))
 
 		// Step 3: Process interactions
 		proteins, interactions, err := s.processInteractions(taxid, aliasMap, proteinInfo, idLogFile, testLimit)
@@ -91,7 +91,7 @@ func (s *stringProcessor) update(selectedTaxids []int) {
 
 		totalProteins += proteins
 		totalInteractions += interactions
-		fmt.Printf("  Processed %d proteins with %d interactions\n", proteins, interactions)
+		fmt.Printf("  Processed taxid %d: %d proteins with %d interactions\n", taxid, proteins, interactions)
 	}
 
 	fmt.Printf("STRING processing complete: %d proteins, %d interactions across %d organisms\n",
@@ -358,7 +358,7 @@ func (s *stringProcessor) processInteractions(taxid int, aliasMap map[string]str
 
 		// In test mode, stop reading once we have enough unique proteins
 		if testLimit > 0 && len(proteinData) >= testLimit {
-			fmt.Printf("  [TEST MODE] Reached limit of %d proteins, stopping interaction processing\n", testLimit)
+			// fmt.Printf("  [TEST MODE] Reached limit of %d proteins, stopping interaction processing\n", testLimit)
 			break
 		}
 

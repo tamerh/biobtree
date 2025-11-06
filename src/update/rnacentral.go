@@ -56,8 +56,8 @@ func (r *rnacentralProcessor) update() {
 
 // Process FASTA.gz file containing RNA sequences
 func (r *rnacentralProcessor) processFastaFile(filePath string, idLogFile *os.File, testLimit int) (uint64, error) {
-	fmt.Printf("Opening FASTA file from: %s\n", filePath)
-	fmt.Printf("This may take a while for large remote files...\n")
+	// fmt.Printf("Opening FASTA file from: %s\n", filePath)
+	// fmt.Printf("This may take a while for large remote files...\n")
 
 	// Open FASTA file
 	br, gz, ftpFile, client, localFile, _, err := getDataReaderNew(r.source, "", "", filePath)
@@ -66,8 +66,8 @@ func (r *rnacentralProcessor) processFastaFile(filePath string, idLogFile *os.Fi
 	}
 	defer closeRnacentralReaders(gz, ftpFile, client, localFile)
 
-	fmt.Printf("✓ FASTA file opened successfully\n")
-	fmt.Printf("Starting to parse FASTA entries...\n")
+	// fmt.Printf("✓ FASTA file opened successfully\n")
+	// fmt.Printf("Starting to parse FASTA entries...\n")
 
 	// Create scanner to read line by line
 	var scanner *bufio.Scanner
@@ -104,13 +104,13 @@ func (r *rnacentralProcessor) processFastaFile(filePath string, idLogFile *os.Fi
 					totalProcessed++
 
 					// Log progress every 1000 entries
-					if totalProcessed%1000 == 0 {
-						fmt.Printf("  Processed %d sequences...\n", totalProcessed)
-					}
+					// if totalProcessed%1000 == 0 {
+					// 	fmt.Printf("  Processed %d sequences...\n", totalProcessed)
+					// }
 
 					// In test mode, stop after processing enough sequences
 					if testLimit > 0 && int(totalProcessed) >= testLimit {
-						fmt.Printf("  [TEST MODE] Reached limit of %d sequences, stopping processing\n", testLimit)
+						// fmt.Printf("  [TEST MODE] Reached limit of %d sequences, stopping processing\n", testLimit)
 						break
 					}
 				}

@@ -395,7 +395,16 @@ func (c *Conf) unzip(path string, dest, confVersion string) error {
 	r, err := zip.NewReader(bytes.NewReader(zipcontent), int64(len(zipcontent)))
 
 	if err != nil {
-		return err
+		// Show first 500 bytes of response to help debug what was actually downloaded
+		preview := string(zipcontent)
+		if len(preview) > 500 {
+			preview = preview[:500]
+		}
+		log.Printf("ERROR: Downloaded content is not a valid ZIP file")
+		log.Printf("URL: %s", path)
+		log.Printf("Content length: %d bytes", len(zipcontent))
+		log.Printf("Content preview:\n%s", preview)
+		return fmt.Errorf("zip: not a valid zip file (downloaded %d bytes from %s)", len(zipcontent), path)
 	}
 
 	if len(dest) > 0 {

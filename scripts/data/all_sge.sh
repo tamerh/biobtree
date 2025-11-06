@@ -92,7 +92,7 @@ JOB_MEMORY=32000
 JOB_RUNTIME=604800
 BB_DEFAULT_PARAM="--include-optionals"
 
-declare -a DATASETS=("def;uniprot,go,eco,hgnc,taxonomy,interpro,hmdb,literature_mappings,chembl,efo,mondo,patent" "uniref;uniref50,uniref90,uniref100" "uniparc;uniparc" "uniprot_unreviewed;uniprot_unreviewed")
+declare -a DATASETS=("def;uniprot,go,eco,hgnc,taxonomy,interpro,hmdb,literature_mappings,chembl,efo,mondo,patent,hpo,alphafold,rnacentral,reactome" "uniref;uniref50,uniref90,uniref100" "uniparc;uniparc" "uniprot_unreviewed;uniprot_unreviewed")
 declare -a SUBMITTED_DATASETS=()
 for dt in "${DATASETS[@]}"
     do

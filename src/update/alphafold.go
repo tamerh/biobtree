@@ -59,8 +59,8 @@ func (a *alphafoldProcessor) update() {
 
 // Process tar.gz file containing PDB files
 func (a *alphafoldProcessor) processTarFile(filePath string, idLogFile *os.File, testLimit int) (uint64, error) {
-	fmt.Printf("Opening tar file from: %s\n", filePath)
-	fmt.Printf("This may take a while for large remote files...\n")
+	// fmt.Printf("Opening tar file from: %s\n", filePath)
+	// fmt.Printf("This may take a while for large remote files...\n")
 
 	// Open tar file
 	br, gz, ftpFile, client, localFile, _, err := getDataReaderNew(a.source, "", "", filePath)
@@ -69,8 +69,8 @@ func (a *alphafoldProcessor) processTarFile(filePath string, idLogFile *os.File,
 	}
 	defer closeAlphaFoldReaders(gz, ftpFile, client, localFile)
 
-	fmt.Printf("✓ Tar file opened successfully\n")
-	fmt.Printf("Starting to read tar entries...\n")
+	// fmt.Printf("✓ Tar file opened successfully\n")
+	// fmt.Printf("Starting to read tar entries...\n")
 
 	// Create tar reader (file is tar.gz format, so gzip is already handled by getDataReaderNew)
 	var tarReader *tar.Reader
@@ -97,15 +97,15 @@ func (a *alphafoldProcessor) processTarFile(filePath string, idLogFile *os.File,
 
 		entriesScanned++
 
-		// Log first 10 filenames to see the structure
-		if entriesScanned <= 10 {
-			fmt.Printf("  DEBUG: Entry %d: %s (size: %d bytes)\n", entriesScanned, header.Name, header.Size)
-		}
+		// Log first 10 filenames to see the structure (debug only)
+		// if entriesScanned <= 10 {
+		// 	fmt.Printf("  DEBUG: Entry %d: %s (size: %d bytes)\n", entriesScanned, header.Name, header.Size)
+		// }
 
-		// Log progress every 1000 entries scanned
-		if entriesScanned % 1000 == 0 {
-			fmt.Printf("  Scanned %d tar entries, processed %d PDB files...\n", entriesScanned, totalProcessed)
-		}
+		// Log progress every 5000 entries scanned
+		// if entriesScanned % 5000 == 0 {
+		// 	fmt.Printf("  Scanned %d tar entries, processed %d PDB files...\n", entriesScanned, totalProcessed)
+		// }
 
 		// Only process .pdb.gz files
 		if !strings.HasSuffix(header.Name, ".pdb.gz") {
@@ -118,8 +118,8 @@ func (a *alphafoldProcessor) processTarFile(filePath string, idLogFile *os.File,
 			continue
 		}
 
-		// Log each processed structure
-		fmt.Printf("  [%d] Processing %s → %s\n", totalProcessed+1, modelID, uniprotID)
+		// Log each processed structure (debug only)
+		// fmt.Printf("  [%d] Processing %s → %s\n", totalProcessed+1, modelID, uniprotID)
 
 		// Decompress gzip stream and parse PDB file
 		gzReader, err := gzip.NewReader(tarReader)
@@ -172,6 +172,11 @@ func (a *alphafoldProcessor) processTarFile(filePath string, idLogFile *os.File,
 		totalProcessed++
 		totalBytesRead += header.Size
 
+		// Progress message every 1000 structures
+		// if totalProcessed % 1000 == 0 {
+		// 	fmt.Printf("  Processed %d structures...\n", totalProcessed)
+		// }
+
 		// Test mode: log ID and check limit
 		if idLogFile != nil {
 			logProcessedID(idLogFile, uniprotID)
@@ -179,7 +184,7 @@ func (a *alphafoldProcessor) processTarFile(filePath string, idLogFile *os.File,
 
 		// In test mode, stop after processing enough structures
 		if testLimit > 0 && int(totalProcessed) >= testLimit {
-			fmt.Printf("  [TEST MODE] Reached limit of %d structures, stopping processing\n", testLimit)
+			// fmt.Printf("  [TEST MODE] Reached limit of %d structures, stopping processing\n", testLimit)
 			break
 		}
 

@@ -295,7 +295,7 @@
     "id": "25",
     "name": "Clinical Trials",
     "url": "https://clinicaltrials.gov/study/£{id}",
-    "path": "test_data/clinical_trials/",
+    "path": "/data/scc/ag-gruber/GROUP/tgur/x/bioyoda_dev2/snapshots/raw_data/clinical_trials/chunked",
     "useLocalFile": "yes",
     "hasFilter": "yes",
     "attrs": "brief_title,overall_status,phase,study_type,[]interventions",

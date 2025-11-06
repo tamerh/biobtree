@@ -113,7 +113,7 @@ func (ct *clinicalTrials) initLookupDB() {
 	lookupConf["dbBackend"] = "lmdb"
 	ct.lookupEnv, ct.lookupDbi = db1.OpenDBNew(false, totalkvline, lookupConf)
 	ct.hasLookupDB = true
-	fmt.Println("Lookup database initialized for ChEMBL mapping")
+	// fmt.Println("Lookup database initialized for ChEMBL mapping")
 }
 
 // Close lookup database
@@ -178,13 +178,13 @@ func (ct *clinicalTrials) loadMedicalTermMappings() {
 		CancerAbbreviations: rawConfig.CancerAbbreviations.Mappings,
 	}
 
-	fmt.Printf("Loaded medical term mappings: %d specific, %d anatomical, %d qualifiers, %d cancer qualifiers\n",
-		len(ct.medicalTermMappings.SpecificPatterns),
-		len(ct.medicalTermMappings.AnatomicalTerms),
-		len(ct.medicalTermMappings.QualifiersRemove.Prefixes)+len(ct.medicalTermMappings.QualifiersRemove.Suffixes),
-		len(ct.medicalTermMappings.CancerQualifiers.StageQualifiers)+
-		len(ct.medicalTermMappings.CancerQualifiers.MetastasisQualifiers)+
-		len(ct.medicalTermMappings.CancerQualifiers.ReceptorPatterns))
+	// fmt.Printf("Loaded medical term mappings: %d specific, %d anatomical, %d qualifiers, %d cancer qualifiers\n",
+	// 	len(ct.medicalTermMappings.SpecificPatterns),
+	// 	len(ct.medicalTermMappings.AnatomicalTerms),
+	// 	len(ct.medicalTermMappings.QualifiersRemove.Prefixes)+len(ct.medicalTermMappings.QualifiersRemove.Suffixes),
+	// 	len(ct.medicalTermMappings.CancerQualifiers.StageQualifiers)+
+	// 	len(ct.medicalTermMappings.CancerQualifiers.MetastasisQualifiers)+
+	// 	len(ct.medicalTermMappings.CancerQualifiers.ReceptorPatterns))
 }
 
 // Lookup identifier in biobtree database and return results
@@ -316,7 +316,7 @@ func (ct *clinicalTrials) mapConditionToMONDO(nctID string, condition string, mo
 	// ATTEMPT 1: Try exact condition name
 	ct.lookupAndCollectMONDO(condition, mondoDatasetID, foundMONDOs)
 	if len(foundMONDOs) > 0 {
-		ct.logMappingSuccess(condition, "1_EXACT", condition, len(foundMONDOs))
+		// ct.logMappingSuccess(condition, "1_EXACT", condition, len(foundMONDOs))
 		ct.createMONDOXrefs(nctID, fr, foundMONDOs)
 		return
 	}
@@ -327,7 +327,7 @@ func (ct *clinicalTrials) mapConditionToMONDO(nctID string, condition string, mo
 			if strings.EqualFold(condition, original) {
 				ct.lookupAndCollectMONDO(corrected, mondoDatasetID, foundMONDOs)
 				if len(foundMONDOs) > 0 {
-					ct.logMappingSuccess(condition, "2_CORRECTION", corrected, len(foundMONDOs))
+					// ct.logMappingSuccess(condition, "2_CORRECTION", corrected, len(foundMONDOs))
 					ct.createMONDOXrefs(nctID, fr, foundMONDOs)
 					return
 				}
@@ -341,7 +341,7 @@ func (ct *clinicalTrials) mapConditionToMONDO(nctID string, condition string, mo
 		if spellingVariant != condition {
 			ct.lookupAndCollectMONDO(spellingVariant, mondoDatasetID, foundMONDOs)
 			if len(foundMONDOs) > 0 {
-				ct.logMappingSuccess(condition, "3_SPELLING", spellingVariant, len(foundMONDOs))
+				// ct.logMappingSuccess(condition, "3_SPELLING", spellingVariant, len(foundMONDOs))
 				ct.createMONDOXrefs(nctID, fr, foundMONDOs)
 				return
 			}
@@ -354,7 +354,7 @@ func (ct *clinicalTrials) mapConditionToMONDO(nctID string, condition string, mo
 		if cancerAbbrevVariant != condition {
 			ct.lookupAndCollectMONDO(cancerAbbrevVariant, mondoDatasetID, foundMONDOs)
 			if len(foundMONDOs) > 0 {
-				ct.logMappingSuccess(condition, "3b_CANCER_ABBREV", cancerAbbrevVariant, len(foundMONDOs))
+				// ct.logMappingSuccess(condition, "3b_CANCER_ABBREV", cancerAbbrevVariant, len(foundMONDOs))
 				ct.createMONDOXrefs(nctID, fr, foundMONDOs)
 				return
 			}
@@ -368,7 +368,7 @@ func (ct *clinicalTrials) mapConditionToMONDO(nctID string, condition string, mo
 		if withoutCancerQualifiers != condition {
 			ct.lookupAndCollectMONDO(withoutCancerQualifiers, mondoDatasetID, foundMONDOs)
 			if len(foundMONDOs) > 0 {
-				ct.logMappingSuccess(condition, "3c_CANCER_QUALIFIERS", withoutCancerQualifiers, len(foundMONDOs))
+				// ct.logMappingSuccess(condition, "3c_CANCER_QUALIFIERS", withoutCancerQualifiers, len(foundMONDOs))
 				ct.createMONDOXrefs(nctID, fr, foundMONDOs)
 				return
 			}
@@ -381,7 +381,7 @@ func (ct *clinicalTrials) mapConditionToMONDO(nctID string, condition string, mo
 	if simplifiedCondition != condition {
 		ct.lookupAndCollectMONDO(simplifiedCondition, mondoDatasetID, foundMONDOs)
 		if len(foundMONDOs) > 0 {
-			ct.logMappingSuccess(condition, "4_NO_PARENS", simplifiedCondition, len(foundMONDOs))
+			// ct.logMappingSuccess(condition, "4_NO_PARENS", simplifiedCondition, len(foundMONDOs))
 			ct.createMONDOXrefs(nctID, fr, foundMONDOs)
 			return
 		}
@@ -392,7 +392,7 @@ func (ct *clinicalTrials) mapConditionToMONDO(nctID string, condition string, mo
 	for _, variation := range slashVariations {
 		ct.lookupAndCollectMONDO(variation, mondoDatasetID, foundMONDOs)
 		if len(foundMONDOs) > 0 {
-			ct.logMappingSuccess(condition, "5_SLASH_SPLIT", variation, len(foundMONDOs))
+			// ct.logMappingSuccess(condition, "5_SLASH_SPLIT", variation, len(foundMONDOs))
 			ct.createMONDOXrefs(nctID, fr, foundMONDOs)
 			return
 		}
@@ -404,7 +404,7 @@ func (ct *clinicalTrials) mapConditionToMONDO(nctID string, condition string, mo
 		for _, variation := range variations {
 			ct.lookupAndCollectMONDO(variation, mondoDatasetID, foundMONDOs)
 			if len(foundMONDOs) > 0 {
-				ct.logMappingSuccess(condition, "6_SPECIFIC_PATTERN", variation, len(foundMONDOs))
+				// ct.logMappingSuccess(condition, "6_SPECIFIC_PATTERN", variation, len(foundMONDOs))
 				ct.createMONDOXrefs(nctID, fr, foundMONDOs)
 				return
 			}
@@ -417,7 +417,7 @@ func (ct *clinicalTrials) mapConditionToMONDO(nctID string, condition string, mo
 		if withoutQualifiers != condition {
 			ct.lookupAndCollectMONDO(withoutQualifiers, mondoDatasetID, foundMONDOs)
 			if len(foundMONDOs) > 0 {
-				ct.logMappingSuccess(condition, "7_NO_QUALIFIERS", withoutQualifiers, len(foundMONDOs))
+				// ct.logMappingSuccess(condition, "7_NO_QUALIFIERS", withoutQualifiers, len(foundMONDOs))
 				ct.createMONDOXrefs(nctID, fr, foundMONDOs)
 				return
 			}
@@ -429,7 +429,7 @@ func (ct *clinicalTrials) mapConditionToMONDO(nctID string, condition string, mo
 	if wordOrderVariation != condition {
 		ct.lookupAndCollectMONDO(wordOrderVariation, mondoDatasetID, foundMONDOs)
 		if len(foundMONDOs) > 0 {
-			ct.logMappingSuccess(condition, "8_WORD_ORDER", wordOrderVariation, len(foundMONDOs))
+			// ct.logMappingSuccess(condition, "8_WORD_ORDER", wordOrderVariation, len(foundMONDOs))
 			ct.createMONDOXrefs(nctID, fr, foundMONDOs)
 			return
 		}
@@ -441,7 +441,7 @@ func (ct *clinicalTrials) mapConditionToMONDO(nctID string, condition string, mo
 		for _, variation := range anatomicalVariations {
 			ct.lookupAndCollectMONDO(variation, mondoDatasetID, foundMONDOs)
 			if len(foundMONDOs) > 0 {
-				ct.logMappingSuccess(condition, "9_ANATOMICAL", variation, len(foundMONDOs))
+				// ct.logMappingSuccess(condition, "9_ANATOMICAL", variation, len(foundMONDOs))
 				ct.createMONDOXrefs(nctID, fr, foundMONDOs)
 				return
 			}
@@ -454,7 +454,7 @@ func (ct *clinicalTrials) mapConditionToMONDO(nctID string, condition string, mo
 	if singularCondition != condition {
 		ct.lookupAndCollectMONDO(singularCondition, mondoDatasetID, foundMONDOs)
 		if len(foundMONDOs) > 0 {
-			ct.logMappingSuccess(condition, "10_SINGULAR", singularCondition, len(foundMONDOs))
+			// ct.logMappingSuccess(condition, "10_SINGULAR", singularCondition, len(foundMONDOs))
 		}
 	}
 
@@ -463,7 +463,7 @@ func (ct *clinicalTrials) mapConditionToMONDO(nctID string, condition string, mo
 		ct.createMONDOXrefs(nctID, fr, foundMONDOs)
 	} else {
 		// Log conditions that failed all mapping attempts (unique only)
-		ct.logMappingMiss(condition)
+		// ct.logMappingMiss(condition)
 	}
 }
 
@@ -799,7 +799,7 @@ func (ct *clinicalTrials) processTrials() (int, error) {
 		}
 
 		trialsFile := filepath.Join(ct.dataPath, fileInfo.Name())
-		fmt.Printf("Processing clinical trials file: %s\n", trialsFile)
+		// fmt.Printf("Processing clinical trials file: %s\n", trialsFile)
 
 		trialsProcessed, err := ct.processTrialsFile(trialsFile, fr, chemblDatasetID, mondoDatasetID, idLogFile)
 		if err != nil {
@@ -808,7 +808,7 @@ func (ct *clinicalTrials) processTrials() (int, error) {
 		}
 
 		totalTrials += trialsProcessed
-		fmt.Printf("Processed %d trials from %s (total so far: %d)\n", trialsProcessed, fileInfo.Name(), totalTrials)
+		// fmt.Printf("Processed %d trials from %s (total so far: %d)\n", trialsProcessed, fileInfo.Name(), totalTrials)
 
 		// Test mode: Check if we've reached the limit
 		if shouldStopProcessing(testLimit, len(ct.testTrialIDs)) {
@@ -977,7 +977,7 @@ func (ct *clinicalTrials) processTrialsFile(trialsFile string, fr string, chembl
 		// Store in attributes but don't create xrefs yet
 	}
 
-	fmt.Printf("Processed %d clinical trials\n", uniqueTrials)
+	// fmt.Printf("Processed %d clinical trials\n", uniqueTrials)
 
 	return uniqueTrials, nil
 }

@@ -145,13 +145,15 @@ class AlphaFoldTests:
         if not model_data or not model_data.get("results"):
             return False, f"AlphaFold model ID {model_id} did not resolve to any entry"
 
-        # Check if it resolves to AlphaFold dataset (30)
-        has_alphafold = any(
-            r.get("dataset") == 30 for r in model_data["results"]
-        )
+        # Check if it resolves to AlphaFold dataset with proper attributes
+        for result in model_data["results"]:
+            if result.get("dataset") == 30:  # 30 is AlphaFold dataset ID
+                # Validate attributes using helper
+                valid, msg = self.runner.validate_attributes(result, "Alphafold", ["model_entity_id"])
+                if not valid:
+                    return False, f"Model ID {model_id} resolved but {msg}"
 
-        if has_alphafold:
-            return True, f"Model ID {model_id} successfully resolves to AlphaFold entry"
+                return True, f"Model ID {model_id} successfully resolves to AlphaFold entry with valid attributes"
 
         return False, f"Model ID {model_id} did not resolve to AlphaFold dataset"
 

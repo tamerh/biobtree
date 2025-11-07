@@ -87,6 +87,8 @@ func setURL(xref *pbuf.Xref) {
 	} else if xref.Dataset == 2 || xref.Dataset == 42 || xref.Dataset == 39 { // ensembl,transcript exon
 		if xref.GetEmpty() { // data not indexed
 			xref.Url = "#"
+		} else if xref.GetEnsembl() == nil { // Ensembl data missing - incomplete entry
+			xref.Url = "#"
 		} else {
 			switch xref.GetEnsembl().Branch {
 			case 1:

@@ -105,10 +105,12 @@ STRING Entry (e.g., 9606.ENSP00000000233)
 ```
 
 **Key Features:**
-- STRING IDs (e.g., `9606.ENSP00000000233`) are the primary entry keys
-- UniProt IDs (e.g., `P26437`) are keywords that link to STRING entries
-- Both STRING IDs and UniProt IDs can be used to query STRING data
-- Interaction partners are stored as UniProt IDs for cross-dataset linking
+- **Primary Identifiers**: STRING IDs (e.g., `9606.ENSP00000000233`) are the canonical entry keys where all attributes are stored
+- **Keywords (Search Links)**: ALL UniProt ACs (canonical + isoforms) that map to a STRING ID are indexed as keywords, allowing `/ws/?i=P27348` to find the STRING entry
+- **Bidirectional Cross-References**: STRING entries contain xrefs to their UniProt ACs, enabling `STRING >> uniprot` mapping queries
+- **Complete Coverage**: All proteins with metadata in STRING are stored, even those without high-confidence interactions (empty interaction list is valid)
+- **Interaction Partners**: Stored as UniProt ACs for seamless cross-dataset linking
+- **Memory Efficient**: Each STRING protein stored once (by STRING ID), with multiple UniProt ACs as keywords pointing to it
 
 ### Evidence Channels
 

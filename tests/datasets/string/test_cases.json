@@ -100,6 +100,18 @@
         "has_results": true,
         "min_results": 1
       }
+    },
+    {
+      "name": "string_bidirectional_xref_to_uniprot",
+      "description": "STRING entries should have xrefs to UniProt for mapping queries",
+      "type": "xref_exists",
+      "identifier": "9606.ENSP00000331342",
+      "dataset": "string",
+      "xref_dataset": "uniprot",
+      "expected": {
+        "has_xref": true,
+        "min_count": 1
+      }
     }
   ]
 }

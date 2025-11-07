@@ -186,9 +186,6 @@ func (r *rnacentralProcessor) processEntry(id, description, sequence string, idL
 
 	r.d.addProp3(id, r.sourceID, b)
 
-	// Create self-reference for keyword lookup
-	r.d.addXref(id, r.sourceID, id, r.source, true)
-
 	// Test mode: log ID
 	if idLogFile != nil {
 		logProcessedID(idLogFile, id)

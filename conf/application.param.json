@@ -38,5 +38,6 @@
 	"disableRemoteConfigCheck": "y",
 	"dbBackend": "lmdb",
 	"lookupDbDir": "/data/scc/ag-gruber/GROUP/tgur/x/bioyoda_dev2/biobtreev2/out_def/def/db",
-	"lookupAliasDbDir": "/data/scc/ag-gruber/GROUP/tgur/x/bioyoda_dev2/biobtreev2/out_def/def/aliasdb"
+	"lookupAliasDbDir": "/data/scc/ag-gruber/GROUP/tgur/x/bioyoda_dev2/biobtreev2/out_def/def/aliasdb",
+	"tmpRuneSize": "5000000"
 }

@@ -221,6 +221,9 @@ class TestRunner:
             self.load_test_cases()
         print()
 
+        # Run automatic sanity check first
+        self.run_sanity_check()
+
         # Run declarative tests
         if self.test_cases:
             self.run_declarative_tests()
@@ -228,6 +231,56 @@ class TestRunner:
         # Run custom tests
         if self.custom_tests:
             self.run_custom_tests()
+
+    def run_sanity_check(self):
+        """
+        Automatic sanity check that runs for all datasets.
+        Validates that test IDs return valid attributes (not Empty) for ANY dataset.
+
+        Note: Test IDs may return results from multiple datasets (e.g., querying a UniProt ID
+        returns both AlphaFold and UniProt). We check that at least ONE result has valid attributes.
+        """
+        if not hasattr(self, 'test_ids') or not self.test_ids:
+            return  # Skip if no test IDs available
+
+        test_num = self.results["total"] + 1
+        test_name = "Sanity check: Verify at least one result has attributes"
+
+        ids_with_no_valid_attrs = 0
+        checked_ids = 0
+        sample_size = min(10, len(self.test_ids))
+
+        for test_id in self.test_ids[:sample_size]:
+            data = self.lookup(test_id)
+            if data and data.get("results"):
+                checked_ids += 1
+                # Check if AT LEAST ONE result has valid (non-Empty) attributes
+                has_valid_result = False
+                for result in data["results"]:
+                    attrs = result.get("Attributes", {})
+                    if not attrs.get("Empty") and attrs:
+                        has_valid_result = True
+                        break
+
+                if not has_valid_result:
+                    ids_with_no_valid_attrs += 1
+
+        if checked_ids == 0:
+            return  # No results to check
+
+        self.results["total"] += 1
+
+        if ids_with_no_valid_attrs > 0:
+            self.results["failed"] += 1
+            self.failed_tests.append(
+                (test_name, f"{ids_with_no_valid_attrs}/{checked_ids} test IDs returned only Empty attributes")
+            )
+            print(f"\n{Colors.BLUE}Test {test_num}:{Colors.NC} {test_name}")
+            print(f"  {Colors.RED}✗ FAIL{Colors.NC}: {ids_with_no_valid_attrs}/{checked_ids} test IDs returned only Empty attributes")
+        else:
+            self.results["passed"] += 1
+            print(f"\n{Colors.BLUE}Test {test_num}:{Colors.NC} {test_name}")
+            print(f"  {Colors.GREEN}✓ PASS{Colors.NC}: All {checked_ids} test IDs have at least one valid result")
 
     def print_summary(self) -> int:
         """
@@ -275,6 +328,48 @@ class TestRunner:
     def has_results(self, identifier: str) -> bool:
         """Quick check if identifier has results"""
         return self.query.has_results(identifier)
+
+    def validate_attributes(self, result: Dict, dataset_attr_name: str = None, required_fields: List[str] = None) -> Tuple[bool, str]:
+        """
+        Validate that a result has proper attributes (not Empty).
+
+        Args:
+            result: API result dict
+            dataset_attr_name: Optional - specific attribute name to check (e.g., "Stringattr", "Alphafold")
+            required_fields: Optional - list of required field names within the dataset attributes
+
+        Returns:
+            Tuple of (is_valid, error_message)
+
+        Example:
+            valid, msg = runner.validate_attributes(result, "Stringattr", ["string_id", "interactions"])
+            if not valid:
+                return False, msg
+        """
+        attrs = result.get("Attributes", {})
+
+        # Check if attributes are marked as Empty
+        if attrs.get("Empty"):
+            return False, "Attributes are marked as Empty"
+
+        # If no specific dataset attribute requested, just check attributes exist
+        if not dataset_attr_name:
+            if not attrs or attrs == {}:
+                return False, "No attributes found"
+            return True, "Attributes present"
+
+        # Check specific dataset attribute exists
+        dataset_attrs = attrs.get(dataset_attr_name, {})
+        if not dataset_attrs:
+            return False, f"Missing {dataset_attr_name} attributes"
+
+        # Check required fields if specified
+        if required_fields:
+            missing_fields = [field for field in required_fields if field not in dataset_attrs]
+            if missing_fields:
+                return False, f"Missing required fields in {dataset_attr_name}: {', '.join(missing_fields)}"
+
+        return True, f"{dataset_attr_name} attributes valid"
 
     # Cross-reference helper methods
     def get_xrefs(self, result, dataset_name=None):

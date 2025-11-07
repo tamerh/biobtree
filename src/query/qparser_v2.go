@@ -119,9 +119,9 @@ func (p *ParserV2) Parse(queryString string) ([]Query, error) {
 	for i, part := range parts {
 		part = strings.TrimSpace(part)
 
-		// Validate non-empty
+		// Skip empty parts (allows ">>dataset" syntax)
 		if part == "" {
-			return nil, fmt.Errorf("empty part in mapping chain at position %d", i+1)
+			continue
 		}
 
 		// Parse dataset and optional filter

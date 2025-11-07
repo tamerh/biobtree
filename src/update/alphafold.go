@@ -166,8 +166,9 @@ func (a *alphafoldProcessor) processTarFile(filePath string, idLogFile *os.File,
 		uniprotDatasetID := config.Dataconf["uniprot"]["id"]
 		a.d.addXref(uniprotID, uniprotDatasetID, uniprotID, a.source, false)
 
-		// Create keyword: AlphaFold model ID → UniProt entry
-		a.d.addXref(modelID, a.sourceID, uniprotID, a.source, true)
+		// Create keyword: AlphaFold model ID → UniProt entry (for search endpoint)
+		// isLink=true means /ws/?i=MODEL_ID will find and return the UniProt entry
+		a.d.addXref(modelID, textLinkID, uniprotID, a.source, true)
 
 		totalProcessed++
 		totalBytesRead += header.Size

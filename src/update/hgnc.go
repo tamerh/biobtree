@@ -127,6 +127,7 @@ func (e *hgnc) update() {
 			a("refseq_accession", "RefSeq", j, entryid)
 			a("uniprot_ids", "UniProtKB", j, entryid)
 			a("uniprot_ids", "string", j, entryid)
+			a("uniprot_ids", "alphafold", j, entryid)
 
 			attr.Reset()
 

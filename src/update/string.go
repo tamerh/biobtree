@@ -43,7 +43,7 @@ func (s *stringProcessor) update(selectedTaxids []int) {
 		}
 	}
 
-	// fmt.Printf("STRING score threshold: %d\n", s.scoreThreshold)
+	fmt.Printf("STRING score threshold: %d\n", s.scoreThreshold)
 
 	// Test mode support
 	testLimit := config.GetTestLimit(s.source)
@@ -66,13 +66,13 @@ func (s *stringProcessor) update(selectedTaxids []int) {
 	for _, taxid := range selectedTaxids {
 		// fmt.Printf("Processing STRING data for taxid %d...\n", taxid)
 
-		// Step 1: Build STRING_ID → UniProt mapping from aliases file
-		aliasMap, err := s.buildAliasMap(taxid)
+		// Step 1: Build STRING_ID ↔ UniProt mappings from aliases file
+		forwardMap, reverseMap, err := s.buildAliasMap(taxid)
 		if err != nil {
 			log.Printf("Error building alias map for taxid %d: %v", taxid, err)
 			continue
 		}
-		// fmt.Printf("  Loaded %d STRING ID → UniProt mappings\n", len(aliasMap))
+		// fmt.Printf("  Loaded %d STRING ID → UniProt mappings\n", len(forwardMap))
 
 		// Step 2: Load protein info (names, sizes, annotations)
 		proteinInfo, err := s.loadProteinInfo(taxid)
@@ -83,7 +83,7 @@ func (s *stringProcessor) update(selectedTaxids []int) {
 		// fmt.Printf("  Loaded %d protein annotations\n", len(proteinInfo))
 
 		// Step 3: Process interactions
-		proteins, interactions, err := s.processInteractions(taxid, aliasMap, proteinInfo, idLogFile, testLimit)
+		proteins, interactions, err := s.processInteractions(taxid, forwardMap, reverseMap, proteinInfo, idLogFile, testLimit)
 		if err != nil {
 			log.Printf("Error processing interactions for taxid %d: %v", taxid, err)
 			continue
@@ -102,8 +102,9 @@ func (s *stringProcessor) update(selectedTaxids []int) {
 	s.d.progChan <- &progressInfo{dataset: s.source, done: true}
 }
 
-// Build STRING_ID → UniProt mapping from aliases file
-func (s *stringProcessor) buildAliasMap(taxid int) (map[string]string, error) {
+// Build STRING_ID ↔ UniProt mappings from aliases file
+// Returns: forwardMap (STRING_ID → UniProt_AC), reverseMap (UniProt_AC → STRING_ID)
+func (s *stringProcessor) buildAliasMap(taxid int) (map[string]string, map[string]string, error) {
 	var filePath string
 
 	// Check if using local files (test mode) or remote download
@@ -118,11 +119,12 @@ func (s *stringProcessor) buildAliasMap(taxid int) (map[string]string, error) {
 
 	br, gz, ftpFile, client, localFile, _, err := getDataReaderNew(s.source, "", "", filePath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open aliases file: %v", err)
+		return nil, nil, fmt.Errorf("failed to open aliases file: %v", err)
 	}
 	defer closeReaders(gz, ftpFile, client, localFile)
 
-	aliasMap := make(map[string]string)
+	forwardMap := make(map[string]string) // STRING_ID → UniProt_AC (for interactions)
+	reverseMap := make(map[string]string) // UniProt_AC → STRING_ID (for complete coverage)
 	scanner := bufio.NewScanner(br)
 	lineNum := 0
 
@@ -146,20 +148,24 @@ func (s *stringProcessor) buildAliasMap(taxid int) (map[string]string, error) {
 		alias := fields[1]
 		source := fields[2]
 
-		// Only map UniProt_AC entries to STRING IDs
-		// Use the first UniProt AC we encounter (primary mapping)
+		// Store ALL UniProt_AC mappings in BOTH directions
+		// This ensures all UniProt accessions (canonical + secondary/isoforms) get STRING entries
 		if source == "UniProt_AC" {
-			if _, exists := aliasMap[stringID]; !exists {
-				aliasMap[stringID] = alias // alias is the UniProt AC
-			}
+			// Forward map: use last one for interactions (not critical which)
+			forwardMap[stringID] = alias
+			// Reverse map: ALL UniProt ACs → their STRING ID
+			reverseMap[alias] = stringID
 		}
 	}
 
 	if err := scanner.Err(); err != nil {
-		return nil, fmt.Errorf("error reading aliases file: %v", err)
+		return nil, nil, fmt.Errorf("error reading aliases file: %v", err)
 	}
 
-	return aliasMap, nil
+	fmt.Printf("DEBUG: Built forwardMap with %d STRING IDs, reverseMap with %d UniProt ACs\n", len(forwardMap), len(reverseMap))
+
+	// Return both maps
+	return forwardMap, reverseMap, nil
 }
 
 // Load protein info (preferred names, sizes, annotations)
@@ -232,7 +238,7 @@ func (s *stringProcessor) loadProteinInfo(taxid int) (map[string]*ProteinInfo, e
 }
 
 // Process interactions from links.detailed file
-func (s *stringProcessor) processInteractions(taxid int, aliasMap map[string]string,
+func (s *stringProcessor) processInteractions(taxid int, forwardMap map[string]string, reverseMap map[string]string,
 	proteinInfo map[string]*ProteinInfo, idLogFile *os.File, testLimit int) (uint64, uint64, error) {
 
 	var filePath string
@@ -253,9 +259,9 @@ func (s *stringProcessor) processInteractions(taxid int, aliasMap map[string]str
 	}
 	defer closeReaders(gz, ftpFile, client, localFile)
 
-	// Track proteins we've processed and their interactions
-	proteinInteractions := make(map[string][]*pbuf.StringInteraction)
-	proteinData := make(map[string]*StringProteinData)
+	// Track protein interactions by STRING ID (not UniProt AC)
+	// This allows all UniProt ACs mapping to same STRING ID to share interactions
+	stringInteractions := make(map[string][]*pbuf.StringInteraction)
 
 	scanner := bufio.NewScanner(br)
 	// Increase buffer size for large lines
@@ -298,9 +304,9 @@ func (s *stringProcessor) processInteractions(taxid int, aliasMap map[string]str
 			continue
 		}
 
-		// Map STRING IDs to UniProt ACs
-		uniprot1, ok1 := aliasMap[protein1]
-		uniprot2, ok2 := aliasMap[protein2]
+		// Map STRING IDs to UniProt ACs using forwardMap
+		uniprot1, ok1 := forwardMap[protein1]
+		uniprot2, ok2 := forwardMap[protein2]
 
 		// Skip if either protein doesn't have UniProt mapping
 		if !ok1 || !ok2 {
@@ -308,6 +314,7 @@ func (s *stringProcessor) processInteractions(taxid int, aliasMap map[string]str
 		}
 
 		// Create bidirectional interactions
+		// Store by STRING ID (not UniProt AC) so ALL UniProt ACs for same STRING ID get interactions
 		// Protein1 → Protein2
 		interaction12 := &pbuf.StringInteraction{
 			Partner:          uniprot2,
@@ -317,7 +324,7 @@ func (s *stringProcessor) processInteractions(taxid int, aliasMap map[string]str
 			HasTextmining:    textmining > 0,
 			HasCoexpression:  coexpression > 0,
 		}
-		proteinInteractions[uniprot1] = append(proteinInteractions[uniprot1], interaction12)
+		stringInteractions[protein1] = append(stringInteractions[protein1], interaction12)
 
 		// Protein2 → Protein1 (bidirectional)
 		interaction21 := &pbuf.StringInteraction{
@@ -328,37 +335,14 @@ func (s *stringProcessor) processInteractions(taxid int, aliasMap map[string]str
 			HasTextmining:    textmining > 0,
 			HasCoexpression:  coexpression > 0,
 		}
-		proteinInteractions[uniprot2] = append(proteinInteractions[uniprot2], interaction21)
-
-		// Store protein data for both proteins
-		if _, exists := proteinData[uniprot1]; !exists {
-			if info, ok := proteinInfo[protein1]; ok {
-				proteinData[uniprot1] = &StringProteinData{
-					StringID:      protein1,
-					OrganismTaxid: int32(taxid),
-					PreferredName: info.PreferredName,
-					ProteinSize:   info.ProteinSize,
-					Annotation:    info.Annotation,
-				}
-			}
-		}
-		if _, exists := proteinData[uniprot2]; !exists {
-			if info, ok := proteinInfo[protein2]; ok {
-				proteinData[uniprot2] = &StringProteinData{
-					StringID:      protein2,
-					OrganismTaxid: int32(taxid),
-					PreferredName: info.PreferredName,
-					ProteinSize:   info.ProteinSize,
-					Annotation:    info.Annotation,
-				}
-			}
-		}
+		stringInteractions[protein2] = append(stringInteractions[protein2], interaction21)
 
 		totalRead += len(line)
 
-		// In test mode, stop reading once we have enough unique proteins
-		if testLimit > 0 && len(proteinData) >= testLimit {
-			// fmt.Printf("  [TEST MODE] Reached limit of %d proteins, stopping interaction processing\n", testLimit)
+		// In test mode, stop reading once we have enough interactions
+		// Note: Total protein count will be determined later from reverseMap
+		if testLimit > 0 && len(stringInteractions) >= testLimit {
+			// fmt.Printf("  [TEST MODE] Reached limit of %d proteins with interactions, stopping interaction processing\n", testLimit)
 			break
 		}
 
@@ -375,53 +359,114 @@ func (s *stringProcessor) processInteractions(taxid int, aliasMap map[string]str
 		return 0, 0, fmt.Errorf("error reading links file: %v", err)
 	}
 
-	// Store all protein data with interactions
+	// Build protein data keyed by STRING ID (primary identifier)
+	// This eliminates duplication - each interaction list stored only once
+	fmt.Printf("DEBUG: Total STRING IDs with interactions: %d\n", len(stringInteractions))
+	fmt.Printf("DEBUG: Total STRING IDs with protein info: %d\n", len(proteinInfo))
+
+	// Debug: Check overlap between stringInteractions and proteinInfo
+	overlapCount := 0
+	sampleWithInteractions := []string{}
+	for stringID := range stringInteractions {
+		if len(sampleWithInteractions) < 5 {
+			sampleWithInteractions = append(sampleWithInteractions, stringID)
+		}
+		if _, exists := proteinInfo[stringID]; exists {
+			overlapCount++
+		}
+	}
+	fmt.Printf("DEBUG: Overlap (proteins with both interactions and info): %d\n", overlapCount)
+	fmt.Printf("DEBUG: Sample STRING IDs with interactions: %v\n", sampleWithInteractions)
+
+	// Store all protein data (with or without interactions)
 	var totalProteins uint64
 	var totalInteractions uint64
 	var processedIDs int
 
-	for uniprotID, interactions := range proteinInteractions {
-		data, ok := proteinData[uniprotID]
-		if !ok {
-			continue
-		}
+	// Helper function to process a protein
+	processProtein := func(stringID string, info *ProteinInfo) bool {
+		// Get interactions for this STRING ID (may be empty/nil)
+		interactions := stringInteractions[stringID]
 
 		// Create STRING attribute
 		attr := pbuf.StringAttr{
-			StringId:      data.StringID,
-			OrganismTaxid: data.OrganismTaxid,
-			PreferredName: data.PreferredName,
-			ProteinSize:   data.ProteinSize,
-			Annotation:    data.Annotation,
+			StringId:      stringID,
+			OrganismTaxid: int32(taxid),
+			PreferredName: info.PreferredName,
+			ProteinSize:   info.ProteinSize,
+			Annotation:    info.Annotation,
 			Interactions:  interactions,
 		}
 
 		// Marshal STRING attributes
 		b, err := ffjson.Marshal(&attr)
 		if err != nil {
-			log.Printf("Error marshaling STRING attr for %s: %v", uniprotID, err)
-			continue
+			log.Printf("Error marshaling STRING attr for %s: %v", stringID, err)
+			return false // Don't count this protein
 		}
 
-		// Store attributes on UniProt ID (primary identifier for STRING dataset)
-		s.d.addProp3(uniprotID, s.sourceID, b)
+		// Store attributes on STRING ID (primary identifier for STRING dataset)
+		s.d.addProp3(stringID, s.sourceID, b)
 
-		// Create keyword: STRING ID → UniProt entry (for search endpoint)
-		// isLink=true means /ws/?i=STRING_ID will find and return the UniProt entry
-		// Note: /ws/entry/ requires actual identifier (UniProt ID), not keyword
-		s.d.addXref(data.StringID, textLinkID, uniprotID, s.source, true)
+		// Create keywords: ALL UniProt ACs → STRING entry (for search/cross-reference)
+		// This allows queries by any UniProt AC to find the STRING entry
+		for uniprotAC, sid := range reverseMap {
+			if sid == stringID {
+				// isLink=true means /ws/?i=UniProt_AC will find and return the STRING entry
+				s.d.addXref(uniprotAC, textLinkID, stringID, s.source, true)
 
-		// Log UniProt ID in test mode (primary key where attributes are stored)
-		if idLogFile != nil {
-			logProcessedID(idLogFile, uniprotID)
-			processedIDs++
-			if shouldStopProcessing(testLimit, processedIDs) {
-				break
+				// Bidirectional xref: STRING ID → UniProt AC (for mapping queries)
+				// This allows STRING >> uniprot mapping to work
+				s.d.addXref(stringID, s.sourceID, uniprotAC, "uniprot", false)
 			}
+		}
+
+		// Log STRING ID in test mode (primary key where attributes are stored)
+		if idLogFile != nil {
+			logProcessedID(idLogFile, stringID)
 		}
 
 		totalProteins++
 		totalInteractions += uint64(len(interactions))
+		return true
+	}
+
+	// In test mode, prioritize proteins with interactions
+	if testLimit > 0 {
+		// First, process proteins WITH interactions
+		for stringID := range stringInteractions {
+			if info, exists := proteinInfo[stringID]; exists {
+				if processProtein(stringID, info) {
+					processedIDs++
+					if shouldStopProcessing(testLimit, processedIDs) {
+						fmt.Printf("DEBUG: Stopped after processing %d proteins with interactions\n", processedIDs)
+						return totalProteins, totalInteractions, nil
+					}
+				}
+			}
+		}
+
+		// Then fill out with proteins WITHOUT interactions (up to test limit)
+		for stringID, info := range proteinInfo {
+			// Skip if already processed (has interactions)
+			if _, hasInteractions := stringInteractions[stringID]; hasInteractions {
+				continue
+			}
+
+			if processProtein(stringID, info) {
+				processedIDs++
+				if shouldStopProcessing(testLimit, processedIDs) {
+					fmt.Printf("DEBUG: Stopped after processing %d total proteins (%d with interactions)\n",
+						processedIDs, len(stringInteractions))
+					return totalProteins, totalInteractions, nil
+				}
+			}
+		}
+	} else {
+		// Production mode: process all proteins
+		for stringID, info := range proteinInfo {
+			processProtein(stringID, info)
+		}
 	}
 
 	return totalProteins, totalInteractions, nil

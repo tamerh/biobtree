@@ -16,6 +16,11 @@ type interpro struct {
 	d      *DataUpdate
 }
 
+// check provides context-aware error checking for interpro processor
+func (i *interpro) check(err error, operation string) {
+	checkWithContext(err, i.source, operation)
+}
+
 func (i *interpro) update() {
 
 	fr := config.Dataconf[i.source]["id"]

@@ -18,6 +18,11 @@ type mondo struct {
 	d      *DataUpdate
 }
 
+// check provides context-aware error checking for mondo processor
+func (m *mondo) check(err error, operation string) {
+	checkWithContext(err, m.source, operation)
+}
+
 func (m *mondo) update() {
 
 	var br *bufio.Reader

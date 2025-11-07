@@ -17,6 +17,11 @@ type taxonomy struct {
 	d      *DataUpdate
 }
 
+// check provides context-aware error checking for taxonomy processor
+func (t *taxonomy) check(err error, operation string) {
+	checkWithContext(err, t.source, operation)
+}
+
 func (t *taxonomy) update() {
 
 	var total uint64

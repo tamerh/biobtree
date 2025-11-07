@@ -31,6 +31,11 @@ type ensembl struct {
 	biomartPaths    []string
 }
 
+// check provides context-aware error checking for ensembl processor
+func (e *ensembl) check(err error, operation string) {
+	checkWithContext(err, e.source, operation)
+}
+
 // ensembls runs one by one from one place.
 func (d *DataUpdate) updateEnsembls(ensembls map[string]ensembl) {
 

@@ -15,6 +15,11 @@ type chebi struct {
 	d      *DataUpdate
 }
 
+// check provides context-aware error checking for chebi processor
+func (c *chebi) check(err error, operation string) {
+	checkWithContext(err, c.source, operation)
+}
+
 func (c *chebi) update() {
 
 	defer c.d.wg.Done()

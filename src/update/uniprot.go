@@ -24,6 +24,11 @@ type uniprot struct {
 	ensmeblRefs map[string][]string
 }
 
+// check provides context-aware error checking for uniprot processor
+func (u *uniprot) check(err error, operation string) {
+	checkWithContext(err, u.source, operation)
+}
+
 func (u *uniprot) processDbReference(entryid string, r *xmlparser.XMLElement) {
 
 	for _, v := range r.Childs["dbReference"] {

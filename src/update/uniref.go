@@ -13,6 +13,11 @@ type uniref struct {
 	d      *DataUpdate
 }
 
+// check provides context-aware error checking for uniref processor
+func (u *uniref) check(err error, operation string) {
+	checkWithContext(err, u.source, operation)
+}
+
 func (u *uniref) update() {
 
 	fr := config.Dataconf[u.source]["id"]

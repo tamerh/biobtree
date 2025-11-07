@@ -19,6 +19,11 @@ type hgnc struct {
 	d      *DataUpdate
 }
 
+// check provides context-aware error checking for hgnc processor
+func (h *hgnc) check(err error, operation string) {
+	checkWithContext(err, h.source, operation)
+}
+
 func (e *hgnc) update() {
 
 	fr := config.Dataconf["hgnc"]["id"]

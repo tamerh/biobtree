@@ -4,6 +4,7 @@ import (
 	"biobtree/pbuf"
 	"bufio"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -21,6 +22,10 @@ type hmdb struct {
 	d      *DataUpdate
 }
 
+// check provides context-aware error checking for hmdb processor
+func (h *hmdb) check(err error, operation string) {
+	checkWithContext(err, h.source, operation)
+}
 
 // parseFloatValue extracts and parses the numeric part from values like "-0.467 (est)"
 func parseFloatValue(val string) (float64, error) {
@@ -194,21 +199,38 @@ func (h *hmdb) update() {
 		// Use local test file
 		testFilePath := config.Dataconf[h.source]["path2"]
 		localFile, err := os.Open(testFilePath)
-		check(err)
+		h.check(err, "opening local HMDB test file: "+testFilePath)
 		defer localFile.Close()
 		zipReader = localFile
 	} else {
 		// Download from remote URL
-		resp, err := http.Get(config.Dataconf[h.source]["path"])
-		check(err)
+		hmdbURL := config.Dataconf[h.source]["path"]
+		resp, err := http.Get(hmdbURL)
+		h.check(err, "downloading HMDB ZIP file from: "+hmdbURL)
 		defer resp.Body.Close()
+
+		// Validate HTTP response
+		if resp.StatusCode != 200 {
+			log.Fatalf("[%s] Error during %s: HMDB server returned HTTP %s (expected 200 OK) from: %s",
+				h.source, "downloading HMDB ZIP file", resp.Status, hmdbURL)
+		}
+
 		zipReader = resp.Body
 	}
 
 	zips := zipstream.NewReader(zipReader)
 
 	_, err := zips.Next()
-	check(err)
+	if err != nil {
+		// If ZIP parsing fails, provide detailed diagnostics
+		log.Printf("[hmdb] ERROR: Failed to read ZIP stream")
+		log.Printf("[hmdb] This often happens when:")
+		log.Printf("[hmdb]   1. HMDB server is rate-limiting due to concurrent downloads")
+		log.Printf("[hmdb]   2. Network connection was interrupted during download")
+		log.Printf("[hmdb]   3. Server returned an error page instead of ZIP file")
+		log.Printf("[hmdb] Try running HMDB alone with: ./biobtree -d hmdb update")
+		h.check(err, "reading first entry from HMDB ZIP stream")
+	}
 
 	br := bufio.NewReaderSize(zips, fileBufSize)
 
@@ -286,14 +308,14 @@ func (h *hmdb) update() {
 		// moleculer weight
 		if len(r.Childs["average_molecular_weight"]) > 0 && len(r.Childs["average_molecular_weight"][0].InnerText) > 0 {
 			cc, err := strconv.ParseFloat(r.Childs["average_molecular_weight"][0].InnerText, 64)
-			check(err)
+			h.check(err, "parsing average molecular weight for "+entryid)
 			attr.AverageWeight = cc
 		}
 
 		// monisotopic weight
 		if len(r.Childs["monisotopic_molecular_weight"]) > 0 && len(r.Childs["monisotopic_molecular_weight"][0].InnerText) > 0 {
 			cc, err := strconv.ParseFloat(r.Childs["monisotopic_molecular_weight"][0].InnerText, 64)
-			check(err)
+			h.check(err, "parsing monisotopic molecular weight for "+entryid)
 			attr.MonisotopicWeight = cc
 		}
 

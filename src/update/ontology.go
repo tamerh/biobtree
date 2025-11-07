@@ -21,6 +21,11 @@ type ontology struct {
 	d         *DataUpdate
 }
 
+// check provides context-aware error checking for ontology processor
+func (o *ontology) check(err error, operation string) {
+	checkWithContext(err, o.source, operation)
+}
+
 func (g *ontology) update() {
 
 	var br *bufio.Reader

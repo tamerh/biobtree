@@ -18,6 +18,11 @@ type hpo struct {
 	d      *DataUpdate
 }
 
+// check provides context-aware error checking for hpo processor
+func (h *hpo) check(err error, operation string) {
+	checkWithContext(err, h.source, operation)
+}
+
 func (h *hpo) update() {
 
 	var br *bufio.Reader

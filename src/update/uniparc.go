@@ -16,6 +16,11 @@ type uniparc struct {
 	d      *DataUpdate
 }
 
+// check provides context-aware error checking for uniparc processor
+func (u *uniparc) check(err error, operation string) {
+	checkWithContext(err, u.source, operation)
+}
+
 func (u *uniparc) update() {
 
 	defer u.d.wg.Done()

@@ -21,6 +21,11 @@ type literature struct {
 	d      *DataUpdate
 }
 
+// check provides context-aware error checking for literature processor
+func (l *literature) check(err error, operation string) {
+	checkWithContext(err, l.source, operation)
+}
+
 func (l *literature) update() {
 	var ftpfile *ftp.Response
 	var client *ftp.ServerConn

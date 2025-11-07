@@ -396,19 +396,22 @@ func (s *stringProcessor) processInteractions(taxid int, aliasMap map[string]str
 			Interactions:  interactions,
 		}
 
-		// Marshal and store on UniProt ID (primary key for STRING dataset entry)
+		// Marshal STRING attributes
 		b, err := ffjson.Marshal(&attr)
 		if err != nil {
 			log.Printf("Error marshaling STRING attr for %s: %v", uniprotID, err)
 			continue
 		}
 
+		// Store attributes on UniProt ID (primary identifier for STRING dataset)
 		s.d.addProp3(uniprotID, s.sourceID, b)
 
-		// Create keyword: STRING ID → UniProt entry (makes STRING ID a keyword within STRING dataset)
-		s.d.addXref(data.StringID, s.sourceID, uniprotID, s.source, true)
+		// Create keyword: STRING ID → UniProt entry (for search endpoint)
+		// isLink=true means /ws/?i=STRING_ID will find and return the UniProt entry
+		// Note: /ws/entry/ requires actual identifier (UniProt ID), not keyword
+		s.d.addXref(data.StringID, textLinkID, uniprotID, s.source, true)
 
-		// Log UniProt ID in test mode (since that's the primary key now)
+		// Log UniProt ID in test mode (primary key where attributes are stored)
 		if idLogFile != nil {
 			logProcessedID(idLogFile, uniprotID)
 			processedIDs++

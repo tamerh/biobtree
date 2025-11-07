@@ -695,3 +695,10 @@ func check(err error) {
 	}
 
 }
+
+// checkWithContext provides error context with dataset and operation information
+func checkWithContext(err error, dataset string, operation string) {
+	if err != nil {
+		log.Fatalf("[%s] Error during %s: %v", dataset, operation, err)
+	}
+}

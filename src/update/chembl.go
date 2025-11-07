@@ -31,6 +31,11 @@ type chembl struct {
 	totalRead int
 }
 
+// check provides context-aware error checking for chembl processor
+func (c *chembl) check(err error, operation string) {
+	checkWithContext(err, c.source, operation)
+}
+
 type assaysource struct {
 	name        string
 	description string
@@ -88,7 +93,7 @@ func (c *chembl) updateProteinTargetClasses() {
 
 	protclassFtpPath := c.getFtpPath(config.Dataconf["chembl_target"]["pathProteinTargetClassificationPattern"])
 	br, gz, ftpFile, client, localFile, _, err := getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, protclassFtpPath)
-	check(err)
+	c.check(err, "opening protein target classification file")
 
 	dec := rdf.NewTripleDecoder(br, rdf.Turtle)
 
@@ -152,7 +157,7 @@ func (c *chembl) updateBiocomponents() {
 
 	biocomponentFtpPath := c.getFtpPath(config.Dataconf["chembl_molecule"]["pathBioComponentPattern"])
 	br, gz, ftpFile, client, localFile, _, err := getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, biocomponentFtpPath)
-	check(err)
+	c.check(err, "opening biocomponent file")
 
 	dec := rdf.NewTripleDecoder(br, rdf.Turtle)
 
@@ -266,7 +271,7 @@ func (c *chembl) updateMechanisms() {
 	//first for just mechanisms name and action type
 	mechanismFtpPath := c.getFtpPath(config.Dataconf["chembl_target"]["pathMechanismPattern"])
 	br, gz, ftpFile, client, localFile, _, err := getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, mechanismFtpPath)
-	check(err)
+	c.check(err, "opening mechanism file")
 
 	dec := rdf.NewTripleDecoder(br, rdf.Turtle)
 

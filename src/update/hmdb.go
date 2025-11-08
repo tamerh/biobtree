@@ -243,7 +243,6 @@ func (h *hmdb) update() {
 	var entryid string
 
 	var fr = config.Dataconf[h.source]["id"]
-	var hmdbdis = config.Dataconf["hmdb disease"]["id"]
 	var previous int64
 
 	for r := range p.Stream() {
@@ -392,29 +391,15 @@ func (h *hmdb) update() {
 			for _, z := range v.Childs["disease"] {
 
 				if _, ok = z.Childs["name"]; ok {
-					// todo lower case
 					diseaseName := z.Childs["name"][0].InnerText
+
+					// Store disease name in attributes (will be displayed in HMDB entry)
 					attr.Diseases = append(attr.Diseases, diseaseName)
-					h.d.addXref(entryid, fr, diseaseName, "hmdb disease", false)
 
-					if _, ok = z.Childs["omim_id"]; ok {
-						for _, x := range z.Childs["omim_id"] {
-							if len(x.InnerText) > 0 {
-								h.d.addXref(diseaseName, hmdbdis, x.InnerText, "MIM", false)
-							}
-						}
-					}
-
-					//disase pubmed references
-					for _, x := range z.Childs["references"] {
-						for _, t := range x.Childs["reference"] {
-							for _, g := range t.Childs["pubmed_id"] {
-								if len(g.InnerText) > 0 {
-									h.d.addXref(diseaseName, hmdbdis, g.InnerText, "PubMed", false)
-								}
-							}
-						}
-					}
+					// Map disease name to MONDO (and other disease ontologies) via keyword lookup
+					// This resolves disease names like "Alzheimer's disease" to MONDO:0004975, etc.
+					// and creates proper cross-references: MONDO_ID ↔ HMDB_ID
+					h.d.addXrefViaKeyword(diseaseName, "", entryid, h.source, fr, false)
 
 				}
 			}

@@ -2,6 +2,7 @@ package update
 
 import (
 	"biobtree/configs"
+	"biobtree/db"
 	"biobtree/pbuf"
 	"encoding/json"
 	"fmt"
@@ -16,6 +17,7 @@ import (
 
 	"biobtree/util"
 
+	"github.com/golang/protobuf/proto"
 	"github.com/vbauerster/mpb"
 )
 
@@ -64,6 +66,9 @@ type DataUpdate struct {
 	skipEnsembl            bool
 	progChan               chan *progressInfo
 	progInterval           int64
+	lookupEnv              db.Env
+	lookupDbi              db.DBI
+	hasLookupDB            bool
 }
 
 type progressInfo struct {
@@ -145,9 +150,86 @@ func NewDataUpdate(datasets map[string]bool, targetDatasets, ensemblSpecies, ens
 
 }
 
+// Initialize read-only lookup database for keyword-to-ID resolution
+func (d *DataUpdate) initLookupDB() {
+	lookupDbDir, ok := config.Appconf["lookupDbDir"]
+	if !ok {
+		d.hasLookupDB = false
+		return
+	}
+
+	// Check if meta file exists
+	metaFile := filepath.FromSlash(lookupDbDir + "/db.meta.json")
+	meta := make(map[string]interface{})
+	f, err := ioutil.ReadFile(metaFile)
+	if err != nil {
+		fmt.Printf("Warning: Cannot read lookup database meta file: %v, keyword lookup disabled\n", err)
+		d.hasLookupDB = false
+		return
+	}
+
+	if err := json.Unmarshal(f, &meta); err != nil {
+		fmt.Printf("Warning: Cannot parse lookup database meta: %v, keyword lookup disabled\n", err)
+		d.hasLookupDB = false
+		return
+	}
+
+	totalkvline := int64(meta["totalKVLine"].(float64))
+
+	// Open lookup database (read-only)
+	db1 := db.DB{}
+	lookupConf := make(map[string]string)
+	lookupConf["dbDir"] = lookupDbDir
+	lookupConf["dbBackend"] = "lmdb"
+	d.lookupEnv, d.lookupDbi = db1.OpenDBNew(false, totalkvline, lookupConf)
+	d.hasLookupDB = true
+}
+
+// Close lookup database
+func (d *DataUpdate) closeLookupDB() {
+	if d.hasLookupDB {
+		d.lookupEnv.Close()
+	}
+}
+
+// Lookup identifier in biobtree database and return results
+func (d *DataUpdate) lookup(identifier string) (*pbuf.Result, error) {
+	if !d.hasLookupDB {
+		return nil, fmt.Errorf("lookup database not available")
+	}
+
+	// Lookup is case-insensitive (convert to uppercase like service does)
+	identifier = strings.ToUpper(identifier)
+
+	var v []byte
+	err := d.lookupEnv.View(func(txn db.Txn) (err error) {
+		v, err = txn.Get(d.lookupDbi, []byte(identifier))
+		if db.IsNotFound(err) {
+			return nil
+		}
+		return err
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	if len(v) == 0 {
+		return nil, nil
+	}
+
+	r := pbuf.Result{}
+	err = proto.Unmarshal(v, &r)
+	return &r, err
+}
+
 func (d *DataUpdate) Update() (uint64, uint64) {
 
 	log.Println("Update running please wait...")
+
+	// Initialize lookup database for keyword-based xref resolution
+	d.initLookupDB()
+	defer d.closeLookupDB()
 
 	// first check update for ensembl meta
 	checkEnsemblUpdate(d)
@@ -641,6 +723,67 @@ func (d *DataUpdate) addXref2(key string, from string, value string, valueFrom s
 	*d.kvdatachan <- kup + tab + from + tab + vup + tab + config.Dataconf[valueFrom]["id"]
 
 }
+
+// addXrefViaKeyword resolves keyword to database identifiers via lookup, then creates xrefs
+// keyword: The keyword to lookup (e.g., "BRCA1")
+// keywordDataset: Dataset to filter results (empty string = accept all matches for auto-enrichment)
+// targetValue: The value to link to (e.g., HPO ID)
+// targetDataset: The dataset of the target value
+// from: Source dataset name
+// isLink: Whether this is a link-only relationship
+func (d *DataUpdate) addXrefViaKeyword(keyword string, keywordDataset string, targetValue string, targetDataset string, from string, isLink bool) {
+	if !d.hasLookupDB {
+		return
+	}
+
+	// Lookup keyword in database
+	result, err := d.lookup(keyword)
+	if err != nil || result == nil || len(result.Results) == 0 {
+		return
+	}
+
+	//fmt.Println("=== Lookup result for keyword:", keyword, "===")
+	//fmt.Println("Total results:", len(result.Results))
+	//for i, r := range result.Results {
+	//	fmt.Printf("Result[%d]: Identifier=%s, Dataset=%d, IsLink=%v, Entries count=%d\n",
+	//		i, r.Identifier, r.Dataset, r.IsLink, len(r.Entries))
+	//}
+	//fmt.Println("==========================================")
+
+	// When lookup returns a keyword result, the actual identifiers are in the entries
+	// We need to extract them from all results
+	for _, r := range result.Results {
+		// Check if this is a link result (keyword lookup)
+		if !r.IsLink || len(r.Entries) == 0 {
+			continue
+		}
+
+		// Loop through entries to get actual dataset IDs and identifiers
+		for _, entry := range r.Entries {
+			// Filter by keywordDataset if specified
+			if keywordDataset != "" {
+				datasetID, ok := config.Dataconf[keywordDataset]["id"]
+				if ok {
+					var targetID uint32
+					fmt.Sscanf(datasetID, "%d", &targetID)
+					if entry.Dataset != targetID {
+						continue // Skip entries that don't match the filter
+					}
+				}
+			}
+
+			// Verify dataset ID exists in config
+			if _, ok := config.DataconfIDIntToString[entry.Dataset]; !ok {
+				continue
+			}
+
+			// Convert dataset ID to string
+			datasetIDStr := strconv.Itoa(int(entry.Dataset))
+			d.addXref(entry.Identifier, datasetIDStr, targetValue, targetDataset, isLink)
+		}
+	}
+}
+
 
 func (d *DataUpdate) selectEnsembls() map[string]ensembl {
 

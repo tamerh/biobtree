@@ -18,7 +18,7 @@ by retrieving latest data from providers
 
 * **Protein** - Uniprot proteins including protein features with variations and mapped datasets.
 
-* **Chemistry** - `ChEMBL` and `HMDB` datasets supported for chemistry, disease and drug releated analaysis
+* **Chemistry** - `ChEMBL`, `HMDB`, and `ChEBI` datasets supported for chemistry, disease and drug releated analaysis
 
 * **Patents** - `SureChEMBL` patent data with 43M+ patents, 30M+ compounds, and patent-compound mappings for drug discovery and IP analysis
 
@@ -31,6 +31,8 @@ by retrieving latest data from providers
 * **Taxonomy & Ontologies** - `Taxonomy` `GO` `EFO` `ECO` `HPO` `MONDO` data with mapping to other datasets and child and parent query capability
 
 * **Your data** - Your custom data can be integrated with or without relation to other datasets
+
+**Note**: Detailed documentation for each dataset can be found at `tests/datasets/*/README.md`
 
 * **Web UI** - Web interface for easy explorations and examples
 

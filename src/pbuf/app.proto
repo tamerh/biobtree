@@ -121,6 +121,7 @@ message Xref {
     EnsemblAttr ensembl= 10;
     TaxoAttr taxonomy= 11;
     HmdbAttr hmdb= 12;
+    ChebiAttr chebi= 32;
     EnaAttr ena= 13;
     PdbAttr pdb= 14;
     DrugbankAttr drugbank= 15;

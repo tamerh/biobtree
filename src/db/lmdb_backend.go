@@ -1,6 +1,8 @@
 package db
 
 import (
+	"os"
+
 	"github.com/bmatsuo/lmdb-go/lmdb"
 )
 
@@ -155,6 +157,7 @@ func NewLMDBEnv(cfg *Config) (Env, DBI, error) {
 }
 
 // calculateLMDBMapSize calculates appropriate map size based on total KV pairs
+// This is a fallback method when index directory size is not available
 func calculateLMDBMapSize(totalKV int64) int64 {
 	if totalKV < 1_000_000 {
 		return 1_000_000_000 // 1GB
@@ -175,6 +178,49 @@ func calculateLMDBMapSize(totalKV int64) int64 {
 	} else {
 		return int64(1.4 * 1000 * 1000 * 1000 * 1000) // 1.4 TB
 	}
+}
+
+// calculateIndexDirSize calculates total size of all files in index directory
+func calculateIndexDirSize(indexDir string) (int64, error) {
+	var totalSize int64
+
+	entries, err := os.ReadDir(indexDir)
+	if err != nil {
+		return 0, err
+	}
+
+	for _, entry := range entries {
+		if !entry.IsDir() {
+			info, err := entry.Info()
+			if err != nil {
+				continue
+			}
+			totalSize += info.Size()
+		}
+	}
+
+	return totalSize, nil
+}
+
+// calculateMapSizeFromIndexDir estimates LMDB size based on index directory size
+// This is more accurate than KV-based estimation because it accounts for actual data size
+func calculateMapSizeFromIndexDir(indexDir string, safetyFactor float64) int64 {
+	indexSize, err := calculateIndexDirSize(indexDir)
+	if err != nil || indexSize == 0 {
+		return 0 // Fallback to KV-based calculation
+	}
+
+	// Empirical ratio: DB size ≈ 1.5x compressed index size
+	// Safety factor adds extra margin (recommended: 2.0-3.0)
+	estimatedSize := float64(indexSize) * 1.5 * safetyFactor
+
+	// Ensure minimum size
+	minSize := int64(100_000_000) // 100MB minimum
+	if int64(estimatedSize) < minSize {
+		return minSize
+	}
+
+	return int64(estimatedSize)
 }
 
 // IsLMDBNotFound checks if error is a not-found error (LMDB version)

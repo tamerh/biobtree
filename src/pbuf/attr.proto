@@ -314,6 +314,38 @@ message HmdbAttr {
   repeated string pathways=19;
 }
 
+message ChebiAttr {
+  // Core identification
+  string name = 1;                    // Primary compound name (e.g., "acetylsalicylic acid")
+  string definition = 2;              // Scientific definition
+  int32 star_rating = 3;              // Quality: 1=preliminary, 2=3rd party, 3=curated
+  string source = 4;                  // Original source (KEGG, ChEMBL, etc.)
+
+  // Names and synonyms
+  repeated string synonyms = 5;       // All alternative names
+  repeated string iupac_names = 6;    // IUPAC systematic names
+  repeated string brand_names = 7;    // Commercial/trade names
+  repeated string inn_names = 8;      // International Nonproprietary Names
+
+  // Chemical properties
+  string formula = 9;                 // Molecular formula (e.g., "C9H8O4")
+  double average_mass = 10;           // Average molecular weight
+  double monoisotopic_mass = 11;      // Exact mass for MS
+  int32 charge = 12;                  // Ionic charge state
+
+  // Chemical structures
+  string smiles = 13;                 // SMILES notation
+  string inchi = 14;                  // Standard InChI
+  string inchi_key = 15;              // InChI Key (for structure search!)
+
+  // Ontology relationships (for Phase 2)
+  repeated string roles = 16;         // Biological/chemical roles
+  repeated string parent_ids = 17;    // Classification hierarchy
+
+  // Status
+  int32 status_id = 18;               // 1=active, 3=deprecated
+}
+
 message HmdbPredictedProps {
   int32   rotatableBondCount=1;
   int32   physiologicalCharge=2;

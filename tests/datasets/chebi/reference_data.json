@@ -1,9 +1,812 @@
 {
   "metadata": {
+    "source": "biobtree_api",
+    "api_base": "http://localhost:9292",
     "total_ids": 100,
-    "fetched": 0,
-    "failed": 100,
-    "note": "Minimal reference data extracted from biobtree test database"
+    "requested": 20,
+    "fetched": 20,
+    "failed": 0,
+    "note": "Reference data extracted from biobtree test database API with full compound attributes"
   },
-  "entries": []
+  "entries": [
+    {
+      "dataset": 10,
+      "dataset_name": "chebi",
+      "identifier": "CHEBI:100",
+      "Attributes": {
+        "Chebi": {
+          "name": "(\u2212)-medicarpin",
+          "definition": "The (\u2212)-enantiomer of medicarpin.",
+          "star_rating": 3,
+          "source": "KEGG COMPOUND",
+          "synonyms": [
+            "medicarpin",
+            "(-)-Medicarpin"
+          ],
+          "iupac_names": [
+            "(6a<i>R</i>,11a<i>R</i>)-9-methoxy-6a,11a-dihydro-6<em>H</em>-[1]benzofuro[3,2-<em>c</em>]chromen-3-ol"
+          ],
+          "formula": "C16H14O4",
+          "average_mass": 270.284,
+          "monoisotopic_mass": 270.08921,
+          "smiles": "[H][C@@]12COc3cc(O)ccc3[C@]1([H])Oc1cc(OC)ccc12",
+          "inchi": "InChI=1S/C16H14O4/c1-18-10-3-5-11-13-8-19-14-6-9(17)2-4-12(14)16(13)20-15(11)7-10/h2-7,13,16-17H,8H2,1H3/t13-,16-/m0/s1",
+          "inchi_key": "NSRJSISNDPOJOP-BBRMVZONSA-N",
+          "roles": [
+            "CHEBI:76924"
+          ],
+          "parent_ids": [
+            "CHEBI:16114"
+          ],
+          "status_id": 1
+        }
+      },
+      "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:100"
+    },
+    {
+      "dataset": 10,
+      "dataset_name": "chebi",
+      "identifier": "CHEBI:10002",
+      "Attributes": {
+        "Chebi": {
+          "name": "visnagin",
+          "definition": "A furanochromone that is furo[3,2-<em>g</em>]chromen-5-one which is substituted at positions 4 and 7 by methoxy and methyl groups, respectively. Found in the toothpick-plant, <em>Ammi visnaga</em>.",
+          "star_rating": 3,
+          "source": "KEGG COMPOUND",
+          "synonyms": [
+            "FUK-724",
+            "5-methoxy-2-methylfuranochromone",
+            "visnagidin",
+            "desmethoxykhellin",
+            "visnagine"
+          ],
+          "iupac_names": [
+            "4-methoxy-7-methyl-5<em>H</em>-furo[3,2-<em>g</em>]chromen-5-one"
+          ],
+          "formula": "C13H10O4",
+          "average_mass": 230.219,
+          "monoisotopic_mass": 230.05791,
+          "smiles": "COc1c2ccoc2cc2oc(C)cc(=O)c12",
+          "inchi": "InChI=1S/C13H10O4/c1-7-5-9(14)12-11(17-7)6-10-8(3-4-16-10)13(12)15-2/h3-6H,1-2H3",
+          "inchi_key": "NZVQLVGOZRELTG-UHFFFAOYSA-N",
+          "roles": [
+            "CHEBI:38231",
+            "CHEBI:140378",
+            "CHEBI:35620",
+            "CHEBI:35674",
+            "CHEBI:67079",
+            "CHEBI:76924"
+          ],
+          "parent_ids": [
+            "CHEBI:137443",
+            "CHEBI:35618",
+            "CHEBI:26188"
+          ],
+          "status_id": 1
+        }
+      },
+      "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:10002"
+    },
+    {
+      "dataset": 10,
+      "dataset_name": "chebi",
+      "identifier": "CHEBI:10003",
+      "Attributes": {
+        "Chebi": {
+          "name": "ribostamycin sulfate",
+          "definition": "An aminoglycoside sulfate salt resulting from the reaction of ribostamycin  with sulfuric acid.",
+          "star_rating": 3,
+          "source": "KEGG COMPOUND",
+          "synonyms": [
+            "Ribomycine",
+            "ribostamycin A sulfate",
+            "SF 733 antibioic sulfate",
+            "Landamycine"
+          ],
+          "brand_names": [
+            "Vistamycin"
+          ],
+          "formula": "(H2O4S)n.C17H34N4O10",
+          "average_mass": 552.556,
+          "monoisotopic_mass": 552.19487,
+          "smiles": "NC[C@H]1O[C@H](O[C@H]2[C@H](O[C@@H]3O[C@H](CO)[C@@H](O)[C@H]3O)[C@@H](O)[C@H](N)C[C@@H]2N)[C@H](N)[C@@H](O)[C@@H]1O.O=S(=O)(O)O",
+          "inchi": "InChI=1S/C17H34N4O10.H2O4S/c18-2-6-10(24)12(26)8(21)16(28-6)30-14-5(20)1-4(19)9(23)15(14)31-17-13(27)11(25)7(3-22)29-17;1-5(2,3)4/h4-17,22-27H,1-3,18-21H2;(H2,1,2,3,4)/t4-,5+,6-,7-,8-,9+,10-,11-,12-,13-,14-,15-,16-,17+;/m1./s1",
+          "inchi_key": "RTCDDYYZMGGHOE-YMSVYGIHSA-N",
+          "roles": [
+            "CHEBI:33281",
+            "CHEBI:36047",
+            "CHEBI:33282"
+          ],
+          "parent_ids": [
+            "CHEBI:38012",
+            "CHEBI:47779"
+          ],
+          "status_id": 1
+        }
+      },
+      "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:10003"
+    },
+    {
+      "dataset": 10,
+      "dataset_name": "chebi",
+      "identifier": "CHEBI:100147",
+      "Attributes": {
+        "Chebi": {
+          "name": "nalidixic acid",
+          "definition": "A monocarboxylic acid comprising 1,8-naphthyridin-4-one substituted by carboxylic acid, ethyl and methyl groups at positions 3, 1, and 7, respectively. An orally administered antibacterial, it is used in the treatment of lower urinary-tract infections due to Gram-negative bacteria, including the majority of <em>E. coli</em>, <em>Enterobacter</em>, <em>Klebsiella</em>, and <em>Proteus</em> species.",
+          "star_rating": 3,
+          "source": "ChEMBL",
+          "synonyms": [
+            "Nalidixic acid",
+            "1-Ethyl-7-methyl-4-oxo-1,4-dihydro-[1,8]naphthyridine-3-carboxylic acid",
+            "NALIDIXIC ACID",
+            "1-Aethyl-7-methyl-1,8-naphthyridin-4-on-3-karbonsaeure",
+            "1-ethyl-1,4-dihydro-7-methyl-4-oxo-1,8-naphthyridine-3-carboxylic acid",
+            "1,4-dihydro-1-ethyl-7-methyl-4-oxo-1,8-naphthyridine-3-carboxylic acid",
+            "3-carboxy-1-ethyl-7-methyl-1,8-naphthyridin-4-one",
+            "1-ethyl-7-methyl-1,4-dihydro-1,8-naphthyridin-4-one-3-carboxylic acid"
+          ],
+          "iupac_names": [
+            "1-ethyl-7-methyl-4-oxo-1,4-dihydro-1,8-naphthyridine-3-carboxylic acid"
+          ],
+          "inn_names": [
+            "acide nalidixique",
+            "acidum nalidixicum",
+            "nalidixic acid",
+            "acido nalidixico"
+          ],
+          "formula": "C12H12N2O3",
+          "average_mass": 232.239,
+          "monoisotopic_mass": 232.08479,
+          "smiles": "CCn1cc(C(=O)O)c(=O)c2ccc(C)nc21",
+          "inchi": "InChI=1S/C12H12N2O3/c1-3-14-6-9(12(16)17)10(15)8-5-4-7(2)13-11(8)14/h4-6H,3H2,1-2H3,(H,16,17)",
+          "inchi_key": "MHWLWQUZZRMNGJ-UHFFFAOYSA-N",
+          "roles": [
+            "CHEBI:36047",
+            "CHEBI:59517",
+            "CHEBI:33281"
+          ],
+          "parent_ids": [
+            "CHEBI:25384",
+            "CHEBI:73537",
+            "CHEBI:86324"
+          ],
+          "status_id": 1
+        }
+      },
+      "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:100147"
+    },
+    {
+      "dataset": 10,
+      "dataset_name": "chebi",
+      "identifier": "CHEBI:100148",
+      "Attributes": {
+        "Chebi": {
+          "name": "1,1,1-propanetricarboxylic acid",
+          "definition": "A acid that is propane in which three carboxy groups are attached at the C-1 position.",
+          "star_rating": 3,
+          "source": "ChEBI",
+          "synonyms": [
+            "propane-1,1,1-tricarboxylic acid"
+          ],
+          "formula": "C6H8O6",
+          "average_mass": 176.124,
+          "monoisotopic_mass": 176.03209,
+          "smiles": "CCC(C(=O)O)(C(=O)O)C(=O)O",
+          "inchi": "InChI=1S/C6H8O6/c1-2-6(3(7)8,4(9)10)5(11)12/h2H2,1H3,(H,7,8)(H,9,10)(H,11,12)",
+          "inchi_key": "CEGRHPCDLKAHJD-UHFFFAOYSA-N",
+          "parent_ids": [
+            "CHEBI:27093"
+          ],
+          "status_id": 1
+        }
+      },
+      "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:100148"
+    },
+    {
+      "dataset": 10,
+      "dataset_name": "chebi",
+      "identifier": "CHEBI:10015",
+      "Attributes": {
+        "Chebi": {
+          "name": "vobasine",
+          "definition": "An indole alkaloid that is vobasan in which the bridgehead methyl group is substituted by a methoxycarbonyl group and an additional oxo substituent is present in the 3-position.",
+          "star_rating": 3,
+          "source": "KEGG COMPOUND",
+          "synonyms": [
+            "3-oxovobasan-17-oic acid, methyl ester",
+            "Vobasine"
+          ],
+          "iupac_names": [
+            "methyl 3-oxovobasan-17-oate"
+          ],
+          "formula": "C21H24N2O3",
+          "average_mass": 352.434,
+          "monoisotopic_mass": 352.17869,
+          "smiles": "[H]/C(C)=C1\\CN(C)[C@@]2([H])Cc3c(nc4ccccc34)C(=O)C[C@]1([H])[C@]2([H])C(=O)OC",
+          "inchi": "InChI=1S/C21H24N2O3/c1-4-12-11-23(2)17-9-15-13-7-5-6-8-16(13)22-20(15)18(24)10-14(12)19(17)21(25)26-3/h4-8,14,17,19,22H,9-11H2,1-3H3/b12-4-/t14-,17-,19-/m0/s1",
+          "inchi_key": "TYPMTMPLTVSOBU-XJHWFDBESA-N",
+          "roles": [
+            "CHEBI:22587"
+          ],
+          "parent_ids": [
+            "CHEBI:38958",
+            "CHEBI:25248",
+            "CHEBI:38163",
+            "CHEBI:3992",
+            "CHEBI:38481"
+          ],
+          "status_id": 1
+        }
+      },
+      "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:10015"
+    },
+    {
+      "dataset": 10,
+      "dataset_name": "chebi",
+      "identifier": "CHEBI:10016",
+      "Attributes": {
+        "Chebi": {
+          "name": "vobtusine",
+          "star_rating": 3,
+          "source": "KEGG COMPOUND",
+          "iupac_names": [
+            "vobtusine"
+          ],
+          "formula": "C43H50N4O6",
+          "average_mass": 718.895,
+          "monoisotopic_mass": 718.37304,
+          "smiles": "[H][C@@]12C[C@]3(CN4CC[C@]56C(=C(C(=O)OC)C[C@@]7(CCO[C@@]37[H])[C@]45[H])Nc3ccccc36)CN3c4c(OC)cccc4[C@@]4(CCN5CC[C@]6([H])OCC[C@]6(C1)[C@]54[H])[C@@]32O",
+          "inchi": "InChI=1S/C43H50N4O6/c1-50-30-9-5-7-28-32(30)47-24-38(20-25-21-39-13-18-52-31(39)10-15-45-17-12-42(28,36(39)45)43(25,47)49)23-46-16-11-41-27-6-3-4-8-29(27)44-33(41)26(34(48)51-2)22-40(35(41)46)14-19-53-37(38)40/h3-9,25,31,35-37,44,49H,10-24H2,1-2H3/t25-,31+,35+,36+,37+,38+,39-,40+,41+,42-,43-/m1/s1",
+          "inchi_key": "IIMPGJMHQMBXKL-OPDPKHDKSA-N",
+          "parent_ids": [
+            "CHEBI:38482",
+            "CHEBI:38481",
+            "CHEBI:27288",
+            "CHEBI:73080",
+            "CHEBI:25248",
+            "CHEBI:33599"
+          ],
+          "status_id": 1
+        }
+      },
+      "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:10016"
+    },
+    {
+      "dataset": 10,
+      "dataset_name": "chebi",
+      "identifier": "CHEBI:10017",
+      "Attributes": {
+        "Chebi": {
+          "name": "volemitol",
+          "definition": "A heptitol that is heptane-1,2,3,4,5,6,7-heptol that has <i>R</i>-configuration at positions 2, 3, 5 and 6.",
+          "star_rating": 3,
+          "source": "KEGG COMPOUND",
+          "synonyms": [
+            "D-glycero-D-manno-Heptitol"
+          ],
+          "iupac_names": [
+            "(2<i>R</i>,3<i>R</i>,5<i>R</i>,6<i>R</i>)-heptane-1,2,3,4,5,6,7-heptol"
+          ],
+          "formula": "C7H16O7",
+          "average_mass": 212.198,
+          "monoisotopic_mass": 212.0896,
+          "smiles": "OC[C@@H](O)[C@@H](O)C(O)[C@H](O)[C@H](O)CO",
+          "inchi": "InChI=1S/C7H16O7/c8-1-3(10)5(12)7(14)6(13)4(11)2-9/h3-14H,1-2H2/t3-,4-,5-,6-/m1/s1",
+          "inchi_key": "OXQKEKGBFMQTML-KVTDHHQDSA-N",
+          "roles": [
+            "CHEBI:25212"
+          ],
+          "parent_ids": [
+            "CHEBI:46658"
+          ],
+          "status_id": 1
+        }
+      },
+      "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:10017"
+    },
+    {
+      "dataset": 10,
+      "dataset_name": "chebi",
+      "identifier": "CHEBI:10018",
+      "Attributes": {
+        "Chebi": {
+          "name": "volkenin",
+          "definition": "A cyanogenic glycoside that is (4<i>R</i>)-4-hydroxycyclopent-2-ene-1-carbonitrile attached to a \u03b2-<small>D</small>-glucopyranosyloxy at position 1.",
+          "star_rating": 3,
+          "source": "KEGG COMPOUND",
+          "iupac_names": [
+            "(1<i>R</i>,4<i>R</i>)-1-(\u03b2-<small>D</small>-glucopyranosyloxy)-4-hydroxycyclopent-2-ene-1-carbonitrile"
+          ],
+          "formula": "C12H17NO7",
+          "average_mass": 287.268,
+          "monoisotopic_mass": 287.1005,
+          "smiles": "N#C[C@]1(O[C@@H]2O[C@H](CO)[C@@H](O)[C@H](O)[C@H]2O)C=C[C@H](O)C1",
+          "inchi": "InChI=1S/C12H17NO7/c13-5-12(2-1-6(15)3-12)20-11-10(18)9(17)8(16)7(4-14)19-11/h1-2,6-11,14-18H,3-4H2/t6-,7+,8+,9-,10+,11-,12-/m0/s1",
+          "inchi_key": "JRCWYCAEAZEYNW-WTMYBKBASA-N",
+          "parent_ids": [
+            "CHEBI:22798",
+            "CHEBI:23436",
+            "CHEBI:63367",
+            "CHEBI:80291"
+          ],
+          "status_id": 1
+        }
+      },
+      "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:10018"
+    },
+    {
+      "dataset": 10,
+      "dataset_name": "chebi",
+      "identifier": "CHEBI:10022",
+      "Attributes": {
+        "Chebi": {
+          "name": "deoxynivalenol",
+          "definition": "A trichothecene mycotoxin produced by <em>Fusarium</em> to which wheat, barley, maize (corn) and their products are susceptible to contamination.",
+          "star_rating": 3,
+          "source": "KEGG COMPOUND",
+          "synonyms": [
+            "DON",
+            "Vomitoxin",
+            "4-Desoxynivalenol",
+            "Dehydronivalenol",
+            "4-Deoxynivalenol",
+            "3\u03b1,7\u03b1,15-trihydroxy-12,13-epoxytrichothec-9-en-8-one",
+            "Desoxynivalenol"
+          ],
+          "iupac_names": [
+            "3\u03b1,7\u03b1,15-trihydroxy-12,13-epoxytrichothec-9-en-8-one"
+          ],
+          "formula": "C15H20O6",
+          "average_mass": 296.319,
+          "monoisotopic_mass": 296.12599,
+          "smiles": "[H][C@@]12C=C(C)C(=O)[C@@H](O)[C@]1(CO)[C@@]1(C)C[C@@H](O)[C@@]([H])(O2)[C@@]12CO2",
+          "inchi": "InChI=1S/C15H20O6/c1-7-3-9-14(5-16,11(19)10(7)18)13(2)4-8(17)12(21-9)15(13)6-20-15/h3,8-9,11-12,16-17,19H,4-6H2,1-2H3/t8-,9-,11-,12-,13-,14-,15+/m1/s1",
+          "inchi_key": "LINOMUASTDIRTM-QGRHZQQGSA-N",
+          "roles": [
+            "CHEBI:25442"
+          ],
+          "parent_ids": [
+            "CHEBI:55517",
+            "CHEBI:3992",
+            "CHEBI:2468",
+            "CHEBI:15734",
+            "CHEBI:51689",
+            "CHEBI:27136"
+          ],
+          "status_id": 1
+        }
+      },
+      "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:10022"
+    },
+    {
+      "dataset": 10,
+      "dataset_name": "chebi",
+      "identifier": "CHEBI:10023",
+      "Attributes": {
+        "Chebi": {
+          "name": "voriconazole",
+          "definition": "A triazole-based antifungal agent used for the treatment of esophageal candidiasis, invasive pulmonary aspergillosis, and serious fungal infections caused by <em>Scedosporium apiospermum</em> and <em>Fusarium</em> spp. It is an inhibitor of cytochrome P450 2C9 (CYP2C9) and CYP3A4.",
+          "star_rating": 3,
+          "source": "KEGG COMPOUND",
+          "synonyms": [
+            "(\u03b1<i>R</i>,\u03b2<i>S</i>)-\u03b1-(2,4-difluorophenyl)-5-fluoro-\u03b2-methyl-\u03b1(1<em>H</em>-1,2,4-triazol-1-ylmethyl)-4-pyrimidineethanol",
+            "(R-(R*,S*))-alpha-(2,4-difluorophenyl)-5-fluoro-beta-methyl-alpha-(1H-1,2,4-triazol-1-ylmethyl)-4-pyrimidineethanol",
+            "VCZ"
+          ],
+          "iupac_names": [
+            "(2<i>R</i>,3<i>S</i>)-2-(2,4-difluorophenyl)-3-(5-fluoropyrimidin-4-yl)-1-(1<em>H</em>-1,2,4-triazol-1-yl)butan-2-ol"
+          ],
+          "brand_names": [
+            "Vfend"
+          ],
+          "inn_names": [
+            "voriconazole",
+            "voriconazol",
+            "voriconazolum",
+            "voriconazole"
+          ],
+          "formula": "C16H14F3N5O",
+          "average_mass": 349.316,
+          "monoisotopic_mass": 349.11504,
+          "smiles": "C[C@@H](c1ncncc1F)[C@](O)(Cn1cncn1)c1ccc(F)cc1F",
+          "inchi": "InChI=1S/C16H14F3N5O/c1-10(15-14(19)5-20-7-22-15)16(25,6-24-9-21-8-23-24)12-3-2-11(17)4-13(12)18/h2-5,7-10,25H,6H2,1H3/t10-,16+/m0/s1",
+          "inchi_key": "BCEHBSKCWLPMDN-MGPLVRAMSA-N",
+          "roles": [
+            "CHEBI:50183"
+          ],
+          "parent_ids": [
+            "CHEBI:39447",
+            "CHEBI:38582",
+            "CHEBI:26878",
+            "CHEBI:87101",
+            "CHEBI:87071"
+          ],
+          "status_id": 1
+        }
+      },
+      "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:10023"
+    },
+    {
+      "dataset": 10,
+      "dataset_name": "chebi",
+      "identifier": "CHEBI:100241",
+      "Attributes": {
+        "Chebi": {
+          "name": "ciprofloxacin",
+          "definition": "A  quinolone that is quinolin-4(1<em>H</em>)-one bearing cyclopropyl, carboxylic acid, fluoro and piperazin-1-yl substituents at positions 1, 3, 6 and 7, respectively.",
+          "star_rating": 3,
+          "source": "ChEMBL",
+          "synonyms": [
+            "1-Cyclopropyl-6-fluoro-7-(4-methyl-piperazin-1-yl)-4-oxo-1,4-dihydro-quinoline-3-carboxylic acid",
+            "1-cyclopropyl-6-fluoro-7-hexahydro-1-pyrazinyl-4-oxo-1,4-dihydro-3-quinolinecarboxylic acid",
+            "1-cyclopropyl-6-fluoro-1,4-dihydro-4-oxo-7-(1-piperazinyl)-3-quinolinecarboxylic acid",
+            "1-cyclopropyl-6-fluoro-4-oxo-7-(piperazin-1-yl)-1,4-dihydroquinoline-3-carboxylic acid",
+            "ciprofloxacin",
+            "1-cyclopropyl-6-fluoro-4-oxo-7-piperazin-1-ylquinoline-3-carboxylic acid",
+            "1-Cyclopropyl-6-fluoro-4-oxo-7-piperazin-1-yl-1,4-dihydro-quinoline-3-carboxylic acid",
+            "Ciprofloxacin",
+            "1-CYCLOPROPYL-6-FLUORO-4-OXO-7-PIPERAZIN-1-YL-1,4-DIHYDROQUINOLINE-3-CARBOXYLIC ACID"
+          ],
+          "iupac_names": [
+            "1-cyclopropyl-6-fluoro-4-oxo-7-(piperazin-1-yl)-1,4-dihydroquinoline-3-carboxylic acid"
+          ],
+          "inn_names": [
+            "ciprofloxacine",
+            "ciprofloxacin",
+            "ciprofloxacino",
+            "ciprofloxacinum"
+          ],
+          "formula": "C17H18FN3O3",
+          "average_mass": 331.347,
+          "monoisotopic_mass": 331.13322,
+          "smiles": "O=C(O)c1cn(C2CC2)c2cc(N3CCNCC3)c(F)cc2c1=O",
+          "inchi": "InChI=1S/C17H18FN3O3/c18-13-7-11-14(8-15(13)20-5-3-19-4-6-20)21(10-1-2-10)9-12(16(11)22)17(23)24/h7-10,19H,1-6H2,(H,23,24)",
+          "inchi_key": "MYSWGUAQZAJSOK-UHFFFAOYSA-N",
+          "roles": [
+            "CHEBI:35441",
+            "CHEBI:53559",
+            "CHEBI:36047",
+            "CHEBI:50750",
+            "CHEBI:59517",
+            "CHEBI:33281",
+            "CHEBI:78298",
+            "CHEBI:35703"
+          ],
+          "parent_ids": [
+            "CHEBI:46848",
+            "CHEBI:23765",
+            "CHEBI:36709",
+            "CHEBI:26512",
+            "CHEBI:86324",
+            "CHEBI:87211",
+            "CHEBI:51454"
+          ],
+          "status_id": 1
+        }
+      },
+      "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:100241"
+    },
+    {
+      "dataset": 10,
+      "dataset_name": "chebi",
+      "identifier": "CHEBI:100242",
+      "Attributes": {
+        "Chebi": {
+          "name": "<em>N</em>-succinimidyl 5-(3-azidopropylamino)-5-oxopentanoate",
+          "definition": "An <em>N</em>-hydroxysuccinimide ester derived from  5-(3-azidopropylamino)-5-oxopentanoic acid.",
+          "star_rating": 3,
+          "source": "ChEBI",
+          "synonyms": [
+            "5-(3-azidopropylamino)-5-oxopentanoic acid NHS ester",
+            "5-(3-azidopropylamino)-5-oxopentanoic acid <em>N</em>-hydroxysuccinimide ester",
+            "succinimidyl 5-(3-azidopropylamino)-5-oxopentanoate"
+          ],
+          "iupac_names": [
+            "<em>N</em>-(3-azidopropyl)-5-[(2,5-dioxopyrrolidin-1-yl)oxy]-5-oxopentanamide"
+          ],
+          "formula": "C12H17N5O5",
+          "average_mass": 311.298,
+          "monoisotopic_mass": 311.12297,
+          "smiles": "[N-]=[N+]=NCCCNC(=O)CCCC(=O)ON1C(=O)CCC1=O",
+          "inchi": "InChI=1S/C12H17N5O5/c13-16-15-8-2-7-14-9(18)3-1-4-12(21)22-17-10(19)5-6-11(17)20/h1-8H2,(H,14,18)",
+          "inchi_key": "BQVRKJWREPLZKE-UHFFFAOYSA-N",
+          "parent_ids": [
+            "CHEBI:53165"
+          ],
+          "status_id": 1
+        }
+      },
+      "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:100242"
+    },
+    {
+      "dataset": 10,
+      "dataset_name": "chebi",
+      "identifier": "CHEBI:100246",
+      "Attributes": {
+        "Chebi": {
+          "name": "norfloxacin",
+          "definition": "A quinolinemonocarboxylic acid with broad-spectrum antibacterial activity against most gram-negative and gram-positive bacteria. Norfloxacin is bactericidal and its mode of action depends on blocking of bacterial DNA replication by binding itself to an enzyme called DNA gyrase.",
+          "star_rating": 3,
+          "source": "ChEMBL",
+          "synonyms": [
+            "NFLX",
+            "1,4-Dihydro-1-ethyl-6-fluoro-4-oxo-7-(1-piperazinyl)-3-quinolinecarboxylic acid",
+            "1-Ethyl-6-fluor-1,4-dihydro-4-oxo-7-(1-piperazinyl)-3-chinolincarbons\u00e4ure",
+            "1-Ethyl-6-fluoro-1,4-dihydro-4-oxo-7-(1-piperazinyl)-3-quinolinecarboxylic acid"
+          ],
+          "iupac_names": [
+            "1-ethyl-6-fluoro-4-oxo-7-(piperazin-1-yl)-1,4-dihydroquinoline-3-carboxylic acid"
+          ],
+          "inn_names": [
+            "norfloxacin",
+            "norfloxacinum",
+            "norfloxacine",
+            "norfloxacino"
+          ],
+          "formula": "C16H18FN3O3",
+          "average_mass": 319.336,
+          "monoisotopic_mass": 319.13322,
+          "smiles": "CCn1cc(C(=O)O)c(=O)c2cc(F)c(N3CCNCC3)cc21",
+          "inchi": "InChI=1S/C16H18FN3O3/c1-2-19-9-11(16(22)23)15(21)10-7-12(17)14(8-13(10)19)20-5-3-18-4-6-20/h7-9,18H,2-6H2,1H3,(H,22,23)",
+          "inchi_key": "OGJPXUAPXNRGGI-UHFFFAOYSA-N",
+          "roles": [
+            "CHEBI:36047",
+            "CHEBI:59517",
+            "CHEBI:35703",
+            "CHEBI:78298"
+          ],
+          "parent_ids": [
+            "CHEBI:26512",
+            "CHEBI:46848",
+            "CHEBI:23765",
+            "CHEBI:86324",
+            "CHEBI:87211"
+          ],
+          "status_id": 1
+        }
+      },
+      "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:100246"
+    },
+    {
+      "dataset": 10,
+      "dataset_name": "chebi",
+      "identifier": "CHEBI:100247",
+      "Attributes": {
+        "Chebi": {
+          "name": "5-(3-azidopropylamino)-5-oxopentanoic acid",
+          "definition": "An oxo monocarboxylic acid in which pentanoic acid is substituted at C-5 with an oxo group and a 3-azidopropylamino group.",
+          "star_rating": 3,
+          "source": "ChEBI",
+          "iupac_names": [
+            "5-[(3-azidopropyl)amino]-5-oxopentanoic acid"
+          ],
+          "formula": "C8H14N4O3",
+          "average_mass": 214.225,
+          "monoisotopic_mass": 214.10659,
+          "smiles": "[N-]=[N+]=NCCCNC(=O)CCCC(=O)O",
+          "inchi": "InChI=1S/C8H14N4O3/c9-12-11-6-2-5-10-7(13)3-1-4-8(14)15/h1-6H2,(H,10,13)(H,14,15)",
+          "inchi_key": "UPZALMCPRFZBAD-UHFFFAOYSA-N",
+          "parent_ids": [
+            "CHEBI:35871",
+            "CHEBI:22680",
+            "CHEBI:140325"
+          ],
+          "status_id": 1
+        }
+      },
+      "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:100247"
+    },
+    {
+      "dataset": 10,
+      "dataset_name": "chebi",
+      "identifier": "CHEBI:10033",
+      "Attributes": {
+        "Chebi": {
+          "name": "warfarin",
+          "definition": "A racemate comprising equal amounts of (<i>R</i>)- and (<i>S</i>)-warfarin. Extensively used as both an anticoagulant drug and as a pesticide against rats and mice.",
+          "star_rating": 3,
+          "source": "KEGG COMPOUND",
+          "synonyms": [
+            "<em>rac</em>-3-(1'-phenyl-2'-acetylethyl)-4-hydroxycoumarin",
+            "<em>rac</em>-1-(4'-hydroxy-3'-coumarinyl)-1-phenyl-3-butanone",
+            "Coumafene",
+            "Zoocoumarin",
+            "<em>rac</em>-4-hydroxy-3-(3-oxo-1-phenylbutyl)coumarin",
+            "<em>rac</em>-3-(\u03b1-phenyl-\u03b2-acetylethyl)-4-hydroxycoumarin",
+            "4-hydroxy-3-[(1<i>R</i><i>S</i>)-3-oxo-1-phenylbutyl]coumarin",
+            "4-hydroxy-3-[(1<i>R</i><i>S</i>)-3-oxo-1-phenylbutyl]-2<em>H</em>-chromen-2-one",
+            "4-hydroxy-3-[(1<i>R</i><i>S</i>)-3-oxo-1-phenylbutyl]-2<em>H</em>-1-benzopyran-2-one",
+            "racemic warfarin",
+            "<em>rac</em>-3-(acetonylbenzyl)-4-hydroxycoumarin",
+            "<small>D</small><small>L</small>-warfarin",
+            "(<i>R</i><i>S</i>)-warfarin",
+            "<small>D</small><small>L</small>-3-(\u03b1-acetonylbenzyl)-4-hydroxycoumarin",
+            "<em>rac</em>-warfarin",
+            "<em>rac</em>-3-(\u03b1-acetonylbenzyl)-4-hydroxycoumarin",
+            "(\u00b1)-warfarin"
+          ],
+          "iupac_names": [
+            "<em>rac</em>-4-hydroxy-3-(3-oxo-1-phenylbutyl)-2<em>H</em>-1-benzopyran-2-one"
+          ],
+          "brand_names": [
+            "Warf 10",
+            "Ratron",
+            "Rodafarin",
+            "Brumolin",
+            "Kumadu",
+            "Kumatox"
+          ],
+          "inn_names": [
+            "warfarin",
+            "warfarina",
+            "warfarinum",
+            "warfarine"
+          ],
+          "formula": "C19H16O4",
+          "average_mass": 308.333,
+          "monoisotopic_mass": 308.10486,
+          "roles": [
+            "CHEBI:50249",
+            "CHEBI:50390",
+            "CHEBI:33288",
+            "CHEBI:55347"
+          ],
+          "parent_ids": [
+            "CHEBI:60911"
+          ],
+          "status_id": 1
+        }
+      },
+      "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:10033"
+    },
+    {
+      "dataset": 10,
+      "dataset_name": "chebi",
+      "identifier": "CHEBI:10034",
+      "Attributes": {
+        "Chebi": {
+          "name": "warfarin sodium",
+          "definition": "A racemate comprising equal amounts of (<i>R</i>)- and (<i>S</i>)-warfarin sodium. Extensively used as both an anticoagulant drug and as a pesticide against rats and mice.",
+          "star_rating": 3,
+          "source": "KEGG COMPOUND",
+          "synonyms": [
+            "(\u00b1)-warfarin sodium",
+            "racemic warfarin sodium",
+            "<em>rac</em>-warfarin sodium",
+            "<small>D</small><small>L</small>-warfarin sodium",
+            "(<i>R</i><i>S</i>)-warfarin sodium",
+            "(+-)-Warfarin sodium",
+            "Sodium coumadin",
+            "Sodium warfarin",
+            "3-(alpha-Acetonylbenzyl)-4-hydroxycoumarin sodium salt"
+          ],
+          "iupac_names": [
+            "sodium 2-oxo-3-(3-oxo-1-phenylbutyl)-2<em>H</em>-benzopyran-4-olate"
+          ],
+          "brand_names": [
+            "Jantoven",
+            "Coumadin",
+            "Maveran"
+          ],
+          "formula": "C19H15NaO4",
+          "average_mass": 330.31,
+          "monoisotopic_mass": 330.0868,
+          "roles": [
+            "CHEBI:50249",
+            "CHEBI:50390",
+            "CHEBI:33288",
+            "CHEBI:55347"
+          ],
+          "parent_ids": [
+            "CHEBI:60911"
+          ],
+          "status_id": 1
+        }
+      },
+      "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:10034"
+    },
+    {
+      "dataset": 10,
+      "dataset_name": "chebi",
+      "identifier": "CHEBI:10036",
+      "Attributes": {
+        "Chebi": {
+          "name": "wax ester",
+          "definition": "A fatty acid ester resulting from the condensation of the carboxy group of a fatty acid with the alcoholic hydroxy group of a fatty alcohol.",
+          "star_rating": 3,
+          "source": "KEGG COMPOUND",
+          "synonyms": [
+            "Wax esters"
+          ],
+          "formula": "CO2R2",
+          "average_mass": 44.01,
+          "monoisotopic_mass": 43.98983,
+          "smiles": "*OC(*)=O",
+          "parent_ids": [
+            "CHEBI:35748"
+          ],
+          "status_id": 1
+        }
+      },
+      "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:10036"
+    },
+    {
+      "dataset": 10,
+      "dataset_name": "chebi",
+      "identifier": "CHEBI:10037",
+      "Attributes": {
+        "Chebi": {
+          "name": "wedelolactone",
+          "definition": "A member of the class of coumestans that is coumestan with hydroxy substituents as positions 1, 8 and 9 and a methoxy substituent at position 3.",
+          "star_rating": 3,
+          "source": "KEGG COMPOUND",
+          "synonyms": [
+            "1,8,9-trihydroxy-3-methoxycoumestan",
+            "Wedelolactone"
+          ],
+          "iupac_names": [
+            "1,8,9-trihydroxy-3-methoxy-6<em>H</em>-[1]benzofuro[3,2-<em>c</em>]chromen-6-one"
+          ],
+          "formula": "C16H10O7",
+          "average_mass": 314.249,
+          "monoisotopic_mass": 314.04265,
+          "smiles": "COc1cc(O)c2c(c1)oc(=O)c1c3cc(O)c(O)cc3oc21",
+          "inchi": "InChI=1S/C16H10O7/c1-21-6-2-10(19)14-12(3-6)23-16(20)13-7-4-8(17)9(18)5-11(7)22-15(13)14/h2-5,17-19H,1H3",
+          "inchi_key": "XQDCKJKKMFWXGB-UHFFFAOYSA-N",
+          "roles": [
+            "CHEBI:35610",
+            "CHEBI:50750",
+            "CHEBI:68495",
+            "CHEBI:62868",
+            "CHEBI:25212"
+          ],
+          "parent_ids": [
+            "CHEBI:72577",
+            "CHEBI:18946",
+            "CHEBI:35618",
+            "CHEBI:26195"
+          ],
+          "status_id": 1
+        }
+      },
+      "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:10037"
+    },
+    {
+      "dataset": 10,
+      "dataset_name": "chebi",
+      "identifier": "CHEBI:10038",
+      "Attributes": {
+        "Chebi": {
+          "name": "wighteone",
+          "definition": "A member of the class of  7-hydroxyisoflavones that is isoflavone substituted by hydroxy groups at positions 5, 7 and 4' and a prenyl group at position 6. It has been isolated from <em>Ficus mucuso</em>.",
+          "star_rating": 3,
+          "source": "KEGG COMPOUND",
+          "synonyms": [
+            "erythrinin B",
+            "5,7,4'-trihydroxy-6-prenylisoflavone",
+            "5,7-dihydroxy-3-(4-hydroxyphenyl)-6-(3-methyl-2-butenyl)-4<em>H</em>-1-benzopyran-4-one"
+          ],
+          "iupac_names": [
+            "5,7-dihydroxy-3-(4-hydroxyphenyl)-6-(3-methylbut-2-en-1-yl)-4<em>H</em>-chromen-4-one"
+          ],
+          "formula": "C20H18O5",
+          "average_mass": 338.359,
+          "monoisotopic_mass": 338.11542,
+          "smiles": "CC(C)=CCc1c(O)cc2occ(-c3ccc(O)cc3)c(=O)c2c1O",
+          "inchi": "InChI=1S/C20H18O5/c1-11(2)3-8-14-16(22)9-17-18(19(14)23)20(24)15(10-25-17)12-4-6-13(21)7-5-12/h3-7,9-10,21-23H,8H2,1-2H3",
+          "inchi_key": "KIMDVVKVNNSHGZ-UHFFFAOYSA-N",
+          "roles": [
+            "CHEBI:76924",
+            "CHEBI:35718"
+          ],
+          "parent_ids": [
+            "CHEBI:55465"
+          ],
+          "status_id": 1
+        }
+      },
+      "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:10038"
+    }
+  ]
 }

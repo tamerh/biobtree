@@ -155,7 +155,7 @@ else
 
     # Core datasets split into 2 parts to reduce concurrent downloads
     CORE_PART1="uniprot,go,eco,hgnc,taxonomy,interpro,hmdb,chembl"
-    CORE_PART2="efo,mondo,hpo,alphafold,rnacentral,reactome,clinical_trials,patent,string"
+    CORE_PART2="chebi,efo,mondo,hpo,alphafold,rnacentral,reactome,clinical_trials,patent,string"
 
     # Calculate total jobs to submit
     TOTAL_JOBS=0
@@ -201,7 +201,7 @@ EOF
         echo ""
     fi
 
-    # 3. Submit Ensembl job (if enabled)
+    # 3. Submit Ensembl job (if enabled) when building ref db add chembl,mondo,hgnc manually 
     if [[ "$RUN_ENSEMBL" == "true" ]]; then
         ((++JOB_NUM))
         echo "[${JOB_NUM}/${TOTAL_JOBS}] Submitting Ensembl job..."

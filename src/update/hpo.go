@@ -252,9 +252,8 @@ func (h *hpo) saveParentChildRelations(childID string, hpoDatasetID string,
 func (h *hpo) parseGeneToPhenotype(path string) {
 	var br *bufio.Reader
 
-	// Get dataset IDs for cross-references
+	// Get dataset ID for HPO
 	hpoDatasetID := config.Dataconf[h.source]["id"]
-	hgncDatasetID := config.Dataconf["hgnc"]["id"]
 
 	if config.Dataconf[h.source]["useLocalFile"] == "yes" {
 		file, err := os.Open(filepath.FromSlash(path))
@@ -296,14 +295,11 @@ func (h *hpo) parseGeneToPhenotype(path string) {
 			continue
 		}
 
-		// Create bidirectional cross-reference: Gene ↔ HPO term
-		// addXref expects: (key, fromDatasetID, value, toDatasetName, isLink)
-
-		// Gene symbol → HPO term
-		h.d.addXref(geneSymbol, hgncDatasetID, hpoID, h.source, false)
-
-		// HPO term → Gene symbol
-		h.d.addXref(hpoID, hpoDatasetID, geneSymbol, "hgnc", false)
+		// Create cross-reference: Gene keyword → HPO term
+		// Use keyword lookup to resolve gene symbol to database IDs (HGNC, Ensembl, Entrez)
+		// Empty keywordDataset enables auto-enrichment across all matching datasets
+		// addXrefViaKeyword: (keyword, keywordDataset, targetValue, targetDataset, from, isLink)
+		h.d.addXrefViaKeyword(geneSymbol, "", hpoID, h.source, hpoDatasetID, false)
 
 		associationCount++
 	}

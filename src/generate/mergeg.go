@@ -933,6 +933,11 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)
 				xref.Attributes = &pbuf.Xref_Hmdb{attr}
+			case "chebi":
+				attr := &pbuf.ChebiAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Chebi{attr}
 			case "pdb":
 				attr := &pbuf.PdbAttr{}
 				barr := []byte((*kvProp[k])[0].value)
@@ -1063,6 +1068,11 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 					barr := []byte((*kvProp[k])[0].value)
 					ffjson.Unmarshal(barr, attr)
 					xref.Attributes = &pbuf.Xref_Ontology{attr}
+				case "chebi":
+					attr := &pbuf.ChebiAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_Chebi{attr}
 				case "patent":
 					attr := &pbuf.PatentAttr{}
 					barr := []byte((*kvProp[k])[0].value)

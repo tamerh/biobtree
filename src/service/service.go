@@ -130,6 +130,7 @@ func (s *service) init() {
 		cel.Types(&pbuf.InterproAttr{}),
 		cel.Types(&pbuf.EnaAttr{}),
 		cel.Types(&pbuf.HmdbAttr{}),
+		cel.Types(&pbuf.ChebiAttr{}),
 		cel.Types(&pbuf.PdbAttr{}),
 		cel.Types(&pbuf.DrugbankAttr{}),
 		cel.Types(&pbuf.OrphanetAttr{}),
@@ -164,6 +165,8 @@ func (s *service) init() {
 			decls.NewIdent("ena", decls.NewObjectType("pbuf.EnaAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("hmdb", decls.NewObjectType("pbuf.HmdbAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("chebi", decls.NewObjectType("pbuf.ChebiAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("pdb", decls.NewObjectType("pbuf.PdbAttr"), nil)),
 		cel.Declarations(

@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """
-ChEBI Reference Data Extraction Script
+Extract reference data from biobtree API for ChEBI test validation.
 
-For ChEBI, biobtree mainly stores cross-references from the database_accession file.
-Since the full ChEBI data files are large and may not be easily accessible,
-we create minimal reference data directly from biobtree for testing purposes.
+This script:
+1. Reads test ChEBI IDs from chebi_ids.txt
+2. Queries biobtree API for each ID to get complete compound data
+3. Saves structured JSON for test validation
 
-Note: This is acceptable for test reference data as we're documenting what's in our test database.
-For datasets with accessible APIs (GO, ECO, UniProt, etc.), we extract from the remote source.
+IMPORTANT: Uses biobtree API as source of truth since ChEBI now provides
+complete compound data including names, structures, formulas, and classifications.
 """
 
 import sys
@@ -23,104 +24,152 @@ except ImportError:
     sys.exit(1)
 
 
-def extract_from_biobtree(api_url: str, id_file: Path, output_file: Path):
-    """Extract ChEBI reference data from biobtree test database"""
-    print("=" * 60)
-    print("ChEBI Reference Data Extraction")
-    print("=" * 60)
+def load_test_ids(id_file: Path) -> list:
+    """Load ChEBI IDs from the test reference file."""
+    if not id_file.exists():
+        print(f"Error: {id_file} not found")
+        print("Generate test IDs first by running: ./biobtree -d chebi test")
+        print("Then copy test_out/reference/chebi_ids.txt to tests/datasets/chebi/")
+        sys.exit(1)
+
+    with open(id_file) as f:
+        ids = [line.strip() for line in f if line.strip()]
+
+    print(f"✓ Loaded {len(ids)} test IDs from {id_file}")
+    return ids
+
+
+def fetch_chebi_entry(api_url: str, chebi_id: str) -> dict:
+    """
+    Fetch complete ChEBI entry from biobtree API.
+
+    Returns None if entry not found or API error.
+    """
+    try:
+        response = requests.get(
+            f"{api_url}/ws/entry/",
+            params={"i": chebi_id, "s": "chebi"},
+            timeout=10
+        )
+
+        if response.status_code == 200:
+            data = response.json()
+
+            if isinstance(data, list) and len(data) > 0:
+                entry = data[0]
+
+                # Check for error response
+                if 'Err' in entry:
+                    print(f"  ✗ {chebi_id}: {entry['Err']}")
+                    return None
+
+                # Verify we got ChEBI attributes
+                if 'Attributes' not in entry or 'Chebi' not in entry['Attributes']:
+                    print(f"  ✗ {chebi_id}: No ChEBI attributes in response")
+                    return None
+
+                print(f"  ✓ {chebi_id}: {entry['Attributes']['Chebi'].get('name', 'N/A')}")
+                return entry
+
+        return None
+
+    except Exception as e:
+        print(f"  ✗ {chebi_id}: {type(e).__name__}: {e}")
+        return None
+
+
+def extract_reference_data(api_url: str, test_ids: list, max_entries: int = 20) -> dict:
+    """
+    Extract reference data for test IDs from biobtree API.
+
+    Args:
+        api_url: Base URL for biobtree API
+        test_ids: List of ChEBI IDs to fetch
+        max_entries: Maximum number of entries to include (default: 20)
+
+    Returns:
+        Dictionary with metadata and entry list
+    """
+    print(f"\nFetching up to {max_entries} ChEBI entries from biobtree API...")
+    print(f"API: {api_url}")
     print()
-    print("Note: Extracting from biobtree test database")
-    print("      (ChEBI flat files not easily accessible)")
-    print()
 
-    # Load test IDs
-    with open(id_file, 'r') as f:
-        test_ids = [line.strip() for line in f if line.strip()]
+    entries = []
+    failed = 0
 
-    print(f"Found {len(test_ids)} test ChEBI IDs")
-    print(f"Querying: {api_url}")
-    print()
+    for i, chebi_id in enumerate(test_ids[:max_entries], 1):
+        print(f"[{i}/{min(len(test_ids), max_entries)}] Fetching {chebi_id}...")
 
-    # Extract data for test IDs
-    results = []
-    failed = []
+        entry = fetch_chebi_entry(api_url, chebi_id)
+        if entry:
+            entries.append(entry)
+        else:
+            failed += 1
 
-    for i, chebi_id in enumerate(test_ids, 1):
-        try:
-            response = requests.get(
-                f"{api_url}/ws/search",
-                params={"i": chebi_id},
-                timeout=5
-            )
+        # Rate limiting
+        if i < min(len(test_ids), max_entries):
+            time.sleep(0.1)
 
-            if response.status_code == 200:
-                data = response.json()
-                if data.get("results"):
-                    # Create minimal entry
-                    entry = {
-                        "id": chebi_id,
-                        "hasData": True
-                    }
-                    results.append(entry)
-                else:
-                    failed.append(chebi_id)
-            else:
-                failed.append(chebi_id)
-
-            if i % 10 == 0:
-                print(f"  Processed {i}/{len(test_ids)}...")
-
-            time.sleep(0.05)  # Rate limit
-
-        except Exception as e:
-            print(f"  Error with {chebi_id}: {e}")
-            failed.append(chebi_id)
-
-    print()
-    print(f"  Found: {len(results)}/{len(test_ids)}")
-    if failed:
-        print(f"  Failed: {len(failed)} IDs")
-
-    # Save results
-    output_data = {
+    reference_data = {
         "metadata": {
+            "source": "biobtree_api",
+            "api_base": api_url,
             "total_ids": len(test_ids),
-            "fetched": len(results),
-            "failed": len(failed),
-            "note": "Minimal reference data extracted from biobtree test database"
+            "requested": max_entries,
+            "fetched": len(entries),
+            "failed": failed,
+            "note": "Reference data extracted from biobtree test database API with full compound attributes"
         },
-        "entries": results
+        "entries": entries
     }
 
-    with open(output_file, 'w') as f:
-        json.dump(output_data, f, indent=2)
-
-    file_size = output_file.stat().st_size / 1024
-
-    print()
-    print("=" * 60)
-    print(f"✓ Saved to: {output_file.absolute()} ({file_size:.1f} KB)")
-    print()
-    print(f"Entries: {len(results)}")
-    print("=" * 60)
-    print("✓ Extraction complete")
+    return reference_data
 
 
 def main():
+    """Main entry point."""
+    print("=" * 70)
+    print("ChEBI Reference Data Extractor")
+    print("=" * 70)
+
     script_dir = Path(__file__).parent
     id_file = script_dir / "chebi_ids.txt"
     output_file = script_dir / "reference_data.json"
 
-    if not id_file.exists():
-        print(f"Error: {id_file} not found")
-        print("Run: ./biobtree -d chebi test")
-        print("Then copy test_out/reference/chebi_ids.txt here")
-        return 1
-
     # Get API URL from command line or use default
     api_url = sys.argv[1] if len(sys.argv) > 1 else "http://localhost:9292"
 
-    extract_from_biobtree(api_url, id_file, output_file)
+    # Check if biobtree API is running
+    try:
+        response = requests.get(f"{api_url}/ws/meta/", timeout=5)
+        response.raise_for_status()
+        print(f"✓ biobtree API is running at {api_url}\n")
+    except Exception as e:
+        print(f"✗ biobtree API not accessible at {api_url}")
+        print(f"  Error: {e}")
+        print("\nPlease ensure biobtree is running:")
+        print("  ./biobtree --out-dir test_out web")
+        sys.exit(1)
+
+    # Load test IDs
+    test_ids = load_test_ids(id_file)
+
+    # Extract reference data (limit to 20 for test suite)
+    reference_data = extract_reference_data(api_url, test_ids, max_entries=20)
+
+    # Save to file
+    with open(output_file, 'w') as f:
+        json.dump(reference_data, f, indent=2)
+
+    file_size = output_file.stat().st_size / 1024
+
+    print()
+    print("=" * 70)
+    print(f"✓ Reference data saved to {output_file.absolute()} ({file_size:.1f} KB)")
+    print(f"  Total entries: {reference_data['metadata']['fetched']}")
+    print(f"  Failed: {reference_data['metadata']['failed']}")
+    print("=" * 70)
+    print("✓ Extraction complete")
 
     return 0
 

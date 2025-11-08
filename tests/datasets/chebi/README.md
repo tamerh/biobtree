@@ -2,199 +2,300 @@
 
 ## Overview
 
-ChEBI is a freely available dictionary of molecular entities focused on small chemical compounds. Provides comprehensive chemical structure information, nomenclature, and classification for biologically relevant molecules including metabolites, drugs, enzyme inhibitors, and toxins.
+ChEBI is a freely available dictionary of molecular entities focused on small chemical compounds. biobtree now provides **complete ChEBI integration** with full compound metadata including chemical structures, nomenclature, and ontology classifications.
 
-**Source**: ChEBI database_accession.tsv file (FTP download)
-**Data Type**: **Cross-reference-only dataset** (special integration pattern)
+**Source**: ChEBI database flat files (FTP download)
+**Data Type**: **Full compound database** with attributes and cross-references
 
 ## Integration Architecture
 
-### Storage Model - Special Cross-Reference Pattern
+### Storage Model - Full Compound Database
 
-**IMPORTANT**: ChEBI has a unique integration pattern in biobtree. Unlike other datasets that store primary searchable entries, ChEBI operates as a **cross-reference-only dataset**:
+ChEBI is integrated as a complete compound database with:
 
-**Normal Datasets** (e.g., UniProt, GO, HGNC):
+**Primary Searchable Entries**:
 ```
-Entry ID → Searchable entry with attributes → Cross-references to other datasets
-```
-
-**ChEBI Pattern**:
-```
-ChEBI ID → ONLY cross-references → Stored ON target database entries
+ChEBI ID → Compound entry with full attributes → Cross-references to other databases
 ```
 
-### How It Works
+**What's Stored**:
+- ✅ **Names**: Compound names, synonyms, IUPAC names, INN names, brand names
+- ✅ **Chemical Identifiers**: Molecular formula, SMILES, InChI, InChI Key
+- ✅ **Properties**: Molecular weight (average and monoisotopic), charge
+- ✅ **Classifications**: ChEBI ontology roles and parent relationships
+- ✅ **Metadata**: Definition, star rating (quality indicator), source
+- ✅ **Cross-References**: Links to UniProt, GO, and other biological databases
 
-**Data Processing**:
-1. Parser reads `database_accession.tsv` containing mappings:
-   ```
-   CHEBI:X → target_database → target_id
-   ```
-2. For each ChEBI ID, creates cross-references FROM ChEBI TO other databases
-3. These are stored as **inverse xrefs** ON the target database entries
-4. No primary ChEBI entries are created in biobtree
+### Data Processing
 
-**What This Means**:
-- ✅ ChEBI IDs (e.g., `CHEBI:15377`) **ARE searchable** via bidirectional xrefs
-- ✅ ChEBI cross-references **ARE stored** on target entries (UniProt, GO, etc.)
-- ✅ Query ChEBI ID → See which proteins/GO terms reference that compound
-- ✅ Query UniProt entry → See ChEBI xrefs for that protein's small molecule interactions
-- ✅ Query GO term → See ChEBI xrefs for related chemical entities
-- ❌ But NO compound metadata stored (names, structures, formulas)
+**Primary Data Sources** (all from ChEBI FTP):
+1. **compounds.tsv.gz** - Basic compound information (ID, name, source, status, stars)
+2. **names.tsv.gz** - Synonyms, IUPAC names, INN names, brand names
+3. **chemical_data.tsv.gz** - Molecular formula, mass, charge
+4. **structures.csv.gz** - SMILES, InChI, InChI Key
+5. **relation.tsv.gz** - Ontology relationships (roles, parent compounds)
+6. **database_accession.tsv.gz** - Cross-references to external databases
 
-**Cross-References Stored**:
-- ChEBI → UniProt (proteins that interact with compounds)
-- ChEBI → GO (Gene Ontology terms related to compounds)
-- ChEBI → Other databases where compound references exist
+**Processing Pipeline**:
+1. Load and map all data files using internal ChEBI IDs
+2. Build complete compound attributes from merged data
+3. Create primary searchable entries with full attributes
+4. Generate text search keywords (name, synonyms, formula, InChI Key)
+5. Process cross-references to external databases
+6. Store ontology relationships (roles, parents)
 
-**Why This Pattern?**:
-- Current implementation focuses on cross-reference mappings only
-- Avoids duplicating chemical structure data
-- ChEBI IDs searchable via bidirectional xrefs, but no compound metadata available
-- **See Future Work section for planned full ChEBI integration**
+**Deterministic Test Mode**:
+- Test IDs are sorted to ensure reproducible test builds
+- Same 100 compounds selected every time for consistent testing
+
+### Search Capabilities
+
+ChEBI compounds are searchable by:
+- **ChEBI ID**: Direct lookup (e.g., `CHEBI:15377`)
+- **Compound Name**: Primary name (e.g., `"water"`)
+- **Synonyms**: All synonyms including IUPAC, INN, brand names
+- **Formula**: Molecular formula (e.g., `"C16H14O4"`)
+- **InChI Key**: Structure identifier (case-sensitive)
 
 ### Special Features
 
-**Inverse Cross-Reference Architecture**:
-- ChEBI mappings enriched target database entries with chemical compound information
-- Enables queries like: UniProt protein → Get related ChEBI compounds
+**Property-Only Entry Support**:
+- Some ChEBI compounds have no external cross-references
+- These are handled via special merge logic in `mergeg.go`
+- Entries retrievable even without xrefs (attributes alone)
 
-**No Attributes Stored**:
-- ChEBI only provides cross-reference mappings
-- Chemical names, structures, formulas not stored in biobtree
-- Users should query ChEBI directly for compound details
+**Ontology Integration**:
+- **Roles**: Chemical roles (e.g., inhibitor, metabolite)
+- **Parents**: Parent compounds in chemical classification hierarchy
+- Stored as ChEBI IDs for ontology navigation
+
+**Quality Indicators**:
+- **Star Rating**: 1-3 stars indicating data quality/curation level
+- **Status**: Compound status (active, obsolete, etc.)
+- **Source**: Original database (KEGG, ChEMBL, manually curated)
 
 ## Use Cases
 
-**1. Protein-Compound Interaction Discovery**
+**1. Compound Lookup and Information**
 ```
-Query: UniProt entry (with x=true) → Get ChEBI xrefs → Identify interacting compounds
-Use: Drug target analysis, metabolic pathway research
-```
-
-**2. GO Term Chemical Associations**
-```
-Query: GO term (with x=true) → Get ChEBI xrefs → Find related chemical entities
-Use: Understanding molecular function in chemical context
+Query: CHEBI:15377 → Get complete compound data
+Result: Name, formula, structure, mass, classifications
+Use: Chemical information retrieval, structure browsing
 ```
 
-**3. Cross-Database Compound Linking**
+**2. Chemical Structure Search**
 ```
-Query: Biological entry → ChEBI xref → Use ChEBI ID to query PubChem/ChEMBL
-Use: Connect biobtree data to external chemical databases
-```
-
-**4. Metabolic Network Construction**
-```
-Query: Multiple proteins → Aggregate ChEBI xrefs → Build compound interaction networks
-Use: Systems biology, metabolic pathway analysis
+Query: InChI Key → Find compound with matching structure
+Result: Full compound entry with all metadata
+Use: Structure-based compound identification
 ```
 
-**5. Drug Target Validation**
+**3. Synonym-Based Discovery**
 ```
-Query: Disease-related proteins → ChEBI xrefs → Identify known drug compounds
-Use: Drug repurposing, target validation studies
+Query: Brand name or common name → Find official compound
+Result: ChEBI entry with standardized identifiers
+Use: Drug name resolution, compound standardization
+```
+
+**4. Formula-Based Searching**
+```
+Query: C16H14O4 → Find all compounds with this formula
+Result: List of isomers and related compounds
+Use: Isomer discovery, formula-based compound finding
+```
+
+**5. Ontology Navigation**
+```
+Query: ChEBI compound → Get roles and parent compounds
+Result: Chemical classification and relationships
+Use: Understanding compound function and classification
+```
+
+**6. Cross-Database Linking**
+```
+Query: ChEBI ID → Get cross-references to UniProt/GO
+Result: Related proteins, pathways, biological processes
+Use: Connecting chemistry to biology
+```
+
+**7. Metabolic Network Construction**
+```
+Query: Multiple ChEBI compounds → Build chemical networks
+Result: Compound relationships via ontology
+Use: Metabolism modeling, pathway analysis
 ```
 
 ## Test Cases
 
-**Current Tests** (4 total):
-- All custom tests (no declarative tests due to special architecture)
+**Declarative Tests** (9 total):
+1. **ID Lookup**: Retrieve compound by ChEBI ID
+2. **Name Lookup**: Search by compound name
+3. **Synonym Lookup**: Find by synonym
+4. **Formula Lookup**: Search by molecular formula
+5. **InChI Key Lookup**: Find by structure identifier
+6. **Attribute Check**: Verify attributes present
+7. **Multi-Lookup**: Batch retrieval of multiple IDs
+8. **Case-Insensitive**: Test case-insensitive search
+9. **Invalid ID**: Error handling for non-existent IDs
+
+**Custom Tests** (3 total):
+1. **Full Attributes**: Verify name, definition, formula, structures
+2. **IUPAC Names**: Check IUPAC nomenclature storage
+3. **Cross-References**: Validate external database links
 
 **Coverage**:
-- ✅ ChEBI ID processing verification (100 IDs logged)
-- ✅ Cross-reference-only structure documentation
-- ✅ Non-searchability validation (confirms ChEBI IDs not primary entries)
-- ✅ Sample xref detection in target databases
-
-**Test Strategy**:
-- Tests focus on verifying ChEBI processing, not entry lookup
-- Validates that ChEBI IDs were processed during build
-- Confirms expected behavior (non-searchability of ChEBI IDs)
-- Attempts to find ChEBI xrefs in other dataset entries (informational)
-
-**Why Different Tests?**:
-- Cannot use standard ID lookup tests (ChEBI IDs not searchable)
-- Cannot use attribute tests (no attributes stored)
-- Tests verify processing and cross-reference architecture instead
+- ✅ Primary entry retrieval
+- ✅ Text search (names, synonyms, formulas)
+- ✅ Attribute completeness
+- ✅ Structure identifiers (SMILES, InChI)
+- ✅ Chemical properties (mass, formula)
+- ✅ Ontology relationships
+- ✅ Cross-reference integrity
 
 ## Performance
 
-- **Test Build**: ~0.25s (100 ChEBI IDs processed)
-- **Data Source**: TSV file from ChEBI FTP server
+- **Test Build**: ~8s (100 compounds with full data)
+- **Data Processing**:
+  - Loads ~62K base compounds
+  - Processes ~204K ID mappings
+  - Merges ~66K names
+  - Loads ~55K chemical formulas
+  - Processes ~54K structures
+  - Handles ~97K ontology relationships
+- **Cross-References**: ~285 xrefs created in test mode
 - **Update Frequency**: Monthly releases from ChEBI
-- **Total Compounds**: ~200,000+ chemical entities with database cross-references
-- **No searchable entries created**: All data stored as xrefs on target entries
+- **Total Compounds**: 200,000+ chemical entities
+
+## Data Quality
+
+**Star Ratings**:
+- ⭐⭐⭐ (3 stars): Manually annotated, highest quality
+- ⭐⭐ (2 stars): Imported from trusted sources
+- ⭐ (1 star): Preliminary or computationally derived
+
+**Sources**:
+- Manual curation by ChEBI team
+- KEGG COMPOUND
+- ChEMBL
+- Other chemical databases
 
 ## Known Limitations
 
-**Limited ChEBI Metadata**:
-- ChEBI IDs are searchable via bidirectional xrefs
-- But no compound attributes stored (names, structures, formulas, properties)
-- For compound details, must query ChEBI website directly
+**InChI Key Case Sensitivity**:
+- InChI Keys are case-sensitive in biobtree
+- Ensure exact case when searching by structure identifier
 
-**Limited Test Validation**:
-- Test database may not have entries with ChEBI xrefs (depends on which entries selected)
-- Cross-reference validation is informational only
-- Cannot comprehensively test xref storage without full multi-dataset build
+**Ontology Depth**:
+- Only direct roles and parents stored
+- Full ontology traversal requires recursive queries
+- Grandparent/ancestor relationships not pre-computed
 
-**No Compound Metadata**:
-- Chemical names, structures, formulas, properties not stored
-- Only cross-reference mappings maintained
-- biobtree acts as linking layer, not chemical database
+**External Cross-Reference Coverage**:
+- Not all compounds have cross-references to biological databases
+- Some compounds are chemistry-only (no protein/GO links)
+- Cross-reference availability depends on compound's biological relevance
 
-**Target Database Dependency**:
-- ChEBI xrefs only useful if target databases (UniProt, GO) are in build
-- Isolated ChEBI build creates no searchable entries
+**Test Mode Limitations**:
+- Only 100 compounds in test database
+- May not cover all compound types
+- Cross-reference testing limited to test set
 
-## Future Work
+## Implementation Details
 
-### 🔴 **PRIORITY: Full ChEBI Integration**
+**Source Code**:
+- Parser: `src/update/chebi.go`
+- Protobuf: `src/pbuf/attr.proto` (ChebiAttr message)
+- Merge Logic: `src/generate/mergeg.go` (property-only entry handling)
+- Filter Support: `src/service/service.go`, `src/service/mapfilter.go`
 
-**Current Limitation**: ChEBI only stores cross-references without compound metadata. While ChEBI IDs are searchable via bidirectional xrefs, queries return no chemical information.
+**Key Features**:
+- Deterministic test mode with sorted IDs
+- Memory-efficient streaming of large files
+- Comprehensive error handling
+- Progress reporting during data load
 
-**Proposed Enhancement**: Implement proper ChEBI dataset integration:
+**Property-Only Entry Handling**:
+- Special case in merge logic (line 1071-1075 in mergeg.go)
+- Enables retrieval of compounds without external xrefs
+- Uses `Xref_Chebi` attribute wrapper
 
-1. **Parse ChEBI OBO/XML files** (in addition to database_accession.tsv)
-   - Extract compound names, synonyms, formulas, InChI, SMILES
-   - Store molecular weight, charge, monoisotopic mass
-   - Include ChEBI ontology classifications (role, application, subclass)
+## Reference Data
 
-2. **Create Primary ChEBI Entries** with attributes:
-   - Searchable by ChEBI ID, compound name, synonyms
-   - Chemical formulas and identifiers as text keywords
-   - Ontology relationships (parent-child in chemical classification)
+**Test Reference Data**: `reference_data.json`
+- Source: biobtree API (local test database)
+- 20 representative compounds with full attributes
+- Used for automated test validation
 
-3. **Maintain Cross-References** (existing functionality):
-   - Keep bidirectional xrefs to UniProt, GO, etc.
-   - Enable queries: Compound → Proteins/Pathways/Functions
-
-4. **Benefits of Full Integration**:
-   - Direct compound lookup with full chemical details
-   - Synonym-based chemical search
-   - Chemical classification browsing
-   - Complete compound information without external queries
-   - Better integration with metabolic and drug discovery workflows
-
-**Impact**: Transforms ChEBI from cross-reference-only to fully integrated chemical database, making biobtree a comprehensive biochemical knowledge base.
-
----
-
-### Other Future Work
-
-- Add comprehensive multi-dataset test (ChEBI + UniProt + GO) to validate xref storage
-- Document which target databases receive ChEBI xrefs
-- Add statistics on ChEBI xref distribution across datasets
+**Extraction**: `extract_reference_data.py`
+- Queries biobtree API for test IDs
+- Saves complete JSON responses
+- Run after test build to regenerate reference data
 
 ## Maintenance
 
-- **Release Schedule**: Monthly updates from ChEBI
-- **Data Format**: TSV (tab-separated values) - stable format
-- **Test Data**: Processes 100 ChEBI IDs to verify parser functionality
-- **Special Testing**: ID logging used instead of entry retrieval
+**Update Process**:
+1. Download latest ChEBI release from FTP
+2. Run data processing: `./biobtree update`
+3. Regenerate test data: `./biobtree -d chebi test`
+4. Update reference: `cd tests/datasets/chebi && python3 extract_reference_data.py`
+5. Run tests: `python3 tests/validate_biobtree.py`
+
+**Release Schedule**: Monthly updates from ChEBI
+
+**Test Data**:
+- Generate: `./biobtree -d chebi test`
+- Copy IDs: `cp test_out/reference/chebi_ids.txt tests/datasets/chebi/`
+- Extract reference: `python3 extract_reference_data.py`
 
 ## References
 
 - **Citation**: Hastings J et al. The ChEBI reference database and ontology for biologically relevant chemistry. Nucleic Acids Research.
 - **Website**: https://www.ebi.ac.uk/chebi/
+- **FTP**: ftp://ftp.ebi.ac.uk/pub/databases/chebi/Flat_file_tab_delimited/
 - **License**: CC BY 4.0 (freely available)
+- **Ontology**: Chemical ontology with roles and classification
+
+## Future Enhancements
+
+### Potential Improvements
+
+**Advanced Querying**:
+- Substructure search (requires chemical fingerprinting)
+- Similarity search based on structure
+- Mass range queries
+- Formula pattern matching
+
+**Ontology Expansion**:
+- Pre-compute full ancestor paths
+- Add sibling relationship queries
+- Enable ontology-based filtering
+
+**Enhanced Cross-References**:
+- Bi-directional navigation to biological entities
+- Cross-reference enrichment statistics
+- Pathway integration via compound roles
+
+**Performance Optimization**:
+- Index chemical formulas for faster searching
+- Cache common structure queries
+- Optimize memory usage for full database builds
+
+---
+
+## Migration from Previous Version
+
+**What Changed**:
+- ❌ OLD: Cross-reference-only dataset (no compound metadata)
+- ✅ NEW: Full compound database with complete attributes
+
+**Backward Compatibility**:
+- Cross-references still maintained (external database links)
+- ChEBI IDs still searchable
+- Enhanced with compound metadata and search capabilities
+
+**Benefits of New Integration**:
+- Direct compound lookup without external queries
+- Rich chemical structure information
+- Ontology navigation within biobtree
+- Synonym-based chemical search
+- Better integration for drug discovery and metabolism research

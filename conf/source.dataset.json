@@ -122,11 +122,13 @@
   },
   "chebi": {
     "id": "10",
-    "name": "chebi",
+    "name": "ChEBI",
     "path": "/chebi/flat_files/",
-    "files": "database_accession.tsv.gz",
+    "files": "compounds.tsv.gz,names.tsv.gz,chemical_data.tsv.gz,structures.tsv.gz,relation.tsv.gz,source.tsv.gz,database_accession.tsv.gz",
     "aliases": "ChEBI",
     "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=£{id}",
+    "hasFilter": "yes",
+    "attrs": "name,definition,[]synonyms,[]iupac_names,formula,average_mass,monoisotopic_mass,smiles,inchi,inchi_key,star_rating,status_id",
     "test_entries_count": "100"
   },
   "interpro": {

@@ -1,0 +1,88 @@
+{
+  "metadata": {
+    "version": "1.0",
+    "server": "http://localhost:9292"
+  },
+
+  "tests": [
+    {
+      "name": "Gene to Protein",
+      "query": ">>uniprot",
+      "why": "Researchers need protein sequences from gene symbols for structure prediction and functional studies",
+      "should_pass": ["BRCA1", "TP53", "EGFR", "P04637"],
+      "should_fail": ["NONEXISTENT_GENE", "FAKE123"]
+    },
+
+    {
+      "name": "Gene to Interactions",
+      "query": ">>string",
+      "why": "Network biology - find protein interaction partners to understand function and pathways",
+      "should_pass": ["EGFR", "BRCA1", "TP53"],
+      "should_fail": ["NOTREAL"]
+    },
+
+    {
+      "name": "Gene to Pathways",
+      "query": ">>uniprot>>reactome",
+      "why": "Systems biology - identify biological pathways for disease mechanism studies",
+      "should_pass": ["TP53", "BRCA1", "EGFR"],
+      "should_fail": []
+    },
+
+    {
+      "name": "Protein to Gene",
+      "query": ">>hgnc",
+      "why": "Proteomics - map protein IDs back to genes for functional interpretation",
+      "should_pass": ["P04637", "P38398"],
+      "should_fail": ["NOTAPROTEIN"]
+    },
+
+    {
+      "name": "Gene to GO Terms",
+      "query": ">>uniprot>>go",
+      "why": "Functional annotation - understand molecular function and biological process",
+      "should_pass": ["BRCA1", "TP53"],
+      "should_fail": []
+    },
+
+    {
+      "name": "Gene to Structure",
+      "query": ">>uniprot>>alphafold",
+      "why": "Structural biology - get 3D protein structures for drug design and function studies",
+      "should_pass": ["TP53", "BRCA1"],
+      "should_fail": []
+    },
+
+    {
+      "name": "Disease to Genes",
+      "query": ">>hgnc",
+      "why": "Translational medicine - find candidate genes for disease studies and therapeutic targets",
+      "should_pass": ["MONDO:0007254"],
+      "should_fail": ["MONDO:9999999"]
+    },
+
+    {
+      "name": "Compound to Targets",
+      "query": ">>uniprot",
+      "why": "Drug discovery - understand which proteins a compound binds for mechanism of action",
+      "should_pass": ["CHEMBL25"],
+      "should_fail": []
+    },
+
+    {
+      "name": "RNA to Protein",
+      "query": ">>uniprot",
+      "why": "Transcriptomics - link RNA-seq data to protein information for multi-omics analysis",
+      "should_pass": ["URS000075C808"],
+      "should_fail": []
+    },
+
+    {
+      "name": "Gene to Taxonomy",
+      "query": ">>uniprot>>taxonomy",
+      "why": "Comparative genomics - ensure correct organism context",
+      "should_pass": ["BRCA1"],
+      "should_fail": []
+    }
+  ]
+}

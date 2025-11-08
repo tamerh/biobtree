@@ -31,8 +31,13 @@ func NewEnv(backend Backend, cfg *Config) (Env, DBI, error) {
 // OpenDB opens a database with the specified backend (compatible with existing code)
 // This maintains backward compatibility while adding backend selection
 func (d *DB) OpenDBWithBackend(backend Backend, write bool, totalKV int64, appconf map[string]string) (Env, DBI, error) {
-	// Determine map size
+	// Determine map size with priority:
+	// 1. Explicit lmdbAllocSize from config (manual override)
+	// 2. Index directory size calculation (most accurate)
+	// 3. TotalKV-based estimation (fallback)
 	var lmdbAllocSize int64
+
+	// Priority 1: Manual override
 	if val, ok := appconf["lmdbAllocSize"]; ok {
 		size, err := strconv.ParseInt(val, 10, 64)
 		if err != nil {
@@ -42,6 +47,26 @@ func (d *DB) OpenDBWithBackend(backend Backend, write bool, totalKV int64, appco
 			return nil, nil, fmt.Errorf("lmdbAllocSize must be greater than 1")
 		}
 		lmdbAllocSize = size
+	} else {
+		// Priority 2: Index directory size calculation (for LMDB only)
+		if backend == BackendLMDB {
+			if indexDir, ok := appconf["indexDir"]; ok {
+				// Get safety factor from config, default to 2.5
+				safetyFactor := 2.5
+				if val, ok := appconf["lmdbSafetyFactor"]; ok {
+					if factor, err := strconv.ParseFloat(val, 64); err == nil && factor > 0 {
+						safetyFactor = factor
+					}
+				}
+
+				lmdbAllocSize = calculateMapSizeFromIndexDir(indexDir, safetyFactor)
+			}
+		}
+
+		// Priority 3: Fallback to TotalKV calculation if index method failed
+		if lmdbAllocSize == 0 {
+			lmdbAllocSize = calculateLMDBMapSize(totalKV)
+		}
 	}
 
 	// Create config

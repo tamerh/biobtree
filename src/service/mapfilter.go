@@ -863,6 +863,8 @@ func (s *service) execCelGo(query *query.Query, targetXref *pbuf.Xref) (bool, er
 		out, _, err = query.Program.Eval(map[string]interface{}{"ena": targetXref.GetEna()})
 	case "hmdb":
 		out, _, err = query.Program.Eval(map[string]interface{}{"hmdb": targetXref.GetHmdb()})
+	case "chebi":
+		out, _, err = query.Program.Eval(map[string]interface{}{"chebi": targetXref.GetChebi()})
 	case "pdb":
 		out, _, err = query.Program.Eval(map[string]interface{}{"pdb": targetXref.GetPdb()})
 	case "drugbank":

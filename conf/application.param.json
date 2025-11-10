@@ -37,8 +37,8 @@
 	"disableEnsemblReleaseCheck": "y",
 	"disableRemoteConfigCheck": "y",
 	"dbBackend": "lmdb",
-	"lmdbSafetyFactor": "4",
-	"lookupDbDir": "",
-	"lookupAliasDbDir": "",
+	"lmdbSafetyFactor": "10",
+	"lookupDbDir": "/data/scc/ag-gruber/GROUP/tgur/x/bioyoda_dev2/biobtreev2/out_ref/db",
+	"lookupAliasDbDir": "/data/scc/ag-gruber/GROUP/tgur/x/bioyoda_dev2/biobtreev2/out_ref/aliasdb",
 	"tmpRuneSize": "5000000"
 }

@@ -147,15 +147,15 @@ The default score threshold is **400** (out of 1000), providing a balance betwee
 
 ```bash
 # Query by STRING ID directly
-curl "http://localhost:8888/ws/?i=9606.ENSP00000000233"
+curl "http://localhost:9292/ws/?i=9606.ENSP00000000233"
 # Returns STRING dataset entry with interactions
 
 # Query by UniProt ID (resolves to STRING via keyword)
-curl "http://localhost:8888/ws/?i=P26437"
+curl "http://localhost:9292/ws/?i=P26437"
 # Returns STRING dataset entry (if P26437 has STRING data)
 
 # Get full STRING entry with interactions
-curl "http://localhost:8888/ws/entry/?i=9606.ENSP00000000233&s=string"
+curl "http://localhost:9292/ws/entry/?i=9606.ENSP00000000233&s=string"
 # Returns complete STRING data with protein attributes and interactions
 
 # Query chain: HGNC → UniProt → STRING

@@ -139,7 +139,7 @@
     "url": "https://www.genome.jp/dbget-bin/www_bget?ko:\u00a3{id}"
   },
   "mim": {
-    "aliases": "MIM",
+    "aliases": "omim,MIM",
     "name": "MIM",
     "id": "101",
     "url": "https://www.omim.org/entry/\u00a3{id}"
@@ -250,8 +250,9 @@
     "hasFilter": "yes",
     "attrs": "type,description,id,original,variation,location.begin,location.end,[]evidences.type,[]evidences.source,[]evidences.id"
   },
-  "variantid": {
-    "name": "variantid",
+  "dbSNP": {
+    "aliases": "variantid,VariantID,dbSNP rsID",
+    "name": "dbSNP",
     "id": "123",
     "url": "https://www.ncbi.nlm.nih.gov/snp/\u00a3{id}"
   },

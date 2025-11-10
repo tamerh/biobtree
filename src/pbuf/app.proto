@@ -134,6 +134,8 @@ message Xref {
     StringAttr stringattr=28;
     AlphaFoldAttr alphafold=29;
     RnacentralAttr rnacentral=30;
+    ClinvarAttr clinvar=33;
+    LipidmapsAttr lipidmaps=34;
 
   }
 

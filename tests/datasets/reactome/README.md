@@ -183,39 +183,39 @@ All files are streamed directly from https://reactome.org/download/current/
 
 ```bash
 # Query pathway directly
-curl "http://localhost:8888/ws/?i=R-HSA-177929"
+curl "http://localhost:9292/ws/?i=R-HSA-177929"
 # Returns pathway entry with attributes and cross-references
 
 # Get pathway name and taxonomy
-curl "http://localhost:8888/ws/entry/?i=R-HSA-177929&s=reactome"
+curl "http://localhost:9292/ws/entry/?i=R-HSA-177929&s=reactome"
 # Returns: name="Signaling by EGFR", tax_id=9606
 
 # Traverse to taxonomy
-curl "http://localhost:8888/ws/?i=R-HSA-177929>>taxonomy"
+curl "http://localhost:9292/ws/?i=R-HSA-177929>>taxonomy"
 # Returns: 9606 (Homo sapiens)
 
 # Get parent pathways
-curl "http://localhost:8888/ws/?i=R-HSA-177929>>reactomeparent"
+curl "http://localhost:9292/ws/?i=R-HSA-177929>>reactomeparent"
 # Returns parent pathway IDs
 
 # Get child pathways
-curl "http://localhost:8888/ws/?i=R-HSA-177929>>reactomechild"
+curl "http://localhost:9292/ws/?i=R-HSA-177929>>reactomechild"
 # Returns sub-pathway IDs
 
 # Find pathways for a protein
-curl "http://localhost:8888/ws/?i=P00533>>reactome"
+curl "http://localhost:9292/ws/?i=P00533>>reactome"
 # Returns all pathways containing EGFR protein
 
 # Find pathways for a compound
-curl "http://localhost:8888/ws/?i=CHEBI:15996>>reactome"
+curl "http://localhost:9292/ws/?i=CHEBI:15996>>reactome"
 # Returns all pathways containing this compound
 
 # Find pathways for a gene (NEW: Ensembl integration)
-curl "http://localhost:8888/ws/?i=ENSG00000157764>>reactome"
+curl "http://localhost:9292/ws/?i=ENSG00000157764>>reactome"
 # Returns all pathways containing this gene
 
 # Find genes in a pathway (NEW: Ensembl integration)
-curl "http://localhost:8888/ws/?i=R-HSA-177929>>ensembl"
+curl "http://localhost:9292/ws/?i=R-HSA-177929>>ensembl"
 # Returns all genes participating in this pathway
 ```
 
@@ -384,7 +384,7 @@ R-HSA-177929    reactome    CHEBI:15996    chebi    IEA
 Evidence codes appear in the xrefs array of query results:
 
 ```bash
-curl "http://localhost:8888/ws/entry/?i=R-BTA-73843&s=reactome" | jq '.xrefs'
+curl "http://localhost:9292/ws/entry/?i=R-BTA-73843&s=reactome" | jq '.xrefs'
 ```
 
 Example response:

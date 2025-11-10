@@ -369,5 +369,29 @@
     "hasFilter": "yes",
     "attrs": "rna_type,description,length,organism_count,[]databases,is_active,md5",
     "test_entries_count": "100"
+  },
+  "clinvar": {
+    "id": "32",
+    "name": "ClinVar",
+    "path": "/pub/clinvar/xml/",
+    "xmlFile": "ClinVarVCVRelease_00-latest.xml.gz",
+    "format": "xml_vcv",
+    "aliases": "ClinVar,CLINVAR,clinvar variant",
+    "url": "https://www.ncbi.nlm.nih.gov/clinvar/variation/£{id}",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "variation_id,allele_id,name,type,chromosome,start,stop,reference_allele,alternate_allele,assembly,germline_classification,review_status,last_evaluated,number_submitters,gene_id,gene_symbol,hgnc_id,[]phenotype_list,[]phenotype_ids,[]hgvs_expressions,[]submissions,[]functional_consequences,evidence_support",
+    "test_entries_count": "100"
+  },
+  "lipidmaps": {
+    "id": "33",
+    "name": "LIPID MAPS",
+    "path": "https://www.lipidmaps.org/files/?file=LMSD&ext=sdf.zip",
+    "aliases": "LIPID MAPS,LMSD,LM,Lipid Maps",
+    "url": "https://www.lipidmaps.org/databases/lmsd/£{id}",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "name,systematic_name,[]synonyms,abbreviation,category,main_class,sub_class,class_level4,exact_mass,formula,inchi,inchi_key,smiles",
+    "test_entries_count": "100"
   }
 }

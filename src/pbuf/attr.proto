@@ -453,4 +453,82 @@ message RnacentralAttr {
   string md5 =7;                            // MD5 checksum of the sequence
 }
 
+message ClinicalSubmission {
+  string scv_id = 1;                        // SCV accession (e.g., SCV000123456)
+  string submitter_name = 2;                // Organization that submitted
+  string classification = 3;                // Their classification (Pathogenic, etc.)
+  string review_status = 4;                 // Review status for this submission
+  string date_last_evaluated = 5;           // When they evaluated
+  string method_type = 6;                   // Method used (clinical testing, etc.)
+}
+
+message FunctionalConsequence {
+  string so_id = 1;                         // Sequence Ontology ID (e.g., SO:0001583)
+  string consequence = 2;                   // Human-readable (e.g., "missense variant")
+  string hgvs_expression = 3;               // HGVS for this consequence
+}
+
+message AlleleFrequency {
+  string source = 1;                        // Database (e.g., "gnomAD", "1000 Genomes")
+  double frequency = 2;                     // Allele frequency (0.0-1.0)
+  string population = 3;                    // Population studied
+}
+
+message ClinvarAttr {
+  // Identifiers
+  string variation_id =1;                   // Primary key (VariationID)
+  string allele_id =2;                      // AlleleID
+  string name =3;                           // Preferred HGVS name
+  repeated string hgvs_expressions =4;      // All HGVS representations
+  string dbsnp_id =5;                       // rs identifier
+
+  // Variant Classification
+  string type =6;                           // Variant type (SNV, indel, CNV, etc.)
+
+  // Genomic Location (GRCh38 primary)
+  string chromosome =7;
+  int32 start =8;
+  int32 stop =9;
+  string reference_allele =10;
+  string alternate_allele =11;
+  string assembly =12;                      // GRCh38 or GRCh37
+
+  // Clinical Significance
+  string germline_classification =13;       // Pathogenic, Benign, VUS, etc.
+  string review_status =14;                 // Curation quality level
+  string last_evaluated =15;                // Date of last assessment
+  int32 number_submitters =16;
+
+  // Associated Conditions
+  repeated string phenotype_list =17;       // Human-readable condition names
+  repeated string phenotype_ids =18;        // MedGen/MONDO/OMIM IDs
+
+  // Gene Association
+  string gene_id =19;                       // Entrez Gene ID
+  string gene_symbol =20;                   // HGNC symbol
+  string hgnc_id =21;                       // HGNC identifier
+
+  // NEW: XML-only fields for enhanced data completeness
+  repeated ClinicalSubmission submissions = 22;         // Individual submitter details
+  repeated FunctionalConsequence functional_consequences = 23;  // SO annotations
+  repeated AlleleFrequency allele_frequencies = 24;     // Population frequencies
+  string evidence_support = 25;             // Evidence level/support summary
+}
+
+message LipidmapsAttr {
+  string name = 1;                    // Common name
+  string systematic_name = 2;          // IUPAC systematic name
+  repeated string synonyms = 3;        // List of synonyms
+  string abbreviation = 4;             // Short form (e.g., "18:1(9Z)")
+  string category = 5;                 // Top category (e.g., "Fatty Acyls")
+  string main_class = 6;               // Main class with code
+  string sub_class = 7;                // Sub class with code
+  string class_level4 = 8;             // Level 4 classification
+  string exact_mass = 9;               // Exact mass as string
+  string formula = 10;                 // Molecular formula
+  string inchi = 11;                   // InChI string
+  string inchi_key = 12;               // InChI Key
+  string smiles = 13;                  // SMILES string
+}
+
 

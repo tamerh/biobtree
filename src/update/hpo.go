@@ -299,7 +299,8 @@ func (h *hpo) parseGeneToPhenotype(path string) {
 		// Use keyword lookup to resolve gene symbol to database IDs (HGNC, Ensembl, Entrez)
 		// Empty keywordDataset enables auto-enrichment across all matching datasets
 		// addXrefViaKeyword: (keyword, keywordDataset, targetValue, targetDataset, from, isLink)
-		h.d.addXrefViaKeyword(geneSymbol, "", hpoID, h.source, hpoDatasetID, false)
+		h.d.addXrefViaKeyword(geneSymbol, "hgnc", hpoID, h.source, hpoDatasetID, false)
+		h.d.addXrefEnsemblViaHgnc(geneSymbol, hpoID, hpoDatasetID)
 
 		associationCount++
 	}

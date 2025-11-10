@@ -18,11 +18,13 @@ by retrieving latest data from providers
 
 * **Protein** - Uniprot proteins including protein features with variations and mapped datasets.
 
-* **Chemistry** - `ChEMBL`, `HMDB`, and `ChEBI` datasets supported for chemistry, disease and drug releated analaysis
+* **Chemistry** - `ChEMBL`, `HMDB`, `ChEBI`, and `LIPID MAPS` datasets supported for chemistry, disease, lipid metabolism, and drug releated analaysis
 
 * **Patents** - `SureChEMBL` patent data with 43M+ patents, 30M+ compounds, and patent-compound mappings for drug discovery and IP analysis
 
 * **Clinical Trials** - `ClinicalTrials.gov` data with trial metadata, conditions, interventions, publications, and automatic drug mapping to ChEMBL molecules
+
+* **Genetic Variants** - `ClinVar` database with curated genetic variant-disease relationships, including variant classifications, clinical significance, review status, HGVS expressions, gene annotations, and phenotype associations
 
 * **Pathways** - `Reactome` pathway database with 23K+ curated pathways across 16 species, including protein/gene/compound participants, pathway hierarchy, GO mappings, disease annotations, and evidence codes (TAS/IEA) for curation quality
 
@@ -81,24 +83,24 @@ Builting databases updated regularly at least for each Ensembl release and all b
 ```ruby
 # Meta
 # datasets meta informations 
-localhost:8888/ws/meta
+localhost:9292/ws/meta
 
 # Search 
 # i is the only mandatory parameter
-localhost:8888/ws/?i={terms}&s={dataset}&p={page}&f={filter}
+localhost:9292/ws/?i={terms}&s={dataset}&p={page}&f={filter}
 
 # Mapping 
 # i and m are mandatory parameters
-localhost:8888/ws/map/?i={terms}&m={mapfilter_query}&s={dataset}&p={page}
+localhost:9292/ws/map/?i={terms}&m={mapfilter_query}&s={dataset}&p={page}
 
 # Retrieve dataset entry. Both paramters are mandatory
-localhost:8888/ws/entry/?i={identifier}&s={dataset}
+localhost:9292/ws/entry/?i={identifier}&s={dataset}
 
 # Retrieve entry with filtered mapping entries. Only page parameter is optional
-localhost:8888/ws/filter/?i={identifier}&s={dataset}&f={filter_datasets}&p={page}
+localhost:9292/ws/filter/?i={identifier}&s={dataset}&f={filter_datasets}&p={page}
 
 # Retrieve entry results with page index. All the parameters are mandatory 
-localhost:8888/ws/page/?i={identifier}&s={dataset}&p={page}&t={total}
+localhost:9292/ws/page/?i={identifier}&s={dataset}&p={page}&t={total}
 
 ```
 
@@ -156,7 +158,7 @@ biobtree query "hgnc >> chembl[chembl.molecule.highestDevelopmentPhase>2]"
 **Old Syntax (Still Supported)**:
 ```ruby
 # Web API with old function-style syntax
-localhost:8888/ws/map/?i=P27348&m=map(uniprot).filter(uniprot.reviewed==true).map(hgnc)
+localhost:9292/ws/map/?i=P27348&m=map(uniprot).filter(uniprot.reviewed==true).map(hgnc)
 ```
 
 <!-- ### Integrating your dataset
@@ -176,10 +178,11 @@ Biobtree uses configuration files located in the `conf/` directory:
 
 ```
 conf/
-├── application.param.json      # Application settings
-├── default.dataset.json        # Default datasets
-├── optional.dataset.json       # Optional datasets
-├── source.dataset.json         # Data source configurations
+├── application.param.json      # Application settings and parameters
+├── source.dataset.json         # Primary datasets to process
+├── default.dataset.json        # Derived datasets (via xref, included by default)
+├── optional.dataset.json       # Derived datasets (optional, excluded to reduce data size)
+├── medical_term_mappings.json  # Medical terminology mappings
 └── ensembl/                    # Ensembl genome metadata
     ├── ensembl.paths.json
     ├── ensembl_bacteria.paths.json
@@ -188,6 +191,24 @@ conf/
     ├── ensembl_plants.paths.json
     └── ensembl_protists.paths.json
 ```
+
+#### Dataset Configuration Files
+
+**`source.dataset.json`**: Defines primary datasets that biobtree processes. These datasets can create cross-references (xrefs) with each other and serve as the foundation for data integration.
+
+**`default.dataset.json`**: Defines datasets derived automatically via cross-references when processing source datasets. These are included by default in all builds.
+
+**`optional.dataset.json`**: Defines derived datasets that are optional. Excluding these reduces the final database size while maintaining core functionality.
+
+**Note**: All three dataset files are merged at runtime. To build with only source and default datasets (excluding optional), use appropriate build flags.
+
+#### Other Configuration Files
+
+**`application.param.json`**: Main configuration file for biobtree application settings including database backend, remote checks, and runtime parameters.
+
+**`medical_term_mappings.json`**: Configuration for medical terminology mappings used in clinical and disease-related datasets.
+
+**`ensembl/*.paths.json`**: Path configurations for different Ensembl genome divisions (main, bacteria, fungi, metazoa, plants, protists).
 
 #### Disabling Remote Configuration Checks
 
@@ -275,11 +296,15 @@ To integrate a new dataset into biobtree, the following components must be modif
 #### 4. Merge Logic
 - **`src/generate/mergeg.go`**: Add dataset to `xref` struct and unmarshal case for your dataset ID
 - Without this, attributes will appear empty in responses
+- also if dataset does not has any xref it should also add to another place in mergeg.go 
 
 #### 5. Filter Support (Optional)
 If `hasFilter="yes"`:
 - **`src/service/service.go`**: Add CEL declaration
 - **`src/service/mapfilter.go`**: Add filter evaluation case
+#### 6. Adding test 
+ Each dataset needs to add its tests in tests/datasets/ folder with the same approach and convention with other datasets. Details
+ can be seen in tests/README.md 
 
 #### Build Order
 ```sh
@@ -328,167 +353,7 @@ Extensive testing (REST, gRPC, NFS, local storage) showed:
 
 Use MDBX if you prefer auto-growing database (no manual size calculation needed).
 
-#### Documentation & Benchmarks
-
-Complete documentation and benchmark tools:
-
-📁 **`examples/mdbx_benchmarks/`**
-
-- `MDBX_INTEGRATION.md` - Complete technical guide
-- `MDBX_INTEGRATION_SUMMARY.md` - Executive summary
-- `QUICK_START.md` - Benchmark quick start
-- `README.md` - Benchmark scripts documentation
-
-To run performance comparisons:
-
-```bash
-cd examples/mdbx_benchmarks
-./benchmark_lmdb_vs_mdbx.sh      # REST API benchmark
-./benchmark_grpc.sh              # gRPC benchmark
-```
-
-See `examples/mdbx_benchmarks/QUICK_START.md` for detailed instructions.
-
 ---
-
-## Patents Data Integration (SureChEMBL)
-
-### Overview
-
-Biobtree integrates patent data from SureChEMBL (EMBL-EBI) to enable cross-referencing between:
-- **Patents** ↔ **Chemical Compounds** ↔ **ChEMBL Targets**
-- **Patents** ↔ **Patent Families**
-- **Patents** ↔ **IPC/CPC Classification Codes**
-
-**Data Source**: SureChEMBL 2.0 (43M+ patents, 30M+ compounds)
-**Update Frequency**: Bi-weekly releases
-
-### Data Preparation
-
-Patent data is processed by the BioYoda patents module and converted to JSON format for biobtree ingestion:
-
-```bash
-# 1. Download and process SureChEMBL data (from BioYoda root)
-./bioyoda.sh run patents --cluster
-
-# 2. Convert parquet to JSON for biobtree
-python modules/patents/scripts/convert_to_biobtree_json.py \
-  --input raw_data/patents/surechembl/2025-10-01 \
-  --output data/processed/patents/biobtree \
-  --verbose
-```
-
-**Output Files**:
-```
-data/processed/patents/biobtree/
-├── patents.json          # 43M patent records
-├── compounds.json        # 30M chemical compounds
-├── mapping.json          # 1.5B patent-compound mappings
-└── conversion_summary.json
-```
-
-### Biobtree Configuration
-
-Add patents to your biobtree build in `conf/source.dataset.json`:
-
-```json
-{
-  "patents": {
-    "name": "SureChEMBL Patents",
-    "version": "2025-10-01",
-    "sourceType": "json",
-    "sourcePath": "../data/processed/patents/biobtree/patents.json",
-    "updateFrequency": "biweekly"
-  },
-  "surechembl_compounds": {
-    "name": "SureChEMBL Compounds",
-    "version": "2025-10-01",
-    "sourceType": "json",
-    "sourcePath": "../data/processed/patents/biobtree/compounds.json"
-  },
-  "patent_compound_map": {
-    "name": "Patent-Compound Mappings",
-    "version": "2025-10-01",
-    "sourceType": "json",
-    "sourcePath": "../data/processed/patents/biobtree/mapping.json"
-  }
-}
-```
-
-### Building with Patent Data
-
-```bash
-# Build biobtree with patents + chemistry datasets
-cd biobtreev2
-./biobtree -d "patents,surechembl_compounds,chembl,uniprot,hgnc" build
-
-# Start web services
-./biobtree web
-```
-
-### Query Examples
-
-#### Find all patents for a compound
-```bash
-# Query by ChEMBL ID
-biobtree query "CHEMBL203 >> surechembl >> patent"
-
-# Result: All patents containing aspirin
-```
-
-#### Find compounds in a patent
-```bash
-# Query by patent number
-biobtree query "US-20110053848-A1 >> patent >> surechembl"
-
-# Result: All compounds extracted from this patent
-```
-
-#### Find biological targets for patented compounds
-```bash
-# Patent → Compounds → ChEMBL Targets → Proteins
-biobtree query "US-20110053848-A1 >> surechembl >> chembl >> uniprot"
-
-# Result: All protein targets for compounds in this patent
-```
-
-#### Find patents in a family
-```bash
-# Query by family ID
-biobtree query "family:12345678 >> patent"
-
-# Result: All patents in this patent family (US, EP, WO, etc.)
-```
-
-#### Find patents by technology classification
-```bash
-# Query by IPC code
-biobtree query "ipc:A61K31 >> patent"
-
-# Result: All patents in pharmaceutical preparations category
-```
-
-#### Find genes targeted by patented compounds
-```bash
-# Patent → Compounds → ChEMBL → Proteins → Genes
-biobtree query "US-20110053848-A1 >> surechembl >> chembl >> uniprot >> hgnc"
-
-# Result: Gene symbols for all targets
-```
-
-### Cross-Reference Mappings
-
-Patents enable the following identifier mappings:
-
-```
-PATENT_NUMBER ↔ SURECHEMBL_COMPOUND_ID
-SURECHEMBL_COMPOUND_ID ↔ CHEMBL_ID
-PATENT_NUMBER ↔ FAMILY_ID
-PATENT_NUMBER ↔ IPC_CODE
-PATENT_NUMBER ↔ CPC_CODE
-PATENT_NUMBER ↔ ASSIGNEE
-INCHI_KEY ↔ SURECHEMBL_COMPOUND_ID
-```
 
 ### Use Cases
 
@@ -507,100 +372,9 @@ INCHI_KEY ↔ SURECHEMBL_COMPOUND_ID
 - Connect patented compounds to protein targets
 - Map patents to genes and pathways
 
-### Data Schema
-
-**Patents JSON**:
-```json
-{
-  "patents": [
-    {
-      "id": "internal_id",
-      "patent_number": "US-20110053848-A1",
-      "country": "US",
-      "publication_date": "2011-03-03",
-      "family_id": "12345",
-      "title": "EGFR inhibitors...",
-      "ipc": ["A61K31/517"],
-      "cpc": ["A61K31/517"],
-      "asignee": ["AstraZeneca"]
-    }
-  ]
-}
-```
-
-**Compounds JSON**:
-```json
-{
-  "compounds": [
-    {
-      "id": "SCHEMBL123",
-      "smiles": "CC(C)Cc1ccc(cc1)[C@@H](C)C(=O)O",
-      "inchi": "InChI=1S/C13H18O2/...",
-      "inchi_key": "HEFNNWSXXWATRW-JTQLQIEISA-N",
-      "mol_weight": 206.28
-    }
-  ]
-}
-```
-
-**Mappings JSON**:
-```json
-{
-  "mappings": [
-    {
-      "patent_id": "internal_id",
-      "compound_id": "SCHEMBL123",
-      "field_id": 2
-    }
-  ]
-}
-```
-
-**Field IDs**:
-- 1 = Description
-- 2 = Claims
-- 3 = Abstract
-- 4 = Title
-- 5 = Image
-- 6 = MOL attachment
-
-## Clinical Trials Integration
-
-Clinical trials data from ClinicalTrials.gov is integrated with smart drug-to-ChEMBL mapping capabilities.
-
-### Features
-
-- **Trial Metadata**: NCT ID, title, phase, status, study type
-- **Conditions**: Disease and medical conditions associated with trials
-- **Interventions**: Drug names, dosages, descriptions with automatic normalization
-- **Publications**: Cross-references to PubMed articles (PMIDs)
-- **Smart Drug Mapping**: Automatic mapping of intervention names to ChEMBL molecules
-  - Multi-attempt lookup (full name, base name, split combinations)
-  - Handles drug combinations (e.g., "Edaravone Dexborneol" → 2 ChEMBL IDs)
-  - Chemical suffix removal (e.g., "Medroxyprogesterone 17-Acetate" → "Medroxyprogesterone")
-  - Case-insensitive, formulation-agnostic
-
-### Cross-References Created
-
-- **NCT ↔ ChEMBL**: Clinical trials linked to drug molecules
-- **NCT ↔ PMID**: Clinical trials linked to publications
-- **Text Search**: Search trials by intervention name, phase, or status
-
-### Configuration
-
-To enable ChEMBL drug mapping, configure lookup database path in `conf/application.param.json`:
-
-```json
-{
-  "lookupDbDir": "/path/to/biobtree/out/db",
-  "lookupAliasDbDir": "/path/to/biobtree/out/aliasdb"
-}
-```
 
 ### TODO
 
-- Disease ontology mapping (conditions → DisGeNET/UMLS)
-- Sponsor normalization for patent linkage
 - Geographic search by facility location
 
 ### Documentation

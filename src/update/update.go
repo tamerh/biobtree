@@ -442,6 +442,18 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			d.datasets2 = append(d.datasets2, data)
 			go rc.update()
 			break
+		case "clinvar":
+			d.wg.Add(1)
+			cv := clinvarXML{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go cv.update()
+			break
+		case "lipidmaps":
+			d.wg.Add(1)
+			lm := lipidmaps{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go lm.update()
+			break
 		case "my_data":
 
 			if len(config.Dataconf[data]["path"]) > 0 {
@@ -780,6 +792,86 @@ func (d *DataUpdate) addXrefViaKeyword(keyword string, keywordDataset string, ta
 			// Convert dataset ID to string
 			datasetIDStr := strconv.Itoa(int(entry.Dataset))
 			d.addXref(entry.Identifier, datasetIDStr, targetValue, targetDataset, isLink)
+		}
+	}
+}
+
+// addXrefEnsemblViaHgnc creates ClinVar → Ensembl cross-reference via HGNC
+// This ensures we only get human Ensembl genes by going through HGNC first
+// geneSymbol: Gene symbol (e.g., "BRCA1")
+// clinvarID: ClinVar variant ID
+// clinvarDatasetID: ClinVar dataset ID
+func (d *DataUpdate) addXrefEnsemblViaHgnc(geneSymbol, clinvarID, clinvarDatasetID string) {
+	if !d.hasLookupDB {
+		return
+	}
+
+	// Step 1: Lookup gene symbol to find HGNC entry
+	result, err := d.lookup(geneSymbol)
+	if err != nil || result == nil || len(result.Results) == 0 {
+		return
+	}
+
+	// Step 2: Find HGNC entry in the results
+	hgncDatasetID, ok := config.Dataconf["hgnc"]["id"]
+	if !ok {
+		return
+	}
+
+	var hgncDatasetInt uint32
+	fmt.Sscanf(hgncDatasetID, "%d", &hgncDatasetInt)
+
+	var hgncIdentifier string
+	for _, r := range result.Results {
+		// Look for link results (keyword search results)
+		if !r.IsLink || len(r.Entries) == 0 {
+			continue
+		}
+
+		// Find HGNC entry
+		for _, entry := range r.Entries {
+			if entry.Dataset == hgncDatasetInt {
+				hgncIdentifier = entry.Identifier
+				break
+			}
+		}
+
+		if hgncIdentifier != "" {
+			break
+		}
+	}
+
+	if hgncIdentifier == "" {
+		return // No HGNC entry found
+	}
+
+	// Step 3: Lookup HGNC entry directly to get its cross-references
+	hgncResult, err := d.lookup(hgncIdentifier)
+	if err != nil || hgncResult == nil || len(hgncResult.Results) == 0 {
+		return
+	}
+
+	// Step 4: Find Ensembl cross-reference in HGNC entry
+	ensemblDatasetID, ok := config.Dataconf["ensembl"]["id"]
+	if !ok {
+		return
+	}
+
+	var ensemblDatasetInt uint32
+	fmt.Sscanf(ensemblDatasetID, "%d", &ensemblDatasetInt)
+
+	// Look through HGNC's cross-references for Ensembl
+	for _, hgncRes := range hgncResult.Results {
+		if len(hgncRes.Entries) == 0 {
+			continue
+		}
+
+		for _, entry := range hgncRes.Entries {
+			if entry.Dataset == ensemblDatasetInt {
+				// Found human Ensembl gene - create cross-reference
+				d.addXref(clinvarID, clinvarDatasetID, entry.Identifier, "ensembl", false)
+				return // Only need one Ensembl reference
+			}
 		}
 	}
 }

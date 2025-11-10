@@ -385,12 +385,8 @@ func runTestCommand(c *cli.Context) error {
 	log.Println("════════════════════════════════════════════════════════════")
 	log.Println("✓ Test database build complete")
 	log.Printf("  Time: %s", elapsed)
-	log.Println("  Output: test_out/db/")
+	log.Println("  Output: test_out")
 	log.Println("  Reference IDs: test_out/reference/")
-	log.Println()
-	log.Println("Next steps:")
-	log.Println("  1. Start web service: ./biobtree web --db-dir test_out/db --port 8889")
-	log.Println("  2. Run validation:    python3 tests/validate_biobtree.py")
 	log.Println("════════════════════════════════════════════════════════════")
 
 	return nil

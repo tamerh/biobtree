@@ -192,7 +192,7 @@ Examples:
   %(prog)s hmdb,go,taxonomy   # Run multiple specific tests
 
 Available datasets:
-  hgnc, uniprot, go, taxonomy, eco, efo, chebi, interpro, hmdb, chembl_document, chembl_molecule, chembl_activity, chembl_assay, chembl_target, chembl_cell_line, ensembl, mondo, hpo, patent, clinical_trials, string, reactome, alphafold, rnacentral, uniparc, uniref50, uniref90, uniref100
+  hgnc, uniprot, go, taxonomy, eco, efo, chebi, interpro, hmdb, lipidmaps, chembl_document, chembl_molecule, chembl_activity, chembl_assay, chembl_target, chembl_cell_line, ensembl, mondo, hpo, patent, clinical_trials, clinvar, string, reactome, alphafold, rnacentral, uniparc, uniref50, uniref90, uniref100
 
   Temporarily disabled (Ensembl Genomes API SSL issues):
   ensembl_bacteria, ensembl_fungi, ensembl_metazoa, ensembl_plants, ensembl_protists
@@ -224,6 +224,7 @@ Available datasets:
         'chebi': datasets_dir / "chebi" / "test_chebi.py",
         'interpro': datasets_dir / "interpro" / "test_interpro.py",
         'hmdb': datasets_dir / "hmdb" / "test_hmdb.py",
+        'lipidmaps': datasets_dir / "lipidmaps" / "test_lipidmaps.py",
         'chembl_document': datasets_dir / "chembl_document" / "test_chembl_document.py",
         'chembl_molecule': datasets_dir / "chembl_molecule" / "test_chembl_molecule.py",
         'chembl_activity': datasets_dir / "chembl_activity" / "test_chembl_activity.py",
@@ -241,6 +242,7 @@ Available datasets:
         'hpo': datasets_dir / "hpo" / "test_hpo.py",
         'patent': datasets_dir / "patent" / "test_patent.py",
         'clinical_trials': datasets_dir / "clinical_trials" / "test_clinical_trials.py",
+        'clinvar': datasets_dir / "clinvar" / "test_clinvar.py",
         'string': datasets_dir / "string" / "test_string.py",
         'reactome': datasets_dir / "reactome" / "test_reactome.py",
         'alphafold': datasets_dir / "alphafold" / "test_alphafold.py",

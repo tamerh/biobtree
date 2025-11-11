@@ -531,4 +531,20 @@ message LipidmapsAttr {
   string smiles = 13;                  // SMILES string
 }
 
+message SwisslipidsAttr {
+  string name = 1;                     // Lipid name
+  string abbreviation = 2;             // Short name
+  repeated string synonyms = 3;        // Alternative names
+  string category = 4;                 // Level 1: Category (e.g., "Glycerophospholipids")
+  string main_class = 5;               // Level 2: Main class (e.g., "Glycerophosphocholines")
+  string sub_class = 6;                // Level 3: Subclass
+  string level = 7;                    // Hierarchy level (species/subspecies/isomeric/etc)
+  string smiles = 8;                   // SMILES representation
+  string inchi = 9;                    // InChI string
+  string inchi_key = 10;               // InChI Key
+  string formula = 11;                 // Molecular formula
+  string mass = 12;                    // Exact mass
+  string charge = 13;                  // Molecular charge
+}
+
 

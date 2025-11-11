@@ -180,6 +180,8 @@ func (s *service) init() {
 		cel.Declarations(
 			decls.NewIdent("lipidmaps", decls.NewObjectType("pbuf.LipidmapsAttr"), nil)),
 		cel.Declarations(
+			decls.NewIdent("swisslipids", decls.NewObjectType("pbuf.SwisslipidsAttr"), nil)),
+		cel.Declarations(
 			decls.NewFunction("overlaps",
 				decls.NewOverload("overlaps_int_int",
 					[]*exprpb.Type{decls.Int, decls.Int},

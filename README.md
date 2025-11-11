@@ -18,7 +18,7 @@ by retrieving latest data from providers
 
 * **Protein** - Uniprot proteins including protein features with variations and mapped datasets.
 
-* **Chemistry** - `ChEMBL`, `HMDB`, `ChEBI`, and `LIPID MAPS` datasets supported for chemistry, disease, lipid metabolism, and drug releated analaysis
+* **Chemistry** - `ChEMBL`, `HMDB`, `ChEBI`, `LIPID MAPS`, and `SwissLipids` datasets supported for chemistry, disease, lipid metabolism, and drug releated analaysis. SwissLipids provides 779K+ lipid structures with protein associations, GO annotations, tissue localization, and evidence codes
 
 * **Patents** - `SureChEMBL` patent data with 43M+ patents, 30M+ compounds, and patent-compound mappings for drug discovery and IP analysis
 
@@ -56,8 +56,14 @@ biobtree  --tax 595,984254 -d "uniprot,taxonomy" build
 biobtree -d "uniprot,taxonomy,hgnc" build
 biobtree -d "hgnc,chembl,hmdb" build
 
+# build with lipid datasets (SwissLipids + LIPID MAPS with protein associations)
+biobtree -d "lipidmaps,swisslipids,uniprot,go,eco" build
+
 # build with clinical trials (requires ChEMBL for drug mapping)
 biobtree -d "chembl,clinical_trials" build
+
+# build with genetic variants (works well with HGNC, MONDO, HPO)
+biobtree -d "hgnc,clinvar,mondo,hpo" build
 
 # once data is built start web for using ws and ui
 biobtree web
@@ -82,14 +88,14 @@ Builting databases updated regularly at least for each Ensembl release and all b
 ### Web service endpoints
 ```ruby
 # Meta
-# datasets meta informations 
+# datasets meta informations
 localhost:9292/ws/meta
 
-# Search 
+# Search
 # i is the only mandatory parameter
-localhost:9292/ws/?i={terms}&s={dataset}&p={page}&f={filter}
+localhost:9292/ws/?i={terms}&s={dataset}&p={page}&f={filter}&d={detail}
 
-# Mapping 
+# Mapping
 # i and m are mandatory parameters
 localhost:9292/ws/map/?i={terms}&m={mapfilter_query}&s={dataset}&p={page}
 
@@ -99,10 +105,35 @@ localhost:9292/ws/entry/?i={identifier}&s={dataset}
 # Retrieve entry with filtered mapping entries. Only page parameter is optional
 localhost:9292/ws/filter/?i={identifier}&s={dataset}&f={filter_datasets}&p={page}
 
-# Retrieve entry results with page index. All the parameters are mandatory 
+# Retrieve entry results with page index. All the parameters are mandatory
 localhost:9292/ws/page/?i={identifier}&s={dataset}&p={page}&t={total}
 
 ```
+
+#### API Response Modes
+
+The Web API supports two response modes for performance optimization:
+
+**Lite Mode (default)**:
+```ruby
+# Returns count and dataset_counts only (no entries array)
+localhost:9292/ws/?i=SLM:000000002
+
+Response includes: count, dataset_counts, Attributes, url
+Response excludes: entries array (cross-references)
+Use case: UI applications that only need summary counts
+```
+
+**Detail Mode (with `d` parameter)**:
+```ruby
+# Returns complete data including all cross-reference entries
+localhost:9292/ws/?i=SLM:000000002&d=1
+
+Response includes: Everything (count, entries, Attributes, etc.)
+Use case: Analysis, testing, complete data exploration
+```
+
+**Note**: CLI `query` command always returns detailed results automatically. The `d` parameter only affects Web API responses.
 
 ### Query Syntax
 
@@ -132,6 +163,12 @@ biobtree query "ENSG00000134308 >> uniprot >> hgnc"
 # Multiple identifiers
 biobtree query "P27348,Q04917 >> hgnc"
 biobtree query "cas9 >> uniprot >> hgnc"
+
+# Lipid metabolism queries
+biobtree query "SLM:000094711"                    # SwissLipids lipid lookup
+biobtree query "SLM:000094711 >> uniprot"         # Find proteins associated with lipid
+biobtree query "P00533 >> swisslipids"            # Find lipids associated with protein
+biobtree query "GO:0008203 >> swisslipids"        # Find lipids in GO biological process
 ```
 
 #### Filter Syntax

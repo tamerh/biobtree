@@ -28,7 +28,7 @@ class QueryHelper:
             Response data or None if not found
         """
         try:
-            response = requests.get(f"{self.api_url}/ws/?i={identifier}", timeout=timeout)
+            response = requests.get(f"{self.api_url}/ws/?i={identifier}&d=1", timeout=timeout)
 
             if response.status_code == 200:
                 data = response.json()

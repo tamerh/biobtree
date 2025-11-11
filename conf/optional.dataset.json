@@ -749,12 +749,6 @@
     "id": "627",
     "url": "https://world-2dpage.expasy.org/swiss-2dpage/protein/ac=£{id}"
   },
-  "swisslipids": {
-    "aliases": "SwissLipids",
-    "name": "SwissLipids",
-    "id": "628",
-    "url": "http://www.swisslipids.org/#/entity/£{id}/"
-  },
   "swisspalm": {
     "aliases": "SwissPalm",
     "name": "SwissPalm",

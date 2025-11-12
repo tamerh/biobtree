@@ -404,5 +404,16 @@
     "hasFilter": "yes",
     "attrs": "name,abbreviation,[]synonyms,category,main_class,sub_class,level,smiles,inchi,inchi_key,formula,mass,charge",
     "test_entries_count": "100"
+  },
+  "uberon": {
+    "aliases": "UBERON,Uber-anatomy ontology,Uberon",
+    "id": "35",
+    "name": "UBERON",
+    "url": "http://purl.obolibrary.org/obo/£{id}",
+    "path": "http://purl.obolibrary.org/obo/uberon.owl",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms",
+    "test_entries_count": "100"
   }
 }

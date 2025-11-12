@@ -155,8 +155,16 @@ func (g *ontology) update() {
 
 					attr.Name = r.Childs["rdfs:label"][0].InnerText
 
-					if g.source == "efo" {
+					// Add text search for all OWL-based ontologies (GO, ECO, EFO, UBERON)
+					// Enables keyword search by term names and synonyms
+					if g.source == "go" || g.source == "eco" || g.source == "efo" || g.source == "uberon" {
 						g.d.addXref(attr.Name, textLinkID, entryid, g.source, true)
+						// Also add synonyms for text search
+						for _, syn := range attr.Synonyms {
+							if syn != "" {
+								g.d.addXref(syn, textLinkID, entryid, g.source, true)
+							}
+						}
 					}
 
 				}

@@ -260,6 +260,11 @@ func (m *mondo) parseXref(line string, mondoID string, mondoDatasetID string) {
 		targetDatasetName = "mim"
 		// Strip "OMIMPS:" prefix, keep only the numeric ID
 		targetID = strings.TrimPrefix(xrefID, "OMIMPS:")
+	} else if strings.HasPrefix(xrefID, "UBERON:") {
+		// UBERON is dataset 35 in biobtree - Uber-anatomy ontology
+		// Provides anatomical location context for diseases
+		targetDatasetName = "uberon"
+		targetID = xrefID
 	} else if strings.HasPrefix(xrefID, "DOID:") {
 		// TODO: Disease Ontology - not currently in biobtree (11,866 xrefs available)
 		// Would provide comprehensive disease classification

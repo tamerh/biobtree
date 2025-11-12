@@ -888,7 +888,7 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)
 				xref.Attributes = &pbuf.Xref_Hgnc{attr}
-			case "go", "eco", "efo", "mondo", "hpo":
+			case "go", "eco", "efo", "mondo", "hpo", "uberon":
 				attr := &pbuf.OntologyAttr{}
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)

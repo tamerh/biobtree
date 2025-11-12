@@ -192,7 +192,7 @@ Examples:
   %(prog)s hmdb,go,taxonomy   # Run multiple specific tests
 
 Available datasets:
-  hgnc, uniprot, go, taxonomy, eco, efo, chebi, interpro, hmdb, lipidmaps, swisslipids, chembl_document, chembl_molecule, chembl_activity, chembl_assay, chembl_target, chembl_cell_line, ensembl, mondo, hpo, patent, clinical_trials, clinvar, string, reactome, alphafold, rnacentral, uniparc, uniref50, uniref90, uniref100
+  hgnc, uniprot, go, taxonomy, eco, efo, chebi, interpro, hmdb, lipidmaps, swisslipids, chembl_document, chembl_molecule, chembl_activity, chembl_assay, chembl_target, chembl_cell_line, ensembl, mondo, hpo, uberon, patent, clinical_trials, clinvar, string, reactome, alphafold, rnacentral, uniparc, uniref50, uniref90, uniref100
 
   Temporarily disabled (Ensembl Genomes API SSL issues):
   ensembl_bacteria, ensembl_fungi, ensembl_metazoa, ensembl_plants, ensembl_protists
@@ -241,6 +241,7 @@ Available datasets:
         # 'ensembl_protists': datasets_dir / "ensembl_protists" / "test_ensembl_protists.py",
         'mondo': datasets_dir / "mondo" / "test_mondo.py",
         'hpo': datasets_dir / "hpo" / "test_hpo.py",
+        'uberon': datasets_dir / "uberon" / "test_uberon.py",
         'patent': datasets_dir / "patent" / "test_patent.py",
         'clinical_trials': datasets_dir / "clinical_trials" / "test_clinical_trials.py",
         'clinvar': datasets_dir / "clinvar" / "test_clinvar.py",

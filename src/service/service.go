@@ -160,6 +160,8 @@ func (s *service) init() {
 		cel.Declarations(
 			decls.NewIdent("mondo", decls.NewObjectType("pbuf.OntologyAttr"), nil)),
 		cel.Declarations(
+			decls.NewIdent("uberon", decls.NewObjectType("pbuf.OntologyAttr"), nil)),
+		cel.Declarations(
 			decls.NewIdent("interpro", decls.NewObjectType("pbuf.InterproAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("ena", decls.NewObjectType("pbuf.EnaAttr"), nil)),
@@ -904,6 +906,11 @@ func (s *service) search(ids []string, idsDomain uint32, page string, q *query.Q
 	}
 
 	result.Results = xrefs
+
+	// Add informational message when no results found
+	if len(xrefs) == 0 {
+		result.Message = "No results found"
+	}
 
 	// Enrich with all transient fields (dataset_name, url)
 	EnrichResult(result)

@@ -255,9 +255,9 @@ The `reference_data.json` file contains complete TSV data for each test lipid:
 - TODO: Implement Rhea dataset for biochemical reaction integration
 
 **Uberon Tissues**:
-- tissues.tsv file processed but Uberon dataset not yet integrated
-- Cross-references created but no bidirectional Uberon → SwissLipids queries
-- TODO: Implement Uberon dataset for tissue/organ annotations
+- tissues.tsv file processed and Uberon dataset (ID 35) integrated ✅
+- Bidirectional cross-references: SwissLipids ↔ Uberon tissue queries enabled
+- Enables tissue-specific lipid discovery and anatomical localization
 
 **Text Search**:
 - Lipid names and abbreviations stored in attributes only
@@ -285,11 +285,11 @@ The `reference_data.json` file contains complete TSV data for each test lipid:
 - Support enzyme-catalyzed reaction discovery
 - ~964 KB of enzyme/reaction data available
 
-**3. Uberon Tissue Integration** (Priority: Medium)
-- Implement Uberon dataset (anatomy ontology)
-- Enable bidirectional lipid ↔ tissue queries
-- Support tissue-specific lipid discovery
-- ~95 KB of tissue annotation data available
+**3. Uberon Tissue Integration** ✅ COMPLETED
+- Uberon dataset (anatomy ontology) now integrated (ID 35)
+- Bidirectional lipid ↔ tissue queries enabled
+- Tissue-specific lipid discovery supported
+- ~95 KB of tissue annotation data processed
 
 **4. Text Search Enhancement** (Priority: Low)
 - Index lipid names for full-text search
@@ -363,6 +363,14 @@ curl "http://localhost:9292/ws/?i=GO:0008203>>swisslipids"
 # Check evidence codes
 curl "http://localhost:9292/ws/?i=SLM:000094711>>eco"
 # Returns ECO evidence codes for data quality assessment
+
+# Find tissue localization
+curl "http://localhost:9292/ws/?i=SLM:000094711>>uberon"
+# Returns Uberon anatomical locations where this lipid is found
+
+# Find lipids in a tissue
+curl "http://localhost:9292/ws/?i=UBERON:0000955>>swisslipids"
+# Returns all lipids found in brain tissue
 ```
 
 ## Integration with LIPID MAPS

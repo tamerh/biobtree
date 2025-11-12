@@ -2148,6 +2148,11 @@ func (j *MapFilterResult) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.WriteJsonString(buf, string(j.Nextpage))
 		buf.WriteByte(',')
 	}
+	if len(j.Message) != 0 {
+		buf.WriteString(`"message":`)
+		fflib.WriteJsonString(buf, string(j.Message))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -2160,11 +2165,15 @@ const (
 	ffjtMapFilterResultResults
 
 	ffjtMapFilterResultNextpage
+
+	ffjtMapFilterResultMessage
 )
 
 var ffjKeyMapFilterResultResults = []byte("results")
 
 var ffjKeyMapFilterResultNextpage = []byte("nextpage")
+
+var ffjKeyMapFilterResultMessage = []byte("message")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *MapFilterResult) UnmarshalJSON(input []byte) error {
@@ -2227,6 +2236,14 @@ mainparse:
 			} else {
 				switch kn[0] {
 
+				case 'm':
+
+					if bytes.Equal(ffjKeyMapFilterResultMessage, kn) {
+						currentKey = ffjtMapFilterResultMessage
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 'n':
 
 					if bytes.Equal(ffjKeyMapFilterResultNextpage, kn) {
@@ -2243,6 +2260,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.EqualFoldRight(ffjKeyMapFilterResultMessage, kn) {
+					currentKey = ffjtMapFilterResultMessage
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.SimpleLetterEqualFold(ffjKeyMapFilterResultNextpage, kn) {
@@ -2279,6 +2302,9 @@ mainparse:
 
 				case ffjtMapFilterResultNextpage:
 					goto handle_Nextpage
+
+				case ffjtMapFilterResultMessage:
+					goto handle_Message
 
 				case ffjtMapFilterResultnosuchkey:
 					err = fs.SkipField(tok)
@@ -2387,6 +2413,32 @@ handle_Nextpage:
 			outBuf := fs.Output.Bytes()
 
 			j.Nextpage = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Message:
+
+	/* handler: j.Message type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Message = string(string(outBuf))
 
 		}
 	}
@@ -4641,6 +4693,11 @@ func (j *Result) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.WriteJsonString(buf, string(j.Nextpage))
 		buf.WriteByte(',')
 	}
+	if len(j.Message) != 0 {
+		buf.WriteString(`"message":`)
+		fflib.WriteJsonString(buf, string(j.Message))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -4653,11 +4710,15 @@ const (
 	ffjtResultResults
 
 	ffjtResultNextpage
+
+	ffjtResultMessage
 )
 
 var ffjKeyResultResults = []byte("results")
 
 var ffjKeyResultNextpage = []byte("nextpage")
+
+var ffjKeyResultMessage = []byte("message")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *Result) UnmarshalJSON(input []byte) error {
@@ -4720,6 +4781,14 @@ mainparse:
 			} else {
 				switch kn[0] {
 
+				case 'm':
+
+					if bytes.Equal(ffjKeyResultMessage, kn) {
+						currentKey = ffjtResultMessage
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 'n':
 
 					if bytes.Equal(ffjKeyResultNextpage, kn) {
@@ -4736,6 +4805,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.EqualFoldRight(ffjKeyResultMessage, kn) {
+					currentKey = ffjtResultMessage
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.SimpleLetterEqualFold(ffjKeyResultNextpage, kn) {
@@ -4772,6 +4847,9 @@ mainparse:
 
 				case ffjtResultNextpage:
 					goto handle_Nextpage
+
+				case ffjtResultMessage:
+					goto handle_Message
 
 				case ffjtResultnosuchkey:
 					err = fs.SkipField(tok)
@@ -4880,6 +4958,32 @@ handle_Nextpage:
 			outBuf := fs.Output.Bytes()
 
 			j.Nextpage = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Message:
+
+	/* handler: j.Message type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Message = string(string(outBuf))
 
 		}
 	}

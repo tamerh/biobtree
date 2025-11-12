@@ -77,8 +77,10 @@ startMapping:
 	}
 
 	if len(inputXrefs) == 0 {
-		err := fmt.Errorf("No mapping found")
-		return nil, err
+		// No results found - return empty result with message instead of error
+		result.Message = "No results found"
+		EnrichMapFilterResult(&result)
+		return &result, nil
 	}
 
 	for _, xref := range inputXrefs {
@@ -853,7 +855,7 @@ func (s *service) execCelGo(query *query.Query, targetXref *pbuf.Xref) (bool, er
 		out, _, err = query.Program.Eval(map[string]interface{}{"taxonomy": targetXref.GetTaxonomy()})
 	case "hgnc":
 		out, _, err = query.Program.Eval(map[string]interface{}{"hgnc": targetXref.GetHgnc()})
-	case "go", "efo", "eco", "mondo":
+	case "go", "efo", "eco", "mondo", "hpo", "uberon":
 		out, _, err = query.Program.Eval(map[string]interface{}{query.MapDataset: targetXref.GetOntology()})
 	case "chembl_document", "chembl_assay", "chembl_activity", "chembl_molecule", "chembl_target", "chembl_target_component", "chembl_cell_line":
 		out, _, err = query.Program.Eval(map[string]interface{}{"chembl": targetXref.GetChembl()})

@@ -447,13 +447,6 @@ func (web *Web) search(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(buf.String()))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
-	} else if len(res.Results) == 0 {
-		err := fmt.Errorf("No result found")
-		errStr := errString{Err: err.Error()}
-		jb, _ := ffjson.Marshal(errStr)
-		buf.WriteString(string(jb))
-		w.Write([]byte(buf.String()))
-		return
 	}
 
 	jb, _ := ffjson.Marshal(res)

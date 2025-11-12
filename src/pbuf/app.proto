@@ -91,11 +91,13 @@ message ListGenomesResponse {
 message Result {
   	repeated Xref results = 1;
     string nextpage=2;
+    string message=3; // transient - informational message (e.g., "No results found")
 }
 
 message MapFilterResult {
   	repeated MapFilter results = 1;
-    string nextpage=2; 
+    string nextpage=2;
+    string message=3; // transient - informational message (e.g., "No results found")
 }
 
 message MapFilter {

@@ -561,15 +561,13 @@ func (s *swisslipids) parseTissuesTSV(reader io.Reader) {
 			continue
 		}
 
-		// Add tissue cross-reference
-		// TODO: Uberon dataset integration - for now, cross-reference created but Uberon dataset not yet implemented
+		// Add tissue cross-reference to Uberon (anatomy ontology)
 		s.d.addXref(slmID, fr, tissueID, "uberon", false)
 		xrefCount++
 	}
 
 	s.check(scanner.Err(), "scanning tissues.tsv")
 	log.Printf("[%s] Added %d Uberon tissue cross-references from tissues.tsv", s.source, xrefCount)
-	log.Printf("[%s] TODO: Implement Uberon dataset for tissue/organ annotations", s.source)
 }
 
 // parseEnzymesTSV parses enzymes.tsv to add Rhea reaction cross-references

@@ -1,0 +1,1152 @@
+{
+  "metadata": {
+    "total_ids": 100,
+    "fetched": 100,
+    "failed": 0
+  },
+  "entries": [
+    {
+      "id": "UBERON:0000000",
+      "name": "processual entity",
+      "description": "An occurrent [span:Occurrent] that exists in time by occurring or happening, has temporal parts and always involves and depends on some entity.",
+      "type": "uberon"
+    },
+    {
+      "id": "UBERON:0000002",
+      "name": "uterine cervix",
+      "description": "Lower, narrow portion of the uterus where it joins with the top end of the vagina.",
+      "type": "uberon",
+      "synonyms": [
+        "cervix",
+        "canalis cervicis uteri",
+        "caudal segment of uterus",
+        "cervical canal of uterus",
+        "cervix uteri",
+        "neck of uterus",
+        "uterine cervix",
+        "cervical canal",
+        "cervix of uterus"
+      ]
+    },
+    {
+      "id": "UBERON:0000003",
+      "name": "naris",
+      "description": "Orifice of the olfactory system. The naris is the route by which odorants enter the olfactory system[MAH].",
+      "type": "uberon"
+    },
+    {
+      "id": "UBERON:0000004",
+      "name": "nose",
+      "description": "The olfactory organ of vertebrates, consisting of nares, olfactory epithelia and the structures and skeletal framework of the nasal cavity.",
+      "type": "uberon",
+      "synonyms": [
+        "nasal sac",
+        "nose",
+        "peripheral olfactory organ",
+        "nasus",
+        "olfactory apparatus",
+        "proboscis"
+      ]
+    },
+    {
+      "id": "UBERON:0000005",
+      "name": "chemosensory organ",
+      "description": null,
+      "type": "uberon",
+      "synonyms": [
+        "chemosensory sensory organ"
+      ]
+    },
+    {
+      "id": "UBERON:0000006",
+      "name": "islet of Langerhans",
+      "description": "The clusters of hormone-producing cells that are scattered throughout the pancreas.",
+      "type": "uberon",
+      "synonyms": [
+        "pancreatic insula",
+        "pancreatic islet",
+        "island of Langerhans",
+        "island of pancreas",
+        "islets of Langerhans"
+      ]
+    },
+    {
+      "id": "UBERON:0000007",
+      "name": "pituitary gland",
+      "description": "The pituitary gland is an endocrine gland that secretes hormones that regulate many other glands [GO]. An endocrine gland located ventral to the diencephalon and derived from mixed neuroectodermal and non neuroectodermal origin [ZFIN].",
+      "type": "uberon",
+      "synonyms": [
+        "Hp",
+        "glandula pituitaria",
+        "pituitary",
+        "pituitary body",
+        "hypophysis",
+        "hypophysis cerebri"
+      ]
+    },
+    {
+      "id": "UBERON:0000009",
+      "name": "submucosa",
+      "description": "A layer of dense irregular connective tissue that lines organs and supports the mucosa, as well as joins the mucosa to the bulk of underlying smooth muscle. [WP,unvetted].",
+      "type": "uberon",
+      "synonyms": [
+        "organ submucosa",
+        "region of submucosa",
+        "submucosa of organ",
+        "submucosa of region of organ",
+        "submucous layer",
+        "tela submucosa",
+        "tunica submucosa"
+      ]
+    },
+    {
+      "id": "UBERON:0000010",
+      "name": "peripheral nervous system",
+      "description": "A major division of the nervous system that contains nerves which connect the central nervous system (CNS) with sensory organs, other organs, muscles, blood vessels and glands.",
+      "type": "uberon",
+      "synonyms": [
+        "PNS",
+        "pars peripherica",
+        "systema nervosum periphericum"
+      ]
+    },
+    {
+      "id": "UBERON:0000011",
+      "name": "parasympathetic nervous system",
+      "description": "The parasympathetic nervous system is one of the two divisions of the vertebrate autonomic nervous system. Parasympathetic nerves emerge cranially as pre ganglionic fibers from oculomotor, facial, glossopharyngeal and vagus and from the sacral region of the spinal cord. Most neurons are cholinergic and responses are mediated by muscarinic receptors. The parasympathetic system innervates, for example: salivary glands, thoracic and abdominal viscera, bladder and genitalia[GO].",
+      "type": "uberon",
+      "synonyms": [
+        "PNS - parasympathetic",
+        "parasympathetic part of autonomic division of nervous system",
+        "pars parasympathica divisionis autonomici systematis nervosi",
+        "pars parasympathica divisionis autonomici systematis nervosi"
+      ]
+    },
+    {
+      "id": "UBERON:0000012",
+      "name": "somatic nervous system",
+      "description": "Part of peripheral nervous system that includes the somatic parts of the cranial and spinal nerves and their ganglia and the peripheral sensory receptors.",
+      "type": "uberon",
+      "synonyms": [
+        "PNS - somatic",
+        "somatic nervous system, somatic division",
+        "somatic part of peripheral nervous system",
+        "somatic peripheral nervous system"
+      ]
+    },
+    {
+      "id": "UBERON:0000013",
+      "name": "sympathetic nervous system",
+      "description": "The sympathetic nervous system is one of the two divisions of the vertebrate autonomic nervous system (the other being the parasympathetic nervous system). The sympathetic preganglionic neurons have their cell bodies in the thoracic and lumbar regions of the spinal cord and connect to the paravertebral chain of sympathetic ganglia. Innervate heart and blood vessels, sweat glands, viscera and the adrenal medulla. Most sympathetic neurons, but not all, use noradrenaline as a post-ganglionic neurotransmitter [GO].",
+      "type": "uberon",
+      "synonyms": [
+        "pars sympathica divisionis autonomici systematis nervosi",
+        "sympathetic nervous system",
+        "sympathetic part of autonomic division of nervous system",
+        "pars sympathica divisionis autonomici systematis nervosi"
+      ]
+    },
+    {
+      "id": "UBERON:0000014",
+      "name": "zone of skin",
+      "description": "Any portion of the organ that covers that body and consists of a layer of epidermis and a layer of dermis.",
+      "type": "uberon",
+      "synonyms": [
+        "portion of skin",
+        "region of skin",
+        "skin",
+        "skin region",
+        "skin zone"
+      ]
+    },
+    {
+      "id": "UBERON:0000015",
+      "name": "non-material anatomical boundary",
+      "description": "A non-material anatomical entity of two dimensions. Anatomical boundaries are contiguous structures.",
+      "type": "uberon",
+      "synonyms": [
+        "anatomical boundary"
+      ]
+    },
+    {
+      "id": "UBERON:0000016",
+      "name": "endocrine pancreas",
+      "description": "The part of the pancreas that is part of the endocrine system and is made up of islet cells, which produce insulin, glucagon and somatostatin.",
+      "type": "uberon",
+      "synonyms": [
+        "endocrine pancreas",
+        "pars endocrina pancreatis",
+        "endocrine part of pancreas",
+        "islets of Langerhans part of pancreas"
+      ]
+    },
+    {
+      "id": "UBERON:0000017",
+      "name": "exocrine pancreas",
+      "description": "The part of the pancreas that is part of the exocrine system and which produces and store zymogens of digestive enzymes, such as chymotrypsinogen and trypsinogen in the acinar cells [GO].",
+      "type": "uberon",
+      "synonyms": [
+        "exocrine pancreas",
+        "pars exocrina pancreatis",
+        "exocrine component of pancreas",
+        "exocrine part of pancreas"
+      ]
+    },
+    {
+      "id": "UBERON:0000018",
+      "name": "compound eye",
+      "description": "A light sensing organ composed of ommatidia.",
+      "type": "uberon",
+      "synonyms": [
+        "Facettenauge",
+        "Komplexauge",
+        "adult compound eye",
+        "faceted eye",
+        "insect eye",
+        "zusammengesetztes Auge"
+      ]
+    },
+    {
+      "id": "UBERON:0000019",
+      "name": "camera-type eye",
+      "description": "An organ of sight that includes the camera-type eyeball and supporting structures such as the lacrimal apparatus, the conjunctiva, the eyelid.",
+      "type": "uberon",
+      "synonyms": [
+        "eye",
+        "regio orbitalis",
+        "vertebrate eye",
+        "camera-type eye plus associated structures",
+        "eyes",
+        "orbital part of face",
+        "orbital region"
+      ]
+    },
+    {
+      "id": "UBERON:0000020",
+      "name": "sense organ",
+      "description": "An organ that is capable of transducing sensory stimulus to the nervous system.",
+      "type": "uberon",
+      "synonyms": [
+        "organ of sense organ system",
+        "organ of sensory organ system",
+        "organ of sensory system",
+        "sense organ system organ",
+        "sensory organ",
+        "sensory organ system organ",
+        "sensory system organ",
+        "sensillum",
+        "Sinnesorgan",
+        "sensor"
+      ]
+    },
+    {
+      "id": "UBERON:0000021",
+      "name": "cutaneous appendage",
+      "description": "Anatomical projection that protrudes from the skin. Examples: hair, nail, feather, claw, hoof, horn, wattle, spur, beak, antler, bristle and some scales.",
+      "type": "uberon",
+      "synonyms": [
+        "skin appendage",
+        "epidermal appendage",
+        "epidermal growth"
+      ]
+    },
+    {
+      "id": "UBERON:0000022",
+      "name": "feather",
+      "description": "One of the epidermal growths that form the distinctive outer covering, or plumage, on birds. Feathers are formed in tiny follicles in the epidermis, or outer skin layer, that produce keratin proteins.",
+      "type": "uberon"
+    },
+    {
+      "id": "UBERON:0000023",
+      "name": "wing",
+      "description": "Appendage that is shaped in order to produce lift for flight through the air.",
+      "type": "uberon",
+      "synonyms": [
+        "aliform appendage"
+      ]
+    },
+    {
+      "id": "UBERON:0000024",
+      "name": "forelimb wing",
+      "description": "Forelimb that is used to produce lift for flight through the air.",
+      "type": "uberon"
+    },
+    {
+      "id": "UBERON:0000025",
+      "name": "tube",
+      "description": "Any hollow cylindrical anatomical structure containing a lumen through which substances are transported.",
+      "type": "uberon",
+      "synonyms": [
+        "anatomical tube",
+        "duct"
+      ]
+    },
+    {
+      "id": "UBERON:0000026",
+      "name": "appendage",
+      "description": "Major subdivision of an organism that protrudes from the body[DOS, CARO].",
+      "type": "uberon",
+      "synonyms": [
+        "appendages",
+        "extremitaet",
+        "extremity",
+        "limbs/digits/tail"
+      ]
+    },
+    {
+      "id": "UBERON:0000029",
+      "name": "lymph node",
+      "description": "Any of the rounded masses of lymphoid tissue that are surrounded by a capsule of connective tissue, are distributed along the lymphatic vessels, and contain numerous lymphocytes which filter the flow of lymph.",
+      "type": "uberon",
+      "synonyms": [
+        "lymph gland",
+        "nodus lymphaticus"
+      ]
+    },
+    {
+      "id": "UBERON:0000030",
+      "name": "lamina propria",
+      "description": "A thin layer of loose connective tissue which lies beneath the epithelium and together with the epithelium constitutes the mucosa[WP]. The lamina propria contains capillaries and a central lacteal (lymph vessel) in the small intestine, as well as lymphoid tissue. Lamina propria also contains glands with the ducts opening on to the mucosal epithelium, that secrete mucus and serous secretions.",
+      "type": "uberon",
+      "synonyms": [
+        "lamina propria mucosa",
+        "lamina propria mucosae",
+        "tunica propria"
+      ]
+    },
+    {
+      "id": "UBERON:0000031",
+      "name": "lamina propria of trachea",
+      "description": "A lamina propria that is part of a respiratory airway.",
+      "type": "uberon",
+      "synonyms": [
+        "lamina propria mucosa of trachea",
+        "lamina propria mucosa of windpipe",
+        "lamina propria mucosae of trachea",
+        "lamina propria mucosae of windpipe",
+        "lamina propria of windpipe",
+        "trachea lamina propria",
+        "trachea lamina propria mucosa",
+        "trachea lamina propria mucosae",
+        "tracheal lamina propria",
+        "windpipe lamina propria",
+        "windpipe lamina propria mucosa",
+        "windpipe lamina propria mucosae"
+      ]
+    },
+    {
+      "id": "UBERON:0000032",
+      "name": "obsolete cranial structure",
+      "description": "obsoleted as it was a grouping class that served no purpose",
+      "type": "uberon",
+      "isObsolete": true
+    },
+    {
+      "id": "UBERON:0000033",
+      "name": "head",
+      "description": "The head is the anterior-most division of the body [GO].",
+      "type": "uberon",
+      "synonyms": [
+        "head (volume)",
+        "adult head",
+        "cephalic area"
+      ]
+    },
+    {
+      "id": "UBERON:0000035",
+      "name": "primary ovarian follicle",
+      "description": "An ovarian follicle that has one layer of granulosa cells.",
+      "type": "uberon",
+      "synonyms": [
+        "folliculus ovaricus primarius",
+        "ovary primary follicle",
+        "primary follicle of ovary",
+        "primary ovarian follicle",
+        "preantral follicle of ovary",
+        "primary egg follicle",
+        "primary follicle"
+      ]
+    },
+    {
+      "id": "UBERON:0000036",
+      "name": "secondary ovarian follicle",
+      "description": "A maturing ovarian follicle that has two more more layers of granulosa cells, up to the onset of antrum formation.",
+      "type": "uberon",
+      "synonyms": [
+        "folliculus ovaricus secondarius",
+        "ovary secondary follicle",
+        "pre-antral follicle",
+        "preantral follicle",
+        "secondary follicle of ovary",
+        "antral follicle of ovary",
+        "pre-ovulatory follicle",
+        "secondary egg follicle",
+        "secondary follicle"
+      ]
+    },
+    {
+      "id": "UBERON:0000037",
+      "name": "tertiary ovarian follicle",
+      "description": "A follicle that has reached the most mature stage of folliculogenesis, characterized by the presence of the antrum.",
+      "type": "uberon",
+      "synonyms": [
+        "antral follicle",
+        "Graafian follicle",
+        "antral ovarian follicle",
+        "folliculi ovarici vesiculosi",
+        "folliculus ovaricus tertiarius",
+        "folliculus ovaricus tertiarius (vesiculosus)",
+        "folliculus ovaricus tertiarius (vesiculous)",
+        "ovary antral follicle",
+        "tertiary follicle of ovary",
+        "vesicular follicle of ovary",
+        "vesicular ovarian follicle",
+        "tertiary egg follicle"
+      ]
+    },
+    {
+      "id": "UBERON:0000038",
+      "name": "follicular fluid",
+      "description": "The fluid surrounding the ovum and granulosa cells in the ovarian follicle.",
+      "type": "uberon",
+      "synonyms": [
+        "liquor follicularis",
+        "liquor folliculi",
+        "ovary follicle fluid",
+        "antral fluid, ovarian follicle",
+        "liquor folliculi",
+        "ovarian follicular fluid",
+        "ovary follicular fluid"
+      ]
+    },
+    {
+      "id": "UBERON:0000039",
+      "name": "follicular antrum",
+      "description": "Region of ovarian follicle filled with follicular fluid.",
+      "type": "uberon",
+      "synonyms": [
+        "antral cavity",
+        "antrum folliculare",
+        "ovarian follicle antrum",
+        "antrum follicularum"
+      ]
+    },
+    {
+      "id": "UBERON:0000040",
+      "name": "Leydig's organ",
+      "description": "A hemopoietic organ found in elasmobranchs. Along with the spleen and special tissue around the gonads, this structure produces red blood cells and it is nestled along the top and bottom of the esophagus.",
+      "type": "uberon"
+    },
+    {
+      "id": "UBERON:0000041",
+      "name": "odontode scale",
+      "description": "Multi-tissue structure composed of enameloid, dentine surrounding a pulp cavity, and bone of attachment anchoring the element into the dermis[VSAO].",
+      "type": "uberon",
+      "synonyms": [
+        "dermal denticle",
+        "odontode scale",
+        "placoid scale"
+      ]
+    },
+    {
+      "id": "UBERON:0000042",
+      "name": "serous membrane",
+      "description": "Multi-tissue structure that is comprised of a secretory epithelial layer (mesothelium) and a connective tissue layer.",
+      "type": "uberon",
+      "synonyms": [
+        "tunica serosa",
+        "wall of serous sac",
+        "serosa"
+      ]
+    },
+    {
+      "id": "UBERON:0000043",
+      "name": "tendon",
+      "description": "Dense regular connective tissue that connects muscle to bone[VSAO].",
+      "type": "uberon",
+      "synonyms": [
+        "sinew",
+        "tendo"
+      ]
+    },
+    {
+      "id": "UBERON:0000044",
+      "name": "dorsal root ganglion",
+      "description": "Sensory ganglia located on the dorsal spinal roots within the vertebral column. The spinal ganglion cells are pseudounipolar. The single primary branch bifurcates sending a peripheral process to carry sensory information from the periphery and a central branch which relays that information to the spinal cord or brain. (MSH) * ganglion found on the posterior root of each spinal nerve, composed of the unipolar nerve cell bodies of the sensory neurons of the nerve. (CSP).",
+      "type": "uberon",
+      "synonyms": [
+        "dorsal root ganglion",
+        "ganglion of dorsal root",
+        "ganglion spinalis",
+        "spinal ganglion",
+        "spinal ganglion part of peripheral nervous system",
+        "DRG",
+        "dorsal root ganglia",
+        "ganglion sensorium nervi spinalis",
+        "ganglion spinale",
+        "posterior root ganglion"
+      ]
+    },
+    {
+      "id": "UBERON:0000045",
+      "name": "ganglion",
+      "description": "A biological tissue mass, most commonly a mass of nerve cell bodies.",
+      "type": "uberon",
+      "synonyms": [
+        "ganglia",
+        "neural ganglion"
+      ]
+    },
+    {
+      "id": "UBERON:0000046",
+      "name": "stemma",
+      "description": "Eye-spots which may be set into a pit to reduce the angles of light that enters and affects the eyespot, to allow the organism to deduce the angle of incoming light.",
+      "type": "uberon",
+      "synonyms": [
+        "pit eye"
+      ]
+    },
+    {
+      "id": "UBERON:0000047",
+      "name": "simple eye",
+      "description": "An eye with one concave chamber. Note that 'simple' does not imply a reduced level of complexity or acuity.",
+      "type": "uberon"
+    },
+    {
+      "id": "UBERON:0000048",
+      "name": "pinhole eye",
+      "description": "Simple eye that has a small aperture (which may be adjustable) and deep pit. It is only found in the nautiloids.",
+      "type": "uberon"
+    },
+    {
+      "id": "UBERON:0000049",
+      "name": "spherical lensed eye",
+      "description": "Simple eye that consists of a lens of one refractive index.",
+      "type": "uberon"
+    },
+    {
+      "id": "UBERON:0000050",
+      "name": "simple eye with multiple lenses",
+      "description": "Simple eye that has two or more lenses. Some marine organisms bear more than one lens; for instance the copeopod Pontella has three. The outer has a parabolic surface, countering the effects of spherical aberration while allowing a sharp image to be formed. Copilla's eyes have two lenses, which move in and out like a telescope.",
+      "type": "uberon"
+    },
+    {
+      "id": "UBERON:0000051",
+      "name": "fornix of vagina",
+      "description": "The deepest portions of the vagina, extending into the recesses created by the vaginal portion of cervix[WP,unvetted].",
+      "type": "uberon",
+      "synonyms": [
+        "fornix",
+        "fornix vaginae",
+        "vaginal fornix",
+        "vaginal fornices"
+      ]
+    },
+    {
+      "id": "UBERON:0000052",
+      "name": "fornix of brain",
+      "description": "A C-shaped bundle of fibres (axons) in the brain, and carries signals from the hippocampus to the mammillary bodies and septal nuclei. It is typically divided into the columns (crus), body, commissure and the pre-commissural and post-commissural fornix (MM).",
+      "type": "uberon",
+      "synonyms": [
+        "fornix",
+        "brain fornix",
+        "cerebral fornix",
+        "forebrain fornix",
+        "fornix of neuraxis",
+        "neuraxis fornix",
+        "fornix (column and body of fornix)",
+        "fornix cerebri",
+        "fornix hippocampus",
+        "hippocampus fornix"
+      ]
+    },
+    {
+      "id": "UBERON:0000053",
+      "name": "macula lutea",
+      "description": "An oval area in the retina, usually located temporal to the posterior pole of the eye and slightly below the level of the optic disk. It is characterized by the presence of a yellow pigment diffusely permeating the inner layers, contains the fovea centralis in its center, and provides the best phototopic visual acuity. It is devoid of retinal blood vessels, except in its periphery, and receives nourishment from the choriocapillaris of the choroid. (From Cline et al., Dictionary of Visual Science, 4th ed).",
+      "type": "uberon",
+      "synonyms": [
+        "macula",
+        "macula flava retinae",
+        "macula retinae",
+        "maculae"
+      ]
+    },
+    {
+      "id": "UBERON:0000054",
+      "name": "macula",
+      "description": "Thickened areas of the saccule or utricle where the termination of the vestibular nerve occurs[MESH,modified].",
+      "type": "uberon",
+      "synonyms": [
+        "macula",
+        "maculae",
+        "sensory macula",
+        "sensory patch",
+        "acoustic macula",
+        "acoustic maculae"
+      ]
+    },
+    {
+      "id": "UBERON:0000055",
+      "name": "vessel",
+      "description": "A tubular structure that contains, conveys body fluid, such as blood or lymph.",
+      "type": "uberon"
+    },
+    {
+      "id": "UBERON:0000056",
+      "name": "ureter",
+      "description": "Muscular duct that propels urine from the kidneys to the urinary bladder, or related organs.",
+      "type": "uberon",
+      "synonyms": [
+        "metanephric duct"
+      ]
+    },
+    {
+      "id": "UBERON:0000057",
+      "name": "urethra",
+      "description": "The fibromuscular tubular canal through which urine is discharged from the bladder to the exterior via the external urinary meatus; in males, the urethra is joined by the ejaculatory ducts and serves as a passageway for semen during ejaculation, as well as a canal for urine during voiding; in females, the urethra is shorter and emerges above the vaginal opening.",
+      "type": "uberon"
+    },
+    {
+      "id": "UBERON:0000058",
+      "name": "duct",
+      "description": "A tubular structure that transports secreted or excreted substances.",
+      "type": "uberon",
+      "synonyms": [
+        "anatomical duct",
+        "exocrine duct",
+        "exocrine gland duct",
+        "ducts"
+      ]
+    },
+    {
+      "id": "UBERON:0000059",
+      "name": "large intestine",
+      "description": "A subdivision of the digestive tract that connects the small intestine to the cloaca or anus. Lacks or has few villi[Kardong].",
+      "type": "uberon",
+      "synonyms": [
+        "intestinum crassum"
+      ]
+    },
+    {
+      "id": "UBERON:0000060",
+      "name": "anatomical wall",
+      "description": "Organ component adjacent to an organ cavity and which consists of a maximal aggregate of organ component layers.",
+      "type": "uberon",
+      "synonyms": [
+        "wall",
+        "wall of organ",
+        "organ wall"
+      ]
+    },
+    {
+      "id": "UBERON:0000061",
+      "name": "anatomical structure",
+      "description": "Material anatomical entity that is a single connected structure with inherent 3D shape generated by coordinated expression of the organism's own genome.",
+      "type": "uberon",
+      "synonyms": [
+        "biological structure",
+        "connected biological structure"
+      ]
+    },
+    {
+      "id": "UBERON:0000062",
+      "name": "organ",
+      "description": "Anatomical structure that performs a specific function or group of functions [WP].",
+      "type": "uberon",
+      "synonyms": [
+        "anatomical unit",
+        "body organ",
+        "element"
+      ]
+    },
+    {
+      "id": "UBERON:0000063",
+      "name": "organ subunit",
+      "description": "A part of an organ that constitutes a distinct modular sub-unit. In some cases, the organ may also contain other sub-units of identical or similar types, in other cases this may be a distinct entity.",
+      "type": "uberon",
+      "synonyms": [
+        "organ region with fixed fiat boundary",
+        "organ segment",
+        "segment of organ"
+      ]
+    },
+    {
+      "id": "UBERON:0000064",
+      "name": "organ part",
+      "description": "A multicellular structure that is a part of an organ.",
+      "type": "uberon",
+      "synonyms": [
+        "cardinal organ part",
+        "regional part of organ"
+      ]
+    },
+    {
+      "id": "UBERON:0000065",
+      "name": "respiratory tract",
+      "description": "Anatomical structure that is part of the respiratory system. In mammals consists of upper and lower tracts.",
+      "type": "uberon"
+    },
+    {
+      "id": "UBERON:0000066",
+      "name": "fully formed stage",
+      "description": "The stage of development at which the animal is fully formed, including immaturity and maturity. Includes both sexually immature stage, and adult stage.",
+      "type": "uberon",
+      "synonyms": [
+        "adult stage",
+        "fully formed animal stage",
+        "juvenile-adult stage"
+      ]
+    },
+    {
+      "id": "UBERON:0000067",
+      "name": "obsolete embryo stage part",
+      "description": "A stage that is part of the embryo stage.",
+      "type": "uberon",
+      "synonyms": [
+        "embryonic stage part"
+      ],
+      "isObsolete": true
+    },
+    {
+      "id": "UBERON:0000068",
+      "name": "embryo stage",
+      "description": "A life cycle stage that starts with fertilization and ends with the fully formed embryo.",
+      "type": "uberon",
+      "synonyms": [
+        "embryonic stage",
+        "embryogenesis"
+      ]
+    },
+    {
+      "id": "UBERON:0000069",
+      "name": "larval stage",
+      "description": "A distinct juvenile stage many animals undergo before metamorphosis into adults. Animals with indirect development such as insects, amphibians, or cnidarians typically have a larval phase of their life cycle.",
+      "type": "uberon",
+      "synonyms": [
+        "larva stage",
+        "ammocoete",
+        "ammocoete stage",
+        "bipinnaria",
+        "bipinnaria stage",
+        "caterpillar",
+        "caterpillar stage",
+        "glochidium",
+        "glochidium stage",
+        "grub",
+        "grub stage",
+        "leptocephalus",
+        "leptocephalus stage",
+        "maggot",
+        "maggot stage",
+        "metacestode",
+        "naiad, nymph",
+        "naiad, nymph stage",
+        "nauplius",
+        "nauplius stage",
+        "nymph",
+        "nymph stage",
+        "planula",
+        "planula stage",
+        "tornaria",
+        "trochophore",
+        "trochophore stage",
+        "veliger",
+        "veliger stage",
+        "wriggler",
+        "wriggler stage",
+        "zoea",
+        "zoea stage",
+        "larva"
+      ]
+    },
+    {
+      "id": "UBERON:0000070",
+      "name": "pupal stage",
+      "description": "A life cycle stage of holometabolous insects in which the organism is a pupa and starts with the larval-pupal apolysis and ends with pupal-adult apolysis.",
+      "type": "uberon",
+      "synonyms": [
+        "pupa stage",
+        "aurelia stage",
+        "chrysalides stage",
+        "chrysalis stage"
+      ]
+    },
+    {
+      "id": "UBERON:0000071",
+      "name": "death stage",
+      "description": "End of the life of an organism.",
+      "type": "uberon",
+      "synonyms": [
+        "death"
+      ]
+    },
+    {
+      "id": "UBERON:0000072",
+      "name": "proximo-distal subdivision of respiratory tract",
+      "description": "An section of a respiratory tract.",
+      "type": "uberon",
+      "synonyms": [
+        "respiratory tract",
+        "subdivision of respiratory tract"
+      ]
+    },
+    {
+      "id": "UBERON:0000073",
+      "name": "regional part of nervous system",
+      "description": "Any part or collection of parts of the central or peripheral nervous system. Parts may span both CNS and PNS.",
+      "type": "uberon",
+      "synonyms": [
+        "part of nervous system"
+      ]
+    },
+    {
+      "id": "UBERON:0000074",
+      "name": "renal glomerulus",
+      "description": "A capillary tuft which forms a close network with the visceral epithelium (podocytes) and the mesangium to form the filtration barrier and is surrounded by Bowman's capsule in nephrons of the vertebrate kidney[GO].",
+      "type": "uberon",
+      "synonyms": [
+        "glomerulus",
+        "renal glomeruli",
+        "Malphigian glomerulus",
+        "Malpighian glomerulus",
+        "Malpighian tuft",
+        "glomerular capillary tuft",
+        "glomerular tuft",
+        "glomerulus renis",
+        "renal corpuscle"
+      ]
+    },
+    {
+      "id": "UBERON:0000075",
+      "name": "subdivision of skeletal system",
+      "description": "Anatomical cluster consisting of the skeletal elements and articular elements that are part of an individual subdivision of the organism.",
+      "type": "uberon",
+      "synonyms": [
+        "skeletal system subdivision",
+        "skeletal system part"
+      ]
+    },
+    {
+      "id": "UBERON:0000076",
+      "name": "external ectoderm",
+      "description": "The surface (external) layer of ectoderm which begins to proliferate shortly after separation from the neuroectoderm.",
+      "type": "uberon",
+      "synonyms": [
+        "surface (external) ectoderm",
+        "surface ectoderm"
+      ]
+    },
+    {
+      "id": "UBERON:0000077",
+      "name": "mixed endoderm/mesoderm-derived structure",
+      "description": "An anatomical structure that develops from the endoderm and the mesoderm.",
+      "type": "uberon"
+    },
+    {
+      "id": "UBERON:0000078",
+      "name": "mixed ectoderm/mesoderm/endoderm-derived structure",
+      "description": "An anatomical structure that develops from the ectoderm, mesoderm and endoderm.",
+      "type": "uberon"
+    },
+    {
+      "id": "UBERON:0000079",
+      "name": "male reproductive system",
+      "description": "The organs associated with producing offspring in the gender that produces spermatozoa.",
+      "type": "uberon",
+      "synonyms": [
+        "genitalia of male organism",
+        "male genital system",
+        "male genitalia",
+        "male genitals",
+        "male organism genitalia",
+        "male organism reproductive system",
+        "reproductive system of male organism",
+        "male genital organ",
+        "male genital tract",
+        "male reproductive tract",
+        "systema genitale masculinum"
+      ]
+    },
+    {
+      "id": "UBERON:0000080",
+      "name": "mesonephros",
+      "description": "The second stage of the kidney. It serves as the main excretory organ of aquatic vertebrates and as a temporary embryonic kidney in higher vertebrates. It is composed of the mesonephric duct (also called the Wolffian duct), mesonephric tubules, and associated capillary tufts. A single tubule and its associated capillary tuft is called a mesonephric excretory unit; these units are similar in structure and function to nephrons of the adult kidney. The mesonephros is derived from intermediate mesoderm in the vertebrate embryo.",
+      "type": "uberon",
+      "synonyms": [
+        "Wolffian body",
+        "mesonephric kidney",
+        "mesonephroi",
+        "amphibian adult kidney",
+        "corpus Wolffi",
+        "middle kidney",
+        "opisthonephros",
+        "opisto nephros",
+        "opistonephros"
+      ]
+    },
+    {
+      "id": "UBERON:0000081",
+      "name": "metanephros",
+      "description": "In mammals, the metanephros is the excretory organ of the fetus, which develops into the mature kidney and is formed from the rear portion of the nephrogenic cord. The metanephros is an endocrine and metabolic organ that filters the blood and excretes the end products of body metabolism in the form of urine[GO].",
+      "type": "uberon",
+      "synonyms": [
+        "metanephron",
+        "definite kidney",
+        "definitive kidney",
+        "hind kidney",
+        "metanephric kidney"
+      ]
+    },
+    {
+      "id": "UBERON:0000082",
+      "name": "adult mammalian kidney",
+      "description": "A kidney at the most advanced stage of development in a mammal.",
+      "type": "uberon"
+    },
+    {
+      "id": "UBERON:0000083",
+      "name": "mesonephric tubule",
+      "description": "A mesonephric tubule is an epithelial tube that is part of the mesonephros[GO]. Genital ridge that is next to the mesonephros[WP].",
+      "type": "uberon",
+      "synonyms": [
+        "renal tubules",
+        "tubuli mesonephrici"
+      ]
+    },
+    {
+      "id": "UBERON:0000084",
+      "name": "ureteric bud",
+      "description": "An epithelial swelling on the Wolffian duct that elongates to invade the adjacent metanephric mesenchyme[MP].",
+      "type": "uberon",
+      "synonyms": [
+        "diverticulum",
+        "diverticulum metanephricum",
+        "gemma ureterica",
+        "metanephric bud",
+        "metanephric diverticulum",
+        "ureteric ampulla",
+        "ureteric diverticulum"
+      ]
+    },
+    {
+      "id": "UBERON:0000085",
+      "name": "morula",
+      "description": "A spherical embryonic mass of blastomeres formed before the blastula and resulting from cleavage of the fertilized ovum.",
+      "type": "uberon",
+      "synonyms": [
+        "morula (2-16 cells)"
+      ]
+    },
+    {
+      "id": "UBERON:0000086",
+      "name": "zona pellucida",
+      "description": "A glycoprotein membrane surrounding the plasma membrane of an oocyte. It is a vital constitutive part of the latter, external but not extraneous to it. The zona pellucida first appears in multilaminar primary oocytes.",
+      "type": "uberon",
+      "synonyms": [
+        "zona pellucida - vitelline membrane",
+        "oolemma",
+        "pellucid zone",
+        "striated membrane",
+        "vitelline envelope",
+        "vitelline membrane",
+        "zona radiata",
+        "zona striata"
+      ]
+    },
+    {
+      "id": "UBERON:0000087",
+      "name": "inner cell mass",
+      "description": "A mass of cells that develop into the body of the embryo and some extraembryonic tissues.",
+      "type": "uberon",
+      "synonyms": [
+        "ICM",
+        "early embryoblast",
+        "embryoblast",
+        "embryoblastus; massa cellularis interna; pluriblastus senior",
+        "pluriblast"
+      ]
+    },
+    {
+      "id": "UBERON:0000088",
+      "name": "trophoblast",
+      "description": "The mesectodermal cell layer arising from the trophectoderm that erodes the uterine mucosa and contributes to the formation of the placenta.",
+      "type": "uberon",
+      "synonyms": [
+        "trophoblast layer",
+        "massa cellularis externa",
+        "trophoblastus",
+        "trophoderm"
+      ]
+    },
+    {
+      "id": "UBERON:0000089",
+      "name": "hypoblast (generic)",
+      "description": "Missing definition for term UBERON:0000089. Please replace it using linked reference.",
+      "type": "uberon",
+      "synonyms": [
+        "hypoblast",
+        "endomesoderm",
+        "future endoderm and mesoderm",
+        "hypoblastus",
+        "mesendoderm"
+      ]
+    },
+    {
+      "id": "UBERON:0000090",
+      "name": "blastocele",
+      "description": "Fluid-filled central region of a blastocyst.",
+      "type": "uberon",
+      "synonyms": [
+        "blastocoele",
+        "blastocoelic cavity",
+        "blastocyst cavity",
+        "cleavage cavity",
+        "segmentation cavity",
+        "blastocelic cavity",
+        "blastocoel"
+      ]
+    },
+    {
+      "id": "UBERON:0000091",
+      "name": "bilaminar disc",
+      "description": "A flattened, almost circular bilaminar plate of cells formed when the inner cell mass (aka embryoblast) forms two epithelial layers, each of a distinct lineage, separated by an extracellular basement membrane: the external (dorsal) layer is called the epiblast and the internal (ventral) layer is called the hypoblast (aka primitive endoderm); together, they compose the bilaminar embryonic disc.",
+      "type": "uberon",
+      "synonyms": [
+        "embryonic disc",
+        "embryonic shield",
+        "germinal disc",
+        "germinal disk",
+        "bilaminary embryonic disc",
+        "bilaminary germ disc",
+        "bilaminar disk"
+      ]
+    },
+    {
+      "id": "UBERON:0000092",
+      "name": "post-embryonic stage",
+      "description": "Stage succeeding embryo, including mature structure.",
+      "type": "uberon",
+      "synonyms": [
+        "postembryonic stage",
+        "post-hatching stage",
+        "postembryonic"
+      ]
+    },
+    {
+      "id": "UBERON:0000093",
+      "name": "sulcus",
+      "description": "A depression or fissure in the surface of an organ.",
+      "type": "uberon"
+    },
+    {
+      "id": "UBERON:0000094",
+      "name": "membrane organ",
+      "description": "Nonparenchymatous organ that primarily consists of dense connective tissue organized into a sheet which interconnects two or more organs, separates two or more body spaces from one another, or surrounds an organ or body part. Examples: interosseous membrane of forearm, obturator membrane, tympanic membrane, fibrous pericardium, fascia lata, dura mater. [FMA].",
+      "type": "uberon",
+      "synonyms": [
+        "membrane",
+        "membrane of organ"
+      ]
+    },
+    {
+      "id": "UBERON:0000095",
+      "name": "cardiac neural crest",
+      "description": "Portion of neural crest that develops from the dorsal neural tube. It overlaps the vagal neural crest and migrates to populate the pharyngeal arches 3, 4 and 6 (producing structures in the head) and to the heart, forming connective tissue that separates the great vessels of the heart. [Wikipedia].",
+      "type": "uberon",
+      "synonyms": [
+        "cardiac neural crest complex",
+        "complexus cristae neuralis cardiacus"
+      ]
+    },
+    {
+      "id": "UBERON:0000100",
+      "name": "blastopore",
+      "description": "The orifice of invagination of the endomesodermal cells during the embryonic stages of an organism.",
+      "type": "uberon"
+    },
+    {
+      "id": "UBERON:0000101",
+      "name": "lobe of lung",
+      "description": "A lung lobe is one of the rounded projections that compose the lung[GO].",
+      "type": "uberon",
+      "synonyms": [
+        "lung lobe",
+        "pulminory lobe",
+        "pulmonary lobe"
+      ]
+    },
+    {
+      "id": "UBERON:0000102",
+      "name": "lung vasculature",
+      "description": "The lung vasculature is composed of the tubule structures that carry blood or lymph in the lungs[GO].",
+      "type": "uberon",
+      "synonyms": [
+        "lung vascular network",
+        "pulmonary vasculature",
+        "vascular network of lung",
+        "vasculature of lung"
+      ]
+    },
+    {
+      "id": "UBERON:0000103",
+      "name": "obsolete life cycle stage boundary",
+      "description": "Instant starting or ending a life cycle stage. These can be arbitrary/fiat.",
+      "type": "uberon",
+      "synonyms": [
+        "life cycle stage transition event",
+        "life cycle stage transition instant"
+      ],
+      "isObsolete": true
+    },
+    {
+      "id": "UBERON:0000104",
+      "name": "life cycle",
+      "description": "An entire span of an organism's life. In metazoans, commences with the zygote stage and ends with the death of the organism.",
+      "type": "uberon",
+      "synonyms": [
+        "entire life cycle",
+        "entire lifespan",
+        "life",
+        "lifespan"
+      ]
+    },
+    {
+      "id": "UBERON:0000105",
+      "name": "life cycle stage",
+      "description": "A spatiotemporal region encompassing some part of the life cycle of an organism.",
+      "type": "uberon",
+      "synonyms": [
+        "developmental stage",
+        "stage"
+      ]
+    },
+    {
+      "id": "UBERON:0000106",
+      "name": "zygote stage",
+      "description": "A stage at which the organism is a single cell produced by means of sexual reproduction.",
+      "type": "uberon",
+      "synonyms": [
+        "1-cell stage",
+        "fertilized egg stage",
+        "one cell stage",
+        "fertilized egg stage",
+        "one-cell stage",
+        "zygote",
+        "zygotum"
+      ]
+    },
+    {
+      "id": "UBERON:0000107",
+      "name": "cleavage stage",
+      "description": "The first few specialized divisions of an activated animal egg; Stage consisting of division of cells in the early embryo. The zygotes of many species undergo rapid cell cycles with no significant growth, producing a cluster of cells the same size as the original zygote. The different cells derived from cleavage are called blastomeres and form a compact mass called the morula. Cleavage ends with the formation of the blastula.",
+      "type": "uberon"
+    },
+    {
+      "id": "UBERON:0000108",
+      "name": "blastula stage",
+      "description": "An early stage of embryonic development in animals. It is produced by cleavage of a fertilized ovum and consists of a spherical layer of around 128 cells surrounding a central fluid-filled cavity called the blastocoel. The blastula follows the morula and precedes the gastrula in the developmental sequence.",
+      "type": "uberon"
+    }
+  ]
+}

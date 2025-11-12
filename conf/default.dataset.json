@@ -1483,5 +1483,21 @@
     "linkdataset": "hpo",
     "hasFilter": "yes",
     "attrs": "name,[]synonyms,definition"
+  },
+  "uberonparent": {
+    "name": "UBERON Parent",
+    "id": "360",
+    "url": "http://purl.obolibrary.org/obo/\u00a3{id}",
+    "linkdataset": "uberon",
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms"
+  },
+  "uberonchild": {
+    "name": "UBERON Child",
+    "id": "361",
+    "url": "http://purl.obolibrary.org/obo/\u00a3{id}",
+    "linkdataset": "uberon",
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms"
   }
 }

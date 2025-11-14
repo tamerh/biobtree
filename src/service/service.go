@@ -135,6 +135,7 @@ func (s *service) init() {
 		cel.Types(&pbuf.DrugbankAttr{}),
 		cel.Types(&pbuf.OrphanetAttr{}),
 		cel.Types(&pbuf.ReactomePathwayAttr{}),
+		cel.Types(&pbuf.BgeeAttr{}),
 		cel.Declarations(
 			decls.NewIdent("uniprot", decls.NewObjectType("pbuf.UniprotAttr"), nil)),
 		cel.Declarations(
@@ -183,6 +184,8 @@ func (s *service) init() {
 			decls.NewIdent("lipidmaps", decls.NewObjectType("pbuf.LipidmapsAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("swisslipids", decls.NewObjectType("pbuf.SwisslipidsAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("bgee", decls.NewObjectType("pbuf.BgeeAttr"), nil)),
 		cel.Declarations(
 			decls.NewFunction("overlaps",
 				decls.NewOverload("overlaps_int_int",

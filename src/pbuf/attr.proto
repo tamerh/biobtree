@@ -547,4 +547,71 @@ message SwisslipidsAttr {
   string charge = 13;                  // Molecular charge
 }
 
+// Bgee gene expression - Complete implementation supporting all TSV formats
+message BgeeAttr {
+  // Gene identification
+  string gene_id = 1;                                    // Ensembl gene ID (e.g., "ENSG00000012048")
+  string gene_name = 2;                                  // Gene symbol (e.g., "BRCA1")
+  string species = 3;                                    // Species name (e.g., "Homo sapiens")
+  int32 species_taxid = 4;                              // NCBI Taxonomy ID (e.g., 9606)
+
+  // Expression data
+  repeated BgeeExpressionCondition expression_conditions = 5;  // All expression conditions
+
+  // Summary statistics (pre-computed for performance)
+  int32 total_present_calls = 6;                        // Count of tissues where gene is expressed
+  int32 total_absent_calls = 7;                         // Count of tissues where gene is NOT expressed
+  int32 total_conditions = 8;                           // Total conditions tested
+  repeated string top_expressed_tissues = 9;            // Top 10 tissues by expression score
+  string expression_breadth = 10;                       // "ubiquitous", "tissue_specific", "lowly_expressed"
+  double max_expression_score = 11;                     // Highest expression score
+  double average_expression_score = 12;                 // Mean expression score across present calls
+  int32 gold_quality_count = 13;                        // Number of gold quality calls
+}
+
+// Individual expression condition - supports both simple and advanced formats
+message BgeeExpressionCondition {
+  // Anatomical location (present in ALL formats)
+  string anatomical_entity_id = 1;                      // UBERON/CL ID (e.g., "UBERON:0000955", "CL:0000015")
+  string anatomical_entity_name = 2;                    // Human-readable tissue name (e.g., "brain", "male germ cell")
+
+  // Expression call (present in ALL formats)
+  string expression = 3;                                // "present" or "absent"
+  string call_quality = 4;                              // "gold quality", "silver quality", "bronze quality"
+  double fdr = 5;                                       // False discovery rate (0.0-1.0)
+  double expression_score = 6;                          // Normalized expression score (0-100)
+  double expression_rank = 7;                           // Rank for this gene (lower = more highly expressed)
+
+  // Developmental and demographic context (from _all_conditions files)
+  string developmental_stage_id = 8;                    // Stage ID (e.g., "HsapDv:0000240") - empty if not available
+  string developmental_stage_name = 9;                  // Stage name (e.g., "sixth decade stage") - empty if not available
+  string sex = 10;                                      // "male", "female", "hermaphrodite", "not annotated"
+  string strain = 11;                                   // Genetic strain (e.g., "White", "C57BL/6J")
+
+  // Observation metadata (from advanced formats)
+  bool including_observed_data = 12;                    // Whether condition has direct experimental data
+  int32 self_observation_count = 13;                    // Number of experiments directly in this condition
+  int32 descendant_observation_count = 14;              // Number of experiments in child anatomical structures
+
+  // Per-data-type breakdown (from advanced formats) - only populated if advanced file used
+  BgeeDataTypeExpression affymetrix = 15;               // Microarray data
+  BgeeDataTypeExpression est = 16;                      // EST data
+  BgeeDataTypeExpression in_situ = 17;                  // In situ hybridization
+  BgeeDataTypeExpression rna_seq = 18;                  // Bulk RNA-Seq
+  BgeeDataTypeExpression single_cell = 19;              // Single-cell RNA-Seq
+}
+
+// Data type-specific expression info (for advanced format only)
+message BgeeDataTypeExpression {
+  string expression = 1;                                // "present", "absent", "no data"
+  string call_quality = 2;                              // Quality for this data type
+  double fdr = 3;                                       // Data type-specific FDR
+  double expression_score = 4;                          // Data type-specific score
+  double expression_rank = 5;                           // Data type-specific rank
+  double weight = 6;                                    // Weight for rank and score computation
+  bool including_observed_data = 7;                     // Direct data available
+  int32 self_observation_count = 8;                     // Direct experiments
+  int32 descendant_observation_count = 9;               // Child structure experiments
+}
+
 

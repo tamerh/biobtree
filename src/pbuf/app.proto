@@ -139,6 +139,7 @@ message Xref {
     ClinvarAttr clinvar=33;
     LipidmapsAttr lipidmaps=34;
     SwisslipidsAttr swisslipids=35;
+    BgeeAttr bgee=36;
 
   }
 

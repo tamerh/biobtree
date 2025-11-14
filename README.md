@@ -7,7 +7,7 @@ via identifiers and special keywors with simple or advance chain query capabilit
 
 ## Features
 
-* **Datasets** - supports wide datasets such as `Ensembl` `Uniprot` `ChEMBL` `HMDB` `Taxonomy` `GO` `EFO` `HPO` `UBERON` `HGNC` `ECO` `Uniparc` `Uniref` `RNACentral`  with tens of more via cross references
+* **Datasets** - supports wide datasets such as `Ensembl` `Uniprot` `ChEMBL` `HMDB` `Taxonomy` `GO` `EFO` `HPO` `UBERON` `HGNC` `ECO` `Uniparc` `Uniref` `RNACentral` `Bgee`  with tens of more via cross references
 by retrieving latest data from providers
 
 * **MapReduce** - processes small or large datasets based on users selection and build B+ tree based uniform local database via specialized MapReduce based tecnique with efficient storage usage 
@@ -29,6 +29,8 @@ by retrieving latest data from providers
 * **Pathways** - `Reactome` pathway database with 23K+ curated pathways across 16 species, including protein/gene/compound participants, pathway hierarchy, GO mappings, disease annotations, and evidence codes (TAS/IEA) for curation quality
 
 * **Non-Coding RNAs** - `RNACentral` database with 49.8M+ unique ncRNA sequences aggregated from 56 expert databases, including rRNA, miRNA, lncRNA, tRNA, and other RNA types with comprehensive metadata
+
+* **Gene Expression** - `Bgee` database with curated gene expression data across 30+ species and 1,000+ anatomical structures. Includes tissue-specific expression patterns, expression quality scores, multi-technology support (Affymetrix, RNA-Seq, scRNA-Seq), observation counts, and cross-references to Ensembl genes and UBERON tissues
 
 * **Taxonomy & Ontologies** - `Taxonomy` `GO` `EFO` `ECO` `HPO` `MONDO` `UBERON` data with mapping to other datasets and child and parent query capability
 
@@ -64,6 +66,9 @@ biobtree -d "chembl,clinical_trials" build
 
 # build with genetic variants (works well with HGNC, MONDO, HPO)
 biobtree -d "hgnc,clinvar,mondo,hpo" build
+
+# build with gene expression (requires Ensembl and works well with UBERON)
+biobtree -d "ensembl,bgee,uberon" build
 
 # once data is built start web for using ws and ui
 biobtree web
@@ -169,6 +174,12 @@ biobtree query "SLM:000094711"                    # SwissLipids lipid lookup
 biobtree query "SLM:000094711 >> uniprot"         # Find proteins associated with lipid
 biobtree query "P00533 >> swisslipids"            # Find lipids associated with protein
 biobtree query "GO:0008203 >> swisslipids"        # Find lipids in GO biological process
+
+# Gene expression queries
+biobtree query "ENSG00000139618"                  # Gene expression profile
+biobtree query "ENSG00000139618 >> bgee"          # Gene to expression data
+biobtree query "UBERON:0000955 >> bgee"           # Find genes expressed in brain
+biobtree query "ENSG00000139618 >> bgee >> uberon" # Gene to tissues where expressed
 ```
 
 #### Filter Syntax
@@ -190,6 +201,10 @@ biobtree query "cas9 >> uniprot[uniprot.reviewed==true] >> hgnc[hgnc.status==\"A
 # Complex filter expressions (CEL syntax)
 biobtree query "P27348 >> ensembl[ensembl.overlaps(114129278,114129328)]"
 biobtree query "hgnc >> chembl[chembl.molecule.highestDevelopmentPhase>2]"
+
+# Gene expression filters
+biobtree query "UBERON:0000955 >> bgee[bgee.expression_score>90]"  # High expression in brain
+biobtree query "ENSG00000139618 >> bgee[bgee.call_quality==\"gold quality\"]"  # Gold quality only
 ```
 
 **Old Syntax (Still Supported)**:

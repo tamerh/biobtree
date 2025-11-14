@@ -415,5 +415,20 @@
     "hasFilter": "yes",
     "attrs": "type,name,[]synonyms",
     "test_entries_count": "100"
+  },
+  "bgee": {
+    "aliases": "BGEE,Bgee,Gene Expression Evolution,tissue expression,gene expression,expression",
+    "id": "36",
+    "name": "Bgee",
+    "url": "https://www.bgee.org/?page=gene&gene_id=£{id}",
+    "path": "https://www.bgee.org/ftp/current/download/calls/expr_calls/",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "gene_id,gene_name,species,species_taxid,[]expression_conditions,total_present_calls,total_absent_calls,total_conditions,[]top_expressed_tissues,expression_breadth,max_expression_score,average_expression_score,gold_quality_count",
+    "test_entries_count": "100",
+    "file_format": "advanced",
+    "include_all_conditions": "no",
+    "species_taxid": "9606,10090,10116,7955,7227,6239",
+    "species": "Homo_sapiens,Mus_musculus,Rattus_norvegicus,Danio_rerio,Drosophila_melanogaster,Caenorhabditis_elegans"
   }
 }

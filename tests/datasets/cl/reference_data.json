@@ -1,0 +1,884 @@
+[
+  {
+    "id": "CL:0003001",
+    "name": "bistratified retinal ganglion cell",
+    "synonyms": [
+      "retinal ganglion D cell"
+    ],
+    "parents": [
+      "CL:0000740",
+      "CL:0004247"
+    ]
+  },
+  {
+    "id": "CL:0003002",
+    "name": "G1 retinal ganglion cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0000740"
+    ]
+  },
+  {
+    "id": "CL:0003003",
+    "name": "G2 retinal ganglion cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0000740"
+    ]
+  },
+  {
+    "id": "CL:0003004",
+    "name": "G3 retinal ganglion cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0003001"
+    ]
+  },
+  {
+    "id": "CL:0003005",
+    "name": "G4 retinal ganglion cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0000740"
+    ]
+  },
+  {
+    "id": "CL:0003006",
+    "name": "G4-ON retinal ganglion cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0003005",
+      "CL:4023032"
+    ]
+  },
+  {
+    "id": "CL:0003007",
+    "name": "G4-OFF retinal ganglion cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0003005",
+      "CL:4023033"
+    ]
+  },
+  {
+    "id": "CL:0003008",
+    "name": "G5 retinal ganglion cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0000740"
+    ]
+  },
+  {
+    "id": "CL:0003009",
+    "name": "G6 retinal ganglion cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0000740"
+    ]
+  },
+  {
+    "id": "CL:0003010",
+    "name": "G7 retinal ganglion cell",
+    "synonyms": [
+      "ON-OFF DS"
+    ],
+    "parents": [
+      "CL:0003001"
+    ]
+  },
+  {
+    "id": "CL:0003011",
+    "name": "G8 retinal ganglion cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0000740"
+    ]
+  },
+  {
+    "id": "CL:0003012",
+    "name": "G9 retinal ganglion cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0000740"
+    ]
+  },
+  {
+    "id": "CL:0003013",
+    "name": "G10 retinal ganglion cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0000740"
+    ]
+  },
+  {
+    "id": "CL:0003014",
+    "name": "G11 retinal ganglion cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0000740"
+    ]
+  },
+  {
+    "id": "CL:0003015",
+    "name": "G11-ON retinal ganglion cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0003014",
+      "CL:4023032"
+    ]
+  },
+  {
+    "id": "CL:0003016",
+    "name": "G11-OFF retinal ganglion cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0003014",
+      "CL:4023033"
+    ]
+  },
+  {
+    "id": "CL:0003017",
+    "name": "retinal ganglion cell B3 outer",
+    "synonyms": [],
+    "parents": [
+      "CL:0004183"
+    ]
+  },
+  {
+    "id": "CL:0003018",
+    "name": "retinal ganglion cell B3 inner",
+    "synonyms": [],
+    "parents": [
+      "CL:0004183"
+    ]
+  },
+  {
+    "id": "CL:0003020",
+    "name": "retinal ganglion cell C outer",
+    "synonyms": [],
+    "parents": [
+      "CL:0004116"
+    ]
+  },
+  {
+    "id": "CL:0003021",
+    "name": "retinal ganglion cell C4",
+    "synonyms": [],
+    "parents": [
+      "CL:0003020"
+    ]
+  },
+  {
+    "id": "CL:0003022",
+    "name": "retinal ganglion cell C5",
+    "synonyms": [],
+    "parents": [
+      "CL:0003020"
+    ]
+  },
+  {
+    "id": "CL:0003023",
+    "name": "retinal ganglion cell C6",
+    "synonyms": [],
+    "parents": [
+      "CL:0003020"
+    ]
+  },
+  {
+    "id": "CL:0003024",
+    "name": "retinal ganglion cell C inner",
+    "synonyms": [],
+    "parents": [
+      "CL:0004116"
+    ]
+  },
+  {
+    "id": "CL:0003025",
+    "name": "retinal ganglion cell C3",
+    "synonyms": [
+      "epsilon"
+    ],
+    "parents": [
+      "CL:0003024"
+    ]
+  },
+  {
+    "id": "CL:0003026",
+    "name": "retinal ganglion cell D1",
+    "synonyms": [],
+    "parents": [
+      "CL:0003001"
+    ]
+  },
+  {
+    "id": "CL:0003027",
+    "name": "retinal ganglion cell D2",
+    "synonyms": [
+      "ON-OFF direction selective",
+      "iota cell"
+    ],
+    "parents": [
+      "CL:0003001"
+    ]
+  },
+  {
+    "id": "CL:0003028",
+    "name": "M1 retinal ganglion cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0000740"
+    ]
+  },
+  {
+    "id": "CL:0003029",
+    "name": "M2 retinal ganglion cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0000740"
+    ]
+  },
+  {
+    "id": "CL:0003030",
+    "name": "M3 retinal ganglion cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0000740"
+    ]
+  },
+  {
+    "id": "CL:0003031",
+    "name": "M3-ON retinal ganglion cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0003030",
+      "CL:4023032"
+    ]
+  },
+  {
+    "id": "CL:0003032",
+    "name": "M3-OFF retinal ganglion cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0003030",
+      "CL:4023033"
+    ]
+  },
+  {
+    "id": "CL:0003033",
+    "name": "M4 retinal ganglion cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0000740"
+    ]
+  },
+  {
+    "id": "CL:0003034",
+    "name": "M5 retinal ganglion cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0000740"
+    ]
+  },
+  {
+    "id": "CL:0003035",
+    "name": "M6 retinal ganglion cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0000740"
+    ]
+  },
+  {
+    "id": "CL:0003036",
+    "name": "M7 retinal ganglion cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0000740"
+    ]
+  },
+  {
+    "id": "CL:0003037",
+    "name": "M7-ON retinal ganglion cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0003036",
+      "CL:4023032"
+    ]
+  },
+  {
+    "id": "CL:0003038",
+    "name": "M7-OFF retinal ganglion cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0003036",
+      "CL:4023033"
+    ]
+  },
+  {
+    "id": "CL:0003039",
+    "name": "M8 retinal ganglion cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0000740"
+    ]
+  },
+  {
+    "id": "CL:0003040",
+    "name": "M9 retinal ganglion cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0000740"
+    ]
+  },
+  {
+    "id": "CL:0003041",
+    "name": "M9-ON retinal ganglion cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0003040",
+      "CL:4023032"
+    ]
+  },
+  {
+    "id": "CL:0003042",
+    "name": "M9-OFF retinal ganglion cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0003040",
+      "CL:4023033"
+    ]
+  },
+  {
+    "id": "CL:0003043",
+    "name": "M10 retinal ganglion cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0000740"
+    ]
+  },
+  {
+    "id": "CL:0003044",
+    "name": "M11 retinal ganglion cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0003001"
+    ]
+  },
+  {
+    "id": "CL:0003045",
+    "name": "M12 retinal ganglion cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0003001"
+    ]
+  },
+  {
+    "id": "CL:0003046",
+    "name": "M13 retinal ganglion cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0003001"
+    ]
+  },
+  {
+    "id": "CL:0003047",
+    "name": "M14 retinal ganglion cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0003001"
+    ]
+  },
+  {
+    "id": "CL:0003048",
+    "name": "L cone cell",
+    "synonyms": [
+      "L cone",
+      "L-cone",
+      "long wavelength sensitive cone",
+      "long- (L) wavelength-sensitive cone",
+      "long-wavelength cone"
+    ],
+    "parents": [
+      "CL:0000573"
+    ]
+  },
+  {
+    "id": "CL:0003049",
+    "name": "M cone cell",
+    "synonyms": [
+      "M cone",
+      "M-cone",
+      "middle wavelength sensitive cone",
+      "middle- (M) wavelength-sensitive cone",
+      "middle-wavelength-sensitive (M) cone"
+    ],
+    "parents": [
+      "CL:0000573"
+    ]
+  },
+  {
+    "id": "CL:0003050",
+    "name": "S cone cell",
+    "synonyms": [
+      "S cone",
+      "S-(short-wavelength sensitive) cone",
+      "S-cone",
+      "S-cone photoreceptor",
+      "short wavelength sensitive cone",
+      "short- (S) wavelength-sensitive cone",
+      "short-wavelength sensitive cone",
+      "short-wavelength-sensitive (S) cone"
+    ],
+    "parents": [
+      "CL:0000573"
+    ]
+  },
+  {
+    "id": "CL:0003051",
+    "name": "UV cone cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0000573"
+    ]
+  },
+  {
+    "id": "CL:0004001",
+    "name": "local interneuron",
+    "synonyms": [],
+    "parents": [
+      "CL:0000099"
+    ]
+  },
+  {
+    "id": "CL:0004115",
+    "name": "retinal ganglion cell B",
+    "synonyms": [],
+    "parents": [
+      "CL:0000740"
+    ]
+  },
+  {
+    "id": "CL:0004116",
+    "name": "retinal ganglion cell C",
+    "synonyms": [],
+    "parents": [
+      "CL:0000740"
+    ]
+  },
+  {
+    "id": "CL:0004117",
+    "name": "retinal ganglion cell A",
+    "synonyms": [
+      "alpha cell"
+    ],
+    "parents": [
+      "CL:0000740"
+    ]
+  },
+  {
+    "id": "CL:0004119",
+    "name": "retinal ganglion cell B1",
+    "synonyms": [
+      "retinal ganglion cell B4"
+    ],
+    "parents": [
+      "CL:0004115"
+    ]
+  },
+  {
+    "id": "CL:0004120",
+    "name": "retinal ganglion cell A1",
+    "synonyms": [
+      "inner alpha retinal ganglion cell",
+      "I-2"
+    ],
+    "parents": [
+      "CL:0004117"
+    ]
+  },
+  {
+    "id": "CL:0004121",
+    "name": "retinal ganglion cell B2",
+    "synonyms": [],
+    "parents": [
+      "CL:0004115"
+    ]
+  },
+  {
+    "id": "CL:0004124",
+    "name": "retinal ganglion cell C1",
+    "synonyms": [
+      "MTN projecting",
+      "ON-direction-selective",
+      "delta"
+    ],
+    "parents": [
+      "CL:0003024"
+    ]
+  },
+  {
+    "id": "CL:0004125",
+    "name": "retinal ganglion cell C2 inner",
+    "synonyms": [],
+    "parents": [
+      "CL:0003024"
+    ]
+  },
+  {
+    "id": "CL:0004126",
+    "name": "retinal ganglion cell C2 outer",
+    "synonyms": [],
+    "parents": [
+      "CL:0003020"
+    ]
+  },
+  {
+    "id": "CL:0004137",
+    "name": "retinal ganglion cell A2 inner",
+    "synonyms": [],
+    "parents": [
+      "CL:0004138"
+    ]
+  },
+  {
+    "id": "CL:0004138",
+    "name": "retinal ganglion cell A2",
+    "synonyms": [
+      "outer alpha retinal ganglion cell",
+      "I-1",
+      "type I"
+    ],
+    "parents": [
+      "CL:0004117"
+    ]
+  },
+  {
+    "id": "CL:0004139",
+    "name": "retinal ganglion cell A2 outer",
+    "synonyms": [],
+    "parents": [
+      "CL:0004138"
+    ]
+  },
+  {
+    "id": "CL:0004161",
+    "name": "510 nm-cone",
+    "synonyms": [],
+    "parents": [
+      "CL:0003049"
+    ]
+  },
+  {
+    "id": "CL:0004162",
+    "name": "360 nm-cone",
+    "synonyms": [],
+    "parents": [
+      "CL:0003051"
+    ]
+  },
+  {
+    "id": "CL:0004183",
+    "name": "retinal ganglion cell B3",
+    "synonyms": [],
+    "parents": [
+      "CL:0004115"
+    ]
+  },
+  {
+    "id": "CL:0004213",
+    "name": "type 3a cone bipolar cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0000755"
+    ]
+  },
+  {
+    "id": "CL:0004214",
+    "name": "type 3b cone bipolar cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0000755"
+    ]
+  },
+  {
+    "id": "CL:0004215",
+    "name": "type 5a cone bipolar cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0000757"
+    ]
+  },
+  {
+    "id": "CL:0004216",
+    "name": "type 5b cone bipolar cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0000757"
+    ]
+  },
+  {
+    "id": "CL:0004217",
+    "name": "H1 horizontal cell",
+    "synonyms": [
+      "A Horizontal Cell",
+      "H1"
+    ],
+    "parents": [
+      "CL:0000745"
+    ]
+  },
+  {
+    "id": "CL:0004218",
+    "name": "H2 horizontal cell",
+    "synonyms": [
+      "B Horizontal Cell",
+      "H2"
+    ],
+    "parents": [
+      "CL:0000745"
+    ]
+  },
+  {
+    "id": "CL:0004219",
+    "name": "A2 amacrine cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0004250",
+      "CL:0004251",
+      "CL:4030028"
+    ]
+  },
+  {
+    "id": "CL:0004220",
+    "name": "flag amacrine cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0004251"
+    ]
+  },
+  {
+    "id": "CL:0004221",
+    "name": "flag A amacrine cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0004220",
+      "CL:4030028"
+    ]
+  },
+  {
+    "id": "CL:0004222",
+    "name": "flag B amacrine cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0004220",
+      "CL:4030028"
+    ]
+  },
+  {
+    "id": "CL:0004223",
+    "name": "AB diffuse-1 amacrine cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0004251"
+    ]
+  },
+  {
+    "id": "CL:0004224",
+    "name": "AB diffuse-2 amacrine cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0004251",
+      "CL:4030028"
+    ]
+  },
+  {
+    "id": "CL:0004225",
+    "name": "spider amacrine cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0004251"
+    ]
+  },
+  {
+    "id": "CL:0004226",
+    "name": "monostratified amacrine cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0004246",
+      "CL:0004251"
+    ]
+  },
+  {
+    "id": "CL:0004227",
+    "name": "flat bistratified amacrine cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0004250",
+      "CL:0004251",
+      "CL:4030028"
+    ]
+  },
+  {
+    "id": "CL:0004228",
+    "name": "broad diffuse amacrine cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0004251"
+    ]
+  },
+  {
+    "id": "CL:0004229",
+    "name": "A2-like amacrine cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0004250",
+      "CL:0004251"
+    ]
+  },
+  {
+    "id": "CL:0004230",
+    "name": "diffuse bistratified amacrine cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0004250",
+      "CL:0004251"
+    ]
+  },
+  {
+    "id": "CL:0004231",
+    "name": "recurving diffuse amacrine cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0004251"
+    ]
+  },
+  {
+    "id": "CL:0004232",
+    "name": "starburst amacrine cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0008061",
+      "CL:4030027"
+    ]
+  },
+  {
+    "id": "CL:0004233",
+    "name": "DAPI-3 amacrine cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0004250",
+      "CL:0004252",
+      "CL:4030028"
+    ]
+  },
+  {
+    "id": "CL:0004234",
+    "name": "diffuse multistratified amacrine cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0004252"
+    ]
+  },
+  {
+    "id": "CL:0004235",
+    "name": "AB broad diffuse-1 amacrine cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0004252",
+      "CL:4030027"
+    ]
+  },
+  {
+    "id": "CL:0004236",
+    "name": "AB broad diffuse-2 amacrine cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0004252",
+      "CL:4030027"
+    ]
+  },
+  {
+    "id": "CL:0004237",
+    "name": "fountain amacrine cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0004252",
+      "CL:4030027"
+    ]
+  },
+  {
+    "id": "CL:0004238",
+    "name": "asymmetric bistratified amacrine cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0004250",
+      "CL:0004252"
+    ]
+  },
+  {
+    "id": "CL:0004239",
+    "name": "wavy bistratified amacrine cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0004250",
+      "CL:0004252"
+    ]
+  },
+  {
+    "id": "CL:0004240",
+    "name": "WF1 amacrine cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0004253"
+    ]
+  },
+  {
+    "id": "CL:0004241",
+    "name": "WF2 amacrine cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0004253"
+    ]
+  },
+  {
+    "id": "CL:0004242",
+    "name": "WF3-1 amacrine cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0004253"
+    ]
+  },
+  {
+    "id": "CL:0004243",
+    "name": "WF3-2 amacrine cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0004253"
+    ]
+  },
+  {
+    "id": "CL:0004244",
+    "name": "WF4 amacrine cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0004253"
+    ]
+  },
+  {
+    "id": "CL:0004245",
+    "name": "indoleamine-accumulating amacrine cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0000850",
+      "CL:0004253",
+      "CL:4030027"
+    ]
+  },
+  {
+    "id": "CL:0004246",
+    "name": "monostratified cell",
+    "synonyms": [],
+    "parents": [
+      "CL:2000029"
+    ]
+  }
+]

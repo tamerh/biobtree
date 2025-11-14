@@ -424,6 +424,12 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			d.datasets2 = append(d.datasets2, data)
 			go u.update()
 			break
+		case "cl":
+			d.wg.Add(1)
+			c := ontology{source: data, d: d, prefixURL: "http://purl.obolibrary.org/obo/", idPrefix: "CL:"}
+			d.datasets2 = append(d.datasets2, data)
+			go c.update()
+			break
 		case "bgee":
 			d.wg.Add(1)
 			b := bgee{source: data, d: d}

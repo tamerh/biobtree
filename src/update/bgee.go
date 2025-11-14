@@ -481,6 +481,19 @@ func (b *bgee) createReferences(geneID string, gene *BgeeGene) {
 		}
 	}
 
+	// 4b. Create cross-reference to CL for cell type expression
+	// This enables: CL:XXXXX >> bgee to find genes expressed in that cell type
+	addedCL := make(map[string]bool)
+	for _, cond := range gene.Conditions {
+		if cond.Expression == "present" && strings.HasPrefix(cond.AnatomicalEntityID, "CL:") {
+			if !addedCL[cond.AnatomicalEntityID] {
+				// CL → Bgee gene
+				b.d.addXref(cond.AnatomicalEntityID, config.Dataconf["cl"]["id"], geneID, b.source, false)
+				addedCL[cond.AnatomicalEntityID] = true
+			}
+		}
+	}
+
 	// 5. Create cross-reference to Taxonomy
 	taxIDStr := strconv.Itoa(gene.TaxonomyID)
 	b.d.addXref(taxIDStr, config.Dataconf["taxonomy"]["id"], geneID, b.source, false)

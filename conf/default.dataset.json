@@ -3,37 +3,37 @@
     "aliases": "CATH",
     "name": "CATH",
     "id": "80",
-    "url": "http://www.cathdb.info/version/latest/superfamily/\u00a3{id}"
+    "url": "http://www.cathdb.info/version/latest/superfamily/£{id}"
   },
   "cathgene3d": {
     "aliases": "CATHGENE3D,Gene3D",
     "name": "CATH",
     "id": "81",
-    "url": "http://www.cathdb.info/version/latest/superfamily/\u00a3{id}"
+    "url": "http://www.cathdb.info/version/latest/superfamily/£{id}"
   },
   "ccds": {
     "aliases": "CCDS",
     "name": "CCDS",
     "id": "82",
-    "url": "https://www.ncbi.nlm.nih.gov/gene/?term=\u00a3{id}"
+    "url": "https://www.ncbi.nlm.nih.gov/gene/?term=£{id}"
   },
   "cdd": {
     "aliases": "CDD",
     "name": "CDD",
     "id": "83",
-    "url": "https://www.ncbi.nlm.nih.gov/Structure/cdd/cddsrv.cgi?uid=\u00a3{id}"
+    "url": "https://www.ncbi.nlm.nih.gov/Structure/cdd/cddsrv.cgi?uid=£{id}"
   },
   "doi": {
     "aliases": "DOI",
     "name": "DOI",
     "id": "85",
-    "url": "https://doi.org/\u00a3{id}"
+    "url": "https://doi.org/£{id}"
   },
   "drugbank": {
     "aliases": "DrugBank,DrugBank accession",
     "name": "DrugBank",
     "id": "86",
-    "url": "https://www.drugbank.ca/drugs/\u00a3{id}",
+    "url": "https://www.drugbank.ca/drugs/£{id}",
     "hasFilter": "yes",
     "attrs": "name"
   },
@@ -41,39 +41,39 @@
     "aliases": "EC,Intenz",
     "name": "Intenz",
     "id": "87",
-    "url": "https://www.ebi.ac.uk/intenz/query?cmd=SearchEC&ec=\u00a3{id}"
+    "url": "https://www.ebi.ac.uk/intenz/query?cmd=SearchEC&ec=£{id}"
   },
   "ena": {
     "aliases": "EMBL,EMBL_CON,TREMBLNEW,EMBLWGS,REMTREMBL,EMBL_TPA,EMBL_TSA,protein sequence ID,embl",
     "name": "ENA",
     "id": "88",
-    "url": "//www.ebi.ac.uk/ena/data/view/\u00a3{id}",
+    "url": "//www.ebi.ac.uk/ena/data/view/£{id}",
     "hasFilter": "yes",
     "attrs": "type"
   },
   "exon": {
     "name": "Exon",
     "id": "89",
-    "url": "https://www.ensembl.org/Multi/Search/Results?q=\u00a3{id};site=ensembl_all",
-    "bacteriaUrl": "http://bacteria.ensembl.org/Multi/Search/Results?species=all;idx=;q=\u00a3{id};;site=ensemblunit",
-    "fungiUrl": "http://fungi.ensembl.org/Multi/Search/Results?species=all;idx=;q=\u00a3{id};;site=ensemblunit",
-    "metazoaUrl": "http://metazoa.ensembl.org/Multi/Search/Results?species=all;idx=;q=\u00a3{id};;site=ensemblunit",
-    "plantsUrl": "http://plants.ensembl.org/Multi/Search/Results?species=all;idx=;q=\u00a3{id};;site=ensemblunit",
-    "protistsUrl": "http://protists.ensembl.org/Multi/Search/Results?species=all;idx=;q=\u00a3{id};;site=ensemblunit",
+    "url": "https://www.ensembl.org/Multi/Search/Results?q=£{id};site=ensembl_all",
+    "bacteriaUrl": "http://bacteria.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
+    "fungiUrl": "http://fungi.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
+    "metazoaUrl": "http://metazoa.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
+    "plantsUrl": "http://plants.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
+    "protistsUrl": "http://protists.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
     "hasFilter": "yes",
     "attrs": "start,end,strand,seq_region"
   },
   "ortholog": {
     "name": "Ortholog",
     "id": "90",
-    "url": "https://www.ensembl.org/Multi/Search/Results?q=\u00a3{id};site=ensembl_all",
+    "url": "https://www.ensembl.org/Multi/Search/Results?q=£{id};site=ensembl_all",
     "linkdataset": "ensembl",
     "hasFilter": "yes"
   },
   "paralog": {
     "name": "Paralog",
     "id": "91",
-    "url": "https://www.ensembl.org/Multi/Search/Results?q=\u00a3{id};site=ensembl_all",
+    "url": "https://www.ensembl.org/Multi/Search/Results?q=£{id};site=ensembl_all",
     "linkdataset": "ensembl",
     "hasFilter": "yes",
     "attrs": "name,description,start,end,biotype,genome,strand,seq_region,branch"
@@ -81,12 +81,12 @@
   "transcript": {
     "name": "Transcript",
     "id": "92",
-    "url": "https://www.ensembl.org/Multi/Search/Results?q=\u00a3{id};site=ensembl_all",
-    "bacteriaUrl": "http://bacteria.ensembl.org/Multi/Search/Results?species=all;idx=;q=\u00a3{id};;site=ensemblunit",
-    "fungiUrl": "http://fungi.ensembl.org/Multi/Search/Results?species=all;idx=;q=\u00a3{id};;site=ensemblunit",
-    "metazoaUrl": "http://metazoa.ensembl.org/Multi/Search/Results?species=all;idx=;q=\u00a3{id};;site=ensemblunit",
-    "plantsUrl": "http://plants.ensembl.org/Multi/Search/Results?species=all;idx=;q=\u00a3{id};;site=ensemblunit",
-    "protistsUrl": "http://protists.ensembl.org/Multi/Search/Results?species=all;idx=;q=\u00a3{id};;site=ensemblunit",
+    "url": "https://www.ensembl.org/Multi/Search/Results?q=£{id};site=ensembl_all",
+    "bacteriaUrl": "http://bacteria.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
+    "fungiUrl": "http://fungi.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
+    "metazoaUrl": "http://metazoa.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
+    "plantsUrl": "http://plants.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
+    "protistsUrl": "http://protists.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
     "hasFilter": "yes",
     "attrs": "name,start,end,biotype,strand,seq_region,utr5Start,utr5End,utr3Start,utr3End,source"
   },
@@ -94,37 +94,37 @@
     "aliases": "ExpressionAtlas",
     "name": "E.Atlas",
     "id": "93",
-    "url": "https://www.ebi.ac.uk/gxa/genes/\u00a3{id}"
+    "url": "https://www.ebi.ac.uk/gxa/genes/£{id}"
   },
   "flybase": {
     "aliases": "FlyBase",
     "name": "FlyBase",
     "id": "94",
-    "url": "http://flybase.org/reports/\u00a3{id}.html"
+    "url": "http://flybase.org/reports/£{id}.html"
   },
   "entrez": {
     "aliases": "GeneID",
     "name": "Entrez",
     "id": "95",
-    "url": "https://www.ncbi.nlm.nih.gov/gene/\u00a3{id}"
+    "url": "https://www.ncbi.nlm.nih.gov/gene/£{id}"
   },
   "hamap": {
     "aliases": "HAMAP",
     "name": "HAMAP",
     "id": "96",
-    "url": "https://hamap.expasy.org/signature/\u00a3{id}"
+    "url": "https://hamap.expasy.org/signature/£{id}"
   },
   "intact": {
     "aliases": "IntAct",
     "name": "IntAct",
     "id": "97",
-    "url": "https://www.ebi.ac.uk//intact/pages/interactions/interactions.xhtml?query=\u00a3{id}&filter=ac"
+    "url": "https://www.ebi.ac.uk//intact/pages/interactions/interactions.xhtml?query=£{id}&filter=ac"
   },
   "kegg": {
     "aliases": "KEGG,KEGG COMPOUND accession,KEGG GLYCAN accession,KEGG DRUG accession",
     "name": "KEGG",
     "id": "98",
-    "url": "https://www.genome.jp/dbget-bin/www_bfind_sub?mode=bfind&max_hit=1&dbkey=alldb&keywords=\u00a3{id}"
+    "url": "https://www.genome.jp/dbget-bin/www_bfind_sub?mode=bfind&max_hit=1&dbkey=alldb&keywords=£{id}"
   },
   "kegg map": {
     "aliases": "KEGG MAP",
@@ -136,37 +136,37 @@
     "aliases": "KO",
     "name": "KO",
     "id": "100",
-    "url": "https://www.genome.jp/dbget-bin/www_bget?ko:\u00a3{id}"
+    "url": "https://www.genome.jp/dbget-bin/www_bget?ko:£{id}"
   },
   "mim": {
     "aliases": "omim,MIM",
     "name": "MIM",
     "id": "101",
-    "url": "https://www.omim.org/entry/\u00a3{id}"
+    "url": "https://www.omim.org/entry/£{id}"
   },
   "metacyc": {
     "aliases": "MetaCyc,MetaCyc accession,METACYC",
     "name": "MetaCyc",
     "id": "102",
-    "url": "https://metacyc.org/compound?orgid=META&id=\u00a3{id}"
+    "url": "https://metacyc.org/compound?orgid=META&id=£{id}"
   },
   "genbank": {
     "aliases": "NCBI_GI",
     "name": "NCBI GeneBank",
     "id": "103",
-    "url": "https://www.ncbi.nlm.nih.gov/nuccore/\u00a3{id}"
+    "url": "https://www.ncbi.nlm.nih.gov/nuccore/£{id}"
   },
   "opentargets": {
     "aliases": "OpenTargets",
     "name": "OpenTargets",
     "id": "104",
-    "url": "https://www.targetvalidation.org/target/\u00a3{id}/associations"
+    "url": "https://www.targetvalidation.org/target/£{id}/associations"
   },
   "orphanet": {
     "aliases": "Orphanet",
     "name": "Orphanet",
     "id": "105",
-    "url": "https://www.orpha.net/consor/cgi-bin/OC_Exp.php?Lng=GB&Expert=\u00a3{id}",
+    "url": "https://www.orpha.net/consor/cgi-bin/OC_Exp.php?Lng=GB&Expert=£{id}",
     "hasFilter": "yes",
     "attrs": "disease"
   },
@@ -174,79 +174,79 @@
     "aliases": "PANTHER",
     "name": "Panther",
     "id": "106",
-    "url": "//www.pantherdb.org/panther/family.do?clsAccession=\u00a3{id}"
+    "url": "//www.pantherdb.org/panther/family.do?clsAccession=£{id}"
   },
   "patric": {
     "aliases": "PATRIC",
     "name": "PATRIC",
     "id": "107",
-    "url": "https://www.patricbrc.org/search/?keyword(%22\u00a3{id}%22)"
+    "url": "https://www.patricbrc.org/search/?keyword(%22£{id}%22)"
   },
   "pdb": {
     "aliases": "PDB",
     "name": "PDBe",
     "id": "108",
-    "url": "https://www.ebi.ac.uk/pdbe/entry/pdb/\u00a3{id}",
+    "url": "https://www.ebi.ac.uk/pdbe/entry/pdb/£{id}",
     "attrs": "method,chains,resolution"
   },
   "pdbechem": {
     "aliases": "PDBeChem,PDBeChem accession",
     "name": "PDBeChem",
     "id": "109",
-    "url": "https://www.ebi.ac.uk/pdbe/entry/pdb/\u00a3{id}"
+    "url": "https://www.ebi.ac.uk/pdbe/entry/pdb/£{id}"
   },
   "pfam": {
     "aliases": "Pfam,PFAM",
     "name": "PFAM",
     "id": "111",
-    "url": "http://pfam.xfam.org/family/\u00a3{id}"
+    "url": "http://pfam.xfam.org/family/£{id}"
   },
   "proteomes": {
     "aliases": "Proteomes,proteome_id",
     "name": "Proteomes",
     "id": "112",
-    "url": "https://www.uniprot.org/proteomes/\u00a3{id}"
+    "url": "https://www.uniprot.org/proteomes/£{id}"
   },
   "pubmed": {
     "aliases": "PubMed,PubMed citation,PUBMED,pmc,PMC,PubMed Central citation",
     "name": "PubMed",
     "id": "113",
-    "url": "https://europepmc.org/search?query=\u00a3{id}"
+    "url": "https://europepmc.org/search?query=£{id}"
   },
   "rnacentral": {
     "aliases": "RNAcentral",
     "name": "RNAcentral",
     "id": "114",
-    "url": "https://rnacentral.org/search?q=\u00a3{id}"
+    "url": "https://rnacentral.org/search?q=£{id}"
   },
   "refseq": {
     "aliases": "RefSeq,nucleotide sequence ID",
     "name": "Refseq",
     "id": "116",
-    "url": "https://www.ncbi.nlm.nih.gov/protein/\u00a3{id}"
+    "url": "https://www.ncbi.nlm.nih.gov/protein/£{id}"
   },
   "supfam": {
     "aliases": "SUPFAM",
     "name": "SUPFAM",
     "id": "118",
-    "url": "http://supfam.org/SUPERFAMILY/cgi-bin/scop.cgi?ipid=\u00a3{id}"
+    "url": "http://supfam.org/SUPERFAMILY/cgi-bin/scop.cgi?ipid=£{id}"
   },
   "vgnc": {
     "aliases": "VGNC",
     "name": "VGNC",
     "id": "119",
-    "url": "https://vertebrate.genenames.org/data/gene-symbol-report/#!/vgnc_id/\u00a3{id}"
+    "url": "https://vertebrate.genenames.org/data/gene-symbol-report/#!/vgnc_id/£{id}"
   },
   "wbparasite": {
     "aliases": "WBParaSite",
     "name": "WBParaSite",
     "id": "120",
-    "url": "http://ensemblgenomes.org/id/\u00a3{id}"
+    "url": "http://ensemblgenomes.org/id/£{id}"
   },
   "ufeature": {
     "name": "Protein Feature",
     "id": "122",
-    "url": "//www.uniprot.org/uniprot/\u00a3{id}",
+    "url": "//www.uniprot.org/uniprot/£{id}",
     "hasFilter": "yes",
     "attrs": "type,description,id,original,variation,location.begin,location.end,[]evidences.type,[]evidences.source,[]evidences.id"
   },
@@ -254,7 +254,7 @@
     "aliases": "variantid,VariantID,dbSNP rsID",
     "name": "dbSNP",
     "id": "123",
-    "url": "https://www.ncbi.nlm.nih.gov/snp/\u00a3{id}"
+    "url": "https://www.ncbi.nlm.nih.gov/snp/£{id}"
   },
   "taxchild": {
     "name": "Tax Childs",
@@ -1345,7 +1345,7 @@
   "gochild": {
     "name": "GO Child",
     "id": "340",
-    "url": "https://www.ebi.ac.uk/QuickGO/term/\u00a3{id}",
+    "url": "https://www.ebi.ac.uk/QuickGO/term/£{id}",
     "linkdataset": "go",
     "hasFilter": "yes",
     "attrs": "type,name,[]synonyms"
@@ -1353,7 +1353,7 @@
   "goparent": {
     "name": "GO Parent",
     "id": "341",
-    "url": "https://www.ebi.ac.uk/QuickGO/term/\u00a3{id}",
+    "url": "https://www.ebi.ac.uk/QuickGO/term/£{id}",
     "linkdataset": "go",
     "hasFilter": "yes",
     "attrs": "type,name,[]synonyms"
@@ -1361,7 +1361,7 @@
   "efochild": {
     "name": "EFO Child",
     "id": "342",
-    "url": "http://www.ebi.ac.uk/efo/\u00a3{id}",
+    "url": "http://www.ebi.ac.uk/efo/£{id}",
     "linkdataset": "efo",
     "hasFilter": "yes",
     "attrs": "type,name,[]synonyms"
@@ -1369,7 +1369,7 @@
   "efoparent": {
     "name": "EFO Parent",
     "id": "343",
-    "url": "http://www.ebi.ac.uk/efo/\u00a3{id}",
+    "url": "http://www.ebi.ac.uk/efo/£{id}",
     "linkdataset": "efo",
     "hasFilter": "yes",
     "attrs": "type,name,[]synonyms"
@@ -1378,7 +1378,7 @@
     "aliases": "eprotein",
     "name": "CDS",
     "id": "344",
-    "url": "https://www.ensembl.org/Multi/Search/Results?q=\u00a3{id};site=ensembl_all",
+    "url": "https://www.ensembl.org/Multi/Search/Results?q=£{id};site=ensembl_all",
     "hasFilter": "yes",
     "attrs": "start,end,strand,seq_region,frame"
   },
@@ -1390,7 +1390,7 @@
   "ecochild": {
     "name": "ECO Child",
     "id": "346",
-    "url": "https://www.ebi.ac.uk/QuickGO/term/\u00a3{id}",
+    "url": "https://www.ebi.ac.uk/QuickGO/term/£{id}",
     "linkdataset": "eco",
     "hasFilter": "yes",
     "attrs": "type,name,[]synonyms"
@@ -1398,7 +1398,7 @@
   "ecoparent": {
     "name": "ECO Parent",
     "id": "347",
-    "url": "https://www.ebi.ac.uk/QuickGO/term/\u00a3{id}",
+    "url": "https://www.ebi.ac.uk/QuickGO/term/£{id}",
     "linkdataset": "eco",
     "hasFilter": "yes",
     "attrs": "type,name,[]synonyms"
@@ -1439,7 +1439,7 @@
   "mondochild": {
     "name": "MONDO Child",
     "id": "354",
-    "url": "https://monarchinitiative.org/disease/\u00a3{id}",
+    "url": "https://monarchinitiative.org/disease/£{id}",
     "linkdataset": "mondo",
     "hasFilter": "yes",
     "attrs": "type,name,[]synonyms"
@@ -1447,7 +1447,7 @@
   "mondoparent": {
     "name": "MONDO Parent",
     "id": "355",
-    "url": "https://monarchinitiative.org/disease/\u00a3{id}",
+    "url": "https://monarchinitiative.org/disease/£{id}",
     "linkdataset": "mondo",
     "hasFilter": "yes",
     "attrs": "type,name,[]synonyms"
@@ -1455,7 +1455,7 @@
   "reactomeparent": {
     "name": "Reactome Parent",
     "id": "356",
-    "url": "https://reactome.org/content/detail/\u00a3{id}",
+    "url": "https://reactome.org/content/detail/£{id}",
     "linkdataset": "reactome",
     "hasFilter": "yes",
     "attrs": "name,tax_id"
@@ -1463,7 +1463,7 @@
   "reactomechild": {
     "name": "Reactome Child",
     "id": "357",
-    "url": "https://reactome.org/content/detail/\u00a3{id}",
+    "url": "https://reactome.org/content/detail/£{id}",
     "linkdataset": "reactome",
     "hasFilter": "yes",
     "attrs": "name,tax_id"
@@ -1471,7 +1471,7 @@
   "hpoparent": {
     "name": "HPO Parent",
     "id": "358",
-    "url": "https://hpo.jax.org/browse/term/\u00a3{id}",
+    "url": "https://hpo.jax.org/browse/term/£{id}",
     "linkdataset": "hpo",
     "hasFilter": "yes",
     "attrs": "name,[]synonyms,definition"
@@ -1479,7 +1479,7 @@
   "hpochild": {
     "name": "HPO Child",
     "id": "359",
-    "url": "https://hpo.jax.org/browse/term/\u00a3{id}",
+    "url": "https://hpo.jax.org/browse/term/£{id}",
     "linkdataset": "hpo",
     "hasFilter": "yes",
     "attrs": "name,[]synonyms,definition"
@@ -1487,7 +1487,7 @@
   "uberonparent": {
     "name": "UBERON Parent",
     "id": "360",
-    "url": "http://purl.obolibrary.org/obo/\u00a3{id}",
+    "url": "http://purl.obolibrary.org/obo/£{id}",
     "linkdataset": "uberon",
     "hasFilter": "yes",
     "attrs": "type,name,[]synonyms"
@@ -1495,8 +1495,24 @@
   "uberonchild": {
     "name": "UBERON Child",
     "id": "361",
-    "url": "http://purl.obolibrary.org/obo/\u00a3{id}",
+    "url": "http://purl.obolibrary.org/obo/£{id}",
     "linkdataset": "uberon",
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms"
+  },
+  "clparent": {
+    "name": "CL Parent",
+    "id": "362",
+    "url": "http://purl.obolibrary.org/obo/£{id}",
+    "linkdataset": "cl",
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms"
+  },
+  "clchild": {
+    "name": "CL Child",
+    "id": "363",
+    "url": "http://purl.obolibrary.org/obo/£{id}",
+    "linkdataset": "cl",
     "hasFilter": "yes",
     "attrs": "type,name,[]synonyms"
   }

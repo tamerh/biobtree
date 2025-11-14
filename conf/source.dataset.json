@@ -430,5 +430,16 @@
     "include_all_conditions": "no",
     "species_taxid": "9606,10090,10116,7955,7227,6239",
     "species": "Homo_sapiens,Mus_musculus,Rattus_norvegicus,Danio_rerio,Drosophila_melanogaster,Caenorhabditis_elegans"
+  },
+  "cl": {
+    "aliases": "CL,Cell Ontology,cell type,cell types",
+    "id": "37",
+    "name": "CL",
+    "url": "http://purl.obolibrary.org/obo/£{id}",
+    "path": "http://purl.obolibrary.org/obo/cl.owl",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms",
+    "test_entries_count": "100"
   }
 }

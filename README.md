@@ -7,7 +7,7 @@ via identifiers and special keywors with simple or advance chain query capabilit
 
 ## Features
 
-* **Datasets** - supports wide datasets such as `Ensembl` `Uniprot` `ChEMBL` `HMDB` `Taxonomy` `GO` `EFO` `HPO` `UBERON` `HGNC` `ECO` `Uniparc` `Uniref` `RNACentral` `Bgee`  with tens of more via cross references
+* **Datasets** - supports wide datasets such as `Ensembl` `Uniprot` `ChEMBL` `HMDB` `Taxonomy` `GO` `EFO` `HPO` `UBERON` `CL` `HGNC` `ECO` `Uniparc` `Uniref` `RNACentral` `Bgee`  with tens of more via cross references
 by retrieving latest data from providers
 
 * **MapReduce** - processes small or large datasets based on users selection and build B+ tree based uniform local database via specialized MapReduce based tecnique with efficient storage usage 
@@ -32,7 +32,7 @@ by retrieving latest data from providers
 
 * **Gene Expression** - `Bgee` database with curated gene expression data across 30+ species and 1,000+ anatomical structures. Includes tissue-specific expression patterns, expression quality scores, multi-technology support (Affymetrix, RNA-Seq, scRNA-Seq), observation counts, and cross-references to Ensembl genes and UBERON tissues
 
-* **Taxonomy & Ontologies** - `Taxonomy` `GO` `EFO` `ECO` `HPO` `MONDO` `UBERON` data with mapping to other datasets and child and parent query capability
+* **Taxonomy & Ontologies** - `Taxonomy` `GO` `EFO` `ECO` `HPO` `MONDO` `UBERON` `CL` data with mapping to other datasets and child and parent query capability. CL (Cell Ontology) provides 2,700+ cell type classifications for tissue-specific and cell-specific analysis
 
 * **Your data** - Your custom data can be integrated with or without relation to other datasets
 
@@ -179,7 +179,9 @@ biobtree query "GO:0008203 >> swisslipids"        # Find lipids in GO biological
 biobtree query "ENSG00000139618"                  # Gene expression profile
 biobtree query "ENSG00000139618 >> bgee"          # Gene to expression data
 biobtree query "UBERON:0000955 >> bgee"           # Find genes expressed in brain
+biobtree query "CL:0000576 >> bgee"               # Find genes expressed in monocytes
 biobtree query "ENSG00000139618 >> bgee >> uberon" # Gene to tissues where expressed
+biobtree query "ENSG00000139618 >> bgee >> cl"    # Gene to cell types where expressed
 ```
 
 #### Filter Syntax

@@ -270,6 +270,54 @@ class BgeeTests:
         return True, f"UBERON {uberon_id} → Bgee {gene_id} cross-reference verified"
 
     @test
+    def test_cross_reference_to_cl(self):
+        """Check CL cell type has cross-reference to Bgee gene"""
+        # Find a gene with CL cell type IDs
+        entry = next(
+            (e for e in self.runner.reference_data
+             if e.get("expression_conditions") and
+             any(c["anatomical_entity_id"].startswith("CL:")
+                 for c in e["expression_conditions"])),
+            None
+        )
+        if not entry:
+            return True, "SKIP: No gene with CL cell type IDs in reference"
+
+        gene_id = entry["id"]
+        # Get first CL ID
+        cl_id = next(
+            c["anatomical_entity_id"]
+            for c in entry["expression_conditions"]
+            if c["anatomical_entity_id"].startswith("CL:") and
+            c["expression"] == "present"  # Only check present expression
+        )
+
+        # Query the CL ID to see if it links to this gene
+        cl_data = self.runner.lookup(cl_id)
+        if not cl_data or not cl_data.get("results"):
+            # CL might not be in test database
+            return True, f"SKIP: CL {cl_id} not in test database"
+
+        # Check if CL result has entry pointing to this Bgee gene
+        cl_result = next(
+            (r for r in cl_data["results"] if r.get("identifier") == cl_id),
+            None
+        )
+        if not cl_result:
+            return True, f"SKIP: CL {cl_id} not found"
+
+        # Check if CL has entry pointing to Bgee gene
+        has_bgee_link = any(
+            e.get("dataset_name") == "bgee" and e.get("identifier") == gene_id
+            for e in cl_result.get("entries", [])
+        )
+
+        if not has_bgee_link:
+            return False, f"CL {cl_id} doesn't link to Bgee gene {gene_id}"
+
+        return True, f"CL {cl_id} → Bgee {gene_id} cross-reference verified"
+
+    @test
     def test_top_expressed_tissues(self):
         """Check gene has top expressed tissues with scores"""
         entry = next(

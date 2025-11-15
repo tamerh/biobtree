@@ -1523,5 +1523,21 @@
     "url": "https://www.rhea-db.org/rhea/£{id}",
     "hasFilter": "yes",
     "attrs": "equation,direction,status,is_transport,[]chebi_participants,[]ec_numbers,[]go_terms,uniprot_count,reaction_smiles,[]parent_reactions,[]child_reactions"
+  },
+  "gwas_study": {
+    "aliases": "GWAS Study,gwas study,GWAS Catalog,gwascatalog,genome-wide association study",
+    "name": "GWAS Study",
+    "id": "39",
+    "url": "https://www.ebi.ac.uk/gwas/studies/£{id}",
+    "hasFilter": "yes",
+    "attrs": "study_accession,pubmed_id,first_author,publication_date,journal,study,disease_trait,initial_sample_size,replication_sample_size,[]reported_genes,[]mapped_genes,[]trait_efos,platform,association_count"
+  },
+  "gwas": {
+    "aliases": "GWAS,gwas association,variant-trait association,genome-wide association,SNP-trait association",
+    "name": "GWAS Association",
+    "id": "43",
+    "url": "https://www.ebi.ac.uk/gwas/variants/£{id}",
+    "hasFilter": "yes",
+    "attrs": "snp_id,study_accession,strongest_snp_risk_allele,chr_id,chr_pos,region,context,intergenic,[]reported_genes,mapped_gene,upstream_gene_id,downstream_gene_id,[]snp_gene_ids,disease_trait,[]mapped_traits,[]efo_traits,p_value,pvalue_mlog,or_beta,ci_95,risk_allele_frequency,pubmed_id,first_author,date,platform"
   }
 }

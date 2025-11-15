@@ -651,4 +651,102 @@ message RheaParticipant {
   string role = 5;                                      // "reactant", "product", "catalyst"
 }
 
+// GWAS Catalog - Genome-Wide Association Studies (Dataset ID: 39)
+// https://www.ebi.ac.uk/gwas/
+message GwasStudyAttr {
+  // Study identification
+  string study_accession = 1;                           // GCST ID (e.g., "GCST000001")
+  string pubmed_id = 2;                                 // PubMed ID
+  string first_author = 3;                              // First author name
+  string publication_date = 4;                          // Publication date
+  string journal = 5;                                   // Journal name
+  string study = 6;                                     // Study description/title
+
+  // Trait/Disease information
+  string disease_trait = 7;                             // Disease or trait studied
+  repeated string trait_efos = 8;                       // EFO ontology term IDs
+
+  // Sample information
+  string initial_sample_size = 9;                       // Initial GWAS sample description
+  string replication_sample_size = 10;                  // Replication sample description
+
+  // Gene associations
+  repeated string reported_genes = 11;                  // Genes reported by author
+  repeated string mapped_genes = 12;                    // Mapped Ensembl gene IDs
+
+  // Platform/Methodology
+  string platform = 13;                                 // Genotyping platform description
+  int32 association_count = 14;                         // Number of SNP associations in this study
+
+  // Top associations summary (for display)
+  repeated GwasAssociation top_associations = 15;       // Top 10 most significant associations
+}
+
+// Individual GWAS SNP-trait association
+message GwasAssociation {
+  // SNP identification
+  string strongest_snp_risk_allele = 1;                 // SNP-risk allele (e.g., "rs123-A")
+  string snp_id_current = 2;                            // Current rs number
+  repeated string merged_snp_ids = 3;                   // Merged/historical rs numbers
+
+  // Genomic location
+  string chromosome_name = 4;                           // Chromosome (e.g., "1", "X")
+  int64 chromosome_position = 5;                        // Base pair position
+  string region = 6;                                    // Cytogenetic region
+  string context = 7;                                   // Genomic context (intergenic, intronic, etc.)
+  bool intergenic = 8;                                  // Is intergenic variant
+
+  // Association statistics
+  double pvalue = 9;                                    // P-value
+  double pvalue_mlog = 10;                              // -log10(p-value)
+  string or_or_beta = 11;                               // Odds ratio or beta coefficient (as string to preserve format)
+  string ci_95 = 12;                                    // 95% confidence interval
+  string risk_allele_frequency = 13;                    // Risk allele frequency
+
+  // Gene mapping
+  repeated string reported_genes = 14;                  // Genes reported for this SNP
+  repeated string mapped_genes = 15;                    // Genes mapped for this SNP (Ensembl IDs)
+}
+
+// GWAS Catalog - Variant-Trait Associations (Dataset ID: 43)
+// This is the primary 'gwas' dataset (associations), not gwas_study
+message GwasAttr {
+  // Primary identifier
+  string snp_id = 1;                                    // rs number (e.g., "rs7903146")
+  string study_accession = 2;                           // Link to gwas_study (GCST*)
+
+  // SNP details
+  string strongest_snp_risk_allele = 3;                 // SNP-risk allele (e.g., "rs7903146-T")
+  string chr_id = 4;                                    // Chromosome
+  int64 chr_pos = 5;                                    // Position
+  string region = 6;                                    // Cytogenetic region
+  string context = 7;                                   // Variant context (intergenic, intronic, etc.)
+  bool intergenic = 8;                                  // Is intergenic
+
+  // Genes
+  repeated string reported_genes = 9;                   // Genes from publication
+  string mapped_gene = 10;                              // Primary mapped gene
+  string upstream_gene_id = 11;                         // Upstream gene
+  string downstream_gene_id = 12;                       // Downstream gene
+  repeated string snp_gene_ids = 13;                    // Ensembl gene IDs
+
+  // Disease/Trait
+  string disease_trait = 14;                            // Disease or trait
+  repeated string mapped_traits = 15;                   // Mapped trait terms
+  repeated string efo_traits = 16;                      // EFO IDs (e.g., "EFO:0001360")
+
+  // Statistics
+  double p_value = 17;                                  // P-value
+  double pvalue_mlog = 18;                              // -log10(p-value)
+  string or_beta = 19;                                  // Odds ratio or beta
+  string ci_95 = 20;                                    // 95% CI
+  string risk_allele_frequency = 21;                    // RAF
+
+  // Study metadata (denormalized for convenience)
+  string pubmed_id = 22;
+  string first_author = 23;
+  string date = 24;
+  string platform = 25;
+}
+
 

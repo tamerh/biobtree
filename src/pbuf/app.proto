@@ -141,6 +141,8 @@ message Xref {
     SwisslipidsAttr swisslipids=35;
     BgeeAttr bgee=36;
     RheaAttr rhea=38;
+    GwasStudyAttr gwas_study=39;
+    GwasAttr gwas=43;
 
   }
 

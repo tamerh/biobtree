@@ -7,7 +7,7 @@ via identifiers and special keywors with simple or advance chain query capabilit
 
 ## Features
 
-* **Datasets** - supports wide datasets such as `Ensembl` `Uniprot` `ChEMBL` `HMDB` `Taxonomy` `GO` `EFO` `HPO` `UBERON` `CL` `HGNC` `ECO` `Uniparc` `Uniref` `RNACentral` `Bgee`  with tens of more via cross references
+* **Datasets** - supports wide datasets such as `Ensembl` `Uniprot` `ChEMBL` `HMDB` `Taxonomy` `GO` `EFO` `HPO` `UBERON` `CL` `HGNC` `ECO` `Uniparc` `Uniref` `RNACentral` `Bgee` `GWAS Catalog`  with tens of more via cross references
 by retrieving latest data from providers
 
 * **MapReduce** - processes small or large datasets based on users selection and build B+ tree based uniform local database via specialized MapReduce based tecnique with efficient storage usage 
@@ -31,6 +31,8 @@ by retrieving latest data from providers
 * **Non-Coding RNAs** - `RNACentral` database with 49.8M+ unique ncRNA sequences aggregated from 56 expert databases, including rRNA, miRNA, lncRNA, tRNA, and other RNA types with comprehensive metadata
 
 * **Gene Expression** - `Bgee` database with curated gene expression data across 30+ species and 1,000+ anatomical structures. Includes tissue-specific expression patterns, expression quality scores, multi-technology support (Affymetrix, RNA-Seq, scRNA-Seq), observation counts, and cross-references to Ensembl genes and UBERON tissues
+
+* **GWAS Genetics** - `GWAS Catalog` from NHGRI-EBI with 1,000,000+ SNP-trait associations and 182,000+ published studies. Includes variant-level data (genomic positions, genes, p-values, effect sizes) and study-level metadata (publications, sample sizes, platforms). Supports variant-trait discovery, gene-based variant lookup, disease genetics exploration, and links to EFO trait ontology. Future enhancement planned for ancestry-based filtering
 
 * **Taxonomy & Ontologies** - `Taxonomy` `GO` `EFO` `ECO` `HPO` `MONDO` `UBERON` `CL` data with mapping to other datasets and child and parent query capability. CL (Cell Ontology) provides 2,700+ cell type classifications for tissue-specific and cell-specific analysis
 
@@ -69,6 +71,9 @@ biobtree -d "hgnc,clinvar,mondo,hpo" build
 
 # build with gene expression (requires Ensembl and works well with UBERON)
 biobtree -d "ensembl,bgee,uberon" build
+
+# build with GWAS genetics (works well with EFO, HGNC)
+biobtree -d "gwas,gwas_study,efo,hgnc" build
 
 # once data is built start web for using ws and ui
 biobtree web
@@ -182,6 +187,14 @@ biobtree query "UBERON:0000955 >> bgee"           # Find genes expressed in brai
 biobtree query "CL:0000576 >> bgee"               # Find genes expressed in monocytes
 biobtree query "ENSG00000139618 >> bgee >> uberon" # Gene to tissues where expressed
 biobtree query "ENSG00000139618 >> bgee >> cl"    # Gene to cell types where expressed
+
+# GWAS genetics queries
+biobtree query "rs12451471"                       # SNP variant lookup with traits
+biobtree query "rs12451471 >> gwas_study"         # SNP to GWAS studies
+biobtree query "BRCA1 >> gwas"                    # Find SNPs in BRCA1 gene
+biobtree query "Type 2 diabetes >> gwas"          # Find SNPs for disease
+biobtree query "EFO:0000400 >> gwas"              # EFO trait to SNPs
+biobtree query "GCST010481 >> gwas"               # Study to SNP associations
 ```
 
 #### Filter Syntax
@@ -207,6 +220,11 @@ biobtree query "hgnc >> chembl[chembl.molecule.highestDevelopmentPhase>2]"
 # Gene expression filters
 biobtree query "UBERON:0000955 >> bgee[bgee.expression_score>90]"  # High expression in brain
 biobtree query "ENSG00000139618 >> bgee[bgee.call_quality==\"gold quality\"]"  # Gold quality only
+
+# GWAS filters
+biobtree query "Type 2 diabetes >> gwas[gwas.p_value<0.00000005]"  # Genome-wide significant SNPs
+biobtree query "rs12451471 >> gwas[gwas.chr_id==\"11\"]"  # Filter by chromosome
+biobtree query "BRCA1 >> gwas[gwas.pvalue_mlog>7.3]"  # -log10(p) > 7.3 (p < 5e-8)
 ```
 
 **Old Syntax (Still Supported)**:

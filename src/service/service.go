@@ -136,6 +136,7 @@ func (s *service) init() {
 		cel.Types(&pbuf.OrphanetAttr{}),
 		cel.Types(&pbuf.ReactomePathwayAttr{}),
 		cel.Types(&pbuf.BgeeAttr{}),
+		cel.Types(&pbuf.GwasAttr{}),
 		cel.Declarations(
 			decls.NewIdent("uniprot", decls.NewObjectType("pbuf.UniprotAttr"), nil)),
 		cel.Declarations(
@@ -188,6 +189,10 @@ func (s *service) init() {
 			decls.NewIdent("bgee", decls.NewObjectType("pbuf.BgeeAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("rhea", decls.NewObjectType("pbuf.RheaAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("gwas_study", decls.NewObjectType("pbuf.GwasStudyAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("gwas", decls.NewObjectType("pbuf.GwasAttr"), nil)),
 		cel.Declarations(
 			decls.NewFunction("overlaps",
 				decls.NewOverload("overlaps_int_int",

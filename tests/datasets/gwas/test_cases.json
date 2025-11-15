@@ -1,0 +1,55 @@
+{
+  "_comment": "GWAS Association Test Cases - SNP-trait associations",
+  "_note": "GWAS associations provide variant-trait associations with genomic positions, genes, EFO traits, and statistical evidence",
+
+  "common_tests": [
+    {
+      "name": "Lookup by SNP ID (rs number)",
+      "type": "id_lookup",
+      "id": "@reference[0].rsId"
+    },
+    {
+      "name": "Check SNP has attributes",
+      "type": "attribute_check",
+      "id": "@reference[0].rsId"
+    },
+    {
+      "name": "Lookup multiple SNPs",
+      "type": "multi_lookup",
+      "count": 5,
+      "id_field": "rsId"
+    },
+    {
+      "name": "Invalid ID handling",
+      "type": "invalid_id",
+      "invalid_id": "rs99999999999"
+    }
+  ],
+
+  "custom_tests": [
+    {
+      "name": "Check SNP has genomic position",
+      "description": "Verify SNPs have chromosome, position, region, and context"
+    },
+    {
+      "name": "Check SNP to study cross-references",
+      "description": "Verify SNPs link to GWAS studies"
+    },
+    {
+      "name": "Check gene associations",
+      "description": "Verify SNPs have reported genes and mapped genes"
+    },
+    {
+      "name": "Check EFO trait cross-references",
+      "description": "Verify SNPs link to EFO ontology terms for disease traits"
+    },
+    {
+      "name": "Check disease trait text search",
+      "description": "Verify SNPs can be searched by disease/trait name"
+    },
+    {
+      "name": "Check statistical evidence",
+      "description": "Verify p-values and effect sizes are stored"
+    }
+  ]
+}

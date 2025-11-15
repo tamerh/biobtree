@@ -1,0 +1,44 @@
+{
+  "dataset_name": "IntAct",
+  "description": "Protein-protein interaction database with experimental evidence",
+  "test_cases": [
+    {
+      "name": "Lookup protein by UniProt ID",
+      "type": "lookup",
+      "query": "{protein_id}",
+      "expected": {
+        "found": true,
+        "has_attributes": true
+      }
+    },
+    {
+      "name": "Check protein has interactions",
+      "type": "attribute_exists",
+      "query": "{protein_id}",
+      "attribute_path": "Intact.interactions",
+      "expected": {
+        "exists": true,
+        "is_array": true
+      }
+    },
+    {
+      "name": "Check interaction count",
+      "type": "attribute_exists",
+      "query": "{protein_id}",
+      "attribute_path": "Intact.interaction_count",
+      "expected": {
+        "exists": true,
+        "greater_than": 0
+      }
+    },
+    {
+      "name": "Verify unique partner count",
+      "type": "attribute_exists",
+      "query": "{protein_id}",
+      "attribute_path": "Intact.unique_partners",
+      "expected": {
+        "exists": true
+      }
+    }
+  ]
+}

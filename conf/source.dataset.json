@@ -485,5 +485,16 @@
     "hasFilter": "yes",
     "attrs": "rs_id,build_id,chromosome,position,ref_allele,alt_allele,allele_frequency,gnomad_frequency,gene_name,gene_id,gene_locus,clinical_significance,variant_type,variant_class,[]merged_rs_ids,[]pubmed_ids",
     "test_entries_count": "100"
+  },
+  "intact": {
+    "id": "44",
+    "name": "IntAct",
+    "ftpUrl": "ftp.ebi.ac.uk:21",
+    "path": "/pub/databases/intact/current/psimitab/intact.txt",
+    "aliases": "IntAct,protein interaction,protein-protein interaction,PPI,molecular interaction",
+    "url": "https://www.ebi.ac.uk/intact/interaction/£{id}",
+    "hasFilter": "yes",
+    "attrs": "protein_id,[]interactions,interaction_count,unique_partners,high_confidence_count,[]partner_organisms",
+    "test_entries_count": "100"
   }
 }

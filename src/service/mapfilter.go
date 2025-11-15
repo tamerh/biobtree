@@ -887,6 +887,8 @@ func (s *service) execCelGo(query *query.Query, targetXref *pbuf.Xref) (bool, er
 		out, _, err = query.Program.Eval(map[string]interface{}{"gwas_study": targetXref.GetGwasStudy()})
 	case "gwas":
 		out, _, err = query.Program.Eval(map[string]interface{}{"gwas": targetXref.GetGwas()})
+	case "intact":
+		out, _, err = query.Program.Eval(map[string]interface{}{"intact": targetXref.GetIntact()})
 	case "dbsnp":
 		out, _, err = query.Program.Eval(map[string]interface{}{"dbsnp": targetXref.GetDbsnp()})
 	default:

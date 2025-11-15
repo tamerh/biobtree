@@ -259,6 +259,7 @@ Available datasets:
         'gwas_study': datasets_dir / "gwas_study" / "test_gwas_study.py",
         'gwas': datasets_dir / "gwas" / "test_gwas.py",
         'dbsnp': datasets_dir / "dbsnp" / "test_dbsnp.py",
+        'intact': datasets_dir / "intact" / "test_intact.py",
     }
 
     # Parse dataset selection

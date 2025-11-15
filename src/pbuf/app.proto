@@ -143,6 +143,7 @@ message Xref {
     RheaAttr rhea=38;
     GwasStudyAttr gwas_study=39;
     GwasAttr gwas=43;
+    IntactAttr intact=44;
     DbsnpAttr dbsnp=123;
 
   }

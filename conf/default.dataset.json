@@ -1533,5 +1533,13 @@
     "url": "https://www.ebi.ac.uk/gwas/variants/£{id}",
     "hasFilter": "yes",
     "attrs": "snp_id,study_accession,strongest_snp_risk_allele,chr_id,chr_pos,region,context,intergenic,[]reported_genes,mapped_gene,upstream_gene_id,downstream_gene_id,[]snp_gene_ids,disease_trait,[]mapped_traits,[]efo_traits,p_value,pvalue_mlog,or_beta,ci_95,risk_allele_frequency,pubmed_id,first_author,date,platform"
+  },
+  "intact": {
+    "aliases": "IntAct,protein interaction,protein-protein interaction,PPI,molecular interaction",
+    "name": "IntAct",
+    "id": "44",
+    "url": "https://www.ebi.ac.uk/intact/interaction/£{id}",
+    "hasFilter": "yes",
+    "attrs": "protein_id,[]interactions,interaction_count,unique_partners,high_confidence_count,[]partner_organisms"
   }
 }

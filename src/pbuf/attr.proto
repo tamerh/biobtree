@@ -614,4 +614,41 @@ message BgeeDataTypeExpression {
   int32 descendant_observation_count = 9;               // Child structure experiments
 }
 
+// Rhea biochemical reaction database (Dataset ID: 38)
+message RheaAttr {
+  // Core reaction information
+  string equation = 1;                                  // Reaction equation (e.g., "ATP + H2O = ADP + Pi")
+  string direction = 2;                                 // "LR" (left-to-right), "RL", "BI" (bidirectional), "UN" (undirected)
+  string status = 3;                                    // "Approved", "Preliminary", "Obsolete"
+  bool is_transport = 4;                                // True if reaction involves transport across membrane
+
+  // Participants
+  repeated RheaParticipant chebi_participants = 5;      // ChEBI compounds with stoichiometry and side
+
+  // Annotations
+  repeated string ec_numbers = 6;                       // EC enzyme classification numbers
+  repeated string go_terms = 7;                         // GO Molecular Function terms
+  int32 uniprot_count = 8;                              // Number of UniProt enzymes catalyzing this reaction
+
+  // Directional variant metadata
+  string master_id = 9;                                 // Master reaction ID (for directional variants)
+  repeated string variant_ids = 10;                     // All directional variant IDs
+
+  // Chemical structure
+  string reaction_smiles = 11;                          // Reaction SMILES representation
+
+  // Hierarchical relationships
+  repeated string parent_reactions = 12;                // Parent reaction IDs (more generic reactions)
+  repeated string child_reactions = 13;                 // Child reaction IDs (more specific reactions)
+}
+
+// Reaction participant (ChEBI compound with metadata)
+message RheaParticipant {
+  string chebi_id = 1;                                  // ChEBI identifier (e.g., "CHEBI:15377")
+  string name = 2;                                      // Compound name
+  int32 stoichiometry = 3;                              // Stoichiometric coefficient
+  string side = 4;                                      // "left", "right", or "both" (for catalysts)
+  string role = 5;                                      // "reactant", "product", "catalyst"
+}
+
 

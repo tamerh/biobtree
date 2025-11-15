@@ -1515,5 +1515,13 @@
     "linkdataset": "cl",
     "hasFilter": "yes",
     "attrs": "type,name,[]synonyms"
+  },
+  "rhea": {
+    "aliases": "Rhea,RHEA,Rhea reaction",
+    "name": "Rhea",
+    "id": "38",
+    "url": "https://www.rhea-db.org/rhea/£{id}",
+    "hasFilter": "yes",
+    "attrs": "equation,direction,status,is_transport,[]chebi_participants,[]ec_numbers,[]go_terms,uniprot_count,reaction_smiles,[]parent_reactions,[]child_reactions"
   }
 }

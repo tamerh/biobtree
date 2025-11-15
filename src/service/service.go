@@ -187,6 +187,8 @@ func (s *service) init() {
 		cel.Declarations(
 			decls.NewIdent("bgee", decls.NewObjectType("pbuf.BgeeAttr"), nil)),
 		cel.Declarations(
+			decls.NewIdent("rhea", decls.NewObjectType("pbuf.RheaAttr"), nil)),
+		cel.Declarations(
 			decls.NewFunction("overlaps",
 				decls.NewOverload("overlaps_int_int",
 					[]*exprpb.Type{decls.Int, decls.Int},

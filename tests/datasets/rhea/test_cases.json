@@ -1,0 +1,55 @@
+{
+  "_comment": "Rhea Test Cases - Biochemical reactions database",
+  "_note": "Rhea provides expert-curated biochemical reactions with ChEBI compounds, EC numbers, UniProt enzymes, and pathway mappings",
+
+  "common_tests": [
+    {
+      "name": "Lookup by Rhea ID",
+      "type": "id_lookup",
+      "id": "@reference[0].identifier"
+    },
+    {
+      "name": "Check reaction has equation",
+      "type": "attribute_check",
+      "id": "@reference[0].identifier"
+    },
+    {
+      "name": "Lookup multiple reactions",
+      "type": "multi_lookup",
+      "count": 3,
+      "id_field": "identifier"
+    },
+    {
+      "name": "Invalid ID handling",
+      "type": "invalid_id",
+      "invalid_id": "RHEA:99999999"
+    }
+  ],
+
+  "custom_tests": [
+    {
+      "name": "Check reaction has full attributes",
+      "description": "Verify Rhea entries have equation, direction, status"
+    },
+    {
+      "name": "Check SMILES present for reactions",
+      "description": "Verify reaction SMILES are stored when available"
+    },
+    {
+      "name": "Check hierarchies present",
+      "description": "Verify parent/child relationships are stored for reactions that have them"
+    },
+    {
+      "name": "Check EC number cross-references",
+      "description": "Verify Rhea reactions link to EC numbers"
+    },
+    {
+      "name": "Check UniProt enzyme cross-references",
+      "description": "Verify Rhea reactions link to UniProt enzymes"
+    },
+    {
+      "name": "Check ChEBI compound cross-references",
+      "description": "Verify Rhea reactions link to ChEBI compounds"
+    }
+  ]
+}

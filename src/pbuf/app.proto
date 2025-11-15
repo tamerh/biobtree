@@ -140,6 +140,7 @@ message Xref {
     LipidmapsAttr lipidmaps=34;
     SwisslipidsAttr swisslipids=35;
     BgeeAttr bgee=36;
+    RheaAttr rhea=38;
 
   }
 

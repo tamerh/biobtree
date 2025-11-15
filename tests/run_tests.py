@@ -249,6 +249,7 @@ Available datasets:
         'clinvar': datasets_dir / "clinvar" / "test_clinvar.py",
         'string': datasets_dir / "string" / "test_string.py",
         'reactome': datasets_dir / "reactome" / "test_reactome.py",
+        'rhea': datasets_dir / "rhea" / "test_rhea.py",
         'alphafold': datasets_dir / "alphafold" / "test_alphafold.py",
         'rnacentral': datasets_dir / "rnacentral" / "test_rnacentral.py",
         'uniparc': datasets_dir / "uniparc" / "test_uniparc.py",

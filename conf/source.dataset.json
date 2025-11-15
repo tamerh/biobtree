@@ -441,5 +441,16 @@
     "hasFilter": "yes",
     "attrs": "type,name,[]synonyms",
     "test_entries_count": "100"
+  },
+  "rhea": {
+    "id": "38",
+    "name": "Rhea",
+    "aliases": "Rhea,RHEA,Rhea reaction",
+    "url": "https://www.rhea-db.org/rhea/£{id}",
+    "path": "https://ftp.expasy.org/databases/rhea/tsv/",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "equation,direction,status,is_transport,[]chebi_participants,[]ec_numbers,[]go_terms,uniprot_count,reaction_smiles,[]parent_reactions,[]child_reactions",
+    "test_entries_count": "100"
   }
 }

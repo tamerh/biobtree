@@ -1,0 +1,16 @@
+[
+  {
+    "rsId": "rs376007522",
+    "chromosome": "1",
+    "position": 10108,
+    "refAllele": "C",
+    "altAllele": "A",
+    "_test_metadata": {
+      "identifier": "rs376007522",
+      "source": "VCF file"
+    },
+    "buildId": "138",
+    "alleleFrequency": 0.0007,
+    "variantClass": "SNV"
+  }
+]

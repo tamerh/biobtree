@@ -1,0 +1,55 @@
+{
+  "_comment": "dbSNP Test Cases - Single Nucleotide Polymorphism Database",
+  "_note": "dbSNP provides authoritative SNP data with genomic positions, allele frequencies, gene associations, and clinical significance",
+
+  "common_tests": [
+    {
+      "name": "Lookup by rs ID",
+      "type": "id_lookup",
+      "id": "@reference[0].rsId"
+    },
+    {
+      "name": "Check SNP has attributes",
+      "type": "attribute_check",
+      "id": "@reference[0].rsId"
+    },
+    {
+      "name": "Lookup multiple SNPs",
+      "type": "multi_lookup",
+      "count": 5,
+      "id_field": "rsId"
+    },
+    {
+      "name": "Invalid ID handling",
+      "type": "invalid_id",
+      "invalid_id": "rs99999999999"
+    }
+  ],
+
+  "custom_tests": [
+    {
+      "name": "Check SNP has genomic position",
+      "description": "Verify SNPs have chromosome and position"
+    },
+    {
+      "name": "Check SNP to gene cross-references",
+      "description": "Verify SNPs link to genes via gene_id"
+    },
+    {
+      "name": "Check gene name text search",
+      "description": "Verify SNPs can be found by searching gene names"
+    },
+    {
+      "name": "Check allele frequency data",
+      "description": "Verify allele frequency is stored for population SNPs"
+    },
+    {
+      "name": "Check clinical significance",
+      "description": "Verify clinical significance is stored for ClinVar SNPs"
+    },
+    {
+      "name": "Check variant type classification",
+      "description": "Verify SNPs are classified as SNV, insertion, deletion, etc."
+    }
+  ]
+}

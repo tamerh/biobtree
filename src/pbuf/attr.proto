@@ -749,4 +749,38 @@ message GwasAttr {
   string platform = 25;
 }
 
+// dbSNP - Single Nucleotide Polymorphism Database (Dataset ID: 123)
+// NCBI's database of genetic variation containing SNPs, indels, and structural variants
+message DbsnpAttr {
+  // Primary identifier
+  string rs_id = 1;                                     // RefSNP ID (e.g., "rs7903146")
+  string build_id = 2;                                  // dbSNP build version (e.g., "157")
+
+  // Genomic location (GRCh38 reference assembly)
+  string chromosome = 3;                                // Chromosome (e.g., "1", "X", "MT")
+  int64 position = 4;                                   // Chromosomal position (1-based)
+  string ref_allele = 5;                                // Reference allele
+  string alt_allele = 6;                                // Alternate allele
+
+  // Allele frequencies
+  double allele_frequency = 7;                          // Global allele frequency (1000 Genomes)
+  double gnomad_frequency = 8;                          // gnomAD population frequency
+
+  // Gene context
+  string gene_name = 9;                                 // Gene symbol (e.g., "BRCA1")
+  string gene_id = 10;                                  // Entrez Gene ID
+  string gene_locus = 11;                               // Cytogenetic locus (e.g., "17q21.31")
+
+  // Functional annotation
+  string clinical_significance = 12;                    // Clinical significance (from ClinVar)
+  string variant_type = 13;                             // Variant type (SNV, insertion, deletion, etc.)
+  string variant_class = 14;                            // Variant class (e.g., "single nucleotide variant")
+
+  // Historical data
+  repeated string merged_rs_ids = 15;                   // Merged rs IDs (historical)
+
+  // Literature
+  repeated string pubmed_ids = 16;                      // PubMed citation IDs
+}
+
 

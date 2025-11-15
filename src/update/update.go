@@ -454,6 +454,12 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			d.datasets2 = append(d.datasets2, data)
 			go gw.update()
 			break
+		case "dbsnp":
+			d.wg.Add(1)
+			db := dbsnp{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go db.update()
+			break
 		case "mondo":
 			d.wg.Add(1)
 			m := mondo{source: data, d: d}

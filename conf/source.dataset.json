@@ -474,5 +474,16 @@
     "hasFilter": "yes",
     "attrs": "snp_id,study_accession,strongest_snp_risk_allele,chr_id,chr_pos,region,context,intergenic,[]reported_genes,mapped_gene,upstream_gene_id,downstream_gene_id,[]snp_gene_ids,disease_trait,[]mapped_traits,[]efo_traits,p_value,pvalue_mlog,or_beta,ci_95,risk_allele_frequency,pubmed_id,first_author,date,platform",
     "test_entries_count": "100"
+  },
+  "dbsnp": {
+    "id": "123",
+    "name": "dbSNP",
+    "ftpUrl": "ftp.ncbi.nlm.nih.gov:21",
+    "path": "/snp/latest_release/VCF/",
+    "aliases": "dbSNP,rs,rsID,SNP,refSNP,Single Nucleotide Polymorphism",
+    "url": "https://www.ncbi.nlm.nih.gov/snp/£{id}",
+    "hasFilter": "yes",
+    "attrs": "rs_id,build_id,chromosome,position,ref_allele,alt_allele,allele_frequency,gnomad_frequency,gene_name,gene_id,gene_locus,clinical_significance,variant_type,variant_class,[]merged_rs_ids,[]pubmed_ids",
+    "test_entries_count": "100"
   }
 }

@@ -7,7 +7,7 @@ via identifiers and special keywors with simple or advance chain query capabilit
 
 ## Features
 
-* **Datasets** - supports wide datasets such as `Ensembl` `Uniprot` `ChEMBL` `HMDB` `Taxonomy` `GO` `EFO` `HPO` `UBERON` `CL` `HGNC` `ECO` `Uniparc` `Uniref` `RNACentral` `Bgee` `GWAS Catalog`  with tens of more via cross references
+* **Datasets** - supports wide datasets such as `Ensembl` `Uniprot` `ChEMBL` `HMDB` `Taxonomy` `GO` `EFO` `HPO` `UBERON` `CL` `HGNC` `ECO` `Uniparc` `Uniref` `RNACentral` `Bgee` `GWAS Catalog` `dbSNP` `IntAct`  with tens of more via cross references
 by retrieving latest data from providers
 
 * **MapReduce** - processes small or large datasets based on users selection and build B+ tree based uniform local database via specialized MapReduce based tecnique with efficient storage usage 
@@ -33,6 +33,10 @@ by retrieving latest data from providers
 * **Gene Expression** - `Bgee` database with curated gene expression data across 30+ species and 1,000+ anatomical structures. Includes tissue-specific expression patterns, expression quality scores, multi-technology support (Affymetrix, RNA-Seq, scRNA-Seq), observation counts, and cross-references to Ensembl genes and UBERON tissues
 
 * **GWAS Genetics** - `GWAS Catalog` from NHGRI-EBI with 1,000,000+ SNP-trait associations and 182,000+ published studies. Includes variant-level data (genomic positions, genes, p-values, effect sizes) and study-level metadata (publications, sample sizes, platforms). Supports variant-trait discovery, gene-based variant lookup, disease genetics exploration, and links to EFO trait ontology. Future enhancement planned for ancestry-based filtering
+
+* **Genetic Variants** - `dbSNP` (database of Single Nucleotide Polymorphisms) from NCBI with RefSNP IDs (rs numbers), genomic coordinates, allele information, population allele frequencies, gene associations, and clinical significance data. Supports variant lookup, gene-to-SNP mapping, allele frequency analysis, and variant type classification (SNV, insertion, deletion)
+
+* **Protein Interactions** - `IntAct` database from EBI with ~1.8 million experimentally validated protein-protein interactions across ~100,000 unique proteins. Provides detailed experimental evidence including detection methods, interaction types, confidence scores, experimental roles, and direct citations to 23,000+ publications. Supports interaction network analysis, drug target discovery, and pathway exploration with PSI-MI standardized terms
 
 * **Taxonomy & Ontologies** - `Taxonomy` `GO` `EFO` `ECO` `HPO` `MONDO` `UBERON` `CL` data with mapping to other datasets and child and parent query capability. CL (Cell Ontology) provides 2,700+ cell type classifications for tissue-specific and cell-specific analysis
 
@@ -74,6 +78,12 @@ biobtree -d "ensembl,bgee,uberon" build
 
 # build with GWAS genetics (works well with EFO, HGNC)
 biobtree -d "gwas,gwas_study,efo,hgnc" build
+
+# build with genetic variants (works well with HGNC, ClinVar)
+biobtree -d "dbsnp,hgnc" build
+
+# build with protein interactions (requires UniProt)
+biobtree -d "uniprot,intact" build
 
 # once data is built start web for using ws and ui
 biobtree web
@@ -195,6 +205,16 @@ biobtree query "BRCA1 >> gwas"                    # Find SNPs in BRCA1 gene
 biobtree query "Type 2 diabetes >> gwas"          # Find SNPs for disease
 biobtree query "EFO:0000400 >> gwas"              # EFO trait to SNPs
 biobtree query "GCST010481 >> gwas"               # Study to SNP associations
+
+# dbSNP genetic variant queries
+biobtree query "rs200676709"                      # SNP lookup with genomic position
+biobtree query "rs200676709 >> hgnc"              # SNP to associated gene
+biobtree query "BRCA1 >> dbsnp"                   # Find SNPs in gene
+
+# IntAct protein interaction queries
+biobtree query "P49418"                           # Protein interaction lookup
+biobtree query "P49418 >> intact"                 # Get interaction partners
+biobtree query "P49418 >> intact >> uniprot"      # Get partner protein details
 ```
 
 #### Filter Syntax
@@ -225,6 +245,14 @@ biobtree query "ENSG00000139618 >> bgee[bgee.call_quality==\"gold quality\"]"  #
 biobtree query "Type 2 diabetes >> gwas[gwas.p_value<0.00000005]"  # Genome-wide significant SNPs
 biobtree query "rs12451471 >> gwas[gwas.chr_id==\"11\"]"  # Filter by chromosome
 biobtree query "BRCA1 >> gwas[gwas.pvalue_mlog>7.3]"  # -log10(p) > 7.3 (p < 5e-8)
+
+# dbSNP filters
+biobtree query "BRCA1 >> dbsnp[dbsnp.allele_frequency>0.01]"  # Common variants (MAF > 1%)
+biobtree query "rs200676709 >> dbsnp[dbsnp.clinical_significance!=\"\"]"  # ClinVar annotated
+
+# IntAct filters
+biobtree query "P49418 >> intact[intact.interactions[0].confidence_score>0.6]"  # High-confidence interactions
+biobtree query "P49418 >> intact[intact.interactions[0].detection_method~\"two hybrid\"]"  # By method
 ```
 
 **Old Syntax (Still Supported)**:

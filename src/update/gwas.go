@@ -124,15 +124,13 @@ func (g *gwas) parseAndSaveAssociations(testLimit int, idLogFile *os.File) {
 
 	log.Printf("GWAS Associations: Found %d columns in header", len(colMap))
 
-	// Group associations by SNP ID
-	// Key: SNP ID, Value: list of associations for that SNP
-	snpAssociations := make(map[string][]*pbuf.GwasAttr)
-
-	var processedCount int
+	// Save each association individually with composite key: STUDYID_RSID
+	// This avoids ID collision with dbSNP and preserves all associations
+	var savedAssociations int
 	var previous int64
 	var skippedEmptySNP int
+	var skippedEmptyStudy int
 	var totalRowsRead int
-	var uniqueSNPs int
 
 	lineNum := 1
 	for scanner.Scan() {
@@ -158,13 +156,19 @@ func (g *gwas) parseAndSaveAssociations(testLimit int, idLogFile *os.File) {
 		elapsed := int64(time.Since(g.d.start).Seconds())
 		if elapsed > previous+g.d.progInterval {
 			previous = elapsed
-			g.d.progChan <- &progressInfo{dataset: g.source, currentKBPerSec: int64(processedCount / int(elapsed))}
+			g.d.progChan <- &progressInfo{dataset: g.source, currentKBPerSec: int64(savedAssociations / int(elapsed))}
 		}
 
-		// Extract SNP ID (primary key)
+		// Extract SNP ID and Study Accession
 		snpID := getField(row, colMap, "SNPS")
 		if snpID == "" {
 			skippedEmptySNP++
+			continue
+		}
+
+		studyAccession := getField(row, colMap, "STUDY ACCESSION")
+		if studyAccession == "" {
+			skippedEmptyStudy++
 			continue
 		}
 
@@ -174,16 +178,22 @@ func (g *gwas) parseAndSaveAssociations(testLimit int, idLogFile *os.File) {
 			continue
 		}
 
-		// Group by SNP ID
-		if _, exists := snpAssociations[snpID]; !exists {
-			uniqueSNPs++
+		// Create composite key: STUDYID_RSID (e.g., "GCST000001_rs7903146")
+		// This ensures uniqueness and avoids collision with dbSNP entries
+		associationID := studyAccession + "_" + snpID
+
+		// Save association with composite key
+		g.saveAssociation(associationID, snpID, assoc, sourceID)
+
+		// Log ID for testing
+		if idLogFile != nil {
+			idLogFile.WriteString(associationID + "\n")
 		}
-		snpAssociations[snpID] = append(snpAssociations[snpID], assoc)
 
-		processedCount++
+		savedAssociations++
 
-		// Test mode: check limit (limit on total associations, not unique SNPs)
-		if testLimit > 0 && processedCount >= testLimit {
+		// Test mode: check limit
+		if testLimit > 0 && savedAssociations >= testLimit {
 			log.Printf("GWAS Associations: [TEST MODE] Reached limit of %d associations, stopping", testLimit)
 			break
 		}
@@ -194,29 +204,12 @@ func (g *gwas) parseAndSaveAssociations(testLimit int, idLogFile *os.File) {
 		log.Printf("GWAS Associations: Scanner error: %v", err)
 	}
 
-	log.Printf("GWAS Associations: Total rows read: %d, Associations processed: %d", totalRowsRead, processedCount)
-	log.Printf("GWAS Associations: Unique SNPs: %d, Skipped (empty SNP ID): %d", uniqueSNPs, skippedEmptySNP)
-
-	// Now save grouped SNPs
-	savedSNPs := 0
-	for snpID, assocs := range snpAssociations {
-		// For now, take the first association as representative
-		// (In production, might want to aggregate statistics across studies)
-		g.saveSNP(snpID, assocs[0], sourceID)
-
-		// Log ID for testing
-		if idLogFile != nil {
-			idLogFile.WriteString(snpID + "\n")
-		}
-
-		savedSNPs++
-	}
-
-	log.Printf("GWAS Associations: Saved %d unique SNPs", savedSNPs)
+	log.Printf("GWAS Associations: Total rows read: %d, Saved: %d associations", totalRowsRead, savedAssociations)
+	log.Printf("GWAS Associations: Skipped - empty SNP: %d, empty study: %d", skippedEmptySNP, skippedEmptyStudy)
 
 	// Update entry statistics
-	atomic.AddUint64(&g.d.totalParsedEntry, uint64(savedSNPs))
-	g.d.addEntryStat(g.source, uint64(savedSNPs))
+	atomic.AddUint64(&g.d.totalParsedEntry, uint64(savedAssociations))
+	g.d.addEntryStat(g.source, uint64(savedAssociations))
 }
 
 // buildAssociation creates a single association entry from row
@@ -310,44 +303,55 @@ func (g *gwas) buildAssociation(row []string, colMap map[string]int, snpID strin
 	return attr
 }
 
-// saveSNP creates and saves a single SNP entry
-func (g *gwas) saveSNP(snpID string, attr *pbuf.GwasAttr, sourceID string) {
+// saveAssociation creates and saves a single GWAS association entry
+// associationID: Composite key in format "STUDYID_RSID" (e.g., "GCST000001_rs7903146")
+// snpID: The rs ID for cross-reference purposes
+func (g *gwas) saveAssociation(associationID string, snpID string, attr *pbuf.GwasAttr, sourceID string) {
 	// Marshal attributes
 	attrBytes, err := ffjson.Marshal(attr)
-	g.check(err, fmt.Sprintf("marshaling GWAS attributes for %s", snpID))
+	g.check(err, fmt.Sprintf("marshaling GWAS attributes for %s", associationID))
 
-	// Save entry
-	g.d.addProp3(snpID, sourceID, attrBytes)
+	// Save entry with composite key
+	g.d.addProp3(associationID, sourceID, attrBytes)
 
 	// Create cross-references
-	g.createCrossReferences(snpID, sourceID, attr)
+	g.createCrossReferences(associationID, snpID, sourceID, attr)
 }
 
-// createCrossReferences builds all cross-references for a SNP
-func (g *gwas) createCrossReferences(snpID, sourceID string, attr *pbuf.GwasAttr) {
-	// Text search: SNP ID
-	g.d.addXref(snpID, textLinkID, snpID, g.source, true)
+// createCrossReferences builds all cross-references for a GWAS association
+// associationID: Composite key "STUDYID_RSID" (e.g., "GCST000001_rs7903146")
+// snpID: The rs ID part (e.g., "rs7903146")
+func (g *gwas) createCrossReferences(associationID string, snpID string, sourceID string, attr *pbuf.GwasAttr) {
+	// Text search: SNP ID searchable (finds all associations for this SNP)
+	// Entry ID (associationID) is already searchable by default, no need to add as keyword
+	g.d.addXref(snpID, textLinkID, associationID, g.source, true)
 
-	// Cross-reference: SNP → Study
-	if attr.StudyAccession != "" {
-		g.d.addXref(snpID, sourceID, attr.StudyAccession, "gwas_study", false)
+	// Bidirectional cross-reference: Association ↔ dbSNP
+	// "rs7903146 >> gwas" returns all associations (GCST000001_rs7903146, GCST000002_rs7903146, ...)
+	if _, exists := config.Dataconf["dbsnp"]; exists {
+		g.d.addXref(associationID, sourceID, snpID, "dbsnp", false)
 	}
 
-	// Gene symbols → SNP cross-reference via Ensembl lookup
-	// Handles paralogs by filtering using chromosome and HGNC preference
-	// Search "BRCA1" returns Ensembl entry (with embedded HGNC data), then "BRCA1 >> gwas" returns all SNP associations
-	// No limit - biobtree is deterministic, we show all genes or none
+	// Bidirectional cross-reference: Association ↔ GWAS Study
+	// "GCST000001 >> gwas" returns all SNP associations in this study
+	if attr.StudyAccession != "" {
+		g.d.addXref(associationID, sourceID, attr.StudyAccession, "gwas_study", false)
+	}
+
+	// Gene symbols → Association cross-reference via Ensembl lookup
+	// Handles paralogs by creating xrefs to all matching Ensembl genes
+	// Search "BRCA1" returns Ensembl entry, then "BRCA1 >> gwas" returns all associations
 	for _, gene := range attr.ReportedGenes {
 		if gene != "" && len(gene) < 50 {
-			g.d.addXrefViaGeneSymbol(gene, attr.ChrId, snpID, g.source, sourceID)
+			g.d.addXrefViaGeneSymbol(gene, attr.ChrId, associationID, g.source, sourceID)
 		}
 	}
 
-	// Cross-reference: SNP → EFO traits (structured ontology)
+	// Cross-reference: Association → EFO traits (structured ontology)
 	if _, exists := config.Dataconf["efo"]; exists {
 		for _, efoID := range attr.EfoTraits {
 			if efoID != "" {
-				g.d.addXref(snpID, sourceID, efoID, "efo", false)
+				g.d.addXref(associationID, sourceID, efoID, "efo", false)
 			}
 		}
 	}

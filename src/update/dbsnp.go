@@ -203,6 +203,73 @@ func (db *dbsnp) parseAndSaveVCF(testLimit int, idLogFile *os.File) {
 			attr.ClinicalSignificance = clinSig
 		}
 
+		// Parse SAO (Variant Allele Origin)
+		if sao, ok := infoMap["SAO"]; ok {
+			if saoInt, err := strconv.ParseInt(sao, 10, 32); err == nil {
+				attr.Sao = int32(saoInt)
+			}
+		}
+
+		// Parse COMMON flag
+		if _, ok := infoMap["COMMON"]; ok {
+			attr.IsCommon = true
+		}
+
+		// Parse functional impact flags (coding region effects)
+		if _, ok := infoMap["NSF"]; ok {
+			attr.Nsf = true
+		}
+		if _, ok := infoMap["NSM"]; ok {
+			attr.Nsm = true
+		}
+		if _, ok := infoMap["NSN"]; ok {
+			attr.Nsn = true
+		}
+		if _, ok := infoMap["SYN"]; ok {
+			attr.Syn = true
+		}
+
+		// Parse UTR and splice site flags
+		if _, ok := infoMap["U3"]; ok {
+			attr.U3 = true
+		}
+		if _, ok := infoMap["U5"]; ok {
+			attr.U5 = true
+		}
+		if _, ok := infoMap["ASS"]; ok {
+			attr.Ass = true
+		}
+		if _, ok := infoMap["DSS"]; ok {
+			attr.Dss = true
+		}
+
+		// Parse gene region flags
+		if _, ok := infoMap["INT"]; ok {
+			attr.Intron = true
+		}
+		if _, ok := infoMap["R3"]; ok {
+			attr.R3 = true
+		}
+		if _, ok := infoMap["R5"]; ok {
+			attr.R5 = true
+		}
+
+		// Parse quality and evidence indicators
+		if ssr, ok := infoMap["SSR"]; ok {
+			if ssrInt, err := strconv.ParseInt(ssr, 10, 32); err == nil {
+				attr.Ssr = int32(ssrInt)
+			}
+		}
+		if _, ok := infoMap["PM"]; ok {
+			attr.HasPublication = true
+		}
+		if _, ok := infoMap["PUB"]; ok {
+			attr.HasPubmedRef = true
+		}
+		if _, ok := infoMap["GNO"]; ok {
+			attr.HasGenotypes = true
+		}
+
 		// Determine variant type
 		attr.VariantType = db.determineVariantType(refAllele, altAllele)
 
@@ -251,6 +318,23 @@ func (db *dbsnp) parseINFO(infoField string) map[string]string {
 		"PSEUDOGENEINFO":  true,
 		"CLNSIG":          true,
 		"VC":              true,
+		"SAO":             true,  // Variant Allele Origin
+		"COMMON":          true,  // Common SNP flag
+		"NSF":             true,  // Non-synonymous frameshift
+		"NSM":             true,  // Non-synonymous missense
+		"NSN":             true,  // Non-synonymous nonsense
+		"SYN":             true,  // Synonymous
+		"U3":              true,  // In 3' UTR
+		"U5":              true,  // In 5' UTR
+		"ASS":             true,  // Acceptor splice site
+		"DSS":             true,  // Donor splice site
+		"INT":             true,  // Intronic
+		"R3":              true,  // In 3' gene region
+		"R5":              true,  // In 5' gene region
+		"SSR":             true,  // Suspect Reason Codes
+		"PM":              true,  // Has associated publication
+		"PUB":             true,  // RefSNP mentioned in publication
+		"GNO":             true,  // Genotypes available
 	}
 
 	// Manual parsing to avoid strings.Split() which allocates entire array
@@ -284,6 +368,8 @@ func (db *dbsnp) parseINFO(infoField string) map[string]string {
 			}
 		}
 	}
+
+	 
 
 	return infoMap
 }

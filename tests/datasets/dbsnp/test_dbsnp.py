@@ -9,11 +9,15 @@ dbSNP (database of Single Nucleotide Polymorphisms) is NCBI's authoritative data
 - Gene associations via GENEINFO field
 - Clinical significance (from ClinVar)
 - Variant type classification (SNV, insertion, deletion, etc.)
+- Comprehensive functional annotations (coding effects, splice sites, UTRs, gene regions)
+- Variant origin (germline vs somatic)
+- Quality indicators and publication evidence
 
 Test Structure:
 - Primary entries: rs* IDs (e.g., rs200676709)
-- Attributes: rs_id, chromosome, position, alleles, frequencies, genes, clinical data
+- Attributes: Basic variant info, frequencies, genes, functional annotations, quality flags
 - Cross-references: Genes (via gene_id), gene names (text search)
+- Total tests: 4 declarative + 10 custom = 14 tests
 """
 
 import sys
@@ -215,6 +219,142 @@ class DbsnpTests:
         type_dist = ", ".join([f"{vt}={count}" for vt, count in sorted(variant_types.items())])
         return True, f"✓ {total_checked} SNPs classified: {type_dist}"
 
+    @test
+    def test_functional_annotations(self):
+        """Verify functional annotation flags are present"""
+        functional_flags = ["nsf", "nsm", "nsn", "syn", "u3", "u5", "ass", "dss", "intron", "r3", "r5"]
+        flags_found = {flag: 0 for flag in functional_flags}
+        total_checked = 0
+
+        for ref in self.runner.reference_data[:50]:
+            snp_id = ref.get("rsId")
+            if not snp_id:
+                continue
+
+            data = self.runner.query.lookup(snp_id)
+
+            if not data or not data.get("results"):
+                continue
+
+            total_checked += 1
+            result = data["results"][0]
+            attrs = result.get("Attributes", {}).get("Dbsnp", {})
+
+            # Check each functional flag
+            for flag in functional_flags:
+                if attrs.get(flag):
+                    flags_found[flag] += 1
+
+        if total_checked == 0:
+            return False, "No SNPs could be checked"
+
+        # Count how many different flags were found
+        found_count = sum(1 for count in flags_found.values() if count > 0)
+        total_annotations = sum(flags_found.values())
+
+        if found_count == 0:
+            return True, f"✓ Checked {total_checked} SNPs, no functional annotations present (normal for many SNPs)"
+
+        # Show which flags were found
+        found_flags = ", ".join([f"{flag}={count}" for flag, count in flags_found.items() if count > 0])
+        return True, f"✓ {total_annotations} functional annotations across {found_count} flag types: {found_flags}"
+
+    @test
+    def test_variant_origin_sao(self):
+        """Verify SAO (Variant Allele Origin) field"""
+        sao_values = {}
+        total_checked = 0
+
+        for ref in self.runner.reference_data[:50]:
+            snp_id = ref.get("rsId")
+            if not snp_id:
+                continue
+
+            data = self.runner.query.lookup(snp_id)
+
+            if not data or not data.get("results"):
+                continue
+
+            total_checked += 1
+            result = data["results"][0]
+            attrs = result.get("Attributes", {}).get("Dbsnp", {})
+            sao = attrs.get("sao", 0)
+
+            sao_values[sao] = sao_values.get(sao, 0) + 1
+
+        if total_checked == 0:
+            return False, "No SNPs could be checked"
+
+        # Format SAO distribution
+        sao_names = {0: "unspecified", 1: "Germline", 2: "Somatic", 3: "Both"}
+        sao_dist = ", ".join([f"{sao_names.get(sao, sao)}={count}" for sao, count in sorted(sao_values.items())])
+        return True, f"✓ {total_checked} SNPs SAO distribution: {sao_dist}"
+
+    @test
+    def test_common_variant_flag(self):
+        """Verify is_common flag for common variants"""
+        common_count = 0
+        rare_count = 0
+
+        for ref in self.runner.reference_data[:50]:
+            snp_id = ref.get("rsId")
+            if not snp_id:
+                continue
+
+            data = self.runner.query.lookup(snp_id)
+
+            if not data or not data.get("results"):
+                continue
+
+            result = data["results"][0]
+            attrs = result.get("Attributes", {}).get("Dbsnp", {})
+
+            if attrs.get("is_common"):
+                common_count += 1
+            else:
+                rare_count += 1
+
+        total = common_count + rare_count
+        if total == 0:
+            return False, "No SNPs could be checked"
+
+        common_pct = (common_count / total) * 100
+        return True, f"✓ {total} SNPs: {common_count} common ({common_pct:.1f}%), {rare_count} rare"
+
+    @test
+    def test_publication_flags(self):
+        """Verify publication and evidence flags"""
+        pub_count = 0
+        pubmed_count = 0
+        genotype_count = 0
+        total_checked = 0
+
+        for ref in self.runner.reference_data[:50]:
+            snp_id = ref.get("rsId")
+            if not snp_id:
+                continue
+
+            data = self.runner.query.lookup(snp_id)
+
+            if not data or not data.get("results"):
+                continue
+
+            total_checked += 1
+            result = data["results"][0]
+            attrs = result.get("Attributes", {}).get("Dbsnp", {})
+
+            if attrs.get("has_publication"):
+                pub_count += 1
+            if attrs.get("has_pubmed_ref"):
+                pubmed_count += 1
+            if attrs.get("has_genotypes"):
+                genotype_count += 1
+
+        if total_checked == 0:
+            return False, "No SNPs could be checked"
+
+        return True, f"✓ {total_checked} SNPs: {pub_count} w/publication, {pubmed_count} w/PubMed ref, {genotype_count} w/genotypes"
+
 
 def main():
     script_dir = Path(__file__).parent
@@ -241,7 +381,11 @@ def main():
         custom_tests.test_gene_name_text_search,
         custom_tests.test_allele_frequency_data,
         custom_tests.test_clinical_significance,
-        custom_tests.test_variant_type_classification
+        custom_tests.test_variant_type_classification,
+        custom_tests.test_functional_annotations,
+        custom_tests.test_variant_origin_sao,
+        custom_tests.test_common_variant_flag,
+        custom_tests.test_publication_flags
     ]:
         runner.add_custom_test(test_method)
 

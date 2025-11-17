@@ -781,11 +781,43 @@ message DbsnpAttr {
   string variant_type = 13;                             // Variant type (SNV, insertion, deletion, etc.)
   string variant_class = 14;                            // Variant class (e.g., "single nucleotide variant")
 
+  // Variant origin and quality
+  int32 sao = 19;                                       // Variant Allele Origin: 0=unspecified, 1=Germline, 2=Somatic, 3=Both
+  bool is_common = 20;                                  // Common SNP flag (MAF >= 1% in 1000 Genomes)
+
+  // Functional impact flags (coding region effects)
+  bool nsf = 21;                                        // Non-synonymous frameshift (FxnClass=44)
+  bool nsm = 22;                                        // Non-synonymous missense (FxnClass=42)
+  bool nsn = 23;                                        // Non-synonymous nonsense/STOP (FxnClass=41)
+  bool syn = 24;                                        // Synonymous (FxnCode=3)
+
+  // UTR and splice site flags
+  bool u3 = 25;                                         // In 3' UTR (FxnCode=53)
+  bool u5 = 26;                                         // In 5' UTR (FxnCode=55)
+  bool ass = 27;                                        // In acceptor splice site (FxnCode=73)
+  bool dss = 28;                                        // In donor splice site (FxnCode=75)
+
+  // Gene region flags
+  bool intron = 29;                                     // In intron (FxnCode=6)
+  bool r3 = 30;                                         // In 3' gene region (FxnCode=13)
+  bool r5 = 31;                                         // In 5' gene region (FxnCode=15)
+
+  // Quality and evidence indicators
+  int32 ssr = 32;                                       // Suspect Reason Codes (can be sum of: 1=Paralog, 2=byEST, 4=oldAlign, 8=Para_EST, 16=1kg_failed, 1024=other)
+  bool has_publication = 33;                            // PM flag: Variant has associated publication
+  bool has_pubmed_ref = 34;                             // PUB flag: RefSNP mentioned in a publication
+  bool has_genotypes = 35;                              // GNO flag: Genotypes available
+
   // Historical data
   repeated string merged_rs_ids = 15;                   // Merged rs IDs (historical)
 
   // Literature
   repeated string pubmed_ids = 16;                      // PubMed citation IDs
+
+  // NOTE: The following VCF INFO fields are NOT included in this schema:
+  // - FREQ: Complex allele frequency list from multiple studies (would require special parsing and storage structure)
+  // - CLNHGVS, CLNVI, CLNORIGIN, CLNDISDB, CLNDN, CLNREVSTAT, CLNACC: ClinVar-specific fields
+  //   These are redundant with the separate ClinVar dataset and would duplicate data unnecessarily
 }
 
 // IntAct - Protein-Protein Interactions (Dataset ID: 44)

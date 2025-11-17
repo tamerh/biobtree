@@ -17082,6 +17082,136 @@ func (j *DbsnpAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.WriteJsonString(buf, string(j.VariantClass))
 		buf.WriteByte(',')
 	}
+	if j.Sao != 0 {
+		buf.WriteString(`"sao":`)
+		fflib.FormatBits2(buf, uint64(j.Sao), 10, j.Sao < 0)
+		buf.WriteByte(',')
+	}
+	if j.IsCommon != false {
+		if j.IsCommon {
+			buf.WriteString(`"is_common":true`)
+		} else {
+			buf.WriteString(`"is_common":false`)
+		}
+		buf.WriteByte(',')
+	}
+	if j.Nsf != false {
+		if j.Nsf {
+			buf.WriteString(`"nsf":true`)
+		} else {
+			buf.WriteString(`"nsf":false`)
+		}
+		buf.WriteByte(',')
+	}
+	if j.Nsm != false {
+		if j.Nsm {
+			buf.WriteString(`"nsm":true`)
+		} else {
+			buf.WriteString(`"nsm":false`)
+		}
+		buf.WriteByte(',')
+	}
+	if j.Nsn != false {
+		if j.Nsn {
+			buf.WriteString(`"nsn":true`)
+		} else {
+			buf.WriteString(`"nsn":false`)
+		}
+		buf.WriteByte(',')
+	}
+	if j.Syn != false {
+		if j.Syn {
+			buf.WriteString(`"syn":true`)
+		} else {
+			buf.WriteString(`"syn":false`)
+		}
+		buf.WriteByte(',')
+	}
+	if j.U3 != false {
+		if j.U3 {
+			buf.WriteString(`"u3":true`)
+		} else {
+			buf.WriteString(`"u3":false`)
+		}
+		buf.WriteByte(',')
+	}
+	if j.U5 != false {
+		if j.U5 {
+			buf.WriteString(`"u5":true`)
+		} else {
+			buf.WriteString(`"u5":false`)
+		}
+		buf.WriteByte(',')
+	}
+	if j.Ass != false {
+		if j.Ass {
+			buf.WriteString(`"ass":true`)
+		} else {
+			buf.WriteString(`"ass":false`)
+		}
+		buf.WriteByte(',')
+	}
+	if j.Dss != false {
+		if j.Dss {
+			buf.WriteString(`"dss":true`)
+		} else {
+			buf.WriteString(`"dss":false`)
+		}
+		buf.WriteByte(',')
+	}
+	if j.Intron != false {
+		if j.Intron {
+			buf.WriteString(`"intron":true`)
+		} else {
+			buf.WriteString(`"intron":false`)
+		}
+		buf.WriteByte(',')
+	}
+	if j.R3 != false {
+		if j.R3 {
+			buf.WriteString(`"r3":true`)
+		} else {
+			buf.WriteString(`"r3":false`)
+		}
+		buf.WriteByte(',')
+	}
+	if j.R5 != false {
+		if j.R5 {
+			buf.WriteString(`"r5":true`)
+		} else {
+			buf.WriteString(`"r5":false`)
+		}
+		buf.WriteByte(',')
+	}
+	if j.Ssr != 0 {
+		buf.WriteString(`"ssr":`)
+		fflib.FormatBits2(buf, uint64(j.Ssr), 10, j.Ssr < 0)
+		buf.WriteByte(',')
+	}
+	if j.HasPublication != false {
+		if j.HasPublication {
+			buf.WriteString(`"has_publication":true`)
+		} else {
+			buf.WriteString(`"has_publication":false`)
+		}
+		buf.WriteByte(',')
+	}
+	if j.HasPubmedRef != false {
+		if j.HasPubmedRef {
+			buf.WriteString(`"has_pubmed_ref":true`)
+		} else {
+			buf.WriteString(`"has_pubmed_ref":false`)
+		}
+		buf.WriteByte(',')
+	}
+	if j.HasGenotypes != false {
+		if j.HasGenotypes {
+			buf.WriteString(`"has_genotypes":true`)
+		} else {
+			buf.WriteString(`"has_genotypes":false`)
+		}
+		buf.WriteByte(',')
+	}
 	if len(j.MergedRsIds) != 0 {
 		buf.WriteString(`"merged_rs_ids":`)
 		if j.MergedRsIds != nil {
@@ -17155,6 +17285,40 @@ const (
 
 	ffjtDbsnpAttrVariantClass
 
+	ffjtDbsnpAttrSao
+
+	ffjtDbsnpAttrIsCommon
+
+	ffjtDbsnpAttrNsf
+
+	ffjtDbsnpAttrNsm
+
+	ffjtDbsnpAttrNsn
+
+	ffjtDbsnpAttrSyn
+
+	ffjtDbsnpAttrU3
+
+	ffjtDbsnpAttrU5
+
+	ffjtDbsnpAttrAss
+
+	ffjtDbsnpAttrDss
+
+	ffjtDbsnpAttrIntron
+
+	ffjtDbsnpAttrR3
+
+	ffjtDbsnpAttrR5
+
+	ffjtDbsnpAttrSsr
+
+	ffjtDbsnpAttrHasPublication
+
+	ffjtDbsnpAttrHasPubmedRef
+
+	ffjtDbsnpAttrHasGenotypes
+
 	ffjtDbsnpAttrMergedRsIds
 
 	ffjtDbsnpAttrPubmedIds
@@ -17191,6 +17355,40 @@ var ffjKeyDbsnpAttrClinicalSignificance = []byte("clinical_significance")
 var ffjKeyDbsnpAttrVariantType = []byte("variant_type")
 
 var ffjKeyDbsnpAttrVariantClass = []byte("variant_class")
+
+var ffjKeyDbsnpAttrSao = []byte("sao")
+
+var ffjKeyDbsnpAttrIsCommon = []byte("is_common")
+
+var ffjKeyDbsnpAttrNsf = []byte("nsf")
+
+var ffjKeyDbsnpAttrNsm = []byte("nsm")
+
+var ffjKeyDbsnpAttrNsn = []byte("nsn")
+
+var ffjKeyDbsnpAttrSyn = []byte("syn")
+
+var ffjKeyDbsnpAttrU3 = []byte("u3")
+
+var ffjKeyDbsnpAttrU5 = []byte("u5")
+
+var ffjKeyDbsnpAttrAss = []byte("ass")
+
+var ffjKeyDbsnpAttrDss = []byte("dss")
+
+var ffjKeyDbsnpAttrIntron = []byte("intron")
+
+var ffjKeyDbsnpAttrR3 = []byte("r3")
+
+var ffjKeyDbsnpAttrR5 = []byte("r5")
+
+var ffjKeyDbsnpAttrSsr = []byte("ssr")
+
+var ffjKeyDbsnpAttrHasPublication = []byte("has_publication")
+
+var ffjKeyDbsnpAttrHasPubmedRef = []byte("has_pubmed_ref")
+
+var ffjKeyDbsnpAttrHasGenotypes = []byte("has_genotypes")
 
 var ffjKeyDbsnpAttrMergedRsIds = []byte("merged_rs_ids")
 
@@ -17268,6 +17466,11 @@ mainparse:
 						currentKey = ffjtDbsnpAttrAlleleFrequency
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyDbsnpAttrAss, kn) {
+						currentKey = ffjtDbsnpAttrAss
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 'b':
@@ -17287,6 +17490,14 @@ mainparse:
 
 					} else if bytes.Equal(ffjKeyDbsnpAttrClinicalSignificance, kn) {
 						currentKey = ffjtDbsnpAttrClinicalSignificance
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'd':
+
+					if bytes.Equal(ffjKeyDbsnpAttrDss, kn) {
+						currentKey = ffjtDbsnpAttrDss
 						state = fflib.FFParse_want_colon
 						goto mainparse
 					}
@@ -17314,10 +17525,59 @@ mainparse:
 						goto mainparse
 					}
 
+				case 'h':
+
+					if bytes.Equal(ffjKeyDbsnpAttrHasPublication, kn) {
+						currentKey = ffjtDbsnpAttrHasPublication
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyDbsnpAttrHasPubmedRef, kn) {
+						currentKey = ffjtDbsnpAttrHasPubmedRef
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyDbsnpAttrHasGenotypes, kn) {
+						currentKey = ffjtDbsnpAttrHasGenotypes
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'i':
+
+					if bytes.Equal(ffjKeyDbsnpAttrIsCommon, kn) {
+						currentKey = ffjtDbsnpAttrIsCommon
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyDbsnpAttrIntron, kn) {
+						currentKey = ffjtDbsnpAttrIntron
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 'm':
 
 					if bytes.Equal(ffjKeyDbsnpAttrMergedRsIds, kn) {
 						currentKey = ffjtDbsnpAttrMergedRsIds
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'n':
+
+					if bytes.Equal(ffjKeyDbsnpAttrNsf, kn) {
+						currentKey = ffjtDbsnpAttrNsf
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyDbsnpAttrNsm, kn) {
+						currentKey = ffjtDbsnpAttrNsm
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyDbsnpAttrNsn, kn) {
+						currentKey = ffjtDbsnpAttrNsn
 						state = fflib.FFParse_want_colon
 						goto mainparse
 					}
@@ -17356,6 +17616,47 @@ mainparse:
 						currentKey = ffjtDbsnpAttrRefAllele
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyDbsnpAttrR3, kn) {
+						currentKey = ffjtDbsnpAttrR3
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyDbsnpAttrR5, kn) {
+						currentKey = ffjtDbsnpAttrR5
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 's':
+
+					if bytes.Equal(ffjKeyDbsnpAttrSao, kn) {
+						currentKey = ffjtDbsnpAttrSao
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyDbsnpAttrSyn, kn) {
+						currentKey = ffjtDbsnpAttrSyn
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyDbsnpAttrSsr, kn) {
+						currentKey = ffjtDbsnpAttrSsr
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'u':
+
+					if bytes.Equal(ffjKeyDbsnpAttrU3, kn) {
+						currentKey = ffjtDbsnpAttrU3
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyDbsnpAttrU5, kn) {
+						currentKey = ffjtDbsnpAttrU5
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 'v':
@@ -17381,6 +17682,108 @@ mainparse:
 
 				if fflib.EqualFoldRight(ffjKeyDbsnpAttrMergedRsIds, kn) {
 					currentKey = ffjtDbsnpAttrMergedRsIds
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyDbsnpAttrHasGenotypes, kn) {
+					currentKey = ffjtDbsnpAttrHasGenotypes
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyDbsnpAttrHasPubmedRef, kn) {
+					currentKey = ffjtDbsnpAttrHasPubmedRef
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyDbsnpAttrHasPublication, kn) {
+					currentKey = ffjtDbsnpAttrHasPublication
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyDbsnpAttrSsr, kn) {
+					currentKey = ffjtDbsnpAttrSsr
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyDbsnpAttrR5, kn) {
+					currentKey = ffjtDbsnpAttrR5
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyDbsnpAttrR3, kn) {
+					currentKey = ffjtDbsnpAttrR3
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyDbsnpAttrIntron, kn) {
+					currentKey = ffjtDbsnpAttrIntron
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyDbsnpAttrDss, kn) {
+					currentKey = ffjtDbsnpAttrDss
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyDbsnpAttrAss, kn) {
+					currentKey = ffjtDbsnpAttrAss
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyDbsnpAttrU5, kn) {
+					currentKey = ffjtDbsnpAttrU5
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyDbsnpAttrU3, kn) {
+					currentKey = ffjtDbsnpAttrU3
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyDbsnpAttrSyn, kn) {
+					currentKey = ffjtDbsnpAttrSyn
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyDbsnpAttrNsn, kn) {
+					currentKey = ffjtDbsnpAttrNsn
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyDbsnpAttrNsm, kn) {
+					currentKey = ffjtDbsnpAttrNsm
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyDbsnpAttrNsf, kn) {
+					currentKey = ffjtDbsnpAttrNsf
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyDbsnpAttrIsCommon, kn) {
+					currentKey = ffjtDbsnpAttrIsCommon
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyDbsnpAttrSao, kn) {
+					currentKey = ffjtDbsnpAttrSao
 					state = fflib.FFParse_want_colon
 					goto mainparse
 				}
@@ -17545,6 +17948,57 @@ mainparse:
 
 				case ffjtDbsnpAttrVariantClass:
 					goto handle_VariantClass
+
+				case ffjtDbsnpAttrSao:
+					goto handle_Sao
+
+				case ffjtDbsnpAttrIsCommon:
+					goto handle_IsCommon
+
+				case ffjtDbsnpAttrNsf:
+					goto handle_Nsf
+
+				case ffjtDbsnpAttrNsm:
+					goto handle_Nsm
+
+				case ffjtDbsnpAttrNsn:
+					goto handle_Nsn
+
+				case ffjtDbsnpAttrSyn:
+					goto handle_Syn
+
+				case ffjtDbsnpAttrU3:
+					goto handle_U3
+
+				case ffjtDbsnpAttrU5:
+					goto handle_U5
+
+				case ffjtDbsnpAttrAss:
+					goto handle_Ass
+
+				case ffjtDbsnpAttrDss:
+					goto handle_Dss
+
+				case ffjtDbsnpAttrIntron:
+					goto handle_Intron
+
+				case ffjtDbsnpAttrR3:
+					goto handle_R3
+
+				case ffjtDbsnpAttrR5:
+					goto handle_R5
+
+				case ffjtDbsnpAttrSsr:
+					goto handle_Ssr
+
+				case ffjtDbsnpAttrHasPublication:
+					goto handle_HasPublication
+
+				case ffjtDbsnpAttrHasPubmedRef:
+					goto handle_HasPubmedRef
+
+				case ffjtDbsnpAttrHasGenotypes:
+					goto handle_HasGenotypes
 
 				case ffjtDbsnpAttrMergedRsIds:
 					goto handle_MergedRsIds
@@ -18179,6 +18633,591 @@ handle_VariantClass:
 			outBuf := fs.Output.Bytes()
 
 			j.VariantClass = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Sao:
+
+	/* handler: j.Sao type=int32 kind=int32 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for int32", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseInt(fs.Output.Bytes(), 10, 32)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.Sao = int32(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_IsCommon:
+
+	/* handler: j.IsCommon type=bool kind=bool quoted=false*/
+
+	{
+		if tok != fflib.FFTok_bool && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for bool", tok))
+		}
+	}
+
+	{
+		if tok == fflib.FFTok_null {
+
+		} else {
+			tmpb := fs.Output.Bytes()
+
+			if bytes.Compare([]byte{'t', 'r', 'u', 'e'}, tmpb) == 0 {
+
+				j.IsCommon = true
+
+			} else if bytes.Compare([]byte{'f', 'a', 'l', 's', 'e'}, tmpb) == 0 {
+
+				j.IsCommon = false
+
+			} else {
+				err = errors.New("unexpected bytes for true/false value")
+				return fs.WrapErr(err)
+			}
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Nsf:
+
+	/* handler: j.Nsf type=bool kind=bool quoted=false*/
+
+	{
+		if tok != fflib.FFTok_bool && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for bool", tok))
+		}
+	}
+
+	{
+		if tok == fflib.FFTok_null {
+
+		} else {
+			tmpb := fs.Output.Bytes()
+
+			if bytes.Compare([]byte{'t', 'r', 'u', 'e'}, tmpb) == 0 {
+
+				j.Nsf = true
+
+			} else if bytes.Compare([]byte{'f', 'a', 'l', 's', 'e'}, tmpb) == 0 {
+
+				j.Nsf = false
+
+			} else {
+				err = errors.New("unexpected bytes for true/false value")
+				return fs.WrapErr(err)
+			}
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Nsm:
+
+	/* handler: j.Nsm type=bool kind=bool quoted=false*/
+
+	{
+		if tok != fflib.FFTok_bool && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for bool", tok))
+		}
+	}
+
+	{
+		if tok == fflib.FFTok_null {
+
+		} else {
+			tmpb := fs.Output.Bytes()
+
+			if bytes.Compare([]byte{'t', 'r', 'u', 'e'}, tmpb) == 0 {
+
+				j.Nsm = true
+
+			} else if bytes.Compare([]byte{'f', 'a', 'l', 's', 'e'}, tmpb) == 0 {
+
+				j.Nsm = false
+
+			} else {
+				err = errors.New("unexpected bytes for true/false value")
+				return fs.WrapErr(err)
+			}
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Nsn:
+
+	/* handler: j.Nsn type=bool kind=bool quoted=false*/
+
+	{
+		if tok != fflib.FFTok_bool && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for bool", tok))
+		}
+	}
+
+	{
+		if tok == fflib.FFTok_null {
+
+		} else {
+			tmpb := fs.Output.Bytes()
+
+			if bytes.Compare([]byte{'t', 'r', 'u', 'e'}, tmpb) == 0 {
+
+				j.Nsn = true
+
+			} else if bytes.Compare([]byte{'f', 'a', 'l', 's', 'e'}, tmpb) == 0 {
+
+				j.Nsn = false
+
+			} else {
+				err = errors.New("unexpected bytes for true/false value")
+				return fs.WrapErr(err)
+			}
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Syn:
+
+	/* handler: j.Syn type=bool kind=bool quoted=false*/
+
+	{
+		if tok != fflib.FFTok_bool && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for bool", tok))
+		}
+	}
+
+	{
+		if tok == fflib.FFTok_null {
+
+		} else {
+			tmpb := fs.Output.Bytes()
+
+			if bytes.Compare([]byte{'t', 'r', 'u', 'e'}, tmpb) == 0 {
+
+				j.Syn = true
+
+			} else if bytes.Compare([]byte{'f', 'a', 'l', 's', 'e'}, tmpb) == 0 {
+
+				j.Syn = false
+
+			} else {
+				err = errors.New("unexpected bytes for true/false value")
+				return fs.WrapErr(err)
+			}
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_U3:
+
+	/* handler: j.U3 type=bool kind=bool quoted=false*/
+
+	{
+		if tok != fflib.FFTok_bool && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for bool", tok))
+		}
+	}
+
+	{
+		if tok == fflib.FFTok_null {
+
+		} else {
+			tmpb := fs.Output.Bytes()
+
+			if bytes.Compare([]byte{'t', 'r', 'u', 'e'}, tmpb) == 0 {
+
+				j.U3 = true
+
+			} else if bytes.Compare([]byte{'f', 'a', 'l', 's', 'e'}, tmpb) == 0 {
+
+				j.U3 = false
+
+			} else {
+				err = errors.New("unexpected bytes for true/false value")
+				return fs.WrapErr(err)
+			}
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_U5:
+
+	/* handler: j.U5 type=bool kind=bool quoted=false*/
+
+	{
+		if tok != fflib.FFTok_bool && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for bool", tok))
+		}
+	}
+
+	{
+		if tok == fflib.FFTok_null {
+
+		} else {
+			tmpb := fs.Output.Bytes()
+
+			if bytes.Compare([]byte{'t', 'r', 'u', 'e'}, tmpb) == 0 {
+
+				j.U5 = true
+
+			} else if bytes.Compare([]byte{'f', 'a', 'l', 's', 'e'}, tmpb) == 0 {
+
+				j.U5 = false
+
+			} else {
+				err = errors.New("unexpected bytes for true/false value")
+				return fs.WrapErr(err)
+			}
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Ass:
+
+	/* handler: j.Ass type=bool kind=bool quoted=false*/
+
+	{
+		if tok != fflib.FFTok_bool && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for bool", tok))
+		}
+	}
+
+	{
+		if tok == fflib.FFTok_null {
+
+		} else {
+			tmpb := fs.Output.Bytes()
+
+			if bytes.Compare([]byte{'t', 'r', 'u', 'e'}, tmpb) == 0 {
+
+				j.Ass = true
+
+			} else if bytes.Compare([]byte{'f', 'a', 'l', 's', 'e'}, tmpb) == 0 {
+
+				j.Ass = false
+
+			} else {
+				err = errors.New("unexpected bytes for true/false value")
+				return fs.WrapErr(err)
+			}
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Dss:
+
+	/* handler: j.Dss type=bool kind=bool quoted=false*/
+
+	{
+		if tok != fflib.FFTok_bool && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for bool", tok))
+		}
+	}
+
+	{
+		if tok == fflib.FFTok_null {
+
+		} else {
+			tmpb := fs.Output.Bytes()
+
+			if bytes.Compare([]byte{'t', 'r', 'u', 'e'}, tmpb) == 0 {
+
+				j.Dss = true
+
+			} else if bytes.Compare([]byte{'f', 'a', 'l', 's', 'e'}, tmpb) == 0 {
+
+				j.Dss = false
+
+			} else {
+				err = errors.New("unexpected bytes for true/false value")
+				return fs.WrapErr(err)
+			}
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Intron:
+
+	/* handler: j.Intron type=bool kind=bool quoted=false*/
+
+	{
+		if tok != fflib.FFTok_bool && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for bool", tok))
+		}
+	}
+
+	{
+		if tok == fflib.FFTok_null {
+
+		} else {
+			tmpb := fs.Output.Bytes()
+
+			if bytes.Compare([]byte{'t', 'r', 'u', 'e'}, tmpb) == 0 {
+
+				j.Intron = true
+
+			} else if bytes.Compare([]byte{'f', 'a', 'l', 's', 'e'}, tmpb) == 0 {
+
+				j.Intron = false
+
+			} else {
+				err = errors.New("unexpected bytes for true/false value")
+				return fs.WrapErr(err)
+			}
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_R3:
+
+	/* handler: j.R3 type=bool kind=bool quoted=false*/
+
+	{
+		if tok != fflib.FFTok_bool && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for bool", tok))
+		}
+	}
+
+	{
+		if tok == fflib.FFTok_null {
+
+		} else {
+			tmpb := fs.Output.Bytes()
+
+			if bytes.Compare([]byte{'t', 'r', 'u', 'e'}, tmpb) == 0 {
+
+				j.R3 = true
+
+			} else if bytes.Compare([]byte{'f', 'a', 'l', 's', 'e'}, tmpb) == 0 {
+
+				j.R3 = false
+
+			} else {
+				err = errors.New("unexpected bytes for true/false value")
+				return fs.WrapErr(err)
+			}
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_R5:
+
+	/* handler: j.R5 type=bool kind=bool quoted=false*/
+
+	{
+		if tok != fflib.FFTok_bool && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for bool", tok))
+		}
+	}
+
+	{
+		if tok == fflib.FFTok_null {
+
+		} else {
+			tmpb := fs.Output.Bytes()
+
+			if bytes.Compare([]byte{'t', 'r', 'u', 'e'}, tmpb) == 0 {
+
+				j.R5 = true
+
+			} else if bytes.Compare([]byte{'f', 'a', 'l', 's', 'e'}, tmpb) == 0 {
+
+				j.R5 = false
+
+			} else {
+				err = errors.New("unexpected bytes for true/false value")
+				return fs.WrapErr(err)
+			}
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Ssr:
+
+	/* handler: j.Ssr type=int32 kind=int32 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for int32", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseInt(fs.Output.Bytes(), 10, 32)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.Ssr = int32(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_HasPublication:
+
+	/* handler: j.HasPublication type=bool kind=bool quoted=false*/
+
+	{
+		if tok != fflib.FFTok_bool && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for bool", tok))
+		}
+	}
+
+	{
+		if tok == fflib.FFTok_null {
+
+		} else {
+			tmpb := fs.Output.Bytes()
+
+			if bytes.Compare([]byte{'t', 'r', 'u', 'e'}, tmpb) == 0 {
+
+				j.HasPublication = true
+
+			} else if bytes.Compare([]byte{'f', 'a', 'l', 's', 'e'}, tmpb) == 0 {
+
+				j.HasPublication = false
+
+			} else {
+				err = errors.New("unexpected bytes for true/false value")
+				return fs.WrapErr(err)
+			}
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_HasPubmedRef:
+
+	/* handler: j.HasPubmedRef type=bool kind=bool quoted=false*/
+
+	{
+		if tok != fflib.FFTok_bool && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for bool", tok))
+		}
+	}
+
+	{
+		if tok == fflib.FFTok_null {
+
+		} else {
+			tmpb := fs.Output.Bytes()
+
+			if bytes.Compare([]byte{'t', 'r', 'u', 'e'}, tmpb) == 0 {
+
+				j.HasPubmedRef = true
+
+			} else if bytes.Compare([]byte{'f', 'a', 'l', 's', 'e'}, tmpb) == 0 {
+
+				j.HasPubmedRef = false
+
+			} else {
+				err = errors.New("unexpected bytes for true/false value")
+				return fs.WrapErr(err)
+			}
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_HasGenotypes:
+
+	/* handler: j.HasGenotypes type=bool kind=bool quoted=false*/
+
+	{
+		if tok != fflib.FFTok_bool && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for bool", tok))
+		}
+	}
+
+	{
+		if tok == fflib.FFTok_null {
+
+		} else {
+			tmpb := fs.Output.Bytes()
+
+			if bytes.Compare([]byte{'t', 'r', 'u', 'e'}, tmpb) == 0 {
+
+				j.HasGenotypes = true
+
+			} else if bytes.Compare([]byte{'f', 'a', 'l', 's', 'e'}, tmpb) == 0 {
+
+				j.HasGenotypes = false
+
+			} else {
+				err = errors.New("unexpected bytes for true/false value")
+				return fs.WrapErr(err)
+			}
 
 		}
 	}

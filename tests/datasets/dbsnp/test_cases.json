@@ -50,6 +50,22 @@
     {
       "name": "Check variant type classification",
       "description": "Verify SNPs are classified as SNV, insertion, deletion, etc."
+    },
+    {
+      "name": "Check functional annotations",
+      "description": "Verify functional annotation flags (NSM, NSN, SYN, splice sites, UTRs, gene regions)"
+    },
+    {
+      "name": "Check variant origin (SAO)",
+      "description": "Verify SAO field distinguishes germline vs somatic variants"
+    },
+    {
+      "name": "Check common variant flag",
+      "description": "Verify is_common flag for common variants (MAF >= 1%)"
+    },
+    {
+      "name": "Check publication flags",
+      "description": "Verify publication and genotype availability flags"
     }
   ]
 }

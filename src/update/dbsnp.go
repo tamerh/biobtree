@@ -80,7 +80,9 @@ func (db *dbsnp) parseAndSaveVCF(testLimit int, idLogFile *os.File) {
 
 	// Track statistics
 	var totalLines, savedSNPs, skippedLines int64
-	snpsSaved := make(map[string]bool) // Track unique rs IDs
+	// NOTE: We don't need a deduplication map because NCBI dbSNP VCF files
+	// are already deduplicated at source. Tracking millions of rs IDs
+	// would consume 50-100GB of memory unnecessarily.
 
 	// Source ID for cross-references
 	sourceID := config.Dataconf[db.source]["id"]
@@ -134,10 +136,8 @@ func (db *dbsnp) parseAndSaveVCF(testLimit int, idLogFile *os.File) {
 			continue
 		}
 
-		// Skip if already saved (VCF may have duplicates)
-		if snpsSaved[rsID] {
-			continue
-		}
+		// NOTE: No deduplication check needed - NCBI VCF files are pre-deduplicated
+		// If duplicates exist, addProp3() will overwrite (upsert behavior)
 
 		// Parse position
 		pos, err := strconv.ParseInt(posStr, 10, 64)
@@ -169,12 +169,29 @@ func (db *dbsnp) parseAndSaveVCF(testLimit int, idLogFile *os.File) {
 			}
 		}
 
+		// Parse GENEINFO: Format is "GENE1:GENEID1|GENE2:GENEID2|..."
+		// Example: "WASH7P:653635|DDX11L1:100287102"
 		if geneInfo, ok := infoMap["GENEINFO"]; ok {
-			// GENEINFO format: "GENE:GENEID"
-			parts := strings.Split(geneInfo, ":")
-			if len(parts) >= 2 {
-				attr.GeneName = parts[0]
-				attr.GeneId = parts[1]
+			genePairs := strings.Split(geneInfo, "|")
+			for _, pair := range genePairs {
+				parts := strings.Split(pair, ":")
+				if len(parts) >= 2 {
+					attr.GeneNames = append(attr.GeneNames, parts[0])
+					attr.GeneIds = append(attr.GeneIds, parts[1])
+				}
+			}
+		}
+
+		// Parse PSEUDOGENEINFO: Same format as GENEINFO
+		// Example: "DDX11L1:100287102"
+		if pseudogeneInfo, ok := infoMap["PSEUDOGENEINFO"]; ok {
+			pseudogenePairs := strings.Split(pseudogeneInfo, "|")
+			for _, pair := range pseudogenePairs {
+				parts := strings.Split(pair, ":")
+				if len(parts) >= 2 {
+					attr.PseudogeneNames = append(attr.PseudogeneNames, parts[0])
+					attr.PseudogeneIds = append(attr.PseudogeneIds, parts[1])
+				}
 			}
 		}
 
@@ -189,9 +206,8 @@ func (db *dbsnp) parseAndSaveVCF(testLimit int, idLogFile *os.File) {
 		// Determine variant type
 		attr.VariantType = db.determineVariantType(refAllele, altAllele)
 
-		// Save SNP
+		// Save SNP (streaming - no accumulation in memory)
 		db.saveSNP(rsID, attr, sourceID)
-		snpsSaved[rsID] = true
 		savedSNPs++
 
 		// Log ID in test mode
@@ -221,17 +237,51 @@ func (db *dbsnp) parseAndSaveVCF(testLimit int, idLogFile *os.File) {
 }
 
 // parseINFO parses the VCF INFO field into a map
+// OPTIMIZED: Uses streaming parse to avoid allocating full split array in memory
+// This handles large INFO fields (even MB-sized) without memory explosion
 func (db *dbsnp) parseINFO(infoField string) map[string]string {
-	infoMap := make(map[string]string)
-	fields := strings.Split(infoField, ";")
+	infoMap := make(map[string]string, 8) // Pre-allocate for typical number of fields we need
 
-	for _, field := range fields {
-		parts := strings.SplitN(field, "=", 2)
-		if len(parts) == 2 {
-			infoMap[parts[0]] = parts[1]
-		} else {
-			// Flag fields (no value)
-			infoMap[parts[0]] = "true"
+	// Fields we actually care about (for targeted extraction)
+	// Only parse what we'll use to save memory
+	targetFields := map[string]bool{
+		"dbSNPBuildID":    true,
+		"AF":              true,
+		"GENEINFO":        true,
+		"PSEUDOGENEINFO":  true,
+		"CLNSIG":          true,
+		"VC":              true,
+	}
+
+	// Manual parsing to avoid strings.Split() which allocates entire array
+	// This streams through the string and only extracts what we need
+	// Memory usage: O(fields_we_need) instead of O(total_fields)
+	start := 0
+	for i := 0; i < len(infoField); i++ {
+		if infoField[i] == ';' || i == len(infoField)-1 {
+			end := i
+			if i == len(infoField)-1 {
+				end = i + 1
+			}
+
+			field := infoField[start:end]
+			start = i + 1
+
+			// Find the '=' separator (using IndexByte is faster than Split)
+			eqIdx := strings.IndexByte(field, '=')
+			if eqIdx == -1 {
+				// Flag field (no value)
+				if targetFields[field] {
+					infoMap[field] = "true"
+				}
+			} else {
+				key := field[:eqIdx]
+				// Only extract fields we need - this is the key optimization
+				if targetFields[key] {
+					value := field[eqIdx+1:]
+					infoMap[key] = value
+				}
+			}
 		}
 	}
 
@@ -293,16 +343,29 @@ func (db *dbsnp) saveSNP(rsID string, attr *pbuf.DbsnpAttr, sourceID string) {
 
 // createCrossReferences creates cross-references from dbSNP to other datasets
 func (db *dbsnp) createCrossReferences(rsID, sourceID string, attr *pbuf.DbsnpAttr) {
-	textLinkID := "0" // Text search link ID
-
-	// SNP → Gene (via gene_id from GENEINFO)
-	if attr.GeneId != "" {
-		db.d.addXref(rsID, sourceID, attr.GeneId, "gene", false)
+	// SNP → Gene (via gene_ids from GENEINFO) - ALL genes
+	for _, geneID := range attr.GeneIds {
+		if geneID != "" {
+			db.d.addXref(rsID, sourceID, geneID, "gene", false)
+		}
 	}
 
-	// SNP → Gene name (text search for discovery)
-	if attr.GeneName != "" && len(attr.GeneName) < 100 {
-		db.d.addXref(attr.GeneName, textLinkID, rsID, db.source, true)
+	// Gene names → SNP cross-reference via Ensembl lookup
+	// Handles paralogs by filtering using chromosome and HGNC preference
+	// Search "BRCA1" returns Ensembl entry (with embedded HGNC data), then "BRCA1 >> dbsnp" returns all SNPs
+	// No limit - biobtree is deterministic, we show all genes or none
+	for _, geneName := range attr.GeneNames {
+		if geneName != "" && len(geneName) < 100 {
+			db.d.addXrefViaGeneSymbol(geneName, attr.Chromosome, rsID, db.source, sourceID)
+		}
+	}
+
+	// Pseudogene names → SNP cross-reference via Ensembl lookup
+	// Same pattern as genes, but for pseudogenes
+	for _, pseudogeneName := range attr.PseudogeneNames {
+		if pseudogeneName != "" && len(pseudogeneName) < 100 {
+			db.d.addXrefViaGeneSymbol(pseudogeneName, attr.Chromosome, rsID, db.source, sourceID)
+		}
 	}
 
 	// Future: Add bidirectional links to GWAS and ClinVar

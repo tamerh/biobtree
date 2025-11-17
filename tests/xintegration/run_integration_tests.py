@@ -71,9 +71,15 @@ class IntegrationTestRunner:
 
     def run_query(self, test, identifier, expected_pass):
         """Execute a single query"""
-        # Use params dict for proper URL encoding
-        params = {'i': identifier, 'm': test['query']}
-        url = f"{self.server}/ws/map/"
+        # Choose endpoint based on query type
+        if test['query'] == '':
+            # Empty query = lookup using search endpoint
+            params = {'i': identifier}
+            url = f"{self.server}/ws/"
+        else:
+            # Non-empty query = mapping endpoint
+            params = {'i': identifier, 'm': test['query']}
+            url = f"{self.server}/ws/map/"
 
         try:
             response = requests.get(url, params=params, timeout=30)

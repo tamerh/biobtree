@@ -1,16 +1,30 @@
 [
   {
-    "rsId": "rs376007522",
-    "chromosome": "1",
-    "position": 10108,
-    "refAllele": "C",
-    "altAllele": "A",
+    "rsId": "rs1570391677",
+    "chromosome": "NC_000001.11",
+    "position": 10001,
+    "refAllele": "T",
+    "altAllele": "A,C",
     "_test_metadata": {
-      "identifier": "rs376007522",
+      "identifier": "rs1570391677",
       "source": "VCF file"
     },
-    "buildId": "138",
-    "alleleFrequency": 0.0007,
+    "buildId": "154",
+    "variantClass": "SNV"
+  },
+  {
+    "rsId": "rs2084312",
+    "chromosome": "NC_000017.11",
+    "position": 74699072,
+    "refAllele": "C",
+    "altAllele": "A,G,T",
+    "_test_metadata": {
+      "identifier": "rs2084312",
+      "source": "VCF file"
+    },
+    "buildId": "96",
+    "geneName": "CD300LF",
+    "geneId": "146722|RAB37",
     "variantClass": "SNV"
   }
 ]

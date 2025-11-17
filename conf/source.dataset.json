@@ -74,7 +74,7 @@
     "useLocalFile": "no",
     "hasFilter": "yes",
     "attrs": "[]names,[]symbols,locus_group,[]aliases,locus_type,[]prev_names,[]prev_symbols,status,[]gene_groups",
-    "test_entries_count": "100"
+    "test_entries_count": "20000"
   },
   "uniparc": {
     "id": "6",

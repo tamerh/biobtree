@@ -208,6 +208,148 @@ class EnsemblTests:
 
         return True, f"{gene_id}: Canonical transcript {transcript}"
 
+    @test
+    def test_hgnc_data_embedded(self):
+        """Check human genes have embedded HGNC data"""
+        # Find a human gene (species = homo_sapiens)
+        human_gene = next(
+            (e for e in self.runner.reference_data
+             if e.get("species") == "homo_sapiens"),
+            None
+        )
+        if not human_gene:
+            return False, "No human genes in reference data"
+
+        gene_id = human_gene["id"]
+        data = self.runner.lookup(gene_id)
+
+        if not data or not data.get("results"):
+            return False, f"No results for {gene_id}"
+
+        result = data["results"][0]
+        attrs = result.get("Attributes", {}).get("Ensembl", {})
+
+        # Check if HGNC data exists
+        hgnc_data = attrs.get("hgnc")
+        if not hgnc_data:
+            # Not all human genes have HGNC data (paralogs, provisional genes, etc.)
+            # Try to find one that does
+            for entry in self.runner.reference_data:
+                if entry.get("species") != "homo_sapiens":
+                    continue
+                test_data = self.runner.lookup(entry["id"])
+                if test_data and test_data.get("results"):
+                    test_attrs = test_data["results"][0].get("Attributes", {}).get("Ensembl", {})
+                    if test_attrs.get("hgnc"):
+                        gene_id = entry["id"]
+                        hgnc_data = test_attrs["hgnc"]
+                        break
+
+            if not hgnc_data:
+                return False, "No human genes with HGNC data found in test set"
+
+        # Validate HGNC data structure
+        if not hgnc_data.get("symbols"):
+            return False, f"{gene_id}: HGNC data missing symbols field"
+
+        symbols = hgnc_data["symbols"]
+        return True, f"{gene_id}: Has HGNC data (symbols: {', '.join(symbols[:3])})"
+
+    @test
+    def test_hgnc_symbol_search(self):
+        """Check HGNC symbols resolve to Ensembl entries"""
+        # Find a human gene with HGNC data
+        for entry in self.runner.reference_data:
+            if entry.get("species") != "homo_sapiens":
+                continue
+
+            gene_id = entry["id"]
+            data = self.runner.lookup(gene_id)
+
+            if not data or not data.get("results"):
+                continue
+
+            attrs = data["results"][0].get("Attributes", {}).get("Ensembl", {})
+            hgnc_data = attrs.get("hgnc")
+
+            if not hgnc_data or not hgnc_data.get("symbols"):
+                continue
+
+            # Find a real gene symbol (not HGNC:* format)
+            gene_symbol = None
+            for symbol in hgnc_data["symbols"]:
+                if not symbol.startswith("HGNC:"):
+                    gene_symbol = symbol
+                    break
+
+            if not gene_symbol:
+                continue
+
+            # Search by gene symbol
+            search_data = self.runner.lookup(gene_symbol)
+
+            if not search_data or not search_data.get("results"):
+                return False, f"Symbol '{gene_symbol}' not searchable"
+
+            # Verify it returns the Ensembl entry (not a separate HGNC entry)
+            search_result = search_data["results"][0]
+            if search_result.get("dataset_name") != "ensembl":
+                return False, f"Symbol '{gene_symbol}' returned {search_result.get('dataset_name')}, not ensembl"
+
+            if search_result.get("identifier") != gene_id:
+                # Could be a different gene with same symbol (paralog)
+                # Just verify it's still an Ensembl entry
+                pass
+
+            return True, f"Symbol '{gene_symbol}' resolves to Ensembl entry {search_result.get('identifier')}"
+
+        return False, "No human genes with HGNC symbols found"
+
+    @test
+    def test_hgnc_id_search(self):
+        """Check HGNC IDs resolve to Ensembl entries"""
+        # Find a human gene with HGNC ID
+        for entry in self.runner.reference_data:
+            if entry.get("species") != "homo_sapiens":
+                continue
+
+            gene_id = entry["id"]
+            data = self.runner.lookup(gene_id)
+
+            if not data or not data.get("results"):
+                continue
+
+            attrs = data["results"][0].get("Attributes", {}).get("Ensembl", {})
+            hgnc_data = attrs.get("hgnc")
+
+            if not hgnc_data or not hgnc_data.get("symbols"):
+                continue
+
+            # Find HGNC ID in symbols
+            hgnc_id = None
+            for symbol in hgnc_data["symbols"]:
+                if symbol.startswith("HGNC:"):
+                    hgnc_id = symbol
+                    break
+
+            if not hgnc_id:
+                continue
+
+            # Search by HGNC ID
+            search_data = self.runner.lookup(hgnc_id)
+
+            if not search_data or not search_data.get("results"):
+                return False, f"HGNC ID '{hgnc_id}' not searchable"
+
+            # Verify it returns the Ensembl entry
+            search_result = search_data["results"][0]
+            if search_result.get("dataset_name") != "ensembl":
+                return False, f"HGNC ID '{hgnc_id}' returned {search_result.get('dataset_name')}, not ensembl"
+
+            return True, f"HGNC ID '{hgnc_id}' resolves to Ensembl entry {search_result.get('identifier')}"
+
+        return False, "No human genes with HGNC IDs found"
+
 
 def main():
     """Main test execution"""
@@ -237,7 +379,10 @@ def main():
         custom_tests.test_cross_references,
         custom_tests.test_species_diversity,
         custom_tests.test_assembly_version,
-        custom_tests.test_canonical_transcript
+        custom_tests.test_canonical_transcript,
+        custom_tests.test_hgnc_data_embedded,
+        custom_tests.test_hgnc_symbol_search,
+        custom_tests.test_hgnc_id_search
     ]:
         runner.add_custom_test(test_method)
 

@@ -1,19 +1,24 @@
 {
   "metadata": {
-    "version": "2.0",
-    "description": "Expanded integration tests based on biobtree v1 usecases - converted to new arrow syntax",
+    "version": "3.0",
+    "description": "Expanded integration tests including newly added datasets (2025)",
     "server": "http://scc2:9292",
-    "last_updated": "2025-11-08",
-    "note": "Converted from web/src/conf/usecases.json (v1) to test real biological workflows"
+    "last_updated": "2025-11-17",
+    "note": "Includes tests for IntAct, Bgee, UBERON, CL, Reactome, Rhea, GWAS, SwissLipids, AlphaFold"
   },
 
   "test_categories": {
     "gene_mapping": "Gene symbol/ID to various resources (proteins, transcripts, GO terms)",
     "protein_features": "Protein features, domains, structures, variants",
     "chembl_drug": "Drug discovery workflows (compounds, targets, activities)",
-    "pathways": "Pathway and network analysis",
+    "pathways": "Pathway and network analysis (Reactome, STRING, Rhea)",
     "genomics": "Genomic coordinates, transcripts, exons, probes",
-    "ontologies": "Ontology navigation (GO, EFO, taxonomy hierarchies)"
+    "ontologies": "Ontology navigation (GO, EFO, taxonomy, UBERON, CL hierarchies)",
+    "protein_interactions": "Protein-protein interaction networks (IntAct)",
+    "gene_expression": "Tissue and cell-specific expression (Bgee, UBERON, CL)",
+    "gwas_genetics": "Disease-SNP associations and population genetics (GWAS)",
+    "lipid_metabolism": "Lipid structures and metabolism (SwissLipids)",
+    "protein_structures": "3D structure predictions (AlphaFold)"
   },
 
   "tests": [
@@ -518,6 +523,240 @@
       "query": ">>ensembl[ensembl.genome==\"campylobacter_coli_gca_001717605\"]>>go[go.type==\"biological_process\"]",
       "why": "Functional annotation of CRISPR systems in bacteria",
       "should_pass": ["cas9"],
+      "should_fail": []
+    },
+
+    {
+      "category": "protein_interactions",
+      "name": "Protein to IntAct Interactions",
+      "query": "",
+      "why": "Find experimentally validated protein-protein interactions for network analysis",
+      "should_pass": ["P38398", "P04637", "P49418"],
+      "should_fail": []
+    },
+
+    {
+      "category": "protein_interactions",
+      "name": "Gene to Protein Interactions via UniProt",
+      "query": ">>uniprot>>intact",
+      "why": "Map genes to interaction partners - essential for pathway and network biology",
+      "should_pass": ["BRCA1", "TP53", "EGFR"],
+      "should_fail": []
+    },
+
+    {
+      "category": "protein_interactions",
+      "name": "Protein to Interaction Partners Details",
+      "query": ">>intact>>uniprot",
+      "why": "Get detailed protein information for interaction partners",
+      "should_pass": ["P38398", "P04637"],
+      "should_fail": []
+    },
+
+    {
+      "category": "protein_interactions",
+      "name": "IntAct to GO Biological Process",
+      "query": ">>intact>>uniprot>>go[go.type==\"biological_process\"]",
+      "why": "Functional annotation of interaction partners - pathway context for networks",
+      "should_pass": ["P38398", "P04637"],
+      "should_fail": []
+    },
+
+    {
+      "category": "gene_expression",
+      "name": "Gene to Bgee Expression Data",
+      "query": ">>bgee",
+      "why": "Get tissue-specific expression patterns across anatomical structures",
+      "should_pass": ["ENSG00000139618", "ENSG00000141510"],
+      "should_fail": []
+    },
+
+    {
+      "category": "gene_expression",
+      "name": "Tissue to Expressed Genes via Bgee",
+      "query": ">>bgee",
+      "why": "Find genes expressed in specific tissue - tissue marker discovery",
+      "should_pass": ["UBERON:0000955", "UBERON:0002107"],
+      "should_fail": []
+    },
+
+    {
+      "category": "gene_expression",
+      "name": "Cell Type to Expressed Genes",
+      "query": ">>bgee",
+      "why": "Identify genes expressed in specific cell types - single-cell markers",
+      "should_pass": ["CL:0000576", "CL:0000236"],
+      "should_fail": []
+    },
+
+    {
+      "category": "gene_expression",
+      "name": "Gene to Tissues Where Expressed",
+      "query": ">>bgee>>uberon",
+      "why": "Map gene to anatomical locations - expression atlas",
+      "should_pass": ["ENSG00000139618"],
+      "should_fail": []
+    },
+
+    {
+      "category": "gene_expression",
+      "name": "Gene to Cell Types Where Expressed",
+      "query": ">>bgee>>cl",
+      "why": "Identify cell-type specific expression - scRNA-seq validation",
+      "should_pass": ["ENSG00000139618"],
+      "should_fail": []
+    },
+
+    {
+      "category": "ontologies",
+      "name": "UBERON Parent Tissues",
+      "query": ">>uberonparent",
+      "why": "Navigate anatomy hierarchy upward - from specific to general structures",
+      "should_pass": ["UBERON:0000955", "UBERON:0002107"],
+      "should_fail": []
+    },
+
+    {
+      "category": "ontologies",
+      "name": "UBERON Child Structures",
+      "query": ">>uberonchild",
+      "why": "Navigate anatomy hierarchy downward - find sub-structures",
+      "should_pass": ["UBERON:0000955"],
+      "should_fail": []
+    },
+
+    {
+      "category": "ontologies",
+      "name": "Cell Ontology Parents",
+      "query": ">>clparent",
+      "why": "Navigate cell type hierarchy - from specific to general cell types",
+      "should_pass": ["CL:0000576", "CL:0000236"],
+      "should_fail": []
+    },
+
+    {
+      "category": "ontologies",
+      "name": "Cell Ontology Children",
+      "query": ">>clchild",
+      "why": "Find cell subtypes - detailed cell type classification",
+      "should_pass": ["CL:0000576"],
+      "should_fail": []
+    },
+
+    {
+      "category": "pathways",
+      "name": "Reactome Pathway Lookup",
+      "query": "",
+      "why": "Get curated pathway information with participants and hierarchy",
+      "should_pass": ["R-HSA-109582", "R-HSA-112316"],
+      "should_fail": []
+    },
+
+    {
+      "category": "pathways",
+      "name": "Protein to Reactome Pathways",
+      "query": ">>uniprot>>reactome",
+      "why": "Find all pathways involving protein - systems biology analysis",
+      "should_pass": ["P38398", "P04637", "P00533"],
+      "should_fail": []
+    },
+
+    {
+      "category": "pathways",
+      "name": "Reactome Pathway Parents",
+      "query": ">>reactomeparent",
+      "why": "Navigate pathway hierarchy upward - find broader pathway categories",
+      "should_pass": ["R-HSA-109582"],
+      "should_fail": []
+    },
+
+    {
+      "category": "pathways",
+      "name": "Reactome Pathway Children",
+      "query": ">>reactomechild",
+      "why": "Navigate pathway hierarchy downward - find sub-pathways",
+      "should_pass": ["R-HSA-109582"],
+      "should_fail": []
+    },
+
+    {
+      "category": "pathways",
+      "name": "Reactome to Proteins",
+      "query": ">>reactome>>uniprot",
+      "why": "Get all proteins involved in pathway - network reconstruction",
+      "should_pass": ["R-HSA-109582", "R-HSA-112316"],
+      "should_fail": []
+    },
+
+    {
+      "category": "pathways",
+      "name": "Rhea Reaction Lookup",
+      "query": "",
+      "why": "Get biochemical reaction details with substrates and products",
+      "should_pass": ["RHEA:10000"],
+      "should_fail": []
+    },
+
+    {
+      "category": "pathways",
+      "name": "ChEBI Compound to Rhea Reactions",
+      "query": ">>rhea",
+      "why": "Find reactions involving specific chemical compound",
+      "should_pass": ["CHEBI:15377"],
+      "should_fail": []
+    },
+
+    {
+      "category": "gwas_genetics",
+      "name": "Disease Trait to GWAS SNPs via EFO",
+      "query": ">>gwas",
+      "why": "Find genetic variants associated with disease - reverse lookup from phenotype",
+      "should_pass": ["EFO:0000400", "EFO:0004611"],
+      "should_fail": []
+    },
+
+    {
+      "category": "gwas_genetics",
+      "name": "Study to Associated SNPs",
+      "query": ">>gwas",
+      "why": "Get all SNP associations from GWAS study publication",
+      "should_pass": ["GCST010481", "GCST001937"],
+      "should_fail": []
+    },
+
+    {
+      "category": "lipid_metabolism",
+      "name": "SwissLipids Lipid Lookup",
+      "query": "",
+      "why": "Get lipid structure and biological context",
+      "should_pass": ["SLM:000000002"],
+      "should_fail": []
+    },
+
+    {
+      "category": "protein_structures",
+      "name": "AlphaFold Structure Lookup",
+      "query": "",
+      "why": "Get predicted 3D structure for protein",
+      "should_pass": ["AF-P38398-F1"],
+      "should_fail": []
+    },
+
+    {
+      "category": "protein_interactions",
+      "name": "Complete Network: Gene to Interactions to Pathways",
+      "query": ">>uniprot>>intact>>uniprot>>reactome",
+      "why": "Build complete functional network - interaction partners and their pathways",
+      "should_pass": ["BRCA1", "TP53"],
+      "should_fail": []
+    },
+
+    {
+      "category": "gene_expression",
+      "name": "Multi-hop: Tissue to Genes to Functions",
+      "query": ">>bgee>>ensembl>>go",
+      "why": "Tissue-specific functional enrichment - find functions of genes in tissues",
+      "should_pass": ["UBERON:0000955"],
       "should_fail": []
     }
   ]

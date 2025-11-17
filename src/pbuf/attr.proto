@@ -46,6 +46,9 @@ message EnsemblAttr  {
   int32 version =14;
   string source =15;
   int32 frame =16;
+
+  // HGNC nomenclature data (populated for human genes only, when taxid=9606)
+  HgncAttr hgnc = 17;
 }
 
 enum ensemblbranch {
@@ -766,9 +769,11 @@ message DbsnpAttr {
   double allele_frequency = 7;                          // Global allele frequency (1000 Genomes)
   double gnomad_frequency = 8;                          // gnomAD population frequency
 
-  // Gene context
-  string gene_name = 9;                                 // Gene symbol (e.g., "BRCA1")
-  string gene_id = 10;                                  // Entrez Gene ID
+  // Gene context (can be multiple genes per SNP)
+  repeated string gene_names = 9;                       // Gene symbols (e.g., ["BRCA1", "TP53"])
+  repeated string gene_ids = 10;                        // Entrez Gene IDs
+  repeated string pseudogene_names = 17;                // Pseudogene symbols
+  repeated string pseudogene_ids = 18;                  // Pseudogene IDs
   string gene_locus = 11;                               // Cytogenetic locus (e.g., "17q21.31")
 
   // Functional annotation

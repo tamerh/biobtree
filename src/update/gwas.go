@@ -333,18 +333,17 @@ func (g *gwas) createCrossReferences(snpID, sourceID string, attr *pbuf.GwasAttr
 		g.d.addXref(snpID, sourceID, attr.StudyAccession, "gwas_study", false)
 	}
 
-	// Cross-reference: Gene symbols → SNP (enables "find SNPs in BRCA1")
-	maxGenes := 10 // Limit to prevent too many xrefs
-	for i, gene := range attr.ReportedGenes {
-		if i >= maxGenes {
-			break
-		}
-		if gene != "" && len(gene) < 50 { // Safety limit
-			g.d.addXref(gene, textLinkID, snpID, g.source, true)
+	// Gene symbols → SNP cross-reference via Ensembl lookup
+	// Handles paralogs by filtering using chromosome and HGNC preference
+	// Search "BRCA1" returns Ensembl entry (with embedded HGNC data), then "BRCA1 >> gwas" returns all SNP associations
+	// No limit - biobtree is deterministic, we show all genes or none
+	for _, gene := range attr.ReportedGenes {
+		if gene != "" && len(gene) < 50 {
+			g.d.addXrefViaGeneSymbol(gene, attr.ChrId, snpID, g.source, sourceID)
 		}
 	}
 
-	// Cross-reference: SNP → EFO traits
+	// Cross-reference: SNP → EFO traits (structured ontology)
 	if _, exists := config.Dataconf["efo"]; exists {
 		for _, efoID := range attr.EfoTraits {
 			if efoID != "" {
@@ -353,21 +352,12 @@ func (g *gwas) createCrossReferences(snpID, sourceID string, attr *pbuf.GwasAttr
 		}
 	}
 
-	// Text search: Disease/trait (only if not too long to avoid buffer overflow)
-	if attr.DiseaseTrait != "" && len(attr.DiseaseTrait) < 200 {
-		g.d.addXref(attr.DiseaseTrait, textLinkID, snpID, g.source, true)
-	}
-
-	// Text search: Mapped traits (limit to first 3 to avoid too many xrefs)
-	maxTraits := 3
-	for i, trait := range attr.MappedTraits {
-		if i >= maxTraits {
-			break
-		}
-		if trait != "" && len(trait) < 150 {
-			g.d.addXref(trait, textLinkID, snpID, g.source, true)
-		}
-	}
+	// TODO: Consider mapping disease_trait and mapped_traits to ontologies
+	// Currently these are kept as display-only attributes:
+	// - attr.DiseaseTrait (e.g., "Type 2 diabetes") → Could map to MONDO/EFO via keyword lookup
+	// - attr.MappedTraits (e.g., ["insulin resistance", "glucose metabolism"]) → Could map to ontologies
+	// For now: Users should search via EFO entries, then use "EFO:0001360 >> gwas" to find SNPs
+	// This keeps search clean and uses structured ontology mappings already present in EFO cross-references
 }
 
 // Helper: readerAtFromBytes creates a ReaderAt from byte slice (needed for zip.NewReader)

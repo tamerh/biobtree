@@ -6,6 +6,7 @@ import (
 	json "encoding/json"
 	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -29,11 +30,211 @@ type ensembl struct {
 	gff3Paths       map[string][]string
 	jsonPaths       map[string][]string
 	biomartPaths    []string
+	// HGNC data for human genes (taxid 9606)
+	hgncLookup map[string]*pbuf.HgncAttr // Key: Ensembl Gene ID, Value: HGNC attributes
 }
 
 // check provides context-aware error checking for ensembl processor
 func (e *ensembl) check(err error, operation string) {
 	checkWithContext(err, e.source, operation)
+}
+
+// loadHGNCData loads HGNC nomenclature data from remote source and builds lookup map
+// This is called when processing human genes (taxid 9606) to enrich Ensembl entries
+func (e *ensembl) loadHGNCData() {
+	log.Println("Ensembl: Loading HGNC data for human genes...")
+
+	// Get HGNC configuration
+	hgncPath, ok := config.Dataconf["hgnc"]["path"]
+	if !ok {
+		log.Println("Ensembl: HGNC path not configured, skipping HGNC data loading")
+		return
+	}
+
+	// Determine source type and open reader
+	var br *bufio.Reader
+	var httpResp *http.Response
+	var localFile *os.File
+
+	if config.Dataconf["hgnc"]["useLocalFile"] == "yes" {
+		file, err := os.Open(filepath.FromSlash(hgncPath))
+		if err != nil {
+			log.Printf("Ensembl: Warning - could not open local HGNC file: %v, skipping", err)
+			return
+		}
+		br = bufio.NewReaderSize(file, fileBufSize)
+		localFile = file
+		defer localFile.Close()
+	} else if strings.HasPrefix(hgncPath, "http://") || strings.HasPrefix(hgncPath, "https://") {
+		// HTTP(S) download
+		resp, err := http.Get(hgncPath)
+		if err != nil {
+			log.Printf("Ensembl: Warning - could not download HGNC data: %v, skipping", err)
+			return
+		}
+		br = bufio.NewReaderSize(resp.Body, fileBufSize)
+		httpResp = resp
+		defer httpResp.Body.Close()
+	} else {
+		// FTP fallback
+		br2, _, ftpFile, client, localFile2, _, err := getDataReaderNew("hgnc", e.d.ebiFtp, e.d.ebiFtpPath, hgncPath)
+		if err != nil {
+			log.Printf("Ensembl: Warning - could not get HGNC data via FTP: %v, skipping", err)
+			return
+		}
+		br = br2
+		if ftpFile != nil {
+			defer ftpFile.Close()
+		}
+		if localFile2 != nil {
+			defer localFile2.Close()
+		}
+		if client != nil {
+			defer client.Quit()
+		}
+	}
+
+	// Parse HGNC JSON
+	p := jsparser.NewJSONParser(br, "docs")
+	e.hgncLookup = make(map[string]*pbuf.HgncAttr)
+
+	var processedCount int
+	for j := range p.Stream() {
+		// Extract Ensembl gene ID (this is the key for lookup)
+		var ensemblGeneID string
+		if j.ObjectVals["ensembl_gene_id"] != nil {
+			switch t := j.ObjectVals["ensembl_gene_id"].(type) {
+			case string:
+				ensemblGeneID = t
+			case (*jsparser.JSON):
+				if len(t.ArrayVals) > 0 {
+					ensemblGeneID = t.ArrayVals[0].(string) // Take first if multiple
+				}
+			}
+		}
+
+		if ensemblGeneID == "" {
+			continue // Skip entries without Ensembl mapping
+		}
+
+		// Build HgncAttr
+		attr := &pbuf.HgncAttr{}
+
+		// Extract HGNC ID
+		if j.ObjectVals["hgnc_id"] != nil {
+			if hgncID, ok := j.ObjectVals["hgnc_id"].(string); ok {
+				// Store it in a field we can use for cross-referencing
+				// We'll add hgnc_id to symbols for searchability
+				attr.Symbols = append(attr.Symbols, hgncID)
+			}
+		}
+
+		// Extract symbols
+		if j.ObjectVals["symbol"] != nil {
+			switch t := j.ObjectVals["symbol"].(type) {
+			case string:
+				attr.Symbols = append(attr.Symbols, t)
+			case (*jsparser.JSON):
+				for _, v := range t.ArrayVals {
+					attr.Symbols = append(attr.Symbols, v.(string))
+				}
+			}
+		}
+
+		// Extract aliases
+		if j.ObjectVals["alias_symbol"] != nil {
+			switch t := j.ObjectVals["alias_symbol"].(type) {
+			case string:
+				attr.Aliases = append(attr.Aliases, t)
+			case (*jsparser.JSON):
+				for _, v := range t.ArrayVals {
+					attr.Aliases = append(attr.Aliases, v.(string))
+				}
+			}
+		}
+
+		// Extract previous symbols
+		if j.ObjectVals["prev_symbol"] != nil {
+			switch t := j.ObjectVals["prev_symbol"].(type) {
+			case string:
+				attr.PrevSymbols = append(attr.PrevSymbols, t)
+			case (*jsparser.JSON):
+				for _, v := range t.ArrayVals {
+					attr.PrevSymbols = append(attr.PrevSymbols, v.(string))
+				}
+			}
+		}
+
+		// Extract names
+		if j.ObjectVals["name"] != nil {
+			switch t := j.ObjectVals["name"].(type) {
+			case string:
+				attr.Names = append(attr.Names, t)
+			case (*jsparser.JSON):
+				for _, v := range t.ArrayVals {
+					attr.Names = append(attr.Names, v.(string))
+				}
+			}
+		}
+
+		// Extract previous names
+		if j.ObjectVals["prev_name"] != nil {
+			switch t := j.ObjectVals["prev_name"].(type) {
+			case string:
+				attr.PrevNames = append(attr.PrevNames, t)
+			case (*jsparser.JSON):
+				for _, v := range t.ArrayVals {
+					attr.PrevNames = append(attr.PrevNames, v.(string))
+				}
+			}
+		}
+
+		// Extract locus group
+		if j.ObjectVals["locus_group"] != nil {
+			if locusGroup, ok := j.ObjectVals["locus_group"].(string); ok {
+				attr.LocusGroup = locusGroup
+			}
+		}
+
+		// Extract locus type
+		if j.ObjectVals["locus_type"] != nil {
+			if locusType, ok := j.ObjectVals["locus_type"].(string); ok {
+				attr.LocusType = locusType
+			}
+		}
+
+		// Extract location (cytogenetic)
+		if j.ObjectVals["location"] != nil {
+			if location, ok := j.ObjectVals["location"].(string); ok {
+				attr.Location = location
+			}
+		}
+
+		// Extract status
+		if j.ObjectVals["status"] != nil {
+			if status, ok := j.ObjectVals["status"].(string); ok {
+				attr.Status = status
+			}
+		}
+
+		// Extract gene groups
+		if j.ObjectVals["gene_group"] != nil {
+			switch t := j.ObjectVals["gene_group"].(type) {
+			case string:
+				attr.GeneGroups = append(attr.GeneGroups, t)
+			case (*jsparser.JSON):
+				for _, v := range t.ArrayVals {
+					attr.GeneGroups = append(attr.GeneGroups, v.(string))
+				}
+			}
+		}
+
+		// Store in lookup map
+		e.hgncLookup[ensemblGeneID] = attr
+		processedCount++
+	}
+
+	log.Printf("Ensembl: Loaded HGNC data for %d genes", processedCount)
 }
 
 // ensembls runs one by one from one place.
@@ -311,6 +512,18 @@ func (e *ensembl) update() {
 	// Track processed genes per genome in test mode
 	processedGenesPerGenome := make(map[string]int)
 
+	// Check if we're processing human genes (taxid 9606) and load HGNC data
+	hasHumanGenome := false
+	for genome := range e.gff3Paths {
+		if taxid, ok := e.taxids[genome]; ok && taxid == 9606 {
+			hasHumanGenome = true
+			break
+		}
+	}
+	if hasHumanGenome {
+		e.loadHGNCData()
+	}
+
 	for genome, paths := range e.gff3Paths {
 		for _, path := range paths {
 
@@ -442,6 +655,32 @@ func (e *ensembl) update() {
 						c, err = strconv.Atoi(fields[4])
 						if err == nil {
 							attr.End = int32(c)
+						}
+
+						// Embed HGNC data if available for this gene
+						if hgncData, ok := e.hgncLookup[currGeneID]; ok {
+							attr.Hgnc = hgncData
+
+							// Make HGNC symbols searchable (resolving to Ensembl entry)
+							for _, symbol := range hgncData.Symbols {
+								if symbol != "" {
+									e.d.addXref(symbol, textLinkID, currGeneID, "ensembl", true)
+								}
+							}
+
+							// Make HGNC aliases searchable
+							for _, alias := range hgncData.Aliases {
+								if alias != "" {
+									e.d.addXref(alias, textLinkID, currGeneID, "ensembl", true)
+								}
+							}
+
+							// Make HGNC previous symbols searchable
+							for _, prevSymbol := range hgncData.PrevSymbols {
+								if prevSymbol != "" {
+									e.d.addXref(prevSymbol, textLinkID, currGeneID, "ensembl", true)
+								}
+							}
 						}
 
 						b, _ := ffjson.Marshal(attr)

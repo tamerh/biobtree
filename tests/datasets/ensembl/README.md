@@ -32,6 +32,17 @@ Ensembl provides comprehensive genome annotations for vertebrates and selected m
 - `version`: Gene version number
 - `source`: Annotation source (ensembl, havana, ensembl_havana)
 - `logic_name`: Annotation pipeline identifier
+- **`hgnc`** (nested HgncAttr - human genes only): HGNC nomenclature data
+  - `symbols`: Official gene symbols and HGNC ID (e.g., ["HGNC:37102", "DDX11L1"])
+  - `names`: Official gene names
+  - `aliases`: Alternative symbols
+  - `prev_symbols`: Previous/withdrawn symbols
+  - `prev_names`: Previous names
+  - `locus_group`: Gene category (protein-coding, pseudogene, etc.)
+  - `locus_type`: Detailed gene type
+  - `location`: Cytogenetic location (e.g., "1p36.33")
+  - `status`: HGNC approval status (Approved, Withdrawn, etc.)
+  - `gene_groups`: Gene family classifications
 
 **Cross-References**:
 - **NCBI Gene (EntrezGene)**: Gene IDs for cross-species integration
@@ -45,6 +56,32 @@ Ensembl provides comprehensive genome annotations for vertebrates and selected m
 - **Many others**: WikiGene, miRBase, RFAM, etc.
 
 ### Special Features
+
+**HGNC Integration (Human Genes Only)**:
+- HGNC nomenclature data automatically embedded in human Ensembl genes
+- During human genome processing (taxid 9606), HGNC data is loaded from remote source
+- Mapping by exact Ensembl gene ID as provided by HGNC
+- HGNC symbols and IDs made searchable, resolving to Ensembl entries
+- **Single gene hub architecture**: Searching "BRCA1" or "HGNC:5" returns the Ensembl entry with embedded HGNC data
+- **Important - Paralog Cases**: Some gene symbols (e.g., DDX11L16) appear on multiple chromosomes
+  - HGNC assigns official IDs to one locus only (typically the primary/reference locus)
+  - Other paralogs with the same symbol will not have HGNC data embedded
+  - Example: DDX11L16 exists on chr1, chrX, and chrY - only chrX copy has HGNC:37115
+  - This is correct behavior - HGNC provides authoritative single-locus designations
+  - **Variant cross-references**: dbSNP/GWAS variants create xrefs to ALL matching Ensembl genes
+    - For paralogs on different chromosomes, all copies receive xrefs
+    - Follows biobtree's deterministic principle: show all or none
+- **Important - Annotation Ambiguity Cases**: Some loci have multiple Ensembl gene models
+  - Example: WASH7P (HGNC:38034) on chr1 has two Ensembl IDs:
+    - ENSG00000227232: chr1:14,696-24,886 (transcribed_unprocessed_pseudogene)
+    - ENSG00000310526: chr1:14,356-30,744 (lncRNA)
+  - Both annotate overlapping regions of the same locus with different biotypes
+  - Both share the same HGNC ID (HGNC:38034)
+  - SNPs in overlapping regions create xrefs to BOTH gene models
+  - This reflects genuine annotation complexity - different evidence sources/pipelines
+  - Users should check biotype, coordinates, and HGNC data to select appropriate model
+- Eliminates confusion between separate HGNC and Ensembl entries for the same gene
+- All HGNC cross-references (COSMIC, OMIM, etc.) still accessible via embedded data
 
 **Multi-Species Architecture**:
 - Main Ensembl: Vertebrates (human, mouse, rat, etc.)
@@ -129,6 +166,9 @@ Use: Cross-species functional studies
 - ✅ Strand orientation presence
 
 **Recommended Additions**:
+- ✅ HGNC data presence for human genes
+- ✅ HGNC symbol searchability (symbol resolves to Ensembl entry)
+- ✅ HGNC ID searchability (HGNC:* resolves to Ensembl entry)
 - Canonical transcript validation
 - Cross-reference integrity (xrefs to UniProt, NCBI Gene)
 - Genomic coordinate validity (start < end, valid chromosomes)
@@ -138,6 +178,7 @@ Use: Cross-species functional studies
 - Multi-species test coverage (bacteria, fungi, etc.)
 - Gene length range validation
 - Source annotation validation (ensembl/havana)
+- HGNC data completeness (symbols, names, locus info)
 
 ## Performance
 
@@ -181,6 +222,14 @@ Use: Cross-species functional studies
 - Annotation quality varies by species
 - Model organisms have richest annotations
 - Non-model species may lack xrefs
+
+**Multiple Gene Models**:
+- Same locus may have multiple Ensembl gene IDs with different annotations
+- Caused by different evidence sources (Ensembl, Havana, merged pipelines)
+- Gene models may overlap but differ in biotype, coordinates, or transcript structure
+- Example: WASH7P has both "transcribed_unprocessed_pseudogene" and "lncRNA" annotations
+- Variants in overlapping regions will link to all relevant models
+- No automatic consolidation - users must evaluate based on biotype and coordinates
 
 **Divisions Synchronization**:
 - Main Ensembl and Ensembl Genomes on different release cycles

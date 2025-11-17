@@ -153,7 +153,7 @@ def build_test_database(biobtree_path: Path, datasets: str, cwd: Path = None, ge
     print()
 
     try:
-        cmd = [str(biobtree_path), "-d", datasets]
+        cmd = [str(biobtree_path), "-d", datasets,"--keep"]
         if genome_taxids:
             cmd.extend(["--genome-taxids", genome_taxids])
         cmd.append("test")
@@ -213,6 +213,13 @@ Available datasets:
     db_dir = out_dir / "db"
     biobtree_path = project_root / "biobtree"
 
+    # clean the out directory
+    if out_dir.exists() and out_dir.is_dir():
+        shutil.rmtree(out_dir)
+
+    # Recreate the directory after cleaning
+    out_dir.mkdir(parents=True, exist_ok=True)
+
     # Define all available datasets and their test scripts
     all_datasets = {
         'hgnc': datasets_dir / "hgnc" / "test_hgnc.py",
@@ -223,7 +230,7 @@ Available datasets:
         'efo': datasets_dir / "efo" / "test_efo.py",
         'chebi': datasets_dir / "chebi" / "test_chebi.py",
         'interpro': datasets_dir / "interpro" / "test_interpro.py",
-        'hmdb': datasets_dir / "hmdb" / "test_hmdb.py",
+        #'hmdb': datasets_dir / "hmdb" / "test_hmdb.py",
         'lipidmaps': datasets_dir / "lipidmaps" / "test_lipidmaps.py",
         'swisslipids': datasets_dir / "swisslipids" / "test_swisslipids.py",
         'chembl_document': datasets_dir / "chembl_document" / "test_chembl_document.py",

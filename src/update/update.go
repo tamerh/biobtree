@@ -850,6 +850,22 @@ func (d *DataUpdate) addXrefViaKeyword(keyword string, keywordDataset string, ta
 	}
 }
 
+// addXrefViaGeneSymbol creates cross-reference from variant to Ensembl gene via gene symbol lookup
+// Handles paralog cases by creating xrefs to all matching Ensembl genes
+// chromosome parameter is kept for future enhancement but not used currently
+// geneSymbol: Gene symbol (e.g., "BRCA1", "DDX11L16")
+// chromosome: Chromosome name/ID (reserved for future filtering)
+// variantID: Variant ID (SNP, GWAS association, etc.)
+// variantDataset: Variant dataset name (e.g., "dbsnp", "gwas")
+// variantDatasetID: Variant dataset ID string
+func (d *DataUpdate) addXrefViaGeneSymbol(geneSymbol, chromosome, variantID, variantDataset, variantDatasetID string) {
+	// Use addXrefViaKeyword to lookup symbol in Ensembl (instead of HGNC)
+	// This will create xrefs to all matching Ensembl genes
+	// For paralogs like DDX11L16, this creates xrefs to all copies (chr1, chrX, chrY)
+	// This follows biobtree's deterministic principle: show all or none
+	d.addXrefViaKeyword(geneSymbol, "ensembl", variantID, variantDataset, variantDatasetID, false)
+}
+
 // addXrefEnsemblViaHgnc creates ClinVar → Ensembl cross-reference via HGNC
 // This ensures we only get human Ensembl genes by going through HGNC first
 // geneSymbol: Gene symbol (e.g., "BRCA1")

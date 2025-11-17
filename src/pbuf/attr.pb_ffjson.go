@@ -16998,14 +16998,68 @@ func (j *DbsnpAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.AppendFloat(buf, float64(j.GnomadFrequency), 'g', -1, 64)
 		buf.WriteByte(',')
 	}
-	if len(j.GeneName) != 0 {
-		buf.WriteString(`"gene_name":`)
-		fflib.WriteJsonString(buf, string(j.GeneName))
+	if len(j.GeneNames) != 0 {
+		buf.WriteString(`"gene_names":`)
+		if j.GeneNames != nil {
+			buf.WriteString(`[`)
+			for i, v := range j.GeneNames {
+				if i != 0 {
+					buf.WriteString(`,`)
+				}
+				fflib.WriteJsonString(buf, string(v))
+			}
+			buf.WriteString(`]`)
+		} else {
+			buf.WriteString(`null`)
+		}
 		buf.WriteByte(',')
 	}
-	if len(j.GeneId) != 0 {
-		buf.WriteString(`"gene_id":`)
-		fflib.WriteJsonString(buf, string(j.GeneId))
+	if len(j.GeneIds) != 0 {
+		buf.WriteString(`"gene_ids":`)
+		if j.GeneIds != nil {
+			buf.WriteString(`[`)
+			for i, v := range j.GeneIds {
+				if i != 0 {
+					buf.WriteString(`,`)
+				}
+				fflib.WriteJsonString(buf, string(v))
+			}
+			buf.WriteString(`]`)
+		} else {
+			buf.WriteString(`null`)
+		}
+		buf.WriteByte(',')
+	}
+	if len(j.PseudogeneNames) != 0 {
+		buf.WriteString(`"pseudogene_names":`)
+		if j.PseudogeneNames != nil {
+			buf.WriteString(`[`)
+			for i, v := range j.PseudogeneNames {
+				if i != 0 {
+					buf.WriteString(`,`)
+				}
+				fflib.WriteJsonString(buf, string(v))
+			}
+			buf.WriteString(`]`)
+		} else {
+			buf.WriteString(`null`)
+		}
+		buf.WriteByte(',')
+	}
+	if len(j.PseudogeneIds) != 0 {
+		buf.WriteString(`"pseudogene_ids":`)
+		if j.PseudogeneIds != nil {
+			buf.WriteString(`[`)
+			for i, v := range j.PseudogeneIds {
+				if i != 0 {
+					buf.WriteString(`,`)
+				}
+				fflib.WriteJsonString(buf, string(v))
+			}
+			buf.WriteString(`]`)
+		} else {
+			buf.WriteString(`null`)
+		}
 		buf.WriteByte(',')
 	}
 	if len(j.GeneLocus) != 0 {
@@ -17085,9 +17139,13 @@ const (
 
 	ffjtDbsnpAttrGnomadFrequency
 
-	ffjtDbsnpAttrGeneName
+	ffjtDbsnpAttrGeneNames
 
-	ffjtDbsnpAttrGeneId
+	ffjtDbsnpAttrGeneIds
+
+	ffjtDbsnpAttrPseudogeneNames
+
+	ffjtDbsnpAttrPseudogeneIds
 
 	ffjtDbsnpAttrGeneLocus
 
@@ -17118,9 +17176,13 @@ var ffjKeyDbsnpAttrAlleleFrequency = []byte("allele_frequency")
 
 var ffjKeyDbsnpAttrGnomadFrequency = []byte("gnomad_frequency")
 
-var ffjKeyDbsnpAttrGeneName = []byte("gene_name")
+var ffjKeyDbsnpAttrGeneNames = []byte("gene_names")
 
-var ffjKeyDbsnpAttrGeneId = []byte("gene_id")
+var ffjKeyDbsnpAttrGeneIds = []byte("gene_ids")
+
+var ffjKeyDbsnpAttrPseudogeneNames = []byte("pseudogene_names")
+
+var ffjKeyDbsnpAttrPseudogeneIds = []byte("pseudogene_ids")
 
 var ffjKeyDbsnpAttrGeneLocus = []byte("gene_locus")
 
@@ -17236,13 +17298,13 @@ mainparse:
 						state = fflib.FFParse_want_colon
 						goto mainparse
 
-					} else if bytes.Equal(ffjKeyDbsnpAttrGeneName, kn) {
-						currentKey = ffjtDbsnpAttrGeneName
+					} else if bytes.Equal(ffjKeyDbsnpAttrGeneNames, kn) {
+						currentKey = ffjtDbsnpAttrGeneNames
 						state = fflib.FFParse_want_colon
 						goto mainparse
 
-					} else if bytes.Equal(ffjKeyDbsnpAttrGeneId, kn) {
-						currentKey = ffjtDbsnpAttrGeneId
+					} else if bytes.Equal(ffjKeyDbsnpAttrGeneIds, kn) {
+						currentKey = ffjtDbsnpAttrGeneIds
 						state = fflib.FFParse_want_colon
 						goto mainparse
 
@@ -17264,6 +17326,16 @@ mainparse:
 
 					if bytes.Equal(ffjKeyDbsnpAttrPosition, kn) {
 						currentKey = ffjtDbsnpAttrPosition
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyDbsnpAttrPseudogeneNames, kn) {
+						currentKey = ffjtDbsnpAttrPseudogeneNames
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyDbsnpAttrPseudogeneIds, kn) {
+						currentKey = ffjtDbsnpAttrPseudogeneIds
 						state = fflib.FFParse_want_colon
 						goto mainparse
 
@@ -17337,14 +17409,26 @@ mainparse:
 					goto mainparse
 				}
 
-				if fflib.AsciiEqualFold(ffjKeyDbsnpAttrGeneId, kn) {
-					currentKey = ffjtDbsnpAttrGeneId
+				if fflib.EqualFoldRight(ffjKeyDbsnpAttrPseudogeneIds, kn) {
+					currentKey = ffjtDbsnpAttrPseudogeneIds
 					state = fflib.FFParse_want_colon
 					goto mainparse
 				}
 
-				if fflib.AsciiEqualFold(ffjKeyDbsnpAttrGeneName, kn) {
-					currentKey = ffjtDbsnpAttrGeneName
+				if fflib.EqualFoldRight(ffjKeyDbsnpAttrPseudogeneNames, kn) {
+					currentKey = ffjtDbsnpAttrPseudogeneNames
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyDbsnpAttrGeneIds, kn) {
+					currentKey = ffjtDbsnpAttrGeneIds
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyDbsnpAttrGeneNames, kn) {
+					currentKey = ffjtDbsnpAttrGeneNames
 					state = fflib.FFParse_want_colon
 					goto mainparse
 				}
@@ -17438,11 +17522,17 @@ mainparse:
 				case ffjtDbsnpAttrGnomadFrequency:
 					goto handle_GnomadFrequency
 
-				case ffjtDbsnpAttrGeneName:
-					goto handle_GeneName
+				case ffjtDbsnpAttrGeneNames:
+					goto handle_GeneNames
 
-				case ffjtDbsnpAttrGeneId:
-					goto handle_GeneId
+				case ffjtDbsnpAttrGeneIds:
+					goto handle_GeneIds
+
+				case ffjtDbsnpAttrPseudogeneNames:
+					goto handle_PseudogeneNames
+
+				case ffjtDbsnpAttrPseudogeneIds:
+					goto handle_PseudogeneIds
 
 				case ffjtDbsnpAttrGeneLocus:
 					goto handle_GeneLocus
@@ -17696,52 +17786,296 @@ handle_GnomadFrequency:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
-handle_GeneName:
+handle_GeneNames:
 
-	/* handler: j.GeneName type=string kind=string quoted=false*/
+	/* handler: j.GeneNames type=[]string kind=slice quoted=false*/
 
 	{
 
 		{
-			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
-				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			if tok != fflib.FFTok_left_brace && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for ", tok))
 			}
 		}
 
 		if tok == fflib.FFTok_null {
-
+			j.GeneNames = nil
 		} else {
 
-			outBuf := fs.Output.Bytes()
+			j.GeneNames = []string{}
 
-			j.GeneName = string(string(outBuf))
+			wantVal := true
 
+			for {
+
+				var tmpJGeneNames string
+
+				tok = fs.Scan()
+				if tok == fflib.FFTok_error {
+					goto tokerror
+				}
+				if tok == fflib.FFTok_right_brace {
+					break
+				}
+
+				if tok == fflib.FFTok_comma {
+					if wantVal == true {
+						// TODO(pquerna): this isn't an ideal error message, this handles
+						// things like [,,,] as an array value.
+						return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
+					}
+					continue
+				} else {
+					wantVal = true
+				}
+
+				/* handler: tmpJGeneNames type=string kind=string quoted=false*/
+
+				{
+
+					{
+						if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+							return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+						}
+					}
+
+					if tok == fflib.FFTok_null {
+
+					} else {
+
+						outBuf := fs.Output.Bytes()
+
+						tmpJGeneNames = string(string(outBuf))
+
+					}
+				}
+
+				j.GeneNames = append(j.GeneNames, tmpJGeneNames)
+
+				wantVal = false
+			}
 		}
 	}
 
 	state = fflib.FFParse_after_value
 	goto mainparse
 
-handle_GeneId:
+handle_GeneIds:
 
-	/* handler: j.GeneId type=string kind=string quoted=false*/
+	/* handler: j.GeneIds type=[]string kind=slice quoted=false*/
 
 	{
 
 		{
-			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
-				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			if tok != fflib.FFTok_left_brace && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for ", tok))
 			}
 		}
 
 		if tok == fflib.FFTok_null {
-
+			j.GeneIds = nil
 		} else {
 
-			outBuf := fs.Output.Bytes()
+			j.GeneIds = []string{}
 
-			j.GeneId = string(string(outBuf))
+			wantVal := true
 
+			for {
+
+				var tmpJGeneIds string
+
+				tok = fs.Scan()
+				if tok == fflib.FFTok_error {
+					goto tokerror
+				}
+				if tok == fflib.FFTok_right_brace {
+					break
+				}
+
+				if tok == fflib.FFTok_comma {
+					if wantVal == true {
+						// TODO(pquerna): this isn't an ideal error message, this handles
+						// things like [,,,] as an array value.
+						return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
+					}
+					continue
+				} else {
+					wantVal = true
+				}
+
+				/* handler: tmpJGeneIds type=string kind=string quoted=false*/
+
+				{
+
+					{
+						if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+							return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+						}
+					}
+
+					if tok == fflib.FFTok_null {
+
+					} else {
+
+						outBuf := fs.Output.Bytes()
+
+						tmpJGeneIds = string(string(outBuf))
+
+					}
+				}
+
+				j.GeneIds = append(j.GeneIds, tmpJGeneIds)
+
+				wantVal = false
+			}
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_PseudogeneNames:
+
+	/* handler: j.PseudogeneNames type=[]string kind=slice quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_left_brace && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for ", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+			j.PseudogeneNames = nil
+		} else {
+
+			j.PseudogeneNames = []string{}
+
+			wantVal := true
+
+			for {
+
+				var tmpJPseudogeneNames string
+
+				tok = fs.Scan()
+				if tok == fflib.FFTok_error {
+					goto tokerror
+				}
+				if tok == fflib.FFTok_right_brace {
+					break
+				}
+
+				if tok == fflib.FFTok_comma {
+					if wantVal == true {
+						// TODO(pquerna): this isn't an ideal error message, this handles
+						// things like [,,,] as an array value.
+						return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
+					}
+					continue
+				} else {
+					wantVal = true
+				}
+
+				/* handler: tmpJPseudogeneNames type=string kind=string quoted=false*/
+
+				{
+
+					{
+						if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+							return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+						}
+					}
+
+					if tok == fflib.FFTok_null {
+
+					} else {
+
+						outBuf := fs.Output.Bytes()
+
+						tmpJPseudogeneNames = string(string(outBuf))
+
+					}
+				}
+
+				j.PseudogeneNames = append(j.PseudogeneNames, tmpJPseudogeneNames)
+
+				wantVal = false
+			}
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_PseudogeneIds:
+
+	/* handler: j.PseudogeneIds type=[]string kind=slice quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_left_brace && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for ", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+			j.PseudogeneIds = nil
+		} else {
+
+			j.PseudogeneIds = []string{}
+
+			wantVal := true
+
+			for {
+
+				var tmpJPseudogeneIds string
+
+				tok = fs.Scan()
+				if tok == fflib.FFTok_error {
+					goto tokerror
+				}
+				if tok == fflib.FFTok_right_brace {
+					break
+				}
+
+				if tok == fflib.FFTok_comma {
+					if wantVal == true {
+						// TODO(pquerna): this isn't an ideal error message, this handles
+						// things like [,,,] as an array value.
+						return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
+					}
+					continue
+				} else {
+					wantVal = true
+				}
+
+				/* handler: tmpJPseudogeneIds type=string kind=string quoted=false*/
+
+				{
+
+					{
+						if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+							return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+						}
+					}
+
+					if tok == fflib.FFTok_null {
+
+					} else {
+
+						outBuf := fs.Output.Bytes()
+
+						tmpJPseudogeneIds = string(string(outBuf))
+
+					}
+				}
+
+				j.PseudogeneIds = append(j.PseudogeneIds, tmpJPseudogeneIds)
+
+				wantVal = false
+			}
 		}
 	}
 
@@ -18521,6 +18855,21 @@ func (j *EnsemblAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.FormatBits2(buf, uint64(j.Frame), 10, j.Frame < 0)
 		buf.WriteByte(',')
 	}
+	if j.Hgnc != nil {
+		if true {
+			buf.WriteString(`"hgnc":`)
+
+			{
+
+				err = j.Hgnc.MarshalJSONBuf(buf)
+				if err != nil {
+					return err
+				}
+
+			}
+			buf.WriteByte(',')
+		}
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -18561,6 +18910,8 @@ const (
 	ffjtEnsemblAttrSource
 
 	ffjtEnsemblAttrFrame
+
+	ffjtEnsemblAttrHgnc
 )
 
 var ffjKeyEnsemblAttrName = []byte("name")
@@ -18594,6 +18945,8 @@ var ffjKeyEnsemblAttrVersion = []byte("version")
 var ffjKeyEnsemblAttrSource = []byte("source")
 
 var ffjKeyEnsemblAttrFrame = []byte("frame")
+
+var ffjKeyEnsemblAttrHgnc = []byte("hgnc")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *EnsemblAttr) UnmarshalJSON(input []byte) error {
@@ -18701,6 +19054,14 @@ mainparse:
 						goto mainparse
 					}
 
+				case 'h':
+
+					if bytes.Equal(ffjKeyEnsemblAttrHgnc, kn) {
+						currentKey = ffjtEnsemblAttrHgnc
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 'n':
 
 					if bytes.Equal(ffjKeyEnsemblAttrName, kn) {
@@ -18763,6 +19124,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyEnsemblAttrHgnc, kn) {
+					currentKey = ffjtEnsemblAttrHgnc
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.SimpleLetterEqualFold(ffjKeyEnsemblAttrFrame, kn) {
@@ -18925,6 +19292,9 @@ mainparse:
 
 				case ffjtEnsemblAttrFrame:
 					goto handle_Frame
+
+				case ffjtEnsemblAttrHgnc:
+					goto handle_Hgnc
 
 				case ffjtEnsemblAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -19387,6 +19757,32 @@ handle_Frame:
 			j.Frame = int32(tval)
 
 		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Hgnc:
+
+	/* handler: j.Hgnc type=pbuf.HgncAttr kind=struct quoted=false*/
+
+	{
+		if tok == fflib.FFTok_null {
+
+			j.Hgnc = nil
+
+		} else {
+
+			if j.Hgnc == nil {
+				j.Hgnc = new(HgncAttr)
+			}
+
+			err = j.Hgnc.UnmarshalJSONFFLexer(fs, fflib.FFParse_want_key)
+			if err != nil {
+				return err
+			}
+		}
+		state = fflib.FFParse_after_value
 	}
 
 	state = fflib.FFParse_after_value

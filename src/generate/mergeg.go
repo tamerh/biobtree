@@ -36,6 +36,14 @@ const eof = rune(0)
 
 var fileBufSize = 65536
 
+// Helper function for min of two integers
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
 var config *configs.Conf
 
 var mergebar *pb.ProgressBar
@@ -798,6 +806,35 @@ func (ch *chunkReader) readKeyValue() {
 			break
 
 		default:
+			// Log warning for unusually large fields (before hitting the limit)
+			// This helps identify potential issues early
+			bufferSize := len(ch.tmprun)
+			if tabIndex == bufferSize/2 || tabIndex == bufferSize*3/4 || tabIndex == bufferSize*9/10 {
+				log.Printf("WARNING: Large field detected")
+				log.Printf("  Field size: %d characters (%.1f%% of buffer)", tabIndex, float64(tabIndex)/float64(bufferSize)*100)
+				log.Printf("  Buffer size: %d characters", bufferSize)
+				log.Printf("  Current key: '%s'", key)
+				log.Printf("  Field index: %d", index)
+				log.Printf("  Field content (first 200 chars): %s...", string(ch.tmprun[:min(200, tabIndex)]))
+				log.Printf("  File: %s", ch.file.Name())
+			}
+
+			// Bounds check to prevent buffer overflow and provide debugging info
+			if tabIndex >= bufferSize {
+				// Log detailed information for debugging before panicking
+				log.Printf("FATAL: Field exceeds buffer size limit")
+				log.Printf("  Buffer size (tmpRuneSize): %d characters", bufferSize)
+				log.Printf("  Current tabIndex: %d", tabIndex)
+				log.Printf("  Current key: '%s'", key)
+				log.Printf("  Field index: %d", index)
+				log.Printf("  Current field content (first 500 chars): %s...", string(ch.tmprun[:min(500, bufferSize)]))
+				log.Printf("  File: %s", ch.file.Name())
+				log.Printf("")
+				log.Printf("  This usually happens when a field (key, value, or xref) is exceptionally large.")
+				log.Printf("  To fix: Increase tmpRuneSize in conf/application.param.json")
+				log.Printf("  Suggested value: \"tmpRuneSize\": \"10000000\" (10M characters)")
+				panic(fmt.Sprintf("Buffer overflow: field size exceeds tmpRuneSize=%d", bufferSize))
+			}
 			ch.tmprun[tabIndex] = c
 			tabIndex++
 		}

@@ -882,4 +882,41 @@ message IntactAttr {
   repeated int32 partner_organisms = 6;                 // List of unique partner organism taxids
 }
 
+// DIAMOND similarity hit (individual alignment result)
+message DiamondSimilarity {
+  // Target protein identifiers
+  string target_uniprot = 1;                            // Target UniProt ID (extracted from "sp|P01946|HBA_RAT")
+  string target_name = 2;                               // Target protein name (extracted: "HBA_RAT")
+
+  // Alignment statistics
+  float identity = 3;                                   // Sequence identity percentage (0-100)
+  int32 alignment_length = 4;                           // Length of alignment
+  int32 mismatches = 5;                                 // Number of mismatches
+  int32 gap_opens = 6;                                  // Number of gap openings
+
+  // Alignment positions
+  int32 q_start = 7;                                    // Query alignment start position
+  int32 q_end = 8;                                      // Query alignment end position
+  int32 s_start = 9;                                    // Subject alignment start position
+  int32 s_end = 10;                                     // Subject alignment end position
+
+  // Scoring metrics
+  double evalue = 11;                                   // E-value (expectation value)
+  float bitscore = 12;                                  // Bit score
+}
+
+// Protein Similarity attributes (DIAMOND BLASTP results, stored per protein)
+message ProteinSimilarityAttr {
+  // Primary identifier (UniProt AC with "d" prefix, e.g., "dP01942")
+  string protein_id = 1;                                // DIAMOND ID (d + UniProt accession)
+
+  // Similarity hits
+  repeated DiamondSimilarity similarities = 2;          // Top N similar proteins (variable, typically 10-100)
+
+  // Summary statistics
+  int32 similarity_count = 3;                           // Total number of similarity hits
+  float top_identity = 4;                               // Highest identity percentage
+  float top_bitscore = 5;                               // Highest bit score
+}
+
 

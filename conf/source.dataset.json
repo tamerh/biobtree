@@ -496,5 +496,17 @@
     "hasFilter": "yes",
     "attrs": "protein_id,[]interactions,interaction_count,unique_partners,high_confidence_count,[]partner_organisms",
     "test_entries_count": "100"
+  },
+  "protein_similarity": {
+    "id": "45",
+    "name": "Protein Similarity",
+    "path": "/data/scc/ag-gruber/GROUP/tgur/x/bioyoda_dev2/snapshots/diamond/data/processed/protein_similarity_diamond/merged/filtered_top100.tsv",
+    "testPath": "/data/scc/ag-gruber/GROUP/tgur/x/bioyoda_dev2/test_out/data/processed/protein_similarity_diamond/merged/filtered_top10.tsv",
+    "aliases": "DIAMOND,protein similarity,sequence similarity,BLASTP,homology,orthology",
+    "url": "https://www.uniprot.org/uniprotkb/£{id}",
+    "useLocalFile": "yes",
+    "hasFilter": "yes",
+    "attrs": "protein_id,[]similarities,similarity_count,top_identity,top_bitscore",
+    "test_entries_count": "100"
   }
 }

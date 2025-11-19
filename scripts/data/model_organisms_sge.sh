@@ -154,8 +154,8 @@ else
     declare -a SUBMITTED_JOBS=()
 
     # Core datasets split into 2 parts to reduce concurrent downloads
-    CORE_PART1="uniprot,go,eco,hgnc,taxonomy,interpro,hmdb,chembl,clinvar,lipidmaps,swisslipids,uberon,bgee,cl,rhea,gwas_study,gwas,dbsnp,intact"
-    CORE_PART2="chebi,efo,mondo,hpo,alphafold,rnacentral,reactome,clinical_trials,patent,string"
+    CORE_PART1="uniprot,go,eco,taxonomy,interpro,hmdb,chembl,clinvar,lipidmaps,swisslipids,uberon,gwas_study,gwas,intact"
+    CORE_PART2="chebi,efo,mondo,hpo,alphafold,rnacentral,reactome,clinical_trials,patent,string,bgee,cl,rhea,dbsnp"
 
     # Calculate total jobs to submit
     TOTAL_JOBS=0

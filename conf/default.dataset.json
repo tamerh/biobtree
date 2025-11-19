@@ -1541,5 +1541,13 @@
     "url": "https://www.ebi.ac.uk/intact/interaction/£{id}",
     "hasFilter": "yes",
     "attrs": "protein_id,[]interactions,interaction_count,unique_partners,high_confidence_count,[]partner_organisms"
+  },
+  "protein_similarity": {
+    "aliases": "DIAMOND,protein similarity,sequence similarity,BLASTP,homology,orthology",
+    "name": "Protein Similarity",
+    "id": "45",
+    "url": "https://www.uniprot.org/uniprotkb/£{id}",
+    "hasFilter": "yes",
+    "attrs": "protein_id,[]similarities,similarity_count,top_identity,top_bitscore"
   }
 }

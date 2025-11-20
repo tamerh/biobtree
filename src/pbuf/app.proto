@@ -145,6 +145,7 @@ message Xref {
     GwasAttr gwas=43;
     IntactAttr intact=44;
     ProteinSimilarityAttr protein_similarity=45;
+    AntibodyAttr antibody=46;
     DbsnpAttr dbsnp=123;
 
   }

@@ -94,18 +94,8 @@ func (g *biobtreegrpc) Mapping(ctx context.Context, in *pbuf.MappingRequest) (*p
 		}
 	}
 
-	var src uint32
-	var ok bool
-	if len(in.Dataset) > 0 {
-
-		src, ok = config.DataconfIDStringToInt[in.Dataset]
-		if !ok {
-			return nil, fmt.Errorf("Invalid dataset")
-		}
-	}
-
 	grpcRes := pbuf.MappingResponse{}
-	res, err := g.service.mapFilter(in.Terms, src, in.Query, in.Page)
+	res, err := g.service.mapFilter(in.Terms, in.Query, in.Page)
 	if err != nil {
 		return nil, err
 	}

@@ -116,6 +116,8 @@ func (p *ParserV2) Parse(queryString string) ([]Query, error) {
 
 	// Build Query structs for each dataset in the chain
 	var queries []Query
+	firstDatasetFound := false
+
 	for i, part := range parts {
 		part = strings.TrimSpace(part)
 
@@ -138,9 +140,25 @@ func (p *ParserV2) Parse(queryString string) ([]Query, error) {
 				MapDatasetID:  0,
 				Filter:        filter,
 				IsLinkDataset: false,
+				IsLookup:      false,
 				Program:       nil,
 			}
 			queries = append(queries, q)
+			continue
+		}
+
+		// Handle wildcard "*" - means search everywhere
+		if dataset == "*" {
+			q := Query{
+				MapDataset:    "*",
+				MapDatasetID:  0, // 0 means search everywhere
+				Filter:        filter,
+				IsLinkDataset: false,
+				IsLookup:      true, // Wildcard is always a lookup operation
+				Program:       nil,
+			}
+			queries = append(queries, q)
+			firstDatasetFound = true
 			continue
 		}
 
@@ -158,15 +176,28 @@ func (p *ParserV2) Parse(queryString string) ([]Query, error) {
 			}
 		}
 
+		// Mark first dataset as lookup operation
+		isLookup := false
+		if !firstDatasetFound {
+			isLookup = true
+			firstDatasetFound = true
+		}
+
 		// Create Query struct
 		q := Query{
 			MapDataset:    dataset,
 			MapDatasetID:  datasetID,
 			Filter:        filter,
 			IsLinkDataset: isLinkDataset,
+			IsLookup:      isLookup,
 			Program:       nil,
 		}
 		queries = append(queries, q)
+	}
+
+	// Validate: must have at least 2 queries (lookup + target) unless using wildcard
+	if len(queries) == 1 && queries[0].MapDataset != "*" {
+		return nil, fmt.Errorf("invalid query: single >> requires explicit lookup dataset. Use '>>*>>%s' to search everywhere or '>>dataset>>%s' to lookup in specific dataset", queries[0].MapDataset, queries[0].MapDataset)
 	}
 
 	return queries, nil

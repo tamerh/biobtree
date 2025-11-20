@@ -18,6 +18,7 @@ type Query struct {
 	MapDatasetID  uint32
 	Filter        string
 	IsLinkDataset bool
+	IsLookup      bool // marks if this step is a lookup operation (first >> in chain)
 	Program       cel.Program
 }
 

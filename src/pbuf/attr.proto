@@ -919,4 +919,47 @@ message ProteinSimilarityAttr {
   float top_bitscore = 5;                               // Highest bit score
 }
 
+// Antibody - Unified Antibody Database (TheraSAbDab, SAbDab, IMGT/GENE-DB, IMGT/LIGM-DB)
+message AntibodyAttr {
+  // Metadata - which source this entry came from
+  string source = 1;                                    // therasabdab, sabdab, imgt_gene, imgt_ligm
+  string antibody_type = 2;                             // therapeutic, structure, germline, sequence
+
+  // Primary identifiers (depending on source)
+  string inn_name = 3;                                  // TheraSAbDab: INN (e.g., "pembrolizumab")
+  string pdb_id = 4;                                    // SAbDab: PDB ID (e.g., "5JXE")
+  string gene_name = 5;                                 // IMGT/GENE-DB: Gene allele (e.g., "IGHV1-69*01")
+  string sequence_id = 6;                               // IMGT/LIGM-DB: Sequence accession
+
+  // Antibody format and structure (TheraSAbDab, SAbDab)
+  string format = 7;                                    // IgG, Fab, scFv, VHH (nanobody), etc.
+  string isotype = 8;                                   // IgG1, IgG2, IgG4, etc.
+  string light_chain = 9;                               // kappa, lambda
+
+  // Clinical development information (TheraSAbDab)
+  string clinical_stage = 10;                           // Approved, Phase I/II/III, Preclinical, Withdrawn
+  string status = 11;                                   // Active, Discontinued, Withdrawn
+
+  // Sequence information (TheraSAbDab, IMGT)
+  repeated string heavy_chain_seq = 12;                 // Variable domain heavy chain sequences
+  repeated string light_chain_seq = 13;                 // Variable domain light chain sequences
+
+  // Target and indication information (TheraSAbDab)
+  repeated string targets = 14;                         // Target protein names (e.g., "PD-1", "EGFR")
+  repeated string indications = 15;                     // Disease indications
+
+  // Structure information (TheraSAbDab, SAbDab)
+  repeated string pdb_ids = 16;                         // Associated PDB structure IDs
+  string resolution = 17;                               // SAbDab: Structure resolution (e.g., "2.5")
+  string method = 18;                                   // SAbDab: Experimental method (X-ray, NMR, EM)
+
+  // IMGT/GENE-DB specific fields
+  string organism = 19;                                 // Organism (e.g., "Homo sapiens")
+  string functionality = 20;                            // F (functional), ORF, P (pseudogene)
+  string allele = 21;                                   // Allele designation
+
+  // Additional metadata
+  repeated string cross_references = 22;                // Cross-references to other databases
+}
+
 

@@ -531,30 +531,13 @@ func (web *Web) mapFilter(w http.ResponseWriter, r *http.Request) {
 
 	var res *pbuf.MapFilterResult
 
-	var src uint32
-	srcStr, ok := r.URL.Query()["s"]
-	if ok && len(srcStr[0]) > 0 {
-
-		src, ok = config.DataconfIDStringToInt[srcStr[0]]
-		if !ok {
-			err := fmt.Errorf("invalid s param")
-			errStr := errString{Err: err.Error()}
-			jb, _ := ffjson.Marshal(errStr)
-			buf.WriteString(string(jb))
-			w.Write([]byte(buf.String()))
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-	}
-
 	pages, ok := r.URL.Query()["p"]
 	var page string
 	if ok && len(pages[0]) > 0 {
 		page = pages[0]
 	}
 
-	res, err = web.service.mapFilter(ids, src, mapfil[0], page)
+	res, err = web.service.mapFilter(ids, mapfil[0], page)
 	if err != nil {
 		errStr := errString{Err: err.Error()}
 		jb, _ := ffjson.Marshal(errStr)

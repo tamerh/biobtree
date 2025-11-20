@@ -26,13 +26,13 @@ type mpInPage struct {
 }
 
 // rootPage is like search paging and second level paging is for each  mapping
-func (s *service) mapFilter(ids []string, idsDomain uint32, mapFilterQuery, page string) (*pbuf.MapFilterResult, error) {
+func (s *service) mapFilter(ids []string, mapFilterQuery, page string) (*pbuf.MapFilterResult, error) {
 
 	startTime := time.Now()
 
 	result := pbuf.MapFilterResult{}
 
-	cacheKey := s.mapFilterCacheKey(ids, idsDomain, mapFilterQuery, page)
+	cacheKey := s.mapFilterCacheKey(ids, mapFilterQuery, page)
 
 	resultFromCache, found := s.filterResultCache.Get(cacheKey)
 
@@ -62,15 +62,26 @@ func (s *service) mapFilter(ids []string, idsDomain uint32, mapFilterQuery, page
 		return nil, err
 	}
 
+	// Extract lookup dataset from first query (if IsLookup == true)
+	var lookupDatasetID uint32
 	var filterQ *query.Query
 
-	if queries[0].MapDatasetID <= 0 { // if starts with filter
+	if len(queries) > 0 && queries[0].IsLookup {
+		// First query is the lookup dataset
+		lookupDatasetID = queries[0].MapDatasetID
+		if len(queries[0].Filter) > 0 {
+			filterQ = &queries[0]
+		}
+		// Remove lookup query from chain (it's not part of xref mapping)
+		queries = queries[1:]
+	} else if len(queries) > 0 && queries[0].MapDatasetID <= 0 {
+		// Filter-only case (existing logic for backward compatibility)
 		filterQ = &queries[0]
 		queries = queries[1:]
 	}
 
 startMapping:
-	inputXrefs, newRootPage, err := s.inputXrefs(ids, idsDomain, filterQ, newRootPage, pages)
+	inputXrefs, newRootPage, err := s.inputXrefs(ids, lookupDatasetID, filterQ, newRootPage, pages)
 
 	if err != nil {
 		return nil, err
@@ -194,15 +205,11 @@ startMapping:
 
 }
 
-func (s *service) mapFilterCacheKey(ids []string, idsDomain uint32, mapFilterQuery, page string) string {
+func (s *service) mapFilterCacheKey(ids []string, mapFilterQuery, page string) string {
 
 	var str strings.Builder
 	for _, id := range ids {
 		str.WriteString(id)
-		str.WriteString(",")
-	}
-	if idsDomain > 0 {
-		str.WriteString(strconv.Itoa(int(idsDomain)))
 		str.WriteString(",")
 	}
 	str.WriteString(mapFilterQuery)
@@ -891,6 +898,8 @@ func (s *service) execCelGo(query *query.Query, targetXref *pbuf.Xref) (bool, er
 		out, _, err = query.Program.Eval(map[string]interface{}{"intact": targetXref.GetIntact()})
 	case "dbsnp":
 		out, _, err = query.Program.Eval(map[string]interface{}{"dbsnp": targetXref.GetDbsnp()})
+	case "antibody":
+		out, _, err = query.Program.Eval(map[string]interface{}{"antibody": targetXref.GetAntibody()})
 	default:
 		//err := fmt.Errorf("mapfilter query execution failed please check again query")
 		return false, nil

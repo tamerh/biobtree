@@ -508,5 +508,19 @@
     "hasFilter": "yes",
     "attrs": "protein_id,[]similarities,similarity_count,top_identity,top_bitscore",
     "test_entries_count": "100"
+  },
+  "antibody": {
+    "id": "46",
+    "name": "Antibody db",
+    "aliases": "therapeutic antibody,monoclonal antibody,mAb,antibody therapeutics,TheraSAbDab,SAbDab,IMGT,antibody structure,germline gene,antibody sequence",
+    "url": "http://opig.stats.ox.ac.uk/webapps/therasabdab/therapeutics/£{id}",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "source,antibody_type,inn_name,pdb_id,gene_name,sequence_id,format,isotype,light_chain,clinical_stage,status,[]heavy_chain_seq,[]light_chain_seq,[]targets,[]indications,[]pdb_ids,resolution,method,organism,functionality,allele",
+    "test_entries_count": "50",
+    "therasabdab_path": "https://opig.stats.ox.ac.uk/webapps/sabdab-sabpred/static/downloads/TheraSAbDab_SeqStruc_OnlineDownload.csv",
+    "sabdab_path": "https://opig.stats.ox.ac.uk/webapps/sabdab-sabpred/sabdab/summary/all/",
+    "imgt_gene_path": "https://www.imgt.org/download/GENE-DB/IMGTGENEDB-ReferenceSequences.fasta-nt-WithoutGaps-F+ORF+inframeP",
+    "imgt_ligm_path": "https://ftp.ebi.ac.uk/pub/databases/imgt/LIGM-DB/imgt.fasta.Z"
   }
 }

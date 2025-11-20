@@ -55,7 +55,7 @@ func (cli *CLI) Query(conf *configs.Conf, queryStr string, datasetFilter string)
 			mappingQuery = strings.TrimSpace(parts[1])
 		}
 
-		result, err = cli.service.mapFilter(ids, datasetID, mappingQuery, "")
+		result, err = cli.service.mapFilter(ids, mappingQuery, "")
 	} else {
 		// Simple lookup (no >>)
 		ids := strings.Split(queryStr, ",")

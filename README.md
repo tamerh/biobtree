@@ -117,7 +117,7 @@ localhost:9292/ws/?i={terms}&s={dataset}&p={page}&f={filter}&d={detail}
 
 # Mapping
 # i and m are mandatory parameters
-localhost:9292/ws/map/?i={terms}&m={mapfilter_query}&s={dataset}&p={page}
+localhost:9292/ws/map/?i={terms}&m={mapfilter_query}&p={page}
 
 # Retrieve dataset entry. Both paramters are mandatory
 localhost:9292/ws/entry/?i={identifier}&s={dataset}
@@ -255,7 +255,51 @@ biobtree query "P49418 >> intact[intact.interactions[0].confidence_score>0.6]"  
 biobtree query "P49418 >> intact[intact.interactions[0].detection_method~\"two hybrid\"]"  # By method
 ```
 
-**Old Syntax (Still Supported)**:
+#### Migration Guide - Breaking Change in Mapping Queries
+
+**IMPORTANT**: The `s=` (source dataset) parameter has been removed from mapping queries. The first `>>` in the mapping chain now acts as a **lookup operation** instead of a cross-reference mapping.
+
+**Old Syntax (Deprecated)**:
+```ruby
+# Web API - old approach with s= parameter
+localhost:9292/ws/map/?i=TP53&s=ensembl&m=>>uniprot
+
+# CLI - old approach (no longer works)
+# The s= parameter is no longer available
+```
+
+**New Syntax (Required)**:
+```ruby
+# Web API - first >> is lookup, subsequent >> are mappings
+localhost:9292/ws/map/?i=TP53&m=>>ensembl>>uniprot
+
+# CLI - first >> is lookup, subsequent >> are mappings
+biobtree query "TP53 >> ensembl >> uniprot"
+
+# Wildcard lookup - search everywhere first
+localhost:9292/ws/map/?i=TP53&m=>>*>>uniprot
+biobtree query "TP53 >> * >> uniprot"
+```
+
+**Key Changes**:
+- ✅ **First `>>dataset`**: Always performs a **lookup** operation (finds identifiers in that dataset)
+- ✅ **Subsequent `>>`**: Perform **cross-reference mappings** (follow xrefs between datasets)
+- ❌ **Removed**: The `s=` parameter is no longer supported
+- ⚠️ **Required**: All mapping queries must have at least 2 steps (lookup + target), or use wildcard `>>*`
+
+**Examples**:
+```ruby
+# Old: i=TP53&s=hgnc&m=>>uniprot
+# New: i=TP53&m=>>hgnc>>uniprot
+
+# Old: i=P27348&s=uniprot&m=>>ensembl>>paralog
+# New: i=P27348&m=>>uniprot>>ensembl>>paralog
+
+# Old: i=TP53&m=>>uniprot (with implicit search everywhere)
+# New: i=TP53&m=>>*>>uniprot (explicit wildcard search)
+```
+
+**Function-Style Syntax (Still Supported for Backward Compatibility)**:
 ```ruby
 # Web API with old function-style syntax
 localhost:9292/ws/map/?i=P27348&m=map(uniprot).filter(uniprot.reviewed==true).map(hgnc)

@@ -1549,5 +1549,13 @@
     "url": "https://www.uniprot.org/uniprotkb/£{id}",
     "hasFilter": "yes",
     "attrs": "protein_id,[]similarities,similarity_count,top_identity,top_bitscore"
+  },
+  "antibody": {
+    "aliases": "therapeutic antibody,monoclonal antibody,mAb,antibody therapeutics,TheraSAbDab,SAbDab,IMGT,antibody structure,germline gene,antibody sequence",
+    "name": "Antibody",
+    "id": "46",
+    "url": "http://opig.stats.ox.ac.uk/webapps/therasabdab/therapeutics/£{id}",
+    "hasFilter": "yes",
+    "attrs": "source,antibody_type,inn_name,pdb_id,gene_name,sequence_id,format,isotype,light_chain,clinical_stage,status,[]heavy_chain_seq,[]light_chain_seq,[]targets,[]indications,[]pdb_ids,resolution,method,organism,functionality,allele"
   }
 }

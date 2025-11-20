@@ -4,14 +4,32 @@ import (
 	"bufio"
 	"compress/gzip"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 
 	"github.com/jlaffaye/ftp"
 )
+
+// Helper function to decompress .Z (Unix compress) format using external uncompress command
+func decompressZ(input io.Reader) (io.ReadCloser, error) {
+	cmd := exec.Command("uncompress", "-c")
+	cmd.Stdin = input
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		return nil, fmt.Errorf("failed to create pipe for uncompress: %v", err)
+	}
+
+	if err := cmd.Start(); err != nil {
+		return nil, fmt.Errorf("failed to start uncompress command: %v", err)
+	}
+
+	return stdout, nil
+}
 
 func getDataReaderNew(datatype string, ftpAddr string, ftpPath string, filePath string) (*bufio.Reader, *gzip.Reader, *ftp.Response, *ftp.ServerConn, *os.File, int64, error) {
 
@@ -34,8 +52,9 @@ func getDataReaderNew(datatype string, ftpAddr string, ftpPath string, filePath 
 			return nil, nil, nil, nil, nil, 0, err
 		}
 		fileSize = fileStat.Size()
+		ext := filepath.Ext(file.Name())
 
-		if filepath.Ext(file.Name()) == ".gz" {
+		if ext == ".gz" {
 			gz, err := gzip.NewReader(file)
 			if err != nil {
 				file.Close()
@@ -43,6 +62,15 @@ func getDataReaderNew(datatype string, ftpAddr string, ftpPath string, filePath 
 			}
 			br := bufio.NewReaderSize(gz, fileBufSize)
 			return br, gz, nil, nil, file, fileSize, nil
+		} else if ext == ".Z" {
+			// Handle Unix compress format using external uncompress command
+			zReader, err := decompressZ(file)
+			if err != nil {
+				file.Close()
+				return nil, nil, nil, nil, nil, 0, fmt.Errorf("failed to decompress .Z file: %v", err)
+			}
+			br := bufio.NewReaderSize(zReader, fileBufSize)
+			return br, nil, nil, nil, file, fileSize, nil
 		}
 
 		br := bufio.NewReaderSize(file, fileBufSize)
@@ -65,8 +93,9 @@ func getDataReaderNew(datatype string, ftpAddr string, ftpPath string, filePath 
 
 		var br *bufio.Reader
 		var gz *gzip.Reader
+		ext := filepath.Ext(filePath)
 
-		if filepath.Ext(filePath) == ".gz" {
+		if ext == ".gz" {
 			gz, err = gzip.NewReader(resp.Body)
 			if err != nil {
 				resp.Body.Close()
@@ -74,6 +103,15 @@ func getDataReaderNew(datatype string, ftpAddr string, ftpPath string, filePath 
 			}
 			br = bufio.NewReaderSize(gz, fileBufSize)
 			return br, gz, nil, nil, nil, fileSize, nil
+		} else if ext == ".Z" {
+			// Handle Unix compress format using external uncompress command
+			zReader, err := decompressZ(resp.Body)
+			if err != nil {
+				resp.Body.Close()
+				return nil, nil, nil, nil, nil, 0, fmt.Errorf("failed to decompress .Z file: %v", err)
+			}
+			br = bufio.NewReaderSize(zReader, fileBufSize)
+			return br, nil, nil, nil, nil, fileSize, nil
 		} else {
 			br = bufio.NewReaderSize(resp.Body, fileBufSize)
 			return br, nil, nil, nil, nil, fileSize, nil
@@ -89,8 +127,9 @@ func getDataReaderNew(datatype string, ftpAddr string, ftpPath string, filePath 
 
 			var br *bufio.Reader
 			var gz *gzip.Reader
+			ext := filepath.Ext(filePath)
 
-			if filepath.Ext(filePath) == ".gz" {
+			if ext == ".gz" {
 				gz, err = gzip.NewReader(resp.Body)
 				if err != nil {
 					resp.Body.Close()
@@ -100,8 +139,17 @@ func getDataReaderNew(datatype string, ftpAddr string, ftpPath string, filePath 
 				// For .gz files, gz.Close() will close the underlying resp.Body
 				// so we return nil for the file parameter
 				return br, gz, nil, nil, nil, fileSize, nil
+			} else if ext == ".Z" {
+				// Handle Unix compress format using external uncompress command
+				zReader, err := decompressZ(resp.Body)
+				if err != nil {
+					resp.Body.Close()
+					return nil, nil, nil, nil, nil, 0, fmt.Errorf("failed to decompress .Z file: %v", err)
+				}
+				br = bufio.NewReaderSize(zReader, fileBufSize)
+				return br, nil, nil, nil, nil, fileSize, nil
 			} else {
-				// Non-.gz files: EBI datasets are typically always .gz, so this path is rarely used
+				// Non-compressed files
 				br = bufio.NewReaderSize(resp.Body, fileBufSize)
 				return br, nil, nil, nil, nil, fileSize, nil
 			}

@@ -85,6 +85,11 @@ func (a *antibody) parseTheraSAbDab(testLimit int, idLogFile *os.File) {
 	header, err := csvReader.Read()
 	a.check(err, "reading TheraSAbDab header")
 
+	// Strip UTF-8 BOM from first column if present
+	if len(header) > 0 {
+		header[0] = strings.TrimPrefix(header[0], "\ufeff")
+	}
+
 	// Map column names to indices
 	colMap := make(map[string]int)
 	for i, name := range header {
@@ -96,6 +101,7 @@ func (a *antibody) parseTheraSAbDab(testLimit int, idLogFile *os.File) {
 	// Save each therapeutic antibody entry
 	var savedAntibodies int
 	var skippedNoINN int
+	var skippedDuplicates int
 	var totalRowsRead int
 
 	for {
@@ -128,6 +134,13 @@ func (a *antibody) parseTheraSAbDab(testLimit int, idLogFile *os.File) {
 			continue
 		}
 
+		// ID conflict detection - silently skip duplicates
+		if _, exists := a.idMap[innName]; exists {
+			skippedDuplicates++
+			continue
+		}
+		a.idMap[innName] = "therasabdab"
+
 		// Extract all fields with correct column names
 		format := strings.TrimSpace(getColumnValue(row, colMap, "Format"))
 		isotype := strings.TrimSpace(getColumnValue(row, colMap, "CH1 Isotype"))
@@ -150,13 +163,6 @@ func (a *antibody) parseTheraSAbDab(testLimit int, idLogFile *os.File) {
 
 		// PDB IDs - may not be in this CSV, extract from SAbDab column if available
 		pdbIDs := extractList(getColumnValue(row, colMap, "SAbDab"))
-
-		// ID conflict detection
-		if existingSource, exists := a.idMap[innName]; exists {
-			log.Printf("Antibody: WARNING - ID conflict: %s already exists from source %s, skipping duplicate from therasabdab", innName, existingSource)
-			continue
-		}
-		a.idMap[innName] = "therasabdab"
 
 		// Create protobuf entry with unified schema
 		entry := &pbuf.AntibodyAttr{
@@ -211,8 +217,8 @@ func (a *antibody) parseTheraSAbDab(testLimit int, idLogFile *os.File) {
 		savedAntibodies++
 	}
 
-	log.Printf("Antibody (TheraSAbDab): Summary - Total rows: %d, Saved: %d, Skipped (no INN): %d",
-		totalRowsRead, savedAntibodies, skippedNoINN)
+	log.Printf("Antibody (TheraSAbDab): Summary - Total rows: %d, Saved: %d, Skipped (no INN): %d, Skipped (duplicates): %d",
+		totalRowsRead, savedAntibodies, skippedNoINN, skippedDuplicates)
 }
 
 // parseSAbDab processes the SAbDab TSV file (antibody structures)
@@ -256,6 +262,7 @@ func (a *antibody) parseSAbDab(testLimit int, idLogFile *os.File) {
 	// Save each antibody structure entry
 	var savedStructures int
 	var skippedNoPDB int
+	var skippedDuplicates int
 	var totalRowsRead int
 
 	for {
@@ -294,9 +301,9 @@ func (a *antibody) parseSAbDab(testLimit int, idLogFile *os.File) {
 		// Create composite ID: pdb_Hchain_Lchain
 		compositeID := fmt.Sprintf("%s_%s_%s", pdbID, hChain, lChain)
 
-		// ID conflict detection
-		if existingSource, exists := a.idMap[compositeID]; exists {
-			log.Printf("Antibody: WARNING - ID conflict: %s already exists from source %s, skipping duplicate from sabdab", compositeID, existingSource)
+		// ID conflict detection - silently skip duplicates
+		if _, exists := a.idMap[compositeID]; exists {
+			skippedDuplicates++
 			continue
 		}
 		a.idMap[compositeID] = "sabdab"
@@ -348,8 +355,8 @@ func (a *antibody) parseSAbDab(testLimit int, idLogFile *os.File) {
 		savedStructures++
 	}
 
-	log.Printf("Antibody (SAbDab): Summary - Total rows: %d, Saved: %d, Skipped (no PDB): %d",
-		totalRowsRead, savedStructures, skippedNoPDB)
+	log.Printf("Antibody (SAbDab): Summary - Total rows: %d, Saved: %d, Skipped (no PDB): %d, Skipped (duplicates): %d",
+		totalRowsRead, savedStructures, skippedNoPDB, skippedDuplicates)
 }
 
 // parseIMGTGene processes the IMGT/GENE-DB FASTA file (germline gene alleles)
@@ -379,6 +386,9 @@ func (a *antibody) parseIMGTGene(testLimit int, idLogFile *os.File) {
 	var currentHeader string
 	var currentSequence strings.Builder
 
+	// Track different skip reasons
+	var skippedDuplicates int
+
 	// Process FASTA format line by line
 	scanner := bufio.NewScanner(br)
 	for scanner.Scan() {
@@ -395,10 +405,13 @@ func (a *antibody) parseIMGTGene(testLimit int, idLogFile *os.File) {
 				}
 
 				// Parse and save the gene entry
-				if a.processIMGTGeneEntry(currentHeader, currentSequence.String(), sourceID, textLinkID, idLogFile) {
+				result := a.processIMGTGeneEntry(currentHeader, currentSequence.String(), sourceID, textLinkID, idLogFile)
+				if result == 1 {
 					savedGenes++
-				} else {
+				} else if result == 0 {
 					skippedNoName++
+				} else if result == -1 {
+					skippedDuplicates++
 				}
 
 				totalEntriesRead++
@@ -422,28 +435,32 @@ func (a *antibody) parseIMGTGene(testLimit int, idLogFile *os.File) {
 
 	// Process last entry
 	if currentHeader != "" && (savedGenes < testLimit || !config.IsTestMode()) {
-		if a.processIMGTGeneEntry(currentHeader, currentSequence.String(), sourceID, textLinkID, idLogFile) {
+		result := a.processIMGTGeneEntry(currentHeader, currentSequence.String(), sourceID, textLinkID, idLogFile)
+		if result == 1 {
 			savedGenes++
-		} else {
+		} else if result == 0 {
 			skippedNoName++
+		} else if result == -1 {
+			skippedDuplicates++
 		}
 		totalEntriesRead++
 	}
 
 	a.check(scanner.Err(), "reading IMGT/GENE-DB FASTA file")
 
-	log.Printf("Antibody (IMGT/GENE-DB): Summary - Total entries: %d, Saved: %d, Skipped (no name): %d",
-		totalEntriesRead, savedGenes, skippedNoName)
+	log.Printf("Antibody (IMGT/GENE-DB): Summary - Total entries: %d, Saved: %d, Skipped (no name): %d, Skipped (duplicates): %d",
+		totalEntriesRead, savedGenes, skippedNoName, skippedDuplicates)
 }
 
 // processIMGTGeneEntry processes a single IMGT/GENE-DB FASTA entry
-func (a *antibody) processIMGTGeneEntry(header, sequence, sourceID, textLinkID string, idLogFile *os.File) bool {
+// Returns: 1 = saved, 0 = skipped (no name/invalid), -1 = skipped (duplicate)
+func (a *antibody) processIMGTGeneEntry(header, sequence, sourceID, textLinkID string, idLogFile *os.File) int {
 	// Parse FASTA header - 15 pipe-delimited fields
 	// Example: M99641|IGHV1-18*01|Homo sapiens|F|V-REGION|...
 	fields := strings.Split(header, "|")
 	if len(fields) < 4 {
 		log.Printf("Antibody (IMGT/GENE-DB): Warning - malformed header: %s", header)
-		return false
+		return 0
 	}
 
 	// Extract key fields
@@ -459,7 +476,7 @@ func (a *antibody) processIMGTGeneEntry(header, sequence, sourceID, textLinkID s
 	}
 
 	if geneName == "" {
-		return false
+		return 0
 	}
 
 	// Create composite ID: gene+allele_region (e.g., "IGHV1-18*01_V-REGION")
@@ -469,10 +486,10 @@ func (a *antibody) processIMGTGeneEntry(header, sequence, sourceID, textLinkID s
 		compositeID = geneName + "_" + region
 	}
 
-	// ID conflict detection
+	// ID conflict detection - silently skip duplicates
 	if existingSource, exists := a.idMap[compositeID]; exists {
-		log.Printf("Antibody: WARNING - ID conflict: %s already exists from source %s, skipping duplicate from imgt_gene", compositeID, existingSource)
-		return false
+		_ = existingSource // Avoid unused variable warning
+		return -1           // Return -1 for duplicate
 	}
 	a.idMap[compositeID] = "imgt_gene"
 
@@ -526,7 +543,7 @@ func (a *antibody) processIMGTGeneEntry(header, sequence, sourceID, textLinkID s
 		fmt.Fprintln(idLogFile, compositeID)
 	}
 
-	return true
+	return 1 // Return 1 for success
 }
 
 // parseIMGTLigm processes the IMGT/LIGM-DB FASTA file (antibody and TCR sequences)
@@ -552,6 +569,7 @@ func (a *antibody) parseIMGTLigm(testLimit int, idLogFile *os.File) {
 	// Save each antibody sequence entry
 	var savedSequences int
 	var skippedNoAccession int
+	var skippedDuplicates int
 	var totalEntriesRead int
 	var currentHeader string
 	var currentSequence strings.Builder
@@ -572,10 +590,13 @@ func (a *antibody) parseIMGTLigm(testLimit int, idLogFile *os.File) {
 				}
 
 				// Parse and save the sequence entry
-				if a.processIMGTLigmEntry(currentHeader, currentSequence.String(), sourceID, textLinkID, idLogFile) {
+				result := a.processIMGTLigmEntry(currentHeader, currentSequence.String(), sourceID, textLinkID, idLogFile)
+				if result == 1 {
 					savedSequences++
-				} else {
+				} else if result == 0 {
 					skippedNoAccession++
+				} else if result == -1 {
+					skippedDuplicates++
 				}
 
 				totalEntriesRead++
@@ -599,34 +620,38 @@ func (a *antibody) parseIMGTLigm(testLimit int, idLogFile *os.File) {
 
 	// Process last entry
 	if currentHeader != "" && (savedSequences < testLimit || !config.IsTestMode()) {
-		if a.processIMGTLigmEntry(currentHeader, currentSequence.String(), sourceID, textLinkID, idLogFile) {
+		result := a.processIMGTLigmEntry(currentHeader, currentSequence.String(), sourceID, textLinkID, idLogFile)
+		if result == 1 {
 			savedSequences++
-		} else {
+		} else if result == 0 {
 			skippedNoAccession++
+		} else if result == -1 {
+			skippedDuplicates++
 		}
 		totalEntriesRead++
 	}
 
 	a.check(scanner.Err(), "reading IMGT/LIGM-DB FASTA file")
 
-	log.Printf("Antibody (IMGT/LIGM-DB): Summary - Total entries: %d, Saved: %d, Skipped (no accession): %d",
-		totalEntriesRead, savedSequences, skippedNoAccession)
+	log.Printf("Antibody (IMGT/LIGM-DB): Summary - Total entries: %d, Saved: %d, Skipped (no accession): %d, Skipped (duplicates): %d",
+		totalEntriesRead, savedSequences, skippedNoAccession, skippedDuplicates)
 }
 
 // processIMGTLigmEntry processes a single IMGT/LIGM-DB FASTA entry
-func (a *antibody) processIMGTLigmEntry(header, sequence, sourceID, textLinkID string, idLogFile *os.File) bool {
+// Returns: 1 = saved, 0 = skipped (no accession/invalid), -1 = skipped (duplicate)
+func (a *antibody) processIMGTLigmEntry(header, sequence, sourceID, textLinkID string, idLogFile *os.File) int {
 	// Parse FASTA header - simple format: ACCESSION|Description
 	// Example: A00673|Artificial sequence for plasmid pSV-V-NP gamma-SNase
 	parts := strings.SplitN(header, "|", 2)
 	if len(parts) < 1 {
 		log.Printf("Antibody (IMGT/LIGM-DB): Warning - malformed header: %s", header)
-		return false
+		return 0
 	}
 
 	// Extract accession (primary ID)
 	accession := strings.TrimSpace(parts[0])
 	if accession == "" {
-		return false
+		return 0
 	}
 
 	// Extract description
@@ -635,10 +660,9 @@ func (a *antibody) processIMGTLigmEntry(header, sequence, sourceID, textLinkID s
 		description = strings.TrimSpace(parts[1])
 	}
 
-	// ID conflict detection
-	if existingSource, exists := a.idMap[accession]; exists {
-		log.Printf("Antibody: WARNING - ID conflict: %s already exists from source %s, skipping duplicate from imgt_ligm", accession, existingSource)
-		return false
+	// ID conflict detection - silently skip duplicates
+	if _, exists := a.idMap[accession]; exists {
+		return -1 // Return -1 for duplicate
 	}
 	a.idMap[accession] = "imgt_ligm"
 
@@ -683,7 +707,7 @@ func (a *antibody) processIMGTLigmEntry(header, sequence, sourceID, textLinkID s
 		fmt.Fprintln(idLogFile, accession)
 	}
 
-	return true
+	return 1 // Return 1 for success
 }
 
 // Helper function to safely get column value

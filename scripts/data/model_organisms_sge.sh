@@ -154,7 +154,7 @@ else
     declare -a SUBMITTED_JOBS=()
 
     # Core datasets split into 2 parts to reduce concurrent downloads
-    CORE_PART1="uniprot,go,eco,taxonomy,interpro,hmdb,chembl,clinvar,lipidmaps,swisslipids,uberon,gwas_study,gwas,intact"
+    CORE_PART1="uniprot,go,eco,taxonomy,interpro,hmdb,chembl,clinvar,lipidmaps,swisslipids,uberon,gwas_study,gwas,intact,antibody"
     CORE_PART2="chebi,efo,mondo,hpo,alphafold,rnacentral,reactome,clinical_trials,patent,string,bgee,cl,rhea,dbsnp"
 
     # Calculate total jobs to submit
@@ -210,7 +210,7 @@ EOF
         cat > run_ensembl.sh <<EOF
 #!/bin/bash
 cd ${PWD}
-./biobtree $BB_DEFAULT_PARAM --eoa --tax ${ENSEMBL_TAXIDS} -d "ensembl" --out-dir "${OUT_DIR}/ensembl_model" -idx ensembl_model update
+./biobtree $BB_DEFAULT_PARAM --eo --tax ${ENSEMBL_TAXIDS} -d "ensembl" --out-dir "${OUT_DIR}/ensembl_model" -idx ensembl_model update
 EOF
         chmod +x run_ensembl.sh
         qsub -cwd -V -q "$QUEUE" -N "ensembl_model" -pe smp $JOB_CPU -l h_vmem=${JOB_MEMORY}M -l h_rt=${JOB_RUNTIME} -o logs/ensembl_model.log -j y ./run_ensembl.sh

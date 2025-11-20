@@ -41,11 +41,18 @@ The Patent database integrates patent information from SureChEMBL, providing acc
 
 ### Related Datasets
 
-**Patent Compound (dataset 352)**:
+**Patent Compound (dataset 352)** - Linkdataset:
 - Individual chemical structures extracted from patents
 - Includes InChI Keys and SMILES representations
-- Links to ChEMBL molecules via InChI Key matching
+- **Linkdataset Implementation** (requires ChEMBL reference database):
+  - Uses `addXref2()` pattern (like ortholog dataset)
+  - Lookup ChEMBL molecule by InChI key during update
+  - Creates patent_compound entry pointing to chembl_molecule
+  - Linkdataset auto-injects chembl_molecule in query chains
+- **Searchability**: InChI/SMILES keywords → patent_compound → patents
+- **Data Integration**: Patent → patent_compound → chembl_molecule (auto)
 - Bidirectional cross-references: Patent ↔ Compound
+- **Build Requirement**: Needs lookup database with ChEMBL data at `out_ref/db`
 
 **Patent Family (dataset 353)**:
 - Groups patents protecting the same invention across jurisdictions
@@ -69,11 +76,16 @@ The Patent database integrates patent information from SureChEMBL, providing acc
 - **ECLA (European Classification)**: EPO-specific system
 - Multiple codes per patent enable technology landscape analysis
 
-**Chemical Structure Extraction**:
+**Chemical Structure Extraction** (Linkdataset Pattern):
 - Automated extraction of compounds from patent images and text
 - InChI Key standardization for structure matching
 - SMILES notation for chemical representation
-- Links to ChEMBL via shared InChI Keys (when ChEMBL dataset present)
+- **Linkdataset mapping** (requires ChEMBL in lookup DB):
+  - During update: lookup each InChI/SMILES in reference database
+  - If found in ChEMBL: create patent_compound entry → chembl_molecule
+  - Creates keyword xrefs: InChI/SMILES → patent_compound ID
+  - Query auto-injection: `>>patent>>patent_compound` becomes `>>patent>>patent_compound>>chembl_molecule`
+- **Result**: Search by structure finds patents, get ChEMBL data automatically
 
 **Patent Family Grouping**:
 - Single invention can have 10+ family members across jurisdictions
@@ -212,6 +224,11 @@ Patent compound cross-references (dataset 352) are validated in full builds but 
 - **Test Data**: 20 representative patents with diverse attributes
 - **License**: SureChEMBL data is freely available
 - **Documentation**: https://www.surechembl.org/
+- **Implementation**: `src/update/patents.go` - see `processCompounds()` for linkdataset pattern
+- **Build Requirements**:
+  - Phase 1: Build reference DB with ChEMBL (`out_ref/db`)
+  - Phase 2: Build patents with `lookupDbDir` pointing to `out_ref/db`
+  - See `PATENT_COMPOUND_LINKDATASET_FIX.md` for details
 
 ## References
 

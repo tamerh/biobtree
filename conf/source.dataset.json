@@ -465,7 +465,7 @@
     "test_entries_count": "100"
   },
   "gwas": {
-    "id": "43",
+    "id": "40",
     "name": "GWAS Association",
     "path": "/gwas/releases/latest/gwas-catalog-associations_ontology-annotated-full.zip",
     "aliases": "GWAS,gwas association,variant-trait association,genome-wide association,SNP-trait association",
@@ -476,7 +476,7 @@
     "test_entries_count": "100"
   },
   "dbsnp": {
-    "id": "123",
+    "id": "41",
     "name": "dbSNP",
     "ftpUrl": "ftp.ncbi.nlm.nih.gov:21",
     "path": "/snp/latest_release/VCF/",
@@ -487,7 +487,7 @@
     "test_entries_count": "100"
   },
   "intact": {
-    "id": "44",
+    "id": "42",
     "name": "IntAct",
     "ftpUrl": "ftp.ebi.ac.uk:21",
     "path": "/pub/databases/intact/current/psimitab/intact.txt",
@@ -498,7 +498,7 @@
     "test_entries_count": "100"
   },
   "protein_similarity": {
-    "id": "45",
+    "id": "43",
     "name": "Protein Similarity",
     "path": "/data/scc/ag-gruber/GROUP/tgur/x/bioyoda_dev2/snapshots/diamond/data/processed/protein_similarity_diamond/merged/filtered_top100.tsv",
     "testPath": "/data/scc/ag-gruber/GROUP/tgur/x/bioyoda_dev2/test_out/data/processed/protein_similarity_diamond/merged/filtered_top10.tsv",
@@ -510,7 +510,7 @@
     "test_entries_count": "100"
   },
   "antibody": {
-    "id": "46",
+    "id": "44",
     "name": "Antibody db",
     "aliases": "therapeutic antibody,monoclonal antibody,mAb,antibody therapeutics,TheraSAbDab,SAbDab,IMGT,antibody structure,germline gene,antibody sequence",
     "url": "http://opig.stats.ox.ac.uk/webapps/therasabdab/therapeutics/£{id}",

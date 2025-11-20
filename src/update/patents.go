@@ -216,9 +216,31 @@ func (p *patents) processCompounds() (int, error) {
 	}
 	defer file.Close()
 
+	// Check if lookup database is available for ChEMBL mapping
+	if !p.d.hasLookupDB {
+		fmt.Println("Warning: No lookup database available, patent_compound linkdataset disabled")
+		fmt.Println("         Patent compounds will not be linked to ChEMBL molecules")
+		return 0, nil
+	}
+
+	// Get dataset IDs
+	patentCompoundDatasetID := config.Dataconf["patent_compound"]["id"]
+	chemblMoleculeDatasetIDStr := config.Dataconf["chembl_molecule"]["id"]
+	chemblMoleculeDatasetIDInt, err := strconv.ParseUint(chemblMoleculeDatasetIDStr, 10, 32)
+	if err != nil {
+		fmt.Printf("Warning: Invalid chembl_molecule dataset ID: %v\n", err)
+		return 0, nil
+	}
+	chemblMoleculeDatasetID := uint32(chemblMoleculeDatasetIDInt)
+
 	// Test mode setup
 	testLimit := config.GetTestLimit(p.source)
 	processedCompounds := make(map[string]bool) // Track unique compound IDs processed
+
+	// Stats tracking
+	totalProcessed := 0
+	totalLinkedToChEMBL := 0
+	totalWithKeywords := 0
 
 	// Use jsparser for streaming JSON
 	br := bufio.NewReader(file)
@@ -245,15 +267,38 @@ func (p *patents) processCompounds() (int, error) {
 		inchiKey := getString(j, "inchi_key")
 		smiles := getString(j, "smiles")
 
-		// InChI Key → Patent Compound (link - will auto-connect to ChEMBL via linkdataset)
+		// Try to lookup ChEMBL molecule by InChI key or SMILES
+		var chemblMoleculeID string
+
+		// Attempt 1: Lookup by InChI key
 		if inchiKey != "" {
-			p.d.addXref(inchiKey, textLinkID, compoundID, "patent_compound", true)
+			chemblMoleculeID = p.lookupChEMBLMolecule(inchiKey, chemblMoleculeDatasetID)
 		}
 
-		// SMILES → Patent Compound (link)
-		if smiles != "" {
-			p.d.addXref(smiles, textLinkID, compoundID, "patent_compound", true)
+		// Attempt 2: If not found by InChI, try SMILES
+		if chemblMoleculeID == "" && smiles != "" {
+			chemblMoleculeID = p.lookupChEMBLMolecule(smiles, chemblMoleculeDatasetID)
 		}
+
+		// Only create patent_compound entry if we found a ChEMBL molecule
+		if chemblMoleculeID != "" {
+			// Create patent_compound entry pointing to chembl_molecule (like ortholog pattern!)
+			// This is the KEY step - creates the actual linkdataset entry
+			p.d.addXref2(compoundID, patentCompoundDatasetID, chemblMoleculeID, "chembl_molecule")
+			totalLinkedToChEMBL++
+
+			// Create keyword xrefs for InChI/SMILES → patent_compound
+			// This allows: search by InChI/SMILES → find patent_compound → get patents
+			if inchiKey != "" {
+				p.d.addXref(inchiKey, textLinkID, compoundID, "patent_compound", true)
+				totalWithKeywords++
+			}
+			if smiles != "" {
+				p.d.addXref(smiles, textLinkID, compoundID, "patent_compound", true)
+			}
+		}
+
+		totalProcessed++
 
 		// Test mode: Track processed compounds
 		if config.IsTestMode() {
@@ -268,7 +313,36 @@ func (p *patents) processCompounds() (int, error) {
 		}
 	}
 
+	fmt.Printf("Patent compounds processed: %d total, %d linked to ChEMBL, %d with keywords\n",
+		totalProcessed, totalLinkedToChEMBL, totalWithKeywords)
+
 	return count, nil
+}
+
+// lookupChEMBLMolecule searches for a ChEMBL molecule ID using InChI key or SMILES
+// Returns the ChEMBL molecule ID if found, empty string otherwise
+func (p *patents) lookupChEMBLMolecule(identifier string, chemblDatasetID uint32) string {
+	result, err := p.d.lookup(identifier)
+	if err != nil || result == nil || len(result.Results) == 0 {
+		return ""
+	}
+
+	// Search through results for ChEMBL molecule
+	for _, xref := range result.Results {
+		if xref.IsLink {
+			// Keyword link - check entries
+			for _, entry := range xref.Entries {
+				if entry.Dataset == chemblDatasetID {
+					return entry.Identifier
+				}
+			}
+		} else if xref.Dataset == chemblDatasetID {
+			// Direct xref to ChEMBL molecule
+			return xref.Identifier
+		}
+	}
+
+	return ""
 }
 
 func (p *patents) processMappings() (int, error) {

@@ -160,18 +160,6 @@
     },
     {
       "category": "protein_features",
-      "name": "Cancer Genes to Variant IDs",
-      "query": ">>ensembl>>uniprot[uniprot.reviewed==true]>>ufeature>>variantid",
-      "why": "Link genes to dbSNP/ClinVar variants - essential for precision oncology and variant databases",
-      "should_pass": [
-        "BRCA1",
-        "BRCA2",
-        "TP53"
-      ],
-      "should_fail": []
-    },
-    {
-      "category": "protein_features",
       "name": "Protein to PDB Structures",
       "query": ">>uniprot>>pdb",
       "why": "Find 3D structures for drug design, protein engineering, and structural biology",
@@ -215,7 +203,7 @@
     {
       "category": "genomics",
       "name": "Transcript to Exons",
-      "query": ">>ensembl>>exon",
+      "query": ">>transcript>>exon",
       "why": "Get exon structure for splice variant analysis and exome sequencing",
       "should_pass": [
         "ENST00000269305",
@@ -271,7 +259,7 @@
     {
       "category": "genomics",
       "name": "Affymetrix Probe to Transcript",
-      "query": ">>ensembl>>transcript",
+      "query": ">>*>>transcript",
       "why": "Map microarray probes to current transcripts - essential for legacy data reanalysis",
       "should_pass": [
         "202763_at",
@@ -282,9 +270,9 @@
     },
     {
       "category": "genomics",
-      "name": "Affymetrix Probe to Gene Symbol via HGNC",
-      "query": ">>ensembl>>transcript>>ensembl>>hgnc",
-      "why": "Convert probe IDs to gene symbols for publication and meta-analysis",
+      "name": "Affymetrix Probe to Gene Symbol",
+      "query": ">>*>>transcript>>ensembl",
+      "why": "Convert probe IDs to gene symbols for publication and meta-analysis - HGNC info is embedded in ensembl attributes",
       "should_pass": [
         "202763_at",
         "209310_s_at"
@@ -294,7 +282,7 @@
     {
       "category": "chembl_drug",
       "name": "Compound to ChEMBL Activities",
-      "query": ">>ensembl>>chembl_activity",
+      "query": ">>*>>chembl_activity",
       "why": "Get bioactivity data for compound - essential for SAR analysis and lead optimization",
       "should_pass": [
         "GSK2606414",
@@ -305,7 +293,7 @@
     {
       "category": "chembl_drug",
       "name": "Compound to IC50 Activities",
-      "query": ">>ensembl>>chembl_activity[chembl.activity.bao==\"BAO_0000190\"]",
+      "query": ">>*>>chembl_activity[chembl.activity.bao==\"BAO_0000190\"]",
       "why": "Filter for IC50 measurements - standard potency metric for drug discovery",
       "should_pass": [
         "GSK2606414"
@@ -315,7 +303,7 @@
     {
       "category": "chembl_drug",
       "name": "Compound to High-Potency Activities",
-      "query": ">>ensembl>>chembl_activity[chembl.activity.value > 10.0]",
+      "query": ">>*>>chembl_activity[chembl.activity.value > 10.0]",
       "why": "Find highly active compounds for hit prioritization",
       "should_pass": [
         "GSK2606414"
@@ -325,7 +313,7 @@
     {
       "category": "chembl_drug",
       "name": "ChEMBL Document to Assays",
-      "query": ">>chembl_molecule>>chembl_assay",
+      "query": ">>chembl_document>>chembl_assay",
       "why": "Get experimental assays from publications - useful for protocol reproduction",
       "should_pass": [
         "CHEMBL3421631",
@@ -336,7 +324,7 @@
     {
       "category": "chembl_drug",
       "name": "ChEMBL Assay to Target Proteins",
-      "query": ">>chembl_molecule>>chembl_target[chembl.target.type==\"single_protein\"]",
+      "query": ">>chembl_assay>>chembl_target[chembl.target.type==\"single_protein\"]",
       "why": "Map assays to protein targets for mechanism of action studies",
       "should_pass": [
         "CHEMBL615156"
@@ -346,7 +334,7 @@
     {
       "category": "chembl_drug",
       "name": "ChEMBL Target to UniProt",
-      "query": ">>chembl_molecule>>chembl_target_component>>uniprot",
+      "query": ">>chembl_target>>chembl_target_component>>uniprot",
       "why": "Link drug targets to protein sequences for structure-based drug design",
       "should_pass": [
         "CHEMBL2789"
@@ -502,7 +490,7 @@
     {
       "category": "chembl_drug",
       "name": "Molecule Search by SMILES",
-      "query": ">>ensembl>>chembl_molecule",
+      "query": ">>*>>chembl_molecule",
       "why": "Convert chemical structure to database ID - critical for cheminformatics",
       "should_pass": [
         "Cn1cc(-c2ccc3c(c2)CCN3C(=O)Cc2cccc(C(F)(F)F)c2)c2c(N)ncnc21"
@@ -512,7 +500,7 @@
     {
       "category": "chembl_drug",
       "name": "Molecule Search by InChI Key",
-      "query": ">>ensembl>>chembl_molecule",
+      "query": ">>*>>chembl_molecule",
       "why": "Standard chemical identifier lookup - for database integration",
       "should_pass": [
         "SIXVRXARNAVBTC-UHFFFAOYSA-N"

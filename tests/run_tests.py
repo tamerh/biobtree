@@ -8,7 +8,7 @@ Runs biobtree from tests/tmp to avoid polluting directories with downloaded file
 Usage:
   python3 run_tests.py                    # Run all tests
   python3 run_tests.py hmdb               # Run only HMDB tests
-  python3 run_tests.py hgnc,uniprot       # Run HGNC and UniProt tests
+  python3 run_tests.py uniprot            # Run only UniProt tests
   python3 run_tests.py hmdb,go,taxonomy   # Run multiple specific tests
 """
 
@@ -188,11 +188,11 @@ def main():
 Examples:
   %(prog)s                    # Run all tests
   %(prog)s hmdb               # Run only HMDB tests
-  %(prog)s hgnc,uniprot       # Run HGNC and UniProt tests
+  %(prog)s uniprot       # Run UniProt tests
   %(prog)s hmdb,go,taxonomy   # Run multiple specific tests
 
 Available datasets:
-  hgnc, uniprot, go, taxonomy, eco, efo, chebi, interpro, hmdb, lipidmaps, swisslipids, chembl_document, chembl_molecule, chembl_activity, chembl_assay, chembl_target, chembl_cell_line, ensembl, mondo, hpo, uberon, cl, bgee, patent, clinical_trials, clinvar, string, reactome, rhea, alphafold, rnacentral, uniparc, uniref50, uniref90, uniref100, gwas_study, gwas, dbsnp, intact, protein_similarity
+  uniprot, go, taxonomy, eco, efo, chebi, interpro, hmdb, lipidmaps, swisslipids, chembl_document, chembl_molecule, chembl_activity, chembl_assay, chembl_target, chembl_cell_line, ensembl, mondo, hpo, uberon, cl, bgee, patent, clinical_trials, clinvar, string, reactome, rhea, alphafold, rnacentral, uniparc, uniref50, uniref90, uniref100, gwas_study, gwas, dbsnp, intact, protein_similarity, antibody
 
   Temporarily disabled (Ensembl Genomes API SSL issues):
   ensembl_bacteria, ensembl_fungi, ensembl_metazoa, ensembl_plants, ensembl_protists
@@ -222,7 +222,7 @@ Available datasets:
 
     # Define all available datasets and their test scripts
     all_datasets = {
-        'hgnc': datasets_dir / "hgnc" / "test_hgnc.py",
+        #'hgnc': datasets_dir / "hgnc" / "test_hgnc.py",
         'uniprot': datasets_dir / "uniprot" / "test_uniprot.py",
         'go': datasets_dir / "go" / "test_go.py",
         'taxonomy': datasets_dir / "taxonomy" / "test_taxonomy.py",
@@ -268,6 +268,7 @@ Available datasets:
         'dbsnp': datasets_dir / "dbsnp" / "test_dbsnp.py",
         'intact': datasets_dir / "intact" / "test_intact.py",
         'protein_similarity': datasets_dir / "protein_similarity" / "test_protein_similarity.py",
+        'antibody': datasets_dir / "antibody" / "test_antibody.py",
     }
 
     # Parse dataset selection

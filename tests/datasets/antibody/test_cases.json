@@ -1,0 +1,69 @@
+{
+  "common_tests": [
+    {
+      "name": "ID Lookup - TheraSAbDab (Therapeutic Antibody)",
+      "type": "id_lookup",
+      "id": "Abciximab",
+      "expected": {
+        "should_find": true,
+        "has_name": true
+      }
+    },
+    {
+      "name": "ID Lookup - Second Therapeutic Antibody",
+      "type": "id_lookup",
+      "id": "Adalimumab",
+      "expected": {
+        "should_find": true,
+        "has_name": true
+      }
+    },
+    {
+      "name": "TheraSAbDab Attribute Check - Source",
+      "type": "attribute_check",
+      "id": "Abciximab",
+      "attributes": ["source", "antibody_type", "inn_name"]
+    },
+    {
+      "name": "TheraSAbDab Attribute Check - Format and Isotype",
+      "type": "attribute_check",
+      "id": "Abciximab",
+      "attributes": ["format", "isotype", "light_chain"]
+    },
+    {
+      "name": "TheraSAbDab Attribute Check - Sequences",
+      "type": "attribute_check",
+      "id": "Abciximab",
+      "attributes": ["heavy_chain_seq", "light_chain_seq"]
+    },
+    {
+      "name": "TheraSAbDab Attribute Check - Targets and Indications",
+      "type": "attribute_check",
+      "id": "Abciximab",
+      "attributes": ["targets", "indications"]
+    },
+    {
+      "name": "PDB ID Search - Find Antibody Cross-references",
+      "type": "id_lookup",
+      "id": "9mte",
+      "expected": {
+        "should_find": true,
+        "has_name": false
+      }
+    },
+    {
+      "name": "Case Insensitive - TheraSAbDab INN Name",
+      "type": "id_lookup",
+      "id": "abciximab",
+      "expected": {
+        "should_find": true,
+        "has_name": true
+      }
+    },
+    {
+      "name": "Invalid ID - Should Not Find",
+      "type": "invalid_id",
+      "id": "NOTANANTIBODY123"
+    }
+  ]
+}

@@ -962,4 +962,139 @@ message AntibodyAttr {
   repeated string cross_references = 22;                // Cross-references to other databases
 }
 
+// PubChem - Biotech-Focused Subset (Priority 0-3: FDA drugs, clinical trials, natural products, bioassay-tested)
+// Dataset ID: 45
+// Source: NCBI PubChem Compound Database
+message PubchemAttr {
+  // Core Identifiers
+  string cid = 1;                         // PubChem Compound ID
+  string inchi = 2;                       // Full InChI string
+  string inchi_key = 3;                   // InChI Key (structure identifier)
+  string smiles = 4;                      // Canonical SMILES
+  string isomeric_smiles = 5;             // Isomeric SMILES (stereo-aware)
+
+  // Nomenclature
+  string title = 6;                       // Preferred compound name
+  string iupac_name = 7;                  // IUPAC systematic name
+  repeated string synonyms = 8;           // Synonyms (filtered to top 20)
+
+  // Molecular Properties (FOR FILTERING)
+  string molecular_formula = 9;           // Chemical formula
+  double molecular_weight = 10;           // Molecular weight (Da)
+  double exact_mass = 11;                 // Exact mass
+  double monoisotopic_weight = 34;        // Monoisotopic weight (most abundant isotope)
+
+  // Drug-like Properties (Lipinski Rule of 5)
+  double xlogp = 12;                      // Lipophilicity (XLogP3)
+  int32 hydrogen_bond_donors = 13;        // H-bond donors (HBD)
+  int32 hydrogen_bond_acceptors = 14;     // H-bond acceptors (HBA)
+  int32 rotatable_bonds = 15;             // Rotatable bond count
+  double tpsa = 16;                       // Topological polar surface area
+
+  // Biological Classifications
+  bool is_fda_approved = 17;              // FDA-approved drug flag (P0)
+  bool has_literature = 18;               // Has literature references (P1)
+  bool has_patents = 19;                  // Has patent associations (P2)
+  repeated string drug_names = 20;        // Trade names (if drug)
+  repeated string mesh_terms = 21;        // MeSH medical subject headings
+
+  // Bioactivity Indicators
+  int32 bioassay_count = 22;              // Number of linked bioassays
+  bool has_bioactivity = 23;              // Has screening data
+
+  // Cross-References (Bidirectional)
+  repeated string chebi_ids = 24;         // ChEBI cross-references
+  repeated string chembl_ids = 25;        // ChEMBL cross-references
+  repeated string hmdb_ids = 26;          // HMDB cross-references
+  repeated string clinical_trial_ids = 27; // NCT IDs from ClinicalTrials.gov
+
+  // Literature
+  repeated int64 pmids = 28;              // PubMed references (top 10)
+  int32 total_pmid_count = 29;            // Total literature citations
+
+  // Patents
+  repeated string patent_ids = 31;        // Patent IDs (top 10)
+  int32 total_patent_count = 32;          // Total patent associations
+
+  // Metadata
+  string compound_type = 30;              // "drug" | "clinical_trial" | "natural_product" | "bioactive"
+  string creation_date = 35;              // Date when CID first appeared in PubChem (YYYY-MM-DD)
+  string parent_cid = 36;                 // Parent compound CID (for salts, hydrates, etc.)
+  repeated string pharmacological_actions = 37; // MeSH pharmacological action terms
+
+  // BioAssay Activities (ALL activities for this compound - avg 17, max ~131)
+  repeated PubchemActivity activities = 33;
+}
+
+// PubChem Activity (individual bioassay measurement)
+// PubChem BioActivity - Activity measurement (separate dataset)
+// Dataset ID: 46
+// Cross-references: CID (pubchem), Protein, Gene, BioAssay
+message PubchemActivityAttr {
+  string activity_id = 1;         // Unique ID: CID_AID_index
+  string cid = 2;                  // PubChem Compound ID (xref)
+  string aid = 3;                  // BioAssay ID (xref)
+  string activity_outcome = 4;     // Active, Inactive, Probe, Inconclusive
+  string activity_type = 5;        // IC50, Ki, Kd, EC50, GI50, AC50, ED50
+  string qualifier = 6;            // <, <=, =, >=, >
+  double value = 7;                // Numerical value
+  string unit = 8;                 // uM, nM, pM, mg/mL, %
+  string protein_accession = 9;    // NCBI Protein (xref)
+  string gene_id = 10;             // NCBI Gene ID (xref)
+  int32 target_taxid = 11;         // Target organism
+  string pmid = 12;                // PubMed reference
+}
+
+// DEPRECATED: PubchemActivity - kept for backward compatibility, use PubchemActivityAttr instead
+message PubchemActivity {
+  string aid = 1;
+  string activity_outcome = 2;
+  string activity_type = 3;
+  string qualifier = 4;
+  double value = 5;
+  string unit = 6;
+  string protein_accession = 7;
+  string gene_id = 8;
+  int32 target_taxid = 9;
+  string pmid = 10;
+}
+
+// PubChem Assay - Assay metadata (separate dataset for browsing assays)
+// Dataset ID: 47
+// Cross-references: Protein, Gene, PubchemActivity (via AID)
+message PubchemAssayAttr {
+  // Assay identification
+  string aid = 1;                         // BioAssay ID (primary key)
+  string name = 2;                        // BioAssay descriptive name
+  string source_name = 3;                 // Source organization (e.g., "NCATS", "ChEMBL")
+  string source_id = 4;                   // Source internal ID
+
+  // Assay classification
+  string substance_type = 5;              // small-molecule, siRNA, antibody, etc.
+  string outcome_type = 6;                // Screening, Confirmatory, Summary, Literature, Other
+  string project_category = 7;            // Project classification (e.g., "MLPCN", "Other")
+  string bioassay_group = 8;              // Assay grouping
+  repeated string bioassay_types = 9;     // Assay type tags (semicolon-separated in source)
+
+  // Target information
+  repeated string protein_accessions = 10; // NCBI Protein accessions (xref)
+  repeated string uniprot_ids = 11;        // UniProt IDs (xref)
+  repeated string gene_ids = 12;           // NCBI Gene IDs (xref)
+  repeated int32 target_taxids = 13;       // Target organism taxonomy IDs
+
+  // Test organism context
+  repeated int32 test_organism_taxids = 14; // Test organism taxonomy IDs
+
+  // Statistics
+  int32 tested_sids = 15;                 // Number of substances tested
+  int32 active_sids = 16;                 // Number of active substances
+  int32 tested_cids = 17;                 // Number of compounds tested
+  int32 active_cids = 18;                 // Number of active compounds
+  double hit_rate = 19;                   // active_cids / tested_cids (if tested_cids > 0)
+
+  // Metadata
+  string deposit_date = 20;               // Date deposited (YYYYMMDD format)
+  string modify_date = 21;                // Last modification date (YYYYMMDD format)
+}
+
 

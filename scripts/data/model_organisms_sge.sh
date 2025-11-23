@@ -33,6 +33,8 @@ if [[ -z $1 ]]; then
     echo "  (default)         Submit all UPDATE phase jobs (core1 + core2 + ensembl)"
     echo "  --core1-only      Submit only core part 1 job"
     echo "  --core2-only      Submit only core part 2 job"
+    echo "  --core3-only      Submit only core part 3 job (dbsnp with retry)"
+    echo "  --core4-only      Submit only core part 4 job (pubchem datasets)"
     echo "  --ensembl-only    Submit only Ensembl job"
     echo "  --generate-only   Run only GENERATE phase (assumes UPDATE already completed)"
     exit 1
@@ -42,6 +44,8 @@ OUT_DIR=$1
 PHASE_MODE="update"     # Default: run UPDATE phase
 RUN_CORE1="true"        # Default: run core1
 RUN_CORE2="true"        # Default: run core2
+RUN_CORE3="true"        # Default: run core3 (dbsnp)
+RUN_CORE4="true"        # Default: run core4 (pubchem)
 RUN_ENSEMBL="true"      # Default: run ensembl
 
 # Check for mode flag
@@ -53,21 +57,41 @@ if [[ ! -z $2 ]]; then
         --core1-only)
             RUN_CORE1="true"
             RUN_CORE2="false"
+            RUN_CORE3="false"
+            RUN_CORE4="false"
             RUN_ENSEMBL="false"
             ;;
         --core2-only)
             RUN_CORE1="false"
             RUN_CORE2="true"
+            RUN_CORE3="false"
+            RUN_CORE4="false"
+            RUN_ENSEMBL="false"
+            ;;
+        --core3-only)
+            RUN_CORE1="false"
+            RUN_CORE2="false"
+            RUN_CORE3="true"
+            RUN_CORE4="false"
+            RUN_ENSEMBL="false"
+            ;;
+        --core4-only)
+            RUN_CORE1="false"
+            RUN_CORE2="false"
+            RUN_CORE3="false"
+            RUN_CORE4="true"
             RUN_ENSEMBL="false"
             ;;
         --ensembl-only)
             RUN_CORE1="false"
             RUN_CORE2="false"
+            RUN_CORE3="false"
+            RUN_CORE4="false"
             RUN_ENSEMBL="true"
             ;;
         *)
             echo "Unknown option: $2"
-            echo "Valid options: --core1-only, --core2-only, --ensembl-only, --generate-only"
+            echo "Valid options: --core1-only, --core2-only, --core3-only, --core4-only, --ensembl-only, --generate-only"
             exit 1
             ;;
     esac
@@ -79,7 +103,7 @@ echo "============================================"
 echo "Output directory: $OUT_DIR"
 echo "Queue: $QUEUE"
 echo "Phase mode: $PHASE_MODE"
-echo "Jobs to run: Core1=$RUN_CORE1, Core2=$RUN_CORE2, Ensembl=$RUN_ENSEMBL"
+echo "Jobs to run: Core1=$RUN_CORE1, Core2=$RUN_CORE2, Core3=$RUN_CORE3, Core4=$RUN_CORE4, Ensembl=$RUN_ENSEMBL"
 echo ""
 echo "Model organisms (16 organisms from AlphaFold):"
 echo "  Organism                                    Ensembl ID    STRING ID"
@@ -105,15 +129,19 @@ echo "⚠️  Note: STRING uses species-level ID for S. cerevisiae (4932)"
 echo "    Ensembl uses strain-specific ID (559292 for S288C)"
 echo ""
 echo "Datasets to process:"
-echo "  - Core part 1: uniprot, go, eco, hgnc, taxonomy, interpro, hmdb, chembl"
+echo "  - Core part 1: uniprot, go, eco, hgnc, taxonomy, interpro, hmdb, chembl, ..."
 echo "  - Core part 2: efo, mondo, hpo, alphafold, rnacentral, reactome,"
-echo "                 clinical_trials, patent, string"
+echo "                 clinical_trials, patent, string, ..."
+echo "  - Core part 3: dbsnp (large dataset, separate job)"
+echo "  - Core part 4: pubchem, pubchem_activity, pubchem_assay"
 echo "  - Ensembl genomes (16 model organisms, strain-specific IDs)"
 echo ""
-echo "Job structure (3 biobtree commands, or 2 with --core-only):"
-echo "  1. Core part 1 (8 datasets, no filtering)"
-echo "  2. Core part 2 (9 datasets, STRING filtered by --tax to 16 model organisms)"
-echo "  3. Ensembl (filtered by --tax to 16 model organisms) [skipped if --core-only]"
+echo "Job structure (5 biobtree commands):"
+echo "  1. Core part 1 (stable datasets, no filtering)"
+echo "  2. Core part 2 (stable datasets, STRING filtered by --tax)"
+echo "  3. Core part 3 (dbsnp only)"
+echo "  4. Core part 4 (pubchem datasets)"
+echo "  5. Ensembl (filtered by --tax to 16 model organisms)"
 echo "============================================"
 echo ""
 
@@ -153,14 +181,18 @@ else
     # Dataset groups
     declare -a SUBMITTED_JOBS=()
 
-    # Core datasets split into 2 parts to reduce concurrent downloads
+    # Core datasets split into 4 parts to reduce concurrent downloads
     CORE_PART1="uniprot,go,eco,taxonomy,interpro,hmdb,chembl,clinvar,lipidmaps,swisslipids,uberon,gwas_study,gwas,intact,antibody"
-    CORE_PART2="chebi,efo,mondo,hpo,alphafold,rnacentral,reactome,clinical_trials,patent,string,bgee,cl,rhea,dbsnp"
+    CORE_PART2="chebi,efo,mondo,hpo,alphafold,rnacentral,reactome,clinical_trials,patent,string,bgee,cl,rhea"
+    CORE_PART3="dbsnp"  # Large dataset, prone to FTP issues, separate with retry logic
+    CORE_PART4="pubchem,pubchem_activity,pubchem_assay"  # PubChem datasets
 
     # Calculate total jobs to submit
     TOTAL_JOBS=0
     [[ "$RUN_CORE1" == "true" ]] && ((TOTAL_JOBS++)) || true
     [[ "$RUN_CORE2" == "true" ]] && ((TOTAL_JOBS++)) || true
+    [[ "$RUN_CORE3" == "true" ]] && ((TOTAL_JOBS++)) || true
+    [[ "$RUN_CORE4" == "true" ]] && ((TOTAL_JOBS++)) || true
     [[ "$RUN_ENSEMBL" == "true" ]] && ((TOTAL_JOBS++)) || true
 
     JOB_NUM=0
@@ -201,7 +233,43 @@ EOF
         echo ""
     fi
 
-    # 3. Submit Ensembl job (if enabled) when building ref db add chembl,mondo,hgnc manually 
+    # 3. Submit core part 3 job (dbsnp) (if enabled)
+    if [[ "$RUN_CORE3" == "true" ]]; then
+        ((++JOB_NUM))
+        echo "[${JOB_NUM}/${TOTAL_JOBS}] Submitting core_part3 job (dbsnp)..."
+        rm -rf ${OUT_DIR}/core_part3
+        mkdir -p ${OUT_DIR}/core_part3
+        cat > run_core_part3.sh <<EOF
+#!/bin/bash
+cd ${PWD}
+./biobtree $BB_DEFAULT_PARAM -d "${CORE_PART3}" --out-dir "${OUT_DIR}/core_part3" -idx core_part3 update
+EOF
+        chmod +x run_core_part3.sh
+        qsub -cwd -V -q "$QUEUE" -N "core_part3_dbsnp" -pe smp $JOB_CPU -l h_vmem=${JOB_MEMORY}M -l h_rt=${JOB_RUNTIME} -o logs/core_part3_dbsnp.log -j y ./run_core_part3.sh
+        SUBMITTED_JOBS+=("core_part3_dbsnp")
+        echo "  ✓ Submitted: core part 3 (dbsnp)"
+        echo ""
+    fi
+
+    # 4. Submit core part 4 job (pubchem datasets) (if enabled)
+    if [[ "$RUN_CORE4" == "true" ]]; then
+        ((++JOB_NUM))
+        echo "[${JOB_NUM}/${TOTAL_JOBS}] Submitting core_part4 job (pubchem)..."
+        rm -rf ${OUT_DIR}/core_part4
+        mkdir -p ${OUT_DIR}/core_part4
+        cat > run_core_part4.sh <<EOF
+#!/bin/bash
+cd ${PWD}
+./biobtree $BB_DEFAULT_PARAM -d "${CORE_PART4}" --out-dir "${OUT_DIR}/core_part4" -idx core_part4 update
+EOF
+        chmod +x run_core_part4.sh
+        qsub -cwd -V -q "$QUEUE" -N "core_part4_pubchem" -pe smp $JOB_CPU -l h_vmem=${JOB_MEMORY}M -l h_rt=${JOB_RUNTIME} -o logs/core_part4_pubchem.log -j y ./run_core_part4.sh
+        SUBMITTED_JOBS+=("core_part4_pubchem")
+        echo "  ✓ Submitted: core part 4 (pubchem, pubchem_activity, pubchem_assay)"
+        echo ""
+    fi
+
+    # 5. Submit Ensembl job (if enabled) when building ref db add chembl,mondo,hgnc manually 
     if [[ "$RUN_ENSEMBL" == "true" ]]; then
         ((++JOB_NUM))
         echo "[${JOB_NUM}/${TOTAL_JOBS}] Submitting Ensembl job..."
@@ -229,6 +297,8 @@ EOF
     echo "  qstat -u \$(whoami)"
     [[ "$RUN_CORE1" == "true" ]] && echo "  tail -f logs/core_part1.log"
     [[ "$RUN_CORE2" == "true" ]] && echo "  tail -f logs/core_part2.log"
+    [[ "$RUN_CORE3" == "true" ]] && echo "  tail -f logs/core_part3_dbsnp.log"
+    [[ "$RUN_CORE4" == "true" ]] && echo "  tail -f logs/core_part4_pubchem.log"
     [[ "$RUN_ENSEMBL" == "true" ]] && echo "  tail -f logs/ensembl_model.log"
     echo ""
     echo "After all jobs complete, run GENERATE phase with:"
@@ -245,23 +315,29 @@ echo ""
 
 # Validate based on phase mode
 if [[ "$PHASE_MODE" == "generate" ]]; then
-    # In generate-only mode, check for index files in subdirectories (all 3 required for complete DB)
+    # In generate-only mode, check for index files in subdirectories (all 5 required for complete DB)
     if [[ ! -f ${OUT_DIR}/core_part1/index/core_part1.meta.json ]] || \
        [[ ! -f ${OUT_DIR}/core_part2/index/core_part2.meta.json ]] || \
+       [[ ! -f ${OUT_DIR}/core_part3/index/core_part3.meta.json ]] || \
+       [[ ! -f ${OUT_DIR}/core_part4/index/core_part4.meta.json ]] || \
        [[ ! -f ${OUT_DIR}/ensembl_model/index/ensembl_model.meta.json ]]; then
         echo "  ✗ ERROR: Not all index files found"
         echo ""
         echo "Required files for complete database:"
         echo "  - ${OUT_DIR}/core_part1/index/core_part1.meta.json"
         echo "  - ${OUT_DIR}/core_part2/index/core_part2.meta.json"
+        echo "  - ${OUT_DIR}/core_part3/index/core_part3.meta.json"
+        echo "  - ${OUT_DIR}/core_part4/index/core_part4.meta.json"
         echo "  - ${OUT_DIR}/ensembl_model/index/ensembl_model.meta.json"
         echo ""
-        echo "Make sure UPDATE phase completed successfully for all 3 jobs."
+        echo "Make sure UPDATE phase completed successfully for all 5 jobs."
         echo "Run UPDATE jobs with:"
-        echo "  $0 ${OUT_DIR}  # (runs all 3 jobs)"
+        echo "  $0 ${OUT_DIR}  # (runs all 5 jobs)"
         echo "Or individually:"
         echo "  $0 ${OUT_DIR} --core1-only"
         echo "  $0 ${OUT_DIR} --core2-only"
+        echo "  $0 ${OUT_DIR} --core3-only"
+        echo "  $0 ${OUT_DIR} --core4-only"
         echo "  $0 ${OUT_DIR} --ensembl-only"
         exit 1
     fi
@@ -272,12 +348,18 @@ if [[ "$PHASE_MODE" == "generate" ]]; then
     echo "Consolidating index files..."
     mkdir -p ${OUT_DIR}/index
 
-    # Move all three index directories (always present in generate-only mode)
+    # Move all five index directories (always present in generate-only mode)
     mv ${OUT_DIR}/core_part1/index/* ${OUT_DIR}/index/
     rm -rf ${OUT_DIR}/core_part1
 
     mv ${OUT_DIR}/core_part2/index/* ${OUT_DIR}/index/
     rm -rf ${OUT_DIR}/core_part2
+
+    mv ${OUT_DIR}/core_part3/index/* ${OUT_DIR}/index/
+    rm -rf ${OUT_DIR}/core_part3
+
+    mv ${OUT_DIR}/core_part4/index/* ${OUT_DIR}/index/
+    rm -rf ${OUT_DIR}/core_part4
 
     mv ${OUT_DIR}/ensembl_model/index/* ${OUT_DIR}/index/
     rm -rf ${OUT_DIR}/ensembl_model
@@ -295,6 +377,16 @@ else
     if [[ "$RUN_CORE2" == "true" ]] && [[ ! -f ${OUT_DIR}/core_part2/index/core_part2.meta.json ]]; then
         echo "  ✗ ERROR: meta json file not found for core_part2"
         FAILED_JOBS+=("core_part2")
+    fi
+
+    if [[ "$RUN_CORE3" == "true" ]] && [[ ! -f ${OUT_DIR}/core_part3/index/core_part3.meta.json ]]; then
+        echo "  ✗ ERROR: meta json file not found for core_part3"
+        FAILED_JOBS+=("core_part3")
+    fi
+
+    if [[ "$RUN_CORE4" == "true" ]] && [[ ! -f ${OUT_DIR}/core_part4/index/core_part4.meta.json ]]; then
+        echo "  ✗ ERROR: meta json file not found for core_part4"
+        FAILED_JOBS+=("core_part4")
     fi
 
     # Check for ensembl_model if it was run
@@ -335,6 +427,18 @@ else
     if [[ "$RUN_CORE2" == "true" ]]; then
         mv ${OUT_DIR}/core_part2/index/* ${OUT_DIR}/index/
         rm -rf ${OUT_DIR}/core_part2
+    fi
+
+    # Move core_part3 index if it was run
+    if [[ "$RUN_CORE3" == "true" ]]; then
+        mv ${OUT_DIR}/core_part3/index/* ${OUT_DIR}/index/
+        rm -rf ${OUT_DIR}/core_part3
+    fi
+
+    # Move core_part4 index if it was run
+    if [[ "$RUN_CORE4" == "true" ]]; then
+        mv ${OUT_DIR}/core_part4/index/* ${OUT_DIR}/index/
+        rm -rf ${OUT_DIR}/core_part4
     fi
 
     # Move ensembl_model index if it was run

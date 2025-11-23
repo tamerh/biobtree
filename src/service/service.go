@@ -138,6 +138,9 @@ func (s *service) init() {
 		cel.Types(&pbuf.BgeeAttr{}),
 		cel.Types(&pbuf.GwasAttr{}),
 		cel.Types(&pbuf.AntibodyAttr{}),
+		cel.Types(&pbuf.PubchemAttr{}),
+		cel.Types(&pbuf.PubchemActivityAttr{}),
+		cel.Types(&pbuf.PubchemAssayAttr{}),
 		cel.Declarations(
 			decls.NewIdent("uniprot", decls.NewObjectType("pbuf.UniprotAttr"), nil)),
 		cel.Declarations(
@@ -198,6 +201,12 @@ func (s *service) init() {
 			decls.NewIdent("dbsnp", decls.NewObjectType("pbuf.DbsnpAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("antibody", decls.NewObjectType("pbuf.AntibodyAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("pubchem", decls.NewObjectType("pbuf.PubchemAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("pubchem_activity", decls.NewObjectType("pbuf.PubchemActivityAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("pubchem_assay", decls.NewObjectType("pbuf.PubchemAssayAttr"), nil)),
 		cel.Declarations(
 			decls.NewFunction("overlaps",
 				decls.NewOverload("overlaps_int_int",
@@ -1021,6 +1030,12 @@ func (s *service) searchPage(ids []string, page string) (*pbuf.Result, error) {
 }
 
 func (s *service) getLmdbResult(identifier string) (*pbuf.Result, error) {
+	// TODO: Consider adding caching here for frequently accessed identifiers
+	// The update layer now uses ristretto cache (see update.go:lookup()) which provides
+	// significant performance benefits for repeated lookups. Similar caching could be
+	// beneficial for the web service layer if query patterns show high repetition.
+	// However, web queries have different access patterns (diverse, random) vs update
+	// operations (same identifiers repeated millions of times), so cache tuning would differ.
 
 	var v []byte
 	err := s.readEnv.View(func(txn db.Txn) (err error) {

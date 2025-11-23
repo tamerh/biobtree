@@ -17,6 +17,7 @@ import (
 
 	"biobtree/util"
 
+	"github.com/dgraph-io/ristretto"
 	"github.com/golang/protobuf/proto"
 	"github.com/vbauerster/mpb"
 )
@@ -69,6 +70,7 @@ type DataUpdate struct {
 	lookupEnv              db.Env
 	lookupDbi              db.DBI
 	hasLookupDB            bool
+	lookupCache            *ristretto.Cache // Cache for lookup() to avoid repeated LMDB transactions
 }
 
 type progressInfo struct {
@@ -183,6 +185,25 @@ func (d *DataUpdate) initLookupDB() {
 	lookupConf["dbBackend"] = "lmdb"
 	d.lookupEnv, d.lookupDbi = db1.OpenDBNew(false, totalkvline, lookupConf)
 	d.hasLookupDB = true
+
+	// Initialize lookup cache to avoid repeated LMDB transactions
+	// During update operations, the same gene names are looked up millions of times
+	// Cache is optimized for high hit rate (e.g., same ~20K genes repeated across 600M+ SNPs)
+	// DISABLED: Cache was causing memory growth due to storing full Result objects with nested Xrefs
+	// TODO: Re-enable with fixed cost calculation or cache only gene existence (not full Results)
+	d.lookupCache = nil
+	/*
+	var err2 error
+	d.lookupCache, err2 = ristretto.NewCache(&ristretto.Config{
+		NumCounters: 1e6,      // 1M counters to track frequency
+		MaxCost:     100 << 20, // 100MB max cache size
+		BufferItems: 64,       // number of keys per Get buffer
+	})
+	if err2 != nil {
+		log.Printf("Warning: Failed to initialize lookup cache: %v, will use uncached lookups\n", err2)
+		d.lookupCache = nil
+	}
+	*/
 }
 
 // Close lookup database
@@ -190,9 +211,13 @@ func (d *DataUpdate) closeLookupDB() {
 	if d.hasLookupDB {
 		d.lookupEnv.Close()
 	}
+	if d.lookupCache != nil {
+		d.lookupCache.Close()
+	}
 }
 
 // Lookup identifier in biobtree database and return results
+// Uses in-memory cache to avoid repeated LMDB transactions for the same identifier
 func (d *DataUpdate) lookup(identifier string) (*pbuf.Result, error) {
 	if !d.hasLookupDB {
 		return nil, fmt.Errorf("lookup database not available")
@@ -201,6 +226,18 @@ func (d *DataUpdate) lookup(identifier string) (*pbuf.Result, error) {
 	// Lookup is case-insensitive (convert to uppercase like service does)
 	identifier = strings.ToUpper(identifier)
 
+	// Check cache first (if available)
+	if d.lookupCache != nil {
+		if cached, found := d.lookupCache.Get(identifier); found {
+			// Cache hit - return cached result
+			if cached == nil {
+				return nil, nil // Cached "not found" result
+			}
+			return cached.(*pbuf.Result), nil
+		}
+	}
+
+	// Cache miss - perform LMDB lookup
 	var v []byte
 	err := d.lookupEnv.View(func(txn db.Txn) (err error) {
 		v, err = txn.Get(d.lookupDbi, []byte(identifier))
@@ -214,13 +251,28 @@ func (d *DataUpdate) lookup(identifier string) (*pbuf.Result, error) {
 		return nil, err
 	}
 
+	// Handle not found
 	if len(v) == 0 {
+		// Store nil in cache to avoid repeated lookups for non-existent identifiers
+		if d.lookupCache != nil {
+			d.lookupCache.Set(identifier, nil, 1)
+		}
 		return nil, nil
 	}
 
+	// Unmarshal result
 	r := pbuf.Result{}
 	err = proto.Unmarshal(v, &r)
-	return &r, err
+	if err != nil {
+		return nil, err
+	}
+
+	// Store in cache (cost = approximate size)
+	if d.lookupCache != nil {
+		d.lookupCache.Set(identifier, &r, int64(len(v)))
+	}
+
+	return &r, nil
 }
 
 func (d *DataUpdate) Update() (uint64, uint64) {
@@ -478,6 +530,24 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			d.datasets2 = append(d.datasets2, data)
 			go ab.update()
 			break
+		case "pubchem":
+			d.wg.Add(1)
+			pc := &pubchem{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go pc.update()
+			break
+		case "pubchem_activity":
+			d.wg.Add(1)
+			pca := &pubchemActivity{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go pca.update(d)
+			break
+		case "pubchem_assay":
+			d.wg.Add(1)
+			pcb := &pubchemAssay{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go pcb.update(d)
+			break
 		case "mondo":
 			d.wg.Add(1)
 			m := mondo{source: data, d: d}
@@ -524,9 +594,9 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 
 			if len(config.Dataconf[data]["path"]) > 0 {
 				d.wg.Add(1)
-				u := uniprot{source: data, d: d}
+				m := mydata{source: data, d: d}
 				d.datasets2 = append(d.datasets2, data)
-				go u.update(nil)
+				go m.update()
 			} else {
 				log.Fatal("Missing source path for my_data ")
 			}
@@ -708,9 +778,11 @@ func (d *DataUpdate) addProp3(key, from string, attr []byte) {
 	key = strings.TrimSpace(key)
 
 	if len(key) == 0 || len(from) == 0 || len(attr) <= 2 { // empty attr {}
+		//fmt.Println("Skipped empty property for key:", key, " from:", from, " attr:", string(attr))
 		return
 	}
 
+	//fmt.Println("Adding property for key:", key, " from:", from, " attr:", string(attr))
 	kup := strings.ToUpper(key)
 	*d.kvdatachan <- kup + tab + from + tab + string(attr) + tab + textStoreID
 
@@ -954,6 +1026,62 @@ func (d *DataUpdate) addXrefEnsemblViaHgnc(geneSymbol, clinvarID, clinvarDataset
 				d.addXref(clinvarID, clinvarDatasetID, entry.Identifier, "ensembl", false)
 				return // Only need one Ensembl reference
 			}
+		}
+	}
+}
+
+// addXrefEnsemblViaEntrez creates a cross-reference to Ensembl gene via Entrez Gene ID
+// entrezGeneID: NCBI Gene ID (Entrez Gene ID) as string
+// sourceID: The identifier of the source entity (e.g., activity ID, bioassay ID)
+// sourceDatasetID: The dataset ID of the source entity
+func (d *DataUpdate) addXrefEnsemblViaEntrez(entrezGeneID, sourceID, sourceDatasetID string) {
+	if !d.hasLookupDB {
+		return
+	}
+
+	// Get Entrez dataset ID
+	entrezDatasetID, ok := config.Dataconf["entrez"]["id"]
+	if !ok {
+		return // Entrez dataset not configured
+	}
+
+	var entrezDatasetInt uint32
+	fmt.Sscanf(entrezDatasetID, "%d", &entrezDatasetInt)
+
+	// Step 1: Lookup Entrez Gene ID
+	result, err := d.lookup(entrezGeneID)
+	if err != nil || result == nil || len(result.Results) == 0 {
+		return // Entrez Gene ID not found in database
+	}
+
+	// Step 2: Find Entrez entry in results (filter by dataset)
+	var entrezEntry *pbuf.Xref
+	for _, xref := range result.Results {
+		if xref.Dataset == entrezDatasetInt {
+			entrezEntry = xref
+			break
+		}
+	}
+
+	if entrezEntry == nil || len(entrezEntry.Entries) == 0 {
+		return // No Entrez entry found or no cross-references
+	}
+
+	// Step 3: Find Ensembl cross-reference in Entrez entry
+	ensemblDatasetID, ok := config.Dataconf["ensembl"]["id"]
+	if !ok {
+		return
+	}
+
+	var ensemblDatasetInt uint32
+	fmt.Sscanf(ensemblDatasetID, "%d", &ensemblDatasetInt)
+
+	// Look for Ensembl gene in Entrez entry's cross-references
+	for _, entry := range entrezEntry.Entries {
+		if entry.Dataset == ensemblDatasetInt {
+			// Found Ensembl gene - create cross-reference
+			d.addXref(sourceID, sourceDatasetID, entry.Identifier, "ensembl", false)
+			return // Only need one Ensembl reference
 		}
 	}
 }

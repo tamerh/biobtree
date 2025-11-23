@@ -290,7 +290,7 @@
     "useLocalFile": "yes",
     "hasFilter": "yes",
     "attrs": "title,country,publication_date,family_id,[]cpc,[]ipcr,[]ipc,[]ecla,[]asignee",
-    "test_entries_count": "20"
+    "test_entries_count": "50"
   },
   "clinical_trials": {
     "aliases": "Clinical Trial,ClinicalTrial,NCT",
@@ -478,8 +478,12 @@
   "dbsnp": {
     "id": "41",
     "name": "dbSNP",
+    "useLocalFile": "no",
+    "__path2": "/data/scc/ag-gruber/GROUP/tgur/x/bioyoda_dev2/biobtreev2/tests/datasets/dbsnp/",
+    "__path": "/localscratch/tgur/",
     "ftpUrl": "ftp.ncbi.nlm.nih.gov:21",
     "path": "/snp/latest_release/VCF/",
+    "path_https": "https://ftp.ncbi.nlm.nih.gov/snp/latest_release/VCF/",
     "aliases": "dbSNP,rs,rsID,SNP,refSNP,Single Nucleotide Polymorphism",
     "url": "https://www.ncbi.nlm.nih.gov/snp/?term=£{id}",
     "hasFilter": "yes",
@@ -522,5 +526,57 @@
     "sabdab_path": "https://opig.stats.ox.ac.uk/webapps/sabdab-sabpred/sabdab/summary/all/",
     "imgt_gene_path": "https://www.imgt.org/download/GENE-DB/IMGTGENEDB-ReferenceSequences.fasta-nt-WithoutGaps-F+ORF+inframeP",
     "imgt_ligm_path": "https://ftp.ebi.ac.uk/pub/databases/imgt/LIGM-DB/imgt.fasta.Z"
+  },
+  "pubchem": {
+    "id": "45",
+    "name": "PubChem",
+    "aliases": "PubChem,PubChem CID,Pubchem,CID",
+    "ftpUrl": "ftp.ncbi.nlm.nih.gov:21",
+    "path": "/pubchem/Compound/",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/compound/£{id}",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "cid,title,inchi_key,smiles,molecular_formula,molecular_weight,xlogp,hba,hbd,is_fda_approved,is_clinical_trial,is_natural_product,compound_type,[]synonyms,[]mesh_terms,[]pmids",
+    "test_entries_count": "20",
+    "pathDrugNames": "Extras/Drug-Names.tsv.gz",
+    "pathXML": "CURRENT-Full/XML/",
+    "pathSDF": "CURRENT-Full/SDF/",
+    "pathCIDSynonym": "Extras/CID-Synonym-filtered.gz",
+    "pathCIDPMID": "Extras/CID-PMID.gz",
+    "pathCIDPatent": "Extras/CID-Patent.gz",
+    "pathCIDMeSH": "Extras/CID-MeSH",
+    "pathCIDBiologics": "Extras/CID-Biologics.tsv.gz",
+    "pathMeSHPharm": "Extras/MeSH-Pharm",
+    "pathCIDDate": "Extras/CID-Date.gz",
+    "pathCIDParent": "Extras/CID-Parent.gz",
+    "pathBioAssay": "../Bioassay/",
+    "pathBioactivities": "../Bioassay/Extras/bioactivities.tsv.gz",
+    "pathBioassays": "../Bioassay/Extras/bioassays.tsv.gz"
+  },
+  "pubchem_activity": {
+    "id": "46",
+    "name": "PubChem BioActivity",
+    "aliases": "PubChem Activity,Pubchem Activity",
+    "ftpUrl": "ftp.ncbi.nlm.nih.gov:21",
+    "path": "/pubchem/Bioassay/Extras/",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/bioassay/£{aid}#section=Top",
+    "useLocalFile": "no",
+    "hasFilter": "no",
+    "attrs": "activity_id,cid,aid,activity_outcome,activity_type,qualifier,value,unit,protein_accession,gene_id,target_taxid,pmid",
+    "test_entries_count": "5000",
+    "pathBioactivities": "bioactivities.tsv.gz"
+  },
+  "pubchem_assay": {
+    "id": "47",
+    "name": "PubChem Assay",
+    "aliases": "pubchem_bioassay,PubChem Bioassay,Pubchem Assay",
+    "ftpUrl": "ftp.ncbi.nlm.nih.gov:21",
+    "path": "/pubchem/Bioassay/Extras/",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/bioassay/£{aid}#section=Top",
+    "useLocalFile": "no",
+    "hasFilter": "no",
+    "attrs": "aid,name,source_name,source_id,substance_type,outcome_type,project_category,bioassay_group,bioassay_types,protein_accessions,uniprot_ids,gene_ids,target_taxids,test_organism_taxids,tested_sids,active_sids,tested_cids,active_cids,hit_rate,deposit_date,modify_date",
+    "test_entries_count": "5000",
+    "pathBioassays": "bioassays.tsv.gz"
   }
 }

@@ -146,6 +146,9 @@ message Xref {
     IntactAttr intact=44;
     ProteinSimilarityAttr protein_similarity=45;
     AntibodyAttr antibody=46;
+    PubchemAttr pubchem=47;
+    PubchemActivityAttr pubchem_activity=48;
+    PubchemAssayAttr pubchem_assay=49;
     DbsnpAttr dbsnp=123;
 
   }

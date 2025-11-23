@@ -1010,6 +1010,21 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)
 				xref.Attributes = &pbuf.Xref_Antibody{attr}
+			case "pubchem":
+				attr := &pbuf.PubchemAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Pubchem{attr}
+			case "pubchem_activity":
+				attr := &pbuf.PubchemActivityAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_PubchemActivity{attr}
+			case "pubchem_assay":
+				attr := &pbuf.PubchemAssayAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_PubchemAssay{attr}
 			case "interpro":
 				attr := &pbuf.InterproAttr{}
 				barr := []byte((*kvProp[k])[0].value)
@@ -1240,6 +1255,21 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 					barr := []byte((*kvProp[k])[0].value)
 					ffjson.Unmarshal(barr, attr)
 					xref.Attributes = &pbuf.Xref_Antibody{attr}
+				case "pubchem":
+					attr := &pbuf.PubchemAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_Pubchem{attr}
+				case "pubchem_activity":
+					attr := &pbuf.PubchemActivityAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_PubchemActivity{attr}
+				case "pubchem_assay":
+					attr := &pbuf.PubchemAssayAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_PubchemAssay{attr}
 				}
 			}
 

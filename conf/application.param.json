@@ -38,7 +38,9 @@
 	"disableRemoteConfigCheck": "y",
 	"dbBackend": "lmdb",
 	"lmdbSafetyFactor": "10",
-	"lookupDbDir": "/data/scc/ag-gruber/GROUP/tgur/x/bioyoda_dev2/biobtreev2/out_ref/db",
-	"lookupAliasDbDir": "/data/scc/ag-gruber/GROUP/tgur/x/bioyoda_dev2/biobtreev2/out_ref/aliasdb",
+	"__lookupDbDir": "/data/scc/ag-gruber/GROUP/tgur/x/bioyoda_dev2/biobtreev2/out_ref/db",
+	"__lookupAliasDbDir": "/data/scc/ag-gruber/GROUP/tgur/x/bioyoda_dev2/biobtreev2/out_ref/aliasdb",
+	"lookupDbDir": "/data/scc/ag-gruber/GROUP/tgur/x/bioyoda_dev2/biobtreev2/out_model_organisms/db",
+	"lookupAliasDbDir": "/data/scc/ag-gruber/GROUP/tgur/x/bioyoda_dev2/biobtreev2/out_model_organisms/aliasdb",
 	"tmpRuneSize": "10000000"
 }

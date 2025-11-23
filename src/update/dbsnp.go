@@ -4,6 +4,7 @@ import (
 	"biobtree/pbuf"
 	"bufio"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"strconv"
@@ -52,31 +53,35 @@ func (db *dbsnp) update() {
 
 // parseAndSaveVCF processes the dbSNP VCF file (contains all chromosomes)
 func (db *dbsnp) parseAndSaveVCF(testLimit int, idLogFile *os.File) {
-	// Download from NCBI FTP (both test and production mode)
+	// Download from NCBI (supports both FTP and HTTPS)
 	ftpServer := config.Dataconf[db.source]["ftpUrl"]
 	basePath := config.Dataconf[db.source]["path"]
 	vcfFileName := "GCF_000001405.40.gz"
 	filePath := basePath + vcfFileName
 
-	if config.IsTestMode() {
-		log.Printf("dbSNP: [TEST MODE] Downloading VCF from ftp://%s%s (will stop after %d SNPs)", ftpServer, filePath, testLimit)
-	} else {
-		log.Printf("dbSNP: Downloading VCF from ftp://%s%s", ftpServer, filePath)
+	// Log the download URL (detect HTTPS vs FTP)
+	downloadURL := filePath
+	if ftpServer != "" && !strings.HasPrefix(filePath, "http") {
+		downloadURL = "ftp://" + ftpServer + filePath
 	}
 
-	// Open VCF file from FTP (getDataReaderNew already handles gzip decompression)
+	if config.IsTestMode() {
+		log.Printf("dbSNP: [TEST MODE] Downloading VCF from %s (will stop after %d SNPs)", downloadURL, testLimit)
+	} else {
+		log.Printf("dbSNP: Downloading VCF from %s", downloadURL)
+	}
+
+	// Open VCF file (getDataReaderNew handles both FTP and HTTPS, and gzip decompression)
 	br, gz, ftpFile, client, localFile, _, err := getDataReaderNew(db.source, ftpServer, "", filePath)
 	db.check(err, "opening VCF file")
 
 	// Ensure cleanup
 	defer closeReaders(gz, ftpFile, client, localFile)
 
-	// Use bufio.Scanner for line-by-line reading (handles large files)
+	// Use bufio.Reader with ReadString for robust line reading
+	// Scanner has buffer limitations; ReadString is more reliable for massive ETL
 	// br is already decompressed by getDataReaderNew
-	scanner := bufio.NewScanner(br)
-	const maxCapacity = 1024 * 1024 // 1MB buffer for long lines
-	buf := make([]byte, maxCapacity)
-	scanner.Buffer(buf, maxCapacity)
+	reader := bufio.NewReaderSize(br, 4*1024*1024) // 4MB buffer
 
 	// Track statistics
 	var totalLines, savedSNPs, skippedLines int64
@@ -91,9 +96,27 @@ func (db *dbsnp) parseAndSaveVCF(testLimit int, idLogFile *os.File) {
 	var previous int64
 
 	// Parse VCF line by line
-	for scanner.Scan() {
-		line := scanner.Text()
+	for {
+		line, err := reader.ReadString('\n')
+
+		if err != nil {
+			if err == io.EOF {
+				// Process last line if it exists (file may not end with newline)
+				if len(line) > 0 {
+					totalLines++
+					// Process this last line below
+				} else {
+					break // End of file reached successfully
+				}
+			} else {
+				// Actual error occurred
+				db.check(err, "reading VCF line")
+				break
+			}
+		}
+
 		totalLines++
+		line = strings.TrimSpace(line)
 
 		// Skip header lines
 		if strings.HasPrefix(line, "#") {
@@ -291,9 +314,12 @@ func (db *dbsnp) parseAndSaveVCF(testLimit int, idLogFile *os.File) {
 			previous = elapsed
 			db.d.progChan <- &progressInfo{dataset: db.source, currentKBPerSec: int64(savedSNPs / int64(elapsed))}
 		}
-	}
 
-	db.check(scanner.Err(), "scanning VCF file")
+		// Check if we hit EOF after processing the last line
+		if err == io.EOF {
+			break
+		}
+	}
 
 	log.Printf("dbSNP: Total lines read: %d, Saved: %d SNPs, Skipped: %d",
 		totalLines, savedSNPs, skippedLines)

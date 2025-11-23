@@ -46,7 +46,9 @@ func (k *kvgen) gen() {
 
 	for kv := range *k.dataChan {
 
+		//fmt.Println("KVGEN:", k.wid, " Total KV:", k.totalkv, " Chunk File Counter:", k.chunkFileCounter, " Chunk Index:", k.chunkIndex)
 		if k.chunkIndex == chunkLen {
+		//	fmt.Println("Chunk full. Flushing chunk. KVGEN:", k.wid, " Total KV:", k.totalkv, " Chunk File Counter:", k.chunkFileCounter, " Chunk Index:", k.chunkIndex)
 			k.flushChunk()
 		}
 
@@ -65,11 +67,13 @@ func (k *kvgen) flushChunk() {
 	//k.Lock()
 	//defer k.Unlock()
 
+
 	if k.chunkIndex > 0 {
 		fileCounter := strconv.Itoa(k.chunkFileCounter)
 
 		chunkFileName := config.Appconf["indexDir"] + "/" + k.wid + "_" + fileCounter + "." + chunkIdx + ".gz"
 
+		//fmt.Println("Flushing chunk to file:", chunkFileName)
 		//f, err := os.Create(filepath.FromSlash(chunkFileName))
 		f, err := os.OpenFile(filepath.FromSlash(chunkFileName), os.O_RDWR|os.O_CREATE, 0700)
 		if err != nil {

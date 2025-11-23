@@ -1542,13 +1542,13 @@
     "hasFilter": "yes",
     "attrs": "protein_id,[]interactions,interaction_count,unique_partners,high_confidence_count,[]partner_organisms"
   },
-  "protein_similarity": {
-    "aliases": "DIAMOND,protein similarity,sequence similarity,BLASTP,homology,orthology",
-    "name": "Protein Similarity",
+  "pubchem": {
+    "aliases": "PubChem,PubChem CID,Pubchem,CID,compound,chemical,small molecule",
+    "name": "PubChem",
     "id": "45",
-    "url": "https://www.uniprot.org/uniprotkb/£{id}",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/compound/£{id}",
     "hasFilter": "yes",
-    "attrs": "protein_id,[]similarities,similarity_count,top_identity,top_bitscore"
+    "attrs": "cid,title,inchi_key,smiles,molecular_formula,molecular_weight,xlogp,hba,hbd,is_fda_approved,is_clinical_trial,is_natural_product,compound_type,[]synonyms,[]mesh_terms,[]pmids"
   },
   "antibody": {
     "aliases": "therapeutic antibody,monoclonal antibody,mAb,antibody therapeutics,TheraSAbDab,SAbDab,IMGT,antibody structure,germline gene,antibody sequence",
@@ -1557,5 +1557,13 @@
     "url": "http://opig.stats.ox.ac.uk/webapps/therasabdab/therapeutics/£{id}",
     "hasFilter": "yes",
     "attrs": "source,antibody_type,inn_name,pdb_id,gene_name,sequence_id,format,isotype,light_chain,clinical_stage,status,[]heavy_chain_seq,[]light_chain_seq,[]targets,[]indications,[]pdb_ids,resolution,method,organism,functionality,allele"
+  },
+  "protein_similarity": {
+    "aliases": "DIAMOND,protein similarity,sequence similarity,BLASTP,homology,orthology",
+    "name": "Protein Similarity",
+    "id": "47",
+    "url": "https://www.uniprot.org/uniprotkb/£{id}",
+    "hasFilter": "yes",
+    "attrs": "protein_id,[]similarities,similarity_count,top_identity,top_bitscore"
   }
 }

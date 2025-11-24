@@ -560,6 +560,12 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			d.datasets2 = append(d.datasets2, data)
 			go h.update()
 			break
+		case "mesh":
+			d.wg.Add(1)
+			m := mesh{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go m.update()
+			break
 		case "alphafold":
 			d.wg.Add(1)
 			af := alphafoldProcessor{source: data, d: d}

@@ -30,7 +30,7 @@ mkdir -p logs
 echo "Starting validation before GENERATE phase..."
 echo ""
 
-# Check for index files in subdirectories (all 4 required for complete DB)
+# Check for index files in subdirectories (all 5 required for complete DB)
 MISSING_FILES=()
 
 if [[ ! -f ${OUT_DIR}/core_part1/index/core_part1.meta.json ]]; then
@@ -43,6 +43,10 @@ fi
 
 if [[ ! -f ${OUT_DIR}/core_part3/index/core_part3.meta.json ]]; then
     MISSING_FILES+=("core_part3")
+fi
+
+if [[ ! -f ${OUT_DIR}/core_part4/index/core_part4.meta.json ]]; then
+    MISSING_FILES+=("core_part4")
 fi
 
 if [[ ! -f ${OUT_DIR}/ensembl_model/index/ensembl_model.meta.json ]]; then
@@ -61,27 +65,29 @@ if [[ ${#MISSING_FILES[@]} -gt 0 ]]; then
     echo "  - ${OUT_DIR}/core_part1/index/core_part1.meta.json"
     echo "  - ${OUT_DIR}/core_part2/index/core_part2.meta.json"
     echo "  - ${OUT_DIR}/core_part3/index/core_part3.meta.json"
+    echo "  - ${OUT_DIR}/core_part4/index/core_part4.meta.json"
     echo "  - ${OUT_DIR}/ensembl_model/index/ensembl_model.meta.json"
     echo ""
-    echo "Make sure UPDATE phase completed successfully for all 4 jobs."
+    echo "Make sure UPDATE phase completed successfully for all 5 jobs."
     echo "Run UPDATE jobs with:"
     echo "  ./scripts/data/model_organisms_update.sh ${OUT_DIR}"
     echo "Or individually:"
     echo "  ./scripts/data/model_organisms_update.sh ${OUT_DIR} --core1-only"
     echo "  ./scripts/data/model_organisms_update.sh ${OUT_DIR} --core2-only"
     echo "  ./scripts/data/model_organisms_update.sh ${OUT_DIR} --core3-only"
+    echo "  ./scripts/data/model_organisms_update.sh ${OUT_DIR} --core4-only"
     echo "  ./scripts/data/model_organisms_update.sh ${OUT_DIR} --ensembl-only"
     exit 1
 fi
 
-echo "  ✓ All index files found (core_part1, core_part2, core_part3, ensembl_model)"
+echo "  ✓ All index files found (core_part1, core_part2, core_part3, core_part4, ensembl_model)"
 echo ""
 
 # Consolidate index files from subdirectories for generate phase
 echo "Consolidating index files..."
 mkdir -p ${OUT_DIR}/index
 
-# Move all four index directories
+# Move all five index directories
 echo "  - Moving core_part1 index..."
 mv ${OUT_DIR}/core_part1/index/* ${OUT_DIR}/index/
 rm -rf ${OUT_DIR}/core_part1
@@ -93,6 +99,10 @@ rm -rf ${OUT_DIR}/core_part2
 echo "  - Moving core_part3 index..."
 mv ${OUT_DIR}/core_part3/index/* ${OUT_DIR}/index/
 rm -rf ${OUT_DIR}/core_part3
+
+echo "  - Moving core_part4 index..."
+mv ${OUT_DIR}/core_part4/index/* ${OUT_DIR}/index/
+rm -rf ${OUT_DIR}/core_part4
 
 echo "  - Moving ensembl_model index..."
 mv ${OUT_DIR}/ensembl_model/index/* ${OUT_DIR}/index/

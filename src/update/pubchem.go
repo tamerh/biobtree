@@ -1751,9 +1751,15 @@ func (p *pubchem) parseSDFRecord(record string, matchCount *int, scannedCount *i
 	// creationDate := p.cidToCreationDate[cid]
 	// parentCID := p.cidToParent[cid]
 
+	// Get MeSH terms for this compound
+	var meshTerms []string
+	if terms, hasMeSH := p.cidToMeSH[cid]; hasMeSH {
+		meshTerms = terms
+	}
+
 	// Compute pharmacological actions from MeSH terms
 	var pharmActions []string
-	if meshTerms, hasMeSH := p.cidToMeSH[cid]; hasMeSH {
+	if len(meshTerms) > 0 {
 		pharmActionMap := make(map[string]bool) // dedup
 		for _, meshTerm := range meshTerms {
 			if actions, found := p.meshToPharmActions[meshTerm]; found {
@@ -1795,6 +1801,9 @@ func (p *pubchem) parseSDFRecord(record string, matchCount *int, scannedCount *i
 		RotatableBonds:      p.parseInt32(rotatableBonds),
 		Tpsa:                p.parseFloat(tpsa),
 
+		// Medical/Biological Classifications
+		MeshTerms:           meshTerms,
+
 		// Metadata
 		// DISABLED: Temporal and parent data (saves ~1.2 GB memory)
 		// CreationDate:         creationDate,
@@ -1810,6 +1819,13 @@ func (p *pubchem) parseSDFRecord(record string, matchCount *int, scannedCount *i
 	// Add text search link for InChI Key (channel is thread-safe)
 	if inchiKey != "" {
 		p.d.addXref(inchiKey, textLinkID, cid, "pubchem", true)
+	}
+
+	// Create cross-references to MeSH terms
+	for _, meshTerm := range meshTerms {
+		if meshTerm != "" {
+			p.d.addXref(cid, fr, meshTerm, "mesh", false)
+		}
 	}
 }
 

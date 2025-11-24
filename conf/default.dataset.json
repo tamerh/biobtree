@@ -114,12 +114,6 @@
     "id": "96",
     "url": "https://hamap.expasy.org/signature/£{id}"
   },
-  "intact": {
-    "aliases": "IntAct",
-    "name": "IntAct",
-    "id": "97",
-    "url": "https://www.ebi.ac.uk//intact/pages/interactions/interactions.xhtml?query=£{id}&filter=ac"
-  },
   "kegg": {
     "aliases": "KEGG,KEGG COMPOUND accession,KEGG GLYCAN accession,KEGG DRUG accession",
     "name": "KEGG",
@@ -1510,60 +1504,20 @@
     "hasFilter": "yes",
     "attrs": "type,name,[]synonyms"
   },
-  "rhea": {
-    "aliases": "Rhea,RHEA,Rhea reaction",
-    "name": "Rhea",
-    "id": "38",
-    "url": "https://www.rhea-db.org/rhea/£{id}",
+  "meshparent": {
+    "name": "MeSH Parent",
+    "id": "364",
+    "url": "https://www.ncbi.nlm.nih.gov/mesh/?term=£{id}",
+    "linkdataset": "mesh",
     "hasFilter": "yes",
-    "attrs": "equation,direction,status,is_transport,[]chebi_participants,[]ec_numbers,[]go_terms,uniprot_count,reaction_smiles,[]parent_reactions,[]child_reactions"
+    "attrs": "descriptor_ui,descriptor_name,[]entry_terms,[]tree_numbers,scope_note"
   },
-  "gwas_study": {
-    "aliases": "GWAS Study,gwas study,GWAS Catalog,gwascatalog,genome-wide association study",
-    "name": "GWAS Study",
-    "id": "39",
-    "url": "https://www.ebi.ac.uk/gwas/studies/£{id}",
+  "meshchild": {
+    "name": "MeSH Child",
+    "id": "365",
+    "url": "https://www.ncbi.nlm.nih.gov/mesh/?term=£{id}",
+    "linkdataset": "mesh",
     "hasFilter": "yes",
-    "attrs": "study_accession,pubmed_id,first_author,publication_date,journal,study,disease_trait,initial_sample_size,replication_sample_size,[]reported_genes,[]mapped_genes,[]trait_efos,platform,association_count"
-  },
-  "gwas": {
-    "aliases": "GWAS,gwas association,variant-trait association,genome-wide association,SNP-trait association",
-    "name": "GWAS Association",
-    "id": "43",
-    "url": "https://www.ebi.ac.uk/gwas/variants/£{id}",
-    "hasFilter": "yes",
-    "attrs": "snp_id,study_accession,strongest_snp_risk_allele,chr_id,chr_pos,region,context,intergenic,[]reported_genes,mapped_gene,upstream_gene_id,downstream_gene_id,[]snp_gene_ids,disease_trait,[]mapped_traits,[]efo_traits,p_value,pvalue_mlog,or_beta,ci_95,risk_allele_frequency,pubmed_id,first_author,date,platform"
-  },
-  "intact": {
-    "aliases": "IntAct,protein interaction,protein-protein interaction,PPI,molecular interaction",
-    "name": "IntAct",
-    "id": "44",
-    "url": "https://www.ebi.ac.uk/intact/interaction/£{id}",
-    "hasFilter": "yes",
-    "attrs": "protein_id,[]interactions,interaction_count,unique_partners,high_confidence_count,[]partner_organisms"
-  },
-  "pubchem": {
-    "aliases": "PubChem,PubChem CID,Pubchem,CID,compound,chemical,small molecule",
-    "name": "PubChem",
-    "id": "45",
-    "url": "https://pubchem.ncbi.nlm.nih.gov/compound/£{id}",
-    "hasFilter": "yes",
-    "attrs": "cid,title,inchi_key,smiles,molecular_formula,molecular_weight,xlogp,hba,hbd,is_fda_approved,is_clinical_trial,is_natural_product,compound_type,[]synonyms,[]mesh_terms,[]pmids"
-  },
-  "antibody": {
-    "aliases": "therapeutic antibody,monoclonal antibody,mAb,antibody therapeutics,TheraSAbDab,SAbDab,IMGT,antibody structure,germline gene,antibody sequence",
-    "name": "Antibody",
-    "id": "46",
-    "url": "http://opig.stats.ox.ac.uk/webapps/therasabdab/therapeutics/£{id}",
-    "hasFilter": "yes",
-    "attrs": "source,antibody_type,inn_name,pdb_id,gene_name,sequence_id,format,isotype,light_chain,clinical_stage,status,[]heavy_chain_seq,[]light_chain_seq,[]targets,[]indications,[]pdb_ids,resolution,method,organism,functionality,allele"
-  },
-  "protein_similarity": {
-    "aliases": "DIAMOND,protein similarity,sequence similarity,BLASTP,homology,orthology",
-    "name": "Protein Similarity",
-    "id": "47",
-    "url": "https://www.uniprot.org/uniprotkb/£{id}",
-    "hasFilter": "yes",
-    "attrs": "protein_id,[]similarities,similarity_count,top_identity,top_bitscore"
+    "attrs": "descriptor_ui,descriptor_name,[]entry_terms,[]tree_numbers,scope_note"
   }
-}
+  }

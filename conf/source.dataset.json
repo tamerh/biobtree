@@ -578,5 +578,17 @@
     "attrs": "aid,name,source_name,source_id,substance_type,outcome_type,project_category,bioassay_group,bioassay_types,protein_accessions,uniprot_ids,gene_ids,target_taxids,test_organism_taxids,tested_sids,active_sids,tested_cids,active_cids,hit_rate,deposit_date,modify_date",
     "test_entries_count": "5000",
     "pathBioassays": "bioassays.tsv.gz"
+  },
+  "mesh": {
+    "id": "48",
+    "name": "MeSH",
+    "aliases": "Medical Subject Headings,MeSH Descriptor,MESH",
+    "url": "https://www.ncbi.nlm.nih.gov/mesh/?term=£{id}",
+    "path": "https://nlmpubs.nlm.nih.gov/projects/mesh/MESH_FILES/asciimesh/d2025.bin",
+    "pathSupplementary": "https://nlmpubs.nlm.nih.gov/projects/mesh/MESH_FILES/asciimesh/c2025.bin",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "descriptor_ui,descriptor_name,descriptor_class,[]entry_terms,[]tree_numbers,scope_note,[]allowable_qualifiers,[]pharmacological_actions,is_supplementary,registry_number,heading_mapped_to,date_created,date_established,date_revised",
+    "test_entries_count": "100"
   }
 }

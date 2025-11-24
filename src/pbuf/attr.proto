@@ -1097,4 +1097,41 @@ message PubchemAssayAttr {
   string modify_date = 21;                // Last modification date (YYYYMMDD format)
 }
 
+// MeSH - Medical Subject Headings (Dataset ID: 48)
+// NLM's controlled vocabulary for indexing biomedical literature
+// Source: https://www.nlm.nih.gov/mesh/
+message MeshAttr {
+  // Core identification
+  string descriptor_ui = 1;               // Unique ID (e.g., "D000001")
+  string descriptor_name = 2;             // Primary term name
+  string descriptor_class = 3;            // 1=Topical, 2=Publication Types, 3=Check Tags, 4=Geographic
+
+  // Terms and synonyms
+  repeated string entry_terms = 4;        // All synonyms/alternative names (flattened)
+
+  // Hierarchical classification
+  repeated string tree_numbers = 5;       // Tree classification codes (e.g., "C10.228.140.300")
+
+  // Definitions and scope
+  string scope_note = 6;                  // Usage definition and guidance
+  string annotation = 7;                  // Indexing notes
+  string history_note = 8;                // Historical information
+
+  // Qualifiers and relationships
+  repeated string allowable_qualifiers = 9;     // Permitted subheadings (QualifierUI)
+  repeated string see_related = 10;             // Cross-reference descriptor IDs
+  repeated string pharmacological_actions = 11; // Drug action classifications
+  repeated string previous_indexing = 12;       // Historical indexing terms
+
+  // Supplementary Concept Record fields (for chemicals)
+  bool is_supplementary = 13;             // True if SCR (chemical), false if Descriptor
+  string registry_number = 14;            // CAS/EC/UNII/Taxonomy ID
+  string heading_mapped_to = 15;          // Descriptor automatically assigned in PubMed
+
+  // Temporal metadata
+  string date_created = 16;
+  string date_established = 17;
+  string date_revised = 18;
+}
+
 

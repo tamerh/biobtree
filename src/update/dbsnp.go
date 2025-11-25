@@ -7,8 +7,11 @@ import (
 	"io"
 	"log"
 	"os"
+	"os/exec"
+	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
 	"sync/atomic"
 	"time"
 
@@ -51,82 +54,211 @@ func (db *dbsnp) update() {
 	log.Printf("dbSNP: Processing complete (%.2fs)", time.Since(startTime).Seconds())
 }
 
-// parseAndSaveVCF processes the dbSNP VCF file (contains all chromosomes)
-func (db *dbsnp) parseAndSaveVCF(testLimit int, idLogFile *os.File) {
-	// Download from NCBI (supports both FTP and HTTPS)
-	ftpServer := config.Dataconf[db.source]["ftpUrl"]
+// getVCFUrl returns the HTTPS URL for the dbSNP VCF file
+func (db *dbsnp) getVCFUrl() string {
 	basePath := config.Dataconf[db.source]["path"]
 	vcfFileName := "GCF_000001405.40.gz"
-	filePath := basePath + vcfFileName
 
-	// Log the download URL (detect HTTPS vs FTP)
-	downloadURL := filePath
-	if ftpServer != "" && !strings.HasPrefix(filePath, "http") {
-		downloadURL = "ftp://" + ftpServer + filePath
+	// Check if path is already a full URL
+	if strings.HasPrefix(basePath, "https://") || strings.HasPrefix(basePath, "http://") {
+		return basePath + vcfFileName
 	}
 
+	// For local file mode, construct the local path
+	if _, ok := config.Dataconf[db.source]["useLocalFile"]; ok && config.Dataconf[db.source]["useLocalFile"] == "yes" {
+		return filepath.Join(basePath, vcfFileName)
+	}
+
+	// Default to NCBI HTTPS URL
+	return "https://ftp.ncbi.nlm.nih.gov/snp/latest_release/VCF/" + vcfFileName
+}
+
+// getChromosomes returns the list of all chromosomes/contigs from the VCF file
+// Uses tabix -l to dynamically get all available sequences
+// This includes main chromosomes (NC_*) and contigs (NT_*, NW_*)
+func (db *dbsnp) getChromosomes(vcfURL string) []string {
+	// Use tabix -l to list all chromosomes/contigs in the VCF
+	cmd := exec.Command("tabix", "-l", vcfURL)
+	output, err := cmd.Output()
+	if err != nil {
+		log.Printf("dbSNP: Warning - failed to get chromosome list from tabix: %v", err)
+		log.Printf("dbSNP: Falling back to main chromosomes only")
+		// Fallback to main chromosomes if tabix -l fails
+		return []string{
+			"NC_000001.11", "NC_000002.12", "NC_000003.12", "NC_000004.12",
+			"NC_000005.10", "NC_000006.12", "NC_000007.14", "NC_000008.11",
+			"NC_000009.12", "NC_000010.11", "NC_000011.10", "NC_000012.12",
+			"NC_000013.11", "NC_000014.9", "NC_000015.10", "NC_000016.10",
+			"NC_000017.11", "NC_000018.10", "NC_000019.10", "NC_000020.11",
+			"NC_000021.9", "NC_000022.11", "NC_000023.11", "NC_000024.10",
+			"NC_012920.1",
+		}
+	}
+
+	// Parse output - one chromosome/contig per line
+	lines := strings.Split(strings.TrimSpace(string(output)), "\n")
+	chromosomes := make([]string, 0, len(lines))
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if line != "" {
+			chromosomes = append(chromosomes, line)
+		}
+	}
+
+	// Count main chromosomes vs contigs for logging
+	mainCount := 0
+	contigCount := 0
+	for _, c := range chromosomes {
+		if strings.HasPrefix(c, "NC_") {
+			mainCount++
+		} else {
+			contigCount++
+		}
+	}
+	log.Printf("dbSNP: Found %d sequences (%d main chromosomes, %d contigs)",
+		len(chromosomes), mainCount, contigCount)
+
+	return chromosomes
+}
+
+// parseAndSaveVCF processes the dbSNP VCF file using parallel tabix streams
+// Each worker processes a different chromosome via tabix remote streaming
+func (db *dbsnp) parseAndSaveVCF(testLimit int, idLogFile *os.File) {
+	vcfURL := db.getVCFUrl()
+
+	// In test mode, only process chr1
+	var chromosomes []string
 	if config.IsTestMode() {
-		log.Printf("dbSNP: [TEST MODE] Downloading VCF from %s (will stop after %d SNPs)", downloadURL, testLimit)
+		chromosomes = []string{"NC_000001.11"}
+		log.Printf("dbSNP: [TEST MODE] Processing only chr1, limit %d SNPs", testLimit)
 	} else {
-		log.Printf("dbSNP: Downloading VCF from %s", downloadURL)
+		// Get all chromosomes and contigs from tabix
+		chromosomes = db.getChromosomes(vcfURL)
 	}
 
-	// Open VCF file (getDataReaderNew handles both FTP and HTTPS, and gzip decompression)
-	br, gz, ftpFile, client, localFile, _, err := getDataReaderNew(db.source, ftpServer, "", filePath)
-	db.check(err, "opening VCF file")
+	numWorkers := 4
+	log.Printf("dbSNP: Processing %d chromosomes with %d parallel workers via tabix", len(chromosomes), numWorkers)
+	log.Printf("dbSNP: Remote VCF URL: %s", vcfURL)
 
-	// Ensure cleanup
-	defer closeReaders(gz, ftpFile, client, localFile)
-
-	// Use bufio.Reader with ReadString for robust line reading
-	// Scanner has buffer limitations; ReadString is more reliable for massive ETL
-	// br is already decompressed by getDataReaderNew
-	reader := bufio.NewReaderSize(br, 4*1024*1024) // 4MB buffer
-
-	// Track statistics
-	var totalLines, savedSNPs, skippedLines int64
-	// NOTE: We don't need a deduplication map because NCBI dbSNP VCF files
-	// are already deduplicated at source. Tracking millions of rs IDs
-	// would consume 50-100GB of memory unnecessarily.
+	// Shared counters (atomic for thread safety)
+	var totalSavedSNPs int64
+	var totalSkippedLines int64
 
 	// Source ID for cross-references
 	sourceID := config.Dataconf[db.source]["id"]
 
-	// Progress tracking
-	var previous int64
+	// Create worker pool
+	var wg sync.WaitGroup
+	chromChan := make(chan string, len(chromosomes))
 
-	// Parse VCF line by line
+	// ID log file mutex (for test mode)
+	var idLogMutex sync.Mutex
+
+	// Start workers
+	for i := 0; i < numWorkers; i++ {
+		wg.Add(1)
+		go func(workerID int) {
+			defer wg.Done()
+
+			for chrom := range chromChan {
+				savedCount, skippedCount := db.processChromosome(
+					workerID, vcfURL, chrom, sourceID, testLimit,
+					&totalSavedSNPs, idLogFile, &idLogMutex,
+				)
+
+				atomic.AddInt64(&totalSavedSNPs, savedCount)
+				atomic.AddInt64(&totalSkippedLines, skippedCount)
+
+				// Check if we've hit the test limit
+				if testLimit > 0 && atomic.LoadInt64(&totalSavedSNPs) >= int64(testLimit) {
+					log.Printf("dbSNP: [TEST MODE] Reached limit of %d SNPs", testLimit)
+					return
+				}
+			}
+		}(i)
+	}
+
+	// Send chromosomes to workers
+	for _, chrom := range chromosomes {
+		// Check if we've hit the test limit before sending more work
+		if testLimit > 0 && atomic.LoadInt64(&totalSavedSNPs) >= int64(testLimit) {
+			break
+		}
+		chromChan <- chrom
+	}
+	close(chromChan)
+
+	// Wait for all workers to complete
+	wg.Wait()
+
+	log.Printf("dbSNP: Total saved: %d SNPs, Skipped: %d lines",
+		totalSavedSNPs, totalSkippedLines)
+
+	// Update entry statistics
+	atomic.AddUint64(&db.d.totalParsedEntry, uint64(totalSavedSNPs))
+	db.d.addEntryStat(db.source, uint64(totalSavedSNPs))
+}
+
+// processChromosome processes a single chromosome using tabix
+// Returns (savedCount, skippedCount)
+func (db *dbsnp) processChromosome(
+	workerID int,
+	vcfURL string,
+	chrom string,
+	sourceID string,
+	testLimit int,
+	globalSavedCount *int64,
+	idLogFile *os.File,
+	idLogMutex *sync.Mutex,
+) (int64, int64) {
+
+	log.Printf("[Worker %d] Starting chromosome %s", workerID, chrom)
+	startTime := time.Now()
+
+	// Run tabix to stream chromosome data
+	// tabix automatically fetches the .tbi index from vcfURL.tbi
+	cmd := exec.Command("tabix", vcfURL, chrom)
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		log.Printf("[Worker %d] Error creating pipe for %s: %v", workerID, chrom, err)
+		return 0, 0
+	}
+
+	if err := cmd.Start(); err != nil {
+		log.Printf("[Worker %d] Error starting tabix for %s: %v", workerID, chrom, err)
+		return 0, 0
+	}
+
+	// Read tabix output
+	reader := bufio.NewReaderSize(stdout, 4*1024*1024) // 4MB buffer
+
+	var savedSNPs, skippedLines int64
+	lastProgress := time.Now() // Initialize to now to avoid immediate logging
+
 	for {
-		line, err := reader.ReadString('\n')
+		// Check global limit
+		if testLimit > 0 && atomic.LoadInt64(globalSavedCount)+savedSNPs >= int64(testLimit) {
+			cmd.Process.Kill() // Kill tabix process when limit reached
+			break
+		}
 
+		line, err := reader.ReadString('\n')
 		if err != nil {
 			if err == io.EOF {
-				// Process last line if it exists (file may not end with newline)
 				if len(line) > 0 {
-					totalLines++
-					// Process this last line below
+					// Process last line
 				} else {
-					break // End of file reached successfully
+					break
 				}
 			} else {
-				// Actual error occurred
-				db.check(err, "reading VCF line")
+				log.Printf("[Worker %d] Error reading from tabix for %s: %v", workerID, chrom, err)
 				break
 			}
 		}
 
-		totalLines++
 		line = strings.TrimSpace(line)
-
-		// Skip header lines
-		if strings.HasPrefix(line, "#") {
+		if line == "" {
 			continue
-		}
-
-		// In test mode, check if we've reached the limit
-		if testLimit > 0 && savedSNPs >= int64(testLimit) {
-			log.Printf("dbSNP: [TEST MODE] Reached limit of %d SNPs, stopping", testLimit)
-			break
 		}
 
 		// Parse VCF line
@@ -137,34 +269,21 @@ func (db *dbsnp) parseAndSaveVCF(testLimit int, idLogFile *os.File) {
 		}
 
 		// VCF columns: CHROM POS ID REF ALT QUAL FILTER INFO
-		chrom := fields[0]
+		chromField := fields[0]
 		posStr := fields[1]
 		rsID := fields[2]
 		refAllele := fields[3]
 		altAllele := fields[4]
 		infoField := fields[7]
 
-		// In test mode, filter to only chr1 for faster testing
-		// In production mode, process all chromosomes (1-22, X, Y, MT)
-		if config.IsTestMode() {
-			// Only process chr1 in test mode
-			if chrom != "1" && chrom != "NC_000001.11" {
-				continue
-			}
-		}
-		// In production mode, no chromosome filtering - process all
-
 		// Skip if no rs ID
 		if rsID == "." || !strings.HasPrefix(rsID, "rs") {
 			continue
 		}
 
-		// NOTE: No deduplication check needed - NCBI VCF files are pre-deduplicated
-		// If duplicates exist, addProp3() will overwrite (upsert behavior)
-
 		// Parse position
-		pos, err := strconv.ParseInt(posStr, 10, 64)
-		if err != nil {
+		pos, parseErr := strconv.ParseInt(posStr, 10, 64)
+		if parseErr != nil {
 			skippedLines++
 			continue
 		}
@@ -175,7 +294,7 @@ func (db *dbsnp) parseAndSaveVCF(testLimit int, idLogFile *os.File) {
 		// Build dbSNP attribute
 		attr := &pbuf.DbsnpAttr{
 			RsId:       rsID,
-			Chromosome: db.normalizeChromosome(chrom),
+			Chromosome: db.normalizeChromosome(chromField),
 			Position:   pos,
 			RefAllele:  refAllele,
 			AltAllele:  altAllele,
@@ -187,13 +306,12 @@ func (db *dbsnp) parseAndSaveVCF(testLimit int, idLogFile *os.File) {
 		}
 
 		if af, ok := infoMap["AF"]; ok {
-			if afFloat, err := strconv.ParseFloat(af, 64); err == nil {
+			if afFloat, parseErr := strconv.ParseFloat(af, 64); parseErr == nil {
 				attr.AlleleFrequency = afFloat
 			}
 		}
 
-		// Parse GENEINFO: Format is "GENE1:GENEID1|GENE2:GENEID2|..."
-		// Example: "WASH7P:653635|DDX11L1:100287102"
+		// Parse GENEINFO
 		if geneInfo, ok := infoMap["GENEINFO"]; ok {
 			genePairs := strings.Split(geneInfo, "|")
 			for _, pair := range genePairs {
@@ -205,8 +323,7 @@ func (db *dbsnp) parseAndSaveVCF(testLimit int, idLogFile *os.File) {
 			}
 		}
 
-		// Parse PSEUDOGENEINFO: Same format as GENEINFO
-		// Example: "DDX11L1:100287102"
+		// Parse PSEUDOGENEINFO
 		if pseudogeneInfo, ok := infoMap["PSEUDOGENEINFO"]; ok {
 			pseudogenePairs := strings.Split(pseudogeneInfo, "|")
 			for _, pair := range pseudogenePairs {
@@ -228,17 +345,15 @@ func (db *dbsnp) parseAndSaveVCF(testLimit int, idLogFile *os.File) {
 
 		// Parse SAO (Variant Allele Origin)
 		if sao, ok := infoMap["SAO"]; ok {
-			if saoInt, err := strconv.ParseInt(sao, 10, 32); err == nil {
+			if saoInt, parseErr := strconv.ParseInt(sao, 10, 32); parseErr == nil {
 				attr.Sao = int32(saoInt)
 			}
 		}
 
-		// Parse COMMON flag
+		// Parse flags
 		if _, ok := infoMap["COMMON"]; ok {
 			attr.IsCommon = true
 		}
-
-		// Parse functional impact flags (coding region effects)
 		if _, ok := infoMap["NSF"]; ok {
 			attr.Nsf = true
 		}
@@ -251,8 +366,6 @@ func (db *dbsnp) parseAndSaveVCF(testLimit int, idLogFile *os.File) {
 		if _, ok := infoMap["SYN"]; ok {
 			attr.Syn = true
 		}
-
-		// Parse UTR and splice site flags
 		if _, ok := infoMap["U3"]; ok {
 			attr.U3 = true
 		}
@@ -265,8 +378,6 @@ func (db *dbsnp) parseAndSaveVCF(testLimit int, idLogFile *os.File) {
 		if _, ok := infoMap["DSS"]; ok {
 			attr.Dss = true
 		}
-
-		// Parse gene region flags
 		if _, ok := infoMap["INT"]; ok {
 			attr.Intron = true
 		}
@@ -276,10 +387,8 @@ func (db *dbsnp) parseAndSaveVCF(testLimit int, idLogFile *os.File) {
 		if _, ok := infoMap["R5"]; ok {
 			attr.R5 = true
 		}
-
-		// Parse quality and evidence indicators
 		if ssr, ok := infoMap["SSR"]; ok {
-			if ssrInt, err := strconv.ParseInt(ssr, 10, 32); err == nil {
+			if ssrInt, parseErr := strconv.ParseInt(ssr, 10, 32); parseErr == nil {
 				attr.Ssr = int32(ssrInt)
 			}
 		}
@@ -296,37 +405,40 @@ func (db *dbsnp) parseAndSaveVCF(testLimit int, idLogFile *os.File) {
 		// Determine variant type
 		attr.VariantType = db.determineVariantType(refAllele, altAllele)
 
-		// Save SNP (streaming - no accumulation in memory)
+		// Save SNP
 		db.saveSNP(rsID, attr, sourceID)
 		savedSNPs++
 
-		// Log ID in test mode
+		// Log ID in test mode (thread-safe)
 		if idLogFile != nil {
+			idLogMutex.Lock()
 			fmt.Fprintln(idLogFile, rsID)
+			idLogMutex.Unlock()
 		}
 
 		// Create cross-references
 		db.createCrossReferences(rsID, sourceID, attr)
 
-		// Progress reporting
-		elapsed := int64(time.Since(db.d.start).Seconds())
-		if elapsed > previous+db.d.progInterval {
-			previous = elapsed
-			db.d.progChan <- &progressInfo{dataset: db.source, currentKBPerSec: int64(savedSNPs / int64(elapsed))}
+		// Progress reporting (per worker, every 30 seconds)
+		if time.Since(lastProgress) > 30*time.Second {
+			lastProgress = time.Now()
+			log.Printf("[Worker %d] %s: %d SNPs processed", workerID, chrom, savedSNPs)
 		}
 
-		// Check if we hit EOF after processing the last line
 		if err == io.EOF {
 			break
 		}
 	}
 
-	log.Printf("dbSNP: Total lines read: %d, Saved: %d SNPs, Skipped: %d",
-		totalLines, savedSNPs, skippedLines)
+	// Wait for tabix to finish
+	cmd.Wait()
 
-	// Update entry statistics
-	atomic.AddUint64(&db.d.totalParsedEntry, uint64(savedSNPs))
-	db.d.addEntryStat(db.source, uint64(savedSNPs))
+	elapsed := time.Since(startTime)
+	rate := float64(savedSNPs) / elapsed.Seconds()
+	log.Printf("[Worker %d] Completed %s: %d SNPs in %.1fs (%.0f SNPs/s)",
+		workerID, chrom, savedSNPs, elapsed.Seconds(), rate)
+
+	return savedSNPs, skippedLines
 }
 
 // parseINFO parses the VCF INFO field into a map

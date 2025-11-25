@@ -40,7 +40,7 @@
 	"lmdbSafetyFactor": "10",
 	"__lookupDbDir": "/data/scc/ag-gruber/GROUP/tgur/x/bioyoda_dev2/biobtreev2/out_ref/db",
 	"__lookupAliasDbDir": "/data/scc/ag-gruber/GROUP/tgur/x/bioyoda_dev2/biobtreev2/out_ref/aliasdb",
-	"___lookupDbDir": "/data/scc/ag-gruber/GROUP/tgur/x/bioyoda_dev2/biobtreev2/out_model_organisms/db",
-	"___lookupAliasDbDir": "/data/scc/ag-gruber/GROUP/tgur/x/bioyoda_dev2/biobtreev2/out_model_organisms/aliasdb",
+	"lookupDbDir": "/data/scc/ag-gruber/GROUP/tgur/x/bioyoda_dev2/biobtreev2/out_lookup_latest/db",
+	"lookupAliasDbDir": "/data/scc/ag-gruber/GROUP/tgur/x/bioyoda_dev2/biobtreev2/out_lookup_latest/aliasdb",
 	"tmpRuneSize": "10000000"
 }

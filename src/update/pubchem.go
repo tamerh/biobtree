@@ -760,6 +760,11 @@ func (p *pubchem) loadPatentCIDs() {
 		p.p2CIDs[cid] = true
 		uniqueCIDs[cid] = true
 
+		// Create bidirectional cross-reference: PubChem CID ↔ Patent
+		// This allows: Query compound → see patents, Query patent → see compounds
+		fr := config.Dataconf["pubchem"]["id"]
+		p.d.addXref(cid, fr, patentID, "patent", false)
+
 		// Progress reporting every 10M lines (records processed)
 		if lineCount%10000000 == 0 {
 			log.Printf("[PubChem] Processed %dM patent records, found %dM unique CIDs (%d valid biotech patents, %d filtered)",
@@ -777,6 +782,7 @@ func (p *pubchem) loadPatentCIDs() {
 		len(p.p2CIDs), lineCount, len(p.surechemblPatentIDs))
 	log.Printf("[PubChem] Patent filtering: %d biotech patent records matched, %d non-biotech filtered out (%.1f%% filtered)",
 		validPatentCount, invalidPatentCount, 100.0*float64(invalidPatentCount)/float64(lineCount))
+	log.Printf("[PubChem] Created %d CID ↔ Patent cross-references", validPatentCount)
 }
 
 // mergeBiotechCIDs merges all biotech-relevant CID sources into master list

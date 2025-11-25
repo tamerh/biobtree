@@ -124,7 +124,7 @@ mkdir -p logs
 LOOKUP_DATASETS="hgnc,ensembl,chembl,mondo,hpo,go,uniprot,taxonomy,mesh"
 
 # Build parameters
-BB_PARAMS="--maxcpu ${MAXCPU}"
+BB_PARAMS="--keep --eo --include-optionals --maxcpu ${MAXCPU}"
 
 # Log file
 LOG_FILE="logs/lookup_build.log"

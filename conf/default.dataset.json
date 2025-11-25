@@ -103,7 +103,7 @@
     "url": "http://flybase.org/reports/£{id}.html"
   },
   "entrez": {
-    "aliases": "GeneID",
+    "aliases": "GeneID,EntrezGene",
     "name": "Entrez",
     "id": "95",
     "url": "https://www.ncbi.nlm.nih.gov/gene/£{id}"

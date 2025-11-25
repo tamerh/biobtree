@@ -50,19 +50,11 @@ func (p *proteinSimilarity) update() {
 
 // parseAndSaveSimilarities processes the DIAMOND BLASTP TSV file
 func (p *proteinSimilarity) parseAndSaveSimilarities(testLimit int, idLogFile *os.File) {
-	// Get file path (testPath for test mode, path for production)
-	var filePath string
+	// Always use main path - test mode uses testLimit to limit entries
+	filePath := config.Dataconf[p.source]["path"]
 	if config.IsTestMode() {
-		testPath := config.Dataconf[p.source]["testPath"]
-		if testPath != "" {
-			filePath = testPath
-			log.Printf("Protein Similarity: [TEST MODE] Using test file: %s", filePath)
-		} else {
-			filePath = config.Dataconf[p.source]["path"]
-			log.Printf("Protein Similarity: [TEST MODE] No testPath found, using: %s", filePath)
-		}
+		log.Printf("Protein Similarity: [TEST MODE] Processing file: %s (will stop after %d proteins)", filePath, testLimit)
 	} else {
-		filePath = config.Dataconf[p.source]["path"]
 		log.Printf("Protein Similarity: Processing file: %s", filePath)
 	}
 

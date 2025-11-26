@@ -109,18 +109,18 @@ type Merge struct {
 }
 
 type chunkReader struct {
-	d        *Merge
-	file     *os.File
-	r        *bufio.Reader
-	curKey   string
-	complete bool
-	eof      bool
-	tmprun   []rune
-	nextLine [5]string  // Extended to support evidence field (optional 5th field)
-	wg       *sync.WaitGroup
-	active   bool
-	fileName string     // Name of the chunk file (for tracking)
-	linesRead int64     // Number of lines read from this file
+	d         *Merge
+	file      *os.File
+	r         *bufio.Reader
+	curKey    string
+	complete  bool
+	eof       bool
+	tmprun    []rune
+	nextLine  [5]string  // Extended to support evidence field (optional 5th field)
+	wg        *sync.WaitGroup
+	active    bool
+	fileName  string     // Name of the chunk file (for tracking)
+	linesRead int64      // Number of lines read from this file
 }
 
 // saveCheckpoint saves the current merge progress to a checkpoint file
@@ -287,45 +287,31 @@ func (d *Merge) Merge(c *configs.Conf, keep bool) (uint64, uint64, uint64) {
 	}
 	d.wg.Wait()
 
-	activecount := 0
-	minKey := ""
+	d.removeFinished()
+
 	skippedKeys := uint64(0)
 
-	for {
-
-		activecount = 0
-		minKey = ""
-		for _, ch := range d.chunkReaders {
-			if len(minKey) == 0 || ch.curKey < minKey {
+	for len(d.chunkReaders) > 0 {
+		// Find minimum key using simple linear scan (faster for small k)
+		minKey := d.chunkReaders[0].curKey
+		for _, ch := range d.chunkReaders[1:] {
+			if ch.curKey < minKey {
 				minKey = ch.curKey
 			}
 		}
 
 		// Skip keys that were already written (resume mode)
 		if d.isResuming && minKey <= d.resumeFromKey {
-			// Mark all readers with this key as active and advance them
+			// Advance readers with min key without writing
 			for _, ch := range d.chunkReaders {
 				if ch.curKey == minKey {
-					ch.active = true
-				} else {
-					ch.active = false
-				}
-			}
-			// Advance active readers without writing
-			for _, ch := range d.chunkReaders {
-				if ch.active {
 					d.wg.Add(1)
 					go ch.readKeyValueWithSkip(d.resumeFromKey)
-					activecount++
 				}
 			}
-			if activecount > 0 {
-				d.wg.Wait()
-			}
+			d.wg.Wait()
 			d.removeFinished()
-			if len(d.chunkReaders) == 0 {
-				break
-			}
+
 			skippedKeys++
 			if skippedKeys%100000 == 0 {
 				log.Printf("Resume: Skipped %d keys so far, current key: %s", skippedKeys, minKey)
@@ -339,35 +325,22 @@ func (d *Merge) Merge(c *configs.Conf, keep bool) (uint64, uint64, uint64) {
 			d.isResuming = false
 		}
 
-		for _, ch := range d.chunkReaders {
-			if ch.curKey == minKey {
-				ch.active = true
-			} else {
-				ch.active = false
-			}
-		}
-
+		// Send writekey message
 		*d.mergeCh <- kvMessage{
 			key:      minKey,
 			writekey: true,
 		}
 
+		// Advance all readers that have this key
 		for _, ch := range d.chunkReaders {
-			if ch.active {
+			if ch.curKey == minKey {
 				d.wg.Add(1)
 				go ch.readKeyValue()
-				activecount++
 			}
 		}
-		if activecount > 0 {
-			d.wg.Wait()
-		}
+		d.wg.Wait()
 
 		d.removeFinished()
-		if len(d.chunkReaders) == 0 {
-			break
-		}
-
 	}
 
 	for { // to wait last batch to finish
@@ -663,7 +636,6 @@ func (d *Merge) mergeg() {
 }
 
 func (d *Merge) removeFinished() {
-
 	var finishedReaders []*chunkReader
 	for _, ch := range d.chunkReaders {
 		if ch.complete {
@@ -683,25 +655,16 @@ func (d *Merge) removeFinished() {
 	}
 
 	if len(finishedReaders) > 0 {
-
-		var updatedReaders []*chunkReader
+		// More efficient O(n) removal using filter-in-place
+		writeIdx := 0
 		for _, rd := range d.chunkReaders {
-			exlcuded := false
-			for _, rd2 := range finishedReaders {
-				if rd.r == rd2.r {
-					exlcuded = true
-				}
-			}
-			if !exlcuded {
-				updatedReaders = append(updatedReaders, rd)
-			} else {
-				rd = nil
+			if !rd.complete {
+				d.chunkReaders[writeIdx] = rd
+				writeIdx++
 			}
 		}
-		d.chunkReaders = updatedReaders
-
+		d.chunkReaders = d.chunkReaders[:writeIdx]
 	}
-
 }
 
 func (d *Merge) init() {

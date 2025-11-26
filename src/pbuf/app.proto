@@ -21,10 +21,12 @@ message SearchRequest {
     string query=4;
     bool detail=5;
     bool url=6;
+    string mode=7;  // "full" (default) or "lite"
 }
 
 message SearchResponse {
   	Result results =1;
+    ResultLite results_lite =2;  // Used when mode="lite"
 }
 
 message MappingRequest {
@@ -32,10 +34,12 @@ message MappingRequest {
     string dataset=2;
     string query = 3;
     string page =4;
+    string mode=5;  // "full" (default) or "lite"
 }
 
 message MappingResponse {
     MapFilterResult results =1;
+    MapFilterResultLite results_lite =2;  // Used when mode="lite"
 }
 
 message EntryRequest {
@@ -92,12 +96,20 @@ message Result {
   	repeated Xref results = 1;
     string nextpage=2;
     string message=3; // transient - informational message (e.g., "No results found")
+    // Full mode enhancements (transient - populated at response time)
+    SearchQueryInfo query = 4;                    // Query echo
+    SearchStats stats = 5;                        // Statistics
+    PaginationInfo pagination = 6;                // Structured pagination
 }
 
 message MapFilterResult {
   	repeated MapFilter results = 1;
     string nextpage=2;
     string message=3; // transient - informational message (e.g., "No results found")
+    // Full mode enhancements (transient - populated at response time)
+    MapFilterQueryInfo query = 4;                 // Query echo
+    MapFilterStats stats = 5;                     // Statistics
+    PaginationInfo pagination = 6;                // Structured pagination
 }
 
 message MapFilter {
@@ -150,6 +162,7 @@ message Xref {
     PubchemActivityAttr pubchem_activity=48;
     PubchemAssayAttr pubchem_assay=49;
     DbsnpAttr dbsnp=123;
+    MeshAttr mesh=50;
 
   }
 
@@ -186,4 +199,84 @@ message XrefDomainCount {
 
 message Alias {
     repeated string identifiers = 1;
+}
+
+// ============================================================================
+// LITE MODE RESPONSE MESSAGES
+// Compact JSON format for AI agents - IDs only, sorted by has_attributes
+// ============================================================================
+
+// Lite mode response for mapping queries
+message MapFilterResultLite {
+    string mode = 1;                              // "lite"
+    MapFilterQueryInfo query = 2;                 // Echo query back
+    repeated MapFilterLite mappings = 3;          // Compact mappings
+    MapFilterStats stats = 4;                     // Summary statistics
+    PaginationInfo pagination = 5;                // Structured pagination
+    repeated string warnings = 6;                 // Non-fatal issues
+}
+
+message MapFilterLite {
+    string input = 1;                             // Original search term
+    LiteEntry source = 2;                         // Source entry (null if not found)
+    repeated LiteEntry targets = 3;               // Target entries (sorted by has_attr)
+    string error = 4;                             // Per-term error message
+}
+
+message LiteEntry {
+    string d = 1;                                 // Dataset name (short key)
+    string id = 2;                                // Identifier
+    bool has_attr = 3;                            // Has indexed attributes (!empty)
+}
+
+// Lite mode response for search queries
+message ResultLite {
+    string mode = 1;                              // "lite"
+    SearchQueryInfo query = 2;                    // Echo query back
+    repeated SearchResultLite results = 3;        // Compact results
+    SearchStats stats = 4;                        // Summary statistics
+    PaginationInfo pagination = 5;                // Structured pagination
+}
+
+message SearchResultLite {
+    string d = 1;                                 // Dataset name
+    string id = 2;                                // Identifier
+    bool has_attr = 3;                            // Has indexed attributes
+    uint32 xref_count = 4;                        // Number of cross-references
+}
+
+// ============================================================================
+// SHARED METADATA MESSAGES
+// Used by both lite and full modes for query echo, stats, and pagination
+// ============================================================================
+
+message MapFilterQueryInfo {
+    repeated string terms = 1;                    // Input identifiers
+    string chain = 2;                             // Mapping chain (e.g., ">>ensembl>>uniprot")
+    string raw = 3;                               // Original raw query string
+}
+
+message SearchQueryInfo {
+    repeated string terms = 1;                    // Search terms
+    string dataset_filter = 2;                    // Dataset filter if provided
+    string raw = 3;                               // Original query
+}
+
+message MapFilterStats {
+    int32 total_terms = 1;                        // Number of input terms
+    int32 mapped = 2;                             // Successfully mapped
+    int32 failed = 3;                             // Failed to map
+    int32 total_targets = 4;                      // Total target count
+}
+
+message SearchStats {
+    int32 total_results = 1;                      // Total results found
+    int32 returned = 2;                           // Results in this response
+    map<string, int32> by_dataset = 3;            // Count per dataset
+}
+
+message PaginationInfo {
+    int32 page = 1;                               // Current page (1-indexed)
+    bool has_next = 2;                            // More pages available
+    string next_token = 3;                        // Opaque token for next page
 }

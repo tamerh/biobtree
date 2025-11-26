@@ -12,9 +12,6 @@ import (
 	"strings"
 
 	"github.com/NYTimes/gziphandler"
-
-	"biobtree/pbuf"
-
 	"github.com/pquerna/ffjson/ffjson"
 )
 
@@ -433,24 +430,54 @@ func (web *Web) search(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	_, detail := r.URL.Query()["d"]
+	mode := parseMode(r)
 	_, url := r.URL.Query()["u"]
 
-	res, err := web.service.search(ids, src, page, filterq, detail, url)
-
-	if err != nil {
-		buf.WriteString("[")
-		errStr := errString{Err: err.Error()}
-		jb, _ := ffjson.Marshal(errStr)
-		buf.WriteString(string(jb))
-		buf.WriteString("]")
-		w.Write([]byte(buf.String()))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
+	// Get dataset filter string for query echo
+	var datasetFilter string
+	if len(srcStr) > 0 && len(srcStr[0]) > 0 {
+		datasetFilter = srcStr[0]
 	}
 
-	jb, _ := ffjson.Marshal(res)
-	buf.WriteString(string(jb))
+	if mode == "lite" {
+		// Lite mode - compact response with IDs only
+		res, err := web.service.searchLite(ids, src, page, datasetFilter)
+		if err != nil {
+			errStr := errString{Err: err.Error()}
+			jb, _ := ffjson.Marshal(errStr)
+			buf.WriteString(string(jb))
+			w.Write([]byte(buf.String()))
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		jb, _ := ffjson.Marshal(res)
+		buf.WriteString(string(jb))
+	} else {
+		// Full mode - complete response with attributes
+		detail := mode == "full"
+		res, err := web.service.search(ids, src, page, filterq, detail, url)
+
+		if err != nil {
+			buf.WriteString("[")
+			errStr := errString{Err: err.Error()}
+			jb, _ := ffjson.Marshal(errStr)
+			buf.WriteString(string(jb))
+			buf.WriteString("]")
+			w.Write([]byte(buf.String()))
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		// Enrich with query echo and stats for full mode
+		rawQuery := qids[0]
+		if datasetFilter != "" {
+			rawQuery += " s=" + datasetFilter
+		}
+		EnrichResultFull(res, ids, datasetFilter, rawQuery)
+
+		jb, _ := ffjson.Marshal(res)
+		buf.WriteString(string(jb))
+	}
 
 	/**
 		buf.WriteString("[")
@@ -529,32 +556,69 @@ func (web *Web) mapFilter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var res *pbuf.MapFilterResult
-
 	pages, ok := r.URL.Query()["p"]
 	var page string
 	if ok && len(pages[0]) > 0 {
 		page = pages[0]
 	}
 
-	res, err = web.service.mapFilter(ids, mapfil[0], page)
-	if err != nil {
-		errStr := errString{Err: err.Error()}
-		jb, _ := ffjson.Marshal(errStr)
+	mode := parseMode(r)
+
+	if mode == "lite" {
+		// Lite mode - compact response with IDs only
+		res, err := web.service.mapFilterLite(ids, mapfil[0], page)
+		if err != nil {
+			errStr := errString{Err: err.Error()}
+			jb, _ := ffjson.Marshal(errStr)
+			buf.WriteString(string(jb))
+			w.Write([]byte(buf.String()))
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		jb, _ := ffjson.Marshal(res)
 		buf.WriteString(string(jb))
-		w.Write([]byte(buf.String()))
-		w.WriteHeader(http.StatusBadRequest)
-		return
+	} else {
+		// Full mode - complete response with attributes
+		res, err := web.service.mapFilter(ids, mapfil[0], page)
+		if err != nil {
+			errStr := errString{Err: err.Error()}
+			jb, _ := ffjson.Marshal(errStr)
+			buf.WriteString(string(jb))
+			w.Write([]byte(buf.String()))
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		// Enrich with query echo and stats for full mode
+		rawQuery := qids[0] + " m=" + mapfil[0]
+		EnrichMapFilterResultFull(res, ids, mapfil[0], rawQuery)
+
+		jb, _ := ffjson.Marshal(res)
+		buf.WriteString(string(jb))
 	}
 
-	//buf.WriteString("[")
-	jb, _ := ffjson.Marshal(res)
-	buf.WriteString(string(jb))
-	//buf.WriteString("]")
 	w.Write([]byte(buf.String()))
 
 }
 
 type errString struct {
 	Err string
+}
+
+// parseMode extracts and validates the mode parameter from request
+// Returns "lite" or "full". Default is "full" for backward compatibility.
+func parseMode(r *http.Request) string {
+	modes, ok := r.URL.Query()["mode"]
+	if ok && len(modes[0]) > 0 {
+		mode := strings.ToLower(modes[0])
+		if mode == "lite" || mode == "full" {
+			return mode
+		}
+	}
+	// Backward compatibility: d=1 means full (detail mode)
+	_, hasDetail := r.URL.Query()["d"]
+	if hasDetail {
+		return "full"
+	}
+	return "full" // Default to full for backward compatibility
 }

@@ -112,14 +112,14 @@ Builting databases updated regularly at least for each Ensembl release and all b
 localhost:9292/ws/meta
 
 # Search
-# i is the only mandatory parameter
-localhost:9292/ws/?i={terms}&s={dataset}&p={page}&f={filter}&d={detail}
+# i is mandatory, mode defaults to "full"
+localhost:9292/ws/?i={terms}&s={dataset}&p={page}&f={filter}&mode={full|lite}
 
 # Mapping
-# i and m are mandatory parameters
-localhost:9292/ws/map/?i={terms}&m={mapfilter_query}&p={page}
+# i and m are mandatory, mode defaults to "full"
+localhost:9292/ws/map/?i={terms}&m={mapfilter_query}&p={page}&mode={full|lite}
 
-# Retrieve dataset entry. Both paramters are mandatory
+# Retrieve dataset entry. Both parameters are mandatory
 localhost:9292/ws/entry/?i={identifier}&s={dataset}
 
 # Retrieve entry with filtered mapping entries. Only page parameter is optional
@@ -132,28 +132,155 @@ localhost:9292/ws/page/?i={identifier}&s={dataset}&p={page}&t={total}
 
 #### API Response Modes
 
-The Web API supports two response modes for performance optimization:
+The Web API supports two response modes optimized for different use cases:
 
-**Lite Mode (default)**:
+**Full Mode (default)** - Complete response with all attributes:
 ```ruby
-# Returns count and dataset_counts only (no entries array)
-localhost:9292/ws/?i=SLM:000000002
+# Returns full data with attributes, entries, and enhanced metadata
+localhost:9292/ws/?i=P04637&mode=full
+localhost:9292/ws/map/?i=P04637&m=>>uniprot>>hgnc&mode=full
 
-Response includes: count, dataset_counts, Attributes, url
-Response excludes: entries array (cross-references)
-Use case: UI applications that only need summary counts
+# Response includes:
+# - results: Full Xref objects with all attributes
+# - query: Echo of the original query (terms, dataset_filter, raw)
+# - stats: Result statistics (total_results, returned, by_dataset)
+# - pagination: Structured pagination info (page, has_next, next_token)
 ```
 
-**Detail Mode (with `d` parameter)**:
+**Lite Mode** - Compact response optimized for AI agents and bulk operations:
 ```ruby
-# Returns complete data including all cross-reference entries
-localhost:9292/ws/?i=SLM:000000002&d=1
+# Returns compact IDs-only format (~50x smaller payload)
+localhost:9292/ws/?i=P04637&mode=lite
+localhost:9292/ws/map/?i=P04637&m=>>uniprot>>hgnc&mode=lite
 
-Response includes: Everything (count, entries, Attributes, etc.)
-Use case: Analysis, testing, complete data exploration
+# Search response includes:
+# - mode: "lite"
+# - query: Echo of the original query
+# - results: Compact entries with {d: dataset, id: identifier, has_attr: bool, xref_count: int}
+# - stats: {total_results, returned, by_dataset}
+# - pagination: {page, has_next, next_token}
+
+# Mapping response includes:
+# - mode: "lite"
+# - query: {terms, chain, raw}
+# - mappings: Array with {input, source, targets[], error} per input term
+# - stats: {total_terms, mapped, failed, total_targets}
+# - pagination: {page, has_next, next_token}
 ```
 
-**Note**: CLI `query` command always returns detailed results automatically. The `d` parameter only affects Web API responses.
+**Key Features:**
+- **Query Echo**: Both modes return the original query for debugging and logging
+- **Statistics**: Success/failure counts, results per dataset
+- **Structured Pagination**: `has_next` boolean and `next_token` for easy iteration
+- **Error Tracking** (lite mode): Failed terms include `error` field with reason
+- **Attribute Flag** (lite mode): `has_attr` indicates if entry has indexed attributes
+- **Sorting** (lite mode): Results sorted by `has_attr` (entries with attributes first)
+
+#### Pagination
+
+Both response modes support pagination for handling large result sets. Lite mode returns more results per page due to its smaller payload size.
+
+**Page Size Limits (configurable in `conf/application.param.json`):**
+| Mode | Search Results | Mapping Results |
+|------|----------------|-----------------|
+| Full | 10 per page (`maxSearchResult`) | 75 per page (`maxMappingResult`) |
+| Lite | 50 per page (`maxSearchResultLite`) | 150 per page (`maxMappingResultLite`) |
+
+**How Pagination Works:**
+
+1. **First Request** - No pagination parameter needed:
+```bash
+curl "http://localhost:9292/ws/map/?i=TP53,BRCA1,KCND2&m=>>ensembl>>uniprot&mode=lite"
+```
+
+Response includes pagination info:
+```json
+{
+  "pagination": {
+    "page": 1,
+    "has_next": true,
+    "next_token": "2,0,-1,3[]-1"
+  }
+}
+```
+
+2. **Subsequent Pages** - Use `p=` parameter with the `next_token` value:
+```bash
+curl "http://localhost:9292/ws/map/?i=TP53,BRCA1,KCND2&m=>>ensembl>>uniprot&mode=lite&p=2,0,-1,3[]-1"
+```
+
+Response for page 2:
+```json
+{
+  "pagination": {
+    "page": 2,
+    "has_next": false
+  }
+}
+```
+
+3. **Continue until `has_next` is false** - When `has_next` is `false`, you've retrieved all results.
+
+**Pagination Fields:**
+- `page`: Current page number (1-indexed)
+- `has_next`: Boolean indicating if more pages exist
+- `next_token`: Opaque token to pass as `p=` parameter for next page (only present when `has_next` is true)
+
+**Important Notes:**
+- The `next_token` is an opaque string - don't modify or parse it
+- Failed/not-found terms are only reported on page 1 (not repeated on subsequent pages)
+- Statistics (`stats`) reflect only the current page's results
+- Always check `has_next` before requesting another page
+
+**Example - Iterating Through All Pages (Python):**
+```python
+import requests
+
+base_url = "http://localhost:9292/ws/map/"
+params = {"i": "TP53,BRCA1,KCND2", "m": ">>ensembl>>uniprot", "mode": "lite"}
+
+all_results = []
+while True:
+    response = requests.get(base_url, params=params).json()
+    all_results.extend(response.get("mappings", []))
+
+    pagination = response.get("pagination", {})
+    if not pagination.get("has_next"):
+        break
+    params["p"] = pagination["next_token"]
+
+print(f"Total mappings: {len(all_results)}")
+```
+
+**Example - Lite Mode Search Response:**
+```json
+{
+  "mode": "lite",
+  "query": {"terms": ["P04637"], "raw": "P04637"},
+  "results": [
+    {"d": "uniprot", "id": "P04637", "has_attr": true, "xref_count": 21}
+  ],
+  "stats": {"total_results": 1, "returned": 1, "by_dataset": {"uniprot": 1}},
+  "pagination": {"page": 1}
+}
+```
+
+**Example - Lite Mode Mapping Response with Errors:**
+```json
+{
+  "mode": "lite",
+  "query": {"terms": ["P04637", "INVALID"], "chain": ">>uniprot>>hgnc", "raw": "P04637,INVALID >>uniprot>>hgnc"},
+  "mappings": [
+    {"input": "P04637", "source": {"d": "uniprot", "id": "P04637", "has_attr": true},
+     "targets": [{"d": "hgnc", "id": "HGNC:11998", "has_attr": true}]},
+    {"input": "INVALID", "error": "No mapping found"}
+  ],
+  "stats": {"total_terms": 2, "mapped": 1, "failed": 1, "total_targets": 1},
+  "pagination": {"page": 1}
+}
+```
+
+**Backward Compatibility**: The `d=1` parameter still works and is equivalent to `mode=full`.
 
 ### Query Syntax
 
@@ -161,11 +288,19 @@ Biobtree supports intuitive query syntax for mapping identifiers across datasets
 
 #### CLI Query Command
 ```bash
-# Query from command line (always returns detailed, pretty-printed JSON)
+# Query from command line (returns pretty-printed JSON)
 biobtree query "<identifiers> >> <dataset> >> <dataset>"
 
 # Specify database location
 biobtree --out-dir <path> query "<query>"
+
+# Response mode options (default: full)
+biobtree query -m full "P04637"           # Full mode with all attributes
+biobtree query -m lite "P04637"           # Lite mode - compact IDs only
+biobtree query --mode lite "P04637 >> hgnc"  # Lite mode for mappings
+
+# Filter by dataset
+biobtree query -s uniprot "P04637"        # Filter results to uniprot dataset
 ```
 
 #### Basic Mapping Syntax

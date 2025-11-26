@@ -113,3 +113,89 @@ func setURL(xref *pbuf.Xref) {
 		xref.Url = strings.Replace(config.Dataconf[datasetName]["url"], "£{id}", xref.Identifier, -1)
 	}
 }
+
+// EnrichResultFull adds all transient fields plus full mode enhancements (query, stats, pagination)
+// to Result for the full response mode
+func EnrichResultFull(result *pbuf.Result, terms []string, datasetFilter, rawQuery string) *pbuf.Result {
+	if result == nil {
+		return nil
+	}
+
+	// First apply standard enrichment
+	EnrichResult(result)
+
+	// Add query echo
+	result.Query = &pbuf.SearchQueryInfo{
+		Terms:         terms,
+		DatasetFilter: datasetFilter,
+		Raw:           rawQuery,
+	}
+
+	// Calculate statistics
+	statsByDataset := make(map[string]int32)
+	for _, xref := range result.Results {
+		datasetName := config.DataconfIDIntToString[xref.Dataset]
+		statsByDataset[datasetName]++
+	}
+
+	result.Stats = &pbuf.SearchStats{
+		TotalResults: int32(len(result.Results)),
+		Returned:     int32(len(result.Results)),
+		ByDataset:    statsByDataset,
+	}
+
+	// Set pagination info
+	hasNext := result.Nextpage != ""
+	result.Pagination = &pbuf.PaginationInfo{
+		Page:      1,
+		HasNext:   hasNext,
+		NextToken: result.Nextpage,
+	}
+
+	return result
+}
+
+// EnrichMapFilterResultFull adds all transient fields plus full mode enhancements (query, stats, pagination)
+// to MapFilterResult for the full response mode
+func EnrichMapFilterResultFull(result *pbuf.MapFilterResult, terms []string, chain, rawQuery string) *pbuf.MapFilterResult {
+	if result == nil {
+		return nil
+	}
+
+	// First apply standard enrichment
+	EnrichMapFilterResult(result)
+
+	// Add query echo
+	result.Query = &pbuf.MapFilterQueryInfo{
+		Terms: terms,
+		Chain: chain,
+		Raw:   rawQuery,
+	}
+
+	// Calculate statistics
+	var totalTargets int32
+	mapped := int32(0)
+	for _, mapFilter := range result.Results {
+		if len(mapFilter.Targets) > 0 {
+			mapped++
+			totalTargets += int32(len(mapFilter.Targets))
+		}
+	}
+
+	result.Stats = &pbuf.MapFilterStats{
+		TotalTerms:   int32(len(terms)),
+		Mapped:       mapped,
+		Failed:       int32(len(terms)) - mapped,
+		TotalTargets: totalTargets,
+	}
+
+	// Set pagination info
+	hasNext := result.Nextpage != ""
+	result.Pagination = &pbuf.PaginationInfo{
+		Page:      1,
+		HasNext:   hasNext,
+		NextToken: result.Nextpage,
+	}
+
+	return result
+}

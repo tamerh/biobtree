@@ -182,7 +182,7 @@ else
     declare -a SUBMITTED_JOBS=()
 
     # Core datasets split into 4 parts to reduce concurrent downloads
-    CORE_PART1="uniprot,go,eco,taxonomy,interpro,hmdb,chembl,clinvar,lipidmaps,swisslipids,uberon,gwas_study,gwas,intact,antibody"
+    CORE_PART1="uniprot,go,eco,taxonomy,interpro,hmdb,chembl,clinvar,lipidmaps,swisslipids,uberon,gwas_study,gwas,intact,antibody,protein_similarity"
     CORE_PART2="chebi,efo,mondo,hpo,alphafold,rnacentral,reactome,clinical_trials,patent,string,bgee,cl,rhea"
     CORE_PART3="dbsnp"  # Large dataset, prone to FTP issues, separate with retry logic
     CORE_PART4="pubchem,pubchem_activity,pubchem_assay"  # PubChem datasets

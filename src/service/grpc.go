@@ -73,6 +73,17 @@ func (g *biobtreegrpc) Search(ctx context.Context, in *pbuf.SearchRequest) (*pbu
 		}
 	}
 
+	// Check mode - lite or full (default)
+	if in.Mode == "lite" {
+		res, err := g.service.searchLite(in.Terms, src, in.Page, in.Dataset)
+		if err != nil {
+			return nil, err
+		}
+		grpcRes.ResultsLite = res
+		return &grpcRes, nil
+	}
+
+	// Full mode (default)
 	res, err := g.service.search(in.Terms, src, in.Page, filterq, in.Detail, in.Url)
 
 	if err != nil {
@@ -95,6 +106,18 @@ func (g *biobtreegrpc) Mapping(ctx context.Context, in *pbuf.MappingRequest) (*p
 	}
 
 	grpcRes := pbuf.MappingResponse{}
+
+	// Check mode - lite or full (default)
+	if in.Mode == "lite" {
+		res, err := g.service.mapFilterLite(in.Terms, in.Query, in.Page)
+		if err != nil {
+			return nil, err
+		}
+		grpcRes.ResultsLite = res
+		return &grpcRes, nil
+	}
+
+	// Full mode (default)
 	res, err := g.service.mapFilter(in.Terms, in.Query, in.Page)
 	if err != nil {
 		return nil, err

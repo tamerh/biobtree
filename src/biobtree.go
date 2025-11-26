@@ -188,12 +188,17 @@ func main() {
 		},
 		{
 			Name:      "query",
-			Usage:     "Query biobtree database from CLI (always detailed, pretty-printed)",
+			Usage:     "Query biobtree database from CLI",
 			ArgsUsage: "<query_string>",
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "dataset,s",
 					Usage: "Filter results by dataset name (e.g., uniprot, string)",
+				},
+				cli.StringFlag{
+					Name:  "mode,m",
+					Value: "full",
+					Usage: "Response mode: 'full' (detailed with attributes) or 'lite' (compact IDs only)",
 				},
 			},
 			Action: func(c *cli.Context) error {
@@ -587,7 +592,7 @@ func runWebCommand(c *cli.Context) error {
 func runQueryCommand(c *cli.Context) error {
 	// 1. Check arguments
 	if c.NArg() == 0 {
-		return fmt.Errorf("query string required\nUsage: biobtree --out-dir <dir> query \"<query_string>\"\nExamples:\n  biobtree query P27348\n  biobtree query \"CHEMBL203 >> surechembl >> patent\"")
+		return fmt.Errorf("query string required\nUsage: biobtree --out-dir <dir> query \"<query_string>\"\nExamples:\n  biobtree query P27348\n  biobtree query \"CHEMBL203 >> surechembl >> patent\"\n  biobtree query -m lite P27348")
 	}
 	queryStr := c.Args().First()
 
@@ -600,7 +605,12 @@ func runQueryCommand(c *cli.Context) error {
 	// 3. Execute query via CLI handler
 	cliHandler := service.CLI{}
 	datasetFilter := c.String("dataset")
-	return cliHandler.Query(config, queryStr, datasetFilter)
+	mode := c.String("mode")
+	// Validate mode
+	if mode != "full" && mode != "lite" {
+		return fmt.Errorf("invalid mode '%s': must be 'full' or 'lite'", mode)
+	}
+	return cliHandler.Query(config, queryStr, datasetFilter, mode)
 }
 
 func runInstallCommand(c *cli.Context) error {

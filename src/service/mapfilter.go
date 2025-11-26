@@ -13,6 +13,154 @@ import (
 	"github.com/google/cel-go/common/types/ref"
 )
 
+// mapFilterLite performs mapping and returns compact lite format response
+// Returns only IDs, sorted by has_attr (entries with attributes first)
+// Includes failed terms with source=nil and error field
+func (s *service) mapFilterLite(ids []string, mapFilterQuery, page string) (*pbuf.MapFilterResultLite, error) {
+
+	// Determine if this is a pagination request (page > 1)
+	isFirstPage := page == ""
+	currentPage := int32(1)
+	if !isFirstPage {
+		// Parse page number from the page token (format: "pageNum,..." or just use page count)
+		// The page token format is complex, so we just increment from 1 for subsequent pages
+		// A simple heuristic: if page param exists, it's page 2+
+		currentPage = 2 // For now, mark as page 2 for any pagination request
+	}
+
+	result := &pbuf.MapFilterResultLite{
+		Mode: "lite",
+		Query: &pbuf.MapFilterQueryInfo{
+			Terms: ids,
+			Chain: mapFilterQuery,
+			Raw:   strings.Join(ids, ",") + " " + mapFilterQuery,
+		},
+	}
+
+	// Call mapFilterWithLimit with higher limit for lite mode (5x more results per page)
+	fullResult, err := s.mapFilterWithLimit(ids, mapFilterQuery, page, s.maxMappingResultLite)
+	if err != nil {
+		// Return error for entire request
+		return nil, err
+	}
+
+	// Track statistics
+	var mapped, failed int32
+	var totalTargets int32
+	var warnings []string
+
+	// Build a map of input terms to track which ones were found
+	// Only track for first page - subsequent pages don't report "not found" errors
+	inputTermsMap := make(map[string]bool)
+	if isFirstPage {
+		for _, term := range ids {
+			inputTermsMap[strings.ToUpper(term)] = false // not found yet
+		}
+	}
+
+	// Process results from full mapFilter
+	for _, mapRes := range fullResult.Results {
+		if mapRes.Source == nil {
+			continue
+		}
+
+		// Mark this input term as found (use Keyword which contains original search term)
+		// Only track on first page
+		if isFirstPage {
+			keyword := strings.ToUpper(mapRes.Source.Keyword)
+			if keyword != "" {
+				inputTermsMap[keyword] = true
+			}
+		}
+
+		mapLite := &pbuf.MapFilterLite{
+			Input: mapRes.Source.Identifier,
+			Source: &pbuf.LiteEntry{
+				D:       config.DataconfIDIntToString[mapRes.Source.Dataset],
+				Id:      mapRes.Source.Identifier,
+				HasAttr: !mapRes.Source.GetEmpty(),
+			},
+		}
+
+		// Convert targets to lite format
+		var liteTargets []*pbuf.LiteEntry
+		for _, target := range mapRes.Targets {
+			liteTarget := &pbuf.LiteEntry{
+				D:       config.DataconfIDIntToString[target.Dataset],
+				Id:      target.Identifier,
+				HasAttr: !target.GetEmpty(),
+			}
+			liteTargets = append(liteTargets, liteTarget)
+			totalTargets++
+		}
+
+		// Sort targets: entries with attributes first
+		sort.Slice(liteTargets, func(i, j int) bool {
+			if liteTargets[i].HasAttr != liteTargets[j].HasAttr {
+				return liteTargets[i].HasAttr // true (has attr) comes first
+			}
+			return false // stable sort for same has_attr value
+		})
+
+		mapLite.Targets = liteTargets
+
+		if len(liteTargets) > 0 {
+			mapped++
+		}
+
+		result.Mappings = append(result.Mappings, mapLite)
+	}
+
+	// Add entries for input terms that weren't found (only on first page)
+	if isFirstPage {
+		for term, found := range inputTermsMap {
+			if !found {
+				failed++
+				mapLite := &pbuf.MapFilterLite{
+					Input: term,
+					Error: "No mapping found",
+				}
+				result.Mappings = append(result.Mappings, mapLite)
+			}
+		}
+
+		// Handle empty results message
+		if len(fullResult.Results) == 0 && fullResult.Message != "" {
+			// All terms failed
+			failed = int32(len(ids))
+			for _, term := range ids {
+				mapLite := &pbuf.MapFilterLite{
+					Input: term,
+					Error: fullResult.Message,
+				}
+				result.Mappings = append(result.Mappings, mapLite)
+			}
+		}
+	}
+
+	// Set statistics
+	result.Stats = &pbuf.MapFilterStats{
+		TotalTerms:   int32(len(ids)),
+		Mapped:       mapped,
+		Failed:       failed,
+		TotalTargets: totalTargets,
+	}
+
+	// Set pagination from full result
+	hasNext := fullResult.Nextpage != ""
+	result.Pagination = &pbuf.PaginationInfo{
+		Page:      currentPage,
+		HasNext:   hasNext,
+		NextToken: fullResult.Nextpage,
+	}
+
+	if len(warnings) > 0 {
+		result.Warnings = warnings
+	}
+
+	return result, nil
+}
+
 type mpPage struct {
 	sourceID   string // at current level of query which source processed
 	entryIndex int    // at current level of where we last left for entries
@@ -27,6 +175,11 @@ type mpInPage struct {
 
 // rootPage is like search paging and second level paging is for each  mapping
 func (s *service) mapFilter(ids []string, mapFilterQuery, page string) (*pbuf.MapFilterResult, error) {
+	return s.mapFilterWithLimit(ids, mapFilterQuery, page, s.maxMappingResult)
+}
+
+// mapFilterWithLimit is the internal implementation with configurable result limit
+func (s *service) mapFilterWithLimit(ids []string, mapFilterQuery, page string, maxResults int) (*pbuf.MapFilterResult, error) {
 
 	startTime := time.Now()
 
@@ -112,14 +265,14 @@ startMapping:
 		} else {
 
 			if pages == nil {
-				finaltargets, newpages, err = s.xrefMapping(queries, xref, nil)
+				finaltargets, newpages, err = s.xrefMapping(queries, xref, nil, maxResults)
 				if err != nil { // todo maybe in this case it should continue?
 					return nil, err
 				}
 			} else {
 				if _, ok := pages[xref.Identifier]; ok {
 					if _, ok := pages[xref.Identifier][xref.Dataset]; ok {
-						finaltargets, newpages, err = s.xrefMapping(queries, xref, pages[xref.Identifier][xref.Dataset])
+						finaltargets, newpages, err = s.xrefMapping(queries, xref, pages[xref.Identifier][xref.Dataset], maxResults)
 						if err != nil { // todo maybe in this case it should continue??
 							return nil, err
 						}
@@ -470,7 +623,7 @@ func (s *service) prepareQueries(mapFilterQuery string) ([]query.Query, error) {
 
 }
 
-func (s *service) xrefMapping(queries []query.Query, xref *pbuf.Xref, inPages map[int]*mpPage) ([]*pbuf.Xref, map[int]*mpPage, error) {
+func (s *service) xrefMapping(queries []query.Query, xref *pbuf.Xref, inPages map[int]*mpPage, maxResults int) ([]*pbuf.Xref, map[int]*mpPage, error) {
 
 	var err error
 
@@ -537,7 +690,7 @@ func (s *service) xrefMapping(queries []query.Query, xref *pbuf.Xref, inPages ma
 		searchTargets:
 			for _, entry := range sourceEntries[qind] {
 
-				if len(targets) >= s.maxMappingResult {
+				if len(targets) >= maxResults {
 					inPages[qind].sourceID = sources[qind].Identifier
 					goto finish
 				}

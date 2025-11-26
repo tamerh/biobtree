@@ -13,7 +13,8 @@ type CLI struct {
 }
 
 // Query executes a query from CLI and returns pretty-printed JSON
-func (cli *CLI) Query(conf *configs.Conf, queryStr string, datasetFilter string) error {
+// mode: "full" for detailed response with attributes, "lite" for compact IDs only
+func (cli *CLI) Query(conf *configs.Conf, queryStr string, datasetFilter string, mode string) error {
 	// Set package-level config (required by service.init)
 	config = conf
 
@@ -55,14 +56,38 @@ func (cli *CLI) Query(conf *configs.Conf, queryStr string, datasetFilter string)
 			mappingQuery = strings.TrimSpace(parts[1])
 		}
 
-		result, err = cli.service.mapFilter(ids, mappingQuery, "")
+		if mode == "lite" {
+			result, err = cli.service.mapFilterLite(ids, mappingQuery, "")
+		} else {
+			// Full mode - get result and enrich with query echo and stats
+			res, e := cli.service.mapFilter(ids, mappingQuery, "")
+			if e == nil {
+				rawQuery := idsStr + " >>" + mappingQuery
+				EnrichMapFilterResultFull(res, ids, mappingQuery, rawQuery)
+			}
+			result, err = res, e
+		}
 	} else {
 		// Simple lookup (no >>)
 		ids := strings.Split(queryStr, ",")
 		for i := range ids {
 			ids[i] = strings.TrimSpace(ids[i])
 		}
-		result, err = cli.service.search(ids, datasetID, "", nil, true, false)
+
+		if mode == "lite" {
+			result, err = cli.service.searchLite(ids, datasetID, "", datasetFilter)
+		} else {
+			// Full mode - get result and enrich with query echo and stats
+			res, e := cli.service.search(ids, datasetID, "", nil, true, false)
+			if e == nil {
+				rawQuery := queryStr
+				if datasetFilter != "" {
+					rawQuery += " s=" + datasetFilter
+				}
+				EnrichResultFull(res, ids, datasetFilter, rawQuery)
+			}
+			result, err = res, e
+		}
 	}
 
 	if err != nil {

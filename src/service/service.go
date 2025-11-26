@@ -39,6 +39,8 @@ type service struct {
 	pageSize                 int
 	resultPageSize           int
 	maxMappingResult         int
+	resultPageSizeLite       int // Higher limit for lite mode
+	maxMappingResultLite     int // Higher limit for lite mode
 	mapFilterTimeoutDuration float64
 	qparser                  *query.QueryParser
 	celgoEnv                 cel.Env
@@ -86,6 +88,23 @@ func (s *service) init() {
 		s.maxMappingResult, err = strconv.Atoi(config.Appconf["maxMappingResult"])
 		if err != nil {
 			panic("Invalid maxMappingResult definition")
+		}
+	}
+
+	// Lite mode defaults: 5x higher than full mode (smaller payload)
+	s.resultPageSizeLite = 50
+	if _, ok := config.Appconf["maxSearchResultLite"]; ok {
+		s.resultPageSizeLite, err = strconv.Atoi(config.Appconf["maxSearchResultLite"])
+		if err != nil {
+			panic("Invalid maxSearchResultLite definition")
+		}
+	}
+
+	s.maxMappingResultLite = 150
+	if _, ok := config.Appconf["maxMappingResultLite"]; ok {
+		s.maxMappingResultLite, err = strconv.Atoi(config.Appconf["maxMappingResultLite"])
+		if err != nil {
+			panic("Invalid maxMappingResultLite definition")
 		}
 	}
 
@@ -1113,4 +1132,82 @@ func (s *service) getLmdbResult2(identifier string, domainID uint32) (*pbuf.Xref
 
 	return targetXref, nil
 
+}
+
+// searchLite performs a search and returns compact lite format response
+// Returns only IDs, sorted by has_attr (entries with attributes first)
+func (s *service) searchLite(ids []string, idsDomain uint32, page string, datasetFilter string) (*pbuf.ResultLite, error) {
+	result := &pbuf.ResultLite{
+		Mode: "lite",
+		Query: &pbuf.SearchQueryInfo{
+			Terms:         ids,
+			DatasetFilter: datasetFilter,
+			Raw:           strings.Join(ids, ","),
+		},
+	}
+
+	var liteResults []*pbuf.SearchResultLite
+	statsByDataset := make(map[string]int32)
+
+	for i := range ids {
+		ids[i] = strings.ToUpper(ids[i])
+	}
+
+	for _, id := range ids {
+		dbResult, err := s.getLmdbResult(id)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, xref := range dbResult.Results {
+			// Skip link entries (text search results)
+			if xref.IsLink {
+				continue
+			}
+
+			if idsDomain > 0 && xref.Dataset != idsDomain {
+				continue
+			}
+
+			datasetName := config.DataconfIDIntToString[xref.Dataset]
+			hasAttr := !xref.GetEmpty()
+
+			liteResult := &pbuf.SearchResultLite{
+				D:         datasetName,
+				Id:        id,
+				HasAttr:   hasAttr,
+				XrefCount: xref.Count,
+			}
+			liteResults = append(liteResults, liteResult)
+			statsByDataset[datasetName]++
+		}
+	}
+
+	// Sort: entries with attributes first
+	sort.Slice(liteResults, func(i, j int) bool {
+		if liteResults[i].HasAttr != liteResults[j].HasAttr {
+			return liteResults[i].HasAttr // true (has attr) comes first
+		}
+		return false // stable sort for same has_attr value
+	})
+
+	// Apply lite mode pagination limit (5x higher than full mode)
+	totalResults := int32(len(liteResults))
+	hasNext := len(liteResults) > s.resultPageSizeLite
+	if hasNext {
+		liteResults = liteResults[:s.resultPageSizeLite]
+	}
+
+	result.Results = liteResults
+	result.Stats = &pbuf.SearchStats{
+		TotalResults: totalResults,
+		Returned:     int32(len(liteResults)),
+		ByDataset:    statsByDataset,
+	}
+	result.Pagination = &pbuf.PaginationInfo{
+		Page:    1,
+		HasNext: hasNext,
+	}
+
+	return result, nil
 }

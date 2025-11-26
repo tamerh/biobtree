@@ -25,9 +25,37 @@ import (
 	"biobtree/db"
 	"biobtree/pbuf"
 	"biobtree/util"
-
-	pb "gopkg.in/cheggaaa/pb.v1"
 )
+
+// LMDB cursor operation constants (from lmdb-go)
+const (
+	cursorFirst = 0  // MDB_FIRST - Position at first key/data item
+	cursorLast  = 6  // MDB_LAST - Position at last key/data item
+	cursorNext  = 8  // MDB_NEXT - Position at next data item
+)
+
+// MergeCheckpoint stores the state needed to resume a merge operation
+type MergeCheckpoint struct {
+	LastWrittenKey  string                 `json:"last_written_key"`
+	KeysWritten     uint64                 `json:"keys_written"`
+	TotalKeyWrite   uint64                 `json:"total_key_write"`
+	UidIndex        uint64                 `json:"uid_index"`
+	TotalLinkKey    uint64                 `json:"total_link_key"`
+	TotalKey        uint64                 `json:"total_key"`
+	TotalValue      uint64                 `json:"total_value"`
+	Timestamp       time.Time              `json:"timestamp"`
+	IndexDir        string                 `json:"index_dir"`
+	Version         int                    `json:"version"` // For future compatibility
+	FileStates      map[string]FileState   `json:"file_states"` // Track state of each chunk file
+}
+
+// FileState tracks the processing state of a single chunk file
+type FileState struct {
+	FileName    string `json:"file_name"`
+	Completed   bool   `json:"completed"`    // True if file is fully processed
+	LastKey     string `json:"last_key"`     // Last key read from this file (for partial progress)
+	LinesRead   int64  `json:"lines_read"`   // Number of lines read
+}
 
 const tabr rune = '\t'
 const newliner rune = '\n'
@@ -45,8 +73,6 @@ func min(a, b int) int {
 }
 
 var config *configs.Conf
-
-var mergebar *pb.ProgressBar
 
 type Merge struct {
 	wg                      *sync.WaitGroup
@@ -71,6 +97,15 @@ type Merge struct {
 	totalkvLine             int64
 	protoResBufferPool      *chan []*pbuf.XrefEntry
 	protoCountResBufferPool *chan []*pbuf.XrefDomainCount
+	// Checkpoint/resume fields
+	checkpointPath          string
+	checkpointInterval      int
+	keysSinceCheckpoint     int
+	resumeFromKey           string  // If resuming, skip keys <= this
+	isResuming              bool
+	lastCheckpointKey       string
+	completedFiles          map[string]FileState  // Track files that completed and were removed
+	checkpointFileStates    map[string]FileState  // File states from loaded checkpoint
 }
 
 type chunkReader struct {
@@ -84,6 +119,135 @@ type chunkReader struct {
 	nextLine [5]string  // Extended to support evidence field (optional 5th field)
 	wg       *sync.WaitGroup
 	active   bool
+	fileName string     // Name of the chunk file (for tracking)
+	linesRead int64     // Number of lines read from this file
+}
+
+// saveCheckpoint saves the current merge progress to a checkpoint file
+func (d *Merge) saveCheckpoint(lastKey string) error {
+	// Build file states from current chunk readers
+	fileStates := make(map[string]FileState)
+	for _, ch := range d.chunkReaders {
+		fileStates[ch.fileName] = FileState{
+			FileName:  ch.fileName,
+			Completed: ch.complete,
+			LastKey:   ch.curKey,
+			LinesRead: ch.linesRead,
+		}
+	}
+	// Also track completed files that have been removed from chunkReaders
+	for fileName, state := range d.completedFiles {
+		if _, exists := fileStates[fileName]; !exists {
+			fileStates[fileName] = state
+		}
+	}
+
+	checkpoint := MergeCheckpoint{
+		LastWrittenKey: lastKey,
+		KeysWritten:    uint64(d.keysSinceCheckpoint),
+		TotalKeyWrite:  d.totalKeyWrite,
+		UidIndex:       d.uidIndex,
+		TotalLinkKey:   d.totalLinkKey,
+		TotalKey:       d.totalKey,
+		TotalValue:     d.totalValue,
+		Timestamp:      time.Now(),
+		IndexDir:       config.Appconf["indexDir"],
+		Version:        1,
+		FileStates:     fileStates,
+	}
+
+	data, err := json.MarshalIndent(checkpoint, "", "  ")
+	if err != nil {
+		return fmt.Errorf("failed to marshal checkpoint: %w", err)
+	}
+
+	// Write to temp file first, then rename (atomic operation)
+	tmpPath := d.checkpointPath + ".tmp"
+	if err := ioutil.WriteFile(tmpPath, data, 0644); err != nil {
+		return fmt.Errorf("failed to write checkpoint temp file: %w", err)
+	}
+	if err := os.Rename(tmpPath, d.checkpointPath); err != nil {
+		return fmt.Errorf("failed to rename checkpoint file: %w", err)
+	}
+
+	d.lastCheckpointKey = lastKey
+
+	// Calculate progress percentage
+	var progressPercent float64
+	if d.totalkvLine > 0 {
+		// Count total lines read across all files (active + completed)
+		var totalLinesRead int64
+		for _, ch := range d.chunkReaders {
+			totalLinesRead += ch.linesRead
+		}
+		for _, state := range d.completedFiles {
+			totalLinesRead += state.LinesRead
+		}
+		progressPercent = float64(totalLinesRead) / float64(d.totalkvLine) * 100
+	}
+
+	log.Printf("Progress: %.1f%% | Keys written: %d | Last key: %s | Active files: %d",
+		progressPercent, d.totalKeyWrite, lastKey, len(d.chunkReaders))
+	return nil
+}
+
+// loadCheckpoint loads a checkpoint file if it exists
+func (d *Merge) loadCheckpoint() (*MergeCheckpoint, error) {
+	data, err := ioutil.ReadFile(d.checkpointPath)
+	if os.IsNotExist(err) {
+		return nil, nil // No checkpoint, fresh start
+	}
+	if err != nil {
+		return nil, fmt.Errorf("failed to read checkpoint file: %w", err)
+	}
+
+	var checkpoint MergeCheckpoint
+	if err := json.Unmarshal(data, &checkpoint); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal checkpoint: %w", err)
+	}
+
+	// Verify checkpoint is for the same index directory
+	if checkpoint.IndexDir != config.Appconf["indexDir"] {
+		log.Printf("Warning: Checkpoint index dir (%s) differs from current (%s). Starting fresh.",
+			checkpoint.IndexDir, config.Appconf["indexDir"])
+		return nil, nil
+	}
+
+	return &checkpoint, nil
+}
+
+// deleteCheckpoint removes the checkpoint file after successful completion
+func (d *Merge) deleteCheckpoint() error {
+	err := os.Remove(d.checkpointPath)
+	if os.IsNotExist(err) {
+		return nil // Already gone
+	}
+	return err
+}
+
+// getLastKeyFromDB retrieves the last key written to the database
+// This is used to verify checkpoint consistency on resume
+func (d *Merge) getLastKeyFromDB() (string, error) {
+	var lastKey string
+	err := d.wrEnv.View(func(txn db.Txn) error {
+		cursor, err := txn.OpenCursor(d.wrDbi)
+		if err != nil {
+			return err
+		}
+		defer cursor.Close()
+
+		key, _, err := cursor.Get(nil, nil, cursorLast)
+		if err != nil {
+			// Empty database is OK
+			if db.IsNotFound(err) {
+				return nil
+			}
+			return err
+		}
+		lastKey = string(key)
+		return nil
+	})
+	return lastKey, err
 }
 
 type kvMessage struct {
@@ -103,18 +267,29 @@ func (d *Merge) Merge(c *configs.Conf, keep bool) (uint64, uint64, uint64) {
 
 	d.keepUpdateFiles = keep
 
+	// Resume state is already set in init() if checkpoint exists
+	if d.isResuming {
+		log.Printf("Will skip all keys <= %s", d.resumeFromKey)
+	}
+
 	d.wg.Add(1)
 	go d.mergeg()
 	d.wg.Wait()
 
+	// Initial read with skip support if resuming
 	for _, ch := range d.chunkReaders {
 		d.wg.Add(1)
-		go ch.readKeyValue()
+		if d.isResuming {
+			go ch.readKeyValueWithSkip(d.resumeFromKey)
+		} else {
+			go ch.readKeyValue()
+		}
 	}
 	d.wg.Wait()
 
 	activecount := 0
 	minKey := ""
+	skippedKeys := uint64(0)
 
 	for {
 
@@ -124,6 +299,44 @@ func (d *Merge) Merge(c *configs.Conf, keep bool) (uint64, uint64, uint64) {
 			if len(minKey) == 0 || ch.curKey < minKey {
 				minKey = ch.curKey
 			}
+		}
+
+		// Skip keys that were already written (resume mode)
+		if d.isResuming && minKey <= d.resumeFromKey {
+			// Mark all readers with this key as active and advance them
+			for _, ch := range d.chunkReaders {
+				if ch.curKey == minKey {
+					ch.active = true
+				} else {
+					ch.active = false
+				}
+			}
+			// Advance active readers without writing
+			for _, ch := range d.chunkReaders {
+				if ch.active {
+					d.wg.Add(1)
+					go ch.readKeyValueWithSkip(d.resumeFromKey)
+					activecount++
+				}
+			}
+			if activecount > 0 {
+				d.wg.Wait()
+			}
+			d.removeFinished()
+			if len(d.chunkReaders) == 0 {
+				break
+			}
+			skippedKeys++
+			if skippedKeys%100000 == 0 {
+				log.Printf("Resume: Skipped %d keys so far, current key: %s", skippedKeys, minKey)
+			}
+			continue
+		}
+
+		// If we were resuming, we've now passed the checkpoint
+		if d.isResuming {
+			log.Printf("Resume complete: Skipped %d keys, now continuing from key: %s", skippedKeys, minKey)
+			d.isResuming = false
 		}
 
 		for _, ch := range d.chunkReaders {
@@ -167,8 +380,12 @@ func (d *Merge) Merge(c *configs.Conf, keep bool) (uint64, uint64, uint64) {
 
 	close(*d.mergeCh)
 	d.close()
-	mergebar.Update()
-	mergebar.Finish()
+
+	// Delete checkpoint on successful completion
+	if err := d.deleteCheckpoint(); err != nil {
+		log.Printf("Warning: Failed to delete checkpoint file: %v", err)
+	}
+
 	log.Println("Generate finished with total key:", d.totalKey, " total special keyword keys:", d.totalLinkKey, " total value:", d.totalValue)
 	return d.totalKeyWrite, d.uidIndex, d.totalLinkKey
 
@@ -324,6 +541,15 @@ func (d *Merge) mergeg() {
 				delete(keyPropArrIndx, kv.key)
 			}
 
+			// Checkpoint: save progress periodically
+			d.keysSinceCheckpoint++
+			if d.checkpointInterval > 0 && d.keysSinceCheckpoint >= d.checkpointInterval {
+				if err := d.saveCheckpoint(kv.key); err != nil {
+					log.Printf("Warning: Failed to save checkpoint: %v", err)
+				}
+				d.keysSinceCheckpoint = 0
+			}
+
 			continue
 		}
 
@@ -442,6 +668,17 @@ func (d *Merge) removeFinished() {
 	for _, ch := range d.chunkReaders {
 		if ch.complete {
 			finishedReaders = append(finishedReaders, ch)
+			// Track completed file for checkpoint
+			if d.completedFiles == nil {
+				d.completedFiles = make(map[string]FileState)
+			}
+			d.completedFiles[ch.fileName] = FileState{
+				FileName:  ch.fileName,
+				Completed: true,
+				LastKey:   ch.curKey,
+				LinesRead: ch.linesRead,
+			}
+			log.Printf("File completed: %s (lines read: %d)", ch.fileName, ch.linesRead)
 		}
 	}
 
@@ -490,6 +727,21 @@ func (d *Merge) init() {
 		}
 	}
 
+	// Checkpoint configuration - must be set early before loadCheckpoint is called
+	d.checkpointInterval = 100000 // Save checkpoint every 100K keys by default
+	if _, ok := config.Appconf["mergeCheckpointInterval"]; ok {
+		d.checkpointInterval, err = strconv.Atoi(config.Appconf["mergeCheckpointInterval"])
+		if err != nil {
+			panic("Invalid mergeCheckpointInterval definition")
+		}
+	}
+	// Set checkpoint path - default to db directory (so deleting db dir also removes checkpoint)
+	// Note: checkpoint is loaded BEFORE dbDir is cleared, so resume detection works correctly
+	d.checkpointPath = filepath.FromSlash(config.Appconf["dbDir"] + "/merge_checkpoint.json")
+	if _, ok := config.Appconf["mergeCheckpointPath"]; ok {
+		d.checkpointPath = config.Appconf["mergeCheckpointPath"]
+	}
+
 	d.batchIndex = 0
 	d.batchKeys = make([][]byte, d.batchSize)
 	d.batchVals = make([][]byte, d.batchSize)
@@ -526,12 +778,28 @@ func (d *Merge) init() {
 	d.pager = &util.Pagekey{}
 	d.pager.Init()
 
+	// Initialize completedFiles map
+	d.completedFiles = make(map[string]FileState)
+
 	files, err := ioutil.ReadDir(config.Appconf["indexDir"])
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	// Check for checkpoint FIRST before opening files
+	checkpoint, checkpointErr := d.loadCheckpoint()
+	if checkpointErr != nil {
+		log.Printf("Warning: Failed to load checkpoint: %v. Starting fresh.", checkpointErr)
+		checkpoint = nil
+	}
+
+	// Store file states from checkpoint for skipping completed files
+	if checkpoint != nil && checkpoint.FileStates != nil {
+		d.checkpointFileStates = checkpoint.FileStates
+	}
+
 	var cr []*chunkReader
+	skippedFiles := 0
 
 	tmpRuneSize := 500000
 	if _, ok := config.Appconf["tmpRuneSize"]; ok {
@@ -543,6 +811,17 @@ func (d *Merge) init() {
 
 	for _, f := range files {
 		if !f.IsDir() && strings.HasSuffix(f.Name(), ".gz") {
+
+			// Check if this file was already completed in checkpoint
+			if d.checkpointFileStates != nil {
+				if fileState, exists := d.checkpointFileStates[f.Name()]; exists && fileState.Completed {
+					log.Printf("Skipping completed file: %s", f.Name())
+					// Add to completedFiles so it's tracked in future checkpoints
+					d.completedFiles[f.Name()] = fileState
+					skippedFiles++
+					continue
+				}
+			}
 
 			path := filepath.FromSlash(config.Appconf["indexDir"] + "/" + f.Name())
 			file, err := os.Open(path)
@@ -561,11 +840,16 @@ func (d *Merge) init() {
 				wg:       d.wg,
 				d:        d,
 				file:     file,
+				fileName: f.Name(),
 			})
 
 		}
 	}
 	d.chunkReaders = cr
+
+	if skippedFiles > 0 {
+		log.Printf("Resume: Skipped %d already-completed files, %d files to process", skippedFiles, len(cr))
+	}
 
 	var totalkv float64
 	for _, f := range files {
@@ -587,21 +871,74 @@ func (d *Merge) init() {
 
 	d.totalkvLine = int64(totalkv)
 
-	// before opening for write always clear first
-	err = os.RemoveAll(filepath.FromSlash(config.Appconf["dbDir"]))
-	if err != nil {
-		log.Fatal("Error cleaning the out dir check you have right permission")
-		panic(err)
-	}
-	err = os.Mkdir(filepath.FromSlash(config.Appconf["dbDir"]), 0700)
-	if err != nil {
-		log.Fatal("Error creating dir", config.Appconf["dbDir"], "check you have right permission ")
-		panic(err)
+	if checkpoint != nil {
+		// Resume mode: don't clear the database
+		log.Printf("=== CHECKPOINT FOUND - WILL RESUME ===")
+		log.Printf("Last written key: %s", checkpoint.LastWrittenKey)
+		log.Printf("Keys written before interruption: %d", checkpoint.TotalKeyWrite)
+		log.Printf("Checkpoint timestamp: %s", checkpoint.Timestamp.Format(time.RFC3339))
+		log.Printf("Database will NOT be cleared")
+		log.Printf("======================================")
+		d.resumeFromKey = checkpoint.LastWrittenKey
+		d.isResuming = true
+		// Restore counters
+		d.totalKeyWrite = checkpoint.TotalKeyWrite
+		d.uidIndex = checkpoint.UidIndex
+		d.totalLinkKey = checkpoint.TotalLinkKey
+		d.totalKey = checkpoint.TotalKey
+		d.totalValue = checkpoint.TotalValue
+	} else {
+		// Fresh start: clear the database directory
+		err = os.RemoveAll(filepath.FromSlash(config.Appconf["dbDir"]))
+		if err != nil {
+			log.Fatal("Error cleaning the out dir check you have right permission")
+			panic(err)
+		}
+		err = os.Mkdir(filepath.FromSlash(config.Appconf["dbDir"]), 0700)
+		if err != nil {
+			log.Fatal("Error creating dir", config.Appconf["dbDir"], "check you have right permission ")
+			panic(err)
+		}
 	}
 
 	database := db.DB{}
 
 	d.wrEnv, d.wrDbi = database.OpenDBNew(true, d.totalkvLine, config.Appconf)
+
+	// If resuming, verify checkpoint consistency with actual DB state
+	if d.isResuming {
+		dbLastKey, err := d.getLastKeyFromDB()
+		if err != nil {
+			log.Printf("Warning: Could not read last key from DB: %v", err)
+		} else if dbLastKey != "" {
+			if dbLastKey > d.resumeFromKey {
+				// DB has more data than checkpoint - use DB's last key
+				log.Printf("=== CHECKPOINT RECOVERY ===")
+				log.Printf("Checkpoint last key: %s", d.resumeFromKey)
+				log.Printf("Database last key:   %s", dbLastKey)
+				log.Printf("Database is ahead of checkpoint (crash after write but before checkpoint save)")
+				log.Printf("Using database last key for resume to avoid duplicate key errors")
+				log.Printf("===========================")
+				d.resumeFromKey = dbLastKey
+			} else if dbLastKey < d.resumeFromKey {
+				// Checkpoint is slightly ahead of DB - this can happen normally because:
+				// 1. Checkpoint is saved after a key is processed
+				// 2. But a key may generate multiple DB writes (root + pages)
+				// 3. Crash could occur between checkpoint save and final page write
+				// Use the MAX of both to ensure we don't re-process anything
+				log.Printf("Checkpoint last key: %s", d.resumeFromKey)
+				log.Printf("Database last key:   %s", dbLastKey)
+				log.Printf("Using checkpoint key (checkpoint is authoritative for processed keys)")
+			} else {
+				log.Printf("Checkpoint and database are in sync (last key: %s)", dbLastKey)
+			}
+		} else {
+			log.Printf("Database is empty - will start from beginning despite checkpoint")
+			log.Printf("This may indicate the database was deleted. Starting fresh.")
+			d.isResuming = false
+			d.resumeFromKey = ""
+		}
+	}
 
 	if _, ok := config.Appconf["mergeArraySize"]; ok {
 		d.mergeTotalArrLen, err = strconv.Atoi(config.Appconf["mergeArraySize"])
@@ -621,23 +958,7 @@ func (d *Merge) init() {
 
 	}
 
-	// setup progress
-	defaultRate := 2 * time.Second
-	if _, ok := config.Appconf["progressRefreshRate"]; ok {
-		rate, err := strconv.Atoi(config.Appconf["progressRefreshRate"])
-		if err != nil {
-			panic("Invalid refresh rate definition")
-		}
-		defaultRate = time.Duration(rate) * time.Second
-	}
-
-	mergebar = pb.New64(d.totalkvLine).Prefix(" generate ")
-	mergebar.ShowSpeed = false
-	mergebar.ShowCounters = false
-	mergebar.SetRefreshRate(defaultRate)
-	mergebar.ShowTimeLeft = false
-	mergebar.ShowElapsedTime = true
-	mergebar.Start()
+	log.Printf("Starting merge: %d total KV lines to process", d.totalkvLine)
 }
 
 func (d *Merge) writeBatch() {
@@ -761,8 +1082,7 @@ func (ch *chunkReader) readKeyValue() {
 		switch c {
 
 		case newliner:
-
-			mergebar.Increment()
+			ch.linesRead++  // Track lines read for checkpoint
 
 			line[index] = string(ch.tmprun[:tabIndex])
 
@@ -841,6 +1161,97 @@ func (ch *chunkReader) readKeyValue() {
 
 	}
 
+}
+
+// readKeyValueWithSkip reads key-values but skips all data until we pass skipUntil key
+// This is used for resume functionality - we need to advance through the file
+// without sending data to the merge channel
+func (ch *chunkReader) readKeyValueWithSkip(skipUntil string) {
+
+	defer ch.wg.Done()
+
+	if ch.eof {
+		ch.complete = true
+		return
+	}
+
+	key := ""
+	// If we have a buffered line from previous read
+	if len(ch.nextLine[0]) > 0 {
+		key = ch.nextLine[0]
+		ch.curKey = key
+
+		// Skip sending to channel if key <= skipUntil
+		if key > skipUntil {
+			*ch.d.mergeCh <- kvMessage{
+				key:      ch.nextLine[0],
+				db:       ch.nextLine[1],
+				value:    ch.nextLine[2],
+				valuedb:  ch.nextLine[3],
+				evidence: ch.nextLine[4],
+			}
+		}
+	}
+
+	var line [5]string
+	var c rune
+	index := 0
+	tabIndex := 0
+	var err error
+
+	for {
+		c, _, err = ch.r.ReadRune()
+
+		if err != nil { // EOF
+			ch.eof = true
+			return
+		}
+
+		switch c {
+		case newliner:
+			ch.linesRead++  // Track lines read for checkpoint
+			line[index] = string(ch.tmprun[:tabIndex])
+
+			// If we've moved to a different key
+			if len(key) > 0 && line[0] != key {
+				ch.nextLine = line
+				return
+			}
+
+			if len(key) == 0 {
+				key = line[0]
+				ch.curKey = key
+			}
+
+			// Only send to channel if we're past the skip point
+			if key > skipUntil {
+				*ch.d.mergeCh <- kvMessage{
+					key:      line[0],
+					db:       line[1],
+					value:    line[2],
+					valuedb:  line[3],
+					evidence: line[4],
+				}
+			}
+
+			index = 0
+			tabIndex = 0
+
+		case tabr:
+			line[index] = string(ch.tmprun[:tabIndex])
+			tabIndex = 0
+			index++
+
+		default:
+			bufferSize := len(ch.tmprun)
+			if tabIndex >= bufferSize {
+				log.Printf("FATAL: Field exceeds buffer size limit during skip")
+				panic(fmt.Sprintf("Buffer overflow: field size exceeds tmpRuneSize=%d", bufferSize))
+			}
+			ch.tmprun[tabIndex] = c
+			tabIndex++
+		}
+	}
 }
 
 func (k *kvMessage) String() string {

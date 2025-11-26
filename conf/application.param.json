@@ -44,5 +44,6 @@
 	"__lookupAliasDbDir": "/data/scc/ag-gruber/GROUP/tgur/x/bioyoda_dev2/biobtreev2/out_ref/aliasdb",
 	"lookupDbDir": "/data/scc/ag-gruber/GROUP/tgur/x/bioyoda_dev2/biobtreev2/out_lookup_latest/db",
 	"lookupAliasDbDir": "/data/scc/ag-gruber/GROUP/tgur/x/bioyoda_dev2/biobtreev2/out_lookup_latest/aliasdb",
-	"tmpRuneSize": "10000000"
+	"tmpRuneSize": "10000000",
+	"mergeCheckpointInterval": "100000"
 }

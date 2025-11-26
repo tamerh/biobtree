@@ -4,6 +4,7 @@ import (
 	"biobtree/configs"
 	"bufio"
 	"compress/gzip"
+	"container/heap"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -11,6 +12,8 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"runtime"
+	//"runtime/pprof"
 	"sort"
 	"strconv"
 	"strings"
@@ -33,6 +36,293 @@ const (
 	cursorLast  = 6  // MDB_LAST - Position at last key/data item
 	cursorNext  = 8  // MDB_NEXT - Position at next data item
 )
+
+// ============================================================================
+// Worker-Based K-Way Merge Implementation
+// ============================================================================
+// This implementation uses a worker pool instead of per-file goroutines to
+// dramatically reduce memory usage. Instead of 2558 files × 40MB = 102GB,
+// we use N workers × 40MB = ~320MB (with N=8 workers).
+//
+// Architecture:
+// - fileState: Minimal per-file state (no permanent buffer)
+// - Min-heap: Efficiently finds file with smallest current key
+// - Worker pool: N workers with shared buffer pool read keys on demand
+// ============================================================================
+
+// fileState holds minimal state for each file in the k-way merge
+// Unlike the old chunkReader, this does NOT hold a permanent 40MB buffer
+type fileState struct {
+	file      *os.File
+	gz        *gzip.Reader
+	r         *bufio.Reader
+	curKey    string
+	nextLine  [5]string   // Buffered next line (key, db, value, valuedb, evidence)
+	eof       bool
+	complete  bool
+	fileName  string
+	linesRead int64
+	heapIndex int         // Index in the heap (for heap.Fix)
+}
+
+// fileHeap implements heap.Interface for efficient minimum key finding
+type fileHeap []*fileState
+
+func (h fileHeap) Len() int           { return len(h) }
+func (h fileHeap) Less(i, j int) bool { return h[i].curKey < h[j].curKey }
+func (h fileHeap) Swap(i, j int) {
+	h[i], h[j] = h[j], h[i]
+	h[i].heapIndex = i
+	h[j].heapIndex = j
+}
+
+func (h *fileHeap) Push(x interface{}) {
+	n := len(*h)
+	fs := x.(*fileState)
+	fs.heapIndex = n
+	*h = append(*h, fs)
+}
+
+func (h *fileHeap) Pop() interface{} {
+	old := *h
+	n := len(old)
+	fs := old[n-1]
+	old[n-1] = nil  // avoid memory leak
+	fs.heapIndex = -1
+	*h = old[0 : n-1]
+	return fs
+}
+
+// readJob represents a job for a worker to read the next key from a file
+type readJob struct {
+	fs          *fileState
+	skipUntil   string                // If non-empty, skip keys <= this value
+	resultCh    chan<- *fileState     // Channel to send result back
+	mergeCh     *chan kvMessage       // Channel to send kv data to
+	initialRead bool                  // If true, only read first key without sending to mergeCh
+}
+
+// workerPool manages a pool of workers for reading files
+type workerPool struct {
+	numWorkers int
+	bufferPool *sync.Pool
+	bufferSize int
+	jobCh      chan readJob
+	wg         sync.WaitGroup
+}
+
+// newWorkerPool creates a new worker pool
+func newWorkerPool(numWorkers, bufferSize int) *workerPool {
+	wp := &workerPool{
+		numWorkers: numWorkers,
+		bufferSize: bufferSize,
+		jobCh:      make(chan readJob, numWorkers*2),
+		bufferPool: &sync.Pool{
+			New: func() interface{} {
+				return make([]rune, bufferSize)
+			},
+		},
+	}
+	return wp
+}
+
+// start launches the worker goroutines
+func (wp *workerPool) start() {
+	for i := 0; i < wp.numWorkers; i++ {
+		wp.wg.Add(1)
+		go wp.worker()
+	}
+}
+
+// stop shuts down the worker pool
+func (wp *workerPool) stop() {
+	close(wp.jobCh)
+	wp.wg.Wait()
+}
+
+// worker is the main loop for a worker goroutine
+func (wp *workerPool) worker() {
+	defer wp.wg.Done()
+
+	for job := range wp.jobCh {
+		wp.processJob(job)
+	}
+}
+
+// processJob reads the next key from a file
+func (wp *workerPool) processJob(job readJob) {
+	fs := job.fs
+
+	if fs.eof {
+		fs.complete = true
+		job.resultCh <- fs
+		return
+	}
+
+	// Borrow buffer from pool
+	tmprun := wp.bufferPool.Get().([]rune)
+	defer wp.bufferPool.Put(tmprun)
+
+	if job.initialRead {
+		// Initial read: only read and buffer first key, don't send to merge channel
+		wp.readFirstKey(fs, tmprun, job.skipUntil)
+	} else {
+		// Normal read: read all lines for the next key and send to merge channel
+		wp.readNextKey(fs, tmprun, job.skipUntil, job.mergeCh)
+	}
+
+	job.resultCh <- fs
+}
+
+// readFirstKey reads only the first key from a file state (for initial read)
+// It buffers the first line in nextLine and sets curKey, but does NOT send to mergeCh
+// This is used during initial file loading to avoid flooding the merge channel
+func (wp *workerPool) readFirstKey(fs *fileState, tmprun []rune, skipUntil string) {
+	var line [5]string
+	var c rune
+	index := 0
+	tabIndex := 0
+	var err error
+
+	for {
+		c, _, err = fs.r.ReadRune()
+
+		if err != nil { // EOF
+			fs.eof = true
+			return
+		}
+
+		switch c {
+		case newliner:
+			fs.linesRead++
+			line[index] = string(tmprun[:tabIndex])
+
+			// Skip keys <= skipUntil (for resume functionality)
+			if skipUntil != "" && line[0] <= skipUntil {
+				// Continue reading to find a key past skipUntil
+				index = 0
+				tabIndex = 0
+				line = [5]string{}
+				continue
+			}
+
+			// Found a valid first key - buffer it and return
+			fs.nextLine = line
+			fs.curKey = line[0]
+			return
+
+		case tabr:
+			line[index] = string(tmprun[:tabIndex])
+			tabIndex = 0
+			index++
+
+		default:
+			if tabIndex >= len(tmprun) {
+				log.Printf("FATAL: Field exceeds buffer size limit")
+				log.Printf("  Buffer size: %d, File: %s", len(tmprun), fs.fileName)
+				panic(fmt.Sprintf("Buffer overflow: field size exceeds buffer size=%d", len(tmprun)))
+			}
+			tmprun[tabIndex] = c
+			tabIndex++
+		}
+	}
+}
+
+// readNextKey reads all lines for the next key from a file state and sends them to mergeCh
+// It stops when it encounters a different key (which is buffered in nextLine)
+func (wp *workerPool) readNextKey(fs *fileState, tmprun []rune, skipUntil string, mergeCh *chan kvMessage) {
+	key := ""
+
+	// If we have a buffered line from previous read, process it first
+	if len(fs.nextLine[0]) > 0 {
+		key = fs.nextLine[0]
+		fs.curKey = key
+
+		// Send to merge channel if not skipping
+		if skipUntil == "" || key > skipUntil {
+			*mergeCh <- kvMessage{
+				key:      fs.nextLine[0],
+				db:       fs.nextLine[1],
+				value:    fs.nextLine[2],
+				valuedb:  fs.nextLine[3],
+				evidence: fs.nextLine[4],
+			}
+		}
+
+		// Clear nextLine after processing
+		fs.nextLine = [5]string{}
+	}
+
+	var line [5]string
+	var c rune
+	index := 0
+	tabIndex := 0
+	var err error
+
+	for {
+		c, _, err = fs.r.ReadRune()
+
+		if err != nil { // EOF
+			fs.eof = true
+			return
+		}
+
+		switch c {
+		case newliner:
+			fs.linesRead++
+			line[index] = string(tmprun[:tabIndex])
+
+			// If we've moved to a different key, buffer this line and return
+			if len(key) > 0 && line[0] != key {
+				fs.nextLine = line
+				fs.curKey = line[0]  // Update curKey to the new key
+				return
+			}
+
+			if len(key) == 0 {
+				key = line[0]
+				fs.curKey = key
+			}
+
+			// Skip keys <= skipUntil (for resume functionality)
+			if skipUntil != "" && key <= skipUntil {
+				// Continue reading without sending to channel
+				index = 0
+				tabIndex = 0
+				line = [5]string{}
+				continue
+			}
+
+			// Send this line to merge channel
+			*mergeCh <- kvMessage{
+				key:      line[0],
+				db:       line[1],
+				value:    line[2],
+				valuedb:  line[3],
+				evidence: line[4],
+			}
+
+			// Reset for next line (still same key potentially)
+			index = 0
+			tabIndex = 0
+			line = [5]string{}
+
+		case tabr:
+			line[index] = string(tmprun[:tabIndex])
+			tabIndex = 0
+			index++
+
+		default:
+			if tabIndex >= len(tmprun) {
+				log.Printf("FATAL: Field exceeds buffer size limit")
+				log.Printf("  Buffer size: %d, Current key: '%s', File: %s", len(tmprun), key, fs.fileName)
+				panic(fmt.Sprintf("Buffer overflow: field size exceeds buffer size=%d", len(tmprun)))
+			}
+			tmprun[tabIndex] = c
+			tabIndex++
+		}
+	}
+}
 
 // MergeCheckpoint stores the state needed to resume a merge operation
 type MergeCheckpoint struct {
@@ -78,7 +368,6 @@ type Merge struct {
 	wg                      *sync.WaitGroup
 	wrEnv                   db.Env
 	wrDbi                   db.DBI
-	chunkReaders            []*chunkReader
 	mergeCh                 *chan kvMessage
 	mergeTotalArrLen        int
 	protoBufferArrLen       int
@@ -106,39 +395,32 @@ type Merge struct {
 	lastCheckpointKey       string
 	completedFiles          map[string]FileState  // Track files that completed and were removed
 	checkpointFileStates    map[string]FileState  // File states from loaded checkpoint
-}
-
-type chunkReader struct {
-	d         *Merge
-	file      *os.File
-	r         *bufio.Reader
-	curKey    string
-	complete  bool
-	eof       bool
-	tmprun    []rune
-	nextLine  [5]string  // Extended to support evidence field (optional 5th field)
-	wg        *sync.WaitGroup
-	active    bool
-	fileName  string     // Name of the chunk file (for tracking)
-	linesRead int64      // Number of lines read from this file
+	// Worker-based merge fields (replaces goroutine-per-file approach)
+	fileStates              []*fileState          // All file states
+	fileHeap                *fileHeap             // Min-heap for efficient minimum key finding
+	workerPool              *workerPool           // Worker pool for reading files
+	numWorkers              int                   // Number of workers (default 8)
+	tmprunSize              int                   // Buffer size for reading
 }
 
 // saveCheckpoint saves the current merge progress to a checkpoint file
 func (d *Merge) saveCheckpoint(lastKey string) error {
-	// Build file states from current chunk readers
-	fileStates := make(map[string]FileState)
-	for _, ch := range d.chunkReaders {
-		fileStates[ch.fileName] = FileState{
-			FileName:  ch.fileName,
-			Completed: ch.complete,
-			LastKey:   ch.curKey,
-			LinesRead: ch.linesRead,
+	// Build file states from current file states (worker-based approach)
+	fileStatesMap := make(map[string]FileState)
+	for _, fs := range d.fileStates {
+		if fs != nil {
+			fileStatesMap[fs.fileName] = FileState{
+				FileName:  fs.fileName,
+				Completed: fs.complete,
+				LastKey:   fs.curKey,
+				LinesRead: fs.linesRead,
+			}
 		}
 	}
-	// Also track completed files that have been removed from chunkReaders
+	// Also track completed files that have been removed
 	for fileName, state := range d.completedFiles {
-		if _, exists := fileStates[fileName]; !exists {
-			fileStates[fileName] = state
+		if _, exists := fileStatesMap[fileName]; !exists {
+			fileStatesMap[fileName] = state
 		}
 	}
 
@@ -153,7 +435,7 @@ func (d *Merge) saveCheckpoint(lastKey string) error {
 		Timestamp:      time.Now(),
 		IndexDir:       config.Appconf["indexDir"],
 		Version:        1,
-		FileStates:     fileStates,
+		FileStates:     fileStatesMap,
 	}
 
 	data, err := json.MarshalIndent(checkpoint, "", "  ")
@@ -177,8 +459,10 @@ func (d *Merge) saveCheckpoint(lastKey string) error {
 	if d.totalkvLine > 0 {
 		// Count total lines read across all files (active + completed)
 		var totalLinesRead int64
-		for _, ch := range d.chunkReaders {
-			totalLinesRead += ch.linesRead
+		for _, fs := range d.fileStates {
+			if fs != nil {
+				totalLinesRead += fs.linesRead
+			}
 		}
 		for _, state := range d.completedFiles {
 			totalLinesRead += state.LinesRead
@@ -186,8 +470,32 @@ func (d *Merge) saveCheckpoint(lastKey string) error {
 		progressPercent = float64(totalLinesRead) / float64(d.totalkvLine) * 100
 	}
 
-	log.Printf("Progress: %.1f%% | Keys written: %d | Last key: %s | Active files: %d",
-		progressPercent, d.totalKeyWrite, lastKey, len(d.chunkReaders))
+	// Memory stats
+	var memStats runtime.MemStats
+	runtime.ReadMemStats(&memStats)
+	heapMB := memStats.HeapAlloc / 1024 / 1024
+	sysMB := memStats.Sys / 1024 / 1024
+
+	// Count active files in heap
+	activeFiles := 0
+	if d.fileHeap != nil {
+		activeFiles = d.fileHeap.Len()
+	}
+
+	log.Printf("Progress: %.1f%% | Keys written: %d | Last key: %s | Active files: %d | Heap: %dMB | Sys: %dMB",
+		progressPercent, d.totalKeyWrite, lastKey, activeFiles, heapMB, sysMB)
+
+	// Save heap profile every 1M keys (disabled by default - uncomment for debugging)
+	// if d.totalKeyWrite % 1000000 == 0 {
+	// 	profilePath := filepath.Join(filepath.Dir(d.checkpointPath), fmt.Sprintf("heap_%d.pprof", d.totalKeyWrite))
+	// 	f, err := os.Create(profilePath)
+	// 	if err == nil {
+	// 		pprof.WriteHeapProfile(f)
+	// 		f.Close()
+	// 		log.Printf("Heap profile saved to: %s", profilePath)
+	// 	}
+	// }
+
 	return nil
 }
 
@@ -272,45 +580,48 @@ func (d *Merge) Merge(c *configs.Conf, keep bool) (uint64, uint64, uint64) {
 		log.Printf("Will skip all keys <= %s", d.resumeFromKey)
 	}
 
+	// Start the merge goroutine (processes kvMessages from channel)
 	d.wg.Add(1)
 	go d.mergeg()
 	d.wg.Wait()
 
-	// Initial read with skip support if resuming
-	for _, ch := range d.chunkReaders {
-		d.wg.Add(1)
-		if d.isResuming {
-			go ch.readKeyValueWithSkip(d.resumeFromKey)
-		} else {
-			go ch.readKeyValue()
+	// Start the worker pool
+	d.workerPool.start()
+	defer d.workerPool.stop()
+
+	// Initial read: read first key from all files using worker pool
+	// This is done in batches to control memory usage
+	log.Printf("Reading initial keys from %d files using %d workers...", len(d.fileStates), d.numWorkers)
+	d.initialReadAllFiles()
+
+	// Build the min-heap from all file states
+	fh := make(fileHeap, 0, len(d.fileStates))
+	d.fileHeap = &fh
+	for _, fs := range d.fileStates {
+		if fs != nil && !fs.complete && !fs.eof {
+			heap.Push(d.fileHeap, fs)
 		}
 	}
-	d.wg.Wait()
-
-	d.removeFinished()
+	log.Printf("Initial read complete. Files in heap: %d", d.fileHeap.Len())
 
 	skippedKeys := uint64(0)
 
-	for len(d.chunkReaders) > 0 {
-		// Find minimum key using simple linear scan (faster for small k)
-		minKey := d.chunkReaders[0].curKey
-		for _, ch := range d.chunkReaders[1:] {
-			if ch.curKey < minKey {
-				minKey = ch.curKey
-			}
-		}
+	// Main merge loop using heap-based minimum finding
+	for d.fileHeap.Len() > 0 {
+		// Get the minimum key from the heap (peek, don't pop yet)
+		minFs := (*d.fileHeap)[0]
+		minKey := minFs.curKey
 
 		// Skip keys that were already written (resume mode)
 		if d.isResuming && minKey <= d.resumeFromKey {
-			// Advance readers with min key without writing
-			for _, ch := range d.chunkReaders {
-				if ch.curKey == minKey {
-					d.wg.Add(1)
-					go ch.readKeyValueWithSkip(d.resumeFromKey)
-				}
-			}
-			d.wg.Wait()
-			d.removeFinished()
+			// Collect all files with the min key
+			filesToRead := d.collectFilesWithKey(minKey)
+
+			// Read next keys from these files
+			d.readNextKeysFromFiles(filesToRead, d.resumeFromKey)
+
+			// Update heap for files that got new keys or completed
+			d.updateHeapAfterRead(filesToRead)
 
 			skippedKeys++
 			if skippedKeys%100000 == 0 {
@@ -325,30 +636,28 @@ func (d *Merge) Merge(c *configs.Conf, keep bool) (uint64, uint64, uint64) {
 			d.isResuming = false
 		}
 
-		// Send writekey message
+		// Collect all files with the min key
+		filesToRead := d.collectFilesWithKey(minKey)
+
+		// Read next keys from these files - this will:
+		// 1. Send all data for minKey to merge channel (from the already-buffered nextLine)
+		// 2. Read ahead until next key is found
+		// 3. Buffer the first line of the next key
+		d.readNextKeysFromFiles(filesToRead, "")
+
+		// Send writekey message to trigger writing (after all data for this key is sent)
 		*d.mergeCh <- kvMessage{
 			key:      minKey,
 			writekey: true,
 		}
 
-		// Advance all readers that have this key
-		for _, ch := range d.chunkReaders {
-			if ch.curKey == minKey {
-				d.wg.Add(1)
-				go ch.readKeyValue()
-			}
-		}
-		d.wg.Wait()
-
-		d.removeFinished()
+		// Update heap for files that got new keys or completed
+		d.updateHeapAfterRead(filesToRead)
 	}
 
-	for { // to wait last batch to finish
-		if len(*d.mergeCh) > 0 {
-			time.Sleep(2 * time.Second)
-		} else {
-			break
-		}
+	// Wait for merge channel to drain
+	for len(*d.mergeCh) > 0 {
+		time.Sleep(2 * time.Second)
 	}
 
 	close(*d.mergeCh)
@@ -362,6 +671,127 @@ func (d *Merge) Merge(c *configs.Conf, keep bool) (uint64, uint64, uint64) {
 	log.Println("Generate finished with total key:", d.totalKey, " total special keyword keys:", d.totalLinkKey, " total value:", d.totalValue)
 	return d.totalKeyWrite, d.uidIndex, d.totalLinkKey
 
+}
+
+// initialReadAllFiles reads the first key from all files using the worker pool
+// This is done in controlled batches to limit memory usage
+func (d *Merge) initialReadAllFiles() {
+	// Process files in batches to control memory
+	batchSize := d.numWorkers * 4  // Process 4x workers at a time
+	resultCh := make(chan *fileState, batchSize)
+
+	for i := 0; i < len(d.fileStates); i += batchSize {
+		end := i + batchSize
+		if end > len(d.fileStates) {
+			end = len(d.fileStates)
+		}
+
+		// Count non-nil files in this batch
+		nonNilCount := 0
+		// Submit batch of jobs
+		for j := i; j < end; j++ {
+			fs := d.fileStates[j]
+			if fs == nil {
+				continue
+			}
+			nonNilCount++
+			skipUntil := ""
+			if d.isResuming {
+				skipUntil = d.resumeFromKey
+			}
+			d.workerPool.jobCh <- readJob{
+				fs:          fs,
+				skipUntil:   skipUntil,
+				resultCh:    resultCh,
+				mergeCh:     d.mergeCh,
+				initialRead: true,
+			}
+		}
+
+		// Collect results for this batch
+		for j := 0; j < nonNilCount; j++ {
+			<-resultCh
+		}
+
+		if (i/batchSize)%10 == 0 {
+			log.Printf("Initial read progress: %d/%d files", end, len(d.fileStates))
+		}
+	}
+}
+
+// collectFilesWithKey collects all files that have the given key as their current key
+func (d *Merge) collectFilesWithKey(key string) []*fileState {
+	var files []*fileState
+	for _, fs := range *d.fileHeap {
+		if fs.curKey == key {
+			files = append(files, fs)
+		}
+	}
+	return files
+}
+
+// readNextKeysFromFiles reads the next key from each file using the worker pool
+func (d *Merge) readNextKeysFromFiles(files []*fileState, skipUntil string) {
+	if len(files) == 0 {
+		return
+	}
+
+	resultCh := make(chan *fileState, len(files))
+
+	// Submit all read jobs
+	for _, fs := range files {
+		d.workerPool.jobCh <- readJob{
+			fs:        fs,
+			skipUntil: skipUntil,
+			resultCh:  resultCh,
+			mergeCh:   d.mergeCh,
+		}
+	}
+
+	// Wait for all results
+	for range files {
+		<-resultCh
+	}
+}
+
+// updateHeapAfterRead updates the heap after reading next keys from files
+func (d *Merge) updateHeapAfterRead(files []*fileState) {
+	for _, fs := range files {
+		if fs.complete || fs.eof {
+			// Remove from heap
+			if fs.heapIndex >= 0 && fs.heapIndex < d.fileHeap.Len() {
+				heap.Remove(d.fileHeap, fs.heapIndex)
+			}
+
+			// Close file resources to release memory
+			if fs.gz != nil {
+				fs.gz.Close()
+				fs.gz = nil
+			}
+			if fs.file != nil {
+				fs.file.Close()
+				fs.file = nil
+			}
+			fs.r = nil  // Allow GC to collect bufio reader
+
+			// Track completed file
+			if d.completedFiles == nil {
+				d.completedFiles = make(map[string]FileState)
+			}
+			d.completedFiles[fs.fileName] = FileState{
+				FileName:  fs.fileName,
+				Completed: true,
+				LastKey:   fs.curKey,
+				LinesRead: fs.linesRead,
+			}
+			log.Printf("File completed: %s (lines read: %d)", fs.fileName, fs.linesRead)
+		} else {
+			// File got a new key, fix its position in heap
+			if fs.heapIndex >= 0 && fs.heapIndex < d.fileHeap.Len() {
+				heap.Fix(d.fileHeap, fs.heapIndex)
+			}
+		}
+	}
 }
 
 func (d *Merge) mergeg() {
@@ -481,25 +911,26 @@ func (d *Merge) mergeg() {
 				}
 			}
 
-			for _, v := range keyArrIds[kv.key] {
-				for _, arrayID := range v {
-
-					for i := 0; i < d.pageSize; i++ {
-						var emptymes kvMessage
-						all[arrayID][i] = emptymes
+			// Clear only used elements (not entire pageSize) and return arrays to pool
+			for domain, arrIds := range keyArrIds[kv.key] {
+				indices := keyArrIndx[kv.key][domain]
+				for i, arrayID := range arrIds {
+					// Clear only the elements that were actually used
+					usedCount := indices[i]
+					for j := 0; j < usedCount; j++ {
+						all[arrayID][j] = kvMessage{}
 					}
-
 					availables <- arrayID
 				}
 			}
-			for _, v := range keyPropArrIds[kv.key] {
-				for _, arrayID := range v {
-
-					for i := 0; i < d.pageSize; i++ {
-						var emptymes kvMessage
-						all[arrayID][i] = emptymes
+			for domain, arrIds := range keyPropArrIds[kv.key] {
+				indices := keyPropArrIndx[kv.key][domain]
+				for i, arrayID := range arrIds {
+					// Clear only the elements that were actually used
+					usedCount := indices[i]
+					for j := 0; j < usedCount; j++ {
+						all[arrayID][j] = kvMessage{}
 					}
-
 					availables <- arrayID
 				}
 			}
@@ -635,38 +1066,6 @@ func (d *Merge) mergeg() {
 
 }
 
-func (d *Merge) removeFinished() {
-	var finishedReaders []*chunkReader
-	for _, ch := range d.chunkReaders {
-		if ch.complete {
-			finishedReaders = append(finishedReaders, ch)
-			// Track completed file for checkpoint
-			if d.completedFiles == nil {
-				d.completedFiles = make(map[string]FileState)
-			}
-			d.completedFiles[ch.fileName] = FileState{
-				FileName:  ch.fileName,
-				Completed: true,
-				LastKey:   ch.curKey,
-				LinesRead: ch.linesRead,
-			}
-			log.Printf("File completed: %s (lines read: %d)", ch.fileName, ch.linesRead)
-		}
-	}
-
-	if len(finishedReaders) > 0 {
-		// More efficient O(n) removal using filter-in-place
-		writeIdx := 0
-		for _, rd := range d.chunkReaders {
-			if !rd.complete {
-				d.chunkReaders[writeIdx] = rd
-				writeIdx++
-			}
-		}
-		d.chunkReaders = d.chunkReaders[:writeIdx]
-	}
-}
-
 func (d *Merge) init() {
 
 	var wg sync.WaitGroup
@@ -761,26 +1160,46 @@ func (d *Merge) init() {
 		d.checkpointFileStates = checkpoint.FileStates
 	}
 
-	var cr []*chunkReader
 	skippedFiles := 0
 
-	tmpRuneSize := 500000
+	// Configure tmpRuneSize (buffer size for reading)
+	d.tmprunSize = 500000
 	if _, ok := config.Appconf["tmpRuneSize"]; ok {
-		tmpRuneSize, err = strconv.Atoi(config.Appconf["tmpRuneSize"])
+		d.tmprunSize, err = strconv.Atoi(config.Appconf["tmpRuneSize"])
 		if err != nil {
 			panic("Invalid tmpRuneSize definition")
 		}
 	}
 
+	// Configure number of workers (default 8)
+	d.numWorkers = 8
+	if _, ok := config.Appconf["mergeWorkers"]; ok {
+		d.numWorkers, err = strconv.Atoi(config.Appconf["mergeWorkers"])
+		if err != nil {
+			panic("Invalid mergeWorkers definition")
+		}
+	}
+
+	// Create worker pool with shared buffer pool
+	// This dramatically reduces memory: N workers × buffer size instead of N files × buffer size
+	// With 8 workers and 40MB buffers = 320MB instead of 2558 files × 40MB = 102GB
+	d.workerPool = newWorkerPool(d.numWorkers, d.tmprunSize)
+	log.Printf("Worker pool initialized: %d workers, buffer size: %d runes = %d MB per worker",
+		d.numWorkers, d.tmprunSize, d.tmprunSize*4/1024/1024)
+	log.Printf("Maximum memory for buffers: %d MB (vs %d MB with old approach)",
+		d.numWorkers*d.tmprunSize*4/1024/1024, 2558*d.tmprunSize*4/1024/1024)
+
+	// Create file states (minimal state per file, no permanent buffer)
+	var fss []*fileState
 	for _, f := range files {
 		if !f.IsDir() && strings.HasSuffix(f.Name(), ".gz") {
 
 			// Check if this file was already completed in checkpoint
 			if d.checkpointFileStates != nil {
-				if fileState, exists := d.checkpointFileStates[f.Name()]; exists && fileState.Completed {
+				if fileStateData, exists := d.checkpointFileStates[f.Name()]; exists && fileStateData.Completed {
 					log.Printf("Skipping completed file: %s", f.Name())
 					// Add to completedFiles so it's tracked in future checkpoints
-					d.completedFiles[f.Name()] = fileState
+					d.completedFiles[f.Name()] = fileStateData
 					skippedFiles++
 					continue
 				}
@@ -788,30 +1207,38 @@ func (d *Merge) init() {
 
 			path := filepath.FromSlash(config.Appconf["indexDir"] + "/" + f.Name())
 			file, err := os.Open(path)
-			gz, err := gzip.NewReader(file)
-
-			if err == io.EOF { //zero file
+			if err != nil {
+				log.Printf("Error opening file %s: %v", path, err)
 				continue
 			}
 
-			check(err)
-			br := bufio.NewReaderSize(gz, fileBufSize)
-			cr = append(cr, &chunkReader{
-				r:        br,
-				complete: false,
-				tmprun:   make([]rune, tmpRuneSize),
-				wg:       d.wg,
-				d:        d,
-				file:     file,
-				fileName: f.Name(),
-			})
+			gz, err := gzip.NewReader(file)
+			if err == io.EOF { // zero file
+				file.Close()
+				continue
+			}
+			if err != nil {
+				log.Printf("Error creating gzip reader for %s: %v", path, err)
+				file.Close()
+				continue
+			}
 
+			br := bufio.NewReaderSize(gz, fileBufSize)
+			fss = append(fss, &fileState{
+				file:      file,
+				gz:        gz,
+				r:         br,
+				complete:  false,
+				eof:       false,
+				fileName:  f.Name(),
+				heapIndex: -1,
+			})
 		}
 	}
-	d.chunkReaders = cr
+	d.fileStates = fss
 
 	if skippedFiles > 0 {
-		log.Printf("Resume: Skipped %d already-completed files, %d files to process", skippedFiles, len(cr))
+		log.Printf("Resume: Skipped %d already-completed files, %d files to process", skippedFiles, len(fss))
 	}
 
 	var totalkv float64
@@ -908,18 +1335,24 @@ func (d *Merge) init() {
 		if err != nil {
 			panic("Invalid mergeArraySize definition")
 		}
-	} else { // estimate the size of array
+	} else {
+		// With sequential key processing, we need far fewer arrays than before
+		// Arrays are for storing data of keys currently being processed
+		// With 2558 files and sequential processing, we typically process one key at a time
+		// But a single key can have data from many files and domains
+		// Conservative estimate: max 50,000 arrays should be plenty
+		// This reduces memory from 720K*200*80bytes = 11.5GB to 50K*200*80bytes = 800MB
 		if d.totalkvLine < 100000000 { //100M
-			d.mergeTotalArrLen = 20000
-		} else if d.totalkvLine < 200000000 { //200M
-			d.mergeTotalArrLen = 30000
+			d.mergeTotalArrLen = 10000
 		} else if d.totalkvLine < 1000000000 { //1B
-			d.mergeTotalArrLen = 100000
-		} else { // todo review again
-			d.mergeTotalArrLen = 720000
+			d.mergeTotalArrLen = 30000
+		} else {
+			d.mergeTotalArrLen = 50000  // Reduced from 720000
 		}
-
 	}
+
+	log.Printf("Merge array size: %d (memory for arrays: ~%d MB)",
+		d.mergeTotalArrLen, d.mergeTotalArrLen*d.pageSize*80/1024/1024)
 
 	log.Printf("Starting merge: %d total KV lines to process", d.totalkvLine)
 }
@@ -938,6 +1371,11 @@ func (d *Merge) writeBatch() {
 		panic(err)
 	}
 
+	// Clear references to allow GC to reclaim memory
+	for i := 0; i < d.batchIndex; i++ {
+		d.batchKeys[i] = nil
+		d.batchVals[i] = nil
+	}
 	d.batchIndex = 0
 
 	/**
@@ -996,225 +1434,6 @@ func (d *Merge) close() {
 		log.Printf("Database successfully created but meta file could not created %v\n", err)
 	}
 
-}
-
-var totalLine = 0
-
-func (ch *chunkReader) readKeyValue() {
-
-	defer ch.wg.Done()
-
-	if ch.eof {
-		ch.complete = true
-		return
-	}
-
-	key := ""
-	if len(ch.nextLine[0]) > 0 {
-		key = ch.nextLine[0]
-		ch.curKey = key
-		//ch.newDomainKey(ch.nextLine[1], ch.nextLine[2], ch.nextLine[3])
-
-		*ch.d.mergeCh <- kvMessage{
-			key:      ch.nextLine[0],
-			db:       ch.nextLine[1],
-			value:    ch.nextLine[2],
-			valuedb:  ch.nextLine[3],
-			evidence: ch.nextLine[4], // Optional evidence field
-		}
-
-	}
-
-	var line [5]string  // Extended to support optional evidence field
-	var c rune
-	index := 0
-	tabIndex := 0
-	lineIndex := 0
-	var err error
-
-	for {
-
-		c, _, err = ch.r.ReadRune()
-		lineIndex++
-
-		if err != nil { // this is eof
-			ch.eof = true
-			return
-		}
-
-		switch c {
-
-		case newliner:
-			ch.linesRead++  // Track lines read for checkpoint
-
-			line[index] = string(ch.tmprun[:tabIndex])
-
-			/*
-				totalLine++
-				if totalLine > 3000000 {
-					fmt.Println(line)
-					//fmt.Println(string(ch.tmprun))
-					//fmt.Println("tabindex", tabIndex)
-					//fmt.Println("tmplen", len(ch.tmprun))
-					//fmt.Println("inde", index)
-					fmt.Println(len(*ch.d.mergeCh))
-				}*/
-
-			if len(key) > 0 && line[0] != key {
-				ch.nextLine = line
-				return
-			}
-
-			if len(key) == 0 { //our key
-				key = line[0]
-				ch.curKey = key
-			}
-
-			*ch.d.mergeCh <- kvMessage{
-				key:      line[0],
-				db:       line[1],
-				value:    line[2],
-				valuedb:  line[3],
-				evidence: line[4], // Include evidence field (optional 5th field)
-			}
-
-			index = 0
-			tabIndex = 0
-			lineIndex = 0
-			break
-		case tabr:
-			line[index] = string(ch.tmprun[:tabIndex])
-			tabIndex = 0
-			index++
-			break
-
-		default:
-			// Log warning for unusually large fields (before hitting the limit)
-			// This helps identify potential issues early
-			bufferSize := len(ch.tmprun)
-			if tabIndex == bufferSize/2 || tabIndex == bufferSize*3/4 || tabIndex == bufferSize*9/10 {
-				log.Printf("WARNING: Large field detected")
-				log.Printf("  Field size: %d characters (%.1f%% of buffer)", tabIndex, float64(tabIndex)/float64(bufferSize)*100)
-				log.Printf("  Buffer size: %d characters", bufferSize)
-				log.Printf("  Current key: '%s'", key)
-				log.Printf("  Field index: %d", index)
-				log.Printf("  Field content (first 200 chars): %s...", string(ch.tmprun[:min(200, tabIndex)]))
-				log.Printf("  File: %s", ch.file.Name())
-			}
-
-			// Bounds check to prevent buffer overflow and provide debugging info
-			if tabIndex >= bufferSize {
-				// Log detailed information for debugging before panicking
-				log.Printf("FATAL: Field exceeds buffer size limit")
-				log.Printf("  Buffer size (tmpRuneSize): %d characters", bufferSize)
-				log.Printf("  Current tabIndex: %d", tabIndex)
-				log.Printf("  Current key: '%s'", key)
-				log.Printf("  Field index: %d", index)
-				log.Printf("  Current field content (first 500 chars): %s...", string(ch.tmprun[:min(500, bufferSize)]))
-				log.Printf("  File: %s", ch.file.Name())
-				log.Printf("")
-				log.Printf("  This usually happens when a field (key, value, or xref) is exceptionally large.")
-				log.Printf("  To fix: Increase tmpRuneSize in conf/application.param.json")
-				log.Printf("  Suggested value: \"tmpRuneSize\": \"10000000\" (10M characters)")
-				panic(fmt.Sprintf("Buffer overflow: field size exceeds tmpRuneSize=%d", bufferSize))
-			}
-			ch.tmprun[tabIndex] = c
-			tabIndex++
-		}
-
-	}
-
-}
-
-// readKeyValueWithSkip reads key-values but skips all data until we pass skipUntil key
-// This is used for resume functionality - we need to advance through the file
-// without sending data to the merge channel
-func (ch *chunkReader) readKeyValueWithSkip(skipUntil string) {
-
-	defer ch.wg.Done()
-
-	if ch.eof {
-		ch.complete = true
-		return
-	}
-
-	key := ""
-	// If we have a buffered line from previous read
-	if len(ch.nextLine[0]) > 0 {
-		key = ch.nextLine[0]
-		ch.curKey = key
-
-		// Skip sending to channel if key <= skipUntil
-		if key > skipUntil {
-			*ch.d.mergeCh <- kvMessage{
-				key:      ch.nextLine[0],
-				db:       ch.nextLine[1],
-				value:    ch.nextLine[2],
-				valuedb:  ch.nextLine[3],
-				evidence: ch.nextLine[4],
-			}
-		}
-	}
-
-	var line [5]string
-	var c rune
-	index := 0
-	tabIndex := 0
-	var err error
-
-	for {
-		c, _, err = ch.r.ReadRune()
-
-		if err != nil { // EOF
-			ch.eof = true
-			return
-		}
-
-		switch c {
-		case newliner:
-			ch.linesRead++  // Track lines read for checkpoint
-			line[index] = string(ch.tmprun[:tabIndex])
-
-			// If we've moved to a different key
-			if len(key) > 0 && line[0] != key {
-				ch.nextLine = line
-				return
-			}
-
-			if len(key) == 0 {
-				key = line[0]
-				ch.curKey = key
-			}
-
-			// Only send to channel if we're past the skip point
-			if key > skipUntil {
-				*ch.d.mergeCh <- kvMessage{
-					key:      line[0],
-					db:       line[1],
-					value:    line[2],
-					valuedb:  line[3],
-					evidence: line[4],
-				}
-			}
-
-			index = 0
-			tabIndex = 0
-
-		case tabr:
-			line[index] = string(ch.tmprun[:tabIndex])
-			tabIndex = 0
-			index++
-
-		default:
-			bufferSize := len(ch.tmprun)
-			if tabIndex >= bufferSize {
-				log.Printf("FATAL: Field exceeds buffer size limit during skip")
-				panic(fmt.Sprintf("Buffer overflow: field size exceeds tmpRuneSize=%d", bufferSize))
-			}
-			ch.tmprun[tabIndex] = c
-			tabIndex++
-		}
-	}
 }
 
 func (k *kvMessage) String() string {

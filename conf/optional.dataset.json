@@ -23,12 +23,6 @@
     "id": "503",
     "url": ""
   },
-  "bgee": {
-    "aliases": "Bgee",
-    "name": "Bgee",
-    "id": "504",
-    "url": "https://bgee.org/?page=gene&gene_id=£{id}"
-  },
   "bindingdb": {
     "aliases": "BindingDB",
     "name": "BindingDB",

@@ -98,21 +98,22 @@ func (t *taxonomy) update() {
 			attr.TaxonomicDivision = r.Attrs["taxonomicDivision"]
 		}
 		b, _ := ffjson.Marshal(attr)
-		t.d.addProp3(entryid, fr, b)
+		// Use bucketed properties for taxonomy (has bucket config)
+		t.d.addProp3Bucketed(entryid, fr, b)
 
-		//child
+		//child - use bucketed routing since keys are taxonomy IDs
 		for _, v = range r.Childs["children"] {
 			if _, ok = v.Childs["taxon"]; ok {
 				for _, z = range v.Childs["taxon"] {
-					t.d.addXref2(entryid, fr, z.Attrs["taxId"], "taxchild")
-					t.d.addXref2(z.Attrs["taxId"], frchild, z.Attrs["taxId"], "taxonomy") // this always needs for linkdatasets like taxchild,taxparent,gochild etc. In order to automaticly expand during query time.
+					t.d.addXref2Bucketed(entryid, fr, z.Attrs["taxId"], "taxchild", fr)
+					t.d.addXref2Bucketed(z.Attrs["taxId"], frchild, z.Attrs["taxId"], "taxonomy", fr) // this always needs for linkdatasets like taxchild,taxparent,gochild etc. In order to automaticly expand during query time.
 				}
 			}
 		}
-		//parent
+		//parent - use bucketed routing since keys are taxonomy IDs
 		if _, ok := r.Attrs["parentTaxId"]; ok {
-			t.d.addXref2(entryid, fr, r.Attrs["parentTaxId"], "taxparent")
-			t.d.addXref2(r.Attrs["parentTaxId"], frparent, r.Attrs["parentTaxId"], "taxonomy")
+			t.d.addXref2Bucketed(entryid, fr, r.Attrs["parentTaxId"], "taxparent", fr)
+			t.d.addXref2Bucketed(r.Attrs["parentTaxId"], frparent, r.Attrs["parentTaxId"], "taxonomy", fr)
 		}
 
 		// Log ID in test mode

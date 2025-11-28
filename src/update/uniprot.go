@@ -91,8 +91,10 @@ func (u *uniprot) processDbReference(entryid string, r *xmlparser.XMLElement) {
 			if !u.trembl {
 				for _, z := range v.Childs["property"] {
 					if z.Attrs["type"] == "gene ID" {
-
-						u.ensmeblRefs[z.Attrs["value"]] = append(u.ensmeblRefs[z.Attrs["value"]], v.Attrs["id"])
+						// Strip version suffix (e.g., ENSG00000171862.16 -> ENSG00000171862)
+						// to match ensembl entries which are stored without version
+						geneID := strings.Split(z.Attrs["value"], ".")[0]
+						u.ensmeblRefs[geneID] = append(u.ensmeblRefs[geneID], v.Attrs["id"])
 
 					}
 				}
@@ -121,7 +123,8 @@ func (u *uniprot) processDbReference(entryid string, r *xmlparser.XMLElement) {
 				}
 			}
 		case "GO":
-			u.d.addXref(entryid, u.sourceID, v.Attrs["id"], v.Attrs["type"], false)
+			// Use bucketed xref for GO (has bucket config)
+			u.d.addXrefBucketed(entryid, u.sourceID, v.Attrs["id"], v.Attrs["type"], false)
 			for _, z := range v.Childs["property"] {
 				switch z.Attrs["type"] {
 				case "evidence":
@@ -399,10 +402,12 @@ uniloop:
 					}
 				}
 
-				u.d.addXref(entryid, fr, z.Attrs["id"], z.Attrs["type"], false)
+				// Use bucketed xref for taxonomy (has bucket config)
+				u.d.addXrefBucketed(entryid, fr, z.Attrs["id"], z.Attrs["type"], false)
 
 				for _, x := range z.Childs["property"] {
-					u.d.addXref(z.Attrs["id"], config.Dataconf[z.Attrs["type"]]["id"], x.Attrs["value"], x.Attrs["type"], false)
+					// Taxonomy → other entity also uses bucketing
+					u.d.addXrefBucketed(z.Attrs["id"], config.Dataconf[z.Attrs["type"]]["id"], x.Attrs["value"], x.Attrs["type"], false)
 				}
 
 			}
@@ -481,7 +486,8 @@ uniloop:
 
 		b, _ := ffjson.Marshal(attr)
 
-		u.d.addProp3(entryid, fr, b)
+		// Use bucketed properties for uniprot (has bucket config)
+		u.d.addProp3Bucketed(entryid, fr, b)
 
 		// Test mode: log ID
 		if idLogFile != nil {

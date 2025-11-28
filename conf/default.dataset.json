@@ -51,45 +51,6 @@
     "hasFilter": "yes",
     "attrs": "type"
   },
-  "exon": {
-    "name": "Exon",
-    "id": "89",
-    "url": "https://www.ensembl.org/Multi/Search/Results?q=£{id};site=ensembl_all",
-    "bacteriaUrl": "http://bacteria.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
-    "fungiUrl": "http://fungi.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
-    "metazoaUrl": "http://metazoa.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
-    "plantsUrl": "http://plants.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
-    "protistsUrl": "http://protists.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
-    "hasFilter": "yes",
-    "attrs": "start,end,strand,seq_region"
-  },
-  "ortholog": {
-    "name": "Ortholog",
-    "id": "90",
-    "url": "https://www.ensembl.org/Multi/Search/Results?q=£{id};site=ensembl_all",
-    "linkdataset": "ensembl",
-    "hasFilter": "yes"
-  },
-  "paralog": {
-    "name": "Paralog",
-    "id": "91",
-    "url": "https://www.ensembl.org/Multi/Search/Results?q=£{id};site=ensembl_all",
-    "linkdataset": "ensembl",
-    "hasFilter": "yes",
-    "attrs": "name,description,start,end,biotype,genome,strand,seq_region,branch"
-  },
-  "transcript": {
-    "name": "Transcript",
-    "id": "92",
-    "url": "https://www.ensembl.org/Multi/Search/Results?q=£{id};site=ensembl_all",
-    "bacteriaUrl": "http://bacteria.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
-    "fungiUrl": "http://fungi.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
-    "metazoaUrl": "http://metazoa.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
-    "plantsUrl": "http://plants.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
-    "protistsUrl": "http://protists.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
-    "hasFilter": "yes",
-    "attrs": "name,start,end,biotype,strand,seq_region,utr5Start,utr5End,utr3Start,utr3End,source"
-  },
   "expressionatlas": {
     "aliases": "ExpressionAtlas",
     "name": "E.Atlas",
@@ -136,7 +97,9 @@
     "aliases": "omim,MIM",
     "name": "MIM",
     "id": "101",
-    "url": "https://www.omim.org/entry/£{id}"
+    "url": "https://www.omim.org/entry/£{id}",
+    "bucketMethod": "numeric",
+    "numBuckets": "10"
   },
   "metacyc": {
     "aliases": "MetaCyc,MetaCyc accession,METACYC",
@@ -207,12 +170,6 @@
     "id": "113",
     "url": "https://europepmc.org/search?query=£{id}"
   },
-  "rnacentral": {
-    "aliases": "RNAcentral",
-    "name": "RNAcentral",
-    "id": "114",
-    "url": "https://rnacentral.org/search?q=£{id}"
-  },
   "refseq": {
     "aliases": "RefSeq,nucleotide sequence ID",
     "name": "Refseq",
@@ -236,29 +193,6 @@
     "name": "WBParaSite",
     "id": "120",
     "url": "http://ensemblgenomes.org/id/£{id}"
-  },
-  "ufeature": {
-    "name": "Protein Feature",
-    "id": "122",
-    "url": "//www.uniprot.org/uniprot/£{id}",
-    "hasFilter": "yes",
-    "attrs": "type,description,id,original,variation,location.begin,location.end,[]evidences.type,[]evidences.source,[]evidences.id"
-  },
-  "taxchild": {
-    "name": "Tax Childs",
-    "id": "124",
-    "url": "",
-    "linkdataset": "taxonomy",
-    "hasFilter": "yes",
-    "attrs": "name,common_name,rank,taxonomic_division"
-  },
-  "taxparent": {
-    "name": "Tax Parent",
-    "id": "125",
-    "url": "",
-    "linkdataset": "taxonomy",
-    "hasFilter": "yes",
-    "attrs": "name,common_name,rank,taxonomic_division"
   },
   "affy_bovine": {
     "name": "affy_bovine",
@@ -1330,38 +1264,6 @@
     "id": "339",
     "url": ""
   },
-  "gochild": {
-    "name": "GO Child",
-    "id": "340",
-    "url": "https://www.ebi.ac.uk/QuickGO/term/£{id}",
-    "linkdataset": "go",
-    "hasFilter": "yes",
-    "attrs": "type,name,[]synonyms"
-  },
-  "goparent": {
-    "name": "GO Parent",
-    "id": "341",
-    "url": "https://www.ebi.ac.uk/QuickGO/term/£{id}",
-    "linkdataset": "go",
-    "hasFilter": "yes",
-    "attrs": "type,name,[]synonyms"
-  },
-  "efochild": {
-    "name": "EFO Child",
-    "id": "342",
-    "url": "http://www.ebi.ac.uk/efo/£{id}",
-    "linkdataset": "efo",
-    "hasFilter": "yes",
-    "attrs": "type,name,[]synonyms"
-  },
-  "efoparent": {
-    "name": "EFO Parent",
-    "id": "343",
-    "url": "http://www.ebi.ac.uk/efo/£{id}",
-    "linkdataset": "efo",
-    "hasFilter": "yes",
-    "attrs": "type,name,[]synonyms"
-  },
   "cds": {
     "aliases": "eprotein",
     "name": "CDS",
@@ -1374,22 +1276,6 @@
     "name": "affy_unibasa_gossypiisysyng001a",
     "id": "345",
     "url": ""
-  },
-  "ecochild": {
-    "name": "ECO Child",
-    "id": "346",
-    "url": "https://www.ebi.ac.uk/QuickGO/term/£{id}",
-    "linkdataset": "eco",
-    "hasFilter": "yes",
-    "attrs": "type,name,[]synonyms"
-  },
-  "ecoparent": {
-    "name": "ECO Parent",
-    "id": "347",
-    "url": "https://www.ebi.ac.uk/QuickGO/term/£{id}",
-    "linkdataset": "eco",
-    "hasFilter": "yes",
-    "attrs": "type,name,[]synonyms"
   },
   "agilent_gpl26966": {
     "name": "agilent_gpl26966",
@@ -1411,113 +1297,10 @@
     "id": "351",
     "url": ""
   },
-  "patent_compound": {
-    "name": "Patent Compound",
-    "id": "352",
-    "url": "",
-    "linkdataset": "chembl_molecule",
-    "hasFilter": "yes"
-  },
   "patent_family": {
     "name": "Patent Family",
     "id": "353",
     "url": "",
     "hasFilter": "yes"
-  },
-  "mondochild": {
-    "name": "MONDO Child",
-    "id": "354",
-    "url": "https://monarchinitiative.org/disease/£{id}",
-    "linkdataset": "mondo",
-    "hasFilter": "yes",
-    "attrs": "type,name,[]synonyms"
-  },
-  "mondoparent": {
-    "name": "MONDO Parent",
-    "id": "355",
-    "url": "https://monarchinitiative.org/disease/£{id}",
-    "linkdataset": "mondo",
-    "hasFilter": "yes",
-    "attrs": "type,name,[]synonyms"
-  },
-  "reactomeparent": {
-    "name": "Reactome Parent",
-    "id": "356",
-    "url": "https://reactome.org/content/detail/£{id}",
-    "linkdataset": "reactome",
-    "hasFilter": "yes",
-    "attrs": "name,tax_id"
-  },
-  "reactomechild": {
-    "name": "Reactome Child",
-    "id": "357",
-    "url": "https://reactome.org/content/detail/£{id}",
-    "linkdataset": "reactome",
-    "hasFilter": "yes",
-    "attrs": "name,tax_id"
-  },
-  "hpoparent": {
-    "name": "HPO Parent",
-    "id": "358",
-    "url": "https://hpo.jax.org/browse/term/£{id}",
-    "linkdataset": "hpo",
-    "hasFilter": "yes",
-    "attrs": "name,[]synonyms,definition"
-  },
-  "hpochild": {
-    "name": "HPO Child",
-    "id": "359",
-    "url": "https://hpo.jax.org/browse/term/£{id}",
-    "linkdataset": "hpo",
-    "hasFilter": "yes",
-    "attrs": "name,[]synonyms,definition"
-  },
-  "uberonparent": {
-    "name": "UBERON Parent",
-    "id": "360",
-    "url": "http://purl.obolibrary.org/obo/£{id}",
-    "linkdataset": "uberon",
-    "hasFilter": "yes",
-    "attrs": "type,name,[]synonyms"
-  },
-  "uberonchild": {
-    "name": "UBERON Child",
-    "id": "361",
-    "url": "http://purl.obolibrary.org/obo/£{id}",
-    "linkdataset": "uberon",
-    "hasFilter": "yes",
-    "attrs": "type,name,[]synonyms"
-  },
-  "clparent": {
-    "name": "CL Parent",
-    "id": "362",
-    "url": "http://purl.obolibrary.org/obo/£{id}",
-    "linkdataset": "cl",
-    "hasFilter": "yes",
-    "attrs": "type,name,[]synonyms"
-  },
-  "clchild": {
-    "name": "CL Child",
-    "id": "363",
-    "url": "http://purl.obolibrary.org/obo/£{id}",
-    "linkdataset": "cl",
-    "hasFilter": "yes",
-    "attrs": "type,name,[]synonyms"
-  },
-  "meshparent": {
-    "name": "MeSH Parent",
-    "id": "364",
-    "url": "https://www.ncbi.nlm.nih.gov/mesh/?term=£{id}",
-    "linkdataset": "mesh",
-    "hasFilter": "yes",
-    "attrs": "descriptor_ui,descriptor_name,[]entry_terms,[]tree_numbers,scope_note"
-  },
-  "meshchild": {
-    "name": "MeSH Child",
-    "id": "365",
-    "url": "https://www.ncbi.nlm.nih.gov/mesh/?term=£{id}",
-    "linkdataset": "mesh",
-    "hasFilter": "yes",
-    "attrs": "descriptor_ui,descriptor_name,[]entry_terms,[]tree_numbers,scope_note"
   }
   }

@@ -86,6 +86,8 @@ func (g *ontology) update() {
 			if len(entryid) > 0 && strings.HasPrefix(entryid, g.idPrefix) {
 
 				// always parent ontology parsed
+				// Use bucketed routing for ontologies with bucket config (e.g., GO)
+				// Falls back to kvdatachan for ontologies without bucket config (ECO, EFO, etc.)
 				if r.Childs["rdfs:subClassOf"] != nil {
 					for _, parent := range r.Childs["rdfs:subClassOf"] {
 						if _, ok := parent.Attrs["rdf:resource"]; ok {
@@ -93,11 +95,11 @@ func (g *ontology) update() {
 							id = strings.Replace(id, "_", ":", 1)
 							if len(id) > 0 && entryid != id && strings.HasPrefix(id, g.idPrefix) {
 
-								g.d.addXref2(entryid, fr, id, frparentStr)
-								g.d.addXref2(id, frparent, id, g.source)
+								g.d.addXref2Bucketed(entryid, fr, id, frparentStr, fr)
+								g.d.addXref2Bucketed(id, frparent, id, g.source, fr)
 
-								g.d.addXref2(id, fr, entryid, frchildStr)
-								g.d.addXref2(entryid, frchild, entryid, g.source)
+								g.d.addXref2Bucketed(id, fr, entryid, frchildStr, fr)
+								g.d.addXref2Bucketed(entryid, frchild, entryid, g.source, fr)
 
 							}
 						} else if parent.Childs["owl:Restriction"] != nil {
@@ -108,11 +110,11 @@ func (g *ontology) update() {
 										id = strings.Replace(id, "_", ":", 1)
 										if len(id) > 0 && entryid != id && strings.HasPrefix(id, g.idPrefix) {
 
-											g.d.addXref2(entryid, fr, id, frparentStr)
-											g.d.addXref2(id, frparent, id, g.source)
+											g.d.addXref2Bucketed(entryid, fr, id, frparentStr, fr)
+											g.d.addXref2Bucketed(id, frparent, id, g.source, fr)
 
-											g.d.addXref2(id, fr, entryid, frchildStr)
-											g.d.addXref2(entryid, frchild, entryid, g.source)
+											g.d.addXref2Bucketed(id, fr, entryid, frchildStr, fr)
+											g.d.addXref2Bucketed(entryid, frchild, entryid, g.source, fr)
 
 										}
 									}
@@ -131,11 +133,11 @@ func (g *ontology) update() {
 								id = strings.Replace(id, "_", ":", 1)
 								if len(id) > 0 && entryid != id && strings.HasPrefix(id, g.idPrefix) {
 
-									g.d.addXref2(entryid, fr, id, frparentStr)
-									g.d.addXref2(id, frparent, id, g.source)
+									g.d.addXref2Bucketed(entryid, fr, id, frparentStr, fr)
+									g.d.addXref2Bucketed(id, frparent, id, g.source, fr)
 
-									g.d.addXref2(id, fr, entryid, frchildStr)
-									g.d.addXref2(entryid, frchild, entryid, g.source)
+									g.d.addXref2Bucketed(id, fr, entryid, frchildStr, fr)
+									g.d.addXref2Bucketed(entryid, frchild, entryid, g.source, fr)
 
 								}
 							}
@@ -176,7 +178,9 @@ func (g *ontology) update() {
 
 				b, _ := ffjson.Marshal(attr)
 
-				g.d.addProp3(entryid, fr, b)
+				// Use bucketed properties for ontologies with bucket config (e.g., GO)
+				// Falls back to regular kvdatachan for ontologies without bucket config (e.g., ECO, EFO)
+				g.d.addProp3Bucketed(entryid, fr, b)
 
 				// Log ID in test mode
 				if idLogFile != nil {

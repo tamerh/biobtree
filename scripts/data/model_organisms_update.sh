@@ -181,7 +181,7 @@ TOTAL_JOBS=0
 JOB_NUM=0
 
 # Retry configuration
-MAX_RETRIES=1  # Total 2 attempts (initial + 1 retry)
+MAX_RETRIES=0  # Total 1 attempt (initial only, no retry)
 WAIT_MINUTES=5
 
 # Helper function to run a job with retry logic

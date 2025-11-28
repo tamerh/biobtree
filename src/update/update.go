@@ -44,6 +44,7 @@ type DataUpdate struct {
 	datasets2              []string // after resolving the input datasets
 	start                  time.Time
 	kvdatachan             *chan string
+	mergeGateCh            *chan mergeInfo // Channel for sending files to merge pipeline
 	invalidXrefs           util.HashMaper
 	sampleXrefs            util.HashMaper
 	sampleCount            int
@@ -71,6 +72,8 @@ type DataUpdate struct {
 	lookupDbi              db.DBI
 	hasLookupDB            bool
 	lookupCache            *ristretto.Cache // Cache for lookup() to avoid repeated LMDB transactions
+	bucketPool             *HybridWriterPool // Bucket writer pool for optimized datasets
+	bucketWg               *sync.WaitGroup   // WaitGroup for bucket writers
 }
 
 type progressInfo struct {
@@ -308,6 +311,16 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 
 	d.wg = &wg
 	d.kvdatachan = &e
+	d.mergeGateCh = &mergeGateCh
+
+	// Initialize bucket system for optimized datasets
+	bucketConfigs := LoadBucketConfigs()
+	var bucketWg sync.WaitGroup
+	d.bucketWg = &bucketWg
+	d.bucketPool = NewHybridWriterPool(bucketConfigs, &e, config.Appconf["indexDir"], &bucketWg)
+	if len(bucketConfigs) > 0 {
+		log.Printf("Bucket system initialized with %d configured datasets", len(bucketConfigs))
+	}
 
 	// chunk buffer size
 	chunkLen = 10000000
@@ -651,6 +664,30 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 
 	d.wg.Wait()
 
+	// Close bucket writers and wait for them to finish
+	var bucketLines uint64
+	if d.bucketPool != nil && len(bucketConfigs) > 0 {
+		log.Println("Closing bucket writers...")
+		d.bucketPool.Close()
+		d.bucketWg.Wait()
+		log.Println("Bucket writers closed")
+
+		// Sort all bucket files
+		log.Println("Sorting bucket files...")
+		if err := SortAllBuckets(d.bucketPool, 4); err != nil {
+			log.Printf("Error sorting buckets: %v", err)
+		}
+
+		// Concatenate buckets and move to index directory
+		log.Println("Concatenating bucket files...")
+		var err error
+		bucketLines, err = ConcatenateBuckets(d.bucketPool, config.Appconf["indexDir"], chunkIdx)
+		if err != nil {
+			log.Printf("Error concatenating buckets: %v", err)
+		}
+		log.Printf("Bucket processing complete (%d lines after deduplication)", bucketLines)
+	}
+
 	for i := 0; i < len(kvgens); i++ {
 		kvgens[i].wg.Add(1)
 	}
@@ -662,6 +699,9 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 	for i := 0; i < len(kvgens); i++ {
 		totalkv = totalkv + kvgens[i].totalkv
 	}
+
+	// Add bucket lines to total (post-deduplication count from concatenation)
+	totalkv = totalkv + bucketLines
 
 	log.Println("Data update process completed. Making last merges...")
 	// send finish signal to bmerge
@@ -784,13 +824,18 @@ func (d *DataUpdate) addProp3(key, from string, attr []byte) {
 	key = strings.TrimSpace(key)
 
 	if len(key) == 0 || len(from) == 0 || len(attr) <= 2 { // empty attr {}
-		//fmt.Println("Skipped empty property for key:", key, " from:", from, " attr:", string(attr))
 		return
 	}
 
-	//fmt.Println("Adding property for key:", key, " from:", from, " attr:", string(attr))
 	kup := strings.ToUpper(key)
-	*d.kvdatachan <- kup + tab + from + tab + string(attr) + tab + textStoreID
+	line := kup + tab + from + tab + string(attr) + tab + textStoreID
+
+	// Check if dataset has bucket config - route to buckets if so
+	if d.bucketPool != nil && d.bucketPool.HasBucketConfig(from) {
+		d.bucketPool.Write(from, kup, line)
+	} else {
+		*d.kvdatachan <- line
+	}
 
 }
 
@@ -835,15 +880,38 @@ func (d *DataUpdate) addXrefWithEvidence(key string, from string, value string, 
 	if evidence != "" {
 		dataLine += tab + evidence
 	}
-	*d.kvdatachan <- dataLine
 
-	if !isLink {
+	if isLink {
+		// Text/keyword links route to textsearch buckets (alphabetic by first letter)
+		d.bucketPool.Write(TextSearchDatasetID, kup, dataLine)
+	} else {
 		// Reverse mapping also includes evidence
-		reverseDataLine := vup + tab + config.Dataconf[valueFrom]["id"] + tab + kup + tab + from
+		valueFromID := config.Dataconf[valueFrom]["id"]
+		reverseDataLine := vup + tab + valueFromID + tab + kup + tab + from
 		if evidence != "" {
 			reverseDataLine += tab + evidence
 		}
-		*d.kvdatachan <- reverseDataLine
+
+		// Check if source or target dataset has bucket config
+		// Forward xref: keyed by source ID (kup), goes to source dataset's buckets
+		// Reverse xref: keyed by target ID (vup), goes to target dataset's buckets
+		hasBucketPool := d.bucketPool != nil
+		sourceHasBucket := hasBucketPool && d.bucketPool.HasBucketConfig(from)
+		targetHasBucket := hasBucketPool && d.bucketPool.HasBucketConfig(valueFromID)
+
+		// Route forward xref (keyed by source ID kup)
+		if sourceHasBucket {
+			d.bucketPool.Write(from, kup, dataLine)
+		} else {
+			*d.kvdatachan <- dataLine
+		}
+
+		// Route reverse xref (keyed by target ID vup)
+		if targetHasBucket {
+			d.bucketPool.Write(valueFromID, vup, reverseDataLine)
+		} else {
+			*d.kvdatachan <- reverseDataLine
+		}
 	}
 
 }
@@ -859,13 +927,9 @@ func (d *DataUpdate) addXref2(key string, from string, value string, valueFrom s
 	}
 
 	if _, ok := config.Dataconf[valueFrom]; !ok {
-		//if config.Appconf["debug"] == "y" {
 		if val, _ := d.invalidXrefs.Get(valueFrom); val == nil {
-			//fmt.Println("Warn:Undefined xref name:", valueFrom, "with value", value, " skipped!. Define in data.json to be included")
-			//not to print again.
 			d.invalidXrefs.Set(valueFrom, "true")
 		}
-		//}
 		return
 	}
 
@@ -876,8 +940,118 @@ func (d *DataUpdate) addXref2(key string, from string, value string, valueFrom s
 
 	kup := strings.ToUpper(key)
 	vup := strings.ToUpper(value)
-	*d.kvdatachan <- kup + tab + from + tab + vup + tab + config.Dataconf[valueFrom]["id"]
+	valueFromID := config.Dataconf[valueFrom]["id"]
+	line := kup + tab + from + tab + vup + tab + valueFromID
 
+	// Check if source or target dataset has bucket config
+	// For link datasets (hpochild, taxparent, etc.), the key comes from the source dataset
+	// which typically has bucket config (hpo, taxonomy, etc.)
+	if d.bucketPool != nil {
+		if d.bucketPool.HasBucketConfig(from) {
+			// Source dataset has bucket config - route by key (source ID)
+			d.bucketPool.Write(from, kup, line)
+		} else if d.bucketPool.HasBucketConfig(valueFromID) {
+			// Target dataset has bucket config - route by value (target ID)
+			d.bucketPool.Write(valueFromID, vup, line)
+		} else {
+			*d.kvdatachan <- line
+		}
+	} else {
+		*d.kvdatachan <- line
+	}
+
+}
+
+// addXref2Bucketed routes link dataset xrefs through bucket system
+// For link datasets (taxchild, taxparent, gochild, goparent, etc.), the key is from
+// the parent dataset (taxonomy, go, etc.) which has bucket config.
+// bucketDatasetID: the dataset ID to use for bucket routing (e.g., taxonomy's ID for taxchild/taxparent)
+func (d *DataUpdate) addXref2Bucketed(key string, from string, value string, valueFrom string, bucketDatasetID string) {
+
+	key = strings.TrimSpace(key)
+	value = strings.TrimSpace(value)
+
+	if len(key) == 0 || len(value) == 0 || len(from) == 0 {
+		return
+	}
+
+	if _, ok := config.Dataconf[valueFrom]; !ok {
+		if val, _ := d.invalidXrefs.Get(valueFrom); val == nil {
+			d.invalidXrefs.Set(valueFrom, "true")
+		}
+		return
+	}
+
+	// Target datasets check
+	if _, ok := d.targetDatasets[valueFrom]; d.hasTargets && !ok {
+		return
+	}
+
+	kup := strings.ToUpper(key)
+	vup := strings.ToUpper(value)
+
+	line := kup + tab + from + tab + vup + tab + config.Dataconf[valueFrom]["id"]
+
+	// Route through bucket pool using the specified bucket dataset ID
+	// This allows link datasets (taxchild, taxparent) to use parent dataset's buckets
+	d.bucketPool.Write(bucketDatasetID, kup, line)
+}
+
+// addXrefBucketed routes xrefs through bucket system for optimized datasets
+// Use this for datasets with bucketMethod configured in source.dataset.json
+// Falls back to kvdatachan for datasets without bucket configuration
+func (d *DataUpdate) addXrefBucketed(key, from, value, valueFrom string, isLink bool) {
+
+	key = strings.TrimSpace(key)
+	value = strings.TrimSpace(value)
+
+	if len(key) == 0 || len(value) == 0 || len(from) == 0 {
+		return
+	}
+
+	if _, ok := config.Dataconf[valueFrom]; !isLink && !ok {
+		if val, _ := d.invalidXrefs.Get(valueFrom); val == nil {
+			d.invalidXrefs.Set(valueFrom, "true")
+		}
+		return
+	}
+
+	// Target datasets check
+	if _, ok := d.targetDatasets[valueFrom]; d.hasTargets && !ok && !isLink {
+		return
+	}
+
+	kup := strings.ToUpper(key)
+	vup := strings.ToUpper(value)
+
+	valueFromID := config.Dataconf[valueFrom]["id"]
+
+	// Build forward and reverse lines (same format as addXref)
+	forwardLine := kup + tab + from + tab + vup + tab + valueFromID
+	reverseLine := vup + tab + valueFromID + tab + kup + tab + from
+
+	// Route through bucket pool (handles bucket vs fallback automatically)
+	d.bucketPool.WriteXref(from, kup, forwardLine, valueFromID, vup, reverseLine)
+
+	// Text search link (always goes to kvdatachan)
+	if isLink {
+		*d.kvdatachan <- kup + tab + textLinkID + tab + vup + tab + from
+	}
+}
+
+// addProp3Bucketed routes properties through bucket system
+// Falls back to kvdatachan for datasets without bucket configuration
+func (d *DataUpdate) addProp3Bucketed(key, from string, attr []byte) {
+
+	key = strings.TrimSpace(key)
+
+	if len(key) == 0 || len(from) == 0 || len(attr) <= 2 { // empty attr {}
+		return
+	}
+
+	kup := strings.ToUpper(key)
+	line := kup + tab + from + tab + string(attr) + tab + textStoreID
+	d.bucketPool.Write(from, kup, line)
 }
 
 // addXrefViaKeyword resolves keyword to database identifiers via lookup, then creates xrefs

@@ -26,7 +26,7 @@
 	"keepChunks": "yes",
 	"progressRefreshRate": "2",
 	"kvgenCount": "4",
-	"kvgenChunkSize": "1000000",
+	"kvgenChunkSize": "20000000",
 	"batchSize": "100000",
 	"progressInterval": "5",
 	"maxMappingResult": "75",
@@ -45,5 +45,10 @@
 	"lookupDbDir": "/data/scc/ag-gruber/GROUP/tgur/x/bioyoda_dev2/biobtreev2/out_lookup_latest/db",
 	"lookupAliasDbDir": "/data/scc/ag-gruber/GROUP/tgur/x/bioyoda_dev2/biobtreev2/out_lookup_latest/aliasdb",
 	"tmpRuneSize": "10000000",
-	"mergeCheckpointInterval": "100000"
+	"mergeCheckpointInterval": "100000",
+	"__dbsnp_config_comment": "dbSNP bucket sort configuration options below",
+	"dbsnpNumBuckets": "100",
+	"dbsnpNumWorkers": "6",
+	"dbsnpReverseXrefs": "yes",
+	"dbsnpLookupXrefs": "yes"
 }

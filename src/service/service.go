@@ -761,14 +761,15 @@ func (s *service) search(ids []string, idsDomain uint32, page string, q *query.Q
 						linkIndex := 0
 						for _, b := range xref.Entries { //link entries
 
+							// Filter by dataset BEFORE fetching to avoid errors from missing entries in other datasets
+							if idsDomain > 0 && b.Dataset != idsDomain {
+								continue
+							}
+
 							xref2, err := s.getLmdbResult2(b.Identifier, b.Dataset)
 
 							if err != nil {
 								return nil, err
-							}
-
-							if idsDomain > 0 && xref2.Dataset != idsDomain {
-								continue
 							}
 
 							if totalResult == s.resultPageSize {
@@ -836,14 +837,15 @@ func (s *service) search(ids []string, idsDomain uint32, page string, q *query.Q
 							linkIndex := 0
 							for _, b := range xrefPage.Entries {
 
+								// Filter by dataset BEFORE fetching to avoid errors from missing entries in other datasets
+								if idsDomain > 0 && b.Dataset != idsDomain {
+									continue
+								}
+
 								xref2, err := s.getLmdbResult2(b.Identifier, b.Dataset)
 
 								if err != nil {
 									return nil, err
-								}
-
-								if idsDomain > 0 && xref2.Dataset != idsDomain {
-									continue
 								}
 
 								if totalResult == s.resultPageSize {

@@ -32,15 +32,20 @@ type binarymerge struct {
 	ch           *chan mergeInfo
 	nextch       *chan mergeInfo
 	files        [2]string
-	brr          [2]*bufio.Reader
-	ffiles       [2]*os.File
-	gzs          [2]*gzip.Reader
-	lines        [2]string
-	complete     [2]bool
-	eof          [2]bool
 	wg           *sync.WaitGroup
 	conf         *configs.Conf
 	//mb           *mergeb
+}
+
+// mergeState holds per-merge state to avoid race conditions
+// when multiple merges run concurrently on the same binarymerge
+type mergeState struct {
+	filePaths [2]string
+	brr       [2]*bufio.Reader
+	ffiles    [2]*os.File
+	gzs       [2]*gzip.Reader
+	lines     [2]string
+	eof       [2]bool
 }
 
 func (mb *mergeb) start() {
@@ -97,6 +102,17 @@ func (bm *binarymerge) start() {
 	for minfo := range *bm.ch {
 
 		if minfo.close {
+			// If there's an odd file waiting, pass it to next level
+			if index == 1 {
+				if bm.nextch != nil {
+					*bm.nextch <- mergeInfo{
+						fname: bm.files[0],
+						level: bm.level * 2,
+					}
+				}
+				// If no next level, the file is already in final form
+			}
+
 			close(*bm.ch)
 			if bm.nextch != nil {
 				*bm.nextch <- mergeInfo{
@@ -126,19 +142,19 @@ func (bm *binarymerge) start() {
 	}
 }
 
-func (bm *binarymerge) readLine(ind int) {
+func (ms *mergeState) readLine(ind int) {
 
-	line, err := bm.brr[ind].ReadString(newlinebyte)
+	line, err := ms.brr[ind].ReadString(newlinebyte)
 
 	if err == io.EOF {
-		bm.eof[ind] = true
+		ms.eof[ind] = true
 		// at this stage we can also delete this file
-		bm.gzs[ind].Close()
-		bm.ffiles[ind].Close()
+		ms.gzs[ind].Close()
+		ms.ffiles[ind].Close()
 
-		err := os.Remove(filepath.FromSlash(bm.files[ind]))
+		err := os.Remove(filepath.FromSlash(ms.filePaths[ind]))
 		if err != nil {
-			fmt.Println("Cant remove the file", filepath.FromSlash(bm.files[ind]))
+			fmt.Println("Cant remove the file", filepath.FromSlash(ms.filePaths[ind]))
 			panic(err)
 		}
 
@@ -146,11 +162,11 @@ func (bm *binarymerge) readLine(ind int) {
 	}
 
 	if err != nil {
-		fmt.Println("Error while reading file->", bm.files[ind])
+		fmt.Println("Error while reading file->", ms.filePaths[ind])
 		panic(err)
 	}
 
-	bm.lines[ind] = line
+	ms.lines[ind] = line
 
 }
 
@@ -165,93 +181,94 @@ func (bm *binarymerge) merge(wg *sync.WaitGroup) {
 	mergedFile := config.Appconf["indexDir"] + "/" + strconv.Itoa(bm.level) + "_" + strconv.Itoa(bm.outFileIndex) + "." + chunkIdx + ".index.gz"
 	bm.outFileIndex++
 
-	bm.complete[0] = false
-	bm.complete[1] = false
-	bm.eof[0] = false
-	bm.eof[1] = false
+	// Create local merge state to avoid race conditions
+	// Each merge gets its own state that won't be overwritten
+	ms := &mergeState{
+		filePaths: [2]string{bm.files[0], bm.files[1]},
+	}
 
-	file1, err := os.Open(filepath.FromSlash(bm.files[0]))
+	file1, err := os.Open(filepath.FromSlash(ms.filePaths[0]))
 	check(err)
-	bm.ffiles[0] = file1
+	ms.ffiles[0] = file1
 	gz, err := gzip.NewReader(file1)
 	check(err)
-	bm.gzs[0] = gz
+	ms.gzs[0] = gz
 
 	br1 := bufio.NewReaderSize(gz, fileBufSize)
-	bm.brr[0] = br1
+	ms.brr[0] = br1
 
-	file2, err := os.Open(filepath.FromSlash(bm.files[1]))
+	file2, err := os.Open(filepath.FromSlash(ms.filePaths[1]))
 	check(err)
-	bm.ffiles[1] = file2
+	ms.ffiles[1] = file2
 	gz2, err := gzip.NewReader(file2)
 	check(err)
-	bm.gzs[1] = gz2
+	ms.gzs[1] = gz2
 	br2 := bufio.NewReaderSize(gz2, fileBufSize)
-	bm.brr[1] = br2
+	ms.brr[1] = br2
 
 	f, err := os.Create(filepath.FromSlash(mergedFile))
 	check(err)
 	gw, err := gzip.NewWriterLevel(f, gzip.BestCompression)
 
 	// for initial read from both
-	bm.readLine(0)
-	bm.readLine(1)
+	ms.readLine(0)
+	ms.readLine(1)
 
 	sortedCh := make(chan string, 10000)
 
 	go func() {
 		for {
 
-			if bm.lines[0] < bm.lines[1] {
+			if ms.lines[0] < ms.lines[1] {
 
-				sortedCh <- bm.lines[0]
-				bm.readLine(0)
+				sortedCh <- ms.lines[0]
+				ms.readLine(0)
 
-				if bm.eof[0] {
-					sortedCh <- bm.lines[1]
+				if ms.eof[0] {
+					sortedCh <- ms.lines[1]
 					break
 				}
 
-			} else if bm.lines[0] > bm.lines[1] {
+			} else if ms.lines[0] > ms.lines[1] {
 
-				sortedCh <- bm.lines[1]
-				bm.readLine(1)
+				sortedCh <- ms.lines[1]
+				ms.readLine(1)
 
-				if bm.eof[1] {
-					sortedCh <- bm.lines[0]
+				if ms.eof[1] {
+					sortedCh <- ms.lines[0]
 					break
 				}
 
 			} else {
 
-				sortedCh <- bm.lines[1]
-				bm.readLine(0)
-				bm.readLine(1)
+				sortedCh <- ms.lines[1]
+				ms.readLine(0)
+				ms.readLine(1)
 
-				if bm.eof[0] || bm.eof[1] {
+				if ms.eof[0] || ms.eof[1] {
 					break
 				}
 
 			}
 		}
 
-		if !bm.eof[0] {
+		if !ms.eof[0] {
 			for {
-				bm.readLine(0)
-				if bm.eof[0] {
+				ms.readLine(0)
+				if ms.eof[0] {
 					break
 				}
-				sortedCh <- bm.lines[0]
+				sortedCh <- ms.lines[0]
 			}
 		}
 
-		if !bm.eof[1] {
+		if !ms.eof[1] {
 			for {
-				bm.readLine(1)
-				if bm.eof[1] {
+				ms.readLine(1)
+				if ms.eof[1] {
 					break
 				}
-				sortedCh <- bm.lines[1]
+				sortedCh <- ms.lines[1]
 			}
 		}
 		close(sortedCh)

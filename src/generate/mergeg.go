@@ -401,6 +401,8 @@ type Merge struct {
 	workerPool              *workerPool           // Worker pool for reading files
 	numWorkers              int                   // Number of workers (default 8)
 	tmprunSize              int                   // Buffer size for reading
+	lastProgressTime        time.Time             // Last time progress was logged
+	progressInterval        time.Duration         // Interval between progress logs
 }
 
 // saveCheckpoint saves the current merge progress to a checkpoint file
@@ -497,6 +499,42 @@ func (d *Merge) saveCheckpoint(lastKey string) error {
 	// }
 
 	return nil
+}
+
+// logTimeBasedProgress logs progress at regular intervals (regardless of checkpoint)
+func (d *Merge) logTimeBasedProgress(currentKey string) {
+	if time.Since(d.lastProgressTime) < d.progressInterval {
+		return
+	}
+	d.lastProgressTime = time.Now()
+
+	// Calculate progress percentage based on lines read
+	var progressPercent float64
+	var totalLinesRead int64
+	if d.totalkvLine > 0 {
+		for _, fs := range d.fileStates {
+			if fs != nil {
+				totalLinesRead += fs.linesRead
+			}
+		}
+		for _, state := range d.completedFiles {
+			totalLinesRead += state.LinesRead
+		}
+		progressPercent = float64(totalLinesRead) / float64(d.totalkvLine) * 100
+	}
+
+	// Memory stats
+	var memStats runtime.MemStats
+	runtime.ReadMemStats(&memStats)
+	heapMB := memStats.HeapAlloc / 1024 / 1024
+
+	activeFiles := 0
+	if d.fileHeap != nil {
+		activeFiles = d.fileHeap.Len()
+	}
+
+	log.Printf("Progress: %.2f%% | Lines: %d/%d | Keys: %d | Current: %s | Files: %d | Mem: %dMB",
+		progressPercent, totalLinesRead, d.totalkvLine, d.totalKeyWrite, currentKey, activeFiles, heapMB)
 }
 
 // loadCheckpoint loads a checkpoint file if it exists
@@ -653,6 +691,9 @@ func (d *Merge) Merge(c *configs.Conf, keep bool) (uint64, uint64, uint64) {
 
 		// Update heap for files that got new keys or completed
 		d.updateHeapAfterRead(filesToRead)
+
+		// Log progress periodically (time-based, regardless of checkpoint)
+		d.logTimeBasedProgress(minKey)
 	}
 
 	// Wait for merge channel to drain
@@ -713,8 +754,10 @@ func (d *Merge) initialReadAllFiles() {
 			<-resultCh
 		}
 
-		if (i/batchSize)%10 == 0 {
-			log.Printf("Initial read progress: %d/%d files", end, len(d.fileStates))
+		// Log progress at start, 25%, 50%, 75%, and end
+		progress := float64(end) / float64(len(d.fileStates)) * 100
+		if i == 0 || int(progress)%25 == 0 || end == len(d.fileStates) {
+			log.Printf("Initial read progress: %d/%d files (%.0f%%)", end, len(d.fileStates), progress)
 		}
 	}
 }
@@ -1179,6 +1222,10 @@ func (d *Merge) init() {
 			panic("Invalid mergeWorkers definition")
 		}
 	}
+
+	// Initialize time-based progress logging (every 5 seconds)
+	d.progressInterval = 5 * time.Second
+	d.lastProgressTime = time.Now()
 
 	// Create worker pool with shared buffer pool
 	// This dramatically reduces memory: N workers × buffer size instead of N files × buffer size

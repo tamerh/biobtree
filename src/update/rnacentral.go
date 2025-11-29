@@ -5,6 +5,7 @@ import (
 	"bufio"
 	"compress/gzip"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"strings"
@@ -69,17 +70,13 @@ func (r *rnacentralProcessor) processFastaFile(filePath string, idLogFile *os.Fi
 	// fmt.Printf("✓ FASTA file opened successfully\n")
 	// fmt.Printf("Starting to parse FASTA entries...\n")
 
-	// Create scanner to read line by line
-	var scanner *bufio.Scanner
+	// Create reader for line by line reading
+	var reader *bufio.Reader
 	if gz != nil {
-		scanner = bufio.NewScanner(gz)
+		reader = bufio.NewReaderSize(gz, 1024*1024) // 1MB buffer
 	} else {
-		scanner = bufio.NewScanner(br)
+		reader = bufio.NewReaderSize(br, 1024*1024) // 1MB buffer
 	}
-
-	// Increase buffer size for long sequences
-	buf := make([]byte, 0, 1024*1024) // 1MB buffer
-	scanner.Buffer(buf, 10*1024*1024) // 10MB max
 
 	var totalProcessed uint64
 	var totalBytesRead int64
@@ -90,16 +87,25 @@ func (r *rnacentralProcessor) processFastaFile(filePath string, idLogFile *os.Fi
 	var currentDesc string
 	var currentSeq strings.Builder
 
-	for scanner.Scan() {
-		line := scanner.Text()
-		totalBytesRead += int64(len(line)) + 1 // +1 for newline
+	for {
+		line, err := reader.ReadString('\n')
+		if err != nil && err != io.EOF {
+			return totalProcessed, fmt.Errorf("error reading FASTA: %v", err)
+		}
+		if len(line) == 0 && err == io.EOF {
+			break
+		}
+
+		totalBytesRead += int64(len(line))
+		line = strings.TrimSuffix(line, "\n")
+		line = strings.TrimSuffix(line, "\r")
 
 		// Header line
 		if strings.HasPrefix(line, ">") {
 			// Process previous entry
 			if currentID != "" {
-				if err := r.processEntry(currentID, currentDesc, currentSeq.String(), idLogFile); err != nil {
-					log.Printf("Warning: Error processing %s: %v", currentID, err)
+				if procErr := r.processEntry(currentID, currentDesc, currentSeq.String(), idLogFile); procErr != nil {
+					log.Printf("Warning: Error processing %s: %v", currentID, procErr)
 				} else {
 					totalProcessed++
 
@@ -138,6 +144,10 @@ func (r *rnacentralProcessor) processFastaFile(filePath string, idLogFile *os.Fi
 			previous = elapsed
 			r.d.progChan <- &progressInfo{dataset: r.source, currentKBPerSec: kbytesPerSecond}
 		}
+
+		if err == io.EOF {
+			break
+		}
 	}
 
 	// Process last entry
@@ -147,10 +157,6 @@ func (r *rnacentralProcessor) processFastaFile(filePath string, idLogFile *os.Fi
 		} else {
 			totalProcessed++
 		}
-	}
-
-	if err := scanner.Err(); err != nil {
-		return totalProcessed, fmt.Errorf("error reading FASTA: %v", err)
 	}
 
 	return totalProcessed, nil

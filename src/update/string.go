@@ -5,8 +5,11 @@ import (
 	"bufio"
 	"compress/gzip"
 	"fmt"
+	"io"
 	"log"
 	"os"
+	"runtime"
+	"runtime/pprof"
 	"strconv"
 	"strings"
 	"sync/atomic"
@@ -15,6 +18,34 @@ import (
 	"github.com/jlaffaye/ftp"
 	"github.com/pquerna/ffjson/ffjson"
 )
+
+// writeMemProfile writes a memory profile snapshot with the given name
+func writeMemProfile(name string) {
+	runtime.GC() // Force GC to get accurate memory stats
+	f, err := os.Create(fmt.Sprintf("memprof_string_%s.out", name))
+	if err != nil {
+		log.Printf("Could not create memory profile %s: %v", name, err)
+		return
+	}
+	defer f.Close()
+	if err := pprof.WriteHeapProfile(f); err != nil {
+		log.Printf("Could not write memory profile %s: %v", name, err)
+		return
+	}
+	log.Printf("STRING: Memory profile written to memprof_string_%s.out", name)
+}
+
+// logMemStats logs current memory statistics
+func logMemStats(stage string) {
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+	log.Printf("STRING [%s]: Alloc=%dMB, TotalAlloc=%dMB, Sys=%dMB, NumGC=%d",
+		stage,
+		m.Alloc/1024/1024,
+		m.TotalAlloc/1024/1024,
+		m.Sys/1024/1024,
+		m.NumGC)
+}
 
 type stringProcessor struct {
 	source       string
@@ -65,6 +96,7 @@ func (s *stringProcessor) update(selectedTaxids []int) {
 
 	for _, taxid := range selectedTaxids {
 		// fmt.Printf("Processing STRING data for taxid %d...\n", taxid)
+		logMemStats(fmt.Sprintf("taxid_%d_start", taxid))
 
 		// Step 1: Build STRING_ID ↔ UniProt mappings from aliases file
 		forwardMap, reverseMap, err := s.buildAliasMap(taxid)
@@ -72,6 +104,7 @@ func (s *stringProcessor) update(selectedTaxids []int) {
 			log.Printf("Error building alias map for taxid %d: %v", taxid, err)
 			continue
 		}
+		logMemStats(fmt.Sprintf("taxid_%d_after_alias_map_forward=%d_reverse=%d", taxid, len(forwardMap), len(reverseMap)))
 		// fmt.Printf("  Loaded %d STRING ID → UniProt mappings\n", len(forwardMap))
 
 		// Step 2: Load protein info (names, sizes, annotations)
@@ -80,6 +113,7 @@ func (s *stringProcessor) update(selectedTaxids []int) {
 			log.Printf("Error loading protein info for taxid %d: %v", taxid, err)
 			continue
 		}
+		logMemStats(fmt.Sprintf("taxid_%d_after_protein_info=%d", taxid, len(proteinInfo)))
 		// fmt.Printf("  Loaded %d protein annotations\n", len(proteinInfo))
 
 		// Step 3: Process interactions
@@ -88,6 +122,10 @@ func (s *stringProcessor) update(selectedTaxids []int) {
 			log.Printf("Error processing interactions for taxid %d: %v", taxid, err)
 			continue
 		}
+		logMemStats(fmt.Sprintf("taxid_%d_after_interactions", taxid))
+
+		// Write memory profile after processing each taxid (for debugging)
+		writeMemProfile(fmt.Sprintf("taxid_%d_complete", taxid))
 
 		totalProteins += proteins
 		totalInteractions += interactions
@@ -125,15 +163,27 @@ func (s *stringProcessor) buildAliasMap(taxid int) (map[string]string, map[strin
 
 	forwardMap := make(map[string]string) // STRING_ID → UniProt_AC (for interactions)
 	reverseMap := make(map[string]string) // UniProt_AC → STRING_ID (for complete coverage)
-	scanner := bufio.NewScanner(br)
+	reader := bufio.NewReaderSize(br, 1024*1024) // 1MB buffer
 	lineNum := 0
 
-	for scanner.Scan() {
+	for {
+		line, err := reader.ReadString('\n')
+		if err != nil && err != io.EOF {
+			return nil, nil, fmt.Errorf("error reading aliases file: %v", err)
+		}
+		if len(line) == 0 && err == io.EOF {
+			break
+		}
+
 		lineNum++
-		line := scanner.Text()
+		line = strings.TrimSuffix(line, "\n")
+		line = strings.TrimSuffix(line, "\r")
 
 		// Skip header
 		if lineNum == 1 {
+			if err == io.EOF {
+				break
+			}
 			continue
 		}
 
@@ -141,6 +191,9 @@ func (s *stringProcessor) buildAliasMap(taxid int) (map[string]string, map[strin
 		// Split by tab
 		fields := strings.Split(line, "\t")
 		if len(fields) < 3 {
+			if err == io.EOF {
+				break
+			}
 			continue
 		}
 
@@ -156,10 +209,10 @@ func (s *stringProcessor) buildAliasMap(taxid int) (map[string]string, map[strin
 			// Reverse map: ALL UniProt ACs → their STRING ID
 			reverseMap[alias] = stringID
 		}
-	}
 
-	if err := scanner.Err(); err != nil {
-		return nil, nil, fmt.Errorf("error reading aliases file: %v", err)
+		if err == io.EOF {
+			break
+		}
 	}
 
 	fmt.Printf("DEBUG: Built forwardMap with %d STRING IDs, reverseMap with %d UniProt ACs\n", len(forwardMap), len(reverseMap))
@@ -195,21 +248,36 @@ func (s *stringProcessor) loadProteinInfo(taxid int) (map[string]*ProteinInfo, e
 	defer closeReaders(gz, ftpFile, client, localFile)
 
 	infoMap := make(map[string]*ProteinInfo)
-	scanner := bufio.NewScanner(br)
+	reader := bufio.NewReaderSize(br, 1024*1024) // 1MB buffer
 	lineNum := 0
 
-	for scanner.Scan() {
+	for {
+		line, err := reader.ReadString('\n')
+		if err != nil && err != io.EOF {
+			return nil, fmt.Errorf("error reading info file: %v", err)
+		}
+		if len(line) == 0 && err == io.EOF {
+			break
+		}
+
 		lineNum++
-		line := scanner.Text()
+		line = strings.TrimSuffix(line, "\n")
+		line = strings.TrimSuffix(line, "\r")
 
 		// Skip header
 		if lineNum == 1 {
+			if err == io.EOF {
+				break
+			}
 			continue
 		}
 
 		// Format: string_protein_id	preferred_name	protein_size	annotation
 		fields := strings.Split(line, "\t")
 		if len(fields) < 4 {
+			if err == io.EOF {
+				break
+			}
 			continue
 		}
 
@@ -218,8 +286,8 @@ func (s *stringProcessor) loadProteinInfo(taxid int) (map[string]*ProteinInfo, e
 		proteinSizeStr := fields[2]
 		annotation := fields[3]
 
-		proteinSize, err := strconv.ParseInt(proteinSizeStr, 10, 32)
-		if err != nil {
+		proteinSize, parseErr := strconv.ParseInt(proteinSizeStr, 10, 32)
+		if parseErr != nil {
 			proteinSize = 0
 		}
 
@@ -228,10 +296,10 @@ func (s *stringProcessor) loadProteinInfo(taxid int) (map[string]*ProteinInfo, e
 			ProteinSize:   int32(proteinSize),
 			Annotation:    annotation,
 		}
-	}
 
-	if err := scanner.Err(); err != nil {
-		return nil, fmt.Errorf("error reading info file: %v", err)
+		if err == io.EOF {
+			break
+		}
 	}
 
 	return infoMap, nil
@@ -263,22 +331,30 @@ func (s *stringProcessor) processInteractions(taxid int, forwardMap map[string]s
 	// This allows all UniProt ACs mapping to same STRING ID to share interactions
 	stringInteractions := make(map[string][]*pbuf.StringInteraction)
 
-	scanner := bufio.NewScanner(br)
-	// Increase buffer size for large lines
-	const maxCapacity = 1024 * 1024 // 1MB
-	buf := make([]byte, maxCapacity)
-	scanner.Buffer(buf, maxCapacity)
+	reader := bufio.NewReaderSize(br, 1024*1024) // 1MB buffer
 
 	lineNum := 0
 	var totalRead int
 	var previous int64
 
-	for scanner.Scan() {
+	for {
+		line, err := reader.ReadString('\n')
+		if err != nil && err != io.EOF {
+			return 0, 0, fmt.Errorf("error reading links file: %v", err)
+		}
+		if len(line) == 0 && err == io.EOF {
+			break
+		}
+
 		lineNum++
-		line := scanner.Text()
+		line = strings.TrimSuffix(line, "\n")
+		line = strings.TrimSuffix(line, "\r")
 
 		// Skip header
 		if lineNum == 1 {
+			if err == io.EOF {
+				break
+			}
 			continue
 		}
 
@@ -286,6 +362,9 @@ func (s *stringProcessor) processInteractions(taxid int, forwardMap map[string]s
 		// Space-separated (NOT tab-separated!)
 		fields := strings.Fields(line)
 		if len(fields) < 10 {
+			if err == io.EOF {
+				break
+			}
 			continue
 		}
 
@@ -301,6 +380,9 @@ func (s *stringProcessor) processInteractions(taxid int, forwardMap map[string]s
 
 		// Filter by score threshold
 		if combinedScore < s.scoreThreshold {
+			if err == io.EOF {
+				break
+			}
 			continue
 		}
 
@@ -310,6 +392,9 @@ func (s *stringProcessor) processInteractions(taxid int, forwardMap map[string]s
 
 		// Skip if either protein doesn't have UniProt mapping
 		if !ok1 || !ok2 {
+			if err == io.EOF {
+				break
+			}
 			continue
 		}
 
@@ -317,23 +402,23 @@ func (s *stringProcessor) processInteractions(taxid int, forwardMap map[string]s
 		// Store by STRING ID (not UniProt AC) so ALL UniProt ACs for same STRING ID get interactions
 		// Protein1 → Protein2
 		interaction12 := &pbuf.StringInteraction{
-			Partner:          uniprot2,
-			Score:            int32(combinedScore),
-			HasExperimental:  experimental > 0,
-			HasDatabase:      database > 0,
-			HasTextmining:    textmining > 0,
-			HasCoexpression:  coexpression > 0,
+			Partner:         uniprot2,
+			Score:           int32(combinedScore),
+			HasExperimental: experimental > 0,
+			HasDatabase:     database > 0,
+			HasTextmining:   textmining > 0,
+			HasCoexpression: coexpression > 0,
 		}
 		stringInteractions[protein1] = append(stringInteractions[protein1], interaction12)
 
 		// Protein2 → Protein1 (bidirectional)
 		interaction21 := &pbuf.StringInteraction{
-			Partner:          uniprot1,
-			Score:            int32(combinedScore),
-			HasExperimental:  experimental > 0,
-			HasDatabase:      database > 0,
-			HasTextmining:    textmining > 0,
-			HasCoexpression:  coexpression > 0,
+			Partner:         uniprot1,
+			Score:           int32(combinedScore),
+			HasExperimental: experimental > 0,
+			HasDatabase:     database > 0,
+			HasTextmining:   textmining > 0,
+			HasCoexpression: coexpression > 0,
 		}
 		stringInteractions[protein2] = append(stringInteractions[protein2], interaction21)
 
@@ -353,10 +438,10 @@ func (s *stringProcessor) processInteractions(taxid int, forwardMap map[string]s
 			previous = elapsed
 			s.d.progChan <- &progressInfo{dataset: s.source, currentKBPerSec: kbytesPerSecond}
 		}
-	}
 
-	if err := scanner.Err(); err != nil {
-		return 0, 0, fmt.Errorf("error reading links file: %v", err)
+		if err == io.EOF {
+			break
+		}
 	}
 
 	// Build protein data keyed by STRING ID (primary identifier)

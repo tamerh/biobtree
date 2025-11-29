@@ -363,7 +363,9 @@
     "hasFilter": "yes",
     "scoreThreshold": "0",
     "attrs": "string_id,organism_taxid,preferred_name,protein_size,annotation,[]interactions.partner,[]interactions.score,[]interactions.has_experimental,[]interactions.has_database,[]interactions.has_textmining,[]interactions.has_coexpression",
-    "test_entries_count": "50"
+    "test_entries_count": "50",
+    "bucketMethod": "string",
+    "numBuckets": "100"
   },
   "reactome": {
     "aliases": "Reactome,Reactome Pathways",

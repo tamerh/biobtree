@@ -31,6 +31,7 @@ var BucketMethods = map[string]BucketMethod{
 	"gcst":       gcstBucket,       // GCST010481 → 10481 % N
 	"alphanum":   alphanumBucket,   // 1031_AT → first char (0-9, A-Z) preserves order
 	"rhea":       rheaBucket,       // RHEA:16066 or 16066 → 16066 % N
+	"string":     stringBucket,     // 9606.ENSP00000377769 → taxid % N
 }
 
 // numeric - for pure numeric IDs (taxonomy, ncbi_gene)
@@ -404,22 +405,43 @@ func lipidmapsBucket(id string, numBuckets int) int {
 	return int(num % int64(numBuckets))
 }
 
-// rnacentral - for RNAcentral IDs: URS000149A9AF → use first 2 hex chars after "URS"
-// This preserves string sort order: bucket 00 < 01 < ... < FF (256 buckets max)
+// rnacentral - for RNAcentral IDs: URS000149A9AF → use last 2 hex chars
+// RNAcentral IDs are URS + 10 hex digits, with significant digits at the end
 // numBuckets is ignored - always uses 256 buckets (0x00 to 0xFF)
 func rnacentralBucket(id string, numBuckets int) int {
-	// Need at least "URS" + 2 hex chars
+	// Need at least "URS" + some hex chars
 	if len(id) < 5 {
 		return 255 // fallback bucket
 	}
 
-	// Extract first 2 hex chars after "URS"
-	hexStr := id[3:5]
+	// Extract last 2 hex chars of the ID
+	hexStr := id[len(id)-2:]
 	num, err := strconv.ParseUint(hexStr, 16, 8)
 	if err != nil {
 		return 255 // fallback bucket
 	}
 	return int(num) // 0-255
+}
+
+// string - for STRING protein IDs: {taxid}.{ENSP_ID}
+// Example: 9606.ENSP00000377769 → extract 9606, then 9606 % numBuckets
+// Format: taxid (numeric) + "." + Ensembl protein ID
+func stringBucket(id string, numBuckets int) int {
+	// Find the dot separator
+	dotIdx := strings.Index(id, ".")
+	if dotIdx <= 0 {
+		// No dot found or dot at start, try numeric bucket as fallback
+		return numericBucket(id, numBuckets)
+	}
+
+	// Extract taxonomy ID (part before the dot)
+	taxidStr := id[:dotIdx]
+	taxid, err := strconv.ParseInt(taxidStr, 10, 64)
+	if err != nil {
+		return alphabeticBucket(id, numBuckets)
+	}
+
+	return int(taxid % int64(numBuckets))
 }
 
 // GetBucketMethod returns the method by name, or nil if not found

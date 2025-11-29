@@ -248,8 +248,9 @@ func (m *mondo) parseXref(line string, mondoID string, mondoDatasetID string) {
 		targetID = xrefID
 	} else if strings.HasPrefix(xrefID, "PMID:") {
 		// PMID via literature_mappings is dataset 12 (30 xrefs available)
+		// literature_mappings uses numeric IDs, so trim the PMID: prefix
 		targetDatasetName = "literature_mappings"
-		targetID = xrefID
+		targetID = strings.TrimPrefix(xrefID, "PMID:")
 	} else if strings.HasPrefix(xrefID, "OMIM:") {
 		// OMIM is "mim" dataset 51 in biobtree (10,038 xrefs available)
 		targetDatasetName = "mim"
@@ -270,9 +271,10 @@ func (m *mondo) parseXref(line string, mondoID string, mondoDatasetID string) {
 		// Would provide comprehensive disease classification
 		return
 	} else if strings.HasPrefix(xrefID, "MESH:") {
-		// TODO: MeSH - not currently in biobtree (8,378 xrefs available)
-		// Medical Subject Headings - would enable PubMed literature linking
-		return
+		// MeSH - Medical Subject Headings (8,378 xrefs available)
+		// MeSH IDs use format like "D012345", trim MESH: prefix
+		targetDatasetName = "mesh"
+		targetID = strings.TrimPrefix(xrefID, "MESH:")
 	} else if strings.HasPrefix(xrefID, "NCIT:") {
 		// TODO: NCI Thesaurus - not currently in biobtree (7,550 xrefs available)
 		// Cancer-focused terminology from National Cancer Institute
@@ -318,9 +320,10 @@ func (m *mondo) parseXref(line string, mondoID string, mondoDatasetID string) {
 		// National Organization for Rare Disorders
 		return
 	} else if strings.HasPrefix(xrefID, "HP:") {
-		// TODO: Human Phenotype Ontology - not currently in biobtree (579 xrefs available)
+		// HPO - Human Phenotype Ontology (579 xrefs available)
 		// Phenotypic abnormalities in human disease
-		return
+		targetDatasetName = "hpo"
+		targetID = xrefID
 	} else {
 		// Unknown xref type, skip
 		return

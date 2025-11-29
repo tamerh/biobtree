@@ -77,8 +77,8 @@ func (p *proteinSimilarity) parseAndSaveSimilarities(testLimit int, idLogFile *o
 	headerLine := scanner.Text()
 	log.Printf("Protein Similarity: Header: %s", headerLine)
 
-	// Group similarities by query protein (with "d" prefix)
-	// Key: dP01942, Value: list of similarity hits for that protein
+	// Group similarities by query protein (UniProt ID)
+	// Key: P01942, Value: list of similarity hits for that protein
 	proteinSimilarities := make(map[string][]*pbuf.DiamondSimilarity)
 
 	var processedLines int
@@ -128,8 +128,8 @@ func (p *proteinSimilarity) parseAndSaveSimilarities(testLimit int, idLogFile *o
 			continue
 		}
 
-		// Add "d" prefix for DIAMOND IDs
-		queryDiamondID := "d" + queryUniProt
+		// Use UniProt ID directly as the protein similarity ID
+		queryID := queryUniProt
 
 		// Parse alignment statistics
 		identity, err := strconv.ParseFloat(fields[2], 32)
@@ -165,7 +165,7 @@ func (p *proteinSimilarity) parseAndSaveSimilarities(testLimit int, idLogFile *o
 		}
 
 		// Store similarity for query protein
-		if _, exists := proteinSimilarities[queryDiamondID]; !exists {
+		if _, exists := proteinSimilarities[queryID]; !exists {
 			uniqueProteins++
 
 			// In test mode, check if we've reached the protein limit
@@ -174,7 +174,7 @@ func (p *proteinSimilarity) parseAndSaveSimilarities(testLimit int, idLogFile *o
 				break
 			}
 		}
-		proteinSimilarities[queryDiamondID] = append(proteinSimilarities[queryDiamondID], similarity)
+		proteinSimilarities[queryID] = append(proteinSimilarities[queryID], similarity)
 
 		processedLines++
 	}
@@ -189,7 +189,7 @@ func (p *proteinSimilarity) parseAndSaveSimilarities(testLimit int, idLogFile *o
 
 	// Now save grouped protein similarities
 	savedProteins := 0
-	for diamondID, similarities := range proteinSimilarities {
+	for proteinID, similarities := range proteinSimilarities {
 		// Calculate summary statistics
 		var topIdentity float32
 		var topBitscore float32
@@ -204,11 +204,11 @@ func (p *proteinSimilarity) parseAndSaveSimilarities(testLimit int, idLogFile *o
 		}
 
 		// Save protein
-		p.saveProtein(diamondID, similarities, topIdentity, topBitscore, sourceID)
+		p.saveProtein(proteinID, similarities, topIdentity, topBitscore, sourceID)
 
 		// Log ID for testing
 		if idLogFile != nil {
-			idLogFile.WriteString(diamondID + "\n")
+			idLogFile.WriteString(proteinID + "\n")
 		}
 
 		savedProteins++
@@ -244,11 +244,11 @@ func (p *proteinSimilarity) extractProteinName(pipeID string) string {
 }
 
 // saveProtein saves a protein with all its similarity hits
-func (p *proteinSimilarity) saveProtein(diamondID string, similarities []*pbuf.DiamondSimilarity,
+func (p *proteinSimilarity) saveProtein(proteinID string, similarities []*pbuf.DiamondSimilarity,
 	topIdentity, topBitscore float32, sourceID string) {
 
 	attr := &pbuf.ProteinSimilarityAttr{
-		ProteinId:       diamondID,
+		ProteinId:       proteinID,
 		Similarities:    similarities,
 		SimilarityCount: int32(len(similarities)),
 		TopIdentity:     topIdentity,
@@ -257,38 +257,34 @@ func (p *proteinSimilarity) saveProtein(diamondID string, similarities []*pbuf.D
 
 	// Marshal attributes
 	attrBytes, err := ffjson.Marshal(attr)
-	p.check(err, fmt.Sprintf("marshaling Protein Similarity attributes for %s", diamondID))
+	p.check(err, fmt.Sprintf("marshaling Protein Similarity attributes for %s", proteinID))
 
 	// Save entry (CRITICAL: second param is dataset ID)
-	p.d.addProp3(diamondID, sourceID, attrBytes)
+	p.d.addProp3(proteinID, sourceID, attrBytes)
 
 	// Create cross-references
-	p.createCrossReferences(diamondID, similarities, sourceID)
+	p.createCrossReferences(proteinID, similarities, sourceID)
 }
 
-// createCrossReferences creates cross-references from DIAMOND IDs to UniProt
-func (p *proteinSimilarity) createCrossReferences(diamondID string, similarities []*pbuf.DiamondSimilarity, sourceID string) {
+// createCrossReferences creates cross-references from protein similarity to UniProt
+func (p *proteinSimilarity) createCrossReferences(proteinID string, similarities []*pbuf.DiamondSimilarity, sourceID string) {
 	textLinkID := "0" // Text search link ID
 
-	// DIAMOND ID → Text search (dP01942 searchable)
-	p.d.addXref(diamondID, textLinkID, diamondID, p.source, true)
+	// Protein ID → Text search (P01942 searchable)
+	p.d.addXref(proteinID, textLinkID, proteinID, p.source, true)
 
-	// DIAMOND ID → Original UniProt ID (without "d" prefix)
-	// This allows queries like: dP01942 >> uniprot
-	uniprotID := strings.TrimPrefix(diamondID, "d")
-	if uniprotID != diamondID {
-		// CRITICAL: Second param is dataset ID, fourth is dataset name
-		p.d.addXref(diamondID, sourceID, uniprotID, "uniprot", false)
-	}
+	// Protein similarity → UniProt (same ID, allows queries: P01942 >> uniprot)
+	p.d.addXref(proteinID, sourceID, proteinID, "uniprot", false)
 
 	// Track unique similar proteins to avoid duplicate xrefs
 	uniqueSimilar := make(map[string]bool)
+	uniqueSimilar[proteinID] = true // Mark query protein as seen to avoid self-reference
 
 	for _, sim := range similarities {
-		// DIAMOND ID → Similar protein (UniProt)
-		// This allows bidirectional queries: dP01942 >> protein_similarity >> uniprot
+		// Protein similarity → Similar protein (UniProt)
+		// This allows queries: P01942 >> protein_similarity >> uniprot
 		if sim.TargetUniprot != "" && !uniqueSimilar[sim.TargetUniprot] {
-			p.d.addXref(diamondID, sourceID, sim.TargetUniprot, "uniprot", false)
+			p.d.addXref(proteinID, sourceID, sim.TargetUniprot, "uniprot", false)
 			uniqueSimilar[sim.TargetUniprot] = true
 		}
 	}

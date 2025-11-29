@@ -191,12 +191,12 @@ func (a *antibody) parseTheraSAbDab(testLimit int, idLogFile *os.File) {
 		// Add text search for INN name
 		a.d.addXref(innName, textLinkID, innName, a.source, true)
 
-		// Create cross-references to target proteins (UniProt)
+		// Create cross-references to target genes via gene symbol lookup
+		// This looks up each gene symbol in the database and creates xrefs to Ensembl gene entries
 		for _, target := range targets {
 			if target != "" {
-				// Note: In a real implementation, you would lookup the UniProt ID
-				// For now, we add the target name as a search term
-				a.d.addXref(innName, config.Dataconf[a.source]["id"], target, "uniprot", false)
+				// Look up gene symbol to find Ensembl gene entries
+				a.d.addXrefViaKeyword(target, "ensembl", innName, a.source, sourceID, false)
 			}
 		}
 

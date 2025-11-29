@@ -40,7 +40,7 @@ RUN_CORE2="true"        # Default: run core2
 RUN_CORE3="true"        # Default: run core3 (dbsnp)
 RUN_CORE4="true"        # Default: run core4 (pubchem)
 RUN_ENSEMBL="true"      # Default: run ensembl
-MAXCPU=8                # Default: 4 CPUs
+MAXCPU=8                # Default: 8 CPUs
 
 # Parse additional arguments
 shift
@@ -134,11 +134,11 @@ echo "⚠️  Note: STRING uses species-level ID for S. cerevisiae (4932)"
 echo "    Ensembl uses strain-specific ID (559292 for S288C)"
 echo ""
 echo "Datasets to process:"
-echo "  - Core part 1: uniprot, go, eco, taxonomy, interpro, hmdb, chembl,"
-echo "                 clinvar, lipidmaps, swisslipids, uberon, gwas_study,"
+echo "  - Core part 1: uniprot, taxonomy, interpro, hmdb, chembl,"
+echo "                 clinvar, lipidmaps, swisslipids, gwas_study,"
 echo "                 gwas, intact, antibody"
-echo "  - Core part 2: chebi, efo, mondo, hpo, alphafold, rnacentral, reactome,"
-echo "                 clinical_trials, patent, string, bgee, cl, rhea"
+echo "  - Core part 2: chebi, alphafold, rnacentral, reactome,"
+echo "                 clinical_trials, patent, string, bgee, ontology"
 echo "  - Core part 3: dbsnp (large dataset, prone to FTP issues)"
 echo "  - Core part 4: pubchem, pubchem_activity, pubchem_assay"
 echo "  - Ensembl genomes (16 model organisms, strain-specific IDs)"
@@ -161,10 +161,9 @@ ENSEMBL_TAXIDS="9606,10090,10116,7955,7227,6239,559292,284812,511145,3702,39947,
 STRING_TAXIDS="9606,10090,10116,7955,7227,6239,4932,284812,511145,3702,39947,4577,3847,44689,237561,243232"
 
 # Core datasets split into 4 parts:
-# Part 1: Stable core datasets
-CORE_PART1="uniprot,go,eco,taxonomy,interpro,hmdb,chembl,clinvar,lipidmaps,swisslipids,uberon,gwas_study,gwas,intact,antibody"
-# Part 2: Stable core datasets (includes STRING with --tax filter)
-CORE_PART2="chebi,efo,mondo,hpo,alphafold,rnacentral,reactome,clinical_trials,patent,string,bgee,cl,rhea"
+CORE_PART1="uniprot,taxonomy,interpro,hmdb,chembl,clinvar,lipidmaps,swisslipids,gwas_study,gwas,intact,antibody,protein_similarity,rhea"
+CORE_PART2="chebi,alphafold,rnacentral,reactome,clinical_trials,patent,string,bgee,ontology"
+
 # Part 3: Large/unstable dataset (dbsnp - prone to FTP issues, needs retry)
 CORE_PART3="dbsnp"
 # Part 4: PubChem datasets

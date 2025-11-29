@@ -347,11 +347,17 @@ func (g *gwas) createCrossReferences(associationID string, snpID string, sourceI
 		}
 	}
 
-	// Cross-reference: Association → EFO traits (structured ontology)
-	if _, exists := config.Dataconf["efo"]; exists {
-		for _, efoID := range attr.EfoTraits {
-			if efoID != "" {
-				g.d.addXref(associationID, sourceID, efoID, "efo", false)
+	// Cross-reference: Association → ontology traits (EFO, MONDO, HP, OBA, etc.)
+	// GWAS Catalog includes traits from multiple ontologies, route each to correct dataset
+	for _, traitID := range attr.EfoTraits {
+		if traitID == "" {
+			continue
+		}
+		// Route to correct dataset based on prefix
+		targetDataset := getOntologyDataset(traitID)
+		if targetDataset != "" {
+			if _, exists := config.Dataconf[targetDataset]; exists {
+				g.d.addXref(associationID, sourceID, traitID, targetDataset, false)
 			}
 		}
 	}
@@ -382,4 +388,51 @@ func (r *bytesReaderAt) ReadAt(p []byte, off int64) (n int, err error) {
 		err = io.EOF
 	}
 	return
+}
+
+// getOntologyDataset maps ontology ID prefixes to biobtree dataset names
+// Returns empty string if ontology is not supported
+func getOntologyDataset(id string) string {
+	colonIdx := strings.Index(id, ":")
+	if colonIdx <= 0 {
+		return ""
+	}
+	prefix := strings.ToUpper(id[:colonIdx])
+
+	// Map ontology prefixes to biobtree dataset names
+	switch prefix {
+	case "EFO":
+		return "efo"
+	case "MONDO":
+		return "mondo"
+	case "HP":
+		return "hpo"
+	case "GO":
+		return "go"
+	case "UBERON":
+		return "uberon"
+	case "CL":
+		return "cl"
+	case "ECO":
+		return "eco"
+	case "CHEBI":
+		return "chebi"
+	case "ORPHANET", "ORPHA":
+		return "orphanet"
+	case "OBA":
+		return "oba"
+	case "PATO":
+		return "pato"
+	case "OBI":
+		return "obi"
+	case "XCO":
+		return "xco"
+	// Unsupported ontologies - skip silently
+	case "NCIT", "VT", "CMO":
+		return ""
+	default:
+		// Log unknown prefixes for debugging (uncomment if needed)
+		// log.Printf("Unknown ontology prefix: %s", prefix)
+		return ""
+	}
 }

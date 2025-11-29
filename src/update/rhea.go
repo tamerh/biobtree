@@ -283,54 +283,99 @@ func (r *rhea) loadDirectionMappings() (map[string][]string, error) {
 	return directionMap, nil
 }
 
-// loadReactions loads main reaction data (simplified - using web API or placeholder)
-// In production, would parse actual TSV files from Rhea FTP
+// loadReactions loads main reaction data from rhea-directions.tsv
+// This file contains all reaction IDs with their directional variants
 func (r *rhea) loadReactions(idLogFile *os.File, testLimit int, directionMap map[string][]string,
 	smilesMap map[string]string, parentMap map[string][]string, childMap map[string][]string) (map[string]bool, error) {
-	// For now, we'll create placeholder reactions based on test mode
-	// In production, this would parse actual rhea.tsv or similar files
+
+	ftpPath := config.Dataconf[r.source]["path"]
+	filePath := ftpPath + "rhea-directions.tsv"
+
+	resp, err := http.Get(filePath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch rhea-directions.tsv: %v", err)
+	}
+	defer resp.Body.Close()
 
 	reactionMap := make(map[string]bool)
 	processedCount := 0
 
-	// Generate test reactions (in production, would read from actual files)
-	// For initial integration, create 100 test reactions
-	for i := 10000; i < 10100; i++ {
-		rheaID := fmt.Sprintf("RHEA:%d", i)
+	scanner := bufio.NewScanner(resp.Body)
 
-		// Create reaction with basic attributes
-		attr := pbuf.RheaAttr{
-			Equation:          fmt.Sprintf("ATP + H2O => ADP + Pi (reaction %d)", i),
-			Direction:         "LR", // Left-to-right
-			Status:            "Approved",
-			IsTransport:       false,
-			UniprotCount:      0,
-			MasterId:          rheaID, // For now, treat each as master
-			ChebiParticipants: []*pbuf.RheaParticipant{},
-			EcNumbers:         []string{},
-			GoTerms:           []string{},
-			VariantIds:        []string{},
-			ReactionSmiles:    smilesMap[rheaID],     // Add SMILES if available
-			ParentReactions:   parentMap[rheaID],     // Add parent reactions if available
-			ChildReactions:    childMap[rheaID],      // Add child reactions if available
+	// Skip header line
+	if scanner.Scan() {
+		// Header: RHEA_ID_MASTER	RHEA_ID_LR	RHEA_ID_RL	RHEA_ID_BI
+	}
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		if line == "" {
+			continue
 		}
 
-		b, _ := ffjson.Marshal(&attr)
-		r.d.addProp3(rheaID, r.sourceID, b)
+		fields := strings.Split(line, "\t")
+		if len(fields) < 4 {
+			continue
+		}
 
-		// Equation is searchable via attributes, no need for separate text xref
+		// Format: RHEA_ID_MASTER	RHEA_ID_LR	RHEA_ID_RL	RHEA_ID_BI
+		masterID := "RHEA:" + strings.TrimSpace(fields[0])
+		lrID := "RHEA:" + strings.TrimSpace(fields[1])
+		rlID := "RHEA:" + strings.TrimSpace(fields[2])
+		biID := "RHEA:" + strings.TrimSpace(fields[3])
 
-		reactionMap[rheaID] = true
+		// Process all 4 directional IDs
+		directionIDs := []struct {
+			id        string
+			direction string
+		}{
+			{masterID, "UN"},  // Undefined/Master
+			{lrID, "LR"},      // Left-to-right
+			{rlID, "RL"},      // Right-to-left
+			{biID, "BI"},      // Bidirectional
+		}
 
-		// Log ID in test mode
-		if idLogFile != nil {
-			logProcessedID(idLogFile, rheaID)
-			r.testRheaIDs[rheaID] = true
-			processedCount++
-			if shouldStopProcessing(testLimit, processedCount) {
-				break
+		for _, d := range directionIDs {
+			rheaID := d.id
+
+			// Create reaction with basic attributes
+			attr := pbuf.RheaAttr{
+				Direction:         d.direction,
+				Status:            "Approved",
+				IsTransport:       false,
+				UniprotCount:      0,
+				MasterId:          masterID,
+				ChebiParticipants: []*pbuf.RheaParticipant{},
+				EcNumbers:         []string{},
+				GoTerms:           []string{},
+				VariantIds:        []string{},
+				ReactionSmiles:    smilesMap[rheaID],
+				ParentReactions:   parentMap[rheaID],
+				ChildReactions:    childMap[rheaID],
+			}
+
+			b, _ := ffjson.Marshal(&attr)
+			r.d.addProp3(rheaID, r.sourceID, b)
+
+			reactionMap[rheaID] = true
+
+			// Log ID in test mode
+			if idLogFile != nil {
+				logProcessedID(idLogFile, rheaID)
+				r.testRheaIDs[rheaID] = true
 			}
 		}
+
+		processedCount++
+
+		// Test mode limit (per master reaction, not per directional variant)
+		if idLogFile != nil && shouldStopProcessing(testLimit, processedCount) {
+			break
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		return nil, fmt.Errorf("error reading rhea-directions.tsv: %v", err)
 	}
 
 	return reactionMap, nil
@@ -414,7 +459,7 @@ func (r *rhea) processGOMappings(reactionMap map[string]bool, testLimit int) (in
 
 	// Skip header line
 	if scanner.Scan() {
-		// Header: RHEA_ID	GO_ID	GO_NAME
+		// Header: RHEA_ID	DIRECTION	MASTER_ID	ID (GO ID)
 	}
 
 	for scanner.Scan() {
@@ -424,14 +469,14 @@ func (r *rhea) processGOMappings(reactionMap map[string]bool, testLimit int) (in
 		}
 
 		fields := strings.Split(line, "\t")
-		if len(fields) < 2 {
+		if len(fields) < 4 {
 			continue
 		}
 
-		// Format: RHEA_ID	GO_ID	GO_NAME
-		// RHEA_ID is numeric without prefix
+		// Format: RHEA_ID	DIRECTION	MASTER_ID	GO_ID
+		// RHEA_ID is numeric without prefix, GO_ID is in column 3
 		rheaID := "RHEA:" + strings.TrimSpace(fields[0])
-		goID := strings.TrimSpace(fields[1])
+		goID := strings.TrimSpace(fields[3])
 
 		// Filter in test mode
 		if config.IsTestMode() {

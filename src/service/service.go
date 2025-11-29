@@ -187,6 +187,18 @@ func (s *service) init() {
 		cel.Declarations(
 			decls.NewIdent("uberon", decls.NewObjectType("pbuf.OntologyAttr"), nil)),
 		cel.Declarations(
+			decls.NewIdent("oba", decls.NewObjectType("pbuf.OntologyAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("hpo", decls.NewObjectType("pbuf.OntologyAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("cl", decls.NewObjectType("pbuf.OntologyAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("pato", decls.NewObjectType("pbuf.OntologyAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("obi", decls.NewObjectType("pbuf.OntologyAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("xco", decls.NewObjectType("pbuf.OntologyAttr"), nil)),
+		cel.Declarations(
 			decls.NewIdent("interpro", decls.NewObjectType("pbuf.InterproAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("ena", decls.NewObjectType("pbuf.EnaAttr"), nil)),

@@ -1,0 +1,79 @@
+{
+  "metadata": {
+    "total_ids": 10,
+    "fetched": 10,
+    "failed": 0
+  },
+  "entries": [
+    {
+      "id": "PATO:0000001",
+      "name": "quality",
+      "description": "A dependent entity that inheres in a bearer by virtue of how the bearer is related to other entities",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000002",
+      "name": "obsolete value",
+      "description": null,
+      "type": "quality",
+      "isObsolete": true
+    },
+    {
+      "id": "PATO:0000003",
+      "name": "obsolete assay",
+      "description": null,
+      "type": "quality",
+      "isObsolete": true
+    },
+    {
+      "id": "PATO:0000004",
+      "name": "mobility",
+      "description": "A quality of inhering in a bearer by virtue of the bearer's disposition to move freely.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000005",
+      "name": "obsolete absolute activity",
+      "description": null,
+      "type": "quality",
+      "isObsolete": true
+    },
+    {
+      "id": "PATO:0000006",
+      "name": "obsolete process",
+      "description": null,
+      "type": "quality",
+      "isObsolete": true
+    },
+    {
+      "id": "PATO:0000007",
+      "name": "obsolete relative activity",
+      "description": null,
+      "type": "quality",
+      "isObsolete": true
+    },
+    {
+      "id": "PATO:0000008",
+      "name": "speed",
+      "description": "A physical quality inhering in a bearer by virtue of the bearer's scalar absolute value of the rate of change of the bearer's position.",
+      "type": "quality",
+      "synonyms": [
+        "velocity"
+      ]
+    },
+    {
+      "id": "PATO:0000009",
+      "name": "obsolete absolute speed",
+      "description": null,
+      "type": "quality",
+      "isObsolete": true
+    },
+    {
+      "id": "PATO:0000010",
+      "name": "obsolete relative speed",
+      "description": null,
+      "type": "quality",
+      "isObsolete": true
+    }
+  ]
+}

@@ -449,11 +449,13 @@ func (c *chembl) updateCellline() {
 				c.d.addProp3(id, fr, b)
 				c.d.addXref(id, fr, taxid, "taxonomy", false)
 			case "hasEFO":
-				efoid := c.getChemblID(triple.Obj.String())
-				attr := pbuf.ChemblAttr{CellLine: &pbuf.ChemblCellLine{Efo: efoid}}
-				b, _ := ffjson.Marshal(attr)
-				c.d.addProp3(id, fr, b)
-				c.d.addXref(id, fr, strings.Replace(efoid, "_", ":", 1), "efo", false)
+				efoid := c.extractOntologyID(triple.Obj.String())
+				if efoid != "" {
+					attr := pbuf.ChemblAttr{CellLine: &pbuf.ChemblCellLine{Efo: efoid}}
+					b, _ := ffjson.Marshal(attr)
+					c.d.addProp3(id, fr, b)
+					c.d.addXref(id, fr, efoid, "efo", false)
+				}
 			case "hasCLO":
 				cloid := c.getChemblID(triple.Obj.String())
 				attr := pbuf.ChemblAttr{CellLine: &pbuf.ChemblCellLine{Clo: cloid}}
@@ -1030,15 +1032,17 @@ func (c *chembl) updateIndications() {
 			case "hasMolecule":
 			case "hasEFO":
 				id := c.getChemblID(triple.Subj.String())
-				efoid := c.getChemblID(triple.Obj.String())
-				if _, ok := c.indications[id]; ok {
-					ind := c.indications[id]
-					ind.Efo = strings.Replace(efoid, "_", ":", 1)
-					c.indications[id] = ind
-				} else {
-					ind := pbuf.ChemblIndication{}
-					ind.Efo = strings.Replace(efoid, "_", ":", 1)
-					c.indications[id] = &ind
+				efoid := c.extractOntologyID(triple.Obj.String())
+				if efoid != "" {
+					if _, ok := c.indications[id]; ok {
+						ind := c.indications[id]
+						ind.Efo = efoid
+						c.indications[id] = ind
+					} else {
+						ind := pbuf.ChemblIndication{}
+						ind.Efo = efoid
+						c.indications[id] = &ind
+					}
 				}
 			case "hasMesh":
 				id := c.getChemblID(triple.Subj.String())
@@ -2034,6 +2038,46 @@ func (c *chembl) getChemblID(uri string) string {
 	}
 	return uri[pos+1:]
 
+}
+
+// extractOntologyID extracts and validates an ontology ID from a URI
+// Returns the ID in PREFIX:NNNNN format if valid, empty string otherwise
+// Filters out malformed URLs like exp.php?expert=309005
+func (c *chembl) extractOntologyID(uri string) string {
+	// Get last part after /
+	pos := strings.LastIndex(uri, "/")
+	if pos < 0 || pos >= len(uri)-1 {
+		return ""
+	}
+	lastPart := uri[pos+1:]
+
+	// Must contain underscore (PREFIX_NNNNN format)
+	if !strings.Contains(lastPart, "_") {
+		return ""
+	}
+
+	// Skip URLs with query parameters or file extensions
+	if strings.Contains(lastPart, "?") || strings.Contains(lastPart, ".") {
+		return ""
+	}
+
+	// Convert underscore to colon
+	id := strings.ReplaceAll(lastPart, "_", ":")
+
+	// Validate: prefix should be uppercase letters only
+	colonIdx := strings.Index(id, ":")
+	if colonIdx <= 0 || colonIdx >= len(id)-1 {
+		return ""
+	}
+
+	prefix := id[:colonIdx]
+	for _, ch := range prefix {
+		if ch < 'A' || ch > 'Z' {
+			return ""
+		}
+	}
+
+	return id
 }
 
 func (c *chembl) getTaxID(uri string) string {

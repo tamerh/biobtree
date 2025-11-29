@@ -67,7 +67,9 @@
     "aliases": "GeneID,EntrezGene",
     "name": "Entrez",
     "id": "95",
-    "url": "https://www.ncbi.nlm.nih.gov/gene/£{id}"
+    "url": "https://www.ncbi.nlm.nih.gov/gene/£{id}",
+    "bucketMethod": "numeric",
+    "numBuckets": "100"
   },
   "hamap": {
     "aliases": "HAMAP",
@@ -98,8 +100,7 @@
     "name": "MIM",
     "id": "101",
     "url": "https://www.omim.org/entry/£{id}",
-    "bucketMethod": "numeric",
-    "numBuckets": "10"
+    "bucketMethod": "alphanum"
   },
   "metacyc": {
     "aliases": "MetaCyc,MetaCyc accession,METACYC",
@@ -168,7 +169,9 @@
     "aliases": "PubMed,PubMed citation,PUBMED,pmc,PMC,PubMed Central citation",
     "name": "PubMed",
     "id": "113",
-    "url": "https://europepmc.org/search?query=£{id}"
+    "url": "https://europepmc.org/search?query=£{id}",
+    "bucketMethod": "numeric",
+    "numBuckets": "100"
   },
   "refseq": {
     "aliases": "RefSeq,nucleotide sequence ID",

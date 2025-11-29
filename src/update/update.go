@@ -314,6 +314,7 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 	d.mergeGateCh = &mergeGateCh
 
 	// Initialize bucket system for optimized datasets
+	LoadBucketSystemConfig()
 	bucketConfigs := LoadBucketConfigs()
 	var bucketWg sync.WaitGroup
 	d.bucketWg = &bucketWg
@@ -465,6 +466,69 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			d.datasets2 = append(d.datasets2, data)
 			go r.update()
 			break
+		case "ontology":
+			// Process all ontology datasets at once
+			ontologyDatasets := []string{"go", "eco", "efo", "uberon", "cl", "mondo", "hpo", "oba", "pato", "obi", "xco"}
+			for _, ontoData := range ontologyDatasets {
+				switch ontoData {
+				case "go":
+					d.wg.Add(1)
+					g := ontology{source: ontoData, d: d, prefixURL: "http://purl.obolibrary.org/obo/", idPrefix: "GO:"}
+					d.datasets2 = append(d.datasets2, ontoData)
+					go g.update()
+				case "efo":
+					d.wg.Add(1)
+					g := ontology{source: ontoData, d: d, prefixURL: "http://www.ebi.ac.uk/efo/", idPrefix: "EFO:"}
+					d.datasets2 = append(d.datasets2, ontoData)
+					go g.update()
+				case "eco":
+					d.wg.Add(1)
+					g := ontology{source: ontoData, d: d, prefixURL: "http://purl.obolibrary.org/obo/", idPrefix: "ECO:"}
+					d.datasets2 = append(d.datasets2, ontoData)
+					go g.update()
+				case "uberon":
+					d.wg.Add(1)
+					u := ontology{source: ontoData, d: d, prefixURL: "http://purl.obolibrary.org/obo/", idPrefix: "UBERON:"}
+					d.datasets2 = append(d.datasets2, ontoData)
+					go u.update()
+				case "cl":
+					d.wg.Add(1)
+					c := ontology{source: ontoData, d: d, prefixURL: "http://purl.obolibrary.org/obo/", idPrefix: "CL:"}
+					d.datasets2 = append(d.datasets2, ontoData)
+					go c.update()
+				case "mondo":
+					d.wg.Add(1)
+					m := mondo{source: ontoData, d: d}
+					d.datasets2 = append(d.datasets2, ontoData)
+					go m.update()
+				case "hpo":
+					d.wg.Add(1)
+					h := hpo{source: ontoData, d: d}
+					d.datasets2 = append(d.datasets2, ontoData)
+					go h.update()
+				case "oba":
+					d.wg.Add(1)
+					ob := oba{source: ontoData, d: d}
+					d.datasets2 = append(d.datasets2, ontoData)
+					go ob.update()
+				case "pato":
+					d.wg.Add(1)
+					pt := pato{source: ontoData, d: d}
+					d.datasets2 = append(d.datasets2, ontoData)
+					go pt.update()
+				case "obi":
+					d.wg.Add(1)
+					ob := obi{source: ontoData, d: d}
+					d.datasets2 = append(d.datasets2, ontoData)
+					go ob.update()
+				case "xco":
+					d.wg.Add(1)
+					xc := xco{source: ontoData, d: d}
+					d.datasets2 = append(d.datasets2, ontoData)
+					go xc.update()
+				}
+			}
+			break
 		case "go":
 			d.wg.Add(1)
 			g := ontology{source: data, d: d, prefixURL: "http://purl.obolibrary.org/obo/", idPrefix: "GO:"}
@@ -573,6 +637,30 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			d.datasets2 = append(d.datasets2, data)
 			go h.update()
 			break
+		case "oba":
+			d.wg.Add(1)
+			ob := oba{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go ob.update()
+			break
+		case "pato":
+			d.wg.Add(1)
+			pt := pato{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go pt.update()
+			break
+		case "obi":
+			d.wg.Add(1)
+			ob := obi{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go ob.update()
+			break
+		case "xco":
+			d.wg.Add(1)
+			xc := xco{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go xc.update()
+			break
 		case "mesh":
 			d.wg.Add(1)
 			m := mesh{source: data, d: d}
@@ -674,7 +762,7 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 
 		// Sort all bucket files
 		log.Println("Sorting bucket files...")
-		if err := SortAllBuckets(d.bucketPool, 4); err != nil {
+		if err := SortAllBuckets(d.bucketPool, 0); err != nil { // 0 uses BucketSortWorkers from config
 			log.Printf("Error sorting buckets: %v", err)
 		}
 

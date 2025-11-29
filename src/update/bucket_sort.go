@@ -9,59 +9,100 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strings"
 	"sync"
 )
 
-// SortBucketFile sorts a single bucket file in place
+// keyedLine holds a line with its pre-extracted key for efficient sorting
+// This avoids re-extracting the key on every comparison during sort
+type keyedLine struct {
+	key  string // First field before tab (the sort key)
+	line string // Full line
+}
+
+// extractKey extracts the first field (before tab) from a line
+// This is the sort key - typically the entity ID like "RS123456789"
+func extractKey(line string) string {
+	if idx := strings.IndexByte(line, '\t'); idx > 0 {
+		return line[:idx]
+	}
+	return line
+}
+
+// SortBucketFile sorts a single uncompressed bucket file in place
+// Input: uncompressed .txt file
+// Output: sorted, deduplicated .txt file (same path)
+// Optimized: extracts keys once upfront, sorts by key only (not full line)
 func SortBucketFile(filePath string) error {
-	// Read all lines
+	// Read all lines from uncompressed file
 	f, err := os.Open(filePath)
 	if err != nil {
 		return err
 	}
 
-	gz, err := gzip.NewReader(f)
-	if err != nil {
-		f.Close()
-		return err
+	var entries []keyedLine
+	reader := bufio.NewReaderSize(f, BucketReadBufferSize)
+	for {
+		line, err := reader.ReadString('\n')
+		if err != nil && err != io.EOF {
+			break
+		}
+		if len(line) > 0 {
+			// Remove trailing newline for sorting/dedup comparison
+			if line[len(line)-1] == '\n' {
+				line = line[:len(line)-1]
+			}
+			// Extract key once during read, not during every sort comparison
+			entries = append(entries, keyedLine{
+				key:  extractKey(line),
+				line: line,
+			})
+		}
+		if err == io.EOF {
+			break
+		}
 	}
-
-	var lines []string
-	scanner := bufio.NewScanner(gz)
-	scanner.Buffer(make([]byte, 1024*1024), 10*1024*1024) // 10MB max line
-	for scanner.Scan() {
-		lines = append(lines, scanner.Text())
-	}
-	gz.Close()
 	f.Close()
 
-	if len(lines) == 0 {
+	if len(entries) == 0 {
 		return nil // Empty file
 	}
 
-	// Sort lines
-	sort.Strings(lines)
+	// Sort by key only - merge phase will group entries by key and dataset
+	// Key is typically 10-20 bytes, full line is 200-500 bytes
+	sort.Slice(entries, func(i, j int) bool {
+		return entries[i].key < entries[j].key
+	})
 
-	// Write back (with deduplication)
+	// Write back uncompressed (with deduplication by full line)
+	// Same key can appear from different datasets - that's NOT a duplicate
+	// Only identical full lines are duplicates
+	// Use a map to track seen lines within each key group since duplicates
+	// may not be adjacent after sorting by key only
 	outPath := filePath + ".sorted"
 	outF, err := os.Create(outPath)
 	if err != nil {
 		return err
 	}
-	outGz, _ := gzip.NewWriterLevel(outF, gzip.BestSpeed)
-	buf := bufio.NewWriterSize(outGz, 65536)
+	buf := bufio.NewWriterSize(outF, BucketWriteBufferSize)
 
-	prevLine := ""
-	for _, line := range lines {
-		if line != prevLine { // Deduplicate
-			buf.WriteString(line)
+	prevKey := ""
+	seenLines := make(map[string]bool)
+	for _, entry := range entries {
+		// Reset seen lines when we move to a new key
+		if entry.key != prevKey {
+			seenLines = make(map[string]bool)
+			prevKey = entry.key
+		}
+		// Deduplicate by full line within same key
+		if !seenLines[entry.line] {
+			buf.WriteString(entry.line)
 			buf.WriteByte('\n')
-			prevLine = line
+			seenLines[entry.line] = true
 		}
 	}
 
 	buf.Flush()
-	outGz.Close()
 	outF.Close()
 
 	// Replace original with sorted
@@ -72,24 +113,50 @@ func SortBucketFile(filePath string) error {
 }
 
 // SortAllBuckets sorts all bucket files in parallel
+// Uses BucketSortWorkers from config if numWorkers is 0
+// Skips datasets with SkipBucketSort=true in their config
 func SortAllBuckets(pool *HybridWriterPool, numWorkers int) error {
-	files := pool.GetBucketFiles()
-	if len(files) == 0 {
+	if numWorkers <= 0 {
+		numWorkers = BucketSortWorkers
+	}
+
+	// Get files to sort, filtering out datasets with skipBucketSort
+	var filesToSort []string
+	var skippedDatasets []string
+
+	for datasetID, writer := range pool.GetBucketWriters() {
+		if writer.config.SkipBucketSort {
+			skippedDatasets = append(skippedDatasets, writer.config.DatasetName)
+			continue
+		}
+		for _, bucket := range writer.buckets {
+			if bucket.fileCreated {
+				filesToSort = append(filesToSort, bucket.filePath)
+			}
+		}
+		_ = datasetID // suppress unused warning
+	}
+
+	if len(skippedDatasets) > 0 {
+		log.Printf("Skipping sort for datasets with skipBucketSort=true: %v", skippedDatasets)
+	}
+
+	if len(filesToSort) == 0 {
 		return nil
 	}
 
-	fmt.Printf("Sorting %d bucket files with %d workers\n", len(files), numWorkers)
+	fmt.Printf("Sorting %d bucket files with %d workers\n", len(filesToSort), numWorkers)
 
 	// Create job channel
-	jobs := make(chan string, len(files))
-	for _, f := range files {
+	jobs := make(chan string, len(filesToSort))
+	for _, f := range filesToSort {
 		jobs <- f
 	}
 	close(jobs)
 
 	// Worker pool
 	var wg sync.WaitGroup
-	errors := make(chan error, len(files))
+	errors := make(chan error, len(filesToSort))
 
 	for i := 0; i < numWorkers; i++ {
 		wg.Add(1)
@@ -111,11 +178,12 @@ func SortAllBuckets(pool *HybridWriterPool, numWorkers int) error {
 		return err // Return first error
 	}
 
-	fmt.Printf("Sorting complete for %d bucket files\n", len(files))
+	fmt.Printf("Sorting complete for %d bucket files\n", len(filesToSort))
 	return nil
 }
 
 // ConcatenateBuckets merges all sorted bucket files for a dataset into one
+// Reads uncompressed .txt bucket files, writes compressed .gz output
 // Bucket files are preserved after concatenation for debugging
 // Returns total lines written across all datasets (post-deduplication count)
 func ConcatenateBuckets(pool *HybridWriterPool, indexDir string, chunkIdx string) (uint64, error) {
@@ -136,7 +204,7 @@ func ConcatenateBuckets(pool *HybridWriterPool, indexDir string, chunkIdx string
 		// Sort bucket files by name to ensure consistent order
 		sort.Strings(bucketFiles)
 
-		// Create output file in index directory
+		// Create compressed output file in index directory
 		// Format: {datasetName}_sorted.{chunkIdx}.index.gz
 		outPath := filepath.Join(indexDir, fmt.Sprintf("%s_sorted.%s.index.gz",
 			writer.config.DatasetName, chunkIdx))
@@ -146,24 +214,19 @@ func ConcatenateBuckets(pool *HybridWriterPool, indexDir string, chunkIdx string
 			return 0, fmt.Errorf("creating output file %s: %w", outPath, err)
 		}
 		outGz, _ := gzip.NewWriterLevel(outF, gzip.BestSpeed)
-		buf := bufio.NewWriterSize(outGz, 65536)
+		buf := bufio.NewWriterSize(outGz, BucketWriteBufferSize)
 
 		linesWritten := uint64(0)
 
-		// Concatenate all bucket files
+		// Concatenate all bucket files (reading uncompressed .txt files)
 		for _, bucketFile := range bucketFiles {
 			f, err := os.Open(bucketFile)
 			if err != nil {
 				continue
 			}
-			gz, err := gzip.NewReader(f)
-			if err != nil {
-				f.Close()
-				continue
-			}
 
-			// Copy content using io.Copy for efficiency
-			reader := bufio.NewReaderSize(gz, 65536)
+			// Read uncompressed file directly
+			reader := bufio.NewReaderSize(f, BucketReadBufferSize)
 			for {
 				line, err := reader.ReadString('\n')
 				if err != nil && err != io.EOF {
@@ -178,7 +241,6 @@ func ConcatenateBuckets(pool *HybridWriterPool, indexDir string, chunkIdx string
 				}
 			}
 
-			gz.Close()
 			f.Close()
 		}
 

@@ -2,138 +2,132 @@ package update
 
 import (
 	"bufio"
-	"compress/gzip"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"sync"
 )
 
-// BucketWriter handles writes to a single bucket file
-type BucketWriter struct {
-	writeChan   chan []byte
-	filePath    string
-	done        chan struct{}
-	fileCreated bool
-	lineCount   uint64 // Count lines written (no contention - single goroutine per bucket)
+// BucketFile represents a single bucket file with mutex protection
+// Files are written uncompressed during processing for speed,
+// then compressed during concatenation phase
+type BucketFile struct {
+	filePath  string
+	file      *os.File
+	buf       *bufio.Writer
+	mutex     sync.Mutex
+	created   bool
+	lineCount uint64
 }
 
-// DatasetBucketWriter manages all buckets for one dataset
-type DatasetBucketWriter struct {
-	datasetID string
-	config    *BucketConfig
-	buckets   []*BucketWriter
-	outputDir string
-	wg        *sync.WaitGroup
-}
-
-// HybridWriterPool routes writes to buckets OR fallback
+// HybridWriterPool provides direct mutex-based writes to bucket files
+// This avoids channel overhead by having callers write directly with per-bucket locks
 type HybridWriterPool struct {
-	bucketConfigs map[string]*BucketConfig        // datasetID → config
-	bucketWriters map[string]*DatasetBucketWriter // datasetID → writer
-	fallbackChan  *chan string                    // Existing kvdatachan for fallback
+	bucketConfigs map[string]*BucketConfig // datasetID → config
+	bucketFiles   map[string]*BucketFile   // "datasetID_bucketNum" → file
+	bucketKeys    map[string][]string      // datasetID → pre-computed bucket keys
+	bucketDirs    map[string]string        // datasetID → output directory
+	fallbackChan  *chan string             // Existing kvdatachan for fallback
 	outputDir     string
-	wg            *sync.WaitGroup
-	mu            sync.RWMutex
 }
 
 // NewHybridWriterPool creates the pool with bucket configs
 func NewHybridWriterPool(configs map[string]*BucketConfig, fallbackChan *chan string, outputDir string, wg *sync.WaitGroup) *HybridWriterPool {
+	return NewHybridWriterPoolWithWorkers(configs, fallbackChan, outputDir, wg, 0)
+}
+
+// NewHybridWriterPoolWithWorkers creates the pool (numWorkers ignored - direct writes)
+func NewHybridWriterPoolWithWorkers(configs map[string]*BucketConfig, fallbackChan *chan string, outputDir string, wg *sync.WaitGroup, numWorkers int) *HybridWriterPool {
 	pool := &HybridWriterPool{
 		bucketConfigs: configs,
-		bucketWriters: make(map[string]*DatasetBucketWriter),
+		bucketFiles:   make(map[string]*BucketFile),
+		bucketKeys:    make(map[string][]string),
+		bucketDirs:    make(map[string]string),
 		fallbackChan:  fallbackChan,
 		outputDir:     outputDir,
-		wg:            wg,
 	}
 
-	// Initialize bucket writers for ALL configured datasets
+	// Create output directories for all configured datasets
 	for datasetID, cfg := range configs {
-		pool.bucketWriters[datasetID] = newDatasetBucketWriter(datasetID, cfg, outputDir, wg)
+		dir := filepath.Join(outputDir, cfg.DatasetName, "buckets")
+		os.MkdirAll(dir, 0755)
+		pool.bucketDirs[datasetID] = dir
+
+		// Pre-compute bucket keys for this dataset
+		keys := make([]string, cfg.NumBuckets)
+		for i := 0; i < cfg.NumBuckets; i++ {
+			key := fmt.Sprintf("%s_%d", datasetID, i)
+			keys[i] = key
+			pool.bucketFiles[key] = &BucketFile{
+				// Write uncompressed during processing (no .gz extension)
+				filePath: filepath.Join(dir, fmt.Sprintf("bucket_%03d.txt", i)),
+			}
+		}
+		pool.bucketKeys[datasetID] = keys
 	}
+
+	fmt.Printf("Direct bucket writer initialized with %d datasets, %d total buckets\n",
+		len(configs), len(pool.bucketFiles))
 
 	return pool
 }
 
-// newDatasetBucketWriter creates bucket writer for a dataset
-func newDatasetBucketWriter(datasetID string, cfg *BucketConfig, baseDir string, wg *sync.WaitGroup) *DatasetBucketWriter {
-	// Use dataset name for folder (not ID) for readability
-	dir := filepath.Join(baseDir, cfg.DatasetName, "buckets")
-	os.MkdirAll(dir, 0755)
-
-	w := &DatasetBucketWriter{
-		datasetID: datasetID,
-		config:    cfg,
-		outputDir: dir,
-		buckets:   make([]*BucketWriter, cfg.NumBuckets),
-		wg:        wg,
-	}
-
-	// Initialize all bucket channels and writers
-	for i := 0; i < cfg.NumBuckets; i++ {
-		bw := &BucketWriter{
-			writeChan: make(chan []byte, 10000), // Buffered channel
-			filePath:  filepath.Join(dir, fmt.Sprintf("bucket_%03d.gz", i)),
-			done:      make(chan struct{}),
-		}
-		w.buckets[i] = bw
-		wg.Add(1)
-		go bw.writerLoop(wg)
-	}
-
-	return w
-}
-
-// writerLoop runs in goroutine, writes data from channel to file
-func (bw *BucketWriter) writerLoop(wg *sync.WaitGroup) {
-	defer wg.Done()
-	defer close(bw.done)
-
-	var f *os.File
-	var gz *gzip.Writer
-	var buf *bufio.Writer
-
-	for data := range bw.writeChan {
-		// Lazy file creation - only when first data arrives
-		if !bw.fileCreated {
-			var err error
-			f, err = os.Create(bw.filePath)
-			if err != nil {
-				fmt.Printf("Error creating bucket file %s: %v\n", bw.filePath, err)
-				continue
-			}
-			gz, _ = gzip.NewWriterLevel(f, gzip.BestSpeed)
-			buf = bufio.NewWriterSize(gz, 65536)
-			bw.fileCreated = true
-		}
-		buf.Write(data)
-		buf.WriteByte('\n')
-		bw.lineCount++
-	}
-
-	// Close file if it was created
-	if bw.fileCreated && buf != nil {
-		buf.Flush()
-		gz.Close()
-		f.Close()
-	}
-}
-
 // Write routes data to appropriate bucket or fallback
 // For link datasets (parent/child), routes to the parent dataset's buckets
+// Direct write with per-bucket mutex - no channel overhead
 func (p *HybridWriterPool) Write(datasetID string, entityID string, line string) {
-	// Resolve link dataset to parent dataset
-	resolvedID := GetLinkDatasetID(datasetID)
+	// Fast path: check original datasetID first (most common case)
+	cfg, hasBucket := p.bucketConfigs[datasetID]
+	keys := p.bucketKeys[datasetID]
 
-	p.mu.RLock()
-	cfg, hasBucket := p.bucketConfigs[resolvedID]
-	writer, hasWriter := p.bucketWriters[resolvedID]
-	p.mu.RUnlock()
+	// Slow path: resolve link dataset if original not found
+	if !hasBucket {
+		if linkDatasetMap != nil {
+			if parentID, isLink := linkDatasetMap[datasetID]; isLink {
+				cfg, hasBucket = p.bucketConfigs[parentID]
+				keys = p.bucketKeys[parentID]
+			}
+		}
+	}
 
-	if hasBucket && hasWriter {
-		// Route to bucket
-		bucket := cfg.Method(entityID, cfg.NumBuckets)
-		writer.buckets[bucket].writeChan <- []byte(line)
+	if hasBucket && keys != nil {
+		// Calculate bucket and get pre-computed key
+		bucketNum := cfg.Method(entityID, cfg.NumBuckets)
+
+		// Safety check: bucket number must be within range
+		if bucketNum < 0 || bucketNum >= cfg.NumBuckets {
+			log.Printf("WARNING: Bucket method returned %d but numBuckets=%d for dataset=%s id='%s' - using bucket 0",
+				bucketNum, cfg.NumBuckets, cfg.DatasetName, entityID)
+			bucketNum = 0
+		}
+
+		bucketKey := keys[bucketNum]
+
+		// Get bucket file and write directly with mutex
+		bf := p.bucketFiles[bucketKey]
+
+		bf.mutex.Lock()
+
+		// Lazy file creation
+		if !bf.created {
+			var err error
+			bf.file, err = os.Create(bf.filePath)
+			if err != nil {
+				bf.mutex.Unlock()
+				fmt.Printf("Error creating bucket file %s: %v\n", bf.filePath, err)
+				return
+			}
+			bf.buf = bufio.NewWriterSize(bf.file, BucketWriteBufferSize)
+			bf.created = true
+		}
+
+		// Write line directly
+		bf.buf.WriteString(line)
+		bf.buf.WriteByte('\n')
+		bf.lineCount++
+
+		bf.mutex.Unlock()
 	} else {
 		// Fallback to kvdatachan
 		*p.fallbackChan <- line
@@ -144,10 +138,8 @@ func (p *HybridWriterPool) Write(datasetID string, entityID string, line string)
 // Must be called after Close() to get accurate count
 func (p *HybridWriterPool) GetTotalWrites() uint64 {
 	var total uint64
-	for _, writer := range p.bucketWriters {
-		for _, bucket := range writer.buckets {
-			total += bucket.lineCount
-		}
+	for _, bf := range p.bucketFiles {
+		total += bf.lineCount
 	}
 	return total
 }
@@ -171,37 +163,78 @@ func (p *HybridWriterPool) WriteXref(
 func (p *HybridWriterPool) HasBucketConfig(datasetID string) bool {
 	// Resolve link dataset to parent dataset
 	resolvedID := GetLinkDatasetID(datasetID)
-
-	p.mu.RLock()
-	defer p.mu.RUnlock()
 	_, ok := p.bucketConfigs[resolvedID]
 	return ok
 }
 
-// Close closes all bucket channels and waits for writers to finish
+// Close flushes and closes all bucket files
 func (p *HybridWriterPool) Close() {
-	for _, writer := range p.bucketWriters {
-		for _, bucket := range writer.buckets {
-			close(bucket.writeChan)
+	// Close all bucket files (uncompressed)
+	for _, bf := range p.bucketFiles {
+		if bf.created && bf.buf != nil {
+			bf.buf.Flush()
+			bf.file.Close()
 		}
 	}
-	// WaitGroup.Wait() is called by the caller (update.go)
 }
 
 // GetBucketFiles returns all non-empty bucket files for merging
 func (p *HybridWriterPool) GetBucketFiles() []string {
 	var files []string
-	for _, writer := range p.bucketWriters {
-		for _, bucket := range writer.buckets {
-			if bucket.fileCreated {
-				files = append(files, bucket.filePath)
-			}
+	for _, bf := range p.bucketFiles {
+		if bf.created {
+			files = append(files, bf.filePath)
 		}
 	}
 	return files
 }
 
-// GetBucketWriters returns the bucket writers map (for sorting/concatenation)
+// GetBucketWriters returns bucket info for sorting/concatenation
+// Returns a compatible structure for existing sort code
 func (p *HybridWriterPool) GetBucketWriters() map[string]*DatasetBucketWriter {
-	return p.bucketWriters
+	result := make(map[string]*DatasetBucketWriter)
+
+	for datasetID, cfg := range p.bucketConfigs {
+		dir := p.bucketDirs[datasetID]
+		if dir == "" {
+			continue
+		}
+
+		keys := p.bucketKeys[datasetID]
+		dbw := &DatasetBucketWriter{
+			datasetID: datasetID,
+			config:    cfg,
+			outputDir: dir,
+			buckets:   make([]*BucketWriter, cfg.NumBuckets),
+		}
+
+		for i := 0; i < cfg.NumBuckets; i++ {
+			bf := p.bucketFiles[keys[i]] // Use pre-computed key
+			dbw.buckets[i] = &BucketWriter{
+				filePath:    bf.filePath,
+				fileCreated: bf.created,
+				lineCount:   bf.lineCount,
+			}
+		}
+
+		result[datasetID] = dbw
+	}
+
+	return result
+}
+
+// DatasetBucketWriter is kept for compatibility with sorting code
+type DatasetBucketWriter struct {
+	datasetID string
+	config    *BucketConfig
+	buckets   []*BucketWriter
+	outputDir string
+	wg        *sync.WaitGroup
+}
+
+// BucketWriter is kept for compatibility with sorting code
+type BucketWriter struct {
+	filePath    string
+	fileCreated bool
+	lineCount   uint64
 }

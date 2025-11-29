@@ -50,5 +50,10 @@
 	"dbsnpNumBuckets": "100",
 	"dbsnpNumWorkers": "6",
 	"dbsnpReverseXrefs": "yes",
-	"dbsnpLookupXrefs": "yes"
+	"dbsnpLookupXrefs": "yes",
+	"__bucket_config_comment": "Bucket sort system configuration options below",
+	"bucketEnabled": "yes",
+	"bucketReadBufferSize": "524288",
+	"bucketWriteBufferSize": "65536",
+	"bucketSortWorkers": "8"
 }

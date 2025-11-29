@@ -616,8 +616,11 @@ func (s *swisslipids) parseEnzymesTSV(reader io.Reader) {
 		// Get Rhea ID
 		rheaID := s.getColumn(fields, colIndices, "Rhea ID")
 		if rheaID != "" && rheaID != "null" && rheaID != "-" {
+			// Ensure RHEA: prefix is present
+			if !strings.HasPrefix(strings.ToUpper(rheaID), "RHEA:") {
+				rheaID = "RHEA:" + rheaID
+			}
 			// Add Rhea cross-reference
-			// TODO: Rhea dataset integration - for now, cross-reference created but Rhea dataset not yet implemented
 			s.d.addXref(slmID, fr, rheaID, "rhea", false)
 			rheaXrefCount++
 		}

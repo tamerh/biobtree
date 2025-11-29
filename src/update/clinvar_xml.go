@@ -438,10 +438,8 @@ func (c *clinvarXML) createXrefs(variation *xmlparser.XMLElement, variationID, s
 															addXrefOnce(variationID, sourceID, id, "medgen", false)
 														}
 													case "mondo":
-														// Remove "MONDO:" prefix if present
-														cleanID := strings.TrimPrefix(id, "MONDO:")
 														if _, exists := config.Dataconf["mondo"]; exists {
-															addXrefOnce(variationID, sourceID, cleanID, "mondo", false)
+															addXrefOnce(variationID, sourceID, id, "mondo", false)
 														}
 													case "omim":
 														if _, exists := config.Dataconf["omim"]; exists {
@@ -452,10 +450,8 @@ func (c *clinvarXML) createXrefs(variation *xmlparser.XMLElement, variationID, s
 															addXrefOnce(variationID, sourceID, id, "orphanet", false)
 														}
 													case "human phenotype ontology", "hpo":
-														// Remove "HP:" prefix if present
-														cleanID := strings.TrimPrefix(id, "HP:")
 														if _, exists := config.Dataconf["hpo"]; exists {
-															addXrefOnce(variationID, sourceID, cleanID, "hpo", false)
+															addXrefOnce(variationID, sourceID, id, "hpo", false)
 														}
 													}
 												}

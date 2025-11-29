@@ -129,9 +129,8 @@ echo "⚠️  Note: STRING uses species-level ID for S. cerevisiae (4932)"
 echo "    Ensembl uses strain-specific ID (559292 for S288C)"
 echo ""
 echo "Datasets to process:"
-echo "  - Core part 1: uniprot, go, eco, hgnc, taxonomy, interpro, hmdb, chembl, ..."
-echo "  - Core part 2: efo, mondo, hpo, alphafold, rnacentral, reactome,"
-echo "                 clinical_trials, patent, string, ..."
+echo "  - Core part 1: uniprot, hgnc, taxonomy, interpro, hmdb, chembl, ..."
+echo "  - Core part 2: alphafold, rnacentral, reactome, clinical_trials, patent, string, bgee, ontology"
 echo "  - Core part 3: dbsnp (large dataset, separate job)"
 echo "  - Core part 4: pubchem, pubchem_activity, pubchem_assay"
 echo "  - Ensembl genomes (16 model organisms, strain-specific IDs)"
@@ -182,8 +181,8 @@ else
     declare -a SUBMITTED_JOBS=()
 
     # Core datasets split into 4 parts to reduce concurrent downloads
-    CORE_PART1="uniprot,go,eco,taxonomy,interpro,hmdb,chembl,clinvar,lipidmaps,swisslipids,uberon,gwas_study,gwas,intact,antibody,protein_similarity"
-    CORE_PART2="chebi,efo,mondo,hpo,alphafold,rnacentral,reactome,clinical_trials,patent,string,bgee,cl,rhea"
+    CORE_PART1="uniprot,taxonomy,interpro,hmdb,chembl,clinvar,lipidmaps,swisslipids,gwas_study,gwas,intact,antibody,protein_similarity"
+    CORE_PART2="chebi,alphafold,rnacentral,reactome,clinical_trials,patent,string,bgee,rhea,ontology"
     CORE_PART3="dbsnp"  # Large dataset, prone to FTP issues, separate with retry logic
     CORE_PART4="pubchem,pubchem_activity,pubchem_assay"  # PubChem datasets
 

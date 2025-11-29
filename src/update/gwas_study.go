@@ -263,11 +263,17 @@ func (g *gwasStudy) createCrossReferences(studyAccession, sourceID string, attr 
 		g.d.addXref("PMID:"+attr.PubmedId, textLinkID, studyAccession, g.source, true)
 	}
 
-	// Cross-reference: EFO traits (this is the main way to search by trait)
-	if _, exists := config.Dataconf["efo"]; exists {
-		for _, efoID := range attr.TraitEfos {
-			if efoID != "" {
-				g.d.addXref(studyAccession, sourceID, efoID, "efo", false)
+	// Cross-reference: ontology traits (EFO, MONDO, HP, OBA, etc.)
+	// GWAS Catalog includes traits from multiple ontologies, route each to correct dataset
+	for _, traitID := range attr.TraitEfos {
+		if traitID == "" {
+			continue
+		}
+		// Route to correct dataset based on prefix
+		targetDataset := getOntologyDataset(traitID)
+		if targetDataset != "" {
+			if _, exists := config.Dataconf[targetDataset]; exists {
+				g.d.addXref(studyAccession, sourceID, traitID, targetDataset, false)
 			}
 		}
 	}
@@ -315,14 +321,44 @@ func splitAndClean(s string, delimiters string) []string {
 	return cleaned
 }
 
-// Helper: extract EFO ID from URI
+// Helper: extract ontology ID from URI
+// Only extracts valid ontology IDs (PREFIX_NNNNN format)
 func extractEFOID(uri string) string {
 	// http://www.ebi.ac.uk/efo/EFO_0000400 -> EFO:0000400
 	// http://purl.obolibrary.org/obo/MONDO_0005148 -> MONDO:0005148
+	// Skip malformed URLs like http://...oc/exp.php?expert=37553
 	parts := strings.Split(uri, "/")
-	if len(parts) > 0 {
-		lastPart := parts[len(parts)-1]
-		return strings.ReplaceAll(lastPart, "_", ":")
+	if len(parts) == 0 {
+		return ""
 	}
-	return ""
+	lastPart := parts[len(parts)-1]
+
+	// Must contain underscore to be a valid ontology ID (PREFIX_NNNNN)
+	if !strings.Contains(lastPart, "_") {
+		return ""
+	}
+
+	// Skip URLs with query parameters or file extensions
+	if strings.Contains(lastPart, "?") || strings.Contains(lastPart, ".") {
+		return ""
+	}
+
+	// Convert underscore to colon
+	id := strings.ReplaceAll(lastPart, "_", ":")
+
+	// Validate format: should start with letters followed by colon
+	colonIdx := strings.Index(id, ":")
+	if colonIdx <= 0 || colonIdx >= len(id)-1 {
+		return ""
+	}
+
+	// Prefix should be all uppercase letters
+	prefix := id[:colonIdx]
+	for _, c := range prefix {
+		if c < 'A' || c > 'Z' {
+			return ""
+		}
+	}
+
+	return id
 }

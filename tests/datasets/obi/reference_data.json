@@ -1,0 +1,64 @@
+{
+  "metadata": {
+    "total_ids": 10,
+    "fetched": 9,
+    "failed": 1
+  },
+  "entries": [
+    {
+      "id": "OBI:0000011",
+      "name": "planned process",
+      "description": "A process that realizes a plan which is the concretization of a plan specification.",
+      "type": "investigation"
+    },
+    {
+      "id": "OBI:0000066",
+      "name": "investigation",
+      "description": "a planned process that consists of parts: planning, study design execution, documentation and which produce conclusion(s).",
+      "type": "investigation"
+    },
+    {
+      "id": "OBI:0000070",
+      "name": "assay",
+      "description": "A planned process that has the objective to produce information about a material entity (the evaluant) by examining it.",
+      "type": "investigation"
+    },
+    {
+      "id": "OBI:0000094",
+      "name": "material processing",
+      "description": "A planned process which results in physical changes in a specified input material",
+      "type": "investigation"
+    },
+    {
+      "id": "OBI:0000100",
+      "name": "obsolete_role of being first subject treated",
+      "description": "First subject treated role is a study subject role borne by the subject realized in the application of the process specified in intervention study design with no previous study subject realizing the role prior in the study",
+      "type": "investigation",
+      "isObsolete": true
+    },
+    {
+      "id": "OBI:0000115",
+      "name": "intervention design",
+      "description": "An intervention design is a study design in which a controlled process applied to the subjects (the intervention) serves as the independent variable manipulated by the experimentalist. The treatment (perturbation or intervention) defined can be defined as a combination of values taken by independent variable manipulated by the experimentalists are applied to the recruited subjects assigned (possibly by applying specific methods) to treatment groups. The specificity of intervention design is the fact that independent variables are being manipulated and a response of the biological system is evaluated via response variables as monitored by possibly a series of assays.",
+      "type": "investigation"
+    },
+    {
+      "id": "OBI:0000175",
+      "name": "p-value",
+      "description": "A quantitative confidence value that represents the probability of obtaining a result at least as extreme as that actually obtained, assuming that the actual value was the result of chance alone.",
+      "type": "investigation"
+    },
+    {
+      "id": "OBI:0000185",
+      "name": "imaging assay",
+      "description": "An assay that produces a picture of an entity.",
+      "type": "investigation"
+    },
+    {
+      "id": "OBI:0000245",
+      "name": "organization",
+      "description": "An entity that can bear roles, has members, and has a set of organization rules. Members of organizations are either organizations themselves or individual people. Members can bear specific organization member roles that are determined in the organization rules. The organization rules also determine how decisions are made on behalf of the organization by the organization members.",
+      "type": "investigation"
+    }
+  ]
+}

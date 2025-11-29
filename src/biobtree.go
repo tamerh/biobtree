@@ -133,6 +133,10 @@ func main() {
 			Name:  "skip-ensembl,se",
 			Usage: "During uniprot data update when taxids selected this paramater is used to just index uniprot",
 		},
+		cli.BoolFlag{
+			Name:  "profile",
+			Usage: "Enable CPU and memory profiling. Writes cpuprof.out and memprof.out files",
+		},
 	}
 
 	// add dataset local flags
@@ -400,6 +404,38 @@ func runTestCommand(c *cli.Context) error {
 func runUpdateCommand(c *cli.Context) error {
 
 	start := time.Now()
+
+	// Check if profiling is enabled
+	profileEnabled := c.GlobalBool("profile")
+	if profileEnabled {
+		os.Remove("cpuprof.out")
+		os.Remove("memprof.out")
+		f, err := os.Create("cpuprof.out")
+		if err != nil {
+			log.Fatal("could not create CPU profile: ", err)
+		}
+		if err := pprof.StartCPUProfile(f); err != nil {
+			log.Fatal("could not start CPU profile: ", err)
+		}
+		defer func() {
+			pprof.StopCPUProfile()
+			f.Close()
+			log.Println("CPU profile written to cpuprof.out")
+
+			// Write memory profile
+			f2, err := os.Create("memprof.out")
+			if err != nil {
+				log.Fatal("could not create memory profile: ", err)
+			}
+			runtime.GC()
+			if err := pprof.WriteHeapProfile(f2); err != nil {
+				log.Fatal("could not write memory profile: ", err)
+			}
+			f2.Close()
+			log.Println("Memory profile written to memprof.out")
+		}()
+		log.Println("Profiling enabled - will write cpuprof.out and memprof.out")
+	}
 
 	confdir := c.GlobalString("confdir")
 	outDir := c.GlobalString("out-dir")

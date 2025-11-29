@@ -9,13 +9,61 @@ import (
 // This uses textLinkID ("0") from update.go
 const TextSearchDatasetID = "0"
 
+// Default bucket system configuration values
+const (
+	DefaultBucketReadBufferSize  = 512 * 1024 // 512KB
+	DefaultBucketWriteBufferSize = 64 * 1024  // 64KB
+	DefaultBucketSortWorkers     = 8
+)
+
+// Global bucket system configuration (loaded from application.param.json)
+var (
+	BucketEnabled         = true
+	BucketReadBufferSize  = DefaultBucketReadBufferSize
+	BucketWriteBufferSize = DefaultBucketWriteBufferSize
+	BucketSortWorkers     = DefaultBucketSortWorkers
+)
+
+// LoadBucketSystemConfig loads bucket system configuration from Appconf
+func LoadBucketSystemConfig() {
+	// bucketEnabled
+	if val, ok := config.Appconf["bucketEnabled"]; ok {
+		BucketEnabled = (val == "yes" || val == "true" || val == "1")
+	}
+
+	// bucketReadBufferSize
+	if val, ok := config.Appconf["bucketReadBufferSize"]; ok {
+		if n, err := strconv.Atoi(val); err == nil && n > 0 {
+			BucketReadBufferSize = n
+		}
+	}
+
+	// bucketWriteBufferSize
+	if val, ok := config.Appconf["bucketWriteBufferSize"]; ok {
+		if n, err := strconv.Atoi(val); err == nil && n > 0 {
+			BucketWriteBufferSize = n
+		}
+	}
+
+	// bucketSortWorkers
+	if val, ok := config.Appconf["bucketSortWorkers"]; ok {
+		if n, err := strconv.Atoi(val); err == nil && n > 0 {
+			BucketSortWorkers = n
+		}
+	}
+
+	log.Printf("Bucket system config: enabled=%v readBuffer=%d writeBuffer=%d sortWorkers=%d",
+		BucketEnabled, BucketReadBufferSize, BucketWriteBufferSize, BucketSortWorkers)
+}
+
 // BucketConfig holds bucket configuration for a dataset
 type BucketConfig struct {
-	DatasetID   string
-	DatasetName string
-	MethodName  string
-	NumBuckets  int
-	Method      BucketMethod
+	DatasetID      string
+	DatasetName    string
+	MethodName     string
+	NumBuckets     int
+	Method         BucketMethod
+	SkipBucketSort bool // Skip sorting phase - for datasets that run alone and don't need sorted output
 }
 
 // linkDatasetMap maps child dataset IDs to their parent dataset IDs
@@ -73,18 +121,44 @@ func LoadBucketConfigs() map[string]*BucketConfig {
 			}
 		}
 
-		datasetID := props["id"]
-
-		cfgs[datasetID] = &BucketConfig{
-			DatasetID:   datasetID,
-			DatasetName: datasetName,
-			MethodName:  methodName,
-			NumBuckets:  numBuckets,
-			Method:      method,
+		// Override numBuckets for methods with fixed bucket counts
+		// These methods ignore numBuckets parameter and use fixed values
+		fixedBuckets := map[string]int{
+			"alphabetic": 27,  // A-Z (0-25) + other (26)
+			"alphanum":   37,  // 0-9 (0-9) + A-Z (10-35) + other (36)
+			"uniprot":    261, // A0-Z9 (0-259) + fallback (260)
+			"upi":        256, // hex 00-FF
+			"rnacentral": 256, // hex 00-FF
+			"uniref":     27,  // alphabetic on member ID
+		}
+		if fixed, hasFixed := fixedBuckets[methodName]; hasFixed {
+			if numBuckets != fixed {
+				log.Printf("Note: %s uses fixed bucket count %d (ignoring configured %d)",
+					methodName, fixed, numBuckets)
+			}
+			numBuckets = fixed
 		}
 
-		log.Printf("Bucket config loaded: %s (ID:%s) method=%s buckets=%d",
-			datasetName, datasetID, methodName, numBuckets)
+		datasetID := props["id"]
+
+		// skipBucketSort - for datasets that run alone and don't need sorted output
+		// Default: false (sorting enabled)
+		skipSort := false
+		if skipStr, ok := props["skipBucketSort"]; ok {
+			skipSort = (skipStr == "yes" || skipStr == "true" || skipStr == "1")
+		}
+
+		cfgs[datasetID] = &BucketConfig{
+			DatasetID:      datasetID,
+			DatasetName:    datasetName,
+			MethodName:     methodName,
+			NumBuckets:     numBuckets,
+			Method:         method,
+			SkipBucketSort: skipSort,
+		}
+
+		log.Printf("Bucket config loaded: %s (ID:%s) method=%s buckets=%d skipSort=%v",
+			datasetName, datasetID, methodName, numBuckets, skipSort)
 	}
 
 	// Second pass: build linkDatasetMap for child→parent routing

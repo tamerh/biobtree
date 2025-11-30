@@ -55,5 +55,8 @@
 	"bucketEnabled": "yes",
 	"bucketReadBufferSize": "524288",
 	"bucketWriteBufferSize": "65536",
-	"bucketSortWorkers": "8"
+	"bucketSortWorkers": "8",
+	"__pubchem_config_comment": "PubChem retry configuration for network/corruption errors",
+	"pubchemRetryCount": "2",
+	"pubchemRetryWaitMinutes": "2"
 }

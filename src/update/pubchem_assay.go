@@ -3,12 +3,15 @@ package update
 import (
 	"bufio"
 	"biobtree/pbuf"
-	"github.com/pquerna/ffjson/ffjson"
+	"fmt"
 	"io"
 	"log"
 	"os"
 	"strconv"
 	"strings"
+	"time"
+
+	"github.com/pquerna/ffjson/ffjson"
 )
 
 // pubchemAssay handles PubChem Assay dataset
@@ -38,7 +41,22 @@ func (p *pubchemAssay) update(d *DataUpdate) {
 }
 
 // loadAndStreamBioassays reads bioassays.tsv.gz and streams bioassay entries
+// Implements retry mechanism (configurable via pubchemRetryCount/pubchemRetryWaitMinutes) for network/corruption errors
 func (p *pubchemAssay) loadAndStreamBioassays() {
+	// Get retry configuration from application.param.json
+	maxRetries := 2 // default
+	retryWaitMinutes := 2 // default
+	if val, ok := config.Appconf["pubchemRetryCount"]; ok {
+		if parsed, err := strconv.Atoi(val); err == nil && parsed >= 0 {
+			maxRetries = parsed
+		}
+	}
+	if val, ok := config.Appconf["pubchemRetryWaitMinutes"]; ok {
+		if parsed, err := strconv.Atoi(val); err == nil && parsed >= 0 {
+			retryWaitMinutes = parsed
+		}
+	}
+
 	ftpServer := config.Dataconf["pubchem_assay"]["ftpUrl"]
 	basePath := "/pubchem/Bioassay/Extras/"
 	bioassayPath := "bioassays.tsv.gz"
@@ -60,11 +78,35 @@ func (p *pubchemAssay) loadAndStreamBioassays() {
 	}
 	log.Printf("[PubChem Assay] Streaming entries directly to database")
 
+	var lastError error
+
+	for attempt := 0; attempt <= maxRetries; attempt++ {
+		if attempt > 0 {
+			log.Printf("[PubChem Assay] Retry attempt %d/%d - waiting %d minutes before retry...", attempt, maxRetries, retryWaitMinutes)
+			time.Sleep(time.Duration(retryWaitMinutes) * time.Minute)
+			log.Printf("[PubChem Assay] Retrying download and processing...")
+		}
+
+		err := p.processBioassayFile(ftpServer, basePath, bioassayPath, testLimit, idLogFile)
+		if err == nil {
+			return // Success
+		}
+
+		lastError = err
+		log.Printf("[PubChem Assay] Attempt %d failed: %v", attempt+1, err)
+	}
+
+	// All retries exhausted - panic
+	log.Panicf("[PubChem Assay] FATAL: All %d retry attempts failed. Last error: %v", maxRetries+1, lastError)
+}
+
+// processBioassayFile handles the actual file processing
+// Returns error if processing fails (for retry mechanism)
+func (p *pubchemAssay) processBioassayFile(ftpServer, basePath, bioassayPath string, testLimit int, idLogFile *os.File) error {
 	// Download and open file
 	_, gz, _, _, localFile, _, err := getDataReaderNew("pubchem_assay", ftpServer, basePath, bioassayPath)
 	if err != nil {
-		log.Printf("[PubChem Assay] ERROR: Could not open bioassays.tsv.gz: %v", err)
-		return
+		return fmt.Errorf("could not open bioassays.tsv.gz: %v", err)
 	}
 	defer func() {
 		if gz != nil {
@@ -90,8 +132,8 @@ func (p *pubchemAssay) loadAndStreamBioassays() {
 			if err == io.EOF {
 				break // End of file reached successfully
 			}
-			log.Printf("[PubChem Assay] CRITICAL ERROR reading stream: %v", err)
-			return
+			// This catches the "flate: corrupt input" and network errors
+			return fmt.Errorf("error reading stream: %v", err)
 		}
 
 		line = strings.TrimSpace(line)
@@ -367,6 +409,8 @@ func (p *pubchemAssay) loadAndStreamBioassays() {
 
 	log.Printf("[PubChem Assay] Complete:")
 	log.Printf("[PubChem Assay]   - Total bioassays processed: %d", bioassayCount)
+
+	return nil // Success
 }
 
 func (p *pubchemAssay) check(e error, msg string) {

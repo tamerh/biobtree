@@ -29,9 +29,10 @@ var BucketMethods = map[string]BucketMethod{
 	"upi":        upiBucket,        // UPI00000001A2 → first 2 hex chars after UPI
 	"uniref":     unirefBucket,     // UniRef50_P12345 → alphabetic on char after _
 	"gcst":       gcstBucket,       // GCST010481 → 10481 % N
-	"alphanum":   alphanumBucket,   // 1031_AT → first char (0-9, A-Z) preserves order
-	"rhea":       rheaBucket,       // RHEA:16066 or 16066 → 16066 % N
-	"string":     stringBucket,     // 9606.ENSP00000377769 → taxid % N
+	"alphanum":         alphanumBucket,         // 1031_AT → first char (0-9, A-Z) preserves order
+	"rhea":             rheaBucket,             // RHEA:16066 or 16066 → 16066 % N
+	"string":           stringBucket,           // 9606.ENSP00000377769 → taxid % N
+	"pubchem_activity": pubchemActivityBucket,  // 10000020_21965_1 → CID (first part) % N
 }
 
 // numeric - for pure numeric IDs (taxonomy, ncbi_gene)
@@ -99,10 +100,10 @@ func meshBucket(id string, numBuckets int) int {
 	return alphabeticBucket(id, numBuckets)
 }
 
-// alphabetic - for text/keyword search, bucket by first letter
-// Returns 0-25 for A-Z, 26 for other (numbers, special chars, non-ASCII)
+// alphabetic - for text/keyword search, bucket by first letter (lexicographic order)
+// Returns 0 for special chars/numbers (they sort first in ASCII), 1-26 for A-Z
 // When used standalone, numBuckets should be 27
-// When used as fallback from other methods, logs warning if bucket exceeds numBuckets
+// Respects numBuckets by using modulo to ensure bucket is always in range
 func alphabeticBucket(id string, numBuckets int) int {
 	if len(id) == 0 {
 		return 0 // fallback bucket
@@ -114,11 +115,12 @@ func alphabeticBucket(id string, numBuckets int) int {
 	}
 	var bucket int
 	if first >= 'A' && first <= 'Z' {
-		bucket = int(first - 'A') // 0-25
+		bucket = int(first-'A') + 1 // 1-26 for A-Z
 	} else {
-		bucket = 26 // "other" bucket for numbers, special chars, etc.
+		bucket = 0 // special chars, numbers come first in lexicographic order
 	}
-	return bucket
+	// Respect numBuckets limit using modulo
+	return bucket % numBuckets
 }
 
 // rsid - for dbSNP rsIDs: rs123456789 → extract numeric part after "rs"
@@ -363,30 +365,37 @@ func unirefBucket(id string, numBuckets int) int {
 }
 
 // alphanum - for IDs that can start with digit or letter (probe IDs like 1031_AT)
-// Preserves string sort order: 0-9 → buckets 0-9, A-Z → buckets 10-35, other → 36
-// numBuckets is ignored - always uses 37 buckets
+// Preserves lexicographic order: special chars → 0, 0-9 → 1-10, A-Z → 11-36
+// When used standalone, numBuckets should be 37
+// Respects numBuckets by using modulo to ensure bucket is always in range
 func alphanumBucket(id string, numBuckets int) int {
 	if len(id) == 0 {
-		return 36 // "other" bucket
+		return 0 // fallback bucket
 	}
 	first := id[0]
 
-	// Digits 0-9 → buckets 0-9
+	var bucket int
+
+	// Special chars come first in lexicographic order → bucket 0
+	// Digits 0-9 → buckets 1-10
 	if first >= '0' && first <= '9' {
-		return int(first - '0') // 0-9
+		bucket = int(first-'0') + 1 // 1-10
+	} else {
+		// Convert to uppercase if lowercase
+		if first >= 'a' && first <= 'z' {
+			first -= 32
+		}
+
+		// Letters A-Z → buckets 11-36
+		if first >= 'A' && first <= 'Z' {
+			bucket = int(first-'A') + 11 // 11-36
+		} else {
+			bucket = 0 // special chars come first in lexicographic order
+		}
 	}
 
-	// Convert to uppercase if lowercase
-	if first >= 'a' && first <= 'z' {
-		first -= 32
-	}
-
-	// Letters A-Z → buckets 10-35
-	if first >= 'A' && first <= 'Z' {
-		return int(first-'A') + 10 // 10-35
-	}
-
-	return 36 // "other" bucket for special chars
+	// Respect numBuckets limit using modulo
+	return bucket % numBuckets
 }
 
 // lipidmaps - for LIPID MAPS IDs: LMFA00000001 → extract numeric part after 4-char prefix
@@ -442,6 +451,27 @@ func stringBucket(id string, numBuckets int) int {
 	}
 
 	return int(taxid % int64(numBuckets))
+}
+
+// pubchem_activity - for PubChem activity IDs: {CID}_{AID}_{index}
+// Example: 10000020_21965_1 → extract CID (10000020), then CID % numBuckets
+// Format: CID (numeric) + "_" + AID + "_" + index
+func pubchemActivityBucket(id string, numBuckets int) int {
+	// Find the first underscore separator
+	underscoreIdx := strings.Index(id, "_")
+	if underscoreIdx <= 0 {
+		// No underscore found, try numeric bucket as fallback
+		return numericBucket(id, numBuckets)
+	}
+
+	// Extract CID (part before the first underscore)
+	cidStr := id[:underscoreIdx]
+	cid, err := strconv.ParseInt(cidStr, 10, 64)
+	if err != nil {
+		return alphabeticBucket(id, numBuckets)
+	}
+
+	return int(cid % int64(numBuckets))
 }
 
 // GetBucketMethod returns the method by name, or nil if not found

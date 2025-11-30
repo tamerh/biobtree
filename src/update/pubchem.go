@@ -1636,19 +1636,58 @@ func (p *pubchem) parseSDFFiles() {
 	log.Printf("[PubChem] SDF parsing complete: processed %d files", len(sdfFiles))
 }
 
-// parseSDFFile downloads and parses a single SDF file
+// parseSDFFile downloads and parses a single SDF file with retry mechanism
+// Implements retry mechanism (configurable via pubchemRetryCount/pubchemRetryWaitMinutes) for network/corruption errors
 func (p *pubchem) parseSDFFile(sdfFile string) {
+	// Get retry configuration from application.param.json
+	maxRetries := 2 // default
+	retryWaitMinutes := 2 // default
+	if val, ok := config.Appconf["pubchemRetryCount"]; ok {
+		if parsed, err := strconv.Atoi(val); err == nil && parsed >= 0 {
+			maxRetries = parsed
+		}
+	}
+	if val, ok := config.Appconf["pubchemRetryWaitMinutes"]; ok {
+		if parsed, err := strconv.Atoi(val); err == nil && parsed >= 0 {
+			retryWaitMinutes = parsed
+		}
+	}
+
 	ftpServer := config.Dataconf[p.source]["ftpUrl"]
 	basePath := config.Dataconf[p.source]["path"]
 	sdfPath := config.Dataconf[p.source]["pathSDF"]
 
+	var lastError error
+
+	for attempt := 0; attempt <= maxRetries; attempt++ {
+		if attempt > 0 {
+			log.Printf("[PubChem] Retry attempt %d/%d for %s - waiting %d minutes before retry...", attempt, maxRetries, sdfFile, retryWaitMinutes)
+			time.Sleep(time.Duration(retryWaitMinutes) * time.Minute)
+			log.Printf("[PubChem] Retrying download and processing of %s...", sdfFile)
+		}
+
+		err := p.processSDFFile(sdfFile, ftpServer, basePath, sdfPath)
+		if err == nil {
+			return // Success
+		}
+
+		lastError = err
+		log.Printf("[PubChem] Attempt %d failed for %s: %v", attempt+1, sdfFile, err)
+	}
+
+	// All retries exhausted - panic
+	log.Panicf("[PubChem] FATAL: All %d retry attempts failed for %s. Last error: %v", maxRetries+1, sdfFile, lastError)
+}
+
+// processSDFFile handles the actual SDF file processing
+// Returns error if processing fails (for retry mechanism)
+func (p *pubchem) processSDFFile(sdfFile, ftpServer, basePath, sdfPath string) error {
 	log.Printf("[PubChem] Parsing %s", sdfFile)
 
 	// Download and open SDF file
 	br, gz, _, _, localFile, _, err := getDataReaderNew(p.source, ftpServer, basePath, sdfPath+sdfFile)
 	if err != nil {
-		log.Printf("[PubChem] Warning: Could not load %s: %v", sdfFile, err)
-		return
+		return fmt.Errorf("could not load %s: %v", sdfFile, err)
 	}
 	defer func() {
 		if gz != nil {
@@ -1681,8 +1720,8 @@ func (p *pubchem) parseSDFFile(sdfFile string) {
 				}
 				break
 			}
-			log.Printf("[PubChem] Error reading %s: %v", sdfFile, err)
-			break
+			// This catches the "flate: corrupt input" and network errors
+			return fmt.Errorf("error reading stream: %v", err)
 		}
 
 		// Check for record delimiter
@@ -1704,6 +1743,7 @@ func (p *pubchem) parseSDFFile(sdfFile string) {
 	}
 
 	log.Printf("[PubChem] Processed %s: found %d target CIDs (scanned %d compounds)", sdfFile, matchCount, scannedCount)
+	return nil // Success
 }
 
 // parseSDFRecord parses a single SDF record and extracts molecular data
@@ -1828,9 +1868,11 @@ func (p *pubchem) parseSDFRecord(record string, matchCount *int, scannedCount *i
 	}
 
 	// Create cross-references to MeSH terms
+	// MeSH terms from PubChem are term names (e.g., "Aspirin"), not descriptor UIDs (e.g., "D001241")
+	// Use addXrefViaKeyword to lookup the MeSH term name and find the actual MeSH descriptor entry
 	for _, meshTerm := range meshTerms {
 		if meshTerm != "" {
-			p.d.addXref(cid, fr, meshTerm, "mesh", false)
+			p.d.addXrefViaKeyword(meshTerm, "mesh", cid, p.source, fr, false)
 		}
 	}
 }

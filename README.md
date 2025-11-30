@@ -38,7 +38,7 @@ by retrieving latest data from providers
 
 * **Protein Interactions** - `IntAct` database from EBI with ~1.8 million experimentally validated protein-protein interactions across ~100,000 unique proteins. Provides detailed experimental evidence including detection methods, interaction types, confidence scores, experimental roles, and direct citations to 23,000+ publications. Supports interaction network analysis, drug target discovery, and pathway exploration with PSI-MI standardized terms
 
-* **Taxonomy & Ontologies** - `Taxonomy` `GO` `EFO` `ECO` `HPO` `MONDO` `UBERON` `CL` data with mapping to other datasets and child and parent query capability. CL (Cell Ontology) provides 2,700+ cell type classifications for tissue-specific and cell-specific analysis
+* **Taxonomy & Ontologies** - `Taxonomy` `GO` `EFO` `ECO` `HPO` `MONDO` `UBERON` `CL` `OBA` `PATO` `OBI` `XCO` data with mapping to other datasets and child and parent query capability. CL (Cell Ontology) provides 2,700+ cell type classifications for tissue-specific and cell-specific analysis. OBA (Ontology of Biological Attributes) covers biological traits. PATO (Phenotype And Trait Ontology) describes phenotypic qualities. OBI (Ontology for Biomedical Investigations) covers study designs and assays. XCO (Experimental Conditions Ontology) describes experimental conditions
 
 * **Your data** - Your custom data can be integrated with or without relation to other datasets
 
@@ -84,6 +84,12 @@ biobtree -d "dbsnp,hgnc" build
 
 # build with protein interactions (requires UniProt)
 biobtree -d "uniprot,intact" build
+
+# build all ontologies at once (GO, ECO, EFO, UBERON, CL, MONDO, HPO, OBA, PATO, OBI, XCO)
+biobtree -d "ontology" build
+
+# build with specific ontologies
+biobtree -d "oba,pato,obi,xco" build
 
 # once data is built start web for using ws and ui
 biobtree web

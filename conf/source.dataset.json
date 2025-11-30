@@ -649,7 +649,7 @@
     "attrs": "activity_id,cid,aid,activity_outcome,activity_type,qualifier,value,unit,protein_accession,gene_id,target_taxid,pmid",
     "test_entries_count": "5000",
     "pathBioactivities": "bioactivities.tsv.gz",
-    "bucketMethod": "numeric",
+    "bucketMethod": "pubchem_activity",
     "numBuckets": "100"
   },
   "pubchem_assay": {

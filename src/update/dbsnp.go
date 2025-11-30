@@ -582,7 +582,7 @@ func (db *dbsnp) createCrossReferences(rsID, sourceID string, attr *pbuf.DbsnpAt
 	// SNP → Gene (via gene_ids from GENEINFO) - ALL genes
 	for _, geneID := range attr.GeneIds {
 		if geneID != "" {
-			db.d.addXref(rsID, sourceID, geneID, "gene", false)
+			db.d.addXref(rsID, sourceID, geneID, "entrez", false)
 		}
 	}
 

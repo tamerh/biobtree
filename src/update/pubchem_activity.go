@@ -4,12 +4,14 @@ import (
 	"bufio"
 	"biobtree/pbuf"
 	"fmt"
-	"github.com/pquerna/ffjson/ffjson"
 	"io"
 	"log"
 	"os"
 	"strconv"
 	"strings"
+	"time"
+
+	"github.com/pquerna/ffjson/ffjson"
 )
 
 // pubchemActivity handles PubChem BioActivity dataset
@@ -40,7 +42,22 @@ func (p *pubchemActivity) update(d *DataUpdate) {
 
 // loadAndStreamActivities reads bioactivities.tsv.gz and streams activity entries
 // Uses bufio.Reader instead of Scanner for better handling of massive streams
+// Implements retry mechanism (configurable via pubchemRetryCount/pubchemRetryWaitMinutes) for network/corruption errors
 func (p *pubchemActivity) loadAndStreamActivities() {
+	// Get retry configuration from application.param.json
+	maxRetries := 2 // default
+	retryWaitMinutes := 2 // default
+	if val, ok := config.Appconf["pubchemRetryCount"]; ok {
+		if parsed, err := strconv.Atoi(val); err == nil && parsed >= 0 {
+			maxRetries = parsed
+		}
+	}
+	if val, ok := config.Appconf["pubchemRetryWaitMinutes"]; ok {
+		if parsed, err := strconv.Atoi(val); err == nil && parsed >= 0 {
+			retryWaitMinutes = parsed
+		}
+	}
+
 	ftpServer := config.Dataconf["pubchem"]["ftpUrl"]
 	basePath := "/pubchem/Bioassay/Extras/"
 	activityPath := "bioactivities.tsv.gz"
@@ -62,13 +79,35 @@ func (p *pubchemActivity) loadAndStreamActivities() {
 	}
 	log.Printf("[PubChem Activity] Streaming entries directly to database (no memory accumulation)")
 
+	var lastError error
+
+	for attempt := 0; attempt <= maxRetries; attempt++ {
+		if attempt > 0 {
+			log.Printf("[PubChem Activity] Retry attempt %d/%d - waiting %d minutes before retry...", attempt, maxRetries, retryWaitMinutes)
+			time.Sleep(time.Duration(retryWaitMinutes) * time.Minute)
+			log.Printf("[PubChem Activity] Retrying download and processing...")
+		}
+
+		err := p.processActivityFile(ftpServer, basePath, activityPath, testLimit, idLogFile)
+		if err == nil {
+			return // Success
+		}
+
+		lastError = err
+		log.Printf("[PubChem Activity] Attempt %d failed: %v", attempt+1, err)
+	}
+
+	// All retries exhausted - panic
+	log.Panicf("[PubChem Activity] FATAL: All %d retry attempts failed. Last error: %v", maxRetries+1, lastError)
+}
+
+// processActivityFile handles the actual file processing
+// Returns error if processing fails (for retry mechanism)
+func (p *pubchemActivity) processActivityFile(ftpServer, basePath, activityPath string, testLimit int, idLogFile *os.File) error {
 	// Download and open file
-	// NOTE: If you keep getting "flate: corrupt input", delete the local .gz file 
-	// to force a fresh download, as the cached file might be truncated.
 	br, gz, _, _, localFile, _, err := getDataReaderNew("pubchem_activity", ftpServer, basePath, activityPath)
 	if err != nil {
-		log.Printf("[PubChem Activity] ERROR: Could not open bioactivities.tsv.gz: %v", err)
-		return
+		return fmt.Errorf("could not open bioactivities.tsv.gz: %v", err)
 	}
 	defer func() {
 		if gz != nil {
@@ -92,15 +131,13 @@ func (p *pubchemActivity) loadAndStreamActivities() {
 	for {
 		// ReadString is more robust for massive ETL than Scanner
 		line, err := reader.ReadString('\n')
-		
+
 		if err != nil {
 			if err == io.EOF {
 				break // End of file reached successfully
 			}
-			// This catches the "flate: corrupt input" explicitly
-			log.Printf("[PubChem Activity] CRITICAL ERROR reading stream: %v", err)
-			log.Printf("[PubChem Activity] This usually means the download was interrupted or the local file is corrupt.")
-			return 
+			// This catches the "flate: corrupt input" and network errors
+			return fmt.Errorf("error reading stream: %v", err)
 		}
 
 		line = strings.TrimSpace(line)
@@ -252,6 +289,8 @@ func (p *pubchemActivity) loadAndStreamActivities() {
     log.Printf("[PubChem Activity]   - Total records processed: %d", lineCount)
     log.Printf("[PubChem Activity]   - Activity entries created: %d", activityCount)
     log.Printf("[PubChem Activity]   - Unique CID-AID pairs: %d", len(activityIndex))
+
+    return nil // Success
 }
 
 func (p *pubchemActivity) check(e error, msg string) {

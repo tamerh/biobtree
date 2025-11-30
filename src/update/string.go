@@ -8,8 +8,6 @@ import (
 	"io"
 	"log"
 	"os"
-	"runtime"
-	"runtime/pprof"
 	"strconv"
 	"strings"
 	"sync/atomic"
@@ -18,34 +16,6 @@ import (
 	"github.com/jlaffaye/ftp"
 	"github.com/pquerna/ffjson/ffjson"
 )
-
-// writeMemProfile writes a memory profile snapshot with the given name
-func writeMemProfile(name string) {
-	runtime.GC() // Force GC to get accurate memory stats
-	f, err := os.Create(fmt.Sprintf("memprof_string_%s.out", name))
-	if err != nil {
-		log.Printf("Could not create memory profile %s: %v", name, err)
-		return
-	}
-	defer f.Close()
-	if err := pprof.WriteHeapProfile(f); err != nil {
-		log.Printf("Could not write memory profile %s: %v", name, err)
-		return
-	}
-	log.Printf("STRING: Memory profile written to memprof_string_%s.out", name)
-}
-
-// logMemStats logs current memory statistics
-func logMemStats(stage string) {
-	var m runtime.MemStats
-	runtime.ReadMemStats(&m)
-	log.Printf("STRING [%s]: Alloc=%dMB, TotalAlloc=%dMB, Sys=%dMB, NumGC=%d",
-		stage,
-		m.Alloc/1024/1024,
-		m.TotalAlloc/1024/1024,
-		m.Sys/1024/1024,
-		m.NumGC)
-}
 
 type stringProcessor struct {
 	source       string
@@ -95,17 +65,12 @@ func (s *stringProcessor) update(selectedTaxids []int) {
 	}
 
 	for _, taxid := range selectedTaxids {
-		// fmt.Printf("Processing STRING data for taxid %d...\n", taxid)
-		logMemStats(fmt.Sprintf("taxid_%d_start", taxid))
-
 		// Step 1: Build STRING_ID ↔ UniProt mappings from aliases file
 		forwardMap, reverseMap, err := s.buildAliasMap(taxid)
 		if err != nil {
 			log.Printf("Error building alias map for taxid %d: %v", taxid, err)
 			continue
 		}
-		logMemStats(fmt.Sprintf("taxid_%d_after_alias_map_forward=%d_reverse=%d", taxid, len(forwardMap), len(reverseMap)))
-		// fmt.Printf("  Loaded %d STRING ID → UniProt mappings\n", len(forwardMap))
 
 		// Step 2: Load protein info (names, sizes, annotations)
 		proteinInfo, err := s.loadProteinInfo(taxid)
@@ -113,8 +78,6 @@ func (s *stringProcessor) update(selectedTaxids []int) {
 			log.Printf("Error loading protein info for taxid %d: %v", taxid, err)
 			continue
 		}
-		logMemStats(fmt.Sprintf("taxid_%d_after_protein_info=%d", taxid, len(proteinInfo)))
-		// fmt.Printf("  Loaded %d protein annotations\n", len(proteinInfo))
 
 		// Step 3: Process interactions
 		proteins, interactions, err := s.processInteractions(taxid, forwardMap, reverseMap, proteinInfo, idLogFile, testLimit)
@@ -122,10 +85,6 @@ func (s *stringProcessor) update(selectedTaxids []int) {
 			log.Printf("Error processing interactions for taxid %d: %v", taxid, err)
 			continue
 		}
-		logMemStats(fmt.Sprintf("taxid_%d_after_interactions", taxid))
-
-		// Write memory profile after processing each taxid (for debugging)
-		writeMemProfile(fmt.Sprintf("taxid_%d_complete", taxid))
 
 		totalProteins += proteins
 		totalInteractions += interactions

@@ -94,13 +94,50 @@ Dataset-specific configuration in `conf/source.dataset.json`:
 
 | Method | ID Format | Example | Use Case |
 |--------|-----------|---------|----------|
-| `numeric` | Pure numbers | `9606` | taxonomy, ncbi_gene |
+| `numeric` | Pure numbers | `9606` | taxonomy, ncbi_gene, pubmed |
 | `uniprot` | Letter+Digit prefix | `P12345` | uniprot (261 buckets) |
-| `ontology` | PREFIX:NNNNN | `GO:0008150` | GO, HPO, MONDO, etc. |
+| `ontology` | PREFIX:NNNNN | `GO:0008150` | chebi, hpo, uberon, efo, mondo, etc. |
 | `mesh` | Letter+Numbers | `D000001` | MeSH descriptors |
-| `alphabetic` | First letter A-Z | `BRCA1` | text search |
+| `alphabetic` | First letter A-Z | `BRCA1` | text search, gcst |
+| `alphanum` | First alphanumeric | `A123`, `9XYZ` | generic alphanumeric |
 | `rsid` | rs + numbers | `rs123456789` | dbSNP variants |
-| `hash` | Any string | fallback | generic fallback |
+| `chembl` | CHEMBL + numbers | `CHEMBL123456` | chembl_molecule, chembl_activity, etc. |
+| `go` | GO:NNNNNNN | `GO:0008150` | Gene Ontology |
+| `hmdb` | HMDB + numbers | `HMDB0000001` | HMDB metabolites |
+| `nct` | NCT + numbers | `NCT06401707` | Clinical trials |
+| `rhea` | RHEA:NNNN | `RHEA:16066` | Rhea reactions |
+| `reactome` | R-XXX-NNNN | `R-HSA-12345` | Reactome pathways |
+| `gwas` | GCST + numbers | `GCST000001_rs380390` | GWAS associations |
+
+## Multi-Bucket-Set Routing
+
+For datasets with mixed ID formats (e.g., patents), multiple bucket methods can be specified as a comma-separated list. The system tries each method in order and uses the first one that matches:
+
+```json
+{
+  "patent": {
+    "id": "26",
+    "bucketMethod": "patent_us,patent_ep,patent_wo,patent_other"
+  }
+}
+```
+
+This produces separate sorted output files for each bucket set:
+- `patent_sorted_1.X.index.gz` (US patents)
+- `patent_sorted_2.X.index.gz` (EP patents)
+- `patent_sorted_3.X.index.gz` (WO patents)
+- `patent_sorted_4.X.index.gz` (Other patents)
+
+Each bucket method returns `-1` if the ID doesn't match its pattern, causing the system to try the next method.
+
+### Patent Bucket Methods
+
+| Method | Pattern | Example | Description |
+|--------|---------|---------|-------------|
+| `patent_us` | US-XXXXX-X | `US-5153197-A` | US patents (alphanumeric on part after "US-") |
+| `patent_ep` | EP-XXXXX-X | `EP-1234567-A1` | European patents |
+| `patent_wo` | WO-XXXXX-X | `WO-2020123456-A1` | WIPO patents |
+| `patent_other` | Other formats | `CA-2987654-A1`, `RE43229` | All other patents (alphabetic) |
 
 ## Link Dataset Routing
 
@@ -112,6 +149,22 @@ hpochild (ID:458)  ──► hpo buckets (ID:58)
 ```
 
 This is configured via `linkdataset` property in `source.dataset.json` and handled by `linkDatasetMap` in `bucket_config.go`.
+
+### Link Datasets with Own Bucket Config
+
+Link datasets can override the parent's bucket routing by specifying their own `bucketMethod`. This is useful when the link dataset uses different ID formats than the parent:
+
+```json
+{
+  "patent_compound": {
+    "id": "352",
+    "linkdataset": "chembl_molecule",
+    "bucketMethod": "numeric"
+  }
+}
+```
+
+In this example, `patent_compound` is a link dataset to `chembl_molecule`, but uses numeric compound IDs (e.g., `15766161`) instead of ChEMBL IDs. By specifying its own `bucketMethod: "numeric"`, it routes to its own buckets instead of the parent's ChEMBL buckets.
 
 ## Data Flow
 

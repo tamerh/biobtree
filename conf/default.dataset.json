@@ -63,14 +63,6 @@
     "id": "94",
     "url": "http://flybase.org/reports/£{id}.html"
   },
-  "entrez": {
-    "aliases": "GeneID,EntrezGene",
-    "name": "Entrez",
-    "id": "95",
-    "url": "https://www.ncbi.nlm.nih.gov/gene/£{id}",
-    "bucketMethod": "numeric",
-    "numBuckets": "100"
-  },
   "hamap": {
     "aliases": "HAMAP",
     "name": "HAMAP",
@@ -170,8 +162,7 @@
     "name": "PubMed",
     "id": "113",
     "url": "https://europepmc.org/search?query=£{id}",
-    "bucketMethod": "numeric",
-    "numBuckets": "100"
+    "bucketMethod": "numeric"
   },
   "refseq": {
     "aliases": "RefSeq,nucleotide sequence ID",

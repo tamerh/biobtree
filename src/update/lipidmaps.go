@@ -329,7 +329,12 @@ func (l *lipidmaps) processRecord(dataItems map[string]string, entryCount *int64
 
 	// HMDB cross-reference
 	if hmdbID := dataItems["HMDB_ID"]; hmdbID != "" {
-		l.d.addXref(lmID, fr, hmdbID, "hmdb", false)
+		// Validate HMDB ID format (should start with HMDB followed by digits)
+		if !strings.HasPrefix(hmdbID, "HMDB") {
+			log.Printf("[%s] Non-standard HMDB_ID: '%s' for lipid: %s", l.source, hmdbID, lmID)
+		} else {
+			l.d.addXref(lmID, fr, hmdbID, "hmdb", false)
+		}
 	}
 
 	// KEGG cross-reference

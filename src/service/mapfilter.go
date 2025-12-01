@@ -1053,6 +1053,8 @@ func (s *service) execCelGo(query *query.Query, targetXref *pbuf.Xref) (bool, er
 		out, _, err = query.Program.Eval(map[string]interface{}{"dbsnp": targetXref.GetDbsnp()})
 	case "antibody":
 		out, _, err = query.Program.Eval(map[string]interface{}{"antibody": targetXref.GetAntibody()})
+	case "entrez":
+		out, _, err = query.Program.Eval(map[string]interface{}{"entrez": targetXref.GetEntrez()})
 	default:
 		//err := fmt.Errorf("mapfilter query execution failed please check again query")
 		return false, nil

@@ -10,8 +10,7 @@
     "hasFilter": "yes",
     "attrs": "[]accessions,[]genes,[]names,[]alternative_names,[]submitted_names,sequence.seq,sequence.mass,reviewed",
     "test_entries_count": "100",
-    "bucketMethod": "uniprot",
-    "numBuckets": "261"
+    "bucketMethod": "uniprot"
   },
   "ensembl": {
     "aliases": "gene ID,Ensembl",
@@ -44,8 +43,7 @@
     "hasFilter": "yes",
     "attrs": "name,common_name,rank,taxonomic_division",
     "test_entries_count": "100",
-    "bucketMethod": "numeric",
-    "numBuckets": "50"
+    "bucketMethod": "numeric"
   },
   "go": {
     "aliases": "GO Molecular Function,GO Cellular Component,GO Biological Process,GO",
@@ -57,8 +55,7 @@
     "hasFilter": "yes",
     "attrs": "type,name,[]synonyms",
     "test_entries_count": "100",
-    "bucketMethod": "go",
-    "numBuckets": "10"
+    "bucketMethod": "go"
   },
   "eco": {
     "aliases": "ECO",
@@ -70,8 +67,7 @@
     "hasFilter": "yes",
     "attrs": "type,name,[]synonyms",
     "test_entries_count": "100",
-    "bucketMethod": "ontology",
-    "numBuckets": "5"
+    "bucketMethod": "ontology"
   },
   "hgnc": {
     "id": "5",
@@ -83,8 +79,7 @@
     "hasFilter": "yes",
     "attrs": "[]names,[]symbols,locus_group,[]aliases,locus_type,[]prev_names,[]prev_symbols,status,[]gene_groups",
     "test_entries_count": "20000",
-    "bucketMethod": "ontology",
-    "numBuckets": "100"
+    "bucketMethod": "ontology"
   },
   "uniparc": {
     "id": "6",
@@ -96,8 +91,7 @@
     "url": "//www.uniprot.org/uniparc/£{id}",
     "useLocalFile": "no",
     "test_entries_count": "10",
-    "bucketMethod": "upi",
-    "numBuckets": "256"
+    "bucketMethod": "upi"
   },
   "uniref50": {
     "id": "7",
@@ -109,8 +103,7 @@
     "url": "//www.uniprot.org/uniref/£{id}",
     "useLocalFile": "no",
     "test_entries_count": "10",
-    "bucketMethod": "uniref",
-    "numBuckets": "27"
+    "bucketMethod": "uniref"
   },
   "uniref90": {
     "id": "8",
@@ -122,8 +115,7 @@
     "url": "//www.uniprot.org/uniref/£{id}",
     "useLocalFile": "no",
     "test_entries_count": "10",
-    "bucketMethod": "uniref",
-    "numBuckets": "27"
+    "bucketMethod": "uniref"
   },
   "uniref100": {
     "id": "9",
@@ -133,7 +125,6 @@
     "exclusion_xrefs": "uniref90",
     "aliases": "UniRef100 ID",
     "bucketMethod": "uniref",
-    "numBuckets": "27",
     "url": "//www.uniprot.org/uniref/£{id}",
     "useLocalFile": "no",
     "test_entries_count": "10"
@@ -148,8 +139,7 @@
     "hasFilter": "yes",
     "attrs": "name,definition,[]synonyms,[]iupac_names,formula,average_mass,monoisotopic_mass,smiles,inchi,inchi_key,star_rating,status_id",
     "test_entries_count": "100",
-    "bucketMethod": "ontology",
-    "numBuckets": "100"
+    "bucketMethod": "ontology"
   },
   "interpro": {
     "id": "11",
@@ -161,8 +151,7 @@
     "hasFilter": "yes",
     "attrs": "[]names,short_name,type,protein_count",
     "test_entries_count": "20",
-    "bucketMethod": "interpro",
-    "numBuckets": "50"
+    "bucketMethod": "interpro"
   },
   "literature_mappings": {
     "id": "12",
@@ -170,8 +159,7 @@
     "path": "/pmc/DOI/PMID_PMCID_DOI.csv.gz",
     "doiPrefix": "https://doi.org/",
     "url": "",
-    "bucketMethod": "numeric",
-    "numBuckets": "100"
+    "bucketMethod": "numeric"
   },
   "hmdb": {
     "id": "13",
@@ -184,8 +172,7 @@
     "hasFilter": "yes",
     "attrs": "name,desc,[]accessions,[]synonyms,[]diseases,formula,averageWeight,monisotopicWeight,iupacName,smiles,inchi,inchiKey,[]cellularLocations,[]biospecimens,[]tissueLocations,[]pathways,props.rotatableBondCount,props.physiologicalCharge,props.ruleOfFive,props.pkaStrongestAcidic,props.monoMass,props.ghose_filter,props.refractivity,props.formalCharge,props.bioavailability,props.solubility,props.pka_strongest_basic,props.polarSurfaceArea,props.veberRule,props.mddrLikeRule,props.logp,props.polarizability,props.donorCount,props.averageMass,props.acceptorCount,props.numberOfRings,props.logs,experimentalProps.boolingPoint,experimentalProps.meltingPoint,experimentalProps.logp,experimentalProps.waterSolubility",
     "test_entries_count": "20",
-    "bucketMethod": "hmdb",
-    "numBuckets": "100"
+    "bucketMethod": "hmdb"
   },
   "my_data": {
     "id": "14",
@@ -205,8 +192,7 @@
     "hasFilter": "yes",
     "attrs": "chembl.doc.title,chembl.doc.type,chembl.doc.journal,chembl.doc.journalShortName",
     "test_entries_count": "20",
-    "bucketMethod": "chembl",
-    "numBuckets": "100"
+    "bucketMethod": "chembl"
   },
   "chembl_assay": {
     "name": "chembl_assay",
@@ -219,8 +205,7 @@
     "hasFilter": "yes",
     "attrs": "chembl.assay.desc,chembl.assay.type,chembl.assay.targetConfDesc,chembl.assay.targetRelType,chembl.assay.targetRelDesc,chembl.assay.targetConfScore,chembl.assay.subCellFrac,chembl.assay.testType,chembl.assay.strain,chembl.assay.cellType,chembl.assay.tissue,chembl.assay.tax,chembl.assay.category,chembl.assay.source,chembl.assay.sourceDesc,chembl.assay.bao",
     "test_entries_count": "20",
-    "bucketMethod": "chembl",
-    "numBuckets": "100"
+    "bucketMethod": "chembl"
   },
   "chembl_activity": {
     "name": "chembl_activity",
@@ -232,8 +217,7 @@
     "hasFilter": "yes",
     "attrs": "chembl.activity.type,chembl.activity.relation,chembl.activity.value,chembl.activity.units,chembl.activity.standardType,chembl.activity.standardRelation,chembl.activity.standardValue,chembl.activity.standardUnits,chembl.activity.dataValidityIssue,chembl.activity.dataValidityComment,chembl.activity.pChembl,chembl.activity.activityComment,chembl.activity.potentialDuplicate,chembl.activity.bao",
     "test_entries_count": "20",
-    "bucketMethod": "chembl",
-    "numBuckets": "100"
+    "bucketMethod": "chembl"
   },
   "chembl_molecule": {
     "name": "chembl_molecule",
@@ -248,8 +232,7 @@
     "hasFilter": "yes",
     "attrs": "chembl.molecule.desc,chembl.molecule.highestDevelopmentPhase,chembl.molecule.[]altNames,chembl.molecule.[]atcClassification,chembl.molecule.isBiotherapeutic,chembl.molecule.helmNotation,chembl.molecule.hracClassification,chembl.molecule.fracClassification,chembl.molecule.iracClassification,chembl.molecule.type,chembl.molecule.bioComponentType,chembl.molecule.bioComponentDescription,chembl.molecule.bioComponentSquence,chembl.molecule.bioComponentTaxo,chembl.molecule.parent,chembl.molecule.[]childs,chembl.molecule.mechanism.desc,chembl.molecule.mechanism.action,chembl.molecule.inchi,chembl.molecule.name,chembl.molecule.inchiKey,chembl.molecule.smiles,chembl.molecule.alogp,chembl.molecule.weightFreebase,chembl.molecule.hba,chembl.molecule.hbd,chembl.molecule.psa,chembl.molecule.rtb,chembl.molecule.ro3Pass,chembl.molecule.numRo5Violations,chembl.molecule.acdMostApka,chembl.molecule.acdMostBpka,chembl.molecule.acdLogp,chembl.molecule.acdLogd,chembl.molecule.molecularSpecies,chembl.molecule.weight,chembl.molecule.aromaticRings,chembl.molecule.heavyAtoms,chembl.molecule.formula,chembl.molecule.weightMonoisotopic,chembl.molecule.qedWeighted,chembl.molecule.[]indications.efoName,chembl.molecule.[]indications.meshHeading,chembl.molecule.[]indications.highestDevelopmentPhase,chembl.molecule.[]indications.efo,chembl.molecule.[]indications.mesh,chembl.molecule.[]indications.mechanism.desc,chembl.molecule.[]indications.mechanism.action",
     "test_entries_count": "20",
-    "bucketMethod": "chembl",
-    "numBuckets": "100"
+    "bucketMethod": "chembl"
   },
   "chembl_target_component": {
     "name": "chembl_target_component",
@@ -263,8 +246,7 @@
     "hasFilter": "yes",
     "attrs": "chembl.targetComponent.desc,chembl.targetComponent.altLabel,chembl.targetComponent.type,chembl.targetComponent.acc,chembl.targetComponent.tax,chembl.targetComponent.[]ptclassifications.className,chembl.targetComponent.[]ptclassifications.classLevel,chembl.targetComponent.[]ptclassifications.classPath",
     "test_entries_count": "20",
-    "bucketMethod": "chembl",
-    "numBuckets": "100"
+    "bucketMethod": "chembl"
   },
   "chembl_target": {
     "name": "chembl_target",
@@ -283,8 +265,7 @@
     "hasFilter": "yes",
     "attrs": "chembl.target.title,chembl.target.isSpeciesGroup,chembl.target.type,chembl.target.[]subsetofs,chembl.target.[]equivalents,chembl.target.[]subsets,chembl.target.[]overlaps,chembl.target.bindingSite.name,chembl.target.bindingSite.mechanism.desc,chembl.target.bindingSite.mechanism.action,chembl.target.[]ptclassifications.className,chembl.target.[]ptclassifications.classLevel,chembl.target.[]ptclassifications.classPath,chembl.target.[]components.type,chembl.target.[]components.acc,chembl.target.mechanism.desc,chembl.target.mechanism.action,chembl.target.tax",
     "test_entries_count": "20",
-    "bucketMethod": "chembl",
-    "numBuckets": "100"
+    "bucketMethod": "chembl"
   },
   "chembl_cell_line": {
     "name": "chembl_cell_line",
@@ -296,8 +277,7 @@
     "hasFilter": "yes",
     "attrs": "chembl.cellLine.desc,chembl.cellLine.cellosaurusId,chembl.cellLine.efo,chembl.cellLine.clo,chembl.cellLine.tax,chembl.cellLine.[]cellxref",
     "test_entries_count": "20",
-    "bucketMethod": "chembl",
-    "numBuckets": "100"
+    "bucketMethod": "chembl"
   },
   "efo": {
     "aliases": "EFO",
@@ -309,8 +289,7 @@
     "hasFilter": "yes",
     "attrs": "type,name,[]synonyms",
     "test_entries_count": "100",
-    "bucketMethod": "ontology",
-    "numBuckets": "5"
+    "bucketMethod": "ontology"
   },
   "mondo": {
     "aliases": "MONDO,Monarch Disease Ontology",
@@ -322,8 +301,7 @@
     "hasFilter": "yes",
     "attrs": "name,[]synonyms",
     "test_entries_count": "100",
-    "bucketMethod": "ontology",
-    "numBuckets": "10"
+    "bucketMethod": "ontology"
   },
   "patent": {
     "aliases": "Patent,Patent accession",
@@ -335,8 +313,7 @@
     "hasFilter": "yes",
     "attrs": "title,country,publication_date,family_id,[]cpc,[]ipcr,[]ipc,[]ecla,[]asignee",
     "test_entries_count": "50",
-    "bucketMethod": "patent",
-    "numBuckets": "100"
+    "bucketMethod": "patent"
   },
   "clinical_trials": {
     "aliases": "Clinical Trial,ClinicalTrial,NCT",
@@ -348,8 +325,7 @@
     "hasFilter": "yes",
     "attrs": "brief_title,overall_status,phase,study_type,[]interventions",
     "test_entries_count": "20",
-    "bucketMethod": "nct",
-    "numBuckets": "100"
+    "bucketMethod": "nct"
   },
   "string": {
     "aliases": "STRING",
@@ -364,8 +340,7 @@
     "scoreThreshold": "0",
     "attrs": "string_id,organism_taxid,preferred_name,protein_size,annotation,[]interactions.partner,[]interactions.score,[]interactions.has_experimental,[]interactions.has_database,[]interactions.has_textmining,[]interactions.has_coexpression",
     "test_entries_count": "50",
-    "bucketMethod": "string",
-    "numBuckets": "100"
+    "bucketMethod": "string"
   },
   "reactome": {
     "aliases": "Reactome,Reactome Pathways",
@@ -384,8 +359,7 @@
     "hasFilter": "yes",
     "attrs": "name,tax_id,alt_names,is_disease_pathway",
     "test_entries_count": "50",
-    "bucketMethod": "reactome",
-    "numBuckets": "100"
+    "bucketMethod": "reactome"
   },
   "hpo": {
     "aliases": "HPO,Human Phenotype Ontology",
@@ -400,8 +374,7 @@
     "hasFilter": "yes",
     "attrs": "name,[]synonyms,definition",
     "test_entries_count": "100",
-    "bucketMethod": "ontology",
-    "numBuckets": "20"
+    "bucketMethod": "ontology"
   },
   "alphafold": {
     "aliases": "AlphaFold,AlphaFold DB",
@@ -413,8 +386,7 @@
     "hasFilter": "yes",
     "attrs": "global_metric,fraction_pldddt_very_high,fraction_pldddt_confident,fraction_pldddt_low,fraction_pldddt_very_low,model_entity_id,gene",
     "test_entries_count": "20",
-    "bucketMethod": "alphabetic",
-    "numBuckets": "27"
+    "bucketMethod": "alphabetic"
   },
   "rnacentral": {
     "aliases": "RNAcentral,RNA Central",
@@ -427,8 +399,7 @@
     "hasFilter": "yes",
     "attrs": "rna_type,description,length,organism_count,[]databases,is_active,md5",
     "test_entries_count": "100",
-    "bucketMethod": "rnacentral",
-    "numBuckets": "256"
+    "bucketMethod": "rnacentral"
   },
   "clinvar": {
     "id": "32",
@@ -442,8 +413,7 @@
     "hasFilter": "yes",
     "attrs": "variation_id,allele_id,name,type,chromosome,start,stop,reference_allele,alternate_allele,assembly,germline_classification,review_status,last_evaluated,number_submitters,gene_id,gene_symbol,hgnc_id,[]phenotype_list,[]phenotype_ids,[]hgvs_expressions,[]submissions,[]functional_consequences,evidence_support",
     "test_entries_count": "10000",
-    "bucketMethod": "numeric",
-    "numBuckets": "100"
+    "bucketMethod": "numeric"
   },
   "lipidmaps": {
     "id": "33",
@@ -455,8 +425,7 @@
     "hasFilter": "yes",
     "attrs": "name,systematic_name,[]synonyms,abbreviation,category,main_class,sub_class,class_level4,exact_mass,formula,inchi,inchi_key,smiles",
     "test_entries_count": "100",
-    "bucketMethod": "lipidmaps",
-    "numBuckets": "100"
+    "bucketMethod": "lipidmaps"
   },
   "swisslipids": {
     "id": "34",
@@ -468,8 +437,7 @@
     "hasFilter": "yes",
     "attrs": "name,abbreviation,[]synonyms,category,main_class,sub_class,level,smiles,inchi,inchi_key,formula,mass,charge",
     "test_entries_count": "100",
-    "bucketMethod": "ontology",
-    "numBuckets": "100"
+    "bucketMethod": "ontology"
   },
   "uberon": {
     "aliases": "UBERON,Uber-anatomy ontology,Uberon",
@@ -481,8 +449,7 @@
     "hasFilter": "yes",
     "attrs": "type,name,[]synonyms",
     "test_entries_count": "100",
-    "bucketMethod": "ontology",
-    "numBuckets": "10"
+    "bucketMethod": "ontology"
   },
   "bgee": {
     "aliases": "BGEE,Bgee,Gene Expression Evolution,tissue expression,gene expression,expression",
@@ -509,8 +476,7 @@
     "hasFilter": "yes",
     "attrs": "type,name,[]synonyms",
     "test_entries_count": "100",
-    "bucketMethod": "ontology",
-    "numBuckets": "5"
+    "bucketMethod": "ontology"
   },
   "rhea": {
     "id": "38",
@@ -522,8 +488,7 @@
     "hasFilter": "yes",
     "attrs": "equation,direction,status,is_transport,[]chebi_participants,[]ec_numbers,[]go_terms,uniprot_count,reaction_smiles,[]parent_reactions,[]child_reactions",
     "test_entries_count": "100",
-    "bucketMethod": "rhea",
-    "numBuckets": "100"
+    "bucketMethod": "rhea"
   },
   "gwas_study": {
     "id": "39",
@@ -535,8 +500,7 @@
     "hasFilter": "yes",
     "attrs": "study_accession,pubmed_id,first_author,publication_date,journal,study,disease_trait,initial_sample_size,replication_sample_size,platform,association_count,[]mapped_traits,[]mapped_trait_uris,cohort,summary_stats,gxe",
     "test_entries_count": "100",
-    "bucketMethod": "gcst",
-    "numBuckets": "100"
+    "bucketMethod": "gcst"
   },
   "gwas": {
     "id": "40",
@@ -548,8 +512,7 @@
     "hasFilter": "yes",
     "attrs": "snp_id,study_accession,strongest_snp_risk_allele,chr_id,chr_pos,region,context,intergenic,[]reported_genes,mapped_gene,upstream_gene_id,downstream_gene_id,[]snp_gene_ids,disease_trait,[]mapped_traits,[]efo_traits,p_value,pvalue_mlog,or_beta,ci_95,risk_allele_frequency,pubmed_id,first_author,date,platform",
     "test_entries_count": "100",
-    "bucketMethod": "gwas",
-    "numBuckets": "100"
+    "bucketMethod": "gwas"
   },
   "dbsnp": {
     "id": "41",
@@ -564,8 +527,7 @@
     "hasFilter": "yes",
     "attrs": "rs_id,build_id,chromosome,position,ref_allele,alt_allele,allele_frequency,gnomad_frequency,[]gene_names,[]gene_ids,[]pseudogene_names,[]pseudogene_ids,gene_locus,clinical_significance,variant_type,variant_class,sao,is_common,nsf,nsm,nsn,syn,u3,u5,ass,dss,intron,r3,r5,ssr,has_publication,has_pubmed_ref,has_genotypes,[]merged_rs_ids,[]pubmed_ids",
     "test_entries_count": "100",
-    "bucketMethod": "rsid",
-    "numBuckets": "1000"
+    "bucketMethod": "rsid"
   },
   "intact": {
     "id": "42",
@@ -577,8 +539,7 @@
     "hasFilter": "yes",
     "attrs": "protein_id,[]interactions,interaction_count,unique_partners,high_confidence_count,[]partner_organisms",
     "test_entries_count": "100",
-    "bucketMethod": "uniprot",
-    "numBuckets": "261"
+    "bucketMethod": "uniprot"
   },
   "protein_similarity": {
     "id": "43",
@@ -590,8 +551,7 @@
     "hasFilter": "yes",
     "attrs": "protein_id,[]similarities,similarity_count,top_identity,top_bitscore",
     "test_entries_count": "100",
-    "bucketMethod": "uniprot",
-    "numBuckets": "261"
+    "bucketMethod": "uniprot"
   },
   "antibody": {
     "id": "44",
@@ -606,8 +566,7 @@
     "sabdab_path": "https://opig.stats.ox.ac.uk/webapps/sabdab-sabpred/sabdab/summary/all/",
     "imgt_gene_path": "https://www.imgt.org/download/GENE-DB/IMGTGENEDB-ReferenceSequences.fasta-nt-WithoutGaps-F+ORF+inframeP",
     "imgt_ligm_path": "https://ftp.ebi.ac.uk/pub/databases/imgt/LIGM-DB/imgt.fasta.Z",
-    "bucketMethod": "alphabetic",
-    "numBuckets": "27"
+    "bucketMethod": "alphabetic"
   },
   "pubchem": {
     "id": "45",
@@ -634,8 +593,7 @@
     "pathBioAssay": "../Bioassay/",
     "pathBioactivities": "../Bioassay/Extras/bioactivities.tsv.gz",
     "pathBioassays": "../Bioassay/Extras/bioassays.tsv.gz",
-    "bucketMethod": "numeric",
-    "numBuckets": "500"
+    "bucketMethod": "numeric"
   },
   "pubchem_activity": {
     "id": "46",
@@ -649,8 +607,7 @@
     "attrs": "activity_id,cid,aid,activity_outcome,activity_type,qualifier,value,unit,protein_accession,gene_id,target_taxid,pmid",
     "test_entries_count": "5000",
     "pathBioactivities": "bioactivities.tsv.gz",
-    "bucketMethod": "pubchem_activity",
-    "numBuckets": "100"
+    "bucketMethod": "pubchem_activity"
   },
   "pubchem_assay": {
     "id": "47",
@@ -664,8 +621,7 @@
     "attrs": "aid,name,source_name,source_id,substance_type,outcome_type,project_category,bioassay_group,bioassay_types,protein_accessions,uniprot_ids,gene_ids,target_taxids,test_organism_taxids,tested_sids,active_sids,tested_cids,active_cids,hit_rate,deposit_date,modify_date",
     "test_entries_count": "5000",
     "pathBioassays": "bioassays.tsv.gz",
-    "bucketMethod": "numeric",
-    "numBuckets": "100"
+    "bucketMethod": "numeric"
   },
   "mesh": {
     "id": "48",
@@ -678,8 +634,7 @@
     "hasFilter": "yes",
     "attrs": "descriptor_ui,descriptor_name,descriptor_class,[]entry_terms,[]tree_numbers,scope_note,[]allowable_qualifiers,[]pharmacological_actions,is_supplementary,registry_number,heading_mapped_to,date_created,date_established,date_revised",
     "test_entries_count": "100",
-    "bucketMethod": "mesh",
-    "numBuckets": "20"
+    "bucketMethod": "mesh"
   },
 
   "exon": {
@@ -905,8 +860,7 @@
     "hasFilter": "yes",
     "attrs": "type,name,[]synonyms,definition",
     "test_entries_count": "100",
-    "bucketMethod": "ontology",
-    "numBuckets": "30"
+    "bucketMethod": "oba"
   },
   "obaparent": {
     "name": "OBA Parent",
@@ -934,8 +888,7 @@
     "hasFilter": "yes",
     "attrs": "type,name,[]synonyms",
     "test_entries_count": "100",
-    "bucketMethod": "ontology",
-    "numBuckets": "30"
+    "bucketMethod": "ontology"
   },
   "patoparent": {
     "name": "PATO Parent",
@@ -963,8 +916,7 @@
     "hasFilter": "yes",
     "attrs": "type,name,[]synonyms",
     "test_entries_count": "100",
-    "bucketMethod": "ontology",
-    "numBuckets": "30"
+    "bucketMethod": "ontology"
   },
   "obiparent": {
     "name": "OBI Parent",
@@ -992,8 +944,7 @@
     "hasFilter": "yes",
     "attrs": "type,name,[]synonyms",
     "test_entries_count": "100",
-    "bucketMethod": "ontology",
-    "numBuckets": "30"
+    "bucketMethod": "ontology"
   },
   "xcoparent": {
     "name": "XCO Parent",
@@ -1010,5 +961,26 @@
     "linkdataset": "xco",
     "hasFilter": "yes",
     "attrs": "type,name,[]synonyms"
+  },
+  "entrez": {
+    "aliases": "GeneID,EntrezGene",
+    "id": "53",
+    "name": "NCBI/Entrez Gene",
+    "url": "https://www.ncbi.nlm.nih.gov/gene/£{id}",
+    "path": "https://ftp.ncbi.nlm.nih.gov/gene/DATA/gene_info.gz",
+    "gene2goPath": "https://ftp.ncbi.nlm.nih.gov/gene/DATA/gene2go.gz",
+    "geneSummaryPath": "https://ftp.ncbi.nlm.nih.gov/gene/DATA/gene_summary.gz",
+    "geneOrthologsPath": "https://ftp.ncbi.nlm.nih.gov/gene/DATA/gene_orthologs.gz",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "name,symbol,type,[]synonyms,chromosome,summary",
+    "test_entries_count": "1000",
+    "bucketMethod": "numeric"
+  },
+  "orthologentrez": {
+    "name": "Entrez Ortholog",
+    "id": "54",
+    "url": "https://www.ncbi.nlm.nih.gov/gene/£{id}",
+    "linkdataset": "entrez"
   }
 }

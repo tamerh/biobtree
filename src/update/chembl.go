@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+//	"log"
 	"net/http"
 	"os"
 	"regexp"
@@ -333,16 +334,22 @@ func (c *chembl) updateMechanisms() {
 					c.bindingSites[bindid].Mechanism = mec
 				}
 			case "hasMolecule":
+				// id = mechanism ID from Subject (e.g., CHEMBL_MEC_1664)
+				// molecule ID from Object (e.g., CHEMBL22)
 				if _, ok := c.mechanisms[id]; ok {
+					moleculeID := c.getChemblID(triple.Obj.String())
 					attr := pbuf.ChemblAttr{Molecule: &pbuf.ChemblMolecule{Mechanism: c.mechanisms[id]}}
 					b, _ := ffjson.Marshal(attr)
-					c.d.addProp3(id, config.Dataconf["chembl_molecule"]["id"], b)
+					c.d.addProp3(moleculeID, config.Dataconf["chembl_molecule"]["id"], b)
 				}
 			case "hasTarget":
+				// id = mechanism ID from Subject (e.g., CHEMBL_MEC_1664)
+				// target ID from Object (e.g., CHEMBL2364669)
 				if _, ok := c.mechanisms[id]; ok {
+					targetID := c.getChemblID(triple.Obj.String())
 					attr := pbuf.ChemblAttr{Target: &pbuf.ChemblTarget{Mechanism: c.mechanisms[id]}}
 					b, _ := ffjson.Marshal(attr)
-					c.d.addProp3(id, config.Dataconf["chembl_target"]["id"], b)
+					c.d.addProp3(targetID, config.Dataconf["chembl_target"]["id"], b)
 				}
 			}
 		}
@@ -2003,7 +2010,13 @@ func (c *chembl) updateDocument() {
 			c.d.addXref(id, fr, triple.Obj.String(), "doi", false)
 		case "http://purl.org/ontology/bibo/pmid":
 			id := c.getChemblID(triple.Subj.String())
-			c.d.addXref(id, fr, triple.Obj.String(), "pmc", false)
+			// Extract PubMed ID from URL like HTTP://IDENTIFIERS.ORG/PUBMED/6130154
+			pmidURL := triple.Obj.String()
+			pmid := pmidURL
+			if lastSlash := strings.LastIndex(pmidURL, "/"); lastSlash >= 0 && lastSlash < len(pmidURL)-1 {
+				pmid = pmidURL[lastSlash+1:]
+			}
+			c.d.addXref(id, fr, pmid, "pubmed", false)
 			//case "http://purl.org/ontology/bibo/issue":
 			//case "http://purl.org/ontology/bibo/volume":
 			//case "http://purl.org/ontology/bibo/pageStart":

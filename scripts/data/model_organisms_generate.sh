@@ -88,23 +88,32 @@ echo "Consolidating index files..."
 mkdir -p ${OUT_DIR}/index
 
 # Move all five index directories
+# NOTE: Each part has bucket directories (0/, 1/, 2/, ...) under index/ that we don't need
+#       for generate phase. We only need the *.gz files. Delete bucket dirs first to avoid conflicts.
+
 echo "  - Moving core_part1 index..."
+# Delete bucket directories (numeric dirs), keep only .gz files
+find ${OUT_DIR}/core_part1/index -mindepth 1 -maxdepth 1 -type d -exec rm -rf {} +
 mv ${OUT_DIR}/core_part1/index/* ${OUT_DIR}/index/
 rm -rf ${OUT_DIR}/core_part1
 
 echo "  - Moving core_part2 index..."
+find ${OUT_DIR}/core_part2/index -mindepth 1 -maxdepth 1 -type d -exec rm -rf {} +
 mv ${OUT_DIR}/core_part2/index/* ${OUT_DIR}/index/
 rm -rf ${OUT_DIR}/core_part2
 
 echo "  - Moving core_part3 index..."
+find ${OUT_DIR}/core_part3/index -mindepth 1 -maxdepth 1 -type d -exec rm -rf {} +
 mv ${OUT_DIR}/core_part3/index/* ${OUT_DIR}/index/
 rm -rf ${OUT_DIR}/core_part3
 
 echo "  - Moving core_part4 index..."
+find ${OUT_DIR}/core_part4/index -mindepth 1 -maxdepth 1 -type d -exec rm -rf {} +
 mv ${OUT_DIR}/core_part4/index/* ${OUT_DIR}/index/
 rm -rf ${OUT_DIR}/core_part4
 
 echo "  - Moving ensembl_model index..."
+find ${OUT_DIR}/ensembl_model/index -mindepth 1 -maxdepth 1 -type d -exec rm -rf {} +
 mv ${OUT_DIR}/ensembl_model/index/* ${OUT_DIR}/index/
 rm -rf ${OUT_DIR}/ensembl_model
 

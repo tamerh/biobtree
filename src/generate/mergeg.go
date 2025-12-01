@@ -1406,16 +1406,31 @@ func (d *Merge) init() {
 
 func (d *Merge) writeBatch() {
 
+	var failedKeyIndex int
+	var failedKey string
 	err := d.wrEnv.Update(func(txn db.Txn) (err error) {
-		i := 0
-		for i = 0; i < d.batchIndex; i++ { // todo missing error check??
-			txn.Put(d.wrDbi, d.batchKeys[i], d.batchVals[i], 0x10) // 0x10 is lmdb.Append
+		for i := 0; i < d.batchIndex; i++ {
+			putErr := txn.Put(d.wrDbi, d.batchKeys[i], d.batchVals[i], 0x10) // 0x10 is lmdb.Append
+			if putErr != nil {
+				failedKeyIndex = i
+				failedKey = string(d.batchKeys[i])
+				return putErr
+			}
 		}
-		d.totalKeyWrite = d.totalKeyWrite + uint64(i)
-		return err
+		d.totalKeyWrite = d.totalKeyWrite + uint64(d.batchIndex)
+		return nil
 	})
 	if err != nil { // if not correctly sorted gives MDB_KEYEXIST error
-		panic(err)
+		// Log detailed info about the out-of-order key
+		log.Printf("ERROR: LMDB write failed - keys not in lexicographic order!")
+		log.Printf("  Failed key index in batch: %d", failedKeyIndex)
+		log.Printf("  Failed key: %s", failedKey)
+		if failedKeyIndex > 0 {
+			log.Printf("  Previous key: %s", string(d.batchKeys[failedKeyIndex-1]))
+		}
+		log.Printf("  Total keys written so far: %d", d.totalKeyWrite)
+		log.Printf("  Error: %v", err)
+		panic(fmt.Sprintf("LMDB append failed: keys not in lex order. Failed key: %s, error: %v", failedKey, err))
 	}
 
 	// Clear references to allow GC to reclaim memory
@@ -1670,6 +1685,11 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)
 				xref.Attributes = &pbuf.Xref_Mesh{attr}
+			case "entrez":
+				attr := &pbuf.EntrezAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Entrez{attr}
 			case "interpro":
 				attr := &pbuf.InterproAttr{}
 				barr := []byte((*kvProp[k])[0].value)
@@ -1920,6 +1940,11 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 					barr := []byte((*kvProp[k])[0].value)
 					ffjson.Unmarshal(barr, attr)
 					xref.Attributes = &pbuf.Xref_Mesh{attr}
+				case "entrez":
+					attr := &pbuf.EntrezAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_Entrez{attr}
 				}
 			}
 

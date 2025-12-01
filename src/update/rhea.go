@@ -519,7 +519,7 @@ func (r *rhea) processUniProtMappings(reactionMap map[string]bool, testLimit int
 
 	// Skip header line
 	if scanner.Scan() {
-		// Header: RHEA_ID	UNIPROT_ID
+		// Header: RHEA_ID	DIRECTION	MASTER_ID	ID (UniProt)
 	}
 
 	uniprotDatasetID := "1" // UniProt dataset ID
@@ -531,14 +531,20 @@ func (r *rhea) processUniProtMappings(reactionMap map[string]bool, testLimit int
 		}
 
 		fields := strings.Split(line, "\t")
-		if len(fields) < 2 {
+		if len(fields) < 4 {
 			continue
 		}
 
-		// Format: RHEA_ID	UNIPROT_ID
-		// RHEA_ID is numeric without prefix
+		// Format: RHEA_ID	DIRECTION	MASTER_ID	ID (UniProt)
+		// RHEA_ID is numeric without prefix, UniProt ID is in column 3
 		rheaID := "RHEA:" + strings.TrimSpace(fields[0])
-		uniprotID := strings.TrimSpace(fields[1])
+		uniprotID := strings.TrimSpace(fields[3])
+
+		// Validate UniProt ID format (letter + digit at minimum, e.g., P12345, Q9Y6K9)
+		if len(uniprotID) < 2 || !isValidUniProtID(uniprotID) {
+			log.Printf("[%s] Skipping invalid UniProt ID: '%s' for Rhea: %s", r.source, uniprotID, rheaID)
+			continue
+		}
 
 		// Filter in test mode
 		if config.IsTestMode() {
@@ -706,4 +712,17 @@ func getRheaTSVReader(url string) (*bufio.Scanner, *http.Response, error) {
 
 	scanner := bufio.NewScanner(reader)
 	return scanner, resp, nil
+}
+
+// isValidUniProtID checks if the ID has valid UniProt format (letter followed by digit)
+func isValidUniProtID(id string) bool {
+	if len(id) < 2 {
+		return false
+	}
+	first := id[0]
+	if !((first >= 'A' && first <= 'Z') || (first >= 'a' && first <= 'z')) {
+		return false
+	}
+	second := id[1]
+	return second >= '0' && second <= '9'
 }

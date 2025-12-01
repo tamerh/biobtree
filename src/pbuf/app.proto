@@ -163,6 +163,7 @@ message Xref {
     PubchemAssayAttr pubchem_assay=49;
     DbsnpAttr dbsnp=123;
     MeshAttr mesh=50;
+    EntrezAttr entrez=53;
 
   }
 

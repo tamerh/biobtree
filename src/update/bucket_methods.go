@@ -1,7 +1,6 @@
 package update
 
 import (
-	"strconv"
 	"strings"
 )
 
@@ -9,469 +8,359 @@ import (
 type BucketMethod func(id string, numBuckets int) int
 
 // BucketMethods registry - maps method names to implementations
+// All methods preserve lexicographic order for proper k-way merge
 var BucketMethods = map[string]BucketMethod{
-	"numeric":    numericBucket,    // Pure numeric: 9606 → 9606 % N
-	"uniprot":    uniprotBucket,    // P12345, Q9Y6K9 → first 2 chars
-	"go":         goBucket,         // GO:0008150 → 8150 % N
-	"ontology":   ontologyBucket,   // PREFIX:NNNNN → extract numeric part
-	"mesh":       meshBucket,       // D000001, C012345 → letter bucket + numeric
-	"alphabetic": alphabeticBucket, // First letter: A-Z → 0-25, other → 26
-	"rsid":       rsidBucket,       // rs123456789 → 123456789 % N (dbSNP)
-	"gwas":       gwasBucket,       // GCST000001_RS380390 → 380390 % N
-	"chembl":     chemblBucket,     // CHEMBL123456 → 123456 % N
-	"reactome":   reactomeBucket,   // R-HSA-12345 → 12345 % N
-	"interpro":   interproBucket,   // IPR000001 → 1 % N
-	"hmdb":       hmdbBucket,       // HMDB0000001 → 1 % N
-	"patent":     patentBucket,     // US-5153197-A → 5153197 % N
-	"nct":        nctBucket,        // NCT06401707 → 6401707 % N
-	"rnacentral": rnacentralBucket, // URS000149A9AF → hex value % N
-	"lipidmaps":  lipidmapsBucket,  // LMFA00000001 → 1 % N
-	"upi":        upiBucket,        // UPI00000001A2 → first 2 hex chars after UPI
-	"uniref":     unirefBucket,     // UniRef50_P12345 → alphabetic on char after _
-	"gcst":       gcstBucket,       // GCST010481 → 10481 % N
-	"alphanum":         alphanumBucket,         // 1031_AT → first char (0-9, A-Z) preserves order
-	"rhea":             rheaBucket,             // RHEA:16066 or 16066 → 16066 % N
-	"string":           stringBucket,           // 9606.ENSP00000377769 → taxid % N
-	"pubchem_activity": pubchemActivityBucket,  // 10000020_21965_1 → CID (first part) % N
+	"numeric":    numericLexBucket, // Pure numeric IDs: uses first 2 chars for lex order
+	"uniprot":    uniprotBucket,    // P12345, Q9Y6K9 → first 2 chars (letter+digit)
+	"alphabetic": alphabeticBucket, // First letter: A-Z → 1-26, other → 0
+	"alphanum":   alphanumBucket,   // First char: 0-9 → 1-10, A-Z → 11-36, other → 0
+	"upi":        upiBucket,        // UPI00000001A2 → first 2 hex chars after UPI (0-255)
+	"rnacentral": rnacentralBucket, // URS000149A9AF → first 2 hex chars after URS (0-255)
+	"uniref":     unirefBucket,     // UniRef50_P12345 → alphabetic on part after "_"
+
+	// Large dataset optimized functions (no string allocation):
+	"rsid":             rsidBucket,            // rs123456789 → numeric part after "rs" (dbSNP - billions of IDs)
+	"string":           stringBucket,          // 9606.ENSP00000377769 → numeric part before "." (STRING - large)
+	"pubchem_activity": pubchemActivityBucket, // 10000020_21965_1 → numeric part before first "_"
+
+	// Dataset-specific bucket methods (each handles its own format):
+	"go":        goBucket,       // GO:0008150 → numeric part after "GO:"
+	"mesh":      meshBucket,     // D000001 → numeric part after first char
+	"chembl":    chemblBucket,   // CHEMBL123456, CHEMBL_ACT_93229, CHEMBL_TC_47, etc.
+	"interpro":  interproBucket, // IPR000001 → numeric part after "IPR"
+	"hmdb":      hmdbBucket,      // HMDB0000001 → numeric part after "HMDB"
+	"nct":       nctBucket,       // NCT06401707 → numeric part after "NCT"
+	"lipidmaps": lipidmapsBucket, // LMFA00000001 → numeric part after 4-char prefix
+	"rhea":      rheaBucket,      // RHEA:16066 → numeric part after "RHEA:"
+	"reactome":  reactomeBucket,  // R-HSA-12345 → numeric part after last "-"
+	"patent":    patentBucket,    // US-5153197-A → numeric part between dashes
+	"gwas":      gwasBucket,      // GCST000001_rs380390 → numeric from GCST prefix
+	"oba":       obaBucket,       // OBA:0001234 or OBA:VT0000188 → first char after colon
+	"gcst":      alphabeticBucket, // GCST010481, VT0000188 → multiple prefixes, use first letter
 }
 
-// numeric - for pure numeric IDs (taxonomy, ncbi_gene)
-func numericBucket(id string, numBuckets int) int {
-	num, err := strconv.ParseInt(id, 10, 64)
-	if err != nil {
-		return alphabeticBucket(id, numBuckets)
+// numericLexBucket - lexicographically-preserving bucket method for numeric IDs
+// Uses first 2 digits to determine bucket (0-99), ensuring lex order when concatenated.
+// Examples: "1"→10, "9"→90, "10"→10, "10090"→10, "9606"→96
+func numericLexBucket(id string, numBuckets int) int {
+	if len(id) == 0 {
+		panic("numericLexBucket: empty id")
 	}
-	return int(num % int64(numBuckets))
+
+	first := id[0]
+	if first < '0' || first > '9' {
+		panic("numericLexBucket: id does not start with digit: " + id)
+	}
+
+	if len(id) == 1 {
+		return int(first-'0') * 10 // "1"→10, "9"→90
+	}
+
+	second := id[1]
+	if second >= '0' && second <= '9' {
+		return int(first-'0')*10 + int(second-'0') // "10"→10, "96"→96
+	}
+
+	return int(first-'0') * 10 // "1-foo"→10
 }
 
-// uniprot - bucket by first 2 characters (letter + digit)
-// UniProt IDs: P12345 (old), Q9Y6K9 (new format)
-// A0→0, A1→1, ... A9→9, B0→10, ... Z9→259, other→260
-// numBuckets is ignored - always uses 261 buckets
+// ============================================================================
+// Large dataset optimized bucket functions (minimal string allocation)
+// ============================================================================
+
+// rsidBucket - optimized for dbSNP rs IDs (billions of entries)
+// rs123456789 → applies numericLexBucket to digits after "rs"
+func rsidBucket(id string, numBuckets int) int {
+	if len(id) < 3 {
+		panic("rsidBucket: id too short: " + id)
+	}
+	return numericLexBucket(id[2:], numBuckets)
+}
+
+// stringBucket - optimized for STRING database IDs
+// 9606.ENSP00000377769 → applies numericLexBucket to taxid before "."
+func stringBucket(id string, numBuckets int) int {
+	if len(id) == 0 {
+		panic("stringBucket: empty id")
+	}
+	return numericLexBucket(id, numBuckets)
+}
+
+// pubchemActivityBucket - optimized for PubChem activity IDs
+// 10000020_21965_1 → applies numericLexBucket to CID before first "_"
+func pubchemActivityBucket(id string, numBuckets int) int {
+	if len(id) == 0 {
+		panic("pubchemActivityBucket: empty id")
+	}
+	return numericLexBucket(id, numBuckets)
+}
+
+// ============================================================================
+// Dataset-specific bucket functions
+// Each dataset has its own bucket method to avoid cross-dataset interference
+// ============================================================================
+
+// goBucket - GO:0008150 → numeric part after "GO:"
+func goBucket(id string, numBuckets int) int {
+	if len(id) < 4 || id[2] != ':' {
+		panic("goBucket: invalid GO id format: " + id)
+	}
+	return numericLexBucket(id[3:], numBuckets)
+}
+
+// rheaBucket - RHEA:16066 → numeric part after "RHEA:"
+func rheaBucket(id string, numBuckets int) int {
+	if len(id) < 6 || id[4] != ':' {
+		panic("rheaBucket: invalid RHEA id format: " + id)
+	}
+	return numericLexBucket(id[5:], numBuckets)
+}
+
+// meshBucket - D000001, C012345 → numeric part after first letter
+func meshBucket(id string, numBuckets int) int {
+	if len(id) < 2 {
+		panic("meshBucket: id too short: " + id)
+	}
+	return numericLexBucket(id[1:], numBuckets)
+}
+
+// chemblBucket - handles all ChEMBL ID formats:
+// - CHEMBL123456 (molecule, target, assay, document) → numeric after "CHEMBL"
+// - CHEMBL_ACT_93229 (activity) → numeric after last "_"
+// - CHEMBL_TC_47 (target component) → numeric after last "_"
+// - CHEMBL_BS_2617 (binding site) → numeric after last "_"
+// - CHEMBL_MEC_1664 (mechanism) → numeric after last "_"
+func chemblBucket(id string, numBuckets int) int {
+	if len(id) < 7 || !strings.HasPrefix(id, "CHEMBL") {
+		panic("chemblBucket: invalid CHEMBL id format: " + id)
+	}
+	// Check if it's an underscore variant (CHEMBL_XXX_NNN)
+	if id[6] == '_' {
+		// Find last underscore and get numeric part after it
+		lastUnderscore := strings.LastIndex(id, "_")
+		if lastUnderscore > 6 && lastUnderscore < len(id)-1 {
+			return numericLexBucket(id[lastUnderscore+1:], numBuckets)
+		}
+		panic("chemblBucket: invalid CHEMBL underscore id format: " + id)
+	}
+	// Standard format: CHEMBL123456
+	return numericLexBucket(id[6:], numBuckets)
+}
+
+// interproBucket - IPR000001 → numeric part after "IPR"
+func interproBucket(id string, numBuckets int) int {
+	if len(id) < 4 || !strings.HasPrefix(id, "IPR") {
+		panic("interproBucket: invalid InterPro id format: " + id)
+	}
+	return numericLexBucket(id[3:], numBuckets)
+}
+
+// hmdbBucket - HMDB0000001 → numeric part after "HMDB"
+func hmdbBucket(id string, numBuckets int) int {
+	if len(id) < 5 || !strings.HasPrefix(id, "HMDB") {
+		panic("hmdbBucket: invalid HMDB id format: " + id)
+	}
+	return numericLexBucket(id[4:], numBuckets)
+}
+
+// nctBucket - NCT06401707 → numeric part after "NCT"
+func nctBucket(id string, numBuckets int) int {
+	if len(id) < 4 || !strings.HasPrefix(id, "NCT") {
+		panic("nctBucket: invalid NCT id format: " + id)
+	}
+	return numericLexBucket(id[3:], numBuckets)
+}
+
+// lipidmapsBucket - LMFA00000001 → numeric part after 4-char category prefix (LM + 2 chars)
+func lipidmapsBucket(id string, numBuckets int) int {
+	if len(id) < 5 || !strings.HasPrefix(id, "LM") {
+		panic("lipidmapsBucket: invalid LipidMaps id format: " + id)
+	}
+	// LipidMaps IDs: LM + 2-char category + numeric (e.g., LMFA00000001)
+	return numericLexBucket(id[4:], numBuckets)
+}
+
+// reactomeBucket - R-HSA-12345 → numeric part after last "-"
+func reactomeBucket(id string, numBuckets int) int {
+	if len(id) < 3 {
+		panic("reactomeBucket: id too short: " + id)
+	}
+	lastDash := strings.LastIndex(id, "-")
+	if lastDash < 0 || lastDash >= len(id)-1 {
+		panic("reactomeBucket: no dash found in id: " + id)
+	}
+	return numericLexBucket(id[lastDash+1:], numBuckets)
+}
+
+// patentBucket - handles multiple patent ID formats, preserving lex order:
+// - US-5153197-A → numeric bucket on patent number between dashes
+// - RE43229 → alphanumeric bucket on first 2 chars (RE, D1, etc.)
+// For dash format, numeric part preserves lex order within country code.
+// For no-dash format, first 2 chars preserve lex order.
+func patentBucket(id string, numBuckets int) int {
+	if len(id) < 2 {
+		panic("patentBucket: id too short: " + id)
+	}
+	firstDash := strings.Index(id, "-")
+	lastDash := strings.LastIndex(id, "-")
+	// Standard format with dashes: US-5153197-A
+	if firstDash >= 0 && lastDash >= 0 && firstDash < lastDash {
+		return numericLexBucket(id[firstDash+1:lastDash], numBuckets)
+	}
+	// No dashes (RE43229, D123456): use alphanumeric on first 2 chars
+	// This groups RE*, D*, PP*, etc. separately while preserving lex order
+	return alphanumBucket(id, numBuckets)
+}
+
+// gwasBucket - GCST000001_rs380390 → numeric from GCST prefix (after "GCST")
+func gwasBucket(id string, numBuckets int) int {
+	if len(id) < 5 {
+		panic("gwasBucket: id too short: " + id)
+	}
+	// GWAS association IDs are GCST000001_rs380390
+	// Bucket by the GCST numeric part
+	if strings.HasPrefix(id, "GCST") {
+		// Find end of GCST number (before underscore or end of string)
+		endIdx := strings.Index(id, "_")
+		if endIdx < 0 {
+			endIdx = len(id)
+		}
+		if endIdx > 4 {
+			return numericLexBucket(id[4:endIdx], numBuckets)
+		}
+	}
+	panic("gwasBucket: invalid GWAS id format: " + id)
+}
+
+// obaBucket - OBA:0001234 or OBA:VT0000188 → alphanumeric bucket on first char after colon
+func obaBucket(id string, numBuckets int) int {
+	if len(id) < 5 || id[3] != ':' {
+		panic("obaBucket: invalid OBA id format: " + id)
+	}
+	return alphanumBucket(id[4:], numBuckets)
+}
+
+// isNumeric checks if string contains only digits
+func isNumeric(s string) bool {
+	if len(s) == 0 {
+		return false
+	}
+	for _, c := range s {
+		if c < '0' || c > '9' {
+			return false
+		}
+	}
+	return true
+}
+
+// uniprotBucket - for UniProt IDs: P12345, Q9Y6K9
+// Uses first 2 chars (letter+digit) for 260 buckets (A0-Z9)
 func uniprotBucket(id string, numBuckets int) int {
 	if len(id) < 2 {
-		return 260 // fallback bucket
+		panic("uniprotBucket: id too short: " + id)
 	}
 	first := id[0]
-	second := id[1]
-
-	// Convert first char to uppercase if lowercase
 	if first >= 'a' && first <= 'z' {
 		first -= 32
 	}
-
+	second := id[1]
 	if first >= 'A' && first <= 'Z' && second >= '0' && second <= '9' {
-		return int(first-'A')*10 + int(second-'0') // 0-259
+		return int(first-'A')*10 + int(second-'0')
 	}
-	return 260 // fallback for unusual IDs
+	panic("uniprotBucket: invalid format (expected letter+digit): " + id)
 }
 
-// go - GO:0008150 format (uses ontologyBucket internally)
-func goBucket(id string, numBuckets int) int {
-	return ontologyBucket(id, numBuckets)
-}
-
-// ontology - generic PREFIX:NNNNN format (ECO, EFO, MONDO, HPO, UBERON, CL, GO)
-// Extracts numeric part after colon and uses modulo
-func ontologyBucket(id string, numBuckets int) int {
-	colonIdx := strings.Index(id, ":")
-	if colonIdx > 0 && colonIdx < len(id)-1 {
-		numPart := id[colonIdx+1:]
-		num, err := strconv.ParseInt(numPart, 10, 64)
-		if err == nil {
-			return int(num % int64(numBuckets))
-		}
-	}
-	return alphabeticBucket(id, numBuckets)
-}
-
-// mesh - MeSH descriptor IDs: D000001, C012345, etc.
-// Extracts numeric part after first letter and uses modulo
-func meshBucket(id string, numBuckets int) int {
-	if len(id) < 2 {
-		return alphabeticBucket(id, numBuckets)
-	}
-	// Skip first letter, extract numeric part
-	numPart := id[1:]
-	num, err := strconv.ParseInt(numPart, 10, 64)
-	if err == nil {
-		return int(num % int64(numBuckets))
-	}
-	return alphabeticBucket(id, numBuckets)
-}
-
-// alphabetic - for text/keyword search, bucket by first letter (lexicographic order)
-// Returns 0 for special chars/numbers (they sort first in ASCII), 1-26 for A-Z
-// When used standalone, numBuckets should be 27
-// Respects numBuckets by using modulo to ensure bucket is always in range
+// alphabeticBucket - bucket by first letter: 0 for non-letters, 1-26 for A-Z
+// Preserves lex order: special/digits→0, A→1, B→2, ... Z→26
 func alphabeticBucket(id string, numBuckets int) int {
 	if len(id) == 0 {
-		return 0 // fallback bucket
+		panic("alphabeticBucket: empty id")
 	}
 	first := id[0]
-	// Convert to uppercase if lowercase
 	if first >= 'a' && first <= 'z' {
-		first -= 32 // 'a'-'A' = 32
+		first -= 32
 	}
-	var bucket int
 	if first >= 'A' && first <= 'Z' {
-		bucket = int(first-'A') + 1 // 1-26 for A-Z
-	} else {
-		bucket = 0 // special chars, numbers come first in lexicographic order
+		return int(first-'A') + 1 // A→1, B→2, ... Z→26
 	}
-	// Respect numBuckets limit using modulo
-	return bucket % numBuckets
+	return 0 // special chars, digits, etc. go to bucket 0
 }
 
-// rsid - for dbSNP rsIDs: rs123456789 → extract numeric part after "rs"
-// Handles both "rs123456789" and "RS123456789" formats
-func rsidBucket(id string, numBuckets int) int {
-	// Remove "rs" or "RS" prefix
-	numStr := id
-	if len(id) > 2 {
-		prefix := strings.ToLower(id[:2])
-		if prefix == "rs" {
-			numStr = id[2:]
-		}
+// alphanumBucket - for IDs starting with digit or letter (preserves lex order)
+// 1-10 for 0-9, 11-36 for A-Z (no modulo to maintain order)
+func alphanumBucket(id string, numBuckets int) int {
+	if len(id) == 0 {
+		panic("alphanumBucket: empty id")
 	}
-
-	num, err := strconv.ParseInt(numStr, 10, 64)
-	if err != nil {
-		return alphabeticBucket(id, numBuckets)
+	first := id[0]
+	if first >= '0' && first <= '9' {
+		return int(first-'0') + 1 // 0→1, 1→2, ... 9→10
 	}
-	return int(num % int64(numBuckets))
+	if first >= 'a' && first <= 'z' {
+		first -= 32
+	}
+	if first >= 'A' && first <= 'Z' {
+		return int(first-'A') + 11 // A→11, B→12, ... Z→36
+	}
+	panic("alphanumBucket: id does not start with alphanumeric: " + id)
 }
 
-// gwas - for GWAS composite IDs: GCST000001_RS380390 → extract RS numeric part
-// Format: GCST{study_num}_{RS|rs}{snp_num}
-func gwasBucket(id string, numBuckets int) int {
-	// Find underscore and extract part after it
-	underscoreIdx := strings.LastIndex(id, "_")
-	if underscoreIdx > 0 && underscoreIdx < len(id)-1 {
-		afterUnderscore := id[underscoreIdx+1:]
-		// Check if it starts with RS/rs
-		if len(afterUnderscore) > 2 {
-			prefix := strings.ToUpper(afterUnderscore[:2])
-			if prefix == "RS" {
-				numStr := afterUnderscore[2:]
-				num, err := strconv.ParseInt(numStr, 10, 64)
-				if err == nil {
-					return int(num % int64(numBuckets))
-				}
-			}
-		}
-	}
-	// Fallback to alphabetic
-	return alphabeticBucket(id, numBuckets)
-}
-
-// rhea - for Rhea reaction IDs: RHEA:16066 or just 16066
-// Handles both prefixed and non-prefixed numeric IDs
-func rheaBucket(id string, numBuckets int) int {
-	numStr := id
-
-	// Remove "RHEA:" prefix if present
-	if strings.HasPrefix(strings.ToUpper(id), "RHEA:") {
-		numStr = id[5:]
-	}
-
-	num, err := strconv.ParseInt(numStr, 10, 64)
-	if err != nil {
-		return alphabeticBucket(id, numBuckets)
-	}
-	return int(num % int64(numBuckets))
-}
-
-// chembl - for ChEMBL IDs: CHEMBL123456, CHEMBL_ACT_93229, CHEMBL_TC_47
-// Extracts numeric part from various ChEMBL ID formats
-func chemblBucket(id string, numBuckets int) int {
-	// Find last underscore or end of "CHEMBL" prefix
-	// CHEMBL123456 → 123456
-	// CHEMBL_ACT_93229 → 93229
-	// CHEMBL_TC_47 → 47
-
-	// Try to find numeric suffix after last underscore
-	lastUnderscore := strings.LastIndex(id, "_")
-	if lastUnderscore > 0 && lastUnderscore < len(id)-1 {
-		numStr := id[lastUnderscore+1:]
-		num, err := strconv.ParseInt(numStr, 10, 64)
-		if err == nil {
-			return int(num % int64(numBuckets))
-		}
-	}
-
-	// Fallback: try removing "CHEMBL" prefix and parsing
-	numStr := id
-	if len(id) > 6 {
-		prefix := strings.ToUpper(id[:6])
-		if prefix == "CHEMBL" {
-			numStr = id[6:]
-		}
-	}
-
-	num, err := strconv.ParseInt(numStr, 10, 64)
-	if err != nil {
-		return alphabeticBucket(id, numBuckets)
-	}
-	return int(num % int64(numBuckets))
-}
-
-// reactome - for Reactome IDs: R-HSA-12345, R-MMU-67890 → extract numeric part after last "-"
-// Format: R-{species}-{numeric_id} where species is HSA (human), MMU (mouse), RNO (rat), etc.
-func reactomeBucket(id string, numBuckets int) int {
-	// Find last dash and extract numeric part
-	lastDash := strings.LastIndex(id, "-")
-	if lastDash > 0 && lastDash < len(id)-1 {
-		numStr := id[lastDash+1:]
-		num, err := strconv.ParseInt(numStr, 10, 64)
-		if err == nil {
-			return int(num % int64(numBuckets))
-		}
-	}
-	return alphabeticBucket(id, numBuckets)
-}
-
-// interpro - for InterPro IDs: IPR000001 → extract numeric part after "IPR"
-func interproBucket(id string, numBuckets int) int {
-	// Remove "IPR" prefix (case insensitive)
-	numStr := id
-	if len(id) > 3 {
-		prefix := strings.ToUpper(id[:3])
-		if prefix == "IPR" {
-			numStr = id[3:]
-		}
-	}
-
-	num, err := strconv.ParseInt(numStr, 10, 64)
-	if err != nil {
-		return alphabeticBucket(id, numBuckets)
-	}
-	return int(num % int64(numBuckets))
-}
-
-// hmdb - for HMDB IDs: HMDB0000001 → extract numeric part after "HMDB"
-func hmdbBucket(id string, numBuckets int) int {
-	// Remove "HMDB" prefix (case insensitive)
-	numStr := id
-	if len(id) > 4 {
-		prefix := strings.ToUpper(id[:4])
-		if prefix == "HMDB" {
-			numStr = id[4:]
-		}
-	}
-
-	num, err := strconv.ParseInt(numStr, 10, 64)
-	if err != nil {
-		return alphabeticBucket(id, numBuckets)
-	}
-	return int(num % int64(numBuckets))
-}
-
-// nct - for ClinicalTrials.gov IDs: NCT06401707 → extract numeric part after "NCT"
-func nctBucket(id string, numBuckets int) int {
-	// Remove "NCT" prefix (case insensitive)
-	numStr := id
-	if len(id) > 3 {
-		prefix := strings.ToUpper(id[:3])
-		if prefix == "NCT" {
-			numStr = id[3:]
-		}
-	}
-
-	num, err := strconv.ParseInt(numStr, 10, 64)
-	if err != nil {
-		return alphabeticBucket(id, numBuckets)
-	}
-	return int(num % int64(numBuckets))
-}
-
-// patent - for patent IDs: US-5153197-A, WO-2011041729-A2 → extract numeric part between dashes
-// Format: COUNTRY-NUMBER-KIND where NUMBER is the patent number
-func patentBucket(id string, numBuckets int) int {
-	// Find first dash
-	firstDash := strings.Index(id, "-")
-	if firstDash < 0 || firstDash >= len(id)-1 {
-		return alphabeticBucket(id, numBuckets)
-	}
-
-	// Find second dash
-	rest := id[firstDash+1:]
-	secondDash := strings.Index(rest, "-")
-	if secondDash < 0 {
-		// No second dash, try to parse everything after first dash
-		num, err := strconv.ParseInt(rest, 10, 64)
-		if err != nil {
-			return alphabeticBucket(id, numBuckets)
-		}
-		return int(num % int64(numBuckets))
-	}
-
-	// Extract numeric part between dashes
-	numStr := rest[:secondDash]
-	num, err := strconv.ParseInt(numStr, 10, 64)
-	if err != nil {
-		return alphabeticBucket(id, numBuckets)
-	}
-	return int(num % int64(numBuckets))
-}
-
-// gcst - for GWAS Catalog Study IDs: GCST010481 → extract numeric part after "GCST"
-func gcstBucket(id string, numBuckets int) int {
-	// Remove "GCST" prefix (case insensitive)
-	numStr := id
-	if len(id) > 4 {
-		prefix := strings.ToUpper(id[:4])
-		if prefix == "GCST" {
-			numStr = id[4:]
-		}
-	}
-
-	num, err := strconv.ParseInt(numStr, 10, 64)
-	if err != nil {
-		return alphabeticBucket(id, numBuckets)
-	}
-	return int(num % int64(numBuckets))
-}
-
-// upi - for UniParc IDs: UPI00000001A2 → use first 2 hex chars after "UPI"
-// This preserves string sort order: bucket 00 < 01 < ... < FF (256 buckets max)
-// numBuckets is ignored - always uses 256 buckets (0x00 to 0xFF)
+// upiBucket - for UniParc IDs: UPI00000001A2 → first 2 hex chars after "UPI" (0-255)
 func upiBucket(id string, numBuckets int) int {
-	// Need at least "UPI" + 2 hex chars
 	if len(id) < 5 {
-		return 255 // fallback bucket
+		panic("upiBucket: id too short: " + id)
 	}
-
-	// Extract first 2 hex chars after "UPI"
 	hexStr := id[3:5]
-	num, err := strconv.ParseUint(hexStr, 16, 8)
-	if err != nil {
-		return 255 // fallback bucket
+	num := hexToInt(hexStr)
+	if num < 0 {
+		panic("upiBucket: invalid hex chars: " + id)
 	}
-	return int(num) // 0-255
+	return num
 }
 
-// uniref - for UniRef IDs: UniRef50_P12345, UniRef100_UPI002E2621C6
-// Buckets by first letter after underscore (A-Z, or U for UPI)
-// Uses alphabetic bucketing on the member ID portion
+// rnacentralBucket - for RNAcentral IDs: URS000149A9AF → first 2 hex chars after "URS" (0-255)
+// Uses first 2 hex chars to preserve lex order (not last 2 which would break lex order)
+func rnacentralBucket(id string, numBuckets int) int {
+	// URS + 10 hex chars, e.g., URS000149A9AF
+	if len(id) < 5 {
+		panic("rnacentralBucket: id too short: " + id)
+	}
+	hexStr := id[3:5] // first 2 hex chars after "URS"
+	num := hexToInt(hexStr)
+	if num < 0 {
+		panic("rnacentralBucket: invalid hex chars: " + id)
+	}
+	return num
+}
+
+// unirefBucket - for UniRef IDs: UniRef50_P12345 → alphabetic on part after "_"
 func unirefBucket(id string, numBuckets int) int {
-	// Find underscore and get character after it
 	idx := strings.Index(id, "_")
 	if idx < 0 || idx >= len(id)-1 {
-		return alphabeticBucket(id, numBuckets)
+		panic("unirefBucket: invalid format (expected underscore): " + id)
 	}
-	// Use alphabetic bucket on the part after underscore
 	return alphabeticBucket(id[idx+1:], numBuckets)
 }
 
-// alphanum - for IDs that can start with digit or letter (probe IDs like 1031_AT)
-// Preserves lexicographic order: special chars → 0, 0-9 → 1-10, A-Z → 11-36
-// When used standalone, numBuckets should be 37
-// Respects numBuckets by using modulo to ensure bucket is always in range
-func alphanumBucket(id string, numBuckets int) int {
-	if len(id) == 0 {
-		return 0 // fallback bucket
+// hexToInt converts 2-char hex string to int (0-255), returns -1 on error
+func hexToInt(s string) int {
+	if len(s) != 2 {
+		return -1
 	}
-	first := id[0]
-
-	var bucket int
-
-	// Special chars come first in lexicographic order → bucket 0
-	// Digits 0-9 → buckets 1-10
-	if first >= '0' && first <= '9' {
-		bucket = int(first-'0') + 1 // 1-10
-	} else {
-		// Convert to uppercase if lowercase
-		if first >= 'a' && first <= 'z' {
-			first -= 32
-		}
-
-		// Letters A-Z → buckets 11-36
-		if first >= 'A' && first <= 'Z' {
-			bucket = int(first-'A') + 11 // 11-36
+	val := 0
+	for _, c := range s {
+		val *= 16
+		if c >= '0' && c <= '9' {
+			val += int(c - '0')
+		} else if c >= 'A' && c <= 'F' {
+			val += int(c-'A') + 10
+		} else if c >= 'a' && c <= 'f' {
+			val += int(c-'a') + 10
 		} else {
-			bucket = 0 // special chars come first in lexicographic order
+			return -1
 		}
 	}
-
-	// Respect numBuckets limit using modulo
-	return bucket % numBuckets
-}
-
-// lipidmaps - for LIPID MAPS IDs: LMFA00000001 → extract numeric part after 4-char prefix
-// Format: LM + 2-char category (FA, GL, GP, etc.) + 8-digit number
-func lipidmapsBucket(id string, numBuckets int) int {
-	// Skip first 4 chars (LM + category code like FA, GL, GP)
-	if len(id) < 5 {
-		return alphabeticBucket(id, numBuckets)
-	}
-
-	numStr := id[4:]
-	num, err := strconv.ParseInt(numStr, 10, 64)
-	if err != nil {
-		return alphabeticBucket(id, numBuckets)
-	}
-	return int(num % int64(numBuckets))
-}
-
-// rnacentral - for RNAcentral IDs: URS000149A9AF → use last 2 hex chars
-// RNAcentral IDs are URS + 10 hex digits, with significant digits at the end
-// numBuckets is ignored - always uses 256 buckets (0x00 to 0xFF)
-func rnacentralBucket(id string, numBuckets int) int {
-	// Need at least "URS" + some hex chars
-	if len(id) < 5 {
-		return 255 // fallback bucket
-	}
-
-	// Extract last 2 hex chars of the ID
-	hexStr := id[len(id)-2:]
-	num, err := strconv.ParseUint(hexStr, 16, 8)
-	if err != nil {
-		return 255 // fallback bucket
-	}
-	return int(num) // 0-255
-}
-
-// string - for STRING protein IDs: {taxid}.{ENSP_ID}
-// Example: 9606.ENSP00000377769 → extract 9606, then 9606 % numBuckets
-// Format: taxid (numeric) + "." + Ensembl protein ID
-func stringBucket(id string, numBuckets int) int {
-	// Find the dot separator
-	dotIdx := strings.Index(id, ".")
-	if dotIdx <= 0 {
-		// No dot found or dot at start, try numeric bucket as fallback
-		return numericBucket(id, numBuckets)
-	}
-
-	// Extract taxonomy ID (part before the dot)
-	taxidStr := id[:dotIdx]
-	taxid, err := strconv.ParseInt(taxidStr, 10, 64)
-	if err != nil {
-		return alphabeticBucket(id, numBuckets)
-	}
-
-	return int(taxid % int64(numBuckets))
-}
-
-// pubchem_activity - for PubChem activity IDs: {CID}_{AID}_{index}
-// Example: 10000020_21965_1 → extract CID (10000020), then CID % numBuckets
-// Format: CID (numeric) + "_" + AID + "_" + index
-func pubchemActivityBucket(id string, numBuckets int) int {
-	// Find the first underscore separator
-	underscoreIdx := strings.Index(id, "_")
-	if underscoreIdx <= 0 {
-		// No underscore found, try numeric bucket as fallback
-		return numericBucket(id, numBuckets)
-	}
-
-	// Extract CID (part before the first underscore)
-	cidStr := id[:underscoreIdx]
-	cid, err := strconv.ParseInt(cidStr, 10, 64)
-	if err != nil {
-		return alphabeticBucket(id, numBuckets)
-	}
-
-	return int(cid % int64(numBuckets))
+	return val
 }
 
 // GetBucketMethod returns the method by name, or nil if not found

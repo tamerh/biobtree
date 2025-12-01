@@ -239,6 +239,8 @@ func (s *service) init() {
 		cel.Declarations(
 			decls.NewIdent("pubchem_assay", decls.NewObjectType("pbuf.PubchemAssayAttr"), nil)),
 		cel.Declarations(
+			decls.NewIdent("entrez", decls.NewObjectType("pbuf.EntrezAttr"), nil)),
+		cel.Declarations(
 			decls.NewFunction("overlaps",
 				decls.NewOverload("overlaps_int_int",
 					[]*exprpb.Type{decls.Int, decls.Int},

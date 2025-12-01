@@ -516,10 +516,15 @@ func (i *intact) createCrossReferences(uniprotID string, interactions []*pbuf.In
 			uniquePartners[interaction.PartnerUniprot] = true
 		}
 
-		// Protein → PubMed
+		// Protein → PubMed (skip non-numeric IDs like "UNASSIGNED1312")
 		if interaction.PubmedId != "" && !uniquePubMeds[interaction.PubmedId] {
-			i.d.addXref(uniprotID, sourceID, interaction.PubmedId, "pubmed", false)
-			uniquePubMeds[interaction.PubmedId] = true
+			// Validate PubMed ID is numeric
+			if len(interaction.PubmedId) > 0 && interaction.PubmedId[0] >= '0' && interaction.PubmedId[0] <= '9' {
+				i.d.addXref(uniprotID, sourceID, interaction.PubmedId, "pubmed", false)
+				uniquePubMeds[interaction.PubmedId] = true
+			} else {
+				log.Printf("[%s] Skipping non-numeric PubMed ID: '%s' for protein: %s", i.source, interaction.PubmedId, uniprotID)
+			}
 		}
 
 		// Gene name → Protein (text search)

@@ -328,8 +328,14 @@ func (g *gwas) createCrossReferences(associationID string, snpID string, sourceI
 
 	// Bidirectional cross-reference: Association ↔ dbSNP
 	// "rs7903146 >> gwas" returns all associations (GCST000001_rs7903146, GCST000002_rs7903146, ...)
+	// Only create xref if snpID is a valid rsID format (starts with "rs" followed by digits)
 	if _, exists := config.Dataconf["dbsnp"]; exists {
-		g.d.addXref(associationID, sourceID, snpID, "dbsnp", false)
+		// Log non-standard SNP IDs for investigation
+		if len(snpID) < 3 || snpID[0] != 'r' || snpID[1] != 's' || (len(snpID) > 2 && (snpID[2] < '0' || snpID[2] > '9')) {
+			log.Printf("[%s] Non-standard SNP ID (not rsID): '%s' for association: %s", g.source, snpID, associationID)
+		} else {
+			g.d.addXref(associationID, sourceID, snpID, "dbsnp", false)
+		}
 	}
 
 	// Bidirectional cross-reference: Association ↔ GWAS Study

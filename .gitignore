@@ -16,3 +16,4 @@ bkp/
 test_out/
 **/__pycache__
 tests/datasets/dbsnp/GCF_000001405.40.gz
+tests/datasets/hmdb/hmdb_metabolites.zip

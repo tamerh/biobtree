@@ -4,6 +4,7 @@ import (
 	"biobtree/pbuf"
 	"bufio"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -282,6 +283,11 @@ func (p *patents) processCompounds() (int, error) {
 
 		// Only create patent_compound entry if we found a ChEMBL molecule
 		if chemblMoleculeID != "" {
+			// Extra validation: ensure ChEMBL ID has proper format
+			if !strings.HasPrefix(chemblMoleculeID, "CHEMBL") {
+				log.Printf("[patent] Skipping invalid ChEMBL ID '%s' for compound %s", chemblMoleculeID, compoundID)
+				continue
+			}
 			// Create patent_compound entry pointing to chembl_molecule (like ortholog pattern!)
 			// This is the KEY step - creates the actual linkdataset entry
 			p.d.addXref2(compoundID, patentCompoundDatasetID, chemblMoleculeID, "chembl_molecule")
@@ -333,12 +339,22 @@ func (p *patents) lookupChEMBLMolecule(identifier string, chemblDatasetID uint32
 			// Keyword link - check entries
 			for _, entry := range xref.Entries {
 				if entry.Dataset == chemblDatasetID {
-					return entry.Identifier
+					// Validate ChEMBL ID format
+					if len(entry.Identifier) >= 7 && strings.HasPrefix(entry.Identifier, "CHEMBL") {
+						return entry.Identifier
+					}
+					// Log invalid format for investigation
+					log.Printf("[patent] Invalid ChEMBL ID format from lookup: '%s' for identifier: %s", entry.Identifier, identifier)
+					continue
 				}
 			}
 		} else if xref.Dataset == chemblDatasetID {
 			// Direct xref to ChEMBL molecule
-			return xref.Identifier
+			// Validate ChEMBL ID format
+			if len(xref.Identifier) >= 7 && strings.HasPrefix(xref.Identifier, "CHEMBL") {
+				return xref.Identifier
+			}
+			log.Printf("[patent] Invalid ChEMBL ID format from lookup: '%s' for identifier: %s", xref.Identifier, identifier)
 		}
 	}
 

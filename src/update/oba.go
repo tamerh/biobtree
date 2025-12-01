@@ -250,7 +250,7 @@ func extractOBAParentID(line string) string {
 }
 
 // extractPMID extracts PMID from xref line
-// Example: xref: PMID:12345678
+// Example: xref: PMID:12345678 → returns "12345678" (numeric only)
 func extractPMID(line string) string {
 	line = strings.TrimPrefix(line, "xref: PMID:")
 
@@ -261,10 +261,7 @@ func extractPMID(line string) string {
 	}
 
 	pmid := strings.TrimSpace(line[:endIdx])
-	if pmid != "" {
-		return "PMID:" + pmid
-	}
-	return ""
+	return pmid // Return numeric ID only, without PMID: prefix
 }
 
 // parseRelationship parses relationship lines and creates bidirectional cross-references

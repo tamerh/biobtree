@@ -186,10 +186,11 @@ func SortAllBuckets(pool *HybridWriterPool, numWorkers int) error {
 // Reads uncompressed .txt bucket files, writes compressed .gz output
 // Bucket files are preserved after concatenation for debugging
 // Returns total lines written across all datasets (post-deduplication count)
+// For multi-bucket-set datasets, produces separate output files: dataset_sorted_1.gz, dataset_sorted_2.gz
 func ConcatenateBuckets(pool *HybridWriterPool, indexDir string, chunkIdx string) (uint64, error) {
 	var totalLines uint64
 
-	for datasetID, writer := range pool.GetBucketWriters() {
+	for writerKey, writer := range pool.GetBucketWriters() {
 		bucketFiles := []string{}
 		for _, bucket := range writer.buckets {
 			if bucket.fileCreated {
@@ -205,9 +206,17 @@ func ConcatenateBuckets(pool *HybridWriterPool, indexDir string, chunkIdx string
 		sort.Strings(bucketFiles)
 
 		// Create compressed output file in index directory
-		// Format: {datasetName}_sorted.{chunkIdx}.index.gz
-		outPath := filepath.Join(indexDir, fmt.Sprintf("%s_sorted.%s.index.gz",
-			writer.config.DatasetName, chunkIdx))
+		// Format depends on whether this is a multi-set or single-set config
+		var outPath string
+		if writer.setIndex >= 0 {
+			// Multi-bucket-set: {datasetName}_sorted_{setIdx+1}.{chunkIdx}.index.gz
+			outPath = filepath.Join(indexDir, fmt.Sprintf("%s_sorted_%d.%s.index.gz",
+				writer.config.DatasetName, writer.setIndex+1, chunkIdx))
+		} else {
+			// Single set: {datasetName}_sorted.{chunkIdx}.index.gz
+			outPath = filepath.Join(indexDir, fmt.Sprintf("%s_sorted.%s.index.gz",
+				writer.config.DatasetName, chunkIdx))
+		}
 
 		outF, err := os.Create(outPath)
 		if err != nil {
@@ -250,8 +259,14 @@ func ConcatenateBuckets(pool *HybridWriterPool, indexDir string, chunkIdx string
 
 		totalLines += linesWritten
 
-		log.Printf("Concatenated %d buckets for %s (ID:%s) → %s (%d lines)",
-			len(bucketFiles), writer.config.DatasetName, datasetID, outPath, linesWritten)
+		// Log message includes set info for multi-set
+		if writer.setIndex >= 0 {
+			log.Printf("Concatenated %d buckets for %s set%d (ID:%s) → %s (%d lines)",
+				len(bucketFiles), writer.config.DatasetName, writer.setIndex+1, writerKey, outPath, linesWritten)
+		} else {
+			log.Printf("Concatenated %d buckets for %s (ID:%s) → %s (%d lines)",
+				len(bucketFiles), writer.config.DatasetName, writer.datasetID, outPath, linesWritten)
+		}
 	}
 
 	return totalLines, nil

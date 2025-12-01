@@ -5,10 +5,13 @@ import (
 )
 
 // BucketMethod extracts bucket number from an ID
+// Returns bucket number >= 0 on success, or -1 if the ID doesn't match this method's pattern
+// (used for multi-bucket-set routing where first matching method wins)
 type BucketMethod func(id string, numBuckets int) int
 
 // BucketMethods registry - maps method names to implementations
 // All methods preserve lexicographic order for proper k-way merge
+// Methods return -1 if the ID doesn't match their expected pattern
 var BucketMethods = map[string]BucketMethod{
 	"numeric":    numericLexBucket, // Pure numeric IDs: uses first 2 chars for lex order
 	"uniprot":    uniprotBucket,    // P12345, Q9Y6K9 → first 2 chars (letter+digit)
@@ -33,10 +36,15 @@ var BucketMethods = map[string]BucketMethod{
 	"lipidmaps": lipidmapsBucket, // LMFA00000001 → numeric part after 4-char prefix
 	"rhea":      rheaBucket,      // RHEA:16066 → numeric part after "RHEA:"
 	"reactome":  reactomeBucket,  // R-HSA-12345 → numeric part after last "-"
-	"patent":    patentBucket,    // US-5153197-A → numeric part between dashes
-	"gwas":      gwasBucket,      // GCST000001_rs380390 → numeric from GCST prefix
+	"patent":        patentBucket,        // Fallback: alphabetic for all formats
+	"patent_us":     patentUSBucket,     // US-5153197-A → numeric, returns -1 if not US-
+	"patent_ep":     patentEPBucket,     // EP-1234567-A1 → numeric, returns -1 if not EP-
+	"patent_wo":     patentWOBucket,     // WO-2020123456-A1 → numeric, returns -1 if not WO-
+	"patent_other":  patentOtherBucket,  // Everything else (D*, RE*, CA-*, etc.) → alphabetic
+	"gwas":          gwasBucket,         // GCST000001_rs380390 → numeric from GCST prefix
 	"oba":       obaBucket,       // OBA:0001234 or OBA:VT0000188 → first char after colon
 	"gcst":      alphabeticBucket, // GCST010481, VT0000188 → multiple prefixes, use first letter
+	"ontology":  ontologyBucket,  // CHEBI:12345, HP:0001234, UBERON:0000001 → numeric after colon
 }
 
 // numericLexBucket - lexicographically-preserving bucket method for numeric IDs
@@ -192,24 +200,63 @@ func reactomeBucket(id string, numBuckets int) int {
 	return numericLexBucket(id[lastDash+1:], numBuckets)
 }
 
-// patentBucket - handles multiple patent ID formats, preserving lex order:
-// - US-5153197-A → numeric bucket on patent number between dashes
-// - RE43229 → alphanumeric bucket on first 2 chars (RE, D1, etc.)
-// For dash format, numeric part preserves lex order within country code.
-// For no-dash format, first 2 chars preserve lex order.
+// patentBucket - fallback alphabetic bucket for all patent formats
+// Used as catch-all in multi-bucket-set config
 func patentBucket(id string, numBuckets int) int {
-	if len(id) < 2 {
-		panic("patentBucket: id too short: " + id)
+	if len(id) < 1 {
+		panic("patentBucket: empty id")
 	}
-	firstDash := strings.Index(id, "-")
-	lastDash := strings.LastIndex(id, "-")
-	// Standard format with dashes: US-5153197-A
-	if firstDash >= 0 && lastDash >= 0 && firstDash < lastDash {
-		return numericLexBucket(id[firstDash+1:lastDash], numBuckets)
+	return alphabeticBucket(id, numBuckets)
+}
+
+// patentUSBucket - for US patents: US-5153197-A, US-RE42753-E1
+// Returns -1 if ID doesn't start with "US-"
+// Uses alphanumeric bucketing on part after "US-" for lex order
+func patentUSBucket(id string, numBuckets int) int {
+	if len(id) < 4 || id[0] != 'U' || id[1] != 'S' || id[2] != '-' {
+		return -1 // Not a US- patent
 	}
-	// No dashes (RE43229, D123456): use alphanumeric on first 2 chars
-	// This groups RE*, D*, PP*, etc. separately while preserving lex order
-	return alphanumBucket(id, numBuckets)
+	// Bucket by first char after "US-" (alphanumeric)
+	return alphanumBucket(id[3:], numBuckets)
+}
+
+// patentEPBucket - for European patents: EP-1234567-A1
+// Returns -1 if ID doesn't start with "EP-"
+// Uses alphanumeric bucketing on part after "EP-" for lex order
+func patentEPBucket(id string, numBuckets int) int {
+	if len(id) < 4 || id[0] != 'E' || id[1] != 'P' || id[2] != '-' {
+		return -1 // Not an EP- patent
+	}
+	return alphanumBucket(id[3:], numBuckets)
+}
+
+// patentWOBucket - for WIPO/international patents: WO-2020123456-A1
+// Returns -1 if ID doesn't start with "WO-"
+// Uses alphanumeric bucketing on part after "WO-" for lex order
+func patentWOBucket(id string, numBuckets int) int {
+	if len(id) < 4 || id[0] != 'W' || id[1] != 'O' || id[2] != '-' {
+		return -1 // Not a WO- patent
+	}
+	return alphanumBucket(id[3:], numBuckets)
+}
+
+// patentOtherBucket - for all other patents (D*, RE*, CA-*, JP-*, etc.)
+// Uses alphabetic bucketing as catch-all
+// Returns -1 only if it matches US-, EP-, or WO- (which should go to their specific buckets)
+func patentOtherBucket(id string, numBuckets int) int {
+	if len(id) < 1 {
+		return -1
+	}
+	// Reject US-, EP-, WO- patents - they should use their specific buckets
+	if len(id) >= 3 && id[2] == '-' {
+		if (id[0] == 'U' && id[1] == 'S') ||
+			(id[0] == 'E' && id[1] == 'P') ||
+			(id[0] == 'W' && id[1] == 'O') {
+			return -1
+		}
+	}
+	// Accept everything else with alphabetic bucketing
+	return alphabeticBucket(id, numBuckets)
 }
 
 // gwasBucket - GCST000001_rs380390 → numeric from GCST prefix (after "GCST")
@@ -361,6 +408,24 @@ func hexToInt(s string) int {
 		}
 	}
 	return val
+}
+
+// ontologyBucket - for ontology IDs with PREFIX:NUMBER format
+// CHEBI:12345, HP:0001234, UBERON:0000001, EFO:0000001, etc.
+// Uses numeric part after colon for lexicographic bucket assignment
+func ontologyBucket(id string, numBuckets int) int {
+	colonIdx := strings.IndexByte(id, ':')
+	if colonIdx < 0 || colonIdx >= len(id)-1 {
+		// No colon found - use alphabetic fallback for IDs like "HGNC:1234" without colon
+		return alphabeticBucket(id, numBuckets)
+	}
+	afterColon := id[colonIdx+1:]
+	// Check if first char after colon is a digit
+	if len(afterColon) > 0 && afterColon[0] >= '0' && afterColon[0] <= '9' {
+		return numericLexBucket(afterColon, numBuckets)
+	}
+	// Non-numeric after colon (e.g., OBA:VT0000188) - use alphanumeric
+	return alphanumBucket(afterColon, numBuckets)
 }
 
 // GetBucketMethod returns the method by name, or nil if not found

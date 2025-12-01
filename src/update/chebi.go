@@ -8,6 +8,7 @@ import (
 	"os"
 	"sort"
 	"strconv"
+	"strings"
 	"sync/atomic"
 	"time"
 
@@ -801,6 +802,12 @@ func (c *chebi) processCrossReferences(fr string, sourceMap map[string]string, i
 		// Check if target database is configured in biobtree
 		if _, ok := config.Dataconf[targetDB]; !ok {
 			continue
+		}
+
+		// Validate accession format for specific databases
+		if targetDB == "hmdb" && !strings.HasPrefix(accessionNum, "HMDB") {
+			log.Printf("ChEBI: Skipping invalid HMDB ID '%s' for %s", accessionNum, chebiID)
+			continue // Skip non-HMDB IDs (e.g., CAS numbers)
 		}
 
 		// Create cross-reference: CHEBI → Target Database

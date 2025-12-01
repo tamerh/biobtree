@@ -38,6 +38,7 @@ func NewHybridWriterPool(configs map[string]*BucketConfig, fallbackChan *chan st
 }
 
 // NewHybridWriterPoolWithWorkers creates the pool (numWorkers ignored - direct writes)
+// Supports multi-bucket-set configs with separate bucket directories per set
 func NewHybridWriterPoolWithWorkers(configs map[string]*BucketConfig, fallbackChan *chan string, outputDir string, wg *sync.WaitGroup, numWorkers int) *HybridWriterPool {
 	pool := &HybridWriterPool{
 		bucketConfigs: configs,
@@ -50,21 +51,45 @@ func NewHybridWriterPoolWithWorkers(configs map[string]*BucketConfig, fallbackCh
 
 	// Create output directories for all configured datasets
 	for datasetID, cfg := range configs {
-		dir := filepath.Join(outputDir, cfg.DatasetName, "buckets")
-		os.MkdirAll(dir, 0755)
-		pool.bucketDirs[datasetID] = dir
+		if cfg.NumSets > 1 {
+			// Multi-bucket-set: create buckets1/, buckets2/, etc.
+			// Pre-compute bucket keys for all sets
+			// Key format: "datasetID_setIdx_bucketNum"
+			totalBuckets := 0
+			for setIdx := 0; setIdx < cfg.NumSets; setIdx++ {
+				dir := filepath.Join(outputDir, cfg.DatasetName, fmt.Sprintf("buckets%d", setIdx+1))
+				os.MkdirAll(dir, 0755)
 
-		// Pre-compute bucket keys for this dataset
-		keys := make([]string, cfg.NumBuckets)
-		for i := 0; i < cfg.NumBuckets; i++ {
-			key := fmt.Sprintf("%s_%d", datasetID, i)
-			keys[i] = key
-			pool.bucketFiles[key] = &BucketFile{
-				// Write uncompressed during processing (no .gz extension)
-				filePath: filepath.Join(dir, fmt.Sprintf("bucket_%03d.txt", i)),
+				numBuckets := cfg.NumBucketsPerSet[setIdx]
+				for i := 0; i < numBuckets; i++ {
+					key := fmt.Sprintf("%s_%d_%d", datasetID, setIdx, i)
+					pool.bucketFiles[key] = &BucketFile{
+						filePath: filepath.Join(dir, fmt.Sprintf("bucket_%03d.txt", i)),
+					}
+					totalBuckets++
+				}
 			}
+			// Store first set's dir for backward compat (not used in multi-set)
+			pool.bucketDirs[datasetID] = filepath.Join(outputDir, cfg.DatasetName, "buckets1")
+			// No single bucketKeys array for multi-set - handled in Write()
+		} else {
+			// Single bucket set: create buckets/
+			dir := filepath.Join(outputDir, cfg.DatasetName, "buckets")
+			os.MkdirAll(dir, 0755)
+			pool.bucketDirs[datasetID] = dir
+
+			// Pre-compute bucket keys for this dataset
+			keys := make([]string, cfg.NumBuckets)
+			for i := 0; i < cfg.NumBuckets; i++ {
+				key := fmt.Sprintf("%s_%d", datasetID, i)
+				keys[i] = key
+				pool.bucketFiles[key] = &BucketFile{
+					// Write uncompressed during processing (no .gz extension)
+					filePath: filepath.Join(dir, fmt.Sprintf("bucket_%03d.txt", i)),
+				}
+			}
+			pool.bucketKeys[datasetID] = keys
 		}
-		pool.bucketKeys[datasetID] = keys
 	}
 
 	fmt.Printf("Direct bucket writer initialized with %d datasets, %d total buckets\n",
@@ -76,10 +101,12 @@ func NewHybridWriterPoolWithWorkers(configs map[string]*BucketConfig, fallbackCh
 // Write routes data to appropriate bucket or fallback
 // For link datasets (parent/child), routes to the parent dataset's buckets
 // Direct write with per-bucket mutex - no channel overhead
+// Supports multi-bucket-set configs: tries methods in order, uses first matching set
 func (p *HybridWriterPool) Write(datasetID string, entityID string, line string) {
 	// Fast path: check original datasetID first (most common case)
 	cfg, hasBucket := p.bucketConfigs[datasetID]
 	keys := p.bucketKeys[datasetID]
+	resolvedDatasetID := datasetID
 
 	// Slow path: resolve link dataset if original not found
 	if !hasBucket {
@@ -87,22 +114,48 @@ func (p *HybridWriterPool) Write(datasetID string, entityID string, line string)
 			if parentID, isLink := linkDatasetMap[datasetID]; isLink {
 				cfg, hasBucket = p.bucketConfigs[parentID]
 				keys = p.bucketKeys[parentID]
+				resolvedDatasetID = parentID
 			}
 		}
 	}
 
-	if hasBucket && keys != nil {
-		// Calculate bucket and get pre-computed key
-		bucketNum := cfg.Method(entityID, cfg.NumBuckets)
+	if hasBucket {
+		var bucketKey string
 
-		// Safety check: bucket number must be within range
-		if bucketNum < 0 || bucketNum >= cfg.NumBuckets {
-			log.Printf("WARNING: Bucket method returned %d but numBuckets=%d for dataset=%s id='%s' - using bucket 0",
-				bucketNum, cfg.NumBuckets, cfg.DatasetName, entityID)
-			bucketNum = 0
+		if cfg.NumSets > 1 {
+			// Multi-bucket-set: try each method in order, use first match
+			for setIdx, method := range cfg.Methods {
+				bucketNum := method(entityID, cfg.NumBucketsPerSet[setIdx])
+				if bucketNum >= 0 {
+					// Method matched - use this bucket set
+					bucketKey = fmt.Sprintf("%s_%d_%d", resolvedDatasetID, setIdx, bucketNum)
+					break
+				}
+			}
+			if bucketKey == "" {
+				// No method matched - this shouldn't happen if last method is a catch-all
+				log.Printf("WARNING: No bucket method matched for dataset=%s id='%s' - using fallback",
+					cfg.DatasetName, entityID)
+				*p.fallbackChan <- line
+				return
+			}
+		} else if keys != nil {
+			// Single bucket set: use pre-computed keys
+			bucketNum := cfg.Method(entityID, cfg.NumBuckets)
+
+			// Safety check: bucket number must be within range
+			if bucketNum < 0 || bucketNum >= cfg.NumBuckets {
+				log.Printf("WARNING: Bucket method returned %d but numBuckets=%d for dataset=%s id='%s' - using bucket 0",
+					bucketNum, cfg.NumBuckets, cfg.DatasetName, entityID)
+				bucketNum = 0
+			}
+
+			bucketKey = keys[bucketNum]
+		} else {
+			// Fallback to kvdatachan
+			*p.fallbackChan <- line
+			return
 		}
-
-		bucketKey := keys[bucketNum]
 
 		// Get bucket file and write directly with mutex
 		bf := p.bucketFiles[bucketKey]
@@ -191,33 +244,67 @@ func (p *HybridWriterPool) GetBucketFiles() []string {
 
 // GetBucketWriters returns bucket info for sorting/concatenation
 // Returns a compatible structure for existing sort code
+// For multi-bucket-set configs, returns separate entries for each set
 func (p *HybridWriterPool) GetBucketWriters() map[string]*DatasetBucketWriter {
 	result := make(map[string]*DatasetBucketWriter)
 
 	for datasetID, cfg := range p.bucketConfigs {
-		dir := p.bucketDirs[datasetID]
-		if dir == "" {
-			continue
-		}
+		if cfg.NumSets > 1 {
+			// Multi-bucket-set: create separate entries for each set
+			for setIdx := 0; setIdx < cfg.NumSets; setIdx++ {
+				dir := filepath.Join(p.outputDir, cfg.DatasetName, fmt.Sprintf("buckets%d", setIdx+1))
+				numBuckets := cfg.NumBucketsPerSet[setIdx]
 
-		keys := p.bucketKeys[datasetID]
-		dbw := &DatasetBucketWriter{
-			datasetID: datasetID,
-			config:    cfg,
-			outputDir: dir,
-			buckets:   make([]*BucketWriter, cfg.NumBuckets),
-		}
+				// Create unique key for this set
+				setKey := fmt.Sprintf("%s_set%d", datasetID, setIdx)
 
-		for i := 0; i < cfg.NumBuckets; i++ {
-			bf := p.bucketFiles[keys[i]] // Use pre-computed key
-			dbw.buckets[i] = &BucketWriter{
-				filePath:    bf.filePath,
-				fileCreated: bf.created,
-				lineCount:   bf.lineCount,
+				dbw := &DatasetBucketWriter{
+					datasetID: datasetID,
+					config:    cfg,
+					outputDir: dir,
+					buckets:   make([]*BucketWriter, numBuckets),
+					setIndex:  setIdx,
+				}
+
+				for i := 0; i < numBuckets; i++ {
+					key := fmt.Sprintf("%s_%d_%d", datasetID, setIdx, i)
+					bf := p.bucketFiles[key]
+					dbw.buckets[i] = &BucketWriter{
+						filePath:    bf.filePath,
+						fileCreated: bf.created,
+						lineCount:   bf.lineCount,
+					}
+				}
+
+				result[setKey] = dbw
 			}
-		}
+		} else {
+			// Single bucket set
+			dir := p.bucketDirs[datasetID]
+			if dir == "" {
+				continue
+			}
 
-		result[datasetID] = dbw
+			keys := p.bucketKeys[datasetID]
+			dbw := &DatasetBucketWriter{
+				datasetID: datasetID,
+				config:    cfg,
+				outputDir: dir,
+				buckets:   make([]*BucketWriter, cfg.NumBuckets),
+				setIndex:  -1, // Single set indicator
+			}
+
+			for i := 0; i < cfg.NumBuckets; i++ {
+				bf := p.bucketFiles[keys[i]] // Use pre-computed key
+				dbw.buckets[i] = &BucketWriter{
+					filePath:    bf.filePath,
+					fileCreated: bf.created,
+					lineCount:   bf.lineCount,
+				}
+			}
+
+			result[datasetID] = dbw
+		}
 	}
 
 	return result
@@ -230,6 +317,7 @@ type DatasetBucketWriter struct {
 	buckets   []*BucketWriter
 	outputDir string
 	wg        *sync.WaitGroup
+	setIndex  int // -1 for single set, 0+ for multi-set index
 }
 
 // BucketWriter is kept for compatibility with sorting code

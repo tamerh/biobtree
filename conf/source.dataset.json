@@ -166,7 +166,7 @@
     "name": "hmdb",
     "aliases": "HMDB,HMDB accession",
     "path": "http://www.hmdb.ca/system/downloads/current/hmdb_metabolites.zip",
-    "path2": "tests/datasets/hmdb/hmdb_test.zip",
+    "path2": "tests/datasets/hmdb/hmdb_metabolites.zip",
     "url": "http://www.hmdb.ca/metabolites/£{id}",
     "useLocalFile": "no",
     "hasFilter": "yes",
@@ -313,7 +313,7 @@
     "hasFilter": "yes",
     "attrs": "title,country,publication_date,family_id,[]cpc,[]ipcr,[]ipc,[]ecla,[]asignee",
     "test_entries_count": "50",
-    "bucketMethod": "patent"
+    "bucketMethod": "patent_us,patent_ep,patent_wo,patent_other"
   },
   "clinical_trials": {
     "aliases": "Clinical Trial,ClinicalTrial,NCT",
@@ -752,7 +752,8 @@
     "id": "352",
     "url": "",
     "linkdataset": "chembl_molecule",
-    "hasFilter": "yes"
+    "hasFilter": "yes",
+    "bucketMethod": "numeric"
   },
   "mondochild": {
     "name": "MONDO Child",

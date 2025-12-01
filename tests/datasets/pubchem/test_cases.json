@@ -1,0 +1,54 @@
+{
+  "common_tests": [
+    {
+      "name": "ID Lookup - Aspirin (CID 2244)",
+      "type": "id_lookup",
+      "id": "2244",
+      "expected": {
+        "should_find": true,
+        "has_name": true
+      }
+    },
+    {
+      "name": "ID Lookup - Ibuprofen (CID 3672)",
+      "type": "id_lookup",
+      "id": "3672",
+      "expected": {
+        "should_find": true,
+        "has_name": true
+      }
+    },
+    {
+      "name": "ID Lookup - Metformin (CID 5090)",
+      "type": "id_lookup",
+      "id": "5090",
+      "expected": {
+        "should_find": true,
+        "has_name": true
+      }
+    },
+    {
+      "name": "PubChem Attribute Check - Basic Properties",
+      "type": "attribute_check",
+      "id": "2244",
+      "attributes": ["cid", "inchi_key", "smiles", "molecular_formula", "molecular_weight"]
+    },
+    {
+      "name": "PubChem Attribute Check - Drug Properties",
+      "type": "attribute_check",
+      "id": "2244",
+      "attributes": ["is_fda_approved", "compound_type", "synonyms"]
+    },
+    {
+      "name": "PubChem Attribute Check - Physical Properties",
+      "type": "attribute_check",
+      "id": "2244",
+      "attributes": ["xlogp", "hydrogen_bond_donors", "hydrogen_bond_acceptors"]
+    },
+    {
+      "name": "Invalid ID - Should Not Find",
+      "type": "invalid_id",
+      "id": "99999999999"
+    }
+  ]
+}

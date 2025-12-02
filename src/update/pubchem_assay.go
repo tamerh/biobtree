@@ -379,8 +379,17 @@ func (p *pubchemAssay) processBioassayFile(ftpServer, basePath, bioassayPath str
 		// BioAssay → UniProt
 		for _, uniprotID := range uniprotIDs {
 			if uniprotID != "" {
-				//log.Printf("[PubChem Assay] DEBUG: Adding uniprot xref: AID=%s -> UniProt=%s", aid, uniprotID)
-				p.d.addXref(aid, fr, uniprotID, "uniprot", false)
+				// Validate UniProt ID format: should start with letter followed by digit
+				// Skip invalid IDs like "0MID: 11262084" (corrupted PMID)
+				if len(uniprotID) >= 2 {
+					first := uniprotID[0]
+					second := uniprotID[1]
+					if (first >= 'A' && first <= 'Z') && (second >= '0' && second <= '9') {
+						p.d.addXref(aid, fr, uniprotID, "uniprot", false)
+					} else {
+						log.Printf("[PubChem Assay] Skipping invalid UniProt ID '%s' for AID=%s", uniprotID, aid)
+					}
+				}
 			}
 		}
 

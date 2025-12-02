@@ -169,12 +169,13 @@ func (p *pubchemActivity) processActivityFile(ftpServer, basePath, activityPath 
 		// Split by tab
 		record := strings.Split(line, "\t")
 
-		// Need at least 12 fields
-		if len(record) < 12 {
+		// Need at least 13 fields
+		if len(record) < 13 {
 			continue
 		}
 
-		// Format: AID, SID, SID Group, CID, Activity Outcome, Activity Name, Qualifier, Value, Protein Acc, Gene ID, TaxID, PMID
+		// Format: AID, SID, SID Group, CID, Activity Outcome, Activity Name, Activity Qualifier, Activity Value, Activity Unit, Protein Accession, Gene ID, Target TaxID, PMID
+		//         0     1    2          3    4                 5              6                   7               8              9                   10       11            12
 		cid := strings.TrimSpace(record[3])
 		aid := strings.TrimSpace(record[0])
 
@@ -188,26 +189,21 @@ func (p *pubchemActivity) processActivityFile(ftpServer, basePath, activityPath 
 		activityType := strings.TrimSpace(record[5])
 		qualifier := strings.TrimSpace(record[6])
 		valueStr := strings.TrimSpace(record[7])
-		proteinAccession := strings.TrimSpace(record[8])
-		geneID := strings.TrimSpace(record[9])
-		targetTaxIDStr := strings.TrimSpace(record[10])
-		pmid := strings.TrimSpace(record[11])
+		unitFromColumn := strings.TrimSpace(record[8])
+		proteinAccession := strings.TrimSpace(record[9])
+		geneID := strings.TrimSpace(record[10])
+		targetTaxIDStr := strings.TrimSpace(record[11])
+		pmid := strings.TrimSpace(record[12])
 
-		// Parse activity value and extract unit
+		// Parse activity value - unit is now in separate column
 		var value float64
-		var unit string
+		unit := unitFromColumn
 		if valueStr != "" {
-			parts := strings.Fields(valueStr)
-			if len(parts) > 0 {
-				parsed, err := strconv.ParseFloat(parts[0], 64)
-				if err == nil {
-					value = parsed
-					if len(parts) > 1 {
-						unit = parts[1]
-                    }
-                }
-            }
-        }
+			parsed, err := strconv.ParseFloat(valueStr, 64)
+			if err == nil {
+				value = parsed
+			}
+		}
 
         // Parse target taxonomy ID
         var targetTaxID int32
@@ -253,10 +249,24 @@ func (p *pubchemActivity) processActivityFile(ftpServer, basePath, activityPath 
 
         // Activity → Protein (if present)
         // Note: According to PubChem docs, this is NCBI Protein accession
-        // We map to "uniprot" dataset as we don't have separate NCBI Protein dataset
-        // Some NCBI Protein accessions contain underscores (e.g., "1A5H_A")
-        if proteinAccession != "" {
-            p.d.addXref(activityID, fr, proteinAccession, "uniprot", false)
+        // Can be UniProt (P12345) or PDB (1A5H_A) format
+        // UniProt: starts with letter + digit (e.g., P12345, Q9Y6K9)
+        // PDB: starts with digit + alphanum (e.g., 1O37_A, 1A5H_A)
+        if proteinAccession != "" && len(proteinAccession) >= 2 {
+            first := proteinAccession[0]
+            second := proteinAccession[1]
+            isUniProt := (first >= 'A' && first <= 'Z') && (second >= '0' && second <= '9')
+            isPDB := (first >= '0' && first <= '9') && ((second >= 'A' && second <= 'Z') || (second >= '0' && second <= '9'))
+            if isUniProt {
+                p.d.addXref(activityID, fr, proteinAccession, "uniprot", false)
+            } else if isPDB {
+                // Extract PDB ID (first 4 chars) and link to PDB dataset
+                if len(proteinAccession) >= 4 {
+                    pdbID := proteinAccession[:4]
+                    p.d.addXref(activityID, fr, pdbID, "pdb", false)
+                }
+            }
+            // Silently skip other formats (no more logging)
         }
 
         // Activity → Gene → Ensembl (if present)

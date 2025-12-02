@@ -317,20 +317,42 @@ func uniprotBucket(id string, numBuckets int) int {
 	panic("uniprotBucket: invalid format (expected letter+digit): " + id)
 }
 
-// alphabeticBucket - bucket by first letter: 0 for non-letters, 1-26 for A-Z
-// Preserves lex order: special/digits→0, A→1, B→2, ... Z→26
+// alphabeticBucket - bucket by first byte for STRICT lexicographic order
+// Bucket assignment preserves byte order for proper k-way merge:
+//   - Bucket 0: first byte < 'A' (0x00-0x40) - control chars, digits, special chars
+//   - Buckets 1-26: first letter A-Z (0x41-0x5A)
+//   - Bucket 27: chars between Z and a (0x5B-0x60): [\]^_`
+//   - Buckets 28-53: first letter a-z (0x61-0x7A)
+//   - Bucket 54: high-byte chars (0x7B+): {|}~ and UTF-8 multi-byte
+// Total: 55 buckets (0-54) - strict byte order, case-sensitive
 func alphabeticBucket(id string, numBuckets int) int {
 	if len(id) == 0 {
 		panic("alphabeticBucket: empty id")
 	}
 	first := id[0]
-	if first >= 'a' && first <= 'z' {
-		first -= 32
+
+	// Chars before 'A' (0x00-0x40): control, digits, special
+	if first < 'A' {
+		return 0
 	}
-	if first >= 'A' && first <= 'Z' {
+
+	// Uppercase A-Z (0x41-0x5A)
+	if first <= 'Z' {
 		return int(first-'A') + 1 // A→1, B→2, ... Z→26
 	}
-	return 0 // special chars, digits, etc. go to bucket 0
+
+	// Chars between Z and a (0x5B-0x60): [\]^_`
+	if first < 'a' {
+		return 27
+	}
+
+	// Lowercase a-z (0x61-0x7A)
+	if first <= 'z' {
+		return int(first-'a') + 28 // a→28, b→29, ... z→53
+	}
+
+	// High-byte chars (0x7B+): {|}~ and UTF-8 multi-byte
+	return 54
 }
 
 // alphanumBucket - for IDs starting with digit or letter (preserves lex order)

@@ -93,13 +93,13 @@ func GetLinkDatasetID(datasetID string) string {
 // fixedBuckets defines methods with fixed bucket counts
 // These methods ignore numBuckets parameter and use fixed values
 var fixedBuckets = map[string]int{
-	"alphabetic":     27,  // A-Z (0-25) + other (26)
+	"alphabetic":     55,  // 0=<'A', 1-26=A-Z, 27=[\]^_`, 28-53=a-z, 54=high-byte
 	"alphanum":       37,  // 0-9 (0-9) + A-Z (10-35) + other (36)
 	"uniprot":        261, // A0-Z9 (0-259) + fallback (260)
 	"upi":            256, // hex 00-FF
 	"rnacentral":     256, // hex 00-FF
-	"uniref":         27,  // alphabetic on member ID
-	"patent_nodash":  27,  // alphabetic for no-dash patents
+	"uniref":         55,  // alphabetic on member ID (uses alphabeticBucket)
+	"patent_nodash":  55,  // alphabetic for no-dash patents (uses alphabeticBucket)
 }
 
 // LoadBucketConfigs reads bucket configuration from loaded Dataconf
@@ -271,15 +271,20 @@ func LoadBucketConfigs() map[string]*BucketConfig {
 	}
 
 	// Add special textsearch bucket config for keyword/text links
-	// Uses alphabetic bucketing (A-Z + other = 27 buckets)
+	// Uses alphabetic bucketing with strict byte order (55 buckets)
 	cfgs[TextSearchDatasetID] = &BucketConfig{
-		DatasetID:   TextSearchDatasetID,
-		DatasetName: "textsearch",
-		MethodName:  "alphabetic",
-		NumBuckets:  27,
-		Method:      alphabeticBucket,
+		DatasetID:        TextSearchDatasetID,
+		DatasetName:      "textsearch",
+		MethodName:       "alphabetic",
+		NumBuckets:       55,
+		Method:           alphabeticBucket,
+		SkipBucketSort:   false,
+		NumSets:          1,
+		Methods:          []BucketMethod{alphabeticBucket},
+		MethodNames:      []string{"alphabetic"},
+		NumBucketsPerSet: []int{55},
 	}
-	log.Printf("Bucket config loaded: textsearch (ID:%s) method=alphabetic buckets=27",
+	log.Printf("Bucket config loaded: textsearch (ID:%s) method=alphabetic buckets=55",
 		TextSearchDatasetID)
 
 	return cfgs

@@ -192,7 +192,7 @@ Examples:
   %(prog)s hmdb,go,taxonomy   # Run multiple specific tests
 
 Available datasets:
-  uniprot, go, taxonomy, eco, efo, chebi, interpro, hmdb, lipidmaps, swisslipids, chembl_document, chembl_molecule, chembl_activity, chembl_assay, chembl_target, chembl_cell_line, ensembl, mondo, hpo, mesh, uberon, cl, oba, pato, obi, xco, bgee, patent, clinical_trials, clinvar, string, reactome, rhea, alphafold, rnacentral, uniparc, uniref50, uniref90, uniref100, gwas_study, gwas, dbsnp, intact, protein_similarity, antibody, pubchem
+  uniprot, go, taxonomy, eco, efo, chebi, interpro, hmdb, lipidmaps, swisslipids, chembl_document, chembl_molecule, chembl_activity, chembl_assay, chembl_target, chembl_cell_line, ensembl, mondo, hpo, mesh, uberon, cl, oba, pato, obi, xco, bgee, patent, clinical_trials, clinvar, string, reactome, rhea, alphafold, rnacentral, uniparc, uniref50, uniref90, uniref100, gwas_study, gwas, dbsnp, intact, protein_similarity, antibody, pubchem, entrez
 
   Temporarily disabled (Ensembl Genomes API SSL issues):
   ensembl_bacteria, ensembl_fungi, ensembl_metazoa, ensembl_plants, ensembl_protists
@@ -275,6 +275,7 @@ Available datasets:
         'protein_similarity': datasets_dir / "protein_similarity" / "test_protein_similarity.py",
         'antibody': datasets_dir / "antibody" / "test_antibody.py",
         'pubchem': datasets_dir / "pubchem" / "test_pubchem.py",
+        'entrez': datasets_dir / "entrez" / "test_entrez.py",
     }
 
     # Parse dataset selection

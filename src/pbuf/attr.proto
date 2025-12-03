@@ -1135,7 +1135,7 @@ message MeshAttr {
 }
 
 // EntrezAttr stores NCBI Entrez Gene attributes
-// Source: ftp.ncbi.nlm.nih.gov/gene/DATA/gene_info.gz and gene_summary.gz
+// Source: ftp.ncbi.nlm.nih.gov/gene/DATA/gene_info.gz, gene_summary.gz, and gene_neighbors.gz
 message EntrezAttr {
   string name = 1;              // gene description (column 8)
   string symbol = 2;            // official gene symbol, e.g. TP53 (column 2)
@@ -1143,4 +1143,9 @@ message EntrezAttr {
   repeated string synonyms = 4; // alternative gene symbols (column 4, pipe-separated)
   string chromosome = 5;        // chromosome location (column 6)
   string summary = 6;           // detailed functional summary from gene_summary.gz
+  // Genomic position from gene_neighbors.gz
+  int64 start_position = 7;     // genomic start position
+  int64 end_position = 8;       // genomic end position
+  string orientation = 9;       // strand orientation: + or -
+  string genomic_accession = 10; // RefSeq genomic accession (e.g., NC_000001.11)
 }

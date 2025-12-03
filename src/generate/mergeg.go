@@ -57,7 +57,7 @@ type fileState struct {
 	gz        *gzip.Reader
 	r         *bufio.Reader
 	curKey    string
-	nextLine  [5]string   // Buffered next line (key, db, value, valuedb, evidence)
+	nextLine  [6]string   // Buffered next line (key, db, value, valuedb, evidence, relationship)
 	eof       bool
 	complete  bool
 	fileName  string
@@ -178,7 +178,7 @@ func (wp *workerPool) processJob(job readJob) {
 // It buffers the first line in nextLine and sets curKey, but does NOT send to mergeCh
 // This is used during initial file loading to avoid flooding the merge channel
 func (wp *workerPool) readFirstKey(fs *fileState, tmprun []rune, skipUntil string) {
-	var line [5]string
+	var line [6]string
 	var c rune
 	index := 0
 	tabIndex := 0
@@ -202,7 +202,7 @@ func (wp *workerPool) readFirstKey(fs *fileState, tmprun []rune, skipUntil strin
 				// Continue reading to find a key past skipUntil
 				index = 0
 				tabIndex = 0
-				line = [5]string{}
+				line = [6]string{}
 				continue
 			}
 
@@ -241,19 +241,20 @@ func (wp *workerPool) readNextKey(fs *fileState, tmprun []rune, skipUntil string
 		// Send to merge channel if not skipping
 		if skipUntil == "" || key > skipUntil {
 			*mergeCh <- kvMessage{
-				key:      fs.nextLine[0],
-				db:       fs.nextLine[1],
-				value:    fs.nextLine[2],
-				valuedb:  fs.nextLine[3],
-				evidence: fs.nextLine[4],
+				key:          fs.nextLine[0],
+				db:           fs.nextLine[1],
+				value:        fs.nextLine[2],
+				valuedb:      fs.nextLine[3],
+				evidence:     fs.nextLine[4],
+				relationship: fs.nextLine[5],
 			}
 		}
 
 		// Clear nextLine after processing
-		fs.nextLine = [5]string{}
+		fs.nextLine = [6]string{}
 	}
 
-	var line [5]string
+	var line [6]string
 	var c rune
 	index := 0
 	tabIndex := 0
@@ -289,23 +290,24 @@ func (wp *workerPool) readNextKey(fs *fileState, tmprun []rune, skipUntil string
 				// Continue reading without sending to channel
 				index = 0
 				tabIndex = 0
-				line = [5]string{}
+				line = [6]string{}
 				continue
 			}
 
 			// Send this line to merge channel
 			*mergeCh <- kvMessage{
-				key:      line[0],
-				db:       line[1],
-				value:    line[2],
-				valuedb:  line[3],
-				evidence: line[4],
+				key:          line[0],
+				db:           line[1],
+				value:        line[2],
+				valuedb:      line[3],
+				evidence:     line[4],
+				relationship: line[5],
 			}
 
 			// Reset for next line (still same key potentially)
 			index = 0
 			tabIndex = 0
-			line = [5]string{}
+			line = [6]string{}
 
 		case tabr:
 			line[index] = string(tmprun[:tabIndex])
@@ -597,12 +599,13 @@ func (d *Merge) getLastKeyFromDB() (string, error) {
 }
 
 type kvMessage struct {
-	key      string
-	db       string
-	value    string
-	valuedb  string
-	evidence string  // Optional evidence code (e.g., TAS, IEA for Reactome)
-	writekey bool
+	key          string
+	db           string
+	value        string
+	valuedb      string
+	evidence     string // Optional evidence code (e.g., TAS, IEA for Reactome)
+	relationship string // Optional relationship type (e.g., "Related pseudogene" for Entrez gene_group)
+	writekey     bool
 }
 
 func (d *Merge) Merge(c *configs.Conf, keep bool) (uint64, uint64, uint64) {
@@ -1602,7 +1605,8 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 				panic("Error while converting to int16 ->" + (*v)[i].String())
 			}
 			xentry.Dataset = uint32(d1)
-			xentry.Evidence = (*v)[i].evidence  // Set evidence code if present
+			xentry.Evidence = (*v)[i].evidence         // Set evidence code if present
+			xentry.Relationship = (*v)[i].relationship // Set relationship type if present
 			entries[i] = &xentry
 		}
 		entriesArr[index] = entries
@@ -1742,10 +1746,24 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 				ffjson.Unmarshal(barr, attr)
 				xref.Attributes = &pbuf.Xref_Mesh{attr}
 			case "entrez":
-				attr := &pbuf.EntrezAttr{}
-				barr := []byte((*kvProp[k])[0].value)
-				ffjson.Unmarshal(barr, attr)
-				xref.Attributes = &pbuf.Xref_Entrez{attr}
+				// Merge multiple EntrezAttr properties (gene_info + gene_neighbors)
+				if valPropIdx[k] > 1 {
+					finalAttr := pbuf.EntrezAttr{}
+					for a := 0; a < valPropIdx[k]; a++ {
+						barr := []byte((*kvProp[k])[a].value)
+						attr := &pbuf.EntrezAttr{}
+						ffjson.Unmarshal(barr, attr)
+						if err := mergo.Merge(&finalAttr, attr, mergo.WithAppendSlice); err != nil {
+							panic(err)
+						}
+					}
+					xref.Attributes = &pbuf.Xref_Entrez{&finalAttr}
+				} else {
+					attr := &pbuf.EntrezAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_Entrez{attr}
+				}
 			case "interpro":
 				attr := &pbuf.InterproAttr{}
 				barr := []byte((*kvProp[k])[0].value)
@@ -1997,10 +2015,24 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 					ffjson.Unmarshal(barr, attr)
 					xref.Attributes = &pbuf.Xref_Mesh{attr}
 				case "entrez":
-					attr := &pbuf.EntrezAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_Entrez{attr}
+					// Merge multiple EntrezAttr properties (gene_info + gene_neighbors)
+					if valPropIdx[k] > 1 {
+						finalAttr := pbuf.EntrezAttr{}
+						for a := 0; a < valPropIdx[k]; a++ {
+							barr := []byte((*kvProp[k])[a].value)
+							attr := &pbuf.EntrezAttr{}
+							ffjson.Unmarshal(barr, attr)
+							if err := mergo.Merge(&finalAttr, attr, mergo.WithAppendSlice); err != nil {
+								panic(err)
+							}
+						}
+						xref.Attributes = &pbuf.Xref_Entrez{&finalAttr}
+					} else {
+						attr := &pbuf.EntrezAttr{}
+						barr := []byte((*kvProp[k])[0].value)
+						ffjson.Unmarshal(barr, attr)
+						xref.Attributes = &pbuf.Xref_Entrez{attr}
+					}
 				}
 			}
 
@@ -2057,7 +2089,8 @@ func (d *Merge) toProtoPage(id string, dataset string, v *[]kvMessage, valIdx in
 			panic("Error while converting to int16 ->" + (*v)[i].valuedb)
 		}
 		xentry.Dataset = uint32(d1)
-		xentry.Evidence = (*v)[i].evidence  // Set evidence code if present
+		xentry.Evidence = (*v)[i].evidence         // Set evidence code if present
+		xentry.Relationship = (*v)[i].relationship // Set relationship type if present
 		entries[i] = &xentry
 		totalCount++
 	}

@@ -23331,6 +23331,26 @@ func (j *EntrezAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.WriteJsonString(buf, string(j.Summary))
 		buf.WriteByte(',')
 	}
+	if j.StartPosition != 0 {
+		buf.WriteString(`"start_position":`)
+		fflib.FormatBits2(buf, uint64(j.StartPosition), 10, j.StartPosition < 0)
+		buf.WriteByte(',')
+	}
+	if j.EndPosition != 0 {
+		buf.WriteString(`"end_position":`)
+		fflib.FormatBits2(buf, uint64(j.EndPosition), 10, j.EndPosition < 0)
+		buf.WriteByte(',')
+	}
+	if len(j.Orientation) != 0 {
+		buf.WriteString(`"orientation":`)
+		fflib.WriteJsonString(buf, string(j.Orientation))
+		buf.WriteByte(',')
+	}
+	if len(j.GenomicAccession) != 0 {
+		buf.WriteString(`"genomic_accession":`)
+		fflib.WriteJsonString(buf, string(j.GenomicAccession))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -23351,6 +23371,14 @@ const (
 	ffjtEntrezAttrChromosome
 
 	ffjtEntrezAttrSummary
+
+	ffjtEntrezAttrStartPosition
+
+	ffjtEntrezAttrEndPosition
+
+	ffjtEntrezAttrOrientation
+
+	ffjtEntrezAttrGenomicAccession
 )
 
 var ffjKeyEntrezAttrName = []byte("name")
@@ -23364,6 +23392,14 @@ var ffjKeyEntrezAttrSynonyms = []byte("synonyms")
 var ffjKeyEntrezAttrChromosome = []byte("chromosome")
 
 var ffjKeyEntrezAttrSummary = []byte("summary")
+
+var ffjKeyEntrezAttrStartPosition = []byte("start_position")
+
+var ffjKeyEntrezAttrEndPosition = []byte("end_position")
+
+var ffjKeyEntrezAttrOrientation = []byte("orientation")
+
+var ffjKeyEntrezAttrGenomicAccession = []byte("genomic_accession")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *EntrezAttr) UnmarshalJSON(input []byte) error {
@@ -23434,10 +23470,34 @@ mainparse:
 						goto mainparse
 					}
 
+				case 'e':
+
+					if bytes.Equal(ffjKeyEntrezAttrEndPosition, kn) {
+						currentKey = ffjtEntrezAttrEndPosition
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'g':
+
+					if bytes.Equal(ffjKeyEntrezAttrGenomicAccession, kn) {
+						currentKey = ffjtEntrezAttrGenomicAccession
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 'n':
 
 					if bytes.Equal(ffjKeyEntrezAttrName, kn) {
 						currentKey = ffjtEntrezAttrName
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'o':
+
+					if bytes.Equal(ffjKeyEntrezAttrOrientation, kn) {
+						currentKey = ffjtEntrezAttrOrientation
 						state = fflib.FFParse_want_colon
 						goto mainparse
 					}
@@ -23458,6 +23518,11 @@ mainparse:
 						currentKey = ffjtEntrezAttrSummary
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyEntrezAttrStartPosition, kn) {
+						currentKey = ffjtEntrezAttrStartPosition
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 't':
@@ -23468,6 +23533,30 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.EqualFoldRight(ffjKeyEntrezAttrGenomicAccession, kn) {
+					currentKey = ffjtEntrezAttrGenomicAccession
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyEntrezAttrOrientation, kn) {
+					currentKey = ffjtEntrezAttrOrientation
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyEntrezAttrEndPosition, kn) {
+					currentKey = ffjtEntrezAttrEndPosition
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyEntrezAttrStartPosition, kn) {
+					currentKey = ffjtEntrezAttrStartPosition
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.EqualFoldRight(ffjKeyEntrezAttrSummary, kn) {
@@ -23540,6 +23629,18 @@ mainparse:
 
 				case ffjtEntrezAttrSummary:
 					goto handle_Summary
+
+				case ffjtEntrezAttrStartPosition:
+					goto handle_StartPosition
+
+				case ffjtEntrezAttrEndPosition:
+					goto handle_EndPosition
+
+				case ffjtEntrezAttrOrientation:
+					goto handle_Orientation
+
+				case ffjtEntrezAttrGenomicAccession:
+					goto handle_GenomicAccession
 
 				case ffjtEntrezAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -23752,6 +23853,118 @@ handle_Summary:
 			outBuf := fs.Output.Bytes()
 
 			j.Summary = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_StartPosition:
+
+	/* handler: j.StartPosition type=int64 kind=int64 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for int64", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseInt(fs.Output.Bytes(), 10, 64)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.StartPosition = int64(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_EndPosition:
+
+	/* handler: j.EndPosition type=int64 kind=int64 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for int64", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseInt(fs.Output.Bytes(), 10, 64)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.EndPosition = int64(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Orientation:
+
+	/* handler: j.Orientation type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Orientation = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_GenomicAccession:
+
+	/* handler: j.GenomicAccession type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.GenomicAccession = string(string(outBuf))
 
 		}
 	}

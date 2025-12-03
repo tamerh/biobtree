@@ -11935,6 +11935,11 @@ func (j *XrefEntry) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.WriteJsonString(buf, string(j.Evidence))
 		buf.WriteByte(',')
 	}
+	if len(j.Relationship) != 0 {
+		buf.WriteString(`"relationship":`)
+		fflib.WriteJsonString(buf, string(j.Relationship))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -11951,6 +11956,8 @@ const (
 	ffjtXrefEntryIdentifier
 
 	ffjtXrefEntryEvidence
+
+	ffjtXrefEntryRelationship
 )
 
 var ffjKeyXrefEntryDataset = []byte("dataset")
@@ -11960,6 +11967,8 @@ var ffjKeyXrefEntryDatasetName = []byte("dataset_name")
 var ffjKeyXrefEntryIdentifier = []byte("identifier")
 
 var ffjKeyXrefEntryEvidence = []byte("evidence")
+
+var ffjKeyXrefEntryRelationship = []byte("relationship")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *XrefEntry) UnmarshalJSON(input []byte) error {
@@ -12051,6 +12060,20 @@ mainparse:
 						goto mainparse
 					}
 
+				case 'r':
+
+					if bytes.Equal(ffjKeyXrefEntryRelationship, kn) {
+						currentKey = ffjtXrefEntryRelationship
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				}
+
+				if fflib.EqualFoldRight(ffjKeyXrefEntryRelationship, kn) {
+					currentKey = ffjtXrefEntryRelationship
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.SimpleLetterEqualFold(ffjKeyXrefEntryEvidence, kn) {
@@ -12105,6 +12128,9 @@ mainparse:
 
 				case ffjtXrefEntryEvidence:
 					goto handle_Evidence
+
+				case ffjtXrefEntryRelationship:
+					goto handle_Relationship
 
 				case ffjtXrefEntrynosuchkey:
 					err = fs.SkipField(tok)
@@ -12221,6 +12247,32 @@ handle_Evidence:
 			outBuf := fs.Output.Bytes()
 
 			j.Evidence = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Relationship:
+
+	/* handler: j.Relationship type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Relationship = string(string(outBuf))
 
 		}
 	}

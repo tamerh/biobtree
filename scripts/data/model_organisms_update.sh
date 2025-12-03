@@ -29,6 +29,7 @@ if [[ -z $1 ]]; then
     echo "  --core2-only      Run only core part 2 job"
     echo "  --core3-only      Run only core part 3 job (dbsnp - large dataset)"
     echo "  --core4-only      Run only core part 4 job (pubchem datasets)"
+    echo "  --core5-only      Run only core part 5 job (entrez gene)"
     echo "  --ensembl-only    Run only Ensembl job"
     echo "  --maxcpu <N>      Maximum number of CPUs for biobtree (default: 4)"
     exit 1
@@ -39,6 +40,7 @@ RUN_CORE1="true"        # Default: run core1
 RUN_CORE2="true"        # Default: run core2
 RUN_CORE3="true"        # Default: run core3 (dbsnp)
 RUN_CORE4="true"        # Default: run core4 (pubchem)
+RUN_CORE5="true"        # Default: run core5 (entrez)
 RUN_ENSEMBL="true"      # Default: run ensembl
 MAXCPU=8                # Default: 8 CPUs
 
@@ -51,6 +53,7 @@ while [[ $# -gt 0 ]]; do
             RUN_CORE2="false"
             RUN_CORE3="false"
             RUN_CORE4="false"
+            RUN_CORE5="false"
             RUN_ENSEMBL="false"
             shift
             ;;
@@ -59,6 +62,7 @@ while [[ $# -gt 0 ]]; do
             RUN_CORE2="true"
             RUN_CORE3="false"
             RUN_CORE4="false"
+            RUN_CORE5="false"
             RUN_ENSEMBL="false"
             shift
             ;;
@@ -67,6 +71,7 @@ while [[ $# -gt 0 ]]; do
             RUN_CORE2="false"
             RUN_CORE3="true"
             RUN_CORE4="false"
+            RUN_CORE5="false"
             RUN_ENSEMBL="false"
             shift
             ;;
@@ -75,6 +80,16 @@ while [[ $# -gt 0 ]]; do
             RUN_CORE2="false"
             RUN_CORE3="false"
             RUN_CORE4="true"
+            RUN_CORE5="false"
+            RUN_ENSEMBL="false"
+            shift
+            ;;
+        --core5-only)
+            RUN_CORE1="false"
+            RUN_CORE2="false"
+            RUN_CORE3="false"
+            RUN_CORE4="false"
+            RUN_CORE5="true"
             RUN_ENSEMBL="false"
             shift
             ;;
@@ -83,6 +98,7 @@ while [[ $# -gt 0 ]]; do
             RUN_CORE2="false"
             RUN_CORE3="false"
             RUN_CORE4="false"
+            RUN_CORE5="false"
             RUN_ENSEMBL="true"
             shift
             ;;
@@ -96,7 +112,7 @@ while [[ $# -gt 0 ]]; do
             ;;
         *)
             echo "Unknown option: $1"
-            echo "Valid options: --core1-only, --core2-only, --core3-only, --core4-only, --ensembl-only, --maxcpu <N>"
+            echo "Valid options: --core1-only, --core2-only, --core3-only, --core4-only, --core5-only, --ensembl-only, --maxcpu <N>"
             exit 1
             ;;
     esac
@@ -106,7 +122,7 @@ echo "============================================"
 echo "Biobtree Model Organisms - UPDATE Phase"
 echo "============================================"
 echo "Output directory: $OUT_DIR"
-echo "Jobs to run: Core1=$RUN_CORE1, Core2=$RUN_CORE2, Core3=$RUN_CORE3, Core4=$RUN_CORE4, Ensembl=$RUN_ENSEMBL"
+echo "Jobs to run: Core1=$RUN_CORE1, Core2=$RUN_CORE2, Core3=$RUN_CORE3, Core4=$RUN_CORE4, Core5=$RUN_CORE5, Ensembl=$RUN_ENSEMBL"
 echo "Max CPUs: $MAXCPU"
 echo "Execution: SEQUENTIAL (one job at a time with retry)"
 echo ""
@@ -141,6 +157,7 @@ echo "  - Core part 2: chebi, alphafold, rnacentral, reactome,"
 echo "                 clinical_trials, patent, string, bgee, ontology"
 echo "  - Core part 3: dbsnp (large dataset, prone to FTP issues)"
 echo "  - Core part 4: pubchem, pubchem_activity, pubchem_assay"
+echo "  - Core part 5: entrez gene (large dataset, 64M+ genes)"
 echo "  - Ensembl genomes (16 model organisms, strain-specific IDs)"
 echo ""
 echo "Retry policy: Each job will be retried once if it fails (max 2 attempts)"
@@ -168,6 +185,8 @@ CORE_PART2="chebi,alphafold,rnacentral,reactome,clinical_trials,patent,string,bg
 CORE_PART3="dbsnp"
 # Part 4: PubChem datasets
 CORE_PART4="pubchem,pubchem_activity,pubchem_assay"
+# Part 5: Entrez Gene (large dataset, 64M+ genes)
+CORE_PART5="entrez"
 
 # Calculate total jobs to run
 TOTAL_JOBS=0
@@ -175,6 +194,7 @@ TOTAL_JOBS=0
 [[ "$RUN_CORE2" == "true" ]] && ((TOTAL_JOBS++)) || true
 [[ "$RUN_CORE3" == "true" ]] && ((TOTAL_JOBS++)) || true
 [[ "$RUN_CORE4" == "true" ]] && ((TOTAL_JOBS++)) || true
+[[ "$RUN_CORE5" == "true" ]] && ((TOTAL_JOBS++)) || true
 [[ "$RUN_ENSEMBL" == "true" ]] && ((TOTAL_JOBS++)) || true
 
 JOB_NUM=0
@@ -294,7 +314,23 @@ if [[ "$RUN_CORE4" == "true" ]]; then
     fi
 fi
 
-# 5. Run Ensembl job (if enabled)
+# 5. Run core part 5 job (entrez) (if enabled)
+if [[ "$RUN_CORE5" == "true" ]]; then
+    ((++JOB_NUM))
+    echo ""
+    echo "[${JOB_NUM}/${TOTAL_JOBS}] Core Part 5 (entrez)"
+    rm -rf ${OUT_DIR}/core_part5
+    mkdir -p ${OUT_DIR}/core_part5
+
+    CMD="./biobtree $BB_DEFAULT_PARAM -d \"${CORE_PART5}\" --out-dir \"${OUT_DIR}/core_part5\" -idx core_part5 update"
+
+    if ! run_job_with_retry "Core Part 5 (entrez)" "$CMD" "logs/core_part5_entrez.log" "${OUT_DIR}/core_part5"; then
+        echo "ERROR: Core Part 5 (entrez) failed after retries. Exiting."
+        exit 1
+    fi
+fi
+
+# 6. Run Ensembl job (if enabled)
 if [[ "$RUN_ENSEMBL" == "true" ]]; then
     ((++JOB_NUM))
     echo ""
@@ -322,6 +358,7 @@ echo "Log files:"
 [[ "$RUN_CORE2" == "true" ]] && echo "  - logs/core_part2.log"
 [[ "$RUN_CORE3" == "true" ]] && echo "  - logs/core_part3_dbsnp.log"
 [[ "$RUN_CORE4" == "true" ]] && echo "  - logs/core_part4_pubchem.log"
+[[ "$RUN_CORE5" == "true" ]] && echo "  - logs/core_part5_entrez.log"
 [[ "$RUN_ENSEMBL" == "true" ]] && echo "  - logs/ensembl_model.log"
 echo ""
 echo "Next step: Run GENERATE phase with:"

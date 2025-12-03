@@ -45,6 +45,7 @@
 	"lookupDbDir": "/data/scc/ag-gruber/GROUP/tgur/x/bioyoda_dev2/biobtreev2/out_lookup_latest/db",
 	"lookupAliasDbDir": "/data/scc/ag-gruber/GROUP/tgur/x/bioyoda_dev2/biobtreev2/out_lookup_latest/aliasdb",
 	"tmpRuneSize": "10000000",
+	"mergeArraySize": "150000",
 	"mergeCheckpointInterval": "100000",
 	"__dbsnp_config_comment": "dbSNP bucket sort configuration options below",
 	"dbsnpNumBuckets": "100",

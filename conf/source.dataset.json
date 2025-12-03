@@ -972,15 +972,30 @@
     "gene2goPath": "https://ftp.ncbi.nlm.nih.gov/gene/DATA/gene2go.gz",
     "geneSummaryPath": "https://ftp.ncbi.nlm.nih.gov/gene/DATA/gene_summary.gz",
     "geneOrthologsPath": "https://ftp.ncbi.nlm.nih.gov/gene/DATA/gene_orthologs.gz",
+    "gene2pubmedPath": "https://ftp.ncbi.nlm.nih.gov/gene/DATA/gene2pubmed.gz",
+    "geneGroupPath": "https://ftp.ncbi.nlm.nih.gov/gene/DATA/gene_group.gz",
+    "geneNeighborsPath": "https://ftp.ncbi.nlm.nih.gov/gene/DATA/gene_neighbors.gz",
     "useLocalFile": "no",
     "hasFilter": "yes",
-    "attrs": "name,symbol,type,[]synonyms,chromosome,summary",
+    "attrs": "name,symbol,type,[]synonyms,chromosome,summary,start_position,end_position,orientation,genomic_accession",
     "test_entries_count": "1000",
     "bucketMethod": "numeric"
   },
   "orthologentrez": {
     "name": "Entrez Ortholog",
     "id": "54",
+    "url": "https://www.ncbi.nlm.nih.gov/gene/£{id}",
+    "linkdataset": "entrez"
+  },
+  "relatedentrez": {
+    "name": "Entrez Related Gene",
+    "id": "55",
+    "url": "https://www.ncbi.nlm.nih.gov/gene/£{id}",
+    "linkdataset": "entrez"
+  },
+  "neighborentrez": {
+    "name": "Entrez Neighbor Gene",
+    "id": "56",
     "url": "https://www.ncbi.nlm.nih.gov/gene/£{id}",
     "linkdataset": "entrez"
   }

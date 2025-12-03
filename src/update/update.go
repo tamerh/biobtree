@@ -945,10 +945,26 @@ func (d *DataUpdate) addXref(key string, from string, value string, valueFrom st
 // addXrefWithEvidence adds cross-reference with optional evidence code
 // evidence: Optional evidence/quality metadata (e.g., "TAS", "IEA" for Reactome)
 func (d *DataUpdate) addXrefWithEvidence(key string, from string, value string, valueFrom string, isLink bool, evidence string) {
+	// Delegate to the full function with empty relationship
+	d.addXrefFull(key, from, value, valueFrom, isLink, evidence, "")
+}
+
+// addXrefWithRelationship adds cross-reference with relationship type
+// relationship: Type of relationship between entities (e.g., "Related pseudogene" for Entrez gene_group)
+func (d *DataUpdate) addXrefWithRelationship(key string, from string, value string, valueFrom string, isLink bool, relationship string) {
+	// Delegate to the full function with empty evidence
+	d.addXrefFull(key, from, value, valueFrom, isLink, "", relationship)
+}
+
+// addXrefFull adds cross-reference with optional evidence code and relationship type
+// evidence: Optional evidence/quality metadata (e.g., "TAS", "IEA" for Reactome)
+// relationship: Optional relationship type (e.g., "Related pseudogene" for Entrez gene_group)
+func (d *DataUpdate) addXrefFull(key string, from string, value string, valueFrom string, isLink bool, evidence string, relationship string) {
 
 	key = strings.TrimSpace(key)
 	value = strings.TrimSpace(value)
 	evidence = strings.TrimSpace(evidence)
+	relationship = strings.TrimSpace(relationship)
 
 	if len(key) == 0 || len(value) == 0 || len(from) == 0 {
 		return
@@ -973,10 +989,14 @@ func (d *DataUpdate) addXrefWithEvidence(key string, from string, value string, 
 	kup := strings.ToUpper(key)
 	vup := strings.ToUpper(value)
 
-	// Storage format: KEY <tab> FROM <tab> VALUE <tab> DATASETID <tab> EVIDENCE (optional)
+	// Storage format: KEY <tab> FROM <tab> VALUE <tab> DATASETID <tab> EVIDENCE <tab> RELATIONSHIP
+	// Empty fields are stored as empty strings to maintain column positions
 	dataLine := kup + tab + from + tab + vup + tab + config.Dataconf[valueFrom]["id"]
-	if evidence != "" {
+	if evidence != "" || relationship != "" {
 		dataLine += tab + evidence
+		if relationship != "" {
+			dataLine += tab + relationship
+		}
 	}
 
 	if isLink {
@@ -994,11 +1014,14 @@ func (d *DataUpdate) addXrefWithEvidence(key string, from string, value string, 
 		// Text/keyword links route to textsearch buckets (alphabetic by first letter)
 		d.bucketPool.Write(TextSearchDatasetID, kup, dataLine)
 	} else {
-		// Reverse mapping also includes evidence
+		// Reverse mapping also includes evidence and relationship
 		valueFromID := config.Dataconf[valueFrom]["id"]
 		reverseDataLine := vup + tab + valueFromID + tab + kup + tab + from
-		if evidence != "" {
+		if evidence != "" || relationship != "" {
 			reverseDataLine += tab + evidence
+			if relationship != "" {
+				reverseDataLine += tab + relationship
+			}
 		}
 
 		// Check if source or target dataset has bucket config

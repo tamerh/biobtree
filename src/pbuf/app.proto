@@ -187,7 +187,8 @@ message XrefEntry {
   string evidence = 3;  // Evidence code for relationship quality (used by Reactome: TAS, IEA, IEP)
                         // TAS = Traceable Author Statement (manually curated)
                         // IEA = Inferred by Electronic Annotation (computationally inferred)
-                        // Other datasets can add their own fields (e.g., confidence scores)
+  string relationship = 5; // Relationship type between entities (e.g., "Related pseudogene", "Readthrough sibling")
+                           // Used by Entrez gene_group.gz to specify the nature of gene relationships
 
 }
 

@@ -30,7 +30,7 @@ mkdir -p logs
 echo "Starting validation before GENERATE phase..."
 echo ""
 
-# Check for index files in subdirectories (all 5 required for complete DB)
+# Check for index files in subdirectories (all 6 required for complete DB)
 MISSING_FILES=()
 
 if [[ ! -f ${OUT_DIR}/core_part1/index/core_part1.meta.json ]]; then
@@ -47,6 +47,10 @@ fi
 
 if [[ ! -f ${OUT_DIR}/core_part4/index/core_part4.meta.json ]]; then
     MISSING_FILES+=("core_part4")
+fi
+
+if [[ ! -f ${OUT_DIR}/core_part5/index/core_part5.meta.json ]]; then
+    MISSING_FILES+=("core_part5")
 fi
 
 if [[ ! -f ${OUT_DIR}/ensembl_model/index/ensembl_model.meta.json ]]; then
@@ -66,9 +70,10 @@ if [[ ${#MISSING_FILES[@]} -gt 0 ]]; then
     echo "  - ${OUT_DIR}/core_part2/index/core_part2.meta.json"
     echo "  - ${OUT_DIR}/core_part3/index/core_part3.meta.json"
     echo "  - ${OUT_DIR}/core_part4/index/core_part4.meta.json"
+    echo "  - ${OUT_DIR}/core_part5/index/core_part5.meta.json"
     echo "  - ${OUT_DIR}/ensembl_model/index/ensembl_model.meta.json"
     echo ""
-    echo "Make sure UPDATE phase completed successfully for all 5 jobs."
+    echo "Make sure UPDATE phase completed successfully for all 6 jobs."
     echo "Run UPDATE jobs with:"
     echo "  ./scripts/data/model_organisms_update.sh ${OUT_DIR}"
     echo "Or individually:"
@@ -76,18 +81,19 @@ if [[ ${#MISSING_FILES[@]} -gt 0 ]]; then
     echo "  ./scripts/data/model_organisms_update.sh ${OUT_DIR} --core2-only"
     echo "  ./scripts/data/model_organisms_update.sh ${OUT_DIR} --core3-only"
     echo "  ./scripts/data/model_organisms_update.sh ${OUT_DIR} --core4-only"
+    echo "  ./scripts/data/model_organisms_update.sh ${OUT_DIR} --core5-only"
     echo "  ./scripts/data/model_organisms_update.sh ${OUT_DIR} --ensembl-only"
     exit 1
 fi
 
-echo "  ✓ All index files found (core_part1, core_part2, core_part3, core_part4, ensembl_model)"
+echo "  ✓ All index files found (core_part1, core_part2, core_part3, core_part4, core_part5, ensembl_model)"
 echo ""
 
 # Consolidate index files from subdirectories for generate phase
 echo "Consolidating index files..."
 mkdir -p ${OUT_DIR}/index
 
-# Move all five index directories
+# Move all six index directories
 # NOTE: Each part has bucket directories (0/, 1/, 2/, ...) under index/ that we don't need
 #       for generate phase. We only need the *.gz files. Delete bucket dirs first to avoid conflicts.
 
@@ -111,6 +117,11 @@ echo "  - Moving core_part4 index..."
 find ${OUT_DIR}/core_part4/index -mindepth 1 -maxdepth 1 -type d -exec rm -rf {} +
 mv ${OUT_DIR}/core_part4/index/* ${OUT_DIR}/index/
 rm -rf ${OUT_DIR}/core_part4
+
+echo "  - Moving core_part5 index..."
+find ${OUT_DIR}/core_part5/index -mindepth 1 -maxdepth 1 -type d -exec rm -rf {} +
+mv ${OUT_DIR}/core_part5/index/* ${OUT_DIR}/index/
+rm -rf ${OUT_DIR}/core_part5
 
 echo "  - Moving ensembl_model index..."
 find ${OUT_DIR}/ensembl_model/index -mindepth 1 -maxdepth 1 -type d -exec rm -rf {} +

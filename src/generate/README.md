@@ -28,7 +28,7 @@ type fileState struct {
     gz        *gzip.Reader
     r         *bufio.Reader
     curKey    string        // Current minimum key for this file
-    nextLine  [5]string     // Buffered line data
+    nextLine  [6]string     // Buffered line data (key, db, value, valuedb, evidence, relationship)
     eof       bool
     complete  bool
     heapIndex int           // Position in heap
@@ -111,3 +111,38 @@ Key parameters in `application.param.json`:
 - Workers read compressed gzip files on-the-fly
 - Heap operations are O(log n) where n = number of active files
 - Files are closed immediately when exhausted to release resources
+
+## Bug Fixes (2024)
+
+### Heap Index Stale Reference Fix
+When multiple files complete simultaneously, removing them from the heap caused stale `heapIndex` values. The fix:
+- Sort files to remove by `heapIndex` in **descending order**
+- Remove from highest index first to avoid shifting lower indices
+- For multiple key changes, use `heap.Init()` instead of multiple `heap.Fix()` calls
+
+### 6-Column Index Format
+Extended index line format from 5 to 6 columns to support relationship types:
+```
+key  db  value  valuedb  evidence  relationship
+```
+The 6th column (`relationship`) is used by Entrez gene neighbors to store relationship types like "left_neighbor", "right_neighbor", etc.
+
+### Checkpoint Recovery Enhancement
+Improved checkpoint-database consistency verification:
+- On resume, compares checkpoint's last key with database's actual last key
+- Handles crash scenarios where DB write succeeded but checkpoint save failed
+- Uses the maximum of both keys to avoid duplicate key errors
+
+## Known Limitations
+
+### LMDB Key Size Limit
+LMDB has a maximum key size of ~511 bytes. This affects:
+- **Text search indexing**: Long keywords (gene descriptions, synonyms) that exceed this limit are excluded from text search
+- **Impact**: Some entries may not be findable via text search if their description/name is too long
+- **Future fix**: Will be resolved when full-text search is implemented for keywords (planned to use a separate full-text search engine)
+
+### Memory for Very Large Merges
+While the worker pool architecture dramatically reduces memory, extremely large merges (10B+ KV lines) may still require tuning:
+- Increase `mergeArraySize` if running out of merge arrays
+- Adjust `mergeWorkers` based on available CPU cores
+- Monitor heap usage via checkpoint progress logs

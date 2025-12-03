@@ -41,8 +41,8 @@ This directory contains the testing infrastructure for biobtree datasets.
 
 ## Test Coverage
 
-- **28 Datasets**: HGNC, UniProt, GO, Taxonomy, UniParc, UniRef100, UniRef50, UniRef90, ECO, EFO, ChEBI, InterPro, HMDB, ChEMBL Document, ChEMBL Molecule, ChEMBL Activity, ChEMBL Assay, ChEMBL Target (with Target Component), ChEMBL Cell Line, Ensembl, Ensembl Bacteria, Ensembl Fungi, Ensembl Metazoa, Ensembl Plants, Ensembl Protists, MONDO, Patent, Clinical Trials
-- **308 Total Tests**: 185 declarative (JSON) + 123 custom (Python)
+- **29 Datasets**: HGNC, UniProt, GO, Taxonomy, UniParc, UniRef100, UniRef50, UniRef90, ECO, EFO, ChEBI, InterPro, HMDB, ChEMBL Document, ChEMBL Molecule, ChEMBL Activity, ChEMBL Assay, ChEMBL Target (with Target Component), ChEMBL Cell Line, Ensembl, Ensembl Bacteria, Ensembl Fungi, Ensembl Metazoa, Ensembl Plants, Ensembl Protists, MONDO, Patent, Clinical Trials, Entrez Gene
+- **319 Total Tests**: 190 declarative (JSON) + 129 custom (Python)
 - **9 Test Types**: ID lookup, symbol lookup, name lookup, alias lookup, cross-references, attribute checks, multi-lookup, case-insensitive, invalid ID handling
 
 ### Dataset-Specific Notes
@@ -69,6 +69,8 @@ This directory contains the testing infrastructure for biobtree datasets.
 **Patent**: Uses local SureChEMBL data files (10 patents, 50 compounds, 100 mappings). Tests validate patent metadata (title, country, publication date), classification codes (IPC/CPC), assignees, patent families, and patent-compound relationships. 16 tests (9 declarative + 7 custom). Test builds: ~2.3s. Note: InChI Key/SMILES searchability requires ChEMBL integration.
 
 **Clinical Trials**: Uses local test data (10 trials from test_data/clinical_trials/). Tests validate trial metadata (title, phase, status, study_type), interventions (drugs, therapies), medical conditions, and MONDO disease mappings. 16 tests (9 declarative + 7 custom). Test builds: ~2.3s. Source: Local JSON file with complete trial data including eligibility, outcomes, and facilities. Note: ChEMBL drug molecule cross-references require ChEMBL dataset integration.
+
+**Entrez Gene**: NCBI Entrez Gene dataset with gene records, symbols, descriptions, and cross-references. 11 tests (5 declarative + 6 custom). Tests validate gene ID lookup, symbol search, chromosome location, gene type classification, taxonomy references, and cross-references to GO, HGNC, Ensembl. Reference data extracted from NCBI FTP gene_info.gz. Test builds use 1000 gene entries.
 
 ## Philosophy
 
@@ -176,6 +178,9 @@ Extract reference data from official APIs:
 - **ChEMBL**: `https://www.ebi.ac.uk/chembl/api/data/{type}/{id}.json`
   - Types: document, molecule, activity, assay, target, cell_line
   - Note: target_component embedded in target endpoint
+- **Entrez Gene**: `https://ftp.ncbi.nlm.nih.gov/gene/DATA/gene_info.gz` (FTP bulk download)
+  - Tab-delimited file with all gene records
+  - Reference data extracted by parsing gene_info.gz
 
 ## Configuration
 
@@ -183,6 +188,7 @@ Extract reference data from official APIs:
 - Standard: `"test_entries_count": "100"`
 - Large datasets: `"test_entries_count": "10"` (UniParc, UniRef)
 - ChEMBL: `"test_entries_count": "20"`
+- Entrez Gene: `"test_entries_count": "1000"`
 
 **Test Mode Support**:
 Most parsers support test mode automatically. Add for new datasets:

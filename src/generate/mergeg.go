@@ -797,11 +797,59 @@ func (d *Merge) readNextKeysFromFiles(files []*fileState, skipUntil string) {
 	}
 }
 
+// verifyHeapProperty checks if the heap property is maintained (DEBUG helper)
+// Uncomment and call this after updateHeapAfterRead if debugging heap issues
+// func (d *Merge) verifyHeapProperty() bool {
+// 	h := *d.fileHeap
+// 	valid := true
+// 	for i := 0; i < len(h); i++ {
+// 		if h[i].heapIndex != i {
+// 			log.Printf("HEAP INDEX MISMATCH: h[%d].heapIndex=%d (file=%s curKey=%s)",
+// 				i, h[i].heapIndex, h[i].fileName, h[i].curKey)
+// 			valid = false
+// 		}
+// 		left := 2*i + 1
+// 		right := 2*i + 2
+// 		if left < len(h) && h[left].curKey < h[i].curKey {
+// 			log.Printf("HEAP VIOLATION: h[%d]=%s > h[%d]=%s (left child)",
+// 				i, h[i].curKey, left, h[left].curKey)
+// 			valid = false
+// 		}
+// 		if right < len(h) && h[right].curKey < h[i].curKey {
+// 			log.Printf("HEAP VIOLATION: h[%d]=%s > h[%d]=%s (right child)",
+// 				i, h[i].curKey, right, h[right].curKey)
+// 			valid = false
+// 		}
+// 	}
+// 	return valid
+// }
+
 // updateHeapAfterRead updates the heap after reading next keys from files
+// IMPORTANT: When multiple files are updated, we must handle heap operations carefully.
+// The issue is that heap.Fix/Remove can rearrange the heap, making stored heapIndex values
+// stale for subsequent files. Solution: process removals first (from highest index to lowest),
+// then call heap.Init once to re-heapify all remaining elements.
 func (d *Merge) updateHeapAfterRead(files []*fileState) {
+	// Separate files into completed (to remove) and active (keys changed)
+	var toRemove []*fileState
+	var keysChanged []*fileState
+
 	for _, fs := range files {
 		if fs.complete || fs.eof {
-			// Remove from heap
+			toRemove = append(toRemove, fs)
+		} else {
+			keysChanged = append(keysChanged, fs)
+		}
+	}
+
+	// Remove completed files from heap - sort by heapIndex descending to avoid index shifting issues
+	if len(toRemove) > 0 {
+		// Sort by heapIndex descending so we remove from end first
+		sort.Slice(toRemove, func(i, j int) bool {
+			return toRemove[i].heapIndex > toRemove[j].heapIndex
+		})
+
+		for _, fs := range toRemove {
 			if fs.heapIndex >= 0 && fs.heapIndex < d.fileHeap.Len() {
 				heap.Remove(d.fileHeap, fs.heapIndex)
 			}
@@ -828,12 +876,21 @@ func (d *Merge) updateHeapAfterRead(files []*fileState) {
 				LinesRead: fs.linesRead,
 			}
 			log.Printf("File completed: %s (lines read: %d)", fs.fileName, fs.linesRead)
-		} else {
-			// File got a new key, fix its position in heap
-			if fs.heapIndex >= 0 && fs.heapIndex < d.fileHeap.Len() {
-				heap.Fix(d.fileHeap, fs.heapIndex)
-			}
 		}
+	}
+
+	// For files with changed keys: if only one file changed, use heap.Fix
+	// If multiple files changed, use heap.Init (more efficient than multiple Fix calls
+	// and avoids stale heapIndex issues)
+	if len(keysChanged) == 1 {
+		fs := keysChanged[0]
+		if fs.heapIndex >= 0 && fs.heapIndex < d.fileHeap.Len() {
+			heap.Fix(d.fileHeap, fs.heapIndex)
+		}
+	} else if len(keysChanged) > 1 {
+		// Multiple files changed - use heap.Init to re-heapify
+		// This is O(n) and avoids all stale heapIndex issues
+		heap.Init(d.fileHeap)
 	}
 }
 
@@ -873,7 +930,6 @@ func (d *Merge) mergeg() {
 	for kv := range *d.mergeCh {
 
 		if kv.writekey {
-
 			rootResult := map[string]*[]kvMessage{}
 			valueIdx := map[string]int{}
 			rootPropResult := map[string]*[]kvMessage{}

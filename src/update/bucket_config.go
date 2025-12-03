@@ -72,6 +72,11 @@ type BucketConfig struct {
 	MethodNames []string       // Names of methods (for logging)
 	NumBucketsPerSet []int     // Bucket count for each method/set
 	NumSets     int            // Number of bucket sets (1 for single method)
+
+	// Hybrid mode support (bucketed for known patterns, fallback to kvdatachan for others)
+	// When HybridMode=true and bucket method returns -1, Write() returns false
+	// to signal caller should use kvdatachan fallback
+	HybridMode bool
 }
 
 // linkDatasetMap maps child dataset IDs to their parent dataset IDs
@@ -100,6 +105,13 @@ var fixedBuckets = map[string]int{
 	"rnacentral":     256, // hex 00-FF
 	"uniref":         55,  // alphabetic on member ID (uses alphabeticBucket)
 	"patent_nodash":  55,  // alphabetic for no-dash patents (uses alphabeticBucket)
+}
+
+// hybridBucketMethods defines methods that support hybrid mode
+// These methods return -1 for unrecognized patterns, triggering fallback to kvdatachan
+// Map value is the number of sets the hybrid method uses
+var hybridBucketMethods = map[string]int{
+	"ensembl_hybrid": EnsemblHybridNumSets, // 6 sets: ENSG, ENSMUSG, ENSRNOG, ENSUMUG, ENSDARG, FBGN
 }
 
 // LoadBucketConfigs reads bucket configuration from loaded Dataconf
@@ -215,21 +227,54 @@ func LoadBucketConfigs() map[string]*BucketConfig {
 				numBuckets = fixed
 			}
 
-			cfgs[datasetID] = &BucketConfig{
-				DatasetID:      datasetID,
-				DatasetName:    datasetName,
-				MethodName:     methodName,
-				NumBuckets:     numBuckets,
-				Method:         method,
-				SkipBucketSort: skipSort,
-				NumSets:        1,
-				Methods:        []BucketMethod{method},
-				MethodNames:    []string{methodName},
-				NumBucketsPerSet: []int{numBuckets},
-			}
+			// Check if this is a hybrid bucket method
+			hybridNumSets, isHybrid := hybridBucketMethods[methodName]
+			if isHybrid {
+				// Hybrid mode: create multi-set config with fallback support
+				// Total buckets = numSets * numBuckets (encoded as setIndex * numBuckets + bucket)
+				totalBuckets := hybridNumSets * numBuckets
 
-			log.Printf("Bucket config loaded: %s (ID:%s) method=%s buckets=%d skipSort=%v",
-				datasetName, datasetID, methodName, numBuckets, skipSort)
+				// Create per-set bucket counts (all sets use same numBuckets)
+				bucketsPerSet := make([]int, hybridNumSets)
+				for i := 0; i < hybridNumSets; i++ {
+					bucketsPerSet[i] = numBuckets
+				}
+
+				cfgs[datasetID] = &BucketConfig{
+					DatasetID:        datasetID,
+					DatasetName:      datasetName,
+					MethodName:       methodName,
+					NumBuckets:       totalBuckets,
+					Method:           method,
+					SkipBucketSort:   skipSort,
+					NumSets:          hybridNumSets,
+					Methods:          []BucketMethod{method},
+					MethodNames:      []string{methodName},
+					NumBucketsPerSet: bucketsPerSet,
+					HybridMode:       true,
+				}
+
+				log.Printf("Bucket config loaded (hybrid): %s (ID:%s) method=%s sets=%d buckets=%d totalBuckets=%d skipSort=%v",
+					datasetName, datasetID, methodName, hybridNumSets, numBuckets, totalBuckets, skipSort)
+			} else {
+				// Standard single-method config
+				cfgs[datasetID] = &BucketConfig{
+					DatasetID:      datasetID,
+					DatasetName:    datasetName,
+					MethodName:     methodName,
+					NumBuckets:     numBuckets,
+					Method:         method,
+					SkipBucketSort: skipSort,
+					NumSets:        1,
+					Methods:        []BucketMethod{method},
+					MethodNames:    []string{methodName},
+					NumBucketsPerSet: []int{numBuckets},
+					HybridMode:     false,
+				}
+
+				log.Printf("Bucket config loaded: %s (ID:%s) method=%s buckets=%d skipSort=%v",
+					datasetName, datasetID, methodName, numBuckets, skipSort)
+			}
 		}
 	}
 

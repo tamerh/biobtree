@@ -32,7 +32,9 @@
     "useLocalFile": "no",
     "hasFilter": "yes",
     "attrs": "name,description,start,end,biotype,genome,strand,seq_region,branch",
-    "test_entries_count": "20"
+    "test_entries_count": "20",
+    "bucketMethod": "ensembl_hybrid",
+    "numBuckets": "100"
   },
   "taxonomy": {
     "id": "3",

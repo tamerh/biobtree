@@ -102,7 +102,11 @@ func NewHybridWriterPoolWithWorkers(configs map[string]*BucketConfig, fallbackCh
 // For link datasets (parent/child), routes to the parent dataset's buckets
 // Direct write with per-bucket mutex - no channel overhead
 // Supports multi-bucket-set configs: tries methods in order, uses first matching set
-func (p *HybridWriterPool) Write(datasetID string, entityID string, line string) {
+//
+// Returns:
+//   - true: data was written to bucket successfully
+//   - false: data should go to kvdatachan fallback (no bucket config, or hybrid mode fallback)
+func (p *HybridWriterPool) Write(datasetID string, entityID string, line string) bool {
 	// Fast path: check original datasetID first (most common case)
 	cfg, hasBucket := p.bucketConfigs[datasetID]
 	keys := p.bucketKeys[datasetID]
@@ -122,8 +126,8 @@ func (p *HybridWriterPool) Write(datasetID string, entityID string, line string)
 	if hasBucket {
 		var bucketKey string
 
-		if cfg.NumSets > 1 {
-			// Multi-bucket-set: try each method in order, use first match
+		if cfg.NumSets > 1 && !cfg.HybridMode {
+			// Multi-bucket-set (non-hybrid): try each method in order, use first match
 			for setIdx, method := range cfg.Methods {
 				bucketNum := method(entityID, cfg.NumBucketsPerSet[setIdx])
 				if bucketNum >= 0 {
@@ -136,9 +140,31 @@ func (p *HybridWriterPool) Write(datasetID string, entityID string, line string)
 				// No method matched - this shouldn't happen if last method is a catch-all
 				log.Printf("WARNING: No bucket method matched for dataset=%s id='%s' - using fallback",
 					cfg.DatasetName, entityID)
-				*p.fallbackChan <- line
-				return
+				return false
 			}
+		} else if cfg.HybridMode {
+			// Hybrid mode: bucket method returns encoded (setIndex * numBucketsPerSet + bucket)
+			// or -1 for fallback
+			numBucketsPerSet := cfg.NumBucketsPerSet[0] // All sets have same bucket count in hybrid
+			encodedBucket := cfg.Method(entityID, numBucketsPerSet)
+
+			if encodedBucket < 0 {
+				// Fallback to kvdatachan for unrecognized patterns
+				return false
+			}
+
+			// Decode: setIndex = encodedBucket / numBucketsPerSet, bucket = encodedBucket % numBucketsPerSet
+			setIdx := encodedBucket / numBucketsPerSet
+			bucket := encodedBucket % numBucketsPerSet
+
+			// Safety check
+			if setIdx >= cfg.NumSets {
+				log.Printf("WARNING: Hybrid bucket setIdx=%d >= NumSets=%d for dataset=%s id='%s' - using fallback",
+					setIdx, cfg.NumSets, cfg.DatasetName, entityID)
+				return false
+			}
+
+			bucketKey = fmt.Sprintf("%s_%d_%d", resolvedDatasetID, setIdx, bucket)
 		} else if keys != nil {
 			// Single bucket set: use pre-computed keys
 			bucketNum := cfg.Method(entityID, cfg.NumBuckets)
@@ -152,13 +178,17 @@ func (p *HybridWriterPool) Write(datasetID string, entityID string, line string)
 
 			bucketKey = keys[bucketNum]
 		} else {
-			// Fallback to kvdatachan
-			*p.fallbackChan <- line
-			return
+			// No keys available - fallback
+			return false
 		}
 
 		// Get bucket file and write directly with mutex
 		bf := p.bucketFiles[bucketKey]
+		if bf == nil {
+			log.Printf("WARNING: No bucket file for key=%s dataset=%s id='%s' - using fallback",
+				bucketKey, cfg.DatasetName, entityID)
+			return false
+		}
 
 		bf.mutex.Lock()
 
@@ -169,7 +199,7 @@ func (p *HybridWriterPool) Write(datasetID string, entityID string, line string)
 			if err != nil {
 				bf.mutex.Unlock()
 				fmt.Printf("Error creating bucket file %s: %v\n", bf.filePath, err)
-				return
+				return false
 			}
 			bf.buf = bufio.NewWriterSize(bf.file, BucketWriteBufferSize)
 			bf.created = true
@@ -181,10 +211,11 @@ func (p *HybridWriterPool) Write(datasetID string, entityID string, line string)
 		bf.lineCount++
 
 		bf.mutex.Unlock()
-	} else {
-		// Fallback to kvdatachan
-		*p.fallbackChan <- line
+		return true
 	}
+
+	// No bucket config - fallback
+	return false
 }
 
 // GetTotalWrites returns the total number of lines written to buckets

@@ -25,6 +25,10 @@ import (
 const textLinkID = "0"
 const textStoreID = "-1"
 
+// LMDBMaxKeySize is the maximum key size for LMDB (default 511 bytes)
+// Keys longer than this will be skipped to prevent MDB_BAD_VALSIZE errors
+const LMDBMaxKeySize = 511
+
 var fileBufSize = 65536
 var channelOverflowCap = 100000
 
@@ -976,6 +980,17 @@ func (d *DataUpdate) addXrefWithEvidence(key string, from string, value string, 
 	}
 
 	if isLink {
+		// Skip keys that exceed LMDB max key size (prevents MDB_BAD_VALSIZE errors)
+		if len(kup) > LMDBMaxKeySize {
+			// Log first 100 chars of skipped key for debugging
+			preview := kup
+			if len(preview) > 100 {
+				preview = preview[:100] + "..."
+			}
+			log.Printf("[TextSearch] Skipping long key (%d bytes > %d max) from %s: %s",
+				len(kup), LMDBMaxKeySize, from, preview)
+			return
+		}
 		// Text/keyword links route to textsearch buckets (alphabetic by first letter)
 		d.bucketPool.Write(TextSearchDatasetID, kup, dataLine)
 	} else {
@@ -1128,8 +1143,19 @@ func (d *DataUpdate) addXrefBucketed(key, from, value, valueFrom string, isLink 
 	d.bucketPool.WriteXref(from, kup, forwardLine, valueFromID, vup, reverseLine)
 
 	// Text search link (always goes to kvdatachan)
+	// Skip keys that exceed LMDB max key size (prevents MDB_BAD_VALSIZE errors)
 	if isLink {
-		*d.kvdatachan <- kup + tab + textLinkID + tab + vup + tab + from
+		if len(kup) > LMDBMaxKeySize {
+			// Log first 100 chars of skipped key for debugging
+			preview := kup
+			if len(preview) > 100 {
+				preview = preview[:100] + "..."
+			}
+			log.Printf("[TextSearch] Skipping long key (%d bytes > %d max) from %s: %s",
+				len(kup), LMDBMaxKeySize, from, preview)
+		} else {
+			*d.kvdatachan <- kup + tab + textLinkID + tab + vup + tab + from
+		}
 	}
 }
 

@@ -1,4 +1,4 @@
-# Biobtree
+a# Biobtree
 
 
 Biobtree is a bioinformatics tool which allows mapping the bioinformatics datasets
@@ -468,6 +468,7 @@ conf/
 ├── default.dataset.json        # Derived datasets (via xref, included by default)
 ├── optional.dataset.json       # Derived datasets (optional, excluded to reduce data size)
 ├── medical_term_mappings.json  # Medical terminology mappings
+├── aliases.json                # Predefined ID sets for batch queries
 └── ensembl/                    # Ensembl genome metadata
     ├── ensembl.paths.json
     ├── ensembl_bacteria.paths.json
@@ -492,6 +493,15 @@ conf/
 **`application.param.json`**: Main configuration file for biobtree application settings including database backend, remote checks, and runtime parameters.
 
 **`medical_term_mappings.json`**: Configuration for medical terminology mappings used in clinical and disease-related datasets.
+
+**`aliases.json`**: Define named aliases for batch queries. Use `alias:name` in queries to expand to predefined ID sets. Supports inline IDs or external file references for large sets:
+```json
+{
+  "my_genes": {"ids": ["ENSG00000139618", "ENSG00000141510"]},
+  "large_set": {"file": "gene_list.txt"}
+}
+```
+Query with: `localhost:9292/ws/search?i=alias:my_genes`
 
 **`ensembl/*.paths.json`**: Path configurations for different Ensembl genome divisions (main, bacteria, fungi, metazoa, plants, protists).
 

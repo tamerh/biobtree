@@ -1,0 +1,14 @@
+{
+  "_example_small": {
+    "description": "Example small alias with inline IDs (keys starting with _ are ignored)",
+    "ids": ["ENSG00000139618", "ENSG00000141510", "ENSG00000157764"]
+  },
+  "example2": {
+    "description": "example2 for go",
+    "ids": ["GO:0000025","GO:0000026","GO:0000027"]
+  },
+  "_example_large": {
+    "description": "Example large alias referencing external file",
+    "file": "large_alias_ids.txt"
+  }
+}

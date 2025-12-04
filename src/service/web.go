@@ -392,6 +392,14 @@ func (web *Web) search(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		ids, err = web.service.aliasIDs(qids[0][6:])
+		if err != nil {
+			errStr := errString{Err: err.Error()}
+			jb, _ := ffjson.Marshal(errStr)
+			buf.WriteString(string(jb))
+			w.Write([]byte(buf.String()))
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
 	} else {
 		ids = strings.Split(qids[0], ",")
 		for i := 0; i < len(ids); i++ {
@@ -539,6 +547,14 @@ func (web *Web) mapFilter(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		ids, err = web.service.aliasIDs(qids[0][6:])
+		if err != nil {
+			errStr := errString{Err: err.Error()}
+			jb, _ := ffjson.Marshal(errStr)
+			buf.WriteString(string(jb))
+			w.Write([]byte(buf.String()))
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
 	} else {
 		ids = strings.Split(qids[0], ",")
 		for i := 0; i < len(ids); i++ {

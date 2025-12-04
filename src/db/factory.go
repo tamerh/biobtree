@@ -83,23 +83,6 @@ func (d *DB) OpenDBWithBackend(backend Backend, write bool, totalKV int64, appco
 	return NewEnv(backend, cfg)
 }
 
-// OpenAliasDBWithBackend opens an alias database with the specified backend
-func (d *DB) OpenAliasDBWithBackend(backend Backend, write bool, size int64, appconf map[string]string) (Env, DBI, error) {
-	lmdbSize := size * 2
-
-	cfg := &Config{
-		Backend:   backend,
-		Dir:       filepath.FromSlash(appconf["aliasDbDir"]),
-		MapSize:   lmdbSize,
-		MaxDBs:    1,
-		WriteMode: write,
-		TotalKV:   0, // Not used for alias DB
-		AppConf:   appconf,
-	}
-
-	return NewEnv(backend, cfg)
-}
-
 // GetBackendFromConfig returns the backend type from application configuration
 // Defaults to LMDB (proven stability), but can be overridden to MDBX via config
 func GetBackendFromConfig(appconf map[string]string) Backend {

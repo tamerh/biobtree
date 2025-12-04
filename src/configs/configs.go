@@ -249,19 +249,9 @@ func (c *Conf) Init(rootDir, bbBinaryVersion, outDir string, optionalDatasetActi
 		c.Appconf["dbDir"] = c.Appconf["outDir"] + "/db"
 	}
 
-	_, ok = c.Appconf["aliasDbDir"]
-	if !ok {
-		c.Appconf["aliasDbDir"] = c.Appconf["outDir"] + "/aliasdb"
-	}
-
 	_, ok = c.Appconf["indexDir"]
 	if !ok {
 		c.Appconf["indexDir"] = c.Appconf["outDir"] + "/index"
-	}
-
-	_, ok = c.Appconf["idDir"]
-	if !ok {
-		c.Appconf["idDir"] = c.Appconf["outDir"] + "/alias"
 	}
 
 	_, ok = c.Appconf["ensemblDir"]
@@ -269,13 +259,16 @@ func (c *Conf) Init(rootDir, bbBinaryVersion, outDir string, optionalDatasetActi
 		c.Appconf["ensemblDir"] = c.Appconf["rootDir"] + "conf/ensembl"
 	}
 
+	_, ok = c.Appconf["confDir"]
+	if !ok {
+		c.Appconf["confDir"] = c.Appconf["rootDir"] + "conf"
+	}
+
 	//create dirs if missing
 	//todo check error properly
 	_ = os.Mkdir(filepath.FromSlash(c.Appconf["outDir"]), 0700)
 	_ = os.Mkdir(filepath.FromSlash(c.Appconf["indexDir"]), 0700)
-	_ = os.Mkdir(filepath.FromSlash(c.Appconf["idDir"]), 0700)
 	_ = os.Mkdir(filepath.FromSlash(c.Appconf["dbDir"]), 0700)
-	_ = os.Mkdir(filepath.FromSlash(c.Appconf["aliasDbDir"]), 0700)
 	_ = os.Mkdir(filepath.FromSlash(c.Appconf["ensemblDir"]), 0700)
 
 	if _, ok := c.Appconf["fileBufferSize"]; ok {

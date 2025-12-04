@@ -242,21 +242,7 @@ func main() {
 }
 
 func runAliasCommand(c *cli.Context) error {
-
-	log.Println("Alias running...")
-	start := time.Now()
-	confdir := c.GlobalString("confdir")
-	outDir := c.GlobalString("out-dir")
-	includeOptionals := c.GlobalBool("include-optionals")
-	config = &configs.Conf{}
-	config.Init(confdir, versionTag, outDir, includeOptionals)
-
-	var ali = update.Alias{}
-	ali.Merge(config)
-
-	elapsed := time.Since(start)
-	log.Printf("Alias took %s", elapsed)
-
+	log.Printf("Alias command deprecated - aliases are now loaded from conf/aliases.json at runtime")
 	return nil
 }
 
@@ -591,9 +577,6 @@ func runGenerateCommand(c *cli.Context) error {
 	}
 
 	keep := c.GlobalBool("keep")
-
-	var ali = update.Alias{}
-	ali.Merge(config)
 
 	var d = generate.Merge{}
 

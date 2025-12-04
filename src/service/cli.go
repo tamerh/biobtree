@@ -22,7 +22,6 @@ func (cli *CLI) Query(conf *configs.Conf, queryStr string, datasetFilter string,
 	cli.service = service{}
 	cli.service.init()
 	defer cli.service.readEnv.Close()
-	defer cli.service.aliasEnv.Close()
 
 	// Parse dataset filter (optional)
 	var datasetID uint32

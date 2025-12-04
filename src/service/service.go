@@ -33,8 +33,7 @@ const pagingSep4 = "]["
 type service struct {
 	readEnv                  db.Env
 	readDbi                  db.DBI
-	aliasEnv                 db.Env
-	aliasDbi                 db.DBI
+	aliasStore               *AliasStore
 	pager                    *util.Pagekey
 	pageSize                 int
 	resultPageSize           int
@@ -117,23 +116,16 @@ func (s *service) init() {
 		s.mapFilterTimeoutDuration = float64(timeoutInt)
 	}
 
-	// init aliases
-
-	meta2 := make(map[string]interface{})
-	f, err = ioutil.ReadFile(config.Appconf["aliasDbDir"] + "/alias.meta.json")
+	// init aliases from JSON config
+	s.aliasStore, err = NewAliasStore(config.Appconf["confDir"])
 	if err != nil {
-		log.Fatalln("Error while reading meta information file which should be produced with generate command. Please make sure you did previous steps correctly.", err)
+		log.Printf("Warning: Could not load aliases: %v", err)
+		// Create empty store - aliases will be disabled but service continues
+		s.aliasStore = &AliasStore{
+			aliases: make(map[string]*AliasEntry),
+			cache:   make(map[string][]string),
+		}
 	}
-
-	if err := json.Unmarshal(f, &meta2); err != nil {
-		panic(err)
-	}
-
-	aliasDataSize := int64(meta2["datasize"].(float64))
-
-	db2 := db.DB{}
-
-	s.aliasEnv, s.aliasDbi = db2.OpenAliasDBNew(false, aliasDataSize, config.Appconf)
 
 	s.qparser = &query.QueryParser{}
 	s.qparser.Init(config)
@@ -334,36 +326,7 @@ func (s *service) init() {
 }
 
 func (s *service) aliasIDs(alias string) ([]string, error) {
-
-	var v []byte
-	err := s.aliasEnv.View(func(txn db.Txn) (err error) {
-
-		v, err = txn.Get(s.aliasDbi, []byte(alias))
-
-		if db.IsNotFound(err) {
-			err := fmt.Errorf("undefined alias ->" + alias)
-			return err
-		}
-		if err != nil {
-			return err
-		}
-		return nil
-	})
-
-	if err != nil {
-		return nil, err
-	}
-
-	r := pbuf.Alias{}
-
-	if len(v) > 0 {
-		err = proto.Unmarshal(v, &r)
-		return r.Identifiers, err
-	}
-
-	err = fmt.Errorf("empty alias content ->" + alias)
-	return nil, err
-
+	return s.aliasStore.GetIDs(alias)
 }
 
 func (s *service) meta() *pbuf.MetaResponse {

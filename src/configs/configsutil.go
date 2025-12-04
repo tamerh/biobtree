@@ -157,9 +157,4 @@ func (c *Conf) CleanOutDirs() {
 		log.Fatal("Error creating dir", c.Appconf["dbDir"], "check you have right permission ")
 	}
 
-	err = os.Mkdir(filepath.FromSlash(c.Appconf["idDir"]), 0700)
-	if err != nil {
-		log.Fatal("Error creating dir", c.Appconf["idDir"], "check you have right permission ")
-	}
-
 }

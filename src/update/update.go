@@ -817,15 +817,6 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 
 	ioutil.WriteFile(filepath.FromSlash(config.Appconf["indexDir"]+"/"+chunkIdx+".meta.json"), data, 0700)
 
-	// write id file infos
-	if len(idMeta) > 0 {
-		data, err = json.Marshal(idMeta)
-		if err != nil {
-			log.Println("Error while writing id meta data")
-		}
-		ioutil.WriteFile(filepath.FromSlash(config.Appconf["idDir"]+"/"+chunkIdx+".meta.json"), data, 0700)
-	}
-
 	log.Println("All done.")
 
 	return d.totalParsedEntry, totalkv

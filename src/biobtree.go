@@ -83,8 +83,8 @@ func main() {
 			Usage: "With this command pre built data automatically installed. Please check README for values of this parameter with data that are included for each value",
 		},
 		cli.BoolFlag{
-			Name:  "keep",
-			Usage: "Keep existing data from update command",
+			Name:  "clean,c",
+			Usage: "Clean existing data before update command (default keeps existing data)",
 		},
 		cli.BoolFlag{
 			Name:  "include-optionals",
@@ -140,6 +140,10 @@ func main() {
 		cli.BoolFlag{
 			Name:  "lookupdb",
 			Usage: "Enable loading lookup database during update. Default is false to save memory on development machines",
+		},
+		cli.StringFlag{
+			Name:  "lmdb-safety-factor",
+			Usage: "LMDB map size safety factor multiplier for generate command (default from config: 10)",
 		},
 	}
 
@@ -487,8 +491,9 @@ func runUpdateCommand(c *cli.Context) error {
 
 	}
 
-	keep := c.GlobalBool("keep")
-	if !keep {
+	// Clean output directory before update if --clean flag is set
+	clean := c.GlobalBool("clean")
+	if clean {
 		config.CleanOutDirs()
 	}
 
@@ -576,12 +581,19 @@ func runGenerateCommand(c *cli.Context) error {
 		config.Appconf["lmdbAllocSize"] = lmdbAllocSize
 	}
 
+	// Override lmdbSafetyFactor from command line if provided
+	lmdbSafetyFactor := c.GlobalString("lmdb-safety-factor")
+	if len(lmdbSafetyFactor) > 0 {
+		config.Appconf["lmdbSafetyFactor"] = lmdbSafetyFactor
+	}
+
 	cpu := c.GlobalInt(" maxcpu")
 	if cpu > 1 {
 		runtime.GOMAXPROCS(cpu)
 	}
 
-	keep := c.GlobalBool("keep")
+	clean := c.GlobalBool("clean")
+	keep := !clean // invert: clean=false means keep=true
 
 	var d = generate.Merge{}
 

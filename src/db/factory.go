@@ -51,8 +51,8 @@ func (d *DB) OpenDBWithBackend(backend Backend, write bool, totalKV int64, appco
 		// Priority 2: Index directory size calculation (for LMDB only)
 		if backend == BackendLMDB {
 			if indexDir, ok := appconf["indexDir"]; ok {
-				// Get safety factor from config, default to 2.5
-				safetyFactor := 2.5
+				// Get safety factor from config, default to 4.5
+				safetyFactor := 4.5
 				if val, ok := appconf["lmdbSafetyFactor"]; ok {
 					if factor, err := strconv.ParseFloat(val, 64); err == nil && factor > 0 {
 						safetyFactor = factor

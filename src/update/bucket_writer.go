@@ -52,12 +52,13 @@ func NewHybridWriterPoolWithWorkers(configs map[string]*BucketConfig, fallbackCh
 	// Create output directories for all configured datasets
 	for datasetID, cfg := range configs {
 		if cfg.NumSets > 1 {
-			// Multi-bucket-set: create buckets1/, buckets2/, etc.
+			// Multi-bucket-set: create buckets1_{chunkIdx}/, buckets2_{chunkIdx}/, etc.
+			// Include chunkIdx in dir name to allow multiple processes with different --idx
 			// Pre-compute bucket keys for all sets
 			// Key format: "datasetID_setIdx_bucketNum"
 			totalBuckets := 0
 			for setIdx := 0; setIdx < cfg.NumSets; setIdx++ {
-				dir := filepath.Join(outputDir, cfg.DatasetName, fmt.Sprintf("buckets%d", setIdx+1))
+				dir := filepath.Join(outputDir, cfg.DatasetName, fmt.Sprintf("buckets%d_%s", setIdx+1, chunkIdx))
 				os.MkdirAll(dir, 0755)
 
 				numBuckets := cfg.NumBucketsPerSet[setIdx]
@@ -70,11 +71,12 @@ func NewHybridWriterPoolWithWorkers(configs map[string]*BucketConfig, fallbackCh
 				}
 			}
 			// Store first set's dir for backward compat (not used in multi-set)
-			pool.bucketDirs[datasetID] = filepath.Join(outputDir, cfg.DatasetName, "buckets1")
+			pool.bucketDirs[datasetID] = filepath.Join(outputDir, cfg.DatasetName, fmt.Sprintf("buckets1_%s", chunkIdx))
 			// No single bucketKeys array for multi-set - handled in Write()
 		} else {
-			// Single bucket set: create buckets/
-			dir := filepath.Join(outputDir, cfg.DatasetName, "buckets")
+			// Single bucket set: create buckets_{chunkIdx}/
+			// Include chunkIdx in dir name to allow multiple processes with different --idx
+			dir := filepath.Join(outputDir, cfg.DatasetName, fmt.Sprintf("buckets_%s", chunkIdx))
 			os.MkdirAll(dir, 0755)
 			pool.bucketDirs[datasetID] = dir
 
@@ -283,7 +285,8 @@ func (p *HybridWriterPool) GetBucketWriters() map[string]*DatasetBucketWriter {
 		if cfg.NumSets > 1 {
 			// Multi-bucket-set: create separate entries for each set
 			for setIdx := 0; setIdx < cfg.NumSets; setIdx++ {
-				dir := filepath.Join(p.outputDir, cfg.DatasetName, fmt.Sprintf("buckets%d", setIdx+1))
+				// Include chunkIdx in path to match bucket creation
+				dir := filepath.Join(p.outputDir, cfg.DatasetName, fmt.Sprintf("buckets%d_%s", setIdx+1, chunkIdx))
 				numBuckets := cfg.NumBucketsPerSet[setIdx]
 
 				// Create unique key for this set

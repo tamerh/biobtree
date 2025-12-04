@@ -517,7 +517,7 @@ echo ""
 
 # Run GENERATE phase locally with nohup (not CPU-intensive, runs on local machine)
 echo "Running GENERATE phase locally (in background with nohup)..."
-nohup ./biobtree --keep --out-dir ${OUT_DIR} generate > logs/generate_model.log 2>&1 &
+nohup ./biobtree --lmdb-safety-factor 4.5 --keep --out-dir ${OUT_DIR} generate > logs/generate_model.log 2>&1 &
 GENERATE_PID=$!
 
 echo "  ✓ Started: GENERATE phase (PID: ${GENERATE_PID})"

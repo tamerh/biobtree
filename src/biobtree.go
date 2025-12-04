@@ -137,6 +137,10 @@ func main() {
 			Name:  "profile",
 			Usage: "Enable CPU and memory profiling. Writes cpuprof.out and memprof.out files",
 		},
+		cli.BoolFlag{
+			Name:  "lookupdb",
+			Usage: "Enable loading lookup database during update. Default is false to save memory on development machines",
+		},
 	}
 
 	// add dataset local flags
@@ -542,7 +546,8 @@ func runUpdateCommand(c *cli.Context) error {
 		}
 	}
 
-	update.NewDataUpdate(d, ts, sp, spatterns, genometaxids, c.GlobalBool("skip-ensembl"), orthologIDs, eo, c.GlobalBool("ensembl-orthologs-all"), config, chunkIdxx).Update()
+	useLookupDB := c.GlobalBool("lookupdb")
+	update.NewDataUpdate(d, ts, sp, spatterns, genometaxids, c.GlobalBool("skip-ensembl"), orthologIDs, eo, c.GlobalBool("ensembl-orthologs-all"), config, chunkIdxx, useLookupDB).Update()
 
 	elapsed := time.Since(start)
 	log.Printf("Update took %s", elapsed)

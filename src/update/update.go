@@ -78,6 +78,7 @@ type DataUpdate struct {
 	lookupCache            *ristretto.Cache // Cache for lookup() to avoid repeated LMDB transactions
 	bucketPool             *HybridWriterPool // Bucket writer pool for optimized datasets
 	bucketWg               *sync.WaitGroup   // WaitGroup for bucket writers
+	useLookupDB            bool              // Flag to enable/disable lookup database loading
 }
 
 type progressInfo struct {
@@ -87,7 +88,7 @@ type progressInfo struct {
 	waiting         bool
 }
 
-func NewDataUpdate(datasets map[string]bool, targetDatasets, ensemblSpecies, ensemblSpeciesPattern []string, genometaxids []int, skipEnsembl bool, orthologIDs map[int]bool, orthologs, orthologsAll bool, conf *configs.Conf, chkIdx string) *DataUpdate {
+func NewDataUpdate(datasets map[string]bool, targetDatasets, ensemblSpecies, ensemblSpeciesPattern []string, genometaxids []int, skipEnsembl bool, orthologIDs map[int]bool, orthologs, orthologsAll bool, conf *configs.Conf, chkIdx string, useLookupDB bool) *DataUpdate {
 
 	chunkIdx = chkIdx
 	config = conf
@@ -155,12 +156,20 @@ func NewDataUpdate(datasets map[string]bool, targetDatasets, ensemblSpecies, ens
 		orthologsActive:        orthologs,
 		orthologsAllActive:     orthologsAll,
 		skipEnsembl:            skipEnsembl,
+		useLookupDB:            useLookupDB,
 	}
 
 }
 
 // Initialize read-only lookup database for keyword-to-ID resolution
 func (d *DataUpdate) initLookupDB() {
+	// Check if lookup database is disabled via --lookupdb flag
+	if !d.useLookupDB {
+		log.Println("Lookup database disabled (use --lookupdb flag to enable)")
+		d.hasLookupDB = false
+		return
+	}
+
 	lookupDbDir, ok := config.Appconf["lookupDbDir"]
 	if !ok {
 		d.hasLookupDB = false

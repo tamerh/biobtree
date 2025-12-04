@@ -177,7 +177,7 @@ else
     JOB_CPU=8
     JOB_MEMORY=32000
     JOB_RUNTIME=604800  # 7 days in seconds
-    BB_DEFAULT_PARAM="--include-optionals"
+    BB_DEFAULT_PARAM="--include-optionals --lookupdb"
 
     # Model organism taxonomy IDs (16 organisms from AlphaFold)
     # Format: Human,Mouse,Rat,Zebrafish,Fly,Worm,Yeast(budding),Yeast(fission),E.coli,

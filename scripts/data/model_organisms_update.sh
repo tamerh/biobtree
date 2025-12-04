@@ -168,7 +168,7 @@ echo ""
 # Create logs directory
 mkdir -p logs
 
-BB_DEFAULT_PARAM="--include-optionals --maxcpu ${MAXCPU}"
+BB_DEFAULT_PARAM="--include-optionals --lookupdb --maxcpu ${MAXCPU}"
 
 # Model organism taxonomy IDs (16 organisms from AlphaFold)
 # IMPORTANT: Ensembl and STRING use DIFFERENT taxonomy ID for S. cerevisiae!

@@ -199,7 +199,7 @@ else
 
     # Core datasets split into 4 parts to reduce concurrent downloads
     CORE_PART1="uniprot,taxonomy,interpro,hmdb,chembl,clinvar,lipidmaps,swisslipids,gwas_study,gwas,intact,antibody,protein_similarity"
-    CORE_PART2="chebi,alphafold,rnacentral,reactome,clinical_trials,patent,string,bgee,rhea,ontology"
+    CORE_PART2="chebi,alphafold,rnacentral,reactome,clinical_trials,patent,string,bgee,rhea,ontology,mesh"
     CORE_PART3="dbsnp"  # Large dataset, prone to FTP issues, separate with retry logic
     CORE_PART4="pubchem,pubchem_activity,pubchem_assay"  # PubChem datasets
     CORE_PART5="entrez"  # Entrez Gene (large dataset, 64M+ genes)

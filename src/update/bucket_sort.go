@@ -182,7 +182,35 @@ func SortAllBuckets(pool *HybridWriterPool, numWorkers int) error {
 	return nil
 }
 
+// bucketReader holds state for reading from a single sorted bucket file during k-way merge
+type bucketReader struct {
+	file    *os.File
+	reader  *bufio.Reader
+	curLine string // Current line (including newline)
+	curKey  string // Current key (first field)
+	eof     bool
+}
+
+// readNext reads the next line from the bucket file
+func (br *bucketReader) readNext() {
+	line, err := br.reader.ReadString('\n')
+	if err != nil {
+		br.eof = true
+		br.curLine = ""
+		br.curKey = ""
+		return
+	}
+	br.curLine = line
+	// Extract key (first field before tab)
+	if idx := strings.IndexByte(line, '\t'); idx > 0 {
+		br.curKey = line[:idx]
+	} else {
+		br.curKey = strings.TrimRight(line, "\n")
+	}
+}
+
 // ConcatenateBuckets merges all sorted bucket files for a dataset into one
+// Uses k-way merge to maintain global sort order across buckets
 // Reads uncompressed .txt bucket files, writes compressed .gz output
 // Bucket files are preserved after concatenation for debugging
 // Returns total lines written across all datasets (post-deduplication count)
@@ -227,30 +255,53 @@ func ConcatenateBuckets(pool *HybridWriterPool, indexDir string, chunkIdx string
 
 		linesWritten := uint64(0)
 
-		// Concatenate all bucket files (reading uncompressed .txt files)
+		// Initialize bucket readers for k-way merge
+		readers := make([]*bucketReader, 0, len(bucketFiles))
 		for _, bucketFile := range bucketFiles {
 			f, err := os.Open(bucketFile)
 			if err != nil {
 				continue
 			}
+			br := &bucketReader{
+				file:   f,
+				reader: bufio.NewReaderSize(f, BucketReadBufferSize),
+			}
+			br.readNext() // Read first line
+			if !br.eof {
+				readers = append(readers, br)
+			} else {
+				f.Close()
+			}
+		}
 
-			// Read uncompressed file directly
-			reader := bufio.NewReaderSize(f, BucketReadBufferSize)
-			for {
-				line, err := reader.ReadString('\n')
-				if err != nil && err != io.EOF {
-					break
-				}
-				if len(line) > 0 {
-					buf.WriteString(line)
-					linesWritten++
-				}
-				if err == io.EOF {
-					break
+		// K-way merge: repeatedly find minimum key and write all lines with that key
+		for len(readers) > 0 {
+			// Find minimum key among all readers
+			minKey := readers[0].curKey
+			for i := 1; i < len(readers); i++ {
+				if readers[i].curKey < minKey {
+					minKey = readers[i].curKey
 				}
 			}
 
-			f.Close()
+			// Write all lines with the minimum key (from all readers that have it)
+			// and advance those readers
+			i := 0
+			for i < len(readers) {
+				if readers[i].curKey == minKey {
+					buf.WriteString(readers[i].curLine)
+					linesWritten++
+					readers[i].readNext()
+					if readers[i].eof {
+						// Remove exhausted reader
+						readers[i].file.Close()
+						readers = append(readers[:i], readers[i+1:]...)
+						// Don't increment i since we removed an element
+						continue
+					}
+				}
+				i++
+			}
 		}
 
 		buf.Flush()
@@ -261,10 +312,10 @@ func ConcatenateBuckets(pool *HybridWriterPool, indexDir string, chunkIdx string
 
 		// Log message includes set info for multi-set
 		if writer.setIndex >= 0 {
-			log.Printf("Concatenated %d buckets for %s set%d (ID:%s) → %s (%d lines)",
+			log.Printf("K-way merged %d buckets for %s set%d (ID:%s) → %s (%d lines)",
 				len(bucketFiles), writer.config.DatasetName, writer.setIndex+1, writerKey, outPath, linesWritten)
 		} else {
-			log.Printf("Concatenated %d buckets for %s (ID:%s) → %s (%d lines)",
+			log.Printf("K-way merged %d buckets for %s (ID:%s) → %s (%d lines)",
 				len(bucketFiles), writer.config.DatasetName, writer.datasetID, outPath, linesWritten)
 		}
 	}

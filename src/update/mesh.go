@@ -24,6 +24,26 @@ func (m *mesh) check(err error, operation string) {
 	checkWithContext(err, m.source, operation)
 }
 
+// isMeshID checks if a string is a valid MeSH ID (D/C/Q followed by digits)
+// Returns false for term names like "Anti-Bacterial Agents"
+func isMeshID(s string) bool {
+	if len(s) < 2 {
+		return false
+	}
+	// MeSH IDs start with D (Descriptor), C (Supplementary), or Q (Qualifier)
+	firstChar := s[0]
+	if firstChar != 'D' && firstChar != 'C' && firstChar != 'Q' {
+		return false
+	}
+	// Rest should be digits
+	for i := 1; i < len(s); i++ {
+		if s[i] < '0' || s[i] > '9' {
+			return false
+		}
+	}
+	return true
+}
+
 func (m *mesh) update() {
 	defer m.d.wg.Done()
 
@@ -414,8 +434,10 @@ func (m *mesh) saveEntry(id string, fr string, attr *pbuf.MeshAttr) {
 
 	// Create cross-references for pharmacological actions
 	// Link from this descriptor to its pharmacological action descriptors
+	// Only create xrefs for valid MeSH IDs (D/C/Q followed by digits)
+	// Descriptor records may have term names instead of IDs - skip those
 	for _, action := range attr.PharmacologicalActions {
-		if action != "" {
+		if action != "" && isMeshID(action) {
 			m.d.addXref(id, fr, action, m.source, false)
 		}
 	}

@@ -160,6 +160,7 @@ func (s *service) init() {
 		cel.Types(&pbuf.PubchemAttr{}),
 		cel.Types(&pbuf.PubchemActivityAttr{}),
 		cel.Types(&pbuf.PubchemAssayAttr{}),
+		cel.Types(&pbuf.EntrezAttr{}),
 		cel.Declarations(
 			decls.NewIdent("uniprot", decls.NewObjectType("pbuf.UniprotAttr"), nil)),
 		cel.Declarations(

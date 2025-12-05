@@ -793,10 +793,16 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 
 		// Concatenate buckets and move to index directory
 		log.Println("Concatenating bucket files...")
-		var err error
-		bucketLines, err = ConcatenateBuckets(d.bucketPool, config.Appconf["indexDir"], chunkIdx)
+		bucketStats, err := ConcatenateBuckets(d.bucketPool, config.Appconf["indexDir"], chunkIdx)
 		if err != nil {
 			log.Printf("Error concatenating buckets: %v", err)
+		}
+		if bucketStats != nil {
+			bucketLines = bucketStats.TotalLines
+			// Add entry size only for textsearch bucket (other datasets will be added later)
+			if textsearchLines, ok := bucketStats.PerDataset["textsearch"]; ok {
+				d.addEntryStat("textsearch", textsearchLines)
+			}
 		}
 		log.Printf("Bucket processing complete (%d lines after deduplication)", bucketLines)
 	}

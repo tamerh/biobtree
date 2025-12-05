@@ -209,14 +209,22 @@ func (br *bucketReader) readNext() {
 	}
 }
 
+// BucketStats holds statistics for bucket concatenation
+type BucketStats struct {
+	TotalLines uint64            // Total lines written across all datasets
+	PerDataset map[string]uint64 // Lines written per dataset name
+}
+
 // ConcatenateBuckets merges all sorted bucket files for a dataset into one
 // Uses k-way merge to maintain global sort order across buckets
 // Reads uncompressed .txt bucket files, writes compressed .gz output
 // Bucket files are preserved after concatenation for debugging
-// Returns total lines written across all datasets (post-deduplication count)
+// Returns BucketStats with total lines and per-dataset breakdown
 // For multi-bucket-set datasets, produces separate output files: dataset_sorted_1.gz, dataset_sorted_2.gz
-func ConcatenateBuckets(pool *HybridWriterPool, indexDir string, chunkIdx string) (uint64, error) {
-	var totalLines uint64
+func ConcatenateBuckets(pool *HybridWriterPool, indexDir string, chunkIdx string) (*BucketStats, error) {
+	stats := &BucketStats{
+		PerDataset: make(map[string]uint64),
+	}
 
 	for writerKey, writer := range pool.GetBucketWriters() {
 		bucketFiles := []string{}
@@ -248,7 +256,7 @@ func ConcatenateBuckets(pool *HybridWriterPool, indexDir string, chunkIdx string
 
 		outF, err := os.Create(outPath)
 		if err != nil {
-			return 0, fmt.Errorf("creating output file %s: %w", outPath, err)
+			return nil, fmt.Errorf("creating output file %s: %w", outPath, err)
 		}
 		outGz, _ := gzip.NewWriterLevel(outF, gzip.BestSpeed)
 		buf := bufio.NewWriterSize(outGz, BucketWriteBufferSize)
@@ -308,7 +316,9 @@ func ConcatenateBuckets(pool *HybridWriterPool, indexDir string, chunkIdx string
 		outGz.Close()
 		outF.Close()
 
-		totalLines += linesWritten
+		stats.TotalLines += linesWritten
+		// Track per-dataset lines (aggregate if same dataset has multiple sets)
+		stats.PerDataset[writer.config.DatasetName] += linesWritten
 
 		// Log message includes set info for multi-set
 		if writer.setIndex >= 0 {
@@ -320,5 +330,5 @@ func ConcatenateBuckets(pool *HybridWriterPool, indexDir string, chunkIdx string
 		}
 	}
 
-	return totalLines, nil
+	return stats, nil
 }

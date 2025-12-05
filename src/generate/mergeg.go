@@ -386,6 +386,7 @@ type Merge struct {
 	keepUpdateFiles         bool
 	pager                   *util.Pagekey
 	totalkvLine             int64
+	totalEntrySize          int64                 // Sum of all entry sizes for progress based on keys written
 	protoResBufferPool      *chan []*pbuf.XrefEntry
 	protoCountResBufferPool *chan []*pbuf.XrefDomainCount
 	// Checkpoint/resume fields
@@ -458,20 +459,10 @@ func (d *Merge) saveCheckpoint(lastKey string) error {
 
 	d.lastCheckpointKey = lastKey
 
-	// Calculate progress percentage
+	// Calculate progress percentage based on keys written vs total entry size
 	var progressPercent float64
-	if d.totalkvLine > 0 {
-		// Count total lines read across all files (active + completed)
-		var totalLinesRead int64
-		for _, fs := range d.fileStates {
-			if fs != nil {
-				totalLinesRead += fs.linesRead
-			}
-		}
-		for _, state := range d.completedFiles {
-			totalLinesRead += state.LinesRead
-		}
-		progressPercent = float64(totalLinesRead) / float64(d.totalkvLine) * 100
+	if d.totalEntrySize > 0 {
+		progressPercent = float64(d.totalKeyWrite) / float64(d.totalEntrySize) * 100
 	}
 
 	// Memory stats
@@ -486,8 +477,8 @@ func (d *Merge) saveCheckpoint(lastKey string) error {
 		activeFiles = d.fileHeap.Len()
 	}
 
-	log.Printf("Progress: %.1f%% | Keys written: %d | Last key: %s | Active files: %d | Heap: %dMB | Sys: %dMB",
-		progressPercent, d.totalKeyWrite, lastKey, activeFiles, heapMB, sysMB)
+	log.Printf("Checkpoint: %.1f%% | Keys: %d/%d | Last key: %s | Files: %d | Heap: %dMB | Sys: %dMB",
+		progressPercent, d.totalKeyWrite, d.totalEntrySize, lastKey, activeFiles, heapMB, sysMB)
 
 	// Save heap profile every 1M keys (disabled by default - uncomment for debugging)
 	// if d.totalKeyWrite % 1000000 == 0 {
@@ -510,19 +501,10 @@ func (d *Merge) logTimeBasedProgress(currentKey string) {
 	}
 	d.lastProgressTime = time.Now()
 
-	// Calculate progress percentage based on lines read
+	// Calculate progress percentage based on keys written vs total entry size
 	var progressPercent float64
-	var totalLinesRead int64
-	if d.totalkvLine > 0 {
-		for _, fs := range d.fileStates {
-			if fs != nil {
-				totalLinesRead += fs.linesRead
-			}
-		}
-		for _, state := range d.completedFiles {
-			totalLinesRead += state.LinesRead
-		}
-		progressPercent = float64(totalLinesRead) / float64(d.totalkvLine) * 100
+	if d.totalEntrySize > 0 {
+		progressPercent = float64(d.totalKeyWrite) / float64(d.totalEntrySize) * 100
 	}
 
 	// Memory stats
@@ -535,8 +517,8 @@ func (d *Merge) logTimeBasedProgress(currentKey string) {
 		activeFiles = d.fileHeap.Len()
 	}
 
-	log.Printf("Progress: %.2f%% | Lines: %d/%d | Keys: %d | Current: %s | Files: %d | Mem: %dMB",
-		progressPercent, totalLinesRead, d.totalkvLine, d.totalKeyWrite, currentKey, activeFiles, heapMB)
+	log.Printf("Progress: %.1f%% | Keys: %d/%d | Current: %s | Files: %d | Mem: %dMB",
+		progressPercent, d.totalKeyWrite, d.totalEntrySize, currentKey, activeFiles, heapMB)
 }
 
 // loadCheckpoint loads a checkpoint file if it exists
@@ -1348,6 +1330,7 @@ func (d *Merge) init() {
 	}
 
 	var totalkv float64
+	var totalEntrySize float64
 	for _, f := range files {
 		if !f.IsDir() && strings.HasSuffix(f.Name(), ".meta.json") {
 			meta := make(map[string]interface{})
@@ -1362,10 +1345,22 @@ func (d *Merge) init() {
 			}
 			totalkv = totalkv + meta["totalKV"].(float64)
 
+			// Sum entry sizes from each dataset for progress calculation
+			for key, value := range meta {
+				if key == "totalKV" {
+					continue
+				}
+				if datasetInfo, ok := value.(map[string]interface{}); ok {
+					if entrySize, ok := datasetInfo["entrySize"].(float64); ok {
+						totalEntrySize += entrySize
+					}
+				}
+			}
 		}
 	}
 
 	d.totalkvLine = int64(totalkv)
+	d.totalEntrySize = int64(totalEntrySize)
 
 	if checkpoint != nil {
 		// Resume mode: don't clear the database

@@ -137,45 +137,28 @@ func (c *Conf) Init(rootDir, bbBinaryVersion, outDir string, optionalDatasetActi
 		c.Appconf["rootDir"] = rootDir
 	}
 
-	// STEP 2 set optional conf if activated
+	// Initialize Dataconf map
+	c.Dataconf = map[string]map[string]string{}
+
+	// STEP 2 set optional xref conf if activated
 	if optionalDatasetActive {
-		optionalconfFile := filepath.FromSlash(filepath.FromSlash(confdir + "/optional.dataset.json"))
-		f, err = ioutil.ReadFile(optionalconfFile)
-		if err != nil {
-			log.Fatalf("Error: %v", err)
-		}
-
-		if err := json.Unmarshal(f, &c.Dataconf); err != nil {
-			log.Fatalf("Error: %v", err)
-		}
-		// this for regenerating and renumbering purpose.
-		//c.toLowerCaseAndNumbered(130, "optional.dataset.json")
-		// for renumbering
-		//c.reNumber(500, "optional.dataset.json")
+		optionalconfFile := filepath.FromSlash(confdir + "/xref2.optional.dataset.json")
+		c.loadDatasetConfig(optionalconfFile)
 	}
 
-	// STEP 3 read default conf file
-	defualtconfFile := filepath.FromSlash(filepath.FromSlash(confdir + "/default.dataset.json"))
-	f, err = ioutil.ReadFile(defualtconfFile)
-	if err != nil {
-		log.Fatalf("Error: %v", err)
-	}
+	// STEP 3 read default xref conf file
+	xref1confFile := filepath.FromSlash(confdir + "/xref1.dataset.json")
+	c.loadDatasetConfig(xref1confFile)
 
-	if err := json.Unmarshal(f, &c.Dataconf); err != nil {
-		log.Fatalf("Error: %v", err)
-	}
+	// STEP 4 read source2 conf files (ontologies)
+	source2confFile := filepath.FromSlash(confdir + "/source2.dataset.json")
+	c.loadDatasetConfig(source2confFile)
 
-	// STEP 4 read source conf files
-	sourcedataconfFile := filepath.FromSlash(filepath.FromSlash(confdir + "/source.dataset.json"))
-	f, err = ioutil.ReadFile(sourcedataconfFile)
-	if err != nil {
-		log.Fatalf("Error: %v", err)
-	}
-	if err := json.Unmarshal(f, &c.Dataconf); err != nil {
-		log.Fatalf("Error: %v", err)
-	}
+	// STEP 5 read source1 conf files (non-ontology source datasets)
+	source1confFile := filepath.FromSlash(confdir + "/source1.dataset.json")
+	c.loadDatasetConfig(source1confFile)
 
-	// STEP 5 set all config maps
+	// STEP 6 set all config maps
 	c.DataconfIDIntToString = map[uint32]string{}
 	c.DataconfIDStringToInt = map[string]uint32{}
 	c.DataconfIDToPageKey = map[uint32]string{}
@@ -234,7 +217,7 @@ func (c *Conf) Init(rootDir, bbBinaryVersion, outDir string, optionalDatasetActi
 		}
 	}
 
-	// STEP 6 configure output folders
+	// STEP 7 configure output folders
 
 	if len(outDir) > 0 {
 		c.Appconf["outDir"] = outDir
@@ -507,6 +490,32 @@ func cloneDataConf(confVal map[string]string) map[string]string {
 		clone[clonekey] = cloneval
 	}
 	return clone
+}
+
+// loadDatasetConfig loads a dataset JSON file and merges it into the existing Dataconf map.
+// It panics if a duplicate dataset name is found across config files.
+func (c *Conf) loadDatasetConfig(filePath string) {
+	f, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		log.Fatalf("Error reading config file %s: %v", filePath, err)
+	}
+
+	var newConf map[string]map[string]string
+	if err := json.Unmarshal(f, &newConf); err != nil {
+		log.Fatalf("Error parsing config file %s: %v", filePath, err)
+	}
+
+	// Check for duplicate dataset names
+	for key := range newConf {
+		if _, exists := c.Dataconf[key]; exists {
+			log.Fatalf("Configuration error: duplicate dataset name '%s' found in %s (already defined in another config file)", key, filePath)
+		}
+	}
+
+	// Merge into Dataconf
+	for key, value := range newConf {
+		c.Dataconf[key] = value
+	}
 }
 
 // Test mode helper methods

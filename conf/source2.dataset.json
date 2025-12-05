@@ -1,0 +1,311 @@
+{
+  "go": {
+    "aliases": "GO Molecular Function,GO Cellular Component,GO Biological Process,GO",
+    "id": "70",
+    "name": "GO",
+    "url": "https://www.ebi.ac.uk/QuickGO/term/£{id}",
+    "path": "http://purl.obolibrary.org/obo/go.owl",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms",
+    "test_entries_count": "100",
+    "bucketMethod": "go"
+  },
+  "eco": {
+    "aliases": "ECO",
+    "id": "71",
+    "name": "ECO",
+    "url": "https://www.ebi.ac.uk/QuickGO/term/£{id}",
+    "path": "http://purl.obolibrary.org/obo/eco.owl",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms",
+    "test_entries_count": "100",
+    "bucketMethod": "ontology"
+  },
+  "efo": {
+    "aliases": "EFO",
+    "id": "72",
+    "name": "EFO",
+    "url": "http://www.ebi.ac.uk/efo/£{id}",
+    "path": "http://www.ebi.ac.uk/efo/efo.owl",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms",
+    "test_entries_count": "100",
+    "bucketMethod": "ontology"
+  },
+  "mondo": {
+    "aliases": "MONDO,Monarch Disease Ontology",
+    "id": "73",
+    "name": "MONDO",
+    "url": "https://monarchinitiative.org/disease/£{id}",
+    "path": "https://github.com/monarch-initiative/mondo/releases/download/v2025-10-07/mondo.obo",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "name,[]synonyms",
+    "test_entries_count": "100",
+    "bucketMethod": "ontology"
+  },
+  "hpo": {
+    "aliases": "HPO,Human Phenotype Ontology",
+    "id": "74",
+    "name": "HPO",
+    "url": "https://hpo.jax.org/browse/term/£{id}",
+    "path": "https://github.com/obophenotype/human-phenotype-ontology/releases/download/v2025-11-24/hp-base.obo",
+    "genes_to_phenotype_path": "https://github.com/obophenotype/human-phenotype-ontology/releases/download/v2025-11-24/genes_to_phenotype.txt",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "name,[]synonyms,definition",
+    "test_entries_count": "100",
+    "bucketMethod": "ontology"
+  },
+  "uberon": {
+    "aliases": "UBERON,Uber-anatomy ontology,Uberon",
+    "id": "75",
+    "name": "UBERON",
+    "url": "http://purl.obolibrary.org/obo/£{id}",
+    "path": "http://purl.obolibrary.org/obo/uberon.owl",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms",
+    "test_entries_count": "100",
+    "bucketMethod": "ontology"
+  },
+  "cl": {
+    "aliases": "CL,Cell Ontology,cell type,cell types",
+    "id": "76",
+    "name": "CL",
+    "url": "http://purl.obolibrary.org/obo/£{id}",
+    "path": "http://purl.obolibrary.org/obo/cl.owl",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms",
+    "test_entries_count": "100",
+    "bucketMethod": "ontology"
+  },
+  "oba": {
+    "aliases": "OBA,Ontology of Biological Attributes,biological attribute,trait,phenotypic trait",
+    "id": "77",
+    "name": "OBA",
+    "url": "http://purl.obolibrary.org/obo/£{id}",
+    "path": "http://purl.obolibrary.org/obo/oba.obo",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms,definition",
+    "test_entries_count": "100",
+    "bucketMethod": "oba"
+  },
+  "pato": {
+    "aliases": "PATO,Phenotype And Trait Ontology,phenotypic quality,quality,attribute,characteristic",
+    "id": "78",
+    "name": "PATO",
+    "url": "http://purl.obolibrary.org/obo/£{id}",
+    "path": "http://purl.obolibrary.org/obo/pato.obo",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms",
+    "test_entries_count": "100",
+    "bucketMethod": "ontology"
+  },
+  "obi": {
+    "aliases": "OBI,Ontology for Biomedical Investigations,biomedical investigation,assay,study design,investigation",
+    "id": "79",
+    "name": "OBI",
+    "url": "http://purl.obolibrary.org/obo/£{id}",
+    "path": "http://purl.obolibrary.org/obo/obi.obo",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms",
+    "test_entries_count": "100",
+    "bucketMethod": "ontology"
+  },
+  "xco": {
+    "aliases": "XCO,Experimental Conditions Ontology,experimental condition,treatment,exposure",
+    "id": "80",
+    "name": "XCO",
+    "url": "http://purl.obolibrary.org/obo/£{id}",
+    "path": "http://purl.obolibrary.org/obo/xco.obo",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms",
+    "test_entries_count": "100",
+    "bucketMethod": "ontology"
+  },
+  "gochild": {
+    "name": "GO Child",
+    "id": "81",
+    "url": "https://www.ebi.ac.uk/QuickGO/term/£{id}",
+    "linkdataset": "go",
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms"
+  },
+  "goparent": {
+    "name": "GO Parent",
+    "id": "82",
+    "url": "https://www.ebi.ac.uk/QuickGO/term/£{id}",
+    "linkdataset": "go",
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms"
+  },
+  "efochild": {
+    "name": "EFO Child",
+    "id": "83",
+    "url": "http://www.ebi.ac.uk/efo/£{id}",
+    "linkdataset": "efo",
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms"
+  },
+  "efoparent": {
+    "name": "EFO Parent",
+    "id": "84",
+    "url": "http://www.ebi.ac.uk/efo/£{id}",
+    "linkdataset": "efo",
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms"
+  },
+  "ecochild": {
+    "name": "ECO Child",
+    "id": "85",
+    "url": "https://www.ebi.ac.uk/QuickGO/term/£{id}",
+    "linkdataset": "eco",
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms"
+  },
+  "ecoparent": {
+    "name": "ECO Parent",
+    "id": "86",
+    "url": "https://www.ebi.ac.uk/QuickGO/term/£{id}",
+    "linkdataset": "eco",
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms"
+  },
+  "mondochild": {
+    "name": "MONDO Child",
+    "id": "87",
+    "url": "https://monarchinitiative.org/disease/£{id}",
+    "linkdataset": "mondo",
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms"
+  },
+  "mondoparent": {
+    "name": "MONDO Parent",
+    "id": "88",
+    "url": "https://monarchinitiative.org/disease/£{id}",
+    "linkdataset": "mondo",
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms"
+  },
+  "hpoparent": {
+    "name": "HPO Parent",
+    "id": "89",
+    "url": "https://hpo.jax.org/browse/term/£{id}",
+    "linkdataset": "hpo",
+    "hasFilter": "yes",
+    "attrs": "name,[]synonyms,definition"
+  },
+  "hpochild": {
+    "name": "HPO Child",
+    "id": "90",
+    "url": "https://hpo.jax.org/browse/term/£{id}",
+    "linkdataset": "hpo",
+    "hasFilter": "yes",
+    "attrs": "name,[]synonyms,definition"
+  },
+  "uberonparent": {
+    "name": "UBERON Parent",
+    "id": "91",
+    "url": "http://purl.obolibrary.org/obo/£{id}",
+    "linkdataset": "uberon",
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms"
+  },
+  "uberonchild": {
+    "name": "UBERON Child",
+    "id": "92",
+    "url": "http://purl.obolibrary.org/obo/£{id}",
+    "linkdataset": "uberon",
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms"
+  },
+  "clparent": {
+    "name": "CL Parent",
+    "id": "93",
+    "url": "http://purl.obolibrary.org/obo/£{id}",
+    "linkdataset": "cl",
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms"
+  },
+  "clchild": {
+    "name": "CL Child",
+    "id": "94",
+    "url": "http://purl.obolibrary.org/obo/£{id}",
+    "linkdataset": "cl",
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms"
+  },
+  "obaparent": {
+    "name": "OBA Parent",
+    "id": "95",
+    "url": "http://purl.obolibrary.org/obo/£{id}",
+    "linkdataset": "oba",
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms,definition"
+  },
+  "obachild": {
+    "name": "OBA Child",
+    "id": "96",
+    "url": "http://purl.obolibrary.org/obo/£{id}",
+    "linkdataset": "oba",
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms,definition"
+  },
+  "patoparent": {
+    "name": "PATO Parent",
+    "id": "97",
+    "url": "http://purl.obolibrary.org/obo/£{id}",
+    "linkdataset": "pato",
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms"
+  },
+  "patochild": {
+    "name": "PATO Child",
+    "id": "98",
+    "url": "http://purl.obolibrary.org/obo/£{id}",
+    "linkdataset": "pato",
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms"
+  },
+  "obiparent": {
+    "name": "OBI Parent",
+    "id": "99",
+    "url": "http://purl.obolibrary.org/obo/£{id}",
+    "linkdataset": "obi",
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms"
+  },
+  "obichild": {
+    "name": "OBI Child",
+    "id": "100",
+    "url": "http://purl.obolibrary.org/obo/£{id}",
+    "linkdataset": "obi",
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms"
+  },
+  "xcoparent": {
+    "name": "XCO Parent",
+    "id": "101",
+    "url": "http://purl.obolibrary.org/obo/£{id}",
+    "linkdataset": "xco",
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms"
+  },
+  "xcochild": {
+    "name": "XCO Child",
+    "id": "102",
+    "url": "http://purl.obolibrary.org/obo/£{id}",
+    "linkdataset": "xco",
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms"
+  }
+}

@@ -153,6 +153,7 @@ func (s *service) init() {
 		cel.Types(&pbuf.PubchemActivityAttr{}),
 		cel.Types(&pbuf.PubchemAssayAttr{}),
 		cel.Types(&pbuf.EntrezAttr{}),
+		cel.Types(&pbuf.RefSeqAttr{}),
 		cel.Declarations(
 			decls.NewIdent("uniprot", decls.NewObjectType("pbuf.UniprotAttr"), nil)),
 		cel.Declarations(
@@ -233,6 +234,8 @@ func (s *service) init() {
 			decls.NewIdent("pubchem_assay", decls.NewObjectType("pbuf.PubchemAssayAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("entrez", decls.NewObjectType("pbuf.EntrezAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("refseq", decls.NewObjectType("pbuf.RefSeqAttr"), nil)),
 		cel.Declarations(
 			decls.NewFunction("overlaps",
 				decls.NewOverload("overlaps_int_int",

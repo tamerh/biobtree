@@ -998,5 +998,21 @@
     "id": "56",
     "url": "https://www.ncbi.nlm.nih.gov/gene/£{id}",
     "linkdataset": "entrez"
+  },
+  "refseq": {
+    "id": "57",
+    "name": "RefSeq",
+    "aliases": "RefSeq,NCBI RefSeq,Reference Sequence,RefSeq accession,RefSeq transcript,RefSeq protein",
+    "url": "https://www.ncbi.nlm.nih.gov/nuccore/£{id}",
+    "proteinUrl": "https://www.ncbi.nlm.nih.gov/protein/£{id}",
+    "path": "https://ftp.ncbi.nlm.nih.gov/genomes/refseq/",
+    "speciesGroups": "vertebrate_mammalian,vertebrate_other,invertebrate,plant,fungi,protozoa,archaea,bacteria,viral",
+    "manePath": "https://ftp.ncbi.nlm.nih.gov/refseq/MANE/MANE_human/current/MANE.GRCh38.v1.4.summary.txt.gz",
+    "uniprotMappingPath": "https://ftp.ncbi.nlm.nih.gov/gene/DATA/gene_refseq_uniprotkb_collab.gz",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "accession,type,status,symbol,description,[]synonyms,assembly,chromosome,start_position,end_position,orientation,genomic_accession,protein_accession,rna_accession,is_mane_select,is_mane_plus_clinical,ensembl_transcript,ensembl_protein,hgnc_id,ccds_id,uniprot_id,protein_length,molecular_weight,protein_name,taxid,organism,seq_length,mol_type,is_lrg,lrg_id,exon_count",
+    "test_entries_count": "100",
+    "bucketMethod": "refseq"
   }
 }

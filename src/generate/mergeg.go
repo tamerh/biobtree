@@ -1764,6 +1764,11 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 					ffjson.Unmarshal(barr, attr)
 					xref.Attributes = &pbuf.Xref_Entrez{attr}
 				}
+			case "refseq":
+				attr := &pbuf.RefSeqAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Refseq{attr}
 			case "interpro":
 				attr := &pbuf.InterproAttr{}
 				barr := []byte((*kvProp[k])[0].value)
@@ -2033,6 +2038,11 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 						ffjson.Unmarshal(barr, attr)
 						xref.Attributes = &pbuf.Xref_Entrez{attr}
 					}
+				case "refseq":
+					attr := &pbuf.RefSeqAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_Refseq{attr}
 				}
 			}
 

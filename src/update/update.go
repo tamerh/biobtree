@@ -680,6 +680,12 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			d.datasets2 = append(d.datasets2, data)
 			go en.update()
 			break
+		case "refseq":
+			d.wg.Add(1)
+			rs := refseq{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go rs.update(d.selectedTaxids)
+			break
 		case "mesh":
 			d.wg.Add(1)
 			m := mesh{source: data, d: d}

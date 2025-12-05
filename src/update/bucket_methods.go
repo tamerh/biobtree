@@ -43,6 +43,7 @@ var BucketMethods = map[string]BucketMethod{
 	"patent_other":  patentOtherBucket,  // Everything else (D*, RE*, CA-*, etc.) → alphabetic
 	"gwas":          gwasBucket,         // GCST000001_rs380390 → numeric from GCST prefix
 	"oba":       obaBucket,       // OBA:0001234 or OBA:VT0000188 → first char after colon
+	"refseq":    refseqBucket,    // NM_123456.1, NP_123456.1, NC_000001.11 → numeric after underscore
 	"gcst":      alphabeticBucket, // GCST010481, VT0000188 → multiple prefixes, use first letter
 	"ontology":  ontologyBucket,  // CHEBI:12345, HP:0001234, UBERON:0000001 → numeric after colon
 
@@ -288,6 +289,69 @@ func obaBucket(id string, numBuckets int) int {
 		panic("obaBucket: invalid OBA id format: " + id)
 	}
 	return alphanumBucket(id[4:], numBuckets)
+}
+
+// refseqBucket - RefSeq accession IDs: NM_123456.1, NP_123456.1, NC_000001.11
+// Format: 2-3 letters + optional underscore + numeric + optional version (.1)
+// Uses numeric part for lexicographic bucket assignment
+// Examples:
+//   - NM_001353961.2 → bucket based on "001353961"
+//   - NP_001340890.1 → bucket based on "001340890"
+//   - NC_000001.11 → bucket based on "000001"
+//   - XM_017000001.2 → bucket based on "017000001"
+//   - CP066370.1 → bucket based on "066370" (no underscore format)
+//   - NZ_CP066370.1 → bucket based on "066370" (NZ prefix with CP accession)
+func refseqBucket(id string, numBuckets int) int {
+	if len(id) < 4 {
+		panic("refseqBucket: id too short: " + id)
+	}
+
+	// Find underscore position
+	underscoreIdx := strings.IndexByte(id, '_')
+
+	var numericStart int
+	if underscoreIdx > 0 && underscoreIdx < len(id)-1 {
+		// Standard format with underscore (NM_123456, NC_000001, etc.)
+		numericStart = underscoreIdx + 1
+		// Handle NZ_CP format - look for second underscore or first digit after underscore
+		afterUnderscore := id[numericStart:]
+		// Check if there's another underscore (like NZ_CP066370 which should be NZ_CP_066370-like)
+		// Or if it starts with letters (like CP in NZ_CP066370)
+		for i := 0; i < len(afterUnderscore); i++ {
+			c := afterUnderscore[i]
+			if c >= '0' && c <= '9' {
+				numericStart = numericStart + i
+				break
+			}
+		}
+	} else {
+		// No underscore format (CP066370, etc.) - find first digit
+		for i := 0; i < len(id); i++ {
+			c := id[i]
+			if c >= '0' && c <= '9' {
+				numericStart = i
+				break
+			}
+		}
+		if numericStart == 0 && (id[0] < '0' || id[0] > '9') {
+			// No digits found, fall back to alphanumeric bucket
+			return alphanumBucket(id, numBuckets)
+		}
+	}
+
+	// Get numeric part (stop at dot if present)
+	numericPart := id[numericStart:]
+	dotIdx := strings.IndexByte(numericPart, '.')
+	if dotIdx > 0 {
+		numericPart = numericPart[:dotIdx]
+	}
+
+	if len(numericPart) == 0 || numericPart[0] < '0' || numericPart[0] > '9' {
+		// Fall back to alphanumeric bucket for edge cases
+		return alphanumBucket(id, numBuckets)
+	}
+
+	return numericLexBucket(numericPart, numBuckets)
 }
 
 // isNumeric checks if string contains only digits

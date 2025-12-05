@@ -157,7 +157,7 @@ echo "  - Core part 2: chebi, alphafold, rnacentral, reactome,"
 echo "                 clinical_trials, patent, string, bgee, ontology"
 echo "  - Core part 3: dbsnp (large dataset, prone to FTP issues)"
 echo "  - Core part 4: pubchem, pubchem_activity, pubchem_assay"
-echo "  - Core part 5: entrez gene (large dataset, 64M+ genes)"
+echo "  - Core part 5: entrez gene + refseq (large datasets, model organism genomes)"
 echo "  - Ensembl genomes (16 model organisms, strain-specific IDs)"
 echo ""
 echo "Retry policy: Each job will be retried once if it fails (max 2 attempts)"
@@ -185,8 +185,8 @@ CORE_PART2="chebi,alphafold,rnacentral,reactome,clinical_trials,patent,string,bg
 CORE_PART3="dbsnp"
 # Part 4: PubChem datasets
 CORE_PART4="pubchem,pubchem_activity,pubchem_assay"
-# Part 5: Entrez Gene (large dataset, 64M+ genes)
-CORE_PART5="entrez"
+# Part 5: Entrez Gene + RefSeq (large datasets, uses genome-taxids for RefSeq)
+CORE_PART5="entrez,refseq"
 
 # Calculate total jobs to run
 TOTAL_JOBS=0
@@ -314,18 +314,19 @@ if [[ "$RUN_CORE4" == "true" ]]; then
     fi
 fi
 
-# 5. Run core part 5 job (entrez) (if enabled)
+# 5. Run core part 5 job (entrez + refseq) (if enabled)
 if [[ "$RUN_CORE5" == "true" ]]; then
     ((++JOB_NUM))
     echo ""
-    echo "[${JOB_NUM}/${TOTAL_JOBS}] Core Part 5 (entrez)"
+    echo "[${JOB_NUM}/${TOTAL_JOBS}] Core Part 5 (entrez + refseq)"
     rm -rf ${OUT_DIR}/core_part5
     mkdir -p ${OUT_DIR}/core_part5
 
-    CMD="./biobtree $BB_DEFAULT_PARAM -d \"${CORE_PART5}\" --out-dir \"${OUT_DIR}/core_part5\" -idx core_part5 update"
+    # RefSeq uses --genome-taxids with same tax IDs as Ensembl
+    CMD="./biobtree $BB_DEFAULT_PARAM -d \"${CORE_PART5}\" --genome-taxids ${ENSEMBL_TAXIDS} --out-dir \"${OUT_DIR}/core_part5\" -idx core_part5 update"
 
-    if ! run_job_with_retry "Core Part 5 (entrez)" "$CMD" "logs/core_part5_entrez.log" "${OUT_DIR}/core_part5"; then
-        echo "ERROR: Core Part 5 (entrez) failed after retries. Exiting."
+    if ! run_job_with_retry "Core Part 5 (entrez + refseq)" "$CMD" "logs/core_part5_entrez_refseq.log" "${OUT_DIR}/core_part5"; then
+        echo "ERROR: Core Part 5 (entrez + refseq) failed after retries. Exiting."
         exit 1
     fi
 fi
@@ -358,7 +359,7 @@ echo "Log files:"
 [[ "$RUN_CORE2" == "true" ]] && echo "  - logs/core_part2.log"
 [[ "$RUN_CORE3" == "true" ]] && echo "  - logs/core_part3_dbsnp.log"
 [[ "$RUN_CORE4" == "true" ]] && echo "  - logs/core_part4_pubchem.log"
-[[ "$RUN_CORE5" == "true" ]] && echo "  - logs/core_part5_entrez.log"
+[[ "$RUN_CORE5" == "true" ]] && echo "  - logs/core_part5_entrez_refseq.log"
 [[ "$RUN_ENSEMBL" == "true" ]] && echo "  - logs/ensembl_model.log"
 echo ""
 echo "Next step: Run GENERATE phase with:"

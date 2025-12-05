@@ -1149,3 +1149,61 @@ message EntrezAttr {
   string orientation = 9;       // strand orientation: + or -
   string genomic_accession = 10; // RefSeq genomic accession (e.g., NC_000001.11)
 }
+
+// RefSeqAttr stores NCBI RefSeq sequence attributes
+// Source: ftp.ncbi.nlm.nih.gov/refseq/H_sapiens/mRNA_Prot/ (GBFF/GPFF files)
+// RefSeq provides curated, non-redundant reference sequences for genomic DNA, transcripts, and proteins
+message RefSeqAttr {
+  // Core identification
+  string accession = 1;           // Full accession with version (e.g., NM_001353961.2, NP_001340890.1)
+  string type = 2;                // Sequence type: mRNA, ncRNA, protein, genomic, misc_RNA, rRNA
+  string status = 3;              // RefSeq status: VALIDATED, REVIEWED, PROVISIONAL, PREDICTED, MODEL, INFERRED, SUPPRESSED
+
+  // Gene information (from GBFF FEATURES/gene)
+  string symbol = 4;              // Gene symbol (e.g., BRCA1)
+  string description = 5;         // DEFINITION field - full description
+  repeated string synonyms = 6;   // Gene synonyms from /gene_synonym qualifier
+
+  // Genomic context
+  string assembly = 7;            // Assembly name (e.g., GRCh38.p14)
+  string chromosome = 8;          // Chromosome number/name
+  int64 start_position = 9;       // Start position on genomic accession
+  int64 end_position = 10;        // End position on genomic accession
+  string orientation = 11;        // Strand orientation: + or -
+
+  // Related accessions (cross-links between transcript, protein, genomic)
+  string genomic_accession = 12;  // Genomic nucleotide accession (e.g., NC_000001.11)
+  string protein_accession = 13;  // Protein accession (e.g., NP_001340890.1)
+  string rna_accession = 14;      // RNA/transcript accession (e.g., NM_001353961.2)
+
+  // MANE (Matched Annotation from NCBI and EBI) - gold standard transcripts
+  bool is_mane_select = 15;       // MANE Select: one transcript per protein-coding gene
+  bool is_mane_plus_clinical = 16; // MANE Plus Clinical: additional clinically relevant transcripts
+  string ensembl_transcript = 17; // Corresponding Ensembl transcript ID (e.g., ENST00000357654.9)
+  string ensembl_protein = 18;    // Corresponding Ensembl protein ID (e.g., ENSP00000350283.3)
+
+  // Cross-references (from GBFF DBSOURCE and /db_xref qualifiers)
+  string hgnc_id = 19;            // HGNC ID (e.g., HGNC:1100)
+  string ccds_id = 20;            // CCDS ID (e.g., CCDS11456.1)
+  string uniprot_id = 21;         // UniProt accession
+
+  // Protein-specific fields (from GPFF)
+  int32 protein_length = 22;      // Protein length in amino acids
+  double molecular_weight = 23;   // Calculated molecular weight in Daltons
+  string protein_name = 24;       // Protein product name
+
+  // Taxonomy
+  int32 taxid = 25;               // NCBI Taxonomy ID (e.g., 9606 for human)
+  string organism = 26;           // Organism name (e.g., "Homo sapiens")
+
+  // Sequence metadata
+  int32 seq_length = 27;          // Sequence length (nucleotides for RNA, aa for protein)
+  string mol_type = 28;           // Molecule type from source qualifier
+
+  // Clinical and quality annotations
+  bool is_lrg = 29;               // Has LRG (Locus Reference Genomic) reference
+  string lrg_id = 30;             // LRG ID if applicable (e.g., LRG_1)
+
+  // Exon structure (for transcripts)
+  int32 exon_count = 31;          // Number of exons
+}

@@ -153,7 +153,8 @@ def build_test_database(biobtree_path: Path, datasets: str, cwd: Path = None, ge
     print()
 
     try:
-        cmd = [str(biobtree_path), "-d", datasets,"--keep"]
+        #cmd = [str(biobtree_path), "-d", datasets,"--keep"]
+        cmd = [str(biobtree_path), "-d", datasets]
         if genome_taxids:
             cmd.extend(["--genome-taxids", genome_taxids])
         cmd.append("test")
@@ -192,7 +193,7 @@ Examples:
   %(prog)s hmdb,go,taxonomy   # Run multiple specific tests
 
 Available datasets:
-  uniprot, go, taxonomy, eco, efo, chebi, interpro, hmdb, lipidmaps, swisslipids, chembl_document, chembl_molecule, chembl_activity, chembl_assay, chembl_target, chembl_cell_line, ensembl, mondo, hpo, mesh, uberon, cl, oba, pato, obi, xco, bgee, patent, clinical_trials, clinvar, string, reactome, rhea, alphafold, rnacentral, uniparc, uniref50, uniref90, uniref100, gwas_study, gwas, dbsnp, intact, protein_similarity, antibody, pubchem, entrez
+  uniprot, go, taxonomy, eco, efo, chebi, interpro, hmdb, lipidmaps, swisslipids, chembl_document, chembl_molecule, chembl_activity, chembl_assay, chembl_target, chembl_cell_line, ensembl, mondo, hpo, mesh, uberon, cl, oba, pato, obi, xco, bgee, patent, clinical_trials, clinvar, string, reactome, rhea, alphafold, rnacentral, uniparc, uniref50, uniref90, uniref100, gwas_study, gwas, dbsnp, intact, protein_similarity, antibody, pubchem, entrez, refseq
 
   Temporarily disabled (Ensembl Genomes API SSL issues):
   ensembl_bacteria, ensembl_fungi, ensembl_metazoa, ensembl_plants, ensembl_protists
@@ -276,6 +277,7 @@ Available datasets:
         'antibody': datasets_dir / "antibody" / "test_antibody.py",
         'pubchem': datasets_dir / "pubchem" / "test_pubchem.py",
         'entrez': datasets_dir / "entrez" / "test_entrez.py",
+        'refseq': datasets_dir / "refseq" / "test_refseq.py",
     }
 
     # Parse dataset selection
@@ -335,6 +337,12 @@ Available datasets:
         # STRING requires UniProt for mapping
         if 'uniprot' not in build_datasets:
             build_datasets.append('uniprot')
+
+    # Handle RefSeq dataset: requires taxonomy ID for genome-based data
+    if 'refseq' in selected_datasets:
+        # RefSeq test data is for human only (uses /genomes/refseq/ with assembly_summary.txt)
+        if not genome_taxids:
+            genome_taxids = "9606"
 
     # Build test database with selected datasets (including dependencies)
     datasets_str = ','.join(build_datasets)

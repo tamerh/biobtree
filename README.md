@@ -7,7 +7,7 @@ via identifiers and special keywors with simple or advance chain query capabilit
 
 ## Features
 
-* **Datasets** - supports wide datasets such as `Ensembl` `Uniprot` `ChEMBL` `HMDB` `Taxonomy` `GO` `EFO` `HPO` `UBERON` `CL` `HGNC` `ECO` `Uniparc` `Uniref` `RNACentral` `Bgee` `GWAS Catalog` `dbSNP` `IntAct`  with tens of more via cross references
+* **Datasets** - supports wide datasets such as `Ensembl` `Uniprot` `ChEMBL` `HMDB` `Taxonomy` `GO` `EFO` `HPO` `UBERON` `CL` `HGNC` `ECO` `Uniparc` `Uniref` `RNACentral` `Bgee` `GWAS Catalog` `dbSNP` `RefSeq` `IntAct`  with tens of more via cross references
 by retrieving latest data from providers
 
 * **MapReduce** - processes small or large datasets based on users selection and build B+ tree based uniform local database via specialized MapReduce based tecnique with efficient storage usage 
@@ -35,6 +35,8 @@ by retrieving latest data from providers
 * **GWAS Genetics** - `GWAS Catalog` from NHGRI-EBI with 1,000,000+ SNP-trait associations and 182,000+ published studies. Includes variant-level data (genomic positions, genes, p-values, effect sizes) and study-level metadata (publications, sample sizes, platforms). Supports variant-trait discovery, gene-based variant lookup, disease genetics exploration, and links to EFO trait ontology. Future enhancement planned for ancestry-based filtering
 
 * **Genetic Variants** - `dbSNP` (database of Single Nucleotide Polymorphisms) from NCBI with RefSNP IDs (rs numbers), genomic coordinates, allele information, population allele frequencies, gene associations, and clinical significance data. Supports variant lookup, gene-to-SNP mapping, allele frequency analysis, and variant type classification (SNV, insertion, deletion)
+
+* **Reference Sequences** - `RefSeq` from NCBI with curated reference sequences for genomes, transcripts, and proteins. Provides genomic coordinates, gene annotations, protein sequences, and cross-references to UniProt, Entrez Gene, and other databases. Use `--genome-taxids` to filter to specific organisms for model organism databases
 
 * **Protein Interactions** - `IntAct` database from EBI with ~1.8 million experimentally validated protein-protein interactions across ~100,000 unique proteins. Provides detailed experimental evidence including detection methods, interaction types, confidence scores, experimental roles, and direct citations to 23,000+ publications. Supports interaction network analysis, drug target discovery, and pathway exploration with PSI-MI standardized terms
 
@@ -84,6 +86,10 @@ biobtree -d "dbsnp,hgnc" build
 
 # build with protein interactions (requires UniProt)
 biobtree -d "uniprot,intact" build
+
+# build with RefSeq reference sequences (filter to specific organisms)
+biobtree --genome-taxids 9606 -d "refseq,uniprot,entrez" build  # Human only
+biobtree --genome-taxids 9606,10090 -d "refseq" build  # Human + Mouse
 
 # build all ontologies at once (GO, ECO, EFO, UBERON, CL, MONDO, HPO, OBA, PATO, OBI, XCO)
 biobtree -d "ontology" build
@@ -351,6 +357,12 @@ biobtree query "GCST010481 >> gwas"               # Study to SNP associations
 biobtree query "rs200676709"                      # SNP lookup with genomic position
 biobtree query "rs200676709 >> hgnc"              # SNP to associated gene
 biobtree query "BRCA1 >> dbsnp"                   # Find SNPs in gene
+
+# RefSeq reference sequence queries
+biobtree query "NM_007294"                        # RefSeq transcript lookup
+biobtree query "NM_007294 >> uniprot"             # RefSeq transcript to UniProt
+biobtree query "NP_005219 >> entrez"              # RefSeq protein to Entrez Gene
+biobtree query "NC_000017.11"                     # RefSeq chromosome lookup
 
 # IntAct protein interaction queries
 biobtree query "P49418"                           # Protein interaction lookup

@@ -179,6 +179,15 @@ func (p *pubchemAssay) processBioassayFile(ftpServer, basePath, bioassayPath str
 			continue
 		}
 
+		// Skip non-numeric AIDs (data corruption or header line)
+		// PubChem assay IDs should always be numeric (e.g., "1234567")
+		if len(aid) > 0 && (aid[0] < '0' || aid[0] > '9') {
+			if lineCount < 10 || lineCount%100000 == 0 {
+				log.Printf("[PubChem Assay] Skipping non-numeric AID: '%s' at line %d", aid, lineCount)
+			}
+			continue
+		}
+
 		// Extract fields
 		name := strings.TrimSpace(record[1])
 		depositDate := strings.TrimSpace(record[2])

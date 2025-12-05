@@ -225,7 +225,6 @@ func (p *pubchem) buildTempBiotreeDB() error {
 		"-d", "my_data",
 		"--my_data.file=" + p.tempCIDFile,
 		"--out-dir=" + p.tempDBDir,
-		"--keep",
 		"build",
 	}
 

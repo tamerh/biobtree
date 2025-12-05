@@ -148,7 +148,7 @@ echo "  - Core part 1: uniprot, hgnc, taxonomy, interpro, hmdb, chembl, ..."
 echo "  - Core part 2: alphafold, rnacentral, reactome, clinical_trials, patent, string, bgee, ontology"
 echo "  - Core part 3: dbsnp (large dataset, separate job)"
 echo "  - Core part 4: pubchem, pubchem_activity, pubchem_assay"
-echo "  - Core part 5: entrez gene (large dataset, 64M+ genes)"
+echo "  - Core part 5: entrez gene + refseq (large datasets, model organism genomes)"
 echo "  - Ensembl genomes (16 model organisms, strain-specific IDs)"
 echo ""
 echo "Job structure (6 biobtree commands):"
@@ -156,7 +156,7 @@ echo "  1. Core part 1 (stable datasets, no filtering)"
 echo "  2. Core part 2 (stable datasets, STRING filtered by --tax)"
 echo "  3. Core part 3 (dbsnp only)"
 echo "  4. Core part 4 (pubchem datasets)"
-echo "  5. Core part 5 (entrez gene)"
+echo "  5. Core part 5 (entrez gene + refseq)"
 echo "  6. Ensembl (filtered by --tax to 16 model organisms)"
 echo "============================================"
 echo ""
@@ -202,7 +202,7 @@ else
     CORE_PART2="chebi,alphafold,rnacentral,reactome,clinical_trials,patent,string,bgee,rhea,ontology,mesh"
     CORE_PART3="dbsnp"  # Large dataset, prone to FTP issues, separate with retry logic
     CORE_PART4="pubchem,pubchem_activity,pubchem_assay"  # PubChem datasets
-    CORE_PART5="entrez"  # Entrez Gene (large dataset, 64M+ genes)
+    CORE_PART5="entrez,refseq"  # Entrez Gene + RefSeq (large datasets, model organism genomes)
 
     # Calculate total jobs to submit
     TOTAL_JOBS=0
@@ -287,21 +287,21 @@ EOF
         echo ""
     fi
 
-    # 5. Submit core part 5 job (entrez) (if enabled)
+    # 5. Submit core part 5 job (entrez + refseq) (if enabled)
     if [[ "$RUN_CORE5" == "true" ]]; then
         ((++JOB_NUM))
-        echo "[${JOB_NUM}/${TOTAL_JOBS}] Submitting core_part5 job (entrez)..."
+        echo "[${JOB_NUM}/${TOTAL_JOBS}] Submitting core_part5 job (entrez + refseq)..."
         rm -rf ${OUT_DIR}/core_part5
         mkdir -p ${OUT_DIR}/core_part5
         cat > run_core_part5.sh <<EOF
 #!/bin/bash
 cd ${PWD}
-./biobtree $BB_DEFAULT_PARAM -d "${CORE_PART5}" --out-dir "${OUT_DIR}/core_part5" -idx core_part5 update
+./biobtree $BB_DEFAULT_PARAM -d "${CORE_PART5}" --genome-taxids ${ENSEMBL_TAXIDS} --out-dir "${OUT_DIR}/core_part5" -idx core_part5 update
 EOF
         chmod +x run_core_part5.sh
-        qsub -cwd -V -q "$QUEUE" -N "core_part5_entrez" -pe smp $JOB_CPU -l h_vmem=${JOB_MEMORY}M -l h_rt=${JOB_RUNTIME} -o logs/core_part5_entrez.log -j y ./run_core_part5.sh
-        SUBMITTED_JOBS+=("core_part5_entrez")
-        echo "  ✓ Submitted: core part 5 (entrez gene)"
+        qsub -cwd -V -q "$QUEUE" -N "core_part5_entrez_refseq" -pe smp $JOB_CPU -l h_vmem=${JOB_MEMORY}M -l h_rt=${JOB_RUNTIME} -o logs/core_part5_entrez_refseq.log -j y ./run_core_part5.sh
+        SUBMITTED_JOBS+=("core_part5_entrez_refseq")
+        echo "  ✓ Submitted: core part 5 (entrez gene + refseq)"
         echo ""
     fi
 
@@ -335,7 +335,7 @@ EOF
     [[ "$RUN_CORE2" == "true" ]] && echo "  tail -f logs/core_part2.log"
     [[ "$RUN_CORE3" == "true" ]] && echo "  tail -f logs/core_part3_dbsnp.log"
     [[ "$RUN_CORE4" == "true" ]] && echo "  tail -f logs/core_part4_pubchem.log"
-    [[ "$RUN_CORE5" == "true" ]] && echo "  tail -f logs/core_part5_entrez.log"
+    [[ "$RUN_CORE5" == "true" ]] && echo "  tail -f logs/core_part5_entrez_refseq.log"
     [[ "$RUN_ENSEMBL" == "true" ]] && echo "  tail -f logs/ensembl_model.log"
     echo ""
     echo "After all jobs complete, run GENERATE phase with:"

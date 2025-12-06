@@ -184,7 +184,6 @@ func (u *uniparc) update() {
 
 	u.d.progChan <- &progressInfo{dataset: u.source, done: true}
 	atomic.AddUint64(&u.d.totalParsedEntry, totalEntries)
-	u.d.addEntryStat(u.source, totalEntries)
 
 	log.Printf("UniParc processing complete: %d total entries from %d files", totalEntries, len(files))
 }

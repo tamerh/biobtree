@@ -193,7 +193,6 @@ func (g *ontology) update() {
 				if shouldStopProcessing(testLimit, int(total)) {
 					g.d.progChan <- &progressInfo{dataset: g.source, done: true}
 					atomic.AddUint64(&g.d.totalParsedEntry, total)
-					g.d.addEntryStat(g.source, total)
 					return
 				}
 
@@ -205,7 +204,4 @@ func (g *ontology) update() {
 
 	g.d.progChan <- &progressInfo{dataset: g.source, done: true}
 	atomic.AddUint64(&g.d.totalParsedEntry, total)
-
-	g.d.addEntryStat(g.source, total)
-
 }

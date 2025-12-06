@@ -202,7 +202,6 @@ func (db *dbsnp) parseAndSaveVCF(testLimit int, idLogFile *os.File) {
 
 	// Update entry statistics
 	atomic.AddUint64(&db.d.totalParsedEntry, uint64(totalSavedSNPs))
-	db.d.addEntryStat(db.source, uint64(totalSavedSNPs))
 }
 
 // processChromosome processes a single chromosome using tabix

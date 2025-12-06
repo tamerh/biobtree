@@ -73,9 +73,6 @@ func (ct *clinicalTrials) update() {
 	}
 	fmt.Printf("Completed processing clinical trials: %d trials\n", totalTrials)
 
-	// Add entry statistics
-	ct.d.addEntryStat(ct.source, uint64(totalTrials))
-
 	ct.d.progChan <- &progressInfo{dataset: ct.source, done: true}
 }
 

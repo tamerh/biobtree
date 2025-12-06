@@ -471,7 +471,4 @@ func (h *hmdb) update() {
 
 	h.d.progChan <- &progressInfo{dataset: h.source, done: true}
 	atomic.AddUint64(&h.d.totalParsedEntry, total)
-
-	h.d.addEntryStat(h.source, total)
-
 }

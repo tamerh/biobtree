@@ -127,7 +127,6 @@ func (t *taxonomy) update() {
 		if shouldStopProcessing(testLimit, int(total)) {
 			t.d.progChan <- &progressInfo{dataset: t.source, done: true}
 			atomic.AddUint64(&t.d.totalParsedEntry, total)
-			t.d.addEntryStat(t.source, total)
 			return
 		}
 
@@ -135,6 +134,4 @@ func (t *taxonomy) update() {
 
 	t.d.progChan <- &progressInfo{dataset: t.source, done: true}
 	atomic.AddUint64(&t.d.totalParsedEntry, total)
-	t.d.addEntryStat(t.source, total)
-
 }

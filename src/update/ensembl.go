@@ -1064,9 +1064,6 @@ func (e *ensembl) update() {
 
 	e.d.progChan <- &progressInfo{dataset: e.source, done: true}
 	atomic.AddUint64(&e.d.totalParsedEntry, total)
-
-	e.d.addEntryStat(e.source, total)
-
 }
 
 func (e *ensembl) xref(j *jsparser.JSON, entryid, from, propName, dbid string) {

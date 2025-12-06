@@ -1,51 +1,51 @@
 {
   "_comment": "GWAS Association Test Cases - SNP-trait associations",
-  "_note": "GWAS associations provide variant-trait associations with genomic positions, genes, EFO traits, and statistical evidence",
+  "_note": "GWAS associations use accessionId (STUDYID_N format) as primary key, with SNP IDs searchable via cross-references",
 
   "common_tests": [
     {
-      "name": "Lookup by SNP ID (rs number)",
+      "name": "Lookup by association ID",
       "type": "id_lookup",
-      "id": "@reference[0].rsId"
+      "id": "@reference[0].accessionId"
     },
     {
-      "name": "Check SNP has attributes",
+      "name": "Check association has attributes",
       "type": "attribute_check",
-      "id": "@reference[0].rsId"
+      "id": "@reference[0].accessionId"
     },
     {
-      "name": "Lookup multiple SNPs",
+      "name": "Lookup multiple associations",
       "type": "multi_lookup",
       "count": 5,
-      "id_field": "rsId"
+      "id_field": "accessionId"
     },
     {
       "name": "Invalid ID handling",
       "type": "invalid_id",
-      "invalid_id": "rs99999999999"
+      "invalid_id": "GCST99999999_99999"
     }
   ],
 
   "custom_tests": [
     {
-      "name": "Check SNP has genomic position",
-      "description": "Verify SNPs have chromosome, position, region, and context"
+      "name": "Check association has genomic position",
+      "description": "Verify associations have chromosome, position, region, and context"
     },
     {
-      "name": "Check SNP to study cross-references",
-      "description": "Verify SNPs link to GWAS studies"
+      "name": "Check association to study cross-references",
+      "description": "Verify associations link to GWAS studies"
     },
     {
       "name": "Check gene associations",
-      "description": "Verify SNPs have reported genes and mapped genes"
+      "description": "Verify associations have reported genes and mapped genes"
     },
     {
       "name": "Check EFO trait cross-references",
-      "description": "Verify SNPs link to EFO ontology terms for disease traits"
+      "description": "Verify associations link to EFO ontology terms for disease traits"
     },
     {
-      "name": "Check disease trait text search",
-      "description": "Verify SNPs can be searched by disease/trait name"
+      "name": "Check SNP ID text search",
+      "description": "Verify associations can be searched by SNP ID (rs number)"
     },
     {
       "name": "Check statistical evidence",

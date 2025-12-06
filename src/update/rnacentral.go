@@ -51,7 +51,6 @@ func (r *rnacentralProcessor) update() {
 	fmt.Printf("RNACentral processing complete: %d sequences processed\n", totalProcessed)
 
 	atomic.AddUint64(&r.d.totalParsedEntry, totalProcessed)
-	r.d.addEntryStat(r.source, totalProcessed)
 	r.d.progChan <- &progressInfo{dataset: r.source, done: true}
 }
 

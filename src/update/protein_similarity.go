@@ -218,7 +218,6 @@ func (p *proteinSimilarity) parseAndSaveSimilarities(testLimit int, idLogFile *o
 
 	// Update entry statistics
 	atomic.AddUint64(&p.d.totalParsedEntry, uint64(savedProteins))
-	p.d.addEntryStat(p.source, uint64(savedProteins))
 }
 
 // extractUniProtID extracts UniProt accession from pipe-delimited format

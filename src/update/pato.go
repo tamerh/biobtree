@@ -177,7 +177,6 @@ done:
 
 	p.d.progChan <- &progressInfo{dataset: p.source, done: true}
 	atomic.AddUint64(&p.d.totalParsedEntry, total)
-	p.d.addEntryStat(p.source, total)
 }
 
 func (p *pato) saveEntry(id string, datasetID string, attr *pbuf.OntologyAttr) {

@@ -507,6 +507,5 @@ func (c *clinvar) saveVariants(variants map[string]*ClinvarVariant) {
 	log.Printf("ClinVar: Successfully saved %d variants to database", savedCount)
 
 	// Report statistics
-	c.d.addEntryStat(c.source, uint64(savedCount))
 	atomic.AddUint64(&c.d.totalParsedEntry, uint64(savedCount))
 }

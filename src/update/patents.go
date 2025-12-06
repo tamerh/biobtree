@@ -46,10 +46,6 @@ func (p *patents) update() {
 	}
 	fmt.Printf("Completed processing mappings: %d records\n", totalMappings)
 
-	// Add entry statistics
-	p.d.addEntryStat(p.source, uint64(totalPatents))
-	p.d.addEntryStat("patent_compound", uint64(totalCompounds))
-
 	p.d.progChan <- &progressInfo{dataset: p.source, done: true}
 }
 

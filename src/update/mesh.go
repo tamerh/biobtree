@@ -82,7 +82,6 @@ func (m *mesh) update() {
 	total := totalDescriptors + totalSupplementary
 	m.d.progChan <- &progressInfo{dataset: m.source, done: true}
 	atomic.AddUint64(&m.d.totalParsedEntry, total)
-	m.d.addEntryStat(m.source, total)
 }
 
 func (m *mesh) parseDescriptors(fr, frparent, frchild string, frparentStr, frchildStr string, start *time.Time, previous *int64, total *uint64, testLimit int, idLogFile *os.File) bool {

@@ -134,7 +134,6 @@ func (r *rhea) update() {
 		r.source, totalReactions, len(smilesMap), len(parentMap), len(childMap), ecMappings, goMappings, uniprotMappings, chebiMappings, pathwayMappings)
 
 	atomic.AddUint64(&r.d.totalParsedEntry, totalReactions)
-	r.d.addEntryStat(r.source, totalReactions)
 	r.d.progChan <- &progressInfo{dataset: r.source, done: true}
 }
 

@@ -799,9 +799,10 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 		}
 		if bucketStats != nil {
 			bucketLines = bucketStats.TotalLines
-			// Add entry size only for textsearch bucket (other datasets will be added later)
-			if textsearchLines, ok := bucketStats.PerDataset["textsearch"]; ok {
-				d.addEntryStat("textsearch", textsearchLines)
+			// Add entry stats for all datasets from concatenation counts
+			// This is the accurate post-deduplication count
+			for datasetName, lineCount := range bucketStats.PerDataset {
+				d.addEntryStat(datasetName, lineCount)
 			}
 		}
 		log.Printf("Bucket processing complete (%d lines after deduplication)", bucketLines)

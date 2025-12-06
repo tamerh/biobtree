@@ -507,6 +507,4 @@ uniloop:
 	u.d.progChan <- &progressInfo{dataset: u.source, done: true}
 
 	atomic.AddUint64(&u.d.totalParsedEntry, total)
-	u.d.addEntryStat(u.source, total)
-
 }

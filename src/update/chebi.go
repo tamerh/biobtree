@@ -720,7 +720,6 @@ func (c *chebi) update() {
 
 	// Done
 	atomic.AddUint64(&c.d.totalParsedEntry, processedCount)
-	c.d.addEntryStat(c.source, processedCount)
 	c.d.progChan <- &progressInfo{dataset: c.source, done: true}
 
 	log.Printf("ChEBI: Processing complete - %d compounds with full data", processedCount)

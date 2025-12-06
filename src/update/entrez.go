@@ -203,7 +203,6 @@ func (e *entrez) update() {
 	}
 
 	atomic.AddUint64(&e.d.totalParsedEntry, total)
-	e.d.addEntryStat(e.source, total)
 
 	log.Printf("[Entrez Gene] Processed %d genes", total)
 

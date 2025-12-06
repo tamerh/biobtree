@@ -179,7 +179,6 @@ func (g *gwasStudy) parseAndSaveStudies(testLimit int, idLogFile *os.File) {
 
 	// Update entry statistics
 	atomic.AddUint64(&g.d.totalParsedEntry, uint64(processedCount))
-	g.d.addEntryStat(g.source, uint64(processedCount))
 }
 
 // saveStudy creates and saves a single GWAS study entry

@@ -124,13 +124,16 @@ func (g *gwas) parseAndSaveAssociations(testLimit int, idLogFile *os.File) {
 
 	log.Printf("GWAS Associations: Found %d columns in header", len(colMap))
 
-	// Save each association individually with composite key: STUDYID_RSID
-	// This avoids ID collision with dbSNP and preserves all associations
+	// Save each association with unique key: STUDYID_N (where N is row counter per study)
+	// This avoids long keys while preserving all SNP associations via xrefs
 	var savedAssociations int
 	var previous int64
 	var skippedEmptySNP int
 	var skippedEmptyStudy int
 	var totalRowsRead int
+
+	// Track association count per study for unique key generation
+	studyAssocCount := make(map[string]int)
 
 	lineNum := 1
 	for scanner.Scan() {
@@ -159,9 +162,9 @@ func (g *gwas) parseAndSaveAssociations(testLimit int, idLogFile *os.File) {
 			g.d.progChan <- &progressInfo{dataset: g.source, currentKBPerSec: int64(savedAssociations / int(elapsed))}
 		}
 
-		// Extract SNP ID and Study Accession
-		snpID := getField(row, colMap, "SNPS")
-		if snpID == "" {
+		// Extract SNP IDs and Study Accession
+		snpsField := getField(row, colMap, "SNPS")
+		if snpsField == "" {
 			skippedEmptySNP++
 			continue
 		}
@@ -172,18 +175,26 @@ func (g *gwas) parseAndSaveAssociations(testLimit int, idLogFile *os.File) {
 			continue
 		}
 
-		// Build association entry
-		assoc := g.buildAssociation(row, colMap, snpID)
+		// SNPS field can contain multiple SNP IDs separated by semicolons, commas, or "x"
+		// e.g., "rs387673; rs12413638; rs7096965" or "rs123 x rs456"
+		snpIDs := splitSNPs(snpsField)
+		if len(snpIDs) == 0 {
+			skippedEmptySNP++
+			continue
+		}
+
+		// Generate unique key: STUDYID_N (e.g., "GCST000001_1", "GCST000001_2")
+		studyAssocCount[studyAccession]++
+		associationID := studyAccession + "_" + strconv.Itoa(studyAssocCount[studyAccession])
+
+		// Build association entry with first SNP as primary (others linked via xrefs)
+		assoc := g.buildAssociation(row, colMap, snpIDs[0])
 		if assoc == nil {
 			continue
 		}
 
-		// Create composite key: STUDYID_RSID (e.g., "GCST000001_rs7903146")
-		// This ensures uniqueness and avoids collision with dbSNP entries
-		associationID := studyAccession + "_" + snpID
-
-		// Save association with composite key
-		g.saveAssociation(associationID, snpID, assoc, sourceID)
+		// Save association with unique short key
+		g.saveAssociation(associationID, snpIDs, assoc, sourceID)
 
 		// Log ID for testing
 		if idLogFile != nil {
@@ -209,7 +220,6 @@ func (g *gwas) parseAndSaveAssociations(testLimit int, idLogFile *os.File) {
 
 	// Update entry statistics
 	atomic.AddUint64(&g.d.totalParsedEntry, uint64(savedAssociations))
-	g.d.addEntryStat(g.source, uint64(savedAssociations))
 }
 
 // buildAssociation creates a single association entry from row
@@ -304,42 +314,49 @@ func (g *gwas) buildAssociation(row []string, colMap map[string]int, snpID strin
 }
 
 // saveAssociation creates and saves a single GWAS association entry
-// associationID: Composite key in format "STUDYID_RSID" (e.g., "GCST000001_rs7903146")
-// snpID: The rs ID for cross-reference purposes
-func (g *gwas) saveAssociation(associationID string, snpID string, attr *pbuf.GwasAttr, sourceID string) {
+// associationID: Unique key in format "STUDYID_N" (e.g., "GCST000001_1")
+// snpIDs: All SNP IDs from this association row (for cross-references)
+func (g *gwas) saveAssociation(associationID string, snpIDs []string, attr *pbuf.GwasAttr, sourceID string) {
 	// Marshal attributes
 	attrBytes, err := ffjson.Marshal(attr)
 	g.check(err, fmt.Sprintf("marshaling GWAS attributes for %s", associationID))
 
-	// Save entry with composite key
+	// Save entry with unique key
 	g.d.addProp3(associationID, sourceID, attrBytes)
 
-	// Create cross-references
-	g.createCrossReferences(associationID, snpID, sourceID, attr)
+	// Create cross-references for all SNPs
+	g.createCrossReferences(associationID, snpIDs, sourceID, attr)
 }
 
 // createCrossReferences builds all cross-references for a GWAS association
-// associationID: Composite key "STUDYID_RSID" (e.g., "GCST000001_rs7903146")
-// snpID: The rs ID part (e.g., "rs7903146")
-func (g *gwas) createCrossReferences(associationID string, snpID string, sourceID string, attr *pbuf.GwasAttr) {
-	// Text search: SNP ID searchable (finds all associations for this SNP)
-	// Entry ID (associationID) is already searchable by default, no need to add as keyword
-	g.d.addXref(snpID, textLinkID, associationID, g.source, true)
+// associationID: Unique key "STUDYID_N" (e.g., "GCST000001_1")
+// snpIDs: All SNP IDs from this association row
+func (g *gwas) createCrossReferences(associationID string, snpIDs []string, sourceID string, attr *pbuf.GwasAttr) {
+	// Text search: association ID searchable (e.g., "GCST000001_1")
+	g.d.addXref(associationID, textLinkID, associationID, g.source, true)
 
-	// Bidirectional cross-reference: Association ↔ dbSNP
-	// "rs7903146 >> gwas" returns all associations (GCST000001_rs7903146, GCST000002_rs7903146, ...)
-	// Only create xref if snpID is a valid rsID format (starts with "rs" followed by digits)
-	if _, exists := config.Dataconf["dbsnp"]; exists {
-		// Log non-standard SNP IDs for investigation
-		if len(snpID) < 3 || snpID[0] != 'r' || snpID[1] != 's' || (len(snpID) > 2 && (snpID[2] < '0' || snpID[2] > '9')) {
-			log.Printf("[%s] Non-standard SNP ID (not rsID): '%s' for association: %s", g.source, snpID, associationID)
-		} else {
-			g.d.addXref(associationID, sourceID, snpID, "dbsnp", false)
+	// Text search: study accession searchable (e.g., search "GCST000001" finds all associations)
+	if attr.StudyAccession != "" {
+		g.d.addXref(attr.StudyAccession, textLinkID, associationID, g.source, true)
+	}
+
+	// Create xrefs for ALL SNPs in this association
+	for _, snpID := range snpIDs {
+		// Text search: SNP ID searchable (finds all associations for this SNP)
+		g.d.addXref(snpID, textLinkID, associationID, g.source, true)
+
+		// Bidirectional cross-reference: Association ↔ dbSNP
+		// "rs7903146 >> gwas" returns all associations containing this SNP
+		// Only create xref if snpID is a valid rsID format (starts with "rs" followed by digits)
+		if _, exists := config.Dataconf["dbsnp"]; exists {
+			if isValidRsID(snpID) {
+				g.d.addXref(associationID, sourceID, snpID, "dbsnp", false)
+			}
 		}
 	}
 
 	// Bidirectional cross-reference: Association ↔ GWAS Study
-	// "GCST000001 >> gwas" returns all SNP associations in this study
+	// "GCST000001 >> gwas" returns all associations in this study
 	if attr.StudyAccession != "" {
 		g.d.addXref(associationID, sourceID, attr.StudyAccession, "gwas_study", false)
 	}
@@ -367,13 +384,23 @@ func (g *gwas) createCrossReferences(associationID string, snpID string, sourceI
 			}
 		}
 	}
+}
 
-	// TODO: Consider mapping disease_trait and mapped_traits to ontologies
-	// Currently these are kept as display-only attributes:
-	// - attr.DiseaseTrait (e.g., "Type 2 diabetes") → Could map to MONDO/EFO via keyword lookup
-	// - attr.MappedTraits (e.g., ["insulin resistance", "glucose metabolism"]) → Could map to ontologies
-	// For now: Users should search via EFO entries, then use "EFO:0001360 >> gwas" to find SNPs
-	// This keeps search clean and uses structured ontology mappings already present in EFO cross-references
+// isValidRsID checks if a SNP ID is in valid rsID format (rs followed by digits)
+func isValidRsID(snpID string) bool {
+	if len(snpID) < 3 {
+		return false
+	}
+	if snpID[0] != 'r' || snpID[1] != 's' {
+		return false
+	}
+	// Check remaining characters are digits
+	for i := 2; i < len(snpID); i++ {
+		if snpID[i] < '0' || snpID[i] > '9' {
+			return false
+		}
+	}
+	return true
 }
 
 // Helper: readerAtFromBytes creates a ReaderAt from byte slice (needed for zip.NewReader)
@@ -394,6 +421,28 @@ func (r *bytesReaderAt) ReadAt(p []byte, off int64) (n int, err error) {
 		err = io.EOF
 	}
 	return
+}
+
+// splitSNPs splits a compound SNP field into individual SNP IDs
+// The GWAS Catalog SNPS field can contain multiple SNPs separated by:
+// - semicolons: "rs123; rs456; rs789"
+// - " x " (interaction): "rs123 x rs456"
+// - commas: "rs123, rs456"
+func splitSNPs(snpsField string) []string {
+	// Replace all delimiters with semicolon for uniform splitting
+	normalized := snpsField
+	normalized = strings.ReplaceAll(normalized, " x ", ";")
+	normalized = strings.ReplaceAll(normalized, ",", ";")
+
+	parts := strings.Split(normalized, ";")
+	var snpIDs []string
+	for _, part := range parts {
+		snpID := strings.TrimSpace(part)
+		if snpID != "" {
+			snpIDs = append(snpIDs, snpID)
+		}
+	}
+	return snpIDs
 }
 
 // getOntologyDataset maps ontology ID prefixes to biobtree dataset names

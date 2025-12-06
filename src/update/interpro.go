@@ -164,7 +164,4 @@ func (i *interpro) update() {
 
 	i.d.progChan <- &progressInfo{dataset: i.source, done: true}
 	atomic.AddUint64(&i.d.totalParsedEntry, total)
-
-	i.d.addEntryStat(i.source, total)
-
 }

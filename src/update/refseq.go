@@ -223,9 +223,7 @@ func (r *refseq) update(selectedTaxids []int) {
 	}
 
 	if len(taxidsToProcess) == 0 {
-		log.Printf("[RefSeq] Warning: No assemblies found for selected taxids")
-		r.d.progChan <- &progressInfo{dataset: r.source, done: true}
-		return
+		log.Panic("[RefSeq] No assemblies found for selected taxids")
 	}
 
 	// Phase 1: Load genomic positions from genomic GBFF files
@@ -281,7 +279,6 @@ func (r *refseq) update(selectedTaxids []int) {
 
 	elapsed := time.Since(start)
 	atomic.AddUint64(&r.d.totalParsedEntry, total)
-	r.d.addEntryStat(r.source, total)
 
 	log.Printf("[RefSeq] Processed %d entries in %v", total, elapsed)
 
@@ -295,8 +292,7 @@ func (r *refseq) loadAssemblySummary(summaryURL, group string) {
 
 	br, gz, ftpFile, client, localFile, _, err := getDataReaderNew(r.source, "", "", summaryURL)
 	if err != nil {
-		log.Printf("[RefSeq] Warning: Could not load assembly summary for %s: %v", group, err)
-		return
+		log.Panicf("[RefSeq] Could not load assembly summary for %s: %v", group, err)
 	}
 	defer closeReaders(gz, ftpFile, client, localFile)
 
@@ -348,8 +344,7 @@ func (r *refseq) loadMANEData(manePath string) {
 
 	br, gz, ftpFile, client, localFile, _, err := getDataReaderNew(r.source, "", "", manePath)
 	if err != nil {
-		log.Printf("[RefSeq] Warning: Could not load MANE data: %v", err)
-		return
+		log.Panicf("[RefSeq] Could not load MANE data: %v", err)
 	}
 	defer closeReaders(gz, ftpFile, client, localFile)
 

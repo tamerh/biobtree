@@ -53,7 +53,6 @@ func (a *alphafoldProcessor) update() {
 	fmt.Printf("AlphaFold processing complete: %d structures processed\n", totalProcessed)
 
 	atomic.AddUint64(&a.d.totalParsedEntry, totalProcessed)
-	a.d.addEntryStat(a.source, totalProcessed)
 	a.d.progChan <- &progressInfo{dataset: a.source, done: true}
 }
 

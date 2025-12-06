@@ -224,7 +224,6 @@ func (r *reactome) update() {
 		totalPathways, uniprotMappings, chebiMappings, ensemblMappings)
 
 	atomic.AddUint64(&r.d.totalParsedEntry, totalPathways)
-	r.d.addEntryStat(r.source, totalPathways)
 	r.d.progChan <- &progressInfo{dataset: r.source, done: true}
 }
 

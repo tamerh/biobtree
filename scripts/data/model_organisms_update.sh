@@ -168,7 +168,7 @@ echo ""
 # Create logs directory
 mkdir -p logs
 
-BB_DEFAULT_PARAM="--include-optionals --lookupdb --maxcpu ${MAXCPU}"
+BB_DEFAULT_PARAM="--include-optionals -c --lookupdb --maxcpu ${MAXCPU}"
 
 # Model organism taxonomy IDs (16 organisms from AlphaFold)
 # IMPORTANT: Ensembl and STRING use DIFFERENT taxonomy ID for S. cerevisiae!
@@ -200,7 +200,7 @@ TOTAL_JOBS=0
 JOB_NUM=0
 
 # Retry configuration
-MAX_RETRIES=0  # Total 1 attempt (initial only, no retry)
+MAX_RETRIES=2  # Total 3 attempts (initial + 2 retries)
 WAIT_MINUTES=5
 
 # Helper function to run a job with retry logic

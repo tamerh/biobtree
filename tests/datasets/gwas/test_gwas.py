@@ -10,9 +10,10 @@ GWAS association dataset contains SNP-trait associations from the GWAS Catalog t
 - Study cross-references linking to GWAS study metadata
 
 Test Structure:
-- Primary entries: rs* SNP IDs (e.g., rs12451471)
+- Primary entries: STUDYID_N format (e.g., GCST006085_1, GCST006085_2)
 - Attributes: snp_id, chr_id, chr_pos, genes, traits, p_values, study info
 - Cross-references: GWAS studies, EFO traits, gene symbols, disease/trait text search
+- SNP IDs (rs numbers) are searchable via cross-references
 """
 
 import sys
@@ -39,22 +40,22 @@ class GwasTests:
         self.runner = runner
 
     @test
-    def test_snp_has_genomic_position(self):
-        """Verify SNPs have chromosome, position, region, and context"""
+    def test_association_has_genomic_position(self):
+        """Verify associations have chromosome, position, region, and context"""
         if not self.runner.reference_data:
             return False, "No reference data available"
 
-        snp_id = self.runner.reference_data[0]["rsId"]
-        data = self.runner.query.lookup(snp_id)
+        assoc_id = self.runner.reference_data[0]["accessionId"]
+        data = self.runner.query.lookup(assoc_id)
 
         if not data or not data.get("results"):
-            return False, f"SNP {snp_id} not found"
+            return False, f"Association {assoc_id} not found"
 
         result = data["results"][0]
         attrs = result.get("Attributes", {}).get("Gwas", {})
 
         if not attrs:
-            return False, f"No GWAS attributes for {snp_id}"
+            return False, f"No GWAS attributes for {assoc_id}"
 
         # Check genomic position fields
         has_position = False
@@ -73,24 +74,24 @@ class GwasTests:
             return False, "Missing chromosome and position information"
 
         position_str = ", ".join(position_fields) if position_fields else "No position data"
-        return True, f"✓ SNP {snp_id} has genomic position: {position_str}"
+        return True, f"✓ Association {assoc_id} has genomic position: {position_str}"
 
     @test
-    def test_snp_to_study_xrefs(self):
-        """Verify SNPs link to GWAS studies"""
+    def test_association_to_study_xrefs(self):
+        """Verify associations link to GWAS studies"""
         study_xref_count = 0
         total_checked = 0
 
         for ref in self.runner.reference_data[:10]:
-            snp_id = ref.get("rsId")
-            if not snp_id:
+            assoc_id = ref.get("accessionId")
+            if not assoc_id:
                 continue
 
             # Query with x=true to get cross-references
             try:
                 response = requests.get(
                     f"{self.runner.api_url}/ws/search",
-                    params={"i": snp_id, "x": "true"},
+                    params={"i": assoc_id, "x": "true"},
                     timeout=5
                 )
                 if response.status_code != 200:
@@ -110,23 +111,23 @@ class GwasTests:
                 continue
 
         if total_checked == 0:
-            return False, "No SNPs found to check"
+            return False, "No associations found to check"
 
         percentage = study_xref_count * 100 // total_checked if total_checked > 0 else 0
-        return True, f"✓ {study_xref_count}/{total_checked} SNPs have GWAS study cross-references ({percentage}%)"
+        return True, f"✓ {study_xref_count}/{total_checked} associations have GWAS study cross-references ({percentage}%)"
 
     @test
     def test_gene_associations(self):
-        """Verify SNPs have reported genes and mapped genes"""
+        """Verify associations have reported genes and mapped genes"""
         gene_count = 0
         total_checked = 0
 
         for ref in self.runner.reference_data[:20]:
-            snp_id = ref.get("rsId")
-            if not snp_id:
+            assoc_id = ref.get("accessionId")
+            if not assoc_id:
                 continue
 
-            data = self.runner.query.lookup(snp_id)
+            data = self.runner.query.lookup(assoc_id)
 
             if not data or not data.get("results"):
                 continue
@@ -148,27 +149,27 @@ class GwasTests:
                 gene_count += 1
 
         if total_checked == 0:
-            return False, "No SNPs found to check"
+            return False, "No associations found to check"
 
         percentage = gene_count * 100 // total_checked if total_checked > 0 else 0
-        return True, f"✓ {gene_count}/{total_checked} SNPs have gene associations ({percentage}%)"
+        return True, f"✓ {gene_count}/{total_checked} associations have gene associations ({percentage}%)"
 
     @test
     def test_efo_trait_xrefs(self):
-        """Verify SNPs link to EFO ontology terms"""
+        """Verify associations link to EFO ontology terms"""
         efo_xref_count = 0
         total_checked = 0
 
         for ref in self.runner.reference_data[:10]:
-            snp_id = ref.get("rsId")
-            if not snp_id:
+            assoc_id = ref.get("accessionId")
+            if not assoc_id:
                 continue
 
             # Query with x=true to get cross-references
             try:
                 response = requests.get(
                     f"{self.runner.api_url}/ws/search",
-                    params={"i": snp_id, "x": "true"},
+                    params={"i": assoc_id, "x": "true"},
                     timeout=5
                 )
                 if response.status_code != 200:
@@ -188,46 +189,38 @@ class GwasTests:
                 continue
 
         if total_checked == 0:
-            return False, "No SNPs found to check"
+            return False, "No associations found to check"
 
         percentage = efo_xref_count * 100 // total_checked if total_checked > 0 else 0
-        return True, f"✓ {efo_xref_count}/{total_checked} SNPs have EFO trait cross-references ({percentage}%)"
+        return True, f"✓ {efo_xref_count}/{total_checked} associations have EFO trait cross-references ({percentage}%)"
 
     @test
-    def test_disease_trait_text_search(self):
-        """Verify SNPs can be searched by disease/trait name"""
-        # Find a SNP with a disease trait from our parsed data
+    def test_snp_id_text_search(self):
+        """Verify associations can be searched by SNP ID (rs number)"""
+        # Find an association with a SNP ID from our parsed data
+        assoc_id = None
         snp_id = None
-        disease_trait = None
 
         for ref in self.runner.reference_data[:10]:
-            test_snp = ref.get("rsId")
-            if not test_snp:
+            test_assoc = ref.get("accessionId")
+            test_snp = ref.get("snp_id")
+            if not test_assoc or not test_snp:
                 continue
 
-            # Get the SNP from biobtree
-            data = self.runner.query.lookup(test_snp)
-            if not data or not data.get("results"):
-                continue
-
-            result = data["results"][0]
-            attrs = result.get("Attributes", {}).get("Gwas", {})
-
-            # Get disease trait (limited to <200 chars as per safety limits)
-            trait = attrs.get("disease_trait", "")
-            if trait and len(trait) < 200:
+            # Verify the SNP ID is a valid rs number
+            if test_snp.startswith("rs") and test_snp[2:].isdigit():
+                assoc_id = test_assoc
                 snp_id = test_snp
-                disease_trait = trait
                 break
 
-        if not disease_trait:
-            return False, "No suitable disease traits found in test data"
+        if not snp_id:
+            return False, "No suitable SNP IDs found in test data"
 
-        # Search using disease trait name
+        # Search using SNP ID
         try:
             response = requests.get(
                 f"{self.runner.api_url}/ws/search",
-                params={"i": disease_trait},
+                params={"i": snp_id},
                 timeout=5
             )
             if response.status_code != 200:
@@ -235,14 +228,14 @@ class GwasTests:
 
             data = response.json()
             if not data or not data.get("results"):
-                return False, f"No results for trait search: {disease_trait}"
+                return False, f"No results for SNP ID search: {snp_id}"
 
-            # Check if our SNP is in results (it might not be the only one)
-            found = any(r.get("identifier") == snp_id for r in data["results"])
+            # Check if our association is in results
+            found = any(r.get("identifier") == assoc_id for r in data["results"])
             if not found:
-                return False, f"SNP {snp_id} not found via trait search"
+                return False, f"Association {assoc_id} not found via SNP ID search {snp_id}"
 
-            return True, f"✓ Trait search works: \"{disease_trait[:40]}...\" → {snp_id}"
+            return True, f"✓ SNP ID search works: {snp_id} → {assoc_id}"
 
         except Exception as e:
             return False, f"Search error: {e}"
@@ -254,11 +247,11 @@ class GwasTests:
         total_checked = 0
 
         for ref in self.runner.reference_data[:20]:
-            snp_id = ref.get("rsId")
-            if not snp_id:
+            assoc_id = ref.get("accessionId")
+            if not assoc_id:
                 continue
 
-            data = self.runner.query.lookup(snp_id)
+            data = self.runner.query.lookup(assoc_id)
 
             if not data or not data.get("results"):
                 continue
@@ -280,10 +273,10 @@ class GwasTests:
                 stats_count += 1
 
         if total_checked == 0:
-            return False, "No SNPs found to check"
+            return False, "No associations found to check"
 
         percentage = stats_count * 100 // total_checked if total_checked > 0 else 0
-        return True, f"✓ {stats_count}/{total_checked} SNPs have statistical evidence ({percentage}%)"
+        return True, f"✓ {stats_count}/{total_checked} associations have statistical evidence ({percentage}%)"
 
 
 def main():
@@ -306,11 +299,11 @@ def main():
     # Add custom tests
     custom_tests = GwasTests(runner)
     for test_method in [
-        custom_tests.test_snp_has_genomic_position,
-        custom_tests.test_snp_to_study_xrefs,
+        custom_tests.test_association_has_genomic_position,
+        custom_tests.test_association_to_study_xrefs,
         custom_tests.test_gene_associations,
         custom_tests.test_efo_trait_xrefs,
-        custom_tests.test_disease_trait_text_search,
+        custom_tests.test_snp_id_text_search,
         custom_tests.test_statistical_evidence
     ]:
         runner.add_custom_test(test_method)

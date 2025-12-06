@@ -406,6 +406,7 @@ type Merge struct {
 	tmprunSize              int                   // Buffer size for reading
 	lastProgressTime        time.Time             // Last time progress was logged
 	progressInterval        time.Duration         // Interval between progress logs
+	totalLinesRead          int64                 // Total lines read across all files for progress
 }
 
 // saveCheckpoint saves the current merge progress to a checkpoint file
@@ -459,10 +460,13 @@ func (d *Merge) saveCheckpoint(lastKey string) error {
 
 	d.lastCheckpointKey = lastKey
 
-	// Calculate progress percentage based on keys written vs total entry size
+	// Calculate total lines read from all files for progress
+	d.updateTotalLinesRead()
+
+	// Calculate progress percentage based on lines read vs total kv lines
 	var progressPercent float64
-	if d.totalEntrySize > 0 {
-		progressPercent = float64(d.totalKeyWrite) / float64(d.totalEntrySize) * 100
+	if d.totalkvLine > 0 {
+		progressPercent = float64(d.totalLinesRead) / float64(d.totalkvLine) * 100
 	}
 
 	// Memory stats
@@ -477,8 +481,8 @@ func (d *Merge) saveCheckpoint(lastKey string) error {
 		activeFiles = d.fileHeap.Len()
 	}
 
-	log.Printf("Checkpoint: %.1f%% | Keys: %d/%d | Last key: %s | Files: %d | Heap: %dMB | Sys: %dMB",
-		progressPercent, d.totalKeyWrite, d.totalEntrySize, lastKey, activeFiles, heapMB, sysMB)
+	log.Printf("Checkpoint: %.1f%% | Lines: %d/%d | Last key: %s | Files: %d | Heap: %dMB | Sys: %dMB",
+		progressPercent, d.totalLinesRead, d.totalkvLine, lastKey, activeFiles, heapMB, sysMB)
 
 	// Save heap profile every 1M keys (disabled by default - uncomment for debugging)
 	// if d.totalKeyWrite % 1000000 == 0 {
@@ -501,10 +505,13 @@ func (d *Merge) logTimeBasedProgress(currentKey string) {
 	}
 	d.lastProgressTime = time.Now()
 
-	// Calculate progress percentage based on keys written vs total entry size
+	// Calculate total lines read from all files for progress
+	d.updateTotalLinesRead()
+
+	// Calculate progress percentage based on lines read vs total kv lines
 	var progressPercent float64
-	if d.totalEntrySize > 0 {
-		progressPercent = float64(d.totalKeyWrite) / float64(d.totalEntrySize) * 100
+	if d.totalkvLine > 0 {
+		progressPercent = float64(d.totalLinesRead) / float64(d.totalkvLine) * 100
 	}
 
 	// Memory stats
@@ -517,8 +524,25 @@ func (d *Merge) logTimeBasedProgress(currentKey string) {
 		activeFiles = d.fileHeap.Len()
 	}
 
-	log.Printf("Progress: %.1f%% | Keys: %d/%d | Current: %s | Files: %d | Mem: %dMB",
-		progressPercent, d.totalKeyWrite, d.totalEntrySize, currentKey, activeFiles, heapMB)
+	log.Printf("Progress: %.1f%% | Lines: %d/%d | Current: %s | Files: %d | Mem: %dMB",
+		progressPercent, d.totalLinesRead, d.totalkvLine, currentKey, activeFiles, heapMB)
+}
+
+// updateTotalLinesRead calculates total lines read from all file states
+func (d *Merge) updateTotalLinesRead() {
+	var total int64
+	for _, fs := range d.fileStates {
+		// Skip nil, completed, and EOF files (they are tracked in completedFiles)
+		// Note: fs.eof is set before fs.complete, so we must check both
+		if fs != nil && !fs.complete && !fs.eof {
+			total += fs.linesRead
+		}
+	}
+	// Add lines from completed files that were closed
+	for _, state := range d.completedFiles {
+		total += state.LinesRead
+	}
+	d.totalLinesRead = total
 }
 
 // loadCheckpoint loads a checkpoint file if it exists

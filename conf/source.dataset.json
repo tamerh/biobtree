@@ -1007,7 +1007,7 @@
     "proteinUrl": "https://www.ncbi.nlm.nih.gov/protein/£{id}",
     "path": "https://ftp.ncbi.nlm.nih.gov/genomes/refseq/",
     "speciesGroups": "vertebrate_mammalian,vertebrate_other,invertebrate,plant,fungi,protozoa,archaea,bacteria,viral",
-    "manePath": "https://ftp.ncbi.nlm.nih.gov/refseq/MANE/MANE_human/current/MANE.GRCh38.v1.4.summary.txt.gz",
+    "manePath": "https://ftp.ncbi.nlm.nih.gov/refseq/MANE/MANE_human/current/MANE.GRCh38.v1.5.summary.txt.gz",
     "uniprotMappingPath": "https://ftp.ncbi.nlm.nih.gov/gene/DATA/gene_refseq_uniprotkb_collab.gz",
     "useLocalFile": "no",
     "hasFilter": "yes",

@@ -225,7 +225,6 @@ func (i *intact) parseAndSaveInteractions(testLimit int, idLogFile *os.File) {
 
 	// Update entry statistics
 	atomic.AddUint64(&i.d.totalParsedEntry, uint64(savedProteins))
-	i.d.addEntryStat(i.source, uint64(savedProteins))
 }
 
 // extractUniProtID extracts UniProt accession from the ID field

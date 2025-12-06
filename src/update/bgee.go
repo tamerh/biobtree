@@ -450,7 +450,6 @@ func (b *bgee) saveGenes(genes map[string]*BgeeGene, species SpeciesInfo) {
 	log.Printf("[%s] Successfully saved %d genes to database", b.source, savedCount)
 
 	// Report statistics
-	b.d.addEntryStat(b.source, savedCount)
 	atomic.AddUint64(&b.d.totalParsedEntry, savedCount)
 }
 

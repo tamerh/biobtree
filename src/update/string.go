@@ -95,7 +95,6 @@ func (s *stringProcessor) update(selectedTaxids []int) {
 		totalProteins, totalInteractions, len(selectedTaxids))
 
 	atomic.AddUint64(&s.d.totalParsedEntry, totalProteins)
-	s.d.addEntryStat(s.source, totalProteins)
 	s.d.progChan <- &progressInfo{dataset: s.source, done: true}
 }
 

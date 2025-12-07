@@ -78,20 +78,68 @@ func (g *ontology) update() {
 			g.d.progChan <- &progressInfo{dataset: g.source, currentKBPerSec: kbytesPerSecond}
 		}
 
-		// id
+		// id - try oboInOwl:id first, then fall back to rdf:about attribute
+		entryid = ""
 		if r.Childs["oboInOwl:id"] != nil {
-
 			entryid = r.Childs["oboInOwl:id"][0].InnerText
+		} else if about, ok := r.Attrs["rdf:about"]; ok {
+			// Extract ID from rdf:about URL like "http://purl.obolibrary.org/obo/CL_0000576"
+			// Split by "/" and get last part, then replace "_" with ":"
+			parts := strings.Split(about, "/")
+			if len(parts) > 0 {
+				id := parts[len(parts)-1]
+				id = strings.Replace(id, "_", ":", 1)
+				entryid = id
+			}
+		}
 
-			if len(entryid) > 0 && strings.HasPrefix(entryid, g.idPrefix) {
+		if len(entryid) > 0 && strings.HasPrefix(entryid, g.idPrefix) {
 
-				// always parent ontology parsed
-				// Use bucketed routing for ontologies with bucket config (e.g., GO)
-				// Falls back to kvdatachan for ontologies without bucket config (ECO, EFO, etc.)
-				if r.Childs["rdfs:subClassOf"] != nil {
-					for _, parent := range r.Childs["rdfs:subClassOf"] {
-						if _, ok := parent.Attrs["rdf:resource"]; ok {
-							id := strings.Trim(parent.Attrs["rdf:resource"], g.prefixURL)
+			// always parent ontology parsed
+			// Use bucketed routing for ontologies with bucket config (e.g., GO)
+			// Falls back to kvdatachan for ontologies without bucket config (ECO, EFO, etc.)
+			if r.Childs["rdfs:subClassOf"] != nil {
+				for _, parent := range r.Childs["rdfs:subClassOf"] {
+					if _, ok := parent.Attrs["rdf:resource"]; ok {
+						id := strings.Trim(parent.Attrs["rdf:resource"], g.prefixURL)
+						id = strings.Replace(id, "_", ":", 1)
+						if len(id) > 0 && entryid != id && strings.HasPrefix(id, g.idPrefix) {
+
+							g.d.addXref2Bucketed(entryid, fr, id, frparentStr, fr)
+							g.d.addXref2Bucketed(id, frparent, id, g.source, fr)
+
+							g.d.addXref2Bucketed(id, fr, entryid, frchildStr, fr)
+							g.d.addXref2Bucketed(entryid, frchild, entryid, g.source, fr)
+
+						}
+					} else if parent.Childs["owl:Restriction"] != nil {
+						for _, res := range parent.Childs["owl:Restriction"] {
+							if res.Childs["owl:someValuesFrom"] != nil {
+								for _, someValue := range res.Childs["owl:someValuesFrom"] {
+									id := strings.Trim(someValue.Attrs["rdf:resource"], g.prefixURL)
+									id = strings.Replace(id, "_", ":", 1)
+									if len(id) > 0 && entryid != id && strings.HasPrefix(id, g.idPrefix) {
+
+										g.d.addXref2Bucketed(entryid, fr, id, frparentStr, fr)
+										g.d.addXref2Bucketed(id, frparent, id, g.source, fr)
+
+										g.d.addXref2Bucketed(id, fr, entryid, frchildStr, fr)
+										g.d.addXref2Bucketed(entryid, frchild, entryid, g.source, fr)
+
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+
+			if r.Childs["owl:equivalentClass"] != nil && r.Childs["owl:equivalentClass"][0].Childs["owl:Class"] != nil && r.Childs["owl:equivalentClass"][0].Childs["owl:Class"][0].Childs["owl:intersectionOf"] != nil {
+
+				for _, res := range r.Childs["owl:equivalentClass"][0].Childs["owl:Class"][0].Childs["owl:intersectionOf"][0].Childs["owl:Restriction"] {
+					if res.Childs["owl:someValuesFrom"] != nil {
+						for _, someValue := range res.Childs["owl:someValuesFrom"] {
+							id := strings.Trim(someValue.Attrs["rdf:resource"], "http://purl.obolibrary.org/obo/")
 							id = strings.Replace(id, "_", ":", 1)
 							if len(id) > 0 && entryid != id && strings.HasPrefix(id, g.idPrefix) {
 
@@ -102,100 +150,60 @@ func (g *ontology) update() {
 								g.d.addXref2Bucketed(entryid, frchild, entryid, g.source, fr)
 
 							}
-						} else if parent.Childs["owl:Restriction"] != nil {
-							for _, res := range parent.Childs["owl:Restriction"] {
-								if res.Childs["owl:someValuesFrom"] != nil {
-									for _, someValue := range res.Childs["owl:someValuesFrom"] {
-										id := strings.Trim(someValue.Attrs["rdf:resource"], g.prefixURL)
-										id = strings.Replace(id, "_", ":", 1)
-										if len(id) > 0 && entryid != id && strings.HasPrefix(id, g.idPrefix) {
+						}
+					}
+				}
+			}
 
-											g.d.addXref2Bucketed(entryid, fr, id, frparentStr, fr)
-											g.d.addXref2Bucketed(id, frparent, id, g.source, fr)
+			attr := pbuf.OntologyAttr{}
 
-											g.d.addXref2Bucketed(id, fr, entryid, frchildStr, fr)
-											g.d.addXref2Bucketed(entryid, frchild, entryid, g.source, fr)
+			if r.Childs["oboInOwl:hasExactSynonym"] != nil {
+				for _, syn := range r.Childs["oboInOwl:hasExactSynonym"] {
+					attr.Synonyms = append(attr.Synonyms, syn.InnerText)
+				}
+			}
 
-										}
-									}
-								}
-							}
+			if r.Childs["rdfs:label"] != nil {
+
+				attr.Name = r.Childs["rdfs:label"][0].InnerText
+
+				// Add text search for all OWL-based ontologies (GO, ECO, EFO, UBERON, CL)
+				// Enables keyword search by term names and synonyms
+				if g.source == "go" || g.source == "eco" || g.source == "efo" || g.source == "uberon" || g.source == "cl" {
+					g.d.addXref(attr.Name, textLinkID, entryid, g.source, true)
+					// Also add synonyms for text search
+					for _, syn := range attr.Synonyms {
+						if syn != "" {
+							g.d.addXref(syn, textLinkID, entryid, g.source, true)
 						}
 					}
 				}
 
-				if r.Childs["owl:equivalentClass"] != nil && r.Childs["owl:equivalentClass"][0].Childs["owl:Class"] != nil && r.Childs["owl:equivalentClass"][0].Childs["owl:Class"][0].Childs["owl:intersectionOf"] != nil {
+			}
 
-					for _, res := range r.Childs["owl:equivalentClass"][0].Childs["owl:Class"][0].Childs["owl:intersectionOf"][0].Childs["owl:Restriction"] {
-						if res.Childs["owl:someValuesFrom"] != nil {
-							for _, someValue := range res.Childs["owl:someValuesFrom"] {
-								id := strings.Trim(someValue.Attrs["rdf:resource"], "http://purl.obolibrary.org/obo/")
-								id = strings.Replace(id, "_", ":", 1)
-								if len(id) > 0 && entryid != id && strings.HasPrefix(id, g.idPrefix) {
+			if r.Childs["oboInOwl:hasOBONamespace"] != nil {
 
-									g.d.addXref2Bucketed(entryid, fr, id, frparentStr, fr)
-									g.d.addXref2Bucketed(id, frparent, id, g.source, fr)
+				attr.Type = r.Childs["oboInOwl:hasOBONamespace"][0].InnerText
+			}
 
-									g.d.addXref2Bucketed(id, fr, entryid, frchildStr, fr)
-									g.d.addXref2Bucketed(entryid, frchild, entryid, g.source, fr)
+			b, _ := ffjson.Marshal(attr)
 
-								}
-							}
-						}
-					}
-				}
+			// Use bucketed properties for ontologies with bucket config (e.g., GO)
+			// Falls back to regular kvdatachan for ontologies without bucket config (e.g., ECO, EFO)
+			g.d.addProp3Bucketed(entryid, fr, b)
 
-				attr := pbuf.OntologyAttr{}
+			// Log ID in test mode
+			if idLogFile != nil {
+				logProcessedID(idLogFile, entryid)
+			}
 
-				if r.Childs["oboInOwl:hasExactSynonym"] != nil {
-					for _, syn := range r.Childs["oboInOwl:hasExactSynonym"] {
-						attr.Synonyms = append(attr.Synonyms, syn.InnerText)
-					}
-				}
+			total++
 
-				if r.Childs["rdfs:label"] != nil {
-
-					attr.Name = r.Childs["rdfs:label"][0].InnerText
-
-					// Add text search for all OWL-based ontologies (GO, ECO, EFO, UBERON, CL)
-					// Enables keyword search by term names and synonyms
-					if g.source == "go" || g.source == "eco" || g.source == "efo" || g.source == "uberon" || g.source == "cl" {
-						g.d.addXref(attr.Name, textLinkID, entryid, g.source, true)
-						// Also add synonyms for text search
-						for _, syn := range attr.Synonyms {
-							if syn != "" {
-								g.d.addXref(syn, textLinkID, entryid, g.source, true)
-							}
-						}
-					}
-
-				}
-
-				if r.Childs["oboInOwl:hasOBONamespace"] != nil {
-
-					attr.Type = r.Childs["oboInOwl:hasOBONamespace"][0].InnerText
-				}
-
-				b, _ := ffjson.Marshal(attr)
-
-				// Use bucketed properties for ontologies with bucket config (e.g., GO)
-				// Falls back to regular kvdatachan for ontologies without bucket config (e.g., ECO, EFO)
-				g.d.addProp3Bucketed(entryid, fr, b)
-
-				// Log ID in test mode
-				if idLogFile != nil {
-					logProcessedID(idLogFile, entryid)
-				}
-
-				total++
-
-				// Check test limit
-				if shouldStopProcessing(testLimit, int(total)) {
-					g.d.progChan <- &progressInfo{dataset: g.source, done: true}
-					atomic.AddUint64(&g.d.totalParsedEntry, total)
-					return
-				}
-
+			// Check test limit
+			if shouldStopProcessing(testLimit, int(total)) {
+				g.d.progChan <- &progressInfo{dataset: g.source, done: true}
+				atomic.AddUint64(&g.d.totalParsedEntry, total)
+				return
 			}
 
 		}

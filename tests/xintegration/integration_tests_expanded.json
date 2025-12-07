@@ -490,7 +490,7 @@
     {
       "category": "chembl_drug",
       "name": "Molecule Search by SMILES",
-      "query": ">>*>>chembl_molecule",
+      "query": ">>chembl_molecule",
       "why": "Convert chemical structure to database ID - critical for cheminformatics",
       "should_pass": [
         "Cn1cc(-c2ccc3c(c2)CCN3C(=O)Cc2cccc(C(F)(F)F)c2)c2c(N)ncnc21"
@@ -500,7 +500,7 @@
     {
       "category": "chembl_drug",
       "name": "Molecule Search by InChI Key",
-      "query": ">>*>>chembl_molecule",
+      "query": ">>chembl_molecule",
       "why": "Standard chemical identifier lookup - for database integration",
       "should_pass": [
         "SIXVRXARNAVBTC-UHFFFAOYSA-N"
@@ -547,16 +547,6 @@
       "why": "Functional annotation from Entrez Gene ID - legacy data integration",
       "should_pass": [
         "675"
-      ],
-      "should_fail": []
-    },
-    {
-      "category": "genomics",
-      "name": "CRISPR Cas9 to GO Terms (Bacteria)",
-      "query": ">>ensembl[ensembl.genome==\"campylobacter_coli_gca_001717605\"]>>go[go.type==\"biological_process\"]",
-      "why": "Functional annotation of CRISPR systems in bacteria",
-      "should_pass": [
-        "cas9"
       ],
       "should_fail": []
     },

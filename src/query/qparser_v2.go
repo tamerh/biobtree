@@ -195,10 +195,9 @@ func (p *ParserV2) Parse(queryString string) ([]Query, error) {
 		queries = append(queries, q)
 	}
 
-	// Validate: must have at least 2 queries (lookup + target) unless using wildcard
-	if len(queries) == 1 && queries[0].MapDataset != "*" {
-		return nil, fmt.Errorf("invalid query: single >> requires explicit lookup dataset. Use '>>*>>%s' to search everywhere or '>>dataset>>%s' to lookup in specific dataset", queries[0].MapDataset, queries[0].MapDataset)
-	}
+	// Single >>target is now allowed - it will resolve keyword/ID in target dataset directly
+	// This enables queries like: ?i=INCHIKEY&m=>>chembl_molecule
+	// The keyword resolves to entries in the target dataset without requiring source>>target format
 
 	return queries, nil
 }

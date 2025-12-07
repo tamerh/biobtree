@@ -478,7 +478,7 @@
     {
       "category": "pathways",
       "name": "Gene to STRING Interactions",
-      "query": ">>ensembl>>string",
+      "query": ">>ensembl>>uniprot>>string",
       "why": "Build protein interaction networks - essential for network biology and target discovery",
       "should_pass": [
         "BRCA1",
@@ -532,7 +532,7 @@
     {
       "category": "genomics",
       "name": "Entrez Gene to Ensembl",
-      "query": ">>taxonomy>>ensembl",
+      "query": ">>entrez>>ensembl",
       "why": "Convert NCBI Gene IDs to Ensembl - cross-database integration",
       "should_pass": [
         "675",
@@ -543,7 +543,7 @@
     {
       "category": "genomics",
       "name": "Entrez Gene to GO Terms",
-      "query": ">>taxonomy>>ensembl>>go",
+      "query": ">>entrez>>ensembl>>go",
       "why": "Functional annotation from Entrez Gene ID - legacy data integration",
       "should_pass": [
         "675"
@@ -747,7 +747,7 @@
     {
       "category": "pathways",
       "name": "Reactome to Proteins",
-      "query": ">>reactome>>uniprot",
+      "query": ">>reactome>>ensembl>>uniprot",
       "why": "Get all proteins involved in pathway - network reconstruction",
       "should_pass": [
         "R-HSA-109582",

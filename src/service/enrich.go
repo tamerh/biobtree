@@ -79,7 +79,12 @@ func setURL(xref *pbuf.Xref) {
 	datasetName := config.DataconfIDIntToString[xref.Dataset]
 
 	if xref.Dataset == 72 { // ufeature
-		xref.Url = strings.Replace(config.Dataconf[datasetName]["url"], "£{id}", xref.Identifier[:strings.Index(xref.Identifier, "_")], -1)
+		idx := strings.Index(xref.Identifier, "_")
+		if idx > 0 {
+			xref.Url = strings.Replace(config.Dataconf[datasetName]["url"], "£{id}", xref.Identifier[:idx], -1)
+		} else {
+			xref.Url = strings.Replace(config.Dataconf[datasetName]["url"], "£{id}", xref.Identifier, -1)
+		}
 
 	} else if xref.Dataset == 73 { // variantid
 		xref.Url = strings.Replace(config.Dataconf[datasetName]["url"], "£{id}", strings.ToLower(xref.Identifier), -1)

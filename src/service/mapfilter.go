@@ -930,7 +930,10 @@ func (s *service) applyFilter(entry *pbuf.XrefEntry, q *query.Query) (bool, *pbu
 
 	target, err := s.getLmdbResult2(entry.Identifier, entry.Dataset)
 	if err != nil {
-		return false, nil, err
+		// Entry not found as primary entry in target dataset - skip it
+		// This can happen when xrefs point to identifiers that aren't indexed
+		// (e.g., LRG_321 listed as ensembl xref but not stored as primary entry)
+		return false, nil, nil
 	}
 
 	if len(q.Filter) == 0 {

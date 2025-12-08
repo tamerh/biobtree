@@ -27,11 +27,12 @@ class Colors:
 
 
 class IntegrationTestRunner:
-    def __init__(self, test_file: str, server_url: str = None, verbose: bool = False):
+    def __init__(self, test_file: str, server_url: str = None, verbose: bool = False, category: str = None):
         self.test_file = Path(test_file)
         self.tests = self.load_tests()
         self.server = server_url or self.tests['metadata']['server']
         self.verbose = verbose
+        self.category = category
         self.results = []
         self.start_time = datetime.now()
 
@@ -39,16 +40,31 @@ class IntegrationTestRunner:
         with open(self.test_file, 'r') as f:
             return json.load(f)
 
+    def get_categories(self):
+        """Get available test categories"""
+        return self.tests.get('test_categories', {})
+
     def run_all(self):
         """Execute all test cases"""
+        tests_to_run = self.tests['tests']
+
+        # Filter by category if specified
+        if self.category:
+            tests_to_run = [t for t in tests_to_run if t.get('category') == self.category]
+            if not tests_to_run:
+                print(f"{Colors.RED}No tests found for category: {self.category}{Colors.END}")
+                print(f"Available categories: {', '.join(self.get_categories().keys())}")
+                return
+
         total_identifiers = sum(
             len(test['should_pass']) + len(test['should_fail'])
-            for test in self.tests['tests']
+            for test in tests_to_run
         )
 
-        print(f"\n{Colors.BOLD}Running {total_identifiers} integration tests...{Colors.END}\n")
+        category_msg = f" (category: {self.category})" if self.category else ""
+        print(f"\n{Colors.BOLD}Running {total_identifiers} integration tests{category_msg}...{Colors.END}\n")
 
-        for test in self.tests['tests']:
+        for test in tests_to_run:
             self.run_test(test)
 
     def run_test(self, test):
@@ -265,13 +281,28 @@ def main():
     parser.add_argument('--server', help='Server URL', default=None)
     parser.add_argument('--verbose', '-v', help='Verbose output', action='store_true')
     parser.add_argument('--no-report', help='Skip report generation', action='store_true')
+    parser.add_argument('--category', '-c', help='Run only tests in specified category', default=None)
+    parser.add_argument('--list-categories', help='List available test categories', action='store_true')
 
     args = parser.parse_args()
 
     script_dir = Path(__file__).parent
     test_file = script_dir / args.test_file
 
-    runner = IntegrationTestRunner(test_file, args.server, args.verbose)
+    # Handle --list-categories
+    if args.list_categories:
+        with open(test_file, 'r') as f:
+            tests = json.load(f)
+        categories = tests.get('test_categories', {})
+        print(f"\n{Colors.BOLD}Available Test Categories:{Colors.END}\n")
+        for cat, desc in categories.items():
+            # Count tests in this category
+            count = sum(1 for t in tests['tests'] if t.get('category') == cat)
+            print(f"  {Colors.BLUE}{cat}{Colors.END}: {desc} ({count} tests)")
+        print()
+        return
+
+    runner = IntegrationTestRunner(test_file, args.server, args.verbose, args.category)
 
     try:
         runner.run_all()

@@ -1,87 +1,1188 @@
 {
   "metadata": {
-    "version": "1.0",
-    "server": "http://localhost:9292"
+    "version": "4.1",
+    "description": "Expanded integration tests including newly added datasets (2025)",
+    "server": "http://scc2:9292",
+    "last_updated": "2025-12-08",
+    "note": "Updated for new >> syntax. Removed lookup-only queries (single >>). Only testing actual mapping functionality."
   },
-
+  "test_categories": {
+    "gene_mapping": "Gene symbol/ID to various resources (proteins, transcripts, GO terms)",
+    "protein_features": "Protein features, domains, structures, variants",
+    "chembl_drug": "Drug discovery workflows (compounds, targets, activities)",
+    "drug_discovery": "Pathway-based and tissue-specific drug target discovery",
+    "pathways": "Pathway and network analysis (Reactome, STRING, Rhea)",
+    "genomics": "Genomic coordinates, transcripts, exons, probes",
+    "ontologies": "Ontology navigation (GO, EFO, taxonomy, UBERON, CL hierarchies)",
+    "protein_interactions": "Protein-protein interaction networks (IntAct)",
+    "gene_expression": "Tissue and cell-specific expression (Bgee, UBERON, CL)",
+    "gwas_genetics": "Disease-SNP associations and population genetics (GWAS)",
+    "lipid_metabolism": "Lipid structures and metabolism (SwissLipids)",
+    "protein_structures": "3D structure predictions (AlphaFold)",
+    "clinical_variants": "Clinical variant interpretation via ClinVar",
+    "ncbi_datasets": "NCBI/Entrez Gene, RefSeq, PubChem compound mappings"
+  },
   "tests": [
     {
-      "name": "Gene to Protein",
-      "query": ">>uniprot",
-      "why": "Researchers need protein sequences from gene symbols for structure prediction and functional studies",
-      "should_pass": ["BRCA1", "TP53", "EGFR", "P04637"],
-      "should_fail": ["NONEXISTENT_GENE", "FAKE123"]
+      "category": "gene_mapping",
+      "name": "Gene Symbol to Uniprot",
+      "query": ">>ensembl>>uniprot",
+      "why": "Core mapping: researchers start with gene symbols and need protein IDs for downstream analysis",
+      "should_pass": [
+        "BRCA1",
+        "TP53",
+        "EGFR",
+        "MLH1",
+        "PTEN"
+      ],
+      "should_fail": [
+        "NOTREAL",
+        "FAKE123"
+      ]
     },
-
     {
-      "name": "Gene to Interactions",
-      "query": ">>string",
-      "why": "Network biology - find protein interaction partners to understand function and pathways",
-      "should_pass": ["EGFR", "BRCA1", "TP53"],
-      "should_fail": ["NOTREAL"]
+      "category": "gene_mapping",
+      "name": "Gene Symbol to Reviewed Uniprot (Swiss-Prot)",
+      "query": ">>ensembl>>uniprot[uniprot.reviewed==true]",
+      "why": "Get only manually curated Swiss-Prot entries for higher confidence protein data",
+      "should_pass": [
+        "BRCA1",
+        "TP53",
+        "EGFR"
+      ],
+      "should_fail": []
     },
-
     {
-      "name": "Gene to Pathways",
+      "category": "gene_mapping",
+      "name": "Gene to GO Biological Process",
+      "query": ">>ensembl>>uniprot>>go[go.type==\"biological_process\"]",
+      "why": "Understand what biological processes a gene is involved in - essential for functional annotation",
+      "should_pass": [
+        "TP53",
+        "BRCA1",
+        "EGFR"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "gene_mapping",
+      "name": "Gene to GO Molecular Function",
+      "query": ">>ensembl>>uniprot>>go[go.type==\"molecular_function\"]",
+      "why": "Identify molecular activities (kinase, binding, etc.) - critical for drug target analysis",
+      "should_pass": [
+        "EGFR",
+        "TP53",
+        "BRCA1"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "gene_mapping",
+      "name": "Ensembl Gene to Transcripts",
+      "query": ">>ensembl>>transcript",
+      "why": "Find all transcript isoforms - critical for alternative splicing analysis and RNA-seq",
+      "should_pass": [
+        "ENSG00000141510",
+        "ENSG00000146648",
+        "TP53",
+        "BRCA1"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "gene_mapping",
+      "name": "Gene to Protein Coding Transcripts",
+      "query": ">>ensembl>>transcript[transcript.biotype==\"protein_coding\"]",
+      "why": "Filter only protein-coding isoforms, excluding ncRNAs for proteomics workflows",
+      "should_pass": [
+        "TP53",
+        "BRCA1"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "gene_mapping",
+      "name": "Cancer Genes to Uniprot via HGNC",
+      "query": ">>ensembl>>uniprot[uniprot.reviewed==true]",
+      "why": "Cancer gene panel analysis - get curated protein entries for tumor suppressor genes",
+      "should_pass": [
+        "BRCA1",
+        "BRCA2",
+        "TP53",
+        "PTEN",
+        "MLH1",
+        "MSH2"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_features",
+      "name": "Protein to InterPro Domains",
+      "query": ">>uniprot>>interpro[interpro.type==\"Domain\"]",
+      "why": "Map proteins to functional domains - essential for understanding protein architecture and mutations",
+      "should_pass": [
+        "P00533",
+        "P04637",
+        "P38398"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_features",
+      "name": "Protein to InterPro Families",
+      "query": ">>uniprot>>interpro[interpro.type==\"Family\"]",
+      "why": "Identify protein families for evolutionary analysis and functional prediction",
+      "should_pass": [
+        "P00533",
+        "P04637"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_features",
+      "name": "Gene to Mutation Features",
+      "query": ">>ensembl>>uniprot>>ufeature[ufeature.type==\"mutagenesis site\"]",
+      "why": "Find experimentally verified mutations - critical for variant interpretation and cancer research",
+      "should_pass": [
+        "TP53",
+        "BRCA1",
+        "EGFR"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_features",
+      "name": "Gene to Sequence Variants",
+      "query": ">>ensembl>>uniprot>>ufeature[ufeature.type==\"sequence variant\"]",
+      "why": "Get known protein variants for clinical variant interpretation and population genetics",
+      "should_pass": [
+        "TP53",
+        "BRCA1"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_features",
+      "name": "Protein to PDB Structures",
+      "query": ">>uniprot>>pdb",
+      "why": "Find 3D structures for drug design, protein engineering, and structural biology",
+      "should_pass": [
+        "P04637",
+        "P00533"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_features",
+      "name": "Protein to NMR Structures",
+      "query": ">>uniprot>>pdb[pdb.method==\"nmr\"]",
+      "why": "Get solution structures (NMR) vs crystal structures - different conformational states",
+      "should_pass": [
+        "P04637"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_features",
+      "name": "Protein to Reactome Pathways",
       "query": ">>uniprot>>reactome",
-      "why": "Systems biology - identify biological pathways for disease mechanism studies",
-      "should_pass": ["TP53", "BRCA1", "EGFR"],
+      "why": "Identify biological pathways - critical for systems biology and drug target prioritization",
+      "should_pass": [
+        "P00533",
+        "P04637"
+      ],
       "should_fail": []
     },
-
     {
-      "name": "Protein to Gene",
-      "query": ">>hgnc",
-      "why": "Proteomics - map protein IDs back to genes for functional interpretation",
-      "should_pass": ["P04637", "P38398"],
-      "should_fail": ["NOTAPROTEIN"]
-    },
-
-    {
-      "name": "Gene to GO Terms",
-      "query": ">>uniprot>>go",
-      "why": "Functional annotation - understand molecular function and biological process",
-      "should_pass": ["BRCA1", "TP53"],
+      "category": "protein_features",
+      "name": "Protein to Signaling Pathways",
+      "query": ">>uniprot>>reactome[reactome.pathway.contains(\"signaling\")]",
+      "why": "Focus on signaling cascades - key for cancer biology and targeted therapy",
+      "should_pass": [
+        "P00533"
+      ],
       "should_fail": []
     },
-
     {
-      "name": "Gene to Structure",
-      "query": ">>uniprot>>alphafold",
-      "why": "Structural biology - get 3D protein structures for drug design and function studies",
-      "should_pass": ["TP53", "BRCA1"],
+      "category": "genomics",
+      "name": "Transcript to Exons",
+      "query": ">>transcript>>exon",
+      "why": "Get exon structure for splice variant analysis and exome sequencing",
+      "should_pass": [
+        "ENST00000269305",
+        "ENST00000308394"
+      ],
       "should_fail": []
     },
-
     {
-      "name": "Disease to Genes",
-      "query": ">>hgnc",
-      "why": "Translational medicine - find candidate genes for disease studies and therapeutic targets",
-      "should_pass": ["MONDO:0007254"],
-      "should_fail": ["MONDO:9999999"]
-    },
-
-    {
-      "name": "Compound to Targets",
-      "query": ">>uniprot",
-      "why": "Drug discovery - understand which proteins a compound binds for mechanism of action",
-      "should_pass": ["CHEMBL25"],
+      "category": "genomics",
+      "name": "Gene to CDS (Coding Sequences)",
+      "query": ">>ensembl>>transcript>>cds",
+      "why": "Get coding sequences for codon usage analysis and ORF prediction",
+      "should_pass": [
+        "TP53",
+        "BRCA1"
+      ],
       "should_fail": []
     },
-
     {
-      "name": "RNA to Protein",
-      "query": ">>uniprot",
-      "why": "Transcriptomics - link RNA-seq data to protein information for multi-omics analysis",
-      "should_pass": ["URS000075C808"],
+      "category": "genomics",
+      "name": "Gene to Orthologs",
+      "query": ">>ensembl>>ortholog",
+      "why": "Find orthologs across species for comparative genomics and model organism studies",
+      "should_pass": [
+        "ENSG00000139618",
+        "BRCA1",
+        "TP53"
+      ],
       "should_fail": []
     },
-
     {
-      "name": "Gene to Taxonomy",
-      "query": ">>uniprot>>taxonomy",
-      "why": "Comparative genomics - ensure correct organism context",
-      "should_pass": ["BRCA1"],
+      "category": "genomics",
+      "name": "Human Gene to Mouse Orthologs",
+      "query": ">>ensembl[ensembl.genome==\"homo_sapiens\"]>>ortholog[ensembl.genome==\"mus_musculus\"]",
+      "why": "Map human genes to mouse for translational research and model validation",
+      "should_pass": [
+        "TP53",
+        "BRCA1",
+        "EGFR"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "genomics",
+      "name": "Gene to Paralogs",
+      "query": ">>ensembl>>paralog",
+      "why": "Find gene duplications within species - important for functional redundancy studies",
+      "should_pass": [
+        "ENSG00000073910"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "genomics",
+      "name": "Affymetrix Probe to Transcript",
+      "query": ">>*>>transcript",
+      "why": "Map microarray probes to current transcripts - essential for legacy data reanalysis",
+      "should_pass": [
+        "202763_at",
+        "209310_s_at",
+        "207500_at"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "genomics",
+      "name": "Affymetrix Probe to Gene Symbol",
+      "query": ">>*>>transcript>>ensembl",
+      "why": "Convert probe IDs to gene symbols for publication and meta-analysis - HGNC info is embedded in ensembl attributes",
+      "should_pass": [
+        "202763_at",
+        "209310_s_at"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "chembl_drug",
+      "name": "Compound to ChEMBL Activities",
+      "query": ">>*>>chembl_activity",
+      "why": "Get bioactivity data for compound - essential for SAR analysis and lead optimization",
+      "should_pass": [
+        "GSK2606414",
+        "CHEMBL25"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "chembl_drug",
+      "name": "Compound to IC50 Activities",
+      "query": ">>*>>chembl_activity[chembl.activity.bao==\"BAO_0000190\"]",
+      "why": "Filter for IC50 measurements - standard potency metric for drug discovery",
+      "should_pass": [
+        "GSK2606414"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "chembl_drug",
+      "name": "Compound to High-Potency Activities",
+      "query": ">>*>>chembl_activity[chembl.activity.value > 10.0]",
+      "why": "Find highly active compounds for hit prioritization",
+      "should_pass": [
+        "GSK2606414"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "chembl_drug",
+      "name": "ChEMBL Document to Assays",
+      "query": ">>chembl_document>>chembl_assay",
+      "why": "Get experimental assays from publications - useful for protocol reproduction",
+      "should_pass": [
+        "CHEMBL3421631",
+        "CHEMBL1121978"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "chembl_drug",
+      "name": "ChEMBL Assay to Target Proteins",
+      "query": ">>chembl_assay>>chembl_target[chembl.target.type==\"single_protein\"]",
+      "why": "Map assays to protein targets for mechanism of action studies",
+      "should_pass": [
+        "CHEMBL615156"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "chembl_drug",
+      "name": "ChEMBL Target to UniProt",
+      "query": ">>chembl_target>>chembl_target_component>>uniprot",
+      "why": "Link drug targets to protein sequences for structure-based drug design",
+      "should_pass": [
+        "CHEMBL2789"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "chembl_drug",
+      "name": "Cancer Genes to ChEMBL Targets",
+      "query": ">>ensembl>>uniprot>>chembl_target_component>>chembl_target",
+      "why": "Find drugs targeting cancer genes - critical for precision oncology",
+      "should_pass": [
+        "EGFR",
+        "BRCA1",
+        "TP53"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "chembl_drug",
+      "name": "Disease to Advanced Drug Candidates",
+      "query": ">>ensembl>>chembl_molecule[chembl.molecule.highestDevelopmentPhase>2]",
+      "why": "Find Phase 3/4 drugs for disease - prioritize clinically validated compounds",
+      "should_pass": [
+        "MONDO:0005265"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ontologies",
+      "name": "GO Term to Parent Terms",
+      "query": ">>go>>goparent",
+      "why": "Navigate ontology hierarchy upward - useful for enrichment analysis rollup",
+      "should_pass": [
+        "GO:0004707"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ontologies",
+      "name": "GO Term to Biological Process Parents",
+      "query": ">>go>>goparent[go.type==\"biological_process\"]",
+      "why": "Filter parent terms by aspect - maintain biological process semantics",
+      "should_pass": [
+        "GO:0004707"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ontologies",
+      "name": "Taxonomy to Children Taxa",
+      "query": ">>taxonomy>>taxchild",
+      "why": "Find sub-species or strains - important for microbiome and comparative studies",
+      "should_pass": [
+        "9606",
+        "10090"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ontologies",
+      "name": "Taxonomy Grand-children (2 levels down)",
+      "query": ">>taxonomy>>taxchild>>taxchild",
+      "why": "Navigate deeper in taxonomy tree for detailed organism classification",
+      "should_pass": [
+        "862507"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ontologies",
+      "name": "Taxonomy to Grand-parent",
+      "query": ">>taxonomy>>taxparent>>taxparent",
+      "why": "Navigate up taxonomy tree to find broader classifications",
+      "should_pass": [
+        "10090"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ontologies",
+      "name": "EFO Disease to Child Terms",
+      "query": ">>efo>>efochild",
+      "why": "Find disease subtypes - useful for disease classification and phenotype mapping",
+      "should_pass": [
+        "EFO:0003767"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ontologies",
+      "name": "EFO Disease to Parent Terms",
+      "query": ">>efo>>efoparent",
+      "why": "Navigate to broader disease categories for meta-analysis grouping",
+      "should_pass": [
+        "EFO:0000384"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ontologies",
+      "name": "GO Term to Genes (via Ensembl)",
+      "query": ">>go>>ensembl[ensembl.genome==\"homo_sapiens\"]",
+      "why": "Find all human genes with specific GO annotation - reverse lookup for function",
+      "should_pass": [
+        "GO:0004707"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "pathways",
+      "name": "Protein to All Pathways",
+      "query": ">>uniprot>>reactome",
+      "why": "Get complete pathway context for protein - systems biology analysis",
+      "should_pass": [
+        "P00533",
+        "P04637"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "pathways",
+      "name": "Protein to Activation Pathways",
+      "query": ">>uniprot>>reactome[reactome.pathway.contains(\"activation\")]",
+      "why": "Focus on activation mechanisms - key for understanding signal transduction",
+      "should_pass": [
+        "P00533"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "pathways",
+      "name": "Protein to Regulation Pathways",
+      "query": ">>uniprot>>reactome[reactome.pathway.contains(\"Regulation\")]",
+      "why": "Find regulatory pathways - important for feedback loops and control mechanisms",
+      "should_pass": [
+        "P04637"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "pathways",
+      "name": "Gene to STRING Interactions",
+      "query": ">>ensembl>>uniprot>>string",
+      "why": "Build protein interaction networks - essential for network biology and target discovery",
+      "should_pass": [
+        "BRCA1",
+        "TP53",
+        "EGFR"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "chembl_drug",
+      "name": "Molecule Search by SMILES",
+      "query": ">>chembl_molecule",
+      "why": "Convert chemical structure to database ID - critical for cheminformatics",
+      "should_pass": [
+        "Cn1cc(-c2ccc3c(c2)CCN3C(=O)Cc2cccc(C(F)(F)F)c2)c2c(N)ncnc21"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "chembl_drug",
+      "name": "Molecule Search by InChI Key",
+      "query": ">>chembl_molecule",
+      "why": "Standard chemical identifier lookup - for database integration",
+      "should_pass": [
+        "SIXVRXARNAVBTC-UHFFFAOYSA-N"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_features",
+      "name": "Gene to ENA mRNA Sequences",
+      "query": ">>ensembl>>uniprot>>ena[ena.type==\"mrna\"]",
+      "why": "Get mRNA sequences for cloning and expression studies",
+      "should_pass": [
+        "TP53",
+        "BRCA1"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_features",
+      "name": "Gene to RefSeq IDs",
+      "query": ">>ensembl>>uniprot>>refseq",
+      "why": "Map to NCBI RefSeq - standard reference sequences for genomics",
+      "should_pass": [
+        "BRCA1",
+        "TP53"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "genomics",
+      "name": "Entrez Gene to Ensembl",
+      "query": ">>entrez>>ensembl",
+      "why": "Convert NCBI Gene IDs to Ensembl - cross-database integration",
+      "should_pass": [
+        "675",
+        "7157"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "genomics",
+      "name": "Entrez Gene to GO Terms",
+      "query": ">>entrez>>ensembl>>go",
+      "why": "Functional annotation from Entrez Gene ID - legacy data integration",
+      "should_pass": [
+        "675"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_interactions",
+      "name": "Protein to IntAct Interactions",
+      "query": "",
+      "why": "Find experimentally validated protein-protein interactions for network analysis",
+      "should_pass": [
+        "P38398",
+        "P04637",
+        "P49418"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_interactions",
+      "name": "Gene to Protein Interactions via UniProt",
+      "query": ">>ensembl>>uniprot>>intact",
+      "why": "Map genes to interaction partners - essential for pathway and network biology",
+      "should_pass": [
+        "BRCA1",
+        "TP53",
+        "EGFR"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_interactions",
+      "name": "Protein to Interaction Partners Details",
+      "query": ">>uniprot>>intact>>uniprot",
+      "why": "Get detailed protein information for interaction partners",
+      "should_pass": [
+        "P38398",
+        "P04637"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_interactions",
+      "name": "IntAct to GO Biological Process",
+      "query": ">>uniprot>>intact>>uniprot>>go[go.type==\"biological_process\"]",
+      "why": "Functional annotation of interaction partners - pathway context for networks",
+      "should_pass": [
+        "P38398",
+        "P04637"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "gene_expression",
+      "name": "Gene to Bgee Expression Data",
+      "query": ">>ensembl>>bgee",
+      "why": "Get tissue-specific expression patterns across anatomical structures",
+      "should_pass": [
+        "ENSG00000139618",
+        "ENSG00000141510"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "gene_expression",
+      "name": "Tissue to Expressed Genes via Bgee",
+      "query": ">>uberon>>bgee",
+      "why": "Find genes expressed in specific tissue - tissue marker discovery",
+      "should_pass": [
+        "UBERON:0000955",
+        "UBERON:0002107"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "gene_expression",
+      "name": "Cell Type to Expressed Genes",
+      "query": ">>cl>>bgee",
+      "why": "Identify genes expressed in specific cell types - single-cell markers",
+      "should_pass": [
+        "CL:0000576",
+        "CL:0000236"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "gene_expression",
+      "name": "Gene to Tissues Where Expressed",
+      "query": ">>ensembl>>bgee>>uberon",
+      "why": "Map gene to anatomical locations - expression atlas",
+      "should_pass": [
+        "ENSG00000139618"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "gene_expression",
+      "name": "Gene to Cell Types Where Expressed",
+      "query": ">>ensembl>>bgee>>cl",
+      "why": "Identify cell-type specific expression - scRNA-seq validation",
+      "should_pass": [
+        "ENSG00000139618"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ontologies",
+      "name": "UBERON Parent Tissues",
+      "query": ">>uberon>>uberonparent",
+      "why": "Navigate anatomy hierarchy upward - from specific to general structures",
+      "should_pass": [
+        "UBERON:0000955",
+        "UBERON:0002107"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ontologies",
+      "name": "UBERON Child Structures",
+      "query": ">>uberon>>uberonchild",
+      "why": "Navigate anatomy hierarchy downward - find sub-structures",
+      "should_pass": [
+        "UBERON:0000955"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ontologies",
+      "name": "Cell Ontology Parents",
+      "query": ">>cl>>clparent",
+      "why": "Navigate cell type hierarchy - from specific to general cell types",
+      "should_pass": [
+        "CL:0000576",
+        "CL:0000236"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ontologies",
+      "name": "Cell Ontology Children",
+      "query": ">>cl>>clchild",
+      "why": "Find cell subtypes - detailed cell type classification",
+      "should_pass": [
+        "CL:0000576"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "pathways",
+      "name": "Reactome Pathway Lookup",
+      "query": "",
+      "why": "Get curated pathway information with participants and hierarchy",
+      "should_pass": [
+        "R-HSA-109582",
+        "R-HSA-112316"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "pathways",
+      "name": "Protein to Reactome Pathways",
+      "query": ">>uniprot>>reactome",
+      "why": "Find all pathways involving protein - systems biology analysis",
+      "should_pass": [
+        "P38398",
+        "P04637",
+        "P00533"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "pathways",
+      "name": "Reactome Pathway Parents",
+      "query": ">>reactome>>reactomeparent",
+      "why": "Navigate pathway hierarchy upward - find broader pathway categories",
+      "should_pass": [
+        "R-HSA-109582"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "pathways",
+      "name": "Reactome Pathway Children",
+      "query": ">>reactome>>reactomechild",
+      "why": "Navigate pathway hierarchy downward - find sub-pathways",
+      "should_pass": [
+        "R-HSA-109582"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "pathways",
+      "name": "Reactome to Proteins",
+      "query": ">>reactome>>ensembl>>uniprot",
+      "why": "Get all proteins involved in pathway - network reconstruction",
+      "should_pass": [
+        "R-HSA-109582",
+        "R-HSA-112316"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "pathways",
+      "name": "Rhea Reaction Lookup",
+      "query": "",
+      "why": "Get biochemical reaction details with substrates and products",
+      "should_pass": [
+        "RHEA:10000"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "pathways",
+      "name": "ChEBI Compound to Rhea Reactions",
+      "query": ">>chebi>>rhea",
+      "why": "Find reactions involving specific chemical compound",
+      "should_pass": [
+        "CHEBI:15377"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "gwas_genetics",
+      "name": "Disease Trait to GWAS SNPs via EFO",
+      "query": ">>efo>>gwas",
+      "why": "Find genetic variants associated with disease - reverse lookup from phenotype",
+      "should_pass": [
+        "EFO:0000400",
+        "EFO:0004611"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "gwas_genetics",
+      "name": "Study to Associated SNPs",
+      "query": ">>gwas_study>>gwas",
+      "why": "Get all SNP associations from GWAS study publication",
+      "should_pass": [
+        "GCST010481",
+        "GCST001937"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "lipid_metabolism",
+      "name": "SwissLipids Lipid Lookup",
+      "query": "",
+      "why": "Get lipid structure and biological context",
+      "should_pass": [
+        "SLM:000000002"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_structures",
+      "name": "AlphaFold Structure Lookup",
+      "query": "",
+      "why": "Get predicted 3D structure for protein",
+      "should_pass": [
+        "AF-P38398-F1"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_interactions",
+      "name": "Complete Network: Gene to Interactions to Pathways",
+      "query": ">>ensembl>>uniprot>>intact>>uniprot>>reactome",
+      "why": "Build complete functional network - interaction partners and their pathways",
+      "should_pass": [
+        "BRCA1",
+        "TP53"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "gene_expression",
+      "name": "Multi-hop: Tissue to Genes to Functions",
+      "query": ">>uberon>>bgee>>ensembl>>go",
+      "why": "Tissue-specific functional enrichment - find functions of genes in tissues",
+      "should_pass": [
+        "UBERON:0000955"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "clinical_variants",
+      "name": "Gene to ClinVar Variants via Ensembl",
+      "query": ">>ensembl>>clinvar",
+      "why": "Map genes to clinical variants - critical for clinical genetics and variant interpretation. NOTE: HGNC is embedded in Ensembl, so use ensembl path not hgnc.",
+      "should_pass": [
+        "BRCA1",
+        "TP53",
+        "BRCA2"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "clinical_variants",
+      "name": "Ensembl Gene ID to ClinVar Variants",
+      "query": ">>ensembl>>clinvar",
+      "why": "Direct Ensembl gene ID to ClinVar mapping for clinical research",
+      "should_pass": [
+        "ENSG00000012048",
+        "ENSG00000141510"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "clinical_variants",
+      "name": "Cancer Gene Panel to ClinVar",
+      "query": ">>ensembl>>clinvar",
+      "why": "Batch query cancer genes to ClinVar for clinical panel analysis (Lynch syndrome genes)",
+      "should_pass": [
+        "MLH1",
+        "MSH2",
+        "PTEN"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "clinical_variants",
+      "name": "Gene to ClinVar to UniProt Features",
+      "query": ">>ensembl>>uniprot>>ufeature",
+      "why": "Multi-hop: gene to clinical variants with protein feature context",
+      "should_pass": [
+        "BRCA1",
+        "TP53"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "drug_discovery",
+      "name": "GO Kinase Activity to Proteins",
+      "query": ">>go>>ensembl>>uniprot",
+      "why": "Find proteins with kinase activity - prime drug targets for cancer therapy",
+      "should_pass": [
+        "GO:0004672"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "drug_discovery",
+      "name": "GO DNA Repair to Proteins",
+      "query": ">>go>>ensembl>>uniprot",
+      "why": "DNA repair pathway proteins - targets for PARP inhibitors and cancer therapy",
+      "should_pass": [
+        "GO:0006281"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "drug_discovery",
+      "name": "Reactome Metabolism to Proteins",
+      "query": ">>reactome>>ensembl>>uniprot",
+      "why": "Metabolism pathway proteins for metabolic disease drug targets",
+      "should_pass": [
+        "R-HSA-1430728"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "drug_discovery",
+      "name": "Reactome Signal Transduction to Drug Targets",
+      "query": ">>reactome>>ensembl>>uniprot>>chembl_target_component",
+      "why": "Signal transduction pathway to druggable protein components",
+      "should_pass": [
+        "R-HSA-162582"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "drug_discovery",
+      "name": "Brain-Specific Expression to Proteins",
+      "query": ">>uberon>>bgee>>ensembl>>uniprot",
+      "why": "Brain-expressed genes to proteins for neurological drug discovery",
+      "should_pass": [
+        "UBERON:0000955"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "pathways",
+      "name": "GO Apoptosis to Protein Domains",
+      "query": ">>go>>ensembl>>uniprot>>interpro",
+      "why": "Apoptosis pathway genes to domain annotations for structural analysis",
+      "should_pass": [
+        "GO:0006915"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "pathways",
+      "name": "Reactome Immune System to Interactions",
+      "query": ">>reactome>>ensembl>>uniprot>>intact",
+      "why": "Immune pathway proteins to interaction networks for immunotherapy targets",
+      "should_pass": [
+        "R-HSA-168256"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "gwas_genetics",
+      "name": "EFO Heart Disease to GWAS",
+      "query": ">>efo>>gwas",
+      "why": "Heart disease trait to GWAS SNP associations",
+      "should_pass": [
+        "EFO:0003767"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "gwas_genetics",
+      "name": "EFO Diabetes to GWAS",
+      "query": ">>efo>>gwas",
+      "why": "Diabetes trait to GWAS SNP associations for genetic risk analysis",
+      "should_pass": [
+        "EFO:0000400"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "genomics",
+      "name": "Cancer Genes to Orthologs Batch",
+      "query": ">>ensembl>>ortholog",
+      "why": "Batch query cancer genes to orthologs for model organism studies",
+      "should_pass": [
+        "BRCA1",
+        "TP53",
+        "EGFR"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ncbi_datasets",
+      "name": "Gene Symbol to Entrez to UniProt",
+      "query": ">>entrez>>uniprot",
+      "why": "Map gene symbols via NCBI Entrez Gene to UniProt proteins - alternative to Ensembl route",
+      "should_pass": [
+        "BRCA1",
+        "TP53",
+        "EGFR"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ncbi_datasets",
+      "name": "Gene Symbol to Entrez to GO",
+      "query": ">>entrez>>go",
+      "why": "Gene function via NCBI gene2go annotations - comprehensive GO mapping",
+      "should_pass": [
+        "BRCA1",
+        "TP53"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ncbi_datasets",
+      "name": "Gene Symbol to Entrez to RefSeq",
+      "query": ">>entrez>>refseq",
+      "why": "Map to NCBI RefSeq reference sequences for gene and transcript data",
+      "should_pass": [
+        "BRCA1",
+        "TP53",
+        "EGFR"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ncbi_datasets",
+      "name": "Gene Symbol to Entrez Orthologs",
+      "query": ">>entrez>>orthologentrez",
+      "why": "Find orthologous genes across species via NCBI gene orthologs",
+      "should_pass": [
+        "BRCA1",
+        "TP53"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ncbi_datasets",
+      "name": "Gene Symbol to Entrez Related Genes",
+      "query": ">>entrez>>relatedentrez",
+      "why": "Find functionally related genes via NCBI gene groups",
+      "should_pass": [
+        "BRCA1",
+        "TP53"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ncbi_datasets",
+      "name": "Gene Symbol to Entrez Neighboring Genes",
+      "query": ">>entrez>>neighborentrez",
+      "why": "Find genomically neighboring genes via NCBI gene neighbors",
+      "should_pass": [
+        "BRCA1",
+        "TP53"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ncbi_datasets",
+      "name": "PubChem Compound Lookup",
+      "query": "",
+      "why": "Search PubChem compounds by CID - rich chemical attributes (SMILES, InChI, FDA status)",
+      "should_pass": [
+        "2244",
+        "3672",
+        "5743"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ncbi_datasets",
+      "name": "RefSeq mRNA Lookup (versioned)",
+      "query": "",
+      "why": "Search RefSeq mRNA with version - full attributes (type, status, symbol, description)",
+      "should_pass": [
+        "NM_007294.4",
+        "NM_000546.6"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ncbi_datasets",
+      "name": "RefSeq mRNA Lookup (unversioned)",
+      "query": "",
+      "why": "Search RefSeq mRNA without version - works but no attributes",
+      "should_pass": [
+        "NM_007294",
+        "NM_000546"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ncbi_datasets",
+      "name": "RefSeq Protein Lookup",
+      "query": "",
+      "why": "Search RefSeq protein accessions directly",
+      "should_pass": [
+        "NP_009225.1"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ncbi_datasets",
+      "name": "Entrez Gene to Ensembl to ClinVar",
+      "query": ">>entrez>>ensembl>>clinvar",
+      "why": "Multi-hop from Entrez gene to clinical variants via Ensembl",
+      "should_pass": [
+        "BRCA1",
+        "TP53"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ncbi_datasets",
+      "name": "RefSeq to Entrez",
+      "query": ">>refseq>>entrez",
+      "why": "RefSeq accessions should map back to Entrez Gene IDs - needs outgoing links from RefSeq",
+      "should_pass": [
+        "NM_007294.4",
+        "NP_009225.1"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ncbi_datasets",
+      "name": "RefSeq to UniProt",
+      "query": ">>refseq>>uniprot",
+      "why": "RefSeq to UniProt mapping - needs gene_refseq_uniprotkb_collab.gz integration",
+      "should_pass": [
+        "NM_007294.4"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ncbi_datasets",
+      "name": "PubChem to BioActivity",
+      "query": ">>pubchem>>pubchem_activity",
+      "why": "PubChem compound to bioactivity data (assay results)",
+      "should_pass": [
+        "2244",
+        "3672"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ncbi_datasets",
+      "name": "PubChem to Gene Target via Activity",
+      "query": ">>pubchem>>pubchem_activity>>ensembl",
+      "why": "PubChem compound to gene targets via bioactivity data",
+      "should_pass": [
+        "2244"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ncbi_datasets",
+      "name": "PubChem to Protein Target via Activity",
+      "query": ">>pubchem>>pubchem_activity>>uniprot",
+      "why": "PubChem compound to protein targets via bioactivity data. NOTE: Can be slow for compounds with many activities (e.g., aspirin has 3689 cross-refs)",
+      "should_pass": [
+        "2244"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ncbi_datasets",
+      "name": "PubChem to HMDB",
+      "query": ">>pubchem>>hmdb",
+      "why": "PubChem compound to HMDB metabolite cross-reference",
+      "should_pass": [
+        "2244"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ncbi_datasets",
+      "name": "PubChem to Patent",
+      "query": ">>pubchem>>patent",
+      "why": "PubChem compound to patent cross-reference",
+      "should_pass": [
+        "2244"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ncbi_datasets",
+      "name": "Entrez Gene ID Direct to Ensembl",
+      "query": ">>entrez>>ensembl",
+      "why": "Map numeric Entrez Gene IDs directly to Ensembl - WORKS! 672=BRCA1, 7157=TP53",
+      "should_pass": [
+        "672",
+        "7157"
+      ],
       "should_fail": []
     }
   ]

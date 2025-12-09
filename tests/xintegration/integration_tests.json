@@ -20,7 +20,8 @@
     "lipid_metabolism": "Lipid structures and metabolism (SwissLipids)",
     "protein_structures": "3D structure predictions (AlphaFold)",
     "clinical_variants": "Clinical variant interpretation via ClinVar",
-    "ncbi_datasets": "NCBI/Entrez Gene, RefSeq, PubChem compound mappings"
+    "ncbi_datasets": "NCBI/Entrez Gene, RefSeq, PubChem compound mappings",
+    "data_validation": "Data quality validation - attribute correctness, counts, known facts"
   },
   "tests": [
     {
@@ -1182,6 +1183,147 @@
       "should_pass": [
         "672",
         "7157"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "data_validation",
+      "name": "PubChem Aspirin Attributes",
+      "type": "validation",
+      "query": "",
+      "identifier": "2244",
+      "dataset_id": 6,
+      "why": "Validate PubChem compound attributes for aspirin (CID 2244)",
+      "validations": [
+        {"path": "Pubchem.molecular_formula", "expected": "C9H8O4", "description": "Molecular formula"},
+        {"path": "Pubchem.is_fda_approved", "expected": true, "description": "FDA approved status"},
+        {"path": "Pubchem.molecular_weight", "min": 179, "max": 181, "description": "Molecular weight ~180"},
+        {"path": "Pubchem.smiles", "min_length": 10, "description": "SMILES structure present"},
+        {"path": "Pubchem.inchi_key", "starts_with": "BSYNRYMUTXBXSQ", "description": "InChI key"}
+      ]
+    },
+    {
+      "category": "data_validation",
+      "name": "Entrez Human BRCA1 Attributes",
+      "type": "validation",
+      "query": ">>entrez",
+      "identifier": "672",
+      "why": "Validate Entrez gene attributes for human BRCA1 (Gene ID 672)",
+      "validations": [
+        {"path": "source.Attributes.Entrez.chromosome", "expected": "17", "description": "Chromosome 17"},
+        {"path": "source.Attributes.Entrez.symbol", "expected": "BRCA1", "description": "Gene symbol"},
+        {"path": "source.Attributes.Entrez.type", "expected": "protein-coding", "description": "Gene type"}
+      ]
+    },
+    {
+      "category": "data_validation",
+      "name": "RefSeq BRCA1 Attributes",
+      "type": "validation",
+      "query": "",
+      "identifier": "NM_007294.4",
+      "dataset_id": 8,
+      "why": "Validate RefSeq attributes for BRCA1 mRNA",
+      "validations": [
+        {"path": "Refseq.symbol", "expected": "BRCA1", "description": "Gene symbol"},
+        {"path": "Refseq.status", "expected": "REVIEWED", "description": "Review status"},
+        {"path": "Refseq.type", "expected": "mRNA", "description": "Sequence type"}
+      ]
+    },
+    {
+      "category": "data_validation",
+      "name": "BRCA1 ClinVar Count",
+      "type": "validation",
+      "query": ">>ensembl>>clinvar",
+      "identifier": "BRCA1",
+      "why": "BRCA1 should have many ClinVar variants (>100)",
+      "validations": [
+        {"path": "source.count", "min": 100, "description": "At least 100 ClinVar variants"}
+      ]
+    },
+    {
+      "category": "data_validation",
+      "name": "TP53 GO Count",
+      "type": "validation",
+      "query": ">>ensembl>>uniprot>>go",
+      "identifier": "TP53",
+      "why": "TP53 should have many GO annotations (>50)",
+      "validations": [
+        {"path": "source.count", "min": 50, "description": "At least 50 GO annotations"}
+      ]
+    },
+    {
+      "category": "data_validation",
+      "name": "Aspirin Cross-ref Count",
+      "type": "validation",
+      "query": "",
+      "identifier": "2244",
+      "dataset_id": 6,
+      "why": "Aspirin should have many cross-references (>1000) including bioactivities",
+      "validations": [
+        {"path": "entry.count", "min": 1000, "description": "At least 1000 cross-references"}
+      ]
+    },
+    {
+      "category": "data_validation",
+      "name": "TP53 to P04637 Known Fact",
+      "type": "validation",
+      "query": ">>ensembl>>uniprot",
+      "identifier": "TP53",
+      "why": "TP53 gene should encode UniProt protein P04637",
+      "validations": [
+        {"path": "targets", "contains_identifier": "P04637", "description": "Links to P04637"}
+      ]
+    },
+    {
+      "category": "data_validation",
+      "name": "EGFR to P00533 Known Fact",
+      "type": "validation",
+      "query": ">>ensembl>>uniprot",
+      "identifier": "EGFR",
+      "why": "EGFR gene should encode UniProt protein P00533",
+      "validations": [
+        {"path": "targets", "contains_identifier": "P00533", "description": "Links to P00533"}
+      ]
+    },
+    {
+      "category": "data_validation",
+      "name": "BRCA1 to P38398 Known Fact",
+      "type": "validation",
+      "query": ">>ensembl>>uniprot",
+      "identifier": "BRCA1",
+      "why": "BRCA1 gene should encode UniProt protein P38398",
+      "validations": [
+        {"path": "targets", "contains_identifier": "P38398", "description": "Links to P38398"}
+      ]
+    },
+    {
+      "category": "data_validation",
+      "name": "Aspirin to HMDB Known Fact",
+      "type": "validation",
+      "query": ">>pubchem>>hmdb",
+      "identifier": "2244",
+      "why": "Aspirin should link to HMDB metabolite database",
+      "validations": [
+        {"path": "targets", "has_results": true, "description": "Has HMDB cross-reference"}
+      ]
+    },
+    {
+      "category": "gwas_genetics",
+      "name": "Type 2 Diabetes MONDO to GWAS Genes",
+      "query": ">>mondo>>gwas>>ensembl",
+      "why": "Find genes associated with Type 2 Diabetes via GWAS studies - disease genetics workflow",
+      "should_pass": [
+        "MONDO:0005148"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "drug_discovery",
+      "name": "JAK2 Advanced Clinical Trial Drugs",
+      "query": ">>ensembl>>uniprot>>chembl_target_component>>chembl_target>>chembl_assay>>chembl_activity>>chembl_molecule[chembl.molecule.highestDevelopmentPhase>2]",
+      "why": "Find JAK2 drugs in advanced clinical trials (Phase 3/4) - full drug discovery chain. NOTE: This is a long chain query and may be slow (~60s)",
+      "should_pass": [
+        "JAK2"
       ],
       "should_fail": []
     }

@@ -187,18 +187,21 @@ func (s *service) mapFilterWithLimit(ids []string, mapFilterQuery, page string, 
 
 	cacheKey := s.mapFilterCacheKey(ids, mapFilterQuery, page)
 
-	resultFromCache, found := s.filterResultCache.Get(cacheKey)
+	// Check cache only if not disabled
+	if !s.cacheDisabled {
+		resultFromCache, found := s.filterResultCache.Get(cacheKey)
 
-	if found {
+		if found {
 
-		err := proto.Unmarshal(resultFromCache.([]byte), &result)
-		if err != nil {
-			fmt.Println(err)
-			return nil, err
+			err := proto.Unmarshal(resultFromCache.([]byte), &result)
+			if err != nil {
+				fmt.Println(err)
+				return nil, err
+			}
+
+			return &result, nil
+
 		}
-
-		return &result, nil
-
 	}
 
 	var respaging strings.Builder
@@ -321,8 +324,11 @@ startMapping:
 		goto startMapping
 	}
 
-	// set cache
+	// set cache (only if not disabled)
 	setCache := func() error {
+		if s.cacheDisabled {
+			return nil
+		}
 		resultBytes, err := proto.Marshal(&result)
 		if err != nil {
 			err := fmt.Errorf("Error while setting result to cache")
@@ -699,16 +705,22 @@ func (s *service) xrefMapping(queries []query.Query, xref *pbuf.Xref, inPages ma
 
 				if entry.Dataset == q.MapDatasetID {
 
+					// OPTIMIZATION: Check for duplicate BEFORE expensive LMDB lookup
+					// This prevents redundant DB reads for entries we already have
+					targetKey := config.DataconfIDIntToString[entry.Dataset] + "_" + entry.Identifier
+					if _, alreadyHave := targetkeys[targetKey]; alreadyHave {
+						// Already have this target, skip LMDB lookup entirely
+						continue
+					}
+
 					filterRes, target, err := s.applyFilter(entry, &q)
 					if err != nil {
 						return nil, nil, err
 					}
 
 					if filterRes {
-						if _, ok := targetkeys[config.DataconfIDIntToString[target.Dataset]+"_"+target.Identifier]; !ok {
-							targets = append(targets, target)
-							targetkeys[config.DataconfIDIntToString[target.Dataset]+"_"+target.Identifier] = true
-						}
+						targets = append(targets, target)
+						targetkeys[targetKey] = true
 					}
 
 				}
@@ -928,6 +940,19 @@ func (s *service) moveEntries(sourceEntries map[int][]*pbuf.XrefEntry, source *p
 
 func (s *service) applyFilter(entry *pbuf.XrefEntry, q *query.Query) (bool, *pbuf.Xref, error) {
 
+	// OPTIMIZATION: Check filter cache BEFORE doing expensive LMDB lookup
+	// This prevents repeated DB reads for entries we already know will fail the filter
+	if len(q.Filter) > 0 && !s.cacheDisabled && s.filterResultCache != nil {
+		cacheKey := "f_" + entry.Identifier + "_" + strconv.Itoa(int(entry.Dataset)) + q.Filter
+		if cached, found := s.filterResultCache.Get(cacheKey); found {
+			if !cached.(bool) {
+				// Already know this entry fails the filter - skip DB lookup entirely
+				return false, nil, nil
+			}
+			// If true, we still need to fetch the target data, so continue
+		}
+	}
+
 	target, err := s.getLmdbResult2(entry.Identifier, entry.Dataset)
 	if err != nil {
 		// Entry not found as primary entry in target dataset - skip it
@@ -958,12 +983,14 @@ func (s *service) execCelGo(query *query.Query, targetXref *pbuf.Xref) (bool, er
 
 	// look in cache f_ is just differentiate with mapfilter can be better...
 	cacheKey := "f_" + targetXref.Identifier + "_" + strconv.Itoa(int(targetXref.Dataset)) + query.Filter
-	entry, found := s.filterResultCache.Get(cacheKey)
-	if found {
-		if entry.(bool) {
-			return true, nil
+	if !s.cacheDisabled && s.filterResultCache != nil {
+		entry, found := s.filterResultCache.Get(cacheKey)
+		if found {
+			if entry.(bool) {
+				return true, nil
+			}
+			return false, nil
 		}
-		return false, nil
 	}
 
 	/**
@@ -1022,6 +1049,12 @@ func (s *service) execCelGo(query *query.Query, targetXref *pbuf.Xref) (bool, er
 		out, _, err = query.Program.Eval(map[string]interface{}{query.MapDataset: targetXref.GetOntology()})
 	case "chembl_document", "chembl_assay", "chembl_activity", "chembl_molecule", "chembl_target", "chembl_target_component", "chembl_cell_line":
 		out, _, err = query.Program.Eval(map[string]interface{}{"chembl": targetXref.GetChembl()})
+	case "pubchem":
+		out, _, err = query.Program.Eval(map[string]interface{}{"pubchem": targetXref.GetPubchem()})
+	case "pubchem_activity":
+		out, _, err = query.Program.Eval(map[string]interface{}{"pubchem_activity": targetXref.GetPubchemActivity()})
+	case "pubchem_assay":
+		out, _, err = query.Program.Eval(map[string]interface{}{"pubchem_assay": targetXref.GetPubchemAssay()})
 	case "interpro":
 		out, _, err = query.Program.Eval(map[string]interface{}{"interpro": targetXref.GetInterpro()})
 	case "ena":
@@ -1074,18 +1107,24 @@ func (s *service) execCelGo(query *query.Query, targetXref *pbuf.Xref) (bool, er
 
 		var res, ok bool
 		if res, ok = out.Value().(bool); !ok {
-			s.filterResultCache.Set(cacheKey, false, 1)
+			if !s.cacheDisabled && s.filterResultCache != nil {
+				s.filterResultCache.Set(cacheKey, false, 1)
+			}
 			return false, nil
 		}
 
 		if res { // todo think again conversion
-			s.filterResultCache.Set(cacheKey, true, 1)
+			if !s.cacheDisabled && s.filterResultCache != nil {
+				s.filterResultCache.Set(cacheKey, true, 1)
+			}
 			return true, nil
 		}
 
 	}
 
-	s.filterResultCache.Set(cacheKey, false, 1)
+	if !s.cacheDisabled && s.filterResultCache != nil {
+		s.filterResultCache.Set(cacheKey, false, 1)
+	}
 	return false, nil
 
 }

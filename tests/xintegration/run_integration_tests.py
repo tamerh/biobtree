@@ -56,16 +56,22 @@ class IntegrationTestRunner:
                 print(f"Available categories: {', '.join(self.get_categories().keys())}")
                 return
 
-        total_identifiers = sum(
-            len(test['should_pass']) + len(test['should_fail'])
-            for test in tests_to_run
-        )
+        # Count tests - validation tests count as 1 per validation check
+        total_identifiers = 0
+        for test in tests_to_run:
+            if test.get('type') == 'validation':
+                total_identifiers += len(test.get('validations', []))
+            else:
+                total_identifiers += len(test.get('should_pass', [])) + len(test.get('should_fail', []))
 
         category_msg = f" (category: {self.category})" if self.category else ""
         print(f"\n{Colors.BOLD}Running {total_identifiers} integration tests{category_msg}...{Colors.END}\n")
 
         for test in tests_to_run:
-            self.run_test(test)
+            if test.get('type') == 'validation':
+                self.run_validation_test(test)
+            else:
+                self.run_test(test)
 
     def run_test(self, test):
         """Execute a test case"""
@@ -85,8 +91,194 @@ class IntegrationTestRunner:
             self.results.append(result)
             self.print_result(result)
 
+    def run_validation_test(self, test):
+        """Execute a validation test - checks data attributes, not just mapping existence"""
+        import time
+
+        print(f"{Colors.BLUE}[{test['name']}]{Colors.END} {test.get('query', '')} (validation)")
+        if self.verbose:
+            print(f"  Why: {test['why']}")
+
+        identifier = test['identifier']
+        query = test.get('query', '')
+        dataset_id = test.get('dataset_id')
+
+        # Fetch data
+        try:
+            if query == '':
+                params = {'i': identifier}
+                url = f"{self.server}/ws/"
+            else:
+                params = {'i': identifier, 'm': query}
+                url = f"{self.server}/ws/map/"
+
+            start_time = time.time()
+            response = requests.get(url, params=params, timeout=60)
+            elapsed_ms = (time.time() - start_time) * 1000
+
+            response.raise_for_status()
+            data = response.json()
+            full_url = response.url
+        except Exception as e:
+            # All validations fail if we can't fetch data
+            for validation in test.get('validations', []):
+                result = {
+                    'test_name': test['name'],
+                    'query': query,
+                    'identifier': identifier,
+                    'expected_pass': True,
+                    'passed': False,
+                    'error': str(e),
+                    'url': f"{url}?{urlencode(params)}",
+                    'why': test['why'],
+                    'validation_desc': validation.get('description', 'Unknown'),
+                    'response_time_ms': 0
+                }
+                self.results.append(result)
+                self.print_validation_result(result)
+            return
+
+        # Find the entry to validate
+        entry = None
+        if data.get('results'):
+            if dataset_id:
+                # Find by dataset ID
+                for r in data['results']:
+                    if r.get('dataset') == dataset_id:
+                        entry = r
+                        break
+            else:
+                # Use first result's source for mapping results
+                entry = data['results'][0]
+
+        # Run each validation
+        for validation in test.get('validations', []):
+            result = self.run_single_validation(test, entry, data, validation, full_url, elapsed_ms)
+            self.results.append(result)
+            self.print_validation_result(result)
+
+    def run_single_validation(self, test, entry, data, validation, url, elapsed_ms=0):
+        """Run a single validation check"""
+        path = validation.get('path', '')
+        desc = validation.get('description', path)
+
+        result_base = {
+            'test_name': test['name'],
+            'query': test.get('query', ''),
+            'identifier': test['identifier'],
+            'expected_pass': True,
+            'url': url,
+            'why': test['why'],
+            'validation_desc': desc,
+            'response_time_ms': elapsed_ms
+        }
+
+        # Navigate path to get value
+        try:
+            value = self.navigate_path(entry, data, path, validation)
+        except Exception as e:
+            return {**result_base, 'passed': False, 'error': f"Path error: {e}"}
+
+        # Check validation conditions
+        if 'expected' in validation:
+            passed = value == validation['expected']
+            if not passed:
+                return {**result_base, 'passed': False, 'error': f"Expected '{validation['expected']}', got '{value}'"}
+        elif 'min' in validation and 'max' in validation:
+            passed = validation['min'] <= (value or 0) <= validation['max']
+            if not passed:
+                return {**result_base, 'passed': False, 'error': f"Expected {validation['min']}-{validation['max']}, got {value}"}
+        elif 'min' in validation:
+            passed = (value or 0) >= validation['min']
+            if not passed:
+                return {**result_base, 'passed': False, 'error': f"Expected >= {validation['min']}, got {value}"}
+        elif 'min_length' in validation:
+            passed = value and len(str(value)) >= validation['min_length']
+            if not passed:
+                return {**result_base, 'passed': False, 'error': f"Expected length >= {validation['min_length']}, got {len(str(value)) if value else 0}"}
+        elif 'starts_with' in validation:
+            passed = value and str(value).startswith(validation['starts_with'])
+            if not passed:
+                return {**result_base, 'passed': False, 'error': f"Expected to start with '{validation['starts_with']}', got '{value}'"}
+        elif 'contains_identifier' in validation:
+            # Check if any target has the specified identifier
+            passed = self.check_contains_identifier(data, validation['contains_identifier'])
+            if not passed:
+                return {**result_base, 'passed': False, 'error': f"Target '{validation['contains_identifier']}' not found"}
+        elif 'has_results' in validation:
+            passed = bool(data.get('results')) == validation['has_results']
+            if not passed:
+                return {**result_base, 'passed': False, 'error': f"Expected has_results={validation['has_results']}"}
+        else:
+            passed = value is not None
+            if not passed:
+                return {**result_base, 'passed': False, 'error': f"Value not found at path '{path}'"}
+
+        return {**result_base, 'passed': True, 'has_results': True}
+
+    def navigate_path(self, entry, data, path, validation):
+        """Navigate a dot-separated path to get a value"""
+        if not path:
+            return entry
+
+        # Special handling for "targets" - searches across all results
+        if path == 'targets':
+            return data.get('results', [])
+
+        # Special handling for paths starting with "source."
+        if path.startswith('source.'):
+            if not data.get('results'):
+                return None
+            path = path[7:]  # Remove "source."
+            obj = data['results'][0].get('source', {})
+        # Special handling for paths starting with "entry." - use entry directly
+        elif path.startswith('entry.'):
+            if not entry:
+                return None
+            path = path[6:]  # Remove "entry."
+            obj = entry
+        elif entry:
+            obj = entry.get('Attributes', entry)
+        else:
+            return None
+
+        # Navigate path
+        parts = path.split('.')
+        for part in parts:
+            if isinstance(obj, dict):
+                obj = obj.get(part)
+            else:
+                return None
+            if obj is None:
+                return None
+
+        return obj
+
+    def check_contains_identifier(self, data, target_id):
+        """Check if any result's targets contain the specified identifier"""
+        for result in data.get('results', []):
+            for target in result.get('targets', []):
+                if target.get('identifier') == target_id:
+                    return True
+        return False
+
+    def print_validation_result(self, result):
+        """Print validation test result"""
+        desc = result.get('validation_desc', result['identifier'])
+        if result['passed']:
+            status = f"{Colors.GREEN}✓{Colors.END}"
+            print(f"  {status} {desc}")
+        else:
+            status = f"{Colors.RED}✗{Colors.END}"
+            error = result.get('error', 'Unknown failure')
+            print(f"  {status} {desc} - {error}")
+            if self.verbose:
+                print(f"      URL: {result['url']}")
+
     def run_query(self, test, identifier, expected_pass):
         """Execute a single query"""
+        import time
+
         # Choose endpoint based on query type
         if test['query'] == '':
             # Empty query = lookup using search endpoint
@@ -98,7 +290,10 @@ class IntegrationTestRunner:
             url = f"{self.server}/ws/map/"
 
         try:
+            start_time = time.time()
             response = requests.get(url, params=params, timeout=30)
+            elapsed_ms = (time.time() - start_time) * 1000
+
             response.raise_for_status()
             data = response.json()
 
@@ -119,7 +314,8 @@ class IntegrationTestRunner:
                 'passed': passed,
                 'url': full_url,
                 'response': data,
-                'why': test['why']
+                'why': test['why'],
+                'response_time_ms': elapsed_ms
             }
 
         except Exception as e:
@@ -131,15 +327,19 @@ class IntegrationTestRunner:
                 'passed': False,
                 'error': str(e),
                 'url': f"{url}?{urlencode(params)}",
-                'why': test['why']
+                'why': test['why'],
+                'response_time_ms': 0
             }
 
     def print_result(self, result):
         """Print test result"""
+        elapsed = result.get('response_time_ms', 0)
+        time_str = self.format_time(elapsed)
+
         if result['passed']:
             status = f"{Colors.GREEN}✓{Colors.END}"
             expected = "should pass" if result['expected_pass'] else "should fail"
-            print(f"  {status} {result['identifier']} ({expected})")
+            print(f"  {status} {result['identifier']} ({expected}) {time_str}")
         else:
             status = f"{Colors.RED}✗{Colors.END}"
             if 'error' in result:
@@ -151,9 +351,22 @@ class IntegrationTestRunner:
             else:
                 reason = "Unknown failure"
 
-            print(f"  {status} {result['identifier']} - {reason}")
+            print(f"  {status} {result['identifier']} - {reason} {time_str}")
             if self.verbose:
                 print(f"      URL: {result['url']}")
+
+    def format_time(self, elapsed_ms):
+        """Format response time with color coding"""
+        if elapsed_ms == 0:
+            return ""
+        elif elapsed_ms < 100:
+            return f"{Colors.GREEN}[{elapsed_ms:.0f}ms]{Colors.END}"
+        elif elapsed_ms < 500:
+            return f"{Colors.YELLOW}[{elapsed_ms:.0f}ms]{Colors.END}"
+        elif elapsed_ms < 2000:
+            return f"{Colors.YELLOW}[{elapsed_ms/1000:.1f}s]{Colors.END}"
+        else:
+            return f"{Colors.RED}[{elapsed_ms/1000:.1f}s]{Colors.END}"
 
     def generate_report(self, report_dir: str = 'reports'):
         """Generate markdown report"""
@@ -172,6 +385,12 @@ class IntegrationTestRunner:
         failed = total - passed
         pass_rate = (passed / total * 100) if total > 0 else 0
 
+        # Timing stats
+        times = [r.get('response_time_ms', 0) for r in self.results if r.get('response_time_ms', 0) > 0]
+        avg_time = sum(times) / len(times) if times else 0
+        max_time = max(times) if times else 0
+        total_time = sum(times)
+
         report = f"""# Integration Test Analysis
 
 **Date**: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}
@@ -181,6 +400,39 @@ class IntegrationTestRunner:
 **Failed**: {failed} ({100-pass_rate:.1f}%)
 
 ---
+
+## ⏱️ Response Time Summary
+
+| Metric | Value |
+|--------|-------|
+| Total Time | {total_time/1000:.1f}s |
+| Average | {avg_time:.0f}ms |
+| Max | {max_time:.0f}ms |
+
+"""
+        # Slow queries section
+        slow_queries = sorted(
+            [r for r in self.results if r.get('response_time_ms', 0) > 500],
+            key=lambda x: x.get('response_time_ms', 0),
+            reverse=True
+        )
+        if slow_queries:
+            report += "### 🐢 Slow Queries (>500ms)\n\n"
+            report += "| Time | Identifier | Query | Status |\n"
+            report += "|------|------------|-------|--------|\n"
+            for r in slow_queries[:20]:
+                elapsed = r.get('response_time_ms', 0)
+                identifier = r.get('identifier', r.get('validation_desc', '?'))
+                query = r.get('query', '') or '(lookup)'
+                status = "✓" if r['passed'] else "✗"
+                if elapsed >= 1000:
+                    time_str = f"**{elapsed/1000:.1f}s**"
+                else:
+                    time_str = f"{elapsed:.0f}ms"
+                report += f"| {time_str} | `{identifier}` | `{query}` | {status} |\n"
+            report += "\n"
+
+        report += """---
 
 ## ✅ Passing Tests
 
@@ -205,7 +457,9 @@ class IntegrationTestRunner:
                 report += f"**Query**: `{first['query']}`\n\n"
                 for r in results['passed']:
                     expected = "pass" if r['expected_pass'] else "fail (correctly)"
-                    report += f"- ✓ `{r['identifier']}` (expected to {expected})\n"
+                    elapsed = r.get('response_time_ms', 0)
+                    time_str = f" ({elapsed:.0f}ms)" if elapsed > 0 else ""
+                    report += f"- ✓ `{r['identifier']}` (expected to {expected}){time_str}\n"
                 report += "\n"
 
         report += "\n---\n\n## ❌ Failing Tests\n\n"
@@ -230,7 +484,9 @@ class IntegrationTestRunner:
                     else:
                         reason = "Unknown failure"
 
-                    report += f"- ✗ `{r['identifier']}` (expected to {expected})\n"
+                    elapsed = r.get('response_time_ms', 0)
+                    time_str = f" ({elapsed:.0f}ms)" if elapsed > 0 else ""
+                    report += f"- ✗ `{r['identifier']}` (expected to {expected}){time_str}\n"
                     report += f"  - **Failure**: {reason}\n"
                     report += f"  - **URL**: {r['url']}\n\n"
 
@@ -255,7 +511,38 @@ class IntegrationTestRunner:
             test_results = [r for r in self.results if r['test_name'] == test['name']]
             test_passed = sum(1 for r in test_results if r['passed'])
             test_total = len(test_results)
-            report += f"- **{test['name']}**: {test_passed}/{test_total} passed\n"
+            if test_results:
+                avg_time = sum(r.get('response_time_ms', 0) for r in test_results) / len(test_results)
+                report += f"- **{test['name']}**: {test_passed}/{test_total} passed (avg {avg_time:.0f}ms)\n"
+            else:
+                report += f"- **{test['name']}**: {test_passed}/{test_total} passed\n"
+
+        # Full response times table
+        report += """
+---
+
+## ⏱️ All Response Times
+
+| Test | Identifier | Query | Time | Status |
+|------|------------|-------|------|--------|
+"""
+        for r in sorted(self.results, key=lambda x: x.get('response_time_ms', 0), reverse=True):
+            test_name = r['test_name'][:30] + "..." if len(r['test_name']) > 30 else r['test_name']
+            identifier = r.get('identifier', r.get('validation_desc', '?'))
+            if len(identifier) > 25:
+                identifier = identifier[:22] + "..."
+            query = r.get('query', '') or '(lookup)'
+            if len(query) > 40:
+                query = query[:37] + "..."
+            elapsed = r.get('response_time_ms', 0)
+            status = "✓" if r['passed'] else "✗"
+            if elapsed >= 1000:
+                time_str = f"**{elapsed/1000:.1f}s**"
+            elif elapsed >= 500:
+                time_str = f"*{elapsed:.0f}ms*"
+            else:
+                time_str = f"{elapsed:.0f}ms"
+            report += f"| {test_name} | `{identifier}` | `{query}` | {time_str} | {status} |\n"
 
         return report
 
@@ -265,6 +552,12 @@ class IntegrationTestRunner:
         passed = sum(1 for r in self.results if r['passed'])
         failed = total - passed
 
+        # Timing stats
+        times = [r.get('response_time_ms', 0) for r in self.results if r.get('response_time_ms', 0) > 0]
+        avg_time = sum(times) / len(times) if times else 0
+        max_time = max(times) if times else 0
+        total_time = sum(times)
+
         print(f"\n{Colors.BOLD}═══════════════════════════════════════{Colors.END}")
         print(f"{Colors.BOLD}  Test Summary{Colors.END}")
         print(f"{Colors.BOLD}═══════════════════════════════════════{Colors.END}")
@@ -272,6 +565,33 @@ class IntegrationTestRunner:
         print(f"{Colors.GREEN}Passed:{Colors.END}   {passed}")
         print(f"{Colors.RED}Failed:{Colors.END}   {failed}")
         print(f"Rate:     {(passed/total*100):.1f}%")
+        print(f"{Colors.BOLD}═══════════════════════════════════════{Colors.END}")
+        print(f"{Colors.BOLD}  Response Times{Colors.END}")
+        print(f"{Colors.BOLD}═══════════════════════════════════════{Colors.END}")
+        print(f"Total:    {total_time/1000:.1f}s")
+        print(f"Average:  {avg_time:.0f}ms")
+        print(f"Max:      {max_time:.0f}ms")
+
+        # Show slow queries (>1 second)
+        slow_queries = sorted(
+            [r for r in self.results if r.get('response_time_ms', 0) > 1000],
+            key=lambda x: x.get('response_time_ms', 0),
+            reverse=True
+        )
+
+        if slow_queries:
+            print(f"{Colors.BOLD}═══════════════════════════════════════{Colors.END}")
+            print(f"{Colors.RED}  Slow Queries (>1s){Colors.END}")
+            print(f"{Colors.BOLD}═══════════════════════════════════════{Colors.END}")
+            for r in slow_queries[:10]:  # Top 10 slowest
+                elapsed = r.get('response_time_ms', 0)
+                identifier = r.get('identifier', r.get('validation_desc', '?'))
+                query = r.get('query', '')
+                if elapsed >= 2000:
+                    print(f"  {Colors.RED}{elapsed/1000:.1f}s{Colors.END} {identifier} {query}")
+                else:
+                    print(f"  {Colors.YELLOW}{elapsed/1000:.1f}s{Colors.END} {identifier} {query}")
+
         print(f"{Colors.BOLD}═══════════════════════════════════════{Colors.END}\n")
 
 

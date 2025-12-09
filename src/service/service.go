@@ -44,6 +44,7 @@ type service struct {
 	qparser                  *query.QueryParser
 	celgoEnv                 cel.Env
 	filterResultCache        *ristretto.Cache
+	cacheDisabled            bool // When true, skips cache for performance testing
 	celProgOpts              cel.ProgramOption
 }
 
@@ -308,22 +309,34 @@ func (s *service) init() {
 			}},
 	)
 
-	cacheHardMaxSize := 1024
-	if _, ok := config.Appconf["cacheHardMaxSize"]; ok {
-		cacheHardMaxSize, err = strconv.Atoi(config.Appconf["cacheHardMaxSize"])
-		if err != nil {
-			panic("Invalid mapFilterTimeoutDuration definition")
+	// Check if cache is disabled for performance testing
+	s.cacheDisabled = false
+	if val, ok := config.Appconf["disableCache"]; ok {
+		if val == "y" || val == "yes" || val == "true" || val == "1" {
+			s.cacheDisabled = true
+			log.Println("Cache disabled via disableCache parameter")
 		}
 	}
 
-	s.filterResultCache, err = ristretto.NewCache(&ristretto.Config{
-		NumCounters: 1e7,                                   // number of keys to track frequency of (10M).
-		MaxCost:     int64(cacheHardMaxSize) * 1024 * 1024, // maximum cost of cache.
-		BufferItems: 64,                                    // number of keys per Get buffer.
-	})
+	// Only initialize cache if not disabled
+	if !s.cacheDisabled {
+		cacheHardMaxSize := 1024
+		if _, ok := config.Appconf["cacheHardMaxSize"]; ok {
+			cacheHardMaxSize, err = strconv.Atoi(config.Appconf["cacheHardMaxSize"])
+			if err != nil {
+				panic("Invalid cacheHardMaxSize definition")
+			}
+		}
 
-	if err != nil {
-		panic(err)
+		s.filterResultCache, err = ristretto.NewCache(&ristretto.Config{
+			NumCounters: 1e7,                                   // number of keys to track frequency of (10M).
+			MaxCost:     int64(cacheHardMaxSize) * 1024 * 1024, // maximum cost of cache.
+			BufferItems: 64,                                    // number of keys per Get buffer.
+		})
+
+		if err != nil {
+			panic(err)
+		}
 	}
 
 }

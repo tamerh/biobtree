@@ -36,6 +36,7 @@
 	"mapFilterTimeoutDuration": "300",
 	"cacheMaxEntrySize": "25000",
 	"cacheHardMaxSize": "1024",
+	"disableCache": "n",
 	"disableEnsemblReleaseCheck": "y",
 	"disableRemoteConfigCheck": "y",
 	"dbBackend": "lmdb",

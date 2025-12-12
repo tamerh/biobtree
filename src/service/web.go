@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	_ "net/http/pprof" // Register pprof handlers
 	"os/exec"
 	"runtime"
 	"strconv"

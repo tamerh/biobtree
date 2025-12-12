@@ -684,7 +684,7 @@ func (s *service) xrefMapping(queries []query.Query, xref *pbuf.Xref, inPages ma
 	for {
 	start:
 
-		q := queries[qind]
+		q := &queries[qind] // Use pointer to preserve cached CEL program across iterations
 
 		if sourceEntries[qind] == nil {
 			sourceEntries[qind], err = s.getEntries(sources[qind], q.MapDatasetID, inPages[qind])
@@ -713,7 +713,7 @@ func (s *service) xrefMapping(queries []query.Query, xref *pbuf.Xref, inPages ma
 						continue
 					}
 
-					filterRes, target, err := s.applyFilter(entry, &q)
+					filterRes, target, err := s.applyFilter(entry, q)
 					if err != nil {
 						return nil, nil, err
 					}
@@ -776,7 +776,7 @@ func (s *service) xrefMapping(queries []query.Query, xref *pbuf.Xref, inPages ma
 			for entryIndex, entry := range sourceEntries[qind] {
 				if entry.Dataset == q.MapDatasetID {
 
-					filterRes, nextsource, err := s.applyFilter(entry, &q)
+					filterRes, nextsource, err := s.applyFilter(entry, q)
 
 					if err != nil {
 						return nil, nil, err

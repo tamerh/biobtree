@@ -1131,8 +1131,18 @@ func (s *service) getLmdbResult2(identifier string, domainID uint32) (*pbuf.Xref
 }
 
 // searchLite performs a search and returns compact lite format response
+// Uses the main search function and converts the result to lite format
 // Returns only IDs, sorted by has_attr (entries with attributes first)
 func (s *service) searchLite(ids []string, idsDomain uint32, page string, datasetFilter string) (*pbuf.ResultLite, error) {
+	// Use the main search function - this ensures consistent behavior
+	// detail=false triggers makeLiteAll which strips attributes
+	// buildURL=false since we don't need URLs in lite mode
+	fullResult, err := s.search(ids, idsDomain, page, nil, false, false)
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert full result to lite format
 	result := &pbuf.ResultLite{
 		Mode: "lite",
 		Query: &pbuf.SearchQueryInfo{
@@ -1145,38 +1155,33 @@ func (s *service) searchLite(ids []string, idsDomain uint32, page string, datase
 	var liteResults []*pbuf.SearchResultLite
 	statsByDataset := make(map[string]int32)
 
-	for i := range ids {
-		ids[i] = strings.ToUpper(ids[i])
-	}
+	// Track seen IDs to avoid duplicates
+	seenIDs := make(map[string]bool)
 
-	for _, id := range ids {
-		dbResult, err := s.getLmdbResult(id)
-		if err != nil {
-			return nil, err
+	for _, xref := range fullResult.Results {
+		datasetName := config.DataconfIDIntToString[xref.Dataset]
+		identifier := xref.Identifier
+		if identifier == "" {
+			identifier = xref.Keyword
 		}
 
-		for _, xref := range dbResult.Results {
-			// Skip link entries (text search results)
-			if xref.IsLink {
-				continue
-			}
-
-			if idsDomain > 0 && xref.Dataset != idsDomain {
-				continue
-			}
-
-			datasetName := config.DataconfIDIntToString[xref.Dataset]
-			hasAttr := !xref.GetEmpty()
-
-			liteResult := &pbuf.SearchResultLite{
-				D:         datasetName,
-				Id:        id,
-				HasAttr:   hasAttr,
-				XrefCount: xref.Count,
-			}
-			liteResults = append(liteResults, liteResult)
-			statsByDataset[datasetName]++
+		// Create unique key to avoid duplicates
+		uniqueKey := identifier + ":" + datasetName
+		if seenIDs[uniqueKey] {
+			continue
 		}
+		seenIDs[uniqueKey] = true
+
+		hasAttr := !xref.GetEmpty()
+
+		liteResult := &pbuf.SearchResultLite{
+			D:         datasetName,
+			Id:        identifier,
+			HasAttr:   hasAttr,
+			XrefCount: xref.Count,
+		}
+		liteResults = append(liteResults, liteResult)
+		statsByDataset[datasetName]++
 	}
 
 	// Sort: entries with attributes first
@@ -1203,6 +1208,12 @@ func (s *service) searchLite(ids []string, idsDomain uint32, page string, datase
 	result.Pagination = &pbuf.PaginationInfo{
 		Page:    1,
 		HasNext: hasNext,
+	}
+
+	// Copy nextpage token if available
+	if fullResult.Nextpage != "" {
+		result.Pagination.NextToken = fullResult.Nextpage
+		result.Pagination.HasNext = true
 	}
 
 	return result, nil

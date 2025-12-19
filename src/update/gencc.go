@@ -234,9 +234,10 @@ func (g *gencc) update() {
 			g.d.addXref(classificationTitle, textLinkID, uuid, g.source, true)
 		}
 
-		// Cross-reference to HGNC (gene_curie format: HGNC:XXXX)
-		if geneCurie != "" && strings.HasPrefix(geneCurie, "HGNC:") {
-			g.d.addXref(uuid, sourceID, geneCurie, "hgnc", false)
+		// Cross-reference to Ensembl via HGNC (using gene symbol lookup)
+		// In production, HGNC is part of Ensembl, so we use addXrefEnsemblViaHgnc
+		if geneSymbol != "" {
+			g.d.addXrefEnsemblViaHgnc(geneSymbol, uuid, sourceID)
 		}
 
 		// Cross-reference to disease ontologies

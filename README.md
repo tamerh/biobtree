@@ -7,7 +7,7 @@ via identifiers and special keywors with simple or advance chain query capabilit
 
 ## Features
 
-* **Datasets** - supports wide datasets such as `Ensembl` `Uniprot` `ChEMBL` `HMDB` `Taxonomy` `GO` `EFO` `HPO` `UBERON` `CL` `HGNC` `ECO` `Uniparc` `Uniref` `RNACentral` `Bgee` `GWAS Catalog` `dbSNP` `RefSeq` `IntAct`  with tens of more via cross references
+* **Datasets** - supports wide datasets such as `Ensembl` `Uniprot` `ChEMBL` `HMDB` `Taxonomy` `GO` `EFO` `HPO` `UBERON` `CL` `HGNC` `ECO` `Uniparc` `Uniref` `RNACentral` `Bgee` `GWAS Catalog` `dbSNP` `RefSeq` `IntAct` `GenCC`  with tens of more via cross references
 by retrieving latest data from providers
 
 * **MapReduce** - processes small or large datasets based on users selection and build B+ tree based uniform local database via specialized MapReduce based tecnique with efficient storage usage 
@@ -39,6 +39,8 @@ by retrieving latest data from providers
 * **Reference Sequences** - `RefSeq` from NCBI with curated reference sequences for genomes, transcripts, and proteins. Provides genomic coordinates, gene annotations, protein sequences, and cross-references to UniProt, Entrez Gene, and other databases. Use `--genome-taxids` to filter to specific organisms for model organism databases
 
 * **Protein Interactions** - `IntAct` database from EBI with ~1.8 million experimentally validated protein-protein interactions across ~100,000 unique proteins. Provides detailed experimental evidence including detection methods, interaction types, confidence scores, experimental roles, and direct citations to 23,000+ publications. Supports interaction network analysis, drug target discovery, and pathway exploration with PSI-MI standardized terms
+
+* **Gene-Disease Validity** - `GenCC` (Gene Curation Coalition) database with 35,000+ standardized gene-disease validity curations from multiple authoritative sources including ClinGen, Ambry, Genomics England, and Orphanet. Provides classification levels (Definitive, Strong, Moderate, Limited, Supportive), mode of inheritance (autosomal dominant/recessive, X-linked), submitter information, and PubMed citations. Supports clinical variant interpretation, diagnostic panel design, and gene-disease relationship exploration with cross-references to MONDO, HPO, and PubMed
 
 * **Taxonomy & Ontologies** - `Taxonomy` `GO` `EFO` `ECO` `HPO` `MONDO` `UBERON` `CL` `OBA` `PATO` `OBI` `XCO` data with mapping to other datasets and child and parent query capability. CL (Cell Ontology) provides 2,700+ cell type classifications for tissue-specific and cell-specific analysis. OBA (Ontology of Biological Attributes) covers biological traits. PATO (Phenotype And Trait Ontology) describes phenotypic qualities. OBI (Ontology for Biomedical Investigations) covers study designs and assays. XCO (Experimental Conditions Ontology) describes experimental conditions
 
@@ -74,6 +76,9 @@ biobtree -d "chembl,clinical_trials" build
 
 # build with genetic variants (works well with HGNC, MONDO, HPO)
 biobtree -d "hgnc,clinvar,mondo,hpo" build
+
+# build with gene-disease validity (works well with MONDO, HPO)
+biobtree -d "gencc,mondo,hpo" build
 
 # build with gene expression (requires Ensembl and works well with UBERON)
 biobtree -d "ensembl,bgee,uberon" build
@@ -368,6 +373,12 @@ biobtree query "NC_000017.11"                     # RefSeq chromosome lookup
 biobtree query "P49418"                           # Protein interaction lookup
 biobtree query "P49418 >> intact"                 # Get interaction partners
 biobtree query "P49418 >> intact >> uniprot"      # Get partner protein details
+
+# GenCC gene-disease validity queries
+biobtree query "BRCA1 >> gencc"                   # Find gene-disease curations for BRCA1
+biobtree query "Fanconi anemia >> gencc"          # Find curations by disease name
+biobtree query "BRCA1 >> gencc >> mondo"          # Gene to disease ontology terms
+biobtree query "BRCA1 >> gencc >> hpo"            # Gene to inheritance patterns
 ```
 
 #### Filter Syntax
@@ -406,6 +417,10 @@ biobtree query "rs200676709 >> dbsnp[dbsnp.clinical_significance!=\"\"]"  # Clin
 # IntAct filters
 biobtree query "P49418 >> intact[intact.interactions[0].confidence_score>0.6]"  # High-confidence interactions
 biobtree query "P49418 >> intact[intact.interactions[0].detection_method~\"two hybrid\"]"  # By method
+
+# GenCC filters
+biobtree query "BRCA1 >> gencc[gencc.classification_title==\"Definitive\"]"  # Only definitive classifications
+biobtree query "BRCA1 >> gencc[gencc.moi_title==\"Autosomal dominant\"]"     # Filter by inheritance mode
 ```
 
 #### Migration Guide - Breaking Change in Mapping Queries

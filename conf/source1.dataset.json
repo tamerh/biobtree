@@ -706,7 +706,7 @@
     "linkdataset": "entrez"
   },
   "gencc": {
-    "id": "747",
+    "id": "59",
     "name": "GenCC",
     "path": "https://search.thegencc.org/download/action/submissions-export-tsv",
     "aliases": "GenCC,Gene Curation Coalition,gene-disease validity,gene-disease relationship",

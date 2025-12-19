@@ -179,7 +179,7 @@ STRING_TAXIDS="9606,10090,10116,7955,7227,6239,4932,284812,511145,3702,39947,457
 
 # Core datasets split into 4 parts:
 CORE_PART1="uniprot,taxonomy,interpro,hmdb,chembl,clinvar,lipidmaps,swisslipids,gwas_study,gwas,intact,antibody,protein_similarity,rhea"
-CORE_PART2="chebi,alphafold,rnacentral,reactome,clinical_trials,patent,string,bgee,ontology,mesh"
+CORE_PART2="chebi,alphafold,rnacentral,reactome,clinical_trials,patent,string,bgee,ontology,mesh,genecc"
 
 # Part 3: Large/unstable dataset (dbsnp - prone to FTP issues, needs retry)
 CORE_PART3="dbsnp"

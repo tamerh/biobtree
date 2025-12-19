@@ -1188,8 +1188,7 @@
     },
     {
       "category": "data_validation",
-      "name": "
-       Aspirin Attributes",
+      "name": "Aspirin Attributes",
       "type": "validation",
       "query": "",
       "identifier": "2244",

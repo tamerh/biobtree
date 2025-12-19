@@ -1,23 +1,32 @@
 package update
 
 import (
+	"biobtree/db"
 	"biobtree/pbuf"
 	"bufio"
 	"encoding/csv"
+	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
+	"github.com/golang/protobuf/proto"
 	"github.com/pquerna/ffjson/ffjson"
 )
 
 type antibody struct {
-	source string
-	d      *DataUpdate
-	idMap  map[string]string // Track IDs and their sources for conflict detection
+	source              string
+	d                   *DataUpdate
+	idMap               map[string]string       // Track IDs and their sources for conflict detection
+	lookupEnv           db.Env                  // LMDB environment for ontology lookup
+	lookupDbi           db.DBI                  // LMDB database index
+	hasLookupDB         bool                    // Whether lookup DB is available
+	medicalTermMappings *MedicalTermMappings    // Medical term normalization mappings
 }
 
 // Helper for context-aware error checking
@@ -34,6 +43,13 @@ func (a *antibody) update() {
 
 	// Initialize ID conflict detection map
 	a.idMap = make(map[string]string)
+
+	// Load medical term mappings for disease name normalization
+	a.medicalTermMappings = LoadMedicalTermMappings()
+
+	// Initialize lookup database for EFO/MONDO ontology mapping
+	a.initLookupDB()
+	defer a.closeLookupDB()
 
 	// Test mode support
 	testLimit := config.GetTestLimit(a.source)
@@ -190,6 +206,22 @@ func (a *antibody) parseTheraSAbDab(testLimit int, idLogFile *os.File) {
 
 		// Add text search for INN name
 		a.d.addXref(innName, textLinkID, innName, a.source, true)
+
+		// Map indications to EFO ontology (creates bidirectional xrefs)
+		efoDatasetID := uint32(72)   // EFO dataset ID
+		for _, indication := range indications {
+			if indication != "" {
+				a.mapIndicationToOntology(innName, indication, efoDatasetID, sourceID, "efo")
+			}
+		}
+
+		// Map indications to MONDO ontology (creates bidirectional xrefs)
+		mondoDatasetID := uint32(73)  // MONDO dataset ID
+		for _, indication := range indications {
+			if indication != "" {
+				a.mapIndicationToOntology(innName, indication, mondoDatasetID, sourceID, "mondo")
+			}
+		}
 
 		// Create cross-references to target genes via gene symbol lookup
 		// This looks up each gene symbol in the database and creates xrefs to Ensembl gene entries
@@ -756,4 +788,252 @@ func extractList(s string) []string {
 		}
 	}
 	return result
+}
+
+// ============================================================================
+// ONTOLOGY MAPPING FUNCTIONS
+// Map antibody indications to EFO/MONDO ontologies using 10-attempt cascade
+// ============================================================================
+
+// Initialize read-only lookup database for ontology mapping
+func (a *antibody) initLookupDB() {
+	lookupDbDir, ok := config.Appconf["lookupDbDir"]
+	if !ok {
+		log.Println("Antibody: Warning - lookupDbDir not configured, ontology mapping disabled")
+		a.hasLookupDB = false
+		return
+	}
+
+	// Check if meta file exists
+	metaFile := filepath.FromSlash(lookupDbDir + "/db.meta.json")
+	meta := make(map[string]interface{})
+	f, err := ioutil.ReadFile(metaFile)
+	if err != nil {
+		log.Printf("Antibody: Warning - cannot read lookup database meta file: %v, ontology mapping disabled", err)
+		a.hasLookupDB = false
+		return
+	}
+
+	if err := json.Unmarshal(f, &meta); err != nil {
+		log.Printf("Antibody: Warning - cannot parse lookup database meta: %v, ontology mapping disabled", err)
+		a.hasLookupDB = false
+		return
+	}
+
+	totalkvline := int64(meta["totalKVLine"].(float64))
+
+	// Open lookup database (read-only)
+	db1 := db.DB{}
+	lookupConf := make(map[string]string)
+	lookupConf["dbDir"] = lookupDbDir
+	lookupConf["dbBackend"] = "lmdb"
+	a.lookupEnv, a.lookupDbi = db1.OpenDBNew(false, totalkvline, lookupConf)
+	a.hasLookupDB = true
+	log.Println("Antibody: Lookup database initialized for ontology mapping")
+}
+
+// Close lookup database
+func (a *antibody) closeLookupDB() {
+	if a.hasLookupDB {
+		a.lookupEnv.Close()
+	}
+}
+
+// Lookup identifier in biobtree database and return results
+func (a *antibody) lookup(identifier string) (*pbuf.Result, error) {
+	if !a.hasLookupDB {
+		return nil, fmt.Errorf("lookup database not available")
+	}
+
+	// Lookup is case-insensitive (convert to uppercase like service does)
+	identifier = strings.ToUpper(identifier)
+
+	var v []byte
+	err := a.lookupEnv.View(func(txn db.Txn) (err error) {
+		v, err = txn.Get(a.lookupDbi, []byte(identifier))
+		if db.IsNotFound(err) {
+			return nil
+		}
+		return err
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	if len(v) == 0 {
+		return nil, nil
+	}
+
+	r := pbuf.Result{}
+	err = proto.Unmarshal(v, &r)
+	return &r, err
+}
+
+// Map indication to ontology using 10-attempt cascade (EFO or MONDO)
+func (a *antibody) mapIndicationToOntology(antibodyID string, indication string, ontologyDatasetID uint32, fr string, ontologyName string) {
+	if !a.hasLookupDB {
+		return
+	}
+
+	// Track found ontology IDs to prevent duplicates
+	foundOntologyIDs := make(map[string]bool)
+
+	// ATTEMPT 1: Try exact indication name
+	a.lookupAndCollectOntology(indication, ontologyDatasetID, foundOntologyIDs)
+	if len(foundOntologyIDs) > 0 {
+		a.createOntologyXrefs(antibodyID, fr, foundOntologyIDs, ontologyName)
+		return
+	}
+
+	// ATTEMPT 2: Try disease corrections (covid19 → COVID-19, hiv → HIV infection)
+	if a.medicalTermMappings != nil {
+		corrected, applied := ApplyDiseaseCorrections(a.medicalTermMappings, indication)
+		if applied {
+			a.lookupAndCollectOntology(corrected, ontologyDatasetID, foundOntologyIDs)
+			if len(foundOntologyIDs) > 0 {
+				a.createOntologyXrefs(antibodyID, fr, foundOntologyIDs, ontologyName)
+				return
+			}
+		}
+	}
+
+	// ATTEMPT 3: Try spelling variations (British/American, common typos)
+	if a.medicalTermMappings != nil {
+		spellingVariant := ApplySpellingVariations(a.medicalTermMappings, indication)
+		if spellingVariant != indication {
+			a.lookupAndCollectOntology(spellingVariant, ontologyDatasetID, foundOntologyIDs)
+			if len(foundOntologyIDs) > 0 {
+				a.createOntologyXrefs(antibodyID, fr, foundOntologyIDs, ontologyName)
+				return
+			}
+		}
+	}
+
+	// ATTEMPT 3b: Try cancer abbreviations (NSCLC → non-small cell lung cancer)
+	if a.medicalTermMappings != nil {
+		cancerAbbrevVariant := ApplyCancerAbbreviations(a.medicalTermMappings, indication)
+		if cancerAbbrevVariant != indication {
+			a.lookupAndCollectOntology(cancerAbbrevVariant, ontologyDatasetID, foundOntologyIDs)
+			if len(foundOntologyIDs) > 0 {
+				a.createOntologyXrefs(antibodyID, fr, foundOntologyIDs, ontologyName)
+				return
+			}
+		}
+	}
+
+	// ATTEMPT 3c: Try removing cancer-specific qualifiers (stage, receptor, metastatic)
+	if a.medicalTermMappings != nil {
+		withoutCancerQualifiers := RemoveCancerQualifiers(a.medicalTermMappings, indication)
+		if withoutCancerQualifiers != indication {
+			a.lookupAndCollectOntology(withoutCancerQualifiers, ontologyDatasetID, foundOntologyIDs)
+			if len(foundOntologyIDs) > 0 {
+				a.createOntologyXrefs(antibodyID, fr, foundOntologyIDs, ontologyName)
+				return
+			}
+		}
+	}
+
+	// ATTEMPT 4: Remove parentheses and their contents
+	simplifiedIndication := RemoveParentheses(indication)
+	if simplifiedIndication != indication {
+		a.lookupAndCollectOntology(simplifiedIndication, ontologyDatasetID, foundOntologyIDs)
+		if len(foundOntologyIDs) > 0 {
+			a.createOntologyXrefs(antibodyID, fr, foundOntologyIDs, ontologyName)
+			return
+		}
+	}
+
+	// ATTEMPT 5: Try slash/or splitting (HIV/AIDS → try both)
+	slashVariations := SplitSlashOr(indication)
+	for _, variation := range slashVariations {
+		a.lookupAndCollectOntology(variation, ontologyDatasetID, foundOntologyIDs)
+		if len(foundOntologyIDs) > 0 {
+			a.createOntologyXrefs(antibodyID, fr, foundOntologyIDs, ontologyName)
+			return
+		}
+	}
+
+	// ATTEMPT 6: Try specific medical term patterns (heart attack → myocardial infarction)
+	if a.medicalTermMappings != nil {
+		variations := ApplySpecificPatterns(a.medicalTermMappings, indication)
+		for _, variation := range variations {
+			a.lookupAndCollectOntology(variation, ontologyDatasetID, foundOntologyIDs)
+			if len(foundOntologyIDs) > 0 {
+				a.createOntologyXrefs(antibodyID, fr, foundOntologyIDs, ontologyName)
+				return
+			}
+		}
+	}
+
+	// ATTEMPT 7: Remove medical qualifiers (Acute, Chronic, Mild, etc.)
+	if a.medicalTermMappings != nil {
+		withoutQualifiers := RemoveQualifiers(a.medicalTermMappings, indication)
+		if withoutQualifiers != indication {
+			a.lookupAndCollectOntology(withoutQualifiers, ontologyDatasetID, foundOntologyIDs)
+			if len(foundOntologyIDs) > 0 {
+				a.createOntologyXrefs(antibodyID, fr, foundOntologyIDs, ontologyName)
+				return
+			}
+		}
+	}
+
+	// ATTEMPT 8: Try word order normalization (Amyloidosis Cardiac → Cardiac Amyloidosis)
+	wordOrderVariation := TryWordOrderSwap(indication)
+	if wordOrderVariation != indication {
+		a.lookupAndCollectOntology(wordOrderVariation, ontologyDatasetID, foundOntologyIDs)
+		if len(foundOntologyIDs) > 0 {
+			a.createOntologyXrefs(antibodyID, fr, foundOntologyIDs, ontologyName)
+			return
+		}
+	}
+
+	// ATTEMPT 9: Try anatomical term variations (heart → cardiac, kidney → renal)
+	if a.medicalTermMappings != nil {
+		anatomicalVariations := ApplyAnatomicalTerms(a.medicalTermMappings, indication)
+		for _, variation := range anatomicalVariations {
+			a.lookupAndCollectOntology(variation, ontologyDatasetID, foundOntologyIDs)
+			if len(foundOntologyIDs) > 0 {
+				a.createOntologyXrefs(antibodyID, fr, foundOntologyIDs, ontologyName)
+				return
+			}
+		}
+	}
+
+	// ATTEMPT 10: Try singular/plural variations
+	singularIndication := ToSingular(indication)
+	if singularIndication != indication {
+		a.lookupAndCollectOntology(singularIndication, ontologyDatasetID, foundOntologyIDs)
+	}
+
+	// Create all unique xrefs found
+	if len(foundOntologyIDs) > 0 {
+		a.createOntologyXrefs(antibodyID, fr, foundOntologyIDs, ontologyName)
+	}
+}
+
+// Lookup indication name and collect ontology IDs into the map
+func (a *antibody) lookupAndCollectOntology(indication string, ontologyDatasetID uint32, ontologyIDs map[string]bool) {
+	result, err := a.lookup(indication)
+	if err != nil {
+		return
+	}
+	if result == nil || len(result.Results) == 0 {
+		return
+	}
+
+	// Collect ontology IDs from top-level results only
+	// Note: EFO may not appear here if it's not indexed with disease names in lookup DB
+	for _, xref := range result.Results {
+		if xref.Dataset == ontologyDatasetID {
+			ontologyIDs[xref.Identifier] = true
+		}
+	}
+}
+
+// Create ontology cross-references (bidirectional)
+func (a *antibody) createOntologyXrefs(antibodyID string, fr string, ontologyIDs map[string]bool, ontologyName string) {
+	for ontologyID := range ontologyIDs {
+		a.d.addXref(antibodyID, fr, ontologyID, ontologyName, false)
+	}
 }

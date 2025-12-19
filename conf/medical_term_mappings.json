@@ -103,7 +103,10 @@
       "odema": "edema",
       "diarrhoea": "diarrhea",
       "ischaemic": "ischemic",
-      "myeloblastic": "myeloid"
+      "myeloblastic": "myeloid",
+      "gynaecological": "gynecological",
+      "gynaecologic": "gynecologic",
+      "gynaeco": "gyneco"
     }
   },
 

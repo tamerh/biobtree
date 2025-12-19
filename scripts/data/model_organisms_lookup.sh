@@ -121,7 +121,7 @@ mkdir -p ${OUT_DIR}
 mkdir -p logs
 
 # Datasets to include in lookup database
-LOOKUP_DATASETS="hgnc,ensembl,chembl,mondo,hpo,go,uniprot,taxonomy,mesh"
+LOOKUP_DATASETS="hgnc,ensembl,chembl,uniprot,taxonomy,mesh,ontology"
 
 # Build parameters
 BB_PARAMS="--lmdb-safety-factor 4.5 --eo --include-optionals --maxcpu ${MAXCPU}"

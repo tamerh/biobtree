@@ -353,7 +353,7 @@
     "id": "26",
     "name": "Patent",
     "url": "https://patents.google.com/patent/£{id}",
-    "path": "/data/scc/ag-gruber/GROUP/tgur/x/bioyoda_dev2/snapshots/out_all/raw_data/patents/surechembl/2025-10-01",
+    "path": "/data/scc/ag-gruber/GROUP/tgur/x/bioyoda_dev2/snapshots/raw_data/patents/biobtree/",
     "useLocalFile": "yes",
     "hasFilter": "yes",
     "attrs": "title,country,publication_date,family_id,[]cpc,[]ipcr,[]ipc,[]ecla,[]asignee",

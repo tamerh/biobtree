@@ -165,6 +165,7 @@ message Xref {
     MeshAttr mesh=50;
     EntrezAttr entrez=53;
     RefSeqAttr refseq=57;
+    GenccAttr gencc=58;
 
   }
 

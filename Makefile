@@ -16,7 +16,7 @@ help:
 
 build:
 	@echo "Building $(BINARY_NAME)..."
-	cd $(SRC_DIR) && go build -o ../$(BINARY_NAME)
+	cd $(SRC_DIR) && CGO_ENABLED=1 go build -o ../$(BINARY_NAME)
 	@echo "✓ Built successfully: ./$(BINARY_NAME)"
 
 # Only run this when you modify .proto files in src/pbuf/

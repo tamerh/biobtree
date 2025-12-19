@@ -278,6 +278,7 @@ Available datasets:
         'pubchem': datasets_dir / "pubchem" / "test_pubchem.py",
         'entrez': datasets_dir / "entrez" / "test_entrez.py",
         'refseq': datasets_dir / "refseq" / "test_refseq.py",
+        'gencc': datasets_dir / "gencc" / "test_gencc.py",
     }
 
     # Parse dataset selection

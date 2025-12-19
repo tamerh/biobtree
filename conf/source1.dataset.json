@@ -704,5 +704,17 @@
     "id": "58",
     "url": "https://www.ncbi.nlm.nih.gov/gene/£{id}",
     "linkdataset": "entrez"
+  },
+  "gencc": {
+    "id": "747",
+    "name": "GenCC",
+    "path": "https://search.thegencc.org/download/action/submissions-export-tsv",
+    "aliases": "GenCC,Gene Curation Coalition,gene-disease validity,gene-disease relationship",
+    "url": "https://search.thegencc.org/genes/£{id}",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "uuid,gene_curie,gene_symbol,disease_curie,disease_title,classification_curie,classification_title,moi_curie,moi_title,submitter_curie,submitter_title,submitted_as_date,submitted_as_public_report_url,[]submitted_as_pmids",
+    "test_entries_count": "100",
+    "bucketMethod": "alphabetic"
   }
 }

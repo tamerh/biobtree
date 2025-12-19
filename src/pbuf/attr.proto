@@ -1207,3 +1207,37 @@ message RefSeqAttr {
   // Exon structure (for transcripts)
   int32 exon_count = 31;          // Number of exons
 }
+
+// GenCC - Gene Curation Coalition (Dataset ID: 747)
+// Gene-disease validity curations from multiple sources
+// Source: https://thegencc.org/
+message GenccAttr {
+  // Unique identifier for this curation
+  string uuid = 1;                              // GenCC UUID for the submission
+
+  // Gene information
+  string gene_curie = 2;                        // Gene CURIE (e.g., "HGNC:10896")
+  string gene_symbol = 3;                       // Gene symbol (e.g., "RYR1")
+
+  // Disease information
+  string disease_curie = 4;                     // Disease CURIE (e.g., "MONDO:0008056")
+  string disease_title = 5;                     // Disease name (e.g., "malignant hyperthermia")
+
+  // Classification (gene-disease validity)
+  string classification_curie = 6;              // Classification CURIE (e.g., "GENCC:100001")
+  string classification_title = 7;              // Classification label (e.g., "Definitive")
+                                                 // Values: Definitive, Strong, Moderate, Limited, Disputed, Refuted, Animal Model Only, No Known Disease Relationship
+
+  // Mode of Inheritance
+  string moi_curie = 8;                         // Mode of Inheritance CURIE (e.g., "HP:0000006")
+  string moi_title = 9;                         // Mode of Inheritance name (e.g., "Autosomal dominant")
+
+  // Submitter information
+  string submitter_curie = 10;                  // Submitter CURIE (e.g., "GENCC:000101")
+  string submitter_title = 11;                  // Submitter name (e.g., "ClinGen")
+
+  // Submission metadata
+  string submitted_as_date = 12;                // Submission date (ISO format)
+  string submitted_as_public_report_url = 13;   // URL to the public report
+  repeated string submitted_as_pmids = 14;      // PubMed IDs supporting the curation
+}

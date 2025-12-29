@@ -1,17 +1,13 @@
 package update
 
 import (
-	"biobtree/db"
 	"biobtree/pbuf"
 	"bufio"
 	"encoding/csv"
-	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"sort"
 	"strconv"
@@ -47,16 +43,18 @@ type pubchem struct {
 	// Source tracking for filtering
 	surechemblPatentIDs map[string]bool // Pre-loaded SureChEMBL patent IDs (~665K)
 
-	// Cached data for efficient lookup
-	cidToTitle     map[string]string // CID → compound name (from Drug-Names)
-	cidToSynonyms  map[string][]string // CID → synonyms (top 20)
+	// Cached data for efficient lookup (stored as attributes in PubchemAttr)
+	cidToTitle     map[string]string   // CID → compound name (from Drug-Names)
+	cidToSynonyms  map[string][]string // CID → synonyms
 	cidToMeSH      map[string][]string // CID → MeSH terms
-	cidToPMIDs     map[string][]int64  // CID → PubMed IDs (top 10)
-	cidToPatents   map[string][]string // CID → Patent IDs (top 10)
-	cidToCreationDate map[string]string  // CID → creation date (YYYY-MM-DD)
-	cidToParent    map[string]string    // CID → parent CID
 	meshToPharmActions map[string][]string // MeSH term → pharmacological actions
-	// NOTE: cidToActivities removed - activities are now a separate dataset
+
+	// Optional temporal/structural data (disabled by default, see loadSupplementaryMappings)
+	cidToCreationDate map[string]string // CID → creation date (YYYY-MM-DD)
+	cidToParent       map[string]string // CID → parent CID
+
+	// Note: PMID and Patent data are stored as cross-references (xrefs), not attributes
+	// See loadLiteratureCIDs() and loadPatentCIDs() for details
 
 	// Cross-reference mappings
 	chebiToPubChem   map[string][]string // ChEBI ID → PubChem CIDs
@@ -68,13 +66,6 @@ type pubchem struct {
 	totalRead int
 	totalCIDs int
 
-	// Temp biobtree database for biotech CID filtering
-	tempCIDFile       string     // File containing biotech CIDs (one per line)
-	tempDBDir         string     // Temp biobtree database directory
-	tempLookupEnv     db.Env     // Temp database environment (read-only)
-	tempLookupDbi     db.DBI     // Temp database DBI
-	hasTempLookup     bool       // Whether temp lookup database is available
-	tempCIDFileHandle *os.File   // File handle for writing CIDs
 }
 
 // check provides context-aware error checking for PubChem processor
@@ -124,8 +115,6 @@ func (p *pubchem) update() {
 	p.cidToTitle = make(map[string]string)
 	p.cidToSynonyms = make(map[string][]string)
 	p.cidToMeSH = make(map[string][]string)
-	p.cidToPMIDs = make(map[string][]int64)
-	p.cidToPatents = make(map[string][]string)
 	p.cidToCreationDate = make(map[string]string)
 	p.cidToParent = make(map[string]string)
 	p.meshToPharmActions = make(map[string][]string)
@@ -154,206 +143,15 @@ func (p *pubchem) update() {
 	log.Printf("[PubChem] Phase 4: Creating bidirectional cross-references")
 	p.createBidirectionalXrefs()
 
-	// Cleanup temp lookup database and files
-	defer p.closeTempLookupDB()
-	// TEMPORARY: Disable cleanup for debugging
-	// defer p.cleanupTempFiles()
-
 	// Signal completion
 	p.d.progChan <- &progressInfo{dataset: p.source, done: true}
 
-	// Log completion (note: biotechCIDs map may be nil if using temp DB)
-	if p.hasTempLookup {
-		log.Printf("[PubChem] Integration complete: Biotech CIDs indexed in temp database")
-	} else {
-		log.Printf("[PubChem] Integration complete: %d biotech CIDs identified", len(p.biotechCIDs))
-	}
+	log.Printf("[PubChem] Integration complete: %d biotech CIDs processed", len(p.biotechCIDs))
 }
 
-// initTempCIDFile initializes a file to collect biotech CIDs (one per line)
-func (p *pubchem) initTempCIDFile() error {
-	outDir := config.Appconf["outDir"]
-	p.tempCIDFile = filepath.Join(outDir, "temp_biotech_cids.txt")
-	p.tempDBDir = filepath.Join(outDir, "temp_biotech_db")
-
-	log.Printf("[PubChem] Initializing temp CID file: %s", p.tempCIDFile)
-
-	// Remove existing file if present
-	os.Remove(p.tempCIDFile)
-
-	// Create file
-	file, err := os.Create(p.tempCIDFile)
-	if err != nil {
-		return fmt.Errorf("failed to create temp CID file: %v", err)
-	}
-
-	p.tempCIDFileHandle = file
-	return nil
-}
-
-// writeCIDToFile writes a biotech CID to the temp file
-func (p *pubchem) writeCIDToFile(cid string) error {
-	if p.tempCIDFileHandle == nil {
-		return fmt.Errorf("temp CID file not initialized")
-	}
-
-	_, err := fmt.Fprintln(p.tempCIDFileHandle, cid)
-	return err
-}
-
-// closeTempCIDFile closes the temp CID file
-func (p *pubchem) closeTempCIDFile() error {
-	if p.tempCIDFileHandle != nil {
-		return p.tempCIDFileHandle.Close()
-	}
-	return nil
-}
-
-// buildTempBiotreeDB calls biobtree to build a database from the temp CID file
-func (p *pubchem) buildTempBiotreeDB() error {
-	log.Printf("[PubChem] Building temp biobtree database from %s", p.tempCIDFile)
-	log.Printf("[PubChem] This may take 5-10 minutes for ~10M CIDs...")
-
-	// Remove existing temp database
-	os.RemoveAll(p.tempDBDir)
-
-	// Build biobtree command:
-	// ./biobtree -d my_data --my_data.file=temp_biotech_cids.txt --out-dir=temp_biotech_db build
-	biobtreeBinary := "./biobtree"
-
-	args := []string{
-		"-d", "my_data",
-		"--my_data.file=" + p.tempCIDFile,
-		"--out-dir=" + p.tempDBDir,
-		"build",
-	}
-
-	log.Printf("[PubChem] Running: %s %s", biobtreeBinary, strings.Join(args, " "))
-
-	// Check if CID file exists and has content
-	if stat, err := os.Stat(p.tempCIDFile); err == nil {
-		log.Printf("[PubChem] Temp CID file exists: %s (%d bytes)", p.tempCIDFile, stat.Size())
-	} else {
-		log.Printf("[PubChem] WARNING: Temp CID file not found: %v", err)
-	}
-
-	cmd := exec.Command(biobtreeBinary, args...)
-
-	// Capture stdout and stderr
-	var stdout, stderr strings.Builder
-	cmd.Stdout = &stdout
-	cmd.Stderr = &stderr
-
-	startTime := time.Now()
-	err := cmd.Run()
-	elapsed := time.Since(startTime)
-
-	// Log biobtree output
-	log.Printf("[PubChem] Biobtree STDOUT:\n%s", stdout.String())
-	if stderr.String() != "" {
-		log.Printf("[PubChem] Biobtree STDERR:\n%s", stderr.String())
-	}
-
-	if err != nil {
-		return fmt.Errorf("biobtree build failed: %v", err)
-	}
-
-	log.Printf("[PubChem] Temp database built successfully in %v", elapsed)
-	return nil
-}
-
-// openTempLookupDB opens the temp biobtree database for read-only lookups
-func (p *pubchem) openTempLookupDB() error {
-	log.Printf("[PubChem] Opening temp biobtree database for lookups...")
-
-	// Check if database exists
-	metaFile := filepath.Join(p.tempDBDir, "db", "db.meta.json")
-	if _, err := os.Stat(metaFile); os.IsNotExist(err) {
-		return fmt.Errorf("temp database meta file not found: %s", metaFile)
-	}
-
-	// Read meta file to get totalKVLine
-	meta := make(map[string]interface{})
-	metaData, err := ioutil.ReadFile(metaFile)
-	if err != nil {
-		return fmt.Errorf("failed to read meta file: %v", err)
-	}
-
-	if err := json.Unmarshal(metaData, &meta); err != nil {
-		return fmt.Errorf("failed to parse meta file: %v", err)
-	}
-
-	totalKV := int64(meta["totalKVLine"].(float64))
-
-	// Open database in read-only mode
-	dbDir := filepath.Join(p.tempDBDir, "db")
-	tempConf := make(map[string]string)
-	tempConf["dbDir"] = dbDir
-	tempConf["dbBackend"] = "lmdb"
-
-	db1 := db.DB{}
-	p.tempLookupEnv, p.tempLookupDbi = db1.OpenDBNew(false, totalKV, tempConf)
-	p.hasTempLookup = true
-
-	log.Printf("[PubChem] Temp lookup database opened successfully (%d entries)", totalKV)
-	return nil
-}
-
-// isBiotechCID checks if a CID exists in the temp biobtree database
+// isBiotechCID checks if a CID is in the biotech-relevant set
 func (p *pubchem) isBiotechCID(cid string) bool {
-	if !p.hasTempLookup {
-		// Fallback to map if temp DB not available
-		return p.biotechCIDs != nil && p.biotechCIDs[cid]
-	}
-
-	// Lookup in temp database (case-insensitive, uppercase)
-	cidUpper := strings.ToUpper(cid)
-	var exists bool
-
-	err := p.tempLookupEnv.View(func(txn db.Txn) error {
-		v, err := txn.Get(p.tempLookupDbi, []byte(cidUpper))
-		if db.IsNotFound(err) {
-			exists = false
-			return nil
-		}
-		if err != nil {
-			return err
-		}
-		exists = len(v) > 0
-		return nil
-	})
-
-	if err != nil {
-		// On error, assume not biotech
-		return false
-	}
-
-	return exists
-}
-
-// closeTempLookupDB closes the temp biobtree database
-func (p *pubchem) closeTempLookupDB() {
-	if p.hasTempLookup {
-		p.tempLookupEnv.Close()
-		p.hasTempLookup = false
-	}
-}
-
-// cleanupTempFiles removes temporary files and database
-func (p *pubchem) cleanupTempFiles() {
-	log.Printf("[PubChem] Cleaning up temporary files...")
-
-	// Remove CID file
-	if p.tempCIDFile != "" {
-		os.Remove(p.tempCIDFile)
-	}
-
-	// Remove temp database
-	if p.tempDBDir != "" {
-		os.RemoveAll(p.tempDBDir)
-	}
-
-	log.Printf("[PubChem] Cleanup complete")
+	return p.biotechCIDs != nil && p.biotechCIDs[cid]
 }
 
 // preloadSureChEMBLPatents loads all SureChEMBL patent IDs from patents.json into memory for fast filtering
@@ -412,14 +210,6 @@ func (p *pubchem) preloadSureChEMBLPatents() {
 
 // identifyBiotechCIDs identifies biotech-relevant CIDs from various sources
 func (p *pubchem) identifyBiotechCIDs() {
-	// Initialize temp CID file for writing biotech CIDs
-	if err := p.initTempCIDFile(); err != nil {
-		log.Printf("[PubChem] ERROR: Failed to initialize temp CID file: %v", err)
-		log.Printf("[PubChem] Falling back to in-memory approach")
-	} else {
-		defer p.closeTempCIDFile()
-	}
-
 	// Step 0: Pre-load SureChEMBL patent IDs for fast filtering
 	p.preloadSureChEMBLPatents()
 
@@ -446,76 +236,22 @@ func (p *pubchem) identifyBiotechCIDs() {
 	log.Printf("[PubChem] Step 5: Merging and deduplicating CID sources")
 	p.mergeBiotechCIDs()
 
-	// Step 6: Build temp biobtree database from CID file
-	log.Printf("[PubChem] Step 6: Building temp biobtree database for efficient filtering")
-	p.closeTempCIDFile() // Close file before building database
-
-	if err := p.buildTempBiotreeDB(); err != nil {
-		log.Printf("[PubChem] ERROR: Failed to build temp database: %v", err)
-		log.Printf("[PubChem] Continuing with in-memory maps")
-	} else {
-		// Open temp database for lookups
-		if err := p.openTempLookupDB(); err != nil {
-			log.Printf("[PubChem] ERROR: Failed to open temp lookup database: %v", err)
-		} else {
-			log.Printf("[PubChem] Temp database ready for lookups")
-			// NOTE: We'll free maps AFTER XML parsing, because we need to iterate over CIDs
-			// to determine which XML files to download
-		}
-	}
-}
-
-// REMOVED testTempDatabaseLookups() - will test with real XML parsing instead
-
-// testTempDatabaseLookups tests that the temp database is working correctly
-func (p *pubchem) testTempDatabaseLookups() {
-	log.Printf("[PubChem] Running temp database lookup tests...")
-
-	// Get a few sample CIDs from our in-memory map (before we free it)
-	testCIDs := []string{}
-	count := 0
-	for cid := range p.biotechCIDs {
-		testCIDs = append(testCIDs, cid)
-		count++
-		if count >= 10 {
-			break
-		}
-	}
-
-	if len(testCIDs) == 0 {
-		log.Printf("[PubChem] WARNING: No CIDs available for testing")
-		return
-	}
-
-	// Test lookups
-	passed := 0
-	failed := 0
-	for _, cid := range testCIDs {
-		exists := p.isBiotechCID(cid)
-		if exists {
-			passed++
-		} else {
-			failed++
-			log.Printf("[PubChem] ERROR: Lookup failed for CID %s (should exist)", cid)
-		}
-	}
-
-	// Test a CID that definitely doesn't exist
-	nonexistentCID := "999999999999"
-	exists := p.isBiotechCID(nonexistentCID)
-	if !exists {
-		passed++
-	} else {
-		failed++
-		log.Printf("[PubChem] ERROR: Lookup returned true for non-existent CID %s", nonexistentCID)
-	}
-
-	log.Printf("[PubChem] Temp database tests: %d passed, %d failed", passed, failed)
-	if failed > 0 {
-		log.Printf("[PubChem] WARNING: Temp database lookups are not working correctly!")
-	} else {
-		log.Printf("[PubChem] Temp database lookups working correctly ✓")
-	}
+	// Note: We use the in-memory biotechCIDs map (~10M entries, ~200-300MB) for filtering.
+	// This is simpler and sufficient for current scale. The temp DB approach below is kept
+	// commented out for future reference if we need to scale to larger datasets.
+	//
+	// // Step 6: Build temp biobtree database from CID file (for very large datasets)
+	// log.Printf("[PubChem] Step 6: Building temp biobtree database for efficient filtering")
+	// p.closeTempCIDFile() // Close file before building database
+	// if err := p.buildTempBiotreeDB(); err != nil {
+	//     log.Printf("[PubChem] ERROR: Failed to build temp database: %v", err)
+	// } else {
+	//     if err := p.openTempLookupDB(); err != nil {
+	//         log.Printf("[PubChem] ERROR: Failed to open temp lookup database: %v", err)
+	//     } else {
+	//         log.Printf("[PubChem] Temp database ready for lookups")
+	//     }
+	// }
 }
 
 // loadFDADrugs loads FDA-approved drug CIDs from Drug-Names.tsv.gz (Priority 0)
@@ -601,6 +337,12 @@ func (p *pubchem) loadFDADrugs() {
 
 // loadLiteratureCIDs loads CIDs with literature references from CID-PMID.gz
 // This identifies ~8M biotech-relevant compounds that have been published
+//
+// PMID data is stored as cross-references (xrefs) rather than embedded attributes because:
+// - CID-PMID.gz contains 50+ million records (311 MB compressed)
+// - Storing as attributes would require loading all PMIDs into memory (~10 GB)
+// - Xrefs are written directly to bucket files (disk), avoiding memory accumulation
+// - Xrefs provide bidirectional queries: "compound → publications" and "publication → compounds"
 func (p *pubchem) loadLiteratureCIDs() {
 	ftpServer := config.Dataconf[p.source]["ftpUrl"]
 	basePath := config.Dataconf[p.source]["path"]
@@ -652,15 +394,20 @@ func (p *pubchem) loadLiteratureCIDs() {
 
 		// Format: CID \t PMID
 		cid := strings.TrimSpace(record[0])
-		// pmid := strings.TrimSpace(record[1]) // We'll use this in Phase 3
+		pmid := strings.TrimSpace(record[1])
 
-		if cid == "" {
+		if cid == "" || pmid == "" {
 			continue
 		}
 
 		// Mark as literature-referenced (P1)
 		p.p1CIDs[cid] = true
 		uniqueCIDs[cid] = true
+
+		// Create bidirectional cross-reference: PubChem CID ↔ PubMed
+		// This allows: Query compound → see publications, Query publication → see compounds
+		fr := config.Dataconf["pubchem"]["id"]
+		p.d.addXref(cid, fr, pmid, "pubmed", false)
 
 		// Progress reporting every 10M lines
 		if lineCount%10000000 == 0 {
@@ -677,10 +424,17 @@ func (p *pubchem) loadLiteratureCIDs() {
 
 	log.Printf("[PubChem] Loaded %d literature-referenced CIDs (P1) from %d total links",
 		len(p.p1CIDs), lineCount)
+	log.Printf("[PubChem] Created %d CID ↔ PubMed cross-references", lineCount)
 }
 
 // loadPatentCIDs loads CIDs with patent associations from CID-Patent.gz
 // This identifies ~6M biotech-relevant compounds that appear in patents
+//
+// Patent data is stored as cross-references (xrefs) rather than embedded attributes because:
+// - CID-Patent.gz contains 1+ billion records (4.4 GB compressed)
+// - Storing as attributes would require loading all patent IDs into memory (~50-60 GB)
+// - Xrefs are written directly to bucket files (disk), avoiding memory accumulation
+// - Xrefs provide bidirectional queries: "compound → patents" and "patent → compounds"
 func (p *pubchem) loadPatentCIDs() {
 	ftpServer := config.Dataconf[p.source]["ftpUrl"]
 	basePath := config.Dataconf[p.source]["path"]
@@ -789,14 +543,10 @@ func (p *pubchem) loadPatentCIDs() {
 func (p *pubchem) mergeBiotechCIDs() {
 	log.Printf("[PubChem] Merging biotech-relevant CIDs from all sources")
 
-	// Helper function to add CID and write to temp file
+	// Helper function to add CID to master set
 	addCID := func(cid string) {
 		if !p.biotechCIDs[cid] {
 			p.biotechCIDs[cid] = true
-			// Write to temp file if available
-			if p.tempCIDFileHandle != nil {
-				p.writeCIDToFile(cid)
-			}
 		}
 	}
 
@@ -1050,11 +800,6 @@ func (p *pubchem) loadBiologicCIDs() {
 		if !p.p4CIDs[cid] {
 			p.p4CIDs[cid] = true
 			uniqueCIDs[cid] = true
-
-			// Write to temp CID file if available
-			if p.tempCIDFileHandle != nil {
-				p.writeCIDToFile(cid)
-			}
 		}
 
 		// Progress reporting every 1M lines
@@ -1218,196 +963,6 @@ func isTechnicalID(s string) bool {
 	}
 
 	return false
-}
-
-// loadPMIDDetails parses CID-PMID.gz and stores top 10 PMID values per biotech CID
-// Note: Phase 1 already counted PMIDs per CID; this phase stores the actual PMID values
-func (p *pubchem) loadPMIDDetails() {
-	ftpServer := config.Dataconf[p.source]["ftpUrl"]
-	basePath := config.Dataconf[p.source]["path"]
-	pmidPath := config.Dataconf[p.source]["pathCIDPMID"]
-
-	log.Printf("[PubChem] Loading PMID details from %s (311 MB compressed)", pmidPath)
-	log.Printf("[PubChem] Storing top 10 PMIDs per biotech-relevant CID")
-
-	// Download and open file
-	br, gz, _, _, localFile, _, err := getDataReaderNew(p.source, ftpServer, basePath, pmidPath)
-	if err != nil {
-		p.check(err, "opening CID-PMID.gz for details")
-		return
-	}
-	defer func() {
-		if gz != nil {
-			gz.Close()
-		}
-		if localFile != nil {
-			localFile.Close()
-		}
-	}()
-
-	// Parse TSV file: CID \t PMID
-	r := csv.NewReader(br)
-	r.Comma = '\t'
-	r.Comment = '#'
-	r.FieldsPerRecord = 2
-	r.LazyQuotes = true
-
-	lineCount := 0
-	processedCIDs := make(map[string]bool)
-
-	for {
-		record, err := r.Read()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			// Skip malformed lines
-			continue
-		}
-
-		lineCount++
-
-		// Format: CID \t PMID
-		cid := strings.TrimSpace(record[0])
-		pmidStr := strings.TrimSpace(record[1])
-
-		if cid == "" || pmidStr == "" {
-			continue
-		}
-
-		// Only process biotech-relevant CIDs
-		if !p.biotechCIDs[cid] {
-			continue
-		}
-
-		// Track which CIDs we've seen
-		processedCIDs[cid] = true
-
-		// Parse PMID as int64
-		pmid, err := strconv.ParseInt(pmidStr, 10, 64)
-		if err != nil {
-			continue
-		}
-
-		// Add PMID to list
-		p.cidToPMIDs[cid] = append(p.cidToPMIDs[cid], pmid)
-
-		// Progress reporting every 10M lines
-		if lineCount%10000000 == 0 {
-			log.Printf("[PubChem] Processed %dM PMID records, loaded PMIDs for %dK CIDs",
-				lineCount/1000000, len(processedCIDs)/1000)
-		}
-
-		// Test mode: stop early
-		if config.IsTestMode() && len(processedCIDs) >= config.GetTestLimit(p.source) {
-			log.Printf("[PubChem] Test mode: Stopping after loading PMIDs for %d CIDs", len(processedCIDs))
-			break
-		}
-	}
-
-	// Calculate statistics
-	totalPMIDs := 0
-	for _, pmids := range p.cidToPMIDs {
-		totalPMIDs += len(pmids)
-	}
-
-	log.Printf("[PubChem] PMID loading complete:")
-	log.Printf("[PubChem]   - Total records processed: %d", lineCount)
-	log.Printf("[PubChem]   - CIDs with PMIDs: %d", len(p.cidToPMIDs))
-	log.Printf("[PubChem]   - Total PMIDs stored: %d", totalPMIDs)
-	log.Printf("[PubChem]   - Average PMIDs per CID: %.1f", float64(totalPMIDs)/float64(len(p.cidToPMIDs)))
-}
-
-// loadPatentDetails parses CID-Patent.gz and stores top 10 Patent IDs per biotech CID
-// Note: Phase 1 already counted patents per CID; this phase stores the actual patent IDs
-func (p *pubchem) loadPatentDetails() {
-	ftpServer := config.Dataconf[p.source]["ftpUrl"]
-	basePath := config.Dataconf[p.source]["path"]
-	patentPath := config.Dataconf[p.source]["pathCIDPatent"]
-
-	log.Printf("[PubChem] Loading patent details from %s (4.4 GB compressed)", patentPath)
-	log.Printf("[PubChem] Storing top 10 patent IDs per biotech-relevant CID")
-
-	// Download and open file
-	br, gz, _, _, localFile, _, err := getDataReaderNew(p.source, ftpServer, basePath, patentPath)
-	if err != nil {
-		p.check(err, "opening CID-Patent.gz for details")
-		return
-	}
-	defer func() {
-		if gz != nil {
-			gz.Close()
-		}
-		if localFile != nil {
-			localFile.Close()
-		}
-	}()
-
-	// Parse TSV file: CID \t Patent-ID
-	r := csv.NewReader(br)
-	r.Comma = '\t'
-	r.Comment = '#'
-	r.FieldsPerRecord = 2
-	r.LazyQuotes = true
-
-	lineCount := 0
-	processedCIDs := make(map[string]bool)
-
-	for {
-		record, err := r.Read()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			// Skip malformed lines
-			continue
-		}
-
-		lineCount++
-
-		// Format: CID \t Patent-ID
-		cid := strings.TrimSpace(record[0])
-		patentID := strings.TrimSpace(record[1])
-
-		if cid == "" || patentID == "" {
-			continue
-		}
-
-		// Only process biotech-relevant CIDs
-		if !p.biotechCIDs[cid] {
-			continue
-		}
-
-		// Track which CIDs we've seen
-		processedCIDs[cid] = true
-
-		// Add patent ID to list
-		p.cidToPatents[cid] = append(p.cidToPatents[cid], patentID)
-
-		// Progress reporting every 10M lines
-		if lineCount%10000000 == 0 {
-			log.Printf("[PubChem] Processed %dM patent records, loaded patents for %dK CIDs",
-				lineCount/1000000, len(processedCIDs)/1000)
-		}
-
-		// Test mode: stop early
-		if config.IsTestMode() && len(processedCIDs) >= config.GetTestLimit(p.source) {
-			log.Printf("[PubChem] Test mode: Stopping after loading patents for %d CIDs", len(processedCIDs))
-			break
-		}
-	}
-
-	// Calculate statistics
-	totalPatents := 0
-	for _, patents := range p.cidToPatents {
-		totalPatents += len(patents)
-	}
-
-	log.Printf("[PubChem] Patent loading complete:")
-	log.Printf("[PubChem]   - Total records processed: %d", lineCount)
-	log.Printf("[PubChem]   - CIDs with patents: %d", len(p.cidToPatents))
-	log.Printf("[PubChem]   - Total patents stored: %d", totalPatents)
-	log.Printf("[PubChem]   - Average patents per CID: %.1f", float64(totalPatents)/float64(len(p.cidToPatents)))
 }
 
 // loadMeSHTerms parses CID-MeSH and stores MeSH terms per biotech CID
@@ -1825,6 +1380,12 @@ func (p *pubchem) parseSDFRecord(record string, matchCount *int, scannedCount *i
 		}
 	}
 
+	// Get synonyms for this CID (loaded in Phase 2)
+	var synonyms []string
+	if syns, hasSynonyms := p.cidToSynonyms[cid]; hasSynonyms {
+		synonyms = syns
+	}
+
 	// Create PubChem entry with SDF data
 	fr := config.Dataconf["pubchem"]["id"]
 	attr := pbuf.PubchemAttr{
@@ -1834,6 +1395,7 @@ func (p *pubchem) parseSDFRecord(record string, matchCount *int, scannedCount *i
 		Smiles:              smiles,
 		IupacName:           iupacName,
 		Title:               iupacName, // Use IUPAC name as title
+		Synonyms:            synonyms,
 
 		// Classifications
 		CompoundType:        compoundType,
@@ -1872,6 +1434,13 @@ func (p *pubchem) parseSDFRecord(record string, matchCount *int, scannedCount *i
 		p.d.addXref(inchiKey, textLinkID, cid, "pubchem", true)
 	}
 
+	// Add text search links for synonyms (makes synonyms searchable)
+	for _, synonym := range synonyms {
+		if synonym != "" {
+			p.d.addXref(synonym, textLinkID, cid, "pubchem", true)
+		}
+	}
+
 	// Create cross-references to MeSH terms
 	// MeSH terms from PubChem are term names (e.g., "Aspirin"), not descriptor UIDs (e.g., "D001241")
 	// Use addXrefViaKeyword to lookup the MeSH term name and find the actual MeSH descriptor entry
@@ -1905,188 +1474,24 @@ func (p *pubchem) extractSDFProperty(record string, propertyName string) string 
 	return ""
 }
 
-// loadSupplementaryMappings loads synonym, MeSH, and PMID mappings
-// (Core molecular data comes from XML files)
+// loadSupplementaryMappings loads synonym and MeSH mappings for biotech-relevant CIDs
+// These are stored as attributes in PubchemAttr entries during SDF parsing
+//
+// Note: PMID and Patent data are handled via cross-references (xrefs) in Phase 1,
+// not as embedded attributes. See loadLiteratureCIDs() and loadPatentCIDs() for details.
 func (p *pubchem) loadSupplementaryMappings() {
-	log.Printf("[PubChem] Phase 3: Loading supplementary nomenclature data")
+	log.Printf("[PubChem] Phase 2: Loading supplementary nomenclature data")
 
-	// Load Synonyms (top 20 per CID, filtered for readability)
+	// Load Synonyms - stored as attributes in PubchemAttr
 	p.loadSynonyms()
 
-	// Load PubMed IDs (top 10 per CID)
-	p.loadPMIDDetails()
-
-	// Load Patent IDs (top 10 per CID)
-	p.loadPatentDetails()
-
-	// Load MeSH terms (medical classifications)
+	// Load MeSH terms (medical classifications) - stored as attributes
 	p.loadMeSHTerms()
 
 	// Load MeSH → Pharmacological Actions mapping
 	p.loadMeSHPharmActions()
 
-	// DISABLED: Load creation dates (saves ~620 MB memory for 10.7M CIDs)
-	// TODO: Re-enable if users need temporal queries (when compound was added to PubChem)
-	// p.loadCIDDate()
-
-	// DISABLED: Load parent compound relationships (saves ~500 MB memory for 10.7M CIDs)
-	// TODO: Re-enable if users need to group compounds by parent structure (salts, hydrates, etc.)
-	// p.loadCIDParent()
-
-	log.Printf("[PubChem] Phase 2 complete: All nomenclature data loaded")
-
-	// NOTE: BioAssay activities are now a separate dataset (pubchem_activity)
-	// This eliminates memory accumulation during compound loading
-}
-
-// loadCIDSynonyms loads CID → Synonyms mapping (filtered to top 20)
-func (p *pubchem) loadCIDSynonyms() {
-	ftpServer := config.Dataconf[p.source]["ftpUrl"]
-	basePath := config.Dataconf["pubchem"]["path"]
-	synonymPath := config.Dataconf["pubchem"]["pathCIDSynonym"]
-
-	log.Printf("[PubChem] Loading CID-Synonym mappings")
-
-	br, gz, _, _, localFile, _, err := getDataReaderNew(p.source, ftpServer, basePath, synonymPath)
-	if err != nil {
-		log.Printf("[PubChem] Warning: Could not load CID-Synonym: %v", err)
-		return
-	}
-	defer func() {
-		if gz != nil {
-			gz.Close()
-		}
-		if localFile != nil {
-			localFile.Close()
-		}
-	}()
-
-	r := csv.NewReader(br)
-	r.Comma = '\t'
-	r.FieldsPerRecord = -1
-
-	currentCID := ""
-	synonyms := []string{}
-	matchCount := 0
-	targetCount := p.totalCIDs
-
-	for {
-		record, err := r.Read()
-		if err == io.EOF {
-			// Store last CID's synonyms
-			if currentCID != "" && p.isBiotechRelevant(currentCID) && len(synonyms) > 0 {
-				p.cidToSynonyms[currentCID] = synonyms
-				matchCount++
-			}
-			break
-		}
-		if err != nil {
-			continue
-		}
-
-		if len(record) < 2 {
-			continue
-		}
-
-		cid := record[0]
-		synonym := record[1]
-
-		// If new CID, store previous CID's synonyms
-		if cid != currentCID {
-			if currentCID != "" && p.isBiotechRelevant(currentCID) && len(synonyms) > 0 {
-				p.cidToSynonyms[currentCID] = synonyms
-				matchCount++
-
-				// Early exit when all target CIDs found
-				if matchCount >= targetCount {
-					log.Printf("[PubChem] Found all %d target CIDs, stopping scan early", matchCount)
-					break
-				}
-			}
-			currentCID = cid
-			synonyms = []string{}
-		}
-
-		// Accumulate synonyms for current CID
-		if p.isBiotechRelevant(cid) && len(synonyms) < 20 {
-			synonyms = append(synonyms, synonym)
-
-			// Add text search link for synonym
-			p.d.addXref(synonym, textLinkID, cid, "pubchem", true)
-		}
-	}
-
-	log.Printf("[PubChem] Loaded synonyms for %d biotech-relevant CIDs", matchCount)
-}
-
-// loadCIDMeSH loads CID → MeSH terms mapping
-func (p *pubchem) loadCIDMeSH() {
-	ftpServer := config.Dataconf[p.source]["ftpUrl"]
-	basePath := config.Dataconf["pubchem"]["path"]
-	meshPath := config.Dataconf["pubchem"]["pathCIDMeSH"]
-
-	log.Printf("[PubChem] Loading CID-MeSH mappings")
-
-	br, gz, _, _, localFile, _, err := getDataReaderNew(p.source, ftpServer, basePath, meshPath)
-	if err != nil {
-		log.Printf("[PubChem] Warning: Could not load CID-MeSH: %v", err)
-		return
-	}
-	defer func() {
-		if gz != nil {
-			gz.Close()
-		}
-		if localFile != nil {
-			localFile.Close()
-		}
-	}()
-
-	r := csv.NewReader(br)
-	r.Comma = '\t'
-	r.FieldsPerRecord = -1
-
-	currentCID := ""
-	meshTerms := []string{}
-	matchCount := 0
-
-	for {
-		record, err := r.Read()
-		if err == io.EOF {
-			// Store last CID's MeSH terms
-			if currentCID != "" && p.isBiotechRelevant(currentCID) && len(meshTerms) > 0 {
-				p.cidToMeSH[currentCID] = meshTerms
-				matchCount++
-			}
-			break
-		}
-		if err != nil {
-			continue
-		}
-
-		if len(record) < 2 {
-			continue
-		}
-
-		cid := record[0]
-		meshTerm := record[1]
-
-		// If new CID, store previous CID's MeSH terms
-		if cid != currentCID {
-			if currentCID != "" && p.isBiotechRelevant(currentCID) && len(meshTerms) > 0 {
-				p.cidToMeSH[currentCID] = meshTerms
-				matchCount++
-			}
-			currentCID = cid
-			meshTerms = []string{}
-		}
-
-		// Accumulate MeSH terms for current CID (limit to 10)
-		if p.isBiotechRelevant(cid) && len(meshTerms) < 10 {
-			meshTerms = append(meshTerms, meshTerm)
-		}
-	}
-
-	log.Printf("[PubChem] Loaded MeSH terms for %d biotech-relevant CIDs", matchCount)
+	log.Printf("[PubChem] Phase 2 complete: Synonyms and MeSH data loaded")
 }
 
 // loadMeSHPharmActions loads MeSH term → pharmacological actions mapping
@@ -2270,88 +1675,6 @@ func (p *pubchem) loadCIDParent() {
 	log.Printf("[PubChem] Loaded parent relationships for %d biotech-relevant CIDs", matchCount)
 }
 
-// loadCIDPMID loads CID → PubMed IDs mapping (top 10)
-func (p *pubchem) loadCIDPMID() {
-	ftpServer := config.Dataconf[p.source]["ftpUrl"]
-	basePath := config.Dataconf["pubchem"]["path"]
-	pmidPath := config.Dataconf["pubchem"]["pathCIDPMID"]
-
-	log.Printf("[PubChem] Loading CID-PMID mappings")
-
-	br, gz, _, _, localFile, _, err := getDataReaderNew(p.source, ftpServer, basePath, pmidPath)
-	if err != nil {
-		log.Printf("[PubChem] Warning: Could not load CID-PMID: %v", err)
-		return
-	}
-	defer func() {
-		if gz != nil {
-			gz.Close()
-		}
-		if localFile != nil {
-			localFile.Close()
-		}
-	}()
-
-	r := csv.NewReader(br)
-	r.Comma = '\t'
-	r.FieldsPerRecord = -1
-
-	lineCount := 0
-	currentCID := ""
-	pmids := []int64{}
-	matchCount := 0
-
-	for {
-		record, err := r.Read()
-		if err == io.EOF {
-			// Store last CID's PMIDs
-			if currentCID != "" && p.isBiotechRelevant(currentCID) && len(pmids) > 0 {
-				p.cidToPMIDs[currentCID] = pmids
-				matchCount++
-			}
-			break
-		}
-		if err != nil {
-			continue
-		}
-
-		lineCount++
-
-		// Progress tracking every 10M records
-		if lineCount%10000000 == 0 {
-			log.Printf("[PubChem] Processed %dM PMID records, matched %d biotech CIDs",
-				lineCount/1000000, matchCount)
-		}
-
-		if len(record) < 2 {
-			continue
-		}
-
-		cid := record[0]
-		pmidStr := record[1]
-		pmid, err := strconv.ParseInt(pmidStr, 10, 64)
-		if err != nil {
-			continue
-		}
-
-		// If new CID, store previous CID's PMIDs
-		if cid != currentCID {
-			if currentCID != "" && p.isBiotechRelevant(currentCID) && len(pmids) > 0 {
-				p.cidToPMIDs[currentCID] = pmids
-				matchCount++
-			}
-			currentCID = cid
-			pmids = []int64{}
-		}
-
-		// Accumulate PMIDs for current CID (top 10)
-		if p.isBiotechRelevant(cid) && len(pmids) < 10 {
-			pmids = append(pmids, pmid)
-		}
-	}
-
-	log.Printf("[PubChem] Loaded PMIDs for %d biotech-relevant CIDs", matchCount)
-}
 
 // createEntries creates database entries for all biotech-relevant compounds
 

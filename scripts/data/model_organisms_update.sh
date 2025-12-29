@@ -310,7 +310,7 @@ if [[ "$RUN_CORE4" == "true" ]]; then
 
     # Use --pubchem-sdf-workers 1 to reduce memory usage during SDF parsing
     # Each SDF file can be 100-500MB compressed, 1-5GB uncompressed - multiple workers cause OOM
-    CMD="./biobtree $BB_DEFAULT_PARAM --pubchem-sdf-workers 1 -d \"${CORE_PART4}\" --out-dir \"${OUT_DIR}/core_part4\" -idx core_part4 update"
+    CMD="./biobtree $BB_DEFAULT_PARAM --bucket-sort-workers 2 --pubchem-sdf-workers 1 -d \"${CORE_PART4}\" --out-dir \"${OUT_DIR}/core_part4\" -idx core_part4 update"
 
     if ! run_job_with_retry "Core Part 4 (pubchem)" "$CMD" "logs/core_part4_pubchem.log" "${OUT_DIR}/core_part4"; then
         echo "ERROR: Core Part 4 (pubchem) failed after retries. Exiting."

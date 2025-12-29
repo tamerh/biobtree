@@ -1,201 +1,131 @@
-# PubChem Test Suite
-
-Tests for PubChem Compound dataset integration in biobtree.
+# PubChem Dataset
 
 ## Overview
 
-PubChem is the world's largest chemical database (119M+ compounds). This integration focuses on a biotech-relevant subset:
+PubChem is the world's largest open chemical database (119M+ compounds). This integration focuses on a biotech-relevant subset (~10M compounds) selected from multiple priority sources: FDA-approved drugs, literature-referenced compounds, patent-associated compounds, bioassay-tested compounds, and biologics.
 
-- **P0 (Phase 1 - IMPLEMENTED)**: FDA-approved drugs (~20K compounds)
-- **P1 (Future)**: Clinical trial compounds (~30-50K)
-- **P2 (Future)**: Natural products (~300-500K)
-- **P3 (Future)**: Bioassay-tested compounds (~500K-1M)
+**Source**: NIH National Library of Medicine - https://pubchem.ncbi.nlm.nih.gov/
+**Data Type**: Chemical compound structures, properties, synonyms, and cross-references
 
-## Test Dataset
+## Integration Architecture
 
-The test uses 20 FDA-approved drugs (P0 priority):
+### Priority Sources (Phase 1)
+- **P0**: FDA-approved drugs (~3K) - from Drug-Names.tsv.gz
+- **P1**: Literature-referenced (~8M) - from CID-PMID.gz (creates xrefs to PubMed)
+- **P2**: Patent-associated (~6M) - from CID-Patent.gz filtered by SureChEMBL (creates xrefs)
+- **P3**: Bioassay-tested (~variable) - from bioactivities.tsv.gz
+- **P4**: Biologics (~2.5M) - peptides, proteins, nucleotides from CID-Biologics.tsv.gz
 
-| CID      | Drug Name           | Category           |
-|----------|--------------------|--------------------|
-| 2244     | Aspirin            | Analgesic          |
-| 3672     | Ibuprofen          | NSAID              |
-| 5090     | Metformin          | Antidiabetic       |
-| 60823    | Atorvastatin       | Statin             |
-| 5284371  | Losartan           | ARB                |
-| 5311304  | Lisinopril         | ACE inhibitor      |
-| 6918485  | Simvastatin        | Statin             |
-| 6433272  | Amlodipine         | Calcium channel    |
-| 3001055  | Gabapentin         | Anticonvulsant     |
-| 5743     | Ciprofloxacin      | Antibiotic         |
-| 60838    | Omeprazole         | PPI                |
-| 3032771  | Montelukast        | Leukotriene        |
-| 5311508  | Levothyroxine      | Thyroid hormone    |
-| 444403   | Sertraline         | SSRI               |
-| 656832   | Citalopram         | SSRI               |
-| 2662     | Acetaminophen      | Analgesic          |
-| 3652     | Albuterol          | Bronchodilator     |
-| 4046     | Prednisone         | Corticosteroid     |
-| 5362129  | Warfarin           | Anticoagulant      |
-| 5281040  | Rosuvastatin       | Statin             |
+### Storage Model
+**Primary Entries**: PubChem CID (e.g., "2244" for Aspirin)
+**Searchable Text Links**: InChI Key, Synonyms (all)
+**Attributes Stored** (PubchemAttr protobuf):
+- Core: CID, InChI Key, SMILES, IUPAC Name, Synonyms
+- Molecular: Formula, Weight, Exact Mass, XLogP, HBD, HBA, Rotatable Bonds, TPSA
+- Classification: Compound Type, FDA Approved, Has Literature, Has Patents
+- Medical: MeSH Terms, Pharmacological Actions
 
-## Test Coverage
+**Cross-References**:
+- Xrefs created: PubMed (PMIDs), Patents, MeSH, ChEBI, HMDB, ChEMBL
+- Bidirectional links to ChEBI, HMDB, ChEMBL
 
-### Declarative Tests (test_cases.json)
-- ID lookups for multiple FDA-approved drugs
-- Attribute validation (molecular properties, drug flags)
-- Invalid ID handling
+### Special Features
+- **Biotech Filtering**: Only processes ~10M biotech-relevant compounds from 119M+ total
+- **Synonym Search**: All synonyms indexed for text search (not just top 20)
+- **MeSH Integration**: Links to MeSH descriptors via keyword lookup
+- **Pharmacological Actions**: Derived from MeSH term mappings
+- **Parallel SDF Processing**: Configurable worker count via `--pubchem-sdf-workers`
 
-### Custom Tests (test_pubchem.py)
+## Use Cases
 
-1. **test_fda_approved_flag**: Validates FDA-approved flag and compound_type
-2. **test_molecular_properties**: Checks SMILES, InChI Key, molecular formula/weight
-3. **test_lipinski_properties**: Validates Rule of Five properties (HBD, HBA, XLogP)
-4. **test_synonyms_present**: Verifies synonym storage and common names
-5. **test_chembl_cross_reference**: Checks bidirectional PubChem ↔ ChEMBL links
-6. **test_chebi_cross_reference**: Checks bidirectional PubChem ↔ ChEBI links
-7. **test_text_search_by_smiles**: Validates SMILES text search indexing
-8. **test_text_search_by_inchi_key**: Validates InChI Key text search indexing
-
-## Data Attributes
-
-The PubChem parser extracts:
-
-### Core Identifiers
-- `cid`: PubChem Compound ID
-- `inchi`: International Chemical Identifier
-- `inchi_key`: InChI Key (hashed version)
-- `smiles`: Simplified molecular-input line-entry system
-- `isomeric_smiles`: SMILES with stereochemistry
-
-### Names and Synonyms
-- `title`: Primary compound name
-- `iupac_name`: IUPAC systematic name
-- `synonyms[]`: List of alternative names (up to 20 most common)
-
-### Molecular Properties
-- `molecular_formula`: Chemical formula
-- `molecular_weight`: Molecular weight (g/mol)
-- `exact_mass`: Monoisotopic mass
-- `xlogp`: Octanol-water partition coefficient (lipophilicity)
-- `hydrogen_bond_donors`: H-bond donor count
-- `hydrogen_bond_acceptors`: H-bond acceptor count
-- `rotatable_bonds`: Number of rotatable bonds
-- `tpsa`: Topological polar surface area
-
-### Drug/Bioactivity Flags
-- `is_fda_approved`: FDA approval status
-- `is_clinical_trial`: Clinical trial participation
-- `is_natural_product`: Natural product flag
-- `has_bioactivity`: Bioassay activity flag
-- `compound_type`: "drug", "clinical_trial", "natural_product", or "bioactive"
-
-### Cross-References
-- `chebi_ids[]`: ChEBI identifiers
-- `chembl_ids[]`: ChEMBL identifiers
-- `hmdb_ids[]`: HMDB identifiers
-- `clinical_trial_ids[]`: ClinicalTrials.gov IDs
-- `pmids[]`: PubMed literature references
-- `mesh_terms[]`: Medical Subject Headings
-
-### Metadata
-- `drug_names[]`: Drug-specific names
-- `bioassay_count`: Number of associated bioassays
-- `total_pmid_count`: Total literature citation count
-
-## Cross-References
-
-The parser creates bidirectional links:
-
-1. **PubChem → ChEBI**: Via CHEBI accession mapping file
-2. **ChEBI → PubChem**: Reverse link creation
-3. **PubChem → ChEMBL**: Via compound synonyms
-4. **ChEMBL → PubChem**: Reverse link creation
-5. **PubChem → HMDB**: Via metabolite IDs
-6. **HMDB → PubChem**: Reverse link creation
-
-## Text Search
-
-The following are indexed for text search:
-- SMILES (canonical)
-- InChI Key
-- Synonyms (top 20)
-
-## Running Tests
-
-### Via Orchestrator (Recommended)
-```bash
-# Run from main directory
-python tests/run_tests.py pubchem
+**1. Drug Discovery - Find Compounds by Synonym**
+```
+Query: "Aspirin" → Text search → PubChem CID 2244
+Use: Identify compound by any known name, trade name, or synonym
 ```
 
-### Standalone
-```bash
-cd tests/datasets/pubchem
-# Start biobtree server first
-../../../biobtree --out-dir /path/to/test_out web
-
-# Run tests
-python3 test_pubchem.py
+**2. Chemical Property Analysis**
+```
+Query: CID → Molecular properties → Lipinski Rule of Five check
+Use: Evaluate drug-likeness for pharmaceutical development
 ```
 
-## Expected Results
+**3. Literature Mining**
+```
+Query: CID → PMID xrefs → PubMed publications
+Use: Find all publications referencing a compound
+```
 
-All tests should pass when:
-1. Database built with PubChem P0 data (FDA drugs)
-2. At least 20 test CIDs are present
-3. Molecular properties correctly extracted
-4. Cross-references created (if source datasets present)
+**4. Patent Landscape Analysis**
+```
+Query: CID → Patent xrefs → Patent documents
+Use: Identify IP coverage for compound of interest
+```
 
-## Troubleshooting
+**5. MeSH-based Classification**
+```
+Query: CID → MeSH terms → Pharmacological actions
+Use: Understand drug mechanism and therapeutic category
+```
 
-### No results for CID lookups
-- Verify database was built with `--source=pubchem` or `--all`
-- Check `pubchem_ids.txt` matches test data
-- Ensure FDA drug mapping file was processed
+**6. Cross-Database Navigation**
+```
+Query: CID → ChEMBL/ChEBI/HMDB xrefs → Related databases
+Use: Integrate compound data across multiple resources
+```
 
-### Missing molecular properties
-- Verify SDF processing completed (Phase 2)
-- Check mapping files loaded correctly
-- Review parser logs for errors
+## Test Cases
 
-### Missing cross-references
-- Cross-references only appear if target datasets (ChEMBL, ChEBI, HMDB) are in the database
-- Tests gracefully skip cross-reference validation if not present
+**Current Tests** (8 total):
+- Declarative: ID lookup, attribute validation, invalid ID handling
+- Custom: FDA flag validation, molecular properties, Lipinski properties, synonym presence, ChEMBL xrefs, ChEBI xrefs, SMILES text search, InChI Key text search
 
-### Text search not working
-- Verify `addXref(..., textLinkID, ...)` calls in parser
-- Check biobtree's text indexing is enabled
-- Review parser logs for synonym/SMILES processing
+**Coverage**:
+- Core identifiers (CID, InChI Key, SMILES)
+- Molecular properties (formula, weight, XLogP, HBD/HBA)
+- Drug classification flags
+- Cross-references (when target datasets present)
+- Text search functionality
 
-## Future Enhancements
+**Recommended Additions**:
+- Synonym text search validation
+- MeSH term presence and linking
+- Pharmacological actions validation
+- PMID and Patent xref counts
 
-### Phase 2 (P1: Clinical Trials)
-- Add clinical trial compound tests
-- Verify clinical_trial_ids cross-references
-- Test compound progression tracking
+## Performance
 
-### Phase 3 (P2: Natural Products)
-- Add natural product tests
-- Verify taxonomy cross-references
-- Test biosynthetic pathway links
+- **Test Build**: ~30-60s (20 compounds from FDA drugs)
+- **Full Build**: Several hours (10M+ compounds, 355 SDF files)
+- **Data Sources**: PubChem FTP (SDF files ~200GB total)
+- **Memory Optimization**:
+  - PMIDs/Patents as xrefs (disk) instead of memory maps
+  - Biotech CID filtering via in-memory map (~200-300MB)
+  - Parallel SDF processing with configurable workers
 
-### Phase 4 (P3: Bioassay)
-- Add bioassay activity tests
-- Verify target protein links
-- Test activity value filtering
+## Known Limitations
 
-## Files
+- **SDF Processing**: Large files (355 x 500K compounds each)
+- **MeSH Linking**: Uses keyword lookup (term names, not descriptor UIDs)
+- **Creation Date/Parent CID**: Disabled to save memory (optional features)
+- **Synonym Limits**: No limit applied (biobtree philosophy: all or nothing)
 
-- `pubchem_ids.txt`: 20 FDA-approved drug CIDs
-- `test_cases.json`: Declarative test cases
-- `test_pubchem.py`: Custom Python tests
-- `README.md`: This file
-- `reference_data.json`: (Optional) Expected results from PubChem API
-- `extract_reference_data.py`: (Optional) Script to fetch reference data
+## Future Work
 
-## Related Documentation
+- Add test validation for synonym text search
+- Add MeSH term and pharmacological action tests
+- Consider adding compound structure similarity search
+- Add bioassay activity linking tests (with pubchem_activity dataset)
 
-- [PUBCHEM_INTEGRATION_ANALYSIS_V2.md](../../../PUBCHEM_INTEGRATION_ANALYSIS_V2.md): Integration strategy
-- [CHEMBL_INTEGRATION_ANALYSIS.md](../../../CHEMBL_INTEGRATION_ANALYSIS.md): ChEMBL comparison
-- [src/update/pubchem.go](../../../src/update/pubchem.go): Parser implementation
-- [conf/source.dataset.json](../../../conf/source.dataset.json): Configuration
+## Maintenance
+
+- **Release Schedule**: PubChem updates weekly
+- **Data Format**: SDF files + TSV mapping files (gzipped)
+- **Test Data**: 20 FDA-approved drug CIDs
+- **License**: Public domain (NIH)
+
+## References
+
+- **Citation**: Kim S, et al. (2023) PubChem 2023 update. Nucleic Acids Res.
+- **Website**: https://pubchem.ncbi.nlm.nih.gov/
+- **FTP**: ftp://ftp.ncbi.nlm.nih.gov/pubchem/

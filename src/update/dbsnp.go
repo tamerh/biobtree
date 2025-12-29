@@ -29,9 +29,23 @@ func (db *dbsnp) check(err error, operation string) {
 	checkWithContext(err, db.source, operation)
 }
 
+// checkTabixAvailable verifies that tabix is installed and accessible
+// Panics if tabix is not found, as it's required for dbSNP processing
+func (db *dbsnp) checkTabixAvailable() {
+	_, err := exec.LookPath("tabix")
+	if err != nil {
+		log.Fatalf("dbSNP: FATAL - tabix executable not found in PATH. "+
+			"Please install tabix (part of htslib) before processing dbSNP. "+
+			"Install with: conda install -c bioconda tabix")
+	}
+}
+
 // Main update entry point
 func (db *dbsnp) update() {
 	defer db.d.wg.Done()
+
+	// Check tabix is available before starting - fail fast if not
+	db.checkTabixAvailable()
 
 	log.Println("dbSNP: Starting data processing...")
 	startTime := time.Now()

@@ -177,9 +177,9 @@ BB_DEFAULT_PARAM="--include-optionals -c --lookupdb --maxcpu ${MAXCPU}"
 ENSEMBL_TAXIDS="9606,10090,10116,7955,7227,6239,559292,284812,511145,3702,39947,4577,3847,44689,237561,243232"
 STRING_TAXIDS="9606,10090,10116,7955,7227,6239,4932,284812,511145,3702,39947,4577,3847,44689,237561,243232"
 
-# Core datasets split into 4 parts:
+# Core datasets split into 4 parts: TODO add back diamond later 
 CORE_PART1="uniprot,taxonomy,interpro,hmdb,chembl,clinvar,lipidmaps,swisslipids,gwas_study,gwas,intact,antibody,protein_similarity,rhea"
-CORE_PART2="chebi,alphafold,rnacentral,reactome,clinical_trials,patent,string,bgee,ontology,mesh,genecc"
+CORE_PART2="chebi,alphafold,rnacentral,reactome,clinical_trials,patent,string,bgee,ontology,mesh,gencc"
 
 # Part 3: Large/unstable dataset (dbsnp - prone to FTP issues, needs retry)
 CORE_PART3="dbsnp"
@@ -290,7 +290,9 @@ if [[ "$RUN_CORE3" == "true" ]]; then
     rm -rf ${OUT_DIR}/core_part3
     mkdir -p ${OUT_DIR}/core_part3
 
-    CMD="./biobtree $BB_DEFAULT_PARAM -d \"${CORE_PART3}\" --out-dir \"${OUT_DIR}/core_part3\" -idx core_part3 update"
+    # Use --bucket-sort-workers 1 for dbsnp to reduce memory usage during sorting
+    # dbsnp bucket files can be 30GB+ each, causing OOM with multiple workers
+    CMD="./biobtree $BB_DEFAULT_PARAM --bucket-sort-workers 1 -d \"${CORE_PART3}\" --out-dir \"${OUT_DIR}/core_part3\" -idx core_part3 update"
 
     if ! run_job_with_retry "Core Part 3 (dbsnp)" "$CMD" "logs/core_part3_dbsnp.log" "${OUT_DIR}/core_part3"; then
         echo "ERROR: Core Part 3 (dbsnp) failed after retries. Exiting."
@@ -306,7 +308,9 @@ if [[ "$RUN_CORE4" == "true" ]]; then
     rm -rf ${OUT_DIR}/core_part4
     mkdir -p ${OUT_DIR}/core_part4
 
-    CMD="./biobtree $BB_DEFAULT_PARAM -d \"${CORE_PART4}\" --out-dir \"${OUT_DIR}/core_part4\" -idx core_part4 update"
+    # Use --pubchem-sdf-workers 1 to reduce memory usage during SDF parsing
+    # Each SDF file can be 100-500MB compressed, 1-5GB uncompressed - multiple workers cause OOM
+    CMD="./biobtree $BB_DEFAULT_PARAM --pubchem-sdf-workers 1 -d \"${CORE_PART4}\" --out-dir \"${OUT_DIR}/core_part4\" -idx core_part4 update"
 
     if ! run_job_with_retry "Core Part 4 (pubchem)" "$CMD" "logs/core_part4_pubchem.log" "${OUT_DIR}/core_part4"; then
         echo "ERROR: Core Part 4 (pubchem) failed after retries. Exiting."

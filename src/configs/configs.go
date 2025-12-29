@@ -137,6 +137,16 @@ func (c *Conf) Init(rootDir, bbBinaryVersion, outDir string, optionalDatasetActi
 		c.Appconf["rootDir"] = rootDir
 	}
 
+	// Resolve lookupDbDir: if relative, make it relative to rootDir; if absolute, keep as-is
+	if lookupDbDir, ok := c.Appconf["lookupDbDir"]; ok && len(lookupDbDir) > 0 {
+		if !filepath.IsAbs(lookupDbDir) {
+			c.Appconf["lookupDbDir"] = filepath.Join(c.Appconf["rootDir"], lookupDbDir)
+			log.Printf("lookupDbDir resolved to: %s (relative to rootDir)", c.Appconf["lookupDbDir"])
+		} else {
+			log.Printf("lookupDbDir configured as: %s (absolute path)", lookupDbDir)
+		}
+	}
+
 	// Initialize Dataconf map
 	c.Dataconf = map[string]map[string]string{}
 

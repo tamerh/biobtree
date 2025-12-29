@@ -1595,7 +1595,13 @@ func (p *pubchem) parseSDFFiles() {
 		return
 	}
 
-	numWorkers := 4 // Multiple workers for parallel processing
+	// Get worker count from config (default 4, but can be reduced via --pubchem-sdf-workers CLI flag)
+	numWorkers := 4
+	if val, ok := config.Appconf["pubchemSDFWorkers"]; ok {
+		if parsed, err := strconv.Atoi(val); err == nil && parsed > 0 {
+			numWorkers = parsed
+		}
+	}
 	log.Printf("[PubChem] Processing %d SDF files with %d parallel workers", len(sdfFiles), numWorkers)
 
 	// Create worker pool - multiple SDF parsers sending to same biobtree channel

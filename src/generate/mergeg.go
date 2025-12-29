@@ -888,17 +888,13 @@ func (d *Merge) updateHeapAfterRead(files []*fileState) {
 		}
 	}
 
-	// For files with changed keys: if only one file changed, use heap.Fix
-	// If multiple files changed, use heap.Init (more efficient than multiple Fix calls
-	// and avoids stale heapIndex issues)
-	if len(keysChanged) == 1 {
-		fs := keysChanged[0]
-		if fs.heapIndex >= 0 && fs.heapIndex < d.fileHeap.Len() {
-			heap.Fix(d.fileHeap, fs.heapIndex)
-		}
-	} else if len(keysChanged) > 1 {
-		// Multiple files changed - use heap.Init to re-heapify
-		// This is O(n) and avoids all stale heapIndex issues
+	// ALWAYS re-heapify after any changes to ensure heap property is maintained.
+	// This is critical because:
+	// 1. heap.Remove can leave the heap in an inconsistent state when combined with
+	//    subsequent operations
+	// 2. heapIndex values can become stale after removals
+	// 3. The cost of heap.Init (O(n)) is acceptable given the small number of files
+	if len(toRemove) > 0 || len(keysChanged) > 0 {
 		heap.Init(d.fileHeap)
 	}
 }
@@ -996,7 +992,22 @@ func (d *Merge) mergeg() {
 			}
 
 			// set pages
-			for domain, arrIds := range keyArrIds[kv.key] {
+			// IMPORTANT: Sort domains by their encoded page key prefix to ensure
+			// lexicographic ordering when writing to LMDB with Append mode.
+			// Go map iteration order is non-deterministic, which can cause page keys
+			// to be written out of order (e.g., "key yv a" before "key aa a").
+			sortedDomains := make([]string, 0, len(keyArrIds[kv.key]))
+			for domain := range keyArrIds[kv.key] {
+				sortedDomains = append(sortedDomains, domain)
+			}
+			sort.Slice(sortedDomains, func(i, j int) bool {
+				di, _ := strconv.Atoi(sortedDomains[i])
+				dj, _ := strconv.Atoi(sortedDomains[j])
+				return d.pager.Key(di, 2) < d.pager.Key(dj, 2)
+			})
+
+			for _, domain := range sortedDomains {
+				arrIds := keyArrIds[kv.key][domain]
 				pageSize := len(arrIds) - 1 // 1 is root result
 				datasetInt, err := strconv.Atoi(domain)
 				if err != nil {

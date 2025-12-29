@@ -145,6 +145,14 @@ func main() {
 			Name:  "lmdb-safety-factor",
 			Usage: "LMDB map size safety factor multiplier for generate command (default from config: 10)",
 		},
+		cli.IntFlag{
+			Name:  "bucket-sort-workers",
+			Usage: "Number of parallel workers for bucket file sorting (default from config: 8). Use lower values for large datasets like dbSNP to reduce memory usage",
+		},
+		cli.IntFlag{
+			Name:  "pubchem-sdf-workers",
+			Usage: "Number of parallel workers for PubChem SDF file parsing (default: 4). Use lower values to reduce memory usage during SDF processing",
+		},
 	}
 
 	// add dataset local flags
@@ -552,6 +560,19 @@ func runUpdateCommand(c *cli.Context) error {
 	}
 
 	useLookupDB := c.GlobalBool("lookupdb")
+
+	// Override bucket sort workers if specified via CLI
+	bucketSortWorkers := c.GlobalInt("bucket-sort-workers")
+	if bucketSortWorkers > 0 {
+		config.Appconf["bucketSortWorkers"] = strconv.Itoa(bucketSortWorkers)
+	}
+
+	// Override PubChem SDF workers if specified via CLI
+	pubchemSDFWorkers := c.GlobalInt("pubchem-sdf-workers")
+	if pubchemSDFWorkers > 0 {
+		config.Appconf["pubchemSDFWorkers"] = strconv.Itoa(pubchemSDFWorkers)
+	}
+
 	update.NewDataUpdate(d, ts, sp, spatterns, genometaxids, c.GlobalBool("skip-ensembl"), orthologIDs, eo, c.GlobalBool("ensembl-orthologs-all"), config, chunkIdxx, useLookupDB).Update()
 
 	elapsed := time.Since(start)

@@ -1,0 +1,3 @@
+# BindingDB test IDs
+# This file will be populated after running: ./biobtree -d bindingdb test
+# Copy IDs from test_out/reference/bindingdb_ids.txt

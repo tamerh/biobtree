@@ -166,6 +166,7 @@ message Xref {
     EntrezAttr entrez=53;
     RefSeqAttr refseq=57;
     GenccAttr gencc=58;
+    BindingdbAttr bindingdb=60;
 
   }
 

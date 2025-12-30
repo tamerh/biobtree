@@ -716,5 +716,17 @@
     "attrs": "uuid,gene_curie,gene_symbol,disease_curie,disease_title,classification_curie,classification_title,moi_curie,moi_title,submitter_curie,submitter_title,submitted_as_date,submitted_as_public_report_url,[]submitted_as_pmids",
     "test_entries_count": "100",
     "bucketMethod": "alphabetic"
+  },
+  "bindingdb": {
+    "id": "103",
+    "name": "BindingDB",
+    "path": "https://www.bindingdb.org/bind/downloads/BindingDB_All_tsv.zip",
+    "aliases": "BindingDB,binding affinity,Ki,IC50,EC50,Kd,drug-target interaction,protein-ligand binding",
+    "url": "https://www.bindingdb.org/bind/chemsearch/marvin/MolStructure.jsp?monession=£{id}",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "bindingdb_id,ligand_name,target_name,target_source_organism,ki,ic50,kd,ec50,kon,koff,ph,temp_c,[]uniprot_ids,[]pubchem_cids,[]chembl_ids,[]chebi_ids,doi,pmid,patent_number,institution",
+    "test_entries_count": "1000",
+    "bucketMethod": "numeric"
   }
 }

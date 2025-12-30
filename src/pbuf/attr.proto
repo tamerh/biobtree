@@ -1208,6 +1208,51 @@ message RefSeqAttr {
   int32 exon_count = 31;          // Number of exons
 }
 
+// BindingDB - Binding Affinity Database (Dataset ID: 103)
+// Measured binding affinities between proteins and drug-like molecules
+// Source: https://www.bindingdb.org/
+message BindingdbAttr {
+  // Primary identifier
+  string bindingdb_id = 1;                        // BindingDB Monomer ID (e.g., "50000001")
+
+  // Ligand information
+  string ligand_name = 2;                         // Compound name
+  string ligand_smiles = 3;                       // SMILES representation
+  string ligand_inchi = 4;                        // InChI string
+  string ligand_inchi_key = 5;                    // InChI Key
+
+  // Target information
+  string target_name = 6;                         // Target protein name
+  string target_source_organism = 7;              // Organism of target (e.g., "Homo sapiens")
+
+  // Binding affinity measurements (stored as strings to preserve original format)
+  string ki = 8;                                  // Ki value with units (e.g., "10 nM", ">10000 nM")
+  string ic50 = 9;                                // IC50 value with units
+  string kd = 10;                                 // Kd value with units
+  string ec50 = 11;                               // EC50 value with units
+  string kon = 12;                                // Association rate constant
+  string koff = 13;                               // Dissociation rate constant
+
+  // Experimental conditions
+  string ph = 14;                                 // pH of assay
+  string temp_c = 15;                             // Temperature in Celsius
+
+  // Cross-references (for bidirectional linking)
+  repeated string uniprot_ids = 16;               // UniProt target accessions
+  repeated string pubchem_cids = 17;              // PubChem Compound IDs
+  repeated string chembl_ids = 18;                // ChEMBL compound IDs
+  repeated string chebi_ids = 19;                 // ChEBI IDs
+
+  // Literature references
+  string doi = 20;                                // DOI of source publication
+  string pmid = 21;                               // PubMed ID
+  string patent_number = 22;                      // Patent number if from patent
+
+  // Data provenance
+  string institution = 23;                        // Depositing institution
+  string curation_date = 24;                      // Date of curation
+}
+
 // GenCC - Gene Curation Coalition (Dataset ID: 747)
 // Gene-disease validity curations from multiple sources
 // Source: https://thegencc.org/

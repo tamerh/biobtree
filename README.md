@@ -7,7 +7,7 @@ via identifiers and special keywors with simple or advance chain query capabilit
 
 ## Features
 
-* **Datasets** - supports wide datasets such as `Ensembl` `Uniprot` `ChEMBL` `HMDB` `Taxonomy` `GO` `EFO` `HPO` `UBERON` `CL` `HGNC` `ECO` `Uniparc` `Uniref` `RNACentral` `Bgee` `GWAS Catalog` `dbSNP` `RefSeq` `IntAct` `GenCC`  with tens of more via cross references
+* **Datasets** - supports wide datasets such as `Ensembl` `Uniprot` `ChEMBL` `HMDB` `BindingDB` `Taxonomy` `GO` `EFO` `HPO` `UBERON` `CL` `HGNC` `ECO` `Uniparc` `Uniref` `RNACentral` `Bgee` `GWAS Catalog` `dbSNP` `RefSeq` `IntAct` `GenCC`  with tens of more via cross references
 by retrieving latest data from providers
 
 * **MapReduce** - processes small or large datasets based on users selection and build B+ tree based uniform local database via specialized MapReduce based tecnique with efficient storage usage 
@@ -19,6 +19,8 @@ by retrieving latest data from providers
 * **Protein** - Uniprot proteins including protein features with variations and mapped datasets.
 
 * **Chemistry** - `ChEMBL`, `HMDB`, `ChEBI`, `LIPID MAPS`, and `SwissLipids` datasets supported for chemistry, disease, lipid metabolism, and drug releated analaysis. SwissLipids provides 779K+ lipid structures with protein associations, GO annotations, tissue localization, and evidence codes
+
+* **Binding Affinity** - `BindingDB` database with 2.9M+ measured binding affinities (Ki, IC50, Kd, EC50) between drug-like molecules and protein targets. Provides ligand SMILES, InChI, target names, organism information, experimental conditions (pH, temperature), and literature references. Cross-references to UniProt, PubChem, ChEMBL, and ChEBI for comprehensive drug-target interaction analysis
 
 * **Patents** - `SureChEMBL` patent data with 43M+ patents, 30M+ compounds, and patent-compound mappings for drug discovery and IP analysis
 
@@ -76,6 +78,9 @@ biobtree -d "chembl,clinical_trials" build
 
 # build with genetic variants (works well with HGNC, MONDO, HPO)
 biobtree -d "hgnc,clinvar,mondo,hpo" build
+
+# build with binding affinity data (works well with UniProt, PubChem, ChEMBL)
+biobtree -d "bindingdb,uniprot,pubchem,chembl" build
 
 # build with gene-disease validity (works well with MONDO, HPO)
 biobtree -d "gencc,mondo,hpo" build
@@ -379,6 +384,14 @@ biobtree query "BRCA1 >> gencc"                   # Find gene-disease curations 
 biobtree query "Fanconi anemia >> gencc"          # Find curations by disease name
 biobtree query "BRCA1 >> gencc >> mondo"          # Gene to disease ontology terms
 biobtree query "BRCA1 >> gencc >> hpo"            # Gene to inheritance patterns
+
+# BindingDB binding affinity queries
+biobtree query "50000308"                         # BindingDB entry lookup
+biobtree query "50000308 >> uniprot"              # Find target proteins for compound
+biobtree query "P00533 >> bindingdb"              # Find binding data for protein (EGFR)
+biobtree query "aspirin >> bindingdb"             # Search by ligand name
+biobtree query "50000308 >> bindingdb >> pubchem" # Compound to PubChem CID
+biobtree query "50000308 >> bindingdb >> chembl"  # Compound to ChEMBL ID
 ```
 
 #### Filter Syntax
@@ -421,6 +434,11 @@ biobtree query "P49418 >> intact[intact.interactions[0].detection_method~\"two h
 # GenCC filters
 biobtree query "BRCA1 >> gencc[gencc.classification_title==\"Definitive\"]"  # Only definitive classifications
 biobtree query "BRCA1 >> gencc[gencc.moi_title==\"Autosomal dominant\"]"     # Filter by inheritance mode
+
+# BindingDB filters
+biobtree query "P00533 >> bindingdb[bindingdb.ki!=\"\"]"                     # Only entries with Ki values
+biobtree query "P00533 >> bindingdb[bindingdb.ic50!=\"\"]"                   # Only entries with IC50 values
+biobtree query "aspirin >> bindingdb[bindingdb.target_source_organism==\"Homo sapiens\"]"  # Human targets only
 ```
 
 #### Migration Guide - Breaking Change in Mapping Queries

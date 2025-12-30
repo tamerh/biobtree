@@ -1,18 +1,18 @@
 package update
 
 import (
-	"archive/zip"
 	"biobtree/pbuf"
 	"bufio"
 	"fmt"
-	"io"
 	"log"
+	"net/http"
 	"os"
 	"strconv"
 	"strings"
 	"sync/atomic"
 	"time"
 
+	"github.com/krolaw/zipstream"
 	"github.com/pquerna/ffjson/ffjson"
 )
 
@@ -50,57 +50,56 @@ func (b *bindingdb) update() {
 	log.Printf("BindingDB: Processing complete (%.2fs)", time.Since(startTime).Seconds())
 }
 
-// parseAndSaveEntries processes the BindingDB TSV ZIP file
+// parseAndSaveEntries processes the BindingDB TSV ZIP file using streaming
 func (b *bindingdb) parseAndSaveEntries(testLimit int, idLogFile *os.File) {
 	// Build file path
 	filePath := config.Dataconf[b.source]["path"]
 	log.Printf("BindingDB: Downloading from %s", filePath)
 
-	// Open ZIP file via HTTP
-	br, gz, ftpFile, client, localFile, _, err := getDataReaderNew(b.source, b.d.ebiFtp, b.d.ebiFtpPath, filePath)
-	b.check(err, "opening BindingDB ZIP file")
-	defer closeReaders(gz, ftpFile, client, localFile)
-
 	sourceID := config.Dataconf[b.source]["id"]
 
-	// The file is a ZIP, need to extract the TSV inside
-	log.Println("BindingDB: Reading ZIP file...")
-	zipData, err := io.ReadAll(br)
-	b.check(err, "reading ZIP file")
-
-	log.Printf("BindingDB: ZIP file size: %.2f MB", float64(len(zipData))/1024/1024)
-
-	// Open ZIP
-	zipReader, err := zip.NewReader(readerAtFromBytes(zipData), int64(len(zipData)))
-	b.check(err, "opening ZIP archive")
-
-	if len(zipReader.File) == 0 {
-		log.Fatal("BindingDB: ZIP file is empty")
+	// Use zipstream for streaming ZIP processing (like HMDB)
+	var zipReader interface {
+		Read(p []byte) (n int, err error)
 	}
 
-	// Find the TSV file inside
-	var tsvFile *zip.File
-	for _, f := range zipReader.File {
-		if strings.HasSuffix(f.Name, ".tsv") || strings.HasSuffix(f.Name, ".txt") {
-			tsvFile = f
-			break
+	// Check if using local file
+	if config.Dataconf[b.source]["useLocalFile"] == "yes" {
+		localFile, err := os.Open(filePath)
+		b.check(err, "opening local BindingDB file: "+filePath)
+		defer localFile.Close()
+		zipReader = localFile
+	} else {
+		// Download from remote URL
+		resp, err := http.Get(filePath)
+		b.check(err, "downloading BindingDB ZIP file")
+		defer resp.Body.Close()
+
+		if resp.StatusCode != 200 {
+			log.Fatalf("[%s] Error: BindingDB server returned HTTP %s from: %s",
+				b.source, resp.Status, filePath)
 		}
+
+		zipReader = resp.Body
 	}
 
-	if tsvFile == nil {
-		log.Fatal("BindingDB: No TSV file found in ZIP")
+	// Use zipstream for streaming decompression
+	log.Println("BindingDB: Streaming ZIP file...")
+	zips := zipstream.NewReader(zipReader)
+
+	// Get first (and only) entry in ZIP
+	_, err := zips.Next()
+	if err != nil {
+		log.Printf("[bindingdb] ERROR: Failed to read ZIP stream")
+		log.Printf("[bindingdb] This may happen if the download was interrupted")
+		b.check(err, "reading first entry from BindingDB ZIP stream")
 	}
 
-	log.Printf("BindingDB: Found file in ZIP: %s (%.2f MB uncompressed)",
-		tsvFile.Name, float64(tsvFile.UncompressedSize64)/1024/1024)
-
-	// Open the TSV file from ZIP
-	rc, err := tsvFile.Open()
-	b.check(err, "opening TSV from ZIP")
-	defer rc.Close()
+	// Create buffered reader for TSV parsing
+	br := bufio.NewReaderSize(zips, fileBufSize)
 
 	// Create scanner for TSV format
-	scanner := bufio.NewScanner(rc)
+	scanner := bufio.NewScanner(br)
 
 	// Increase buffer size for long lines (SMILES strings can be very long)
 	const maxCapacity = 2 * 1024 * 1024 // 2MB buffer

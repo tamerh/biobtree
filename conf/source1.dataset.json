@@ -720,7 +720,7 @@
   "bindingdb": {
     "id": "103",
     "name": "BindingDB",
-    "path": "https://www.bindingdb.org/bind/downloads/BindingDB_All_tsv.zip",
+    "path": "https://www.bindingdb.org/rwd/bind/downloads/BindingDB_All_202512_tsv.zip",
     "aliases": "BindingDB,binding affinity,Ki,IC50,EC50,Kd,drug-target interaction,protein-ligand binding",
     "url": "https://www.bindingdb.org/bind/chemsearch/marvin/MolStructure.jsp?monession=£{id}",
     "useLocalFile": "no",

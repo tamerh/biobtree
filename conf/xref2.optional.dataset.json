@@ -23,12 +23,6 @@
     "id": "603",
     "url": ""
   },
-  "bindingdb": {
-    "aliases": "BindingDB",
-    "name": "BindingDB",
-    "id": "604",
-    "url": "http://www.bindingdb.org/uniprot/\u00a3{id}"
-  },
   "biocyc": {
     "aliases": "BioCyc",
     "name": "BioCyc",

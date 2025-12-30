@@ -178,7 +178,7 @@ ENSEMBL_TAXIDS="9606,10090,10116,7955,7227,6239,559292,284812,511145,3702,39947,
 STRING_TAXIDS="9606,10090,10116,7955,7227,6239,4932,284812,511145,3702,39947,4577,3847,44689,237561,243232"
 
 # Core datasets split into 4 parts: TODO add back diamond later 
-CORE_PART1="uniprot,taxonomy,interpro,hmdb,chembl,clinvar,lipidmaps,swisslipids,gwas_study,gwas,intact,antibody,protein_similarity,rhea"
+CORE_PART1="uniprot,taxonomy,interpro,hmdb,chembl,clinvar,lipidmaps,swisslipids,gwas_study,gwas,intact,antibody,protein_similarity,rhea,bindingdb"
 CORE_PART2="chebi,alphafold,rnacentral,reactome,clinical_trials,patent,string,bgee,ontology,mesh,gencc"
 
 # Part 3: Large/unstable dataset (dbsnp - prone to FTP issues, needs retry)

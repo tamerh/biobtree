@@ -87,7 +87,6 @@ func (a *antibody) parseTheraSAbDab(testLimit int, idLogFile *os.File) {
 	defer closeReaders(gz, ftpFile, client, localFile)
 
 	sourceID := config.Dataconf[a.source]["id"]
-	textLinkID := "0" // Text search link ID
 
 	// Create CSV reader
 	csvReader := csv.NewReader(br)
@@ -204,9 +203,6 @@ func (a *antibody) parseTheraSAbDab(testLimit int, idLogFile *os.File) {
 		// Save primary entry
 		a.d.addProp3(innName, sourceID, marshaled)
 
-		// Add text search for INN name
-		a.d.addXref(innName, textLinkID, innName, a.source, true)
-
 		// Map indications to EFO ontology (creates bidirectional xrefs)
 		efoDatasetID := uint32(72)   // EFO dataset ID
 		for _, indication := range indications {
@@ -225,10 +221,22 @@ func (a *antibody) parseTheraSAbDab(testLimit int, idLogFile *os.File) {
 
 		// Create cross-references to target genes via gene symbol lookup
 		// This looks up each gene symbol in the database and creates xrefs to Ensembl gene entries
+		// Targets may have composite notation like "ITGA2B/CD41" or bispecific format "EGFR/HER1;MET/HGFR"
 		for _, target := range targets {
 			if target != "" {
-				// Look up gene symbol to find Ensembl gene entries
-				a.d.addXrefViaKeyword(target, "ensembl", innName, a.source, sourceID, false)
+				// Split by ";" for bispecific antibodies (multiple targets)
+				targetParts := strings.Split(target, ";")
+				for _, targetPart := range targetParts {
+					// Split by "/" to handle composite notation (gene/alias format)
+					geneParts := strings.Split(targetPart, "/")
+					for _, genePart := range geneParts {
+						genePart = strings.TrimSpace(genePart)
+						if genePart != "" {
+							// Look up gene symbol to find Ensembl gene entries
+							a.d.addXrefViaKeyword(genePart, "ensembl", innName, a.source, sourceID, false)
+						}
+					}
+				}
 			}
 		}
 

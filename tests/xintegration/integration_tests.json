@@ -21,7 +21,8 @@
     "protein_structures": "3D structure predictions (AlphaFold)",
     "clinical_variants": "Clinical variant interpretation via ClinVar",
     "ncbi_datasets": "NCBI/Entrez Gene, RefSeq, PubChem compound mappings",
-    "data_validation": "Data quality validation - attribute correctness, counts, known facts"
+    "data_validation": "Data quality validation - attribute correctness, counts, known facts",
+    "antibody": "Therapeutic and structural antibody data (TheraSAbDab, SAbDab, IMGT)"
   },
   "tests": [
     {
@@ -1326,6 +1327,57 @@
         "JAK2"
       ],
       "should_fail": []
+    },
+    {
+      "category": "antibody",
+      "name": "Therapeutic Antibody Lookup",
+      "query": ">>antibody",
+      "why": "Therapeutic antibodies (TheraSAbDab) should be directly queryable by INN name",
+      "should_pass": [
+        "ABCIXIMAB",
+        "BEVACIZUMAB",
+        "ADALIMUMAB",
+        "TRASTUZUMAB"
+      ],
+      "should_fail": [
+        "NOTAREALANTIBODY",
+        "FAKE123MAB"
+      ]
+    },
+    {
+      "category": "antibody",
+      "name": "Therapeutic Antibody to Target Genes",
+      "query": ">>antibody>>ensembl",
+      "why": "Therapeutic antibodies should link to their target genes via composite target notation splitting (e.g., ITGA2B/CD41 -> ITGA2B)",
+      "should_pass": [
+        "BEVACIZUMAB",
+        "ADALIMUMAB"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "antibody",
+      "name": "Structural Antibody via PDB",
+      "query": ">>pdb>>antibody",
+      "why": "PDB structures should link to SAbDab antibody entries for structural antibody data",
+      "should_pass": [
+        "7S4S",
+        "6V4P"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "antibody",
+      "name": "Antibody Attributes Validation",
+      "type": "validation",
+      "query": "",
+      "identifier": "BEVACIZUMAB",
+      "dataset": "antibody",
+      "why": "Bevacizumab should have correct attributes including target VEGFA and therapeutic source",
+      "validations": [
+        {"path": "entry.Attributes.Antibody.source", "equals": "therasabdab", "description": "Source is TheraSAbDab"},
+        {"path": "entry.Attributes.Antibody.targets", "contains": "VEGFA", "description": "Target includes VEGFA"}
+      ]
     }
   ]
 }

@@ -445,10 +445,11 @@
   "swisslipids": {
     "id": "33",
     "name": "SwissLipids",
-    "path": "https://www.swisslipids.org/api/file.php?cas=download_files&file=lipids.tsv",
+    "path2": "https://www.swisslipids.org/api/file.php?cas=download_files&file=lipids.tsv",
     "aliases": "SwissLipids,SLM,Swiss-Lipids",
     "url": "https://www.swisslipids.org/#/entity/£{id}/",
-    "useLocalFile": "no",
+    "useLocalFile": "yes",
+    "path": "/data/bioyoda/snapshots/raw_data/lipids.tsv.gz",
     "hasFilter": "yes",
     "attrs": "name,abbreviation,[]synonyms,category,main_class,sub_class,level,smiles,inchi,inchi_key,formula,mass,charge",
     "test_entries_count": "100",
@@ -651,7 +652,7 @@
     "name": "Patent Compound",
     "id": "51",
     "url": "",
-    "linkdataset": "chembl_molecule",
+    "junction": "chembl_molecule,pubchem,chebi,hmdb",
     "hasFilter": "yes",
     "bucketMethod": "numeric"
   },

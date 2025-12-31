@@ -42,7 +42,7 @@
 	"dbBackend": "lmdb",
 	"lmdbSafetyFactor": "10",
 	"__lookupDbDir": "/data/scc/ag-gruber/GROUP/tgur/x/bioyoda_dev2/biobtreev2/out_ref/db",
-	"lookupDbDir": "out_prod_lookup/db",
+	"lookupDbDir": "out_prod_latest/db",
 	"tmpRuneSize": "10000000",
 	"mergeArraySize": "150000",
 	"mergeCheckpointInterval": "100000",

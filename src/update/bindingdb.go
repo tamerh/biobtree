@@ -369,11 +369,23 @@ func (b *bindingdb) createCrossReferences(bindingdbID string, attr *pbuf.Binding
 		}
 	}
 
-	// Bidirectional cross-reference: BindingDB ↔ ChEMBL
-	if _, exists := config.Dataconf["chembl_molecule"]; exists {
-		for _, chemblID := range attr.ChemblIds {
-			if chemblID != "" {
+	// Bidirectional cross-reference: BindingDB ↔ ChEMBL / SureChEMBL
+	// Note: BindingDB's "ChEMBL ID of Ligand" field contains both:
+	// - ChEMBL IDs (CHEMBL...) → link to chembl_molecule
+	// - SureChEMBL IDs (SCHEMBL...) → link to patent_compound (numeric part = SureChEMBL compound ID)
+	for _, chemblID := range attr.ChemblIds {
+		if chemblID == "" {
+			continue
+		}
+		if strings.HasPrefix(chemblID, "CHEMBL") {
+			if _, exists := config.Dataconf["chembl_molecule"]; exists {
 				b.d.addXref(bindingdbID, sourceID, chemblID, "chembl_molecule", false)
+			}
+		} else if strings.HasPrefix(chemblID, "SCHEMBL") {
+			// SureChEMBL ID format: SCHEMBL<numeric_id> where numeric_id = patent_compound.id
+			if _, exists := config.Dataconf["patent_compound"]; exists {
+				numericID := strings.TrimPrefix(chemblID, "SCHEMBL")
+				b.d.addXref(bindingdbID, sourceID, numericID, "patent_compound", false)
 			}
 		}
 	}

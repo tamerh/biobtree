@@ -133,6 +133,9 @@ func (u *uniprot) processDbReference(entryid string, r *xmlparser.XMLElement) {
 					}
 				}
 			}
+		case "BindingDB":
+			// Skip - BindingDB creates proper bidirectional xrefs with numeric IDs
+			// UniProt's BindingDB dbReferences incorrectly use UniProt accessions as IDs
 		default:
 			u.d.addXref(entryid, u.sourceID, v.Attrs["id"], v.Attrs["type"], false)
 		}

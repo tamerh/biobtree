@@ -327,7 +327,7 @@ if [[ "$RUN_CORE5" == "true" ]]; then
     mkdir -p ${OUT_DIR}/core_part5
 
     # RefSeq uses --genome-taxids with same tax IDs as Ensembl
-    CMD="./biobtree $BB_DEFAULT_PARAM -d \"${CORE_PART5}\" --genome-taxids ${ENSEMBL_TAXIDS} --out-dir \"${OUT_DIR}/core_part5\" -idx core_part5 update"
+    CMD="./biobtree $BB_DEFAULT_PARAM --bucket-sort-workers 4 -d \"${CORE_PART5}\" --genome-taxids ${ENSEMBL_TAXIDS} --out-dir \"${OUT_DIR}/core_part5\" -idx core_part5 update"
 
     if ! run_job_with_retry "Core Part 5 (entrez + refseq)" "$CMD" "logs/core_part5_entrez_refseq.log" "${OUT_DIR}/core_part5"; then
         echo "ERROR: Core Part 5 (entrez + refseq) failed after retries. Exiting."

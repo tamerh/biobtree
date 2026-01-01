@@ -79,6 +79,7 @@ type DataUpdate struct {
 	bucketPool             *HybridWriterPool // Bucket writer pool for optimized datasets
 	bucketWg               *sync.WaitGroup   // WaitGroup for bucket writers
 	useLookupDB            bool              // Flag to enable/disable lookup database loading
+	resumeSort             bool              // Flag to resume from sorting phase (skip data processing)
 }
 
 type progressInfo struct {
@@ -159,6 +160,11 @@ func NewDataUpdate(datasets map[string]bool, targetDatasets, ensemblSpecies, ens
 		useLookupDB:            useLookupDB,
 	}
 
+}
+
+// SetResumeSort enables resume-from-sort mode (skips data processing, only does sort+concat+meta)
+func (d *DataUpdate) SetResumeSort(resume bool) {
+	d.resumeSort = resume
 }
 
 // Initialize read-only lookup database for keyword-to-ID resolution
@@ -311,7 +317,8 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 		}
 	}
 
-	if len(ensembls) <= 0 && len(d.inDatasets) <= 0 {
+	// Resume mode doesn't need datasets - it works with existing bucket files
+	if len(ensembls) <= 0 && len(d.inDatasets) <= 0 && !d.resumeSort {
 		log.Println("No genome found for indexing")
 		return 0, 0
 	}
@@ -334,6 +341,52 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 	d.bucketPool = NewHybridWriterPool(bucketConfigs, &e, config.Appconf["indexDir"], &bucketWg)
 	if len(bucketConfigs) > 0 {
 		log.Printf("Bucket system initialized with %d configured datasets", len(bucketConfigs))
+	}
+
+	// Resume mode: skip data processing, go directly to sort+concat+meta
+	if d.resumeSort {
+		log.Println("Resume mode: skipping data processing, starting from sort phase")
+
+		// Mark existing bucket files as created
+		fileCount := d.bucketPool.MarkExistingFilesCreated()
+		if fileCount == 0 {
+			log.Println("Warning: No existing bucket files found to resume")
+			return 0, 0
+		}
+
+		// Sort all bucket files
+		log.Println("Sorting bucket files...")
+		if err := SortAllBuckets(d.bucketPool, 0); err != nil {
+			log.Printf("Error sorting buckets: %v", err)
+		}
+
+		// Concatenate buckets and move to index directory
+		log.Println("Concatenating bucket files...")
+		bucketStats, err := ConcatenateBuckets(d.bucketPool, config.Appconf["indexDir"], chunkIdx)
+		if err != nil {
+			log.Printf("Error concatenating buckets: %v", err)
+			return 0, 0
+		}
+
+		var bucketLines uint64
+		if bucketStats != nil {
+			bucketLines = bucketStats.TotalLines
+			for datasetName, lineCount := range bucketStats.PerDataset {
+				d.addEntryStat(datasetName, lineCount)
+			}
+		}
+		log.Printf("Bucket processing complete (%d lines after deduplication)", bucketLines)
+
+		// Write meta.json
+		d.stats["totalKV"] = bucketLines
+		data, err := json.Marshal(d.stats)
+		if err != nil {
+			log.Println("Error while writing meta data")
+		}
+		ioutil.WriteFile(filepath.FromSlash(config.Appconf["indexDir"]+"/"+chunkIdx+".meta.json"), data, 0700)
+
+		log.Println("Resume complete.")
+		return 0, bucketLines
 	}
 
 	// chunk buffer size

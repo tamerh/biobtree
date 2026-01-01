@@ -240,6 +240,11 @@ func (wp *workerPool) readNextKey(fs *fileState, tmprun []rune, skipUntil string
 
 		// Send to merge channel if not skipping
 		if skipUntil == "" || key > skipUntil {
+			// Validate: db field must not be empty for valid data
+			if fs.nextLine[1] == "" {
+				log.Printf("ERROR: Malformed line in file %s - empty db field. key='%s' (len=%d)", fs.fileName, fs.nextLine[0][:min(50, len(fs.nextLine[0]))], len(fs.nextLine[0]))
+				panic("Malformed data: empty db field in file " + fs.fileName)
+			}
 			*mergeCh <- kvMessage{
 				key:          fs.nextLine[0],
 				db:           fs.nextLine[1],
@@ -294,7 +299,11 @@ func (wp *workerPool) readNextKey(fs *fileState, tmprun []rune, skipUntil string
 				continue
 			}
 
-			// Send this line to merge channel
+			// Validate and send this line to merge channel
+			if line[1] == "" {
+				log.Printf("ERROR: Malformed line in file %s - empty db field. key='%s' (len=%d)", fs.fileName, line[0][:min(50, len(line[0]))], len(line[0]))
+				panic("Malformed data: empty db field in file " + fs.fileName)
+			}
 			*mergeCh <- kvMessage{
 				key:          line[0],
 				db:           line[1],
@@ -958,6 +967,9 @@ func (d *Merge) mergeg() {
 				pageSize := len(arrIds) - 1 // 1 is root result
 				datasetInt, err := strconv.Atoi(domain)
 				if err != nil {
+					log.Printf("ERROR: Invalid domain='%s' for key='%s', arrIds count=%d", domain, kv.key, len(arrIds))
+					log.Printf("ERROR: kv.db='%s', kv.value='%s', kv.valuedb='%s'", kv.db, kv.value, kv.valuedb)
+					log.Printf("ERROR: Full kv: %+v", kv)
 					panic("dataset id to integer conversion error. Possible invalid data update input->" + kv.String())
 				}
 				keyLen := d.pager.KeyLen(pageSize)

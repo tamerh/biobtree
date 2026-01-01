@@ -254,13 +254,16 @@ func (p *HybridWriterPool) HasBucketConfig(datasetID string) bool {
 }
 
 // Close flushes and closes all bucket files
+// Must acquire mutex for each file to prevent race with concurrent writes
 func (p *HybridWriterPool) Close() {
 	// Close all bucket files (uncompressed)
 	for _, bf := range p.bucketFiles {
+		bf.mutex.Lock()
 		if bf.created && bf.buf != nil {
 			bf.buf.Flush()
 			bf.file.Close()
 		}
+		bf.mutex.Unlock()
 	}
 }
 
@@ -359,4 +362,18 @@ type BucketWriter struct {
 	filePath    string
 	fileCreated bool
 	lineCount   uint64
+}
+
+// MarkExistingFilesCreated scans bucket directories and marks files that exist as created
+// Used for resume-from-sort mode where bucket files already exist from a previous run
+func (p *HybridWriterPool) MarkExistingFilesCreated() int {
+	count := 0
+	for _, bf := range p.bucketFiles {
+		if _, err := os.Stat(bf.filePath); err == nil {
+			bf.created = true
+			count++
+		}
+	}
+	log.Printf("Resume mode: found %d existing bucket files", count)
+	return count
 }

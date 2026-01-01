@@ -274,7 +274,7 @@ if [[ "$RUN_CORE2" == "true" ]]; then
     rm -rf ${OUT_DIR}/core_part2
     mkdir -p ${OUT_DIR}/core_part2
 
-    CMD="./biobtree $BB_DEFAULT_PARAM -d \"${CORE_PART2}\" --tax ${STRING_TAXIDS} --out-dir \"${OUT_DIR}/core_part2\" -idx core_part2 update"
+    CMD="./biobtree $BB_DEFAULT_PARAM --bucket-sort-workers 4 -d \"${CORE_PART2}\" --tax ${STRING_TAXIDS} --out-dir \"${OUT_DIR}/core_part2\" -idx core_part2 update"
 
     if ! run_job_with_retry "Core Part 2" "$CMD" "logs/core_part2.log" "${OUT_DIR}/core_part2"; then
         echo "ERROR: Core Part 2 failed after retries. Exiting."

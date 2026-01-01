@@ -153,6 +153,10 @@ func main() {
 			Name:  "pubchem-sdf-workers",
 			Usage: "Number of parallel workers for PubChem SDF file parsing (default: 4). Use lower values to reduce memory usage during SDF processing",
 		},
+		cli.BoolFlag{
+			Name:  "resume-sort",
+			Usage: "Resume from sorting phase. Skip data processing and only run sort, concatenate, and write meta.json. Use after a crash during sorting",
+		},
 	}
 
 	// add dataset local flags
@@ -492,7 +496,8 @@ func runUpdateCommand(c *cli.Context) error {
 		return nil
 	}
 
-	if len(d) == 0 && len(sp) == 0 && len(spatterns) == 0 && len(genometaxids) == 0 {
+	// Resume mode doesn't need datasets - it works with existing bucket files
+	if len(d) == 0 && len(sp) == 0 && len(spatterns) == 0 && len(genometaxids) == 0 && !c.GlobalBool("resume-sort") {
 
 		log.Fatal("Datasets or genome must be selected.")
 		return nil
@@ -573,7 +578,15 @@ func runUpdateCommand(c *cli.Context) error {
 		config.Appconf["pubchemSDFWorkers"] = strconv.Itoa(pubchemSDFWorkers)
 	}
 
-	update.NewDataUpdate(d, ts, sp, spatterns, genometaxids, c.GlobalBool("skip-ensembl"), orthologIDs, eo, c.GlobalBool("ensembl-orthologs-all"), config, chunkIdxx, useLookupDB).Update()
+	// Create and run the data update
+	dataUpdate := update.NewDataUpdate(d, ts, sp, spatterns, genometaxids, c.GlobalBool("skip-ensembl"), orthologIDs, eo, c.GlobalBool("ensembl-orthologs-all"), config, chunkIdxx, useLookupDB)
+
+	// Resume mode: skip data processing, only run sort+concat+meta
+	if c.GlobalBool("resume-sort") {
+		dataUpdate.SetResumeSort(true)
+	}
+
+	dataUpdate.Update()
 
 	elapsed := time.Since(start)
 	log.Printf("Update took %s", elapsed)

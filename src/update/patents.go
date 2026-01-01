@@ -225,6 +225,15 @@ func (p *patents) processCompounds() (int, error) {
 	testLimit := config.GetTestLimit(p.source)
 	processedCompounds := make(map[string]bool) // Track unique compound IDs processed
 
+	// Build target datasets map for compound lookup ONCE (not per-compound)
+	// Only include datasets that are configured in this build
+	targetDatasets := make(map[string]uint32)
+	for _, ds := range []string{"chembl_molecule", "pubchem", "chebi", "hmdb"} {
+		if _, exists := config.Dataconf[ds]; exists {
+			targetDatasets[ds] = config.DataconfIDStringToInt[ds]
+		}
+	}
+
 	// Stats tracking
 	totalProcessed := 0
 	totalLinkedToChEMBL := 0
@@ -255,15 +264,6 @@ func (p *patents) processCompounds() (int, error) {
 		inchiKey := getString(j, "inchi_key")
 		smiles := getString(j, "smiles")
 
-		// Build target datasets map for compound lookup
-		// Only include datasets that are configured in this build
-		targetDatasets := make(map[string]uint32)
-		for _, ds := range []string{"chembl_molecule", "pubchem", "chebi", "hmdb"} {
-			if _, exists := config.Dataconf[ds]; exists {
-				targetDatasets[ds] = config.DataconfIDStringToInt[ds]
-			}
-		}
-
 		// Lookup compounds in all target datasets by InChI key or SMILES
 		var matches []compoundMatch
 		if inchiKey != "" {
@@ -281,7 +281,9 @@ func (p *patents) processCompounds() (int, error) {
 
 				// Reverse xref: chemical database → patent_compound
 				// This enables queries like: chembl_molecule >> patent_compound >> patent
-				p.d.addXref(match.identifier, match.datasetName, compoundID, "patent_compound", false)
+				// Note: from parameter must be dataset ID string, not name
+				matchDatasetID := config.Dataconf[match.datasetName]["id"]
+				p.d.addXref(match.identifier, matchDatasetID, compoundID, "patent_compound", false)
 			}
 			totalLinkedToChEMBL++ // TODO: rename to totalLinkedToChemDB
 
@@ -460,6 +462,10 @@ func (p *patents) buildPatentIDMap() (map[string]string, error) {
 			if config.IsTestMode() {
 				if p.testPatentIDs != nil && p.testPatentIDs[patentNumber] {
 					idMap[id] = patentNumber
+					// Early exit when we've found all test patents
+					if len(idMap) >= len(p.testPatentIDs) {
+						break
+					}
 				}
 			} else {
 				idMap[id] = patentNumber

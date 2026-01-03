@@ -301,7 +301,7 @@ func (h *hmdb) update() {
 
 		if len(r.Childs["cas_registry_number"]) > 0 {
 			cas := r.Childs["cas_registry_number"][0].InnerText
-			h.d.addXref(entryid, fr, cas, "CAS", false)
+			h.d.addXref(entryid, fr, cas, "cas", false)
 		}
 
 		// moleculer weight
@@ -347,7 +347,7 @@ func (h *hmdb) update() {
 			for _, z := range v.Childs["pathway"] {
 				for _, x := range z.Childs["kegg_map_id"] {
 					if len(x.InnerText) > 0 {
-						h.d.addXref(entryid, fr, x.InnerText, "KEGG MAP", false)
+						h.d.addXref(entryid, fr, x.InnerText, "kegg map", false)
 					}
 				}
 				for _, x := range z.Childs["name"] {
@@ -364,7 +364,7 @@ func (h *hmdb) update() {
 					for _, t := range x.Childs["reference"] {
 						for _, g := range t.Childs["pubmed_id"] {
 							if len(g.InnerText) > 0 {
-								h.d.addXref(entryid, fr, g.InnerText, "PubMed", false)
+								h.d.addXref(entryid, fr, g.InnerText, "pubmed", false)
 							}
 						}
 					}
@@ -378,7 +378,7 @@ func (h *hmdb) update() {
 					for _, t := range x.Childs["reference"] {
 						for _, g := range t.Childs["pubmed_id"] {
 							if len(g.InnerText) > 0 {
-								h.d.addXref(entryid, fr, g.InnerText, "PubMed", false)
+								h.d.addXref(entryid, fr, g.InnerText, "pubmed", false)
 							}
 						}
 					}
@@ -408,25 +408,25 @@ func (h *hmdb) update() {
 		// rest of xrefs
 		for _, v := range r.Childs["drugbank_id"] {
 			if len(v.InnerText) > 0 {
-				h.d.addXref(entryid, fr, v.InnerText, "DrugBank", false)
+				h.d.addXref(entryid, fr, v.InnerText, "drugbank", false)
 			}
 		}
 
 		for _, v := range r.Childs["kegg_id"] {
 			if len(v.InnerText) > 0 {
-				h.d.addXref(entryid, fr, v.InnerText, "KEGG", false)
+				h.d.addXref(entryid, fr, v.InnerText, "kegg", false)
 			}
 		}
 
 		for _, v := range r.Childs["biocyc_id"] {
 			if len(v.InnerText) > 0 {
-				h.d.addXref(entryid, fr, v.InnerText, "BioCyc", false)
+				h.d.addXref(entryid, fr, v.InnerText, "biocyc", false)
 			}
 		}
 
 		for _, v := range r.Childs["pubchem_compound_id"] {
 			if len(v.InnerText) > 0 {
-				h.d.addXref(entryid, fr, v.InnerText, "Pubchem", false)
+				h.d.addXref(entryid, fr, v.InnerText, "pubchem", false)
 			}
 		}
 
@@ -440,7 +440,7 @@ func (h *hmdb) update() {
 			for _, t := range x.Childs["reference"] {
 				for _, g := range t.Childs["pubmed_id"] {
 					if len(g.InnerText) > 0 {
-						h.d.addXref(entryid, fr, g.InnerText, "PubMed", false)
+						h.d.addXref(entryid, fr, g.InnerText, "pubmed", false)
 					}
 				}
 			}
@@ -451,7 +451,7 @@ func (h *hmdb) update() {
 			for _, t := range x.Childs["protein"] {
 				for _, g := range t.Childs["uniprot_id"] {
 					if len(g.InnerText) > 0 {
-						h.d.addXref(entryid, fr, g.InnerText, "UniProtKB", false)
+						h.d.addXref(entryid, fr, g.InnerText, "uniprot", false)
 					}
 				}
 			}

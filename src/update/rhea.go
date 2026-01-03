@@ -521,7 +521,7 @@ func (r *rhea) processUniProtMappings(reactionMap map[string]bool, testLimit int
 		// Header: RHEA_ID	DIRECTION	MASTER_ID	ID (UniProt)
 	}
 
-	uniprotDatasetID := "1" // UniProt dataset ID
+	uniprotDatasetID := config.Dataconf["uniprot"]["id"] // UniProt dataset ID from config
 
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -584,7 +584,7 @@ func (r *rhea) processChEBIMappings(reactionMap map[string]bool, testLimit int) 
 		"CHEBI:43474": "phosphate",
 	}
 
-	chebiDatasetID := "10" // ChEBI dataset ID
+	chebiDatasetID := config.Dataconf["chebi"]["id"] // ChEBI dataset ID from config
 
 	// Add placeholder ChEBI mappings for test reactions
 	for rheaID := range reactionMap {

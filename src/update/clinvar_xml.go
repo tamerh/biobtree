@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -15,6 +16,18 @@ import (
 type clinvarXML struct {
 	source string
 	d      *DataUpdate
+}
+
+// parseIntOrZero converts string to int32, returning 0 for empty or invalid input
+func parseIntOrZero(s string) int32 {
+	if s == "" || s == "-" {
+		return 0
+	}
+	val, err := strconv.ParseInt(s, 10, 32)
+	if err != nil {
+		return 0
+	}
+	return int32(val)
 }
 
 // Helper for context-aware error checking
@@ -392,6 +405,18 @@ func (c *clinvarXML) createXrefs(variation *xmlparser.XMLElement, variationID, s
 								if _, exists := config.Dataconf["omim"]; exists {
 									addXrefOnce(variationID, sourceID, conditionID, "omim", false)
 								}
+							case "orphanet":
+								if _, exists := config.Dataconf["orphanet"]; exists {
+									addXrefOnce(variationID, sourceID, conditionID, "orphanet", false)
+								}
+							case "mesh":
+								if _, exists := config.Dataconf["mesh"]; exists {
+									addXrefOnce(variationID, sourceID, conditionID, "mesh", false)
+								}
+							case "efo":
+								if _, exists := config.Dataconf["efo"]; exists {
+									addXrefOnce(variationID, sourceID, conditionID, "efo", false)
+								}
 							}
 						}
 					}
@@ -452,6 +477,14 @@ func (c *clinvarXML) createXrefs(variation *xmlparser.XMLElement, variationID, s
 													case "human phenotype ontology", "hpo":
 														if _, exists := config.Dataconf["hpo"]; exists {
 															addXrefOnce(variationID, sourceID, id, "hpo", false)
+														}
+													case "mesh":
+														if _, exists := config.Dataconf["mesh"]; exists {
+															addXrefOnce(variationID, sourceID, id, "mesh", false)
+														}
+													case "efo":
+														if _, exists := config.Dataconf["efo"]; exists {
+															addXrefOnce(variationID, sourceID, id, "efo", false)
 														}
 													}
 												}

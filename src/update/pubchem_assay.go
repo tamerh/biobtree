@@ -30,10 +30,13 @@ func (p *pubchemAssay) update(d *DataUpdate) {
 
 	log.Printf("[PubChem Assay] Starting bioassay metadata dataset update")
 	log.Printf("[PubChem Assay] This dataset contains assay descriptions, targets, and statistics")
-	log.Printf("[PubChem Assay] Cross-references: BioAssay→Protein, BioAssay→Gene")
+	log.Printf("[PubChem Assay] Cross-references: BioAssay→Protein, BioAssay→Gene, BioAssay→BAO")
 
 	// Load bioassays and stream to biobtree
 	p.loadAndStreamBioassays()
+
+	// Load BAO (BioAssay Ontology) annotations and create xrefs
+	p.loadBAOAnnotations()
 
 	// Signal completion
 	p.d.progChan <- &progressInfo{dataset: p.source, done: true}
@@ -435,4 +438,125 @@ func (p *pubchemAssay) check(e error, msg string) {
 	if e != nil {
 		log.Panicln(msg, e)
 	}
+}
+
+// loadBAOAnnotations loads BAO (BioAssay Ontology) annotations from Aid2CategorizedComment.gz
+// and creates cross-references from PubChem Assay AIDs to BAO terms
+func (p *pubchemAssay) loadBAOAnnotations() {
+	// Check if BAO dataset is configured
+	if _, exists := config.Dataconf["bao"]; !exists {
+		log.Printf("[PubChem Assay] BAO dataset not configured, skipping BAO annotations")
+		return
+	}
+
+	ftpServer := config.Dataconf["pubchem_assay"]["ftpUrl"]
+	basePath := "/pubchem/Bioassay/Extras/"
+	annotationPath := "Aid2CategorizedComment.gz"
+
+	log.Printf("[PubChem Assay] Loading BAO annotations from %s", annotationPath)
+
+	// Download and open file
+	br, gz, _, _, localFile, _, err := getDataReaderNew("pubchem_assay", ftpServer, basePath, annotationPath)
+	if err != nil {
+		log.Printf("[PubChem Assay] Warning: Could not load BAO annotations: %v", err)
+		return
+	}
+	defer func() {
+		if gz != nil {
+			gz.Close()
+		}
+		if localFile != nil {
+			localFile.Close()
+		}
+	}()
+
+	// Use bufio.Reader for robust line-by-line reading
+	reader := bufio.NewReaderSize(br, 4*1024*1024)
+
+	lineCount := 0
+	baoXrefCount := 0
+	headerSkipped := false
+	fr := config.Dataconf["pubchem_assay"]["id"]
+
+	for {
+		line, err := reader.ReadString('\n')
+
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
+			log.Printf("[PubChem Assay] Error reading BAO annotations: %v", err)
+			break
+		}
+
+		line = strings.TrimSpace(line)
+
+		// Skip empty lines
+		if line == "" {
+			continue
+		}
+
+		// Skip header
+		if !headerSkipped {
+			headerSkipped = true
+			continue
+		}
+
+		lineCount++
+
+		// Split by tab: AID \t Title \t Comment
+		parts := strings.Split(line, "\t")
+		if len(parts) < 3 {
+			continue
+		}
+
+		aid := strings.TrimSpace(parts[0])
+		title := strings.TrimSpace(parts[1])
+		value := strings.TrimSpace(parts[2])
+
+		// Only process BAO annotations
+		if !strings.HasPrefix(title, "BAO:") {
+			continue
+		}
+
+		if aid == "" || value == "" {
+			continue
+		}
+
+		// Try multiple matching strategies for BAO term lookup
+		// Values can be like "luminescence: bioluminescence" or just "primary"
+
+		// Strategy 1: Try the full value
+		p.d.addXrefViaKeyword(value, "bao", aid, p.source, fr, false)
+
+		// Strategy 2: If value contains ":", try the last part (e.g., "bioluminescence" from "luminescence: bioluminescence")
+		if strings.Contains(value, ":") {
+			parts := strings.Split(value, ":")
+			lastPart := strings.TrimSpace(parts[len(parts)-1])
+			if lastPart != "" && lastPart != value {
+				p.d.addXrefViaKeyword(lastPart, "bao", aid, p.source, fr, false)
+			}
+		}
+
+		// Strategy 3: Try with "assay" suffix (e.g., "primary" -> "primary assay")
+		withAssay := value + " assay"
+		p.d.addXrefViaKeyword(withAssay, "bao", aid, p.source, fr, false)
+
+		baoXrefCount++
+
+		// Progress reporting every 1000 BAO xrefs
+		if baoXrefCount%1000 == 0 {
+			log.Printf("[PubChem Assay] Created %d BAO xrefs...", baoXrefCount)
+		}
+
+		// Test mode: stop early
+		if config.IsTestMode() && baoXrefCount >= 500 {
+			log.Printf("[PubChem Assay] Test mode: Stopping after %d BAO xrefs", baoXrefCount)
+			break
+		}
+	}
+
+	log.Printf("[PubChem Assay] BAO annotation loading complete:")
+	log.Printf("[PubChem Assay]   - Total lines processed: %d", lineCount)
+	log.Printf("[PubChem Assay]   - BAO xrefs created: %d", baoXrefCount)
 }

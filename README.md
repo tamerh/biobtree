@@ -7,7 +7,7 @@ via identifiers and special keywors with simple or advance chain query capabilit
 
 ## Features
 
-* **Datasets** - supports wide datasets such as `Ensembl` `Uniprot` `ChEMBL` `HMDB` `BindingDB` `Taxonomy` `GO` `EFO` `HPO` `UBERON` `CL` `HGNC` `ECO` `Uniparc` `Uniref` `RNACentral` `Bgee` `GWAS Catalog` `dbSNP` `RefSeq` `IntAct` `GenCC`  with tens of more via cross references
+* **Datasets** - supports wide datasets such as `Ensembl` `Uniprot` `ChEMBL` `HMDB` `BindingDB` `STRING` `Taxonomy` `GO` `EFO` `HPO` `UBERON` `CL` `HGNC` `ECO` `Uniparc` `Uniref` `RNACentral` `Bgee` `GWAS Catalog` `dbSNP` `RefSeq` `IntAct` `GenCC`  with tens of more via cross references
 by retrieving latest data from providers
 
 * **MapReduce** - processes small or large datasets based on users selection and build B+ tree based uniform local database via specialized MapReduce based tecnique with efficient storage usage 
@@ -41,6 +41,8 @@ by retrieving latest data from providers
 * **Reference Sequences** - `RefSeq` from NCBI with curated reference sequences for genomes, transcripts, and proteins. Provides genomic coordinates, gene annotations, protein sequences, and cross-references to UniProt, Entrez Gene, and other databases. Use `--genome-taxids` to filter to specific organisms for model organism databases
 
 * **Protein Interactions** - `IntAct` database from EBI with ~1.8 million experimentally validated protein-protein interactions across ~100,000 unique proteins. Provides detailed experimental evidence including detection methods, interaction types, confidence scores, experimental roles, and direct citations to 23,000+ publications. Supports interaction network analysis, drug target discovery, and pathway exploration with PSI-MI standardized terms
+
+* **Protein Networks** - `STRING` database with predicted and known protein-protein interactions across thousands of organisms. Provides combined interaction scores with evidence breakdown (experimental, database, textmining, coexpression), protein annotations, and size information. Enables functional association networks, protein complex analysis, and pathway enrichment studies
 
 * **Gene-Disease Validity** - `GenCC` (Gene Curation Coalition) database with 35,000+ standardized gene-disease validity curations from multiple authoritative sources including ClinGen, Ambry, Genomics England, and Orphanet. Provides classification levels (Definitive, Strong, Moderate, Limited, Supportive), mode of inheritance (autosomal dominant/recessive, X-linked), submitter information, and PubMed citations. Supports clinical variant interpretation, diagnostic panel design, and gene-disease relationship exploration with cross-references to MONDO, HPO, and PubMed
 
@@ -96,6 +98,9 @@ biobtree -d "dbsnp,hgnc" build
 
 # build with protein interactions (requires UniProt)
 biobtree -d "uniprot,intact" build
+
+# build with STRING protein networks (use with Ensembl genomes for best results)
+biobtree --tax 9606 -d "string" build
 
 # build with RefSeq reference sequences (filter to specific organisms)
 biobtree --genome-taxids 9606 -d "refseq,uniprot,entrez" build  # Human only
@@ -379,6 +384,11 @@ biobtree query "P49418"                           # Protein interaction lookup
 biobtree query "P49418 >> intact"                 # Get interaction partners
 biobtree query "P49418 >> intact >> uniprot"      # Get partner protein details
 
+# STRING protein network queries
+biobtree query "9606.ENSP00000269305"             # STRING protein lookup
+biobtree query "9606.ENSP00000269305 >> string"   # Get interaction partners with scores
+biobtree query "BRCA1 >> ensembl >> string"       # Gene to STRING network
+
 # GenCC gene-disease validity queries
 biobtree query "BRCA1 >> gencc"                   # Find gene-disease curations for BRCA1
 biobtree query "Fanconi anemia >> gencc"          # Find curations by disease name
@@ -430,6 +440,10 @@ biobtree query "rs200676709 >> dbsnp[dbsnp.clinical_significance!=\"\"]"  # Clin
 # IntAct filters
 biobtree query "P49418 >> intact[intact.interactions[0].confidence_score>0.6]"  # High-confidence interactions
 biobtree query "P49418 >> intact[intact.interactions[0].detection_method~\"two hybrid\"]"  # By method
+
+# STRING filters
+biobtree query "9606.ENSP00000269305 >> string[string.interactions[0].score>700]"  # High-confidence interactions (>0.7)
+biobtree query "9606.ENSP00000269305 >> string[string.interactions[0].has_experimental==true]"  # Experimentally validated
 
 # GenCC filters
 biobtree query "BRCA1 >> gencc[gencc.classification_title==\"Definitive\"]"  # Only definitive classifications

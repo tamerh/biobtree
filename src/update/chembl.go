@@ -1159,18 +1159,23 @@ func (c *chembl) updateMolecule() {
 	for triple, err := dec.Decode(); err != io.EOF; triple, err = dec.Decode() {
 
 		// Test mode: stop early if we've already processed enough molecules
+		// Use break instead of return so parseUnichemMappings is still called
 		if config.IsTestMode() && shouldStopProcessing(testLimit, molCount) {
 			if ftpFile != nil {
 				ftpFile.Close()
+				ftpFile = nil
 			}
 			if localFile != nil {
 				localFile.Close()
+				localFile = nil
 			}
 			if client != nil {
 				client.Quit()
+				client = nil
 			}
 			gz.Close()
-			return
+			gz = nil
+			break
 		}
 
 		elapsed := int64(time.Since(c.d.start).Seconds())
@@ -1426,7 +1431,9 @@ func (c *chembl) updateMolecule() {
 		client.Quit()
 	}
 
-	gz.Close()
+	if gz != nil {
+		gz.Close()
+	}
 
 	// chebi molecule linkset - REMOVED: ChEMBL no longer provides this file
 	// ChEMBL changed their file structure and removed the ChEBI-ChEMBL linkset
@@ -1507,6 +1514,117 @@ func (c *chembl) updateMolecule() {
 
 	gz.Close()
 
+	// Parse UniChem mappings for PubChem and ZINC cross-references
+	fmt.Println("[ChEMBL] About to call parseUnichemMappings...")
+	c.parseUnichemMappings(processedMols)
+	fmt.Println("[ChEMBL] parseUnichemMappings completed")
+
+}
+
+// parseUnichemMappings parses unichem.ttl.gz for cross-references to PubChem and ZINC
+// This provides comprehensive ChEMBL ↔ PubChem mappings (2.68M+) for better disease→compound coverage
+// and ZINC database IDs for virtual screening support
+func (c *chembl) parseUnichemMappings(processedMols map[string]bool) {
+	// Check if PubChem dataset is configured
+	_, hasPubchem := config.Dataconf["pubchem"]
+	if !hasPubchem {
+		fmt.Println("[ChEMBL] PubChem dataset not configured, skipping unichem mappings")
+		return
+	}
+
+	fr := config.Dataconf["chembl_molecule"]["id"]
+
+	// Get unichem file path
+	unichemFtpPath := c.getFtpPath(config.Dataconf["chembl_molecule"]["pathUnichemPattern"])
+	fmt.Printf("[ChEMBL] Parsing UniChem mappings from %s\n", unichemFtpPath)
+
+	br, gz, ftpFile, client, localFile, _, err := getDataReaderNew(c.source, c.d.ebiFtp, c.ftpPath, unichemFtpPath)
+	if err != nil {
+		fmt.Printf("[ChEMBL] Warning: Could not load UniChem mappings: %v\n", err)
+		return
+	}
+
+	defer func() {
+		if gz != nil {
+			gz.Close()
+		}
+		if ftpFile != nil {
+			ftpFile.Close()
+		}
+		if localFile != nil {
+			localFile.Close()
+		}
+		if client != nil {
+			client.Quit()
+		}
+	}()
+
+	dec := rdf.NewTripleDecoder(br, rdf.Turtle)
+
+	pubchemXrefs := 0
+	zincXrefs := 0
+	testLimit := config.GetTestLimit(c.source)
+
+	for triple, err := dec.Decode(); err != io.EOF; triple, err = dec.Decode() {
+		if triple.Subj == nil || triple.Obj == nil || triple.Pred == nil {
+			continue
+		}
+
+		// Only process moleculeXref predicates
+		if triple.Pred.String() != "moleculeXref" {
+			continue
+		}
+
+		// Only process molecule subjects
+		if !strings.HasPrefix(triple.Subj.String(), "/molecule/") {
+			continue
+		}
+
+		chemblID := c.getChemblID(triple.Subj.String())
+
+		// Test mode: only process molecules in our test set
+		if config.IsTestMode() && len(processedMols) > 0 && !processedMols[chemblID] {
+			continue
+		}
+
+		objURL := triple.Obj.String()
+
+		// Extract PubChem CID from URL like: http://pubchem.ncbi.nlm.nih.gov/compound/46359070
+		if strings.Contains(objURL, "pubchem.ncbi.nlm.nih.gov/compound/") {
+			parts := strings.Split(objURL, "/compound/")
+			if len(parts) == 2 {
+				pubchemCID := parts[1]
+				// Create bidirectional xref: ChEMBL ↔ PubChem
+				c.d.addXref(chemblID, fr, pubchemCID, "pubchem", false)
+				pubchemXrefs++
+			}
+		}
+
+		// Extract ZINC ID from URL like: http://zinc15.docking.org/substances/ZINC000033071208
+		if strings.Contains(objURL, "zinc") && strings.Contains(objURL, "/substances/") {
+			parts := strings.Split(objURL, "/substances/")
+			if len(parts) == 2 {
+				zincID := parts[1]
+				// Make ZINC ID searchable (text link to ChEMBL molecule)
+				c.d.addXref(zincID, textLinkID, chemblID, "chembl_molecule", true)
+				zincXrefs++
+			}
+		}
+
+		// Test mode: limit processing
+		if config.IsTestMode() && pubchemXrefs+zincXrefs >= testLimit*10 {
+			break
+		}
+
+		// Progress reporting
+		if (pubchemXrefs+zincXrefs)%100000 == 0 && (pubchemXrefs+zincXrefs) > 0 {
+			fmt.Printf("[ChEMBL] UniChem progress: %d PubChem xrefs, %d ZINC xrefs\n", pubchemXrefs, zincXrefs)
+		}
+	}
+
+	fmt.Printf("[ChEMBL] UniChem parsing complete:\n")
+	fmt.Printf("[ChEMBL]   - PubChem xrefs: %d (bidirectional ChEMBL ↔ PubChem)\n", pubchemXrefs)
+	fmt.Printf("[ChEMBL]   - ZINC xrefs: %d (searchable text links)\n", zincXrefs)
 }
 
 func (c *chembl) updateActivity() {

@@ -280,6 +280,7 @@ Available datasets:
         'refseq': datasets_dir / "refseq" / "test_refseq.py",
         'gencc': datasets_dir / "gencc" / "test_gencc.py",
         'bindingdb': datasets_dir / "bindingdb" / "test_bindingdb.py",
+        'bao': datasets_dir / "bao" / "test_bao.py",
     }
 
     # Parse dataset selection

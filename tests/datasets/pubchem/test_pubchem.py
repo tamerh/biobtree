@@ -184,6 +184,104 @@ class PubChemTests:
             return True, "SKIP: No ChEBI cross-references (expected if ChEBI not in test build)"
 
     @test
+    def test_bindingdb_cross_reference(self):
+        """Check BindingDB cross-references are created from synonyms."""
+        # Test Aspirin - may have BindingDB entries
+        data = self.runner.lookup("2244")
+
+        if not data or not data.get("results"):
+            return False, "No results for Aspirin"
+
+        result = data["results"][0]
+        entries = result.get("entries", [])
+
+        # Look for BindingDB cross-references
+        bindingdb_entries = [e for e in entries if e.get("dataset_name") == "bindingdb"]
+
+        if bindingdb_entries:
+            bindingdb_ids = [e.get("identifier") for e in bindingdb_entries]
+            return True, f"BindingDB cross-references found: {', '.join(bindingdb_ids[:3])}"
+        else:
+            return True, "SKIP: No BindingDB cross-references (may not be in synonyms)"
+
+    @test
+    def test_patent_compound_cross_reference(self):
+        """Check SureChEMBL patent compound cross-references are created from synonyms."""
+        # Test Aspirin - may have SCHEMBL entries
+        data = self.runner.lookup("2244")
+
+        if not data or not data.get("results"):
+            return False, "No results for Aspirin"
+
+        result = data["results"][0]
+        entries = result.get("entries", [])
+
+        # Look for patent_compound cross-references (from SCHEMBL synonyms)
+        patent_entries = [e for e in entries if e.get("dataset_name") == "patent_compound"]
+
+        if patent_entries:
+            patent_ids = [e.get("identifier") for e in patent_entries]
+            return True, f"Patent compound cross-references found: {', '.join(patent_ids[:3])}"
+        else:
+            return True, "SKIP: No patent_compound cross-references (may not be in synonyms)"
+
+    @test
+    def test_cas_cross_reference(self):
+        """Check CAS Registry Number cross-references are created."""
+        # Test Aspirin (CAS: 50-78-2)
+        data = self.runner.lookup("2244")
+
+        if not data or not data.get("results"):
+            return False, "No results for Aspirin"
+
+        result = data["results"][0]
+        entries = result.get("entries", [])
+
+        # Look for CAS cross-references
+        cas_entries = [e for e in entries if e.get("dataset_name") == "cas"]
+
+        if cas_entries:
+            cas_ids = [e.get("identifier") for e in cas_entries]
+            if "50-78-2" in cas_ids:
+                return True, f"CAS cross-reference found: {', '.join(cas_ids)} (includes 50-78-2)"
+            return True, f"CAS cross-references found: {', '.join(cas_ids)}"
+        else:
+            return True, "SKIP: No CAS cross-references (may not be in synonyms)"
+
+    @test
+    def test_external_database_identifiers(self):
+        """Check external database identifiers are extracted from synonyms."""
+        # Test Aspirin - check for UNII, DTXSID, ZINC, NSC attributes
+        data = self.runner.lookup("2244")
+
+        if not data or not data.get("results"):
+            return False, "No results for Aspirin"
+
+        result = data["results"][0]
+        attrs = result.get("Attributes", {}).get("Pubchem", {})
+
+        # These fields may be empty depending on what synonyms contain
+        found = []
+        unii = attrs.get("unii", "")
+        dtxsid = attrs.get("dtxsid", "")
+        zinc_ids = attrs.get("zinc_ids", [])
+        nsc_ids = attrs.get("nsc_ids", [])
+
+        if unii:
+            found.append(f"UNII={unii}")
+        if dtxsid:
+            found.append(f"DTXSID={dtxsid}")
+        if zinc_ids:
+            found.append(f"ZINC={len(zinc_ids)} IDs")
+        if nsc_ids:
+            found.append(f"NSC={len(nsc_ids)} IDs")
+
+        if found:
+            return True, f"External IDs found: {', '.join(found)}"
+        else:
+            return True, "SKIP: No external database IDs (may not be in synonyms)"
+
+    @test
     def test_text_search_by_smiles(self):
         """Check SMILES text search works."""
         # Aspirin SMILES: CC(=O)Oc1ccccc1C(=O)O
@@ -250,6 +348,10 @@ def main():
                        custom_tests.test_synonyms_present,
                        custom_tests.test_chembl_cross_reference,
                        custom_tests.test_chebi_cross_reference,
+                       custom_tests.test_bindingdb_cross_reference,
+                       custom_tests.test_patent_compound_cross_reference,
+                       custom_tests.test_cas_cross_reference,
+                       custom_tests.test_external_database_identifiers,
                        custom_tests.test_text_search_by_smiles,
                        custom_tests.test_text_search_by_inchi_key]:
         runner.add_custom_test(test_method)

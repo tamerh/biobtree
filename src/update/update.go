@@ -826,6 +826,12 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			d.datasets2 = append(d.datasets2, data)
 			go bdb.update()
 			break
+		case "bao":
+			d.wg.Add(1)
+			ba := bao{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go ba.update()
+			break
 		default:
 			log.Fatal("ERROR Unrecognized dataset ->" + data)
 		}

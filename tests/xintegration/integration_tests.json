@@ -22,7 +22,8 @@
     "clinical_variants": "Clinical variant interpretation via ClinVar",
     "ncbi_datasets": "NCBI/Entrez Gene, RefSeq, PubChem compound mappings",
     "data_validation": "Data quality validation - attribute correctness, counts, known facts",
-    "antibody": "Therapeutic and structural antibody data (TheraSAbDab, SAbDab, IMGT)"
+    "antibody": "Therapeutic and structural antibody data (TheraSAbDab, SAbDab, IMGT)",
+    "clinical_trials": "Clinical trial data and disease ontology mappings (ClinicalTrials.gov, MONDO)"
   },
   "tests": [
     {
@@ -513,6 +514,36 @@
       "should_fail": []
     },
     {
+      "category": "chembl_drug",
+      "name": "ChEMBL Molecule to PubChem (UniChem)",
+      "query": ">>chembl_molecule>>pubchem",
+      "why": "ChEMBL molecule to PubChem compound via UniChem mappings - enables disease→compound queries",
+      "should_pass": [
+        "CHEMBL25"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "chembl_drug",
+      "name": "EFO Disease to ChEMBL to PubChem",
+      "query": ">>efo>>chembl_molecule>>pubchem",
+      "why": "Disease → ChEMBL molecule → PubChem compound path for drug discovery",
+      "should_pass": [
+        "EFO:0000685"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "chembl_drug",
+      "name": "ZINC ID Search (Virtual Screening)",
+      "query": ">>chembl_molecule",
+      "why": "Search by ZINC database ID for virtual screening compound lookup",
+      "should_pass": [
+        "ZINC000003935006"
+      ],
+      "should_fail": []
+    },
+    {
       "category": "protein_features",
       "name": "Gene to ENA mRNA Sequences",
       "query": ">>ensembl>>uniprot>>ena[ena.type==\"mrna\"]",
@@ -880,6 +911,60 @@
       "should_fail": []
     },
     {
+      "category": "clinical_variants",
+      "name": "ClinVar Variant to MONDO Disease",
+      "query": ">>clinvar>>mondo",
+      "why": "Map ClinVar variants to MONDO disease ontology for disease classification",
+      "should_pass": [
+        "100177",
+        "100179",
+        "100246"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "clinical_variants",
+      "name": "MONDO Disease to ClinVar Variants",
+      "query": ">>mondo>>clinvar",
+      "why": "Find all ClinVar variants associated with a specific MONDO disease term",
+      "should_pass": [
+        "MONDO:0015628",
+        "MONDO:0019565"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "clinical_variants",
+      "name": "ClinVar Variant to MeSH Terms",
+      "query": ">>clinvar>>mesh",
+      "why": "Map ClinVar variants to MeSH disease descriptors for medical literature search",
+      "should_pass": [
+        "100179"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "clinical_variants",
+      "name": "ClinVar Variant to HPO Phenotypes",
+      "query": ">>clinvar>>hpo",
+      "why": "Map ClinVar variants to Human Phenotype Ontology terms for phenotype analysis",
+      "should_pass": [
+        "100179"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "clinical_variants",
+      "name": "ClinVar Variant to OMIM",
+      "query": ">>clinvar>>omim",
+      "why": "Map ClinVar variants to OMIM entries for Mendelian disease research",
+      "should_pass": [
+        "100177",
+        "100179"
+      ],
+      "should_fail": []
+    },
+    {
       "category": "drug_discovery",
       "name": "GO Kinase Activity to Proteins",
       "query": ">>go>>ensembl>>uniprot",
@@ -1178,6 +1263,46 @@
     },
     {
       "category": "ncbi_datasets",
+      "name": "PubChem to ChEMBL Molecule",
+      "query": ">>pubchem>>chembl_molecule",
+      "why": "PubChem compound to ChEMBL molecule cross-reference (extracted from synonyms like CHEMBL25)",
+      "should_pass": [
+        "2244"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ncbi_datasets",
+      "name": "PubChem to BindingDB",
+      "query": ">>pubchem>>bindingdb",
+      "why": "PubChem compound to BindingDB cross-reference (extracted from BDBM synonyms)",
+      "should_pass": [
+        "2244"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ncbi_datasets",
+      "name": "PubChem to Patent Compound (SureChEMBL)",
+      "query": ">>pubchem>>patent_compound",
+      "why": "PubChem compound to SureChEMBL patent compound cross-reference (extracted from SCHEMBL synonyms)",
+      "should_pass": [
+        "2244"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ncbi_datasets",
+      "name": "PubChem to CAS",
+      "query": ">>pubchem>>cas",
+      "why": "PubChem compound to CAS Registry Number cross-reference",
+      "should_pass": [
+        "2244"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ncbi_datasets",
       "name": "Entrez Gene ID Direct to Ensembl",
       "query": ">>entrez>>ensembl",
       "why": "Map numeric Entrez Gene IDs directly to Ensembl - WORKS! 672=BRCA1, 7157=TP53",
@@ -1201,6 +1326,19 @@
         {"path": "Pubchem.molecular_weight", "min": 179, "max": 181, "description": "Molecular weight ~180"},
         {"path": "Pubchem.smiles", "min_length": 10, "description": "SMILES structure present"},
         {"path": "Pubchem.inchi_key", "starts_with": "BSYNRYMUTXBXSQ", "description": "InChI key"}
+      ]
+    },
+    {
+      "category": "data_validation",
+      "name": "Aspirin External Database Identifiers",
+      "type": "validation",
+      "query": "",
+      "identifier": "2244",
+      "dataset_id": 6,
+      "why": "Validate PubChem external database identifiers extracted from synonyms for aspirin (CID 2244). NOTE: These fields may be empty if synonyms don't contain these identifiers.",
+      "validations": [
+        {"path": "Pubchem.unii", "min_length": 0, "description": "FDA UNII identifier (may be empty)"},
+        {"path": "Pubchem.dtxsid", "min_length": 0, "description": "EPA DSSTox ID (may be empty)"}
       ]
     },
     {
@@ -1368,15 +1506,161 @@
     },
     {
       "category": "antibody",
+      "name": "Gene Target to Therapeutic Antibodies",
+      "query": ">>ensembl>>antibody",
+      "why": "Find all therapeutic antibodies targeting a specific gene - critical for competitive landscape analysis and drug discovery",
+      "should_pass": [
+        "VEGFA",
+        "TNF",
+        "EGFR",
+        "MS4A1"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "antibody",
       "name": "Antibody Attributes Validation",
       "type": "validation",
-      "query": "",
+      "query": ">>antibody",
       "identifier": "BEVACIZUMAB",
-      "dataset": "antibody",
       "why": "Bevacizumab should have correct attributes including target VEGFA and therapeutic source",
       "validations": [
-        {"path": "entry.Attributes.Antibody.source", "equals": "therasabdab", "description": "Source is TheraSAbDab"},
-        {"path": "entry.Attributes.Antibody.targets", "contains": "VEGFA", "description": "Target includes VEGFA"}
+        {"path": "source.Attributes.Antibody.source", "equals": "therasabdab", "description": "Source is TheraSAbDab"},
+        {"path": "source.Attributes.Antibody.targets", "contains": "VEGFA", "description": "Target includes VEGFA"}
+      ]
+    },
+    {
+      "category": "antibody",
+      "name": "Antibody to EFO Disease Ontology",
+      "query": ">>antibody>>efo",
+      "why": "Therapeutic antibodies with indications should map to EFO disease ontology via text lookup",
+      "should_pass": [
+        "BEVACIZUMAB",
+        "ADALIMUMAB",
+        "TRASTUZUMAB"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "antibody",
+      "name": "Antibody to MONDO Disease Ontology",
+      "query": ">>antibody>>mondo",
+      "why": "Therapeutic antibodies with indications should map to MONDO disease ontology via text lookup",
+      "should_pass": [
+        "BEVACIZUMAB",
+        "ADALIMUMAB",
+        "TRASTUZUMAB"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "antibody",
+      "name": "EFO Disease to Therapeutic Antibodies",
+      "query": ">>efo>>antibody",
+      "why": "Find therapeutic antibodies approved for specific diseases - drug repurposing and competitive analysis",
+      "should_pass": [
+        "EFO:0000311",
+        "EFO:0000712",
+        "EFO:0000676"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "antibody",
+      "name": "MONDO Disease to Therapeutic Antibodies",
+      "query": ">>mondo>>antibody",
+      "why": "Find therapeutic antibodies for MONDO diseases - enables disease-centric drug discovery",
+      "should_pass": [
+        "MONDO:0005015",
+        "MONDO:0005105",
+        "MONDO:0007254"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "clinical_trials",
+      "name": "Clinical Trial Lookup",
+      "query": ">>clinical_trials",
+      "why": "Clinical trials should be directly queryable by NCT ID",
+      "should_pass": [
+        "NCT00720356",
+        "NCT00139178",
+        "NCT05969704"
+      ],
+      "should_fail": [
+        "NCT99999999",
+        "NOTAREALID"
+      ]
+    },
+    {
+      "category": "clinical_trials",
+      "name": "Clinical Trial to MONDO Disease",
+      "query": ">>clinical_trials>>mondo",
+      "why": "Clinical trials with disease conditions should map to MONDO ontology via text lookup",
+      "should_pass": [
+        "NCT06777108",
+        "NCT05969704",
+        "NCT06834061"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "clinical_trials",
+      "name": "MONDO Disease to Clinical Trials",
+      "query": ">>mondo>>clinical_trials",
+      "why": "MONDO disease terms should link to clinical trials studying that disease - enables disease-centric trial discovery",
+      "should_pass": [
+        "MONDO:0005044",
+        "MONDO:0005148",
+        "MONDO:0008315"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "clinical_trials",
+      "name": "Disease Text Search to Clinical Trials",
+      "query": ">>clinical_trials",
+      "why": "Disease names should find clinical trials via text search - primary discovery workflow",
+      "should_pass": [
+        "hypertension",
+        "diabetes",
+        "breast cancer",
+        "alzheimer"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "clinical_trials",
+      "name": "Clinical Trial to Gene Targets via MONDO",
+      "query": ">>clinical_trials>>mondo>>ensembl",
+      "why": "Multi-hop: find gene targets for diseases studied in clinical trials",
+      "should_pass": [
+        "NCT05969704"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "clinical_trials",
+      "name": "Clinical Trial Attributes Validation",
+      "type": "validation",
+      "query": ">>clinical_trials",
+      "identifier": "NCT00139178",
+      "why": "Clinical trial should have correct attributes including phase and study type",
+      "validations": [
+        {"path": "source.Attributes.ClinicalTrial.phase", "equals": "PHASE4", "description": "Phase 4 trial"},
+        {"path": "source.Attributes.ClinicalTrial.study_type", "equals": "INTERVENTIONAL", "description": "Interventional study"},
+        {"path": "source.Attributes.ClinicalTrial.overall_status", "equals": "COMPLETED", "description": "Study completed"}
+      ]
+    },
+    {
+      "category": "clinical_trials",
+      "name": "Clinical Trial MONDO Count Validation",
+      "type": "validation",
+      "query": ">>clinical_trials>>mondo",
+      "identifier": "NCT06777108",
+      "why": "NCT06777108 (Hypertension trial) should have at least 1 MONDO mapping",
+      "validations": [
+        {"path": "source.count", "min": 1, "description": "At least 1 MONDO mapping"}
       ]
     }
   ]

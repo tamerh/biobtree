@@ -91,7 +91,7 @@ func (ct *clinicalTrials) initLookupDB() {
 	lookupConf["dbBackend"] = "lmdb"
 	ct.lookupEnv, ct.lookupDbi = db1.OpenDBNew(false, totalkvline, lookupConf)
 	ct.hasLookupDB = true
-	// fmt.Println("Lookup database initialized for ChEMBL mapping")
+	// fmt.Printf("Clinical Trials: Lookup database initialized (path: %s, totalKVLine: %d)\n", lookupDbDir, totalkvline)
 }
 
 // Close lookup database
@@ -458,8 +458,10 @@ func (ct *clinicalTrials) processTrials() (int, error) {
 
 	totalTrials := 0
 	fr := config.Dataconf[ct.source]["id"]
-	chemblDatasetID := uint32(18)   // chembl_molecule dataset ID
-	mondoDatasetID := uint32(26)    // mondo dataset ID
+
+	// Get dataset IDs from config (not hardcoded)
+	chemblDatasetID := config.DataconfIDStringToInt["chembl_molecule"]
+	mondoDatasetID := config.DataconfIDStringToInt["mondo"]
 
 	// Process each JSON file in the directory
 	for _, fileInfo := range files {

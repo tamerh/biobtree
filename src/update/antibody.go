@@ -204,7 +204,7 @@ func (a *antibody) parseTheraSAbDab(testLimit int, idLogFile *os.File) {
 		a.d.addProp3(innName, sourceID, marshaled)
 
 		// Map indications to EFO ontology (creates bidirectional xrefs)
-		efoDatasetID := uint32(72)   // EFO dataset ID
+		efoDatasetID := config.DataconfIDStringToInt["efo"]
 		for _, indication := range indications {
 			if indication != "" {
 				a.mapIndicationToOntology(innName, indication, efoDatasetID, sourceID, "efo")
@@ -212,7 +212,7 @@ func (a *antibody) parseTheraSAbDab(testLimit int, idLogFile *os.File) {
 		}
 
 		// Map indications to MONDO ontology (creates bidirectional xrefs)
-		mondoDatasetID := uint32(73)  // MONDO dataset ID
+		mondoDatasetID := config.DataconfIDStringToInt["mondo"]
 		for _, indication := range indications {
 			if indication != "" {
 				a.mapIndicationToOntology(innName, indication, mondoDatasetID, sourceID, "mondo")
@@ -837,7 +837,7 @@ func (a *antibody) initLookupDB() {
 	lookupConf["dbBackend"] = "lmdb"
 	a.lookupEnv, a.lookupDbi = db1.OpenDBNew(false, totalkvline, lookupConf)
 	a.hasLookupDB = true
-	log.Println("Antibody: Lookup database initialized for ontology mapping")
+	log.Printf("Antibody: Lookup database initialized for ontology mapping (path: %s, totalKVLine: %d)", lookupDbDir, totalkvline)
 }
 
 // Close lookup database
@@ -1024,17 +1024,23 @@ func (a *antibody) mapIndicationToOntology(antibodyID string, indication string,
 func (a *antibody) lookupAndCollectOntology(indication string, ontologyDatasetID uint32, ontologyIDs map[string]bool) {
 	result, err := a.lookup(indication)
 	if err != nil {
+		log.Printf("Antibody ontology lookup error for '%s': %v", indication, err)
 		return
 	}
 	if result == nil || len(result.Results) == 0 {
+		log.Printf("Antibody ontology lookup no results for '%s' (target dataset: %d)", indication, ontologyDatasetID)
 		return
 	}
+
+	log.Printf("Antibody ontology lookup '%s': found %d results", indication, len(result.Results))
 
 	// Collect ontology IDs from top-level results only
 	// Note: EFO may not appear here if it's not indexed with disease names in lookup DB
 	for _, xref := range result.Results {
+		log.Printf("  Result: dataset=%d identifier=%s (looking for dataset %d)", xref.Dataset, xref.Identifier, ontologyDatasetID)
 		if xref.Dataset == ontologyDatasetID {
 			ontologyIDs[xref.Identifier] = true
+			log.Printf("  -> MATCHED ontology: %s", xref.Identifier)
 		}
 	}
 }

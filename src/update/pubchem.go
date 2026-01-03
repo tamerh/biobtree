@@ -49,6 +49,12 @@ type pubchem struct {
 	cidToMeSH      map[string][]string // CID → MeSH terms
 	meshToPharmActions map[string][]string // MeSH term → pharmacological actions
 
+	// External database identifiers (extracted from synonyms, stored as attributes)
+	cidToUNII    map[string]string   // CID → FDA UNII (one per compound)
+	cidToDTXSID  map[string]string   // CID → EPA DSSTox ID (one per compound)
+	cidToZINC    map[string][]string // CID → ZINC IDs (multiple possible)
+	cidToNSC     map[string][]string // CID → NCI compound numbers (multiple possible)
+
 	// Optional temporal/structural data (disabled by default, see loadSupplementaryMappings)
 	cidToCreationDate map[string]string // CID → creation date (YYYY-MM-DD)
 	cidToParent       map[string]string // CID → parent CID
@@ -115,6 +121,10 @@ func (p *pubchem) update() {
 	p.cidToTitle = make(map[string]string)
 	p.cidToSynonyms = make(map[string][]string)
 	p.cidToMeSH = make(map[string][]string)
+	p.cidToUNII = make(map[string]string)
+	p.cidToDTXSID = make(map[string]string)
+	p.cidToZINC = make(map[string][]string)
+	p.cidToNSC = make(map[string][]string)
 	p.cidToCreationDate = make(map[string]string)
 	p.cidToParent = make(map[string]string)
 	p.meshToPharmActions = make(map[string][]string)
@@ -156,6 +166,12 @@ func (p *pubchem) isBiotechCID(cid string) bool {
 
 // preloadSureChEMBLPatents loads all SureChEMBL patent IDs from patents.json into memory for fast filtering
 func (p *pubchem) preloadSureChEMBLPatents() {
+	// In test mode, skip heavy patent preloading - not needed for small test runs
+	if config.IsTestMode() {
+		log.Printf("[PubChem] Test mode: Skipping SureChEMBL patent preloading")
+		return
+	}
+
 	// Get patent data path from config
 	patentPath, ok := config.Dataconf["patent"]["path"]
 	if !ok {
@@ -819,9 +835,10 @@ func (p *pubchem) loadBiologicCIDs() {
 		len(uniqueCIDs), lineCount)
 }
 
-// loadSynonyms parses CID-Synonym-filtered.gz and stores top 20 synonyms per biotech CID
+// loadSynonyms parses CID-Synonym-filtered.gz and extracts:
+// 1. Cross-references to ChEMBL, BindingDB, CAS, and SureChEMBL (patent_compound)
+// 2. Human-readable synonyms for display (filtering out technical identifiers)
 // File format: CID \t Synonym (one synonym per line, multiple lines per CID)
-// Filters out technical identifiers to prefer human-readable names
 func (p *pubchem) loadSynonyms() {
 	ftpServer := config.Dataconf[p.source]["ftpUrl"]
 	basePath := config.Dataconf[p.source]["path"]
@@ -851,6 +868,21 @@ func (p *pubchem) loadSynonyms() {
 
 	lineCount := 0
 	processedCIDs := make(map[string]bool)
+
+	// Cross-reference counters
+	chemblXrefs := 0
+	schemblXrefs := 0
+	bindingdbXrefs := 0
+	casXrefs := 0
+
+	// External ID counters (stored as attributes, searchable)
+	uniiCount := 0
+	dtxsidCount := 0
+	zincCount := 0
+	nscCount := 0
+
+	// Dataset ID for xrefs
+	fr := config.Dataconf[p.source]["id"]
 
 	for {
 		line, err := reader.ReadString('\n')
@@ -901,8 +933,108 @@ func (p *pubchem) loadSynonyms() {
 		// Track which CIDs we've seen
 		processedCIDs[cid] = true
 
-		// Filter out technical identifiers to prefer human-readable names
-		// Skip: CAS numbers, DTXSID, UNII, RefChem, InChI keys, etc.
+		// Extract cross-references from technical synonyms BEFORE filtering
+		// These create bidirectional links between PubChem and other databases
+
+		// ChEMBL molecule IDs (e.g., "CHEMBL25" for aspirin)
+		// Note: SCHEMBL is SureChEMBL (patent chemistry), handled separately
+		if strings.HasPrefix(synonym, "CHEMBL") && !strings.HasPrefix(synonym, "SCHEMBL") {
+			if _, exists := config.Dataconf["chembl_molecule"]; exists {
+				p.d.addXref(cid, fr, synonym, "chembl_molecule", false)
+				p.chemblToPubChem[synonym] = append(p.chemblToPubChem[synonym], cid)
+				chemblXrefs++
+			}
+			continue // Don't add as synonym, it's a technical ID
+		}
+
+		// SureChEMBL compound IDs (e.g., "SCHEMBL1234567")
+		// Map to patent_compound by stripping SCHEMBL prefix
+		if strings.HasPrefix(synonym, "SCHEMBL") {
+			if _, exists := config.Dataconf["patent_compound"]; exists {
+				// Extract numeric ID: SCHEMBL1234567 -> 1234567
+				schemblID := strings.TrimPrefix(synonym, "SCHEMBL")
+				if schemblID != "" {
+					p.d.addXref(cid, fr, schemblID, "patent_compound", false)
+					schemblXrefs++
+				}
+			}
+			continue
+		}
+
+		// BindingDB monomer IDs (e.g., "BDBM50000001")
+		// BindingDB uses numeric bucket method, so strip the "BDBM" prefix
+		if strings.HasPrefix(synonym, "BDBM") {
+			if _, exists := config.Dataconf["bindingdb"]; exists {
+				bindingdbID := strings.TrimPrefix(synonym, "BDBM")
+				if bindingdbID != "" {
+					p.d.addXref(cid, fr, bindingdbID, "bindingdb", false)
+					bindingdbXrefs++
+				}
+			}
+			continue
+		}
+
+		// CAS Registry Numbers (e.g., "50-78-2")
+		if isCASNumber(synonym) {
+			if _, exists := config.Dataconf["cas"]; exists {
+				p.d.addXref(cid, fr, synonym, "cas", false)
+				casXrefs++
+			}
+			continue
+		}
+
+		// FDA UNII - Unique Ingredient Identifier (e.g., "UNII-362O9ITL9D" or just "362O9ITL9D")
+		// TODO: Consider adding UNII as a full dataset for richer FDA substance data
+		if strings.HasPrefix(synonym, "UNII-") {
+			unii := strings.TrimPrefix(synonym, "UNII-")
+			if unii != "" {
+				p.cidToUNII[cid] = unii
+				// Make searchable by both forms
+				p.d.addXref(synonym, textLinkID, cid, "pubchem", true)
+				p.d.addXref(unii, textLinkID, cid, "pubchem", true)
+				uniiCount++
+			}
+			continue
+		}
+
+		// EPA DSSTox Substance ID (e.g., "DTXSID7020182")
+		// TODO: Consider adding DTXSID as a full dataset for EPA CompTox toxicity data
+		if strings.HasPrefix(synonym, "DTXSID") {
+			p.cidToDTXSID[cid] = synonym
+			p.d.addXref(synonym, textLinkID, cid, "pubchem", true)
+			dtxsidCount++
+			continue
+		}
+
+		// ZINC database IDs (e.g., "ZINC000000000001")
+		if strings.HasPrefix(synonym, "ZINC") {
+			p.cidToZINC[cid] = append(p.cidToZINC[cid], synonym)
+			p.d.addXref(synonym, textLinkID, cid, "pubchem", true)
+			zincCount++
+			continue
+		}
+
+		// NCI compound numbers (e.g., "NSC123456")
+		if strings.HasPrefix(synonym, "NSC") && len(synonym) > 3 {
+			// Verify it's followed by digits
+			rest := synonym[3:]
+			isNSC := true
+			for _, c := range rest {
+				if c < '0' || c > '9' {
+					isNSC = false
+					break
+				}
+			}
+			if isNSC {
+				p.cidToNSC[cid] = append(p.cidToNSC[cid], synonym)
+				p.d.addXref(synonym, textLinkID, cid, "pubchem", true)
+				nscCount++
+				continue
+			}
+		}
+
+		// Filter out remaining technical identifiers to prefer human-readable names
+		// Skip: DTXCID, RefChem, InChI keys, AKOS, NCGC, etc.
 		if isTechnicalID(synonym) {
 			continue
 		}
@@ -933,7 +1065,19 @@ func (p *pubchem) loadSynonyms() {
 	log.Printf("[PubChem]   - Total records processed: %d", lineCount)
 	log.Printf("[PubChem]   - CIDs with synonyms: %d", len(p.cidToSynonyms))
 	log.Printf("[PubChem]   - Total synonyms stored: %d", totalSynonyms)
-	log.Printf("[PubChem]   - Average synonyms per CID: %.1f", float64(totalSynonyms)/float64(len(p.cidToSynonyms)))
+	if len(p.cidToSynonyms) > 0 {
+		log.Printf("[PubChem]   - Average synonyms per CID: %.1f", float64(totalSynonyms)/float64(len(p.cidToSynonyms)))
+	}
+	log.Printf("[PubChem] Cross-references extracted from synonyms:")
+	log.Printf("[PubChem]   - ChEMBL molecule xrefs: %d", chemblXrefs)
+	log.Printf("[PubChem]   - SureChEMBL (patent_compound) xrefs: %d", schemblXrefs)
+	log.Printf("[PubChem]   - BindingDB xrefs: %d", bindingdbXrefs)
+	log.Printf("[PubChem]   - CAS xrefs: %d", casXrefs)
+	log.Printf("[PubChem] External IDs extracted (stored as attributes, searchable):")
+	log.Printf("[PubChem]   - FDA UNII: %d compounds", uniiCount)
+	log.Printf("[PubChem]   - EPA DTXSID: %d compounds", dtxsidCount)
+	log.Printf("[PubChem]   - ZINC IDs: %d total", zincCount)
+	log.Printf("[PubChem]   - NCI NSC numbers: %d total", nscCount)
 }
 
 // isTechnicalID checks if a synonym is a technical identifier (CAS, DTXSID, etc.)
@@ -963,6 +1107,50 @@ func isTechnicalID(s string) bool {
 	}
 
 	return false
+}
+
+// isCASNumber checks if a string is a valid CAS Registry Number
+// Format: 2-7 digits, hyphen, 2 digits, hyphen, 1 digit (e.g., "50-78-2", "7732-18-5")
+func isCASNumber(s string) bool {
+	// Must have exactly 2 hyphens
+	if strings.Count(s, "-") != 2 {
+		return false
+	}
+
+	parts := strings.Split(s, "-")
+	if len(parts) != 3 {
+		return false
+	}
+
+	// First part: 2-7 digits
+	if len(parts[0]) < 2 || len(parts[0]) > 7 {
+		return false
+	}
+	for _, c := range parts[0] {
+		if c < '0' || c > '9' {
+			return false
+		}
+	}
+
+	// Second part: exactly 2 digits
+	if len(parts[1]) != 2 {
+		return false
+	}
+	for _, c := range parts[1] {
+		if c < '0' || c > '9' {
+			return false
+		}
+	}
+
+	// Third part: exactly 1 digit (check digit)
+	if len(parts[2]) != 1 {
+		return false
+	}
+	if parts[2][0] < '0' || parts[2][0] > '9' {
+		return false
+	}
+
+	return true
 }
 
 // loadMeSHTerms parses CID-MeSH and stores MeSH terms per biotech CID
@@ -1422,6 +1610,12 @@ func (p *pubchem) parseSDFRecord(record string, matchCount *int, scannedCount *i
 		// CreationDate:         creationDate,
 		// ParentCid:            parentCID,
 		PharmacologicalActions: pharmActions,
+
+		// External Database Identifiers (extracted from synonyms)
+		Unii:    p.cidToUNII[cid],
+		Dtxsid:  p.cidToDTXSID[cid],
+		ZincIds: p.cidToZINC[cid],
+		NscIds:  p.cidToNSC[cid],
 	}
 
 	// Marshal and store entry (send to biobtree processing channel)

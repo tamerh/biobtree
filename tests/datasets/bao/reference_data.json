@@ -1,0 +1,60 @@
+{
+  "metadata": {
+    "source": "BioAssay Ontology",
+    "url": "https://raw.githubusercontent.com/BioAssayOntology/BAO/master/bao_complete_merged.owl",
+    "total_ids": 10,
+    "note": "Sample entries from BAO for testing"
+  },
+  "entries": [
+    {
+      "id": "BAO:0000001",
+      "name": "fluorescence resonance energy transfer",
+      "synonyms": ["FRET"]
+    },
+    {
+      "id": "BAO:0000002",
+      "name": "homogeneous time resolved fluorescence",
+      "synonyms": ["HTRF"]
+    },
+    {
+      "id": "BAO:0000003",
+      "name": "fluorescence polarization",
+      "synonyms": ["FP"]
+    },
+    {
+      "id": "BAO:0000004",
+      "name": "time resolved fluorescence resonance energy transfer",
+      "synonyms": ["TR-FRET"]
+    },
+    {
+      "id": "BAO:0000005",
+      "name": "flow cytometry",
+      "synonyms": []
+    },
+    {
+      "id": "BAO:0000007",
+      "name": "nucleosome format",
+      "synonyms": []
+    },
+    {
+      "id": "BAO:0000008",
+      "name": "cytoplasm",
+      "synonyms": []
+    },
+    {
+      "id": "BAO:0000009",
+      "name": "cell",
+      "synonyms": []
+    },
+    {
+      "id": "BAO:0000010",
+      "name": "protein",
+      "synonyms": []
+    },
+    {
+      "id": "BAO:0000011",
+      "name": "nucleic acid",
+      "synonyms": []
+    }
+  ]
+}

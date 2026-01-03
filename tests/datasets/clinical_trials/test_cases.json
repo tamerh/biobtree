@@ -10,6 +10,34 @@
       }
     },
     {
+      "name": "MONDO Mapping - Disease Condition",
+      "type": "mapping_check",
+      "description": "Clinical trials with disease conditions should map to MONDO ontology",
+      "test_queries": [
+        {
+          "condition": "Hypertension",
+          "expected_mondo": "MONDO:0005044"
+        },
+        {
+          "condition": "Carpal Tunnel Syndrome",
+          "expected_mondo": "MONDO:0020730"
+        },
+        {
+          "condition": "Prostatic Cancer",
+          "expected_mondo": "MONDO:0008315"
+        }
+      ]
+    },
+    {
+      "name": "MONDO Bidirectional - Disease to Trials",
+      "type": "reverse_mapping",
+      "description": "MONDO disease terms should link back to clinical trials",
+      "mondo_ids": [
+        "MONDO:0005044",
+        "MONDO:0005148"
+      ]
+    },
+    {
       "name": "ID Lookup - Second Trial",
       "type": "id_lookup",
       "id": "@reference[1].nct_id",

@@ -307,5 +307,33 @@
     "linkdataset": "xco",
     "hasFilter": "yes",
     "attrs": "type,name,[]synonyms"
+  },
+  "bao": {
+    "aliases": "BAO,BioAssay Ontology,bioassay type,assay method,assay format,bioassay",
+    "id": "60",
+    "name": "BAO",
+    "url": "http://www.bioassayontology.org/bao#£{id}",
+    "path": "https://raw.githubusercontent.com/BioAssayOntology/BAO/master/bao_complete_merged.owl",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms",
+    "test_entries_count": "100",
+    "bucketMethod": "ontology"
+  },
+  "baoparent": {
+    "name": "BAO Parent",
+    "id": "61",
+    "url": "http://www.bioassayontology.org/bao#£{id}",
+    "linkdataset": "bao",
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms"
+  },
+  "baochild": {
+    "name": "BAO Child",
+    "id": "62",
+    "url": "http://www.bioassayontology.org/bao#£{id}",
+    "linkdataset": "bao",
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms"
   }
 }

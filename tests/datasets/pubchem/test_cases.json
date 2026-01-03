@@ -46,6 +46,20 @@
       "attributes": ["xlogp", "hydrogen_bond_donors", "hydrogen_bond_acceptors"]
     },
     {
+      "name": "PubChem Attribute Check - External Database Identifiers",
+      "type": "attribute_check",
+      "id": "2244",
+      "attributes": ["unii", "dtxsid"],
+      "note": "External IDs extracted from PubChem synonyms - UNII (FDA), DTXSID (EPA CompTox)"
+    },
+    {
+      "name": "PubChem Attribute Check - Additional External IDs",
+      "type": "attribute_check",
+      "id": "2244",
+      "attributes": ["zinc_ids", "nsc_ids"],
+      "note": "ZINC database IDs and NCI NSC compound numbers from synonyms"
+    },
+    {
       "name": "Invalid ID - Should Not Find",
       "type": "invalid_id",
       "id": "99999999999"

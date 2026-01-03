@@ -1024,6 +1024,14 @@ message PubchemAttr {
 
   // BioAssay Activities (ALL activities for this compound - avg 17, max ~131)
   repeated PubchemActivity activities = 33;
+
+  // External Database Identifiers (extracted from synonyms, searchable)
+  // TODO: UNII could become a full dataset - FDA UNII database has rich substance info
+  string unii = 38;                       // FDA Unique Ingredient Identifier (e.g., "362O9ITL9D")
+  // TODO: DTXSID could become a full dataset - EPA CompTox has toxicity/environmental data
+  string dtxsid = 39;                     // EPA DSSTox Substance ID (e.g., "DTXSID7020182")
+  repeated string zinc_ids = 40;          // ZINC database IDs for virtual screening
+  repeated string nsc_ids = 41;           // NCI compound numbers (cancer research)
 }
 
 // PubChem Activity (individual bioassay measurement)
@@ -1095,6 +1103,15 @@ message PubchemAssayAttr {
   // Metadata
   string deposit_date = 20;               // Date deposited (YYYYMMDD format)
   string modify_date = 21;                // Last modification date (YYYYMMDD format)
+
+  // BAO (BioAssay Ontology) annotations - from Aid2CategorizedComment.gz
+  string detection_technology = 22;       // Detection method (e.g., "luminescence: bioluminescence", "fluorescence polarization")
+  string molecular_target = 23;           // Molecular target type (e.g., "protein target: enzyme: protease")
+  string biological_process = 24;         // Biological process target (e.g., "cell death", "regulation of gene expression")
+  string assay_format = 25;               // Assay format (e.g., "cell-based format", "biochemical format")
+  string assay_design = 26;               // Assay design (e.g., "binding reporter", "inducible reporter")
+  string assay_stage = 27;                // Assay stage (e.g., "primary", "confirmatory")
+  string measurement_type = 28;           // Measurement type (e.g., "endpoint assay", "kinetic assay")
 }
 
 // MeSH - Medical Subject Headings (Dataset ID: 48)

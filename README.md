@@ -7,7 +7,7 @@ via identifiers and special keywors with simple or advance chain query capabilit
 
 ## Features
 
-* **Datasets** - supports wide datasets such as `Ensembl` `Uniprot` `ChEMBL` `HMDB` `BindingDB` `STRING` `Taxonomy` `GO` `EFO` `HPO` `UBERON` `CL` `HGNC` `ECO` `Uniparc` `Uniref` `RNACentral` `Bgee` `GWAS Catalog` `dbSNP` `RefSeq` `IntAct` `GenCC`  with tens of more via cross references
+* **Datasets** - supports wide datasets such as `Ensembl` `Uniprot` `ChEMBL` `HMDB` `BindingDB` `CTD` `STRING` `Taxonomy` `GO` `EFO` `HPO` `UBERON` `CL` `HGNC` `ECO` `Uniparc` `Uniref` `RNACentral` `Bgee` `GWAS Catalog` `dbSNP` `RefSeq` `IntAct` `GenCC`  with tens of more via cross references
 by retrieving latest data from providers
 
 * **MapReduce** - processes small or large datasets based on users selection and build B+ tree based uniform local database via specialized MapReduce based tecnique with efficient storage usage 
@@ -21,6 +21,8 @@ by retrieving latest data from providers
 * **Chemistry** - `ChEMBL`, `HMDB`, `ChEBI`, `LIPID MAPS`, and `SwissLipids` datasets supported for chemistry, disease, lipid metabolism, and drug releated analaysis. SwissLipids provides 779K+ lipid structures with protein associations, GO annotations, tissue localization, and evidence codes
 
 * **Binding Affinity** - `BindingDB` database with 2.9M+ measured binding affinities (Ki, IC50, Kd, EC50) between drug-like molecules and protein targets. Provides ligand SMILES, InChI, target names, organism information, experimental conditions (pH, temperature), and literature references. Cross-references to UniProt, PubChem, ChEMBL, and ChEBI for comprehensive drug-target interaction analysis
+
+* **Toxicogenomics** - `CTD` (Comparative Toxicogenomics Database) with 180K+ chemicals, 2.5M+ chemical-gene interactions, and 8.3M+ chemical-disease associations. Provides curated toxicogenomic relationships with organism context, PubMed evidence, inference scores for disease associations, and cross-references to MeSH, Entrez Gene, MONDO, EFO, OMIM, Taxonomy, and PubChem. Supports toxicity profiling, biomarker discovery, and environmental health research
 
 * **Patents** - `SureChEMBL` patent data with 43M+ patents, 30M+ compounds, and patent-compound mappings for drug discovery and IP analysis
 
@@ -83,6 +85,9 @@ biobtree -d "hgnc,clinvar,mondo,hpo" build
 
 # build with binding affinity data (works well with UniProt, PubChem, ChEMBL)
 biobtree -d "bindingdb,uniprot,pubchem,chembl" build
+
+# build with toxicogenomics data (works well with MeSH, Entrez, MONDO, EFO)
+biobtree -d "ctd,mesh,entrez,mondo,efo" build
 
 # build with gene-disease validity (works well with MONDO, HPO)
 biobtree -d "gencc,mondo,hpo" build
@@ -402,6 +407,15 @@ biobtree query "P00533 >> bindingdb"              # Find binding data for protei
 biobtree query "aspirin >> bindingdb"             # Search by ligand name
 biobtree query "50000308 >> bindingdb >> pubchem" # Compound to PubChem CID
 biobtree query "50000308 >> bindingdb >> chembl"  # Compound to ChEMBL ID
+
+# CTD toxicogenomics queries
+biobtree query "D000082"                          # CTD chemical lookup (Acetaminophen)
+biobtree query "D000082 >> ctd >> entrez"         # Chemical to interacting genes
+biobtree query "D000082 >> ctd >> mesh"           # Chemical to MeSH disease terms
+biobtree query "D000082 >> ctd >> mondo"          # Chemical to MONDO disease ontology
+biobtree query "Acetaminophen >> ctd"             # Search by chemical name
+biobtree query "D000082 >> ctd >> taxonomy"       # Chemical to organism context
+biobtree query "D000082 >> ctd >> pubchem"        # Chemical to PubChem compound
 ```
 
 #### Filter Syntax
@@ -453,6 +467,11 @@ biobtree query "BRCA1 >> gencc[gencc.moi_title==\"Autosomal dominant\"]"     # F
 biobtree query "P00533 >> bindingdb[bindingdb.ki!=\"\"]"                     # Only entries with Ki values
 biobtree query "P00533 >> bindingdb[bindingdb.ic50!=\"\"]"                   # Only entries with IC50 values
 biobtree query "aspirin >> bindingdb[bindingdb.target_source_organism==\"Homo sapiens\"]"  # Human targets only
+
+# CTD toxicogenomics filters
+biobtree query "D000082 >> ctd[ctd.gene_interaction_count>10]"              # Chemicals with many gene interactions
+biobtree query "D000082 >> ctd[ctd.disease_association_count>5]"            # Chemicals with many disease links
+biobtree query "Acetaminophen >> ctd[ctd.chemical_name~\"Acetaminophen\"]"  # Filter by chemical name pattern
 ```
 
 #### Migration Guide - Breaking Change in Mapping Queries

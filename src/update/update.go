@@ -826,6 +826,12 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			d.datasets2 = append(d.datasets2, data)
 			go bdb.update()
 			break
+		case "ctd":
+			d.wg.Add(1)
+			ctdParser := ctd{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go ctdParser.update()
+			break
 		case "bao":
 			d.wg.Add(1)
 			ba := bao{source: data, d: d}

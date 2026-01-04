@@ -730,5 +730,21 @@
     "attrs": "bindingdb_id,ligand_name,target_name,target_source_organism,ki,ic50,kd,ec50,kon,koff,ph,temp_c,[]uniprot_ids,[]pubchem_cids,[]chembl_ids,[]chebi_ids,doi,pmid,patent_number,institution",
     "test_entries_count": "1000",
     "bucketMethod": "numeric"
+  },
+  "ctd": {
+    "id": "104",
+    "name": "CTD",
+    "aliases": "CTD,Comparative Toxicogenomics Database,toxicogenomics,chemical-gene interaction,chemical-disease,gene-disease",
+    "url": "https://ctdbase.org/detail.go?type=chem&acc=£{id}",
+    "path": "https://ctdbase.org/reports/",
+    "chemGeneIxnsFile": "CTD_chem_gene_ixns.tsv.gz",
+    "chemicalsFile": "CTD_chemicals.tsv.gz",
+    "chemDiseasesFile": "CTD_chemicals_diseases.tsv.gz",
+    "geneDiseasesFile": "CTD_genes_diseases.tsv.gz",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "chemical_id,chemical_name,cas_rn,definition,[]synonyms,[]mesh_tree_numbers,[]gene_interactions,gene_interaction_count,[]disease_associations,disease_association_count,[]inferred_genes",
+    "test_entries_count": "500",
+    "bucketMethod": "mesh"
   }
 }

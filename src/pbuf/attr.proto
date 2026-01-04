@@ -1303,3 +1303,57 @@ message GenccAttr {
   string submitted_as_public_report_url = 13;   // URL to the public report
   repeated string submitted_as_pmids = 14;      // PubMed IDs supporting the curation
 }
+
+// CTD - Comparative Toxicogenomics Database (Dataset ID: 104)
+// Curated chemical-gene, chemical-disease, and gene-disease associations
+// Source: https://ctdbase.org/
+message CtdAttr {
+  // Chemical identification (primary entry is indexed by MeSH chemical ID)
+  string chemical_id = 1;                         // MeSH ID (e.g., "MESH:D000082")
+  string chemical_name = 2;                       // Chemical name (e.g., "Acetaminophen")
+  string cas_rn = 3;                              // CAS Registry Number
+  string definition = 4;                          // Chemical definition from CTD
+
+  // Chemical synonyms and classification
+  repeated string synonyms = 5;                   // CTD-curated and MeSH synonyms
+  repeated string mesh_tree_numbers = 6;          // MeSH tree classification numbers
+
+  // External identifiers
+  string pubchem_cid = 7;                         // PubChem Compound ID
+  string drugbank_id = 8;                         // DrugBank ID
+  string inchi_key = 9;                           // InChI Key for structure matching
+
+  // Gene interactions (aggregated from CTD_chem_gene_ixns.tsv)
+  repeated CtdGeneInteraction gene_interactions = 10;  // Top gene interactions
+  int32 gene_interaction_count = 11;              // Total number of gene interactions
+
+  // Disease associations (aggregated from CTD_chemicals_diseases.tsv)
+  repeated CtdDiseaseAssociation disease_associations = 12;  // Top disease associations
+  int32 disease_association_count = 13;           // Total number of disease associations
+
+  // Inferred genes (genes associated via disease)
+  repeated string inferred_genes = 14;            // Gene symbols inferred from chemical-disease-gene triangulation
+}
+
+// Individual chemical-gene interaction from CTD
+message CtdGeneInteraction {
+  string gene_symbol = 1;                         // Gene symbol (e.g., "TP53")
+  string gene_id = 2;                             // NCBI Gene ID
+  string organism = 3;                            // Organism (e.g., "Homo sapiens")
+  int32 organism_id = 4;                          // NCBI Taxonomy ID
+  string interaction = 5;                         // Full interaction text
+  repeated string interaction_actions = 6;        // Parsed action codes (e.g., "increases^expression")
+  string gene_forms = 7;                          // Gene form (protein, mRNA, etc.)
+  repeated string pubmed_ids = 8;                 // Supporting PubMed IDs
+}
+
+// Individual chemical-disease association from CTD
+message CtdDiseaseAssociation {
+  string disease_name = 1;                        // Disease name
+  string disease_id = 2;                          // MeSH or OMIM disease ID
+  string direct_evidence = 3;                     // Direct evidence type (therapeutic, marker/mechanism)
+  string inference_gene_symbol = 4;               // Gene linking chemical to disease
+  double inference_score = 5;                     // CTD inference score
+  repeated string omim_ids = 6;                   // Related OMIM IDs
+  repeated string pubmed_ids = 7;                 // Supporting PubMed IDs
+}

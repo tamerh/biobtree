@@ -137,12 +137,6 @@
     "id": "623",
     "url": "https://cancer.sanger.ac.uk/cosmic/gene/analysis?ln=\u00a3{id}"
   },
-  "ctd": {
-    "aliases": "CTD",
-    "name": "CTD",
-    "id": "624",
-    "url": "http://ctdbase.org/detail.go?type=gene&db=GENE&acc=\u00a3{id}"
-  },
   "depod": {
     "aliases": "DEPOD",
     "name": "DEPOD",

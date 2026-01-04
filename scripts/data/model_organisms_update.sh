@@ -177,9 +177,9 @@ BB_DEFAULT_PARAM="--include-optionals -c --lookupdb --maxcpu ${MAXCPU}"
 ENSEMBL_TAXIDS="9606,10090,10116,7955,7227,6239,559292,284812,511145,3702,39947,4577,3847,44689,237561,243232"
 STRING_TAXIDS="9606,10090,10116,7955,7227,6239,4932,284812,511145,3702,39947,4577,3847,44689,237561,243232"
 
-# Core datasets split into 4 parts: TODO add back diamond later 
-CORE_PART1="uniprot,taxonomy,interpro,hmdb,chembl,clinvar,lipidmaps,swisslipids,gwas_study,gwas,intact,antibody,protein_similarity,rhea,bindingdb"
-CORE_PART2="chebi,alphafold,rnacentral,reactome,clinical_trials,patent,string,bgee,ontology,mesh,gencc"
+# Core datasets split into 4 parts: TODO add back diamond later ADD BACK ANTIBODY 
+CORE_PART1="uniprot,taxonomy,interpro,hmdb,chembl,clinvar,lipidmaps,swisslipids,gwas_study,gwas,intact,protein_similarity,rhea,bindingdb"
+CORE_PART2="chebi,alphafold,rnacentral,reactome,clinical_trials,patent,string,bgee,ontology,mesh,gencc,ctd"
 
 # Part 3: Large/unstable dataset (dbsnp - prone to FTP issues, needs retry)
 CORE_PART3="dbsnp"

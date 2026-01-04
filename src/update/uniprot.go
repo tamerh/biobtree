@@ -136,6 +136,17 @@ func (u *uniprot) processDbReference(entryid string, r *xmlparser.XMLElement) {
 		case "BindingDB":
 			// Skip - BindingDB creates proper bidirectional xrefs with numeric IDs
 			// UniProt's BindingDB dbReferences incorrectly use UniProt accessions as IDs
+		case "CTD":
+			// Skip - UniProt's CTD dbReferences use gene IDs (e.g., "22", "29")
+			// but our CTD dataset uses MeSH chemical IDs (e.g., "D000082")
+			// The CTD parser creates proper xrefs from chemicals to genes
+		case "MeSH", "MESH", "mesh":
+			// Validate MeSH ID format: should be letter followed by digits (e.g., D000082, C012345)
+			meshID := v.Attrs["id"]
+			if len(meshID) >= 2 && (meshID[0] == 'D' || meshID[0] == 'C') && meshID[1] >= '0' && meshID[1] <= '9' {
+				u.d.addXref(entryid, u.sourceID, meshID, v.Attrs["type"], false)
+			}
+			// Skip malformed MeSH IDs (e.g., just "2" instead of "D000002")
 		default:
 			u.d.addXref(entryid, u.sourceID, v.Attrs["id"], v.Attrs["type"], false)
 		}

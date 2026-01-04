@@ -157,6 +157,9 @@ func (s *service) init() {
 		cel.Types(&pbuf.RefSeqAttr{}),
 		cel.Types(&pbuf.GenccAttr{}),
 		cel.Types(&pbuf.BindingdbAttr{}),
+		cel.Types(&pbuf.CtdAttr{}),
+		cel.Types(&pbuf.CtdGeneInteraction{}),
+		cel.Types(&pbuf.CtdDiseaseAssociation{}),
 		cel.Declarations(
 			decls.NewIdent("uniprot", decls.NewObjectType("pbuf.UniprotAttr"), nil)),
 		cel.Declarations(
@@ -245,6 +248,8 @@ func (s *service) init() {
 			decls.NewIdent("gencc", decls.NewObjectType("pbuf.GenccAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("bindingdb", decls.NewObjectType("pbuf.BindingdbAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("ctd", decls.NewObjectType("pbuf.CtdAttr"), nil)),
 		cel.Declarations(
 			decls.NewFunction("overlaps",
 				decls.NewOverload("overlaps_int_int",

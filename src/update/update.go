@@ -894,6 +894,12 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			d.datasets2 = append(d.datasets2, data)
 			go ctdParser.update()
 			break
+		case "biogrid":
+			d.wg.Add(1)
+			bg := biogrid{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go bg.update()
+			break
 		case "bao":
 			d.wg.Add(1)
 			ba := bao{source: data, d: d}
@@ -1419,12 +1425,13 @@ func (d *DataUpdate) addXrefFull(key string, from string, value string, valueFro
 				preview = preview[:100] + "..."
 			}
 			log.Printf("[TextSearch] Skipping long key (%d bytes > %d max) from %s: %s",
-				len(kup), LMDBMaxKeySize, from, preview)
+				len(kup), LMDBMaxKeySize, valueFrom, preview)
 			return
 		}
 		// Text/keyword links route to textsearch buckets (alphabetic by first letter)
-		// Use WriteForward for source-tagged directory structure
-		d.bucketPool.WriteForward(TextSearchDatasetID, "textsearch", kup, dataLine)
+		// Use WriteReverse with from_{source} subdirectory for incremental update cleanup
+		// Note: For isLink, 'from' is textLinkID ("0"), actual source is in valueFrom
+		d.bucketPool.WriteReverse(TextSearchDatasetID, kup, dataLine, valueFrom)
 	} else {
 		// Reverse mapping also includes evidence and relationship
 		valueFromID := config.Dataconf[valueFrom]["id"]
@@ -1619,7 +1626,8 @@ func (d *DataUpdate) addXrefBucketed(key, from, value, valueFrom string, isLink 
 				len(kup), LMDBMaxKeySize, from, preview)
 		} else {
 			textLine := kup + tab + textLinkID + tab + vup + tab + from
-			d.bucketPool.WriteForward(TextSearchDatasetID, "textsearch", kup, textLine)
+			// Use WriteReverse with from_{source} subdirectory for incremental update cleanup
+			d.bucketPool.WriteReverse(TextSearchDatasetID, kup, textLine, sourceDatasetName)
 		}
 	}
 }

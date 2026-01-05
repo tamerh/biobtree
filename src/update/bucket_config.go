@@ -354,6 +354,8 @@ func LoadBucketConfigs() map[string]*BucketConfig {
 
 	// Add special textsearch bucket config for keyword/text links
 	// Uses alphabetic bucketing with strict byte order (55 buckets)
+	// Marked as IsDerived because it receives data via WriteReverse (from_{source}/ directories)
+	// from multiple source datasets, not via WriteForward from a single parser
 	cfgs[TextSearchDatasetID] = &BucketConfig{
 		DatasetID:        TextSearchDatasetID,
 		DatasetName:      "textsearch",
@@ -365,8 +367,9 @@ func LoadBucketConfigs() map[string]*BucketConfig {
 		Methods:          []BucketMethod{alphabeticBucket},
 		MethodNames:      []string{"alphabetic"},
 		NumBucketsPerSet: []int{55},
+		IsDerived:        true, // Uses from_{source}/ subdirs, not forward/
 	}
-	log.Printf("Bucket config loaded: textsearch (ID:%s) method=alphabetic buckets=55",
+	log.Printf("Bucket config loaded: textsearch (ID:%s) method=alphabetic buckets=55 (derived-style)",
 		TextSearchDatasetID)
 
 	return cfgs

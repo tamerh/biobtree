@@ -7,7 +7,7 @@ via identifiers and special keywors with simple or advance chain query capabilit
 
 ## Features
 
-* **Datasets** - supports wide datasets such as `Ensembl` `Uniprot` `ChEMBL` `HMDB` `BindingDB` `CTD` `STRING` `Taxonomy` `GO` `EFO` `HPO` `UBERON` `CL` `HGNC` `ECO` `Uniparc` `Uniref` `RNACentral` `Bgee` `GWAS Catalog` `dbSNP` `RefSeq` `IntAct` `GenCC`  with tens of more via cross references
+* **Datasets** - supports wide datasets such as `Ensembl` `Uniprot` `ChEMBL` `HMDB` `BindingDB` `CTD` `STRING` `BioGRID` `Taxonomy` `GO` `EFO` `HPO` `UBERON` `CL` `HGNC` `ECO` `Uniparc` `Uniref` `RNACentral` `Bgee` `GWAS Catalog` `dbSNP` `RefSeq` `IntAct` `GenCC`  with tens of more via cross references
 by retrieving latest data from providers
 
 * **MapReduce** - processes small or large datasets based on users selection and build B+ tree based uniform local database via specialized MapReduce based tecnique with efficient storage usage 
@@ -45,6 +45,8 @@ by retrieving latest data from providers
 * **Protein Interactions** - `IntAct` database from EBI with ~1.8 million experimentally validated protein-protein interactions across ~100,000 unique proteins. Provides detailed experimental evidence including detection methods, interaction types, confidence scores, experimental roles, and direct citations to 23,000+ publications. Supports interaction network analysis, drug target discovery, and pathway exploration with PSI-MI standardized terms
 
 * **Protein Networks** - `STRING` database with predicted and known protein-protein interactions across thousands of organisms. Provides combined interaction scores with evidence breakdown (experimental, database, textmining, coexpression), protein annotations, and size information. Enables functional association networks, protein complex analysis, and pathway enrichment studies
+
+* **Genetic Interactions** - `BioGRID` database with 2.8M+ curated protein-protein and genetic interactions from biomedical literature. Provides physical and genetic interaction types, experimental detection methods, publication references, and organism context. Cross-references to Entrez Gene, UniProt, RefSeq, PubMed, and Taxonomy. Supports interaction network analysis, genetic pathway discovery, and protein complex identification
 
 * **Gene-Disease Validity** - `GenCC` (Gene Curation Coalition) database with 35,000+ standardized gene-disease validity curations from multiple authoritative sources including ClinGen, Ambry, Genomics England, and Orphanet. Provides classification levels (Definitive, Strong, Moderate, Limited, Supportive), mode of inheritance (autosomal dominant/recessive, X-linked), submitter information, and PubMed citations. Supports clinical variant interpretation, diagnostic panel design, and gene-disease relationship exploration with cross-references to MONDO, HPO, and PubMed
 
@@ -393,6 +395,13 @@ biobtree query "P49418 >> intact >> uniprot"      # Get partner protein details
 biobtree query "9606.ENSP00000269305"             # STRING protein lookup
 biobtree query "9606.ENSP00000269305 >> string"   # Get interaction partners with scores
 biobtree query "BRCA1 >> ensembl >> string"       # Gene to STRING network
+
+# BioGRID genetic interaction queries
+biobtree query "112315"                           # BioGRID interactor lookup
+biobtree query "112315 >> biogrid"                # Get interaction partners
+biobtree query "112315 >> biogrid >> uniprot"     # Interactor to UniProt
+biobtree query "P45985 >> biogrid"                # UniProt to BioGRID interactions
+biobtree query "6416 >> entrez >> biogrid"        # Entrez Gene to BioGRID
 
 # GenCC gene-disease validity queries
 biobtree query "BRCA1 >> gencc"                   # Find gene-disease curations for BRCA1

@@ -168,6 +168,7 @@ message Xref {
     GenccAttr gencc=58;
     BindingdbAttr bindingdb=60;
     CtdAttr ctd=61;
+    BiogridAttr biogrid=62;
 
   }
 

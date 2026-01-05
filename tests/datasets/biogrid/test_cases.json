@@ -1,0 +1,125 @@
+{
+  "dataset": "biogrid",
+  "description": "BioGRID protein-protein and genetic interaction database tests",
+  "test_cases": [
+    {
+      "name": "basic_biogrid_lookup",
+      "description": "Look up a BioGRID interactor by ID",
+      "type": "search",
+      "input": "112315",
+      "expected": {
+        "has_results": true,
+        "dataset": "biogrid"
+      }
+    },
+    {
+      "name": "biogrid_to_entrez",
+      "description": "Map BioGRID interactor to Entrez Gene",
+      "type": "mapping",
+      "input": "112315",
+      "chain": ">>biogrid>>entrez",
+      "expected": {
+        "has_results": true,
+        "target_dataset": "entrez"
+      }
+    },
+    {
+      "name": "biogrid_to_uniprot",
+      "description": "Map BioGRID interactor to UniProt",
+      "type": "mapping",
+      "input": "112315",
+      "chain": ">>biogrid>>uniprot",
+      "expected": {
+        "has_results": true,
+        "target_dataset": "uniprot"
+      }
+    },
+    {
+      "name": "biogrid_to_refseq",
+      "description": "Map BioGRID interactor to RefSeq",
+      "type": "mapping",
+      "input": "112315",
+      "chain": ">>biogrid>>refseq",
+      "expected": {
+        "has_results": true,
+        "target_dataset": "refseq"
+      }
+    },
+    {
+      "name": "uniprot_to_biogrid",
+      "description": "Map UniProt to BioGRID (reverse lookup)",
+      "type": "mapping",
+      "input": "P45985",
+      "chain": ">>uniprot>>biogrid",
+      "expected": {
+        "has_results": true,
+        "target_dataset": "biogrid"
+      }
+    },
+    {
+      "name": "biogrid_to_pubmed",
+      "description": "Map BioGRID interactor to PubMed references",
+      "type": "mapping",
+      "input": "112315",
+      "chain": ">>biogrid>>pubmed",
+      "expected": {
+        "has_results": true,
+        "target_dataset": "pubmed"
+      }
+    },
+    {
+      "name": "biogrid_to_taxonomy",
+      "description": "Map BioGRID interactor to taxonomy",
+      "type": "mapping",
+      "input": "112315",
+      "chain": ">>biogrid>>taxonomy",
+      "expected": {
+        "has_results": true,
+        "target_dataset": "taxonomy"
+      }
+    },
+    {
+      "name": "biogrid_partner_lookup",
+      "description": "Look up BioGRID interaction partner",
+      "type": "mapping",
+      "input": "112315",
+      "chain": ">>biogrid>>biogrid",
+      "expected": {
+        "has_results": true,
+        "target_dataset": "biogrid"
+      }
+    },
+    {
+      "name": "biogrid_attributes_present",
+      "description": "Verify BioGRID entry has expected attributes",
+      "type": "entry",
+      "input": "112315",
+      "dataset": "biogrid",
+      "expected": {
+        "has_attributes": true,
+        "attribute_fields": ["biogrid_id", "interaction_count", "unique_partners"]
+      }
+    },
+    {
+      "name": "entrez_to_biogrid",
+      "description": "Map Entrez Gene to BioGRID (reverse lookup)",
+      "type": "mapping",
+      "input": "6416",
+      "chain": ">>entrez>>biogrid",
+      "expected": {
+        "has_results": true,
+        "target_dataset": "biogrid"
+      }
+    },
+    {
+      "name": "biogrid_physical_filter",
+      "description": "Filter BioGRID entries with physical interactions",
+      "type": "mapping",
+      "input": "112315",
+      "chain": ">>biogrid[biogrid.physical_count > 0]",
+      "expected": {
+        "has_results": true
+      }
+    }
+  ]
+}

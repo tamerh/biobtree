@@ -1357,3 +1357,64 @@ message CtdDiseaseAssociation {
   repeated string omim_ids = 6;                   // Related OMIM IDs
   repeated string pubmed_ids = 7;                 // Supporting PubMed IDs
 }
+
+// BioGRID - Biological General Repository for Interaction Datasets (Dataset ID: 105)
+// Curated protein-protein and genetic interactions from literature
+// Source: https://thebiogrid.org/
+// Format: PSI-MITAB 2.5 (BIOGRID-ALL-LATEST.mitab.zip)
+message BiogridAttr {
+  // Primary identifier (BioGRID Interactor ID)
+  string biogrid_id = 1;                          // BioGRID ID for the primary interactor (e.g., "103")
+
+  // Interaction list - aggregated by primary interactor
+  repeated BiogridInteraction interactions = 2;    // All interactions for this interactor
+
+  // Summary statistics
+  int32 interaction_count = 3;                    // Total number of interactions
+  int32 unique_partners = 4;                      // Number of unique interaction partners
+  int32 physical_count = 5;                       // Count of physical interactions
+  int32 genetic_count = 6;                        // Count of genetic interactions
+
+  // Aggregated metadata
+  repeated int32 organisms = 7;                   // Unique organism taxonomy IDs involved
+  repeated string experimental_systems = 8;       // Unique experimental systems used
+  repeated string pubmed_ids = 9;                 // Unique PubMed IDs supporting interactions
+}
+
+// Single BioGRID interaction record
+message BiogridInteraction {
+  // Interaction identifier
+  string interaction_id = 1;                      // BioGRID Interaction ID (e.g., "103")
+
+  // Partner information
+  string partner_biogrid_id = 2;                  // Partner's BioGRID ID
+  string partner_entrez_id = 3;                   // Partner's Entrez Gene ID
+  string partner_symbol = 4;                      // Partner's official gene symbol
+  string partner_systematic_name = 5;             // Partner's systematic name
+
+  // Experimental details
+  string experimental_system = 6;                 // Experimental system (e.g., "Two-hybrid", "Affinity Capture-MS")
+  string experimental_system_type = 7;            // "physical" or "genetic"
+  string throughput = 8;                          // "High Throughput", "Low Throughput", or "Both"
+
+  // Organism information
+  int32 organism_a = 9;                           // NCBI Taxonomy ID for interactor A
+  int32 organism_b = 10;                          // NCBI Taxonomy ID for interactor B
+
+  // Literature reference
+  string pubmed_id = 11;                          // PubMed ID for the publication
+  string author = 12;                             // First author with publication year
+
+  // Quality and scoring
+  string score = 13;                              // Quantitative score (if available)
+  string modification = 14;                       // Post-translational modification (if applicable)
+  string qualifications = 15;                     // Additional qualifications
+  string tags = 16;                               // Tags/annotations
+
+  // Phenotype information (for genetic interactions)
+  string phenotype = 17;                          // Phenotype term
+  string ontology_term_id = 18;                   // Ontology term ID (e.g., GO, HP)
+
+  // Source database
+  string source_database = 19;                    // Original source database
+}

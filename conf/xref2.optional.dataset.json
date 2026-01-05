@@ -29,12 +29,6 @@
     "id": "605",
     "url": "http://biocyc.org/getid?id=\u00a3{id}"
   },
-  "biogrid": {
-    "aliases": "BioGrid",
-    "name": "BioGrid",
-    "id": "606",
-    "url": "https://thebiogrid.org/\u00a3{id}"
-  },
   "biomuta": {
     "aliases": "BioMuta",
     "name": "BioMuta",

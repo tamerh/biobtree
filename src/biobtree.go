@@ -159,6 +159,10 @@ func main() {
 			Name:  "force",
 			Usage: "Force reprocessing of datasets even if they haven't changed. Ignores the dataset state file for specified datasets",
 		},
+		cli.BoolFlag{
+			Name:  "prod",
+			Usage: "Run in production mode with alternate ports (prodHttpPort/prodGrpcPort from config, defaults: 9291/7776)",
+		},
 	}
 
 	// add dataset local flags
@@ -673,7 +677,7 @@ func runWebCommand(c *cli.Context) error {
 	}
 
 	web := service.Web{}
-	web.Start(config, c.GlobalBool("no-web-popup"))
+	web.Start(config, c.GlobalBool("no-web-popup"), c.GlobalBool("prod"))
 
 	return nil
 

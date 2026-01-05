@@ -13,6 +13,8 @@
 	"ensembl_version_url": "http://rest.ensembl.org/info/eg_version?content-type=application/json",
 	"httpPort": "9292",
 	"grpcPort": "7777",
+	"prodHttpPort": "9291",
+	"prodGrpcPort": "7776",
 	"keepChunks": "yes",
 	"progressRefreshRate": "2",
 	"kvgenCount": "4",

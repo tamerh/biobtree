@@ -13,6 +13,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"biobtree/util"
@@ -88,6 +89,9 @@ type DataUpdate struct {
 	resumeSort             bool              // Flag to resume from sorting phase (skip data processing)
 	forceRebuild           bool              // Flag to force reprocessing even if source unchanged
 	datasetState           *DatasetState     // State tracking for incremental updates
+	kvdatachanCount        int64             // Counter for kvdatachan fallback usage (atomic)
+	kvdatachanSamples      []string          // Sample of data sent to kvdatachan (for debugging)
+	kvdatachanSampleMu     sync.Mutex        // Mutex for sample collection
 }
 
 type progressInfo struct {
@@ -473,6 +477,30 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 		if d.shouldSkipDataset(data) {
 			log.Printf("Skipping dataset %s (already built and source unchanged)", data)
 			continue
+		}
+
+		// Check if dataset needs "merge only" (was processed but not merged)
+		// In this case, skip parsing but include in datasets2 for merge
+		if d.needsMergeOnly(data) {
+			log.Printf("Dataset %s needs merge only (already processed), skipping parsing", data)
+			d.datasets2 = append(d.datasets2, data)
+			// Signal done immediately since no processing needed
+			d.progChan <- &progressInfo{dataset: data, done: true}
+			continue
+		}
+
+		// Mark dataset as "processing" BEFORE cleanup/processing starts
+		// This ensures if we crash mid-processing, next run will rebuild
+		if d.datasetState != nil {
+			datasetID := ""
+			if props, ok := config.Dataconf[data]; ok {
+				datasetID = props["id"]
+			}
+			d.datasetState.MarkDatasetProcessing(data, datasetID)
+			// Save immediately so crash recovery works
+			if err := SaveDatasetState(d.datasetState, config.Appconf["indexDir"]); err != nil {
+				log.Printf("Warning: failed to save processing state for %s: %v", data, err)
+			}
 		}
 
 		// Clean up old bucket files and sorted files before re-processing
@@ -916,6 +944,34 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 				d.addEntryStat(datasetName, lineCount)
 			}
 		}
+
+		// Handle "merge only" datasets (status=processed, bucket files exist but not in pool)
+		mergeOnlyDatasets := d.getMergeOnlyDatasets()
+		if len(mergeOnlyDatasets) > 0 {
+			log.Printf("Processing %d 'merge only' datasets...", len(mergeOnlyDatasets))
+			for _, dsName := range mergeOnlyDatasets {
+				// Sort existing bucket files
+				isDerived := false
+				if props, ok := config.Dataconf[dsName]; ok {
+					_, hasPath := props["path"]
+					isDerived = !hasPath
+				}
+				if err := SortBucketsForDataset(dsName, config.Appconf["indexDir"], isDerived, 0); err != nil {
+					log.Printf("Warning: error sorting merge-only dataset %s: %v", dsName, err)
+					continue
+				}
+				// Concatenate
+				lines, err := ConcatenateBucketsForDataset(dsName, config.Appconf["indexDir"], isDerived, chunkIdx)
+				if err != nil {
+					log.Printf("Warning: error concatenating merge-only dataset %s: %v", dsName, err)
+					continue
+				}
+				bucketLines += lines
+				d.addEntryStat(dsName, lines)
+				log.Printf("Merged %s: %d lines", dsName, lines)
+			}
+		}
+
 		log.Printf("Bucket processing complete (%d lines after deduplication)", bucketLines)
 	}
 
@@ -934,6 +990,24 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 	// Add bucket lines to total (post-deduplication count from concatenation)
 	totalkv = totalkv + bucketLines
 
+	// Report kvdatachan fallback usage
+	kvFallbackCount := atomic.LoadInt64(&d.kvdatachanCount)
+	if kvFallbackCount > 0 {
+		log.Printf("WARNING: kvdatachan fallback was used %d times (should be 0 if bucket system handles everything)", kvFallbackCount)
+		log.Printf("Sample of data that went to kvdatachan:")
+		d.kvdatachanSampleMu.Lock()
+		for i, sample := range d.kvdatachanSamples {
+			if i >= 10 {
+				log.Printf("  ... and %d more samples", len(d.kvdatachanSamples)-10)
+				break
+			}
+			log.Printf("  %s", sample)
+		}
+		d.kvdatachanSampleMu.Unlock()
+	} else {
+		log.Printf("INFO: kvdatachan fallback was NOT used - bucket system handled all data")
+	}
+
 	log.Println("Data update process completed. Making last merges...")
 	// send finish signal to bmerge
 	mergeGateCh <- mergeInfo{
@@ -951,23 +1025,28 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 	ioutil.WriteFile(filepath.FromSlash(config.Appconf["indexDir"]+"/"+chunkIdx+".meta.json"), data, 0700)
 
 	// Save dataset state for incremental updates
+	// Merge completed successfully - mark all processed datasets as merged
 	if d.datasetState != nil {
-		// Mark all processed datasets as built
+		// Mark datasets from this run as merged (they were marked "processed" by showProgres())
+		d.datasetState.MarkDatasetsMerged(d.datasets2)
+
+		// Also mark any previously "processed" datasets as merged
+		// (e.g., datasets that were processed in a previous run but merge failed)
+		d.datasetState.MarkAllProcessedAsMerged()
+
+		// Ensure source URLs are set for all datasets
 		for _, datasetName := range d.datasets2 {
-			datasetID := ""
 			sourceURL := ""
 			if props, ok := config.Dataconf[datasetName]; ok {
-				datasetID = props["id"]
-				sourceURL = props["path"] // Get source URL from config
+				sourceURL = props["path"]
 			}
-			d.datasetState.MarkDatasetBuilt(datasetName, datasetID, 0, 0, time.Since(d.start).Seconds())
-			// Set the source URL on the info we just created
 			if sourceURL != "" {
 				if info := d.datasetState.GetDatasetInfo(datasetName); info != nil {
 					info.SourceURL = sourceURL
 				}
 			}
 		}
+
 		if err := SaveDatasetState(d.datasetState, config.Appconf["indexDir"]); err != nil {
 			log.Printf("Warning: failed to save dataset state: %v", err)
 		}
@@ -989,8 +1068,10 @@ func (d *DataUpdate) showProgres() {
 		alldone := false
 		latestProg[info.dataset] = *info
 
-		// Save state immediately when a dataset completes
-		// This ensures progress isn't lost if a later dataset fails
+		// Two-phase state tracking:
+		// Phase 1: Mark as "processed" when dataset finishes writing bucket files
+		// Phase 2: Mark as "merged" after successful merge (done in Update() after wgBmerge.Wait())
+		// This ensures: if merge fails, next run can skip processing and just re-merge
 		if info.done && d.datasetState != nil {
 			datasetID := ""
 			sourceURL := ""
@@ -998,7 +1079,7 @@ func (d *DataUpdate) showProgres() {
 				datasetID = props["id"]
 				sourceURL = props["path"]
 			}
-			d.datasetState.MarkDatasetBuilt(info.dataset, datasetID, 0, 0, time.Since(d.start).Seconds())
+			d.datasetState.MarkDatasetProcessed(info.dataset, datasetID, 0, 0, time.Since(d.start).Seconds())
 			if sourceURL != "" {
 				if dsInfo := d.datasetState.GetDatasetInfo(info.dataset); dsInfo != nil {
 					dsInfo.SourceURL = sourceURL
@@ -1068,6 +1149,41 @@ func (d *DataUpdate) addEntryStat(source string, total uint64) {
 
 // shouldSkipDataset checks if a dataset should be skipped because it was already built
 // and the source hasn't changed. Returns true if the dataset should be skipped.
+// needsMergeOnly checks if a dataset was already processed but not yet merged
+// Such datasets should skip parsing but still be included in the merge phase
+func (d *DataUpdate) needsMergeOnly(datasetName string) bool {
+	if d.forceRebuild {
+		return false // Force mode - always re-process
+	}
+
+	if d.datasetState == nil {
+		return false
+	}
+
+	info := d.datasetState.GetDatasetInfo(datasetName)
+	if info == nil {
+		return false
+	}
+
+	return info.Status == StatusProcessed
+}
+
+// getMergeOnlyDatasets returns datasets in datasets2 that only need merge (status=processed)
+func (d *DataUpdate) getMergeOnlyDatasets() []string {
+	var result []string
+	if d.datasetState == nil {
+		return result
+	}
+
+	for _, dsName := range d.datasets2 {
+		info := d.datasetState.GetDatasetInfo(dsName)
+		if info != nil && info.Status == StatusProcessed {
+			result = append(result, dsName)
+		}
+	}
+	return result
+}
+
 func (d *DataUpdate) shouldSkipDataset(datasetName string) bool {
 	// Force mode - never skip
 	if d.forceRebuild {
@@ -1083,6 +1199,18 @@ func (d *DataUpdate) shouldSkipDataset(datasetName string) bool {
 	lastBuild := d.datasetState.GetDatasetInfo(datasetName)
 	if lastBuild == nil {
 		return false // Never built - must build
+	}
+
+	// "processed" datasets are handled by needsMergeOnly(), not here
+	// They should NOT be skipped, but also should not reach the parser
+	if lastBuild.Status == StatusProcessed {
+		return false // Don't skip - needsMergeOnly will handle it
+	}
+
+	// If status is "processing" (interrupted), must rebuild
+	if lastBuild.Status == StatusProcessing {
+		log.Printf("Dataset %s was interrupted during processing, will rebuild", datasetName)
+		return false
 	}
 
 	// Check if source has changed
@@ -1193,12 +1321,31 @@ func (d *DataUpdate) addProp3(key, from string, attr []byte) {
 	// Route through source-tagged bucket directories
 	if d.bucketPool != nil {
 		if !d.bucketPool.WriteForward(from, datasetName, kup, line) {
-			*d.kvdatachan <- line
+			d.writeToKvdatachan(line, "addProp3_bucket_fail")
 		}
 	} else {
-		*d.kvdatachan <- line
+		d.writeToKvdatachan(line, "addProp3_no_pool")
 	}
 
+}
+
+// writeToKvdatachan writes data to kvdatachan with logging/tracking
+// source: describes where this fallback was triggered (e.g., "addProp3", "addXref_forward")
+func (d *DataUpdate) writeToKvdatachan(line string, source string) {
+	atomic.AddInt64(&d.kvdatachanCount, 1)
+
+	// Collect samples (first 10 from each source)
+	d.kvdatachanSampleMu.Lock()
+	if len(d.kvdatachanSamples) < 50 {
+		sample := fmt.Sprintf("[%s] %s", source, line)
+		if len(sample) > 200 {
+			sample = sample[:200] + "..."
+		}
+		d.kvdatachanSamples = append(d.kvdatachanSamples, sample)
+	}
+	d.kvdatachanSampleMu.Unlock()
+
+	*d.kvdatachan <- line
 }
 
 func (d *DataUpdate) addXref(key string, from string, value string, valueFrom string, isLink bool) {
@@ -1304,17 +1451,17 @@ func (d *DataUpdate) addXrefFull(key string, from string, value string, valueFro
 			// Forward xref (keyed by source ID kup)
 			if !d.bucketPool.WriteForward(from, sourceDatasetName, kup, dataLine) {
 				// Fallback to kvdatachan if bucket write fails (no config for dataset)
-				*d.kvdatachan <- dataLine
+				d.writeToKvdatachan(dataLine, "addXref_forward_fail")
 			}
 
 			// Reverse xref (keyed by target ID vup)
 			if !d.bucketPool.WriteReverse(valueFromID, vup, reverseDataLine, sourceDatasetName) {
 				// Fallback to kvdatachan if bucket write fails (no config for dataset)
-				*d.kvdatachan <- reverseDataLine
+				d.writeToKvdatachan(reverseDataLine, "addXref_reverse_fail")
 			}
 		} else {
-			*d.kvdatachan <- dataLine
-			*d.kvdatachan <- reverseDataLine
+			d.writeToKvdatachan(dataLine, "addXref_no_pool")
+			d.writeToKvdatachan(reverseDataLine, "addXref_no_pool")
 		}
 	}
 
@@ -1363,11 +1510,11 @@ func (d *DataUpdate) addXref2(key string, from string, value string, valueFrom s
 				targetDatasetName = "unknown"
 			}
 			if !d.bucketPool.WriteForward(valueFromID, targetDatasetName, vup, line) {
-				*d.kvdatachan <- line
+				d.writeToKvdatachan(line, "addXref2_both_fail")
 			}
 		}
 	} else {
-		*d.kvdatachan <- line
+		d.writeToKvdatachan(line, "addXref2_no_pool")
 	}
 
 }

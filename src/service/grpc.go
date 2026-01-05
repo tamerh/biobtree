@@ -19,13 +19,23 @@ type biobtreegrpc struct {
 	service service
 }
 
-func (g *biobtreegrpc) Start() {
+func (g *biobtreegrpc) Start(prodMode bool) {
 
 	var port string
-	if _, ok := config.Appconf["grpcPort"]; ok {
-		port = config.Appconf["grpcPort"]
+	if prodMode {
+		// Production mode: use prodGrpcPort config
+		if _, ok := config.Appconf["prodGrpcPort"]; ok {
+			port = config.Appconf["prodGrpcPort"]
+		} else {
+			log.Fatal("prodGrpcPort must be configured in application.param.json when using --prod flag")
+		}
 	} else {
-		port = "7777"
+		// Normal mode: use grpcPort config
+		if _, ok := config.Appconf["grpcPort"]; ok {
+			port = config.Appconf["grpcPort"]
+		} else {
+			log.Fatal("grpcPort must be configured in application.param.json")
+		}
 	}
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", port))

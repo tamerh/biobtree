@@ -616,6 +616,42 @@ Add to `conf/application.param.json`:
 - First-time installations will still download configs if directories don't exist
 - Useful for air-gapped systems, custom deployments, or development environments
 
+### Incremental Updates
+
+Biobtree supports incremental updates with crash-safe state tracking. The system uses a three-phase status model stored in `dataset_state.json`:
+
+| Status | Meaning | On Next Run |
+|--------|---------|-------------|
+| `processing` | Dataset being processed (bucket files being written) | Rebuild (was interrupted) |
+| `processed` | Processing complete, awaiting merge | Merge only (skip parsing) |
+| `merged` | Fully complete, data in final index | Skip (unless source changed) |
+
+**State Transitions:**
+```
+(new/source changed) → processing → processed → merged
+                           ↑                        │
+                           └──── (source changes) ──┘
+```
+
+**Crash Recovery:**
+- Crash during parsing → status stays `processing` → next run rebuilds from scratch
+- Crash after parsing but before merge → status is `processed` → next run merges existing bucket files
+- Crash after merge → status is `merged` → next run skips entirely
+
+**Commands:**
+```sh
+# Normal update (checks source changes, uses incremental)
+./biobtree -d "uniprot,taxonomy" update
+
+# Force rebuild (ignores state, rebuilds everything)
+./biobtree -d "uniprot,taxonomy" --force update
+
+# Check what would be updated without running
+./biobtree -d "uniprot,taxonomy" check
+```
+
+**State File Location:** `{out-dir}/index/dataset_state.json`
+
 ### Building from source
 
 biobtree is written with GO for the data processing and Vue.js for the web application part.

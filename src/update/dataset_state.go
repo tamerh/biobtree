@@ -24,6 +24,7 @@ type DatasetState struct {
 type DatasetBuildInfo struct {
 	DatasetName     string    `json:"name"`
 	DatasetID       string    `json:"id"`
+	Status          string    `json:"status"`                     // processing, processed, or merged
 	LastBuildTime   time.Time `json:"last_build_time"`
 	SourceURL       string    `json:"source_url,omitempty"`       // Actual URL used for download
 	SourceVersion   string    `json:"source_version,omitempty"`   // e.g., "2024.01" for UniProt release
@@ -39,6 +40,21 @@ type DatasetBuildInfo struct {
 
 // DatasetStateFileName is the default state file name
 const DatasetStateFileName = "dataset_state.json"
+
+// Dataset status constants for two-phase state tracking
+const (
+	// StatusProcessing - dataset is currently being processed (bucket files being written)
+	// If found on startup, the dataset was interrupted and needs re-processing
+	StatusProcessing = "processing"
+
+	// StatusProcessed - dataset processing complete, bucket files written, awaiting merge
+	// If found on startup, skip processing but include in merge
+	StatusProcessed = "processed"
+
+	// StatusMerged - dataset fully complete, data merged into final index
+	// If found on startup and source unchanged, skip entirely
+	StatusMerged = "merged"
+)
 
 // NewDatasetState creates a new empty state
 func NewDatasetState() *DatasetState {
@@ -258,8 +274,9 @@ func (s *DatasetState) GetDatasetsNeedingUpdate(changedDatasets []string) []stri
 	return result
 }
 
-// MarkDatasetBuilt updates the state to indicate a dataset was successfully built
-func (s *DatasetState) MarkDatasetBuilt(datasetName, datasetID string, entryCount, xrefCount int64, duration float64) {
+// MarkDatasetProcessing marks a dataset as currently being processed
+// This is set when processing starts - if found on next run, dataset was interrupted
+func (s *DatasetState) MarkDatasetProcessing(datasetName, datasetID string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -276,10 +293,127 @@ func (s *DatasetState) MarkDatasetBuilt(datasetName, datasetID string, entryCoun
 		s.Datasets[datasetName] = info
 	}
 
+	info.Status = StatusProcessing
+	info.LastBuildTime = time.Now()
+}
+
+// MarkDatasetProcessed marks a dataset as processed (bucket files written, awaiting merge)
+// This is set when dataset processing completes successfully
+func (s *DatasetState) MarkDatasetProcessed(datasetName, datasetID string, entryCount, xrefCount int64, duration float64) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if s.Datasets == nil {
+		s.Datasets = make(map[string]*DatasetBuildInfo)
+	}
+
+	info, exists := s.Datasets[datasetName]
+	if !exists {
+		info = &DatasetBuildInfo{
+			DatasetName: datasetName,
+			DatasetID:   datasetID,
+		}
+		s.Datasets[datasetName] = info
+	}
+
+	info.Status = StatusProcessed
 	info.LastBuildTime = time.Now()
 	info.EntryCount = entryCount
 	info.XrefCount = xrefCount
 	info.BuildDuration = duration
+}
+
+// MarkDatasetBuilt is deprecated - use MarkDatasetProcessed instead
+// Kept for backward compatibility
+func (s *DatasetState) MarkDatasetBuilt(datasetName, datasetID string, entryCount, xrefCount int64, duration float64) {
+	s.MarkDatasetProcessed(datasetName, datasetID, entryCount, xrefCount, duration)
+}
+
+// MarkDatasetsMerged marks all "processed" datasets as "merged"
+// This should be called after successful merge completion
+func (s *DatasetState) MarkDatasetsMerged(datasetNames []string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	mergedCount := 0
+	for _, name := range datasetNames {
+		if info, exists := s.Datasets[name]; exists {
+			if info.Status == StatusProcessed || info.Status == StatusProcessing {
+				info.Status = StatusMerged
+				mergedCount++
+			}
+		}
+	}
+	log.Printf("Marked %d datasets as merged", mergedCount)
+}
+
+// MarkAllProcessedAsMerged marks all datasets with "processed" status as "merged"
+// This should be called after successful merge completion
+func (s *DatasetState) MarkAllProcessedAsMerged() {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	mergedCount := 0
+	for _, info := range s.Datasets {
+		if info.Status == StatusProcessed {
+			info.Status = StatusMerged
+			mergedCount++
+		}
+	}
+	log.Printf("Marked %d datasets as merged", mergedCount)
+}
+
+// GetDatasetStatus returns the status of a dataset
+func (s *DatasetState) GetDatasetStatus(datasetName string) string {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	if info, exists := s.Datasets[datasetName]; exists {
+		return info.Status
+	}
+	return ""
+}
+
+// GetProcessedDatasets returns all datasets with "processed" status
+// These need to be included in merge even if processing is skipped
+func (s *DatasetState) GetProcessedDatasets() []string {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	var result []string
+	for name, info := range s.Datasets {
+		if info.Status == StatusProcessed {
+			result = append(result, name)
+		}
+	}
+	return result
+}
+
+// NeedsProcessing returns true if dataset needs processing
+// Returns true if: status is "processing" (interrupted), status is empty (new), or not in state
+func (s *DatasetState) NeedsProcessing(datasetName string) bool {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	info, exists := s.Datasets[datasetName]
+	if !exists {
+		return true // New dataset
+	}
+
+	// If status is "processing", it was interrupted - needs re-processing
+	// If status is empty (old state file), treat as needing processing
+	return info.Status == StatusProcessing || info.Status == ""
+}
+
+// NeedsMergeOnly returns true if dataset was processed but not yet merged
+func (s *DatasetState) NeedsMergeOnly(datasetName string) bool {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	if info, exists := s.Datasets[datasetName]; exists {
+		return info.Status == StatusProcessed
+	}
+	return false
 }
 
 // GetLastBuildTime returns the last build time for a dataset

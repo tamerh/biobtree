@@ -25,7 +25,7 @@ type Web struct {
 	metaRes []byte
 }
 
-func (web *Web) Start(c *configs.Conf, nowebpopup bool) {
+func (web *Web) Start(c *configs.Conf, nowebpopup bool, prodMode bool) {
 
 	config = c
 
@@ -37,7 +37,7 @@ func (web *Web) Start(c *configs.Conf, nowebpopup bool) {
 	rpc := biobtreegrpc{
 		service: s,
 	}
-	rpc.Start()
+	rpc.Start(prodMode)
 
 	//setup rest ws
 	web.metaRes = []byte(s.metajson())
@@ -50,6 +50,7 @@ func (web *Web) Start(c *configs.Conf, nowebpopup bool) {
 	searchFilterGz := gziphandler.GzipHandler(http.HandlerFunc(web.searchFilter))
 
 	http.Handle("/ws/", searchGz)
+	http.Handle("/ws/meta", metaGz)
 	http.Handle("/ws/meta/", metaGz)
 	http.Handle("/ws/entry/", searchEntryGz)
 	http.Handle("/ws/map/", mapFilterGz)
@@ -68,10 +69,20 @@ func (web *Web) Start(c *configs.Conf, nowebpopup bool) {
 
 	//start web server with rest endpoints and ui
 	var port string
-	if _, ok := config.Appconf["httpPort"]; ok {
-		port = config.Appconf["httpPort"]
+	if prodMode {
+		// Production mode: use prodHttpPort config
+		if _, ok := config.Appconf["prodHttpPort"]; ok {
+			port = config.Appconf["prodHttpPort"]
+		} else {
+			log.Fatal("prodHttpPort must be configured in application.param.json when using --prod flag")
+		}
 	} else {
-		port = "8888"
+		// Normal mode: use httpPort config
+		if _, ok := config.Appconf["httpPort"]; ok {
+			port = config.Appconf["httpPort"]
+		} else {
+			log.Fatal("httpPort must be configured in application.param.json")
+		}
 	}
 
 	if !nowebpopup {
@@ -130,8 +141,8 @@ func (web *Web) searchFilter(w http.ResponseWriter, r *http.Request) {
 		jb, _ := ffjson.Marshal(errStr)
 		buf.WriteString(string(jb))
 		buf.WriteString("]")
-		w.Write([]byte(buf.String()))
 		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(buf.String()))
 		return
 	}
 
@@ -142,8 +153,8 @@ func (web *Web) searchFilter(w http.ResponseWriter, r *http.Request) {
 		errStr := errString{Err: err.Error()}
 		jb, _ := ffjson.Marshal(errStr)
 		buf.WriteString(string(jb))
-		w.Write([]byte(buf.String()))
 		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(buf.String()))
 		return
 	}
 
@@ -154,8 +165,8 @@ func (web *Web) searchFilter(w http.ResponseWriter, r *http.Request) {
 		errStr := errString{Err: err.Error()}
 		jb, _ := ffjson.Marshal(errStr)
 		buf.WriteString(string(jb))
-		w.Write([]byte(buf.String()))
 		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(buf.String()))
 		return
 	}
 
@@ -184,8 +195,8 @@ func (web *Web) searchFilter(w http.ResponseWriter, r *http.Request) {
 		errStr := errString{Err: err.Error()}
 		jb, _ := ffjson.Marshal(errStr)
 		buf.WriteString(string(jb))
-		w.Write([]byte(buf.String()))
 		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(buf.String()))
 		return
 	}
 
@@ -202,8 +213,8 @@ func (web *Web) searchFilter(w http.ResponseWriter, r *http.Request) {
 		jb, _ := ffjson.Marshal(errStr)
 		buf.WriteString(string(jb))
 		buf.WriteString("]")
-		w.Write([]byte(buf.String()))
 		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(buf.String()))
 		return
 	}
 
@@ -231,8 +242,8 @@ func (web *Web) entry(w http.ResponseWriter, r *http.Request) {
 		jb, _ := ffjson.Marshal(errStr)
 		buf.WriteString(string(jb))
 		buf.WriteString("]")
-		w.Write([]byte(buf.String()))
 		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(buf.String()))
 		return
 	}
 
@@ -243,8 +254,8 @@ func (web *Web) entry(w http.ResponseWriter, r *http.Request) {
 		errStr := errString{Err: err.Error()}
 		jb, _ := ffjson.Marshal(errStr)
 		buf.WriteString(string(jb))
-		w.Write([]byte(buf.String()))
 		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(buf.String()))
 		return
 	}
 
@@ -255,8 +266,8 @@ func (web *Web) entry(w http.ResponseWriter, r *http.Request) {
 		errStr := errString{Err: err.Error()}
 		jb, _ := ffjson.Marshal(errStr)
 		buf.WriteString(string(jb))
-		w.Write([]byte(buf.String()))
 		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(buf.String()))
 		return
 	}
 
@@ -266,8 +277,8 @@ func (web *Web) entry(w http.ResponseWriter, r *http.Request) {
 		errStr := errString{Err: err.Error()}
 		jb, _ := ffjson.Marshal(errStr)
 		buf.WriteString(string(jb))
-		w.Write([]byte(buf.String()))
 		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(buf.String()))
 		return
 	}
 	r1, err := web.service.getLmdbResult2(strings.ToUpper(ids[0]), src)
@@ -278,8 +289,8 @@ func (web *Web) entry(w http.ResponseWriter, r *http.Request) {
 		jb, _ := ffjson.Marshal(errStr)
 		buf.WriteString(string(jb))
 		buf.WriteString("]")
-		w.Write([]byte(buf.String()))
 		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(buf.String()))
 		return
 	}
 
@@ -307,8 +318,8 @@ func (web *Web) searchPage(w http.ResponseWriter, r *http.Request) {
 		jb, _ := ffjson.Marshal(errStr)
 		buf.WriteString(string(jb))
 		buf.WriteString("]")
-		w.Write([]byte(buf.String()))
 		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(buf.String()))
 		return
 	}
 
@@ -320,8 +331,8 @@ func (web *Web) searchPage(w http.ResponseWriter, r *http.Request) {
 		errStr := errString{Err: err.Error()}
 		jb, _ := ffjson.Marshal(errStr)
 		buf.WriteString(string(jb))
-		w.Write([]byte(buf.String()))
 		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(buf.String()))
 		return
 	}
 
@@ -336,8 +347,8 @@ func (web *Web) searchPage(w http.ResponseWriter, r *http.Request) {
 		jb, _ := ffjson.Marshal(errStr)
 		buf.WriteString(string(jb))
 		buf.WriteString("]")
-		w.Write([]byte(buf.String()))
 		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(buf.String()))
 		return
 	}
 
@@ -365,8 +376,8 @@ func (web *Web) search(w http.ResponseWriter, r *http.Request) {
 		jb, _ := ffjson.Marshal(errStr)
 		buf.WriteString(string(jb))
 		buf.WriteString("]")
-		w.Write([]byte(buf.String()))
 		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(buf.String()))
 		return
 	}
 
@@ -378,8 +389,8 @@ func (web *Web) search(w http.ResponseWriter, r *http.Request) {
 		errStr := errString{Err: err.Error()}
 		jb, _ := ffjson.Marshal(errStr)
 		buf.WriteString(string(jb))
-		w.Write([]byte(buf.String()))
 		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(buf.String()))
 		return
 	}
 	if strings.HasPrefix(qids[0], "alias:") {
@@ -520,8 +531,8 @@ func (web *Web) mapFilter(w http.ResponseWriter, r *http.Request) {
 		jb, _ := ffjson.Marshal(errStr)
 		buf.WriteString(string(jb))
 		buf.WriteString("]")
-		w.Write([]byte(buf.String()))
 		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(buf.String()))
 		return
 	}
 
@@ -533,8 +544,8 @@ func (web *Web) mapFilter(w http.ResponseWriter, r *http.Request) {
 		errStr := errString{Err: err.Error()}
 		jb, _ := ffjson.Marshal(errStr)
 		buf.WriteString(string(jb))
-		w.Write([]byte(buf.String()))
 		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(buf.String()))
 		return
 	}
 	if strings.HasPrefix(qids[0], "alias:") {
@@ -568,8 +579,8 @@ func (web *Web) mapFilter(w http.ResponseWriter, r *http.Request) {
 		buf.WriteString("[")
 		buf.WriteString(`{"Err":"m parameter is required"}`)
 		buf.WriteString("]")
-		w.Write([]byte(buf.String()))
 		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(buf.String()))
 		return
 	}
 

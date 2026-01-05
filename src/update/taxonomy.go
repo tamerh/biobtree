@@ -44,7 +44,8 @@ func (t *taxonomy) update() {
 		}
 	}
 
-	br, gz, ftpFile, client, localFile, _, err := getDataReaderNew(t.source, t.d.ebiFtp, t.d.ebiFtpPath, config.Dataconf[t.source]["path"])
+	// Path in config is now a full FTP URL
+	br, gz, ftpFile, client, localFile, _, err := getDataReaderNew(t.source, "", "", config.Dataconf[t.source]["path"])
 	check(err)
 
 	if ftpFile != nil {

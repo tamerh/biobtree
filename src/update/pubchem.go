@@ -272,15 +272,14 @@ func (p *pubchem) identifyBiotechCIDs() {
 
 // loadFDADrugs loads FDA-approved drug CIDs from Drug-Names.tsv.gz (Priority 0)
 func (p *pubchem) loadFDADrugs() {
-	ftpServer := config.Dataconf[p.source]["ftpUrl"]
 	basePath := config.Dataconf["pubchem"]["path"]
 	drugNamesPath := config.Dataconf["pubchem"]["pathDrugNames"]
-	fullPath := basePath + drugNamesPath
+	fullURL := basePath + drugNamesPath
 
-	log.Printf("[PubChem] Loading FDA-approved drugs from %s", fullPath)
+	log.Printf("[PubChem] Loading FDA-approved drugs from %s", fullURL)
 
-	// Download and open file
-	br, gz, _, _, localFile, _, err := getDataReaderNew(p.source, ftpServer, basePath, drugNamesPath)
+	// Download and open file (pass full FTP URL directly)
+	br, gz, _, _, localFile, _, err := getDataReaderNew(p.source, "", "", fullURL)
 	if err != nil {
 		p.check(err, "opening Drug-Names.tsv.gz")
 		return
@@ -360,14 +359,14 @@ func (p *pubchem) loadFDADrugs() {
 // - Xrefs are written directly to bucket files (disk), avoiding memory accumulation
 // - Xrefs provide bidirectional queries: "compound → publications" and "publication → compounds"
 func (p *pubchem) loadLiteratureCIDs() {
-	ftpServer := config.Dataconf[p.source]["ftpUrl"]
 	basePath := config.Dataconf[p.source]["path"]
 	pmidPath := config.Dataconf[p.source]["pathCIDPMID"]
+	fullURL := basePath + pmidPath
 
-	log.Printf("[PubChem] Loading literature-referenced CIDs from %s", pmidPath)
+	log.Printf("[PubChem] Loading literature-referenced CIDs from %s", fullURL)
 
-	// Download and open file
-	br, gz, _, _, localFile, _, err := getDataReaderNew(p.source, ftpServer, basePath, pmidPath)
+	// Download and open file (pass full FTP URL directly)
+	br, gz, _, _, localFile, _, err := getDataReaderNew(p.source, "", "", fullURL)
 	if err != nil {
 		p.check(err, "opening CID-PMID.gz")
 		return
@@ -452,11 +451,11 @@ func (p *pubchem) loadLiteratureCIDs() {
 // - Xrefs are written directly to bucket files (disk), avoiding memory accumulation
 // - Xrefs provide bidirectional queries: "compound → patents" and "patent → compounds"
 func (p *pubchem) loadPatentCIDs() {
-	ftpServer := config.Dataconf[p.source]["ftpUrl"]
 	basePath := config.Dataconf[p.source]["path"]
 	patentPath := config.Dataconf[p.source]["pathCIDPatent"]
+	fullURL := basePath + patentPath
 
-	log.Printf("[PubChem] Loading patent-associated CIDs from %s", patentPath)
+	log.Printf("[PubChem] Loading patent-associated CIDs from %s", fullURL)
 
 	// Check if SureChEMBL patents were preloaded
 	if len(p.surechemblPatentIDs) == 0 {
@@ -466,8 +465,8 @@ func (p *pubchem) loadPatentCIDs() {
 	}
 	log.Printf("[PubChem] Will filter %d SureChEMBL biotech patents", len(p.surechemblPatentIDs))
 
-	// Download and open file
-	br, gz, _, _, localFile, _, err := getDataReaderNew(p.source, ftpServer, basePath, patentPath)
+	// Download and open file (pass full FTP URL directly)
+	br, gz, _, _, localFile, _, err := getDataReaderNew(p.source, "", "", fullURL)
 	if err != nil {
 		p.check(err, "opening CID-Patent.gz")
 		return
@@ -646,15 +645,15 @@ func (p *pubchem) mergeBiotechCIDs() {
 // Phase 1: Extract CIDs only for filtering (count AIDs per CID)
 // Phase 4: Will parse full activity data (IC50, targets, etc.)
 func (p *pubchem) loadBioassayCIDs() {
-	ftpServer := config.Dataconf[p.source]["ftpUrl"]
 	basePath := config.Dataconf[p.source]["path"]
 	bioactivitiesPath := config.Dataconf[p.source]["pathBioactivities"]
+	fullURL := basePath + bioactivitiesPath
 
-	log.Printf("[PubChem] Loading bioassay-tested CIDs from %s", bioactivitiesPath)
+	log.Printf("[PubChem] Loading bioassay-tested CIDs from %s", fullURL)
 	log.Printf("[PubChem] Note: This file is 2.97 GB compressed, ~295M records - may take 30-60 minutes")
 
-	// Download and open file
-	br, gz, _, _, localFile, _, err := getDataReaderNew(p.source, ftpServer, basePath, bioactivitiesPath)
+	// Download and open file (pass full FTP URL directly)
+	br, gz, _, _, localFile, _, err := getDataReaderNew(p.source, "", "", fullURL)
 	if err != nil {
 		p.check(err, "opening bioactivities.tsv.gz")
 		return
@@ -759,14 +758,14 @@ func countRange(counts map[int]int, min, max int) int {
 // Format: CID \t Type \t Name
 // Types: 1=peptide notation, 2=helm notation, 3=nucleotide code, 5=peptide FASTA, 6=common name
 func (p *pubchem) loadBiologicCIDs() {
-	ftpServer := config.Dataconf[p.source]["ftpUrl"]
 	basePath := config.Dataconf[p.source]["path"]
 	biologicsPath := config.Dataconf[p.source]["pathCIDBiologics"]
+	fullURL := basePath + biologicsPath
 
-	log.Printf("[PubChem] Loading biologics (peptides/proteins/nucleotides) from %s", biologicsPath)
+	log.Printf("[PubChem] Loading biologics (peptides/proteins/nucleotides) from %s", fullURL)
 
-	// Download and open file
-	br, gz, _, _, localFile, _, err := getDataReaderNew(p.source, ftpServer, basePath, biologicsPath)
+	// Download and open file (pass full FTP URL directly)
+	br, gz, _, _, localFile, _, err := getDataReaderNew(p.source, "", "", fullURL)
 	if err != nil {
 		p.check(err, "opening CID-Biologics.tsv.gz")
 		return
@@ -840,15 +839,15 @@ func (p *pubchem) loadBiologicCIDs() {
 // 2. Human-readable synonyms for display (filtering out technical identifiers)
 // File format: CID \t Synonym (one synonym per line, multiple lines per CID)
 func (p *pubchem) loadSynonyms() {
-	ftpServer := config.Dataconf[p.source]["ftpUrl"]
 	basePath := config.Dataconf[p.source]["path"]
 	synonymPath := config.Dataconf[p.source]["pathCIDSynonym"]
+	fullURL := basePath + synonymPath
 
-	log.Printf("[PubChem] Loading synonyms from %s (929 MB compressed)", synonymPath)
+	log.Printf("[PubChem] Loading synonyms from %s (929 MB compressed)", fullURL)
 	log.Printf("[PubChem] Note: This file contains millions of synonyms - may take 10-20 minutes")
 
-	// Download and open file
-	br, gz, _, _, localFile, _, err := getDataReaderNew(p.source, ftpServer, basePath, synonymPath)
+	// Download and open file (pass full FTP URL directly)
+	br, gz, _, _, localFile, _, err := getDataReaderNew(p.source, "", "", fullURL)
 	if err != nil {
 		p.check(err, "opening CID-Synonym-filtered.gz")
 		return
@@ -935,25 +934,38 @@ func (p *pubchem) loadSynonyms() {
 
 		// Extract cross-references from technical synonyms BEFORE filtering
 		// These create bidirectional links between PubChem and other databases
+		//
+		// NOTE: Some synonyms are InChIKeys that happen to start with prefixes like "BDBM" or "CHEMBL"
+		// (e.g., "BDBMOQCOLZWAIO-UHFFFAOYSA-N" is actually an InChIKey, not a BindingDB ID)
+		// These are filtered out by checking for digit after prefix. Future enhancement could:
+		// - Detect 27-char InChIKey format (XXXXXXXXXXXX-XXXXXXXXXX-X)
+		// - Use lookupDB to resolve InChIKey → ChEMBL compound → create xref
+		// Currently only ~79 such entries exist, so low priority.
 
 		// ChEMBL molecule IDs (e.g., "CHEMBL25" for aspirin)
 		// Note: SCHEMBL is SureChEMBL (patent chemistry), handled separately
+		// Valid format: CHEMBL followed by digits (not CHEMBL-123 or other variants)
 		if strings.HasPrefix(synonym, "CHEMBL") && !strings.HasPrefix(synonym, "SCHEMBL") {
-			if _, exists := config.Dataconf["chembl_molecule"]; exists {
-				p.d.addXref(cid, fr, synonym, "chembl_molecule", false)
-				p.chemblToPubChem[synonym] = append(p.chemblToPubChem[synonym], cid)
-				chemblXrefs++
+			// Validate format: must be CHEMBL + digits (e.g., CHEMBL25, CHEMBL123456)
+			numericPart := strings.TrimPrefix(synonym, "CHEMBL")
+			if len(numericPart) > 0 && numericPart[0] >= '0' && numericPart[0] <= '9' {
+				if _, exists := config.Dataconf["chembl_molecule"]; exists {
+					p.d.addXref(cid, fr, synonym, "chembl_molecule", false)
+					p.chemblToPubChem[synonym] = append(p.chemblToPubChem[synonym], cid)
+					chemblXrefs++
+				}
 			}
 			continue // Don't add as synonym, it's a technical ID
 		}
 
 		// SureChEMBL compound IDs (e.g., "SCHEMBL1234567")
 		// Map to patent_compound by stripping SCHEMBL prefix
+		// Valid format: SCHEMBL followed by digits (not SCHEMBL-123)
 		if strings.HasPrefix(synonym, "SCHEMBL") {
-			if _, exists := config.Dataconf["patent_compound"]; exists {
-				// Extract numeric ID: SCHEMBL1234567 -> 1234567
-				schemblID := strings.TrimPrefix(synonym, "SCHEMBL")
-				if schemblID != "" {
+			schemblID := strings.TrimPrefix(synonym, "SCHEMBL")
+			// Validate format: must start with digit
+			if len(schemblID) > 0 && schemblID[0] >= '0' && schemblID[0] <= '9' {
+				if _, exists := config.Dataconf["patent_compound"]; exists {
 					p.d.addXref(cid, fr, schemblID, "patent_compound", false)
 					schemblXrefs++
 				}
@@ -963,10 +975,12 @@ func (p *pubchem) loadSynonyms() {
 
 		// BindingDB monomer IDs (e.g., "BDBM50000001")
 		// BindingDB uses numeric bucket method, so strip the "BDBM" prefix
+		// Valid format: BDBM followed by digits (not BDBM-123 or BDBM + InChIKey)
 		if strings.HasPrefix(synonym, "BDBM") {
-			if _, exists := config.Dataconf["bindingdb"]; exists {
-				bindingdbID := strings.TrimPrefix(synonym, "BDBM")
-				if bindingdbID != "" {
+			bindingdbID := strings.TrimPrefix(synonym, "BDBM")
+			// Validate format: must be digits only (e.g., 50000001)
+			if len(bindingdbID) > 0 && bindingdbID[0] >= '0' && bindingdbID[0] <= '9' {
+				if _, exists := config.Dataconf["bindingdb"]; exists {
 					p.d.addXref(cid, fr, bindingdbID, "bindingdb", false)
 					bindingdbXrefs++
 				}
@@ -1156,14 +1170,14 @@ func isCASNumber(s string) bool {
 // loadMeSHTerms parses CID-MeSH and stores MeSH terms per biotech CID
 // MeSH (Medical Subject Headings) provides medical/biological classifications
 func (p *pubchem) loadMeSHTerms() {
-	ftpServer := config.Dataconf[p.source]["ftpUrl"]
 	basePath := config.Dataconf[p.source]["path"]
 	meshPath := config.Dataconf[p.source]["pathCIDMeSH"]
+	fullURL := basePath + meshPath
 
-	log.Printf("[PubChem] Loading MeSH terms from %s (2.9 MB compressed)", meshPath)
+	log.Printf("[PubChem] Loading MeSH terms from %s (2.9 MB compressed)", fullURL)
 
-	// Download and open file
-	br, gz, _, _, localFile, _, err := getDataReaderNew(p.source, ftpServer, basePath, meshPath)
+	// Download and open file (pass full FTP URL directly)
+	br, gz, _, _, localFile, _, err := getDataReaderNew(p.source, "", "", fullURL)
 	if err != nil {
 		p.check(err, "opening CID-MeSH")
 		return
@@ -1401,9 +1415,9 @@ func (p *pubchem) parseSDFFile(sdfFile string) {
 		}
 	}
 
-	ftpServer := config.Dataconf[p.source]["ftpUrl"]
 	basePath := config.Dataconf[p.source]["path"]
 	sdfPath := config.Dataconf[p.source]["pathSDF"]
+	fullURL := basePath + sdfPath + sdfFile
 
 	var lastError error
 
@@ -1414,7 +1428,7 @@ func (p *pubchem) parseSDFFile(sdfFile string) {
 			log.Printf("[PubChem] Retrying download and processing of %s...", sdfFile)
 		}
 
-		err := p.processSDFFile(sdfFile, ftpServer, basePath, sdfPath)
+		err := p.processSDFFile(fullURL)
 		if err == nil {
 			return // Success
 		}
@@ -1429,13 +1443,13 @@ func (p *pubchem) parseSDFFile(sdfFile string) {
 
 // processSDFFile handles the actual SDF file processing
 // Returns error if processing fails (for retry mechanism)
-func (p *pubchem) processSDFFile(sdfFile, ftpServer, basePath, sdfPath string) error {
-	log.Printf("[PubChem] Parsing %s", sdfFile)
+func (p *pubchem) processSDFFile(fullURL string) error {
+	log.Printf("[PubChem] Parsing %s", fullURL)
 
-	// Download and open SDF file
-	br, gz, _, _, localFile, _, err := getDataReaderNew(p.source, ftpServer, basePath, sdfPath+sdfFile)
+	// Download and open SDF file (pass full FTP URL directly)
+	br, gz, _, _, localFile, _, err := getDataReaderNew(p.source, "", "", fullURL)
 	if err != nil {
-		return fmt.Errorf("could not load %s: %v", sdfFile, err)
+		return fmt.Errorf("could not load %s: %v", fullURL, err)
 	}
 	defer func() {
 		if gz != nil {
@@ -1490,7 +1504,7 @@ func (p *pubchem) processSDFFile(sdfFile, ftpServer, basePath, sdfPath string) e
 		currentRecord.WriteString(line)
 	}
 
-	log.Printf("[PubChem] Processed %s: found %d target CIDs (scanned %d compounds)", sdfFile, matchCount, scannedCount)
+	log.Printf("[PubChem] Processed %s: found %d target CIDs (scanned %d compounds)", fullURL, matchCount, scannedCount)
 	return nil // Success
 }
 
@@ -1690,13 +1704,13 @@ func (p *pubchem) loadSupplementaryMappings() {
 
 // loadMeSHPharmActions loads MeSH term → pharmacological actions mapping
 func (p *pubchem) loadMeSHPharmActions() {
-	ftpServer := config.Dataconf[p.source]["ftpUrl"]
 	basePath := config.Dataconf["pubchem"]["path"]
 	meshPharmPath := config.Dataconf["pubchem"]["pathMeSHPharm"]
+	fullURL := basePath + meshPharmPath
 
 	log.Printf("[PubChem] Loading MeSH-Pharm (pharmacological actions)")
 
-	br, gz, _, _, localFile, _, err := getDataReaderNew(p.source, ftpServer, basePath, meshPharmPath)
+	br, gz, _, _, localFile, _, err := getDataReaderNew(p.source, "", "", fullURL)
 	if err != nil {
 		log.Printf("[PubChem] Warning: Could not load MeSH-Pharm: %v", err)
 		return
@@ -1744,13 +1758,13 @@ func (p *pubchem) loadMeSHPharmActions() {
 
 // loadCIDDate loads CID → creation date mapping
 func (p *pubchem) loadCIDDate() {
-	ftpServer := config.Dataconf[p.source]["ftpUrl"]
 	basePath := config.Dataconf["pubchem"]["path"]
 	datePath := config.Dataconf["pubchem"]["pathCIDDate"]
+	fullURL := basePath + datePath
 
 	log.Printf("[PubChem] Loading CID-Date (creation dates)")
 
-	br, gz, _, _, localFile, _, err := getDataReaderNew(p.source, ftpServer, basePath, datePath)
+	br, gz, _, _, localFile, _, err := getDataReaderNew(p.source, "", "", fullURL)
 	if err != nil {
 		log.Printf("[PubChem] Warning: Could not load CID-Date: %v", err)
 		return
@@ -1807,13 +1821,13 @@ func (p *pubchem) loadCIDDate() {
 
 // loadCIDParent loads CID → parent CID mapping
 func (p *pubchem) loadCIDParent() {
-	ftpServer := config.Dataconf[p.source]["ftpUrl"]
 	basePath := config.Dataconf["pubchem"]["path"]
 	parentPath := config.Dataconf["pubchem"]["pathCIDParent"]
+	fullURL := basePath + parentPath
 
 	log.Printf("[PubChem] Loading CID-Parent (parent compound relationships)")
 
-	br, gz, _, _, localFile, _, err := getDataReaderNew(p.source, ftpServer, basePath, parentPath)
+	br, gz, _, _, localFile, _, err := getDataReaderNew(p.source, "", "", fullURL)
 	if err != nil {
 		log.Printf("[PubChem] Warning: Could not load CID-Parent: %v", err)
 		return
@@ -1902,7 +1916,8 @@ func (p *pubchem) parseChEBIAccessions() {
 	chebiPath := config.Dataconf["chebi"]["path"]
 	log.Printf("[PubChem] Parsing ChEBI database_accession.tsv for PubChem cross-references")
 
-	br, gz, _, _, localFile, _, err := getDataReaderNew("chebi", p.d.ebiFtp, p.d.ebiFtpPath, chebiPath+"database_accession.tsv.gz")
+	// Path in config is now a full FTP URL
+	br, gz, _, _, localFile, _, err := getDataReaderNew("chebi", "", "", chebiPath+"database_accession.tsv.gz")
 	if err != nil {
 		log.Printf("[PubChem] Warning: Could not load ChEBI database_accession.tsv: %v", err)
 		return

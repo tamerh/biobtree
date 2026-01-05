@@ -77,11 +77,21 @@ type BucketConfig struct {
 	// When HybridMode=true and bucket method returns -1, Write() returns false
 	// to signal caller should use kvdatachan fallback
 	HybridMode bool
+
+	// Incremental update support
+	// IsDerived indicates this config was auto-created for a derived dataset
+	// (datasets from xref*.json that have no parser, only receive reverse xrefs)
+	// Derived datasets are stored under _derived/ parent directory
+	IsDerived bool
 }
 
 // linkDatasetMap maps child dataset IDs to their parent dataset IDs
 // e.g., hpoparent (ID:358) → hpo (ID:58)
 var linkDatasetMap map[string]string
+
+// datasetIDToName maps dataset IDs to dataset names
+// Built during LoadBucketConfigs from config.Dataconf
+var datasetIDToName map[string]string
 
 // GetLinkDatasetID returns the parent dataset ID for a link dataset,
 // or the original ID if it's not a link dataset
@@ -93,6 +103,30 @@ func GetLinkDatasetID(datasetID string) string {
 		return parentID
 	}
 	return datasetID
+}
+
+// GetDatasetName returns the dataset name for a given dataset ID
+// Returns empty string if ID is not found
+func GetDatasetName(datasetID string) string {
+	if datasetIDToName == nil {
+		return ""
+	}
+	return datasetIDToName[datasetID]
+}
+
+// BuildDatasetIDToNameMap builds the reverse lookup from ID to name
+// Called during initialization
+func BuildDatasetIDToNameMap() {
+	datasetIDToName = make(map[string]string)
+	for name, props := range config.Dataconf {
+		if props["_alias"] == "true" {
+			continue
+		}
+		if id, ok := props["id"]; ok {
+			datasetIDToName[id] = name
+		}
+	}
+	log.Printf("Built dataset ID to name map: %d entries", len(datasetIDToName))
 }
 
 // fixedBuckets defines methods with fixed bucket counts
@@ -121,6 +155,9 @@ var hybridBucketMethods = map[string]int{
 func LoadBucketConfigs() map[string]*BucketConfig {
 	cfgs := make(map[string]*BucketConfig)
 	linkDatasetMap = make(map[string]string)
+
+	// Build reverse lookup from dataset ID to name
+	BuildDatasetIDToNameMap()
 
 	// First pass: load primary bucket configs
 	for datasetName, props := range config.Dataconf {
@@ -333,4 +370,80 @@ func LoadBucketConfigs() map[string]*BucketConfig {
 		TextSearchDatasetID)
 
 	return cfgs
+}
+
+// LoadDerivedBucketConfigs auto-creates bucket configs for derived datasets
+// (datasets from xref*.json that have no parser/path defined)
+// These datasets only receive reverse xrefs from other datasets (no parser, no forward xrefs)
+// Uses alphabetic bucketing with 1 bucket (low data volume) and stores under _derived/
+//
+// Also creates bucket configs for source datasets without bucketMethod (like bgee)
+// These are NOT marked as derived since they have parsers
+func LoadDerivedBucketConfigs(existingConfigs map[string]*BucketConfig) map[string]*BucketConfig {
+	derivedCount := 0
+	sourceCount := 0
+
+	for datasetName, props := range config.Dataconf {
+		// Skip aliases
+		if props["_alias"] == "true" {
+			continue
+		}
+
+		datasetID := props["id"]
+
+		// Skip if already has bucket config (source dataset or link dataset with own config)
+		if _, exists := existingConfigs[datasetID]; exists {
+			continue
+		}
+
+		// Skip if this is a link dataset mapped to a parent
+		if linkDatasetMap != nil {
+			if _, isLink := linkDatasetMap[datasetID]; isLink {
+				continue
+			}
+		}
+
+		// Check if this is a source dataset (has path) or derived dataset (no path)
+		// Source datasets have parsers and create forward xrefs
+		// Derived datasets only receive reverse xrefs from other datasets
+		_, hasPath := props["path"]
+		isDerived := !hasPath
+
+		// Auto-create config
+		// Uses alphabetic method with 55 buckets for source datasets, 1 bucket for derived
+		numBuckets := 1
+		if !isDerived {
+			numBuckets = 55 // Source datasets may have more data
+		}
+
+		cfg := &BucketConfig{
+			DatasetID:        datasetID,
+			DatasetName:      datasetName,
+			MethodName:       "alphabetic",
+			NumBuckets:       numBuckets,
+			Method:           alphabeticBucket,
+			SkipBucketSort:   false,
+			NumSets:          1,
+			Methods:          []BucketMethod{alphabeticBucket},
+			MethodNames:      []string{"alphabetic"},
+			NumBucketsPerSet: []int{numBuckets},
+			IsDerived:        isDerived,
+		}
+
+		existingConfigs[datasetID] = cfg
+		if isDerived {
+			derivedCount++
+		} else {
+			sourceCount++
+		}
+	}
+
+	if derivedCount > 0 {
+		log.Printf("Auto-created bucket configs for %d derived datasets (stored under _derived/)", derivedCount)
+	}
+	if sourceCount > 0 {
+		log.Printf("Auto-created bucket configs for %d source datasets without bucketMethod", sourceCount)
+	}
+
+	return existingConfigs
 }

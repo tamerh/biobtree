@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 )
 
@@ -30,6 +31,7 @@ type HybridWriterPool struct {
 	bucketDirs    map[string]string        // datasetID → output directory
 	fallbackChan  *chan string             // Existing kvdatachan for fallback
 	outputDir     string
+	poolMutex     sync.RWMutex // Mutex for lazy bucket file creation
 }
 
 // NewHybridWriterPool creates the pool with bucket configs
@@ -49,8 +51,14 @@ func NewHybridWriterPoolWithWorkers(configs map[string]*BucketConfig, fallbackCh
 		outputDir:     outputDir,
 	}
 
-	// Create output directories for all configured datasets
+	// Create output directories for source datasets (non-derived) only
+	// Derived datasets use lazy creation via writeToSubdir()
 	for datasetID, cfg := range configs {
+		// Skip derived datasets - they're created lazily when receiving reverse xrefs
+		if cfg.IsDerived {
+			continue
+		}
+
 		if cfg.NumSets > 1 {
 			// Multi-bucket-set: create buckets1_{chunkIdx}/, buckets2_{chunkIdx}/, etc.
 			// Include chunkIdx in dir name to allow multiple processes with different --idx
@@ -220,6 +228,145 @@ func (p *HybridWriterPool) Write(datasetID string, entityID string, line string)
 	return false
 }
 
+// WriteForward writes a forward xref to the source dataset's forward/ directory
+// Used for source-tagged bucket files to enable incremental updates
+// Directory structure: {dataset}/forward/bucket_*.txt
+// For derived datasets: _derived/{dataset}/forward/bucket_*.txt
+func (p *HybridWriterPool) WriteForward(sourceDatasetID, sourceDatasetName, entityID, line string) bool {
+	return p.writeToSubdir(sourceDatasetID, entityID, line, "forward")
+}
+
+// WriteReverse writes a reverse xref to the target dataset's from_{source}/ directory
+// Used for source-tagged bucket files to enable incremental updates
+// Directory structure: {dataset}/from_{source}/bucket_*.txt
+// For derived datasets: _derived/{dataset}/from_{source}/bucket_*.txt
+func (p *HybridWriterPool) WriteReverse(targetDatasetID, entityID, line, sourceDatasetName string) bool {
+	subdir := fmt.Sprintf("from_%s", sourceDatasetName)
+	return p.writeToSubdir(targetDatasetID, entityID, line, subdir)
+}
+
+// writeToSubdir writes data to a source-tagged subdirectory with lazy bucket file creation
+// Supports both regular datasets and derived datasets (stored under _derived/)
+func (p *HybridWriterPool) writeToSubdir(datasetID, entityID, line, subdir string) bool {
+	// Resolve link dataset if needed
+	resolvedID := datasetID
+	if linkDatasetMap != nil {
+		if parentID, isLink := linkDatasetMap[datasetID]; isLink {
+			resolvedID = parentID
+		}
+	}
+
+	// Get bucket config
+	cfg, hasBucket := p.bucketConfigs[resolvedID]
+	if !hasBucket {
+		return false
+	}
+
+	// Compute bucket number using the bucket method
+	var bucketNum int
+	if cfg.NumSets > 1 && !cfg.HybridMode {
+		// Multi-bucket-set: try each method, use first match
+		matched := false
+		for _, method := range cfg.Methods {
+			bucketNum = method(entityID, cfg.NumBucketsPerSet[0])
+			if bucketNum >= 0 {
+				matched = true
+				break
+			}
+		}
+		if !matched {
+			// No method matched - use alphabetic fallback
+			bucketNum = alphabeticBucket(entityID, cfg.NumBucketsPerSet[0])
+			if bucketNum < 0 {
+				bucketNum = 0
+			}
+		}
+	} else if cfg.HybridMode {
+		// Hybrid mode: decode bucket from encoded value
+		numBucketsPerSet := cfg.NumBucketsPerSet[0]
+		encodedBucket := cfg.Method(entityID, numBucketsPerSet)
+		if encodedBucket < 0 {
+			// Unknown pattern - use alphabetic fallback bucket instead of kvdatachan
+			// This ensures ALL data goes through bucket system for incremental updates
+			bucketNum = alphabeticBucket(entityID, numBucketsPerSet)
+			if bucketNum < 0 {
+				bucketNum = 0
+			}
+		} else {
+			bucketNum = encodedBucket % numBucketsPerSet
+		}
+	} else {
+		// Single bucket set
+		bucketNum = cfg.Method(entityID, cfg.NumBuckets)
+		if bucketNum < 0 || bucketNum >= cfg.NumBuckets {
+			bucketNum = 0
+		}
+	}
+
+	// Build bucket key for source-tagged subdirectory
+	// Format: "datasetID_subdir_bucketNum"
+	bucketKey := fmt.Sprintf("%s_%s_%d", resolvedID, subdir, bucketNum)
+
+	// Fast path: check if bucket file already exists (read lock)
+	p.poolMutex.RLock()
+	bf := p.bucketFiles[bucketKey]
+	p.poolMutex.RUnlock()
+
+	// Slow path: create bucket file if not exists (write lock)
+	if bf == nil {
+		p.poolMutex.Lock()
+		// Double-check after acquiring write lock
+		bf = p.bucketFiles[bucketKey]
+		if bf == nil {
+			// Build directory path
+			var dir string
+			if cfg.IsDerived {
+				// Derived datasets go under _derived/
+				dir = filepath.Join(p.outputDir, "_derived", cfg.DatasetName, subdir)
+			} else {
+				dir = filepath.Join(p.outputDir, cfg.DatasetName, subdir)
+			}
+
+			// Create directory if needed
+			if err := os.MkdirAll(dir, 0755); err != nil {
+				p.poolMutex.Unlock()
+				log.Printf("Error creating bucket dir %s: %v", dir, err)
+				return false
+			}
+
+			// Create bucket file entry
+			bf = &BucketFile{
+				filePath: filepath.Join(dir, fmt.Sprintf("bucket_%03d.txt", bucketNum)),
+			}
+			p.bucketFiles[bucketKey] = bf
+		}
+		p.poolMutex.Unlock()
+	}
+
+	// Write to bucket file with per-file mutex
+	bf.mutex.Lock()
+	defer bf.mutex.Unlock()
+
+	// Lazy file creation
+	if !bf.created {
+		var err error
+		bf.file, err = os.Create(bf.filePath)
+		if err != nil {
+			log.Printf("Error creating bucket file %s: %v", bf.filePath, err)
+			return false
+		}
+		bf.buf = bufio.NewWriterSize(bf.file, BucketWriteBufferSize)
+		bf.created = true
+	}
+
+	// Write line
+	bf.buf.WriteString(line)
+	bf.buf.WriteByte('\n')
+	bf.lineCount++
+
+	return true
+}
+
 // GetTotalWrites returns the total number of lines written to buckets
 // Must be called after Close() to get accurate count
 func (p *HybridWriterPool) GetTotalWrites() uint64 {
@@ -230,17 +377,24 @@ func (p *HybridWriterPool) GetTotalWrites() uint64 {
 	return total
 }
 
-// WriteXref writes forward xref and optionally reverse xref
+// WriteXref writes forward xref and optionally reverse xref using source-tagged directories
+// Deprecated: Use WriteForward and WriteReverse directly for better control
 func (p *HybridWriterPool) WriteXref(
 	sourceDataset string, sourceID string, forwardLine string,
 	targetDataset string, targetID string, reverseLine string,
 ) {
-	// Forward xref
-	p.Write(sourceDataset, sourceID, forwardLine)
+	// Get source dataset name for directory naming
+	sourceDatasetName := GetDatasetName(sourceDataset)
+	if sourceDatasetName == "" {
+		sourceDatasetName = "unknown"
+	}
 
-	// Reverse xref (if provided)
+	// Forward xref → {source}/forward/
+	p.WriteForward(sourceDataset, sourceDatasetName, sourceID, forwardLine)
+
+	// Reverse xref → {target}/from_{source}/ (if provided)
 	if targetDataset != "" && reverseLine != "" {
-		p.Write(targetDataset, targetID, reverseLine)
+		p.WriteReverse(targetDataset, targetID, reverseLine, sourceDatasetName)
 	}
 }
 
@@ -281,66 +435,56 @@ func (p *HybridWriterPool) GetBucketFiles() []string {
 // GetBucketWriters returns bucket info for sorting/concatenation
 // Returns a compatible structure for existing sort code
 // For multi-bucket-set configs, returns separate entries for each set
+// IMPORTANT: This now includes ALL bucket files (both old buckets_{chunkIdx}/ and new forward/, from_*/)
 func (p *HybridWriterPool) GetBucketWriters() map[string]*DatasetBucketWriter {
 	result := make(map[string]*DatasetBucketWriter)
 
-	for datasetID, cfg := range p.bucketConfigs {
-		if cfg.NumSets > 1 {
-			// Multi-bucket-set: create separate entries for each set
-			for setIdx := 0; setIdx < cfg.NumSets; setIdx++ {
-				// Include chunkIdx in path to match bucket creation
-				dir := filepath.Join(p.outputDir, cfg.DatasetName, fmt.Sprintf("buckets%d_%s", setIdx+1, chunkIdx))
-				numBuckets := cfg.NumBucketsPerSet[setIdx]
+	// Collect all created bucket files by dataset
+	// Key format from writeToSubdir: "{datasetID}_{subdir}_{bucketNum}"
+	// Key format from initialization: "{datasetID}_{bucketNum}" or "{datasetID}_{setIdx}_{bucketNum}"
+	datasetFiles := make(map[string][]*BucketFile)
+	for key, bf := range p.bucketFiles {
+		if !bf.created {
+			continue // Skip files that were never written to
+		}
+		// Extract datasetID from key (first part before underscore)
+		parts := strings.SplitN(key, "_", 2)
+		if len(parts) < 1 {
+			continue
+		}
+		datasetID := parts[0]
+		datasetFiles[datasetID] = append(datasetFiles[datasetID], bf)
+	}
 
-				// Create unique key for this set
-				setKey := fmt.Sprintf("%s_set%d", datasetID, setIdx)
-
-				dbw := &DatasetBucketWriter{
-					datasetID: datasetID,
-					config:    cfg,
-					outputDir: dir,
-					buckets:   make([]*BucketWriter, numBuckets),
-					setIndex:  setIdx,
-				}
-
-				for i := 0; i < numBuckets; i++ {
-					key := fmt.Sprintf("%s_%d_%d", datasetID, setIdx, i)
-					bf := p.bucketFiles[key]
-					dbw.buckets[i] = &BucketWriter{
-						filePath:    bf.filePath,
-						fileCreated: bf.created,
-						lineCount:   bf.lineCount,
-					}
-				}
-
-				result[setKey] = dbw
+	// Build result from collected files
+	for datasetID, files := range datasetFiles {
+		cfg, hasCfg := p.bucketConfigs[datasetID]
+		if !hasCfg {
+			// Try resolving via link dataset map
+			if parentID := GetLinkDatasetID(datasetID); parentID != datasetID {
+				cfg, hasCfg = p.bucketConfigs[parentID]
 			}
-		} else {
-			// Single bucket set
-			dir := p.bucketDirs[datasetID]
-			if dir == "" {
-				continue
-			}
+		}
+		if !hasCfg {
+			continue
+		}
 
-			keys := p.bucketKeys[datasetID]
-			dbw := &DatasetBucketWriter{
-				datasetID: datasetID,
-				config:    cfg,
-				outputDir: dir,
-				buckets:   make([]*BucketWriter, cfg.NumBuckets),
-				setIndex:  -1, // Single set indicator
+		// Convert to BucketWriter array
+		buckets := make([]*BucketWriter, len(files))
+		for i, bf := range files {
+			buckets[i] = &BucketWriter{
+				filePath:    bf.filePath,
+				fileCreated: bf.created,
+				lineCount:   bf.lineCount,
 			}
+		}
 
-			for i := 0; i < cfg.NumBuckets; i++ {
-				bf := p.bucketFiles[keys[i]] // Use pre-computed key
-				dbw.buckets[i] = &BucketWriter{
-					filePath:    bf.filePath,
-					fileCreated: bf.created,
-					lineCount:   bf.lineCount,
-				}
-			}
-
-			result[datasetID] = dbw
+		result[datasetID] = &DatasetBucketWriter{
+			datasetID: datasetID,
+			config:    cfg,
+			outputDir: p.outputDir,
+			buckets:   buckets,
+			setIndex:  -1,
 		}
 	}
 

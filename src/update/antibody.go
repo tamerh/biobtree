@@ -82,7 +82,7 @@ func (a *antibody) parseTheraSAbDab(testLimit int, idLogFile *os.File) {
 	log.Printf("Antibody (TheraSAbDab): Downloading from %s", filePath)
 
 	// Open CSV file
-	br, gz, ftpFile, client, localFile, _, err := getDataReaderNew(a.source, a.d.ebiFtp, a.d.ebiFtpPath, filePath)
+	br, gz, ftpFile, client, localFile, _, err := getDataReaderNew(a.source, "", "", filePath)
 	a.check(err, "opening TheraSAbDab CSV file")
 	defer closeReaders(gz, ftpFile, client, localFile)
 
@@ -272,7 +272,7 @@ func (a *antibody) parseSAbDab(testLimit int, idLogFile *os.File) {
 	log.Printf("Antibody (SAbDab): Downloading from %s", filePath)
 
 	// Open TSV file
-	br, gz, ftpFile, client, localFile, _, err := getDataReaderNew(a.source, a.d.ebiFtp, a.d.ebiFtpPath, filePath)
+	br, gz, ftpFile, client, localFile, _, err := getDataReaderNew(a.source, "", "", filePath)
 	a.check(err, "opening SAbDab TSV file")
 	defer closeReaders(gz, ftpFile, client, localFile)
 
@@ -410,7 +410,7 @@ func (a *antibody) parseIMGTGene(testLimit int, idLogFile *os.File) {
 	log.Printf("Antibody (IMGT/GENE-DB): Downloading from %s", filePath)
 
 	// Open FASTA file
-	br, gz, ftpFile, client, localFile, _, err := getDataReaderNew(a.source, a.d.ebiFtp, a.d.ebiFtpPath, filePath)
+	br, gz, ftpFile, client, localFile, _, err := getDataReaderNew(a.source, "", "", filePath)
 	a.check(err, "opening IMGT/GENE-DB FASTA file")
 	defer closeReaders(gz, ftpFile, client, localFile)
 
@@ -597,7 +597,7 @@ func (a *antibody) parseIMGTLigm(testLimit int, idLogFile *os.File) {
 	log.Printf("Antibody (IMGT/LIGM-DB): Downloading from %s", filePath)
 
 	// Open compressed FASTA file
-	br, gz, ftpFile, client, localFile, _, err := getDataReaderNew(a.source, a.d.ebiFtp, a.d.ebiFtpPath, filePath)
+	br, gz, ftpFile, client, localFile, _, err := getDataReaderNew(a.source, "", "", filePath)
 	a.check(err, "opening IMGT/LIGM-DB FASTA file")
 	defer closeReaders(gz, ftpFile, client, localFile)
 

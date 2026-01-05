@@ -560,6 +560,17 @@ conf/
 
 **`source.dataset.json`**: Defines primary datasets that biobtree processes. These datasets can create cross-references (xrefs) with each other and serve as the foundation for data integration.
 
+Dataset paths use **full URLs** for clarity and simplicity:
+```json
+{
+  "taxonomy": {
+    "path": "ftp://ftp.ebi.ac.uk/pub/databases/uniprot/current_release/knowledgebase/taxonomy/taxonomy.xml.gz"
+  }
+}
+```
+
+This allows easy identification of data sources and simplifies maintenance. The actual source URL used during build is recorded in `dataset_state.json` for tracking.
+
 **`default.dataset.json`**: Defines datasets derived automatically via cross-references when processing source datasets. These are included by default in all builds.
 
 **`optional.dataset.json`**: Defines derived datasets that are optional. Excluding these reduces the final database size while maintaining core functionality.

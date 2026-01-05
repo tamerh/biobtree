@@ -50,18 +50,17 @@ func (i *intact) update() {
 
 // parseAndSaveInteractions processes the IntAct PSI-MITAB 2.7 file
 func (i *intact) parseAndSaveInteractions(testLimit int, idLogFile *os.File) {
-	// Download from EBI FTP
-	ftpServer := config.Dataconf[i.source]["ftpUrl"]
-	filePath := config.Dataconf[i.source]["path"]
+	// Get full URL from config (includes ftp://host/path)
+	fullURL := config.Dataconf[i.source]["path"]
 
 	if config.IsTestMode() {
-		log.Printf("IntAct: [TEST MODE] Downloading from ftp://%s%s (will stop after %d interactions)", ftpServer, filePath, testLimit)
+		log.Printf("IntAct: [TEST MODE] Downloading from %s (will stop after %d interactions)", fullURL, testLimit)
 	} else {
-		log.Printf("IntAct: Downloading from ftp://%s%s", ftpServer, filePath)
+		log.Printf("IntAct: Downloading from %s", fullURL)
 	}
 
-	// Open PSI-MITAB file from FTP
-	br, gz, ftpFile, client, localFile, _, err := getDataReaderNew(i.source, ftpServer, "", filePath)
+	// Open PSI-MITAB file from FTP (pass full FTP URL directly)
+	br, gz, ftpFile, client, localFile, _, err := getDataReaderNew(i.source, "", "", fullURL)
 	i.check(err, "opening IntAct PSI-MITAB file")
 	defer closeReaders(gz, ftpFile, client, localFile)
 

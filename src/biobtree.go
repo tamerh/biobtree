@@ -10,9 +10,7 @@ import (
 	"os"
 	"runtime"
 	"runtime/pprof"
-
-	// "runtime"
-	// "runtime/pprof"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -157,6 +155,10 @@ func main() {
 			Name:  "resume-sort",
 			Usage: "Resume from sorting phase. Skip data processing and only run sort, concatenate, and write meta.json. Use after a crash during sorting",
 		},
+		cli.BoolFlag{
+			Name:  "force",
+			Usage: "Force reprocessing of datasets even if they haven't changed. Ignores the dataset state file for specified datasets",
+		},
 	}
 
 	// add dataset local flags
@@ -242,6 +244,19 @@ func main() {
 			Hidden: true,
 			Action: func(c *cli.Context) error {
 				return runAliasCommand(c)
+			},
+		},
+		{
+			Name:  "check",
+			Usage: "Check if datasets have changed at source without building. Use to preview what would be updated.",
+			Flags: []cli.Flag{
+				cli.BoolFlag{
+					Name:  "all,a",
+					Usage: "Check all datasets defined in source*.dataset.json (ignores -d flag)",
+				},
+			},
+			Action: func(c *cli.Context) error {
+				return runCheckCommand(c)
 			},
 		},
 		{
@@ -586,6 +601,11 @@ func runUpdateCommand(c *cli.Context) error {
 		dataUpdate.SetResumeSort(true)
 	}
 
+	// Force mode: reprocess datasets even if unchanged
+	if c.GlobalBool("force") {
+		dataUpdate.SetForceRebuild(true)
+	}
+
 	dataUpdate.Update()
 
 	elapsed := time.Since(start)
@@ -693,6 +713,157 @@ func runInstallCommand(c *cli.Context) error {
 
 	return nil
 
+}
+
+func runCheckCommand(c *cli.Context) error {
+	confdir := c.GlobalString("confdir")
+	outDir := c.GlobalString("out-dir")
+	config = &configs.Conf{}
+	config.Init(confdir, versionTag, outDir, true)
+
+	// Initialize update package config for source checking
+	update.InitConfig(config)
+
+	// Get datasets to check
+	var datasets []string
+	if c.Bool("all") {
+		// Get all datasets from config (only those with path defined - source datasets)
+		for name, props := range config.Dataconf {
+			// Skip aliases
+			if props["_alias"] == "true" {
+				continue
+			}
+			// Skip link datasets (no path)
+			if _, hasPath := props["path"]; !hasPath {
+				continue
+			}
+			datasets = append(datasets, name)
+		}
+		sort.Strings(datasets) // Sort for consistent output
+		fmt.Printf("Checking all %d source datasets...\n", len(datasets))
+	} else {
+		datasetsStr := c.GlobalString("datasets")
+		if datasetsStr == "" {
+			log.Println("Error: datasets must be specified with -d flag, or use --all to check all datasets")
+			return nil
+		}
+		datasets = strings.Split(datasetsStr, ",")
+	}
+
+	indexDir := config.Appconf["indexDir"]
+
+	// Load state
+	state, err := update.LoadDatasetState(indexDir)
+	if err != nil {
+		log.Printf("Warning: Could not load dataset state: %v", err)
+		state = update.NewDatasetState()
+	}
+
+	fmt.Println("\n=== Dataset Source Change Check ===\n")
+	fmt.Printf("%-25s %-15s %-10s %s\n", "DATASET", "SOURCE TYPE", "CHANGED", "DETAILS")
+	fmt.Printf("%-25s %-15s %-10s %s\n", strings.Repeat("-", 25), strings.Repeat("-", 15), strings.Repeat("-", 10), strings.Repeat("-", 40))
+
+	var changedCount, unchangedCount, unknownCount int
+
+	var notBuiltCount int
+
+	for _, dsName := range datasets {
+		dsName = strings.TrimSpace(dsName)
+		lastBuild := state.GetDatasetInfo(dsName)
+
+		// If dataset was never built, no need to check remote - just show "not built"
+		if lastBuild == nil {
+			fmt.Printf("%-25s %-15s %-10s %s\n", dsName, "not_built", "-", "never built - will build on first run")
+			notBuiltCount++
+			continue
+		}
+
+		changeInfo, err := update.CheckSourceChanged(dsName, lastBuild)
+		if err != nil {
+			fmt.Printf("%-25s %-15s %-10s %s\n", dsName, "ERROR", "-", err.Error())
+			unknownCount++
+			continue
+		}
+
+		// Determine details based on source type and check method
+		var details string
+		var displayType string
+		isUnknown := false
+
+		// Handle force_rebuild specially
+		if changeInfo.CheckMethod == "force_rebuild" {
+			displayType = "force_rebuild"
+			details = "always rebuilds"
+		} else {
+			displayType = string(changeInfo.SourceType)
+			switch changeInfo.SourceType {
+			case update.SourceTypeLocal:
+				if changeInfo.Error != "" {
+					details = changeInfo.Error
+				} else if !changeInfo.NewDate.IsZero() {
+					details = fmt.Sprintf("modified: %s", changeInfo.NewDate.Format("2006-01-02 15:04"))
+				} else {
+					details = "local file"
+				}
+			case update.SourceTypeFTPFile, update.SourceTypeFTPFolder:
+				if !changeInfo.NewDate.IsZero() {
+					details = fmt.Sprintf("date: %s", changeInfo.NewDate.Format("2006-01-02"))
+				}
+			case update.SourceTypeHTTPFile:
+				if changeInfo.NewETag != "" {
+					details = fmt.Sprintf("etag: %s", changeInfo.NewETag[:min(20, len(changeInfo.NewETag))])
+				} else if !changeInfo.NewDate.IsZero() {
+					details = fmt.Sprintf("date: %s", changeInfo.NewDate.Format("2006-01-02"))
+				}
+			case update.SourceTypeHTTPFolder:
+				if !changeInfo.NewDate.IsZero() {
+					details = fmt.Sprintf("date: %s", changeInfo.NewDate.Format("2006-01-02"))
+				}
+			case update.SourceTypeVersionedAPI:
+				details = fmt.Sprintf("version: %s", changeInfo.NewVersion)
+			case update.SourceTypeUnknown:
+				isUnknown = true
+				if changeInfo.Error != "" {
+					details = changeInfo.Error
+				} else {
+					details = "no source config"
+				}
+			default:
+				details = string(changeInfo.SourceType)
+			}
+		}
+
+		// Count appropriately
+		status := "NO"
+		if changeInfo.HasChanged {
+			status = "YES"
+			if isUnknown {
+				unknownCount++
+			} else {
+				changedCount++
+			}
+		} else {
+			unchangedCount++
+		}
+
+		fmt.Printf("%-25s %-15s %-10s %s\n", dsName, displayType, status, details)
+	}
+
+	fmt.Println()
+	if notBuiltCount > 0 {
+		fmt.Printf("Summary: %d changed, %d unchanged, %d not built, %d unknown/error\n", changedCount, unchangedCount, notBuiltCount, unknownCount)
+	} else {
+		fmt.Printf("Summary: %d changed, %d unchanged, %d unknown/error\n", changedCount, unchangedCount, unknownCount)
+	}
+
+	if changedCount > 0 {
+		fmt.Println("\nTo rebuild changed datasets, run: ./biobtree build -d <datasets>")
+	}
+	if unknownCount > 0 {
+		fmt.Println("Note: Unknown datasets will be skipped if already built, or built if new.")
+	}
+
+	return nil
 }
 
 func runProfileCommand(c *cli.Context) error {

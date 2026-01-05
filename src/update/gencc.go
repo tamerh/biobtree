@@ -64,7 +64,8 @@ func (g *gencc) update() {
 		defer httpResp.Body.Close()
 	} else {
 		// Fall back to FTP for backward compatibility
-		br2, _, ftpFile, client, localFile2, _, err := getDataReaderNew(g.source, g.d.ebiFtp, g.d.ebiFtpPath, path)
+		// Path is now a full URL
+		br2, _, ftpFile, client, localFile2, _, err := getDataReaderNew(g.source, "", "", path)
 		g.check(err, "opening FTP file")
 		br = br2
 		if ftpFile != nil {

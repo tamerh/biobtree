@@ -1,0 +1,97 @@
+{
+  "metadata": {
+    "total_ids": 5,
+    "note": "Minimal reference data for basic tests. Regenerate with extract_reference_data.py when Bgee source data is available."
+  },
+  "entries": [
+    {
+      "id": "ENSG00000000003",
+      "gene_name": "TSPAN6",
+      "total_conditions": 3,
+      "present_count": 2,
+      "absent_count": 1,
+      "data_type_counts": {
+        "RNA-Seq": 2,
+        "Affymetrix": 1
+      },
+      "expression_conditions": [
+        {
+          "anatomical_entity_id": "UBERON:0000955",
+          "anatomical_entity_name": "brain",
+          "expression": "present",
+          "call_quality": "gold quality",
+          "fdr": 0.01,
+          "expression_score": 85.5,
+          "self_observation_count": 5
+        },
+        {
+          "anatomical_entity_id": "UBERON:0002107",
+          "anatomical_entity_name": "liver",
+          "expression": "present",
+          "call_quality": "silver quality",
+          "fdr": 0.05,
+          "expression_score": 72.3,
+          "self_observation_count": 3
+        },
+        {
+          "anatomical_entity_id": "CL:0000540",
+          "anatomical_entity_name": "neuron",
+          "expression": "absent",
+          "call_quality": "gold quality",
+          "fdr": 0.001,
+          "expression_score": 10.2,
+          "self_observation_count": 2
+        }
+      ],
+      "top_expressed_tissues": [
+        {
+          "anatomical_entity_id": "UBERON:0000955",
+          "tissue": "brain",
+          "score": 85.5
+        },
+        {
+          "anatomical_entity_id": "UBERON:0002107",
+          "tissue": "liver",
+          "score": 72.3
+        }
+      ]
+    },
+    {
+      "id": "ENSG00000000005",
+      "gene_name": "TNMD",
+      "total_conditions": 2,
+      "present_count": 2,
+      "absent_count": 0,
+      "data_type_counts": {
+        "RNA-Seq": 2
+      },
+      "expression_conditions": [
+        {
+          "anatomical_entity_id": "UBERON:0001134",
+          "anatomical_entity_name": "skeletal muscle tissue",
+          "expression": "present",
+          "call_quality": "gold quality",
+          "fdr": 0.02,
+          "expression_score": 90.1,
+          "self_observation_count": 8
+        },
+        {
+          "anatomical_entity_id": "UBERON:0002384",
+          "anatomical_entity_name": "connective tissue",
+          "expression": "present",
+          "call_quality": "gold quality",
+          "fdr": 0.03,
+          "expression_score": 78.4,
+          "self_observation_count": 4
+        }
+      ],
+      "top_expressed_tissues": [
+        {
+          "anatomical_entity_id": "UBERON:0001134",
+          "tissue": "skeletal muscle tissue",
+          "score": 90.1
+        }
+      ]
+    }
+  ]
+}

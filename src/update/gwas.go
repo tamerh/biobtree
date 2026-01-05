@@ -57,7 +57,8 @@ func (g *gwas) parseAndSaveAssociations(testLimit int, idLogFile *os.File) {
 	log.Printf("GWAS Associations: Downloading via EBI FTP from %s", filePath)
 
 	// Open ZIP file via EBI FTP
-	br, gz, ftpFile, client, localFile, _, err := getDataReaderNew(g.source, g.d.ebiFtp, g.d.ebiFtpPath, filePath)
+	// Path in config is now a full FTP URL
+	br, gz, ftpFile, client, localFile, _, err := getDataReaderNew(g.source, "", "", filePath)
 	g.check(err, "opening GWAS Associations ZIP file")
 	defer closeReaders(gz, ftpFile, client, localFile)
 

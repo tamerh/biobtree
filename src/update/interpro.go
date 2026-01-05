@@ -24,7 +24,8 @@ func (i *interpro) check(err error, operation string) {
 func (i *interpro) update() {
 
 	fr := config.Dataconf[i.source]["id"]
-	br, gz, ftpFile, client, localFile, _, err := getDataReaderNew(i.source, i.d.ebiFtp, i.d.ebiFtpPath, config.Dataconf[i.source]["path"])
+	// Path in config is now a full FTP URL
+	br, gz, ftpFile, client, localFile, _, err := getDataReaderNew(i.source, "", "", config.Dataconf[i.source]["path"])
 	check(err)
 
 	if ftpFile != nil {

@@ -61,9 +61,13 @@ func (c *clinvarXML) update() {
 
 // parseAndSaveVCVFile processes the ClinVar VCV XML file using streaming parser
 func (c *clinvarXML) parseAndSaveVCVFile(testLimit int, idLogFile *os.File) {
-	// Build file URL
-	filePath := "https://ftp.ncbi.nlm.nih.gov" + config.Dataconf[c.source]["path"] +
-	            config.Dataconf[c.source]["xmlFile"]
+	// Build file URL from config path (which is now a full FTP URL)
+	// Convert ftp:// to https:// for NCBI (supports HTTPS access)
+	basePath := config.Dataconf[c.source]["path"]
+	if strings.HasPrefix(basePath, "ftp://") {
+		basePath = "https://" + strings.TrimPrefix(basePath, "ftp://")
+	}
+	filePath := basePath + config.Dataconf[c.source]["xmlFile"]
 
 	log.Printf("ClinVar XML: Downloading from %s", filePath)
 

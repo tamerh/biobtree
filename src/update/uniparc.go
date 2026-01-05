@@ -50,8 +50,11 @@ func (u *uniparc) update() {
 		files = matches
 	} else {
 		// FTP mode - list files from FTP
-		client := ftpClient(u.d.uniprotFtp)
-		err := client.ChangeDir(u.d.uniprotFtpPath + basePath)
+		// Parse host and path from full FTP URL in config
+		ftpHost, ftpPath, err := parseFTPURL(basePath)
+		check(err)
+		client := ftpClient(ftpHost)
+		err = client.ChangeDir(ftpPath)
 		check(err)
 		defer client.Quit()
 
@@ -61,6 +64,7 @@ func (u *uniparc) update() {
 		for _, entry := range entries {
 			matched, _ := filepath.Match(filePattern, entry.Name)
 			if matched {
+				// Store full path for getDataReaderNew (which will parse the URL again)
 				files = append(files, basePath+entry.Name)
 			}
 		}

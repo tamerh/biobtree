@@ -31,6 +31,28 @@ func decompressZ(input io.Reader) (io.ReadCloser, error) {
 	return stdout, nil
 }
 
+// parseFTPURL parses an FTP URL into host and path
+// Supports formats: ftp://host/path, ftp.host.org/path
+// Returns host with :21 port if not specified
+func parseFTPURL(url string) (host, path string, err error) {
+	// Remove ftp:// prefix if present
+	url = strings.TrimPrefix(url, "ftp://")
+
+	// Split on first /
+	parts := strings.SplitN(url, "/", 2)
+	if len(parts) < 2 {
+		return "", "", fmt.Errorf("invalid FTP URL: %s", url)
+	}
+
+	host = parts[0]
+	// Add default FTP port if not present
+	if !strings.Contains(host, ":") {
+		host = host + ":21"
+	}
+
+	return host, "/" + parts[1], nil
+}
+
 func getDataReaderNew(datatype string, ftpAddr string, ftpPath string, filePath string) (*bufio.Reader, *gzip.Reader, *ftp.Response, *ftp.ServerConn, *os.File, int64, error) {
 
 	var ftpfile *ftp.Response
@@ -38,6 +60,15 @@ func getDataReaderNew(datatype string, ftpAddr string, ftpPath string, filePath 
 	var file *os.File
 	var err error
 	var fileSize int64
+
+	// Check if filePath is a full FTP URL - if so, parse it and use directly
+	if strings.HasPrefix(filePath, "ftp://") {
+		if ftpHost, ftpFullPath, parseErr := parseFTPURL(filePath); parseErr == nil {
+			ftpAddr = ftpHost
+			ftpPath = ""
+			filePath = ftpFullPath
+		}
+	}
 
 	if _, ok := config.Dataconf[datatype]["useLocalFile"]; ok && config.Dataconf[datatype]["useLocalFile"] == "yes" {
 

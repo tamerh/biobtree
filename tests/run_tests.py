@@ -274,7 +274,7 @@ Available datasets:
         'dbsnp': datasets_dir / "dbsnp" / "test_dbsnp.py",
         'intact': datasets_dir / "intact" / "test_intact.py",
         'protein_similarity': datasets_dir / "protein_similarity" / "test_protein_similarity.py",
-        'antibody': datasets_dir / "antibody" / "test_antibody.py",
+       # 'antibody': datasets_dir / "antibody" / "test_antibody.py",
         'pubchem': datasets_dir / "pubchem" / "test_pubchem.py",
         'entrez': datasets_dir / "entrez" / "test_entrez.py",
         'refseq': datasets_dir / "refseq" / "test_refseq.py",

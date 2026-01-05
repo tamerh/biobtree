@@ -195,6 +195,8 @@ class BgeeTests:
     @test
     def test_cross_reference_to_ensembl(self):
         """Check Bgee gene has cross-reference to Ensembl"""
+        if not self.runner.reference_data:
+            return False, "No reference data available"
         entry = self.runner.reference_data[0]
         gene_id = entry["id"]
 
@@ -392,14 +394,9 @@ def main():
     # Get API URL from environment (set by orchestrator)
     api_url = os.environ.get('BIOBTREE_API_URL', 'http://localhost:9292')
 
-    # Check prerequisites
-    if not reference_file.exists():
-        print(f"Error: {reference_file} not found")
-        print("Run: python3 extract_reference_data.py")
-        return 1
-
     # Create test runner
-    runner = TestRunner(api_url, reference_file, test_cases_file)
+    # Note: reference_data.json is optional for basic tests
+    runner = TestRunner(api_url, reference_file if reference_file.exists() else None, test_cases_file)
 
     # Add custom tests
     custom_tests = BgeeTests(runner)

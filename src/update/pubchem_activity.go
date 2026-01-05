@@ -58,9 +58,9 @@ func (p *pubchemActivity) loadAndStreamActivities() {
 		}
 	}
 
-	ftpServer := config.Dataconf["pubchem"]["ftpUrl"]
-	basePath := "/pubchem/Bioassay/Extras/"
-	activityPath := "bioactivities.tsv.gz"
+	basePath := config.Dataconf["pubchem_activity"]["path"]
+	activityPath := config.Dataconf["pubchem_activity"]["pathBioactivities"]
+	fullURL := basePath + activityPath
 
 	// Test mode: get limit and open ID log file
 	testLimit := config.GetTestLimit("pubchem_activity")
@@ -73,9 +73,9 @@ func (p *pubchemActivity) loadAndStreamActivities() {
 	}
 
 	if config.IsTestMode() {
-		log.Printf("[PubChem Activity] [TEST MODE] Loading activities from %s (will stop after %d entries)", activityPath, testLimit)
+		log.Printf("[PubChem Activity] [TEST MODE] Loading activities from %s (will stop after %d entries)", fullURL, testLimit)
 	} else {
-		log.Printf("[PubChem Activity] Loading activities from %s (3 GB compressed)", activityPath)
+		log.Printf("[PubChem Activity] Loading activities from %s (3 GB compressed)", fullURL)
 	}
 	log.Printf("[PubChem Activity] Streaming entries directly to database (no memory accumulation)")
 
@@ -88,7 +88,7 @@ func (p *pubchemActivity) loadAndStreamActivities() {
 			log.Printf("[PubChem Activity] Retrying download and processing...")
 		}
 
-		err := p.processActivityFile(ftpServer, basePath, activityPath, testLimit, idLogFile)
+		err := p.processActivityFile(fullURL, testLimit, idLogFile)
 		if err == nil {
 			return // Success
 		}
@@ -103,9 +103,9 @@ func (p *pubchemActivity) loadAndStreamActivities() {
 
 // processActivityFile handles the actual file processing
 // Returns error if processing fails (for retry mechanism)
-func (p *pubchemActivity) processActivityFile(ftpServer, basePath, activityPath string, testLimit int, idLogFile *os.File) error {
-	// Download and open file
-	br, gz, _, _, localFile, _, err := getDataReaderNew("pubchem_activity", ftpServer, basePath, activityPath)
+func (p *pubchemActivity) processActivityFile(fullURL string, testLimit int, idLogFile *os.File) error {
+	// Download and open file (pass full FTP URL directly)
+	br, gz, _, _, localFile, _, err := getDataReaderNew("pubchem_activity", "", "", fullURL)
 	if err != nil {
 		return fmt.Errorf("could not open bioactivities.tsv.gz: %v", err)
 	}

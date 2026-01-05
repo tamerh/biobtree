@@ -29,11 +29,15 @@ func (l *literature) check(err error, operation string) {
 func (l *literature) update() {
 	var ftpfile *ftp.Response
 	var client *ftp.ServerConn
-	client = ftpClient(l.d.ebiFtp)
+
+	// Parse FTP URL from config
+	fullURL := config.Dataconf[l.source]["path"]
+	ftpHost, path, err := parseFTPURL(fullURL)
+	check(err)
+	client = ftpClient(ftpHost)
 
 	// first doi pm and pmcid mappings
-	path := l.d.ebiFtpPath + config.Dataconf[l.source]["path"]
-	ftpfile, err := client.Retr(path)
+	ftpfile, err = client.Retr(path)
 
 	var gz *gzip.Reader
 	var br *bufio.Reader
@@ -123,11 +127,13 @@ func (l *literature) literatureMappings2NotUsed(source string) {
 
 	var ftpfile *ftp.Response
 	var client *ftp.ServerConn
-	client = ftpClient(l.d.ebiFtp)
 
-	// first doi pm and pmcid mappings
-	path := l.d.ebiFtpPath + "/pmc/PMCLiteMetadata/PMCLiteMetadata.tgz"
-	ftpfile, err := client.Retr(path)
+	// PMC metadata file - hardcoded since not in config
+	pmcMetaURL := "ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/PMCLiteMetadata/PMCLiteMetadata.tgz"
+	pmcHost, pmcPath, err := parseFTPURL(pmcMetaURL)
+	check(err)
+	client = ftpClient(pmcHost)
+	ftpfile, err = client.Retr(pmcPath)
 
 	var gz *gzip.Reader
 	var br *bufio.Reader

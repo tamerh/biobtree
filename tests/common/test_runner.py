@@ -114,6 +114,11 @@ class TestRunner:
 
     def load_reference_data(self):
         """Load reference data from JSON file"""
+        if not self.reference_file:
+            print("No reference_data.json file - skipping reference-based tests")
+            self.reference_data = []
+            return
+
         with open(self.reference_file) as f:
             data = json.load(f)
             # Support both formats: dict with "entries" key or plain list

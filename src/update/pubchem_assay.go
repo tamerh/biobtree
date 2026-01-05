@@ -60,9 +60,9 @@ func (p *pubchemAssay) loadAndStreamBioassays() {
 		}
 	}
 
-	ftpServer := config.Dataconf["pubchem_assay"]["ftpUrl"]
-	basePath := "/pubchem/Bioassay/Extras/"
-	bioassayPath := "bioassays.tsv.gz"
+	basePath := config.Dataconf["pubchem_assay"]["path"]
+	bioassayPath := config.Dataconf["pubchem_assay"]["pathBioassays"]
+	fullURL := basePath + bioassayPath
 
 	// Test mode: get limit and open ID log file
 	testLimit := config.GetTestLimit("pubchem_assay")
@@ -75,9 +75,9 @@ func (p *pubchemAssay) loadAndStreamBioassays() {
 	}
 
 	if config.IsTestMode() {
-		log.Printf("[PubChem Assay] [TEST MODE] Loading bioassays from %s (will stop after %d entries)", bioassayPath, testLimit)
+		log.Printf("[PubChem Assay] [TEST MODE] Loading bioassays from %s (will stop after %d entries)", fullURL, testLimit)
 	} else {
-		log.Printf("[PubChem Assay] Loading bioassays from %s (20 MB compressed)", bioassayPath)
+		log.Printf("[PubChem Assay] Loading bioassays from %s (20 MB compressed)", fullURL)
 	}
 	log.Printf("[PubChem Assay] Streaming entries directly to database")
 
@@ -90,7 +90,7 @@ func (p *pubchemAssay) loadAndStreamBioassays() {
 			log.Printf("[PubChem Assay] Retrying download and processing...")
 		}
 
-		err := p.processBioassayFile(ftpServer, basePath, bioassayPath, testLimit, idLogFile)
+		err := p.processBioassayFile(fullURL, testLimit, idLogFile)
 		if err == nil {
 			return // Success
 		}
@@ -105,9 +105,9 @@ func (p *pubchemAssay) loadAndStreamBioassays() {
 
 // processBioassayFile handles the actual file processing
 // Returns error if processing fails (for retry mechanism)
-func (p *pubchemAssay) processBioassayFile(ftpServer, basePath, bioassayPath string, testLimit int, idLogFile *os.File) error {
-	// Download and open file
-	_, gz, _, _, localFile, _, err := getDataReaderNew("pubchem_assay", ftpServer, basePath, bioassayPath)
+func (p *pubchemAssay) processBioassayFile(fullURL string, testLimit int, idLogFile *os.File) error {
+	// Download and open file (pass full FTP URL directly)
+	_, gz, _, _, localFile, _, err := getDataReaderNew("pubchem_assay", "", "", fullURL)
 	if err != nil {
 		return fmt.Errorf("could not open bioassays.tsv.gz: %v", err)
 	}
@@ -449,14 +449,14 @@ func (p *pubchemAssay) loadBAOAnnotations() {
 		return
 	}
 
-	ftpServer := config.Dataconf["pubchem_assay"]["ftpUrl"]
-	basePath := "/pubchem/Bioassay/Extras/"
+	basePath := config.Dataconf["pubchem_assay"]["path"]
 	annotationPath := "Aid2CategorizedComment.gz"
+	fullURL := basePath + annotationPath
 
-	log.Printf("[PubChem Assay] Loading BAO annotations from %s", annotationPath)
+	log.Printf("[PubChem Assay] Loading BAO annotations from %s", fullURL)
 
-	// Download and open file
-	br, gz, _, _, localFile, _, err := getDataReaderNew("pubchem_assay", ftpServer, basePath, annotationPath)
+	// Download and open file (pass full FTP URL directly)
+	br, gz, _, _, localFile, _, err := getDataReaderNew("pubchem_assay", "", "", fullURL)
 	if err != nil {
 		log.Printf("[PubChem Assay] Warning: Could not load BAO annotations: %v", err)
 		return

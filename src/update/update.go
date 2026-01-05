@@ -39,6 +39,12 @@ var chunkIdx = "df"
 var mutex = &sync.Mutex{}
 var config *configs.Conf
 
+// InitConfig initializes the package-level config for source checking
+// Call this before using CheckSourceChanged outside of a DataUpdate context
+func InitConfig(c *configs.Conf) {
+	config = c
+}
+
 var allEnsembls = []string{"ensembl", "ensembl_fungi", "ensembl_bacteria", "ensembl_metazoa", "ensembl_plants", "ensembl_protists"}
 
 type DataUpdate struct {
@@ -80,6 +86,8 @@ type DataUpdate struct {
 	bucketWg               *sync.WaitGroup   // WaitGroup for bucket writers
 	useLookupDB            bool              // Flag to enable/disable lookup database loading
 	resumeSort             bool              // Flag to resume from sorting phase (skip data processing)
+	forceRebuild           bool              // Flag to force reprocessing even if source unchanged
+	datasetState           *DatasetState     // State tracking for incremental updates
 }
 
 type progressInfo struct {
@@ -165,6 +173,11 @@ func NewDataUpdate(datasets map[string]bool, targetDatasets, ensemblSpecies, ens
 // SetResumeSort enables resume-from-sort mode (skips data processing, only does sort+concat+meta)
 func (d *DataUpdate) SetResumeSort(resume bool) {
 	d.resumeSort = resume
+}
+
+// SetForceRebuild enables force mode (reprocess datasets even if source unchanged)
+func (d *DataUpdate) SetForceRebuild(force bool) {
+	d.forceRebuild = force
 }
 
 // Initialize read-only lookup database for keyword-to-ID resolution
@@ -336,12 +349,21 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 	// Initialize bucket system for optimized datasets
 	LoadBucketSystemConfig()
 	bucketConfigs := LoadBucketConfigs()
+
+	// Auto-create bucket configs for derived datasets (datasets from xref*.json without explicit bucketMethod)
+	// This enables source-tagged directories for all datasets, eliminating kvdatachan dependency
+	bucketConfigs = LoadDerivedBucketConfigs(bucketConfigs)
+
 	var bucketWg sync.WaitGroup
 	d.bucketWg = &bucketWg
 	d.bucketPool = NewHybridWriterPool(bucketConfigs, &e, config.Appconf["indexDir"], &bucketWg)
 	if len(bucketConfigs) > 0 {
 		log.Printf("Bucket system initialized with %d configured datasets", len(bucketConfigs))
 	}
+
+	// Load dataset state for incremental updates
+	d.datasetState, _ = LoadDatasetState(config.Appconf["indexDir"])
+	d.datasetState.BuildVersion = "1.8.0" // TODO: use actual version
 
 	// Resume mode: skip data processing, go directly to sort+concat+meta
 	if d.resumeSort {
@@ -447,6 +469,18 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 	}
 
 	for data := range d.inDatasets {
+		// Check if dataset should be skipped (already built and source unchanged)
+		if d.shouldSkipDataset(data) {
+			log.Printf("Skipping dataset %s (already built and source unchanged)", data)
+			continue
+		}
+
+		// Clean up old bucket files and sorted files before re-processing
+		// This ensures incremental updates don't leave stale data
+		if err := CleanupForIncrementalUpdate(data, config.Appconf["indexDir"]); err != nil {
+			log.Printf("Warning: cleanup failed for %s: %v", data, err)
+		}
+
 		switch data {
 		case "uniprot":
 			d.wg.Add(1)
@@ -916,6 +950,29 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 
 	ioutil.WriteFile(filepath.FromSlash(config.Appconf["indexDir"]+"/"+chunkIdx+".meta.json"), data, 0700)
 
+	// Save dataset state for incremental updates
+	if d.datasetState != nil {
+		// Mark all processed datasets as built
+		for _, datasetName := range d.datasets2 {
+			datasetID := ""
+			sourceURL := ""
+			if props, ok := config.Dataconf[datasetName]; ok {
+				datasetID = props["id"]
+				sourceURL = props["path"] // Get source URL from config
+			}
+			d.datasetState.MarkDatasetBuilt(datasetName, datasetID, 0, 0, time.Since(d.start).Seconds())
+			// Set the source URL on the info we just created
+			if sourceURL != "" {
+				if info := d.datasetState.GetDatasetInfo(datasetName); info != nil {
+					info.SourceURL = sourceURL
+				}
+			}
+		}
+		if err := SaveDatasetState(d.datasetState, config.Appconf["indexDir"]); err != nil {
+			log.Printf("Warning: failed to save dataset state: %v", err)
+		}
+	}
+
 	log.Println("All done.")
 
 	return d.totalParsedEntry, totalkv
@@ -931,6 +988,27 @@ func (d *DataUpdate) showProgres() {
 
 		alldone := false
 		latestProg[info.dataset] = *info
+
+		// Save state immediately when a dataset completes
+		// This ensures progress isn't lost if a later dataset fails
+		if info.done && d.datasetState != nil {
+			datasetID := ""
+			sourceURL := ""
+			if props, ok := config.Dataconf[info.dataset]; ok {
+				datasetID = props["id"]
+				sourceURL = props["path"]
+			}
+			d.datasetState.MarkDatasetBuilt(info.dataset, datasetID, 0, 0, time.Since(d.start).Seconds())
+			if sourceURL != "" {
+				if dsInfo := d.datasetState.GetDatasetInfo(info.dataset); dsInfo != nil {
+					dsInfo.SourceURL = sourceURL
+				}
+			}
+			if err := SaveDatasetState(d.datasetState, config.Appconf["indexDir"]); err != nil {
+				log.Printf("Warning: failed to save state for %s: %v", info.dataset, err)
+			}
+		}
+
 		if len(d.datasets2) == len(latestProg) {
 			alldone = true
 			elapsed := int64(time.Since(d.start).Seconds())
@@ -986,7 +1064,95 @@ func (d *DataUpdate) addEntryStat(source string, total uint64) {
 	mutex.Lock()
 	d.stats[source] = entrysize
 	mutex.Unlock()
+}
 
+// shouldSkipDataset checks if a dataset should be skipped because it was already built
+// and the source hasn't changed. Returns true if the dataset should be skipped.
+func (d *DataUpdate) shouldSkipDataset(datasetName string) bool {
+	// Force mode - never skip
+	if d.forceRebuild {
+		log.Printf("Force rebuild enabled for %s", datasetName)
+		return false
+	}
+
+	if d.datasetState == nil {
+		return false // No state - must build
+	}
+
+	// Check if dataset was previously built
+	lastBuild := d.datasetState.GetDatasetInfo(datasetName)
+	if lastBuild == nil {
+		return false // Never built - must build
+	}
+
+	// Check if source has changed
+	changeInfo, err := CheckSourceChanged(datasetName, lastBuild)
+	if err != nil {
+		// Error checking source - rebuild to be safe
+		log.Printf("Error checking source for %s: %v, will rebuild", datasetName, err)
+		return false
+	}
+
+	// Handle local files specially
+	if changeInfo.SourceType == SourceTypeLocal {
+		log.Printf("Dataset %s uses local files and was already built at %s. Use --force to rebuild.",
+			datasetName, lastBuild.LastBuildTime.Format(time.RFC3339))
+		return true
+	}
+
+	// If source type is unknown (no config), skip if already built
+	// This allows incremental updates to work without requiring source config for every dataset
+	if changeInfo.SourceType == SourceTypeUnknown {
+		log.Printf("No source config for %s, skipping (already built at %s)",
+			datasetName, lastBuild.LastBuildTime.Format(time.RFC3339))
+		return true
+	}
+
+	if changeInfo.HasChanged {
+		log.Printf("Source changed for %s (method=%s)", datasetName, changeInfo.CheckMethod)
+		// Store the new source info for later state update
+		d.storeSourceChangeInfo(datasetName, changeInfo)
+		return false // Source changed - must rebuild
+	}
+
+	// Source unchanged - can skip
+	log.Printf("Source unchanged for %s, skipping", datasetName)
+	return true
+
+}
+
+// storeSourceChangeInfo stores source change info for later state update
+func (d *DataUpdate) storeSourceChangeInfo(datasetName string, changeInfo *SourceChangeInfo) {
+	if d.datasetState == nil {
+		return
+	}
+
+	// Update or create the dataset build info with source info
+	info := d.datasetState.GetDatasetInfo(datasetName)
+	if info == nil {
+		info = &DatasetBuildInfo{
+			DatasetName: datasetName,
+		}
+	}
+
+	// Store source information for next comparison
+	if changeInfo.SourceURL != "" {
+		info.SourceURL = changeInfo.SourceURL
+	}
+	if !changeInfo.NewDate.IsZero() {
+		info.SourceDate = changeInfo.NewDate
+	}
+	if changeInfo.NewSize > 0 {
+		info.SourceSize = changeInfo.NewSize
+	}
+	if changeInfo.NewETag != "" {
+		info.SourceETag = changeInfo.NewETag
+	}
+	if changeInfo.NewVersion != "" {
+		info.SourceVersion = changeInfo.NewVersion
+	}
+
+	d.datasetState.UpdateDatasetInfo(info)
 }
 
 func (d *DataUpdate) addMeta(source string, meta map[string]interface{}) {
@@ -1015,12 +1181,20 @@ func (d *DataUpdate) addProp3(key, from string, attr []byte) {
 		return
 	}
 
+	// Get dataset name for directory naming
+	datasetName := GetDatasetName(from)
+	if datasetName == "" {
+		datasetName = "unknown"
+	}
+
 	kup := strings.ToUpper(key)
 	line := kup + tab + from + tab + string(attr) + tab + textStoreID
 
-	// Check if dataset has bucket config - route to buckets if so
-	if d.bucketPool != nil && d.bucketPool.HasBucketConfig(from) {
-		d.bucketPool.Write(from, kup, line)
+	// Route through source-tagged bucket directories
+	if d.bucketPool != nil {
+		if !d.bucketPool.WriteForward(from, datasetName, kup, line) {
+			*d.kvdatachan <- line
+		}
 	} else {
 		*d.kvdatachan <- line
 	}
@@ -1102,7 +1276,8 @@ func (d *DataUpdate) addXrefFull(key string, from string, value string, valueFro
 			return
 		}
 		// Text/keyword links route to textsearch buckets (alphabetic by first letter)
-		d.bucketPool.Write(TextSearchDatasetID, kup, dataLine)
+		// Use WriteForward for source-tagged directory structure
+		d.bucketPool.WriteForward(TextSearchDatasetID, "textsearch", kup, dataLine)
 	} else {
 		// Reverse mapping also includes evidence and relationship
 		valueFromID := config.Dataconf[valueFrom]["id"]
@@ -1114,24 +1289,31 @@ func (d *DataUpdate) addXrefFull(key string, from string, value string, valueFro
 			}
 		}
 
-		// Check if source or target dataset has bucket config
-		// Forward xref: keyed by source ID (kup), goes to source dataset's buckets
-		// Reverse xref: keyed by target ID (vup), goes to target dataset's buckets
-		hasBucketPool := d.bucketPool != nil
-		sourceHasBucket := hasBucketPool && d.bucketPool.HasBucketConfig(from)
-		targetHasBucket := hasBucketPool && d.bucketPool.HasBucketConfig(valueFromID)
-
-		// Route forward xref (keyed by source ID kup)
-		if sourceHasBucket {
-			d.bucketPool.Write(from, kup, dataLine)
-		} else {
-			*d.kvdatachan <- dataLine
+		// Get source dataset name for directory naming
+		sourceDatasetName := GetDatasetName(from)
+		if sourceDatasetName == "" {
+			sourceDatasetName = "unknown"
 		}
 
-		// Route reverse xref (keyed by target ID vup)
-		if targetHasBucket {
-			d.bucketPool.Write(valueFromID, vup, reverseDataLine)
+		// Route through source-tagged bucket directories
+		// Forward xref → {source}/forward/bucket_*.txt
+		// Reverse xref → {target}/from_{source}/bucket_*.txt
+		hasBucketPool := d.bucketPool != nil
+
+		if hasBucketPool {
+			// Forward xref (keyed by source ID kup)
+			if !d.bucketPool.WriteForward(from, sourceDatasetName, kup, dataLine) {
+				// Fallback to kvdatachan if bucket write fails (no config for dataset)
+				*d.kvdatachan <- dataLine
+			}
+
+			// Reverse xref (keyed by target ID vup)
+			if !d.bucketPool.WriteReverse(valueFromID, vup, reverseDataLine, sourceDatasetName) {
+				// Fallback to kvdatachan if bucket write fails (no config for dataset)
+				*d.kvdatachan <- reverseDataLine
+			}
 		} else {
+			*d.kvdatachan <- dataLine
 			*d.kvdatachan <- reverseDataLine
 		}
 	}
@@ -1165,18 +1347,24 @@ func (d *DataUpdate) addXref2(key string, from string, value string, valueFrom s
 	valueFromID := config.Dataconf[valueFrom]["id"]
 	line := kup + tab + from + tab + vup + tab + valueFromID
 
-	// Check if source or target dataset has bucket config
-	// For link datasets (hpochild, taxparent, etc.), the key comes from the source dataset
-	// which typically has bucket config (hpo, taxonomy, etc.)
+	// Get source dataset name for directory naming
+	sourceDatasetName := GetDatasetName(from)
+	if sourceDatasetName == "" {
+		sourceDatasetName = "unknown"
+	}
+
+	// Route through source-tagged bucket directories
+	// Link datasets only have forward xrefs (no reverse mapping)
 	if d.bucketPool != nil {
-		if d.bucketPool.HasBucketConfig(from) {
-			// Source dataset has bucket config - route by key (source ID)
-			d.bucketPool.Write(from, kup, line)
-		} else if d.bucketPool.HasBucketConfig(valueFromID) {
-			// Target dataset has bucket config - route by value (target ID)
-			d.bucketPool.Write(valueFromID, vup, line)
-		} else {
-			*d.kvdatachan <- line
+		// Try source dataset first, then target dataset
+		if !d.bucketPool.WriteForward(from, sourceDatasetName, kup, line) {
+			targetDatasetName := GetDatasetName(valueFromID)
+			if targetDatasetName == "" {
+				targetDatasetName = "unknown"
+			}
+			if !d.bucketPool.WriteForward(valueFromID, targetDatasetName, vup, line) {
+				*d.kvdatachan <- line
+			}
 		}
 	} else {
 		*d.kvdatachan <- line
@@ -1214,9 +1402,16 @@ func (d *DataUpdate) addXref2Bucketed(key string, from string, value string, val
 
 	line := kup + tab + from + tab + vup + tab + config.Dataconf[valueFrom]["id"]
 
-	// Route through bucket pool using the specified bucket dataset ID
+	// Get dataset name for directory naming
+	bucketDatasetName := GetDatasetName(bucketDatasetID)
+	if bucketDatasetName == "" {
+		bucketDatasetName = "unknown"
+	}
+
+	// Route through bucket pool using the specified bucket dataset
 	// This allows link datasets (taxchild, taxparent) to use parent dataset's buckets
-	d.bucketPool.Write(bucketDatasetID, kup, line)
+	d.bucketPool.WriteForward(bucketDatasetID, bucketDatasetName, kup, line)
+	_ = vup // Suppress unused warning (not needed for link datasets)
 }
 
 // addXrefBucketed routes xrefs through bucket system for optimized datasets
@@ -1252,10 +1447,19 @@ func (d *DataUpdate) addXrefBucketed(key, from, value, valueFrom string, isLink 
 	forwardLine := kup + tab + from + tab + vup + tab + valueFromID
 	reverseLine := vup + tab + valueFromID + tab + kup + tab + from
 
-	// Route through bucket pool (handles bucket vs fallback automatically)
-	d.bucketPool.WriteXref(from, kup, forwardLine, valueFromID, vup, reverseLine)
+	// Get source dataset name for directory naming
+	sourceDatasetName := GetDatasetName(from)
+	if sourceDatasetName == "" {
+		sourceDatasetName = "unknown"
+	}
 
-	// Text search link (always goes to kvdatachan)
+	// Route through source-tagged bucket directories
+	// Forward xref → {source}/forward/bucket_*.txt
+	d.bucketPool.WriteForward(from, sourceDatasetName, kup, forwardLine)
+	// Reverse xref → {target}/from_{source}/bucket_*.txt
+	d.bucketPool.WriteReverse(valueFromID, vup, reverseLine, sourceDatasetName)
+
+	// Text search link (routes through textsearch buckets)
 	// Skip keys that exceed LMDB max key size (prevents MDB_BAD_VALSIZE errors)
 	if isLink {
 		if len(kup) > LMDBMaxKeySize {
@@ -1267,13 +1471,14 @@ func (d *DataUpdate) addXrefBucketed(key, from, value, valueFrom string, isLink 
 			log.Printf("[TextSearch] Skipping long key (%d bytes > %d max) from %s: %s",
 				len(kup), LMDBMaxKeySize, from, preview)
 		} else {
-			*d.kvdatachan <- kup + tab + textLinkID + tab + vup + tab + from
+			textLine := kup + tab + textLinkID + tab + vup + tab + from
+			d.bucketPool.WriteForward(TextSearchDatasetID, "textsearch", kup, textLine)
 		}
 	}
 }
 
 // addProp3Bucketed routes properties through bucket system
-// Falls back to kvdatachan for datasets without bucket configuration
+// Uses source-tagged directory structure for incremental updates
 func (d *DataUpdate) addProp3Bucketed(key, from string, attr []byte) {
 
 	key = strings.TrimSpace(key)
@@ -1282,9 +1487,15 @@ func (d *DataUpdate) addProp3Bucketed(key, from string, attr []byte) {
 		return
 	}
 
+	// Get dataset name for directory naming
+	datasetName := GetDatasetName(from)
+	if datasetName == "" {
+		datasetName = "unknown"
+	}
+
 	kup := strings.ToUpper(key)
 	line := kup + tab + from + tab + string(attr) + tab + textStoreID
-	d.bucketPool.Write(from, kup, line)
+	d.bucketPool.WriteForward(from, datasetName, kup, line)
 }
 
 // addXrefViaKeyword resolves keyword to database identifiers via lookup, then creates xrefs

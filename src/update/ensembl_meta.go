@@ -508,7 +508,8 @@ func (e *ensembl) taxidMapEG() map[string]int {
 
 func (e *ensembl) taxidMap() map[string]int {
 
-	br, gz, ftpFile, client, localFile, _, err := getDataReaderNew("taxonomy", e.d.ebiFtp, e.d.ebiFtpPath, config.Dataconf["taxonomy"]["path"])
+	// Path in config is now a full FTP URL
+	br, gz, ftpFile, client, localFile, _, err := getDataReaderNew("taxonomy", "", "", config.Dataconf["taxonomy"]["path"])
 	check(err)
 
 	if ftpFile != nil {

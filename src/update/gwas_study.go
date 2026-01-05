@@ -55,7 +55,8 @@ func (g *gwasStudy) parseAndSaveStudies(testLimit int, idLogFile *os.File) {
 	log.Printf("GWAS Catalog: Downloading via EBI FTP from %s", filePath)
 
 	// Open file via EBI FTP (like uniprot does)
-	br, gz, ftpFile, client, localFile, _, err := getDataReaderNew(g.source, g.d.ebiFtp, g.d.ebiFtpPath, filePath)
+	// Path in config is now a full FTP URL
+	br, gz, ftpFile, client, localFile, _, err := getDataReaderNew(g.source, "", "", filePath)
 	g.check(err, "opening GWAS Catalog TSV file")
 	defer closeReaders(gz, ftpFile, client, localFile)
 

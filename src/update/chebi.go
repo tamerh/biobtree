@@ -16,8 +16,10 @@ import (
 )
 
 type chebi struct {
-	source string
-	d      *DataUpdate
+	source  string
+	d       *DataUpdate
+	ftpHost string
+	ftpPath string
 }
 
 // check provides context-aware error checking for chebi processor
@@ -67,7 +69,7 @@ func (c *chebi) loadCompounds() map[string]*CompoundData {
 
 	chebiPath := config.Dataconf[c.source]["path"]
 	br, _, ftpFile, client, localFile, _, err := getDataReaderNew(
-		c.source, c.d.ebiFtp, c.d.ebiFtpPath, chebiPath+"compounds.tsv.gz")
+		c.source, c.ftpHost, c.ftpPath, chebiPath+"compounds.tsv.gz")
 	c.check(err, "opening compounds.tsv.gz")
 	defer func() {
 		if ftpFile != nil {
@@ -136,7 +138,7 @@ func (c *chebi) buildIDMapping(compounds map[string]*CompoundData) map[string]st
 
 	chebiPath := config.Dataconf[c.source]["path"]
 	br, _, ftpFile, client, localFile, _, err := getDataReaderNew(
-		c.source, c.d.ebiFtp, c.d.ebiFtpPath, chebiPath+"compounds.tsv.gz")
+		c.source, c.ftpHost, c.ftpPath, chebiPath+"compounds.tsv.gz")
 	c.check(err, "opening compounds.tsv.gz for ID mapping")
 	defer func() {
 		if ftpFile != nil {
@@ -188,7 +190,7 @@ func (c *chebi) loadNames() map[string]*NameData {
 
 	chebiPath := config.Dataconf[c.source]["path"]
 	br, _, ftpFile, client, localFile, _, err := getDataReaderNew(
-		c.source, c.d.ebiFtp, c.d.ebiFtpPath, chebiPath+"names.tsv.gz")
+		c.source, c.ftpHost, c.ftpPath, chebiPath+"names.tsv.gz")
 	c.check(err, "opening names.tsv.gz")
 	defer func() {
 		if ftpFile != nil {
@@ -266,7 +268,7 @@ func (c *chebi) loadChemicalData() map[string]*ChemicalData {
 
 	chebiPath := config.Dataconf[c.source]["path"]
 	br, _, ftpFile, client, localFile, _, err := getDataReaderNew(
-		c.source, c.d.ebiFtp, c.d.ebiFtpPath, chebiPath+"chemical_data.tsv.gz")
+		c.source, c.ftpHost, c.ftpPath, chebiPath+"chemical_data.tsv.gz")
 	c.check(err, "opening chemical_data.tsv.gz")
 	defer func() {
 		if ftpFile != nil {
@@ -331,7 +333,7 @@ func (c *chebi) loadStructures() map[string]*StructureData {
 
 	chebiPath := config.Dataconf[c.source]["path"]
 	br, _, ftpFile, client, localFile, _, err := getDataReaderNew(
-		c.source, c.d.ebiFtp, c.d.ebiFtpPath, chebiPath+"structures.tsv.gz")
+		c.source, c.ftpHost, c.ftpPath, chebiPath+"structures.tsv.gz")
 	c.check(err, "opening structures.tsv.gz")
 	defer func() {
 		if ftpFile != nil {
@@ -406,7 +408,7 @@ func (c *chebi) loadRelations() *RelationshipData {
 
 	chebiPath := config.Dataconf[c.source]["path"]
 	br, _, ftpFile, client, localFile, _, err := getDataReaderNew(
-		c.source, c.d.ebiFtp, c.d.ebiFtpPath, chebiPath+"relation.tsv.gz")
+		c.source, c.ftpHost, c.ftpPath, chebiPath+"relation.tsv.gz")
 	c.check(err, "opening relation.tsv.gz")
 	defer func() {
 		if ftpFile != nil {
@@ -473,7 +475,7 @@ func (c *chebi) loadSourceMapping() map[string]string {
 
 	chebiPath := config.Dataconf[c.source]["path"]
 	br, _, ftpFile, client, localFile, _, err := getDataReaderNew(
-		c.source, c.d.ebiFtp, c.d.ebiFtpPath, chebiPath+"source.tsv.gz")
+		c.source, c.ftpHost, c.ftpPath, chebiPath+"source.tsv.gz")
 	c.check(err, "opening source.tsv.gz")
 	defer func() {
 		if ftpFile != nil {
@@ -543,6 +545,16 @@ func (c *chebi) mapPrefixToDataset(prefix string) string {
 
 func (c *chebi) update() {
 	defer c.d.wg.Done()
+
+	// Get ChEBI FTP host and path from config
+	// e.g., "ftp://ftp.ebi.ac.uk/pub/databases/chebi/Flat_file_tab_delimited/"
+	fullURL := config.Dataconf[c.source]["path"]
+	ftpHost, ftpPath, err := parseFTPURL(fullURL)
+	if err != nil {
+		panic("Invalid ChEBI FTP path in config: " + err.Error())
+	}
+	c.ftpHost = ftpHost
+	c.ftpPath = ftpPath
 
 	fr := config.Dataconf[c.source]["id"]
 
@@ -732,7 +744,7 @@ func (c *chebi) processCrossReferences(fr string, sourceMap map[string]string, i
 	chebiPath := config.Dataconf[c.source]["path"]
 
 	br, _, ftpFile, client, localFile, _, err := getDataReaderNew(
-		c.source, c.d.ebiFtp, c.d.ebiFtpPath, chebiPath+"database_accession.tsv.gz")
+		c.source, c.ftpHost, c.ftpPath, chebiPath+"database_accession.tsv.gz")
 	c.check(err, "opening database_accession.tsv.gz")
 	defer func() {
 		if ftpFile != nil {

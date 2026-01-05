@@ -77,7 +77,8 @@ func (e *ensembl) loadHGNCData() {
 		defer httpResp.Body.Close()
 	} else {
 		// FTP fallback
-		br2, _, ftpFile, client, localFile2, _, err := getDataReaderNew("hgnc", e.d.ebiFtp, e.d.ebiFtpPath, hgncPath)
+		// Path is now a full URL
+		br2, _, ftpFile, client, localFile2, _, err := getDataReaderNew("hgnc", "", "", hgncPath)
 		if err != nil {
 			log.Printf("Ensembl: Warning - could not get HGNC data via FTP: %v, skipping", err)
 			return

@@ -236,22 +236,35 @@ class ProteinSimilarityTests:
 
 def main():
     """Main test entry point"""
-    runner = TestRunner(
-        dataset_name="protein_similarity",
-        test_cases_file=Path(__file__).parent / "test_cases.json",
-        reference_data_file=Path(__file__).parent / "reference_data.json"
-    )
+    script_dir = Path(__file__).parent
+    reference_file = script_dir / "reference_data.json"
+    test_cases_file = script_dir / "test_cases.json"
 
-    # Run declarative tests from JSON
-    runner.run_declarative_tests()
+    # Get API URL from environment (set by orchestrator)
+    api_url = os.environ.get('BIOBTREE_API_URL', 'http://localhost:9292')
 
-    # Run custom tests
+    # Create test runner
+    # Note: reference_data.json is optional for basic tests
+    runner = TestRunner(api_url, reference_file if reference_file.exists() else None, test_cases_file)
+
+    # Add custom tests
     custom_tests = ProteinSimilarityTests(runner)
-    runner.run_custom_tests(custom_tests)
+    for test_method in [
+        custom_tests.test_diamond_id_format,
+        custom_tests.test_protein_has_similarities,
+        custom_tests.test_similarity_has_target_info,
+        custom_tests.test_alignment_statistics,
+        custom_tests.test_cross_reference_to_uniprot,
+        custom_tests.test_top_scores_calculated,
+        custom_tests.test_similar_proteins_xref
+    ]:
+        runner.add_custom_test(test_method)
 
-    # Print results
-    runner.print_summary()
-    return 0 if runner.all_passed() else 1
+    # Run all tests
+    runner.run_all_tests()
+    exit_code = runner.print_summary()
+
+    return exit_code
 
 
 if __name__ == "__main__":

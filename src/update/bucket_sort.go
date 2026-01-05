@@ -332,3 +332,248 @@ func ConcatenateBuckets(pool *HybridWriterPool, indexDir string, chunkIdx string
 
 	return stats, nil
 }
+
+// SortBucketsForDataset sorts all bucket files for a dataset using the new directory structure
+// Discovers files from forward/, from_*/ subdirectories and _derived/ if applicable
+// This is used for incremental updates where we don't have a HybridWriterPool
+func SortBucketsForDataset(datasetName string, indexDir string, isDerived bool, numWorkers int) error {
+	if numWorkers <= 0 {
+		numWorkers = BucketSortWorkers
+	}
+
+	// Get all bucket files for this dataset
+	files, err := GetAllBucketFiles(datasetName, indexDir, isDerived)
+	if err != nil {
+		return fmt.Errorf("getting bucket files for %s: %w", datasetName, err)
+	}
+
+	if len(files) == 0 {
+		log.Printf("No bucket files found for %s", datasetName)
+		return nil
+	}
+
+	log.Printf("Sorting %d bucket files for %s with %d workers", len(files), datasetName, numWorkers)
+
+	// Create job channel
+	jobs := make(chan string, len(files))
+	for _, f := range files {
+		jobs <- f
+	}
+	close(jobs)
+
+	// Worker pool
+	var wg sync.WaitGroup
+	errors := make(chan error, len(files))
+
+	for i := 0; i < numWorkers; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for filePath := range jobs {
+				if err := SortBucketFile(filePath); err != nil {
+					errors <- fmt.Errorf("sorting %s: %w", filePath, err)
+				}
+			}
+		}()
+	}
+
+	wg.Wait()
+	close(errors)
+
+	// Check for errors
+	for err := range errors {
+		return err
+	}
+
+	log.Printf("Sorting complete for %d bucket files of %s", len(files), datasetName)
+	return nil
+}
+
+// ConcatenateBucketsForDataset merges all sorted bucket files for a dataset into one
+// Uses the new directory structure with forward/, from_*/ subdirectories
+// All subdirectories are merged into a single output file
+func ConcatenateBucketsForDataset(datasetName string, indexDir string, isDerived bool, chunkIdx string) (uint64, error) {
+	// Get all bucket files for this dataset
+	files, err := GetAllBucketFiles(datasetName, indexDir, isDerived)
+	if err != nil {
+		return 0, fmt.Errorf("getting bucket files for %s: %w", datasetName, err)
+	}
+
+	if len(files) == 0 {
+		log.Printf("No bucket files found for %s", datasetName)
+		return 0, nil
+	}
+
+	// Sort bucket files by name to ensure consistent order
+	sort.Strings(files)
+
+	// Create compressed output file in index directory
+	outPath := filepath.Join(indexDir, fmt.Sprintf("%s_sorted.%s.index.gz", datasetName, chunkIdx))
+
+	outF, err := os.Create(outPath)
+	if err != nil {
+		return 0, fmt.Errorf("creating output file %s: %w", outPath, err)
+	}
+	outGz, _ := gzip.NewWriterLevel(outF, gzip.BestSpeed)
+	buf := bufio.NewWriterSize(outGz, BucketWriteBufferSize)
+
+	linesWritten := uint64(0)
+
+	// Initialize bucket readers for k-way merge
+	readers := make([]*bucketReader, 0, len(files))
+	for _, bucketFile := range files {
+		f, err := os.Open(bucketFile)
+		if err != nil {
+			continue
+		}
+		br := &bucketReader{
+			file:   f,
+			reader: bufio.NewReaderSize(f, BucketReadBufferSize),
+		}
+		br.readNext() // Read first line
+		if !br.eof {
+			readers = append(readers, br)
+		} else {
+			f.Close()
+		}
+	}
+
+	// K-way merge: repeatedly find minimum key and write all lines with that key
+	for len(readers) > 0 {
+		// Find minimum key among all readers
+		minKey := readers[0].curKey
+		for i := 1; i < len(readers); i++ {
+			if readers[i].curKey < minKey {
+				minKey = readers[i].curKey
+			}
+		}
+
+		// Write all lines with the minimum key (from all readers that have it)
+		// and advance those readers
+		i := 0
+		for i < len(readers) {
+			if readers[i].curKey == minKey {
+				buf.WriteString(readers[i].curLine)
+				linesWritten++
+				readers[i].readNext()
+				if readers[i].eof {
+					// Remove exhausted reader
+					readers[i].file.Close()
+					readers = append(readers[:i], readers[i+1:]...)
+					// Don't increment i since we removed an element
+					continue
+				}
+			}
+			i++
+		}
+	}
+
+	buf.Flush()
+	outGz.Close()
+	outF.Close()
+
+	log.Printf("K-way merged %d buckets for %s → %s (%d lines)",
+		len(files), datasetName, outPath, linesWritten)
+
+	return linesWritten, nil
+}
+
+// SortAndConcatenateAllDatasets sorts and concatenates bucket files for all datasets
+// Uses the new directory structure with forward/, from_*/ subdirectories
+// Processes both regular and derived datasets
+func SortAndConcatenateAllDatasets(configs map[string]*BucketConfig, indexDir string, chunkIdx string, numWorkers int) (*BucketStats, error) {
+	stats := &BucketStats{
+		PerDataset: make(map[string]uint64),
+	}
+
+	if numWorkers <= 0 {
+		numWorkers = BucketSortWorkers
+	}
+
+	// Process each dataset
+	for _, cfg := range configs {
+		datasetName := cfg.DatasetName
+		isDerived := cfg.IsDerived
+
+		// Sort bucket files
+		if !cfg.SkipBucketSort {
+			if err := SortBucketsForDataset(datasetName, indexDir, isDerived, numWorkers); err != nil {
+				return nil, fmt.Errorf("sorting %s: %w", datasetName, err)
+			}
+		}
+
+		// Concatenate bucket files
+		lines, err := ConcatenateBucketsForDataset(datasetName, indexDir, isDerived, chunkIdx)
+		if err != nil {
+			return nil, fmt.Errorf("concatenating %s: %w", datasetName, err)
+		}
+
+		stats.TotalLines += lines
+		stats.PerDataset[datasetName] = lines
+	}
+
+	return stats, nil
+}
+
+// DiscoverDatasetsWithBuckets scans the index directory and returns datasets that have bucket files
+// This is useful for incremental updates where we don't have a HybridWriterPool
+func DiscoverDatasetsWithBuckets(indexDir string) ([]string, error) {
+	var datasets []string
+	seen := make(map[string]bool)
+
+	// Scan regular dataset directories
+	entries, err := os.ReadDir(indexDir)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, entry := range entries {
+		if !entry.IsDir() || strings.HasPrefix(entry.Name(), ".") || entry.Name() == "_derived" {
+			continue
+		}
+
+		// Check if this dataset has forward/ or from_*/ subdirectories
+		datasetDir := filepath.Join(indexDir, entry.Name())
+		hasBuckets := false
+
+		// Check for forward/
+		forwardDir := filepath.Join(datasetDir, "forward")
+		if _, err := os.Stat(forwardDir); err == nil {
+			hasBuckets = true
+		}
+
+		// Check for from_*/
+		if !hasBuckets {
+			fromDirs, _ := filepath.Glob(filepath.Join(datasetDir, "from_*"))
+			if len(fromDirs) > 0 {
+				hasBuckets = true
+			}
+		}
+
+		if hasBuckets && !seen[entry.Name()] {
+			datasets = append(datasets, entry.Name())
+			seen[entry.Name()] = true
+		}
+	}
+
+	// Scan _derived/ directory
+	derivedDir := filepath.Join(indexDir, "_derived")
+	if _, err := os.Stat(derivedDir); err == nil {
+		derivedEntries, err := os.ReadDir(derivedDir)
+		if err == nil {
+			for _, entry := range derivedEntries {
+				if !entry.IsDir() {
+					continue
+				}
+
+				// Derived datasets always have buckets if the directory exists
+				if !seen[entry.Name()] {
+					datasets = append(datasets, entry.Name())
+					seen[entry.Name()] = true
+				}
+			}
+		}
+	}
+
+	return datasets, nil
+}

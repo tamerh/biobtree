@@ -162,6 +162,7 @@ func (s *service) init() {
 		cel.Types(&pbuf.CtdDiseaseAssociation{}),
 		cel.Types(&pbuf.DrugcentralAttr{}),
 		cel.Types(&pbuf.DrugcentralTarget{}),
+		cel.Types(&pbuf.MsigdbAttr{}),
 		cel.Declarations(
 			decls.NewIdent("uniprot", decls.NewObjectType("pbuf.UniprotAttr"), nil)),
 		cel.Declarations(
@@ -256,6 +257,8 @@ func (s *service) init() {
 			decls.NewIdent("biogrid", decls.NewObjectType("pbuf.BiogridAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("drugcentral", decls.NewObjectType("pbuf.DrugcentralAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("msigdb", decls.NewObjectType("pbuf.MsigdbAttr"), nil)),
 		cel.Declarations(
 			decls.NewFunction("overlaps",
 				decls.NewOverload("overlaps_int_int",

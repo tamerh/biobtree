@@ -299,14 +299,9 @@ func (o *oba) parseRelationship(line string, obaID string, obaDatasetID string) 
 	}
 
 	if targetDataset != "" && targetID != "" {
-		// Create bidirectional cross-references
+		// Create cross-reference: OBA → target dataset
+		// addXref creates both forward and reverse automatically
 		o.d.addXref(obaID, obaDatasetID, targetID, targetDataset, false)
-
-		// Reverse link
-		targetDatasetID := config.Dataconf[targetDataset]["id"]
-		if targetDatasetID != "" {
-			o.d.addXref(targetID, targetDatasetID, obaID, o.source, false)
-		}
 	}
 }
 

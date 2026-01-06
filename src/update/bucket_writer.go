@@ -26,9 +26,7 @@ type BucketFile struct {
 // This avoids channel overhead by having callers write directly with per-bucket locks
 type HybridWriterPool struct {
 	bucketConfigs map[string]*BucketConfig // datasetID → config
-	bucketFiles   map[string]*BucketFile   // "datasetID_bucketNum" → file
-	bucketKeys    map[string][]string      // datasetID → pre-computed bucket keys
-	bucketDirs    map[string]string        // datasetID → output directory
+	bucketFiles   map[string]*BucketFile   // "datasetID_subdir_bucketNum" → file
 	outputDir     string
 	poolMutex     sync.RWMutex // Mutex for lazy bucket file creation
 }
@@ -39,191 +37,18 @@ func NewHybridWriterPool(configs map[string]*BucketConfig, outputDir string, wg 
 }
 
 // NewHybridWriterPoolWithWorkers creates the pool (numWorkers ignored - direct writes)
-// Supports multi-bucket-set configs with separate bucket directories per set
+// All bucket files/directories are created lazily via writeToSubdir() when data is written
 func NewHybridWriterPoolWithWorkers(configs map[string]*BucketConfig, outputDir string, wg *sync.WaitGroup, numWorkers int) *HybridWriterPool {
 	pool := &HybridWriterPool{
 		bucketConfigs: configs,
 		bucketFiles:   make(map[string]*BucketFile),
-		bucketKeys:    make(map[string][]string),
-		bucketDirs:    make(map[string]string),
 		outputDir:     outputDir,
 	}
 
-	// Create output directories for source datasets (non-derived) only
-	// Derived datasets use lazy creation via writeToSubdir()
-	for datasetID, cfg := range configs {
-		// Skip derived datasets - they're created lazily when receiving reverse xrefs
-		if cfg.IsDerived {
-			continue
-		}
-
-		if cfg.NumSets > 1 {
-			// Multi-bucket-set: create buckets1_{chunkIdx}/, buckets2_{chunkIdx}/, etc.
-			// Include chunkIdx in dir name to allow multiple processes with different --idx
-			// Pre-compute bucket keys for all sets
-			// Key format: "datasetID_setIdx_bucketNum"
-			totalBuckets := 0
-			for setIdx := 0; setIdx < cfg.NumSets; setIdx++ {
-				dir := filepath.Join(outputDir, cfg.DatasetName, fmt.Sprintf("buckets%d_%s", setIdx+1, chunkIdx))
-				os.MkdirAll(dir, 0755)
-
-				numBuckets := cfg.NumBucketsPerSet[setIdx]
-				for i := 0; i < numBuckets; i++ {
-					key := fmt.Sprintf("%s_%d_%d", datasetID, setIdx, i)
-					pool.bucketFiles[key] = &BucketFile{
-						filePath: filepath.Join(dir, fmt.Sprintf("bucket_%03d.txt", i)),
-					}
-					totalBuckets++
-				}
-			}
-			// Store first set's dir for backward compat (not used in multi-set)
-			pool.bucketDirs[datasetID] = filepath.Join(outputDir, cfg.DatasetName, fmt.Sprintf("buckets1_%s", chunkIdx))
-			// No single bucketKeys array for multi-set - handled in Write()
-		} else {
-			// Single bucket set: create buckets_{chunkIdx}/
-			// Include chunkIdx in dir name to allow multiple processes with different --idx
-			dir := filepath.Join(outputDir, cfg.DatasetName, fmt.Sprintf("buckets_%s", chunkIdx))
-			os.MkdirAll(dir, 0755)
-			pool.bucketDirs[datasetID] = dir
-
-			// Pre-compute bucket keys for this dataset
-			keys := make([]string, cfg.NumBuckets)
-			for i := 0; i < cfg.NumBuckets; i++ {
-				key := fmt.Sprintf("%s_%d", datasetID, i)
-				keys[i] = key
-				pool.bucketFiles[key] = &BucketFile{
-					// Write uncompressed during processing (no .gz extension)
-					filePath: filepath.Join(dir, fmt.Sprintf("bucket_%03d.txt", i)),
-				}
-			}
-			pool.bucketKeys[datasetID] = keys
-		}
-	}
-
-	fmt.Printf("Direct bucket writer initialized with %d datasets, %d total buckets\n",
-		len(configs), len(pool.bucketFiles))
+	fmt.Printf("Bucket writer initialized with %d dataset configs (lazy directory creation)\n",
+		len(configs))
 
 	return pool
-}
-
-// Write routes data to appropriate bucket or fallback
-// For link datasets (parent/child), routes to the parent dataset's buckets
-// Direct write with per-bucket mutex - no channel overhead
-// Supports multi-bucket-set configs: tries methods in order, uses first matching set
-//
-// Returns:
-//   - true: data was written to bucket successfully
-//   - false: data should go to kvdatachan fallback (no bucket config, or hybrid mode fallback)
-func (p *HybridWriterPool) Write(datasetID string, entityID string, line string) bool {
-	// Fast path: check original datasetID first (most common case)
-	cfg, hasBucket := p.bucketConfigs[datasetID]
-	keys := p.bucketKeys[datasetID]
-	resolvedDatasetID := datasetID
-
-	// Slow path: resolve link dataset if original not found
-	if !hasBucket {
-		if linkDatasetMap != nil {
-			if parentID, isLink := linkDatasetMap[datasetID]; isLink {
-				cfg, hasBucket = p.bucketConfigs[parentID]
-				keys = p.bucketKeys[parentID]
-				resolvedDatasetID = parentID
-			}
-		}
-	}
-
-	if hasBucket {
-		var bucketKey string
-
-		if cfg.NumSets > 1 && !cfg.HybridMode {
-			// Multi-bucket-set (non-hybrid): try each method in order, use first match
-			for setIdx, method := range cfg.Methods {
-				bucketNum := method(entityID, cfg.NumBucketsPerSet[setIdx])
-				if bucketNum >= 0 {
-					// Method matched - use this bucket set
-					bucketKey = fmt.Sprintf("%s_%d_%d", resolvedDatasetID, setIdx, bucketNum)
-					break
-				}
-			}
-			if bucketKey == "" {
-				// No method matched - this shouldn't happen if last method is a catch-all
-				log.Printf("WARNING: No bucket method matched for dataset=%s id='%s' - using fallback",
-					cfg.DatasetName, entityID)
-				return false
-			}
-		} else if cfg.HybridMode {
-			// Hybrid mode: bucket method returns encoded (setIndex * numBucketsPerSet + bucket)
-			// or -1 for fallback
-			numBucketsPerSet := cfg.NumBucketsPerSet[0] // All sets have same bucket count in hybrid
-			encodedBucket := cfg.Method(entityID, numBucketsPerSet)
-
-			if encodedBucket < 0 {
-				// Fallback to kvdatachan for unrecognized patterns
-				return false
-			}
-
-			// Decode: setIndex = encodedBucket / numBucketsPerSet, bucket = encodedBucket % numBucketsPerSet
-			setIdx := encodedBucket / numBucketsPerSet
-			bucket := encodedBucket % numBucketsPerSet
-
-			// Safety check
-			if setIdx >= cfg.NumSets {
-				log.Printf("WARNING: Hybrid bucket setIdx=%d >= NumSets=%d for dataset=%s id='%s' - using fallback",
-					setIdx, cfg.NumSets, cfg.DatasetName, entityID)
-				return false
-			}
-
-			bucketKey = fmt.Sprintf("%s_%d_%d", resolvedDatasetID, setIdx, bucket)
-		} else if keys != nil {
-			// Single bucket set: use pre-computed keys
-			bucketNum := cfg.Method(entityID, cfg.NumBuckets)
-
-			// Safety check: bucket number must be within range
-			if bucketNum < 0 || bucketNum >= cfg.NumBuckets {
-				log.Printf("WARNING: Bucket method returned %d but numBuckets=%d for dataset=%s id='%s' - using bucket 0",
-					bucketNum, cfg.NumBuckets, cfg.DatasetName, entityID)
-				bucketNum = 0
-			}
-
-			bucketKey = keys[bucketNum]
-		} else {
-			// No keys available - fallback
-			return false
-		}
-
-		// Get bucket file and write directly with mutex
-		bf := p.bucketFiles[bucketKey]
-		if bf == nil {
-			log.Printf("WARNING: No bucket file for key=%s dataset=%s id='%s' - using fallback",
-				bucketKey, cfg.DatasetName, entityID)
-			return false
-		}
-
-		bf.mutex.Lock()
-
-		// Lazy file creation
-		if !bf.created {
-			var err error
-			bf.file, err = os.Create(bf.filePath)
-			if err != nil {
-				bf.mutex.Unlock()
-				fmt.Printf("Error creating bucket file %s: %v\n", bf.filePath, err)
-				return false
-			}
-			bf.buf = bufio.NewWriterSize(bf.file, BucketWriteBufferSize)
-			bf.created = true
-		}
-
-		// Write line directly
-		bf.buf.WriteString(line)
-		bf.buf.WriteByte('\n')
-		bf.lineCount++
-
-		bf.mutex.Unlock()
-		return true
-	}
-
-	// No bucket config - fallback
-	return false
 }
 
 // WriteForward writes a forward xref to the source dataset's forward/ directory

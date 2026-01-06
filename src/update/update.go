@@ -863,6 +863,12 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			d.datasets2 = append(d.datasets2, data)
 			go ba.update()
 			break
+		case "msigdb":
+			d.wg.Add(1)
+			ms := msigdb{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go ms.update()
+			break
 		default:
 			log.Fatal("ERROR Unrecognized dataset ->" + data)
 		}
@@ -1607,13 +1613,24 @@ func (d *DataUpdate) addXrefViaKeyword(keyword string, keywordDataset string, ta
 			}
 
 			// Verify dataset ID exists in config
-			if _, ok := config.DataconfIDIntToString[entry.Dataset]; !ok {
+			resolvedDatasetName, ok := config.DataconfIDIntToString[entry.Dataset]
+			if !ok {
 				continue
 			}
 
-			// Convert dataset ID to string
-			datasetIDStr := strconv.Itoa(int(entry.Dataset))
-			d.addXref(entry.Identifier, datasetIDStr, targetValue, targetDataset, isLink)
+			// Determine the target dataset name for the xref
+			// If keywordDataset was specified, use it; otherwise use the resolved name
+			xrefTargetDataset := keywordDataset
+			if xrefTargetDataset == "" {
+				xrefTargetDataset = resolvedDatasetName
+			}
+
+			// Create xref FROM the source (targetValue/targetDataset) TO the looked-up entry
+			// This ensures forward xrefs go to the processing dataset's forward/ directory
+			// e.g., dbsnp processing creates: RS123 → ENSG123
+			//   Forward: dbsnp/forward/ (RS123 → ENSG123)
+			//   Reverse: ensembl/from_dbsnp/ (ENSG123 → RS123)
+			d.addXref(targetValue, from, entry.Identifier, xrefTargetDataset, isLink)
 		}
 	}
 }

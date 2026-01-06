@@ -170,6 +170,7 @@ message Xref {
     CtdAttr ctd=61;
     BiogridAttr biogrid=62;
     DrugcentralAttr drugcentral=63;
+    MsigdbAttr msigdb=64;
 
   }
 

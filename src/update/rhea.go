@@ -521,8 +521,6 @@ func (r *rhea) processUniProtMappings(reactionMap map[string]bool, testLimit int
 		// Header: RHEA_ID	DIRECTION	MASTER_ID	ID (UniProt)
 	}
 
-	uniprotDatasetID := config.Dataconf["uniprot"]["id"] // UniProt dataset ID from config
-
 	for scanner.Scan() {
 		line := scanner.Text()
 		if line == "" {
@@ -557,8 +555,9 @@ func (r *rhea) processUniProtMappings(reactionMap map[string]bool, testLimit int
 			continue
 		}
 
-		// Create bidirectional cross-reference: UniProt → Rhea (reverse direction for "catalyzes")
-		r.d.addXref(uniprotID, uniprotDatasetID, rheaID, r.source, false)
+		// Create cross-reference: Rhea → UniProt
+		// Forward: rhea/forward/, Reverse: uniprot/from_rhea/ (enables UniProt >> rhea queries)
+		r.d.addXref(rheaID, r.sourceID, uniprotID, "uniprot", false)
 		mappingCount++
 	}
 
@@ -584,14 +583,14 @@ func (r *rhea) processChEBIMappings(reactionMap map[string]bool, testLimit int) 
 		"CHEBI:43474": "phosphate",
 	}
 
-	chebiDatasetID := config.Dataconf["chebi"]["id"] // ChEBI dataset ID from config
-
 	// Add placeholder ChEBI mappings for test reactions
 	for rheaID := range reactionMap {
 		for chebiID := range testChEBIs {
-			// Create bidirectional cross-reference: Rhea ↔ ChEBI
+			// Create cross-reference: Rhea → ChEBI
+			// addXref creates both forward and reverse:
+			//   Forward: rhea/forward/ (Rhea → ChEBI)
+			//   Reverse: chebi/from_rhea/ (ChEBI → Rhea)
 			r.d.addXref(rheaID, r.sourceID, chebiID, "chebi", false)
-			r.d.addXref(chebiID, chebiDatasetID, rheaID, r.source, false)
 			mappingCount++
 		}
 

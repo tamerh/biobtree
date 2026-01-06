@@ -241,11 +241,12 @@ func (a *antibody) parseTheraSAbDab(testLimit int, idLogFile *os.File) {
 		}
 
 		// Create cross-references to PDB structures
+		// addXref creates both forward and reverse:
+		//   Forward: antibody/forward/ (antibody → PDB)
+		//   Reverse: pdb/from_antibody/ (PDB → antibody)
 		for _, pdbID := range pdbIDs {
 			if pdbID != "" {
 				a.d.addXref(innName, config.Dataconf[a.source]["id"], pdbID, "pdb", false)
-				// Bidirectional
-				a.d.addXref(pdbID, config.Dataconf["pdb"]["id"], innName, a.source, false)
 			}
 		}
 
@@ -380,11 +381,12 @@ func (a *antibody) parseSAbDab(testLimit int, idLogFile *os.File) {
 		// Add text search for PDB ID
 		a.d.addXref(compositeID, textLinkID, pdbID, a.source, true)
 
-		// Create bidirectional cross-reference to PDB database
+		// Create cross-reference to PDB database
+		// addXref creates both forward and reverse:
+		//   Forward: antibody/forward/ (antibody structure → PDB)
+		//   Reverse: pdb/from_antibody/ (PDB → antibody structure)
 		if pdbID != "" {
 			a.d.addXref(compositeID, config.Dataconf[a.source]["id"], pdbID, "pdb", false)
-			// Bidirectional
-			a.d.addXref(pdbID, config.Dataconf["pdb"]["id"], compositeID, a.source, false)
 		}
 
 		// Log ID if in test mode

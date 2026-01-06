@@ -178,11 +178,12 @@ pool := NewHybridWriterPool(...)    // Create bucket files
 ### 2. Processing
 ```go
 // From any parser goroutine:
-pool.Write(datasetID, entityID, line)
+pool.WriteForward(datasetID, datasetName, entityID, line)  // Write to {dataset}/forward/
+pool.WriteReverse(targetDatasetID, entityID, line, sourceDatasetName)  // Write to {dataset}/from_{source}/
 // - Resolves link datasets
 // - Calculates bucket number via Method()
+// - Creates directories lazily
 // - Writes directly with mutex protection
-// - Falls back to kvdatachan if no bucket config
 ```
 
 ### 3. Finalization

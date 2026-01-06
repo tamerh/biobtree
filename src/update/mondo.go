@@ -328,15 +328,11 @@ func (m *mondo) parseXref(line string, mondoID string, mondoDatasetID string) {
 		return
 	}
 
-	// Create bidirectional cross-reference if we found a mapping
+	// Create cross-reference if we found a mapping
 	if targetDatasetName != "" && targetID != "" {
 		// mondoID (e.g., MONDO:0005138) in mondo dataset -> targetID (e.g., EFO:0001071) in target dataset
-		// addXref expects: (key, fromDatasetID, value, toDatasetName, isLink)
+		// addXref creates both forward and reverse automatically
 		m.d.addXref(mondoID, mondoDatasetID, targetID, targetDatasetName, false)
-		// Reverse: targetID in target dataset -> mondoID in mondo dataset
-		// Need to get the target dataset ID from config
-		targetDatasetID := config.Dataconf[targetDatasetName]["id"]
-		m.d.addXref(targetID, targetDatasetID, mondoID, m.source, false)
 	}
 }
 

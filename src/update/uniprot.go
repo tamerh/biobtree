@@ -40,8 +40,9 @@ func (u *uniprot) processDbReference(entryid string, r *xmlparser.XMLElement) {
 			u.d.addXref(entryid, u.sourceID, emblID, v.Attrs["type"], false)
 			for _, z := range v.Childs["property"] {
 				if _, ok := z.Attrs["type"]; ok && z.Attrs["type"] == "protein sequence ID" {
+					// Link UniProt entry to the protein sequence ID (key is UniProt ID)
 					targetEmblID := strings.Split(z.Attrs["value"], ".")[0]
-					u.d.addXref(emblID, config.Dataconf[v.Attrs["type"]]["id"], targetEmblID, z.Attrs["type"], false)
+					u.d.addXref(entryid, u.sourceID, targetEmblID, z.Attrs["type"], false)
 				} else if _, ok := z.Attrs["type"]; ok && z.Attrs["type"] == "molecule type" {
 					attr := pbuf.EnaAttr{}
 					attr.Type = strings.ToLower(z.Attrs["value"])
@@ -54,8 +55,9 @@ func (u *uniprot) processDbReference(entryid string, r *xmlparser.XMLElement) {
 			u.d.addXref(entryid, u.sourceID, refseqID, v.Attrs["type"], false)
 			for _, z := range v.Childs["property"] {
 				if _, ok := z.Attrs["type"]; ok && z.Attrs["type"] == "nucleotide sequence ID" {
+					// Link UniProt entry to the nucleotide sequence ID (key is UniProt ID)
 					targetRefseqID := strings.Split(z.Attrs["value"], ".")[0]
-					u.d.addXref(refseqID, config.Dataconf[v.Attrs["type"]]["id"], targetRefseqID, z.Attrs["type"], false)
+					u.d.addXref(entryid, u.sourceID, targetRefseqID, z.Attrs["type"], false)
 				}
 			}
 		case "PDB":
@@ -160,7 +162,8 @@ func (u *uniprot) processDbReference(entryid string, r *xmlparser.XMLElement) {
 		for k, v := range u.ensmeblRefs {
 			u.d.addXref(entryid, u.sourceID, k, "ensembl", false)
 			for _, t := range v {
-				u.d.addXref(k, u.ensemblID, t, "transcript", false)
+				// Link UniProt entry to transcript (key is UniProt ID)
+				u.d.addXref(entryid, u.sourceID, t, "transcript", false)
 			}
 		}
 
@@ -423,8 +426,8 @@ uniloop:
 				u.d.addXrefBucketed(entryid, fr, z.Attrs["id"], z.Attrs["type"], false)
 
 				for _, x := range z.Childs["property"] {
-					// Taxonomy → other entity also uses bucketing
-					u.d.addXrefBucketed(z.Attrs["id"], config.Dataconf[z.Attrs["type"]]["id"], x.Attrs["value"], x.Attrs["type"], false)
+					// Taxonomy property xref - use uniprot's fr to write to uniprot/forward/
+					u.d.addXrefBucketed(z.Attrs["id"], fr, x.Attrs["value"], x.Attrs["type"], false)
 				}
 
 			}

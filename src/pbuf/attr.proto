@@ -1475,3 +1475,40 @@ message DrugcentralTarget {
   // Organism
   string organism = 17;                           // Target organism (e.g., "Homo sapiens")
 }
+
+// MSigDB - Molecular Signatures Database (Dataset ID: 107)
+// Gene sets for GSEA analysis from Broad Institute
+// Source: https://www.gsea-msigdb.org/gsea/msigdb
+message MsigdbAttr {
+  // Primary identifiers
+  string systematic_name = 1;                     // MSigDB ID (e.g., "M5890", "M49136")
+  string standard_name = 2;                       // Human-readable name (e.g., "HALLMARK_APOPTOSIS")
+
+  // Classification
+  string collection = 3;                          // Collection code (e.g., "H", "C2:CGP", "C5:GO:BP")
+  string sub_collection = 4;                      // Sub-collection if applicable
+
+  // Description
+  string description = 5;                         // Brief description of the gene set
+  string exact_source = 6;                        // Original source of the gene set
+
+  // Gene membership
+  repeated string gene_symbols = 7;               // HGNC gene symbols in this set
+  int32 gene_count = 8;                           // Number of genes in the set
+
+  // Cross-references
+  string pmid = 9;                                // PubMed ID of source publication
+  string doi = 10;                                // DOI of source publication
+  string external_url = 11;                       // External details URL
+
+  // Ontology links (from external_term table)
+  repeated string go_terms = 12;                  // Associated GO term IDs
+  repeated string hpo_terms = 13;                 // Associated HPO term IDs
+
+  // Species information
+  string source_species = 14;                     // Source species code (e.g., "Hs" for human)
+
+  // Metadata
+  string contributor = 15;                        // Who contributed this gene set
+  string contributor_org = 16;                    // Contributing organization
+}

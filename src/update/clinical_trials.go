@@ -622,11 +622,12 @@ func (ct *clinicalTrials) processTrialsFile(trialsFile string, fr string, chembl
 		}
 
 		// Extract and link publications (PMIDs)
+		// Forward: clinical_trials/forward/, Reverse: pubmed/from_clinical_trials/
 		publications := ct.extractPublications(trialData)
 		for _, pmid := range publications {
 			if pmid != "" {
-				// Create cross-reference: NCT_ID ↔ PMID
-				ct.d.addXref(pmid, config.Dataconf["pubmed"]["id"], nctID, ct.source, false)
+				// Create cross-reference: NCT_ID → PMID (reverse enables PMID >> clinical_trials queries)
+				ct.d.addXref(nctID, fr, pmid, "pubmed", false)
 			}
 		}
 

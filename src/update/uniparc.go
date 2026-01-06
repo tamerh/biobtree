@@ -129,7 +129,8 @@ func (u *uniparc) update() {
 
 				if _, ok = propExclusionsRefs[v.Attrs["type"]]; !ok {
 					for _, z := range v.Childs["property"] {
-						u.d.addXref(v.Attrs["id"], config.Dataconf[v.Attrs["type"]]["id"], z.Attrs["value"], z.Attrs["type"], false)
+						// Use uniparc's fr - this xref is discovered by uniparc parser
+						u.d.addXref(v.Attrs["id"], fr, z.Attrs["value"], z.Attrs["type"], false)
 					}
 				}
 

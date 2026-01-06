@@ -533,10 +533,8 @@ func (r *reactome) processEnsemblMappings(pathwayMap map[string]bool, testLimit 
 	scanner := bufio.NewScanner(br)
 	mappingCount := 0
 
-	// Get Ensembl dataset ID
 	// Check if ensembl dataset exists in config
-	ensemblDatasetID, exists := config.Dataconf["ensembl"]["id"]
-	if !exists {
+	if _, exists := config.Dataconf["ensembl"]["id"]; !exists {
 		log.Printf("Warning: Ensembl dataset not found in config, skipping Ensembl mappings")
 		return 0, nil
 	}
@@ -560,8 +558,9 @@ func (r *reactome) processEnsemblMappings(pathwayMap map[string]bool, testLimit 
 			continue
 		}
 
-		// Create xref: Ensembl → Reactome with evidence code
-		r.d.addXrefWithEvidence(ensemblID, ensemblDatasetID, pathwayID, r.source, false, evidenceCode)
+		// Create xref: Reactome pathway → Ensembl gene with evidence code
+		// Forward: reactome/forward/, Reverse: ensembl/from_reactome/ (enables ENSG >> reactome queries)
+		r.d.addXrefWithEvidence(pathwayID, r.sourceID, ensemblID, "ensembl", false, evidenceCode)
 
 		mappingCount++
 

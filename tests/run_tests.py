@@ -193,7 +193,7 @@ Examples:
   %(prog)s hmdb,go,taxonomy   # Run multiple specific tests
 
 Available datasets:
-  uniprot, go, taxonomy, eco, efo, chebi, interpro, hmdb, lipidmaps, swisslipids, chembl_document, chembl_molecule, chembl_activity, chembl_assay, chembl_target, chembl_cell_line, ensembl, mondo, hpo, mesh, uberon, cl, oba, pato, obi, xco, bgee, patent, clinical_trials, clinvar, string, reactome, rhea, alphafold, rnacentral, uniparc, uniref50, uniref90, uniref100, gwas_study, gwas, dbsnp, intact, protein_similarity, antibody, pubchem, entrez, refseq, gencc, bindingdb, ctd
+  uniprot, go, taxonomy, eco, efo, chebi, interpro, hmdb, lipidmaps, swisslipids, chembl_document, chembl_molecule, chembl_activity, chembl_assay, chembl_target, chembl_cell_line, ensembl, mondo, hpo, mesh, uberon, cl, oba, pato, obi, xco, bgee, patent, clinical_trials, clinvar, string, reactome, rhea, alphafold, rnacentral, uniparc, uniref50, uniref90, uniref100, gwas_study, gwas, dbsnp, intact, protein_similarity, antibody, pubchem, entrez, refseq, gencc, bindingdb, ctd, msigdb
 
   Temporarily disabled (Ensembl Genomes API SSL issues):
   ensembl_bacteria, ensembl_fungi, ensembl_metazoa, ensembl_plants, ensembl_protists
@@ -283,6 +283,7 @@ Available datasets:
         'ctd': datasets_dir / "ctd" / "test_ctd.py",
         'bao': datasets_dir / "bao" / "test_bao.py",
         'drugcentral': datasets_dir / "drugcentral" / "test_drugcentral.py",
+        'msigdb': datasets_dir / "msigdb" / "test_msigdb.py",
     }
 
     # Parse dataset selection

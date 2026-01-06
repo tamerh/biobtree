@@ -769,5 +769,17 @@
     "attrs": "struct_id,drug_name,inn_name,cas_rn,smiles,inchi,inchi_key,[]targets,target_count,[]action_types,[]target_classes,[]organisms",
     "test_entries_count": "100",
     "bucketMethod": "numeric"
+  },
+  "msigdb": {
+    "id": "107",
+    "name": "MSigDB",
+    "aliases": "MSigDB,Molecular Signatures Database,gene set,pathway,hallmark,GSEA,gene signature,MSigDB C1,MSigDB C2,MSigDB C5,MSigDB C7,MSigDB C8",
+    "url": "https://www.gsea-msigdb.org/gsea/msigdb/geneset_page.jsp?geneSetName=£{id}",
+    "path": "/data/bioyoda/snapshots/raw_data/msigdb/msigdb_v2025.1.Hs.db",
+    "useLocalFile": "yes",
+    "hasFilter": "yes",
+    "attrs": "systematic_name,standard_name,collection,description,[]gene_symbols,gene_count,pmid,source_species,external_url,[]go_terms,[]hpo_terms",
+    "test_entries_count": "500",
+    "bucketMethod": "msigdb"
   }
 }

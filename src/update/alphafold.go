@@ -161,9 +161,9 @@ func (a *alphafoldProcessor) processTarFile(filePath string, idLogFile *os.File,
 
 		a.d.addProp3(uniprotID, a.sourceID, b)
 
-		// Create cross-reference: UniProt → AlphaFold
-		uniprotDatasetID := config.Dataconf["uniprot"]["id"]
-		a.d.addXref(uniprotID, uniprotDatasetID, uniprotID, a.source, false)
+		// Create cross-reference: AlphaFold → UniProt
+		// Forward: alphafold/forward/, Reverse: uniprot/from_alphafold/
+		a.d.addXref(uniprotID, a.sourceID, uniprotID, "uniprot", false)
 
 		// Create keyword: AlphaFold model ID → UniProt entry (for search endpoint)
 		// isLink=true means /ws/?i=MODEL_ID will find and return the UniProt entry

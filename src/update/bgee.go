@@ -455,6 +455,8 @@ func (b *bgee) saveGenes(genes map[string]*BgeeGene, species SpeciesInfo) {
 
 // createReferences creates text search keywords and cross-references
 func (b *bgee) createReferences(geneID string, gene *BgeeGene) {
+	fr := config.Dataconf[b.source]["id"]
+
 	// 1. Gene ID → Bgee (text search by gene ID)
 	b.d.addXref(geneID, textLinkID, geneID, b.source, true)
 
@@ -465,16 +467,19 @@ func (b *bgee) createReferences(geneID string, gene *BgeeGene) {
 
 	// 3. Create cross-reference to Ensembl
 	// This enables: ENSG00000000419 >> bgee to get expression data
-	b.d.addXref(geneID, config.Dataconf["ensembl"]["id"], geneID, b.source, false)
+	// Forward: bgee/forward/ (bgee gene → ensembl)
+	// Reverse: ensembl/from_bgee/ (ensembl → bgee) - this is what the query uses
+	b.d.addXref(geneID, fr, geneID, "ensembl", false)
 
 	// 4. Create cross-reference to UBERON for expressed tissues
 	// This enables: UBERON:XXXXX >> bgee to find genes expressed in that tissue
+	// Forward: bgee/forward/, Reverse: uberon/from_bgee/
 	addedUberon := make(map[string]bool)
 	for _, cond := range gene.Conditions {
 		if cond.Expression == "present" && strings.HasPrefix(cond.AnatomicalEntityID, "UBERON:") {
 			if !addedUberon[cond.AnatomicalEntityID] {
-				// UBERON → Bgee gene
-				b.d.addXref(cond.AnatomicalEntityID, config.Dataconf["uberon"]["id"], geneID, b.source, false)
+				// Bgee gene → UBERON (reverse enables UBERON >> bgee queries)
+				b.d.addXref(geneID, fr, cond.AnatomicalEntityID, "uberon", false)
 				addedUberon[cond.AnatomicalEntityID] = true
 			}
 		}
@@ -482,20 +487,22 @@ func (b *bgee) createReferences(geneID string, gene *BgeeGene) {
 
 	// 4b. Create cross-reference to CL for cell type expression
 	// This enables: CL:XXXXX >> bgee to find genes expressed in that cell type
+	// Forward: bgee/forward/, Reverse: cl/from_bgee/
 	addedCL := make(map[string]bool)
 	for _, cond := range gene.Conditions {
 		if cond.Expression == "present" && strings.HasPrefix(cond.AnatomicalEntityID, "CL:") {
 			if !addedCL[cond.AnatomicalEntityID] {
-				// CL → Bgee gene
-				b.d.addXref(cond.AnatomicalEntityID, config.Dataconf["cl"]["id"], geneID, b.source, false)
+				// Bgee gene → CL (reverse enables CL >> bgee queries)
+				b.d.addXref(geneID, fr, cond.AnatomicalEntityID, "cl", false)
 				addedCL[cond.AnatomicalEntityID] = true
 			}
 		}
 	}
 
 	// 5. Create cross-reference to Taxonomy
+	// Forward: bgee/forward/, Reverse: taxonomy/from_bgee/
 	taxIDStr := strconv.Itoa(gene.TaxonomyID)
-	b.d.addXref(taxIDStr, config.Dataconf["taxonomy"]["id"], geneID, b.source, false)
+	b.d.addXref(geneID, fr, taxIDStr, "taxonomy", false)
 }
 
 // Helper structures

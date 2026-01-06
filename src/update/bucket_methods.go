@@ -36,6 +36,7 @@ var BucketMethods = map[string]BucketMethod{
 	"lipidmaps": lipidmapsBucket, // LMFA00000001 → numeric part after 4-char prefix
 	"rhea":      rheaBucket,      // RHEA:16066 → numeric part after "RHEA:"
 	"reactome":  reactomeBucket,  // R-HSA-12345 → numeric part after last "-"
+	"msigdb":    msigdbBucket,    // M5890, M49136 → numeric part after "M"
 	"patent":        patentBucket,        // Fallback: alphabetic for all formats
 	"patent_us":     patentUSBucket,     // US-5153197-A → numeric, returns -1 if not US-
 	"patent_ep":     patentEPBucket,     // EP-1234567-A1 → numeric, returns -1 if not EP-
@@ -202,6 +203,14 @@ func reactomeBucket(id string, numBuckets int) int {
 		panic("reactomeBucket: no dash found in id: " + id)
 	}
 	return numericLexBucket(id[lastDash+1:], numBuckets)
+}
+
+// msigdbBucket - M5890, M49136 → numeric part after "M"
+func msigdbBucket(id string, numBuckets int) int {
+	if len(id) < 2 || id[0] != 'M' {
+		panic("msigdbBucket: invalid MSigDB id format (expected M followed by digits): " + id)
+	}
+	return numericLexBucket(id[1:], numBuckets)
 }
 
 // patentBucket - fallback alphabetic bucket for all patent formats

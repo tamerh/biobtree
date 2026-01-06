@@ -276,14 +276,11 @@ func (p *patents) processCompounds() (int, error) {
 		// Create xrefs for all matched chemical databases
 		if len(matches) > 0 {
 			for _, match := range matches {
-				// Forward xref: patent_compound → chemical database
-				p.d.addXref2(compoundID, patentCompoundDatasetID, match.identifier, match.datasetName)
-
-				// Reverse xref: chemical database → patent_compound
-				// This enables queries like: chembl_molecule >> patent_compound >> patent
-				// Note: from parameter must be dataset ID string, not name
-				matchDatasetID := config.Dataconf[match.datasetName]["id"]
-				p.d.addXref(match.identifier, matchDatasetID, compoundID, "patent_compound", false)
+				// Create bidirectional xref: patent_compound ↔ chemical database
+				// addXref creates both forward and reverse:
+				//   Forward: patent_compound/forward/ (patent_compound → chembl)
+				//   Reverse: chembl_molecule/from_patent_compound/ (chembl → patent_compound)
+				p.d.addXref(compoundID, patentCompoundDatasetID, match.identifier, match.datasetName, false)
 			}
 			totalLinkedToChEMBL++ // TODO: rename to totalLinkedToChemDB
 

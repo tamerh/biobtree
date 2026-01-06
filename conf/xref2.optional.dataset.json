@@ -173,12 +173,6 @@
     "id": "631",
     "url": "https://dnasu.org/DNASU/AdvancedSearchOptions.do?geneName=\u00a3{id}"
   },
-  "drugcentral": {
-    "aliases": "Drug Central,Drug Central accession",
-    "name": "DrugCentral",
-    "id": "632",
-    "url": "http://drugcentral.org/drugcard/\u00a3{id}"
-  },
   "echobase": {
     "aliases": "EchoBASE",
     "name": "EchoBASE",

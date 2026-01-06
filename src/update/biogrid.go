@@ -335,6 +335,8 @@ func (b *biogrid) extractBiogridID(idField string) string {
 
 // extractEntrezID extracts Entrez Gene ID from the ID field
 // Format: biogrid:103|entrez gene/locuslink:6416
+// Note: Alt ID fields (columns 2-3) may contain gene SYMBOLS with the same prefix
+// (e.g., "entrez gene/locuslink:MAP2K4"), so we validate the value is numeric
 func (b *biogrid) extractEntrezID(idField string) string {
 	// Split by pipe to handle multiple IDs
 	ids := strings.Split(idField, "|")
@@ -343,11 +345,25 @@ func (b *biogrid) extractEntrezID(idField string) string {
 	for _, id := range ids {
 		id = strings.TrimSpace(id)
 		if strings.HasPrefix(id, "entrez gene/locuslink:") {
-			return strings.TrimPrefix(id, "entrez gene/locuslink:")
+			value := strings.TrimPrefix(id, "entrez gene/locuslink:")
+			// Validate that the value is numeric (actual Entrez ID, not a gene symbol)
+			if len(value) > 0 && isNumericString(value) {
+				return value
+			}
 		}
 	}
 
 	return ""
+}
+
+// isNumericString checks if a string contains only digits
+func isNumericString(s string) bool {
+	for _, c := range s {
+		if c < '0' || c > '9' {
+			return false
+		}
+	}
+	return len(s) > 0
 }
 
 // extractUniProtIDs extracts UniProt accessions from the Alt IDs field

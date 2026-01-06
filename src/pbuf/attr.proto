@@ -1418,3 +1418,60 @@ message BiogridInteraction {
   // Source database
   string source_database = 19;                    // Original source database
 }
+
+// DrugCentral - Drug-Target Interaction Database (Dataset ID: 106)
+// Comprehensive drug database with target interactions and mechanism of action
+// Source: https://drugcentral.org/
+message DrugcentralAttr {
+  // Primary identifier (STRUCT_ID from DrugCentral)
+  string struct_id = 1;                           // DrugCentral structure ID (e.g., "4", "21")
+
+  // Drug identification
+  string drug_name = 2;                           // Primary drug name (e.g., "levobupivacaine")
+  string inn_name = 3;                            // International Nonproprietary Name
+  string cas_rn = 4;                              // CAS Registry Number
+
+  // Chemical structure
+  string smiles = 5;                              // SMILES representation
+  string inchi = 6;                               // InChI string
+  string inchi_key = 7;                           // InChI Key
+
+  // Target information (aggregated from all interactions)
+  repeated DrugcentralTarget targets = 8;         // All target interactions for this drug
+  int32 target_count = 9;                         // Total number of unique targets
+
+  // Aggregated metadata
+  repeated string action_types = 10;              // Unique action types (e.g., "BLOCKER", "AGONIST", "INHIBITOR")
+  repeated string target_classes = 11;            // Unique target classes (e.g., "GPCR", "Ion channel", "Enzyme")
+  repeated string organisms = 12;                 // Unique organisms (e.g., "Homo sapiens", "Rattus norvegicus")
+}
+
+// Individual drug-target interaction from DrugCentral
+message DrugcentralTarget {
+  // Target identification
+  string target_name = 1;                         // Target protein name (e.g., "Sodium channel protein type 1 subunit alpha")
+  string target_class = 2;                        // Target class (e.g., "Ion channel", "GPCR", "Enzyme")
+  string uniprot_accession = 3;                   // UniProt accession(s) (can be pipe-separated)
+  string gene_symbol = 4;                         // Gene symbol (e.g., "SCN1A")
+  string swissprot_entry = 5;                     // SwissProt entry name (e.g., "SCN1A_HUMAN")
+
+  // Activity data
+  string act_value = 6;                           // Activity value (e.g., "5.79")
+  string act_unit = 7;                            // Activity unit (e.g., "nM")
+  string act_type = 8;                            // Activity type (e.g., "IC50", "Ki", "EC50")
+  string act_comment = 9;                         // Activity comment/description
+  string act_source = 10;                         // Activity source (e.g., "CHEMBL", "WOMBAT-PK", "DRUG LABEL")
+  string act_relation = 11;                       // Relation (e.g., "=", "<", ">", "~")
+
+  // Mechanism of action
+  bool has_moa = 12;                              // True if this is a mechanism of action (MOA column = 1)
+  string action_type = 13;                        // Action type (e.g., "BLOCKER", "AGONIST", "INHIBITOR")
+  string moa_source = 14;                         // MOA source (e.g., "CHEMBL", "DRUG LABEL")
+  string moa_source_url = 15;                     // MOA source URL
+
+  // Target development level
+  string tdl = 16;                                // Target development level (e.g., "Tclin", "Tchem", "Tbio", "Tdark")
+
+  // Organism
+  string organism = 17;                           // Target organism (e.g., "Homo sapiens")
+}

@@ -20,7 +20,6 @@ import (
 )
 
 var fileBufSize = 65536
-var channelOverflowCap = 100000
 
 const latestReleasePath = "https://github.com/tamerh/biobtree/releases/latest"
 const latestConfReleasePath = "https://github.com/tamerh/biobtree-conf/releases/latest"

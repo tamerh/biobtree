@@ -282,6 +282,7 @@ Available datasets:
         'bindingdb': datasets_dir / "bindingdb" / "test_bindingdb.py",
         'ctd': datasets_dir / "ctd" / "test_ctd.py",
         'bao': datasets_dir / "bao" / "test_bao.py",
+        'drugcentral': datasets_dir / "drugcentral" / "test_drugcentral.py",
     }
 
     # Parse dataset selection

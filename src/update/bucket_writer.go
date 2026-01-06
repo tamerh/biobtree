@@ -29,25 +29,23 @@ type HybridWriterPool struct {
 	bucketFiles   map[string]*BucketFile   // "datasetID_bucketNum" → file
 	bucketKeys    map[string][]string      // datasetID → pre-computed bucket keys
 	bucketDirs    map[string]string        // datasetID → output directory
-	fallbackChan  *chan string             // Existing kvdatachan for fallback
 	outputDir     string
 	poolMutex     sync.RWMutex // Mutex for lazy bucket file creation
 }
 
 // NewHybridWriterPool creates the pool with bucket configs
-func NewHybridWriterPool(configs map[string]*BucketConfig, fallbackChan *chan string, outputDir string, wg *sync.WaitGroup) *HybridWriterPool {
-	return NewHybridWriterPoolWithWorkers(configs, fallbackChan, outputDir, wg, 0)
+func NewHybridWriterPool(configs map[string]*BucketConfig, outputDir string, wg *sync.WaitGroup) *HybridWriterPool {
+	return NewHybridWriterPoolWithWorkers(configs, outputDir, wg, 0)
 }
 
 // NewHybridWriterPoolWithWorkers creates the pool (numWorkers ignored - direct writes)
 // Supports multi-bucket-set configs with separate bucket directories per set
-func NewHybridWriterPoolWithWorkers(configs map[string]*BucketConfig, fallbackChan *chan string, outputDir string, wg *sync.WaitGroup, numWorkers int) *HybridWriterPool {
+func NewHybridWriterPoolWithWorkers(configs map[string]*BucketConfig, outputDir string, wg *sync.WaitGroup, numWorkers int) *HybridWriterPool {
 	pool := &HybridWriterPool{
 		bucketConfigs: configs,
 		bucketFiles:   make(map[string]*BucketFile),
 		bucketKeys:    make(map[string][]string),
 		bucketDirs:    make(map[string]string),
-		fallbackChan:  fallbackChan,
 		outputDir:     outputDir,
 	}
 

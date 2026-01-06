@@ -15,6 +15,7 @@ const (
 	DefaultBucketReadBufferSize  = 512 * 1024 // 512KB
 	DefaultBucketWriteBufferSize = 64 * 1024  // 64KB
 	DefaultBucketSortWorkers     = 8
+	DefaultBucketConcatWorkers   = 16 // Higher than sort - concat is I/O bound, not memory bound
 )
 
 // Global bucket system configuration (loaded from application.param.json)
@@ -23,6 +24,7 @@ var (
 	BucketReadBufferSize  = DefaultBucketReadBufferSize
 	BucketWriteBufferSize = DefaultBucketWriteBufferSize
 	BucketSortWorkers     = DefaultBucketSortWorkers
+	BucketConcatWorkers   = DefaultBucketConcatWorkers
 )
 
 // LoadBucketSystemConfig loads bucket system configuration from Appconf
@@ -53,8 +55,15 @@ func LoadBucketSystemConfig() {
 		}
 	}
 
-	log.Printf("Bucket system config: enabled=%v readBuffer=%d writeBuffer=%d sortWorkers=%d",
-		BucketEnabled, BucketReadBufferSize, BucketWriteBufferSize, BucketSortWorkers)
+	// bucketConcatWorkers (for k-way merge concatenation - I/O bound, can use more workers)
+	if val, ok := config.Appconf["bucketConcatWorkers"]; ok {
+		if n, err := strconv.Atoi(val); err == nil && n > 0 {
+			BucketConcatWorkers = n
+		}
+	}
+
+	log.Printf("Bucket system config: enabled=%v readBuffer=%d writeBuffer=%d sortWorkers=%d concatWorkers=%d",
+		BucketEnabled, BucketReadBufferSize, BucketWriteBufferSize, BucketSortWorkers, BucketConcatWorkers)
 }
 
 // BucketConfig holds bucket configuration for a dataset

@@ -756,5 +756,18 @@
     "attrs": "biogrid_id,[]interactions,interaction_count,unique_partners,physical_count,genetic_count,[]organisms,[]experimental_systems,[]pubmed_ids",
     "test_entries_count": "100",
     "bucketMethod": "numeric"
+  },
+  "drugcentral": {
+    "id": "106",
+    "name": "DrugCentral",
+    "aliases": "DrugCentral,drug central,drug-target,drug target interaction",
+    "url": "https://drugcentral.org/drugcard/£{id}",
+    "path": "https://unmtid-dbs.net/download/DrugCentral/2021_09_01/drug.target.interaction.tsv.gz",
+    "pathStructures": "https://unmtid-dbs.net/download/DrugCentral/2021_09_01/structures.smiles.tsv",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "struct_id,drug_name,inn_name,cas_rn,smiles,inchi,inchi_key,[]targets,target_count,[]action_types,[]target_classes,[]organisms",
+    "test_entries_count": "100",
+    "bucketMethod": "numeric"
   }
 }

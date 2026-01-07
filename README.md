@@ -7,7 +7,7 @@ via identifiers and special keywors with simple or advance chain query capabilit
 
 ## Features
 
-* **Datasets** - supports wide datasets such as `Ensembl` `Uniprot` `ChEMBL` `HMDB` `BindingDB` `CTD` `STRING` `BioGRID` `Taxonomy` `GO` `EFO` `HPO` `UBERON` `CL` `HGNC` `ECO` `Uniparc` `Uniref` `RNACentral` `Bgee` `GWAS Catalog` `dbSNP` `RefSeq` `IntAct` `GenCC`  with tens of more via cross references
+* **Datasets** - supports wide datasets such as `Ensembl` `Uniprot` `ChEMBL` `HMDB` `BindingDB` `CTD` `STRING` `BioGRID` `MSigDB` `Taxonomy` `GO` `EFO` `HPO` `UBERON` `CL` `HGNC` `ECO` `Uniparc` `Uniref` `RNACentral` `Bgee` `GWAS Catalog` `dbSNP` `RefSeq` `IntAct` `GenCC`  with tens of more via cross references
 by retrieving latest data from providers
 
 * **MapReduce** - processes small or large datasets based on users selection and build B+ tree based uniform local database via specialized MapReduce based tecnique with efficient storage usage 
@@ -47,6 +47,8 @@ by retrieving latest data from providers
 * **Protein Networks** - `STRING` database with predicted and known protein-protein interactions across thousands of organisms. Provides combined interaction scores with evidence breakdown (experimental, database, textmining, coexpression), protein annotations, and size information. Enables functional association networks, protein complex analysis, and pathway enrichment studies
 
 * **Genetic Interactions** - `BioGRID` database with 2.8M+ curated protein-protein and genetic interactions from biomedical literature. Provides physical and genetic interaction types, experimental detection methods, publication references, and organism context. Cross-references to Entrez Gene, UniProt, RefSeq, PubMed, and Taxonomy. Supports interaction network analysis, genetic pathway discovery, and protein complex identification
+
+* **Gene Sets** - `MSigDB` (Molecular Signatures Database) with 35K+ annotated gene sets for GSEA analysis. Includes Hallmark (H), positional (C1), curated (C2), regulatory (C3), computational (C4), ontology (C5), oncogenic (C6), immunologic (C7), and cell type (C8) collections. Provides gene symbols, descriptions, PubMed references, GO/HPO term associations, and collection metadata. Cross-references to HGNC gene symbols, Entrez Gene IDs, PubMed, GO, and HPO. Supports gene set enrichment analysis, pathway discovery, and functional annotation
 
 * **Gene-Disease Validity** - `GenCC` (Gene Curation Coalition) database with 35,000+ standardized gene-disease validity curations from multiple authoritative sources including ClinGen, Ambry, Genomics England, and Orphanet. Provides classification levels (Definitive, Strong, Moderate, Limited, Supportive), mode of inheritance (autosomal dominant/recessive, X-linked), submitter information, and PubMed citations. Supports clinical variant interpretation, diagnostic panel design, and gene-disease relationship exploration with cross-references to MONDO, HPO, and PubMed
 
@@ -93,6 +95,9 @@ biobtree -d "ctd,mesh,entrez,mondo,efo" build
 
 # build with gene-disease validity (works well with MONDO, HPO)
 biobtree -d "gencc,mondo,hpo" build
+
+# build with gene sets for GSEA (works well with HGNC, Entrez, GO, HPO)
+biobtree -d "msigdb,hgnc,entrez,go,hpo" build
 
 # build with gene expression (requires Ensembl and works well with UBERON)
 biobtree -d "ensembl,bgee,uberon" build
@@ -403,6 +408,15 @@ biobtree query "112315 >> biogrid >> uniprot"     # Interactor to UniProt
 biobtree query "P45985 >> biogrid"                # UniProt to BioGRID interactions
 biobtree query "6416 >> entrez >> biogrid"        # Entrez Gene to BioGRID
 
+# MSigDB gene set queries
+biobtree query "M5890"                            # Gene set lookup (systematic name)
+biobtree query "HALLMARK_APOPTOSIS"               # Gene set lookup (standard name)
+biobtree query "BRCA1 >> hgnc >> msigdb"          # Find gene sets containing BRCA1
+biobtree query "672 >> entrez >> msigdb"          # Find gene sets by Entrez Gene ID
+biobtree query "M5890 >> msigdb >> pubmed"        # Gene set to publications
+biobtree query "M5890 >> msigdb >> go"            # Gene set to GO terms
+biobtree query "GO:0006915 >> go >> msigdb"       # Find gene sets linked to GO term
+
 # GenCC gene-disease validity queries
 biobtree query "BRCA1 >> gencc"                   # Find gene-disease curations for BRCA1
 biobtree query "Fanconi anemia >> gencc"          # Find curations by disease name
@@ -471,6 +485,12 @@ biobtree query "9606.ENSP00000269305 >> string[string.interactions[0].has_experi
 # GenCC filters
 biobtree query "BRCA1 >> gencc[gencc.classification_title==\"Definitive\"]"  # Only definitive classifications
 biobtree query "BRCA1 >> gencc[gencc.moi_title==\"Autosomal dominant\"]"     # Filter by inheritance mode
+
+# MSigDB filters
+biobtree query "BRCA1 >> hgnc >> msigdb[msigdb.collection==\"H\"]"           # Only Hallmark gene sets
+biobtree query "BRCA1 >> hgnc >> msigdb[msigdb.gene_count>100]"              # Large gene sets only
+biobtree query "TP53 >> hgnc >> msigdb[msigdb.collection==\"C2\"]"           # Curated gene sets only
+biobtree query "M5890 >> msigdb[msigdb.pmid!=\"\"]"                          # Gene sets with publications
 
 # BindingDB filters
 biobtree query "P00533 >> bindingdb[bindingdb.ki!=\"\"]"                     # Only entries with Ki values

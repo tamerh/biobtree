@@ -415,13 +415,32 @@ func concatenateOneDataset(writerKey string, writer *DatasetBucketWriter, indexD
 	outGz.Close()
 	outF.Close()
 
+	// Clean up bucket files after successful merge to prevent accumulation across builds
+	// Each bucket file is only needed once - after merge, data is in the sorted index
+	cleanedCount := 0
+	cleanedDirs := make(map[string]bool)
+	for _, bucketFile := range bucketFiles {
+		if err := os.Remove(bucketFile); err == nil {
+			cleanedCount++
+			cleanedDirs[filepath.Dir(bucketFile)] = true
+		}
+	}
+
+	// Remove empty bucket directories (forward/, from_*/)
+	for dir := range cleanedDirs {
+		entries, err := os.ReadDir(dir)
+		if err == nil && len(entries) == 0 {
+			os.Remove(dir)
+		}
+	}
+
 	// Log message includes set info for multi-set
 	if writer.setIndex >= 0 {
-		log.Printf("K-way merged %d buckets for %s set%d (ID:%s) → %s (%d lines)",
-			len(bucketFiles), writer.config.DatasetName, writer.setIndex+1, writerKey, outPath, linesWritten)
+		log.Printf("K-way merged %d buckets for %s set%d (ID:%s) → %s (%d lines, cleaned %d files)",
+			len(bucketFiles), writer.config.DatasetName, writer.setIndex+1, writerKey, outPath, linesWritten, cleanedCount)
 	} else {
-		log.Printf("K-way merged %d buckets for %s (ID:%s) → %s (%d lines)",
-			len(bucketFiles), writer.config.DatasetName, writer.datasetID, outPath, linesWritten)
+		log.Printf("K-way merged %d buckets for %s (ID:%s) → %s (%d lines, cleaned %d files)",
+			len(bucketFiles), writer.config.DatasetName, writer.datasetID, outPath, linesWritten, cleanedCount)
 	}
 
 	return linesWritten, nil
@@ -566,8 +585,26 @@ func ConcatenateBucketsForDataset(datasetName string, indexDir string, isDerived
 	outGz.Close()
 	outF.Close()
 
-	log.Printf("K-way merged %d buckets for %s → %s (%d lines)",
-		len(files), datasetName, outPath, linesWritten)
+	// Clean up bucket files after successful merge to prevent accumulation across builds
+	cleanedCount := 0
+	cleanedDirs := make(map[string]bool)
+	for _, bucketFile := range files {
+		if err := os.Remove(bucketFile); err == nil {
+			cleanedCount++
+			cleanedDirs[filepath.Dir(bucketFile)] = true
+		}
+	}
+
+	// Remove empty bucket directories (forward/, from_*/)
+	for dir := range cleanedDirs {
+		entries, err := os.ReadDir(dir)
+		if err == nil && len(entries) == 0 {
+			os.Remove(dir)
+		}
+	}
+
+	log.Printf("K-way merged %d buckets for %s → %s (%d lines, cleaned %d files)",
+		len(files), datasetName, outPath, linesWritten, cleanedCount)
 
 	return linesWritten, nil
 }

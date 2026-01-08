@@ -85,6 +85,9 @@ func (c *ctd) update() {
 	c.saveEntries(chemicals, idLogFile)
 
 	log.Printf("CTD: Processing complete (%.2fs)", time.Since(startTime).Seconds())
+
+	// Signal completion to progress tracker
+	c.d.progChan <- &progressInfo{dataset: c.source, done: true}
 }
 
 // loadChemicals reads CTD_chemicals.tsv.gz and creates base chemical entries

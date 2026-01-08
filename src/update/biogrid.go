@@ -51,6 +51,9 @@ func (b *biogrid) update() {
 	b.parseAndSaveInteractions(testLimit, idLogFile)
 
 	log.Printf("BioGRID: Processing complete (%.2fs)", time.Since(startTime).Seconds())
+
+	// Signal completion to progress tracker
+	b.d.progChan <- &progressInfo{dataset: b.source, done: true}
 }
 
 // parseAndSaveInteractions processes the BioGRID PSI-MITAB 2.5 file

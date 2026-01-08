@@ -217,8 +217,10 @@ type BucketStats struct {
 
 // concatenateJob holds the info needed to concatenate one dataset
 type concatenateJob struct {
-	writerKey string
-	writer    *DatasetBucketWriter
+	writerKey    string
+	writer       *DatasetBucketWriter
+	datasetState *DatasetState
+	indexDir     string
 }
 
 // concatenateResult holds the result of concatenating one dataset
@@ -226,6 +228,7 @@ type concatenateResult struct {
 	datasetName string
 	lines       uint64
 	err         error
+	skipped     bool // true if dataset was already merged (skip on recovery)
 }
 
 // ConcatenateBuckets merges all sorted bucket files for a dataset into one
@@ -235,12 +238,15 @@ type concatenateResult struct {
 // Returns BucketStats with total lines and per-dataset breakdown
 // For multi-bucket-set datasets, produces separate output files: dataset_sorted_1.gz, dataset_sorted_2.gz
 // numWorkers controls parallelism (0 = use BucketSortWorkers from config)
-func ConcatenateBuckets(pool *HybridWriterPool, indexDir string, chunkIdx string) (*BucketStats, error) {
-	return ConcatenateBucketsParallel(pool, indexDir, chunkIdx, 0)
+// datasetState is used to track merge progress for crash recovery (can be nil)
+func ConcatenateBuckets(pool *HybridWriterPool, indexDir string, chunkIdx string, datasetState *DatasetState) (*BucketStats, error) {
+	return ConcatenateBucketsParallel(pool, indexDir, chunkIdx, 0, datasetState)
 }
 
 // ConcatenateBucketsParallel is like ConcatenateBuckets but with configurable parallelism
-func ConcatenateBucketsParallel(pool *HybridWriterPool, indexDir string, chunkIdx string, numWorkers int) (*BucketStats, error) {
+// datasetState is used to track merge progress for crash recovery - each dataset is marked
+// as "merged" immediately after its merge completes, allowing recovery to skip already-merged datasets
+func ConcatenateBucketsParallel(pool *HybridWriterPool, indexDir string, chunkIdx string, numWorkers int, datasetState *DatasetState) (*BucketStats, error) {
 	if numWorkers <= 0 {
 		numWorkers = BucketConcatWorkers // Use concat-specific workers (higher default, I/O bound)
 	}
@@ -262,9 +268,36 @@ func ConcatenateBucketsParallel(pool *HybridWriterPool, indexDir string, chunkId
 		go func() {
 			defer wg.Done()
 			for job := range jobs {
-				lines, err := concatenateOneDataset(job.writerKey, job.writer, indexDir, chunkIdx)
+				datasetName := job.writer.config.DatasetName
+				datasetID := job.writer.datasetID
+
+				// Check if dataset is already merged (crash recovery case)
+				if job.datasetState != nil && job.datasetState.GetDatasetStatus(datasetName) == StatusMerged {
+					log.Printf("Skipping %s for merge (already merged from previous run)", datasetName)
+					results <- concatenateResult{
+						datasetName: datasetName,
+						lines:       0,
+						skipped:     true,
+					}
+					continue
+				}
+
+				// Do the actual merge
+				lines, err := concatenateOneDataset(job.writerKey, job.writer, job.indexDir, chunkIdx)
+
+				// After successful merge, mark as merged and save state immediately
+				// This ensures crash recovery knows this dataset is done
+				if err == nil && job.datasetState != nil {
+					job.datasetState.MarkDatasetsMerged([]string{datasetName})
+					if saveErr := SaveDatasetState(job.datasetState, job.indexDir); saveErr != nil {
+						log.Printf("Warning: failed to save merged state for %s: %v", datasetName, saveErr)
+					} else {
+						log.Printf("Marked %s (ID:%s) as merged", datasetName, datasetID)
+					}
+				}
+
 				results <- concatenateResult{
-					datasetName: job.writer.config.DatasetName,
+					datasetName: datasetName,
 					lines:       lines,
 					err:         err,
 				}
@@ -274,7 +307,12 @@ func ConcatenateBucketsParallel(pool *HybridWriterPool, indexDir string, chunkId
 
 	// Send jobs
 	for writerKey, writer := range writers {
-		jobs <- concatenateJob{writerKey: writerKey, writer: writer}
+		jobs <- concatenateJob{
+			writerKey:    writerKey,
+			writer:       writer,
+			datasetState: datasetState,
+			indexDir:     indexDir,
+		}
 	}
 	close(jobs)
 
@@ -286,12 +324,20 @@ func ConcatenateBucketsParallel(pool *HybridWriterPool, indexDir string, chunkId
 
 	// Collect results
 	var firstErr error
+	skippedCount := 0
 	for result := range results {
 		if result.err != nil && firstErr == nil {
 			firstErr = result.err
 		}
+		if result.skipped {
+			skippedCount++
+		}
 		stats.TotalLines += result.lines
 		stats.PerDataset[result.datasetName] += result.lines
+	}
+
+	if skippedCount > 0 {
+		log.Printf("Skipped %d already-merged datasets", skippedCount)
 	}
 
 	if firstErr != nil {

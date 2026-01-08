@@ -10,7 +10,7 @@
     "useLocalFile": "no",
     "hasFilter": "yes",
     "attrs": "[]accessions,[]genes,[]names,[]alternative_names,[]submitted_names,sequence.seq,sequence.mass,reviewed",
-    "test_entries_count": "100",
+    "test_entries_count": "100000",
     "bucketMethod": "uniprot"
   },
   "ensembl": {

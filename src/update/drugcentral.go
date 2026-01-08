@@ -51,6 +51,9 @@ func (dc *drugcentral) update() {
 	dc.parseAndSaveEntries(testLimit, idLogFile, structures)
 
 	log.Printf("DrugCentral: Processing complete (%.2fs)", time.Since(startTime).Seconds())
+
+	// Signal completion to progress tracker
+	dc.d.progChan <- &progressInfo{dataset: dc.source, done: true}
 }
 
 // structureInfo holds chemical structure information for a drug

@@ -377,7 +377,7 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 
 		// Concatenate buckets and move to index directory
 		log.Println("Concatenating bucket files...")
-		bucketStats, err := ConcatenateBuckets(d.bucketPool, config.Appconf["indexDir"], chunkIdx)
+		bucketStats, err := ConcatenateBuckets(d.bucketPool, config.Appconf["indexDir"], chunkIdx, d.datasetState)
 		if err != nil {
 			log.Printf("Error concatenating buckets: %v", err)
 			return 0, 0
@@ -442,7 +442,9 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 
 		// Mark dataset as "processing" BEFORE cleanup/processing starts
 		// This ensures if we crash mid-processing, next run will rebuild
-		if d.datasetState != nil {
+		// Skip meta-datasets (ontology, chembl) - they spawn sub-datasets and don't do actual work
+		isMetaDataset := data == "ontology" || data == "chembl"
+		if d.datasetState != nil && !isMetaDataset {
 			datasetID := ""
 			if props, ok := config.Dataconf[data]; ok {
 				datasetID = props["id"]
@@ -456,8 +458,11 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 
 		// Clean up old bucket files and sorted files before re-processing
 		// This ensures incremental updates don't leave stale data
-		if err := CleanupForIncrementalUpdate(data, config.Appconf["indexDir"]); err != nil {
-			log.Printf("Warning: cleanup failed for %s: %v", data, err)
+		// Skip meta-datasets - their sub-datasets handle their own cleanup
+		if !isMetaDataset {
+			if err := CleanupForIncrementalUpdate(data, config.Appconf["indexDir"]); err != nil {
+				log.Printf("Warning: cleanup failed for %s: %v", data, err)
+			}
 		}
 
 		switch data {
@@ -901,7 +906,7 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 
 		// Concatenate buckets and move to index directory
 		log.Println("Concatenating bucket files...")
-		bucketStats, err := ConcatenateBuckets(d.bucketPool, config.Appconf["indexDir"], chunkIdx)
+		bucketStats, err := ConcatenateBuckets(d.bucketPool, config.Appconf["indexDir"], chunkIdx, d.datasetState)
 		if err != nil {
 			log.Printf("Error concatenating buckets: %v", err)
 		}
@@ -934,6 +939,12 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 		if len(mergeOnlyDatasets) > 0 {
 			log.Printf("Processing %d 'merge only' datasets...", len(mergeOnlyDatasets))
 			for _, dsName := range mergeOnlyDatasets {
+				// Check if dataset is already merged (crash recovery case)
+				if d.datasetState != nil && d.datasetState.GetDatasetStatus(dsName) == StatusMerged {
+					log.Printf("Skipping %s for merge-only (already merged from previous run)", dsName)
+					continue
+				}
+
 				// Sort existing bucket files
 				isDerived := false
 				if props, ok := config.Dataconf[dsName]; ok {
@@ -953,6 +964,14 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 				bucketLines += lines
 				d.addEntryStat(dsName, lines)
 				log.Printf("Merged %s: %d lines", dsName, lines)
+
+				// Mark as merged and save state immediately for crash recovery
+				if d.datasetState != nil {
+					d.datasetState.MarkDatasetsMerged([]string{dsName})
+					if saveErr := SaveDatasetState(d.datasetState, config.Appconf["indexDir"]); saveErr != nil {
+						log.Printf("Warning: failed to save merged state for %s: %v", dsName, saveErr)
+					}
+				}
 			}
 		}
 
@@ -979,13 +998,12 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 	ioutil.WriteFile(filepath.FromSlash(config.Appconf["indexDir"]+"/"+chunkIdx+".meta.json"), data, 0700)
 
 	// Save dataset state for incremental updates
-	// Merge completed successfully - mark all processed datasets as merged
+	// Note: Each dataset is now marked as "merged" immediately after its merge completes
+	// (in ConcatenateBucketsParallel and merge-only loop) for crash recovery.
+	// This final save ensures any remaining state updates are persisted.
 	if d.datasetState != nil {
-		// Mark datasets from this run as merged (they were marked "processed" by showProgres())
-		d.datasetState.MarkDatasetsMerged(d.datasets2)
-
-		// Also mark any previously "processed" datasets as merged
-		// (e.g., datasets that were processed in a previous run but merge failed)
+		// Safety net: mark any remaining "processed" datasets as merged
+		// This handles edge cases where individual marking might have been missed
 		d.datasetState.MarkAllProcessedAsMerged()
 
 		// Ensure source URLs are set for all datasets

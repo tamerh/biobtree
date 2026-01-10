@@ -93,6 +93,21 @@ func CleanupForIncrementalUpdate(datasetName string, indexDir string) error {
 		}
 	}
 
+	// 5. Remove old textsearch files for this dataset
+	// Pattern: textsearch_{datasetName}_sorted.*.index.gz
+	// This enables incremental updates - when a dataset is re-processed,
+	// its textsearch contribution is rebuilt from scratch
+	textsearchPattern := filepath.Join(indexDir, fmt.Sprintf("textsearch_%s_sorted.*.index.gz", datasetName))
+	textsearchFiles, _ := filepath.Glob(textsearchPattern)
+	for _, f := range textsearchFiles {
+		if err := os.Remove(f); err != nil {
+			log.Printf("Warning: failed to remove textsearch file %s: %v", f, err)
+		} else {
+			totalRemoved++
+			log.Printf("Removed old textsearch file: %s", f)
+		}
+	}
+
 	// Also remove legacy bucket directories (buckets_*, buckets1_*, etc.)
 	legacyPatterns := []string{
 		filepath.Join(indexDir, datasetName, "buckets_*"),
@@ -286,4 +301,56 @@ func GetAllBucketFiles(datasetName string, indexDir string, isDerived bool) ([]s
 	}
 
 	return files, nil
+}
+
+// GetBucketFilesPerSource returns bucket files grouped by source dataset
+// For derived datasets with from_{source}/ directories, returns map of source -> files
+// Used for textsearch per-source file generation
+func GetBucketFilesPerSource(datasetName string, indexDir string, isDerived bool) (map[string][]string, error) {
+	result := make(map[string][]string)
+
+	var baseDir string
+	if isDerived {
+		baseDir = filepath.Join(indexDir, "_derived", datasetName)
+	} else {
+		baseDir = filepath.Join(indexDir, datasetName)
+	}
+
+	if _, err := os.Stat(baseDir); os.IsNotExist(err) {
+		return result, nil // No bucket directories yet
+	}
+
+	entries, err := os.ReadDir(baseDir)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, entry := range entries {
+		if !entry.IsDir() {
+			continue
+		}
+
+		dirName := entry.Name()
+		dirPath := filepath.Join(baseDir, dirName)
+
+		// Get bucket files from this directory
+		matches, err := filepath.Glob(filepath.Join(dirPath, "bucket_*.txt"))
+		if err != nil || len(matches) == 0 {
+			continue
+		}
+
+		// Determine source name from directory
+		var sourceName string
+		if strings.HasPrefix(dirName, "from_") {
+			sourceName = strings.TrimPrefix(dirName, "from_")
+		} else if dirName == "forward" {
+			sourceName = "forward"
+		} else {
+			continue
+		}
+
+		result[sourceName] = matches
+	}
+
+	return result, nil
 }

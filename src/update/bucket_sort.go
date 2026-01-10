@@ -348,6 +348,15 @@ func ConcatenateBucketsParallel(pool *HybridWriterPool, indexDir string, chunkId
 
 // concatenateOneDataset merges all bucket files for a single dataset
 func concatenateOneDataset(writerKey string, writer *DatasetBucketWriter, indexDir string, chunkIdx string) (uint64, error) {
+	datasetName := writer.config.DatasetName
+	isDerived := writer.config.IsDerived
+
+	// Special handling for textsearch: create per-source files for incremental updates
+	// This allows updating just one dataset's textsearch without rebuilding everything
+	if datasetName == "textsearch" {
+		return concatenateTextsearchPerSource(indexDir, chunkIdx, isDerived)
+	}
+
 	// Get bucket files from the pool (forward/ directory)
 	bucketFiles := []string{}
 	for _, bucket := range writer.buckets {
@@ -358,8 +367,6 @@ func concatenateOneDataset(writerKey string, writer *DatasetBucketWriter, indexD
 
 	// Also include bucket files from from_*/ directories (cross-references from other datasets)
 	// These are written by other datasets in the same run but belong to this dataset
-	datasetName := writer.config.DatasetName
-	isDerived := writer.config.IsDerived
 	fromFiles, err := GetAllBucketFiles(datasetName, indexDir, isDerived)
 	if err == nil {
 		// Add from_*/ files that aren't already in bucketFiles (avoid duplicates)
@@ -490,6 +497,128 @@ func concatenateOneDataset(writerKey string, writer *DatasetBucketWriter, indexD
 	}
 
 	return linesWritten, nil
+}
+
+// concatenateTextsearchPerSource creates separate sorted files for each source dataset
+// Output format: textsearch_{source}_sorted.{chunkIdx}.index.gz
+// This enables incremental updates - when a dataset is updated, only its textsearch file is rebuilt
+func concatenateTextsearchPerSource(indexDir string, chunkIdx string, isDerived bool) (uint64, error) {
+	// Get bucket files grouped by source
+	filesPerSource, err := GetBucketFilesPerSource("textsearch", indexDir, isDerived)
+	if err != nil {
+		return 0, fmt.Errorf("getting textsearch bucket files per source: %w", err)
+	}
+
+	if len(filesPerSource) == 0 {
+		log.Printf("No textsearch bucket files found")
+		return 0, nil
+	}
+
+	totalLines := uint64(0)
+	sourcesProcessed := 0
+
+	// Process each source separately
+	for sourceName, bucketFiles := range filesPerSource {
+		if len(bucketFiles) == 0 {
+			continue
+		}
+
+		// Sort bucket files
+		for _, f := range bucketFiles {
+			if err := SortBucketFile(f); err != nil {
+				log.Printf("Warning: error sorting textsearch bucket file %s: %v", f, err)
+			}
+		}
+
+		// Sort file paths for consistent order
+		sort.Strings(bucketFiles)
+
+		// Create output file: textsearch_{source}_sorted.{chunkIdx}.index.gz
+		outPath := filepath.Join(indexDir, fmt.Sprintf("textsearch_%s_sorted.%s.index.gz", sourceName, chunkIdx))
+
+		outF, err := os.Create(outPath)
+		if err != nil {
+			return totalLines, fmt.Errorf("creating textsearch output file %s: %w", outPath, err)
+		}
+		outGz, _ := gzip.NewWriterLevel(outF, gzip.BestSpeed)
+		buf := bufio.NewWriterSize(outGz, BucketWriteBufferSize)
+
+		linesWritten := uint64(0)
+
+		// Initialize bucket readers for k-way merge
+		readers := make([]*bucketReader, 0, len(bucketFiles))
+		for _, bucketFile := range bucketFiles {
+			f, err := os.Open(bucketFile)
+			if err != nil {
+				continue
+			}
+			br := &bucketReader{
+				file:   f,
+				reader: bufio.NewReaderSize(f, BucketReadBufferSize),
+			}
+			br.readNext()
+			if !br.eof {
+				readers = append(readers, br)
+			} else {
+				f.Close()
+			}
+		}
+
+		// K-way merge
+		for len(readers) > 0 {
+			minKey := readers[0].curKey
+			for i := 1; i < len(readers); i++ {
+				if readers[i].curKey < minKey {
+					minKey = readers[i].curKey
+				}
+			}
+
+			i := 0
+			for i < len(readers) {
+				if readers[i].curKey == minKey {
+					buf.WriteString(readers[i].curLine)
+					linesWritten++
+					readers[i].readNext()
+					if readers[i].eof {
+						readers[i].file.Close()
+						readers = append(readers[:i], readers[i+1:]...)
+						continue
+					}
+				}
+				i++
+			}
+		}
+
+		buf.Flush()
+		outGz.Close()
+		outF.Close()
+
+		// Clean up bucket files
+		cleanedCount := 0
+		cleanedDirs := make(map[string]bool)
+		for _, bucketFile := range bucketFiles {
+			if err := os.Remove(bucketFile); err == nil {
+				cleanedCount++
+				cleanedDirs[filepath.Dir(bucketFile)] = true
+			}
+		}
+
+		// Remove empty bucket directories
+		for dir := range cleanedDirs {
+			entries, err := os.ReadDir(dir)
+			if err == nil && len(entries) == 0 {
+				os.Remove(dir)
+			}
+		}
+
+		totalLines += linesWritten
+		sourcesProcessed++
+		log.Printf("K-way merged %d buckets for textsearch_%s → %s (%d lines, cleaned %d files)",
+			len(bucketFiles), sourceName, outPath, linesWritten, cleanedCount)
+	}
+
+	log.Printf("Textsearch: processed %d sources, total %d lines", sourcesProcessed, totalLines)
+	return totalLines, nil
 }
 
 // SortBucketsForDataset sorts all bucket files for a dataset using the new directory structure

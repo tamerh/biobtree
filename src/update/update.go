@@ -1174,6 +1174,11 @@ func (d *DataUpdate) shouldSkipDataset(datasetName string) bool {
 	// Check if dataset was previously built
 	lastBuild := d.datasetState.GetDatasetInfo(datasetName)
 	if lastBuild == nil {
+		// First build - fetch and store source info for future comparisons
+		changeInfo, _ := CheckSourceChanged(datasetName, nil)
+		if changeInfo != nil {
+			d.storeSourceChangeInfo(datasetName, changeInfo)
+		}
 		return false // Never built - must build
 	}
 

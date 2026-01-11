@@ -4,6 +4,7 @@ import (
 	"biobtree/pbuf"
 	"bufio"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -59,21 +60,21 @@ func (b *bindingdb) parseAndSaveEntries(testLimit int, idLogFile *os.File) {
 	sourceID := config.Dataconf[b.source]["id"]
 
 	// Use zipstream for streaming ZIP processing (like HMDB)
-	var zipReader interface {
-		Read(p []byte) (n int, err error)
-	}
+	var zipReader io.Reader
+	var readerCloser io.Closer // Track reader for proper cleanup (local file or HTTP response)
 
 	// Check if using local file
 	if config.Dataconf[b.source]["useLocalFile"] == "yes" {
 		localFile, err := os.Open(filePath)
 		b.check(err, "opening local BindingDB file: "+filePath)
-		defer localFile.Close()
+		// Don't defer close here - we need to handle it after the zipstream finishes
 		zipReader = localFile
+		readerCloser = localFile
 	} else {
 		// Download from remote URL
 		resp, err := http.Get(filePath)
 		b.check(err, "downloading BindingDB ZIP file")
-		defer resp.Body.Close()
+		// Don't defer close here - the goroutine will close it after reading completes
 
 		if resp.StatusCode != 200 {
 			log.Fatalf("[%s] Error: BindingDB server returned HTTP %s from: %s",
@@ -81,6 +82,7 @@ func (b *bindingdb) parseAndSaveEntries(testLimit int, idLogFile *os.File) {
 		}
 
 		zipReader = resp.Body
+		readerCloser = resp.Body
 	}
 
 	// Use zipstream for streaming decompression
@@ -145,15 +147,41 @@ func (b *bindingdb) parseAndSaveEntries(testLimit int, idLogFile *os.File) {
 		}
 	}
 
+	// Stream lines through a channel (same pattern as HMDB XML parser)
+	// This allows proper cleanup when stopping early
+	type lineData struct {
+		lineNum int
+		text    string
+	}
+	stream := make(chan lineData, 100)
+
+	// Goroutine reads from scanner and sends to channel
+	// Closes reader after all reads complete (including zipstream's data descriptor)
+	go func() {
+		lineNum := 1
+		for scanner.Scan() {
+			lineNum++
+			stream <- lineData{lineNum: lineNum, text: scanner.Text()}
+		}
+		if err := scanner.Err(); err != nil {
+			log.Printf("BindingDB: Scanner error: %v", err)
+		}
+		// Drain any remaining zipstream data (data descriptor) before closing
+		io.Copy(io.Discard, zips)
+		if readerCloser != nil {
+			readerCloser.Close()
+		}
+		close(stream)
+	}()
+
 	var savedEntries int
 	var previous int64
 	var skippedEmptyID int
 	var totalRowsRead int
+	var stoppedEarly bool
 
-	lineNum := 1
-	for scanner.Scan() {
-		lineNum++
-		line := scanner.Text()
+	for ld := range stream {
+		line := ld.text
 
 		// Skip empty lines
 		if line == "" {
@@ -167,7 +195,7 @@ func (b *bindingdb) parseAndSaveEntries(testLimit int, idLogFile *os.File) {
 
 		// Progress logging every 50000 rows
 		if totalRowsRead%50000 == 0 {
-			log.Printf("BindingDB: Read %d rows so far (line %d)...", totalRowsRead, lineNum)
+			log.Printf("BindingDB: Read %d rows so far (line %d)...", totalRowsRead, ld.lineNum)
 		}
 
 		// Progress tracking
@@ -203,14 +231,23 @@ func (b *bindingdb) parseAndSaveEntries(testLimit int, idLogFile *os.File) {
 		// Test mode: check limit
 		if testLimit > 0 && savedEntries >= testLimit {
 			log.Printf("BindingDB: [TEST MODE] Reached limit of %d entries, stopping", testLimit)
+			stoppedEarly = true
 			break
 		}
 	}
 
-	// Check for scanner errors
-	if err := scanner.Err(); err != nil {
-		log.Printf("BindingDB: Scanner error: %v", err)
+	// If stopped early, drain remaining stream in background
+	// This lets the goroutine finish reading and properly close the file
+	// (same pattern as HMDB XML parser)
+	if stoppedEarly {
+		go func() {
+			for range stream {
+				// Discard remaining entries
+			}
+		}()
 	}
+	// On normal completion, the loop exits when channel closes,
+	// and the goroutine has already handled file cleanup
 
 	log.Printf("BindingDB: Total rows read: %d, Saved: %d entries", totalRowsRead, savedEntries)
 	log.Printf("BindingDB: Skipped - empty ID: %d", skippedEmptyID)

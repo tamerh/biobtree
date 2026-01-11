@@ -22,6 +22,25 @@ type BucketFile struct {
 	lineCount uint64
 }
 
+// validateBucketLine checks if a line has the minimum required format: KEY\tDB\t...
+// Uses fast byte scanning without allocations.
+// Returns true if valid, false if malformed.
+func validateBucketLine(line string) bool {
+	// Find first tab - KEY must be non-empty (idx > 0)
+	idx1 := strings.IndexByte(line, '\t')
+	if idx1 <= 0 {
+		return false
+	}
+
+	// Find second tab - DB field must exist and be non-empty
+	idx2 := strings.IndexByte(line[idx1+1:], '\t')
+	if idx2 <= 0 {
+		return false
+	}
+
+	return true
+}
+
 // HybridWriterPool provides direct mutex-based writes to bucket files
 // This avoids channel overhead by having callers write directly with per-bucket locks
 type HybridWriterPool struct {
@@ -166,6 +185,12 @@ func (p *HybridWriterPool) writeToSubdir(datasetID, entityID, line, subdir strin
 		p.poolMutex.Unlock()
 	}
 
+	// Validate line format before writing (fast - no allocations)
+	// Panic immediately to catch bugs at source - malformed data blocks merge phase
+	if !validateBucketLine(line) {
+		panic(fmt.Sprintf("Malformed bucket line (missing KEY or DB field). Line preview: %.100s", line))
+	}
+
 	// Write to bucket file with per-file mutex
 	bf.mutex.Lock()
 	defer bf.mutex.Unlock()
@@ -182,9 +207,8 @@ func (p *HybridWriterPool) writeToSubdir(datasetID, entityID, line, subdir strin
 		bf.created = true
 	}
 
-	// Write line
-	bf.buf.WriteString(line)
-	bf.buf.WriteByte('\n')
+	// Atomic write: combine line + newline to reduce partial write window
+	bf.buf.WriteString(line + "\n")
 	bf.lineCount++
 
 	return true

@@ -62,8 +62,13 @@ func LoadBucketSystemConfig() {
 		}
 	}
 
-	log.Printf("Bucket system config: enabled=%v readBuffer=%d writeBuffer=%d sortWorkers=%d concatWorkers=%d",
-		BucketEnabled, BucketReadBufferSize, BucketWriteBufferSize, BucketSortWorkers, BucketConcatWorkers)
+	// keepBucketFiles - preserve bucket files after sorting for debugging
+	if val, ok := config.Appconf["keepBucketFiles"]; ok {
+		KeepBucketFiles = (val == "yes" || val == "true" || val == "1")
+	}
+
+	log.Printf("Bucket system config: enabled=%v readBuffer=%d writeBuffer=%d sortWorkers=%d concatWorkers=%d keepFiles=%v",
+		BucketEnabled, BucketReadBufferSize, BucketWriteBufferSize, BucketSortWorkers, BucketConcatWorkers, KeepBucketFiles)
 }
 
 // BucketConfig holds bucket configuration for a dataset

@@ -13,6 +13,9 @@ import (
 	"sync"
 )
 
+// KeepBucketFiles when set to true, preserves bucket files after sorting for debugging
+var KeepBucketFiles = false
+
 // keyedLine holds a line with its pre-extracted key for efficient sorting
 // This avoids re-extracting the key on every comparison during sort
 type keyedLine struct {
@@ -471,19 +474,21 @@ func concatenateOneDataset(writerKey string, writer *DatasetBucketWriter, indexD
 	// Clean up bucket files after successful merge to prevent accumulation across builds
 	// Each bucket file is only needed once - after merge, data is in the sorted index
 	cleanedCount := 0
-	cleanedDirs := make(map[string]bool)
-	for _, bucketFile := range bucketFiles {
-		if err := os.Remove(bucketFile); err == nil {
-			cleanedCount++
-			cleanedDirs[filepath.Dir(bucketFile)] = true
+	if !KeepBucketFiles {
+		cleanedDirs := make(map[string]bool)
+		for _, bucketFile := range bucketFiles {
+			if err := os.Remove(bucketFile); err == nil {
+				cleanedCount++
+				cleanedDirs[filepath.Dir(bucketFile)] = true
+			}
 		}
-	}
 
-	// Remove empty bucket directories (forward/, from_*/)
-	for dir := range cleanedDirs {
-		entries, err := os.ReadDir(dir)
-		if err == nil && len(entries) == 0 {
-			os.Remove(dir)
+		// Remove empty bucket directories (forward/, from_*/)
+		for dir := range cleanedDirs {
+			entries, err := os.ReadDir(dir)
+			if err == nil && len(entries) == 0 {
+				os.Remove(dir)
+			}
 		}
 	}
 
@@ -595,19 +600,21 @@ func concatenateTextsearchPerSource(indexDir string, chunkIdx string, isDerived 
 
 		// Clean up bucket files
 		cleanedCount := 0
-		cleanedDirs := make(map[string]bool)
-		for _, bucketFile := range bucketFiles {
-			if err := os.Remove(bucketFile); err == nil {
-				cleanedCount++
-				cleanedDirs[filepath.Dir(bucketFile)] = true
+		if !KeepBucketFiles {
+			cleanedDirs := make(map[string]bool)
+			for _, bucketFile := range bucketFiles {
+				if err := os.Remove(bucketFile); err == nil {
+					cleanedCount++
+					cleanedDirs[filepath.Dir(bucketFile)] = true
+				}
 			}
-		}
 
-		// Remove empty bucket directories
-		for dir := range cleanedDirs {
-			entries, err := os.ReadDir(dir)
-			if err == nil && len(entries) == 0 {
-				os.Remove(dir)
+			// Remove empty bucket directories
+			for dir := range cleanedDirs {
+				entries, err := os.ReadDir(dir)
+				if err == nil && len(entries) == 0 {
+					os.Remove(dir)
+				}
 			}
 		}
 
@@ -762,19 +769,21 @@ func ConcatenateBucketsForDataset(datasetName string, indexDir string, isDerived
 
 	// Clean up bucket files after successful merge to prevent accumulation across builds
 	cleanedCount := 0
-	cleanedDirs := make(map[string]bool)
-	for _, bucketFile := range files {
-		if err := os.Remove(bucketFile); err == nil {
-			cleanedCount++
-			cleanedDirs[filepath.Dir(bucketFile)] = true
+	if !KeepBucketFiles {
+		cleanedDirs := make(map[string]bool)
+		for _, bucketFile := range files {
+			if err := os.Remove(bucketFile); err == nil {
+				cleanedCount++
+				cleanedDirs[filepath.Dir(bucketFile)] = true
+			}
 		}
-	}
 
-	// Remove empty bucket directories (forward/, from_*/)
-	for dir := range cleanedDirs {
-		entries, err := os.ReadDir(dir)
-		if err == nil && len(entries) == 0 {
-			os.Remove(dir)
+		// Remove empty bucket directories (forward/, from_*/)
+		for dir := range cleanedDirs {
+			entries, err := os.ReadDir(dir)
+			if err == nil && len(entries) == 0 {
+				os.Remove(dir)
+			}
 		}
 	}
 

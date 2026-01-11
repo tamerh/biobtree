@@ -193,14 +193,19 @@ func (h *hmdb) update() {
 		}
 	}
 
-	// In test mode, use path2 (local test file) instead of downloading full data
+	// Check if using local file (useLocalFile setting)
 	var zipReader io.ReadCloser
-	if config.IsTestMode() && config.Dataconf[h.source]["path2"] != "" {
-		// Use local test file
-		testFilePath := config.Dataconf[h.source]["path2"]
-		localFile, err := os.Open(testFilePath)
-		h.check(err, "opening local HMDB test file: "+testFilePath)
-		defer localFile.Close()
+	var localFile *os.File // Track local file for proper cleanup
+	if config.Dataconf[h.source]["useLocalFile"] == "yes" {
+		// Use local file from path2 (or path if path2 not set)
+		localFilePath := config.Dataconf[h.source]["path2"]
+		if localFilePath == "" {
+			localFilePath = config.Dataconf[h.source]["path"]
+		}
+		var err error
+		localFile, err = os.Open(localFilePath)
+		h.check(err, "opening local HMDB file: "+localFilePath)
+		// Don't defer close here - we need to handle it after the parser finishes
 		zipReader = localFile
 	} else {
 		// Download from remote URL
@@ -245,7 +250,11 @@ func (h *hmdb) update() {
 	var fr = config.Dataconf[h.source]["id"]
 	var previous int64
 
-	for r := range p.Stream() {
+	// Store stream channel for proper cleanup
+	stream := p.Stream()
+	var stoppedEarly bool
+
+	for r := range stream {
 
 		elapsed := int64(time.Since(h.d.start).Seconds())
 		if elapsed > previous+h.d.progInterval {
@@ -465,7 +474,25 @@ func (h *hmdb) update() {
 		// Test mode: check if limit reached and break immediately
 		if shouldStopProcessing(testLimit, int(entryCount)) {
 			h.d.progChan <- &progressInfo{dataset: h.source, done: true}
+			stoppedEarly = true
 			break
+		}
+	}
+
+	// Handle file cleanup for local files
+	if localFile != nil {
+		if stoppedEarly {
+			// If we stopped early, drain the remaining stream in a goroutine
+			// to let the parser finish cleanly before closing the file
+			go func() {
+				for range stream {
+					// Discard remaining entries
+				}
+				localFile.Close()
+			}()
+		} else {
+			// Normal completion - close the file directly
+			localFile.Close()
 		}
 	}
 

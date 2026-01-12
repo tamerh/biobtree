@@ -44,8 +44,9 @@ type pubchem struct {
 	surechemblPatentIDs map[string]bool // Pre-loaded SureChEMBL patent IDs (~665K)
 
 	// Cached data for efficient lookup (stored as attributes in PubchemAttr)
-	cidToTitle     map[string]string   // CID → compound name (from Drug-Names)
-	cidToSynonyms  map[string][]string // CID → synonyms
+	cidToTitle      map[string]string   // CID → compound name (from Drug-Names, first encountered)
+	cidToDrugNames  map[string][]string // CID → all drug names (from Drug-Names)
+	cidToSynonyms   map[string][]string // CID → synonyms
 	cidToMeSH      map[string][]string // CID → MeSH terms
 	meshToPharmActions map[string][]string // MeSH term → pharmacological actions
 
@@ -119,6 +120,7 @@ func (p *pubchem) update() {
 	p.p4CIDs = make(map[string]bool)
 	p.surechemblPatentIDs = make(map[string]bool)
 	p.cidToTitle = make(map[string]string)
+	p.cidToDrugNames = make(map[string][]string)
 	p.cidToSynonyms = make(map[string][]string)
 	p.cidToMeSH = make(map[string][]string)
 	p.cidToUNII = make(map[string]string)
@@ -335,6 +337,11 @@ func (p *pubchem) loadFDADrugs() {
 		// Store drug name as title (only if not already set)
 		if _, exists := p.cidToTitle[cid]; !exists {
 			p.cidToTitle[cid] = drugName
+		}
+
+		// Collect all drug names for this CID (for DrugNames field)
+		if drugName != "" {
+			p.cidToDrugNames[cid] = append(p.cidToDrugNames[cid], drugName)
 		}
 
 		// Add text search link for synonym
@@ -998,7 +1005,7 @@ func (p *pubchem) loadSynonyms() {
 		}
 
 		// FDA UNII - Unique Ingredient Identifier (e.g., "UNII-362O9ITL9D" or just "362O9ITL9D")
-		// TODO: Consider adding UNII as a full dataset for richer FDA substance data
+		// TODO: Consider adding c as a full dataset for richer FDA substance data
 		if strings.HasPrefix(synonym, "UNII-") {
 			unii := strings.TrimPrefix(synonym, "UNII-")
 			if unii != "" {
@@ -1588,6 +1595,12 @@ func (p *pubchem) parseSDFRecord(record string, matchCount *int, scannedCount *i
 		synonyms = syns
 	}
 
+	// Use drug name as title if available (from Drug-Names.tsv), otherwise IUPAC name
+	title := iupacName
+	if drugName, hasDrugName := p.cidToTitle[cid]; hasDrugName && drugName != "" {
+		title = drugName
+	}
+
 	// Create PubChem entry with SDF data
 	fr := config.Dataconf["pubchem"]["id"]
 	attr := pbuf.PubchemAttr{
@@ -1596,12 +1609,13 @@ func (p *pubchem) parseSDFRecord(record string, matchCount *int, scannedCount *i
 		InchiKey:            inchiKey,
 		Smiles:              smiles,
 		IupacName:           iupacName,
-		Title:               iupacName, // Use IUPAC name as title
+		Title:               title,
 		Synonyms:            synonyms,
 
 		// Classifications
 		CompoundType:        compoundType,
 		IsFdaApproved:       p.p0CIDs[cid],
+		DrugNames:           p.cidToDrugNames[cid],
 		HasLiterature:       p.p1CIDs[cid],
 		HasPatents:          p.p2CIDs[cid],
 

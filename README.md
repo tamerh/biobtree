@@ -62,7 +62,6 @@ by retrieving latest data from providers
 
 * **Web Services** - REST or gRPC services
 
-* **R & Python** - [Bioconductor R](https://github.com/tamerh/biobtreeR) and [Python](https://github.com/tamerh/biobtreePy) wrapper packages to use from existing pipelines easier with built-in databases
 
 ### Usage
 
@@ -131,18 +130,6 @@ biobtree web
 biobtree help
 
 ```
-
-#### Starting biobtree with built-in databases
-
-```sh
-# 4 built-in database provided with commonly studied datasets and organism genomes in order to speed up database build process
-# Check following func doc for each database content 
-# https://github.com/tamerh/biobtreeR/blob/master/R/buildData.R
-
-biobtree --pre-built 1 install
-biobtree web
-```
-Builting databases updated regularly at least for each Ensembl release and all builtin database files along with configuration files are hosted in spererate github [repository](https://github.com/tamerh/biobtree-conf)
 
 ### Web service endpoints
 ```ruby
@@ -553,13 +540,6 @@ biobtree query "TP53 >> * >> uniprot"
 localhost:9292/ws/map/?i=P27348&m=map(uniprot).filter(uniprot.reviewed==true).map(hgnc)
 ```
 
-<!-- ### Integrating your dataset
-
-User data can be integrated to biobtree. Since biobtree has capability to process large datasets, this feature creates an alternative for  mapping related data to be indexed with biobtree. Data should be gzipped and in an xml format compliant with UniProt xml schema [definition](ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot.xsd). Once data has been prepared, file location needs to be configured in biobtree configuration file which is located at `conf/source.dataset.json`. After these configuration dataset used similarly with other dataset like
-
-```sh
-biobtree -d "+my_data" start
-``` -->
 
 ### Publication
 https://f1000research.com/articles/8-145
@@ -693,9 +673,6 @@ Requirements: Go >= 1.13
 # Using Makefile (recommended)
 make build
 
-# Or directly
-cd src && go build -o ../biobtree
-
 # See all available commands
 make help
 ```
@@ -706,129 +683,4 @@ make help
 - `make proto` - Regenerate protobuf code (only needed when .proto files change)
 - `make clean` - Clean build artifacts
 
-#### Building the web application
 
-To build the web application for development in the web directory run
-
-```sh
-npm install
-npm run serve
-```
-
-To build the web package run
-
-```sh
-npm run build
-```
-
-### Adding New Datasets
-
-To integrate a new dataset into biobtree, the following components must be modified:
-
-#### 1. Configuration Files
-- **`conf/source.dataset.json`**: Add basic dataset definition (name, id, path, useLocalFile)
-- **`conf/default.dataset.json`**: Add full metadata (url, attrs, hasFilter)
-- For hierarchical datasets (ontologies): Also add `datasetnameParent` and `datasetnameChild` definitions
-
-#### 2. Protocol Buffers
-- **`pbuf/pbuf.proto`**: Define attribute structure as a protobuf message
-- Compile with: `make proto` (generates `pbuf.pb.go`)
-
-#### 3. Data Parser
-- **`src/update/datasetname.go`**: Create parser implementing `update()` method
-- Key operations:
-  - Save entries: `addProp3(id, datasetID, marshaledAttrs)`
-  - Text search: `addXref(term, textLinkID, id, datasetName, true)`
-  - Cross-references: `addXref(fromID, fromDatasetID, toID, toDatasetName, false)`
-  - **Important**: Second parameter must be dataset **ID** (numeric), fourth parameter must be dataset **name** (string)
-
-#### 4. Merge Logic
-- **`src/generate/mergeg.go`**: Add dataset to `xref` struct and unmarshal case for your dataset ID
-- Without this, attributes will appear empty in responses
-- also if dataset does not has any xref it should also add to another place in mergeg.go 
-
-#### 5. Filter Support (Optional)
-If `hasFilter="yes"`:
-- **`src/service/service.go`**: Add CEL declaration
-- **`src/service/mapfilter.go`**: Add filter evaluation case
-#### 6. Adding test 
- Each dataset needs to add its tests in tests/datasets/ folder with the same approach and convention with other datasets. Details
- can be seen in tests/README.md 
-
-#### Build Order
-```sh
-# 1. Compile protobuf
-make proto
-
-# 2. Build biobtree
-make build
-
-# 3. Build database
-./biobtree -d "datasetname" build
-```
-
-**Common Pitfalls:**
-- Using dataset name instead of ID in `addXref` parameter 2 causes "dataset id to integer conversion error"
-- Forgetting `make proto` after changing `.proto` files
-- Not adding dataset ID case in `mergeg.go` results in empty attributes
-- Not creating bidirectional cross-references
-
-### Database Backend
-
-Biobtree supports both **LMDB** and **MDBX** database backends through a clean abstraction layer.
-
-**Default:** LMDB (proven stability, mature codebase)
-**Optional:** MDBX (auto-growing database, easier sizing)
-**Performance:** Identical in real-world workloads (extensively tested)
-
-#### Configuration
-
-To switch backends, add to `conf/application.param.json`:
-
-```json
-{
-  "dbBackend": "lmdb"  // or "mdbx"
-}
-```
-
-LMDB is used by default if not specified.
-
-#### Why LMDB Default?
-
-Extensive testing (REST, gRPC, NFS, local storage) showed:
-- ✅ Identical performance in all scenarios
-- ✅ LMDB more mature and proven
-- ✅ Both perform excellently for biobtree's workload
-
-Use MDBX if you prefer auto-growing database (no manual size calculation needed).
-
----
-
-### Use Cases
-
-**Drug Discovery**:
-- Find all patents for compounds targeting EGFR
-- Identify patent families covering specific drug candidates
-- Map patent compounds to clinical trial drugs
-
-**Competitive Intelligence**:
-- Track competitor patent filings by assignee
-- Monitor technology trends via IPC/CPC codes
-- Find patent gaps in therapeutic areas
-
-**Research Integration**:
-- Link patents to PubMed citations
-- Connect patented compounds to protein targets
-- Map patents to genes and pathways
-
-
-### TODO
-
-- Geographic search by facility location
-
-### Documentation
-
-For detailed information about patent data processing:
-- **Patents Module**: `../modules/patents/README.md`
-- **Processing Scripts**: `../modules/patents/scripts/`
-- **Data Source**: https://chembl.gitbook.io/surechembl

@@ -552,7 +552,7 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			break
 		case "ontology":
 			// Process all ontology datasets at once
-			ontologyDatasets := []string{"go", "eco", "efo", "uberon", "cl", "mondo", "hpo", "oba", "pato", "obi", "xco"}
+			ontologyDatasets := []string{"go", "eco", "efo", "uberon", "cl", "mondo", "hpo", "oba", "pato", "obi", "xco", "bao"}
 			for _, ontoData := range ontologyDatasets {
 				switch ontoData {
 				case "go":
@@ -610,6 +610,11 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 					xc := xco{source: ontoData, d: d}
 					d.datasets2 = append(d.datasets2, ontoData)
 					go xc.update()
+				case "bao":
+					d.wg.Add(1)
+					ba := bao{source: ontoData, d: d}
+					d.datasets2 = append(d.datasets2, ontoData)
+					go ba.update()
 				}
 			}
 			break

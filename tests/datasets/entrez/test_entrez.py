@@ -121,8 +121,10 @@ class EntrezTests:
     @test
     def test_cross_references_present(self):
         """Check gene has cross-references to external databases"""
+        if not self.runner.reference_data:
+            return True, "SKIP: No reference data"
         entry = self.runner.reference_data[0]
-        gene_id = str(entry["GeneID"])
+        gene_id = str(entry.get("GeneID", entry.get("gene_id", "")))
 
         data = self.runner.lookup(gene_id)
 

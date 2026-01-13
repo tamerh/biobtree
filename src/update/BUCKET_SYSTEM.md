@@ -16,8 +16,31 @@ Sorting Phase (parallel workers):
   ...
   Worker N ──► sorts bucket_N.txt
 
-Concatenation Phase:
-  All sorted buckets ──► dataset_sorted.X.index.gz
+Concatenation Phase (per-source files):
+  entrez/forward/       ──► entrez_sorted.X.index.gz
+  entrez/from_refseq/   ──► entrez_from_refseq_sorted.X.index.gz
+  refseq/forward/       ──► refseq_sorted.X.index.gz
+  refseq/from_entrez/   ──► refseq_from_entrez_sorted.X.index.gz
+```
+
+## Per-Source File Design
+
+Each dataset's output is split into separate files by source, enabling granular incremental updates:
+
+| Source Directory | Output File | Description |
+|-----------------|-------------|-------------|
+| `{dataset}/forward/` | `{dataset}_sorted.X.index.gz` | Dataset's own entries |
+| `{dataset}/from_{source}/` | `{dataset}_from_{source}_sorted.X.index.gz` | Xrefs from another dataset |
+| `_derived/textsearch/from_{source}/` | `textsearch_{source}_sorted.X.index.gz` | Text search entries |
+
+**Incremental Update Example** - When entrez needs update:
+```bash
+# Automatically cleaned by CleanupForIncrementalUpdate():
+rm entrez_sorted.*.index.gz              # entrez's own data
+rm textsearch_entrez_sorted.*.index.gz   # entrez's textsearch contribution
+rm *_from_entrez_sorted.*.index.gz       # entrez's xrefs TO other datasets
+
+# Then only entrez is re-processed - other datasets keep their data
 ```
 
 ## Key Design Decisions

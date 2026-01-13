@@ -97,11 +97,37 @@ func (s *swisslipids) update() {
 func (s *swisslipids) downloadAndParseTSV(filename string, parseFunc func(io.Reader)) {
 	var reader io.Reader
 
-	if config.IsTestMode() && config.Dataconf[s.source]["path2"] != "" {
-		// In test mode, try to use local file
-		// For now, skip additional files in test mode unless explicitly provided
-		log.Printf("[%s] Test mode: Skipping %s (only using main test file)", s.source, filename)
+	// In test mode, only process the main lipids.tsv file
+	// Skip additional cross-reference files (lipids2uniprot, go, tissues, etc.)
+	if config.IsTestMode() && filename != "lipids.tsv" {
+		log.Printf("[%s] Test mode: Skipping %s (only processing main lipids.tsv)", s.source, filename)
 		return
+	}
+
+	// In test mode or when useLocalFile is set, try to use local file for lipids.tsv
+	if filename == "lipids.tsv" {
+		localPath := config.Dataconf[s.source]["path"]
+		if localPath != "" && (config.Dataconf[s.source]["useLocalFile"] == "yes" || config.IsTestMode()) {
+			log.Printf("[%s] Using local file: %s", s.source, localPath)
+			file, err := os.Open(localPath)
+			if err != nil {
+				log.Printf("[%s] Warning: Could not open local file %s: %v, falling back to API", s.source, localPath, err)
+			} else {
+				defer file.Close()
+				// Check if gzipped
+				if strings.HasSuffix(localPath, ".gz") {
+					gzReader, err := gzip.NewReader(file)
+					if err != nil {
+						s.check(err, "creating gzip reader for local file")
+					}
+					defer gzReader.Close()
+					parseFunc(gzReader)
+				} else {
+					parseFunc(file)
+				}
+				return
+			}
+		}
 	}
 
 	// Build API URL for this file

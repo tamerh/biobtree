@@ -8,14 +8,33 @@ import (
 	"strings"
 )
 
-// CleanupForIncrementalUpdate removes old bucket files for a dataset being updated
+// childDatasets maps parent datasets to their child datasets that are built during parent processing
+// When a parent dataset is cleaned up (interrupted or needs update), its child datasets must also be cleaned
+var childDatasets = map[string][]string{
+	"uniprot":  {"ufeature"},
+	"taxonomy": {"taxchild", "taxparent"},
+	"ensembl":  {"ortholog", "paralog"},
+	"go":       {"gochild", "goparent"},
+	"mesh":     {"meshchild", "meshparent"},
+	"hpo":      {"hpochild", "hpoparent"},
+	"reactome": {"reactomeparent", "reactomechild"},
+	"efo":      {"efochild", "efoparent"},
+	"mondo":    {"mondochild", "mondoparent"},
+	"chebi":    {"chebichild", "chebiparent"},
+	"uberon":   {"uberonchild", "uberonparent"},
+	"eco":      {"ecochild", "ecoparent"},
+}
+
+// CleanupForIncrementalUpdate removes old bucket files and sorted files for a dataset being updated
 // This is called before re-parsing a dataset to ensure clean state
 //
 // Removes:
-// 1. {dataset}/forward/* - the dataset's own forward xrefs
-// 2. */from_{dataset}/* - reverse xrefs this dataset sent to other datasets
-// 3. _derived/*/from_{dataset}/* - reverse xrefs to derived datasets
-// 4. Old sorted files for this dataset
+// 1. {dataset}/forward/* - the dataset's own forward xrefs (bucket files)
+// 2. */from_{dataset}/* - reverse xrefs this dataset sent to other datasets (bucket files)
+// 3. _derived/*/from_{dataset}/* - reverse xrefs to derived datasets (bucket files)
+// 4. {datasetName}_sorted.*.index.gz - old sorted files for this dataset
+// 5. textsearch_{datasetName}_sorted.*.index.gz - textsearch contribution files
+// 6. *_from_{datasetName}_sorted.*.index.gz - xref contribution files to other datasets
 func CleanupForIncrementalUpdate(datasetName string, indexDir string) error {
 	log.Printf("Cleaning up bucket files for dataset %s", datasetName)
 	var totalRemoved int
@@ -108,6 +127,21 @@ func CleanupForIncrementalUpdate(datasetName string, indexDir string) error {
 		}
 	}
 
+	// 6. Remove xref contribution files this dataset sent TO other datasets
+	// Pattern: *_from_{datasetName}_sorted.*.index.gz
+	// This enables incremental updates - when a dataset is re-processed,
+	// its xref contributions to other datasets are rebuilt from scratch
+	xrefPattern := filepath.Join(indexDir, fmt.Sprintf("*_from_%s_sorted.*.index.gz", datasetName))
+	xrefFiles, _ := filepath.Glob(xrefPattern)
+	for _, f := range xrefFiles {
+		if err := os.Remove(f); err != nil {
+			log.Printf("Warning: failed to remove xref contribution file %s: %v", f, err)
+		} else {
+			totalRemoved++
+			log.Printf("Removed old xref contribution file: %s", f)
+		}
+	}
+
 	// Also remove legacy bucket directories (buckets_*, buckets1_*, etc.)
 	legacyPatterns := []string{
 		filepath.Join(indexDir, datasetName, "buckets_*"),
@@ -126,6 +160,88 @@ func CleanupForIncrementalUpdate(datasetName string, indexDir string) error {
 	}
 
 	log.Printf("Cleanup complete for %s: removed %d files/directories", datasetName, totalRemoved)
+
+	// 7. Clean up child datasets that are built during this dataset's processing
+	// e.g., when uniprot is cleaned, also clean ufeature
+	if children, hasChildren := childDatasets[datasetName]; hasChildren {
+		for _, childName := range children {
+			log.Printf("Also cleaning child dataset %s (built by %s)", childName, datasetName)
+			if err := cleanupChildDataset(childName, indexDir); err != nil {
+				log.Printf("Warning: failed to cleanup child dataset %s: %v", childName, err)
+			}
+		}
+	}
+
+	return nil
+}
+
+// cleanupChildDataset cleans up a child dataset's files without recursing to its own children
+// This is a simplified version that removes bucket dirs and sorted files
+func cleanupChildDataset(datasetName string, indexDir string) error {
+	var totalRemoved int
+
+	// Remove forward directory
+	forwardDir := filepath.Join(indexDir, datasetName, "forward")
+	if removed, err := removeDir(forwardDir); err == nil {
+		totalRemoved += removed
+	}
+
+	// Remove from_{dataset}/ directories from all other datasets
+	fromPattern := fmt.Sprintf("from_%s", datasetName)
+	entries, _ := os.ReadDir(indexDir)
+	for _, entry := range entries {
+		if !entry.IsDir() || entry.Name() == datasetName || entry.Name() == "_derived" || strings.HasPrefix(entry.Name(), ".") {
+			continue
+		}
+		fromDir := filepath.Join(indexDir, entry.Name(), fromPattern)
+		if removed, err := removeDir(fromDir); err == nil {
+			totalRemoved += removed
+		}
+	}
+
+	// Remove from derived datasets
+	derivedDir := filepath.Join(indexDir, "_derived")
+	if derivedEntries, err := os.ReadDir(derivedDir); err == nil {
+		for _, entry := range derivedEntries {
+			if entry.IsDir() {
+				fromDir := filepath.Join(derivedDir, entry.Name(), fromPattern)
+				if removed, err := removeDir(fromDir); err == nil {
+					totalRemoved += removed
+				}
+			}
+		}
+	}
+
+	// Remove sorted files
+	sortedPattern := filepath.Join(indexDir, fmt.Sprintf("%s_sorted.*.index.gz", datasetName))
+	sortedFiles, _ := filepath.Glob(sortedPattern)
+	for _, f := range sortedFiles {
+		if err := os.Remove(f); err == nil {
+			totalRemoved++
+		}
+	}
+
+	// Remove textsearch files
+	textsearchPattern := filepath.Join(indexDir, fmt.Sprintf("textsearch_%s_sorted.*.index.gz", datasetName))
+	textsearchFiles, _ := filepath.Glob(textsearchPattern)
+	for _, f := range textsearchFiles {
+		if err := os.Remove(f); err == nil {
+			totalRemoved++
+		}
+	}
+
+	// Remove xref contribution files
+	xrefPattern := filepath.Join(indexDir, fmt.Sprintf("*_from_%s_sorted.*.index.gz", datasetName))
+	xrefFiles, _ := filepath.Glob(xrefPattern)
+	for _, f := range xrefFiles {
+		if err := os.Remove(f); err == nil {
+			totalRemoved++
+		}
+	}
+
+	if totalRemoved > 0 {
+		log.Printf("Cleanup complete for child dataset %s: removed %d files/directories", datasetName, totalRemoved)
+	}
 	return nil
 }
 
@@ -353,4 +469,43 @@ func GetBucketFilesPerSource(datasetName string, indexDir string, isDerived bool
 	}
 
 	return result, nil
+}
+
+// CleanupInterruptedDatasets cleans up bucket files and sorted files for datasets
+// that were interrupted mid-build (status = "processing")
+// This should be called at the START of a new build to ensure clean state
+func CleanupInterruptedDatasets(state *DatasetState, indexDir string) error {
+	interrupted := state.GetInterruptedDatasets()
+	if len(interrupted) == 0 {
+		return nil
+	}
+
+	log.Printf("Found %d interrupted datasets from previous build: %v", len(interrupted), interrupted)
+
+	for _, datasetName := range interrupted {
+		log.Printf("Cleaning up interrupted dataset: %s", datasetName)
+
+		// Use the existing cleanup function (also cleans child datasets)
+		if err := CleanupForIncrementalUpdate(datasetName, indexDir); err != nil {
+			log.Printf("Warning: cleanup failed for interrupted dataset %s: %v", datasetName, err)
+		}
+
+		// Remove from state so it will be reprocessed
+		state.RemoveDataset(datasetName)
+
+		// Also remove child datasets from state
+		if children, hasChildren := childDatasets[datasetName]; hasChildren {
+			for _, childName := range children {
+				state.RemoveDataset(childName)
+			}
+		}
+	}
+
+	// Save updated state
+	if err := SaveDatasetState(state, indexDir); err != nil {
+		log.Printf("Warning: failed to save state after cleaning interrupted datasets: %v", err)
+	}
+
+	log.Printf("Cleaned up %d interrupted datasets", len(interrupted))
+	return nil
 }

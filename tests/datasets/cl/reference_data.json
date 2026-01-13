@@ -1,882 +1,952 @@
 [
   {
-    "id": "CL:0003001",
-    "name": "bistratified retinal ganglion cell",
+    "id": "CL:0000000",
+    "name": "cell",
+    "synonyms": [],
+    "parents": []
+  },
+  {
+    "id": "CL:0000001",
+    "name": "primary cultured cell",
     "synonyms": [
-      "retinal ganglion D cell"
+      "primary cell culture cell",
+      "unpassaged cultured cell",
+      "primary cell line cell"
     ],
     "parents": [
-      "CL:0000740",
-      "CL:0004247"
+      "CL:0000010"
     ]
   },
   {
-    "id": "CL:0003002",
-    "name": "G1 retinal ganglion cell",
-    "synonyms": [],
-    "parents": [
-      "CL:0000740"
-    ]
-  },
-  {
-    "id": "CL:0003003",
-    "name": "G2 retinal ganglion cell",
-    "synonyms": [],
-    "parents": [
-      "CL:0000740"
-    ]
-  },
-  {
-    "id": "CL:0003004",
-    "name": "G3 retinal ganglion cell",
-    "synonyms": [],
-    "parents": [
-      "CL:0003001"
-    ]
-  },
-  {
-    "id": "CL:0003005",
-    "name": "G4 retinal ganglion cell",
-    "synonyms": [],
-    "parents": [
-      "CL:0000740"
-    ]
-  },
-  {
-    "id": "CL:0003006",
-    "name": "G4-ON retinal ganglion cell",
-    "synonyms": [],
-    "parents": [
-      "CL:0003005",
-      "CL:4023032"
-    ]
-  },
-  {
-    "id": "CL:0003007",
-    "name": "G4-OFF retinal ganglion cell",
-    "synonyms": [],
-    "parents": [
-      "CL:0003005",
-      "CL:4023033"
-    ]
-  },
-  {
-    "id": "CL:0003008",
-    "name": "G5 retinal ganglion cell",
-    "synonyms": [],
-    "parents": [
-      "CL:0000740"
-    ]
-  },
-  {
-    "id": "CL:0003009",
-    "name": "G6 retinal ganglion cell",
-    "synonyms": [],
-    "parents": [
-      "CL:0000740"
-    ]
-  },
-  {
-    "id": "CL:0003010",
-    "name": "G7 retinal ganglion cell",
+    "id": "CL:0000002",
+    "name": "obsolete immortal cell line cell",
     "synonyms": [
-      "ON-OFF DS"
+      "continuous cell line cell",
+      "permanent cell line cell"
+    ],
+    "parents": []
+  },
+  {
+    "id": "CL:0000003",
+    "name": "obsolete native cell",
+    "synonyms": [],
+    "parents": []
+  },
+  {
+    "id": "CL:0000004",
+    "name": "obsolete cell by organism",
+    "synonyms": [],
+    "parents": []
+  },
+  {
+    "id": "CL:0000005",
+    "name": "neural crest derived fibroblast",
+    "synonyms": [
+      "fibroblast neural crest derived"
     ],
     "parents": [
-      "CL:0003001"
+      "CL:0000057"
     ]
   },
   {
-    "id": "CL:0003011",
-    "name": "G8 retinal ganglion cell",
-    "synonyms": [],
-    "parents": [
-      "CL:0000740"
-    ]
-  },
-  {
-    "id": "CL:0003012",
-    "name": "G9 retinal ganglion cell",
-    "synonyms": [],
-    "parents": [
-      "CL:0000740"
-    ]
-  },
-  {
-    "id": "CL:0003013",
-    "name": "G10 retinal ganglion cell",
-    "synonyms": [],
-    "parents": [
-      "CL:0000740"
-    ]
-  },
-  {
-    "id": "CL:0003014",
-    "name": "G11 retinal ganglion cell",
-    "synonyms": [],
-    "parents": [
-      "CL:0000740"
-    ]
-  },
-  {
-    "id": "CL:0003015",
-    "name": "G11-ON retinal ganglion cell",
-    "synonyms": [],
-    "parents": [
-      "CL:0003014",
-      "CL:4023032"
-    ]
-  },
-  {
-    "id": "CL:0003016",
-    "name": "G11-OFF retinal ganglion cell",
-    "synonyms": [],
-    "parents": [
-      "CL:0003014",
-      "CL:4023033"
-    ]
-  },
-  {
-    "id": "CL:0003017",
-    "name": "retinal ganglion cell B3 outer",
-    "synonyms": [],
-    "parents": [
-      "CL:0004183"
-    ]
-  },
-  {
-    "id": "CL:0003018",
-    "name": "retinal ganglion cell B3 inner",
-    "synonyms": [],
-    "parents": [
-      "CL:0004183"
-    ]
-  },
-  {
-    "id": "CL:0003020",
-    "name": "retinal ganglion cell C outer",
-    "synonyms": [],
-    "parents": [
-      "CL:0004116"
-    ]
-  },
-  {
-    "id": "CL:0003021",
-    "name": "retinal ganglion cell C4",
-    "synonyms": [],
-    "parents": [
-      "CL:0003020"
-    ]
-  },
-  {
-    "id": "CL:0003022",
-    "name": "retinal ganglion cell C5",
-    "synonyms": [],
-    "parents": [
-      "CL:0003020"
-    ]
-  },
-  {
-    "id": "CL:0003023",
-    "name": "retinal ganglion cell C6",
-    "synonyms": [],
-    "parents": [
-      "CL:0003020"
-    ]
-  },
-  {
-    "id": "CL:0003024",
-    "name": "retinal ganglion cell C inner",
-    "synonyms": [],
-    "parents": [
-      "CL:0004116"
-    ]
-  },
-  {
-    "id": "CL:0003025",
-    "name": "retinal ganglion cell C3",
+    "id": "CL:0000006",
+    "name": "neuronal receptor cell",
     "synonyms": [
-      "epsilon"
+      "neuronal receptor cell (sensu Animalia)"
     ],
     "parents": [
-      "CL:0003024"
+      "CL:0000101",
+      "CL:0000197"
     ]
   },
   {
-    "id": "CL:0003026",
-    "name": "retinal ganglion cell D1",
+    "id": "CL:0000007",
+    "name": "early embryonic cell (metazoa)",
     "synonyms": [],
     "parents": [
-      "CL:0003001"
+      "CL:0002321"
     ]
   },
   {
-    "id": "CL:0003027",
-    "name": "retinal ganglion cell D2",
+    "id": "CL:0000008",
+    "name": "migratory cranial neural crest cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0000333"
+    ]
+  },
+  {
+    "id": "CL:0000009",
+    "name": "obsolete fusiform initial",
     "synonyms": [
-      "ON-OFF direction selective",
-      "iota cell"
+      "xylem initial",
+      "xylem mother cell"
+    ],
+    "parents": []
+  },
+  {
+    "id": "CL:0000010",
+    "name": "cultured cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0000578"
+    ]
+  },
+  {
+    "id": "CL:0000011",
+    "name": "migratory trunk neural crest cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0000333"
+    ]
+  },
+  {
+    "id": "CL:0000012",
+    "name": "obsolete cell by class",
+    "synonyms": [],
+    "parents": []
+  },
+  {
+    "id": "CL:0000013",
+    "name": "obsolete dentine secreting cell",
+    "synonyms": [],
+    "parents": []
+  },
+  {
+    "id": "CL:0000014",
+    "name": "germ line stem cell",
+    "synonyms": [
+      "germline stem cell"
     ],
     "parents": [
-      "CL:0003001"
+      "CL:0000034",
+      "CL:0000039"
     ]
   },
   {
-    "id": "CL:0003028",
-    "name": "M1 retinal ganglion cell",
+    "id": "CL:0000015",
+    "name": "male germ cell",
     "synonyms": [],
     "parents": [
-      "CL:0000740"
+      "CL:0000586"
     ]
   },
   {
-    "id": "CL:0003029",
-    "name": "M2 retinal ganglion cell",
+    "id": "CL:0000016",
+    "name": "male germ line stem cell",
     "synonyms": [],
     "parents": [
-      "CL:0000740"
+      "CL:0000014",
+      "CL:0000015"
     ]
   },
   {
-    "id": "CL:0003030",
-    "name": "M3 retinal ganglion cell",
+    "id": "CL:0000017",
+    "name": "spermatocyte",
     "synonyms": [],
     "parents": [
-      "CL:0000740"
+      "CL:0000015"
     ]
   },
   {
-    "id": "CL:0003031",
-    "name": "M3-ON retinal ganglion cell",
-    "synonyms": [],
-    "parents": [
-      "CL:0003030",
-      "CL:4023032"
-    ]
-  },
-  {
-    "id": "CL:0003032",
-    "name": "M3-OFF retinal ganglion cell",
-    "synonyms": [],
-    "parents": [
-      "CL:0003030",
-      "CL:4023033"
-    ]
-  },
-  {
-    "id": "CL:0003033",
-    "name": "M4 retinal ganglion cell",
-    "synonyms": [],
-    "parents": [
-      "CL:0000740"
-    ]
-  },
-  {
-    "id": "CL:0003034",
-    "name": "M5 retinal ganglion cell",
-    "synonyms": [],
-    "parents": [
-      "CL:0000740"
-    ]
-  },
-  {
-    "id": "CL:0003035",
-    "name": "M6 retinal ganglion cell",
-    "synonyms": [],
-    "parents": [
-      "CL:0000740"
-    ]
-  },
-  {
-    "id": "CL:0003036",
-    "name": "M7 retinal ganglion cell",
-    "synonyms": [],
-    "parents": [
-      "CL:0000740"
-    ]
-  },
-  {
-    "id": "CL:0003037",
-    "name": "M7-ON retinal ganglion cell",
-    "synonyms": [],
-    "parents": [
-      "CL:0003036",
-      "CL:4023032"
-    ]
-  },
-  {
-    "id": "CL:0003038",
-    "name": "M7-OFF retinal ganglion cell",
-    "synonyms": [],
-    "parents": [
-      "CL:0003036",
-      "CL:4023033"
-    ]
-  },
-  {
-    "id": "CL:0003039",
-    "name": "M8 retinal ganglion cell",
-    "synonyms": [],
-    "parents": [
-      "CL:0000740"
-    ]
-  },
-  {
-    "id": "CL:0003040",
-    "name": "M9 retinal ganglion cell",
-    "synonyms": [],
-    "parents": [
-      "CL:0000740"
-    ]
-  },
-  {
-    "id": "CL:0003041",
-    "name": "M9-ON retinal ganglion cell",
-    "synonyms": [],
-    "parents": [
-      "CL:0003040",
-      "CL:4023032"
-    ]
-  },
-  {
-    "id": "CL:0003042",
-    "name": "M9-OFF retinal ganglion cell",
-    "synonyms": [],
-    "parents": [
-      "CL:0003040",
-      "CL:4023033"
-    ]
-  },
-  {
-    "id": "CL:0003043",
-    "name": "M10 retinal ganglion cell",
-    "synonyms": [],
-    "parents": [
-      "CL:0000740"
-    ]
-  },
-  {
-    "id": "CL:0003044",
-    "name": "M11 retinal ganglion cell",
-    "synonyms": [],
-    "parents": [
-      "CL:0003001"
-    ]
-  },
-  {
-    "id": "CL:0003045",
-    "name": "M12 retinal ganglion cell",
-    "synonyms": [],
-    "parents": [
-      "CL:0003001"
-    ]
-  },
-  {
-    "id": "CL:0003046",
-    "name": "M13 retinal ganglion cell",
-    "synonyms": [],
-    "parents": [
-      "CL:0003001"
-    ]
-  },
-  {
-    "id": "CL:0003047",
-    "name": "M14 retinal ganglion cell",
-    "synonyms": [],
-    "parents": [
-      "CL:0003001"
-    ]
-  },
-  {
-    "id": "CL:0003048",
-    "name": "L cone cell",
+    "id": "CL:0000018",
+    "name": "spermatid",
     "synonyms": [
-      "L cone",
-      "L-cone",
-      "long wavelength sensitive cone",
-      "long- (L) wavelength-sensitive cone",
-      "long-wavelength cone"
+      "nematoblast"
     ],
     "parents": [
-      "CL:0000573"
+      "CL:0000015",
+      "CL:0000255",
+      "CL:0000413"
     ]
   },
   {
-    "id": "CL:0003049",
-    "name": "M cone cell",
+    "id": "CL:0000019",
+    "name": "sperm",
     "synonyms": [
-      "M cone",
-      "M-cone",
-      "middle wavelength sensitive cone",
-      "middle- (M) wavelength-sensitive cone",
-      "middle-wavelength-sensitive (M) cone"
+      "sperm cell",
+      "spermatozoid",
+      "spermatozoon"
     ],
     "parents": [
-      "CL:0000573"
+      "CL:0000255",
+      "CL:0000408"
     ]
   },
   {
-    "id": "CL:0003050",
-    "name": "S cone cell",
+    "id": "CL:0000020",
+    "name": "spermatogonium",
     "synonyms": [
-      "S cone",
-      "S-(short-wavelength sensitive) cone",
-      "S-cone",
-      "S-cone photoreceptor",
-      "short wavelength sensitive cone",
-      "short- (S) wavelength-sensitive cone",
-      "short-wavelength sensitive cone",
-      "short-wavelength-sensitive (S) cone"
+      "spermatogonial cell"
     ],
     "parents": [
-      "CL:0000573"
+      "CL:0000015"
     ]
   },
   {
-    "id": "CL:0003051",
-    "name": "UV cone cell",
+    "id": "CL:0000021",
+    "name": "female germ cell",
     "synonyms": [],
     "parents": [
-      "CL:0000573"
+      "CL:0000255",
+      "CL:0000586"
     ]
   },
   {
-    "id": "CL:0004001",
-    "name": "local interneuron",
+    "id": "CL:0000022",
+    "name": "female germ line stem cell",
     "synonyms": [],
     "parents": [
-      "CL:0000099"
+      "CL:0000014",
+      "CL:0000021"
     ]
   },
   {
-    "id": "CL:0004115",
-    "name": "retinal ganglion cell B",
-    "synonyms": [],
-    "parents": [
-      "CL:0000740"
-    ]
-  },
-  {
-    "id": "CL:0004116",
-    "name": "retinal ganglion cell C",
-    "synonyms": [],
-    "parents": [
-      "CL:0000740"
-    ]
-  },
-  {
-    "id": "CL:0004117",
-    "name": "retinal ganglion cell A",
+    "id": "CL:0000023",
+    "name": "oocyte",
     "synonyms": [
-      "alpha cell"
+      "oogonium"
     ],
     "parents": [
-      "CL:0000740"
+      "CL:0000021"
     ]
   },
   {
-    "id": "CL:0004119",
-    "name": "retinal ganglion cell B1",
+    "id": "CL:0000024",
+    "name": "oogonial cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0000021"
+    ]
+  },
+  {
+    "id": "CL:0000025",
+    "name": "egg cell",
     "synonyms": [
-      "retinal ganglion cell B4"
+      "mature oocyte",
+      "ovum"
     ],
     "parents": [
-      "CL:0004115"
+      "CL:0000675"
     ]
   },
   {
-    "id": "CL:0004120",
-    "name": "retinal ganglion cell A1",
+    "id": "CL:0000026",
+    "name": "invertebrate nurse cell",
     "synonyms": [
-      "inner alpha retinal ganglion cell",
-      "I-2"
+      "nurse cell"
     ],
     "parents": [
-      "CL:0004117"
+      "CL:0000255",
+      "CL:0000412",
+      "CL:4029002"
     ]
   },
   {
-    "id": "CL:0004121",
-    "name": "retinal ganglion cell B2",
+    "id": "CL:0000027",
+    "name": "smooth muscle cell neural crest derived",
     "synonyms": [],
     "parents": [
-      "CL:0004115"
+      "CL:0000192"
     ]
   },
   {
-    "id": "CL:0004124",
-    "name": "retinal ganglion cell C1",
+    "id": "CL:0000028",
+    "name": "CNS neuron (sensu Nematoda and Protostomia)",
+    "synonyms": [],
+    "parents": [
+      "CL:2000029"
+    ]
+  },
+  {
+    "id": "CL:0000029",
+    "name": "neural crest derived neuron",
     "synonyms": [
-      "MTN projecting",
-      "ON-direction-selective",
-      "delta"
+      "neuron neural crest derived"
     ],
     "parents": [
-      "CL:0003024"
+      "CL:0000540"
     ]
   },
   {
-    "id": "CL:0004125",
-    "name": "retinal ganglion cell C2 inner",
+    "id": "CL:0000030",
+    "name": "glioblast",
     "synonyms": [],
     "parents": [
-      "CL:0003024"
+      "CL:0011026"
     ]
   },
   {
-    "id": "CL:0004126",
-    "name": "retinal ganglion cell C2 outer",
-    "synonyms": [],
-    "parents": [
-      "CL:0003020"
-    ]
-  },
-  {
-    "id": "CL:0004137",
-    "name": "retinal ganglion cell A2 inner",
-    "synonyms": [],
-    "parents": [
-      "CL:0004138"
-    ]
-  },
-  {
-    "id": "CL:0004138",
-    "name": "retinal ganglion cell A2",
+    "id": "CL:0000031",
+    "name": "neuroblast (sensu Vertebrata)",
     "synonyms": [
-      "outer alpha retinal ganglion cell",
-      "I-1",
-      "type I"
+      "neuroblast"
     ],
     "parents": [
-      "CL:0004117"
+      "CL:0011026"
     ]
   },
   {
-    "id": "CL:0004139",
-    "name": "retinal ganglion cell A2 outer",
-    "synonyms": [],
-    "parents": [
-      "CL:0004138"
-    ]
-  },
-  {
-    "id": "CL:0004161",
-    "name": "510 nm-cone",
-    "synonyms": [],
-    "parents": [
-      "CL:0003049"
-    ]
-  },
-  {
-    "id": "CL:0004162",
-    "name": "360 nm-cone",
-    "synonyms": [],
-    "parents": [
-      "CL:0003051"
-    ]
-  },
-  {
-    "id": "CL:0004183",
-    "name": "retinal ganglion cell B3",
-    "synonyms": [],
-    "parents": [
-      "CL:0004115"
-    ]
-  },
-  {
-    "id": "CL:0004213",
-    "name": "type 3a cone bipolar cell",
-    "synonyms": [],
-    "parents": [
-      "CL:0000755"
-    ]
-  },
-  {
-    "id": "CL:0004214",
-    "name": "type 3b cone bipolar cell",
-    "synonyms": [],
-    "parents": [
-      "CL:0000755"
-    ]
-  },
-  {
-    "id": "CL:0004215",
-    "name": "type 5a cone bipolar cell",
-    "synonyms": [],
-    "parents": [
-      "CL:0000757"
-    ]
-  },
-  {
-    "id": "CL:0004216",
-    "name": "type 5b cone bipolar cell",
-    "synonyms": [],
-    "parents": [
-      "CL:0000757"
-    ]
-  },
-  {
-    "id": "CL:0004217",
-    "name": "H1 horizontal cell",
+    "id": "CL:0000032",
+    "name": "neuroplacodal cell",
     "synonyms": [
-      "A Horizontal Cell",
-      "H1"
+      "neural placode cell"
     ],
     "parents": [
-      "CL:0000745"
+      "CL:0000255",
+      "CL:0002321"
     ]
   },
   {
-    "id": "CL:0004218",
-    "name": "H2 horizontal cell",
+    "id": "CL:0000033",
+    "name": "apocrine cell",
+    "synonyms": [],
+    "parents": [
+      "CL:0000152"
+    ]
+  },
+  {
+    "id": "CL:0000034",
+    "name": "stem cell",
     "synonyms": [
-      "B Horizontal Cell",
-      "H2"
+      "animal stem cell"
     ],
     "parents": [
-      "CL:0000745"
+      "CL:0000255",
+      "CL:0011115"
     ]
   },
   {
-    "id": "CL:0004219",
-    "name": "A2 amacrine cell",
+    "id": "CL:0000035",
+    "name": "single fate stem cell",
+    "synonyms": [
+      "unipotent stem cell",
+      "unipotential stem cell"
+    ],
+    "parents": [
+      "CL:0000723"
+    ]
+  },
+  {
+    "id": "CL:0000036",
+    "name": "epithelial fate stem cell",
+    "synonyms": [
+      "epithelial stem cell"
+    ],
+    "parents": [
+      "CL:0000723"
+    ]
+  },
+  {
+    "id": "CL:0000037",
+    "name": "hematopoietic stem cell",
+    "synonyms": [
+      "blood forming stem cell",
+      "hemopoietic stem cell",
+      "HSC",
+      "colony forming unit hematopoietic"
+    ],
+    "parents": [
+      "CL:0000723",
+      "CL:0008001",
+      "CL:0011026"
+    ]
+  },
+  {
+    "id": "CL:0000038",
+    "name": "erythroid progenitor cell",
+    "synonyms": [
+      "BFU-E",
+      "CFU-E",
+      "blast forming unit erythroid",
+      "burst forming unit erythroid",
+      "colony forming unit erythroid",
+      "erythroid stem cell"
+    ],
+    "parents": [
+      "CL:0000764",
+      "CL:0000839"
+    ]
+  },
+  {
+    "id": "CL:0000039",
+    "name": "germ line cell",
     "synonyms": [],
     "parents": [
-      "CL:0004250",
-      "CL:0004251",
-      "CL:4030028"
+      "CL:0000000"
     ]
   },
   {
-    "id": "CL:0004220",
-    "name": "flag amacrine cell",
+    "id": "CL:0000040",
+    "name": "monoblast",
+    "synonyms": [
+      "CFU-M",
+      "colony forming unit macrophage",
+      "colony forming unit monocyte",
+      "monocyte stem cell"
+    ],
+    "parents": [
+      "CL:0000763",
+      "CL:0002194"
+    ]
+  },
+  {
+    "id": "CL:0000041",
+    "name": "mature eosinophil",
+    "synonyms": [
+      "mature eosinocyte",
+      "mature eosinophil leucocyte",
+      "mature eosinophil leukocyte"
+    ],
+    "parents": [
+      "CL:0000145",
+      "CL:0000771"
+    ]
+  },
+  {
+    "id": "CL:0000042",
+    "name": "neutrophilic myeloblast",
+    "synonyms": [
+      "neutrophilic granuloblast"
+    ],
+    "parents": [
+      "CL:0000834",
+      "CL:0000835"
+    ]
+  },
+  {
+    "id": "CL:0000043",
+    "name": "mature basophil",
+    "synonyms": [
+      "mature basophil leucocyte",
+      "mature basophil leukocyte"
+    ],
+    "parents": [
+      "CL:0000767",
+      "CL:0002274"
+    ]
+  },
+  {
+    "id": "CL:0000044",
+    "name": "",
+    "synonyms": [],
+    "parents": []
+  },
+  {
+    "id": "CL:0000045",
+    "name": "obsolete thymus processed stem cell",
+    "synonyms": [],
+    "parents": []
+  },
+  {
+    "id": "CL:0000046",
+    "name": "obsolete bursa processed stem cell",
+    "synonyms": [],
+    "parents": []
+  },
+  {
+    "id": "CL:0000047",
+    "name": "neural stem cell",
+    "synonyms": [
+      "NSC",
+      "neuronal stem cell"
+    ],
+    "parents": [
+      "CL:0002319"
+    ]
+  },
+  {
+    "id": "CL:0000048",
+    "name": "multi fate stem cell",
+    "synonyms": [
+      "multi-fate stem cell",
+      "multifate stem cell",
+      "multipotent cell",
+      "multipotent stem cell"
+    ],
+    "parents": [
+      "CL:0000034"
+    ]
+  },
+  {
+    "id": "CL:0000049",
+    "name": "common myeloid progenitor",
+    "synonyms": [
+      "common myeloid precursor",
+      "CFU-GEMM",
+      "CFU-S",
+      "CMP",
+      "colony forming unit granulocyte, erythrocyte, macrophage, and megakaryocyte",
+      "multipotential myeloid stem cell",
+      "myeloid stem cell",
+      "pluripotent stem cell (bone marrow)"
+    ],
+    "parents": [
+      "CL:0002032"
+    ]
+  },
+  {
+    "id": "CL:0000050",
+    "name": "megakaryocyte-erythroid progenitor cell",
+    "synonyms": [
+      "CFU-EM",
+      "CFU-MegE",
+      "MEP",
+      "Meg/E progenitor",
+      "colony forming unit erythroid megakaryocyte",
+      "megakaryocyte/erythrocyte progenitor",
+      "megakaryocyte/erythroid progenitor cell"
+    ],
+    "parents": [
+      "CL:0000763",
+      "CL:0002032",
+      "CL:0011026"
+    ]
+  },
+  {
+    "id": "CL:0000051",
+    "name": "common lymphoid progenitor",
+    "synonyms": [
+      "common lymphocyte precursor",
+      "common lymphocyte progenitor",
+      "common lymphoid precursor",
+      "CLP",
+      "ELP",
+      "committed lymphopoietic stem cell",
+      "early lymphocyte progenitor",
+      "lymphoid stem cell",
+      "lymphopoietic stem cell"
+    ],
+    "parents": [
+      "CL:0002032",
+      "CL:0011026"
+    ]
+  },
+  {
+    "id": "CL:0000052",
+    "name": "totipotent stem cell",
+    "synonyms": [
+      "totipotential stem cell"
+    ],
+    "parents": [
+      "CL:0000723"
+    ]
+  },
+  {
+    "id": "CL:0000053",
+    "name": "",
+    "synonyms": [],
+    "parents": []
+  },
+  {
+    "id": "CL:0000054",
+    "name": "obsolete bone matrix secreting cell",
+    "synonyms": [],
+    "parents": []
+  },
+  {
+    "id": "CL:0000055",
+    "name": "obsolete non-terminally differentiated cell",
+    "synonyms": [
+      "blast cell"
+    ],
+    "parents": []
+  },
+  {
+    "id": "CL:0000056",
+    "name": "myoblast",
     "synonyms": [],
     "parents": [
-      "CL:0004251"
+      "CL:0000680"
     ]
   },
   {
-    "id": "CL:0004221",
-    "name": "flag A amacrine cell",
+    "id": "CL:0000057",
+    "name": "fibroblast",
     "synonyms": [],
     "parents": [
-      "CL:0004220",
-      "CL:4030028"
+      "CL:0000499"
     ]
   },
   {
-    "id": "CL:0004222",
-    "name": "flag B amacrine cell",
+    "id": "CL:0000058",
+    "name": "chondroblast",
+    "synonyms": [
+      "chrondoplast"
+    ],
+    "parents": [
+      "CL:0002320",
+      "CL:0011026"
+    ]
+  },
+  {
+    "id": "CL:0000059",
+    "name": "ameloblast",
+    "synonyms": [
+      "amelocyte",
+      "enamel secreting cell"
+    ],
+    "parents": [
+      "CL:0000146",
+      "CL:0002077",
+      "CL:1100001"
+    ]
+  },
+  {
+    "id": "CL:0000060",
+    "name": "odontoblast",
     "synonyms": [],
     "parents": [
-      "CL:0004220",
-      "CL:4030028"
+      "CL:0000710",
+      "CL:0002148"
     ]
   },
   {
-    "id": "CL:0004223",
-    "name": "AB diffuse-1 amacrine cell",
+    "id": "CL:0000061",
+    "name": "cementoblast",
+    "synonyms": [
+      "cementum secreting cell"
+    ],
+    "parents": [
+      "CL:0000062",
+      "CL:0000151"
+    ]
+  },
+  {
+    "id": "CL:0000062",
+    "name": "osteoblast",
     "synonyms": [],
     "parents": [
-      "CL:0004251"
+      "CL:0002320"
     ]
   },
   {
-    "id": "CL:0004224",
-    "name": "AB diffuse-2 amacrine cell",
+    "id": "CL:0000063",
+    "name": "obsolete cell by histology",
+    "synonyms": [],
+    "parents": []
+  },
+  {
+    "id": "CL:0000064",
+    "name": "ciliated cell",
     "synonyms": [],
     "parents": [
-      "CL:0004251",
-      "CL:4030028"
+      "CL:0000255"
     ]
   },
   {
-    "id": "CL:0004225",
-    "name": "spider amacrine cell",
+    "id": "CL:0000065",
+    "name": "ependymal cell",
     "synonyms": [],
     "parents": [
-      "CL:0004251"
+      "CL:0000067",
+      "CL:0000125",
+      "CL:0000710"
     ]
   },
   {
-    "id": "CL:0004226",
-    "name": "monostratified amacrine cell",
+    "id": "CL:0000066",
+    "name": "epithelial cell",
+    "synonyms": [
+      "epitheliocyte"
+    ],
+    "parents": [
+      "CL:0000255"
+    ]
+  },
+  {
+    "id": "CL:0000067",
+    "name": "ciliated epithelial cell",
     "synonyms": [],
     "parents": [
-      "CL:0004246",
-      "CL:0004251"
+      "CL:0000064",
+      "CL:0000066"
     ]
   },
   {
-    "id": "CL:0004227",
-    "name": "flat bistratified amacrine cell",
+    "id": "CL:0000068",
+    "name": "duct epithelial cell",
     "synonyms": [],
     "parents": [
-      "CL:0004250",
-      "CL:0004251",
-      "CL:4030028"
+      "CL:0000066"
     ]
   },
   {
-    "id": "CL:0004228",
-    "name": "broad diffuse amacrine cell",
+    "id": "CL:0000069",
+    "name": "branched duct epithelial cell",
     "synonyms": [],
     "parents": [
-      "CL:0004251"
+      "CL:0000068"
     ]
   },
   {
-    "id": "CL:0004229",
-    "name": "A2-like amacrine cell",
+    "id": "CL:0000070",
+    "name": "obsolete epithelial cell of gland",
+    "synonyms": [],
+    "parents": []
+  },
+  {
+    "id": "CL:0000071",
+    "name": "blood vessel endothelial cell",
     "synonyms": [],
     "parents": [
-      "CL:0004250",
-      "CL:0004251"
+      "CL:0002139"
     ]
   },
   {
-    "id": "CL:0004230",
-    "name": "diffuse bistratified amacrine cell",
+    "id": "CL:0000072",
+    "name": "non-branched duct epithelial cell",
     "synonyms": [],
     "parents": [
-      "CL:0004250",
-      "CL:0004251"
+      "CL:0000068",
+      "CL:0002078"
     ]
   },
   {
-    "id": "CL:0004231",
-    "name": "recurving diffuse amacrine cell",
+    "id": "CL:0000073",
+    "name": "obsolete barrier epithelial cell",
+    "synonyms": [],
+    "parents": []
+  },
+  {
+    "id": "CL:0000074",
+    "name": "obsolete epithem cell",
+    "synonyms": [],
+    "parents": []
+  },
+  {
+    "id": "CL:0000075",
+    "name": "columnar/cuboidal epithelial cell",
     "synonyms": [],
     "parents": [
-      "CL:0004251"
+      "CL:0000066"
     ]
   },
   {
-    "id": "CL:0004232",
-    "name": "starburst amacrine cell",
+    "id": "CL:0000076",
+    "name": "squamous epithelial cell",
     "synonyms": [],
     "parents": [
-      "CL:0008061",
-      "CL:4030027"
+      "CL:0000066"
     ]
   },
   {
-    "id": "CL:0004233",
-    "name": "DAPI-3 amacrine cell",
+    "id": "CL:0000077",
+    "name": "mesothelial cell",
+    "synonyms": [
+      "mesotheliocyte"
+    ],
+    "parents": [
+      "CL:0000076",
+      "CL:0002078"
+    ]
+  },
+  {
+    "id": "CL:0000078",
+    "name": "peridermal cell",
     "synonyms": [],
     "parents": [
-      "CL:0004250",
-      "CL:0004252",
-      "CL:4030028"
+      "CL:0000076",
+      "CL:0000362"
     ]
   },
   {
-    "id": "CL:0004234",
-    "name": "diffuse multistratified amacrine cell",
+    "id": "CL:0000079",
+    "name": "stratified epithelial cell",
     "synonyms": [],
     "parents": [
-      "CL:0004252"
+      "CL:0000066"
     ]
   },
   {
-    "id": "CL:0004235",
-    "name": "AB broad diffuse-1 amacrine cell",
+    "id": "CL:0000080",
+    "name": "circulating cell",
     "synonyms": [],
     "parents": [
-      "CL:0004252",
-      "CL:4030027"
+      "CL:0000255"
     ]
   },
   {
-    "id": "CL:0004236",
-    "name": "AB broad diffuse-2 amacrine cell",
+    "id": "CL:0000081",
+    "name": "blood cell",
     "synonyms": [],
     "parents": [
-      "CL:0004252",
-      "CL:4030027"
+      "CL:0000988"
     ]
   },
   {
-    "id": "CL:0004237",
-    "name": "fountain amacrine cell",
+    "id": "CL:0000082",
+    "name": "epithelial cell of lung",
+    "synonyms": [
+      "lung epithelial cell"
+    ],
+    "parents": [
+      "CL:0002632"
+    ]
+  },
+  {
+    "id": "CL:0000083",
+    "name": "epithelial cell of pancreas",
+    "synonyms": [
+      "pancreas epithelial cell",
+      "pancreatic epithelial cell"
+    ],
+    "parents": [
+      "CL:0002076"
+    ]
+  },
+  {
+    "id": "CL:0000084",
+    "name": "T cell",
+    "synonyms": [
+      "T lymphocyte",
+      "T-cell",
+      "T-lymphocyte",
+      "immature T cell",
+      "mature T cell"
+    ],
+    "parents": [
+      "CL:0000542"
+    ]
+  },
+  {
+    "id": "CL:0000085",
+    "name": "obsolete germ line stem cell (sensu Vertebrata)",
+    "synonyms": [],
+    "parents": []
+  },
+  {
+    "id": "CL:0000086",
+    "name": "obsolete germ line stem cell (sensu Nematoda and Protostomia)",
+    "synonyms": [],
+    "parents": []
+  },
+  {
+    "id": "CL:0000087",
+    "name": "obsolete male germ line stem cell (sensu Nematoda and Protostomia)",
+    "synonyms": [],
+    "parents": []
+  },
+  {
+    "id": "CL:0000088",
+    "name": "obsolete female germ line stem cell (sensu Nematoda and Protostomia)",
+    "synonyms": [],
+    "parents": []
+  },
+  {
+    "id": "CL:0000089",
+    "name": "obsolete male germ line stem cell (sensu Vertebrata)",
+    "synonyms": [],
+    "parents": []
+  },
+  {
+    "id": "CL:0000090",
+    "name": "obsolete female germ line stem cell (sensu Vertebrata)",
+    "synonyms": [],
+    "parents": []
+  },
+  {
+    "id": "CL:0000091",
+    "name": "Kupffer cell",
+    "synonyms": [
+      "hepatic macrophage",
+      "littoral cell of hepatic sinusoid",
+      "liver macrophage",
+      "macrophagocytus stellatus",
+      "stellate cell of von Kupffer",
+      "von Kupffer cell"
+    ],
+    "parents": [
+      "CL:0000864"
+    ]
+  },
+  {
+    "id": "CL:0000092",
+    "name": "osteoclast",
+    "synonyms": [
+      "chondroclast"
+    ],
+    "parents": [
+      "CL:0000518",
+      "CL:0000766",
+      "CL:0001035"
+    ]
+  },
+  {
+    "id": "CL:0000093",
+    "name": "obsolete osteochondroclast",
+    "synonyms": [],
+    "parents": []
+  },
+  {
+    "id": "CL:0000094",
+    "name": "granulocyte",
+    "synonyms": [
+      "granular leucocyte",
+      "granular leukocyte",
+      "polymorphonuclear leukocyte"
+    ],
+    "parents": [
+      "CL:0000081",
+      "CL:0000766"
+    ]
+  },
+  {
+    "id": "CL:0000095",
+    "name": "neuron associated cell",
     "synonyms": [],
     "parents": [
-      "CL:0004252",
-      "CL:4030027"
+      "CL:0002319"
     ]
   },
   {
-    "id": "CL:0004238",
-    "name": "asymmetric bistratified amacrine cell",
+    "id": "CL:0000096",
+    "name": "mature neutrophil",
+    "synonyms": [
+      "PMN",
+      "mature neutrocyte",
+      "mature neutrophil leucocyte",
+      "mature neutrophil leukocyte",
+      "mature neutrophilic leucocyte",
+      "mature neutrophilic leukocyte",
+      "polymorphonuclear neutrophil",
+      "polynuclear neutrophilic leucocyte",
+      "polynuclear neutrophilic leukocyte"
+    ],
+    "parents": [
+      "CL:0000234",
+      "CL:0000775"
+    ]
+  },
+  {
+    "id": "CL:0000097",
+    "name": "mast cell",
+    "synonyms": [
+      "histaminocyte",
+      "labrocyte",
+      "mastocyte",
+      "tissue basophil"
+    ],
+    "parents": [
+      "CL:0000766",
+      "CL:0002274"
+    ]
+  },
+  {
+    "id": "CL:0000098",
+    "name": "sensory epithelial cell",
     "synonyms": [],
     "parents": [
-      "CL:0004250",
-      "CL:0004252"
+      "CL:0000066",
+      "CL:0000197"
     ]
   },
   {
-    "id": "CL:0004239",
-    "name": "wavy bistratified amacrine cell",
-    "synonyms": [],
-    "parents": [
-      "CL:0004250",
-      "CL:0004252"
-    ]
-  },
-  {
-    "id": "CL:0004240",
-    "name": "WF1 amacrine cell",
-    "synonyms": [],
-    "parents": [
-      "CL:0004253"
-    ]
-  },
-  {
-    "id": "CL:0004241",
-    "name": "WF2 amacrine cell",
-    "synonyms": [],
-    "parents": [
-      "CL:0004253"
-    ]
-  },
-  {
-    "id": "CL:0004242",
-    "name": "WF3-1 amacrine cell",
-    "synonyms": [],
-    "parents": [
-      "CL:0004253"
-    ]
-  },
-  {
-    "id": "CL:0004243",
-    "name": "WF3-2 amacrine cell",
-    "synonyms": [],
-    "parents": [
-      "CL:0004253"
-    ]
-  },
-  {
-    "id": "CL:0004244",
-    "name": "WF4 amacrine cell",
-    "synonyms": [],
-    "parents": [
-      "CL:0004253"
-    ]
-  },
-  {
-    "id": "CL:0004245",
-    "name": "indoleamine-accumulating amacrine cell",
-    "synonyms": [],
-    "parents": [
-      "CL:0000850",
-      "CL:0004253",
-      "CL:4030027"
-    ]
-  },
-  {
-    "id": "CL:0004246",
-    "name": "monostratified cell",
-    "synonyms": [],
+    "id": "CL:0000099",
+    "name": "interneuron",
+    "synonyms": [
+      "CNS interneuron"
+    ],
     "parents": [
       "CL:2000029"
     ]

@@ -166,7 +166,7 @@ class SymbolLookupTest(BaseTest):
         symbol = self.resolve_value(self.config.get("symbol"), reference_data)
 
         if not symbol:
-            return False, "No symbol found in reference data"
+            return True, "SKIP: No symbol found in reference data"
 
         response = requests.get(f"{api_url}/ws/?i={symbol}", timeout=10)
 

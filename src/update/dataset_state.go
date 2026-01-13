@@ -329,8 +329,9 @@ func (s *DatasetState) MarkDatasetBuilt(datasetName, datasetID string, entryCoun
 	s.MarkDatasetProcessed(datasetName, datasetID, entryCount, xrefCount, duration)
 }
 
-// MarkDatasetsMerged marks all "processed" datasets as "merged"
+// MarkDatasetsMerged marks "processed" datasets as "merged"
 // This should be called after successful merge completion
+// Note: Does NOT mark "processing" datasets - those were interrupted and need cleanup
 func (s *DatasetState) MarkDatasetsMerged(datasetNames []string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -338,7 +339,8 @@ func (s *DatasetState) MarkDatasetsMerged(datasetNames []string) {
 	mergedCount := 0
 	for _, name := range datasetNames {
 		if info, exists := s.Datasets[name]; exists {
-			if info.Status == StatusProcessed || info.Status == StatusProcessing {
+			// Only mark "processed" as "merged" - "processing" means interrupted
+			if info.Status == StatusProcessed {
 				info.Status = StatusMerged
 				mergedCount++
 			}
@@ -414,6 +416,29 @@ func (s *DatasetState) NeedsMergeOnly(datasetName string) bool {
 		return info.Status == StatusProcessed
 	}
 	return false
+}
+
+// GetInterruptedDatasets returns all datasets with "processing" status
+// These datasets were interrupted mid-build and need cleanup before next run
+func (s *DatasetState) GetInterruptedDatasets() []string {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	var interrupted []string
+	for name, info := range s.Datasets {
+		if info.Status == StatusProcessing {
+			interrupted = append(interrupted, name)
+		}
+	}
+	return interrupted
+}
+
+// RemoveDataset removes a dataset from state (used after cleanup of interrupted datasets)
+func (s *DatasetState) RemoveDataset(datasetName string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	delete(s.Datasets, datasetName)
 }
 
 // GetLastBuildTime returns the last build time for a dataset

@@ -1,264 +1,902 @@
-{
-  "metadata": {
-    "total_ids": 20,
-    "fetched": 14,
-    "failed": 0,
-    "no_data": 6,
-    "date": "2025-12-03T18:52:08Z",
-    "source": "NCBI FTP gene_info.gz"
+[
+  {
+    "GeneID": "5692769",
+    "gene_id": "5692769",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
   },
-  "entries": [
-    {
-      "tax_id": "9606",
-      "GeneID": "1",
-      "Symbol": "A1BG",
-      "LocusTag": "-",
-      "Synonyms": "A1B|ABG|GAB|HYST2477",
-      "dbXrefs": "MIM:138670|HGNC:HGNC:5|Ensembl:ENSG00000121410|AllianceGenome:HGNC:5",
-      "chromosome": "19",
-      "map_location": "19q13.43",
-      "description": "alpha-1-B glycoprotein",
-      "type_of_gene": "protein-coding",
-      "Symbol_from_nomenclature_authority": "A1BG",
-      "Full_name_from_nomenclature_authority": "alpha-1-B glycoprotein",
-      "Nomenclature_status": "O",
-      "Other_designations": "alpha-1B-glycoprotein|HEL-S-163pA|epididymis secretory sperm binding protein Li 163pA",
-      "Modification_date": "20251125",
-      "Feature_type": "-"
-    },
-    {
-      "tax_id": "9606",
-      "GeneID": "2",
-      "Symbol": "A2M",
-      "LocusTag": "-",
-      "Synonyms": "A2MD|CPAMD5|FWP007|S863-7",
-      "dbXrefs": "MIM:103950|HGNC:HGNC:7|Ensembl:ENSG00000175899|AllianceGenome:HGNC:7",
-      "chromosome": "12",
-      "map_location": "12p13.31",
-      "description": "alpha-2-macroglobulin",
-      "type_of_gene": "protein-coding",
-      "Symbol_from_nomenclature_authority": "A2M",
-      "Full_name_from_nomenclature_authority": "alpha-2-macroglobulin",
-      "Nomenclature_status": "O",
-      "Other_designations": "alpha-2-macroglobulin|C3 and PZP-like alpha-2-macroglobulin domain-containing protein 5|alpha-2-M",
-      "Modification_date": "20251125",
-      "Feature_type": "-"
-    },
-    {
-      "tax_id": "9606",
-      "GeneID": "9",
-      "Symbol": "NAT1",
-      "LocusTag": "-",
-      "Synonyms": "AAC1|MNAT|NAT-1|NATI",
-      "dbXrefs": "MIM:108345|HGNC:HGNC:7645|Ensembl:ENSG00000171428|AllianceGenome:HGNC:7645",
-      "chromosome": "8",
-      "map_location": "8p22",
-      "description": "N-acetyltransferase 1",
-      "type_of_gene": "protein-coding",
-      "Symbol_from_nomenclature_authority": "NAT1",
-      "Full_name_from_nomenclature_authority": "N-acetyltransferase 1",
-      "Nomenclature_status": "O",
-      "Other_designations": "arylamine N-acetyltransferase 1|N-acetyltransferase 1 (arylamine N-acetyltransferase)|N-acetyltransferase type 1|arylamide acetylase 1|monomorphic arylamine N-acetyltransferase",
-      "Modification_date": "20251125",
-      "Feature_type": "-"
-    },
-    {
-      "tax_id": "9606",
-      "GeneID": "10",
-      "Symbol": "NAT2",
-      "LocusTag": "-",
-      "Synonyms": "AAC2|NAT-2|PNAT",
-      "dbXrefs": "MIM:612182|HGNC:HGNC:7646|Ensembl:ENSG00000156006|AllianceGenome:HGNC:7646",
-      "chromosome": "8",
-      "map_location": "8p22",
-      "description": "N-acetyltransferase 2",
-      "type_of_gene": "protein-coding",
-      "Symbol_from_nomenclature_authority": "NAT2",
-      "Full_name_from_nomenclature_authority": "N-acetyltransferase 2",
-      "Nomenclature_status": "O",
-      "Other_designations": "arylamine N-acetyltransferase 2|N-acetyltransferase 2 (arylamine N-acetyltransferase)|N-acetyltransferase type 2|N-hydroxyarylamine O-acetyltransferase|arylamide acetylase 2",
-      "Modification_date": "20251125",
-      "Feature_type": "-"
-    },
-    {
-      "tax_id": "9606",
-      "GeneID": "348",
-      "Symbol": "APOE",
-      "LocusTag": "-",
-      "Synonyms": "AD2|APO-E|ApoE4|LDLCQ5|LPG",
-      "dbXrefs": "MIM:107741|HGNC:HGNC:613|Ensembl:ENSG00000130203|AllianceGenome:HGNC:613",
-      "chromosome": "19",
-      "map_location": "19q13.32",
-      "description": "apolipoprotein E",
-      "type_of_gene": "protein-coding",
-      "Symbol_from_nomenclature_authority": "APOE",
-      "Full_name_from_nomenclature_authority": "apolipoprotein E",
-      "Nomenclature_status": "O",
-      "Other_designations": "apolipoprotein E|apolipoprotein E3",
-      "Modification_date": "20251125",
-      "Feature_type": "-"
-    },
-    {
-      "tax_id": "9606",
-      "GeneID": "672",
-      "Symbol": "BRCA1",
-      "LocusTag": "-",
-      "Synonyms": "BRCAI|BRCC1|BROVCA1|FANCS|IRIS|PNCA4|PPP1R53|PSCP|RNF53",
-      "dbXrefs": "MIM:113705|HGNC:HGNC:1100|Ensembl:ENSG00000012048|AllianceGenome:HGNC:1100",
-      "chromosome": "17",
-      "map_location": "17q21.31",
-      "description": "BRCA1 DNA repair associated",
-      "type_of_gene": "protein-coding",
-      "Symbol_from_nomenclature_authority": "BRCA1",
-      "Full_name_from_nomenclature_authority": "BRCA1 DNA repair associated",
-      "Nomenclature_status": "O",
-      "Other_designations": "breast cancer type 1 susceptibility protein|BRCA1/BRCA2-containing complex, subunit 1|Fanconi anemia, complementation group S|RING finger protein 53|breast and ovarian cancer susceptibility protein 1|breast cancer 1, early onset|early onset breast cancer 1|protein phosphatase 1, regulatory subunit 53",
-      "Modification_date": "20251125",
-      "Feature_type": "-"
-    },
-    {
-      "tax_id": "9606",
-      "GeneID": "675",
-      "Symbol": "BRCA2",
-      "LocusTag": "-",
-      "Synonyms": "BRCC2|BROVCA2|FACD|FAD|FAD1|FANCD|FANCD1|GLM3|PNCA2|XRCC11",
-      "dbXrefs": "MIM:600185|HGNC:HGNC:1101|Ensembl:ENSG00000139618|AllianceGenome:HGNC:1101",
-      "chromosome": "13",
-      "map_location": "13q13.1",
-      "description": "BRCA2 DNA repair associated",
-      "type_of_gene": "protein-coding",
-      "Symbol_from_nomenclature_authority": "BRCA2",
-      "Full_name_from_nomenclature_authority": "BRCA2 DNA repair associated",
-      "Nomenclature_status": "O",
-      "Other_designations": "breast cancer type 2 susceptibility protein|BRCA1/BRCA2-containing complex, subunit 2|BRCA2 DNA repair associated protein|DNA repair-associated BRCA2|Fanconi anemia group D1 protein|breast and ovarian cancer susceptibility gene, early onset|breast and ovarian cancer susceptibility protein 2|breast cancer 2 tumor suppressor|breast cancer 2, early onset|mutant BRCA2|mutant DNA repair-associated protein 2",
-      "Modification_date": "20251125",
-      "Feature_type": "-"
-    },
-    {
-      "tax_id": "9606",
-      "GeneID": "1017",
-      "Symbol": "CDK2",
-      "LocusTag": "-",
-      "Synonyms": "CDKN2|p33(CDK2)",
-      "dbXrefs": "MIM:116953|HGNC:HGNC:1771|Ensembl:ENSG00000123374|AllianceGenome:HGNC:1771",
-      "chromosome": "12",
-      "map_location": "12q13.2",
-      "description": "cyclin dependent kinase 2",
-      "type_of_gene": "protein-coding",
-      "Symbol_from_nomenclature_authority": "CDK2",
-      "Full_name_from_nomenclature_authority": "cyclin dependent kinase 2",
-      "Nomenclature_status": "O",
-      "Other_designations": "cyclin-dependent kinase 2|cdc2-related protein kinase|cell division protein kinase 2|p33 protein kinase",
-      "Modification_date": "20251125",
-      "Feature_type": "-"
-    },
-    {
-      "tax_id": "9606",
-      "GeneID": "1956",
-      "Symbol": "EGFR",
-      "LocusTag": "-",
-      "Synonyms": "ERBB|ERBB1|ERRP|HER1|NISBD2|NNCIS|PIG61|mENA",
-      "dbXrefs": "MIM:131550|HGNC:HGNC:3236|Ensembl:ENSG00000146648|AllianceGenome:HGNC:3236",
-      "chromosome": "7",
-      "map_location": "7p11.2",
-      "description": "epidermal growth factor receptor",
-      "type_of_gene": "protein-coding",
-      "Symbol_from_nomenclature_authority": "EGFR",
-      "Full_name_from_nomenclature_authority": "epidermal growth factor receptor",
-      "Nomenclature_status": "O",
-      "Other_designations": "epidermal growth factor receptor|EGFR vIII|avian erythroblastic leukemia viral (v-erb-b) oncogene homolog|cell growth inhibiting protein 40|cell proliferation-inducing protein 61|epidermal growth factor receptor tyrosine kinase domain|erb-b2 receptor tyrosine kinase 1|proto-oncogene c-ErbB-1|receptor tyrosine-protein kinase erbB-1",
-      "Modification_date": "20251125",
-      "Feature_type": "-"
-    },
-    {
-      "tax_id": "9606",
-      "GeneID": "3845",
-      "Symbol": "KRAS",
-      "LocusTag": "-",
-      "Synonyms": "'C-K-RAS|C-K-RAS|CFC2|K-RAS2A|K-RAS2B|K-RAS4A|K-RAS4B|K-Ras|K-Ras 2|KI-RAS|KRAS1|KRAS2|NS|NS3|OES|RALD|RASK2|c-Ki-ras|c-Ki-ras2",
-      "dbXrefs": "MIM:190070|HGNC:HGNC:6407|Ensembl:ENSG00000133703|AllianceGenome:HGNC:6407",
-      "chromosome": "12",
-      "map_location": "12p12.1",
-      "description": "KRAS proto-oncogene, GTPase",
-      "type_of_gene": "protein-coding",
-      "Symbol_from_nomenclature_authority": "KRAS",
-      "Full_name_from_nomenclature_authority": "KRAS proto-oncogene, GTPase",
-      "Nomenclature_status": "O",
-      "Other_designations": "GTPase KRas|K-ras p21 protein|KRAS-ENOPH fusion|Kirsten rat sarcoma viral oncogene homolog|Kirsten rat sarcoma viral proto-oncogene|Kras-Enoph1 fusion protein|PR310 c-K-ras oncogene|c-Kirsten-ras protein|cellular c-Ki-ras2 proto-oncogene|cellular transforming proto-oncogene|oncogene KRAS2|proto-oncogene GTPase|transforming protein p21|v-Ki-ras2 Kirsten rat sarcoma 2 viral oncogene homolog",
-      "Modification_date": "20251125",
-      "Feature_type": "-"
-    },
-    {
-      "tax_id": "9606",
-      "GeneID": "4609",
-      "Symbol": "MYC",
-      "LocusTag": "-",
-      "Synonyms": "MRTL|MYCC|bHLHe39|c-Myc",
-      "dbXrefs": "MIM:190080|HGNC:HGNC:7553|Ensembl:ENSG00000136997|AllianceGenome:HGNC:7553",
-      "chromosome": "8",
-      "map_location": "8q24.21",
-      "description": "MYC proto-oncogene, bHLH transcription factor",
-      "type_of_gene": "protein-coding",
-      "Symbol_from_nomenclature_authority": "MYC",
-      "Full_name_from_nomenclature_authority": "MYC proto-oncogene, bHLH transcription factor",
-      "Nomenclature_status": "O",
-      "Other_designations": "myc proto-oncogene protein|avian myelocytomatosis viral oncogene homolog|class E basic helix-loop-helix protein 39|myc-related translation/localization regulatory factor|proto-oncogene c-Myc|transcription factor p64|v-myc avian myelocytomatosis viral oncogene homolog|v-myc myelocytomatosis viral oncogene homolog",
-      "Modification_date": "20251125",
-      "Feature_type": "-"
-    },
-    {
-      "tax_id": "9606",
-      "GeneID": "5290",
-      "Symbol": "PIK3CA",
-      "LocusTag": "-",
-      "Synonyms": "CCM4|CLAPO|CLOVE|CWS5|HMH|MCAP|MCM|MCMTC|PI3K|PI3K-alpha|p110-alpha",
-      "dbXrefs": "MIM:171834|HGNC:HGNC:8975|Ensembl:ENSG00000121879|AllianceGenome:HGNC:8975",
-      "chromosome": "3",
-      "map_location": "3q26.32",
-      "description": "phosphatidylinositol-4,5-bisphosphate 3-kinase catalytic subunit alpha",
-      "type_of_gene": "protein-coding",
-      "Symbol_from_nomenclature_authority": "PIK3CA",
-      "Full_name_from_nomenclature_authority": "phosphatidylinositol-4,5-bisphosphate 3-kinase catalytic subunit alpha",
-      "Nomenclature_status": "O",
-      "Other_designations": "phosphatidylinositol 4,5-bisphosphate 3-kinase catalytic subunit alpha isoform|PI3-kinase p110 subunit alpha|mutant phosphatidylinositol-4,5-bisphosphate 3-kinase catalytic subunit alpha|phosphatidylinositol 3-kinase, catalytic, 110-KD, alpha|phosphatidylinositol 3-kinase, catalytic, alpha polypeptide|phosphatidylinositol-4,5-bisphosphate 3-kinase 110 kDa catalytic subunit alpha|phosphoinositide 3-kinase alpha|phosphoinositide-3-kinase, catalytic, alpha polypeptide|ptdIns-3-kinase subunit p110-alpha|serine/threonine protein kinase PIK3CA",
-      "Modification_date": "20251125",
-      "Feature_type": "-"
-    },
-    {
-      "tax_id": "9606",
-      "GeneID": "7124",
-      "Symbol": "TNF",
-      "LocusTag": "-",
-      "Synonyms": "DIF|IMD127|TNF-alpha|TNFA|TNFSF2|TNLG1F",
-      "dbXrefs": "MIM:191160|HGNC:HGNC:11892|Ensembl:ENSG00000232810|AllianceGenome:HGNC:11892",
-      "chromosome": "6",
-      "map_location": "6p21.33",
-      "description": "tumor necrosis factor",
-      "type_of_gene": "protein-coding",
-      "Symbol_from_nomenclature_authority": "TNF",
-      "Full_name_from_nomenclature_authority": "tumor necrosis factor",
-      "Nomenclature_status": "O",
-      "Other_designations": "tumor necrosis factor|APC1 protein|TNF, macrophage-derived|TNF, monocyte-derived|TNF-a|tumor necrosis factor ligand 1F|tumor necrosis factor ligand superfamily member 2|tumor necrosis factor-alpha|tumor necrotic factor alpha",
-      "Modification_date": "20251125",
-      "Feature_type": "-"
-    },
-    {
-      "tax_id": "9606",
-      "GeneID": "7157",
-      "Symbol": "TP53",
-      "LocusTag": "-",
-      "Synonyms": "BCC7|BMFS5|LFS1|P53|TRP53",
-      "dbXrefs": "MIM:191170|HGNC:HGNC:11998|Ensembl:ENSG00000141510|AllianceGenome:HGNC:11998",
-      "chromosome": "17",
-      "map_location": "17p13.1",
-      "description": "tumor protein p53",
-      "type_of_gene": "protein-coding",
-      "Symbol_from_nomenclature_authority": "TP53",
-      "Full_name_from_nomenclature_authority": "tumor protein p53",
-      "Nomenclature_status": "O",
-      "Other_designations": "cellular tumor antigen p53|antigen NY-CO-13|mutant tumor protein 53|phosphoprotein p53|transformation-related protein 53|tumor protein 53|tumor supressor p53",
-      "Modification_date": "20251125",
-      "Feature_type": "-"
-    }
-  ]
-}
+  {
+    "GeneID": "2827857",
+    "gene_id": "2827857",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "10823747",
+    "gene_id": "10823747",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "6951813",
+    "gene_id": "6951813",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "3758873",
+    "gene_id": "3758873",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "5129993",
+    "gene_id": "5129993",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441593",
+    "gene_id": "67441593",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441594",
+    "gene_id": "67441594",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441595",
+    "gene_id": "67441595",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441596",
+    "gene_id": "67441596",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441597",
+    "gene_id": "67441597",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441598",
+    "gene_id": "67441598",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441599",
+    "gene_id": "67441599",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441600",
+    "gene_id": "67441600",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441601",
+    "gene_id": "67441601",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441602",
+    "gene_id": "67441602",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441603",
+    "gene_id": "67441603",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441604",
+    "gene_id": "67441604",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441605",
+    "gene_id": "67441605",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441606",
+    "gene_id": "67441606",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441607",
+    "gene_id": "67441607",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441608",
+    "gene_id": "67441608",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441609",
+    "gene_id": "67441609",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441610",
+    "gene_id": "67441610",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441611",
+    "gene_id": "67441611",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441612",
+    "gene_id": "67441612",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441613",
+    "gene_id": "67441613",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441614",
+    "gene_id": "67441614",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441615",
+    "gene_id": "67441615",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441616",
+    "gene_id": "67441616",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441617",
+    "gene_id": "67441617",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441618",
+    "gene_id": "67441618",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441619",
+    "gene_id": "67441619",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441620",
+    "gene_id": "67441620",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441621",
+    "gene_id": "67441621",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441622",
+    "gene_id": "67441622",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441623",
+    "gene_id": "67441623",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441624",
+    "gene_id": "67441624",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441625",
+    "gene_id": "67441625",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441626",
+    "gene_id": "67441626",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441627",
+    "gene_id": "67441627",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441628",
+    "gene_id": "67441628",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441629",
+    "gene_id": "67441629",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441630",
+    "gene_id": "67441630",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441631",
+    "gene_id": "67441631",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441632",
+    "gene_id": "67441632",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441633",
+    "gene_id": "67441633",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441634",
+    "gene_id": "67441634",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441635",
+    "gene_id": "67441635",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441636",
+    "gene_id": "67441636",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441637",
+    "gene_id": "67441637",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441638",
+    "gene_id": "67441638",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441639",
+    "gene_id": "67441639",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441640",
+    "gene_id": "67441640",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441641",
+    "gene_id": "67441641",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441642",
+    "gene_id": "67441642",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441643",
+    "gene_id": "67441643",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441644",
+    "gene_id": "67441644",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441645",
+    "gene_id": "67441645",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441646",
+    "gene_id": "67441646",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441647",
+    "gene_id": "67441647",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441648",
+    "gene_id": "67441648",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441649",
+    "gene_id": "67441649",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441650",
+    "gene_id": "67441650",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441651",
+    "gene_id": "67441651",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441652",
+    "gene_id": "67441652",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441653",
+    "gene_id": "67441653",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441654",
+    "gene_id": "67441654",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441655",
+    "gene_id": "67441655",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441656",
+    "gene_id": "67441656",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441657",
+    "gene_id": "67441657",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441658",
+    "gene_id": "67441658",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441659",
+    "gene_id": "67441659",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441660",
+    "gene_id": "67441660",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441661",
+    "gene_id": "67441661",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441662",
+    "gene_id": "67441662",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441663",
+    "gene_id": "67441663",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441664",
+    "gene_id": "67441664",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441665",
+    "gene_id": "67441665",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441666",
+    "gene_id": "67441666",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441667",
+    "gene_id": "67441667",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441668",
+    "gene_id": "67441668",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441669",
+    "gene_id": "67441669",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441670",
+    "gene_id": "67441670",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441671",
+    "gene_id": "67441671",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441672",
+    "gene_id": "67441672",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441673",
+    "gene_id": "67441673",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441674",
+    "gene_id": "67441674",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441675",
+    "gene_id": "67441675",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441676",
+    "gene_id": "67441676",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441677",
+    "gene_id": "67441677",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441678",
+    "gene_id": "67441678",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441679",
+    "gene_id": "67441679",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441680",
+    "gene_id": "67441680",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441681",
+    "gene_id": "67441681",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441682",
+    "gene_id": "67441682",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441683",
+    "gene_id": "67441683",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441684",
+    "gene_id": "67441684",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441685",
+    "gene_id": "67441685",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441686",
+    "gene_id": "67441686",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  }
+]

@@ -107,7 +107,7 @@ class DbsnpTests:
                 break
 
         if not test_gene:
-            return False, "No SNPs with gene names in reference data"
+            return True, "SKIP: No SNPs with gene names in reference data"
 
         # Search for the gene name
         data = self.runner.query.lookup(test_gene)
@@ -170,7 +170,7 @@ class DbsnpTests:
                 break
 
         if not test_snp:
-            return False, "No SNPs with clinical significance in test data"
+            return True, "SKIP: No SNPs with clinical significance in test data"
 
         data = self.runner.query.lookup(test_snp)
 

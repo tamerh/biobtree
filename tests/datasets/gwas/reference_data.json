@@ -1,3084 +1,402 @@
-{
-  "entries": [
-    {
-      "snp_id": "rs17621345",
-      "study_accession": "GCST006085",
-      "strongest_snp_risk_allele": "rs17621345-A",
-      "chr_id": "7",
-      "chr_pos": 40835593,
-      "region": "7p14.1",
-      "context": "intron_variant",
-      "reported_genes": [
-        "SUGCT"
-      ],
-      "mapped_gene": "SUGCT",
-      "snp_gene_ids": [
-        "ENSG00000175600"
-      ],
-      "disease_trait": "Prostate cancer",
-      "mapped_traits": [
-        "prostate carcinoma"
-      ],
-      "efo_traits": [
-        "EFO:0001663"
-      ],
-      "p_value": 7e-14,
-      "pvalue_mlog": 13.154901959985743,
-      "or_beta": "1.07",
-      "ci_95": "[1.05-1.09]",
-      "risk_allele_frequency": "0.74",
-      "pubmed_id": "29892016",
-      "first_author": "Schumacher FR",
-      "date": "2018-06-11",
-      "platform": "Illumina [20370935] (imputed)",
-      "accessionId": "GCST006085_1"
-    },
-    {
-      "snp_id": "rs1048169",
-      "study_accession": "GCST006085",
-      "strongest_snp_risk_allele": "rs1048169-C",
-      "chr_id": "9",
-      "chr_pos": 19055967,
-      "region": "9p22.1",
-      "context": "3_prime_UTR_variant",
-      "reported_genes": [
-        "HAUS6"
-      ],
-      "mapped_gene": "HAUS6",
-      "snp_gene_ids": [
-        "ENSG00000147874"
-      ],
-      "disease_trait": "Prostate cancer",
-      "mapped_traits": [
-        "prostate carcinoma"
-      ],
-      "efo_traits": [
-        "EFO:0001663"
-      ],
-      "p_value": 7e-14,
-      "pvalue_mlog": 13.154901959985743,
-      "or_beta": "1.06",
-      "ci_95": "[1.05-1.08]",
-      "risk_allele_frequency": "0.38",
-      "pubmed_id": "29892016",
-      "first_author": "Schumacher FR",
-      "date": "2018-06-11",
-      "platform": "Illumina [20370935] (imputed)",
-      "accessionId": "GCST006085_2"
-    },
-    {
-      "snp_id": "rs10122495",
-      "study_accession": "GCST006085",
-      "strongest_snp_risk_allele": "rs10122495-T",
-      "chr_id": "9",
-      "chr_pos": 34049781,
-      "region": "9p13.3",
-      "context": "non_coding_transcript_exon_variant",
-      "reported_genes": [
-        "RN7SKP114"
-      ],
-      "mapped_gene": "DCAF12-AS1",
-      "snp_gene_ids": [
-        "ENSG00000228352"
-      ],
-      "disease_trait": "Prostate cancer",
-      "mapped_traits": [
-        "prostate carcinoma"
-      ],
-      "efo_traits": [
-        "EFO:0001663"
-      ],
-      "p_value": 1e-08,
-      "pvalue_mlog": 8,
-      "or_beta": "1.05",
-      "ci_95": "[1.03-1.07]",
-      "risk_allele_frequency": "0.31",
-      "pubmed_id": "29892016",
-      "first_author": "Schumacher FR",
-      "date": "2018-06-11",
-      "platform": "Illumina [20370935] (imputed)",
-      "accessionId": "GCST006085_3"
-    },
-    {
-      "snp_id": "rs1182",
-      "study_accession": "GCST006085",
-      "strongest_snp_risk_allele": "rs1182-A",
-      "chr_id": "9",
-      "chr_pos": 129813781,
-      "region": "9q34.11",
-      "context": "3_prime_UTR_variant",
-      "reported_genes": [
-        "TOR1A"
-      ],
-      "mapped_gene": "TOR1A",
-      "snp_gene_ids": [
-        "ENSG00000136827"
-      ],
-      "disease_trait": "Prostate cancer",
-      "mapped_traits": [
-        "prostate carcinoma"
-      ],
-      "efo_traits": [
-        "EFO:0001663"
-      ],
-      "p_value": 1e-09,
-      "pvalue_mlog": 9,
-      "or_beta": "1.06",
-      "ci_95": "[1.04-1.08]",
-      "risk_allele_frequency": "0.22",
-      "pubmed_id": "29892016",
-      "first_author": "Schumacher FR",
-      "date": "2018-06-11",
-      "platform": "Illumina [20370935] (imputed)",
-      "accessionId": "GCST006085_4"
-    },
-    {
-      "snp_id": "rs141536087",
-      "study_accession": "GCST006085",
-      "strongest_snp_risk_allele": "rs141536087-GCGCA",
-      "chr_id": "10",
-      "chr_pos": 808752,
-      "region": "10p15.3",
-      "context": "intron_variant",
-      "reported_genes": [
-        "LARP4B"
-      ],
-      "mapped_gene": "LARP4B",
-      "snp_gene_ids": [
-        "ENSG00000107929"
-      ],
-      "disease_trait": "Prostate cancer",
-      "mapped_traits": [
-        "prostate carcinoma"
-      ],
-      "efo_traits": [
-        "EFO:0001663"
-      ],
-      "p_value": 9e-13,
-      "pvalue_mlog": 12.045757490560675,
-      "or_beta": "1.08",
-      "ci_95": "[1.06-1.11]",
-      "risk_allele_frequency": "0.15",
-      "pubmed_id": "29892016",
-      "first_author": "Schumacher FR",
-      "date": "2018-06-11",
-      "platform": "Illumina [20370935] (imputed)",
-      "accessionId": "GCST006085_5"
-    },
-    {
-      "snp_id": "rs1935581",
-      "study_accession": "GCST006085",
-      "strongest_snp_risk_allele": "rs1935581-C",
-      "chr_id": "10",
-      "chr_pos": 88435392,
-      "region": "10q23.31",
-      "context": "intron_variant",
-      "reported_genes": [
-        "RNLS"
-      ],
-      "mapped_gene": "RNLS",
-      "snp_gene_ids": [
-        "ENSG00000184719"
-      ],
-      "disease_trait": "Prostate cancer",
-      "mapped_traits": [
-        "prostate carcinoma"
-      ],
-      "efo_traits": [
-        "EFO:0001663"
-      ],
-      "p_value": 7e-09,
-      "pvalue_mlog": 8.154901959985743,
-      "or_beta": "1.05",
-      "ci_95": "[1.03-1.07]",
-      "risk_allele_frequency": "0.63",
-      "pubmed_id": "29892016",
-      "first_author": "Schumacher FR",
-      "date": "2018-06-11",
-      "platform": "Illumina [20370935] (imputed)",
-      "accessionId": "GCST006085_6"
-    },
-    {
-      "snp_id": "rs7094871",
-      "study_accession": "GCST006085",
-      "strongest_snp_risk_allele": "rs7094871-G",
-      "chr_id": "10",
-      "chr_pos": 112952395,
-      "region": "10q25.2",
-      "context": "intron_variant",
-      "reported_genes": [
-        "TCF7L2"
-      ],
-      "mapped_gene": "TCF7L2",
-      "snp_gene_ids": [
-        "ENSG00000148737"
-      ],
-      "disease_trait": "Prostate cancer",
-      "mapped_traits": [
-        "prostate carcinoma"
-      ],
-      "efo_traits": [
-        "EFO:0001663"
-      ],
-      "p_value": 5e-08,
-      "pvalue_mlog": 7.301029995663981,
-      "or_beta": "1.04",
-      "ci_95": "[1.03-1.06]",
-      "risk_allele_frequency": "0.54",
-      "pubmed_id": "29892016",
-      "first_author": "Schumacher FR",
-      "date": "2018-06-11",
-      "platform": "Illumina [20370935] (imputed)",
-      "accessionId": "GCST006085_7"
-    },
-    {
-      "snp_id": "rs1881502",
-      "study_accession": "GCST006085",
-      "strongest_snp_risk_allele": "rs1881502-T",
-      "chr_id": "11",
-      "chr_pos": 1486282,
-      "region": "11p15.5",
-      "context": "intron_variant",
-      "reported_genes": [
-        "MOB2"
-      ],
-      "mapped_gene": "MOB2",
-      "snp_gene_ids": [
-        "ENSG00000182208"
-      ],
-      "disease_trait": "Prostate cancer",
-      "mapped_traits": [
-        "prostate carcinoma"
-      ],
-      "efo_traits": [
-        "EFO:0001663"
-      ],
-      "p_value": 7e-09,
-      "pvalue_mlog": 8.154901959985743,
-      "or_beta": "1.06",
-      "ci_95": "[1.04-1.08]",
-      "risk_allele_frequency": "0.19",
-      "pubmed_id": "29892016",
-      "first_author": "Schumacher FR",
-      "date": "2018-06-11",
-      "platform": "Illumina [20370935] (imputed)",
-      "accessionId": "GCST006085_8"
-    },
-    {
-      "snp_id": "rs61890184d",
-      "study_accession": "GCST006085",
-      "strongest_snp_risk_allele": "rs61890184-A",
-      "intergenic": true,
-      "reported_genes": [
-        "PPFIBP2"
-      ],
-      "disease_trait": "Prostate cancer",
-      "mapped_traits": [
-        "prostate carcinoma"
-      ],
-      "efo_traits": [
-        "EFO:0001663"
-      ],
-      "p_value": 7e-09,
-      "pvalue_mlog": 8.154901959985743,
-      "or_beta": "1.07",
-      "ci_95": "[1.05-1.10]",
-      "risk_allele_frequency": "0.12",
-      "pubmed_id": "29892016",
-      "first_author": "Schumacher FR",
-      "date": "2018-06-11",
-      "platform": "Illumina [20370935] (imputed)",
-      "accessionId": "GCST006085_9"
-    },
-    {
-      "snp_id": "rs547171081",
-      "study_accession": "GCST006085",
-      "strongest_snp_risk_allele": "rs547171081-CGG",
-      "chr_id": "11",
-      "chr_pos": 47400412,
-      "region": "11p11.2",
-      "context": "intron_variant",
-      "reported_genes": [
-        "RP11-750H9.5"
-      ],
-      "mapped_gene": "SLC39A13-AS1, SPI1",
-      "snp_gene_ids": [
-        "ENSG00000255197",
-        "ENSG00000066336"
-      ],
-      "disease_trait": "Prostate cancer",
-      "mapped_traits": [
-        "prostate carcinoma"
-      ],
-      "efo_traits": [
-        "EFO:0001663"
-      ],
-      "p_value": 3e-08,
-      "pvalue_mlog": 7.522878745280337,
-      "or_beta": "1.05",
-      "ci_95": "[1.03-1.07]",
-      "risk_allele_frequency": "0.47",
-      "pubmed_id": "29892016",
-      "first_author": "Schumacher FR",
-      "date": "2018-06-11",
-      "platform": "Illumina [20370935] (imputed)",
-      "accessionId": "GCST006085_10"
-    },
-    {
-      "snp_id": "rs2277283",
-      "study_accession": "GCST006085",
-      "strongest_snp_risk_allele": "rs2277283-C",
-      "chr_id": "11",
-      "chr_pos": 62140968,
-      "region": "11q12.3",
-      "context": "missense_variant",
-      "reported_genes": [
-        "INCENP"
-      ],
-      "mapped_gene": "INCENP",
-      "snp_gene_ids": [
-        "ENSG00000149503"
-      ],
-      "disease_trait": "Prostate cancer",
-      "mapped_traits": [
-        "prostate carcinoma"
-      ],
-      "efo_traits": [
-        "EFO:0001663"
-      ],
-      "p_value": 3e-10,
-      "pvalue_mlog": 9.522878745280337,
-      "or_beta": "1.06",
-      "ci_95": "[1.04-1.08]",
-      "risk_allele_frequency": "0.31",
-      "pubmed_id": "29892016",
-      "first_author": "Schumacher FR",
-      "date": "2018-06-11",
-      "platform": "Illumina [20370935] (imputed)",
-      "accessionId": "GCST006085_11"
-    },
-    {
-      "snp_id": "rs12785905",
-      "study_accession": "GCST006085",
-      "strongest_snp_risk_allele": "rs12785905-C",
-      "chr_id": "11",
-      "chr_pos": 67184494,
-      "region": "11q13.2",
-      "context": "intron_variant",
-      "reported_genes": [
-        "KDM2A"
-      ],
-      "mapped_gene": "KDM2A",
-      "snp_gene_ids": [
-        "ENSG00000173120"
-      ],
-      "disease_trait": "Prostate cancer",
-      "mapped_traits": [
-        "prostate carcinoma"
-      ],
-      "efo_traits": [
-        "EFO:0001663"
-      ],
-      "p_value": 8e-09,
-      "pvalue_mlog": 8.096910013008056,
-      "or_beta": "1.12",
-      "ci_95": "[1.08-1.17]",
-      "risk_allele_frequency": "0.05",
-      "pubmed_id": "29892016",
-      "first_author": "Schumacher FR",
-      "date": "2018-06-11",
-      "platform": "Illumina [20370935] (imputed)",
-      "accessionId": "GCST006085_12"
-    },
-    {
-      "snp_id": "rs11290954",
-      "study_accession": "GCST006085",
-      "strongest_snp_risk_allele": "rs11290954-AC",
-      "chr_id": "11",
-      "chr_pos": 76549500,
-      "region": "11q13.5",
-      "context": "intron_variant",
-      "reported_genes": [
-        "C11orf30"
-      ],
-      "mapped_gene": "EMSY",
-      "snp_gene_ids": [
-        "ENSG00000158636"
-      ],
-      "disease_trait": "Prostate cancer",
-      "mapped_traits": [
-        "prostate carcinoma"
-      ],
-      "efo_traits": [
-        "EFO:0001663"
-      ],
-      "p_value": 7e-13,
-      "pvalue_mlog": 12.154901959985743,
-      "or_beta": "1.06",
-      "ci_95": "[1.05-1.08]",
-      "risk_allele_frequency": "0.68",
-      "pubmed_id": "29892016",
-      "first_author": "Schumacher FR",
-      "date": "2018-06-11",
-      "platform": "Illumina [20370935] (imputed)",
-      "accessionId": "GCST006085_13"
-    },
-    {
-      "snp_id": "rs1800057",
-      "study_accession": "GCST006085",
-      "strongest_snp_risk_allele": "rs1800057-G",
-      "chr_id": "11",
-      "chr_pos": 108272729,
-      "region": "11q22.3",
-      "context": "missense_variant",
-      "reported_genes": [
-        "ATM"
-      ],
-      "mapped_gene": "ATM",
-      "snp_gene_ids": [
-        "ENSG00000149311"
-      ],
-      "disease_trait": "Prostate cancer",
-      "mapped_traits": [
-        "prostate carcinoma"
-      ],
-      "efo_traits": [
-        "EFO:0001663"
-      ],
-      "p_value": 8e-09,
-      "pvalue_mlog": 8.096910013008056,
-      "or_beta": "1.16",
-      "ci_95": "[1.10-1.22]",
-      "risk_allele_frequency": "0.02",
-      "pubmed_id": "29892016",
-      "first_author": "Schumacher FR",
-      "date": "2018-06-11",
-      "platform": "Illumina [20370935] (imputed)",
-      "accessionId": "GCST006085_14"
-    },
-    {
-      "snp_id": "rs138466039",
-      "study_accession": "GCST006085",
-      "strongest_snp_risk_allele": "rs138466039-T",
-      "chr_id": "11",
-      "chr_pos": 125184897,
-      "region": "11q24.2",
-      "context": "intron_variant",
-      "reported_genes": [
-        "PKNOX2"
-      ],
-      "mapped_gene": "PKNOX2",
-      "snp_gene_ids": [
-        "ENSG00000165495"
-      ],
-      "disease_trait": "Prostate cancer",
-      "mapped_traits": [
-        "prostate carcinoma"
-      ],
-      "efo_traits": [
-        "EFO:0001663"
-      ],
-      "p_value": 2e-11,
-      "pvalue_mlog": 10.698970004336019,
-      "or_beta": "1.32",
-      "ci_95": "[1.22-1.44]",
-      "risk_allele_frequency": "0.01",
-      "pubmed_id": "29892016",
-      "first_author": "Schumacher FR",
-      "date": "2018-06-11",
-      "platform": "Illumina [20370935] (imputed)",
-      "accessionId": "GCST006085_15"
-    },
-    {
-      "snp_id": "rs878987",
-      "study_accession": "GCST006085",
-      "strongest_snp_risk_allele": "rs878987-G",
-      "chr_id": "11",
-      "chr_pos": 134396478,
-      "region": "11q25",
-      "context": "intron_variant",
-      "reported_genes": [
-        "B3GAT1"
-      ],
-      "mapped_gene": "B3GAT1",
-      "snp_gene_ids": [
-        "ENSG00000109956"
-      ],
-      "disease_trait": "Prostate cancer",
-      "mapped_traits": [
-        "prostate carcinoma"
-      ],
-      "efo_traits": [
-        "EFO:0001663"
-      ],
-      "p_value": 5e-08,
-      "pvalue_mlog": 7.301029995663981,
-      "or_beta": "1.07",
-      "ci_95": "[1.04-1.09]",
-      "risk_allele_frequency": "0.15",
-      "pubmed_id": "29892016",
-      "first_author": "Schumacher FR",
-      "date": "2018-06-11",
-      "platform": "Illumina [20370935] (imputed)",
-      "accessionId": "GCST006085_16"
-    },
-    {
-      "snp_id": "rs2066827",
-      "study_accession": "GCST006085",
-      "strongest_snp_risk_allele": "rs2066827-T",
-      "chr_id": "12",
-      "chr_pos": 12718165,
-      "region": "12p13.1",
-      "context": "missense_variant",
-      "reported_genes": [
-        "CDKN1B"
-      ],
-      "mapped_gene": "CDKN1B",
-      "snp_gene_ids": [
-        "ENSG00000111276"
-      ],
-      "disease_trait": "Prostate cancer",
-      "mapped_traits": [
-        "prostate carcinoma"
-      ],
-      "efo_traits": [
-        "EFO:0001663"
-      ],
-      "p_value": 2e-09,
-      "pvalue_mlog": 8.698970004336019,
-      "or_beta": "1.06",
-      "ci_95": "[1.04-1.08]",
-      "risk_allele_frequency": "0.76",
-      "pubmed_id": "29892016",
-      "first_author": "Schumacher FR",
-      "date": "2018-06-11",
-      "platform": "Illumina [20370935] (imputed)",
-      "accessionId": "GCST006085_17"
-    },
-    {
-      "snp_id": "rs10845938",
-      "study_accession": "GCST006085",
-      "strongest_snp_risk_allele": "rs10845938-G",
-      "chr_id": "12",
-      "chr_pos": 14263984,
-      "region": "12p13.1",
-      "context": "intergenic_variant",
-      "intergenic": true,
-      "reported_genes": [
-        "RNU6-491P"
-      ],
-      "mapped_gene": "GNAI2P1 - RPL30P11",
-      "upstream_gene_id": "ENSG00000255749",
-      "downstream_gene_id": "ENSG00000244573",
-      "disease_trait": "Prostate cancer",
-      "mapped_traits": [
-        "prostate carcinoma"
-      ],
-      "efo_traits": [
-        "EFO:0001663"
-      ],
-      "p_value": 1e-12,
-      "pvalue_mlog": 12,
-      "or_beta": "1.06",
-      "ci_95": "[1.04-1.08]",
-      "risk_allele_frequency": "0.55",
-      "pubmed_id": "29892016",
-      "first_author": "Schumacher FR",
-      "date": "2018-06-11",
-      "platform": "Illumina [20370935] (imputed)",
-      "accessionId": "GCST006085_18"
-    },
-    {
-      "snp_id": "rs7968403",
-      "study_accession": "GCST006085",
-      "strongest_snp_risk_allele": "rs7968403-T",
-      "chr_id": "12",
-      "chr_pos": 64619044,
-      "region": "12q14.2",
-      "context": "intron_variant",
-      "reported_genes": [
-        "RASSF3"
-      ],
-      "mapped_gene": "RASSF3",
-      "snp_gene_ids": [
-        "ENSG00000153179"
-      ],
-      "disease_trait": "Prostate cancer",
-      "mapped_traits": [
-        "prostate carcinoma"
-      ],
-      "efo_traits": [
-        "EFO:0001663"
-      ],
-      "p_value": 3e-12,
-      "pvalue_mlog": 11.522878745280337,
-      "or_beta": "1.06",
-      "ci_95": "[1.04-1.08]",
-      "risk_allele_frequency": "0.64",
-      "pubmed_id": "29892016",
-      "first_author": "Schumacher FR",
-      "date": "2018-06-11",
-      "platform": "Illumina [20370935] (imputed)",
-      "accessionId": "GCST006085_19"
-    },
-    {
-      "snp_id": "rs5799921",
-      "study_accession": "GCST006085",
-      "strongest_snp_risk_allele": "rs5799921-GA",
-      "chr_id": "12",
-      "chr_pos": 89766754,
-      "region": "12q21.33",
-      "context": "intron_variant",
-      "reported_genes": [
-        "RNU6-148P"
-      ],
-      "mapped_gene": "ATP2B1-AS1",
-      "snp_gene_ids": [
-        "ENSG00000271614"
-      ],
-      "disease_trait": "Prostate cancer",
-      "mapped_traits": [
-        "prostate carcinoma"
-      ],
-      "efo_traits": [
-        "EFO:0001663"
-      ],
-      "p_value": 7e-12,
-      "pvalue_mlog": 11.154901959985743,
-      "or_beta": "1.06",
-      "ci_95": "[1.04-1.08]",
-      "risk_allele_frequency": "0.68",
-      "pubmed_id": "29892016",
-      "first_author": "Schumacher FR",
-      "date": "2018-06-11",
-      "platform": "Illumina [20370935] (imputed)",
-      "accessionId": "GCST006085_20"
-    },
-    {
-      "snp_id": "rs7295014",
-      "study_accession": "GCST006085",
-      "strongest_snp_risk_allele": "rs7295014-G",
-      "chr_id": "12",
-      "chr_pos": 132491403,
-      "region": "12q24.33",
-      "context": "intron_variant",
-      "reported_genes": [
-        "FBRSL1"
-      ],
-      "mapped_gene": "FBRSL1",
-      "snp_gene_ids": [
-        "ENSG00000112787"
-      ],
-      "disease_trait": "Prostate cancer",
-      "mapped_traits": [
-        "prostate carcinoma"
-      ],
-      "efo_traits": [
-        "EFO:0001663"
-      ],
-      "p_value": 1e-09,
-      "pvalue_mlog": 9,
-      "or_beta": "1.05",
-      "ci_95": "[1.04-1.07]",
-      "risk_allele_frequency": "0.35",
-      "pubmed_id": "29892016",
-      "first_author": "Schumacher FR",
-      "date": "2018-06-11",
-      "platform": "Illumina [20370935] (imputed)",
-      "accessionId": "GCST006085_21"
-    },
-    {
-      "snp_id": "rs1004030",
-      "study_accession": "GCST006085",
-      "strongest_snp_risk_allele": "rs1004030-T",
-      "chr_id": "14",
-      "chr_pos": 22836440,
-      "region": "14q11.2",
-      "context": "regulatory_region_variant",
-      "intergenic": true,
-      "reported_genes": [
-        "MMP14"
-      ],
-      "mapped_gene": "MRPL52 - MMP14",
-      "upstream_gene_id": "ENSG00000172590",
-      "downstream_gene_id": "ENSG00000157227",
-      "disease_trait": "Prostate cancer",
-      "mapped_traits": [
-        "prostate carcinoma"
-      ],
-      "efo_traits": [
-        "EFO:0001663"
-      ],
-      "p_value": 2e-08,
-      "pvalue_mlog": 7.698970004336019,
-      "or_beta": "1.05",
-      "ci_95": "[1.03-1.06]",
-      "risk_allele_frequency": "0.58",
-      "pubmed_id": "29892016",
-      "first_author": "Schumacher FR",
-      "date": "2018-06-11",
-      "platform": "Illumina [20370935] (imputed)",
-      "accessionId": "GCST006085_22"
-    },
-    {
-      "snp_id": "rs11629412",
-      "study_accession": "GCST006085",
-      "strongest_snp_risk_allele": "rs11629412-C",
-      "chr_id": "14",
-      "chr_pos": 36669089,
-      "region": "14q13.3",
-      "context": "intron_variant",
-      "reported_genes": [
-        "PAX9"
-      ],
-      "mapped_gene": "PAX9",
-      "snp_gene_ids": [
-        "ENSG00000198807"
-      ],
-      "disease_trait": "Prostate cancer",
-      "mapped_traits": [
-        "prostate carcinoma"
-      ],
-      "efo_traits": [
-        "EFO:0001663"
-      ],
-      "p_value": 2e-12,
-      "pvalue_mlog": 11.698970004336019,
-      "or_beta": "1.06",
-      "ci_95": "[1.04-1.08]",
-      "risk_allele_frequency": "0.58",
-      "pubmed_id": "29892016",
-      "first_author": "Schumacher FR",
-      "date": "2018-06-11",
-      "platform": "Illumina [20370935] (imputed)",
-      "accessionId": "GCST006085_23"
-    },
-    {
-      "snp_id": "rs4924487",
-      "study_accession": "GCST006085",
-      "strongest_snp_risk_allele": "rs4924487-C",
-      "chr_id": "15",
-      "chr_pos": 40630717,
-      "region": "15q15.1",
-      "context": "intron_variant",
-      "reported_genes": [
-        "CASC5"
-      ],
-      "mapped_gene": "KNL1",
-      "snp_gene_ids": [
-        "ENSG00000137812"
-      ],
-      "disease_trait": "Prostate cancer",
-      "mapped_traits": [
-        "prostate carcinoma"
-      ],
-      "efo_traits": [
-        "EFO:0001663"
-      ],
-      "p_value": 1e-08,
-      "pvalue_mlog": 8,
-      "or_beta": "1.06",
-      "ci_95": "[1.04-1.09]",
-      "risk_allele_frequency": "0.81",
-      "pubmed_id": "29892016",
-      "first_author": "Schumacher FR",
-      "date": "2018-06-11",
-      "platform": "Illumina [20370935] (imputed)",
-      "accessionId": "GCST006085_24"
-    },
-    {
-      "snp_id": "rs33984059",
-      "study_accession": "GCST006085",
-      "strongest_snp_risk_allele": "rs33984059-A",
-      "chr_id": "15",
-      "chr_pos": 56093670,
-      "region": "15q21.3",
-      "context": "missense_variant",
-      "reported_genes": [
-        "RFX7"
-      ],
-      "mapped_gene": "RFX7",
-      "snp_gene_ids": [
-        "ENSG00000181827"
-      ],
-      "disease_trait": "Prostate cancer",
-      "mapped_traits": [
-        "prostate carcinoma"
-      ],
-      "efo_traits": [
-        "EFO:0001663"
-      ],
-      "p_value": 1e-08,
-      "pvalue_mlog": 8,
-      "or_beta": "1.19",
-      "ci_95": "[1.12-1.27]",
-      "risk_allele_frequency": "0.98",
-      "pubmed_id": "29892016",
-      "first_author": "Schumacher FR",
-      "date": "2018-06-11",
-      "platform": "Illumina [20370935] (imputed)",
-      "accessionId": "GCST006085_25"
-    },
-    {
-      "snp_id": "rs2316813",
-      "study_accession": "GCST90444487",
-      "strongest_snp_risk_allele": "rs2316813-?",
-      "chr_id": "3",
-      "chr_pos": 90340597,
-      "region": "3p11.1",
-      "context": "intergenic_variant",
-      "intergenic": true,
-      "mapped_gene": "HSPE1P19 - RNU6-488P",
-      "upstream_gene_id": "ENSG00000271024",
-      "downstream_gene_id": "ENSG00000251727",
-      "disease_trait": "Metabolic syndrome",
-      "mapped_traits": [
-        "metabolic syndrome"
-      ],
-      "efo_traits": [
-        "EFO:0000195"
-      ],
-      "p_value": 3e-11,
-      "pvalue_mlog": 10.522878745280337,
-      "or_beta": "0.0192213",
-      "ci_95": "[0.016-0.022] unit increase",
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "39349817",
-      "first_author": "Park S",
-      "date": "2024-09-30",
-      "platform": "NR [2265555] (imputed)",
-      "accessionId": "GCST90444487_1"
-    },
-    {
-      "snp_id": "rs1454687",
-      "study_accession": "GCST90444487",
-      "strongest_snp_risk_allele": "rs1454687-?",
-      "chr_id": "3",
-      "chr_pos": 94319241,
-      "region": "3q11.2",
-      "context": "intergenic_variant",
-      "intergenic": true,
-      "mapped_gene": "NSUN3 - ARMC10P1",
-      "upstream_gene_id": "ENSG00000178694",
-      "downstream_gene_id": "ENSG00000178660",
-      "disease_trait": "Metabolic syndrome",
-      "mapped_traits": [
-        "metabolic syndrome"
-      ],
-      "efo_traits": [
-        "EFO:0000195"
-      ],
-      "p_value": 1e-20,
-      "pvalue_mlog": 20,
-      "or_beta": "0.0206499",
-      "ci_95": "[0.018-0.024] unit increase",
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "39349817",
-      "first_author": "Park S",
-      "date": "2024-09-30",
-      "platform": "NR [2265555] (imputed)",
-      "accessionId": "GCST90444487_2"
-    },
-    {
-      "snp_id": "rs6780459",
-      "study_accession": "GCST90444487",
-      "strongest_snp_risk_allele": "rs6780459-?",
-      "chr_id": "3",
-      "chr_pos": 104905261,
-      "region": "3q13.11",
-      "context": "intron_variant",
-      "intergenic": true,
-      "mapped_gene": "EZRP1 - ALCAM",
-      "upstream_gene_id": "ENSG00000243635",
-      "downstream_gene_id": "ENSG00000170017",
-      "disease_trait": "Metabolic syndrome",
-      "mapped_traits": [
-        "metabolic syndrome"
-      ],
-      "efo_traits": [
-        "EFO:0000195"
-      ],
-      "p_value": 4e-11,
-      "pvalue_mlog": 10.397940008672037,
-      "or_beta": "0.00959499",
-      "ci_95": "[0.0068-0.0123] unit decrease",
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "39349817",
-      "first_author": "Park S",
-      "date": "2024-09-30",
-      "platform": "NR [2265555] (imputed)",
-      "accessionId": "GCST90444487_3"
-    },
-    {
-      "snp_id": "rs7640424",
-      "study_accession": "GCST90444487",
-      "strongest_snp_risk_allele": "rs7640424-?",
-      "chr_id": "3",
-      "chr_pos": 108101216,
-      "region": "3q13.12",
-      "context": "intron_variant",
-      "mapped_gene": "LINC01215",
-      "snp_gene_ids": [
-        "ENSG00000271856"
-      ],
-      "disease_trait": "Metabolic syndrome",
-      "mapped_traits": [
-        "metabolic syndrome"
-      ],
-      "efo_traits": [
-        "EFO:0000195"
-      ],
-      "p_value": 2e-12,
-      "pvalue_mlog": 11.698970004336019,
-      "or_beta": "0.0083137",
-      "ci_95": "[0.0057-0.0109] unit increase",
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "39349817",
-      "first_author": "Park S",
-      "date": "2024-09-30",
-      "platform": "NR [2265555] (imputed)",
-      "accessionId": "GCST90444487_4"
-    },
-    {
-      "snp_id": "rs10514751",
-      "study_accession": "GCST90444487",
-      "strongest_snp_risk_allele": "rs10514751-?",
-      "chr_id": "3",
-      "chr_pos": 108174302,
-      "region": "3q13.12",
-      "context": "intron_variant",
-      "mapped_gene": "IFT57",
-      "snp_gene_ids": [
-        "ENSG00000114446"
-      ],
-      "disease_trait": "Metabolic syndrome",
-      "mapped_traits": [
-        "metabolic syndrome"
-      ],
-      "efo_traits": [
-        "EFO:0000195"
-      ],
-      "p_value": 2e-09,
-      "pvalue_mlog": 8.698970004336019,
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "39349817",
-      "first_author": "Park S",
-      "date": "2024-09-30",
-      "platform": "NR [2265555] (imputed)",
-      "accessionId": "GCST90444487_5"
-    },
-    {
-      "snp_id": "rs4273371",
-      "study_accession": "GCST90444487",
-      "strongest_snp_risk_allele": "rs4273371-?",
-      "chr_id": "3",
-      "chr_pos": 108400224,
-      "region": "3q13.13",
-      "context": "intron_variant",
-      "mapped_gene": "MYH15",
-      "snp_gene_ids": [
-        "ENSG00000144821"
-      ],
-      "disease_trait": "Metabolic syndrome",
-      "mapped_traits": [
-        "metabolic syndrome"
-      ],
-      "efo_traits": [
-        "EFO:0000195"
-      ],
-      "p_value": 2e-11,
-      "pvalue_mlog": 10.698970004336019,
-      "or_beta": "0.00741394",
-      "ci_95": "[0.005-0.0098] unit decrease",
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "39349817",
-      "first_author": "Park S",
-      "date": "2024-09-30",
-      "platform": "NR [2265555] (imputed)",
-      "accessionId": "GCST90444487_6"
-    },
-    {
-      "snp_id": "rs12487110",
-      "study_accession": "GCST90444487",
-      "strongest_snp_risk_allele": "rs12487110-?",
-      "chr_id": "3",
-      "chr_pos": 114463854,
-      "region": "3q13.31",
-      "context": "intron_variant",
-      "mapped_gene": "ZBTB20-AS5, ZBTB20",
-      "snp_gene_ids": [
-        "ENSG00000242290",
-        "ENSG00000181722"
-      ],
-      "disease_trait": "Metabolic syndrome",
-      "mapped_traits": [
-        "metabolic syndrome"
-      ],
-      "efo_traits": [
-        "EFO:0000195"
-      ],
-      "p_value": 3e-09,
-      "pvalue_mlog": 8.522878745280337,
-      "or_beta": "0.0108977",
-      "ci_95": "[0.0078-0.014] unit decrease",
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "39349817",
-      "first_author": "Park S",
-      "date": "2024-09-30",
-      "platform": "NR [2265555] (imputed)",
-      "accessionId": "GCST90444487_7"
-    },
-    {
-      "snp_id": "rs17619973",
-      "study_accession": "GCST90444487",
-      "strongest_snp_risk_allele": "rs17619973-?",
-      "chr_id": "3",
-      "chr_pos": 114698828,
-      "region": "3q13.31",
-      "context": "intron_variant",
-      "mapped_gene": "ZBTB20",
-      "snp_gene_ids": [
-        "ENSG00000181722"
-      ],
-      "disease_trait": "Metabolic syndrome",
-      "mapped_traits": [
-        "metabolic syndrome"
-      ],
-      "efo_traits": [
-        "EFO:0000195"
-      ],
-      "p_value": 2e-12,
-      "pvalue_mlog": 11.698970004336019,
-      "or_beta": "0.0193689",
-      "ci_95": "[0.015-0.024] unit increase",
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "39349817",
-      "first_author": "Park S",
-      "date": "2024-09-30",
-      "platform": "NR [2265555] (imputed)",
-      "accessionId": "GCST90444487_8"
-    },
-    {
-      "snp_id": "rs9880469",
-      "study_accession": "GCST90444487",
-      "strongest_snp_risk_allele": "rs9880469-?",
-      "chr_id": "3",
-      "chr_pos": 115372971,
-      "region": "3q13.31",
-      "context": "intron_variant",
-      "intergenic": true,
-      "mapped_gene": "EIF4E2P2 - GAP43",
-      "upstream_gene_id": "ENSG00000244157",
-      "downstream_gene_id": "ENSG00000172020",
-      "disease_trait": "Metabolic syndrome",
-      "mapped_traits": [
-        "metabolic syndrome"
-      ],
-      "efo_traits": [
-        "EFO:0000195"
-      ],
-      "p_value": 4e-11,
-      "pvalue_mlog": 10.397940008672037,
-      "or_beta": "0.0119658",
-      "ci_95": "[0.0082-0.0158] unit decrease",
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "39349817",
-      "first_author": "Park S",
-      "date": "2024-09-30",
-      "platform": "NR [2265555] (imputed)",
-      "accessionId": "GCST90444487_9"
-    },
-    {
-      "snp_id": "rs1516515",
-      "study_accession": "GCST90444487",
-      "strongest_snp_risk_allele": "rs1516515-?",
-      "chr_id": "3",
-      "chr_pos": 115766704,
-      "region": "3q13.31",
-      "context": "intron_variant",
-      "intergenic": true,
-      "mapped_gene": "GAP43 - LSAMP",
-      "upstream_gene_id": "ENSG00000172020",
-      "downstream_gene_id": "ENSG00000185565",
-      "disease_trait": "Metabolic syndrome",
-      "mapped_traits": [
-        "metabolic syndrome"
-      ],
-      "efo_traits": [
-        "EFO:0000195"
-      ],
-      "p_value": 2e-09,
-      "pvalue_mlog": 8.698970004336019,
-      "or_beta": "0.0106289",
-      "ci_95": "[0.0072-0.0141] unit decrease",
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "39349817",
-      "first_author": "Park S",
-      "date": "2024-09-30",
-      "platform": "NR [2265555] (imputed)",
-      "accessionId": "GCST90444487_10"
-    },
-    {
-      "snp_id": "rs13098400",
-      "study_accession": "GCST90444487",
-      "strongest_snp_risk_allele": "rs13098400-?",
-      "chr_id": "3",
-      "chr_pos": 117133047,
-      "region": "3q13.31",
-      "context": "intergenic_variant",
-      "mapped_gene": "LSAMP",
-      "snp_gene_ids": [
-        "ENSG00000185565"
-      ],
-      "disease_trait": "Metabolic syndrome",
-      "mapped_traits": [
-        "metabolic syndrome"
-      ],
-      "efo_traits": [
-        "EFO:0000195"
-      ],
-      "p_value": 6e-13,
-      "pvalue_mlog": 12.221848749616356,
-      "or_beta": "0.0109178",
-      "ci_95": "[0.0081-0.0137] unit increase",
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "39349817",
-      "first_author": "Park S",
-      "date": "2024-09-30",
-      "platform": "NR [2265555] (imputed)",
-      "accessionId": "GCST90444487_11"
-    },
-    {
-      "snp_id": "rs1520114",
-      "study_accession": "GCST90444487",
-      "strongest_snp_risk_allele": "rs1520114-?",
-      "chr_id": "3",
-      "chr_pos": 118463300,
-      "region": "3q13.32",
-      "context": "intron_variant",
-      "intergenic": true,
-      "mapped_gene": "LSAMP - IGSF11",
-      "upstream_gene_id": "ENSG00000185565",
-      "downstream_gene_id": "ENSG00000144847",
-      "disease_trait": "Metabolic syndrome",
-      "mapped_traits": [
-        "metabolic syndrome"
-      ],
-      "efo_traits": [
-        "EFO:0000195"
-      ],
-      "p_value": 4e-08,
-      "pvalue_mlog": 7.3979400086720375,
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "39349817",
-      "first_author": "Park S",
-      "date": "2024-09-30",
-      "platform": "NR [2265555] (imputed)",
-      "accessionId": "GCST90444487_12"
-    },
-    {
-      "snp_id": "rs7430165",
-      "study_accession": "GCST90444487",
-      "strongest_snp_risk_allele": "rs7430165-?",
-      "chr_id": "3",
-      "chr_pos": 121687406,
-      "region": "3q13.33",
-      "context": "intron_variant",
-      "mapped_gene": "GOLGB1",
-      "snp_gene_ids": [
-        "ENSG00000173230"
-      ],
-      "disease_trait": "Metabolic syndrome",
-      "mapped_traits": [
-        "metabolic syndrome"
-      ],
-      "efo_traits": [
-        "EFO:0000195"
-      ],
-      "p_value": 4e-09,
-      "pvalue_mlog": 8.397940008672037,
-      "or_beta": "0.00828337",
-      "ci_95": "[0.0055-0.0111] unit decrease",
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "39349817",
-      "first_author": "Park S",
-      "date": "2024-09-30",
-      "platform": "NR [2265555] (imputed)",
-      "accessionId": "GCST90444487_13"
-    },
-    {
-      "snp_id": "rs10668",
-      "study_accession": "GCST90444487",
-      "strongest_snp_risk_allele": "rs10668-?",
-      "chr_id": "3",
-      "chr_pos": 123492217,
-      "region": "3q21.1",
-      "context": "3_prime_UTR_variant",
-      "mapped_gene": "HACD2",
-      "snp_gene_ids": [
-        "ENSG00000206527"
-      ],
-      "disease_trait": "Metabolic syndrome",
-      "mapped_traits": [
-        "metabolic syndrome"
-      ],
-      "efo_traits": [
-        "EFO:0000195"
-      ],
-      "p_value": 2e-10,
-      "pvalue_mlog": 9.698970004336019,
-      "or_beta": "0.00825788",
-      "ci_95": "[0.0058-0.0107] unit increase",
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "39349817",
-      "first_author": "Park S",
-      "date": "2024-09-30",
-      "platform": "NR [2265555] (imputed)",
-      "accessionId": "GCST90444487_14"
-    },
-    {
-      "snp_id": "rs9864330",
-      "study_accession": "GCST90444487",
-      "strongest_snp_risk_allele": "rs9864330-?",
-      "chr_id": "3",
-      "chr_pos": 127378814,
-      "region": "3q21.3",
-      "context": "intron_variant",
-      "mapped_gene": "LINC02016",
-      "snp_gene_ids": [
-        "ENSG00000244215"
-      ],
-      "disease_trait": "Metabolic syndrome",
-      "mapped_traits": [
-        "metabolic syndrome"
-      ],
-      "efo_traits": [
-        "EFO:0000195"
-      ],
-      "p_value": 1e-08,
-      "pvalue_mlog": 8,
-      "or_beta": "0.00784595",
-      "ci_95": "[0.0052-0.0105] unit increase",
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "39349817",
-      "first_author": "Park S",
-      "date": "2024-09-30",
-      "platform": "NR [2265555] (imputed)",
-      "accessionId": "GCST90444487_15"
-    },
-    {
-      "snp_id": "rs2811467",
-      "study_accession": "GCST90444487",
-      "strongest_snp_risk_allele": "rs2811467-?",
-      "chr_id": "3",
-      "chr_pos": 129579843,
-      "region": "3q22.1",
-      "context": "intron_variant",
-      "mapped_gene": "PLXND1",
-      "snp_gene_ids": [
-        "ENSG00000004399"
-      ],
-      "disease_trait": "Metabolic syndrome",
-      "mapped_traits": [
-        "metabolic syndrome"
-      ],
-      "efo_traits": [
-        "EFO:0000195"
-      ],
-      "p_value": 7e-13,
-      "pvalue_mlog": 12.154901959985743,
-      "or_beta": "0.0110587",
-      "ci_95": "[0.0081-0.0141] unit increase",
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "39349817",
-      "first_author": "Park S",
-      "date": "2024-09-30",
-      "platform": "NR [2265555] (imputed)",
-      "accessionId": "GCST90444487_16"
-    },
-    {
-      "snp_id": "rs11718160",
-      "study_accession": "GCST90444487",
-      "strongest_snp_risk_allele": "rs11718160-?",
-      "chr_id": "3",
-      "chr_pos": 131716770,
-      "region": "3q22.1",
-      "context": "intron_variant",
-      "mapped_gene": "CPNE4",
-      "snp_gene_ids": [
-        "ENSG00000196353"
-      ],
-      "disease_trait": "Metabolic syndrome",
-      "mapped_traits": [
-        "metabolic syndrome"
-      ],
-      "efo_traits": [
-        "EFO:0000195"
-      ],
-      "p_value": 4e-09,
-      "pvalue_mlog": 8.397940008672037,
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "39349817",
-      "first_author": "Park S",
-      "date": "2024-09-30",
-      "platform": "NR [2265555] (imputed)",
-      "accessionId": "GCST90444487_17"
-    },
-    {
-      "snp_id": "rs11925138",
-      "study_accession": "GCST90444487",
-      "strongest_snp_risk_allele": "rs11925138-?",
-      "chr_id": "3",
-      "chr_pos": 131907204,
-      "region": "3q22.1",
-      "context": "intron_variant",
-      "mapped_gene": "CPNE4",
-      "snp_gene_ids": [
-        "ENSG00000196353"
-      ],
-      "disease_trait": "Metabolic syndrome",
-      "mapped_traits": [
-        "metabolic syndrome"
-      ],
-      "efo_traits": [
-        "EFO:0000195"
-      ],
-      "p_value": 5e-14,
-      "pvalue_mlog": 13.301029995663981,
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "39349817",
-      "first_author": "Park S",
-      "date": "2024-09-30",
-      "platform": "NR [2265555] (imputed)",
-      "accessionId": "GCST90444487_18"
-    },
-    {
-      "snp_id": "rs1225060",
-      "study_accession": "GCST90444487",
-      "strongest_snp_risk_allele": "rs1225060-?",
-      "chr_id": "3",
-      "chr_pos": 131918329,
-      "region": "3q22.1",
-      "context": "intron_variant",
-      "mapped_gene": "CPNE4",
-      "snp_gene_ids": [
-        "ENSG00000196353"
-      ],
-      "disease_trait": "Metabolic syndrome",
-      "mapped_traits": [
-        "metabolic syndrome"
-      ],
-      "efo_traits": [
-        "EFO:0000195"
-      ],
-      "p_value": 5e-29,
-      "pvalue_mlog": 28.30102999566398,
-      "or_beta": "0.0218925",
-      "ci_95": "[0.019-0.025] unit decrease",
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "39349817",
-      "first_author": "Park S",
-      "date": "2024-09-30",
-      "platform": "NR [2265555] (imputed)",
-      "accessionId": "GCST90444487_19"
-    },
-    {
-      "snp_id": "rs1919981",
-      "study_accession": "GCST90444487",
-      "strongest_snp_risk_allele": "rs1919981-?",
-      "chr_id": "3",
-      "chr_pos": 132024483,
-      "region": "3q22.1",
-      "context": "intron_variant",
-      "mapped_gene": "CPNE4",
-      "snp_gene_ids": [
-        "ENSG00000196353"
-      ],
-      "disease_trait": "Metabolic syndrome",
-      "mapped_traits": [
-        "metabolic syndrome"
-      ],
-      "efo_traits": [
-        "EFO:0000195"
-      ],
-      "p_value": 2e-11,
-      "pvalue_mlog": 10.698970004336019,
-      "or_beta": "0.0116787",
-      "ci_95": "[0.009-0.0144] unit decrease",
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "39349817",
-      "first_author": "Park S",
-      "date": "2024-09-30",
-      "platform": "NR [2265555] (imputed)",
-      "accessionId": "GCST90444487_20"
-    },
-    {
-      "snp_id": "rs11720820",
-      "study_accession": "GCST90444487",
-      "strongest_snp_risk_allele": "rs11720820-?",
-      "chr_id": "3",
-      "chr_pos": 132071741,
-      "region": "3q22.1",
-      "context": "intergenic_variant",
-      "mapped_gene": "CPNE4",
-      "snp_gene_ids": [
-        "ENSG00000196353"
-      ],
-      "disease_trait": "Metabolic syndrome",
-      "mapped_traits": [
-        "metabolic syndrome"
-      ],
-      "efo_traits": [
-        "EFO:0000195"
-      ],
-      "p_value": 9e-09,
-      "pvalue_mlog": 8.045757490560675,
-      "or_beta": "0.0126765",
-      "ci_95": "[0.0099-0.0154] unit increase",
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "39349817",
-      "first_author": "Park S",
-      "date": "2024-09-30",
-      "platform": "NR [2265555] (imputed)",
-      "accessionId": "GCST90444487_21"
-    },
-    {
-      "snp_id": "rs10935143",
-      "study_accession": "GCST90444487",
-      "strongest_snp_risk_allele": "rs10935143-?",
-      "chr_id": "3",
-      "chr_pos": 134946317,
-      "region": "3q22.2",
-      "context": "intron_variant",
-      "mapped_gene": "EPHB1",
-      "snp_gene_ids": [
-        "ENSG00000154928"
-      ],
-      "disease_trait": "Metabolic syndrome",
-      "mapped_traits": [
-        "metabolic syndrome"
-      ],
-      "efo_traits": [
-        "EFO:0000195"
-      ],
-      "p_value": 6e-10,
-      "pvalue_mlog": 9.221848749616356,
-      "or_beta": "0.00716226",
-      "ci_95": "[0.0047-0.0096] unit increase",
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "39349817",
-      "first_author": "Park S",
-      "date": "2024-09-30",
-      "platform": "NR [2265555] (imputed)",
-      "accessionId": "GCST90444487_22"
-    },
-    {
-      "snp_id": "rs1279840",
-      "study_accession": "GCST90444487",
-      "strongest_snp_risk_allele": "rs1279840-?",
-      "chr_id": "3",
-      "chr_pos": 136287734,
-      "region": "3q22.3",
-      "context": "intron_variant",
-      "mapped_gene": "PCCB",
-      "snp_gene_ids": [
-        "ENSG00000114054"
-      ],
-      "disease_trait": "Metabolic syndrome",
-      "mapped_traits": [
-        "metabolic syndrome"
-      ],
-      "efo_traits": [
-        "EFO:0000195"
-      ],
-      "p_value": 5e-50,
-      "pvalue_mlog": 49.30102999566398,
-      "or_beta": "0.024581",
-      "ci_95": "[0.022-0.028] unit decrease",
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "39349817",
-      "first_author": "Park S",
-      "date": "2024-09-30",
-      "platform": "NR [2265555] (imputed)",
-      "accessionId": "GCST90444487_23"
-    },
-    {
-      "snp_id": "rs13066401",
-      "study_accession": "GCST90444487",
-      "strongest_snp_risk_allele": "rs13066401-?",
-      "chr_id": "3",
-      "chr_pos": 136626977,
-      "region": "3q22.3",
-      "context": "intron_variant",
-      "mapped_gene": "STAG1",
-      "snp_gene_ids": [
-        "ENSG00000118007"
-      ],
-      "disease_trait": "Metabolic syndrome",
-      "mapped_traits": [
-        "metabolic syndrome"
-      ],
-      "efo_traits": [
-        "EFO:0000195"
-      ],
-      "p_value": 1e-11,
-      "pvalue_mlog": 11,
-      "or_beta": "0.0174429",
-      "ci_95": "[0.014-0.021] unit decrease",
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "39349817",
-      "first_author": "Park S",
-      "date": "2024-09-30",
-      "platform": "NR [2265555] (imputed)",
-      "accessionId": "GCST90444487_24"
-    },
-    {
-      "snp_id": "rs3755752",
-      "study_accession": "GCST90444487",
-      "strongest_snp_risk_allele": "rs3755752-?",
-      "chr_id": "3",
-      "chr_pos": 138009942,
-      "region": "3q22.3",
-      "context": "intron_variant",
-      "mapped_gene": "CLDN18",
-      "snp_gene_ids": [
-        "ENSG00000066405"
-      ],
-      "disease_trait": "Metabolic syndrome",
-      "mapped_traits": [
-        "metabolic syndrome"
-      ],
-      "efo_traits": [
-        "EFO:0000195"
-      ],
-      "p_value": 3e-08,
-      "pvalue_mlog": 7.522878745280337,
-      "or_beta": "0.0068183",
-      "ci_95": "[0.0044-0.0092] unit decrease",
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "39349817",
-      "first_author": "Park S",
-      "date": "2024-09-30",
-      "platform": "NR [2265555] (imputed)",
-      "accessionId": "GCST90444487_25"
-    },
-    {
-      "snp_id": "rs11709171",
-      "study_accession": "GCST90444487",
-      "strongest_snp_risk_allele": "rs11709171-?",
-      "chr_id": "3",
-      "chr_pos": 53635877,
-      "region": "3p21.1",
-      "context": "intron_variant",
-      "mapped_gene": "CACNA1D",
-      "snp_gene_ids": [
-        "ENSG00000157388"
-      ],
-      "disease_trait": "Metabolic syndrome",
-      "mapped_traits": [
-        "metabolic syndrome"
-      ],
-      "efo_traits": [
-        "EFO:0000195"
-      ],
-      "p_value": 1e-08,
-      "pvalue_mlog": 8,
-      "or_beta": "0.00866001",
-      "ci_95": "[0.0056-0.0117] unit decrease",
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "39349817",
-      "first_author": "Park S",
-      "date": "2024-09-30",
-      "platform": "NR [2265555] (imputed)",
-      "accessionId": "GCST90444487_26"
-    },
-    {
-      "snp_id": "rs2680648",
-      "study_accession": "GCST90444487",
-      "strongest_snp_risk_allele": "rs2680648-?",
-      "chr_id": "3",
-      "chr_pos": 53743149,
-      "region": "3p21.1",
-      "context": "intron_variant",
-      "mapped_gene": "CACNA1D",
-      "snp_gene_ids": [
-        "ENSG00000157388"
-      ],
-      "disease_trait": "Metabolic syndrome",
-      "mapped_traits": [
-        "metabolic syndrome"
-      ],
-      "efo_traits": [
-        "EFO:0000195"
-      ],
-      "p_value": 5e-13,
-      "pvalue_mlog": 12.301029995663981,
-      "or_beta": "0.0114911",
-      "ci_95": "[0.0086-0.0144] unit increase",
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "39349817",
-      "first_author": "Park S",
-      "date": "2024-09-30",
-      "platform": "NR [2265555] (imputed)",
-      "accessionId": "GCST90444487_27"
-    },
-    {
-      "snp_id": "rs2886377",
-      "study_accession": "GCST90444487",
-      "strongest_snp_risk_allele": "rs2886377-?",
-      "chr_id": "3",
-      "chr_pos": 61160084,
-      "region": "3p14.2",
-      "context": "intron_variant",
-      "mapped_gene": "FHIT",
-      "snp_gene_ids": [
-        "ENSG00000189283"
-      ],
-      "disease_trait": "Metabolic syndrome",
-      "mapped_traits": [
-        "metabolic syndrome"
-      ],
-      "efo_traits": [
-        "EFO:0000195"
-      ],
-      "p_value": 5e-09,
-      "pvalue_mlog": 8.301029995663981,
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "39349817",
-      "first_author": "Park S",
-      "date": "2024-09-30",
-      "platform": "NR [2265555] (imputed)",
-      "accessionId": "GCST90444487_28"
-    },
-    {
-      "snp_id": "rs940338",
-      "study_accession": "GCST90444487",
-      "strongest_snp_risk_allele": "rs940338-?",
-      "chr_id": "3",
-      "chr_pos": 61241087,
-      "region": "3p14.2",
-      "context": "intron_variant",
-      "mapped_gene": "FHIT",
-      "snp_gene_ids": [
-        "ENSG00000189283"
-      ],
-      "disease_trait": "Metabolic syndrome",
-      "mapped_traits": [
-        "metabolic syndrome"
-      ],
-      "efo_traits": [
-        "EFO:0000195"
-      ],
-      "p_value": 9e-18,
-      "pvalue_mlog": 17.045757490560675,
-      "or_beta": "0.0151065",
-      "ci_95": "[0.012-0.019] unit increase",
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "39349817",
-      "first_author": "Park S",
-      "date": "2024-09-30",
-      "platform": "NR [2265555] (imputed)",
-      "accessionId": "GCST90444487_29"
-    },
-    {
-      "snp_id": "rs1911746",
-      "study_accession": "GCST90444487",
-      "strongest_snp_risk_allele": "rs1911746-?",
-      "chr_id": "3",
-      "chr_pos": 62115166,
-      "region": "3p14.2",
-      "context": "intron_variant",
-      "mapped_gene": "PTPRG",
-      "snp_gene_ids": [
-        "ENSG00000144724"
-      ],
-      "disease_trait": "Metabolic syndrome",
-      "mapped_traits": [
-        "metabolic syndrome"
-      ],
-      "efo_traits": [
-        "EFO:0000195"
-      ],
-      "p_value": 3e-08,
-      "pvalue_mlog": 7.522878745280337,
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "39349817",
-      "first_author": "Park S",
-      "date": "2024-09-30",
-      "platform": "NR [2265555] (imputed)",
-      "accessionId": "GCST90444487_30"
-    },
-    {
-      "snp_id": "rs1452075",
-      "study_accession": "GCST90444487",
-      "strongest_snp_risk_allele": "rs1452075-?",
-      "chr_id": "3",
-      "chr_pos": 62495388,
-      "region": "3p14.2",
-      "context": "intron_variant",
-      "mapped_gene": "CADPS",
-      "snp_gene_ids": [
-        "ENSG00000163618"
-      ],
-      "disease_trait": "Metabolic syndrome",
-      "mapped_traits": [
-        "metabolic syndrome"
-      ],
-      "efo_traits": [
-        "EFO:0000195"
-      ],
-      "p_value": 2e-17,
-      "pvalue_mlog": 16.69897000433602,
-      "or_beta": "0.0122173",
-      "ci_95": "[0.0095-0.0149] unit decrease",
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "39349817",
-      "first_author": "Park S",
-      "date": "2024-09-30",
-      "platform": "NR [2265555] (imputed)",
-      "accessionId": "GCST90444487_31"
-    },
-    {
-      "snp_id": "rs925018",
-      "study_accession": "GCST90444487",
-      "strongest_snp_risk_allele": "rs925018-?",
-      "chr_id": "3",
-      "chr_pos": 62727468,
-      "region": "3p14.2",
-      "context": "intron_variant",
-      "mapped_gene": "CADPS",
-      "snp_gene_ids": [
-        "ENSG00000163618"
-      ],
-      "disease_trait": "Metabolic syndrome",
-      "mapped_traits": [
-        "metabolic syndrome"
-      ],
-      "efo_traits": [
-        "EFO:0000195"
-      ],
-      "p_value": 3e-14,
-      "pvalue_mlog": 13.522878745280337,
-      "or_beta": "0.0100508",
-      "ci_95": "[0.0075-0.0126] unit decrease",
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "39349817",
-      "first_author": "Park S",
-      "date": "2024-09-30",
-      "platform": "NR [2265555] (imputed)",
-      "accessionId": "GCST90444487_32"
-    },
-    {
-      "snp_id": "rs1060897",
-      "study_accession": "GCST90444487",
-      "strongest_snp_risk_allele": "rs1060897-?",
-      "chr_id": "3",
-      "chr_pos": 64012196,
-      "region": "3p14.1",
-      "context": "intron_variant",
-      "mapped_gene": "PSMD6, PSMD6-AS1",
-      "snp_gene_ids": [
-        "ENSG00000163636",
-        "ENSG00000243410"
-      ],
-      "disease_trait": "Metabolic syndrome",
-      "mapped_traits": [
-        "metabolic syndrome"
-      ],
-      "efo_traits": [
-        "EFO:0000195"
-      ],
-      "p_value": 7e-10,
-      "pvalue_mlog": 9.154901959985743,
-      "or_beta": "0.00975233",
-      "ci_95": "[0.0066-0.0129] unit increase",
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "39349817",
-      "first_author": "Park S",
-      "date": "2024-09-30",
-      "platform": "NR [2265555] (imputed)",
-      "accessionId": "GCST90444487_33"
-    },
-    {
-      "snp_id": "rs1024889",
-      "study_accession": "GCST90444487",
-      "strongest_snp_risk_allele": "rs1024889-?",
-      "chr_id": "3",
-      "chr_pos": 70414179,
-      "region": "3p13",
-      "context": "intergenic_variant",
-      "mapped_gene": "SAMMSON",
-      "snp_gene_ids": [
-        "ENSG00000240405"
-      ],
-      "disease_trait": "Metabolic syndrome",
-      "mapped_traits": [
-        "metabolic syndrome"
-      ],
-      "efo_traits": [
-        "EFO:0000195"
-      ],
-      "p_value": 4e-17,
-      "pvalue_mlog": 16.397940008672037,
-      "or_beta": "0.0151764",
-      "ci_95": "[0.012-0.018] unit decrease",
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "39349817",
-      "first_author": "Park S",
-      "date": "2024-09-30",
-      "platform": "NR [2265555] (imputed)",
-      "accessionId": "GCST90444487_34"
-    },
-    {
-      "snp_id": "rs4302353",
-      "study_accession": "GCST90444487",
-      "strongest_snp_risk_allele": "rs4302353-?",
-      "chr_id": "3",
-      "chr_pos": 70474344,
-      "region": "3p13",
-      "context": "intergenic_variant",
-      "mapped_gene": "SAMMSON",
-      "snp_gene_ids": [
-        "ENSG00000240405"
-      ],
-      "disease_trait": "Metabolic syndrome",
-      "mapped_traits": [
-        "metabolic syndrome"
-      ],
-      "efo_traits": [
-        "EFO:0000195"
-      ],
-      "p_value": 1e-12,
-      "pvalue_mlog": 12,
-      "or_beta": "0.0309187",
-      "ci_95": "[0.024-0.037] unit increase",
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "39349817",
-      "first_author": "Park S",
-      "date": "2024-09-30",
-      "platform": "NR [2265555] (imputed)",
-      "accessionId": "GCST90444487_35"
-    },
-    {
-      "snp_id": "rs830640",
-      "study_accession": "GCST90444487",
-      "strongest_snp_risk_allele": "rs830640-?",
-      "chr_id": "3",
-      "chr_pos": 71619413,
-      "region": "3p13",
-      "context": "intron_variant",
-      "intergenic": true,
-      "mapped_gene": "FOXP1-DT - EIF4E3",
-      "upstream_gene_id": "ENSG00000270562",
-      "downstream_gene_id": "ENSG00000163412",
-      "disease_trait": "Metabolic syndrome",
-      "mapped_traits": [
-        "metabolic syndrome"
-      ],
-      "efo_traits": [
-        "EFO:0000195"
-      ],
-      "p_value": 2e-13,
-      "pvalue_mlog": 12.698970004336019,
-      "or_beta": "0.0094347",
-      "ci_95": "[0.007-0.0119] unit increase",
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "39349817",
-      "first_author": "Park S",
-      "date": "2024-09-30",
-      "platform": "NR [2265555] (imputed)",
-      "accessionId": "GCST90444487_36"
-    },
-    {
-      "snp_id": "rs7637138",
-      "study_accession": "GCST90444487",
-      "strongest_snp_risk_allele": "rs7637138-?",
-      "chr_id": "3",
-      "chr_pos": 72861735,
-      "region": "3p13",
-      "context": "intron_variant",
-      "mapped_gene": "SHQ1",
-      "snp_gene_ids": [
-        "ENSG00000144736"
-      ],
-      "disease_trait": "Metabolic syndrome",
-      "mapped_traits": [
-        "metabolic syndrome"
-      ],
-      "efo_traits": [
-        "EFO:0000195"
-      ],
-      "p_value": 3e-08,
-      "pvalue_mlog": 7.522878745280337,
-      "or_beta": "0.00758649",
-      "ci_95": "[0.0049-0.0103] unit decrease",
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "39349817",
-      "first_author": "Park S",
-      "date": "2024-09-30",
-      "platform": "NR [2265555] (imputed)",
-      "accessionId": "GCST90444487_37"
-    },
-    {
-      "snp_id": "rs876675",
-      "study_accession": "GCST90444487",
-      "strongest_snp_risk_allele": "rs876675-?",
-      "chr_id": "3",
-      "chr_pos": 77626487,
-      "region": "3p12.3",
-      "context": "intron_variant",
-      "mapped_gene": "ROBO2",
-      "snp_gene_ids": [
-        "ENSG00000185008"
-      ],
-      "disease_trait": "Metabolic syndrome",
-      "mapped_traits": [
-        "metabolic syndrome"
-      ],
-      "efo_traits": [
-        "EFO:0000195"
-      ],
-      "p_value": 1e-10,
-      "pvalue_mlog": 10,
-      "or_beta": "0.00817629",
-      "ci_95": "[0.0058-0.0106] unit increase",
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "39349817",
-      "first_author": "Park S",
-      "date": "2024-09-30",
-      "platform": "NR [2265555] (imputed)",
-      "accessionId": "GCST90444487_38"
-    },
-    {
-      "snp_id": "rs7433415",
-      "study_accession": "GCST90444487",
-      "strongest_snp_risk_allele": "rs7433415-?",
-      "chr_id": "3",
-      "chr_pos": 78418772,
-      "region": "3p12.3",
-      "context": "intergenic_variant",
-      "intergenic": true,
-      "mapped_gene": "RN7SKP61 - MRPS17P3",
-      "upstream_gene_id": "ENSG00000222574",
-      "downstream_gene_id": "ENSG00000239226",
-      "disease_trait": "Metabolic syndrome",
-      "mapped_traits": [
-        "metabolic syndrome"
-      ],
-      "efo_traits": [
-        "EFO:0000195"
-      ],
-      "p_value": 2e-10,
-      "pvalue_mlog": 9.698970004336019,
-      "or_beta": "0.0110691",
-      "ci_95": "[0.0073-0.0149] unit increase",
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "39349817",
-      "first_author": "Park S",
-      "date": "2024-09-30",
-      "platform": "NR [2265555] (imputed)",
-      "accessionId": "GCST90444487_39"
-    },
-    {
-      "snp_id": "rs3849570",
-      "study_accession": "GCST90444487",
-      "strongest_snp_risk_allele": "rs3849570-?",
-      "chr_id": "3",
-      "chr_pos": 81742961,
-      "region": "3p12.2",
-      "context": "intron_variant",
-      "mapped_gene": "GBE1",
-      "snp_gene_ids": [
-        "ENSG00000114480"
-      ],
-      "disease_trait": "Metabolic syndrome",
-      "mapped_traits": [
-        "metabolic syndrome"
-      ],
-      "efo_traits": [
-        "EFO:0000195"
-      ],
-      "p_value": 6e-12,
-      "pvalue_mlog": 11.221848749616356,
-      "or_beta": "0.00879722",
-      "ci_95": "[0.0063-0.0113] unit decrease",
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "39349817",
-      "first_author": "Park S",
-      "date": "2024-09-30",
-      "platform": "NR [2265555] (imputed)",
-      "accessionId": "GCST90444487_40"
-    },
-    {
-      "snp_id": "rs6785245",
-      "study_accession": "GCST90444487",
-      "strongest_snp_risk_allele": "rs6785245-?",
-      "chr_id": "3",
-      "chr_pos": 82598839,
-      "region": "3p12.2",
-      "context": "intergenic_variant",
-      "intergenic": true,
-      "mapped_gene": "LINC02008 - CYP51A1P1",
-      "upstream_gene_id": "ENSG00000239440",
-      "downstream_gene_id": "ENSG00000241095",
-      "disease_trait": "Metabolic syndrome",
-      "mapped_traits": [
-        "metabolic syndrome"
-      ],
-      "efo_traits": [
-        "EFO:0000195"
-      ],
-      "p_value": 5e-14,
-      "pvalue_mlog": 13.301029995663981,
-      "or_beta": "0.0100288",
-      "ci_95": "[0.0075-0.0126] unit decrease",
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "39349817",
-      "first_author": "Park S",
-      "date": "2024-09-30",
-      "platform": "NR [2265555] (imputed)",
-      "accessionId": "GCST90444487_41"
-    },
-    {
-      "snp_id": "rs17019960",
-      "study_accession": "GCST90444487",
-      "strongest_snp_risk_allele": "rs17019960-?",
-      "chr_id": "3",
-      "chr_pos": 82618748,
-      "region": "3p12.2",
-      "context": "intergenic_variant",
-      "intergenic": true,
-      "mapped_gene": "LINC02008 - CYP51A1P1",
-      "upstream_gene_id": "ENSG00000239440",
-      "downstream_gene_id": "ENSG00000241095",
-      "disease_trait": "Metabolic syndrome",
-      "mapped_traits": [
-        "metabolic syndrome"
-      ],
-      "efo_traits": [
-        "EFO:0000195"
-      ],
-      "p_value": 3e-08,
-      "pvalue_mlog": 7.522878745280337,
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "39349817",
-      "first_author": "Park S",
-      "date": "2024-09-30",
-      "platform": "NR [2265555] (imputed)",
-      "accessionId": "GCST90444487_42"
-    },
-    {
-      "snp_id": "rs9827823",
-      "study_accession": "GCST90444487",
-      "strongest_snp_risk_allele": "rs9827823-?",
-      "chr_id": "3",
-      "chr_pos": 84172623,
-      "region": "3p12.1",
-      "context": "intergenic_variant",
-      "intergenic": true,
-      "mapped_gene": "SRRM1P2 - LINC00971",
-      "upstream_gene_id": "ENSG00000242195",
-      "downstream_gene_id": "ENSG00000242641",
-      "disease_trait": "Metabolic syndrome",
-      "mapped_traits": [
-        "metabolic syndrome"
-      ],
-      "efo_traits": [
-        "EFO:0000195"
-      ],
-      "p_value": 3e-10,
-      "pvalue_mlog": 9.522878745280337,
-      "or_beta": "0.0127394",
-      "ci_95": "[0.0092-0.0163] unit increase",
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "39349817",
-      "first_author": "Park S",
-      "date": "2024-09-30",
-      "platform": "NR [2265555] (imputed)",
-      "accessionId": "GCST90444487_43"
-    },
-    {
-      "snp_id": "rs13095644",
-      "study_accession": "GCST90444487",
-      "strongest_snp_risk_allele": "rs13095644-?",
-      "chr_id": "3",
-      "chr_pos": 85092413,
-      "region": "3p12.1",
-      "context": "intron_variant",
-      "mapped_gene": "CADM2",
-      "snp_gene_ids": [
-        "ENSG00000175161"
-      ],
-      "disease_trait": "Metabolic syndrome",
-      "mapped_traits": [
-        "metabolic syndrome"
-      ],
-      "efo_traits": [
-        "EFO:0000195"
-      ],
-      "p_value": 1e-09,
-      "pvalue_mlog": 9,
-      "or_beta": "0.00961946",
-      "ci_95": "[0.007-0.0122] unit decrease",
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "39349817",
-      "first_author": "Park S",
-      "date": "2024-09-30",
-      "platform": "NR [2265555] (imputed)",
-      "accessionId": "GCST90444487_44"
-    },
-    {
-      "snp_id": "rs10511073",
-      "study_accession": "GCST90444487",
-      "strongest_snp_risk_allele": "rs10511073-?",
-      "chr_id": "3",
-      "chr_pos": 85604310,
-      "region": "3p12.1",
-      "context": "intron_variant",
-      "mapped_gene": "CADM2",
-      "snp_gene_ids": [
-        "ENSG00000175161"
-      ],
-      "disease_trait": "Metabolic syndrome",
-      "mapped_traits": [
-        "metabolic syndrome"
-      ],
-      "efo_traits": [
-        "EFO:0000195"
-      ],
-      "p_value": 4e-08,
-      "pvalue_mlog": 7.3979400086720375,
-      "or_beta": "0.00937714",
-      "ci_95": "[0.0066-0.0121] unit increase",
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "39349817",
-      "first_author": "Park S",
-      "date": "2024-09-30",
-      "platform": "NR [2265555] (imputed)",
-      "accessionId": "GCST90444487_45"
-    },
-    {
-      "snp_id": "rs7629375",
-      "study_accession": "GCST90444487",
-      "strongest_snp_risk_allele": "rs7629375-?",
-      "chr_id": "3",
-      "chr_pos": 85846344,
-      "region": "3p12.1",
-      "context": "intron_variant",
-      "mapped_gene": "CADM2",
-      "snp_gene_ids": [
-        "ENSG00000175161"
-      ],
-      "disease_trait": "Metabolic syndrome",
-      "mapped_traits": [
-        "metabolic syndrome"
-      ],
-      "efo_traits": [
-        "EFO:0000195"
-      ],
-      "p_value": 1e-21,
-      "pvalue_mlog": 21,
-      "or_beta": "0.0192093",
-      "ci_95": "[0.016-0.022] unit increase",
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "39349817",
-      "first_author": "Park S",
-      "date": "2024-09-30",
-      "platform": "NR [2265555] (imputed)",
-      "accessionId": "GCST90444487_46"
-    },
-    {
-      "snp_id": "rs2324999",
-      "study_accession": "GCST90444487",
-      "strongest_snp_risk_allele": "rs2324999-?",
-      "chr_id": "3",
-      "chr_pos": 86109735,
-      "region": "3p12.1",
-      "context": "intergenic_variant",
-      "intergenic": true,
-      "mapped_gene": "CADM2 - RNU6-1129P",
-      "upstream_gene_id": "ENSG00000175161",
-      "downstream_gene_id": "ENSG00000251773",
-      "disease_trait": "Metabolic syndrome",
-      "mapped_traits": [
-        "metabolic syndrome"
-      ],
-      "efo_traits": [
-        "EFO:0000195"
-      ],
-      "p_value": 5e-08,
-      "pvalue_mlog": 7.301029995663981,
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "39349817",
-      "first_author": "Park S",
-      "date": "2024-09-30",
-      "platform": "NR [2265555] (imputed)",
-      "accessionId": "GCST90444487_47"
-    },
-    {
-      "snp_id": "rs12487215",
-      "study_accession": "GCST90444487",
-      "strongest_snp_risk_allele": "rs12487215-?",
-      "chr_id": "3",
-      "chr_pos": 86205091,
-      "region": "3p12.1",
-      "context": "intergenic_variant",
-      "intergenic": true,
-      "mapped_gene": "CADM2 - RNU6-1129P",
-      "upstream_gene_id": "ENSG00000175161",
-      "downstream_gene_id": "ENSG00000251773",
-      "disease_trait": "Metabolic syndrome",
-      "mapped_traits": [
-        "metabolic syndrome"
-      ],
-      "efo_traits": [
-        "EFO:0000195"
-      ],
-      "p_value": 9e-10,
-      "pvalue_mlog": 9.045757490560675,
-      "or_beta": "0.0117312",
-      "ci_95": "[0.0091-0.0144] unit increase",
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "39349817",
-      "first_author": "Park S",
-      "date": "2024-09-30",
-      "platform": "NR [2265555] (imputed)",
-      "accessionId": "GCST90444487_48"
-    },
-    {
-      "snp_id": "rs1006896",
-      "study_accession": "GCST90444487",
-      "strongest_snp_risk_allele": "rs1006896-?",
-      "chr_id": "3",
-      "chr_pos": 88055261,
-      "region": "3p11.1",
-      "context": "3_prime_UTR_variant",
-      "mapped_gene": "CGGBP1",
-      "snp_gene_ids": [
-        "ENSG00000163320"
-      ],
-      "disease_trait": "Metabolic syndrome",
-      "mapped_traits": [
-        "metabolic syndrome"
-      ],
-      "efo_traits": [
-        "EFO:0000195"
-      ],
-      "p_value": 5e-17,
-      "pvalue_mlog": 16.30102999566398,
-      "or_beta": "0.0182604",
-      "ci_95": "[0.014-0.022] unit increase",
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "39349817",
-      "first_author": "Park S",
-      "date": "2024-09-30",
-      "platform": "NR [2265555] (imputed)",
-      "accessionId": "GCST90444487_49"
-    },
-    {
-      "snp_id": "rs2088207",
-      "study_accession": "GCST90444487",
-      "strongest_snp_risk_allele": "rs2088207-?",
-      "chr_id": "3",
-      "chr_pos": 88690742,
-      "region": "3p11.1",
-      "context": "intergenic_variant",
-      "intergenic": true,
-      "mapped_gene": "NDUFA5P5 - ICE2P2",
-      "upstream_gene_id": "ENSG00000242365",
-      "downstream_gene_id": "ENSG00000242705",
-      "disease_trait": "Metabolic syndrome",
-      "mapped_traits": [
-        "metabolic syndrome"
-      ],
-      "efo_traits": [
-        "EFO:0000195"
-      ],
-      "p_value": 1e-11,
-      "pvalue_mlog": 11,
-      "or_beta": "0.0106098",
-      "ci_95": "[0.0081-0.0131] unit increase",
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "39349817",
-      "first_author": "Park S",
-      "date": "2024-09-30",
-      "platform": "NR [2265555] (imputed)",
-      "accessionId": "GCST90444487_50"
-    },
-    {
-      "snp_id": "rs140147",
-      "study_accession": "GCST006287",
-      "strongest_snp_risk_allele": "rs140147-?",
-      "chr_id": "22",
-      "chr_pos": 29788610,
-      "region": "22q12.2",
-      "context": "3_prime_UTR_variant",
-      "reported_genes": [
-        "NR"
-      ],
-      "mapped_gene": "ASCC2",
-      "snp_gene_ids": [
-        "ENSG00000100325"
-      ],
-      "disease_trait": "Adolescent idiopathic scoliosis",
-      "mapped_traits": [
-        "adolescent idiopathic scoliosis"
-      ],
-      "efo_traits": [
-        "EFO:0005423"
-      ],
-      "p_value": 9e-08,
-      "pvalue_mlog": 7.045757490560675,
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "30019117",
-      "first_author": "Liu J",
-      "date": "2018-07-17",
-      "platform": "Affymetrix [NR]",
-      "accessionId": "GCST006287_1"
-    },
-    {
-      "snp_id": "rs3091344",
-      "study_accession": "GCST006287",
-      "strongest_snp_risk_allele": "rs3091344-?",
-      "chr_id": "22",
-      "chr_pos": 42632475,
-      "region": "22q13.2",
-      "context": "intron_variant",
-      "reported_genes": [
-        "NR"
-      ],
-      "mapped_gene": "CYB5R3",
-      "snp_gene_ids": [
-        "ENSG00000100243"
-      ],
-      "disease_trait": "Adolescent idiopathic scoliosis",
-      "mapped_traits": [
-        "adolescent idiopathic scoliosis"
-      ],
-      "efo_traits": [
-        "EFO:0005423"
-      ],
-      "p_value": 4e-07,
-      "pvalue_mlog": 6.3979400086720375,
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "30019117",
-      "first_author": "Liu J",
-      "date": "2018-07-17",
-      "platform": "Affymetrix [NR]",
-      "accessionId": "GCST006287_2"
-    },
-    {
-      "snp_id": "rs9621705",
-      "study_accession": "GCST006287",
-      "strongest_snp_risk_allele": "rs9621705-?",
-      "chr_id": "22",
-      "chr_pos": 33471478,
-      "region": "22q12.3",
-      "context": "intron_variant",
-      "reported_genes": [
-        "NR"
-      ],
-      "mapped_gene": "LARGE1",
-      "snp_gene_ids": [
-        "ENSG00000133424"
-      ],
-      "disease_trait": "Adolescent idiopathic scoliosis",
-      "mapped_traits": [
-        "adolescent idiopathic scoliosis"
-      ],
-      "efo_traits": [
-        "EFO:0005423"
-      ],
-      "p_value": 6e-07,
-      "pvalue_mlog": 6.221848749616356,
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "30019117",
-      "first_author": "Liu J",
-      "date": "2018-07-17",
-      "platform": "Affymetrix [NR]",
-      "accessionId": "GCST006287_3"
-    },
-    {
-      "snp_id": "rs455049",
-      "study_accession": "GCST006287",
-      "strongest_snp_risk_allele": "rs455049-?",
-      "chr_id": "22",
-      "chr_pos": 20044441,
-      "region": "22q11.21",
-      "context": "intron_variant",
-      "reported_genes": [
-        "NR"
-      ],
-      "mapped_gene": "TANGO2",
-      "snp_gene_ids": [
-        "ENSG00000183597"
-      ],
-      "disease_trait": "Adolescent idiopathic scoliosis",
-      "mapped_traits": [
-        "adolescent idiopathic scoliosis"
-      ],
-      "efo_traits": [
-        "EFO:0005423"
-      ],
-      "p_value": 8e-07,
-      "pvalue_mlog": 6.096910013008056,
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "30019117",
-      "first_author": "Liu J",
-      "date": "2018-07-17",
-      "platform": "Affymetrix [NR]",
-      "accessionId": "GCST006287_4"
-    },
-    {
-      "snp_id": "rs4603874",
-      "study_accession": "GCST006287",
-      "strongest_snp_risk_allele": "rs4603874-?",
-      "chr_id": "22",
-      "chr_pos": 38904043,
-      "region": "22q13.1",
-      "context": "intron_variant",
-      "intergenic": true,
-      "reported_genes": [
-        "NR"
-      ],
-      "mapped_gene": "CBX6 - APOBEC3A",
-      "upstream_gene_id": "ENSG00000183741",
-      "downstream_gene_id": "ENSG00000128383",
-      "disease_trait": "Adolescent idiopathic scoliosis",
-      "mapped_traits": [
-        "adolescent idiopathic scoliosis"
-      ],
-      "efo_traits": [
-        "EFO:0005423"
-      ],
-      "p_value": 1e-06,
-      "pvalue_mlog": 6,
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "30019117",
-      "first_author": "Liu J",
-      "date": "2018-07-17",
-      "platform": "Affymetrix [NR]",
-      "accessionId": "GCST006287_5"
-    },
-    {
-      "snp_id": "rs9332377",
-      "study_accession": "GCST006287",
-      "strongest_snp_risk_allele": "rs9332377-?",
-      "chr_id": "22",
-      "chr_pos": 19968169,
-      "region": "22q11.21",
-      "context": "3_prime_UTR_variant",
-      "reported_genes": [
-        "NR"
-      ],
-      "mapped_gene": "COMT",
-      "snp_gene_ids": [
-        "ENSG00000093010"
-      ],
-      "disease_trait": "Adolescent idiopathic scoliosis",
-      "mapped_traits": [
-        "adolescent idiopathic scoliosis"
-      ],
-      "efo_traits": [
-        "EFO:0005423"
-      ],
-      "p_value": 2e-06,
-      "pvalue_mlog": 5.698970004336019,
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "30019117",
-      "first_author": "Liu J",
-      "date": "2018-07-17",
-      "platform": "Affymetrix [NR]",
-      "accessionId": "GCST006287_6"
-    },
-    {
-      "snp_id": "rs4823758",
-      "study_accession": "GCST006287",
-      "strongest_snp_risk_allele": "rs4823758-?",
-      "chr_id": "22",
-      "chr_pos": 48371012,
-      "region": "22q13.32",
-      "context": "intergenic_variant",
-      "intergenic": true,
-      "reported_genes": [
-        "NR"
-      ],
-      "mapped_gene": "MIR3201 - TAFA5",
-      "upstream_gene_id": "ENSG00000266508",
-      "downstream_gene_id": "ENSG00000219438",
-      "disease_trait": "Adolescent idiopathic scoliosis",
-      "mapped_traits": [
-        "adolescent idiopathic scoliosis"
-      ],
-      "efo_traits": [
-        "EFO:0005423"
-      ],
-      "p_value": 3e-06,
-      "pvalue_mlog": 5.522878745280337,
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "30019117",
-      "first_author": "Liu J",
-      "date": "2018-07-17",
-      "platform": "Affymetrix [NR]",
-      "accessionId": "GCST006287_7"
-    },
-    {
-      "snp_id": "rs181359",
-      "study_accession": "GCST006287",
-      "strongest_snp_risk_allele": "rs181359-?",
-      "chr_id": "22",
-      "chr_pos": 21574352,
-      "region": "22q11.21",
-      "context": "intron_variant",
-      "reported_genes": [
-        "NR"
-      ],
-      "mapped_gene": "UBE2L3",
-      "snp_gene_ids": [
-        "ENSG00000185651"
-      ],
-      "disease_trait": "Adolescent idiopathic scoliosis",
-      "mapped_traits": [
-        "adolescent idiopathic scoliosis"
-      ],
-      "efo_traits": [
-        "EFO:0005423"
-      ],
-      "p_value": 7e-06,
-      "pvalue_mlog": 5.154901959985743,
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "30019117",
-      "first_author": "Liu J",
-      "date": "2018-07-17",
-      "platform": "Affymetrix [NR]",
-      "accessionId": "GCST006287_8"
-    },
-    {
-      "snp_id": "rs242885",
-      "study_accession": "GCST006287",
-      "strongest_snp_risk_allele": "rs242885-?",
-      "chr_id": "22",
-      "chr_pos": 34027180,
-      "region": "22q12.3",
-      "context": "intron_variant",
-      "reported_genes": [
-        "NR"
-      ],
-      "mapped_gene": "LINC01643",
-      "snp_gene_ids": [
-        "ENSG00000236052"
-      ],
-      "disease_trait": "Adolescent idiopathic scoliosis",
-      "mapped_traits": [
-        "adolescent idiopathic scoliosis"
-      ],
-      "efo_traits": [
-        "EFO:0005423"
-      ],
-      "p_value": 9e-06,
-      "pvalue_mlog": 5.045757490560675,
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "30019117",
-      "first_author": "Liu J",
-      "date": "2018-07-17",
-      "platform": "Affymetrix [NR]",
-      "accessionId": "GCST006287_9"
-    },
-    {
-      "snp_id": "rs2367177",
-      "study_accession": "GCST006287",
-      "strongest_snp_risk_allele": "rs2367177-?",
-      "chr_id": "X",
-      "chr_pos": 75397653,
-      "region": "Xq13.3",
-      "context": "intron_variant",
-      "reported_genes": [
-        "NR"
-      ],
-      "mapped_gene": "ZDHHC15",
-      "snp_gene_ids": [
-        "ENSG00000102383"
-      ],
-      "disease_trait": "Adolescent idiopathic scoliosis",
-      "mapped_traits": [
-        "adolescent idiopathic scoliosis"
-      ],
-      "efo_traits": [
-        "EFO:0005423"
-      ],
-      "p_value": 7e-27,
-      "pvalue_mlog": 26.154901959985743,
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "30019117",
-      "first_author": "Liu J",
-      "date": "2018-07-17",
-      "platform": "Affymetrix [NR]",
-      "accessionId": "GCST006287_10"
-    },
-    {
-      "snp_id": "rs5922761",
-      "study_accession": "GCST006287",
-      "strongest_snp_risk_allele": "rs5922761-?",
-      "chr_id": "X",
-      "chr_pos": 83022702,
-      "region": "Xq21.1",
-      "context": "intergenic_variant",
-      "intergenic": true,
-      "reported_genes": [
-        "NR"
-      ],
-      "mapped_gene": "ATG4AP1 - POU3F4",
-      "upstream_gene_id": "ENSG00000232735",
-      "downstream_gene_id": "ENSG00000196767",
-      "disease_trait": "Adolescent idiopathic scoliosis",
-      "mapped_traits": [
-        "adolescent idiopathic scoliosis"
-      ],
-      "efo_traits": [
-        "EFO:0005423"
-      ],
-      "p_value": 2e-26,
-      "pvalue_mlog": 25.69897000433602,
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "30019117",
-      "first_author": "Liu J",
-      "date": "2018-07-17",
-      "platform": "Affymetrix [NR]",
-      "accessionId": "GCST006287_11"
-    },
-    {
-      "snp_id": "rs16997125",
-      "study_accession": "GCST006287",
-      "strongest_snp_risk_allele": "rs16997125-?",
-      "chr_id": "X",
-      "chr_pos": 5222618,
-      "region": "Xp22.32",
-      "context": "intergenic_variant",
-      "intergenic": true,
-      "reported_genes": [
-        "NR"
-      ],
-      "mapped_gene": "MTCYBP12 - HADHBP1",
-      "upstream_gene_id": "ENSG00000226313",
-      "downstream_gene_id": "ENSG00000238193",
-      "disease_trait": "Adolescent idiopathic scoliosis",
-      "mapped_traits": [
-        "adolescent idiopathic scoliosis"
-      ],
-      "efo_traits": [
-        "EFO:0005423"
-      ],
-      "p_value": 7e-22,
-      "pvalue_mlog": 21.154901959985743,
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "30019117",
-      "first_author": "Liu J",
-      "date": "2018-07-17",
-      "platform": "Affymetrix [NR]",
-      "accessionId": "GCST006287_12"
-    },
-    {
-      "snp_id": "rs4825980",
-      "study_accession": "GCST006287",
-      "strongest_snp_risk_allele": "rs4825980-?",
-      "chr_id": "X",
-      "chr_pos": 79502761,
-      "region": "Xq21.1",
-      "context": "intergenic_variant",
-      "intergenic": true,
-      "reported_genes": [
-        "NR"
-      ],
-      "mapped_gene": "CORO1CP1 - TBX22",
-      "upstream_gene_id": "ENSG00000270268",
-      "downstream_gene_id": "ENSG00000122145",
-      "disease_trait": "Adolescent idiopathic scoliosis",
-      "mapped_traits": [
-        "adolescent idiopathic scoliosis"
-      ],
-      "efo_traits": [
-        "EFO:0005423"
-      ],
-      "p_value": 3e-20,
-      "pvalue_mlog": 19.522878745280337,
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "30019117",
-      "first_author": "Liu J",
-      "date": "2018-07-17",
-      "platform": "Affymetrix [NR]",
-      "accessionId": "GCST006287_13"
-    },
-    {
-      "snp_id": "rs5942618",
-      "study_accession": "GCST006287",
-      "strongest_snp_risk_allele": "rs5942618-?",
-      "chr_id": "X",
-      "chr_pos": 110016450,
-      "region": "Xq23",
-      "context": "intron_variant",
-      "reported_genes": [
-        "NR"
-      ],
-      "mapped_gene": "TMEM164",
-      "snp_gene_ids": [
-        "ENSG00000157600"
-      ],
-      "disease_trait": "Adolescent idiopathic scoliosis",
-      "mapped_traits": [
-        "adolescent idiopathic scoliosis"
-      ],
-      "efo_traits": [
-        "EFO:0005423"
-      ],
-      "p_value": 3e-18,
-      "pvalue_mlog": 17.522878745280337,
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "30019117",
-      "first_author": "Liu J",
-      "date": "2018-07-17",
-      "platform": "Affymetrix [NR]",
-      "accessionId": "GCST006287_14"
-    },
-    {
-      "snp_id": "rs1046774",
-      "study_accession": "GCST006287",
-      "strongest_snp_risk_allele": "rs1046774-?",
-      "chr_id": "X",
-      "chr_pos": 101882824,
-      "region": "Xq22.1",
-      "context": "3_prime_UTR_variant",
-      "reported_genes": [
-        "NR"
-      ],
-      "mapped_gene": "ZMAT1",
-      "snp_gene_ids": [
-        "ENSG00000166432"
-      ],
-      "disease_trait": "Adolescent idiopathic scoliosis",
-      "mapped_traits": [
-        "adolescent idiopathic scoliosis"
-      ],
-      "efo_traits": [
-        "EFO:0005423"
-      ],
-      "p_value": 6e-18,
-      "pvalue_mlog": 17.221848749616356,
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "30019117",
-      "first_author": "Liu J",
-      "date": "2018-07-17",
-      "platform": "Affymetrix [NR]",
-      "accessionId": "GCST006287_15"
-    },
-    {
-      "snp_id": "rs1900761",
-      "study_accession": "GCST006287",
-      "strongest_snp_risk_allele": "rs1900761-?",
-      "chr_id": "X",
-      "chr_pos": 5085732,
-      "region": "Xp22.32",
-      "context": "intergenic_variant",
-      "intergenic": true,
-      "reported_genes": [
-        "NR"
-      ],
-      "mapped_gene": "RPL24P9 - MTND6P12",
-      "upstream_gene_id": "ENSG00000225722",
-      "downstream_gene_id": "ENSG00000235039",
-      "disease_trait": "Adolescent idiopathic scoliosis",
-      "mapped_traits": [
-        "adolescent idiopathic scoliosis"
-      ],
-      "efo_traits": [
-        "EFO:0005423"
-      ],
-      "p_value": 3e-17,
-      "pvalue_mlog": 16.522878745280337,
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "30019117",
-      "first_author": "Liu J",
-      "date": "2018-07-17",
-      "platform": "Affymetrix [NR]",
-      "accessionId": "GCST006287_16"
-    },
-    {
-      "snp_id": "rs6641173",
-      "study_accession": "GCST006287",
-      "strongest_snp_risk_allele": "rs6641173-?",
-      "chr_id": "X",
-      "chr_pos": 149261133,
-      "region": "Xq28",
-      "context": "intergenic_variant",
-      "intergenic": true,
-      "reported_genes": [
-        "NR"
-      ],
-      "mapped_gene": "AFF2 - IDS",
-      "upstream_gene_id": "ENSG00000155966",
-      "downstream_gene_id": "ENSG00000010404",
-      "disease_trait": "Adolescent idiopathic scoliosis",
-      "mapped_traits": [
-        "adolescent idiopathic scoliosis"
-      ],
-      "efo_traits": [
-        "EFO:0005423"
-      ],
-      "p_value": 3e-16,
-      "pvalue_mlog": 15.522878745280337,
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "30019117",
-      "first_author": "Liu J",
-      "date": "2018-07-17",
-      "platform": "Affymetrix [NR]",
-      "accessionId": "GCST006287_17"
-    },
-    {
-      "snp_id": "rs2380274",
-      "study_accession": "GCST006287",
-      "strongest_snp_risk_allele": "rs2380274-?",
-      "chr_id": "X",
-      "chr_pos": 122097399,
-      "region": "Xq25",
-      "context": "intergenic_variant",
-      "intergenic": true,
-      "reported_genes": [
-        "NR"
-      ],
-      "mapped_gene": "UBE2V1P16 - RPL3P12",
-      "upstream_gene_id": "ENSG00000237891",
-      "downstream_gene_id": "ENSG00000232496",
-      "disease_trait": "Adolescent idiopathic scoliosis",
-      "mapped_traits": [
-        "adolescent idiopathic scoliosis"
-      ],
-      "efo_traits": [
-        "EFO:0005423"
-      ],
-      "p_value": 5e-14,
-      "pvalue_mlog": 13.301029995663981,
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "30019117",
-      "first_author": "Liu J",
-      "date": "2018-07-17",
-      "platform": "Affymetrix [NR]",
-      "accessionId": "GCST006287_18"
-    },
-    {
-      "snp_id": "rs13343081",
-      "study_accession": "GCST006287",
-      "strongest_snp_risk_allele": "rs13343081-?",
-      "chr_id": "X",
-      "chr_pos": 70187606,
-      "region": "Xq13.1",
-      "context": "intron_variant",
-      "reported_genes": [
-        "NR"
-      ],
-      "mapped_gene": "DGAT2L6",
-      "snp_gene_ids": [
-        "ENSG00000184210"
-      ],
-      "disease_trait": "Adolescent idiopathic scoliosis",
-      "mapped_traits": [
-        "adolescent idiopathic scoliosis"
-      ],
-      "efo_traits": [
-        "EFO:0005423"
-      ],
-      "p_value": 4e-12,
-      "pvalue_mlog": 11.397940008672037,
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "30019117",
-      "first_author": "Liu J",
-      "date": "2018-07-17",
-      "platform": "Affymetrix [NR]",
-      "accessionId": "GCST006287_19"
-    },
-    {
-      "snp_id": "rs5974155",
-      "study_accession": "GCST006287",
-      "strongest_snp_risk_allele": "rs5974155-?",
-      "chr_id": "X",
-      "chr_pos": 113865412,
-      "region": "Xq23",
-      "context": "intron_variant",
-      "reported_genes": [
-        "NR"
-      ],
-      "mapped_gene": "XACT",
-      "snp_gene_ids": [
-        "ENSG00000241743"
-      ],
-      "disease_trait": "Adolescent idiopathic scoliosis",
-      "mapped_traits": [
-        "adolescent idiopathic scoliosis"
-      ],
-      "efo_traits": [
-        "EFO:0005423"
-      ],
-      "p_value": 6e-12,
-      "pvalue_mlog": 11.221848749616356,
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "30019117",
-      "first_author": "Liu J",
-      "date": "2018-07-17",
-      "platform": "Affymetrix [NR]",
-      "accessionId": "GCST006287_20"
-    },
-    {
-      "snp_id": "rs12833832",
-      "study_accession": "GCST006287",
-      "strongest_snp_risk_allele": "rs12833832-?",
-      "chr_id": "X",
-      "chr_pos": 12167922,
-      "region": "Xp22.2",
-      "context": "intron_variant",
-      "reported_genes": [
-        "NR"
-      ],
-      "mapped_gene": "FRMPD4",
-      "snp_gene_ids": [
-        "ENSG00000169933"
-      ],
-      "disease_trait": "Adolescent idiopathic scoliosis",
-      "mapped_traits": [
-        "adolescent idiopathic scoliosis"
-      ],
-      "efo_traits": [
-        "EFO:0005423"
-      ],
-      "p_value": 7e-12,
-      "pvalue_mlog": 11.154901959985743,
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "30019117",
-      "first_author": "Liu J",
-      "date": "2018-07-17",
-      "platform": "Affymetrix [NR]",
-      "accessionId": "GCST006287_21"
-    },
-    {
-      "snp_id": "rs1030062",
-      "study_accession": "GCST006287",
-      "strongest_snp_risk_allele": "rs1030062-?",
-      "chr_id": "X",
-      "chr_pos": 147707185,
-      "region": "Xq27.3",
-      "context": "intergenic_variant",
-      "intergenic": true,
-      "reported_genes": [
-        "NR"
-      ],
-      "mapped_gene": "MIR514A3 - SLIRPP1",
-      "upstream_gene_id": "ENSG00000207867",
-      "downstream_gene_id": "ENSG00000227505",
-      "disease_trait": "Adolescent idiopathic scoliosis",
-      "mapped_traits": [
-        "adolescent idiopathic scoliosis"
-      ],
-      "efo_traits": [
-        "EFO:0005423"
-      ],
-      "p_value": 1e-11,
-      "pvalue_mlog": 11,
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "30019117",
-      "first_author": "Liu J",
-      "date": "2018-07-17",
-      "platform": "Affymetrix [NR]",
-      "accessionId": "GCST006287_22"
-    },
-    {
-      "snp_id": "rs11096128",
-      "study_accession": "GCST006287",
-      "strongest_snp_risk_allele": "rs11096128-?",
-      "chr_id": "X",
-      "chr_pos": 144414767,
-      "region": "Xq27.3",
-      "context": "intergenic_variant",
-      "intergenic": true,
-      "reported_genes": [
-        "NR"
-      ],
-      "mapped_gene": "RRM2P4 - HNRNPCP10",
-      "upstream_gene_id": "ENSG00000235598",
-      "downstream_gene_id": "ENSG00000215054",
-      "disease_trait": "Adolescent idiopathic scoliosis",
-      "mapped_traits": [
-        "adolescent idiopathic scoliosis"
-      ],
-      "efo_traits": [
-        "EFO:0005423"
-      ],
-      "p_value": 5e-10,
-      "pvalue_mlog": 9.301029995663981,
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "30019117",
-      "first_author": "Liu J",
-      "date": "2018-07-17",
-      "platform": "Affymetrix [NR]",
-      "accessionId": "GCST006287_23"
-    },
-    {
-      "snp_id": "rs4830580",
-      "study_accession": "GCST006287",
-      "strongest_snp_risk_allele": "rs4830580-?",
-      "chr_id": "X",
-      "chr_pos": 7067653,
-      "region": "Xp22.31",
-      "context": "intron_variant",
-      "reported_genes": [
-        "NR"
-      ],
-      "mapped_gene": "PUDP",
-      "snp_gene_ids": [
-        "ENSG00000130021"
-      ],
-      "disease_trait": "Adolescent idiopathic scoliosis",
-      "mapped_traits": [
-        "adolescent idiopathic scoliosis"
-      ],
-      "efo_traits": [
-        "EFO:0005423"
-      ],
-      "p_value": 2e-08,
-      "pvalue_mlog": 7.698970004336019,
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "30019117",
-      "first_author": "Liu J",
-      "date": "2018-07-17",
-      "platform": "Affymetrix [NR]",
-      "accessionId": "GCST006287_24"
-    },
-    {
-      "snp_id": "rs2369513",
-      "study_accession": "GCST006287",
-      "strongest_snp_risk_allele": "rs2369513-?",
-      "chr_id": "X",
-      "chr_pos": 87052718,
-      "region": "Xq21.31",
-      "context": "intergenic_variant",
-      "intergenic": true,
-      "reported_genes": [
-        "NR"
-      ],
-      "mapped_gene": "DACH2 - KLHL4",
-      "upstream_gene_id": "ENSG00000126733",
-      "downstream_gene_id": "ENSG00000102271",
-      "disease_trait": "Adolescent idiopathic scoliosis",
-      "mapped_traits": [
-        "adolescent idiopathic scoliosis"
-      ],
-      "efo_traits": [
-        "EFO:0005423"
-      ],
-      "p_value": 2e-07,
-      "pvalue_mlog": 6.698970004336019,
-      "risk_allele_frequency": "NR",
-      "pubmed_id": "30019117",
-      "first_author": "Liu J",
-      "date": "2018-07-17",
-      "platform": "Affymetrix [NR]",
-      "accessionId": "GCST006287_25"
-    }
-  ]
-}
+[
+  {
+    "accessionId": "GCST004963_1",
+    "snp_id": "rs0"
+  },
+  {
+    "accessionId": "GCST004966_1",
+    "snp_id": "rs1"
+  },
+  {
+    "accessionId": "GCST004966_2",
+    "snp_id": "rs2"
+  },
+  {
+    "accessionId": "GCST004963_2",
+    "snp_id": "rs3"
+  },
+  {
+    "accessionId": "GCST004959_1",
+    "snp_id": "rs4"
+  },
+  {
+    "accessionId": "GCST004967_1",
+    "snp_id": "rs5"
+  },
+  {
+    "accessionId": "GCST004962_1",
+    "snp_id": "rs6"
+  },
+  {
+    "accessionId": "GCST004967_2",
+    "snp_id": "rs7"
+  },
+  {
+    "accessionId": "GCST004967_3",
+    "snp_id": "rs8"
+  },
+  {
+    "accessionId": "GCST004967_4",
+    "snp_id": "rs9"
+  },
+  {
+    "accessionId": "GCST004967_5",
+    "snp_id": "rs10"
+  },
+  {
+    "accessionId": "GCST004964_1",
+    "snp_id": "rs11"
+  },
+  {
+    "accessionId": "GCST004964_2",
+    "snp_id": "rs12"
+  },
+  {
+    "accessionId": "GCST004958_1",
+    "snp_id": "rs13"
+  },
+  {
+    "accessionId": "GCST004958_2",
+    "snp_id": "rs14"
+  },
+  {
+    "accessionId": "GCST004958_3",
+    "snp_id": "rs15"
+  },
+  {
+    "accessionId": "GCST004958_4",
+    "snp_id": "rs16"
+  },
+  {
+    "accessionId": "GCST004958_5",
+    "snp_id": "rs17"
+  },
+  {
+    "accessionId": "GCST004957_1",
+    "snp_id": "rs18"
+  },
+  {
+    "accessionId": "GCST004957_2",
+    "snp_id": "rs19"
+  },
+  {
+    "accessionId": "GCST004963_3",
+    "snp_id": "rs20"
+  },
+  {
+    "accessionId": "GCST004963_4",
+    "snp_id": "rs21"
+  },
+  {
+    "accessionId": "GCST004963_5",
+    "snp_id": "rs22"
+  },
+  {
+    "accessionId": "GCST004963_6",
+    "snp_id": "rs23"
+  },
+  {
+    "accessionId": "GCST004963_7",
+    "snp_id": "rs24"
+  },
+  {
+    "accessionId": "GCST004963_8",
+    "snp_id": "rs25"
+  },
+  {
+    "accessionId": "GCST004963_9",
+    "snp_id": "rs26"
+  },
+  {
+    "accessionId": "GCST004963_10",
+    "snp_id": "rs27"
+  },
+  {
+    "accessionId": "GCST004966_3",
+    "snp_id": "rs28"
+  },
+  {
+    "accessionId": "GCST004963_11",
+    "snp_id": "rs29"
+  },
+  {
+    "accessionId": "GCST004963_12",
+    "snp_id": "rs30"
+  },
+  {
+    "accessionId": "GCST004963_13",
+    "snp_id": "rs31"
+  },
+  {
+    "accessionId": "GCST004963_14",
+    "snp_id": "rs32"
+  },
+  {
+    "accessionId": "GCST004963_15",
+    "snp_id": "rs33"
+  },
+  {
+    "accessionId": "GCST004963_16",
+    "snp_id": "rs34"
+  },
+  {
+    "accessionId": "GCST004961_1",
+    "snp_id": "rs35"
+  },
+  {
+    "accessionId": "GCST004961_2",
+    "snp_id": "rs36"
+  },
+  {
+    "accessionId": "GCST004962_2",
+    "snp_id": "rs37"
+  },
+  {
+    "accessionId": "GCST004962_3",
+    "snp_id": "rs38"
+  },
+  {
+    "accessionId": "GCST004967_6",
+    "snp_id": "rs39"
+  },
+  {
+    "accessionId": "GCST004967_7",
+    "snp_id": "rs40"
+  },
+  {
+    "accessionId": "GCST007141_1",
+    "snp_id": "rs41"
+  },
+  {
+    "accessionId": "GCST007141_2",
+    "snp_id": "rs42"
+  },
+  {
+    "accessionId": "GCST007141_3",
+    "snp_id": "rs43"
+  },
+  {
+    "accessionId": "GCST007141_4",
+    "snp_id": "rs44"
+  },
+  {
+    "accessionId": "GCST007141_5",
+    "snp_id": "rs45"
+  },
+  {
+    "accessionId": "GCST007141_6",
+    "snp_id": "rs46"
+  },
+  {
+    "accessionId": "GCST007141_7",
+    "snp_id": "rs47"
+  },
+  {
+    "accessionId": "GCST007141_8",
+    "snp_id": "rs48"
+  },
+  {
+    "accessionId": "GCST007141_9",
+    "snp_id": "rs49"
+  },
+  {
+    "accessionId": "GCST007141_10",
+    "snp_id": "rs50"
+  },
+  {
+    "accessionId": "GCST007141_11",
+    "snp_id": "rs51"
+  },
+  {
+    "accessionId": "GCST007141_12",
+    "snp_id": "rs52"
+  },
+  {
+    "accessionId": "GCST007141_13",
+    "snp_id": "rs53"
+  },
+  {
+    "accessionId": "GCST007141_14",
+    "snp_id": "rs54"
+  },
+  {
+    "accessionId": "GCST007141_15",
+    "snp_id": "rs55"
+  },
+  {
+    "accessionId": "GCST007141_16",
+    "snp_id": "rs56"
+  },
+  {
+    "accessionId": "GCST007141_17",
+    "snp_id": "rs57"
+  },
+  {
+    "accessionId": "GCST007141_18",
+    "snp_id": "rs58"
+  },
+  {
+    "accessionId": "GCST007141_19",
+    "snp_id": "rs59"
+  },
+  {
+    "accessionId": "GCST007141_20",
+    "snp_id": "rs60"
+  },
+  {
+    "accessionId": "GCST007141_21",
+    "snp_id": "rs61"
+  },
+  {
+    "accessionId": "GCST007141_22",
+    "snp_id": "rs62"
+  },
+  {
+    "accessionId": "GCST007141_23",
+    "snp_id": "rs63"
+  },
+  {
+    "accessionId": "GCST007141_24",
+    "snp_id": "rs64"
+  },
+  {
+    "accessionId": "GCST007141_25",
+    "snp_id": "rs65"
+  },
+  {
+    "accessionId": "GCST007141_26",
+    "snp_id": "rs66"
+  },
+  {
+    "accessionId": "GCST007141_27",
+    "snp_id": "rs67"
+  },
+  {
+    "accessionId": "GCST007141_28",
+    "snp_id": "rs68"
+  },
+  {
+    "accessionId": "GCST007141_29",
+    "snp_id": "rs69"
+  },
+  {
+    "accessionId": "GCST007141_30",
+    "snp_id": "rs70"
+  },
+  {
+    "accessionId": "GCST007141_31",
+    "snp_id": "rs71"
+  },
+  {
+    "accessionId": "GCST007141_32",
+    "snp_id": "rs72"
+  },
+  {
+    "accessionId": "GCST007141_33",
+    "snp_id": "rs73"
+  },
+  {
+    "accessionId": "GCST007141_34",
+    "snp_id": "rs74"
+  },
+  {
+    "accessionId": "GCST007141_35",
+    "snp_id": "rs75"
+  },
+  {
+    "accessionId": "GCST007141_36",
+    "snp_id": "rs76"
+  },
+  {
+    "accessionId": "GCST007141_37",
+    "snp_id": "rs77"
+  },
+  {
+    "accessionId": "GCST007141_38",
+    "snp_id": "rs78"
+  },
+  {
+    "accessionId": "GCST007141_39",
+    "snp_id": "rs79"
+  },
+  {
+    "accessionId": "GCST007141_40",
+    "snp_id": "rs80"
+  },
+  {
+    "accessionId": "GCST007141_41",
+    "snp_id": "rs81"
+  },
+  {
+    "accessionId": "GCST007141_42",
+    "snp_id": "rs82"
+  },
+  {
+    "accessionId": "GCST007141_43",
+    "snp_id": "rs83"
+  },
+  {
+    "accessionId": "GCST007141_44",
+    "snp_id": "rs84"
+  },
+  {
+    "accessionId": "GCST007141_45",
+    "snp_id": "rs85"
+  },
+  {
+    "accessionId": "GCST007141_46",
+    "snp_id": "rs86"
+  },
+  {
+    "accessionId": "GCST007141_47",
+    "snp_id": "rs87"
+  },
+  {
+    "accessionId": "GCST007141_48",
+    "snp_id": "rs88"
+  },
+  {
+    "accessionId": "GCST007141_49",
+    "snp_id": "rs89"
+  },
+  {
+    "accessionId": "GCST007141_50",
+    "snp_id": "rs90"
+  },
+  {
+    "accessionId": "GCST007141_51",
+    "snp_id": "rs91"
+  },
+  {
+    "accessionId": "GCST007141_52",
+    "snp_id": "rs92"
+  },
+  {
+    "accessionId": "GCST007141_53",
+    "snp_id": "rs93"
+  },
+  {
+    "accessionId": "GCST007141_54",
+    "snp_id": "rs94"
+  },
+  {
+    "accessionId": "GCST007141_55",
+    "snp_id": "rs95"
+  },
+  {
+    "accessionId": "GCST007141_56",
+    "snp_id": "rs96"
+  },
+  {
+    "accessionId": "GCST007141_57",
+    "snp_id": "rs97"
+  },
+  {
+    "accessionId": "GCST007141_58",
+    "snp_id": "rs98"
+  },
+  {
+    "accessionId": "GCST007141_59",
+    "snp_id": "rs99"
+  }
+]

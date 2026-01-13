@@ -349,159 +349,190 @@ func ConcatenateBucketsParallel(pool *HybridWriterPool, indexDir string, chunkId
 	return stats, nil
 }
 
-// concatenateOneDataset merges all bucket files for a single dataset
+// concatenateOneDataset merges bucket files for a single dataset, creating per-source output files
+// This enables incremental updates - when a source dataset is updated, only its contribution files are rebuilt
+// Output format:
+//   - {datasetName}_sorted.{chunkIdx}.index.gz - dataset's own data (from forward/)
+//   - {datasetName}_from_{source}_sorted.{chunkIdx}.index.gz - xrefs from other datasets (from from_*/)
 func concatenateOneDataset(writerKey string, writer *DatasetBucketWriter, indexDir string, chunkIdx string) (uint64, error) {
 	datasetName := writer.config.DatasetName
 	isDerived := writer.config.IsDerived
 
-	// Special handling for textsearch: create per-source files for incremental updates
-	// This allows updating just one dataset's textsearch without rebuilding everything
+	// Special handling for textsearch: uses same per-source approach but with different naming
+	// textsearch_{source}_sorted.{chunkIdx}.index.gz
 	if datasetName == "textsearch" {
 		return concatenateTextsearchPerSource(indexDir, chunkIdx, isDerived)
 	}
 
-	// Get bucket files from the pool (forward/ directory)
-	bucketFiles := []string{}
+	// Get bucket files grouped by source (forward, from_entrez, from_refseq, etc.)
+	filesPerSource, err := GetBucketFilesPerSource(datasetName, indexDir, isDerived)
+	if err != nil {
+		return 0, fmt.Errorf("getting bucket files per source for %s: %w", datasetName, err)
+	}
+
+	// Add pool's forward bucket files to the "forward" source
+	// These are from the writer pool and may not be on disk yet in filesPerSource
+	poolForwardFiles := []string{}
 	for _, bucket := range writer.buckets {
 		if bucket.fileCreated {
-			bucketFiles = append(bucketFiles, bucket.filePath)
+			poolForwardFiles = append(poolForwardFiles, bucket.filePath)
 		}
 	}
 
-	// Also include bucket files from from_*/ directories (cross-references from other datasets)
-	// These are written by other datasets in the same run but belong to this dataset
-	fromFiles, err := GetAllBucketFiles(datasetName, indexDir, isDerived)
-	if err == nil {
-		// Add from_*/ files that aren't already in bucketFiles (avoid duplicates)
-		forwardSet := make(map[string]bool)
-		for _, f := range bucketFiles {
-			forwardSet[f] = true
+	if len(poolForwardFiles) > 0 {
+		// Merge with any existing forward files from disk
+		existingForward := filesPerSource["forward"]
+		existingSet := make(map[string]bool)
+		for _, f := range existingForward {
+			existingSet[f] = true
 		}
-		for _, f := range fromFiles {
-			if !forwardSet[f] {
-				// Sort from_*/ files before including them
-				if err := SortBucketFile(f); err != nil {
-					log.Printf("Warning: error sorting from_*/ bucket file %s: %v", f, err)
-					continue
-				}
-				bucketFiles = append(bucketFiles, f)
+		for _, f := range poolForwardFiles {
+			if !existingSet[f] {
+				existingForward = append(existingForward, f)
 			}
 		}
+		filesPerSource["forward"] = existingForward
 	}
 
-	if len(bucketFiles) == 0 {
+	if len(filesPerSource) == 0 {
 		return 0, nil // No bucket files for this dataset
 	}
 
-	// Sort bucket files by name to ensure consistent order
-	sort.Strings(bucketFiles)
+	totalLines := uint64(0)
+	sourcesProcessed := 0
 
-	// Create compressed output file in index directory
-	// Format depends on whether this is a multi-set or single-set config
-	var outPath string
-	if writer.setIndex >= 0 {
-		// Multi-bucket-set: {datasetName}_sorted_{setIdx+1}.{chunkIdx}.index.gz
-		outPath = filepath.Join(indexDir, fmt.Sprintf("%s_sorted_%d.%s.index.gz",
-			writer.config.DatasetName, writer.setIndex+1, chunkIdx))
-	} else {
-		// Single set: {datasetName}_sorted.{chunkIdx}.index.gz
-		outPath = filepath.Join(indexDir, fmt.Sprintf("%s_sorted.%s.index.gz",
-			writer.config.DatasetName, chunkIdx))
-	}
-
-	outF, err := os.Create(outPath)
-	if err != nil {
-		return 0, fmt.Errorf("creating output file %s: %w", outPath, err)
-	}
-	outGz, _ := gzip.NewWriterLevel(outF, gzip.BestSpeed)
-	buf := bufio.NewWriterSize(outGz, BucketWriteBufferSize)
-
-	linesWritten := uint64(0)
-
-	// Initialize bucket readers for k-way merge
-	readers := make([]*bucketReader, 0, len(bucketFiles))
-	for _, bucketFile := range bucketFiles {
-		f, err := os.Open(bucketFile)
-		if err != nil {
+	// Process each source separately, creating its own output file
+	for sourceName, bucketFiles := range filesPerSource {
+		if len(bucketFiles) == 0 {
 			continue
 		}
-		br := &bucketReader{
-			file:   f,
-			reader: bufio.NewReaderSize(f, BucketReadBufferSize),
-		}
-		br.readNext() // Read first line
-		if !br.eof {
-			readers = append(readers, br)
-		} else {
-			f.Close()
-		}
-	}
 
-	// K-way merge: repeatedly find minimum key and write all lines with that key
-	for len(readers) > 0 {
-		// Find minimum key among all readers
-		minKey := readers[0].curKey
-		for i := 1; i < len(readers); i++ {
-			if readers[i].curKey < minKey {
-				minKey = readers[i].curKey
+		// Sort bucket files before merge
+		for _, f := range bucketFiles {
+			if err := SortBucketFile(f); err != nil {
+				log.Printf("Warning: error sorting bucket file %s: %v", f, err)
 			}
 		}
 
-		// Write all lines with the minimum key (from all readers that have it)
-		// and advance those readers
-		i := 0
-		for i < len(readers) {
-			if readers[i].curKey == minKey {
-				buf.WriteString(readers[i].curLine)
-				linesWritten++
-				readers[i].readNext()
-				if readers[i].eof {
-					// Remove exhausted reader
-					readers[i].file.Close()
-					readers = append(readers[:i], readers[i+1:]...)
-					// Don't increment i since we removed an element
-					continue
+		// Sort file paths for consistent order
+		sort.Strings(bucketFiles)
+
+		// Create output file path based on source
+		// - forward → {datasetName}_sorted.{chunkIdx}.index.gz
+		// - from_{source} → {datasetName}_from_{source}_sorted.{chunkIdx}.index.gz
+		var outPath string
+		if sourceName == "forward" {
+			if writer.setIndex >= 0 {
+				// Multi-bucket-set: {datasetName}_sorted_{setIdx+1}.{chunkIdx}.index.gz
+				outPath = filepath.Join(indexDir, fmt.Sprintf("%s_sorted_%d.%s.index.gz",
+					datasetName, writer.setIndex+1, chunkIdx))
+			} else {
+				// Single set: {datasetName}_sorted.{chunkIdx}.index.gz
+				outPath = filepath.Join(indexDir, fmt.Sprintf("%s_sorted.%s.index.gz",
+					datasetName, chunkIdx))
+			}
+		} else {
+			// from_{source} → {datasetName}_from_{source}_sorted.{chunkIdx}.index.gz
+			if writer.setIndex >= 0 {
+				outPath = filepath.Join(indexDir, fmt.Sprintf("%s_from_%s_sorted_%d.%s.index.gz",
+					datasetName, sourceName, writer.setIndex+1, chunkIdx))
+			} else {
+				outPath = filepath.Join(indexDir, fmt.Sprintf("%s_from_%s_sorted.%s.index.gz",
+					datasetName, sourceName, chunkIdx))
+			}
+		}
+
+		outF, err := os.Create(outPath)
+		if err != nil {
+			return totalLines, fmt.Errorf("creating output file %s: %w", outPath, err)
+		}
+		outGz, _ := gzip.NewWriterLevel(outF, gzip.BestSpeed)
+		buf := bufio.NewWriterSize(outGz, BucketWriteBufferSize)
+
+		linesWritten := uint64(0)
+
+		// Initialize bucket readers for k-way merge
+		readers := make([]*bucketReader, 0, len(bucketFiles))
+		for _, bucketFile := range bucketFiles {
+			f, err := os.Open(bucketFile)
+			if err != nil {
+				continue
+			}
+			br := &bucketReader{
+				file:   f,
+				reader: bufio.NewReaderSize(f, BucketReadBufferSize),
+			}
+			br.readNext()
+			if !br.eof {
+				readers = append(readers, br)
+			} else {
+				f.Close()
+			}
+		}
+
+		// K-way merge
+		for len(readers) > 0 {
+			minKey := readers[0].curKey
+			for i := 1; i < len(readers); i++ {
+				if readers[i].curKey < minKey {
+					minKey = readers[i].curKey
 				}
 			}
-			i++
-		}
-	}
 
-	buf.Flush()
-	outGz.Close()
-	outF.Close()
-
-	// Clean up bucket files after successful merge to prevent accumulation across builds
-	// Each bucket file is only needed once - after merge, data is in the sorted index
-	cleanedCount := 0
-	if !KeepBucketFiles {
-		cleanedDirs := make(map[string]bool)
-		for _, bucketFile := range bucketFiles {
-			if err := os.Remove(bucketFile); err == nil {
-				cleanedCount++
-				cleanedDirs[filepath.Dir(bucketFile)] = true
+			i := 0
+			for i < len(readers) {
+				if readers[i].curKey == minKey {
+					buf.WriteString(readers[i].curLine)
+					linesWritten++
+					readers[i].readNext()
+					if readers[i].eof {
+						readers[i].file.Close()
+						readers = append(readers[:i], readers[i+1:]...)
+						continue
+					}
+				}
+				i++
 			}
 		}
 
-		// Remove empty bucket directories (forward/, from_*/)
-		for dir := range cleanedDirs {
-			entries, err := os.ReadDir(dir)
-			if err == nil && len(entries) == 0 {
-				os.Remove(dir)
+		buf.Flush()
+		outGz.Close()
+		outF.Close()
+
+		// Clean up bucket files
+		cleanedCount := 0
+		if !KeepBucketFiles {
+			cleanedDirs := make(map[string]bool)
+			for _, bucketFile := range bucketFiles {
+				if err := os.Remove(bucketFile); err == nil {
+					cleanedCount++
+					cleanedDirs[filepath.Dir(bucketFile)] = true
+				}
 			}
+
+			// Remove empty bucket directories
+			for dir := range cleanedDirs {
+				entries, err := os.ReadDir(dir)
+				if err == nil && len(entries) == 0 {
+					os.Remove(dir)
+				}
+			}
+		}
+
+		totalLines += linesWritten
+		sourcesProcessed++
+
+		if sourceName == "forward" {
+			log.Printf("K-way merged %d buckets for %s (ID:%s) → %s (%d lines, cleaned %d files)",
+				len(bucketFiles), datasetName, writer.datasetID, outPath, linesWritten, cleanedCount)
+		} else {
+			log.Printf("K-way merged %d buckets for %s from %s → %s (%d lines, cleaned %d files)",
+				len(bucketFiles), datasetName, sourceName, outPath, linesWritten, cleanedCount)
 		}
 	}
 
-	// Log message includes set info for multi-set
-	if writer.setIndex >= 0 {
-		log.Printf("K-way merged %d buckets for %s set%d (ID:%s) → %s (%d lines, cleaned %d files)",
-			len(bucketFiles), writer.config.DatasetName, writer.setIndex+1, writerKey, outPath, linesWritten, cleanedCount)
-	} else {
-		log.Printf("K-way merged %d buckets for %s (ID:%s) → %s (%d lines, cleaned %d files)",
-			len(bucketFiles), writer.config.DatasetName, writer.datasetID, outPath, linesWritten, cleanedCount)
-	}
-
-	return linesWritten, nil
+	log.Printf("Dataset %s: processed %d sources, total %d lines", datasetName, sourcesProcessed, totalLines)
+	return totalLines, nil
 }
 
 // concatenateTextsearchPerSource creates separate sorted files for each source dataset

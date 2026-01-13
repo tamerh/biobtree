@@ -358,6 +358,12 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 	d.datasetState, _ = LoadDatasetState(config.Appconf["indexDir"])
 	d.datasetState.BuildVersion = "1.8.0" // TODO: use actual version
 
+	// Clean up any datasets that were interrupted in a previous build
+	// These have status "processing" and their bucket files may be corrupted/incomplete
+	if err := CleanupInterruptedDatasets(d.datasetState, config.Appconf["indexDir"]); err != nil {
+		log.Printf("Warning: failed to cleanup interrupted datasets: %v", err)
+	}
+
 	// Resume mode: skip data processing, go directly to sort+concat+meta
 	if d.resumeSort {
 		log.Println("Resume mode: skipping data processing, starting from sort phase")

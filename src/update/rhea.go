@@ -368,7 +368,7 @@ func (r *rhea) loadReactions(idLogFile *os.File, testLimit int, directionMap map
 		processedCount++
 
 		// Test mode limit (per master reaction, not per directional variant)
-		if idLogFile != nil && shouldStopProcessing(testLimit, processedCount) {
+		if config.IsTestMode() && shouldStopProcessing(testLimit, processedCount) {
 			break
 		}
 	}

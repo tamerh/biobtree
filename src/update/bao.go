@@ -208,7 +208,7 @@ func (b *bao) update() {
 			total++
 
 			// Check test limit
-			if shouldStopProcessing(testLimit, int(total)) {
+			if config.IsTestMode() && shouldStopProcessing(testLimit, int(total)) {
 				b.d.progChan <- &progressInfo{dataset: b.source, done: true}
 				atomic.AddUint64(&b.d.totalParsedEntry, total)
 				return

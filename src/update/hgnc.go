@@ -251,7 +251,7 @@ func (e *hgnc) update() {
 		entryCount++
 
 		// Test mode: check if limit reached
-		if shouldStopProcessing(testLimit, int(entryCount)) {
+		if config.IsTestMode() && shouldStopProcessing(testLimit, int(entryCount)) {
 			e.d.progChan <- &progressInfo{dataset: "hgnc", done: true}
 			break
 		}

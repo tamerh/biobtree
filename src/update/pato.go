@@ -97,7 +97,7 @@ func (p *pato) update() {
 				}
 
 				// Check test limit
-				if shouldStopProcessing(testLimit, int(total)) {
+				if config.IsTestMode() && shouldStopProcessing(testLimit, int(total)) {
 					goto done
 				}
 			}

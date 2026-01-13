@@ -379,9 +379,11 @@ func logProcessedID(file *os.File, id string) {
 }
 
 // shouldStopProcessing checks if the processing should stop based on test limit
+// Returns true when currentCount >= testLimit, signaling processing should stop.
+// testLimit < 0 means no limit (process all), testLimit = 0 means process nothing.
 func shouldStopProcessing(testLimit int, currentCount int) bool {
-	if testLimit <= 0 {
-		return false // No limit
+	if testLimit < 0 {
+		return false // No limit (negative values like -1 mean unlimited)
 	}
 	return currentCount >= testLimit
 }

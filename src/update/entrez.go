@@ -197,7 +197,7 @@ func (e *entrez) update() {
 		}
 
 		// Check test limit
-		if shouldStopProcessing(testLimit, int(total)) {
+		if config.IsTestMode() && shouldStopProcessing(testLimit, int(total)) {
 			break
 		}
 	}
@@ -345,7 +345,7 @@ func (e *entrez) processGene2GO(fr string, testLimit int) {
 		total++
 
 		// Check test limit
-		if shouldStopProcessing(testLimit, int(total)) {
+		if config.IsTestMode() && shouldStopProcessing(testLimit, int(total)) {
 			break
 		}
 	}
@@ -519,7 +519,7 @@ func (e *entrez) processGeneOrthologs(fr string, testLimit int) {
 		total++
 
 		// Check test limit
-		if shouldStopProcessing(testLimit, int(total)) {
+		if config.IsTestMode() && shouldStopProcessing(testLimit, int(total)) {
 			break
 		}
 	}
@@ -609,7 +609,7 @@ func (e *entrez) processGene2PubMed(fr string, testLimit int) {
 		total++
 
 		// Check test limit
-		if shouldStopProcessing(testLimit, int(total)) {
+		if config.IsTestMode() && shouldStopProcessing(testLimit, int(total)) {
 			break
 		}
 	}
@@ -708,7 +708,7 @@ func (e *entrez) processGeneGroup(fr string, testLimit int) {
 		total++
 
 		// Check test limit
-		if shouldStopProcessing(testLimit, int(total)) {
+		if config.IsTestMode() && shouldStopProcessing(testLimit, int(total)) {
 			break
 		}
 	}
@@ -807,6 +807,17 @@ func (e *entrez) processGeneNeighbors(fr string, testLimit int) {
 		rightDistStr := strings.TrimSpace(fields[11])
 		overlappingGenesStr := strings.TrimSpace(fields[12])
 
+		// Get assembly info (field 13) - only process Primary Assembly
+		assembly := ""
+		if len(fields) >= 14 {
+			assembly = strings.TrimSpace(fields[13])
+		}
+
+		// Skip non-primary assemblies to avoid duplicate entries per gene
+		if !strings.Contains(assembly, "Primary Assembly") {
+			continue
+		}
+
 		if geneID == "" || geneID == "-" {
 			continue
 		}
@@ -887,7 +898,7 @@ func (e *entrez) processGeneNeighbors(fr string, testLimit int) {
 		total++
 
 		// Check test limit
-		if shouldStopProcessing(testLimit, int(total)) {
+		if config.IsTestMode() && shouldStopProcessing(testLimit, int(total)) {
 			break
 		}
 	}

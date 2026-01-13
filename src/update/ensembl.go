@@ -614,11 +614,11 @@ func (e *ensembl) update() {
 						// Test mode: track and log gene ID for this genome
 						if idLogFile != nil {
 							logProcessedID(idLogFile, genome+":"+currGeneID)
-							processedGenesPerGenome[genome]++
-							// Check again after incrementing - if we've hit the limit, break immediately
-							if shouldStopProcessing(testLimit, processedGenesPerGenome[genome]) {
-								break scanLoop
-							}
+						}
+						processedGenesPerGenome[genome]++
+						// Check again after incrementing - if we've hit the limit, break immediately
+						if config.IsTestMode() && shouldStopProcessing(testLimit, processedGenesPerGenome[genome]) {
+							break scanLoop
 						}
 
 						attr.Branch = e.branch

@@ -348,7 +348,7 @@ func (p *pubchem) loadFDADrugs() {
 		p.d.addXref(synonym, textLinkID, cid, "pubchem", true)
 
 		// Test mode: stop early if unique CID limit reached
-		if config.IsTestMode() && len(p.p0CIDs) >= config.GetTestLimit(p.source) {
+		if config.IsTestMode() && shouldStopProcessing(config.GetTestLimit(p.source), len(p.p0CIDs)) {
 			log.Printf("[PubChem] Test mode: Stopping after %d unique CIDs", len(p.p0CIDs))
 			break
 		}
@@ -438,7 +438,7 @@ func (p *pubchem) loadLiteratureCIDs() {
 		}
 
 		// Test mode: stop early
-		if config.IsTestMode() && len(uniqueCIDs) >= config.GetTestLimit(p.source)*10 {
+		if config.IsTestMode() && shouldStopProcessing(config.GetTestLimit(p.source)*10, len(uniqueCIDs)) {
 			log.Printf("[PubChem] Test mode: Stopping after %d unique literature CIDs", len(uniqueCIDs))
 			break
 		}
@@ -547,7 +547,7 @@ func (p *pubchem) loadPatentCIDs() {
 		}
 
 		// Test mode: stop early
-		if config.IsTestMode() && len(uniqueCIDs) >= config.GetTestLimit(p.source)*10 {
+		if config.IsTestMode() && shouldStopProcessing(config.GetTestLimit(p.source)*10, len(uniqueCIDs)) {
 			log.Printf("[PubChem] Test mode: Stopping after %d unique patent CIDs", len(uniqueCIDs))
 			break
 		}
@@ -733,7 +733,7 @@ func (p *pubchem) loadBioassayCIDs() {
 		}
 
 		// Test mode: stop early
-		if config.IsTestMode() && len(uniqueCIDs) >= config.GetTestLimit(p.source)*10 {
+		if config.IsTestMode() && shouldStopProcessing(config.GetTestLimit(p.source)*10, len(uniqueCIDs)) {
 			log.Printf("[PubChem] Test mode: Stopping after %d unique bioassay CIDs", len(uniqueCIDs))
 			break
 		}
@@ -831,7 +831,7 @@ func (p *pubchem) loadBiologicCIDs() {
 		}
 
 		// Test mode: stop early
-		if config.IsTestMode() && len(uniqueCIDs) >= config.GetTestLimit(p.source)*10 {
+		if config.IsTestMode() && shouldStopProcessing(config.GetTestLimit(p.source)*10, len(uniqueCIDs)) {
 			log.Printf("[PubChem] Test mode: Stopping after %d unique biologic CIDs", len(uniqueCIDs))
 			break
 		}
@@ -1070,7 +1070,7 @@ func (p *pubchem) loadSynonyms() {
 		}
 
 		// Test mode: stop early
-		if config.IsTestMode() && len(processedCIDs) >= config.GetTestLimit(p.source) {
+		if config.IsTestMode() && shouldStopProcessing(config.GetTestLimit(p.source), len(processedCIDs)) {
 			log.Printf("[PubChem] Test mode: Stopping after loading synonyms for %d CIDs", len(processedCIDs))
 			break
 		}
@@ -1245,7 +1245,7 @@ func (p *pubchem) loadMeSHTerms() {
 		p.cidToMeSH[cid] = append(p.cidToMeSH[cid], meshTerm)
 
 		// Test mode: stop early
-		if config.IsTestMode() && len(processedCIDs) >= config.GetTestLimit(p.source) {
+		if config.IsTestMode() && shouldStopProcessing(config.GetTestLimit(p.source), len(processedCIDs)) {
 			log.Printf("[PubChem] Test mode: Stopping after loading MeSH for %d CIDs", len(processedCIDs))
 			break
 		}

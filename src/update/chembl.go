@@ -443,8 +443,10 @@ func (c *chembl) updateCellline() {
 
 			// Test mode: track cell line ID on FIRST appearance (any predicate)
 			// Only count actual cell line IDs, not blank nodes (which contain "#")
-			if idLogFile != nil && !processedCellLines[id] && !strings.Contains(id, "#") {
-				logProcessedID(idLogFile, id)
+			if !processedCellLines[id] && !strings.Contains(id, "#") {
+				if idLogFile != nil {
+					logProcessedID(idLogFile, id)
+				}
 				processedCellLines[id] = true
 				cellLineCount++
 			}
@@ -614,8 +616,10 @@ func (c *chembl) updateTarget() {
 			// Test mode: track target ID on FIRST appearance (any predicate)
 			// Only count actual target IDs, not blank nodes (which contain "#")
 			id := c.getChemblID(triple.Subj.String())
-			if idLogFile != nil && !processedTargets[id] && !strings.Contains(id, "#") {
-				logProcessedID(idLogFile, id)
+			if !processedTargets[id] && !strings.Contains(id, "#") {
+				if idLogFile != nil {
+					logProcessedID(idLogFile, id)
+				}
 				processedTargets[id] = true
 				targetCount++
 			}
@@ -2110,7 +2114,7 @@ func (c *chembl) updateDocument() {
 				docCount++
 
 				// Check if we've reached the test limit
-				if shouldStopProcessing(testLimit, docCount) {
+				if config.IsTestMode() && shouldStopProcessing(testLimit, docCount) {
 					goto done
 				}
 			}

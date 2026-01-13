@@ -481,7 +481,7 @@ func (s *stringProcessor) processInteractions(taxid int, forwardMap map[string]s
 			if info, exists := proteinInfo[stringID]; exists {
 				if processProtein(stringID, info) {
 					processedIDs++
-					if shouldStopProcessing(testLimit, processedIDs) {
+					if config.IsTestMode() && shouldStopProcessing(testLimit, processedIDs) {
 						fmt.Printf("DEBUG: Stopped after processing %d proteins with interactions\n", processedIDs)
 						return totalProteins, totalInteractions, nil
 					}
@@ -498,7 +498,7 @@ func (s *stringProcessor) processInteractions(taxid int, forwardMap map[string]s
 
 			if processProtein(stringID, info) {
 				processedIDs++
-				if shouldStopProcessing(testLimit, processedIDs) {
+				if config.IsTestMode() && shouldStopProcessing(testLimit, processedIDs) {
 					fmt.Printf("DEBUG: Stopped after processing %d total proteins (%d with interactions)\n",
 						processedIDs, len(stringInteractions))
 					return totalProteins, totalInteractions, nil

@@ -482,7 +482,7 @@ func (ct *clinicalTrials) processTrials() (int, error) {
 		// fmt.Printf("Processed %d trials from %s (total so far: %d)\n", trialsProcessed, fileInfo.Name(), totalTrials)
 
 		// Test mode: Check if we've reached the limit
-		if shouldStopProcessing(testLimit, len(ct.testTrialIDs)) {
+		if config.IsTestMode() && shouldStopProcessing(testLimit, len(ct.testTrialIDs)) {
 			break
 		}
 	}
@@ -536,7 +536,7 @@ func (ct *clinicalTrials) processTrialsFile(trialsFile string, fr string, chembl
 				}
 			}
 			// Check if we've reached the limit
-			if shouldStopProcessing(testLimit, len(ct.testTrialIDs)) {
+			if config.IsTestMode() && shouldStopProcessing(testLimit, len(ct.testTrialIDs)) {
 				break
 			}
 		}

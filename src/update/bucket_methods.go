@@ -556,7 +556,7 @@ const EnsemblHybridNumSets = 6
 
 // ensemblHybridBucket - hybrid bucket method for Ensembl gene IDs
 // Returns encoded value: setIndex * numBuckets + bucketNumber for known prefixes
-// Returns -1 for unknown prefixes (triggers fallback to kvdatachan)
+// Returns -1 for unknown prefixes (triggers alphabetic fallback)
 //
 // Known prefixes (ordered by frequency):
 //   - ENSG (Human) → set 0

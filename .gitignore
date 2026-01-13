@@ -5,6 +5,7 @@ out/
 *.zip
 logs/
 website/
+scripts/
 out*/
 *.log
 *.tmp

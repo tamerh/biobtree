@@ -257,7 +257,7 @@ func (r *refseq) update(selectedTaxids []int) {
 			count := r.processGBFFFile(rnaURL, fr, false, testLimit, int(total), idLogFile)
 			total += uint64(count)
 
-			if shouldStopProcessing(testLimit, int(total)) {
+			if config.IsTestMode() && shouldStopProcessing(testLimit, int(total)) {
 				break
 			}
 
@@ -267,12 +267,12 @@ func (r *refseq) update(selectedTaxids []int) {
 			count = r.processGBFFFile(proteinURL, fr, true, testLimit, int(total), idLogFile)
 			total += uint64(count)
 
-			if shouldStopProcessing(testLimit, int(total)) {
+			if config.IsTestMode() && shouldStopProcessing(testLimit, int(total)) {
 				break
 			}
 		}
 
-		if shouldStopProcessing(testLimit, int(total)) {
+		if config.IsTestMode() && shouldStopProcessing(testLimit, int(total)) {
 			break
 		}
 	}
@@ -601,7 +601,7 @@ func (r *refseq) processGBFFFile(fileURL, fr string, isProtein bool, testLimit, 
 					}
 
 					// Check test limit
-					if shouldStopProcessing(testLimit, currentCount+count) {
+					if config.IsTestMode() && shouldStopProcessing(testLimit, currentCount+count) {
 						return count
 					}
 				}

@@ -114,7 +114,7 @@ func (r *rnacentralProcessor) processFastaFile(filePath string, idLogFile *os.Fi
 					// }
 
 					// In test mode, stop after processing enough sequences
-					if testLimit > 0 && int(totalProcessed) >= testLimit {
+					if config.IsTestMode() && shouldStopProcessing(testLimit, int(totalProcessed)) {
 						// fmt.Printf("  [TEST MODE] Reached limit of %d sequences, stopping processing\n", testLimit)
 						break
 					}
@@ -150,7 +150,7 @@ func (r *rnacentralProcessor) processFastaFile(filePath string, idLogFile *os.Fi
 	}
 
 	// Process last entry
-	if currentID != "" && (testLimit == 0 || int(totalProcessed) < testLimit) {
+	if currentID != "" && !shouldStopProcessing(testLimit, int(totalProcessed)) {
 		if err := r.processEntry(currentID, currentDesc, currentSeq.String(), idLogFile); err != nil {
 			log.Printf("Warning: Error processing %s: %v", currentID, err)
 		} else {

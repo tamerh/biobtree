@@ -96,8 +96,7 @@ func (g *ontology) update() {
 		if len(entryid) > 0 && strings.HasPrefix(entryid, g.idPrefix) {
 
 			// always parent ontology parsed
-			// Use bucketed routing for ontologies with bucket config (e.g., GO)
-			// Falls back to kvdatachan for ontologies without bucket config (ECO, EFO, etc.)
+			// Use bucketed routing for all ontologies
 			if r.Childs["rdfs:subClassOf"] != nil {
 				for _, parent := range r.Childs["rdfs:subClassOf"] {
 					if _, ok := parent.Attrs["rdf:resource"]; ok {
@@ -188,8 +187,7 @@ func (g *ontology) update() {
 
 			b, _ := ffjson.Marshal(attr)
 
-			// Use bucketed properties for ontologies with bucket config (e.g., GO)
-			// Falls back to regular kvdatachan for ontologies without bucket config (e.g., ECO, EFO)
+			// Use bucketed properties for all ontologies
 			g.d.addProp3Bucketed(entryid, fr, b)
 
 			// Log ID in test mode
@@ -200,7 +198,7 @@ func (g *ontology) update() {
 			total++
 
 			// Check test limit
-			if shouldStopProcessing(testLimit, int(total)) {
+			if config.IsTestMode() && shouldStopProcessing(testLimit, int(total)) {
 				g.d.progChan <- &progressInfo{dataset: g.source, done: true}
 				atomic.AddUint64(&g.d.totalParsedEntry, total)
 				return

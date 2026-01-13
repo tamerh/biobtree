@@ -309,10 +309,10 @@ func (r *reactome) loadPathways(idLogFile *os.File, testLimit int, goTermMap map
 		// Log ID in test mode
 		if idLogFile != nil {
 			logProcessedID(idLogFile, pathwayID)
-			processedCount++
-			if shouldStopProcessing(testLimit, processedCount) {
-				break
-			}
+		}
+		processedCount++
+		if config.IsTestMode() && shouldStopProcessing(testLimit, processedCount) {
+			break
 		}
 
 		// Progress reporting

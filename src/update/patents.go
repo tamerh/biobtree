@@ -196,7 +196,7 @@ func (p *patents) processPatents() (int, error) {
 		}
 
 		// Test mode: Check if we've reached the limit
-		if shouldStopProcessing(testLimit, len(p.testPatentIDs)) {
+		if config.IsTestMode() && shouldStopProcessing(testLimit, len(p.testPatentIDs)) {
 			break
 		}
 	}
@@ -303,7 +303,7 @@ func (p *patents) processCompounds() (int, error) {
 			}
 
 			// Check if we've reached the test limit
-			if shouldStopProcessing(testLimit, len(processedCompounds)) {
+			if config.IsTestMode() && shouldStopProcessing(testLimit, len(processedCompounds)) {
 				break
 			}
 		}
@@ -419,7 +419,7 @@ func (p *patents) processMappings() (int, error) {
 			processedMappings++
 			// Use a reasonable multiplier (e.g., 3x) to get enough mappings
 			// for the limited patents/compounds we're testing
-			if shouldStopProcessing(testLimit*3, processedMappings) {
+			if config.IsTestMode() && shouldStopProcessing(testLimit*3, processedMappings) {
 				break
 			}
 		}

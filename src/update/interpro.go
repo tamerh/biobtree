@@ -156,7 +156,7 @@ func (i *interpro) update() {
 		entryCount++
 
 		// Test mode: check if limit reached
-		if shouldStopProcessing(testLimit, int(entryCount)) {
+		if config.IsTestMode() && shouldStopProcessing(testLimit, int(entryCount)) {
 			i.d.progChan <- &progressInfo{dataset: i.source, done: true}
 			break
 		}

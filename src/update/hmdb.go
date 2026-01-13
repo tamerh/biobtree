@@ -472,7 +472,7 @@ func (h *hmdb) update() {
 		entryCount++
 
 		// Test mode: check if limit reached and break immediately
-		if shouldStopProcessing(testLimit, int(entryCount)) {
+		if config.IsTestMode() && shouldStopProcessing(testLimit, int(entryCount)) {
 			h.d.progChan <- &progressInfo{dataset: h.source, done: true}
 			stoppedEarly = true
 			break

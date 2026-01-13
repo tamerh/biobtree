@@ -128,9 +128,12 @@ func (u *uniparc) update() {
 				u.d.addXref(entryid, fr, v.Attrs["id"], v.Attrs["type"], false)
 
 				if _, ok = propExclusionsRefs[v.Attrs["type"]]; !ok {
-					for _, z := range v.Childs["property"] {
-						// Use uniparc's fr - this xref is discovered by uniparc parser
-						u.d.addXref(v.Attrs["id"], fr, z.Attrs["value"], z.Attrs["type"], false)
+					// Get the external database's dataset ID for proper bucketing
+					// (can't use UniParc's fr here because the key is an external ID like ENSP...)
+					if extDatasetID, hasExtDataset := config.Dataconf[v.Attrs["type"]]["id"]; hasExtDataset {
+						for _, z := range v.Childs["property"] {
+							u.d.addXref(v.Attrs["id"], extDatasetID, z.Attrs["value"], z.Attrs["type"], false)
+						}
 					}
 				}
 
@@ -157,7 +160,7 @@ func (u *uniparc) update() {
 			fileEntries++
 
 			// Check test limit
-			if shouldStopProcessing(testLimit, int(totalEntries+fileEntries)) {
+			if config.IsTestMode() && shouldStopProcessing(testLimit, int(totalEntries+fileEntries)) {
 				log.Printf("Test limit reached (%d entries), stopping UniParc processing", totalEntries+fileEntries)
 				break
 			}
@@ -167,7 +170,7 @@ func (u *uniparc) update() {
 		log.Printf("Completed UniParc file %d/%d: %s (%d entries)", fileIdx+1, len(files), filepath.Base(filePath), fileEntries)
 
 		// Check if we need to stop processing more files due to test limit
-		if shouldStopProcessing(testLimit, int(totalEntries)) {
+		if config.IsTestMode() && shouldStopProcessing(testLimit, int(totalEntries)) {
 			log.Printf("Test limit reached after processing file %d/%d (%d total entries)", fileIdx+1, len(files), totalEntries)
 			break
 		}

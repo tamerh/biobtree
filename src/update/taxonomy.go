@@ -125,7 +125,7 @@ func (t *taxonomy) update() {
 		total++
 
 		// Check test limit
-		if shouldStopProcessing(testLimit, int(total)) {
+		if config.IsTestMode() && shouldStopProcessing(testLimit, int(total)) {
 			t.d.progChan <- &progressInfo{dataset: t.source, done: true}
 			atomic.AddUint64(&t.d.totalParsedEntry, total)
 			return

@@ -136,7 +136,7 @@ func (m *mesh) parseDescriptors(fr, frparent, frchild string, frparentStr, frchi
 					}
 
 					// Check test limit
-					if shouldStopProcessing(testLimit, int(*total)) {
+					if config.IsTestMode() && shouldStopProcessing(testLimit, int(*total)) {
 						return true // Stop early
 					}
 				}
@@ -170,7 +170,7 @@ func (m *mesh) parseDescriptors(fr, frparent, frchild string, frparentStr, frchi
 			}
 
 			// Check test limit
-			if shouldStopProcessing(testLimit, int(*total)) {
+			if config.IsTestMode() && shouldStopProcessing(testLimit, int(*total)) {
 				return true // Stop early
 			}
 		}
@@ -228,7 +228,7 @@ func (m *mesh) parseSupplementary(fr string, start *time.Time, previous *int64, 
 					}
 
 					// Check test limit (total includes descriptors)
-					if shouldStopProcessing(testLimit, descriptorCount+int(*total)) {
+					if config.IsTestMode() && shouldStopProcessing(testLimit, descriptorCount+int(*total)) {
 						return // Stop early
 					}
 				}

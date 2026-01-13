@@ -707,7 +707,7 @@ func (c *chebi) update() {
 		totalProcessed++
 
 		// Test mode limit
-		if shouldStopProcessing(testLimit, totalProcessed) {
+		if config.IsTestMode() && shouldStopProcessing(testLimit, totalProcessed) {
 			log.Printf("ChEBI: Reached test limit of %d compounds", testLimit)
 			break
 		}

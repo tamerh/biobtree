@@ -344,7 +344,7 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 	bucketConfigs := LoadBucketConfigs()
 
 	// Auto-create bucket configs for derived datasets (datasets from xref*.json without explicit bucketMethod)
-	// This enables source-tagged directories for all datasets, eliminating kvdatachan dependency
+	// This enables source-tagged directories for all datasets
 	bucketConfigs = LoadDerivedBucketConfigs(bucketConfigs)
 
 	var bucketWg sync.WaitGroup
@@ -1508,8 +1508,7 @@ func (d *DataUpdate) addXref2Bucketed(key string, from string, value string, val
 }
 
 // addXrefBucketed routes xrefs through bucket system for optimized datasets
-// Use this for datasets with bucketMethod configured in source.dataset.json
-// Falls back to kvdatachan for datasets without bucket configuration
+// All datasets are routed through the bucket system with alphabetic fallback
 func (d *DataUpdate) addXrefBucketed(key, from, value, valueFrom string, isLink bool) {
 
 	key = strings.TrimSpace(key)

@@ -268,7 +268,7 @@ func (g *gencc) update() {
 		entryCount++
 
 		// Test mode: check if limit reached
-		if shouldStopProcessing(testLimit, int(entryCount)) {
+		if config.IsTestMode() && shouldStopProcessing(testLimit, int(entryCount)) {
 			break
 		}
 	}

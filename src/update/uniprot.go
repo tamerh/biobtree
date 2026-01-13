@@ -517,7 +517,7 @@ uniloop:
 		total++
 
 		// Test mode: check if limit reached
-		if shouldStopProcessing(testLimit, int(total)) {
+		if config.IsTestMode() && shouldStopProcessing(testLimit, int(total)) {
 			u.d.progChan <- &progressInfo{dataset: u.source, done: true}
 			break
 		}

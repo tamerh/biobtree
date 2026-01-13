@@ -87,9 +87,8 @@ type BucketConfig struct {
 	NumBucketsPerSet []int     // Bucket count for each method/set
 	NumSets     int            // Number of bucket sets (1 for single method)
 
-	// Hybrid mode support (bucketed for known patterns, fallback to kvdatachan for others)
-	// When HybridMode=true and bucket method returns -1, Write() returns false
-	// to signal caller should use kvdatachan fallback
+	// Hybrid mode support (bucketed for known patterns, alphabetic fallback for others)
+	// When HybridMode=true and bucket method returns -1, Write() uses alphabetic fallback
 	HybridMode bool
 
 	// Incremental update support
@@ -156,7 +155,7 @@ var fixedBuckets = map[string]int{
 }
 
 // hybridBucketMethods defines methods that support hybrid mode
-// These methods return -1 for unrecognized patterns, triggering fallback to kvdatachan
+// These methods return -1 for unrecognized patterns, triggering alphabetic fallback
 // Map value is the number of sets the hybrid method uses
 var hybridBucketMethods = map[string]int{
 	"ensembl_hybrid": EnsemblHybridNumSets, // 6 sets: ENSG, ENSMUSG, ENSRNOG, ENSUMUG, ENSDARG, FBGN

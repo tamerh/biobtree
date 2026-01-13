@@ -65,7 +65,7 @@ func (m *mydata) update() {
 		}
 
 		// Test mode: limit entries
-		if config.IsTestMode() && count >= config.GetTestLimit(m.source) {
+		if config.IsTestMode() && shouldStopProcessing(config.GetTestLimit(m.source), count) {
 			log.Printf("[%s] Test mode: Stopping after %d identifiers", m.source, count)
 			break
 		}

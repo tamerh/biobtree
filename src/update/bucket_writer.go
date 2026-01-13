@@ -128,7 +128,7 @@ func (p *HybridWriterPool) writeToSubdir(datasetID, entityID, line, subdir strin
 		numBucketsPerSet := cfg.NumBucketsPerSet[0]
 		encodedBucket := cfg.Method(entityID, numBucketsPerSet)
 		if encodedBucket < 0 {
-			// Unknown pattern - use alphabetic fallback bucket instead of kvdatachan
+			// Unknown pattern - use alphabetic fallback bucket
 			// This ensures ALL data goes through bucket system for incremental updates
 			bucketNum = alphabeticBucket(entityID, numBucketsPerSet)
 			if bucketNum < 0 {

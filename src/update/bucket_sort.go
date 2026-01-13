@@ -372,9 +372,10 @@ func concatenateOneDataset(writerKey string, writer *DatasetBucketWriter, indexD
 
 	// Add pool's forward bucket files to the "forward" source
 	// These are from the writer pool and may not be on disk yet in filesPerSource
+	// Only include actual forward/ files, not from_*/ files (those come from disk scan)
 	poolForwardFiles := []string{}
 	for _, bucket := range writer.buckets {
-		if bucket.fileCreated {
+		if bucket.fileCreated && strings.Contains(bucket.filePath, "/forward/") {
 			poolForwardFiles = append(poolForwardFiles, bucket.filePath)
 		}
 	}
@@ -408,7 +409,11 @@ func concatenateOneDataset(writerKey string, writer *DatasetBucketWriter, indexD
 		}
 
 		// Sort bucket files before merge
+		// Skip files that no longer exist (may have been processed by another concurrent worker)
 		for _, f := range bucketFiles {
+			if _, err := os.Stat(f); os.IsNotExist(err) {
+				continue
+			}
 			if err := SortBucketFile(f); err != nil {
 				log.Printf("Warning: error sorting bucket file %s: %v", f, err)
 			}
@@ -560,7 +565,11 @@ func concatenateTextsearchPerSource(indexDir string, chunkIdx string, isDerived 
 		}
 
 		// Sort bucket files
+		// Skip files that no longer exist (may have been processed by another concurrent worker)
 		for _, f := range bucketFiles {
+			if _, err := os.Stat(f); os.IsNotExist(err) {
+				continue
+			}
 			if err := SortBucketFile(f); err != nil {
 				log.Printf("Warning: error sorting textsearch bucket file %s: %v", f, err)
 			}

@@ -1,0 +1,502 @@
+[
+  {
+    "gene_set_id": "M49136",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M49137",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M49138",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M49139",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M49140",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M49141",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M12793",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M14892",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M6974",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M16131",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M15893",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M468",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M5904",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M978",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M13304",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M17536",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M19292",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M17159",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M13971",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M5051",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M5647",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M19314",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M9072",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M5704",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M8067",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M9891",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M15819",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M15976",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M18358",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M16888",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M12412",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M2992",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M16648",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M7676",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M11384",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M558",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M1933",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M6304",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M17303",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M8014",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M8254",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M6976",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M5824",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M19140",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M9514",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M3966",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M5761",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M11664",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M3443",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M18273",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M10823",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M831",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M18542",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M1628",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M12062",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M18382",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M6845",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M11138",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M8020",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M7359",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M19138",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M12945",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M16212",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M18413",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M18147",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M12340",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M8835",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M11694",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M16785",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M10019",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M5158",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M7051",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M16825",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M3924",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M1302",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M8787",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M11846",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M16500",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M7803",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M7052",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M14773",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M1258",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M16850",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M16134",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M11848",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M22104",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M11097",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M11310",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M7154",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M3959",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M2335",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M15373",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M9231",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M5764",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M18957",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M13160",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M17179",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M9048",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M19266",
+    "name": "",
+    "collection": ""
+  },
+  {
+    "gene_set_id": "M8333",
+    "name": "",
+    "collection": ""
+  }
+]

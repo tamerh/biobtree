@@ -96,6 +96,9 @@ func (l *lipidmaps) update() {
 	}
 
 	log.Printf("[%s] LIPID MAPS processing completed successfully", l.source)
+
+	// Signal completion to progress handler so status is updated from "processing" to "processed"
+	l.d.progChan <- &progressInfo{dataset: l.source, done: true}
 }
 
 // parseSDF parses the SDF format and processes lipid records

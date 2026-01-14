@@ -46,6 +46,9 @@ func (i *intact) update() {
 	i.parseAndSaveInteractions(testLimit, idLogFile)
 
 	log.Printf("IntAct: Processing complete (%.2fs)", time.Since(startTime).Seconds())
+
+	// Signal completion to progress handler so status is updated from "processing" to "processed"
+	i.d.progChan <- &progressInfo{dataset: i.source, done: true}
 }
 
 // parseAndSaveInteractions processes the IntAct PSI-MITAB 2.7 file

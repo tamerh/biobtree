@@ -57,6 +57,9 @@ func (c *clinvarXML) update() {
 	c.parseAndSaveVCVFile(testLimit, idLogFile)
 
 	log.Printf("ClinVar XML: Processing complete (%.2fs)", time.Since(startTime).Seconds())
+
+	// Signal completion to progress handler so status is updated from "processing" to "processed"
+	c.d.progChan <- &progressInfo{dataset: c.source, done: true}
 }
 
 // parseAndSaveVCVFile processes the ClinVar VCV XML file using streaming parser

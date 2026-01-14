@@ -67,6 +67,9 @@ func (db *dbsnp) update() {
 	db.parseAndSaveVCF(testLimit, idLogFile)
 
 	log.Printf("dbSNP: Processing complete (%.2fs)", time.Since(startTime).Seconds())
+
+	// Signal completion to progress handler so status is updated from "processing" to "processed"
+	db.d.progChan <- &progressInfo{dataset: db.source, done: true}
 }
 
 // getVCFUrl returns the HTTPS URL for the dbSNP VCF file

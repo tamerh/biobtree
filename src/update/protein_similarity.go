@@ -46,6 +46,9 @@ func (p *proteinSimilarity) update() {
 	p.parseAndSaveSimilarities(testLimit, idLogFile)
 
 	log.Printf("Protein Similarity: Processing complete (%.2fs)", time.Since(startTime).Seconds())
+
+	// Signal completion to progress handler so status is updated from "processing" to "processed"
+	p.d.progChan <- &progressInfo{dataset: p.source, done: true}
 }
 
 // parseAndSaveSimilarities processes the DIAMOND BLASTP TSV file

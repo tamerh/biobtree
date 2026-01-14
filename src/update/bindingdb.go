@@ -49,6 +49,9 @@ func (b *bindingdb) update() {
 	b.parseAndSaveEntries(testLimit, idLogFile)
 
 	log.Printf("BindingDB: Processing complete (%.2fs)", time.Since(startTime).Seconds())
+
+	// Signal completion to progress handler so status is updated from "processing" to "processed"
+	b.d.progChan <- &progressInfo{dataset: b.source, done: true}
 }
 
 // parseAndSaveEntries processes the BindingDB TSV ZIP file using streaming

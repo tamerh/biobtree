@@ -96,9 +96,13 @@ func LoadDatasetState(indexDir string) (*DatasetState, error) {
 // to avoid overwriting other instances' entries
 func SaveDatasetState(state *DatasetState, indexDir string) error {
 	state.mu.RLock()
+	// Make DEEP copies to avoid race conditions where another goroutine
+	// modifies the shared DatasetBuildInfo objects after we release the lock
 	currentDatasets := make(map[string]*DatasetBuildInfo)
 	for k, v := range state.Datasets {
-		currentDatasets[k] = v
+		// Create a copy of the struct, not just the pointer
+		infoCopy := *v
+		currentDatasets[k] = &infoCopy
 	}
 	buildVersion := state.BuildVersion
 	state.mu.RUnlock()

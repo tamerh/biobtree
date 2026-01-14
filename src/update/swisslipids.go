@@ -91,6 +91,9 @@ func (s *swisslipids) update() {
 	})
 
 	log.Printf("[%s] SwissLipids processing completed successfully", s.source)
+
+	// Signal completion to progress handler so status is updated from "processing" to "processed"
+	s.d.progChan <- &progressInfo{dataset: s.source, done: true}
 }
 
 // downloadAndParseTSV downloads a specific TSV file from SwissLipids API and parses it

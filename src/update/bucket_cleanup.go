@@ -480,10 +480,11 @@ func CleanupInterruptedDatasets(state *DatasetState, indexDir string) error {
 		return nil
 	}
 
-	log.Printf("Found %d interrupted datasets from previous build: %v", len(interrupted), interrupted)
+	log.Printf("WARNING: FOUND %d INTERRUPTED DATASETS FROM PREVIOUS BUILD: %v", len(interrupted), interrupted)
+	log.Printf("WARNING: These datasets will be cleaned up and must be re-processed")
 
 	for _, datasetName := range interrupted {
-		log.Printf("Cleaning up interrupted dataset: %s", datasetName)
+		log.Printf("WARNING: Cleaning up interrupted dataset: %s", datasetName)
 
 		// Use the existing cleanup function (also cleans child datasets)
 		if err := CleanupForIncrementalUpdate(datasetName, indexDir); err != nil {
@@ -506,6 +507,6 @@ func CleanupInterruptedDatasets(state *DatasetState, indexDir string) error {
 		log.Printf("Warning: failed to save state after cleaning interrupted datasets: %v", err)
 	}
 
-	log.Printf("Cleaned up %d interrupted datasets", len(interrupted))
+	log.Printf("WARNING: Cleaned up %d interrupted datasets - they need to be re-built", len(interrupted))
 	return nil
 }

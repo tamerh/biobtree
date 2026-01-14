@@ -46,6 +46,9 @@ func (g *gwasStudy) update() {
 	g.parseAndSaveStudies(testLimit, idLogFile)
 
 	log.Printf("GWAS Catalog: Processing complete (%.2fs)", time.Since(startTime).Seconds())
+
+	// Signal completion to progress handler so status is updated from "processing" to "processed"
+	g.d.progChan <- &progressInfo{dataset: g.source, done: true}
 }
 
 // parseAndSaveStudies processes the GWAS Catalog studies TSV file

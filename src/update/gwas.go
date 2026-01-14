@@ -48,6 +48,9 @@ func (g *gwas) update() {
 	g.parseAndSaveAssociations(testLimit, idLogFile)
 
 	log.Printf("GWAS Associations: Processing complete (%.2fs)", time.Since(startTime).Seconds())
+
+	// Signal completion to progress handler so status is updated from "processing" to "processed"
+	g.d.progChan <- &progressInfo{dataset: g.source, done: true}
 }
 
 // parseAndSaveAssociations processes the GWAS Catalog associations ZIP file

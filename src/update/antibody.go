@@ -69,6 +69,9 @@ func (a *antibody) update() {
 	a.parseIMGTLigm(testLimit, idLogFile)
 
 	log.Printf("Antibody: Processing complete (%.2fs)", time.Since(startTime).Seconds())
+
+	// Signal completion to progress handler so status is updated from "processing" to "processed"
+	a.d.progChan <- &progressInfo{dataset: a.source, done: true}
 }
 
 // parseTheraSAbDab processes the TheraSAbDab CSV file (therapeutic antibodies)

@@ -754,10 +754,8 @@ func runCheckCommand(c *cli.Context) error {
 		datasets = strings.Split(datasetsStr, ",")
 	}
 
-	indexDir := config.Appconf["indexDir"]
-
-	// Load state
-	state, err := update.LoadDatasetState(indexDir)
+	// Load state from main output directory
+	state, err := update.LoadDatasetState(outDir)
 	if err != nil {
 		log.Printf("Warning: Could not load dataset state: %v", err)
 		state = update.NewDatasetState()

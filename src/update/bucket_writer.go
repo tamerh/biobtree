@@ -22,9 +22,10 @@ type BucketFile struct {
 	lineCount uint64
 }
 
-// validateBucketLine checks if a line has the minimum required format: KEY\tDB\t...
-// Uses fast byte scanning without allocations.
+// validateBucketLine checks if a line has the minimum required format: KEY\tDB\tVALUE\tVALUEDB
 // Returns true if valid, false if malformed.
+// CRITICAL: All 4 fields must be non-empty to prevent "Error while converting to int16" panics
+// during the generate phase when VALUEDB is empty.
 func validateBucketLine(line string) bool {
 	// Find first tab - KEY must be non-empty (idx > 0)
 	idx1 := strings.IndexByte(line, '\t')
@@ -33,8 +34,27 @@ func validateBucketLine(line string) bool {
 	}
 
 	// Find second tab - DB field must exist and be non-empty
-	idx2 := strings.IndexByte(line[idx1+1:], '\t')
+	rest := line[idx1+1:]
+	idx2 := strings.IndexByte(rest, '\t')
 	if idx2 <= 0 {
+		return false
+	}
+
+	// Find third tab - VALUE field must exist and be non-empty
+	rest = rest[idx2+1:]
+	idx3 := strings.IndexByte(rest, '\t')
+	if idx3 <= 0 {
+		return false
+	}
+
+	// VALUEDB field must be non-empty (everything after 3rd tab, before 4th tab or end)
+	rest = rest[idx3+1:]
+	if len(rest) == 0 {
+		return false
+	}
+	// Check that VALUEDB is not empty (could be followed by more tabs for evidence/relationship)
+	idx4 := strings.IndexByte(rest, '\t')
+	if idx4 == 0 {
 		return false
 	}
 
@@ -185,10 +205,13 @@ func (p *HybridWriterPool) writeToSubdir(datasetID, entityID, line, subdir strin
 		p.poolMutex.Unlock()
 	}
 
-	// Validate line format before writing (fast - no allocations)
-	// Panic immediately to catch bugs at source - malformed data blocks merge phase
+	// Validate line format before writing
+	// Log details and panic to catch bugs at source - malformed data blocks merge phase
 	if !validateBucketLine(line) {
-		panic(fmt.Sprintf("Malformed bucket line (missing KEY or DB field). Line preview: %.100s", line))
+		log.Printf("ERROR: Malformed bucket line detected!")
+		log.Printf("  Dataset: %s, Subdir: %s, BucketKey: %s", datasetID, subdir, bucketKey)
+		log.Printf("  Line preview (first 200 chars): %.200s", line)
+		panic(fmt.Sprintf("Malformed bucket line. Dataset=%s, Line=%.100s", datasetID, line))
 	}
 
 	// Write to bucket file with per-file mutex

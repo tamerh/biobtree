@@ -27,6 +27,7 @@ import (
 
 	"biobtree/db"
 	"biobtree/pbuf"
+	"biobtree/update"
 	"biobtree/util"
 )
 
@@ -728,6 +729,20 @@ func (d *Merge) Merge(c *configs.Conf, keep bool) (uint64, uint64, uint64) {
 	}
 
 	log.Println("Generate finished with total key:", d.totalKey, " total special keyword keys:", d.totalLinkKey, " total value:", d.totalValue)
+
+	// Save DB write stats to dataset_state.json
+	outDir := config.Appconf["outDir"]
+	if state, err := update.LoadDatasetState(outDir); err == nil {
+		state.SetDBWriteStats(d.totalKey, d.totalLinkKey, d.totalValue)
+		if err := update.SaveDatasetState(state, outDir); err != nil {
+			log.Printf("Warning: Failed to save DB write stats to state file: %v", err)
+		} else {
+			log.Printf("DB write stats saved to dataset_state.json")
+		}
+	} else {
+		log.Printf("Warning: Could not load state file to save DB stats: %v", err)
+	}
+
 	return d.totalKeyWrite, d.uidIndex, d.totalLinkKey
 
 }
@@ -1376,38 +1391,36 @@ func (d *Merge) init() {
 		log.Printf("Resume: Skipped %d already-completed files, %d files to process", skippedFiles, len(fss))
 	}
 
+	// Read KV sizes from dataset_state.json in main output directory (replaces meta.json files)
 	var totalkv float64
-	var totalEntrySize float64
-	for _, f := range files {
-		if !f.IsDir() && strings.HasSuffix(f.Name(), ".meta.json") {
-			meta := make(map[string]interface{})
-			f, err := ioutil.ReadFile(config.Appconf["indexDir"] + "/" + f.Name())
-			if err != nil {
-				fmt.Printf("Error: %v", err)
-				os.Exit(1)
+	var totalKVSize float64
+	stateFile := filepath.Join(config.Appconf["outDir"], "dataset_state.json")
+	if stateData, err := ioutil.ReadFile(stateFile); err == nil {
+		var state map[string]interface{}
+		if err := json.Unmarshal(stateData, &state); err != nil {
+			log.Printf("Warning: failed to parse dataset_state.json: %v", err)
+		} else {
+			// Get total KV size (total KV lines across all datasets including derived)
+			if total, ok := state["total_kv_size"].(float64); ok {
+				totalkv = total
 			}
-
-			if err := json.Unmarshal(f, &meta); err != nil {
-				panic(err)
-			}
-			totalkv = totalkv + meta["totalKV"].(float64)
-
-			// Sum entry sizes from each dataset for progress calculation
-			for key, value := range meta {
-				if key == "totalKV" {
-					continue
-				}
-				if datasetInfo, ok := value.(map[string]interface{}); ok {
-					if entrySize, ok := datasetInfo["entrySize"].(float64); ok {
-						totalEntrySize += entrySize
+			// Sum KV sizes from source datasets only
+			if datasets, ok := state["datasets"].(map[string]interface{}); ok {
+				for _, dsInfo := range datasets {
+					if info, ok := dsInfo.(map[string]interface{}); ok {
+						if kvSize, ok := info["kv_size"].(float64); ok {
+							totalKVSize += kvSize
+						}
 					}
 				}
 			}
 		}
+	} else {
+		log.Printf("Warning: could not read dataset_state.json: %v", err)
 	}
 
 	d.totalkvLine = int64(totalkv)
-	d.totalEntrySize = int64(totalEntrySize)
+	d.totalEntrySize = int64(totalKVSize)
 
 	if checkpoint != nil {
 		// Resume mode: don't clear the database

@@ -12,12 +12,17 @@ import (
 )
 
 // DatasetState tracks build state for incremental updates
-// Stored in index/dataset_state.json
+// Stored in the main output directory as dataset_state.json
 type DatasetState struct {
-	LastBuildTime time.Time                    `json:"last_build_time"`
-	BuildVersion  string                       `json:"build_version"` // Biobtree version
-	Datasets      map[string]*DatasetBuildInfo `json:"datasets"`
-	mu            sync.RWMutex                 `json:"-"` // Mutex for concurrent access
+	LastBuildTime  time.Time                    `json:"last_build_time"`
+	BuildVersion   string                       `json:"build_version"`   // Biobtree version
+	TotalKVSize    uint64                       `json:"total_kv_size"`   // Total KV lines across all datasets
+	Datasets       map[string]*DatasetBuildInfo `json:"datasets"`
+	// DB write stats - populated after generate/merge phase completes
+	DBKeysWritten   uint64 `json:"db_keys_written,omitempty"`   // Total keys written to database
+	DBSpecialKeys   uint64 `json:"db_special_keys,omitempty"`   // Total special keyword/link keys
+	DBValuesWritten uint64 `json:"db_values_written,omitempty"` // Total values written to database
+	mu              sync.RWMutex `json:"-"`                     // Mutex for concurrent access
 }
 
 // DatasetBuildInfo tracks build information for a single dataset
@@ -33,7 +38,7 @@ type DatasetBuildInfo struct {
 	SourceETag      string    `json:"source_etag,omitempty"`      // HTTP ETag if available
 	SourceChecksum  string    `json:"source_checksum,omitempty"`  // MD5/SHA if available
 	TouchedDatasets []string  `json:"touched_datasets,omitempty"` // Datasets that received reverse xrefs
-	EntryCount      int64     `json:"entry_count,omitempty"`      // Number of entries processed
+	KVSize          int64     `json:"kv_size,omitempty"`          // Number of key-value lines after deduplication
 	XrefCount       int64     `json:"xref_count,omitempty"`       // Number of xrefs created
 	BuildDuration   float64   `json:"build_duration_sec,omitempty"` // Build time in seconds
 }
@@ -63,10 +68,10 @@ func NewDatasetState() *DatasetState {
 	}
 }
 
-// LoadDatasetState reads state from JSON file
+// LoadDatasetState reads state from JSON file in the main output directory
 // Returns empty state if file doesn't exist (first build)
-func LoadDatasetState(indexDir string) (*DatasetState, error) {
-	statePath := filepath.Join(indexDir, DatasetStateFileName)
+func LoadDatasetState(outDir string) (*DatasetState, error) {
+	statePath := filepath.Join(outDir, DatasetStateFileName)
 
 	data, err := os.ReadFile(statePath)
 	if err != nil {
@@ -90,11 +95,11 @@ func LoadDatasetState(indexDir string) (*DatasetState, error) {
 	return state, nil
 }
 
-// SaveDatasetState writes state to JSON file with merge support for parallel runs
+// SaveDatasetState writes state to JSON file in the main output directory with merge support for parallel runs
 // When multiple biobtree instances run in parallel with different datasets,
 // this function merges the current state with any existing state on disk
 // to avoid overwriting other instances' entries
-func SaveDatasetState(state *DatasetState, indexDir string) error {
+func SaveDatasetState(state *DatasetState, outDir string) error {
 	state.mu.RLock()
 	// Make DEEP copies to avoid race conditions where another goroutine
 	// modifies the shared DatasetBuildInfo objects after we release the lock
@@ -105,9 +110,13 @@ func SaveDatasetState(state *DatasetState, indexDir string) error {
 		currentDatasets[k] = &infoCopy
 	}
 	buildVersion := state.BuildVersion
+	totalKVSize := state.TotalKVSize
+	dbKeysWritten := state.DBKeysWritten
+	dbSpecialKeys := state.DBSpecialKeys
+	dbValuesWritten := state.DBValuesWritten
 	state.mu.RUnlock()
 
-	statePath := filepath.Join(indexDir, DatasetStateFileName)
+	statePath := filepath.Join(outDir, DatasetStateFileName)
 	lockPath := statePath + ".lock"
 
 	// Acquire file lock for safe parallel access
@@ -145,6 +154,19 @@ func SaveDatasetState(state *DatasetState, indexDir string) error {
 	diskState.LastBuildTime = time.Now()
 	if buildVersion != "" {
 		diskState.BuildVersion = buildVersion
+	}
+	// Merge scalar fields: use current value if non-zero, otherwise keep disk value
+	if totalKVSize > 0 {
+		diskState.TotalKVSize = totalKVSize
+	}
+	if dbKeysWritten > 0 {
+		diskState.DBKeysWritten = dbKeysWritten
+	}
+	if dbSpecialKeys > 0 {
+		diskState.DBSpecialKeys = dbSpecialKeys
+	}
+	if dbValuesWritten > 0 {
+		diskState.DBValuesWritten = dbValuesWritten
 	}
 
 	// Marshal merged state
@@ -322,7 +344,8 @@ func (s *DatasetState) MarkDatasetProcessed(datasetName, datasetID string, entry
 
 	info.Status = StatusProcessed
 	info.LastBuildTime = time.Now()
-	info.EntryCount = entryCount
+	// KVSize is set separately via SetKVSize after bucket concatenation
+	// entryCount parameter is kept for API compatibility but not used
 	info.XrefCount = xrefCount
 	info.BuildDuration = duration
 }
@@ -443,6 +466,60 @@ func (s *DatasetState) RemoveDataset(datasetName string) {
 	defer s.mu.Unlock()
 
 	delete(s.Datasets, datasetName)
+}
+
+// SetKVSize updates the KV size for a dataset (post-deduplication line count)
+// Only call this for source datasets that were explicitly requested via -d
+func (s *DatasetState) SetKVSize(datasetName string, count uint64) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if s.Datasets == nil {
+		s.Datasets = make(map[string]*DatasetBuildInfo)
+	}
+
+	info, exists := s.Datasets[datasetName]
+	if !exists {
+		info = &DatasetBuildInfo{
+			DatasetName: datasetName,
+		}
+		s.Datasets[datasetName] = info
+	}
+	info.KVSize = int64(count)
+}
+
+// SetTotalKVSize sets the total KV size across all datasets
+func (s *DatasetState) SetTotalKVSize(total uint64) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.TotalKVSize = total
+}
+
+// SetDBWriteStats sets the database write statistics after generate/merge completes
+func (s *DatasetState) SetDBWriteStats(keysWritten, specialKeys, valuesWritten uint64) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.DBKeysWritten = keysWritten
+	s.DBSpecialKeys = specialKeys
+	s.DBValuesWritten = valuesWritten
+}
+
+// GetTotalKVSize returns the total KV size
+func (s *DatasetState) GetTotalKVSize() uint64 {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.TotalKVSize
+}
+
+// GetKVSize returns the KV size for a dataset
+func (s *DatasetState) GetKVSize(datasetName string) int64 {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	if info, exists := s.Datasets[datasetName]; exists {
+		return info.KVSize
+	}
+	return 0
 }
 
 // GetLastBuildTime returns the last build time for a dataset

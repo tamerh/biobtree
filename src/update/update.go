@@ -62,7 +62,6 @@ type DataUpdate struct {
 	ebiFtpPath             string
 	uniprotEntryCounts     map[string]uint64
 	p                      *mpb.Progress
-	stats                  map[string]interface{}
 	targetDatasets         map[string]bool
 	hasTargets             bool
 	selectedGenomes        []string
@@ -149,7 +148,6 @@ func NewDataUpdate(datasets map[string]bool, targetDatasets, ensemblSpecies, ens
 		ebiFtpPath:             ebiftppath,
 		targetDatasets:         targetDatasetMap,
 		hasTargets:             len(targetDatasetMap) > 0,
-		stats:                  make(map[string]interface{}),
 		selectedGenomes:        ensemblSpecies,
 		selectedGenomesPattern: ensemblSpeciesPattern,
 		selectedTaxids:         genometaxids,
@@ -332,7 +330,6 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 		return 0, 0
 	}
 
-	var err error
 	var wg sync.WaitGroup
 	var mergeGateCh = make(chan mergeInfo, 10000)
 
@@ -354,13 +351,13 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 		log.Printf("Bucket system initialized with %d configured datasets", len(bucketConfigs))
 	}
 
-	// Load dataset state for incremental updates
-	d.datasetState, _ = LoadDatasetState(config.Appconf["indexDir"])
+	// Load dataset state for incremental updates (from main output directory)
+	d.datasetState, _ = LoadDatasetState(config.Appconf["outDir"])
 	d.datasetState.BuildVersion = "1.8.0" // TODO: use actual version
 
 	// Clean up any datasets that were interrupted in a previous build
 	// These have status "processing" and their bucket files may be corrupted/incomplete
-	if err := CleanupInterruptedDatasets(d.datasetState, config.Appconf["indexDir"]); err != nil {
+	if err := CleanupInterruptedDatasets(d.datasetState, config.Appconf["indexDir"], config.Appconf["outDir"]); err != nil {
 		log.Printf("Warning: failed to cleanup interrupted datasets: %v", err)
 	}
 
@@ -383,7 +380,7 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 
 		// Concatenate buckets and move to index directory
 		log.Println("Concatenating bucket files...")
-		bucketStats, err := ConcatenateBuckets(d.bucketPool, config.Appconf["indexDir"], chunkIdx, d.datasetState)
+		bucketStats, err := ConcatenateBuckets(d.bucketPool, config.Appconf["indexDir"], config.Appconf["outDir"], chunkIdx, d.datasetState)
 		if err != nil {
 			log.Printf("Error concatenating buckets: %v", err)
 			return 0, 0
@@ -393,18 +390,18 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 		if bucketStats != nil {
 			bucketLines = bucketStats.TotalLines
 			for datasetName, lineCount := range bucketStats.PerDataset {
-				d.addEntryStat(datasetName, lineCount)
+				d.addKVStat(datasetName, lineCount)
 			}
 		}
 		log.Printf("Bucket processing complete (%d lines after deduplication)", bucketLines)
 
-		// Write meta.json
-		d.stats["totalKV"] = bucketLines
-		data, err := json.Marshal(d.stats)
-		if err != nil {
-			log.Println("Error while writing meta data")
+		// Update total entries in dataset state (replaces meta.json totalKV)
+		if d.datasetState != nil {
+			d.datasetState.SetTotalKVSize(bucketLines)
+			if err := SaveDatasetState(d.datasetState, config.Appconf["outDir"]); err != nil {
+				log.Printf("Warning: failed to save dataset state: %v", err)
+			}
 		}
-		ioutil.WriteFile(filepath.FromSlash(config.Appconf["indexDir"]+"/"+chunkIdx+".meta.json"), data, 0700)
 
 		log.Println("Resume complete.")
 		return 0, bucketLines
@@ -457,7 +454,7 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			}
 			d.datasetState.MarkDatasetProcessing(data, datasetID)
 			// Save immediately so crash recovery works
-			if err := SaveDatasetState(d.datasetState, config.Appconf["indexDir"]); err != nil {
+			if err := SaveDatasetState(d.datasetState, config.Appconf["outDir"]); err != nil {
 				log.Printf("Warning: failed to save processing state for %s: %v", data, err)
 			}
 		}
@@ -917,7 +914,7 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 
 		// Concatenate buckets and move to index directory
 		log.Println("Concatenating bucket files...")
-		bucketStats, err := ConcatenateBuckets(d.bucketPool, config.Appconf["indexDir"], chunkIdx, d.datasetState)
+		bucketStats, err := ConcatenateBuckets(d.bucketPool, config.Appconf["indexDir"], config.Appconf["outDir"], chunkIdx, d.datasetState)
 		if err != nil {
 			log.Printf("Error concatenating buckets: %v", err)
 		}
@@ -926,7 +923,7 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			// Add entry stats for all datasets from concatenation counts
 			// This is the accurate post-deduplication count
 			for datasetName, lineCount := range bucketStats.PerDataset {
-				d.addEntryStat(datasetName, lineCount)
+				d.addKVStat(datasetName, lineCount)
 			}
 		}
 
@@ -973,13 +970,13 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 					continue
 				}
 				bucketLines += lines
-				d.addEntryStat(dsName, lines)
+				d.addKVStat(dsName, lines)
 				log.Printf("Merged %s: %d lines", dsName, lines)
 
 				// Mark as merged and save state immediately for crash recovery
 				if d.datasetState != nil {
 					d.datasetState.MarkDatasetsMerged([]string{dsName})
-					if saveErr := SaveDatasetState(d.datasetState, config.Appconf["indexDir"]); saveErr != nil {
+					if saveErr := SaveDatasetState(d.datasetState, config.Appconf["outDir"]); saveErr != nil {
 						log.Printf("Warning: failed to save merged state for %s: %v", dsName, saveErr)
 					}
 				}
@@ -1000,19 +997,15 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 	}
 
 	wgBmerge.Wait()
-	d.stats["totalKV"] = totalkv
-	data, err := json.Marshal(d.stats)
-	if err != nil {
-		log.Println("Error while writing meta data")
-	}
-
-	ioutil.WriteFile(filepath.FromSlash(config.Appconf["indexDir"]+"/"+chunkIdx+".meta.json"), data, 0700)
 
 	// Save dataset state for incremental updates
 	// Note: Each dataset is now marked as "merged" immediately after its merge completes
 	// (in ConcatenateBucketsParallel and merge-only loop) for crash recovery.
 	// This final save ensures any remaining state updates are persisted.
 	if d.datasetState != nil {
+		// Set total entries (replaces meta.json totalKV)
+		d.datasetState.SetTotalKVSize(totalkv)
+
 		// Safety net: mark any remaining "processed" datasets as merged
 		// This handles edge cases where individual marking might have been missed
 		d.datasetState.MarkAllProcessedAsMerged()
@@ -1030,7 +1023,7 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			}
 		}
 
-		if err := SaveDatasetState(d.datasetState, config.Appconf["indexDir"]); err != nil {
+		if err := SaveDatasetState(d.datasetState, config.Appconf["outDir"]); err != nil {
 			log.Printf("Warning: failed to save dataset state: %v", err)
 		}
 	}
@@ -1071,7 +1064,7 @@ func (d *DataUpdate) showProgres() {
 						dsInfo.SourceURL = sourceURL
 					}
 				}
-				if err := SaveDatasetState(d.datasetState, config.Appconf["indexDir"]); err != nil {
+				if err := SaveDatasetState(d.datasetState, config.Appconf["outDir"]); err != nil {
 					log.Printf("Warning: failed to save state for %s: %v", info.dataset, err)
 				}
 			}
@@ -1125,13 +1118,16 @@ func (d *DataUpdate) showProgres() {
 
 }
 
-func (d *DataUpdate) addEntryStat(source string, total uint64) {
-
-	var entrysize = map[string]interface{}{}
-	entrysize["entrySize"] = total
-	mutex.Lock()
-	d.stats[source] = entrysize
-	mutex.Unlock()
+func (d *DataUpdate) addKVStat(source string, total uint64) {
+	// Only update KV size for source datasets (those explicitly requested via -d)
+	// Derived datasets and those receiving bidirectional xrefs are not tracked here
+	// Their lines are included in TotalEntries but not in individual dataset stats
+	if d.datasetState != nil {
+		// Check if this is a source dataset (requested via -d)
+		if _, isSourceDataset := d.inDatasets[source]; isSourceDataset {
+			d.datasetState.SetKVSize(source, total)
+		}
+	}
 }
 
 // shouldSkipDataset checks if a dataset should be skipped because it was already built
@@ -1275,24 +1271,6 @@ func (d *DataUpdate) storeSourceChangeInfo(datasetName string, changeInfo *Sourc
 	d.datasetState.UpdateDatasetInfo(info)
 }
 
-func (d *DataUpdate) addMeta(source string, meta map[string]interface{}) {
-
-	mutex.Lock()
-
-	if _, ok := d.stats[source]; ok {
-
-		for k, v := range meta {
-			d.stats[source].(map[string]interface{})[k] = v
-		}
-
-	} else {
-		d.stats[source] = meta
-	}
-
-	mutex.Unlock()
-
-}
-
 func (d *DataUpdate) addProp3(key, from string, attr []byte) {
 
 	key = strings.TrimSpace(key)
@@ -1358,6 +1336,15 @@ func (d *DataUpdate) addXrefFull(key string, from string, value string, valueFro
 		}
 		//}
 		return
+	}
+
+	// CRITICAL: Validate that target dataset has a valid ID
+	// Empty valueFromID causes "Error while converting to int16" panic during generate phase
+	if !isLink {
+		if config.Dataconf[valueFrom]["id"] == "" {
+			log.Printf("ERROR: Dataset '%s' has empty 'id' in config - cannot create xref from %s to %s", valueFrom, key, value)
+			return
+		}
 	}
 
 	// now target datasets check

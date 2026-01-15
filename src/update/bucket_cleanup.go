@@ -474,7 +474,7 @@ func GetBucketFilesPerSource(datasetName string, indexDir string, isDerived bool
 // CleanupInterruptedDatasets cleans up bucket files and sorted files for datasets
 // that were interrupted mid-build (status = "processing")
 // This should be called at the START of a new build to ensure clean state
-func CleanupInterruptedDatasets(state *DatasetState, indexDir string) error {
+func CleanupInterruptedDatasets(state *DatasetState, indexDir, outDir string) error {
 	interrupted := state.GetInterruptedDatasets()
 	if len(interrupted) == 0 {
 		return nil
@@ -502,8 +502,8 @@ func CleanupInterruptedDatasets(state *DatasetState, indexDir string) error {
 		}
 	}
 
-	// Save updated state
-	if err := SaveDatasetState(state, indexDir); err != nil {
+	// Save updated state to main output directory
+	if err := SaveDatasetState(state, outDir); err != nil {
 		log.Printf("Warning: failed to save state after cleaning interrupted datasets: %v", err)
 	}
 

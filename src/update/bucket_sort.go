@@ -224,6 +224,7 @@ type concatenateJob struct {
 	writer       *DatasetBucketWriter
 	datasetState *DatasetState
 	indexDir     string
+	outDir       string // For saving dataset state to main output directory
 }
 
 // concatenateResult holds the result of concatenating one dataset
@@ -242,14 +243,16 @@ type concatenateResult struct {
 // For multi-bucket-set datasets, produces separate output files: dataset_sorted_1.gz, dataset_sorted_2.gz
 // numWorkers controls parallelism (0 = use BucketSortWorkers from config)
 // datasetState is used to track merge progress for crash recovery (can be nil)
-func ConcatenateBuckets(pool *HybridWriterPool, indexDir string, chunkIdx string, datasetState *DatasetState) (*BucketStats, error) {
-	return ConcatenateBucketsParallel(pool, indexDir, chunkIdx, 0, datasetState)
+// outDir is the main output directory for saving dataset state
+func ConcatenateBuckets(pool *HybridWriterPool, indexDir, outDir string, chunkIdx string, datasetState *DatasetState) (*BucketStats, error) {
+	return ConcatenateBucketsParallel(pool, indexDir, outDir, chunkIdx, 0, datasetState)
 }
 
 // ConcatenateBucketsParallel is like ConcatenateBuckets but with configurable parallelism
 // datasetState is used to track merge progress for crash recovery - each dataset is marked
 // as "merged" immediately after its merge completes, allowing recovery to skip already-merged datasets
-func ConcatenateBucketsParallel(pool *HybridWriterPool, indexDir string, chunkIdx string, numWorkers int, datasetState *DatasetState) (*BucketStats, error) {
+// outDir is the main output directory for saving dataset state
+func ConcatenateBucketsParallel(pool *HybridWriterPool, indexDir, outDir string, chunkIdx string, numWorkers int, datasetState *DatasetState) (*BucketStats, error) {
 	if numWorkers <= 0 {
 		numWorkers = BucketConcatWorkers // Use concat-specific workers (higher default, I/O bound)
 	}
@@ -292,7 +295,7 @@ func ConcatenateBucketsParallel(pool *HybridWriterPool, indexDir string, chunkId
 				// This ensures crash recovery knows this dataset is done
 				if err == nil && job.datasetState != nil {
 					job.datasetState.MarkDatasetsMerged([]string{datasetName})
-					if saveErr := SaveDatasetState(job.datasetState, job.indexDir); saveErr != nil {
+					if saveErr := SaveDatasetState(job.datasetState, job.outDir); saveErr != nil {
 						log.Printf("Warning: failed to save merged state for %s: %v", datasetName, saveErr)
 					} else {
 						log.Printf("Marked %s (ID:%s) as merged", datasetName, datasetID)
@@ -315,6 +318,7 @@ func ConcatenateBucketsParallel(pool *HybridWriterPool, indexDir string, chunkId
 			writer:       writer,
 			datasetState: datasetState,
 			indexDir:     indexDir,
+			outDir:       outDir,
 		}
 	}
 	close(jobs)

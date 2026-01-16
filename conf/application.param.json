@@ -48,7 +48,7 @@
 	"bucketReadBufferSize": "524288",
 	"bucketWriteBufferSize": "65536",
 	"bucketSortWorkers": "8",
-	"bucketConcatWorkers":"8",
+	"bucketConcatWorkers":"4",
 	"keepBucketFiles": "no",
 	"__pubchem_config_comment": "PubChem retry configuration for network/corruption errors",
 	"pubchemRetryCount": "4",

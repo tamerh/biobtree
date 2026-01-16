@@ -397,7 +397,7 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 
 		// Update total entries in dataset state (replaces meta.json totalKV)
 		if d.datasetState != nil {
-			d.datasetState.SetTotalKVSize(bucketLines)
+			d.datasetState.AddTotalKVSize(bucketLines)
 			if err := SaveDatasetState(d.datasetState, config.Appconf["outDir"]); err != nil {
 				log.Printf("Warning: failed to save dataset state: %v", err)
 			}
@@ -1004,7 +1004,7 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 	// This final save ensures any remaining state updates are persisted.
 	if d.datasetState != nil {
 		// Set total entries (replaces meta.json totalKV)
-		d.datasetState.SetTotalKVSize(totalkv)
+		d.datasetState.AddTotalKVSize(totalkv)
 
 		// Safety net: mark any remaining "processed" datasets as merged
 		// This handles edge cases where individual marking might have been missed

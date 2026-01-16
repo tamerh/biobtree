@@ -22,7 +22,10 @@ type DatasetState struct {
 	DBKeysWritten   uint64 `json:"db_keys_written,omitempty"`   // Total keys written to database
 	DBSpecialKeys   uint64 `json:"db_special_keys,omitempty"`   // Total special keyword/link keys
 	DBValuesWritten uint64 `json:"db_values_written,omitempty"` // Total values written to database
-	mu              sync.RWMutex `json:"-"`                     // Mutex for concurrent access
+	// Internal fields (not persisted)
+	mu              sync.RWMutex    `json:"-"` // Mutex for concurrent access
+	kvSizeDelta     uint64          `json:"-"` // Delta to add to TotalKVSize on save (for concurrent safety)
+	deletedDatasets map[string]bool `json:"-"` // Datasets to remove on save (for concurrent safety)
 }
 
 // DatasetBuildInfo tracks build information for a single dataset
@@ -100,7 +103,7 @@ func LoadDatasetState(outDir string) (*DatasetState, error) {
 // this function merges the current state with any existing state on disk
 // to avoid overwriting other instances' entries
 func SaveDatasetState(state *DatasetState, outDir string) error {
-	state.mu.RLock()
+	state.mu.Lock()
 	// Make DEEP copies to avoid race conditions where another goroutine
 	// modifies the shared DatasetBuildInfo objects after we release the lock
 	currentDatasets := make(map[string]*DatasetBuildInfo)
@@ -110,11 +113,21 @@ func SaveDatasetState(state *DatasetState, outDir string) error {
 		currentDatasets[k] = &infoCopy
 	}
 	buildVersion := state.BuildVersion
-	totalKVSize := state.TotalKVSize
+	kvSizeDelta := state.kvSizeDelta
+	state.kvSizeDelta = 0 // Clear delta after reading (will be added to disk value)
+	// Copy and clear deleted datasets delta
+	var deletedDatasets map[string]bool
+	if len(state.deletedDatasets) > 0 {
+		deletedDatasets = make(map[string]bool, len(state.deletedDatasets))
+		for k, v := range state.deletedDatasets {
+			deletedDatasets[k] = v
+		}
+		state.deletedDatasets = nil // Clear after reading
+	}
 	dbKeysWritten := state.DBKeysWritten
 	dbSpecialKeys := state.DBSpecialKeys
 	dbValuesWritten := state.DBValuesWritten
-	state.mu.RUnlock()
+	state.mu.Unlock()
 
 	statePath := filepath.Join(outDir, DatasetStateFileName)
 	lockPath := statePath + ".lock"
@@ -151,13 +164,22 @@ func SaveDatasetState(state *DatasetState, outDir string) error {
 	for name, info := range currentDatasets {
 		diskState.Datasets[name] = info
 	}
+
+	// Apply deletions (delta-based for concurrent safety)
+	// This happens AFTER merge so deletions take precedence
+	for name := range deletedDatasets {
+		delete(diskState.Datasets, name)
+	}
+
 	diskState.LastBuildTime = time.Now()
 	if buildVersion != "" {
 		diskState.BuildVersion = buildVersion
 	}
-	// Merge scalar fields: use current value if non-zero, otherwise keep disk value
-	if totalKVSize > 0 {
-		diskState.TotalKVSize = totalKVSize
+	// Merge scalar fields:
+	// - total_kv_size: ADD delta to disk value (safe for concurrent processes)
+	// - DB stats: OVERWRITE (these are set once at end of generate phase)
+	if kvSizeDelta > 0 {
+		diskState.TotalKVSize += kvSizeDelta
 	}
 	if dbKeysWritten > 0 {
 		diskState.DBKeysWritten = dbKeysWritten
@@ -230,6 +252,8 @@ func (s *DatasetState) UpdateDatasetInfo(info *DatasetBuildInfo) {
 }
 
 // RemoveDatasetInfo removes build info for a dataset
+// Note: This is for in-memory removal only. For concurrent-safe removal that
+// persists across saves, use MarkDatasetForDeletion instead.
 func (s *DatasetState) RemoveDatasetInfo(datasetName string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -460,12 +484,21 @@ func (s *DatasetState) GetInterruptedDatasets() []string {
 	return interrupted
 }
 
-// RemoveDataset removes a dataset from state (used after cleanup of interrupted datasets)
+// RemoveDataset marks a dataset for removal from state (used after cleanup of interrupted datasets)
+// This is concurrent-safe: the actual deletion from disk state happens in SaveDatasetState
+// under file lock, ensuring parallel processes don't re-add removed datasets.
 func (s *DatasetState) RemoveDataset(datasetName string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
+	// Remove from in-memory state
 	delete(s.Datasets, datasetName)
+
+	// Mark for deletion on save (delta-based approach for concurrent safety)
+	if s.deletedDatasets == nil {
+		s.deletedDatasets = make(map[string]bool)
+	}
+	s.deletedDatasets[datasetName] = true
 }
 
 // SetKVSize updates the KV size for a dataset (post-deduplication line count)
@@ -488,11 +521,13 @@ func (s *DatasetState) SetKVSize(datasetName string, count uint64) {
 	info.KVSize = int64(count)
 }
 
-// SetTotalKVSize sets the total KV size across all datasets
-func (s *DatasetState) SetTotalKVSize(total uint64) {
+// AddTotalKVSize records a delta to add to total KV size on next save
+// This is safe for concurrent processes - each process records its delta,
+// and SaveDatasetState adds it to the disk value atomically under file lock
+func (s *DatasetState) AddTotalKVSize(delta uint64) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	s.TotalKVSize = total
+	s.kvSizeDelta += delta
 }
 
 // SetDBWriteStats sets the database write statistics after generate/merge completes

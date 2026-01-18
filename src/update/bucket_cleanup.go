@@ -161,6 +161,19 @@ func CleanupForIncrementalUpdate(datasetName string, indexDir string) error {
 
 	log.Printf("Cleanup complete for %s: removed %d files/directories", datasetName, totalRemoved)
 
+	// Log preserved from_* sources (contributions FROM other datasets TO this dataset)
+	// These are preserved because the source datasets haven't changed
+	datasetDir := filepath.Join(indexDir, datasetName)
+	if fromDirs, err := filepath.Glob(filepath.Join(datasetDir, "from_*")); err == nil && len(fromDirs) > 0 {
+		var preserved []string
+		for _, fromDir := range fromDirs {
+			sourceName := strings.TrimPrefix(filepath.Base(fromDir), "from_")
+			preserved = append(preserved, sourceName)
+		}
+		log.Printf("Note: Preserving %d reverse xref sources for %s: %v", len(preserved), datasetName, preserved)
+		log.Printf("Note: If these source datasets have also changed, they should be re-processed to update their contributions")
+	}
+
 	// 7. Clean up child datasets that are built during this dataset's processing
 	// e.g., when uniprot is cleaned, also clean ufeature
 	if children, hasChildren := childDatasets[datasetName]; hasChildren {

@@ -41,9 +41,10 @@ type DatasetBuildInfo struct {
 	SourceETag      string    `json:"source_etag,omitempty"`      // HTTP ETag if available
 	SourceChecksum  string    `json:"source_checksum,omitempty"`  // MD5/SHA if available
 	TouchedDatasets []string  `json:"touched_datasets,omitempty"` // Datasets that received reverse xrefs
-	KVSize          int64     `json:"kv_size,omitempty"`          // Number of key-value lines after deduplication
-	XrefCount       int64     `json:"xref_count,omitempty"`       // Number of xrefs created
-	BuildDuration   float64   `json:"build_duration_sec,omitempty"` // Build time in seconds
+	KVSize               int64             `json:"kv_size,omitempty"`               // Number of key-value lines after deduplication
+	SourceContributions  map[string]int64  `json:"source_contributions,omitempty"`  // Lines contributed by each source (forward, from_uniprot, etc.)
+	XrefCount            int64             `json:"xref_count,omitempty"`            // Number of xrefs created
+	BuildDuration        float64           `json:"build_duration_sec,omitempty"`    // Build time in seconds
 }
 
 // DatasetStateFileName is the default state file name
@@ -519,6 +520,54 @@ func (s *DatasetState) SetKVSize(datasetName string, count uint64) {
 		s.Datasets[datasetName] = info
 	}
 	info.KVSize = int64(count)
+}
+
+// SetSourceContributions updates the per-source line counts for a dataset
+// sourceName is "forward" for own data, or the source dataset name for reverse xrefs (e.g., "uniprot")
+func (s *DatasetState) SetSourceContributions(datasetName string, contributions map[string]uint64) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if s.Datasets == nil {
+		s.Datasets = make(map[string]*DatasetBuildInfo)
+	}
+
+	info, exists := s.Datasets[datasetName]
+	if !exists {
+		info = &DatasetBuildInfo{
+			DatasetName: datasetName,
+		}
+		s.Datasets[datasetName] = info
+	}
+
+	// Convert uint64 to int64 for JSON compatibility
+	info.SourceContributions = make(map[string]int64, len(contributions))
+	for source, count := range contributions {
+		info.SourceContributions[source] = int64(count)
+	}
+}
+
+// AddSourceContribution adds lines to a specific source contribution (for incremental updates)
+func (s *DatasetState) AddSourceContribution(datasetName, sourceName string, count uint64) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if s.Datasets == nil {
+		s.Datasets = make(map[string]*DatasetBuildInfo)
+	}
+
+	info, exists := s.Datasets[datasetName]
+	if !exists {
+		info = &DatasetBuildInfo{
+			DatasetName: datasetName,
+		}
+		s.Datasets[datasetName] = info
+	}
+
+	if info.SourceContributions == nil {
+		info.SourceContributions = make(map[string]int64)
+	}
+	info.SourceContributions[sourceName] = int64(count)
 }
 
 // AddTotalKVSize records a delta to add to total KV size on next save

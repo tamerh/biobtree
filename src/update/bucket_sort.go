@@ -214,8 +214,9 @@ func (br *bucketReader) readNext() {
 
 // BucketStats holds statistics for bucket concatenation
 type BucketStats struct {
-	TotalLines uint64            // Total lines written across all datasets
-	PerDataset map[string]uint64 // Lines written per dataset name
+	TotalLines       uint64                       // Total lines written across all datasets
+	PerDataset       map[string]uint64            // Lines written per dataset name (total)
+	PerDatasetSource map[string]map[string]uint64 // Lines per dataset per source (dataset -> source -> lines)
 }
 
 // concatenateJob holds the info needed to concatenate one dataset
@@ -229,10 +230,11 @@ type concatenateJob struct {
 
 // concatenateResult holds the result of concatenating one dataset
 type concatenateResult struct {
-	datasetName string
-	lines       uint64
-	err         error
-	skipped     bool // true if dataset was already merged (skip on recovery)
+	datasetName   string
+	lines         uint64
+	perSourceLines map[string]uint64 // Lines per source (forward, uniprot, ensembl, etc.)
+	err           error
+	skipped       bool // true if dataset was already merged (skip on recovery)
 }
 
 // ConcatenateBuckets merges all sorted bucket files for a dataset into one
@@ -258,7 +260,8 @@ func ConcatenateBucketsParallel(pool *HybridWriterPool, indexDir, outDir string,
 	}
 
 	stats := &BucketStats{
-		PerDataset: make(map[string]uint64),
+		PerDataset:       make(map[string]uint64),
+		PerDatasetSource: make(map[string]map[string]uint64),
 	}
 
 	// Collect all jobs
@@ -278,18 +281,12 @@ func ConcatenateBucketsParallel(pool *HybridWriterPool, indexDir, outDir string,
 				datasetID := job.writer.datasetID
 
 				// Check if dataset is already merged (crash recovery case)
-				if job.datasetState != nil && job.datasetState.GetDatasetStatus(datasetName) == StatusMerged {
-					log.Printf("Skipping %s for merge (already merged from previous run)", datasetName)
-					results <- concatenateResult{
-						datasetName: datasetName,
-						lines:       0,
-						skipped:     true,
-					}
-					continue
-				}
+				// Even if merged, we still need to check for new from_* sources
+				// that may have been added by datasets processed in later batches
+				isAlreadyMerged := job.datasetState != nil && job.datasetState.GetDatasetStatus(datasetName) == StatusMerged
 
-				// Do the actual merge
-				lines, err := concatenateOneDataset(job.writerKey, job.writer, job.indexDir, chunkIdx)
+				// Do the actual merge (will skip sources that already have output files)
+				lines, perSourceLines, err := concatenateOneDatasetIncremental(job.writerKey, job.writer, job.indexDir, chunkIdx, isAlreadyMerged)
 
 				// After successful merge, mark as merged and save state immediately
 				// This ensures crash recovery knows this dataset is done
@@ -303,9 +300,10 @@ func ConcatenateBucketsParallel(pool *HybridWriterPool, indexDir, outDir string,
 				}
 
 				results <- concatenateResult{
-					datasetName: datasetName,
-					lines:       lines,
-					err:         err,
+					datasetName:    datasetName,
+					lines:          lines,
+					perSourceLines: perSourceLines,
+					err:            err,
 				}
 			}
 		}()
@@ -341,6 +339,16 @@ func ConcatenateBucketsParallel(pool *HybridWriterPool, indexDir, outDir string,
 		}
 		stats.TotalLines += result.lines
 		stats.PerDataset[result.datasetName] += result.lines
+
+		// Store per-source breakdown
+		if result.perSourceLines != nil && len(result.perSourceLines) > 0 {
+			if stats.PerDatasetSource[result.datasetName] == nil {
+				stats.PerDatasetSource[result.datasetName] = make(map[string]uint64)
+			}
+			for source, lines := range result.perSourceLines {
+				stats.PerDatasetSource[result.datasetName][source] += lines
+			}
+		}
 	}
 
 	if skippedCount > 0 {
@@ -353,30 +361,29 @@ func ConcatenateBucketsParallel(pool *HybridWriterPool, indexDir, outDir string,
 	return stats, nil
 }
 
-// concatenateOneDataset merges bucket files for a single dataset, creating per-source output files
-// This enables incremental updates - when a source dataset is updated, only its contribution files are rebuilt
-// Output format:
-//   - {datasetName}_sorted.{chunkIdx}.index.gz - dataset's own data (from forward/)
-//   - {datasetName}_from_{source}_sorted.{chunkIdx}.index.gz - xrefs from other datasets (from from_*/)
-func concatenateOneDataset(writerKey string, writer *DatasetBucketWriter, indexDir string, chunkIdx string) (uint64, error) {
+// concatenateOneDatasetIncremental merges bucket files for a dataset, skipping sources that already have output files
+// This handles the case where a dataset was merged in an earlier batch but received new reverse mappings
+// from datasets processed in later batches (e.g., GO merged first, then UniProt adds go/from_uniprot/)
+// isAlreadyMerged: if true, skip sources that already have output files (incremental mode)
+// Returns total lines, per-source breakdown, and error
+func concatenateOneDatasetIncremental(writerKey string, writer *DatasetBucketWriter, indexDir string, chunkIdx string, isAlreadyMerged bool) (uint64, map[string]uint64, error) {
 	datasetName := writer.config.DatasetName
 	isDerived := writer.config.IsDerived
 
 	// Special handling for textsearch: uses same per-source approach but with different naming
-	// textsearch_{source}_sorted.{chunkIdx}.index.gz
 	if datasetName == "textsearch" {
-		return concatenateTextsearchPerSource(indexDir, chunkIdx, isDerived)
+		lines, err := concatenateTextsearchPerSource(indexDir, chunkIdx, isDerived)
+		// Textsearch doesn't need per-source tracking in dataset state
+		return lines, nil, err
 	}
 
 	// Get bucket files grouped by source (forward, from_entrez, from_refseq, etc.)
 	filesPerSource, err := GetBucketFilesPerSource(datasetName, indexDir, isDerived)
 	if err != nil {
-		return 0, fmt.Errorf("getting bucket files per source for %s: %w", datasetName, err)
+		return 0, nil, fmt.Errorf("getting bucket files per source for %s: %w", datasetName, err)
 	}
 
 	// Add pool's forward bucket files to the "forward" source
-	// These are from the writer pool and may not be on disk yet in filesPerSource
-	// Only include actual forward/ files, not from_*/ files (those come from disk scan)
 	poolForwardFiles := []string{}
 	for _, bucket := range writer.buckets {
 		if bucket.fileCreated && strings.Contains(bucket.filePath, "/forward/") {
@@ -385,7 +392,6 @@ func concatenateOneDataset(writerKey string, writer *DatasetBucketWriter, indexD
 	}
 
 	if len(poolForwardFiles) > 0 {
-		// Merge with any existing forward files from disk
 		existingForward := filesPerSource["forward"]
 		existingSet := make(map[string]bool)
 		for _, f := range existingForward {
@@ -400,10 +406,74 @@ func concatenateOneDataset(writerKey string, writer *DatasetBucketWriter, indexD
 	}
 
 	if len(filesPerSource) == 0 {
-		return 0, nil // No bucket files for this dataset
+		if isAlreadyMerged {
+			log.Printf("Dataset %s: already merged, no new sources to process", datasetName)
+		}
+		return 0, nil, nil
 	}
 
+	// For already-merged datasets, filter out sources that already have output files
+	if isAlreadyMerged {
+		newSources := make(map[string][]string)
+		for sourceName, bucketFiles := range filesPerSource {
+			// Check if any matching output file exists (with any chunkIdx)
+			pattern := getSourceOutputPattern(datasetName, sourceName, indexDir, writer.setIndex)
+			matches, _ := filepath.Glob(pattern)
+			if len(matches) > 0 {
+				// Output already exists, skip this source
+				continue
+			}
+			newSources[sourceName] = bucketFiles
+		}
+
+		if len(newSources) == 0 {
+			log.Printf("Dataset %s: already merged, no new reverse sources found", datasetName)
+			return 0, nil, nil
+		}
+
+		log.Printf("Dataset %s: already merged but found %d new reverse sources to merge", datasetName, len(newSources))
+		filesPerSource = newSources
+	}
+
+	// Delegate to the core merge logic
+	return concatenateSourceFiles(datasetName, writer, filesPerSource, indexDir, chunkIdx)
+}
+
+// getSourceOutputPath returns the expected output file path for a source
+func getSourceOutputPath(datasetName, sourceName, indexDir, chunkIdx string, setIndex int) string {
+	if sourceName == "forward" {
+		if setIndex >= 0 {
+			return filepath.Join(indexDir, fmt.Sprintf("%s_sorted_%d.%s.index.gz", datasetName, setIndex+1, chunkIdx))
+		}
+		return filepath.Join(indexDir, fmt.Sprintf("%s_sorted.%s.index.gz", datasetName, chunkIdx))
+	}
+	// from_{source}
+	if setIndex >= 0 {
+		return filepath.Join(indexDir, fmt.Sprintf("%s_from_%s_sorted_%d.%s.index.gz", datasetName, sourceName, setIndex+1, chunkIdx))
+	}
+	return filepath.Join(indexDir, fmt.Sprintf("%s_from_%s_sorted.%s.index.gz", datasetName, sourceName, chunkIdx))
+}
+
+// getSourceOutputPattern returns a glob pattern to find existing output files for a source (any chunkIdx)
+func getSourceOutputPattern(datasetName, sourceName, indexDir string, setIndex int) string {
+	if sourceName == "forward" {
+		if setIndex >= 0 {
+			return filepath.Join(indexDir, fmt.Sprintf("%s_sorted_%d.*.index.gz", datasetName, setIndex+1))
+		}
+		return filepath.Join(indexDir, fmt.Sprintf("%s_sorted.*.index.gz", datasetName))
+	}
+	// from_{source}
+	if setIndex >= 0 {
+		return filepath.Join(indexDir, fmt.Sprintf("%s_from_%s_sorted_%d.*.index.gz", datasetName, sourceName, setIndex+1))
+	}
+	return filepath.Join(indexDir, fmt.Sprintf("%s_from_%s_sorted.*.index.gz", datasetName, sourceName))
+}
+
+// concatenateSourceFiles performs the actual k-way merge of bucket files for each source
+// Returns total lines and per-source breakdown (sourceName -> lineCount)
+func concatenateSourceFiles(datasetName string, writer *DatasetBucketWriter, filesPerSource map[string][]string, indexDir string, chunkIdx string) (uint64, map[string]uint64, error) {
 	totalLines := uint64(0)
+	perSourceLines := make(map[string]uint64)
 	sourcesProcessed := 0
 
 	// Process each source separately, creating its own output file
@@ -413,7 +483,6 @@ func concatenateOneDataset(writerKey string, writer *DatasetBucketWriter, indexD
 		}
 
 		// Sort bucket files before merge
-		// Skip files that no longer exist (may have been processed by another concurrent worker)
 		for _, f := range bucketFiles {
 			if _, err := os.Stat(f); os.IsNotExist(err) {
 				continue
@@ -423,37 +492,13 @@ func concatenateOneDataset(writerKey string, writer *DatasetBucketWriter, indexD
 			}
 		}
 
-		// Sort file paths for consistent order
 		sort.Strings(bucketFiles)
 
-		// Create output file path based on source
-		// - forward → {datasetName}_sorted.{chunkIdx}.index.gz
-		// - from_{source} → {datasetName}_from_{source}_sorted.{chunkIdx}.index.gz
-		var outPath string
-		if sourceName == "forward" {
-			if writer.setIndex >= 0 {
-				// Multi-bucket-set: {datasetName}_sorted_{setIdx+1}.{chunkIdx}.index.gz
-				outPath = filepath.Join(indexDir, fmt.Sprintf("%s_sorted_%d.%s.index.gz",
-					datasetName, writer.setIndex+1, chunkIdx))
-			} else {
-				// Single set: {datasetName}_sorted.{chunkIdx}.index.gz
-				outPath = filepath.Join(indexDir, fmt.Sprintf("%s_sorted.%s.index.gz",
-					datasetName, chunkIdx))
-			}
-		} else {
-			// from_{source} → {datasetName}_from_{source}_sorted.{chunkIdx}.index.gz
-			if writer.setIndex >= 0 {
-				outPath = filepath.Join(indexDir, fmt.Sprintf("%s_from_%s_sorted_%d.%s.index.gz",
-					datasetName, sourceName, writer.setIndex+1, chunkIdx))
-			} else {
-				outPath = filepath.Join(indexDir, fmt.Sprintf("%s_from_%s_sorted.%s.index.gz",
-					datasetName, sourceName, chunkIdx))
-			}
-		}
+		outPath := getSourceOutputPath(datasetName, sourceName, indexDir, chunkIdx, writer.setIndex)
 
 		outF, err := os.Create(outPath)
 		if err != nil {
-			return totalLines, fmt.Errorf("creating output file %s: %w", outPath, err)
+			return totalLines, perSourceLines, fmt.Errorf("creating output file %s: %w", outPath, err)
 		}
 		outGz, _ := gzip.NewWriterLevel(outF, gzip.BestSpeed)
 		buf := bufio.NewWriterSize(outGz, BucketWriteBufferSize)
@@ -508,28 +553,19 @@ func concatenateOneDataset(writerKey string, writer *DatasetBucketWriter, indexD
 		outGz.Close()
 		outF.Close()
 
-		// Clean up bucket files
+		// Clean up bucket files after successful merge (unless keepBucketFiles is set)
 		cleanedCount := 0
 		if !KeepBucketFiles {
-			cleanedDirs := make(map[string]bool)
-			for _, bucketFile := range bucketFiles {
-				if err := os.Remove(bucketFile); err == nil {
+			for _, f := range bucketFiles {
+				if err := os.Remove(f); err == nil {
 					cleanedCount++
-					cleanedDirs[filepath.Dir(bucketFile)] = true
-				}
-			}
-
-			// Remove empty bucket directories
-			for dir := range cleanedDirs {
-				entries, err := os.ReadDir(dir)
-				if err == nil && len(entries) == 0 {
-					os.Remove(dir)
 				}
 			}
 		}
 
-		totalLines += linesWritten
 		sourcesProcessed++
+		totalLines += linesWritten
+		perSourceLines[sourceName] = linesWritten
 
 		if sourceName == "forward" {
 			log.Printf("K-way merged %d buckets for %s (ID:%s) → %s (%d lines, cleaned %d files)",
@@ -541,7 +577,18 @@ func concatenateOneDataset(writerKey string, writer *DatasetBucketWriter, indexD
 	}
 
 	log.Printf("Dataset %s: processed %d sources, total %d lines", datasetName, sourcesProcessed, totalLines)
-	return totalLines, nil
+	return totalLines, perSourceLines, nil
+}
+
+// concatenateOneDataset merges bucket files for a single dataset, creating per-source output files
+// This enables incremental updates - when a source dataset is updated, only its contribution files are rebuilt
+// Output format:
+//   - {datasetName}_sorted.{chunkIdx}.index.gz - dataset's own data (from forward/)
+//   - {datasetName}_from_{source}_sorted.{chunkIdx}.index.gz - xrefs from other datasets (from from_*/)
+// Returns total lines, per-source breakdown, and error
+func concatenateOneDataset(writerKey string, writer *DatasetBucketWriter, indexDir string, chunkIdx string) (uint64, map[string]uint64, error) {
+	// Delegate to incremental version with isAlreadyMerged=false (process all sources)
+	return concatenateOneDatasetIncremental(writerKey, writer, indexDir, chunkIdx, false)
 }
 
 // concatenateTextsearchPerSource creates separate sorted files for each source dataset
@@ -842,7 +889,8 @@ func ConcatenateBucketsForDataset(datasetName string, indexDir string, isDerived
 // Processes both regular and derived datasets
 func SortAndConcatenateAllDatasets(configs map[string]*BucketConfig, indexDir string, chunkIdx string, numWorkers int) (*BucketStats, error) {
 	stats := &BucketStats{
-		PerDataset: make(map[string]uint64),
+		PerDataset:       make(map[string]uint64),
+		PerDatasetSource: make(map[string]map[string]uint64),
 	}
 
 	if numWorkers <= 0 {

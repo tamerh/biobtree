@@ -392,6 +392,12 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			for datasetName, lineCount := range bucketStats.PerDataset {
 				d.addKVStat(datasetName, lineCount)
 			}
+			// Save per-source contributions for each dataset
+			if d.datasetState != nil {
+				for datasetName, sourceStats := range bucketStats.PerDatasetSource {
+					d.datasetState.SetSourceContributions(datasetName, sourceStats)
+				}
+			}
 		}
 		log.Printf("Bucket processing complete (%d lines after deduplication)", bucketLines)
 
@@ -924,6 +930,12 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			// This is the accurate post-deduplication count
 			for datasetName, lineCount := range bucketStats.PerDataset {
 				d.addKVStat(datasetName, lineCount)
+			}
+			// Save per-source contributions for each dataset
+			if d.datasetState != nil {
+				for datasetName, sourceStats := range bucketStats.PerDatasetSource {
+					d.datasetState.SetSourceContributions(datasetName, sourceStats)
+				}
 			}
 		}
 

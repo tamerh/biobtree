@@ -102,11 +102,15 @@ class IntegrationTestRunner:
         identifier = test['identifier']
         query = test.get('query', '')
         dataset_id = test.get('dataset_id')
+        filter_dataset = test.get('filter_dataset')  # Dataset name to filter results
 
         # Fetch data
         try:
             if query == '':
                 params = {'i': identifier}
+                # Add dataset filter if specified (ensures correct entry is in results)
+                if filter_dataset:
+                    params['s'] = filter_dataset
                 url = f"{self.server}/ws/"
             else:
                 params = {'i': identifier, 'm': query}
@@ -140,8 +144,19 @@ class IntegrationTestRunner:
 
         # Find the entry to validate
         entry = None
+        expected_identifier = test.get('expected_identifier')
         if data.get('results'):
-            if dataset_id:
+            if expected_identifier:
+                # Find by expected identifier (exact match)
+                for r in data['results']:
+                    if r.get('identifier') == expected_identifier:
+                        entry = r
+                        break
+                    # Also check source.identifier for mapping results
+                    if r.get('source', {}).get('identifier') == expected_identifier:
+                        entry = r
+                        break
+            elif dataset_id:
                 # Find by dataset ID
                 for r in data['results']:
                     if r.get('dataset') == dataset_id:
@@ -227,10 +242,10 @@ class IntegrationTestRunner:
 
         # Special handling for paths starting with "source."
         if path.startswith('source.'):
-            if not data.get('results'):
+            if not entry:
                 return None
             path = path[7:]  # Remove "source."
-            obj = data['results'][0].get('source', {})
+            obj = entry.get('source', {})
         # Special handling for paths starting with "entry." - use entry directly
         elif path.startswith('entry.'):
             if not entry:

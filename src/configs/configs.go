@@ -41,7 +41,7 @@ type Conf struct {
 	TestRefDir    string // e.g., "test_out/reference"
 }
 
-func (c *Conf) Install(rootDir, bbBinaryVersion, outDir, preBuildSet string, optionalDatasetActive bool) {
+func (c *Conf) Install(rootDir, bbBinaryVersion, outDir, dbDir, preBuildSet string, optionalDatasetActive bool) {
 
 	dirs := []string{}
 	dirs = append(dirs, rootDir+"conf")
@@ -68,7 +68,7 @@ func (c *Conf) Install(rootDir, bbBinaryVersion, outDir, preBuildSet string, opt
 
 }
 
-func (c *Conf) Init(rootDir, bbBinaryVersion, outDir string, optionalDatasetActive bool) {
+func (c *Conf) Init(rootDir, bbBinaryVersion, outDir, dbDir string, optionalDatasetActive bool) {
 
 	c.versionTag = bbBinaryVersion
 
@@ -236,9 +236,13 @@ func (c *Conf) Init(rootDir, bbBinaryVersion, outDir string, optionalDatasetActi
 		c.Appconf["outDir"] = c.Appconf["rootDir"] + "out"
 	}
 
-	_, ok = c.Appconf["dbDir"]
-	if !ok {
-		c.Appconf["dbDir"] = c.Appconf["outDir"] + "/db"
+	if len(dbDir) > 0 {
+		c.Appconf["dbDir"] = dbDir
+	} else {
+		_, ok = c.Appconf["dbDir"]
+		if !ok {
+			c.Appconf["dbDir"] = c.Appconf["outDir"] + "/db"
+		}
 	}
 
 	_, ok = c.Appconf["indexDir"]

@@ -1213,6 +1213,13 @@ func (d *DataUpdate) shouldSkipDataset(datasetName string) bool {
 		return false
 	}
 
+	// If status is empty, dataset was never actually built from source
+	// (may have entries from other datasets' contributions but not from own source)
+	if lastBuild.Status == "" {
+		log.Printf("Dataset %s has no build status (never built from source), will build", datasetName)
+		return false
+	}
+
 	// Check if source has changed
 	changeInfo, err := CheckSourceChanged(datasetName, lastBuild)
 	if err != nil {

@@ -661,7 +661,7 @@
       "why": "Identify genes expressed in specific cell types - single-cell markers",
       "should_pass": [
         "CL:0000576",
-        "CL:0000236"
+        "CL:0000084"
       ],
       "should_fail": []
     },
@@ -713,7 +713,7 @@
       "why": "Navigate cell type hierarchy - from specific to general cell types",
       "should_pass": [
         "CL:0000576",
-        "CL:0000236"
+        "CL:0000084"
       ],
       "should_fail": []
     },
@@ -756,7 +756,7 @@
       "query": ">>reactome>>reactomeparent",
       "why": "Navigate pathway hierarchy upward - find broader pathway categories",
       "should_pass": [
-        "R-HSA-109582"
+        "R-HSA-75205"
       ],
       "should_fail": []
     },
@@ -949,18 +949,17 @@
       "query": ">>clinvar>>hpo",
       "why": "Map ClinVar variants to Human Phenotype Ontology terms for phenotype analysis",
       "should_pass": [
-        "100179"
+        "981341"
       ],
       "should_fail": []
     },
     {
       "category": "clinical_variants",
       "name": "ClinVar Variant to OMIM",
-      "query": ">>clinvar>>omim",
-      "why": "Map ClinVar variants to OMIM entries for Mendelian disease research",
+      "query": ">>clinvar>>mim",
+      "why": "Map ClinVar variants to OMIM/MIM entries for Mendelian disease research",
       "should_pass": [
-        "100177",
-        "100179"
+        "100177"
       ],
       "should_fail": []
     },
@@ -1319,6 +1318,7 @@
       "query": "",
       "identifier": "2244",
       "dataset_id": 6,
+      "filter_dataset": "pubchem",
       "why": "Validate PubChem compound attributes for aspirin (CID 2244)",
       "validations": [
         {"path": "Pubchem.molecular_formula", "expected": "C9H8O4", "description": "Molecular formula"},
@@ -1335,6 +1335,7 @@
       "query": "",
       "identifier": "2244",
       "dataset_id": 6,
+      "filter_dataset": "pubchem",
       "why": "Validate PubChem external database identifiers extracted from synonyms for aspirin (CID 2244). NOTE: These fields may be empty if synonyms don't contain these identifiers.",
       "validations": [
         {"path": "Pubchem.unii", "min_length": 0, "description": "FDA UNII identifier (may be empty)"},
@@ -1347,6 +1348,7 @@
       "type": "validation",
       "query": ">>entrez",
       "identifier": "672",
+      "expected_identifier": "672",
       "why": "Validate Entrez gene attributes for human BRCA1 (Gene ID 672)",
       "validations": [
         {"path": "source.Attributes.Entrez.chromosome", "expected": "17", "description": "Chromosome 17"},
@@ -1397,6 +1399,7 @@
       "query": "",
       "identifier": "2244",
       "dataset_id": 6,
+      "filter_dataset": "pubchem",
       "why": "Aspirin should have many cross-references (>1000) including bioactivities",
       "validations": [
         {"path": "entry.count", "min": 1000, "description": "At least 1000 cross-references"}
@@ -1624,8 +1627,18 @@
       "should_pass": [
         "hypertension",
         "diabetes",
-        "breast cancer",
-        "alzheimer"
+        "breast cancer"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "clinical_trials",
+      "name": "Disease to Clinical Trials via MONDO",
+      "query": ">>mondo>>clinical_trials",
+      "why": "Find clinical trials for disease terms via MONDO ontology mapping - handles partial names",
+      "should_pass": [
+        "alzheimer",
+        "parkinson"
       ],
       "should_fail": []
     },

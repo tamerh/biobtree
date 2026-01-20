@@ -169,12 +169,36 @@ func (g *ontology) update() {
 				// Add text search for all OWL-based ontologies (GO, ECO, EFO, UBERON, CL)
 				// Enables keyword search by term names and synonyms
 				if g.source == "go" || g.source == "eco" || g.source == "efo" || g.source == "uberon" || g.source == "cl" {
-					g.d.addXref(attr.Name, textLinkID, entryid, g.source, true)
-					// Also add synonyms for text search
+					// Deduplicate search terms
+					searchTerms := make(map[string]bool)
+
+					// Add full name
+					if attr.Name != "" {
+						searchTerms[attr.Name] = true
+					}
+
+					// Add all synonyms
 					for _, syn := range attr.Synonyms {
 						if syn != "" {
-							g.d.addXref(syn, textLinkID, entryid, g.source, true)
+							searchTerms[syn] = true
 						}
+					}
+
+					// Add individual significant words for partial matching
+					allPhrases := []string{attr.Name}
+					allPhrases = append(allPhrases, attr.Synonyms...)
+					for _, phrase := range allPhrases {
+						for _, word := range strings.Fields(phrase) {
+							word = strings.Trim(word, ",.;:'\"()-")
+							if len(word) >= 4 && !isOntologyStopWord(word) {
+								searchTerms[word] = true
+							}
+						}
+					}
+
+					// Create text search xrefs
+					for term := range searchTerms {
+						g.d.addXref(term, textLinkID, entryid, g.source, true)
 					}
 				}
 
@@ -210,4 +234,39 @@ func (g *ontology) update() {
 
 	g.d.progChan <- &progressInfo{dataset: g.source, done: true}
 	atomic.AddUint64(&g.d.totalParsedEntry, total)
+}
+
+// isOntologyStopWord returns true for common ontology terms that should not be indexed alone
+func isOntologyStopWord(word string) bool {
+	stopWords := map[string]bool{
+		// Disease type words
+		"disease": true, "disorder": true, "syndrome": true, "condition": true,
+		"cancer": true, "carcinoma": true, "neoplasm": true, "tumor": true, "tumour": true,
+		"malignant": true, "benign": true, "primary": true, "secondary": true,
+		"adenocarcinoma": true, "sarcoma": true, "lymphoma": true, "leukemia": true, "leukaemia": true,
+		// Severity/timing words
+		"acute": true, "chronic": true, "progressive": true, "recurrent": true,
+		"early": true, "late": true, "onset": true,
+		"mild": true, "moderate": true, "severe": true,
+		// Age-related words
+		"adult": true, "childhood": true, "pediatric": true, "paediatric": true,
+		"infantile": true, "juvenile": true, "neonatal": true, "congenital": true,
+		// Inheritance words
+		"hereditary": true, "familial": true, "genetic": true, "inherited": true,
+		"autosomal": true, "dominant": true, "recessive": true,
+		// Location qualifiers
+		"localized": true, "generalized": true, "generalised": true, "systemic": true,
+		// Common prepositions/articles
+		"with": true, "without": true, "associated": true, "related": true,
+		"type": true, "stage": true, "grade": true, "form": true, "variant": true,
+		// GO-specific common terms
+		"process": true, "activity": true, "function": true, "binding": true,
+		"regulation": true, "positive": true, "negative": true,
+		"cellular": true, "biological": true, "molecular": true,
+		// Anatomy common terms
+		"cell": true, "tissue": true, "organ": true, "structure": true,
+		// Other common terms
+		"susceptibility": true, "modifier": true, "obsolete": true,
+	}
+	return stopWords[strings.ToLower(word)]
 }

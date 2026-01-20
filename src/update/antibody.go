@@ -1039,13 +1039,21 @@ func (a *antibody) lookupAndCollectOntology(indication string, ontologyDatasetID
 
 	log.Printf("Antibody ontology lookup '%s': found %d results", indication, len(result.Results))
 
-	// Collect ontology IDs from top-level results only
-	// Note: EFO may not appear here if it's not indexed with disease names in lookup DB
+	// Collect ontology IDs from top-level results AND nested entries
+	// Ontology entries (EFO/MONDO) may appear nested in Entries when other datasets
+	// (like clinical_trials, ctd) are the top-level results
 	for _, xref := range result.Results {
 		log.Printf("  Result: dataset=%d identifier=%s (looking for dataset %d)", xref.Dataset, xref.Identifier, ontologyDatasetID)
 		if xref.Dataset == ontologyDatasetID {
 			ontologyIDs[xref.Identifier] = true
-			log.Printf("  -> MATCHED ontology: %s", xref.Identifier)
+			log.Printf("  -> MATCHED ontology (top-level): %s", xref.Identifier)
+		}
+		// Also check nested entries
+		for _, entry := range xref.Entries {
+			if entry.Dataset == ontologyDatasetID {
+				ontologyIDs[entry.Identifier] = true
+				log.Printf("  -> MATCHED ontology (nested): %s", entry.Identifier)
+			}
 		}
 	}
 }

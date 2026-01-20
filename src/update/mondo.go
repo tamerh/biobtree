@@ -184,10 +184,53 @@ func (m *mondo) saveEntry(id string, datasetID string, attr *pbuf.OntologyAttr) 
 		}
 	}
 
+	// Add individual significant words from name and synonyms for partial matching
+	// This allows searching "alzheimer" to find "Alzheimer disease"
+	allPhrases := []string{attr.Name}
+	allPhrases = append(allPhrases, attr.Synonyms...)
+	for _, phrase := range allPhrases {
+		for _, word := range strings.Fields(phrase) {
+			// Clean word of punctuation
+			word = strings.Trim(word, ",.;:'\"()-")
+			if len(word) >= 4 && !isMondoStopWord(word) {
+				searchTerms[word] = true
+			}
+		}
+	}
+
 	// Create text search xrefs for all unique terms
 	for term := range searchTerms {
 		m.d.addXref(term, textLinkID, id, m.source, true)
 	}
+}
+
+// isMondoStopWord returns true for common medical terms that should not be indexed alone
+func isMondoStopWord(word string) bool {
+	stopWords := map[string]bool{
+		// Disease type words
+		"disease": true, "disorder": true, "syndrome": true, "condition": true,
+		"cancer": true, "carcinoma": true, "neoplasm": true, "tumor": true, "tumour": true,
+		"malignant": true, "benign": true, "primary": true, "secondary": true,
+		"adenocarcinoma": true, "sarcoma": true, "lymphoma": true, "leukemia": true, "leukaemia": true,
+		// Severity/timing words
+		"acute": true, "chronic": true, "progressive": true, "recurrent": true,
+		"early": true, "late": true, "onset": true,
+		"mild": true, "moderate": true, "severe": true,
+		// Age-related words
+		"adult": true, "childhood": true, "pediatric": true, "paediatric": true,
+		"infantile": true, "juvenile": true, "neonatal": true, "congenital": true,
+		// Inheritance words
+		"hereditary": true, "familial": true, "genetic": true, "inherited": true,
+		"autosomal": true, "dominant": true, "recessive": true,
+		// Location qualifiers
+		"localized": true, "generalized": true, "generalised": true, "systemic": true,
+		// Common prepositions/articles
+		"with": true, "without": true, "associated": true, "related": true,
+		"type": true, "stage": true, "grade": true, "form": true, "variant": true,
+		// Other common terms
+		"susceptibility": true, "modifier": true, "NOS": true,
+	}
+	return stopWords[strings.ToLower(word)]
 }
 
 // extractSynonymText extracts the synonym text from a line like:

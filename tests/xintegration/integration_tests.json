@@ -199,7 +199,7 @@
     {
       "category": "protein_features",
       "name": "Protein to Signaling Pathways",
-      "query": ">>uniprot>>reactome[reactome.pathway.contains(\"signaling\")]",
+      "query": ">>uniprot>>reactome[reactome.name.contains(\"signaling\")]",
       "why": "Focus on signaling cascades - key for cancer biology and targeted therapy",
       "should_pass": [
         "P00533"
@@ -464,7 +464,7 @@
     {
       "category": "pathways",
       "name": "Protein to Activation Pathways",
-      "query": ">>uniprot>>reactome[reactome.pathway.contains(\"activation\")]",
+      "query": ">>uniprot>>reactome[reactome.name.contains(\"activation\")]",
       "why": "Focus on activation mechanisms - key for understanding signal transduction",
       "should_pass": [
         "P00533"
@@ -474,7 +474,7 @@
     {
       "category": "pathways",
       "name": "Protein to Regulation Pathways",
-      "query": ">>uniprot>>reactome[reactome.pathway.contains(\"Regulation\")]",
+      "query": ">>uniprot>>reactome[reactome.name.contains(\"Regulation\")]",
       "why": "Find regulatory pathways - important for feedback loops and control mechanisms",
       "should_pass": [
         "P04637"
@@ -1632,7 +1632,7 @@
     {
       "category": "clinical_trials",
       "name": "Clinical Trial to Gene Targets via MONDO",
-      "query": ">>clinical_trials>>mondo>>ensembl",
+      "query": ">>clinical_trials>>mondo>>gencc>>ensembl",
       "why": "Multi-hop: find gene targets for diseases studied in clinical trials",
       "should_pass": [
         "NCT05969704"
@@ -1647,9 +1647,9 @@
       "identifier": "NCT00139178",
       "why": "Clinical trial should have correct attributes including phase and study type",
       "validations": [
-        {"path": "source.Attributes.ClinicalTrial.phase", "equals": "PHASE4", "description": "Phase 4 trial"},
-        {"path": "source.Attributes.ClinicalTrial.study_type", "equals": "INTERVENTIONAL", "description": "Interventional study"},
-        {"path": "source.Attributes.ClinicalTrial.overall_status", "equals": "COMPLETED", "description": "Study completed"}
+        {"path": "source.Attributes.ClinicalTrials.phase", "equals": "PHASE4", "description": "Phase 4 trial"},
+        {"path": "source.Attributes.ClinicalTrials.study_type", "equals": "INTERVENTIONAL", "description": "Interventional study"},
+        {"path": "source.Attributes.ClinicalTrials.overall_status", "equals": "COMPLETED", "description": "Study completed"}
       ]
     },
     {

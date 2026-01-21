@@ -1,3 +1,6 @@
+🚀 BiobTree Project v2 coming soon with significant improvements, expanded dataset coverage, and new examples.
+👉 Subscribe to get notified by email: https://forms.gle/eKXnWk7kuMDzsX9b6
+
 # Biobtree
 
 <!--[![Build Status](https://dev.azure.com/biobtree/biobtree/_apis/build/status/tamerh.biobtree?branchName=master)](https://dev.azure.com/biobtree/biobtree/_build/latest?definitionId=1&branchName=master) -->

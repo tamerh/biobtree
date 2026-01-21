@@ -1,4 +1,4 @@
-# dbSNP - Single Nucleotide Polymorphism Database
+j# dbSNP - Single Nucleotide Polymorphism Database
 
 ## Overview
 
@@ -33,15 +33,36 @@ dbSNP is NCBI's authoritative database of genetic variation, providing comprehen
 - `variant_class`: dbSNP variant class annotation
 
 #### Population Frequencies
-- `allele_frequency`: Global allele frequency from 1000 Genomes
-- `gnomad_frequency`: gnomAD population frequency (reserved for future use)
+- `gnomad_frequency`: gnomAD global allele frequency (from FREQ field)
+- `gnomad_populations`: Population-specific gnomAD frequencies (array of PopulationFrequency)
+- `thousand_genomes_populations`: 1000 Genomes population frequencies (array of PopulationFrequency)
+
+**PopulationFrequency** structure:
+- `population`: Population name (e.g., "GnomAD_genomes", "TOPMED", "1000Genomes")
+- `frequency`: Alternate allele frequency (0.0-1.0)
+- `allele_count`: Number of alternate alleles observed
+- `allele_number`: Total number of alleles
+- `homozygote_count`: Number of homozygous individuals
 
 #### Gene Context
 - `gene_names`: Gene symbols associated with variant (array, e.g., ["BRCA1", "TP53"])
 - `gene_ids`: Entrez Gene IDs (array)
 - `pseudogene_names`: Pseudogene symbols (array)
 - `pseudogene_ids`: Pseudogene IDs (array)
-- `gene_locus`: Cytogenetic location (e.g., "17q21.31")
+- `gene_locus`: Cytogenetic location from LOC field (e.g., "17q21.31")
+
+#### HGVS Nomenclature
+- `hgvs_mane`: MANE Select transcript annotation (HgvsAnnotation)
+- `hgvs_transcripts`: All transcript annotations (array of HgvsAnnotation)
+
+**HgvsAnnotation** structure:
+- `transcript_id`: RefSeq transcript ID (e.g., "NM_001005484.2")
+- `gene_symbol`: Gene symbol (e.g., "OR4F5")
+- `hgvs_c`: HGVS c. notation (e.g., "c.339T>G", "c.9+1317")
+- `hgvs_p`: HGVS p. notation for protein changes (reserved)
+- `consequence`: Variant consequence ("coding", "intronic", "5_utr", "3_utr")
+- `is_mane_select`: True if this is the MANE Select transcript
+- `is_mane_plus_clinical`: True if MANE Plus Clinical transcript
 
 #### Variant Origin & Quality
 - `sao`: Variant Allele Origin
@@ -49,7 +70,7 @@ dbSNP is NCBI's authoritative database of genetic variation, providing comprehen
   - 1 = Germline (inherited variation)
   - 2 = Somatic (cancer/tumor variants)
   - 3 = Both germline and somatic
-- `is_common`: Common SNP flag (MAF ≥ 1% in 1000 Genomes populations)
+- `is_common`: Common SNP flag (MAF >= 1% in 1000 Genomes populations)
 - `ssr`: Suspect Reason Codes (quality flags, can be summed)
   - 1 = Paralog (maps to paralogous sequence)
   - 2 = byEST (variant called from EST data)
@@ -90,11 +111,20 @@ dbSNP is NCBI's authoritative database of genetic variation, providing comprehen
 - `has_publication`: PM flag - Variant has associated publication
 - `has_pubmed_ref`: PUB flag - RefSNP mentioned in a publication
 - `has_genotypes`: GNO flag - Genotypes available for this variant
-- `pubmed_ids`: PubMed citation IDs (array)
+- `pubmed_ids`: PubMed citation IDs from PMID field (array)
 
-#### Clinical & Historical Data
-- `clinical_significance`: Clinical significance from ClinVar
-- `merged_rs_ids`: Historical merged rs IDs (array)
+#### Clinical Data (ClinVar Integration)
+- `clinical_significance`: Clinical significance from ClinVar (CLNSIG field)
+- `clinvar_variation_id`: ClinVar Variation ID from CLNVI field
+- `clinvar_accession`: ClinVar accession from CLNACC field (e.g., "RCV000123456")
+- `clinvar_review_status`: Review status from CLNREVSTAT field
+- `clinvar_disease_names`: Disease names from CLNDN field (array)
+- `clinvar_disease_ids`: Disease database IDs from CLNDISDB field (array, e.g., "MedGen:C0020445")
+- `clinvar_origin`: Allele origin from CLNORIGIN field
+- `clinvar_hgvs`: ClinVar HGVS notation from CLNHGVS field
+
+#### Historical Data
+- `merged_rs_ids`: Historical merged rs IDs from OLD field (array)
 
 ### Cross-References
 
@@ -103,7 +133,11 @@ dbSNP is NCBI's authoritative database of genetic variation, providing comprehen
 - **Ensembl Genes**: Via gene symbol lookup using addXrefViaGeneSymbol()
   - Handles paralogs by creating xrefs to all matching Ensembl genes
   - Uses chromosome information for context
-  - Example: "BRCA1" search → Ensembl gene → "BRCA1 >> dbsnp" → all SNPs
+  - Example: "BRCA1" search -> Ensembl gene -> "BRCA1 >> dbsnp" -> all SNPs
+
+**Clinical Database Links**:
+- **ClinVar**: Via clinvar_variation_id for variants with clinical annotations
+- **PubMed**: Via pubmed_ids for literature references
 
 **Text Search**:
 - rs IDs indexed as keywords (direct lookup: "rs7903146")
@@ -111,13 +145,29 @@ dbSNP is NCBI's authoritative database of genetic variation, providing comprehen
 
 ### Special Features
 
+**HGVS Nomenclature Support**:
+- Uses RefSeq GFF3 annotation file (~77MB) for accurate transcript mapping
+- Loads 19,394 genes and 67,331 transcripts at startup
+- Provides both MANE Select annotation (clinical standard) and all transcript annotations
+- Computes proper c. notation:
+  - Coding variants: `c.339T>G` (position within CDS)
+  - Intronic variants: `c.9+1317` (relative to nearest exon boundary)
+  - UTR variants: `c.-50G>A` (5' UTR) or `c.*100A>G` (3' UTR)
+- Cached GFF3 file for fast subsequent loads
+
+**Population Frequency Integration**:
+- Parses FREQ field for multi-source frequency data
+- Supports gnomAD, 1000 Genomes, TOPMED, KOREAN, and other populations
+- Case-insensitive matching for population names
+- Stores both global gnomAD frequency and detailed population breakdowns
+
 **Gene Symbol to Ensembl Mapping**:
 - Gene symbols from GENEINFO and PSEUDOGENEINFO fields create bidirectional links
 - Uses `addXrefViaGeneSymbol()` for paralog-aware mapping
 - Creates xrefs to ALL matching Ensembl genes (deterministic principle)
 - Example workflow:
-  1. Search "DDX11L16" → finds Ensembl gene(s)
-  2. Query "DDX11L16 >> dbsnp" → returns all SNPs in that gene
+  1. Search "DDX11L16" -> finds Ensembl gene(s)
+  2. Query "DDX11L16 >> dbsnp" -> returns all SNPs in that gene
   3. For paralogs, returns SNPs from all chromosome copies
 
 **Comprehensive Functional Annotation**:
@@ -142,93 +192,108 @@ dbSNP is NCBI's authoritative database of genetic variation, providing comprehen
 
 **1. Variant Lookup by rs ID**
 ```
-Query: rs7903146 → Retrieve all attributes
+Query: rs7903146 -> Retrieve all attributes
 Use: Get comprehensive information about a known variant
 ```
 
 **2. Gene to Variants Mapping**
 ```
-Query: TCF7L2 >> dbsnp → All SNPs in TCF7L2 gene
+Query: TCF7L2 >> dbsnp -> All SNPs in TCF7L2 gene
 Use: Find all genetic variation in a gene of interest
 ```
 
 **3. Functional Impact Filtering**
 ```
-Query: All SNPs → Filter nsm=true OR nsn=true → Protein-changing variants
+Query: All SNPs -> Filter nsm=true OR nsn=true -> Protein-changing variants
 Use: Focus on variants likely to affect protein function
 ```
 
 **4. Common vs Rare Variants**
 ```
-Query: All SNPs → Filter is_common=true → Common variants (MAF ≥ 1%)
-Query: All SNPs → Filter is_common=false → Rare variants
+Query: All SNPs -> Filter is_common=true -> Common variants (MAF >= 1%)
+Query: All SNPs -> Filter is_common=false -> Rare variants
 Use: Population genetics and rare disease studies
 ```
 
 **5. Germline vs Somatic Filtering**
 ```
-Query: All SNPs → Filter sao=1 → Germline variants only
-Query: All SNPs → Filter sao=2 → Somatic/cancer variants only
+Query: All SNPs -> Filter sao=1 -> Germline variants only
+Query: All SNPs -> Filter sao=2 -> Somatic/cancer variants only
 Use: Separate inherited variation from cancer mutations
 ```
 
 **6. Quality Filtering**
 ```
-Query: All SNPs → Filter ssr=0 → High-quality variants only
-Query: All SNPs → Filter has_publication=true → Well-studied variants
+Query: All SNPs -> Filter ssr=0 -> High-quality variants only
+Query: All SNPs -> Filter has_publication=true -> Well-studied variants
 Use: Remove suspect variants, focus on validated SNPs
 ```
 
 **7. Splice Site Variants**
 ```
-Query: All SNPs → Filter ass=true OR dss=true → Splice site variants
+Query: All SNPs -> Filter ass=true OR dss=true -> Splice site variants
 Use: Identify variants affecting RNA splicing
 ```
 
-**8. Cross-Database Integration**
+**8. Population Frequency Filtering**
 ```
-Query: SNP → xrefs → Ensembl genes, ClinVar entries, GWAS associations
-Use: Link genomic data with genes, diseases, and traits
+Query: All SNPs -> Filter gnomad_frequency < 0.01 -> Rare in gnomAD
+Query: All SNPs -> Check gnomad_populations for specific populations
+Use: Population-specific frequency analysis
+```
+
+**9. HGVS-based Queries**
+```
+Query: SNP -> hgvs_mane.hgvs_c -> Get clinical HGVS notation
+Query: SNP -> hgvs_transcripts -> Get all transcript-level annotations
+Use: Clinical reporting, variant nomenclature standardization
+```
+
+**10. Cross-Database Integration**
+```
+Query: SNP -> xrefs -> Ensembl genes, ClinVar entries, PubMed articles
+Use: Link genomic data with genes, diseases, literature, and traits
 ```
 
 ## Test Cases
 
-**Current Tests** (10 total):
+**Current Tests** (21 total):
 - 4 declarative tests (JSON-based)
-- 6 custom tests (Python logic)
+- 17 custom tests (Python logic)
 
 **Coverage**:
-- ✅ Basic rs ID lookup
-- ✅ Attribute presence validation
-- ✅ Multiple ID batch lookup (5 SNPs)
-- ✅ Invalid ID handling
-- ✅ Genomic position data (chromosome, position)
-- ✅ Gene cross-references (via gene_id)
-- ✅ Gene symbol text search
-- ✅ Allele frequency data
-- ✅ Clinical significance
-- ✅ Variant type classification
-
-**Recommended Additions**:
-- Test functional annotation flags (NSM, NSN, SYN, splice sites)
-- Test variant origin filtering (SAO values)
-- Test common variant flag (is_common)
-- Test quality filtering (SSR codes)
-- Test publication flags (has_publication, has_pubmed_ref)
-- Test paralog handling (genes on multiple chromosomes)
-- Test pseudogene associations
-- Validate chromosome normalization (NC_000001.11 → 1)
-- Test variant type determination (SNV, insertion, deletion, MNV)
+- Basic rs ID lookup
+- Attribute presence validation
+- Multiple ID batch lookup (5 SNPs)
+- Invalid ID handling
+- Genomic position data (chromosome, position)
+- Gene cross-references (via gene_id)
+- Gene symbol text search
+- Allele frequency data
+- Clinical significance
+- Variant type classification
+- Functional annotation flags (NSM, NSN, SYN, splice sites, etc.)
+- Variant origin filtering (SAO values)
+- Common variant flag (is_common)
+- Publication flags (has_publication, has_pubmed_ref, has_genotypes)
+- Population frequencies (gnomAD, 1000 Genomes)
+- gnomAD global frequency field
+- Enhanced ClinVar fields (variation_id, accession, review_status, disease info)
+- PubMed IDs from PMID field
+- Merged rs IDs from OLD field
+- Gene locus (cytogenetic location)
+- HGVS nomenclature (MANE Select and all transcripts)
 
 ## Performance
 
-- **Test Build**: ~30s (10,000 variants from chr1 only)
+- **Test Build**: ~15s (50,000 variants from chr1 only)
 - **Data Source**: VCF file from NCBI FTP (GCF_000001405.40.gz)
 - **Full Build**: Several hours (depends on chromosome selection)
 - **Total Variants**: 1+ billion across all releases
-- **Test Mode**: chr1 only, limited to 10,000 entries
+- **Test Mode**: chr1 only, limited to 50,000 entries
 - **Production Mode**: All chromosomes (1-22, X, Y, MT)
-- **Test Database Size**: ~5 MB (10,000 variants)
+- **Test Database Size**: ~10 MB (50,000 variants)
+- **HGVS Mapper**: Loads 19,394 genes, 67,331 transcripts (~77MB GFF3 file)
 
 ## Known Limitations
 
@@ -250,15 +315,18 @@ Use: Link genomic data with genes, diseases, and traits
 **RefSeq Accession Format**:
 - Input: NC_000001.11 (RefSeq accession)
 - Normalized: 1 (simple chromosome name)
-- Special cases: NC_000023 → X, NC_000024 → Y, NC_012920 → MT
+- Special cases: NC_000023 -> X, NC_000024 -> Y, NC_012920 -> MT
 
-**Fields NOT Included**:
-- **FREQ**: Complex allele frequency list from multiple studies
-  - Would require special parsing and storage structure
-  - Current AF field provides 1000 Genomes global frequency
-- **ClinVar-specific INFO fields**: CLNHGVS, CLNVI, CLNORIGIN, CLNDISDB, CLNDN, CLNREVSTAT, CLNACC
-  - Redundant with separate ClinVar dataset
-  - Avoiding data duplication across datasets
+**HGVS Limitations**:
+- Only computes c. (coding) notation, not p. (protein) notation yet
+- Requires RefSeq GFF3 file to be downloaded/cached
+- Variants outside annotated transcripts have no HGVS annotation
+- Multi-allelic variants use first alternate allele for HGVS
+
+**ID Validation**:
+- PubMed IDs must start with a digit (numeric validation)
+- ClinVar variation IDs must start with a digit (numeric validation)
+- Invalid IDs (e.g., ".,") are skipped during cross-reference creation
 
 **Version Tracking**:
 - dbSNP releases quarterly
@@ -267,13 +335,13 @@ Use: Link genomic data with genes, diseases, and traits
 
 ## Future Work
 
-- Add gnomAD frequency integration (gnomad_frequency field reserved)
-- Implement FREQ field parsing for multi-study frequency data
+- Add p. (protein) notation to HGVS annotations
 - Add consequence prediction (VEP/SnpEff integration)
 - Add conservation scores (PhyloP, GERP++)
-- Add population-specific frequencies (AFR, EUR, EAS, SAS, AMR)
-- Test coverage for all functional annotation flags
-- Cross-reference validation (SNP → gene linkage accuracy)
+- dbNSFP enrichment (CADD, SIFT, PolyPhen scores)
+- PharmGKB pharmacogenomics links
+- COSMIC somatic mutation links
+- Cross-reference validation (SNP -> gene linkage accuracy)
 - Paralog-specific test cases
 - Performance benchmarks for full chromosome builds
 
@@ -283,7 +351,7 @@ Use: Link genomic data with genes, diseases, and traits
 - **Current Build**: dbSNP Build 157 (December 2024)
 - **Assembly**: GRCh38.p14
 - **Data Format**: VCF 4.2
-- **Test Data**: 10,000 variants from chr1
+- **Test Data**: 50,000 variants from chr1
 - **License**: Public domain (US government work)
 - **FTP**: ftp://ftp.ncbi.nlm.nih.gov/snp/latest_release/VCF/
 
@@ -294,4 +362,6 @@ Use: Link genomic data with genes, diseases, and traits
 - **FTP**: ftp://ftp.ncbi.nlm.nih.gov/snp/
 - **Documentation**: https://www.ncbi.nlm.nih.gov/snp/docs/
 - **VCF Format**: https://samtools.github.io/hts-specs/VCFv4.2.pdf
+- **HGVS Nomenclature**: https://varnomen.hgvs.org/
+- **MANE Project**: https://www.ncbi.nlm.nih.gov/refseq/MANE/
 - **License**: Public domain

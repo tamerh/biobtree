@@ -66,6 +66,30 @@
     {
       "name": "Check publication flags",
       "description": "Verify publication and genotype availability flags"
+    },
+    {
+      "name": "Check population frequencies",
+      "description": "Verify population-specific frequencies (gnomAD, 1000 Genomes) from FREQ field"
+    },
+    {
+      "name": "Check gnomAD frequency field",
+      "description": "Verify gnomAD global frequency is populated from FREQ field"
+    },
+    {
+      "name": "Check enhanced ClinVar fields",
+      "description": "Verify ClinVar variation_id, accession, review_status, disease names/ids, HGVS"
+    },
+    {
+      "name": "Check PubMed IDs",
+      "description": "Verify PubMed IDs are extracted from PMID field"
+    },
+    {
+      "name": "Check merged rs IDs",
+      "description": "Verify merged rs IDs (historical) are extracted from OLD field"
+    },
+    {
+      "name": "Check gene locus",
+      "description": "Verify gene locus (cytogenetic location) is stored from LOC field"
     }
   ]
 }

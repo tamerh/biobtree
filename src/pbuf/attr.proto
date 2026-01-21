@@ -752,6 +752,16 @@ message GwasAttr {
   string platform = 25;
 }
 
+// Population frequency data for dbSNP variants
+// Used to store population-specific allele frequencies from gnomAD, 1000 Genomes, etc.
+message PopulationFrequency {
+  string population = 1;      // Population name (e.g., "gnomAD", "gnomAD_AFR", "1000Genomes", "TOPMED")
+  double frequency = 2;       // Alternate allele frequency (0.0-1.0)
+  int32 allele_count = 3;     // Allele count (AC) - if available
+  int32 allele_number = 4;    // Allele number (AN) - if available
+  int32 homozygote_count = 5; // Homozygote count - if available
+}
+
 // dbSNP - Single Nucleotide Polymorphism Database (Dataset ID: 123)
 // NCBI's database of genetic variation containing SNPs, indels, and structural variants
 message DbsnpAttr {
@@ -767,17 +777,17 @@ message DbsnpAttr {
 
   // Allele frequencies
   double allele_frequency = 7;                          // Global allele frequency (1000 Genomes)
-  double gnomad_frequency = 8;                          // gnomAD population frequency
+  double gnomad_frequency = 8;                          // gnomAD global population frequency (from FREQ field)
 
   // Gene context (can be multiple genes per SNP)
   repeated string gene_names = 9;                       // Gene symbols (e.g., ["BRCA1", "TP53"])
   repeated string gene_ids = 10;                        // Entrez Gene IDs
   repeated string pseudogene_names = 17;                // Pseudogene symbols
   repeated string pseudogene_ids = 18;                  // Pseudogene IDs
-  string gene_locus = 11;                               // Cytogenetic locus (e.g., "17q21.31")
+  string gene_locus = 11;                               // Cytogenetic locus (e.g., "17q21.31") - from LOC field
 
   // Functional annotation
-  string clinical_significance = 12;                    // Clinical significance (from ClinVar)
+  string clinical_significance = 12;                    // Clinical significance (from ClinVar CLNSIG)
   string variant_type = 13;                             // Variant type (SNV, insertion, deletion, etc.)
   string variant_class = 14;                            // Variant class (e.g., "single nucleotide variant")
 
@@ -809,15 +819,46 @@ message DbsnpAttr {
   bool has_genotypes = 35;                              // GNO flag: Genotypes available
 
   // Historical data
-  repeated string merged_rs_ids = 15;                   // Merged rs IDs (historical)
+  repeated string merged_rs_ids = 15;                   // Merged rs IDs (historical) - from OLD field
 
   // Literature
-  repeated string pubmed_ids = 16;                      // PubMed citation IDs
+  repeated string pubmed_ids = 16;                      // PubMed citation IDs - from PMID field
 
-  // NOTE: The following VCF INFO fields are NOT included in this schema:
-  // - FREQ: Complex allele frequency list from multiple studies (would require special parsing and storage structure)
-  // - CLNHGVS, CLNVI, CLNORIGIN, CLNDISDB, CLNDN, CLNREVSTAT, CLNACC: ClinVar-specific fields
-  //   These are redundant with the separate ClinVar dataset and would duplicate data unnecessarily
+  // === NEW FIELDS (40-51) - Added for enhanced dbSNP support ===
+
+  // Population Frequencies (P0 - High Priority)
+  // Parsed from FREQ field: "gnomAD:0.999,0.001|1000Genomes:0.998,0.002|..."
+  repeated PopulationFrequency gnomad_populations = 40;           // gnomAD population-specific frequencies
+  repeated PopulationFrequency thousand_genomes_populations = 41; // 1000 Genomes population-specific frequencies
+
+  // Enhanced ClinVar Integration (P1)
+  // These fields provide direct ClinVar linkage for clinical variant interpretation
+  string clinvar_variation_id = 44;           // ClinVar Variation ID (from CLNVI) - for direct ClinVar linking
+  string clinvar_accession = 45;              // ClinVar RCV accession (from CLNACC)
+  string clinvar_review_status = 46;          // Review quality indicator (from CLNREVSTAT)
+                                              // Values: no_assertion, criteria_provided, reviewed_by_expert_panel, practice_guideline
+  repeated string clinvar_disease_ids = 47;   // Disease database IDs (from CLNDISDB) - MedGen, OMIM, Orphanet
+  repeated string clinvar_disease_names = 48; // Disease/condition names (from CLNDN)
+  int32 clinvar_origin = 49;                  // Variant origin (from CLNORIGIN)
+                                              // 0=unknown, 1=germline, 2=somatic, 4=inherited, 8=paternal, 16=maternal, 32=de-novo, 64=biparental, 128=uniparental, 256=not-tested, 512=tested-inconclusive, 1073741824=other
+  string clinvar_hgvs = 50;                   // HGVS expression (from CLNHGVS) - standard clinical nomenclature
+
+  // === HGVS Nomenclature (computed from RefSeq GFF3) ===
+  // Provides standardized nomenclature for clinical reporting
+  HgvsAnnotation hgvs_mane = 52;              // MANE Select transcript (primary clinical reference)
+  repeated HgvsAnnotation hgvs_transcripts = 53;  // All affected transcripts (complete picture)
+}
+
+// HGVS annotation for a single transcript
+// Used by dbSNP to provide standardized clinical nomenclature
+message HgvsAnnotation {
+  string transcript_id = 1;     // RefSeq transcript accession (e.g., "NM_001005484.2")
+  string gene_symbol = 2;       // Gene symbol (e.g., "BRCA1", "TP53")
+  string hgvs_c = 3;            // Coding DNA notation (e.g., "c.215C>G", "c.215+10A>G" for intronic)
+  string hgvs_p = 4;            // Protein notation (e.g., "p.Pro72Arg") - only for coding changes
+  string consequence = 5;       // Variant consequence: "coding", "intronic", "5_utr", "3_utr", "upstream", "downstream"
+  bool is_mane_select = 6;      // True if this is the MANE Select transcript
+  bool is_mane_plus_clinical = 7; // True if this is a MANE Plus Clinical transcript
 }
 
 // IntAct - Protein-Protein Interactions (Dataset ID: 44)

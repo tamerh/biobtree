@@ -20,13 +20,32 @@ import (
 )
 
 type dbsnp struct {
-	source string
-	d      *DataUpdate
+	source     string
+	d          *DataUpdate
+	hgvsMapper *HGVSMapper // HGVS nomenclature mapper
 }
 
 // Helper for context-aware error checking
 func (db *dbsnp) check(err error, operation string) {
 	checkWithContext(err, db.source, operation)
+}
+
+// isValidNumericID checks if a string is a valid numeric ID (for PMID, ClinVar, etc.)
+// Returns true only if the string starts with a digit and contains only digits
+func isValidNumericID(id string) bool {
+	if id == "" {
+		return false
+	}
+	for i, c := range id {
+		if c < '0' || c > '9' {
+			// Allow trailing non-digits in some cases (e.g., "123456.1")
+			// but the first character must be a digit
+			if i == 0 {
+				return false
+			}
+		}
+	}
+	return id[0] >= '0' && id[0] <= '9'
 }
 
 // checkTabixAvailable verifies that tabix is installed and accessible
@@ -49,6 +68,16 @@ func (db *dbsnp) update() {
 
 	log.Println("dbSNP: Starting data processing...")
 	startTime := time.Now()
+
+	// Initialize HGVS mapper for transcript-level nomenclature
+	// This downloads and parses the RefSeq GFF3 file (~77MB)
+	db.hgvsMapper = NewHGVSMapper()
+	cacheDir := filepath.Join(config.Appconf["rootDir"], "cache")
+	if err := db.hgvsMapper.Load(cacheDir); err != nil {
+		log.Printf("dbSNP: Warning - HGVS mapper failed to load: %v", err)
+		log.Printf("dbSNP: Continuing without HGVS annotations")
+		db.hgvsMapper = nil
+	}
 
 	// Test mode support
 	testLimit := config.GetTestLimit(db.source)
@@ -424,8 +453,100 @@ func (db *dbsnp) processChromosome(
 			attr.HasGenotypes = true
 		}
 
+		// NEW: Parse FREQ field for population frequencies (P0 - High Priority)
+		if freq, ok := infoMap["FREQ"]; ok {
+			db.parseFrequencies(freq, attr)
+		}
+
+		// NEW: Parse PMID field for PubMed links
+		if pmid, ok := infoMap["PMID"]; ok {
+			// PMID can be comma-separated list
+			pmids := strings.Split(pmid, ",")
+			for _, p := range pmids {
+				p = strings.TrimSpace(p)
+				// PubMed IDs must be numeric - skip invalid entries like ".", ".,", etc.
+				if isValidNumericID(p) {
+					attr.PubmedIds = append(attr.PubmedIds, p)
+				}
+			}
+		}
+
+		// NEW: Parse OLD field for merged rs IDs
+		if old, ok := infoMap["OLD"]; ok {
+			// OLD can be comma-separated list of former rs IDs
+			oldIDs := strings.Split(old, ",")
+			for _, id := range oldIDs {
+				id = strings.TrimSpace(id)
+				if id != "" && id != "." {
+					attr.MergedRsIds = append(attr.MergedRsIds, id)
+				}
+			}
+		}
+
+		// NEW: Parse LOC field for gene locus (cytogenetic location)
+		if loc, ok := infoMap["LOC"]; ok {
+			attr.GeneLocus = loc
+		}
+
+		// NEW: Enhanced ClinVar fields (P1)
+		if clnvi, ok := infoMap["CLNVI"]; ok {
+			attr.ClinvarVariationId = clnvi
+		}
+		if clnacc, ok := infoMap["CLNACC"]; ok {
+			attr.ClinvarAccession = clnacc
+		}
+		if clnrevstat, ok := infoMap["CLNREVSTAT"]; ok {
+			attr.ClinvarReviewStatus = clnrevstat
+		}
+		if clndn, ok := infoMap["CLNDN"]; ok {
+			// Disease names can be pipe-separated
+			names := strings.Split(clndn, "|")
+			for _, name := range names {
+				name = strings.TrimSpace(name)
+				if name != "" && name != "." && name != "not_provided" {
+					attr.ClinvarDiseaseNames = append(attr.ClinvarDiseaseNames, name)
+				}
+			}
+		}
+		if clndisdb, ok := infoMap["CLNDISDB"]; ok {
+			// Disease database IDs can be pipe-separated (e.g., "MedGen:CN169374|OMIM:123456")
+			ids := strings.Split(clndisdb, "|")
+			for _, id := range ids {
+				id = strings.TrimSpace(id)
+				if id != "" && id != "." {
+					attr.ClinvarDiseaseIds = append(attr.ClinvarDiseaseIds, id)
+				}
+			}
+		}
+		if clnorigin, ok := infoMap["CLNORIGIN"]; ok {
+			if originInt, parseErr := strconv.ParseInt(clnorigin, 10, 32); parseErr == nil {
+				attr.ClinvarOrigin = int32(originInt)
+			}
+		}
+		if clnhgvs, ok := infoMap["CLNHGVS"]; ok {
+			attr.ClinvarHgvs = clnhgvs
+		}
+
 		// Determine variant type
 		attr.VariantType = db.determineVariantType(refAllele, altAllele)
+
+		// Compute HGVS nomenclature if mapper is available
+		if db.hgvsMapper != nil && db.hgvsMapper.IsLoaded() {
+			// Use gene names from GENEINFO for transcript lookup
+			maneAnnotation, allAnnotations := db.hgvsMapper.ComputeHGVS(
+				chromField, // NC_* accession
+				pos,
+				refAllele,
+				altAllele,
+				attr.GeneNames,
+			)
+			if maneAnnotation != nil {
+				attr.HgvsMane = maneAnnotation
+			}
+			if len(allAnnotations) > 0 {
+				attr.HgvsTranscripts = allAnnotations
+			}
+		}
 
 		// Save SNP using standard addProp3 (routes to bucket system via HybridWriterPool)
 		db.saveSNP(rsID, attr, sourceID)
@@ -495,6 +616,21 @@ func (db *dbsnp) parseINFO(infoField string) map[string]string {
 		"PM":             true, // Has associated publication
 		"PUB":            true, // RefSNP mentioned in publication
 		"GNO":            true, // Genotypes available
+		// NEW: Population frequencies (P0 - High Priority)
+		"FREQ": true, // Population allele frequencies (gnomAD, 1000 Genomes, etc.)
+		// NEW: PubMed and merged rs IDs (P1)
+		"PMID": true, // PubMed IDs
+		"OLD":  true, // Merged rs IDs (historical)
+		// NEW: Enhanced ClinVar fields (P1)
+		"CLNVI":      true, // ClinVar Variation ID
+		"CLNDN":      true, // ClinVar disease name
+		"CLNDISDB":   true, // ClinVar disease database IDs (MedGen, OMIM, etc.)
+		"CLNREVSTAT": true, // ClinVar review status
+		"CLNORIGIN":  true, // ClinVar origin (germline, somatic, etc.)
+		"CLNACC":     true, // ClinVar accession
+		"CLNHGVS":    true, // ClinVar HGVS expression
+		// NEW: Cytogenetic location
+		"LOC": true, // Cytogenetic location (gene locus)
 	}
 
 	// Manual parsing to avoid strings.Split() which allocates entire array
@@ -617,6 +753,82 @@ func (db *dbsnp) createCrossReferences(rsID, sourceID string, attr *pbuf.DbsnpAt
 	for _, pseudogeneName := range attr.PseudogeneNames {
 		if pseudogeneName != "" && len(pseudogeneName) < 100 {
 			db.d.addXrefViaGeneSymbol(pseudogeneName, attr.Chromosome, rsID, db.source, sourceID)
+		}
+	}
+
+	// NEW: ClinVar cross-reference (if variation_id present and valid numeric)
+	if isValidNumericID(attr.ClinvarVariationId) {
+		db.d.addXref(rsID, sourceID, attr.ClinvarVariationId, "clinvar", false)
+	}
+
+	// NEW: PubMed cross-references (already validated during parsing)
+	for _, pmid := range attr.PubmedIds {
+		if pmid != "" {
+			db.d.addXref(rsID, sourceID, pmid, "literature_mappings", false)
+		}
+	}
+}
+
+// parseFrequencies parses the FREQ field from dbSNP VCF
+// FREQ format: "source1:ref_freq,alt_freq|source2:ref_freq,alt_freq|..."
+// Example: "1000Genomes:0.999,0.001|gnomAD:0.998,0.002|TOPMED:0.9995,0.0005"
+// Extracts gnomAD frequency for the gnomad_frequency field and populates
+// population-specific frequencies in the population_frequencies field
+func (db *dbsnp) parseFrequencies(freqStr string, attr *pbuf.DbsnpAttr) {
+	if freqStr == "" || freqStr == "." {
+		return
+	}
+
+	// Split by pipe to get each source
+	sources := strings.Split(freqStr, "|")
+
+	for _, source := range sources {
+		parts := strings.SplitN(source, ":", 2)
+		if len(parts) != 2 {
+			continue
+		}
+
+		sourceName := parts[0]
+		freqValues := strings.Split(parts[1], ",")
+
+		// We want the alternate allele frequency (second value)
+		if len(freqValues) < 2 {
+			continue
+		}
+
+		// Parse the alternate allele frequency
+		altFreqStr := freqValues[1]
+		if altFreqStr == "" || altFreqStr == "." {
+			continue
+		}
+
+		altFreq, err := strconv.ParseFloat(altFreqStr, 64)
+		if err != nil {
+			continue
+		}
+
+		// Create population frequency entry
+		popFreq := &pbuf.PopulationFrequency{
+			Population: sourceName,
+			Frequency:  altFreq,
+		}
+
+		// Add to appropriate list based on source (case-insensitive matching)
+		sourceNameLower := strings.ToLower(sourceName)
+		switch {
+		case strings.HasPrefix(sourceNameLower, "gnomad"):
+			// Store global gnomAD frequency in the dedicated field
+			// Match: gnomAD, GnomAD, gnomAD_exomes, GnomAD_genomes, etc.
+			if sourceNameLower == "gnomad" || sourceNameLower == "gnomad_exomes" || sourceNameLower == "gnomad_genomes" {
+				attr.GnomadFrequency = altFreq
+			}
+			attr.GnomadPopulations = append(attr.GnomadPopulations, popFreq)
+		case strings.HasPrefix(sourceNameLower, "1000genomes"):
+			attr.ThousandGenomesPopulations = append(attr.ThousandGenomesPopulations, popFreq)
+		default:
+			// Other sources (TOPMED, ALSPAC, KOREAN, etc.) go to gnomAD populations for now
+			// This is a simplification; could add a separate field for other sources
+			attr.GnomadPopulations = append(attr.GnomadPopulations, popFreq)
 		}
 	}
 }

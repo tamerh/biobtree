@@ -1856,6 +1856,36 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)
 				xref.Attributes = &pbuf.Xref_Ctd{attr}
+			case "pharmgkb":
+				attr := &pbuf.PharmgkbAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Pharmgkb{attr}
+			case "pharmgkb_gene":
+				attr := &pbuf.PharmgkbGeneAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_PharmgkbGene{attr}
+			case "pharmgkb_clinical":
+				attr := &pbuf.PharmgkbClinicalAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_PharmgkbClinical{attr}
+			case "pharmgkb_variant":
+				attr := &pbuf.PharmgkbVariantAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_PharmgkbVariant{attr}
+			case "pharmgkb_guideline":
+				attr := &pbuf.PharmgkbGuidelineAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_PharmgkbGuideline{attr}
+			case "pharmgkb_pathway":
+				attr := &pbuf.PharmgkbPathwayAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_PharmgkbPathway{attr}
 			case "drugcentral":
 				attr := &pbuf.DrugcentralAttr{}
 				barr := []byte((*kvProp[k])[0].value)
@@ -2170,6 +2200,36 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 					barr := []byte((*kvProp[k])[0].value)
 					ffjson.Unmarshal(barr, attr)
 					xref.Attributes = &pbuf.Xref_Ctd{attr}
+				case "pharmgkb":
+					attr := &pbuf.PharmgkbAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_Pharmgkb{attr}
+				case "pharmgkb_gene":
+					attr := &pbuf.PharmgkbGeneAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_PharmgkbGene{attr}
+				case "pharmgkb_clinical":
+					attr := &pbuf.PharmgkbClinicalAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_PharmgkbClinical{attr}
+				case "pharmgkb_variant":
+					attr := &pbuf.PharmgkbVariantAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_PharmgkbVariant{attr}
+				case "pharmgkb_guideline":
+					attr := &pbuf.PharmgkbGuidelineAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_PharmgkbGuideline{attr}
+				case "pharmgkb_pathway":
+					attr := &pbuf.PharmgkbPathwayAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_PharmgkbPathway{attr}
 				case "drugcentral":
 					attr := &pbuf.DrugcentralAttr{}
 					barr := []byte((*kvProp[k])[0].value)

@@ -98,7 +98,7 @@ func (amt *alphamissenseTranscript) parseAndSaveTranscriptData(sourceID, textLin
 			continue
 		}
 
-		transcriptID := fields[0]
+		transcriptIDVersioned := fields[0]
 		meanPathogenicityStr := fields[1]
 
 		// Parse mean pathogenicity
@@ -107,13 +107,21 @@ func (amt *alphamissenseTranscript) parseAndSaveTranscriptData(sourceID, textLin
 			continue
 		}
 
-		// Entry ID is the transcript ID directly
-		entryID := transcriptID
+		// Extract base transcript ID (without version) for entry ID
+		// This enables direct linking from other datasets (RefSeq, Ensembl)
+		transcriptBase := transcriptIDVersioned
+		if dotIdx := strings.Index(transcriptIDVersioned, "."); dotIdx > 0 {
+			transcriptBase = transcriptIDVersioned[:dotIdx]
+		}
+
+		// Entry ID is the base transcript ID (without version)
+		entryID := transcriptBase
 
 		// Create transcript-level attributes
 		attr := &pbuf.AlphaMissenseTranscriptAttr{
-			TranscriptId:        transcriptID,
-			MeanAmPathogenicity: meanPathogenicity,
+			TranscriptId:          transcriptBase,        // Base ID (same as entry ID)
+			TranscriptIdVersioned: transcriptIDVersioned, // Full ID with version
+			MeanAmPathogenicity:   meanPathogenicity,
 		}
 
 		// Marshal and save
@@ -126,17 +134,12 @@ func (amt *alphamissenseTranscript) parseAndSaveTranscriptData(sourceID, textLin
 			logProcessedID(idLogFile, entryID)
 		}
 
-		// Create cross-reference to Ensembl transcript
-		// Strip version for cross-referencing
-		transcriptBase := transcriptID
-		if dotIdx := strings.Index(transcriptID, "."); dotIdx > 0 {
-			transcriptBase = transcriptID[:dotIdx]
-		}
+		// Create cross-reference to Ensembl transcript (bidirectional)
 		amt.d.addXref(entryID, sourceID, transcriptBase, "transcript", false)
 
-		// Text search indexing - allow searching by transcript ID
+		// Text search indexing - allow searching by both versioned and base transcript ID
 		amt.d.addXref(transcriptBase, textLinkID, entryID, amt.source, true)
-		amt.d.addXref(transcriptID, textLinkID, entryID, amt.source, true)
+		amt.d.addXref(transcriptIDVersioned, textLinkID, entryID, amt.source, true)
 
 		entryCount++
 

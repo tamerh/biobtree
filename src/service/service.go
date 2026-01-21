@@ -165,6 +165,14 @@ func (s *service) init() {
 		cel.Types(&pbuf.MsigdbAttr{}),
 		cel.Types(&pbuf.AlphaMissenseAttr{}),
 		cel.Types(&pbuf.AlphaMissenseTranscriptAttr{}),
+		cel.Types(&pbuf.PharmgkbAttr{}),
+		cel.Types(&pbuf.PharmgkbRelatedGene{}),
+		cel.Types(&pbuf.PharmgkbGeneAttr{}),
+		cel.Types(&pbuf.PharmgkbClinicalAttr{}),
+		cel.Types(&pbuf.PharmgkbDrugLabel{}),
+		cel.Types(&pbuf.PharmgkbVariantAttr{}),
+		cel.Types(&pbuf.PharmgkbGuidelineAttr{}),
+		cel.Types(&pbuf.PharmgkbPathwayAttr{}),
 		cel.Declarations(
 			decls.NewIdent("uniprot", decls.NewObjectType("pbuf.UniprotAttr"), nil)),
 		cel.Declarations(
@@ -265,6 +273,18 @@ func (s *service) init() {
 			decls.NewIdent("alphamissense", decls.NewObjectType("pbuf.AlphaMissenseAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("alphamissense_transcript", decls.NewObjectType("pbuf.AlphaMissenseTranscriptAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("pharmgkb", decls.NewObjectType("pbuf.PharmgkbAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("pharmgkb_gene", decls.NewObjectType("pbuf.PharmgkbGeneAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("pharmgkb_clinical", decls.NewObjectType("pbuf.PharmgkbClinicalAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("pharmgkb_variant", decls.NewObjectType("pbuf.PharmgkbVariantAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("pharmgkb_guideline", decls.NewObjectType("pbuf.PharmgkbGuidelineAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("pharmgkb_pathway", decls.NewObjectType("pbuf.PharmgkbPathwayAttr"), nil)),
 		cel.Declarations(
 			decls.NewFunction("overlaps",
 				decls.NewOverload("overlaps_int_int",

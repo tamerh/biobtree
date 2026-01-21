@@ -1,0 +1,2259 @@
+[
+  {
+    "pharmgkb_id": "PA166250381",
+    "name": "10-desmethyl alpha-dihydrotetrabenazine",
+    "type": "Metabolite",
+    "generic_names": [
+      "(2R",
+      "3R",
+      "11bR)-9-methoxy-3-(2-methylpropyl)-2",
+      "3",
+      "4",
+      "6",
+      "7",
+      "11b-hexahydro-1H-benzo[a]quinolizine-2",
+      "10-diol",
+      "10-o-desmethyl-alpha-htbz"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "59272813"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 0,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166250405",
+    "name": "10-desmethyl beta-dihydrodeutetrabenazine",
+    "type": "Metabolite",
+    "generic_names": [
+      "(2S",
+      "3R",
+      "11bR)-3-(2-methylpropyl)-9-(trideuteriomethoxy)-2",
+      "3",
+      "4",
+      "6",
+      "7",
+      "11b-hexahydro-1H-benzo[a]quinolizine-2",
+      "10-diol",
+      "d3-10-o-desmethyl-beta-htbz"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "117693284"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 0,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166250403",
+    "name": "10-desmethyl beta-dihydrotetrabenazine",
+    "type": "Metabolite",
+    "generic_names": [
+      "(2S",
+      "3R",
+      "11bR)-9-methoxy-3-(2-methylpropyl)-2",
+      "3",
+      "4",
+      "6",
+      "7",
+      "11b-hexahydro-1H-benzo[a]quinolizine-2",
+      "10-diol",
+      "10-o-desmethyl-beta-htbz"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "59272796"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 0,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166178620",
+    "name": "10-formyltetrahydrofolate",
+    "type": "Biological Intermediate",
+    "generic_names": [],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "10"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 2,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166131395",
+    "name": "10-hydroxy r-warfarin",
+    "type": "Metabolite",
+    "generic_names": [],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "101987375"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 1,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166326301",
+    "name": "10-hydroxytopiramate",
+    "type": "Metabolite",
+    "generic_names": [
+      "[(1R",
+      "2S",
+      "6S",
+      "9R",
+      "11S)-11-(hydroxymethyl)-4",
+      "4",
+      "11-trimethyl-3",
+      "5",
+      "7",
+      "10",
+      "12-pentaoxatricyclo[7.3.0.02",
+      "6]dodecan-6-yl]methyl sulfamate",
+      "r-hydroxy topiramate"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "29982171"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 0,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166182602",
+    "name": "10-monohydroxy oxcarbazepine",
+    "type": "Metabolite",
+    "generic_names": [
+      "eslicarbazepine",
+      "licarbazepine",
+      "monohydroxy derivative",
+      "MHD"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "114709"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 2,
+    "pathway_count": 1,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166318342",
+    "name": "11a-hydroxyprogesterone",
+    "type": "Metabolite, Biological Intermediate",
+    "generic_names": [
+      "11alpha-hydroxypregn-4-ene-3",
+      "20-dione"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "92730"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 1,
+    "pathway_count": 0,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166318261",
+    "name": "11alpha-hydroxytestosterone",
+    "type": "Metabolite, Biological Intermediate",
+    "generic_names": [
+      "11alpha",
+      "17beta-Dihydroxyandrost-4-en-3-one"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "11954152"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 1,
+    "pathway_count": 0,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166360001",
+    "name": "11-dehydrodexamethasone",
+    "type": "Metabolite",
+    "generic_names": [
+      "(8S",
+      "9R",
+      "10S",
+      "13S",
+      "14S",
+      "16R",
+      "17R)-9-fluoro-17-hydroxy-17-(2-hydroxyacetyl)-10",
+      "13",
+      "16-trimethyl-7",
+      "8",
+      "12",
+      "14",
+      "15",
+      "16-hexahydro-6H-cyclopenta[a]phenanthrene-3",
+      "11-dione",
+      "11-keto-dexamethasone"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "10023285"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 1,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166301663",
+    "name": "11-dehydro-thromboxane B2",
+    "type": "Metabolite, Biological Intermediate",
+    "generic_names": [
+      "(Z)-7-[(2R",
+      "3S",
+      "4S)-4-hydroxy-2-[(E",
+      "3S)-3-hydroxyoct-1-enyl]-6-oxooxan-3-yl]hept-5-enoic acid",
+      "11-dehydro-txb2",
+      "11-dehydrothromboxane B2",
+      "11-dhTxB2"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "5280891"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 0,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166339683",
+    "name": "12,13-EpOME",
+    "type": "Biological Intermediate",
+    "generic_names": [
+      "(9Z)-11-(3-pentyloxiran-2-yl)undec-9-enoic acid",
+      "(Z)-11-(3-pentyloxiran-2-yl)undec-9-enoic acid",
+      "12(13)-epome",
+      "vernolic acid"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "5356421"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 0,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166246381",
+    "name": "1-(2,3-dichlorophenyl)piperazine",
+    "type": "Metabolite",
+    "generic_names": [
+      "2",
+      "3",
+      "-CIPP",
+      "DCPP"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "851833"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 1,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166271901",
+    "name": "1,2,4-triazole-3-carboxamide",
+    "type": "Metabolite",
+    "generic_names": [
+      "1H-1",
+      "2",
+      "4-triazole-3-carboxamide"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "65125"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 1,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166131247",
+    "name": "12-hydroxynevirapine",
+    "type": "Metabolite",
+    "generic_names": [],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "453338"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 0,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166131249",
+    "name": "12-hydroxynevirapine glucuronide",
+    "type": "Metabolite",
+    "generic_names": [],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "131769925"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 0,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166165005",
+    "name": "12-hydroxy-sirolimus",
+    "type": "Metabolite",
+    "generic_names": [],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 1,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166131367",
+    "name": "1,3,7-trimethyluric acid",
+    "type": "Metabolite",
+    "generic_names": [],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "79437"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 2,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166131353",
+    "name": "1,3-dimethyl uric acid",
+    "type": "Metabolite",
+    "generic_names": [],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "70346"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 0,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166131533",
+    "name": "13-O-demethyl tacrolimus",
+    "type": "Metabolite",
+    "generic_names": [],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "131769926"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 0,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166358761",
+    "name": "1',4-dihydroxymidazolam",
+    "type": "Metabolite",
+    "generic_names": [
+      "1'",
+      "4-dihydroxy midazolam",
+      "8-chloro-6-(2-fluorophenyl)-1-(hydroxymethyl)-4H-imidazo[1",
+      "5-a][1",
+      "4]benzodiazepin-4-ol"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "10316307"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 0,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166160599",
+    "name": "14-hydroxyclarithromycin",
+    "type": "Metabolite",
+    "generic_names": [
+      "14-Hydroxy-6-O-methylerythromycin"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "84020"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 1,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166342884",
+    "name": "16a-Hydroxyprednisolone",
+    "type": "Metabolite",
+    "generic_names": [
+      "2-[(8S",
+      "9S",
+      "10R",
+      "11R",
+      "13S",
+      "14S",
+      "16S",
+      "17S)-11",
+      "16",
+      "17-trihydroxy-10",
+      "13-dimethyl-3-oxo-7",
+      "8",
+      "9",
+      "11",
+      "12",
+      "14",
+      "15",
+      "16-octahydro-6H-cyclopenta[a]phenanthren-17-yl]acetic acid"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "102602653"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 0,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166318321",
+    "name": "16alpha-hydroxyprogesterone",
+    "type": "Metabolite, Biological Intermediate",
+    "generic_names": [
+      "16alpha-hydroxypregn-4-ene-3",
+      "20-dione"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "243761"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 1,
+    "pathway_count": 0,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166318241",
+    "name": "16alpha-hydroxytestosterone",
+    "type": "Metabolite, Biological Intermediate",
+    "generic_names": [
+      "16alpha",
+      "17beta-dihydroxyandrost-4-en-3-one"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "65545"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 1,
+    "pathway_count": 0,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166415881",
+    "name": "16-carboxymitragynine",
+    "type": "Metabolite",
+    "generic_names": [
+      "(E)-2-[(2S",
+      "3S",
+      "12bS)-3-ethyl-8-methoxy-1",
+      "2",
+      "3",
+      "4",
+      "6",
+      "7",
+      "12",
+      "12b-octahydroindolo[2",
+      "3-a]quinolizin-2-yl]-3-methoxyprop-2-enoic acid"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "155143670"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 0,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166238901",
+    "name": "17-alpha-dihydroequilenin sulfate",
+    "type": "Drug",
+    "generic_names": [],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "23671798"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 0,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166238881",
+    "name": "17-alpha-dihydroequilin",
+    "type": "Drug",
+    "generic_names": [],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "9547222"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 0,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166238883",
+    "name": "17-alpha-dihydroequilin sulfate",
+    "type": "Drug",
+    "generic_names": [],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "23671797"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 0,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166238882",
+    "name": "17-alpha-estradiol sulfate",
+    "type": "Drug",
+    "generic_names": [],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "23671799"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 0,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166238921",
+    "name": "17-beta-dihydroequilenin sulfate",
+    "type": "Drug",
+    "generic_names": [],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "71316159"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 0,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166238884",
+    "name": "17-beta-dihydroequilin sulfate",
+    "type": "Drug",
+    "generic_names": [],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "71316160"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 0,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166277182",
+    "name": "17beta-estradiol glucuronide",
+    "type": "Metabolite",
+    "generic_names": [
+      "(2S",
+      "3S",
+      "4S",
+      "5R",
+      "6R)-3",
+      "4",
+      "5-trihydroxy-6-[[(8R",
+      "9S",
+      "13S",
+      "14S",
+      "17S)-3-hydroxy-13-methyl-6",
+      "7",
+      "8",
+      "9",
+      "11",
+      "12",
+      "14",
+      "15",
+      "16",
+      "17-decahydrocyclopenta[a]phenanthren-17-yl]oxy]oxane-2-carboxylic acid",
+      "(2S",
+      "3S",
+      "4S",
+      "5R",
+      "6R)-3",
+      "4",
+      "5-trihydroxy-6-{[(14S",
+      "15S)-5-hydroxy-15-methyltetracyclo[8.7.0.0\u00b2",
+      "\u2077.0\u00b9\u00b9",
+      "\u00b9\u2075]heptadeca-2(7)",
+      "3",
+      "5-trien-14-yl]oxy}oxane-2-carboxylic acid",
+      "17-beta-Estradiol glucuronide",
+      "17beta-estradiol 17-glucosiduronic acid",
+      "3-hydroxyestra-1",
+      "3",
+      "5(10)-trien-17beta-yl beta-D-glucopyranosiduronic acid",
+      "estradiol-17beta-glucuronide"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "5281887"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 4,
+    "pathway_count": 0,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166238961",
+    "name": "17-beta-estradiol sulfate",
+    "type": "Drug",
+    "generic_names": [],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "23691039"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 0,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166131373",
+    "name": "1,7-dimethyluric acid",
+    "type": "Metabolite",
+    "generic_names": [
+      "17U"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "91611"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 1,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA165820585",
+    "name": "1,7-dimethylxanthine",
+    "type": "Metabolite",
+    "generic_names": [
+      "17X",
+      "paraxanthine"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "4687"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 4,
+    "pathway_count": 1,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166354821",
+    "name": "1-hydrazinophthalazinone",
+    "type": "Metabolite",
+    "generic_names": [
+      "4-hydrazinyl-2H-phthalazin-1-one",
+      "4-hydrazinylphthalazin-1(2h)-one",
+      "HPZ"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "167015"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 1,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166224241",
+    "name": "1''-hydroxycannabidiol",
+    "type": "Metabolite",
+    "generic_names": [
+      "5-(1-hydroxypentyl)-2-[(1R",
+      "6R)-3-methyl-6-prop-1-en-2-ylcyclohex-2-en-1-yl]benzene-1",
+      "3-diol"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "121596213"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 1,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166131327",
+    "name": "1-hydroxyibuprofen",
+    "type": "Metabolite",
+    "generic_names": [],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "45117195"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 0,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166131541",
+    "name": "1-hydroxyibuprofen glucuronide",
+    "type": "Metabolite",
+    "generic_names": [],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 0,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166131451",
+    "name": "1-hydroxymidazolam",
+    "type": "Metabolite",
+    "generic_names": [
+      "alpha-Hydroxymidazolam"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "107917"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 2,
+    "pathway_count": 0,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166335823",
+    "name": "1-hydroxymidazolam glucuronide",
+    "type": "Metabolite",
+    "generic_names": [
+      "(2S",
+      "3S",
+      "4S",
+      "5R",
+      "6R)-6-[[8-chloro-6-(2-fluorophenyl)-4H-imidazo[1",
+      "5-a][1",
+      "4]benzodiazepin-1-yl]methoxy]-3",
+      "4",
+      "5-trihydroxyoxane-2-carboxylic acid",
+      "1-hydroxymidazolam beta-D-glucuronide",
+      "[8-chloro-6-(2-fluorophenyl)-4H-imidazo[1",
+      "5-a][1",
+      "4]benzodiazepin-1-yl]methyl beta-D-glucopyranosiduronic acid",
+      "mdz-glucuronide"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "133640"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 0,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166131352",
+    "name": "1-methyluric acid",
+    "type": "Metabolite",
+    "generic_names": [],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "69726"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 2,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166131368",
+    "name": "1-methylxanthine",
+    "type": "Metabolite",
+    "generic_names": [],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "80220"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 2,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166343702",
+    "name": "1-metronidazole acetic acid",
+    "type": "Metabolite",
+    "generic_names": [
+      "(2-methyl-5-nitroimidazol-1-yl)acetic acid",
+      "1-Carboxymethylmetronidazole",
+      "2-Methyl-5-nitroimidazol-1-ylacetic acid"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "115249"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 1,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166273182",
+    "name": "20alpha-dihydroprednisolone",
+    "type": "Metabolite",
+    "generic_names": [
+      "(20R)-11beta",
+      "17",
+      "20",
+      "21-tetrahydroxypregna-1",
+      "4-dien-3-one",
+      "20AH-PREDL"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "13962391"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 1,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166273201",
+    "name": "20alpha-dihydroprednisone",
+    "type": "Metabolite",
+    "generic_names": [
+      "(20R)-17",
+      "20",
+      "21-trihydroxypregna-1",
+      "4-diene-3",
+      "11-dione",
+      "20AH-PREDN"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "71749279"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 1,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166273203",
+    "name": "20beta-dihydroprednisolone",
+    "type": "Metabolite",
+    "generic_names": [
+      "(20S)-11beta",
+      "17",
+      "20",
+      "21-tetrahydroxypregna-1",
+      "4-dien-3-one",
+      "20BH-PREDL"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "13962390"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 1,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166273202",
+    "name": "20beta-dihydroprednisone",
+    "type": "Metabolite",
+    "generic_names": [
+      "(20S)-17",
+      "20",
+      "21-trihydroxypregna-1",
+      "4-diene-3",
+      "11-dione",
+      "20BH-PREDN"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "14475047"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 1,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166316622",
+    "name": "20-HETE",
+    "type": "Biological Intermediate",
+    "generic_names": [
+      "(5Z",
+      "8Z",
+      "11Z",
+      "14Z)-20-hydroxyicosa-5",
+      "8",
+      "11",
+      "14-tetraenoic acid",
+      "20-Hydroxyeicosatetraenoic acid"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "5283157"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 0,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166420041",
+    "name": "21-hydroxy montelukast",
+    "type": "Metabolite",
+    "generic_names": [
+      "2-[1-[[(1R",
+      "3S)-1-[3-[(E)-2-(7-chloroquinolin-2-yl)ethenyl]phenyl]-3-hydroxy-3-[2-(2-hydroxypropan-2-yl)phenyl]propyl]sulfanylmethyl]cyclopropyl]acetic acid",
+      "21(s)-hydroxy montelukast"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "10841306"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 0,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166326281",
+    "name": "2,3-desisopropylidene topiramate",
+    "type": "Metabolite",
+    "generic_names": [
+      "[(3aR",
+      "6R",
+      "7S",
+      "7aS)-6",
+      "7-dihydroxy-2",
+      "2-dimethyl-3a",
+      "4",
+      "7",
+      "7a-tetrahydro-[1",
+      "3]dioxolo[4",
+      "5-c]pyran-6-yl]methyl sulfamate",
+      "topiramate metabolite m1"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "29977351"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 0,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166131511",
+    "name": "2,3-diene valproic acid-coenzyme A",
+    "type": "Metabolite",
+    "generic_names": [
+      "2",
+      "3-diene-Valproic acid-CoA"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "131769930"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 1,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166342882",
+    "name": "23-hydroxybudesonide",
+    "type": "Metabolite",
+    "generic_names": [
+      "(1S",
+      "2S",
+      "4R",
+      "8S",
+      "9S",
+      "11S",
+      "12S",
+      "13R)-11-hydroxy-8-(2-hydroxyacetyl)-6-(1-hydroxypropyl)-9",
+      "13-dimethyl-5",
+      "7-dioxapentacyclo[10.8.0.02",
+      "9.04",
+      "8.013",
+      "18]icosa-14",
+      "17-dien-16-one"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "118753367"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 0,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166131512",
+    "name": "2,4-diene valproic acid-coenzyme A",
+    "type": "Metabolite",
+    "generic_names": [
+      "2",
+      "4-diene VPA",
+      "2-N-Propyl-2-Pentenoic Acid"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 1,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166182310",
+    "name": "2,6-dimethylphenylhydroxylamine",
+    "type": "Metabolite",
+    "generic_names": [
+      "DMHA",
+      "dimethylphenyl N-hydroxylamine"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "145679"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 1,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166182227",
+    "name": "2,6-xylidine",
+    "type": "Metabolite",
+    "generic_names": [
+      "2",
+      "6-dimethylaniline",
+      "DMA"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "6896"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 1,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA164712302",
+    "name": "2-amino-1-phenylethanol derivatives",
+    "type": "Drug Class",
+    "generic_names": [],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [
+      "C04AA"
+    ],
+    "pubchem_cids": [],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 0,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166182231",
+    "name": "2-amino-3-methylbenzoate",
+    "type": "Metabolite",
+    "generic_names": [],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "78101"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 0,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166418001",
+    "name": "2-aminobutanoic acid",
+    "type": "Metabolite",
+    "generic_names": [
+      "AABA",
+      "alpha-aminobutyric acid"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "6657"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 0,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166403082",
+    "name": "2-aminoheptanoate",
+    "type": "Biological Intermediate",
+    "generic_names": [
+      "(2s)-2-aminoheptanoic acid",
+      "L-2-aminoheptanoic acid"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "5312965"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 1,
+    "pathway_count": 0,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166403101",
+    "name": "2-aminooctanoic acid",
+    "type": "Biological Intermediate",
+    "generic_names": [
+      "DL-2-Aminooctanoic acid"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "69522"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 1,
+    "pathway_count": 0,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166233482",
+    "name": "2-chloro-1,1,1-trifluoroethane",
+    "type": "Metabolite",
+    "generic_names": [
+      "1-chloro-2",
+      "2",
+      "2-trifluoroethanide"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "6408"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 1,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166233481",
+    "name": "2-chloro-1,1-difluoroethene",
+    "type": "Metabolite",
+    "generic_names": [
+      "2-chloro-1",
+      "1-difluoroethylene",
+      "CDE"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "9664"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 1,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166131288",
+    "name": "2-chloroethylamine",
+    "type": "Metabolite",
+    "generic_names": [],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "13369"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 0,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166131572",
+    "name": "2-dechloroethyl ifosfamide",
+    "type": "Metabolite",
+    "generic_names": [],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "119105"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 1,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166232701",
+    "name": "2-(difluoromethoxy)-2,2-difluoroacetyl fluoride",
+    "type": "Metabolite",
+    "generic_names": [],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "154699977"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 1,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166246341",
+    "name": "2-[[(E)-3-(4-chlorophenyl)prop-2-enoyl]amino]acetic acid",
+    "type": "Metabolite",
+    "generic_names": [],
+    "trade_names": [
+      "Pitolisant metabolite BP1.8054"
+    ],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "5813910"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 0,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166131246",
+    "name": "2-ene valproic acid",
+    "type": "Metabolite",
+    "generic_names": [],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "6437068"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 1,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166131250",
+    "name": "2-ene valproic acid-coenzyme A",
+    "type": "Metabolite",
+    "generic_names": [],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "131769927"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 1,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166254801",
+    "name": "2-ethoxyphenoxyacetic acid",
+    "type": "Metabolite",
+    "generic_names": [
+      "2-(2-ethoxyphenoxy)acetic acid",
+      "Tamsulosin metabolite AM-1"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "351531"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 1,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166245462",
+    "name": "2-[(hydroxyacetyl)amino]-5- thiazolecarboxylic acid",
+    "type": "Metabolite",
+    "generic_names": [
+      "2-[(2-hydroxyacetyl)amino]-1",
+      "3-thiazole-5-carboxylic acid",
+      "BI-BO 8032 NA"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "45089612"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 1,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166343061",
+    "name": "2-hydroxy almotriptan",
+    "type": "Metabolite",
+    "generic_names": [
+      "1-[[3-[2-(dimethylamino)ethyl]-1H-indol-5-yl]methylsulfonyl]pyrrolidin-2-ol",
+      "2-OH almotriptan",
+      "almotriptan M3"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "154700009"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 0,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166247601",
+    "name": "2-hydroxyatorvastatin",
+    "type": "Metabolite",
+    "generic_names": [
+      "(3R",
+      "5R)-7-[2-(4-fluorophenyl)-4-[(2-hydroxyphenyl)carbamoyl]-3-phenyl-5-propan-2-ylpyrrol-1-yl]-3",
+      "5-dihydroxyheptanoic acid",
+      "orthohydroxyatorvastatin"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "9808225"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 7,
+    "pathway_count": 1,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166247581",
+    "name": "2-hydroxyatorvastatin lactone",
+    "type": "Metabolite",
+    "generic_names": [
+      "5-(4-fluorophenyl)-1-[2-[(2R",
+      "4R)-4-hydroxy-6-oxooxan-2-yl]ethyl]-N-(2-hydroxyphenyl)-4-phenyl-2-propan-2-ylpyrrole-3-carboxamide"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "10650434"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 2,
+    "pathway_count": 1,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166224242",
+    "name": "2''-hydroxycannabidiol",
+    "type": "Metabolite",
+    "generic_names": [
+      "5-(2-hydroxypentyl)-2-[(1R",
+      "6R)-3-methyl-6-prop-1-en-2-ylcyclohex-2-en-1-yl]benzene-1",
+      "3-diol"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "121596214"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 1,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA165817200",
+    "name": "2-hydroxycarbamazepine",
+    "type": "Metabolite",
+    "generic_names": [
+      "2OH-CBZ"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "129274"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 0,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166131468",
+    "name": "2-hydroxy-desethylamodiaquine",
+    "type": "Metabolite",
+    "generic_names": [],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 0,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166131283",
+    "name": "2-hydroxydesipramine",
+    "type": "Metabolite",
+    "generic_names": [],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "121249"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 0,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166131251",
+    "name": "2-hydroxydesipramine glucuronide",
+    "type": "Metabolite",
+    "generic_names": [],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "71748973"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 0,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166244761",
+    "name": "2-hydroxydesmethyltrimipramine",
+    "type": "Metabolite",
+    "generic_names": [
+      "11-[(2S)-2-methyl-3-(methylamino)propyl]-5",
+      "6-dihydrobenzo[b][1]benzazepin-3-ol"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "126850"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 1,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166178655",
+    "name": "2-hydroxyestradiol",
+    "type": "Biological Intermediate",
+    "generic_names": [],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "247304"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 1,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166131267",
+    "name": "2-hydroxyibuprofen",
+    "type": "Metabolite",
+    "generic_names": [],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "10443535"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 0,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166131542",
+    "name": "2-hydroxyibuprofen glucuronide",
+    "type": "Metabolite",
+    "generic_names": [],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 0,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166131287",
+    "name": "2-hydroxyiminostilbene",
+    "type": "Metabolite",
+    "generic_names": [],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "13103864"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 0,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166131271",
+    "name": "2-hydroxyimipramine",
+    "type": "Metabolite",
+    "generic_names": [],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "108051"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 0,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166131277",
+    "name": "2-hydroxyimipramine glucuronide",
+    "type": "Metabolite",
+    "generic_names": [],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "10874382"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 0,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166403084",
+    "name": "2-hydroxylaurate",
+    "type": "Biological Intermediate",
+    "generic_names": [
+      "2-hydroxydodecanoate"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "21981466"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 1,
+    "pathway_count": 0,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166160755",
+    "name": "2-hydroxymethyl atomoxetine",
+    "type": "Metabolite",
+    "generic_names": [],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "9881925"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 1,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166343701",
+    "name": "2-hydroxymethylmetronidazole",
+    "type": "Metabolite",
+    "generic_names": [
+      "1-(2-Hydroxyethyl)-2-hydroxymethyl-5-nitroimidazole",
+      "2-[2-(hydroxymethyl)-5-nitroimidazol-1-yl]ethanol",
+      "Metronidazole-OH",
+      "hydroxymetronidazole"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "121858"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 1,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166164917",
+    "name": "2-hydroxymethyl olanzapine",
+    "type": "Metabolite",
+    "generic_names": [],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "9840400"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 1,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166131275",
+    "name": "2-hydroxynevirapine",
+    "type": "Metabolite",
+    "generic_names": [],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "10850461"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 0,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166131253",
+    "name": "2-hydroxynevirapine glucuronide",
+    "type": "Metabolite",
+    "generic_names": [],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "131769929"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 0,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166244742",
+    "name": "2-hydroxytrimipramine",
+    "type": "Metabolite",
+    "generic_names": [
+      "11-[3-(dimethylamino)-2-methylpropyl]-5",
+      "6-dihydrobenzo[b][1]benzazepin-3-ol"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "160610"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 1,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA134967247",
+    "name": "2-methoxyestradiol",
+    "type": "Drug, Biological Intermediate",
+    "generic_names": [],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "66414"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 1,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166131365",
+    "name": "2-oxazolidone",
+    "type": "Metabolite",
+    "generic_names": [],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "73949"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 0,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166131290",
+    "name": "2-oxo-clopidogrel",
+    "type": "Metabolite",
+    "generic_names": [
+      "AT-10"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "13748464"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 1,
+    "pathway_count": 1,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166325402",
+    "name": "2-propylglutaric acid",
+    "type": "Metabolite, Biological Intermediate",
+    "generic_names": [
+      "2-PGA",
+      "2-propylpentanedioic acid"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "134970"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 0,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166364982",
+    "name": "(2S,6S)-hydroxyketamine",
+    "type": "Metabolite",
+    "generic_names": [
+      "(2S",
+      "6S)-2-(2-chlorophenyl)-6-hydroxy-2-(methylamino)cyclohexan-1-one",
+      "(2s",
+      "6s)-(+)-hydroxyketamine"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "97289630"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 0,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  },
+  {
+    "pharmgkb_id": "PA166364962",
+    "name": "(2S,6S)-hydroxynorketamine",
+    "type": "Metabolite",
+    "generic_names": [
+      "(2S",
+      "6S)-2-amino-2-(2-chlorophenyl)-6-hydroxycyclohexan-1-one"
+    ],
+    "trade_names": [],
+    "rxnorm_ids": [],
+    "atc_codes": [],
+    "pubchem_cids": [
+      "71519584"
+    ],
+    "clinical_annotation_count": 0,
+    "variant_annotation_count": 0,
+    "pathway_count": 1,
+    "top_clinical_level": "",
+    "top_fda_label_level": "",
+    "has_dosing_guideline": false,
+    "dosing_guideline_sources": []
+  }
+]

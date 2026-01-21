@@ -1107,6 +1107,18 @@ func (s *service) execCelGo(query *query.Query, targetXref *pbuf.Xref) (bool, er
 		out, _, err = query.Program.Eval(map[string]interface{}{"alphamissense": targetXref.GetAlphamissense()})
 	case "alphamissense_transcript":
 		out, _, err = query.Program.Eval(map[string]interface{}{"alphamissense_transcript": targetXref.GetAlphamissenseTranscript()})
+	case "pharmgkb":
+		out, _, err = query.Program.Eval(map[string]interface{}{"pharmgkb": targetXref.GetPharmgkb()})
+	case "pharmgkb_gene":
+		out, _, err = query.Program.Eval(map[string]interface{}{"pharmgkb_gene": targetXref.GetPharmgkbGene()})
+	case "pharmgkb_clinical":
+		out, _, err = query.Program.Eval(map[string]interface{}{"pharmgkb_clinical": targetXref.GetPharmgkbClinical()})
+	case "pharmgkb_variant":
+		out, _, err = query.Program.Eval(map[string]interface{}{"pharmgkb_variant": targetXref.GetPharmgkbVariant()})
+	case "pharmgkb_guideline":
+		out, _, err = query.Program.Eval(map[string]interface{}{"pharmgkb_guideline": targetXref.GetPharmgkbGuideline()})
+	case "pharmgkb_pathway":
+		out, _, err = query.Program.Eval(map[string]interface{}{"pharmgkb_pathway": targetXref.GetPharmgkbPathway()})
 	default:
 		//err := fmt.Errorf("mapfilter query execution failed please check again query")
 		return false, nil

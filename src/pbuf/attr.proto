@@ -1584,8 +1584,205 @@ message AlphaMissenseAttr {
 
 // AlphaMissense transcript-level pathogenicity summary (Dataset ID: 109)
 // Separate dataset: alphamissense_transcript
-// Keyed by Ensembl transcript ID (e.g., "ENST00000000233.10")
+// Keyed by Ensembl transcript ID without version (e.g., "ENST00000000233")
 message AlphaMissenseTranscriptAttr {
-  string transcript_id = 1;                       // Ensembl transcript ID
+  string transcript_id = 1;                       // Ensembl transcript ID (base, without version) - same as entry ID
   double mean_am_pathogenicity = 2;               // Average pathogenicity score for all variants in this transcript
+  string transcript_id_versioned = 3;             // Full transcript ID with version (e.g., ENST00000335137.4)
 }
+
+// PharmGKB - Pharmacogenomics Knowledge Base (Dataset ID: 110)
+// Drugs and chemicals with pharmacogenomic annotations
+// Source: https://www.pharmgkb.org/ (now https://www.clinpgx.org/)
+// License: CC BY-SA 4.0
+message PharmgkbAttr {
+  // Primary identification
+  string pharmgkb_id = 1;                         // PharmGKB Accession ID (e.g., "PA448004")
+  string name = 2;                                // Primary drug/chemical name
+  string type = 3;                                // Type: Drug, Metabolite, Prodrug, Ion, Biological Intermediate, etc.
+
+  // Names and synonyms
+  repeated string generic_names = 4;              // Generic drug names
+  repeated string trade_names = 5;                // Trade/brand names
+  repeated string brand_mixtures = 6;             // Brand mixture names
+
+  // Chemical structure
+  string smiles = 7;                              // SMILES representation
+  string inchi = 8;                               // InChI string
+  string inchi_key = 9;                           // InChI Key
+
+  // Cross-references
+  repeated string rxnorm_ids = 10;                // RxNorm identifiers
+  repeated string atc_codes = 11;                 // ATC classification codes
+  repeated string pubchem_cids = 12;              // PubChem Compound IDs
+
+  // Annotation counts and statistics
+  int32 clinical_annotation_count = 13;           // Number of clinical annotations
+  int32 variant_annotation_count = 14;            // Number of variant annotations
+  int32 pathway_count = 15;                       // Number of pathways
+
+  // Clinical evidence levels
+  string top_clinical_level = 16;                 // Highest clinical annotation level (1A, 1B, 2A, 2B, 3, 4)
+  string top_fda_label_level = 17;                // FDA label testing level
+  string top_any_label_level = 18;                // Top level from any drug label
+
+  // Dosing guideline information
+  bool has_dosing_guideline = 19;                 // Whether dosing guidelines exist
+  bool has_prescribing_info = 20;                 // Whether prescribing info is in label
+  repeated string dosing_guideline_sources = 21;  // Sources: CPIC, DPWG, etc.
+
+  // Related entities (aggregated from relationships)
+  repeated PharmgkbRelatedGene related_genes = 22; // Genes associated with this drug
+
+  // Drug labels (FDA, EMA, etc.)
+  repeated PharmgkbDrugLabel drug_labels = 23;     // Regulatory drug label annotations
+}
+
+// Gene associated with a PharmGKB drug entry
+message PharmgkbRelatedGene {
+  string gene_symbol = 1;                         // Gene symbol (e.g., "CYP2D6")
+  string pharmgkb_gene_id = 2;                    // PharmGKB Gene ID (e.g., "PA128")
+  string relationship_type = 3;                   // Relationship type: PK, PD, etc.
+  string evidence_type = 4;                       // Evidence type from relationships file
+}
+
+// PharmGKB Gene - Pharmacogene information (Dataset ID: 111)
+// Genes with pharmacogenomic relevance
+message PharmgkbGeneAttr {
+  // Primary identification
+  string pharmgkb_id = 1;                         // PharmGKB Gene ID (e.g., "PA128")
+  string symbol = 2;                              // Official gene symbol (e.g., "CYP2D6")
+  string name = 3;                                // Full gene name
+
+  // Alternative names
+  repeated string alternate_names = 4;            // Alternative gene names
+  repeated string alternate_symbols = 5;          // Alternative gene symbols
+
+  // PharmGKB-specific flags
+  bool is_vip = 6;                                // Is Very Important Pharmacogene
+  bool has_variant_annotation = 7;                // Has variant annotations
+  bool has_cpic_guideline = 8;                    // Has CPIC dosing guideline
+
+  // Genomic location
+  string chromosome = 9;                          // Chromosome
+  int64 start_grch37 = 10;                        // Start position (GRCh37)
+  int64 end_grch37 = 11;                          // End position (GRCh37)
+  int64 start_grch38 = 12;                        // Start position (GRCh38)
+  int64 end_grch38 = 13;                          // End position (GRCh38)
+
+  // Cross-references (for bidirectional linking)
+  string hgnc_id = 14;                            // HGNC ID
+  string entrez_id = 15;                          // NCBI Entrez Gene ID
+  string ensembl_id = 16;                         // Ensembl Gene ID
+}
+
+// PharmGKB Clinical Annotation (Dataset ID: 112)
+// Variant-drug clinical annotations with evidence levels
+// Source: clinicalVariants.tsv
+message PharmgkbClinicalAttr {
+  // Variant information
+  string variant = 1;                             // Variant/haplotype (e.g., "CYP2C19*2", "rs4244285")
+  string gene = 2;                                // Gene symbol (e.g., "CYP2C19")
+
+  // Annotation type
+  string type = 3;                                // Phenotype category: Metabolism/PK, Efficacy, Toxicity, Dosage, Other
+
+  // Evidence level
+  string level_of_evidence = 4;                   // Level: 1A, 1B, 2A, 2B, 3, 4
+
+  // Associated chemicals and phenotypes
+  repeated string chemicals = 5;                  // Drug names
+  repeated string phenotypes = 6;                 // Associated phenotypes/diseases
+}
+
+// Drug label annotation (FDA, EMA, etc.) - embedded in PharmgkbAttr
+message PharmgkbDrugLabel {
+  string label_id = 1;                            // PharmGKB label ID (e.g., "PA166269401")
+  string name = 2;                                // Label name/description
+  string source = 3;                              // Source: FDA, EMA, HCSC, Swissmedic, PMDA
+  string testing_level = 4;                       // Testing level: "Actionable PGx", "Testing Required", etc.
+  bool has_prescribing_info = 5;                  // Label has prescribing information
+  bool has_dosing_info = 6;                       // Label has dosing information
+  bool has_alternate_drug = 7;                    // Label suggests alternate drug
+  repeated string genes = 8;                      // Genes mentioned in label
+  repeated string variants = 9;                   // Variants/haplotypes mentioned
+}
+
+// PharmGKB Variant entry (Dataset ID: 113)
+message PharmgkbVariantAttr {
+  string variant_id = 1;                          // PharmGKB Variant ID (e.g., "PA166156302")
+  string variant_name = 2;                        // Variant name (e.g., "rs1000002")
+  repeated string gene_ids = 3;                   // PharmGKB Gene IDs
+  repeated string gene_symbols = 4;               // Gene symbols
+  string location = 5;                            // Genomic location (e.g., "NC_000003.12:183917980")
+  int32 variant_annotation_count = 6;             // Number of variant annotations
+  int32 clinical_annotation_count = 7;            // Number of clinical annotations
+  int32 guideline_annotation_count = 8;           // Number of guideline annotations
+  int32 label_annotation_count = 9;               // Number of label annotations
+  repeated string synonyms = 10;                  // Synonym rsIDs and other identifiers
+
+  // Summary annotation data (from summaryAnnotations.zip)
+  string level_of_evidence = 11;                  // Highest level: 1A, 1B, 2A, 2B, 3, 4
+  double score = 12;                              // Evidence score
+  repeated string phenotype_categories = 13;      // Phenotype categories: Efficacy, Toxicity, Metabolism/PK, etc.
+  repeated string associated_drugs = 14;          // Drug names from annotations
+  repeated string associated_phenotypes = 15;     // Phenotype/disease names
+  int32 pmid_count = 16;                          // Total PubMed references
+}
+
+// PharmGKB Guideline - CPIC/DPWG Clinical Guidelines (Dataset ID: 114)
+// Source: guidelineAnnotations.json.zip
+message PharmgkbGuidelineAttr {
+  string guideline_id = 1;                        // PharmGKB Guideline ID (e.g., "PA166363221")
+  string name = 2;                                // Guideline name (e.g., "Annotation of DPWG Guideline for rosuvastatin and SLCO1B1")
+  string source = 3;                              // Source: CPIC, DPWG, CPNDS, RNPGx, etc.
+
+  // Related entities
+  repeated string gene_symbols = 4;               // Related gene symbols (e.g., ["CYP2D6", "CYP2C19"])
+  repeated string gene_ids = 5;                   // PharmGKB gene IDs
+  repeated string chemical_names = 6;             // Related drug/chemical names
+  repeated string chemical_ids = 7;               // PharmGKB chemical IDs
+
+  // Guideline content flags
+  bool has_dosing_info = 8;                       // Contains dosing information
+  bool has_testing_info = 9;                      // Contains genetic testing information
+  bool has_recommendation = 10;                   // Contains clinical recommendations
+  bool alternate_drug_available = 11;             // Suggests alternative drug options
+  bool is_pediatric = 12;                         // Pediatric-specific guideline
+  bool is_cancer_genome = 13;                     // Cancer genome-related
+
+  // Content
+  string summary = 14;                            // Summary text (HTML stripped)
+
+  // Literature
+  repeated string pmids = 15;                     // PubMed references
+}
+
+// PharmGKB Pathway - Pharmacokinetic/Pharmacodynamic Pathways (Dataset ID: 115)
+// Source: pathways.json.zip
+message PharmgkbPathwayAttr {
+  string pathway_id = 1;                          // PharmGKB Pathway ID (e.g., "PA166163705")
+  string name = 2;                                // Pathway name (e.g., "Diclofenac Pathway, Pharmacokinetics")
+
+  // Classification
+  bool is_pharmacokinetic = 3;                    // Pharmacokinetic pathway
+  bool is_pharmacodynamic = 4;                    // Pharmacodynamic pathway
+  bool is_pediatric = 5;                          // Pediatric-specific
+
+  // Related entities
+  repeated string gene_symbols = 6;               // Gene symbols involved
+  repeated string gene_ids = 7;                   // PharmGKB gene IDs
+  repeated string chemical_names = 8;             // Chemicals/drugs in pathway
+  repeated string chemical_ids = 9;               // PharmGKB chemical IDs
+  repeated string disease_names = 10;             // Related diseases
+  repeated string disease_ids = 11;               // PharmGKB disease IDs
+
+  // Content
+  string summary = 12;                            // Summary text (HTML stripped)
+  string description = 13;                        // Full description (HTML stripped)
+
+  // Links
+  string biopax_link = 14;                        // BioPAX format download link
+  string image_link = 15;                         // Pathway image link
+}
+

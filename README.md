@@ -7,7 +7,7 @@ via identifiers and special keywors with simple or advance chain query capabilit
 
 ## Features
 
-* **Datasets** - supports wide datasets such as `Ensembl` `Uniprot` `ChEMBL` `HMDB` `BindingDB` `CTD` `STRING` `BioGRID` `MSigDB` `Taxonomy` `GO` `EFO` `HPO` `UBERON` `CL` `HGNC` `ECO` `Uniparc` `Uniref` `RNACentral` `Bgee` `GWAS Catalog` `dbSNP` `RefSeq` `IntAct` `GenCC`  with tens of more via cross references
+* **Datasets** - supports wide datasets such as `Ensembl` `Uniprot` `ChEMBL` `HMDB` `BindingDB` `CTD` `STRING` `BioGRID` `MSigDB` `Taxonomy` `GO` `EFO` `HPO` `UBERON` `CL` `HGNC` `ECO` `Uniparc` `Uniref` `RNACentral` `Bgee` `GWAS Catalog` `dbSNP` `RefSeq` `IntAct` `GenCC` `AlphaMissense` `ClinVar` `PharmGKB`  with tens of more via cross references
 by retrieving latest data from providers
 
 * **MapReduce** - processes small or large datasets based on users selection and build B+ tree based uniform local database via specialized MapReduce based tecnique with efficient storage usage 
@@ -42,6 +42,8 @@ by retrieving latest data from providers
 
 * **Reference Sequences** - `RefSeq` from NCBI with curated reference sequences for genomes, transcripts, and proteins. Provides genomic coordinates, gene annotations, protein sequences, and cross-references to UniProt, Entrez Gene, and other databases. Use `--genome-taxids` to filter to specific organisms for model organism databases
 
+* **Missense Variant Pathogenicity** - `AlphaMissense` from DeepMind with ~71M missense variant pathogenicity predictions. Provides pathogenicity scores (0-1), classifications (likely_benign/ambiguous/likely_pathogenic), and cross-references to UniProt proteins and Ensembl transcripts. `alphamissense_transcript` dataset provides transcript-level mean pathogenicity scores for mutation tolerance assessment
+
 * **Protein Interactions** - `IntAct` database from EBI with ~1.8 million experimentally validated protein-protein interactions across ~100,000 unique proteins. Provides detailed experimental evidence including detection methods, interaction types, confidence scores, experimental roles, and direct citations to 23,000+ publications. Supports interaction network analysis, drug target discovery, and pathway exploration with PSI-MI standardized terms
 
 * **Protein Networks** - `STRING` database with predicted and known protein-protein interactions across thousands of organisms. Provides combined interaction scores with evidence breakdown (experimental, database, textmining, coexpression), protein annotations, and size information. Enables functional association networks, protein complex analysis, and pathway enrichment studies
@@ -51,6 +53,8 @@ by retrieving latest data from providers
 * **Gene Sets** - `MSigDB` (Molecular Signatures Database) with 35K+ annotated gene sets for GSEA analysis. Includes Hallmark (H), positional (C1), curated (C2), regulatory (C3), computational (C4), ontology (C5), oncogenic (C6), immunologic (C7), and cell type (C8) collections. Provides gene symbols, descriptions, PubMed references, GO/HPO term associations, and collection metadata. Cross-references to HGNC gene symbols, Entrez Gene IDs, PubMed, GO, and HPO. Supports gene set enrichment analysis, pathway discovery, and functional annotation
 
 * **Gene-Disease Validity** - `GenCC` (Gene Curation Coalition) database with 35,000+ standardized gene-disease validity curations from multiple authoritative sources including ClinGen, Ambry, Genomics England, and Orphanet. Provides classification levels (Definitive, Strong, Moderate, Limited, Supportive), mode of inheritance (autosomal dominant/recessive, X-linked), submitter information, and PubMed citations. Supports clinical variant interpretation, diagnostic panel design, and gene-disease relationship exploration with cross-references to MONDO, HPO, and PubMed
+
+* **Pharmacogenomics** - `PharmGKB` database with 6 integrated datasets for precision medicine: chemicals/drugs with FDA drug labels, pharmacogenes with VIP flags and CPIC guidelines, clinical variant annotations with evidence levels (1A-4), variant annotations with HGVS nomenclature, dosing guidelines from CPIC/DPWG/CPNDS/RNPGx, and pharmacokinetic/pharmacodynamic pathways. Provides gene-drug relationships, clinical evidence levels, dosing recommendations, and pathway diagrams. Cross-references to HGNC, PubChem, dbSNP, MeSH, and Ensembl. Supports pharmacogenomic dosing decisions, drug-gene interaction analysis, and clinical annotation lookup
 
 * **Taxonomy & Ontologies** - `Taxonomy` `GO` `EFO` `ECO` `HPO` `MONDO` `UBERON` `CL` `OBA` `PATO` `OBI` `XCO` data with mapping to other datasets and child and parent query capability. CL (Cell Ontology) provides 2,700+ cell type classifications for tissue-specific and cell-specific analysis. OBA (Ontology of Biological Attributes) covers biological traits. PATO (Phenotype And Trait Ontology) describes phenotypic qualities. OBI (Ontology for Biomedical Investigations) covers study designs and assays. XCO (Experimental Conditions Ontology) describes experimental conditions
 
@@ -106,6 +110,12 @@ biobtree -d "gwas,gwas_study,efo,hgnc" build
 
 # build with genetic variants (works well with HGNC, ClinVar)
 biobtree -d "dbsnp,hgnc" build
+
+# build with missense variant pathogenicity (works well with UniProt, Ensembl)
+biobtree -d "alphamissense,alphamissense_transcript,uniprot" build
+
+# build with pharmacogenomics (works well with HGNC, dbSNP, MeSH)
+biobtree -d "pharmgkb,hgnc,dbsnp,mesh" build
 
 # build with protein interactions (requires UniProt)
 biobtree -d "uniprot,intact" build
@@ -372,6 +382,13 @@ biobtree query "rs200676709"                      # SNP lookup with genomic posi
 biobtree query "rs200676709 >> hgnc"              # SNP to associated gene
 biobtree query "BRCA1 >> dbsnp"                   # Find SNPs in gene
 
+# AlphaMissense pathogenicity queries
+biobtree query "1:69094:G:T"                      # Variant pathogenicity lookup
+biobtree query "1:69094:G:T >> uniprot"           # Variant to affected protein
+biobtree query "1:69094:G:T >> transcript"        # Variant to affected transcripts
+biobtree query "P04637 >> alphamissense"          # Find variants for protein
+biobtree query "ENST00000269305.9"                # Transcript mean pathogenicity
+
 # RefSeq reference sequence queries
 biobtree query "NM_007294"                        # RefSeq transcript lookup
 biobtree query "NM_007294 >> uniprot"             # RefSeq transcript to UniProt
@@ -426,6 +443,17 @@ biobtree query "D000082 >> ctd >> mondo"          # Chemical to MONDO disease on
 biobtree query "Acetaminophen >> ctd"             # Search by chemical name
 biobtree query "D000082 >> ctd >> taxonomy"       # Chemical to organism context
 biobtree query "D000082 >> ctd >> pubchem"        # Chemical to PubChem compound
+
+# PharmGKB pharmacogenomics queries
+biobtree query "warfarin"                         # Drug lookup with dosing guidelines
+biobtree query "warfarin >> pharmgkb >> hgnc"     # Drug to related genes
+biobtree query "warfarin >> pharmgkb >> pharmgkb_guideline"  # Drug to CPIC/DPWG guidelines
+biobtree query "warfarin >> pharmgkb >> pharmgkb_pathway"    # Drug to PK/PD pathways
+biobtree query "CYP2C9 >> hgnc >> pharmgkb_guideline"        # Gene to dosing guidelines
+biobtree query "CYP2C9 >> hgnc >> pharmgkb_clinical"         # Gene to clinical annotations
+biobtree query "rs1799853 >> pharmgkb_variant"               # Variant annotation lookup
+biobtree query "rs1799853 >> pharmgkb_clinical"              # Variant clinical evidence
+biobtree query "CYP2C9 >> pharmgkb_gene"                     # Pharmacogene details (VIP, CPIC)
 ```
 
 #### Filter Syntax
@@ -461,6 +489,10 @@ biobtree query "BRCA1 >> gwas[gwas.pvalue_mlog>7.3]"  # -log10(p) > 7.3 (p < 5e-
 biobtree query "BRCA1 >> dbsnp[dbsnp.allele_frequency>0.01]"  # Common variants (MAF > 1%)
 biobtree query "rs200676709 >> dbsnp[dbsnp.clinical_significance!=\"\"]"  # ClinVar annotated
 
+# AlphaMissense filters
+biobtree query "P04637 >> alphamissense[alphamissense.am_class==\"likely_pathogenic\"]"  # Pathogenic variants only
+biobtree query "P04637 >> alphamissense[alphamissense.am_pathogenicity>=0.9]"  # High pathogenicity score
+
 # IntAct filters
 biobtree query "P49418 >> intact[intact.interactions[0].confidence_score>0.6]"  # High-confidence interactions
 biobtree query "P49418 >> intact[intact.interactions[0].detection_method~\"two hybrid\"]"  # By method
@@ -488,6 +520,12 @@ biobtree query "aspirin >> bindingdb[bindingdb.target_source_organism==\"Homo sa
 biobtree query "D000082 >> ctd[ctd.gene_interaction_count>10]"              # Chemicals with many gene interactions
 biobtree query "D000082 >> ctd[ctd.disease_association_count>5]"            # Chemicals with many disease links
 biobtree query "Acetaminophen >> ctd[ctd.chemical_name~\"Acetaminophen\"]"  # Filter by chemical name pattern
+
+# PharmGKB pharmacogenomics filters
+biobtree query "warfarin >> pharmgkb >> pharmgkb_guideline[pharmgkb_guideline.source==\"CPIC\"]"  # CPIC guidelines only
+biobtree query "warfarin >> pharmgkb >> pharmgkb_pathway[pharmgkb_pathway.is_pharmacokinetic==true]"  # PK pathways only
+biobtree query "CYP2C9 >> hgnc >> pharmgkb_clinical[pharmgkb_clinical.level_of_evidence==\"1A\"]"  # Highest evidence
+biobtree query "CYP2C9 >> pharmgkb_gene[pharmgkb_gene.is_vip==true]"        # VIP genes only
 ```
 
 #### Migration Guide - Breaking Change in Mapping Queries

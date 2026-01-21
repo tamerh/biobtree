@@ -864,6 +864,31 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			d.datasets2 = append(d.datasets2, data)
 			go ctdParser.update()
 			break
+		case "pharmgkb":
+			d.wg.Add(1)
+			pgkb := pharmgkb{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			// Also add subsidiary datasets to tracking
+			if _, exists := config.Dataconf["pharmgkb_gene"]; exists {
+				d.datasets2 = append(d.datasets2, "pharmgkb_gene")
+			}
+			if _, exists := config.Dataconf["pharmgkb_clinical"]; exists {
+				d.datasets2 = append(d.datasets2, "pharmgkb_clinical")
+			}
+			if _, exists := config.Dataconf["pharmgkb_variant"]; exists {
+				d.datasets2 = append(d.datasets2, "pharmgkb_variant")
+			}
+			if _, exists := config.Dataconf["pharmgkb_guideline"]; exists {
+				d.datasets2 = append(d.datasets2, "pharmgkb_guideline")
+			}
+			if _, exists := config.Dataconf["pharmgkb_pathway"]; exists {
+				d.datasets2 = append(d.datasets2, "pharmgkb_pathway")
+			}
+			go pgkb.update()
+			break
+		case "pharmgkb_gene", "pharmgkb_clinical", "pharmgkb_variant", "pharmgkb_guideline", "pharmgkb_pathway":
+			// These are processed by the pharmgkb parser, skip standalone processing
+			break
 		case "biogrid":
 			d.wg.Add(1)
 			bg := biogrid{source: data, d: d}

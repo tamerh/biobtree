@@ -1,0 +1,90 @@
+{
+  "common_tests": [
+    {
+      "name": "Lookup by PharmGKB ID",
+      "type": "id_lookup",
+      "id": "@reference[0].pharmgkb_id"
+    },
+    {
+      "name": "Check attributes present",
+      "type": "attribute_check",
+      "id": "@reference[0].pharmgkb_id"
+    },
+    {
+      "name": "Lookup multiple PharmGKB entries",
+      "type": "multi_lookup",
+      "count": 3,
+      "id_field": "pharmgkb_id"
+    },
+    {
+      "name": "Invalid ID handling",
+      "type": "invalid_id",
+      "invalid_id": "PA99999999999"
+    }
+  ],
+  "custom_tests": [
+    {
+      "name": "pharmgkb_gene lookup CYP2C9",
+      "type": "dataset_lookup",
+      "dataset": "pharmgkb_gene",
+      "identifier": "CYP2C9",
+      "expected_attr": "PharmgkbGene",
+      "check_field": "symbol",
+      "expected_value": "CYP2C9"
+    },
+    {
+      "name": "pharmgkb_clinical lookup rs1799853",
+      "type": "dataset_lookup",
+      "dataset": "pharmgkb_clinical",
+      "identifier": "rs1799853",
+      "expected_attr": "PharmgkbClinical"
+    },
+    {
+      "name": "pharmgkb_variant lookup rs1799853",
+      "type": "dataset_lookup",
+      "dataset": "pharmgkb_variant",
+      "identifier": "rs1799853",
+      "expected_attr": "PharmgkbVariant"
+    },
+    {
+      "name": "pharmgkb to pharmgkb_guideline mapping",
+      "type": "mapping_check",
+      "source_id": "warfarin",
+      "source_dataset": "pharmgkb",
+      "target_dataset": "pharmgkb_guideline",
+      "min_targets": 1
+    },
+    {
+      "name": "pharmgkb to pharmgkb_pathway mapping",
+      "type": "mapping_check",
+      "source_id": "warfarin",
+      "source_dataset": "pharmgkb",
+      "target_dataset": "pharmgkb_pathway",
+      "min_targets": 1
+    },
+    {
+      "name": "hgnc to pharmgkb_guideline mapping",
+      "type": "mapping_check",
+      "source_id": "CYP2C9",
+      "source_dataset": "hgnc",
+      "target_dataset": "pharmgkb_guideline",
+      "min_targets": 1
+    },
+    {
+      "name": "hgnc to pharmgkb_clinical mapping",
+      "type": "mapping_check",
+      "source_id": "CYP2C9",
+      "source_dataset": "hgnc",
+      "target_dataset": "pharmgkb_clinical",
+      "min_targets": 1
+    },
+    {
+      "name": "hgnc to pharmgkb_variant mapping",
+      "type": "mapping_check",
+      "source_id": "CYP2C9",
+      "source_dataset": "hgnc",
+      "target_dataset": "pharmgkb_variant",
+      "min_targets": 1
+    }
+  ]
+}

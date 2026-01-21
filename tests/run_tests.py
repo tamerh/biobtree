@@ -283,6 +283,7 @@ Available datasets:
         'gencc': datasets_dir / "gencc" / "test_gencc.py",
         'bindingdb': datasets_dir / "bindingdb" / "test_bindingdb.py",
         'ctd': datasets_dir / "ctd" / "test_ctd.py",
+        'pharmgkb': datasets_dir / "pharmgkb" / "test_pharmgkb.py",
         'bao': datasets_dir / "bao" / "test_bao.py",
         'drugcentral': datasets_dir / "drugcentral" / "test_drugcentral.py",
         'msigdb': datasets_dir / "msigdb" / "test_msigdb.py",

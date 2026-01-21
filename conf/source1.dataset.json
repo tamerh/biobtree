@@ -810,5 +810,81 @@
     "attrs": "transcript_id,mean_am_pathogenicity",
     "test_entries_count": "50000",
     "bucketMethod": "ensembl_hybrid"
+  },
+  "pharmgkb": {
+    "id": "110",
+    "name": "PharmGKB",
+    "aliases": "PharmGKB,ClinPGx,pharmacogenomics,PGx,drug-gene,pharmacogenomic,CPIC,DPWG,dosing guideline",
+    "url": "https://www.clinpgx.org/chemical/£{id}",
+    "path": "/data/bioyoda/snapshots/raw_data/clinpgx/",
+    "chemicalsFile": "chemicals.zip",
+    "genesFile": "genes.zip",
+    "variantsFile": "variants.zip",
+    "clinicalVariantsFile": "clinicalVariants.zip",
+    "relationshipsFile": "relationships.zip",
+    "drugLabelsFile": "drugLabels.zip",
+    "guidelineAnnotationsFile": "guidelineAnnotations.json.zip",
+    "pathwaysFile": "pathways.json.zip",
+    "phenotypesFile": "phenotypes.zip",
+    "summaryAnnotationsFile": "summaryAnnotations.zip",
+    "useLocalFile": "yes",
+    "hasFilter": "yes",
+    "attrs": "pharmgkb_id,name,type,[]generic_names,[]trade_names,smiles,inchi_key,[]rxnorm_ids,[]atc_codes,[]pubchem_cids,clinical_annotation_count,variant_annotation_count,pathway_count,top_clinical_level,top_fda_label_level,has_dosing_guideline,[]dosing_guideline_sources",
+    "bucketMethod": "ontology"
+  },
+  "pharmgkb_gene": {
+    "id": "111",
+    "name": "PharmGKB Gene",
+    "aliases": "PharmGKB Gene,pharmacogene,VIP gene,very important pharmacogene",
+    "url": "https://www.clinpgx.org/gene/£{id}",
+    "path": "/data/bioyoda/snapshots/raw_data/clinpgx/",
+    "useLocalFile": "yes",
+    "hasFilter": "yes",
+    "attrs": "pharmgkb_id,symbol,name,[]alternate_symbols,is_vip,has_variant_annotation,has_cpic_guideline,chromosome,start_grch38,end_grch38",
+    "bucketMethod": "ontology"
+  },
+  "pharmgkb_clinical": {
+    "id": "112",
+    "name": "PharmGKB Clinical Annotation",
+    "aliases": "PharmGKB Clinical,clinical annotation,PGx annotation,variant-drug annotation,drug response",
+    "url": "https://www.clinpgx.org/clinicalAnnotation/£{id}",
+    "path": "/data/bioyoda/snapshots/raw_data/clinpgx/",
+    "useLocalFile": "yes",
+    "hasFilter": "yes",
+    "attrs": "variant,gene,type,level_of_evidence,[]chemicals,[]phenotypes",
+    "bucketMethod": "alphabetic"
+  },
+  "pharmgkb_variant": {
+    "id": "113",
+    "name": "PharmGKB Variant",
+    "aliases": "PharmGKB Variant,pharmacogenomic variant,PGx variant,pharmacogenetic variant",
+    "url": "https://www.clinpgx.org/variant/£{id}",
+    "path": "/data/bioyoda/snapshots/raw_data/clinpgx/",
+    "useLocalFile": "yes",
+    "hasFilter": "yes",
+    "attrs": "variant_id,variant_name,[]gene_symbols,location,variant_annotation_count,clinical_annotation_count,guideline_annotation_count,label_annotation_count,[]synonyms,level_of_evidence,score,[]phenotype_categories,[]associated_drugs,[]associated_phenotypes,pmid_count",
+    "bucketMethod": "ontology"
+  },
+  "pharmgkb_guideline": {
+    "id": "114",
+    "name": "PharmGKB Guideline",
+    "aliases": "PharmGKB Guideline,CPIC Guideline,DPWG Guideline,pharmacogenomic guideline,clinical guideline,PGx guideline",
+    "url": "https://www.clinpgx.org/guidelineAnnotation/£{id}",
+    "path": "/data/bioyoda/snapshots/raw_data/clinpgx/",
+    "useLocalFile": "yes",
+    "hasFilter": "yes",
+    "attrs": "guideline_id,name,source,[]gene_symbols,[]chemical_names,has_dosing_info,has_testing_info,has_recommendation,alternate_drug_available,is_pediatric,summary",
+    "bucketMethod": "ontology"
+  },
+  "pharmgkb_pathway": {
+    "id": "115",
+    "name": "PharmGKB Pathway",
+    "aliases": "PharmGKB Pathway,pharmacokinetic pathway,pharmacodynamic pathway,drug metabolism pathway,PK pathway,PD pathway",
+    "url": "https://www.clinpgx.org/pathway/£{id}",
+    "path": "/data/bioyoda/snapshots/raw_data/clinpgx/",
+    "useLocalFile": "yes",
+    "hasFilter": "yes",
+    "attrs": "pathway_id,name,is_pharmacokinetic,is_pharmacodynamic,[]gene_symbols,[]chemical_names,[]disease_names,summary",
+    "bucketMethod": "ontology"
   }
 }

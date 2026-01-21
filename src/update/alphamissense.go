@@ -127,16 +127,16 @@ func (am *alphamissense) streamIsoformsXrefs(sourceID, transcriptSourceID string
 
 		// Add xrefs for this isoform directly (no memory storage)
 		if transcriptID != "" {
-			// Xref to transcript dataset
+			// Xref to transcript dataset (base ID without version)
 			transcriptBase := transcriptID
 			if dotIdx := strings.Index(transcriptID, "."); dotIdx > 0 {
 				transcriptBase = transcriptID[:dotIdx]
 			}
 			am.d.addXref(variantID, sourceID, transcriptBase, "transcript", false)
 
-			// Xref to alphamissense_transcript dataset (with version)
+			// Xref to alphamissense_transcript dataset (base ID - matches new entry format)
 			if transcriptSourceID != "" {
-				am.d.addXref(variantID, sourceID, transcriptID, "alphamissense_transcript", false)
+				am.d.addXref(variantID, sourceID, transcriptBase, "alphamissense_transcript", false)
 			}
 			xrefCount++
 		}
@@ -452,9 +452,9 @@ func (am *alphamissense) createCrossReferences(entryID, sourceID, textLinkID, tr
 			}
 			am.d.addXref(entryID, sourceID, transcriptBase, "transcript", false)
 
-			// Cross-reference to alphamissense_transcript dataset (full transcript ID with version)
+			// Cross-reference to alphamissense_transcript dataset (base ID - matches new entry format)
 			if transcriptSourceID != "" {
-				am.d.addXref(entryID, sourceID, transcriptID, "alphamissense_transcript", false)
+				am.d.addXref(entryID, sourceID, transcriptBase, "alphamissense_transcript", false)
 			}
 		}
 	}

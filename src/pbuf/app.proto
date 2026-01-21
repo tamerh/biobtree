@@ -173,6 +173,12 @@ message Xref {
     MsigdbAttr msigdb=64;
     AlphaMissenseAttr alphamissense=65;
     AlphaMissenseTranscriptAttr alphamissense_transcript=66;
+    PharmgkbAttr pharmgkb=67;
+    PharmgkbGeneAttr pharmgkb_gene=68;
+    PharmgkbClinicalAttr pharmgkb_clinical=69;
+    PharmgkbVariantAttr pharmgkb_variant=70;
+    PharmgkbGuidelineAttr pharmgkb_guideline=71;
+    PharmgkbPathwayAttr pharmgkb_pathway=72;
 
   }
 

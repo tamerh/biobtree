@@ -1,0 +1,59 @@
+{
+  "test_suite": "AlphaMissense Transcript Dataset Tests",
+  "dataset": "alphamissense_transcript",
+  "dataset_id": 109,
+  "description": "Tests for AlphaMissense transcript-level pathogenicity summaries",
+  "test_cases": [
+    {
+      "id": "basic_lookup",
+      "description": "Basic transcript lookup by ID",
+      "query_type": "lookup",
+      "sample_ids": ["ENST00000000233.10", "ENST00000000412.8", "ENST00000000442.11"],
+      "expected": {
+        "has_results": true,
+        "required_fields": ["transcript_id", "mean_am_pathogenicity"]
+      }
+    },
+    {
+      "id": "pathogenicity_range",
+      "description": "Verify mean pathogenicity scores are in valid range [0, 1]",
+      "query_type": "validation",
+      "expected": {
+        "mean_am_pathogenicity_range": [0.0, 1.0]
+      }
+    },
+    {
+      "id": "transcript_id_format",
+      "description": "Verify transcript ID format is ENST with version",
+      "query_type": "format",
+      "expected": {
+        "id_pattern": "^ENST\\d+\\.\\d+$"
+      }
+    },
+    {
+      "id": "filter_high_pathogenicity",
+      "description": "Filter for transcripts with high mean pathogenicity",
+      "query_type": "filter",
+      "filter_expression": "alphamissense_transcript.mean_am_pathogenicity >= 0.5",
+      "expected": {
+        "has_results": true,
+        "min_score": 0.5
+      }
+    },
+    {
+      "id": "filter_low_pathogenicity",
+      "description": "Filter for transcripts with low mean pathogenicity",
+      "query_type": "filter",
+      "filter_expression": "alphamissense_transcript.mean_am_pathogenicity < 0.3",
+      "expected": {
+        "has_results": true,
+        "max_score": 0.3
+      }
+    }
+  ],
+  "performance_benchmarks": {
+    "single_lookup_ms": 50,
+    "batch_lookup_100_ms": 500,
+    "filter_query_ms": 1000
+  }
+}

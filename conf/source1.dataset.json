@@ -785,5 +785,30 @@
     "attrs": "systematic_name,standard_name,collection,description,[]gene_symbols,gene_count,pmid,source_species,external_url,[]go_terms,[]hpo_terms",
     "test_entries_count": "500",
     "bucketMethod": "msigdb"
+  },
+  "alphamissense": {
+    "id": "108",
+    "name": "AlphaMissense",
+    "aliases": "AlphaMissense,alpha missense,pathogenicity,missense prediction,protein variant effect,DeepMind",
+    "url": "https://alphamissense.hegelab.org/variant/£{id}",
+    "path": "https://storage.googleapis.com/dm_alphamissense/AlphaMissense_hg38.tsv.gz",
+    "pathIsoforms": "https://storage.googleapis.com/dm_alphamissense/AlphaMissense_isoforms_hg38.tsv.gz",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "chromosome,position,ref_allele,alt_allele,uniprot_id,transcript_ids,protein_variant,am_pathogenicity,am_class,gene_symbol",
+    "test_entries_count": "10000",
+    "bucketMethod": "alphanum"
+  },
+  "alphamissense_transcript": {
+    "id": "109",
+    "name": "AlphaMissense Transcript",
+    "aliases": "AlphaMissense Transcript,alphamissense gene,transcript pathogenicity,gene pathogenicity",
+    "url": "https://www.ensembl.org/Homo_sapiens/Transcript/Summary?t=£{id}",
+    "path": "https://storage.googleapis.com/dm_alphamissense/AlphaMissense_gene_hg38.tsv.gz",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "transcript_id,mean_am_pathogenicity",
+    "test_entries_count": "50000",
+    "bucketMethod": "ensembl_hybrid"
   }
 }

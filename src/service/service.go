@@ -163,6 +163,8 @@ func (s *service) init() {
 		cel.Types(&pbuf.DrugcentralAttr{}),
 		cel.Types(&pbuf.DrugcentralTarget{}),
 		cel.Types(&pbuf.MsigdbAttr{}),
+		cel.Types(&pbuf.AlphaMissenseAttr{}),
+		cel.Types(&pbuf.AlphaMissenseTranscriptAttr{}),
 		cel.Declarations(
 			decls.NewIdent("uniprot", decls.NewObjectType("pbuf.UniprotAttr"), nil)),
 		cel.Declarations(
@@ -259,6 +261,10 @@ func (s *service) init() {
 			decls.NewIdent("drugcentral", decls.NewObjectType("pbuf.DrugcentralAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("msigdb", decls.NewObjectType("pbuf.MsigdbAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("alphamissense", decls.NewObjectType("pbuf.AlphaMissenseAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("alphamissense_transcript", decls.NewObjectType("pbuf.AlphaMissenseTranscriptAttr"), nil)),
 		cel.Declarations(
 			decls.NewFunction("overlaps",
 				decls.NewOverload("overlaps_int_int",

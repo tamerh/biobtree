@@ -193,7 +193,7 @@ Examples:
   %(prog)s hmdb,go,taxonomy   # Run multiple specific tests
 
 Available datasets:
-  uniprot, go, taxonomy, eco, efo, chebi, interpro, hmdb, lipidmaps, swisslipids, chembl_document, chembl_molecule, chembl_activity, chembl_assay, chembl_target, chembl_cell_line, ensembl, mondo, hpo, mesh, uberon, cl, oba, pato, obi, xco, bgee, patent, clinical_trials, clinvar, string, reactome, rhea, alphafold, rnacentral, uniparc, uniref50, uniref90, uniref100, gwas_study, gwas, dbsnp, intact, protein_similarity, antibody, pubchem, entrez, refseq, gencc, bindingdb, ctd, msigdb
+  uniprot, go, taxonomy, eco, efo, chebi, interpro, hmdb, lipidmaps, swisslipids, chembl_document, chembl_molecule, chembl_activity, chembl_assay, chembl_target, chembl_cell_line, ensembl, mondo, hpo, mesh, uberon, cl, oba, pato, obi, xco, bgee, patent, clinical_trials, clinvar, string, reactome, rhea, alphafold, alphamissense, alphamissense_transcript, rnacentral, uniparc, uniref50, uniref90, uniref100, gwas_study, gwas, dbsnp, intact, protein_similarity, antibody, pubchem, entrez, refseq, gencc, bindingdb, ctd, msigdb
 
   Temporarily disabled (Ensembl Genomes API SSL issues):
   ensembl_bacteria, ensembl_fungi, ensembl_metazoa, ensembl_plants, ensembl_protists
@@ -264,6 +264,8 @@ Available datasets:
         'reactome': datasets_dir / "reactome" / "test_reactome.py",
         'rhea': datasets_dir / "rhea" / "test_rhea.py",
         'alphafold': datasets_dir / "alphafold" / "test_alphafold.py",
+        'alphamissense': datasets_dir / "alphamissense" / "test_alphamissense.py",
+        'alphamissense_transcript': datasets_dir / "alphamissense_transcript" / "test_alphamissense_transcript.py",
         'rnacentral': datasets_dir / "rnacentral" / "test_rnacentral.py",
         'uniparc': datasets_dir / "uniparc" / "test_uniparc.py",
         'uniref50': datasets_dir / "uniref50" / "test_uniref50.py",

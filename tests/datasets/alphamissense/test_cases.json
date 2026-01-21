@@ -1,0 +1,87 @@
+{
+  "test_suite": "AlphaMissense Dataset Tests",
+  "dataset": "alphamissense",
+  "dataset_id": 108,
+  "description": "Tests for AlphaMissense pathogenicity predictions (variants and gene-level data)",
+  "test_cases": [
+    {
+      "id": "basic_lookup",
+      "description": "Basic variant lookup by ID",
+      "query_type": "lookup",
+      "sample_ids": ["1:69094:G:T", "1:69094:G:C", "1:69095:T:C"],
+      "expected": {
+        "has_results": true,
+        "required_fields": ["chromosome", "position", "ref_allele", "alt_allele", "am_pathogenicity", "am_class"]
+      }
+    },
+    {
+      "id": "attributes_validation",
+      "description": "Verify all attributes are populated correctly",
+      "query_type": "lookup",
+      "sample_ids": ["1:69094:G:T"],
+      "expected": {
+        "chromosome": "1",
+        "position_type": "int64",
+        "ref_allele_length": 1,
+        "alt_allele_length": 1,
+        "am_pathogenicity_range": [0.0, 1.0],
+        "am_class_values": ["likely_benign", "ambiguous", "likely_pathogenic"]
+      }
+    },
+    {
+      "id": "uniprot_xref",
+      "description": "Verify cross-reference to UniProt",
+      "query_type": "xref",
+      "direction": "alphamissense_to_uniprot",
+      "expected": {
+        "has_uniprot_link": true,
+        "uniprot_id_pattern": "^[A-Z0-9]+$"
+      }
+    },
+    {
+      "id": "filter_pathogenic",
+      "description": "Filter for likely pathogenic variants",
+      "query_type": "filter",
+      "filter_expression": "alphamissense.am_class == \"likely_pathogenic\"",
+      "expected": {
+        "has_results": true,
+        "all_match_class": "likely_pathogenic"
+      }
+    },
+    {
+      "id": "filter_high_score",
+      "description": "Filter for high pathogenicity score",
+      "query_type": "filter",
+      "filter_expression": "alphamissense.am_pathogenicity >= 0.9",
+      "expected": {
+        "has_results": true,
+        "min_score": 0.9
+      }
+    },
+    {
+      "id": "filter_low_score",
+      "description": "Filter for likely benign variants",
+      "query_type": "filter",
+      "filter_expression": "alphamissense.am_pathogenicity < 0.34",
+      "expected": {
+        "has_results": true,
+        "max_score": 0.34,
+        "all_match_class": "likely_benign"
+      }
+    },
+    {
+      "id": "coordinate_format",
+      "description": "Verify entry ID format is correct",
+      "query_type": "format",
+      "expected": {
+        "id_pattern": "^[0-9XYM]+:[0-9]+:[ACGT]+:[ACGT]+$",
+        "chromosome_values": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "X", "Y", "MT"]
+      }
+    }
+  ],
+  "performance_benchmarks": {
+    "single_lookup_ms": 50,
+    "batch_lookup_100_ms": 500,
+    "filter_query_ms": 1000
+  }
+}

@@ -1553,3 +1553,39 @@ message MsigdbAttr {
   string contributor = 15;                        // Who contributed this gene set
   string contributor_org = 16;                    // Contributing organization
 }
+
+// AlphaMissense - DeepMind's missense variant pathogenicity predictions (Dataset ID: 108)
+// Pre-computed pathogenicity scores for all possible human missense variants
+// Uses AlphaFold protein structure predictions
+// Source: https://github.com/google-deepmind/alphamissense
+// License: CC BY-NC-SA 4.0
+message AlphaMissenseAttr {
+  // Genomic coordinates (GRCh38/hg38)
+  string chromosome = 1;                          // Chromosome (1-22, X, Y, M)
+  int64 position = 2;                             // 1-based genomic position
+  string ref_allele = 3;                          // Reference allele
+  string alt_allele = 4;                          // Alternate allele
+
+  // Protein information
+  string uniprot_id = 5;                          // UniProt accession (e.g., "Q8NH21")
+  repeated string transcript_ids = 6;             // Ensembl transcript IDs (all affected isoforms)
+  string protein_variant = 7;                     // Amino acid change (e.g., "V2L", "R175H")
+  string gene_symbol = 8;                         // Gene symbol (derived from UniProt)
+
+  // Pathogenicity prediction
+  double am_pathogenicity = 9;                    // AlphaMissense score (0-1, higher = more pathogenic)
+  string am_class = 10;                           // Classification: "likely_benign", "ambiguous", "likely_pathogenic"
+
+  // Thresholds for interpretation:
+  // - likely_benign: score < 0.34
+  // - ambiguous: 0.34 <= score < 0.564
+  // - likely_pathogenic: score >= 0.564
+}
+
+// AlphaMissense transcript-level pathogenicity summary (Dataset ID: 109)
+// Separate dataset: alphamissense_transcript
+// Keyed by Ensembl transcript ID (e.g., "ENST00000000233.10")
+message AlphaMissenseTranscriptAttr {
+  string transcript_id = 1;                       // Ensembl transcript ID
+  double mean_am_pathogenicity = 2;               // Average pathogenicity score for all variants in this transcript
+}

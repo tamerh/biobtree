@@ -33,7 +33,7 @@
 	"disableRemoteConfigCheck": "y",
 	"dbBackend": "lmdb",
 	"lmdbSafetyFactor": "10",
-	"lookupDbDir": "out_prod_v2/db",
+	"lookupDbDir": "out_prod_v3/db_prev",
 	"tmpRuneSize": "10000000",
 	"mergeArraySize": "150000",
 	"mergeCheckpointInterval": "100000",

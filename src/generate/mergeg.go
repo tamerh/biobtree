@@ -1634,7 +1634,19 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 	entriesArr := make([][]*pbuf.XrefEntry, len(kv))
 	countsArr := make([][]*pbuf.XrefDomainCount, len(kv))
 
-	for k, v := range kv {
+	// Sort dataset keys by ID (ascending) so main datasets appear before derived datasets in pagination
+	sortedDatasetKeys := make([]string, 0, len(kv))
+	for k := range kv {
+		sortedDatasetKeys = append(sortedDatasetKeys, k)
+	}
+	sort.Slice(sortedDatasetKeys, func(i, j int) bool {
+		di, _ := strconv.Atoi(sortedDatasetKeys[i])
+		dj, _ := strconv.Atoi(sortedDatasetKeys[j])
+		return di < dj
+	})
+
+	for _, k := range sortedDatasetKeys {
+		v := kv[k]
 
 		var xref = pbuf.Xref{}
 		did, err := strconv.ParseInt(k, 10, 16)

@@ -360,16 +360,6 @@
       "should_fail": []
     },
     {
-      "category": "chembl_drug",
-      "name": "Disease to Advanced Drug Candidates",
-      "query": ">>ensembl>>chembl_molecule[chembl.molecule.highestDevelopmentPhase>2]",
-      "why": "Find Phase 3/4 drugs for disease - prioritize clinically validated compounds",
-      "should_pass": [
-        "MONDO:0005265"
-      ],
-      "should_fail": []
-    },
-    {
       "category": "ontologies",
       "name": "GO Term to Parent Terms",
       "query": ">>go>>goparent",

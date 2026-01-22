@@ -1004,15 +1004,21 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 
 				// Sort existing bucket files
 				isDerived := false
+				useUnixSort := false // Default to Go sort, per-dataset can override
 				if props, ok := config.Dataconf[dsName]; ok {
 					_, hasPath := props["path"]
 					isDerived = !hasPath
+					// Check for per-dataset useUnixSort override
+					if unixSortStr, ok := props["useUnixSort"]; ok {
+						useUnixSort = (unixSortStr == "yes" || unixSortStr == "true" || unixSortStr == "1")
+					}
 				}
-				if err := SortBucketsForDataset(dsName, config.Appconf["indexDir"], isDerived, 0); err != nil {
+				if err := SortBucketsForDataset(dsName, config.Appconf["indexDir"], isDerived, 0, useUnixSort); err != nil {
 					log.Printf("Warning: error sorting merge-only dataset %s: %v", dsName, err)
 					continue
 				}
 				// Concatenate
+				log.Printf("Concatenating bucket files for %s...", dsName)
 				lines, err := ConcatenateBucketsForDataset(dsName, config.Appconf["indexDir"], isDerived, chunkIdx)
 				if err != nil {
 					log.Printf("Warning: error concatenating merge-only dataset %s: %v", dsName, err)

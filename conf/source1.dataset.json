@@ -51,7 +51,8 @@
     "attrs": "rs_id,build_id,chromosome,position,ref_allele,alt_allele,allele_frequency,gnomad_frequency,[]gene_names,[]gene_ids,[]pseudogene_names,[]pseudogene_ids,gene_locus,clinical_significance,variant_type,variant_class,sao,is_common,nsf,nsm,nsn,syn,u3,u5,ass,dss,intron,r3,r5,ssr,has_publication,has_pubmed_ref,has_genotypes,[]merged_rs_ids,[]pubmed_ids",
     "test_entries_count": "50000",
     "bucketMethod": "rsid",
-    "compressBuckets": "yes"
+    "compressBuckets": "yes",
+    "useUnixSort": "yes"
   },
   "entrez": {
     "aliases": "GeneID,EntrezGene",

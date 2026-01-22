@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -32,11 +33,12 @@ func extractKey(line string) string {
 	return line
 }
 
-// SortBucketFile sorts a single bucket file in place
+// SortBucketFileInMemory sorts a single bucket file using Go's in-memory sort
 // Handles both compressed (.txt.gz) and uncompressed (.txt) files
 // Input and output maintain the same compression format
 // Optimized: extracts keys once upfront, sorts by key only (not full line)
-func SortBucketFile(filePath string) error {
+// WARNING: Loads entire file into memory - may OOM on very large files (use Unix sort instead)
+func SortBucketFileInMemory(filePath string) error {
 	// Detect if file is compressed by extension
 	isCompressed := strings.HasSuffix(filePath, ".gz")
 
@@ -148,26 +150,100 @@ func SortBucketFile(filePath string) error {
 	return nil
 }
 
+// SortBucketFileUnix sorts a bucket file using Unix sort command (external merge sort)
+// Handles both compressed (.gz) and uncompressed files
+// Uses bounded memory via -S flag, preventing OOM on large files
+// Options are configured via UnixSortOptions (e.g., "-u -S 4G --parallel=4 -T /tmp")
+// Key flags: LC_ALL=C (byte comparison), -t\t (tab delimiter), -k1,1 (sort by first field)
+func SortBucketFileUnix(filePath string) error {
+	isCompressed := strings.HasSuffix(filePath, ".gz")
+	outPath := filePath + ".sorted"
+
+	var cmd *exec.Cmd
+
+	if isCompressed {
+		// Pipeline: zcat input | LC_ALL=C sort ... | pigz/gzip > output
+		// Using bash -c to handle the pipeline
+		// UnixSortOptions contains: -u -S 4G --parallel=4 -T /tmp (or user-configured options)
+		// UnixSortCompressor: "pigz" (parallel, faster) or "gzip" (standard)
+		cmdStr := fmt.Sprintf(
+			"zcat '%s' | LC_ALL=C sort -t$'\\t' -k1,1 %s | %s > '%s'",
+			filePath,
+			UnixSortOptions,
+			UnixSortCompressor,
+			outPath,
+		)
+		cmd = exec.Command("bash", "-c", cmdStr)
+	} else {
+		// Direct sort for uncompressed files using shell to parse UnixSortOptions
+		cmdStr := fmt.Sprintf(
+			"LC_ALL=C sort -t$'\\t' -k1,1 %s -o '%s' '%s'",
+			UnixSortOptions,
+			outPath,
+			filePath,
+		)
+		cmd = exec.Command("bash", "-c", cmdStr)
+	}
+
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("unix sort failed for %s: %v, output: %s", filePath, err, string(output))
+	}
+
+	// Replace original with sorted
+	os.Remove(filePath)
+	if err := os.Rename(outPath, filePath); err != nil {
+		return fmt.Errorf("renaming sorted file %s: %w", outPath, err)
+	}
+
+	return nil
+}
+
+// SortBucketFile sorts a bucket file using the configured method
+// If useUnixSort is true, uses Unix sort command (external merge sort with bounded memory)
+// Otherwise uses Go's in-memory sort (faster but may OOM on large files)
+func SortBucketFile(filePath string, useUnixSort bool) error {
+	if useUnixSort {
+		return SortBucketFileUnix(filePath)
+	}
+	return SortBucketFileInMemory(filePath)
+}
+
+// sortJob holds info for sorting a single bucket file
+type sortJob struct {
+	filePath    string
+	useUnixSort bool
+}
+
 // SortAllBuckets sorts all bucket files in parallel
 // Uses BucketSortWorkers from config if numWorkers is 0
 // Skips datasets with SkipBucketSort=true in their config
+// Uses Unix sort for datasets with UseUnixSort=true (bounded memory)
 func SortAllBuckets(pool *HybridWriterPool, numWorkers int) error {
 	if numWorkers <= 0 {
 		numWorkers = BucketSortWorkers
 	}
 
 	// Get files to sort, filtering out datasets with skipBucketSort
-	var filesToSort []string
+	var filesToSort []sortJob
 	var skippedDatasets []string
+	var unixSortDatasets []string
 
 	for datasetID, writer := range pool.GetBucketWriters() {
 		if writer.config.SkipBucketSort {
 			skippedDatasets = append(skippedDatasets, writer.config.DatasetName)
 			continue
 		}
+		useUnixSort := writer.config.UseUnixSort
+		if useUnixSort {
+			unixSortDatasets = append(unixSortDatasets, writer.config.DatasetName)
+		}
 		for _, bucket := range writer.buckets {
 			if bucket.fileCreated {
-				filesToSort = append(filesToSort, bucket.filePath)
+				filesToSort = append(filesToSort, sortJob{
+					filePath:    bucket.filePath,
+					useUnixSort: useUnixSort,
+				})
 			}
 		}
 		_ = datasetID // suppress unused warning
@@ -175,6 +251,9 @@ func SortAllBuckets(pool *HybridWriterPool, numWorkers int) error {
 
 	if len(skippedDatasets) > 0 {
 		log.Printf("Skipping sort for datasets with skipBucketSort=true: %v", skippedDatasets)
+	}
+	if len(unixSortDatasets) > 0 {
+		log.Printf("Using Unix sort (bounded memory) for datasets: %v", unixSortDatasets)
 	}
 
 	if len(filesToSort) == 0 {
@@ -184,9 +263,9 @@ func SortAllBuckets(pool *HybridWriterPool, numWorkers int) error {
 	fmt.Printf("Sorting %d bucket files with %d workers\n", len(filesToSort), numWorkers)
 
 	// Create job channel
-	jobs := make(chan string, len(filesToSort))
-	for _, f := range filesToSort {
-		jobs <- f
+	jobs := make(chan sortJob, len(filesToSort))
+	for _, job := range filesToSort {
+		jobs <- job
 	}
 	close(jobs)
 
@@ -198,9 +277,9 @@ func SortAllBuckets(pool *HybridWriterPool, numWorkers int) error {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			for filePath := range jobs {
-				if err := SortBucketFile(filePath); err != nil {
-					errors <- fmt.Errorf("sorting %s: %w", filePath, err)
+			for job := range jobs {
+				if err := SortBucketFile(job.filePath, job.useUnixSort); err != nil {
+					errors <- fmt.Errorf("sorting %s: %w", job.filePath, err)
 				}
 			}
 		}()
@@ -555,7 +634,7 @@ func concatenateSourceFiles(datasetName string, writer *DatasetBucketWriter, fil
 			if _, err := os.Stat(f); os.IsNotExist(err) {
 				continue
 			}
-			if err := SortBucketFile(f); err != nil {
+			if err := SortBucketFile(f, writer.config.UseUnixSort); err != nil {
 				log.Printf("Warning: error sorting bucket file %s: %v", f, err)
 			}
 		}
@@ -685,7 +764,7 @@ func concatenateTextsearchPerSource(indexDir string, chunkIdx string, isDerived 
 			if _, err := os.Stat(f); os.IsNotExist(err) {
 				continue
 			}
-			if err := SortBucketFile(f); err != nil {
+			if err := SortBucketFile(f, false); err != nil { // textsearch uses Go sort
 				log.Printf("Warning: error sorting textsearch bucket file %s: %v", f, err)
 			}
 		}
@@ -782,7 +861,8 @@ func concatenateTextsearchPerSource(indexDir string, chunkIdx string, isDerived 
 // SortBucketsForDataset sorts all bucket files for a dataset using the new directory structure
 // Discovers files from forward/, from_*/ subdirectories and _derived/ if applicable
 // This is used for incremental updates where we don't have a HybridWriterPool
-func SortBucketsForDataset(datasetName string, indexDir string, isDerived bool, numWorkers int) error {
+// If useUnixSort is true, uses Unix sort command (bounded memory)
+func SortBucketsForDataset(datasetName string, indexDir string, isDerived bool, numWorkers int, useUnixSort bool) error {
 	if numWorkers <= 0 {
 		numWorkers = BucketSortWorkers
 	}
@@ -798,7 +878,11 @@ func SortBucketsForDataset(datasetName string, indexDir string, isDerived bool, 
 		return nil
 	}
 
-	log.Printf("Sorting %d bucket files for %s with %d workers", len(files), datasetName, numWorkers)
+	sortMethod := "Go in-memory"
+	if useUnixSort {
+		sortMethod = "Unix external"
+	}
+	log.Printf("Sorting %d bucket files for %s with %d workers (%s sort)", len(files), datasetName, numWorkers, sortMethod)
 
 	// Create job channel
 	jobs := make(chan string, len(files))
@@ -816,7 +900,7 @@ func SortBucketsForDataset(datasetName string, indexDir string, isDerived bool, 
 		go func() {
 			defer wg.Done()
 			for filePath := range jobs {
-				if err := SortBucketFile(filePath); err != nil {
+				if err := SortBucketFile(filePath, useUnixSort); err != nil {
 					errors <- fmt.Errorf("sorting %s: %w", filePath, err)
 				}
 			}
@@ -960,7 +1044,7 @@ func SortAndConcatenateAllDatasets(configs map[string]*BucketConfig, indexDir st
 
 		// Sort bucket files
 		if !cfg.SkipBucketSort {
-			if err := SortBucketsForDataset(datasetName, indexDir, isDerived, numWorkers); err != nil {
+			if err := SortBucketsForDataset(datasetName, indexDir, isDerived, numWorkers, cfg.UseUnixSort); err != nil {
 				return nil, fmt.Errorf("sorting %s: %w", datasetName, err)
 			}
 		}

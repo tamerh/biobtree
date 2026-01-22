@@ -25,6 +25,15 @@ var (
 	BucketWriteBufferSize = DefaultBucketWriteBufferSize
 	BucketSortWorkers     = DefaultBucketSortWorkers
 	BucketConcatWorkers   = DefaultBucketConcatWorkers
+
+	// Unix sort options (external merge sort with bounded memory)
+	// These options are appended to: sort -t$'\t' -k1,1 {options}
+	// Default includes: -u (deduplicate), -S 4G (memory limit), --parallel=4, -T /tmp
+	UnixSortOptions = "-u -S 4G --parallel=4 -T /tmp"
+
+	// UnixSortCompressor specifies the compression tool for Unix sort output
+	// Options: "pigz" (parallel, faster), "gzip" (standard)
+	UnixSortCompressor = "pigz"
 )
 
 // LoadBucketSystemConfig loads bucket system configuration from Appconf
@@ -67,8 +76,19 @@ func LoadBucketSystemConfig() {
 		KeepBucketFiles = (val == "yes" || val == "true" || val == "1")
 	}
 
-	log.Printf("Bucket system config: enabled=%v readBuffer=%d writeBuffer=%d sortWorkers=%d concatWorkers=%d keepFiles=%v",
-		BucketEnabled, BucketReadBufferSize, BucketWriteBufferSize, BucketSortWorkers, BucketConcatWorkers, KeepBucketFiles)
+	// unixSortOptions - options for Unix sort command (appended to: sort -t$'\t' -k1,1)
+	// Example: "-u -S 4G --parallel=4 -T /tmp"
+	if val, ok := config.Appconf["unixSortOptions"]; ok && val != "" {
+		UnixSortOptions = val
+	}
+
+	// unixSortCompressor - compression tool for Unix sort output ("pigz" or "gzip")
+	if val, ok := config.Appconf["unixSortCompressor"]; ok && val != "" {
+		UnixSortCompressor = val
+	}
+
+	log.Printf("Bucket system config: enabled=%v readBuffer=%d writeBuffer=%d sortWorkers=%d concatWorkers=%d keepFiles=%v compressor=%s",
+		BucketEnabled, BucketReadBufferSize, BucketWriteBufferSize, BucketSortWorkers, BucketConcatWorkers, KeepBucketFiles, UnixSortCompressor)
 }
 
 // BucketConfig holds bucket configuration for a dataset
@@ -81,6 +101,7 @@ type BucketConfig struct {
 	Method         BucketMethod   // For single method (backward compat)
 	SkipBucketSort  bool // Skip sorting phase - for datasets that run alone and don't need sorted output
 	CompressBuckets bool // Enable gzip compression for bucket files (reduces disk usage for large datasets like dbsnp)
+	UseUnixSort     bool // Use Unix sort command instead of Go in-memory sort (bounded memory, external merge sort)
 
 	// Multi-bucket-set support (when MethodName contains comma-separated methods)
 	Methods     []BucketMethod // Ordered list of methods to try
@@ -207,6 +228,14 @@ func LoadBucketConfigs() map[string]*BucketConfig {
 			compressBuckets = (compressStr == "yes" || compressStr == "true" || compressStr == "1")
 		}
 
+		// useUnixSort - use Unix sort command instead of Go in-memory sort
+		// Bounded memory via external merge sort, good for large datasets
+		// Default: false (use Go in-memory sort)
+		useUnixSort := false
+		if unixSortStr, ok := props["useUnixSort"]; ok {
+			useUnixSort = (unixSortStr == "yes" || unixSortStr == "true" || unixSortStr == "1")
+		}
+
 		// Check if this is a multi-method config (comma-separated)
 		methodNames := strings.Split(methodNameStr, ",")
 		for i := range methodNames {
@@ -221,6 +250,7 @@ func LoadBucketConfigs() map[string]*BucketConfig {
 				MethodName:      methodNameStr,
 				SkipBucketSort:  skipSort,
 				CompressBuckets: compressBuckets,
+				UseUnixSort:     useUnixSort,
 				NumSets:         len(methodNames),
 				Methods:         make([]BucketMethod, len(methodNames)),
 				MethodNames:     methodNames,
@@ -308,6 +338,7 @@ func LoadBucketConfigs() map[string]*BucketConfig {
 					Method:           method,
 					SkipBucketSort:   skipSort,
 					CompressBuckets:  compressBuckets,
+					UseUnixSort:      useUnixSort,
 					NumSets:          hybridNumSets,
 					Methods:          []BucketMethod{method},
 					MethodNames:      []string{methodName},
@@ -327,6 +358,7 @@ func LoadBucketConfigs() map[string]*BucketConfig {
 					Method:           method,
 					SkipBucketSort:   skipSort,
 					CompressBuckets:  compressBuckets,
+					UseUnixSort:      useUnixSort,
 					NumSets:          1,
 					Methods:          []BucketMethod{method},
 					MethodNames:      []string{methodName},
@@ -393,6 +425,7 @@ func LoadBucketConfigs() map[string]*BucketConfig {
 		NumBuckets:       55,
 		Method:           alphabeticBucket,
 		SkipBucketSort:   false,
+		UseUnixSort:      false, // textsearch uses Go sort by default
 		NumSets:          1,
 		Methods:          []BucketMethod{alphabeticBucket},
 		MethodNames:      []string{"alphabetic"},
@@ -456,6 +489,7 @@ func LoadDerivedBucketConfigs(existingConfigs map[string]*BucketConfig) map[stri
 			NumBuckets:       numBuckets,
 			Method:           alphabeticBucket,
 			SkipBucketSort:   false,
+			UseUnixSort:      false, // Derived datasets use Go sort by default
 			NumSets:          1,
 			Methods:          []BucketMethod{alphabeticBucket},
 			MethodNames:      []string{"alphabetic"},

@@ -2,6 +2,7 @@ package update
 
 import (
 	"bufio"
+	"compress/gzip"
 	"fmt"
 	"log"
 	"os"
@@ -11,15 +12,17 @@ import (
 )
 
 // BucketFile represents a single bucket file with mutex protection
-// Files are written uncompressed during processing for speed,
-// then compressed during concatenation phase
+// Files are written uncompressed by default, or gzip-compressed if CompressBuckets is enabled
+// Compression reduces disk usage for large datasets (like dbsnp) at cost of CPU during write
 type BucketFile struct {
-	filePath  string
-	file      *os.File
-	buf       *bufio.Writer
-	mutex     sync.Mutex
-	created   bool
-	lineCount uint64
+	filePath   string
+	file       *os.File
+	buf        *bufio.Writer
+	gzWriter   *gzip.Writer // nil if uncompressed, set if CompressBuckets=true
+	mutex      sync.Mutex
+	created    bool
+	lineCount  uint64
+	compressed bool // tracks if this file is compressed
 }
 
 // validateBucketLine checks if a line has the minimum required format: KEY\tDB\tVALUE\tVALUEDB
@@ -196,9 +199,16 @@ func (p *HybridWriterPool) writeToSubdir(datasetID, entityID, line, subdir strin
 				return false
 			}
 
-			// Create bucket file entry
+			// Create bucket file entry with compression support
+			var filePath string
+			if cfg.CompressBuckets {
+				filePath = filepath.Join(dir, fmt.Sprintf("bucket_%03d.txt.gz", bucketNum))
+			} else {
+				filePath = filepath.Join(dir, fmt.Sprintf("bucket_%03d.txt", bucketNum))
+			}
 			bf = &BucketFile{
-				filePath: filepath.Join(dir, fmt.Sprintf("bucket_%03d.txt", bucketNum)),
+				filePath:   filePath,
+				compressed: cfg.CompressBuckets,
 			}
 			p.bucketFiles[bucketKey] = bf
 		}
@@ -226,7 +236,13 @@ func (p *HybridWriterPool) writeToSubdir(datasetID, entityID, line, subdir strin
 			log.Printf("Error creating bucket file %s: %v", bf.filePath, err)
 			return false
 		}
-		bf.buf = bufio.NewWriterSize(bf.file, BucketWriteBufferSize)
+		if bf.compressed {
+			// Use gzip.BestSpeed (level 1) for fast compression during processing
+			bf.gzWriter, _ = gzip.NewWriterLevel(bf.file, gzip.BestSpeed)
+			bf.buf = bufio.NewWriterSize(bf.gzWriter, BucketWriteBufferSize)
+		} else {
+			bf.buf = bufio.NewWriterSize(bf.file, BucketWriteBufferSize)
+		}
 		bf.created = true
 	}
 
@@ -280,11 +296,14 @@ func (p *HybridWriterPool) HasBucketConfig(datasetID string) bool {
 // Close flushes and closes all bucket files
 // Must acquire mutex for each file to prevent race with concurrent writes
 func (p *HybridWriterPool) Close() {
-	// Close all bucket files (uncompressed)
+	// Close all bucket files (both compressed and uncompressed)
 	for _, bf := range p.bucketFiles {
 		bf.mutex.Lock()
 		if bf.created && bf.buf != nil {
 			bf.buf.Flush()
+			if bf.gzWriter != nil {
+				bf.gzWriter.Close() // Must close gzip writer before file to finalize stream
+			}
 			bf.file.Close()
 		}
 		bf.mutex.Unlock()

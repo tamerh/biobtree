@@ -139,6 +139,20 @@ dbSNP is NCBI's authoritative database of genetic variation, providing comprehen
 - **ClinVar**: Via clinvar_variation_id for variants with clinical annotations
 - **PubMed**: Via pubmed_ids for literature references
 
+**Pathogenicity Predictions (AlphaMissense)**:
+- **AlphaMissense (coordinate-based)**: Direct link to variant-level pathogenicity predictions
+  - Only for coding SNVs (excludes intronic, UTR, and flanking region variants)
+  - Uses coordinate format: `chr:pos:ref:alt` (e.g., `1:69094:G:T`)
+  - Query: `rs12345 >> dbsnp >> alphamissense`
+- **AlphaMissense Transcript (via RefSeq)**: Link to transcript-level mean pathogenicity
+  - Uses HGVS annotations to link to RefSeq transcripts
+  - Chain: `rs12345 >> dbsnp >> refseq >> transcript >> alphamissense_transcript`
+
+**Transcript Links**:
+- **RefSeq Transcripts**: Via HGVS annotations (MANE Select and all transcripts)
+  - Enables mapping to Ensembl transcripts and AlphaMissense data
+  - Uses base transcript ID without version (e.g., `NM_001005484`)
+
 **Text Search**:
 - rs IDs indexed as keywords (direct lookup: "rs7903146")
 - Gene symbols indexed (symbol search: "TCF7L2" finds associated SNPs)
@@ -255,6 +269,22 @@ Query: SNP -> xrefs -> Ensembl genes, ClinVar entries, PubMed articles
 Use: Link genomic data with genes, diseases, literature, and traits
 ```
 
+**11. AlphaMissense Pathogenicity Lookup (Variant-Level)**
+```
+Query: rs12345 >> dbsnp >> alphamissense
+Result: Pathogenicity score (0-1), classification (likely_benign/ambiguous/likely_pathogenic)
+Use: Assess missense variant pathogenicity for clinical interpretation
+Note: Only works for coding SNVs - intronic/UTR variants excluded
+```
+
+**12. AlphaMissense Transcript Pathogenicity (Gene-Level)**
+```
+Query: rs12345 >> dbsnp >> refseq >> transcript >> alphamissense_transcript
+Result: Mean pathogenicity score for the transcript
+Use: Assess overall mutation tolerance of the affected transcript/gene
+Chain: dbSNP HGVS -> RefSeq transcript -> Ensembl transcript -> AlphaMissense
+```
+
 ## Test Cases
 
 **Current Tests** (21 total):
@@ -283,6 +313,8 @@ Use: Link genomic data with genes, diseases, literature, and traits
 - Merged rs IDs from OLD field
 - Gene locus (cytogenetic location)
 - HGVS nomenclature (MANE Select and all transcripts)
+- RefSeq transcript cross-references (via HGVS annotations)
+- AlphaMissense cross-references (coordinate-based, coding SNVs only)
 
 ## Performance
 
@@ -328,6 +360,12 @@ Use: Link genomic data with genes, diseases, literature, and traits
 - ClinVar variation IDs must start with a digit (numeric validation)
 - Invalid IDs (e.g., ".,") are skipped during cross-reference creation
 
+**AlphaMissense Cross-Reference Filtering**:
+- Only coding SNVs create AlphaMissense xrefs
+- Excluded: intronic (`INT`), 3' UTR (`U3`), 5' UTR (`U5`), 3' region (`R3`), 5' region (`R5`)
+- AlphaMissense only contains missense predictions, so non-coding variants would never match
+- Reduces unnecessary xrefs and improves query precision
+
 **Version Tracking**:
 - dbSNP releases quarterly
 - No historical version storage
@@ -339,7 +377,6 @@ Use: Link genomic data with genes, diseases, literature, and traits
 - Add consequence prediction (VEP/SnpEff integration)
 - Add conservation scores (PhyloP, GERP++)
 - dbNSFP enrichment (CADD, SIFT, PolyPhen scores)
-- PharmGKB pharmacogenomics links
 - COSMIC somatic mutation links
 - Cross-reference validation (SNP -> gene linkage accuracy)
 - Paralog-specific test cases

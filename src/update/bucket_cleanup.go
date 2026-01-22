@@ -414,6 +414,7 @@ func GetBucketDirs(datasetName string, indexDir string, isDerived bool) ([]strin
 
 // GetAllBucketFiles returns all bucket files for a dataset across all subdirectories
 // Used for sort/concatenation phase
+// Finds both compressed (.txt.gz) and uncompressed (.txt) bucket files
 func GetAllBucketFiles(datasetName string, indexDir string, isDerived bool) ([]string, error) {
 	dirs, err := GetBucketDirs(datasetName, indexDir, isDerived)
 	if err != nil {
@@ -422,11 +423,16 @@ func GetAllBucketFiles(datasetName string, indexDir string, isDerived bool) ([]s
 
 	var files []string
 	for _, dir := range dirs {
-		matches, err := filepath.Glob(filepath.Join(dir, "bucket_*.txt"))
-		if err != nil {
-			continue
+		// Find uncompressed bucket files
+		txtMatches, err := filepath.Glob(filepath.Join(dir, "bucket_*.txt"))
+		if err == nil {
+			files = append(files, txtMatches...)
 		}
-		files = append(files, matches...)
+		// Find compressed bucket files
+		gzMatches, err := filepath.Glob(filepath.Join(dir, "bucket_*.txt.gz"))
+		if err == nil {
+			files = append(files, gzMatches...)
+		}
 	}
 
 	return files, nil
@@ -462,9 +468,11 @@ func GetBucketFilesPerSource(datasetName string, indexDir string, isDerived bool
 		dirName := entry.Name()
 		dirPath := filepath.Join(baseDir, dirName)
 
-		// Get bucket files from this directory
-		matches, err := filepath.Glob(filepath.Join(dirPath, "bucket_*.txt"))
-		if err != nil || len(matches) == 0 {
+		// Get bucket files from this directory (both compressed and uncompressed)
+		txtMatches, _ := filepath.Glob(filepath.Join(dirPath, "bucket_*.txt"))
+		gzMatches, _ := filepath.Glob(filepath.Join(dirPath, "bucket_*.txt.gz"))
+		matches := append(txtMatches, gzMatches...)
+		if len(matches) == 0 {
 			continue
 		}
 

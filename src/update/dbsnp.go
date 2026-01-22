@@ -767,6 +767,53 @@ func (db *dbsnp) createCrossReferences(rsID, sourceID string, attr *pbuf.DbsnpAt
 			db.d.addXref(rsID, sourceID, pmid, "literature_mappings", false)
 		}
 	}
+
+	// NEW: RefSeq transcript cross-references (from HGVS annotations)
+	// Enables chain: dbsnp >> refseq >> transcript >> alphamissense_transcript
+	// Track added transcripts to avoid duplicates
+	addedTranscripts := make(map[string]bool)
+
+	// Add MANE Select transcript first (primary clinical reference)
+	if attr.HgvsMane != nil && attr.HgvsMane.TranscriptId != "" {
+		transcriptID := attr.HgvsMane.TranscriptId
+		// Strip version for cross-referencing (NM_001005484.2 -> NM_001005484)
+		transcriptBase := transcriptID
+		if dotIdx := strings.Index(transcriptID, "."); dotIdx > 0 {
+			transcriptBase = transcriptID[:dotIdx]
+		}
+		if !addedTranscripts[transcriptBase] {
+			db.d.addXref(rsID, sourceID, transcriptBase, "refseq", false)
+			addedTranscripts[transcriptBase] = true
+		}
+	}
+
+	// Add all other affected transcripts
+	for _, hgvs := range attr.HgvsTranscripts {
+		if hgvs != nil && hgvs.TranscriptId != "" {
+			transcriptID := hgvs.TranscriptId
+			// Strip version for cross-referencing
+			transcriptBase := transcriptID
+			if dotIdx := strings.Index(transcriptID, "."); dotIdx > 0 {
+				transcriptBase = transcriptID[:dotIdx]
+			}
+			if !addedTranscripts[transcriptBase] {
+				db.d.addXref(rsID, sourceID, transcriptBase, "refseq", false)
+				addedTranscripts[transcriptBase] = true
+			}
+		}
+	}
+
+	// NEW: AlphaMissense cross-reference (coordinate-based, for coding SNVs only)
+	// Enables direct query: rs12345 >> dbsnp >> alphamissense
+	// AlphaMissense uses format chr:pos:ref:alt (e.g., 1:69094:G:T)
+	// Only create xref for coding SNVs - AlphaMissense only has missense predictions
+	// Exclude: intronic, UTR, and other non-coding variants
+	if attr.VariantType == "SNV" && attr.Chromosome != "" && attr.Position > 0 &&
+		!attr.Intron && !attr.U3 && !attr.U5 && !attr.R3 && !attr.R5 {
+		alphamissenseID := fmt.Sprintf("%s:%d:%s:%s",
+			attr.Chromosome, attr.Position, attr.RefAllele, attr.AltAllele)
+		db.d.addXref(rsID, sourceID, alphamissenseID, "alphamissense", false)
+	}
 }
 
 // parseFrequencies parses the FREQ field from dbSNP VCF

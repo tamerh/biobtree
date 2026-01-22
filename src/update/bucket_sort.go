@@ -32,19 +32,35 @@ func extractKey(line string) string {
 	return line
 }
 
-// SortBucketFile sorts a single uncompressed bucket file in place
-// Input: uncompressed .txt file
-// Output: sorted, deduplicated .txt file (same path)
+// SortBucketFile sorts a single bucket file in place
+// Handles both compressed (.txt.gz) and uncompressed (.txt) files
+// Input and output maintain the same compression format
 // Optimized: extracts keys once upfront, sorts by key only (not full line)
 func SortBucketFile(filePath string) error {
-	// Read all lines from uncompressed file
+	// Detect if file is compressed by extension
+	isCompressed := strings.HasSuffix(filePath, ".gz")
+
+	// Open and read all lines
 	f, err := os.Open(filePath)
 	if err != nil {
 		return err
 	}
 
+	var reader *bufio.Reader
+	var gzReader *gzip.Reader
+
+	if isCompressed {
+		gzReader, err = gzip.NewReader(f)
+		if err != nil {
+			f.Close()
+			return fmt.Errorf("opening gzip reader for %s: %w", filePath, err)
+		}
+		reader = bufio.NewReaderSize(gzReader, BucketReadBufferSize)
+	} else {
+		reader = bufio.NewReaderSize(f, BucketReadBufferSize)
+	}
+
 	var entries []keyedLine
-	reader := bufio.NewReaderSize(f, BucketReadBufferSize)
 	for {
 		line, err := reader.ReadString('\n')
 		if err != nil && err != io.EOF {
@@ -65,6 +81,11 @@ func SortBucketFile(filePath string) error {
 			break
 		}
 	}
+
+	// Close readers
+	if gzReader != nil {
+		gzReader.Close()
+	}
 	f.Close()
 
 	if len(entries) == 0 {
@@ -77,7 +98,7 @@ func SortBucketFile(filePath string) error {
 		return entries[i].key < entries[j].key
 	})
 
-	// Write back uncompressed (with deduplication by full line)
+	// Write back in same format (with deduplication by full line)
 	// Same key can appear from different datasets - that's NOT a duplicate
 	// Only identical full lines are duplicates
 	// Use a map to track seen lines within each key group since duplicates
@@ -87,7 +108,16 @@ func SortBucketFile(filePath string) error {
 	if err != nil {
 		return err
 	}
-	buf := bufio.NewWriterSize(outF, BucketWriteBufferSize)
+
+	var buf *bufio.Writer
+	var gzWriter *gzip.Writer
+
+	if isCompressed {
+		gzWriter, _ = gzip.NewWriterLevel(outF, gzip.BestSpeed)
+		buf = bufio.NewWriterSize(gzWriter, BucketWriteBufferSize)
+	} else {
+		buf = bufio.NewWriterSize(outF, BucketWriteBufferSize)
+	}
 
 	prevKey := ""
 	seenLines := make(map[string]bool)
@@ -106,6 +136,9 @@ func SortBucketFile(filePath string) error {
 	}
 
 	buf.Flush()
+	if gzWriter != nil {
+		gzWriter.Close()
+	}
 	outF.Close()
 
 	// Replace original with sorted
@@ -186,12 +219,47 @@ func SortAllBuckets(pool *HybridWriterPool, numWorkers int) error {
 }
 
 // bucketReader holds state for reading from a single sorted bucket file during k-way merge
+// Supports both compressed (.txt.gz) and uncompressed (.txt) files
 type bucketReader struct {
-	file    *os.File
-	reader  *bufio.Reader
-	curLine string // Current line (including newline)
-	curKey  string // Current key (first field)
-	eof     bool
+	file     *os.File
+	gzReader *gzip.Reader  // nil if uncompressed
+	reader   *bufio.Reader
+	curLine  string // Current line (including newline)
+	curKey   string // Current key (first field)
+	eof      bool
+}
+
+// newBucketReader creates a bucket reader that handles both compressed and uncompressed files
+// Detects compression by file extension (.txt.gz vs .txt)
+func newBucketReader(filePath string) (*bucketReader, error) {
+	f, err := os.Open(filePath)
+	if err != nil {
+		return nil, err
+	}
+
+	br := &bucketReader{file: f}
+
+	if strings.HasSuffix(filePath, ".gz") {
+		br.gzReader, err = gzip.NewReader(f)
+		if err != nil {
+			f.Close()
+			return nil, fmt.Errorf("opening gzip reader for %s: %w", filePath, err)
+		}
+		br.reader = bufio.NewReaderSize(br.gzReader, BucketReadBufferSize)
+	} else {
+		br.reader = bufio.NewReaderSize(f, BucketReadBufferSize)
+	}
+
+	br.readNext()
+	return br, nil
+}
+
+// close properly closes all readers (gzip if compressed, then file)
+func (br *bucketReader) close() {
+	if br.gzReader != nil {
+		br.gzReader.Close()
+	}
+	br.file.Close()
 }
 
 // readNext reads the next line from the bucket file
@@ -505,22 +573,18 @@ func concatenateSourceFiles(datasetName string, writer *DatasetBucketWriter, fil
 
 		linesWritten := uint64(0)
 
-		// Initialize bucket readers for k-way merge
+		// Initialize bucket readers for k-way merge (handles both compressed and uncompressed)
 		readers := make([]*bucketReader, 0, len(bucketFiles))
 		for _, bucketFile := range bucketFiles {
-			f, err := os.Open(bucketFile)
+			br, err := newBucketReader(bucketFile)
 			if err != nil {
+				log.Printf("Warning: cannot open bucket file %s: %v", bucketFile, err)
 				continue
 			}
-			br := &bucketReader{
-				file:   f,
-				reader: bufio.NewReaderSize(f, BucketReadBufferSize),
-			}
-			br.readNext()
 			if !br.eof {
 				readers = append(readers, br)
 			} else {
-				f.Close()
+				br.close()
 			}
 		}
 
@@ -540,7 +604,7 @@ func concatenateSourceFiles(datasetName string, writer *DatasetBucketWriter, fil
 					linesWritten++
 					readers[i].readNext()
 					if readers[i].eof {
-						readers[i].file.Close()
+						readers[i].close()
 						readers = append(readers[:i], readers[i+1:]...)
 						continue
 					}
@@ -641,22 +705,18 @@ func concatenateTextsearchPerSource(indexDir string, chunkIdx string, isDerived 
 
 		linesWritten := uint64(0)
 
-		// Initialize bucket readers for k-way merge
+		// Initialize bucket readers for k-way merge (handles both compressed and uncompressed)
 		readers := make([]*bucketReader, 0, len(bucketFiles))
 		for _, bucketFile := range bucketFiles {
-			f, err := os.Open(bucketFile)
+			br, err := newBucketReader(bucketFile)
 			if err != nil {
+				log.Printf("Warning: cannot open bucket file %s: %v", bucketFile, err)
 				continue
 			}
-			br := &bucketReader{
-				file:   f,
-				reader: bufio.NewReaderSize(f, BucketReadBufferSize),
-			}
-			br.readNext()
 			if !br.eof {
 				readers = append(readers, br)
 			} else {
-				f.Close()
+				br.close()
 			}
 		}
 
@@ -676,7 +736,7 @@ func concatenateTextsearchPerSource(indexDir string, chunkIdx string, isDerived 
 					linesWritten++
 					readers[i].readNext()
 					if readers[i].eof {
-						readers[i].file.Close()
+						readers[i].close()
 						readers = append(readers[:i], readers[i+1:]...)
 						continue
 					}
@@ -805,22 +865,18 @@ func ConcatenateBucketsForDataset(datasetName string, indexDir string, isDerived
 
 	linesWritten := uint64(0)
 
-	// Initialize bucket readers for k-way merge
+	// Initialize bucket readers for k-way merge (handles both compressed and uncompressed)
 	readers := make([]*bucketReader, 0, len(files))
 	for _, bucketFile := range files {
-		f, err := os.Open(bucketFile)
+		br, err := newBucketReader(bucketFile)
 		if err != nil {
+			log.Printf("Warning: cannot open bucket file %s: %v", bucketFile, err)
 			continue
 		}
-		br := &bucketReader{
-			file:   f,
-			reader: bufio.NewReaderSize(f, BucketReadBufferSize),
-		}
-		br.readNext() // Read first line
 		if !br.eof {
 			readers = append(readers, br)
 		} else {
-			f.Close()
+			br.close()
 		}
 	}
 
@@ -844,7 +900,7 @@ func ConcatenateBucketsForDataset(datasetName string, indexDir string, isDerived
 				readers[i].readNext()
 				if readers[i].eof {
 					// Remove exhausted reader
-					readers[i].file.Close()
+					readers[i].close()
 					readers = append(readers[:i], readers[i+1:]...)
 					// Don't increment i since we removed an element
 					continue

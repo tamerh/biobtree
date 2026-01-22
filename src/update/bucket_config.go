@@ -79,7 +79,8 @@ type BucketConfig struct {
 	MethodName     string         // Original config value (may be comma-separated)
 	NumBuckets     int            // For single method (backward compat)
 	Method         BucketMethod   // For single method (backward compat)
-	SkipBucketSort bool           // Skip sorting phase - for datasets that run alone and don't need sorted output
+	SkipBucketSort  bool // Skip sorting phase - for datasets that run alone and don't need sorted output
+	CompressBuckets bool // Enable gzip compression for bucket files (reduces disk usage for large datasets like dbsnp)
 
 	// Multi-bucket-set support (when MethodName contains comma-separated methods)
 	Methods     []BucketMethod // Ordered list of methods to try
@@ -198,6 +199,14 @@ func LoadBucketConfigs() map[string]*BucketConfig {
 			skipSort = (skipStr == "yes" || skipStr == "true" || skipStr == "1")
 		}
 
+		// compressBuckets - enable gzip compression for bucket files
+		// Reduces disk usage for large datasets (like dbsnp) at cost of CPU during write
+		// Default: false (uncompressed for most datasets)
+		compressBuckets := false
+		if compressStr, ok := props["compressBuckets"]; ok {
+			compressBuckets = (compressStr == "yes" || compressStr == "true" || compressStr == "1")
+		}
+
 		// Check if this is a multi-method config (comma-separated)
 		methodNames := strings.Split(methodNameStr, ",")
 		for i := range methodNames {
@@ -207,13 +216,14 @@ func LoadBucketConfigs() map[string]*BucketConfig {
 		if len(methodNames) > 1 {
 			// Multi-bucket-set configuration
 			cfg := &BucketConfig{
-				DatasetID:      datasetID,
-				DatasetName:    datasetName,
-				MethodName:     methodNameStr,
-				SkipBucketSort: skipSort,
-				NumSets:        len(methodNames),
-				Methods:        make([]BucketMethod, len(methodNames)),
-				MethodNames:    methodNames,
+				DatasetID:       datasetID,
+				DatasetName:     datasetName,
+				MethodName:      methodNameStr,
+				SkipBucketSort:  skipSort,
+				CompressBuckets: compressBuckets,
+				NumSets:         len(methodNames),
+				Methods:         make([]BucketMethod, len(methodNames)),
+				MethodNames:     methodNames,
 				NumBucketsPerSet: make([]int, len(methodNames)),
 			}
 
@@ -297,6 +307,7 @@ func LoadBucketConfigs() map[string]*BucketConfig {
 					NumBuckets:       totalBuckets,
 					Method:           method,
 					SkipBucketSort:   skipSort,
+					CompressBuckets:  compressBuckets,
 					NumSets:          hybridNumSets,
 					Methods:          []BucketMethod{method},
 					MethodNames:      []string{methodName},
@@ -304,26 +315,32 @@ func LoadBucketConfigs() map[string]*BucketConfig {
 					HybridMode:       true,
 				}
 
-				log.Printf("Bucket config loaded (hybrid): %s (ID:%s) method=%s sets=%d buckets=%d totalBuckets=%d skipSort=%v",
-					datasetName, datasetID, methodName, hybridNumSets, numBuckets, totalBuckets, skipSort)
+				log.Printf("Bucket config loaded (hybrid): %s (ID:%s) method=%s sets=%d buckets=%d totalBuckets=%d skipSort=%v compress=%v",
+					datasetName, datasetID, methodName, hybridNumSets, numBuckets, totalBuckets, skipSort, compressBuckets)
 			} else {
 				// Standard single-method config
 				cfgs[datasetID] = &BucketConfig{
-					DatasetID:      datasetID,
-					DatasetName:    datasetName,
-					MethodName:     methodName,
-					NumBuckets:     numBuckets,
-					Method:         method,
-					SkipBucketSort: skipSort,
-					NumSets:        1,
-					Methods:        []BucketMethod{method},
-					MethodNames:    []string{methodName},
+					DatasetID:        datasetID,
+					DatasetName:      datasetName,
+					MethodName:       methodName,
+					NumBuckets:       numBuckets,
+					Method:           method,
+					SkipBucketSort:   skipSort,
+					CompressBuckets:  compressBuckets,
+					NumSets:          1,
+					Methods:          []BucketMethod{method},
+					MethodNames:      []string{methodName},
 					NumBucketsPerSet: []int{numBuckets},
-					HybridMode:     false,
+					HybridMode:       false,
 				}
 
-				log.Printf("Bucket config loaded: %s (ID:%s) method=%s buckets=%d skipSort=%v",
-					datasetName, datasetID, methodName, numBuckets, skipSort)
+				if compressBuckets {
+					log.Printf("Bucket config loaded: %s (ID:%s) method=%s buckets=%d skipSort=%v compress=true",
+						datasetName, datasetID, methodName, numBuckets, skipSort)
+				} else {
+					log.Printf("Bucket config loaded: %s (ID:%s) method=%s buckets=%d skipSort=%v",
+						datasetName, datasetID, methodName, numBuckets, skipSort)
+				}
 			}
 		}
 	}

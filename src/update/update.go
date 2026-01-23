@@ -1003,15 +1003,12 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 				}
 
 				// Sort existing bucket files
+				// Use global BucketSortMethod setting (no per-dataset override)
 				isDerived := false
-				useUnixSort := false // Default to Go sort, per-dataset can override
+				useUnixSort := BucketSortMethod == "unix"
 				if props, ok := config.Dataconf[dsName]; ok {
 					_, hasPath := props["path"]
 					isDerived = !hasPath
-					// Check for per-dataset useUnixSort override
-					if unixSortStr, ok := props["useUnixSort"]; ok {
-						useUnixSort = (unixSortStr == "yes" || unixSortStr == "true" || unixSortStr == "1")
-					}
 				}
 				if err := SortBucketsForDataset(dsName, config.Appconf["indexDir"], isDerived, 0, useUnixSort); err != nil {
 					log.Printf("Warning: error sorting merge-only dataset %s: %v", dsName, err)

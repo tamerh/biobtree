@@ -200,15 +200,16 @@ func (p *HybridWriterPool) writeToSubdir(datasetID, entityID, line, subdir strin
 			}
 
 			// Create bucket file entry with compression support
+			// Uses global CompressBuckets setting (fixes reverse xref inheritance bug)
 			var filePath string
-			if cfg.CompressBuckets {
+			if CompressBuckets {
 				filePath = filepath.Join(dir, fmt.Sprintf("bucket_%03d.txt.gz", bucketNum))
 			} else {
 				filePath = filepath.Join(dir, fmt.Sprintf("bucket_%03d.txt", bucketNum))
 			}
 			bf = &BucketFile{
 				filePath:   filePath,
-				compressed: cfg.CompressBuckets,
+				compressed: CompressBuckets,
 			}
 			p.bucketFiles[bucketKey] = bf
 		}

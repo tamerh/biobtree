@@ -218,25 +218,23 @@ type sortJob struct {
 // SortAllBuckets sorts all bucket files in parallel
 // Uses BucketSortWorkers from config if numWorkers is 0
 // Skips datasets with SkipBucketSort=true in their config
-// Uses Unix sort for datasets with UseUnixSort=true (bounded memory)
+// Uses global BucketSortMethod setting for sort method selection
 func SortAllBuckets(pool *HybridWriterPool, numWorkers int) error {
 	if numWorkers <= 0 {
 		numWorkers = BucketSortWorkers
 	}
 
+	// Use global sort method (fixes reverse xref inheritance bug)
+	useUnixSort := BucketSortMethod == "unix"
+
 	// Get files to sort, filtering out datasets with skipBucketSort
 	var filesToSort []sortJob
 	var skippedDatasets []string
-	var unixSortDatasets []string
 
 	for datasetID, writer := range pool.GetBucketWriters() {
 		if writer.config.SkipBucketSort {
 			skippedDatasets = append(skippedDatasets, writer.config.DatasetName)
 			continue
-		}
-		useUnixSort := writer.config.UseUnixSort
-		if useUnixSort {
-			unixSortDatasets = append(unixSortDatasets, writer.config.DatasetName)
 		}
 		for _, bucket := range writer.buckets {
 			if bucket.fileCreated {
@@ -252,8 +250,8 @@ func SortAllBuckets(pool *HybridWriterPool, numWorkers int) error {
 	if len(skippedDatasets) > 0 {
 		log.Printf("Skipping sort for datasets with skipBucketSort=true: %v", skippedDatasets)
 	}
-	if len(unixSortDatasets) > 0 {
-		log.Printf("Using Unix sort (bounded memory) for datasets: %v", unixSortDatasets)
+	if useUnixSort {
+		log.Printf("Using Unix sort (bounded memory) for all bucket files")
 	}
 
 	if len(filesToSort) == 0 {

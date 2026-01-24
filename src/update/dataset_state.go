@@ -6,10 +6,36 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"syscall"
 	"time"
 )
+
+// IsSourceDataset returns true if the dataset is a source dataset (has path in config)
+// or is the special textsearch derived dataset which should be tracked.
+// Source datasets come from source1.dataset.json and source2.dataset.json.
+// Derived datasets (from xref1.dataset.json etc.) are excluded from state tracking.
+func IsSourceDataset(datasetName string) bool {
+	// Special case: textsearch is a derived dataset but should be tracked
+	if strings.HasPrefix(datasetName, "textsearch") {
+		return true
+	}
+
+	// Check if config is initialized (may be nil during early startup)
+	if config == nil || config.Dataconf == nil {
+		return true // If config not loaded yet, allow all datasets
+	}
+
+	// Check if dataset has a path (source datasets have download paths)
+	if dsConfig, exists := config.Dataconf[datasetName]; exists {
+		if _, hasPath := dsConfig["path"]; hasPath {
+			return true
+		}
+	}
+
+	return false
+}
 
 // DatasetState tracks build state for incremental updates
 // Stored in the main output directory as dataset_state.json
@@ -161,9 +187,19 @@ func SaveDatasetState(state *DatasetState, outDir string) error {
 		diskState = NewDatasetState()
 	}
 
-	// Merge: add/update current datasets into disk state
+	// Merge: add/update current datasets into disk state (only source datasets + textsearch)
 	for name, info := range currentDatasets {
-		diskState.Datasets[name] = info
+		if IsSourceDataset(name) {
+			diskState.Datasets[name] = info
+		}
+	}
+
+	// Filter out any non-source datasets that might exist in disk state
+	// This ensures derived datasets are removed even if they were added in previous versions
+	for name := range diskState.Datasets {
+		if !IsSourceDataset(name) {
+			delete(diskState.Datasets, name)
+		}
 	}
 
 	// Apply deletions (delta-based for concurrent safety)

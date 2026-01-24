@@ -27,9 +27,10 @@ var (
 	BucketConcatWorkers   = DefaultBucketConcatWorkers
 
 	// Unix sort options (external merge sort with bounded memory)
-	// These options are appended to: sort -t$'\t' -k1,1 {options}
-	// Default includes: -u (deduplicate), -S 4G (memory limit), --parallel=4, -T /tmp
-	UnixSortOptions = "-u -S 4G --parallel=4 -T /tmp"
+	// These options are appended to: sort -t$'\t' -k1,1 {options} | uniq
+	// Note: deduplication is done by `uniq` (full-line), not sort -u (key-only)
+	// Default includes: -S 4G (memory limit), --parallel=4, -T /tmp
+	UnixSortOptions = "-S 4G --parallel=4 -T /tmp"
 
 	// UnixSortCompressor specifies the compression tool for Unix sort output
 	// Options: "pigz" (parallel, faster), "gzip" (standard)
@@ -87,7 +88,7 @@ func LoadBucketSystemConfig() {
 	}
 
 	// unixSortOptions - options for Unix sort command (appended to: sort -t$'\t' -k1,1)
-	// Example: "-u -S 4G --parallel=4 -T /tmp"
+	// Example: "-S 4G --parallel=4 -T /tmp" (no -u, dedup is done by uniq)
 	if val, ok := config.Appconf["unixSortOptions"]; ok && val != "" {
 		UnixSortOptions = val
 	}

@@ -722,7 +722,7 @@
     "bucketMethod": "alphabetic"
   },
   "bindingdb": {
-    "id": "103",
+    "id": "60",
     "name": "BindingDB",
     "path": "https://www.bindingdb.org/rwd/bind/downloads/BindingDB_All_202512_tsv.zip",
     "aliases": "BindingDB",
@@ -734,7 +734,7 @@
     "bucketMethod": "numeric"
   },
   "ctd": {
-    "id": "104",
+    "id": "61",
     "name": "CTD",
     "aliases": "CTD,Comparative Toxicogenomics Database,toxicogenomics,chemical-gene interaction,chemical-disease,gene-disease",
     "url": "https://ctdbase.org/detail.go?type=chem&acc=£{id}",
@@ -750,7 +750,7 @@
     "bucketMethod": "mesh"
   },
   "biogrid": {
-    "id": "105",
+    "id": "62",
     "name": "BioGRID",
     "aliases": "BioGRID,biogrid interaction,genetic interaction,physical interaction,interaction database",
     "url": "https://thebiogrid.org/interaction/£{id}",
@@ -762,7 +762,7 @@
     "bucketMethod": "numeric"
   },
   "drugcentral": {
-    "id": "106",
+    "id": "63",
     "name": "DrugCentral",
     "aliases": "DrugCentral,drug central,drug-target,drug target interaction",
     "url": "https://drugcentral.org/drugcard/£{id}",
@@ -775,7 +775,7 @@
     "bucketMethod": "numeric"
   },
   "msigdb": {
-    "id": "107",
+    "id": "64",
     "name": "MSigDB",
     "aliases": "MSigDB,Molecular Signatures Database,gene set,pathway,hallmark,GSEA,gene signature,MSigDB C1,MSigDB C2,MSigDB C5,MSigDB C7,MSigDB C8",
     "url": "https://www.gsea-msigdb.org/gsea/msigdb/geneset_page.jsp?geneSetName=£{id}",
@@ -787,7 +787,7 @@
     "bucketMethod": "msigdb"
   },
   "alphamissense": {
-    "id": "108",
+    "id": "65",
     "name": "AlphaMissense",
     "aliases": "AlphaMissense,alpha missense,pathogenicity,missense prediction,protein variant effect,DeepMind",
     "url": "https://alphamissense.hegelab.org/variant/£{id}",
@@ -800,7 +800,7 @@
     "bucketMethod": "alphanum"
   },
   "alphamissense_transcript": {
-    "id": "109",
+    "id": "66",
     "name": "AlphaMissense Transcript",
     "aliases": "AlphaMissense Transcript,alphamissense gene,transcript pathogenicity,gene pathogenicity",
     "url": "https://www.ensembl.org/Homo_sapiens/Transcript/Summary?t=£{id}",
@@ -812,7 +812,7 @@
     "bucketMethod": "ensembl_hybrid"
   },
   "pharmgkb": {
-    "id": "110",
+    "id": "67",
     "name": "PharmGKB",
     "aliases": "PharmGKB,ClinPGx,pharmacogenomics,PGx,drug-gene,pharmacogenomic,CPIC,DPWG,dosing guideline",
     "url": "https://www.clinpgx.org/chemical/£{id}",
@@ -833,7 +833,7 @@
     "bucketMethod": "ontology"
   },
   "pharmgkb_gene": {
-    "id": "111",
+    "id": "68",
     "name": "PharmGKB Gene",
     "aliases": "PharmGKB Gene,pharmacogene,VIP gene,very important pharmacogene",
     "url": "https://www.clinpgx.org/gene/£{id}",
@@ -844,7 +844,7 @@
     "bucketMethod": "ontology"
   },
   "pharmgkb_clinical": {
-    "id": "112",
+    "id": "69",
     "name": "PharmGKB Clinical Annotation",
     "aliases": "PharmGKB Clinical,clinical annotation,PGx annotation,variant-drug annotation,drug response",
     "url": "https://www.clinpgx.org/clinicalAnnotation/£{id}",
@@ -855,7 +855,7 @@
     "bucketMethod": "alphabetic"
   },
   "pharmgkb_variant": {
-    "id": "113",
+    "id": "106",
     "name": "PharmGKB Variant",
     "aliases": "PharmGKB Variant,pharmacogenomic variant,PGx variant,pharmacogenetic variant",
     "url": "https://www.clinpgx.org/variant/£{id}",
@@ -866,7 +866,7 @@
     "bucketMethod": "ontology"
   },
   "pharmgkb_guideline": {
-    "id": "114",
+    "id": "107",
     "name": "PharmGKB Guideline",
     "aliases": "PharmGKB Guideline,CPIC Guideline,DPWG Guideline,pharmacogenomic guideline,clinical guideline,PGx guideline",
     "url": "https://www.clinpgx.org/guidelineAnnotation/£{id}",
@@ -877,7 +877,7 @@
     "bucketMethod": "ontology"
   },
   "pharmgkb_pathway": {
-    "id": "115",
+    "id": "108",
     "name": "PharmGKB Pathway",
     "aliases": "PharmGKB Pathway,pharmacokinetic pathway,pharmacodynamic pathway,drug metabolism pathway,PK pathway,PD pathway",
     "url": "https://www.clinpgx.org/pathway/£{id}",

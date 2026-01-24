@@ -153,8 +153,9 @@ func SortBucketFileInMemory(filePath string) error {
 // SortBucketFileUnix sorts a bucket file using Unix sort command (external merge sort)
 // Handles both compressed (.gz) and uncompressed files
 // Uses bounded memory via -S flag, preventing OOM on large files
-// Options are configured via UnixSortOptions (e.g., "-u -S 4G --parallel=4 -T /tmp")
+// Options are configured via UnixSortOptions (e.g., "-S 4G --parallel=4 -T /tmp")
 // Key flags: LC_ALL=C (byte comparison), -t\t (tab delimiter), -k1,1 (sort by first field)
+// Deduplication: uses `uniq` for full-line dedup (not sort -u which dedupes by key only)
 func SortBucketFileUnix(filePath string) error {
 	isCompressed := strings.HasSuffix(filePath, ".gz")
 	outPath := filePath + ".sorted"
@@ -162,12 +163,14 @@ func SortBucketFileUnix(filePath string) error {
 	var cmd *exec.Cmd
 
 	if isCompressed {
-		// Pipeline: zcat input | LC_ALL=C sort ... | pigz/gzip > output
+		// Pipeline: zcat input | LC_ALL=C sort ... | uniq | pigz/gzip > output
 		// Using bash -c to handle the pipeline
-		// UnixSortOptions contains: -u -S 4G --parallel=4 -T /tmp (or user-configured options)
+		// UnixSortOptions contains: -S 4G --parallel=4 -T /tmp (or user-configured options)
 		// UnixSortCompressor: "pigz" (parallel, faster) or "gzip" (standard)
+		// Note: uniq does full-line deduplication (O(1) memory, streaming)
+		// This matches Go sort behavior: sort by key, dedupe by full line
 		cmdStr := fmt.Sprintf(
-			"zcat '%s' | LC_ALL=C sort -t$'\\t' -k1,1 %s | %s > '%s'",
+			"zcat '%s' | LC_ALL=C sort -t$'\\t' -k1,1 %s | uniq | %s > '%s'",
 			filePath,
 			UnixSortOptions,
 			UnixSortCompressor,
@@ -175,12 +178,13 @@ func SortBucketFileUnix(filePath string) error {
 		)
 		cmd = exec.Command("bash", "-c", cmdStr)
 	} else {
-		// Direct sort for uncompressed files using shell to parse UnixSortOptions
+		// Direct sort for uncompressed files, pipe through uniq for full-line dedup
+		// Note: can't use -o with pipeline, so redirect output instead
 		cmdStr := fmt.Sprintf(
-			"LC_ALL=C sort -t$'\\t' -k1,1 %s -o '%s' '%s'",
+			"LC_ALL=C sort -t$'\\t' -k1,1 %s '%s' | uniq > '%s'",
 			UnixSortOptions,
-			outPath,
 			filePath,
+			outPath,
 		)
 		cmd = exec.Command("bash", "-c", cmdStr)
 	}

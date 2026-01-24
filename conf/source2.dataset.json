@@ -310,7 +310,7 @@
   },
   "bao": {
     "aliases": "BAO,BioAssay Ontology,bioassay type,assay method,assay format,bioassay",
-    "id": "60",
+    "id": "103",
     "name": "BAO",
     "url": "http://www.bioassayontology.org/bao#£{id}",
     "path": "https://raw.githubusercontent.com/BioAssayOntology/BAO/master/bao_complete_merged.owl",
@@ -322,7 +322,7 @@
   },
   "baoparent": {
     "name": "BAO Parent",
-    "id": "61",
+    "id": "104",
     "url": "http://www.bioassayontology.org/bao#£{id}",
     "linkdataset": "bao",
     "hasFilter": "yes",
@@ -330,7 +330,7 @@
   },
   "baochild": {
     "name": "BAO Child",
-    "id": "62",
+    "id": "105",
     "url": "http://www.bioassayontology.org/bao#£{id}",
     "linkdataset": "bao",
     "hasFilter": "yes",

@@ -52,7 +52,7 @@
 	"bucketConcatWorkers":"4",
 	"keepBucketFiles": "no",
 	"__unix_sort_config_comment": "Unix external sort configuration (bounded memory, good for large datasets like dbsnp)",
-	"unixSortOptions": "-u -S 4G --parallel=4 -T /data2/tmp",
+	"unixSortOptions": "-S 4G --parallel=4 -T /data2/tmp",
 	"unixSortCompressor": "pigz",
 	"__pubchem_config_comment": "PubChem retry configuration for network/corruption errors",
 	"pubchemRetryCount": "4",

@@ -431,6 +431,18 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 		go d.updateEnsembls(ensembls)
 	}
 
+	// ============================================================================
+	// PHASE 1: Cleanup all datasets BEFORE any processing starts
+	// ============================================================================
+	// This prevents race conditions where one dataset's cleanup could delete
+	// files that another dataset's goroutine is actively writing.
+	// Previously, cleanup and goroutine spawning were interleaved in a single loop,
+	// causing files to be deleted while other datasets were still processing.
+	// ============================================================================
+
+	// Collect datasets that need processing (not skipped, not merge-only)
+	var datasetsToProcess []string
+
 	for data := range d.inDatasets {
 		// Check if dataset should be skipped (already built and source unchanged)
 		if d.shouldSkipDataset(data) {
@@ -448,6 +460,9 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			d.progChan <- &progressInfo{dataset: data, done: true, mergeOnly: true}
 			continue
 		}
+
+		// This dataset needs processing
+		datasetsToProcess = append(datasetsToProcess, data)
 
 		// Mark dataset as "processing" BEFORE cleanup/processing starts
 		// This ensures if we crash mid-processing, next run will rebuild
@@ -473,7 +488,15 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 				log.Printf("Warning: cleanup failed for %s: %v", data, err)
 			}
 		}
+	}
 
+	log.Printf("Phase 1 complete: cleaned up %d datasets, now starting processing phase", len(datasetsToProcess))
+
+	// ============================================================================
+	// PHASE 2: Spawn processing goroutines AFTER all cleanups are complete
+	// ============================================================================
+
+	for _, data := range datasetsToProcess {
 		switch data {
 		case "uniprot":
 			d.wg.Add(1)
@@ -948,6 +971,12 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 		d.bucketPool.Close()
 		d.bucketWg.Wait()
 		log.Println("Bucket writers closed")
+
+		// Validate that all created bucket files actually exist on disk
+		// This helps diagnose race conditions or file creation issues
+		if missingCount := d.bucketPool.ValidateCreatedFiles(); missingCount > 0 {
+			log.Printf("Warning: %d bucket files marked as created but missing - check for race conditions", missingCount)
+		}
 
 		// Sort all bucket files
 		log.Println("Sorting bucket files...")

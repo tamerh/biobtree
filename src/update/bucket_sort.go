@@ -633,9 +633,6 @@ func concatenateSourceFiles(datasetName string, writer *DatasetBucketWriter, fil
 
 		// Sort bucket files before merge
 		for _, f := range bucketFiles {
-			if _, err := os.Stat(f); os.IsNotExist(err) {
-				continue
-			}
 			if err := SortBucketFile(f, writer.config.UseUnixSort); err != nil {
 				log.Printf("Warning: error sorting bucket file %s: %v", f, err)
 			}
@@ -761,11 +758,7 @@ func concatenateTextsearchPerSource(indexDir string, chunkIdx string, isDerived 
 		}
 
 		// Sort bucket files
-		// Skip files that no longer exist (may have been processed by another concurrent worker)
 		for _, f := range bucketFiles {
-			if _, err := os.Stat(f); os.IsNotExist(err) {
-				continue
-			}
 			if err := SortBucketFile(f, false); err != nil { // textsearch uses Go sort
 				log.Printf("Warning: error sorting textsearch bucket file %s: %v", f, err)
 			}

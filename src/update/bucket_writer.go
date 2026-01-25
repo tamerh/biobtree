@@ -298,17 +298,44 @@ func (p *HybridWriterPool) HasBucketConfig(datasetID string) bool {
 // Must acquire mutex for each file to prevent race with concurrent writes
 func (p *HybridWriterPool) Close() {
 	// Close all bucket files (both compressed and uncompressed)
-	for _, bf := range p.bucketFiles {
+	for key, bf := range p.bucketFiles {
 		bf.mutex.Lock()
 		if bf.created && bf.buf != nil {
-			bf.buf.Flush()
-			if bf.gzWriter != nil {
-				bf.gzWriter.Close() // Must close gzip writer before file to finalize stream
+			if err := bf.buf.Flush(); err != nil {
+				log.Printf("Warning: error flushing bucket file %s: %v", bf.filePath, err)
 			}
-			bf.file.Close()
+			if bf.gzWriter != nil {
+				if err := bf.gzWriter.Close(); err != nil {
+					log.Printf("Warning: error closing gzip writer for %s: %v", bf.filePath, err)
+				}
+			}
+			if err := bf.file.Close(); err != nil {
+				log.Printf("Warning: error closing bucket file %s: %v", bf.filePath, err)
+			}
 		}
 		bf.mutex.Unlock()
+		_ = key // suppress unused warning
 	}
+}
+
+// ValidateCreatedFiles verifies that all files marked as created actually exist on disk
+// Returns the count of missing files and logs warnings for each
+// Call this after Close() to detect bucket file creation issues
+func (p *HybridWriterPool) ValidateCreatedFiles() int {
+	missingCount := 0
+	for key, bf := range p.bucketFiles {
+		if bf.created {
+			if _, err := os.Stat(bf.filePath); os.IsNotExist(err) {
+				log.Printf("BUCKET VALIDATION ERROR: file marked as created but does not exist: %s (key=%s, lines=%d)",
+					bf.filePath, key, bf.lineCount)
+				missingCount++
+			}
+		}
+	}
+	if missingCount > 0 {
+		log.Printf("BUCKET VALIDATION: %d files marked as created but missing on disk", missingCount)
+	}
+	return missingCount
 }
 
 // GetBucketFiles returns all non-empty bucket files for merging

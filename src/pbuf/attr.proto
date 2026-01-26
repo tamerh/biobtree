@@ -437,13 +437,24 @@ message StringInteraction {
 }
 
 message AlphaFoldAttr {
+  // pLDDT confidence metrics (from FTP PDB files)
   double global_metric =1;                  // Average pLDDT score for the entire structure
-  double fraction_pldddt_very_high =2;      // Fraction of residues with pLDDT > 90
-  double fraction_pldddt_confident =3;      // Fraction of residues with pLDDT between 70-90
-  double fraction_pldddt_low =4;            // Fraction of residues with pLDDT between 50-70
-  double fraction_pldddt_very_low =5;       // Fraction of residues with pLDDT < 50
+  double fraction_plddt_very_high =2;       // Fraction of residues with pLDDT > 90
+  double fraction_plddt_confident =3;       // Fraction of residues with pLDDT between 70-90
+  double fraction_plddt_low =4;             // Fraction of residues with pLDDT between 50-70
+  double fraction_plddt_very_low =5;        // Fraction of residues with pLDDT < 50
   string model_entity_id =6;                // AlphaFold model identifier (e.g., AF-Q9Y6K9-F1)
   string gene =7;                           // Gene symbol
+
+  // PAE (Predicted Aligned Error) metrics (from GCS proteome tars)
+  double max_pae =8;                        // Maximum PAE value in matrix (0-31.75 Angstroms)
+  double mean_pae =9;                       // Mean PAE value across all residue pairs
+  double fraction_pae_confident =10;        // Fraction of residue pairs with PAE < 5 Angstroms
+  int32 version =11;                        // AlphaFold model version (e.g., 4, 6)
+
+  // Fragment information (for large proteins split into multiple fragments)
+  int32 fragment_number =12;                // Fragment number (1, 2, 3...) from model ID (AF-xxxx-F1)
+  int32 sequence_length =13;                // Length of this fragment/structure in residues
 }
 
 message RnacentralAttr {

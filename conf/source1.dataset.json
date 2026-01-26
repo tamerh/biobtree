@@ -399,9 +399,10 @@
     "name": "AlphaFold",
     "url": "https://alphafold.ebi.ac.uk/entry/£{id}",
     "path": "https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/swissprot_pdb_v6.tar",
+    "proteomeTaxIds": "9606,10090,3702,10116,559292,284812,83333,6239,39947,7955,7227,44689,237561,243232,3847,4577",
     "useLocalFile": "no",
     "hasFilter": "yes",
-    "attrs": "global_metric,fraction_pldddt_very_high,fraction_pldddt_confident,fraction_pldddt_low,fraction_pldddt_very_low,model_entity_id,gene",
+    "attrs": "global_metric,fraction_plddt_very_high,fraction_plddt_confident,fraction_plddt_low,fraction_plddt_very_low,model_entity_id,gene,max_pae,mean_pae,fraction_pae_confident,version,fragment_number,sequence_length",
     "test_entries_count": "20",
     "bucketMethod": "alphabetic"
   },

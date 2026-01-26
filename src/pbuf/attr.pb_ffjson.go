@@ -347,24 +347,24 @@ func (j *AlphaFoldAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.AppendFloat(buf, float64(j.GlobalMetric), 'g', -1, 64)
 		buf.WriteByte(',')
 	}
-	if j.FractionPldddtVeryHigh != 0 {
-		buf.WriteString(`"fraction_pldddt_very_high":`)
-		fflib.AppendFloat(buf, float64(j.FractionPldddtVeryHigh), 'g', -1, 64)
+	if j.FractionPlddtVeryHigh != 0 {
+		buf.WriteString(`"fraction_plddt_very_high":`)
+		fflib.AppendFloat(buf, float64(j.FractionPlddtVeryHigh), 'g', -1, 64)
 		buf.WriteByte(',')
 	}
-	if j.FractionPldddtConfident != 0 {
-		buf.WriteString(`"fraction_pldddt_confident":`)
-		fflib.AppendFloat(buf, float64(j.FractionPldddtConfident), 'g', -1, 64)
+	if j.FractionPlddtConfident != 0 {
+		buf.WriteString(`"fraction_plddt_confident":`)
+		fflib.AppendFloat(buf, float64(j.FractionPlddtConfident), 'g', -1, 64)
 		buf.WriteByte(',')
 	}
-	if j.FractionPldddtLow != 0 {
-		buf.WriteString(`"fraction_pldddt_low":`)
-		fflib.AppendFloat(buf, float64(j.FractionPldddtLow), 'g', -1, 64)
+	if j.FractionPlddtLow != 0 {
+		buf.WriteString(`"fraction_plddt_low":`)
+		fflib.AppendFloat(buf, float64(j.FractionPlddtLow), 'g', -1, 64)
 		buf.WriteByte(',')
 	}
-	if j.FractionPldddtVeryLow != 0 {
-		buf.WriteString(`"fraction_pldddt_very_low":`)
-		fflib.AppendFloat(buf, float64(j.FractionPldddtVeryLow), 'g', -1, 64)
+	if j.FractionPlddtVeryLow != 0 {
+		buf.WriteString(`"fraction_plddt_very_low":`)
+		fflib.AppendFloat(buf, float64(j.FractionPlddtVeryLow), 'g', -1, 64)
 		buf.WriteByte(',')
 	}
 	if len(j.ModelEntityId) != 0 {
@@ -375,6 +375,36 @@ func (j *AlphaFoldAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 	if len(j.Gene) != 0 {
 		buf.WriteString(`"gene":`)
 		fflib.WriteJsonString(buf, string(j.Gene))
+		buf.WriteByte(',')
+	}
+	if j.MaxPae != 0 {
+		buf.WriteString(`"max_pae":`)
+		fflib.AppendFloat(buf, float64(j.MaxPae), 'g', -1, 64)
+		buf.WriteByte(',')
+	}
+	if j.MeanPae != 0 {
+		buf.WriteString(`"mean_pae":`)
+		fflib.AppendFloat(buf, float64(j.MeanPae), 'g', -1, 64)
+		buf.WriteByte(',')
+	}
+	if j.FractionPaeConfident != 0 {
+		buf.WriteString(`"fraction_pae_confident":`)
+		fflib.AppendFloat(buf, float64(j.FractionPaeConfident), 'g', -1, 64)
+		buf.WriteByte(',')
+	}
+	if j.Version != 0 {
+		buf.WriteString(`"version":`)
+		fflib.FormatBits2(buf, uint64(j.Version), 10, j.Version < 0)
+		buf.WriteByte(',')
+	}
+	if j.FragmentNumber != 0 {
+		buf.WriteString(`"fragment_number":`)
+		fflib.FormatBits2(buf, uint64(j.FragmentNumber), 10, j.FragmentNumber < 0)
+		buf.WriteByte(',')
+	}
+	if j.SequenceLength != 0 {
+		buf.WriteString(`"sequence_length":`)
+		fflib.FormatBits2(buf, uint64(j.SequenceLength), 10, j.SequenceLength < 0)
 		buf.WriteByte(',')
 	}
 	buf.Rewind(1)
@@ -388,32 +418,56 @@ const (
 
 	ffjtAlphaFoldAttrGlobalMetric
 
-	ffjtAlphaFoldAttrFractionPldddtVeryHigh
+	ffjtAlphaFoldAttrFractionPlddtVeryHigh
 
-	ffjtAlphaFoldAttrFractionPldddtConfident
+	ffjtAlphaFoldAttrFractionPlddtConfident
 
-	ffjtAlphaFoldAttrFractionPldddtLow
+	ffjtAlphaFoldAttrFractionPlddtLow
 
-	ffjtAlphaFoldAttrFractionPldddtVeryLow
+	ffjtAlphaFoldAttrFractionPlddtVeryLow
 
 	ffjtAlphaFoldAttrModelEntityId
 
 	ffjtAlphaFoldAttrGene
+
+	ffjtAlphaFoldAttrMaxPae
+
+	ffjtAlphaFoldAttrMeanPae
+
+	ffjtAlphaFoldAttrFractionPaeConfident
+
+	ffjtAlphaFoldAttrVersion
+
+	ffjtAlphaFoldAttrFragmentNumber
+
+	ffjtAlphaFoldAttrSequenceLength
 )
 
 var ffjKeyAlphaFoldAttrGlobalMetric = []byte("global_metric")
 
-var ffjKeyAlphaFoldAttrFractionPldddtVeryHigh = []byte("fraction_pldddt_very_high")
+var ffjKeyAlphaFoldAttrFractionPlddtVeryHigh = []byte("fraction_plddt_very_high")
 
-var ffjKeyAlphaFoldAttrFractionPldddtConfident = []byte("fraction_pldddt_confident")
+var ffjKeyAlphaFoldAttrFractionPlddtConfident = []byte("fraction_plddt_confident")
 
-var ffjKeyAlphaFoldAttrFractionPldddtLow = []byte("fraction_pldddt_low")
+var ffjKeyAlphaFoldAttrFractionPlddtLow = []byte("fraction_plddt_low")
 
-var ffjKeyAlphaFoldAttrFractionPldddtVeryLow = []byte("fraction_pldddt_very_low")
+var ffjKeyAlphaFoldAttrFractionPlddtVeryLow = []byte("fraction_plddt_very_low")
 
 var ffjKeyAlphaFoldAttrModelEntityId = []byte("model_entity_id")
 
 var ffjKeyAlphaFoldAttrGene = []byte("gene")
+
+var ffjKeyAlphaFoldAttrMaxPae = []byte("max_pae")
+
+var ffjKeyAlphaFoldAttrMeanPae = []byte("mean_pae")
+
+var ffjKeyAlphaFoldAttrFractionPaeConfident = []byte("fraction_pae_confident")
+
+var ffjKeyAlphaFoldAttrVersion = []byte("version")
+
+var ffjKeyAlphaFoldAttrFragmentNumber = []byte("fragment_number")
+
+var ffjKeyAlphaFoldAttrSequenceLength = []byte("sequence_length")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *AlphaFoldAttr) UnmarshalJSON(input []byte) error {
@@ -478,23 +532,33 @@ mainparse:
 
 				case 'f':
 
-					if bytes.Equal(ffjKeyAlphaFoldAttrFractionPldddtVeryHigh, kn) {
-						currentKey = ffjtAlphaFoldAttrFractionPldddtVeryHigh
+					if bytes.Equal(ffjKeyAlphaFoldAttrFractionPlddtVeryHigh, kn) {
+						currentKey = ffjtAlphaFoldAttrFractionPlddtVeryHigh
 						state = fflib.FFParse_want_colon
 						goto mainparse
 
-					} else if bytes.Equal(ffjKeyAlphaFoldAttrFractionPldddtConfident, kn) {
-						currentKey = ffjtAlphaFoldAttrFractionPldddtConfident
+					} else if bytes.Equal(ffjKeyAlphaFoldAttrFractionPlddtConfident, kn) {
+						currentKey = ffjtAlphaFoldAttrFractionPlddtConfident
 						state = fflib.FFParse_want_colon
 						goto mainparse
 
-					} else if bytes.Equal(ffjKeyAlphaFoldAttrFractionPldddtLow, kn) {
-						currentKey = ffjtAlphaFoldAttrFractionPldddtLow
+					} else if bytes.Equal(ffjKeyAlphaFoldAttrFractionPlddtLow, kn) {
+						currentKey = ffjtAlphaFoldAttrFractionPlddtLow
 						state = fflib.FFParse_want_colon
 						goto mainparse
 
-					} else if bytes.Equal(ffjKeyAlphaFoldAttrFractionPldddtVeryLow, kn) {
-						currentKey = ffjtAlphaFoldAttrFractionPldddtVeryLow
+					} else if bytes.Equal(ffjKeyAlphaFoldAttrFractionPlddtVeryLow, kn) {
+						currentKey = ffjtAlphaFoldAttrFractionPlddtVeryLow
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyAlphaFoldAttrFractionPaeConfident, kn) {
+						currentKey = ffjtAlphaFoldAttrFractionPaeConfident
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyAlphaFoldAttrFragmentNumber, kn) {
+						currentKey = ffjtAlphaFoldAttrFragmentNumber
 						state = fflib.FFParse_want_colon
 						goto mainparse
 					}
@@ -518,8 +582,70 @@ mainparse:
 						currentKey = ffjtAlphaFoldAttrModelEntityId
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyAlphaFoldAttrMaxPae, kn) {
+						currentKey = ffjtAlphaFoldAttrMaxPae
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyAlphaFoldAttrMeanPae, kn) {
+						currentKey = ffjtAlphaFoldAttrMeanPae
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
+				case 's':
+
+					if bytes.Equal(ffjKeyAlphaFoldAttrSequenceLength, kn) {
+						currentKey = ffjtAlphaFoldAttrSequenceLength
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'v':
+
+					if bytes.Equal(ffjKeyAlphaFoldAttrVersion, kn) {
+						currentKey = ffjtAlphaFoldAttrVersion
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				}
+
+				if fflib.EqualFoldRight(ffjKeyAlphaFoldAttrSequenceLength, kn) {
+					currentKey = ffjtAlphaFoldAttrSequenceLength
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyAlphaFoldAttrFragmentNumber, kn) {
+					currentKey = ffjtAlphaFoldAttrFragmentNumber
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyAlphaFoldAttrVersion, kn) {
+					currentKey = ffjtAlphaFoldAttrVersion
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyAlphaFoldAttrFractionPaeConfident, kn) {
+					currentKey = ffjtAlphaFoldAttrFractionPaeConfident
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyAlphaFoldAttrMeanPae, kn) {
+					currentKey = ffjtAlphaFoldAttrMeanPae
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyAlphaFoldAttrMaxPae, kn) {
+					currentKey = ffjtAlphaFoldAttrMaxPae
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.SimpleLetterEqualFold(ffjKeyAlphaFoldAttrGene, kn) {
@@ -534,26 +660,26 @@ mainparse:
 					goto mainparse
 				}
 
-				if fflib.AsciiEqualFold(ffjKeyAlphaFoldAttrFractionPldddtVeryLow, kn) {
-					currentKey = ffjtAlphaFoldAttrFractionPldddtVeryLow
+				if fflib.AsciiEqualFold(ffjKeyAlphaFoldAttrFractionPlddtVeryLow, kn) {
+					currentKey = ffjtAlphaFoldAttrFractionPlddtVeryLow
 					state = fflib.FFParse_want_colon
 					goto mainparse
 				}
 
-				if fflib.AsciiEqualFold(ffjKeyAlphaFoldAttrFractionPldddtLow, kn) {
-					currentKey = ffjtAlphaFoldAttrFractionPldddtLow
+				if fflib.AsciiEqualFold(ffjKeyAlphaFoldAttrFractionPlddtLow, kn) {
+					currentKey = ffjtAlphaFoldAttrFractionPlddtLow
 					state = fflib.FFParse_want_colon
 					goto mainparse
 				}
 
-				if fflib.AsciiEqualFold(ffjKeyAlphaFoldAttrFractionPldddtConfident, kn) {
-					currentKey = ffjtAlphaFoldAttrFractionPldddtConfident
+				if fflib.AsciiEqualFold(ffjKeyAlphaFoldAttrFractionPlddtConfident, kn) {
+					currentKey = ffjtAlphaFoldAttrFractionPlddtConfident
 					state = fflib.FFParse_want_colon
 					goto mainparse
 				}
 
-				if fflib.AsciiEqualFold(ffjKeyAlphaFoldAttrFractionPldddtVeryHigh, kn) {
-					currentKey = ffjtAlphaFoldAttrFractionPldddtVeryHigh
+				if fflib.AsciiEqualFold(ffjKeyAlphaFoldAttrFractionPlddtVeryHigh, kn) {
+					currentKey = ffjtAlphaFoldAttrFractionPlddtVeryHigh
 					state = fflib.FFParse_want_colon
 					goto mainparse
 				}
@@ -584,23 +710,41 @@ mainparse:
 				case ffjtAlphaFoldAttrGlobalMetric:
 					goto handle_GlobalMetric
 
-				case ffjtAlphaFoldAttrFractionPldddtVeryHigh:
-					goto handle_FractionPldddtVeryHigh
+				case ffjtAlphaFoldAttrFractionPlddtVeryHigh:
+					goto handle_FractionPlddtVeryHigh
 
-				case ffjtAlphaFoldAttrFractionPldddtConfident:
-					goto handle_FractionPldddtConfident
+				case ffjtAlphaFoldAttrFractionPlddtConfident:
+					goto handle_FractionPlddtConfident
 
-				case ffjtAlphaFoldAttrFractionPldddtLow:
-					goto handle_FractionPldddtLow
+				case ffjtAlphaFoldAttrFractionPlddtLow:
+					goto handle_FractionPlddtLow
 
-				case ffjtAlphaFoldAttrFractionPldddtVeryLow:
-					goto handle_FractionPldddtVeryLow
+				case ffjtAlphaFoldAttrFractionPlddtVeryLow:
+					goto handle_FractionPlddtVeryLow
 
 				case ffjtAlphaFoldAttrModelEntityId:
 					goto handle_ModelEntityId
 
 				case ffjtAlphaFoldAttrGene:
 					goto handle_Gene
+
+				case ffjtAlphaFoldAttrMaxPae:
+					goto handle_MaxPae
+
+				case ffjtAlphaFoldAttrMeanPae:
+					goto handle_MeanPae
+
+				case ffjtAlphaFoldAttrFractionPaeConfident:
+					goto handle_FractionPaeConfident
+
+				case ffjtAlphaFoldAttrVersion:
+					goto handle_Version
+
+				case ffjtAlphaFoldAttrFragmentNumber:
+					goto handle_FragmentNumber
+
+				case ffjtAlphaFoldAttrSequenceLength:
+					goto handle_SequenceLength
 
 				case ffjtAlphaFoldAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -646,9 +790,9 @@ handle_GlobalMetric:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
-handle_FractionPldddtVeryHigh:
+handle_FractionPlddtVeryHigh:
 
-	/* handler: j.FractionPldddtVeryHigh type=float64 kind=float64 quoted=false*/
+	/* handler: j.FractionPlddtVeryHigh type=float64 kind=float64 quoted=false*/
 
 	{
 		if tok != fflib.FFTok_double && tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
@@ -668,7 +812,7 @@ handle_FractionPldddtVeryHigh:
 				return fs.WrapErr(err)
 			}
 
-			j.FractionPldddtVeryHigh = float64(tval)
+			j.FractionPlddtVeryHigh = float64(tval)
 
 		}
 	}
@@ -676,9 +820,9 @@ handle_FractionPldddtVeryHigh:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
-handle_FractionPldddtConfident:
+handle_FractionPlddtConfident:
 
-	/* handler: j.FractionPldddtConfident type=float64 kind=float64 quoted=false*/
+	/* handler: j.FractionPlddtConfident type=float64 kind=float64 quoted=false*/
 
 	{
 		if tok != fflib.FFTok_double && tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
@@ -698,7 +842,7 @@ handle_FractionPldddtConfident:
 				return fs.WrapErr(err)
 			}
 
-			j.FractionPldddtConfident = float64(tval)
+			j.FractionPlddtConfident = float64(tval)
 
 		}
 	}
@@ -706,9 +850,9 @@ handle_FractionPldddtConfident:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
-handle_FractionPldddtLow:
+handle_FractionPlddtLow:
 
-	/* handler: j.FractionPldddtLow type=float64 kind=float64 quoted=false*/
+	/* handler: j.FractionPlddtLow type=float64 kind=float64 quoted=false*/
 
 	{
 		if tok != fflib.FFTok_double && tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
@@ -728,7 +872,7 @@ handle_FractionPldddtLow:
 				return fs.WrapErr(err)
 			}
 
-			j.FractionPldddtLow = float64(tval)
+			j.FractionPlddtLow = float64(tval)
 
 		}
 	}
@@ -736,9 +880,9 @@ handle_FractionPldddtLow:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
-handle_FractionPldddtVeryLow:
+handle_FractionPlddtVeryLow:
 
-	/* handler: j.FractionPldddtVeryLow type=float64 kind=float64 quoted=false*/
+	/* handler: j.FractionPlddtVeryLow type=float64 kind=float64 quoted=false*/
 
 	{
 		if tok != fflib.FFTok_double && tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
@@ -758,7 +902,7 @@ handle_FractionPldddtVeryLow:
 				return fs.WrapErr(err)
 			}
 
-			j.FractionPldddtVeryLow = float64(tval)
+			j.FractionPlddtVeryLow = float64(tval)
 
 		}
 	}
@@ -811,6 +955,186 @@ handle_Gene:
 			outBuf := fs.Output.Bytes()
 
 			j.Gene = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_MaxPae:
+
+	/* handler: j.MaxPae type=float64 kind=float64 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_double && tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for float64", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseFloat(fs.Output.Bytes(), 64)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.MaxPae = float64(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_MeanPae:
+
+	/* handler: j.MeanPae type=float64 kind=float64 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_double && tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for float64", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseFloat(fs.Output.Bytes(), 64)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.MeanPae = float64(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_FractionPaeConfident:
+
+	/* handler: j.FractionPaeConfident type=float64 kind=float64 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_double && tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for float64", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseFloat(fs.Output.Bytes(), 64)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.FractionPaeConfident = float64(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Version:
+
+	/* handler: j.Version type=int32 kind=int32 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for int32", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseInt(fs.Output.Bytes(), 10, 32)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.Version = int32(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_FragmentNumber:
+
+	/* handler: j.FragmentNumber type=int32 kind=int32 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for int32", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseInt(fs.Output.Bytes(), 10, 32)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.FragmentNumber = int32(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_SequenceLength:
+
+	/* handler: j.SequenceLength type=int32 kind=int32 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for int32", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseInt(fs.Output.Bytes(), 10, 32)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.SequenceLength = int32(tval)
 
 		}
 	}

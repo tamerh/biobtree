@@ -36,7 +36,7 @@ class AlphaFoldTests:
         self.runner = runner
 
     @test
-    def test_pldddt_fractions_sum(self):
+    def test_plddt_fractions_sum(self):
         """Check that pLDDT confidence fractions sum to approximately 1.0"""
         invalid_count = 0
         checked_count = 0
@@ -49,10 +49,10 @@ class AlphaFoldTests:
                     if alphafold_attr:
                         checked_count += 1
                         fractions_sum = (
-                            alphafold_attr.get("fraction_pldddt_very_high", 0) +
-                            alphafold_attr.get("fraction_pldddt_confident", 0) +
-                            alphafold_attr.get("fraction_pldddt_low", 0) +
-                            alphafold_attr.get("fraction_pldddt_very_low", 0)
+                            alphafold_attr.get("fraction_plddt_very_high", 0) +
+                            alphafold_attr.get("fraction_plddt_confident", 0) +
+                            alphafold_attr.get("fraction_plddt_low", 0) +
+                            alphafold_attr.get("fraction_plddt_very_low", 0)
                         )
                         # Allow small floating-point error
                         if abs(fractions_sum - 1.0) > 0.01:
@@ -249,6 +249,61 @@ class AlphaFoldTests:
 
         return True, f"{high_confidence_count}/{checked_count} ({percentage:.1f}%) entries have high confidence (>70 pLDDT)"
 
+    @test
+    def test_pae_metrics_consistency(self):
+        """Verify PAE mean <= max (for entries with PAE data)"""
+        invalid_count = 0
+        checked_count = 0
+
+        for test_id in self.runner.test_ids[:10]:
+            data = self.runner.lookup(test_id)
+            if data and data.get("results"):
+                for result in data["results"]:
+                    alphafold_attr = result.get("Attributes", {}).get("Alphafold", {})
+                    if alphafold_attr:
+                        max_pae = alphafold_attr.get("max_pae")
+                        mean_pae = alphafold_attr.get("mean_pae")
+                        if max_pae is not None and mean_pae is not None:
+                            checked_count += 1
+                            if mean_pae > max_pae:
+                                invalid_count += 1
+
+        if checked_count == 0:
+            return True, "SKIP: No PAE metrics found (PAE only available for model organisms)"
+
+        if invalid_count > 0:
+            return False, f"Found {invalid_count}/{checked_count} entries with mean_pae > max_pae"
+
+        return True, f"All {checked_count} entries have consistent PAE metrics (mean <= max)"
+
+    @test
+    def test_pae_plddt_correlation(self):
+        """Check that high pLDDT correlates with lower mean PAE (for entries with PAE data)"""
+        unexpected_count = 0
+        checked_count = 0
+
+        for test_id in self.runner.test_ids[:10]:
+            data = self.runner.lookup(test_id)
+            if data and data.get("results"):
+                for result in data["results"]:
+                    alphafold_attr = result.get("Attributes", {}).get("Alphafold", {})
+                    if alphafold_attr:
+                        plddt = alphafold_attr.get("global_metric", 0)
+                        mean_pae = alphafold_attr.get("mean_pae")
+                        if mean_pae is not None:
+                            checked_count += 1
+                            # High confidence (>85 pLDDT) structures should generally have lower PAE (<20)
+                            if plddt > 85 and mean_pae > 20:
+                                unexpected_count += 1
+
+        if checked_count == 0:
+            return True, "SKIP: No PAE metrics found (PAE only available for model organisms)"
+
+        if unexpected_count > checked_count * 0.2:  # Allow up to 20% exceptions
+            return False, f"Found {unexpected_count}/{checked_count} entries with unexpectedly high PAE for high pLDDT"
+
+        return True, f"Checked {checked_count} entries for PAE-pLDDT correlation"
+
 
 def main():
     script_dir = Path(__file__).parent
@@ -283,12 +338,14 @@ def main():
     # Add custom tests
     custom_tests = AlphaFoldTests(runner)
     for test_method in [
-        custom_tests.test_pldddt_fractions_sum,
+        custom_tests.test_plddt_fractions_sum,
         custom_tests.test_global_metric_range,
         custom_tests.test_model_id_format,
         custom_tests.test_alphafold_model_id_keyword_lookup,
         custom_tests.test_uniprot_alphafold_cooccurrence,
-        custom_tests.test_high_confidence_structures
+        custom_tests.test_high_confidence_structures,
+        custom_tests.test_pae_metrics_consistency,
+        custom_tests.test_pae_plddt_correlation
     ]:
         runner.add_custom_test(test_method)
 

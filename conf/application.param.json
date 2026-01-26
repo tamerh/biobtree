@@ -56,5 +56,7 @@
 	"unixSortCompressor": "pigz",
 	"__pubchem_config_comment": "PubChem retry configuration for network/corruption errors",
 	"pubchemRetryCount": "4",
-	"pubchemRetryWaitMinutes": "10"
+	"pubchemRetryWaitMinutes": "10",
+	"__alphafold_config_comment": "AlphaFold PAE processing configuration",
+	"paeWorkers": "8"
 }

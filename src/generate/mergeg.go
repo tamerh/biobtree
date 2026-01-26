@@ -1728,10 +1728,24 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 				ffjson.Unmarshal(barr, attr)
 				xref.Attributes = &pbuf.Xref_Stringattr{attr}
 			case "alphafold":
-				attr := &pbuf.AlphaFoldAttr{}
-				barr := []byte((*kvProp[k])[0].value)
-				ffjson.Unmarshal(barr, attr)
-				xref.Attributes = &pbuf.Xref_Alphafold{attr}
+				// Merge multiple AlphaFoldAttr properties (FTP pLDDT + GCS PAE)
+				if valPropIdx[k] > 1 {
+					finalAttr := pbuf.AlphaFoldAttr{}
+					for a := 0; a < valPropIdx[k]; a++ {
+						barr := []byte((*kvProp[k])[a].value)
+						attr := &pbuf.AlphaFoldAttr{}
+						ffjson.Unmarshal(barr, attr)
+						if err := mergo.Merge(&finalAttr, attr, mergo.WithAppendSlice); err != nil {
+							panic(err)
+						}
+					}
+					xref.Attributes = &pbuf.Xref_Alphafold{&finalAttr}
+				} else {
+					attr := &pbuf.AlphaFoldAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_Alphafold{attr}
+				}
 			case "rnacentral":
 				attr := &pbuf.RnacentralAttr{}
 				barr := []byte((*kvProp[k])[0].value)
@@ -2077,10 +2091,24 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 					ffjson.Unmarshal(barr, attr)
 					xref.Attributes = &pbuf.Xref_Stringattr{attr}
 				case "alphafold":
-					attr := &pbuf.AlphaFoldAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_Alphafold{attr}
+					// Merge multiple AlphaFoldAttr properties (FTP pLDDT + GCS PAE)
+					if valPropIdx[k] > 1 {
+						finalAttr := pbuf.AlphaFoldAttr{}
+						for a := 0; a < valPropIdx[k]; a++ {
+							barr := []byte((*kvProp[k])[a].value)
+							attr := &pbuf.AlphaFoldAttr{}
+							ffjson.Unmarshal(barr, attr)
+							if err := mergo.Merge(&finalAttr, attr, mergo.WithAppendSlice); err != nil {
+								panic(err)
+							}
+						}
+						xref.Attributes = &pbuf.Xref_Alphafold{&finalAttr}
+					} else {
+						attr := &pbuf.AlphaFoldAttr{}
+						barr := []byte((*kvProp[k])[0].value)
+						ffjson.Unmarshal(barr, attr)
+						xref.Attributes = &pbuf.Xref_Alphafold{attr}
+					}
 				case "rnacentral":
 					attr := &pbuf.RnacentralAttr{}
 					barr := []byte((*kvProp[k])[0].value)

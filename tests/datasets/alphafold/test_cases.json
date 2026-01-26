@@ -50,7 +50,7 @@
       "type": "attribute_check",
       "identifier": "A0A009IHW8",
       "dataset": "alphafold",
-      "attribute_path": "Attributes.Alphafold.fraction_pldddt_very_high",
+      "attribute_path": "Attributes.Alphafold.fraction_plddt_very_high",
       "expected": {
         "exists": true,
         "min_value": 0.0,
@@ -63,7 +63,7 @@
       "type": "attribute_check",
       "identifier": "A0A009IHW8",
       "dataset": "alphafold",
-      "attribute_path": "Attributes.Alphafold.fraction_pldddt_confident",
+      "attribute_path": "Attributes.Alphafold.fraction_plddt_confident",
       "expected": {
         "exists": true,
         "min_value": 0.0,
@@ -76,7 +76,7 @@
       "type": "attribute_check",
       "identifier": "A0A009IHW8",
       "dataset": "alphafold",
-      "attribute_path": "Attributes.Alphafold.fraction_pldddt_low",
+      "attribute_path": "Attributes.Alphafold.fraction_plddt_low",
       "expected": {
         "exists": true,
         "min_value": 0.0,
@@ -89,7 +89,7 @@
       "type": "attribute_check",
       "identifier": "A0A009IHW8",
       "dataset": "alphafold",
-      "attribute_path": "Attributes.Alphafold.fraction_pldddt_very_low",
+      "attribute_path": "Attributes.Alphafold.fraction_plddt_very_low",
       "expected": {
         "exists": true,
         "min_value": 0.0,
@@ -165,6 +165,62 @@
         "exists": true,
         "value": "AF-A0A017SE81-F1"
       }
+    },
+    {
+      "name": "alphafold_max_pae_present",
+      "description": "AlphaFold entry should have max PAE (for model organisms with PAE data)",
+      "type": "attribute_check",
+      "identifier": "P04637",
+      "dataset": "alphafold",
+      "attribute_path": "Attributes.Alphafold.max_pae",
+      "expected": {
+        "exists": true,
+        "min_value": 0.0,
+        "max_value": 32.0
+      },
+      "skip_reason": "PAE data only available for model organisms"
+    },
+    {
+      "name": "alphafold_mean_pae_range",
+      "description": "Mean PAE should be within valid range",
+      "type": "attribute_check",
+      "identifier": "P04637",
+      "dataset": "alphafold",
+      "attribute_path": "Attributes.Alphafold.mean_pae",
+      "expected": {
+        "exists": true,
+        "min_value": 0.0,
+        "max_value": 32.0
+      },
+      "skip_reason": "PAE data only available for model organisms"
+    },
+    {
+      "name": "alphafold_fraction_pae_confident",
+      "description": "Fraction of confident PAE pairs should be between 0 and 1",
+      "type": "attribute_check",
+      "identifier": "P04637",
+      "dataset": "alphafold",
+      "attribute_path": "Attributes.Alphafold.fraction_pae_confident",
+      "expected": {
+        "exists": true,
+        "min_value": 0.0,
+        "max_value": 1.0
+      },
+      "skip_reason": "PAE data only available for model organisms"
+    },
+    {
+      "name": "alphafold_version_present",
+      "description": "AlphaFold entry should have version (for model organisms with PAE data)",
+      "type": "attribute_check",
+      "identifier": "P04637",
+      "dataset": "alphafold",
+      "attribute_path": "Attributes.Alphafold.version",
+      "expected": {
+        "exists": true,
+        "min_value": 1,
+        "max_value": 10
+      },
+      "skip_reason": "Version only available from PAE data for model organisms"
     }
   ]
 }

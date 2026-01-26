@@ -44,13 +44,20 @@ func (a *alphafoldProcessor) update() {
 	// Get data source path
 	filePath := config.Dataconf[a.source]["path"]
 
-	// Process tar.gz file
+	// Process tar.gz file (pLDDT data from FTP)
 	totalProcessed, err := a.processTarFile(filePath, idLogFile, testLimit)
 	if err != nil {
 		log.Fatalf("Error processing AlphaFold data: %v", err)
 	}
 
-	fmt.Printf("AlphaFold processing complete: %d structures processed\n", totalProcessed)
+	fmt.Printf("AlphaFold pLDDT processing complete: %d structures processed\n", totalProcessed)
+
+	// Process PAE data from GCS proteome tars (for model organisms)
+	// PAE data will be merged with pLDDT data by mergeg.go
+	paeProcessed := processPAEData(a.source, a.sourceID, a.d, idLogFile, testLimit)
+	totalProcessed += paeProcessed
+
+	fmt.Printf("AlphaFold total processing complete: %d entries\n", totalProcessed)
 
 	atomic.AddUint64(&a.d.totalParsedEntry, totalProcessed)
 	a.d.progChan <- &progressInfo{dataset: a.source, done: true}
@@ -111,8 +118,8 @@ func (a *alphafoldProcessor) processTarFile(filePath string, idLogFile *os.File,
 			continue
 		}
 
-		// Extract UniProt ID from filename: AF-Q9Y6K9-F1-model_v6.pdb.gz → Q9Y6K9
-		uniprotID, modelID := extractIDsFromFilename(header.Name)
+		// Extract UniProt ID, model ID, and fragment number from filename
+		uniprotID, modelID, fragmentNum := extractIDsFromFilename(header.Name)
 		if uniprotID == "" {
 			continue
 		}
@@ -143,13 +150,15 @@ func (a *alphafoldProcessor) processTarFile(filePath string, idLogFile *os.File,
 
 		// Create AlphaFold attribute
 		attr := pbuf.AlphaFoldAttr{
-			GlobalMetric:             globalMetric,
-			FractionPldddtVeryHigh:   fractions.VeryHigh,
-			FractionPldddtConfident:  fractions.Confident,
-			FractionPldddtLow:        fractions.Low,
-			FractionPldddtVeryLow:    fractions.VeryLow,
-			ModelEntityId:            modelID,
-			Gene:                     "", // Will be populated from UniProt if needed
+			GlobalMetric:           globalMetric,
+			FractionPlddtVeryHigh:  fractions.VeryHigh,
+			FractionPlddtConfident: fractions.Confident,
+			FractionPlddtLow:       fractions.Low,
+			FractionPlddtVeryLow:   fractions.VeryLow,
+			ModelEntityId:          modelID,
+			Gene:                   "", // Will be populated from UniProt if needed
+			FragmentNumber:         int32(fragmentNum),
+			SequenceLength:         int32(len(plddt)),
 		}
 
 		// Marshal and store on UniProt ID
@@ -200,9 +209,9 @@ func (a *alphafoldProcessor) processTarFile(filePath string, idLogFile *os.File,
 	return totalProcessed, nil
 }
 
-// Extract UniProt ID and Model ID from filename
-// Example: AF-Q9Y6K9-F1-model_v6.pdb.gz → Q9Y6K9, AF-Q9Y6K9-F1
-func extractIDsFromFilename(filename string) (string, string) {
+// Extract UniProt ID, Model ID, and fragment number from filename
+// Example: AF-Q9Y6K9-F1-model_v6.pdb.gz → Q9Y6K9, AF-Q9Y6K9-F1, 1
+func extractIDsFromFilename(filename string) (uniprotID string, modelID string, fragmentNum int) {
 	// Remove path and extension
 	base := strings.TrimSuffix(filename, ".pdb.gz")
 	if idx := strings.LastIndex(base, "/"); idx != -1 {
@@ -213,18 +222,24 @@ func extractIDsFromFilename(filename string) (string, string) {
 	// Example: AF-Q9Y6K9-F1-model_v6
 	parts := strings.Split(base, "-")
 	if len(parts) < 3 {
-		return "", ""
+		return "", "", 0
 	}
 
 	if parts[0] != "AF" {
-		return "", ""
+		return "", "", 0
 	}
 
-	uniprotID := parts[1]
+	uniprotID = parts[1]
 	// Model ID is everything before "-model_v"
-	modelID := fmt.Sprintf("%s-%s-%s", parts[0], parts[1], parts[2])
+	modelID = fmt.Sprintf("%s-%s-%s", parts[0], parts[1], parts[2])
 
-	return uniprotID, modelID
+	// Extract fragment number from F{number}
+	fragmentPart := parts[2] // e.g., "F1", "F2"
+	if len(fragmentPart) > 1 && fragmentPart[0] == 'F' {
+		fragmentNum, _ = strconv.Atoi(fragmentPart[1:])
+	}
+
+	return uniprotID, modelID, fragmentNum
 }
 
 // Parse PDB file and extract pLDDT scores from B-factor column

@@ -287,6 +287,7 @@ Available datasets:
         'bao': datasets_dir / "bao" / "test_bao.py",
         'drugcentral': datasets_dir / "drugcentral" / "test_drugcentral.py",
         'msigdb': datasets_dir / "msigdb" / "test_msigdb.py",
+        'biogrid': datasets_dir / "biogrid" / "test_biogrid.py",
     }
 
     # Parse dataset selection

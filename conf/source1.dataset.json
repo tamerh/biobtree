@@ -755,7 +755,7 @@
     "name": "BioGRID",
     "aliases": "BioGRID,biogrid interaction,genetic interaction,physical interaction,interaction database",
     "url": "https://thebiogrid.org/interaction/£{id}",
-    "path": "https://downloads.thebiogrid.org/Download/BioGRID/Latest-Release/BIOGRID-ALL-LATEST.mitab.zip",
+    "path": "https://downloads.thebiogrid.org/Download/BioGRID/Latest-Release/BIOGRID-ALL-LATEST.tab3.zip",
     "useLocalFile": "no",
     "hasFilter": "yes",
     "attrs": "biogrid_id,[]interactions,interaction_count,unique_partners,physical_count,genetic_count,[]organisms,[]experimental_systems,[]pubmed_ids",

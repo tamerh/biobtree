@@ -18,11 +18,53 @@ import (
 
 // biogrid parses BioGRID protein-protein and genetic interaction data
 // Source: https://thebiogrid.org/
-// Format: PSI-MITAB 2.5 (BIOGRID-ALL-LATEST.mitab.zip)
+// Format: TAB3 (BIOGRID-ALL-LATEST.tab3.zip)
+// TAB3 has 37 columns including throughput, modification, qualifications, tags, and ontology terms
 type biogrid struct {
 	source string
 	d      *DataUpdate
 }
+
+// TAB3 column indices (0-indexed)
+const (
+	tab3InteractionID      = 0  // #BioGRID Interaction ID
+	tab3EntrezA            = 1  // Entrez Gene Interactor A
+	tab3EntrezB            = 2  // Entrez Gene Interactor B
+	tab3BiogridIDA         = 3  // BioGRID ID Interactor A
+	tab3BiogridIDB         = 4  // BioGRID ID Interactor B
+	tab3SystematicNameA    = 5  // Systematic Name Interactor A
+	tab3SystematicNameB    = 6  // Systematic Name Interactor B
+	tab3SymbolA            = 7  // Official Symbol Interactor A
+	tab3SymbolB            = 8  // Official Symbol Interactor B
+	tab3SynonymsA          = 9  // Synonyms Interactor A
+	tab3SynonymsB          = 10 // Synonyms Interactor B
+	tab3ExperimentalSystem = 11 // Experimental System
+	tab3ExperimentalType   = 12 // Experimental System Type (physical/genetic)
+	tab3Author             = 13 // Author
+	tab3PubSource          = 14 // Publication Source (e.g., "PUBMED:9006895")
+	tab3OrganismIDA        = 15 // Organism ID Interactor A
+	tab3OrganismIDB        = 16 // Organism ID Interactor B
+	tab3Throughput         = 17 // Throughput (Low Throughput/High Throughput)
+	tab3Score              = 18 // Score
+	tab3Modification       = 19 // Modification (for genetic interactions)
+	tab3Qualifications     = 20 // Qualifications
+	tab3Tags               = 21 // Tags
+	tab3SourceDatabase     = 22 // Source Database
+	tab3SwissProtA         = 23 // SWISS-PROT Accessions Interactor A
+	tab3TremblA            = 24 // TREMBL Accessions Interactor A
+	tab3RefseqA            = 25 // REFSEQ Accessions Interactor A
+	tab3SwissProtB         = 26 // SWISS-PROT Accessions Interactor B
+	tab3TremblB            = 27 // TREMBL Accessions Interactor B
+	tab3RefseqB            = 28 // REFSEQ Accessions Interactor B
+	tab3OntologyTermIDs    = 29 // Ontology Term IDs
+	tab3OntologyTermNames  = 30 // Ontology Term Names
+	tab3OntologyCategories = 31 // Ontology Term Categories
+	tab3OntologyQualIDs    = 32 // Ontology Term Qualifier IDs
+	tab3OntologyQualNames  = 33 // Ontology Term Qualifier Names
+	tab3OntologyTypes      = 34 // Ontology Term Types
+	tab3OrganismNameA      = 35 // Organism Name Interactor A
+	tab3OrganismNameB      = 36 // Organism Name Interactor B
+)
 
 // Helper for context-aware error checking
 func (b *biogrid) check(err error, operation string) {
@@ -56,7 +98,7 @@ func (b *biogrid) update() {
 	b.d.progChan <- &progressInfo{dataset: b.source, done: true}
 }
 
-// parseAndSaveInteractions processes the BioGRID PSI-MITAB 2.5 file
+// parseAndSaveInteractions processes the BioGRID TAB3 file
 func (b *biogrid) parseAndSaveInteractions(testLimit int, idLogFile *os.File) {
 	// Get full URL from config
 	fullURL := config.Dataconf[b.source]["path"]
@@ -69,7 +111,7 @@ func (b *biogrid) parseAndSaveInteractions(testLimit int, idLogFile *os.File) {
 
 	// Download ZIP file
 	br, gz, ftpFile, client, localFile, _, err := getDataReaderNew(b.source, "", "", fullURL)
-	b.check(err, "opening BioGRID MITAB ZIP file")
+	b.check(err, "opening BioGRID TAB3 ZIP file")
 	defer closeReaders(gz, ftpFile, client, localFile)
 
 	sourceID := config.Dataconf[b.source]["id"]
@@ -89,28 +131,28 @@ func (b *biogrid) parseAndSaveInteractions(testLimit int, idLogFile *os.File) {
 		log.Fatal("BioGRID: ZIP file is empty")
 	}
 
-	// Find the MITAB file inside (should be a .mitab or .txt file)
-	var mitabFile *zip.File
+	// Find the TAB3 file inside (should be a .tab3.txt or .txt file)
+	var tab3File *zip.File
 	for _, f := range zipReader.File {
-		if strings.HasSuffix(f.Name, ".mitab") || strings.HasSuffix(f.Name, ".mitab25.txt") || strings.HasSuffix(f.Name, ".txt") {
-			mitabFile = f
+		if strings.HasSuffix(f.Name, ".tab3.txt") || strings.HasSuffix(f.Name, ".txt") {
+			tab3File = f
 			break
 		}
 	}
 
-	if mitabFile == nil {
-		log.Fatal("BioGRID: No MITAB file found in ZIP")
+	if tab3File == nil {
+		log.Fatal("BioGRID: No TAB3 file found in ZIP")
 	}
 
 	log.Printf("BioGRID: Found file in ZIP: %s (%.2f MB uncompressed)",
-		mitabFile.Name, float64(mitabFile.UncompressedSize64)/1024/1024)
+		tab3File.Name, float64(tab3File.UncompressedSize64)/1024/1024)
 
-	// Open the MITAB file from ZIP
-	rc, err := mitabFile.Open()
-	b.check(err, "opening MITAB from ZIP")
+	// Open the TAB3 file from ZIP
+	rc, err := tab3File.Open()
+	b.check(err, "opening TAB3 from ZIP")
 	defer rc.Close()
 
-	// Create scanner for MITAB format
+	// Create scanner for TAB3 format
 	scanner := bufio.NewScanner(rc)
 
 	// Increase buffer size for long lines
@@ -126,13 +168,7 @@ func (b *biogrid) parseAndSaveInteractions(testLimit int, idLogFile *os.File) {
 	headerLine := scanner.Text()
 	header := strings.Split(headerLine, "\t")
 
-	// Map column names to indices
-	colMap := make(map[string]int)
-	for idx, name := range header {
-		colMap[strings.TrimSpace(name)] = idx
-	}
-
-	log.Printf("BioGRID: Found %d columns in header", len(colMap))
+	log.Printf("BioGRID: Found %d columns in TAB3 header (expected 37)", len(header))
 
 	// Group interactions by BioGRID interactor ID
 	// Key: BioGRID ID, Value: list of interactions for that interactor
@@ -171,24 +207,22 @@ func (b *biogrid) parseAndSaveInteractions(testLimit int, idLogFile *os.File) {
 			b.d.progChan <- &progressInfo{dataset: b.source, currentKBPerSec: int64(processedCount / int(elapsed))}
 		}
 
-		// Extract BioGRID IDs for both interactors
-		// BioGRID MITAB format:
-		// Column 0: ID A (e.g., "entrez gene/locuslink:6416")
-		// Column 2: Alt IDs A (e.g., "biogrid:112315|entrez gene/locuslink:MAP2K4|...")
-		// Column 13: Interaction identifier (e.g., "biogrid:103")
-		biogridA := b.extractBiogridID(b.getFieldByIndex(row, 2)) // Alt IDs A
-		biogridB := b.extractBiogridID(b.getFieldByIndex(row, 3)) // Alt IDs B
+		// TAB3 format has direct columns for BioGRID IDs
+		// Column 3: BioGRID ID Interactor A
+		// Column 4: BioGRID ID Interactor B
+		biogridA := b.getFieldByIndex(row, tab3BiogridIDA)
+		biogridB := b.getFieldByIndex(row, tab3BiogridIDB)
 
 		// Skip if either interactor doesn't have a BioGRID ID
-		if biogridA == "" || biogridB == "" {
+		if biogridA == "" || biogridA == "-" || biogridB == "" || biogridB == "-" {
 			skippedLines++
 			continue
 		}
 
 		// In test mode, filter to only human-human interactions (taxid:9606)
 		if config.IsTestMode() {
-			taxidA := b.extractTaxid(b.getFieldByIndex(row, 9))
-			taxidB := b.extractTaxid(b.getFieldByIndex(row, 10))
+			taxidA := b.parseOrganismID(b.getFieldByIndex(row, tab3OrganismIDA))
+			taxidB := b.parseOrganismID(b.getFieldByIndex(row, tab3OrganismIDB))
 			if taxidA != 9606 || taxidB != 9606 {
 				continue
 			}
@@ -267,21 +301,27 @@ func (b *biogrid) addToAggregator(data map[string]*biogridAggregator, biogridID 
 			experimentalSystems: make(map[string]bool),
 			pubmedIDs:           make(map[string]bool),
 		}
-		// Extract Entrez ID from primary ID column (column 0) or alt IDs (column 2)
-		entrezA := b.extractEntrezID(b.getFieldByIndex(row, 0))
-		if entrezA == "" {
-			entrezA = b.extractEntrezID(b.getFieldByIndex(row, 2))
+		// TAB3 format has direct columns for Entrez ID and Symbol
+		// Column 1: Entrez Gene Interactor A
+		entrezA := b.getFieldByIndex(row, tab3EntrezA)
+		if entrezA != "-" {
+			agg.entrezID = entrezA
 		}
-		agg.entrezID = entrezA
 
-		// Extract symbol from alias field (column 4)
-		symbolA := b.extractSymbol(b.getFieldByIndex(row, 4))
-		agg.symbol = symbolA
+		// Column 7: Official Symbol Interactor A
+		symbolA := b.getFieldByIndex(row, tab3SymbolA)
+		if symbolA != "-" {
+			agg.symbol = symbolA
+		}
 
-		// Extract UniProt and RefSeq IDs from Alt IDs column (column 2)
-		altIDs := b.getFieldByIndex(row, 2)
-		agg.uniprotIDs = b.extractUniProtIDs(altIDs)
-		agg.refseqIDs = b.extractRefSeqIDs(altIDs)
+		// TAB3 format has direct columns for UniProt and RefSeq IDs
+		// Column 23: SWISS-PROT Accessions Interactor A
+		// Column 24: TREMBL Accessions Interactor A
+		// Column 25: REFSEQ Accessions Interactor A
+		agg.uniprotIDs = b.parseDelimitedIDs(b.getFieldByIndex(row, tab3SwissProtA))
+		tremblIDs := b.parseDelimitedIDs(b.getFieldByIndex(row, tab3TremblA))
+		agg.uniprotIDs = append(agg.uniprotIDs, tremblIDs...)
+		agg.refseqIDs = b.parseDelimitedIDs(b.getFieldByIndex(row, tab3RefseqA))
 
 		data[biogridID] = agg
 	}
@@ -319,7 +359,39 @@ func (b *biogrid) getFieldByIndex(row []string, idx int) string {
 	return ""
 }
 
-// extractBiogridID extracts BioGRID ID from the ID field
+// parseOrganismID parses organism taxonomy ID from TAB3 column
+// TAB3 format has direct numeric taxonomy IDs (e.g., "9606")
+func (b *biogrid) parseOrganismID(field string) int32 {
+	if field == "" || field == "-" {
+		return 0
+	}
+	taxid, err := strconv.ParseInt(field, 10, 32)
+	if err != nil {
+		return 0
+	}
+	return int32(taxid)
+}
+
+// parseDelimitedIDs parses pipe-delimited IDs from TAB3 columns
+// Used for UniProt, RefSeq accessions (e.g., "P45985|Q12345" or "NP_003001|NP_001268364")
+func (b *biogrid) parseDelimitedIDs(field string) []string {
+	if field == "" || field == "-" {
+		return nil
+	}
+	parts := strings.Split(field, "|")
+	result := make([]string, 0, len(parts))
+	seen := make(map[string]bool)
+	for _, p := range parts {
+		p = strings.TrimSpace(p)
+		if p != "" && p != "-" && !seen[p] {
+			result = append(result, p)
+			seen[p] = true
+		}
+	}
+	return result
+}
+
+// extractBiogridID extracts BioGRID ID from the ID field (legacy MITAB support)
 // Format: biogrid:103|entrez gene/locuslink:6416
 func (b *biogrid) extractBiogridID(idField string) string {
 	// Split by pipe to handle multiple IDs
@@ -540,67 +612,122 @@ func (b *biogrid) extractInteractionType(field string) string {
 	return "physical"
 }
 
-// buildInteraction creates an interaction record from a row
+// buildInteraction creates an interaction record from a TAB3 row
 func (b *biogrid) buildInteraction(row []string, biogridA, biogridB string) *pbuf.BiogridInteraction {
-	// PSI-MITAB 2.5 columns for BioGRID:
-	// 0: ID(s) interactor A (e.g., "entrez gene/locuslink:6416")
-	// 1: ID(s) interactor B
-	// 2: Alt. ID(s) interactor A (contains "biogrid:112315|...")
-	// 3: Alt. ID(s) interactor B
-	// 4: Alias(es) interactor A (gene names)
-	// 5: Alias(es) interactor B
-	// 6: Interaction detection method(s)
-	// 7: Publication 1st author(s) (e.g., "Marti A (1997)")
-	// 8: Publication Identifier(s) (e.g., "pubmed:9006895")
-	// 9: Taxid interactor A (e.g., "taxid:9606")
-	// 10: Taxid interactor B
-	// 11: Interaction type(s) (e.g., "psi-mi:\"MI:0407\"(direct interaction)")
-	// 12: Source database(s) (e.g., "psi-mi:\"MI:0463\"(biogrid)")
-	// 13: Interaction identifier(s) (e.g., "biogrid:103")
-	// 14: Confidence value(s)
+	// TAB3 format columns (37 columns total):
+	// 0: #BioGRID Interaction ID
+	// 1-2: Entrez Gene IDs (A, B)
+	// 3-4: BioGRID IDs (A, B)
+	// 5-6: Systematic Names (A, B)
+	// 7-8: Official Symbols (A, B)
+	// 9-10: Synonyms (A, B)
+	// 11: Experimental System (e.g., "Two-hybrid")
+	// 12: Experimental System Type ("physical" or "genetic")
+	// 13: Author
+	// 14: Publication Source (e.g., "PUBMED:9006895")
+	// 15-16: Organism IDs (A, B)
+	// 17: Throughput ("Low Throughput" or "High Throughput")
+	// 18: Score
+	// 19: Modification (for genetic interactions)
+	// 20: Qualifications
+	// 21: Tags
+	// 22: Source Database
+	// 23-28: UniProt/RefSeq accessions (A, B)
+	// 29-34: Ontology terms
+	// 35-36: Organism Names (A, B)
 
-	// Extract partner Entrez ID from primary ID column (column 1) or alt IDs (column 3)
-	partnerEntrezID := b.extractEntrezID(b.getFieldByIndex(row, 1))
-	if partnerEntrezID == "" {
-		partnerEntrezID = b.extractEntrezID(b.getFieldByIndex(row, 3))
+	// Extract interaction ID (column 0)
+	interactionID := b.getFieldByIndex(row, tab3InteractionID)
+
+	// Extract partner Entrez ID (column 2 for interactor B)
+	partnerEntrezID := b.getFieldByIndex(row, tab3EntrezB)
+	if partnerEntrezID == "-" {
+		partnerEntrezID = ""
 	}
 
-	// Extract partner symbol
-	partnerSymbol := b.extractSymbol(b.getFieldByIndex(row, 5))
-
-	// Extract experimental system (detection method)
-	experimentalSystem := b.extractPSIMITerm(b.getFieldByIndex(row, 6))
-
-	// Extract interaction type
-	interactionTypeField := b.getFieldByIndex(row, 11)
-	experimentalSystemType := b.extractInteractionType(interactionTypeField)
-
-	// Extract taxonomy IDs
-	taxidA := b.extractTaxid(b.getFieldByIndex(row, 9))
-	taxidB := b.extractTaxid(b.getFieldByIndex(row, 10))
-
-	// Extract publication info
-	pubmedID := b.extractPubMedID(b.getFieldByIndex(row, 8))
-	author := b.getFieldByIndex(row, 7)
-
-	// Extract interaction ID
-	interactionID := ""
-	idField := b.getFieldByIndex(row, 13)
-	if strings.HasPrefix(idField, "biogrid:") {
-		interactionID = strings.TrimPrefix(idField, "biogrid:")
+	// Extract partner symbol (column 8 for interactor B)
+	partnerSymbol := b.getFieldByIndex(row, tab3SymbolB)
+	if partnerSymbol == "-" {
+		partnerSymbol = ""
 	}
 
-	// Extract confidence score
-	score := b.getFieldByIndex(row, 14)
+	// Extract partner systematic name (column 6 for interactor B)
+	partnerSystematicName := b.getFieldByIndex(row, tab3SystematicNameB)
+	if partnerSystematicName == "-" {
+		partnerSystematicName = ""
+	}
 
-	// Extract source database
-	sourceDB := b.extractPSIMITerm(b.getFieldByIndex(row, 12))
+	// Extract experimental system (column 11)
+	experimentalSystem := b.getFieldByIndex(row, tab3ExperimentalSystem)
+
+	// Extract experimental system type (column 12)
+	experimentalSystemType := b.getFieldByIndex(row, tab3ExperimentalType)
+
+	// Extract taxonomy IDs (columns 15-16)
+	taxidA := b.parseOrganismID(b.getFieldByIndex(row, tab3OrganismIDA))
+	taxidB := b.parseOrganismID(b.getFieldByIndex(row, tab3OrganismIDB))
+
+	// Extract publication info (column 14)
+	pubSource := b.getFieldByIndex(row, tab3PubSource)
+	pubmedID := ""
+	if strings.HasPrefix(pubSource, "PUBMED:") {
+		pubmedID = strings.TrimPrefix(pubSource, "PUBMED:")
+	}
+	author := b.getFieldByIndex(row, tab3Author)
+
+	// Extract score (column 18)
+	score := b.getFieldByIndex(row, tab3Score)
+	if score == "-" {
+		score = ""
+	}
+
+	// Extract source database (column 22)
+	sourceDB := b.getFieldByIndex(row, tab3SourceDatabase)
+
+	// *** NEW TAB3 FIELDS ***
+
+	// Extract throughput (column 17) - "Low Throughput" or "High Throughput"
+	throughput := b.getFieldByIndex(row, tab3Throughput)
+	if throughput == "-" {
+		throughput = ""
+	}
+
+	// Extract modification (column 19) - for genetic interactions (e.g., "Synthetic Lethality")
+	modification := b.getFieldByIndex(row, tab3Modification)
+	if modification == "-" {
+		modification = ""
+	}
+
+	// Extract qualifications (column 20)
+	qualifications := b.getFieldByIndex(row, tab3Qualifications)
+	if qualifications == "-" {
+		qualifications = ""
+	}
+
+	// Extract tags (column 21)
+	tags := b.getFieldByIndex(row, tab3Tags)
+	if tags == "-" {
+		tags = ""
+	}
+
+	// Extract ontology term IDs (column 29) - for phenotype
+	ontologyTermID := b.getFieldByIndex(row, tab3OntologyTermIDs)
+	if ontologyTermID == "-" {
+		ontologyTermID = ""
+	}
+
+	// Extract ontology term names (column 30) - for phenotype description
+	phenotype := b.getFieldByIndex(row, tab3OntologyTermNames)
+	if phenotype == "-" {
+		phenotype = ""
+	}
 
 	return &pbuf.BiogridInteraction{
 		InteractionId:          interactionID,
 		PartnerBiogridId:       biogridB,
 		PartnerEntrezId:        partnerEntrezID,
 		PartnerSymbol:          partnerSymbol,
+		PartnerSystematicName:  partnerSystematicName,
 		ExperimentalSystem:     experimentalSystem,
 		ExperimentalSystemType: experimentalSystemType,
 		OrganismA:              taxidA,
@@ -609,6 +736,13 @@ func (b *biogrid) buildInteraction(row []string, biogridA, biogridB string) *pbu
 		Author:                 author,
 		Score:                  score,
 		SourceDatabase:         sourceDB,
+		// New TAB3 fields
+		Throughput:     throughput,
+		Modification:   modification,
+		Qualifications: qualifications,
+		Tags:           tags,
+		OntologyTermId: ontologyTermID,
+		Phenotype:      phenotype,
 	}
 }
 

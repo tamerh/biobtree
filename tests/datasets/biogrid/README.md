@@ -1,25 +1,17 @@
-# BioGRID Dataset Integration Tests
+# BioGRID Dataset
 
 ## Overview
-BioGRID (Biological General Repository for Interaction Datasets) is a curated database of protein-protein and genetic interactions extracted from the biomedical literature.
+BioGRID (Biological General Repository for Interaction Datasets) is a curated database of protein-protein and genetic interactions extracted from the biomedical literature. Contains 2.8M+ interactions from 80,000+ publications covering multiple organisms.
 
-**Dataset ID:** 105
-**Source:** https://downloads.thebiogrid.org/
-**Format:** PSI-MITAB 2.5 (ZIP compressed)
+**Source**: https://thebiogrid.org/
+**Data Type**: Protein-protein and genetic interactions with experimental evidence
 
-## Data Size
+## Integration Architecture
 
-| Metric | Value |
-|--------|-------|
-| Compressed (ZIP) | ~170 MB |
-| Uncompressed | ~2.1 GB |
-| Total Interactions | ~2.8 million |
-
-## Data Structure
-
-### Primary Identifier
-- **BioGRID Interactor ID**: Numeric identifier (e.g., "112315", "106603")
-- Found in Alt IDs column (column 2/3) as "biogrid:NNNNNN"
+### Storage Model
+**Primary Entries**: BioGRID Interactor IDs (numeric, e.g., "112315", "108607")
+**Searchable Text Links**: BioGRID ID, gene symbols
+**Attributes Stored**: BiogridAttr protobuf with interaction details, counts, organisms, experimental systems
 
 ### Attributes (BiogridAttr)
 | Field | Type | Description |
@@ -41,8 +33,15 @@ BioGRID (Biological General Repository for Interaction Datasets) is a curated da
 | partner_biogrid_id | string | Partner's BioGRID ID |
 | partner_entrez_id | string | Partner's Entrez Gene ID |
 | partner_symbol | string | Partner's gene symbol |
-| experimental_system | string | Experimental method (e.g., "two hybrid") |
+| partner_systematic_name | string | Partner's systematic name |
+| experimental_system | string | Experimental method (e.g., "Two-hybrid") |
 | experimental_system_type | string | "physical" or "genetic" |
+| **throughput** | string | "Low Throughput" or "High Throughput" |
+| **modification** | string | Genetic modification type (e.g., "Synthetic Lethality") |
+| **qualifications** | string | Additional qualifications |
+| **tags** | string | Curation tags |
+| **phenotype** | string | Observed phenotype description |
+| **ontology_term_id** | string | Phenotype ontology term ID |
 | organism_a | int32 | Taxonomy ID for interactor A |
 | organism_b | int32 | Taxonomy ID for interactor B |
 | pubmed_id | string | Supporting PubMed ID |
@@ -50,106 +49,111 @@ BioGRID (Biological General Repository for Interaction Datasets) is a curated da
 | score | string | Confidence score (if available) |
 | source_database | string | Original source database |
 
-## Cross-References Created
+### Cross-References
+All cross-references are **bidirectional**:
+| Target Dataset | Description |
+|----------------|-------------|
+| biogrid | Links to interaction partners |
+| entrez | Links to Entrez Gene IDs |
+| uniprot | Links to UniProt accessions (Swiss-Prot + TrEMBL) |
+| refseq | Links to RefSeq IDs |
+| taxonomy | Links to organism taxonomy IDs |
+| pubmed | Links to supporting publications |
 
-All cross-references are **bidirectional** (created using `addXref` which automatically generates forward and reverse mappings).
+### Special Features
+- **TAB3 Format**: Uses BioGRID TAB3 format (37 columns) for comprehensive data extraction
+- **Throughput Classification**: Distinguishes low-throughput (high confidence) vs high-throughput experiments
+- **Genetic Interaction Details**: Captures modification types (Synthetic Lethality, Dosage Rescue, etc.)
+- **Bidirectional Interactions**: Same interaction stored under both interactors for easy lookup
+- **Phenotype Ontology**: Links to ontology terms for phenotype data
 
-| Target Dataset | Description | Source Column |
-|----------------|-------------|---------------|
-| biogrid | Links to interaction partners | Parsed interactions |
-| entrez | Links to Entrez Gene IDs | Column 0/1 (Primary IDs) |
-| uniprot | Links to UniProt accessions | Column 2/3 (Alt IDs: `uniprot/swiss-prot:`) |
-| refseq | Links to RefSeq IDs | Column 2/3 (Alt IDs: `refseq:`) |
-| taxonomy | Links to organism taxonomy IDs | Column 9/10 |
-| pubmed | Links to supporting publications | Column 8 |
+## Use Cases
 
-### Text Search
-- BioGRID ID (searchable)
-- Gene symbols (searchable)
-
-## Sample Queries
-
-```bash
-# Search by BioGRID ID
-curl "http://localhost:9292/ws/?i=112315"
-
-# Map from BioGRID to Entrez Gene
-curl "http://localhost:9292/ws/map/?i=112315&m=>>biogrid>>entrez"
-
-# Map from Entrez Gene to BioGRID
-curl "http://localhost:9292/ws/map/?i=6416&m=>>entrez>>biogrid"
-
-# Map from BioGRID to UniProt
-curl "http://localhost:9292/ws/map/?i=112315&m=>>biogrid>>uniprot"
-
-# Map from UniProt to BioGRID (find interactions for a protein)
-curl "http://localhost:9292/ws/map/?i=P45985&m=>>uniprot>>biogrid"
-
-# Map from BioGRID to RefSeq
-curl "http://localhost:9292/ws/map/?i=112315&m=>>biogrid>>refseq"
-
-# Map from RefSeq to BioGRID
-curl "http://localhost:9292/ws/map/?i=NP_003001&m=>>refseq>>biogrid"
-
-# Filter physical interactions only
-curl "http://localhost:9292/ws/map/?i=112315&m=>>biogrid[biogrid.physical_count > 0]"
-
-# Filter genetic interactions only
-curl "http://localhost:9292/ws/map/?i=112315&m=>>biogrid[biogrid.genetic_count > 0]"
+**1. Find Protein Interaction Partners**
+```
+Query: Gene symbol → BioGRID → List of interacting proteins
+Use: Identify potential drug targets or pathway components
 ```
 
-## Test Coverage
+**2. Validate Drug Target Interactions**
+```
+Query: UniProt ID → BioGRID → Filter low-throughput interactions
+Use: High-confidence interaction validation for drug discovery
+```
 
-### test_cases.json
-Declarative tests for:
+**3. Identify Synthetic Lethal Partners**
+```
+Query: Gene → BioGRID genetic interactions → Filter "Synthetic Lethality"
+Use: Find combination therapy opportunities
+```
+
+**4. Literature Evidence Lookup**
+```
+Query: BioGRID interaction → PubMed references
+Use: Retrieve supporting publications for interaction claims
+```
+
+**5. Cross-Species Interaction Comparison**
+```
+Query: Gene → BioGRID → Filter by taxonomy
+Use: Compare interaction networks across organisms
+```
+
+**6. Hub Protein Identification**
+```
+Query: Gene set → BioGRID → Count interaction partners
+Use: Identify highly connected proteins as potential drug targets
+```
+
+## Test Cases
+
+**Current Tests** (17 total):
+- 11 declarative tests (JSON): ID lookup, cross-reference mappings, attribute validation
+- 6 custom tests (Python): Basic lookup, attributes, interactions, mapping validations
+
+**Coverage**:
 - Basic BioGRID ID lookup
-- BioGRID to Entrez mapping
-- BioGRID to UniProt mapping
-- BioGRID to RefSeq mapping
-- UniProt to BioGRID reverse lookup
-- BioGRID to PubMed mapping
-- BioGRID to Taxonomy mapping
-- Bidirectional partner lookups
-- Attribute field validation
-- Filter expression testing (physical_count)
+- Cross-references: Entrez, UniProt, RefSeq, PubMed, Taxonomy
+- Partner-to-partner mappings
+- Attribute field validation (biogrid_id, interaction_count, unique_partners)
+- New TAB3 fields: throughput, modification
 
-### test_biogrid.py
-Custom tests for:
-- Interaction attribute completeness
-- Cross-reference count validation
-- Filter expression testing
+**Recommended Additions**:
+- Throughput field validation ("Low Throughput" / "High Throughput")
+- Genetic interaction modification field testing
+- Phenotype/ontology term validation
+
+## Performance
+
+- **Test Build**: ~30s (100 interactions, human-human only in test mode)
+- **Data Source**: https://downloads.thebiogrid.org/Download/BioGRID/Latest-Release/BIOGRID-ALL-LATEST.tab3.zip
+- **Update Frequency**: Monthly releases
+- **Total Entries**: ~2.8 million interactions, ~170 MB compressed, ~1.4 GB uncompressed
 
 ## Known Limitations
 
-1. **Large Dataset**: The full BioGRID file is ~170MB compressed, ~2GB uncompressed
+1. **Large Dataset**: Full BioGRID file is ~170MB compressed, ~1.4GB uncompressed
 2. **Human Focus in Test Mode**: Test mode only processes human-human interactions (taxid:9606)
-3. **Interaction Grouping**: Interactions are grouped by interactor, so the same interaction appears under both interactors
-4. **PubMed ID Limit**: Only first 10 PubMed IDs are cross-referenced per interactor to avoid excessive xrefs
-5. **Partner Limit**: Only first 100 interaction partners are cross-referenced per interactor
+3. **Interaction Grouping**: Same interaction appears under both interactors (bidirectional)
+4. **Score Availability**: Not all interactions have confidence scores (shown as "-" or empty)
+5. **Phenotype Data**: Only available for some genetic interactions
 
-## Data Source Details
+## Future Work
 
-**URL:** https://downloads.thebiogrid.org/Download/BioGRID/Latest-Release/BIOGRID-ALL-LATEST.mitab.zip
+- Add network topology metrics (degree, betweenness centrality)
+- Integration with STRING for combined curated + predicted interactions
+- Tissue-specific filtering using Bgee expression data
+- Drug target druggability scoring for hub proteins
 
-**File Format:** PSI-MITAB 2.5 (tab-separated values)
+## Maintenance
 
-| Column | Field | Extracted Data |
-|--------|-------|----------------|
-| 0 | ID(s) interactor A | Entrez Gene ID (`entrez gene/locuslink:NNNN`) |
-| 1 | ID(s) interactor B | Entrez Gene ID (partner) |
-| 2 | Alt. ID(s) interactor A | BioGRID ID, UniProt, RefSeq |
-| 3 | Alt. ID(s) interactor B | BioGRID ID, UniProt, RefSeq (partner) |
-| 4 | Alias(es) interactor A | Gene symbol |
-| 5 | Alias(es) interactor B | Gene symbol (partner) |
-| 6 | Interaction detection method | Experimental system |
-| 7 | Publication 1st author | Author |
-| 8 | Publication Identifier(s) | PubMed ID |
-| 9 | Taxid interactor A | Taxonomy ID |
-| 10 | Taxid interactor B | Taxonomy ID (partner) |
-| 11 | Interaction type(s) | Physical/Genetic classification |
-| 12 | Source database(s) | Source database |
-| 13 | Interaction identifier(s) | Interaction ID |
-| 14 | Confidence value(s) | Score |
+- **Release Schedule**: Monthly updates from BioGRID
+- **Data Format**: TAB3 (37 columns, tab-separated)
+- **Test Data**: 100 interactions (human-human only)
+- **License**: BioGRID is free for academic use
 
-## Update Frequency
-BioGRID releases monthly updates. Check https://thebiogrid.org/ for the latest release.
+## References
+
+- **Citation**: Oughtred R, et al. (2021) The BioGRID database: A comprehensive biomedical resource. Nucleic Acids Res.
+- **Website**: https://thebiogrid.org/
+- **License**: Free for academic use, commercial license available

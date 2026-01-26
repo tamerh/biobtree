@@ -1,289 +1,248 @@
 #!/usr/bin/env python3
 """
-BioGRID dataset integration tests.
+BioGRID Test Suite
 
-This module tests the BioGRID protein-protein and genetic interaction database integration.
+Tests BioGRID protein-protein and genetic interaction database integration.
+Uses declarative tests from test_cases.json and custom Python tests.
+
+Note: This script is called by the main orchestrator (tests/run_tests.py)
+which manages the biobtree web server lifecycle.
 """
 
-import json
-import urllib.request
-import urllib.parse
 import sys
 import os
+from pathlib import Path
 
-# Default biobtree URL
-BIOBTREE_URL = os.environ.get("BIOBTREE_URL", "http://localhost:9292")
+# Add common test framework to path (tests/ directory)
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
+from common import TestRunner, test
 
-def fetch_json(url):
-    """Fetch JSON from URL."""
-    try:
-        with urllib.request.urlopen(url, timeout=30) as response:
-            return json.loads(response.read().decode('utf-8'))
-    except Exception as e:
-        print(f"Error fetching {url}: {e}")
-        return None
-
-
-def test_biogrid_basic_lookup():
-    """Test basic BioGRID interactor lookup."""
-    # Use a known BioGRID ID from test mode
-    biogrid_id = "112315"
-
-    url = f"{BIOBTREE_URL}/ws/?i={biogrid_id}"
-    result = fetch_json(url)
-
-    if not result:
-        print(f"FAIL: Could not fetch BioGRID entry {biogrid_id}")
-        return False
-
-    results = result.get("results", [])
-    if not results:
-        print(f"FAIL: No results for BioGRID ID {biogrid_id}")
-        return False
-
-    # Check that we got a biogrid entry
-    found_biogrid = False
-    for entry in results:
-        if entry.get("dataset_name") == "biogrid":
-            found_biogrid = True
-            break
-
-    if not found_biogrid:
-        print(f"FAIL: No biogrid entry found for {biogrid_id}")
-        return False
-
-    print(f"PASS: Basic BioGRID lookup for {biogrid_id}")
-    return True
+try:
+    import requests
+except ImportError:
+    print("Error: requests library not found")
+    print("Install with: pip install requests")
+    sys.exit(1)
 
 
-def test_biogrid_attributes():
-    """Test BioGRID entry has expected attributes."""
-    biogrid_id = "112315"
+class BioGRIDTests:
+    """BioGRID custom tests (in addition to declarative tests)"""
 
-    url = f"{BIOBTREE_URL}/ws/?i={biogrid_id}"
-    result = fetch_json(url)
+    def __init__(self, runner: TestRunner):
+        self.runner = runner
+        self.test_biogrid_id = "112315"  # Known test ID
 
-    if not result:
-        print(f"FAIL: Could not fetch BioGRID entry {biogrid_id}")
-        return False
+    @test
+    def test_biogrid_basic_lookup(self):
+        """Test basic BioGRID interactor lookup."""
+        data = self.runner.lookup(self.test_biogrid_id)
 
-    results = result.get("results", [])
+        if not data or not data.get("results"):
+            return False, f"No results for BioGRID ID {self.test_biogrid_id}"
 
-    # Find the biogrid entry
-    biogrid_entry = None
-    for entry in results:
-        if entry.get("dataset_name") == "biogrid":
-            biogrid_entry = entry
-            break
+        # Check that we got a biogrid entry
+        found_biogrid = any(
+            entry.get("dataset_name") == "biogrid"
+            for entry in data.get("results", [])
+        )
 
-    if not biogrid_entry:
-        print(f"FAIL: No biogrid entry found for {biogrid_id}")
-        return False
+        if not found_biogrid:
+            return False, f"No biogrid entry found for {self.test_biogrid_id}"
 
-    # Check for biogrid attribute
-    biogrid_attr = biogrid_entry.get("biogrid")
-    if not biogrid_attr:
-        print(f"FAIL: BioGRID entry missing 'biogrid' attribute")
-        return False
+        return True, f"Basic BioGRID lookup works for {self.test_biogrid_id}"
 
-    # Check required fields
-    required_fields = ["biogrid_id", "interaction_count", "unique_partners"]
-    missing = []
-    for field in required_fields:
-        if field not in biogrid_attr:
-            missing.append(field)
+    @test
+    def test_biogrid_attributes(self):
+        """Test BioGRID entry has expected attributes."""
+        data = self.runner.lookup(self.test_biogrid_id)
 
-    if missing:
-        print(f"FAIL: BioGRID entry missing fields: {missing}")
-        return False
+        if not data or not data.get("results"):
+            return False, f"No results for BioGRID ID {self.test_biogrid_id}"
 
-    print(f"PASS: BioGRID attributes present for {biogrid_id}")
-    return True
+        # Find the biogrid entry
+        biogrid_entry = next(
+            (entry for entry in data.get("results", [])
+             if entry.get("dataset_name") == "biogrid"),
+            None
+        )
 
+        if not biogrid_entry:
+            return False, f"No biogrid entry found for {self.test_biogrid_id}"
 
-def test_biogrid_interactions():
-    """Test BioGRID entry has interactions list."""
-    biogrid_id = "112315"
+        # Check for biogrid attribute (under Attributes.Biogrid)
+        attributes = biogrid_entry.get("Attributes", {})
+        biogrid_attr = attributes.get("Biogrid", {})
+        if not biogrid_attr:
+            return False, "BioGRID entry missing 'Attributes.Biogrid' attribute"
 
-    url = f"{BIOBTREE_URL}/ws/?i={biogrid_id}"
-    result = fetch_json(url)
+        # Check required fields
+        required_fields = ["biogrid_id", "interaction_count", "unique_partners"]
+        missing = [f for f in required_fields if f not in biogrid_attr]
 
-    if not result:
-        print(f"FAIL: Could not fetch BioGRID entry {biogrid_id}")
-        return False
+        if missing:
+            return False, f"BioGRID entry missing fields: {missing}"
 
-    results = result.get("results", [])
+        return True, f"BioGRID attributes present for {self.test_biogrid_id}"
 
-    # Find the biogrid entry
-    biogrid_entry = None
-    for entry in results:
-        if entry.get("dataset_name") == "biogrid":
-            biogrid_entry = entry
-            break
+    @test
+    def test_biogrid_interactions(self):
+        """Test BioGRID entry has interactions list."""
+        data = self.runner.lookup(self.test_biogrid_id)
 
-    if not biogrid_entry:
-        print(f"FAIL: No biogrid entry found for {biogrid_id}")
-        return False
+        if not data or not data.get("results"):
+            return False, f"No results for BioGRID ID {self.test_biogrid_id}"
 
-    biogrid_attr = biogrid_entry.get("biogrid", {})
-    interactions = biogrid_attr.get("interactions", [])
+        # Find the biogrid entry
+        biogrid_entry = next(
+            (entry for entry in data.get("results", [])
+             if entry.get("dataset_name") == "biogrid"),
+            None
+        )
 
-    if not interactions:
-        print(f"FAIL: BioGRID entry has no interactions")
-        return False
+        if not biogrid_entry:
+            return False, f"No biogrid entry found for {self.test_biogrid_id}"
 
-    # Check first interaction has expected fields
-    first = interactions[0]
-    expected_fields = ["interaction_id", "partner_biogrid_id", "experimental_system"]
-    missing = [f for f in expected_fields if f not in first]
+        biogrid_attr = biogrid_entry.get("Attributes", {}).get("Biogrid", {})
+        interactions = biogrid_attr.get("interactions", [])
 
-    if missing:
-        print(f"FAIL: Interaction missing fields: {missing}")
-        return False
+        if not interactions:
+            return False, "BioGRID entry has no interactions"
 
-    print(f"PASS: BioGRID has {len(interactions)} interactions for {biogrid_id}")
-    return True
+        # Check first interaction has expected fields
+        first = interactions[0]
+        expected_fields = ["interaction_id", "partner_biogrid_id", "experimental_system"]
+        missing = [f for f in expected_fields if f not in first]
 
+        if missing:
+            return False, f"Interaction missing fields: {missing}"
 
-def test_biogrid_to_entrez_mapping():
-    """Test mapping from BioGRID to Entrez Gene."""
-    biogrid_id = "112315"
+        return True, f"BioGRID has {len(interactions)} interactions for {self.test_biogrid_id}"
 
-    chain = urllib.parse.quote(">>biogrid>>entrez")
-    url = f"{BIOBTREE_URL}/ws/map/?i={biogrid_id}&m={chain}"
-    result = fetch_json(url)
+    @test
+    def test_biogrid_throughput_field(self):
+        """Test BioGRID interactions have throughput field (TAB3 format)."""
+        data = self.runner.lookup(self.test_biogrid_id)
 
-    if not result:
-        print(f"FAIL: Could not fetch mapping for {biogrid_id}")
-        return False
+        if not data or not data.get("results"):
+            return False, f"No results for BioGRID ID {self.test_biogrid_id}"
 
-    results = result.get("results", [])
-    if not results:
-        print(f"FAIL: No mapping results for {biogrid_id}")
-        return False
+        # Find the biogrid entry
+        biogrid_entry = next(
+            (entry for entry in data.get("results", [])
+             if entry.get("dataset_name") == "biogrid"),
+            None
+        )
 
-    # Check that we have entrez targets
-    has_entrez = False
-    for mapping in results:
-        targets = mapping.get("targets", [])
-        for target in targets:
-            if target.get("dataset_name") == "entrez":
-                has_entrez = True
-                break
+        if not biogrid_entry:
+            return False, f"No biogrid entry found for {self.test_biogrid_id}"
 
-    if not has_entrez:
-        print(f"FAIL: No Entrez Gene mappings found for {biogrid_id}")
-        return False
+        biogrid_attr = biogrid_entry.get("Attributes", {}).get("Biogrid", {})
+        interactions = biogrid_attr.get("interactions", [])
 
-    print(f"PASS: BioGRID -> Entrez mapping works for {biogrid_id}")
-    return True
+        if not interactions:
+            return False, "BioGRID entry has no interactions"
 
+        # Check if any interaction has throughput field
+        has_throughput = any(
+            inter.get("throughput") for inter in interactions
+        )
 
-def test_biogrid_to_pubmed_mapping():
-    """Test mapping from BioGRID to PubMed."""
-    biogrid_id = "112315"
+        if not has_throughput:
+            return False, "No interactions have throughput field"
 
-    chain = urllib.parse.quote(">>biogrid>>pubmed")
-    url = f"{BIOBTREE_URL}/ws/map/?i={biogrid_id}&m={chain}"
-    result = fetch_json(url)
+        # Get the throughput value
+        throughput = interactions[0].get("throughput", "")
+        valid_values = ["Low Throughput", "High Throughput"]
 
-    if not result:
-        print(f"FAIL: Could not fetch mapping for {biogrid_id}")
-        return False
+        if throughput and throughput not in valid_values:
+            return False, f"Invalid throughput value: {throughput}"
 
-    results = result.get("results", [])
-    if not results:
-        print(f"FAIL: No mapping results for {biogrid_id}")
-        return False
+        return True, f"Throughput field present: {throughput}"
 
-    # Check that we have pubmed targets
-    has_pubmed = False
-    for mapping in results:
-        targets = mapping.get("targets", [])
-        for target in targets:
-            if target.get("dataset_name") == "pubmed":
-                has_pubmed = True
-                break
+    @test
+    def test_biogrid_to_entrez_mapping(self):
+        """Test mapping from BioGRID to Entrez Gene."""
+        has_xref = self.runner.check_xref(self.test_biogrid_id, "entrez")
 
-    if not has_pubmed:
-        print(f"FAIL: No PubMed mappings found for {biogrid_id}")
-        return False
+        if not has_xref:
+            return False, f"No Entrez Gene mappings found for {self.test_biogrid_id}"
 
-    print(f"PASS: BioGRID -> PubMed mapping works for {biogrid_id}")
-    return True
+        return True, f"BioGRID -> Entrez mapping works for {self.test_biogrid_id}"
 
+    @test
+    def test_biogrid_to_pubmed_mapping(self):
+        """Test mapping from BioGRID to PubMed."""
+        has_xref = self.runner.check_xref(self.test_biogrid_id, "pubmed")
 
-def test_biogrid_partner_mapping():
-    """Test mapping from BioGRID to partner BioGRID entries."""
-    biogrid_id = "112315"
+        if not has_xref:
+            return False, f"No PubMed mappings found for {self.test_biogrid_id}"
 
-    chain = urllib.parse.quote(">>biogrid>>biogrid")
-    url = f"{BIOBTREE_URL}/ws/map/?i={biogrid_id}&m={chain}"
-    result = fetch_json(url)
+        return True, f"BioGRID -> PubMed mapping works for {self.test_biogrid_id}"
 
-    if not result:
-        print(f"FAIL: Could not fetch mapping for {biogrid_id}")
-        return False
+    @test
+    def test_biogrid_partner_mapping(self):
+        """Test mapping from BioGRID to partner BioGRID entries."""
+        data = self.runner.lookup(self.test_biogrid_id)
 
-    results = result.get("results", [])
-    if not results:
-        print(f"FAIL: No mapping results for {biogrid_id}")
-        return False
+        if not data or not data.get("results"):
+            return False, f"No results for BioGRID ID {self.test_biogrid_id}"
 
-    # Check that we have biogrid partner targets
-    has_partner = False
-    for mapping in results:
-        targets = mapping.get("targets", [])
-        for target in targets:
-            if target.get("dataset_name") == "biogrid" and target.get("identifier") != biogrid_id:
-                has_partner = True
-                break
+        # Find the biogrid entry
+        biogrid_entry = next(
+            (entry for entry in data.get("results", [])
+             if entry.get("dataset_name") == "biogrid"),
+            None
+        )
 
-    if not has_partner:
-        print(f"FAIL: No BioGRID partner mappings found for {biogrid_id}")
-        return False
+        if not biogrid_entry:
+            return False, f"No biogrid entry found for {self.test_biogrid_id}"
 
-    print(f"PASS: BioGRID -> BioGRID partner mapping works for {biogrid_id}")
-    return True
+        # Check for biogrid partner in entries list (different ID than self)
+        entries = biogrid_entry.get("entries", [])
+        has_partner = any(
+            entry.get("dataset_name") == "biogrid" and
+            entry.get("identifier") != self.test_biogrid_id
+            for entry in entries
+        )
+
+        if not has_partner:
+            return False, f"No BioGRID partner mappings found for {self.test_biogrid_id}"
+
+        return True, f"BioGRID -> BioGRID partner mapping works for {self.test_biogrid_id}"
 
 
 def main():
-    """Run all tests."""
-    print("=" * 60)
-    print("BioGRID Dataset Integration Tests")
-    print("=" * 60)
-    print(f"Biobtree URL: {BIOBTREE_URL}")
-    print()
+    """Main test entry point."""
+    # Setup paths
+    script_dir = Path(__file__).parent
+    reference_file = script_dir / "reference_data.json"
+    test_cases_file = script_dir / "test_cases.json"
 
-    tests = [
-        test_biogrid_basic_lookup,
-        test_biogrid_attributes,
-        test_biogrid_interactions,
-        test_biogrid_to_entrez_mapping,
-        test_biogrid_to_pubmed_mapping,
-        test_biogrid_partner_mapping,
-    ]
+    # API URL (default port used by orchestrator)
+    api_url = os.environ.get("BIOBTREE_API_URL", "http://localhost:9292")
 
-    passed = 0
-    failed = 0
+    # Create test runner (reference_file may not exist, that's OK)
+    runner = TestRunner(api_url, reference_file, test_cases_file)
 
-    for test in tests:
-        try:
-            if test():
-                passed += 1
-            else:
-                failed += 1
-        except Exception as e:
-            print(f"ERROR in {test.__name__}: {e}")
-            failed += 1
+    # Add custom tests
+    custom_tests = BioGRIDTests(runner)
+    for test_method in [
+        custom_tests.test_biogrid_basic_lookup,
+        custom_tests.test_biogrid_attributes,
+        custom_tests.test_biogrid_interactions,
+        custom_tests.test_biogrid_throughput_field,
+        custom_tests.test_biogrid_to_entrez_mapping,
+        custom_tests.test_biogrid_to_pubmed_mapping,
+        custom_tests.test_biogrid_partner_mapping,
+    ]:
+        runner.add_custom_test(test_method)
 
-    print()
-    print("=" * 60)
-    print(f"Results: {passed} passed, {failed} failed")
-    print("=" * 60)
+    # Run all tests
+    runner.run_all_tests()
+    exit_code = runner.print_summary()
 
-    return 0 if failed == 0 else 1
+    return exit_code
 
 
 if __name__ == "__main__":

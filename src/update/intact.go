@@ -178,26 +178,118 @@ func (i *intact) parseAndSaveInteractions(testLimit int, idLogFile *os.File) {
 			rnaB = i.extractRNAcentralID(altIdFieldB)
 		}
 
-		// Extract interactor types
-		typeA := i.extractInteractorType(getField(row, colMap, "Type(s) interactor A"))
-		typeB := i.extractInteractorType(getField(row, colMap, "Type(s) interactor B"))
+		// Extract Ensembl transcript IDs (for mRNA in mRNA-miRNA interactions)
+		// These are typically in Alt ID fields for RNA interactors
+		transcriptA := i.extractEnsemblTranscriptID(idFieldA)
+		if transcriptA == "" {
+			transcriptA = i.extractEnsemblTranscriptID(altIdFieldA)
+		}
+		transcriptB := i.extractEnsemblTranscriptID(idFieldB)
+		if transcriptB == "" {
+			transcriptB = i.extractEnsemblTranscriptID(altIdFieldB)
+		}
 
-		// Determine if this is a valid interaction we can process:
-		// - Protein-Protein: both have UniProt IDs
-		// - Protein-ChEBI: one UniProt + one ChEBI
-		// - Protein-RNA: one UniProt + one RNAcentral
+		// Extract interactor types
+		typeFieldA := getField(row, colMap, "Type(s) interactor A")
+		typeFieldB := getField(row, colMap, "Type(s) interactor B")
+		typeA := i.extractInteractorType(typeFieldA)
+		typeB := i.extractInteractorType(typeFieldB)
+
+		// Extract MI type codes (e.g., MI:0326 for protein)
+		miTypeA := i.extractMITypeID(typeFieldA)
+		miTypeB := i.extractMITypeID(typeFieldB)
+
+		// Extract Ensembl gene IDs (only from main ID field, not Alt ID)
+		// Alt ID fields contain alternative identifiers for the same entity
+		// (e.g., Ensembl protein IDs for protein interactors)
+		ensemblGeneA := i.extractEnsemblGeneID(idFieldA)
+		ensemblGeneB := i.extractEnsemblGeneID(idFieldB)
+
+		// Extract GenBank IDs (only from main ID field for DNA interactors)
+		genBankA := i.extractGenBankID(idFieldA)
+		genBankB := i.extractGenBankID(idFieldB)
+
+		// Extract RefSeq IDs (only from main ID field)
+		refseqA := i.extractRefSeqID(idFieldA)
+		refseqB := i.extractRefSeqID(idFieldB)
+
+		// Extract Reactome IDs (only from main ID field)
+		reactomeA := i.extractReactomeID(idFieldA)
+		reactomeB := i.extractReactomeID(idFieldB)
+
+		// Extract IntAct internal IDs (for DNA, RNA, peptide, complex with no external ID)
+		intactIDA := i.extractIntActInternalID(idFieldA)
+		intactIDB := i.extractIntActInternalID(idFieldB)
+
+		// Store raw interactor IDs for non-protein interactors
+		rawIDA := ""
+		rawIDB := ""
+		if proteinA == "" {
+			// Get first ID from the field
+			if idx := strings.Index(idFieldA, "|"); idx > 0 {
+				rawIDA = idFieldA[:idx]
+			} else {
+				rawIDA = idFieldA
+			}
+		}
+		if proteinB == "" {
+			if idx := strings.Index(idFieldB, "|"); idx > 0 {
+				rawIDB = idFieldB[:idx]
+			} else {
+				rawIDB = idFieldB
+			}
+		}
+
+		// Determine what identifiers we have
 		hasProteinA := proteinA != ""
 		hasProteinB := proteinB != ""
 		hasChEBIA := chebiA != ""
 		hasChEBIB := chebiB != ""
 		hasRNAA := rnaA != ""
 		hasRNAB := rnaB != ""
+		hasTranscriptA := transcriptA != ""
+		hasTranscriptB := transcriptB != ""
+		hasEnsemblGeneA := ensemblGeneA != ""
+		hasEnsemblGeneB := ensemblGeneB != ""
+		hasGenBankA := genBankA != ""
+		hasGenBankB := genBankB != ""
+		hasIntActIDA := intactIDA != ""
+		hasIntActIDB := intactIDB != ""
 
-		// Skip if we can't identify the interactors
-		// Valid interactions: Protein-Protein, Protein-ChEBI, or Protein-RNA
-		validInteraction := (hasProteinA && hasProteinB) ||
-			(hasProteinA && hasChEBIB) || (hasChEBIA && hasProteinB) ||
-			(hasProteinA && hasRNAB) || (hasRNAA && hasProteinB)
+		// VALIDATION LOGIC: Accept interaction if at least one side is identifiable
+		// Priority: Protein > ChEBI > RNAcentral > Transcript > Ensembl > GenBank > IntAct-only
+		validInteraction := false
+
+		// Original supported types
+		if hasProteinA && hasProteinB {
+			validInteraction = true // Protein-Protein
+		} else if (hasProteinA && hasChEBIB) || (hasChEBIA && hasProteinB) {
+			validInteraction = true // Protein-ChEBI
+		} else if (hasProteinA && hasRNAB) || (hasRNAA && hasProteinB) {
+			validInteraction = true // Protein-RNAcentral
+		}
+
+		// NEW: mRNA-miRNA interactions (transcript + RNAcentral)
+		// mRNA has Ensembl transcript ID, miRNA has RNAcentral ID
+		if !validInteraction && ((hasTranscriptA && hasRNAB) || (hasRNAA && hasTranscriptB)) {
+			validInteraction = true
+		}
+
+		// NEW: Protein with Ensembl gene (transcription factor binding, etc.)
+		if !validInteraction && ((hasProteinA && hasEnsemblGeneB) || (hasEnsemblGeneA && hasProteinB)) {
+			validInteraction = true
+		}
+
+		// NEW: Protein with GenBank DNA
+		if !validInteraction && ((hasProteinA && hasGenBankB) || (hasGenBankA && hasProteinB)) {
+			validInteraction = true
+		}
+
+		// NEW: Protein with IntAct-only interactor (DNA, RNA, peptide, complex, etc.)
+		// This captures the bulk of skipped rows where one side is protein
+		if !validInteraction && ((hasProteinA && hasIntActIDB) || (hasIntActIDA && hasProteinB)) {
+			validInteraction = true
+		}
 
 		if !validInteraction {
 			skippedLines++
@@ -235,7 +327,10 @@ func (i *intact) parseAndSaveInteractions(testLimit int, idLogFile *os.File) {
 
 		// Build and save interaction entry
 		attr := i.buildInteractionAttrFull(row, colMap, interactionID, proteinA, proteinB,
-			chebiA, chebiB, rnaA, rnaB, typeA, typeB)
+			chebiA, chebiB, rnaA, rnaB, typeA, typeB,
+			rawIDA, rawIDB, miTypeA, miTypeB, ensemblGeneA, ensemblGeneB,
+			genBankA, genBankB, refseqA, refseqB, reactomeA, reactomeB,
+			transcriptA, transcriptB)
 		if attr == nil {
 			skippedLines++
 			continue
@@ -273,6 +368,38 @@ func (i *intact) parseAndSaveInteractions(testLimit int, idLogFile *os.File) {
 		}
 		if hasRNAB && rnaA != rnaB {
 			i.d.addXref(interactionID, sourceID, rnaB, "rnacentral", false)
+		}
+
+		// NEW: interaction (IntAct) → Ensembl genes
+		if hasEnsemblGeneA {
+			i.d.addXref(interactionID, sourceID, ensemblGeneA, "ensembl", false)
+		}
+		if hasEnsemblGeneB && ensemblGeneA != ensemblGeneB {
+			i.d.addXref(interactionID, sourceID, ensemblGeneB, "ensembl", false)
+		}
+
+		// NEW: interaction (IntAct) → Ensembl transcripts (for mRNA-miRNA)
+		if hasTranscriptA {
+			i.d.addXref(interactionID, sourceID, transcriptA, "transcript", false)
+		}
+		if hasTranscriptB && transcriptA != transcriptB {
+			i.d.addXref(interactionID, sourceID, transcriptB, "transcript", false)
+		}
+
+		// NEW: interaction (IntAct) → RefSeq (if available)
+		if refseqA != "" {
+			i.d.addXref(interactionID, sourceID, refseqA, "refseq", false)
+		}
+		if refseqB != "" && refseqA != refseqB {
+			i.d.addXref(interactionID, sourceID, refseqB, "refseq", false)
+		}
+
+		// NEW: interaction (IntAct) → Reactome (if available)
+		if reactomeA != "" {
+			i.d.addXref(interactionID, sourceID, reactomeA, "reactome", false)
+		}
+		if reactomeB != "" && reactomeA != reactomeB {
+			i.d.addXref(interactionID, sourceID, reactomeB, "reactome", false)
 		}
 
 		// Text search: interaction_id → interaction entry
@@ -364,6 +491,122 @@ func (i *intact) extractInteractorType(typeField string) string {
 	if idx := strings.LastIndex(typeField, "("); idx >= 0 {
 		if endIdx := strings.LastIndex(typeField, ")"); endIdx > idx {
 			return typeField[idx+1 : endIdx]
+		}
+	}
+	return ""
+}
+
+// extractEnsemblGeneID extracts Ensembl gene ID from ID field
+// Format: ensembl:ENSG00000139618 or ensemblgenomes:xxx
+func (i *intact) extractEnsemblGeneID(idField string) string {
+	ids := strings.Split(idField, "|")
+	for _, id := range ids {
+		id = strings.TrimSpace(id)
+		// Match ensembl:ENS... (human, mouse, etc.) or ensemblgenomes:
+		if strings.HasPrefix(id, "ensembl:ENS") {
+			return strings.TrimPrefix(id, "ensembl:")
+		}
+		if strings.HasPrefix(id, "ensemblgenomes:") {
+			return strings.TrimPrefix(id, "ensemblgenomes:")
+		}
+	}
+	return ""
+}
+
+// extractEnsemblTranscriptID extracts Ensembl transcript ID from ID field
+// Format: ensembl:ENST00000373204 (human) or ensembl:ENSMUST00000053317 (mouse)
+// Transcript IDs have 'T' after species prefix: ENST, ENSMUST, ENSRNOT, ENSDART, etc.
+func (i *intact) extractEnsemblTranscriptID(idField string) string {
+	ids := strings.Split(idField, "|")
+	for _, id := range ids {
+		id = strings.TrimSpace(id)
+		if strings.HasPrefix(id, "ensembl:") {
+			transcriptID := strings.TrimPrefix(id, "ensembl:")
+			// Check if it's a transcript ID: starts with ENS, has T followed by digit
+			// Pattern: ENS[species]T[digits] e.g., ENST0, ENSMUST0, ENSRNOT0, ENSDART0
+			if strings.HasPrefix(transcriptID, "ENS") && i.isEnsemblTranscript(transcriptID) {
+				return transcriptID
+			}
+		}
+	}
+	return ""
+}
+
+// isEnsemblTranscript checks if an Ensembl ID is a transcript (has T followed by digit)
+func (i *intact) isEnsemblTranscript(ensemblID string) bool {
+	// Find 'T' after "ENS" (position 3+)
+	for idx := 3; idx < len(ensemblID)-1; idx++ {
+		if ensemblID[idx] == 'T' && ensemblID[idx+1] >= '0' && ensemblID[idx+1] <= '9' {
+			return true
+		}
+	}
+	return false
+}
+
+// extractGenBankID extracts GenBank/DDBJ/EMBL accession
+// Format: ddbj/embl/genbank:AF004877
+func (i *intact) extractGenBankID(idField string) string {
+	ids := strings.Split(idField, "|")
+	for _, id := range ids {
+		id = strings.TrimSpace(id)
+		if strings.HasPrefix(id, "ddbj/embl/genbank:") {
+			return strings.TrimPrefix(id, "ddbj/embl/genbank:")
+		}
+	}
+	return ""
+}
+
+// extractRefSeqID extracts RefSeq ID
+// Format: refseq:NP_001234.1
+func (i *intact) extractRefSeqID(idField string) string {
+	ids := strings.Split(idField, "|")
+	for _, id := range ids {
+		id = strings.TrimSpace(id)
+		if strings.HasPrefix(id, "refseq:") {
+			return strings.TrimPrefix(id, "refseq:")
+		}
+	}
+	return ""
+}
+
+// extractReactomeID extracts Reactome ID
+// Format: reactome:R-HSA-12345
+func (i *intact) extractReactomeID(idField string) string {
+	ids := strings.Split(idField, "|")
+	for _, id := range ids {
+		id = strings.TrimSpace(id)
+		if strings.HasPrefix(id, "reactome:") {
+			return strings.TrimPrefix(id, "reactome:")
+		}
+	}
+	return ""
+}
+
+// extractIntActInternalID extracts IntAct internal ID (for non-protein interactors)
+// Format: intact:EBI-12345
+func (i *intact) extractIntActInternalID(idField string) string {
+	ids := strings.Split(idField, "|")
+	for _, id := range ids {
+		id = strings.TrimSpace(id)
+		if strings.HasPrefix(id, "intact:EBI-") {
+			return strings.TrimPrefix(id, "intact:")
+		}
+	}
+	return ""
+}
+
+// extractMITypeID extracts PSI-MI type identifier code
+// Format: psi-mi:"MI:0326"(protein) -> MI:0326
+func (i *intact) extractMITypeID(typeField string) string {
+	if typeField == "" || typeField == "-" {
+		return ""
+	}
+	// Look for MI:xxxx pattern
+	start := strings.Index(typeField, "MI:")
+	if start >= 0 {
+		end := start + 7 // MI:0326 is 7 chars
+		if end <= len(typeField) {
+			return typeField[start:end]
 		}
 	}
 	return ""
@@ -963,7 +1206,10 @@ func (i *intact) buildInteractionAttr(row []string, colMap map[string]int, inter
 // buildInteractionAttrFull creates an IntactAttr with support for non-protein interactors
 // This extends buildInteractionAttr to handle protein-ChEBI and protein-RNA interactions
 func (i *intact) buildInteractionAttrFull(row []string, colMap map[string]int,
-	interactionID, proteinA, proteinB, chebiA, chebiB, rnaA, rnaB, typeA, typeB string) *pbuf.IntactAttr {
+	interactionID, proteinA, proteinB, chebiA, chebiB, rnaA, rnaB, typeA, typeB,
+	rawIDA, rawIDB, miTypeA, miTypeB, ensemblGeneA, ensemblGeneB,
+	genBankA, genBankB, refseqA, refseqB, reactomeA, reactomeB,
+	transcriptA, transcriptB string) *pbuf.IntactAttr {
 
 	// Use existing buildInteractionAttr for the base attributes
 	attr := i.buildInteractionAttr(row, colMap, interactionID, proteinA, proteinB)
@@ -971,13 +1217,29 @@ func (i *intact) buildInteractionAttrFull(row []string, colMap map[string]int,
 		return nil
 	}
 
-	// Add the new fields for non-protein interactors
+	// Add the fields for non-protein interactors
 	attr.InteractorTypeA = typeA
 	attr.InteractorTypeB = typeB
 	attr.ChebiA = chebiA
 	attr.ChebiB = chebiB
 	attr.RnacentralA = rnaA
 	attr.RnacentralB = rnaB
+
+	// Add the extended interactor identification fields
+	attr.InteractorIdA = rawIDA
+	attr.InteractorIdB = rawIDB
+	attr.MiTypeIdA = miTypeA
+	attr.MiTypeIdB = miTypeB
+	attr.EnsemblGeneA = ensemblGeneA
+	attr.EnsemblGeneB = ensemblGeneB
+	attr.DnaGenbankA = genBankA
+	attr.DnaGenbankB = genBankB
+	attr.RefseqA = refseqA
+	attr.RefseqB = refseqB
+	attr.ReactomeA = reactomeA
+	attr.ReactomeB = reactomeB
+	attr.TranscriptA = transcriptA
+	attr.TranscriptB = transcriptB
 
 	return attr
 }

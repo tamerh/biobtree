@@ -1,10 +1,10 @@
 {
   "metadata": {
-    "version": "4.1",
-    "description": "Expanded integration tests including newly added datasets (2025)",
+    "version": "4.2",
+    "description": "Expanded integration tests including newly added datasets (2025-2026)",
     "server": "http://scc2:9292",
-    "last_updated": "2025-12-08",
-    "note": "Updated for new >> syntax. Removed lookup-only queries (single >>). Only testing actual mapping functionality."
+    "last_updated": "2026-01-27",
+    "note": "Updated for new >> syntax. Added IntAct mRNA-miRNA and protein-gene interaction tests."
   },
   "test_categories": {
     "gene_mapping": "Gene symbol/ID to various resources (proteins, transcripts, GO terms)",
@@ -14,7 +14,7 @@
     "pathways": "Pathway and network analysis (Reactome, STRING, Rhea)",
     "genomics": "Genomic coordinates, transcripts, exons, probes",
     "ontologies": "Ontology navigation (GO, EFO, taxonomy, UBERON, CL hierarchies)",
-    "protein_interactions": "Protein-protein interaction networks (IntAct)",
+    "protein_interactions": "Molecular interaction networks (IntAct): protein-protein, protein-small molecule, protein-RNA, protein-gene, mRNA-miRNA",
     "gene_expression": "Tissue and cell-specific expression (Bgee, UBERON, CL)",
     "gwas_genetics": "Disease-SNP associations and population genetics (GWAS)",
     "lipid_metabolism": "Lipid structures and metabolism (SwissLipids)",
@@ -688,6 +688,38 @@
       "should_pass": [
         "P06730",
         "P63073"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_interactions",
+      "name": "Ensembl Gene to IntAct Interactions (Protein-Gene)",
+      "query": ">>ensembl>>intact",
+      "why": "Find protein-gene interactions where a gene product interacts with proteins - captures regulatory interactions",
+      "should_pass": [
+        "ENSG00000139618",
+        "ENSG00000141510"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_interactions",
+      "name": "Transcript to IntAct Interactions (mRNA-miRNA)",
+      "query": ">>transcript>>intact",
+      "why": "Find mRNA-miRNA interactions where Ensembl transcripts interact with miRNAs (RNAcentral)",
+      "should_pass": [
+        "ENST00000373204",
+        "ENSMUST00000053317"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_interactions",
+      "name": "Transcript to miRNA Partners via IntAct",
+      "query": ">>transcript>>intact>>rnacentral",
+      "why": "Map mRNA transcripts to their regulatory miRNAs via IntAct interactions",
+      "should_pass": [
+        "ENST00000373204"
       ],
       "should_fail": []
     },

@@ -44531,6 +44531,76 @@ func (j *IntactAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.WriteJsonString(buf, string(j.RnacentralB))
 		buf.WriteByte(',')
 	}
+	if len(j.InteractorIdA) != 0 {
+		buf.WriteString(`"interactor_id_a":`)
+		fflib.WriteJsonString(buf, string(j.InteractorIdA))
+		buf.WriteByte(',')
+	}
+	if len(j.InteractorIdB) != 0 {
+		buf.WriteString(`"interactor_id_b":`)
+		fflib.WriteJsonString(buf, string(j.InteractorIdB))
+		buf.WriteByte(',')
+	}
+	if len(j.MiTypeIdA) != 0 {
+		buf.WriteString(`"mi_type_id_a":`)
+		fflib.WriteJsonString(buf, string(j.MiTypeIdA))
+		buf.WriteByte(',')
+	}
+	if len(j.MiTypeIdB) != 0 {
+		buf.WriteString(`"mi_type_id_b":`)
+		fflib.WriteJsonString(buf, string(j.MiTypeIdB))
+		buf.WriteByte(',')
+	}
+	if len(j.DnaGenbankA) != 0 {
+		buf.WriteString(`"dna_genbank_a":`)
+		fflib.WriteJsonString(buf, string(j.DnaGenbankA))
+		buf.WriteByte(',')
+	}
+	if len(j.DnaGenbankB) != 0 {
+		buf.WriteString(`"dna_genbank_b":`)
+		fflib.WriteJsonString(buf, string(j.DnaGenbankB))
+		buf.WriteByte(',')
+	}
+	if len(j.EnsemblGeneA) != 0 {
+		buf.WriteString(`"ensembl_gene_a":`)
+		fflib.WriteJsonString(buf, string(j.EnsemblGeneA))
+		buf.WriteByte(',')
+	}
+	if len(j.EnsemblGeneB) != 0 {
+		buf.WriteString(`"ensembl_gene_b":`)
+		fflib.WriteJsonString(buf, string(j.EnsemblGeneB))
+		buf.WriteByte(',')
+	}
+	if len(j.RefseqA) != 0 {
+		buf.WriteString(`"refseq_a":`)
+		fflib.WriteJsonString(buf, string(j.RefseqA))
+		buf.WriteByte(',')
+	}
+	if len(j.RefseqB) != 0 {
+		buf.WriteString(`"refseq_b":`)
+		fflib.WriteJsonString(buf, string(j.RefseqB))
+		buf.WriteByte(',')
+	}
+	if len(j.ReactomeA) != 0 {
+		buf.WriteString(`"reactome_a":`)
+		fflib.WriteJsonString(buf, string(j.ReactomeA))
+		buf.WriteByte(',')
+	}
+	if len(j.ReactomeB) != 0 {
+		buf.WriteString(`"reactome_b":`)
+		fflib.WriteJsonString(buf, string(j.ReactomeB))
+		buf.WriteByte(',')
+	}
+	if len(j.TranscriptA) != 0 {
+		buf.WriteString(`"transcript_a":`)
+		fflib.WriteJsonString(buf, string(j.TranscriptA))
+		buf.WriteByte(',')
+	}
+	if len(j.TranscriptB) != 0 {
+		buf.WriteString(`"transcript_b":`)
+		fflib.WriteJsonString(buf, string(j.TranscriptB))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -44621,6 +44691,34 @@ const (
 	ffjtIntactAttrRnacentralA
 
 	ffjtIntactAttrRnacentralB
+
+	ffjtIntactAttrInteractorIdA
+
+	ffjtIntactAttrInteractorIdB
+
+	ffjtIntactAttrMiTypeIdA
+
+	ffjtIntactAttrMiTypeIdB
+
+	ffjtIntactAttrDnaGenbankA
+
+	ffjtIntactAttrDnaGenbankB
+
+	ffjtIntactAttrEnsemblGeneA
+
+	ffjtIntactAttrEnsemblGeneB
+
+	ffjtIntactAttrRefseqA
+
+	ffjtIntactAttrRefseqB
+
+	ffjtIntactAttrReactomeA
+
+	ffjtIntactAttrReactomeB
+
+	ffjtIntactAttrTranscriptA
+
+	ffjtIntactAttrTranscriptB
 )
 
 var ffjKeyIntactAttrInteractionId = []byte("interaction_id")
@@ -44704,6 +44802,34 @@ var ffjKeyIntactAttrChebiB = []byte("chebi_b")
 var ffjKeyIntactAttrRnacentralA = []byte("rnacentral_a")
 
 var ffjKeyIntactAttrRnacentralB = []byte("rnacentral_b")
+
+var ffjKeyIntactAttrInteractorIdA = []byte("interactor_id_a")
+
+var ffjKeyIntactAttrInteractorIdB = []byte("interactor_id_b")
+
+var ffjKeyIntactAttrMiTypeIdA = []byte("mi_type_id_a")
+
+var ffjKeyIntactAttrMiTypeIdB = []byte("mi_type_id_b")
+
+var ffjKeyIntactAttrDnaGenbankA = []byte("dna_genbank_a")
+
+var ffjKeyIntactAttrDnaGenbankB = []byte("dna_genbank_b")
+
+var ffjKeyIntactAttrEnsemblGeneA = []byte("ensembl_gene_a")
+
+var ffjKeyIntactAttrEnsemblGeneB = []byte("ensembl_gene_b")
+
+var ffjKeyIntactAttrRefseqA = []byte("refseq_a")
+
+var ffjKeyIntactAttrRefseqB = []byte("refseq_b")
+
+var ffjKeyIntactAttrReactomeA = []byte("reactome_a")
+
+var ffjKeyIntactAttrReactomeB = []byte("reactome_b")
+
+var ffjKeyIntactAttrTranscriptA = []byte("transcript_a")
+
+var ffjKeyIntactAttrTranscriptB = []byte("transcript_b")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *IntactAttr) UnmarshalJSON(input []byte) error {
@@ -44818,6 +44944,16 @@ mainparse:
 						currentKey = ffjtIntactAttrDetectionMethodParsed
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyIntactAttrDnaGenbankA, kn) {
+						currentKey = ffjtIntactAttrDnaGenbankA
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyIntactAttrDnaGenbankB, kn) {
+						currentKey = ffjtIntactAttrDnaGenbankB
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 'e':
@@ -44829,6 +44965,16 @@ mainparse:
 
 					} else if bytes.Equal(ffjKeyIntactAttrExperimentalRoleB, kn) {
 						currentKey = ffjtIntactAttrExperimentalRoleB
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyIntactAttrEnsemblGeneA, kn) {
+						currentKey = ffjtIntactAttrEnsemblGeneA
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyIntactAttrEnsemblGeneB, kn) {
+						currentKey = ffjtIntactAttrEnsemblGeneB
 						state = fflib.FFParse_want_colon
 						goto mainparse
 					}
@@ -44905,12 +45051,32 @@ mainparse:
 						currentKey = ffjtIntactAttrInteractorTypeB
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyIntactAttrInteractorIdA, kn) {
+						currentKey = ffjtIntactAttrInteractorIdA
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyIntactAttrInteractorIdB, kn) {
+						currentKey = ffjtIntactAttrInteractorIdB
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 'm':
 
 					if bytes.Equal(ffjKeyIntactAttrMethodReliabilityScore, kn) {
 						currentKey = ffjtIntactAttrMethodReliabilityScore
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyIntactAttrMiTypeIdA, kn) {
+						currentKey = ffjtIntactAttrMiTypeIdA
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyIntactAttrMiTypeIdB, kn) {
+						currentKey = ffjtIntactAttrMiTypeIdB
 						state = fflib.FFParse_want_colon
 						goto mainparse
 					}
@@ -44972,6 +45138,26 @@ mainparse:
 						currentKey = ffjtIntactAttrRnacentralB
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyIntactAttrRefseqA, kn) {
+						currentKey = ffjtIntactAttrRefseqA
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyIntactAttrRefseqB, kn) {
+						currentKey = ffjtIntactAttrRefseqB
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyIntactAttrReactomeA, kn) {
+						currentKey = ffjtIntactAttrReactomeA
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyIntactAttrReactomeB, kn) {
+						currentKey = ffjtIntactAttrReactomeB
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 's':
@@ -45003,6 +45189,16 @@ mainparse:
 						currentKey = ffjtIntactAttrTaxidB
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyIntactAttrTranscriptA, kn) {
+						currentKey = ffjtIntactAttrTranscriptA
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyIntactAttrTranscriptB, kn) {
+						currentKey = ffjtIntactAttrTranscriptB
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 'u':
@@ -45013,6 +45209,90 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.EqualFoldRight(ffjKeyIntactAttrTranscriptB, kn) {
+					currentKey = ffjtIntactAttrTranscriptB
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyIntactAttrTranscriptA, kn) {
+					currentKey = ffjtIntactAttrTranscriptA
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyIntactAttrReactomeB, kn) {
+					currentKey = ffjtIntactAttrReactomeB
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyIntactAttrReactomeA, kn) {
+					currentKey = ffjtIntactAttrReactomeA
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyIntactAttrRefseqB, kn) {
+					currentKey = ffjtIntactAttrRefseqB
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyIntactAttrRefseqA, kn) {
+					currentKey = ffjtIntactAttrRefseqA
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyIntactAttrEnsemblGeneB, kn) {
+					currentKey = ffjtIntactAttrEnsemblGeneB
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyIntactAttrEnsemblGeneA, kn) {
+					currentKey = ffjtIntactAttrEnsemblGeneA
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyIntactAttrDnaGenbankB, kn) {
+					currentKey = ffjtIntactAttrDnaGenbankB
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyIntactAttrDnaGenbankA, kn) {
+					currentKey = ffjtIntactAttrDnaGenbankA
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyIntactAttrMiTypeIdB, kn) {
+					currentKey = ffjtIntactAttrMiTypeIdB
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyIntactAttrMiTypeIdA, kn) {
+					currentKey = ffjtIntactAttrMiTypeIdA
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyIntactAttrInteractorIdB, kn) {
+					currentKey = ffjtIntactAttrInteractorIdB
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyIntactAttrInteractorIdA, kn) {
+					currentKey = ffjtIntactAttrInteractorIdA
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.AsciiEqualFold(ffjKeyIntactAttrRnacentralB, kn) {
@@ -45400,6 +45680,48 @@ mainparse:
 
 				case ffjtIntactAttrRnacentralB:
 					goto handle_RnacentralB
+
+				case ffjtIntactAttrInteractorIdA:
+					goto handle_InteractorIdA
+
+				case ffjtIntactAttrInteractorIdB:
+					goto handle_InteractorIdB
+
+				case ffjtIntactAttrMiTypeIdA:
+					goto handle_MiTypeIdA
+
+				case ffjtIntactAttrMiTypeIdB:
+					goto handle_MiTypeIdB
+
+				case ffjtIntactAttrDnaGenbankA:
+					goto handle_DnaGenbankA
+
+				case ffjtIntactAttrDnaGenbankB:
+					goto handle_DnaGenbankB
+
+				case ffjtIntactAttrEnsemblGeneA:
+					goto handle_EnsemblGeneA
+
+				case ffjtIntactAttrEnsemblGeneB:
+					goto handle_EnsemblGeneB
+
+				case ffjtIntactAttrRefseqA:
+					goto handle_RefseqA
+
+				case ffjtIntactAttrRefseqB:
+					goto handle_RefseqB
+
+				case ffjtIntactAttrReactomeA:
+					goto handle_ReactomeA
+
+				case ffjtIntactAttrReactomeB:
+					goto handle_ReactomeB
+
+				case ffjtIntactAttrTranscriptA:
+					goto handle_TranscriptA
+
+				case ffjtIntactAttrTranscriptB:
+					goto handle_TranscriptB
 
 				case ffjtIntactAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -46703,6 +47025,370 @@ handle_RnacentralB:
 			outBuf := fs.Output.Bytes()
 
 			j.RnacentralB = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_InteractorIdA:
+
+	/* handler: j.InteractorIdA type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.InteractorIdA = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_InteractorIdB:
+
+	/* handler: j.InteractorIdB type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.InteractorIdB = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_MiTypeIdA:
+
+	/* handler: j.MiTypeIdA type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.MiTypeIdA = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_MiTypeIdB:
+
+	/* handler: j.MiTypeIdB type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.MiTypeIdB = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_DnaGenbankA:
+
+	/* handler: j.DnaGenbankA type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.DnaGenbankA = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_DnaGenbankB:
+
+	/* handler: j.DnaGenbankB type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.DnaGenbankB = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_EnsemblGeneA:
+
+	/* handler: j.EnsemblGeneA type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.EnsemblGeneA = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_EnsemblGeneB:
+
+	/* handler: j.EnsemblGeneB type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.EnsemblGeneB = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_RefseqA:
+
+	/* handler: j.RefseqA type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.RefseqA = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_RefseqB:
+
+	/* handler: j.RefseqB type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.RefseqB = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_ReactomeA:
+
+	/* handler: j.ReactomeA type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.ReactomeA = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_ReactomeB:
+
+	/* handler: j.ReactomeB type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.ReactomeB = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_TranscriptA:
+
+	/* handler: j.TranscriptA type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.TranscriptA = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_TranscriptB:
+
+	/* handler: j.TranscriptB type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.TranscriptB = string(string(outBuf))
 
 		}
 	}

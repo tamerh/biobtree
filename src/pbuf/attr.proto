@@ -997,6 +997,30 @@ message IntactAttr {
   string chebi_b = 39;                                  // ChEBI ID if interactor B is small molecule
   string rnacentral_a = 40;                             // RNAcentral ID if interactor A is RNA (e.g., "URS00002AFD52")
   string rnacentral_b = 41;                             // RNAcentral ID if interactor B is RNA
+
+  // Extended interactor identification (for DNA, gene, peptide, complex interactions)
+  string interactor_id_a = 42;                          // Raw source ID (e.g., "EBI-969266", "ENSG00000180228")
+  string interactor_id_b = 43;                          // Raw source ID for interactor B
+  string mi_type_id_a = 44;                             // PSI-MI type code (MI:0326=protein, MI:0319=DNA, MI:0250=gene)
+  string mi_type_id_b = 45;                             // PSI-MI type code for interactor B
+
+  // DNA interactors (GenBank/DDBJ/EMBL accessions)
+  string dna_genbank_a = 46;                            // GenBank accession if available (e.g., "AF004877")
+  string dna_genbank_b = 47;
+
+  // Gene interactors (Ensembl gene IDs)
+  string ensembl_gene_a = 48;                           // Ensembl gene ID (e.g., "ENSG00000139618")
+  string ensembl_gene_b = 49;
+
+  // Additional external database IDs
+  string refseq_a = 50;                                 // RefSeq ID if available
+  string refseq_b = 51;
+  string reactome_a = 52;                               // Reactome ID if available
+  string reactome_b = 53;
+
+  // Transcript interactors (for mRNA-miRNA interactions)
+  string transcript_a = 54;                             // Ensembl transcript ID (e.g., "ENST00000373204")
+  string transcript_b = 55;
 }
 
 // DIAMOND similarity hit (individual alignment result)

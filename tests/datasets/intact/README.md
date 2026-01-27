@@ -11,11 +11,51 @@ IntAct is EBI's manually curated database of molecular interactions. It provides
 
 ## Dataset Statistics
 
-- **~1.8 million** raw interaction rows
-- **~1.3 million** saved interactions
-- **~115,000** unique proteins
+- **1,787,425** raw interaction rows
+- **1,782,712** saved interactions (**99.7% coverage**)
+- **~122,000** unique proteins
 - **23,000+** publications
 - **75,000+** experiments
+- **4,713** skipped rows (0.3% - non-anchored interactions)
+
+## Interaction Types Supported
+
+IntAct captures diverse molecular interactions beyond just protein-protein:
+
+| Interaction Type | Description | Cross-Reference |
+|------------------|-------------|-----------------|
+| **Protein-Protein** | UniProt ↔ UniProt | `uniprot` dataset |
+| **Protein-ChEBI** | UniProt ↔ small molecules | `chebi` dataset |
+| **Protein-RNAcentral** | UniProt ↔ RNA molecules | `rnacentral` dataset |
+| **Protein-Gene** | UniProt ↔ Ensembl genes | `ensembl` dataset |
+| **Protein-DNA** | UniProt ↔ DNA (IntAct internal) | Stored as attributes |
+| **Protein-Peptide** | UniProt ↔ synthetic peptides | Stored as attributes |
+| **Protein-Complex** | UniProt ↔ protein complexes | Stored as attributes |
+| **mRNA-miRNA** | Ensembl transcript ↔ RNAcentral | `transcript`, `rnacentral` datasets |
+
+### Cross-Reference Counts
+
+| Dataset | Count | Description |
+|---------|-------|-------------|
+| UniProt | ~2,500,000 | Protein-protein interactions |
+| ChEBI | ~4,000 | Protein-small molecule interactions |
+| RNAcentral | ~1,000 | Protein-RNA interactions |
+| Ensembl | ~5,000 | Protein-gene interactions |
+| Transcript | ~18,500 | mRNA-miRNA interactions |
+
+## Uncovered Data (0.3%)
+
+The remaining 4,713 skipped rows are interactions that cannot be anchored to any external database:
+
+| Type A | Type B | Reason |
+|--------|--------|--------|
+| mRNA | mRNA | RNA-RNA without external IDs |
+| DNA | DNA | No protein anchor, no GenBank ID |
+| Gene | Gene | No protein anchor |
+| Complex | Complex | Complex-complex interactions |
+| RNA (misc) | RNA (misc) | Non-standard RNA types |
+
+These interactions only have IntAct internal IDs (EBI-*) on both sides with no mappable external references.
 
 ## Data Model (Interaction-Centric)
 
@@ -89,14 +129,25 @@ Each IntAct entry represents a **single interaction**, keyed by interaction ID (
 
 ### Cross-References
 
-Each interaction creates bidirectional cross-references:
-- **protein_a** → interaction (intact xref)
-- **protein_b** → interaction (intact xref)
+Each interaction creates bidirectional cross-references based on interactor types:
+
+**Protein-anchored interactions:**
+- **protein_a** ↔ interaction (intact xref)
+- **protein_b** ↔ interaction (intact xref)
 - **interaction** → pubmed (via pubmed_id)
+- **interaction** ↔ chebi (for protein-small molecule)
+- **interaction** ↔ rnacentral (for protein-RNA)
+- **interaction** ↔ ensembl (for protein-gene)
+
+**mRNA-miRNA interactions:**
+- **interaction** ↔ transcript (Ensembl transcript ID)
+- **interaction** ↔ rnacentral (miRNA ID)
 
 This enables queries like:
-- `P49418` (protein) → shows all linked interactions
-- `EBI-7121552` (interaction) → shows both proteins and pubmed
+- `P49418` (protein) → shows all protein interactions
+- `CHEBI:50210` (small molecule) → shows protein-ChEBI interactions
+- `URS00002D9DEC` (RNA) → shows protein-RNA interactions
+- `EBI-7121552` (interaction) → shows full interaction details
 
 ## Enhanced Fields (2025)
 
@@ -142,6 +193,24 @@ Method reliability mapping:
 - MI:0004 (Affinity chromatography): 0.7
 - MI:0096 (Pull-down): 0.65
 - MI:0018 (Two hybrid): 0.6
+
+### Extended Interactor Identification
+| Field | Type | Description |
+|-------|------|-------------|
+| chebi_a | string | ChEBI ID for small molecule interactor A |
+| chebi_b | string | ChEBI ID for small molecule interactor B |
+| rnacentral_a | string | RNAcentral ID for RNA interactor A |
+| rnacentral_b | string | RNAcentral ID for RNA interactor B |
+| ensembl_gene_a | string | Ensembl gene ID for gene interactor A |
+| ensembl_gene_b | string | Ensembl gene ID for gene interactor B |
+| transcript_a | string | Ensembl transcript ID (mRNA) for interactor A |
+| transcript_b | string | Ensembl transcript ID (mRNA) for interactor B |
+| interactor_type_a | string | PSI-MI type name (protein, small molecule, etc.) |
+| interactor_type_b | string | PSI-MI type name |
+| mi_type_id_a | string | PSI-MI type code (MI:0326=protein, MI:0319=DNA, etc.) |
+| mi_type_id_b | string | PSI-MI type code |
+| interactor_id_a | string | Raw source ID for non-protein interactors |
+| interactor_id_b | string | Raw source ID |
 
 ## Example Queries
 
@@ -216,17 +285,22 @@ curl "http://localhost:9292/ws/entry/?i=EBI-7121552&s=intact"
 python3 tests/run_tests.py intact
 ```
 
-### Test Coverage (12 custom tests + 10 declarative tests)
+### Test Coverage
+**Unit Tests (tests/datasets/intact/):**
 - Interaction lookup by ID
 - Protein identifiers (protein_a, protein_b)
-- Gene names
-- Confidence scores
-- PubMed references
-- Detection methods
-- Interaction types
-- PSI-MI term parsing (P0)
-- Confidence score components (P0)
-- Host organism (P2)
-- Binding site features (P1)
+- Gene names, confidence scores, PubMed references
+- Detection methods, interaction types
+- PSI-MI term parsing, confidence score components
+- Host organism, binding site features
+- Method reliability score, protein cross-references
+
+**Integration Tests (tests/xintegration/):**
+- Protein → IntAct interactions
+- ChEBI → IntAct (protein-small molecule)
+- RNAcentral → IntAct (protein-RNA)
+- Ensembl → IntAct (protein-gene)
+- Transcript → IntAct (mRNA-miRNA)
+- Transcript → IntAct → RNAcentral (mRNA to miRNA partners)
 - Method reliability score (P1)
 - Protein → Interaction cross-references

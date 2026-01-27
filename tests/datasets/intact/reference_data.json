@@ -1,32 +1,62 @@
 [
   {
-    "protein_id": "P27986"
+    "interaction_id": "EBI-7121552"
   },
   {
-    "protein_id": "Q15097"
+    "interaction_id": "EBI-7122684"
   },
   {
-    "protein_id": "Q96P32"
+    "interaction_id": "EBI-7122727"
   },
   {
-    "protein_id": "O75089"
+    "interaction_id": "EBI-7122766"
   },
   {
-    "protein_id": "P08069"
+    "interaction_id": "EBI-7122802"
   },
   {
-    "protein_id": "Q15811"
+    "interaction_id": "EBI-7122861"
   },
   {
-    "protein_id": "Q4W5N3"
+    "interaction_id": "EBI-7122936"
   },
   {
-    "protein_id": "Q9Y4J8"
+    "interaction_id": "EBI-7122913"
   },
   {
-    "protein_id": "Q86ST3"
+    "interaction_id": "EBI-7123032"
   },
   {
-    "protein_id": "Q14118-PRO_0000021066"
+    "interaction_id": "EBI-7122975"
+  },
+  {
+    "interaction_id": "EBI-7123071"
+  },
+  {
+    "interaction_id": "EBI-7123110"
+  },
+  {
+    "interaction_id": "EBI-7123147"
+  },
+  {
+    "interaction_id": "EBI-7123205"
+  },
+  {
+    "interaction_id": "EBI-7123241"
+  },
+  {
+    "interaction_id": "EBI-7123279"
+  },
+  {
+    "interaction_id": "EBI-7471457"
+  },
+  {
+    "interaction_id": "EBI-7471485"
+  },
+  {
+    "interaction_id": "EBI-8647150"
+  },
+  {
+    "interaction_id": "EBI-8647178"
   }
 ]

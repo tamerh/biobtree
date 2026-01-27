@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
 """
 Extract reference data from IntAct test database build.
-Reads protein IDs from test_out/reference/intact_ids.txt
+Reads interaction IDs from test_out/reference/intact_ids.txt
+
+New interaction-centric model:
+- Entries are keyed by interaction ID (EBI-xxx)
+- Each interaction contains data for both proteins
+- Cross-references link proteins to their interactions
 """
 
 import json
@@ -18,33 +23,33 @@ def main():
         print("Build the test database first: ./biobtree -d intact test")
         return 1
 
-    # Read protein IDs
-    protein_ids = []
+    # Read interaction IDs
+    interaction_ids = []
     with open(ids_file, 'r') as f:
         for line in f:
-            protein_id = line.strip()
-            if protein_id:
-                protein_ids.append(protein_id)
+            interaction_id = line.strip()
+            if interaction_id:
+                interaction_ids.append(interaction_id)
 
-    if not protein_ids:
-        print("Error: No protein IDs found in intact_ids.txt")
+    if not interaction_ids:
+        print("Error: No interaction IDs found in intact_ids.txt")
         return 1
 
-    print(f"Found {len(protein_ids)} proteins in test database")
+    print(f"Found {len(interaction_ids)} interactions in test database")
 
-    # Create reference data (first 10 proteins for faster tests)
+    # Create reference data (first 20 interactions for comprehensive tests)
     reference_data = []
-    for protein_id in protein_ids[:10]:
+    for interaction_id in interaction_ids[:20]:
         reference_data.append({
-            "protein_id": protein_id
+            "interaction_id": interaction_id
         })
 
     # Write reference data
     with open(output_file, 'w') as f:
         json.dump(reference_data, f, indent=2)
 
-    print(f"✓ Created {output_file} with {len(reference_data)} proteins")
-    print(f"  Sample proteins: {', '.join([p['protein_id'] for p in reference_data[:3]])}")
+    print(f"Created {output_file} with {len(reference_data)} interactions")
+    print(f"  Sample interactions: {', '.join([i['interaction_id'] for i in reference_data[:3]])}")
 
     return 0
 

@@ -623,6 +623,75 @@
       "should_fail": []
     },
     {
+      "category": "protein_interactions",
+      "name": "ChEBI to IntAct Interactions (Protein-Small Molecule)",
+      "query": ">>chebi>>intact",
+      "why": "Find protein interactions with small molecules - essential for drug-target analysis",
+      "should_pass": [
+        "CHEBI:50210",
+        "CHEBI:15996",
+        "CHEBI:16240"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_interactions",
+      "name": "ChEBI to Interacting Proteins via IntAct",
+      "query": ">>chebi>>intact>>uniprot",
+      "why": "Map small molecules to their protein targets - drug mechanism of action",
+      "should_pass": [
+        "CHEBI:50210",
+        "CHEBI:15996"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_interactions",
+      "name": "RNAcentral to IntAct Interactions (Protein-RNA)",
+      "query": ">>rnacentral>>intact",
+      "why": "Find protein-RNA interactions - critical for RNA biology and RBP analysis",
+      "should_pass": [
+        "URS00002D9DEC",
+        "URS00002AFD52"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_interactions",
+      "name": "RNAcentral to Interacting Proteins via IntAct",
+      "query": ">>rnacentral>>intact>>uniprot",
+      "why": "Map RNAs to their binding proteins - essential for RNA-protein complex analysis",
+      "should_pass": [
+        "URS00002D9DEC"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_interactions",
+      "name": "IntAct Interaction Lookup by ID",
+      "query": ">>intact",
+      "why": "Direct lookup of interaction details by IntAct ID",
+      "should_pass": [
+        "EBI-7121552",
+        "EBI-65746",
+        "EBI-10921892"
+      ],
+      "should_fail": [
+        "EBI-NOTREAL"
+      ]
+    },
+    {
+      "category": "protein_interactions",
+      "name": "Protein to Small Molecule Partners via IntAct",
+      "query": ">>uniprot>>intact>>chebi",
+      "why": "Find small molecules that interact with a protein - ligand discovery",
+      "should_pass": [
+        "P06730",
+        "P63073"
+      ],
+      "should_fail": []
+    },
+    {
       "category": "gene_expression",
       "name": "Gene to Bgee Expression Data",
       "query": ">>ensembl>>bgee",

@@ -516,9 +516,9 @@
     "aliases": "IntAct,protein interaction,protein-protein interaction,PPI,molecular interaction",
     "url": "https://www.ebi.ac.uk/intact/interaction/£{id}",
     "hasFilter": "yes",
-    "attrs": "protein_id,[]interactions,interaction_count,unique_partners,high_confidence_count,[]partner_organisms",
+    "attrs": "interaction_id,protein_a,protein_a_gene,protein_b,protein_b_gene,detection_method,interaction_type,confidence_score,pubmed_id,host_organism_name,method_reliability_score,detection_method_parsed,interaction_type_parsed,confidence_scores,[]features_a,[]features_b,[]parameters,[]interaction_xrefs",
     "test_entries_count": "100",
-    "bucketMethod": "uniprot"
+    "bucketMethod": "alphabetic"
   },
   "protein_similarity": {
     "id": "39",

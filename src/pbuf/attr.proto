@@ -876,62 +876,127 @@ message HgvsAnnotation {
 // EBI's manually curated database of molecular interactions derived from literature and direct submissions
 // Contains ~1.8M experimentally validated protein-protein interactions with detailed experimental evidence
 
-// Single interaction record (one experimental evidence)
-message IntactInteraction {
-  // Interaction identifiers
-  string interaction_id = 1;                            // IntAct interaction ID (e.g., "EBI-7121552")
-
-  // Partner protein
-  string partner_uniprot = 2;                           // Partner protein UniProt ID
-  string partner_gene_name = 3;                         // Partner protein gene name
-
-  // Experimental details
-  string detection_method = 4;                          // PSI-MI detection method (e.g., "MI:0018(two hybrid)")
-  string interaction_type = 5;                          // PSI-MI interaction type (e.g., "MI:0407(direct interaction)")
-
-  // Confidence and quality
-  double confidence_score = 6;                          // IntAct MIscore (0.0-1.0, higher is better)
-
-  // Experimental context
-  string experimental_role_a = 7;                       // Role of protein A (e.g., "bait", "prey", "neutral")
-  string experimental_role_b = 8;                       // Role of protein B
-
-  // Organism information
-  int32 taxid_a = 9;                                    // NCBI Taxonomy ID for protein A
-  int32 taxid_b = 10;                                   // NCBI Taxonomy ID for protein B
-  string organism_a = 11;                               // Organism name for protein A (e.g., "Homo sapiens")
-  string organism_b = 12;                               // Organism name for protein B
-
-  // Literature evidence
-  string pubmed_id = 13;                                // PubMed ID for the supporting publication
-  string first_author = 14;                             // First author and year (e.g., "Cestra et al. (1999)")
-
-  // Source database
-  string source_database = 15;                          // Original source (e.g., "MINT", "IntAct", "DIP")
-
-  // Negative evidence flag
-  bool is_negative = 16;                                // True if this is a negative interaction (no interaction found)
-
-  // Temporal metadata
-  string creation_date = 17;                            // Date interaction was added (YYYY/MM/DD)
-  string update_date = 18;                              // Date interaction was last updated
+// PSI-MI Term - Structured representation of PSI-MI controlled vocabulary terms
+message PsiMiTerm {
+  string mi_id = 1;                                     // MI identifier (e.g., "MI:0018")
+  string term_name = 2;                                 // Term name (e.g., "two hybrid")
+  string full_string = 3;                               // Original raw string for backward compatibility
 }
 
-// IntAct attributes (stored per protein UniProt ID)
+// Confidence score components - detailed breakdown of IntAct MIscore
+message IntactConfidenceScores {
+  double miscore = 1;                                   // Combined IntAct MIscore (0-1)
+  double method_score = 2;                              // Detection method component
+  double type_score = 3;                                // Interaction type component
+  double author_score = 4;                              // Author-assigned score (if any)
+  string raw_string = 5;                                // Original pipe-delimited string
+}
+
+// Binding site/feature annotation
+message IntactFeature {
+  string feature_type = 1;                              // Type (binding site, mutation, PTM)
+  int32 range_start = 2;                                // Start residue position
+  int32 range_end = 3;                                  // End residue position
+  string mi_type = 4;                                   // MI term for feature type
+  string description = 5;                               // Free text description
+}
+
+// Kinetic parameter (Kd, IC50, Ki, etc.)
+message IntactParameter {
+  string parameter_type = 1;                            // Type: kd, ic50, ki
+  double value = 2;                                     // Numeric value
+  string unit = 3;                                      // Unit: M, nM, s^-1
+  string raw_string = 4;                                // Original string
+}
+
+// Interaction cross-reference to other databases
+message IntactXref {
+  string database = 1;                                  // Database name: go, reactome, imex
+  string identifier = 2;                                // Database identifier (e.g., GO:0006915)
+}
+
+// IntAct attributes - Single interaction record (stored per interaction ID)
+// Entry key: interaction_id (e.g., "EBI-7121552")
+// Cross-refs: protein_a → interaction, protein_b → interaction (bidirectional)
 message IntactAttr {
-  // Primary identifier (UniProt AC of the query protein)
-  string protein_id = 1;                                // UniProt accession (e.g., "P49418")
+  // Interaction identifier (entry key)
+  string interaction_id = 1;                            // IntAct interaction ID (e.g., "EBI-7121552")
 
-  // Interaction list
-  repeated IntactInteraction interactions = 2;          // All interactions for this protein
+  // Both interacting proteins (symmetric representation)
+  string protein_a = 2;                                 // First protein UniProt ID
+  string protein_a_gene = 3;                            // First protein gene name
+  string protein_b = 4;                                 // Second protein UniProt ID
+  string protein_b_gene = 5;                            // Second protein gene name
 
-  // Summary statistics
-  int32 interaction_count = 3;                          // Total number of interactions
-  int32 unique_partners = 4;                            // Number of unique interaction partners
-  int32 high_confidence_count = 5;                      // Count of interactions with score > 0.6
+  // Experimental details
+  string detection_method = 6;                          // PSI-MI detection method (e.g., "MI:0018(two hybrid)")
+  string interaction_type = 7;                          // PSI-MI interaction type (e.g., "MI:0407(direct interaction)")
 
-  // Organism filter (if multiple organisms interact with this protein)
-  repeated int32 partner_organisms = 6;                 // List of unique partner organism taxids
+  // Confidence and quality
+  double confidence_score = 8;                          // IntAct MIscore (0.0-1.0, higher is better)
+
+  // Experimental context
+  string experimental_role_a = 9;                       // Role of protein A (e.g., "bait", "prey", "neutral")
+  string experimental_role_b = 10;                      // Role of protein B
+
+  // Organism information
+  int32 taxid_a = 11;                                   // NCBI Taxonomy ID for protein A
+  int32 taxid_b = 12;                                   // NCBI Taxonomy ID for protein B
+  string organism_a = 13;                               // Organism name for protein A (e.g., "Homo sapiens")
+  string organism_b = 14;                               // Organism name for protein B
+
+  // Literature evidence
+  string pubmed_id = 15;                                // PubMed ID for the supporting publication
+  string first_author = 16;                             // First author and year (e.g., "Cestra et al. (1999)")
+
+  // Source database
+  string source_database = 17;                          // Original source (e.g., "MINT", "IntAct", "DIP")
+
+  // Negative evidence flag
+  bool is_negative = 18;                                // True if this is a negative interaction (no interaction found)
+
+  // Temporal metadata
+  string creation_date = 19;                            // Date interaction was added (YYYY/MM/DD)
+  string update_date = 20;                              // Date interaction was last updated
+
+  // Structured PSI-MI terms (P0)
+  PsiMiTerm detection_method_parsed = 21;               // Parsed detection method
+  PsiMiTerm interaction_type_parsed = 22;               // Parsed interaction type
+  PsiMiTerm biological_role_a = 23;                     // Biological role of protein A
+  PsiMiTerm biological_role_b = 24;                     // Biological role of protein B
+
+  // Detailed confidence scores (P0)
+  IntactConfidenceScores confidence_scores = 25;        // Full confidence score breakdown
+
+  // Host organism (P2) - where experiment was performed
+  int32 host_taxid = 26;                                // Host organism taxonomy ID
+  string host_organism_name = 27;                       // Host organism name (e.g., "in vitro")
+
+  // Binding site features (P1)
+  repeated IntactFeature features_a = 28;               // Features on interactor A
+  repeated IntactFeature features_b = 29;               // Features on interactor B
+
+  // Stoichiometry (P2)
+  int32 stoichiometry_a = 30;                           // Stoichiometry of interactor A
+  int32 stoichiometry_b = 31;                           // Stoichiometry of interactor B
+
+  // Kinetic parameters (P2)
+  repeated IntactParameter parameters = 32;             // Kd, IC50, Ki values
+
+  // Interaction cross-references (P1/P2)
+  repeated IntactXref interaction_xrefs = 33;           // GO, Reactome xrefs
+  string imex_id = 34;                                  // IMEx consortium ID
+
+  // Method reliability score (P1)
+  double method_reliability_score = 35;                 // Pre-computed reliability (0-1)
+
+  // Non-protein interactor support (for protein-small molecule, protein-RNA interactions)
+  string interactor_type_a = 36;                        // PSI-MI type: "protein", "small molecule", "rna", etc.
+  string interactor_type_b = 37;                        // PSI-MI type for interactor B
+  string chebi_a = 38;                                  // ChEBI ID if interactor A is small molecule (e.g., "CHEBI:50210")
+  string chebi_b = 39;                                  // ChEBI ID if interactor B is small molecule
+  string rnacentral_a = 40;                             // RNAcentral ID if interactor A is RNA (e.g., "URS00002AFD52")
+  string rnacentral_b = 41;                             // RNAcentral ID if interactor B is RNA
 }
 
 // DIAMOND similarity hit (individual alignment result)

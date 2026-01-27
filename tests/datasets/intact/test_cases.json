@@ -1,41 +1,93 @@
 {
   "dataset_name": "IntAct",
-  "description": "Protein-protein interaction database with experimental evidence",
+  "description": "Protein-protein interaction database with experimental evidence - interaction-centric model",
   "test_cases": [
     {
-      "name": "Lookup protein by UniProt ID",
+      "name": "Lookup interaction by ID",
       "type": "lookup",
-      "query": "{protein_id}",
+      "query": "{interaction_id}",
       "expected": {
         "found": true,
         "has_attributes": true
       }
     },
     {
-      "name": "Check protein has interactions",
+      "name": "Check interaction has protein_a",
       "type": "attribute_exists",
-      "query": "{protein_id}",
-      "attribute_path": "Intact.interactions",
+      "query": "{interaction_id}",
+      "attribute_path": "Intact.protein_a",
       "expected": {
-        "exists": true,
-        "is_array": true
+        "exists": true
       }
     },
     {
-      "name": "Check interaction count",
+      "name": "Check interaction has protein_b",
       "type": "attribute_exists",
-      "query": "{protein_id}",
-      "attribute_path": "Intact.interaction_count",
+      "query": "{interaction_id}",
+      "attribute_path": "Intact.protein_b",
       "expected": {
-        "exists": true,
-        "greater_than": 0
+        "exists": true
       }
     },
     {
-      "name": "Verify unique partner count",
+      "name": "Check interaction has detection_method",
       "type": "attribute_exists",
-      "query": "{protein_id}",
-      "attribute_path": "Intact.unique_partners",
+      "query": "{interaction_id}",
+      "attribute_path": "Intact.detection_method",
+      "expected": {
+        "exists": true
+      }
+    },
+    {
+      "name": "Check PSI-MI parsed detection method (P0)",
+      "type": "attribute_exists",
+      "query": "{interaction_id}",
+      "attribute_path": "Intact.detection_method_parsed",
+      "expected": {
+        "exists": true
+      }
+    },
+    {
+      "name": "Check PSI-MI parsed interaction type (P0)",
+      "type": "attribute_exists",
+      "query": "{interaction_id}",
+      "attribute_path": "Intact.interaction_type_parsed",
+      "expected": {
+        "exists": true
+      }
+    },
+    {
+      "name": "Check confidence score components (P0)",
+      "type": "attribute_exists",
+      "query": "{interaction_id}",
+      "attribute_path": "Intact.confidence_scores",
+      "expected": {
+        "exists": true
+      }
+    },
+    {
+      "name": "Check method reliability score (P1)",
+      "type": "attribute_exists",
+      "query": "{interaction_id}",
+      "attribute_path": "Intact.method_reliability_score",
+      "expected": {
+        "exists": true
+      }
+    },
+    {
+      "name": "Check host organism name (P2)",
+      "type": "attribute_exists",
+      "query": "{interaction_id}",
+      "attribute_path": "Intact.host_organism_name",
+      "expected": {
+        "exists": true
+      }
+    },
+    {
+      "name": "Check pubmed_id",
+      "type": "attribute_exists",
+      "query": "{interaction_id}",
+      "attribute_path": "Intact.pubmed_id",
       "expected": {
         "exists": true
       }

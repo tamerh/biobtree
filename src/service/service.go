@@ -173,6 +173,9 @@ func (s *service) init() {
 		cel.Types(&pbuf.PharmgkbVariantAttr{}),
 		cel.Types(&pbuf.PharmgkbGuidelineAttr{}),
 		cel.Types(&pbuf.PharmgkbPathwayAttr{}),
+		cel.Types(&pbuf.CellxgeneAttr{}),
+		cel.Types(&pbuf.CellxgeneCelltypeAttr{}),
+		cel.Types(&pbuf.CellxgeneTissueExpression{}),
 		cel.Declarations(
 			decls.NewIdent("uniprot", decls.NewObjectType("pbuf.UniprotAttr"), nil)),
 		cel.Declarations(
@@ -285,6 +288,10 @@ func (s *service) init() {
 			decls.NewIdent("pharmgkb_guideline", decls.NewObjectType("pbuf.PharmgkbGuidelineAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("pharmgkb_pathway", decls.NewObjectType("pbuf.PharmgkbPathwayAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("cellxgene", decls.NewObjectType("pbuf.CellxgeneAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("cellxgene_celltype", decls.NewObjectType("pbuf.CellxgeneCelltypeAttr"), nil)),
 		cel.Declarations(
 			decls.NewFunction("overlaps",
 				decls.NewOverload("overlaps_int_int",

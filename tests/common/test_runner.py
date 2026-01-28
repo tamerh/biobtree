@@ -44,6 +44,8 @@ def load_dataset_mappings():
 
     config_files = [
         conf_dir / "source.dataset.json",
+        conf_dir / "source1.dataset.json",
+        conf_dir / "source2.dataset.json",
         conf_dir / "default.dataset.json",
         conf_dir / "optional.dataset.json"
     ]
@@ -121,14 +123,26 @@ class TestRunner:
 
         with open(self.reference_file) as f:
             data = json.load(f)
-            # Support both formats: dict with "entries" key or plain list
+            # Support multiple formats:
+            # 1. Plain list of entries
+            # 2. Dict with "entries" key (legacy format)
+            # 3. Dict with dataset-keyed structure (e.g., {"cellxgene": [...], "cellxgene_celltype": [...]})
             if isinstance(data, list):
                 self.reference_data = data
+                print(f"Loaded {len(self.reference_data)} reference entries")
             elif isinstance(data, dict):
-                self.reference_data = data.get("entries", [])
+                if "entries" in data:
+                    # Legacy format with "entries" key
+                    self.reference_data = data.get("entries", [])
+                    print(f"Loaded {len(self.reference_data)} reference entries")
+                else:
+                    # Dataset-keyed structure - preserve the dict
+                    self.reference_data = data
+                    total_entries = sum(len(v) for v in data.values() if isinstance(v, list))
+                    print(f"Loaded {total_entries} reference entries across {len(data)} datasets")
             else:
                 self.reference_data = []
-            print(f"Loaded {len(self.reference_data)} reference entries")
+                print(f"Loaded 0 reference entries")
 
     def load_test_cases(self):
         """Load declarative test cases from JSON file"""
@@ -333,6 +347,58 @@ class TestRunner:
     def has_results(self, identifier: str) -> bool:
         """Quick check if identifier has results"""
         return self.query.has_results(identifier)
+
+    def get_entry(self, identifier: str, dataset_name: str = None) -> Optional[List[Dict]]:
+        """
+        Get entry results for an identifier, optionally filtered by dataset.
+
+        Args:
+            identifier: ID to look up
+            dataset_name: Optional dataset name to filter results by
+
+        Returns:
+            List of matching results, or None if not found
+        """
+        data = self.lookup(identifier)
+        if not data or not data.get("results"):
+            return None
+
+        results = data["results"]
+
+        if dataset_name:
+            dataset_name_lower = dataset_name.lower()
+            dataset_id = self._name_to_id.get(dataset_name_lower)
+            if dataset_id is None:
+                dataset_id = self._aliases_to_id.get(dataset_name_lower)
+
+            if dataset_id is not None:
+                # Filter results by dataset
+                results = [r for r in results if r.get("dataset_name") == dataset_name or r.get("dataset") == dataset_id]
+
+        return results if results else None
+
+    def map_query(self, identifier: str, mapping_path: str, timeout: int = 30) -> Optional[Dict]:
+        """
+        Execute a mapping query (e.g., >>cl>>cellxgene).
+
+        Args:
+            identifier: Starting identifier
+            mapping_path: Mapping path (e.g., ">>cl>>cellxgene")
+            timeout: Request timeout in seconds
+
+        Returns:
+            Query results or None
+        """
+        try:
+            import requests
+            url = f"{self.api_url}/ws/map?i={identifier}&m={mapping_path}"
+            response = requests.get(url, timeout=timeout)
+            if response.status_code == 200:
+                return response.json()
+            return None
+        except Exception as e:
+            print(f"Error in map_query: {e}")
+            return None
 
     def validate_attributes(self, result: Dict, dataset_attr_name: str = None, required_fields: List[str] = None) -> Tuple[bool, str]:
         """

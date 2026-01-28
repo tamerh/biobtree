@@ -1886,3 +1886,77 @@ message PharmgkbPathwayAttr {
   string image_link = 15;                         // Pathway image link
 }
 
+// =============================================================================
+// CZ CELLxGENE Census - Single Cell Data Platform
+// Source: https://cellxgene.cziscience.com/
+// CONSOLIDATED VERSION: 2 datasets (cellxgene + cellxgene_celltype)
+// =============================================================================
+
+// CELLxGENE Dataset metadata (Dataset ID: 450)
+// Source: Census API datasets table
+message CellxgeneAttr {
+  string dataset_id = 1;                          // Unique dataset identifier (UUID format)
+  string title = 2;                               // Dataset title
+  string collection_name = 3;                     // Parent collection name
+  string collection_doi = 4;                      // Collection DOI
+  int64 cell_count = 5;                           // Number of cells in dataset
+  string organism = 6;                            // Organism name (e.g., "Homo sapiens")
+  string organism_taxid = 7;                      // NCBI Taxonomy ID
+
+  // Ontology-mapped metadata (arrays)
+  repeated string assay_types = 8;                // Assay type names (e.g., "10x 3' v3")
+  repeated string assay_efo_ids = 9;              // EFO ontology IDs (e.g., "EFO:0009922")
+  repeated string cell_types = 10;                // Cell type names
+  repeated string cell_type_cl_ids = 11;          // Cell Ontology IDs (e.g., "CL:0000624")
+  repeated string tissues = 12;                   // Tissue names
+  repeated string tissue_uberon_ids = 13;         // UBERON ontology IDs
+  repeated string diseases = 14;                  // Disease names
+  repeated string disease_mondo_ids = 15;         // MONDO ontology IDs
+
+  // Publication info
+  string publication_doi = 16;                    // Publication DOI
+  string citation = 17;                           // Full citation text
+}
+
+// Tissue expression entry (nested in CellxgeneCelltypeAttr)
+// Stores cell count per tissue for a cell type
+message CellxgeneTissueExpression {
+  string tissue_uberon = 1;                       // UBERON ontology ID
+  string tissue_name = 2;                         // Tissue name
+  int64 cell_count = 3;                           // Number of cells of this type in this tissue
+}
+
+// CELLxGENE Consolidated Cell Type (Dataset ID: 451)
+// Source: Census API - merges cellguide, markers, expression, counts
+// Primary key: Cell Ontology ID (CL:XXXXXXX)
+message CellxgeneCelltypeAttr {
+  string cell_type_cl = 1;                        // Cell Ontology ID (primary key)
+  string name = 2;                                // Cell type name
+  string definition = 3;                          // Cell type definition (from CL ontology)
+  repeated string synonyms = 4;                   // Alternative names
+
+  // Marker genes
+  repeated string canonical_markers = 5;          // Canonical marker gene symbols
+  repeated string canonical_marker_ids = 6;       // Ensembl IDs for canonical markers
+
+  // Cell type hierarchy (from Cell Ontology)
+  repeated string develops_from = 7;              // Parent cell type names
+  repeated string develops_from_ids = 8;          // Parent CL IDs
+
+  // Tissue distribution
+  repeated string found_in_tissues = 9;           // Tissue names where found
+  repeated string found_in_tissue_ids = 10;       // UBERON IDs
+
+  // Disease associations
+  repeated string associated_diseases = 11;       // Associated disease names
+  repeated string associated_disease_ids = 12;    // MONDO IDs
+
+  // Cell counts
+  int64 total_cells = 13;                         // Total cells of this type (from obs)
+  int64 total_cell_count = 14;                    // Total cells (from summary_cell_counts)
+  int64 unique_cell_count = 15;                   // Unique cells (from summary_cell_counts)
+
+  // Expression by tissue (nested array - replaces separate expression dataset)
+  repeated CellxgeneTissueExpression expression_by_tissue = 16;
+}
+

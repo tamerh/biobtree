@@ -179,6 +179,8 @@ message Xref {
     PharmgkbVariantAttr pharmgkb_variant=70;
     PharmgkbGuidelineAttr pharmgkb_guideline=71;
     PharmgkbPathwayAttr pharmgkb_pathway=72;
+    CellxgeneAttr cellxgene=73;
+    CellxgeneCelltypeAttr cellxgene_celltype=74;
 
   }
 

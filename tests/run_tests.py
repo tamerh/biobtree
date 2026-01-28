@@ -288,6 +288,7 @@ Available datasets:
         'drugcentral': datasets_dir / "drugcentral" / "test_drugcentral.py",
         'msigdb': datasets_dir / "msigdb" / "test_msigdb.py",
         'biogrid': datasets_dir / "biogrid" / "test_biogrid.py",
+        'cellxgene': datasets_dir / "cellxgene" / "test_cellxgene.py",
     }
 
     # Parse dataset selection
@@ -319,6 +320,10 @@ Available datasets:
     build_datasets = selected_datasets.copy()
     if 'chembl_target' in selected_datasets and 'chembl_target_component' not in build_datasets:
         build_datasets.append('chembl_target_component')
+
+    # CELLxGENE: always build both datasets together (cellxgene + cellxgene_celltype)
+    if 'cellxgene' in selected_datasets and 'cellxgene_celltype' not in build_datasets:
+        build_datasets.append('cellxgene_celltype')
 
     # Handle Ensembl datasets: when any Ensembl division is selected, build all with genome-taxids
     ensembl_datasets = {'ensembl', 'ensembl_bacteria', 'ensembl_fungi', 'ensembl_metazoa', 'ensembl_plants', 'ensembl_protists'}

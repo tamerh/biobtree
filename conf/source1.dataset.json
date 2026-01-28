@@ -74,6 +74,7 @@
     "aliases": "STRING",
     "id": "5",
     "name": "STRING",
+    "path": "https://stringdb-downloads.org/download/protein.links.detailed.v12.0/",
     "url": "https://string-db.org/network/£{id}",
     "downloadUrlLinks": "https://stringdb-downloads.org/download/protein.links.detailed.v12.0/{taxid}.protein.links.detailed.v12.0.txt.gz",
     "downloadUrlAliases": "https://stringdb-downloads.org/download/protein.aliases.v12.0/{taxid}.protein.aliases.v12.0.txt.gz",
@@ -535,6 +536,7 @@
   "antibody": {
     "id": "40",
     "name": "Antibody db",
+    "path": "/data/bioyoda/snapshots/raw_data/antibody/",
     "aliases": "therapeutic antibody,monoclonal antibody,mAb,antibody therapeutics,TheraSAbDab,SAbDab,IMGT,antibody structure,germline gene,antibody sequence",
     "url": "http://opig.stats.ox.ac.uk/webapps/therasabdab/therapeutics/£{id}",
     "useLocalFile": "yes",
@@ -886,6 +888,30 @@
     "useLocalFile": "yes",
     "hasFilter": "yes",
     "attrs": "pathway_id,name,is_pharmacokinetic,is_pharmacodynamic,[]gene_symbols,[]chemical_names,[]disease_names,summary",
+    "bucketMethod": "ontology"
+  },
+  "cellxgene": {
+    "id": "109",
+    "name": "CZ CELLxGENE",
+    "aliases": "cziscience,czi,single-cell,scrnaseq,census,single cell",
+    "url": "https://cellxgene.cziscience.com/collections/£{id}",
+    "path": "/data/bioyoda/snapshots/raw_data/cellxgene/cellxgene_datasets.json",
+    "useLocalFile": "yes",
+    "hasFilter": "yes",
+    "attrs": "title,collection_name,cell_count,organism,[]assay_types,[]cell_types,[]tissues,[]diseases",
+    "test_entries_count": "100",
+    "bucketMethod": "alphabetic"
+  },
+  "cellxgene_celltype": {
+    "id": "110",
+    "name": "CELLxGENE Cell Type",
+    "aliases": "cellguide,cell guide,sc cell type,single cell type",
+    "url": "https://cellxgene.cziscience.com/cellguide/£{id}",
+    "path": "/data/bioyoda/snapshots/raw_data/cellxgene/cellxgene_celltype.json",
+    "useLocalFile": "yes",
+    "hasFilter": "yes",
+    "attrs": "name,definition,[]synonyms,[]found_in_tissues,[]associated_diseases,total_cells,[]expression_by_tissue",
+    "test_entries_count": "100",
     "bucketMethod": "ontology"
   }
 }

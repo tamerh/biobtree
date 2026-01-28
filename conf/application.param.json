@@ -58,5 +58,9 @@
 	"pubchemRetryCount": "4",
 	"pubchemRetryWaitMinutes": "10",
 	"__alphafold_config_comment": "AlphaFold PAE processing configuration",
-	"paeWorkers": "8"
+	"paeWorkers": "8",
+	"__cellxgene_config_comment": "CELLxGENE Census data extraction configuration",
+	"cellxgeneExtractScript": "scripts/cellxgene/extract_cellxgene_data.py",
+	"cellxgeneDataDir": "/data/bioyoda/snapshots/raw_data/cellxgene",
+	"cellxgeneCensusVersion": "stable"
 }

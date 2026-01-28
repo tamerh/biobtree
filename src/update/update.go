@@ -948,6 +948,19 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			d.datasets2 = append(d.datasets2, data)
 			go amt.update()
 			break
+		case "cellxgene":
+			d.wg.Add(1)
+			cxg := cellxgene{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			// Also add cellxgene_celltype to tracking (processed by cellxgene parser)
+			if _, exists := config.Dataconf["cellxgene_celltype"]; exists {
+				d.datasets2 = append(d.datasets2, "cellxgene_celltype")
+			}
+			go cxg.update()
+			break
+		case "cellxgene_celltype":
+			// Processed by the cellxgene parser, skip standalone processing
+			break
 		default:
 			log.Fatal("ERROR Unrecognized dataset ->" + data)
 		}

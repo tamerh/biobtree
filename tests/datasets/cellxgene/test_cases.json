@@ -1,0 +1,93 @@
+{
+  "dataset": "cellxgene",
+  "tests": [
+    {
+      "name": "dataset_id_lookup",
+      "type": "id_lookup",
+      "id": "@reference[cellxgene][0].dataset_id",
+      "expected_dataset": "cellxgene"
+    },
+    {
+      "name": "dataset_has_title",
+      "type": "attribute_check",
+      "id": "@reference[cellxgene][0].dataset_id",
+      "attribute_path": "Cellxgene.title",
+      "expected_value": "@reference[cellxgene][0].title"
+    },
+    {
+      "name": "dataset_has_organism",
+      "type": "attribute_check",
+      "id": "@reference[cellxgene][0].dataset_id",
+      "attribute_path": "Cellxgene.organism",
+      "expected_value": "@reference[cellxgene][0].organism"
+    },
+    {
+      "name": "dataset_has_cell_count",
+      "type": "attribute_check",
+      "id": "@reference[cellxgene][0].dataset_id",
+      "attribute_path": "Cellxgene.cell_count",
+      "expected_value": "@reference[cellxgene][0].cell_count"
+    },
+    {
+      "name": "dataset_xref_to_taxonomy",
+      "type": "xref_exists",
+      "id": "@reference[cellxgene][4].dataset_id",
+      "target_dataset": "taxonomy",
+      "description": "Dataset with human data should link to taxonomy 9606"
+    },
+    {
+      "name": "dataset_xref_to_efo",
+      "type": "xref_exists",
+      "id": "@reference[cellxgene][0].dataset_id",
+      "target_dataset": "efo",
+      "description": "Dataset should link to EFO assay ontology"
+    },
+    {
+      "name": "dataset_xref_to_uberon",
+      "type": "xref_exists",
+      "id": "@reference[cellxgene][0].dataset_id",
+      "target_dataset": "uberon",
+      "description": "Dataset should link to UBERON tissue ontology"
+    },
+    {
+      "name": "celltype_id_lookup",
+      "type": "id_lookup",
+      "id": "@reference[cellxgene_celltype][0].id",
+      "expected_dataset": "cellxgene_celltype"
+    },
+    {
+      "name": "celltype_has_name",
+      "type": "attribute_check",
+      "id": "@reference[cellxgene_celltype][0].id",
+      "attribute_path": "CellxgeneCelltype.name",
+      "expected_value": "@reference[cellxgene_celltype][0].name"
+    },
+    {
+      "name": "celltype_has_tissues",
+      "type": "attribute_check",
+      "id": "@reference[cellxgene_celltype][0].id",
+      "attribute_path": "CellxgeneCelltype.found_in_tissues",
+      "check_type": "not_empty",
+      "description": "Cell type should have found_in_tissues populated"
+    },
+    {
+      "name": "celltype_xref_to_cl",
+      "type": "xref_exists",
+      "id": "@reference[cellxgene_celltype][0].id",
+      "target_dataset": "cl",
+      "description": "Cell type should link to CL ontology"
+    },
+    {
+      "name": "invalid_dataset_id",
+      "type": "invalid_id",
+      "id": "00000000-0000-0000-0000-000000000000",
+      "search_dataset": "cellxgene"
+    },
+    {
+      "name": "invalid_celltype_id",
+      "type": "invalid_id",
+      "id": "CL_9999999",
+      "search_dataset": "cellxgene_celltype"
+    }
+  ]
+}

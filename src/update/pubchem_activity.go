@@ -42,7 +42,7 @@ func (p *pubchemActivity) update(d *DataUpdate) {
 
 // loadAndStreamActivities reads bioactivities.tsv.gz and streams activity entries
 // Uses bufio.Reader instead of Scanner for better handling of massive streams
-// Implements retry mechanism (configurable via pubchemRetryCount/pubchemRetryWaitMinutes) for network/corruption errors
+// Implements retry mechanism with resume support - on retry, skips already processed lines
 func (p *pubchemActivity) loadAndStreamActivities() {
 	// Get retry configuration from application.param.json
 	maxRetries := 2 // default
@@ -79,22 +79,31 @@ func (p *pubchemActivity) loadAndStreamActivities() {
 	}
 	log.Printf("[PubChem Activity] Streaming entries directly to database (no memory accumulation)")
 
+	// State that persists across retries for resume capability
 	var lastError error
+	resumeFromLine := 0                        // Line to resume from on retry
+	activityIndex := make(map[string]int)      // CID_AID → count (persists across retries)
+	activityCount := 0                         // Total activities created (persists across retries)
 
 	for attempt := 0; attempt <= maxRetries; attempt++ {
 		if attempt > 0 {
 			log.Printf("[PubChem Activity] Retry attempt %d/%d - waiting %d minutes before retry...", attempt, maxRetries, retryWaitMinutes)
 			time.Sleep(time.Duration(retryWaitMinutes) * time.Minute)
-			log.Printf("[PubChem Activity] Retrying download and processing...")
+			log.Printf("[PubChem Activity] Resuming from line %d (skipping %d already processed lines)...", resumeFromLine, resumeFromLine)
 		}
 
-		err := p.processActivityFile(fullURL, testLimit, idLogFile)
+		processedLines, newActivityCount, err := p.processActivityFile(fullURL, testLimit, idLogFile, resumeFromLine, activityIndex)
+		activityCount += newActivityCount
+
 		if err == nil {
+			log.Printf("[PubChem Activity] Successfully completed. Total activities: %d", activityCount)
 			return // Success
 		}
 
+		// Update resume point for next retry
+		resumeFromLine += processedLines
 		lastError = err
-		log.Printf("[PubChem Activity] Attempt %d failed: %v", attempt+1, err)
+		log.Printf("[PubChem Activity] Attempt %d failed at line %d: %v", attempt+1, resumeFromLine, err)
 	}
 
 	// All retries exhausted - panic
@@ -102,12 +111,14 @@ func (p *pubchemActivity) loadAndStreamActivities() {
 }
 
 // processActivityFile handles the actual file processing
-// Returns error if processing fails (for retry mechanism)
-func (p *pubchemActivity) processActivityFile(fullURL string, testLimit int, idLogFile *os.File) error {
+// Returns (linesProcessed, activitiesCreated, error) for resume capability
+// resumeFromLine: skip this many data lines before processing (for retry resume)
+// activityIndex: shared map that persists across retries for consistent activity IDs
+func (p *pubchemActivity) processActivityFile(fullURL string, testLimit int, idLogFile *os.File, resumeFromLine int, activityIndex map[string]int) (int, int, error) {
 	// Download and open file (pass full FTP URL directly)
 	br, gz, _, _, localFile, _, err := getDataReaderNew("pubchem_activity", "", "", fullURL)
 	if err != nil {
-		return fmt.Errorf("could not open bioactivities.tsv.gz: %v", err)
+		return 0, 0, fmt.Errorf("could not open bioactivities.tsv.gz: %v", err)
 	}
 	defer func() {
 		if gz != nil {
@@ -126,7 +137,13 @@ func (p *pubchemActivity) processActivityFile(fullURL string, testLimit int, idL
 	lineCount := 0
 	activityCount := 0
 	headerSkipped := false
-	activityIndex := make(map[string]int) // CID_AID → count (for unique IDs)
+	skippedForResume := 0
+	lastSuccessfulLine := "" // Track last line for error diagnostics
+
+	// Log resume status
+	if resumeFromLine > 0 {
+		log.Printf("[PubChem Activity] Skipping first %d lines (already processed)...", resumeFromLine)
+	}
 
 	for {
 		// ReadString is more robust for massive ETL than Scanner
@@ -137,11 +154,23 @@ func (p *pubchemActivity) processActivityFile(fullURL string, testLimit int, idL
 				break // End of file reached successfully
 			}
 			// This catches the "flate: corrupt input" and network errors
-			return fmt.Errorf("error reading stream: %v", err)
+			// Log detailed info to help diagnose where failure occurs
+			partialLine := strings.TrimSpace(line)
+			if len(partialLine) > 200 {
+				partialLine = partialLine[:200] + "..."
+			}
+			if len(lastSuccessfulLine) > 200 {
+				lastSuccessfulLine = lastSuccessfulLine[:200] + "..."
+			}
+			log.Printf("[PubChem Activity] ERROR at line %d (total %d):", lineCount-resumeFromLine, lineCount)
+			log.Printf("[PubChem Activity]   Last successful line: %s", lastSuccessfulLine)
+			log.Printf("[PubChem Activity]   Partial line read: %s", partialLine)
+			return lineCount, activityCount, fmt.Errorf("error reading stream at line %d (total line %d): %v", lineCount-resumeFromLine, lineCount, err)
 		}
 
 		line = strings.TrimSpace(line)
-		
+		lastSuccessfulLine = line // Update for error diagnostics
+
 		// Skip empty lines
 		if line == "" {
 			continue
@@ -160,10 +189,20 @@ func (p *pubchemActivity) processActivityFile(fullURL string, testLimit int, idL
 
 		lineCount++
 
+		// Resume support: skip lines already processed in previous attempt
+		if lineCount <= resumeFromLine {
+			skippedForResume++
+			// Progress for skipping (every 10M lines)
+			if skippedForResume%10000000 == 0 {
+				log.Printf("[PubChem Activity] Skipped %dM lines for resume...", skippedForResume/1000000)
+			}
+			continue
+		}
+
 		// Progress tracking every 5M records (more frequent updates for debugging)
-		if lineCount%5000000 == 0 {
-			log.Printf("[PubChem Activity] Processed %dM records, created %dM activity entries",
-				lineCount/1000000, activityCount/1000000)
+		if (lineCount-resumeFromLine)%5000000 == 0 {
+			log.Printf("[PubChem Activity] Processed %dM records (total line %dM), created %dM activity entries",
+				(lineCount-resumeFromLine)/1000000, lineCount/1000000, activityCount/1000000)
 		}
 
 		// Split by tab
@@ -295,12 +334,12 @@ func (p *pubchemActivity) processActivityFile(fullURL string, testLimit int, idL
         }
     }
 
-    log.Printf("[PubChem Activity] Complete:")
-    log.Printf("[PubChem Activity]   - Total records processed: %d", lineCount)
-    log.Printf("[PubChem Activity]   - Activity entries created: %d", activityCount)
-    log.Printf("[PubChem Activity]   - Unique CID-AID pairs: %d", len(activityIndex))
+    log.Printf("[PubChem Activity] Batch complete:")
+    log.Printf("[PubChem Activity]   - Lines in this batch: %d (resumed from %d)", lineCount-resumeFromLine, resumeFromLine)
+    log.Printf("[PubChem Activity]   - Activity entries created in batch: %d", activityCount)
+    log.Printf("[PubChem Activity]   - Unique CID-AID pairs (cumulative): %d", len(activityIndex))
 
-    return nil // Success
+    return lineCount - resumeFromLine, activityCount, nil // Success - return lines processed in THIS batch
 }
 
 func (p *pubchemActivity) check(e error, msg string) {

@@ -44,7 +44,7 @@ func (p *pubchemAssay) update(d *DataUpdate) {
 }
 
 // loadAndStreamBioassays reads bioassays.tsv.gz and streams bioassay entries
-// Implements retry mechanism (configurable via pubchemRetryCount/pubchemRetryWaitMinutes) for network/corruption errors
+// Implements retry mechanism with resume support - on retry, skips already processed lines
 func (p *pubchemAssay) loadAndStreamBioassays() {
 	// Get retry configuration from application.param.json
 	maxRetries := 2 // default
@@ -81,22 +81,30 @@ func (p *pubchemAssay) loadAndStreamBioassays() {
 	}
 	log.Printf("[PubChem Assay] Streaming entries directly to database")
 
+	// State that persists across retries for resume capability
 	var lastError error
+	resumeFromLine := 0
+	bioassayCount := 0
 
 	for attempt := 0; attempt <= maxRetries; attempt++ {
 		if attempt > 0 {
 			log.Printf("[PubChem Assay] Retry attempt %d/%d - waiting %d minutes before retry...", attempt, maxRetries, retryWaitMinutes)
 			time.Sleep(time.Duration(retryWaitMinutes) * time.Minute)
-			log.Printf("[PubChem Assay] Retrying download and processing...")
+			log.Printf("[PubChem Assay] Resuming from line %d (skipping %d already processed lines)...", resumeFromLine, resumeFromLine)
 		}
 
-		err := p.processBioassayFile(fullURL, testLimit, idLogFile)
+		processedLines, newBioassays, err := p.processBioassayFile(fullURL, testLimit, idLogFile, resumeFromLine)
+		bioassayCount += newBioassays
+
 		if err == nil {
+			log.Printf("[PubChem Assay] Successfully completed. Total bioassays: %d", bioassayCount)
 			return // Success
 		}
 
+		// Update resume point for next retry
+		resumeFromLine += processedLines
 		lastError = err
-		log.Printf("[PubChem Assay] Attempt %d failed: %v", attempt+1, err)
+		log.Printf("[PubChem Assay] Attempt %d failed at line %d: %v", attempt+1, resumeFromLine, err)
 	}
 
 	// All retries exhausted - panic
@@ -104,12 +112,13 @@ func (p *pubchemAssay) loadAndStreamBioassays() {
 }
 
 // processBioassayFile handles the actual file processing
-// Returns error if processing fails (for retry mechanism)
-func (p *pubchemAssay) processBioassayFile(fullURL string, testLimit int, idLogFile *os.File) error {
+// Returns (linesProcessed, bioassaysCreated, error) for resume capability
+// resumeFromLine: skip this many data lines before processing (for retry resume)
+func (p *pubchemAssay) processBioassayFile(fullURL string, testLimit int, idLogFile *os.File, resumeFromLine int) (int, int, error) {
 	// Download and open file (pass full FTP URL directly)
 	_, gz, _, _, localFile, _, err := getDataReaderNew("pubchem_assay", "", "", fullURL)
 	if err != nil {
-		return fmt.Errorf("could not open bioassays.tsv.gz: %v", err)
+		return 0, 0, fmt.Errorf("could not open bioassays.tsv.gz: %v", err)
 	}
 	defer func() {
 		if gz != nil {
@@ -127,6 +136,13 @@ func (p *pubchemAssay) processBioassayFile(fullURL string, testLimit int, idLogF
 	lineCount := 0
 	bioassayCount := 0
 	headerSkipped := false
+	skippedForResume := 0
+	lastSuccessfulLine := "" // Track last line for error diagnostics
+
+	// Log resume status
+	if resumeFromLine > 0 {
+		log.Printf("[PubChem Assay] Skipping first %d lines (already processed)...", resumeFromLine)
+	}
 
 	for {
 		line, err := reader.ReadString('\n')
@@ -136,10 +152,22 @@ func (p *pubchemAssay) processBioassayFile(fullURL string, testLimit int, idLogF
 				break // End of file reached successfully
 			}
 			// This catches the "flate: corrupt input" and network errors
-			return fmt.Errorf("error reading stream: %v", err)
+			// Log detailed info to help diagnose where failure occurs
+			partialLine := strings.TrimSpace(line)
+			if len(partialLine) > 200 {
+				partialLine = partialLine[:200] + "..."
+			}
+			if len(lastSuccessfulLine) > 200 {
+				lastSuccessfulLine = lastSuccessfulLine[:200] + "..."
+			}
+			log.Printf("[PubChem Assay] ERROR at line %d (total %d):", lineCount-resumeFromLine, lineCount)
+			log.Printf("[PubChem Assay]   Last successful line: %s", lastSuccessfulLine)
+			log.Printf("[PubChem Assay]   Partial line read: %s", partialLine)
+			return lineCount, bioassayCount, fmt.Errorf("error reading stream at line %d (total line %d): %v", lineCount-resumeFromLine, lineCount, err)
 		}
 
 		line = strings.TrimSpace(line)
+		lastSuccessfulLine = line // Update for error diagnostics
 
 		// Skip empty lines
 		if line == "" {
@@ -159,9 +187,19 @@ func (p *pubchemAssay) processBioassayFile(fullURL string, testLimit int, idLogF
 
 		lineCount++
 
-		// Progress tracking every 10K records
-		if lineCount%50000 == 0 {
-			log.Printf("[PubChem Assay] Processed %dK bioassays", lineCount/1000)
+		// Resume support: skip lines already processed in previous attempt
+		if lineCount <= resumeFromLine {
+			skippedForResume++
+			// Progress for skipping (every 100K lines)
+			if skippedForResume%100000 == 0 {
+				log.Printf("[PubChem Assay] Skipped %dK lines for resume...", skippedForResume/1000)
+			}
+			continue
+		}
+
+		// Progress tracking every 50K records
+		if (lineCount-resumeFromLine)%50000 == 0 {
+			log.Printf("[PubChem Assay] Processed %dK bioassays", (lineCount-resumeFromLine)/1000)
 		}
 
 		// Split by tab
@@ -428,10 +466,11 @@ func (p *pubchemAssay) processBioassayFile(fullURL string, testLimit int, idLogF
 		}
 	}
 
-	log.Printf("[PubChem Assay] Complete:")
-	log.Printf("[PubChem Assay]   - Total bioassays processed: %d", bioassayCount)
+	log.Printf("[PubChem Assay] Batch complete:")
+	log.Printf("[PubChem Assay]   - Lines in this batch: %d (resumed from %d)", lineCount-resumeFromLine, resumeFromLine)
+	log.Printf("[PubChem Assay]   - Bioassays created in batch: %d", bioassayCount)
 
-	return nil // Success
+	return lineCount - resumeFromLine, bioassayCount, nil // Success - return lines processed in THIS batch
 }
 
 func (p *pubchemAssay) check(e error, msg string) {

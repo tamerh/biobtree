@@ -422,6 +422,12 @@ func (p *pubchem) loadLiteratureCIDs() {
 			continue
 		}
 
+		// Validate CID is numeric (PubChem CIDs are always numeric)
+		if len(cid) > 0 && (cid[0] < '0' || cid[0] > '9') {
+			log.Printf("[PubChem] WARNING: Invalid non-numeric CID '%s' at line %d in CID-PMID (PMID=%s)", cid, lineCount, pmid)
+			continue
+		}
+
 		// Mark as literature-referenced (P1)
 		p.p1CIDs[cid] = true
 		uniqueCIDs[cid] = true
@@ -521,6 +527,13 @@ func (p *pubchem) loadPatentCIDs() {
 		patentID := strings.TrimSpace(record[1])
 
 		if cid == "" || patentID == "" {
+			continue
+		}
+
+		// Validate CID is numeric (PubChem CIDs are always numeric)
+		// Skip malformed entries where non-numeric data appears in CID column
+		if len(cid) > 0 && (cid[0] < '0' || cid[0] > '9') {
+			log.Printf("[PubChem] WARNING: Invalid non-numeric CID '%s' at line %d in CID-Patent (Patent=%s)", cid, lineCount, patentID)
 			continue
 		}
 
@@ -717,6 +730,12 @@ func (p *pubchem) loadBioassayCIDs() {
 			continue
 		}
 
+		// Validate CID is numeric (PubChem CIDs are always numeric)
+		if len(cid) > 0 && (cid[0] < '0' || cid[0] > '9') {
+			log.Printf("[PubChem] WARNING: Invalid non-numeric CID '%s' at line %d in bioactivities (AID=%s)", cid, lineCount, aid)
+			continue
+		}
+
 		// Track unique CIDs and their AIDs
 		uniqueCIDs[cid] = true
 
@@ -815,6 +834,12 @@ func (p *pubchem) loadBiologicCIDs() {
 
 		cid := strings.TrimSpace(record[0])
 		if cid == "" {
+			continue
+		}
+
+		// Validate CID is numeric (PubChem CIDs are always numeric)
+		if len(cid) > 0 && (cid[0] < '0' || cid[0] > '9') {
+			log.Printf("[PubChem] WARNING: Invalid non-numeric CID '%s' at line %d in CID-Biologics", cid, lineCount)
 			continue
 		}
 
@@ -928,6 +953,12 @@ func (p *pubchem) loadSynonyms() {
 		synonym := strings.TrimSpace(record[1])
 
 		if cid == "" || synonym == "" {
+			continue
+		}
+
+		// Validate CID is numeric (PubChem CIDs are always numeric)
+		if len(cid) > 0 && (cid[0] < '0' || cid[0] > '9') {
+			log.Printf("[PubChem] WARNING: Invalid non-numeric CID '%s' at line %d in CID-Synonym", cid, lineCount)
 			continue
 		}
 

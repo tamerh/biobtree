@@ -181,6 +181,9 @@ message Xref {
     PharmgkbPathwayAttr pharmgkb_pathway=72;
     CellxgeneAttr cellxgene=73;
     CellxgeneCelltypeAttr cellxgene_celltype=74;
+    ScxaAttr scxa=75;
+    ScxaExpressionAttr scxa_expression=76;
+    ScxaGeneExperimentAttr scxa_gene_experiment=77;
 
   }
 

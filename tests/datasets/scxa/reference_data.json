@@ -1,0 +1,432 @@
+[
+  {
+    "id": "E-ANND-1",
+    "description": "Human Lung Cell Atlas: An integrated cell atlas of the human lung in health and disease",
+    "species": "Homo sapiens",
+    "kingdom": "animals",
+    "load_date": "04-09-2024",
+    "last_update": "13-09-2024",
+    "experiment_type": "Baseline",
+    "raw_experiment_type": "SINGLE_CELL_RNASEQ_MRNA_BASELINE",
+    "technology_types": [
+      "10xv1",
+      "10xv2",
+      "10xv3",
+      "10x5prime"
+    ],
+    "number_of_cells": 584884,
+    "experimental_factors": [
+      "organism part",
+      "sampling site",
+      "disease",
+      "inferred cell type - authors labels",
+      "inferred cell type - ontology labels"
+    ],
+    "experiment_projects": [
+      "Human Cell Atlas - Data Portal"
+    ]
+  },
+  {
+    "id": "E-ANND-2",
+    "description": "GTEx: snRNAseq atlas",
+    "species": "Homo sapiens",
+    "kingdom": "animals",
+    "load_date": "08-08-2024",
+    "last_update": "15-08-2024",
+    "experiment_type": "Baseline",
+    "raw_experiment_type": "SINGLE_CELL_RNASEQ_MRNA_BASELINE",
+    "technology_types": [
+      "10xv2"
+    ],
+    "number_of_cells": 209126,
+    "experimental_factors": [
+      "organism part",
+      "sampling site",
+      "inferred cell type - authors labels",
+      "inferred cell type - ontology labels"
+    ],
+    "experiment_projects": [
+      "Human Cell Atlas - Data Portal"
+    ]
+  },
+  {
+    "id": "E-ANND-3",
+    "description": "Tabula Sapiens - Smart-seq2 dataset",
+    "species": "Homo sapiens",
+    "kingdom": "animals",
+    "load_date": "13-09-2024",
+    "last_update": "13-09-2024",
+    "experiment_type": "Baseline",
+    "raw_experiment_type": "SINGLE_CELL_RNASEQ_MRNA_BASELINE",
+    "technology_types": [
+      "smart-seq2"
+    ],
+    "number_of_cells": 27002,
+    "experimental_factors": [
+      "organism part",
+      "inferred cell type - ontology labels",
+      "inferred cell type - authors labels"
+    ],
+    "experiment_projects": [
+      "Human Cell Atlas - Data Portal"
+    ]
+  },
+  {
+    "id": "E-ANND-5",
+    "description": "Mapping the developing human immune system across organs",
+    "species": "Homo sapiens",
+    "kingdom": "animals",
+    "load_date": "16-08-2024",
+    "last_update": "28-08-2024",
+    "experiment_type": "Baseline",
+    "raw_experiment_type": "SINGLE_CELL_RNASEQ_MRNA_BASELINE",
+    "technology_types": [
+      "10xv2",
+      "10x5prime"
+    ],
+    "number_of_cells": 911873,
+    "experimental_factors": [
+      "age",
+      "organism part",
+      "sampling site",
+      "immunophenotype",
+      "protocol",
+      "inferred cell type - authors labels",
+      "inferred cell type - ontology labels"
+    ],
+    "experiment_projects": [
+      "Human Cell Atlas - Data Portal"
+    ]
+  },
+  {
+    "id": "E-CURD-10",
+    "description": "Single-cell transcriptome profiling for metastatic renal cell carcinoma patient-derived cells and xenografts",
+    "species": "Homo sapiens",
+    "kingdom": "animals",
+    "load_date": "25-09-2019",
+    "last_update": "25-09-2019",
+    "experiment_type": "Baseline",
+    "raw_experiment_type": "SINGLE_CELL_RNASEQ_MRNA_BASELINE",
+    "technology_types": [
+      "smart-like"
+    ],
+    "number_of_cells": 118,
+    "experimental_factors": [
+      "single cell identifier",
+      "growth condition"
+    ],
+    "experiment_projects": []
+  },
+  {
+    "id": "E-CURD-100",
+    "description": "Single-cell RNA-seq of of bone marrow derived mononuclear phagocytes derived from mouse",
+    "species": "Mus musculus",
+    "kingdom": "animals",
+    "load_date": "09-02-2022",
+    "last_update": "09-02-2022",
+    "experiment_type": "Baseline",
+    "raw_experiment_type": "SINGLE_CELL_RNASEQ_MRNA_BASELINE",
+    "technology_types": [
+      "10xv2"
+    ],
+    "number_of_cells": 85646,
+    "experimental_factors": [
+      "compound",
+      "dose",
+      "sampling time point"
+    ],
+    "experiment_projects": []
+  },
+  {
+    "id": "E-CURD-101",
+    "description": "Single-cell RNA-seq of of bone marrow derived mononuclear phagocytes derived from rat",
+    "species": "Rattus norvegicus",
+    "kingdom": "animals",
+    "load_date": "01-08-2022",
+    "last_update": "01-08-2022",
+    "experiment_type": "Baseline",
+    "raw_experiment_type": "SINGLE_CELL_RNASEQ_MRNA_BASELINE",
+    "technology_types": [
+      "10xv2"
+    ],
+    "number_of_cells": 133050,
+    "experimental_factors": [
+      "compound",
+      "dose",
+      "sampling time point"
+    ],
+    "experiment_projects": []
+  },
+  {
+    "id": "E-CURD-102",
+    "description": "Single-cell RNA-seq of of bone marrow derived mononuclear phagocytes derived from rabbit",
+    "species": "Oryctolagus cuniculus",
+    "kingdom": "animals",
+    "load_date": "09-02-2022",
+    "last_update": "09-02-2022",
+    "experiment_type": "Baseline",
+    "raw_experiment_type": "SINGLE_CELL_RNASEQ_MRNA_BASELINE",
+    "technology_types": [
+      "10xv2"
+    ],
+    "number_of_cells": 78786,
+    "experimental_factors": [
+      "compound",
+      "dose",
+      "sampling time point"
+    ],
+    "experiment_projects": []
+  },
+  {
+    "id": "E-CURD-11",
+    "description": "Single-cell RNA sequencing of lung adenocarcinoma patient-derived cells",
+    "species": "Homo sapiens",
+    "kingdom": "animals",
+    "load_date": "25-09-2019",
+    "last_update": "25-09-2019",
+    "experiment_type": "Baseline",
+    "raw_experiment_type": "SINGLE_CELL_RNASEQ_MRNA_BASELINE",
+    "technology_types": [
+      "smart-like"
+    ],
+    "number_of_cells": 176,
+    "experimental_factors": [
+      "disease",
+      "single cell identifier",
+      "organism part",
+      "metastatic site",
+      "growth condition"
+    ],
+    "experiment_projects": []
+  },
+  {
+    "id": "E-CURD-112",
+    "description": "Single cell analysis of emergent haematopoiesis in the human fetal bone marrow (10X)",
+    "species": "Homo sapiens",
+    "kingdom": "animals",
+    "load_date": "24-11-2021",
+    "last_update": "24-11-2021",
+    "experiment_type": "Baseline",
+    "raw_experiment_type": "SINGLE_CELL_RNASEQ_MRNA_BASELINE",
+    "technology_types": [
+      "10xv2"
+    ],
+    "number_of_cells": 34015,
+    "experimental_factors": [
+      "disease",
+      "immunophenotype",
+      "inferred cell type - authors labels",
+      "inferred cell type - ontology labels"
+    ],
+    "experiment_projects": [
+      "Human Cell Atlas - Data Portal"
+    ]
+  },
+  {
+    "id": "E-CURD-114",
+    "description": "Dissecting the cellular specificity of smoking effects and reconstructing lineages in the human airway epithelium (in vivo)",
+    "species": "Homo sapiens",
+    "kingdom": "animals",
+    "load_date": "09-12-2021",
+    "last_update": "09-12-2021",
+    "experiment_type": "Baseline",
+    "raw_experiment_type": "SINGLE_CELL_RNASEQ_MRNA_BASELINE",
+    "technology_types": [
+      "10xv3"
+    ],
+    "number_of_cells": 32926,
+    "experimental_factors": [
+      "clinical history",
+      "developmental stage",
+      "inferred cell type - authors labels",
+      "inferred cell type - ontology labels"
+    ],
+    "experiment_projects": [
+      "Human Cell Atlas - Data Portal",
+      "discovAIR"
+    ]
+  },
+  {
+    "id": "E-CURD-117",
+    "description": "Single cell RNA-seq of B cells from sheep red blood cells-primed WT and Stch cKO mice",
+    "species": "Mus musculus",
+    "kingdom": "animals",
+    "load_date": "02-02-2022",
+    "last_update": "02-02-2022",
+    "experiment_type": "Baseline",
+    "raw_experiment_type": "SINGLE_CELL_RNASEQ_MRNA_BASELINE",
+    "technology_types": [
+      "10x5prime"
+    ],
+    "number_of_cells": 7966,
+    "experimental_factors": [
+      "genotype"
+    ],
+    "experiment_projects": []
+  },
+  {
+    "id": "E-CURD-118",
+    "description": "Single-cell immune repertoire sequencing of bone marrow plasma cells following infection and immunizations",
+    "species": "Mus musculus",
+    "kingdom": "animals",
+    "load_date": "02-02-2022",
+    "last_update": "02-02-2022",
+    "experiment_type": "Baseline",
+    "raw_experiment_type": "SINGLE_CELL_RNASEQ_MRNA_BASELINE",
+    "technology_types": [
+      "10x5prime"
+    ],
+    "number_of_cells": 16779,
+    "experimental_factors": [
+      "infect",
+      "stimulus"
+    ],
+    "experiment_projects": []
+  },
+  {
+    "id": "E-CURD-119",
+    "description": "Single Cell Transcriptional and Chromatin Accessibility Profiling on the human adult kidneys",
+    "species": "Homo sapiens",
+    "kingdom": "animals",
+    "load_date": "01-08-2022",
+    "last_update": "01-08-2022",
+    "experiment_type": "Baseline",
+    "raw_experiment_type": "SINGLE_CELL_RNASEQ_MRNA_BASELINE",
+    "technology_types": [
+      "10x5prime"
+    ],
+    "number_of_cells": 30589,
+    "experimental_factors": [
+      "sex",
+      "inferred cell type - authors labels",
+      "inferred cell type - ontology labels"
+    ],
+    "experiment_projects": [
+      "Human Cell Atlas - Data Portal"
+    ]
+  },
+  {
+    "id": "E-CURD-12",
+    "description": "Single cell transcriptomes of developing chicken hind limbs at stages HH25, HH29 and HH31 - 10xv2 dataset",
+    "species": "Gallus gallus",
+    "kingdom": "animals",
+    "load_date": "05-01-2020",
+    "last_update": "05-01-2020",
+    "experiment_type": "Baseline",
+    "raw_experiment_type": "SINGLE_CELL_RNASEQ_MRNA_BASELINE",
+    "technology_types": [
+      "10xv2"
+    ],
+    "number_of_cells": 13746,
+    "experimental_factors": [
+      "organism part",
+      "sampling site",
+      "developmental stage",
+      "inferred cell type - authors labels",
+      "inferred cell type - ontology labels"
+    ],
+    "experiment_projects": []
+  },
+  {
+    "id": "E-CURD-120",
+    "description": "Single cell RNAseq of ankylosing spondylitis lymphocytes from peripheral blood and synovial fluid",
+    "species": "Homo sapiens",
+    "kingdom": "animals",
+    "load_date": "01-08-2022",
+    "last_update": "01-08-2022",
+    "experiment_type": "Baseline",
+    "raw_experiment_type": "SINGLE_CELL_RNASEQ_MRNA_BASELINE",
+    "technology_types": [
+      "10x5prime"
+    ],
+    "number_of_cells": 56537,
+    "experimental_factors": [
+      "organism part",
+      "inferred cell type - authors labels",
+      "inferred cell type - ontology labels"
+    ],
+    "experiment_projects": []
+  },
+  {
+    "id": "E-CURD-122",
+    "description": "Cross-tissue immune cell analysis reveals tissue-specific features in humans",
+    "species": "Homo sapiens",
+    "kingdom": "animals",
+    "load_date": "01-08-2022",
+    "last_update": "01-08-2022",
+    "experiment_type": "Baseline",
+    "raw_experiment_type": "SINGLE_CELL_RNASEQ_MRNA_BASELINE",
+    "technology_types": [
+      "10x5prime"
+    ],
+    "number_of_cells": 115203,
+    "experimental_factors": [
+      "organism part",
+      "inferred cell type - authors labels",
+      "inferred cell type - ontology labels"
+    ],
+    "experiment_projects": [
+      "Human Cell Atlas - Data Portal"
+    ]
+  },
+  {
+    "id": "E-CURD-123",
+    "description": "Single-cell profiling of cranial neural crest diversification across a vertebrate lifetime",
+    "species": "Danio rerio",
+    "kingdom": "animals",
+    "load_date": "02-08-2022",
+    "last_update": "02-08-2022",
+    "experiment_type": "Baseline",
+    "raw_experiment_type": "SINGLE_CELL_RNASEQ_MRNA_BASELINE",
+    "technology_types": [
+      "10xv2"
+    ],
+    "number_of_cells": 52305,
+    "experimental_factors": [
+      "age",
+      "genotype"
+    ],
+    "experiment_projects": []
+  },
+  {
+    "id": "E-CURD-124",
+    "description": "Modeling Notch-induced tumor cell survival in the Drosophila ovary identifies cellular and transcriptional response to nuclear NICD accumulation",
+    "species": "Drosophila melanogaster",
+    "kingdom": "animals",
+    "load_date": "02-08-2022",
+    "last_update": "02-08-2022",
+    "experiment_type": "Baseline",
+    "raw_experiment_type": "SINGLE_CELL_RNASEQ_MRNA_BASELINE",
+    "technology_types": [
+      "10xv2"
+    ],
+    "number_of_cells": 49095,
+    "experimental_factors": [
+      "genotype",
+      "time",
+      "environmental stress"
+    ],
+    "experiment_projects": []
+  },
+  {
+    "id": "E-CURD-126",
+    "description": "Single cell RNA-sequencing of normal and fibrotic lungs in human",
+    "species": "Homo sapiens",
+    "kingdom": "animals",
+    "load_date": "01-06-2024",
+    "last_update": "01-06-2024",
+    "experiment_type": "Baseline",
+    "raw_experiment_type": "SINGLE_CELL_RNASEQ_MRNA_BASELINE",
+    "technology_types": [
+      "10xv2"
+    ],
+    "number_of_cells": 102932,
+    "experimental_factors": [
+      "disease",
+      "fraction"
+    ],
+    "experiment_projects": [
+      "Human Cell Atlas - Data Portal"
+    ]
+  }
+]

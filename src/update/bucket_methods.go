@@ -47,6 +47,7 @@ var BucketMethods = map[string]BucketMethod{
 	"refseq":    refseqBucket,    // NM_123456.1, NP_123456.1, NC_000001.11 → numeric after underscore
 	"gcst":      alphabeticBucket, // GCST010481, VT0000188 → multiple prefixes, use first letter
 	"ontology":  ontologyBucket,  // CHEBI:12345, HP:0001234, UBERON:0000001 → numeric after colon
+	"scxa":      scxaBucket,      // E-MTAB-6386, E-ANND-1 → numeric after second hyphen
 
 	// Hybrid bucket methods (bucketed for known prefixes, fallback for others)
 	"ensembl_hybrid": ensemblHybridBucket, // ENSG/ENSMUSG/ENSRNOG/ENSUMUG/ENSDARG/FBGN → bucketed, others → fallback
@@ -211,6 +212,26 @@ func msigdbBucket(id string, numBuckets int) int {
 		panic("msigdbBucket: invalid MSigDB id format (expected M followed by digits): " + id)
 	}
 	return numericLexBucket(id[1:], numBuckets)
+}
+
+// scxaBucket - SCXA experiment IDs: E-MTAB-6386, E-ANND-1, E-GEOD-234602
+// Uses numeric part after second hyphen for bucketing
+// All IDs start with "E-" followed by a prefix (MTAB, ANND, GEOD, etc.) then hyphen and number
+func scxaBucket(id string, numBuckets int) int {
+	if len(id) < 3 || id[0] != 'E' || id[1] != '-' {
+		panic("scxaBucket: invalid SCXA id format (expected E-PREFIX-NUMBER): " + id)
+	}
+	// Find second hyphen
+	secondHyphen := strings.Index(id[2:], "-")
+	if secondHyphen < 0 {
+		panic("scxaBucket: invalid SCXA id format (no second hyphen): " + id)
+	}
+	// Get numeric part after second hyphen (position is offset by 2 for initial search)
+	numericPart := id[2+secondHyphen+1:]
+	if len(numericPart) == 0 {
+		panic("scxaBucket: invalid SCXA id format (no numeric part): " + id)
+	}
+	return numericLexBucket(numericPart, numBuckets)
 }
 
 // patentBucket - fallback alphabetic bucket for all patent formats

@@ -176,6 +176,10 @@ func (s *service) init() {
 		cel.Types(&pbuf.CellxgeneAttr{}),
 		cel.Types(&pbuf.CellxgeneCelltypeAttr{}),
 		cel.Types(&pbuf.CellxgeneTissueExpression{}),
+		cel.Types(&pbuf.ScxaAttr{}),
+		cel.Types(&pbuf.ScxaExpressionAttr{}),
+		cel.Types(&pbuf.ScxaGeneExperimentAttr{}),
+		cel.Types(&pbuf.ScxaClusterExpression{}),
 		cel.Declarations(
 			decls.NewIdent("uniprot", decls.NewObjectType("pbuf.UniprotAttr"), nil)),
 		cel.Declarations(
@@ -292,6 +296,12 @@ func (s *service) init() {
 			decls.NewIdent("cellxgene", decls.NewObjectType("pbuf.CellxgeneAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("cellxgene_celltype", decls.NewObjectType("pbuf.CellxgeneCelltypeAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("scxa", decls.NewObjectType("pbuf.ScxaAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("scxa_expression", decls.NewObjectType("pbuf.ScxaExpressionAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("scxa_gene_experiment", decls.NewObjectType("pbuf.ScxaGeneExperimentAttr"), nil)),
 		cel.Declarations(
 			decls.NewFunction("overlaps",
 				decls.NewOverload("overlaps_int_int",

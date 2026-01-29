@@ -913,5 +913,41 @@
     "attrs": "name,definition,[]synonyms,[]found_in_tissues,[]associated_diseases,total_cells,[]expression_by_tissue",
     "test_entries_count": "100",
     "bucketMethod": "ontology"
+  },
+  "scxa": {
+    "id": "111",
+    "name": "SC Expression Atlas",
+    "aliases": "SCXA,Single Cell Expression Atlas,scRNA-seq,single-cell RNA-seq,EMBL-EBI single cell,Expression Atlas single cell",
+    "url": "https://www.ebi.ac.uk/gxa/sc/experiments/£{id}",
+    "path": "https://ftp.ebi.ac.uk/pub/databases/microarray/data/atlas/sc_experiments/",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "experiment_accession,description,species,kingdom,load_date,last_update,experiment_type,[]technology_types,number_of_cells,[]experimental_factors,[]experiment_projects,[]cell_types,[]tissues,[]diseases",
+    "test_entries_count": "50",
+    "bucketMethod": "scxa"
+  },
+  "scxa_expression": {
+    "id": "112",
+    "name": "SC Expression Atlas Gene Expression",
+    "aliases": "SCXA Gene,scRNA-seq gene expression,single-cell gene expression",
+    "url": "https://www.ensembl.org/id/£{id}",
+    "path": "https://ftp.ebi.ac.uk/pub/databases/microarray/data/atlas/sc_experiments/",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "gene_id,gene_name,species_taxid,total_experiments,marker_experiment_count,max_mean_expression,total_clusters",
+    "test_entries_count": "1000",
+    "bucketMethod": "ensembl_hybrid"
+  },
+  "scxa_gene_experiment": {
+    "id": "113",
+    "name": "SC Expression Atlas Gene-Experiment Detail",
+    "aliases": "SCXA gene experiment,single-cell gene expression detail",
+    "url": "https://www.ebi.ac.uk/gxa/sc/experiments/£{id}",
+    "path": "https://ftp.ebi.ac.uk/pub/databases/microarray/data/atlas/sc_experiments/",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "gene_id,experiment_id,is_marker_in_experiment,marker_cluster_count,max_mean_expression",
+    "test_entries_count": "5000",
+    "bucketMethod": "alphabetic"
   }
 }

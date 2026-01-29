@@ -961,6 +961,18 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 		case "cellxgene_celltype":
 			// Processed by the cellxgene parser, skip standalone processing
 			break
+		case "scxa":
+			d.wg.Add(1)
+			sx := scxa{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go sx.update()
+			break
+		case "scxa_expression":
+			d.wg.Add(1)
+			sxe := scxaExpression{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go sxe.update()
+			break
 		default:
 			log.Fatal("ERROR Unrecognized dataset ->" + data)
 		}

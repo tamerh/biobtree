@@ -289,6 +289,7 @@ Available datasets:
         'msigdb': datasets_dir / "msigdb" / "test_msigdb.py",
         'biogrid': datasets_dir / "biogrid" / "test_biogrid.py",
         'cellxgene': datasets_dir / "cellxgene" / "test_cellxgene.py",
+        'scxa': datasets_dir / "scxa" / "test_scxa.py",
     }
 
     # Parse dataset selection
@@ -324,6 +325,10 @@ Available datasets:
     # CELLxGENE: always build both datasets together (cellxgene + cellxgene_celltype)
     if 'cellxgene' in selected_datasets and 'cellxgene_celltype' not in build_datasets:
         build_datasets.append('cellxgene_celltype')
+
+    # SCXA: always build scxa_expression too (creates scxa_gene_experiment as derived dataset)
+    if 'scxa' in selected_datasets and 'scxa_expression' not in build_datasets:
+        build_datasets.append('scxa_expression')
 
     # Handle Ensembl datasets: when any Ensembl division is selected, build all with genome-taxids
     ensembl_datasets = {'ensembl', 'ensembl_bacteria', 'ensembl_fungi', 'ensembl_metazoa', 'ensembl_plants', 'ensembl_protists'}

@@ -1910,6 +1910,21 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)
 				xref.Attributes = &pbuf.Xref_CellxgeneCelltype{attr}
+			case "scxa":
+				attr := &pbuf.ScxaAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Scxa{attr}
+			case "scxa_expression":
+				attr := &pbuf.ScxaExpressionAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_ScxaExpression{attr}
+			case "scxa_gene_experiment":
+				attr := &pbuf.ScxaGeneExperimentAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_ScxaGeneExperiment{attr}
 			case "drugcentral":
 				attr := &pbuf.DrugcentralAttr{}
 				barr := []byte((*kvProp[k])[0].value)
@@ -2278,6 +2293,21 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 					barr := []byte((*kvProp[k])[0].value)
 					ffjson.Unmarshal(barr, attr)
 					xref.Attributes = &pbuf.Xref_CellxgeneCelltype{attr}
+				case "scxa":
+					attr := &pbuf.ScxaAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_Scxa{attr}
+				case "scxa_expression":
+					attr := &pbuf.ScxaExpressionAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_ScxaExpression{attr}
+				case "scxa_gene_experiment":
+					attr := &pbuf.ScxaGeneExperimentAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_ScxaGeneExperiment{attr}
 				case "drugcentral":
 					attr := &pbuf.DrugcentralAttr{}
 					barr := []byte((*kvProp[k])[0].value)

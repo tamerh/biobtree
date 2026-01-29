@@ -1123,6 +1123,12 @@ func (s *service) execCelGo(query *query.Query, targetXref *pbuf.Xref) (bool, er
 		out, _, err = query.Program.Eval(map[string]interface{}{"cellxgene": targetXref.GetCellxgene()})
 	case "cellxgene_celltype":
 		out, _, err = query.Program.Eval(map[string]interface{}{"cellxgene_celltype": targetXref.GetCellxgeneCelltype()})
+	case "scxa":
+		out, _, err = query.Program.Eval(map[string]interface{}{"scxa": targetXref.GetScxa()})
+	case "scxa_expression":
+		out, _, err = query.Program.Eval(map[string]interface{}{"scxa_expression": targetXref.GetScxaExpression()})
+	case "scxa_gene_experiment":
+		out, _, err = query.Program.Eval(map[string]interface{}{"scxa_gene_experiment": targetXref.GetScxaGeneExperiment()})
 	default:
 		//err := fmt.Errorf("mapfilter query execution failed please check again query")
 		return false, nil

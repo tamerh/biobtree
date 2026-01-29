@@ -7,7 +7,7 @@ via identifiers and special keywors with simple or advance chain query capabilit
 
 ## Features
 
-* **Datasets** - supports wide datasets such as `Ensembl` `Uniprot` `ChEMBL` `HMDB` `BindingDB` `CTD` `STRING` `BioGRID` `MSigDB` `Taxonomy` `GO` `EFO` `HPO` `UBERON` `CL` `HGNC` `ECO` `Uniparc` `Uniref` `RNACentral` `Bgee` `GWAS Catalog` `dbSNP` `RefSeq` `IntAct` `GenCC` `AlphaMissense` `ClinVar` `PharmGKB` `CELLxGENE`  with tens of more via cross references
+* **Datasets** - supports wide datasets such as `Ensembl` `Uniprot` `ChEMBL` `HMDB` `BindingDB` `CTD` `STRING` `BioGRID` `MSigDB` `Taxonomy` `GO` `EFO` `HPO` `UBERON` `CL` `HGNC` `ECO` `Uniparc` `Uniref` `RNACentral` `Bgee` `GWAS Catalog` `dbSNP` `RefSeq` `IntAct` `GenCC` `AlphaMissense` `ClinVar` `PharmGKB` `CELLxGENE` `SCXA`  with tens of more via cross references
 by retrieving latest data from providers
 
 * **MapReduce** - processes small or large datasets based on users selection and build B+ tree based uniform local database via specialized MapReduce based tecnique with efficient storage usage 
@@ -37,6 +37,8 @@ by retrieving latest data from providers
 * **Gene Expression** - `Bgee` database with curated gene expression data across 30+ species and 1,000+ anatomical structures. Includes tissue-specific expression patterns, expression quality scores, multi-technology support (Affymetrix, RNA-Seq, scRNA-Seq), observation counts, and cross-references to Ensembl genes and UBERON tissues
 
 * **Single-Cell Transcriptomics** - `CELLxGENE` Census from CZ Science with 80M+ cells across 1,800+ datasets. Provides dataset metadata (organism, assay types, cell counts) and aggregated cell type data with tissue distribution and disease associations. Cross-references to Taxonomy, CL (Cell Ontology), UBERON (tissues), EFO (assays), and MONDO (diseases). Supports finding datasets by cell type, exploring cell type tissue distribution, and disease-associated single-cell studies
+
+* **Single-Cell Expression Atlas** - `SCXA` from EMBL-EBI with 380+ single-cell RNA-seq experiments. Three integrated datasets: `scxa` (experiment metadata with technology types, cell counts, ontology annotations), `scxa_expression` (gene-centric summaries with marker counts across experiments), and `scxa_gene_experiment` (cluster-level expression details). Cross-references to Taxonomy, CL, UBERON, and Ensembl marker genes. Supports experiment discovery by cell type/tissue, gene expression profiling across single-cell atlas, and marker gene validation
 
 * **GWAS Genetics** - `GWAS Catalog` from NHGRI-EBI with 1,000,000+ SNP-trait associations and 182,000+ published studies. Includes variant-level data (genomic positions, genes, p-values, effect sizes) and study-level metadata (publications, sample sizes, platforms). Supports variant-trait discovery, gene-based variant lookup, disease genetics exploration, and links to EFO trait ontology. Future enhancement planned for ancestry-based filtering
 
@@ -109,6 +111,9 @@ biobtree -d "ensembl,bgee,uberon" build
 
 # build with single-cell transcriptomics (works well with CL, UBERON, MONDO, EFO)
 biobtree -d "cellxgene,cl,uberon,mondo,efo" build
+
+# build with Single Cell Expression Atlas (works well with CL, UBERON, Taxonomy, Ensembl)
+biobtree -d "scxa,scxa_expression,cl,uberon,taxonomy" build
 
 # build with GWAS genetics (works well with EFO, HGNC)
 biobtree -d "gwas,gwas_study,efo,hgnc" build
@@ -380,6 +385,14 @@ biobtree query "CL:0000540 >> cellxgene"          # Find datasets containing neu
 biobtree query "CL_0000540 >> cellxgene_celltype" # Cell type tissue distribution
 biobtree query "UBERON:0000955 >> cellxgene"      # Find brain single-cell datasets
 biobtree query "MONDO:0007254 >> cellxgene"       # Find breast cancer scRNA-seq datasets
+
+# Single Cell Expression Atlas queries (SCXA)
+biobtree query "E-MTAB-6386"                      # Experiment metadata lookup
+biobtree query "E-MTAB-6386 >> scxa"              # Experiment details with cell types
+biobtree query "ENSG00000139618 >> scxa_expression"  # Gene expression summary
+biobtree query "ENSG00000139618 >> scxa_expression >> scxa"  # Gene to experiments
+biobtree query "CL:0000084 >> scxa"               # Find experiments with T cells
+biobtree query "UBERON:0002048 >> scxa"           # Find lung single-cell experiments
 
 # GWAS genetics queries
 biobtree query "rs12451471"                       # SNP variant lookup with traits

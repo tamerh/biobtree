@@ -1960,3 +1960,104 @@ message CellxgeneCelltypeAttr {
   repeated CellxgeneTissueExpression expression_by_tissue = 16;
 }
 
+// SC Expression Atlas Marker Gene (nested in ScxaAttr)
+// Top marker genes per experiment cluster
+message ScxaMarkerGene {
+  string ensembl_id = 1;         // Ensembl gene ID (e.g., ENSG00000226260)
+  string cluster = 2;            // Cluster identifier
+  float score = 3;               // Marker score
+  float log_fold_change = 4;     // Log fold change vs rest
+}
+
+// SC Expression Atlas Experiment (Dataset ID: 111)
+// Source: EMBL-EBI Single Cell Expression Atlas FTP (https://ftp.ebi.ac.uk/pub/databases/microarray/data/atlas/sc_experiments/)
+// Primary key: Experiment accession (E-MTAB-XXXXX, E-ANND-X, E-GEOD-XXXXXX, etc.)
+message ScxaAttr {
+  string experiment_accession = 1;        // Unique experiment ID (e.g., E-MTAB-6386)
+  string description = 2;                 // Investigation title from IDF file
+  string species = 3;                     // Species name from SDRF (e.g., "Homo sapiens")
+  string kingdom = 4;                     // Taxonomic kingdom (animals, plants, fungi)
+  string load_date = 5;                   // Public release date from IDF (DD-MM-YYYY)
+  string last_update = 6;                 // Last update date (DD-MM-YYYY)
+  string experiment_type = 7;             // Type: Baseline or Differential (from IDF Comment[EAExperimentType])
+  string raw_experiment_type = 8;         // Raw type (e.g., SINGLE_CELL_RNASEQ_MRNA_BASELINE)
+  repeated string technology_types = 9;   // Technology platforms extracted from protocol description
+  int64 number_of_cells = 10;             // Number of cells/assays in the experiment
+  repeated string experimental_factors = 11;  // Experimental Factor Name from IDF
+  repeated string experiment_projects = 12;   // Projects (Human Cell Atlas, etc.)
+
+  // Cell types found in experiment (from condensed-sdrf.tsv)
+  repeated string cell_types = 13;           // Unique cell type names
+  repeated string cell_type_cl_ids = 14;     // Cell Ontology IDs (CL:XXXXXXX)
+
+  // Tissues found in experiment (from condensed-sdrf.tsv)
+  repeated string tissues = 15;              // Unique tissue/organism part names
+  repeated string tissue_uberon_ids = 16;    // UBERON ontology IDs
+
+  // Diseases found in experiment (from condensed-sdrf.tsv)
+  repeated string diseases = 17;             // Unique disease names
+  repeated string disease_ids = 18;          // MONDO/EFO/PATO disease IDs
+
+  // Top marker genes (from marker_genes_*.tsv files)
+  repeated ScxaMarkerGene top_marker_genes = 19;  // Top marker genes across clusters
+
+  // Additional metadata from IDF
+  string pubmed_id = 20;                     // PubMed ID if published
+  string publication_doi = 21;               // Publication DOI
+}
+
+// SC Expression Atlas Gene Expression Entry (per experiment/cluster)
+// Used within ScxaExpressionAttr to store expression data
+message ScxaExpressionEntry {
+  string experiment_id = 1;        // Experiment accession (E-CURD-10)
+  string cluster_id = 2;           // Cluster identifier (1, 2, etc.)
+  double mean_expression = 3;      // Mean expression in this cluster
+  double median_expression = 4;    // Median expression in this cluster
+  double p_value = 5;              // Marker p-value
+  bool is_marker = 6;              // True if gene is a marker for this cluster
+  string marker_for_cluster = 7;   // Which cluster it's a marker for (if any)
+}
+
+// SC Expression Atlas Gene Expression (Dataset ID: 112)
+// Gene-centric SUMMARY view of single-cell expression data
+// Primary key: Ensembl Gene ID (ENSG...)
+// Detailed expression data stored in scxa_gene_exp entries (linked via xrefs)
+message ScxaExpressionAttr {
+  string gene_id = 1;                        // Ensembl gene ID (ENSG00000006118)
+  string gene_name = 2;                      // Gene symbol if available
+  int32 species_taxid = 3;                   // NCBI taxonomy ID
+
+  // Summary statistics only (detailed data in scxa_gene_exp)
+  int32 total_experiments = 5;               // Number of experiments with expression
+  int32 marker_experiment_count = 6;         // Experiments where it's a marker
+  double max_mean_expression = 7;            // Highest mean expression across clusters
+  double avg_mean_expression = 8;            // Average expression
+  int32 total_clusters = 9;                  // Total cluster entries across all experiments
+}
+
+// SC Expression Atlas Gene-Experiment Detail (Dataset ID: 113)
+// Detailed cluster-level expression for a gene in a specific experiment
+// Primary key: {gene_id}_{experiment_id} (e.g., ENSG00000019582_E-MTAB-6386)
+// Linked from scxa_expression (gene summary) and scxa (experiment)
+message ScxaGeneExperimentAttr {
+  string gene_id = 1;                        // Ensembl gene ID
+  string experiment_id = 2;                  // SCXA experiment accession
+
+  // Cluster-level expression data for this gene in this experiment
+  repeated ScxaClusterExpression clusters = 3;
+
+  // Summary for this gene-experiment pair
+  bool is_marker_in_experiment = 4;          // True if gene is marker in any cluster
+  int32 marker_cluster_count = 5;            // Number of clusters where it's a marker
+  double max_mean_expression = 6;            // Highest mean expression in this experiment
+}
+
+// Cluster-level expression data (used in ScxaGeneExperimentAttr)
+message ScxaClusterExpression {
+  string cluster_id = 1;           // Cluster identifier
+  double mean_expression = 2;      // Mean expression in this cluster
+  double median_expression = 3;    // Median expression
+  double p_value = 4;              // Marker p-value
+  bool is_marker = 5;              // True if gene is marker for this cluster
+}
+

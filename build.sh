@@ -14,12 +14,14 @@
 #   ./build.sh --from pubchem          # Resume from specific dataset
 #   ./build.sh --only pubchem          # Run single dataset
 #   ./build.sh --generate              # Run generate phase only (build database)
+#   ./build.sh --web                   # Start web server (foreground, default: out/)
+#   ./build.sh <output_dir> --web      # Start web server for custom dir (background, logs to web.log)
 
 set -e
 
 # Re-run script in background if BUILD_IN_BG is not set
 # This makes the script itself run in background with output to log file
-if [[ -z "$BUILD_IN_BG" && "$1" != "--status" && "$1" != "--check" && "$1" != "--help" && "$1" != "-h" ]]; then
+if [[ -z "$BUILD_IN_BG" && "$1" != "--status" && "$1" != "--check" && "$1" != "--help" && "$1" != "-h" && "$1" != "--web" ]]; then
     mkdir -p logs
     LOG_FILE="logs/build_$(date +%Y%m%d_%H%M%S).log"
     echo "Running in background. Log: $LOG_FILE"
@@ -172,6 +174,7 @@ show_help() {
     echo "  --maxcpu <N>      Max CPUs (default: 8)"
     echo "  --dry-run         Show what would be done"
     echo "  --status          Show dataset status from state file"
+    echo "  --web             Start web server"
     echo "  --help            Show this help message"
     echo ""
     echo "Available datasets:"
@@ -193,6 +196,7 @@ GENERATE_ONLY="false"
 FORCE="false"
 DRY_RUN="false"
 SHOW_STATUS="false"
+WEB_SERVER="false"
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -204,6 +208,7 @@ while [[ $# -gt 0 ]]; do
         --maxcpu)       MAXCPU=$2; shift 2 ;;
         --dry-run)      DRY_RUN="true"; shift ;;
         --status)       SHOW_STATUS="true"; shift ;;
+        --web)          WEB_SERVER="true"; shift ;;
         --help|-h)      show_help ;;
         *)              echo "Unknown option: $1"; show_help ;;
     esac
@@ -429,6 +434,23 @@ fi
 # Status mode
 if [[ "$SHOW_STATUS" == "true" ]]; then
     show_status
+    exit 0
+fi
+
+# Web server mode
+if [[ "$WEB_SERVER" == "true" ]]; then
+    if [[ "$OUT_DIR" == "out" ]]; then
+        # Default directory - run in foreground
+        echo "Starting web server (foreground)..."
+        exec ./biobtree web
+    else
+        # Custom directory - run in background with --prod
+        echo "Starting web server in background..."
+        echo "Log: ${LOG_DIR}/web.log"
+        nohup ./biobtree --out-dir "$OUT_DIR" --prod web > "${LOG_DIR}/web.log" 2>&1 &
+        echo "PID: $!"
+        echo "Monitor: tail -f ${LOG_DIR}/web.log"
+    fi
     exit 0
 fi
 

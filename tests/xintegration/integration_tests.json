@@ -1,10 +1,10 @@
 {
   "metadata": {
-    "version": "4.2",
+    "version": "4.3",
     "description": "Expanded integration tests including newly added datasets (2025-2026)",
     "server": "http://scc2:9292",
-    "last_updated": "2026-01-27",
-    "note": "Updated for new >> syntax. Added IntAct mRNA-miRNA and protein-gene interaction tests."
+    "last_updated": "2026-01-30",
+    "note": "Updated for new >> syntax. Added AlphaFold, BioGRID, and dbSNP tests for drug discovery workflow coverage."
   },
   "test_categories": {
     "gene_mapping": "Gene symbol/ID to various resources (proteins, transcripts, GO terms)",
@@ -48,6 +48,18 @@
       "name": "Gene Symbol to Reviewed Uniprot (Swiss-Prot)",
       "query": ">>ensembl>>uniprot[uniprot.reviewed==true]",
       "why": "Get only manually curated Swiss-Prot entries for higher confidence protein data",
+      "should_pass": [
+        "BRCA1",
+        "TP53",
+        "EGFR"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "gene_mapping",
+      "name": "Gene Symbol to Human Reviewed UniProt",
+      "query": ">>ensembl[ensembl.genome==\"homo_sapiens\"]>>uniprot[uniprot.reviewed==true]",
+      "why": "Human-specific mapping to Swiss-Prot - used in AlphaFold and IntAct paths for precise mapping",
       "should_pass": [
         "BRCA1",
         "TP53",
@@ -590,6 +602,18 @@
     },
     {
       "category": "protein_interactions",
+      "name": "UniProt to IntAct Interactions",
+      "query": ">>uniprot>>intact",
+      "why": "Direct UniProt to IntAct mapping - used in IntAct path for protein interaction queries",
+      "should_pass": [
+        "P38398",
+        "P04637",
+        "P00533"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_interactions",
       "name": "Gene to Protein Interactions via UniProt",
       "query": ">>ensembl>>uniprot>>intact",
       "why": "Map genes to interaction partners - essential for pathway and network biology",
@@ -935,6 +959,42 @@
       "should_fail": []
     },
     {
+      "category": "protein_structures",
+      "name": "Gene to AlphaFold via UniProt",
+      "query": ">>ensembl[ensembl.genome==\"homo_sapiens\"]>>uniprot[uniprot.reviewed==true]>>alphafold",
+      "why": "Map genes to AlphaFold predicted structures for drug discovery - structure-based drug design workflow",
+      "should_pass": [
+        "BRCA1",
+        "TP53",
+        "EGFR"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_structures",
+      "name": "UniProt to AlphaFold Structure",
+      "query": ">>uniprot>>alphafold",
+      "why": "Direct UniProt to AlphaFold mapping for structural analysis",
+      "should_pass": [
+        "P38398",
+        "P04637",
+        "P00533"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_structures",
+      "name": "AlphaFold Attributes Validation",
+      "type": "validation",
+      "query": ">>ensembl>>uniprot>>alphafold",
+      "identifier": "TP53",
+      "why": "TP53 AlphaFold structure should have pLDDT confidence metrics",
+      "validations": [
+        {"path": "source.count", "min": 1, "description": "At least 1 AlphaFold structure"},
+        {"path": "targets[0].Attributes.Alphafold.global_metric", "min": 0, "max": 100, "description": "Global pLDDT score 0-100"}
+      ]
+    },
+    {
       "category": "protein_interactions",
       "name": "Complete Network: Gene to Interactions to Pathways",
       "query": ">>ensembl>>uniprot>>intact>>uniprot>>reactome",
@@ -942,6 +1002,62 @@
       "should_pass": [
         "BRCA1",
         "TP53"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_interactions",
+      "name": "Gene to BioGRID Interactions via Entrez",
+      "query": ">>ensembl[ensembl.genome==\"homo_sapiens\"]>>entrez>>biogrid",
+      "why": "Map genes to BioGRID protein-protein interactions - critical for network analysis and drug discovery",
+      "should_pass": [
+        "TP53",
+        "EGFR"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_interactions",
+      "name": "Entrez Gene to BioGRID Interactions",
+      "query": ">>entrez>>biogrid",
+      "why": "Direct Entrez Gene ID to BioGRID mapping for interaction network analysis",
+      "should_pass": [
+        "7157",
+        "1956"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_interactions",
+      "name": "BioGRID Interaction Lookup by ID",
+      "query": ">>biogrid",
+      "why": "Direct lookup of BioGRID interaction entry by BioGRID ID",
+      "should_pass": [
+        "107140",
+        "111426"
+      ],
+      "should_fail": [
+        "BIOGRID-NOTREAL"
+      ]
+    },
+    {
+      "category": "protein_interactions",
+      "name": "BioGRID to UniProt Interactors",
+      "query": ">>entrez>>biogrid>>uniprot",
+      "why": "Get UniProt IDs for BioGRID interaction partners - enables protein feature analysis of interactors",
+      "should_pass": [
+        "7157"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_interactions",
+      "name": "UniProt to BioGRID Interactions",
+      "query": ">>uniprot>>biogrid",
+      "why": "Direct UniProt to BioGRID mapping for drug target interaction enrichment",
+      "should_pass": [
+        "P04637",
+        "P00533"
       ],
       "should_fail": []
     },
@@ -1153,6 +1269,53 @@
         "BRCA1",
         "TP53",
         "EGFR"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "genomics",
+      "name": "Gene to dbSNP Variants",
+      "query": ">>ensembl[ensembl.genome==\"homo_sapiens\"]>>dbsnp",
+      "why": "Map genes to dbSNP variants for genetic variation analysis - core SNP discovery workflow",
+      "should_pass": [
+        "BRCA1",
+        "TP53",
+        "EGFR"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "genomics",
+      "name": "Ensembl Gene ID to dbSNP",
+      "query": ">>ensembl>>dbsnp",
+      "why": "Direct Ensembl gene ID to dbSNP variant mapping",
+      "should_pass": [
+        "ENSG00000012048",
+        "ENSG00000141510"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "genomics",
+      "name": "dbSNP Variant Lookup by rsID",
+      "query": ">>dbsnp",
+      "why": "Direct lookup of dbSNP variants by rs ID - essential for SNP annotation",
+      "should_pass": [
+        "rs1801133",
+        "rs7412",
+        "rs429358"
+      ],
+      "should_fail": [
+        "rs99999999999"
+      ]
+    },
+    {
+      "category": "genomics",
+      "name": "dbSNP to ClinVar via Gene",
+      "query": ">>dbsnp>>ensembl>>clinvar",
+      "why": "Find clinical significance of dbSNP variants via gene to ClinVar mapping",
+      "should_pass": [
+        "rs1801133"
       ],
       "should_fail": []
     },
@@ -1551,12 +1714,98 @@
       "should_fail": []
     },
     {
+      "category": "gwas_genetics",
+      "name": "Disease to GWAS Genes via EFO (Human)",
+      "query": ">>mondo>>efo>>gwas>>ensembl[ensembl.genome==\"homo_sapiens\"]",
+      "why": "Full disease to human genes path via GWAS - used in dbSNP path for gene retrieval",
+      "should_pass": [
+        "MONDO:0005148",
+        "MONDO:0005044"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "gwas_genetics",
+      "name": "Glioblastoma Text to GWAS Genes",
+      "query": ">>mondo>>efo>>gwas>>ensembl[ensembl.genome==\"homo_sapiens\"]",
+      "why": "Drug discovery workflow: disease text to genes via GWAS - tests text-based disease lookup. MONDO:0005044 is main glioblastoma (not subtypes like MONDO:0000457)",
+      "should_pass": [
+        "glioblastoma",
+        "MONDO:0005044"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "clinical_variants",
+      "name": "Disease to ClinVar Genes via MONDO (Human)",
+      "query": ">>mondo>>clinvar>>ensembl[ensembl.genome==\"homo_sapiens\"]",
+      "why": "Full disease to human genes path via ClinVar - used in dbSNP path for gene retrieval",
+      "should_pass": [
+        "MONDO:0005148",
+        "MONDO:0007254"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "clinical_variants",
+      "name": "Glioblastoma Text to ClinVar Genes",
+      "query": ">>mondo>>clinvar>>ensembl[ensembl.genome==\"homo_sapiens\"]",
+      "why": "Drug discovery workflow: disease text to genes via ClinVar - tests text-based disease lookup. MONDO:0005044 is main glioblastoma (not subtypes like MONDO:0000457)",
+      "should_pass": [
+        "glioblastoma",
+        "MONDO:0005044"
+      ],
+      "should_fail": []
+    },
+    {
       "category": "drug_discovery",
       "name": "JAK2 Advanced Clinical Trial Drugs",
       "query": ">>ensembl>>uniprot>>chembl_target_component>>chembl_target>>chembl_assay>>chembl_activity>>chembl_molecule[chembl.molecule.highestDevelopmentPhase>2]",
       "why": "Find JAK2 drugs in advanced clinical trials (Phase 3/4) - full drug discovery chain. NOTE: This is a long chain query and may be slow (~60s)",
       "should_pass": [
         "JAK2"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "drug_discovery",
+      "name": "Disease Text to AlphaFold Structures",
+      "query": ">>mondo>>gencc>>ensembl[ensembl.genome==\"homo_sapiens\"]>>uniprot[uniprot.reviewed==true]>>alphafold",
+      "why": "Drug discovery workflow: disease text to AlphaFold structures for structure-based drug design",
+      "should_pass": [
+        "glioblastoma",
+        "breast cancer"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "drug_discovery",
+      "name": "Disease Text to BioGRID Interactions",
+      "query": ">>mondo>>gencc>>ensembl[ensembl.genome==\"homo_sapiens\"]>>entrez>>biogrid",
+      "why": "Drug discovery workflow: disease text to protein interactions for network-based target discovery",
+      "should_pass": [
+        "glioblastoma"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "drug_discovery",
+      "name": "Disease Text to dbSNP Variants",
+      "query": ">>mondo>>gencc>>ensembl[ensembl.genome==\"homo_sapiens\"]>>dbsnp",
+      "why": "Drug discovery workflow: disease text to genetic variants for pharmacogenomics",
+      "should_pass": [
+        "glioblastoma",
+        "breast cancer"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "drug_discovery",
+      "name": "Disease Text to IntAct Interactions",
+      "query": ">>mondo>>gencc>>ensembl[ensembl.genome==\"homo_sapiens\"]>>uniprot[uniprot.reviewed==true]>>intact",
+      "why": "Drug discovery workflow: disease text to experimentally validated protein interactions",
+      "should_pass": [
+        "glioblastoma"
       ],
       "should_fail": []
     },

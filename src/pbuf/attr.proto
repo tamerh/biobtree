@@ -1560,6 +1560,42 @@ message BiogridInteraction {
   string source_database = 19;                    // Original source database
 }
 
+// BioGRID Interaction - Individual interaction record (Dataset ID: 114)
+// Stores each protein-protein or genetic interaction as a separate entry
+// Follows IntAct pattern for efficient querying of interaction networks
+message BiogridInteractionAttr {
+  // Interaction identifier
+  string interaction_id = 1;                      // BioGRID Interaction ID (e.g., "103")
+
+  // Experimental details
+  string experimental_system = 2;                 // Experimental system (e.g., "Two-hybrid", "Affinity Capture-MS")
+  string experimental_system_type = 3;            // "physical" or "genetic"
+  string author = 4;                              // First author with publication year
+  string publication = 5;                         // PubMed ID for the publication
+  string throughput = 6;                          // "High Throughput", "Low Throughput", or "Both"
+
+  // Quality and scoring
+  string score = 7;                               // Quantitative score (if available)
+  string modification = 8;                        // Post-translational modification (if applicable)
+  string qualifications = 9;                      // Additional qualifications
+  string tags = 10;                               // Tags/annotations
+  string source_database = 11;                    // Original source database
+
+  // Interactor A
+  string interactor_a_id = 12;                    // Interactor A's identifier (UniProt/Entrez)
+  string interactor_a_symbol = 13;                // Interactor A's gene symbol
+  int32 interactor_a_organism = 14;               // Interactor A's NCBI Taxonomy ID
+
+  // Interactor B
+  string interactor_b_id = 15;                    // Interactor B's identifier (UniProt/Entrez)
+  string interactor_b_symbol = 16;                // Interactor B's gene symbol
+  int32 interactor_b_organism = 17;               // Interactor B's NCBI Taxonomy ID
+
+  // Phenotype information (for genetic interactions)
+  string phenotype = 18;                          // Phenotype term
+  string ontology_term_id = 19;                   // Ontology term ID (e.g., GO, HP)
+}
+
 // DrugCentral - Drug-Target Interaction Database (Dataset ID: 106)
 // Comprehensive drug database with target interactions and mechanism of action
 // Source: https://drugcentral.org/

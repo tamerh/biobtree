@@ -1,15 +1,26 @@
 {
   "dataset": "biogrid",
-  "description": "BioGRID protein-protein and genetic interaction database tests",
+  "description": "BioGRID protein-protein and genetic interaction database tests (dual dataset: biogrid summary + biogrid_interaction details)",
   "test_cases": [
     {
       "name": "basic_biogrid_lookup",
-      "description": "Look up a BioGRID interactor by ID",
+      "description": "Look up a BioGRID interactor summary by ID",
       "type": "search",
       "input": "112315",
       "expected": {
         "has_results": true,
         "dataset": "biogrid"
+      }
+    },
+    {
+      "name": "biogrid_summary_attributes",
+      "description": "Verify BioGRID summary has statistics (no embedded interactions)",
+      "type": "entry",
+      "input": "112315",
+      "dataset": "biogrid",
+      "expected": {
+        "has_attributes": true,
+        "attribute_fields": ["biogrid_id", "interaction_count", "unique_partners", "physical_count", "genetic_count"]
       }
     },
     {
@@ -47,7 +58,7 @@
     },
     {
       "name": "uniprot_to_biogrid",
-      "description": "Map UniProt to BioGRID (reverse lookup)",
+      "description": "Map UniProt to BioGRID summary (reverse lookup)",
       "type": "mapping",
       "input": "P45985",
       "chain": ">>uniprot>>biogrid",
@@ -79,36 +90,14 @@
       }
     },
     {
-      "name": "biogrid_partner_lookup",
-      "description": "Look up BioGRID interaction partner",
+      "name": "biogrid_to_interaction",
+      "description": "Map BioGRID summary to biogrid_interaction details",
       "type": "mapping",
       "input": "112315",
-      "chain": ">>biogrid>>biogrid",
+      "chain": ">>biogrid>>biogrid_interaction",
       "expected": {
         "has_results": true,
-        "target_dataset": "biogrid"
-      }
-    },
-    {
-      "name": "biogrid_attributes_present",
-      "description": "Verify BioGRID entry has expected attributes",
-      "type": "entry",
-      "input": "112315",
-      "dataset": "biogrid",
-      "expected": {
-        "has_attributes": true,
-        "attribute_fields": ["biogrid_id", "interaction_count", "unique_partners", "interactions"]
-      }
-    },
-    {
-      "name": "biogrid_interaction_has_throughput",
-      "description": "Verify BioGRID interactions have throughput field (TAB3 format)",
-      "type": "entry",
-      "input": "112315",
-      "dataset": "biogrid",
-      "expected": {
-        "has_attributes": true,
-        "nested_field": "interactions[0].throughput"
+        "target_dataset": "biogrid_interaction"
       }
     },
     {
@@ -128,6 +117,38 @@
       "type": "mapping",
       "input": "112315",
       "chain": ">>biogrid[biogrid.physical_count > 0]",
+      "expected": {
+        "has_results": true
+      }
+    },
+    {
+      "name": "uniprot_to_biogrid_interaction",
+      "description": "Map UniProt directly to biogrid_interaction (bypassing summary)",
+      "type": "mapping",
+      "input": "P45985",
+      "chain": ">>uniprot>>biogrid_interaction",
+      "expected": {
+        "has_results": true,
+        "target_dataset": "biogrid_interaction"
+      }
+    },
+    {
+      "name": "biogrid_interaction_to_pubmed",
+      "description": "Map biogrid_interaction to PubMed",
+      "type": "mapping",
+      "input": "112315",
+      "chain": ">>biogrid>>biogrid_interaction>>pubmed",
+      "expected": {
+        "has_results": true,
+        "target_dataset": "pubmed"
+      }
+    },
+    {
+      "name": "biogrid_interaction_physical_filter",
+      "description": "Filter biogrid_interaction by experimental_system_type",
+      "type": "mapping",
+      "input": "P45985",
+      "chain": ">>uniprot>>biogrid_interaction[biogrid_interaction.experimental_system_type=='physical']",
       "expected": {
         "has_results": true
       }

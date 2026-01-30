@@ -115,6 +115,7 @@ func (b *biogrid) parseAndSaveInteractions(testLimit int, idLogFile *os.File) {
 	defer closeReaders(gz, ftpFile, client, localFile)
 
 	sourceID := config.Dataconf[b.source]["id"]
+	interactionSourceID := config.Dataconf["biogrid_interaction"]["id"]
 
 	// Read the entire ZIP into memory (needed for zip.NewReader)
 	log.Println("BioGRID: Reading ZIP file...")
@@ -173,6 +174,9 @@ func (b *biogrid) parseAndSaveInteractions(testLimit int, idLogFile *os.File) {
 	// Group interactions by BioGRID interactor ID
 	// Key: BioGRID ID, Value: list of interactions for that interactor
 	interactorData := make(map[string]*biogridAggregator)
+
+	// Track saved interaction IDs to avoid duplicates (each interaction appears twice in file)
+	savedInteractionIDs := make(map[string]bool)
 
 	var processedCount int
 	var previous int64
@@ -235,6 +239,12 @@ func (b *biogrid) parseAndSaveInteractions(testLimit int, idLogFile *os.File) {
 			continue
 		}
 
+		// Save individual interaction to biogrid_interaction dataset (only once per interaction ID)
+		if interaction.InteractionId != "" && !savedInteractionIDs[interaction.InteractionId] {
+			b.saveIndividualInteraction(interaction, row, interactionSourceID)
+			savedInteractionIDs[interaction.InteractionId] = true
+		}
+
 		// Add to interactor A's aggregator
 		b.addToAggregator(interactorData, biogridA, interaction, row)
 
@@ -270,9 +280,10 @@ func (b *biogrid) parseAndSaveInteractions(testLimit int, idLogFile *os.File) {
 	}
 
 	log.Printf("BioGRID: Saved %d unique interactors with interactions", savedInteractors)
+	log.Printf("BioGRID: Saved %d individual interactions to biogrid_interaction", len(savedInteractionIDs))
 
-	// Update entry statistics
-	atomic.AddUint64(&b.d.totalParsedEntry, uint64(savedInteractors))
+	// Update entry statistics (count both interactors and individual interactions)
+	atomic.AddUint64(&b.d.totalParsedEntry, uint64(savedInteractors+len(savedInteractionIDs)))
 }
 
 // biogridAggregator holds aggregated data for a single BioGRID interactor
@@ -766,7 +777,7 @@ func (b *biogrid) saveInteractor(biogridID string, agg *biogridAggregator, sourc
 
 	attr := &pbuf.BiogridAttr{
 		BiogridId:           biogridID,
-		Interactions:        agg.interactions,
+		// Note: Interactions array removed - use biogrid_interaction dataset for details
 		InteractionCount:    int32(len(agg.interactions)),
 		UniquePartners:      int32(len(agg.uniquePartners)),
 		PhysicalCount:       int32(agg.physicalCount),
@@ -844,6 +855,140 @@ func (b *biogrid) createCrossReferences(biogridID string, agg *biogridAggregator
 			b.d.addXref(biogridID, sourceID, partnerID, b.source, false)
 			partnerCount++
 		}
+	}
+}
+
+// saveIndividualInteraction saves a single interaction to the biogrid_interaction dataset
+// This follows the IntAct pattern: each interaction is a separate entry with cross-references to both proteins
+func (b *biogrid) saveIndividualInteraction(interaction *pbuf.BiogridInteraction, row []string, interactionSourceID string) {
+	interactionID := interaction.InteractionId
+
+	// Get interactor A info from row
+	entrezA := b.getFieldByIndex(row, tab3EntrezA)
+	if entrezA == "-" {
+		entrezA = ""
+	}
+	symbolA := b.getFieldByIndex(row, tab3SymbolA)
+	if symbolA == "-" {
+		symbolA = ""
+	}
+	organismA := b.parseOrganismID(b.getFieldByIndex(row, tab3OrganismIDA))
+
+	// Get interactor B info from row
+	entrezB := b.getFieldByIndex(row, tab3EntrezB)
+	if entrezB == "-" {
+		entrezB = ""
+	}
+	symbolB := b.getFieldByIndex(row, tab3SymbolB)
+	if symbolB == "-" {
+		symbolB = ""
+	}
+	organismB := b.parseOrganismID(b.getFieldByIndex(row, tab3OrganismIDB))
+
+	// Get UniProt IDs for both interactors
+	uniprotA := b.parseDelimitedIDs(b.getFieldByIndex(row, tab3SwissProtA))
+	tremblA := b.parseDelimitedIDs(b.getFieldByIndex(row, tab3TremblA))
+	uniprotA = append(uniprotA, tremblA...)
+
+	uniprotB := b.parseDelimitedIDs(b.getFieldByIndex(row, tab3SwissProtB))
+	tremblB := b.parseDelimitedIDs(b.getFieldByIndex(row, tab3TremblB))
+	uniprotB = append(uniprotB, tremblB...)
+
+	// Determine the primary identifier for each interactor (prefer UniProt, fallback to Entrez)
+	interactorAID := ""
+	if len(uniprotA) > 0 {
+		interactorAID = uniprotA[0]
+	} else if entrezA != "" {
+		interactorAID = entrezA
+	}
+
+	interactorBID := ""
+	if len(uniprotB) > 0 {
+		interactorBID = uniprotB[0]
+	} else if entrezB != "" {
+		interactorBID = entrezB
+	}
+
+	// Create BiogridInteractionAttr
+	attr := &pbuf.BiogridInteractionAttr{
+		InteractionId:          interactionID,
+		ExperimentalSystem:     interaction.ExperimentalSystem,
+		ExperimentalSystemType: interaction.ExperimentalSystemType,
+		Author:                 interaction.Author,
+		Publication:            interaction.PubmedId,
+		Throughput:             interaction.Throughput,
+		Score:                  interaction.Score,
+		Modification:           interaction.Modification,
+		Qualifications:         interaction.Qualifications,
+		Tags:                   interaction.Tags,
+		SourceDatabase:         interaction.SourceDatabase,
+		InteractorAId:          interactorAID,
+		InteractorASymbol:      symbolA,
+		InteractorAOrganism:    organismA,
+		InteractorBId:          interactorBID,
+		InteractorBSymbol:      symbolB,
+		InteractorBOrganism:    organismB,
+		Phenotype:              interaction.Phenotype,
+		OntologyTermId:         interaction.OntologyTermId,
+	}
+
+	// Marshal attributes
+	attrBytes, err := ffjson.Marshal(attr)
+	b.check(err, fmt.Sprintf("marshaling biogrid_interaction attributes for %s", interactionID))
+
+	// Save interaction entry
+	b.d.addProp3(interactionID, interactionSourceID, attrBytes)
+
+	// Create cross-references from interaction to both proteins
+	// This enables queries like: protein >> biogrid_interaction >> protein
+
+	// Interaction → UniProt proteins (both interactors)
+	for _, uid := range uniprotA {
+		if uid != "" {
+			b.d.addXref(interactionID, interactionSourceID, uid, "uniprot", false)
+		}
+	}
+	for _, uid := range uniprotB {
+		if uid != "" {
+			b.d.addXref(interactionID, interactionSourceID, uid, "uniprot", false)
+		}
+	}
+
+	// Interaction → Entrez genes (both interactors)
+	if entrezA != "" {
+		b.d.addXref(interactionID, interactionSourceID, entrezA, "entrez", false)
+	}
+	if entrezB != "" {
+		b.d.addXref(interactionID, interactionSourceID, entrezB, "entrez", false)
+	}
+
+	// Interaction → PubMed
+	if interaction.PubmedId != "" {
+		b.d.addXref(interactionID, interactionSourceID, interaction.PubmedId, "pubmed", false)
+	}
+
+	// Interaction → Taxonomy (both organisms)
+	if organismA > 0 {
+		b.d.addXref(interactionID, interactionSourceID, strconv.Itoa(int(organismA)), "taxonomy", false)
+	}
+	if organismB > 0 && organismB != organismA {
+		b.d.addXref(interactionID, interactionSourceID, strconv.Itoa(int(organismB)), "taxonomy", false)
+	}
+
+	// Interaction ID text search
+	b.d.addXref(interactionID, textLinkID, interactionID, "biogrid_interaction", true)
+
+	// biogrid_interaction ↔ biogrid (both interactors)
+	// Get the BioGRID Interactor IDs from row
+	biogridIDA := b.getFieldByIndex(row, tab3BiogridIDA)
+	biogridIDB := b.getFieldByIndex(row, tab3BiogridIDB)
+
+	// Link interaction to both BioGRID interactor entries
+	if biogridIDA != "" && biogridIDA != "-" {
+		b.d.addXref(interactionID, interactionSourceID, biogridIDA, "biogrid", false)
+	}
+	if biogridIDB != "" && biogridIDB != "-" {
+		b.d.addXref(interactionID, interactionSourceID, biogridIDB, "biogrid", false)
 	}
 }
 

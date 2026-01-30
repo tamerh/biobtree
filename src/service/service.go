@@ -180,6 +180,8 @@ func (s *service) init() {
 		cel.Types(&pbuf.ScxaExpressionAttr{}),
 		cel.Types(&pbuf.ScxaGeneExperimentAttr{}),
 		cel.Types(&pbuf.ScxaClusterExpression{}),
+		cel.Types(&pbuf.ClinvarAttr{}),
+		cel.Types(&pbuf.BiogridInteractionAttr{}),
 		cel.Declarations(
 			decls.NewIdent("uniprot", decls.NewObjectType("pbuf.UniprotAttr"), nil)),
 		cel.Declarations(
@@ -253,6 +255,8 @@ func (s *service) init() {
 		cel.Declarations(
 			decls.NewIdent("dbsnp", decls.NewObjectType("pbuf.DbsnpAttr"), nil)),
 		cel.Declarations(
+			decls.NewIdent("clinvar", decls.NewObjectType("pbuf.ClinvarAttr"), nil)),
+		cel.Declarations(
 			decls.NewIdent("antibody", decls.NewObjectType("pbuf.AntibodyAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("pubchem", decls.NewObjectType("pbuf.PubchemAttr"), nil)),
@@ -272,6 +276,8 @@ func (s *service) init() {
 			decls.NewIdent("ctd", decls.NewObjectType("pbuf.CtdAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("biogrid", decls.NewObjectType("pbuf.BiogridAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("biogrid_interaction", decls.NewObjectType("pbuf.BiogridInteractionAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("drugcentral", decls.NewObjectType("pbuf.DrugcentralAttr"), nil)),
 		cel.Declarations(

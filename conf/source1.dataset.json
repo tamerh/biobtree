@@ -755,7 +755,7 @@
   "biogrid": {
     "id": "62",
     "name": "BioGRID",
-    "aliases": "BioGRID,biogrid interaction,genetic interaction,physical interaction,interaction database",
+    "aliases": "BioGRID,interaction database",
     "url": "https://thebiogrid.org/interaction/£{id}",
     "path": "https://downloads.thebiogrid.org/Download/BioGRID/Latest-Release/BIOGRID-ALL-LATEST.tab3.zip",
     "useLocalFile": "no",
@@ -949,5 +949,14 @@
     "attrs": "gene_id,experiment_id,is_marker_in_experiment,marker_cluster_count,max_mean_expression",
     "test_entries_count": "5000",
     "bucketMethod": "alphabetic"
+  },
+  "biogrid_interaction": {
+    "id": "114",
+    "name": "BioGRID Interaction",
+    "aliases": "",
+    "url": "https://thebiogrid.org/interaction/£{id}",
+    "hasFilter": "yes",
+    "attrs": "interaction_id,experimental_system,experimental_system_type,author,publication,throughput,score,modification,qualifications,tags,source_database,interactor_a_id,interactor_a_symbol,interactor_a_organism,interactor_b_id,interactor_b_symbol,interactor_b_organism",
+    "bucketMethod": "numeric"
   }
 }

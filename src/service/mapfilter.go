@@ -1087,18 +1087,24 @@ func (s *service) execCelGo(query *query.Query, targetXref *pbuf.Xref) (bool, er
 		out, _, err = query.Program.Eval(map[string]interface{}{"intact": targetXref.GetIntact()})
 	case "dbsnp":
 		out, _, err = query.Program.Eval(map[string]interface{}{"dbsnp": targetXref.GetDbsnp()})
+	case "clinvar":
+		out, _, err = query.Program.Eval(map[string]interface{}{"clinvar": targetXref.GetClinvar()})
 	case "antibody":
 		out, _, err = query.Program.Eval(map[string]interface{}{"antibody": targetXref.GetAntibody()})
 	case "entrez":
 		out, _, err = query.Program.Eval(map[string]interface{}{"entrez": targetXref.GetEntrez()})
 	case "refseq":
 		out, _, err = query.Program.Eval(map[string]interface{}{"refseq": targetXref.GetRefseq()})
+	case "gencc":
+		out, _, err = query.Program.Eval(map[string]interface{}{"gencc": targetXref.GetGencc()})
 	case "bindingdb":
 		out, _, err = query.Program.Eval(map[string]interface{}{"bindingdb": targetXref.GetBindingdb()})
 	case "ctd":
 		out, _, err = query.Program.Eval(map[string]interface{}{"ctd": targetXref.GetCtd()})
 	case "biogrid":
 		out, _, err = query.Program.Eval(map[string]interface{}{"biogrid": targetXref.GetBiogrid()})
+	case "biogrid_interaction":
+		out, _, err = query.Program.Eval(map[string]interface{}{"biogrid_interaction": targetXref.GetBiogridInteraction()})
 	case "drugcentral":
 		out, _, err = query.Program.Eval(map[string]interface{}{"drugcentral": targetXref.GetDrugcentral()})
 	case "msigdb":

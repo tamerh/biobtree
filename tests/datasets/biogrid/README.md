@@ -6,18 +6,28 @@ BioGRID (Biological General Repository for Interaction Datasets) is a curated da
 **Source**: https://thebiogrid.org/
 **Data Type**: Protein-protein and genetic interactions with experimental evidence
 
-## Integration Architecture
+## Dual Dataset Architecture
+
+BioGRID data is stored in **two complementary datasets**:
+
+1. **biogrid** - Lightweight summary entries for each interactor (statistics only)
+2. **biogrid_interaction** - Individual interaction records with full experimental details
+
+This architecture solves the "hub protein problem" where highly connected proteins (like UBC, TP53) would otherwise have extremely large response sizes (5-8 MB).
+
+---
+
+## Dataset 1: biogrid (Summary)
 
 ### Storage Model
 **Primary Entries**: BioGRID Interactor IDs (numeric, e.g., "112315", "108607")
 **Searchable Text Links**: BioGRID ID, gene symbols
-**Attributes Stored**: BiogridAttr protobuf with interaction details, counts, organisms, experimental systems
+**Purpose**: Quick access to interaction statistics without loading all interaction details
 
 ### Attributes (BiogridAttr)
 | Field | Type | Description |
 |-------|------|-------------|
 | biogrid_id | string | Primary BioGRID interactor ID |
-| interactions | repeated BiogridInteraction | List of interactions |
 | interaction_count | int32 | Total number of interactions |
 | unique_partners | int32 | Number of unique interaction partners |
 | physical_count | int32 | Count of physical interactions |
@@ -26,117 +36,223 @@ BioGRID (Biological General Repository for Interaction Datasets) is a curated da
 | experimental_systems | repeated string | Experimental methods used |
 | pubmed_ids | repeated string | Supporting PubMed references |
 
-### Interaction Details (BiogridInteraction)
-| Field | Type | Description |
-|-------|------|-------------|
-| interaction_id | string | BioGRID interaction ID |
-| partner_biogrid_id | string | Partner's BioGRID ID |
-| partner_entrez_id | string | Partner's Entrez Gene ID |
-| partner_symbol | string | Partner's gene symbol |
-| partner_systematic_name | string | Partner's systematic name |
-| experimental_system | string | Experimental method (e.g., "Two-hybrid") |
-| experimental_system_type | string | "physical" or "genetic" |
-| **throughput** | string | "Low Throughput" or "High Throughput" |
-| **modification** | string | Genetic modification type (e.g., "Synthetic Lethality") |
-| **qualifications** | string | Additional qualifications |
-| **tags** | string | Curation tags |
-| **phenotype** | string | Observed phenotype description |
-| **ontology_term_id** | string | Phenotype ontology term ID |
-| organism_a | int32 | Taxonomy ID for interactor A |
-| organism_b | int32 | Taxonomy ID for interactor B |
-| pubmed_id | string | Supporting PubMed ID |
-| author | string | First author and year |
-| score | string | Confidence score (if available) |
-| source_database | string | Original source database |
-
-### Cross-References
-All cross-references are **bidirectional**:
+### Cross-References (biogrid)
 | Target Dataset | Description |
 |----------------|-------------|
-| biogrid | Links to interaction partners |
+| biogrid_interaction | Links to individual interaction records |
 | entrez | Links to Entrez Gene IDs |
 | uniprot | Links to UniProt accessions (Swiss-Prot + TrEMBL) |
 | refseq | Links to RefSeq IDs |
 | taxonomy | Links to organism taxonomy IDs |
 | pubmed | Links to supporting publications |
 
-### Special Features
+---
+
+## Dataset 2: biogrid_interaction (Details)
+
+### Storage Model
+**Primary Entries**: BioGRID Interaction IDs (numeric, e.g., "103", "456789")
+**Purpose**: Full experimental details for each interaction
+
+### Attributes (BiogridInteractionAttr)
+| Field | Type | Description |
+|-------|------|-------------|
+| interaction_id | string | BioGRID interaction ID |
+| experimental_system | string | Experimental method (e.g., "Two-hybrid", "Affinity Capture-MS") |
+| experimental_system_type | string | "physical" or "genetic" |
+| author | string | First author and year |
+| publication | string | PubMed ID |
+| throughput | string | "Low Throughput", "High Throughput", or "Both" |
+| score | string | Confidence score (if available) |
+| modification | string | Post-translational modification |
+| qualifications | string | Additional qualifications |
+| tags | string | Curation tags |
+| source_database | string | Original source database |
+| interactor_a_id | string | Interactor A's identifier (UniProt/Entrez) |
+| interactor_a_symbol | string | Interactor A's gene symbol |
+| interactor_a_organism | int32 | Interactor A's NCBI Taxonomy ID |
+| interactor_b_id | string | Interactor B's identifier (UniProt/Entrez) |
+| interactor_b_symbol | string | Interactor B's gene symbol |
+| interactor_b_organism | int32 | Interactor B's NCBI Taxonomy ID |
+| phenotype | string | Phenotype term (genetic interactions) |
+| ontology_term_id | string | Ontology term ID (GO, HP) |
+
+### Cross-References (biogrid_interaction)
+| Target Dataset | Description |
+|----------------|-------------|
+| biogrid | Links to both interactor summary entries |
+| uniprot | Links to both interactors (if UniProt IDs available) |
+| entrez | Links to both interactors (if Entrez IDs available) |
+| pubmed | Links to supporting publication |
+| taxonomy | Links to organism taxonomy IDs |
+
+---
+
+## Query Patterns
+
+### Direct Queries
+```bash
+# Get summary for an interactor
+curl "http://localhost:9292/ws/entry/?i=112315&d=biogrid"
+
+# Get interaction details
+curl "http://localhost:9292/ws/entry/?i=103&d=biogrid_interaction"
+```
+
+### Mapping Queries
+```bash
+# Protein to BioGRID summary statistics
+curl "http://localhost:9292/ws/map/?i=P04637&m=>>uniprot>>biogrid"
+
+# Protein to individual interactions (direct)
+curl "http://localhost:9292/ws/map/?i=P04637&m=>>uniprot>>biogrid_interaction"
+
+# Protein → Summary → Interactions (chained)
+curl "http://localhost:9292/ws/map/?i=P04637&m=>>uniprot>>biogrid>>biogrid_interaction"
+```
+
+### Filtering Examples
+```bash
+# Physical interactions only
+curl "http://localhost:9292/ws/map/?i=P04637&m=>>uniprot>>biogrid_interaction[biogrid_interaction.experimental_system_type=='physical']"
+
+# Two-hybrid experiments only
+curl "http://localhost:9292/ws/map/?i=P04637&m=>>uniprot>>biogrid_interaction[biogrid_interaction.experimental_system=='Two-hybrid']"
+
+# Human interactions only
+curl "http://localhost:9292/ws/map/?i=P04637&m=>>uniprot>>biogrid_interaction[biogrid_interaction.interactor_a_organism==9606]"
+
+# Low throughput (high confidence)
+curl "http://localhost:9292/ws/map/?i=P04637&m=>>uniprot>>biogrid_interaction[biogrid_interaction.throughput=='Low Throughput']"
+```
+
+---
+
+## Special Features
+- **Dual Dataset Model**: Summary stats (biogrid) + full details (biogrid_interaction)
+- **Efficient Hub Proteins**: TP53 summary is small; individual interactions fetched on demand
 - **TAB3 Format**: Uses BioGRID TAB3 format (37 columns) for comprehensive data extraction
 - **Throughput Classification**: Distinguishes low-throughput (high confidence) vs high-throughput experiments
 - **Genetic Interaction Details**: Captures modification types (Synthetic Lethality, Dosage Rescue, etc.)
-- **Bidirectional Interactions**: Same interaction stored under both interactors for easy lookup
+- **Bidirectional Interactions**: Each interaction links to both interactors
 - **Phenotype Ontology**: Links to ontology terms for phenotype data
 
 ## Use Cases
 
-**1. Find Protein Interaction Partners**
+**1. Get Interaction Statistics for a Protein**
 ```
-Query: Gene symbol → BioGRID → List of interacting proteins
-Use: Identify potential drug targets or pathway components
-```
-
-**2. Validate Drug Target Interactions**
-```
-Query: UniProt ID → BioGRID → Filter low-throughput interactions
-Use: High-confidence interaction validation for drug discovery
+Query: UniProt ID → biogrid → Summary stats (interaction_count, physical_count, etc.)
+Use: Quick overview of interaction landscape without loading all details
 ```
 
-**3. Identify Synthetic Lethal Partners**
+**2. Find Detailed Interaction Partners**
 ```
-Query: Gene → BioGRID genetic interactions → Filter "Synthetic Lethality"
-Use: Find combination therapy opportunities
-```
-
-**4. Literature Evidence Lookup**
-```
-Query: BioGRID interaction → PubMed references
-Use: Retrieve supporting publications for interaction claims
+Query: UniProt ID → biogrid_interaction → Full interaction details
+Use: Get experimental methods, authors, PubMed references for each interaction
 ```
 
-**5. Cross-Species Interaction Comparison**
+**3. Validate Drug Target Interactions (High Confidence)**
 ```
-Query: Gene → BioGRID → Filter by taxonomy
-Use: Compare interaction networks across organisms
+Query: UniProt ID → biogrid_interaction[throughput=='Low Throughput']
+Use: Filter for manually validated, high-confidence interactions
 ```
 
-**6. Hub Protein Identification**
+**4. Identify Synthetic Lethal Partners**
 ```
-Query: Gene set → BioGRID → Count interaction partners
-Use: Identify highly connected proteins as potential drug targets
+Query: Gene → biogrid_interaction[experimental_system_type=='genetic']
+Use: Find genetic interactions for combination therapy opportunities
+```
+
+**5. Literature Evidence Lookup**
+```
+Query: biogrid_interaction → pubmed
+Use: Retrieve supporting publications for specific interactions
+```
+
+**6. Cross-Species Interaction Comparison**
+```
+Query: Gene → biogrid_interaction[interactor_a_organism==9606 && interactor_b_organism==10090]
+Use: Find human-mouse cross-species interactions
+```
+
+**7. Hub Protein Analysis**
+```
+Query: UniProt ID → biogrid → Check unique_partners count
+Use: Quickly identify highly connected proteins without loading all interactions
 ```
 
 ## Test Cases
 
-**Current Tests** (17 total):
-- 11 declarative tests (JSON): ID lookup, cross-reference mappings, attribute validation
-- 6 custom tests (Python): Basic lookup, attributes, interactions, mapping validations
+### Declarative Tests (test_cases.json)
+
+**biogrid dataset:**
+- Basic lookup by BioGRID ID
+- Attribute validation (biogrid_id, interaction_count, unique_partners, physical_count, genetic_count)
+- Cross-references: entrez, uniprot, refseq, pubmed, taxonomy
+- Reverse mappings: uniprot→biogrid, entrez→biogrid
+- Filter by physical_count
+
+**biogrid_interaction dataset:**
+- Basic lookup by interaction ID
+- Attribute validation (interaction_id, experimental_system, experimental_system_type)
+- Interactor fields (interactor_a_id, interactor_a_symbol, interactor_b_id, interactor_b_symbol)
+- Cross-references: biogrid_interaction→uniprot, biogrid_interaction→pubmed
+- Filter by experimental_system_type
+
+### Custom Tests (test_biogrid.py)
+
+**biogrid tests:**
+- Summary statistics validation (interaction_count > 0)
+- Physical vs genetic counts consistency
+- Cross-reference to biogrid_interaction
+
+**biogrid_interaction tests:**
+- Both interactors present (interactor_a_id, interactor_b_id)
+- Experimental system type is valid ("physical" or "genetic")
+- Throughput field validation
+- Protein mapping: uniprot → biogrid_interaction
+- Chained mapping: uniprot → biogrid → biogrid_interaction
 
 **Coverage**:
-- Basic BioGRID ID lookup
-- Cross-references: Entrez, UniProt, RefSeq, PubMed, Taxonomy
-- Partner-to-partner mappings
-- Attribute field validation (biogrid_id, interaction_count, unique_partners)
-- New TAB3 fields: throughput, modification
-
-**Recommended Additions**:
-- Throughput field validation ("Low Throughput" / "High Throughput")
-- Genetic interaction modification field testing
-- Phenotype/ontology term validation
+- Both datasets (biogrid and biogrid_interaction)
+- All major attributes
+- Cross-reference mappings in both directions
+- CEL filtering on both datasets
 
 ## Performance
 
 - **Test Build**: ~30s (100 interactions, human-human only in test mode)
 - **Data Source**: https://downloads.thebiogrid.org/Download/BioGRID/Latest-Release/BIOGRID-ALL-LATEST.tab3.zip
 - **Update Frequency**: Monthly releases
-- **Total Entries**: ~2.8 million interactions, ~170 MB compressed, ~1.4 GB uncompressed
+- **Total Entries**:
+  - ~200,000 interactor summaries (biogrid)
+  - ~1,800,000 individual interactions (biogrid_interaction)
+- **Response Sizes**:
+  - biogrid summary: ~1-2 KB per entry (statistics only)
+  - biogrid_interaction: ~1-2 KB per interaction
+  - Hub proteins (TP53, UBC): Fast summaries, details fetched on demand
 
 ## Known Limitations
 
-1. **Large Dataset**: Full BioGRID file is ~170MB compressed, ~1.4GB uncompressed
+1. **Dual Dataset Requirement**: Both biogrid and biogrid_interaction are created together (`./biobtree -d biogrid update`)
 2. **Human Focus in Test Mode**: Test mode only processes human-human interactions (taxid:9606)
-3. **Interaction Grouping**: Same interaction appears under both interactors (bidirectional)
-4. **Score Availability**: Not all interactions have confidence scores (shown as "-" or empty)
-5. **Phenotype Data**: Only available for some genetic interactions
+3. **Score Availability**: Not all interactions have confidence scores
+4. **Phenotype Data**: Only available for some genetic interactions
+5. **Cross-Species**: Some interactions have different organisms for interactor A and B
+
+## Comparison with IntAct
+
+| Feature | BioGRID | IntAct |
+|---------|---------|--------|
+| Evidence | Experimental | Experimental |
+| Curation | Literature-based | Manual IMEx standard |
+| Data Model | Dual (summary + interactions) | Interaction-centric |
+| Genetic Interactions | Yes (extensive) | Limited |
+| Confidence Scores | Some | MIscore (all) |
+| Update Frequency | Monthly | Monthly |
+| Use Case | Genetic screens, large-scale PPI | High-quality validation |
+
+**Recommendation**: Use both! BioGRID for genetic interactions and large-scale datasets, IntAct for high-quality manually curated PPIs.
 
 ## Future Work
 
@@ -150,6 +266,7 @@ Use: Identify highly connected proteins as potential drug targets
 - **Release Schedule**: Monthly updates from BioGRID
 - **Data Format**: TAB3 (37 columns, tab-separated)
 - **Test Data**: 100 interactions (human-human only)
+- **Build Command**: `./biobtree -d biogrid update` (creates both biogrid and biogrid_interaction)
 - **License**: BioGRID is free for academic use
 
 ## References

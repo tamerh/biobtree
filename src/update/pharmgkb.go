@@ -774,10 +774,10 @@ func (p *pharmgkb) processClinicalVariants(testLimit int, phenotypeMappings map[
 				p.d.addXref(variant, textLinkID, clinID, clinSource, true)
 
 				// Cross-reference to dbSNP if variant is rsID
+				// Note: Keep "rs" prefix - dbSNP entries are stored as "RS1799853" (uppercased with prefix)
 				if strings.HasPrefix(variant, "rs") {
 					if _, exists := config.Dataconf["dbsnp"]; exists {
-						rsID := strings.TrimPrefix(variant, "rs")
-						p.d.addXref(clinID, clinSourceID, rsID, "dbsnp", false)
+						p.d.addXref(clinID, clinSourceID, variant, "dbsnp", false)
 					}
 				}
 
@@ -1045,10 +1045,10 @@ func (p *pharmgkb) processVariants(testLimit int, summaryAnnotations map[string]
 				}
 
 				// Cross-reference to dbSNP if variant name is rsID
+				// Note: Keep "rs" prefix - dbSNP entries are stored as "RS1799853" (uppercased with prefix)
 				if strings.HasPrefix(variantName, "rs") {
 					if _, exists := config.Dataconf["dbsnp"]; exists {
-						rsID := strings.TrimPrefix(variantName, "rs")
-						p.d.addXref(variantID, varSourceID, rsID, "dbsnp", false)
+						p.d.addXref(variantID, varSourceID, variantName, "dbsnp", false)
 					}
 				}
 

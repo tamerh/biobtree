@@ -1801,6 +1801,11 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)
 				xref.Attributes = &pbuf.Xref_Biogrid{attr}
+			case "biogrid_interaction":
+				attr := &pbuf.BiogridInteractionAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_BiogridInteraction{attr}
 			case "protein_similarity":
 				attr := &pbuf.ProteinSimilarityAttr{}
 				barr := []byte((*kvProp[k])[0].value)
@@ -2184,6 +2189,11 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 					barr := []byte((*kvProp[k])[0].value)
 					ffjson.Unmarshal(barr, attr)
 					xref.Attributes = &pbuf.Xref_Biogrid{attr}
+				case "biogrid_interaction":
+					attr := &pbuf.BiogridInteractionAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_BiogridInteraction{attr}
 				case "protein_similarity":
 					attr := &pbuf.ProteinSimilarityAttr{}
 					barr := []byte((*kvProp[k])[0].value)

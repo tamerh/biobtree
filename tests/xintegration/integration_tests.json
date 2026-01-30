@@ -1758,6 +1758,76 @@
       "should_fail": []
     },
     {
+      "category": "clinical_variants",
+      "name": "Protein to Pathogenic ClinVar Variants",
+      "query": ">>uniprot>>ensembl>>clinvar[clinvar.germline_classification==\"Pathogenic\"]",
+      "why": "Filter ClinVar variants to only pathogenic classifications - critical for clinical variant interpretation and identifying disease-causing mutations",
+      "should_pass": [
+        "P06400",
+        "P38398",
+        "P04637"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "clinical_variants",
+      "name": "Gene to Pathogenic ClinVar Variants",
+      "query": ">>ensembl>>clinvar[clinvar.germline_classification==\"Pathogenic\"]",
+      "why": "Find pathogenic variants for cancer genes - essential for clinical genetics panels and hereditary cancer testing",
+      "should_pass": [
+        "BRCA1",
+        "BRCA2",
+        "TP53",
+        "RB1"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "clinical_variants",
+      "name": "Gene to Likely Pathogenic ClinVar Variants",
+      "query": ">>ensembl>>clinvar[clinvar.germline_classification==\"Likely pathogenic\"]",
+      "why": "Find likely pathogenic variants - important for variant classification in clinical reports",
+      "should_pass": [
+        "BRCA1",
+        "TP53"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "clinical_variants",
+      "name": "Gene to SNV ClinVar Variants",
+      "query": ">>ensembl>>clinvar[clinvar.type==\"single nucleotide variant\"]",
+      "why": "Filter ClinVar to only single nucleotide variants - useful for SNP-focused analysis",
+      "should_pass": [
+        "BRCA1",
+        "TP53"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "clinical_variants",
+      "name": "Gene to Deletion ClinVar Variants",
+      "query": ">>ensembl>>clinvar[clinvar.type==\"Deletion\"]",
+      "why": "Filter ClinVar to deletion variants - important for detecting loss-of-function mutations",
+      "should_pass": [
+        "BRCA1",
+        "BRCA2"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "clinical_variants",
+      "name": "ClinVar Pathogenic Variant Attributes Validation",
+      "type": "validation",
+      "query": ">>ensembl>>clinvar[clinvar.germline_classification==\"Pathogenic\"]",
+      "identifier": "RB1",
+      "why": "RB1 pathogenic variants should have correct classification attribute - filter ensures only pathogenic variants returned",
+      "validations": [
+        {"path": "source.count", "min": 1, "description": "At least 1 pathogenic ClinVar variant"},
+        {"path": "targets", "has_results": true, "description": "Has pathogenic variant targets"}
+      ]
+    },
+    {
       "category": "drug_discovery",
       "name": "JAK2 Advanced Clinical Trial Drugs",
       "query": ">>ensembl>>uniprot>>chembl_target_component>>chembl_target>>chembl_assay>>chembl_activity>>chembl_molecule[chembl.molecule.highestDevelopmentPhase>2]",

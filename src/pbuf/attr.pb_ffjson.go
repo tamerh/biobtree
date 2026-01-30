@@ -10180,6 +10180,1119 @@ done:
 }
 
 // MarshalJSON marshal bytes to json - template
+func (j *BiogridInteractionAttr) MarshalJSON() ([]byte, error) {
+	var buf fflib.Buffer
+	if j == nil {
+		buf.WriteString("null")
+		return buf.Bytes(), nil
+	}
+	err := j.MarshalJSONBuf(&buf)
+	if err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
+}
+
+// MarshalJSONBuf marshal buff to json - template
+func (j *BiogridInteractionAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
+	if j == nil {
+		buf.WriteString("null")
+		return nil
+	}
+	var err error
+	var obj []byte
+	_ = obj
+	_ = err
+	buf.WriteString(`{ `)
+	if len(j.InteractionId) != 0 {
+		buf.WriteString(`"interaction_id":`)
+		fflib.WriteJsonString(buf, string(j.InteractionId))
+		buf.WriteByte(',')
+	}
+	if len(j.ExperimentalSystem) != 0 {
+		buf.WriteString(`"experimental_system":`)
+		fflib.WriteJsonString(buf, string(j.ExperimentalSystem))
+		buf.WriteByte(',')
+	}
+	if len(j.ExperimentalSystemType) != 0 {
+		buf.WriteString(`"experimental_system_type":`)
+		fflib.WriteJsonString(buf, string(j.ExperimentalSystemType))
+		buf.WriteByte(',')
+	}
+	if len(j.Author) != 0 {
+		buf.WriteString(`"author":`)
+		fflib.WriteJsonString(buf, string(j.Author))
+		buf.WriteByte(',')
+	}
+	if len(j.Publication) != 0 {
+		buf.WriteString(`"publication":`)
+		fflib.WriteJsonString(buf, string(j.Publication))
+		buf.WriteByte(',')
+	}
+	if len(j.Throughput) != 0 {
+		buf.WriteString(`"throughput":`)
+		fflib.WriteJsonString(buf, string(j.Throughput))
+		buf.WriteByte(',')
+	}
+	if len(j.Score) != 0 {
+		buf.WriteString(`"score":`)
+		fflib.WriteJsonString(buf, string(j.Score))
+		buf.WriteByte(',')
+	}
+	if len(j.Modification) != 0 {
+		buf.WriteString(`"modification":`)
+		fflib.WriteJsonString(buf, string(j.Modification))
+		buf.WriteByte(',')
+	}
+	if len(j.Qualifications) != 0 {
+		buf.WriteString(`"qualifications":`)
+		fflib.WriteJsonString(buf, string(j.Qualifications))
+		buf.WriteByte(',')
+	}
+	if len(j.Tags) != 0 {
+		buf.WriteString(`"tags":`)
+		fflib.WriteJsonString(buf, string(j.Tags))
+		buf.WriteByte(',')
+	}
+	if len(j.SourceDatabase) != 0 {
+		buf.WriteString(`"source_database":`)
+		fflib.WriteJsonString(buf, string(j.SourceDatabase))
+		buf.WriteByte(',')
+	}
+	if len(j.InteractorAId) != 0 {
+		buf.WriteString(`"interactor_a_id":`)
+		fflib.WriteJsonString(buf, string(j.InteractorAId))
+		buf.WriteByte(',')
+	}
+	if len(j.InteractorASymbol) != 0 {
+		buf.WriteString(`"interactor_a_symbol":`)
+		fflib.WriteJsonString(buf, string(j.InteractorASymbol))
+		buf.WriteByte(',')
+	}
+	if j.InteractorAOrganism != 0 {
+		buf.WriteString(`"interactor_a_organism":`)
+		fflib.FormatBits2(buf, uint64(j.InteractorAOrganism), 10, j.InteractorAOrganism < 0)
+		buf.WriteByte(',')
+	}
+	if len(j.InteractorBId) != 0 {
+		buf.WriteString(`"interactor_b_id":`)
+		fflib.WriteJsonString(buf, string(j.InteractorBId))
+		buf.WriteByte(',')
+	}
+	if len(j.InteractorBSymbol) != 0 {
+		buf.WriteString(`"interactor_b_symbol":`)
+		fflib.WriteJsonString(buf, string(j.InteractorBSymbol))
+		buf.WriteByte(',')
+	}
+	if j.InteractorBOrganism != 0 {
+		buf.WriteString(`"interactor_b_organism":`)
+		fflib.FormatBits2(buf, uint64(j.InteractorBOrganism), 10, j.InteractorBOrganism < 0)
+		buf.WriteByte(',')
+	}
+	if len(j.Phenotype) != 0 {
+		buf.WriteString(`"phenotype":`)
+		fflib.WriteJsonString(buf, string(j.Phenotype))
+		buf.WriteByte(',')
+	}
+	if len(j.OntologyTermId) != 0 {
+		buf.WriteString(`"ontology_term_id":`)
+		fflib.WriteJsonString(buf, string(j.OntologyTermId))
+		buf.WriteByte(',')
+	}
+	buf.Rewind(1)
+	buf.WriteByte('}')
+	return nil
+}
+
+const (
+	ffjtBiogridInteractionAttrbase = iota
+	ffjtBiogridInteractionAttrnosuchkey
+
+	ffjtBiogridInteractionAttrInteractionId
+
+	ffjtBiogridInteractionAttrExperimentalSystem
+
+	ffjtBiogridInteractionAttrExperimentalSystemType
+
+	ffjtBiogridInteractionAttrAuthor
+
+	ffjtBiogridInteractionAttrPublication
+
+	ffjtBiogridInteractionAttrThroughput
+
+	ffjtBiogridInteractionAttrScore
+
+	ffjtBiogridInteractionAttrModification
+
+	ffjtBiogridInteractionAttrQualifications
+
+	ffjtBiogridInteractionAttrTags
+
+	ffjtBiogridInteractionAttrSourceDatabase
+
+	ffjtBiogridInteractionAttrInteractorAId
+
+	ffjtBiogridInteractionAttrInteractorASymbol
+
+	ffjtBiogridInteractionAttrInteractorAOrganism
+
+	ffjtBiogridInteractionAttrInteractorBId
+
+	ffjtBiogridInteractionAttrInteractorBSymbol
+
+	ffjtBiogridInteractionAttrInteractorBOrganism
+
+	ffjtBiogridInteractionAttrPhenotype
+
+	ffjtBiogridInteractionAttrOntologyTermId
+)
+
+var ffjKeyBiogridInteractionAttrInteractionId = []byte("interaction_id")
+
+var ffjKeyBiogridInteractionAttrExperimentalSystem = []byte("experimental_system")
+
+var ffjKeyBiogridInteractionAttrExperimentalSystemType = []byte("experimental_system_type")
+
+var ffjKeyBiogridInteractionAttrAuthor = []byte("author")
+
+var ffjKeyBiogridInteractionAttrPublication = []byte("publication")
+
+var ffjKeyBiogridInteractionAttrThroughput = []byte("throughput")
+
+var ffjKeyBiogridInteractionAttrScore = []byte("score")
+
+var ffjKeyBiogridInteractionAttrModification = []byte("modification")
+
+var ffjKeyBiogridInteractionAttrQualifications = []byte("qualifications")
+
+var ffjKeyBiogridInteractionAttrTags = []byte("tags")
+
+var ffjKeyBiogridInteractionAttrSourceDatabase = []byte("source_database")
+
+var ffjKeyBiogridInteractionAttrInteractorAId = []byte("interactor_a_id")
+
+var ffjKeyBiogridInteractionAttrInteractorASymbol = []byte("interactor_a_symbol")
+
+var ffjKeyBiogridInteractionAttrInteractorAOrganism = []byte("interactor_a_organism")
+
+var ffjKeyBiogridInteractionAttrInteractorBId = []byte("interactor_b_id")
+
+var ffjKeyBiogridInteractionAttrInteractorBSymbol = []byte("interactor_b_symbol")
+
+var ffjKeyBiogridInteractionAttrInteractorBOrganism = []byte("interactor_b_organism")
+
+var ffjKeyBiogridInteractionAttrPhenotype = []byte("phenotype")
+
+var ffjKeyBiogridInteractionAttrOntologyTermId = []byte("ontology_term_id")
+
+// UnmarshalJSON umarshall json - template of ffjson
+func (j *BiogridInteractionAttr) UnmarshalJSON(input []byte) error {
+	fs := fflib.NewFFLexer(input)
+	return j.UnmarshalJSONFFLexer(fs, fflib.FFParse_map_start)
+}
+
+// UnmarshalJSONFFLexer fast json unmarshall - template ffjson
+func (j *BiogridInteractionAttr) UnmarshalJSONFFLexer(fs *fflib.FFLexer, state fflib.FFParseState) error {
+	var err error
+	currentKey := ffjtBiogridInteractionAttrbase
+	_ = currentKey
+	tok := fflib.FFTok_init
+	wantedTok := fflib.FFTok_init
+
+mainparse:
+	for {
+		tok = fs.Scan()
+		//	println(fmt.Sprintf("debug: tok: %v  state: %v", tok, state))
+		if tok == fflib.FFTok_error {
+			goto tokerror
+		}
+
+		switch state {
+
+		case fflib.FFParse_map_start:
+			if tok != fflib.FFTok_left_bracket {
+				wantedTok = fflib.FFTok_left_bracket
+				goto wrongtokenerror
+			}
+			state = fflib.FFParse_want_key
+			continue
+
+		case fflib.FFParse_after_value:
+			if tok == fflib.FFTok_comma {
+				state = fflib.FFParse_want_key
+			} else if tok == fflib.FFTok_right_bracket {
+				goto done
+			} else {
+				wantedTok = fflib.FFTok_comma
+				goto wrongtokenerror
+			}
+
+		case fflib.FFParse_want_key:
+			// json {} ended. goto exit. woo.
+			if tok == fflib.FFTok_right_bracket {
+				goto done
+			}
+			if tok != fflib.FFTok_string {
+				wantedTok = fflib.FFTok_string
+				goto wrongtokenerror
+			}
+
+			kn := fs.Output.Bytes()
+			if len(kn) <= 0 {
+				// "" case. hrm.
+				currentKey = ffjtBiogridInteractionAttrnosuchkey
+				state = fflib.FFParse_want_colon
+				goto mainparse
+			} else {
+				switch kn[0] {
+
+				case 'a':
+
+					if bytes.Equal(ffjKeyBiogridInteractionAttrAuthor, kn) {
+						currentKey = ffjtBiogridInteractionAttrAuthor
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'e':
+
+					if bytes.Equal(ffjKeyBiogridInteractionAttrExperimentalSystem, kn) {
+						currentKey = ffjtBiogridInteractionAttrExperimentalSystem
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyBiogridInteractionAttrExperimentalSystemType, kn) {
+						currentKey = ffjtBiogridInteractionAttrExperimentalSystemType
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'i':
+
+					if bytes.Equal(ffjKeyBiogridInteractionAttrInteractionId, kn) {
+						currentKey = ffjtBiogridInteractionAttrInteractionId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyBiogridInteractionAttrInteractorAId, kn) {
+						currentKey = ffjtBiogridInteractionAttrInteractorAId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyBiogridInteractionAttrInteractorASymbol, kn) {
+						currentKey = ffjtBiogridInteractionAttrInteractorASymbol
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyBiogridInteractionAttrInteractorAOrganism, kn) {
+						currentKey = ffjtBiogridInteractionAttrInteractorAOrganism
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyBiogridInteractionAttrInteractorBId, kn) {
+						currentKey = ffjtBiogridInteractionAttrInteractorBId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyBiogridInteractionAttrInteractorBSymbol, kn) {
+						currentKey = ffjtBiogridInteractionAttrInteractorBSymbol
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyBiogridInteractionAttrInteractorBOrganism, kn) {
+						currentKey = ffjtBiogridInteractionAttrInteractorBOrganism
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'm':
+
+					if bytes.Equal(ffjKeyBiogridInteractionAttrModification, kn) {
+						currentKey = ffjtBiogridInteractionAttrModification
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'o':
+
+					if bytes.Equal(ffjKeyBiogridInteractionAttrOntologyTermId, kn) {
+						currentKey = ffjtBiogridInteractionAttrOntologyTermId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'p':
+
+					if bytes.Equal(ffjKeyBiogridInteractionAttrPublication, kn) {
+						currentKey = ffjtBiogridInteractionAttrPublication
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyBiogridInteractionAttrPhenotype, kn) {
+						currentKey = ffjtBiogridInteractionAttrPhenotype
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'q':
+
+					if bytes.Equal(ffjKeyBiogridInteractionAttrQualifications, kn) {
+						currentKey = ffjtBiogridInteractionAttrQualifications
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 's':
+
+					if bytes.Equal(ffjKeyBiogridInteractionAttrScore, kn) {
+						currentKey = ffjtBiogridInteractionAttrScore
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyBiogridInteractionAttrSourceDatabase, kn) {
+						currentKey = ffjtBiogridInteractionAttrSourceDatabase
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 't':
+
+					if bytes.Equal(ffjKeyBiogridInteractionAttrThroughput, kn) {
+						currentKey = ffjtBiogridInteractionAttrThroughput
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyBiogridInteractionAttrTags, kn) {
+						currentKey = ffjtBiogridInteractionAttrTags
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyBiogridInteractionAttrOntologyTermId, kn) {
+					currentKey = ffjtBiogridInteractionAttrOntologyTermId
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyBiogridInteractionAttrPhenotype, kn) {
+					currentKey = ffjtBiogridInteractionAttrPhenotype
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyBiogridInteractionAttrInteractorBOrganism, kn) {
+					currentKey = ffjtBiogridInteractionAttrInteractorBOrganism
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyBiogridInteractionAttrInteractorBSymbol, kn) {
+					currentKey = ffjtBiogridInteractionAttrInteractorBSymbol
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyBiogridInteractionAttrInteractorBId, kn) {
+					currentKey = ffjtBiogridInteractionAttrInteractorBId
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyBiogridInteractionAttrInteractorAOrganism, kn) {
+					currentKey = ffjtBiogridInteractionAttrInteractorAOrganism
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyBiogridInteractionAttrInteractorASymbol, kn) {
+					currentKey = ffjtBiogridInteractionAttrInteractorASymbol
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyBiogridInteractionAttrInteractorAId, kn) {
+					currentKey = ffjtBiogridInteractionAttrInteractorAId
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyBiogridInteractionAttrSourceDatabase, kn) {
+					currentKey = ffjtBiogridInteractionAttrSourceDatabase
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyBiogridInteractionAttrTags, kn) {
+					currentKey = ffjtBiogridInteractionAttrTags
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyBiogridInteractionAttrQualifications, kn) {
+					currentKey = ffjtBiogridInteractionAttrQualifications
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyBiogridInteractionAttrModification, kn) {
+					currentKey = ffjtBiogridInteractionAttrModification
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyBiogridInteractionAttrScore, kn) {
+					currentKey = ffjtBiogridInteractionAttrScore
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyBiogridInteractionAttrThroughput, kn) {
+					currentKey = ffjtBiogridInteractionAttrThroughput
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyBiogridInteractionAttrPublication, kn) {
+					currentKey = ffjtBiogridInteractionAttrPublication
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyBiogridInteractionAttrAuthor, kn) {
+					currentKey = ffjtBiogridInteractionAttrAuthor
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyBiogridInteractionAttrExperimentalSystemType, kn) {
+					currentKey = ffjtBiogridInteractionAttrExperimentalSystemType
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyBiogridInteractionAttrExperimentalSystem, kn) {
+					currentKey = ffjtBiogridInteractionAttrExperimentalSystem
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyBiogridInteractionAttrInteractionId, kn) {
+					currentKey = ffjtBiogridInteractionAttrInteractionId
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				currentKey = ffjtBiogridInteractionAttrnosuchkey
+				state = fflib.FFParse_want_colon
+				goto mainparse
+			}
+
+		case fflib.FFParse_want_colon:
+			if tok != fflib.FFTok_colon {
+				wantedTok = fflib.FFTok_colon
+				goto wrongtokenerror
+			}
+			state = fflib.FFParse_want_value
+			continue
+		case fflib.FFParse_want_value:
+
+			if tok == fflib.FFTok_left_brace || tok == fflib.FFTok_left_bracket || tok == fflib.FFTok_integer || tok == fflib.FFTok_double || tok == fflib.FFTok_string || tok == fflib.FFTok_bool || tok == fflib.FFTok_null {
+				switch currentKey {
+
+				case ffjtBiogridInteractionAttrInteractionId:
+					goto handle_InteractionId
+
+				case ffjtBiogridInteractionAttrExperimentalSystem:
+					goto handle_ExperimentalSystem
+
+				case ffjtBiogridInteractionAttrExperimentalSystemType:
+					goto handle_ExperimentalSystemType
+
+				case ffjtBiogridInteractionAttrAuthor:
+					goto handle_Author
+
+				case ffjtBiogridInteractionAttrPublication:
+					goto handle_Publication
+
+				case ffjtBiogridInteractionAttrThroughput:
+					goto handle_Throughput
+
+				case ffjtBiogridInteractionAttrScore:
+					goto handle_Score
+
+				case ffjtBiogridInteractionAttrModification:
+					goto handle_Modification
+
+				case ffjtBiogridInteractionAttrQualifications:
+					goto handle_Qualifications
+
+				case ffjtBiogridInteractionAttrTags:
+					goto handle_Tags
+
+				case ffjtBiogridInteractionAttrSourceDatabase:
+					goto handle_SourceDatabase
+
+				case ffjtBiogridInteractionAttrInteractorAId:
+					goto handle_InteractorAId
+
+				case ffjtBiogridInteractionAttrInteractorASymbol:
+					goto handle_InteractorASymbol
+
+				case ffjtBiogridInteractionAttrInteractorAOrganism:
+					goto handle_InteractorAOrganism
+
+				case ffjtBiogridInteractionAttrInteractorBId:
+					goto handle_InteractorBId
+
+				case ffjtBiogridInteractionAttrInteractorBSymbol:
+					goto handle_InteractorBSymbol
+
+				case ffjtBiogridInteractionAttrInteractorBOrganism:
+					goto handle_InteractorBOrganism
+
+				case ffjtBiogridInteractionAttrPhenotype:
+					goto handle_Phenotype
+
+				case ffjtBiogridInteractionAttrOntologyTermId:
+					goto handle_OntologyTermId
+
+				case ffjtBiogridInteractionAttrnosuchkey:
+					err = fs.SkipField(tok)
+					if err != nil {
+						return fs.WrapErr(err)
+					}
+					state = fflib.FFParse_after_value
+					goto mainparse
+				}
+			} else {
+				goto wantedvalue
+			}
+		}
+	}
+
+handle_InteractionId:
+
+	/* handler: j.InteractionId type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.InteractionId = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_ExperimentalSystem:
+
+	/* handler: j.ExperimentalSystem type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.ExperimentalSystem = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_ExperimentalSystemType:
+
+	/* handler: j.ExperimentalSystemType type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.ExperimentalSystemType = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Author:
+
+	/* handler: j.Author type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Author = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Publication:
+
+	/* handler: j.Publication type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Publication = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Throughput:
+
+	/* handler: j.Throughput type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Throughput = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Score:
+
+	/* handler: j.Score type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Score = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Modification:
+
+	/* handler: j.Modification type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Modification = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Qualifications:
+
+	/* handler: j.Qualifications type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Qualifications = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Tags:
+
+	/* handler: j.Tags type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Tags = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_SourceDatabase:
+
+	/* handler: j.SourceDatabase type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.SourceDatabase = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_InteractorAId:
+
+	/* handler: j.InteractorAId type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.InteractorAId = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_InteractorASymbol:
+
+	/* handler: j.InteractorASymbol type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.InteractorASymbol = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_InteractorAOrganism:
+
+	/* handler: j.InteractorAOrganism type=int32 kind=int32 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for int32", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseInt(fs.Output.Bytes(), 10, 32)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.InteractorAOrganism = int32(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_InteractorBId:
+
+	/* handler: j.InteractorBId type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.InteractorBId = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_InteractorBSymbol:
+
+	/* handler: j.InteractorBSymbol type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.InteractorBSymbol = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_InteractorBOrganism:
+
+	/* handler: j.InteractorBOrganism type=int32 kind=int32 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for int32", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseInt(fs.Output.Bytes(), 10, 32)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.InteractorBOrganism = int32(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Phenotype:
+
+	/* handler: j.Phenotype type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Phenotype = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_OntologyTermId:
+
+	/* handler: j.OntologyTermId type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.OntologyTermId = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+wantedvalue:
+	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
+wrongtokenerror:
+	return fs.WrapErr(fmt.Errorf("ffjson: wanted token: %v, but got token: %v output=%s", wantedTok, tok, fs.Output.String()))
+tokerror:
+	if fs.BigError != nil {
+		return fs.WrapErr(fs.BigError)
+	}
+	err = fs.Error.ToError()
+	if err != nil {
+		return fs.WrapErr(err)
+	}
+	panic("ffjson-generated: unreachable, please report bug.")
+done:
+
+	return nil
+}
+
+// MarshalJSON marshal bytes to json - template
 func (j *CellxgeneAttr) MarshalJSON() ([]byte, error) {
 	var buf fflib.Buffer
 	if j == nil {

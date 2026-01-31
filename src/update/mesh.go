@@ -3,6 +3,7 @@ package update
 import (
 	"biobtree/pbuf"
 	"bufio"
+	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -15,8 +16,9 @@ import (
 )
 
 type mesh struct {
-	source string
-	d      *DataUpdate
+	source           string
+	d                *DataUpdate
+	treeToDescriptor map[string]string // Maps tree number -> descriptor ID
 }
 
 // check provides context-aware error checking for mesh processor
@@ -73,6 +75,10 @@ func (m *mesh) update() {
 	// Parse descriptors
 	stopEarly := m.parseDescriptors(fr, frparent, frchild, frparentStr, frchildStr, &start, &previous, &totalDescriptors, testLimit, idLogFile)
 
+	// Build hierarchy cross-references after all descriptors are parsed
+	// This creates meshparent and meshchild relationships based on tree numbers
+	m.buildHierarchyXrefs(fr, frparent, frchild, frparentStr, frchildStr)
+
 	// Parse supplementary concepts if path configured and not stopped early
 	if !stopEarly && config.Dataconf[m.source]["pathSupplementary"] != "" {
 		m.parseSupplementary(fr, &start, &previous, &totalSupplementary, testLimit, idLogFile, int(totalDescriptors))
@@ -96,6 +102,9 @@ func (m *mesh) parseDescriptors(fr, frparent, frchild string, frparentStr, frchi
 	} else {
 		resp, err := http.Get(path)
 		m.check(err, "downloading descriptors file")
+		if resp.StatusCode != 200 {
+			m.check(fmt.Errorf("HTTP %d: %s - file may not exist or URL may have changed", resp.StatusCode, resp.Status), "downloading descriptors file from "+path)
+		}
 		defer resp.Body.Close()
 		reader = resp.Body
 	}
@@ -192,6 +201,9 @@ func (m *mesh) parseSupplementary(fr string, start *time.Time, previous *int64, 
 	} else {
 		resp, err := http.Get(path)
 		m.check(err, "downloading supplementary file")
+		if resp.StatusCode != 200 {
+			m.check(fmt.Errorf("HTTP %d: %s - file may not exist or URL may have changed", resp.StatusCode, resp.Status), "downloading supplementary file from "+path)
+		}
 		defer resp.Body.Close()
 		reader = resp.Body
 	}
@@ -443,7 +455,46 @@ func (m *mesh) saveEntry(id string, fr string, attr *pbuf.MeshAttr) {
 }
 
 func (m *mesh) saveHierarchyRelations(id string, fr, frparent, frchild string, frparentStr, frchildStr string, treeNumbers []string) {
-	// Tree number hierarchy (parent-child relationships)
-	// Will be implemented in future enhancement
-	// For now, just store the tree numbers in the main attributes
+	// Build tree number -> descriptor ID mapping
+	// This will be used later to create parent-child xrefs
+	for _, treeNum := range treeNumbers {
+		if treeNum != "" {
+			m.treeToDescriptor[treeNum] = id
+		}
+	}
+}
+
+// buildHierarchyXrefs creates parent-child cross-references based on tree number hierarchy
+// Tree numbers follow a hierarchical pattern: A01.236.249 is a child of A01.236
+// This function should be called after all descriptors are parsed
+// Uses same pattern as ontology.go for consistency
+func (m *mesh) buildHierarchyXrefs(fr, frparent, frchild, frparentStr, frchildStr string) {
+	// Iterate through all tree numbers and create hierarchy xrefs
+	for treeNum, childID := range m.treeToDescriptor {
+		// Find parent tree number by removing the last segment
+		// e.g., "D02.355.291.933.125" -> "D02.355.291.933"
+		lastDot := strings.LastIndex(treeNum, ".")
+		if lastDot > 0 {
+			parentTreeNum := treeNum[:lastDot]
+
+			// Look up the parent descriptor ID
+			if parentID, exists := m.treeToDescriptor[parentTreeNum]; exists {
+				// Skip if child and parent are the same (shouldn't happen but safety check)
+				if childID == parentID {
+					continue
+				}
+
+				// Create xrefs following the ontology.go pattern:
+				// 1. Child -> Parent in mesh dataset, target in meshparent
+				m.d.addXref2Bucketed(childID, fr, parentID, frparentStr, fr)
+				// 2. Parent entry in meshparent dataset pointing back to mesh
+				m.d.addXref2Bucketed(parentID, frparent, parentID, m.source, fr)
+
+				// 3. Parent -> Child in mesh dataset, target in meshchild
+				m.d.addXref2Bucketed(parentID, fr, childID, frchildStr, fr)
+				// 4. Child entry in meshchild dataset pointing back to mesh
+				m.d.addXref2Bucketed(childID, frchild, childID, m.source, fr)
+			}
+		}
+	}
 }

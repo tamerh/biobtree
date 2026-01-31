@@ -527,30 +527,41 @@ func (c *ctd) createCrossReferences(chemID string, entry *ctdChemicalEntry, sour
 		// CTD → OMIM
 		for _, omimID := range assoc.OmimIds {
 			if omimID != "" {
-				// OMIM IDs in CTD may have "OMIM:" prefix
 				normalizedOMIM := strings.TrimPrefix(omimID, "OMIM:")
 				if _, exists := config.Dataconf["omim"]; exists {
 					c.d.addXref(chemID, sourceID, normalizedOMIM, "omim", false)
 				}
-				// Also create MONDO xref via OMIM (MONDO has OMIM mappings)
-				// Format: OMIM:123456 → MONDO uses this for disease linking
-				if _, exists := config.Dataconf["mondo"]; exists {
-					mondoOMIM := "OMIM:" + normalizedOMIM
-					c.d.addXref(chemID, sourceID, mondoOMIM, "mondo", false)
-				}
 			}
 		}
 
-		// CTD → EFO (via MeSH disease ID, EFO has MeSH mappings)
+		// CTD → EFO and MONDO (via MeSH disease ID)
 		if diseaseID != "" {
 			normalizedDiseaseID := normalizeCtdID(diseaseID)
 			if normalizedDiseaseID != "" {
 				if _, exists := config.Dataconf["efo"]; exists {
-					// EFO uses MESH: prefix for MeSH mappings
 					efoMeshID := "MESH:" + normalizedDiseaseID
 					c.d.addXref(chemID, sourceID, efoMeshID, "efo", false)
 				}
+				// CTD → MONDO via MeSH lookup
+				if _, exists := config.Dataconf["mondo"]; exists && c.d.hasLookupDB {
+					c.createMondoXrefViaMesh(chemID, sourceID, normalizedDiseaseID)
+				}
 			}
+		}
+	}
+}
+
+// createMondoXrefViaMesh looks up MeSH ID to find MONDO ID and creates xref
+func (c *ctd) createMondoXrefViaMesh(chemID, sourceID, meshID string) {
+	result, err := c.d.lookup(meshID)
+	if err != nil || result == nil || len(result.Results) == 0 {
+		return
+	}
+
+	mondoDatasetID := config.DataconfIDStringToInt["mondo"]
+	for _, xref := range result.Results {
+		if xref.Dataset == mondoDatasetID && xref.Identifier != "" {
+			c.d.addXref(chemID, sourceID, xref.Identifier, "mondo", false)
 		}
 	}
 }

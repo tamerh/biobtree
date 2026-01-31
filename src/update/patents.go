@@ -4,7 +4,9 @@ import (
 	"biobtree/pbuf"
 	"bufio"
 	"fmt"
+	"log"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -23,6 +25,13 @@ type patents struct {
 
 func (p *patents) update() {
 	defer p.d.wg.Done()
+
+	log.Println("Patents: Starting patent data processing...")
+
+	// Check if data files exist, run extraction if needed
+	if !p.ensureDataFilesExist() {
+		panic("Patents: Failed to ensure data files exist. Check logs/patents_prepare.log for details.")
+	}
 
 	// Process patents metadata
 	totalPatents, err := p.processPatents()
@@ -46,6 +55,144 @@ func (p *patents) update() {
 	fmt.Printf("Completed processing mappings: %d records\n", totalMappings)
 
 	p.d.progChan <- &progressInfo{dataset: p.source, done: true}
+}
+
+// ensureDataFilesExist checks if the required patent data files exist and are up-to-date.
+// Uses smart update checking: only downloads new data if a newer SureChEMBL release is available.
+// Returns true if files exist and are up-to-date (or were successfully created), false on error.
+func (p *patents) ensureDataFilesExist() bool {
+	// Get rootDir for resolving relative paths
+	rootDir := config.Appconf["rootDir"]
+	if rootDir == "" {
+		rootDir = "./"
+	}
+
+	// Check if all required JSON files exist
+	patentsPath := filepath.Join(p.dataPath, "patents.json")
+	compoundsPath := filepath.Join(p.dataPath, "compounds.json")
+	mappingPath := filepath.Join(p.dataPath, "mapping.json")
+
+	patentsExists := fileExists(patentsPath)
+	compoundsExists := fileExists(compoundsPath)
+	mappingExists := fileExists(mappingPath)
+
+	// Get script path from config (with default)
+	scriptPath := config.Appconf["patentsPrepareScript"]
+	if scriptPath == "" {
+		scriptPath = "src/scripts/patents/patents_prepare.py"
+	}
+	scriptPath = p.resolvePath(scriptPath, rootDir)
+
+	// If all JSON files exist, check if there's a newer SureChEMBL release
+	if patentsExists && compoundsExists && mappingExists {
+		log.Println("Patents: Data files exist, checking for updates...")
+
+		// Run Python script with --check-update to see if newer release available
+		if fileExists(scriptPath) {
+			checkArgs := []string{scriptPath, "--output-dir", p.dataPath, "--check-update"}
+
+			// Include USPTO flag if enabled (so it checks USPTO updates too)
+			includeUSPTO := config.Appconf["patentsIncludeUSPTO"]
+			if includeUSPTO == "yes" || includeUSPTO == "y" || includeUSPTO == "true" {
+				checkArgs = append(checkArgs, "--include-uspto")
+			}
+
+			checkCmd := exec.Command("python3", checkArgs...)
+
+			if err := checkCmd.Run(); err != nil {
+				// Exit code 10 means no update needed
+				if exitErr, ok := err.(*exec.ExitError); ok && exitErr.ExitCode() == 10 {
+					log.Println("Patents: Data is up-to-date, no new SureChEMBL release available")
+					return true
+				}
+				// Exit code 0 or error means update is needed, continue to preparation
+				log.Println("Patents: Newer SureChEMBL release available, will update data")
+			} else {
+				// Exit code 0 means update is needed
+				log.Println("Patents: Update needed, running preparation...")
+			}
+		} else {
+			log.Println("Patents: Data files already exist, skipping extraction")
+			return true
+		}
+	} else {
+		// Files don't exist - need to run preparation script
+		log.Println("Patents: Data files not found, running preparation script...")
+	}
+
+	// Check if script exists
+	if !fileExists(scriptPath) {
+		log.Printf("Patents: Preparation script not found at %s", scriptPath)
+		return false
+	}
+
+	// Use dataPath directly - script outputs to this location
+	// dataPath comes from source1.dataset.json "path" attribute
+	outputDir := p.dataPath
+
+	// Ensure output directory exists
+	if err := os.MkdirAll(outputDir, 0755); err != nil {
+		log.Printf("Patents: Failed to create output directory %s: %v", outputDir, err)
+		return false
+	}
+
+	// Setup log file
+	logsDir := p.resolvePath("logs", rootDir)
+	if err := os.MkdirAll(logsDir, 0755); err != nil {
+		log.Printf("Patents: Warning - could not create logs directory: %v", err)
+	}
+	logFile := filepath.Join(logsDir, "patents_prepare.log")
+
+	// Build command arguments
+	args := []string{scriptPath, "--output-dir", outputDir, "--log-file", logFile}
+
+	// Check if USPTO enrichment is enabled
+	includeUSPTO := config.Appconf["patentsIncludeUSPTO"]
+	if includeUSPTO == "yes" || includeUSPTO == "y" || includeUSPTO == "true" {
+		args = append(args, "--include-uspto")
+	}
+
+	// Add test mode flag if in test mode
+	if config.IsTestMode() {
+		args = append(args, "--test-mode")
+	}
+
+	log.Printf("Patents: Running preparation: python3 %s", strings.Join(args, " "))
+
+	// Run the Python script
+	cmd := exec.Command("python3", args...)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	if err := cmd.Run(); err != nil {
+		log.Printf("Patents: Preparation script failed: %v", err)
+		return false
+	}
+
+	// Verify files were created
+	if !fileExists(patentsPath) {
+		log.Printf("Patents: Preparation completed but patents.json not found at %s", patentsPath)
+		return false
+	}
+	if !fileExists(compoundsPath) {
+		log.Printf("Patents: Preparation completed but compounds.json not found at %s", compoundsPath)
+		return false
+	}
+	if !fileExists(mappingPath) {
+		log.Printf("Patents: Preparation completed but mapping.json not found at %s", mappingPath)
+		return false
+	}
+
+	log.Println("Patents: Preparation completed successfully")
+	return true
+}
+
+// resolvePath resolves a path relative to rootDir if it's not absolute
+func (p *patents) resolvePath(path, rootDir string) string {
+	if filepath.IsAbs(path) {
+		return path
+	}
+	return filepath.Join(rootDir, path)
 }
 
 // parseStringList parses Python string list representation into Go string slice
@@ -161,6 +308,14 @@ func (p *patents) processPatents() (int, error) {
 			Ipc:             ipcList,
 			Ecla:            eclaList,
 			Asignee:         asigneeList,
+		}
+
+		// Include abstract if configured (from USPTO-Chem enrichment)
+		if config.IncludePatentAbstracts() {
+			abstract := getString(j, "abstract")
+			if abstract != "" {
+				attr.Abstract = abstract
+			}
 		}
 
 		b, _ := ffjson.Marshal(attr)

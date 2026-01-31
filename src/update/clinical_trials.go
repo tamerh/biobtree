@@ -6,7 +6,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -35,6 +37,13 @@ type clinicalTrials struct {
 
 func (ct *clinicalTrials) update() {
 	defer ct.d.wg.Done()
+
+	log.Println("Clinical Trials: Starting clinical trials data processing...")
+
+	// Check if data files exist, run extraction if needed
+	if !ct.ensureDataFilesExist() {
+		panic("Clinical Trials: Failed to ensure data files exist. Check logs/clinical_trials_prepare.log for details.")
+	}
 
 	// Initialize tracking maps for unique logging
 	ct.loggedMappings = make(map[string]bool)
@@ -91,7 +100,7 @@ func (ct *clinicalTrials) initLookupDB() {
 	lookupConf["dbBackend"] = "lmdb"
 	ct.lookupEnv, ct.lookupDbi = db1.OpenDBNew(false, totalkvline, lookupConf)
 	ct.hasLookupDB = true
-	// fmt.Printf("Clinical Trials: Lookup database initialized (path: %s, totalKVLine: %d)\n", lookupDbDir, totalkvline)
+	log.Printf("Clinical Trials: Lookup database initialized for ChEMBL/MONDO/EFO mapping")
 }
 
 // Close lookup database
@@ -99,6 +108,117 @@ func (ct *clinicalTrials) closeLookupDB() {
 	if ct.hasLookupDB {
 		ct.lookupEnv.Close()
 	}
+}
+
+// ensureDataFilesExist checks if the required clinical trials data files exist and are up-to-date.
+// Uses smart update checking: only downloads new data if existing data is older than configured interval.
+// Returns true if files exist and are up-to-date (or were successfully created), false on error.
+func (ct *clinicalTrials) ensureDataFilesExist() bool {
+	// Get rootDir for resolving relative paths
+	rootDir := config.Appconf["rootDir"]
+	if rootDir == "" {
+		rootDir = "./"
+	}
+
+	// Check if trials.json exists
+	trialsPath := filepath.Join(ct.dataPath, "trials.json")
+
+	// Get script path from config (with default)
+	scriptPath := config.Appconf["clinicalTrialsPrepareScript"]
+	if scriptPath == "" {
+		scriptPath = "src/scripts/clinical_trials/clinical_trials_prepare.py"
+	}
+	scriptPath = ct.resolvePath(scriptPath, rootDir)
+
+	// If file exists, check if update is needed (age-based check)
+	if fileExists(trialsPath) {
+		log.Println("Clinical Trials: Data files exist, checking for updates...")
+
+		// Run Python script with --check-update to see if data is too old
+		if fileExists(scriptPath) {
+			checkArgs := []string{scriptPath, "--output-dir", ct.dataPath, "--check-update"}
+			checkCmd := exec.Command("python3", checkArgs...)
+
+			if err := checkCmd.Run(); err != nil {
+				// Exit code 10 means no update needed
+				if exitErr, ok := err.(*exec.ExitError); ok && exitErr.ExitCode() == 10 {
+					log.Println("Clinical Trials: Data is up-to-date (within age limit)")
+					return true
+				}
+				// Exit code 0 or error means update is needed, continue to preparation
+				log.Println("Clinical Trials: Data is outdated, will update")
+			} else {
+				// Exit code 0 means update is needed
+				log.Println("Clinical Trials: Update needed, running preparation...")
+			}
+		} else {
+			log.Println("Clinical Trials: Data files already exist, skipping extraction")
+			return true
+		}
+	} else {
+		// Files don't exist - need to run preparation script
+		log.Println("Clinical Trials: Data files not found, running preparation script...")
+	}
+
+	// Check if script exists
+	if !fileExists(scriptPath) {
+		log.Printf("Clinical Trials: Preparation script not found at %s", scriptPath)
+		return false
+	}
+
+	// Use dataPath directly - script outputs to this location
+	// dataPath comes from source1.dataset.json "path" attribute
+	outputDir := ct.dataPath
+
+	// Ensure output directory exists
+	if err := os.MkdirAll(outputDir, 0755); err != nil {
+		log.Printf("Clinical Trials: Failed to create output directory %s: %v", outputDir, err)
+		return false
+	}
+
+	// Setup log file
+	logsDir := ct.resolvePath("logs", rootDir)
+	if err := os.MkdirAll(logsDir, 0755); err != nil {
+		log.Printf("Clinical Trials: Warning - could not create logs directory: %v", err)
+	}
+	logFile := filepath.Join(logsDir, "clinical_trials_prepare.log")
+
+	// Build command arguments
+	args := []string{scriptPath, "--output-dir", outputDir, "--log-file", logFile}
+
+	// Add test mode flag if in test mode
+	if config.IsTestMode() {
+		args = append(args, "--test-mode")
+	}
+
+	log.Printf("Clinical Trials: Running preparation: python3 %s", strings.Join(args, " "))
+
+	// Run the Python script
+	cmd := exec.Command("python3", args...)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	if err := cmd.Run(); err != nil {
+		log.Printf("Clinical Trials: Preparation script failed: %v", err)
+		return false
+	}
+
+	// Verify files were created
+	if !fileExists(trialsPath) {
+		log.Printf("Clinical Trials: Preparation completed but trials.json not found at %s", trialsPath)
+		return false
+	}
+
+	log.Println("Clinical Trials: Preparation completed successfully")
+	return true
+}
+
+// resolvePath resolves a path relative to rootDir if it's not absolute
+func (ct *clinicalTrials) resolvePath(path, rootDir string) string {
+	if filepath.IsAbs(path) {
+		return path
+	}
+	return filepath.Join(rootDir, path)
 }
 
 // Load medical term mappings from JSON configuration file
@@ -415,6 +535,184 @@ func (ct *clinicalTrials) createMONDOXrefs(nctID string, fr string, mondoIDs map
 	}
 }
 
+// Map condition to EFO disease ontology (parallel to MONDO)
+// Uses the same multi-attempt mapping strategies
+func (ct *clinicalTrials) mapConditionToEFO(nctID string, condition string, efoDatasetID uint32, fr string) {
+	if !ct.hasLookupDB {
+		return
+	}
+
+	// Track found EFO IDs to prevent duplicates
+	foundEFOs := make(map[string]bool)
+
+	// ATTEMPT 1: Try exact condition name
+	ct.lookupAndCollectEFO(condition, efoDatasetID, foundEFOs)
+	if len(foundEFOs) > 0 {
+		ct.createEFOXrefs(nctID, fr, foundEFOs)
+		return
+	}
+
+	// ATTEMPT 2: Try disease corrections
+	if ct.medicalTermMappings != nil {
+		for original, corrected := range ct.medicalTermMappings.DiseaseCorrections {
+			if strings.EqualFold(condition, original) {
+				ct.lookupAndCollectEFO(corrected, efoDatasetID, foundEFOs)
+				if len(foundEFOs) > 0 {
+					ct.createEFOXrefs(nctID, fr, foundEFOs)
+					return
+				}
+			}
+		}
+	}
+
+	// ATTEMPT 3: Try spelling variations
+	if ct.medicalTermMappings != nil {
+		spellingVariant := ApplySpellingVariations(ct.medicalTermMappings, condition)
+		if spellingVariant != condition {
+			ct.lookupAndCollectEFO(spellingVariant, efoDatasetID, foundEFOs)
+			if len(foundEFOs) > 0 {
+				ct.createEFOXrefs(nctID, fr, foundEFOs)
+				return
+			}
+		}
+	}
+
+	// ATTEMPT 4: Remove parentheses
+	simplifiedCondition := RemoveParentheses(condition)
+	if simplifiedCondition != condition {
+		ct.lookupAndCollectEFO(simplifiedCondition, efoDatasetID, foundEFOs)
+		if len(foundEFOs) > 0 {
+			ct.createEFOXrefs(nctID, fr, foundEFOs)
+			return
+		}
+	}
+
+	// ATTEMPT 5: Try general qualifiers removal
+	if ct.medicalTermMappings != nil {
+		withoutQualifiers := RemoveQualifiers(ct.medicalTermMappings, condition)
+		if withoutQualifiers != condition {
+			ct.lookupAndCollectEFO(withoutQualifiers, efoDatasetID, foundEFOs)
+			if len(foundEFOs) > 0 {
+				ct.createEFOXrefs(nctID, fr, foundEFOs)
+				return
+			}
+		}
+	}
+}
+
+// Lookup condition and collect EFO IDs into the map
+func (ct *clinicalTrials) lookupAndCollectEFO(condition string, efoDatasetID uint32, efoIDs map[string]bool) {
+	result, err := ct.lookup(condition)
+	if err != nil || result == nil || len(result.Results) == 0 {
+		return
+	}
+
+	// Check if any result entries are EFO IDs
+	for _, xref := range result.Results {
+		if xref.Dataset == 0 {
+			// Text link - actual xrefs are in Entries
+			for _, entry := range xref.Entries {
+				if entry.Dataset == efoDatasetID {
+					efoIDs[entry.Identifier] = true
+				}
+			}
+		} else if xref.Dataset == efoDatasetID {
+			efoIDs[xref.Identifier] = true
+		}
+	}
+}
+
+// Create EFO cross-references
+func (ct *clinicalTrials) createEFOXrefs(nctID string, fr string, efoIDs map[string]bool) {
+	for efoID := range efoIDs {
+		ct.d.addXref(nctID, fr, efoID, "efo", false)
+	}
+}
+
+// Extract sponsor names from trial data
+func (ct *clinicalTrials) extractSponsors(trialData map[string]interface{}) []string {
+	var sponsors []string
+
+	if trialData["sponsors"] == nil {
+		return sponsors
+	}
+
+	sponsorList, ok := trialData["sponsors"].([]interface{})
+	if !ok {
+		return sponsors
+	}
+
+	for _, item := range sponsorList {
+		sponsorMap, ok := item.(map[string]interface{})
+		if !ok {
+			continue
+		}
+
+		// Extract sponsor name
+		name := getStringFromMap(sponsorMap, "name")
+		if name != "" {
+			sponsors = append(sponsors, name)
+		}
+	}
+
+	return sponsors
+}
+
+// Normalize sponsor/company names for consistent cross-referencing
+// Adapted from normalizeCompanyName in patents.go
+func normalizeSponsorName(name string) string {
+	name = strings.TrimSpace(name)
+	if name == "" {
+		return ""
+	}
+
+	// Convert to uppercase for consistent matching
+	name = strings.ToUpper(name)
+
+	// Remove country codes in parentheses: (US), (GB), (DE), etc.
+	countryCodes := []string{
+		" (US)", " (GB)", " (DE)", " (FR)", " (JP)", " (CN)",
+		" (CH)", " (NL)", " (DK)", " (SE)", " (BM)", " (CA)",
+		" (AU)", " (IT)", " (ES)", " (KR)", " (IN)", " (BE)",
+	}
+	for _, code := range countryCodes {
+		name = strings.ReplaceAll(name, code, "")
+	}
+
+	// Remove legal suffixes
+	suffixes := []string{
+		" INC.", " INC", " INCORPORATED",
+		" LTD.", " LTD", " LIMITED",
+		" LLC", " LLC.",
+		" GMBH", " GMBH.",
+		" AG", " AG.",
+		" SA", " SA.",
+		" NV", " NV.",
+		" CO.", " CO", " COMPANY",
+		" CORPORATION", " CORP.", " CORP",
+		" AND COMPANY",
+		" PLC", " PLC.",
+		" LP", " L.P.",
+		" S.A.", " S.A",
+		" S.R.L.", " SRL",
+		" PTY", " PTY.",
+		" BV", " B.V.",
+	}
+
+	for _, suffix := range suffixes {
+		name = strings.TrimSuffix(name, suffix)
+	}
+
+	// Handle common abbreviation patterns
+	name = strings.ReplaceAll(name, "E. I. ", "EI ")
+	name = strings.ReplaceAll(name, "E.I. ", "EI ")
+
+	// Clean up multiple spaces
+	name = strings.Join(strings.Fields(name), " ")
+
+	return strings.TrimSpace(name)
+}
+
 // Log mapping success (unique conditions only)
 func (ct *clinicalTrials) logMappingSuccess(original string, attempt string, mapped string, count int) {
 	ct.mu.Lock()
@@ -462,6 +760,7 @@ func (ct *clinicalTrials) processTrials() (int, error) {
 	// Get dataset IDs from config (not hardcoded)
 	chemblDatasetID := config.DataconfIDStringToInt["chembl_molecule"]
 	mondoDatasetID := config.DataconfIDStringToInt["mondo"]
+	efoDatasetID := config.DataconfIDStringToInt["efo"]
 
 	// Process each JSON file in the directory
 	for _, fileInfo := range files {
@@ -470,16 +769,16 @@ func (ct *clinicalTrials) processTrials() (int, error) {
 		}
 
 		trialsFile := filepath.Join(ct.dataPath, fileInfo.Name())
-		// fmt.Printf("Processing clinical trials file: %s\n", trialsFile)
+		log.Printf("Clinical Trials: Processing %s (%.1f MB)...", fileInfo.Name(), float64(fileInfo.Size())/1024/1024)
 
-		trialsProcessed, err := ct.processTrialsFile(trialsFile, fr, chemblDatasetID, mondoDatasetID, idLogFile)
+		trialsProcessed, err := ct.processTrialsFile(trialsFile, fr, chemblDatasetID, mondoDatasetID, efoDatasetID, idLogFile)
 		if err != nil {
 			fmt.Printf("Warning: Error processing file %s: %v\n", trialsFile, err)
 			continue
 		}
 
 		totalTrials += trialsProcessed
-		// fmt.Printf("Processed %d trials from %s (total so far: %d)\n", trialsProcessed, fileInfo.Name(), totalTrials)
+		log.Printf("Clinical Trials: Processed %d trials from %s", trialsProcessed, fileInfo.Name())
 
 		// Test mode: Check if we've reached the limit
 		if config.IsTestMode() && shouldStopProcessing(testLimit, len(ct.testTrialIDs)) {
@@ -491,7 +790,7 @@ func (ct *clinicalTrials) processTrials() (int, error) {
 	return totalTrials, nil
 }
 
-func (ct *clinicalTrials) processTrialsFile(trialsFile string, fr string, chemblDatasetID uint32, mondoDatasetID uint32, idLogFile *os.File) (int, error) {
+func (ct *clinicalTrials) processTrialsFile(trialsFile string, fr string, chemblDatasetID uint32, mondoDatasetID uint32, efoDatasetID uint32, idLogFile *os.File) (int, error) {
 	file, err := os.Open(trialsFile)
 	if err != nil {
 		return 0, fmt.Errorf("failed to open trials file: %w", err)
@@ -618,6 +917,8 @@ func (ct *clinicalTrials) processTrialsFile(trialsFile string, fr string, chembl
 
 				// Map condition to MONDO disease IDs if lookup DB available
 				ct.mapConditionToMONDO(nctID, condition, mondoDatasetID, fr)
+				// Also map to EFO (parallel disease ontology)
+				ct.mapConditionToEFO(nctID, condition, efoDatasetID, fr)
 			}
 		}
 
@@ -631,17 +932,18 @@ func (ct *clinicalTrials) processTrialsFile(trialsFile string, fr string, chembl
 			}
 		}
 
-		// TODO: Extract and process sponsors
-		// Sponsors need normalization strategy (e.g., "Pfizer Inc" vs "Pfizer")
-		// This will enable linking clinical trials to patents (same organizations)
-		// Once we have organization normalization:
-		// sponsors := ct.extractSponsors(trialData)
-		// for _, sponsor := range sponsors {
-		//     if sponsor != "" {
-		//         normalizedName := normalizeSponsorName(sponsor)
-		//         ct.d.addXref(normalizedName, textLinkID, nctID, ct.source, true)
-		//     }
-		// }
+		// Extract and process sponsors with normalization
+		// Enables linking clinical trials to patents (same organizations)
+		sponsors := ct.extractSponsors(trialData)
+		for _, sponsor := range sponsors {
+			if sponsor != "" {
+				normalizedName := normalizeSponsorName(sponsor)
+				if normalizedName != "" {
+					// Add as text link for searchability (search "Pfizer" → find trials)
+					ct.d.addXref(normalizedName, textLinkID, nctID, ct.source, true)
+				}
+			}
+		}
 
 		// TODO: Extract and store facilities (locations)
 		// Consider adding to general biobtree roadmap for geographic search

@@ -44,7 +44,7 @@ SCHEMA_EDGES = {
     "entrez": ["ensembl", "uniprot", "refseq", "go", "biogrid", "pubchem_activity"],
     "refseq": ["ensembl", "uniprot", "entrez"],
     "transcript": ["ensembl", "exon", "ufeature"],
-    "uniprot": ["ensembl", "alphafold", "interpro", "pdb", "ufeature", "intact", "string", "biogrid", "chembl_target_component", "go", "reactome", "rhea", "swisslipids", "bindingdb", "antibody"],
+    "uniprot": ["ensembl", "alphafold", "interpro", "pdb", "ufeature", "intact", "string", "biogrid", "chembl_target_component", "go", "reactome", "rhea", "swisslipids", "bindingdb", "antibody", "pubchem_activity"],
     "alphafold": ["uniprot"],
     "interpro": ["uniprot"],
     "chembl_molecule": ["chembl_activity", "pubchem", "chebi", "drugcentral", "clinical_trials"],
@@ -52,7 +52,7 @@ SCHEMA_EDGES = {
     "chembl_assay": ["chembl_activity", "chembl_target", "chembl_document"],
     "chembl_target": ["chembl_assay", "chembl_target_component"],
     "chembl_target_component": ["chembl_target", "uniprot"],
-    "pubchem": ["chembl_molecule", "chebi", "hmdb", "pubchem_activity"],
+    "pubchem": ["chembl_molecule", "chebi", "hmdb", "pubchem_activity", "pubmed", "patent_compound", "bindingdb", "ctd", "pharmgkb"],
     "pubchem_activity": ["pubchem", "ensembl", "uniprot"],
     "chebi": ["pubchem", "chembl_molecule", "rhea", "intact"],
     "drugcentral": ["chembl_molecule", "uniprot"],
@@ -110,7 +110,18 @@ SCHEMA_FILTERS = {
     "chembl_molecule": {"highestDevelopmentPhase": "int 0-4", "type": "str", "weight": "float"},
     "chembl_activity": {"standardType": "str (IC50|Ki|Kd)", "pChembl": "float"},
     "chembl_target": {"type": "str (SINGLE PROTEIN|PROTEIN COMPLEX)"},
-    "pubchem": {"is_fda_approved": "bool", "molecular_weight": "float"},
+    "pubchem": {
+        "is_fda_approved": "bool (FDA approval status)",
+        "compound_type": "str (drug|bioactive|literature|patent|biologic)",
+        "molecular_weight": "float",
+        "xlogp": "float (lipophilicity)",
+        "hydrogen_bond_donors": "int",
+        "hydrogen_bond_acceptors": "int",
+        "tpsa": "float (topological polar surface area)",
+        "rotatable_bonds": "int",
+        "pharmacological_actions": "list (drug class, e.g., ACE Inhibitors)",
+        "unii": "str (FDA UNII identifier)"
+    },
     "dbsnp": {"allele_frequency": "float", "clinical_significance": "str", "is_common": "bool"},
     "clinvar": {"germline_classification": "str (Pathogenic|Benign)", "review_status": "str"},
     "alphamissense": {"am_class": "str (likely_pathogenic|ambiguous|likely_benign)", "am_pathogenicity": "float 0-1"},
@@ -152,42 +163,84 @@ SCHEMA_EXAMPLES = {
     "string": "9606.ENSP00000269305"
 }
 
-SCHEMA_PATTERNS = """# Gene → Drugs (full chain)
+SCHEMA_PATTERNS = """# ===== DRUG DISCOVERY (use BOTH ChEMBL AND PubChem for comprehensive results) =====
+
+# Gene → Drugs via ChEMBL (medicinal chemistry focus, clinical phases)
 <gene> >> ensembl >> uniprot >> chembl_target_component >> chembl_target >> chembl_assay >> chembl_activity >> chembl_molecule
 
-# Gene → Approved drugs only
+# Gene → Drugs via PubChem (broader coverage, FDA approval, bioactivity)
+<gene> >> ensembl >> uniprot >> pubchem_activity >> pubchem
+<gene> >> ensembl >> uniprot >> pubchem_activity >> pubchem[pubchem.is_fda_approved==true]  # FDA approved only
+
+# Gene → Approved drugs only (ChEMBL)
 <gene> >> ensembl >> uniprot >> chembl_target_component >> chembl_target >> chembl_assay >> chembl_activity >> chembl_molecule[chembl.molecule.highestDevelopmentPhase>2]
 
-# Disease → Structures
-<disease> >> mondo >> gencc >> ensembl[ensembl.genome=="homo_sapiens"] >> uniprot[uniprot.reviewed==true] >> alphafold
+# Compound → Gene/Protein targets via PubChem
+<compound> >> pubchem >> pubchem_activity >> ensembl
+<compound> >> pubchem >> pubchem_activity >> uniprot
+
+# Compound → Cross-database links via PubChem
+<compound> >> pubchem >> hmdb            # metabolite data
+<compound> >> pubchem >> chembl_molecule # ChEMBL cross-ref
+<compound> >> pubchem >> pubmed          # literature references (63k+ for aspirin)
+<compound> >> pubchem >> patent_compound # patent information
+<compound> >> pubchem >> bindingdb       # binding affinity data
+<compound> >> pubchem >> ctd             # toxicogenomics (CTD disease/gene links)
+<compound> >> pubchem >> pharmgkb        # pharmacogenomics annotations
+
+# Disease → Compounds via CTD (Comparative Toxicogenomics Database)
+<disease> >> mondo >> ctd >> pubchem
+
+# NOTE: ChEMBL vs PubChem strengths:
+# - ChEMBL: curated medicinal chemistry, clinical development phases, assay details
+# - PubChem: broader coverage, FDA approval, bioactivity screening, literature, patents
+# - PubChem embedded attributes (in full mode): mesh_terms, pharmacological_actions,
+#   compound_type (drug/bioactive/patent), unii (FDA), has_literature, has_patents,
+#   molecular properties (xlogp, tpsa, rotatable_bonds, hydrogen_bond_donors/acceptors)
+
+# ===== VARIANT ANALYSIS =====
 
 # Gene → Pathogenic variants
 <gene> >> ensembl >> clinvar[clinvar.germline_classification=="Pathogenic"]
 <gene> >> ensembl >> uniprot >> alphamissense[alphamissense.am_class=="likely_pathogenic"]
 
-# Gene → Interactions
-<gene> >> ensembl >> uniprot >> intact
-<gene> >> ensembl >> entrez >> biogrid
-
 # SNP → Clinical significance
 <rsid> >> dbsnp >> clinvar >> mondo
 <rsid> >> pharmgkb_variant >> pharmgkb_clinical
 
-# Ontology navigation
-<term> >> go >> goparent
-<term> >> mondo >> mondochild
+# ===== DISEASE RESOURCES =====
+
+# Disease → Structures
+<disease> >> mondo >> gencc >> ensembl[ensembl.genome=="homo_sapiens"] >> uniprot[uniprot.reviewed==true] >> alphafold
 
 # Disease → All resources
 <disease> >> mondo >> gencc >> ensembl      # causative genes
 <disease> >> mondo >> clinvar >> dbsnp      # pathogenic variants
 <disease> >> mondo >> clinical_trials       # active trials
-<disease> >> mondo >> antibody              # therapeutic antibodies"""
+<disease> >> mondo >> antibody              # therapeutic antibodies
+<disease> >> mondo >> ctd >> pubchem        # associated compounds (PubChem)
+
+# ===== INTERACTIONS =====
+
+# Gene → Interactions
+<gene> >> ensembl >> uniprot >> intact
+<gene> >> ensembl >> entrez >> biogrid
+
+# ===== ONTOLOGY =====
+
+# Ontology navigation
+<term> >> go >> goparent
+<term> >> mondo >> mondochild"""
 
 SCHEMA_TEXT_SEARCH = """Datasets supporting partial text search:
 - mondo, hpo, efo: disease/phenotype names ("alzheimer", "breast cancer")
-- chembl_molecule, pharmgkb, bindingdb: drug names ("warfarin", "aspirin")
+- chembl_molecule, pubchem, pharmgkb, bindingdb: drug/compound names ("warfarin", "aspirin", "imatinib")
 - clinical_trials: conditions, interventions
-- antibody: antibody names ("bevacizumab")"""
+- antibody: antibody names ("bevacizumab")
+
+NOTE: For drug discovery, query BOTH ChEMBL and PubChem for comprehensive coverage:
+- ChEMBL: curated medicinal chemistry, clinical phases, assay protocols
+- PubChem: broader compounds, FDA approval, bioactivity screens, patents, metabolites"""
 
 SCHEMA_PAGINATION = {
     "description": "Results are automatically paginated (~150 results per page)",

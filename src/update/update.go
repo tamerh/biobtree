@@ -796,7 +796,7 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			break
 		case "mesh":
 			d.wg.Add(1)
-			m := mesh{source: data, d: d}
+			m := mesh{source: data, d: d, treeToDescriptor: make(map[string]string)}
 			d.datasets2 = append(d.datasets2, data)
 			go m.update()
 			break

@@ -432,9 +432,11 @@ func (r *reactome) processUniProtMappings(pathwayMap map[string]bool, testLimit 
 			continue
 		}
 
-		// Create xref: UniProt → Reactome with evidence code
+		// Create bidirectional xref: UniProt ↔ Reactome with evidence code
 		// Evidence code indicates curation quality: TAS (curated), IEA (inferred)
 		r.d.addXrefWithEvidence(uniprotID, uniprotDatasetID, pathwayID, r.source, false, evidenceCode)
+		// Reverse xref: Reactome → UniProt (enables >>reactome>>uniprot queries)
+		r.d.addXrefWithEvidence(pathwayID, r.sourceID, uniprotID, "uniprot", false, evidenceCode)
 
 		mappingCount++
 

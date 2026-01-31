@@ -59,6 +59,9 @@ class IntegrationTestRunner:
         # Count tests - validation tests count as 1 per validation check
         total_identifiers = 0
         for test in tests_to_run:
+            # Skip comment entries
+            if 'name' not in test:
+                continue
             if test.get('type') == 'validation':
                 total_identifiers += len(test.get('validations', []))
             else:
@@ -68,6 +71,9 @@ class IntegrationTestRunner:
         print(f"\n{Colors.BOLD}Running {total_identifiers} integration tests{category_msg}...{Colors.END}\n")
 
         for test in tests_to_run:
+            # Skip comment entries (no 'name' field)
+            if 'name' not in test:
+                continue
             if test.get('type') == 'validation':
                 self.run_validation_test(test)
             else:
@@ -523,6 +529,9 @@ class IntegrationTestRunner:
 
 """
         for test in self.tests['tests']:
+            # Skip comment entries
+            if 'name' not in test:
+                continue
             test_results = [r for r in self.results if r['test_name'] == test['name']]
             test_passed = sum(1 for r in test_results if r['passed'])
             test_total = len(test_results)
@@ -587,25 +596,46 @@ class IntegrationTestRunner:
         print(f"Average:  {avg_time:.0f}ms")
         print(f"Max:      {max_time:.0f}ms")
 
-        # Show slow queries (>1 second)
+        # Show slow queries (>100ms)
         slow_queries = sorted(
-            [r for r in self.results if r.get('response_time_ms', 0) > 1000],
+            [r for r in self.results if r.get('response_time_ms', 0) > 100],
             key=lambda x: x.get('response_time_ms', 0),
             reverse=True
         )
 
         if slow_queries:
             print(f"{Colors.BOLD}═══════════════════════════════════════{Colors.END}")
-            print(f"{Colors.RED}  Slow Queries (>1s){Colors.END}")
+            print(f"{Colors.YELLOW}  Slow Queries (>100ms){Colors.END}")
             print(f"{Colors.BOLD}═══════════════════════════════════════{Colors.END}")
-            for r in slow_queries[:10]:  # Top 10 slowest
+            for r in slow_queries[:15]:  # Top 15 slowest
                 elapsed = r.get('response_time_ms', 0)
                 identifier = r.get('identifier', r.get('validation_desc', '?'))
-                query = r.get('query', '')
-                if elapsed >= 2000:
-                    print(f"  {Colors.RED}{elapsed/1000:.1f}s{Colors.END} {identifier} {query}")
+                query = r.get('query', '') or '(lookup)'
+                if elapsed >= 1000:
+                    print(f"  {Colors.RED}{elapsed/1000:.1f}s{Colors.END}  {identifier} | {query}")
+                elif elapsed >= 500:
+                    print(f"  {Colors.YELLOW}{elapsed:.0f}ms{Colors.END} {identifier} | {query}")
                 else:
-                    print(f"  {Colors.YELLOW}{elapsed/1000:.1f}s{Colors.END} {identifier} {query}")
+                    print(f"  {elapsed:.0f}ms {identifier} | {query}")
+
+        # Show failed tests
+        failed_tests = [r for r in self.results if not r['passed']]
+        if failed_tests:
+            print(f"{Colors.BOLD}═══════════════════════════════════════{Colors.END}")
+            print(f"{Colors.RED}  Failed Tests ({len(failed_tests)}){Colors.END}")
+            print(f"{Colors.BOLD}═══════════════════════════════════════{Colors.END}")
+            for r in failed_tests:
+                identifier = r.get('identifier', r.get('validation_desc', '?'))
+                query = r.get('query', '') or '(lookup)'
+                error = r.get('error', '')
+                if not error:
+                    if r.get('expected_pass') and not r.get('has_results'):
+                        error = "Expected results but got none"
+                    elif not r.get('expected_pass') and r.get('has_results'):
+                        error = "Expected no results but got data"
+                print(f"  {Colors.RED}✗{Colors.END} {identifier} | {query}")
+                if error:
+                    print(f"    {error}")
 
         print(f"{Colors.BOLD}═══════════════════════════════════════{Colors.END}\n")
 

@@ -33,7 +33,7 @@
 	"disableRemoteConfigCheck": "y",
 	"dbBackend": "lmdb",
 	"lmdbSafetyFactor": "10",
-	"lookupDbDir": "out_prod_v3/db_prev",
+	"lookupDbDir": "out_prod_v4/db_prev",
 	"tmpRuneSize": "10000000",
 	"mergeArraySize": "150000",
 	"mergeCheckpointInterval": "100000",
@@ -62,5 +62,11 @@
 	"__cellxgene_config_comment": "CELLxGENE Census data extraction configuration",
 	"cellxgeneExtractScript": "src/scripts/cellxgene/extract_cellxgene_data.py",
 	"cellxgeneDataDir": "/data/bioyoda/snapshots/raw_data/cellxgene",
-	"cellxgeneCensusVersion": "stable"
+	"cellxgeneCensusVersion": "stable",
+	"__patents_config_comment": "Patents data processing configuration - output path derived from source1.dataset.json",
+	"patentsPrepareScript": "src/scripts/patents/patents_prepare.py",
+	"patentsIncludeUSPTO": "yes",
+	"includePatentAbstracts": "yes",
+	"__clinical_trials_config_comment": "Clinical trials data processing configuration - output path derived from source1.dataset.json",
+	"clinicalTrialsPrepareScript": "src/scripts/clinical_trials/clinical_trials_prepare.py"
 }

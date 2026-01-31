@@ -401,6 +401,7 @@ message PatentAttr {
   repeated string ipc =7;
   repeated string ecla =8;
   repeated string asignee =9;
+  string abstract =10;  // USPTO abstract (optional, controlled by includePatentAbstracts config)
 }
 
 message ClinicalTrialAttr {
@@ -2040,18 +2041,6 @@ message ScxaAttr {
   // Additional metadata from IDF
   string pubmed_id = 20;                     // PubMed ID if published
   string publication_doi = 21;               // Publication DOI
-}
-
-// SC Expression Atlas Gene Expression Entry (per experiment/cluster)
-// Used within ScxaExpressionAttr to store expression data
-message ScxaExpressionEntry {
-  string experiment_id = 1;        // Experiment accession (E-CURD-10)
-  string cluster_id = 2;           // Cluster identifier (1, 2, etc.)
-  double mean_expression = 3;      // Mean expression in this cluster
-  double median_expression = 4;    // Median expression in this cluster
-  double p_value = 5;              // Marker p-value
-  bool is_marker = 6;              // True if gene is a marker for this cluster
-  string marker_for_cluster = 7;   // Which cluster it's a marker for (if any)
 }
 
 // SC Expression Atlas Gene Expression (Dataset ID: 112)

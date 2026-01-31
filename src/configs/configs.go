@@ -595,3 +595,14 @@ func (c *Conf) GetTestSpecies() []string {
 
 	return nil
 }
+
+// IncludePatentAbstracts returns whether patent abstracts should be included
+// in the patent attributes. This is controlled by the "includePatentAbstracts"
+// config parameter in application.param.json. Defaults to true if not set.
+func (c *Conf) IncludePatentAbstracts() bool {
+	if val, ok := c.Appconf["includePatentAbstracts"]; ok {
+		return val == "yes" || val == "y" || val == "true"
+	}
+	// Default to true (include abstracts)
+	return true
+}

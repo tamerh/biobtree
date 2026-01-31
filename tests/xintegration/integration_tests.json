@@ -1,10 +1,9 @@
 {
   "metadata": {
-    "version": "4.3",
+    "version": "5.4",
     "description": "Expanded integration tests including newly added datasets (2025-2026)",
-    "server": "http://scc2:9292",
-    "last_updated": "2026-01-30",
-    "note": "Updated for new >> syntax. Added AlphaFold, BioGRID, and dbSNP tests for drug discovery workflow coverage."
+    "server": "http://localhost:9291",
+    "last_updated": "2026-01-31"
   },
   "test_categories": {
     "gene_mapping": "Gene symbol/ID to various resources (proteins, transcripts, GO terms)",
@@ -23,7 +22,14 @@
     "ncbi_datasets": "NCBI/Entrez Gene, RefSeq, PubChem compound mappings",
     "data_validation": "Data quality validation - attribute correctness, counts, known facts",
     "antibody": "Therapeutic and structural antibody data (TheraSAbDab, SAbDab, IMGT)",
-    "clinical_trials": "Clinical trial data and disease ontology mappings (ClinicalTrials.gov, MONDO)"
+    "clinical_trials": "Clinical trial data and disease ontology mappings (ClinicalTrials.gov, MONDO)",
+    "pubchem_drug": "PubChem drug discovery paths (bioactivity, targets, metabolites, CTD)",
+    "variant_pharmacogenomics": "Variant analysis and pharmacogenomics (dbSNP, PharmGKB, AlphaMissense)",
+    "disease_drug": "Disease to drug discovery workflows (MONDO, ChEMBL, DrugCentral, antibodies)",
+    "expression_celltype": "Expression analysis (Bgee, CellXGene, SCXA) and cell type ontology",
+    "pathway_network": "Pathway and network analysis (Reactome hierarchy, STRING, GO reverse)",
+    "ontology_hierarchy": "Ontology hierarchy traversal (MONDO, HPO, EFO parent/child)",
+    "known_issues": "Tests for known bugs - expected to fail until fixed"
   },
   "tests": [
     {
@@ -2085,6 +2091,469 @@
       "validations": [
         {"path": "source.count", "min": 1, "description": "At least 1 MONDO mapping"}
       ]
+    },
+
+    {"_comment": "=== PUBCHEM DRUG DISCOVERY PATHS (2026-01-31) ==="},
+
+    {
+      "category": "pubchem_drug",
+      "name": "Gene to PubChem Compounds via Bioactivity",
+      "query": ">>ensembl>>uniprot>>pubchem_activity>>pubchem",
+      "why": "Find PubChem compounds with bioactivity against gene targets - complementary to ChEMBL",
+      "should_pass": ["EGFR", "TP53", "BRCA1"],
+      "should_fail": []
+    },
+    {
+      "category": "pubchem_drug",
+      "name": "Gene to FDA-Approved PubChem Compounds",
+      "query": ">>ensembl>>uniprot>>pubchem_activity>>pubchem[pubchem.is_fda_approved==true]",
+      "why": "Find FDA-approved drugs from PubChem with bioactivity against gene targets",
+      "should_pass": ["EGFR"],
+      "should_fail": []
+    },
+    {
+      "category": "pubchem_drug",
+      "name": "PubChem Compound to Gene Targets",
+      "query": ">>pubchem>>pubchem_activity>>ensembl",
+      "why": "Find gene targets for a PubChem compound",
+      "should_pass": ["2244"],
+      "should_fail": []
+    },
+    {
+      "category": "pubchem_drug",
+      "name": "PubChem Compound to Protein Targets",
+      "query": ">>pubchem>>pubchem_activity>>uniprot",
+      "why": "Find protein targets for a PubChem compound",
+      "should_pass": ["2244"],
+      "should_fail": []
+    },
+    {
+      "category": "pubchem_drug",
+      "name": "PubChem to HMDB Metabolites",
+      "query": ">>pubchem>>hmdb",
+      "why": "Cross-reference PubChem compounds to HMDB metabolite database",
+      "should_pass": ["2244"],
+      "should_fail": []
+    },
+    {
+      "category": "pubchem_drug",
+      "name": "PubChem to ChEMBL Cross-Reference",
+      "query": ">>pubchem>>chembl_molecule",
+      "why": "Cross-reference PubChem to ChEMBL for combined drug data",
+      "should_pass": ["2244"],
+      "should_fail": []
+    },
+    {
+      "category": "pubchem_drug",
+      "name": "PubChem to Literature References",
+      "query": ">>pubchem>>pubmed",
+      "why": "Find PubMed literature references for PubChem compounds (63k+ for aspirin)",
+      "should_pass": ["2244"],
+      "should_fail": []
+    },
+    {
+      "category": "pubchem_drug",
+      "name": "PubChem to Patents",
+      "query": ">>pubchem>>patent_compound",
+      "why": "Find patent information for PubChem compounds",
+      "should_pass": ["2244"],
+      "should_fail": []
+    },
+    {
+      "category": "pubchem_drug",
+      "name": "PubChem to BindingDB",
+      "query": ">>pubchem>>bindingdb",
+      "why": "Cross-reference to BindingDB for binding affinity data (Ki, IC50)",
+      "should_pass": ["2244"],
+      "should_fail": []
+    },
+    {
+      "category": "pubchem_drug",
+      "name": "PubChem to CTD (Toxicogenomics)",
+      "query": ">>pubchem>>ctd",
+      "why": "Map compounds to CTD for toxicogenomics data (gene-chemical-disease relationships)",
+      "should_pass": ["2244"],
+      "should_fail": []
+    },
+    {
+      "category": "pubchem_drug",
+      "name": "PubChem to PharmGKB",
+      "query": ">>pubchem>>pharmgkb",
+      "why": "Cross-reference to PharmGKB for pharmacogenomics annotations",
+      "should_pass": ["2244"],
+      "should_fail": []
+    },
+    {
+      "category": "pubchem_drug",
+      "name": "Protein to PubChem Activities",
+      "query": ">>uniprot>>pubchem_activity",
+      "why": "Find all PubChem bioactivity data for a protein target",
+      "should_pass": ["P35354", "P00533"],
+      "should_fail": []
+    },
+    {
+      "category": "pubchem_drug",
+      "name": "PubChem Activity to Gene Target",
+      "query": ">>pubchem_activity>>ensembl",
+      "why": "Map PubChem bioactivity to gene targets",
+      "should_pass": ["2244_1053267_1"],
+      "should_fail": []
+    },
+    {
+      "category": "disease_drug",
+      "name": "MONDO Disease to CTD Compounds",
+      "query": ">>mondo>>ctd>>pubchem",
+      "why": "Disease to compounds via CTD toxicogenomics - enables drug discovery via gene-chemical-disease relationships",
+      "should_pass": ["MONDO:0005148", "MONDO:0005044"],
+      "should_fail": []
+    },
+    {
+      "category": "disease_drug",
+      "name": "CTD to MONDO Disease",
+      "query": ">>ctd>>mondo",
+      "why": "Reverse mapping from CTD chemical-disease to MONDO ontology",
+      "should_pass": ["D001241", "D003924"],
+      "should_fail": []
+    },
+
+    {"_comment": "=== NEW TESTS FROM AGENT EXPLORATION (2026-01-31) ==="},
+
+    {
+      "category": "variant_pharmacogenomics",
+      "name": "dbSNP to GWAS Association",
+      "query": ">>dbsnp>>gwas",
+      "why": "SNP to GWAS association is a core variant analysis use case",
+      "should_pass": ["rs1801133", "rs7412", "rs429358"],
+      "should_fail": []
+    },
+    {
+      "category": "variant_pharmacogenomics",
+      "name": "Gene to PharmGKB Clinical Annotations",
+      "query": ">>hgnc>>pharmgkb_clinical",
+      "why": "Gene to clinical annotations for pharmacogenomic dosing guidelines",
+      "should_pass": ["CYP2C9", "CYP2D6"],
+      "should_fail": []
+    },
+    {
+      "category": "variant_pharmacogenomics",
+      "name": "Drug to CPIC Guidelines",
+      "query": ">>pharmgkb>>pharmgkb_guideline",
+      "why": "CPIC dosing guideline retrieval for pharmacogenomics",
+      "should_pass": ["warfarin"],
+      "should_fail": []
+    },
+    {
+      "category": "variant_pharmacogenomics",
+      "name": "Protein to AlphaMissense Predictions",
+      "query": ">>uniprot>>alphamissense",
+      "why": "Get all AI-predicted pathogenic missense variants for a protein",
+      "should_pass": ["P04637", "P38398"],
+      "should_fail": []
+    },
+    {
+      "category": "variant_pharmacogenomics",
+      "name": "GWAS Study to SNPs",
+      "query": ">>gwas_study>>gwas",
+      "why": "Get all SNPs from a GWAS study",
+      "should_pass": ["GCST010481"],
+      "should_fail": []
+    },
+    {
+      "category": "variant_pharmacogenomics",
+      "name": "ClinVar to Disease (MONDO)",
+      "query": ">>clinvar>>mondo",
+      "why": "Variant to disease association lookup",
+      "should_pass": ["1000183"],
+      "should_fail": []
+    },
+
+    {
+      "category": "disease_drug",
+      "name": "Disease to Therapeutic Antibodies",
+      "query": ">>mondo>>antibody",
+      "why": "Find approved or in-development therapeutic antibodies for diseases",
+      "should_pass": ["MONDO:0005180", "MONDO:0004975", "MONDO:0004989"],
+      "should_fail": []
+    },
+    {
+      "category": "disease_drug",
+      "name": "DrugCentral via UniProt",
+      "query": ">>uniprot>>drugcentral",
+      "why": "Find all approved drugs targeting a specific protein",
+      "should_pass": ["P00533", "P04626"],
+      "should_fail": []
+    },
+    {
+      "category": "disease_drug",
+      "name": "ChEMBL to DrugCentral",
+      "query": ">>chembl_molecule>>drugcentral",
+      "why": "Map ChEMBL compounds to DrugCentral approved drugs via InChIKey lookup",
+      "should_pass": ["CHEMBL25", "CHEMBL941", "CHEMBL1201607"],
+      "should_fail": []
+    },
+    {
+      "category": "disease_drug",
+      "name": "PubChem to DrugCentral",
+      "query": ">>pubchem>>drugcentral",
+      "why": "Map PubChem compounds to DrugCentral approved drugs via InChIKey lookup",
+      "should_pass": ["2244", "5291"],
+      "should_fail": []
+    },
+    {
+      "category": "disease_drug",
+      "name": "Huntington Disease Gene Associations",
+      "query": ">>mondo>>gencc>>ensembl",
+      "why": "Huntington disease should have strong GenCC gene associations",
+      "should_pass": ["MONDO:0007739"],
+      "should_fail": []
+    },
+    {
+      "category": "disease_drug",
+      "name": "Full ChEMBL Chain - BRAF",
+      "query": ">>ensembl>>uniprot>>chembl_target_component>>chembl_target>>chembl_assay>>chembl_activity>>chembl_molecule",
+      "why": "BRAF is a validated oncology target with many drugs - test full 7-step chain",
+      "should_pass": ["BRAF"],
+      "should_fail": []
+    },
+
+    {
+      "category": "expression_celltype",
+      "name": "Gene to Tissues via Bgee",
+      "query": ">>ensembl>>bgee>>uberon",
+      "why": "Map gene to all tissues where it is expressed",
+      "should_pass": ["BRCA1", "TP53"],
+      "should_fail": []
+    },
+    {
+      "category": "expression_celltype",
+      "name": "Gene to Cell Types via Bgee",
+      "query": ">>ensembl>>bgee>>cl",
+      "why": "Map gene to cell types with expression",
+      "should_pass": ["TP53"],
+      "should_fail": []
+    },
+    {
+      "category": "expression_celltype",
+      "name": "Cell Type to CellXGene Datasets",
+      "query": ">>cl>>cellxgene",
+      "why": "Find single-cell datasets containing specific cell types",
+      "should_pass": ["CL:0000540", "CL:0000576"],
+      "should_fail": []
+    },
+    {
+      "category": "expression_celltype",
+      "name": "Tissue to CellXGene Datasets",
+      "query": ">>uberon>>cellxgene",
+      "why": "Find single-cell datasets for specific tissues",
+      "should_pass": ["UBERON:0000955", "UBERON:0002107"],
+      "should_fail": []
+    },
+    {
+      "category": "expression_celltype",
+      "name": "Disease to CellXGene Datasets",
+      "query": ">>mondo>>cellxgene",
+      "why": "Find disease-specific scRNA-seq datasets",
+      "should_pass": ["MONDO:0007254"],
+      "should_fail": []
+    },
+    {
+      "category": "expression_celltype",
+      "name": "Gene to SCXA Experiments",
+      "query": ">>ensembl>>scxa_expression>>scxa",
+      "why": "Map gene to Single Cell Expression Atlas experiments",
+      "should_pass": ["ENSG00000012048"],
+      "should_fail": []
+    },
+    {
+      "category": "expression_celltype",
+      "name": "Cell Type to SCXA Experiments",
+      "query": ">>cl>>scxa",
+      "why": "Find SCXA experiments with specific cell types",
+      "should_pass": ["CL:0000084"],
+      "should_fail": []
+    },
+
+    {
+      "category": "pathway_network",
+      "name": "Pathway Hierarchy Child",
+      "query": ">>reactome>>reactomechild",
+      "why": "Test pathway hierarchy navigation downward",
+      "should_pass": ["R-HSA-109582"],
+      "should_fail": []
+    },
+    {
+      "category": "pathway_network",
+      "name": "Pathway Hierarchy Parent",
+      "query": ">>reactome>>reactomeparent",
+      "why": "Test pathway hierarchy navigation upward",
+      "should_pass": ["R-HSA-75892"],
+      "should_fail": []
+    },
+    {
+      "category": "pathway_network",
+      "name": "Reactome to UniProt Direct",
+      "query": ">>reactome>>uniprot",
+      "why": "Map Reactome pathways directly to participating proteins",
+      "should_pass": ["R-HSA-1059683", "R-HSA-2173796"],
+      "should_fail": []
+    },
+    {
+      "category": "pathway_network",
+      "name": "GO to Proteins (Reverse Lookup)",
+      "query": ">>go>>uniprot",
+      "why": "Find proteins with specific molecular function",
+      "should_pass": ["GO:0004672", "GO:0006915"],
+      "should_fail": []
+    },
+    {
+      "category": "pathway_network",
+      "name": "Protein to STRING Network",
+      "query": ">>uniprot>>string",
+      "why": "Map UniProt to STRING for network analysis",
+      "should_pass": ["P04637"],
+      "should_fail": []
+    },
+    {
+      "category": "pathway_network",
+      "name": "STRING to Protein Partners",
+      "query": ">>string>>uniprot",
+      "why": "Map STRING ID back to UniProt interaction partners",
+      "should_pass": ["9606.ENSP00000269305"],
+      "should_fail": []
+    },
+    {
+      "category": "pathway_network",
+      "name": "Protein Interaction Network via IntAct",
+      "query": ">>uniprot>>intact>>uniprot",
+      "why": "Find protein interaction partners via IntAct",
+      "should_pass": ["P04637", "P38398"],
+      "should_fail": []
+    },
+    {
+      "category": "pathway_network",
+      "name": "Protein Interaction Network via BioGRID",
+      "query": ">>uniprot>>biogrid>>uniprot",
+      "why": "Find BRCA1 interaction partners via BioGRID",
+      "should_pass": ["P38398"],
+      "should_fail": []
+    },
+
+    {
+      "category": "ontology_hierarchy",
+      "name": "MONDO Parent Traversal",
+      "query": ">>mondo>>mondoparent",
+      "why": "Verify upward traversal in MONDO disease hierarchy",
+      "should_pass": ["MONDO:0005148", "MONDO:0005044"],
+      "should_fail": []
+    },
+    {
+      "category": "ontology_hierarchy",
+      "name": "MONDO Child Enumeration",
+      "query": ">>mondo>>mondochild",
+      "why": "Verify downward traversal to find disease subtypes",
+      "should_pass": ["MONDO:0005148"],
+      "should_fail": []
+    },
+    {
+      "category": "ontology_hierarchy",
+      "name": "HPO Parent Traversal",
+      "query": ">>hpo>>hpoparent",
+      "why": "Verify upward traversal in HPO phenotype hierarchy",
+      "should_pass": ["HP:0001250", "HP:0000969"],
+      "should_fail": []
+    },
+    {
+      "category": "ontology_hierarchy",
+      "name": "HPO Child Enumeration",
+      "query": ">>hpo>>hpochild",
+      "why": "Verify downward traversal to find phenotype subtypes",
+      "should_pass": ["HP:0001250"],
+      "should_fail": []
+    },
+    {
+      "category": "ontology_hierarchy",
+      "name": "EFO to MONDO Mapping",
+      "query": ">>efo>>mondo",
+      "why": "Verify cross-ontology mapping from EFO traits to MONDO diseases",
+      "should_pass": ["EFO:0000400", "EFO:0003767"],
+      "should_fail": []
+    },
+    {
+      "category": "ontology_hierarchy",
+      "name": "MONDO to GenCC Gene Curations",
+      "query": ">>mondo>>gencc",
+      "why": "Verify disease to gene-disease curation mappings",
+      "should_pass": ["MONDO:0005148"],
+      "should_fail": []
+    },
+    {
+      "category": "ontology_hierarchy",
+      "name": "MONDO to GWAS Associations",
+      "query": ">>mondo>>gwas",
+      "why": "Verify disease to GWAS catalog associations",
+      "should_pass": ["MONDO:0005148"],
+      "should_fail": []
+    },
+
+    {"_comment": "=== MeSH HIERARCHY TESTS (2026-01-31 - BUG-001 FIXED) ==="},
+
+    {
+      "category": "ontology_hierarchy",
+      "name": "MeSH Parent Traversal",
+      "query": ">>mesh>>meshparent",
+      "why": "Navigate MeSH tree hierarchy upward - find broader descriptor categories",
+      "should_pass": ["D000001", "D003920", "D006973"],
+      "should_fail": []
+    },
+    {
+      "category": "ontology_hierarchy",
+      "name": "MeSH Child Enumeration",
+      "query": ">>mesh>>meshchild",
+      "why": "Navigate MeSH tree hierarchy downward - find narrower descriptors",
+      "should_pass": ["D000095662", "D001583"],
+      "should_fail": []
+    },
+    {
+      "category": "ontology_hierarchy",
+      "name": "MeSH Entry Lookup",
+      "query": "",
+      "why": "Basic MeSH descriptor lookup by ID",
+      "should_pass": ["D000001", "D003920"],
+      "should_fail": ["D999999999"]
+    },
+    {
+      "type": "validation",
+      "category": "ontology_hierarchy",
+      "name": "MeSH Descriptor Attributes",
+      "identifier": "D000001",
+      "filter_dataset": "mesh",
+      "why": "Verify MeSH descriptor has expected attributes (name, tree numbers, scope note)",
+      "validations": [
+        {"path": "entry.Attributes.Mesh.descriptor_name", "expected": "Calcimycin", "description": "Descriptor name is Calcimycin"},
+        {"path": "entry.Attributes.Mesh.tree_numbers", "min_length": 1, "description": "Has at least 1 tree number"},
+        {"path": "entry.Attributes.Mesh.scope_note", "min_length": 10, "description": "Has scope note"}
+      ]
+    },
+    {
+      "type": "validation",
+      "category": "ontology_hierarchy",
+      "name": "MeSH Parent Count Validation",
+      "query": ">>mesh>>meshparent",
+      "identifier": "D000001",
+      "why": "D000001 (Calcimycin) should have at least 2 parent descriptors from its tree numbers",
+      "validations": [
+        {"path": "source.count", "min": 2, "description": "At least 2 parent mappings"}
+      ]
+    },
+
+    {
+      "category": "known_issues",
+      "name": "HPO to MONDO Reverse (KNOWN BUG)",
+      "query": ">>hpo>>mondo",
+      "why": "Document known reverse mapping failure (BUG-005)",
+      "should_pass": [],
+      "should_fail": ["HP:0001250"],
+      "known_issue": true
     }
   ]
 }

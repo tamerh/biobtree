@@ -177,20 +177,38 @@ func EnrichMapFilterResultFull(result *pbuf.MapFilterResult, terms []string, cha
 		Raw:   rawQuery,
 	}
 
-	// Calculate statistics
+	// Calculate statistics - track which INPUT terms were successfully mapped
+	// Build a map of input terms to track which ones were found
+	inputTermsMap := make(map[string]bool)
+	for _, term := range terms {
+		inputTermsMap[strings.ToUpper(term)] = false // not found yet
+	}
+
 	var totalTargets int32
-	mapped := int32(0)
 	for _, mapFilter := range result.Results {
 		if len(mapFilter.Targets) > 0 {
-			mapped++
 			totalTargets += int32(len(mapFilter.Targets))
+			// Mark this input term as found using Keyword (original search term)
+			if mapFilter.Source != nil && mapFilter.Source.Keyword != "" {
+				inputTermsMap[strings.ToUpper(mapFilter.Source.Keyword)] = true
+			}
+		}
+	}
+
+	// Count how many unique input terms were mapped
+	var mapped, failed int32
+	for _, found := range inputTermsMap {
+		if found {
+			mapped++
+		} else {
+			failed++
 		}
 	}
 
 	result.Stats = &pbuf.MapFilterStats{
 		TotalTerms:   int32(len(terms)),
 		Mapped:       mapped,
-		Failed:       int32(len(terms)) - mapped,
+		Failed:       failed,
 		TotalTargets: totalTargets,
 	}
 

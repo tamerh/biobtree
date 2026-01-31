@@ -484,6 +484,12 @@ func (dc *drugcentral) createCrossReferences(structID string, attr *pbuf.Drugcen
 		}
 	}
 
+	// Cross-reference to chemical databases via InChI Key lookup
+	// This enables mapping chains like: >>chembl_molecule>>drugcentral and >>pubchem>>drugcentral
+	if attr.InchiKey != "" && dc.d.hasLookupDB {
+		dc.createChemicalDatabaseXrefs(structID, attr.InchiKey, sourceID)
+	}
+
 	// Text search: target names
 	for _, target := range attr.Targets {
 		if target.TargetName != "" {
@@ -492,6 +498,52 @@ func (dc *drugcentral) createCrossReferences(structID string, attr *pbuf.Drugcen
 		// Text search: gene symbols
 		if target.GeneSymbol != "" {
 			dc.d.addXref(target.GeneSymbol, textLinkID, structID, dc.source, true)
+		}
+	}
+}
+
+// createChemicalDatabaseXrefs creates cross-references to chemical databases (ChEMBL, PubChem)
+// by looking up the InChI Key in the lookup database
+func (dc *drugcentral) createChemicalDatabaseXrefs(structID, inchiKey, sourceID string) {
+	// Target chemical databases to link with
+	targetDatasets := make(map[string]uint32)
+	for _, ds := range []string{"chembl_molecule", "pubchem", "chebi", "hmdb"} {
+		if _, exists := config.Dataconf[ds]; exists {
+			targetDatasets[ds] = config.DataconfIDStringToInt[ds]
+		}
+	}
+
+	if len(targetDatasets) == 0 {
+		return
+	}
+
+	// Lookup InChI Key in the biobtree database
+	result, err := dc.d.lookup(inchiKey)
+	if err != nil || result == nil || len(result.Results) == 0 {
+		return
+	}
+
+	// Create xrefs for all matched chemical databases
+	found := make(map[string]bool) // Prevent duplicates
+
+	for _, xref := range result.Results {
+		if xref.IsLink {
+			for _, entry := range xref.Entries {
+				for datasetName, datasetID := range targetDatasets {
+					if entry.Dataset == datasetID && !found[datasetName] {
+						// Create bidirectional xref: DrugCentral ↔ chemical database
+						dc.d.addXref(structID, sourceID, entry.Identifier, datasetName, false)
+						found[datasetName] = true
+					}
+				}
+			}
+		} else {
+			for datasetName, datasetID := range targetDatasets {
+				if xref.Dataset == datasetID && !found[datasetName] {
+					dc.d.addXref(structID, sourceID, xref.Identifier, datasetName, false)
+					found[datasetName] = true
+				}
+			}
 		}
 	}
 }

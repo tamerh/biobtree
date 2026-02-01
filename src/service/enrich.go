@@ -188,9 +188,15 @@ func EnrichMapFilterResultFull(result *pbuf.MapFilterResult, terms []string, cha
 	for _, mapFilter := range result.Results {
 		if len(mapFilter.Targets) > 0 {
 			totalTargets += int32(len(mapFilter.Targets))
-			// Mark this input term as found using Keyword (original search term)
-			if mapFilter.Source != nil && mapFilter.Source.Keyword != "" {
-				inputTermsMap[strings.ToUpper(mapFilter.Source.Keyword)] = true
+			// Mark this input term as found
+			if mapFilter.Source != nil {
+				// Try Keyword first (for text searches like gene symbols)
+				if mapFilter.Source.Keyword != "" {
+					inputTermsMap[strings.ToUpper(mapFilter.Source.Keyword)] = true
+				} else if mapFilter.Source.Identifier != "" {
+					// Fall back to Identifier (for exact ID queries like HP:0001250)
+					inputTermsMap[strings.ToUpper(mapFilter.Source.Identifier)] = true
+				}
 			}
 		}
 	}

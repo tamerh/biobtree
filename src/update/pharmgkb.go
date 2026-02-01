@@ -655,10 +655,10 @@ func (p *pharmgkb) createGeneCrossRefs(entry *pharmgkbGeneEntry, sourceID string
 	// Cross-reference: PharmGKB Gene → HGNC
 	if entry.hgncID != "" {
 		if _, exists := config.Dataconf["hgnc"]; exists {
-			// HGNC ID format is usually "HGNC:123" but in PharmGKB it's stored as "HGNC:123"
+			// HGNC IDs in biobtree use "HGNC:123" format
 			hgncID := entry.hgncID
-			if strings.HasPrefix(hgncID, "HGNC:") {
-				hgncID = strings.TrimPrefix(hgncID, "HGNC:")
+			if !strings.HasPrefix(hgncID, "HGNC:") {
+				hgncID = "HGNC:" + hgncID
 			}
 			p.d.addXref(entry.pharmgkbID, sourceID, hgncID, "hgnc", false)
 		}

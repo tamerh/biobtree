@@ -63,7 +63,7 @@ SCHEMA_EDGES = {
     "alphamissense": ["uniprot", "transcript"],
     "gwas": ["gwas_study", "ensembl", "efo", "dbsnp"],
     "gwas_study": ["gwas", "efo"],
-    "mondo": ["gencc", "clinvar", "efo", "clinical_trials", "antibody", "cellxgene", "ctd"],
+    "mondo": ["gencc", "clinvar", "efo", "mesh", "hpo", "clinical_trials", "antibody", "cellxgene", "ctd"],
     "gencc": ["mondo", "hpo", "hgnc", "ensembl"],
     "clinical_trials": ["mondo", "chembl_molecule"],
     "pharmgkb": ["hgnc", "dbsnp", "mesh", "pharmgkb_gene", "pharmgkb_variant", "pharmgkb_clinical", "pharmgkb_guideline", "pharmgkb_pathway"],
@@ -78,12 +78,12 @@ SCHEMA_EDGES = {
     "reactome": ["ensembl", "uniprot", "chebi", "go"],
     "rhea": ["chebi", "uniprot", "go"],
     "go": ["ensembl", "uniprot", "reactome", "msigdb", "swisslipids", "bgee"],
-    "hpo": ["clinvar", "gencc", "msigdb"],
+    "hpo": ["clinvar", "gencc", "mondo", "msigdb"],
     "efo": ["gwas", "mondo", "cellxgene"],
     "uberon": ["bgee", "cellxgene", "swisslipids"],
     "cl": ["bgee", "cellxgene", "scxa"],
     "taxonomy": ["ensembl", "uniprot", "bgee", "biogrid", "ctd"],
-    "mesh": ["pharmgkb", "ctd", "pubchem"],
+    "mesh": ["pharmgkb", "ctd", "pubchem", "mondo"],
     "antibody": ["ensembl", "uniprot", "mondo", "pdb"],
     "msigdb": ["hgnc", "entrez", "go", "hpo"]
 }
@@ -272,6 +272,84 @@ SCHEMA_TEXT_SEARCH = """Datasets supporting partial text search:
 NOTE: For drug discovery, query BOTH ChEMBL and PubChem for comprehensive coverage:
 - ChEMBL: curated medicinal chemistry, clinical phases, assay protocols
 - PubChem: broader compounds, FDA approval, bioactivity screens, patents, metabolites"""
+
+# Disease Ontology Mapping Strategy - CRITICAL for cross-database queries
+SCHEMA_DISEASE_ONTOLOGY = """
+# ===== DISEASE ONTOLOGY MAPPING STRATEGY =====
+#
+# IMPORTANT: Different databases annotate diseases using DIFFERENT ontologies.
+# When a specific disease term doesn't map, try these strategies:
+#
+# 1. ONTOLOGY USAGE BY DATABASE:
+#    | Database        | Primary Ontology | Notes                              |
+#    |-----------------|------------------|-------------------------------------|
+#    | GWAS Catalog    | EFO              | Experimental Factor Ontology        |
+#    | CTD             | MeSH             | Medical Subject Headings            |
+#    | CellXGene       | MONDO            | Monarch Disease Ontology            |
+#    | ClinVar         | MONDO, HPO       | Also uses OMIM for Mendelian        |
+#    | Clinical Trials | MONDO            | Mapped from MeSH/ICD                |
+#    | GenCC           | MONDO            | Gene-disease curations              |
+#    | Bgee            | UBERON, CL       | Tissues and cell types              |
+#
+# 2. WHEN DIRECT MAPPING FAILS - Use ontology BRIDGES:
+#
+#    # MONDO → CTD (CTD uses MeSH, not MONDO directly)
+#    <disease> >> mondo >> mesh >> ctd >> pubchem   # Use MeSH bridge
+#
+#    # MONDO → GWAS (GWAS uses EFO)
+#    <disease> >> mondo >> efo >> gwas              # Map to EFO first
+#    <efo_id> >> efo >> gwas                        # Or use EFO ID directly
+#
+# 3. WHEN SPECIFIC TERM FAILS - Try PARENT terms:
+#
+#    # Example: MONDO:0005148 (type 2 diabetes) → EFO fails
+#    # Because EFO:0001360 (type II diabetes) is OBSOLETE in EFO
+#    # Solution: Use parent term MONDO:0005015 (diabetes mellitus)
+#
+#    <disease> >> mondo >> mondoparent >> efo      # Try parent if specific fails
+#    <disease> >> mondo >> mondoparent >> mesh     # Or for MeSH bridge
+#
+#    # Check parent/child relationships:
+#    <disease> >> mondo >> mondoparent             # Get broader disease terms
+#    <disease> >> mondo >> mondochild              # Get more specific subtypes
+#    <disease> >> efo >> efoparent                 # EFO hierarchy
+#    <mesh_id> >> mesh >> meshparent               # MeSH tree navigation
+#
+# 4. WORKING CROSS-ONTOLOGY MAPPINGS:
+#
+#    | Path                    | Example Working                           |
+#    |-------------------------|-------------------------------------------|
+#    | mondo >> efo            | MONDO:0005015 → EFO:0000400 (diabetes)    |
+#    | efo >> mondo            | EFO:0000400 → MONDO:0005015 ✓             |
+#    | mondo >> mesh           | MONDO:0005148 → D003924 (type 2 diabetes) |
+#    | mesh >> ctd             | D003924 → 5000+ compounds                 |
+#    | hpo >> mondo            | Some work, depends on xref in source data |
+#    | hpo >> clinvar          | HP:0001250 → 150+ variants (seizures)     |
+#
+# 5. PHENOTYPE vs DISEASE distinction:
+#
+#    # HPO = Phenotypes (symptoms, features)
+#    # MONDO = Diseases (diagnoses)
+#    # For gene discovery from phenotypes, use ClinVar path:
+#    <phenotype> >> hpo >> clinvar >> ensembl      # Genes with variants causing phenotype
+#
+#    # NOT >> hpo >> gencc (GenCC only has 8 HPO terms - inheritance modes, not phenotypes)
+#
+# 6. PRACTICAL EXAMPLES:
+#
+#    # Type 2 Diabetes drug discovery - use MeSH bridge
+#    MONDO:0005148 >> mondo >> mesh >> ctd >> pubchem
+#    # Result: 150+ compounds from toxicogenomics literature
+#
+#    # Diabetes GWAS - use parent term or direct EFO
+#    EFO:0000400 >> efo >> gwas                    # Direct EFO works
+#    MONDO:0005015 >> mondo >> efo >> gwas         # Parent MONDO works
+#
+#    # Breast cancer - multiple paths for comprehensive results
+#    MONDO:0007254 >> mondo >> cellxgene           # 38 scRNA-seq datasets
+#    D001943 >> mesh >> ctd >> pubchem             # CTD compounds via MeSH
+#    MONDO:0007254 >> mondo >> gencc >> ensembl    # Causative genes
+"""
 
 SCHEMA_PAGINATION = {
     "description": "Results are automatically paginated (~150 results per page)",
@@ -480,17 +558,19 @@ Call this tool when you need to:
 - Find available filters for a dataset
 - See example query patterns
 - Understand ontology hierarchies
+- IMPORTANT: Learn disease ontology mapping strategies (use "disease_ontology" topic)
 
 Returns a compact JSON schema with all dataset relationships and queryable attributes.
 
 PARAMETERS:
-- topic: Optional filter - "edges", "filters", "hierarchies", "patterns", "examples", or "all" (default)""",
+- topic: Optional filter - "edges", "filters", "hierarchies", "patterns", "examples", "disease_ontology", or "all" (default)
+  - "disease_ontology": CRITICAL - explains which ontology each database uses and how to use bridges/parent terms when direct mapping fails""",
         inputSchema={
             "type": "object",
             "properties": {
                 "topic": {
                     "type": "string",
-                    "enum": ["edges", "filters", "hierarchies", "patterns", "examples", "all"],
+                    "enum": ["edges", "filters", "hierarchies", "patterns", "examples", "disease_ontology", "all"],
                     "default": "all",
                     "description": "Which section of the schema to return"
                 }
@@ -554,9 +634,11 @@ async def call_tool(name: str, arguments: dict[str, Any]) -> list[TextContent]:
             elif topic == "hierarchies":
                 result = {"hierarchies": SCHEMA_HIERARCHIES, "note": "Use dataset>>parent or dataset>>child for navigation"}
             elif topic == "patterns":
-                result = {"patterns": SCHEMA_PATTERNS, "text_search": SCHEMA_TEXT_SEARCH}
+                result = {"patterns": SCHEMA_PATTERNS, "text_search": SCHEMA_TEXT_SEARCH, "tip": "For cross-ontology mapping issues (MONDO/EFO/MeSH), use topic='disease_ontology'"}
             elif topic == "examples":
                 result = {"examples": SCHEMA_EXAMPLES}
+            elif topic == "disease_ontology":
+                result = {"disease_ontology_mapping": SCHEMA_DISEASE_ONTOLOGY, "note": "CRITICAL: Different databases use different ontologies. Use bridges and parent terms when direct mapping fails."}
             else:  # "all"
                 result = {
                     "query_syntax": "<terms> >> <dataset>[<filter>] >> <dataset>[<filter>] >> ...",
@@ -566,7 +648,8 @@ async def call_tool(name: str, arguments: dict[str, Any]) -> list[TextContent]:
                     "examples": SCHEMA_EXAMPLES,
                     "patterns": SCHEMA_PATTERNS,
                     "text_search": SCHEMA_TEXT_SEARCH,
-                    "pagination": SCHEMA_PAGINATION
+                    "pagination": SCHEMA_PAGINATION,
+                    "additional_topics": ["disease_ontology - use when cross-ontology mapping fails (MONDO/EFO/MeSH bridges)"]
                 }
 
         else:

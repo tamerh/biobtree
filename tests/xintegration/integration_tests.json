@@ -2657,6 +2657,160 @@
       "should_fail": []
     },
 
+    {"_comment": "=== MULTI-AGENT DISCOVERY TESTS (2026-02-01) ==="},
+
+    {
+      "category": "disease_drug",
+      "name": "Rare Disease FDA-Approved Drugs",
+      "query": ">>mondo>>gencc>>ensembl>>uniprot>>pubchem_activity>>pubchem[pubchem.is_fda_approved==true]",
+      "why": "Full rare disease to FDA-approved drugs pipeline (54 drugs for Huntington's target)",
+      "should_pass": ["MONDO:0007739"],
+      "should_fail": []
+    },
+    {
+      "category": "disease_drug",
+      "name": "ALS Gene Targets",
+      "query": ">>mondo>>gencc>>ensembl",
+      "why": "ALS (MONDO:0004976) has 33 GenCC-curated genes",
+      "should_pass": ["MONDO:0004976"],
+      "should_fail": []
+    },
+    {
+      "category": "disease_drug",
+      "name": "Therapeutic Antibodies for ALS",
+      "query": ">>mondo>>antibody",
+      "why": "Find therapeutic antibodies in development (4 for ALS including Tocilizumab)",
+      "should_pass": ["MONDO:0004976", "MONDO:0007739"],
+      "should_fail": []
+    },
+
+    {
+      "category": "pathway_network",
+      "name": "DNA Repair Pathway Genes",
+      "query": ">>reactome>>ensembl",
+      "why": "R-HSA-73894 (DNA Repair) contains 138 genes",
+      "should_pass": ["R-HSA-73894"],
+      "should_fail": []
+    },
+    {
+      "category": "pathway_network",
+      "name": "Apoptosis Sub-Pathways",
+      "query": ">>reactome>>reactomechild",
+      "why": "R-HSA-109581 (Apoptosis) has 4 child pathways",
+      "should_pass": ["R-HSA-109581"],
+      "should_fail": []
+    },
+    {
+      "category": "pathway_network",
+      "name": "SwissLipids to Proteins",
+      "query": ">>swisslipids>>uniprot",
+      "why": "Cholesterol (SLM:000000287) links to 60 proteins including CYP enzymes",
+      "should_pass": ["SLM:000000287"],
+      "should_fail": []
+    },
+    {
+      "category": "pathway_network",
+      "name": "Rhea Enzymatic Reactions",
+      "query": ">>uniprot>>rhea",
+      "why": "EGFR (P00533) links to RHEA:10596 tyrosine kinase reaction",
+      "should_pass": ["P00533"],
+      "should_fail": []
+    },
+
+    {
+      "category": "gene_mapping",
+      "name": "Cross-Species Orthologs",
+      "query": ">>ensembl>>ortholog",
+      "why": "TP53 has orthologs in mouse, rat, zebrafish, fly",
+      "should_pass": ["ENSG00000141510", "ENSG00000012048"],
+      "should_fail": []
+    },
+
+    {
+      "category": "variant_pharmacogenomics",
+      "name": "Pharmacogene Clinical Annotations (CYP2D6)",
+      "query": ">>hgnc>>pharmgkb_clinical",
+      "why": "CYP2D6 has 75+ clinical annotations with evidence levels",
+      "should_pass": ["CYP2D6", "CYP2C19", "CYP2C9"],
+      "should_fail": []
+    },
+    {
+      "category": "variant_pharmacogenomics",
+      "name": "Drug Metabolism Pathway",
+      "query": ">>pharmgkb>>pharmgkb_pathway",
+      "why": "Warfarin has 2 pathways (PK + PD) with CYP genes",
+      "should_pass": ["warfarin", "clopidogrel"],
+      "should_fail": []
+    },
+    {
+      "category": "variant_pharmacogenomics",
+      "name": "PubChem to PharmGKB Bidirectional",
+      "query": ">>pubchem>>pharmgkb",
+      "why": "Warfarin PubChem CID 54678486 links to PA451906",
+      "should_pass": ["54678486"],
+      "should_fail": []
+    },
+    {
+      "category": "variant_pharmacogenomics",
+      "name": "Pharmacogenomic SNP GWAS",
+      "query": ">>dbsnp>>gwas",
+      "why": "rs1799853 (CYP2C9*2) has 19 GWAS associations for drug response",
+      "should_pass": ["rs1799853", "rs1057910"],
+      "should_fail": []
+    },
+
+    {
+      "category": "expression_celltype",
+      "name": "COVID-19 Single-Cell Datasets",
+      "query": ">>mondo>>cellxgene",
+      "why": "COVID-19 (MONDO:0100096) has 63 scRNA-seq datasets",
+      "should_pass": ["MONDO:0100096"],
+      "should_fail": []
+    },
+    {
+      "category": "expression_celltype",
+      "name": "Alzheimer's Single-Cell Datasets",
+      "query": ">>mondo>>cellxgene",
+      "why": "Alzheimer's (MONDO:0004975) has 25 scRNA-seq datasets",
+      "should_pass": ["MONDO:0004975"],
+      "should_fail": []
+    },
+    {
+      "category": "expression_celltype",
+      "name": "Rare Cell Type Datasets (Purkinje)",
+      "query": ">>cl>>cellxgene",
+      "why": "Even rare cell types like Purkinje cells have datasets (16)",
+      "should_pass": ["CL:0000121"],
+      "should_fail": []
+    },
+    {
+      "category": "expression_celltype",
+      "name": "Bgee Expression Breadth",
+      "query": ">>ensembl>>bgee",
+      "why": "TP53 has 223 present calls across 281 conditions",
+      "should_pass": ["ENSG00000141510"],
+      "should_fail": []
+    },
+
+    {
+      "category": "clinical_variants",
+      "name": "Human-Specific Pathogenic Variants",
+      "query": ">>ensembl[ensembl.genome==\"homo_sapiens\"]>>clinvar[clinvar.germline_classification==\"Pathogenic\"]",
+      "why": "Filter for human-only pathogenic variants (avoids mouse/rat orthologs)",
+      "should_pass": ["BRCA1", "CFTR", "DMD"],
+      "should_fail": []
+    },
+    {
+      "category": "clinical_variants",
+      "name": "HPO to ClinVar Variants",
+      "query": ">>hpo>>clinvar",
+      "why": "Phenotype to variants works (150+ for seizures HP:0001250)",
+      "should_pass": ["HP:0001250", "HP:0001638"],
+      "should_fail": []
+    },
+
+    {"_comment": "=== KNOWN ISSUES (2026-02-01 Updated) ==="},
+
     {
       "category": "known_issues",
       "name": "HPO to MONDO Reverse (KNOWN BUG)",

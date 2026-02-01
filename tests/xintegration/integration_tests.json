@@ -1,9 +1,10 @@
 {
   "metadata": {
-    "version": "5.4",
+    "version": "5.5",
     "description": "Expanded integration tests including newly added datasets (2025-2026)",
     "server": "http://localhost:9291",
-    "last_updated": "2026-01-31"
+    "last_updated": "2026-02-01",
+    "changes_5.5": "Added MeSH bridge CTD tests, Reactome to Ensembl, CellXGene reverse mappings, clinical trials high-count, MeSH breast cancer hierarchy"
   },
   "test_categories": {
     "gene_mapping": "Gene symbol/ID to various resources (proteins, transcripts, GO terms)",
@@ -2201,10 +2202,26 @@
     },
     {
       "category": "disease_drug",
-      "name": "MONDO Disease to CTD Compounds",
-      "query": ">>mondo>>ctd>>pubchem",
-      "why": "Disease to compounds via CTD toxicogenomics - enables drug discovery via gene-chemical-disease relationships",
+      "name": "MONDO Disease to CTD via MeSH Bridge",
+      "query": ">>mondo>>mesh>>ctd>>pubchem",
+      "why": "Disease to compounds via MeSH bridge - reliable workaround for MONDO->CTD (BUG-010)",
       "should_pass": ["MONDO:0005148", "MONDO:0005044"],
+      "should_fail": []
+    },
+    {
+      "category": "disease_drug",
+      "name": "MeSH Disease to CTD Compounds",
+      "query": ">>mesh>>ctd>>pubchem",
+      "why": "Direct MeSH to CTD to PubChem - high-volume toxicogenomics (5000+ for D001943)",
+      "should_pass": ["D001943", "D003924"],
+      "should_fail": []
+    },
+    {
+      "category": "disease_drug",
+      "name": "CTD to PubChem Compound",
+      "query": ">>ctd>>pubchem",
+      "why": "CTD chemical entries to PubChem compound IDs",
+      "should_pass": ["D001241", "C000090"],
       "should_fail": []
     },
     {
@@ -2372,6 +2389,46 @@
       "should_pass": ["CL:0000084"],
       "should_fail": []
     },
+    {
+      "category": "expression_celltype",
+      "name": "Gene to SCXA Direct",
+      "query": ">>ensembl>>scxa",
+      "why": "Simpler path: gene to Single Cell Expression Atlas datasets",
+      "should_pass": ["BRCA1", "TP53"],
+      "should_fail": []
+    },
+    {
+      "category": "expression_celltype",
+      "name": "CellXGene to Disease (Reverse)",
+      "query": ">>cellxgene>>mondo",
+      "why": "Reverse mapping from CellXGene dataset to associated diseases",
+      "should_pass": ["42B6A476-C51D-4F8B-B68B-44941B3A11BF"],
+      "should_fail": []
+    },
+    {
+      "category": "expression_celltype",
+      "name": "CellXGene to Cell Types (Reverse)",
+      "query": ">>cellxgene>>cl",
+      "why": "Reverse mapping from CellXGene dataset to cell types present",
+      "should_pass": ["42B6A476-C51D-4F8B-B68B-44941B3A11BF"],
+      "should_fail": []
+    },
+    {
+      "category": "expression_celltype",
+      "name": "CellXGene to Tissues (Reverse)",
+      "query": ">>cellxgene>>uberon",
+      "why": "Reverse mapping from CellXGene dataset to tissues sampled",
+      "should_pass": ["42B6A476-C51D-4F8B-B68B-44941B3A11BF"],
+      "should_fail": []
+    },
+    {
+      "category": "expression_celltype",
+      "name": "Tissue to CellXGene (Pancreas)",
+      "query": ">>uberon>>cellxgene",
+      "why": "Find scRNA-seq datasets for pancreas tissue (13 datasets)",
+      "should_pass": ["UBERON:0001264"],
+      "should_fail": []
+    },
 
     {
       "category": "pathway_network",
@@ -2395,6 +2452,14 @@
       "query": ">>reactome>>uniprot",
       "why": "Map Reactome pathways directly to participating proteins",
       "should_pass": ["R-HSA-1059683", "R-HSA-2173796"],
+      "should_fail": []
+    },
+    {
+      "category": "pathway_network",
+      "name": "Reactome Pathway to Genes",
+      "query": ">>reactome>>ensembl",
+      "why": "Map Reactome pathways directly to participating genes (41 genes for HDR pathway)",
+      "should_pass": ["R-HSA-5693567", "R-HSA-109582"],
       "should_fail": []
     },
     {
@@ -2545,6 +2610,52 @@
         {"path": "source.count", "min": 2, "description": "At least 2 parent mappings"}
       ]
     },
+    {
+      "category": "ontology_hierarchy",
+      "name": "MeSH Breast Cancer Subtypes",
+      "query": ">>mesh>>meshchild",
+      "why": "D001943 (Breast Neoplasms) should have 8 child descriptors including HER2+ and TNBC",
+      "should_pass": ["D001943"],
+      "should_fail": []
+    },
+    {
+      "category": "ontology_hierarchy",
+      "name": "MeSH Breast Cancer Parents",
+      "query": ">>mesh>>meshparent",
+      "why": "D001943 (Breast Neoplasms) should have 2 parent descriptors",
+      "should_pass": ["D001943"],
+      "should_fail": []
+    },
+    {
+      "type": "validation",
+      "category": "ontology_hierarchy",
+      "name": "MeSH Breast Cancer Child Count",
+      "query": ">>mesh>>meshchild",
+      "identifier": "D001943",
+      "why": "D001943 (Breast Neoplasms) should have exactly 8 child subtypes",
+      "validations": [
+        {"path": "source.count", "min": 8, "description": "At least 8 child subtypes"}
+      ]
+    },
+
+    {"_comment": "=== CLINICAL TRIALS TESTS (2026-02-01) ==="},
+
+    {
+      "category": "clinical_trials",
+      "name": "Trial to Diseases (High Count)",
+      "query": ">>clinical_trials>>mondo",
+      "why": "NCT00000466 has 106 associated MONDO disease terms - tests high-volume mappings",
+      "should_pass": ["NCT00000466"],
+      "should_fail": []
+    },
+    {
+      "category": "clinical_trials",
+      "name": "Diabetes Clinical Trials",
+      "query": ">>mondo>>clinical_trials",
+      "why": "MONDO:0005148 (Type 2 Diabetes) has 12,000+ clinical trials",
+      "should_pass": ["MONDO:0005148"],
+      "should_fail": []
+    },
 
     {
       "category": "known_issues",
@@ -2554,6 +2665,26 @@
       "should_pass": [],
       "should_fail": ["HP:0001250"],
       "known_issue": true
+    },
+    {
+      "category": "known_issues",
+      "name": "MONDO to CTD Direct (BUG-010 - Use MeSH Bridge)",
+      "query": ">>mondo>>ctd>>pubchem",
+      "why": "Direct MONDO->CTD fails. WORKAROUND: Use >>mondo>>mesh>>ctd>>pubchem instead",
+      "should_pass": [],
+      "should_fail": ["MONDO:0005148"],
+      "known_issue": true,
+      "workaround": ">>mondo>>mesh>>ctd>>pubchem"
+    },
+    {
+      "category": "known_issues",
+      "name": "Reactome to UniProt Direct (BUG-003 - Needs Reprocess)",
+      "query": ">>reactome>>uniprot",
+      "why": "Direct pathway->protein fails. WORKAROUND: Use >>reactome>>ensembl>>uniprot",
+      "should_pass": [],
+      "should_fail": ["R-HSA-5693567"],
+      "known_issue": true,
+      "workaround": ">>reactome>>ensembl>>uniprot"
     }
   ]
 }

@@ -39,7 +39,7 @@ logger = logging.getLogger(__name__)
 # =============================================================================
 
 SCHEMA_EDGES = {
-    "ensembl": ["uniprot", "go", "transcript", "exon", "ortholog", "paralog", "dbsnp", "clinvar", "hgnc", "entrez", "refseq", "bgee", "gwas", "gencc", "biogrid", "string", "antibody"],
+    "ensembl": ["uniprot", "go", "transcript", "exon", "ortholog", "paralog", "dbsnp", "clinvar", "hgnc", "entrez", "refseq", "bgee", "gwas", "gencc", "biogrid", "string", "antibody", "scxa"],
     "hgnc": ["ensembl", "uniprot", "entrez", "gencc", "pharmgkb_gene", "msigdb"],
     "entrez": ["ensembl", "uniprot", "refseq", "go", "biogrid", "pubchem_activity"],
     "refseq": ["ensembl", "uniprot", "entrez"],
@@ -189,7 +189,9 @@ SCHEMA_PATTERNS = """# ===== DRUG DISCOVERY (use BOTH ChEMBL AND PubChem for com
 <compound> >> pubchem >> pharmgkb        # pharmacogenomics annotations
 
 # Disease → Compounds via CTD (Comparative Toxicogenomics Database)
-<disease> >> mondo >> ctd >> pubchem
+# NOTE: Use MeSH bridge for reliable disease→CTD mapping
+<disease> >> mondo >> mesh >> ctd >> pubchem
+<mesh_id> >> mesh >> ctd >> pubchem  # Direct MeSH to CTD (5000+ compounds for breast cancer)
 
 # NOTE: ChEMBL vs PubChem strengths:
 # - ChEMBL: curated medicinal chemistry, clinical development phases, assay details
@@ -218,7 +220,19 @@ SCHEMA_PATTERNS = """# ===== DRUG DISCOVERY (use BOTH ChEMBL AND PubChem for com
 <disease> >> mondo >> clinvar >> dbsnp      # pathogenic variants
 <disease> >> mondo >> clinical_trials       # active trials
 <disease> >> mondo >> antibody              # therapeutic antibodies
-<disease> >> mondo >> ctd >> pubchem        # associated compounds (PubChem)
+<disease> >> mondo >> mesh >> ctd >> pubchem  # associated compounds via CTD
+<disease> >> mondo >> cellxgene             # single-cell RNA-seq datasets
+
+# ===== SINGLE-CELL / EXPRESSION =====
+
+# Disease/Tissue/CellType → Single-cell datasets
+<disease> >> mondo >> cellxgene        # scRNA-seq datasets for disease (9 for diabetes)
+<cell_type> >> cl >> cellxgene         # datasets with cell type (75+ for neurons)
+<tissue> >> uberon >> cellxgene        # datasets from tissue (13 for pancreas)
+<gene> >> ensembl >> scxa              # Single Cell Expression Atlas
+
+# Tissue → Expression
+<tissue> >> uberon >> bgee >> ensembl  # genes expressed in tissue
 
 # ===== INTERACTIONS =====
 
@@ -230,7 +244,24 @@ SCHEMA_PATTERNS = """# ===== DRUG DISCOVERY (use BOTH ChEMBL AND PubChem for com
 
 # Ontology navigation
 <term> >> go >> goparent
-<term> >> mondo >> mondochild"""
+<term> >> go >> gochild
+<term> >> mondo >> mondoparent
+<term> >> mondo >> mondochild
+<mesh_id> >> mesh >> meshparent     # MeSH hierarchy (D001943 → 2 parents)
+<mesh_id> >> mesh >> meshchild      # MeSH subtypes (D001943 → 8 children)
+
+# ===== PATHWAYS =====
+
+# Pathway → Genes/Proteins
+<pathway> >> reactome >> ensembl    # genes in pathway (41 for R-HSA-5693567)
+<pathway> >> reactome >> reactomechild  # sub-pathways
+<protein> >> uniprot >> reactome    # protein's pathways (46 for TP53)
+
+# ===== CLINICAL TRIALS =====
+
+# Disease ↔ Clinical Trials (bidirectional)
+<disease> >> mondo >> clinical_trials   # trials for disease (12k+ for diabetes)
+<trial_id> >> clinical_trials >> mondo  # diseases in trial (106 for NCT00000466)"""
 
 SCHEMA_TEXT_SEARCH = """Datasets supporting partial text search:
 - mondo, hpo, efo: disease/phenotype names ("alzheimer", "breast cancer")

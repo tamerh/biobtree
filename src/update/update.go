@@ -357,7 +357,7 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 
 	// Clean up any datasets that were interrupted in a previous build
 	// These have status "processing" and their bucket files may be corrupted/incomplete
-	if err := CleanupInterruptedDatasets(d.datasetState, config.Appconf["indexDir"], config.Appconf["outDir"]); err != nil {
+	if err := CleanupInterruptedDatasets(d.datasetState, config.Appconf["indexDir"], config.Appconf["outDir"], config.Dataconf); err != nil {
 		log.Printf("Warning: failed to cleanup interrupted datasets: %v", err)
 	}
 
@@ -484,7 +484,7 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 		// This ensures incremental updates don't leave stale data
 		// Skip meta-datasets - their sub-datasets handle their own cleanup
 		if !isMetaDataset {
-			if err := CleanupForIncrementalUpdate(data, config.Appconf["indexDir"]); err != nil {
+			if err := CleanupForIncrementalUpdate(data, config.Appconf["indexDir"], config.Dataconf); err != nil {
 				log.Printf("Warning: cleanup failed for %s: %v", data, err)
 			}
 		}

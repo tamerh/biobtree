@@ -10,6 +10,7 @@ import (
 
 // childDatasets maps parent datasets to their child datasets that are built during parent processing
 // When a parent dataset is cleaned up (interrupted or needs update), its child datasets must also be cleaned
+// Note: Additional child datasets can be defined in source*.dataset.json using the "childDatasets" attribute
 var childDatasets = map[string][]string{
 	"uniprot":  {"ufeature"},
 	"taxonomy": {"taxchild", "taxparent"},
@@ -25,6 +26,36 @@ var childDatasets = map[string][]string{
 	"eco":      {"ecochild", "ecoparent"},
 }
 
+// GetChildDatasets returns the list of child datasets for a given parent dataset.
+// It merges children from both the hardcoded childDatasets map and config-defined
+// "childDatasets" attribute in source*.dataset.json.
+// The dataconf parameter can be nil, in which case only hardcoded children are returned.
+func GetChildDatasets(datasetName string, dataconf map[string]map[string]string) []string {
+	var children []string
+
+	// First, add hardcoded children
+	if hardcodedChildren, exists := childDatasets[datasetName]; exists {
+		children = append(children, hardcodedChildren...)
+	}
+
+	// Then, add config-defined children (if dataconf is available)
+	if dataconf != nil {
+		if dsConfig, exists := dataconf[datasetName]; exists {
+			if childStr, hasChildren := dsConfig["childDatasets"]; hasChildren && childStr != "" {
+				configChildren := strings.Split(childStr, ",")
+				for _, child := range configChildren {
+					child = strings.TrimSpace(child)
+					if child != "" {
+						children = append(children, child)
+					}
+				}
+			}
+		}
+	}
+
+	return children
+}
+
 // CleanupForIncrementalUpdate removes old bucket files and sorted files for a dataset being updated
 // This is called before re-parsing a dataset to ensure clean state
 //
@@ -35,7 +66,10 @@ var childDatasets = map[string][]string{
 // 4. {datasetName}_sorted.*.index.gz - old sorted files for this dataset
 // 5. textsearch_{datasetName}_sorted.*.index.gz - textsearch contribution files
 // 6. *_from_{datasetName}_sorted.*.index.gz - xref contribution files to other datasets
-func CleanupForIncrementalUpdate(datasetName string, indexDir string) error {
+//
+// The dataconf parameter is optional (can be nil) and is used to look up config-defined
+// child datasets via the "childDatasets" attribute in source*.dataset.json
+func CleanupForIncrementalUpdate(datasetName string, indexDir string, dataconf map[string]map[string]string) error {
 	log.Printf("Cleaning up bucket files for dataset %s", datasetName)
 	var totalRemoved int
 
@@ -163,20 +197,35 @@ func CleanupForIncrementalUpdate(datasetName string, indexDir string) error {
 
 	// Log preserved from_* sources (contributions FROM other datasets TO this dataset)
 	// These are preserved because the source datasets haven't changed
+	// Note: We exclude child datasets from this log since they will be cleaned next
 	datasetDir := filepath.Join(indexDir, datasetName)
 	if fromDirs, err := filepath.Glob(filepath.Join(datasetDir, "from_*")); err == nil && len(fromDirs) > 0 {
+		// Get child datasets to filter them out of the preserved list
+		children := GetChildDatasets(datasetName, dataconf)
+		childSet := make(map[string]bool)
+		for _, child := range children {
+			childSet[child] = true
+		}
+
 		var preserved []string
 		for _, fromDir := range fromDirs {
 			sourceName := strings.TrimPrefix(filepath.Base(fromDir), "from_")
-			preserved = append(preserved, sourceName)
+			// Skip if this is a child dataset (will be cleaned next)
+			if !childSet[sourceName] {
+				preserved = append(preserved, sourceName)
+			}
 		}
-		log.Printf("Note: Preserving %d reverse xref sources for %s: %v", len(preserved), datasetName, preserved)
-		log.Printf("Note: If these source datasets have also changed, they should be re-processed to update their contributions")
+		if len(preserved) > 0 {
+			log.Printf("Note: Preserving %d reverse xref sources for %s: %v", len(preserved), datasetName, preserved)
+			log.Printf("Note: If these source datasets have also changed, they should be re-processed to update their contributions")
+		}
 	}
 
 	// 7. Clean up child datasets that are built during this dataset's processing
 	// e.g., when uniprot is cleaned, also clean ufeature
-	if children, hasChildren := childDatasets[datasetName]; hasChildren {
+	// Uses both hardcoded childDatasets map and config-defined "childDatasets" attribute
+	children := GetChildDatasets(datasetName, dataconf)
+	if len(children) > 0 {
 		for _, childName := range children {
 			log.Printf("Also cleaning child dataset %s (built by %s)", childName, datasetName)
 			if err := cleanupChildDataset(childName, indexDir); err != nil {
@@ -495,7 +544,10 @@ func GetBucketFilesPerSource(datasetName string, indexDir string, isDerived bool
 // CleanupInterruptedDatasets cleans up bucket files and sorted files for datasets
 // that were interrupted mid-build (status = "processing")
 // This should be called at the START of a new build to ensure clean state
-func CleanupInterruptedDatasets(state *DatasetState, indexDir, outDir string) error {
+//
+// The dataconf parameter is optional (can be nil) and is used to look up config-defined
+// child datasets via the "childDatasets" attribute in source*.dataset.json
+func CleanupInterruptedDatasets(state *DatasetState, indexDir, outDir string, dataconf map[string]map[string]string) error {
 	interrupted := state.GetInterruptedDatasets()
 	if len(interrupted) == 0 {
 		return nil
@@ -508,18 +560,17 @@ func CleanupInterruptedDatasets(state *DatasetState, indexDir, outDir string) er
 		log.Printf("WARNING: Cleaning up interrupted dataset: %s", datasetName)
 
 		// Use the existing cleanup function (also cleans child datasets)
-		if err := CleanupForIncrementalUpdate(datasetName, indexDir); err != nil {
+		if err := CleanupForIncrementalUpdate(datasetName, indexDir, dataconf); err != nil {
 			log.Printf("Warning: cleanup failed for interrupted dataset %s: %v", datasetName, err)
 		}
 
 		// Remove from state so it will be reprocessed
 		state.RemoveDataset(datasetName)
 
-		// Also remove child datasets from state
-		if children, hasChildren := childDatasets[datasetName]; hasChildren {
-			for _, childName := range children {
-				state.RemoveDataset(childName)
-			}
+		// Also remove child datasets from state (uses both hardcoded and config-defined)
+		children := GetChildDatasets(datasetName, dataconf)
+		for _, childName := range children {
+			state.RemoveDataset(childName)
 		}
 	}
 

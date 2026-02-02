@@ -71,6 +71,9 @@ type DatasetBuildInfo struct {
 	SourceContributions  map[string]int64  `json:"source_contributions,omitempty"`  // Lines contributed by each source (forward, from_uniprot, etc.)
 	XrefCount            int64             `json:"xref_count,omitempty"`            // Number of xrefs created
 	BuildDuration        float64           `json:"build_duration_sec,omitempty"`    // Build time in seconds
+	// DB write stats - populated after generate/merge phase completes
+	DBKeys   int64 `json:"db_keys,omitempty"`   // Keys written to database for this dataset
+	DBValues int64 `json:"db_values,omitempty"` // Values/xrefs written to database for this dataset
 }
 
 // DatasetStateFileName is the default state file name
@@ -622,6 +625,61 @@ func (s *DatasetState) SetDBWriteStats(keysWritten, specialKeys, valuesWritten u
 	s.DBKeysWritten = keysWritten
 	s.DBSpecialKeys = specialKeys
 	s.DBValuesWritten = valuesWritten
+}
+
+// SetDatasetDBStats sets the per-dataset database write statistics after generate/merge completes
+// datasetID is the numeric dataset ID (as used in the database), keys and values are the counts
+func (s *DatasetState) SetDatasetDBStats(datasetName string, keys, values uint64) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if s.Datasets == nil {
+		s.Datasets = make(map[string]*DatasetBuildInfo)
+	}
+
+	info, exists := s.Datasets[datasetName]
+	if !exists {
+		info = &DatasetBuildInfo{
+			DatasetName: datasetName,
+		}
+		s.Datasets[datasetName] = info
+	}
+	info.DBKeys = int64(keys)
+	info.DBValues = int64(values)
+}
+
+// SetAllDatasetDBStats sets the per-dataset database write statistics for all datasets
+// perDatasetStats is a map of dataset ID (uint32) to {keys, values}
+// datasetIDToName is a map converting dataset IDs to names (from config.DataconfIDIntToString)
+// Only updates existing dataset entries - does NOT create new entries for derived datasets
+func (s *DatasetState) SetAllDatasetDBStats(perDatasetStats map[uint32][2]uint64, datasetIDToName map[uint32]string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if s.Datasets == nil {
+		return // No datasets to update
+	}
+
+	for datasetID, stats := range perDatasetStats {
+		// Skip dataset ID 0 (textsearch/link dataset - not a regular dataset)
+		if datasetID == 0 {
+			continue
+		}
+
+		// Convert dataset ID to name
+		datasetName, exists := datasetIDToName[datasetID]
+		if !exists {
+			continue // Skip unknown dataset IDs
+		}
+
+		// Only update existing entries - don't create new ones for derived datasets
+		info, exists := s.Datasets[datasetName]
+		if !exists {
+			continue // Skip datasets not already tracked (derived datasets)
+		}
+		info.DBKeys = int64(stats[0])
+		info.DBValues = int64(stats[1])
+	}
 }
 
 // GetTotalKVSize returns the total KV size

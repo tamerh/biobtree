@@ -359,6 +359,12 @@ type FileState struct {
 	LinesRead   int64  `json:"lines_read"`   // Number of lines read
 }
 
+// DatasetMergeStats tracks per-dataset statistics during merge
+type DatasetMergeStats struct {
+	Keys   uint64 // Number of unique keys written for this dataset
+	Values uint64 // Number of xref values written for this dataset
+}
+
 const tabr rune = '\t'
 const newliner rune = '\n'
 const spacestr = " "
@@ -388,6 +394,7 @@ type Merge struct {
 	totalLinkKey            uint64
 	totalKey                uint64
 	totalValue              uint64
+	perDatasetStats         map[uint32]*DatasetMergeStats // per-dataset statistics
 	batchSize               int
 	pageSize                int
 	batchIndex              int
@@ -734,6 +741,14 @@ func (d *Merge) Merge(c *configs.Conf, keep bool) (uint64, uint64, uint64) {
 	outDir := config.Appconf["outDir"]
 	if state, err := update.LoadDatasetState(outDir); err == nil {
 		state.SetDBWriteStats(d.totalKey, d.totalLinkKey, d.totalValue)
+		// Save per-dataset DB stats
+		// Convert perDatasetStats to the format expected by SetAllDatasetDBStats
+		perDatasetStatsMap := make(map[uint32][2]uint64)
+		for datasetID, stats := range d.perDatasetStats {
+			perDatasetStatsMap[datasetID] = [2]uint64{stats.Keys, stats.Values}
+		}
+		state.SetAllDatasetDBStats(perDatasetStatsMap, config.DataconfIDIntToString)
+		log.Printf("Per-dataset DB stats: %d datasets tracked", len(d.perDatasetStats))
 		if err := update.SaveDatasetState(state, outDir); err != nil {
 			log.Printf("Warning: Failed to save DB write stats to state file: %v", err)
 		} else {
@@ -1288,6 +1303,9 @@ func (d *Merge) init() {
 
 	// Initialize completedFiles map
 	d.completedFiles = make(map[string]FileState)
+
+	// Initialize per-dataset statistics map
+	d.perDatasetStats = make(map[uint32]*DatasetMergeStats)
 
 	files, err := ioutil.ReadDir(config.Appconf["indexDir"])
 	if err != nil {
@@ -2040,6 +2058,12 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 		xref.DatasetCounts = counts[:j]
 		xref.Count = totalCount
 		d.totalValue = d.totalValue + uint64(totalCount)
+		// Track per-dataset values
+		datasetID := uint32(did)
+		if d.perDatasetStats[datasetID] == nil {
+			d.perDatasetStats[datasetID] = &DatasetMergeStats{}
+		}
+		d.perDatasetStats[datasetID].Values += uint64(totalCount)
 		d.uidIndex++
 		//xref.Uid = d.uidIndex
 		if did == 0 {
@@ -2079,6 +2103,8 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 		xrefs[index] = &xref
 		index++
 		d.totalKey++
+		// Track per-dataset keys (datasetID already set above)
+		d.perDatasetStats[datasetID].Keys++
 	}
 
 	// Handle entries with only properties but no xrefs (e.g., MONDO entries)
@@ -2349,6 +2375,12 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 			xrefs[index] = &xref
 			index++
 			d.totalKey++
+			// Track per-dataset keys for property-only entries
+			datasetID := uint32(did)
+			if d.perDatasetStats[datasetID] == nil {
+				d.perDatasetStats[datasetID] = &DatasetMergeStats{}
+			}
+			d.perDatasetStats[datasetID].Keys++
 		}
 	}
 
@@ -2407,6 +2439,12 @@ func (d *Merge) toProtoPage(id string, dataset string, v *[]kvMessage, valIdx in
 	if err != nil {
 		panic("Error while converting to int16 ->" + dataset)
 	}
+	// Track per-dataset values for paginated entries
+	datasetID := uint32(did)
+	if d.perDatasetStats[datasetID] == nil {
+		d.perDatasetStats[datasetID] = &DatasetMergeStats{}
+	}
+	d.perDatasetStats[datasetID].Values += uint64(totalCount)
 	xref.Dataset = uint32(did)
 	xrefs[0] = &xref
 

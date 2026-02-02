@@ -17,6 +17,7 @@
 #   ./build.sh --web                   # Start web server (foreground, default: out/)
 #   ./build.sh <output_dir> --web      # Start web server for custom dir (background, logs to web.log)
 #   ./build.sh --test                   # Run integration tests (requires server on localhost:9291)
+#   ./build.sh --test --prod            # Run tests against production MCP server (localhost:8000)
 
 set -e
 
@@ -176,7 +177,8 @@ show_help() {
     echo "  --dry-run         Show what would be done"
     echo "  --status          Show dataset status from state file"
     echo "  --web             Start web server"
-    echo "  --test            Run integration tests (requires server on localhost:9291)"
+    echo "  --test            Run integration tests (requires server on localhost:9291)
+  --prod            With --test: test against production MCP server (localhost:8000)"
     echo "  --help            Show this help message"
     echo ""
     echo "Available datasets:"
@@ -200,6 +202,7 @@ DRY_RUN="false"
 SHOW_STATUS="false"
 WEB_SERVER="false"
 RUN_TESTS="false"
+TEST_PROD="false"
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -213,6 +216,7 @@ while [[ $# -gt 0 ]]; do
         --status)       SHOW_STATUS="true"; shift ;;
         --web)          WEB_SERVER="true"; shift ;;
         --test)         RUN_TESTS="true"; shift ;;
+        --prod)         TEST_PROD="true"; shift ;;
         --help|-h)      show_help ;;
         *)              echo "Unknown option: $1"; show_help ;;
     esac
@@ -412,6 +416,7 @@ show_status() {
 
 run_tests() {
     local server_url="${1:-http://localhost:9291}"
+    local use_mcp="${2:-false}"
     local test_dir="tests/xintegration"
     local test_script="${test_dir}/run_integration_tests.py"
 
@@ -431,11 +436,17 @@ run_tests() {
     echo "Running Integration Tests"
     echo "============================================"
     echo "Server: $server_url"
+    echo "Mode: $([ "$use_mcp" == "true" ] && echo "MCP API" || echo "Biobtree direct")"
     echo "Test script: $test_script"
     echo ""
 
     # Run the integration tests
-    python3 "$test_script" --server "$server_url" --no-report
+    local extra_args=""
+    if [[ "$use_mcp" == "true" ]]; then
+        extra_args="--mcp"
+    fi
+
+    python3 "$test_script" --server "$server_url" --no-report $extra_args
     local exit_code=$?
 
     if [[ $exit_code -eq 0 ]]; then
@@ -482,7 +493,11 @@ fi
 
 # Test mode
 if [[ "$RUN_TESTS" == "true" ]]; then
-    run_tests "http://localhost:9291"
+    if [[ "$TEST_PROD" == "true" ]]; then
+        run_tests "http://localhost:8000" "true"
+    else
+        run_tests "http://localhost:9291" "false"
+    fi
     exit $?
 fi
 

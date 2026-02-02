@@ -1,0 +1,54 @@
+name: biobtree
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  # Go compiler and tools
+  - python=3.12
+  - requests
+  - go >=1.20
+
+  # Build tools
+  - make
+  - gcc_linux-64
+  - gxx_linux-64
+
+  # Protocol Buffers compiler (protoc 25.1)
+  # Required for compiling .proto files in src/pbuf/
+  - libprotobuf=4.25.1
+
+  # Version control
+  - git
+
+  # Web UI build tools (for Vue.js frontend)
+  - nodejs >=18
+  # - npm
+
+  # Useful utilities
+  - curl
+  - jq
+
+  # Genomic tools
+  - tabix
+
+  # CELLxGENE Census data extraction (for single-cell data integration)
+  # Used by scripts/cellxgene/extract_cellxgene_data.py
+  - pip:
+    - cellxgene-census>=1.0.0
+    - tiledbsoma>=1.0.0
+    # MCP server dependencies
+    - mcp>=1.0.0
+    - httpx>=0.25.0
+    - fastapi>=0.109.0
+    - uvicorn>=0.27.0
+    - sse-starlette>=2.0.0
+    # Data preparation scripts (patents and clinical_trials)
+    # Used by src/scripts/patents/ and src/scripts/clinical_trials/
+    - pandas>=2.0.0
+    - pyarrow>=14.0.0
+    - beautifulsoup4>=4.12.0
+    - psutil>=5.9.0
+    - tqdm>=4.66.0
+
+# Then run: make proto

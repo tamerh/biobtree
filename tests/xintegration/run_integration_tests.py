@@ -27,12 +27,13 @@ class Colors:
 
 
 class IntegrationTestRunner:
-    def __init__(self, test_file: str, server_url: str = None, verbose: bool = False, category: str = None):
+    def __init__(self, test_file: str, server_url: str = None, verbose: bool = False, category: str = None, use_mcp: bool = False):
         self.test_file = Path(test_file)
         self.tests = self.load_tests()
         self.server = server_url or self.tests['metadata']['server']
         self.verbose = verbose
         self.category = category
+        self.use_mcp = use_mcp  # Use MCP server API endpoints instead of biobtree direct
         self.results = []
         self.start_time = datetime.now()
 
@@ -112,15 +113,26 @@ class IntegrationTestRunner:
 
         # Fetch data
         try:
-            if query == '':
-                params = {'i': identifier}
-                # Add dataset filter if specified (ensures correct entry is in results)
-                if filter_dataset:
-                    params['s'] = filter_dataset
-                url = f"{self.server}/ws/"
+            if self.use_mcp:
+                # MCP server API endpoints (same params as biobtree)
+                if query == '':
+                    params = {'i': identifier}
+                    if filter_dataset:
+                        params['s'] = filter_dataset
+                    url = f"{self.server}/api/search"
+                else:
+                    params = {'i': identifier, 'm': query}
+                    url = f"{self.server}/api/map"
             else:
-                params = {'i': identifier, 'm': query}
-                url = f"{self.server}/ws/map/"
+                # Biobtree direct endpoints
+                if query == '':
+                    params = {'i': identifier}
+                    if filter_dataset:
+                        params['s'] = filter_dataset
+                    url = f"{self.server}/ws/"
+                else:
+                    params = {'i': identifier, 'm': query}
+                    url = f"{self.server}/ws/map/"
 
             start_time = time.time()
             response = requests.get(url, params=params, timeout=60)
@@ -300,15 +312,23 @@ class IntegrationTestRunner:
         """Execute a single query"""
         import time
 
-        # Choose endpoint based on query type
-        if test['query'] == '':
-            # Empty query = lookup using search endpoint
-            params = {'i': identifier}
-            url = f"{self.server}/ws/"
+        # Choose endpoint based on query type and server mode
+        if self.use_mcp:
+            # MCP server API endpoints (same params as biobtree)
+            if test['query'] == '':
+                params = {'i': identifier}
+                url = f"{self.server}/api/search"
+            else:
+                params = {'i': identifier, 'm': test['query']}
+                url = f"{self.server}/api/map"
         else:
-            # Non-empty query = mapping endpoint
-            params = {'i': identifier, 'm': test['query']}
-            url = f"{self.server}/ws/map/"
+            # Biobtree direct endpoints
+            if test['query'] == '':
+                params = {'i': identifier}
+                url = f"{self.server}/ws/"
+            else:
+                params = {'i': identifier, 'm': test['query']}
+                url = f"{self.server}/ws/map/"
 
         try:
             start_time = time.time()
@@ -321,7 +341,11 @@ class IntegrationTestRunner:
             # Store full URL for debugging
             full_url = response.url
 
-            has_results = 'results' in data and len(data.get('results', [])) > 0
+            # Check for results (full mode) or mappings (lite mode)
+            has_results = (
+                ('results' in data and len(data.get('results', [])) > 0) or
+                ('mappings' in data and len(data.get('mappings', [])) > 0)
+            )
 
             # Test passes if: (expected to pass AND has results) OR (expected to fail AND no results)
             passed = (expected_pass == has_results)
@@ -648,6 +672,7 @@ def main():
     parser.add_argument('--no-report', help='Skip report generation', action='store_true')
     parser.add_argument('--category', '-c', help='Run only tests in specified category', default=None)
     parser.add_argument('--list-categories', help='List available test categories', action='store_true')
+    parser.add_argument('--mcp', help='Use MCP server API endpoints instead of biobtree direct', action='store_true')
 
     args = parser.parse_args()
 
@@ -667,7 +692,7 @@ def main():
         print()
         return
 
-    runner = IntegrationTestRunner(test_file, args.server, args.verbose, args.category)
+    runner = IntegrationTestRunner(test_file, args.server, args.verbose, args.category, args.mcp)
 
     try:
         runner.run_all()

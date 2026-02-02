@@ -1,24 +1,118 @@
 """
 Biobtree HTTP Client
 
-Simple HTTP client for biobtree REST API endpoints.
+Async HTTP client for biobtree REST API with logging and error handling.
 """
 
-import httpx
+import logging
+import time
 from typing import Optional
-from urllib.parse import urlencode
+
+import httpx
+
+from .config import config
+
+logger = logging.getLogger(__name__)
+
+
+class BiobtreeError(Exception):
+    """Base exception for biobtree client errors."""
+    pass
+
+
+class BiobtreeConnectionError(BiobtreeError):
+    """Raised when connection to biobtree fails."""
+    pass
+
+
+class BiobtreeAPIError(BiobtreeError):
+    """Raised when biobtree API returns an error."""
+    def __init__(self, message: str, status_code: int = None):
+        super().__init__(message)
+        self.status_code = status_code
 
 
 class BiobtreeClient:
-    """HTTP client for biobtree REST API."""
+    """Async HTTP client for biobtree REST API."""
 
-    def __init__(self, base_url: str = "http://localhost:9291"):
-        self.base_url = base_url.rstrip("/")
-        self.client = httpx.AsyncClient(timeout=60.0)
+    def __init__(self, base_url: str = None, timeout: float = None):
+        """
+        Initialize biobtree client.
+
+        Args:
+            base_url: Biobtree server URL (default from config)
+            timeout: Request timeout in seconds (default from config)
+        """
+        self.base_url = (base_url or config.biobtree_url).rstrip("/")
+        self.timeout = timeout or config.biobtree_timeout
+        self._client: Optional[httpx.AsyncClient] = None
+
+    async def _get_client(self) -> httpx.AsyncClient:
+        """Get or create HTTP client."""
+        if self._client is None or self._client.is_closed:
+            self._client = httpx.AsyncClient(timeout=self.timeout)
+        return self._client
 
     async def close(self):
         """Close the HTTP client."""
-        await self.client.aclose()
+        if self._client and not self._client.is_closed:
+            await self._client.aclose()
+            self._client = None
+
+    async def _request(self, endpoint: str, params: dict) -> dict:
+        """
+        Make HTTP request with logging and error handling.
+
+        Args:
+            endpoint: API endpoint path
+            params: Query parameters
+
+        Returns:
+            JSON response
+
+        Raises:
+            BiobtreeConnectionError: Connection failed
+            BiobtreeAPIError: API returned error
+        """
+        url = f"{self.base_url}{endpoint}"
+        start_time = time.perf_counter()
+
+        try:
+            client = await self._get_client()
+            response = await client.get(url, params=params)
+            elapsed_ms = (time.perf_counter() - start_time) * 1000
+
+            # Log request
+            logger.info(
+                f"[{endpoint}] params={params} status={response.status_code} time={elapsed_ms:.1f}ms"
+            )
+
+            response.raise_for_status()
+            return response.json()
+
+        except httpx.ConnectError as e:
+            elapsed_ms = (time.perf_counter() - start_time) * 1000
+            logger.error(f"[{endpoint}] Connection failed: {e} time={elapsed_ms:.1f}ms")
+            raise BiobtreeConnectionError(
+                f"Cannot connect to biobtree at {self.base_url}. Is the server running?"
+            ) from e
+
+        except httpx.TimeoutException as e:
+            elapsed_ms = (time.perf_counter() - start_time) * 1000
+            logger.error(f"[{endpoint}] Timeout after {elapsed_ms:.1f}ms")
+            raise BiobtreeConnectionError(
+                f"Request to biobtree timed out after {self.timeout}s"
+            ) from e
+
+        except httpx.HTTPStatusError as e:
+            elapsed_ms = (time.perf_counter() - start_time) * 1000
+            logger.error(
+                f"[{endpoint}] HTTP error: {e.response.status_code} time={elapsed_ms:.1f}ms"
+            )
+            raise BiobtreeAPIError(
+                f"Biobtree API error: {e.response.status_code}",
+                status_code=e.response.status_code
+            ) from e
 
     async def search(
         self,
@@ -26,7 +120,7 @@ class BiobtreeClient:
         dataset: Optional[str] = None,
         page: Optional[str] = None,
         filter_expr: Optional[str] = None,
-        mode: str = "lite"
+        mode: Optional[str] = None
     ) -> dict:
         """
         Search for identifiers.
@@ -36,12 +130,14 @@ class BiobtreeClient:
             dataset: Filter to specific dataset (optional)
             page: Pagination token (optional)
             filter_expr: Filter expression (optional)
-            mode: Response mode - "lite" or "full"
+            mode: Response mode - "lite" or "full" (optional, uses biobtree default if not set)
 
         Returns:
             Search results with matching entries
         """
-        params = {"i": terms, "mode": mode}
+        params = {"i": terms}
+        if mode:
+            params["mode"] = mode
         if dataset:
             params["s"] = dataset
         if page:
@@ -49,17 +145,14 @@ class BiobtreeClient:
         if filter_expr:
             params["f"] = filter_expr
 
-        url = f"{self.base_url}/ws/"
-        response = await self.client.get(url, params=params)
-        response.raise_for_status()
-        return response.json()
+        return await self._request("/ws/", params)
 
     async def map(
         self,
         terms: str,
         chain: str,
         page: Optional[str] = None,
-        mode: str = "lite"
+        mode: Optional[str] = None
     ) -> dict:
         """
         Map identifiers through dataset chain.
@@ -68,19 +161,18 @@ class BiobtreeClient:
             terms: Comma-separated identifiers to map
             chain: Mapping chain (e.g., ">> ensembl >> uniprot")
             page: Pagination token (optional)
-            mode: Response mode - "lite" or "full"
+            mode: Response mode - "lite" or "full" (optional, uses biobtree default if not set)
 
         Returns:
             Mapping results with source and target entries
         """
-        params = {"i": terms, "m": chain, "mode": mode}
+        params = {"i": terms, "m": chain}
+        if mode:
+            params["mode"] = mode
         if page:
             params["p"] = page
 
-        url = f"{self.base_url}/ws/map/"
-        response = await self.client.get(url, params=params)
-        response.raise_for_status()
-        return response.json()
+        return await self._request("/ws/map/", params)
 
     async def entry(
         self,
@@ -98,10 +190,7 @@ class BiobtreeClient:
             Full entry with all attributes
         """
         params = {"i": identifier, "s": dataset}
-        url = f"{self.base_url}/ws/entry/"
-        response = await self.client.get(url, params=params)
-        response.raise_for_status()
-        return response.json()
+        return await self._request("/ws/entry/", params)
 
     async def meta(self) -> dict:
         """
@@ -110,10 +199,7 @@ class BiobtreeClient:
         Returns:
             Dataset metadata including names, IDs, and statistics
         """
-        url = f"{self.base_url}/ws/meta"
-        response = await self.client.get(url)
-        response.raise_for_status()
-        return response.json()
+        return await self._request("/ws/meta", {})
 
     async def health_check(self) -> bool:
         """
@@ -125,5 +211,5 @@ class BiobtreeClient:
         try:
             await self.meta()
             return True
-        except Exception:
+        except BiobtreeError:
             return False

@@ -1,419 +1,129 @@
 """
 Biobtree MCP Server
 
-MCP server exposing biobtree functionality to Claude and other MCP clients.
-Provides 4 base tools for searching, mapping, and exploring biological data.
+Combined FastAPI REST API + MCP over SSE server for biobtree.
+
+Provides:
+- REST API endpoints at /api/*
+- MCP over SSE endpoint at /mcp for Claude Desktop/CLI
+- Health check at /health
 
 Usage:
+    # Run server
     python -m mcp_srv.server
 
-Or add to Claude Desktop config:
-    {
-        "mcpServers": {
-            "biobtree": {
-                "command": "python",
-                "args": ["-m", "mcp_srv.server"],
-                "cwd": "/data/bioyoda/biobtreev2"
-            }
-        }
-    }
+    # Or with uvicorn directly
+    uvicorn mcp_srv.server:app --host 0.0.0.0 --port 8000
+
+Configuration (environment variables):
+    BIOBTREE_URL=http://localhost:9291
+    BIOBTREE_PORT=8000
+    BIOBTREE_LOG_LEVEL=INFO
 """
 
 import asyncio
 import json
 import logging
-from typing import Any
+import sys
+import time
+from contextlib import asynccontextmanager
+from logging.handlers import RotatingFileHandler
+from typing import Any, Optional
+
+from fastapi import FastAPI, Query, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from sse_starlette.sse import EventSourceResponse
+from starlette.middleware.base import BaseHTTPMiddleware
 
 from mcp.server import Server
-from mcp.server.stdio import stdio_server
 from mcp.types import Tool, TextContent
 
-from .biobtree_client import BiobtreeClient
+from .biobtree_client import BiobtreeClient, BiobtreeError
+from .config import config
+from .schema import get_schema, SCHEMA_EDGES, SCHEMA_FILTERS, SCHEMA_HIERARCHIES
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
+# =============================================================================
+# Logging Setup
+# =============================================================================
+
+def setup_logging():
+    """Configure logging with file rotation."""
+    # Create log directory
+    config.log_dir.mkdir(parents=True, exist_ok=True)
+
+    log_format = "%(asctime)s %(levelname)s [%(name)s] %(message)s"
+
+    # Console handler
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setFormatter(logging.Formatter(log_format))
+
+    # Main log file (rotating, 10MB max, keep 5 backups)
+    file_handler = RotatingFileHandler(
+        config.log_file,
+        maxBytes=10*1024*1024,
+        backupCount=5
+    )
+    file_handler.setFormatter(logging.Formatter(log_format))
+
+    logging.basicConfig(
+        level=getattr(logging, config.log_level),
+        handlers=[console_handler, file_handler]
+    )
+
+    # Access logger (separate file for request logs)
+    access_logger = logging.getLogger("access")
+    access_handler = RotatingFileHandler(
+        config.access_log_file,
+        maxBytes=10*1024*1024,
+        backupCount=5
+    )
+    access_handler.setFormatter(logging.Formatter("%(asctime)s %(message)s"))
+    access_logger.addHandler(access_handler)
+    access_logger.setLevel(logging.INFO)
+
+setup_logging()
 logger = logging.getLogger(__name__)
+access_logger = logging.getLogger("access")
 
-# =============================================================================
-# Schema Data for biobtree_help tool
-# =============================================================================
 
-SCHEMA_EDGES = {
-    "ensembl": ["uniprot", "go", "transcript", "exon", "ortholog", "paralog", "dbsnp", "clinvar", "hgnc", "entrez", "refseq", "bgee", "gwas", "gencc", "biogrid", "string", "antibody", "scxa"],
-    "hgnc": ["ensembl", "uniprot", "entrez", "gencc", "pharmgkb_gene", "msigdb"],
-    "entrez": ["ensembl", "uniprot", "refseq", "go", "biogrid", "pubchem_activity"],
-    "refseq": ["ensembl", "uniprot", "entrez"],
-    "transcript": ["ensembl", "exon", "ufeature"],
-    "uniprot": ["ensembl", "alphafold", "interpro", "pdb", "ufeature", "intact", "string", "biogrid", "chembl_target_component", "go", "reactome", "rhea", "swisslipids", "bindingdb", "antibody", "pubchem_activity"],
-    "alphafold": ["uniprot"],
-    "interpro": ["uniprot"],
-    "chembl_molecule": ["chembl_activity", "pubchem", "chebi", "drugcentral", "clinical_trials"],
-    "chembl_activity": ["chembl_molecule", "chembl_assay"],
-    "chembl_assay": ["chembl_activity", "chembl_target", "chembl_document"],
-    "chembl_target": ["chembl_assay", "chembl_target_component"],
-    "chembl_target_component": ["chembl_target", "uniprot"],
-    "pubchem": ["chembl_molecule", "chebi", "hmdb", "pubchem_activity", "pubmed", "patent_compound", "bindingdb", "ctd", "pharmgkb"],
-    "pubchem_activity": ["pubchem", "ensembl", "uniprot"],
-    "chebi": ["pubchem", "chembl_molecule", "rhea", "intact"],
-    "drugcentral": ["chembl_molecule", "uniprot"],
-    "swisslipids": ["uniprot", "go", "chebi", "uberon"],
-    "lipidmaps": ["chebi", "pubchem"],
-    "dbsnp": ["ensembl", "hgnc", "clinvar", "pharmgkb_variant"],
-    "clinvar": ["ensembl", "hgnc", "mondo", "hpo", "dbsnp"],
-    "alphamissense": ["uniprot", "transcript"],
-    "gwas": ["gwas_study", "ensembl", "efo", "dbsnp"],
-    "gwas_study": ["gwas", "efo"],
-    "mondo": ["gencc", "clinvar", "efo", "mesh", "hpo", "clinical_trials", "antibody", "cellxgene", "ctd"],
-    "gencc": ["mondo", "hpo", "hgnc", "ensembl"],
-    "clinical_trials": ["mondo", "chembl_molecule"],
-    "pharmgkb": ["hgnc", "dbsnp", "mesh", "pharmgkb_gene", "pharmgkb_variant", "pharmgkb_clinical", "pharmgkb_guideline", "pharmgkb_pathway"],
-    "ctd": ["mesh", "entrez", "mondo", "efo", "pubchem", "taxonomy"],
-    "intact": ["uniprot", "chebi", "rnacentral"],
-    "string": ["uniprot", "ensembl"],
-    "biogrid": ["entrez", "uniprot", "refseq", "taxonomy"],
-    "bgee": ["ensembl", "uberon", "cl", "taxonomy"],
-    "cellxgene": ["cl", "uberon", "mondo", "efo", "taxonomy"],
-    "scxa": ["cl", "uberon", "taxonomy", "ensembl"],
-    "rnacentral": ["uniprot", "ensembl", "intact"],
-    "reactome": ["ensembl", "uniprot", "chebi", "go"],
-    "rhea": ["chebi", "uniprot", "go"],
-    "go": ["ensembl", "uniprot", "reactome", "msigdb", "swisslipids", "bgee"],
-    "hpo": ["clinvar", "gencc", "mondo", "msigdb"],
-    "efo": ["gwas", "mondo", "cellxgene"],
-    "uberon": ["bgee", "cellxgene", "swisslipids"],
-    "cl": ["bgee", "cellxgene", "scxa"],
-    "taxonomy": ["ensembl", "uniprot", "bgee", "biogrid", "ctd"],
-    "mesh": ["pharmgkb", "ctd", "pubchem", "mondo"],
-    "antibody": ["ensembl", "uniprot", "mondo", "pdb"],
-    "msigdb": ["hgnc", "entrez", "go", "hpo"]
-}
-
-SCHEMA_HIERARCHIES = {
-    "go": ["goparent", "gochild"],
-    "mondo": ["mondoparent", "mondochild"],
-    "hpo": ["hpoparent", "hpochild"],
-    "efo": ["efoparent", "efochild"],
-    "uberon": ["uberonparent", "uberonchild"],
-    "cl": ["clparent", "clchild"],
-    "taxonomy": ["taxparent", "taxchild"],
-    "reactome": ["reactomeparent", "reactomechild"],
-    "mesh": ["meshparent", "meshchild"],
-    "eco": ["ecoparent", "ecochild"]
-}
-
-SCHEMA_FILTERS = {
-    "ensembl": {"genome": "str (homo_sapiens|mus_musculus)", "biotype": "str", "name": "str", "start": "int", "end": "int"},
-    "uniprot": {"reviewed": "bool (true=Swiss-Prot)"},
-    "alphafold": {"global_metric": "float", "mean_pae": "float"},
-    "interpro": {"type": "str (Domain|Family|Repeat)"},
-    "ufeature": {"type": "str (modified residue|disulfide bond|signal peptide|DNA-binding region|lipid moiety-binding region)"},
-    "chembl_molecule": {"highestDevelopmentPhase": "int 0-4", "type": "str", "weight": "float"},
-    "chembl_activity": {"standardType": "str (IC50|Ki|Kd)", "pChembl": "float"},
-    "chembl_target": {"type": "str (SINGLE PROTEIN|PROTEIN COMPLEX)"},
-    "pubchem": {
-        "is_fda_approved": "bool (FDA approval status)",
-        "compound_type": "str (drug|bioactive|literature|patent|biologic)",
-        "molecular_weight": "float",
-        "xlogp": "float (lipophilicity)",
-        "hydrogen_bond_donors": "int",
-        "hydrogen_bond_acceptors": "int",
-        "tpsa": "float (topological polar surface area)",
-        "rotatable_bonds": "int",
-        "pharmacological_actions": "list (drug class, e.g., ACE Inhibitors)",
-        "unii": "str (FDA UNII identifier)"
-    },
-    "dbsnp": {"allele_frequency": "float", "clinical_significance": "str", "is_common": "bool"},
-    "clinvar": {"germline_classification": "str (Pathogenic|Benign)", "review_status": "str"},
-    "alphamissense": {"am_class": "str (likely_pathogenic|ambiguous|likely_benign)", "am_pathogenicity": "float 0-1"},
-    "gwas": {"p_value": "float", "pvalue_mlog": "float"},
-    "gencc": {"classification_title": "str (Definitive|Strong|Moderate|Limited)", "moi_title": "str"},
-    "pharmgkb_clinical": {"level_of_evidence": "str (1A|1B|2A|2B|3|4)"},
-    "pharmgkb_guideline": {"source": "str (CPIC|DPWG)"},
-    "clinical_trials": {"phase": "str (PHASE1|PHASE2|PHASE3|PHASE4)", "overall_status": "str (RECRUITING|COMPLETED|TERMINATED)"},
-    "bindingdb": {"ki": "str", "ic50": "str"},
-    "intact": {"confidence_score": "float", "detection_method": "str"},
-    "string": {"interactions[].score": "int 0-1000", "interactions[].has_experimental": "bool"},
-    "biogrid": {"interaction_count": "int"},
-    "bgee": {"max_expression_score": "float (use .0 suffix)", "average_expression_score": "float", "gold_quality_count": "int", "expression_breadth": "str (ubiquitous|broad|moderate|narrow|specific)"},
-    "reactome": {"is_disease_pathway": "bool"},
-    "go": {"type": "str (biological_process|molecular_function|cellular_component)"},
-    "msigdb": {"collection": "str (H|C1-C8)", "gene_count": "int"},
-    "antibody": {"status": "str (Active|Discontinued)", "antibody_type": "str (therapeutic)", "isotype": "str (G1|G2|G4)"}
-}
-
-SCHEMA_EXAMPLES = {
-    "ensembl": "ENSG00000141510 (TP53)",
-    "uniprot": "P04637 (p53)",
-    "chembl_molecule": "CHEMBL25 (aspirin)",
-    "chembl_target": "CHEMBL203 (EGFR)",
-    "pubchem": "2244",
-    "dbsnp": "rs1799853",
-    "clinvar": "100177",
-    "mondo": "MONDO:0005148 (diabetes)",
-    "hpo": "HP:0001250",
-    "go": "GO:0006915 (apoptosis)",
-    "efo": "EFO:0000400",
-    "uberon": "UBERON:0000955 (brain)",
-    "cl": "CL:0000540 (neuron)",
-    "taxonomy": "9606 (human)",
-    "reactome": "R-HSA-109582",
-    "gwas_study": "GCST010481",
-    "clinical_trials": "NCT00720356",
-    "antibody": "BEVACIZUMAB",
-    "string": "9606.ENSP00000269305"
-}
-
-SCHEMA_PATTERNS = """# ===== DRUG DISCOVERY (use BOTH ChEMBL AND PubChem for comprehensive results) =====
-
-# Gene → Drugs via ChEMBL (medicinal chemistry focus, clinical phases)
-<gene> >> ensembl >> uniprot >> chembl_target_component >> chembl_target >> chembl_assay >> chembl_activity >> chembl_molecule
-
-# Gene → Drugs via PubChem (broader coverage, FDA approval, bioactivity)
-<gene> >> ensembl >> uniprot >> pubchem_activity >> pubchem
-<gene> >> ensembl >> uniprot >> pubchem_activity >> pubchem[pubchem.is_fda_approved==true]  # FDA approved only
-
-# Gene → Approved drugs only (ChEMBL)
-<gene> >> ensembl >> uniprot >> chembl_target_component >> chembl_target >> chembl_assay >> chembl_activity >> chembl_molecule[chembl.molecule.highestDevelopmentPhase>2]
-
-# Compound → Gene/Protein targets via PubChem
-<compound> >> pubchem >> pubchem_activity >> ensembl
-<compound> >> pubchem >> pubchem_activity >> uniprot
-
-# Compound → Cross-database links via PubChem
-<compound> >> pubchem >> hmdb            # metabolite data
-<compound> >> pubchem >> chembl_molecule # ChEMBL cross-ref
-<compound> >> pubchem >> pubmed          # literature references (63k+ for aspirin)
-<compound> >> pubchem >> patent_compound # patent information
-<compound> >> pubchem >> bindingdb       # binding affinity data
-<compound> >> pubchem >> ctd             # toxicogenomics (CTD disease/gene links)
-<compound> >> pubchem >> pharmgkb        # pharmacogenomics annotations
-
-# Disease → Compounds via CTD (Comparative Toxicogenomics Database)
-# NOTE: Use MeSH bridge for reliable disease→CTD mapping
-<disease> >> mondo >> mesh >> ctd >> pubchem
-<mesh_id> >> mesh >> ctd >> pubchem  # Direct MeSH to CTD (5000+ compounds for breast cancer)
-
-# NOTE: ChEMBL vs PubChem strengths:
-# - ChEMBL: curated medicinal chemistry, clinical development phases, assay details
-# - PubChem: broader coverage, FDA approval, bioactivity screening, literature, patents
-# - PubChem embedded attributes (in full mode): mesh_terms, pharmacological_actions,
-#   compound_type (drug/bioactive/patent), unii (FDA), has_literature, has_patents,
-#   molecular properties (xlogp, tpsa, rotatable_bonds, hydrogen_bond_donors/acceptors)
-
-# ===== VARIANT ANALYSIS =====
-
-# Gene → Pathogenic variants
-<gene> >> ensembl >> clinvar[clinvar.germline_classification=="Pathogenic"]
-<gene> >> ensembl >> uniprot >> alphamissense[alphamissense.am_class=="likely_pathogenic"]
-
-# SNP → Clinical significance
-<rsid> >> dbsnp >> clinvar >> mondo
-<rsid> >> pharmgkb_variant >> pharmgkb_clinical
-
-# ===== DISEASE RESOURCES =====
-
-# Disease → Structures
-<disease> >> mondo >> gencc >> ensembl[ensembl.genome=="homo_sapiens"] >> uniprot[uniprot.reviewed==true] >> alphafold
-
-# Disease → All resources
-<disease> >> mondo >> gencc >> ensembl      # causative genes
-<disease> >> mondo >> clinvar >> dbsnp      # pathogenic variants
-<disease> >> mondo >> clinical_trials       # active trials
-<disease> >> mondo >> antibody              # therapeutic antibodies
-<disease> >> mondo >> mesh >> ctd >> pubchem  # associated compounds via CTD
-<disease> >> mondo >> cellxgene             # single-cell RNA-seq datasets
-
-# ===== SINGLE-CELL / EXPRESSION =====
-
-# Disease/Tissue/CellType → Single-cell datasets
-<disease> >> mondo >> cellxgene        # scRNA-seq datasets for disease (9 for diabetes)
-<cell_type> >> cl >> cellxgene         # datasets with cell type (75+ for neurons)
-<tissue> >> uberon >> cellxgene        # datasets from tissue (13 for pancreas)
-<gene> >> ensembl >> scxa              # Single Cell Expression Atlas
-
-# Tissue → Expression
-<tissue> >> uberon >> bgee >> ensembl  # genes expressed in tissue
-
-# ===== INTERACTIONS =====
-
-# Gene → Interactions
-<gene> >> ensembl >> uniprot >> intact
-<gene> >> ensembl >> entrez >> biogrid
-
-# ===== ONTOLOGY =====
-
-# Ontology navigation
-<term> >> go >> goparent
-<term> >> go >> gochild
-<term> >> mondo >> mondoparent
-<term> >> mondo >> mondochild
-<mesh_id> >> mesh >> meshparent     # MeSH hierarchy (D001943 → 2 parents)
-<mesh_id> >> mesh >> meshchild      # MeSH subtypes (D001943 → 8 children)
-
-# ===== PATHWAYS =====
-
-# Pathway → Genes/Proteins
-<pathway> >> reactome >> ensembl    # genes in pathway (41 for R-HSA-5693567)
-<pathway> >> reactome >> reactomechild  # sub-pathways
-<protein> >> uniprot >> reactome    # protein's pathways (46 for TP53)
-
-# ===== CLINICAL TRIALS =====
-
-# Disease ↔ Clinical Trials (bidirectional)
-<disease> >> mondo >> clinical_trials   # trials for disease (12k+ for diabetes)
-<trial_id> >> clinical_trials >> mondo  # diseases in trial (106 for NCT00000466)"""
-
-SCHEMA_TEXT_SEARCH = """Datasets supporting partial text search:
-- mondo, hpo, efo: disease/phenotype names ("alzheimer", "breast cancer")
-- chembl_molecule, pubchem, pharmgkb, bindingdb: drug/compound names ("warfarin", "aspirin", "imatinib")
-- clinical_trials: conditions, interventions
-- antibody: antibody names ("bevacizumab")
-
-NOTE: For drug discovery, query BOTH ChEMBL and PubChem for comprehensive coverage:
-- ChEMBL: curated medicinal chemistry, clinical phases, assay protocols
-- PubChem: broader compounds, FDA approval, bioactivity screens, patents, metabolites"""
-
-# Filter Syntax Rules - IMPORTANT for numeric comparisons
-SCHEMA_FILTER_SYNTAX = """
-CRITICAL FILTER SYNTAX RULES:
-
-1. FLOAT COMPARISONS NEED .0 SUFFIX:
-   - WRONG: >>pubchem[pubchem.molecular_weight<500]
-   - RIGHT: >>pubchem[pubchem.molecular_weight<500.0]
-
-   Affected fields: molecular_weight, xlogp, tpsa, pvalue_mlog, global_metric,
-                    mean_pae, am_pathogenicity, expression_score, confidence_score
-
-2. NO SCIENTIFIC NOTATION:
-   - WRONG: >>gwas[gwas.p_value<5e-8]
-   - RIGHT: >>gwas[gwas.p_value<0.00000005]
-
-3. STRING VALUES ARE CASE-SENSITIVE:
-   - Use exact values: "Pathogenic" not "pathogenic"
-   - Phase values: "PHASE1", "PHASE2", "PHASE3", "PHASE4" (uppercase)
-   - Status values: "RECRUITING", "COMPLETED" (uppercase)
-
-4. EXAMPLES WITH CORRECT SYNTAX:
-   # PubChem Lipinski filters
-   >>pubchem[pubchem.molecular_weight<500.0]
-   >>pubchem[pubchem.xlogp<5.0]
-   >>pubchem[pubchem.tpsa<140.0]
-
-   # AlphaFold confidence
-   >>alphafold[alphafold.global_metric>70.0]
-   >>alphafold[alphafold.mean_pae<25.0]
-
-   # GWAS significance
-   >>gwas[gwas.pvalue_mlog>8.0]
-   >>gwas[gwas.p_value<0.00000005]
-
-   # Bgee expression
-   >>bgee[bgee.max_expression_score>90.0]
-   >>bgee[bgee.gold_quality_count>10]
-
-   # Clinical trials
-   >>clinical_trials[clinical_trials.phase=="PHASE3"]
-   >>clinical_trials[clinical_trials.overall_status=="RECRUITING"]
-"""
-
-# Disease Ontology Mapping Strategy - CRITICAL for cross-database queries
-SCHEMA_DISEASE_ONTOLOGY = """
-# ===== DISEASE ONTOLOGY MAPPING STRATEGY =====
-#
-# IMPORTANT: Different databases annotate diseases using DIFFERENT ontologies.
-# When a specific disease term doesn't map, try these strategies:
-#
-# 1. ONTOLOGY USAGE BY DATABASE:
-#    | Database        | Primary Ontology | Notes                              |
-#    |-----------------|------------------|-------------------------------------|
-#    | GWAS Catalog    | EFO              | Experimental Factor Ontology        |
-#    | CTD             | MeSH             | Medical Subject Headings            |
-#    | CellXGene       | MONDO            | Monarch Disease Ontology            |
-#    | ClinVar         | MONDO, HPO       | Also uses OMIM for Mendelian        |
-#    | Clinical Trials | MONDO            | Mapped from MeSH/ICD                |
-#    | GenCC           | MONDO            | Gene-disease curations              |
-#    | Bgee            | UBERON, CL       | Tissues and cell types              |
-#
-# 2. WHEN DIRECT MAPPING FAILS - Use ontology BRIDGES:
-#
-#    # MONDO → CTD (CTD uses MeSH, not MONDO directly)
-#    <disease> >> mondo >> mesh >> ctd >> pubchem   # Use MeSH bridge
-#
-#    # MONDO → GWAS (GWAS uses EFO)
-#    <disease> >> mondo >> efo >> gwas              # Map to EFO first
-#    <efo_id> >> efo >> gwas                        # Or use EFO ID directly
-#
-# 3. WHEN SPECIFIC TERM FAILS - Try PARENT terms:
-#
-#    # Example: MONDO:0005148 (type 2 diabetes) → EFO fails
-#    # Because EFO:0001360 (type II diabetes) is OBSOLETE in EFO
-#    # Solution: Use parent term MONDO:0005015 (diabetes mellitus)
-#
-#    <disease> >> mondo >> mondoparent >> efo      # Try parent if specific fails
-#    <disease> >> mondo >> mondoparent >> mesh     # Or for MeSH bridge
-#
-#    # Check parent/child relationships:
-#    <disease> >> mondo >> mondoparent             # Get broader disease terms
-#    <disease> >> mondo >> mondochild              # Get more specific subtypes
-#    <disease> >> efo >> efoparent                 # EFO hierarchy
-#    <mesh_id> >> mesh >> meshparent               # MeSH tree navigation
-#
-# 4. WORKING CROSS-ONTOLOGY MAPPINGS:
-#
-#    | Path                    | Example Working                           |
-#    |-------------------------|-------------------------------------------|
-#    | mondo >> efo            | MONDO:0005015 → EFO:0000400 (diabetes)    |
-#    | efo >> mondo            | EFO:0000400 → MONDO:0005015 ✓             |
-#    | mondo >> mesh           | MONDO:0005148 → D003924 (type 2 diabetes) |
-#    | mesh >> ctd             | D003924 → 5000+ compounds                 |
-#    | hpo >> mondo            | Some work, depends on xref in source data |
-#    | hpo >> clinvar          | HP:0001250 → 150+ variants (seizures)     |
-#
-# 5. PHENOTYPE vs DISEASE distinction:
-#
-#    # HPO = Phenotypes (symptoms, features)
-#    # MONDO = Diseases (diagnoses)
-#    # For gene discovery from phenotypes, use ClinVar path:
-#    <phenotype> >> hpo >> clinvar >> ensembl      # Genes with variants causing phenotype
-#
-#    # NOT >> hpo >> gencc (GenCC only has 8 HPO terms - inheritance modes, not phenotypes)
-#
-# 6. PRACTICAL EXAMPLES:
-#
-#    # Type 2 Diabetes drug discovery - use MeSH bridge
-#    MONDO:0005148 >> mondo >> mesh >> ctd >> pubchem
-#    # Result: 150+ compounds from toxicogenomics literature
-#
-#    # Diabetes GWAS - use parent term or direct EFO
-#    EFO:0000400 >> efo >> gwas                    # Direct EFO works
-#    MONDO:0005015 >> mondo >> efo >> gwas         # Parent MONDO works
-#
-#    # Breast cancer - multiple paths for comprehensive results
-#    MONDO:0007254 >> mondo >> cellxgene           # 38 scRNA-seq datasets
-#    D001943 >> mesh >> ctd >> pubchem             # CTD compounds via MeSH
-#    MONDO:0007254 >> mondo >> gencc >> ensembl    # Causative genes
-"""
-
-SCHEMA_PAGINATION = {
-    "description": "Results are automatically paginated (~150 results per page)",
-    "response_fields": {
-        "has_next": "boolean indicating more results available",
-        "next_token": "token to pass for next page of results"
-    },
-    "usage": "When has_next is true, make another request with page=next_token to get more results"
-}
-
-# Initialize MCP server
-server = Server("biobtree")
-
-# Biobtree client (initialized on startup)
-client: BiobtreeClient = None
+def get_client_ip(request: Request) -> str:
+    """Extract client IP from request, handling proxies."""
+    # Check X-Forwarded-For header (set by nginx/proxies)
+    forwarded = request.headers.get("X-Forwarded-For")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    # Check X-Real-IP header
+    real_ip = request.headers.get("X-Real-IP")
+    if real_ip:
+        return real_ip
+    # Fall back to direct client
+    return request.client.host if request.client else "unknown"
 
 
 # =============================================================================
-# Tool Definitions
+# Biobtree Client (singleton)
 # =============================================================================
 
+client: Optional[BiobtreeClient] = None
+
+
+async def get_client() -> BiobtreeClient:
+    """Get or create biobtree client."""
+    global client
+    if client is None:
+        client = BiobtreeClient()
+    return client
+
+
+# =============================================================================
+# MCP Server Setup
+# =============================================================================
+
+mcp_server = Server(config.mcp_server_name)
+
+
+# Tool definitions for MCP
 TOOLS = [
     Tool(
         name="biobtree_search",
@@ -625,27 +335,20 @@ PARAMETERS:
 ]
 
 
-# =============================================================================
-# Tool Handlers
-# =============================================================================
-
-@server.list_tools()
+@mcp_server.list_tools()
 async def list_tools() -> list[Tool]:
     """Return list of available tools."""
     return TOOLS
 
 
-@server.call_tool()
+@mcp_server.call_tool()
 async def call_tool(name: str, arguments: dict[str, Any]) -> list[TextContent]:
-    """Handle tool calls."""
-    global client
-
-    if client is None:
-        client = BiobtreeClient()
+    """Handle MCP tool calls."""
+    biobtree = await get_client()
 
     try:
         if name == "biobtree_search":
-            result = await client.search(
+            result = await biobtree.search(
                 terms=arguments["terms"],
                 dataset=arguments.get("dataset"),
                 mode=arguments.get("mode", "lite"),
@@ -653,7 +356,7 @@ async def call_tool(name: str, arguments: dict[str, Any]) -> list[TextContent]:
             )
 
         elif name == "biobtree_map":
-            result = await client.map(
+            result = await biobtree.map(
                 terms=arguments["terms"],
                 chain=arguments["chain"],
                 mode=arguments.get("mode", "lite"),
@@ -661,43 +364,17 @@ async def call_tool(name: str, arguments: dict[str, Any]) -> list[TextContent]:
             )
 
         elif name == "biobtree_entry":
-            result = await client.entry(
+            result = await biobtree.entry(
                 identifier=arguments["identifier"],
                 dataset=arguments["dataset"]
             )
 
         elif name == "biobtree_meta":
-            result = await client.meta()
+            result = await biobtree.meta()
 
         elif name == "biobtree_help":
             topic = arguments.get("topic", "all")
-
-            if topic == "edges":
-                result = {"edges": SCHEMA_EDGES}
-            elif topic == "filters":
-                result = {"filters": SCHEMA_FILTERS}
-            elif topic == "hierarchies":
-                result = {"hierarchies": SCHEMA_HIERARCHIES, "note": "Use dataset>>parent or dataset>>child for navigation"}
-            elif topic == "patterns":
-                result = {"patterns": SCHEMA_PATTERNS, "text_search": SCHEMA_TEXT_SEARCH, "tip": "For cross-ontology mapping issues (MONDO/EFO/MeSH), use topic='disease_ontology'"}
-            elif topic == "examples":
-                result = {"examples": SCHEMA_EXAMPLES}
-            elif topic == "filter_syntax":
-                result = {"filter_syntax": SCHEMA_FILTER_SYNTAX, "note": "CRITICAL: Float comparisons need .0 suffix (e.g., >90.0 not >90). No scientific notation."}
-            elif topic == "disease_ontology":
-                result = {"disease_ontology_mapping": SCHEMA_DISEASE_ONTOLOGY, "note": "CRITICAL: Different databases use different ontologies. Use bridges and parent terms when direct mapping fails."}
-            else:  # "all"
-                result = {
-                    "query_syntax": "<terms> >> <dataset>[<filter>] >> <dataset>[<filter>] >> ...",
-                    "edges": SCHEMA_EDGES,
-                    "hierarchies": SCHEMA_HIERARCHIES,
-                    "filters": SCHEMA_FILTERS,
-                    "examples": SCHEMA_EXAMPLES,
-                    "patterns": SCHEMA_PATTERNS,
-                    "text_search": SCHEMA_TEXT_SEARCH,
-                    "pagination": SCHEMA_PAGINATION,
-                    "additional_topics": ["disease_ontology - use when cross-ontology mapping fails (MONDO/EFO/MeSH bridges)"]
-                }
+            result = get_schema(topic)
 
         else:
             return [TextContent(
@@ -710,41 +387,395 @@ async def call_tool(name: str, arguments: dict[str, Any]) -> list[TextContent]:
             text=json.dumps(result, indent=2)
         )]
 
-    except Exception as e:
+    except BiobtreeError as e:
         logger.error(f"Tool {name} failed: {e}")
         return [TextContent(
             type="text",
             text=json.dumps({"error": str(e)})
         )]
+    except Exception as e:
+        logger.exception(f"Tool {name} unexpected error: {e}")
+        return [TextContent(
+            type="text",
+            text=json.dumps({"error": f"Internal error: {str(e)}"})
+        )]
 
 
 # =============================================================================
-# Server Lifecycle
+# FastAPI Application
 # =============================================================================
 
-async def main():
-    """Run the MCP server."""
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Application lifespan handler."""
     global client
 
-    logger.info("Starting Biobtree MCP Server")
+    logger.info(f"Starting Biobtree MCP Server on port {config.port}")
+    logger.info(f"Logs: {config.log_dir}")
 
     # Initialize client
     client = BiobtreeClient()
 
     # Check biobtree connection
     if await client.health_check():
-        logger.info("Connected to biobtree at http://localhost:9291")
+        logger.info(f"Connected to biobtree at {config.biobtree_url}")
     else:
-        logger.warning("Biobtree not running at http://localhost:9291 - tools will fail until started")
+        logger.warning(f"Biobtree not running at {config.biobtree_url} - API calls will fail until started")
 
-    # Run server
+    yield
+
+    # Cleanup
+    if client:
+        await client.close()
+    logger.info("Server shutdown complete")
+
+
+app = FastAPI(
+    title="Biobtree API",
+    description="REST API and MCP server for biobtree biological database queries",
+    version="1.0.0",
+    lifespan=lifespan
+)
+
+# CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+# =============================================================================
+# Request Logging Middleware
+# =============================================================================
+
+class RequestLoggingMiddleware(BaseHTTPMiddleware):
+    """Middleware to log all incoming requests with IP and timing."""
+
+    async def dispatch(self, request: Request, call_next):
+        start_time = time.perf_counter()
+        client_ip = get_client_ip(request)
+
+        # Process request
+        response = await call_next(request)
+
+        # Calculate duration
+        duration_ms = (time.perf_counter() - start_time) * 1000
+
+        # Build log message
+        method = request.method
+        path = request.url.path
+        query = str(request.url.query) if request.url.query else ""
+        status = response.status_code
+
+        # Format: IP METHOD /path?query STATUS TIMEms
+        if query:
+            log_msg = f"{client_ip} {method} {path}?{query} {status} {duration_ms:.1f}ms"
+        else:
+            log_msg = f"{client_ip} {method} {path} {status} {duration_ms:.1f}ms"
+
+        # Log to access log
+        if config.log_requests:
+            access_logger.info(log_msg)
+
+        return response
+
+
+# Add request logging middleware
+app.add_middleware(RequestLoggingMiddleware)
+
+
+# =============================================================================
+# Health Check
+# =============================================================================
+
+@app.get("/health")
+async def health():
+    """Health check endpoint."""
+    biobtree = await get_client()
+    biobtree_ok = await biobtree.health_check()
+
+    return {
+        "status": "healthy" if biobtree_ok else "degraded",
+        "biobtree": "connected" if biobtree_ok else "disconnected",
+        "biobtree_url": config.biobtree_url
+    }
+
+
+# =============================================================================
+# REST API Endpoints
+# =============================================================================
+
+@app.get("/api/search")
+async def api_search(
+    i: str = Query(..., description="Comma-separated identifiers to search"),
+    s: Optional[str] = Query(None, description="Filter to specific dataset"),
+    mode: Optional[str] = Query(None, description="Response mode: lite or full"),
+    p: Optional[str] = Query(None, description="Pagination token")
+):
+    """
+    Search for biological identifiers.
+
+    Finds entries matching the given terms across 70+ integrated databases.
+    """
+    try:
+        biobtree = await get_client()
+        result = await biobtree.search(terms=i, dataset=s, mode=mode, page=p)
+        return result
+    except BiobtreeError as e:
+        return JSONResponse(status_code=503, content={"error": str(e)})
+
+
+@app.get("/api/map")
+async def api_map(
+    i: str = Query(..., description="Comma-separated identifiers to map"),
+    m: str = Query(..., description="Mapping chain (e.g., '>>ensembl>>uniprot')"),
+    mode: Optional[str] = Query(None, description="Response mode: lite or full"),
+    p: Optional[str] = Query(None, description="Pagination token")
+):
+    """
+    Map identifiers through dataset chains.
+
+    The core endpoint for cross-database queries.
+    """
+    try:
+        biobtree = await get_client()
+        result = await biobtree.map(terms=i, chain=m, mode=mode, page=p)
+        return result
+    except BiobtreeError as e:
+        return JSONResponse(status_code=503, content={"error": str(e)})
+
+
+@app.get("/api/entry")
+async def api_entry(
+    i: str = Query(..., description="The identifier to look up"),
+    s: str = Query(..., description="The dataset containing the entry")
+):
+    """
+    Get full entry details.
+
+    Retrieves complete information for a specific identifier in a dataset.
+    """
+    try:
+        biobtree = await get_client()
+        result = await biobtree.entry(identifier=i, dataset=s)
+        return result
+    except BiobtreeError as e:
+        return JSONResponse(status_code=503, content={"error": str(e)})
+
+
+@app.get("/api/meta")
+async def api_meta():
+    """
+    Get metadata about available datasets.
+
+    Returns information about all integrated datasets.
+    """
+    try:
+        biobtree = await get_client()
+        result = await biobtree.meta()
+        return result
+    except BiobtreeError as e:
+        return JSONResponse(status_code=503, content={"error": str(e)})
+
+
+@app.get("/api/help")
+async def api_help(
+    topic: str = Query("all", description="Topic: edges, filters, hierarchies, patterns, examples, filter_syntax, disease_ontology, or all")
+):
+    """
+    Get biobtree schema reference.
+
+    Returns dataset connections, filters, and query patterns.
+    """
+    return get_schema(topic)
+
+
+# =============================================================================
+# MCP over SSE Endpoint
+# =============================================================================
+
+@app.get("/mcp")
+async def mcp_sse(request: Request):
+    """
+    MCP over SSE endpoint for Claude Desktop/CLI.
+
+    Configure Claude Desktop with:
+    {
+        "mcpServers": {
+            "biobtree": {
+                "url": "https://sugi.bio/mcp"
+            }
+        }
+    }
+    """
+    async def event_generator():
+        """Generate SSE events for MCP protocol."""
+        # Send initial connection event
+        yield {
+            "event": "open",
+            "data": json.dumps({
+                "protocolVersion": "2024-11-05",
+                "serverInfo": {
+                    "name": config.mcp_server_name,
+                    "version": "1.0.0"
+                },
+                "capabilities": {
+                    "tools": {}
+                }
+            })
+        }
+
+        # Keep connection alive and handle messages
+        try:
+            while True:
+                if await request.is_disconnected():
+                    break
+
+                # Send keepalive ping every 30 seconds
+                yield {"event": "ping", "data": ""}
+                await asyncio.sleep(30)
+
+        except asyncio.CancelledError:
+            pass
+
+    return EventSourceResponse(event_generator())
+
+
+@app.post("/mcp")
+async def mcp_message(request: Request):
+    """
+    Handle MCP JSON-RPC messages.
+
+    This endpoint receives tool calls and returns results.
+    """
+    try:
+        body = await request.json()
+        method = body.get("method")
+        params = body.get("params", {})
+        request_id = body.get("id")
+
+        if method == "tools/list":
+            # Return list of tools
+            tools_list = [
+                {
+                    "name": tool.name,
+                    "description": tool.description,
+                    "inputSchema": tool.inputSchema
+                }
+                for tool in TOOLS
+            ]
+            return {
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "result": {"tools": tools_list}
+            }
+
+        elif method == "tools/call":
+            # Execute tool
+            tool_name = params.get("name")
+            arguments = params.get("arguments", {})
+
+            result = await call_tool(tool_name, arguments)
+
+            return {
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "result": {
+                    "content": [{"type": "text", "text": result[0].text}]
+                }
+            }
+
+        elif method == "initialize":
+            # Handle initialization
+            return {
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "result": {
+                    "protocolVersion": "2024-11-05",
+                    "serverInfo": {
+                        "name": config.mcp_server_name,
+                        "version": "1.0.0"
+                    },
+                    "capabilities": {
+                        "tools": {}
+                    }
+                }
+            }
+
+        else:
+            return {
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "error": {
+                    "code": -32601,
+                    "message": f"Method not found: {method}"
+                }
+            }
+
+    except Exception as e:
+        logger.exception(f"MCP message error: {e}")
+        return {
+            "jsonrpc": "2.0",
+            "id": body.get("id") if 'body' in dir() else None,
+            "error": {
+                "code": -32603,
+                "message": str(e)
+            }
+        }
+
+
+# =============================================================================
+# Main Entry Point
+# =============================================================================
+
+def run_http_server():
+    """Run the HTTP server with uvicorn (for remote access)."""
+    import uvicorn
+    uvicorn.run(
+        "mcp_srv.server:app",
+        host=config.host,
+        port=config.port,
+        log_level=config.log_level.lower()
+    )
+
+
+async def run_stdio_server():
+    """Run the MCP server with stdio transport (for local Claude CLI)."""
+    from mcp.server.stdio import stdio_server
+
+    logger.info("Starting MCP server in stdio mode")
+
     async with stdio_server() as (read_stream, write_stream):
-        await server.run(
+        await mcp_server.run(
             read_stream,
             write_stream,
-            server.create_initialization_options()
+            mcp_server.create_initialization_options()
         )
 
 
+def main():
+    """Main entry point with mode selection."""
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Biobtree MCP Server")
+    parser.add_argument(
+        "--mode",
+        choices=["http", "stdio"],
+        default="stdio",
+        help="Server mode: 'stdio' for local Claude CLI (default), 'http' for remote access"
+    )
+    args = parser.parse_args()
+
+    if args.mode == "http":
+        run_http_server()
+    else:
+        # stdio mode for local MCP
+        import asyncio
+        asyncio.run(run_stdio_server())
+
+
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()

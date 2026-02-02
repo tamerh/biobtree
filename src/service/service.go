@@ -182,6 +182,8 @@ func (s *service) init() {
 		cel.Types(&pbuf.ScxaClusterExpression{}),
 		cel.Types(&pbuf.ClinvarAttr{}),
 		cel.Types(&pbuf.BiogridInteractionAttr{}),
+		cel.Types(&pbuf.AlphaFoldAttr{}),
+		cel.Types(&pbuf.ClinicalTrialAttr{}),
 		cel.Declarations(
 			decls.NewIdent("uniprot", decls.NewObjectType("pbuf.UniprotAttr"), nil)),
 		cel.Declarations(
@@ -308,6 +310,10 @@ func (s *service) init() {
 			decls.NewIdent("scxa_expression", decls.NewObjectType("pbuf.ScxaExpressionAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("scxa_gene_experiment", decls.NewObjectType("pbuf.ScxaGeneExperimentAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("alphafold", decls.NewObjectType("pbuf.AlphaFoldAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("clinical_trials", decls.NewObjectType("pbuf.ClinicalTrialAttr"), nil)),
 		cel.Declarations(
 			decls.NewFunction("overlaps",
 				decls.NewOverload("overlaps_int_int",
@@ -526,158 +532,6 @@ loop:
 
 	s2 = s2 + `}}`
 	return s2
-
-}
-
-func (s *service) filter(id string, src uint32, filters []uint32, pageInd int) (*pbuf.Result, error) {
-
-	var filtered []*pbuf.XrefEntry
-
-	id = strings.ToUpper(id)
-	//first we get the rootResult
-	rootRes, err := s.getLmdbResult2(id, src)
-	if err != nil {
-		return nil, err
-	}
-
-	if pageInd == 0 {
-		for _, f := range rootRes.Entries {
-			for _, filter := range filters {
-				if f.Dataset == filter {
-					filtered = append(filtered, f)
-				}
-			}
-		}
-
-		if len(filtered) >= s.pageSize { //return here
-			//todo this is duplicate code
-			var filteredRes = pbuf.Result{}
-			//filteredRes.Identifier = "1"
-			var xrefs = make([]*pbuf.Xref, 1)
-			var xref = pbuf.Xref{}
-			xref.Dataset = src
-			xref.DatasetCounts = rootRes.DatasetCounts
-			xref.Entries = filtered
-			xrefs[0] = &xref
-			filteredRes.Results = xrefs
-
-			return &filteredRes, nil
-
-		}
-	}
-
-	// now we will go throught pages that includes filtered datasets.
-	targetPages := map[string]bool{}
-	for _, f := range filters {
-		if _, ok := rootRes.GetDatasetPages()[f]; ok {
-			for _, k := range rootRes.GetDatasetPages()[f].Pages {
-				targetPages[k] = true
-			}
-		}
-	}
-	targetPagesArr := make([]string, len(targetPages))
-
-	i := 0
-	for k := range targetPages {
-		targetPagesArr[i] = k
-		i++
-	}
-	sort.Strings(targetPagesArr)
-
-	//keyLen := s.pager.KeyLen(int(rootRes.Count / uint32(s.pageSize)))
-	domainKey := config.DataconfIDToPageKey[src]
-
-	err = s.readEnv.View(func(txn db.Txn) (err error) {
-
-		var target *pbuf.Xref
-		for _, page := range targetPagesArr[pageInd:] {
-
-			var r1 = pbuf.Result{}
-
-			//k, v, err := cur.Get([]byte(id), nil, lmdb.Next)
-			pageKey := id + spacestr + domainKey + spacestr + page
-			v, err := txn.Get(s.readDbi, []byte(pageKey))
-
-			if db.IsNotFound(err) {
-				return nil
-			}
-			if err != nil {
-				return err
-			}
-
-			err = proto.Unmarshal(v, &r1)
-			if err != nil {
-				return err
-			}
-
-			target = nil
-			for _, e := range r1.Results {
-				if e.Dataset == src {
-					target = e
-					break
-				}
-			}
-
-			if target != nil {
-				for _, f := range target.Entries {
-					for _, filter := range filters {
-						if f.Dataset == filter {
-							filtered = append(filtered, f)
-						}
-					}
-				}
-			}
-
-			pageInd++
-
-			if len(filtered) >= s.pageSize {
-				return nil
-			}
-
-		}
-		return nil // todo think
-	})
-
-	if err != nil {
-		return nil, err
-	}
-
-	var filteredRes = pbuf.Result{}
-	var xrefs = make([]*pbuf.Xref, 1)
-	var xref = pbuf.Xref{}
-	xref.Dataset = src
-	xref.DatasetCounts = rootRes.DatasetCounts
-	xref.Entries = filtered
-	xref.Identifier = strconv.Itoa(pageInd)
-	xrefs[0] = &xref
-	filteredRes.Results = xrefs
-
-	return &filteredRes, nil
-
-}
-
-func (s *service) page(id string, src int, page int, t int) (*pbuf.Result, error) {
-
-	keyLen := s.pager.KeyLen(t)
-	pk := s.pager.Key(page, keyLen)
-	srckey := s.pager.Key(src, 2)
-	var key strings.Builder
-	key.WriteString(strings.ToUpper(id))
-	key.WriteString(spacestr)
-	key.WriteString(srckey)
-	key.WriteString(spacestr)
-	key.WriteString(pk)
-
-	result, err := s.getLmdbResult(key.String())
-	if err != nil {
-		return nil, err
-	}
-
-	for _, xref := range result.Results {
-		xref.Identifier = id
-	}
-	//todo what if nil
-	return result, nil
 
 }
 
@@ -1021,92 +875,6 @@ func (s *service) search(ids []string, idsDomain uint32, page string, q *query.Q
 	if len(xrefs) == 0 {
 		result.Message = "No results found"
 	}
-
-	// Enrich with all transient fields (dataset_name, url)
-	EnrichResult(result)
-
-	return result, nil
-
-}
-
-func (s *service) searchPage(ids []string, page string) (*pbuf.Result, error) {
-
-	result := &pbuf.Result{}
-	var xrefs []*pbuf.Xref
-	totalResult := 0
-	var err error
-
-	pageVals := strings.Split(page, pagingSep2)
-	idIndex, err := strconv.Atoi(pageVals[0])
-	if err != nil {
-		return nil, err
-	}
-
-	ids = ids[idIndex:]
-
-	hasLinkEntryIndex := false
-	linkEntryIndex := 0
-	if len(pageVals) == 2 {
-		linkEntryIndex, err = strconv.Atoi(pageVals[1])
-		if err != nil {
-			return nil, err
-		}
-		hasLinkEntryIndex = true
-	}
-
-	for idIndex, id := range ids {
-
-		result, err := s.getLmdbResult(strings.ToUpper(id))
-		if err != nil {
-			return nil, err
-		}
-
-		if len(result.Results) > 0 {
-
-			for _, xref := range result.Results {
-				if xref.IsLink {
-					if hasLinkEntryIndex { // first time from paging with link entry index
-						xref.Entries = xref.Entries[linkEntryIndex:]
-						hasLinkEntryIndex = false
-					}
-					for linkIndex, b := range xref.Entries {
-
-						xref2, err := s.getLmdbResult2(b.Identifier, b.Dataset)
-						if err != nil {
-							return nil, err
-						}
-
-						if totalResult == s.resultPageSize {
-							result.Nextpage = strconv.Itoa(idIndex) + pagingSep2 + strconv.Itoa(linkIndex)
-							result.Results = xrefs
-							return result, nil
-						}
-
-						xref2.Keyword = id
-						xref2.Identifier = b.Identifier
-						xrefs = append(xrefs, xref2)
-						totalResult++
-					}
-				} else {
-
-					if totalResult == s.resultPageSize {
-						result.Nextpage = strconv.Itoa(idIndex)
-						result.Results = xrefs
-						return result, nil
-					}
-
-					xref.Identifier = id
-					xrefs = append(xrefs, xref)
-					totalResult++
-
-				}
-			}
-
-		}
-
-	}
-
-	result.Results = xrefs
 
 	// Enrich with all transient fields (dataset_name, url)
 	EnrichResult(result)

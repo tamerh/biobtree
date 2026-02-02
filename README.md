@@ -168,12 +168,6 @@ localhost:9292/ws/map/?i={terms}&m={mapfilter_query}&p={page}&mode={full|lite}
 # Retrieve dataset entry. Both parameters are mandatory
 localhost:9292/ws/entry/?i={identifier}&s={dataset}
 
-# Retrieve entry with filtered mapping entries. Only page parameter is optional
-localhost:9292/ws/filter/?i={identifier}&s={dataset}&f={filter_datasets}&p={page}
-
-# Retrieve entry results with page index. All the parameters are mandatory
-localhost:9292/ws/page/?i={identifier}&s={dataset}&p={page}&t={total}
-
 ```
 
 #### API Response Modes

@@ -1,9 +1,11 @@
 {
   "metadata": {
-    "version": "5.5",
-    "description": "Expanded integration tests including newly added datasets (2025-2026)",
+    "version": "5.7",
+    "description": "Expanded integration tests including newly added datasets and filter tests (2025-2026)",
     "server": "http://localhost:9291",
     "last_updated": "2026-02-01",
+    "changes_5.7": "Fixed filter tests with .0 suffix for floats. Added AlphaFold, Bgee, PubChem Lipinski, GWAS pvalue_mlog, Clinical Trials filters",
+    "changes_5.6": "Added comprehensive filter tests for PubChem, ChEMBL, ClinVar, AlphaMissense, PharmGKB, GenCC, GWAS, GO, UniProt, InterPro, Antibody datasets",
     "changes_5.5": "Added MeSH bridge CTD tests, Reactome to Ensembl, CellXGene reverse mappings, clinical trials high-count, MeSH breast cancer hierarchy"
   },
   "test_categories": {
@@ -30,6 +32,8 @@
     "expression_celltype": "Expression analysis (Bgee, CellXGene, SCXA) and cell type ontology",
     "pathway_network": "Pathway and network analysis (Reactome hierarchy, STRING, GO reverse)",
     "ontology_hierarchy": "Ontology hierarchy traversal (MONDO, HPO, EFO parent/child)",
+    "filters_working": "Working filter tests - verified CEL filter expressions",
+    "filters_broken": "Known broken filters - document issues for fixing",
     "known_issues": "Tests for known bugs - expected to fail until fixed"
   },
   "tests": [
@@ -2806,6 +2810,324 @@
       "query": ">>hpo>>clinvar",
       "why": "Phenotype to variants works (150+ for seizures HP:0001250)",
       "should_pass": ["HP:0001250", "HP:0001638"],
+      "should_fail": []
+    },
+
+    {"_comment": "=== WORKING FILTER TESTS (2026-02-01) ==="},
+
+    {
+      "category": "filters_working",
+      "name": "PubChem FDA Approved Filter",
+      "query": ">>pubchem[pubchem.is_fda_approved==true]",
+      "why": "Filter for FDA-approved drugs only",
+      "should_pass": ["aspirin", "metformin"],
+      "should_fail": []
+    },
+    {
+      "category": "filters_working",
+      "name": "PubChem Compound Type Drug Filter",
+      "query": ">>pubchem[pubchem.compound_type==\"drug\"]",
+      "why": "Filter for drug compounds vs bioactive/literature",
+      "should_pass": ["aspirin", "metformin"],
+      "should_fail": []
+    },
+    {
+      "category": "filters_working",
+      "name": "PubChem Lipinski H-bond Donors",
+      "query": ">>pubchem[pubchem.hydrogen_bond_donors<=5]",
+      "why": "Lipinski Rule of 5 - H-bond donors filter works",
+      "should_pass": ["aspirin", "caffeine"],
+      "should_fail": []
+    },
+    {
+      "category": "filters_working",
+      "name": "PubChem Rotatable Bonds Filter",
+      "query": ">>pubchem[pubchem.rotatable_bonds<10]",
+      "why": "Drug-likeness filter for molecular flexibility",
+      "should_pass": ["aspirin"],
+      "should_fail": []
+    },
+    {
+      "category": "filters_working",
+      "name": "ChEMBL Phase 4 Approved Drugs",
+      "query": ">>ensembl>>uniprot>>chembl_target_component>>chembl_target>>chembl_assay>>chembl_activity>>chembl_molecule[chembl.molecule.highestDevelopmentPhase==4]",
+      "why": "Filter for approved drugs (phase 4) - 157 for EGFR",
+      "should_pass": ["EGFR"],
+      "should_fail": []
+    },
+    {
+      "category": "filters_working",
+      "name": "ChEMBL Phase 3+ Drugs",
+      "query": ">>ensembl>>uniprot>>chembl_target_component>>chembl_target>>chembl_assay>>chembl_activity>>chembl_molecule[chembl.molecule.highestDevelopmentPhase>2]",
+      "why": "Filter for Phase 3 and above drugs",
+      "should_pass": ["EGFR", "TP53"],
+      "should_fail": []
+    },
+    {
+      "category": "filters_working",
+      "name": "ClinVar Pathogenic Filter",
+      "query": ">>hgnc>>clinvar[clinvar.germline_classification==\"Pathogenic\"]",
+      "why": "Filter for pathogenic variants only - 150+ for BRCA1",
+      "should_pass": ["BRCA1", "TP53", "CFTR"],
+      "should_fail": []
+    },
+    {
+      "category": "filters_working",
+      "name": "ClinVar Likely Pathogenic Filter",
+      "query": ">>hgnc>>clinvar[clinvar.germline_classification==\"Likely pathogenic\"]",
+      "why": "Filter for likely pathogenic variants",
+      "should_pass": ["BRCA1", "TP53"],
+      "should_fail": []
+    },
+    {
+      "category": "filters_working",
+      "name": "AlphaMissense Class Filter",
+      "query": ">>uniprot>>alphamissense[alphamissense.am_class==\"likely_pathogenic\"]",
+      "why": "Filter for likely pathogenic missense variants - 150+ for P04637",
+      "should_pass": ["P04637", "P00533"],
+      "should_fail": []
+    },
+    {
+      "category": "filters_working",
+      "name": "AlphaMissense Score Filter",
+      "query": ">>uniprot>>alphamissense[alphamissense.am_pathogenicity>0.8]",
+      "why": "Filter by pathogenicity score > 0.8",
+      "should_pass": ["P04637"],
+      "should_fail": []
+    },
+    {
+      "category": "filters_working",
+      "name": "PharmGKB Level 1A Evidence",
+      "query": ">>hgnc>>pharmgkb_clinical[pharmgkb_clinical.level_of_evidence==\"1A\"]",
+      "why": "Filter for highest evidence clinical annotations - 32 for CYP2D6",
+      "should_pass": ["CYP2D6", "CYP2C19", "CYP2C9"],
+      "should_fail": []
+    },
+    {
+      "category": "filters_working",
+      "name": "PharmGKB CPIC Guidelines",
+      "query": ">>pharmgkb>>pharmgkb_guideline[pharmgkb_guideline.source==\"CPIC\"]",
+      "why": "Filter for CPIC dosing guidelines",
+      "should_pass": ["warfarin", "clopidogrel"],
+      "should_fail": []
+    },
+    {
+      "category": "filters_working",
+      "name": "GenCC Definitive Evidence",
+      "query": ">>gencc[gencc.classification_title==\"Definitive\"]",
+      "why": "Filter for definitive gene-disease evidence",
+      "should_pass": ["BRCA1", "CFTR"],
+      "should_fail": []
+    },
+    {
+      "category": "filters_working",
+      "name": "GenCC Strong Evidence",
+      "query": ">>gencc[gencc.classification_title==\"Strong\"]",
+      "why": "Filter for strong gene-disease evidence - 4 for TP53",
+      "should_pass": ["TP53", "BRCA2"],
+      "should_fail": []
+    },
+    {
+      "category": "filters_working",
+      "name": "GenCC Autosomal Dominant",
+      "query": ">>gencc[gencc.moi_title==\"Autosomal dominant\"]",
+      "why": "Filter by inheritance mode",
+      "should_pass": ["BRCA1", "TP53"],
+      "should_fail": []
+    },
+    {
+      "category": "filters_working",
+      "name": "GWAS Genome-Wide Significant",
+      "query": ">>ensembl>>gwas[gwas.p_value<0.00000005]",
+      "why": "Filter for genome-wide significant associations (p<5e-8)",
+      "should_pass": ["BRCA1"],
+      "should_fail": []
+    },
+    {
+      "category": "filters_working",
+      "name": "GO Biological Process Filter",
+      "query": ">>uniprot>>go[go.type==\"biological_process\"]",
+      "why": "Filter for biological process GO terms - 120 for TP53",
+      "should_pass": ["P04637", "P00533"],
+      "should_fail": []
+    },
+    {
+      "category": "filters_working",
+      "name": "GO Molecular Function Filter",
+      "query": ">>uniprot>>go[go.type==\"molecular_function\"]",
+      "why": "Filter for molecular function GO terms",
+      "should_pass": ["P04637", "P00533"],
+      "should_fail": []
+    },
+    {
+      "category": "filters_working",
+      "name": "GO Cellular Component Filter",
+      "query": ">>uniprot>>go[go.type==\"cellular_component\"]",
+      "why": "Filter for cellular component GO terms - 18 for TP53",
+      "should_pass": ["P04637"],
+      "should_fail": []
+    },
+    {
+      "category": "filters_working",
+      "name": "UniProt Reviewed Swiss-Prot",
+      "query": ">>ensembl>>uniprot[uniprot.reviewed==true]",
+      "why": "Filter for curated Swiss-Prot entries only",
+      "should_pass": ["TP53", "EGFR", "BRCA1"],
+      "should_fail": []
+    },
+    {
+      "category": "filters_working",
+      "name": "InterPro Domain Filter",
+      "query": ">>ensembl>>uniprot>>interpro[interpro.type==\"Domain\"]",
+      "why": "Filter for protein domains - 20 for EGFR",
+      "should_pass": ["EGFR", "TP53"],
+      "should_fail": []
+    },
+    {
+      "category": "filters_working",
+      "name": "InterPro Family Filter",
+      "query": ">>ensembl>>uniprot>>interpro[interpro.type==\"Family\"]",
+      "why": "Filter for protein families",
+      "should_pass": ["EGFR"],
+      "should_fail": []
+    },
+    {
+      "category": "filters_working",
+      "name": "Antibody Therapeutic Type",
+      "query": ">>ensembl>>antibody[antibody.antibody_type==\"therapeutic\"]",
+      "why": "Filter for therapeutic antibodies - 130 for EGFR",
+      "should_pass": ["EGFR", "HER2"],
+      "should_fail": []
+    },
+    {
+      "category": "filters_working",
+      "name": "Ensembl Human Genome Filter",
+      "query": ">>ensembl[ensembl.genome==\"homo_sapiens\"]>>uniprot",
+      "why": "Filter for human genes only",
+      "should_pass": ["TP53", "BRCA1"],
+      "should_fail": []
+    },
+    {
+      "category": "filters_working",
+      "name": "UniProt Feature Modified Residue",
+      "query": ">>uniprot>>ufeature[ufeature.type==\"modified residue\"]",
+      "why": "Filter for phosphorylation sites - 74 for EGFR",
+      "should_pass": ["P00533"],
+      "should_fail": []
+    },
+    {
+      "category": "filters_working",
+      "name": "UniProt Feature Disulfide Bond",
+      "query": ">>uniprot>>ufeature[ufeature.type==\"disulfide bond\"]",
+      "why": "Filter for disulfide bonds - 100 for EGFR",
+      "should_pass": ["P00533"],
+      "should_fail": []
+    },
+
+    {"_comment": "=== BROKEN FILTER TESTS (2026-02-01) - Document for fixing ==="},
+
+    {
+      "category": "filters_working",
+      "name": "Clinical Trials Phase Filter (FIXED)",
+      "query": ">>mondo>>clinical_trials[clinical_trials.phase==\"PHASE3\"]",
+      "why": "FIXED: Added CEL registration for clinical_trials",
+      "should_pass": ["Huntington", "diabetes"],
+      "should_fail": []
+    },
+    {
+      "category": "filters_working",
+      "name": "AlphaFold Global Metric Filter (FIXED - use .0)",
+      "query": ">>uniprot>>alphafold[alphafold.global_metric>70.0]",
+      "why": "FIXED: Use .0 suffix for float comparisons",
+      "should_pass": ["P04637"],
+      "should_fail": []
+    },
+    {
+      "category": "filters_working",
+      "name": "AlphaFold Mean PAE Filter",
+      "query": ">>uniprot>>alphafold[alphafold.mean_pae<25.0]",
+      "why": "Filter for low prediction error structures",
+      "should_pass": ["P04637"],
+      "should_fail": []
+    },
+    {
+      "category": "filters_working",
+      "name": "Bgee Max Expression Score Filter (FIXED)",
+      "query": ">>ensembl>>bgee[bgee.max_expression_score>90.0]",
+      "why": "FIXED: Use top-level max_expression_score instead of nested field",
+      "should_pass": ["ENSG00000141510"],
+      "should_fail": []
+    },
+    {
+      "category": "filters_working",
+      "name": "Bgee Gold Quality Count Filter",
+      "query": ">>ensembl>>bgee[bgee.gold_quality_count>10]",
+      "why": "Filter for genes with many high-quality expression calls",
+      "should_pass": ["ENSG00000141510"],
+      "should_fail": []
+    },
+    {
+      "category": "filters_working",
+      "name": "Bgee Average Expression Score Filter",
+      "query": ">>ensembl>>bgee[bgee.average_expression_score>70.0]",
+      "why": "Filter for genes with high average expression (TP53 has 77.6)",
+      "should_pass": ["ENSG00000141510"],
+      "should_fail": []
+    },
+    {
+      "category": "filters_working",
+      "name": "Bgee Expression Breadth Filter",
+      "query": ">>ensembl>>bgee[bgee.expression_breadth==\"ubiquitous\"]",
+      "why": "Filter for ubiquitously expressed genes (TP53 is ubiquitous)",
+      "should_pass": ["ENSG00000141510"],
+      "should_fail": []
+    },
+    {
+      "category": "filters_working",
+      "name": "PubChem Molecular Weight Filter (FIXED - use .0)",
+      "query": ">>pubchem[pubchem.molecular_weight<500.0]",
+      "why": "FIXED: Use .0 suffix for float comparisons (Lipinski rule)",
+      "should_pass": ["aspirin", "caffeine"],
+      "should_fail": []
+    },
+    {
+      "category": "filters_working",
+      "name": "PubChem LogP Filter",
+      "query": ">>pubchem[pubchem.xlogp<5.0]",
+      "why": "Lipinski Rule of 5 - lipophilicity filter",
+      "should_pass": ["aspirin"],
+      "should_fail": []
+    },
+    {
+      "category": "filters_working",
+      "name": "PubChem TPSA Filter",
+      "query": ">>pubchem[pubchem.tpsa<140.0]",
+      "why": "Lipinski extension - polar surface area filter",
+      "should_pass": ["aspirin"],
+      "should_fail": []
+    },
+    {
+      "category": "filters_working",
+      "name": "GWAS pvalue_mlog Filter (FIXED - use .0)",
+      "query": ">>dbsnp>>gwas[gwas.pvalue_mlog>5.0]",
+      "why": "FIXED: Use .0 suffix for float comparisons",
+      "should_pass": ["rs1799853"],
+      "should_fail": []
+    },
+    {
+      "category": "filters_working",
+      "name": "Clinical Trials Phase 3 Filter (FIXED)",
+      "query": ">>mondo>>clinical_trials[clinical_trials.phase==\"PHASE3\"]",
+      "why": "FIXED: clinical_trials CEL now registered. Phase values are UPPERCASE",
+      "should_pass": ["MONDO:0007739"],
+      "should_fail": []
+    },
+    {
+      "category": "filters_working",
+      "name": "Clinical Trials Recruiting Filter",
+      "query": ">>mondo>>clinical_trials[clinical_trials.overall_status==\"RECRUITING\"]",
+      "why": "Filter for actively recruiting trials",
+      "should_pass": ["MONDO:0005148"],
       "should_fail": []
     },
 

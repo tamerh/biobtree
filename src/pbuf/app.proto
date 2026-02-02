@@ -8,8 +8,6 @@ service BiobtreeService {
   rpc Search        (SearchRequest)         returns (SearchResponse);
   rpc Mapping       (MappingRequest)        returns (MappingResponse);
   rpc Entry         (EntryRequest)          returns (EntryResponse);
-  rpc Page          (PageRequest)           returns (PageResponse);
-  rpc Filter        (FilterRequest)         returns (FilterResponse);
   rpc Meta          (MetaRequest)           returns (MetaResponse);
   rpc ListGenomes   (ListGenomesRequest)    returns (ListGenomesResponse);
 }
@@ -49,28 +47,6 @@ message EntryRequest {
 
 message EntryResponse {
   	Xref result =1;
-}
-
-message PageRequest {
-  	string identifier = 1;
-    string dataset=2;
-    int32 page =3;
-    int32 total=4;
-}
-
-message PageResponse {
-  	Result result =1;
-}
-
-message FilterRequest {
-  	string identifier = 1;
-    string dataset=2;
-    repeated string filters =3;
-    int32 page =4;
-}
-
-message FilterResponse {
-  	Result result =1;
 }
 
 message MetaRequest {

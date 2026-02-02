@@ -496,7 +496,7 @@ if [[ "$WEB_SERVER" == "true" ]]; then
         # Custom directory - run in background with --prod
         echo "Starting web server in background..."
         echo "Log: ${LOG_DIR}/web.log"
-        nohup ./biobtree --out-dir "$OUT_DIR" --prod web > "${LOG_DIR}/web.log" 2>&1 &
+        nohup ./biobtree --db-dir "$OUT_DIR" --prod web > "${LOG_DIR}/web.log" 2>&1 &
         echo "PID: $!"
         echo "Monitor: tail -f ${LOG_DIR}/web.log"
     fi

@@ -106,7 +106,7 @@ SCHEMA_FILTERS = {
     "uniprot": {"reviewed": "bool (true=Swiss-Prot)"},
     "alphafold": {"global_metric": "float", "mean_pae": "float"},
     "interpro": {"type": "str (Domain|Family|Repeat)"},
-    "ufeature": {"type": "str (Mutagenesis|Variant|Domain)"},
+    "ufeature": {"type": "str (modified residue|disulfide bond|signal peptide|DNA-binding region|lipid moiety-binding region)"},
     "chembl_molecule": {"highestDevelopmentPhase": "int 0-4", "type": "str", "weight": "float"},
     "chembl_activity": {"standardType": "str (IC50|Ki|Kd)", "pChembl": "float"},
     "chembl_target": {"type": "str (SINGLE PROTEIN|PROTEIN COMPLEX)"},
@@ -129,16 +129,16 @@ SCHEMA_FILTERS = {
     "gencc": {"classification_title": "str (Definitive|Strong|Moderate|Limited)", "moi_title": "str"},
     "pharmgkb_clinical": {"level_of_evidence": "str (1A|1B|2A|2B|3|4)"},
     "pharmgkb_guideline": {"source": "str (CPIC|DPWG)"},
-    "clinical_trials": {"phase": "str", "overall_status": "str"},
+    "clinical_trials": {"phase": "str (PHASE1|PHASE2|PHASE3|PHASE4)", "overall_status": "str (RECRUITING|COMPLETED|TERMINATED)"},
     "bindingdb": {"ki": "str", "ic50": "str"},
     "intact": {"confidence_score": "float", "detection_method": "str"},
     "string": {"interactions[].score": "int 0-1000", "interactions[].has_experimental": "bool"},
     "biogrid": {"interaction_count": "int"},
-    "bgee": {"expression_score": "float", "call_quality": "str (gold quality)"},
+    "bgee": {"max_expression_score": "float (use .0 suffix)", "average_expression_score": "float", "gold_quality_count": "int", "expression_breadth": "str (ubiquitous|broad|moderate|narrow|specific)"},
     "reactome": {"is_disease_pathway": "bool"},
     "go": {"type": "str (biological_process|molecular_function|cellular_component)"},
     "msigdb": {"collection": "str (H|C1-C8)", "gene_count": "int"},
-    "antibody": {"clinical_stage": "str", "antibody_type": "str"}
+    "antibody": {"status": "str (Active|Discontinued)", "antibody_type": "str (therapeutic)", "isotype": "str (G1|G2|G4)"}
 }
 
 SCHEMA_EXAMPLES = {
@@ -272,6 +272,49 @@ SCHEMA_TEXT_SEARCH = """Datasets supporting partial text search:
 NOTE: For drug discovery, query BOTH ChEMBL and PubChem for comprehensive coverage:
 - ChEMBL: curated medicinal chemistry, clinical phases, assay protocols
 - PubChem: broader compounds, FDA approval, bioactivity screens, patents, metabolites"""
+
+# Filter Syntax Rules - IMPORTANT for numeric comparisons
+SCHEMA_FILTER_SYNTAX = """
+CRITICAL FILTER SYNTAX RULES:
+
+1. FLOAT COMPARISONS NEED .0 SUFFIX:
+   - WRONG: >>pubchem[pubchem.molecular_weight<500]
+   - RIGHT: >>pubchem[pubchem.molecular_weight<500.0]
+
+   Affected fields: molecular_weight, xlogp, tpsa, pvalue_mlog, global_metric,
+                    mean_pae, am_pathogenicity, expression_score, confidence_score
+
+2. NO SCIENTIFIC NOTATION:
+   - WRONG: >>gwas[gwas.p_value<5e-8]
+   - RIGHT: >>gwas[gwas.p_value<0.00000005]
+
+3. STRING VALUES ARE CASE-SENSITIVE:
+   - Use exact values: "Pathogenic" not "pathogenic"
+   - Phase values: "PHASE1", "PHASE2", "PHASE3", "PHASE4" (uppercase)
+   - Status values: "RECRUITING", "COMPLETED" (uppercase)
+
+4. EXAMPLES WITH CORRECT SYNTAX:
+   # PubChem Lipinski filters
+   >>pubchem[pubchem.molecular_weight<500.0]
+   >>pubchem[pubchem.xlogp<5.0]
+   >>pubchem[pubchem.tpsa<140.0]
+
+   # AlphaFold confidence
+   >>alphafold[alphafold.global_metric>70.0]
+   >>alphafold[alphafold.mean_pae<25.0]
+
+   # GWAS significance
+   >>gwas[gwas.pvalue_mlog>8.0]
+   >>gwas[gwas.p_value<0.00000005]
+
+   # Bgee expression
+   >>bgee[bgee.max_expression_score>90.0]
+   >>bgee[bgee.gold_quality_count>10]
+
+   # Clinical trials
+   >>clinical_trials[clinical_trials.phase=="PHASE3"]
+   >>clinical_trials[clinical_trials.overall_status=="RECRUITING"]
+"""
 
 # Disease Ontology Mapping Strategy - CRITICAL for cross-database queries
 SCHEMA_DISEASE_ONTOLOGY = """
@@ -558,19 +601,21 @@ Call this tool when you need to:
 - Find available filters for a dataset
 - See example query patterns
 - Understand ontology hierarchies
+- IMPORTANT: Learn filter syntax rules (use "filter_syntax" topic) - float values need .0 suffix!
 - IMPORTANT: Learn disease ontology mapping strategies (use "disease_ontology" topic)
 
 Returns a compact JSON schema with all dataset relationships and queryable attributes.
 
 PARAMETERS:
-- topic: Optional filter - "edges", "filters", "hierarchies", "patterns", "examples", "disease_ontology", or "all" (default)
+- topic: Optional filter - "edges", "filters", "hierarchies", "patterns", "examples", "filter_syntax", "disease_ontology", or "all" (default)
+  - "filter_syntax": CRITICAL - explains .0 suffix for floats, no scientific notation, case-sensitive strings
   - "disease_ontology": CRITICAL - explains which ontology each database uses and how to use bridges/parent terms when direct mapping fails""",
         inputSchema={
             "type": "object",
             "properties": {
                 "topic": {
                     "type": "string",
-                    "enum": ["edges", "filters", "hierarchies", "patterns", "examples", "disease_ontology", "all"],
+                    "enum": ["edges", "filters", "hierarchies", "patterns", "examples", "filter_syntax", "disease_ontology", "all"],
                     "default": "all",
                     "description": "Which section of the schema to return"
                 }
@@ -637,6 +682,8 @@ async def call_tool(name: str, arguments: dict[str, Any]) -> list[TextContent]:
                 result = {"patterns": SCHEMA_PATTERNS, "text_search": SCHEMA_TEXT_SEARCH, "tip": "For cross-ontology mapping issues (MONDO/EFO/MeSH), use topic='disease_ontology'"}
             elif topic == "examples":
                 result = {"examples": SCHEMA_EXAMPLES}
+            elif topic == "filter_syntax":
+                result = {"filter_syntax": SCHEMA_FILTER_SYNTAX, "note": "CRITICAL: Float comparisons need .0 suffix (e.g., >90.0 not >90). No scientific notation."}
             elif topic == "disease_ontology":
                 result = {"disease_ontology_mapping": SCHEMA_DISEASE_ONTOLOGY, "note": "CRITICAL: Different databases use different ontologies. Use bridges and parent terms when direct mapping fails."}
             else:  # "all"

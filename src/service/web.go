@@ -9,7 +9,6 @@ import (
 	_ "net/http/pprof" // Register pprof handlers
 	"os/exec"
 	"runtime"
-	"strconv"
 	"strings"
 
 	"github.com/NYTimes/gziphandler"
@@ -46,16 +45,12 @@ func (web *Web) Start(c *configs.Conf, nowebpopup bool, prodMode bool) {
 	metaGz := gziphandler.GzipHandler(http.HandlerFunc(web.meta))
 	searchEntryGz := gziphandler.GzipHandler(http.HandlerFunc(web.entry))
 	mapFilterGz := gziphandler.GzipHandler(http.HandlerFunc(web.mapFilter))
-	searchPageGz := gziphandler.GzipHandler(http.HandlerFunc(web.searchPage))
-	searchFilterGz := gziphandler.GzipHandler(http.HandlerFunc(web.searchFilter))
 
 	http.Handle("/ws/", searchGz)
 	http.Handle("/ws/meta", metaGz)
 	http.Handle("/ws/meta/", metaGz)
 	http.Handle("/ws/entry/", searchEntryGz)
 	http.Handle("/ws/map/", mapFilterGz)
-	http.Handle("/ws/page/", searchPageGz)
-	http.Handle("/ws/filter/", searchFilterGz)
 
 	//web ui
 	fs := http.FileServer(http.Dir("website"))
@@ -126,107 +121,6 @@ func (web *Web) meta(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (web *Web) searchFilter(w http.ResponseWriter, r *http.Request) {
-
-	w.Header().Add("content-type", "application/json")
-	w.Header().Add("Access-Control-Allow-Origin", "*")
-
-	var buf strings.Builder
-
-	err := web.checkRequest(r)
-
-	if err != nil {
-		buf.WriteString("[")
-		errStr := errString{Err: err.Error()}
-		jb, _ := ffjson.Marshal(errStr)
-		buf.WriteString(string(jb))
-		buf.WriteString("]")
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(buf.String()))
-		return
-	}
-
-	ids, ok := r.URL.Query()["i"]
-
-	if !ok || len(ids[0]) < 1 {
-		err := fmt.Errorf("i param is missing")
-		errStr := errString{Err: err.Error()}
-		jb, _ := ffjson.Marshal(errStr)
-		buf.WriteString(string(jb))
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(buf.String()))
-		return
-	}
-
-	fids, ok := r.URL.Query()["f"]
-
-	if !ok || len(fids[0]) < 1 {
-		err := fmt.Errorf("f param is missing")
-		errStr := errString{Err: err.Error()}
-		jb, _ := ffjson.Marshal(errStr)
-		buf.WriteString(string(jb))
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(buf.String()))
-		return
-	}
-
-	fils := strings.TrimSuffix(fids[0], ",")
-
-	var filters []uint32
-	for _, filterstr := range strings.Split(fils, ",") {
-
-		filtersrc, ok := config.DataconfIDStringToInt[filterstr]
-		if !ok {
-			err := fmt.Errorf("invalid s param")
-			errStr := errString{Err: err.Error()}
-			jb, _ := ffjson.Marshal(errStr)
-			buf.WriteString(string(jb))
-			w.Write([]byte(buf.String()))
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-		filters = append(filters, uint32(filtersrc))
-
-	}
-
-	src, ok := config.DataconfIDStringToInt[r.URL.Query()["s"][0]]
-	if !ok {
-		err := fmt.Errorf("invalid s param")
-		errStr := errString{Err: err.Error()}
-		jb, _ := ffjson.Marshal(errStr)
-		buf.WriteString(string(jb))
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(buf.String()))
-		return
-	}
-
-	pageInd := 0
-	if len(r.URL.Query()["p"]) > 0 {
-		pageInd, _ = strconv.Atoi(r.URL.Query()["p"][0])
-	}
-
-	filteredRes, err := web.service.filter(ids[0], src, filters, pageInd)
-
-	if err != nil {
-		buf.WriteString("[")
-		errStr := errString{Err: err.Error()}
-		jb, _ := ffjson.Marshal(errStr)
-		buf.WriteString(string(jb))
-		buf.WriteString("]")
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(buf.String()))
-		return
-	}
-
-	buf.WriteString("[")
-	jb, _ := ffjson.Marshal(filteredRes)
-	buf.WriteString(string(jb))
-	buf.WriteString("]")
-	w.Write([]byte(buf.String()))
-	return
-
-}
-
 func (web *Web) entry(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Add("content-type", "application/json")
@@ -290,64 +184,6 @@ func (web *Web) entry(w http.ResponseWriter, r *http.Request) {
 		buf.WriteString(string(jb))
 		buf.WriteString("]")
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(buf.String()))
-		return
-	}
-
-	buf.WriteString("[")
-	//jb, _ := json.Marshal(r1)
-	jb, _ := ffjson.Marshal(r1)
-	buf.WriteString(string(jb))
-	buf.WriteString("]")
-	w.Write([]byte(buf.String()))
-	return
-
-}
-
-func (web *Web) searchPage(w http.ResponseWriter, r *http.Request) {
-
-	w.Header().Add("content-type", "application/json")
-	w.Header().Add("Access-Control-Allow-Origin", "*")
-	var buf strings.Builder
-
-	err := web.checkRequest(r)
-
-	if err != nil {
-		buf.WriteString("[")
-		errStr := errString{Err: err.Error()}
-		jb, _ := ffjson.Marshal(errStr)
-		buf.WriteString(string(jb))
-		buf.WriteString("]")
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(buf.String()))
-		return
-	}
-
-	id := r.URL.Query()["i"][0]
-
-	src, ok := config.DataconfIDStringToInt[r.URL.Query()["s"][0]]
-	if !ok {
-		err := fmt.Errorf("invalid s param")
-		errStr := errString{Err: err.Error()}
-		jb, _ := ffjson.Marshal(errStr)
-		buf.WriteString(string(jb))
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(buf.String()))
-		return
-	}
-
-	page, _ := strconv.Atoi(r.URL.Query()["p"][0])
-	t, _ := strconv.Atoi(r.URL.Query()["t"][0])
-
-	r1, err := web.service.page(id, int(src), page, t)
-
-	if err != nil {
-		buf.WriteString("[")
-		errStr := errString{Err: err.Error()}
-		jb, _ := ffjson.Marshal(errStr)
-		buf.WriteString(string(jb))
-		buf.WriteString("]")
-		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(buf.String()))
 		return
 	}

@@ -161,6 +161,7 @@ message Xref {
     ScxaExpressionAttr scxa_expression=76;
     ScxaGeneExperimentAttr scxa_gene_experiment=77;
     BiogridInteractionAttr biogrid_interaction=78;
+    HPOAttr hpo_attr=79;
 
   }
 

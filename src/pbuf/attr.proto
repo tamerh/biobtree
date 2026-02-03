@@ -8,6 +8,31 @@ message OntologyAttr {
   repeated string synonyms=3;
 }
 
+// HPOAttr provides rich attributes for Human Phenotype Ontology terms
+// Extends OntologyAttr with queryable disease-phenotype annotations from phenotype.hpoa
+// Enables queries like: [hpo.diseases.exists(d, d.evidence=="PCS" && d.frequency > 0.5)]
+message HPOAttr {
+  string name = 1;
+  repeated string synonyms = 2;
+  string definition = 3;
+
+  // Disease associations from phenotype.hpoa (~280K annotations)
+  repeated DiseaseAssoc diseases = 4;
+
+  // Nested message for disease-phenotype associations
+  message DiseaseAssoc {
+    string id = 1;             // Disease identifier (e.g., "619340" for OMIM, "Orphanet:558")
+    string dataset = 2;        // Target dataset name: "mim", "orphanet", "mondo"
+    string name = 3;           // Disease name for display (e.g., "Marfan syndrome")
+    string evidence = 4;       // Evidence code: "PCS", "TAS", "IEA"
+    double frequency = 5;      // Frequency as decimal (0.375 for "3/8"), -1.0 if unavailable
+    string frequency_raw = 6;  // Raw frequency string (e.g., "3/8", "HP:0040283")
+    string onset = 7;          // Age of onset HP term (e.g., "HP:0003581")
+    string sex = 8;            // Sex specificity: "MALE", "FEMALE", or empty
+    string reference = 9;      // Citation (e.g., "PMID:31675180")
+  }
+}
+
 message HgncAttr {
   repeated string names =1;
   repeated string symbols = 2;

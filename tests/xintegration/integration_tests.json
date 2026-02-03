@@ -1,9 +1,10 @@
 {
   "metadata": {
-    "version": "5.7",
+    "version": "5.8",
     "description": "Expanded integration tests including newly added datasets and filter tests (2025-2026)",
     "server": "http://localhost:9291",
-    "last_updated": "2026-02-01",
+    "last_updated": "2026-02-03",
+    "changes_5.8": "Added HPO disease mapping tests (HPO↔OMIM, HPO↔Orphanet from phenotype.hpoa integration)",
     "changes_5.7": "Fixed filter tests with .0 suffix for floats. Added AlphaFold, Bgee, PubChem Lipinski, GWAS pvalue_mlog, Clinical Trials filters",
     "changes_5.6": "Added comprehensive filter tests for PubChem, ChEMBL, ClinVar, AlphaMissense, PharmGKB, GenCC, GWAS, GO, UniProt, InterPro, Antibody datasets",
     "changes_5.5": "Added MeSH bridge CTD tests, Reactome to Ensembl, CellXGene reverse mappings, clinical trials high-count, MeSH breast cancer hierarchy"
@@ -2541,6 +2542,38 @@
     },
     {
       "category": "ontology_hierarchy",
+      "name": "HPO to OMIM Disease Mapping",
+      "query": ">>hpo>>mim",
+      "why": "Map phenotypes to OMIM diseases - from phenotype.hpoa annotations (~160K links)",
+      "should_pass": ["HP:0001250", "HP:0000969", "HP:0001631"],
+      "should_fail": []
+    },
+    {
+      "category": "ontology_hierarchy",
+      "name": "HPO to Orphanet Disease Mapping",
+      "query": ">>hpo>>orphanet",
+      "why": "Map phenotypes to Orphanet rare diseases - from phenotype.hpoa annotations (~116K links)",
+      "should_pass": ["HP:0001250", "HP:0000969"],
+      "should_fail": []
+    },
+    {
+      "category": "ontology_hierarchy",
+      "name": "OMIM to HPO Reverse Mapping",
+      "query": ">>mim>>hpo",
+      "why": "Reverse mapping: find phenotypes associated with an OMIM disease",
+      "should_pass": ["154700", "143100"],
+      "should_fail": []
+    },
+    {
+      "category": "ontology_hierarchy",
+      "name": "Orphanet to HPO Reverse Mapping",
+      "query": ">>orphanet>>hpo",
+      "why": "Reverse mapping: find phenotypes associated with an Orphanet disease",
+      "should_pass": ["558", "166"],
+      "should_fail": []
+    },
+    {
+      "category": "ontology_hierarchy",
       "name": "EFO to MONDO Mapping",
       "query": ">>efo>>mondo",
       "why": "Verify cross-ontology mapping from EFO traits to MONDO diseases",
@@ -3161,6 +3194,236 @@
       "should_fail": ["R-HSA-5693567"],
       "known_issue": true,
       "workaround": ">>reactome>>ensembl>>uniprot"
+    },
+
+    {"_comment": "=== MULTI-AGENT DISCOVERY TESTS v2 (2026-02-03) ==="},
+    {"_comment": "New use cases discovered by parallel agents exploring ncRNA, toxicogenomics, MSigDB, AlphaMissense, rare diseases, and complex pipelines"},
+
+    {
+      "category": "ncRNA_analysis",
+      "name": "miRNA Drug Target Discovery (ChEMBL)",
+      "query": ">>ensembl>>chembl_target_component>>chembl_target>>chembl_assay>>chembl_activity>>chembl_molecule",
+      "why": "Find compounds tested against oncogenic miRNAs - 150+ for miR-21, 36 for miR-122 (HCV target)",
+      "should_pass": ["MIR21", "MIR122", "MIR155"],
+      "should_fail": []
+    },
+    {
+      "category": "ncRNA_analysis",
+      "name": "miRNA Tissue Expression via Bgee",
+      "query": ">>ensembl>>bgee>>uberon",
+      "why": "Find tissues where miRNAs are expressed - 12 tissues for miR-21",
+      "should_pass": ["MIR21"],
+      "should_fail": []
+    },
+    {
+      "category": "ncRNA_analysis",
+      "name": "lncRNA Pharmacogenomic Status",
+      "query": ">>hgnc>>pharmgkb_gene",
+      "why": "Check if lncRNAs are VIP pharmacogenes - MALAT1 is recognized",
+      "should_pass": ["MALAT1"],
+      "should_fail": []
+    },
+    {
+      "category": "ncRNA_analysis",
+      "name": "miRNA Cross-Species Conservation",
+      "query": ">>ensembl>>ortholog",
+      "why": "Find miRNA orthologs across species - 78 for 3 miRNAs",
+      "should_pass": ["MIR21", "MIR155", "MIR122"],
+      "should_fail": []
+    },
+    {
+      "category": "ncRNA_analysis",
+      "name": "lncRNA ClinVar Variants",
+      "query": ">>ensembl>>clinvar",
+      "why": "Find clinical variants in lncRNA genes - 38 for HOTAIR",
+      "should_pass": ["HOTAIR", "MALAT1"],
+      "should_fail": []
+    },
+
+    {
+      "category": "toxicogenomics",
+      "name": "CTD Chemical to Gene Targets",
+      "query": ">>ctd>>entrez",
+      "why": "Find genes affected by chemical exposure - 24 for Acetaminophen",
+      "should_pass": ["D000082"],
+      "should_fail": []
+    },
+    {
+      "category": "toxicogenomics",
+      "name": "CTD Chemical to Pathways (4 hops)",
+      "query": ">>ctd>>entrez>>ensembl>>reactome",
+      "why": "Map toxic chemicals to affected pathways - 124 pathways for Acetaminophen",
+      "should_pass": ["D000082"],
+      "should_fail": []
+    },
+    {
+      "category": "toxicogenomics",
+      "name": "Disease to Toxic Chemicals via MeSH",
+      "query": ">>mesh>>ctd",
+      "why": "Find chemicals associated with diseases - 150+ for breast neoplasms",
+      "should_pass": ["D001943"],
+      "should_fail": []
+    },
+    {
+      "category": "toxicogenomics",
+      "name": "BindingDB to PubChem Cross-Reference",
+      "query": ">>bindingdb>>pubchem",
+      "why": "Map BindingDB entries to PubChem compounds",
+      "should_pass": ["50000308"],
+      "should_fail": []
+    },
+
+    {
+      "category": "gene_sets",
+      "name": "Gene to All MSigDB Gene Sets",
+      "query": ">>hgnc>>msigdb",
+      "why": "Find all gene sets containing a gene - 150+ for TP53",
+      "should_pass": ["TP53", "BRCA1", "MYC"],
+      "should_fail": []
+    },
+    {
+      "category": "gene_sets",
+      "name": "Gene to Hallmark Gene Sets",
+      "query": ">>hgnc>>msigdb[msigdb.collection==\"H\"]",
+      "why": "Filter to Hallmark collection only - 4 for TP53, 5 for CASP3",
+      "should_pass": ["TP53", "CASP3"],
+      "should_fail": []
+    },
+    {
+      "category": "gene_sets",
+      "name": "Gene to Curated Gene Sets (C2)",
+      "query": ">>hgnc>>msigdb[msigdb.collection==\"C2\"]",
+      "why": "Filter to curated pathways (KEGG, Reactome, BioCarta) - 98 for BRCA1",
+      "should_pass": ["BRCA1", "TP53"],
+      "should_fail": []
+    },
+    {
+      "category": "gene_sets",
+      "name": "Gene Set to Member Genes",
+      "query": ">>msigdb>>hgnc",
+      "why": "Extract genes from a gene set - 161 genes from HALLMARK_APOPTOSIS",
+      "should_pass": ["M5902", "HALLMARK_APOPTOSIS"],
+      "should_fail": []
+    },
+
+    {
+      "category": "complex_pipelines",
+      "name": "Tissue to Drug Targets (6 hops)",
+      "query": ">>uberon>>bgee>>ensembl>>uniprot>>chembl_target_component>>chembl_target",
+      "why": "Discover drug targets from tissue-specific expression - 316 targets for brain",
+      "should_pass": ["brain", "UBERON:0000955"],
+      "should_fail": []
+    },
+    {
+      "category": "complex_pipelines",
+      "name": "Pathway to Drugs (8 hops)",
+      "query": ">>reactome>>ensembl>>uniprot>>chembl_target_component>>chembl_target>>chembl_assay>>chembl_activity>>chembl_molecule",
+      "why": "Find drugs targeting pathway components - 150+ for hemostasis",
+      "should_pass": ["R-HSA-109582"],
+      "should_fail": []
+    },
+    {
+      "category": "complex_pipelines",
+      "name": "Protein Interactome to AlphaFold (5 hops)",
+      "query": ">>ensembl>>uniprot>>intact>>uniprot>>alphafold",
+      "why": "Get AlphaFold structures for interaction partners - 171 for BRCA1",
+      "should_pass": ["BRCA1"],
+      "should_fail": []
+    },
+    {
+      "category": "complex_pipelines",
+      "name": "GO Process to Approved Drugs (8 hops)",
+      "query": ">>go>>ensembl>>uniprot>>chembl_target_component>>chembl_target>>chembl_assay>>chembl_activity>>chembl_molecule[chembl.molecule.highestDevelopmentPhase>2]",
+      "why": "Find approved drugs targeting proteins in biological process",
+      "should_pass": ["apoptosis", "GO:0006915"],
+      "should_fail": []
+    },
+    {
+      "category": "complex_pipelines",
+      "name": "Phenotype to Genes via ClinVar",
+      "query": ">>hpo>>clinvar>>ensembl",
+      "why": "Map clinical phenotypes to genes with pathogenic variants - 150+ for seizures",
+      "should_pass": ["HP:0001250"],
+      "should_fail": []
+    },
+    {
+      "category": "complex_pipelines",
+      "name": "Disease Genes to Model Organisms (4 hops)",
+      "query": ">>mondo>>gencc>>ensembl>>ortholog",
+      "why": "Find orthologs for disease genes - 49 for Huntington's",
+      "should_pass": ["MONDO:0007739"],
+      "should_fail": []
+    },
+
+    {"_comment": "=== KNOWN ISSUES FROM MULTI-AGENT DISCOVERY (2026-02-03) ==="},
+
+    {
+      "category": "known_issues",
+      "name": "RNACentral to IntAct Mapping (BUG-011)",
+      "query": ">>rnacentral>>intact",
+      "why": "ncRNA-protein interactions via RNACentral fail. Use Ensembl gene symbols instead.",
+      "should_pass": [],
+      "should_fail": ["URS000075D2D5"],
+      "known_issue": true,
+      "workaround": "Use Ensembl gene symbols (MIR21) instead of RNACentral IDs"
+    },
+    {
+      "category": "known_issues",
+      "name": "RNACentral to Ensembl Mapping (BUG-012)",
+      "query": ">>rnacentral>>ensembl",
+      "why": "RNACentral IDs don't map to Ensembl. Use gene symbols directly.",
+      "should_pass": [],
+      "should_fail": ["URS000075D2D5"],
+      "known_issue": true,
+      "workaround": "Search gene symbols directly in Ensembl"
+    },
+    {
+      "category": "known_issues",
+      "name": "UniProt to BindingDB Reverse (BUG-013)",
+      "query": ">>uniprot>>bindingdb",
+      "why": "Protein to binding compounds fails. Edge exists in schema but returns no results.",
+      "should_pass": [],
+      "should_fail": ["P00533"],
+      "known_issue": true,
+      "workaround": "Search BindingDB directly by compound ID"
+    },
+    {
+      "category": "known_issues",
+      "name": "GO to MSigDB Direct (BUG-014)",
+      "query": ">>go>>msigdb",
+      "why": "GO term to MSigDB C5 gene sets fails. Edge exists but not functional.",
+      "should_pass": [],
+      "should_fail": ["GO:0006915"],
+      "known_issue": true
+    },
+    {
+      "category": "known_issues",
+      "name": "HPO to MSigDB Direct (BUG-015)",
+      "query": ">>hpo>>msigdb",
+      "why": "HPO phenotype to gene sets fails. Edge exists but not functional.",
+      "should_pass": [],
+      "should_fail": ["HP:0001250"],
+      "known_issue": true
+    },
+    {
+      "category": "known_issues",
+      "name": "GenCC to HGNC Direct (BUG-016)",
+      "query": ">>gencc>>hgnc",
+      "why": "GenCC entries don't map to HGNC. GenCC only connects to Ensembl.",
+      "should_pass": [],
+      "should_fail": ["GENCC_000101-HGNC_1058-MONDO_0007254-HP_0000006-GENCC_100005"],
+      "known_issue": true,
+      "workaround": "Use >>gencc>>ensembl instead"
+    },
+    {
+      "category": "known_issues",
+      "name": "MSigDB Multi-Hop Chain Breaks (BUG-017)",
+      "query": ">>msigdb>>hgnc>>ensembl>>uniprot",
+      "why": "Gene set to protein chain breaks after msigdb>>hgnc step.",
+      "should_pass": [],
+      "should_fail": ["M5902"],
+      "known_issue": true,
+      "workaround": "Query genes individually after extracting from gene set"
     }
   ]
 }

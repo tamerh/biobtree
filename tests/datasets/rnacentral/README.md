@@ -27,9 +27,14 @@ RNACentral is a comprehensive database of non-coding RNA sequences that aggregat
 - `is_active`: Boolean indicating if entry is active (non-obsolete)
 - `md5`: MD5 checksum of sequence (for future validation)
 
-**Cross-References**:
+**Cross-References** (via id_mapping.tsv.gz):
 - Self-reference for keyword lookup
-- Future: Links to Ensembl, RefSeq, miRBase, SILVA, etc. (via id_mapping.tsv)
+- Ensembl (gene + transcript IDs)
+- RefSeq
+- ENA (accession IDs, version stripped)
+- PDB (structure IDs, chain stripped)
+- HGNC
+- Model organism databases: MGI, RGD, FlyBase, SGD, TAIR
 
 ### Special Features
 
@@ -93,9 +98,9 @@ Use: Filter for well-supported ncRNA annotations
 
 ## Test Cases
 
-**Current Tests** (15 total):
+**Current Tests** (20 total):
 - 9 declarative tests (JSON-based)
-- 6 custom tests (Python logic)
+- 11 custom tests (Python logic)
 
 **Coverage**:
 - ✅ Basic ID lookup and data retrieval
@@ -106,9 +111,12 @@ Use: Filter for well-supported ncRNA annotations
 - ✅ Active status verification
 - ✅ All required fields present check
 - ✅ RNA type diversity across test set
+- ✅ Cross-reference validation (id_mapping.tsv integrated)
+- ✅ Ensembl cross-reference tests
+- ✅ ENA cross-reference tests
+- ✅ Reverse xref lookup tests
 
 **Recommended Additions**:
-- Cross-reference validation (when id_mapping.tsv integrated)
 - MD5 checksum validation
 - Specific RNA type tests (miRNA, lncRNA, tRNA)
 - Multi-organism consensus sequence tests
@@ -133,9 +141,24 @@ Use: Filter for well-supported ncRNA annotations
 - Future: Optional sequence storage for local queries
 
 **Cross-References**:
-- ID mapping file (id_mapping.tsv.gz) not yet integrated
-- Cross-references to external databases not populated
-- Self-reference only (keyword lookup works)
+- ID mapping file (id_mapping.tsv.gz) now integrated
+- Some databases excluded due to incompatible ID formats (see below)
+
+**Excluded ID Mappings** (incompatible formats):
+
+| Database | RNACentral Format | Biobtree Format | Reason |
+|----------|-------------------|-----------------|--------|
+| IntAct | `INTACT:URS...` | `EBI-xxxxx` | Wrong ID type (uses URS IDs instead of interaction IDs) |
+| WormBase | `WBGene00000005` | `4R79.1A` | Incompatible ID types (gene IDs vs cosmid IDs) |
+| PomBase | `SPNCRNA.817.1` | `SPAC1002.01` | Incompatible ID types (RNA IDs vs gene IDs) |
+
+**ID Format Normalization** (handled automatically):
+
+| Database | RNACentral Format | Normalized To |
+|----------|-------------------|---------------|
+| ENA | `GU786683.1:1..200:rRNA` | `GU786683` (strip coordinates + version) |
+| PDB | `157D_A` | `157D` (strip chain suffix) |
+| TAIR | `AT1G01270.1` | `AT1G01270` (strip version) |
 
 **RNA Type Coverage**:
 - Detection based on description parsing
@@ -154,7 +177,6 @@ Use: Filter for well-supported ncRNA annotations
 
 ## Future Work
 
-- Integrate id_mapping.tsv for cross-references to Ensembl, RefSeq, miRBase, etc.
 - Add optional sequence storage (configurable)
 - Implement per-species filtering (via taxonomy IDs)
 - Add RNA secondary structure data (from secondary_structures files)

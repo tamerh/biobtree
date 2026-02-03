@@ -139,6 +139,8 @@ func (s *service) init() {
 		cel.Types(&pbuf.TaxoAttr{}),
 		cel.Types(&pbuf.HgncAttr{}),
 		cel.Types(&pbuf.OntologyAttr{}),
+		cel.Types(&pbuf.HPOAttr{}),
+		cel.Types(&pbuf.HPOAttr_DiseaseAssoc{}),
 		cel.Types(&pbuf.InterproAttr{}),
 		cel.Types(&pbuf.EnaAttr{}),
 		cel.Types(&pbuf.HmdbAttr{}),
@@ -213,7 +215,7 @@ func (s *service) init() {
 		cel.Declarations(
 			decls.NewIdent("oba", decls.NewObjectType("pbuf.OntologyAttr"), nil)),
 		cel.Declarations(
-			decls.NewIdent("hpo", decls.NewObjectType("pbuf.OntologyAttr"), nil)),
+			decls.NewIdent("hpo", decls.NewObjectType("pbuf.HPOAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("cl", decls.NewObjectType("pbuf.OntologyAttr"), nil)),
 		cel.Declarations(

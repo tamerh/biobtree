@@ -1725,11 +1725,16 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)
 				xref.Attributes = &pbuf.Xref_Hgnc{attr}
-			case "go", "eco", "efo", "mondo", "hpo", "uberon", "cl", "oba", "pato", "obi", "xco", "bao":
+			case "go", "eco", "efo", "mondo", "uberon", "cl", "oba", "pato", "obi", "xco", "bao":
 				attr := &pbuf.OntologyAttr{}
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)
 				xref.Attributes = &pbuf.Xref_Ontology{attr}
+			case "hpo":
+				attr := &pbuf.HPOAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_HpoAttr{attr}
 			case "patent":
 				attr := &pbuf.PatentAttr{}
 				barr := []byte((*kvProp[k])[0].value)
@@ -2121,11 +2126,16 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 			// Set attributes based on dataset type
 			if valPropIdx[k] > 0 {
 				switch config.DataconfIDIntToString[xref.Dataset] {
-				case "go", "eco", "efo", "mondo", "hpo", "cl", "oba", "pato", "obi", "xco", "bao":
+				case "go", "eco", "efo", "mondo", "cl", "oba", "pato", "obi", "xco", "bao":
 					attr := &pbuf.OntologyAttr{}
 					barr := []byte((*kvProp[k])[0].value)
 					ffjson.Unmarshal(barr, attr)
 					xref.Attributes = &pbuf.Xref_Ontology{attr}
+				case "hpo":
+					attr := &pbuf.HPOAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_HpoAttr{attr}
 				case "chebi":
 					attr := &pbuf.ChebiAttr{}
 					barr := []byte((*kvProp[k])[0].value)

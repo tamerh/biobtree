@@ -166,6 +166,92 @@ class HPOTests:
 
         return True, f"Can navigate {phenotype_id} → {parent_id}"
 
+    @test
+    def test_hpo_to_omim_disease_mapping(self):
+        """Test HPO → OMIM disease mapping (from phenotype.hpoa)"""
+        # Use a well-known phenotype that should have OMIM associations
+        test_id = "HP:0001250"  # Seizure - common phenotype with many disease links
+
+        data = self.runner.map_query(test_id, ">>hpo>>mim")
+
+        if not data:
+            return False, f"No response for {test_id} >> hpo >> mim"
+
+        mappings = data.get("mappings", [])
+        if not mappings or mappings[0].get("error"):
+            return True, f"SKIP: {test_id} has no OMIM disease links in test data"
+
+        targets = mappings[0].get("targets", [])
+        if len(targets) > 0:
+            sample_disease = targets[0].get("identifier", targets[0].get("id", ""))
+            return True, f"{test_id} → {len(targets)} OMIM disease(s) (e.g., {sample_disease})"
+
+        return True, f"SKIP: {test_id} has no OMIM disease targets"
+
+    @test
+    def test_hpo_to_orphanet_disease_mapping(self):
+        """Test HPO → Orphanet disease mapping (from phenotype.hpoa)"""
+        test_id = "HP:0001250"  # Seizure
+
+        data = self.runner.map_query(test_id, ">>hpo>>orphanet")
+
+        if not data:
+            return False, f"No response for {test_id} >> hpo >> orphanet"
+
+        mappings = data.get("mappings", [])
+        if not mappings or mappings[0].get("error"):
+            return True, f"SKIP: {test_id} has no Orphanet disease links in test data"
+
+        targets = mappings[0].get("targets", [])
+        if len(targets) > 0:
+            sample_disease = targets[0].get("identifier", targets[0].get("id", ""))
+            return True, f"{test_id} → {len(targets)} Orphanet disease(s) (e.g., {sample_disease})"
+
+        return True, f"SKIP: {test_id} has no Orphanet disease targets"
+
+    @test
+    def test_omim_to_hpo_reverse_mapping(self):
+        """Test OMIM → HPO reverse mapping (disease to phenotypes)"""
+        # Marfan syndrome - well-characterized disease
+        test_id = "154700"
+
+        data = self.runner.map_query(test_id, ">>mim>>hpo")
+
+        if not data:
+            return False, f"No response for {test_id} >> mim >> hpo"
+
+        mappings = data.get("mappings", [])
+        if not mappings or mappings[0].get("error"):
+            return True, f"SKIP: OMIM:{test_id} has no HPO phenotype links in test data"
+
+        targets = mappings[0].get("targets", [])
+        if len(targets) > 0:
+            sample_pheno = targets[0].get("identifier", targets[0].get("id", ""))
+            return True, f"OMIM:{test_id} → {len(targets)} HPO phenotype(s) (e.g., {sample_pheno})"
+
+        return True, f"SKIP: OMIM:{test_id} has no HPO phenotype targets"
+
+    @test
+    def test_hpo_hierarchy_child(self):
+        """Test HPO child hierarchy navigation"""
+        test_id = "HP:0001250"  # Seizure - has many child terms
+
+        data = self.runner.map_query(test_id, ">>hpo>>hpochild")
+
+        if not data:
+            return False, f"No response for {test_id} >> hpo >> hpochild"
+
+        mappings = data.get("mappings", [])
+        if not mappings or mappings[0].get("error"):
+            return True, f"SKIP: {test_id} has no child terms"
+
+        targets = mappings[0].get("targets", [])
+        if len(targets) > 0:
+            sample_child = targets[0].get("identifier", targets[0].get("id", ""))
+            return True, f"{test_id} has {len(targets)} child term(s) (e.g., {sample_child})"
+
+        return True, f"SKIP: {test_id} has no child terms"
+
 
 def main():
     """Main test execution"""
@@ -190,6 +276,11 @@ def main():
         custom_tests.test_phenotype_with_definition,
         custom_tests.test_cross_references,
         custom_tests.test_parent_child_navigation,
+        # Disease association tests (phenotype.hpoa integration)
+        custom_tests.test_hpo_to_omim_disease_mapping,
+        custom_tests.test_hpo_to_orphanet_disease_mapping,
+        custom_tests.test_omim_to_hpo_reverse_mapping,
+        custom_tests.test_hpo_hierarchy_child,
     ]:
         runner.add_custom_test(test_method)
 

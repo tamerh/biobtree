@@ -66,7 +66,7 @@ func (h *hpo) update() {
 	scanner.Buffer(make([]byte, 0, 1024*1024), 1024*1024) // 1MB buffer for long lines
 
 	var currentID string
-	var attr pbuf.OntologyAttr
+	var attr pbuf.HPOAttr
 	var parents []string
 	inTerm := false
 	isObsolete := false
@@ -108,7 +108,7 @@ func (h *hpo) update() {
 			isObsolete = false
 			currentID = ""
 			parents = []string{}
-			attr = pbuf.OntologyAttr{
+			attr = pbuf.HPOAttr{
 				Synonyms: []string{},
 			}
 			continue
@@ -163,12 +163,21 @@ phase2:
 	if genePath != "" {
 		h.parseGeneToPhenotype(genePath)
 	}
+
+	// Phase 3: Parse phenotype.hpoa for disease-phenotype associations
+	// This provides comprehensive HPO ↔ OMIM/Orphanet/MONDO mappings (~280K annotations)
+	annotationsPath := config.Dataconf[h.source]["phenotype_annotations_path"]
+	if annotationsPath != "" {
+		h.parsePhenotypeAnnotations(annotationsPath)
+	}
+
 	h.d.progChan <- &progressInfo{dataset: h.source, done: true}
 	atomic.AddUint64(&h.d.totalParsedEntry, total)
 }
 
-func (h *hpo) saveEntry(id string, datasetID string, attr *pbuf.OntologyAttr) {
-	attr.Type = "phenotype"
+func (h *hpo) saveEntry(id string, datasetID string, attr *pbuf.HPOAttr) {
+	// Note: HPOAttr.Diseases will be populated via xrefs from phenotype.hpoa
+	// The diseases field can be used for embedded queryable attributes in future
 	b, _ := ffjson.Marshal(attr)
 	h.d.addProp3(id, datasetID, b)
 
@@ -309,5 +318,149 @@ func (h *hpo) parseGeneToPhenotype(path string) {
 
 	if err := scanner.Err(); err != nil {
 		panic(err)
+	}
+}
+
+// parsePhenotypeAnnotations parses phenotype.hpoa file for disease-phenotype associations
+// This is the official HPO annotation file containing ~280K disease-phenotype associations
+// Format: 12 tab-separated columns (see https://obophenotype.github.io/human-phenotype-ontology/annotations/phenotype_hpoa/)
+//
+// Columns:
+// 0: database_id    - OMIM:619340, ORPHA:558, or MONDO:0007947
+// 1: disease_name   - Disease label
+// 2: qualifier      - "NOT" or empty (skip NOT annotations)
+// 3: hpo_id         - HP:0011097
+// 4: reference      - PMID:12345 or OMIM:123456
+// 5: evidence       - PCS (published clinical study), TAS (traceable author statement), IEA (inferred)
+// 6: onset          - Age of onset HP term (optional)
+// 7: frequency      - "1/2", "HP:0040283" (optional)
+// 8: sex            - MALE, FEMALE (optional)
+// 9: modifier       - Clinical modifiers (optional)
+// 10: aspect        - P (phenotype), I (inheritance), C (clinical course), M (modifier), H (history)
+// 11: biocuration   - Curator and date
+func (h *hpo) parsePhenotypeAnnotations(path string) {
+	var br *bufio.Reader
+
+	// Get dataset ID for HPO
+	hpoDatasetID := config.Dataconf[h.source]["id"]
+
+	if config.Dataconf[h.source]["useLocalFile"] == "yes" {
+		file, err := os.Open(filepath.FromSlash(path))
+		h.check(err, "opening phenotype annotations file")
+		br = bufio.NewReaderSize(file, fileBufSize)
+		defer file.Close()
+	} else {
+		resp, err := http.Get(path)
+		h.check(err, "downloading phenotype annotations file")
+		br = bufio.NewReaderSize(resp.Body, fileBufSize)
+		defer resp.Body.Close()
+	}
+
+	scanner := bufio.NewScanner(br)
+	scanner.Buffer(make([]byte, 0, 1024*1024), 1024*1024)
+
+	var annotationCount int64
+	var omimCount, orphaCount, mondoCount int64
+
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		// Skip comment lines (start with #) and header line
+		if len(line) == 0 || line[0] == '#' {
+			continue
+		}
+		// Skip header line
+		if strings.HasPrefix(line, "database_id") {
+			continue
+		}
+
+		// Parse tab-delimited line
+		fields := strings.Split(line, "\t")
+		if len(fields) < 11 {
+			continue
+		}
+
+		databaseID := fields[0]   // OMIM:619340, ORPHA:558, MONDO:xxx
+		qualifier := fields[2]    // "NOT" or empty
+		hpoID := fields[3]        // HP:0011097
+		evidence := fields[5]     // PCS, TAS, IEA
+		frequency := fields[7]    // "1/2" or "HP:0040283" (optional)
+		aspect := fields[10]      // P, I, C, M, H
+
+		// Skip negative associations (NOT qualifier)
+		if qualifier == "NOT" {
+			continue
+		}
+
+		// Only process phenotype associations (aspect P)
+		// Skip: I (inheritance), C (clinical course), M (modifier), H (history)
+		if aspect != "P" {
+			continue
+		}
+
+		// Validate HPO ID
+		if !strings.HasPrefix(hpoID, "HP:") {
+			continue
+		}
+
+		// Build evidence string with frequency if available
+		// Format: "PCS;freq=3/8" or just "PCS"
+		evidenceStr := evidence
+		if frequency != "" && !strings.HasPrefix(frequency, "HP:") {
+			// Only include numeric frequencies (e.g., "3/8"), not HP terms
+			evidenceStr = evidence + ";freq=" + frequency
+		}
+
+		// Determine target dataset and ID from database_id prefix
+		var targetDataset string
+		var targetID string
+
+		switch {
+		case strings.HasPrefix(databaseID, "OMIM:"):
+			targetDataset = "mim"
+			// MIM uses numeric IDs without prefix
+			targetID = strings.TrimPrefix(databaseID, "OMIM:")
+			omimCount++
+		case strings.HasPrefix(databaseID, "ORPHA:"):
+			targetDataset = "orphanet"
+			// Orphanet uses numeric IDs only (e.g., "558" not "ORPHA:558")
+			targetID = strings.TrimPrefix(databaseID, "ORPHA:")
+			orphaCount++
+		case strings.HasPrefix(databaseID, "MONDO:"):
+			targetDataset = "mondo"
+			targetID = databaseID
+			mondoCount++
+		case strings.HasPrefix(databaseID, "DECIPHER:"):
+			// DECIPHER is not currently in biobtree, skip
+			continue
+		default:
+			// Unknown database, skip
+			continue
+		}
+
+		// Verify target dataset exists in config
+		if _, ok := config.Dataconf[targetDataset]; !ok {
+			continue
+		}
+
+		// Create bidirectional cross-reference with evidence
+		// HPO term → Disease
+		// Disease → HPO term (automatic reverse via addXrefWithEvidence)
+		h.d.addXrefWithEvidence(hpoID, hpoDatasetID, targetID, targetDataset, false, evidenceStr)
+
+		annotationCount++
+	}
+
+	if err := scanner.Err(); err != nil {
+		panic(err)
+	}
+
+	// Log annotation statistics
+	if annotationCount > 0 {
+		_ = omimCount   // Used for potential debug logging
+		_ = orphaCount  // Used for potential debug logging
+		_ = mondoCount  // Used for potential debug logging
+		// log.Printf("[HPO] Parsed %d disease-phenotype annotations (OMIM: %d, Orphanet: %d, MONDO: %d)",
+		//     annotationCount, omimCount, orphaCount, mondoCount)
 	}
 }

@@ -50,6 +50,18 @@ func (r *rnacentralProcessor) update() {
 
 	fmt.Printf("RNACentral processing complete: %d sequences processed\n", totalProcessed)
 
+	// Process ID mapping file for cross-references
+	idMappingPath := config.Dataconf[r.source]["pathIdMapping"]
+	if idMappingPath != "" {
+		fmt.Printf("Processing RNACentral ID mappings for cross-references...\n")
+		xrefCount, err := r.processIdMappingFile(idMappingPath, testLimit)
+		if err != nil {
+			log.Printf("Warning: Error processing ID mapping file: %v", err)
+		} else {
+			fmt.Printf("RNACentral ID mapping complete: %d cross-references added\n", xrefCount)
+		}
+	}
+
 	atomic.AddUint64(&r.d.totalParsedEntry, totalProcessed)
 	r.d.progChan <- &progressInfo{dataset: r.source, done: true}
 }
@@ -292,4 +304,150 @@ func closeRnacentralReaders(gz *gzip.Reader, ftpFile interface{}, client interfa
 	if localFile != nil {
 		localFile.Close()
 	}
+}
+
+// Map RNACentral database names to biobtree dataset names
+// Includes all datasets that exist in biobtree configuration (source*.json, xref*.json)
+var rnaCentralDbMapping = map[string]string{
+	// Ensembl variants
+	"ENSEMBL":          "ensembl",
+	"ENSEMBL_GENCODE":  "ensembl",
+	"ENSEMBL_FUNGI":    "ensembl",
+	"ENSEMBL_METAZOA":  "ensembl",
+	"ENSEMBL_PLANTS":   "ensembl",
+	"ENSEMBL_PROTISTS": "ensembl",
+	// Core databases
+	"REFSEQ": "refseq",
+	// NOTE: INTACT excluded - RNACentral id_mapping has wrong ID format (INTACT:URS... instead of EBI-xxxxx)
+	// IntAct's own parser creates correct RNACentral xrefs with 19,357 real interaction IDs
+	"HGNC": "hgnc",
+	"PDB":  "pdb",
+	"ENA":  "ena",
+	// Model organism databases
+	"MGI":     "mgi",
+	"RGD":     "rgd",
+	"FLYBASE": "flybase",
+	// NOTE: WORMBASE excluded - RNACentral uses gene IDs (WBGene...) but biobtree uses cosmid IDs (4R79.1A)
+	"SGD": "sgd",
+	// NOTE: POMBASE excluded - RNACentral uses RNA IDs (SPNCRNA...) but biobtree uses gene IDs (SPAC1002.01)
+	"TAIR": "tair",
+}
+
+// Process id_mapping.tsv.gz file for cross-references
+// Format: URS_ID\tDatabase\tExternal_ID\tTaxon\tRNA_Type\tGene_ID
+func (r *rnacentralProcessor) processIdMappingFile(filePath string, testLimit int) (uint64, error) {
+	// Open ID mapping file
+	br, gz, ftpFile, client, localFile, _, err := getDataReaderNew(r.source, "", "", filePath)
+	if err != nil {
+		return 0, fmt.Errorf("failed to open RNACentral ID mapping file: %v", err)
+	}
+	defer closeRnacentralReaders(gz, ftpFile, client, localFile)
+
+	// Create reader for line by line reading
+	var reader *bufio.Reader
+	if gz != nil {
+		reader = bufio.NewReaderSize(gz, 1024*1024) // 1MB buffer
+	} else {
+		reader = bufio.NewReaderSize(br, 1024*1024) // 1MB buffer
+	}
+
+	var xrefCount uint64
+	var totalBytesRead int64
+	var previous int64
+	var uniqueUrsIDs int
+	lastUrsID := ""
+
+	for {
+		line, err := reader.ReadString('\n')
+		if err != nil && err != io.EOF {
+			return xrefCount, fmt.Errorf("error reading ID mapping: %v", err)
+		}
+		if len(line) == 0 && err == io.EOF {
+			break
+		}
+
+		totalBytesRead += int64(len(line))
+		line = strings.TrimSuffix(line, "\n")
+		line = strings.TrimSuffix(line, "\r")
+
+		if len(line) == 0 {
+			continue
+		}
+
+		// Parse TSV: URS_ID, Database, External_ID, Taxon, RNA_Type, Gene_ID
+		fields := strings.Split(line, "\t")
+		if len(fields) < 3 {
+			continue
+		}
+
+		ursID := fields[0]
+		dbName := fields[1]
+		externalID := fields[2]
+
+		// Track unique URS IDs for test mode limit
+		if ursID != lastUrsID {
+			uniqueUrsIDs++
+			lastUrsID = ursID
+			if config.IsTestMode() && shouldStopProcessing(testLimit, uniqueUrsIDs) {
+				break
+			}
+		}
+
+		// Map database name to biobtree dataset
+		biobtreeDataset, ok := rnaCentralDbMapping[dbName]
+		if !ok {
+			continue // Skip unmapped databases
+		}
+
+		// Normalize external ID based on database format
+		normalizedID := externalID
+		if dbName == "ENA" {
+			// ENA format in RNACentral: "GU786683.1:1..200:rRNA" -> extract just "GU786683"
+			// Step 1: Strip coordinates (everything after first colon)
+			if colonIdx := strings.Index(externalID, ":"); colonIdx > 0 {
+				normalizedID = externalID[:colonIdx]
+			}
+			// Step 2: Strip version (everything after dot) - biobtree ENA uses unversioned IDs
+			if dotIdx := strings.LastIndex(normalizedID, "."); dotIdx > 0 {
+				normalizedID = normalizedID[:dotIdx]
+			}
+		} else if dbName == "PDB" {
+			// PDB format in RNACentral: "157D_A" (with chain) -> extract just "157D"
+			if underscoreIdx := strings.Index(externalID, "_"); underscoreIdx > 0 {
+				normalizedID = externalID[:underscoreIdx]
+			}
+		} else if dbName == "TAIR" {
+			// TAIR format in RNACentral: "AT1G01270.1" (with version) -> extract just "AT1G01270"
+			if dotIdx := strings.LastIndex(externalID, "."); dotIdx > 0 {
+				normalizedID = externalID[:dotIdx]
+			}
+		}
+
+		// Add cross-reference: RNACentral -> external database
+		r.d.addXref(ursID, r.sourceID, normalizedID, biobtreeDataset, false)
+		xrefCount++
+
+		// For ENSEMBL, also add the gene ID if present (column 6)
+		if strings.HasPrefix(dbName, "ENSEMBL") && len(fields) >= 6 && fields[5] != "" {
+			geneID := strings.Split(fields[5], ".")[0] // Remove version
+			if geneID != "" && geneID != externalID {
+				r.d.addXref(ursID, r.sourceID, geneID, "ensembl", false)
+				xrefCount++
+			}
+		}
+
+		// Progress reporting
+		elapsed := int64(time.Since(r.d.start).Seconds())
+		if elapsed > previous+r.d.progInterval {
+			kbytesPerSecond := totalBytesRead / elapsed / 1024
+			previous = elapsed
+			r.d.progChan <- &progressInfo{dataset: r.source + "_idmap", currentKBPerSec: kbytesPerSecond}
+		}
+
+		if err == io.EOF {
+			break
+		}
+	}
+
+	return xrefCount, nil
 }

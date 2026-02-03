@@ -261,14 +261,33 @@ func (b *bindingdb) parseAndSaveEntries(testLimit int, idLogFile *os.File) {
 
 // buildEntry creates a BindingDB entry from row
 func (b *bindingdb) buildEntry(row []string, colMap map[string]int, bindingdbID string) *pbuf.BindingdbAttr {
-	// Extract UniProt IDs (can be multiple, pipe-separated)
-	uniprotField := getField(row, colMap, "UniProt (SwissProt) Primary ID of Target Chain")
+	// Extract UniProt IDs from all target chains (up to 50 chains supported)
+	// BindingDB TSV has numbered columns: "UniProt (SwissProt) Primary ID of Target Chain 1", etc.
 	var uniprotIDs []string
-	if uniprotField != "" {
-		for _, id := range strings.Split(uniprotField, "|") {
-			id = strings.TrimSpace(id)
-			if id != "" {
-				uniprotIDs = append(uniprotIDs, id)
+	seenIDs := make(map[string]bool)
+
+	// Collect UniProt IDs from all chain columns (SwissProt and TrEMBL)
+	for i := 1; i <= 50; i++ {
+		// SwissProt IDs
+		swissprotCol := fmt.Sprintf("UniProt (SwissProt) Primary ID of Target Chain %d", i)
+		if field := getField(row, colMap, swissprotCol); field != "" {
+			for _, id := range strings.Split(field, "|") {
+				id = strings.TrimSpace(id)
+				if id != "" && !seenIDs[id] {
+					uniprotIDs = append(uniprotIDs, id)
+					seenIDs[id] = true
+				}
+			}
+		}
+		// TrEMBL IDs (for proteins not in SwissProt)
+		tremblCol := fmt.Sprintf("UniProt (TrEMBL) Primary ID of Target Chain %d", i)
+		if field := getField(row, colMap, tremblCol); field != "" {
+			for _, id := range strings.Split(field, "|") {
+				id = strings.TrimSpace(id)
+				if id != "" && !seenIDs[id] {
+					uniprotIDs = append(uniprotIDs, id)
+					seenIDs[id] = true
+				}
 			}
 		}
 	}

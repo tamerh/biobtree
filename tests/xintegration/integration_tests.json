@@ -1,9 +1,10 @@
 {
   "metadata": {
-    "version": "5.8",
+    "version": "5.9",
     "description": "Expanded integration tests including newly added datasets and filter tests (2025-2026)",
     "server": "http://localhost:9291",
     "last_updated": "2026-02-03",
+    "changes_5.9": "Fixed BUG-013: UniProt↔BindingDB mapping now works. Parser extracts UniProt IDs from numbered chain columns (Chain 1-50).",
     "changes_5.8": "Added HPO disease mapping tests (HPO↔OMIM, HPO↔Orphanet from phenotype.hpoa integration)",
     "changes_5.7": "Fixed filter tests with .0 suffix for floats. Added AlphaFold, Bgee, PubChem Lipinski, GWAS pvalue_mlog, Clinical Trials filters",
     "changes_5.6": "Added comprehensive filter tests for PubChem, ChEMBL, ClinVar, AlphaMissense, PharmGKB, GenCC, GWAS, GO, UniProt, InterPro, Antibody datasets",
@@ -3378,14 +3379,20 @@
       "workaround": "Search gene symbols directly in Ensembl"
     },
     {
-      "category": "known_issues",
-      "name": "UniProt to BindingDB Reverse (BUG-013)",
+      "category": "drug_discovery",
+      "name": "UniProt to BindingDB (BUG-013 FIXED)",
       "query": ">>uniprot>>bindingdb",
-      "why": "Protein to binding compounds fails. Edge exists in schema but returns no results.",
-      "should_pass": [],
-      "should_fail": ["P00533"],
-      "known_issue": true,
-      "workaround": "Search BindingDB directly by compound ID"
+      "why": "Protein to binding compounds - find compounds with measured binding affinity to a protein target. Fixed 2026-02-03: parser now extracts UniProt IDs from numbered chain columns.",
+      "should_pass": ["P00533", "P04637", "P38398"],
+      "should_fail": ["NOTREAL"]
+    },
+    {
+      "category": "drug_discovery",
+      "name": "BindingDB to UniProt",
+      "query": ">>bindingdb>>uniprot",
+      "why": "BindingDB entry to protein target - identify the protein target for a binding measurement",
+      "should_pass": ["50000308"],
+      "should_fail": []
     },
     {
       "category": "known_issues",

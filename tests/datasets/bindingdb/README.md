@@ -17,8 +17,17 @@ BindingDB is a public database of measured binding affinities between proteins a
 ### Special Features
 - **Bidirectional linking**: BindingDB entries link to UniProt targets and PubChem/ChEMBL compounds
 - **Affinity data preservation**: Values stored with units as strings to preserve original format (e.g., ">10000 nM")
-- **Multi-target support**: Single compound can have multiple target proteins
+- **Multi-target support**: Single compound can have multiple target proteins (up to 50 chains)
 - **Chemical structure indexing**: InChI Key searchable for structure-based queries
+
+### UniProt ID Extraction (Fixed 2026-02-03)
+BindingDB TSV has numbered chain columns for multi-chain protein complexes:
+- `UniProt (SwissProt) Primary ID of Target Chain 1` through `Chain 50`
+- `UniProt (TrEMBL) Primary ID of Target Chain 1` through `Chain 50`
+
+The parser extracts UniProt IDs from all chain columns for both SwissProt and TrEMBL entries.
+
+**Note**: TrEMBL (unreviewed) UniProt IDs are extracted but may not resolve in biobtree since only reviewed SwissProt entries are currently indexed. These IDs are still stored in BindingDB attributes for reference.
 
 ## Use Cases
 
@@ -78,10 +87,15 @@ Use: Focus on human disease-relevant interactions
 - Organism information
 
 **Recommended Additions**:
-- Cross-reference validation to UniProt
-- Cross-reference validation to PubChem/ChEMBL
 - CEL filter tests for affinity ranges
 - InChI Key search test
+- Multi-chain complex tests (verify all chains extracted)
+
+**Cross-Reference Tests** (now working after 2026-02-03 fix):
+- ✅ UniProt → BindingDB (`P00533 >>uniprot>>bindingdb`)
+- ✅ BindingDB → UniProt (`>>bindingdb>>uniprot`)
+- ✅ BindingDB → PubChem (`>>bindingdb>>pubchem`)
+- ✅ PubChem → BindingDB (`>>pubchem>>bindingdb`)
 
 ## Performance
 
@@ -97,6 +111,7 @@ Use: Focus on human disease-relevant interactions
 - **SMILES length**: Some SMILES strings are very long, requiring large buffer
 - **Sparse affinity data**: Not all entries have all affinity types
 - **Multi-value fields**: UniProt, PubChem IDs can be pipe-separated lists
+- **TrEMBL not indexed**: BindingDB extracts TrEMBL (unreviewed UniProt) IDs, but biobtree currently only indexes reviewed SwissProt entries. TrEMBL targets won't resolve in `>>uniprot>>bindingdb` queries but are stored in BindingDB attributes.
 
 ## Future Work
 

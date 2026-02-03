@@ -973,6 +973,12 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			d.datasets2 = append(d.datasets2, data)
 			go sxe.update()
 			break
+		case "orphanet":
+			d.wg.Add(1)
+			orph := orphanet{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go orph.update()
+			break
 		default:
 			log.Fatal("ERROR Unrecognized dataset ->" + data)
 		}

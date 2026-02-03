@@ -58951,9 +58951,75 @@ func (j *OrphanetAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 	_ = obj
 	_ = err
 	buf.WriteString(`{ `)
-	if len(j.Disease) != 0 {
-		buf.WriteString(`"disease":`)
-		fflib.WriteJsonString(buf, string(j.Disease))
+	if len(j.Name) != 0 {
+		buf.WriteString(`"name":`)
+		fflib.WriteJsonString(buf, string(j.Name))
+		buf.WriteByte(',')
+	}
+	if len(j.Synonyms) != 0 {
+		buf.WriteString(`"synonyms":`)
+		if j.Synonyms != nil {
+			buf.WriteString(`[`)
+			for i, v := range j.Synonyms {
+				if i != 0 {
+					buf.WriteString(`,`)
+				}
+				fflib.WriteJsonString(buf, string(v))
+			}
+			buf.WriteString(`]`)
+		} else {
+			buf.WriteString(`null`)
+		}
+		buf.WriteByte(',')
+	}
+	if len(j.Definition) != 0 {
+		buf.WriteString(`"definition":`)
+		fflib.WriteJsonString(buf, string(j.Definition))
+		buf.WriteByte(',')
+	}
+	if len(j.DisorderType) != 0 {
+		buf.WriteString(`"disorder_type":`)
+		fflib.WriteJsonString(buf, string(j.DisorderType))
+		buf.WriteByte(',')
+	}
+	if len(j.Phenotypes) != 0 {
+		buf.WriteString(`"phenotypes":`)
+		if j.Phenotypes != nil {
+			buf.WriteString(`[`)
+			for i, v := range j.Phenotypes {
+				if i != 0 {
+					buf.WriteString(`,`)
+				}
+
+				{
+
+					if v == nil {
+						buf.WriteString("null")
+					} else {
+
+						err = v.MarshalJSONBuf(buf)
+						if err != nil {
+							return err
+						}
+
+					}
+
+				}
+			}
+			buf.WriteString(`]`)
+		} else {
+			buf.WriteString(`null`)
+		}
+		buf.WriteByte(',')
+	}
+	if j.GeneCount != 0 {
+		buf.WriteString(`"gene_count":`)
+		fflib.FormatBits2(buf, uint64(j.GeneCount), 10, j.GeneCount < 0)
+		buf.WriteByte(',')
+	}
+	if j.PhenotypeCount != 0 {
+		buf.WriteString(`"phenotype_count":`)
+		fflib.FormatBits2(buf, uint64(j.PhenotypeCount), 10, j.PhenotypeCount < 0)
 		buf.WriteByte(',')
 	}
 	buf.Rewind(1)
@@ -58965,10 +59031,34 @@ const (
 	ffjtOrphanetAttrbase = iota
 	ffjtOrphanetAttrnosuchkey
 
-	ffjtOrphanetAttrDisease
+	ffjtOrphanetAttrName
+
+	ffjtOrphanetAttrSynonyms
+
+	ffjtOrphanetAttrDefinition
+
+	ffjtOrphanetAttrDisorderType
+
+	ffjtOrphanetAttrPhenotypes
+
+	ffjtOrphanetAttrGeneCount
+
+	ffjtOrphanetAttrPhenotypeCount
 )
 
-var ffjKeyOrphanetAttrDisease = []byte("disease")
+var ffjKeyOrphanetAttrName = []byte("name")
+
+var ffjKeyOrphanetAttrSynonyms = []byte("synonyms")
+
+var ffjKeyOrphanetAttrDefinition = []byte("definition")
+
+var ffjKeyOrphanetAttrDisorderType = []byte("disorder_type")
+
+var ffjKeyOrphanetAttrPhenotypes = []byte("phenotypes")
+
+var ffjKeyOrphanetAttrGeneCount = []byte("gene_count")
+
+var ffjKeyOrphanetAttrPhenotypeCount = []byte("phenotype_count")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *OrphanetAttr) UnmarshalJSON(input []byte) error {
@@ -59033,16 +59123,94 @@ mainparse:
 
 				case 'd':
 
-					if bytes.Equal(ffjKeyOrphanetAttrDisease, kn) {
-						currentKey = ffjtOrphanetAttrDisease
+					if bytes.Equal(ffjKeyOrphanetAttrDefinition, kn) {
+						currentKey = ffjtOrphanetAttrDefinition
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyOrphanetAttrDisorderType, kn) {
+						currentKey = ffjtOrphanetAttrDisorderType
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'g':
+
+					if bytes.Equal(ffjKeyOrphanetAttrGeneCount, kn) {
+						currentKey = ffjtOrphanetAttrGeneCount
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'n':
+
+					if bytes.Equal(ffjKeyOrphanetAttrName, kn) {
+						currentKey = ffjtOrphanetAttrName
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'p':
+
+					if bytes.Equal(ffjKeyOrphanetAttrPhenotypes, kn) {
+						currentKey = ffjtOrphanetAttrPhenotypes
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyOrphanetAttrPhenotypeCount, kn) {
+						currentKey = ffjtOrphanetAttrPhenotypeCount
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 's':
+
+					if bytes.Equal(ffjKeyOrphanetAttrSynonyms, kn) {
+						currentKey = ffjtOrphanetAttrSynonyms
 						state = fflib.FFParse_want_colon
 						goto mainparse
 					}
 
 				}
 
-				if fflib.EqualFoldRight(ffjKeyOrphanetAttrDisease, kn) {
-					currentKey = ffjtOrphanetAttrDisease
+				if fflib.AsciiEqualFold(ffjKeyOrphanetAttrPhenotypeCount, kn) {
+					currentKey = ffjtOrphanetAttrPhenotypeCount
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyOrphanetAttrGeneCount, kn) {
+					currentKey = ffjtOrphanetAttrGeneCount
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyOrphanetAttrPhenotypes, kn) {
+					currentKey = ffjtOrphanetAttrPhenotypes
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyOrphanetAttrDisorderType, kn) {
+					currentKey = ffjtOrphanetAttrDisorderType
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyOrphanetAttrDefinition, kn) {
+					currentKey = ffjtOrphanetAttrDefinition
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyOrphanetAttrSynonyms, kn) {
+					currentKey = ffjtOrphanetAttrSynonyms
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyOrphanetAttrName, kn) {
+					currentKey = ffjtOrphanetAttrName
 					state = fflib.FFParse_want_colon
 					goto mainparse
 				}
@@ -59064,8 +59232,26 @@ mainparse:
 			if tok == fflib.FFTok_left_brace || tok == fflib.FFTok_left_bracket || tok == fflib.FFTok_integer || tok == fflib.FFTok_double || tok == fflib.FFTok_string || tok == fflib.FFTok_bool || tok == fflib.FFTok_null {
 				switch currentKey {
 
-				case ffjtOrphanetAttrDisease:
-					goto handle_Disease
+				case ffjtOrphanetAttrName:
+					goto handle_Name
+
+				case ffjtOrphanetAttrSynonyms:
+					goto handle_Synonyms
+
+				case ffjtOrphanetAttrDefinition:
+					goto handle_Definition
+
+				case ffjtOrphanetAttrDisorderType:
+					goto handle_DisorderType
+
+				case ffjtOrphanetAttrPhenotypes:
+					goto handle_Phenotypes
+
+				case ffjtOrphanetAttrGeneCount:
+					goto handle_GeneCount
+
+				case ffjtOrphanetAttrPhenotypeCount:
+					goto handle_PhenotypeCount
 
 				case ffjtOrphanetAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -59081,9 +59267,9 @@ mainparse:
 		}
 	}
 
-handle_Disease:
+handle_Name:
 
-	/* handler: j.Disease type=string kind=string quoted=false*/
+	/* handler: j.Name type=string kind=string quoted=false*/
 
 	{
 
@@ -59099,7 +59285,620 @@ handle_Disease:
 
 			outBuf := fs.Output.Bytes()
 
-			j.Disease = string(string(outBuf))
+			j.Name = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Synonyms:
+
+	/* handler: j.Synonyms type=[]string kind=slice quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_left_brace && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for ", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+			j.Synonyms = nil
+		} else {
+
+			j.Synonyms = []string{}
+
+			wantVal := true
+
+			for {
+
+				var tmpJSynonyms string
+
+				tok = fs.Scan()
+				if tok == fflib.FFTok_error {
+					goto tokerror
+				}
+				if tok == fflib.FFTok_right_brace {
+					break
+				}
+
+				if tok == fflib.FFTok_comma {
+					if wantVal == true {
+						// TODO(pquerna): this isn't an ideal error message, this handles
+						// things like [,,,] as an array value.
+						return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
+					}
+					continue
+				} else {
+					wantVal = true
+				}
+
+				/* handler: tmpJSynonyms type=string kind=string quoted=false*/
+
+				{
+
+					{
+						if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+							return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+						}
+					}
+
+					if tok == fflib.FFTok_null {
+
+					} else {
+
+						outBuf := fs.Output.Bytes()
+
+						tmpJSynonyms = string(string(outBuf))
+
+					}
+				}
+
+				j.Synonyms = append(j.Synonyms, tmpJSynonyms)
+
+				wantVal = false
+			}
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Definition:
+
+	/* handler: j.Definition type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Definition = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_DisorderType:
+
+	/* handler: j.DisorderType type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.DisorderType = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Phenotypes:
+
+	/* handler: j.Phenotypes type=[]*pbuf.OrphanetAttr_PhenotypeAssociation kind=slice quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_left_brace && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for ", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+			j.Phenotypes = nil
+		} else {
+
+			j.Phenotypes = []*OrphanetAttr_PhenotypeAssociation{}
+
+			wantVal := true
+
+			for {
+
+				var tmpJPhenotypes *OrphanetAttr_PhenotypeAssociation
+
+				tok = fs.Scan()
+				if tok == fflib.FFTok_error {
+					goto tokerror
+				}
+				if tok == fflib.FFTok_right_brace {
+					break
+				}
+
+				if tok == fflib.FFTok_comma {
+					if wantVal == true {
+						// TODO(pquerna): this isn't an ideal error message, this handles
+						// things like [,,,] as an array value.
+						return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
+					}
+					continue
+				} else {
+					wantVal = true
+				}
+
+				/* handler: tmpJPhenotypes type=*pbuf.OrphanetAttr_PhenotypeAssociation kind=ptr quoted=false*/
+
+				{
+					if tok == fflib.FFTok_null {
+
+						tmpJPhenotypes = nil
+
+					} else {
+
+						if tmpJPhenotypes == nil {
+							tmpJPhenotypes = new(OrphanetAttr_PhenotypeAssociation)
+						}
+
+						err = tmpJPhenotypes.UnmarshalJSONFFLexer(fs, fflib.FFParse_want_key)
+						if err != nil {
+							return err
+						}
+					}
+					state = fflib.FFParse_after_value
+				}
+
+				j.Phenotypes = append(j.Phenotypes, tmpJPhenotypes)
+
+				wantVal = false
+			}
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_GeneCount:
+
+	/* handler: j.GeneCount type=int32 kind=int32 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for int32", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseInt(fs.Output.Bytes(), 10, 32)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.GeneCount = int32(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_PhenotypeCount:
+
+	/* handler: j.PhenotypeCount type=int32 kind=int32 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for int32", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseInt(fs.Output.Bytes(), 10, 32)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.PhenotypeCount = int32(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+wantedvalue:
+	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
+wrongtokenerror:
+	return fs.WrapErr(fmt.Errorf("ffjson: wanted token: %v, but got token: %v output=%s", wantedTok, tok, fs.Output.String()))
+tokerror:
+	if fs.BigError != nil {
+		return fs.WrapErr(fs.BigError)
+	}
+	err = fs.Error.ToError()
+	if err != nil {
+		return fs.WrapErr(err)
+	}
+	panic("ffjson-generated: unreachable, please report bug.")
+done:
+
+	return nil
+}
+
+// MarshalJSON marshal bytes to json - template
+func (j *OrphanetAttr_PhenotypeAssociation) MarshalJSON() ([]byte, error) {
+	var buf fflib.Buffer
+	if j == nil {
+		buf.WriteString("null")
+		return buf.Bytes(), nil
+	}
+	err := j.MarshalJSONBuf(&buf)
+	if err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
+}
+
+// MarshalJSONBuf marshal buff to json - template
+func (j *OrphanetAttr_PhenotypeAssociation) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
+	if j == nil {
+		buf.WriteString("null")
+		return nil
+	}
+	var err error
+	var obj []byte
+	_ = obj
+	_ = err
+	buf.WriteString(`{ `)
+	if len(j.HpoId) != 0 {
+		buf.WriteString(`"hpo_id":`)
+		fflib.WriteJsonString(buf, string(j.HpoId))
+		buf.WriteByte(',')
+	}
+	if len(j.HpoTerm) != 0 {
+		buf.WriteString(`"hpo_term":`)
+		fflib.WriteJsonString(buf, string(j.HpoTerm))
+		buf.WriteByte(',')
+	}
+	if len(j.Frequency) != 0 {
+		buf.WriteString(`"frequency":`)
+		fflib.WriteJsonString(buf, string(j.Frequency))
+		buf.WriteByte(',')
+	}
+	if j.FrequencyValue != 0 {
+		buf.WriteString(`"frequency_value":`)
+		fflib.AppendFloat(buf, float64(j.FrequencyValue), 'g', -1, 64)
+		buf.WriteByte(',')
+	}
+	buf.Rewind(1)
+	buf.WriteByte('}')
+	return nil
+}
+
+const (
+	ffjtOrphanetAttr_PhenotypeAssociationbase = iota
+	ffjtOrphanetAttr_PhenotypeAssociationnosuchkey
+
+	ffjtOrphanetAttr_PhenotypeAssociationHpoId
+
+	ffjtOrphanetAttr_PhenotypeAssociationHpoTerm
+
+	ffjtOrphanetAttr_PhenotypeAssociationFrequency
+
+	ffjtOrphanetAttr_PhenotypeAssociationFrequencyValue
+)
+
+var ffjKeyOrphanetAttr_PhenotypeAssociationHpoId = []byte("hpo_id")
+
+var ffjKeyOrphanetAttr_PhenotypeAssociationHpoTerm = []byte("hpo_term")
+
+var ffjKeyOrphanetAttr_PhenotypeAssociationFrequency = []byte("frequency")
+
+var ffjKeyOrphanetAttr_PhenotypeAssociationFrequencyValue = []byte("frequency_value")
+
+// UnmarshalJSON umarshall json - template of ffjson
+func (j *OrphanetAttr_PhenotypeAssociation) UnmarshalJSON(input []byte) error {
+	fs := fflib.NewFFLexer(input)
+	return j.UnmarshalJSONFFLexer(fs, fflib.FFParse_map_start)
+}
+
+// UnmarshalJSONFFLexer fast json unmarshall - template ffjson
+func (j *OrphanetAttr_PhenotypeAssociation) UnmarshalJSONFFLexer(fs *fflib.FFLexer, state fflib.FFParseState) error {
+	var err error
+	currentKey := ffjtOrphanetAttr_PhenotypeAssociationbase
+	_ = currentKey
+	tok := fflib.FFTok_init
+	wantedTok := fflib.FFTok_init
+
+mainparse:
+	for {
+		tok = fs.Scan()
+		//	println(fmt.Sprintf("debug: tok: %v  state: %v", tok, state))
+		if tok == fflib.FFTok_error {
+			goto tokerror
+		}
+
+		switch state {
+
+		case fflib.FFParse_map_start:
+			if tok != fflib.FFTok_left_bracket {
+				wantedTok = fflib.FFTok_left_bracket
+				goto wrongtokenerror
+			}
+			state = fflib.FFParse_want_key
+			continue
+
+		case fflib.FFParse_after_value:
+			if tok == fflib.FFTok_comma {
+				state = fflib.FFParse_want_key
+			} else if tok == fflib.FFTok_right_bracket {
+				goto done
+			} else {
+				wantedTok = fflib.FFTok_comma
+				goto wrongtokenerror
+			}
+
+		case fflib.FFParse_want_key:
+			// json {} ended. goto exit. woo.
+			if tok == fflib.FFTok_right_bracket {
+				goto done
+			}
+			if tok != fflib.FFTok_string {
+				wantedTok = fflib.FFTok_string
+				goto wrongtokenerror
+			}
+
+			kn := fs.Output.Bytes()
+			if len(kn) <= 0 {
+				// "" case. hrm.
+				currentKey = ffjtOrphanetAttr_PhenotypeAssociationnosuchkey
+				state = fflib.FFParse_want_colon
+				goto mainparse
+			} else {
+				switch kn[0] {
+
+				case 'f':
+
+					if bytes.Equal(ffjKeyOrphanetAttr_PhenotypeAssociationFrequency, kn) {
+						currentKey = ffjtOrphanetAttr_PhenotypeAssociationFrequency
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyOrphanetAttr_PhenotypeAssociationFrequencyValue, kn) {
+						currentKey = ffjtOrphanetAttr_PhenotypeAssociationFrequencyValue
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'h':
+
+					if bytes.Equal(ffjKeyOrphanetAttr_PhenotypeAssociationHpoId, kn) {
+						currentKey = ffjtOrphanetAttr_PhenotypeAssociationHpoId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyOrphanetAttr_PhenotypeAssociationHpoTerm, kn) {
+						currentKey = ffjtOrphanetAttr_PhenotypeAssociationHpoTerm
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyOrphanetAttr_PhenotypeAssociationFrequencyValue, kn) {
+					currentKey = ffjtOrphanetAttr_PhenotypeAssociationFrequencyValue
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyOrphanetAttr_PhenotypeAssociationFrequency, kn) {
+					currentKey = ffjtOrphanetAttr_PhenotypeAssociationFrequency
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyOrphanetAttr_PhenotypeAssociationHpoTerm, kn) {
+					currentKey = ffjtOrphanetAttr_PhenotypeAssociationHpoTerm
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyOrphanetAttr_PhenotypeAssociationHpoId, kn) {
+					currentKey = ffjtOrphanetAttr_PhenotypeAssociationHpoId
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				currentKey = ffjtOrphanetAttr_PhenotypeAssociationnosuchkey
+				state = fflib.FFParse_want_colon
+				goto mainparse
+			}
+
+		case fflib.FFParse_want_colon:
+			if tok != fflib.FFTok_colon {
+				wantedTok = fflib.FFTok_colon
+				goto wrongtokenerror
+			}
+			state = fflib.FFParse_want_value
+			continue
+		case fflib.FFParse_want_value:
+
+			if tok == fflib.FFTok_left_brace || tok == fflib.FFTok_left_bracket || tok == fflib.FFTok_integer || tok == fflib.FFTok_double || tok == fflib.FFTok_string || tok == fflib.FFTok_bool || tok == fflib.FFTok_null {
+				switch currentKey {
+
+				case ffjtOrphanetAttr_PhenotypeAssociationHpoId:
+					goto handle_HpoId
+
+				case ffjtOrphanetAttr_PhenotypeAssociationHpoTerm:
+					goto handle_HpoTerm
+
+				case ffjtOrphanetAttr_PhenotypeAssociationFrequency:
+					goto handle_Frequency
+
+				case ffjtOrphanetAttr_PhenotypeAssociationFrequencyValue:
+					goto handle_FrequencyValue
+
+				case ffjtOrphanetAttr_PhenotypeAssociationnosuchkey:
+					err = fs.SkipField(tok)
+					if err != nil {
+						return fs.WrapErr(err)
+					}
+					state = fflib.FFParse_after_value
+					goto mainparse
+				}
+			} else {
+				goto wantedvalue
+			}
+		}
+	}
+
+handle_HpoId:
+
+	/* handler: j.HpoId type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.HpoId = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_HpoTerm:
+
+	/* handler: j.HpoTerm type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.HpoTerm = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Frequency:
+
+	/* handler: j.Frequency type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Frequency = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_FrequencyValue:
+
+	/* handler: j.FrequencyValue type=float64 kind=float64 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_double && tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for float64", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseFloat(fs.Output.Bytes(), 64)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.FrequencyValue = float64(tval)
 
 		}
 	}

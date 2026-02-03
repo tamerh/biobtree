@@ -108,7 +108,7 @@ func (u *uniprot) processDbReference(entryid string, r *xmlparser.XMLElement) {
 				switch z.Attrs["type"] {
 				case "disease":
 					attr := pbuf.OrphanetAttr{}
-					attr.Disease = strings.ToLower(z.Attrs["value"])
+					attr.Name = z.Attrs["value"]
 					b, _ := ffjson.Marshal(attr)
 					u.d.addProp3(v.Attrs["id"], config.Dataconf[v.Attrs["type"]]["id"], b)
 				}

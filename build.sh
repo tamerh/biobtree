@@ -145,6 +145,7 @@ DATASETS=(
     obi
     xco
     bao
+    orphanet
 
     # Vocabularies
     mesh

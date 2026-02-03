@@ -3,37 +3,37 @@
     "aliases": "CATH",
     "name": "CATH",
     "id": "200",
-    "url": "http://www.cathdb.info/version/latest/superfamily/\u00a3{id}"
+    "url": "http://www.cathdb.info/version/latest/superfamily/£{id}"
   },
   "cathgene3d": {
     "aliases": "CATHGENE3D,Gene3D",
     "name": "CATH",
     "id": "201",
-    "url": "http://www.cathdb.info/version/latest/superfamily/\u00a3{id}"
+    "url": "http://www.cathdb.info/version/latest/superfamily/£{id}"
   },
   "ccds": {
     "aliases": "CCDS",
     "name": "CCDS",
     "id": "202",
-    "url": "https://www.ncbi.nlm.nih.gov/gene/?term=\u00a3{id}"
+    "url": "https://www.ncbi.nlm.nih.gov/gene/?term=£{id}"
   },
   "cdd": {
     "aliases": "CDD",
     "name": "CDD",
     "id": "203",
-    "url": "https://www.ncbi.nlm.nih.gov/Structure/cdd/cddsrv.cgi?uid=\u00a3{id}"
+    "url": "https://www.ncbi.nlm.nih.gov/Structure/cdd/cddsrv.cgi?uid=£{id}"
   },
   "doi": {
     "aliases": "DOI",
     "name": "DOI",
     "id": "204",
-    "url": "https://doi.org/\u00a3{id}"
+    "url": "https://doi.org/£{id}"
   },
   "drugbank": {
     "aliases": "DrugBank,DrugBank accession",
     "name": "DrugBank",
     "id": "205",
-    "url": "https://www.drugbank.ca/drugs/\u00a3{id}",
+    "url": "https://www.drugbank.ca/drugs/£{id}",
     "hasFilter": "yes",
     "attrs": "name"
   },
@@ -41,13 +41,13 @@
     "aliases": "EC,Intenz",
     "name": "Intenz",
     "id": "206",
-    "url": "https://www.ebi.ac.uk/intenz/query?cmd=SearchEC&ec=\u00a3{id}"
+    "url": "https://www.ebi.ac.uk/intenz/query?cmd=SearchEC&ec=£{id}"
   },
   "ena": {
     "aliases": "EMBL,EMBL_CON,TREMBLNEW,EMBLWGS,REMTREMBL,EMBL_TPA,EMBL_TSA,protein sequence ID,embl",
     "name": "ENA",
     "id": "207",
-    "url": "//www.ebi.ac.uk/ena/data/view/\u00a3{id}",
+    "url": "//www.ebi.ac.uk/ena/data/view/£{id}",
     "hasFilter": "yes",
     "attrs": "type"
   },
@@ -55,25 +55,25 @@
     "aliases": "ExpressionAtlas",
     "name": "E.Atlas",
     "id": "208",
-    "url": "https://www.ebi.ac.uk/gxa/genes/\u00a3{id}"
+    "url": "https://www.ebi.ac.uk/gxa/genes/£{id}"
   },
   "flybase": {
     "aliases": "FlyBase",
     "name": "FlyBase",
     "id": "209",
-    "url": "http://flybase.org/reports/\u00a3{id}.html"
+    "url": "http://flybase.org/reports/£{id}.html"
   },
   "hamap": {
     "aliases": "HAMAP",
     "name": "HAMAP",
     "id": "210",
-    "url": "https://hamap.expasy.org/signature/\u00a3{id}"
+    "url": "https://hamap.expasy.org/signature/£{id}"
   },
   "kegg": {
     "aliases": "KEGG,KEGG COMPOUND accession,KEGG GLYCAN accession,KEGG DRUG accession",
     "name": "KEGG",
     "id": "211",
-    "url": "https://www.genome.jp/dbget-bin/www_bfind_sub?mode=bfind&max_hit=1&dbkey=alldb&keywords=\u00a3{id}"
+    "url": "https://www.genome.jp/dbget-bin/www_bfind_sub?mode=bfind&max_hit=1&dbkey=alldb&keywords=£{id}"
   },
   "kegg map": {
     "aliases": "KEGG MAP",
@@ -85,102 +85,94 @@
     "aliases": "KO",
     "name": "KO",
     "id": "213",
-    "url": "https://www.genome.jp/dbget-bin/www_bget?ko:\u00a3{id}"
+    "url": "https://www.genome.jp/dbget-bin/www_bget?ko:£{id}"
   },
   "mim": {
     "aliases": "omim,MIM",
     "name": "MIM",
     "id": "214",
-    "url": "https://www.omim.org/entry/\u00a3{id}",
+    "url": "https://www.omim.org/entry/£{id}",
     "bucketMethod": "alphanum"
   },
   "metacyc": {
     "aliases": "MetaCyc,MetaCyc accession,METACYC",
     "name": "MetaCyc",
     "id": "215",
-    "url": "https://metacyc.org/compound?orgid=META&id=\u00a3{id}"
+    "url": "https://metacyc.org/compound?orgid=META&id=£{id}"
   },
   "genbank": {
     "aliases": "NCBI_GI",
     "name": "NCBI GeneBank",
     "id": "216",
-    "url": "https://www.ncbi.nlm.nih.gov/nuccore/\u00a3{id}"
+    "url": "https://www.ncbi.nlm.nih.gov/nuccore/£{id}"
   },
   "opentargets": {
     "aliases": "OpenTargets",
     "name": "OpenTargets",
     "id": "217",
-    "url": "https://www.targetvalidation.org/target/\u00a3{id}/associations"
-  },
-  "orphanet": {
-    "aliases": "Orphanet",
-    "name": "Orphanet",
-    "id": "218",
-    "url": "https://www.orpha.net/consor/cgi-bin/OC_Exp.php?Lng=GB&Expert=\u00a3{id}",
-    "hasFilter": "yes",
-    "attrs": "disease"
+    "url": "https://www.targetvalidation.org/target/£{id}/associations"
   },
   "panther": {
     "aliases": "PANTHER",
     "name": "Panther",
     "id": "219",
-    "url": "//www.pantherdb.org/panther/family.do?clsAccession=\u00a3{id}"
+    "url": "//www.pantherdb.org/panther/family.do?clsAccession=£{id}"
   },
   "patric": {
     "aliases": "PATRIC",
     "name": "PATRIC",
     "id": "220",
-    "url": "https://www.patricbrc.org/search/?keyword(%22\u00a3{id}%22)"
+    "url": "https://www.patricbrc.org/search/?keyword(%22£{id}%22)"
   },
   "pdb": {
     "aliases": "PDB",
     "name": "PDBe",
     "id": "221",
-    "url": "https://www.ebi.ac.uk/pdbe/entry/pdb/\u00a3{id}",
+    "url": "https://www.ebi.ac.uk/pdbe/entry/pdb/£{id}",
     "attrs": "method,chains,resolution"
   },
   "pdbechem": {
     "aliases": "PDBeChem,PDBeChem accession",
     "name": "PDBeChem",
     "id": "222",
-    "url": "https://www.ebi.ac.uk/pdbe/entry/pdb/\u00a3{id}"
+    "url": "https://www.ebi.ac.uk/pdbe/entry/pdb/£{id}"
   },
   "pfam": {
     "aliases": "Pfam,PFAM",
     "name": "PFAM",
     "id": "223",
-    "url": "http://pfam.xfam.org/family/\u00a3{id}"
+    "url": "http://pfam.xfam.org/family/£{id}"
   },
   "proteomes": {
     "aliases": "Proteomes,proteome_id",
     "name": "Proteomes",
     "id": "224",
-    "url": "https://www.uniprot.org/proteomes/\u00a3{id}"
+    "url": "https://www.uniprot.org/proteomes/£{id}"
   },
   "pubmed": {
     "aliases": "PubMed,PubMed citation,PUBMED,pmc,PMC,PubMed Central citation",
     "name": "PubMed",
     "id": "225",
-    "url": "https://europepmc.org/search?query=\u00a3{id}",
+    "url": "https://europepmc.org/search?query=£{id}",
     "bucketMethod": "numeric"
   },
   "supfam": {
     "aliases": "SUPFAM",
     "name": "SUPFAM",
     "id": "226",
-    "url": "http://supfam.org/SUPERFAMILY/cgi-bin/scop.cgi?ipid=\u00a3{id}"
+    "url": "http://supfam.org/SUPERFAMILY/cgi-bin/scop.cgi?ipid=£{id}"
   },
   "vgnc": {
     "aliases": "VGNC",
     "name": "VGNC",
     "id": "227",
-    "url": "https://vertebrate.genenames.org/data/gene-symbol-report/#!/vgnc_id/\u00a3{id}"
+    "url": "https://vertebrate.genenames.org/data/gene-symbol-report/#!/vgnc_id/£{id}"
   },
   "wbparasite": {
     "aliases": "WBParaSite",
     "name": "WBParaSite",
     "id": "228",
-    "url": "http://ensemblgenomes.org/id/\u00a3{id}"
+    "url": "http://ensemblgenomes.org/id/£{id}"
   },
   "affy_bovine": {
     "name": "affy_bovine",
@@ -1256,7 +1248,7 @@
     "aliases": "eprotein",
     "name": "CDS",
     "id": "443",
-    "url": "https://www.ensembl.org/Multi/Search/Results?q=\u00a3{id};site=ensembl_all",
+    "url": "https://www.ensembl.org/Multi/Search/Results?q=£{id};site=ensembl_all",
     "hasFilter": "yes",
     "attrs": "start,end,strand,seq_region,frame"
   },

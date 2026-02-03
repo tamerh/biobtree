@@ -148,6 +148,7 @@ func (s *service) init() {
 		cel.Types(&pbuf.PdbAttr{}),
 		cel.Types(&pbuf.DrugbankAttr{}),
 		cel.Types(&pbuf.OrphanetAttr{}),
+		cel.Types(&pbuf.OrphanetAttr_PhenotypeAssociation{}),
 		cel.Types(&pbuf.ReactomePathwayAttr{}),
 		cel.Types(&pbuf.BgeeAttr{}),
 		cel.Types(&pbuf.GwasAttr{}),

@@ -107,8 +107,21 @@ message  DrugbankAttr {
   string name =1;
 }
 
-message  OrphanetAttr {
-  string disease =1;
+message OrphanetAttr {
+  string name = 1;
+  repeated string synonyms = 2;
+  string definition = 3;
+  string disorder_type = 4;
+  repeated PhenotypeAssociation phenotypes = 5;
+  int32 gene_count = 6;
+  int32 phenotype_count = 7;
+
+  message PhenotypeAssociation {
+    string hpo_id = 1;
+    string hpo_term = 2;
+    string frequency = 3;
+    double frequency_value = 4;
+  }
 }
 
 message  ReactomePathwayAttr {

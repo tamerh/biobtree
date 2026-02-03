@@ -7,7 +7,7 @@ via identifiers and special keywors with simple or advance chain query capabilit
 
 ## Features
 
-* **Datasets** - supports wide datasets such as `Ensembl` `Uniprot` `ChEMBL` `HMDB` `BindingDB` `CTD` `STRING` `BioGRID` `MSigDB` `Taxonomy` `GO` `EFO` `HPO` `UBERON` `CL` `HGNC` `ECO` `Uniparc` `Uniref` `RNACentral` `Bgee` `GWAS Catalog` `dbSNP` `RefSeq` `IntAct` `GenCC` `AlphaMissense` `ClinVar` `PharmGKB` `CELLxGENE` `SCXA`  with tens of more via cross references
+* **Datasets** - supports wide datasets such as `Ensembl` `Uniprot` `ChEMBL` `HMDB` `BindingDB` `CTD` `STRING` `BioGRID` `MSigDB` `Taxonomy` `GO` `EFO` `HPO` `UBERON` `CL` `HGNC` `ECO` `Uniparc` `Uniref` `RNACentral` `Bgee` `GWAS Catalog` `dbSNP` `RefSeq` `IntAct` `GenCC` `AlphaMissense` `ClinVar` `PharmGKB` `CELLxGENE` `SCXA` `Orphanet`  with tens of more via cross references
 by retrieving latest data from providers
 
 * **MapReduce** - processes small or large datasets based on users selection and build B+ tree based uniform local database via specialized MapReduce based tecnique with efficient storage usage 
@@ -59,6 +59,8 @@ by retrieving latest data from providers
 * **Gene-Disease Validity** - `GenCC` (Gene Curation Coalition) database with 35,000+ standardized gene-disease validity curations from multiple authoritative sources including ClinGen, Ambry, Genomics England, and Orphanet. Provides classification levels (Definitive, Strong, Moderate, Limited, Supportive), mode of inheritance (autosomal dominant/recessive, X-linked), submitter information, and PubMed citations. Supports clinical variant interpretation, diagnostic panel design, and gene-disease relationship exploration with cross-references to MONDO, HPO, and PubMed
 
 * **Pharmacogenomics** - `PharmGKB` database with 6 integrated datasets for precision medicine: chemicals/drugs with FDA drug labels, pharmacogenes with VIP flags and CPIC guidelines, clinical variant annotations with evidence levels (1A-4), variant annotations with HGVS nomenclature, dosing guidelines from CPIC/DPWG/CPNDS/RNPGx, and pharmacokinetic/pharmacodynamic pathways. Provides gene-drug relationships, clinical evidence levels, dosing recommendations, and pathway diagrams. Cross-references to HGNC, PubChem, dbSNP, MeSH, and Ensembl. Supports pharmacogenomic dosing decisions, drug-gene interaction analysis, and clinical annotation lookup
+
+* **Rare Diseases** - `Orphanet` database with 11,500+ rare disease entries from Orphadata (CC BY 4.0). Provides disease names, synonyms, definitions, and disorder types. Includes HPO phenotype associations with frequency data (Obligate, Very frequent, Frequent, Occasional, Very rare) and gene associations with Ensembl/HGNC identifiers. Cross-references to OMIM, MONDO, MeSH, HPO, Ensembl, and HGNC. Supports rare disease diagnosis, phenotype-driven gene discovery, and disease-gene network analysis. Embedded phenotype data enables filtering by frequency (e.g., find phenotypes occurring in >80% of patients)
 
 * **Taxonomy & Ontologies** - `Taxonomy` `GO` `EFO` `ECO` `HPO` `MONDO` `UBERON` `CL` `OBA` `PATO` `OBI` `XCO` data with mapping to other datasets and child and parent query capability. CL (Cell Ontology) provides 2,700+ cell type classifications for tissue-specific and cell-specific analysis. OBA (Ontology of Biological Attributes) covers biological traits. PATO (Phenotype And Trait Ontology) describes phenotypic qualities. OBI (Ontology for Biomedical Investigations) covers study designs and assays. XCO (Experimental Conditions Ontology) describes experimental conditions
 
@@ -126,6 +128,9 @@ biobtree -d "alphamissense,alphamissense_transcript,uniprot" build
 
 # build with pharmacogenomics (works well with HGNC, dbSNP, MeSH)
 biobtree -d "pharmgkb,hgnc,dbsnp,mesh" build
+
+# build with rare diseases (works well with HPO, MONDO, Ensembl, HGNC)
+biobtree -d "orphanet,hpo,mondo,ensembl,hgnc" build
 
 # build with protein interactions (requires UniProt)
 biobtree -d "uniprot,intact" build

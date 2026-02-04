@@ -74,6 +74,12 @@ func (m *msigdb) update() {
 func (m *msigdb) processGeneSets(db *sql.DB, testLimit int, idLogFile *os.File) {
 	fr := config.Dataconf[m.source]["id"]
 
+	// In test mode, ensure we include at least one GO, HPO, and Hallmark entry
+	priorityIDs := []int{}
+	if testLimit > 0 {
+		priorityIDs = m.getPriorityTestGeneSetIDs(db)
+	}
+
 	// Query to get gene set details with publication info
 	query := `
 		SELECT
@@ -102,6 +108,7 @@ func (m *msigdb) processGeneSets(db *sql.DB, testLimit int, idLogFile *os.File) 
 
 	processedCount := uint64(0)
 	skippedCount := uint64(0)
+	processedIDs := make(map[int]bool)
 
 	for rows.Next() {
 		var gsID int
@@ -120,62 +127,15 @@ func (m *msigdb) processGeneSets(db *sql.DB, testLimit int, idLogFile *os.File) 
 			continue
 		}
 
-		// Skip entries without systematic_name (the primary ID)
-		if systematicName == "" {
+		if m.processGeneSet(db, fr, gsID, standardName, collectionName, licenseCode,
+			systematicName, description, exactSource, externalURL, sourceSpecies,
+			contributor, contributorOrg, pmid, doi, idLogFile) {
+			processedCount++
+			processedIDs[gsID] = true
+		} else {
 			skippedCount++
 			continue
 		}
-
-		// Get gene symbols for this gene set
-		geneSymbols := m.getGeneSymbols(db, gsID)
-
-		// Get Entrez Gene IDs for cross-referencing
-		entrezIDs := m.getEntrezIDs(db, gsID)
-
-		// Get external terms (GO, HPO)
-		goTerms, hpoTerms := m.getExternalTerms(db, gsID)
-
-		// Parse collection into main collection and sub-collection
-		collection, subCollection := parseCollection(collectionName)
-
-		// Build protobuf attribute
-		attr := &pbuf.MsigdbAttr{
-			SystematicName: systematicName,
-			StandardName:   standardName,
-			Collection:     collection,
-			SubCollection:  subCollection,
-			Description:    description,
-			ExactSource:    exactSource,
-			GeneSymbols:    geneSymbols,
-			GeneCount:      int32(len(geneSymbols)),
-			Pmid:           pmid,
-			Doi:            doi,
-			ExternalUrl:    externalURL,
-			GoTerms:        goTerms,
-			HpoTerms:       hpoTerms,
-			SourceSpecies:  sourceSpecies,
-			Contributor:    contributor,
-			ContributorOrg: contributorOrg,
-		}
-
-		// Marshal and save
-		attrBytes, err := ffjson.Marshal(attr)
-		if err != nil {
-			log.Printf("[%s] Warning: error marshaling attributes for %s: %v", m.source, systematicName, err)
-			skippedCount++
-			continue
-		}
-		m.d.addProp3(systematicName, fr, attrBytes)
-
-		// Create cross-references
-		m.createReferences(systematicName, standardName, collectionName, geneSymbols, entrezIDs, pmid, goTerms, hpoTerms)
-
-		// Log ID in test mode
-		if idLogFile != nil {
-			logProcessedID(idLogFile, systematicName)
-		}
-
-		processedCount++
 
 		// Progress logging every 5000 entries
 		if processedCount%5000 == 0 {
@@ -192,8 +152,235 @@ func (m *msigdb) processGeneSets(db *sql.DB, testLimit int, idLogFile *os.File) 
 	err = rows.Err()
 	m.check(err, "iterating gene set rows")
 
+	// In test mode, ensure priority IDs are included even if beyond the test limit
+	if testLimit > 0 && len(priorityIDs) > 0 {
+		added := m.processSpecificGeneSets(db, fr, priorityIDs, processedIDs, idLogFile)
+		if added > 0 {
+			log.Printf("[%s] [TEST MODE] Added %d priority gene sets (GO/HPO/H) beyond test limit", m.source, added)
+			processedCount += uint64(added)
+		}
+	}
+
 	log.Printf("[%s] Successfully processed %d gene sets (skipped %d)", m.source, processedCount, skippedCount)
 	atomic.AddUint64(&m.d.totalParsedEntry, processedCount)
+}
+
+func (m *msigdb) processGeneSet(db *sql.DB, fr string, gsID int, standardName, collectionName, licenseCode,
+	systematicName, description, exactSource, externalURL, sourceSpecies, contributor, contributorOrg, pmid, doi string,
+	idLogFile *os.File) bool {
+
+	// Skip entries without systematic_name (the primary ID)
+	if systematicName == "" {
+		return false
+	}
+
+	// Get gene symbols for this gene set
+	geneSymbols := m.getGeneSymbols(db, gsID)
+
+	// Get Entrez Gene IDs for cross-referencing
+	entrezIDs := m.getEntrezIDs(db, gsID)
+
+	// Get external terms (GO, HPO) from filtered similarity table
+	goTerms, hpoTerms := m.getExternalTerms(db, gsID)
+
+	// Also capture GO/HPO terms directly from exact_source when present
+	// MSigDB stores authoritative ontology links here for C5 gene sets
+	addExternalTermsFromExactSource(exactSource, &goTerms, &hpoTerms)
+
+	// Parse collection into main collection and sub-collection
+	collection, subCollection := parseCollection(collectionName)
+
+	// Build protobuf attribute
+	attr := &pbuf.MsigdbAttr{
+		SystematicName: systematicName,
+		StandardName:   standardName,
+		Collection:     collection,
+		SubCollection:  subCollection,
+		Description:    description,
+		ExactSource:    exactSource,
+		GeneSymbols:    geneSymbols,
+		GeneCount:      int32(len(geneSymbols)),
+		Pmid:           pmid,
+		Doi:            doi,
+		ExternalUrl:    externalURL,
+		GoTerms:        goTerms,
+		HpoTerms:       hpoTerms,
+		SourceSpecies:  sourceSpecies,
+		Contributor:    contributor,
+		ContributorOrg: contributorOrg,
+	}
+
+	// Marshal and save
+	attrBytes, err := ffjson.Marshal(attr)
+	if err != nil {
+		log.Printf("[%s] Warning: error marshaling attributes for %s: %v", m.source, systematicName, err)
+		return false
+	}
+	m.d.addProp3(systematicName, fr, attrBytes)
+
+	// Create cross-references
+	m.createReferences(systematicName, standardName, collectionName, geneSymbols, entrezIDs, pmid, goTerms, hpoTerms)
+
+	// Log ID in test mode
+	if idLogFile != nil {
+		logProcessedID(idLogFile, systematicName)
+	}
+
+	return true
+}
+
+func (m *msigdb) processSpecificGeneSets(db *sql.DB, fr string, ids []int, processedIDs map[int]bool, idLogFile *os.File) int {
+	if len(ids) == 0 {
+		return 0
+	}
+
+	placeholders := strings.Repeat("?,", len(ids))
+	placeholders = strings.TrimSuffix(placeholders, ",")
+
+	query := `
+		SELECT
+			gs.id,
+			gs.standard_name,
+			gs.collection_name,
+			gs.license_code,
+			COALESCE(gsd.systematic_name, '') as systematic_name,
+			COALESCE(gsd.description_brief, '') as description,
+			COALESCE(gsd.exact_source, '') as exact_source,
+			COALESCE(gsd.external_details_URL, '') as external_url,
+			COALESCE(gsd.source_species_code, '') as source_species,
+			COALESCE(gsd.contributor, '') as contributor,
+			COALESCE(gsd.contrib_organization, '') as contributor_org,
+			COALESCE(p.PMID, '') as pmid,
+			COALESCE(p.DOI, '') as doi
+		FROM gene_set gs
+		LEFT JOIN gene_set_details gsd ON gs.id = gsd.gene_set_id
+		LEFT JOIN publication p ON gsd.publication_id = p.id
+		WHERE gs.id IN (` + placeholders + `)
+	`
+
+	args := make([]interface{}, 0, len(ids))
+	for _, id := range ids {
+		args = append(args, id)
+	}
+
+	rows, err := db.Query(query, args...)
+	if err != nil {
+		log.Printf("[%s] Warning: error querying priority gene sets: %v", m.source, err)
+		return 0
+	}
+	defer rows.Close()
+
+	added := 0
+	for rows.Next() {
+		var gsID int
+		var standardName, collectionName, licenseCode string
+		var systematicName, description, exactSource, externalURL, sourceSpecies string
+		var contributor, contributorOrg, pmid, doi string
+
+		err := rows.Scan(
+			&gsID, &standardName, &collectionName, &licenseCode,
+			&systematicName, &description, &exactSource, &externalURL, &sourceSpecies,
+			&contributor, &contributorOrg, &pmid, &doi,
+		)
+		if err != nil {
+			continue
+		}
+
+		if processedIDs[gsID] {
+			continue
+		}
+
+		if m.processGeneSet(db, fr, gsID, standardName, collectionName, licenseCode,
+			systematicName, description, exactSource, externalURL, sourceSpecies,
+			contributor, contributorOrg, pmid, doi, idLogFile) {
+			processedIDs[gsID] = true
+			added++
+		}
+	}
+
+	return added
+}
+
+func (m *msigdb) getPriorityTestGeneSetIDs(db *sql.DB) []int {
+	ids := make([]int, 0, 6)
+
+	// Hallmark (H) collection
+	if id := m.querySingleInt(db, "SELECT MIN(id) FROM gene_set WHERE collection_name='H'"); id > 0 {
+		ids = append(ids, id)
+	}
+
+	// GO exact_source
+	if id := m.querySingleInt(db, "SELECT MIN(gene_set_id) FROM gene_set_details WHERE exact_source LIKE 'GO:%'"); id > 0 {
+		ids = append(ids, id)
+	}
+
+	// HPO exact_source
+	if id := m.querySingleInt(db, "SELECT MIN(gene_set_id) FROM gene_set_details WHERE exact_source LIKE 'HP:%'"); id > 0 {
+		ids = append(ids, id)
+	}
+
+	return ids
+}
+
+func (m *msigdb) querySingleInt(db *sql.DB, query string) int {
+	var id sql.NullInt64
+	if err := db.QueryRow(query).Scan(&id); err != nil {
+		return 0
+	}
+	if !id.Valid {
+		return 0
+	}
+	return int(id.Int64)
+}
+
+// addExternalTermsFromExactSource extracts GO/HPO terms from exact_source
+// and appends them to the provided slices if not already present.
+func addExternalTermsFromExactSource(exactSource string, goTerms, hpoTerms *[]string) {
+	if exactSource == "" {
+		return
+	}
+
+	parts := splitExternalTermCandidates(exactSource)
+	for _, term := range parts {
+		if strings.HasPrefix(term, "GO:") {
+			appendUniqueTerm(goTerms, term)
+		} else if strings.HasPrefix(term, "HP:") {
+			appendUniqueTerm(hpoTerms, term)
+		}
+	}
+}
+
+// splitExternalTermCandidates splits a string on common delimiters
+// and trims punctuation around terms.
+func splitExternalTermCandidates(s string) []string {
+	s = strings.TrimSpace(s)
+	if s == "" {
+		return nil
+	}
+
+	// Normalize common separators to spaces
+	replacer := strings.NewReplacer(",", " ", ";", " ", "|", " ")
+	s = replacer.Replace(s)
+
+	fields := strings.Fields(s)
+	out := make([]string, 0, len(fields))
+	for _, f := range fields {
+		t := strings.Trim(f, " \t\r\n\"'()[]{}")
+		if t != "" {
+			out = append(out, t)
+		}
+	}
+	return out
+}
+
+// appendUnique appends term to list if not already present.
+func appendUniqueTerm(list *[]string, term string) {
+	for _, existing := range *list {
+		if existing == term {
+			return
+		}
+	}
+	*list = append(*list, term)
 }
 
 func (m *msigdb) getGeneSymbols(db *sql.DB, geneSetID int) []string {
@@ -264,11 +451,12 @@ func (m *msigdb) createReferences(systematicName, standardName, collectionName s
 	}
 
 	// 3. Cross-reference to HGNC gene symbols
-	// This enables: BRCA1 >> msigdb to find gene sets containing BRCA1
-	if hgncID, ok := config.Dataconf["hgnc"]; ok {
+	// This enables: BRCA1 >> hgnc >> msigdb to find gene sets containing BRCA1
+	// Requires lookup database to resolve gene symbols to proper HGNC IDs (e.g., BRCA1 → HGNC:1100)
+	// Without lookup, HGNC xrefs are skipped to avoid creating spurious entries
+	if _, ok := config.Dataconf["hgnc"]; ok && m.d.hasLookupDB {
 		for _, symbol := range geneSymbols {
-			// Gene symbol → MSigDB gene set
-			m.d.addXref(symbol, hgncID["id"], systematicName, m.source, false)
+			m.d.addXrefViaKeyword(symbol, "hgnc", systematicName, m.source, config.Dataconf[m.source]["id"], false)
 		}
 	}
 
@@ -287,17 +475,29 @@ func (m *msigdb) createReferences(systematicName, standardName, collectionName s
 		}
 	}
 
-	// 6. Cross-reference to GO terms
+	// 6. Cross-reference to GO terms (bidirectional)
+	// Forward: GO → MSigDB (enables >>go>>msigdb queries)
+	// Reverse: MSigDB → GO (enables >>msigdb>>go queries)
 	if goID, ok := config.Dataconf["go"]; ok {
+		msigdbID := config.Dataconf[m.source]["id"]
 		for _, goTerm := range goTerms {
+			// Forward: GO term → MSigDB gene set
 			m.d.addXref(goTerm, goID["id"], systematicName, m.source, false)
+			// Reverse: MSigDB gene set → GO term
+			m.d.addXref(systematicName, msigdbID, goTerm, "go", false)
 		}
 	}
 
-	// 7. Cross-reference to HPO terms
+	// 7. Cross-reference to HPO terms (bidirectional)
+	// Forward: HPO → MSigDB (enables >>hpo>>msigdb queries)
+	// Reverse: MSigDB → HPO (enables >>msigdb>>hpo queries)
 	if hpoID, ok := config.Dataconf["hpo"]; ok {
+		msigdbID := config.Dataconf[m.source]["id"]
 		for _, hpoTerm := range hpoTerms {
+			// Forward: HPO term → MSigDB gene set
 			m.d.addXref(hpoTerm, hpoID["id"], systematicName, m.source, false)
+			// Reverse: MSigDB gene set → HPO term
+			m.d.addXref(systematicName, msigdbID, hpoTerm, "hpo", false)
 		}
 	}
 

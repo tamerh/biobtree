@@ -1631,7 +1631,7 @@ func (d *Merge) close() {
 }
 
 func (k *kvMessage) String() string {
-	return "key:" + k.key + " db:" + k.db + " value:" + k.value + " valuedb" + k.valuedb
+	return "key:" + k.key + " db:" + k.db + " value:" + k.value + " valuedb:" + k.valuedb
 }
 
 func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[string]int, kvProp map[string]*[]kvMessage, valPropIdx map[string]int, kvcounts *map[string]map[string]uint32, pageInfos map[int]map[string]*pbuf.PageInfo) []byte {

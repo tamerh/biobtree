@@ -169,8 +169,10 @@ func SortBucketFileUnix(filePath string) error {
 		// UnixSortCompressor: "pigz" (parallel, faster) or "gzip" (standard)
 		// Note: uniq does full-line deduplication (O(1) memory, streaming)
 		// This matches Go sort behavior: sort by key, dedupe by full line
+		// IMPORTANT: set -o pipefail ensures we catch errors from any pipeline stage
+		// Without this, a corrupt gzip file (from interrupted run) silently produces partial output
 		cmdStr := fmt.Sprintf(
-			"zcat '%s' | LC_ALL=C sort -t$'\\t' -k1,1 %s | uniq | %s > '%s'",
+			"set -o pipefail; zcat '%s' | LC_ALL=C sort -t$'\\t' -k1,1 %s | uniq | %s > '%s'",
 			filePath,
 			UnixSortOptions,
 			UnixSortCompressor,
@@ -180,8 +182,9 @@ func SortBucketFileUnix(filePath string) error {
 	} else {
 		// Direct sort for uncompressed files, pipe through uniq for full-line dedup
 		// Note: can't use -o with pipeline, so redirect output instead
+		// IMPORTANT: set -o pipefail ensures we catch errors from any pipeline stage
 		cmdStr := fmt.Sprintf(
-			"LC_ALL=C sort -t$'\\t' -k1,1 %s '%s' | uniq > '%s'",
+			"set -o pipefail; LC_ALL=C sort -t$'\\t' -k1,1 %s '%s' | uniq > '%s'",
 			UnixSortOptions,
 			filePath,
 			outPath,

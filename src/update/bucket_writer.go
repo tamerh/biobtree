@@ -239,7 +239,13 @@ func (p *HybridWriterPool) writeToSubdir(datasetID, entityID, line, subdir strin
 		}
 		if bf.compressed {
 			// Use gzip.BestSpeed (level 1) for fast compression during processing
-			bf.gzWriter, _ = gzip.NewWriterLevel(bf.file, gzip.BestSpeed)
+			var gzErr error
+			bf.gzWriter, gzErr = gzip.NewWriterLevel(bf.file, gzip.BestSpeed)
+			if gzErr != nil {
+				log.Printf("Error creating gzip writer for %s: %v", bf.filePath, gzErr)
+				bf.file.Close()
+				return false
+			}
 			bf.buf = bufio.NewWriterSize(bf.gzWriter, BucketWriteBufferSize)
 		} else {
 			bf.buf = bufio.NewWriterSize(bf.file, BucketWriteBufferSize)
@@ -248,7 +254,10 @@ func (p *HybridWriterPool) writeToSubdir(datasetID, entityID, line, subdir strin
 	}
 
 	// Atomic write: combine line + newline to reduce partial write window
-	bf.buf.WriteString(line + "\n")
+	if _, err := bf.buf.WriteString(line + "\n"); err != nil {
+		log.Printf("Error writing to bucket file %s: %v", bf.filePath, err)
+		return false
+	}
 	bf.lineCount++
 
 	return true
@@ -308,6 +317,11 @@ func (p *HybridWriterPool) Close() {
 				if err := bf.gzWriter.Close(); err != nil {
 					log.Printf("Warning: error closing gzip writer for %s: %v", bf.filePath, err)
 				}
+			}
+			// Sync to ensure data is written to disk before close
+			// This prevents data loss if the system crashes or process is interrupted
+			if err := bf.file.Sync(); err != nil {
+				log.Printf("Warning: error syncing bucket file %s: %v", bf.filePath, err)
 			}
 			if err := bf.file.Close(); err != nil {
 				log.Printf("Warning: error closing bucket file %s: %v", bf.filePath, err)

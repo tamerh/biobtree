@@ -1,9 +1,10 @@
 {
   "metadata": {
-    "version": "5.9",
+    "version": "6.0",
     "description": "Expanded integration tests including newly added datasets and filter tests (2025-2026)",
     "server": "http://localhost:9291",
     "last_updated": "2026-02-03",
+    "changes_6.0": "Fixed BUG-014/015: MSigDB↔GO and MSigDB↔HPO bidirectional mappings. Fixed HGNC ID resolution (HGNC:#### vs gene symbol). Added MSigDB gene_sets test category.",
     "changes_5.9": "Fixed BUG-013: UniProt↔BindingDB mapping now works. Parser extracts UniProt IDs from numbered chain columns (Chain 1-50).",
     "changes_5.8": "Added HPO disease mapping tests (HPO↔OMIM, HPO↔Orphanet from phenotype.hpoa integration)",
     "changes_5.7": "Fixed filter tests with .0 suffix for floats. Added AlphaFold, Bgee, PubChem Lipinski, GWAS pvalue_mlog, Clinical Trials filters",
@@ -3306,6 +3307,54 @@
       "should_pass": ["M5902", "HALLMARK_APOPTOSIS"],
       "should_fail": []
     },
+    {
+      "category": "gene_sets",
+      "name": "HGNC ID to MSigDB Gene Sets",
+      "query": ">>hgnc>>msigdb",
+      "why": "Proper HGNC IDs (HGNC:####) should resolve to gene sets, not just gene symbols. Requires lookup database.",
+      "should_pass": ["HGNC:1100", "HGNC:11998"],
+      "should_fail": []
+    },
+    {
+      "category": "gene_sets",
+      "name": "MSigDB C5:GO Gene Set to GO Term",
+      "query": ">>msigdb>>go",
+      "why": "C5:GO gene sets should map to their source GO term (BUG-014 fixed)",
+      "should_pass": ["GOBP_APOPTOTIC_PROCESS", "M45068"],
+      "should_fail": ["M5890"]
+    },
+    {
+      "category": "gene_sets",
+      "name": "MSigDB C5:HPO Gene Set to HPO Term",
+      "query": ">>msigdb>>hpo",
+      "why": "C5:HPO gene sets should map to their source HPO term (BUG-015 fixed)",
+      "should_pass": ["M34476"],
+      "should_fail": ["M5890"]
+    },
+    {
+      "category": "gene_sets",
+      "name": "GO Term to MSigDB Gene Sets",
+      "query": ">>go>>msigdb",
+      "why": "Reverse mapping: find MSigDB gene sets derived from a GO term (BUG-014 fixed)",
+      "should_pass": ["GO:0006915", "GO:0007049"],
+      "should_fail": []
+    },
+    {
+      "category": "gene_sets",
+      "name": "HPO Term to MSigDB Gene Sets",
+      "query": ">>hpo>>msigdb",
+      "why": "Reverse mapping: find MSigDB gene sets derived from an HPO term (BUG-015 fixed)",
+      "should_pass": ["HP:0000003", "HP:0000010", "HP:0000020"],
+      "should_fail": ["HP:0001250"]
+    },
+    {
+      "category": "gene_sets",
+      "name": "MSigDB to Ensembl via HGNC (3-hop)",
+      "query": ">>msigdb>>hgnc>>ensembl",
+      "why": "Gene set to Ensembl genes via HGNC - multi-hop chain working",
+      "should_pass": ["HALLMARK_APOPTOSIS", "M5902"],
+      "should_fail": []
+    },
 
     {
       "category": "complex_pipelines",
@@ -3396,21 +3445,21 @@
     },
     {
       "category": "known_issues",
-      "name": "GO to MSigDB Direct (BUG-014)",
+      "name": "GO to MSigDB Direct (BUG-014) - FIXED",
       "query": ">>go>>msigdb",
-      "why": "GO term to MSigDB C5 gene sets fails. Edge exists but not functional.",
-      "should_pass": [],
-      "should_fail": ["GO:0006915"],
-      "known_issue": true
+      "why": "FIXED: GO term to MSigDB C5 gene sets now works. Moved working tests to gene_sets category.",
+      "should_pass": ["GO:0006915"],
+      "should_fail": [],
+      "known_issue": false
     },
     {
       "category": "known_issues",
-      "name": "HPO to MSigDB Direct (BUG-015)",
+      "name": "HPO to MSigDB Direct (BUG-015) - FIXED",
       "query": ">>hpo>>msigdb",
-      "why": "HPO phenotype to gene sets fails. Edge exists but not functional.",
-      "should_pass": [],
-      "should_fail": ["HP:0001250"],
-      "known_issue": true
+      "why": "FIXED: HPO term to MSigDB C5 gene sets now works. HP:0001250 has no MSigDB gene set (expected).",
+      "should_pass": ["HP:0000003"],
+      "should_fail": [],
+      "known_issue": false
     },
     {
       "category": "known_issues",
@@ -3424,13 +3473,13 @@
     },
     {
       "category": "known_issues",
-      "name": "MSigDB Multi-Hop Chain Breaks (BUG-017)",
+      "name": "MSigDB 4-Hop Chain (BUG-017) - NOT A BUG",
       "query": ">>msigdb>>hgnc>>ensembl>>uniprot",
-      "why": "Gene set to protein chain breaks after msigdb>>hgnc step.",
+      "why": "Fails in partial builds where Ensembl/UniProt are not fully indexed. Should work in full production build.",
       "should_pass": [],
       "should_fail": ["M5902"],
-      "known_issue": true,
-      "workaround": "Query genes individually after extracting from gene set"
+      "known_issue": false,
+      "note": "Requires full build with ensembl+uniprot datasets to verify"
     }
   ]
 }

@@ -1547,6 +1547,13 @@ func (d *DataUpdate) addXref2(key string, from string, value string, valueFrom s
 		return
 	}
 
+	// CRITICAL: Validate that target dataset has a valid ID
+	// Empty valueFromID causes "Error while converting to int16" panic during generate phase
+	if config.Dataconf[valueFrom]["id"] == "" {
+		log.Printf("ERROR: Dataset '%s' has empty 'id' in config - cannot create xref2 from %s to %s", valueFrom, key, value)
+		return
+	}
+
 	// now target datasets check
 	if _, ok := d.targetDatasets[valueFrom]; d.hasTargets && !ok {
 		return
@@ -1594,6 +1601,13 @@ func (d *DataUpdate) addXref2Bucketed(key string, from string, value string, val
 		if val, _ := d.invalidXrefs.Get(valueFrom); val == nil {
 			d.invalidXrefs.Set(valueFrom, "true")
 		}
+		return
+	}
+
+	// CRITICAL: Validate that target dataset has a valid ID
+	// Empty valueFromID causes "Error while converting to int16" panic during generate phase
+	if config.Dataconf[valueFrom]["id"] == "" {
+		log.Printf("ERROR: Dataset '%s' has empty 'id' in config - cannot create xref2Bucketed from %s to %s", valueFrom, key, value)
 		return
 	}
 

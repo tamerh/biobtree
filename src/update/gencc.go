@@ -241,6 +241,11 @@ func (g *gencc) update() {
 			g.d.addXrefEnsemblViaHgnc(geneSymbol, uuid, sourceID)
 		}
 
+		// Direct cross-reference to HGNC (gene_curie field contains "HGNC:1100" format)
+		if geneCurie != "" && strings.HasPrefix(geneCurie, "HGNC:") {
+			g.d.addXref(uuid, sourceID, geneCurie, "hgnc", false)
+		}
+
 		// Cross-reference to disease ontologies
 		diseaseCurie := getField("disease_curie")
 		if diseaseCurie != "" {

@@ -350,8 +350,8 @@ func (c *clinvarXML) createXrefs(variation *xmlparser.XMLElement, variationID, s
 					switch db {
 					case "dbsnp":
 						attr.DbsnpId = "rs" + id // Store dbSNP ID with "rs" prefix in attributes
-						if _, exists := config.Dataconf["snp"]; exists {
-							addXrefOnce(variationID, sourceID, "rs"+id, "snp", false)
+						if _, exists := config.Dataconf["dbsnp"]; exists {
+							addXrefOnce(variationID, sourceID, "rs"+id, "dbsnp", false)
 						}
 					case "omim":
 						if _, exists := config.Dataconf["omim"]; exists {

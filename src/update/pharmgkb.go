@@ -125,12 +125,13 @@ func (p *pharmgkb) update() {
 	log.Printf("PharmGKB: Phase 6 complete - loaded %d phenotype mappings", len(phenotypeMappings))
 
 	// Phase 7: Process clinical annotations as separate dataset (pharmgkb_clinical)
-	p.processClinicalVariants(testLimit, phenotypeMappings)
+	// Returns map of variant rsID -> clinical entry IDs for cross-referencing in Phase 8
+	clinicalByVariant := p.processClinicalVariants(testLimit, phenotypeMappings)
 
 	// Phase 8: Process variants as separate dataset (pharmgkb_variant)
 	// First load summary annotations for enrichment, then process variants
 	summaryAnnotations := p.loadSummaryAnnotations()
-	p.processVariants(testLimit, summaryAnnotations, phenotypeMappings)
+	p.processVariants(testLimit, summaryAnnotations, phenotypeMappings, clinicalByVariant)
 
 	// Phase 9: Process guidelines as separate dataset (pharmgkb_guideline)
 	p.processGuidelines(testLimit)
@@ -680,11 +681,12 @@ func (p *pharmgkb) createGeneCrossRefs(entry *pharmgkbGeneEntry, sourceID string
 }
 
 // processClinicalVariants reads clinicalVariants.zip and saves to pharmgkb_clinical dataset
-func (p *pharmgkb) processClinicalVariants(testLimit int, phenotypeMappings map[string]*phenotypeMapping) {
+func (p *pharmgkb) processClinicalVariants(testLimit int, phenotypeMappings map[string]*phenotypeMapping) map[string][]string {
+	clinicalByVariant := make(map[string][]string)
 	clinSource := "pharmgkb_clinical"
 	if _, exists := config.Dataconf[clinSource]; !exists {
 		log.Printf("PharmGKB: Skipping clinical variants - %s dataset not configured", clinSource)
-		return
+		return clinicalByVariant
 	}
 
 	clinSourceID := config.Dataconf[clinSource]["id"]
@@ -779,6 +781,8 @@ func (p *pharmgkb) processClinicalVariants(testLimit int, phenotypeMappings map[
 					if _, exists := config.Dataconf["dbsnp"]; exists {
 						p.d.addXref(clinID, clinSourceID, variant, "dbsnp", false)
 					}
+					// Track clinical entry IDs by variant rsID for cross-referencing with pharmgkb_variant
+					clinicalByVariant[variant] = append(clinicalByVariant[variant], clinID)
 				}
 
 				// Cross-reference to gene
@@ -823,6 +827,8 @@ func (p *pharmgkb) processClinicalVariants(testLimit int, phenotypeMappings map[
 
 	// Signal completion for clinical dataset
 	p.d.progChan <- &progressInfo{dataset: clinSource, done: true}
+	log.Printf("PharmGKB: Built clinical-by-variant map with %d unique rsIDs", len(clinicalByVariant))
+	return clinicalByVariant
 }
 
 // loadDrugLabels reads drugLabels.zip and enriches chemical entries
@@ -943,7 +949,7 @@ type phenotypeMapping struct {
 // Columns: Variant ID, Variant Name, Gene IDs, Gene Symbols, Location,
 // Variant Annotation count, Clinical Annotation count, Level 1/2 Clinical Annotation count,
 // Guideline Annotation count, Label Annotation count, Synonyms
-func (p *pharmgkb) processVariants(testLimit int, summaryAnnotations map[string]*summaryAnnotation, phenotypeMappings map[string]*phenotypeMapping) {
+func (p *pharmgkb) processVariants(testLimit int, summaryAnnotations map[string]*summaryAnnotation, phenotypeMappings map[string]*phenotypeMapping, clinicalByVariant map[string][]string) {
 	varSource := "pharmgkb_variant"
 	if _, exists := config.Dataconf[varSource]; !exists {
 		log.Printf("PharmGKB: Skipping variants - %s dataset not configured", varSource)
@@ -1049,6 +1055,17 @@ func (p *pharmgkb) processVariants(testLimit int, summaryAnnotations map[string]
 				if strings.HasPrefix(variantName, "rs") {
 					if _, exists := config.Dataconf["dbsnp"]; exists {
 						p.d.addXref(variantID, varSourceID, variantName, "dbsnp", false)
+					}
+				}
+
+				// Cross-reference to pharmgkb_clinical entries sharing the same variant rsID
+				if clinIDs, exists := clinicalByVariant[variantName]; exists {
+					if _, clinExists := config.Dataconf["pharmgkb_clinical"]; clinExists {
+						clinSourceID := config.Dataconf["pharmgkb_clinical"]["id"]
+						for _, clinID := range clinIDs {
+							p.d.addXref(variantID, varSourceID, clinID, "pharmgkb_clinical", false)
+							p.d.addXref(clinID, clinSourceID, variantID, "pharmgkb_variant", false)
+						}
 					}
 				}
 

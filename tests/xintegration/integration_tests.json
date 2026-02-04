@@ -1,15 +1,17 @@
 {
   "metadata": {
-    "version": "6.0",
+    "version": "8.0",
     "description": "Expanded integration tests including newly added datasets and filter tests (2025-2026)",
     "server": "http://localhost:9291",
-    "last_updated": "2026-02-03",
-    "changes_6.0": "Fixed BUG-014/015: MSigDB↔GO and MSigDB↔HPO bidirectional mappings. Fixed HGNC ID resolution (HGNC:#### vs gene symbol). Added MSigDB gene_sets test category.",
-    "changes_5.9": "Fixed BUG-013: UniProt↔BindingDB mapping now works. Parser extracts UniProt IDs from numbered chain columns (Chain 1-50).",
-    "changes_5.8": "Added HPO disease mapping tests (HPO↔OMIM, HPO↔Orphanet from phenotype.hpoa integration)",
+    "last_updated": "2026-02-04",
+    "changes_7.0": "Added tests for all 2026-02-04 fixes: BUG-018 (PharmGKB variant\u2192clinical), BUG-020 (ClinVar\u2192dbSNP), BUG-021 (RNACentral text search). Added rare_diseases category (Orphanet, MIM). Added metabolomics category (HMDB). Updated BUG-011/012/016 from known_issues to fixed. Added HPO alternative paths (orphanet, mim, hmdb).",
+    "changes_6.0": "Fixed BUG-014/015: MSigDB\u2194GO and MSigDB\u2194HPO bidirectional mappings. Fixed HGNC ID resolution (HGNC:#### vs gene symbol). Added MSigDB gene_sets test category.",
+    "changes_5.9": "Fixed BUG-013: UniProt\u2194BindingDB mapping now works. Parser extracts UniProt IDs from numbered chain columns (Chain 1-50).",
+    "changes_5.8": "Added HPO disease mapping tests (HPO\u2194OMIM, HPO\u2194Orphanet from phenotype.hpoa integration)",
     "changes_5.7": "Fixed filter tests with .0 suffix for floats. Added AlphaFold, Bgee, PubChem Lipinski, GWAS pvalue_mlog, Clinical Trials filters",
     "changes_5.6": "Added comprehensive filter tests for PubChem, ChEMBL, ClinVar, AlphaMissense, PharmGKB, GenCC, GWAS, GO, UniProt, InterPro, Antibody datasets",
-    "changes_5.5": "Added MeSH bridge CTD tests, Reactome to Ensembl, CellXGene reverse mappings, clinical trials high-count, MeSH breast cancer hierarchy"
+    "changes_5.5": "Added MeSH bridge CTD tests, Reactome to Ensembl, CellXGene reverse mappings, clinical trials high-count, MeSH breast cancer hierarchy",
+    "changes_8.0": "Added 50 new tests from multi-agent discovery session 2: patent_ip (4), clinical_trials_deep (3), rare_disease_deep (8), cell_type_biology (7), reverse_drug (4), ultra_long_chains (3), interpro_domain (4), gene_set_advanced (8), evidence_triangulation (3), metabolomics (7). New categories: patent_ip, clinical_trials_deep, rare_disease_deep, cell_type_biology, reverse_drug, ultra_long_chains, interpro_domain, gene_set_advanced, evidence_triangulation. Total: 448 tests."
   },
   "test_categories": {
     "gene_mapping": "Gene symbol/ID to various resources (proteins, transcripts, GO terms)",
@@ -37,7 +39,19 @@
     "ontology_hierarchy": "Ontology hierarchy traversal (MONDO, HPO, EFO parent/child)",
     "filters_working": "Working filter tests - verified CEL filter expressions",
     "filters_broken": "Known broken filters - document issues for fixing",
-    "known_issues": "Tests for known bugs - expected to fail until fixed"
+    "known_issues": "Tests for known bugs - expected to fail until fixed",
+    "rare_diseases": "Rare disease workflows (Orphanet, MIM/OMIM, HPO phenotype-disease mappings)",
+    "metabolomics": "Metabolite analysis (HMDB metabolites, cross-references to PubChem, ChEBI, UniProt)",
+    "rnacentral_search": "RNACentral text search by RNA name, gene symbol, and RNA type",
+    "patent_ip": "Patent and IP analysis pipelines (gene/disease to SureChEMBL patents via PubChem)",
+    "clinical_trials_deep": "Deep clinical trial pipelines (disease to trial drug targets, literature, protein targets)",
+    "rare_disease_deep": "Rare disease deep pipelines (Orphanet/MIM to pathways, interactions, drugs, expression)",
+    "cell_type_biology": "Cell type biology and single-cell (CL ontology, CellXGene reverse queries, tissue drug targets)",
+    "reverse_drug": "Reverse drug-to-biology chains (drug to biological processes, diseases, tissue expression)",
+    "ultra_long_chains": "Ultra-long chains (10+ hops: phenotype to patents, tissue to literature)",
+    "interpro_domain": "InterPro domain analysis (domain to genes, drugs, pathways, structures)",
+    "gene_set_advanced": "Gene set advanced workflows (MSigDB multi-hop, disease to gene sets, GO to drugs)",
+    "evidence_triangulation": "Evidence triangulation and multi-database integration patterns"
   },
   "tests": [
     {
@@ -533,7 +547,7 @@
       "category": "chembl_drug",
       "name": "ChEMBL Molecule to PubChem (UniChem)",
       "query": ">>chembl_molecule>>pubchem",
-      "why": "ChEMBL molecule to PubChem compound via UniChem mappings - enables disease→compound queries",
+      "why": "ChEMBL molecule to PubChem compound via UniChem mappings - enables disease\u2192compound queries",
       "should_pass": [
         "CHEMBL25"
       ],
@@ -543,7 +557,7 @@
       "category": "chembl_drug",
       "name": "EFO Disease to ChEMBL to PubChem",
       "query": ">>efo>>chembl_molecule>>pubchem",
-      "why": "Disease → ChEMBL molecule → PubChem compound path for drug discovery",
+      "why": "Disease \u2192 ChEMBL molecule \u2192 PubChem compound path for drug discovery",
       "should_pass": [
         "EFO:0000685"
       ],
@@ -1004,8 +1018,17 @@
       "identifier": "TP53",
       "why": "TP53 AlphaFold structure should have pLDDT confidence metrics",
       "validations": [
-        {"path": "source.count", "min": 1, "description": "At least 1 AlphaFold structure"},
-        {"path": "targets[0].Attributes.Alphafold.global_metric", "min": 0, "max": 100, "description": "Global pLDDT score 0-100"}
+        {
+          "path": "source.count",
+          "min": 1,
+          "description": "At least 1 AlphaFold structure"
+        },
+        {
+          "path": "targets[0].Attributes.Alphafold.global_metric",
+          "min": 0,
+          "max": 100,
+          "description": "Global pLDDT score 0-100"
+        }
       ]
     },
     {
@@ -1589,11 +1612,32 @@
       "filter_dataset": "pubchem",
       "why": "Validate PubChem compound attributes for aspirin (CID 2244)",
       "validations": [
-        {"path": "Pubchem.molecular_formula", "expected": "C9H8O4", "description": "Molecular formula"},
-        {"path": "Pubchem.is_fda_approved", "expected": true, "description": "FDA approved status"},
-        {"path": "Pubchem.molecular_weight", "min": 179, "max": 181, "description": "Molecular weight ~180"},
-        {"path": "Pubchem.smiles", "min_length": 10, "description": "SMILES structure present"},
-        {"path": "Pubchem.inchi_key", "starts_with": "BSYNRYMUTXBXSQ", "description": "InChI key"}
+        {
+          "path": "Pubchem.molecular_formula",
+          "expected": "C9H8O4",
+          "description": "Molecular formula"
+        },
+        {
+          "path": "Pubchem.is_fda_approved",
+          "expected": true,
+          "description": "FDA approved status"
+        },
+        {
+          "path": "Pubchem.molecular_weight",
+          "min": 179,
+          "max": 181,
+          "description": "Molecular weight ~180"
+        },
+        {
+          "path": "Pubchem.smiles",
+          "min_length": 10,
+          "description": "SMILES structure present"
+        },
+        {
+          "path": "Pubchem.inchi_key",
+          "starts_with": "BSYNRYMUTXBXSQ",
+          "description": "InChI key"
+        }
       ]
     },
     {
@@ -1606,8 +1650,16 @@
       "filter_dataset": "pubchem",
       "why": "Validate PubChem external database identifiers extracted from synonyms for aspirin (CID 2244). NOTE: These fields may be empty if synonyms don't contain these identifiers.",
       "validations": [
-        {"path": "Pubchem.unii", "min_length": 0, "description": "FDA UNII identifier (may be empty)"},
-        {"path": "Pubchem.dtxsid", "min_length": 0, "description": "EPA DSSTox ID (may be empty)"}
+        {
+          "path": "Pubchem.unii",
+          "min_length": 0,
+          "description": "FDA UNII identifier (may be empty)"
+        },
+        {
+          "path": "Pubchem.dtxsid",
+          "min_length": 0,
+          "description": "EPA DSSTox ID (may be empty)"
+        }
       ]
     },
     {
@@ -1619,9 +1671,21 @@
       "expected_identifier": "672",
       "why": "Validate Entrez gene attributes for human BRCA1 (Gene ID 672)",
       "validations": [
-        {"path": "source.Attributes.Entrez.chromosome", "expected": "17", "description": "Chromosome 17"},
-        {"path": "source.Attributes.Entrez.symbol", "expected": "BRCA1", "description": "Gene symbol"},
-        {"path": "source.Attributes.Entrez.type", "expected": "protein-coding", "description": "Gene type"}
+        {
+          "path": "source.Attributes.Entrez.chromosome",
+          "expected": "17",
+          "description": "Chromosome 17"
+        },
+        {
+          "path": "source.Attributes.Entrez.symbol",
+          "expected": "BRCA1",
+          "description": "Gene symbol"
+        },
+        {
+          "path": "source.Attributes.Entrez.type",
+          "expected": "protein-coding",
+          "description": "Gene type"
+        }
       ]
     },
     {
@@ -1633,9 +1697,21 @@
       "dataset_id": 8,
       "why": "Validate RefSeq attributes for BRCA1 mRNA",
       "validations": [
-        {"path": "Refseq.symbol", "expected": "BRCA1", "description": "Gene symbol"},
-        {"path": "Refseq.status", "expected": "REVIEWED", "description": "Review status"},
-        {"path": "Refseq.type", "expected": "mRNA", "description": "Sequence type"}
+        {
+          "path": "Refseq.symbol",
+          "expected": "BRCA1",
+          "description": "Gene symbol"
+        },
+        {
+          "path": "Refseq.status",
+          "expected": "REVIEWED",
+          "description": "Review status"
+        },
+        {
+          "path": "Refseq.type",
+          "expected": "mRNA",
+          "description": "Sequence type"
+        }
       ]
     },
     {
@@ -1646,7 +1722,11 @@
       "identifier": "BRCA1",
       "why": "BRCA1 should have many ClinVar variants (>100)",
       "validations": [
-        {"path": "source.count", "min": 100, "description": "At least 100 ClinVar variants"}
+        {
+          "path": "source.count",
+          "min": 100,
+          "description": "At least 100 ClinVar variants"
+        }
       ]
     },
     {
@@ -1657,7 +1737,11 @@
       "identifier": "TP53",
       "why": "TP53 should have many GO annotations (>50)",
       "validations": [
-        {"path": "source.count", "min": 50, "description": "At least 50 GO annotations"}
+        {
+          "path": "source.count",
+          "min": 50,
+          "description": "At least 50 GO annotations"
+        }
       ]
     },
     {
@@ -1670,7 +1754,11 @@
       "filter_dataset": "pubchem",
       "why": "Aspirin should have many cross-references (>1000) including bioactivities",
       "validations": [
-        {"path": "entry.count", "min": 1000, "description": "At least 1000 cross-references"}
+        {
+          "path": "entry.count",
+          "min": 1000,
+          "description": "At least 1000 cross-references"
+        }
       ]
     },
     {
@@ -1681,7 +1769,11 @@
       "identifier": "TP53",
       "why": "TP53 gene should encode UniProt protein P04637",
       "validations": [
-        {"path": "targets", "contains_identifier": "P04637", "description": "Links to P04637"}
+        {
+          "path": "targets",
+          "contains_identifier": "P04637",
+          "description": "Links to P04637"
+        }
       ]
     },
     {
@@ -1692,7 +1784,11 @@
       "identifier": "EGFR",
       "why": "EGFR gene should encode UniProt protein P00533",
       "validations": [
-        {"path": "targets", "contains_identifier": "P00533", "description": "Links to P00533"}
+        {
+          "path": "targets",
+          "contains_identifier": "P00533",
+          "description": "Links to P00533"
+        }
       ]
     },
     {
@@ -1703,7 +1799,11 @@
       "identifier": "BRCA1",
       "why": "BRCA1 gene should encode UniProt protein P38398",
       "validations": [
-        {"path": "targets", "contains_identifier": "P38398", "description": "Links to P38398"}
+        {
+          "path": "targets",
+          "contains_identifier": "P38398",
+          "description": "Links to P38398"
+        }
       ]
     },
     {
@@ -1714,7 +1814,11 @@
       "identifier": "2244",
       "why": "Aspirin should link to HMDB metabolite database",
       "validations": [
-        {"path": "targets", "has_results": true, "description": "Has HMDB cross-reference"}
+        {
+          "path": "targets",
+          "has_results": true,
+          "description": "Has HMDB cross-reference"
+        }
       ]
     },
     {
@@ -1730,8 +1834,8 @@
     {
       "category": "gwas_genetics",
       "name": "Disease to GWAS Genes via EFO (Human)",
-      "query": ">>mondo>>efo>>gwas>>ensembl[ensembl.genome==\"homo_sapiens\"]",
-      "why": "Full disease to human genes path via GWAS - used in dbSNP path for gene retrieval",
+      "query": ">>mondo>>gwas_study>>gwas>>ensembl[ensembl.genome==\"homo_sapiens\"]",
+      "why": "Full disease to human genes path via GWAS studies. MONDO\u2192EFO direct mapping is sparse; go via gwas_study instead.",
       "should_pass": [
         "MONDO:0005148",
         "MONDO:0005044"
@@ -1741,8 +1845,8 @@
     {
       "category": "gwas_genetics",
       "name": "Glioblastoma Text to GWAS Genes",
-      "query": ">>mondo>>efo>>gwas>>ensembl[ensembl.genome==\"homo_sapiens\"]",
-      "why": "Drug discovery workflow: disease text to genes via GWAS - tests text-based disease lookup. MONDO:0005044 is main glioblastoma (not subtypes like MONDO:0000457)",
+      "query": ">>mondo>>gwas_study>>gwas>>ensembl[ensembl.genome==\"homo_sapiens\"]",
+      "why": "Drug discovery workflow: disease text to genes via GWAS studies - tests text-based disease lookup. MONDO:0005044 is main glioblastoma (not subtypes like MONDO:0000457)",
       "should_pass": [
         "glioblastoma",
         "MONDO:0005044"
@@ -1837,8 +1941,16 @@
       "identifier": "RB1",
       "why": "RB1 pathogenic variants should have correct classification attribute - filter ensures only pathogenic variants returned",
       "validations": [
-        {"path": "source.count", "min": 1, "description": "At least 1 pathogenic ClinVar variant"},
-        {"path": "targets", "has_results": true, "description": "Has pathogenic variant targets"}
+        {
+          "path": "source.count",
+          "min": 1,
+          "description": "At least 1 pathogenic ClinVar variant"
+        },
+        {
+          "path": "targets",
+          "has_results": true,
+          "description": "Has pathogenic variant targets"
+        }
       ]
     },
     {
@@ -1952,21 +2064,30 @@
       "identifier": "BEVACIZUMAB",
       "why": "Bevacizumab should have correct attributes including target VEGFA and therapeutic source",
       "validations": [
-        {"path": "source.Attributes.Antibody.source", "equals": "therasabdab", "description": "Source is TheraSAbDab"},
-        {"path": "source.Attributes.Antibody.targets", "contains": "VEGFA", "description": "Target includes VEGFA"}
+        {
+          "path": "source.Attributes.Antibody.source",
+          "equals": "therasabdab",
+          "description": "Source is TheraSAbDab"
+        },
+        {
+          "path": "source.Attributes.Antibody.targets",
+          "contains": "VEGFA",
+          "description": "Target includes VEGFA"
+        }
       ]
     },
     {
       "category": "antibody",
       "name": "Antibody to EFO Disease Ontology",
       "query": ">>antibody>>efo",
-      "why": "Therapeutic antibodies with indications should map to EFO disease ontology via text lookup",
+      "why": "Therapeutic antibodies with indications should map to EFO disease ontology. TRASTUZUMAB has no EFO xrefs (only ensembl, mondo).",
       "should_pass": [
         "BEVACIZUMAB",
-        "ADALIMUMAB",
-        "TRASTUZUMAB"
+        "ADALIMUMAB"
       ],
-      "should_fail": []
+      "should_fail": [
+        "TRASTUZUMAB"
+      ]
     },
     {
       "category": "antibody",
@@ -2084,9 +2205,21 @@
       "identifier": "NCT00139178",
       "why": "Clinical trial should have correct attributes including phase and study type",
       "validations": [
-        {"path": "source.Attributes.ClinicalTrials.phase", "equals": "PHASE4", "description": "Phase 4 trial"},
-        {"path": "source.Attributes.ClinicalTrials.study_type", "equals": "INTERVENTIONAL", "description": "Interventional study"},
-        {"path": "source.Attributes.ClinicalTrials.overall_status", "equals": "COMPLETED", "description": "Study completed"}
+        {
+          "path": "source.Attributes.ClinicalTrials.phase",
+          "equals": "PHASE4",
+          "description": "Phase 4 trial"
+        },
+        {
+          "path": "source.Attributes.ClinicalTrials.study_type",
+          "equals": "INTERVENTIONAL",
+          "description": "Interventional study"
+        },
+        {
+          "path": "source.Attributes.ClinicalTrials.overall_status",
+          "equals": "COMPLETED",
+          "description": "Study completed"
+        }
       ]
     },
     {
@@ -2097,18 +2230,26 @@
       "identifier": "NCT06777108",
       "why": "NCT06777108 (Hypertension trial) should have at least 1 MONDO mapping",
       "validations": [
-        {"path": "source.count", "min": 1, "description": "At least 1 MONDO mapping"}
+        {
+          "path": "source.count",
+          "min": 1,
+          "description": "At least 1 MONDO mapping"
+        }
       ]
     },
-
-    {"_comment": "=== PUBCHEM DRUG DISCOVERY PATHS (2026-01-31) ==="},
-
+    {
+      "_comment": "=== PUBCHEM DRUG DISCOVERY PATHS (2026-01-31) ==="
+    },
     {
       "category": "pubchem_drug",
       "name": "Gene to PubChem Compounds via Bioactivity",
       "query": ">>ensembl>>uniprot>>pubchem_activity>>pubchem",
       "why": "Find PubChem compounds with bioactivity against gene targets - complementary to ChEMBL",
-      "should_pass": ["EGFR", "TP53", "BRCA1"],
+      "should_pass": [
+        "EGFR",
+        "TP53",
+        "BRCA1"
+      ],
       "should_fail": []
     },
     {
@@ -2116,7 +2257,9 @@
       "name": "Gene to FDA-Approved PubChem Compounds",
       "query": ">>ensembl>>uniprot>>pubchem_activity>>pubchem[pubchem.is_fda_approved==true]",
       "why": "Find FDA-approved drugs from PubChem with bioactivity against gene targets",
-      "should_pass": ["EGFR"],
+      "should_pass": [
+        "EGFR"
+      ],
       "should_fail": []
     },
     {
@@ -2124,7 +2267,9 @@
       "name": "PubChem Compound to Gene Targets",
       "query": ">>pubchem>>pubchem_activity>>ensembl",
       "why": "Find gene targets for a PubChem compound",
-      "should_pass": ["2244"],
+      "should_pass": [
+        "2244"
+      ],
       "should_fail": []
     },
     {
@@ -2132,7 +2277,9 @@
       "name": "PubChem Compound to Protein Targets",
       "query": ">>pubchem>>pubchem_activity>>uniprot",
       "why": "Find protein targets for a PubChem compound",
-      "should_pass": ["2244"],
+      "should_pass": [
+        "2244"
+      ],
       "should_fail": []
     },
     {
@@ -2140,7 +2287,9 @@
       "name": "PubChem to HMDB Metabolites",
       "query": ">>pubchem>>hmdb",
       "why": "Cross-reference PubChem compounds to HMDB metabolite database",
-      "should_pass": ["2244"],
+      "should_pass": [
+        "2244"
+      ],
       "should_fail": []
     },
     {
@@ -2148,7 +2297,9 @@
       "name": "PubChem to ChEMBL Cross-Reference",
       "query": ">>pubchem>>chembl_molecule",
       "why": "Cross-reference PubChem to ChEMBL for combined drug data",
-      "should_pass": ["2244"],
+      "should_pass": [
+        "2244"
+      ],
       "should_fail": []
     },
     {
@@ -2156,7 +2307,9 @@
       "name": "PubChem to Literature References",
       "query": ">>pubchem>>pubmed",
       "why": "Find PubMed literature references for PubChem compounds (63k+ for aspirin)",
-      "should_pass": ["2244"],
+      "should_pass": [
+        "2244"
+      ],
       "should_fail": []
     },
     {
@@ -2164,7 +2317,9 @@
       "name": "PubChem to Patents",
       "query": ">>pubchem>>patent_compound",
       "why": "Find patent information for PubChem compounds",
-      "should_pass": ["2244"],
+      "should_pass": [
+        "2244"
+      ],
       "should_fail": []
     },
     {
@@ -2172,7 +2327,9 @@
       "name": "PubChem to BindingDB",
       "query": ">>pubchem>>bindingdb",
       "why": "Cross-reference to BindingDB for binding affinity data (Ki, IC50)",
-      "should_pass": ["2244"],
+      "should_pass": [
+        "2244"
+      ],
       "should_fail": []
     },
     {
@@ -2180,7 +2337,9 @@
       "name": "PubChem to CTD (Toxicogenomics)",
       "query": ">>pubchem>>ctd",
       "why": "Map compounds to CTD for toxicogenomics data (gene-chemical-disease relationships)",
-      "should_pass": ["2244"],
+      "should_pass": [
+        "2244"
+      ],
       "should_fail": []
     },
     {
@@ -2188,7 +2347,9 @@
       "name": "PubChem to PharmGKB",
       "query": ">>pubchem>>pharmgkb",
       "why": "Cross-reference to PharmGKB for pharmacogenomics annotations",
-      "should_pass": ["2244"],
+      "should_pass": [
+        "2244"
+      ],
       "should_fail": []
     },
     {
@@ -2196,7 +2357,10 @@
       "name": "Protein to PubChem Activities",
       "query": ">>uniprot>>pubchem_activity",
       "why": "Find all PubChem bioactivity data for a protein target",
-      "should_pass": ["P35354", "P00533"],
+      "should_pass": [
+        "P35354",
+        "P00533"
+      ],
       "should_fail": []
     },
     {
@@ -2204,7 +2368,9 @@
       "name": "PubChem Activity to Gene Target",
       "query": ">>pubchem_activity>>ensembl",
       "why": "Map PubChem bioactivity to gene targets",
-      "should_pass": ["2244_1053267_1"],
+      "should_pass": [
+        "2244_1053267_1"
+      ],
       "should_fail": []
     },
     {
@@ -2212,7 +2378,10 @@
       "name": "MONDO Disease to CTD via MeSH Bridge",
       "query": ">>mondo>>mesh>>ctd>>pubchem",
       "why": "Disease to compounds via MeSH bridge - reliable workaround for MONDO->CTD (BUG-010)",
-      "should_pass": ["MONDO:0005148", "MONDO:0005044"],
+      "should_pass": [
+        "MONDO:0005148",
+        "MONDO:0005044"
+      ],
       "should_fail": []
     },
     {
@@ -2220,7 +2389,10 @@
       "name": "MeSH Disease to CTD Compounds",
       "query": ">>mesh>>ctd>>pubchem",
       "why": "Direct MeSH to CTD to PubChem - high-volume toxicogenomics (5000+ for D001943)",
-      "should_pass": ["D001943", "D003924"],
+      "should_pass": [
+        "D001943",
+        "D003924"
+      ],
       "should_fail": []
     },
     {
@@ -2228,26 +2400,38 @@
       "name": "CTD to PubChem Compound",
       "query": ">>ctd>>pubchem",
       "why": "CTD chemical entries to PubChem compound IDs",
-      "should_pass": ["D001241", "C000090"],
+      "should_pass": [
+        "D001241",
+        "C000090"
+      ],
       "should_fail": []
     },
     {
       "category": "disease_drug",
-      "name": "CTD to MONDO Disease",
-      "query": ">>ctd>>mondo",
-      "why": "Reverse mapping from CTD chemical-disease to MONDO ontology",
-      "should_pass": ["D001241", "D003924"],
-      "should_fail": []
+      "name": "CTD to EFO Disease Ontology",
+      "query": ">>ctd>>efo",
+      "why": "CTD chemicals map to EFO disease ontology via disease associations. D001241=Aspirin, D000082=Acetaminophen. D003924 was wrong (disease MeSH, not CTD chemical).",
+      "should_pass": [
+        "D001241",
+        "D000082"
+      ],
+      "should_fail": [
+        "D003924"
+      ]
     },
-
-    {"_comment": "=== NEW TESTS FROM AGENT EXPLORATION (2026-01-31) ==="},
-
+    {
+      "_comment": "=== NEW TESTS FROM AGENT EXPLORATION (2026-01-31) ==="
+    },
     {
       "category": "variant_pharmacogenomics",
       "name": "dbSNP to GWAS Association",
       "query": ">>dbsnp>>gwas",
       "why": "SNP to GWAS association is a core variant analysis use case",
-      "should_pass": ["rs1801133", "rs7412", "rs429358"],
+      "should_pass": [
+        "rs1801133",
+        "rs7412",
+        "rs429358"
+      ],
       "should_fail": []
     },
     {
@@ -2255,7 +2439,10 @@
       "name": "Gene to PharmGKB Clinical Annotations",
       "query": ">>hgnc>>pharmgkb_clinical",
       "why": "Gene to clinical annotations for pharmacogenomic dosing guidelines",
-      "should_pass": ["CYP2C9", "CYP2D6"],
+      "should_pass": [
+        "CYP2C9",
+        "CYP2D6"
+      ],
       "should_fail": []
     },
     {
@@ -2263,7 +2450,9 @@
       "name": "Drug to CPIC Guidelines",
       "query": ">>pharmgkb>>pharmgkb_guideline",
       "why": "CPIC dosing guideline retrieval for pharmacogenomics",
-      "should_pass": ["warfarin"],
+      "should_pass": [
+        "warfarin"
+      ],
       "should_fail": []
     },
     {
@@ -2271,7 +2460,10 @@
       "name": "Protein to AlphaMissense Predictions",
       "query": ">>uniprot>>alphamissense",
       "why": "Get all AI-predicted pathogenic missense variants for a protein",
-      "should_pass": ["P04637", "P38398"],
+      "should_pass": [
+        "P04637",
+        "P38398"
+      ],
       "should_fail": []
     },
     {
@@ -2279,7 +2471,9 @@
       "name": "GWAS Study to SNPs",
       "query": ">>gwas_study>>gwas",
       "why": "Get all SNPs from a GWAS study",
-      "should_pass": ["GCST010481"],
+      "should_pass": [
+        "GCST010481"
+      ],
       "should_fail": []
     },
     {
@@ -2287,16 +2481,21 @@
       "name": "ClinVar to Disease (MONDO)",
       "query": ">>clinvar>>mondo",
       "why": "Variant to disease association lookup",
-      "should_pass": ["1000183"],
+      "should_pass": [
+        "1000183"
+      ],
       "should_fail": []
     },
-
     {
       "category": "disease_drug",
       "name": "Disease to Therapeutic Antibodies",
       "query": ">>mondo>>antibody",
       "why": "Find approved or in-development therapeutic antibodies for diseases",
-      "should_pass": ["MONDO:0005180", "MONDO:0004975", "MONDO:0004989"],
+      "should_pass": [
+        "MONDO:0005180",
+        "MONDO:0004975",
+        "MONDO:0004989"
+      ],
       "should_fail": []
     },
     {
@@ -2304,23 +2503,34 @@
       "name": "DrugCentral via UniProt",
       "query": ">>uniprot>>drugcentral",
       "why": "Find all approved drugs targeting a specific protein",
-      "should_pass": ["P00533", "P04626"],
+      "should_pass": [
+        "P00533",
+        "P04626"
+      ],
       "should_fail": []
     },
     {
       "category": "disease_drug",
       "name": "ChEMBL to DrugCentral",
       "query": ">>chembl_molecule>>drugcentral",
-      "why": "Map ChEMBL compounds to DrugCentral approved drugs via InChIKey lookup",
-      "should_pass": ["CHEMBL25", "CHEMBL941", "CHEMBL1201607"],
-      "should_fail": []
+      "why": "Map ChEMBL compounds to DrugCentral approved drugs via InChIKey lookup. CHEMBL1201607 (Natalizumab) is a biotherapeutic with no DrugCentral mapping.",
+      "should_pass": [
+        "CHEMBL25",
+        "CHEMBL941"
+      ],
+      "should_fail": [
+        "CHEMBL1201607"
+      ]
     },
     {
       "category": "disease_drug",
       "name": "PubChem to DrugCentral",
       "query": ">>pubchem>>drugcentral",
       "why": "Map PubChem compounds to DrugCentral approved drugs via InChIKey lookup",
-      "should_pass": ["2244", "5291"],
+      "should_pass": [
+        "2244",
+        "5291"
+      ],
       "should_fail": []
     },
     {
@@ -2328,7 +2538,9 @@
       "name": "Huntington Disease Gene Associations",
       "query": ">>mondo>>gencc>>ensembl",
       "why": "Huntington disease should have strong GenCC gene associations",
-      "should_pass": ["MONDO:0007739"],
+      "should_pass": [
+        "MONDO:0007739"
+      ],
       "should_fail": []
     },
     {
@@ -2336,16 +2548,20 @@
       "name": "Full ChEMBL Chain - BRAF",
       "query": ">>ensembl>>uniprot>>chembl_target_component>>chembl_target>>chembl_assay>>chembl_activity>>chembl_molecule",
       "why": "BRAF is a validated oncology target with many drugs - test full 7-step chain",
-      "should_pass": ["BRAF"],
+      "should_pass": [
+        "BRAF"
+      ],
       "should_fail": []
     },
-
     {
       "category": "expression_celltype",
       "name": "Gene to Tissues via Bgee",
       "query": ">>ensembl>>bgee>>uberon",
       "why": "Map gene to all tissues where it is expressed",
-      "should_pass": ["BRCA1", "TP53"],
+      "should_pass": [
+        "BRCA1",
+        "TP53"
+      ],
       "should_fail": []
     },
     {
@@ -2353,7 +2569,9 @@
       "name": "Gene to Cell Types via Bgee",
       "query": ">>ensembl>>bgee>>cl",
       "why": "Map gene to cell types with expression",
-      "should_pass": ["TP53"],
+      "should_pass": [
+        "TP53"
+      ],
       "should_fail": []
     },
     {
@@ -2361,7 +2579,10 @@
       "name": "Cell Type to CellXGene Datasets",
       "query": ">>cl>>cellxgene",
       "why": "Find single-cell datasets containing specific cell types",
-      "should_pass": ["CL:0000540", "CL:0000576"],
+      "should_pass": [
+        "CL:0000540",
+        "CL:0000576"
+      ],
       "should_fail": []
     },
     {
@@ -2369,7 +2590,10 @@
       "name": "Tissue to CellXGene Datasets",
       "query": ">>uberon>>cellxgene",
       "why": "Find single-cell datasets for specific tissues",
-      "should_pass": ["UBERON:0000955", "UBERON:0002107"],
+      "should_pass": [
+        "UBERON:0000955",
+        "UBERON:0002107"
+      ],
       "should_fail": []
     },
     {
@@ -2377,7 +2601,9 @@
       "name": "Disease to CellXGene Datasets",
       "query": ">>mondo>>cellxgene",
       "why": "Find disease-specific scRNA-seq datasets",
-      "should_pass": ["MONDO:0007254"],
+      "should_pass": [
+        "MONDO:0007254"
+      ],
       "should_fail": []
     },
     {
@@ -2385,7 +2611,9 @@
       "name": "Gene to SCXA Experiments",
       "query": ">>ensembl>>scxa_expression>>scxa",
       "why": "Map gene to Single Cell Expression Atlas experiments",
-      "should_pass": ["ENSG00000012048"],
+      "should_pass": [
+        "ENSG00000012048"
+      ],
       "should_fail": []
     },
     {
@@ -2393,7 +2621,9 @@
       "name": "Cell Type to SCXA Experiments",
       "query": ">>cl>>scxa",
       "why": "Find SCXA experiments with specific cell types",
-      "should_pass": ["CL:0000084"],
+      "should_pass": [
+        "CL:0000084"
+      ],
       "should_fail": []
     },
     {
@@ -2401,7 +2631,10 @@
       "name": "Gene to SCXA Direct",
       "query": ">>ensembl>>scxa",
       "why": "Simpler path: gene to Single Cell Expression Atlas datasets",
-      "should_pass": ["BRCA1", "TP53"],
+      "should_pass": [
+        "BRCA1",
+        "TP53"
+      ],
       "should_fail": []
     },
     {
@@ -2409,7 +2642,9 @@
       "name": "CellXGene to Disease (Reverse)",
       "query": ">>cellxgene>>mondo",
       "why": "Reverse mapping from CellXGene dataset to associated diseases",
-      "should_pass": ["42B6A476-C51D-4F8B-B68B-44941B3A11BF"],
+      "should_pass": [
+        "42B6A476-C51D-4F8B-B68B-44941B3A11BF"
+      ],
       "should_fail": []
     },
     {
@@ -2417,7 +2652,9 @@
       "name": "CellXGene to Cell Types (Reverse)",
       "query": ">>cellxgene>>cl",
       "why": "Reverse mapping from CellXGene dataset to cell types present",
-      "should_pass": ["42B6A476-C51D-4F8B-B68B-44941B3A11BF"],
+      "should_pass": [
+        "42B6A476-C51D-4F8B-B68B-44941B3A11BF"
+      ],
       "should_fail": []
     },
     {
@@ -2425,7 +2662,9 @@
       "name": "CellXGene to Tissues (Reverse)",
       "query": ">>cellxgene>>uberon",
       "why": "Reverse mapping from CellXGene dataset to tissues sampled",
-      "should_pass": ["42B6A476-C51D-4F8B-B68B-44941B3A11BF"],
+      "should_pass": [
+        "42B6A476-C51D-4F8B-B68B-44941B3A11BF"
+      ],
       "should_fail": []
     },
     {
@@ -2433,16 +2672,19 @@
       "name": "Tissue to CellXGene (Pancreas)",
       "query": ">>uberon>>cellxgene",
       "why": "Find scRNA-seq datasets for pancreas tissue (13 datasets)",
-      "should_pass": ["UBERON:0001264"],
+      "should_pass": [
+        "UBERON:0001264"
+      ],
       "should_fail": []
     },
-
     {
       "category": "pathway_network",
       "name": "Pathway Hierarchy Child",
       "query": ">>reactome>>reactomechild",
       "why": "Test pathway hierarchy navigation downward",
-      "should_pass": ["R-HSA-109582"],
+      "should_pass": [
+        "R-HSA-109582"
+      ],
       "should_fail": []
     },
     {
@@ -2450,7 +2692,9 @@
       "name": "Pathway Hierarchy Parent",
       "query": ">>reactome>>reactomeparent",
       "why": "Test pathway hierarchy navigation upward",
-      "should_pass": ["R-HSA-75892"],
+      "should_pass": [
+        "R-HSA-75892"
+      ],
       "should_fail": []
     },
     {
@@ -2458,7 +2702,10 @@
       "name": "Reactome to UniProt Direct",
       "query": ">>reactome>>uniprot",
       "why": "Map Reactome pathways directly to participating proteins",
-      "should_pass": ["R-HSA-1059683", "R-HSA-2173796"],
+      "should_pass": [
+        "R-HSA-1059683",
+        "R-HSA-2173796"
+      ],
       "should_fail": []
     },
     {
@@ -2466,7 +2713,10 @@
       "name": "Reactome Pathway to Genes",
       "query": ">>reactome>>ensembl",
       "why": "Map Reactome pathways directly to participating genes (41 genes for HDR pathway)",
-      "should_pass": ["R-HSA-5693567", "R-HSA-109582"],
+      "should_pass": [
+        "R-HSA-5693567",
+        "R-HSA-109582"
+      ],
       "should_fail": []
     },
     {
@@ -2474,7 +2724,10 @@
       "name": "GO to Proteins (Reverse Lookup)",
       "query": ">>go>>uniprot",
       "why": "Find proteins with specific molecular function",
-      "should_pass": ["GO:0004672", "GO:0006915"],
+      "should_pass": [
+        "GO:0004672",
+        "GO:0006915"
+      ],
       "should_fail": []
     },
     {
@@ -2482,7 +2735,9 @@
       "name": "Protein to STRING Network",
       "query": ">>uniprot>>string",
       "why": "Map UniProt to STRING for network analysis",
-      "should_pass": ["P04637"],
+      "should_pass": [
+        "P04637"
+      ],
       "should_fail": []
     },
     {
@@ -2490,7 +2745,9 @@
       "name": "STRING to Protein Partners",
       "query": ">>string>>uniprot",
       "why": "Map STRING ID back to UniProt interaction partners",
-      "should_pass": ["9606.ENSP00000269305"],
+      "should_pass": [
+        "9606.ENSP00000269305"
+      ],
       "should_fail": []
     },
     {
@@ -2498,7 +2755,10 @@
       "name": "Protein Interaction Network via IntAct",
       "query": ">>uniprot>>intact>>uniprot",
       "why": "Find protein interaction partners via IntAct",
-      "should_pass": ["P04637", "P38398"],
+      "should_pass": [
+        "P04637",
+        "P38398"
+      ],
       "should_fail": []
     },
     {
@@ -2506,16 +2766,20 @@
       "name": "Protein Interaction Network via BioGRID",
       "query": ">>uniprot>>biogrid>>uniprot",
       "why": "Find BRCA1 interaction partners via BioGRID",
-      "should_pass": ["P38398"],
+      "should_pass": [
+        "P38398"
+      ],
       "should_fail": []
     },
-
     {
       "category": "ontology_hierarchy",
       "name": "MONDO Parent Traversal",
       "query": ">>mondo>>mondoparent",
       "why": "Verify upward traversal in MONDO disease hierarchy",
-      "should_pass": ["MONDO:0005148", "MONDO:0005044"],
+      "should_pass": [
+        "MONDO:0005148",
+        "MONDO:0005044"
+      ],
       "should_fail": []
     },
     {
@@ -2523,7 +2787,9 @@
       "name": "MONDO Child Enumeration",
       "query": ">>mondo>>mondochild",
       "why": "Verify downward traversal to find disease subtypes",
-      "should_pass": ["MONDO:0005148"],
+      "should_pass": [
+        "MONDO:0005148"
+      ],
       "should_fail": []
     },
     {
@@ -2531,7 +2797,10 @@
       "name": "HPO Parent Traversal",
       "query": ">>hpo>>hpoparent",
       "why": "Verify upward traversal in HPO phenotype hierarchy",
-      "should_pass": ["HP:0001250", "HP:0000969"],
+      "should_pass": [
+        "HP:0001250",
+        "HP:0000969"
+      ],
       "should_fail": []
     },
     {
@@ -2539,7 +2808,9 @@
       "name": "HPO Child Enumeration",
       "query": ">>hpo>>hpochild",
       "why": "Verify downward traversal to find phenotype subtypes",
-      "should_pass": ["HP:0001250"],
+      "should_pass": [
+        "HP:0001250"
+      ],
       "should_fail": []
     },
     {
@@ -2547,7 +2818,11 @@
       "name": "HPO to OMIM Disease Mapping",
       "query": ">>hpo>>mim",
       "why": "Map phenotypes to OMIM diseases - from phenotype.hpoa annotations (~160K links)",
-      "should_pass": ["HP:0001250", "HP:0000969", "HP:0001631"],
+      "should_pass": [
+        "HP:0001250",
+        "HP:0000969",
+        "HP:0001631"
+      ],
       "should_fail": []
     },
     {
@@ -2555,7 +2830,10 @@
       "name": "HPO to Orphanet Disease Mapping",
       "query": ">>hpo>>orphanet",
       "why": "Map phenotypes to Orphanet rare diseases - from phenotype.hpoa annotations (~116K links)",
-      "should_pass": ["HP:0001250", "HP:0000969"],
+      "should_pass": [
+        "HP:0001250",
+        "HP:0000969"
+      ],
       "should_fail": []
     },
     {
@@ -2563,23 +2841,33 @@
       "name": "OMIM to HPO Reverse Mapping",
       "query": ">>mim>>hpo",
       "why": "Reverse mapping: find phenotypes associated with an OMIM disease",
-      "should_pass": ["154700", "143100"],
+      "should_pass": [
+        "154700",
+        "143100"
+      ],
       "should_fail": []
     },
     {
       "category": "ontology_hierarchy",
       "name": "Orphanet to HPO Reverse Mapping",
       "query": ">>orphanet>>hpo",
-      "why": "Reverse mapping: find phenotypes associated with an Orphanet disease",
-      "should_pass": ["558", "166"],
-      "should_fail": []
+      "why": "Reverse mapping: find phenotypes associated with an Orphanet disease. Orphanet 166 is a Category type with no HPO phenotypes.",
+      "should_pass": [
+        "558"
+      ],
+      "should_fail": [
+        "166"
+      ]
     },
     {
       "category": "ontology_hierarchy",
       "name": "EFO to MONDO Mapping",
       "query": ">>efo>>mondo",
       "why": "Verify cross-ontology mapping from EFO traits to MONDO diseases",
-      "should_pass": ["EFO:0000400", "EFO:0003767"],
+      "should_pass": [
+        "EFO:0000400",
+        "EFO:0003767"
+      ],
       "should_fail": []
     },
     {
@@ -2587,7 +2875,9 @@
       "name": "MONDO to GenCC Gene Curations",
       "query": ">>mondo>>gencc",
       "why": "Verify disease to gene-disease curation mappings",
-      "should_pass": ["MONDO:0005148"],
+      "should_pass": [
+        "MONDO:0005148"
+      ],
       "should_fail": []
     },
     {
@@ -2595,18 +2885,24 @@
       "name": "MONDO to GWAS Associations",
       "query": ">>mondo>>gwas",
       "why": "Verify disease to GWAS catalog associations",
-      "should_pass": ["MONDO:0005148"],
+      "should_pass": [
+        "MONDO:0005148"
+      ],
       "should_fail": []
     },
-
-    {"_comment": "=== MeSH HIERARCHY TESTS (2026-01-31 - BUG-001 FIXED) ==="},
-
+    {
+      "_comment": "=== MeSH HIERARCHY TESTS (2026-01-31 - BUG-001 FIXED) ==="
+    },
     {
       "category": "ontology_hierarchy",
       "name": "MeSH Parent Traversal",
       "query": ">>mesh>>meshparent",
       "why": "Navigate MeSH tree hierarchy upward - find broader descriptor categories",
-      "should_pass": ["D000001", "D003920", "D006973"],
+      "should_pass": [
+        "D000001",
+        "D003920",
+        "D006973"
+      ],
       "should_fail": []
     },
     {
@@ -2614,7 +2910,10 @@
       "name": "MeSH Child Enumeration",
       "query": ">>mesh>>meshchild",
       "why": "Navigate MeSH tree hierarchy downward - find narrower descriptors",
-      "should_pass": ["D000095662", "D001583"],
+      "should_pass": [
+        "D000095662",
+        "D001583"
+      ],
       "should_fail": []
     },
     {
@@ -2622,8 +2921,13 @@
       "name": "MeSH Entry Lookup",
       "query": "",
       "why": "Basic MeSH descriptor lookup by ID",
-      "should_pass": ["D000001", "D003920"],
-      "should_fail": ["D999999999"]
+      "should_pass": [
+        "D000001",
+        "D003920"
+      ],
+      "should_fail": [
+        "D999999999"
+      ]
     },
     {
       "type": "validation",
@@ -2633,9 +2937,21 @@
       "filter_dataset": "mesh",
       "why": "Verify MeSH descriptor has expected attributes (name, tree numbers, scope note)",
       "validations": [
-        {"path": "entry.Attributes.Mesh.descriptor_name", "expected": "Calcimycin", "description": "Descriptor name is Calcimycin"},
-        {"path": "entry.Attributes.Mesh.tree_numbers", "min_length": 1, "description": "Has at least 1 tree number"},
-        {"path": "entry.Attributes.Mesh.scope_note", "min_length": 10, "description": "Has scope note"}
+        {
+          "path": "entry.Attributes.Mesh.descriptor_name",
+          "expected": "Calcimycin",
+          "description": "Descriptor name is Calcimycin"
+        },
+        {
+          "path": "entry.Attributes.Mesh.tree_numbers",
+          "min_length": 1,
+          "description": "Has at least 1 tree number"
+        },
+        {
+          "path": "entry.Attributes.Mesh.scope_note",
+          "min_length": 10,
+          "description": "Has scope note"
+        }
       ]
     },
     {
@@ -2646,7 +2962,11 @@
       "identifier": "D000001",
       "why": "D000001 (Calcimycin) should have at least 2 parent descriptors from its tree numbers",
       "validations": [
-        {"path": "source.count", "min": 2, "description": "At least 2 parent mappings"}
+        {
+          "path": "source.count",
+          "min": 2,
+          "description": "At least 2 parent mappings"
+        }
       ]
     },
     {
@@ -2654,7 +2974,9 @@
       "name": "MeSH Breast Cancer Subtypes",
       "query": ">>mesh>>meshchild",
       "why": "D001943 (Breast Neoplasms) should have 8 child descriptors including HER2+ and TNBC",
-      "should_pass": ["D001943"],
+      "should_pass": [
+        "D001943"
+      ],
       "should_fail": []
     },
     {
@@ -2662,7 +2984,9 @@
       "name": "MeSH Breast Cancer Parents",
       "query": ">>mesh>>meshparent",
       "why": "D001943 (Breast Neoplasms) should have 2 parent descriptors",
-      "should_pass": ["D001943"],
+      "should_pass": [
+        "D001943"
+      ],
       "should_fail": []
     },
     {
@@ -2673,18 +2997,24 @@
       "identifier": "D001943",
       "why": "D001943 (Breast Neoplasms) should have exactly 8 child subtypes",
       "validations": [
-        {"path": "source.count", "min": 8, "description": "At least 8 child subtypes"}
+        {
+          "path": "source.count",
+          "min": 8,
+          "description": "At least 8 child subtypes"
+        }
       ]
     },
-
-    {"_comment": "=== CLINICAL TRIALS TESTS (2026-02-01) ==="},
-
+    {
+      "_comment": "=== CLINICAL TRIALS TESTS (2026-02-01) ==="
+    },
     {
       "category": "clinical_trials",
       "name": "Trial to Diseases (High Count)",
       "query": ">>clinical_trials>>mondo",
       "why": "NCT00000466 has 106 associated MONDO disease terms - tests high-volume mappings",
-      "should_pass": ["NCT00000466"],
+      "should_pass": [
+        "NCT00000466"
+      ],
       "should_fail": []
     },
     {
@@ -2692,18 +3022,22 @@
       "name": "Diabetes Clinical Trials",
       "query": ">>mondo>>clinical_trials",
       "why": "MONDO:0005148 (Type 2 Diabetes) has 12,000+ clinical trials",
-      "should_pass": ["MONDO:0005148"],
+      "should_pass": [
+        "MONDO:0005148"
+      ],
       "should_fail": []
     },
-
-    {"_comment": "=== MULTI-AGENT DISCOVERY TESTS (2026-02-01) ==="},
-
+    {
+      "_comment": "=== MULTI-AGENT DISCOVERY TESTS (2026-02-01) ==="
+    },
     {
       "category": "disease_drug",
       "name": "Rare Disease FDA-Approved Drugs",
       "query": ">>mondo>>gencc>>ensembl>>uniprot>>pubchem_activity>>pubchem[pubchem.is_fda_approved==true]",
       "why": "Full rare disease to FDA-approved drugs pipeline (54 drugs for Huntington's target)",
-      "should_pass": ["MONDO:0007739"],
+      "should_pass": [
+        "MONDO:0007739"
+      ],
       "should_fail": []
     },
     {
@@ -2711,7 +3045,9 @@
       "name": "ALS Gene Targets",
       "query": ">>mondo>>gencc>>ensembl",
       "why": "ALS (MONDO:0004976) has 33 GenCC-curated genes",
-      "should_pass": ["MONDO:0004976"],
+      "should_pass": [
+        "MONDO:0004976"
+      ],
       "should_fail": []
     },
     {
@@ -2719,16 +3055,20 @@
       "name": "Therapeutic Antibodies for ALS",
       "query": ">>mondo>>antibody",
       "why": "Find therapeutic antibodies in development (4 for ALS including Tocilizumab)",
-      "should_pass": ["MONDO:0004976", "MONDO:0007739"],
+      "should_pass": [
+        "MONDO:0004976",
+        "MONDO:0007739"
+      ],
       "should_fail": []
     },
-
     {
       "category": "pathway_network",
       "name": "DNA Repair Pathway Genes",
       "query": ">>reactome>>ensembl",
       "why": "R-HSA-73894 (DNA Repair) contains 138 genes",
-      "should_pass": ["R-HSA-73894"],
+      "should_pass": [
+        "R-HSA-73894"
+      ],
       "should_fail": []
     },
     {
@@ -2736,7 +3076,9 @@
       "name": "Apoptosis Sub-Pathways",
       "query": ">>reactome>>reactomechild",
       "why": "R-HSA-109581 (Apoptosis) has 4 child pathways",
-      "should_pass": ["R-HSA-109581"],
+      "should_pass": [
+        "R-HSA-109581"
+      ],
       "should_fail": []
     },
     {
@@ -2744,7 +3086,9 @@
       "name": "SwissLipids to Proteins",
       "query": ">>swisslipids>>uniprot",
       "why": "Cholesterol (SLM:000000287) links to 60 proteins including CYP enzymes",
-      "should_pass": ["SLM:000000287"],
+      "should_pass": [
+        "SLM:000000287"
+      ],
       "should_fail": []
     },
     {
@@ -2752,25 +3096,32 @@
       "name": "Rhea Enzymatic Reactions",
       "query": ">>uniprot>>rhea",
       "why": "EGFR (P00533) links to RHEA:10596 tyrosine kinase reaction",
-      "should_pass": ["P00533"],
+      "should_pass": [
+        "P00533"
+      ],
       "should_fail": []
     },
-
     {
       "category": "gene_mapping",
       "name": "Cross-Species Orthologs",
       "query": ">>ensembl>>ortholog",
       "why": "TP53 has orthologs in mouse, rat, zebrafish, fly",
-      "should_pass": ["ENSG00000141510", "ENSG00000012048"],
+      "should_pass": [
+        "ENSG00000141510",
+        "ENSG00000012048"
+      ],
       "should_fail": []
     },
-
     {
       "category": "variant_pharmacogenomics",
       "name": "Pharmacogene Clinical Annotations (CYP2D6)",
       "query": ">>hgnc>>pharmgkb_clinical",
       "why": "CYP2D6 has 75+ clinical annotations with evidence levels",
-      "should_pass": ["CYP2D6", "CYP2C19", "CYP2C9"],
+      "should_pass": [
+        "CYP2D6",
+        "CYP2C19",
+        "CYP2C9"
+      ],
       "should_fail": []
     },
     {
@@ -2778,7 +3129,10 @@
       "name": "Drug Metabolism Pathway",
       "query": ">>pharmgkb>>pharmgkb_pathway",
       "why": "Warfarin has 2 pathways (PK + PD) with CYP genes",
-      "should_pass": ["warfarin", "clopidogrel"],
+      "should_pass": [
+        "warfarin",
+        "clopidogrel"
+      ],
       "should_fail": []
     },
     {
@@ -2786,7 +3140,9 @@
       "name": "PubChem to PharmGKB Bidirectional",
       "query": ">>pubchem>>pharmgkb",
       "why": "Warfarin PubChem CID 54678486 links to PA451906",
-      "should_pass": ["54678486"],
+      "should_pass": [
+        "54678486"
+      ],
       "should_fail": []
     },
     {
@@ -2794,16 +3150,20 @@
       "name": "Pharmacogenomic SNP GWAS",
       "query": ">>dbsnp>>gwas",
       "why": "rs1799853 (CYP2C9*2) has 19 GWAS associations for drug response",
-      "should_pass": ["rs1799853", "rs1057910"],
+      "should_pass": [
+        "rs1799853",
+        "rs1057910"
+      ],
       "should_fail": []
     },
-
     {
       "category": "expression_celltype",
       "name": "COVID-19 Single-Cell Datasets",
       "query": ">>mondo>>cellxgene",
       "why": "COVID-19 (MONDO:0100096) has 63 scRNA-seq datasets",
-      "should_pass": ["MONDO:0100096"],
+      "should_pass": [
+        "MONDO:0100096"
+      ],
       "should_fail": []
     },
     {
@@ -2811,7 +3171,9 @@
       "name": "Alzheimer's Single-Cell Datasets",
       "query": ">>mondo>>cellxgene",
       "why": "Alzheimer's (MONDO:0004975) has 25 scRNA-seq datasets",
-      "should_pass": ["MONDO:0004975"],
+      "should_pass": [
+        "MONDO:0004975"
+      ],
       "should_fail": []
     },
     {
@@ -2819,7 +3181,9 @@
       "name": "Rare Cell Type Datasets (Purkinje)",
       "query": ">>cl>>cellxgene",
       "why": "Even rare cell types like Purkinje cells have datasets (16)",
-      "should_pass": ["CL:0000121"],
+      "should_pass": [
+        "CL:0000121"
+      ],
       "should_fail": []
     },
     {
@@ -2827,16 +3191,21 @@
       "name": "Bgee Expression Breadth",
       "query": ">>ensembl>>bgee",
       "why": "TP53 has 223 present calls across 281 conditions",
-      "should_pass": ["ENSG00000141510"],
+      "should_pass": [
+        "ENSG00000141510"
+      ],
       "should_fail": []
     },
-
     {
       "category": "clinical_variants",
       "name": "Human-Specific Pathogenic Variants",
       "query": ">>ensembl[ensembl.genome==\"homo_sapiens\"]>>clinvar[clinvar.germline_classification==\"Pathogenic\"]",
       "why": "Filter for human-only pathogenic variants (avoids mouse/rat orthologs)",
-      "should_pass": ["BRCA1", "CFTR", "DMD"],
+      "should_pass": [
+        "BRCA1",
+        "CFTR",
+        "DMD"
+      ],
       "should_fail": []
     },
     {
@@ -2844,18 +3213,24 @@
       "name": "HPO to ClinVar Variants",
       "query": ">>hpo>>clinvar",
       "why": "Phenotype to variants works (150+ for seizures HP:0001250)",
-      "should_pass": ["HP:0001250", "HP:0001638"],
+      "should_pass": [
+        "HP:0001250",
+        "HP:0001638"
+      ],
       "should_fail": []
     },
-
-    {"_comment": "=== WORKING FILTER TESTS (2026-02-01) ==="},
-
+    {
+      "_comment": "=== WORKING FILTER TESTS (2026-02-01) ==="
+    },
     {
       "category": "filters_working",
       "name": "PubChem FDA Approved Filter",
       "query": ">>pubchem[pubchem.is_fda_approved==true]",
       "why": "Filter for FDA-approved drugs only",
-      "should_pass": ["aspirin", "metformin"],
+      "should_pass": [
+        "aspirin",
+        "metformin"
+      ],
       "should_fail": []
     },
     {
@@ -2863,7 +3238,10 @@
       "name": "PubChem Compound Type Drug Filter",
       "query": ">>pubchem[pubchem.compound_type==\"drug\"]",
       "why": "Filter for drug compounds vs bioactive/literature",
-      "should_pass": ["aspirin", "metformin"],
+      "should_pass": [
+        "aspirin",
+        "metformin"
+      ],
       "should_fail": []
     },
     {
@@ -2871,7 +3249,10 @@
       "name": "PubChem Lipinski H-bond Donors",
       "query": ">>pubchem[pubchem.hydrogen_bond_donors<=5]",
       "why": "Lipinski Rule of 5 - H-bond donors filter works",
-      "should_pass": ["aspirin", "caffeine"],
+      "should_pass": [
+        "aspirin",
+        "caffeine"
+      ],
       "should_fail": []
     },
     {
@@ -2879,7 +3260,9 @@
       "name": "PubChem Rotatable Bonds Filter",
       "query": ">>pubchem[pubchem.rotatable_bonds<10]",
       "why": "Drug-likeness filter for molecular flexibility",
-      "should_pass": ["aspirin"],
+      "should_pass": [
+        "aspirin"
+      ],
       "should_fail": []
     },
     {
@@ -2887,7 +3270,9 @@
       "name": "ChEMBL Phase 4 Approved Drugs",
       "query": ">>ensembl>>uniprot>>chembl_target_component>>chembl_target>>chembl_assay>>chembl_activity>>chembl_molecule[chembl.molecule.highestDevelopmentPhase==4]",
       "why": "Filter for approved drugs (phase 4) - 157 for EGFR",
-      "should_pass": ["EGFR"],
+      "should_pass": [
+        "EGFR"
+      ],
       "should_fail": []
     },
     {
@@ -2895,7 +3280,10 @@
       "name": "ChEMBL Phase 3+ Drugs",
       "query": ">>ensembl>>uniprot>>chembl_target_component>>chembl_target>>chembl_assay>>chembl_activity>>chembl_molecule[chembl.molecule.highestDevelopmentPhase>2]",
       "why": "Filter for Phase 3 and above drugs",
-      "should_pass": ["EGFR", "TP53"],
+      "should_pass": [
+        "EGFR",
+        "TP53"
+      ],
       "should_fail": []
     },
     {
@@ -2903,7 +3291,11 @@
       "name": "ClinVar Pathogenic Filter",
       "query": ">>hgnc>>clinvar[clinvar.germline_classification==\"Pathogenic\"]",
       "why": "Filter for pathogenic variants only - 150+ for BRCA1",
-      "should_pass": ["BRCA1", "TP53", "CFTR"],
+      "should_pass": [
+        "BRCA1",
+        "TP53",
+        "CFTR"
+      ],
       "should_fail": []
     },
     {
@@ -2911,7 +3303,10 @@
       "name": "ClinVar Likely Pathogenic Filter",
       "query": ">>hgnc>>clinvar[clinvar.germline_classification==\"Likely pathogenic\"]",
       "why": "Filter for likely pathogenic variants",
-      "should_pass": ["BRCA1", "TP53"],
+      "should_pass": [
+        "BRCA1",
+        "TP53"
+      ],
       "should_fail": []
     },
     {
@@ -2919,7 +3314,10 @@
       "name": "AlphaMissense Class Filter",
       "query": ">>uniprot>>alphamissense[alphamissense.am_class==\"likely_pathogenic\"]",
       "why": "Filter for likely pathogenic missense variants - 150+ for P04637",
-      "should_pass": ["P04637", "P00533"],
+      "should_pass": [
+        "P04637",
+        "P00533"
+      ],
       "should_fail": []
     },
     {
@@ -2927,7 +3325,9 @@
       "name": "AlphaMissense Score Filter",
       "query": ">>uniprot>>alphamissense[alphamissense.am_pathogenicity>0.8]",
       "why": "Filter by pathogenicity score > 0.8",
-      "should_pass": ["P04637"],
+      "should_pass": [
+        "P04637"
+      ],
       "should_fail": []
     },
     {
@@ -2935,7 +3335,11 @@
       "name": "PharmGKB Level 1A Evidence",
       "query": ">>hgnc>>pharmgkb_clinical[pharmgkb_clinical.level_of_evidence==\"1A\"]",
       "why": "Filter for highest evidence clinical annotations - 32 for CYP2D6",
-      "should_pass": ["CYP2D6", "CYP2C19", "CYP2C9"],
+      "should_pass": [
+        "CYP2D6",
+        "CYP2C19",
+        "CYP2C9"
+      ],
       "should_fail": []
     },
     {
@@ -2943,7 +3347,10 @@
       "name": "PharmGKB CPIC Guidelines",
       "query": ">>pharmgkb>>pharmgkb_guideline[pharmgkb_guideline.source==\"CPIC\"]",
       "why": "Filter for CPIC dosing guidelines",
-      "should_pass": ["warfarin", "clopidogrel"],
+      "should_pass": [
+        "warfarin",
+        "clopidogrel"
+      ],
       "should_fail": []
     },
     {
@@ -2951,7 +3358,10 @@
       "name": "GenCC Definitive Evidence",
       "query": ">>gencc[gencc.classification_title==\"Definitive\"]",
       "why": "Filter for definitive gene-disease evidence",
-      "should_pass": ["BRCA1", "CFTR"],
+      "should_pass": [
+        "BRCA1",
+        "CFTR"
+      ],
       "should_fail": []
     },
     {
@@ -2959,7 +3369,10 @@
       "name": "GenCC Strong Evidence",
       "query": ">>gencc[gencc.classification_title==\"Strong\"]",
       "why": "Filter for strong gene-disease evidence - 4 for TP53",
-      "should_pass": ["TP53", "BRCA2"],
+      "should_pass": [
+        "TP53",
+        "BRCA2"
+      ],
       "should_fail": []
     },
     {
@@ -2967,7 +3380,10 @@
       "name": "GenCC Autosomal Dominant",
       "query": ">>gencc[gencc.moi_title==\"Autosomal dominant\"]",
       "why": "Filter by inheritance mode",
-      "should_pass": ["BRCA1", "TP53"],
+      "should_pass": [
+        "BRCA1",
+        "TP53"
+      ],
       "should_fail": []
     },
     {
@@ -2975,7 +3391,9 @@
       "name": "GWAS Genome-Wide Significant",
       "query": ">>ensembl>>gwas[gwas.p_value<0.00000005]",
       "why": "Filter for genome-wide significant associations (p<5e-8)",
-      "should_pass": ["BRCA1"],
+      "should_pass": [
+        "BRCA1"
+      ],
       "should_fail": []
     },
     {
@@ -2983,7 +3401,10 @@
       "name": "GO Biological Process Filter",
       "query": ">>uniprot>>go[go.type==\"biological_process\"]",
       "why": "Filter for biological process GO terms - 120 for TP53",
-      "should_pass": ["P04637", "P00533"],
+      "should_pass": [
+        "P04637",
+        "P00533"
+      ],
       "should_fail": []
     },
     {
@@ -2991,7 +3412,10 @@
       "name": "GO Molecular Function Filter",
       "query": ">>uniprot>>go[go.type==\"molecular_function\"]",
       "why": "Filter for molecular function GO terms",
-      "should_pass": ["P04637", "P00533"],
+      "should_pass": [
+        "P04637",
+        "P00533"
+      ],
       "should_fail": []
     },
     {
@@ -2999,7 +3423,9 @@
       "name": "GO Cellular Component Filter",
       "query": ">>uniprot>>go[go.type==\"cellular_component\"]",
       "why": "Filter for cellular component GO terms - 18 for TP53",
-      "should_pass": ["P04637"],
+      "should_pass": [
+        "P04637"
+      ],
       "should_fail": []
     },
     {
@@ -3007,7 +3433,11 @@
       "name": "UniProt Reviewed Swiss-Prot",
       "query": ">>ensembl>>uniprot[uniprot.reviewed==true]",
       "why": "Filter for curated Swiss-Prot entries only",
-      "should_pass": ["TP53", "EGFR", "BRCA1"],
+      "should_pass": [
+        "TP53",
+        "EGFR",
+        "BRCA1"
+      ],
       "should_fail": []
     },
     {
@@ -3015,7 +3445,10 @@
       "name": "InterPro Domain Filter",
       "query": ">>ensembl>>uniprot>>interpro[interpro.type==\"Domain\"]",
       "why": "Filter for protein domains - 20 for EGFR",
-      "should_pass": ["EGFR", "TP53"],
+      "should_pass": [
+        "EGFR",
+        "TP53"
+      ],
       "should_fail": []
     },
     {
@@ -3023,7 +3456,9 @@
       "name": "InterPro Family Filter",
       "query": ">>ensembl>>uniprot>>interpro[interpro.type==\"Family\"]",
       "why": "Filter for protein families",
-      "should_pass": ["EGFR"],
+      "should_pass": [
+        "EGFR"
+      ],
       "should_fail": []
     },
     {
@@ -3031,7 +3466,10 @@
       "name": "Antibody Therapeutic Type",
       "query": ">>ensembl>>antibody[antibody.antibody_type==\"therapeutic\"]",
       "why": "Filter for therapeutic antibodies - 130 for EGFR",
-      "should_pass": ["EGFR", "HER2"],
+      "should_pass": [
+        "EGFR",
+        "HER2"
+      ],
       "should_fail": []
     },
     {
@@ -3039,7 +3477,10 @@
       "name": "Ensembl Human Genome Filter",
       "query": ">>ensembl[ensembl.genome==\"homo_sapiens\"]>>uniprot",
       "why": "Filter for human genes only",
-      "should_pass": ["TP53", "BRCA1"],
+      "should_pass": [
+        "TP53",
+        "BRCA1"
+      ],
       "should_fail": []
     },
     {
@@ -3047,7 +3488,9 @@
       "name": "UniProt Feature Modified Residue",
       "query": ">>uniprot>>ufeature[ufeature.type==\"modified residue\"]",
       "why": "Filter for phosphorylation sites - 74 for EGFR",
-      "should_pass": ["P00533"],
+      "should_pass": [
+        "P00533"
+      ],
       "should_fail": []
     },
     {
@@ -3055,18 +3498,23 @@
       "name": "UniProt Feature Disulfide Bond",
       "query": ">>uniprot>>ufeature[ufeature.type==\"disulfide bond\"]",
       "why": "Filter for disulfide bonds - 100 for EGFR",
-      "should_pass": ["P00533"],
+      "should_pass": [
+        "P00533"
+      ],
       "should_fail": []
     },
-
-    {"_comment": "=== BROKEN FILTER TESTS (2026-02-01) - Document for fixing ==="},
-
+    {
+      "_comment": "=== BROKEN FILTER TESTS (2026-02-01) - Document for fixing ==="
+    },
     {
       "category": "filters_working",
       "name": "Clinical Trials Phase Filter (FIXED)",
       "query": ">>mondo>>clinical_trials[clinical_trials.phase==\"PHASE3\"]",
       "why": "FIXED: Added CEL registration for clinical_trials",
-      "should_pass": ["Huntington", "diabetes"],
+      "should_pass": [
+        "Huntington",
+        "diabetes"
+      ],
       "should_fail": []
     },
     {
@@ -3074,7 +3522,9 @@
       "name": "AlphaFold Global Metric Filter (FIXED - use .0)",
       "query": ">>uniprot>>alphafold[alphafold.global_metric>70.0]",
       "why": "FIXED: Use .0 suffix for float comparisons",
-      "should_pass": ["P04637"],
+      "should_pass": [
+        "P04637"
+      ],
       "should_fail": []
     },
     {
@@ -3082,7 +3532,9 @@
       "name": "AlphaFold Mean PAE Filter",
       "query": ">>uniprot>>alphafold[alphafold.mean_pae<25.0]",
       "why": "Filter for low prediction error structures",
-      "should_pass": ["P04637"],
+      "should_pass": [
+        "P04637"
+      ],
       "should_fail": []
     },
     {
@@ -3090,7 +3542,9 @@
       "name": "Bgee Max Expression Score Filter (FIXED)",
       "query": ">>ensembl>>bgee[bgee.max_expression_score>90.0]",
       "why": "FIXED: Use top-level max_expression_score instead of nested field",
-      "should_pass": ["ENSG00000141510"],
+      "should_pass": [
+        "ENSG00000141510"
+      ],
       "should_fail": []
     },
     {
@@ -3098,7 +3552,9 @@
       "name": "Bgee Gold Quality Count Filter",
       "query": ">>ensembl>>bgee[bgee.gold_quality_count>10]",
       "why": "Filter for genes with many high-quality expression calls",
-      "should_pass": ["ENSG00000141510"],
+      "should_pass": [
+        "ENSG00000141510"
+      ],
       "should_fail": []
     },
     {
@@ -3106,7 +3562,9 @@
       "name": "Bgee Average Expression Score Filter",
       "query": ">>ensembl>>bgee[bgee.average_expression_score>70.0]",
       "why": "Filter for genes with high average expression (TP53 has 77.6)",
-      "should_pass": ["ENSG00000141510"],
+      "should_pass": [
+        "ENSG00000141510"
+      ],
       "should_fail": []
     },
     {
@@ -3114,7 +3572,9 @@
       "name": "Bgee Expression Breadth Filter",
       "query": ">>ensembl>>bgee[bgee.expression_breadth==\"ubiquitous\"]",
       "why": "Filter for ubiquitously expressed genes (TP53 is ubiquitous)",
-      "should_pass": ["ENSG00000141510"],
+      "should_pass": [
+        "ENSG00000141510"
+      ],
       "should_fail": []
     },
     {
@@ -3122,7 +3582,10 @@
       "name": "PubChem Molecular Weight Filter (FIXED - use .0)",
       "query": ">>pubchem[pubchem.molecular_weight<500.0]",
       "why": "FIXED: Use .0 suffix for float comparisons (Lipinski rule)",
-      "should_pass": ["aspirin", "caffeine"],
+      "should_pass": [
+        "aspirin",
+        "caffeine"
+      ],
       "should_fail": []
     },
     {
@@ -3130,7 +3593,9 @@
       "name": "PubChem LogP Filter",
       "query": ">>pubchem[pubchem.xlogp<5.0]",
       "why": "Lipinski Rule of 5 - lipophilicity filter",
-      "should_pass": ["aspirin"],
+      "should_pass": [
+        "aspirin"
+      ],
       "should_fail": []
     },
     {
@@ -3138,7 +3603,9 @@
       "name": "PubChem TPSA Filter",
       "query": ">>pubchem[pubchem.tpsa<140.0]",
       "why": "Lipinski extension - polar surface area filter",
-      "should_pass": ["aspirin"],
+      "should_pass": [
+        "aspirin"
+      ],
       "should_fail": []
     },
     {
@@ -3146,7 +3613,9 @@
       "name": "GWAS pvalue_mlog Filter (FIXED - use .0)",
       "query": ">>dbsnp>>gwas[gwas.pvalue_mlog>5.0]",
       "why": "FIXED: Use .0 suffix for float comparisons",
-      "should_pass": ["rs1799853"],
+      "should_pass": [
+        "rs1799853"
+      ],
       "should_fail": []
     },
     {
@@ -3154,7 +3623,9 @@
       "name": "Clinical Trials Phase 3 Filter (FIXED)",
       "query": ">>mondo>>clinical_trials[clinical_trials.phase==\"PHASE3\"]",
       "why": "FIXED: clinical_trials CEL now registered. Phase values are UPPERCASE",
-      "should_pass": ["MONDO:0007739"],
+      "should_pass": [
+        "MONDO:0007739"
+      ],
       "should_fail": []
     },
     {
@@ -3162,19 +3633,23 @@
       "name": "Clinical Trials Recruiting Filter",
       "query": ">>mondo>>clinical_trials[clinical_trials.overall_status==\"RECRUITING\"]",
       "why": "Filter for actively recruiting trials",
-      "should_pass": ["MONDO:0005148"],
+      "should_pass": [
+        "MONDO:0005148"
+      ],
       "should_fail": []
     },
-
-    {"_comment": "=== KNOWN ISSUES (2026-02-01 Updated) ==="},
-
+    {
+      "_comment": "=== KNOWN ISSUES (2026-02-01 Updated) ==="
+    },
     {
       "category": "known_issues",
       "name": "HPO to MONDO Reverse (KNOWN BUG)",
       "query": ">>hpo>>mondo",
       "why": "Document known reverse mapping failure (BUG-005)",
       "should_pass": [],
-      "should_fail": ["HP:0001250"],
+      "should_fail": [
+        "HP:0001250"
+      ],
       "known_issue": true
     },
     {
@@ -3183,7 +3658,9 @@
       "query": ">>mondo>>ctd>>pubchem",
       "why": "Direct MONDO->CTD fails. WORKAROUND: Use >>mondo>>mesh>>ctd>>pubchem instead",
       "should_pass": [],
-      "should_fail": ["MONDO:0005148"],
+      "should_fail": [
+        "MONDO:0005148"
+      ],
       "known_issue": true,
       "workaround": ">>mondo>>mesh>>ctd>>pubchem"
     },
@@ -3193,28 +3670,39 @@
       "query": ">>reactome>>uniprot",
       "why": "Direct pathway->protein fails. WORKAROUND: Use >>reactome>>ensembl>>uniprot",
       "should_pass": [],
-      "should_fail": ["R-HSA-5693567"],
+      "should_fail": [
+        "R-HSA-5693567"
+      ],
       "known_issue": true,
       "workaround": ">>reactome>>ensembl>>uniprot"
     },
-
-    {"_comment": "=== MULTI-AGENT DISCOVERY TESTS v2 (2026-02-03) ==="},
-    {"_comment": "New use cases discovered by parallel agents exploring ncRNA, toxicogenomics, MSigDB, AlphaMissense, rare diseases, and complex pipelines"},
-
+    {
+      "_comment": "=== MULTI-AGENT DISCOVERY TESTS v2 (2026-02-03) ==="
+    },
+    {
+      "_comment": "New use cases discovered by parallel agents exploring ncRNA, toxicogenomics, MSigDB, AlphaMissense, rare diseases, and complex pipelines"
+    },
     {
       "category": "ncRNA_analysis",
       "name": "miRNA Drug Target Discovery (ChEMBL)",
       "query": ">>ensembl>>chembl_target_component>>chembl_target>>chembl_assay>>chembl_activity>>chembl_molecule",
-      "why": "Find compounds tested against oncogenic miRNAs - 150+ for miR-21, 36 for miR-122 (HCV target)",
-      "should_pass": ["MIR21", "MIR122", "MIR155"],
-      "should_fail": []
+      "why": "Find compounds tested against oncogenic miRNAs - 150+ for miR-21, 36 for miR-122 (HCV target). MIR155 has no ChEMBL target component mapping.",
+      "should_pass": [
+        "MIR21",
+        "MIR122"
+      ],
+      "should_fail": [
+        "MIR155"
+      ]
     },
     {
       "category": "ncRNA_analysis",
       "name": "miRNA Tissue Expression via Bgee",
       "query": ">>ensembl>>bgee>>uberon",
       "why": "Find tissues where miRNAs are expressed - 12 tissues for miR-21",
-      "should_pass": ["MIR21"],
+      "should_pass": [
+        "MIR21"
+      ],
       "should_fail": []
     },
     {
@@ -3222,7 +3710,9 @@
       "name": "lncRNA Pharmacogenomic Status",
       "query": ">>hgnc>>pharmgkb_gene",
       "why": "Check if lncRNAs are VIP pharmacogenes - MALAT1 is recognized",
-      "should_pass": ["MALAT1"],
+      "should_pass": [
+        "MALAT1"
+      ],
       "should_fail": []
     },
     {
@@ -3230,24 +3720,33 @@
       "name": "miRNA Cross-Species Conservation",
       "query": ">>ensembl>>ortholog",
       "why": "Find miRNA orthologs across species - 78 for 3 miRNAs",
-      "should_pass": ["MIR21", "MIR155", "MIR122"],
+      "should_pass": [
+        "MIR21",
+        "MIR155",
+        "MIR122"
+      ],
       "should_fail": []
     },
     {
       "category": "ncRNA_analysis",
       "name": "lncRNA ClinVar Variants",
       "query": ">>ensembl>>clinvar",
-      "why": "Find clinical variants in lncRNA genes - 38 for HOTAIR",
-      "should_pass": ["HOTAIR", "MALAT1"],
-      "should_fail": []
+      "why": "Find clinical variants in lncRNA genes - 38 for HOTAIR. MALAT1 resolves to zebrafish first and has no ClinVar entries.",
+      "should_pass": [
+        "HOTAIR"
+      ],
+      "should_fail": [
+        "MALAT1"
+      ]
     },
-
     {
       "category": "toxicogenomics",
       "name": "CTD Chemical to Gene Targets",
       "query": ">>ctd>>entrez",
       "why": "Find genes affected by chemical exposure - 24 for Acetaminophen",
-      "should_pass": ["D000082"],
+      "should_pass": [
+        "D000082"
+      ],
       "should_fail": []
     },
     {
@@ -3255,7 +3754,9 @@
       "name": "CTD Chemical to Pathways (4 hops)",
       "query": ">>ctd>>entrez>>ensembl>>reactome",
       "why": "Map toxic chemicals to affected pathways - 124 pathways for Acetaminophen",
-      "should_pass": ["D000082"],
+      "should_pass": [
+        "D000082"
+      ],
       "should_fail": []
     },
     {
@@ -3263,7 +3764,9 @@
       "name": "Disease to Toxic Chemicals via MeSH",
       "query": ">>mesh>>ctd",
       "why": "Find chemicals associated with diseases - 150+ for breast neoplasms",
-      "should_pass": ["D001943"],
+      "should_pass": [
+        "D001943"
+      ],
       "should_fail": []
     },
     {
@@ -3271,16 +3774,21 @@
       "name": "BindingDB to PubChem Cross-Reference",
       "query": ">>bindingdb>>pubchem",
       "why": "Map BindingDB entries to PubChem compounds",
-      "should_pass": ["50000308"],
+      "should_pass": [
+        "50000308"
+      ],
       "should_fail": []
     },
-
     {
       "category": "gene_sets",
       "name": "Gene to All MSigDB Gene Sets",
       "query": ">>hgnc>>msigdb",
       "why": "Find all gene sets containing a gene - 150+ for TP53",
-      "should_pass": ["TP53", "BRCA1", "MYC"],
+      "should_pass": [
+        "TP53",
+        "BRCA1",
+        "MYC"
+      ],
       "should_fail": []
     },
     {
@@ -3288,7 +3796,10 @@
       "name": "Gene to Hallmark Gene Sets",
       "query": ">>hgnc>>msigdb[msigdb.collection==\"H\"]",
       "why": "Filter to Hallmark collection only - 4 for TP53, 5 for CASP3",
-      "should_pass": ["TP53", "CASP3"],
+      "should_pass": [
+        "TP53",
+        "CASP3"
+      ],
       "should_fail": []
     },
     {
@@ -3296,7 +3807,10 @@
       "name": "Gene to Curated Gene Sets (C2)",
       "query": ">>hgnc>>msigdb[msigdb.collection==\"C2\"]",
       "why": "Filter to curated pathways (KEGG, Reactome, BioCarta) - 98 for BRCA1",
-      "should_pass": ["BRCA1", "TP53"],
+      "should_pass": [
+        "BRCA1",
+        "TP53"
+      ],
       "should_fail": []
     },
     {
@@ -3304,7 +3818,10 @@
       "name": "Gene Set to Member Genes",
       "query": ">>msigdb>>hgnc",
       "why": "Extract genes from a gene set - 161 genes from HALLMARK_APOPTOSIS",
-      "should_pass": ["M5902", "HALLMARK_APOPTOSIS"],
+      "should_pass": [
+        "M5902",
+        "HALLMARK_APOPTOSIS"
+      ],
       "should_fail": []
     },
     {
@@ -3312,7 +3829,10 @@
       "name": "HGNC ID to MSigDB Gene Sets",
       "query": ">>hgnc>>msigdb",
       "why": "Proper HGNC IDs (HGNC:####) should resolve to gene sets, not just gene symbols. Requires lookup database.",
-      "should_pass": ["HGNC:1100", "HGNC:11998"],
+      "should_pass": [
+        "HGNC:1100",
+        "HGNC:11998"
+      ],
       "should_fail": []
     },
     {
@@ -3320,23 +3840,35 @@
       "name": "MSigDB C5:GO Gene Set to GO Term",
       "query": ">>msigdb>>go",
       "why": "C5:GO gene sets should map to their source GO term (BUG-014 fixed)",
-      "should_pass": ["GOBP_APOPTOTIC_PROCESS", "M45068"],
-      "should_fail": ["M5890"]
+      "should_pass": [
+        "GOBP_APOPTOTIC_PROCESS",
+        "M45068"
+      ],
+      "should_fail": [
+        "M5890"
+      ]
     },
     {
       "category": "gene_sets",
       "name": "MSigDB C5:HPO Gene Set to HPO Term",
       "query": ">>msigdb>>hpo",
       "why": "C5:HPO gene sets should map to their source HPO term (BUG-015 fixed)",
-      "should_pass": ["M34476"],
-      "should_fail": ["M5890"]
+      "should_pass": [
+        "M34476"
+      ],
+      "should_fail": [
+        "M5890"
+      ]
     },
     {
       "category": "gene_sets",
       "name": "GO Term to MSigDB Gene Sets",
       "query": ">>go>>msigdb",
       "why": "Reverse mapping: find MSigDB gene sets derived from a GO term (BUG-014 fixed)",
-      "should_pass": ["GO:0006915", "GO:0007049"],
+      "should_pass": [
+        "GO:0006915",
+        "GO:0007049"
+      ],
       "should_fail": []
     },
     {
@@ -3344,24 +3876,35 @@
       "name": "HPO Term to MSigDB Gene Sets",
       "query": ">>hpo>>msigdb",
       "why": "Reverse mapping: find MSigDB gene sets derived from an HPO term (BUG-015 fixed)",
-      "should_pass": ["HP:0000003", "HP:0000010", "HP:0000020"],
-      "should_fail": ["HP:0001250"]
+      "should_pass": [
+        "HP:0000003",
+        "HP:0000010",
+        "HP:0000020"
+      ],
+      "should_fail": [
+        "HP:0001250"
+      ]
     },
     {
       "category": "gene_sets",
       "name": "MSigDB to Ensembl via HGNC (3-hop)",
       "query": ">>msigdb>>hgnc>>ensembl",
       "why": "Gene set to Ensembl genes via HGNC - multi-hop chain working",
-      "should_pass": ["HALLMARK_APOPTOSIS", "M5902"],
+      "should_pass": [
+        "HALLMARK_APOPTOSIS",
+        "M5902"
+      ],
       "should_fail": []
     },
-
     {
       "category": "complex_pipelines",
       "name": "Tissue to Drug Targets (6 hops)",
       "query": ">>uberon>>bgee>>ensembl>>uniprot>>chembl_target_component>>chembl_target",
       "why": "Discover drug targets from tissue-specific expression - 316 targets for brain",
-      "should_pass": ["brain", "UBERON:0000955"],
+      "should_pass": [
+        "brain",
+        "UBERON:0000955"
+      ],
       "should_fail": []
     },
     {
@@ -3369,7 +3912,9 @@
       "name": "Pathway to Drugs (8 hops)",
       "query": ">>reactome>>ensembl>>uniprot>>chembl_target_component>>chembl_target>>chembl_assay>>chembl_activity>>chembl_molecule",
       "why": "Find drugs targeting pathway components - 150+ for hemostasis",
-      "should_pass": ["R-HSA-109582"],
+      "should_pass": [
+        "R-HSA-109582"
+      ],
       "should_fail": []
     },
     {
@@ -3377,7 +3922,9 @@
       "name": "Protein Interactome to AlphaFold (5 hops)",
       "query": ">>ensembl>>uniprot>>intact>>uniprot>>alphafold",
       "why": "Get AlphaFold structures for interaction partners - 171 for BRCA1",
-      "should_pass": ["BRCA1"],
+      "should_pass": [
+        "BRCA1"
+      ],
       "should_fail": []
     },
     {
@@ -3385,7 +3932,10 @@
       "name": "GO Process to Approved Drugs (8 hops)",
       "query": ">>go>>ensembl>>uniprot>>chembl_target_component>>chembl_target>>chembl_assay>>chembl_activity>>chembl_molecule[chembl.molecule.highestDevelopmentPhase>2]",
       "why": "Find approved drugs targeting proteins in biological process",
-      "should_pass": ["apoptosis", "GO:0006915"],
+      "should_pass": [
+        "apoptosis",
+        "GO:0006915"
+      ],
       "should_fail": []
     },
     {
@@ -3393,7 +3943,9 @@
       "name": "Phenotype to Genes via ClinVar",
       "query": ">>hpo>>clinvar>>ensembl",
       "why": "Map clinical phenotypes to genes with pathogenic variants - 150+ for seizures",
-      "should_pass": ["HP:0001250"],
+      "should_pass": [
+        "HP:0001250"
+      ],
       "should_fail": []
     },
     {
@@ -3401,46 +3953,60 @@
       "name": "Disease Genes to Model Organisms (4 hops)",
       "query": ">>mondo>>gencc>>ensembl>>ortholog",
       "why": "Find orthologs for disease genes - 49 for Huntington's",
-      "should_pass": ["MONDO:0007739"],
+      "should_pass": [
+        "MONDO:0007739"
+      ],
       "should_fail": []
     },
-
-    {"_comment": "=== KNOWN ISSUES FROM MULTI-AGENT DISCOVERY (2026-02-03) ==="},
-
     {
-      "category": "known_issues",
-      "name": "RNACentral to IntAct Mapping (BUG-011)",
-      "query": ">>rnacentral>>intact",
-      "why": "ncRNA-protein interactions via RNACentral fail. Use Ensembl gene symbols instead.",
-      "should_pass": [],
-      "should_fail": ["URS000075D2D5"],
-      "known_issue": true,
-      "workaround": "Use Ensembl gene symbols (MIR21) instead of RNACentral IDs"
+      "_comment": "=== KNOWN ISSUES FROM MULTI-AGENT DISCOVERY (2026-02-03) ==="
     },
     {
-      "category": "known_issues",
-      "name": "RNACentral to Ensembl Mapping (BUG-012)",
+      "category": "ncRNA_analysis",
+      "name": "RNACentral to IntAct Mapping (BUG-011 CLARIFIED)",
+      "query": ">>rnacentral>>intact",
+      "why": "CLARIFIED: Works for IDs that exist in IntAct. URS000075D2D5 has no IntAct data (not a bug). URS000000B1C9 returns 150+ interactions.",
+      "should_pass": [
+        "URS000000B1C9"
+      ],
+      "should_fail": [
+        "URS000075D2D5"
+      ],
+      "known_issue": false
+    },
+    {
+      "category": "ncRNA_analysis",
+      "name": "RNACentral to Ensembl Mapping (BUG-012 FIXED)",
       "query": ">>rnacentral>>ensembl",
-      "why": "RNACentral IDs don't map to Ensembl. Use gene symbols directly.",
-      "should_pass": [],
-      "should_fail": ["URS000075D2D5"],
-      "known_issue": true,
-      "workaround": "Search gene symbols directly in Ensembl"
+      "why": "FIXED: RNACentral now maps to Ensembl via id_mapping.tsv. Returns gene and transcript IDs.",
+      "should_pass": [
+        "URS000075D2D5",
+        "URS00000AF93C"
+      ],
+      "should_fail": []
     },
     {
       "category": "drug_discovery",
       "name": "UniProt to BindingDB (BUG-013 FIXED)",
       "query": ">>uniprot>>bindingdb",
       "why": "Protein to binding compounds - find compounds with measured binding affinity to a protein target. Fixed 2026-02-03: parser now extracts UniProt IDs from numbered chain columns.",
-      "should_pass": ["P00533", "P04637", "P38398"],
-      "should_fail": ["NOTREAL"]
+      "should_pass": [
+        "P00533",
+        "P04637",
+        "P38398"
+      ],
+      "should_fail": [
+        "NOTREAL"
+      ]
     },
     {
       "category": "drug_discovery",
       "name": "BindingDB to UniProt",
       "query": ">>bindingdb>>uniprot",
       "why": "BindingDB entry to protein target - identify the protein target for a binding measurement",
-      "should_pass": ["50000308"],
+      "should_pass": [
+        "50000308"
+      ],
       "should_fail": []
     },
     {
@@ -3448,7 +4014,9 @@
       "name": "GO to MSigDB Direct (BUG-014) - FIXED",
       "query": ">>go>>msigdb",
       "why": "FIXED: GO term to MSigDB C5 gene sets now works. Moved working tests to gene_sets category.",
-      "should_pass": ["GO:0006915"],
+      "should_pass": [
+        "GO:0006915"
+      ],
       "should_fail": [],
       "known_issue": false
     },
@@ -3457,29 +4025,901 @@
       "name": "HPO to MSigDB Direct (BUG-015) - FIXED",
       "query": ">>hpo>>msigdb",
       "why": "FIXED: HPO term to MSigDB C5 gene sets now works. HP:0001250 has no MSigDB gene set (expected).",
-      "should_pass": ["HP:0000003"],
+      "should_pass": [
+        "HP:0000003"
+      ],
       "should_fail": [],
       "known_issue": false
     },
     {
-      "category": "known_issues",
-      "name": "GenCC to HGNC Direct (BUG-016)",
+      "category": "gene_mapping",
+      "name": "GenCC to HGNC Direct (BUG-016 FIXED)",
       "query": ">>gencc>>hgnc",
-      "why": "GenCC entries don't map to HGNC. GenCC only connects to Ensembl.",
-      "should_pass": [],
-      "should_fail": ["GENCC_000101-HGNC_1058-MONDO_0007254-HP_0000006-GENCC_100005"],
-      "known_issue": true,
-      "workaround": "Use >>gencc>>ensembl instead"
+      "why": "FIXED: GenCC now maps directly to HGNC via gene_curie field. BRCA1 returns 9 GenCC entries \u2192 HGNC:1100.",
+      "should_pass": [
+        "BRCA1"
+      ],
+      "should_fail": []
     },
     {
       "category": "known_issues",
-      "name": "MSigDB 4-Hop Chain (BUG-017) - NOT A BUG",
+      "name": "MSigDB 4-Hop Chain (BUG-017) - VERIFIED WORKING",
       "query": ">>msigdb>>hgnc>>ensembl>>uniprot",
-      "why": "Fails in partial builds where Ensembl/UniProt are not fully indexed. Should work in full production build.",
-      "should_pass": [],
-      "should_fail": ["M5902"],
+      "why": "Now works in full production build with all datasets indexed. M5902 (HALLMARK_APOPTOSIS) successfully maps through all 4 hops.",
+      "should_pass": [
+        "M5902"
+      ],
+      "should_fail": [],
       "known_issue": false,
-      "note": "Requires full build with ensembl+uniprot datasets to verify"
+      "note": "Verified working 2026-02-04 after full production build"
+    },
+    {
+      "_comment": "=== BUG FIXES VERIFIED 2026-02-04 ==="
+    },
+    {
+      "_comment": "BUG-018: PharmGKB variant\u2194clinical, BUG-020: ClinVar\u2192dbSNP, BUG-021: RNACentral text search"
+    },
+    {
+      "_comment": "Plus new datasets: Orphanet rare diseases, MIM/OMIM, HMDB metabolites"
+    },
+    {
+      "category": "variant_pharmacogenomics",
+      "name": "PharmGKB Variant to Clinical Annotation (BUG-018 FIXED)",
+      "query": ">>pharmgkb_variant>>pharmgkb_clinical",
+      "why": "FIXED: Bidirectional xrefs between variant and clinical annotations via shared rsIDs. Critical for pharmacogenomic dosing decisions.",
+      "should_pass": [
+        "rs1799853",
+        "rs1057910",
+        "rs4244285",
+        "rs4149056"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "variant_pharmacogenomics",
+      "name": "PharmGKB Clinical to Variant Reverse (BUG-018 FIXED)",
+      "query": ">>pharmgkb_clinical>>pharmgkb_variant",
+      "why": "FIXED: Reverse direction - from clinical annotation back to variant. Enables clinical-first pharmacogenomics queries.",
+      "should_pass": [
+        "rs1799853"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "clinical_variants",
+      "name": "ClinVar to dbSNP Edge (BUG-020 FIXED)",
+      "query": ">>clinvar>>dbsnp",
+      "why": "FIXED: ClinVar parser now creates dbSNP cross-references (was using wrong dataset key 'snp' instead of 'dbsnp'). Enables disease\u2192variant\u2192rsID pipelines.",
+      "should_pass": [
+        "409"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "clinical_variants",
+      "name": "Disease to Pathogenic Variants with rsIDs (BUG-020 FIXED)",
+      "query": ">>mondo>>clinvar>>dbsnp",
+      "why": "FIXED: Full disease\u2192ClinVar\u2192dbSNP pipeline. Get variant rsIDs for a disease.",
+      "should_pass": [
+        "MONDO:0007739"
+      ],
+      "should_fail": []
+    },
+    {
+      "_comment": "=== RNACENTRAL TEXT SEARCH (BUG-021 FIXED) ==="
+    },
+    {
+      "category": "rnacentral_search",
+      "name": "RNACentral Search by lncRNA Gene Name",
+      "query": "",
+      "filter_dataset": "rnacentral",
+      "why": "FIXED BUG-021: Search RNACentral by gene name. HOTAIR returns URS000011D1F0 (lncRNA). Gene names indexed from id_mapping.tsv column 6.",
+      "should_pass": [
+        "HOTAIR",
+        "MALAT1",
+        "XIST",
+        "GAS5"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "rnacentral_search",
+      "name": "RNACentral Search by miRNA Name",
+      "query": "",
+      "filter_dataset": "rnacentral",
+      "why": "FIXED BUG-021: Search RNACentral by miRBase name. hsa-mir-21 returns URS00000AF93C (pre_miRNA, 32 species).",
+      "should_pass": [
+        "hsa-mir-21"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "rnacentral_search",
+      "name": "RNACentral Search by RNA Type",
+      "query": "",
+      "filter_dataset": "rnacentral",
+      "why": "FIXED BUG-021: Search RNACentral by RNA type. RNA types indexed from FASTA descriptions.",
+      "should_pass": [
+        "miRNA",
+        "lncRNA",
+        "rRNA",
+        "tRNA"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ncRNA_analysis",
+      "name": "RNACentral to RefSeq Cross-Reference",
+      "query": ">>rnacentral>>refseq",
+      "why": "RNACentral to RefSeq mapping via id_mapping.tsv. Essential for NCBI-based workflows.",
+      "should_pass": [
+        "URS000075D2D5"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ncRNA_analysis",
+      "name": "RNACentral to HGNC Cross-Reference",
+      "query": ">>rnacentral>>hgnc",
+      "why": "RNACentral to HGNC gene symbol mapping. Enables ncRNA to gene-centric queries.",
+      "should_pass": [
+        "URS000075D2D5"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ncRNA_analysis",
+      "name": "RNACentral to ENA Cross-Reference",
+      "query": ">>rnacentral>>ena",
+      "why": "RNACentral to ENA accession mapping. Largest cross-reference set (~157M mappings).",
+      "should_pass": [
+        "URS000075D2D5",
+        "URS00000AF93C"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ncRNA_analysis",
+      "name": "RNACentral to PDB Structure",
+      "query": ">>rnacentral>>pdb",
+      "why": "RNACentral RNA to 3D structure mapping. Find RNA structures in PDB.",
+      "should_pass": [
+        "URS000075D2D5"
+      ],
+      "should_fail": []
+    },
+    {
+      "_comment": "=== RARE DISEASE WORKFLOWS (Orphanet, MIM/OMIM) ==="
+    },
+    {
+      "category": "rare_diseases",
+      "name": "Orphanet Text Search",
+      "query": "",
+      "filter_dataset": "orphanet",
+      "why": "Search Orphanet rare disease database by disease name. Marfan syndrome returns Orphanet ID 558.",
+      "should_pass": [
+        "marfan syndrome",
+        "cystic fibrosis"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "rare_diseases",
+      "name": "Orphanet to Disease Genes (Ensembl)",
+      "query": ">>orphanet>>ensembl",
+      "why": "Map Orphanet rare disease to associated genes via product6.xml gene associations. Only works for specific disease subtypes that have gene data (not parent/group disorders like 558).",
+      "should_pass": [
+        "93",
+        "284963"
+      ],
+      "should_fail": [
+        "558"
+      ]
+    },
+    {
+      "category": "rare_diseases",
+      "name": "Orphanet to HPO Phenotypes",
+      "query": ">>orphanet>>hpo",
+      "why": "Find phenotypes for a rare disease. Orphanet embeds HPO associations with frequency evidence (Obligate, Very frequent, Occasional).",
+      "should_pass": [
+        "558"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "rare_diseases",
+      "name": "HPO Phenotype to Orphanet Rare Diseases",
+      "query": ">>hpo>>orphanet",
+      "why": "Find rare diseases matching a phenotype. HP:0001250 (Seizure) returns 150+ rare diseases with frequency data.",
+      "should_pass": [
+        "HP:0001250",
+        "HP:0001166"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "rare_diseases",
+      "name": "HPO Phenotype to MIM/OMIM Diseases",
+      "query": ">>hpo>>mim",
+      "why": "Find Mendelian diseases for a phenotype via HPO-OMIM links. Returns entries with evidence codes.",
+      "should_pass": [
+        "HP:0001250"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "rare_diseases",
+      "name": "Orphanet to MONDO Disease Mapping",
+      "query": ">>orphanet>>mondo",
+      "why": "Map Orphanet rare disease to MONDO ontology terms.",
+      "should_pass": [
+        "558"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "rare_diseases",
+      "name": "Orphanet to MeSH Disease Mapping",
+      "query": ">>orphanet>>mesh",
+      "why": "Map Orphanet rare disease to MeSH terms for literature search.",
+      "should_pass": [
+        "558"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "rare_diseases",
+      "name": "Orphanet to MIM/OMIM Cross-Reference",
+      "query": ">>orphanet>>mim",
+      "why": "Map Orphanet rare disease to OMIM entries for Mendelian disease details.",
+      "should_pass": [
+        "558"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "rare_diseases",
+      "name": "MIM to ClinVar Variants",
+      "query": ">>mim>>clinvar",
+      "why": "Find ClinVar variants associated with an OMIM Mendelian disease.",
+      "should_pass": [
+        "154700"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "rare_diseases",
+      "name": "MIM to HPO Phenotypes",
+      "query": ">>mim>>hpo",
+      "why": "Find phenotypes associated with an OMIM disease entry.",
+      "should_pass": [
+        "154700"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "rare_diseases",
+      "name": "MONDO to Orphanet Rare Disease",
+      "query": ">>mondo>>orphanet",
+      "why": "Map MONDO disease to Orphanet entry for rare disease classification and gene associations.",
+      "should_pass": [
+        "MONDO:0007739",
+        "MONDO:0007947"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "rare_diseases",
+      "name": "Rare Disease Gene Discovery Pipeline",
+      "query": ">>mondo>>orphanet>>ensembl",
+      "why": "Full pipeline: disease \u2192 rare disease classification \u2192 associated genes. MONDO:0007947 (Marfan) maps to orphanet subtypes 284963/558, subtype 284963 has ensembl gene FBN1.",
+      "should_pass": [
+        "MONDO:0007947"
+      ],
+      "should_fail": [],
+      "pending_rebuild": "BUG-023: Fixed Orphanet prefix stripping in mondo.go - needs rebuild with --d mondo"
+    },
+    {
+      "category": "rare_diseases",
+      "name": "Phenotype to Rare Disease Genes Pipeline",
+      "query": ">>hpo>>orphanet>>ensembl",
+      "why": "Phenotype-driven gene discovery for rare diseases via Orphanet. HP:0001250 (Seizure) maps through orphanet disorders to associated genes (~75 ensembl targets).",
+      "should_pass": [
+        "HP:0001250"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "rare_diseases",
+      "name": "Phenotype to Mendelian Disease Genes Pipeline",
+      "query": ">>hpo>>mim>>clinvar>>ensembl",
+      "why": "Phenotype to OMIM to ClinVar to genes - Mendelian disease gene discovery pipeline.",
+      "should_pass": [
+        "HP:0001250"
+      ],
+      "should_fail": []
+    },
+    {
+      "_comment": "=== METABOLOMICS (HMDB) ==="
+    },
+    {
+      "category": "metabolomics",
+      "name": "HMDB Text Search",
+      "query": "",
+      "filter_dataset": "hmdb",
+      "why": "Search HMDB metabolite database by compound name.",
+      "should_pass": [
+        "glucose",
+        "cholesterol"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "metabolomics",
+      "name": "HMDB to PubChem Cross-Reference",
+      "query": ">>hmdb>>pubchem",
+      "why": "Map HMDB metabolite to PubChem compound for chemistry data.",
+      "should_pass": [
+        "HMDB0000122"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "metabolomics",
+      "name": "HMDB to ChEBI Cross-Reference",
+      "query": ">>hmdb>>chebi",
+      "why": "Map HMDB metabolite to ChEBI ontology for chemical classification.",
+      "should_pass": [
+        "HMDB0000122"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "metabolomics",
+      "name": "HMDB to UniProt Enzyme",
+      "query": ">>hmdb>>uniprot",
+      "why": "Find enzymes/proteins associated with a metabolite.",
+      "should_pass": [
+        "HMDB0000122"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "metabolomics",
+      "name": "HPO Phenotype to HMDB Metabolites",
+      "query": ">>hpo>>hmdb",
+      "why": "Find metabolites associated with a clinical phenotype. HP:0001250 (Seizure) returns 31 metabolites.",
+      "should_pass": [
+        "HP:0001250"
+      ],
+      "should_fail": []
+    },
+    {
+      "_comment": "=== HPO ALTERNATIVE DISEASE PATHS (BUG-005 workarounds) ==="
+    },
+    {
+      "category": "ontology_hierarchy",
+      "name": "HPO to MONDO via ClinVar Bridge",
+      "query": ">>hpo>>clinvar>>mondo",
+      "why": "Alternative to direct HPO\u2192MONDO (limited to 579 terms). Via ClinVar returns 150+ MONDO diseases for HP:0001250.",
+      "should_pass": [
+        "HP:0001250"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "patent_ip",
+      "name": "Gene to Patent Landscape via PubChem Bioactivity",
+      "query": ">>ensembl>>uniprot>>pubchem_activity>>pubchem>>patent_compound",
+      "why": "Map gene through protein and PubChem bioactivity to patent filings (5 hops)",
+      "should_pass": [
+        "EGFR"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "patent_ip",
+      "name": "Disease to Patent via Clinical Trials",
+      "query": ">>mondo>>clinical_trials>>chembl_molecule>>pubchem>>patent_compound",
+      "why": "Patent landscape for all drugs in clinical trials for a disease (5 hops)",
+      "should_pass": [
+        "MONDO:0007254"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "patent_ip",
+      "name": "Gene to Patent via Full ChEMBL Pipeline (9 hops)",
+      "query": ">>ensembl>>uniprot>>chembl_target_component>>chembl_target>>chembl_assay>>chembl_activity>>chembl_molecule>>pubchem>>patent_compound",
+      "why": "Complete gene-to-patent through entire drug discovery chain (9 hops)",
+      "should_pass": [
+        "EGFR"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "patent_ip",
+      "name": "Drug to Patent Cross-Reference",
+      "query": ">>chembl_molecule>>pubchem>>patent_compound",
+      "why": "Find patent coverage for a known ChEMBL drug (3 hops)",
+      "should_pass": [
+        "CHEMBL941"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "clinical_trials_deep",
+      "name": "Disease to Protein Targets of Trial Drugs (8 hops)",
+      "query": ">>mondo>>clinical_trials>>chembl_molecule>>chembl_activity>>chembl_assay>>chembl_target>>chembl_target_component>>uniprot",
+      "why": "What protein targets are being drugged in clinical trials for a disease",
+      "should_pass": [
+        "MONDO:0007254"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "clinical_trials_deep",
+      "name": "Protein Target to All Clinical Trials",
+      "query": ">>uniprot>>drugcentral>>chembl_molecule>>clinical_trials",
+      "why": "Reverse: from protein target discover clinical trials for approved drugs (4 hops)",
+      "should_pass": [
+        "P00533"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "clinical_trials_deep",
+      "name": "Disease to Literature via Trial Drugs",
+      "query": ">>mondo>>clinical_trials>>chembl_molecule>>pubchem>>pubmed",
+      "why": "Find PubMed articles about drugs in clinical trials for a disease (5 hops)",
+      "should_pass": [
+        "MONDO:0007254"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "rare_disease_deep",
+      "name": "Orphanet to Reactome Pathways",
+      "query": ">>orphanet>>ensembl>>uniprot>>reactome",
+      "why": "Map rare disease to biological pathways via protein (4 hops)",
+      "should_pass": [
+        "284963"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "rare_disease_deep",
+      "name": "Orphanet to Gene Conservation",
+      "query": ">>orphanet>>ensembl>>ortholog",
+      "why": "Identify model organisms for rare disease genes (3 hops)",
+      "should_pass": [
+        "284963"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "rare_disease_deep",
+      "name": "Orphanet to Protein Interactions",
+      "query": ">>orphanet>>ensembl>>uniprot>>intact",
+      "why": "Map rare disease protein interactome (4 hops)",
+      "should_pass": [
+        "284963"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "rare_disease_deep",
+      "name": "Orphanet to Tissue Expression",
+      "query": ">>orphanet>>ensembl>>bgee>>uberon",
+      "why": "Where rare disease genes are expressed (4 hops)",
+      "should_pass": [
+        "284963"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "rare_disease_deep",
+      "name": "Orphanet to Gene Sets",
+      "query": ">>orphanet>>hgnc>>msigdb",
+      "why": "Link rare diseases to MSigDB gene sets (3 hops)",
+      "should_pass": [
+        "284963"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "rare_disease_deep",
+      "name": "OMIM to Toxicogenomic Genes",
+      "query": ">>mim>>ctd>>entrez",
+      "why": "OMIM disease to environmental modifier genes via CTD (3 hops)",
+      "should_pass": [
+        "100300"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "rare_disease_deep",
+      "name": "OMIM to Curated Genes via MONDO/GenCC",
+      "query": ">>mim>>mondo>>gencc>>hgnc",
+      "why": "Multi-authority gene curation from OMIM (4 hops)",
+      "should_pass": [
+        "100300"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "rare_disease_deep",
+      "name": "HPO Phenotype to Drug Candidates via Rare Disease (9 hops)",
+      "query": ">>hpo>>orphanet>>ensembl>>uniprot>>chembl_target_component>>chembl_target>>chembl_assay>>chembl_activity>>chembl_molecule",
+      "why": "Phenotype-driven drug discovery via rare disease genes (9 hops)",
+      "should_pass": [
+        "HP:0001250"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "cell_type_biology",
+      "name": "Cell Type to Diseases via scRNA-seq",
+      "query": ">>cl>>cellxgene>>mondo",
+      "why": "What diseases are studied at single-cell level for a cell type",
+      "should_pass": [
+        "CL:0000540",
+        "CL:0000235",
+        "CL:0000084"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "cell_type_biology",
+      "name": "Cell Type to Pathogenic Variants",
+      "query": ">>cl>>bgee>>ensembl>>clinvar[clinvar.germline_classification==\"Pathogenic\"]",
+      "why": "Pathogenic variants in cell-type-expressed genes (4 hops with filter)",
+      "should_pass": [
+        "CL:0000540"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "cell_type_biology",
+      "name": "Disease to Cell Types via CellXGene (reverse)",
+      "query": ">>mondo>>cellxgene>>cl",
+      "why": "Which cell types are captured in disease scRNA-seq datasets",
+      "should_pass": [
+        "MONDO:0005180"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "cell_type_biology",
+      "name": "Tissue to Diseases from scRNA-seq (reverse)",
+      "query": ">>uberon>>cellxgene>>mondo",
+      "why": "What diseases have scRNA-seq datasets for a tissue",
+      "should_pass": [
+        "UBERON:0000955",
+        "UBERON:0002048"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "cell_type_biology",
+      "name": "Tissue to Cell Types from scRNA-seq (reverse)",
+      "query": ">>uberon>>cellxgene>>cl",
+      "why": "Complete cellular atlas from tissue scRNA-seq studies",
+      "should_pass": [
+        "UBERON:0000955"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "cell_type_biology",
+      "name": "Tissue to Drug Targets via Expression (6 hops)",
+      "query": ">>uberon>>bgee>>ensembl>>uniprot>>chembl_target_component>>chembl_target",
+      "why": "Tissue-specific drug target discovery through expression data",
+      "should_pass": [
+        "UBERON:0001264",
+        "UBERON:0002107"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "cell_type_biology",
+      "name": "Disease to Tissue Expression of Causal Genes",
+      "query": ">>mondo>>gencc>>ensembl>>bgee>>uberon",
+      "why": "Where are disease-causing genes expressed (5 hops)",
+      "should_pass": [
+        "MONDO:0005180"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "reverse_drug",
+      "name": "Drug to GO Biological Processes (5 hops)",
+      "query": ">>pubchem>>pubchem_activity>>uniprot>>reactome>>go",
+      "why": "From drug compound to biological processes via targets and pathways",
+      "should_pass": [
+        "aspirin"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "reverse_drug",
+      "name": "Drug to Disease via Toxicogenomics (4 hops)",
+      "query": ">>pubchem>>ctd>>mesh>>mondo",
+      "why": "Map drug safety profile to disease ontology",
+      "should_pass": [
+        "aspirin"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "reverse_drug",
+      "name": "Drug to Target AlphaFold Structures (4 hops)",
+      "query": ">>pubchem>>pubchem_activity>>uniprot>>alphafold",
+      "why": "Get predicted structures for all drug targets",
+      "should_pass": [
+        "aspirin"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "reverse_drug",
+      "name": "Drug Binding Proteins to Gene Names (5 hops)",
+      "query": ">>pubchem>>bindingdb>>uniprot>>ensembl>>hgnc",
+      "why": "From drug through binding affinity data to gene nomenclature",
+      "should_pass": [
+        "aspirin"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ultra_long_chains",
+      "name": "Phenotype to Patents (11 hops!)",
+      "query": ">>hpo>>orphanet>>ensembl>>uniprot>>chembl_target_component>>chembl_target>>chembl_assay>>chembl_activity>>chembl_molecule>>pubchem>>patent_compound",
+      "why": "Longest working chain: clinical phenotype to patent filings (11 hops)",
+      "should_pass": [
+        "HP:0001250"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ultra_long_chains",
+      "name": "Disease Interactome to Drugs (7 hops)",
+      "query": ">>mondo>>gencc>>ensembl>>uniprot>>intact>>uniprot>>drugcentral",
+      "why": "Network pharmacology: drugs for disease protein interaction partners",
+      "should_pass": [
+        "MONDO:0005180"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ultra_long_chains",
+      "name": "Cell Type Interactome Pathways (7 hops)",
+      "query": ">>cl>>bgee>>ensembl>>uniprot>>intact>>uniprot>>reactome",
+      "why": "Neuron-expressed protein interaction partner pathways",
+      "should_pass": [
+        "CL:0000540"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "interpro_domain",
+      "name": "Protein Domain to Gene Names",
+      "query": ">>interpro>>uniprot>>ensembl>>hgnc",
+      "why": "Map protein domain family to human genes (4 hops)",
+      "should_pass": [
+        "IPR000719"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "interpro_domain",
+      "name": "Protein Domain to Approved Drugs",
+      "query": ">>interpro>>uniprot>>drugcentral",
+      "why": "Find approved drugs targeting a domain family (3 hops)",
+      "should_pass": [
+        "IPR000719"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "interpro_domain",
+      "name": "Protein Domain to Pathways",
+      "query": ">>interpro>>uniprot>>reactome",
+      "why": "Pathway landscape of entire domain family (3 hops)",
+      "should_pass": [
+        "IPR000719"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "interpro_domain",
+      "name": "Protein Domain to AlphaFold Structures",
+      "query": ">>interpro>>uniprot>>alphafold",
+      "why": "Predicted structures for domain family (3 hops)",
+      "should_pass": [
+        "IPR000719"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "gene_set_advanced",
+      "name": "Gene Set to Reactome Pathways (5 hops)",
+      "query": ">>msigdb>>hgnc>>ensembl>>uniprot>>reactome",
+      "why": "Map gene set members to biochemical pathways",
+      "should_pass": [
+        "M5902"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "gene_set_advanced",
+      "name": "Gene Set to Approved Drugs (5 hops)",
+      "query": ">>msigdb>>hgnc>>ensembl>>uniprot>>drugcentral",
+      "why": "FDA-approved drugs targeting gene set proteins",
+      "should_pass": [
+        "M5902"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "gene_set_advanced",
+      "name": "Gene Set to Pathogenic Variants (4 hops filtered)",
+      "query": ">>msigdb>>hgnc>>ensembl>>clinvar[clinvar.germline_classification==\"Pathogenic\"]",
+      "why": "Pathogenic mutations within a pathway gene set",
+      "should_pass": [
+        "M5902"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "gene_set_advanced",
+      "name": "Gene Set Interactome Expansion (6 hops)",
+      "query": ">>msigdb>>hgnc>>ensembl>>uniprot>>intact>>uniprot",
+      "why": "Expand gene set to full protein interactome (guilt by association)",
+      "should_pass": [
+        "M5902"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "gene_set_advanced",
+      "name": "Disease to Gene Sets (reverse, 4 hops)",
+      "query": ">>mondo>>gencc>>hgnc>>msigdb",
+      "why": "What MSigDB gene sets contain disease-causing genes",
+      "should_pass": [
+        "MONDO:0005148"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "gene_set_advanced",
+      "name": "Disease to Hallmark Gene Sets (filtered)",
+      "query": ">>mondo>>gencc>>hgnc>>msigdb[msigdb.collection==\"H\"]",
+      "why": "Core biological processes disrupted by a disease (Hallmark only)",
+      "should_pass": [
+        "MONDO:0005148"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "gene_set_advanced",
+      "name": "GO Kinase to Drug Molecules (7 hops filtered)",
+      "query": ">>go>>uniprot[uniprot.reviewed==true]>>chembl_target_component>>chembl_target>>chembl_assay>>chembl_activity>>chembl_molecule",
+      "why": "From molecular function to drug chemistry via reviewed proteins (7 hops)",
+      "should_pass": [
+        "GO:0004672"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "gene_set_advanced",
+      "name": "GO Lipid Metabolism to SwissLipids",
+      "query": ">>go>>uniprot>>swisslipids",
+      "why": "Connect biological processes to lipid databases (3 hops)",
+      "should_pass": [
+        "GO:0006629"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "evidence_triangulation",
+      "name": "Protein to Disease via Toxicogenomics",
+      "query": ">>uniprot>>pubchem_activity>>pubchem>>ctd>>mesh",
+      "why": "Safety pharmacology: diseases associated with protein-targeting compounds (5 hops)",
+      "should_pass": [
+        "P00533"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "evidence_triangulation",
+      "name": "Disease to PharmGKB Pharmacogenes via GenCC",
+      "query": ">>mondo>>gencc>>hgnc>>pharmgkb_gene",
+      "why": "Which validated disease genes are pharmacogenes (4 hops)",
+      "should_pass": [
+        "MONDO:0005148"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "evidence_triangulation",
+      "name": "Drug to Pathways via Pharmacogenes (6 hops)",
+      "query": ">>pharmgkb>>pharmgkb_gene>>hgnc>>ensembl>>uniprot>>reactome",
+      "why": "Drug through pharmacogene biology to pathways",
+      "should_pass": [
+        "warfarin"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "metabolomics",
+      "name": "Phenotype to Drug Candidates via Metabolomics (4 hops)",
+      "query": ">>hpo>>hmdb>>pubchem>>chembl_molecule",
+      "why": "Metabolomics-driven drug repurposing from clinical phenotype",
+      "should_pass": [
+        "HP:0001997"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "metabolomics",
+      "name": "Metabolite to Enzyme Reactions",
+      "query": ">>hmdb>>uniprot>>rhea",
+      "why": "Find enzyme reactions involving a metabolite (3 hops)",
+      "should_pass": [
+        "HMDB0000122"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "metabolomics",
+      "name": "Metabolite to Reactome Pathways",
+      "query": ">>hmdb>>uniprot>>reactome",
+      "why": "Map metabolite to biological pathways via protein targets (3 hops)",
+      "should_pass": [
+        "HMDB0000122"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "metabolomics",
+      "name": "Metabolite to Drug Targets (7 hops)",
+      "query": ">>hmdb>>uniprot>>chembl_target_component>>chembl_target>>chembl_assay>>chembl_activity>>chembl_molecule",
+      "why": "Full metabolite-to-drug pipeline through ChEMBL (7 hops)",
+      "should_pass": [
+        "HMDB0000067"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "metabolomics",
+      "name": "Metabolite to Rare Diseases",
+      "query": ">>hmdb>>hpo>>orphanet",
+      "why": "Connect metabolites to rare disease databases via phenotypes (3 hops)",
+      "should_pass": [
+        "HMDB0000122"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "metabolomics",
+      "name": "Brain Lipid Proteins",
+      "query": ">>uberon>>swisslipids>>uniprot",
+      "why": "Find proteins in brain lipid metabolism (3 hops)",
+      "should_pass": [
+        "UBERON:0000955"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "metabolomics",
+      "name": "ChEBI to Protein Interactions",
+      "query": ">>chebi>>intact>>uniprot",
+      "why": "Find proteins interacting with a small molecule (3 hops)",
+      "should_pass": [
+        "CHEBI:16113"
+      ],
+      "should_fail": []
     }
   ]
 }

@@ -282,8 +282,9 @@ func (m *mondo) parseXref(line string, mondoID string, mondoDatasetID string) {
 		targetID = xrefID
 	} else if strings.HasPrefix(xrefID, "Orphanet:") {
 		// Orphanet is dataset 55 in biobtree (10,344 xrefs available)
+		// Orphanet entries use bare numeric OrphaCode (e.g., "558" not "Orphanet:558")
 		targetDatasetName = "orphanet"
-		targetID = xrefID
+		targetID = strings.TrimPrefix(xrefID, "Orphanet:")
 	} else if strings.HasPrefix(xrefID, "HGNC:") {
 		// HGNC is dataset 5 in biobtree (55 xrefs available)
 		targetDatasetName = "hgnc"

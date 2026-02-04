@@ -313,10 +313,13 @@ class IntegrationTestRunner:
         import time
 
         # Choose endpoint based on query type and server mode
+        filter_dataset = test.get('filter_dataset')
         if self.use_mcp:
             # MCP server API endpoints (same params as biobtree)
             if test['query'] == '':
                 params = {'i': identifier}
+                if filter_dataset:
+                    params['s'] = filter_dataset
                 url = f"{self.server}/api/search"
             else:
                 params = {'i': identifier, 'm': test['query']}
@@ -325,6 +328,8 @@ class IntegrationTestRunner:
             # Biobtree direct endpoints
             if test['query'] == '':
                 params = {'i': identifier}
+                if filter_dataset:
+                    params['s'] = filter_dataset
                 url = f"{self.server}/ws/"
             else:
                 params = {'i': identifier, 'm': test['query']}

@@ -254,7 +254,8 @@ func (g *gencc) update() {
 			} else if strings.HasPrefix(diseaseCurie, "OMIM:") {
 				g.d.addXref(uuid, sourceID, diseaseCurie, "MIM", false)
 			} else if strings.HasPrefix(diseaseCurie, "Orphanet:") {
-				g.d.addXref(uuid, sourceID, diseaseCurie, "orphanet", false)
+				// Orphanet entries use bare numeric OrphaCode (e.g., "558" not "Orphanet:558")
+				g.d.addXref(uuid, sourceID, strings.TrimPrefix(diseaseCurie, "Orphanet:"), "orphanet", false)
 			}
 		}
 

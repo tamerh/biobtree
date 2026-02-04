@@ -29,15 +29,15 @@ SCHEMA_EDGES = {
     "swisslipids": ["uniprot", "go", "chebi", "uberon"],
     "lipidmaps": ["chebi", "pubchem"],
     "dbsnp": ["ensembl", "hgnc", "clinvar", "pharmgkb_variant"],
-    "clinvar": ["ensembl", "hgnc", "mondo", "hpo", "dbsnp"],
+    "clinvar": ["ensembl", "hgnc", "mondo", "hpo", "dbsnp", "orphanet"],
     "alphamissense": ["uniprot", "transcript"],
     "gwas": ["gwas_study", "ensembl", "efo", "dbsnp"],
     "gwas_study": ["gwas", "efo"],
-    "mondo": ["gencc", "clinvar", "efo", "mesh", "hpo", "clinical_trials", "antibody", "cellxgene", "ctd"],
+    "mondo": ["gencc", "clinvar", "efo", "mesh", "hpo", "clinical_trials", "antibody", "cellxgene", "orphanet"],
     "gencc": ["mondo", "hpo", "hgnc", "ensembl"],
     "clinical_trials": ["mondo", "chembl_molecule"],
     "pharmgkb": ["hgnc", "dbsnp", "mesh", "pharmgkb_gene", "pharmgkb_variant", "pharmgkb_clinical", "pharmgkb_guideline", "pharmgkb_pathway"],
-    "ctd": ["mesh", "entrez", "mondo", "efo", "pubchem", "taxonomy"],
+    "ctd": ["mesh", "entrez", "efo", "pubchem", "taxonomy"],
     "intact": ["uniprot", "chebi", "rnacentral"],
     "string": ["uniprot", "ensembl"],
     "biogrid": ["entrez", "uniprot", "refseq", "taxonomy"],
@@ -48,14 +48,17 @@ SCHEMA_EDGES = {
     "reactome": ["ensembl", "uniprot", "chebi", "go"],
     "rhea": ["chebi", "uniprot", "go"],
     "go": ["ensembl", "uniprot", "reactome", "msigdb", "swisslipids", "bgee"],
-    "hpo": ["clinvar", "gencc", "mondo", "msigdb"],
+    "hpo": ["clinvar", "gencc", "mondo", "msigdb", "orphanet", "mim", "hmdb"],
     "efo": ["gwas", "mondo", "cellxgene"],
     "uberon": ["bgee", "cellxgene", "swisslipids"],
     "cl": ["bgee", "cellxgene", "scxa"],
     "taxonomy": ["ensembl", "uniprot", "bgee", "biogrid", "ctd"],
     "mesh": ["pharmgkb", "ctd", "pubchem", "mondo"],
     "antibody": ["ensembl", "uniprot", "mondo", "pdb"],
-    "msigdb": ["hgnc", "entrez", "go", "hpo"]
+    "msigdb": ["hgnc", "entrez", "go", "hpo"],
+    "orphanet": ["hpo", "ensembl", "uniprot", "mondo", "hgnc", "clinvar", "mim", "mesh"],
+    "mim": ["clinvar", "hpo", "mondo", "uniprot", "ctd"],
+    "hmdb": ["pubchem", "hpo", "chebi", "uniprot"]
 }
 
 # =============================================================================
@@ -209,6 +212,11 @@ SCHEMA_PATTERNS = """# ===== DRUG DISCOVERY (use BOTH ChEMBL AND PubChem for com
 <disease> >> mondo >> mesh >> ctd >> pubchem  # associated compounds via CTD
 <disease> >> mondo >> cellxgene             # single-cell RNA-seq datasets
 
+# Rare diseases via Orphanet (phenotype frequencies, gene associations)
+<disease> >> mondo >> orphanet >> ensembl   # rare disease genes via Orphanet
+<phenotype> >> hpo >> orphanet             # rare diseases with phenotype (with frequency evidence)
+<phenotype> >> hpo >> mim                  # OMIM Mendelian diseases for phenotype
+
 # ===== SINGLE-CELL / EXPRESSION =====
 
 # Disease/Tissue/CellType -> Single-cell datasets
@@ -254,8 +262,8 @@ SCHEMA_PATTERNS = """# ===== DRUG DISCOVERY (use BOTH ChEMBL AND PubChem for com
 # =============================================================================
 
 SCHEMA_TEXT_SEARCH = """Datasets supporting partial text search:
-- mondo, hpo, efo: disease/phenotype names ("alzheimer", "breast cancer")
-- chembl_molecule, pubchem, pharmgkb, bindingdb: drug/compound names ("warfarin", "aspirin", "imatinib")
+- mondo, hpo, efo, orphanet: disease/phenotype names ("alzheimer", "breast cancer", "marfan syndrome")
+- chembl_molecule, pubchem, pharmgkb, bindingdb, hmdb: drug/compound/metabolite names ("warfarin", "aspirin", "glucose")
 - clinical_trials: conditions, interventions
 - antibody: antibody names ("bevacizumab")
 
@@ -328,6 +336,8 @@ SCHEMA_DISEASE_ONTOLOGY = """
 #    | ClinVar         | MONDO, HPO       | Also uses OMIM for Mendelian        |
 #    | Clinical Trials | MONDO            | Mapped from MeSH/ICD                |
 #    | GenCC           | MONDO            | Gene-disease curations              |
+#    | Orphanet        | Orphanet IDs     | Rare diseases (with HPO phenotypes) |
+#    | MIM/OMIM        | MIM numbers      | Mendelian diseases                  |
 #    | Bgee            | UBERON, CL       | Tissues and cell types              |
 #
 # 2. WHEN DIRECT MAPPING FAILS - Use ontology BRIDGES:

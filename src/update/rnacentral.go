@@ -203,6 +203,12 @@ func (r *rnacentralProcessor) processEntry(id, description, sequence string, idL
 
 	r.d.addProp3(id, r.sourceID, b)
 
+	// Text search: index RNA type from FASTA (allows searching "miRNA", "lncRNA", "rRNA", etc.)
+	// Gene names and specific RNA names are indexed from id_mapping.tsv in processIdMappingFile
+	if rnaType != "" {
+		r.d.addXref(rnaType, textLinkID, id, r.source, true)
+	}
+
 	// Test mode: log ID
 	if idLogFile != nil {
 		logProcessedID(idLogFile, id)
@@ -210,6 +216,7 @@ func (r *rnacentralProcessor) processEntry(id, description, sequence string, idL
 
 	return nil
 }
+
 
 // Extract RNA type from description
 // Example: "rRNA from 1 species" → "rRNA"
@@ -352,10 +359,14 @@ func (r *rnacentralProcessor) processIdMappingFile(filePath string, testLimit in
 	}
 
 	var xrefCount uint64
+	var textSearchCount uint64
 	var totalBytesRead int64
 	var previous int64
 	var uniqueUrsIDs int
 	lastUrsID := ""
+
+	// Collect unique gene names per URS ID for text search indexing
+	currentGeneNames := make(map[string]bool)
 
 	for {
 		line, err := reader.ReadString('\n')
@@ -386,10 +397,26 @@ func (r *rnacentralProcessor) processIdMappingFile(filePath string, testLimit in
 
 		// Track unique URS IDs for test mode limit
 		if ursID != lastUrsID {
+			// Flush text search terms for the previous URS ID
+			if lastUrsID != "" && len(currentGeneNames) > 0 {
+				for name := range currentGeneNames {
+					r.d.addXref(name, textLinkID, lastUrsID, r.source, true)
+					textSearchCount++
+				}
+				currentGeneNames = make(map[string]bool)
+			}
 			uniqueUrsIDs++
 			lastUrsID = ursID
 			if config.IsTestMode() && shouldStopProcessing(testLimit, uniqueUrsIDs) {
 				break
+			}
+		}
+
+		// Collect gene name for text search indexing (column 6 = fields[5])
+		if len(fields) >= 6 && fields[5] != "" {
+			geneName := strings.TrimSpace(fields[5])
+			if geneName != "" {
+				currentGeneNames[geneName] = true
 			}
 		}
 
@@ -448,6 +475,16 @@ func (r *rnacentralProcessor) processIdMappingFile(filePath string, testLimit in
 			break
 		}
 	}
+
+	// Flush text search terms for the last URS ID
+	if lastUrsID != "" && len(currentGeneNames) > 0 {
+		for name := range currentGeneNames {
+			r.d.addXref(name, textLinkID, lastUrsID, r.source, true)
+			textSearchCount++
+		}
+	}
+
+	fmt.Printf("RNACentral text search: %d gene name terms indexed\n", textSearchCount)
 
 	return xrefCount, nil
 }

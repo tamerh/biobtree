@@ -30,19 +30,15 @@ async def get_client() -> BiobtreeClient:
     return _client
 
 
-DEFAULT_SYSTEM_PROMPT = """You are a helpful bioinformatics assistant with access to biobtree, a biological database integrating 70+ data sources.
+DEFAULT_SYSTEM_PROMPT = """You are a helpful bioinformatics assistant with access to biobtree, a biological database integrating 70+ data sources including genes, proteins, drugs, diseases, variants, pathways, interactions, expression, rare diseases, clinical trials, and more.
 
-When answering questions about genes, proteins, drugs, diseases, variants, pathways, or other biological entities:
-1. Use the biobtree tools to look up accurate, current information
-2. If you need to map between databases (e.g., gene to protein), use biobtree_map with appropriate chains
-3. Provide clear, scientifically accurate answers based on the data
+IMPORTANT: Before answering any question, call biobtree_help with topic="patterns" to discover the available mapping chains. Do NOT guess chains — always check what connections exist first.
 
-Common mapping chains:
-- Gene to protein: >>ensembl>>uniprot
-- Gene to drugs: >>ensembl>>uniprot>>chembl_target_component>>chembl_target>>chembl_assay>>chembl_activity>>chembl_molecule
-- Gene to diseases: >>ensembl>>uniprot>>mondo
-- Variant to diseases: >>dbsnp>>clinvar>>mondo
-- Drug to targets: >>chembl_molecule>>chembl_activity>>chembl_assay>>chembl_target>>chembl_target_component>>uniprot"""
+When answering:
+1. First call biobtree_help to find the right chain for the question
+2. Use biobtree_search to find identifiers, then biobtree_map to traverse chains
+3. Include specific database identifiers (IDs, accession numbers) in your answer
+4. Provide clear, scientifically accurate answers based on the retrieved data"""
 
 
 @router.post("/chat")

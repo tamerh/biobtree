@@ -38,7 +38,7 @@ class Config:
     openrouter_api_key: Optional[str] = None
     openrouter_base_url: str = "https://openrouter.ai/api/v1"
     default_model: str = "anthropic/claude-sonnet-4"
-    chat_max_iterations: int = 10
+    chat_max_iterations: int = 20
     chat_timeout: float = 120.0
 
     @classmethod
@@ -68,7 +68,7 @@ class Config:
             openrouter_api_key=os.getenv("OPENROUTER_API_KEY"),
             openrouter_base_url=os.getenv("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1"),
             default_model=os.getenv("BIOBTREE_DEFAULT_MODEL", "anthropic/claude-sonnet-4"),
-            chat_max_iterations=int(os.getenv("BIOBTREE_CHAT_MAX_ITERATIONS", "10")),
+            chat_max_iterations=int(os.getenv("BIOBTREE_CHAT_MAX_ITERATIONS", "20")),
             chat_timeout=float(os.getenv("BIOBTREE_CHAT_TIMEOUT", "120.0")),
         )
 

@@ -1,0 +1,173 @@
+{
+  "id": 2,
+  "results": {
+    "biobtree_sonnet": {
+      "model": "anthropic/claude-sonnet-4",
+      "timestamp": "2026-02-06T15:24:15.287563",
+      "response": "Based on my analysis of the biobtree data, I can provide you with comprehensive information about alkaptonuria and its associated clinical trials.\n\n## Gene Causing Alkaptonuria\n\n**HGD (Homogentisate 1,2-dioxygenase)** is the gene that causes alkaptonuria.\n\n- **Gene Symbol**: HGD (previously known as AKU, HGO)\n- **Ensembl ID**: ENSG00000113924\n- **HGNC ID**: HGNC:4892\n- **Location**: Chromosome 3q13.33\n- **Function**: Encodes homogentisate 1,2-dioxygenase, an enzyme in the tyrosine degradation pathway\n- **Disease mechanism**: Deficiency of this enzyme leads to accumulation of homogentisic acid, causing the characteristic symptoms of alkaptonuria including ochronosis (darkening of connective tissues)\n\n## Clinical Trials for Alkaptonuria\n\nHere are all the registered clinical trials for alkaptonuria with their details:\n\n### 1. **NCT00005909** - Study of Alkaptonuria\n- **Phase**: Not applicable (Observational study)\n- **Status**: RECRUITING\n- **Study Type**: OBSERVATIONAL\n- **Intervention**: Natural history study (no intervention)\n\n### 2. **NCT00107783** - Long-Term Study of Nitisinone to Treat Alkaptonuria\n- **Phase**: PHASE 2\n- **Status**: COMPLETED\n- **Study Type**: INTERVENTIONAL\n- **Intervention**: **Nitisinone** (NTBC - 2-(2-nitro-4-trifluoromethylbenzoyl)-1,3-cyclohexanedione)\n\n### 3. **NCT01390077** - Nitisinone (NTBC) In Different Age Groups Of Patients With Alkaptonuria\n- **Phase**: PHASE 2/PHASE 3\n- **Status**: COMPLETED\n- **Study Type**: INTERVENTIONAL\n- **Intervention**: **Nitisinone** (NTBC)\n\n### 4. **NCT01828463** - Dose Response Study of Nitisinone in Alkaptonuria\n- **Phase**: PHASE 2\n- **Status**: COMPLETED\n- **Study Type**: INTERVENTIONAL\n- **Intervention**: **Nitisinone** (dose-response study)\n\n### 5. **NCT01916382** - Suitability of Nitisinone in Alkaptonuria 2\n- **Phase**: PHASE 3\n- **Status**: UNKNOWN\n- **Study Type**: INTERVENTIONAL\n- **Intervention**: **Nitisinone**\n\n### 6. **NCT04142671** - Individualised Gait Modification Strategies in Alkaptonuria Patients\n- **Phase**: Not applicable\n- **Status**: UNKNOWN\n- **Study Type**: INTERVENTIONAL\n- **Intervention**: **Gait modification strategies** (physical therapy intervention)\n\n### 7. **NCT04196959** - Evaluation of TYR Sphere\n- **Phase**: Not applicable\n- **Status**: COMPLETED\n- **Study Type**: INTERVENTIONAL\n- **Intervention**: **TYR Sphere** (medical food/nutritional supplement for tyrosine metabolism disorders)\n\n### 8. **NCT04761588** - Evaluation of TYR Sphere in France\n- **Phase**: Not applicable\n- **Status**: COMPLETED\n- **Study Type**: INTERVENTIONAL\n- **Intervention**: **TYR Sphere** (medical food)\n\n### 9. **NCT06298292** - Acceptability/Tolerance of Protein Substitutes in Tablet Form\n- **Phase**: Not applicable\n- **Status**: NOT YET RECRUITING\n- **Study Type**: OBSERVATIONAL\n- **Intervention**: **Protein substitutes in tablet form** for dietary management\n\n## Key Drug Information\n\n**Nitisinone** (also known as NTBC, Orfadin) is the primary therapeutic intervention being studied:\n- **Mechanism**: 4-hydroxyphenylpyruvate dioxygenase inhibitor\n- **Development Phase**: Phase 4 (highest development phase reached)\n- **ChEMBL ID**: CHEMBL1337\n- **Clinical indication**: Approved for tyrosinemia, being investigated for alkaptonuria\n- **Action**: Blocks the tyrosine degradation pathway upstream of the HGD enzyme defect, reducing homogentisic acid production\n\nThe majority of clinical trials focus on nitisinone as the primary therapeutic intervention, with several completed Phase 2 and Phase 3 studies demonstrating its potential efficacy in treating alkaptonuria by reducing the accumulation of toxic metabolites.\n\n---\n**Data Sources:**\n- http://biobtree:9291/ws/?i=alkaptonuria&s=mondo\n- http://biobtree:9291/ws/map/?i=MONDO:0008753&m=>>mondo>>gencc>>ensembl\n- http://biobtree:9291/ws/map/?i=MONDO:0008753&m=>>mondo>>clinical_trials\n- http://biobtree:9291/ws/entry/?i=NCT00005909&s=clinical_trials\n- http://biobtree:9291/ws/entry/?i=NCT00107783&s=clinical_trials\n- http://biobtree:9291/ws/?i=nitisinone&s=chembl_molecule",
+      "tool_calls": 7,
+      "elapsed_seconds": 47.3,
+      "auto_score": 1.0,
+      "found_terms": [
+        "HGD",
+        "nitisinone",
+        "NCT00005909",
+        "NCT00107783",
+        "NCT01390077",
+        "NCT01828463",
+        "NCT01916382",
+        "NCT04142671",
+        "NCT04196959",
+        "NCT04761588",
+        "NCT06298292",
+        "NCT04761588",
+        "NCT06298292",
+        "NCT04142671",
+        "MONDO:0008753",
+        "ENSG00000113924"
+      ],
+      "missing_terms": [],
+      "usage": {
+        "prompt_tokens": 73353,
+        "completion_tokens": 1832,
+        "total_tokens": 75185
+      }
+    },
+    "biobtree_gpt41": {
+      "model": "openai/gpt-4.1",
+      "timestamp": "2026-02-06T15:24:36.305856",
+      "response": "Here are the answers to your questions about alkaptonuria:\n\n**1. What gene causes alkaptonuria?**\n- The gene responsible for alkaptonuria is **HGD** (homogentisate 1,2-dioxygenase).\n  - Ensembl Gene ID: **ENSG00000113924**\n  - HGNC Symbol: **HGD**\n  - More info: [Ensembl HGD](https://www.ensembl.org/homo_sapiens/Gene/Summary?db=core;g=ENSG00000113924)\n\n---\n\n**2. Clinical trials registered for alkaptonuria:**\n\n| NCT Identifier | Phase         | Status                | Intervention/Study Type                                      | Link |\n|----------------|--------------|-----------------------|--------------------------------------------------------------|------|\n| NCT00005909    | N/A          | RECRUITING            | Observational study of Alkaptonuria                          | [NCT00005909](https://clinicaltrials.gov/study/NCT00005909) |\n| NCT00107783    | Phase 2      | COMPLETED             | Nitisinone (NTBC)                                            | [NCT00107783](https://clinicaltrials.gov/study/NCT00107783) |\n| NCT01390077    | Phase 2/3    | COMPLETED             | Nitisinone (NTBC) in different age groups                    | [NCT01390077](https://clinicaltrials.gov/study/NCT01390077) |\n| NCT01828463    | Phase 2      | COMPLETED             | Dose response study of Nitisinone                            | [NCT01828463](https://clinicaltrials.gov/study/NCT01828463) |\n| NCT01916382    | Phase 3      | UNKNOWN               | Suitability of Nitisinone in Alkaptonuria 2                  | [NCT01916382](https://clinicaltrials.gov/study/NCT01916382) |\n| NCT04142671    | N/A          | UNKNOWN               | Individualised gait modification strategies                  | [NCT04142671](https://clinicaltrials.gov/study/NCT04142671) |\n| NCT04196959    | N/A          | COMPLETED             | Evaluation of TYR Sphere (device for tyrosinemia/alkaptonuria)| [NCT04196959](https://clinicaltrials.gov/study/NCT04196959) |\n| NCT04761588    | N/A          | COMPLETED             | Evaluation of TYR Sphere in France                           | [NCT04761588](https://clinicaltrials.gov/study/NCT04761588) |\n| NCT06298292    | N/A          | NOT YET RECRUITING    | Protein substitutes in tablet form for rare aminoacidopathies| [NCT06298292](https://clinicaltrials.gov/study/NCT06298292) |\n\n**Notes:**\n- \"N/A\" for phase means the study is observational or the phase is not specified.\n- The main intervention tested in interventional trials is **Nitisinone (NTBC)**, a drug that inhibits the formation of homogentisic acid.\n- Some studies (NCT04196959, NCT04761588) evaluate the \"TYR Sphere,\" a device or intervention for tyrosinemia and related disorders including alkaptonuria.\n- NCT06298292 is a dietary management study for several rare amino acid disorders, including alkaptonuria.\n\nIf you need more details about any specific trial or intervention, let me know!\n\n---\n**Data Sources:**\n- http://biobtree:9291/ws/?i=alkaptonuria&s=mondo\n- http://biobtree:9291/ws/map/?i=MONDO:0008753&m=>>mondo>>gencc>>ensembl\n- http://biobtree:9291/ws/map/?i=MONDO:0008753&m=>>mondo>>clinical_trials\n- http://biobtree:9291/ws/entry/?i=NCT00005909&s=clinical_trials\n- http://biobtree:9291/ws/entry/?i=NCT00107783&s=clinical_trials\n- http://biobtree:9291/ws/entry/?i=NCT01390077&s=clinical_trials\n- http://biobtree:9291/ws/entry/?i=NCT01828463&s=clinical_trials\n- http://biobtree:9291/ws/entry/?i=NCT01916382&s=clinical_trials\n- http://biobtree:9291/ws/entry/?i=NCT04142671&s=clinical_trials\n- http://biobtree:9291/ws/entry/?i=NCT04196959&s=clinical_trials\n- http://biobtree:9291/ws/entry/?i=NCT04761588&s=clinical_trials\n- http://biobtree:9291/ws/entry/?i=NCT06298292&s=clinical_trials",
+      "tool_calls": 13,
+      "elapsed_seconds": 21.0,
+      "auto_score": 1.0,
+      "found_terms": [
+        "HGD",
+        "nitisinone",
+        "NCT00005909",
+        "NCT00107783",
+        "NCT01390077",
+        "NCT01828463",
+        "NCT01916382",
+        "NCT04142671",
+        "NCT04196959",
+        "NCT04761588",
+        "NCT06298292",
+        "NCT04761588",
+        "NCT06298292",
+        "NCT04142671",
+        "MONDO:0008753",
+        "ENSG00000113924"
+      ],
+      "missing_terms": [],
+      "usage": {
+        "prompt_tokens": 31668,
+        "completion_tokens": 1132,
+        "total_tokens": 32800
+      }
+    },
+    "biobtree_gemini25": {
+      "model": "google/gemini-2.5-pro-preview-03-25",
+      "timestamp": "2026-02-06T15:25:28.841374",
+      "response": "Alkaptonuria is caused by mutations in the **HGD gene** (Ensembl: ENSG00000113924), which codes for the enzyme homogentisate 1,2-dioxygenase.\n\nHere are the clinical trials registered for alkaptonuria (MONDO:0008753):\n\n| NCT Identifier | Phase | Status | Intervention |\n| --- | --- | --- | --- |\n| **NCT00005909** | Not Applicable | Recruiting | Observational study |\n| **NCT00107783** | Phase 2 | Completed | Nitisinone |\n| **NCT01390077** | Phase 2/3 | Completed | Nitisinone (NTBC) |\n| **NCT01828463** | Phase 2 | Completed | Nitisinone |\n| **NCT01916382** | Phase 3 | Unknown | Nitisinone |\n| **NCT04142671** | Not Applicable | Unknown | Individualised Gait Modification Strategies |\n| **NCT04196959** | Not Applicable | Completed | TYR Sphere (medical food) |\n| **NCT04761588** | Not Applicable | Completed | TYR Sphere (medical food) |\n| **NCT06298292** | Not Applicable | Not Yet Recruiting | Protein Substitutes in Tablet Form |\n\n---\n**Data Sources:**\n- http://biobtree:9291/ws/?i=alkaptonuria&s=mondo\n- http://biobtree:9291/ws/map/?i=MONDO:0008753&m=>>mondo>>gencc>>ensembl\n- http://biobtree:9291/ws/entry/?i=NCT00005909&s=clinical_trials\n- http://biobtree:9291/ws/entry/?i=NCT00107783&s=clinical_trials\n- http://biobtree:9291/ws/entry/?i=NCT01390077&s=clinical_trials\n- http://biobtree:9291/ws/entry/?i=NCT01828463&s=clinical_trials\n- http://biobtree:9291/ws/entry/?i=NCT01916382&s=clinical_trials\n- http://biobtree:9291/ws/entry/?i=NCT04142671&s=clinical_trials\n- http://biobtree:9291/ws/entry/?i=NCT04196959&s=clinical_trials\n- http://biobtree:9291/ws/entry/?i=NCT04761588&s=clinical_trials\n- http://biobtree:9291/ws/entry/?i=NCT06298292&s=clinical_trials",
+      "tool_calls": 12,
+      "elapsed_seconds": 52.5,
+      "auto_score": 1.0,
+      "found_terms": [
+        "HGD",
+        "nitisinone",
+        "NCT00005909",
+        "NCT00107783",
+        "NCT01390077",
+        "NCT01828463",
+        "NCT01916382",
+        "NCT04142671",
+        "NCT04196959",
+        "NCT04761588",
+        "NCT06298292",
+        "NCT04761588",
+        "NCT06298292",
+        "NCT04142671",
+        "MONDO:0008753",
+        "ENSG00000113924"
+      ],
+      "missing_terms": [],
+      "usage": {
+        "prompt_tokens": 14961,
+        "completion_tokens": 4789,
+        "total_tokens": 19750
+      }
+    },
+    "web_chatgpt52": {
+      "model": "ChatGPT 5.2 (web)",
+      "timestamp": "2026-02-06",
+      "response": "Short answer first \u2014 cause: **biallelic pathogenic variants in the HGD gene** (homogentisate 1,2-dioxygenase) cause alkaptonuria (AKU). ([NCBI][1])\n\nBelow I list AKU-related clinical studies I found registered (ClinicalTrials.gov and related registries). For each I give the **NCT identifier \u2192 phase \u2192 last known recruitment status on ClinicalTrials.gov (or registry) \u2192 intervention being tested** with a source for that row. (I searched ClinicalTrials.gov and related trial pages; statuses and fields are the values shown on the registry pages I cite.)\n\n---\n\n# Registered studies for alkaptonuria (selected ClinicalTrials.gov records)\n\n1. **NCT00005909** \u2014 *Study of Alkaptonuria*\n   \u2022 Phase: **Not applicable (observational / natural history / registry)**\n   \u2022 Status (last listed on ClinicalTrials.gov): **Recruiting / listed (last-known status shown as \u201cRecruiting\u201d on the record).**\n   \u2022 Intervention(s): **Observational / clinical, imaging and laboratory data collection (no experimental drug \u2014 natural history / phenotype study).**\n   \u2022 Source: ClinicalTrials.gov record. ([ClinicalTrials][2])\n\n2. **NCT00107783** \u2014 *Long-Term Study of Nitisinone to Treat Alkaptonuria*\n   \u2022 Phase: **Phase 2** (long-term interventional study).\n   \u2022 Status (last listed): **Completed** (registry lists as completed).\n   \u2022 Intervention: **Nitisinone (Orfadin / NTBC)** \u2014 long-term dosing to evaluate safety/effectiveness in AKU.\n   \u2022 Source: ClinicalTrials.gov record and related summary pages. ([ClinicalTrials][3])\n\n3. **NCT01390077** \u2014 *Nitisinone (NTBC) In Different Age Groups Of Patients With Alkaptonuria*\n   \u2022 Phase: **Phase 2 / Phase 3 (listed as Phase 2/3 on registry summaries).**\n   \u2022 Status (last listed): **Completed.**\n   \u2022 Intervention: **Nitisinone (NTBC)** \u2014 open-label/interventional dosing across ages.\n   \u2022 Source: ClinicalTrials.gov summary / trial pages. ([ClinicalTrials][4])\n\n4. **NCT01828463 (SONIA-1)** \u2014 *Dose-Response Study of Nitisinone in Alkaptonuria (SONIA-1)*\n   \u2022 Phase: **Phase 2** (dose-finding).\n   \u2022 Status (last listed): **Completed.**\n   \u2022 Intervention: **Nitisinone** \u2014 dose-response study to identify optimal dose for AKU.\n   \u2022 Source: ClinicalTrials.gov (SONIA-1 record) and trial program summaries. ([ClinicalTrials][5])\n\n5. **NCT01916382 (SONIA-2)** \u2014 *Suitability of Nitisinone in Alkaptonuria 2 (SONIA-2)*\n   \u2022 Phase: **Phase 3** (multicentre randomized study).\n   \u2022 Status (last listed): **Active, not recruiting** (SONIA-2 completed enrolment and the study is listed as active / not recruiting on ClinicalTrials.gov; peer-reviewed publication reports trial results).\n   \u2022 Intervention: **Nitisinone 10 mg once daily (oral)** \u2014 efficacy/safety; primary biochemical outcome (uHGA) and clinical outcomes evaluated.\n   \u2022 Source: ClinicalTrials.gov record and SONIA-2 publications. ([ClinicalTrials][6])\n\n6. **NCT04510142** \u2014 *Questionnaire Follow-up Study (QSonia) \u2014 follow up of SONIA-2*\n   \u2022 Phase: **Not applicable (observational / follow-up / questionnaire study).**\n   \u2022 Status (last listed): **Listed on ClinicalTrials.gov (record posted); last known registry activity/updates shown on the record.**\n   \u2022 Intervention: **Observational \u2014 questionnaire/follow-up of SONIA-2 participants (no investigational drug dosing in this follow-up study; it collects patient-reported outcomes and severity scores).**\n   \u2022 Source: ClinicalTrials.gov record and trial listings. ([ClinicalTrials][7])\n\n7. **NCT04142671** \u2014 *Individualised Gait Modification Strategies in Alkaptonuria Patients*\n   \u2022 Phase: **Not applicable (interventional rehabilitation / non-drug)**\n   \u2022 Status (last listed): **Not yet recruiting / registry listed status (check record for updates).**\n   \u2022 Intervention: **Individualized gait modification with real-time feedback on treadmill to reduce knee joint moments (a biomechanical/physiotherapy intervention rather than a drug).**\n   \u2022 Source: ClinicalTrials.gov and associated trial listings. ([ClinicalTrials][8])\n\n8. **NCT04196959** \u2014 *Evaluation of TYR Sphere*\n   \u2022 Phase: **Not applicable (interventional dietary product / short evaluation study)**\n   \u2022 Status (last listed): **Completed (registry shows completion for the initial evaluation period).**\n   \u2022 Intervention: **TYR sphere\u00ae** \u2014 a glycomacropeptide (GMP)-based, low-tyrosine protein substitute (Food for Special Medical Purposes) evaluated as part of restricted diet in patients with tyrosinaemia or AKU (used to manage elevated tyrosine from nitisinone therapy).\n   \u2022 Source: ClinicalTrials.gov record and product pages for TYR sphere (Vitaflo/Nestl\u00e9 Health Science). ([ClinicalTrials][9])\n\n9. **NCT04761588** \u2014 *Evaluation of TYR Sphere in France (TYR sphere Fra)*\n   \u2022 Phase: **Not applicable (supportive care / dietary product evaluation)**\n   \u2022 Status (last listed): **Completed (registry lists \u201cCompleted\u201d).**\n   \u2022 Intervention: **TYR sphere\u00ae** \u2014 28-day evaluation of tolerance, adherence and metabolic monitoring in patients with tyrosinaemia or AKU on dietary management.\n   \u2022 Source: ClinicalTrials.gov record / trial descriptions; manufacturer materials. ([ClinicalTrials][10])\n\n---\n\n# Notes, caveats and sources\n\n* The **molecular cause** of AKU is well established: **loss-of-function (biallelic) variants in the HGD gene** encoding homogentisate 1,2-dioxygenase. That point is supported by NCBI GeneReviews and MedlinePlus genetics entries. ([NCBI][1])\n* The **major experimental therapy tested in AKU trials over the last 15 years is nitisinone (NTBC)** \u2014 multiple trials (NCT00107783, NCT01390077, NCT01828463, NCT01916382) evaluated various doses, durations and age groups. SONIA-2 (NCT01916382) is the key randomized Phase 3 study showing ~98\u201399% suppression of urine HGA on 10 mg daily nitisinone; other studies assessed long-term safety and functional outcomes. ([Edge Hill University][11])\n* Other registered studies focus on **non-drug interventions** (gait modification biomechanics), **natural history / follow-up / questionnaires**, or **dietary support products** (TYR sphere) used to manage nitisinone-induced elevated tyrosine. ([ClinicalTrials][8])\n* I pulled these entries from ClinicalTrials.gov and supporting trial publications / sponsor pages. ClinicalTrials.gov is the authoritative registry for the records I cite; if you want I can fetch the *current* live ClinicalTrials.gov page for any single NCT and paste the exact \u201cRecruitment status / Phase / Intervention\u201d lines from that record. (I included the specific registry citations used above.) ([ClinicalTrials][3])\n\n---\n\nIf you\u2019d like, I can:\n\n* produce a compact spreadsheet (.csv) containing the NCT, phase, last known status, intervention, start/completion dates and direct ClinicalTrials.gov links for each record I listed; **or**\n* fetch the live ClinicalTrials.gov page for any particular NCT and copy the current \u201cRecruitment status\u201d / \u201cPhase\u201d / \u201cIntervention\u201d fields exactly as shown there.\n\nWhich of those would help you next?\n\n[1]: https://www.ncbi.nlm.nih.gov/books/NBK1454/?utm_source=chatgpt.com \"Alkaptonuria - GeneReviews\u00ae - NCBI Bookshelf - NIH\"\n[2]: https://clinicaltrials.gov/study/NCT00005909?utm_source=chatgpt.com \"Study Details | NCT00005909 | Study of Alkaptonuria\"\n[3]: https://clinicaltrials.gov/study/NCT00107783?utm_source=chatgpt.com \"Long-Term Study of Nitisinone to Treat Alkaptonuria\"\n[4]: https://clinicaltrials.gov/study/NCT01390077?utm_source=chatgpt.com \"Nitisinone (NTBC) In Different Age Groups Of Patients With ...\"\n[5]: https://clinicaltrials.gov/study/NCT01828463?utm_source=chatgpt.com \"Dose Response Study of Nitisinone in Alkaptonuria (SONIA1)\"\n[6]: https://www.clinicaltrials.gov/study/NCT01916382?utm_source=chatgpt.com \"Suitability of Nitisinone in Alkaptonuria 2 (SONIA 2)\"\n[7]: https://www.clinicaltrials.gov/study/NCT04510142?utm_source=chatgpt.com \"NCT04510142 | Questionnaire Follow=up Study Sonia 2\"\n[8]: https://clinicaltrials.gov/study/NCT04142671?utm_source=chatgpt.com \"Individualised Gait Modification Strategies in Alkaptonuria ...\"\n[9]: https://www.clinicaltrials.gov/study/NCT04196959?utm_source=chatgpt.com \"Study Details | NCT04196959 | Evaluation of TYR Sphere\"\n[10]: https://clinicaltrials.gov/study/NCT04761588?utm_source=chatgpt.com \"Evaluation of TYR Sphere in France\"\n[11]: https://research.edgehill.ac.uk/en/publications/efficacy-and-safety-of-once-daily-nitisinone-for-patients-with-al/?utm_source=chatgpt.com \"Efficacy and safety of once-daily nitisinone for patients with ...\"",
+      "auto_score": 1.0,
+      "entered_by": "USER",
+      "found_terms": [
+        "HGD",
+        "nitisinone",
+        "NCT00005909",
+        "NCT00107783",
+        "NCT01390077",
+        "NCT01828463",
+        "NCT01916382",
+        "NCT04142671",
+        "NCT04196959",
+        "NCT04761588",
+        "NCT04761588",
+        "NCT04142671"
+      ],
+      "missing_terms": []
+    },
+    "web_gemini3_pro": {
+      "model": "Gemini 3 Pro (web)",
+      "timestamp": "2026-02-06",
+      "response": "The gene responsible for **alkaptonuria** is the ***HGD* gene**.\n\nThis gene provides instructions for making an enzyme called **homogentisate 1,2-dioxygenase**. Mutations in the *HGD* gene lead to a deficiency of this enzyme, causing the body to be unable to properly break down the amino acids phenylalanine and tyrosine. This results in the accumulation of a substance called homogentisic acid (HGA) in the body, which darkens tissues (ochronosis) and causes the clinical symptoms of the disease.\n\n### Registered Clinical Trials for Alkaptonuria\n\nBelow are the key clinical trials registered for alkaptonuria. The primary intervention studied across these trials is **Nitisinone** (also known as NTBC or Orfadin), a drug originally developed for hereditary tyrosinemia type 1 that has been repurposed to reduce HGA production in alkaptonuria patients.\n\n| NCT Identifier | Trial Phase | Current Status | Intervention Being Tested |\n| --- | --- | --- | --- |\n| **NCT01916382** | Phase 3 | **Completed** | **Nitisinone** (10 mg daily). This was the \"SONIA 2\" study, a major 4-year efficacy and safety trial. |\n| **NCT01828463** | Phase 2 | **Completed** | **Nitisinone**. This was the \"SONIA 1\" dose-response study testing different daily doses (1mg, 2mg, 4mg, 8mg) to find the most effective amount. |\n| **NCT00107783** | Phase 2/3* | **Active, not recruiting** | **Nitisinone** (2 mg daily). A long-term study at the NIH examining safety and effectiveness over a 3-year period (and extension). |\n| **NCT01390077** | Phase 1/2 | **Active, not recruiting** | **Nitisinone**. A study investigating the drug's safety, pharmacokinetics, and optimal dosage in different age groups (including children). |\n\n**Note: While listed as a \"Randomized Controlled Trial\" without a specific phase on some registries, the design and intent of NCT00107783 align with Phase 2/3 efficacy and long-term safety monitoring.*\n\n### Other Research Notes\n\n* **SOFIA Study:** You may also see references to a study called **SOFIA** (Subclinical Ochronotic Features in Alkaptonuria). This was an **observational** study (part of the DevelopAKUre project) rather than an interventional trial, designed to determine the best age to start treatment by analyzing when ochronosis (pigmentation) begins.\n* **Gene Therapy:** While there is preclinical research into gene therapy and enzyme replacement for alkaptonuria, no clinical trials for these interventions have been registered or recruited patients as of early 2026.\n\n**Would you like me to find the published results or efficacy data for the completed SONIA 2 (NCT01916382) trial?**",
+      "auto_score": 0.667,
+      "entered_by": "USER",
+      "found_terms": [
+        "HGD",
+        "nitisinone",
+        "NCT00107783",
+        "NCT01390077",
+        "NCT01828463",
+        "NCT01916382"
+      ],
+      "missing_terms": []
+    },
+    "web_claude46": {
+      "model": "Claude 4.6 (web)",
+      "timestamp": "2026-02-06",
+      "response": "Alkaptonuria is caused by mutations in the **HGD** gene (homogentisate 1,2-dioxygenase), located on chromosome 3q13.33. This enzyme normally breaks down homogentisic acid (HGA) in the tyrosine degradation pathway; loss-of-function mutations lead to HGA accumulation, causing the characteristic dark pigmentation of connective tissues (ochronosis) and associated arthropathy.\n\nLet me search for clinical trials registered for this disease.Here is a comprehensive summary based on my research.\n\n## Causative Gene\n\nAlkaptonuria is caused by mutations in the **HGD gene** (homogentisate 1,2-dioxygenase, chromosome 3q13.33). This enzyme normally converts homogentisic acid (HGA) to maleylacetoacetic acid in the tyrosine degradation pathway. Loss-of-function mutations lead to massive HGA accumulation, resulting in dark urine, ochronosis (pigment deposition in connective tissue), and progressive destructive arthropathy.\n\n## Registered Clinical Trials\n\nAll interventional trials for alkaptonuria have tested **nitisinone**, an inhibitor of 4-hydroxyphenylpyruvate dioxygenase (the enzyme upstream of HGD), which blocks HGA production.\n\n| NCT Identifier | Study Name | Phase | Status | Intervention |\n|---|---|---|---|---|\n| **NCT00005909** | Study of Alkaptonuria (Natural History) | N/A (observational) | Recruiting (ongoing at NIH) | None \u2014 natural history characterization and recruitment pipeline |\n| **NCT00107783** | Long-Term Study of Nitisinone to Treat Alkaptonuria | Phase 2 | Completed (2005\u20132009) | **Nitisinone 2 mg/day** vs. no treatment for 3 years (40 patients, NIH/NHGRI) |\n| **NCT01390077** | Nitisinone (NTBC) in Different Age Groups of Patients with Alkaptonuria | Phase 2 | Completed | **Nitisinone** (dose optimization across age groups, with tyrosine-free amino acid supplement [Tyrex]; Rady Children's Hospital/UCSD) |\n| **NCT01828463** | SONIA 1 \u2014 Dose Response Study of Nitisinone in Alkaptonuria | Phase 2 | Completed | **Nitisinone 1, 2, 4, or 8 mg/day** vs. no treatment for 4 weeks (40 patients; DevelopAKUre consortium) |\n| **NCT01916382** | SONIA 2 \u2014 Suitability of Nitisinone in Alkaptonuria 2 | Phase 3 | Completed (Jan 2019) | **Nitisinone 10 mg/day** vs. no treatment for 4 years (138 patients; DevelopAKUre consortium, UK/France/Slovakia) |\n\n### Key outcomes worth noting\n\nThe NCT00107783 trial demonstrated that nitisinone reduced urinary and plasma HGA by over 95%, and a post-hoc analysis showed improvements in pain, energy, and physical functioning. This study formed the basis for the FDA's June 2025 approval of Harliku (nitisinone tablets) \u2014 the first and only FDA-approved treatment for alkaptonuria.\n\nSONIA 2 (NCT01916382), the pivotal Phase 3 study, confirmed that nitisinone 10 mg daily was well tolerated and effective in reducing urinary HGA excretion, and also decreased ochronosis and improved clinical signs, indicating slower disease progression. This trial supported EMA authorization of nitisinone for adult AKU patients in Europe.\n\nThe DevelopAKUre consortium also conducted a cross-sectional study called **SOFIA** (to determine the age of ochronosis onset), which found that pigmentation within ear biopsy was detected in a 20-year-old female, providing evidence that ochronosis can start before age 20. SOFIA was registered in the EU Clinical Trials Register rather than on ClinicalTrials.gov.",
+      "auto_score": 0.667,
+      "entered_by": "USER",
+      "found_terms": [
+        "HGD",
+        "nitisinone",
+        "NCT00005909",
+        "NCT00107783",
+        "NCT01390077",
+        "NCT01828463",
+        "NCT01916382"
+      ],
+      "missing_terms": []
+    }
+  },
+  "reviews": {
+    "review_1": {
+      "timestamp": "2026-02-06",
+      "reviewer": "human+claude",
+      "outcome": "mixed_competitive",
+      "winner": "biobtree_slight_edge",
+      "key_finding": "ChatGPT with web search nearly matched biobtree (8/9 trials) and found 1 extra trial (NCT04510142 QSonia) that biobtree missed. However, Gemini/Claude without real-time web access only found 4-5/9 trials, missing all non-drug interventions.",
+      "biobtree_advantage": "Found NCT06298292 (NOT_YET_RECRUITING, very recent) that all web LLMs missed. Structured enumeration returns all 9 trials in single query with consistent schema.",
+      "llm_advantage": "ChatGPT found NCT04510142 (QSonia follow-up study) not linked to MONDO:0008753 in biobtree. Real-time web access enables competitive coverage.",
+      "data_issue": "NCT04510142 (QSonia) should be linked to MONDO:0008753 - added to BUG_TRACKER as ISSUE-006",
+      "preprint_value": "moderate",
+      "preprint_section": "Results - Clinical trial enumeration",
+      "quotable": "For alkaptonuria clinical trials, biobtree found all 9 registered studies including the very recent NCT06298292 (NOT_YET_RECRUITING). ChatGPT with web search matched 8/9 and found one additional trial (NCT04510142) not yet linked in biobtree. Without web search, Gemini and Claude found only 4-5 trials, missing all non-drug interventions (TYR Sphere, gait modification).",
+      "notes": "This question shows web-enabled LLMs can compete on enumeration tasks when they have real-time database access. The differentiation is clearer for Gemini/Claude without web search."
+    }
+  },
+  "question_id": "alkaptonuria_trials"
+}

@@ -1,0 +1,206 @@
+{
+  "id": 8,
+  "results": {
+    "anthropic_claude_3_haiku": {
+      "model": "anthropic/claude-3-haiku",
+      "timestamp": "2026-02-06T16:25:39.352516",
+      "response": "According to the ChEMBL data, in addition to acute pain, suzetrigine is being studied for the following indications:\n\n- Diabetic neuropathy (Phase 2)\n- Neuralgia (Phase 1)\n\n3. The ChEMBL molecule ID for suzetrigine is CHEMBL5314487, and it has reached Phase 3 of clinical development.\n\nIn summary:\n\n1. Registered clinical trials for suzetrigine (Journavx):\n   - NCT04977336, NCT05034952, NCT05455502, NCT05541471, NCT05558410, NCT05560464, NCT05635110, NCT05660538, NCT05661734, NCT05704556\n\n2. Indications being studied beyond acute pain:\n   - Diabetic neuropathy (Phase 2)\n   - Neuralgia (Phase 1)\n\n3. ChEMBL molecule ID: CHEMBL5314487\n   - Highest development phase: 3\n\n---\n**Data Sources:**\n- http://biobtree:9291/ws/?i=suzetrigine\n- http://biobtree:9291/ws/map/?i=CHEMBL5314487&m=>>chembl_molecule>>chembl_target>>chembl_assay>>chembl_activity>>chembl_molecule>>clinical_trials\n- http://biobtree:9291/ws/entry/?i=CHEMBL5314487&s=chembl_molecule",
+      "tool_calls": 4,
+      "elapsed_seconds": 9.3,
+      "auto_score": 0.833,
+      "found_terms": [
+        "suzetrigine",
+        "NCT",
+        "clinical trial",
+        "ChEMBL",
+        "acute pain",
+        "CHEMBL5314487"
+      ],
+      "missing_terms": [
+        "NaV1.8"
+      ],
+      "usage": {
+        "prompt_tokens": 33510,
+        "completion_tokens": 710,
+        "total_tokens": 34220
+      }
+    },
+    "biobtree_sonnet": {
+      "model": "anthropic/claude-sonnet-4",
+      "timestamp": "2026-02-06T16:26:32.695938",
+      "response": "Based on my comprehensive search of the biobtree database, here's the information about suzetrigine (Journavx):\n\n## **1. Registered Clinical Trials with NCT Identifiers**\n\nI found **28 clinical trials** registered for suzetrigine. Here are all the NCT identifiers:\n\n**Phase 3 Trials:**\n- NCT05558410 - Acute pain after abdominoplasty (COMPLETED)\n\n**Phase 2 Trials:**\n- NCT04977336 - Acute pain after bunionectomy (COMPLETED)\n- NCT05034952 - Acute pain after abdominoplasty (COMPLETED)\n- NCT06176196 - Painful lumbosacral radiculopathy (COMPLETED)\n\n**Phase 1 Trials:**\n- NCT05455502 - Bioavailability and food effect study (COMPLETED)\n- NCT05541471 - Drug-drug interaction study with midazolam and digoxin (COMPLETED)\n- NCT06336096 - Bioavailability and food effect of new tablet formulation (COMPLETED)\n\n**Additional Trials:**\n- NCT05560464, NCT05635110, NCT05660538, NCT05661734, NCT05704556\n- NCT05818852, NCT05851157, NCT06420765, NCT06628908, NCT06696443\n- NCT06774625, NCT06820307, NCT06887959, NCT06887972, NCT06972212\n- NCT07145346, NCT07195669, NCT07219888, NCT07226700, NCT07231419, NCT07257133\n\n## **2. Indications Being Studied Beyond Acute Pain**\n\nAccording to the ChEMBL data, suzetrigine is being studied for several indications beyond acute pain:\n\n- **Diabetic neuropathy** (Phase 2) - EFO:1000783, MeSH:D003929\n- **Neuralgia** (Phase 1) - EFO:0009430, MeSH:D009437  \n- **Painful lumbosacral radiculopathy** (Phase 2) - as evidenced by NCT06176196\n- **General pain conditions** (Phase 3) - EFO:0003843, MeSH:D010146\n\n## **3. ChEMBL Molecule ID and Highest Development Phase**\n\n- **ChEMBL ID:** CHEMBL5314487\n- **Highest Development Phase:** 3 (Phase 3 clinical trials)\n\n## **Additional Key Information:**\n\n- **PubChem CID:** 156445116\n- **Alternative names:** VX-548, VRT-1737548, VXc-548, Journavx\n- **Molecular formula:** C21H20F5N3O4\n- **Molecular weight:** 473.4 Da\n- **Drug type:** Small molecule\n- **CAS number:** 2649467-58-1\n\nThe drug has progressed through comprehensive clinical development with completed Phase 3 trials for acute pain, and is being explored for various neuropathic pain conditions including diabetic neuropathy and radiculopathy, demonstrating its potential as a broad-spectrum pain medication targeting the NaV1.8 sodium channel.\n\n---\n**Data Sources:**\n- http://biobtree:9291/ws/?i=suzetrigine\n- http://biobtree:9291/ws/entry/?i=CHEMBL5314487&s=chembl_molecule\n- http://biobtree:9291/ws/entry/?i=NCT04977336&s=clinical_trials\n- http://biobtree:9291/ws/entry/?i=NCT05034952&s=clinical_trials\n- http://biobtree:9291/ws/entry/?i=NCT05455502&s=clinical_trials\n- http://biobtree:9291/ws/entry/?i=NCT05541471&s=clinical_trials\n- http://biobtree:9291/ws/entry/?i=NCT05558410&s=clinical_trials\n- http://biobtree:9291/ws/entry/?i=NCT06176196&s=clinical_trials\n- http://biobtree:9291/ws/entry/?i=NCT06336096&s=clinical_trials",
+      "tool_calls": 10,
+      "elapsed_seconds": 51.7,
+      "auto_score": 1.0,
+      "found_terms": [
+        "suzetrigine",
+        "NaV1.8",
+        "NCT",
+        "clinical trial",
+        "ChEMBL",
+        "acute pain",
+        "NCT07145346",
+        "NCT07195669",
+        "NCT07219888",
+        "NCT07226700",
+        "NCT07231419",
+        "NCT07257133",
+        "CHEMBL5314487",
+        "28"
+      ],
+      "missing_terms": [],
+      "usage": {
+        "prompt_tokens": 148346,
+        "completion_tokens": 1648,
+        "total_tokens": 149994
+      }
+    },
+    "biobtree_gpt41": {
+      "model": "openai/gpt-4.1",
+      "timestamp": "2026-02-06T16:27:00.216161",
+      "response": "Here are the answers to your questions about suzetrigine (Journavx):\n\n### 1. All Registered Clinical Trials (NCT Identifiers)\nSuzetrigine (CHEMBL5314487, PubChem CID: 156445116) is associated with the following clinical trials:\n- NCT04977336\n- NCT05034952\n- NCT05455502\n- NCT05541471\n- NCT05558410\n- NCT05560464\n- NCT05635110\n- NCT05660538\n- NCT05661734\n- NCT05704556\n- NCT05818852\n- NCT05851157\n- NCT06176196\n- NCT06336096\n- NCT06420765\n- NCT06628908\n- NCT06696443\n- NCT06774625\n- NCT06820307\n- NCT06887959\n- NCT06887972\n- NCT06972212\n- NCT07145346\n- NCT07195669\n- NCT07219888\n- NCT07226700\n- NCT07231419\n- NCT07257133\n\n### 2. Indications Studied Beyond Acute Pain\nAccording to ChEMBL, suzetrigine is being studied for:\n- Diabetic neuropathy (EFO:1000783, MeSH: D003929, highest phase 2)\n- Neuralgia (EFO:0009430, MeSH: D009437, highest phase 1)\n- Pain (general, EFO:0003843, MeSH: D010146, highest phase 3)\n- Acute pain (EFO:0003843, MeSH: D059787, highest phase 1)\n\n**Summary:** Beyond acute pain, suzetrigine is being studied for diabetic neuropathy and neuralgia.\n\n### 3. ChEMBL Molecule ID and Highest Development Phase\n- **ChEMBL Molecule ID:** CHEMBL5314487 ([ChEMBL entry](https://www.ebi.ac.uk/chembl/compound_report_card/CHEMBL5314487/))\n- **Highest Development Phase:** 3 (for pain)\n\n**PubChem CID:** 156445116 ([PubChem entry](https://pubchem.ncbi.nlm.nih.gov/compound/156445116))\n\nIf you need details on a specific clinical trial or more information about the indications, let me know!\n\n---\n**Data Sources:**\n- http://biobtree:9291/ws/?i=suzetrigine, Journavx&s=chembl_molecule\n- http://biobtree:9291/ws/?i=suzetrigine, Journavx&s=pubchem",
+      "tool_calls": 3,
+      "elapsed_seconds": 10.4,
+      "auto_score": 0.833,
+      "found_terms": [
+        "suzetrigine",
+        "NCT",
+        "clinical trial",
+        "ChEMBL",
+        "acute pain",
+        "NCT07145346",
+        "NCT07195669",
+        "NCT07219888",
+        "NCT07226700",
+        "NCT07231419",
+        "NCT07257133",
+        "CHEMBL5314487",
+        "28"
+      ],
+      "missing_terms": [
+        "NaV1.8"
+      ],
+      "usage": {
+        "prompt_tokens": 12070,
+        "completion_tokens": 622,
+        "total_tokens": 12692
+      }
+    },
+    "biobtree_gemini25": {
+      "model": "google/gemini-2.5-pro-preview-03-25",
+      "timestamp": "2026-02-06T16:27:42.337732",
+      "response": "Based on the data for suzetrigine (Journavx):\n\n**1. Clinical Trials**\nThere are 28 registered clinical trials for suzetrigine, with the following NCT identifiers:\nNCT04977336, NCT05034952, NCT05455502, NCT05541471, NCT05558410, NCT05560464, NCT05635110, NCT05660538, NCT05661734, NCT05704556, NCT05818852, NCT05851157, NCT06176196, NCT06336096, NCT06420765, NCT06628908, NCT06696443, NCT06774625, NCT06820307, NCT06887959, NCT06887972, NCT06972212, NCT07145346, NCT07195669, NCT07219888, NCT07226700, NCT07231419, NCT07257133\n\n**2. Other Indications**\nBeyond acute pain, suzetrigine is being studied for:\n*   **Diabetic Neuropathy**: Reached Phase 2 clinical trials.\n*   **Neuralgia**: Reached Phase 1 clinical trials.\n\n**3. ChEMBL Molecule ID and Development Phase**\n*   **ChEMBL ID**: CHEMBL5314487\n*   **Highest Development Phase**: 3\n\n---\n**Data Sources:**\n- http://biobtree:9291/ws/?i=suzetrigine&s=chembl_molecule",
+      "tool_calls": 2,
+      "elapsed_seconds": 31.0,
+      "auto_score": 0.833,
+      "found_terms": [
+        "suzetrigine",
+        "NCT",
+        "clinical trial",
+        "ChEMBL",
+        "acute pain",
+        "NCT07145346",
+        "NCT07195669",
+        "NCT07219888",
+        "NCT07226700",
+        "NCT07231419",
+        "NCT07257133",
+        "CHEMBL5314487",
+        "28"
+      ],
+      "missing_terms": [
+        "NaV1.8"
+      ],
+      "usage": {
+        "prompt_tokens": 6371,
+        "completion_tokens": 2775,
+        "total_tokens": 9146
+      }
+    },
+    "web_chatgpt52": {
+      "model": "ChatGPT 5.2 (web)",
+      "timestamp": "2026-02-06",
+      "response": "Here\u2019s a structured overview of **suzetrigine (VX-548, marketed as *Journavx*)**, focusing on registered clinical trials with NCT identifiers, studied indications beyond acute pain, and its ChEMBL ID and development phase.\n\n---\n\n## 1) Registered Clinical Trials with NCT Identifiers\n\nBelow are *registered clinical trials* involving suzetrigine (multiple phases and indications), based on ClinicalTrials.gov and trial tracker sources:([sigma.larvol.com][1])\n\n**Acute and Postoperative Pain (primary indication)**\n\n* **NCT05558410** \u2013 Evaluation of efficacy/safety for acute pain after abdominoplasty (Phase III) \u2013 completed.([sigma.larvol.com][1])\n* **NCT05553366** \u2013 Evaluation of efficacy/safety for acute pain after bunionectomy (Phase III) \u2013 completed.([sigma.larvol.com][1])\n* **NCT05661734** \u2013 Single-arm study to evaluate safety & effectiveness of suzetrigine for acute pain (Phase III) \u2013 completed.([sigma.larvol.com][1])\n\n**Other Pain-Related Indications (beyond acute postoperative pain)**\n\n* **NCT05660538** \u2013 Evaluation in *painful diabetic peripheral neuropathy* (Phase II) \u2013 completed.([sigma.larvol.com][1])\n* **NCT06176196** \u2013 Evaluation in *painful lumbosacral radiculopathy* (Phase II) \u2013 completed.([sigma.larvol.com][1])\n* **NCT06628908** \u2013 Diabetic peripheral neuropathic pain (Phase III, recruiting/ongoing).([sigma.larvol.com][1])\n* **VX24-548-112 / NCT06696443** \u2013 Long-term safety/effectiveness in DPN (Phase III, active/not recruiting).([sigma.larvol.com][1])\n* **NCT07226700** \u2013 Suzetrigine for pain after total hip arthroplasty (Phase III, recruiting).([sigma.larvol.com][1])\n\n**Additional Trials (mostly Phase I or supportive)**\n\n* Multiple Phase I trials evaluating pharmacokinetics, food effect, hepatic/renal impairment, QT/QTc effects, pharmacodynamics, etc. (e.g., **NCT05541471**, **NCT05635110**, **NCT05818852**, **NCT06972212**).([sigma.larvol.com][1])\n\n**Planned or Not Yet Recruiting Studies**\n\n* **NCT07195669** \u2013 RCT vs Norco post-op pain.([sigma.larvol.com][1])\n* **NCT07145346** \u2013 Acute pain control in rib fracture patients.([sigma.larvol.com][1])\n* Studies comparing to oxycodone or usual-care opioids and opioid avoidance integration (various Phase III entries).([sigma.larvol.com][1])\n\n*Note:* Some identifiers currently list \u201cnot yet recruiting\u201d or \u201ccompleted\u201d without posted results on ClinicalTrials.gov.([sigma.larvol.com][1])\n\n---\n\n## 2) Indications Studied *Beyond* Acute Pain\n\nWhile the **approved indication** for suzetrigine (*Journavx*) is moderate-to-severe **acute pain in adults** (post-operative or acute injury) as per the FDA label, research has also explored **other pain conditions**:([news.vrtx.com][2])\n\n**Studied Beyond Acute Postoperative Pain**\n\n* **Diabetic Peripheral Neuropathy (DPN)** \u2013 Phase II completed; Phase III recruiting.([sigma.larvol.com][1])\n* **Painful Lumbosacral Radiculopathy** \u2013 Phase II.([sigma.larvol.com][1])\n* Other pain modalities being evaluated include hip arthroplasty pain and broader *multimodal postoperative pain management* strategies.([sigma.larvol.com][1])\n\nDespite these investigations, *only acute pain* (short-term, typically <14 days) is currently approved. Data for chronic neuropathic pain are promising but not yet definitive/approved.([PMC][3])\n\n---\n\n## 3) ChEMBL Molecule ID and Highest Development Phase\n\n**ChEMBL Molecule ID:**\n\n* **CHEMBL5314487** \u2013 Suzetrigine is indexed under this ChEMBL ID.([ebi.ac.uk][4])\n\n**Highest Development Phase:**\n\n* **Phase III / Regulatory Approval:**\n\n  * Suzetrigine has **achieved FDA approval** for moderate-to-severe acute pain (post-operative) as of **January 30, 2025**, representing the **highest clinical development milestone** (Phase III \u21b3 Commercial).([news.vrtx.com][2])\n\n* **Ongoing Phase III Trials Beyond Acute Pain:**\n\n  * DPN and total hip arthroplasty pain indications are currently being evaluated at Phase III.([sigma.larvol.com][1])\n\n---\n\n### Summary\n\n| Category                          | Details                                                                                                                                         |\n| --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |\n| **Registered Clinical Trials**    | NCT05558410, NCT05553366, NCT05661734, NCT05660538, NCT06176196, NCT06628908, others Phase I/III studies.([sigma.larvol.com][1])                |\n| **Indications Beyond Acute Pain** | Diabetic peripheral neuropathy; lumbosacral radiculopathy; hip arthroplasty pain; broader multimodal postoperative pain.([sigma.larvol.com][1]) |\n| **ChEMBL ID**                     | CHEMBL5314487.([ebi.ac.uk][4])                                                                                                                  |\n| **Development Phase**             | Approved (post-approval/Phase IV/post-marketing) for acute pain. Phase III ongoing for other pain indications.([news.vrtx.com][2])              |\n\n---\n\nIf you\u2019d like, I can also compile known results or endpoints for the key Phase III trials (e.g., pain intensity reductions, statistical significance, safety outcomes).\n\n[1]: https://sigma.larvol.com/ott.php?e1=947185&sourcepg=TZ&utm_source=chatgpt.com \"Online Trial Tracker\"\n[2]: https://news.vrtx.com/news-releases/news-release-details/vertex-announces-fda-approval-journavxtm-suzetrigine-first-class?utm_source=chatgpt.com \"Vertex Announces FDA Approval of JOURNAVX ...\"\n[3]: https://pmc.ncbi.nlm.nih.gov/articles/PMC12624754/?utm_source=chatgpt.com \"Suzetrigine, a Non\u2010Opioid Small\u2010Molecule Analgesic - PMC\"\n[4]: https://www.ebi.ac.uk/chembl/explore/compound/CHEMBL5314487?utm_source=chatgpt.com \"Compound: SUZETRIGINE (CHEMBL5314487) - ChEMBL\"",
+      "auto_score": 0.833,
+      "entered_by": "USER",
+      "found_terms": [
+        "suzetrigine",
+        "NCT",
+        "clinical trial",
+        "ChEMBL",
+        "acute pain",
+        "DPN",
+        "NCT07145346",
+        "NCT07195669",
+        "NCT07226700",
+        "CHEMBL5314487",
+        "28"
+      ],
+      "missing_terms": [
+        "NaV1.8"
+      ]
+    },
+    "web_gemini3_pro": {
+      "model": "Gemini 3 Pro (web)",
+      "timestamp": "2026-02-06",
+      "response": "Congrats on following the approval of this first-in-class drug. Here are the details regarding suzetrigine (Journavx) as of early 2026.\n\n### 1. Registered Clinical Trials (NCT Identifiers)\n\nThe following is a list of key registered clinical trials for suzetrigine (formerly VX-548). They are categorized by the condition studied.\n\n**Acute Pain (Pivotal Phase 3 & Phase 2 Trials)**\n\n* **NCT05661734:** Phase 3, Single-arm safety and effectiveness study for acute pain (surgical and non-surgical).\n* **NCT05559398:** Phase 3, Efficacy and safety study following abdominoplasty.\n* **NCT05550961:** Phase 3, Efficacy and safety study following bunionectomy.\n* **NCT05034952:** Phase 2, Dose-ranging study following abdominoplasty.\n* **NCT04977336:** Phase 2, Dose-ranging study following bunionectomy.\n\n**Chronic & Neuropathic Pain Trials**\n\n* **NCT07231419:** Phase 3, Efficacy and safety for pain associated with Diabetic Peripheral Neuropathy (DPN).\n* **NCT06628908:** Phase 3, Efficacy and safety for pain associated with Diabetic Peripheral Neuropathy (DPN).\n* **NCT05660538:** Phase 2, Dose-ranging study for Painful Diabetic Peripheral Neuropathy (DPN).\n* **NCT06176196:** Phase 2, Efficacy and safety for Painful Lumbosacral Radiculopathy (PLSR).\n\n### 2. Indications Beyond Acute Pain\n\nBeyond the FDA-approved indication for acute pain, Vertex Pharmaceuticals is actively investigating suzetrigine for chronic neuropathic pain conditions. The primary additional indications currently under study include:\n\n* **Painful Diabetic Peripheral Neuropathy (DPN):** This is the most advanced chronic indication, with Phase 3 trials currently active following successful Phase 2 results.\n* **Painful Lumbosacral Radiculopathy (PLSR):** Often referred to as sciatica, this indication has been studied in Phase 2 trials to assess the drug's efficacy in treating nerve root pain in the lower back/leg.\n\n### 3. ChEMBL ID and Development Phase\n\n* **ChEMBL Molecule ID:** `CHEMBL5314487`\n* **Highest Development Phase:** **Approved** (Phase 4)\n* *Note:* The drug received FDA approval on **January 30, 2025**, reaching the market stage.\n\n\n\n---\n\n**Would you like me to pull the specific efficacy data (pain reduction scores) from the Phase 2 Diabetic Neuropathy trial to compare it against the acute pain results?**",
+      "auto_score": 0.833,
+      "entered_by": "USER",
+      "found_terms": [
+        "suzetrigine",
+        "NCT",
+        "clinical trial",
+        "ChEMBL",
+        "acute pain",
+        "DPN",
+        "NCT07231419",
+        "CHEMBL5314487",
+        "28"
+      ],
+      "missing_terms": [
+        "NaV1.8"
+      ]
+    },
+    "web_claude46": {
+      "model": "Claude 4.6 (web)",
+      "timestamp": "2026-02-06",
+      "response": "I'll gather information from multiple sources to answer your questions. Let me start with ChEMBL and web searches in parallel.Here is a comprehensive summary based on ChEMBL data and published literature:\n\n---\n\n## 1. Registered Clinical Trials with NCT Identifiers\n\nBased on the published review in *Clinical and Translational Science* (Rajasingham et al., 2025) and ClinicalTrials.gov records, the following trials have been registered:\n\n### Phase 1 (PK/PD/Safety) \u2014 7 completed studies\nNCT06972212, NCT06820307, NCT05851157, NCT05704556, NCT05635110, NCT05560464, and NCT05541471\n\n### Phase 2 (Efficacy/Dose-Ranging) \u2014 4 studies\n| NCT ID | Indication | Notes |\n|---|---|---|\n| **NCT04977336** | Acute pain \u2013 Bunionectomy | Phase 2 (NEJM 2023) |\n| **NCT05034952** | Acute pain \u2013 Abdominoplasty | Phase 2 (NEJM 2023) |\n| **NCT05660538** | Painful diabetic peripheral neuropathy (DPN) | Phase 2 dose-ranging; positive results Dec 2023 |\n| **NCT06176196** | Painful lumbosacral radiculopathy (LSR) | Phase 2; results announced Dec 2024 |\n\n### Phase 3 (Pivotal/Registrational for Acute Pain) \u2014 3 studies\n| NCT ID | Indication | Notes |\n|---|---|---|\n| **NCT05553366** | NAVIGATE-1: Bunionectomy | Pivotal; supported FDA approval |\n| **NCT05558410** | NAVIGATE-2: Abdominoplasty | Pivotal; supported FDA approval |\n| **NCT05661734** | Single-arm: Mixed surgical & non-surgical acute pain | Open-label safety/effectiveness (Trial 3) |\n\n### Phase 3 (Neuropathic Pain Expansion) \u2014 2 studies\n| NCT ID | Indication | Notes |\n|---|---|---|\n| **NCT06628908** | Painful DPN | 12-week RCT vs. pregabalin & placebo; ongoing |\n| **NCT06696443** | Painful DPN \u2013 open-label extension | Long-term safety in DPN completers |\n\n### Post-Approval / Additional Studies\n| NCT ID | Description |\n|---|---|\n| **NCT06887959** | Appears to involve aesthetic/reconstructive surgery pain and/or new formulation bioavailability |\n| **NCT07195669** | RCT comparing suzetrigine vs. Norco for post-operative pain |\n\nThis totals **~18 registered trials** across the full program.\n\n---\n\n## 2. Indications Beyond Acute Pain\n\nVertex is expanding suzetrigine into peripheral neuropathic pain (PNP), which encompasses several chronic conditions:\n\n- **Painful Diabetic Peripheral Neuropathy (DPN):** Phase 2 results (Dec 2023) showed statistically significant and clinically meaningful pain reduction at all doses tested over 12 weeks. The FDA granted Breakthrough Therapy designation for DPN. Two Phase 3 studies are now underway (NCT06628908 and NCT06696443).\n\n- **Painful Lumbosacral Radiculopathy (LSR):** Phase 2 results were announced in December 2024. Vertex plans to advance into pivotal development for LSR pending discussions with regulators on study design.\n\n- Vertex has also mentioned broader interest in other PNP subtypes including small fiber neuropathy and trigeminal neuralgia, though no specific trials have been registered for those indications yet.\n\n---\n\n## 3. ChEMBL Data\n\n- **ChEMBL Molecule ID:** **CHEMBL5314487**\n- **Preferred name:** SUZETRIGINE\n- **Synonyms:** VX-548, VXc-548, VRT-1737548\n- **Max phase in ChEMBL:** **3** (ChEMBL has not yet updated to reflect the January 30, 2025 FDA approval; the actual status is **Phase 4 / Approved**)\n- **USAN stem:** -trigine (sodium channel blockers, signal transduction modulators)\n- **Key molecular properties:** MW = 473.4 Da, ALogP = 3.55, PSA = 103.5 \u00c5\u00b2, 0 Ro5 violations, QED = 0.65\n- **Note:** No mechanism of action record is curated in ChEMBL yet for this compound, though the target is well established as NaV1.8 (SCN10A).",
+      "auto_score": 1.0,
+      "entered_by": "USER",
+      "found_terms": [
+        "suzetrigine",
+        "NaV1.8",
+        "NCT",
+        "clinical trial",
+        "ChEMBL",
+        "acute pain",
+        "DPN",
+        "NCT07195669",
+        "CHEMBL5314487",
+        "28"
+      ],
+      "missing_terms": []
+    }
+  },
+  "reviews": {
+    "review_1": {
+      "outcome": "biobtree_win",
+      "key_finding": "For suzetrigine clinical trials, biobtree returned all 28 registered studies including 6 NCT07-prefix trials (definitively post-training cutoff). LLMs with web search found 9-18 trials (32-64% coverage) and only 1-3 NCT07 trials. Even with real-time web access, LLMs cannot systematically enumerate database contents.",
+      "quotable": "For suzetrigine clinical trials, biobtree returned 28 registered studies while LLMs with web search found 9-18 (32-64% coverage). All models found the correct ChEMBL ID, but the 2x enumeration gap persists even with real-time web access.",
+      "trial_coverage": {
+        "biobtree": "28/28 (100%)",
+        "chatgpt": "~14/28 (50%)",
+        "gemini": "~9/28 (32%)",
+        "claude": "~18/28 (64%)"
+      },
+      "nct07_coverage": {
+        "biobtree": "6/6",
+        "chatgpt": "3/6",
+        "gemini": "1/6",
+        "claude": "1/6"
+      },
+      "notes": "This test demonstrates that web search enables partial data freshness access (LLMs knew about Jan 2025 FDA approval and found some NCT07 trials), but doesn't solve the enumeration problem. ChEMBL ID was correctly identified by all models."
+    }
+  },
+  "question_id": "suzetrigine_freshness"
+}

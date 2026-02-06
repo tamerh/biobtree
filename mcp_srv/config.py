@@ -20,6 +20,7 @@ class Config:
 
     # Biobtree backend
     biobtree_url: str = "http://localhost:9291"
+    biobtree_public_url: Optional[str] = None  # Public URL for query links (if different from internal)
     biobtree_timeout: float = 60.0
 
     # Server settings
@@ -50,6 +51,7 @@ class Config:
         return cls(
             # Biobtree backend
             biobtree_url=os.getenv("BIOBTREE_URL", "http://localhost:9291"),
+            biobtree_public_url=os.getenv("BIOBTREE_PUBLIC_URL"),  # e.g., "https://biobtree.org"
             biobtree_timeout=float(os.getenv("BIOBTREE_TIMEOUT", "60.0")),
 
             # Server settings

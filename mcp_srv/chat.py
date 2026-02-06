@@ -15,6 +15,30 @@ from .biobtree_client import BiobtreeClient
 from .config import config
 from .tools import CHAT_TOOLS, execute_tool
 
+
+def _build_query_url_from_args(tool_name: str, tool_args: dict) -> str | None:
+    """Build query URL from tool name and arguments (avoids parsing truncated results)."""
+    public_base = config.biobtree_public_url or config.biobtree_url
+    public_base = public_base.rstrip("/")
+
+    if tool_name == "biobtree_search":
+        terms = tool_args.get("terms", "")
+        dataset = tool_args.get("dataset")
+        url = f"{public_base}/ws/?i={terms}"
+        if dataset:
+            url += f"&s={dataset}"
+        return url
+    elif tool_name == "biobtree_map":
+        terms = tool_args.get("terms", "")
+        chain = tool_args.get("chain", "")
+        return f"{public_base}/ws/map/?i={terms}&m={chain}"
+    elif tool_name == "biobtree_entry":
+        identifier = tool_args.get("identifier", "")
+        dataset = tool_args.get("dataset", "")
+        return f"{public_base}/ws/entry/?i={identifier}&s={dataset}"
+
+    return None
+
 logger = logging.getLogger(__name__)
 router = APIRouter(tags=["chat"])
 
@@ -30,7 +54,7 @@ async def get_client() -> BiobtreeClient:
     return _client
 
 
-DEFAULT_SYSTEM_PROMPT = """You are a helpful bioinformatics assistant with access to biobtree, a biological database integrating 70+ data sources including genes, proteins, drugs, diseases, variants, pathways, interactions, expression, rare diseases, clinical trials, and more.
+DEFAULT_SYSTEM_PROMPT_WITH_TOOLS = """You are a helpful bioinformatics assistant with access to biobtree, a biological database integrating 70+ data sources including genes, proteins, drugs, diseases, variants, pathways, interactions, expression, rare diseases, clinical trials, and more.
 
 IMPORTANT: Before answering any question, call biobtree_help with topic="patterns" to discover the available mapping chains. Do NOT guess chains — always check what connections exist first.
 
@@ -39,6 +63,34 @@ When answering:
 2. Use biobtree_search to find identifiers, then biobtree_map to traverse chains
 3. Include specific database identifiers (IDs, accession numbers) in your answer
 4. Provide clear, scientifically accurate answers based on the retrieved data"""
+
+DEFAULT_SYSTEM_PROMPT_NO_TOOLS = """You are a helpful bioinformatics assistant. Answer questions about genes, proteins, drugs, diseases, variants, pathways, and other biological topics based on your training knowledge.
+
+Provide clear, scientifically accurate answers. When discussing specific database entries, mention relevant identifiers if you know them (UniProt IDs, Ensembl IDs, etc.)."""
+
+
+def _append_data_sources(answer: str, query_urls: list) -> str:
+    """Append data sources section with unique query URLs to the answer."""
+    if not query_urls or not answer:
+        return answer
+
+    # Deduplicate while preserving order
+    seen = set()
+    unique_urls = []
+    for url in query_urls:
+        if url not in seen:
+            seen.add(url)
+            unique_urls.append(url)
+
+    if not unique_urls:
+        return answer
+
+    # Build data sources section
+    sources_section = "\n\n---\n**Data Sources:**"
+    for url in unique_urls:
+        sources_section += f"\n- {url}"
+
+    return answer + sources_section
 
 
 @router.post("/chat")
@@ -85,7 +137,10 @@ async def chat_endpoint(request: Request):
 
     model = body.get("model", config.default_model)
     with_tools = body.get("with_tools", True)
-    system_prompt = body.get("system_prompt", DEFAULT_SYSTEM_PROMPT)
+
+    # Use appropriate default system prompt based on tools setting
+    default_prompt = DEFAULT_SYSTEM_PROMPT_WITH_TOOLS if with_tools else DEFAULT_SYSTEM_PROMPT_NO_TOOLS
+    system_prompt = body.get("system_prompt", default_prompt)
 
     # Import openai here to avoid startup dependency
     try:
@@ -115,7 +170,9 @@ async def chat_endpoint(request: Request):
 
     tools = CHAT_TOOLS if with_tools else None
     tool_calls_log = []
+    query_urls = []  # Collect all query URLs from tool results
     iterations = 0
+    total_tokens = {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}
 
     # Get biobtree client for tool execution
     biobtree = await get_client()
@@ -135,6 +192,12 @@ async def chat_endpoint(request: Request):
             )
 
             msg = response.choices[0].message
+
+            # Accumulate token usage
+            if hasattr(response, 'usage') and response.usage:
+                total_tokens["prompt_tokens"] += getattr(response.usage, 'prompt_tokens', 0) or 0
+                total_tokens["completion_tokens"] += getattr(response.usage, 'completion_tokens', 0) or 0
+                total_tokens["total_tokens"] += getattr(response.usage, 'total_tokens', 0) or 0
 
             # Check if model wants to call tools
             if msg.tool_calls and with_tools:
@@ -168,6 +231,11 @@ async def chat_endpoint(request: Request):
                     # Execute tool
                     result = await execute_tool(tool_name, tool_args, biobtree, max_result_length=15000)
 
+                    # Build query_url from tool arguments (more reliable than parsing truncated results)
+                    query_url = _build_query_url_from_args(tool_name, tool_args)
+                    if query_url:
+                        query_urls.append(query_url)
+
                     # Log for response
                     tool_calls_log.append({
                         "tool": tool_name,
@@ -183,21 +251,29 @@ async def chat_endpoint(request: Request):
                     })
             else:
                 # No tool calls - model is done
+                # Append data sources section with all query URLs
+                final_answer = _append_data_sources(msg.content, query_urls)
                 return {
-                    "answer": msg.content,
+                    "answer": final_answer,
                     "model": model,
                     "tools_used": with_tools,
                     "tool_calls": tool_calls_log,
-                    "iterations": iterations
+                    "iterations": iterations,
+                    "data_sources": query_urls,
+                    "usage": total_tokens
                 }
 
         # Max iterations reached
+        base_answer = msg.content if msg else "Unable to complete request within iteration limit."
+        final_answer = _append_data_sources(base_answer, query_urls)
         return {
-            "answer": msg.content if msg else "Unable to complete request within iteration limit.",
+            "answer": final_answer,
             "model": model,
             "tools_used": with_tools,
             "tool_calls": tool_calls_log,
             "iterations": iterations,
+            "data_sources": query_urls,
+            "usage": total_tokens,
             "warning": "Max iterations reached"
         }
 

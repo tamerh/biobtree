@@ -114,6 +114,17 @@ class BiobtreeClient:
                 status_code=e.response.status_code
             ) from e
 
+    def _build_query_url(self, endpoint: str, params: dict) -> str:
+        """Build a user-friendly query URL for full data access."""
+        # Use public URL if configured, otherwise use base_url
+        public_base = config.biobtree_public_url or self.base_url
+        query_parts = []
+        for k, v in params.items():
+            if v is not None:
+                query_parts.append(f"{k}={v}")
+        query_string = "&".join(query_parts)
+        return f"{public_base}{endpoint}?{query_string}"
+
     async def search(
         self,
         terms: str,
@@ -133,7 +144,7 @@ class BiobtreeClient:
             mode: Response mode - "lite" or "full" (optional, uses biobtree default if not set)
 
         Returns:
-            Search results with matching entries
+            Search results with matching entries and query_url for full access
         """
         params = {"i": terms}
         if mode:
@@ -145,7 +156,16 @@ class BiobtreeClient:
         if filter_expr:
             params["f"] = filter_expr
 
-        return await self._request("/ws/", params)
+        result = await self._request("/ws/", params)
+
+        # Add query URL at START of response (survives truncation)
+        url_params = {"i": terms}
+        if dataset:
+            url_params["s"] = dataset
+        query_url = self._build_query_url("/ws/", url_params)
+
+        # Return with query_url first (Python 3.7+ preserves dict order)
+        return {"query_url": query_url, **result}
 
     async def map(
         self,
@@ -164,7 +184,7 @@ class BiobtreeClient:
             mode: Response mode - "lite" or "full" (optional, uses biobtree default if not set)
 
         Returns:
-            Mapping results with source and target entries
+            Mapping results with source and target entries, plus query_url for full access
         """
         params = {"i": terms, "m": chain}
         if mode:
@@ -172,7 +192,13 @@ class BiobtreeClient:
         if page:
             params["p"] = page
 
-        return await self._request("/ws/map/", params)
+        result = await self._request("/ws/map/", params)
+
+        # Add query URL at START of response (survives truncation)
+        query_url = self._build_query_url("/ws/map/", {"i": terms, "m": chain})
+
+        # Return with query_url first (Python 3.7+ preserves dict order)
+        return {"query_url": query_url, **result}
 
     async def entry(
         self,
@@ -187,10 +213,20 @@ class BiobtreeClient:
             dataset: The dataset containing the entry
 
         Returns:
-            Full entry with all attributes
+            Full entry with all attributes, plus query_url
         """
         params = {"i": identifier, "s": dataset}
-        return await self._request("/ws/entry/", params)
+        result = await self._request("/ws/entry/", params)
+
+        # Wrap result in dict if it's a list (entry endpoint returns list)
+        if isinstance(result, list):
+            result = {"results": result}
+
+        # Add query URL at START of response (survives truncation)
+        query_url = self._build_query_url("/ws/entry/", params)
+
+        # Return with query_url first (Python 3.7+ preserves dict order)
+        return {"query_url": query_url, **result}
 
     async def meta(self) -> dict:
         """

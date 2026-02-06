@@ -1,0 +1,250 @@
+{
+  "metadata": {
+    "version": "2.0",
+    "created": "2026-02-06",
+    "description": "Biobtree benchmark question registry",
+    "biobtree_server": "http://localhost:8000",
+    "standard_models": {
+      "biobtree_augmented": [
+        "anthropic/claude-sonnet-4",
+        "openai/gpt-4.1",
+        "google/gemini-2.5-pro-preview-03-25"
+      ],
+      "web_baseline": [
+        "web_chatgpt52",
+        "web_gemini3_pro",
+        "web_claude46"
+      ]
+    }
+  },
+  "questions": [
+    {
+      "id": 1,
+      "question_id": "scn9a_drug_safety",
+      "question": "I'm developing a drug that inhibits SCN9A (Nav1.7 sodium channel) for chronic pain treatment. Before clinical trials, I need to understand the tissue expression profile of SCN9A to anticipate potential off-target effects. Which tissues express SCN9A most highly? Are there any non-pain-related tissues with significant expression that could indicate safety concerns?",
+      "category": "expression",
+      "tier": 2,
+      "hops": 2,
+      "theme": "expression_cell_type",
+      "why_llm_fails": "LLMs know SCN9A is expressed in sensory neurons but cannot provide comprehensive tissue coverage with quantitative scores. May miss non-obvious high-expression tissues like endometrium (score 83.65).",
+      "ground_truth": {
+        "must_mention": ["SCN9A", "Nav1.7"],
+        "must_mention_any": ["dorsal root", "ganglion", "sensory", "expression", "tissue"],
+        "tool_only_terms": ["83.65", "88.05", "ENSG00000169432", "endometrium"],
+        "biobtree_chain": ">>ensembl[ensembl.genome==\"homo_sapiens\"]>>bgee",
+        "key_values": {
+          "drg_score": 88.05,
+          "endometrium_score": 83.65,
+          "testis_score": 78.17
+        }
+      }
+    },
+    {
+      "id": 2,
+      "question_id": "alkaptonuria_trials",
+      "question": "What gene causes alkaptonuria, and what clinical trials have been registered for this disease? Please list all trial NCT identifiers, their phases, current status, and what intervention is being tested.",
+      "category": "rare_disease",
+      "tier": 2,
+      "hops": 3,
+      "theme": "disease_drug",
+      "why_llm_fails": "LLMs know the HGD gene and nitisinone but cannot enumerate all 9 clinical trials. May miss recent/obscure trials like NCT06298292 (NOT_YET_RECRUITING) or NCT04142671 (gait modification).",
+      "ground_truth": {
+        "must_mention": ["HGD", "nitisinone"],
+        "must_mention_any": ["NCT00005909", "NCT00107783", "NCT01390077", "NCT01828463", "NCT01916382", "NCT04142671", "NCT04196959", "NCT04761588", "NCT06298292"],
+        "tool_only_terms": ["NCT04761588", "NCT06298292", "NCT04142671", "MONDO:0008753", "ENSG00000113924"],
+        "biobtree_chain": ">>mondo>>clinical_trials",
+        "key_values": {
+          "total_trials": 9,
+          "gene_ensembl": "ENSG00000113924",
+          "mondo_id": "MONDO:0008753"
+        }
+      }
+    },
+    {
+      "id": 3,
+      "question_id": "npc1_variants",
+      "question": "List all pathogenic ClinVar variants in the NPC1 gene. For each variant, provide the ClinVar variation ID and the HGVS notation. How many pathogenic variants are there in total?",
+      "category": "variant_enumeration",
+      "tier": 3,
+      "hops": 2,
+      "theme": "exhaustive_enumeration",
+      "why_llm_fails": "Exhaustive enumeration is impossible for LLMs - they can only recall examples from training. Cannot list 150+ specific ClinVar IDs. Even with web search, complete enumeration is impractical.",
+      "ground_truth": {
+        "must_mention": ["NPC1", "pathogenic"],
+        "must_mention_any": ["ClinVar", "variant", "HGVS", "c.", "p."],
+        "tool_only_terms": ["1030709", "1705750", "2782515", "ENSG00000141458", "150"],
+        "biobtree_chain": ">>ensembl>>clinvar[clinvar.germline_classification==\"Pathogenic\"]",
+        "key_values": {
+          "total_variants": "150+",
+          "gene_ensembl": "ENSG00000141458",
+          "example_clinvar_ids": ["1030709", "1050802", "1066745", "21134", "21137"]
+        }
+      }
+    },
+    {
+      "id": 4,
+      "question_id": "apoe_gwas",
+      "question": "What traits and diseases are genetically associated with the APOE gene according to GWAS studies? List specific GWAS Catalog study IDs (GCST numbers) and the associated traits. How many GWAS associations exist in total for APOE?",
+      "category": "gwas_enumeration",
+      "tier": 2,
+      "hops": 2,
+      "theme": "gwas_associations",
+      "why_llm_fails": "LLMs know famous APOE-Alzheimer's link but cannot enumerate 400+ GWAS associations or provide specific GCST study IDs. Cannot give accurate count of total associations.",
+      "ground_truth": {
+        "must_mention": ["APOE", "Alzheimer"],
+        "must_mention_any": ["GCST", "GWAS", "cholesterol", "lipid", "cognitive"],
+        "tool_only_terms": ["GCST007881", "GCST003279", "403", "ENSG00000130203", "Lewy bodies"],
+        "biobtree_chain": ">>ensembl[ensembl.genome==\"homo_sapiens\"]>>gwas",
+        "key_values": {
+          "total_associations": "403+",
+          "gene_ensembl": "ENSG00000130203",
+          "example_gcst_ids": ["GCST000018", "GCST000121", "GCST007881", "GCST003279"]
+        }
+      }
+    },
+    {
+      "id": 5,
+      "question_id": "cyp2c19_pharmacogenomics",
+      "question": "For the pharmacogene CYP2C19, provide a comprehensive pharmacogenomics profile: 1. How many clinical dosing guidelines exist? List them with their sources (CPIC, DPWG, etc.) 2. What are the key pharmacogenomic variants? Provide rsIDs and their clinical significance 3. Which drugs are affected by CYP2C19 variants? List specific drugs with their PharmGKB IDs 4. What regulatory agencies have drug labels mentioning CYP2C19 genotype testing? Provide specific database identifiers (PharmGKB IDs, rsIDs, guideline sources).",
+      "category": "pharmacogenomics",
+      "tier": 2,
+      "hops": 4,
+      "theme": "multi_hop_pipeline",
+      "why_llm_fails": "LLMs know CYP2C19-clopidogrel connection but cannot enumerate 37 guidelines, provide specific PharmGKB IDs, or give exact annotation counts. Multi-hop traversal (Gene→Guidelines→Drugs→Variants→Labels) requires database access.",
+      "ground_truth": {
+        "must_mention": ["CYP2C19", "clopidogrel"],
+        "must_mention_any": ["rs4244285", "*2", "CPIC", "DPWG", "PharmGKB"],
+        "tool_only_terms": ["37", "873", "PA166104948", "PA449053", "ENSG00000165841", "47066"],
+        "biobtree_chain": ">>hgnc>>pharmgkb_guideline",
+        "key_values": {
+          "total_guidelines": 37,
+          "variant_annotations_rs4244285": 873,
+          "drugs_with_guidelines": "23+",
+          "regulatory_agencies": 5,
+          "gene_ensembl": "ENSG00000165841"
+        }
+      }
+    },
+    {
+      "id": 6,
+      "question_id": "ectopia_lentis_multihop",
+      "question": "A patient presents with ectopia lentis (lens dislocation). What genetic conditions could cause this phenotype? For each condition, identify: 1. The causal gene(s) 2. How many pathogenic ClinVar variants exist in each gene 3. Any drugs being tested in clinical trials for these conditions. Provide specific database identifiers (Orphanet IDs, Ensembl gene IDs, ClinVar counts, trial IDs, drug names).",
+      "category": "clinical_reasoning",
+      "tier": 3,
+      "hops": 5,
+      "theme": "phenotype_to_drug_pipeline",
+      "why_llm_fails": "Requires 5 database traversals (HPO→Orphanet→Ensembl→ClinVar→Clinical Trials). LLMs know Marfan/FBN1 but cannot enumerate 19 diseases, 248+ variants, or specific trial IDs. Cross-database integration impossible without tools.",
+      "ground_truth": {
+        "must_mention": ["Marfan", "FBN1"],
+        "must_mention_any": ["ectopia lentis", "homocystinuria", "CBS", "Weill-Marchesani", "losartan", "clinical trial"],
+        "tool_only_terms": ["ORPHA:558", "ENSG00000166147", "NCT00429364", "248", "19 diseases", "LTBP2", "ADAMTS10"],
+        "biobtree_chain": ">>hpo>>orphanet>>ensembl>>clinvar",
+        "key_values": {
+          "total_diseases": 19,
+          "total_genes": "7+",
+          "total_variants": "248+",
+          "total_trials": "10+",
+          "fbn1_variants": "150+"
+        }
+      }
+    },
+    {
+      "id": 7,
+      "question_id": "doors_syndrome",
+      "question": "DOORS syndrome is an ultra-rare genetic disorder (~100 cases worldwide). Provide a complete genetic profile: 1. What genes are causally linked to DOORS syndrome? Provide Ensembl IDs and HGNC symbols. 2. How many pathogenic ClinVar variants exist for each gene? 3. What is the Orphanet ID and OMIM number? 4. What phenotypes (HPO terms) are associated with this syndrome? 5. Are there any clinical trials for DOORS syndrome?",
+      "category": "ultra_rare_disease",
+      "tier": 3,
+      "hops": 3,
+      "theme": "rare_disease_profiling",
+      "why_llm_fails": "Ultra-rare disease (~100 cases). LLMs know basic disease IDs but cannot enumerate 192 ClinVar variants or 178 HPO phenotypes. Risk of Ensembl ID hallucination.",
+      "ground_truth": {
+        "must_mention": ["DOORS", "ATP6V1B2"],
+        "must_mention_any": ["TBC1D24", "Orphanet", "OMIM", "79500", "220500", "HPO"],
+        "tool_only_terms": ["ENSG00000147416", "ENSG00000162065", "192", "178", "MONDO:0009079"],
+        "biobtree_chain": ">>orphanet>>ensembl>>clinvar",
+        "key_values": {
+          "orphanet_id": "79500",
+          "omim": "220500",
+          "gene1": "ATP6V1B2",
+          "gene1_ensembl": "ENSG00000147416",
+          "gene2": "TBC1D24",
+          "gene2_ensembl": "ENSG00000162065",
+          "clinvar_atp6v1b2": 192,
+          "hpo_phenotypes": 178
+        }
+      }
+    },
+    {
+      "id": 8,
+      "question_id": "suzetrigine_freshness",
+      "question": "For the recently FDA-approved drug suzetrigine (Journavx), a NaV1.8 inhibitor for acute pain: 1. List all registered clinical trials with NCT identifiers 2. What indications are being studied beyond acute pain? 3. What is the ChEMBL molecule ID and highest development phase?",
+      "category": "data_freshness",
+      "tier": 2,
+      "hops": 2,
+      "theme": "post_cutoff_enumeration",
+      "why_llm_fails": "Tests data freshness with NCT07 prefix trials (definitively post-training cutoff). LLMs with web search can find some recent trials but cannot systematically enumerate all 28 registered studies.",
+      "ground_truth": {
+        "must_mention": ["suzetrigine", "NaV1.8"],
+        "must_mention_any": ["NCT", "clinical trial", "ChEMBL", "acute pain", "DPN"],
+        "tool_only_terms": ["NCT07145346", "NCT07195669", "NCT07219888", "NCT07226700", "NCT07231419", "NCT07257133", "CHEMBL5314487", "PA166364461", "28"],
+        "biobtree_chain": ">>chembl_molecule>>clinical_trials",
+        "key_values": {
+          "total_trials": 28,
+          "chembl_id": "CHEMBL5314487",
+          "pharmgkb_id": "PA166364461",
+          "nct07_trials": 6,
+          "indications": ["DPN", "Lumbosacral Radiculopathy", "Postherpetic Neuralgia", "Acute Pain"]
+        }
+      }
+    },
+    {
+      "id": 9,
+      "question_id": "apoe_alphamissense",
+      "question": "The APOE ε4 variant (rs429358, C130R) is the strongest genetic risk factor for late-onset Alzheimer's disease. What is the exact AlphaMissense pathogenicity score for this variant? What does ClinVar report as clinical significance? What Reactome pathways involve APOE? Explain any apparent discrepancy between being a major disease risk factor and the AlphaMissense prediction.",
+      "category": "data_accuracy",
+      "tier": 2,
+      "hops": 3,
+      "theme": "specific_value_retrieval",
+      "why_llm_fails": "Tests data accuracy rather than enumeration. LLMs cannot retrieve exact AlphaMissense scores from memory. Risk of fabricating plausible-sounding values (Gemini reported 0.091 when actual is 0.0365 - a 2.5x error).",
+      "ground_truth": {
+        "must_mention": ["APOE", "rs429358"],
+        "must_mention_any": ["AlphaMissense", "pathogenicity", "ClinVar", "Reactome", "Alzheimer"],
+        "tool_only_terms": ["0.0365", "likely_benign", "19:44908684:T:C", "P02649", "12 pathways"],
+        "biobtree_chain": ">>dbsnp>>alphamissense",
+        "key_values": {
+          "alphamissense_score": 0.0365,
+          "alphamissense_class": "likely_benign",
+          "clinvar_significance": "risk factor; conflicting classifications",
+          "reactome_pathways": 12,
+          "variant_id": "19:44908684:T:C",
+          "uniprot": "P02649"
+        }
+      }
+    },
+    {
+      "id": 10,
+      "question_id": "lrrk2_celltype",
+      "question": "LRRK2 mutations are the most common genetic cause of Parkinson's disease. For therapeutic development, I need to understand which specific cell types express LRRK2 most highly. Is it primarily expressed in neurons, or are immune cells also relevant? Provide specific cell type names and expression data.",
+      "category": "expression",
+      "tier": 2,
+      "hops": 2,
+      "theme": "cell_type_specificity",
+      "why_llm_fails": "This tests whether LLMs know LRRK2's immune cell expression (well-established in PD literature). Unlike SCN9A/endometrium, this is NOT a biobtree advantage case - LLMs correctly identify immune > neurons. Biobtree advantage is only quantitative scores.",
+      "ground_truth": {
+        "must_mention": ["LRRK2", "Parkinson"],
+        "must_mention_any": ["monocyte", "immune", "neuron", "macrophage", "expression"],
+        "tool_only_terms": ["97.06", "96.79", "66.31", "ENSG00000188906", "CL:0000576"],
+        "biobtree_chain": ">>ensembl[ensembl.genome==\"homo_sapiens\"]>>bgee",
+        "key_values": {
+          "monocyte_score": 97.06,
+          "monocyte_rank": 1370,
+          "leukocyte_score": 96.79,
+          "drg_score": 66.31,
+          "drg_rank": 15700,
+          "gene_ensembl": "ENSG00000188906",
+          "expected_outcome": "TIE - LLMs know this biology"
+        }
+      }
+    }
+  ]
+}

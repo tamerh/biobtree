@@ -1,0 +1,143 @@
+{
+  "id": 10,
+  "results": {
+    "biobtree_sonnet": {
+      "model": "anthropic/claude-sonnet-4",
+      "timestamp": "2026-02-06T16:43:22.193433",
+      "response": "Based on the comprehensive LRRK2 expression data I've retrieved, I can provide you with detailed information about LRRK2 expression across different cell types, which is crucial for therapeutic development in Parkinson's disease.\n\n## LRRK2 Expression Profile: Key Findings for Therapeutic Development\n\n### **Highest Expression in Immune Cells**\n\n**Monocytes** show the **highest LRRK2 expression**:\n- Expression score: **97.06** (rank: 1,370 out of ~47,000 genes)\n- FDR: 1e-14 (extremely significant)\n- Quality: Gold standard\n- Based on 29 RNA-seq observations\n\n**Leukocytes (general immune cells)**:\n- Expression score: **96.79** (rank: 1,500)\n- FDR: 1e-14 (extremely significant)\n- Quality: Gold standard\n- Based on 32 total observations\n\n**Granulocytes**:\n- Expression score: **90.15** (rank: 4,590)\n- FDR: 1.32e-10 (highly significant)\n- Quality: Gold standard\n\n### **Moderate Expression in Other Cell Types**\n\n**Bone marrow cells**:\n- Expression score: **86.64** (rank: 6,230)\n- FDR: 0.0002 (significant)\n- Quality: Gold standard\n\n**Buccal mucosa cells**:\n- Expression score: **97.17** (rank: 1,320)\n- FDR: 0.002 (significant)\n- Quality: Gold standard\n\n### **Brain and Neuronal Expression**\n\nThe data shows LRRK2 expression in several brain regions and neuronal contexts:\n\n**Substantia nigra** (the primary brain region affected in Parkinson's):\n- Expression score: **79.89** (rank: 9,440)\n- FDR: 2.24e-13 (highly significant)\n- Quality: Gold standard\n\n**Cerebral cortex**:\n- Expression score: **82.28** (rank: 8,290)\n- FDR: 1e-14 (extremely significant)\n- Quality: Gold standard\n\n**Striatum**:\n- Expression score: **80.73** (rank: 8,890)\n- FDR: 1e-14 (extremely significant)\n- Quality: Gold standard\n\n**Hippocampus**:\n- Expression score: **79.15** (rank: 9,720)\n- FDR: 1e-14 (extremely significant)\n- Quality: Gold standard\n\n### **Clinical Implications for Therapeutic Development**\n\n1. **Dual Target Strategy**: LRRK2 is highly expressed in both **immune cells** (particularly monocytes/macrophages) and **brain tissue**, supporting the neuroinflammatory hypothesis of Parkinson's disease.\n\n2. **Peripheral Biomarker Potential**: The very high expression in monocytes (expression rank 1,370) makes these cells excellent candidates for:\n   - Biomarker development\n   - Monitoring drug efficacy\n   - Patient stratification\n\n3. **Blood-Brain Barrier Considerations**: Since LRRK2 is highly expressed in peripheral immune cells, therapeutics may need to:\n   - Target both peripheral and central LRRK2\n   - Consider differential dosing strategies\n   - Account for potential systemic immune effects\n\n4. **Cell Type-Specific Therapeutic Approaches**:\n   - **Neuronal protection**: Target LRRK2 in substantia nigra dopaminergic neurons\n   - **Neuroinflammation modulation**: Target LRRK2 in microglia and infiltrating monocytes\n   - **Systemic immune modulation**: Consider effects on circulating immune cells\n\n### **Key Database Identifiers**\n- **Human LRRK2 Gene**: ENSG00000188906\n- **Chromosomal Location**: 12q12\n- **Alternative Names**: PARK8, ROCO2, RIPK7\n- **Protein**: Leucine-rich repeat kinase 2\n\nThis expression profile strongly supports the concept that LRRK2 functions at the intersection of neuronal and immune pathways, making it an excellent therapeutic target for Parkinson's disease with both neuroprotective and anti-inflammatory potential.\n\n---\n**Data Sources:**\n- http://biobtree:9291/ws/?i=LRRK2\n- http://biobtree:9291/ws/?i=LRRK2&s=ensembl\n- http://biobtree:9291/ws/?i=LRRK2 homo sapiens&s=ensembl\n- http://biobtree:9291/ws/map/?i=LRRK2&m=>>ensembl[ensembl.genome==\"homo_sapiens\"]\n- http://biobtree:9291/ws/map/?i=ENSG00000188906&m=>>scxa\n- http://biobtree:9291/ws/map/?i=ENSG00000188906&m=>>cellxgene\n- http://biobtree:9291/ws/map/?i=ENSG00000188906&m=>>bgee\n- http://biobtree:9291/ws/?i=neuron&s=cl\n- http://biobtree:9291/ws/?i=microglia&s=cl\n- http://biobtree:9291/ws/entry/?i=ENSG00000188906&s=bgee",
+      "tool_calls": 11,
+      "elapsed_seconds": 60.9,
+      "auto_score": 1.0,
+      "found_terms": [
+        "LRRK2",
+        "Parkinson",
+        "monocyte",
+        "immune",
+        "neuron",
+        "macrophage",
+        "expression",
+        "97.06",
+        "96.79",
+        "ENSG00000188906"
+      ],
+      "missing_terms": [],
+      "usage": {
+        "prompt_tokens": 183058,
+        "completion_tokens": 2149,
+        "total_tokens": 185207
+      }
+    },
+    "biobtree_gpt41": {
+      "model": "openai/gpt-4.1",
+      "timestamp": "2026-02-06T16:43:54.167779",
+      "response": "LRRK2 (leucine rich repeat kinase 2, Ensembl: ENSG00000188906, HGNC:18618, UniProt: Q5S007) is expressed in a variety of human cell types, as shown by single-cell RNA-seq data from the GTEx snRNAseq atlas (SCXA experiment E-ANND-2).\n\n**Key findings:**\n- LRRK2 is expressed in both neuronal and immune cell types.\n- Relevant cell types with LRRK2 expression include:\n  - **Neuronal cells** (neuronal)\n  - **Immune cells**:\n    - Macrophages (immune - macrophage, immune - macrophage I, II, III, immune - alveolar macrophage, immune - alveolar macrophage activated, immune - macrophage activated)\n    - Dendritic cells (immune - DC, Immune (mmDC), immune - DC/macrophage)\n    - B cells (immune - B cell)\n    - T cells (immune - T cell)\n    - NK cells (immune - NK cell)\n    - Mast cells (immune - mast cell)\n    - Neutrophils (immune - neutrophil)\n    - Langerhans cells (Immune (Langerhans))\n    - LAMs (Immune (LAMs))\n\n**Summary:**  \nLRRK2 is not neuron-specific; it is also highly relevant in immune cells, especially macrophages and dendritic cells. This supports the growing evidence that immune cell LRRK2 expression is important in Parkinson's disease pathogenesis and therapeutic targeting.\n\n**Data source:**  \n- GTEx snRNAseq atlas (E-ANND-2, SCXA)\n- Ensembl gene: ENSG00000188906  \n- For more details and expression levels by cell type, see the [GTEx snRNAseq atlas](https://www.ebi.ac.uk/gxa/sc/experiments/E-ANND-2/Results).\n\nIf you need quantitative expression data (e.g., counts or TPMs) for specific cell types, let me know which ones and I can retrieve more detailed values.\n\n---\n**Data Sources:**\n- http://biobtree:9291/ws/?i=LRRK2&s=ensembl\n- http://biobtree:9291/ws/?i=LRRK2&s=hgnc\n- http://biobtree:9291/ws/map/?i=ENSG00000188906&m=>>scxa\n- http://biobtree:9291/ws/map/?i=ENSG00000188906&m=>>ensembl>>scxa\n- http://biobtree:9291/ws/entry/?i=E-ANND-2&s=scxa",
+      "tool_calls": 8,
+      "elapsed_seconds": 21.1,
+      "auto_score": 1.0,
+      "found_terms": [
+        "LRRK2",
+        "Parkinson",
+        "immune",
+        "neuron",
+        "macrophage",
+        "expression",
+        "ENSG00000188906"
+      ],
+      "missing_terms": [],
+      "usage": {
+        "prompt_tokens": 103330,
+        "completion_tokens": 662,
+        "total_tokens": 103992
+      }
+    },
+    "biobtree_gemini25": {
+      "model": "google/gemini-2.5-pro-preview-03-25",
+      "timestamp": "2026-02-06T16:44:48.686844",
+      "response": "Based on single-cell expression data, LRRK2 (Ensembl: ENSG00000188906) is expressed in both neuronal and various immune cell types.\n\n**Neuronal Expression:**\n*   Neuronal cells\n\n**Immune Cell Expression:**\nLRRK2 shows broad expression across numerous immune cell lineages, including:\n*   **Macrophages:** alveolar macrophage (activated and non-activated), macrophage I, macrophage II, DC/macrophage\n*   **Dendritic Cells (DC):** DC, mmDC\n*   **B Cells**\n*   **T Cells**\n*   **Natural Killer (NK) Cells**\n*   **Mast Cells**\n*   **Neutrophils**\n*   **Langerhans cells**\n\nThis indicates that both the central nervous system and the immune system are relevant contexts for studying LRRK2's role in Parkinson's disease and for developing targeted therapies.\n\n---\n**Data Sources:**\n- http://biobtree:9291/ws/?i=LRRK2&s=ensembl\n- http://biobtree:9291/ws/map/?i=ENSG00000188906&m=>>ensembl>>scxa",
+      "tool_calls": 3,
+      "elapsed_seconds": 40.2,
+      "auto_score": 1.0,
+      "found_terms": [
+        "LRRK2",
+        "Parkinson",
+        "immune",
+        "neuron",
+        "macrophage",
+        "expression",
+        "ENSG00000188906"
+      ],
+      "missing_terms": [],
+      "usage": {
+        "prompt_tokens": 13657,
+        "completion_tokens": 3042,
+        "total_tokens": 16699
+      }
+    },
+    "web_chatgpt52": {
+      "model": "ChatGPT 5.2 (web)",
+      "timestamp": "2026-02-06",
+      "response": "Great question\u2014and it\u2019s a crucial one for LRRK2-targeted therapeutics. The short version is: **LRRK2 is *not* primarily a neuronal gene.** Its highest expression is in **immune and myeloid-lineage cells**, with **moderate, cell-type-specific expression in the brain**, especially in glial and select neuronal populations.\n\nBelow is a clear breakdown with **specific cell types and quantitative expression trends**, based on bulk RNA-seq, single-cell RNA-seq (scRNA-seq), and proteomics from human and mouse studies.\n\n---\n\n## 1. Peripheral immune system: highest LRRK2 expression\n\nLRRK2 is most abundantly expressed in **innate immune cells**, where it regulates vesicle trafficking, lysosomes, and inflammatory signaling.\n\n### High-expressing cell types\n\n| Cell type                    | Relative LRRK2 expression | Notes                               |\n| ---------------------------- | ------------------------- | ----------------------------------- |\n| **Monocytes (CD14\u207a, CD16\u207a)** | **Very high**             | Among the highest of all cell types |\n| **Macrophages**              | **Very high**             | Strongly inducible by IFN-\u03b3, LPS    |\n| **Dendritic cells**          | **High**                  | Especially monocyte-derived DCs     |\n| **Neutrophils**              | Moderate\u2013high             | Variable across studies             |\n| **B cells**                  | Low\u2013moderate              | Higher than most T cells            |\n| **T cells (CD4\u207a, CD8\u207a)**     | Low                       | Often near detection threshold      |\n\n**Quantitative context**\n\n* In bulk RNA-seq, **monocytes/macrophages express ~5\u201320\u00d7 more LRRK2 mRNA** than most neuronal populations.\n* LRRK2 protein is **robustly detectable** in macrophages and monocytes, but often **undetectable or very low** in neurons without enrichment.\n\n**Why this matters therapeutically**\n\n* Explains **peripheral immune phenotypes** in LRRK2 mutation carriers.\n* Raises safety considerations for **systemic LRRK2 kinase inhibitors** (e.g., lung and immune effects).\n\n---\n\n## 2. Brain: selective, non-uniform expression\n\n### Glial cells (higher than neurons overall)\n\n| Cell type            | Relative expression  | Notes                            |\n| -------------------- | -------------------- | -------------------------------- |\n| **Microglia**        | **High (for brain)** | Brain\u2019s highest LRRK2 expression |\n| **Astrocytes**       | Low\u2013moderate         | Increases with inflammation      |\n| **Oligodendrocytes** | Low                  | Consistently low                 |\n\n* **Microglia** are the standout CNS cell type.\n\n  * scRNA-seq shows **~3\u20135\u00d7 higher LRRK2 expression in microglia than in most neurons**.\n  * Expression increases in disease-associated microglia (DAM states).\n\n---\n\n## 3. Neurons: present, but not dominant\n\nLRRK2 *is* expressed in neurons\u2014but **not uniformly and not at high levels**.\n\n### Neuronal subtypes with detectable expression\n\n| Neuronal type                         | Relative expression | Notes                                        |\n| ------------------------------------- | ------------------- | -------------------------------------------- |\n| **Dopaminergic neurons (SNc)**        | Low\u2013moderate        | Lower than microglia; still disease-relevant |\n| **Cortical pyramidal neurons**        | Low                 | Sparse expression                            |\n| **Striatal spiny projection neurons** | Low\u2013moderate        | Often higher than cortex                     |\n| **GABAergic interneurons**            | Low                 | Variable                                     |\n\n**Important nuance**\n\n* Dopaminergic neurons **do not express the highest LRRK2**, but they may be **especially vulnerable** to:\n\n  * altered vesicle trafficking\n  * mitochondrial stress\n  * non\u2013cell-autonomous effects from microglia and peripheral immune cells\n\n---\n\n## 4. Summary: where LRRK2 really lives\n\n### Expression ranking (highest \u2192 lowest)\n\n1. **Peripheral myeloid cells** (monocytes, macrophages)\n2. **Microglia**\n3. **Astrocytes**\n4. **Select neuronal subtypes** (dopaminergic, striatal)\n5. **Most other neurons**\n6. **T cells**\n\n### Key takeaways for therapeutic development\n\n* LRRK2 biology is **as much immunological as neuronal**.\n* **Microglia and peripheral immune cells are central targets**, not just dopaminergic neurons.\n* CNS-selective vs systemic LRRK2 inhibition has **major implications for efficacy and safety**.\n* Non\u2013cell-autonomous mechanisms (immune \u2192 neuron) are likely important in Parkinson\u2019s disease.\n\n---\n\nIf you want, I can:\n\n* Map **LRRK2 expression vs. known PD-risk cell states**\n* Compare **human vs mouse expression differences**\n* Tie **specific pathogenic mutations (e.g., G2019S)** to cell-type\u2013specific effects\n* Discuss **how current LRRK2 inhibitors intersect with these expression patterns**\n\nJust tell me where you want to zoom in \ud83e\udde0\ud83e\uddec",
+      "auto_score": 0.667,
+      "entered_by": "USER",
+      "found_terms": [
+        "LRRK2",
+        "Parkinson",
+        "monocyte",
+        "immune",
+        "neuron",
+        "macrophage",
+        "expression"
+      ],
+      "missing_terms": []
+    },
+    "web_gemini3_pro": {
+      "model": "Gemini 3 Pro (web)",
+      "timestamp": "2026-02-06",
+      "response": "To support your therapeutic development strategy, the short answer is that **LRRK2 is expressed much more highly in immune cells than in neurons.**\n\nWhile LRRK2 mutations cause neuronal death (specifically in the Substantia Nigra), the gene itself is predominantly an immune-associated gene. This presents a critical consideration for drug development: systemic LRRK2 inhibitors will heavily impact the peripheral immune system.\n\nThe following breakdown details the specific cell types and expression hierarchy.\n\n### 1. Expression Hierarchy: Immune vs. Neuronal\n\nData from the Human Protein Atlas, Allen Brain Atlas, and single-cell RNA sequencing (scRNA-seq) consistently show the following hierarchy of LRRK2 expression:\n\n**Peripheral Immune Cells (Highest) > Microglia (High) > Specific Neurons (Moderate) > Dopaminergic Neurons (Low)**\n\n#### A. Peripheral Immune System (Highest Expression)\n\nLRRK2 is arguably an immune signaling protein first and a neuronal protein second.\n\n* **Monocytes (Classical CD14+):** Express the highest levels of LRRK2 protein and mRNA in the human body. LRRK2 levels increase further upon stimulation (e.g., by Interferon-gamma).\n* **Neutrophils:** Extremely high expression.\n* **B-Cells:** High expression.\n* **T-Cells:** Lower expression compared to B-cells and monocytes, but still detectable.\n\n> **Therapeutic Implication:** Because expression is highest here, LRRK2 inhibitors may alter susceptibility to infection (e.g., bacterial/viral clearance issues). This is a known potential on-target side effect.\n\n#### B. Central Nervous System (CNS) Immune Cells\n\n* **Microglia:** These are the resident macrophages of the brain. They express LRRK2 at levels significantly higher than most neurons.\n* **Relevance:** LRRK2 activity in microglia regulates inflammation and phagocytosis. In PD, hyperactive LRRK2 (mutated) prevents microglia from clearing debris efficiently and drives chronic neuroinflammation, which is toxic to neighboring neurons.\n\n\n\n#### C. Neuronal Expression (Lower, but Specific)\n\nNeuronal expression is not uniform. It is highly specific to certain circuits.\n\n* **Striatal Spiny Projection Neurons (SPNs):** Within the neuron population, these have the **highest** LRRK2 expression. These are the neurons that receive dopamine inputs.\n* **Cortical Pyramidal Neurons:** Moderate expression, particularly in layers III and V.\n* **Dopaminergic (DA) Neurons (Substantia Nigra):** **The \"LRRK2 Paradox.\"** These are the cells that actually die in Parkinson's, yet they have surprisingly **low** endogenous levels of LRRK2 compared to the striatum or immune cells.\n\n### 2. Summary of Cell Type Expression Data\n\nThe table below summarizes consensus data from scRNA-seq and protein assays.\n\n| Cell Type | System | Relative Expression | Key Function of LRRK2 |\n| --- | --- | --- | --- |\n| **Monocytes** | Peripheral Immune | **Very High** | Modulation of inflammation; cytokine release. |\n| **Neutrophils** | Peripheral Immune | **Very High** | Degranulation; chemotaxis. |\n| **Microglia** | CNS (Immune) | **High** | Phagocytosis; lysosomal function; neuroinflammation. |\n| **B-Cells** | Peripheral Immune | **High** | Immune signaling. |\n| **Striatal SPNs** | CNS (Neuron) | **Moderate/High** | Regulation of protein trafficking; autophagy. |\n| **Pyramidal Neurons** | CNS (Neuron) | **Moderate** | Vesicle trafficking. |\n| **Dopaminergic Neurons** | CNS (Neuron) | **Low** | *Paradoxically low expression despite high vulnerability.* |\n| **Astrocytes** | CNS (Glial) | **Low** | Low basal expression, but can upregulate under stress. |\n\n### 3. Critical Context for Therapeutic Development\n\nWhen developing LRRK2 inhibitors (e.g., kinase inhibitors or ASOs), two mechanisms are likely at play given this expression profile:\n\n1. **Cell-Autonomous Effect (The Neuron):** Even though expression is low in Dopaminergic (DA) neurons, the mutated protein (e.g., G2019S) is toxic specifically to them, likely due to defects in lysosomal traffic or mitochondrial function.\n2. **Non-Cell-Autonomous Effect (The Immune System):** The high expression in **Microglia** suggests that LRRK2 mutations drive a \"hot\" neuroinflammatory environment. The DA neurons may be dying not just because of their own internal defects, but because LRRK2-mutated microglia are attacking them or failing to support them.\n\n**Recommendation:**\nIn your therapeutic strategy, do not model efficacy solely on **neuronal** assays. You must validate target engagement and phenotype correction in **monocyte-derived macrophages** or **iPSC-derived microglia**, as these cells express the target most abundantly and drive the inflammatory component of the disease.\n\n---\n\n**Would you like me to detail the specific lysosomal or autophagic pathways that are disrupted in these high-expression immune cells?**",
+      "auto_score": 0.667,
+      "entered_by": "USER",
+      "found_terms": [
+        "LRRK2",
+        "Parkinson",
+        "monocyte",
+        "immune",
+        "neuron",
+        "macrophage",
+        "expression"
+      ],
+      "missing_terms": []
+    },
+    "web_claude46": {
+      "model": "Claude 4.6 (web)",
+      "timestamp": "2026-02-06",
+      "response": "Let me search for the latest data on LRRK2 cell-type expression, and also pull up target information from ChEMBL.Now let me pull up the ChEMBL target data for LRRK2:Here's what the literature reveals \u2014 and the answer has major implications for LRRK2-targeted therapeutics:\n\n## The Key Surprise: Immune Cells Express LRRK2 More Than Brain Cells\n\nCounterintuitively for a \"Parkinson's disease gene,\" LRRK2 has much higher expression in peripheral immune cells compared to central nervous system cells. This has reshaped how the field thinks about PD pathogenesis and therapeutic targeting.\n\n### Highest-expressing cell types (ranked by expression level):\n\n**Peripheral immune cells (highest expression):**\n- **Monocytes** \u2014 especially the **CD14\u207aCD16\u207a** (non-classical/intermediate) subpopulation. Within CD14\u207a cells, the CD14\u207aCD16\u207a sub-population exhibited high levels of LRRK2 protein, in contrast to CD14\u207aCD16\u207b cells. LRRK2 expression is further strongly upregulated by IFN-\u03b3 stimulation in monocytes.\n- **Neutrophils** \u2014 LRRK2 has a particularly high expression in monocytes and neutrophils, and Rab10 phosphorylation (a readout of LRRK2 kinase activity) is routinely measured in neutrophils as a pharmacodynamic biomarker.\n- **B lymphocytes (CD19\u207a)** \u2014 LRRK2 mRNA and protein was found in circulating CD19\u207a B cells and in CD14\u207a monocytes, whereas CD4\u207a and CD8\u207a T cells were devoid of LRRK2 mRNA.\n- **Dendritic cells and macrophages** \u2014 LRRK2 is highly expressed in the brain, lungs, kidneys, and immune cells, including dendritic cells, macrophages, B cells, neutrophils, and monocytes.\n- **T cells** \u2014 at baseline, T cells express very low LRRK2, but LRRK2 expression was increased in B cells, T cells, and CD16\u207a monocytes of Parkinson's disease patients, suggesting disease-state upregulation.\n\n**CNS cell types (lower expression):**\n- **Neurons** \u2014 express LRRK2 protein, particularly in the cytoplasm of pyramidal neurons and dopaminergic neurons. Immunocytochemistry recognizes neurons, and more weakly astrocytes and microglia, in normal brain tissue.\n- **Microglia** \u2014 the brain's resident immune cells express LRRK2 and upregulate it upon TLR4 stimulation. Toll-like receptor 4 stimulation was able to increase LRRK2 expression and phosphorylation in primary rat microglia.\n- **Astrocytes** \u2014 lower expression than neurons, but confirmed at both mRNA and protein level.\n\n**Peripheral tissues:**\n- **Lung** (type II pneumocytes) and **kidney** (renal tubular epithelial cells) express high levels of LRRK2. This is therapeutically important because high doses of LRRK2 kinase inhibitors that ablate pathway activity revealed lung and kidney abnormalities that are likely due to on-target effects in preclinical studies.\n\n### Therapeutic Implications\n\nThis expression profile matters enormously for drug development:\n\n1. **Pharmacodynamic biomarkers**: Because monocytes and neutrophils express LRRK2 so highly, inhibition of pT73-Rab10 has been observed in immune cells that express high levels of LRRK2 protein (e.g., monocytes, neutrophils) \u2014 these cells serve as accessible PD biomarkers from blood draws.\n\n2. **Immune-mediated disease mechanism**: cells from PD patients had higher levels of LRRK2 protein and produced more pro-inflammatory molecules in response to stimulation than the control cells, suggesting LRRK2 mutations may drive PD partly through peripheral immune dysregulation, not solely through direct neuronal toxicity.\n\n3. **Safety concerns for inhibitors**: The high expression in lung and kidney underlies the morphological abnormalities seen in LRRK2 knockout animals and at high inhibitor doses, though a recent Phase-1 clinical study with an inhibitor (DNL201) that suppressed LRRK2 pathway activity by approximately 70% concluded that this compound was safe and well tolerated.\n\n4. **Cell-type-specific functions**: LRRK2 may play different roles within different cell types and tissues, which could be explained by cell-type-specific LRRK2 differential splicing, or tissue-specific expression of LRRK2 activators, substrates, and partners.\n\n### ChEMBL Target Reference\n\nThe human LRRK2 target in ChEMBL is **CHEMBL1075104** (UniProt: Q5S007), classified as a leucine-rich repeat serine/threonine-protein kinase with dual kinase and GTPase activity. It is extensively annotated with GO terms for both neuronal processes (neuron projection morphogenesis, synaptic vesicle transport, dopamine receptor signaling) and immune-related functions (positive regulation of TNF production, positive regulation of microglial cell activation, MAPK cascade), reflecting its dual role across cell types.\n\nIn summary: while LRRK2 is present in neurons and its mutations cause neurodegeneration, the *highest* expression is actually in peripheral myeloid cells \u2014 monocytes and neutrophils \u2014 making immune biology central to both LRRK2 disease mechanism and therapeutic strategy.",
+      "auto_score": 0.667,
+      "entered_by": "USER",
+      "found_terms": [
+        "LRRK2",
+        "Parkinson",
+        "monocyte",
+        "immune",
+        "neuron",
+        "macrophage",
+        "expression"
+      ],
+      "missing_terms": []
+    }
+  },
+  "reviews": {
+    "review_1": {
+      "outcome": "tie",
+      "key_finding": "All LLMs correctly identified that LRRK2 is primarily expressed in immune cells (monocytes, macrophages) rather than neurons. This is well-established in PD literature ('immune hypothesis of Parkinson's'). Biobtree's advantage is only quantitative: exact score 97.06 for monocytes vs qualitative 'very high' from web LLMs.",
+      "quotable": "For LRRK2 cell-type expression, web LLMs correctly stated 'monocytes express 5-20× more LRRK2 than neurons' while biobtree provided exact scores (97.06 monocyte vs 66.31 neuron). This demonstrates that well-published biology is accessible to LLMs — biobtree's advantage is quantitative precision for systematic analysis.",
+      "llm_strengths": {
+        "chatgpt": "Excellent: '5-20× more LRRK2 mRNA in monocytes than neuronal populations'",
+        "gemini": "Excellent: 'The LRRK2 Paradox — DA neurons die yet have low LRRK2 expression'",
+        "claude": "Found ChEMBL target ID (CHEMBL1075104), detailed CD14⁺CD16⁺ monocyte subtypes"
+      },
+      "biobtree_advantage": "Exact quantitative scores (97.06 monocyte, 66.31 DRG) enable systematic ranking and comparison. For programmatic pipelines, quantitative data is essential.",
+      "notes": "This test shows LLMs CAN know well-published biology. The lesson: biobtree excels at discovering NON-OBVIOUS patterns (like SCN9A endometrium expression) not textbook knowledge like LRRK2 immune expression."
+    }
+  },
+  "question_id": "lrrk2_celltype"
+}

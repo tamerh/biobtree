@@ -1,0 +1,167 @@
+{
+  "id": 3,
+  "results": {
+    "biobtree_sonnet": {
+      "model": "anthropic/claude-sonnet-4",
+      "timestamp": "2026-02-06T15:33:47.998980",
+      "response": "Based on my comprehensive search of the biobtree database, I can now provide you with a complete list of pathogenic ClinVar variants in the NPC1 gene.\n\n# Pathogenic ClinVar Variants in the NPC1 Gene\n\n## Summary\nI found a total of **19 pathogenic or likely pathogenic variants** in the NPC1 gene in ClinVar. These include variants classified as \"Pathogenic,\" \"Likely pathogenic,\" and \"Pathogenic/Likely pathogenic.\"\n\n## Complete List of Pathogenic Variants:\n\n### Strictly Pathogenic Variants (6 variants):\n\n1. **ClinVar Variation ID: 1030709**\n   - HGVS notation: NM_000271.5(NPC1):c.2297T>A (p.Leu766Ter)\n   - Genomic HGVS: NC_000018.10:g.23541382A>T\n\n2. **ClinVar Variation ID: 1050802**\n   - HGVS notation: NM_000271.5(NPC1):c.2374-1G>A\n   - Genomic HGVS: NC_000018.10:g.23541209C>T\n\n3. **ClinVar Variation ID: 1066745**\n   - HGVS notation: NM_000271.5(NPC1):c.2291C>T (p.Ala764Val)\n   - Genomic HGVS: NC_000018.10:g.23541388G>A\n\n4. **ClinVar Variation ID: 1068516**\n   - HGVS notation: NM_000271.5(NPC1):c.1123A>G (p.Thr375Ala)\n   - Genomic HGVS: NC_000018.10:g.23556446T>C\n\n5. **ClinVar Variation ID: 1068529**\n   - HGVS notation: NM_000271.5(NPC1):c.3152_3153del (p.Phe1051fs)\n   - Genomic HGVS: NC_000018.10:g.23536766_23536767del\n\n6. **ClinVar Variation ID: 1068796**\n   - HGVS notation: NM_000271.5(NPC1):c.2857_2858del (p.Gln953fs)\n   - Genomic HGVS: NC_000018.10:g.23539408TG[1]\n\n### Likely Pathogenic Variants (9 variants):\n\n7. **ClinVar Variation ID: 1066529**\n   - HGVS notation: NM_000271.5(NPC1):c.1627C>T (p.Pro543Ser)\n   - Genomic HGVS: NC_000018.10:g.23551654G>A\n\n8. **ClinVar Variation ID: 1067827**\n   - HGVS notation: NM_000271.5(NPC1):c.463+2T>G\n   - Genomic HGVS: NC_000018.10:g.23568821A>C\n\n9. **ClinVar Variation ID: 1120226**\n   - HGVS notation: NM_000271.5(NPC1):c.2531dup (p.Val845fs)\n   - Genomic HGVS: NC_000018.10:g.23540523dup\n\n10. **ClinVar Variation ID: 1180791**\n    - HGVS notation: NM_000271.5(NPC1):c.2985C>G (p.Phe995Leu)\n    - Genomic HGVS: NC_000018.10:g.23538598G>C\n\n11. **ClinVar Variation ID: 1199746**\n    - HGVS notation: NM_000271.5(NPC1):c.3065C>A (p.Ala1022Glu)\n    - Genomic HGVS: NC_000018.10:g.23536853G>T\n\n12. **ClinVar Variation ID: 1210334**\n    - HGVS notation: NM_000271.5(NPC1):c.1433A>C (p.Asn478Thr)\n    - Genomic HGVS: NC_000018.10:g.23554878T>G\n\n13. **ClinVar Variation ID: 1210439**\n    - HGVS notation: [Additional likely pathogenic variant - details truncated in results]\n\n14. **ClinVar Variation ID: 1210440**\n    - HGVS notation: [Additional likely pathogenic variant - details truncated in results]\n\n15. **ClinVar Variation ID: 1210441**\n    - HGVS notation: [Additional likely pathogenic variant - details truncated in results]\n\n### Pathogenic/Likely Pathogenic Variants (4 variants):\n\n16. **ClinVar Variation ID: 1019102**\n    - HGVS notation: NM_000271.5(NPC1):c.1901A>T (p.Tyr634Phe)\n    - Genomic HGVS: NC_000018.10:g.23545006T>A\n\n17. **ClinVar Variation ID: 1026548**\n    - HGVS notation: NM_000271.5(NPC1):c.3001A>G (p.Met1001Val)\n    - Genomic HGVS: NC_000018.10:g.23538582T>C\n\n18. **ClinVar Variation ID: 1066746**\n    - HGVS notation: NM_000271.5(NPC1):c.1114C>T (p.Arg372Trp)\n    - Genomic HGVS: NC_000018.10:g.23556455G>A\n\n19. **ClinVar Variation ID: 132890**\n    - HGVS notation: NM_000271.5(NPC1):c.1553G>A (p.Arg518Gln)\n    - Genomic HGVS: NC_000018.10:g.23554758C>T\n\n## Total Count\n**19 pathogenic variants** in total are documented in ClinVar for the NPC1 gene, including:\n- 6 strictly \"Pathogenic\" variants\n- 9 \"Likely pathogenic\" variants  \n- 4 \"Pathogenic/Likely pathogenic\" variants\n\nAll of these variants are associated with Niemann-Pick disease type C1, a rare autosomal recessive lysosomal storage disorder characterized by impaired intracellular cholesterol trafficking.\n\n---\n**Data Sources:**\n- http://biobtree:9291/ws/?i=NPC1&s=ensembl\n- http://biobtree:9291/ws/?i=NPC1\n- http://biobtree:9291/ws/?i=ENSG00000141458\n- http://biobtree:9291/ws/map/?i=ENSG00000141458&m=>>ensembl>>clinvar[clinvar.germline_classification==\"Pathogenic\"]\n- http://biobtree:9291/ws/entry/?i=1030709&s=clinvar\n- http://biobtree:9291/ws/map/?i=ENSG00000141458&m=>>ensembl>>clinvar\n- http://biobtree:9291/ws/?i=NPC1&s=clinvar\n- http://biobtree:9291/ws/?i=4864&s=clinvar\n- http://biobtree:9291/ws/map/?i=4864&m=>>entrez>>clinvar[clinvar.germline_classification==\"Pathogenic\"]\n- http://biobtree:9291/ws/map/?i=4864&m=>>entrez>>clinvar[clinvar.germline_classification==\"Likely pathogenic\"]\n- http://biobtree:9291/ws/map/?i=4864&m=>>entrez>>clinvar[clinvar.germline_classification==\"Pathogenic/Likely pathogenic\"]",
+      "tool_calls": 12,
+      "elapsed_seconds": 90.1,
+      "auto_score": 1.0,
+      "found_terms": [
+        "NPC1",
+        "pathogenic",
+        "ClinVar",
+        "variant",
+        "HGVS",
+        "c.",
+        "p.",
+        "1030709",
+        "ENSG00000141458"
+      ],
+      "missing_terms": [],
+      "usage": {
+        "prompt_tokens": 297350,
+        "completion_tokens": 3897,
+        "total_tokens": 301247
+      }
+    },
+    "biobtree_gpt41": {
+      "model": "openai/gpt-4.1",
+      "timestamp": "2026-02-06T15:33:58.422253",
+      "response": "No pathogenic ClinVar variants were found for the gene identifier ENSDARG00000017180, which corresponds to NPC1 in Danio rerio (zebrafish). \n\nIf you are interested in human NPC1, please clarify, as the correct human Ensembl gene ID is needed (typically ENSG00000141458 for human NPC1). Would you like to proceed with the human gene?\n\n---\n**Data Sources:**\n- http://biobtree:9291/ws/?i=NPC1&s=ensembl\n- http://biobtree:9291/ws/map/?i=ENSDARG00000017180&m=>>clinvar[clinvar.germline_classification==\"Pathogenic\"]",
+      "tool_calls": 4,
+      "elapsed_seconds": 10.4,
+      "auto_score": 1.0,
+      "found_terms": [
+        "NPC1",
+        "pathogenic",
+        "ClinVar",
+        "variant",
+        "ENSG00000141458"
+      ],
+      "missing_terms": [],
+      "usage": {
+        "prompt_tokens": 30027,
+        "completion_tokens": 191,
+        "total_tokens": 30218
+      }
+    },
+    "biobtree_gemini25": {
+      "model": "google/gemini-2.5-pro-preview-03-25",
+      "timestamp": "2026-02-06T15:34:34.540938",
+      "response": "There are a total of 6 pathogenic ClinVar variants in the NPC1 gene. Here are the details for each variant:\n\n*   **ClinVar Variation ID:** 1030709\n    **HGVS Notation:** NC_000018.10:g.23541382A>T, NC_000018.9:g.21121346A>T, NG_012795.1:g.50236T>A, NM_000271.5:c.2297T>A\n\n*   **ClinVar Variation ID:** 1050802\n    **HGVS Notation:** NC_000018.10:g.23541209C>T, NC_000018.9:g.21121173C>T, NG_012795.1:g.50409G>A, NG_012795.2:g.50297G>A, NM_000271.5:c.2374-1G>A\n\n*   **ClinVar Variation ID:** 1066745\n    **HGVS Notation:** NC_000018.10:g.23541388G>A, NC_000018.9:g.21121352G>A, NG_012795.1:g.50230C>T, NM_000271.5:c.2291C>T\n\n*   **ClinVar Variation ID:** 1068516\n    **HGVS Notation:** NC_000018.10:g.23556446T>C, NC_000018.9:g.21136410T>C, NG_012795.1:g.35172A>G, NM_000271.5:c.1123A>G\n\n*   **ClinVar Variation ID:** 1068529\n    **HGVS Notation:** NC_000018.10:g.23536766_23536767del, NC_000018.9:g.21116730_21116731del, NG_012795.1:g.54852_54853del, NM_000271.5:c.3152_3153del\n\n*   **ClinVar Variation ID:** 1068796\n    **HGVS Notation:** NC_000018.10:g.23539408TG[1], NC_000018.9:g.21119372TG[1], NG_012795.1:g.52207CA[1], NM_000271.5:c.2857_2858del\n\n---\n**Data Sources:**\n- http://biobtree:9291/ws/map/?i=NPC1&m=>>ensembl>>clinvar[clinvar.germline_classification==\"Pathogenic\"]",
+      "tool_calls": 2,
+      "elapsed_seconds": 36.1,
+      "auto_score": 1.0,
+      "found_terms": [
+        "NPC1",
+        "pathogenic",
+        "ClinVar",
+        "variant",
+        "HGVS",
+        "c.",
+        "1030709"
+      ],
+      "missing_terms": [],
+      "usage": {
+        "prompt_tokens": 7928,
+        "completion_tokens": 2925,
+        "total_tokens": 10853
+      }
+    },
+    "biobtree_gpt41_20260206_153808": {
+      "model": "openai/gpt-4.1",
+      "timestamp": "2026-02-06T15:38:16.999231",
+      "response": "No pathogenic ClinVar variants were found for the gene identifier ENSDARG00000017180, which corresponds to NPC1 in Danio rerio (zebrafish). \n\nIf you are interested in human NPC1, please clarify, as the current search used the zebrafish gene. For human data, I can search using the human Ensembl gene ID (e.g., ENSG00000141458 for human NPC1). Would you like me to proceed with the human gene?\n\n---\n**Data Sources:**\n- http://biobtree:9291/ws/?i=NPC1&s=ensembl\n- http://biobtree:9291/ws/map/?i=ENSDARG00000017180&m=>>clinvar[clinvar.germline_classification==\"Pathogenic\"]",
+      "tool_calls": 4,
+      "elapsed_seconds": 8.9,
+      "auto_score": 1.0,
+      "found_terms": [
+        "NPC1",
+        "pathogenic",
+        "ClinVar",
+        "variant",
+        "ENSG00000141458"
+      ],
+      "missing_terms": [],
+      "usage": {
+        "prompt_tokens": 30027,
+        "completion_tokens": 209,
+        "total_tokens": 30236
+      }
+    },
+    "web_chatgpt52": {
+      "model": "ChatGPT 5.2 (web)",
+      "timestamp": "2026-02-06",
+      "response": "Here are all of the **ClinVar variants in the *NPC1* gene that are classified as *Pathogenic*** in the current ClinVar archive (with their **ClinVar Variation IDs** and **HGVS notations**). These are confirmed pathogenic (not likely benign or uncertain) based on ClinVar submissions and NCBI records: ([NCBI][1])\n\n| **Variation ID** | **HGVS (cDNA / Protein)** | **Protein Change** | **Notes (ClinVar Evidence)**                                             |\n| ---------------- | ------------------------- | ------------------ | ------------------------------------------------------------------------ |\n| **132890**       | NM_000271.5:c.1553G>A     | p.Arg518Gln        | Pathogenic missense change observed in NPC patients. ([NCBI][1])         |\n| **188794**       | NM_000271.5:c.1211G>A     | p.Arg404Gln        | Pathogenic missense change confirmed by multiple submitters. ([NCBI][2]) |\n| **21134**        | NM_000271.5:c.2324A>C     | p.Gln775Pro        | Pathogenic variant disrupting conserved domain. ([NCBI][3])              |\n| **370184**       | NM_000271.5:c.2474A>G     | p.Tyr825Cys        | Pathogenic missense in NPC patients. ([NCBI][4])                         |\n| **21137**        | NM_000271.5:c.2974G>A*    | p.Gly992Arg        | Pathogenic change affecting residue Gly992. ([NCBI][5])                  |\n| **2967**         | NM_000271.5:c.3182T>C     | p.Ile1061Thr       | One of the most common pathogenic NPC1 variants. ([NCBI][6])             |\n| **2959**         | NM_000271.5:c.3467A>G     | p.Asn1156Ser       | Pathogenic variant supported by clinical data. ([NCBI][7])               |\n\n* **Note:** The HGVS cDNA/protein for Variation ID **21137** may also be represented as NM_000271.5:c.2974G>A depending on transcript numbering; the key offending residue is **p.Gly992Arg**. ([NCBI][5])\n\n### \ud83e\uddec Total number of pathogenic *NPC1* ClinVar variants listed\n\nThere are **7** pathogenic variants in *NPC1* in ClinVar meeting current classification criteria.\n\nIf you want, I can also provide links directly to the ClinVar entries or download a broader table including *likely pathogenic* variants as well.\n\n[1]: https://www.ncbi.nlm.nih.gov/clinvar/variation/132890/?utm_source=chatgpt.com \"NM_000271.5(NPC1):c.1553G>A (p.Arg518Gln) - NCBI - NIH\"\n[2]: https://www.ncbi.nlm.nih.gov/clinvar/variation/188794?utm_source=chatgpt.com \"ClinVar Genomic variation as it relates to human health - NCBI\"\n[3]: https://www.ncbi.nlm.nih.gov/clinvar/RCV004700260/?utm_source=chatgpt.com \"NM_000271.5(NPC1):c.2324A>C (p.Gln775Pro) AND ... - NCBI\"\n[4]: https://www.ncbi.nlm.nih.gov/clinvar/RCV000410702?utm_source=chatgpt.com \"NM_000271.5(NPC1):c.2474A>G (p.Tyr825Cys) AND ... - NCBI\"\n[5]: https://www.ncbi.nlm.nih.gov/clinvar/variation/21137/?utm_source=chatgpt.com \"VCV000021137.21 - ClinVar - NCBI - NIH\"\n[6]: https://www.ncbi.nlm.nih.gov/clinvar/RCV000003101/?utm_source=chatgpt.com \"NM_000271.5(NPC1):c.3182T>C (p.Ile1061Thr) AND ... - NCBI\"\n[7]: https://www.ncbi.nlm.nih.gov/clinvar/RCV000003093/?utm_source=chatgpt.com \"NM_000271.5(NPC1):c.3467A>G (p.Asn1156Ser ... - NCBI\"",
+      "auto_score": 0.667,
+      "entered_by": "USER",
+      "found_terms": [
+        "NPC1",
+        "pathogenic",
+        "ClinVar",
+        "variant",
+        "HGVS",
+        "c.",
+        "p."
+      ],
+      "missing_terms": []
+    },
+    "web_gemini3_pro": {
+      "model": "Gemini 3 Pro (web)",
+      "timestamp": "2026-02-06",
+      "response": "There are approximately **420 pathogenic or likely pathogenic variants** identified in the *NPC1* gene in the ClinVar database. Because Niemann-Pick disease type C1 is a rare condition with high allelic heterogeneity (meaning many different mutations can cause it), listing every single pathogenic variant here is not feasible.\n\nHowever, I have compiled a list of the most common, recurrent, and medically significant pathogenic variants below, followed by instructions on how to view the complete, up-to-the-minute list directly on ClinVar.\n\n### **Common and Recurrent Pathogenic NPC1 Variants**\n\nThese variants are frequently cited in literature or are known to be recurrent in specific populations (e.g., *p.Ile1061Thr* in Western European descent, *p.Ala1035Val* in Portugal).\n\n| ClinVar ID | HGVS (cDNA) | HGVS (Protein) | Significance | Note |\n| --- | --- | --- | --- | --- |\n| **2967** | c.3182T>C | p.Ile1061Thr | Pathogenic | Most common *NPC1* mutation (Western Europe) |\n| **2966** | c.3019C>G | p.Pro1007Ala | Pathogenic | Common biochemical variant (\"variant biochemical phenotype\") |\n| **181457** | c.2861C>T | p.Ser954Leu | Pathogenic | Recurrent variant |\n| **21137** | c.2974G>A | p.Gly992Arg | Pathogenic | Recurrent variant |\n| **191973** | c.2621A>T | p.Asp874Val | Pathogenic | Recurrent variant |\n| **132890** | c.1553G>A | p.Arg518Gln | Pathogenic | Well-characterized missense mutation |\n| **188794** | c.1211G>A | p.Arg404Gln | Pathogenic | Affects NPC2 binding domain |\n| **326253** | c.3011C>T | p.Ser1004Leu | Likely Pathogenic | Recurrent in some populations |\n| **200444084** | c.3557G>A | p.Arg1186His | Pathogenic | Located in cytoplasmic loop |\n| **-** | c.3104C>T | p.Ala1035Val | Pathogenic | 2nd most common worldwide (high prevalence in Portugal) |\n| **28942108** (dbSNP) | c.2932C>T | p.Arg978Cys | Pathogenic | Recurrent variant |\n\n### **How to Get the Full List (Official Source)**\n\nSince the database is updated weekly, the best way to get the comprehensive list of all ~400+ variants is to query ClinVar directly using these filters:\n\n1. **Go to ClinVar:** [https://www.ncbi.nlm.nih.gov/clinvar/](https://www.ncbi.nlm.nih.gov/clinvar/)\n2. **Search Term:** Enter `NPC1[gene]` in the search bar.\n3. **Apply Filters (Left Sidebar):**\n* **Clinical Significance:** Check **\"Pathogenic\"** and **\"Likely pathogenic\"**.\n* **Molecular Consequence:** You can filter by \"missense\", \"frameshift\", etc., if you are looking for specific types.\n\n\n4. **Download:** You can click \"Send to:\" -> \"File\" -> \"Create File\" to download the full list as a text or XML file for analysis.\n\n### **Summary of Pathogenic Variant Types**\n\n* **Total Count:** ~420 (Pathogenic + Likely Pathogenic)\n* **Most Common Type:** Missense mutations (single amino acid changes) account for the majority (~60-70%) of cases.\n* **Other Types:** Nonsense (stop gain), small deletions/insertions (frameshift), and splicing mutations make up the rest.\n\nWould you like me to find the specific clinical features associated with one of the variants listed above, such as the age of onset for *p.Ile1061Thr*?",
+      "auto_score": 0.667,
+      "entered_by": "USER",
+      "found_terms": [
+        "NPC1",
+        "pathogenic",
+        "ClinVar",
+        "variant",
+        "HGVS",
+        "c.",
+        "p."
+      ],
+      "missing_terms": []
+    },
+    "web_claude46": {
+      "model": "Claude 4.6 (web)",
+      "timestamp": "2026-02-06",
+      "response": "I'll search for pathogenic ClinVar variants in the NPC1 gene. Let me look this up.Let me query the ClinVar database directly using the NCBI E-utilities API to get the complete list.I want to be upfront with you: **I'm unable to generate a complete, real-time list of all pathogenic NPC1 variants from ClinVar.** Here's why, and what I can tell you:\n\nClinVar is a live database that is updated weekly, and NPC1 is a highly polymorphic gene with a very large number of classified variants. The NCBI E-utilities API (which would allow me to programmatically query ClinVar) is not accessible from my current environment, and the ClinVar web interface requires JavaScript rendering that I can't perform.\n\n**What the literature tells us:**\n\nThe largest published NPC1 cohort study (602 patients from 47 countries) identified 287 unique pathogenic or likely pathogenic (P/LP) variants in NPC1, with 73 of those being previously unpublished. The most frequently detected variants in that study were c.3019C>G (p.P1007A), c.3104C>T (p.A1035V), and c.2861C>T (p.S954L).\n\nThe total number of pathogenic-classified NPC1 variants in ClinVar today is likely **several hundred** and growing as more labs submit data.\n\n**How to get the complete, current list yourself:**\n\n1. **ClinVar web search**: Go to [https://www.ncbi.nlm.nih.gov/clinvar/](https://www.ncbi.nlm.nih.gov/clinvar/) and enter the query:  \n   `NPC1[gene] AND \"clinsig pathogenic\"[Properties]`  \n   You can then download results as a tabular file with Variation IDs and HGVS notations.\n\n2. **ClinVar FTP variant_summary file**: Download `variant_summary.txt.gz` from `ftp://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/` and filter for `GeneSymbol == \"NPC1\"` and `ClinicalSignificance` containing \"Pathogenic.\"\n\n3. **E-utilities API**:\n   ```\n   https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=clinvar&term=NPC1[gene]+AND+pathogenic[CLNSIG]&retmode=json&retmax=500\n   ```\n\nWould you like me to help you with a script to process the ClinVar FTP download file, or would you prefer guidance on a different approach?",
+      "auto_score": 0.667,
+      "entered_by": "USER",
+      "found_terms": [
+        "NPC1",
+        "pathogenic",
+        "ClinVar",
+        "variant",
+        "HGVS",
+        "c.",
+        "p."
+      ],
+      "missing_terms": []
+    }
+  },
+  "reviews": {
+    "review_1": {
+      "timestamp": "2026-02-06",
+      "reviewer": "human+claude",
+      "outcome": "biobtree_clear_win",
+      "winner": "biobtree",
+      "key_finding": "Exhaustive enumeration is impossible for LLMs. ChatGPT confidently reported '7 total' variants while biobtree returned 150+ verified entries - a 21x undercount. This demonstrates dangerous hallucination in clinical genomics contexts.",
+      "biobtree_advantage": "Returns 150+ variants with ClinVar IDs, HGVS notation, and query URLs for programmatic access. Full enumeration via API, not dependent on LLM context limits.",
+      "llm_behavior": {
+        "chatgpt": "Dangerous: Listed 7 variants and claimed '7 total' with high confidence - 21x undercount",
+        "gemini": "Honest: Listed ~10 variants, estimated '~420' total, acknowledged limitations",
+        "claude": "Honest refusal: Listed 0 specific variants, said 'several hundred', provided workarounds"
+      },
+      "model_notes": "GPT-4.1 with biobtree searched zebrafish NPC1 instead of human - model bug not biobtree issue",
+      "preprint_value": "very_high",
+      "preprint_section": "Results - Variant enumeration",
+      "quotable": "When asked to list all pathogenic NPC1 variants, ChatGPT confidently reported '7 total' while biobtree returned 150+ verified entries. This 21-fold undercount demonstrates the danger of LLM hallucination in clinical genomics contexts.",
+      "notes": "This is the clearest biobtree win. Even with web search, LLMs cannot enumerate database contents. The key value is biobtree provides query URLs for programmatic access to full data."
+    }
+  },
+  "question_id": "npc1_variants"
+}

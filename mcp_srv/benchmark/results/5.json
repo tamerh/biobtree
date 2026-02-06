@@ -1,0 +1,158 @@
+{
+  "id": 5,
+  "results": {
+    "biobtree_sonnet": {
+      "model": "anthropic/claude-sonnet-4",
+      "timestamp": "2026-02-06T15:53:27.910950",
+      "response": "Based on my comprehensive analysis of the biobtree database, I can now provide you with a detailed pharmacogenomics profile for CYP2C19:\n\n# Comprehensive CYP2C19 Pharmacogenomics Profile\n\n## 1. Clinical Dosing Guidelines\n\n**CYP2C19 has extensive clinical dosing guidelines from multiple sources:**\n\n### Major Guidelines Available:\n- **CPIC (Clinical Pharmacogenetics Implementation Consortium)**: Multiple guidelines\n- **DPWG (Dutch Pharmacogenetics Working Group)**: Multiple guidelines  \n- **AHA (American Heart Association)**: Specifically for clopidogrel\n- **RNPGx**: Additional guidelines\n- **FDA**: Actionable pharmacogenomic information in drug labels\n- **EMA**: European regulatory guidance\n- **Swissmedic**: Swiss regulatory guidance\n- **PMDA**: Japanese regulatory guidance\n- **HCSC**: Health Canada guidance\n\n**Key Drugs with Guidelines:**\n- **Clopidogrel (PA449053)**: CPIC, DPWG, AHA, RNPGx guidelines\n- **Omeprazole (PA450704)**: CPIC, DPWG guidelines\n\n## 2. Key Pharmacogenomic Variants\n\n### Major CYP2C19 Variants with Clinical Significance:\n\n**rs4244285 (CYP2C19*2) - PharmGKB ID: PA166154053**\n- **Clinical Significance**: Most important loss-of-function variant\n- **Frequency**: 16.81% globally (varies by population: Korean 27.65%, European ~15%)\n- **Effect**: Creates splicing defect, no functional enzyme\n- **Clinical Impact**: Level 3 evidence, affects efficacy, toxicity, and metabolism/PK\n- **Associated Drugs**: Clopidogrel, omeprazole, venlafaxine, prasugrel\n- **ClinVar Accessions**: Multiple RCV entries with guideline-level evidence\n\n**rs4986893 (CYP2C19*3) - PharmGKB ID: PA166154070**\n- **Clinical Significance**: Loss-of-function variant, premature stop codon\n- **Frequency**: 0.25% globally (higher in Asian populations: Korean 9.82%, Japanese 13.12%)\n- **Effect**: Creates premature stop codon (Trp212Ter)\n- **Clinical Impact**: Level 3 evidence for toxicity\n- **Associated Drugs**: Phenytoin, anti-TB drugs (ethambutol, isoniazid, pyrazinamide, rifampin)\n\n**rs12248560 (CYP2C19*17)**\n- **Clinical Significance**: Increased function variant\n- **Effect**: Promoter region variant leading to increased transcription\n- **Clinical Impact**: Associated with rapid metabolism\n\n**rs28399504 (CYP2C19*4)**\n- **Clinical Significance**: Loss-of-function variant\n- **Effect**: Initiation codon variant\n\n**rs41291556 (CYP2C19*8)**\n- **Clinical Significance**: Loss-of-function variant\n- **Effect**: Splicing defect\n\n## 3. Drugs Affected by CYP2C19 Variants\n\n### Major CYP2C19 Substrate Drugs:\n\n**Clopidogrel (PA449053)**\n- **Clinical Level**: 1A (highest evidence)\n- **FDA Label**: Actionable PGx\n- **Guidelines**: CPIC, DPWG, AHA, RNPGx\n- **Clinical Impact**: Reduced efficacy in poor metabolizers\n- **Alternative Drugs**: Available for poor metabolizers\n\n**Omeprazole (PA450704)**\n- **Clinical Level**: 1A\n- **FDA Label**: Informative PGx\n- **Guidelines**: CPIC, DPWG\n- **Clinical Impact**: Increased exposure in poor metabolizers\n\n**Other Key Substrates:**\n- **Voriconazole**: Antifungal with significant CYP2C19 metabolism\n- **Escitalopram**: SSRI antidepressant\n- **Sertraline**: SSRI antidepressant\n- **Venlafaxine**: SNRI antidepressant\n- **Phenytoin**: Anticonvulsant\n- **Proton Pump Inhibitors**: Lansoprazole, pantoprazole, esomeprazole\n\n## 4. Regulatory Agency Drug Labels\n\n### FDA Labels Mentioning CYP2C19 Genotype Testing:\n\n**Actionable PGx Level:**\n- **Clopidogrel**: FDA Label PA166104777\n  - Recommends genotype testing\n  - Provides alternative drug recommendations\n  - Includes prescribing information modifications\n\n**Informative PGx Level:**\n- **Omeprazole**: FDA Label PA166104921\n  - Mentions genetic variation effects\n  - Provides pharmacokinetic information\n\n### International Regulatory Labels:\n\n**EMA (European Medicines Agency):**\n- **Clopidogrel**: PA166104841 (Informative PGx)\n\n**Swissmedic:**\n- **Clopidogrel**: PA166184125 (Actionable PGx with dosing info)\n- **Omeprazole**: PA166184159 (Actionable PGx)\n\n**PMDA (Japan):**\n- **Clopidogrel**: PA166123535 (Actionable PGx)\n- **Omeprazole**: PA166160720 (Informative PGx)\n\n**Health Canada (HCSC):**\n- **Clopidogrel**: PA166127653 (Actionable PGx)\n\n## Summary\n\nCYP2C19 is a **Very Important Pharmacogene (VIP)** with:\n- **Gene ID**: PA124 (PharmGKB)\n- **Location**: Chromosome 10q23.33\n- **Clinical Guidelines**: Available from CPIC, DPWG, AHA, and other organizations\n- **Key Variants**: rs4244285 (*2), rs4986893 (*3), rs12248560 (*17)\n- **Major Drug Interactions**: Clopidogrel, omeprazole, and other critical medications\n- **Regulatory Recognition**: FDA, EMA, and other agencies include CYP2C19 in drug labels\n\nThe extensive clinical evidence and regulatory recognition make CYP2C19 one of the most clinically actionable pharmacogenes, particularly for cardiovascular and psychiatric medications.\n\n---\n**Data Sources:**\n- http://biobtree:9291/ws/?i=CYP2C19\n- http://biobtree:9291/ws/entry/?i=PA124&s=pharmgkb_gene\n- http://biobtree:9291/ws/map/?i=PA124&m=>>pharmgkb_gene>>pharmgkb_variant\n- http://biobtree:9291/ws/?i=CYP2C19&s=pharmgkb_variant\n- http://biobtree:9291/ws/?i=rs4244285,rs4986893,rs12248560,rs28399504,rs41291556\n- http://biobtree:9291/ws/entry/?i=PA166154053&s=pharmgkb_variant\n- http://biobtree:9291/ws/?i=clopidogrel,omeprazole,voriconazole,escitalopram,sertraline&s=pharmgkb\n- http://biobtree:9291/ws/?i=CPIC,DPWG&s=pharmgkb\n- http://biobtree:9291/ws/?i=rs4986893,rs12248560,rs28399504,rs41291556,rs17884712\n- http://biobtree:9291/ws/entry/?i=PA449053&s=pharmgkb\n- http://biobtree:9291/ws/?i=omeprazole&s=pharmgkb",
+      "tool_calls": 12,
+      "elapsed_seconds": 75.8,
+      "auto_score": 1.0,
+      "found_terms": [
+        "CYP2C19",
+        "clopidogrel",
+        "rs4244285",
+        "*2",
+        "CPIC",
+        "DPWG",
+        "PharmGKB",
+        "PA449053"
+      ],
+      "missing_terms": [],
+      "usage": {
+        "prompt_tokens": 247606,
+        "completion_tokens": 2770,
+        "total_tokens": 250376
+      }
+    },
+    "biobtree_gpt41": {
+      "model": "openai/gpt-4.1",
+      "timestamp": "2026-02-06T15:53:55.209666",
+      "response": "Here is a comprehensive pharmacogenomics profile for the pharmacogene CYP2C19, based on available biobtree mappings and identifiers:\n\n**Gene Identifiers:**\n- Ensembl: ENSG00000165841\n- PharmGKB Gene: PA124\n- HGNC: HGNC:2621\n- Entrez: 1557\n\n---\n\n### 1. Clinical Dosing Guidelines\n- **Result:** No direct clinical dosing guidelines were found via the available biobtree mapping chains for CYP2C19 (PharmGKB Gene PA124).\n- **Note:** CYP2C19 is known to have CPIC and DPWG guidelines in external resources, but these are not currently retrievable via the biobtree API mapping chains.\n\n---\n\n### 2. Key Pharmacogenomic Variants\n- **Result:** No direct variant mapping was found from PharmGKB Gene PA124 to PharmGKB variants using the available biobtree mapping chains.\n- **Note:** Well-known CYP2C19 variants (such as *2, *3, *17) are associated with rs4244285, rs4986893, and rs12248560, but these are not directly retrievable from the current biobtree mappings.\n\n---\n\n### 3. Drugs Affected by CYP2C19 Variants\n- **Result:** No direct mapping from CYP2C19 to drugs via ChEMBL or PharmGKB was found using the available biobtree mapping chains.\n- **Note:** PharmGKB IDs for drugs known to be affected by CYP2C19 (e.g., clopidogrel, omeprazole) are not directly retrievable from the current mappings.\n\n---\n\n### 4. Regulatory Agencies with Drug Labels Mentioning CYP2C19 Genotype Testing\n- **Result:** No direct mapping from CYP2C19 (PharmGKB Gene PA124) to PharmGKB drug labels was found using the available biobtree mapping chains.\n- **Note:** PharmGKB does curate drug labels from FDA, EMA, etc., but these are not accessible via the current biobtree API mappings.\n\n---\n\n## Summary Table\n\n| Category | Data Available via Biobtree | Key Identifiers |\n|----------|----------------------------|-----------------|\n| Clinical Guidelines | Not found | - |\n| Key Variants | Not found | - |\n| Drugs Affected | Not found | - |\n| Regulatory Labels | Not found | - |\n| Gene Identifiers | Yes | ENSG00000165841, PA124, HGNC:2621, Entrez:1557 |\n\n---\n\n### Recommendations\n- For a full pharmacogenomics profile (including guidelines, variants, drugs, and regulatory labels), consult PharmGKB directly or use specialized pharmacogenomics resources.\n- The biobtree API currently does not support direct mapping for these specific pharmacogenomics queries for CYP2C19.\n\nIf you need a list of all PharmGKB drug IDs associated with CYP2C19, or want to explore other mapping strategies, please specify!\n\n---\n**Data Sources:**\n- http://biobtree:9291/ws/?i=CYP2C19&s=pharmgkb\n- http://biobtree:9291/ws/?i=CYP2C19&s=ensembl\n- http://biobtree:9291/ws/map/?i=ENSG00000165841&m=>>pharmgkb_gene>>pharmgkb_guideline\n- http://biobtree:9291/ws/map/?i=ENSG00000165841&m=>>pharmgkb_gene>>pharmgkb_variant\n- http://biobtree:9291/ws/map/?i=ENSG00000165841&m=>>uniprot>>chembl_target_component>>chembl_target>>chembl_assay>>chembl_activity>>chembl_molecule\n- http://biobtree:9291/ws/map/?i=ENSG00000165841&m=>>pharmgkb_gene>>pharmgkb_label\n- http://biobtree:9291/ws/?i=CYP2C19&s=pharmgkb_gene\n- http://biobtree:9291/ws/map/?i=PA124&m=>>pharmgkb_guideline\n- http://biobtree:9291/ws/map/?i=PA124&m=>>pharmgkb_variant\n- http://biobtree:9291/ws/map/?i=PA124&m=>>pharmgkb_label",
+      "tool_calls": 11,
+      "elapsed_seconds": 27.3,
+      "auto_score": 1.0,
+      "found_terms": [
+        "CYP2C19",
+        "clopidogrel",
+        "rs4244285",
+        "*2",
+        "CPIC",
+        "DPWG",
+        "PharmGKB",
+        "ENSG00000165841"
+      ],
+      "missing_terms": [],
+      "usage": {
+        "prompt_tokens": 39352,
+        "completion_tokens": 1019,
+        "total_tokens": 40371
+      }
+    },
+    "biobtree_gemini25": {
+      "model": "google/gemini-2.5-pro-preview-03-25",
+      "timestamp": "2026-02-06T15:54:40.616845",
+      "response": "Here is a comprehensive pharmacogenomics profile for the pharmacogene CYP2C19.\n\n### 1. Clinical Dosing Guidelines\n\nThere are **15** clinical dosing guidelines for CYP2C19 from the Clinical Pharmacogenetics Implementation Consortium (CPIC) and the Dutch Pharmacogenetics Working Group (DPWG), available through PharmGKB. These guidelines cover 14 drugs.\n\n### 2. Key Pharmacogenomic Variants\n\nThe key pharmacogenomic variants in CYP2C19 with established clinical significance are:\n\n*   **rs4244285**: This is a loss-of-function allele (*2A) associated with decreased metabolism of numerous drugs.\n*   **rs4986893**: This is a loss-of-function",
+      "tool_calls": 1,
+      "elapsed_seconds": 45.4,
+      "auto_score": 0.5,
+      "found_terms": [
+        "CYP2C19",
+        "rs4244285",
+        "*2",
+        "CPIC",
+        "DPWG",
+        "PharmGKB"
+      ],
+      "missing_terms": [
+        "clopidogrel"
+      ],
+      "usage": {
+        "prompt_tokens": 2903,
+        "completion_tokens": 4604,
+        "total_tokens": 7507
+      }
+    },
+    "web_chatgpt52": {
+      "model": "ChatGPT 5.2 (web)",
+      "timestamp": "2026-02-06",
+      "response": "Below is a **comprehensive pharmacogenomics (PGx) profile for the pharmacogene *CYP2C19***, with **specific database identifiers**, guideline sources, and regulatory context, as requested. This is written at a level suitable for clinical, informatics, or regulatory use.\n\n---\n\n## 1. Clinical Dosing Guidelines for **CYP2C19**\n\nAs of current consensus, **two major international PGx consortia** publish **formal, peer-reviewed clinical dosing guidelines** that explicitly incorporate **CYP2C19 genotype/phenotype**.\n\n### \u2705 Total number of major clinical dosing guideline sources: **2**\n\n| Guideline Source                                               | Drugs Covered (CYP2C19-related)                                                                                                          | Notes                                        |\n| -------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |\n| **CPIC** (Clinical Pharmacogenetics Implementation Consortium) | Clopidogrel, proton pump inhibitors (PPIs), tricyclic antidepressants (TCAs), SSRIs (citalopram, escitalopram, sertraline), voriconazole | Most widely used in US health systems        |\n| **DPWG** (Dutch Pharmacogenetics Working Group)                | Clopidogrel, PPIs, antidepressants (TCAs, SSRIs), voriconazole                                                                           | Integrated into European prescribing systems |\n\n**Other guidance (non-dosing or derivative):**\n\n* FDA drug labels (not dosing guidelines per se)\n* PharmGKB clinical annotations (evidence summaries)\n* National adaptations (e.g., Swiss, French) largely derived from CPIC/DPWG\n\n---\n\n## 2. Key **CYP2C19 Pharmacogenomic Variants**\n\nThe variants below define **metabolizer phenotype** and are consistently used across CPIC, DPWG, PharmGKB, and regulatory labels.\n\n### Core functional alleles\n\n| Allele | rsID           | Functional Effect           | Clinical Significance                                                 |\n| ------ | -------------- | --------------------------- | --------------------------------------------------------------------- |\n| *1     | \u2014              | Normal function             | Reference allele                                                      |\n| *2     | **rs4244285**  | No function (splice defect) | \u2193 activation of clopidogrel; \u2191 drug exposure for CYP2C19 substrates   |\n| *3     | **rs4986893**  | No function (stop codon)    | Same as *2; common in East Asians                                     |\n| *17    | **rs12248560** | Increased transcription     | \u2193 exposure to PPIs, antidepressants; \u2191 bleeding risk with clopidogrel |\n\n### Less common but clinically recognized alleles\n\n| Allele | rsID       | Functional Effect  |\n| ------ | ---------- | ------------------ |\n| *4     | rs28399504 | No function        |\n| *5     | rs56337013 | No function        |\n| *6     | rs72552267 | No function        |\n| *8     | rs41291556 | No function        |\n| *9     | rs17884712 | Decreased function |\n| *10    | rs6413438  | Decreased function |\n\n### Phenotypes derived from variants\n\n* **Ultrarapid metabolizer (UM)** \u2013 *17/*17\n* **Rapid metabolizer (RM)** \u2013 *1/*17\n* **Normal metabolizer (NM)** \u2013 *1/*1\n* **Intermediate metabolizer (IM)** \u2013 one no-function allele\n* **Poor metabolizer (PM)** \u2013 two no-function alleles\n\n---\n\n## 3. Drugs Affected by **CYP2C19 Variants**\n\nBelow are **clinically actionable drugs** with **PharmGKB Drug IDs** where CYP2C19 genotype alters efficacy, toxicity, or dosing.\n\n### Cardiovascular\n\n| Drug            | PharmGKB Drug ID | Clinical Impact                               |\n| --------------- | ---------------- | --------------------------------------------- |\n| **Clopidogrel** | **PA449053**     | PMs/IMs have reduced activation \u2192 \u2191 CV events |\n\n---\n\n### Proton Pump Inhibitors (PPIs)\n\n| Drug             | PharmGKB Drug ID | Clinical Impact                             |\n| ---------------- | ---------------- | ------------------------------------------- |\n| **Omeprazole**   | **PA450203**     | PMs have \u2191 exposure; UMs \u2193 acid suppression |\n| **Esomeprazole** | **PA450206**     | Similar to omeprazole                       |\n| **Lansoprazole** | **PA450210**     | Genotype-dependent exposure                 |\n| **Pantoprazole** | **PA450208**     | Less sensitive but still affected           |\n\n---\n\n### Antidepressants\n\n| Drug              | PharmGKB Drug ID | Class |\n| ----------------- | ---------------- | ----- |\n| **Citalopram**    | **PA448424**     | SSRI  |\n| **Escitalopram**  | **PA449012**     | SSRI  |\n| **Sertraline**    | **PA451084**     | SSRI  |\n| **Amitriptyline** | **PA448088**     | TCA   |\n| **Clomipramine**  | **PA448151**     | TCA   |\n| **Imipramine**    | **PA448288**     | TCA   |\n\nClinical impact: altered plasma concentrations \u2192 dose adjustment or alternative drug recommended depending on phenotype.\n\n---\n\n### Antifungal / Anti-infective\n\n| Drug             | PharmGKB Drug ID | Clinical Impact                           |\n| ---------------- | ---------------- | ----------------------------------------- |\n| **Voriconazole** | **PA451431**     | PMs \u2191 toxicity; UMs subtherapeutic levels |\n\n---\n\n### Other\n\n| Drug         | PharmGKB Drug ID | Notes                     |\n| ------------ | ---------------- | ------------------------- |\n| **Diazepam** | **PA449090**     | Prolonged sedation in PMs |\n\n---\n\n## 4. Regulatory Agencies with **CYP2C19 Genotype Mention in Drug Labels**\n\nMultiple regulatory authorities include **CYP2C19 pharmacogenetic language** in approved drug labeling.\n\n### Agencies with official label mentions\n\n| Regulatory Agency                   | Example Drugs                         |\n| ----------------------------------- | ------------------------------------- |\n| **FDA** (United States)             | Clopidogrel, voriconazole, citalopram |\n| **EMA** (European Medicines Agency) | Clopidogrel, PPIs                     |\n| **PMDA** (Japan)                    | Clopidogrel, voriconazole             |\n| **Health Canada**                   | Clopidogrel                           |\n| **TGA** (Australia)                 | Clopidogrel                           |\n\n**Label language types include:**\n\n* Reduced efficacy warnings (clopidogrel)\n* Exposure/toxicity warnings (voriconazole)\n* Dose adjustment considerations (PPIs, SSRIs)\n\n---\n\n## Summary Snapshot\n\n* **Clinical guideline sources:** 2 (CPIC, DPWG)\n* **Key variants:** rs4244285 (*2), rs4986893 (*3), rs12248560 (*17)\n* **High-impact drugs:** clopidogrel, PPIs, SSRIs, TCAs, voriconazole\n* **Regulatory recognition:** FDA, EMA, PMDA, Health Canada, TGA\n* **Databases referenced:** PharmGKB, CPIC, DPWG\n\n---\n\nIf you want, I can:\n\n* Map **phenotype \u2192 drug \u2192 recommendation** in a single table\n* Provide **LOE (levels of evidence)** from PharmGKB\n* Generate a **machine-readable JSON / TSV** for informatics pipelines\n* Compare **CPIC vs DPWG recommendations side-by-side**\n\nJust tell me how deep you want to go \ud83e\uddec",
+      "auto_score": 1.0,
+      "entered_by": "USER",
+      "found_terms": [
+        "CYP2C19",
+        "clopidogrel",
+        "rs4244285",
+        "*2",
+        "CPIC",
+        "DPWG",
+        "PharmGKB",
+        "37",
+        "PA449053"
+      ],
+      "missing_terms": []
+    },
+    "web_claude46": {
+      "model": "Claude 4.6 (web)",
+      "timestamp": "2026-02-06",
+      "response": "Let me search for the most current and comprehensive information on CYP2C19 pharmacogenomics.Now let me also look up CYP2C19 as a target in ChEMBL and get some specific drug data:",
+      "auto_score": 0.167,
+      "entered_by": "USER",
+      "found_terms": [
+        "CYP2C19"
+      ],
+      "missing_terms": [
+        "clopidogrel"
+      ]
+    },
+    "web_gemini3_pro": {
+      "model": "Gemini 3 Pro (web)",
+      "timestamp": "2026-02-06",
+      "response": "Here is the comprehensive pharmacogenomics profile for **CYP2C19** (Cytochrome P450 Family 2 Subfamily C Member 19), a critical enzyme in the metabolism of approximately 10% of clinically used drugs.\n\n### **1. Clinical Dosing Guidelines**\n\nThere are **over 25 clinical dosing guidelines** available for *CYP2C19* drug-gene pairs, primarily covering antiplatelet agents, antidepressants, proton pump inhibitors (PPIs), and antifungals.\n\n**Major Guideline Sources:**\n\n* **CPIC** (Clinical Pharmacogenetics Implementation Consortium)\n* **DPWG** (Dutch Pharmacogenetics Working Group)\n* **CPNDS** (Canadian Pharmacogenomics Network for Drug Safety)\n* **RNPGx** (French National Network of Pharmacogenetics)\n\n> **Note:** CPIC and DPWG provide the most widely adopted international standards, offering specific dose adjustments (e.g., 50% reduction) or alternative drug recommendations (e.g., switching from clopidogrel to prasugrel/ticagrelor) for non-normal metabolizers.\n\n---\n\n### **2. Key Pharmacogenomic Variants**\n\n*CYP2C19* is highly polymorphic. The \"Star Allele\" nomenclature is used to classify variants based on their functional impact on enzyme activity.\n\n| Allele | rsID (dbSNP) | Functional Status | Clinical Significance |\n| --- | --- | --- | --- |\n| **CYP2C19*1** | *(Wild Type)* | **Normal Function** | Reference allele; standard metabolism. |\n| **CYP2C19*2** | **rs4244285** | **No Function** | Most common **Loss-of-Function (LOF)** allele. Carriers are \"Poor Metabolizers\" (PM) or \"Intermediate Metabolizers\" (IM). |\n| **CYP2C19*3** | **rs4986893** | **No Function** | LOF allele; significantly higher frequency in Asian populations (~5-10%) compared to Europeans (<1%). |\n| **CYP2C19*17** | **rs12248560** | **Increased Function** | Promoter variant causing overexpression. Carriers are \"Rapid\" or \"Ultrarapid Metabolizers\" (UM), leading to faster drug clearance. |\n\n---\n\n### **3. Affected Drugs (Key Substrates)**\n\nThe following drugs have high-level evidence (PharmGKB Level 1A) linking *CYP2C19* genotype to drug response, efficacy, or toxicity.\n\n| Drug Class | Generic Name | PharmGKB ID | Clinical Impact of Variants |\n| --- | --- | --- | --- |\n| **Antiplatelet** | **Clopidogrel** | **PA449053** | *2/*3 carriers (PM/IM) cannot convert prodrug to active form; increased risk of cardiovascular events (stent thrombosis). |\n| **Antidepressant (SSRI)** | **Citalopram** | **PA448965** | PMs have higher plasma levels; risk of QT prolongation. FDA specifically warns against high doses in PMs. |\n| **Antidepressant (SSRI)** | **Escitalopram** | **PA10074** | Similar to Citalopram; PMs risk adverse events; UMs (*17) may have reduced efficacy. |\n| **Antidepressant (SSRI)** | **Sertraline** | **PA451333** | UMs (*17) may require higher doses due to increased metabolism. |\n| **Antifungal** | **Voriconazole** | **PA451803** | UMs may have subtherapeutic levels (treatment failure); PMs risk toxicity. |\n| **PPI (Acid Reflux)** | **Omeprazole** | **PA450657** | UMs metabolize drug too quickly, leading to acid breakthrough and treatment failure (e.g., in *H. pylori* therapy). |\n| **PPI (Acid Reflux)** | **Pantoprazole** | **PA450774** | Similar to Omeprazole; efficacy is reduced in Rapid/Ultrarapid metabolizers. |\n| **Tricyclic Antidepressant** | **Amitriptyline** | **PA448369** | *CYP2C19* and *CYP2D6* genotypes influence side effect risk; dosing changes recommended for PMs and UMs. |\n\n---\n\n### **4. Regulatory Agency Drug Labels**\n\nThe following major regulatory agencies include *CYP2C19* genotype testing information (ranging from \"Informative\" to \"Testing Recommended\" or \"Required\") in their official drug labels:\n\n* **FDA** (United States Food and Drug Administration)\n* **EMA** (European Medicines Agency)\n* **PMDA** (Pharmaceuticals and Medical Devices Agency, Japan)\n* **HCSC** (Health Canada / Sant\u00e9 Canada)\n* **Swissmedic** (Swiss Agency for Therapeutic Products)\n\n**Example Label Annotation:**\nThe FDA Boxed Warning for **Clopidogrel (Plavix)** explicitly states: *\"Poor metabolizers may not attain adequate antiplatelet response... Consider use of another platelet P2Y12 inhibitor in patients identified as CYP2C19 poor metabolizers.\"*\n\n---\n\n### **Next Step**\n\nWould you like me to generate a specific dosing table for one of these drugs (e.g., **Clopidogrel** or **Citalopram**) based on the current CPIC guidelines for a specific genotype (e.g., *1/*2)?",
+      "auto_score": 1.0,
+      "entered_by": "USER",
+      "found_terms": [
+        "CYP2C19",
+        "clopidogrel",
+        "rs4244285",
+        "*2",
+        "CPIC",
+        "DPWG",
+        "PharmGKB",
+        "PA449053"
+      ],
+      "missing_terms": []
+    }
+  },
+  "reviews": {
+    "review_1": {
+      "timestamp": "2026-02-06",
+      "reviewer": "human+claude",
+      "outcome": "biobtree_win",
+      "winner": "biobtree",
+      "key_finding": "ChatGPT hallucinated multiple PharmGKB IDs (escitalopram PA449012→correct PA10074, sertraline PA451084→correct PA451333, voriconazole PA451431→correct PA10233). These plausible-looking but incorrect IDs would mislead users querying PharmGKB.",
+      "biobtree_advantage": "Returns verified 37 clinical dosing guidelines with correct PharmGKB IDs. Multi-hop pipeline (Gene→Guidelines→Drugs→Variants→Labels) provides structured, accurate data.",
+      "guideline_counts": {
+        "biobtree": "37 guidelines",
+        "chatgpt": "2 sources (misunderstood question)",
+        "gemini": "over 25 (32% undercount)",
+        "claude": "no answer (web search loop)"
+      },
+      "pharmgkb_id_accuracy": {
+        "chatgpt": "1/4 correct - hallucinated 3 IDs",
+        "gemini": "4/6 correct - better accuracy",
+        "claude": "not provided"
+      },
+      "llm_behavior": {
+        "chatgpt": "Hallucinated PharmGKB IDs, misunderstood guideline count question",
+        "gemini": "Best LLM - correct regulatory agencies, better ID accuracy, but undercounted guidelines",
+        "claude": "Critical failure - entered web search loop, never completed response"
+      },
+      "preprint_value": "very_high",
+      "preprint_section": "Results - Pharmacogenomics ID accuracy",
+      "quotable": "When asked for CYP2C19 pharmacogenomics data, ChatGPT provided plausible-looking but incorrect PharmGKB IDs for 3 of 4 drugs checked. Biobtree returned 37 verified clinical dosing guidelines with correct database identifiers, demonstrating the danger of LLM hallucination in precision medicine contexts.",
+      "notes": "This question highlights a critical safety issue: hallucinated database IDs look authoritative but lead to wrong query results. Gemini performed best among web LLMs with correct regulatory agencies and better ID accuracy."
+    }
+  },
+  "question_id": "cyp2c19_pharmacogenomics"
+}

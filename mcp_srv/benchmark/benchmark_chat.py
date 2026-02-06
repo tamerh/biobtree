@@ -32,6 +32,7 @@ import httpx
 
 DEFAULT_SERVER = "http://localhost:8000"
 QUESTIONS_FILE = Path(__file__).parent / "questions.json"
+RESULTS_DIR = Path(__file__).parent / "results"
 
 # Models to benchmark (OpenRouter model IDs)
 DEFAULT_MODELS = [
@@ -86,6 +87,66 @@ def load_questions(questions_file: Path) -> list:
     else:
         print(f"Warning: {questions_file} not found, using {len(FALLBACK_QUESTIONS)} fallback questions")
         return FALLBACK_QUESTIONS
+
+
+# =============================================================================
+# Benchmark Data (Split File Format)
+# =============================================================================
+
+def load_questions_registry(questions_file: Path = QUESTIONS_FILE) -> dict:
+    """Load questions registry from JSON file."""
+    if questions_file.exists():
+        with open(questions_file) as f:
+            return json.load(f)
+    else:
+        return {"metadata": {}, "questions": []}
+
+
+def get_question_by_num(registry: dict, num: int) -> Optional[dict]:
+    """Get question from registry by numeric ID."""
+    for q in registry.get("questions", []):
+        if q.get("id") == num:
+            return q
+    return None
+
+
+def load_results(question_num: int, results_dir: Path = RESULTS_DIR) -> dict:
+    """Load results for a specific question."""
+    results_file = results_dir / f"{question_num}.json"
+    if results_file.exists():
+        with open(results_file) as f:
+            return json.load(f)
+    else:
+        return {"id": question_num, "results": {}, "reviews": {}}
+
+
+def save_results(question_num: int, results: dict, results_dir: Path = RESULTS_DIR):
+    """Save results for a specific question."""
+    results_dir.mkdir(parents=True, exist_ok=True)
+    results_file = results_dir / f"{question_num}.json"
+    with open(results_file, "w") as f:
+        json.dump(results, f, indent=2)
+    print(f"Saved results to: {results_file}")
+
+
+def get_model_key(model_id: str) -> str:
+    """Convert OpenRouter model ID to result key."""
+    # e.g., "anthropic/claude-sonnet-4" -> "biobtree_sonnet"
+    # e.g., "openai/gpt-4.1" -> "biobtree_gpt41"
+    model_map = {
+        "anthropic/claude-sonnet-4": "biobtree_sonnet",
+        "openai/gpt-4.1": "biobtree_gpt41",
+        "google/gemini-2.5-pro-preview-03-25": "biobtree_gemini25",
+    }
+    return model_map.get(model_id, model_id.replace("/", "_").replace("-", "_").replace(".", ""))
+
+
+def find_question_by_id(data: dict, question_id: str) -> Optional[dict]:
+    """Find a question in benchmark data by its ID."""
+    for q in data.get("questions", []):
+        if q.get("id") == question_id:
+            return q
+    return None
 
 
 # =============================================================================
@@ -209,7 +270,8 @@ class BenchmarkRunner:
                 "tool_calls": data.get("tool_calls", []),
                 "iterations": data.get("iterations", 0),
                 "elapsed_seconds": elapsed,
-                "answer_length": len(data.get("answer", ""))
+                "answer_length": len(data.get("answer", "")),
+                "usage": data.get("usage", {})
             }
 
         except httpx.TimeoutException:
@@ -463,8 +525,8 @@ class BenchmarkRunner:
 # Results Output
 # =============================================================================
 
-def save_results(results: dict, results_dir: Path):
-    """Save results to timestamped directory with raw JSON and summary markdown."""
+def save_legacy_results(results: dict, results_dir: Path):
+    """Save results to timestamped directory with raw JSON and summary markdown (legacy format)."""
     results_dir.mkdir(parents=True, exist_ok=True)
 
     # Save raw results
@@ -657,6 +719,531 @@ def generate_summary_md(results: dict) -> str:
 
 
 # =============================================================================
+# New Unified Benchmark Commands
+# =============================================================================
+
+def cmd_list(questions_file: Path, results_dir: Path) -> int:
+    """List all questions with their status."""
+    registry = load_questions_registry(questions_file)
+    questions = registry.get("questions", [])
+
+    if not questions:
+        print("No questions in registry.")
+        return 0
+
+    print(f"\n{'='*70}")
+    print(f"BENCHMARK QUESTIONS ({len(questions)})")
+    print(f"{'='*70}\n")
+
+    for q in questions:
+        num = q.get("id", "?")
+        qid = q.get("question_id", "?")
+        tier = q.get("tier", "?")
+        cat = q.get("category", "?")
+
+        # Load results for this question
+        results_data = load_results(num, results_dir)
+        results = results_data.get("results", {})
+        reviews = results_data.get("reviews", {})
+
+        # Count results by type
+        biobtree_count = sum(1 for k in results if k.startswith("biobtree_"))
+        web_count = sum(1 for k in results if k.startswith("web_"))
+        review_count = len(reviews)
+
+        # Status indicators
+        status = []
+        if biobtree_count > 0:
+            status.append(f"{biobtree_count} biobtree")
+        if web_count > 0:
+            status.append(f"{web_count} web")
+        if review_count > 0:
+            status.append(f"{review_count} reviews")
+
+        status_str = ", ".join(status) if status else "no results"
+
+        print(f"  {num}. [{qid}] T{tier}/{cat}")
+        print(f"     Q: {q.get('question', '')[:60]}...")
+        print(f"     Status: {status_str}")
+        print()
+
+    return 0
+
+
+def cmd_show(questions_file: Path, results_dir: Path, question_ref: str) -> int:
+    """Show all data for a specific question (by number or ID)."""
+    registry = load_questions_registry(questions_file)
+    questions = registry.get("questions", [])
+
+    # Try as number first
+    try:
+        num = int(question_ref)
+        q = get_question_by_num(registry, num)
+        if not q:
+            print(f"Invalid number. Choose 1-{len(questions)}")
+            return 1
+    except ValueError:
+        # Try as question_id
+        q = None
+        for question in questions:
+            if question.get("question_id") == question_ref:
+                q = question
+                break
+        if not q:
+            print(f"Question '{question_ref}' not found.")
+            print(f"Available: {[q.get('question_id') for q in questions]}")
+            return 1
+
+    num = q.get("id")
+    qid = q.get("question_id", "?")
+
+    print(f"\n{'='*70}")
+    print(f"QUESTION #{num}: {qid}")
+    print(f"{'='*70}\n")
+
+    print(f"Question: {q.get('question', '')}")
+    print(f"Category: {q.get('category', '?')} | Tier: {q.get('tier', '?')} | Hops: {q.get('hops', '?')}")
+    print(f"Theme: {q.get('theme', 'none')}")
+    print(f"\nWhy LLM fails: {q.get('why_llm_fails', 'N/A')}")
+
+    gt = q.get("ground_truth", {})
+    if gt:
+        print(f"\nGround Truth:")
+        print(f"  Must mention: {gt.get('must_mention', [])}")
+        print(f"  Must mention any: {gt.get('must_mention_any', [])}")
+        print(f"  Tool-only terms: {gt.get('tool_only_terms', [])}")
+        if gt.get("biobtree_chain"):
+            print(f"  Chain: {gt.get('biobtree_chain')}")
+
+    # Load results from separate file
+    results_data = load_results(num, results_dir)
+    results = results_data.get("results", {})
+    if results:
+        print(f"\n{'='*40}")
+        print("RESULTS")
+        print(f"{'='*40}")
+        for model_key, r in results.items():
+            print(f"\n[{model_key}]")
+            print(f"  Model: {r.get('model', '?')}")
+            print(f"  Timestamp: {r.get('timestamp', '?')}")
+            print(f"  Auto-score: {r.get('auto_score', 'N/A')}")
+            if r.get("tool_calls"):
+                print(f"  Tool calls: {r.get('tool_calls')}")
+            if r.get("elapsed_seconds"):
+                print(f"  Time: {r.get('elapsed_seconds'):.1f}s")
+            usage = r.get("usage", {})
+            if usage and usage.get("total_tokens"):
+                print(f"  Tokens: {usage.get('prompt_tokens', 0):,} prompt + {usage.get('completion_tokens', 0):,} completion = {usage.get('total_tokens', 0):,} total")
+            if r.get("found_terms"):
+                print(f"  Found terms: {r.get('found_terms')}")
+            if r.get("missing_terms"):
+                print(f"  Missing: {r.get('missing_terms')}")
+            if r.get("notes"):
+                print(f"  Notes: {r.get('notes')}")
+            # Show response preview
+            resp = r.get("response", "")
+            if resp:
+                preview = resp[:200] + "..." if len(resp) > 200 else resp
+                print(f"  Response: {preview}")
+
+    reviews = results_data.get("reviews", {})
+    if reviews:
+        print(f"\n{'='*40}")
+        print("REVIEWS")
+        print(f"{'='*40}")
+        for review_key, rev in sorted(reviews.items()):
+            print(f"\n[{review_key}]")
+            print(f"  Timestamp: {rev.get('timestamp', '?')}")
+            if rev.get("reviewer"):
+                print(f"  Reviewer: {rev.get('reviewer')}")
+            if rev.get("outcome"):
+                print(f"  Outcome: {rev.get('outcome')}")
+            if rev.get("status"):
+                print(f"  Status: {rev.get('status')}")
+            if rev.get("key_finding"):
+                print(f"  Key finding: {rev.get('key_finding')}")
+            if rev.get("preprint_section"):
+                print(f"  Preprint section: {rev.get('preprint_section')}")
+            if rev.get("notes"):
+                print(f"  Notes: {rev.get('notes')}")
+
+    print()
+    return 0
+
+
+WEB_RESPONSE_FILE = Path(__file__).parent / "web_response.txt"
+
+def cmd_add_web(questions_file: Path, results_dir: Path) -> int:
+    """Interactive: add a web LLM response for a question."""
+    registry = load_questions_registry(questions_file)
+    questions = registry.get("questions", [])
+
+    if not questions:
+        print("No questions in registry. Add questions first.")
+        return 1
+
+    # Show available questions with numbers
+    print("\nAvailable questions:")
+    for q in questions:
+        print(f"  {q.get('id')}. {q.get('question_id')}")
+
+    # Get question by number or ID
+    choice = input("\nQuestion #: ").strip()
+    if not choice:
+        print("No question selected. Aborting.")
+        return 1
+
+    # Try as number first
+    try:
+        num = int(choice)
+        q = get_question_by_num(registry, num)
+        if not q:
+            print(f"Invalid number. Choose 1-{len(questions)}")
+            return 1
+    except ValueError:
+        # Try as question_id
+        q = None
+        for question in questions:
+            if question.get("question_id") == choice:
+                q = question
+                break
+        if not q:
+            print(f"Question '{choice}' not found.")
+            return 1
+
+    num = q.get("id")
+    qid = q.get("question_id")
+    print(f"Selected: #{num} {qid}")
+
+    # Get model by number
+    web_models = [
+        ("web_chatgpt52", "ChatGPT 5.2"),
+        ("web_gemini3_pro", "Gemini 3 Pro"),
+        ("web_claude46", "Claude 4.6")
+    ]
+    print("\nWeb models:")
+    for i, (key, name) in enumerate(web_models, 1):
+        print(f"  {i}. {name} ({key})")
+
+    model_choice = input("Model #: ").strip()
+    if not model_choice:
+        print("No model selected. Aborting.")
+        return 1
+
+    try:
+        idx = int(model_choice) - 1
+        if 0 <= idx < len(web_models):
+            model_key, model_name = web_models[idx]
+        else:
+            print(f"Invalid number. Choose 1-{len(web_models)}")
+            return 1
+    except ValueError:
+        # Allow typing the key directly
+        model_key = model_choice
+        model_name = model_choice.replace("web_", "").replace("_", " ").title()
+
+    print(f"Selected: {model_name}")
+
+    # Get response from file (default) or inline
+    default_file = WEB_RESPONSE_FILE
+    print(f"\nResponse file [{default_file}]:")
+    print("  - Press Enter to read from default file")
+    print("  - Or type a different file path")
+    print("  - Or type 'paste' to paste inline (end with END)")
+
+    file_input = input("> ").strip()
+
+    if file_input.lower() == "paste":
+        # Inline paste mode
+        print("Paste response, then type END on a new line:")
+        lines = []
+        while True:
+            try:
+                line = input()
+            except EOFError:
+                break
+            if line.strip().upper() == "END":
+                break
+            lines.append(line)
+        response = "\n".join(lines)
+    else:
+        # File mode
+        file_path = file_input if file_input else str(default_file)
+        try:
+            with open(file_path, 'r') as f:
+                response = f.read().strip()
+            print(f"Read {len(response)} chars from {file_path}")
+        except Exception as e:
+            print(f"Error reading file: {e}")
+            return 1
+
+    if not response:
+        print("No response provided. Aborting.")
+        return 1
+
+    # Auto-score
+    gt = q.get("ground_truth", {})
+    scoring = score_response(response, gt, [])
+    print(f"\nAuto-score: {scoring['score']:.2f}")
+    print(f"  Found: {scoring.get('must_mention_found', []) + scoring.get('any_mention_found', [])}")
+    print(f"  Missing: {scoring.get('must_mention_missing', [])}")
+
+    # Allow override
+    override = input("Override score? [enter or new score]: ").strip()
+    final_score = float(override) if override else scoring["score"]
+
+    # Notes
+    notes = input("Notes: ").strip()
+
+    # Entered by
+    entered_by = input("Entered by [initials]: ").strip() or "USER"
+
+    # Build result entry
+    result_entry = {
+        "model": model_name + " (web)" if "(web)" not in model_name else model_name,
+        "timestamp": datetime.now().strftime("%Y-%m-%d"),
+        "response": response,
+        "auto_score": final_score,
+        "entered_by": entered_by,
+        "found_terms": scoring.get("must_mention_found", []) + scoring.get("any_mention_found", []) + scoring.get("evidence_found", []),
+        "missing_terms": scoring.get("must_mention_missing", [])
+    }
+    if notes:
+        result_entry["notes"] = notes
+
+    # Load existing results for this question
+    results_data = load_results(num, results_dir)
+    results_data["id"] = num
+    results_data["question_id"] = qid
+    if "results" not in results_data:
+        results_data["results"] = {}
+    results_data["results"][model_key] = result_entry
+
+    # Save to results file
+    save_results(num, results_data, results_dir)
+    print(f"\nAdded {model_key} result for #{num} {qid}")
+    return 0
+
+
+def cmd_run_benchmark(
+    server_url: str,
+    questions_file: Path,
+    results_dir: Path,
+    models: list,
+    question_ids: Optional[list],
+    tier: Optional[int],
+    timeout: float,
+    include_baseline: bool,
+    force: bool = False
+) -> int:
+    """Run benchmark and save results to results/N.json files."""
+    registry = load_questions_registry(questions_file)
+    all_questions = registry.get("questions", [])
+
+    if not all_questions:
+        print("No questions in registry. Add questions to questions.json first.")
+        return 1
+
+    # MUST specify question - no accidental run-all
+    if not question_ids:
+        print("\nAvailable questions:")
+        for q in all_questions:
+            print(f"  {q.get('id')}. {q.get('question_id')}")
+        print("\nYou must specify a question. Use:")
+        print("  --questions <number>   (by number)")
+        print("  --questions <id>       (by question_id)")
+        return 1
+
+    # Resolve question by number or question_id
+    questions = []
+    for qref in question_ids:
+        try:
+            num = int(qref)
+            q = get_question_by_num(registry, num)
+            if q:
+                questions.append(q)
+            else:
+                print(f"Invalid number {qref}. Choose 1-{len(all_questions)}")
+                return 1
+        except ValueError:
+            # Try as question_id
+            q = None
+            for question in all_questions:
+                if question.get("question_id") == qref:
+                    q = question
+                    break
+            if q:
+                questions.append(q)
+            else:
+                print(f"Question '{qref}' not found.")
+                return 1
+
+    if not questions:
+        print("No questions selected.")
+        return 1
+
+    print(f"\n{'='*60}")
+    print("Biobtree Benchmark (Split Format)")
+    print(f"{'='*60}")
+    print(f"Server: {server_url}")
+    print(f"Models: {', '.join(models)}")
+    print(f"Questions: {len(questions)}")
+    print(f"Baseline: {include_baseline}")
+    print(f"Output: {results_dir}")
+    print(f"{'='*60}\n")
+
+    runner = BenchmarkRunner(server_url, timeout=timeout)
+
+    for i, q in enumerate(questions, 1):
+        num = q.get("id")
+        qid = q.get("question_id")
+        tier_str = f"T{q.get('tier', '?')}"
+        hops_str = f"{q.get('hops', '?')}h"
+        print(f"[{i}/{len(questions)}] [{tier_str}/{hops_str}] #{num} {qid}")
+        print(f"  Q: {q.get('question', '')[:60]}...")
+
+        gt = q.get("ground_truth", {})
+
+        # Load existing results for this question
+        results_data = load_results(num, results_dir)
+        results_data["id"] = num
+        results_data["question_id"] = qid
+        if "results" not in results_data:
+            results_data["results"] = {}
+
+        for model in models:
+            model_key = get_model_key(model)
+            existing_results = results_data.get("results", {})
+
+            # Check if results already exist
+            if model_key in existing_results and not force:
+                existing_score = existing_results[model_key].get("auto_score", "?")
+                print(f"\n  Skipping {model} ({model_key}) - already has results (score={existing_score})")
+                print(f"    Use --force to re-run and save as new entry")
+                continue
+
+            # If force and exists, use timestamped key
+            if model_key in existing_results and force:
+                timestamp_suffix = datetime.now().strftime("%Y%m%d_%H%M%S")
+                save_key = f"{model_key}_{timestamp_suffix}"
+                print(f"\n  Re-running {model} (will save as {save_key})...")
+            else:
+                save_key = model_key
+                print(f"\n  Testing {model} ({model_key})...")
+
+            # Run with tools
+            print(f"    With tools...", end=" ", flush=True)
+            result = runner.run_query(q.get("question"), model, with_tools=True)
+
+            if result.get("success"):
+                scoring = score_response(
+                    result.get("answer", ""),
+                    gt,
+                    result.get("tool_calls", [])
+                )
+                usage = result.get("usage", {})
+                tokens_str = f", tokens={usage.get('total_tokens', 0):,}" if usage.get('total_tokens') else ""
+                print(f"score={scoring['score']:.2f}, tools={len(result.get('tool_calls', []))}, time={result['elapsed_seconds']:.1f}s{tokens_str}")
+
+                # Store result
+                result_entry = {
+                    "model": model,
+                    "timestamp": datetime.now().isoformat(),
+                    "response": result.get("answer", ""),
+                    "tool_calls": len(result.get("tool_calls", [])),
+                    "elapsed_seconds": round(result["elapsed_seconds"], 1),
+                    "auto_score": scoring["score"],
+                    "found_terms": scoring.get("must_mention_found", []) + scoring.get("any_mention_found", []) + scoring.get("evidence_found", []),
+                    "missing_terms": scoring.get("must_mention_missing", []),
+                    "usage": {
+                        "prompt_tokens": usage.get("prompt_tokens", 0),
+                        "completion_tokens": usage.get("completion_tokens", 0),
+                        "total_tokens": usage.get("total_tokens", 0)
+                    }
+                }
+
+                results_data["results"][save_key] = result_entry
+            else:
+                print(f"FAILED: {result.get('error', 'unknown')}")
+
+            # Run without tools (baseline)
+            if include_baseline:
+                print(f"    Without tools...", end=" ", flush=True)
+                baseline = runner.run_query(q.get("question"), model, with_tools=False)
+
+                if baseline.get("success"):
+                    scoring = score_response(baseline.get("answer", ""), gt, [])
+                    print(f"score={scoring['score']:.2f}, time={baseline['elapsed_seconds']:.1f}s")
+                else:
+                    print(f"FAILED: {baseline.get('error', 'unknown')}")
+
+        # Save results for this question
+        save_results(num, results_data, results_dir)
+        print()
+
+    print(f"\nBenchmark complete. Results saved to {results_dir}")
+
+    return 0
+
+
+def cmd_combine(questions_file: Path, results_dir: Path, output_file: Path) -> int:
+    """Combine questions and results into a single JSON file for export."""
+    registry = load_questions_registry(questions_file)
+    questions = registry.get("questions", [])
+
+    if not questions:
+        print("No questions in registry.")
+        return 1
+
+    # Build combined output
+    combined = {
+        "metadata": registry.get("metadata", {}),
+        "questions": []
+    }
+
+    for q in questions:
+        num = q.get("id")
+        qid = q.get("question_id")
+
+        # Load results for this question
+        results_data = load_results(num, results_dir)
+
+        # Merge question metadata with results
+        combined_q = {
+            "id": num,
+            "question_id": qid,
+            "question": q.get("question", ""),
+            "category": q.get("category", ""),
+            "tier": q.get("tier", 0),
+            "hops": q.get("hops", 0),
+            "theme": q.get("theme", ""),
+            "why_llm_fails": q.get("why_llm_fails", ""),
+            "ground_truth": q.get("ground_truth", {}),
+            "results": results_data.get("results", {}),
+            "reviews": results_data.get("reviews", {})
+        }
+
+        combined["questions"].append(combined_q)
+
+    # Write combined file
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_file, "w") as f:
+        json.dump(combined, f, indent=2)
+
+    # Print summary
+    total_results = sum(len(q.get("results", {})) for q in combined["questions"])
+    total_reviews = sum(len(q.get("reviews", {})) for q in combined["questions"])
+
+    print(f"\nCombined output written to: {output_file}")
+    print(f"  Questions: {len(combined['questions'])}")
+    print(f"  Total results: {total_results}")
+    print(f"  Total reviews: {total_reviews}")
+    print(f"  File size: {output_file.stat().st_size / 1024:.1f} KB")
+
+    return 0
+
+
+# =============================================================================
 # Main
 # =============================================================================
 
@@ -666,9 +1253,14 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  python tests/benchmark_chat.py --tier 1
-  python tests/benchmark_chat.py --tier 2 --models anthropic/claude-sonnet-4
-  python tests/benchmark_chat.py --questions brca1_pathogenic_variants tp53_interactions
+  # Primary commands (split file format):
+  python tests/benchmark_chat.py --list
+  python tests/benchmark_chat.py --show 1
+  python tests/benchmark_chat.py --run-benchmark --questions 1 --models anthropic/claude-sonnet-4
+  python tests/benchmark_chat.py --add-web
+  python tests/benchmark_chat.py --combine --output benchmark_export.json
+
+  # Legacy commands (questions.json only):
   python tests/benchmark_chat.py --dry-run
         """
     )
@@ -692,8 +1284,8 @@ Examples:
     parser.add_argument(
         "--results-dir",
         type=Path,
-        default=None,
-        help="Results output directory (default: results/YYYY-MM-DD_HHMMSS)"
+        default=RESULTS_DIR,
+        help=f"Results directory (default: {RESULTS_DIR})"
     )
     parser.add_argument(
         "--tier",
@@ -715,7 +1307,7 @@ Examples:
     parser.add_argument(
         "--questions", "-q",
         nargs="+",
-        help="Specific question IDs to run (default: all)"
+        help="Specific question numbers or IDs to run"
     )
     parser.add_argument(
         "--dry-run",
@@ -723,7 +1315,74 @@ Examples:
         help="Load questions and show what would run, without calling API"
     )
 
+    # Primary commands (split file format)
+    parser.add_argument(
+        "--run-benchmark",
+        action="store_true",
+        help="Run benchmark and save results to results/N.json files"
+    )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Force re-run even if results exist (saves as new entry with timestamp)"
+    )
+    parser.add_argument(
+        "--add-web",
+        action="store_true",
+        help="Interactive: add a web LLM response for a question"
+    )
+    parser.add_argument(
+        "--list",
+        action="store_true",
+        help="List all questions with their status"
+    )
+    parser.add_argument(
+        "--show",
+        type=str,
+        metavar="QUESTION",
+        help="Show all data for a specific question (by number or ID)"
+    )
+    parser.add_argument(
+        "--combine",
+        action="store_true",
+        help="Combine questions and results into a single JSON file for export"
+    )
+    parser.add_argument(
+        "--output", "-o",
+        type=Path,
+        default=Path(__file__).parent / "benchmark_export.json",
+        help="Output file for --combine (default: benchmark_export.json)"
+    )
+
     args = parser.parse_args()
+
+    # Primary commands (split file format)
+    if args.list:
+        return cmd_list(args.questions_file, args.results_dir)
+
+    if args.show:
+        return cmd_show(args.questions_file, args.results_dir, args.show)
+
+    if args.add_web:
+        return cmd_add_web(args.questions_file, args.results_dir)
+
+    if args.combine:
+        return cmd_combine(args.questions_file, args.results_dir, args.output)
+
+    if args.run_benchmark:
+        return cmd_run_benchmark(
+            args.server,
+            args.questions_file,
+            args.results_dir,
+            args.models,
+            args.questions,
+            args.tier,
+            args.timeout,
+            not args.no_baseline,
+            args.force
+        )
+
+    # Legacy commands below - use questions.json for dry-run
 
     # Load questions
     questions = load_questions(args.questions_file)
@@ -737,9 +1396,9 @@ Examples:
 
     # Filter by specific question IDs
     if args.questions:
-        questions = [q for q in questions if q["id"] in args.questions]
+        questions = [q for q in questions if str(q.get("id")) in args.questions or q.get("question_id") in args.questions]
         if not questions:
-            all_ids = [q["id"] for q in load_questions(args.questions_file)]
+            all_ids = [q.get("question_id") for q in load_questions(args.questions_file)]
             print(f"No matching questions found. Available: {all_ids}")
             return 1
 
@@ -752,7 +1411,7 @@ Examples:
             gt = q.get("ground_truth", {})
             must = gt.get("must_mention", [])
             must_any = gt.get("must_mention_any", [])
-            print(f"  {i}. [{q['id']}] T{tier}/{hops}h")
+            print(f"  {i}. [{q.get('question_id', q.get('id'))}] T{tier}/{hops}h")
             print(f"     Q: {q['question'][:80]}...")
             print(f"     Must mention: {must}")
             print(f"     Must mention any: {must_any}")
@@ -761,28 +1420,10 @@ Examples:
         print(f"Baseline: {not args.no_baseline}")
         return 0
 
-    # Determine results directory
-    if args.results_dir:
-        results_dir = args.results_dir
-    else:
-        timestamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
-        results_dir = Path(__file__).parent / "results" / timestamp
-
-    # Run benchmark
-    runner = BenchmarkRunner(args.server, timeout=args.timeout)
-    results = runner.run_benchmark(
-        models=args.models,
-        questions=questions,
-        include_baseline=not args.no_baseline
-    )
-
-    # Print summary
-    runner.print_summary(results)
-
-    # Save results
-    save_results(results, results_dir)
-
-    return 0
+    # No command specified - show help
+    print("No command specified. Use --list, --show, --run-benchmark, --add-web, or --combine")
+    print("Run with -h for help.")
+    return 1
 
 
 if __name__ == "__main__":

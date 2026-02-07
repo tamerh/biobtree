@@ -6,6 +6,7 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"os"
@@ -716,6 +717,7 @@ func (p *pharmgkb) processClinicalVariants(testLimit int, phenotypeMappings map[
 			var headerParsed bool
 			var colMap map[string]int
 			var entryCount int
+			clinIDCounter := make(map[string]int) // Track annotation count per variant+gene
 
 			for scanner.Scan() {
 				line := scanner.Text()
@@ -746,14 +748,17 @@ func (p *pharmgkb) processClinicalVariants(testLimit int, phenotypeMappings map[
 					continue
 				}
 
-				// Create unique ID combining variant and gene
-				clinID := variant
+				// Create unique ID combining variant, gene, and annotation number
+				baseID := variant
 				if gene != "" {
-					clinID = variant + "_" + gene
+					baseID = variant + "_" + gene
 				}
-				// Sanitize ID
-				clinID = strings.ReplaceAll(clinID, " ", "_")
-				clinID = strings.ReplaceAll(clinID, ",", "_")
+				// Sanitize base ID
+				baseID = strings.ReplaceAll(baseID, " ", "_")
+				baseID = strings.ReplaceAll(baseID, ",", "_")
+				// Append counter for unique ID per annotation
+				clinIDCounter[baseID]++
+				clinID := fmt.Sprintf("%s_%d", baseID, clinIDCounter[baseID])
 
 				attr := &pbuf.PharmgkbClinicalAttr{
 					Variant:         variant,

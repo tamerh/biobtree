@@ -46,14 +46,37 @@ Find questions where biobtree adds value:
 
 Avoid questions where LLMs already know the answer (well-published biology).
 
-### 2. Verify Chain Works
+### 2. Test with MCP (Interactive Discovery)
+
+In a Claude Code session with biobtree MCP configured, test the question interactively:
+
+```
+# Search for the gene/entity
+biobtree_search(terms="SCN9A", dataset="ensembl")
+→ ENSG00000169432
+
+# Get detailed data (expression, variants, etc.)
+biobtree_entry(identifier="ENSG00000169432", dataset="bgee")
+→ Expression scores by tissue
+
+# Test cross-database chains
+biobtree_map(terms="ENSG00000169432", chain=">>ensembl>>uniprot>>chembl_molecule")
+→ Verify mappings exist
+```
+
+This helps you:
+- Discover exact ground truth values (e.g., "DRG expression score: 88.05")
+- Find data gaps before formalizing the question
+- Verify chains return meaningful results
+
+### 3. Verify Chain via API (Optional)
 
 ```bash
-# Test the biobtree chain returns results
+# Alternative: test via curl
 curl "http://localhost:8000/ws/map/?i=GENE&m=>>ensembl>>uniprot>>chembl"
 ```
 
-### 3. Add to questions.json
+### 4. Add to questions.json
 
 ```json
 {
@@ -75,14 +98,14 @@ curl "http://localhost:8000/ws/map/?i=GENE&m=>>ensembl>>uniprot>>chembl"
 }
 ```
 
-### 4. Run API Benchmark
+### 5. Run API Benchmark
 
 ```bash
 python benchmark_chat.py --run-benchmark --questions 11 \
   --models anthropic/claude-sonnet-4 openai/gpt-4.1 google/gemini-2.5-pro-preview-03-25
 ```
 
-### 5. Add Web Responses
+### 6. Add Web Responses
 
 Ask the same question to web LLMs (ChatGPT, Gemini, Claude with web search), then:
 
@@ -91,7 +114,7 @@ python benchmark_chat.py --add-web
 # Select question, select model, paste response
 ```
 
-### 6. Write Review
+### 7. Write Review
 
 Edit `results/11.json` and add review:
 
@@ -105,7 +128,7 @@ Edit `results/11.json` and add review:
 }
 ```
 
-### 7. Combine for Export
+### 8. Combine for Export
 
 ```bash
 python benchmark_chat.py --combine --output benchmark_export.json

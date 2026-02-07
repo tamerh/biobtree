@@ -797,12 +797,31 @@ func (ct *clinicalTrials) processTrialsFile(trialsFile string, fr string, chembl
 	}
 	defer file.Close()
 
-	// Use json.Decoder for streaming (handles array format)
+	// Use json.Decoder for streaming
 	decoder := json.NewDecoder(file)
 
-	// Read opening bracket [
-	if _, err := decoder.Token(); err != nil {
-		return 0, fmt.Errorf("failed to read opening bracket: %w", err)
+	// Read first token - could be '[' (array) or '{' (wrapped object with "trials" key)
+	token, err := decoder.Token()
+	if err != nil {
+		return 0, fmt.Errorf("failed to read first token: %w", err)
+	}
+
+	// Handle wrapped format: {"trials":[...]}
+	if delim, ok := token.(json.Delim); ok && delim == '{' {
+		// Read "trials" key
+		keyToken, err := decoder.Token()
+		if err != nil {
+			return 0, fmt.Errorf("failed to read trials key: %w", err)
+		}
+		if key, ok := keyToken.(string); !ok || key != "trials" {
+			return 0, fmt.Errorf("expected 'trials' key, got %v", keyToken)
+		}
+		// Read opening bracket of trials array
+		if _, err := decoder.Token(); err != nil {
+			return 0, fmt.Errorf("failed to read trials array start: %w", err)
+		}
+	} else if delim, ok := token.(json.Delim); !ok || delim != '[' {
+		return 0, fmt.Errorf("expected '[' or '{', got %v", token)
 	}
 
 	// Test mode setup

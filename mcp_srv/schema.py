@@ -10,7 +10,7 @@ Schema definitions for biobtree_help tool - dataset connections, filters, and qu
 
 SCHEMA_EDGES = {
     "ensembl": ["uniprot", "go", "transcript", "exon", "ortholog", "paralog", "dbsnp", "clinvar", "hgnc", "entrez", "refseq", "bgee", "gwas", "gencc", "biogrid", "string", "antibody", "scxa"],
-    "hgnc": ["ensembl", "uniprot", "entrez", "gencc", "pharmgkb_gene", "msigdb"],
+    "hgnc": ["ensembl", "uniprot", "entrez", "gencc", "pharmgkb_gene", "msigdb", "clinvar", "mim", "refseq", "alphafold"],
     "entrez": ["ensembl", "uniprot", "refseq", "go", "biogrid", "pubchem_activity"],
     "refseq": ["ensembl", "uniprot", "entrez"],
     "transcript": ["ensembl", "exon", "ufeature"],
@@ -37,6 +37,11 @@ SCHEMA_EDGES = {
     "gencc": ["mondo", "hpo", "hgnc", "ensembl"],
     "clinical_trials": ["mondo", "chembl_molecule"],
     "pharmgkb": ["hgnc", "dbsnp", "mesh", "pharmgkb_gene", "pharmgkb_variant", "pharmgkb_clinical", "pharmgkb_guideline", "pharmgkb_pathway"],
+    "pharmgkb_variant": ["pharmgkb_clinical", "hgnc", "mesh", "dbsnp"],
+    "pharmgkb_gene": ["hgnc", "entrez", "ensembl", "pharmgkb"],
+    "pharmgkb_clinical": ["dbsnp", "hgnc", "mesh", "pharmgkb_variant"],
+    "pharmgkb_guideline": ["hgnc", "pharmgkb"],
+    "pharmgkb_pathway": ["hgnc", "pharmgkb"],
     "ctd": ["mesh", "entrez", "efo", "pubchem", "taxonomy"],
     "intact": ["uniprot", "chebi", "rnacentral"],
     "string": ["uniprot", "ensembl"],
@@ -152,7 +157,10 @@ SCHEMA_EXAMPLES = {
 # Query Patterns
 # =============================================================================
 
-SCHEMA_PATTERNS = """# ===== DRUG DISCOVERY (use BOTH ChEMBL AND PubChem for comprehensive results) =====
+SCHEMA_PATTERNS = """# Human genes: use >>hgnc>>ensembl instead of >>ensembl[genome filter]
+# Pagination: to scan all results, use p=<next_token> until has_next==false
+
+# ===== DRUG DISCOVERY (use BOTH ChEMBL AND PubChem for comprehensive results) =====
 
 # Gene -> Drugs via ChEMBL (medicinal chemistry focus, clinical phases)
 <gene> >> ensembl >> uniprot >> chembl_target_component >> chembl_target >> chembl_assay >> chembl_activity >> chembl_molecule
@@ -278,12 +286,11 @@ NOTE: For drug discovery, query BOTH ChEMBL and PubChem for comprehensive covera
 SCHEMA_FILTER_SYNTAX = """
 CRITICAL FILTER SYNTAX RULES:
 
-1. FLOAT COMPARISONS NEED .0 SUFFIX:
-   - WRONG: >>pubchem[pubchem.molecular_weight<500]
-   - RIGHT: >>pubchem[pubchem.molecular_weight<500.0]
+1. INTEGER vs FLOAT FIELDS:
+   - INT (no .0 suffix): highestDevelopmentPhase, hydrogen_bond_donors/acceptors, rotatable_bonds, gene_count, start, end
+   - FLOAT (use .0 suffix): molecular_weight, xlogp, tpsa, pChembl, global_metric, mean_pae, am_pathogenicity
 
-   Affected fields: molecular_weight, xlogp, tpsa, pvalue_mlog, global_metric,
-                    mean_pae, am_pathogenicity, expression_score, confidence_score
+   Example: [highestDevelopmentPhase>1] not [highestDevelopmentPhase>1.0]
 
 2. NO SCIENTIFIC NOTATION:
    - WRONG: >>gwas[gwas.p_value<5e-8]

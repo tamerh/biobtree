@@ -245,6 +245,29 @@
           "expected_outcome": "TIE - LLMs know this biology"
         }
       }
+    },
+    {
+      "id": 11,
+      "question_id": "cd19_bcell_subtypes",
+      "question": "What cell types express CD19? Which B-cell subtypes have highest expression? Provide specific expression data for naive B cells, memory B cells, and plasma cells.",
+      "category": "expression",
+      "tier": 2,
+      "hops": 2,
+      "theme": "immune_cell_specificity",
+      "why_llm_fails": "LLMs know CD19 is a B-cell marker but lack quantitative subtype-level data. This tests whether biobtree's single-cell data provides B-cell subtype resolution (naive vs memory vs plasma). OpenTargets with BLUEPRINT may have advantage here.",
+      "ground_truth": {
+        "must_mention": ["CD19", "B cell"],
+        "must_mention_any": ["naive", "memory", "plasma", "lymph node", "expression"],
+        "tool_only_terms": ["ENSG00000177455", "93.9", "89.47", "P15391"],
+        "biobtree_chain": ">>ensembl[ensembl.genome==\"homo_sapiens\"]>>bgee",
+        "key_values": {
+          "lymph_node_score": 93.9,
+          "granulocyte_score": 89.47,
+          "bone_marrow_score": 82.39,
+          "gene_ensembl": "ENSG00000177455",
+          "expected_outcome": "POTENTIAL_OPENTARGETS_WIN - BLUEPRINT has B-cell subtype data"
+        }
+      }
     }
   ]
 }

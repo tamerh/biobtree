@@ -33,7 +33,7 @@ SCHEMA_EDGES = {
     "alphamissense": ["uniprot", "transcript"],
     "gwas": ["gwas_study", "ensembl", "efo", "dbsnp"],
     "gwas_study": ["gwas", "efo"],
-    "mondo": ["gencc", "clinvar", "efo", "mesh", "hpo", "clinical_trials", "antibody", "cellxgene", "orphanet"],
+    "mondo": ["gencc", "clinvar", "efo", "mesh", "hpo", "clinical_trials", "antibody", "cellxgene", "cellxgene_celltype", "orphanet"],
     "gencc": ["mondo", "hpo", "hgnc", "ensembl"],
     "clinical_trials": ["mondo", "chembl_molecule"],
     "pharmgkb": ["hgnc", "dbsnp", "mesh", "pharmgkb_gene", "pharmgkb_variant", "pharmgkb_clinical", "pharmgkb_guideline", "pharmgkb_pathway"],
@@ -48,15 +48,18 @@ SCHEMA_EDGES = {
     "biogrid": ["entrez", "uniprot", "refseq", "taxonomy"],
     "bgee": ["ensembl", "uberon", "cl", "taxonomy"],
     "cellxgene": ["cl", "uberon", "mondo", "efo", "taxonomy"],
-    "scxa": ["cl", "uberon", "taxonomy", "ensembl"],
+    "cellxgene_celltype": ["cl", "uberon", "mondo"],
+    "scxa": ["cl", "uberon", "taxonomy", "ensembl", "scxa_gene_experiment"],
+    "scxa_expression": ["ensembl", "scxa", "scxa_gene_experiment"],
+    "scxa_gene_experiment": ["ensembl", "scxa", "scxa_expression", "cl"],
     "rnacentral": ["uniprot", "ensembl", "intact"],
     "reactome": ["ensembl", "uniprot", "chebi", "go"],
     "rhea": ["chebi", "uniprot", "go"],
     "go": ["ensembl", "uniprot", "reactome", "msigdb", "swisslipids", "bgee"],
     "hpo": ["clinvar", "gencc", "mondo", "msigdb", "orphanet", "mim", "hmdb"],
     "efo": ["gwas", "mondo", "cellxgene"],
-    "uberon": ["bgee", "cellxgene", "swisslipids"],
-    "cl": ["bgee", "cellxgene", "scxa"],
+    "uberon": ["bgee", "cellxgene", "cellxgene_celltype", "swisslipids"],
+    "cl": ["bgee", "cellxgene", "cellxgene_celltype", "scxa", "scxa_gene_experiment"],
     "taxonomy": ["ensembl", "uniprot", "bgee", "biogrid", "ctd"],
     "mesh": ["pharmgkb", "ctd", "pubchem", "mondo"],
     "antibody": ["ensembl", "uniprot", "mondo", "pdb"],
@@ -235,6 +238,10 @@ SCHEMA_PATTERNS = """# Human genes: use >>hgnc>>ensembl instead of >>ensembl[gen
 
 # Tissue -> Expression
 <tissue> >> uberon >> bgee >> ensembl  # genes expressed in tissue
+
+# Cell type -> Marker genes with expression
+<cell_type> >> cl >> scxa_gene_experiment  # CL:0000788 -> 75 marker genes with TPM, logFC
+<gene> >> ensembl >> scxa_expression >> scxa_gene_experiment  # CD19 -> per-cell-type expression
 
 # ===== INTERACTIONS =====
 

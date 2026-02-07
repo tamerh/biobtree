@@ -83794,6 +83794,26 @@ func (j *ScxaClusterExpression) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		}
 		buf.WriteByte(',')
 	}
+	if len(j.CellTypeName) != 0 {
+		buf.WriteString(`"cell_type_name":`)
+		fflib.WriteJsonString(buf, string(j.CellTypeName))
+		buf.WriteByte(',')
+	}
+	if j.LogFoldChange != 0 {
+		buf.WriteString(`"log_fold_change":`)
+		fflib.AppendFloat(buf, float64(j.LogFoldChange), 'g', -1, 64)
+		buf.WriteByte(',')
+	}
+	if j.PValueAdj != 0 {
+		buf.WriteString(`"p_value_adj":`)
+		fflib.AppendFloat(buf, float64(j.PValueAdj), 'g', -1, 64)
+		buf.WriteByte(',')
+	}
+	if j.Rank != 0 {
+		buf.WriteString(`"rank":`)
+		fflib.FormatBits2(buf, uint64(j.Rank), 10, j.Rank < 0)
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -83812,6 +83832,14 @@ const (
 	ffjtScxaClusterExpressionPValue
 
 	ffjtScxaClusterExpressionIsMarker
+
+	ffjtScxaClusterExpressionCellTypeName
+
+	ffjtScxaClusterExpressionLogFoldChange
+
+	ffjtScxaClusterExpressionPValueAdj
+
+	ffjtScxaClusterExpressionRank
 )
 
 var ffjKeyScxaClusterExpressionClusterId = []byte("cluster_id")
@@ -83823,6 +83851,14 @@ var ffjKeyScxaClusterExpressionMedianExpression = []byte("median_expression")
 var ffjKeyScxaClusterExpressionPValue = []byte("p_value")
 
 var ffjKeyScxaClusterExpressionIsMarker = []byte("is_marker")
+
+var ffjKeyScxaClusterExpressionCellTypeName = []byte("cell_type_name")
+
+var ffjKeyScxaClusterExpressionLogFoldChange = []byte("log_fold_change")
+
+var ffjKeyScxaClusterExpressionPValueAdj = []byte("p_value_adj")
+
+var ffjKeyScxaClusterExpressionRank = []byte("rank")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *ScxaClusterExpression) UnmarshalJSON(input []byte) error {
@@ -83891,12 +83927,25 @@ mainparse:
 						currentKey = ffjtScxaClusterExpressionClusterId
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyScxaClusterExpressionCellTypeName, kn) {
+						currentKey = ffjtScxaClusterExpressionCellTypeName
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 'i':
 
 					if bytes.Equal(ffjKeyScxaClusterExpressionIsMarker, kn) {
 						currentKey = ffjtScxaClusterExpressionIsMarker
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'l':
+
+					if bytes.Equal(ffjKeyScxaClusterExpressionLogFoldChange, kn) {
+						currentKey = ffjtScxaClusterExpressionLogFoldChange
 						state = fflib.FFParse_want_colon
 						goto mainparse
 					}
@@ -83920,8 +83969,45 @@ mainparse:
 						currentKey = ffjtScxaClusterExpressionPValue
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyScxaClusterExpressionPValueAdj, kn) {
+						currentKey = ffjtScxaClusterExpressionPValueAdj
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
+				case 'r':
+
+					if bytes.Equal(ffjKeyScxaClusterExpressionRank, kn) {
+						currentKey = ffjtScxaClusterExpressionRank
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				}
+
+				if fflib.EqualFoldRight(ffjKeyScxaClusterExpressionRank, kn) {
+					currentKey = ffjtScxaClusterExpressionRank
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyScxaClusterExpressionPValueAdj, kn) {
+					currentKey = ffjtScxaClusterExpressionPValueAdj
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyScxaClusterExpressionLogFoldChange, kn) {
+					currentKey = ffjtScxaClusterExpressionLogFoldChange
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyScxaClusterExpressionCellTypeName, kn) {
+					currentKey = ffjtScxaClusterExpressionCellTypeName
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.EqualFoldRight(ffjKeyScxaClusterExpressionIsMarker, kn) {
@@ -83985,6 +84071,18 @@ mainparse:
 
 				case ffjtScxaClusterExpressionIsMarker:
 					goto handle_IsMarker
+
+				case ffjtScxaClusterExpressionCellTypeName:
+					goto handle_CellTypeName
+
+				case ffjtScxaClusterExpressionLogFoldChange:
+					goto handle_LogFoldChange
+
+				case ffjtScxaClusterExpressionPValueAdj:
+					goto handle_PValueAdj
+
+				case ffjtScxaClusterExpressionRank:
+					goto handle_Rank
 
 				case ffjtScxaClusterExpressionnosuchkey:
 					err = fs.SkipField(tok)
@@ -84144,6 +84242,122 @@ handle_IsMarker:
 				err = errors.New("unexpected bytes for true/false value")
 				return fs.WrapErr(err)
 			}
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_CellTypeName:
+
+	/* handler: j.CellTypeName type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.CellTypeName = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_LogFoldChange:
+
+	/* handler: j.LogFoldChange type=float64 kind=float64 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_double && tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for float64", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseFloat(fs.Output.Bytes(), 64)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.LogFoldChange = float64(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_PValueAdj:
+
+	/* handler: j.PValueAdj type=float64 kind=float64 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_double && tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for float64", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseFloat(fs.Output.Bytes(), 64)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.PValueAdj = float64(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Rank:
+
+	/* handler: j.Rank type=int32 kind=int32 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for int32", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseInt(fs.Output.Bytes(), 10, 32)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.Rank = int32(tval)
 
 		}
 	}

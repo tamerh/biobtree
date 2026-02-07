@@ -163,4 +163,7 @@ Note: Auto-scoring catches keywords but not semantic errors. Reviews capture nua
 - Gemini 3 Pro with web search
 - Claude 4.6 with web search
 
+**MCP baselines** (manual):
+- Claude 4.6 with OpenTargets MCP (Desktop)
+
 Set `OPENROUTER_API_KEY` in environment or `config.py`.

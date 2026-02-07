@@ -1,9 +1,11 @@
 {
   "metadata": {
-    "version": "8.0",
+    "version": "8.2",
     "description": "Expanded integration tests including newly added datasets and filter tests (2025-2026)",
     "server": "http://localhost:9291",
-    "last_updated": "2026-02-04",
+    "last_updated": "2026-02-07",
+    "changes_8.2": "Added SCXA single-cell expression tests (CL→scxa_gene_experiment, Gene→scxa_gene_experiment) and CellxGene celltype tests (CL/UBERON/MONDO→cellxgene_celltype). Total: 469 tests.",
+    "changes_8.1": "Added advanced_multihop_pipelines category with 11 novel multi-hop queries (4-8 hops): BioGRID interaction to pathways, metabolite to rare disease genes, cell type to BioGRID/drugs/clinical trials, tissue to lipid pathways, phenotype to interaction network/clinical trials, pathway to diseases via ClinVar, Orphanet to ChEMBL/PubChem. Total: 459 tests.",
     "changes_7.0": "Added tests for all 2026-02-04 fixes: BUG-018 (PharmGKB variant\u2192clinical), BUG-020 (ClinVar\u2192dbSNP), BUG-021 (RNACentral text search). Added rare_diseases category (Orphanet, MIM). Added metabolomics category (HMDB). Updated BUG-011/012/016 from known_issues to fixed. Added HPO alternative paths (orphanet, mim, hmdb).",
     "changes_6.0": "Fixed BUG-014/015: MSigDB\u2194GO and MSigDB\u2194HPO bidirectional mappings. Fixed HGNC ID resolution (HGNC:#### vs gene symbol). Added MSigDB gene_sets test category.",
     "changes_5.9": "Fixed BUG-013: UniProt\u2194BindingDB mapping now works. Parser extracts UniProt IDs from numbered chain columns (Chain 1-50).",
@@ -51,7 +53,8 @@
     "ultra_long_chains": "Ultra-long chains (10+ hops: phenotype to patents, tissue to literature)",
     "interpro_domain": "InterPro domain analysis (domain to genes, drugs, pathways, structures)",
     "gene_set_advanced": "Gene set advanced workflows (MSigDB multi-hop, disease to gene sets, GO to drugs)",
-    "evidence_triangulation": "Evidence triangulation and multi-database integration patterns"
+    "evidence_triangulation": "Evidence triangulation and multi-database integration patterns",
+    "advanced_multihop_pipelines": "Advanced multi-hop pipelines (4-8 hops): BioGRID network to pathways, metabolite to rare disease, cell type to drugs/interactions, phenotype to clinical trials, Orphanet to drug candidates"
   },
   "tests": [
     {
@@ -4918,6 +4921,215 @@
       "why": "Find proteins interacting with a small molecule (3 hops)",
       "should_pass": [
         "CHEBI:16113"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "advanced_multihop_pipelines",
+      "name": "BioGRID Interaction Partners to Pathways (6 hops)",
+      "query": ">>ensembl>>uniprot>>biogrid>>entrez>>ensembl>>reactome",
+      "why": "Find pathways shared by protein interaction partners - novel network biology query",
+      "should_pass": [
+        "BRCA1",
+        "TP53",
+        "EGFR"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "advanced_multihop_pipelines",
+      "name": "Metabolite to Rare Disease Genes (4 hops)",
+      "query": ">>hmdb>>hpo>>orphanet>>ensembl",
+      "why": "From metabolite abnormality to Orphanet genes via HPO phenotypes",
+      "should_pass": [
+        "HMDB0000122",
+        "HMDB0000067"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "advanced_multihop_pipelines",
+      "name": "Cell Type to BioGRID Interactions (5 hops)",
+      "query": ">>cl>>bgee>>ensembl>>uniprot>>biogrid",
+      "why": "Protein interaction network for cell-type markers",
+      "should_pass": [
+        "CL:0000540",
+        "CL:0000576"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "advanced_multihop_pipelines",
+      "name": "Tissue to Lipid Metabolism Pathways (4 hops)",
+      "query": ">>uberon>>swisslipids>>uniprot>>reactome",
+      "why": "Link tissue expression to lipid biology via SwissLipids",
+      "should_pass": [
+        "UBERON:0000955"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "advanced_multihop_pipelines",
+      "name": "Cell Type to Approved Drugs (5 hops)",
+      "query": ">>cl>>bgee>>ensembl>>uniprot>>drugcentral",
+      "why": "Find approved drugs targeting cell-type-specific proteins",
+      "should_pass": [
+        "CL:0000576",
+        "CL:0000540"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "advanced_multihop_pipelines",
+      "name": "Phenotype to Protein Interaction Network (5 hops)",
+      "query": ">>hpo>>orphanet>>ensembl>>uniprot>>biogrid",
+      "why": "Interaction partners of phenotype-associated disease genes",
+      "should_pass": [
+        "HP:0001250"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "advanced_multihop_pipelines",
+      "name": "Pathway to Diseases via ClinVar (4 hops)",
+      "query": ">>reactome>>ensembl>>clinvar>>mondo",
+      "why": "Diseases linked to pathway genes through clinical variants",
+      "should_pass": [
+        "R-HSA-5693567"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "advanced_multihop_pipelines",
+      "name": "Phenotype to Clinical Trials (4 hops)",
+      "query": ">>hpo>>mim>>mondo>>clinical_trials",
+      "why": "Active trials for phenotype-associated conditions",
+      "should_pass": [
+        "HP:0001250"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "advanced_multihop_pipelines",
+      "name": "Orphanet Disease to ChEMBL Drug Candidates (8 hops)",
+      "query": ">>orphanet>>ensembl>>uniprot>>chembl_target_component>>chembl_target>>chembl_assay>>chembl_activity>>chembl_molecule",
+      "why": "Complete rare disease to drug discovery pipeline",
+      "should_pass": [
+        "586"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "advanced_multihop_pipelines",
+      "name": "Orphanet to PubChem via Phenotypes (5 hops)",
+      "query": ">>orphanet>>hpo>>mim>>ctd>>pubchem",
+      "why": "Compounds for rare disease via HPO/OMIM/CTD path",
+      "should_pass": [
+        "586"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "advanced_multihop_pipelines",
+      "name": "Cell Type to Clinical Trials via CellXGene (4 hops)",
+      "query": ">>cl>>cellxgene>>mondo>>clinical_trials",
+      "why": "Find clinical trials for diseases studied in single-cell data",
+      "should_pass": [
+        "CL:0000540"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "expression_celltype",
+      "name": "Cell Type to SCXA Gene Experiments (CL Bidirectional)",
+      "query": ">>cl>>scxa_gene_experiment",
+      "why": "NEW: Cell Ontology to gene experiment entries with cell-type-labeled expression (Enhancement 1). Naive B cells have ~75 marker gene entries.",
+      "should_pass": [
+        "CL:0000788",
+        "CL:0000787"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "expression_celltype",
+      "name": "Classical Monocyte to SCXA Gene Experiments",
+      "query": ">>cl>>scxa_gene_experiment",
+      "why": "Classical monocytes (CD14++) have marker gene expression in E-CURD experiments",
+      "should_pass": [
+        "CL:0000860"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "expression_celltype",
+      "name": "Gene to SCXA Gene Experiment Details",
+      "query": ">>ensembl>>scxa_expression>>scxa_gene_experiment",
+      "why": "Navigate from gene summary to detailed gene-experiment entries with cluster-level expression and cell type labels",
+      "should_pass": [
+        "ENSG00000177455",
+        "ENSG00000167286"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "expression_celltype",
+      "name": "CD19 Single-Cell Expression",
+      "query": ">>hgnc>>ensembl>>scxa_expression>>scxa_gene_experiment",
+      "why": "CD19 (B cell marker) shows cell-type-labeled expression in E-CURD experiments: naive B cell 70.48 TPM, memory B cell 117.78 TPM",
+      "should_pass": [
+        "CD19"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "expression_celltype",
+      "name": "CD3E T-cell Single-Cell Expression",
+      "query": ">>hgnc>>ensembl>>scxa_expression>>scxa_gene_experiment",
+      "why": "CD3E (T cell marker) shows expression across T cell subtypes with cell type labels",
+      "should_pass": [
+        "CD3E"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "expression_celltype",
+      "name": "Cell Type to CellxGene Cell Type Data",
+      "query": ">>cl>>cellxgene_celltype",
+      "why": "CL to cellxgene_celltype for tissue distribution and disease associations",
+      "should_pass": [
+        "CL:0000540",
+        "CL:0000236"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "expression_celltype",
+      "name": "Tissue to CellxGene Cell Types",
+      "query": ">>uberon>>cellxgene_celltype",
+      "why": "Find cell types present in specific tissues via CellxGene",
+      "should_pass": [
+        "UBERON:0000955",
+        "UBERON:0002107"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "expression_celltype",
+      "name": "Disease to CellxGene Cell Types",
+      "query": ">>mondo>>cellxgene_celltype",
+      "why": "Find cell types associated with diseases in CellxGene",
+      "should_pass": [
+        "MONDO:0005015"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "expression_celltype",
+      "name": "CellxGene Dataset to Cell Type Details",
+      "query": ">>cellxgene>>cl>>cellxgene_celltype",
+      "why": "Navigate from dataset to detailed cell type info via CL",
+      "should_pass": [
+        "42B6A476-C51D-4F8B-B68B-44941B3A11BF"
       ],
       "should_fail": []
     }

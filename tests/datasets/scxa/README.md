@@ -27,7 +27,8 @@ EMBL-EBI Single Cell Expression Atlas datasets provide comprehensive single-cell
 ### scxa_gene_experiment (Gene-Experiment Details, Derived)
 - **Primary Entries**: Composite keys `{gene_id}_{experiment_id}` (e.g., `ENSG00000019582_E-MTAB-6386`)
 - **Attributes**: clusters array (mean, median, p_value, is_marker per cluster)
-- **Cross-References**: scxa_expression (gene summary), scxa (experiment)
+- **Cell Type Labels**: For E-CURD experiments, clusters include `cell_type_name` (e.g., "naive B cell")
+- **Cross-References**: scxa_expression (gene summary), scxa (experiment), CL (cell ontology)
 - **Note**: Derived dataset - created by scxa_expression parser, not built independently
 
 ### Storage Model
@@ -98,6 +99,20 @@ Query: Filter experiments by technology type → Compare annotations
 Use: Technical validation, protocol optimization
 ```
 
+**7. Cell-Type-Specific Expression (E-CURD experiments)**
+```
+Query: Gene ID → scxa_gene_experiment → filter by cell_type_name
+Example: CD19 expression in naive B cell = 70.47 TPM, memory B cell = 117.78 TPM
+Use: Comparing gene expression across specific cell type subtypes
+```
+
+**8. Cell Ontology → Gene Expression**
+```
+Query: CL:0000788 (naive B cell) → scxa_gene_experiment → marker genes
+Use: Finding marker genes for specific cell types via ontology queries
+Note: Limited to cell types with CL mappings in EBI source data
+```
+
 ## Test Cases
 
 **Current Tests**:
@@ -134,6 +149,17 @@ Use: Technical validation, protocol optimization
 **scxa_gene_experiment**:
 - Cannot be built independently (derived)
 - Requires scxa_expression to create/update
+
+**Cell Ontology (CL) Mapping Limitations**:
+- CL IDs are sourced from EBI's `inferred_cell_type_-_ontology_labels_ontology` column in experiment metadata
+- **Not all cell types have CL mappings in EBI source data** - this is an upstream limitation
+- Common unmapped cell types include:
+  - Tissue-resident cell types (e.g., "tissue-resident effector memory CD8-positive T cell")
+  - Specialized subtypes (e.g., "gut tissue-resident, CD8-positive, memory T cell")
+  - Doublet populations (e.g., "T cell/B cell doublet")
+- Cell type **names** (`cell_type_name`) are always available for LLM interpretation
+- CL xrefs enable `>>cl>>scxa_gene_experiment` queries for mapped cell types
+- Unmapped cell types can still be queried by text matching on `cell_type_name`
 
 ## Maintenance
 

@@ -23,8 +23,10 @@ import (
 //   - scxa_expression: Gene summary (no detailed expression)
 //   - scxa_gene_experiment: Gene-experiment detail (cluster-level data)
 type scxaExpression struct {
-	source string
-	d      *DataUpdate
+	source      string
+	d           *DataUpdate
+	clLookupCache map[string]string // Cache for cell type name → CL ID lookups
+	cellTypeCLMappings map[string]map[string]string // expID → cellTypeName → CL ID (for xref creation)
 }
 
 const scxaExpressionFtpBase = "https://ftp.ebi.ac.uk/pub/databases/microarray/data/atlas/sc_experiments/"
@@ -63,6 +65,10 @@ func (s *scxaExpression) update() {
 
 	log.Println("SCXA_EXPRESSION: Starting gene-centric expression data processing...")
 	startTime := time.Now()
+
+	// Initialize CL lookup cache and per-experiment CL mappings
+	s.clLookupCache = make(map[string]string)
+	s.cellTypeCLMappings = make(map[string]map[string]string)
 
 	// Test mode support
 	testLimit := config.GetTestLimit(s.source)
@@ -153,11 +159,15 @@ func (s *scxaExpression) processAllExperiments(experiments []string, geneData ma
 			s.d.progChan <- &progressInfo{dataset: s.source, currentKBPerSec: int64(len(geneData) / int(elapsed+1))}
 		}
 
-		// Process this experiment's marker_stats file
+		// Process this experiment's marker_stats file (numbered clusters)
 		processed := s.processExperimentMarkerStats(expID, geneData)
 		if processed {
 			expCount++
 		}
+
+		// Also try to process inferred_cell_type file (cell-type-labeled clusters)
+		// This adds cell_type_name to entries for experiments that have this data
+		s.processExperimentCellTypeMarkers(expID, geneData)
 
 		// Log progress every 50 experiments
 		if (i+1)%50 == 0 {
@@ -274,6 +284,418 @@ func (s *scxaExpression) processExperimentMarkerStats(expID string, geneData map
 	}
 
 	return lineCount > 0
+}
+
+// processExperimentCellTypeMarkers parses inferred_cell_type file if available
+// This file contains marker genes per named cell type (e.g., "naive B cell")
+// Format: cluster, ref, rank, genes, scores, logfoldchanges, pvals, pvals_adj
+// Only available for some experiments (e.g., E-CURD-* cross-tissue atlases)
+func (s *scxaExpression) processExperimentCellTypeMarkers(expID string, geneData map[string]*ScxaGeneData) bool {
+	// Try to fetch the inferred_cell_type file
+	url := scxaExpressionFtpBase + expID + "/" + expID + ".marker_genes_inferred_cell_type_-_ontology_labels.tsv"
+
+	resp, err := http.Get(url)
+	if err != nil {
+		return false
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return false // File doesn't exist for this experiment
+	}
+
+	log.Printf("SCXA_EXPRESSION: Found cell-type-labeled markers for %s", expID)
+
+	// Fetch cell type → CL ID mapping from experiment metadata
+	cellTypeCLMapping := s.fetchCellTypeCLMapping(expID)
+	if len(cellTypeCLMapping) > 0 {
+		log.Printf("SCXA_EXPRESSION: Loaded %d cell type → CL mappings for %s", len(cellTypeCLMapping), expID)
+	}
+
+	// Stream parse the TSV file
+	scanner := bufio.NewScanner(resp.Body)
+	buf := make([]byte, 0, 64*1024)
+	scanner.Buffer(buf, 1024*1024)
+
+	isHeader := true
+	lineCount := 0
+	addedCount := 0
+	clMappedCount := 0
+
+	for scanner.Scan() {
+		if isHeader {
+			isHeader = false
+			continue
+		}
+
+		line := scanner.Text()
+		lineCount++
+
+		// Parse TSV format: cluster \t ref \t rank \t genes \t scores \t logfoldchanges \t pvals \t pvals_adj
+		parts := strings.Split(line, "\t")
+		if len(parts) < 8 {
+			continue
+		}
+
+		cellTypeName := strings.TrimSpace(parts[0])
+		rankStr := strings.TrimSpace(parts[2])
+		geneID := strings.TrimSpace(parts[3])
+		scoreStr := strings.TrimSpace(parts[4])
+		logFCStr := strings.TrimSpace(parts[5])
+		pvalStr := strings.TrimSpace(parts[6])
+		pvalAdjStr := strings.TrimSpace(parts[7])
+
+		if geneID == "" || cellTypeName == "" {
+			continue
+		}
+
+		// Parse numeric values
+		rank, _ := strconv.Atoi(rankStr)
+		score, _ := strconv.ParseFloat(scoreStr, 64)
+		logFC, _ := strconv.ParseFloat(logFCStr, 64)
+		pval, _ := strconv.ParseFloat(pvalStr, 64)
+		pvalAdj, _ := strconv.ParseFloat(pvalAdjStr, 64)
+
+		// Get or create gene data
+		gene, exists := geneData[geneID]
+		if !exists {
+			gene = &ScxaGeneData{
+				GeneID:         geneID,
+				ExperimentData: make(map[string]*ScxaGeneExpData),
+			}
+			geneData[geneID] = gene
+		}
+
+		// Get or create experiment data for this gene
+		expData, exists := gene.ExperimentData[expID]
+		if !exists {
+			expData = &ScxaGeneExpData{
+				ExperimentID: expID,
+				Clusters:     make([]*pbuf.ScxaClusterExpression, 0),
+			}
+			gene.ExperimentData[expID] = expData
+		}
+
+		// Look up CL ID from experiment metadata mapping, with fallback to biobtree lookup
+		// Store result back to mapping for xref creation later
+		cellTypeCL := s.lookupCellTypeCL(cellTypeName, cellTypeCLMapping)
+		if cellTypeCL != "" {
+			clMappedCount++
+			// Store in mapping so xrefs can use it (includes fallback lookup results)
+			cellTypeCLMapping[cellTypeName] = cellTypeCL
+		}
+
+		// Add cell-type-labeled cluster expression entry
+		// Note: CL ID not stored in attribute - will be added as xref during save
+		clusterEntry := &pbuf.ScxaClusterExpression{
+			ClusterId:      cellTypeName, // Use cell type name as cluster ID
+			MeanExpression: score,        // Use score as expression value
+			PValue:         pval,
+			IsMarker:       true, // These are all marker genes
+			CellTypeName:   cellTypeName,
+			LogFoldChange:  logFC,
+			PValueAdj:      pvalAdj,
+			Rank:           int32(rank),
+		}
+		expData.Clusters = append(expData.Clusters, clusterEntry)
+		addedCount++
+
+		// Update experiment-level stats
+		expData.IsMarker = true
+		expData.MarkerCount++
+		gene.MarkerCount++
+
+		if score > expData.MaxMean {
+			expData.MaxMean = score
+		}
+		if score > gene.MaxMean {
+			gene.MaxMean = score
+		}
+		gene.SumMean += score
+		gene.TotalClusters++
+	}
+
+	if addedCount > 0 {
+		log.Printf("SCXA_EXPRESSION: Added %d cell-type-labeled entries for %s (%d with CL IDs)", addedCount, expID, clMappedCount)
+	}
+
+	// Store the mapping (including any fallback lookup results) for xref creation later
+	if len(cellTypeCLMapping) > 0 {
+		s.cellTypeCLMappings[expID] = cellTypeCLMapping
+	}
+
+	return lineCount > 0
+}
+
+// fetchCellTypeCLMapping fetches cell type → CL ID mapping from experiment metadata
+// Parses cell_metadata.tsv or condensed-sdrf.tsv to extract the mapping
+func (s *scxaExpression) fetchCellTypeCLMapping(expID string) map[string]string {
+	mapping := make(map[string]string)
+
+	// Try cell_metadata.tsv first
+	url := scxaExpressionFtpBase + expID + "/" + expID + ".cell_metadata.tsv"
+	resp, err := http.Get(url)
+	if err == nil && resp.StatusCode == http.StatusOK {
+		defer resp.Body.Close()
+		mapping = s.parseCellTypeMappingFromMetadata(resp.Body)
+		if len(mapping) > 0 {
+			return mapping
+		}
+	} else if resp != nil {
+		resp.Body.Close()
+	}
+
+	// Fallback to condensed-sdrf.tsv
+	url = scxaExpressionFtpBase + expID + "/" + expID + ".condensed-sdrf.tsv"
+	resp, err = http.Get(url)
+	if err == nil && resp.StatusCode == http.StatusOK {
+		defer resp.Body.Close()
+		mapping = s.parseCellTypeMappingFromSDRF(resp.Body)
+	} else if resp != nil {
+		resp.Body.Close()
+	}
+
+	return mapping
+}
+
+// parseCellTypeMappingFromMetadata parses cell_metadata.tsv for cell type → CL mapping
+// Prioritizes inferred_cell_type columns (which have specific cell type labels)
+// over basic cell_type columns (which often have generic parent types)
+func (s *scxaExpression) parseCellTypeMappingFromMetadata(reader io.Reader) map[string]string {
+	mapping := make(map[string]string)
+
+	scanner := bufio.NewScanner(reader)
+	buf := make([]byte, 0, 64*1024)
+	scanner.Buffer(buf, 2*1024*1024)
+
+	var headerFields []string
+	isHeader := true
+	lineCount := 0
+	maxLines := 10000 // Sample enough lines to get all cell types
+
+	// Track column pairs - prioritize inferred_cell_type columns
+	type colPair struct {
+		cellTypeCol  int
+		ontologyCol  int
+		isInferred   bool // true for inferred_cell_type columns (higher priority)
+	}
+	var columnPairs []colPair
+
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		if isHeader {
+			isHeader = false
+			headerFields = strings.Split(line, "\t")
+
+			// Build list of cell type columns with their ontology columns
+			for i, field := range headerFields {
+				fieldLower := strings.ToLower(field)
+
+				// Skip if this is already an ontology column
+				if strings.HasSuffix(fieldLower, "_ontology") {
+					continue
+				}
+
+				// Check if it's a cell type column
+				isInferred := strings.Contains(fieldLower, "inferred_cell_type")
+				isBasicCellType := fieldLower == "cell_type"
+
+				if isInferred || isBasicCellType {
+					// Look for corresponding ontology column
+					expectedOntologyName := field + "_ontology"
+					for j, otherField := range headerFields {
+						if strings.EqualFold(otherField, expectedOntologyName) {
+							columnPairs = append(columnPairs, colPair{
+								cellTypeCol: i,
+								ontologyCol: j,
+								isInferred:  isInferred,
+							})
+							break
+						}
+					}
+				}
+			}
+
+			// Sort pairs so inferred columns come first (higher priority)
+			sort.Slice(columnPairs, func(i, j int) bool {
+				if columnPairs[i].isInferred != columnPairs[j].isInferred {
+					return columnPairs[i].isInferred // inferred first
+				}
+				return columnPairs[i].cellTypeCol < columnPairs[j].cellTypeCol
+			})
+			continue
+		}
+
+		lineCount++
+		if lineCount > maxLines {
+			break
+		}
+
+		parts := strings.Split(line, "\t")
+
+		// Extract cell type and ontology from each pair of columns
+		// Inferred columns are processed first, so they take priority
+		for _, pair := range columnPairs {
+			if pair.cellTypeCol >= len(parts) || pair.ontologyCol >= len(parts) {
+				continue
+			}
+			cellType := strings.TrimSpace(parts[pair.cellTypeCol])
+			ontology := strings.TrimSpace(parts[pair.ontologyCol])
+			if cellType != "" && ontology != "" {
+				clID := extractCLIDFromValue(ontology)
+				if clID != "" && mapping[cellType] == "" {
+					mapping[cellType] = clID
+				}
+			}
+		}
+	}
+
+	return mapping
+}
+
+// parseCellTypeMappingFromSDRF parses condensed-sdrf.tsv for cell type → CL mapping
+func (s *scxaExpression) parseCellTypeMappingFromSDRF(reader io.Reader) map[string]string {
+	mapping := make(map[string]string)
+
+	scanner := bufio.NewScanner(reader)
+	buf := make([]byte, 0, 64*1024)
+	scanner.Buffer(buf, 2*1024*1024)
+
+	lineCount := 0
+	maxLines := 10000
+
+	for scanner.Scan() {
+		lineCount++
+		if lineCount > maxLines {
+			break
+		}
+
+		line := scanner.Text()
+		parts := strings.Split(line, "\t")
+		if len(parts) < 7 {
+			continue
+		}
+
+		factorType := strings.TrimSpace(parts[3])
+		factorName := strings.TrimSpace(parts[4])
+		value := strings.TrimSpace(parts[5])
+		ontologyURI := strings.TrimSpace(parts[6])
+
+		if factorType != "characteristic" || value == "" {
+			continue
+		}
+
+		factorLower := strings.ToLower(factorName)
+		if strings.Contains(factorLower, "cell type") || strings.Contains(factorLower, "inferred cell type") {
+			if ontologyURI != "" && mapping[value] == "" {
+				clID := extractCLIDFromURI(ontologyURI)
+				if clID != "" {
+					mapping[value] = clID
+				}
+			}
+		}
+	}
+
+	return mapping
+}
+
+// extractCLIDFromValue extracts CL ID from a value (URI or direct ID)
+func extractCLIDFromValue(value string) string {
+	if value == "" {
+		return ""
+	}
+	// If it's a URI, extract the ID
+	if strings.Contains(value, "/") {
+		return extractCLIDFromURI(value)
+	}
+	// If it already looks like a CL ID, return it
+	if strings.HasPrefix(value, "CL:") {
+		return value
+	}
+	return ""
+}
+
+// extractCLIDFromURI extracts CL ID from ontology URI
+func extractCLIDFromURI(uri string) string {
+	if uri == "" {
+		return ""
+	}
+	// http://purl.obolibrary.org/obo/CL_0000787 -> CL:0000787
+	parts := strings.Split(uri, "/")
+	if len(parts) == 0 {
+		return ""
+	}
+	lastPart := parts[len(parts)-1]
+
+	// Convert underscore to colon for CL IDs
+	if strings.HasPrefix(lastPart, "CL_") {
+		return strings.Replace(lastPart, "_", ":", 1)
+	}
+
+	return ""
+}
+
+// lookupCellTypeCLFromBiobtree looks up CL ID for a cell type name using biobtree's lookup database
+// The CL dataset indexes cell type names for text search, so we can query by name
+func (s *scxaExpression) lookupCellTypeCLFromBiobtree(cellTypeName string) string {
+	// Check if CL dataset is configured
+	clConfig, exists := config.Dataconf["cl"]
+	if !exists {
+		return ""
+	}
+	clDatasetID, err := strconv.ParseUint(clConfig["id"], 10, 32)
+	if err != nil {
+		return ""
+	}
+
+	// Lookup the cell type name in biobtree
+	result, err := s.d.lookup(cellTypeName)
+	if err != nil || result == nil {
+		return ""
+	}
+
+	// Find CL entry in results
+	for _, xref := range result.Results {
+		if xref.Dataset == uint32(clDatasetID) {
+			// Found a CL entry - get the identifier from entries
+			for _, entry := range xref.Entries {
+				if entry.Dataset == uint32(clDatasetID) && strings.HasPrefix(entry.Identifier, "CL:") {
+					return entry.Identifier
+				}
+			}
+			// If no entries, try to get ID from the xref itself
+			// The identifier might be stored differently depending on the lookup
+		}
+	}
+
+	return ""
+}
+
+// lookupCellTypeCL looks up CL ID for a cell type name
+// First checks the experiment-specific mapping, then queries biobtree's CL dataset (with caching)
+func (s *scxaExpression) lookupCellTypeCL(cellTypeName string, expMapping map[string]string) string {
+	// Try experiment-specific mapping first
+	if clID, ok := expMapping[cellTypeName]; ok && clID != "" {
+		return clID
+	}
+
+	// Check cache
+	if s.clLookupCache != nil {
+		if clID, ok := s.clLookupCache[cellTypeName]; ok {
+			return clID // Return cached result (may be empty string for "not found")
+		}
+	}
+
+	// Try biobtree lookup
+	clID := s.lookupCellTypeCLFromBiobtree(cellTypeName)
+
+	// Cache the result (including empty string for "not found")
+	if s.clLookupCache != nil {
+		s.clLookupCache[cellTypeName] = clID
+	}
+
+	return clID
 }
 
 // saveEntries saves gene summary entries and gene-experiment detail entries
@@ -405,6 +827,24 @@ func (s *scxaExpression) saveGeneExperimentDetails(gene *ScxaGeneData, geneExpSo
 		s.d.addXref(compositeKey, geneExpSourceID, expID, "scxa", false)
 		// Gene -> Detail (for navigation)
 		s.d.addXref(gene.GeneID, geneSourceID, compositeKey, "scxa_gene_experiment", false)
+
+		// Add Cell Ontology xrefs for clusters with cell type names
+		// Use cached CL mapping from experiment metadata
+		// Note: addXref automatically creates bidirectional mappings (forward + reverse)
+		if clMapping, hasMapping := s.cellTypeCLMappings[expID]; hasMapping {
+			clSeen := make(map[string]bool)
+			for _, cluster := range expData.Clusters {
+				if cluster.CellTypeName != "" {
+					if clID, ok := clMapping[cluster.CellTypeName]; ok && clID != "" && !clSeen[clID] {
+						clSeen[clID] = true
+						if _, exists := config.Dataconf["cl"]; exists {
+							// Detail <-> CL (bidirectional via addXref)
+							s.d.addXref(compositeKey, geneExpSourceID, clID, "cl", false)
+						}
+					}
+				}
+			}
+		}
 
 		count++
 	}

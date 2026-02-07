@@ -919,7 +919,8 @@ def cmd_add_web(questions_file: Path, results_dir: Path) -> int:
     web_models = [
         ("web_chatgpt52", "ChatGPT 5.2"),
         ("web_gemini3_pro", "Gemini 3 Pro"),
-        ("web_claude46", "Claude 4.6")
+        ("web_claude46", "Claude 4.6"),
+        ("claude_46_opentargets_mcp_desktop", "Claude 4.6 + OpenTargets MCP")
     ]
     print("\nWeb models:")
     for i, (key, name) in enumerate(web_models, 1):
@@ -1000,7 +1001,7 @@ def cmd_add_web(questions_file: Path, results_dir: Path) -> int:
 
     # Build result entry
     result_entry = {
-        "model": model_name + " (web)" if "(web)" not in model_name else model_name,
+        "model": model_name if "MCP" in model_name else (model_name + " (web)" if "(web)" not in model_name else model_name),
         "timestamp": datetime.now().strftime("%Y-%m-%d"),
         "response": response,
         "auto_score": final_score,

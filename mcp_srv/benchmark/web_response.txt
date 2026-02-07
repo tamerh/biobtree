@@ -1,40 +1,49 @@
-Let me search for the latest data on LRRK2 cell-type expression, and also pull up target information from ChEMBL.Now let me pull up the ChEMBL target data for LRRK2:Here's what the literature reveals — and the answer has major implications for LRRK2-targeted therapeutics:
+Let me look up CD19 in Open Targets to get expression data.Now let me query CD19's expression data across tissues and cell types:Here's a comprehensive summary of CD19 expression from Open Targets Platform data:
 
-## The Key Surprise: Immune Cells Express LRRK2 More Than Brain Cells
+## CD19 Expression Overview
 
-Counterintuitively for a "Parkinson's disease gene," LRRK2 has much higher expression in peripheral immune cells compared to central nervous system cells. This has reshaped how the field thinks about PD pathogenesis and therapeutic targeting.
+**CD19 (CD19 molecule)** is a hallmark B-cell lineage marker. The expression data from Open Targets confirms this strongly, with expression concentrated in B-cell-rich tissues and B-cell subtypes.
 
-### Highest-expressing cell types (ranked by expression level):
+### Highest RNA Expression (by TPM)
 
-**Peripheral immune cells (highest expression):**
-- **Monocytes** — especially the **CD14⁺CD16⁺** (non-classical/intermediate) subpopulation. Within CD14⁺ cells, the CD14⁺CD16⁺ sub-population exhibited high levels of LRRK2 protein, in contrast to CD14⁺CD16⁻ cells. LRRK2 expression is further strongly upregulated by IFN-γ stimulation in monocytes.
-- **Neutrophils** — LRRK2 has a particularly high expression in monocytes and neutrophils, and Rab10 phosphorylation (a readout of LRRK2 kinase activity) is routinely measured in neutrophils as a pharmacodynamic biomarker.
-- **B lymphocytes (CD19⁺)** — LRRK2 mRNA and protein was found in circulating CD19⁺ B cells and in CD14⁺ monocytes, whereas CD4⁺ and CD8⁺ T cells were devoid of LRRK2 mRNA.
-- **Dendritic cells and macrophages** — LRRK2 is highly expressed in the brain, lungs, kidneys, and immune cells, including dendritic cells, macrophages, B cells, neutrophils, and monocytes.
-- **T cells** — at baseline, T cells express very low LRRK2, but LRRK2 expression was increased in B cells, T cells, and CD16⁺ monocytes of Parkinson's disease patients, suggesting disease-state upregulation.
+The tissues/cell types with the strongest CD19 expression are overwhelmingly B-cell associated:
 
-**CNS cell types (lower expression):**
-- **Neurons** — express LRRK2 protein, particularly in the cytoplasm of pyramidal neurons and dopaminergic neurons. Immunocytochemistry recognizes neurons, and more weakly astrocytes and microglia, in normal brain tissue.
-- **Microglia** — the brain's resident immune cells express LRRK2 and upregulate it upon TLR4 stimulation. Toll-like receptor 4 stimulation was able to increase LRRK2 expression and phosphorylation in primary rat microglia.
-- **Astrocytes** — lower expression than neurons, but confirmed at both mRNA and protein level.
+| Tissue / Cell Type | TPM | RNA Level | Z-score |
+|---|---|---|---|
+| **Lymph node** | 8,360 | 5 | +5 |
+| **Tonsil** | 8,124 | 5 | +5 |
+| **Spleen** | 6,959 | 4 | +5 |
+| **Naive B cell** (CD38⁻) | 5,712 | 4 | +4 |
+| **EBV-transformed lymphocyte** | 5,513 | 4 | +4 |
+| **Plasma cell** | 5,511 | 4 | +4 |
+| **Memory B cell** | 4,834 | 4 | +4 |
+| **Vermiform appendix** | 4,207 | 4 | +4 |
+| **Class-switched memory B cell** | 3,560 | 4 | +4 |
+| **Peyer's patch** (small intestine) | 870 | 3 | +2 |
+| **Whole blood** | 795 | 3 | +2 |
+| **Bone marrow** | 371 | 3 | +1 |
 
-**Peripheral tissues:**
-- **Lung** (type II pneumocytes) and **kidney** (renal tubular epithelial cells) express high levels of LRRK2. This is therapeutically important because high doses of LRRK2 kinase inhibitors that ablate pathway activity revealed lung and kidney abnormalities that are likely due to on-target effects in preclinical studies.
+### B-Cell Subtypes Ranked by Expression
 
-### Therapeutic Implications
+Among the specific B-cell populations in the dataset:
 
-This expression profile matters enormously for drug development:
+1. **Naive B cells** (CD38⁻) — ~5,712 TPM — highest among defined B-cell subtypes
+2. **Plasma cells** — ~5,511 TPM
+3. **Memory B cells** — ~4,834 TPM
+4. **Class-switched memory B cells** — ~3,560 TPM
 
-1. **Pharmacodynamic biomarkers**: Because monocytes and neutrophils express LRRK2 so highly, inhibition of pT73-Rab10 has been observed in immune cells that express high levels of LRRK2 protein (e.g., monocytes, neutrophils) — these cells serve as accessible PD biomarkers from blood draws.
+So naive B cells show the highest CD19 RNA expression, followed closely by plasma cells and memory B cells. All B-cell subtypes show dramatically elevated expression (z-scores of +4) compared to non-B-cell lineages.
 
-2. **Immune-mediated disease mechanism**: cells from PD patients had higher levels of LRRK2 protein and produced more pro-inflammatory molecules in response to stimulation than the control cells, suggesting LRRK2 mutations may drive PD partly through peripheral immune dysregulation, not solely through direct neuronal toxicity.
+### Protein-Level Expression
 
-3. **Safety concerns for inhibitors**: The high expression in lung and kidney underlies the morphological abnormalities seen in LRRK2 knockout animals and at high inhibitor doses, though a recent Phase-1 clinical study with an inhibitor (DNL201) that suppressed LRRK2 pathway activity by approximately 70% concluded that this compound was safe and well tolerated.
+At the protein level (from Human Protein Atlas), the highest CD19 staining (level 3, "high") is found in:
+- **Lymph node** — germinal center cells and non-germinal center cells
+- **Tonsil** — germinal center and non-germinal center cells
+- **Spleen** — white pulp and red pulp cells
+- **Appendix** — non-germinal center cells (level 3) and germinal center cells (level 2)
 
-4. **Cell-type-specific functions**: LRRK2 may play different roles within different cell types and tissues, which could be explained by cell-type-specific LRRK2 differential splicing, or tissue-specific expression of LRRK2 activators, substrates, and partners.
+### Notably Absent Expression
 
-### ChEMBL Target Reference
+CD19 is essentially absent (TPM ≤ 5, z-score -1) in T cells (CD4⁺, CD8⁺, thymocytes), NK cells, macrophages, erythroblasts, megakaryocyte progenitors, endothelial cells, and most non-immune tissues like brain, heart, and muscle — consistent with its role as a strict B-cell lineage marker.
 
-The human LRRK2 target in ChEMBL is **CHEMBL1075104** (UniProt: Q5S007), classified as a leucine-rich repeat serine/threonine-protein kinase with dual kinase and GTPase activity. It is extensively annotated with GO terms for both neuronal processes (neuron projection morphogenesis, synaptic vesicle transport, dopamine receptor signaling) and immune-related functions (positive regulation of TNF production, positive regulation of microglial cell activation, MAPK cascade), reflecting its dual role across cell types.
-
-In summary: while LRRK2 is present in neurons and its mutations cause neurodegeneration, the *highest* expression is actually in peripheral myeloid cells — monocytes and neutrophils — making immune biology central to both LRRK2 disease mechanism and therapeutic strategy.
+This expression profile explains why CD19 is a primary target for B-cell malignancy therapies (e.g., blinatumomab, CAR-T therapies like tisagenlecleucel), as it is highly and selectively expressed across essentially all B-cell developmental stages from early B cells through to plasma cells.

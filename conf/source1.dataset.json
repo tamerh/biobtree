@@ -941,6 +941,7 @@
     "hasFilter": "yes",
     "attrs": "gene_id,gene_name,species_taxid,total_experiments,marker_experiment_count,max_mean_expression,total_clusters",
     "test_entries_count": "1000",
+    "childDatasets":"scxa_gene_experiment",
     "bucketMethod": "ensembl_hybrid"
   },
   "scxa_gene_experiment": {

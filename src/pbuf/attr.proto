@@ -2116,11 +2116,18 @@ message ScxaGeneExperimentAttr {
 }
 
 // Cluster-level expression data (used in ScxaGeneExperimentAttr)
+// For experiments with inferred_cell_type files (e.g., E-CURD-*), cell_type_name is populated
 message ScxaClusterExpression {
-  string cluster_id = 1;           // Cluster identifier
+  string cluster_id = 1;           // Cluster identifier (number or cell type name)
   double mean_expression = 2;      // Mean expression in this cluster
   double median_expression = 3;    // Median expression
   double p_value = 4;              // Marker p-value
   bool is_marker = 5;              // True if gene is marker for this cluster
+  // Fields below populated from inferred_cell_type files (when available)
+  string cell_type_name = 6;       // Cell type name (e.g., "naive B cell")
+  // Note: CL ID is stored as xref, not as attribute (use >>cl>>scxa_gene_experiment for mapping)
+  double log_fold_change = 8;      // Log fold change vs rest
+  double p_value_adj = 9;          // Adjusted p-value
+  int32 rank = 10;                 // Rank within cell type (0 = top marker)
 }
 

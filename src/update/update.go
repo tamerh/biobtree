@@ -991,6 +991,43 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			d.datasets2 = append(d.datasets2, data)
 			go sig.update()
 			break
+		case "corum":
+			d.wg.Add(1)
+			cor := corum{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go cor.update()
+			break
+		case "brenda":
+			d.wg.Add(1)
+			br := brenda{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go br.update()
+			// Automatically add child datasets
+			if _, exists := config.Dataconf["brenda_kinetics"]; exists {
+				d.datasets2 = append(d.datasets2, "brenda_kinetics")
+				d.wg.Add(1)
+				bk := brendaKinetics{source: "brenda_kinetics", d: d}
+				go bk.update()
+			}
+			if _, exists := config.Dataconf["brenda_inhibitor"]; exists {
+				d.datasets2 = append(d.datasets2, "brenda_inhibitor")
+				d.wg.Add(1)
+				bi := brendaInhibitor{source: "brenda_inhibitor", d: d}
+				go bi.update()
+			}
+			break
+		case "brenda_kinetics":
+			d.wg.Add(1)
+			bk := brendaKinetics{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go bk.update()
+			break
+		case "brenda_inhibitor":
+			d.wg.Add(1)
+			bi := brendaInhibitor{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go bi.update()
+			break
 		default:
 			log.Fatal("ERROR Unrecognized dataset ->" + data)
 		}

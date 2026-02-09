@@ -299,9 +299,11 @@ func (s *signor) addDatabaseXref(database, id, entryID, sourceID string) {
 		}
 		targetDataset = "chebi"
 	case "PUBCHEM":
-		// PubChem IDs may have "CID:" prefix
+		// PubChem IDs may have "CID:" or "SID:" prefix
 		if strings.HasPrefix(id, "CID:") {
 			id = id[4:] // Remove "CID:" prefix
+		} else if strings.HasPrefix(id, "SID:") {
+			id = id[4:] // Remove "SID:" prefix (Substance ID)
 		}
 		targetDataset = "pubchem"
 	case "DRUGBANK":

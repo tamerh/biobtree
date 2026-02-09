@@ -308,6 +308,8 @@ Available datasets:
         'scxa': datasets_dir / "scxa" / "test_scxa.py",
         'collectri': datasets_dir / "collectri" / "test_collectri.py",
         'signor': datasets_dir / "signor" / "test_signor.py",
+        'corum': datasets_dir / "corum" / "test_corum.py",
+        'brenda': datasets_dir / "brenda" / "test_brenda.py",
     }
 
     # Parse dataset selection

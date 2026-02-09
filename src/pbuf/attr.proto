@@ -2170,3 +2170,128 @@ message SignorAttr {
   double score = 17;            // Confidence score (0-1)
 }
 
+// CORUM - Comprehensive Resource of Mammalian Protein Complexes (Dataset ID: 117)
+// Manually curated repository of experimentally characterized protein complexes
+// Source: https://mips.helmholtz-muenchen.de/corum/
+// Primary key: complex_id (integer, e.g., "1", "582", "7969")
+// Organisms: Human (~70%), Mouse (~16%), Rat (~8%), others
+message CorumAttr {
+  string name = 1;                      // Complex name (e.g., "BCL6-HDAC4 complex")
+  repeated string synonyms = 2;         // Alternative names
+  string organism = 3;                  // Organism (Human, Mouse, Rat, Bovine, etc.)
+  string cell_line = 4;                 // Cell line where characterized
+  string comment = 5;                   // Complex description/function
+  string comment_disease = 6;           // Disease associations
+  string comment_drug = 7;              // Drug associations
+
+  // Subunit summary (flattened for easy filtering)
+  repeated string subunit_genes = 8;    // Gene symbols of subunits (e.g., ["BCL6", "HDAC4"])
+  int32 subunit_count = 10;             // Number of subunits
+
+  // Experimental evidence
+  repeated string purification_methods = 13;  // PSI-MI method names (e.g., "anti tag coimmunoprecipitation")
+  int32 pmid = 14;                      // Primary PubMed ID
+
+  // Subset flags for filtering (replaces separate datasets)
+  bool has_drug_targets = 15;           // true if any subunit.gene.drugs is non-empty
+  bool has_splice_variants = 16;        // true if comment_members mentions "splice"
+
+  // Detailed subunits (nested for complex queries)
+  repeated CorumSubunit subunits = 17;
+}
+
+// CorumSubunit represents a protein complex subunit
+message CorumSubunit {
+  string uniprot_id = 1;                // UniProt accession (e.g., "P41182")
+  string gene_name = 2;                 // Gene symbol (e.g., "BCL6")
+  string protein_name = 3;              // Protein name (e.g., "B-cell lymphoma 6 protein")
+  string entrez_id = 4;                 // Entrez Gene ID (e.g., "604")
+  string stoichiometry = 5;             // Stoichiometry if known (often empty)
+  repeated string drugs = 6;            // Associated drugs from gene.drugs
+}
+
+// BRENDA - The Comprehensive Enzyme Information System (Dataset ID: 747)
+// Manually curated enzyme database with kinetic data and functional annotations
+// Source: https://www.brenda-enzymes.org/
+// Primary key: EC number (e.g., "1.1.1.1", "3.4.21.5")
+// License: CC BY 4.0
+message BrendaAttr {
+  string ec_number = 1;                    // EC number (e.g., "1.1.1.1")
+  string recommended_name = 2;             // IUBMB recommended enzyme name
+  string systematic_name = 3;              // IUBMB systematic name
+  repeated string synonyms = 4;            // Alternative names
+  repeated string reactions = 5;           // Catalyzed reaction equations
+  repeated string cofactors = 6;           // Required cofactors
+  repeated string organisms = 7;           // Organisms where enzyme is found (top 50)
+  int32 organism_count = 8;                // Total number of organisms
+  int32 substrate_count = 11;              // Total substrate/product entries
+  int32 inhibitor_count = 12;              // Total inhibitor entries
+  // Note: Substrates available via >>brenda>>brenda_kinetics
+  // Note: Inhibitors available via >>brenda>>brenda_inhibitor
+  int32 km_count = 13;                     // Total Km value entries
+  int32 kcat_count = 14;                   // Total kcat (turnover number) entries
+  int32 reference_count = 15;              // Total literature references
+  repeated string reaction_types = 17;     // Reaction types (e.g., "redox reaction")
+  // Note: PubMed IDs are stored as cross-references, not as attributes
+}
+
+// BRENDA Kinetics - Individual kinetic measurements per EC+substrate
+// Source: https://www.brenda-enzymes.org/
+// Primary key: EC|substrate (e.g., "1.1.1.1|ethanol")
+// License: CC BY 4.0
+message BrendaKineticsAttr {
+  string ec_number = 1;                    // EC number (e.g., "1.1.1.1")
+  string substrate = 2;                    // Substrate/inhibitor name
+  string substrate_type = 3;               // "substrate", "inhibitor", or "cofactor"
+  repeated KineticMeasurement km_values = 4;   // Km measurements
+  repeated KineticMeasurement kcat_values = 5; // kcat measurements
+  repeated KineticMeasurement ki_values = 6;   // Ki measurements (inhibition constants)
+  int32 km_count = 7;                      // Number of Km measurements
+  int32 kcat_count = 8;                    // Number of kcat measurements
+  int32 ki_count = 9;                      // Number of Ki measurements
+  double min_km = 10;                      // Minimum Km value (mM)
+  double max_km = 11;                      // Maximum Km value (mM)
+  double min_kcat = 12;                    // Minimum kcat value (s⁻¹)
+  double max_kcat = 13;                    // Maximum kcat value (s⁻¹)
+}
+
+// Individual kinetic measurement
+message KineticMeasurement {
+  double value = 1;                        // Numeric value
+  string unit = 2;                         // Unit (mM, s⁻¹, etc.)
+  string organism = 3;                     // Source organism
+  string conditions = 4;                   // Experimental conditions (pH, temp, etc.)
+  string pubmed_id = 5;                    // PubMed reference
+  string comment = 6;                      // Additional notes
+}
+
+// BRENDA Inhibitor - Enzyme inhibition data per EC+inhibitor
+// Source: https://www.brenda-enzymes.org/
+// Primary key: EC|inhibitor (e.g., "1.1.1.1|pyrazole")
+// License: CC BY 4.0
+message BrendaInhibitorAttr {
+  string ec_number = 1;                    // EC number (e.g., "1.1.1.1")
+  string inhibitor = 2;                    // Inhibitor compound name
+  repeated InhibitionMeasurement ki_values = 3;    // Ki measurements
+  repeated InhibitionMeasurement ic50_values = 4;  // IC50 measurements
+  repeated InhibitionMeasurement inhibition_data = 5; // General inhibition data (% inhibition)
+  int32 ki_count = 6;                      // Number of Ki measurements
+  int32 ic50_count = 7;                    // Number of IC50 measurements
+  int32 inhibition_count = 8;              // Number of general inhibition entries
+  double min_ki = 9;                       // Minimum Ki value (mM)
+  double max_ki = 10;                      // Maximum Ki value (mM)
+  double min_ic50 = 11;                    // Minimum IC50 value (mM)
+  double max_ic50 = 12;                    // Maximum IC50 value (mM)
+}
+
+// Individual inhibition measurement
+message InhibitionMeasurement {
+  double value = 1;                        // Numeric value (Ki, IC50, or % inhibition)
+  string unit = 2;                         // Unit (mM, µM, nM, %)
+  string organism = 3;                     // Source organism
+  string conditions = 4;                   // Experimental conditions (pH, temp, concentration)
+  string pubmed_id = 5;                    // PubMed reference
+  string inhibition_type = 6;              // Type: competitive, non-competitive, uncompetitive, mixed
+  string comment = 7;                      // Additional notes
+}
+

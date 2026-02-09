@@ -7,7 +7,7 @@ via identifiers and special keywors with simple or advance chain query capabilit
 
 ## Features
 
-* **Datasets** - supports wide datasets such as `Ensembl` `Uniprot` `ChEMBL` `HMDB` `BindingDB` `CTD` `STRING` `BioGRID` `MSigDB` `Taxonomy` `GO` `EFO` `HPO` `UBERON` `CL` `HGNC` `ECO` `Uniparc` `Uniref` `RNACentral` `Bgee` `GWAS Catalog` `dbSNP` `RefSeq` `IntAct` `GenCC` `AlphaMissense` `ClinVar` `PharmGKB` `CELLxGENE` `SCXA` `Orphanet` `CollecTRI` `SIGNOR`  with tens of more via cross references
+* **Datasets** - supports wide datasets such as `Ensembl` `Uniprot` `ChEMBL` `HMDB` `BindingDB` `CTD` `STRING` `BioGRID` `MSigDB` `Taxonomy` `GO` `EFO` `HPO` `UBERON` `CL` `HGNC` `ECO` `Uniparc` `Uniref` `RNACentral` `Bgee` `GWAS Catalog` `dbSNP` `RefSeq` `IntAct` `GenCC` `AlphaMissense` `ClinVar` `PharmGKB` `CELLxGENE` `SCXA` `Orphanet` `CollecTRI` `SIGNOR` `CORUM` `BRENDA`  with tens of more via cross references
 by retrieving latest data from providers
 
 * **MapReduce** - processes small or large datasets based on users selection and build B+ tree based uniform local database via specialized MapReduce based tecnique with efficient storage usage 
@@ -61,6 +61,10 @@ by retrieving latest data from providers
 * **Transcription Factor Regulation** - `CollecTRI` database with 43K+ human TF-target gene regulatory interactions from 12 evidence sources. Provides transcription factor and target gene pairs, regulation direction (Activation/Repression), confidence levels, PubMed references, and evidence sources. Cross-references to Ensembl genes. Supports gene regulatory network analysis, TF target discovery, and transcriptional pathway exploration. Note: TRED source excluded for licensing reasons
 
 * **Causal Signaling Networks** - `SIGNOR` database with 114K+ manually curated causal relationships between biological entities (proteins, chemicals, phenotypes) across human, mouse, and rat. Provides regulatory effects (up/down-regulates), mechanisms (phosphorylation, binding, transcriptional regulation), confidence scores, and experimental context. Cross-references to UniProt, ChEBI, PubChem, DrugBank, PubMed, and Taxonomy. Supports signaling pathway analysis, drug mechanism discovery, and phenotype regulation studies with organism-specific filtering
+
+* **Protein Complexes** - `CORUM` database with 7,969 experimentally characterized mammalian protein complexes. Provides complex names, subunit composition with UniProt/Entrez IDs, GO functional annotations, purification methods, and drug target associations. Cross-references to UniProt, Entrez Gene, GO, PubMed, and Taxonomy. Supports protein complex analysis, subunit identification, and drug target discovery in complex context
+
+* **Enzyme Biochemistry** - `BRENDA` (BRaunschweig ENzyme DAtabase) with 8,000+ EC enzyme entries. Three integrated datasets: `brenda` (enzyme classification with names, synonyms, organisms, reaction types), `brenda_kinetics` (Km/kcat values per EC+substrate with organism and conditions), and `brenda_inhibitor` (Ki/IC50 values per EC+inhibitor). Provides comprehensive kinetic parameters, inhibitor data, and literature references. Cross-references to UniProt (bidirectional) and PubMed. Supports enzyme characterization, drug target analysis, and biochemical pathway studies
 
 * **Pharmacogenomics** - `PharmGKB` database with 6 integrated datasets for precision medicine: chemicals/drugs with FDA drug labels, pharmacogenes with VIP flags and CPIC guidelines, clinical variant annotations with evidence levels (1A-4), variant annotations with HGVS nomenclature, dosing guidelines from CPIC/DPWG/CPNDS/RNPGx, and pharmacokinetic/pharmacodynamic pathways. Provides gene-drug relationships, clinical evidence levels, dosing recommendations, and pathway diagrams. Cross-references to HGNC, PubChem, dbSNP, MeSH, and Ensembl. Supports pharmacogenomic dosing decisions, drug-gene interaction analysis, and clinical annotation lookup
 
@@ -141,6 +145,9 @@ biobtree -d "collectri,ensembl,hgnc" --lookupdb build
 
 # build with causal signaling networks (works well with UniProt, ChEBI)
 biobtree -d "signor,uniprot,chebi" build
+
+# build with enzyme biochemistry (works well with UniProt)
+biobtree -d "brenda,uniprot" build
 
 # build with protein interactions (requires UniProt)
 biobtree -d "uniprot,intact" build
@@ -503,6 +510,16 @@ biobtree query "P00533 >> uniprot >> signor"         # Find signaling interactio
 biobtree query "EGFR >> signor"                      # Search by entity name
 biobtree query "apoptosis >> signor"                 # Find phenotype-regulating interactions
 biobtree query "9606 >> taxonomy >> signor"          # All human signaling interactions
+
+# BRENDA enzyme biochemistry queries
+biobtree query "1.1.1.1"                             # EC number lookup (alcohol dehydrogenase)
+biobtree query "alcohol dehydrogenase >> brenda"     # Search enzyme by name
+biobtree query "1.1.1.1 >> brenda >> brenda_kinetics"  # EC to kinetic parameters (Km, kcat)
+biobtree query "1.1.1.1 >> brenda >> brenda_inhibitor" # EC to inhibitors (Ki, IC50)
+biobtree query "1.1.1.1 >> brenda >> pubmed"         # EC to literature references
+biobtree query "1.1.1.1 >> brenda >> uniprot"        # EC to protein sequences
+biobtree query "P00327 >> uniprot >> brenda"         # Protein to EC classification
+biobtree query "ethanol >> brenda_kinetics"          # Search kinetics by substrate name
 ```
 
 #### Filter Syntax
@@ -582,6 +599,12 @@ biobtree query "P00533 >> uniprot >> signor[signor.effect==\"up-regulates\"]"   
 biobtree query "P00533 >> uniprot >> signor[signor.score>0.7]"                       # High-confidence only
 biobtree query "P00533 >> uniprot >> signor[signor.tax_id==9606]"                    # Human interactions only
 biobtree query "P00533 >> uniprot >> signor[signor.direct==true]"                    # Direct interactions only
+
+# BRENDA enzyme biochemistry filters
+biobtree query "1.1.1.1 >> brenda >> brenda_kinetics[brenda_kinetics.km_count>10]"   # Well-characterized substrates
+biobtree query "1.1.1.1 >> brenda >> brenda_kinetics[brenda_kinetics.kcat_count>5]"  # Substrates with turnover data
+biobtree query "1.1.1.1 >> brenda >> brenda_inhibitor[brenda_inhibitor.ki_count>0]"  # Inhibitors with Ki values
+biobtree query "1.1.1.1 >> brenda >> brenda_inhibitor[brenda_inhibitor.ic50_count>0]" # Inhibitors with IC50 data
 ```
 
 #### Migration Guide - Breaking Change in Mapping Queries

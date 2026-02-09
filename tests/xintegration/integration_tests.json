@@ -1,13 +1,14 @@
 {
   "metadata": {
-    "version": "8.5",
+    "version": "8.8",
     "description": "Expanded integration tests including newly added datasets and filter tests (2025-2026)",
     "server": "http://localhost:9291",
     "last_updated": "2026-02-09",
+    "changes_8.6": "Added protein_complexes category (12 tests): CORUM mammalian protein complex tests. Includes complex ID lookup, text search by name/gene, UniProt/Entrez/GO/PubMed/Taxonomy cross-references, subunit mappings, drug target complexes, and multi-hop queries. Total: 558 tests.",
     "changes_8.5": "Added causal_signaling category (12 tests): SIGNOR causal signaling network tests. Includes direct ID lookup, entity name search, UniProt/ChEBI/DrugBank cross-references, PubMed literature, taxonomy organism filtering, mechanism filters, and multi-hop signaling pathway queries. Total: 546 tests.",
     "changes_8.4": "Added transcription_regulation category (10 tests): CollecTRI TF-target gene regulatory network tests. Includes TF/target gene lookups, HGNC/Ensembl cross-references, PubMed literature links, and multi-hop regulatory network queries. Total: 534 tests.",
-    "changes_8.3": "Added human_gene_xrefs category (12 tests): tests for addHumanGeneXrefs migration (gene symbol → HGNC → human datasets). Verifies ClinVar, dbSNP, GWAS, HPO, Orphanet mappings go through HGNC for human-only results. Total: 524 tests.",
-    "changes_8.2": "Added SCXA single-cell expression tests (CL→scxa_gene_experiment, Gene→scxa_gene_experiment) and CellxGene celltype tests (CL/UBERON/MONDO→cellxgene_celltype). Total: 469 tests.",
+    "changes_8.3": "Added human_gene_xrefs category (12 tests): tests for addHumanGeneXrefs migration (gene symbol \u2192 HGNC \u2192 human datasets). Verifies ClinVar, dbSNP, GWAS, HPO, Orphanet mappings go through HGNC for human-only results. Total: 524 tests.",
+    "changes_8.2": "Added SCXA single-cell expression tests (CL\u2192scxa_gene_experiment, Gene\u2192scxa_gene_experiment) and CellxGene celltype tests (CL/UBERON/MONDO\u2192cellxgene_celltype). Total: 469 tests.",
     "changes_8.1": "Added advanced_multihop_pipelines category with 11 novel multi-hop queries (4-8 hops): BioGRID interaction to pathways, metabolite to rare disease genes, cell type to BioGRID/drugs/clinical trials, tissue to lipid pathways, phenotype to interaction network/clinical trials, pathway to diseases via ClinVar, Orphanet to ChEMBL/PubChem. Total: 459 tests.",
     "changes_7.0": "Added tests for all 2026-02-04 fixes: BUG-018 (PharmGKB variant\u2192clinical), BUG-020 (ClinVar\u2192dbSNP), BUG-021 (RNACentral text search). Added rare_diseases category (Orphanet, MIM). Added metabolomics category (HMDB). Updated BUG-011/012/016 from known_issues to fixed. Added HPO alternative paths (orphanet, mim, hmdb).",
     "changes_6.0": "Fixed BUG-014/015: MSigDB\u2194GO and MSigDB\u2194HPO bidirectional mappings. Fixed HGNC ID resolution (HGNC:#### vs gene symbol). Added MSigDB gene_sets test category.",
@@ -16,7 +17,9 @@
     "changes_5.7": "Fixed filter tests with .0 suffix for floats. Added AlphaFold, Bgee, PubChem Lipinski, GWAS pvalue_mlog, Clinical Trials filters",
     "changes_5.6": "Added comprehensive filter tests for PubChem, ChEMBL, ClinVar, AlphaMissense, PharmGKB, GenCC, GWAS, GO, UniProt, InterPro, Antibody datasets",
     "changes_5.5": "Added MeSH bridge CTD tests, Reactome to Ensembl, CellXGene reverse mappings, clinical trials high-count, MeSH breast cancer hierarchy",
-    "changes_8.0": "Added 50 new tests from multi-agent discovery session 2: patent_ip (4), clinical_trials_deep (3), rare_disease_deep (8), cell_type_biology (7), reverse_drug (4), ultra_long_chains (3), interpro_domain (4), gene_set_advanced (8), evidence_triangulation (3), metabolomics (7). New categories: patent_ip, clinical_trials_deep, rare_disease_deep, cell_type_biology, reverse_drug, ultra_long_chains, interpro_domain, gene_set_advanced, evidence_triangulation. Total: 448 tests."
+    "changes_8.0": "Added 50 new tests from multi-agent discovery session 2: patent_ip (4), clinical_trials_deep (3), rare_disease_deep (8), cell_type_biology (7), reverse_drug (4), ultra_long_chains (3), interpro_domain (4), gene_set_advanced (8), evidence_triangulation (3), metabolomics (7). New categories: patent_ip, clinical_trials_deep, rare_disease_deep, cell_type_biology, reverse_drug, ultra_long_chains, interpro_domain, gene_set_advanced, evidence_triangulation. Total: 448 tests.",
+    "changes_8.7": "Added enzyme_biochemistry category (19 tests): BRENDA enzyme database integration tests. EC number lookups, kinetic parameters (Km, kcat) via brenda_kinetics, inhibitor data (Ki, IC50) via brenda_inhibitor, PubMed literature links, text search by enzyme/substrate/inhibitor names, and multi-hop queries for enzyme-centric analysis. Total: 577 tests.",
+    "changes_8.8": "Added UniProt\u2194BRENDA bidirectional mapping tests (12 tests): protein to EC classification, gene to EC via UniProt, EC to proteins/structures/domains/pathways/drug targets/clinical variants. Leverages UniProt xrefs to BRENDA for multi-hop enzyme-centric queries. Total: 589 tests."
   },
   "test_categories": {
     "gene_mapping": "Gene symbol/ID to various resources (proteins, transcripts, GO terms)",
@@ -58,9 +61,11 @@
     "gene_set_advanced": "Gene set advanced workflows (MSigDB multi-hop, disease to gene sets, GO to drugs)",
     "evidence_triangulation": "Evidence triangulation and multi-database integration patterns",
     "advanced_multihop_pipelines": "Advanced multi-hop pipelines (4-8 hops): BioGRID network to pathways, metabolite to rare disease, cell type to drugs/interactions, phenotype to clinical trials, Orphanet to drug candidates",
-    "human_gene_xrefs": "Human gene cross-references via HGNC: tests for addHumanGeneXrefs (gene symbol → HGNC → ClinVar/dbSNP/GWAS/HPO/Orphanet). Ensures human-only gene mappings.",
+    "human_gene_xrefs": "Human gene cross-references via HGNC: tests for addHumanGeneXrefs (gene symbol \u2192 HGNC \u2192 ClinVar/dbSNP/GWAS/HPO/Orphanet). Ensures human-only gene mappings.",
     "transcription_regulation": "Transcription factor regulatory networks (CollecTRI): TF-target gene interactions with evidence from 12+ databases, regulation direction (activation/repression), confidence levels, and PubMed literature links.",
-    "causal_signaling": "Causal signaling networks (SIGNOR): 114K+ manually curated causal relationships between proteins, chemicals, and phenotypes. Regulatory effects (up/down-regulates), mechanisms (phosphorylation, binding), confidence scores, and multi-organism support (human, mouse, rat)."
+    "causal_signaling": "Causal signaling networks (SIGNOR): 114K+ manually curated causal relationships between proteins, chemicals, and phenotypes. Regulatory effects (up/down-regulates), mechanisms (phosphorylation, binding), confidence scores, and multi-organism support (human, mouse, rat).",
+    "protein_complexes": "Protein complexes (CORUM): 7,969 experimentally characterized mammalian protein complexes. Subunit composition (UniProt/Entrez), GO functional annotations, PubMed literature, organism/taxonomy, drug target associations, and multi-hop queries for complex-centric analysis.",
+    "enzyme_biochemistry": "Enzyme biochemistry (BRENDA): EC number enzyme classification, kinetic parameters (Km, kcat), inhibitor data (Ki, IC50), organism-specific enzyme information, and literature references. Multi-hop queries for enzyme-centric drug discovery and biochemical pathway analysis."
   },
   "tests": [
     {
@@ -5974,6 +5979,480 @@
       "should_pass": [
         "P00533",
         "P04637"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_complexes",
+      "name": "CORUM Complex ID Lookup",
+      "query": ">>corum",
+      "why": "Direct lookup of protein complex by CORUM ID",
+      "should_pass": [
+        "1",
+        "582",
+        "2179"
+      ],
+      "should_fail": [
+        "99999999"
+      ]
+    },
+    {
+      "category": "protein_complexes",
+      "name": "CORUM Text Search by Complex Name",
+      "query": ">>corum",
+      "why": "Find protein complex by name - researchers often know complex names from literature",
+      "should_pass": [
+        "BCL6-HDAC4 complex",
+        "p53-MDM2 complex"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_complexes",
+      "name": "CORUM Text Search by Gene Symbol",
+      "query": ">>corum",
+      "why": "Find complexes containing a specific gene/protein - common entry point for complex analysis",
+      "should_pass": [
+        "HDAC4",
+        "BCL6",
+        "TP53"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_complexes",
+      "name": "UniProt to CORUM (protein to complexes)",
+      "query": ">>uniprot>>corum",
+      "why": "Find all protein complexes containing a specific protein subunit",
+      "should_pass": [
+        "P04637",
+        "P41182",
+        "P56524"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_complexes",
+      "name": "CORUM to UniProt (complex to subunits)",
+      "query": ">>corum>>uniprot",
+      "why": "Get all protein subunits of a complex for downstream protein analysis",
+      "should_pass": [
+        "1",
+        "582",
+        "2179"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_complexes",
+      "name": "CORUM to GO (complex to functions)",
+      "query": ">>corum>>go",
+      "why": "Get GO functional annotations for a protein complex",
+      "should_pass": [
+        "1",
+        "582"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_complexes",
+      "name": "CORUM to Entrez Gene",
+      "query": ">>corum>>entrez",
+      "why": "Get Entrez Gene IDs for complex subunits - useful for gene-centric databases",
+      "should_pass": [
+        "1",
+        "582"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_complexes",
+      "name": "CORUM to PubMed Literature",
+      "query": ">>corum>>pubmed",
+      "why": "Get primary literature references for protein complex characterization",
+      "should_pass": [
+        "1",
+        "582"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_complexes",
+      "name": "CORUM to Taxonomy (organism)",
+      "query": ">>corum>>taxonomy",
+      "why": "Get organism taxonomy for a protein complex",
+      "should_pass": [
+        "1",
+        "582"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_complexes",
+      "name": "Gene to CORUM to GO",
+      "query": ">>ensembl>>uniprot>>corum>>go",
+      "why": "Multi-hop: find GO functions of complexes containing a gene product",
+      "should_pass": [
+        "TP53",
+        "BRCA1"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_complexes",
+      "name": "Gene to CORUM to Literature",
+      "query": ">>ensembl>>uniprot>>corum>>pubmed",
+      "why": "Multi-hop: find literature about complexes containing a gene product",
+      "should_pass": [
+        "TP53",
+        "EGFR"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_complexes",
+      "name": "CORUM Drug Target Complexes",
+      "query": ">>corum[corum.has_drug_targets==true]",
+      "why": "Find complexes with drug target subunits - useful for drug discovery",
+      "should_pass": [
+        "1",
+        "55"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "enzyme_biochemistry",
+      "name": "EC Number Direct Lookup",
+      "query": ">>brenda",
+      "why": "Core lookup: EC numbers are the standard enzyme classification used globally in biochemistry research",
+      "should_pass": [
+        "1.1.1.1",
+        "3.4.21.5",
+        "2.7.11.1",
+        "1.14.13.39"
+      ],
+      "should_fail": [
+        "99.99.99.99",
+        "NOTANEC"
+      ]
+    },
+    {
+      "category": "enzyme_biochemistry",
+      "name": "Enzyme Name Text Search",
+      "query": ">>brenda",
+      "why": "Find enzymes by common name - researchers often know enzyme names but not EC numbers",
+      "should_pass": [
+        "alcohol dehydrogenase",
+        "trypsin",
+        "protein kinase"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "enzyme_biochemistry",
+      "name": "EC to Kinetic Parameters",
+      "query": ">>brenda>>brenda_kinetics",
+      "why": "Get Km and kcat values for enzyme substrates - essential for enzyme characterization and drug design",
+      "should_pass": [
+        "1.1.1.1",
+        "3.4.21.5"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "enzyme_biochemistry",
+      "name": "EC to Well-Characterized Substrates",
+      "query": ">>brenda>>brenda_kinetics[brenda_kinetics.km_count>10]",
+      "why": "Filter substrates with extensive kinetic data (>10 Km measurements) for reliable biochemical characterization",
+      "should_pass": [
+        "1.1.1.1"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "enzyme_biochemistry",
+      "name": "EC to Substrates with Turnover Data",
+      "query": ">>brenda>>brenda_kinetics[brenda_kinetics.kcat_count>5]",
+      "why": "Find substrates with kcat (turnover number) data for catalytic efficiency analysis",
+      "should_pass": [
+        "1.1.1.1"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "enzyme_biochemistry",
+      "name": "EC to Enzyme Inhibitors",
+      "query": ">>brenda>>brenda_inhibitor",
+      "why": "Find known inhibitors - starting point for drug discovery against enzyme targets",
+      "should_pass": [
+        "1.1.1.1",
+        "3.4.21.5",
+        "2.7.11.1"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "enzyme_biochemistry",
+      "name": "EC to Inhibitors with Ki Data",
+      "query": ">>brenda>>brenda_inhibitor[brenda_inhibitor.ki_count>0]",
+      "why": "Filter inhibitors with quantitative Ki values for structure-activity relationship studies",
+      "should_pass": [
+        "1.1.1.1"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "enzyme_biochemistry",
+      "name": "EC to Potent Inhibitors (IC50 data)",
+      "query": ">>brenda>>brenda_inhibitor[brenda_inhibitor.ic50_count>0]",
+      "why": "Find inhibitors with IC50 measurements for drug potency comparison",
+      "should_pass": [
+        "1.1.1.1"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "enzyme_biochemistry",
+      "name": "EC to PubMed Literature",
+      "query": ">>brenda>>pubmed",
+      "why": "Find primary literature references for enzyme studies - essential for research validation",
+      "should_pass": [
+        "1.1.1.1",
+        "3.4.21.5"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "enzyme_biochemistry",
+      "name": "Oxidoreductase Lookup (EC 1.x.x.x)",
+      "query": ">>brenda",
+      "why": "Oxidoreductases catalyze redox reactions - important for metabolic pathway analysis",
+      "should_pass": [
+        "1.1.1.1",
+        "1.1.1.27",
+        "1.14.13.39"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "enzyme_biochemistry",
+      "name": "Transferase Lookup (EC 2.x.x.x)",
+      "query": ">>brenda",
+      "why": "Transferases are major drug targets - kinases (2.7.x) are heavily studied in cancer",
+      "should_pass": [
+        "2.7.11.1",
+        "2.7.1.1"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "enzyme_biochemistry",
+      "name": "Hydrolase Lookup (EC 3.x.x.x)",
+      "query": ">>brenda",
+      "why": "Hydrolases include proteases and esterases - key drug targets and biomarkers",
+      "should_pass": [
+        "3.4.21.5",
+        "3.1.1.3"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "enzyme_biochemistry",
+      "name": "Kinetics Entry Back to Parent EC",
+      "query": ">>brenda_kinetics>>brenda",
+      "why": "Navigate from substrate kinetics back to enzyme entry for context",
+      "should_pass": [
+        "1.1.1.1|ethanol"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "enzyme_biochemistry",
+      "name": "Inhibitor Entry Back to Parent EC",
+      "query": ">>brenda_inhibitor>>brenda",
+      "why": "Navigate from inhibitor data back to enzyme entry for full enzyme context",
+      "should_pass": [
+        "1.1.1.1|ethanol"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "enzyme_biochemistry",
+      "name": "EC to Kinetics to Literature",
+      "query": ">>brenda>>brenda_kinetics>>pubmed",
+      "why": "Find literature specifically about kinetic characterization of enzyme substrates",
+      "should_pass": [
+        "1.1.1.1"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "enzyme_biochemistry",
+      "name": "EC to High-Quality Kinetic Data",
+      "query": ">>brenda>>brenda_kinetics[brenda_kinetics.km_count>20]",
+      "why": "Focus on substrates with very extensive kinetic characterization (>20 Km values)",
+      "should_pass": [
+        "1.1.1.1"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "enzyme_biochemistry",
+      "name": "EC to Multiple Inhibitors with Ki",
+      "query": ">>brenda>>brenda_inhibitor[brenda_inhibitor.ki_count>2]",
+      "why": "Find inhibitors with multiple Ki measurements for reliable affinity estimates",
+      "should_pass": [
+        "1.1.1.1"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "enzyme_biochemistry",
+      "name": "Substrate Text Search in Kinetics",
+      "query": ">>brenda_kinetics",
+      "why": "Find kinetic entries by substrate name for metabolite-centric analysis",
+      "should_pass": [
+        "ethanol",
+        "glucose",
+        "ATP"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "enzyme_biochemistry",
+      "name": "Inhibitor Text Search",
+      "query": ">>brenda_inhibitor",
+      "why": "Find inhibitor entries by compound name for drug repurposing analysis",
+      "should_pass": [
+        "pyrazole",
+        "iodoacetamide"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "enzyme_biochemistry",
+      "name": "Protein to EC Classification",
+      "query": ">>uniprot>>brenda",
+      "why": "Find EC classification for a protein - essential for functional annotation of enzymes",
+      "should_pass": [
+        "P00352",
+        "P07327",
+        "P00734"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "enzyme_biochemistry",
+      "name": "Gene to EC via UniProt",
+      "query": ">>ensembl>>uniprot>>brenda",
+      "why": "Map gene symbols to enzyme classification - core workflow for metabolic pathway analysis",
+      "should_pass": [
+        "ADH1A",
+        "ADH1B",
+        "CYP2D6"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "enzyme_biochemistry",
+      "name": "EC to Reviewed Proteins",
+      "query": ">>brenda>>uniprot[uniprot.reviewed==true]",
+      "why": "Find Swiss-Prot curated proteins for an enzyme - high-quality protein sequences for enzyme studies",
+      "should_pass": [
+        "1.1.1.1",
+        "3.4.21.5"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "enzyme_biochemistry",
+      "name": "EC to Human Proteins",
+      "query": ">>brenda>>uniprot[uniprot.reviewed==true]>>taxonomy",
+      "why": "Find organism distribution for an enzyme - important for species-specific enzyme research",
+      "should_pass": [
+        "1.1.1.1"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "enzyme_biochemistry",
+      "name": "EC to Protein Structures (AlphaFold)",
+      "query": ">>brenda>>uniprot[uniprot.reviewed==true]>>alphafold",
+      "why": "Get predicted 3D structures for enzyme proteins - structural biology and drug design",
+      "should_pass": [
+        "1.1.1.1"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "enzyme_biochemistry",
+      "name": "EC to Protein Domains",
+      "query": ">>brenda>>uniprot>>interpro[interpro.type==\"Domain\"]",
+      "why": "Find functional domains in enzyme proteins - understand enzyme architecture",
+      "should_pass": [
+        "1.1.1.1",
+        "3.4.21.5"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "enzyme_biochemistry",
+      "name": "EC to Biological Processes",
+      "query": ">>brenda>>uniprot>>go[go.type==\"biological_process\"]",
+      "why": "Link enzymes to biological processes - pathway and systems biology analysis",
+      "should_pass": [
+        "1.1.1.1"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "enzyme_biochemistry",
+      "name": "EC to Reactome Pathways",
+      "query": ">>brenda>>uniprot>>reactome",
+      "why": "Find metabolic pathways involving an enzyme - systems-level understanding",
+      "should_pass": [
+        "1.1.1.1"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "enzyme_biochemistry",
+      "name": "EC to ChEMBL Drug Targets",
+      "query": ">>brenda>>uniprot>>chembl_target_component>>chembl_target",
+      "why": "Find if enzyme is a ChEMBL drug target - enzyme-based drug discovery",
+      "should_pass": [
+        "1.1.1.1",
+        "3.4.21.5"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "enzyme_biochemistry",
+      "name": "EC to Drug Activities",
+      "query": ">>brenda>>uniprot>>chembl_target_component>>chembl_target>>chembl_assay>>chembl_activity",
+      "why": "Get bioactivity data for enzyme inhibitors from ChEMBL - compare with BRENDA Ki data",
+      "should_pass": [
+        "3.4.21.5"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "enzyme_biochemistry",
+      "name": "EC to Disease Variants",
+      "query": ">>brenda>>uniprot>>clinvar",
+      "why": "Find clinical variants in enzyme genes - enzyme deficiency diseases",
+      "should_pass": [
+        "1.1.1.1"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "enzyme_biochemistry",
+      "name": "EC to Pharmacogenomics",
+      "query": ">>brenda>>uniprot>>hgnc>>pharmgkb_gene",
+      "why": "Link enzymes to pharmacogenomic data - drug metabolism enzymes like CYPs",
+      "should_pass": [
+        "1.14.13.39"
       ],
       "should_fail": []
     }

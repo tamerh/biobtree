@@ -1143,6 +1143,12 @@ func (s *service) execCelGo(query *query.Query, targetXref *pbuf.Xref) (bool, er
 		out, _, err = query.Program.Eval(map[string]interface{}{"clinical_trials": targetXref.GetClinicalTrials()})
 	case "collectri":
 		out, _, err = query.Program.Eval(map[string]interface{}{"collectri": targetXref.GetCollectri()})
+	case "brenda":
+		out, _, err = query.Program.Eval(map[string]interface{}{"brenda": targetXref.GetBrenda()})
+	case "brenda_kinetics":
+		out, _, err = query.Program.Eval(map[string]interface{}{"brenda_kinetics": targetXref.GetBrendaKinetics()})
+	case "brenda_inhibitor":
+		out, _, err = query.Program.Eval(map[string]interface{}{"brenda_inhibitor": targetXref.GetBrendaInhibitor()})
 	default:
 		//err := fmt.Errorf("mapfilter query execution failed please check again query")
 		return false, nil

@@ -35,12 +35,6 @@
     "id": "607",
     "url": "https://hive.biochemistry.gwu.edu/tools/biomuta/biomuta.php?gene=£{id}"
   },
-  "brenda": {
-    "aliases": "BRENDA",
-    "name": "BRENDA",
-    "id": "608",
-    "url": "http://brenda-enzymes.org/enzyme.php?ecno=£{id}"
-  },
   "carbonyldb": {
     "aliases": "CarbonylDB",
     "name": "CarbonylDB",
@@ -118,12 +112,6 @@
     "name": "ConoServer",
     "id": "621",
     "url": "http://www.conoserver.org/?page=card&table=protein&id=£{id}"
-  },
-  "corum": {
-    "aliases": "CORUM",
-    "name": "CORUM",
-    "id": "622",
-    "url": "http://mips.helmholtz-muenchen.de/corum/#?uniprotID=£{id}"
   },
   "cosmic": {
     "aliases": "COSMIC",

@@ -1,0 +1,20 @@
+{
+  "common_tests": [
+    {
+      "name": "Lookup by EC number",
+      "type": "id_lookup",
+      "id": "1.1.1.1"
+    },
+    {
+      "name": "Check attributes present",
+      "type": "attribute_check",
+      "id": "1.1.1.1"
+    },
+    {
+      "name": "Invalid EC number handling",
+      "type": "invalid_id",
+      "invalid_id": "99.99.99.99"
+    }
+  ],
+  "custom_tests": []
+}

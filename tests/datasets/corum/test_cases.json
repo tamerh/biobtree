@@ -1,0 +1,68 @@
+{
+  "dataset": "corum",
+  "description": "CORUM - Comprehensive Resource of Mammalian Protein Complexes declarative tests",
+  "tests": [
+    {
+      "name": "id_lookup_first",
+      "type": "id_lookup",
+      "input": "@reference[0].complex_id",
+      "expected": {
+        "found": true,
+        "dataset": "corum"
+      }
+    },
+    {
+      "name": "id_lookup_second",
+      "type": "id_lookup",
+      "input": "@reference[1].complex_id",
+      "expected": {
+        "found": true,
+        "dataset": "corum"
+      }
+    },
+    {
+      "name": "id_lookup_third",
+      "type": "id_lookup",
+      "input": "@reference[2].complex_id",
+      "expected": {
+        "found": true,
+        "dataset": "corum"
+      }
+    },
+    {
+      "name": "attribute_name",
+      "type": "attribute_check",
+      "input": "@reference[0].complex_id",
+      "expected": {
+        "attribute": "name",
+        "not_empty": true
+      }
+    },
+    {
+      "name": "attribute_organism",
+      "type": "attribute_check",
+      "input": "@reference[0].complex_id",
+      "expected": {
+        "attribute": "organism",
+        "not_empty": true
+      }
+    },
+    {
+      "name": "attribute_subunit_count",
+      "type": "attribute_check",
+      "input": "@reference[0].complex_id",
+      "expected": {
+        "attribute": "subunit_count",
+        "not_empty": true
+      }
+    },
+    {
+      "name": "invalid_id_handling",
+      "type": "invalid_id",
+      "input": "999999999",
+      "expected": {
+        "found": false
+      }
+    }
+  ]
+}

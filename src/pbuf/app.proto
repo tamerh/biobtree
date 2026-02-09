@@ -164,6 +164,10 @@ message Xref {
     HPOAttr hpo_attr=79;
     CollecTriAttr collectri=80;
     SignorAttr signor=81;
+    CorumAttr corum=82;
+    BrendaAttr brenda=83;
+    BrendaKineticsAttr brenda_kinetics=84;
+    BrendaInhibitorAttr brenda_inhibitor=85;
 
   }
 

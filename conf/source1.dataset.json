@@ -991,5 +991,54 @@
     "attrs": "entity_a,type_a,id_a,database_a,entity_b,type_b,id_b,database_b,effect,mechanism,residue,sequence,tax_id,cell_data,tissue_data,direct,score",
     "test_entries_count": "500",
     "bucketMethod": "signor"
+  },
+  "corum": {
+    "id": "117",
+    "name": "CORUM",
+    "aliases": "protein complex,mammalian complex,protein complexes",
+    "url": "https://mips.helmholtz-muenchen.de/corum/#/complexdetails/£{id}",
+    "path": "raw_data/CORUM/corum_allComplexes.json",
+    "useLocalFile": "yes",
+    "hasFilter": "yes",
+    "attrs": "name,[]synonyms,organism,cell_line,comment,comment_disease,comment_drug,[]subunit_genes,subunit_count,[]purification_methods,pmid,has_drug_targets,has_splice_variants",
+    "test_entries_count": "100",
+    "bucketMethod": "numeric"
+  },
+  "brenda": {
+    "id": "747",
+    "name": "BRENDA",
+    "aliases": "BRENDA,EC number,enzyme,enzyme classification,enzyme commission",
+    "url": "https://www.brenda-enzymes.org/enzyme.php?ecno=£{id}",
+    "path": "raw_data/brenda/brenda_2025_1.json",
+    "useLocalFile": "yes",
+    "hasFilter": "yes",
+    "attrs": "recommended_name,systematic_name,[]synonyms,[]reactions,[]cofactors,[]organisms,organism_count,substrate_count,inhibitor_count,km_count,kcat_count,reference_count,[]reaction_types",
+    "test_entries_count": "100",
+    "bucketMethod": "numeric",
+    "childDatasets": "brenda_kinetics,brenda_inhibitor"
+  },
+  "brenda_kinetics": {
+    "id": "748",
+    "name": "BRENDA Kinetics",
+    "aliases": "BRENDA kinetics,enzyme kinetics,Km,kcat,Michaelis constant,turnover number,catalytic constant",
+    "url": "https://www.brenda-enzymes.org/enzyme.php?ecno=£{id}",
+    "path": "raw_data/brenda/brenda_2025_1.json",
+    "useLocalFile": "yes",
+    "hasFilter": "yes",
+    "attrs": "ec_number,substrate,substrate_type,[]km_values,[]kcat_values,[]ki_values,km_count,kcat_count,ki_count,min_km,max_km,min_kcat,max_kcat",
+    "test_entries_count": "500",
+    "bucketMethod": "alphabetic"
+  },
+  "brenda_inhibitor": {
+    "id": "749",
+    "name": "BRENDA Inhibitors",
+    "aliases": "BRENDA inhibitor,enzyme inhibitor,Ki,IC50,inhibition,enzyme inhibition",
+    "url": "https://www.brenda-enzymes.org/enzyme.php?ecno=£{id}",
+    "path": "raw_data/brenda/brenda_2025_1.json",
+    "useLocalFile": "yes",
+    "hasFilter": "yes",
+    "attrs": "ec_number,inhibitor,[]ki_values,[]ic50_values,[]inhibition_data,ki_count,ic50_count,inhibition_count,min_ki,max_ki,min_ic50,max_ic50",
+    "test_entries_count": "500",
+    "bucketMethod": "alphabetic"
   }
 }

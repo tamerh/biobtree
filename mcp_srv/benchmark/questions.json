@@ -265,7 +265,7 @@
           "granulocyte_score": 89.47,
           "bone_marrow_score": 82.39,
           "gene_ensembl": "ENSG00000177455",
-          "expected_outcome": "POTENTIAL_OPENTARGETS_WIN - BLUEPRINT has B-cell subtype data"
+          "expected_outcome": "MIXED_REQUIRES_INVESTIGATION - SCXA shows expected CD19 plasma cell downregulation, but BLUEPRINT should excel for immune targets. Discrepancy needs investigation."
         }
       }
     }

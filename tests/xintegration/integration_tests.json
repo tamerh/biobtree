@@ -1,9 +1,12 @@
 {
   "metadata": {
-    "version": "8.2",
+    "version": "8.5",
     "description": "Expanded integration tests including newly added datasets and filter tests (2025-2026)",
     "server": "http://localhost:9291",
-    "last_updated": "2026-02-07",
+    "last_updated": "2026-02-09",
+    "changes_8.5": "Added causal_signaling category (12 tests): SIGNOR causal signaling network tests. Includes direct ID lookup, entity name search, UniProt/ChEBI/DrugBank cross-references, PubMed literature, taxonomy organism filtering, mechanism filters, and multi-hop signaling pathway queries. Total: 546 tests.",
+    "changes_8.4": "Added transcription_regulation category (10 tests): CollecTRI TF-target gene regulatory network tests. Includes TF/target gene lookups, HGNC/Ensembl cross-references, PubMed literature links, and multi-hop regulatory network queries. Total: 534 tests.",
+    "changes_8.3": "Added human_gene_xrefs category (12 tests): tests for addHumanGeneXrefs migration (gene symbol → HGNC → human datasets). Verifies ClinVar, dbSNP, GWAS, HPO, Orphanet mappings go through HGNC for human-only results. Total: 524 tests.",
     "changes_8.2": "Added SCXA single-cell expression tests (CL→scxa_gene_experiment, Gene→scxa_gene_experiment) and CellxGene celltype tests (CL/UBERON/MONDO→cellxgene_celltype). Total: 469 tests.",
     "changes_8.1": "Added advanced_multihop_pipelines category with 11 novel multi-hop queries (4-8 hops): BioGRID interaction to pathways, metabolite to rare disease genes, cell type to BioGRID/drugs/clinical trials, tissue to lipid pathways, phenotype to interaction network/clinical trials, pathway to diseases via ClinVar, Orphanet to ChEMBL/PubChem. Total: 459 tests.",
     "changes_7.0": "Added tests for all 2026-02-04 fixes: BUG-018 (PharmGKB variant\u2192clinical), BUG-020 (ClinVar\u2192dbSNP), BUG-021 (RNACentral text search). Added rare_diseases category (Orphanet, MIM). Added metabolomics category (HMDB). Updated BUG-011/012/016 from known_issues to fixed. Added HPO alternative paths (orphanet, mim, hmdb).",
@@ -54,7 +57,10 @@
     "interpro_domain": "InterPro domain analysis (domain to genes, drugs, pathways, structures)",
     "gene_set_advanced": "Gene set advanced workflows (MSigDB multi-hop, disease to gene sets, GO to drugs)",
     "evidence_triangulation": "Evidence triangulation and multi-database integration patterns",
-    "advanced_multihop_pipelines": "Advanced multi-hop pipelines (4-8 hops): BioGRID network to pathways, metabolite to rare disease, cell type to drugs/interactions, phenotype to clinical trials, Orphanet to drug candidates"
+    "advanced_multihop_pipelines": "Advanced multi-hop pipelines (4-8 hops): BioGRID network to pathways, metabolite to rare disease, cell type to drugs/interactions, phenotype to clinical trials, Orphanet to drug candidates",
+    "human_gene_xrefs": "Human gene cross-references via HGNC: tests for addHumanGeneXrefs (gene symbol → HGNC → ClinVar/dbSNP/GWAS/HPO/Orphanet). Ensures human-only gene mappings.",
+    "transcription_regulation": "Transcription factor regulatory networks (CollecTRI): TF-target gene interactions with evidence from 12+ databases, regulation direction (activation/repression), confidence levels, and PubMed literature links.",
+    "causal_signaling": "Causal signaling networks (SIGNOR): 114K+ manually curated causal relationships between proteins, chemicals, and phenotypes. Regulatory effects (up/down-regulates), mechanisms (phosphorylation, binding), confidence scores, and multi-organism support (human, mouse, rat)."
   },
   "tests": [
     {
@@ -5130,6 +5136,844 @@
       "why": "Navigate from dataset to detailed cell type info via CL",
       "should_pass": [
         "42B6A476-C51D-4F8B-B68B-44941B3A11BF"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "scxa_single_cell",
+      "name": "Gene to SCXA Expression Summary",
+      "query": ">>ensembl>>scxa_expression",
+      "why": "Get single-cell expression statistics for a gene across SCXA atlas",
+      "should_pass": [
+        "ENSG00000139618",
+        "ENSG00000141510"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "scxa_single_cell",
+      "name": "Experiment to Cell Types",
+      "query": ">>scxa>>cl",
+      "why": "Find all cell types identified in a single-cell experiment",
+      "should_pass": [
+        "E-MTAB-6386"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "scxa_single_cell",
+      "name": "Cell Type to Tissues via SCXA",
+      "query": ">>cl>>scxa>>uberon",
+      "why": "Discover tissues with single-cell data for a cell type",
+      "should_pass": [
+        "CL:0000540",
+        "CL:0000084"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "scxa_single_cell",
+      "name": "Cell Type to Marker Genes",
+      "query": ">>cl>>scxa>>ensembl",
+      "why": "Retrieve validated marker genes for a cell type from SCXA",
+      "should_pass": [
+        "CL:0000084",
+        "CL:0000540"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "scxa_single_cell",
+      "name": "Cell Type to Species Coverage",
+      "query": ">>cl>>scxa>>taxonomy",
+      "why": "Find which organisms have single-cell data for a cell type",
+      "should_pass": [
+        "CL:0000084"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "rhea_enzyme_reactions",
+      "name": "Compound to Enzyme Reactions",
+      "query": ">>chebi>>rhea",
+      "why": "Find all reactions involving a metabolite or cofactor",
+      "should_pass": [
+        "CHEBI:15377",
+        "CHEBI:30616"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "rhea_enzyme_reactions",
+      "name": "Enzyme Reaction to GO Function",
+      "query": ">>rhea>>go",
+      "why": "Map reactions to Gene Ontology molecular function",
+      "should_pass": [
+        "RHEA:10000"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "rhea_enzyme_reactions",
+      "name": "Protein to Enzyme Reactions",
+      "query": ">>uniprot>>rhea",
+      "why": "Find reactions catalyzed by a protein",
+      "should_pass": [
+        "P00533",
+        "P00325"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "rhea_enzyme_reactions",
+      "name": "Gene to Enzyme Reactions",
+      "query": ">>ensembl>>uniprot>>rhea",
+      "why": "Find reactions catalyzed by a gene's product (3 hops)",
+      "should_pass": [
+        "CYP2C9",
+        "GAPDH"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "rhea_enzyme_reactions",
+      "name": "Gene to Reaction Substrates",
+      "query": ">>ensembl>>uniprot>>rhea>>chebi",
+      "why": "Identify substrates and products for an enzyme gene (4 hops)",
+      "should_pass": [
+        "CYP2C9"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "rhea_enzyme_reactions",
+      "name": "Metabolite to Enzyme Functions",
+      "query": ">>hmdb>>uniprot>>rhea>>go",
+      "why": "From metabolite through reactions to enzyme functions (4 hops)",
+      "should_pass": [
+        "HMDB0000122"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "mim_omim_disease",
+      "name": "OMIM Disease to Phenotypes",
+      "query": ">>mim>>hpo",
+      "why": "Get clinical phenotypes for a Mendelian disease",
+      "should_pass": [
+        "154700",
+        "100300"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "mim_omim_disease",
+      "name": "OMIM to ClinVar Variants",
+      "query": ">>mim>>clinvar",
+      "why": "Find genetic variants for a Mendelian disease",
+      "should_pass": [
+        "154700"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "mim_omim_disease",
+      "name": "OMIM to MONDO Ontology",
+      "query": ">>mim>>mondo",
+      "why": "Map OMIM to standardized disease ontology",
+      "should_pass": [
+        "154700"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "mim_omim_disease",
+      "name": "OMIM to Protein Products",
+      "query": ">>mim>>uniprot",
+      "why": "Link disease to causative protein",
+      "should_pass": [
+        "154700"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "mim_omim_disease",
+      "name": "OMIM to Toxicogenomics",
+      "query": ">>mim>>ctd>>pubchem",
+      "why": "Connect Mendelian disease to CTD compounds (3 hops)",
+      "should_pass": [
+        "154700"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "mim_omim_disease",
+      "name": "Phenotype to OMIM Diseases",
+      "query": ">>hpo>>mim",
+      "why": "Phenotype-driven disease discovery (reverse mapping)",
+      "should_pass": [
+        "HP:0001382",
+        "HP:0001250"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "mim_omim_disease",
+      "name": "Phenotype to Disease Genes",
+      "query": ">>hpo>>mim>>uniprot>>ensembl",
+      "why": "Build phenotype-specific gene lists (4 hops)",
+      "should_pass": [
+        "HP:0001382"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "mim_omim_disease",
+      "name": "Orphanet to OMIM Cross-Mapping",
+      "query": ">>orphanet>>mim",
+      "why": "Cross-reference rare disease databases",
+      "should_pass": [
+        "284963"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "taxonomy_cross_species",
+      "name": "Taxonomy to Genes",
+      "query": ">>taxonomy>>ensembl",
+      "why": "Retrieve organism gene catalog by taxonomy ID",
+      "should_pass": [
+        "9606",
+        "10090"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "taxonomy_cross_species",
+      "name": "Taxonomy to Expression Data",
+      "query": ">>taxonomy>>bgee",
+      "why": "Access organism-wide expression data",
+      "should_pass": [
+        "9606",
+        "10090"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "taxonomy_cross_species",
+      "name": "Taxonomy to Protein Interactions",
+      "query": ">>taxonomy>>biogrid",
+      "why": "Get organism interactome from BioGRID",
+      "should_pass": [
+        "9606"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "taxonomy_cross_species",
+      "name": "Taxonomy to Toxicogenomics",
+      "query": ">>taxonomy>>ctd",
+      "why": "Organism-specific chemical-gene data from CTD",
+      "should_pass": [
+        "9606"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "taxonomy_cross_species",
+      "name": "Cell Type Expression by Organism",
+      "query": ">>cl>>bgee>>taxonomy",
+      "why": "Find organisms with expression data for a cell type (3 hops)",
+      "should_pass": [
+        "CL:0000540"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "taxonomy_cross_species",
+      "name": "Tissue Expression Across Species",
+      "query": ">>uberon>>bgee>>taxonomy",
+      "why": "Discover species with tissue expression data (3 hops)",
+      "should_pass": [
+        "UBERON:0000955"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "taxonomy_cross_species",
+      "name": "CTD Chemicals by Organism",
+      "query": ">>ctd>>taxonomy",
+      "why": "Find species with toxicogenomic data for a chemical",
+      "should_pass": [
+        "D000082"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "cellxgene_celltype_atlas",
+      "name": "Cell Type to Tissue Distribution",
+      "query": ">>cl>>cellxgene_celltype>>uberon",
+      "why": "Anatomical distribution of a cell type across CELLxGENE atlas",
+      "should_pass": [
+        "CL:0000540"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "cellxgene_celltype_atlas",
+      "name": "Cell Type to Disease Associations",
+      "query": ">>cl>>cellxgene_celltype>>mondo",
+      "why": "Diseases studied with single-cell for a cell type",
+      "should_pass": [
+        "CL:0000540"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "cellxgene_celltype_atlas",
+      "name": "Tissue to Cell Type Atlas",
+      "query": ">>uberon>>cellxgene_celltype>>cl",
+      "why": "Complete cellular atlas for a tissue from CELLxGENE",
+      "should_pass": [
+        "UBERON:0000955"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "cellxgene_celltype_atlas",
+      "name": "Disease to Cell Types Studied",
+      "query": ">>mondo>>cellxgene_celltype>>cl",
+      "why": "Cellular landscape of disease single-cell research",
+      "should_pass": [
+        "MONDO:0005180"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "cellxgene_celltype_atlas",
+      "name": "Cell Type to Disease Datasets",
+      "query": ">>cl>>cellxgene>>mondo",
+      "why": "Find diseases through full CellxGene dataset collection (3 hops)",
+      "should_pass": [
+        "CL:0000084"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "cellxgene_celltype_atlas",
+      "name": "Disease Tissue Landscape",
+      "query": ">>mondo>>cellxgene_celltype>>uberon",
+      "why": "Tissues profiled in disease single-cell studies",
+      "should_pass": [
+        "MONDO:0007254"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ultra_complex_multihop",
+      "name": "Cell Type to Drug Targets (5 hops)",
+      "query": ">>cl>>bgee>>ensembl>>uniprot>>drugcentral",
+      "why": "Expression-based drug target discovery for cell types",
+      "should_pass": [
+        "CL:0000540"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ultra_complex_multihop",
+      "name": "OMIM Disease to Pathway Interactome (5 hops)",
+      "query": ">>mim>>uniprot>>intact>>uniprot>>reactome",
+      "why": "Disease protein network to pathways via interactome",
+      "should_pass": [
+        "154700"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ultra_complex_multihop",
+      "name": "Phenotype to Single-Cell Experiments (5 hops)",
+      "query": ">>hpo>>orphanet>>ensembl>>scxa",
+      "why": "Clinical phenotype to scRNA-seq data via rare disease",
+      "should_pass": [
+        "HP:0001382"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ultra_complex_multihop",
+      "name": "Metabolite to AlphaFold Structures (5 hops)",
+      "query": ">>hmdb>>uniprot>>intact>>uniprot>>alphafold",
+      "why": "Structural analysis of metabolite-binding protein networks",
+      "should_pass": [
+        "HMDB0000122"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ultra_complex_multihop",
+      "name": "Cell Type to Diseases via Variants (5 hops)",
+      "query": ">>cl>>scxa>>ensembl>>clinvar>>mondo",
+      "why": "Cell type marker genes to disease associations via variants",
+      "should_pass": [
+        "CL:0000540"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ultra_complex_multihop",
+      "name": "GO Function to Patent Compounds (6 hops)",
+      "query": ">>go>>uniprot>>bindingdb>>pubchem>>patent_compound",
+      "why": "IP landscape for functional targets via binding data",
+      "should_pass": [
+        "GO:0004672"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ultra_complex_multihop",
+      "name": "Tissue to Lipid Interactome (5 hops)",
+      "query": ">>uberon>>swisslipids>>uniprot>>intact>>uniprot",
+      "why": "Tissue-specific lipid-mediated protein networks",
+      "should_pass": [
+        "UBERON:0000955"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ultra_complex_multihop",
+      "name": "Disease to Drug Targets via Genetics (6 hops)",
+      "query": ">>mondo>>clinvar>>ensembl>>uniprot>>chembl_target_component>>chembl_target",
+      "why": "Genetics-informed drug target discovery",
+      "should_pass": [
+        "MONDO:0005148"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ultra_complex_multihop",
+      "name": "Cell Type to GWAS Traits (5 hops)",
+      "query": ">>cl>>scxa>>ensembl>>gwas>>efo",
+      "why": "Link cell biology to population genetics via single-cell markers",
+      "should_pass": [
+        "CL:0000084"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ultra_complex_multihop",
+      "name": "Tissue to Rare Diseases (6 hops)",
+      "query": ">>uberon>>bgee>>ensembl>>clinvar>>mondo>>orphanet",
+      "why": "Tissue-centric rare disease discovery via expression and variants",
+      "should_pass": [
+        "UBERON:0002107"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ultra_complex_multihop",
+      "name": "GO Process to Drug Targets via Interactome (6 hops)",
+      "query": ">>go>>uniprot>>intact>>uniprot>>chembl_target_component>>chembl_target",
+      "why": "Network pharmacology: drug targets in process interactome",
+      "should_pass": [
+        "GO:0006915"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "human_gene_xrefs",
+      "name": "Gene Symbol to HGNC (direct lookup)",
+      "query": ">>hgnc",
+      "why": "Verify gene symbols resolve to HGNC entries - foundation of human-specific mappings",
+      "should_pass": [
+        "BRCA1",
+        "TP53",
+        "EGFR",
+        "CYP2C9"
+      ],
+      "should_fail": [
+        "NOTREAL",
+        "Trp53"
+      ]
+    },
+    {
+      "category": "human_gene_xrefs",
+      "name": "Gene Symbol to ClinVar via HGNC",
+      "query": ">>hgnc>>clinvar",
+      "why": "Verify ClinVar variants can be reached via HGNC (addHumanGeneXrefs creates HGNC xref)",
+      "should_pass": [
+        "BRCA1",
+        "TP53",
+        "MLH1"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "human_gene_xrefs",
+      "name": "Gene Symbol to dbSNP via HGNC",
+      "query": ">>hgnc>>dbsnp",
+      "why": "Verify dbSNP variants can be reached via HGNC (addHumanGeneXrefs creates HGNC xref)",
+      "should_pass": [
+        "CYP2C9",
+        "BRCA1",
+        "TP53"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "human_gene_xrefs",
+      "name": "Gene Symbol to GWAS via HGNC",
+      "query": ">>hgnc>>gwas",
+      "why": "Verify GWAS associations can be reached via HGNC (addHumanGeneXrefs creates HGNC xref)",
+      "should_pass": [
+        "APOE",
+        "TCF7L2",
+        "FTO"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "human_gene_xrefs",
+      "name": "Gene Symbol to HPO via HGNC",
+      "query": ">>hgnc>>hpo",
+      "why": "Verify HPO phenotypes can be reached via HGNC (addHumanGeneXrefs creates HGNC xref)",
+      "should_pass": [
+        "BRCA1",
+        "TP53",
+        "MLH1"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "human_gene_xrefs",
+      "name": "Gene Symbol to Orphanet via HGNC",
+      "query": ">>hgnc>>orphanet",
+      "why": "Verify Orphanet rare diseases can be reached via HGNC (addHumanGeneXrefs creates HGNC xref)",
+      "should_pass": [
+        "BRCA1",
+        "CFTR",
+        "DMD"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "human_gene_xrefs",
+      "name": "ClinVar to HGNC (reverse xref)",
+      "query": ">>clinvar>>hgnc",
+      "why": "Verify ClinVar entries have HGNC cross-references (reverse of addHumanGeneXrefs)",
+      "should_pass": [
+        "242931",
+        "17661"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "human_gene_xrefs",
+      "name": "dbSNP to HGNC (reverse xref)",
+      "query": ">>dbsnp>>hgnc",
+      "why": "Verify dbSNP entries have HGNC cross-references (reverse of addHumanGeneXrefs)",
+      "should_pass": [
+        "rs1799853",
+        "rs121913279"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "human_gene_xrefs",
+      "name": "GWAS to HGNC (reverse xref)",
+      "query": ">>gwas>>hgnc",
+      "why": "Verify GWAS associations have HGNC cross-references (reverse of addHumanGeneXrefs)",
+      "should_pass": [
+        "rs429358",
+        "rs7903146"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "human_gene_xrefs",
+      "name": "HPO to HGNC (reverse xref)",
+      "query": ">>hpo>>hgnc",
+      "why": "Verify HPO phenotypes have HGNC cross-references (reverse of addHumanGeneXrefs)",
+      "should_pass": [
+        "HP:0000729",
+        "HP:0002664"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "human_gene_xrefs",
+      "name": "Orphanet to HGNC (reverse xref)",
+      "query": ">>orphanet>>hgnc",
+      "why": "Verify Orphanet entries have HGNC cross-references (reverse of addHumanGeneXrefs)",
+      "should_pass": [
+        "ORPHA:145",
+        "ORPHA:586"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "human_gene_xrefs",
+      "name": "Gene to ClinVar Pathogenic via HGNC",
+      "query": ">>hgnc>>clinvar[clinvar.germline_classification==\"Pathogenic\"]",
+      "why": "Filter for pathogenic variants via HGNC route",
+      "should_pass": [
+        "BRCA1",
+        "TP53"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "transcription_regulation",
+      "name": "CollecTRI Direct Lookup",
+      "query": ">>collectri",
+      "why": "Direct lookup of TF:target interaction IDs in CollecTRI database",
+      "should_pass": [
+        "MYC:TERT",
+        "TP53:MDM2",
+        "STAT3:BCL2"
+      ],
+      "should_fail": [
+        "NOTREAL:FAKE",
+        "INVALID"
+      ]
+    },
+    {
+      "category": "transcription_regulation",
+      "name": "TF Gene to CollecTRI Interactions",
+      "query": ">>collectri",
+      "why": "Find all regulatory interactions for a transcription factor gene symbol",
+      "should_pass": [
+        "MYC",
+        "TP53",
+        "STAT3",
+        "E2F1"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "transcription_regulation",
+      "name": "Target Gene to CollecTRI Interactions",
+      "query": ">>collectri",
+      "why": "Find all TFs that regulate a target gene",
+      "should_pass": [
+        "TERT",
+        "MDM2",
+        "BCL2",
+        "CCND1"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "transcription_regulation",
+      "name": "CollecTRI to HGNC (TF genes)",
+      "query": ">>collectri>>hgnc",
+      "why": "CollecTRI entries have cross-references to HGNC via addHumanGeneXrefs",
+      "should_pass": [
+        "MYC:TERT",
+        "TP53:MDM2"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "transcription_regulation",
+      "name": "CollecTRI to Ensembl (human genes)",
+      "query": ">>collectri>>ensembl",
+      "why": "CollecTRI entries have cross-references to human Ensembl genes via HGNC",
+      "should_pass": [
+        "MYC:TERT",
+        "TP53:MDM2"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "transcription_regulation",
+      "name": "CollecTRI to PubMed Literature",
+      "query": ">>collectri>>pubmed",
+      "why": "CollecTRI entries have PubMed cross-references for supporting literature",
+      "should_pass": [
+        "MYC:TERT",
+        "TP53:MDM2"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "transcription_regulation",
+      "name": "HGNC to CollecTRI (reverse)",
+      "query": ">>hgnc>>collectri",
+      "why": "Find regulatory interactions for a gene via HGNC cross-reference",
+      "should_pass": [
+        "HGNC:7553",
+        "HGNC:11998"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "transcription_regulation",
+      "name": "Ensembl to CollecTRI (reverse)",
+      "query": ">>ensembl>>collectri",
+      "why": "Find regulatory interactions for a human Ensembl gene",
+      "should_pass": [
+        "ENSG00000136997",
+        "ENSG00000141510"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "transcription_regulation",
+      "name": "Gene Symbol to TF Targets via CollecTRI",
+      "query": ">>hgnc>>collectri>>hgnc",
+      "why": "Multi-hop: find genes regulated by or regulating a gene of interest",
+      "should_pass": [
+        "MYC",
+        "TP53"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "transcription_regulation",
+      "name": "TF to Target to Pathway",
+      "query": ">>collectri>>ensembl>>reactome",
+      "why": "Multi-hop: find pathways containing genes regulated by a TF",
+      "should_pass": [
+        "MYC:TERT",
+        "TP53:MDM2"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "causal_signaling",
+      "name": "SIGNOR Direct ID Lookup",
+      "query": ">>signor",
+      "why": "Direct lookup of SIGNOR causal interaction IDs",
+      "should_pass": [
+        "SIGNOR-142566",
+        "SIGNOR-253635",
+        "SIGNOR-269889"
+      ],
+      "should_fail": [
+        "SIGNOR-999999999",
+        "INVALID"
+      ]
+    },
+    {
+      "category": "causal_signaling",
+      "name": "Entity Name to SIGNOR",
+      "query": ">>signor",
+      "why": "Text search for signaling interactions by entity name (protein, chemical, phenotype)",
+      "should_pass": [
+        "EGFR",
+        "TP53",
+        "apoptosis"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "causal_signaling",
+      "name": "UniProt to SIGNOR Interactions",
+      "query": ">>uniprot>>signor",
+      "why": "Find all signaling interactions for a protein via UniProt cross-reference",
+      "should_pass": [
+        "P00533",
+        "P04637",
+        "Q9Y5X1"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "causal_signaling",
+      "name": "SIGNOR to UniProt (reverse)",
+      "query": ">>signor>>uniprot",
+      "why": "Get protein participants from SIGNOR interactions",
+      "should_pass": [
+        "SIGNOR-142566",
+        "SIGNOR-253635"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "causal_signaling",
+      "name": "SIGNOR to PubMed Literature",
+      "query": ">>signor>>pubmed",
+      "why": "SIGNOR entries have PubMed cross-references for supporting literature",
+      "should_pass": [
+        "SIGNOR-142566",
+        "SIGNOR-253635"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "causal_signaling",
+      "name": "SIGNOR to Taxonomy (organism)",
+      "query": ">>signor>>taxonomy",
+      "why": "Get organism information for SIGNOR interactions",
+      "should_pass": [
+        "SIGNOR-142566",
+        "SIGNOR-253635"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "causal_signaling",
+      "name": "Taxonomy to SIGNOR (organism filter)",
+      "query": ">>taxonomy>>signor",
+      "why": "Find all SIGNOR interactions for a specific organism",
+      "should_pass": [
+        "9606",
+        "10090"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "causal_signaling",
+      "name": "ChEBI to SIGNOR (chemical signaling)",
+      "query": ">>chebi>>signor",
+      "why": "Find signaling interactions involving a chemical compound",
+      "should_pass": [
+        "CHEBI:16865",
+        "CHEBI:4031"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "causal_signaling",
+      "name": "SIGNOR Phosphorylation Filter",
+      "query": ">>uniprot>>signor[signor.mechanism==\"phosphorylation\"]",
+      "why": "Filter SIGNOR interactions by mechanism type - phosphorylation is key for kinase research",
+      "should_pass": [
+        "P00533",
+        "P04637"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "causal_signaling",
+      "name": "SIGNOR Human Only Filter",
+      "query": ">>uniprot>>signor[signor.tax_id==9606]",
+      "why": "Filter SIGNOR interactions to human only (tax_id 9606)",
+      "should_pass": [
+        "P00533",
+        "P04637"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "causal_signaling",
+      "name": "Gene to SIGNOR to Pathway",
+      "query": ">>ensembl>>uniprot>>signor>>uniprot>>reactome",
+      "why": "Multi-hop: find pathways containing proteins that interact with gene product via signaling",
+      "should_pass": [
+        "EGFR",
+        "TP53"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "causal_signaling",
+      "name": "SIGNOR High Confidence Filter",
+      "query": ">>uniprot>>signor[signor.score>0.5]",
+      "why": "Filter SIGNOR interactions by confidence score for higher quality results",
+      "should_pass": [
+        "P00533",
+        "P04637"
       ],
       "should_fail": []
     }

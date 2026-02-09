@@ -42,8 +42,62 @@
         "expression"
       ],
       "missing_terms": []
+    },
+    "biobtree_sonnet_20260208_071719": {
+      "model": "anthropic/claude-sonnet-4",
+      "timestamp": "2026-02-08T07:18:28.456689",
+      "response": "Based on the data I've retrieved, I can provide you with comprehensive information about CD19 expression across different cell types, with specific focus on B-cell subtypes.\n\n## CD19 Expression Across Cell Types\n\n**CD19 (ENSG00000177455)** is a B-lymphocyte surface antigen that serves as a critical marker for B-cell identification and is involved in B-cell proliferation regulation.\n\n### Primary Expression Pattern\n\nCD19 shows **highly specific expression in B-lymphocyte lineage cells**, with the highest expression levels found in:\n\n1. **B-cell lineage cells** - Primary expression site\n2. **Leukocytes** (general immune cells) - Present with gold quality evidence\n3. **Monocytes** - Present but at lower levels\n4. **Granulocytes** - Present expression\n\n### B-Cell Subtype Expression Data\n\nFrom the single-cell expression data, CD19 shows differential expression across B-cell developmental stages:\n\n#### **Highest Expression B-Cell Subtypes:**\n- **Mature B cells** (clusters 6, 9, 10): **~280-290 TPM**\n  - Cluster 10: 291.12 TPM (median: 257.93) - marked as significant marker\n  - Cluster 9: 278.78 TPM (median: 234.88)\n  - Cluster 6: 282.32 TPM (median: 226.19)\n\n- **Activated B cells** (clusters 4, 16, 34, 46, 47, 50): **~240-260 TPM**\n  - Cluster 4: 261.22 TPM (median: 204.04)\n  - Cluster 50: 262.05 TPM (median: 210.02)\n  - Cluster 34: 247.91 TPM (median: 201.84)\n\n#### **Moderate Expression:**\n- **Memory B cells**: **~140-200 TPM** (clusters 60, 94, 98)\n  - Cluster 98: 201.42 TPM (median: 164.85)\n  - Cluster 94: 167.36 TPM\n  - Cluster 60: 142.08 TPM (median: 103.75)\n\n- **Naive B cells**: **~80-125 TPM** (clusters 74, 77, 79, 81)\n  - Cluster 81: 125.01 TPM\n  - Cluster 79: 116.04 TPM\n  - Cluster 77: 79.54 TPM\n  - Cluster 74: 79.54 TPM\n\n#### **Lower Expression:**\n- **Plasma cells/Plasmablasts**: **~30-60 TPM** (clusters 2, 3, 32, 52, 53, 58, 61, 62, 64)\n  - Cluster 2: 59.86 TPM\n  - Cluster 58: 53.89 TPM\n  - Cluster 64: 55.49 TPM\n  - Cluster 32: 51.59 TPM\n\n### Key Findings:\n\n1. **CD19 expression is inversely correlated with B-cell differentiation** - highest in mature/activated B cells, progressively decreasing through memory B cells, naive B cells, and lowest in plasma cells.\n\n2. **Tissue Distribution**: CD19+ cells are found across multiple tissues including:\n   - **Blood** (1.3M+ cells) - highest abundance\n   - **Spleen** (92K+ cells)\n   - **Lymph nodes** (thoracic: 69K, mesenteric: 68K, inguinal: 13K)\n   - **Bone marrow** (39K cells)\n   - **Tonsils** (12K cells)\n   - **Various mucosal tissues** (colon, small intestine, stomach)\n\n3. **Clinical Relevance**: CD19 is targeted by therapeutic antibodies including:\n   - **Blinatumomab** (BiTE therapy, Kd = 9 nM)\n   - **Inebilizumab** (Kd = 9.8 nM)\n   - **Tafasitamab** (Kd = 9.39 nM)\n\n### Summary for Specific B-Cell Subtypes:\n\n- **Naive B cells**: 80-125 TPM (moderate expression)\n- **Memory B cells**: 140-200 TPM (high expression)  \n- **Plasma cells**: 30-60 TPM (lowest expression among B cells)\n\nThis expression pattern reflects CD19's role as a co-receptor that's most important during B-cell activation and proliferation, with downregulation occurring as cells terminally differentiate into antibody-secreting plasma cells.\n\n---\n**Data Sources:**\n- http://biobtree:9291/ws/?i=CD19\n- http://biobtree:9291/ws/map/?i=ENSG00000177455&m=>>ensembl>>scxa_expression>>scxa_gene_experiment\n- http://biobtree:9291/ws/entry/?i=E-CURD-122&s=scxa_experiment\n- http://biobtree:9291/ws/?i=naive B cell\n- http://biobtree:9291/ws/?i=memory B cell\n- http://biobtree:9291/ws/?i=plasma cell\n- http://biobtree:9291/ws/map/?i=CL:0000788&m=>>cl>>scxa_gene_experiment\n- http://biobtree:9291/ws/?i=CL:0000788\n- http://biobtree:9291/ws/entry/?i=ENSG00000177455_E-ANND-3&s=scxa_gene_experiment\n- http://biobtree:9291/ws/?i=CD19&s=scxa_gene_experiment\n- http://biobtree:9291/ws/?i=ENSG00000177455&s=scxa_gene_experiment\n- http://biobtree:9291/ws/map/?i=ENSG00000177455&m=>>ensembl>>bgee",
+      "tool_calls": 13,
+      "elapsed_seconds": 68.5,
+      "auto_score": 1.0,
+      "found_terms": [
+        "CD19",
+        "B cell",
+        "naive",
+        "memory",
+        "plasma",
+        "lymph node",
+        "expression",
+        "ENSG00000177455"
+      ],
+      "missing_terms": [],
+      "usage": {
+        "prompt_tokens": 296267,
+        "completion_tokens": 2387,
+        "total_tokens": 298654
+      }
     }
   },
-  "reviews": {},
+  "reviews": {
+    "review_1": {
+      "outcome": "mixed_requires_investigation",
+      "date": "2026-02-08",
+      "key_finding": "SCXA integration resolves previous limitation - biobtree now provides B-cell subtype TPM values. However, comparison with OpenTargets BLUEPRINT reveals discrepancy in plasma cell expression that requires investigation.",
+      "previous_limitation": "Before SCXA, biobtree only had tissue-level Bgee data (lymph node 93.9, bone marrow 82.39) without B-cell subtype resolution. Ground truth noted 'POTENTIAL_OPENTARGETS_WIN - BLUEPRINT has B-cell subtype data'.",
+      "data_comparison": {
+        "biobtree_scxa": {
+          "mature_bcells": "280-290 TPM",
+          "memory_bcells": "140-200 TPM",
+          "naive_bcells": "80-125 TPM",
+          "plasma_cells": "30-60 TPM (lowest)"
+        },
+        "opentargets_blueprint": {
+          "naive_bcells": "5,712 TPM",
+          "plasma_cells": "5,511 TPM",
+          "memory_bcells": "4,834 TPM"
+        }
+      },
+      "biological_question": "CD19 is known to be downregulated during plasma cell differentiation. Biobtree SCXA shows this pattern (plasma lowest at 30-60 TPM). OpenTargets BLUEPRINT shows plasma cells at similar levels to naive (5,511 vs 5,712 TPM). Which reflects true biology?",
+      "context_from_q1_analysis": "Per analysis in 1_analysis.txt: OpenTargets integrates BLUEPRINT consortium data (haematopoietic cell profiling). For immune/blood targets, BLUEPRINT should provide superior cell-type resolution. However, the plasma cell CD19 expression discrepancy suggests potential methodology differences in how plasma cells are defined or measured.",
+      "requires_investigation": [
+        "Is BLUEPRINT's plasma cell definition different from SCXA?",
+        "Are SCXA cluster annotations for plasma cells accurate?",
+        "Is this a measurement methodology issue (bulk vs single-cell)?",
+        "What does published literature say about CD19 TPM in plasma cells?"
+      ],
+      "preliminary_assessment": "Biobtree SCXA pattern matches expected CD19 biology (downregulation in plasma cells), but this is an immune target where BLUEPRINT should theoretically excel. The discrepancy warrants deeper investigation before declaring a winner.",
+      "quotable": "CD19 benchmark reveals complexity in expression database comparison - even for immune targets where BLUEPRINT excels, single-cell data may capture differentiation dynamics that bulk profiling misses."
+    }
+  },
   "question_id": "cd19_bcell_subtypes"
 }

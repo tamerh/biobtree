@@ -979,6 +979,18 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			d.datasets2 = append(d.datasets2, data)
 			go orph.update()
 			break
+		case "collectri":
+			d.wg.Add(1)
+			ct := collectri{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go ct.update()
+			break
+		case "signor":
+			d.wg.Add(1)
+			sig := signor{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go sig.update()
+			break
 		default:
 			log.Fatal("ERROR Unrecognized dataset ->" + data)
 		}
@@ -1788,28 +1800,13 @@ func (d *DataUpdate) addXrefViaKeyword(keyword string, keywordDataset string, ta
 	}
 }
 
-// addXrefViaGeneSymbol creates cross-reference from variant to Ensembl gene via gene symbol lookup
-// Handles paralog cases by creating xrefs to all matching Ensembl genes
-// chromosome parameter is kept for future enhancement but not used currently
-// geneSymbol: Gene symbol (e.g., "BRCA1", "DDX11L16")
-// chromosome: Chromosome name/ID (reserved for future filtering)
-// variantID: Variant ID (SNP, GWAS association, etc.)
-// variantDataset: Variant dataset name (e.g., "dbsnp", "gwas")
-// variantDatasetID: Variant dataset ID string
-func (d *DataUpdate) addXrefViaGeneSymbol(geneSymbol, chromosome, variantID, variantDataset, variantDatasetID string) {
-	// Use addXrefViaKeyword to lookup symbol in Ensembl (instead of HGNC)
-	// This will create xrefs to all matching Ensembl genes
-	// For paralogs like DDX11L16, this creates xrefs to all copies (chr1, chrX, chrY)
-	// This follows biobtree's deterministic principle: show all or none
-	d.addXrefViaKeyword(geneSymbol, "ensembl", variantID, variantDataset, variantDatasetID, false)
-}
-
-// addXrefEnsemblViaHgnc creates ClinVar → Ensembl cross-reference via HGNC
-// This ensures we only get human Ensembl genes by going through HGNC first
+// addHumanGeneXrefs creates cross-references to both HGNC and Ensembl via gene symbol lookup
+// This ensures we only get human genes by going through HGNC first
+// Creates: sourceID → HGNC and sourceID → Ensembl (human only)
 // geneSymbol: Gene symbol (e.g., "BRCA1")
-// clinvarID: ClinVar variant ID
-// clinvarDatasetID: ClinVar dataset ID
-func (d *DataUpdate) addXrefEnsemblViaHgnc(geneSymbol, clinvarID, clinvarDatasetID string) {
+// sourceID: The source entity identifier (e.g., variant ID, disease ID)
+// sourceDatasetID: The dataset ID of the source entity
+func (d *DataUpdate) addHumanGeneXrefs(geneSymbol, sourceID, sourceDatasetID string) {
 	if !d.hasLookupDB {
 		return
 	}
@@ -1853,13 +1850,16 @@ func (d *DataUpdate) addXrefEnsemblViaHgnc(geneSymbol, clinvarID, clinvarDataset
 		return // No HGNC entry found
 	}
 
-	// Step 3: Lookup HGNC entry directly to get its cross-references
+	// Step 3: Create xref to HGNC
+	d.addXref(sourceID, sourceDatasetID, hgncIdentifier, "hgnc", false)
+
+	// Step 4: Lookup HGNC entry directly to get its cross-references
 	hgncResult, err := d.lookup(hgncIdentifier)
 	if err != nil || hgncResult == nil || len(hgncResult.Results) == 0 {
 		return
 	}
 
-	// Step 4: Find Ensembl cross-reference in HGNC entry
+	// Step 5: Find Ensembl cross-reference in HGNC entry
 	ensemblDatasetID, ok := config.Dataconf["ensembl"]["id"]
 	if !ok {
 		return
@@ -1877,7 +1877,7 @@ func (d *DataUpdate) addXrefEnsemblViaHgnc(geneSymbol, clinvarID, clinvarDataset
 		for _, entry := range hgncRes.Entries {
 			if entry.Dataset == ensemblDatasetInt {
 				// Found human Ensembl gene - create cross-reference
-				d.addXref(clinvarID, clinvarDatasetID, entry.Identifier, "ensembl", false)
+				d.addXref(sourceID, sourceDatasetID, entry.Identifier, "ensembl", false)
 				return // Only need one Ensembl reference
 			}
 		}

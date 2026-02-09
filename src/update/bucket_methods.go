@@ -48,6 +48,7 @@ var BucketMethods = map[string]BucketMethod{
 	"gcst":      alphabeticBucket, // GCST010481, VT0000188 → multiple prefixes, use first letter
 	"ontology":  ontologyBucket,  // CHEBI:12345, HP:0001234, UBERON:0000001 → numeric after colon
 	"scxa":      scxaBucket,      // E-MTAB-6386, E-ANND-1 → numeric after second hyphen
+	"signor":    signorBucket,    // SIGNOR-142566 → numeric part after "SIGNOR-"
 
 	// Hybrid bucket methods (bucketed for known prefixes, fallback for others)
 	"ensembl_hybrid": ensemblHybridBucket, // ENSG/ENSMUSG/ENSRNOG/ENSUMUG/ENSDARG/FBGN → bucketed, others → fallback
@@ -232,6 +233,15 @@ func scxaBucket(id string, numBuckets int) int {
 		panic("scxaBucket: invalid SCXA id format (no numeric part): " + id)
 	}
 	return numericLexBucket(numericPart, numBuckets)
+}
+
+// signorBucket - SIGNOR causal interaction IDs: SIGNOR-142566
+// Uses numeric part after "SIGNOR-" for lexicographic bucket assignment
+func signorBucket(id string, numBuckets int) int {
+	if len(id) < 8 || !strings.HasPrefix(id, "SIGNOR-") {
+		panic("signorBucket: invalid SIGNOR id format: " + id)
+	}
+	return numericLexBucket(id[7:], numBuckets)
 }
 
 // patentBucket - fallback alphabetic bucket for all patent formats

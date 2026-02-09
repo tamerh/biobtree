@@ -739,20 +739,20 @@ func (db *dbsnp) createCrossReferences(rsID, sourceID string, attr *pbuf.DbsnpAt
 	}
 
 	// Gene names → SNP cross-reference via Ensembl lookup
-	// Handles paralogs by filtering using chromosome and HGNC preference
-	// Search "BRCA1" returns Ensembl entry (with embedded HGNC data), then "BRCA1 >> dbsnp" returns all SNPs
-	// No limit - biobtree is deterministic, we show all genes or none
+	// Gene names → SNP cross-reference via HGNC and Ensembl (human only)
+	// addHumanGeneXrefs creates xrefs to both HGNC and Ensembl
+	// Search "BRCA1" returns HGNC/Ensembl entry, then "BRCA1 >> dbsnp" returns all SNPs
 	for _, geneName := range attr.GeneNames {
 		if geneName != "" && len(geneName) < 100 {
-			db.d.addXrefViaGeneSymbol(geneName, attr.Chromosome, rsID, db.source, sourceID)
+			db.d.addHumanGeneXrefs(geneName, rsID, sourceID)
 		}
 	}
 
-	// Pseudogene names → SNP cross-reference via Ensembl lookup
+	// Pseudogene names → SNP cross-reference via HGNC and Ensembl
 	// Same pattern as genes, but for pseudogenes
 	for _, pseudogeneName := range attr.PseudogeneNames {
 		if pseudogeneName != "" && len(pseudogeneName) < 100 {
-			db.d.addXrefViaGeneSymbol(pseudogeneName, attr.Chromosome, rsID, db.source, sourceID)
+			db.d.addHumanGeneXrefs(pseudogeneName, rsID, sourceID)
 		}
 	}
 

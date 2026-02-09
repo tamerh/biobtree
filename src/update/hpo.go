@@ -303,15 +303,9 @@ func (h *hpo) parseGeneToPhenotype(path string) {
 			continue
 		}
 
-		// Create cross-reference: Gene keyword → HPO term
-		// Use keyword lookup to resolve gene symbol to Ensembl genes
-		// addXrefViaKeyword: (keyword, keywordDataset, targetValue, targetDataset, from, isLink)
-		h.d.addXrefViaKeyword(geneSymbol, "ensembl", hpoID, h.source, hpoDatasetID, false)
-
-		// Create cross-reference: HPO term → Ensembl gene
-		// Handles paralogs by creating xrefs to all matching Ensembl genes
-		// No chromosome information available in HPO gene-phenotype file, so pass empty string
-		h.d.addXrefViaGeneSymbol(geneSymbol, "", hpoID, h.source, hpoDatasetID)
+		// Create cross-reference: HPO term → HGNC and Ensembl (human only)
+		// addHumanGeneXrefs creates xrefs to both HGNC and Ensembl via gene symbol lookup
+		h.d.addHumanGeneXrefs(geneSymbol, hpoID, hpoDatasetID)
 
 		associationCount++
 	}

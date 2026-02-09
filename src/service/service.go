@@ -187,6 +187,8 @@ func (s *service) init() {
 		cel.Types(&pbuf.BiogridInteractionAttr{}),
 		cel.Types(&pbuf.AlphaFoldAttr{}),
 		cel.Types(&pbuf.ClinicalTrialAttr{}),
+		cel.Types(&pbuf.CollecTriAttr{}),
+		cel.Types(&pbuf.SignorAttr{}),
 		cel.Declarations(
 			decls.NewIdent("uniprot", decls.NewObjectType("pbuf.UniprotAttr"), nil)),
 		cel.Declarations(
@@ -317,6 +319,10 @@ func (s *service) init() {
 			decls.NewIdent("alphafold", decls.NewObjectType("pbuf.AlphaFoldAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("clinical_trials", decls.NewObjectType("pbuf.ClinicalTrialAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("collectri", decls.NewObjectType("pbuf.CollecTriAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("signor", decls.NewObjectType("pbuf.SignorAttr"), nil)),
 		cel.Declarations(
 			decls.NewFunction("overlaps",
 				decls.NewOverload("overlaps_int_int",

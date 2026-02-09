@@ -1953,6 +1953,16 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)
 				xref.Attributes = &pbuf.Xref_ScxaGeneExperiment{attr}
+			case "collectri":
+				attr := &pbuf.CollecTriAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Collectri{attr}
+			case "signor":
+				attr := &pbuf.SignorAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Signor{attr}
 			case "drugcentral":
 				attr := &pbuf.DrugcentralAttr{}
 				barr := []byte((*kvProp[k])[0].value)
@@ -2354,6 +2364,16 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 					barr := []byte((*kvProp[k])[0].value)
 					ffjson.Unmarshal(barr, attr)
 					xref.Attributes = &pbuf.Xref_ScxaGeneExperiment{attr}
+				case "collectri":
+					attr := &pbuf.CollecTriAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_Collectri{attr}
+				case "signor":
+					attr := &pbuf.SignorAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_Signor{attr}
 				case "drugcentral":
 					attr := &pbuf.DrugcentralAttr{}
 					barr := []byte((*kvProp[k])[0].value)

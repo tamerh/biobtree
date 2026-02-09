@@ -162,6 +162,8 @@ message Xref {
     ScxaGeneExperimentAttr scxa_gene_experiment=77;
     BiogridInteractionAttr biogrid_interaction=78;
     HPOAttr hpo_attr=79;
+    CollecTriAttr collectri=80;
+    SignorAttr signor=81;
 
   }
 

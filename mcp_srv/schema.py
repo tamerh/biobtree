@@ -10,7 +10,7 @@ Schema definitions for biobtree_help tool - dataset connections, filters, and qu
 
 SCHEMA_EDGES = {
     "ensembl": ["uniprot", "go", "transcript", "exon", "ortholog", "paralog", "dbsnp", "clinvar", "hgnc", "entrez", "refseq", "bgee", "gwas", "gencc", "biogrid", "string", "antibody", "scxa"],
-    "hgnc": ["ensembl", "uniprot", "entrez", "gencc", "pharmgkb_gene", "msigdb", "clinvar", "mim", "refseq", "alphafold"],
+    "hgnc": ["ensembl", "uniprot", "entrez", "gencc", "pharmgkb_gene", "msigdb", "clinvar", "mim", "refseq", "alphafold", "collectri"],
     "entrez": ["ensembl", "uniprot", "refseq", "go", "biogrid", "pubchem_activity"],
     "refseq": ["ensembl", "uniprot", "entrez"],
     "transcript": ["ensembl", "exon", "ufeature"],
@@ -66,7 +66,8 @@ SCHEMA_EDGES = {
     "msigdb": ["hgnc", "entrez", "go", "hpo"],
     "orphanet": ["hpo", "ensembl", "uniprot", "mondo", "hgnc", "clinvar", "mim", "mesh"],
     "mim": ["clinvar", "hpo", "mondo", "uniprot", "ctd"],
-    "hmdb": ["pubchem", "hpo", "chebi", "uniprot"]
+    "hmdb": ["pubchem", "hpo", "chebi", "uniprot"],
+    "collectri": ["hgnc"]
 }
 
 # =============================================================================
@@ -127,7 +128,8 @@ SCHEMA_FILTERS = {
     "reactome": {"is_disease_pathway": "bool"},
     "go": {"type": "str (biological_process|molecular_function|cellular_component)"},
     "msigdb": {"collection": "str (H|C1-C8)", "gene_count": "int"},
-    "antibody": {"status": "str (Active|Discontinued)", "antibody_type": "str (therapeutic)", "isotype": "str (G1|G2|G4)"}
+    "antibody": {"status": "str (Active|Discontinued)", "antibody_type": "str (therapeutic)", "isotype": "str (G1|G2|G4)"},
+    "collectri": {"tf_gene": "str (TF gene symbol)", "target_gene": "str (target gene symbol)", "regulation": "str (Activation|Repression|Unknown)", "confidence": "str (High|Low)"}
 }
 
 # =============================================================================
@@ -153,7 +155,8 @@ SCHEMA_EXAMPLES = {
     "gwas_study": "GCST010481",
     "clinical_trials": "NCT00720356",
     "antibody": "BEVACIZUMAB",
-    "string": "9606.ENSP00000269305"
+    "string": "9606.ENSP00000269305",
+    "collectri": "MYC:TERT (MYC regulates TERT)"
 }
 
 # =============================================================================
@@ -248,6 +251,14 @@ SCHEMA_PATTERNS = """# Human genes: use >>hgnc>>ensembl instead of >>ensembl[gen
 # Gene -> Interactions
 <gene> >> ensembl >> uniprot >> intact
 <gene> >> ensembl >> entrez >> biogrid
+
+# ===== TRANSCRIPTIONAL REGULATION (CollecTRI) =====
+
+# Gene -> TF-target regulatory interactions
+<gene> >> hgnc >> collectri                            # Find all TF-target pairs involving gene
+<gene> >> hgnc >> collectri[collectri.regulation=="Activation"]   # Activating TFs only
+<gene> >> hgnc >> collectri[collectri.regulation=="Repression"]   # Repressing TFs only
+<gene> >> hgnc >> collectri[collectri.confidence=="High"]         # High confidence interactions
 
 # ===== ONTOLOGY =====
 

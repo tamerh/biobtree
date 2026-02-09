@@ -964,5 +964,32 @@
     "hasFilter": "yes",
     "attrs": "interaction_id,experimental_system,experimental_system_type,author,publication,throughput,score,modification,qualifications,tags,source_database,interactor_a_id,interactor_a_symbol,interactor_a_organism,interactor_b_id,interactor_b_symbol,interactor_b_organism",
     "bucketMethod": "numeric"
+  },
+  "collectri": {
+    "id": "115",
+    "name": "CollecTRI",
+    "aliases": "CollecTRI,transcription factor,TF,TF-target,gene regulation,regulatory network,TF regulation,transcriptional regulation",
+    "url": "https://zenodo.org/record/7773985",
+    "path": "https://zenodo.org/record/7773985/files/CollecTRI_source.tsv",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "tf_gene,target_gene,[]sources,[]pmids,regulation,confidence",
+    "test_entries_count": "100",
+    "bucketMethod": "alphabetic"
+  },
+  "signor": {
+    "id": "116",
+    "name": "SIGNOR",
+    "aliases": "SIGNOR,signaling network,causal interactions,signaling pathways",
+    "url": "https://signor.uniroma2.it/relation_result.php?id=£{id}",
+    "path": "raw_data/signor/",
+    "pathHuman": "all_data_09_02_26.tsv",
+    "pathMouse": "all_data_M_musculus_09_02_26.tsv",
+    "pathRat": "all_data_R_norvegicus_09_02_26.tsv",
+    "useLocalFile": "yes",
+    "hasFilter": "yes",
+    "attrs": "entity_a,type_a,id_a,database_a,entity_b,type_b,id_b,database_b,effect,mechanism,residue,sequence,tax_id,cell_data,tissue_data,direct,score",
+    "test_entries_count": "500",
+    "bucketMethod": "signor"
   }
 }

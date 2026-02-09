@@ -2131,3 +2131,42 @@ message ScxaClusterExpression {
   int32 rank = 10;                 // Rank within cell type (0 = top marker)
 }
 
+// CollecTRI - Transcription Factor-Target Gene Regulatory Network (Dataset ID: 115)
+// Comprehensive collection of TF-target gene interactions from multiple sources
+// Source: https://zenodo.org/record/7773985
+// Primary key: TF_gene:Target_gene (e.g., "MYC:TERT")
+// Note: TRED source is excluded for licensing reasons
+message CollecTriAttr {
+  string tf_gene = 1;                         // Transcription factor gene symbol (e.g., "MYC")
+  string target_gene = 2;                     // Target gene symbol (e.g., "TERT")
+  repeated string sources = 3;                // Evidence sources (e.g., "ExTRI", "HTRI", "TRRUST", "TFactS", etc.)
+  // pmids moved to xrefs (field 4 reserved for backwards compatibility)
+  string regulation = 5;                      // Regulation direction: "Activation", "Repression", "Unknown"
+  string confidence = 6;                      // Confidence level: "High", "Low", or empty
+}
+
+// SIGNOR - SIGnaling Network Open Resource (Dataset ID: 116)
+// Manually curated causal relationships between biological entities
+// Source: https://signor.uniroma2.it/
+// Primary key: SIGNOR-XXXXXX (e.g., "SIGNOR-142566")
+// Supports human (9606), mouse (10090), and rat (10116)
+message SignorAttr {
+  string entity_a = 1;          // Source entity name (e.g., "SNX9", "EGFR:neuregulin 1 complex")
+  string type_a = 2;            // Source type: protein, complex, smallmolecule, proteinfamily, mirna, stimulus, phenotype
+  string id_a = 3;              // Source external ID (UniProt, ChEBI, etc.)
+  string database_a = 4;        // Source database: UNIPROT, ChEBI, SIGNOR, PUBCHEM, RNAcentral, DRUGBANK
+  string entity_b = 5;          // Target entity name
+  string type_b = 6;            // Target type
+  string id_b = 7;              // Target external ID
+  string database_b = 8;        // Target database
+  string effect = 9;            // Regulatory effect (up-regulates activity, down-regulates, up-regulates quantity, etc.)
+  string mechanism = 10;        // Mechanism (phosphorylation, binding, transcriptional regulation, etc.)
+  string residue = 11;          // Modification residue (e.g., "Ser473", "Tyr1068")
+  string sequence = 12;         // Sequence context around modification site
+  int32 tax_id = 13;            // Taxonomy ID (9606=human, 10090=mouse, 10116=rat)
+  string cell_data = 14;        // Cell type (BTO ontology ID, e.g., "BTO:0000007")
+  string tissue_data = 15;      // Tissue data
+  bool direct = 16;             // Direct interaction flag (YES→true, NO→false)
+  double score = 17;            // Confidence score (0-1)
+}
+

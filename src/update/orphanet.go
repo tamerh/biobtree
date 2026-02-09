@@ -386,9 +386,9 @@ func (o *orphanet) parseProduct6(entries map[string]*orphaEntry) int {
 						}
 					}
 
-					// Also create xref via gene symbol lookup
+					// Also create xref via gene symbol lookup (HGNC and Ensembl)
 					if geneSymbol != "" {
-						o.d.addXrefViaGeneSymbol(geneSymbol, "", orphaCode, o.source, sourceID)
+						o.d.addHumanGeneXrefs(geneSymbol, orphaCode, sourceID)
 					}
 
 					entry.geneCount++

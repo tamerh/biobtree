@@ -7,7 +7,7 @@ via identifiers and special keywors with simple or advance chain query capabilit
 
 ## Features
 
-* **Datasets** - supports wide datasets such as `Ensembl` `Uniprot` `ChEMBL` `HMDB` `BindingDB` `CTD` `STRING` `BioGRID` `MSigDB` `Taxonomy` `GO` `EFO` `HPO` `UBERON` `CL` `HGNC` `ECO` `Uniparc` `Uniref` `RNACentral` `Bgee` `GWAS Catalog` `dbSNP` `RefSeq` `IntAct` `GenCC` `AlphaMissense` `ClinVar` `PharmGKB` `CELLxGENE` `SCXA` `Orphanet`  with tens of more via cross references
+* **Datasets** - supports wide datasets such as `Ensembl` `Uniprot` `ChEMBL` `HMDB` `BindingDB` `CTD` `STRING` `BioGRID` `MSigDB` `Taxonomy` `GO` `EFO` `HPO` `UBERON` `CL` `HGNC` `ECO` `Uniparc` `Uniref` `RNACentral` `Bgee` `GWAS Catalog` `dbSNP` `RefSeq` `IntAct` `GenCC` `AlphaMissense` `ClinVar` `PharmGKB` `CELLxGENE` `SCXA` `Orphanet` `CollecTRI` `SIGNOR`  with tens of more via cross references
 by retrieving latest data from providers
 
 * **MapReduce** - processes small or large datasets based on users selection and build B+ tree based uniform local database via specialized MapReduce based tecnique with efficient storage usage 
@@ -57,6 +57,10 @@ by retrieving latest data from providers
 * **Gene Sets** - `MSigDB` (Molecular Signatures Database) with 35K+ annotated gene sets for GSEA analysis. Includes Hallmark (H), positional (C1), curated (C2), regulatory (C3), computational (C4), ontology (C5), oncogenic (C6), immunologic (C7), and cell type (C8) collections. Provides gene symbols, descriptions, PubMed references, GO/HPO term associations, and collection metadata. Cross-references to HGNC gene symbols, Entrez Gene IDs, PubMed, GO, and HPO. Supports gene set enrichment analysis, pathway discovery, and functional annotation
 
 * **Gene-Disease Validity** - `GenCC` (Gene Curation Coalition) database with 35,000+ standardized gene-disease validity curations from multiple authoritative sources including ClinGen, Ambry, Genomics England, and Orphanet. Provides classification levels (Definitive, Strong, Moderate, Limited, Supportive), mode of inheritance (autosomal dominant/recessive, X-linked), submitter information, and PubMed citations. Supports clinical variant interpretation, diagnostic panel design, and gene-disease relationship exploration with cross-references to MONDO, HPO, and PubMed
+
+* **Transcription Factor Regulation** - `CollecTRI` database with 43K+ human TF-target gene regulatory interactions from 12 evidence sources. Provides transcription factor and target gene pairs, regulation direction (Activation/Repression), confidence levels, PubMed references, and evidence sources. Cross-references to Ensembl genes. Supports gene regulatory network analysis, TF target discovery, and transcriptional pathway exploration. Note: TRED source excluded for licensing reasons
+
+* **Causal Signaling Networks** - `SIGNOR` database with 114K+ manually curated causal relationships between biological entities (proteins, chemicals, phenotypes) across human, mouse, and rat. Provides regulatory effects (up/down-regulates), mechanisms (phosphorylation, binding, transcriptional regulation), confidence scores, and experimental context. Cross-references to UniProt, ChEBI, PubChem, DrugBank, PubMed, and Taxonomy. Supports signaling pathway analysis, drug mechanism discovery, and phenotype regulation studies with organism-specific filtering
 
 * **Pharmacogenomics** - `PharmGKB` database with 6 integrated datasets for precision medicine: chemicals/drugs with FDA drug labels, pharmacogenes with VIP flags and CPIC guidelines, clinical variant annotations with evidence levels (1A-4), variant annotations with HGVS nomenclature, dosing guidelines from CPIC/DPWG/CPNDS/RNPGx, and pharmacokinetic/pharmacodynamic pathways. Provides gene-drug relationships, clinical evidence levels, dosing recommendations, and pathway diagrams. Cross-references to HGNC, PubChem, dbSNP, MeSH, and Ensembl. Supports pharmacogenomic dosing decisions, drug-gene interaction analysis, and clinical annotation lookup
 
@@ -131,6 +135,12 @@ biobtree -d "pharmgkb,hgnc,dbsnp,mesh" build
 
 # build with rare diseases (works well with HPO, MONDO, Ensembl, HGNC)
 biobtree -d "orphanet,hpo,mondo,ensembl,hgnc" build
+
+# build with transcription factor regulation (works well with Ensembl, HGNC)
+biobtree -d "collectri,ensembl,hgnc" --lookupdb build
+
+# build with causal signaling networks (works well with UniProt, ChEBI)
+biobtree -d "signor,uniprot,chebi" build
 
 # build with protein interactions (requires UniProt)
 biobtree -d "uniprot,intact" build
@@ -478,6 +488,21 @@ biobtree query "CYP2C9 >> hgnc >> pharmgkb_clinical"         # Gene to clinical 
 biobtree query "rs1799853 >> pharmgkb_variant"               # Variant annotation lookup
 biobtree query "rs1799853 >> pharmgkb_clinical"              # Variant clinical evidence
 biobtree query "CYP2C9 >> pharmgkb_gene"                     # Pharmacogene details (VIP, CPIC)
+
+# CollecTRI transcription factor queries
+biobtree query "MYC:TERT"                            # TF-target interaction lookup
+biobtree query "MYC:TERT >> collectri"               # Get regulatory details
+biobtree query "MYC >> collectri"                    # Find all targets of MYC
+biobtree query "TERT >> collectri"                   # Find TFs that regulate TERT
+biobtree query "TP53 >> ensembl >> collectri"        # Gene to TF regulatory interactions
+
+# SIGNOR causal signaling queries
+biobtree query "SIGNOR-142566"                       # Signaling interaction lookup
+biobtree query "SIGNOR-142566 >> signor"             # Get interaction details
+biobtree query "P00533 >> uniprot >> signor"         # Find signaling interactions for EGFR
+biobtree query "EGFR >> signor"                      # Search by entity name
+biobtree query "apoptosis >> signor"                 # Find phenotype-regulating interactions
+biobtree query "9606 >> taxonomy >> signor"          # All human signaling interactions
 ```
 
 #### Filter Syntax
@@ -550,6 +575,13 @@ biobtree query "warfarin >> pharmgkb >> pharmgkb_guideline[pharmgkb_guideline.so
 biobtree query "warfarin >> pharmgkb >> pharmgkb_pathway[pharmgkb_pathway.is_pharmacokinetic==true]"  # PK pathways only
 biobtree query "CYP2C9 >> hgnc >> pharmgkb_clinical[pharmgkb_clinical.level_of_evidence==\"1A\"]"  # Highest evidence
 biobtree query "CYP2C9 >> pharmgkb_gene[pharmgkb_gene.is_vip==true]"        # VIP genes only
+
+# SIGNOR causal signaling filters
+biobtree query "P00533 >> uniprot >> signor[signor.mechanism==\"phosphorylation\"]"  # Phosphorylation only
+biobtree query "P00533 >> uniprot >> signor[signor.effect==\"up-regulates\"]"        # Activating interactions
+biobtree query "P00533 >> uniprot >> signor[signor.score>0.7]"                       # High-confidence only
+biobtree query "P00533 >> uniprot >> signor[signor.tax_id==9606]"                    # Human interactions only
+biobtree query "P00533 >> uniprot >> signor[signor.direct==true]"                    # Direct interactions only
 ```
 
 #### Migration Guide - Breaking Change in Mapping Queries

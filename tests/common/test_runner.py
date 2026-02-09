@@ -47,7 +47,9 @@ def load_dataset_mappings():
         conf_dir / "source1.dataset.json",
         conf_dir / "source2.dataset.json",
         conf_dir / "default.dataset.json",
-        conf_dir / "optional.dataset.json"
+        conf_dir / "optional.dataset.json",
+        conf_dir / "xref.dataset.json",
+        conf_dir / "xref1.dataset.json",
     ]
 
     for config_file in config_files:

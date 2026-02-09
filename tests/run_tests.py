@@ -46,6 +46,14 @@ class BiobtreeWebServer:
         self.process = None
         self.base_url = f"http://localhost:{port}"
 
+    def _check_existing_server(self) -> bool:
+        """Check if a server is already running on our port"""
+        try:
+            response = requests.get(f"{self.base_url}/ws/meta", timeout=2)
+            return response.status_code == 200
+        except:
+            return False
+
     def start(self) -> bool:
         """Start biobtree web server"""
         biobtree_path = Path(__file__).parent.parent / "biobtree"
@@ -54,11 +62,19 @@ class BiobtreeWebServer:
             print(f"Error: biobtree not found at {biobtree_path}")
             return False
 
+        # Check if a server is already running on this port
+        if self._check_existing_server():
+            print(f"{Colors.RED}✗{Colors.NC} Error: A server is already running on port {self.port}")
+            print(f"  Please stop the existing server before running tests.")
+            print(f"  You can find and kill it with: lsof -i :{self.port} | grep biobtree")
+            return False
+
         print(f"Starting biobtree web server (port {self.port})...")
 
         try:
+            db_dir = str(Path(self.out_dir) / "db")
             self.process = subprocess.Popen(
-                [str(biobtree_path), "--out-dir", self.out_dir, "web"],
+                [str(biobtree_path), "--out-dir", self.out_dir, "--db-dir", db_dir, "web"],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True
@@ -154,7 +170,7 @@ def build_test_database(biobtree_path: Path, datasets: str, cwd: Path = None, ge
 
     try:
         #cmd = [str(biobtree_path), "-d", datasets,"--keep"]
-        cmd = [str(biobtree_path), "-d", datasets]
+        cmd = [str(biobtree_path), "-d", datasets, "--lookupdb"]
         if genome_taxids:
             cmd.extend(["--genome-taxids", genome_taxids])
         cmd.append("test")
@@ -193,7 +209,7 @@ Examples:
   %(prog)s hmdb,go,taxonomy   # Run multiple specific tests
 
 Available datasets:
-  uniprot, go, taxonomy, eco, efo, chebi, interpro, hmdb, lipidmaps, swisslipids, chembl_document, chembl_molecule, chembl_activity, chembl_assay, chembl_target, chembl_cell_line, ensembl, mondo, hpo, mesh, uberon, cl, oba, pato, obi, xco, bgee, patent, clinical_trials, clinvar, string, reactome, rhea, alphafold, alphamissense, alphamissense_transcript, rnacentral, uniparc, uniref50, uniref90, uniref100, gwas_study, gwas, dbsnp, intact, protein_similarity, antibody, pubchem, entrez, refseq, gencc, bindingdb, ctd, msigdb
+  uniprot, go, taxonomy, eco, efo, chebi, interpro, hmdb, lipidmaps, swisslipids, chembl_document, chembl_molecule, chembl_activity, chembl_assay, chembl_target, chembl_cell_line, ensembl, mondo, hpo, mesh, uberon, cl, oba, pato, obi, xco, bgee, patent, clinical_trials, clinvar, string, reactome, rhea, alphafold, alphamissense, alphamissense_transcript, rnacentral, uniparc, uniref50, uniref90, uniref100, gwas_study, gwas, dbsnp, intact, protein_similarity, antibody, pubchem, entrez, refseq, gencc, bindingdb, ctd, msigdb, collectri, signor
 
   Temporarily disabled (Ensembl Genomes API SSL issues):
   ensembl_bacteria, ensembl_fungi, ensembl_metazoa, ensembl_plants, ensembl_protists
@@ -290,6 +306,8 @@ Available datasets:
         'biogrid': datasets_dir / "biogrid" / "test_biogrid.py",
         'cellxgene': datasets_dir / "cellxgene" / "test_cellxgene.py",
         'scxa': datasets_dir / "scxa" / "test_scxa.py",
+        'collectri': datasets_dir / "collectri" / "test_collectri.py",
+        'signor': datasets_dir / "signor" / "test_signor.py",
     }
 
     # Parse dataset selection

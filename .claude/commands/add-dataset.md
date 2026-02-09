@@ -238,6 +238,10 @@ d.addXref(searchTerm, textLinkID, entryID, "datasetname", true)
 // IMPORTANT: 2nd param = FROM dataset ID (numeric string)
 //            4th param = TO dataset NAME (string)
 d.addXref(entryID, datasetID, targetID, "targetDatasetName", false)
+
+// Cross-reference via gene symbol lookup (creates xrefs to Ensembl genes)
+// REQUIRES: --lookupdb flag during update to load lookup database
+d.addXrefViaGeneSymbol(geneSymbol, "", entryID, "datasetname", datasetID)
 ```
 
 5. **Progress Tracking (REQUIRED)**:
@@ -394,6 +398,9 @@ make build
 # 2. Run UPDATE phase (data processing → creates index files in out/index/)
 ./biobtree -d "datasetname" update
 
+# If using addXrefViaGeneSymbol (gene symbol → Ensembl lookup), add --lookupdb:
+./biobtree -d "datasetname" --lookupdb update
+
 # With custom output directory (--out-dir BEFORE command):
 ./biobtree -d "datasetname" --out-dir /path/to/output update
 
@@ -476,6 +483,7 @@ Edit `tests/run_tests.py`:
 ```bash
 python3 tests/run_tests.py datasetname
 ```
+**Note**: The test runner automatically includes `--lookupdb` flag, enabling cross-references via gene symbol lookup (addXrefViaGeneSymbol).
 
 ## Documentation Requirements
 
@@ -504,6 +512,7 @@ Document in "Known Limitations" section:
 10. **Wrong bucket method**: Always check existing bucket methods first - use matching method for similar ID patterns
 11. **Creating unnecessary bucket methods**: Use existing methods when ID format matches; only create new method if truly unique
 12. **Missing progress tracker completion signal**: ALWAYS call `p.d.progChan <- &progressInfo{dataset: p.source, done: true}` at the end of the update() function. Without this, the update system won't know the dataset finished processing
+13. **Missing --lookupdb flag**: If using `addXrefViaGeneSymbol` to create cross-references via gene symbol lookup, you MUST use `--lookupdb` during update. Without it, no xrefs will be created and entries will appear isolated. The test runner (`tests/run_tests.py`) automatically includes this flag
 
 ## Reference Examples
 

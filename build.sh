@@ -23,7 +23,14 @@ set -e
 
 # Re-run script in background if BUILD_IN_BG is not set
 # This makes the script itself run in background with output to log file
-if [[ -z "$BUILD_IN_BG" && "$1" != "--status" && "$1" != "--check" && "$1" != "--help" && "$1" != "-h" && "$1" != "--web" && "$1" != "--test" ]]; then
+# Check all args for flags that should run in foreground
+RUN_FOREGROUND=false
+for arg in "$@"; do
+    case "$arg" in
+        --status|--check|--help|-h|--web|--test) RUN_FOREGROUND=true ;;
+    esac
+done
+if [[ -z "$BUILD_IN_BG" && "$RUN_FOREGROUND" == "false" ]]; then
     mkdir -p logs
     LOG_FILE="logs/build_$(date +%Y%m%d_%H%M%S).log"
     echo "Running in background. Log: $LOG_FILE"
@@ -86,6 +93,7 @@ DATASETS=(
 
     # Structure & function
     alphafold
+    pdb
     rnacentral
     reactome
     rhea
@@ -102,12 +110,17 @@ DATASETS=(
     intact
     biogrid
     string
+    signor
+    collectri
+    corum
+    cellphonedb
     bgee
     cellxgene
     cellxgene_celltype
     scxa
     scxa_expression
     protein_similarity
+    esm2_similarity
 
     # Compounds & drugs
     hmdb
@@ -116,6 +129,9 @@ DATASETS=(
     drugcentral
     bindingdb
     pharmgkb
+
+    # Enzymes & biochemistry
+    brenda
 
     # PubChem (large - run one at a time)
     pubchem
@@ -332,6 +348,22 @@ format_size() {
     fi
 }
 
+# Calculate actual KV size from index files for a dataset
+# Counts: {dataset}_sorted.*.index.gz + {dataset}_from_*.index.gz
+calc_kv_size() {
+    local dataset=$1
+    local index_dir="$OUT_DIR/index"
+
+    if [[ ! -d "$index_dir" ]]; then
+        echo "0"
+        return
+    fi
+
+    # Count main file + from_* files (files that add data TO this dataset)
+    local total=$(ls -la "$index_dir" 2>/dev/null | grep -E "^-.* ${dataset}_sorted\..*\.index\.gz$|^-.* ${dataset}_from_.*\.index\.gz$" | awk '{total += $5} END {print total+0}')
+    echo "${total:-0}"
+}
+
 show_status() {
     local state_file="$OUT_DIR/dataset_state.json"
 
@@ -358,7 +390,7 @@ show_status() {
     # Global info
     local build_time=$(jq -r '.last_build_time // "N/A"' "$state_file" | cut -d'T' -f1,2 | tr 'T' ' ' | cut -d'.' -f1)
     local build_version=$(jq -r '.build_version // "N/A"' "$state_file")
-    local total_kv=$(jq -r '.total_kv_size // 0' "$state_file")
+    local total_kv=$(ls -la "$OUT_DIR/index" 2>/dev/null | grep -E "\.index\.gz$" | awk '{total += $5} END {print total+0}')
 
     echo "Last Build: $build_time"
     echo "Version: $build_version"
@@ -369,11 +401,12 @@ show_status() {
     printf "%-25s %-12s %-20s %-12s %-12s\n" "DATASET" "STATUS" "LAST BUILD" "KV SIZE" "DURATION"
     printf "%-25s %-12s %-20s %-12s %-12s\n" "-------------------------" "------------" "--------------------" "------------" "------------"
 
-    # Loop through datasets in the DATASETS array
+    # Collect all dataset info for sorting
+    local temp_file=$(mktemp)
     for dataset in "${DATASETS[@]}"; do
         local status=$(jq -r ".datasets[\"$dataset\"].status // \"-\"" "$state_file")
         local last_build=$(jq -r ".datasets[\"$dataset\"].last_build_time // \"\"" "$state_file")
-        local kv_size=$(jq -r ".datasets[\"$dataset\"].kv_size // 0" "$state_file")
+        local kv_size=$(calc_kv_size "$dataset")
         local duration=$(jq -r ".datasets[\"$dataset\"].build_duration_sec // 0" "$state_file")
 
         # Format build time (extract date and time)
@@ -400,16 +433,33 @@ show_status() {
             duration_display=$(format_duration "$duration")
         fi
 
+        # Store with raw kv_size for sorting (tab-separated: raw_size, formatted_line)
+        printf "%s\t%s\t%s\t%s\t%s\t%s\n" "$kv_size" "$dataset" "$status_display" "$last_build" "$kv_display" "$duration_display" >> "$temp_file"
+    done
+
+    # Sort by kv_size (first field) descending and print formatted output
+    sort -t$'\t' -k1 -n -r "$temp_file" | while IFS=$'\t' read -r raw_size dataset status_display last_build kv_display duration_display; do
         printf "%-25s %-12s %-20s %-12s %-12s\n" "$dataset" "$status_display" "$last_build" "$kv_display" "$duration_display"
     done
+    rm -f "$temp_file"
 
     echo ""
     echo "============================================"
 
-    # Summary counts
-    local merged_count=$(jq '[.datasets[] | select(.status == "merged")] | length' "$state_file")
-    local processing_count=$(jq '[.datasets[] | select(.status == "processing")] | length' "$state_file")
-    local not_built_count=$(jq '[.datasets[] | select(.status == "" or .status == null)] | length' "$state_file")
+    # Summary counts - count from DATASETS array, not state file
+    local merged_count=0
+    local processing_count=0
+    local not_built_count=0
+    for dataset in "${DATASETS[@]}"; do
+        local status=$(jq -r ".datasets[\"$dataset\"].status // \"\"" "$state_file")
+        if [[ "$status" == "merged" ]]; then
+            ((merged_count++)) || true
+        elif [[ "$status" == "processing" ]]; then
+            ((processing_count++)) || true
+        else
+            ((not_built_count++)) || true
+        fi
+    done
 
     echo "Summary: $merged_count merged, $processing_count processing, $not_built_count not built"
     echo ""

@@ -133,6 +133,7 @@ message Xref {
     GwasAttr gwas=43;
     IntactAttr intact=44;
     ProteinSimilarityAttr protein_similarity=45;
+    Esm2SimilarityAttr esm2_similarity=86;
     AntibodyAttr antibody=46;
     PubchemAttr pubchem=47;
     PubchemActivityAttr pubchem_activity=48;
@@ -168,6 +169,7 @@ message Xref {
     BrendaAttr brenda=83;
     BrendaKineticsAttr brenda_kinetics=84;
     BrendaInhibitorAttr brenda_inhibitor=85;
+    CellphonedbAttr cellphonedb=87;
 
   }
 

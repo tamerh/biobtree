@@ -320,15 +320,16 @@ func (c *clinvarXML) createXrefs(variation *xmlparser.XMLElement, variationID, s
 		addXrefOnce(variationID, sourceID, attr.GeneId, "entrez", false)
 	}
 
-	// Text search links for variant name and gene symbol
-	if attr.Name != "" {
-		addXrefOnce(attr.Name, textLinkID, variationID, c.source, true)
-	}
+	// Text search links for gene symbol
+	// Note: variant name (HGVS expression) not indexed - users search by gene symbol, not HGVS
+	// if attr.Name != "" {
+	// 	addXrefOnce(attr.Name, textLinkID, variationID, c.source, true)
+	// }
 	if attr.GeneSymbol != "" {
 		addXrefOnce(attr.GeneSymbol, textLinkID, variationID, c.source, true)
 
 		// Gene symbol → HGNC and Ensembl cross-reference (human only)
-		// addHumanGeneXrefs creates xrefs to both HGNC and Ensembl
+		// addHumanGeneXrefs creates xref to HGNC (Ensembl via HGNC→Ensembl)
 		// Search "BRCA1" returns HGNC/Ensembl entry, then "BRCA1 >> clinvar" returns all variants
 		c.d.addHumanGeneXrefs(attr.GeneSymbol, variationID, sourceID)
 	}

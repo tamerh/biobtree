@@ -359,6 +359,9 @@ func (o *orphanet) parseProduct6(entries map[string]*orphaEntry) int {
 						}
 					}
 
+					// Track whether we found explicit HGNC reference
+					hasExplicitHGNC := false
+
 					// External references (Ensembl, HGNC)
 					if extRefList := gene.Childs["ExternalReferenceList"]; extRefList != nil && len(extRefList) > 0 {
 						if extRefs := extRefList[0].Childs["ExternalReference"]; extRefs != nil {
@@ -381,13 +384,15 @@ func (o *orphanet) parseProduct6(entries map[string]*orphaEntry) int {
 										hgncID = "HGNC:" + ref
 									}
 									o.d.addXrefWithEvidence(orphaCode, sourceID, hgncID, "hgnc", false, assocType)
+									hasExplicitHGNC = true
 								}
 							}
 						}
 					}
 
-					// Also create xref via gene symbol lookup (HGNC and Ensembl)
-					if geneSymbol != "" {
+					// Only use gene symbol lookup if no explicit HGNC reference was found
+					// This avoids duplicate xrefs (one with evidence, one without)
+					if geneSymbol != "" && !hasExplicitHGNC {
 						o.d.addHumanGeneXrefs(geneSymbol, orphaCode, sourceID)
 					}
 

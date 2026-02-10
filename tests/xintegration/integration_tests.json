@@ -1,9 +1,12 @@
 {
   "metadata": {
-    "version": "8.8",
+    "version": "9.1",
     "description": "Expanded integration tests including newly added datasets and filter tests (2025-2026)",
     "server": "http://localhost:9291",
-    "last_updated": "2026-02-09",
+    "last_updated": "2026-02-10",
+    "changes_9.1": "Added protein_structures_pdb category (18 tests): PDB protein structure database tests. Direct PDB ID lookup, UniProt/Gene to PDB mappings, experimental method filters (X-ray, cryo-EM, NMR), resolution filters, cross-references to GO/InterPro/Pfam/Taxonomy/PubMed, and multi-hop structure analysis workflows. Total: 637 tests.",
+    "changes_9.0": "Added ligand_receptor category (15 tests): CellPhoneDB cell-cell communication tests. Direct interaction ID lookup, gene symbol to interactions, UniProt/Ensembl cross-references, directionality filters (Ligand-Receptor, Adhesion-Adhesion), classification filters, receptor/secreted partner tests, and multi-hop queries for single-cell analysis workflows. Total: 619 tests.",
+    "changes_8.9": "Added protein_embedding_similarity category (15 tests): ESM2 protein embedding similarity tests. Direct UniProt ID lookup, ESM2→UniProt cross-references, multi-hop queries (Gene→ESM2→UniProt, ESM2→AlphaFold structures, ESM2→ChEMBL drug targets, ESM2→Pathways), filter tests for top_similarity and similarity_count. Total: 604 tests.",
     "changes_8.6": "Added protein_complexes category (12 tests): CORUM mammalian protein complex tests. Includes complex ID lookup, text search by name/gene, UniProt/Entrez/GO/PubMed/Taxonomy cross-references, subunit mappings, drug target complexes, and multi-hop queries. Total: 558 tests.",
     "changes_8.5": "Added causal_signaling category (12 tests): SIGNOR causal signaling network tests. Includes direct ID lookup, entity name search, UniProt/ChEBI/DrugBank cross-references, PubMed literature, taxonomy organism filtering, mechanism filters, and multi-hop signaling pathway queries. Total: 546 tests.",
     "changes_8.4": "Added transcription_regulation category (10 tests): CollecTRI TF-target gene regulatory network tests. Includes TF/target gene lookups, HGNC/Ensembl cross-references, PubMed literature links, and multi-hop regulatory network queries. Total: 534 tests.",
@@ -65,7 +68,10 @@
     "transcription_regulation": "Transcription factor regulatory networks (CollecTRI): TF-target gene interactions with evidence from 12+ databases, regulation direction (activation/repression), confidence levels, and PubMed literature links.",
     "causal_signaling": "Causal signaling networks (SIGNOR): 114K+ manually curated causal relationships between proteins, chemicals, and phenotypes. Regulatory effects (up/down-regulates), mechanisms (phosphorylation, binding), confidence scores, and multi-organism support (human, mouse, rat).",
     "protein_complexes": "Protein complexes (CORUM): 7,969 experimentally characterized mammalian protein complexes. Subunit composition (UniProt/Entrez), GO functional annotations, PubMed literature, organism/taxonomy, drug target associations, and multi-hop queries for complex-centric analysis.",
-    "enzyme_biochemistry": "Enzyme biochemistry (BRENDA): EC number enzyme classification, kinetic parameters (Km, kcat), inhibitor data (Ki, IC50), organism-specific enzyme information, and literature references. Multi-hop queries for enzyme-centric drug discovery and biochemical pathway analysis."
+    "enzyme_biochemistry": "Enzyme biochemistry (BRENDA): EC number enzyme classification, kinetic parameters (Km, kcat), inhibitor data (Ki, IC50), organism-specific enzyme information, and literature references. Multi-hop queries for enzyme-centric drug discovery and biochemical pathway analysis.",
+    "protein_embedding_similarity": "ESM2 protein embedding similarity: Deep learning-based protein similarity using ESM2 embeddings. Captures functional and structural relationships beyond sequence identity. Top-50 similar proteins per query with cosine similarity scores. Multi-hop queries for homolog discovery, function transfer, and drug target expansion.",
+    "ligand_receptor": "CellPhoneDB ligand-receptor interactions: 2,911 curated cell-cell communication interactions for single-cell analysis. Ligand-receptor pairs, adhesion molecules, secreted proteins, and protein complexes. Cross-references to UniProt, Ensembl, HGNC, PubMed. Filters for directionality, classification, receptor/secreted status. Essential for spatial transcriptomics and scRNA-seq communication analysis.",
+    "protein_structures_pdb": "PDB protein structure database: 248K+ experimentally determined 3D structures. Experimental methods (X-ray crystallography, cryo-EM, NMR), resolution data, cross-references to UniProt/GO/InterPro/Pfam/Taxonomy/PubMed. Filters for method type and resolution. Essential for structural biology, drug design, and protein engineering workflows."
   },
   "tests": [
     {
@@ -6453,6 +6459,525 @@
       "why": "Link enzymes to pharmacogenomic data - drug metabolism enzymes like CYPs",
       "should_pass": [
         "1.14.13.39"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_embedding_similarity",
+      "name": "ESM2 Direct Protein Lookup",
+      "query": ">>esm2_similarity",
+      "why": "Direct lookup of ESM2 similarity data for a UniProt protein - foundational test",
+      "should_pass": [
+        "Q6GZX4",
+        "Q197F5",
+        "Q6GZW9"
+      ],
+      "should_fail": [
+        "INVALID_PROTEIN"
+      ]
+    },
+    {
+      "category": "protein_embedding_similarity",
+      "name": "ESM2 to UniProt Cross-Reference",
+      "query": ">>esm2_similarity>>uniprot",
+      "why": "Find similar proteins and get their UniProt details - core ESM2 use case",
+      "should_pass": [
+        "Q6GZX4",
+        "Q197F5"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_embedding_similarity",
+      "name": "Gene Symbol to ESM2 Similar Proteins",
+      "query": ">>ensembl>>uniprot>>esm2_similarity",
+      "why": "Start with gene symbol, find ESM2-similar proteins - researcher workflow",
+      "should_pass": [
+        "FRG1"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_embedding_similarity",
+      "name": "ESM2 to Reviewed UniProt",
+      "query": ">>esm2_similarity>>uniprot[uniprot.reviewed==true]",
+      "why": "Find similar proteins that are manually curated Swiss-Prot entries",
+      "should_pass": [
+        "Q6GZX4"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_embedding_similarity",
+      "name": "ESM2 Similar Proteins to AlphaFold Structures",
+      "query": ">>esm2_similarity>>uniprot>>alphafold",
+      "why": "Find 3D structure predictions for ESM2-similar proteins - structural biology",
+      "should_pass": [
+        "Q6GZX4"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_embedding_similarity",
+      "name": "ESM2 Similar Proteins to GO Functions",
+      "query": ">>esm2_similarity>>uniprot>>go[go.type==\"biological_process\"]",
+      "why": "Infer biological processes from ESM2-similar proteins - function prediction",
+      "should_pass": [
+        "Q6GZX4"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_embedding_similarity",
+      "name": "ESM2 Similar Proteins to Pathways",
+      "query": ">>esm2_similarity>>uniprot>>reactome",
+      "why": "Find pathways containing ESM2-similar proteins - systems biology",
+      "should_pass": [
+        "Q6GZX4"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_embedding_similarity",
+      "name": "ESM2 Similar Proteins to ChEMBL Targets",
+      "query": ">>esm2_similarity>>uniprot>>chembl_target_component>>chembl_target",
+      "why": "Discover druggable proteins similar to query - off-target prediction",
+      "should_pass": [
+        "Q6GZX4"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_embedding_similarity",
+      "name": "ESM2 Similar Proteins to Protein Domains",
+      "query": ">>esm2_similarity>>uniprot>>interpro[interpro.type==\"Domain\"]",
+      "why": "Find conserved domains in ESM2-similar proteins - domain architecture",
+      "should_pass": [
+        "Q6GZX4"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_embedding_similarity",
+      "name": "ESM2 High Similarity Filter",
+      "query": ">>esm2_similarity[esm2_similarity.top_similarity>0.95]",
+      "why": "Filter for highly similar proteins (>95% cosine similarity) - stringent homologs",
+      "should_pass": [
+        "Q6GZX4"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_embedding_similarity",
+      "name": "ESM2 Similarity Count Filter",
+      "query": ">>esm2_similarity[esm2_similarity.similarity_count>3]",
+      "why": "Filter for proteins with many similar entries - well-connected proteins",
+      "should_pass": [
+        "Q6GZX4"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_embedding_similarity",
+      "name": "ESM2 to Taxonomy",
+      "query": ">>esm2_similarity>>uniprot>>taxonomy",
+      "why": "Find species distribution of ESM2-similar proteins - evolutionary analysis",
+      "should_pass": [
+        "Q6GZX4"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_embedding_similarity",
+      "name": "ESM2 to Clinical Variants",
+      "query": ">>esm2_similarity>>uniprot>>hgnc>>clinvar",
+      "why": "Find clinical variants in ESM2-similar proteins - variant interpretation",
+      "should_pass": [
+        "Q6GZX4"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_embedding_similarity",
+      "name": "ESM2 to Protein Interactions",
+      "query": ">>esm2_similarity>>uniprot>>biogrid",
+      "why": "Find protein-protein interactions for ESM2-similar proteins - network analysis",
+      "should_pass": [
+        "Q6GZX4"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_embedding_similarity",
+      "name": "Drug Target to ESM2 Similar Targets",
+      "query": ">>chembl_target>>chembl_target_component>>uniprot>>esm2_similarity>>uniprot",
+      "why": "Expand drug targets using ESM2 similarity - novel target discovery",
+      "should_pass": [
+        "CHEMBL2073"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ligand_receptor",
+      "name": "CellPhoneDB Interaction ID Lookup",
+      "query": ">>cellphonedb",
+      "why": "Direct lookup of ligand-receptor interaction by CellPhoneDB ID",
+      "should_pass": [
+        "CPI-SC0A2DB962D",
+        "CPI-SS0CC5DCE80"
+      ],
+      "should_fail": [
+        "CPI-INVALID999"
+      ]
+    },
+    {
+      "category": "ligand_receptor",
+      "name": "Gene Symbol to CellPhoneDB Interactions",
+      "query": ">>hgnc>>cellphonedb",
+      "why": "Find all ligand-receptor interactions involving a gene - scRNA-seq communication analysis",
+      "should_pass": [
+        "CDH1",
+        "EGFR",
+        "TNF"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ligand_receptor",
+      "name": "UniProt to CellPhoneDB Interactions",
+      "query": ">>uniprot>>cellphonedb",
+      "why": "Find cell-cell communication interactions for a protein - receptor/ligand discovery",
+      "should_pass": [
+        "P12830",
+        "P00533"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ligand_receptor",
+      "name": "CellPhoneDB to UniProt Cross-references",
+      "query": ">>cellphonedb>>uniprot",
+      "why": "Get UniProt proteins involved in an interaction - protein-level analysis",
+      "should_pass": [
+        "CPI-SC0A2DB962D"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ligand_receptor",
+      "name": "CellPhoneDB to Ensembl Cross-references",
+      "query": ">>cellphonedb>>ensembl",
+      "why": "Get Ensembl genes for interaction partners - gene-level analysis",
+      "should_pass": [
+        "CPI-SC0A2DB962D"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ligand_receptor",
+      "name": "CellPhoneDB Ligand-Receptor Filter",
+      "query": ">>cellphonedb[cellphonedb.directionality==\"Ligand-Receptor\"]",
+      "why": "Filter for directional ligand-receptor pairs - signaling pathway analysis",
+      "should_pass": [
+        "CDH1",
+        "EGFR"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ligand_receptor",
+      "name": "CellPhoneDB Secreted Partner Filter",
+      "query": ">>hgnc>>cellphonedb[cellphonedb.secreted_a==true || cellphonedb.secreted_b==true]",
+      "why": "Find interactions with secreted proteins - paracrine signaling",
+      "should_pass": [
+        "TNF",
+        "IL6"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ligand_receptor",
+      "name": "CellPhoneDB Receptor Partner Filter",
+      "query": ">>hgnc>>cellphonedb[cellphonedb.receptor_a==true || cellphonedb.receptor_b==true]",
+      "why": "Find interactions involving receptors - receptor-centric analysis",
+      "should_pass": [
+        "EGFR",
+        "ITGB1"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ligand_receptor",
+      "name": "Gene to CellPhoneDB to Pathways",
+      "query": ">>hgnc>>cellphonedb>>uniprot>>reactome",
+      "why": "Map cell communication genes to pathways - systems biology",
+      "should_pass": [
+        "EGFR",
+        "TNF"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ligand_receptor",
+      "name": "Gene to CellPhoneDB to Drug Targets",
+      "query": ">>hgnc>>cellphonedb>>uniprot>>chembl_target_component>>chembl_target",
+      "why": "Find druggable proteins in cell communication - therapeutic targets",
+      "should_pass": [
+        "EGFR"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ligand_receptor",
+      "name": "Disease Gene to Cell Communication",
+      "query": ">>mondo>>gencc>>ensembl>>hgnc>>cellphonedb",
+      "why": "Find cell-cell communication involving disease genes - disease mechanism",
+      "should_pass": [
+        "MONDO:0007254"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ligand_receptor",
+      "name": "CellPhoneDB to Literature",
+      "query": ">>cellphonedb>>pubmed",
+      "why": "Find literature evidence for interactions - evidence review",
+      "should_pass": [
+        "CPI-SS0CC5DCE80"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ligand_receptor",
+      "name": "CellPhoneDB Classification Filter",
+      "query": ">>hgnc>>cellphonedb[cellphonedb.classification~\"Signaling\"]",
+      "why": "Filter interactions by signaling classification - pathway-specific analysis",
+      "should_pass": [
+        "WNT1",
+        "NOTCH1"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ligand_receptor",
+      "name": "Protein Complex Interactions",
+      "query": ">>hgnc>>cellphonedb[cellphonedb.is_complex_a==true || cellphonedb.is_complex_b==true]",
+      "why": "Find interactions involving protein complexes - complex-mediated signaling",
+      "should_pass": [
+        "ITGA2",
+        "ITGB1"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ligand_receptor",
+      "name": "Cell Type to Ligand-Receptor Partners",
+      "query": ">>cl>>bgee>>ensembl>>hgnc>>cellphonedb",
+      "why": "From cell type expression to communication partners - single-cell atlas",
+      "should_pass": [
+        "CL:0000084"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_structures_pdb",
+      "name": "PDB ID Direct Lookup",
+      "query": ">>pdb",
+      "why": "Direct structure lookup - starting point for structure analysis",
+      "should_pass": [
+        "4HHB",
+        "1CRN",
+        "6VXX",
+        "3J3Y"
+      ],
+      "should_fail": [
+        "XXXX",
+        "0000"
+      ]
+    },
+    {
+      "category": "protein_structures_pdb",
+      "name": "UniProt to PDB Structures",
+      "query": ">>uniprot>>pdb",
+      "why": "Find all experimental structures for a protein - structural coverage",
+      "should_pass": [
+        "P04637",
+        "P00533",
+        "P69905",
+        "P38398"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_structures_pdb",
+      "name": "Gene to PDB via UniProt",
+      "query": ">>ensembl>>uniprot>>pdb",
+      "why": "From gene symbol to 3D structures - common research workflow",
+      "should_pass": [
+        "TP53",
+        "EGFR",
+        "BRCA1"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_structures_pdb",
+      "name": "PDB X-ray Structures Filter",
+      "query": ">>uniprot>>pdb[pdb.method==\"X-RAY DIFFRACTION\"]",
+      "why": "Get only X-ray crystal structures - highest resolution typically",
+      "should_pass": [
+        "P04637",
+        "P00533"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_structures_pdb",
+      "name": "PDB Cryo-EM Structures Filter",
+      "query": ">>uniprot>>pdb[pdb.method==\"ELECTRON MICROSCOPY\"]",
+      "why": "Get cryo-EM structures - large complexes and membrane proteins",
+      "should_pass": [
+        "P0DTC2"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_structures_pdb",
+      "name": "PDB NMR Structures Filter",
+      "query": ">>uniprot>>pdb[pdb.method==\"SOLUTION NMR\"]",
+      "why": "Get solution NMR structures - dynamics and small proteins",
+      "should_pass": [
+        "P04637"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_structures_pdb",
+      "name": "PDB High Resolution Filter",
+      "query": ">>uniprot>>pdb[pdb.resolution<2.0]",
+      "why": "Get high-resolution structures (<2A) for detailed analysis",
+      "should_pass": [
+        "P00533",
+        "P04637"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_structures_pdb",
+      "name": "PDB to UniProt Reverse",
+      "query": ">>pdb>>uniprot",
+      "why": "From structure to protein - identify what's in a structure",
+      "should_pass": [
+        "4HHB",
+        "1TUP",
+        "6VXX"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_structures_pdb",
+      "name": "PDB to GO Terms",
+      "query": ">>pdb>>go",
+      "why": "Get functional annotations for structures - structure-function analysis",
+      "should_pass": [
+        "4HHB",
+        "1TUP"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_structures_pdb",
+      "name": "PDB to InterPro Domains",
+      "query": ">>pdb>>interpro",
+      "why": "Map structures to protein domains - domain architecture",
+      "should_pass": [
+        "4HHB",
+        "1TUP"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_structures_pdb",
+      "name": "PDB to Pfam Families",
+      "query": ">>pdb>>pfam",
+      "why": "Map structures to Pfam families - evolutionary context",
+      "should_pass": [
+        "4HHB",
+        "1CRN"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_structures_pdb",
+      "name": "PDB to Taxonomy",
+      "query": ">>pdb>>taxonomy",
+      "why": "Get organism information for structures - species-specific analysis",
+      "should_pass": [
+        "4HHB",
+        "6VXX"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_structures_pdb",
+      "name": "PDB to PubMed Literature",
+      "query": ">>pdb>>pubmed",
+      "why": "Find publications describing structures - literature review",
+      "should_pass": [
+        "4HHB",
+        "1TUP"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_structures_pdb",
+      "name": "Gene to High-Resolution Structures",
+      "query": ">>ensembl>>uniprot>>pdb[pdb.resolution<2.5]",
+      "why": "Find quality structures for a gene - drug design starting point",
+      "should_pass": [
+        "TP53",
+        "EGFR"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_structures_pdb",
+      "name": "Structure to GO Biological Process",
+      "query": ">>pdb>>go[go.type==\"biological_process\"]",
+      "why": "Get biological processes from structure - functional annotation",
+      "should_pass": [
+        "4HHB",
+        "1TUP"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_structures_pdb",
+      "name": "Disease Gene to Structures",
+      "query": ">>mondo>>gencc>>ensembl>>uniprot>>pdb",
+      "why": "Find structures for disease-associated proteins - drug target structures",
+      "should_pass": [
+        "MONDO:0007254"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_structures_pdb",
+      "name": "PDB to Drug Targets",
+      "query": ">>pdb>>uniprot>>chembl_target_component>>chembl_target",
+      "why": "From structure to drug target data - structure-based drug design",
+      "should_pass": [
+        "1TUP"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_structures_pdb",
+      "name": "Enzyme Structure to Pathways",
+      "query": ">>pdb>>uniprot>>reactome",
+      "why": "Map enzyme structures to pathways - systems structural biology",
+      "should_pass": [
+        "4HHB"
       ],
       "should_fail": []
     }

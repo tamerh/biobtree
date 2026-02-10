@@ -1027,7 +1027,7 @@ func (r *refseq) processRecord(record *gbffRecord, fr string) {
 	}
 
 	// Create cross-reference to HGNC and Ensembl via gene symbol lookup
-	// addHumanGeneXrefs creates xrefs to both HGNC and Ensembl (human only)
+	// addHumanGeneXrefs creates xref to HGNC (Ensembl via HGNC→Ensembl)
 	if record.symbol != "" {
 		r.d.addHumanGeneXrefs(record.symbol, record.accession, fr)
 	}

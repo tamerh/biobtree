@@ -1,0 +1,397 @@
+[
+  {
+    "pdb_id": "100D",
+    "title": "CRYSTAL STRUCTURE OF THE HIGHLY DISTORTED CHIMERIC DECAMER R(C)D(CGGCGCCG)R(G)-SPERMINE COMPLEX-SPERMINE BINDING TO PHOSPHATE ONLY AND MINOR GROOVE TERTIARY BASE-PAIRING",
+    "header": "DNA-RNA HYBRID",
+    "method": "X-RAY DIFFRACTION",
+    "resolution": 1.9,
+    "deposit_date": "1994-12-05T00:00:00+0000",
+    "organism": "",
+    "molecule_type": "Nucleic acid (only)",
+    "polymer_count": 1,
+    "authors": [
+      "Ban, C.",
+      "Ramakrishnan, B.",
+      "Sundaralingam, M."
+    ],
+    "xrefs": {}
+  },
+  {
+    "pdb_id": "101M",
+    "title": "SPERM WHALE MYOGLOBIN F46V N-BUTYL ISOCYANIDE AT PH 9.0",
+    "header": "OXYGEN TRANSPORT",
+    "method": "X-RAY DIFFRACTION",
+    "resolution": 2.07,
+    "deposit_date": "1997-12-13T00:00:00+0000",
+    "organism": "",
+    "molecule_type": "Protein (only)",
+    "polymer_count": 1,
+    "authors": [
+      "Smith, R.D.",
+      "Olson, J.S.",
+      "Phillips Jr., G.N."
+    ],
+    "xrefs": {}
+  },
+  {
+    "pdb_id": "102L",
+    "title": "HOW AMINO-ACID INSERTIONS ARE ALLOWED IN AN ALPHA-HELIX OF T4 LYSOZYME",
+    "header": "HYDROLASE(O-GLYCOSYL)",
+    "method": "X-RAY DIFFRACTION",
+    "resolution": 1.74,
+    "deposit_date": "1992-09-29T00:00:00+0000",
+    "organism": "",
+    "molecule_type": "Protein (only)",
+    "polymer_count": 1,
+    "authors": [
+      "Heinz, D.W.",
+      "Matthews, B.W."
+    ],
+    "xrefs": {}
+  },
+  {
+    "pdb_id": "103L",
+    "title": "HOW AMINO-ACID INSERTIONS ARE ALLOWED IN AN ALPHA-HELIX OF T4 LYSOZYME",
+    "header": "HYDROLASE(O-GLYCOSYL)",
+    "method": "X-RAY DIFFRACTION",
+    "resolution": 1.9,
+    "deposit_date": "1992-09-29T00:00:00+0000",
+    "organism": "",
+    "molecule_type": "Protein (only)",
+    "polymer_count": 1,
+    "authors": [
+      "Heinz, D.W.",
+      "Matthews, B.W."
+    ],
+    "xrefs": {}
+  },
+  {
+    "pdb_id": "104M",
+    "title": "SPERM WHALE MYOGLOBIN N-BUTYL ISOCYANIDE AT PH 7.0",
+    "header": "OXYGEN TRANSPORT",
+    "method": "X-RAY DIFFRACTION",
+    "resolution": 1.71,
+    "deposit_date": "1997-12-18T00:00:00+0000",
+    "organism": "",
+    "molecule_type": "Protein (only)",
+    "polymer_count": 1,
+    "authors": [
+      "Smith, R.D.",
+      "Olson, J.S.",
+      "Phillips Jr., G.N."
+    ],
+    "xrefs": {}
+  },
+  {
+    "pdb_id": "105M",
+    "title": "SPERM WHALE MYOGLOBIN N-BUTYL ISOCYANIDE AT PH 9.0",
+    "header": "OXYGEN TRANSPORT",
+    "method": "X-RAY DIFFRACTION",
+    "resolution": 2.02,
+    "deposit_date": "1997-12-18T00:00:00+0000",
+    "organism": "",
+    "molecule_type": "Protein (only)",
+    "polymer_count": 1,
+    "authors": [
+      "Smith, R.D.",
+      "Olson, J.S.",
+      "Phillips Jr., G.N."
+    ],
+    "xrefs": {}
+  },
+  {
+    "pdb_id": "107L",
+    "title": "STRUCTURAL BASIS OF ALPHA-HELIX PROPENSITY AT TWO SITES IN T4 LYSOZYME",
+    "header": "HYDROLASE(O-GLYCOSYL)",
+    "method": "X-RAY DIFFRACTION",
+    "resolution": 1.8,
+    "deposit_date": "1992-12-17T00:00:00+0000",
+    "organism": "",
+    "molecule_type": "Protein (only)",
+    "polymer_count": 1,
+    "authors": [
+      "Blaber, M.",
+      "Matthews, B.W."
+    ],
+    "xrefs": {}
+  },
+  {
+    "pdb_id": "108L",
+    "title": "STRUCTURAL BASIS OF ALPHA-HELIX PROPENSITY AT TWO SITES IN T4 LYSOZYME",
+    "header": "HYDROLASE(O-GLYCOSYL)",
+    "method": "X-RAY DIFFRACTION",
+    "resolution": 1.8,
+    "deposit_date": "1992-12-17T00:00:00+0000",
+    "organism": "",
+    "molecule_type": "Protein (only)",
+    "polymer_count": 1,
+    "authors": [
+      "Blaber, M.",
+      "Matthews, B.W."
+    ],
+    "xrefs": {}
+  },
+  {
+    "pdb_id": "109L",
+    "title": "STRUCTURAL BASIS OF ALPHA-HELIX PROPENSITY AT TWO SITES IN T4 LYSOZYME",
+    "header": "HYDROLASE(O-GLYCOSYL)",
+    "method": "X-RAY DIFFRACTION",
+    "resolution": 1.85,
+    "deposit_date": "1992-12-17T00:00:00+0000",
+    "organism": "",
+    "molecule_type": "Protein (only)",
+    "polymer_count": 1,
+    "authors": [
+      "Blaber, M.",
+      "Matthews, B.W."
+    ],
+    "xrefs": {}
+  },
+  {
+    "pdb_id": "10GS",
+    "title": "HUMAN GLUTATHIONE S-TRANSFERASE P1-1, COMPLEX WITH TER117",
+    "header": "TRANSFERASE/TRANSFERASE INHIBITOR",
+    "method": "X-RAY DIFFRACTION",
+    "resolution": 2.2,
+    "deposit_date": "1997-08-14T00:00:00+0000",
+    "organism": "",
+    "molecule_type": "Protein (only)",
+    "polymer_count": 1,
+    "authors": [
+      "Oakley, A.",
+      "Parker, M."
+    ],
+    "xrefs": {}
+  },
+  {
+    "pdb_id": "1A00",
+    "title": "HEMOGLOBIN (VAL BETA1 MET, TRP BETA37 TYR) MUTANT",
+    "header": "OXYGEN TRANSPORT",
+    "method": "X-RAY DIFFRACTION",
+    "resolution": 2.0,
+    "deposit_date": "1997-12-08T00:00:00+0000",
+    "organism": "",
+    "molecule_type": "Protein (only)",
+    "polymer_count": 2,
+    "authors": [
+      "Kavanaugh, J.S.",
+      "Arnone, A."
+    ],
+    "xrefs": {}
+  },
+  {
+    "pdb_id": "1A01",
+    "title": "HEMOGLOBIN (VAL BETA1 MET, TRP BETA37 ALA) MUTANT",
+    "header": "OXYGEN TRANSPORT",
+    "method": "X-RAY DIFFRACTION",
+    "resolution": 1.8,
+    "deposit_date": "1997-12-08T00:00:00+0000",
+    "organism": "",
+    "molecule_type": "Protein (only)",
+    "polymer_count": 2,
+    "authors": [
+      "Kavanaugh, J.S.",
+      "Arnone, A."
+    ],
+    "xrefs": {}
+  },
+  {
+    "pdb_id": "1A0M",
+    "title": "1.1 ANGSTROM CRYSTAL STRUCTURE OF A-CONOTOXIN [TYR15]-EPI",
+    "header": "ACETYLCHOLINE RECEPTOR ANTAGONIST",
+    "method": "X-RAY DIFFRACTION",
+    "resolution": 1.1,
+    "deposit_date": "1997-12-03T00:00:00+0000",
+    "organism": "",
+    "molecule_type": "Protein (only)",
+    "polymer_count": 1,
+    "authors": [
+      "Hu, S.-H.",
+      "Loughnan, M.",
+      "Miller, R.",
+      "Weeks, C.M.",
+      "Blessing, R.H."
+    ],
+    "xrefs": {}
+  },
+  {
+    "pdb_id": "1A0N",
+    "title": "NMR STUDY OF THE SH3 DOMAIN FROM FYN PROTO-ONCOGENE TYROSINE KINASE COMPLEXED WITH THE SYNTHETIC PEPTIDE P2L CORRESPONDING TO RESIDUES 91-104 OF THE P85 SUBUNIT OF PI3-KINASE, FAMILY OF 25 STRUCTURES",
+    "header": "COMPLEX (PHOSPHOTRANSFERASE/PEPTIDE)",
+    "method": "SOLUTION NMR",
+    "resolution": null,
+    "deposit_date": "1997-12-05T00:00:00+0000",
+    "organism": "",
+    "molecule_type": "Protein (only)",
+    "polymer_count": 2,
+    "authors": [
+      "Renzoni, D.A.",
+      "Pugh, D.J.R.",
+      "Siligardi, G.",
+      "Das, P.",
+      "Morton, C.J."
+    ],
+    "xrefs": {}
+  },
+  {
+    "pdb_id": "1A1N",
+    "title": "MHC CLASS I MOLECULE B*3501 COMPLEXED WITH PEPTIDE VPLRPMTY FROM THE NEF PROTEIN (75-82) OF HIV1",
+    "header": "COMPLEX (ANTIGEN/PEPTIDE)",
+    "method": "X-RAY DIFFRACTION",
+    "resolution": 2.0,
+    "deposit_date": "1997-12-11T00:00:00+0000",
+    "organism": "",
+    "molecule_type": "Protein (only)",
+    "polymer_count": 3,
+    "authors": [
+      "Smith, K.J.",
+      "Reid, S.W.",
+      "Stuart, D.I.",
+      "Mcmichael, A.J.",
+      "Jones, E.Y."
+    ],
+    "xrefs": {}
+  },
+  {
+    "pdb_id": "1A22",
+    "title": "HUMAN GROWTH HORMONE BOUND TO SINGLE RECEPTOR",
+    "header": "COMPLEX (HORMONE/RECEPTOR)",
+    "method": "X-RAY DIFFRACTION",
+    "resolution": 2.6,
+    "deposit_date": "1998-01-15T00:00:00+0000",
+    "organism": "",
+    "molecule_type": "Protein (only)",
+    "polymer_count": 2,
+    "authors": [
+      "De Vos, A.M.",
+      "Ultsch, M."
+    ],
+    "xrefs": {}
+  },
+  {
+    "pdb_id": "1A3C",
+    "title": "PYRR, THE BACILLUS SUBTILIS PYRIMIDINE BIOSYNTHETIC OPERON REPRESSOR, DIMERIC FORM",
+    "header": "TRANSCRIPTION REGULATION",
+    "method": "X-RAY DIFFRACTION",
+    "resolution": 1.55,
+    "deposit_date": "1998-01-20T00:00:00+0000",
+    "organism": "",
+    "molecule_type": "Protein (only)",
+    "polymer_count": 1,
+    "authors": [
+      "Tomchick, D.R.",
+      "Turner, R.J.",
+      "Switzer, R.W.",
+      "Smith, J.L."
+    ],
+    "xrefs": {}
+  },
+  {
+    "pdb_id": "1A4P",
+    "title": "P11 (S100A10), LIGAND OF ANNEXIN II",
+    "header": "CALCIUM/PHOSPHOLIPID BINDING PROTEIN",
+    "method": "X-RAY DIFFRACTION",
+    "resolution": 2.25,
+    "deposit_date": "1998-01-30T00:00:00+0000",
+    "organism": "",
+    "molecule_type": "Protein (only)",
+    "polymer_count": 1,
+    "authors": [
+      "Rety, S.",
+      "Sopkova, J.",
+      "Renouard, M.",
+      "Osterloh, D.",
+      "Gerke, V."
+    ],
+    "xrefs": {}
+  },
+  {
+    "pdb_id": "1A6J",
+    "title": "NITROGEN REGULATORY BACTERIAL PROTEIN IIA-NITROGEN",
+    "header": "PHOSPHOTRANSFERASE SYSTEM",
+    "method": "X-RAY DIFFRACTION",
+    "resolution": 2.35,
+    "deposit_date": "1998-02-25T00:00:00+0000",
+    "organism": "",
+    "molecule_type": "Protein (only)",
+    "polymer_count": 1,
+    "authors": [
+      "Bordo, D.",
+      "Van Montfort, R.",
+      "Pijning, T.",
+      "Kalk, K.H.",
+      "Reizer, J."
+    ],
+    "xrefs": {}
+  },
+  {
+    "pdb_id": "11BA",
+    "title": "BINDING OF A SUBSTRATE ANALOGUE TO A DOMAIN SWAPPING PROTEIN IN THE COMPLEX OF BOVINE SEMINAL RIBONUCLEASE WITH URIDYLYL-2',5'-ADENOSINE",
+    "header": "HYDROLASE",
+    "method": "X-RAY DIFFRACTION",
+    "resolution": 2.06,
+    "deposit_date": "1999-03-17T00:00:00+0000",
+    "organism": "",
+    "molecule_type": "Protein (only)",
+    "polymer_count": 1,
+    "authors": [
+      "Vitagliano, L.",
+      "Adinolfi, S.",
+      "Riccio, A.",
+      "Sica, F.",
+      "Zagari, A."
+    ],
+    "xrefs": {}
+  },
+  {
+    "pdb_id": "11GS",
+    "title": "Glutathione s-transferase complexed with ethacrynic acid-glutathione conjugate (form ii)",
+    "header": "TRANSFERASE",
+    "method": "X-RAY DIFFRACTION",
+    "resolution": 2.3,
+    "deposit_date": "1997-11-03T00:00:00+0000",
+    "organism": "",
+    "molecule_type": "Protein (only)",
+    "polymer_count": 1,
+    "authors": [
+      "Oakley, A.J.",
+      "Lo Bello, M.",
+      "Mazzetti, A.P.",
+      "Federici, G.",
+      "Parker, M.W."
+    ],
+    "xrefs": {}
+  },
+  {
+    "pdb_id": "12CA",
+    "title": "ALTERING THE MOUTH OF A HYDROPHOBIC POCKET. STRUCTURE AND KINETICS OF HUMAN CARBONIC ANHYDRASE II MUTANTS AT RESIDUE VAL-121",
+    "header": "LYASE(OXO-ACID)",
+    "method": "X-RAY DIFFRACTION",
+    "resolution": 2.4,
+    "deposit_date": "1991-10-01T00:00:00+0000",
+    "organism": "",
+    "molecule_type": "Protein (only)",
+    "polymer_count": 1,
+    "authors": [
+      "Nair, S.K.",
+      "Christianson, D.W."
+    ],
+    "xrefs": {}
+  },
+  {
+    "pdb_id": "12E8",
+    "title": "2E8 FAB FRAGMENT",
+    "header": "IMMUNOGLOBULIN",
+    "method": "X-RAY DIFFRACTION",
+    "resolution": 1.85,
+    "deposit_date": "1998-03-14T00:00:00+0000",
+    "organism": "",
+    "molecule_type": "Protein (only)",
+    "polymer_count": 2,
+    "authors": [
+      "Rupp, B.",
+      "Trakhanov, S."
+    ],
+    "xrefs": {}
+  }
+]

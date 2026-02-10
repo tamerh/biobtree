@@ -155,7 +155,7 @@ func (c *collectri) update() {
 		// Cross-reference to HGNC and Ensembl (human genes only)
 		// CollecTRI is a human TF-target database, so we go through HGNC
 		// to ensure we only get human genes (not mouse/rat/zebrafish)
-		// addHumanGeneXrefs creates xrefs to both HGNC and Ensembl
+		// addHumanGeneXrefs creates xref to HGNC (Ensembl via HGNC→Ensembl)
 		c.d.addHumanGeneXrefs(tfGene, entryID, sourceID)
 		c.d.addHumanGeneXrefs(targetGene, entryID, sourceID)
 

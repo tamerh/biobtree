@@ -310,6 +310,8 @@ Available datasets:
         'signor': datasets_dir / "signor" / "test_signor.py",
         'corum': datasets_dir / "corum" / "test_corum.py",
         'brenda': datasets_dir / "brenda" / "test_brenda.py",
+        'cellphonedb': datasets_dir / "cellphonedb" / "test_cellphonedb.py",
+        'pdb': datasets_dir / "pdb" / "test_pdb.py",
     }
 
     # Parse dataset selection

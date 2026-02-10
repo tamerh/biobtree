@@ -534,6 +534,18 @@
     "test_entries_count": "100",
     "bucketMethod": "uniprot"
   },
+  "esm2_similarity": {
+    "id": "750",
+    "name": "ESM2 Protein Similarity",
+    "path": "raw_data/esm2_similarity/esm2_similarities_top50.tsv",
+    "aliases": "esm2,esm-2,protein embedding,semantic similarity,embedding similarity",
+    "url": "https://www.uniprot.org/uniprotkb/£{id}",
+    "useLocalFile": "yes",
+    "hasFilter": "yes",
+    "attrs": "protein_id,[]similarities,similarity_count,top_similarity,avg_similarity",
+    "test_entries_count": "100",
+    "bucketMethod": "uniprot"
+  },
   "antibody": {
     "id": "40",
     "name": "Antibody db",
@@ -1040,5 +1052,30 @@
     "attrs": "ec_number,inhibitor,[]ki_values,[]ic50_values,[]inhibition_data,ki_count,ic50_count,inhibition_count,min_ki,max_ki,min_ic50,max_ic50",
     "test_entries_count": "500",
     "bucketMethod": "alphabetic"
+  },
+  "cellphonedb": {
+    "id": "751",
+    "name": "CellPhoneDB",
+    "aliases": "CellPhoneDB,cell-cell communication,ligand receptor,cell communication,secreted protein,receptor ligand,cell-cell interaction",
+    "url": "https://www.cellphonedb.org/",
+    "path": "cache/cellphonedb",
+    "useLocalFile": "yes",
+    "hasFilter": "yes",
+    "attrs": "partner_a,partner_b,directionality,classification,source,[]genes_a,[]genes_b,receptor_a,receptor_b,secreted_a,secreted_b,is_integrin,is_complex_a,is_complex_b",
+    "test_entries_count": "100",
+    "bucketMethod": "alphabetic"
+  },
+  "pdb": {
+    "id": "221",
+    "name": "Protein Data Bank",
+    "aliases": "PDB,protein structure,3D structure,crystal structure,X-ray,NMR,cryo-EM,electron microscopy",
+    "url": "https://www.rcsb.org/structure/£{id}",
+    "path": "https://ftp.ebi.ac.uk/pub/databases/pdb/derived_data/index/entries.idx",
+    "siftsPath": "https://ftp.ebi.ac.uk/pub/databases/msd/sifts/flatfiles/csv/",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "title,header,resolution,method,molecule_type,release_date,source_organism,[]authors,chain_count",
+    "test_entries_count": "500",
+    "bucketMethod": "alphanum"
   }
 }

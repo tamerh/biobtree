@@ -236,7 +236,7 @@ func (g *gencc) update() {
 		}
 
 		// Cross-reference to HGNC and Ensembl via gene symbol lookup
-		// addHumanGeneXrefs creates xrefs to both HGNC and Ensembl (human only)
+		// addHumanGeneXrefs creates xref to HGNC (Ensembl via HGNC→Ensembl)
 		if geneSymbol != "" {
 			g.d.addHumanGeneXrefs(geneSymbol, uuid, sourceID)
 		}

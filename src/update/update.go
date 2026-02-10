@@ -722,6 +722,12 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			d.datasets2 = append(d.datasets2, data)
 			go ps.update()
 			break
+		case "esm2_similarity":
+			d.wg.Add(1)
+			es := esm2Similarity{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go es.update()
+			break
 		case "antibody":
 			d.wg.Add(1)
 			ab := &antibody{source: data, d: d}
@@ -997,6 +1003,12 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			d.datasets2 = append(d.datasets2, data)
 			go cor.update()
 			break
+		case "cellphonedb":
+			d.wg.Add(1)
+			cpdb := cellphonedb{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go cpdb.update()
+			break
 		case "brenda":
 			d.wg.Add(1)
 			br := brenda{source: data, d: d}
@@ -1027,6 +1039,12 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			bi := brendaInhibitor{source: data, d: d}
 			d.datasets2 = append(d.datasets2, data)
 			go bi.update()
+			break
+		case "pdb":
+			d.wg.Add(1)
+			pdbParser := pdb{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go pdbParser.update()
 			break
 		default:
 			log.Fatal("ERROR Unrecognized dataset ->" + data)
@@ -1837,9 +1855,9 @@ func (d *DataUpdate) addXrefViaKeyword(keyword string, keywordDataset string, ta
 	}
 }
 
-// addHumanGeneXrefs creates cross-references to both HGNC and Ensembl via gene symbol lookup
-// This ensures we only get human genes by going through HGNC first
-// Creates: sourceID → HGNC and sourceID → Ensembl (human only)
+// addHumanGeneXrefs creates cross-reference to HGNC via gene symbol lookup
+// This ensures we only get human genes by going through HGNC
+// Creates: sourceID → HGNC (Ensembl connection comes for free via HGNC→Ensembl xref)
 // geneSymbol: Gene symbol (e.g., "BRCA1")
 // sourceID: The source entity identifier (e.g., variant ID, disease ID)
 // sourceDatasetID: The dataset ID of the source entity
@@ -1887,38 +1905,9 @@ func (d *DataUpdate) addHumanGeneXrefs(geneSymbol, sourceID, sourceDatasetID str
 		return // No HGNC entry found
 	}
 
-	// Step 3: Create xref to HGNC
+	// Step 3: Create xref to HGNC only
+	// Ensembl connection comes for free via existing HGNC→Ensembl xref
 	d.addXref(sourceID, sourceDatasetID, hgncIdentifier, "hgnc", false)
-
-	// Step 4: Lookup HGNC entry directly to get its cross-references
-	hgncResult, err := d.lookup(hgncIdentifier)
-	if err != nil || hgncResult == nil || len(hgncResult.Results) == 0 {
-		return
-	}
-
-	// Step 5: Find Ensembl cross-reference in HGNC entry
-	ensemblDatasetID, ok := config.Dataconf["ensembl"]["id"]
-	if !ok {
-		return
-	}
-
-	var ensemblDatasetInt uint32
-	fmt.Sscanf(ensemblDatasetID, "%d", &ensemblDatasetInt)
-
-	// Look through HGNC's cross-references for Ensembl
-	for _, hgncRes := range hgncResult.Results {
-		if len(hgncRes.Entries) == 0 {
-			continue
-		}
-
-		for _, entry := range hgncRes.Entries {
-			if entry.Dataset == ensemblDatasetInt {
-				// Found human Ensembl gene - create cross-reference
-				d.addXref(sourceID, sourceDatasetID, entry.Identifier, "ensembl", false)
-				return // Only need one Ensembl reference
-			}
-		}
-	}
 }
 
 // addXrefEnsemblViaEntrez creates a cross-reference to Ensembl gene via Entrez Gene ID

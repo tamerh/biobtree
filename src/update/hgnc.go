@@ -127,6 +127,7 @@ func (e *hgnc) update() {
 			a("pubmed_id", "PubMed", j, entryid)
 			a("refseq_accession", "RefSeq", j, entryid)
 			a("uniprot_ids", "UniProtKB", j, entryid)
+			a("entrez_id", "entrez", j, entryid)
 			// Note: STRING uses its own format (9606.ENSP...), not UniProt IDs
 			// STRING xrefs are created via UniProt → STRING mapping in string.go
 			a("uniprot_ids", "alphafold", j, entryid)

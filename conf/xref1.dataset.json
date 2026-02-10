@@ -124,13 +124,6 @@
     "id": "220",
     "url": "https://www.patricbrc.org/search/?keyword(%22£{id}%22)"
   },
-  "pdb": {
-    "aliases": "PDB",
-    "name": "PDBe",
-    "id": "221",
-    "url": "https://www.ebi.ac.uk/pdbe/entry/pdb/£{id}",
-    "attrs": "method,chains,resolution"
-  },
   "pdbechem": {
     "aliases": "PDBeChem,PDBeChem accession",
     "name": "PDBeChem",

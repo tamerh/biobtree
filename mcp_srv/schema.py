@@ -9,12 +9,12 @@ Schema definitions for biobtree_help tool - dataset connections, filters, and qu
 # =============================================================================
 
 SCHEMA_EDGES = {
-    "ensembl": ["uniprot", "go", "transcript", "exon", "ortholog", "paralog", "dbsnp", "clinvar", "hgnc", "entrez", "refseq", "bgee", "gwas", "gencc", "biogrid", "string", "antibody", "scxa"],
-    "hgnc": ["ensembl", "uniprot", "entrez", "gencc", "pharmgkb_gene", "msigdb", "clinvar", "mim", "refseq", "alphafold", "collectri"],
+    "ensembl": ["uniprot", "go", "transcript", "exon", "ortholog", "paralog", "hgnc", "entrez", "refseq", "bgee", "gwas", "gencc", "biogrid", "string", "antibody", "scxa"],
+    "hgnc": ["ensembl", "uniprot", "entrez", "gencc", "pharmgkb_gene", "msigdb", "clinvar", "mim", "refseq", "alphafold", "collectri", "gwas", "dbsnp", "hpo", "cellphonedb"],
     "entrez": ["ensembl", "uniprot", "refseq", "go", "biogrid", "pubchem_activity"],
     "refseq": ["ensembl", "uniprot", "entrez"],
     "transcript": ["ensembl", "exon", "ufeature"],
-    "uniprot": ["ensembl", "alphafold", "interpro", "pdb", "ufeature", "intact", "string", "biogrid", "chembl_target_component", "go", "reactome", "rhea", "swisslipids", "bindingdb", "antibody", "pubchem_activity"],
+    "uniprot": ["ensembl", "alphafold", "interpro", "pdb", "ufeature", "intact", "string", "biogrid", "chembl_target_component", "go", "reactome", "rhea", "swisslipids", "bindingdb", "antibody", "pubchem_activity", "cellphonedb"],
     "alphafold": ["uniprot"],
     "interpro": ["uniprot"],
     "chembl_molecule": ["chembl_activity", "pubchem", "chebi", "drugcentral", "clinical_trials"],
@@ -28,10 +28,10 @@ SCHEMA_EDGES = {
     "drugcentral": ["chembl_molecule", "uniprot"],
     "swisslipids": ["uniprot", "go", "chebi", "uberon"],
     "lipidmaps": ["chebi", "pubchem"],
-    "dbsnp": ["ensembl", "hgnc", "clinvar", "pharmgkb_variant"],
-    "clinvar": ["ensembl", "hgnc", "mondo", "hpo", "dbsnp", "orphanet"],
+    "dbsnp": ["hgnc", "clinvar", "pharmgkb_variant"],
+    "clinvar": ["hgnc", "mondo", "hpo", "dbsnp", "orphanet"],
     "alphamissense": ["uniprot", "transcript"],
-    "gwas": ["gwas_study", "ensembl", "efo", "dbsnp"],
+    "gwas": ["gwas_study", "efo", "dbsnp", "hgnc"],
     "gwas_study": ["gwas", "efo"],
     "mondo": ["gencc", "clinvar", "efo", "mesh", "hpo", "clinical_trials", "antibody", "cellxgene", "cellxgene_celltype", "orphanet"],
     "gencc": ["mondo", "hpo", "hgnc", "ensembl"],
@@ -56,7 +56,7 @@ SCHEMA_EDGES = {
     "reactome": ["ensembl", "uniprot", "chebi", "go"],
     "rhea": ["chebi", "uniprot", "go"],
     "go": ["ensembl", "uniprot", "reactome", "msigdb", "swisslipids", "bgee"],
-    "hpo": ["clinvar", "gencc", "mondo", "msigdb", "orphanet", "mim", "hmdb"],
+    "hpo": ["clinvar", "gencc", "mondo", "msigdb", "orphanet", "mim", "hmdb","hgnc"],
     "efo": ["gwas", "mondo", "cellxgene"],
     "uberon": ["bgee", "cellxgene", "cellxgene_celltype", "swisslipids"],
     "cl": ["bgee", "cellxgene", "cellxgene_celltype", "scxa", "scxa_gene_experiment"],
@@ -64,10 +64,13 @@ SCHEMA_EDGES = {
     "mesh": ["pharmgkb", "ctd", "pubchem", "mondo"],
     "antibody": ["ensembl", "uniprot", "mondo", "pdb"],
     "msigdb": ["hgnc", "entrez", "go", "hpo"],
-    "orphanet": ["hpo", "ensembl", "uniprot", "mondo", "hgnc", "clinvar", "mim", "mesh"],
+    "orphanet": ["hpo", "uniprot", "mondo", "hgnc", "clinvar", "mim", "mesh"],
     "mim": ["clinvar", "hpo", "mondo", "uniprot", "ctd"],
     "hmdb": ["pubchem", "hpo", "chebi", "uniprot"],
-    "collectri": ["hgnc"]
+    "collectri": ["hgnc"],
+    "esm2_similarity": ["uniprot"],
+    "cellphonedb": ["uniprot", "ensembl", "hgnc", "pubmed"],
+    "pdb": ["uniprot", "go", "interpro", "pfam", "taxonomy", "pubmed"]
 }
 
 # =============================================================================
@@ -129,7 +132,10 @@ SCHEMA_FILTERS = {
     "go": {"type": "str (biological_process|molecular_function|cellular_component)"},
     "msigdb": {"collection": "str (H|C1-C8)", "gene_count": "int"},
     "antibody": {"status": "str (Active|Discontinued)", "antibody_type": "str (therapeutic)", "isotype": "str (G1|G2|G4)"},
-    "collectri": {"tf_gene": "str (TF gene symbol)", "target_gene": "str (target gene symbol)", "regulation": "str (Activation|Repression|Unknown)", "confidence": "str (High|Low)"}
+    "collectri": {"tf_gene": "str (TF gene symbol)", "target_gene": "str (target gene symbol)", "regulation": "str (Activation|Repression|Unknown)", "confidence": "str (High|Low)"},
+    "esm2_similarity": {"top_similarity": "float (0-1, highest cosine similarity)", "avg_similarity": "float (0-1)", "similarity_count": "int"},
+    "cellphonedb": {"directionality": "str (Ligand-Receptor|Adhesion-Adhesion|etc)", "classification": "str (signaling pathway)", "receptor_a": "bool", "receptor_b": "bool", "secreted_a": "bool", "secreted_b": "bool", "is_complex_a": "bool", "is_complex_b": "bool", "is_integrin": "bool"},
+    "pdb": {"method": "str (X-RAY DIFFRACTION|ELECTRON MICROSCOPY|SOLUTION NMR)", "resolution": "float (Angstroms, lower=better)"}
 }
 
 # =============================================================================
@@ -156,7 +162,10 @@ SCHEMA_EXAMPLES = {
     "clinical_trials": "NCT00720356",
     "antibody": "BEVACIZUMAB",
     "string": "9606.ENSP00000269305",
-    "collectri": "MYC:TERT (MYC regulates TERT)"
+    "collectri": "MYC:TERT (MYC regulates TERT)",
+    "esm2_similarity": "P04637 (TP53 UniProt ID)",
+    "cellphonedb": "CPI-SC0A2DB962D (ligand-receptor interaction)",
+    "pdb": "4HHB (Hemoglobin structure)"
 }
 
 # =============================================================================
@@ -259,6 +268,21 @@ SCHEMA_PATTERNS = """# Human genes: use >>hgnc>>ensembl instead of >>ensembl[gen
 <gene> >> hgnc >> collectri[collectri.regulation=="Activation"]   # Activating TFs only
 <gene> >> hgnc >> collectri[collectri.regulation=="Repression"]   # Repressing TFs only
 <gene> >> hgnc >> collectri[collectri.confidence=="High"]         # High confidence interactions
+
+# ===== CELL-CELL COMMUNICATION (CellPhoneDB) =====
+
+<gene> >> hgnc >> cellphonedb                          # Gene to ligand-receptor interactions
+<protein> >> uniprot >> cellphonedb                    # Protein to cell communication
+
+# ===== PROTEIN STRUCTURES (PDB) =====
+
+<pdb_id> >> pdb                                        # Structure lookup (e.g., 4HHB)
+<protein> >> uniprot >> pdb                            # Protein to 3D structures
+<gene> >> ensembl >> uniprot >> pdb                    # Gene to structures
+<protein> >> uniprot >> pdb[pdb.method=="X-RAY DIFFRACTION"]  # X-ray only
+<protein> >> uniprot >> pdb[pdb.resolution<2.0]        # High-resolution (<2A)
+<pdb_id> >> pdb >> uniprot                             # Structure to proteins
+<pdb_id> >> pdb >> go                                  # Structure to GO terms
 
 # ===== ONTOLOGY =====
 

@@ -153,6 +153,8 @@ func (s *service) init() {
 		cel.Types(&pbuf.BgeeAttr{}),
 		cel.Types(&pbuf.GwasAttr{}),
 		cel.Types(&pbuf.AntibodyAttr{}),
+		cel.Types(&pbuf.Esm2SimilarityAttr{}),
+		cel.Types(&pbuf.Esm2Similarity{}),
 		cel.Types(&pbuf.PubchemAttr{}),
 		cel.Types(&pbuf.PubchemActivityAttr{}),
 		cel.Types(&pbuf.PubchemAssayAttr{}),
@@ -196,6 +198,7 @@ func (s *service) init() {
 		cel.Types(&pbuf.KineticMeasurement{}),
 		cel.Types(&pbuf.BrendaInhibitorAttr{}),
 		cel.Types(&pbuf.InhibitionMeasurement{}),
+		cel.Types(&pbuf.CellphonedbAttr{}),
 		cel.Declarations(
 			decls.NewIdent("uniprot", decls.NewObjectType("pbuf.UniprotAttr"), nil)),
 		cel.Declarations(
@@ -273,6 +276,8 @@ func (s *service) init() {
 		cel.Declarations(
 			decls.NewIdent("antibody", decls.NewObjectType("pbuf.AntibodyAttr"), nil)),
 		cel.Declarations(
+			decls.NewIdent("esm2_similarity", decls.NewObjectType("pbuf.Esm2SimilarityAttr"), nil)),
+		cel.Declarations(
 			decls.NewIdent("pubchem", decls.NewObjectType("pbuf.PubchemAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("pubchem_activity", decls.NewObjectType("pbuf.PubchemActivityAttr"), nil)),
@@ -338,6 +343,8 @@ func (s *service) init() {
 			decls.NewIdent("brenda_kinetics", decls.NewObjectType("pbuf.BrendaKineticsAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("brenda_inhibitor", decls.NewObjectType("pbuf.BrendaInhibitorAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("cellphonedb", decls.NewObjectType("pbuf.CellphonedbAttr"), nil)),
 		cel.Declarations(
 			decls.NewFunction("overlaps",
 				decls.NewOverload("overlaps_int_int",

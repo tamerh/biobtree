@@ -7,7 +7,7 @@ via identifiers and special keywors with simple or advance chain query capabilit
 
 ## Features
 
-* **Datasets** - supports wide datasets such as `Ensembl` `Uniprot` `ChEMBL` `HMDB` `BindingDB` `CTD` `STRING` `BioGRID` `MSigDB` `Taxonomy` `GO` `EFO` `HPO` `UBERON` `CL` `HGNC` `ECO` `Uniparc` `Uniref` `RNACentral` `Bgee` `GWAS Catalog` `dbSNP` `RefSeq` `IntAct` `GenCC` `AlphaMissense` `ClinVar` `PharmGKB` `CELLxGENE` `SCXA` `Orphanet` `CollecTRI` `SIGNOR` `CORUM` `BRENDA`  with tens of more via cross references
+* **Datasets** - supports wide datasets such as `Ensembl` `Uniprot` `ChEMBL` `HMDB` `BindingDB` `CTD` `STRING` `BioGRID` `MSigDB` `Taxonomy` `GO` `EFO` `HPO` `UBERON` `CL` `HGNC` `ECO` `Uniparc` `Uniref` `RNACentral` `Bgee` `GWAS Catalog` `dbSNP` `RefSeq` `IntAct` `GenCC` `AlphaMissense` `ClinVar` `PharmGKB` `CELLxGENE` `SCXA` `Orphanet` `CollecTRI` `SIGNOR` `CORUM` `BRENDA` `ESM2 Similarity` `CellPhoneDB` `PDB`  with tens of more via cross references
 by retrieving latest data from providers
 
 * **MapReduce** - processes small or large datasets based on users selection and build B+ tree based uniform local database via specialized MapReduce based tecnique with efficient storage usage 
@@ -48,6 +48,8 @@ by retrieving latest data from providers
 
 * **Missense Variant Pathogenicity** - `AlphaMissense` from DeepMind with ~71M missense variant pathogenicity predictions. Provides pathogenicity scores (0-1), classifications (likely_benign/ambiguous/likely_pathogenic), and cross-references to UniProt proteins and Ensembl transcripts. `alphamissense_transcript` dataset provides transcript-level mean pathogenicity scores for mutation tolerance assessment
 
+* **Protein Structures** - `PDB` (Protein Data Bank) with 248K+ experimentally determined 3D structures. Provides experimental method (X-ray crystallography, cryo-EM, NMR), resolution, title, classification, organism, and author data. Cross-references to UniProt, GO, InterPro, Pfam, Taxonomy, and PubMed. Filters for method type and resolution. Essential for structural biology, drug design, and protein engineering
+
 * **Protein Interactions** - `IntAct` database from EBI with ~1.8 million experimentally validated protein-protein interactions across ~100,000 unique proteins. Provides detailed experimental evidence including detection methods, interaction types, confidence scores, experimental roles, and direct citations to 23,000+ publications. Supports interaction network analysis, drug target discovery, and pathway exploration with PSI-MI standardized terms
 
 * **Protein Networks** - `STRING` database with predicted and known protein-protein interactions across thousands of organisms. Provides combined interaction scores with evidence breakdown (experimental, database, textmining, coexpression), protein annotations, and size information. Enables functional association networks, protein complex analysis, and pathway enrichment studies
@@ -65,6 +67,10 @@ by retrieving latest data from providers
 * **Protein Complexes** - `CORUM` database with 7,969 experimentally characterized mammalian protein complexes. Provides complex names, subunit composition with UniProt/Entrez IDs, GO functional annotations, purification methods, and drug target associations. Cross-references to UniProt, Entrez Gene, GO, PubMed, and Taxonomy. Supports protein complex analysis, subunit identification, and drug target discovery in complex context
 
 * **Enzyme Biochemistry** - `BRENDA` (BRaunschweig ENzyme DAtabase) with 8,000+ EC enzyme entries. Three integrated datasets: `brenda` (enzyme classification with names, synonyms, organisms, reaction types), `brenda_kinetics` (Km/kcat values per EC+substrate with organism and conditions), and `brenda_inhibitor` (Ki/IC50 values per EC+inhibitor). Provides comprehensive kinetic parameters, inhibitor data, and literature references. Cross-references to UniProt (bidirectional) and PubMed. Supports enzyme characterization, drug target analysis, and biochemical pathway studies
+
+* **Protein Embedding Similarity** - `ESM2 Similarity` dataset with 573K+ proteins and their top-50 similar proteins based on ESM2 embeddings from Meta AI. Provides cosine similarity scores capturing functional and structural relationships beyond sequence identity. Enables semantic protein similarity searches, function prediction from similar proteins, and drug target expansion. Cross-references to UniProt for multi-hop queries. Supports filtering by similarity threshold (`top_similarity>0.95`) and similarity count
+
+* **Cell-Cell Communication** - `CellPhoneDB` database with 2,911 curated ligand-receptor interactions for single-cell analysis. Provides partner names, directionality (Ligand-Receptor, Adhesion-Adhesion), classification (signaling pathways), and complex compositions. Includes receptor/secreted/integrin annotations for comprehensive cell communication analysis. Cross-references to UniProt, Ensembl, HGNC, and PubMed. Essential for scRNA-seq communication analysis, spatial transcriptomics, and cell-cell interaction discovery
 
 * **Pharmacogenomics** - `PharmGKB` database with 6 integrated datasets for precision medicine: chemicals/drugs with FDA drug labels, pharmacogenes with VIP flags and CPIC guidelines, clinical variant annotations with evidence levels (1A-4), variant annotations with HGVS nomenclature, dosing guidelines from CPIC/DPWG/CPNDS/RNPGx, and pharmacokinetic/pharmacodynamic pathways. Provides gene-drug relationships, clinical evidence levels, dosing recommendations, and pathway diagrams. Cross-references to HGNC, PubChem, dbSNP, MeSH, and Ensembl. Supports pharmacogenomic dosing decisions, drug-gene interaction analysis, and clinical annotation lookup
 
@@ -149,8 +155,17 @@ biobtree -d "signor,uniprot,chebi" build
 # build with enzyme biochemistry (works well with UniProt)
 biobtree -d "brenda,uniprot" build
 
+# build with protein embedding similarity (requires UniProt)
+biobtree -d "esm2_similarity,uniprot" build
+
+# build with cell-cell communication (works well with UniProt, Ensembl, HGNC)
+biobtree -d "cellphonedb,uniprot,ensembl,hgnc" build
+
 # build with protein interactions (requires UniProt)
 biobtree -d "uniprot,intact" build
+
+# build with protein structures (works well with UniProt, GO, InterPro)
+biobtree -d "pdb,uniprot,go,interpro" build
 
 # build with STRING protein networks (use with Ensembl genomes for best results)
 biobtree --tax 9606 -d "string" build
@@ -520,6 +535,37 @@ biobtree query "1.1.1.1 >> brenda >> pubmed"         # EC to literature referenc
 biobtree query "1.1.1.1 >> brenda >> uniprot"        # EC to protein sequences
 biobtree query "P00327 >> uniprot >> brenda"         # Protein to EC classification
 biobtree query "ethanol >> brenda_kinetics"          # Search kinetics by substrate name
+
+# ESM2 protein embedding similarity queries
+biobtree query "P04637"                              # TP53 protein lookup
+biobtree query "P04637 >> esm2_similarity"           # Find ESM2-similar proteins
+biobtree query "P04637 >> esm2_similarity >> uniprot"  # Similar proteins with UniProt details
+biobtree query "BRCA1 >> ensembl >> uniprot >> esm2_similarity"  # Gene to similar proteins
+biobtree query "P04637 >> esm2_similarity >> uniprot >> go"  # Similar proteins to GO functions
+biobtree query "P04637 >> esm2_similarity >> uniprot >> chembl_target_component"  # Similar drug targets
+biobtree query "P04637 >> esm2_similarity >> uniprot >> alphafold"  # Similar proteins with structures
+
+# CellPhoneDB cell-cell communication queries
+biobtree query "CPI-SC0A2DB962D"                     # Interaction lookup by CellPhoneDB ID
+biobtree query "CPI-SC0A2DB962D >> cellphonedb"      # Get interaction details
+biobtree query "CDH1 >> hgnc >> cellphonedb"         # Find interactions for a gene
+biobtree query "EGFR >> hgnc >> cellphonedb"         # Find receptor-ligand interactions
+biobtree query "P12830 >> uniprot >> cellphonedb"    # UniProt protein to interactions
+biobtree query "CPI-SC0A2DB962D >> cellphonedb >> uniprot"  # Interaction to partner proteins
+biobtree query "CPI-SC0A2DB962D >> cellphonedb >> ensembl"  # Interaction to partner genes
+biobtree query "TNF >> hgnc >> cellphonedb >> uniprot"      # Gene to interaction partners
+
+# PDB protein structure queries
+biobtree query "4HHB"                                # Structure lookup (Hemoglobin)
+biobtree query "4HHB >> pdb"                         # Get structure details
+biobtree query "P04637 >> uniprot >> pdb"            # Find structures for TP53 protein
+biobtree query "TP53 >> ensembl >> uniprot >> pdb"   # Gene to 3D structures
+biobtree query "4HHB >> pdb >> uniprot"              # Structure to protein sequences
+biobtree query "4HHB >> pdb >> go"                   # Structure to GO functional annotations
+biobtree query "4HHB >> pdb >> interpro"             # Structure to protein domains
+biobtree query "4HHB >> pdb >> pfam"                 # Structure to Pfam families
+biobtree query "4HHB >> pdb >> taxonomy"             # Structure to organism
+biobtree query "4HHB >> pdb >> pubmed"               # Structure to literature
 ```
 
 #### Filter Syntax
@@ -605,6 +651,27 @@ biobtree query "1.1.1.1 >> brenda >> brenda_kinetics[brenda_kinetics.km_count>10
 biobtree query "1.1.1.1 >> brenda >> brenda_kinetics[brenda_kinetics.kcat_count>5]"  # Substrates with turnover data
 biobtree query "1.1.1.1 >> brenda >> brenda_inhibitor[brenda_inhibitor.ki_count>0]"  # Inhibitors with Ki values
 biobtree query "1.1.1.1 >> brenda >> brenda_inhibitor[brenda_inhibitor.ic50_count>0]" # Inhibitors with IC50 data
+
+# ESM2 protein embedding similarity filters
+biobtree query "P04637 >> esm2_similarity[esm2_similarity.top_similarity>0.95]"      # Highly similar proteins only
+biobtree query "P04637 >> esm2_similarity[esm2_similarity.similarity_count>10]"      # Well-connected proteins
+biobtree query "P04637 >> esm2_similarity[esm2_similarity.avg_similarity>0.9]"       # High average similarity
+
+# CellPhoneDB cell-cell communication filters
+biobtree query "EGFR >> hgnc >> cellphonedb[cellphonedb.directionality==\"Ligand-Receptor\"]"  # Ligand-receptor pairs only
+biobtree query "TNF >> hgnc >> cellphonedb[cellphonedb.secreted_a==true || cellphonedb.secreted_b==true]"  # Secreted partners
+biobtree query "ITGB1 >> hgnc >> cellphonedb[cellphonedb.receptor_a==true || cellphonedb.receptor_b==true]"  # Receptor interactions
+biobtree query "CDH1 >> hgnc >> cellphonedb[cellphonedb.is_complex_a==true || cellphonedb.is_complex_b==true]"  # Complex interactions
+biobtree query "WNT1 >> hgnc >> cellphonedb[cellphonedb.classification~\"Signaling\"]"  # Filter by signaling pathway
+biobtree query "ITGA2 >> hgnc >> cellphonedb[cellphonedb.is_integrin==true]"        # Integrin interactions only
+
+# PDB protein structure filters
+biobtree query "P04637 >> uniprot >> pdb[pdb.method==\"X-RAY DIFFRACTION\"]"        # X-ray structures only
+biobtree query "P04637 >> uniprot >> pdb[pdb.method==\"ELECTRON MICROSCOPY\"]"      # Cryo-EM structures only
+biobtree query "P04637 >> uniprot >> pdb[pdb.method==\"SOLUTION NMR\"]"             # NMR structures only
+biobtree query "P04637 >> uniprot >> pdb[pdb.resolution<2.0]"                       # High-resolution (<2Å) only
+biobtree query "P04637 >> uniprot >> pdb[pdb.resolution<2.5]"                       # Good resolution (<2.5Å)
+biobtree query "TP53 >> ensembl >> uniprot >> pdb[pdb.method==\"X-RAY DIFFRACTION\" && pdb.resolution<2.0]"  # High-res X-ray
 ```
 
 #### Migration Guide - Breaking Change in Mapping Queries

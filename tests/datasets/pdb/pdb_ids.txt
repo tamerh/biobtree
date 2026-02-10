@@ -1,0 +1,32 @@
+# PDB Test IDs
+# Using IDs that will be in the test database (first 500 entries alphabetically)
+# These are used to generate reference data from RCSB API
+
+# Early alphabetical entries (guaranteed to be in test DB)
+100D  # DNA structure
+101M  # Myoglobin
+102L  # T4 lysozyme mutant
+103L  # T4 lysozyme
+104M  # Myoglobin
+105M  # Myoglobin variant
+107L  # T4 lysozyme
+108L  # T4 lysozyme
+109L  # T4 lysozyme
+10GS  # Glutathione S-transferase
+
+# 1Axx series entries (common proteins)
+1A00  # Hemoglobin (deoxy form) - X-ray
+1A01  # Hemoglobin variant
+1A0M  # Oxidoreductase
+1A0N  # Albumin complex
+1A1N  # Ribosomal protein
+1A22  # tRNA synthetase
+1A3C  # Cytochrome c
+1A4P  # Phospholipase
+1A6J  # Nucleosome positioning
+
+# Entries with different methods/types
+11BA  # Beta amylase
+11GS  # Glutathione S-transferase
+12CA  # Carbonic anhydrase
+12E8  # Antibody Fab

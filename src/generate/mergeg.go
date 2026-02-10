@@ -1834,6 +1834,11 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)
 				xref.Attributes = &pbuf.Xref_ProteinSimilarity{attr}
+			case "esm2_similarity":
+				attr := &pbuf.Esm2SimilarityAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Esm2Similarity{attr}
 			case "antibody":
 				attr := &pbuf.AntibodyAttr{}
 				barr := []byte((*kvProp[k])[0].value)
@@ -1983,6 +1988,11 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)
 				xref.Attributes = &pbuf.Xref_BrendaInhibitor{attr}
+			case "cellphonedb":
+				attr := &pbuf.CellphonedbAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Cellphonedb{attr}
 			case "drugcentral":
 				attr := &pbuf.DrugcentralAttr{}
 				barr := []byte((*kvProp[k])[0].value)
@@ -2265,6 +2275,11 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 					barr := []byte((*kvProp[k])[0].value)
 					ffjson.Unmarshal(barr, attr)
 					xref.Attributes = &pbuf.Xref_ProteinSimilarity{attr}
+				case "esm2_similarity":
+					attr := &pbuf.Esm2SimilarityAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_Esm2Similarity{attr}
 				case "antibody":
 					attr := &pbuf.AntibodyAttr{}
 					barr := []byte((*kvProp[k])[0].value)
@@ -2394,6 +2409,11 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 					barr := []byte((*kvProp[k])[0].value)
 					ffjson.Unmarshal(barr, attr)
 					xref.Attributes = &pbuf.Xref_Signor{attr}
+				case "cellphonedb":
+					attr := &pbuf.CellphonedbAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_Cellphonedb{attr}
 				case "drugcentral":
 					attr := &pbuf.DrugcentralAttr{}
 					barr := []byte((*kvProp[k])[0].value)

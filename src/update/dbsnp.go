@@ -731,16 +731,11 @@ func (db *dbsnp) saveSNP(rsID string, attr *pbuf.DbsnpAttr, sourceID string) {
 
 // createCrossReferences creates cross-references from dbSNP to other datasets
 func (db *dbsnp) createCrossReferences(rsID, sourceID string, attr *pbuf.DbsnpAttr) {
-	// SNP → Gene (via gene_ids from GENEINFO) - ALL genes
-	for _, geneID := range attr.GeneIds {
-		if geneID != "" {
-			db.d.addXref(rsID, sourceID, geneID, "entrez", false)
-		}
-	}
+	// Note: Direct dbSNP → Entrez xrefs removed as redundant.
+	// Use path: dbSNP → HGNC → Entrez (HGNC has Entrez xrefs)
 
-	// Gene names → SNP cross-reference via Ensembl lookup
 	// Gene names → SNP cross-reference via HGNC and Ensembl (human only)
-	// addHumanGeneXrefs creates xrefs to both HGNC and Ensembl
+	// addHumanGeneXrefs creates xref to HGNC (Ensembl via HGNC→Ensembl)
 	// Search "BRCA1" returns HGNC/Ensembl entry, then "BRCA1 >> dbsnp" returns all SNPs
 	for _, geneName := range attr.GeneNames {
 		if geneName != "" && len(geneName) < 100 {

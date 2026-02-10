@@ -98,9 +98,16 @@ message  EnaAttr {
 }
 
 message  PdbAttr {
-  string method =1;
-  string chains =2;
-  string resolution =3;
+  string method = 1;           // Experimental method (X-RAY DIFFRACTION, NMR, ELECTRON MICROSCOPY)
+  string chains = 2;           // Comma-separated chain IDs
+  string resolution = 3;       // Resolution in Angstroms
+  string title = 4;            // Structure title/description
+  string header = 5;           // Classification category (OXYGEN TRANSPORT, HYDROLASE, etc.)
+  string release_date = 6;     // Deposition date (MM/DD/YY format)
+  string source_organism = 7;  // Source organism name
+  string molecule_type = 8;    // Molecule type: prot, nuc, prot-nuc, other
+  repeated string authors = 9; // Author list
+  int32 chain_count = 10;      // Number of polymer chains
 }
 
 message  DrugbankAttr {
@@ -1097,6 +1104,21 @@ message ProteinSimilarityAttr {
   int32 similarity_count = 3;                           // Total number of similarity hits
   float top_identity = 4;                               // Highest identity percentage
   float top_bitscore = 5;                               // Highest bit score
+}
+
+// ESM2 embedding-based protein similarity
+message Esm2Similarity {
+  string target_uniprot = 1;                            // Target UniProt ID
+  float cosine_similarity = 2;                          // Cosine similarity score (0-1)
+  int32 rank = 3;                                       // Rank among similar proteins (1 = most similar)
+}
+
+message Esm2SimilarityAttr {
+  string protein_id = 1;                                // Query UniProt ID
+  repeated Esm2Similarity similarities = 2;             // Top N similar proteins
+  int32 similarity_count = 3;                           // Number of similar proteins stored
+  float top_similarity = 4;                             // Highest cosine similarity
+  float avg_similarity = 5;                             // Average cosine similarity
 }
 
 // Antibody - Unified Antibody Database (TheraSAbDab, SAbDab, IMGT/GENE-DB, IMGT/LIGM-DB)
@@ -2293,5 +2315,33 @@ message InhibitionMeasurement {
   string pubmed_id = 5;                    // PubMed reference
   string inhibition_type = 6;              // Type: competitive, non-competitive, uncompetitive, mixed
   string comment = 7;                      // Additional notes
+}
+
+// CellPhoneDB - Ligand-Receptor Interaction Database (Dataset ID: 751)
+// Curated cell-cell communication interactions for single-cell analysis
+// Source: https://www.cellphonedb.org/
+// Primary key: CPI-* interaction ID (e.g., "CPI-SC0A2DB962D")
+// License: GPLv3
+message CellphonedbAttr {
+  string partner_a = 1;            // Partner A name (UniProt ID or complex name)
+  string partner_b = 2;            // Partner B name
+  string directionality = 3;       // "Ligand-Receptor", "Adhesion-Adhesion", etc.
+  string classification = 4;       // Signaling type (e.g., "Signaling by WNT")
+  string source = 5;               // Evidence source (PMID, UniProt, Reactome)
+  bool is_ppi = 6;                 // Protein-protein interaction flag
+
+  // Partner A details
+  bool receptor_a = 7;             // Is partner A a receptor
+  bool secreted_a = 8;             // Is partner A secreted
+  bool is_complex_a = 9;           // Is partner A a complex
+  repeated string genes_a = 10;    // Gene symbols for partner A
+
+  // Partner B details
+  bool receptor_b = 11;            // Is partner B a receptor
+  bool secreted_b = 12;            // Is partner B secreted
+  bool is_complex_b = 13;          // Is partner B a complex
+  repeated string genes_b = 14;    // Gene symbols for partner B
+
+  bool is_integrin = 15;           // Involves integrin
 }
 

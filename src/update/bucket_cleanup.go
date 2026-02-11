@@ -56,6 +56,103 @@ func GetChildDatasets(datasetName string, dataconf map[string]map[string]string)
 	return children
 }
 
+// CleanupForIncrementalUpdateFederated removes old bucket files and sorted files for a dataset
+// across all federations. This is necessary because a dataset's xrefs may have gone to
+// multiple federations (e.g., dbsnp's xrefs to hgnc go to main federation).
+//
+// Parameters:
+// - datasetName: the dataset being updated
+// - baseOutDir: the base output directory (e.g., out_prod_v4)
+// - datasetFederation: map of dataset names to their federation
+// - dataconf: dataset configuration (can be nil)
+func CleanupForIncrementalUpdateFederated(datasetName string, baseOutDir string, datasetFederation map[string]string, dataconf map[string]map[string]string) error {
+	// Get all federations (from the mapping or default to main)
+	federationSet := make(map[string]bool)
+	federationSet["main"] = true
+	for _, fed := range datasetFederation {
+		federationSet[fed] = true
+	}
+
+	// Convert to slice
+	var federations []string
+	for fed := range federationSet {
+		federations = append(federations, fed)
+	}
+
+	log.Printf("Cleaning up dataset %s across %d federations: %v", datasetName, len(federations), federations)
+
+	// Determine which federation this dataset belongs to
+	datasetFed := "main"
+	if fed, ok := datasetFederation[datasetName]; ok && fed != "" {
+		datasetFed = fed
+	}
+
+	// Clean up the dataset's own files in its federation
+	ownIndexDir := filepath.Join(baseOutDir, datasetFed, "index")
+	if err := CleanupForIncrementalUpdate(datasetName, ownIndexDir, dataconf); err != nil {
+		log.Printf("Warning: cleanup in own federation %s failed: %v", datasetFed, err)
+	}
+
+	// Clean up xref contributions FROM this dataset in OTHER federations
+	// These are files like *_from_{dataset}_sorted.*.index.gz
+	for _, federation := range federations {
+		if federation == datasetFed {
+			continue // Already cleaned above
+		}
+
+		indexDir := filepath.Join(baseOutDir, federation, "index")
+		if _, err := os.Stat(indexDir); os.IsNotExist(err) {
+			continue // Federation index dir doesn't exist yet
+		}
+
+		log.Printf("Cleaning xref contributions from %s in federation %s", datasetName, federation)
+
+		// Remove *_from_{dataset}/* bucket directories
+		fromPattern := fmt.Sprintf("from_%s", datasetName)
+		entries, err := os.ReadDir(indexDir)
+		if err != nil {
+			continue
+		}
+
+		for _, entry := range entries {
+			if !entry.IsDir() || entry.Name() == "_derived" || strings.HasPrefix(entry.Name(), ".") {
+				continue
+			}
+
+			fromDir := filepath.Join(indexDir, entry.Name(), fromPattern)
+			if _, err := removeDir(fromDir); err != nil {
+				log.Printf("Warning: failed to remove from dir %s: %v", fromDir, err)
+			}
+		}
+
+		// Remove *_from_{dataset}_sorted.*.index.gz files
+		xrefPattern := filepath.Join(indexDir, fmt.Sprintf("*_from_%s_sorted.*.index.gz", datasetName))
+		xrefFiles, _ := filepath.Glob(xrefPattern)
+		for _, f := range xrefFiles {
+			if err := os.Remove(f); err != nil {
+				log.Printf("Warning: failed to remove xref contribution file %s: %v", f, err)
+			} else {
+				log.Printf("Removed old xref contribution file: %s", f)
+			}
+		}
+
+		// Also clean _derived directory
+		derivedDir := filepath.Join(indexDir, "_derived")
+		if _, err := os.Stat(derivedDir); err == nil {
+			derivedEntries, _ := os.ReadDir(derivedDir)
+			for _, entry := range derivedEntries {
+				if !entry.IsDir() {
+					continue
+				}
+				fromDir := filepath.Join(derivedDir, entry.Name(), fromPattern)
+				removeDir(fromDir)
+			}
+		}
+	}
+
+	return nil
+}
+
 // CleanupForIncrementalUpdate removes old bucket files and sorted files for a dataset being updated
 // This is called before re-parsing a dataset to ensure clean state
 //
@@ -547,7 +644,8 @@ func GetBucketFilesPerSource(datasetName string, indexDir string, isDerived bool
 //
 // The dataconf parameter is optional (can be nil) and is used to look up config-defined
 // child datasets via the "childDatasets" attribute in source*.dataset.json
-func CleanupInterruptedDatasets(state *DatasetState, indexDir, outDir string, dataconf map[string]map[string]string) error {
+// The datasetFederation parameter maps dataset names to their federation (can be nil for legacy)
+func CleanupInterruptedDatasets(state *DatasetState, indexDir, outDir string, dataconf map[string]map[string]string, datasetFederation map[string]string) error {
 	interrupted := state.GetInterruptedDatasets()
 	if len(interrupted) == 0 {
 		return nil
@@ -559,8 +657,8 @@ func CleanupInterruptedDatasets(state *DatasetState, indexDir, outDir string, da
 	for _, datasetName := range interrupted {
 		log.Printf("WARNING: Cleaning up interrupted dataset: %s", datasetName)
 
-		// Use the existing cleanup function (also cleans child datasets)
-		if err := CleanupForIncrementalUpdate(datasetName, indexDir, dataconf); err != nil {
+		// Use the federated cleanup function (handles files across all federations)
+		if err := CleanupForIncrementalUpdateFederated(datasetName, outDir, datasetFederation, dataconf); err != nil {
 			log.Printf("Warning: cleanup failed for interrupted dataset %s: %v", datasetName, err)
 		}
 

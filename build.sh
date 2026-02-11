@@ -27,7 +27,7 @@ set -e
 RUN_FOREGROUND=false
 for arg in "$@"; do
     case "$arg" in
-        --status|--check|--help|-h|--web|--test) RUN_FOREGROUND=true ;;
+        --status|--check|--help|-h|--web|--test|--dry-run) RUN_FOREGROUND=true ;;
     esac
 done
 if [[ -z "$BUILD_IN_BG" && "$RUN_FOREGROUND" == "false" ]]; then
@@ -189,14 +189,19 @@ show_help() {
     echo "  --from <dataset>  Resume from specific dataset"
     echo "  --only <dataset>  Run only specific dataset"
     echo "  --generate        Run generate phase only (build database)"
+    echo "  --federation <name>  With --generate: build specific federation (main, dbsnp)"
     echo "  --force           Force update even if unchanged"
     echo "  --maxcpu <N>      Max CPUs (default: 8)"
     echo "  --dry-run         Show what would be done"
     echo "  --status          Show dataset status from state file"
     echo "  --web             Start web server"
-    echo "  --test            Run integration tests (requires server on localhost:9291)
-  --prod            With --test: test against production MCP server (localhost:8000)"
+    echo "  --test            Run integration tests (requires server on localhost:9291)"
+    echo "  --prod            With --test: test against production MCP server (localhost:8000)"
     echo "  --help            Show this help message"
+    echo ""
+    echo "Federations:"
+    echo "  main              Default federation (most datasets)"
+    echo "  dbsnp             dbSNP variants (separate large database)"
     echo ""
     echo "Available datasets:"
     echo "  ${DATASETS[*]}" | fold -s -w 70
@@ -220,6 +225,7 @@ SHOW_STATUS="false"
 WEB_SERVER="false"
 RUN_TESTS="false"
 TEST_PROD="false"
+FEDERATION=""
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -227,6 +233,7 @@ while [[ $# -gt 0 ]]; do
         --from)         FROM_DATASET=$2; shift 2 ;;
         --only)         ONLY_DATASET=$2; shift 2 ;;
         --generate)     GENERATE_ONLY="true"; shift ;;
+        --federation)   FEDERATION=$2; shift 2 ;;
         --force)        FORCE="true"; shift ;;
         --maxcpu)       MAXCPU=$2; shift 2 ;;
         --dry-run)      DRY_RUN="true"; shift ;;
@@ -348,11 +355,22 @@ format_size() {
     fi
 }
 
+# Get federation for a dataset (dbsnp -> dbsnp, others -> main)
+get_federation() {
+    local dataset=$1
+    case "$dataset" in
+        dbsnp) echo "dbsnp" ;;
+        *) echo "main" ;;
+    esac
+}
+
 # Calculate actual KV size from index files for a dataset
 # Counts: {dataset}_sorted.*.index.gz + {dataset}_from_*.index.gz
+# Uses federation-aware paths: {OUT_DIR}/{federation}/index/
 calc_kv_size() {
     local dataset=$1
-    local index_dir="$OUT_DIR/index"
+    local federation=$(get_federation "$dataset")
+    local index_dir="$OUT_DIR/$federation/index"
 
     if [[ ! -d "$index_dir" ]]; then
         echo "0"
@@ -390,7 +408,14 @@ show_status() {
     # Global info
     local build_time=$(jq -r '.last_build_time // "N/A"' "$state_file" | cut -d'T' -f1,2 | tr 'T' ' ' | cut -d'.' -f1)
     local build_version=$(jq -r '.build_version // "N/A"' "$state_file")
-    local total_kv=$(ls -la "$OUT_DIR/index" 2>/dev/null | grep -E "\.index\.gz$" | awk '{total += $5} END {print total+0}')
+    # Sum KV size across all federation index directories
+    local total_kv=0
+    for fed_index in "$OUT_DIR"/*/index; do
+        if [[ -d "$fed_index" ]]; then
+            local fed_size=$(ls -la "$fed_index" 2>/dev/null | grep -E "\.index\.gz$" | awk '{total += $5} END {print total+0}')
+            total_kv=$((total_kv + fed_size))
+        fi
+    done
 
     echo "Last Build: $build_time"
     echo "Version: $build_version"
@@ -398,8 +423,8 @@ show_status() {
     echo ""
 
     # Header
-    printf "%-25s %-12s %-20s %-12s %-12s\n" "DATASET" "STATUS" "LAST BUILD" "KV SIZE" "DURATION"
-    printf "%-25s %-12s %-20s %-12s %-12s\n" "-------------------------" "------------" "--------------------" "------------" "------------"
+    printf "%-25s %-8s %-12s %-20s %-12s %-12s\n" "DATASET" "FED" "STATUS" "LAST BUILD" "KV SIZE" "DURATION"
+    printf "%-25s %-8s %-12s %-20s %-12s %-12s\n" "-------------------------" "--------" "------------" "--------------------" "------------" "------------"
 
     # Collect all dataset info for sorting
     local temp_file=$(mktemp)
@@ -408,6 +433,7 @@ show_status() {
         local last_build=$(jq -r ".datasets[\"$dataset\"].last_build_time // \"\"" "$state_file")
         local kv_size=$(calc_kv_size "$dataset")
         local duration=$(jq -r ".datasets[\"$dataset\"].build_duration_sec // 0" "$state_file")
+        local federation=$(get_federation "$dataset")
 
         # Format build time (extract date and time)
         if [[ "$last_build" == "" || "$last_build" == "0001-01-01T00:00:00Z" ]]; then
@@ -434,12 +460,12 @@ show_status() {
         fi
 
         # Store with raw kv_size for sorting (tab-separated: raw_size, formatted_line)
-        printf "%s\t%s\t%s\t%s\t%s\t%s\n" "$kv_size" "$dataset" "$status_display" "$last_build" "$kv_display" "$duration_display" >> "$temp_file"
+        printf "%s\t%s\t%s\t%s\t%s\t%s\t%s\n" "$kv_size" "$dataset" "$federation" "$status_display" "$last_build" "$kv_display" "$duration_display" >> "$temp_file"
     done
 
     # Sort by kv_size (first field) descending and print formatted output
-    sort -t$'\t' -k1 -n -r "$temp_file" | while IFS=$'\t' read -r raw_size dataset status_display last_build kv_display duration_display; do
-        printf "%-25s %-12s %-20s %-12s %-12s\n" "$dataset" "$status_display" "$last_build" "$kv_display" "$duration_display"
+    sort -t$'\t' -k1 -n -r "$temp_file" | while IFS=$'\t' read -r raw_size dataset federation status_display last_build kv_display duration_display; do
+        printf "%-25s %-8s %-12s %-20s %-12s %-12s\n" "$dataset" "$federation" "$status_display" "$last_build" "$kv_display" "$duration_display"
     done
     rm -f "$temp_file"
 
@@ -585,17 +611,32 @@ fi
 
 # Generate only mode
 if [[ "$GENERATE_ONLY" == "true" ]]; then
-    log_header "Generate"
-    echo "Merging all data into final database..."
-    echo "Log: ${LOG_DIR}/generate.log"
+    if [[ -n "$FEDERATION" ]]; then
+        log_header "Generate ($FEDERATION federation)"
+        echo "Building $FEDERATION federation database..."
+        echo "Log: ${LOG_DIR}/generate_${FEDERATION}.log"
 
-    if [[ "$DRY_RUN" == "true" ]]; then
-        echo "[DRY RUN] ./biobtree --out-dir \"$OUT_DIR\" --lmdb-safety-factor 4.5 generate"
-    elif ./biobtree --out-dir "$OUT_DIR" --lmdb-safety-factor 4.5 generate > "${LOG_DIR}/generate.log" 2>&1; then
-        echo "✓ Generate complete"
+        if [[ "$DRY_RUN" == "true" ]]; then
+            echo "[DRY RUN] ./biobtree --out-dir \"$OUT_DIR\" --federation \"$FEDERATION\" --lmdb-safety-factor 4.5 generate"
+        elif ./biobtree --out-dir "$OUT_DIR" --federation "$FEDERATION" --lmdb-safety-factor 4.5 generate > "${LOG_DIR}/generate_${FEDERATION}.log" 2>&1; then
+            echo "✓ Generate complete ($FEDERATION federation)"
+        else
+            echo "✗ Generate FAILED ($FEDERATION) - see ${LOG_DIR}/generate_${FEDERATION}.log"
+            exit 1
+        fi
     else
-        echo "✗ Generate FAILED - see ${LOG_DIR}/generate.log"
-        exit 1
+        log_header "Generate (all federations)"
+        echo "Building all federation databases..."
+        echo "Log: ${LOG_DIR}/generate.log"
+
+        if [[ "$DRY_RUN" == "true" ]]; then
+            echo "[DRY RUN] ./biobtree --out-dir \"$OUT_DIR\" --lmdb-safety-factor 4.5 generate"
+        elif ./biobtree --out-dir "$OUT_DIR" --lmdb-safety-factor 4.5 generate > "${LOG_DIR}/generate.log" 2>&1; then
+            echo "✓ Generate complete (all federations)"
+        else
+            echo "✗ Generate FAILED - see ${LOG_DIR}/generate.log"
+            exit 1
+        fi
     fi
     exit 0
 fi

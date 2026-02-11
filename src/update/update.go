@@ -346,9 +346,11 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 
 	var bucketWg sync.WaitGroup
 	d.bucketWg = &bucketWg
-	d.bucketPool = NewHybridWriterPool(bucketConfigs, config.Appconf["indexDir"], &bucketWg)
+	// Use outDir (not indexDir) because bucket writer now handles federation paths internally:
+	// {outDir}/{federation}/index/{dataset}/{subdir}/bucket_*.txt
+	d.bucketPool = NewHybridWriterPoolWithFederation(bucketConfigs, config.Appconf["outDir"], &bucketWg, config.DatasetNameFederation)
 	if len(bucketConfigs) > 0 {
-		log.Printf("Bucket system initialized with %d configured datasets", len(bucketConfigs))
+		log.Printf("Bucket system initialized with %d configured datasets, federation support enabled", len(bucketConfigs))
 	}
 
 	// Load dataset state for incremental updates (from main output directory)
@@ -357,7 +359,8 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 
 	// Clean up any datasets that were interrupted in a previous build
 	// These have status "processing" and their bucket files may be corrupted/incomplete
-	if err := CleanupInterruptedDatasets(d.datasetState, config.Appconf["indexDir"], config.Appconf["outDir"], config.Dataconf); err != nil {
+	// Uses federated cleanup to handle files across all federations
+	if err := CleanupInterruptedDatasets(d.datasetState, config.Appconf["indexDir"], config.Appconf["outDir"], config.Dataconf, config.DatasetNameFederation); err != nil {
 		log.Printf("Warning: failed to cleanup interrupted datasets: %v", err)
 	}
 
@@ -374,13 +377,15 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 
 		// Sort all bucket files
 		log.Println("Sorting bucket files...")
+		concatStart := time.Now()
 		if err := SortAllBuckets(d.bucketPool, 0); err != nil {
 			log.Printf("Error sorting buckets: %v", err)
 		}
 
-		// Concatenate buckets and move to index directory
-		log.Println("Concatenating bucket files...")
-		bucketStats, err := ConcatenateBuckets(d.bucketPool, config.Appconf["indexDir"], config.Appconf["outDir"], chunkIdx, d.datasetState)
+		// Concatenate buckets and move to index directory (federated)
+		log.Println("Concatenating bucket files across federations...")
+		bucketStats, err := ConcatenateBucketsFederated(d.bucketPool, config.Appconf["outDir"], chunkIdx, d.datasetState)
+		concatDuration := time.Since(concatStart)
 		if err != nil {
 			log.Printf("Error concatenating buckets: %v", err)
 			return 0, 0
@@ -392,18 +397,40 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			for datasetName, lineCount := range bucketStats.PerDataset {
 				d.addKVStat(datasetName, lineCount)
 			}
-			// Save per-source contributions for each dataset
+			// Save forward and reverse edge counts from bucket writer stats
 			if d.datasetState != nil {
-				for datasetName, sourceStats := range bucketStats.PerDatasetSource {
-					d.datasetState.SetSourceContributions(datasetName, sourceStats)
+				// Get edge stats from bucket writer (source → target → count)
+				forwardStats := d.bucketPool.GetForwardXrefStats()
+				reverseStats := d.bucketPool.GetReverseXrefStats()
+
+				for datasetName := range d.inDatasets {
+					// Forward edges: from bucket writer (target → count, "entry" for properties)
+					if targets, ok := forwardStats[datasetName]; ok && len(targets) > 0 {
+						forwardEdges := make(map[string]int64)
+						for target, count := range targets {
+							forwardEdges[target] = int64(count)
+						}
+						d.datasetState.SetForwardEdges(datasetName, forwardEdges)
+					}
+
+					// Reverse edges: from bucket writer stats (edges this dataset wrote to other datasets)
+					if targets, ok := reverseStats[datasetName]; ok && len(targets) > 0 {
+						reverseEdges := make(map[string]int64)
+						for target, count := range targets {
+							reverseEdges[target] = int64(count)
+						}
+						d.datasetState.SetReverseEdges(datasetName, reverseEdges)
+					}
+
+					// Set concat duration for this dataset
+					d.datasetState.SetPostProcessDuration(datasetName, concatDuration)
 				}
 			}
 		}
 		log.Printf("Bucket processing complete (%d lines after deduplication)", bucketLines)
 
-		// Update total entries in dataset state (replaces meta.json totalKV)
+		// Save dataset state (per-dataset kv_size is set during bucket processing)
 		if d.datasetState != nil {
-			d.datasetState.AddTotalKVSize(bucketLines)
 			if err := SaveDatasetState(d.datasetState, config.Appconf["outDir"]); err != nil {
 				log.Printf("Warning: failed to save dataset state: %v", err)
 			}
@@ -469,11 +496,13 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 		// Skip meta-datasets (ontology, chembl) - they spawn sub-datasets and don't do actual work
 		isMetaDataset := data == "ontology" || data == "chembl"
 		if d.datasetState != nil && !isMetaDataset {
-			datasetID := ""
-			if props, ok := config.Dataconf[data]; ok {
-				datasetID = props["id"]
+			d.datasetState.MarkDatasetProcessing(data)
+			// Set federation from config (defaults to "main" if not specified)
+			if federation, ok := config.DatasetNameFederation[data]; ok && federation != "" {
+				d.datasetState.SetFederation(data, federation)
+			} else {
+				d.datasetState.SetFederation(data, "main")
 			}
-			d.datasetState.MarkDatasetProcessing(data, datasetID)
 			// Save immediately so crash recovery works
 			if err := SaveDatasetState(d.datasetState, config.Appconf["outDir"]); err != nil {
 				log.Printf("Warning: failed to save processing state for %s: %v", data, err)
@@ -483,8 +512,9 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 		// Clean up old bucket files and sorted files before re-processing
 		// This ensures incremental updates don't leave stale data
 		// Skip meta-datasets - their sub-datasets handle their own cleanup
+		// Uses federated cleanup to handle files across all federations
 		if !isMetaDataset {
-			if err := CleanupForIncrementalUpdate(data, config.Appconf["indexDir"], config.Dataconf); err != nil {
+			if err := CleanupForIncrementalUpdateFederated(data, config.Appconf["outDir"], config.DatasetNameFederation, config.Dataconf); err != nil {
 				log.Printf("Warning: cleanup failed for %s: %v", data, err)
 			}
 		}
@@ -1078,13 +1108,15 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 
 		// Sort all bucket files
 		log.Println("Sorting bucket files...")
+		concatStart := time.Now()
 		if err := SortAllBuckets(d.bucketPool, 0); err != nil { // 0 uses BucketSortWorkers from config
 			log.Printf("Error sorting buckets: %v", err)
 		}
 
-		// Concatenate buckets and move to index directory
-		log.Println("Concatenating bucket files...")
-		bucketStats, err := ConcatenateBuckets(d.bucketPool, config.Appconf["indexDir"], config.Appconf["outDir"], chunkIdx, d.datasetState)
+		// Concatenate buckets and move to index directory (federated)
+		log.Println("Concatenating bucket files across federations...")
+		bucketStats, err := ConcatenateBucketsFederated(d.bucketPool, config.Appconf["outDir"], chunkIdx, d.datasetState)
+		concatDuration := time.Since(concatStart)
 		if err != nil {
 			log.Printf("Error concatenating buckets: %v", err)
 		}
@@ -1095,10 +1127,33 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			for datasetName, lineCount := range bucketStats.PerDataset {
 				d.addKVStat(datasetName, lineCount)
 			}
-			// Save per-source contributions for each dataset
+			// Save forward and reverse edge counts from bucket writer stats
 			if d.datasetState != nil {
-				for datasetName, sourceStats := range bucketStats.PerDatasetSource {
-					d.datasetState.SetSourceContributions(datasetName, sourceStats)
+				// Get edge stats from bucket writer (source → target → count)
+				forwardStats := d.bucketPool.GetForwardXrefStats()
+				reverseStats := d.bucketPool.GetReverseXrefStats()
+
+				for datasetName := range d.inDatasets {
+					// Forward edges: from bucket writer (target → count, "entry" for properties)
+					if targets, ok := forwardStats[datasetName]; ok && len(targets) > 0 {
+						forwardEdges := make(map[string]int64)
+						for target, count := range targets {
+							forwardEdges[target] = int64(count)
+						}
+						d.datasetState.SetForwardEdges(datasetName, forwardEdges)
+					}
+
+					// Reverse edges: from bucket writer stats (edges this dataset wrote to other datasets)
+					if targets, ok := reverseStats[datasetName]; ok && len(targets) > 0 {
+						reverseEdges := make(map[string]int64)
+						for target, count := range targets {
+							reverseEdges[target] = int64(count)
+						}
+						d.datasetState.SetReverseEdges(datasetName, reverseEdges)
+					}
+
+					// Set concat duration for this dataset
+					d.datasetState.SetPostProcessDuration(datasetName, concatDuration)
 				}
 			}
 		}
@@ -1129,6 +1184,10 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 					continue
 				}
 
+				// Determine federation-specific index directory for this dataset
+				dsFederation := config.GetFederationByName(dsName)
+				dsIndexDir := filepath.Join(config.Appconf["outDir"], dsFederation, "index")
+
 				// Sort existing bucket files
 				// Use global BucketSortMethod setting (no per-dataset override)
 				isDerived := false
@@ -1137,13 +1196,13 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 					_, hasPath := props["path"]
 					isDerived = !hasPath
 				}
-				if err := SortBucketsForDataset(dsName, config.Appconf["indexDir"], isDerived, 0, useUnixSort); err != nil {
+				if err := SortBucketsForDataset(dsName, dsIndexDir, isDerived, 0, useUnixSort); err != nil {
 					log.Printf("Warning: error sorting merge-only dataset %s: %v", dsName, err)
 					continue
 				}
 				// Concatenate
 				log.Printf("Concatenating bucket files for %s...", dsName)
-				lines, err := ConcatenateBucketsForDataset(dsName, config.Appconf["indexDir"], isDerived, chunkIdx)
+				lines, err := ConcatenateBucketsForDataset(dsName, dsIndexDir, isDerived, chunkIdx)
 				if err != nil {
 					log.Printf("Warning: error concatenating merge-only dataset %s: %v", dsName, err)
 					continue
@@ -1182,9 +1241,6 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 	// (in ConcatenateBucketsParallel and merge-only loop) for crash recovery.
 	// This final save ensures any remaining state updates are persisted.
 	if d.datasetState != nil {
-		// Set total entries (replaces meta.json totalKV)
-		d.datasetState.AddTotalKVSize(totalkv)
-
 		// Safety net: mark any remaining "processed" datasets as merged
 		// This handles edge cases where individual marking might have been missed
 		d.datasetState.MarkAllProcessedAsMerged()
@@ -1231,13 +1287,11 @@ func (d *DataUpdate) showProgres() {
 			// Skip state update for merge-only datasets - they're already processed
 			// and we don't want to overwrite their build_duration from the original run
 			if !info.mergeOnly {
-				datasetID := ""
 				sourceURL := ""
 				if props, ok := config.Dataconf[info.dataset]; ok {
-					datasetID = props["id"]
 					sourceURL = props["path"]
 				}
-				d.datasetState.MarkDatasetProcessed(info.dataset, datasetID, 0, 0, time.Since(d.start).Seconds())
+				d.datasetState.MarkDatasetProcessed(info.dataset, 0, time.Since(d.start))
 				if sourceURL != "" {
 					if dsInfo := d.datasetState.GetDatasetInfo(info.dataset); dsInfo != nil {
 						dsInfo.SourceURL = sourceURL
@@ -1298,15 +1352,11 @@ func (d *DataUpdate) showProgres() {
 }
 
 func (d *DataUpdate) addKVStat(source string, total uint64) {
-	// Only update KV size for source datasets (those explicitly requested via -d)
-	// Derived datasets and those receiving bidirectional xrefs are not tracked here
-	// Their lines are included in TotalEntries but not in individual dataset stats
-	if d.datasetState != nil {
-		// Check if this is a source dataset (requested via -d)
-		if _, isSourceDataset := d.inDatasets[source]; isSourceDataset {
-			d.datasetState.SetKVSize(source, total)
-		}
-	}
+	// This function is now deprecated - TotalEdges is auto-calculated
+	// from ForwardEdges + ReverseEdges in SetForwardEdges/SetReverseEdges
+	// Kept for backward compatibility with any code that might call it
+	_ = source
+	_ = total
 }
 
 // shouldSkipDataset checks if a dataset should be skipped because it was already built
@@ -1475,7 +1525,8 @@ func (d *DataUpdate) addProp3(key, from string, attr []byte) {
 	line := kup + tab + from + tab + string(attr) + tab + textStoreID
 
 	// Route through bucket system (always available, auto-creates configs for all datasets)
-	if !d.bucketPool.WriteForward(from, datasetName, kup, line) {
+	// Target is "entry" for properties (dataset ID -1)
+	if !d.bucketPool.WriteForward(from, datasetName, kup, line, "entry") {
 		log.Printf("ERROR: addProp3 bucket write failed for dataset %s key %s", datasetName, kup)
 	}
 }
@@ -1584,10 +1635,16 @@ func (d *DataUpdate) addXrefFull(key string, from string, value string, valueFro
 			sourceDatasetName = "unknown"
 		}
 
+		// Get target dataset name (canonical name from ID, not alias)
+		targetDatasetName := GetDatasetName(valueFromID)
+		if targetDatasetName == "" {
+			targetDatasetName = valueFrom // fallback to alias if not found
+		}
+
 		// Route through bucket system (always available, auto-creates configs for all datasets)
 		// Forward xref → {source}/forward/bucket_*.txt
 		// Reverse xref → {target}/from_{source}/bucket_*.txt
-		if !d.bucketPool.WriteForward(from, sourceDatasetName, kup, dataLine) {
+		if !d.bucketPool.WriteForward(from, sourceDatasetName, kup, dataLine, targetDatasetName) {
 			log.Printf("ERROR: addXrefFull forward bucket write failed for dataset %s key %s", sourceDatasetName, kup)
 		}
 		if !d.bucketPool.WriteReverse(valueFromID, vup, reverseDataLine, sourceDatasetName) {
@@ -1637,15 +1694,17 @@ func (d *DataUpdate) addXref2(key string, from string, value string, valueFrom s
 		sourceDatasetName = "unknown"
 	}
 
+	// Get target dataset name (canonical name from ID, not alias)
+	targetDatasetName := GetDatasetName(valueFromID)
+	if targetDatasetName == "" {
+		targetDatasetName = valueFrom // fallback to alias if not found
+	}
+
 	// Route through bucket system (always available, auto-creates configs for all datasets)
 	// Link datasets only have forward xrefs (no reverse mapping)
 	// Try source dataset first, then target dataset as fallback
-	if !d.bucketPool.WriteForward(from, sourceDatasetName, kup, line) {
-		targetDatasetName := GetDatasetName(valueFromID)
-		if targetDatasetName == "" {
-			targetDatasetName = "unknown"
-		}
-		if !d.bucketPool.WriteForward(valueFromID, targetDatasetName, vup, line) {
+	if !d.bucketPool.WriteForward(from, sourceDatasetName, kup, line, targetDatasetName) {
+		if !d.bucketPool.WriteForward(valueFromID, targetDatasetName, vup, line, targetDatasetName) {
 			log.Printf("ERROR: addXref2 bucket write failed for both source %s and target %s", sourceDatasetName, targetDatasetName)
 		}
 	}
@@ -1685,8 +1744,9 @@ func (d *DataUpdate) addXref2Bucketed(key string, from string, value string, val
 
 	kup := strings.ToUpper(key)
 	vup := strings.ToUpper(value)
+	valueFromID := config.Dataconf[valueFrom]["id"]
 
-	line := kup + tab + from + tab + vup + tab + config.Dataconf[valueFrom]["id"]
+	line := kup + tab + from + tab + vup + tab + valueFromID
 
 	// Get dataset name for directory naming
 	bucketDatasetName := GetDatasetName(bucketDatasetID)
@@ -1694,9 +1754,15 @@ func (d *DataUpdate) addXref2Bucketed(key string, from string, value string, val
 		bucketDatasetName = "unknown"
 	}
 
+	// Get target dataset name (canonical name from ID, not alias)
+	targetDatasetName := GetDatasetName(valueFromID)
+	if targetDatasetName == "" {
+		targetDatasetName = valueFrom // fallback to alias if not found
+	}
+
 	// Route through bucket pool using the specified bucket dataset
 	// This allows link datasets (taxchild, taxparent) to use parent dataset's buckets
-	d.bucketPool.WriteForward(bucketDatasetID, bucketDatasetName, kup, line)
+	d.bucketPool.WriteForward(bucketDatasetID, bucketDatasetName, kup, line, targetDatasetName)
 	_ = vup // Suppress unused warning (not needed for link datasets)
 }
 
@@ -1738,9 +1804,15 @@ func (d *DataUpdate) addXrefBucketed(key, from, value, valueFrom string, isLink 
 		sourceDatasetName = "unknown"
 	}
 
+	// Get target dataset name (canonical name from ID, not alias)
+	targetDatasetName := GetDatasetName(valueFromID)
+	if targetDatasetName == "" {
+		targetDatasetName = valueFrom // fallback to alias if not found
+	}
+
 	// Route through source-tagged bucket directories
 	// Forward xref → {source}/forward/bucket_*.txt
-	d.bucketPool.WriteForward(from, sourceDatasetName, kup, forwardLine)
+	d.bucketPool.WriteForward(from, sourceDatasetName, kup, forwardLine, targetDatasetName)
 	// Reverse xref → {target}/from_{source}/bucket_*.txt
 	d.bucketPool.WriteReverse(valueFromID, vup, reverseLine, sourceDatasetName)
 
@@ -1781,7 +1853,7 @@ func (d *DataUpdate) addProp3Bucketed(key, from string, attr []byte) {
 
 	kup := strings.ToUpper(key)
 	line := kup + tab + from + tab + string(attr) + tab + textStoreID
-	d.bucketPool.WriteForward(from, datasetName, kup, line)
+	d.bucketPool.WriteForward(from, datasetName, kup, line, "entry")
 }
 
 // addXrefViaKeyword resolves keyword to database identifiers via lookup, then creates xrefs

@@ -35,6 +35,12 @@ type Conf struct {
 	githubContentPath     string
 	versionTag            string
 
+	// Federation support - datasets can be assigned to separate LMDB databases
+	DatasetFederation       map[uint32]string   // datasetID -> federation name (e.g., 3 -> "dbsnp")
+	DatasetNameFederation   map[string]string   // datasetName -> federation name (e.g., "dbsnp" -> "dbsnp")
+	FederationDatasets      map[string][]uint32 // federation -> list of datasetIDs
+	Federations             []string            // list of all unique federations
+
 	// Test mode fields
 	TestMode      bool   // Whether in test mode
 	TestOutputDir string // e.g., "test_out"
@@ -176,6 +182,12 @@ func (c *Conf) Init(rootDir, bbBinaryVersion, outDir, dbDir string, optionalData
 
 	c.FilterableDatasets = map[string]bool{}
 
+	// Initialize federation maps
+	c.DatasetFederation = map[uint32]string{}
+	c.DatasetNameFederation = map[string]string{}
+	c.FederationDatasets = map[string][]uint32{}
+	federationSet := map[string]bool{"main": true} // main always exists
+
 	var aliasmap = map[string]map[string]string{}
 
 	for key, value := range c.Dataconf {
@@ -207,6 +219,16 @@ func (c *Conf) Init(rootDir, bbBinaryVersion, outDir, dbDir string, optionalData
 				c.DataconfIDIntToString[idint] = key
 				c.DataconfIDStringToInt[key] = idint
 				c.DataconfIDToPageKey[idint] = pager.Key(id, 2)
+
+				// Federation support: determine which federation this dataset belongs to
+				federation := "main" // default federation
+				if fed, ok := value["federation"]; ok && fed != "" {
+					federation = fed
+				}
+				c.DatasetFederation[idint] = federation
+				c.DatasetNameFederation[key] = federation
+				c.FederationDatasets[federation] = append(c.FederationDatasets[federation], idint)
+				federationSet[federation] = true
 			} else {
 				log.Fatalf("identifier for dataset %s already used choose new unique one", key)
 			}
@@ -223,6 +245,14 @@ func (c *Conf) Init(rootDir, bbBinaryVersion, outDir, dbDir string, optionalData
 			c.Dataconf[k]["_alias"] = "true"
 		} else {
 			log.Fatalf("Alias cannot be same with id -> %s", k)
+		}
+	}
+
+	// Build federation list from set (main first, then others sorted)
+	c.Federations = []string{"main"}
+	for fed := range federationSet {
+		if fed != "main" {
+			c.Federations = append(c.Federations, fed)
 		}
 	}
 
@@ -263,8 +293,8 @@ func (c *Conf) Init(rootDir, bbBinaryVersion, outDir, dbDir string, optionalData
 	//create dirs if missing
 	//todo check error properly
 	_ = os.Mkdir(filepath.FromSlash(c.Appconf["outDir"]), 0700)
-	_ = os.Mkdir(filepath.FromSlash(c.Appconf["indexDir"]), 0700)
-	_ = os.Mkdir(filepath.FromSlash(c.Appconf["dbDir"]), 0700)
+	// Note: indexDir and dbDir are no longer created here - federation architecture
+	// creates {outDir}/{federation}/index/ and {outDir}/{federation}/db/ as needed
 	_ = os.Mkdir(filepath.FromSlash(c.Appconf["ensemblDir"]), 0700)
 
 	if _, ok := c.Appconf["fileBufferSize"]; ok {
@@ -605,4 +635,57 @@ func (c *Conf) IncludePatentAbstracts() bool {
 	}
 	// Default to true (include abstracts)
 	return true
+}
+
+// Federation helper methods
+
+// GetFederation returns the federation name for a dataset ID
+// Returns "main" if not found or not specified
+func (c *Conf) GetFederation(datasetID uint32) string {
+	if fed, ok := c.DatasetFederation[datasetID]; ok {
+		return fed
+	}
+	return "main"
+}
+
+// GetFederationByName returns the federation name for a dataset name
+// Returns "main" if not found or not specified
+func (c *Conf) GetFederationByName(datasetName string) string {
+	if fed, ok := c.DatasetNameFederation[datasetName]; ok {
+		return fed
+	}
+	return "main"
+}
+
+// GetFederations returns the list of all federations
+func (c *Conf) GetFederations() []string {
+	return c.Federations
+}
+
+// GetIndexDir returns the index directory for a federation
+func (c *Conf) GetIndexDir(federation string) string {
+	return filepath.Join(c.Appconf["outDir"], federation, "index")
+}
+
+// GetDBDir returns the database directory for a federation
+func (c *Conf) GetDBDir(federation string) string {
+	return filepath.Join(c.Appconf["outDir"], federation, "db")
+}
+
+// GetFederationsWithData returns federations that have index files
+func (c *Conf) GetFederationsWithData(outDir string) []string {
+	var result []string
+	for _, fed := range c.Federations {
+		indexDir := filepath.Join(outDir, fed, "index")
+		if files, err := os.ReadDir(indexDir); err == nil && len(files) > 0 {
+			// Check if any .index.gz files exist
+			for _, f := range files {
+				if strings.HasSuffix(f.Name(), ".index.gz") {
+					result = append(result, fed)
+					break
+				}
+			}
+		}
+	}
+	return result
 }

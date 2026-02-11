@@ -167,6 +167,10 @@ func main() {
 			Name:  "prod",
 			Usage: "Run in production mode with alternate ports (prodHttpPort/prodGrpcPort from config, defaults: 9291/7776)",
 		},
+		cli.StringFlag{
+			Name:  "federation",
+			Usage: "Generate specific federation only (e.g., 'main', 'dbsnp'). Default: generate all federations",
+		},
 	}
 
 	// add dataset local flags
@@ -330,9 +334,9 @@ func runTestCommand(c *cli.Context) error {
 	config.TestRefDir = testOutDir + "/reference"
 
 	// Create test directories
+	// Note: db and index dirs are created per-federation (e.g., test_out/main/db, test_out/dbsnp/db)
 	testDirs := []string{
 		"test_out",
-		"test_out/db",
 		"test_out/aliasdb",
 		"test_out/reference",
 		"test_out/logs",
@@ -659,9 +663,28 @@ func runGenerateCommand(c *cli.Context) error {
 	clean := c.GlobalBool("clean")
 	keep := !clean // invert: clean=false means keep=true
 
-	var d = generate.Merge{}
+	// Get federation flag (empty = all federations)
+	federation := c.GlobalString("federation")
 
-	d.Merge(config, keep)
+	if federation != "" {
+		// Generate specific federation
+		log.Printf("Generating specific federation: %s", federation)
+		var d = generate.Merge{}
+		d.Merge(config, keep, federation)
+	} else {
+		// Generate all federations that have index files
+		federations := config.GetFederationsWithData(config.Appconf["outDir"])
+		if len(federations) == 0 {
+			// Fallback to main if no federations found
+			log.Printf("No federation data found, defaulting to 'main'")
+			federations = []string{"main"}
+		}
+		log.Printf("Generating %d federation(s): %v", len(federations), federations)
+		for _, fed := range federations {
+			var d = generate.Merge{}
+			d.Merge(config, keep, fed)
+		}
+	}
 
 	elapsed := time.Since(start)
 	log.Printf("Generate took %s", elapsed)

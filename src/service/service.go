@@ -30,7 +30,18 @@ const pagingSep2 = ","
 const pagingSep3 = "[]"
 const pagingSep4 = "]["
 
+// federationDB holds the database connection for a single federation
+type federationDB struct {
+	env  db.Env
+	dbi  db.DBI
+	meta map[string]interface{}
+}
+
 type service struct {
+	// Federation support: maps federation name to its database
+	federations              map[string]*federationDB
+	datasetFederation        map[uint32]string // cached: datasetID -> federation name
+	// Legacy fields for backward compatibility (point to main federation)
 	readEnv                  db.Env
 	readDbi                  db.DBI
 	aliasStore               *AliasStore
@@ -50,22 +61,26 @@ type service struct {
 
 func (s *service) init() {
 
-	meta := make(map[string]interface{})
-	f, err := ioutil.ReadFile(filepath.FromSlash(config.Appconf["dbDir"] + "/db.meta.json"))
-	if err != nil {
-		log.Fatalln("Error while reading meta information file which should be produced with generate command. Please make sure you did previous steps correctly.", err)
+	// Initialize federation support
+	s.federations = make(map[string]*federationDB)
+	s.datasetFederation = config.DatasetFederation
+
+	// Load all federations
+	outDir := config.Appconf["outDir"]
+	s.loadFederations(outDir)
+
+	// Set legacy fields to main federation for backward compatibility
+	if mainFed, ok := s.federations["main"]; ok {
+		s.readEnv = mainFed.env
+		s.readDbi = mainFed.dbi
+	} else {
+		log.Fatalln("Main federation not found. Please make sure generate command completed successfully.")
 	}
 
-	if err := json.Unmarshal(f, &meta); err != nil {
-		log.Fatal(err)
-	}
-
-	totalkvline := meta["totalKVLine"].(float64)
-
-	db1 := db.DB{}
-	s.readEnv, s.readDbi = db1.OpenDBNew(false, int64(totalkvline), config.Appconf)
 	s.pager = &util.Pagekey{}
 	s.pager.Init()
+
+	var err error
 
 	s.pageSize = 200
 	if _, ok := config.Appconf["pageSize"]; ok {
@@ -449,6 +464,209 @@ func (s *service) init() {
 
 }
 
+// loadFederations loads all federations that have database files
+func (s *service) loadFederations(outDir string) {
+	// Always try to load main federation first
+	mainDir := filepath.Join(outDir, "main")
+	if err := s.loadFederation("main", mainDir); err != nil {
+		// Fallback: try to load from legacy location (direct outDir)
+		log.Printf("Main federation not found at %s, trying legacy location", mainDir)
+		if err := s.loadFederationLegacy("main", outDir); err != nil {
+			log.Fatalf("Could not load main federation: %v", err)
+		}
+	}
+
+	// Load other federations if they exist
+	for _, fed := range config.GetFederations() {
+		if fed == "main" {
+			continue
+		}
+		fedDir := filepath.Join(outDir, fed)
+		if err := s.loadFederation(fed, fedDir); err != nil {
+			log.Printf("Federation '%s' not loaded (may not be generated yet): %v", fed, err)
+		}
+	}
+
+	log.Printf("Loaded %d federation(s): %v", len(s.federations), s.getFederationNames())
+}
+
+// loadFederation loads a single federation from its directory
+func (s *service) loadFederation(name, dir string) error {
+	// Check if db.meta.json exists
+	metaPath := filepath.Join(dir, "db", "db.meta.json")
+	metaData, err := ioutil.ReadFile(metaPath)
+	if err != nil {
+		return fmt.Errorf("meta file not found: %w", err)
+	}
+
+	var meta map[string]interface{}
+	if err := json.Unmarshal(metaData, &meta); err != nil {
+		return fmt.Errorf("failed to parse meta: %w", err)
+	}
+
+	totalKV := int64(meta["totalKVLine"].(float64))
+
+	// Create appconf copy with federation-specific dbDir
+	fedAppconf := make(map[string]string)
+	for k, v := range config.Appconf {
+		fedAppconf[k] = v
+	}
+	fedAppconf["dbDir"] = filepath.Join(dir, "db")
+
+	db1 := db.DB{}
+	env, dbi := db1.OpenDBNew(false, totalKV, fedAppconf)
+
+	s.federations[name] = &federationDB{
+		env:  env,
+		dbi:  dbi,
+		meta: meta,
+	}
+
+	log.Printf("Loaded federation '%s' from %s (totalKV: %d)", name, dir, totalKV)
+	return nil
+}
+
+// loadFederationLegacy loads from the legacy flat directory structure (pre-federation)
+func (s *service) loadFederationLegacy(name, outDir string) error {
+	metaPath := filepath.Join(outDir, "db", "db.meta.json")
+	metaData, err := ioutil.ReadFile(metaPath)
+	if err != nil {
+		return fmt.Errorf("legacy meta file not found: %w", err)
+	}
+
+	var meta map[string]interface{}
+	if err := json.Unmarshal(metaData, &meta); err != nil {
+		return fmt.Errorf("failed to parse legacy meta: %w", err)
+	}
+
+	totalKV := int64(meta["totalKVLine"].(float64))
+
+	db1 := db.DB{}
+	env, dbi := db1.OpenDBNew(false, totalKV, config.Appconf)
+
+	s.federations[name] = &federationDB{
+		env:  env,
+		dbi:  dbi,
+		meta: meta,
+	}
+
+	log.Printf("Loaded federation '%s' from legacy location %s (totalKV: %d)", name, outDir, totalKV)
+	return nil
+}
+
+// getFederationNames returns the names of all loaded federations
+func (s *service) getFederationNames() []string {
+	names := make([]string, 0, len(s.federations))
+	for name := range s.federations {
+		names = append(names, name)
+	}
+	return names
+}
+
+// getDBForDataset returns the database connection for a specific dataset ID
+func (s *service) getDBForDataset(datasetID uint32) (db.Env, db.DBI) {
+	if s.datasetFederation != nil {
+		if fed, ok := s.datasetFederation[datasetID]; ok {
+			if fedDB, exists := s.federations[fed]; exists {
+				return fedDB.env, fedDB.dbi
+			}
+		}
+	}
+	// Default to main federation
+	return s.federations["main"].env, s.federations["main"].dbi
+}
+
+// getDBForIdentifier returns the database connection based on identifier pattern
+// This is used for search queries where we need to route by identifier
+//
+// LIMITATION: This pattern-based routing only works for federations with distinct
+// ID prefixes (e.g., dbSNP IDs start with "RS"). It does NOT handle:
+// 1. Keyword/text search - keywords like "BRCA1" won't find entries in non-main federations
+// 2. Federations without clear ID patterns - datasets without unique prefixes can't be routed
+//
+// SOLUTION: For future federations or keyword search support, use searchAllFederations()
+// which tries all federations. This is slower but handles all cases correctly.
+// To enable: change getLmdbResult() to call searchAllFederations() instead of
+// using getDBForIdentifier() directly.
+func (s *service) getDBForIdentifier(identifier string) (db.Env, db.DBI) {
+	// Check if identifier looks like an rsID (dbSNP variant)
+	// Add new federation ID patterns here as needed (e.g., "CHEMBL" prefix for chembl federation)
+	if isRsID(identifier) {
+		if fedDB, exists := s.federations["dbsnp"]; exists {
+			return fedDB.env, fedDB.dbi
+		}
+	}
+	// Default to main federation
+	return s.federations["main"].env, s.federations["main"].dbi
+}
+
+// isRsID checks if the identifier looks like a dbSNP rsID
+func isRsID(id string) bool {
+	if len(id) < 3 {
+		return false
+	}
+	upper := strings.ToUpper(id)
+	return strings.HasPrefix(upper, "RS")
+}
+
+// searchAllFederations searches for an identifier across all federations
+// Returns the first match found
+//
+// Use this function when:
+// 1. Keyword/text search is needed (keywords don't have federation-specific patterns)
+// 2. New federation added without distinct ID prefix pattern
+// 3. Fallback search when pattern-based routing fails
+//
+// Performance note: This is slower than getDBForIdentifier() as it may query
+// multiple LMDBs. For high-volume queries with known ID patterns, use
+// getDBForIdentifier() directly.
+func (s *service) searchAllFederations(identifier string) (*pbuf.Result, error) {
+	// First try the likely federation based on identifier pattern
+	env, dbi := s.getDBForIdentifier(identifier)
+	result, err := s.getLmdbResultFrom(identifier, env, dbi)
+	if err == nil && result != nil && len(result.Results) > 0 {
+		return result, nil
+	}
+
+	// If not found, try all other federations
+	for name, fedDB := range s.federations {
+		if fedDB.env == env {
+			continue // Skip the one we already tried
+		}
+		result, err := s.getLmdbResultFrom(identifier, fedDB.env, fedDB.dbi)
+		if err == nil && result != nil && len(result.Results) > 0 {
+			log.Printf("Found %s in federation '%s' (unexpected)", identifier, name)
+			return result, nil
+		}
+	}
+
+	return &pbuf.Result{}, nil
+}
+
+// getLmdbResultFrom retrieves a result from a specific database
+func (s *service) getLmdbResultFrom(identifier string, env db.Env, dbi db.DBI) (*pbuf.Result, error) {
+	var v []byte
+	err := env.View(func(txn db.Txn) (err error) {
+		v, err = txn.Get(dbi, []byte(identifier))
+		if db.IsNotFound(err) {
+			return nil
+		}
+		return err
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	r := pbuf.Result{}
+	if len(v) > 0 {
+		err = proto.Unmarshal(v, &r)
+		return &r, err
+	}
+
+	return &r, nil
+}
+
 func (s *service) aliasIDs(alias string) ([]string, error) {
 	return s.aliasStore.GetIDs(alias)
 }
@@ -533,7 +751,9 @@ func (s *service) metajson() string {
 	// mark builtin db if exist
 	s2 = s2 + `, "appparams":{`
 
-	files, err := ioutil.ReadDir(config.Appconf["indexDir"])
+	// Check main federation's index dir for special meta files
+	mainIndexDir := filepath.Join(config.Appconf["outDir"], "main", "index")
+	files, err := ioutil.ReadDir(mainIndexDir)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -922,10 +1142,13 @@ func (s *service) getLmdbResult(identifier string) (*pbuf.Result, error) {
 	// However, web queries have different access patterns (diverse, random) vs update
 	// operations (same identifiers repeated millions of times), so cache tuning would differ.
 
-	var v []byte
-	err := s.readEnv.View(func(txn db.Txn) (err error) {
+	// Use federation routing based on identifier pattern
+	env, dbi := s.getDBForIdentifier(identifier)
 
-		v, err = txn.Get(s.readDbi, []byte(identifier))
+	var v []byte
+	err := env.View(func(txn db.Txn) (err error) {
+
+		v, err = txn.Get(dbi, []byte(identifier))
 
 		if db.IsNotFound(err) {
 			return nil
@@ -953,11 +1176,14 @@ func (s *service) getLmdbResult(identifier string) (*pbuf.Result, error) {
 
 func (s *service) getLmdbResult2(identifier string, domainID uint32) (*pbuf.Xref, error) {
 
+	// Use federation routing based on domain (dataset) ID
+	env, dbi := s.getDBForDataset(domainID)
+
 	var v []byte
-	err := s.readEnv.View(func(txn db.Txn) (err error) {
+	err := env.View(func(txn db.Txn) (err error) {
 		//cur, err := txn.OpenCursor(s.readDbi)
 		//_, v, err := cur.Get([]byte(identifier), nil, lmdb.SetKey)
-		v, err = txn.Get(s.readDbi, []byte(identifier))
+		v, err = txn.Get(dbi, []byte(identifier))
 
 		if db.IsNotFound(err) {
 			return nil

@@ -148,13 +148,7 @@ func (c *Conf) CleanOutDirs() {
 	if err != nil {
 		log.Fatal("Error creating dir", c.Appconf["outDir"], "check you have right permission ")
 	}
-	err = os.Mkdir(filepath.FromSlash(c.Appconf["indexDir"]), 0700)
-	if err != nil {
-		log.Fatal("Error creating dir", c.Appconf["indexDir"], "check you have right permission ")
-	}
-	err = os.Mkdir(filepath.FromSlash(c.Appconf["dbDir"]), 0700)
-	if err != nil {
-		log.Fatal("Error creating dir", c.Appconf["dbDir"], "check you have right permission ")
-	}
+	// Note: indexDir and dbDir are no longer created here - federation architecture
+	// creates {outDir}/{federation}/index/ and {outDir}/{federation}/db/ as needed
 
 }

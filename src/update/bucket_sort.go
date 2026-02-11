@@ -392,6 +392,63 @@ type concatenateResult struct {
 // ConcatenateBuckets merges all sorted bucket files for a dataset into one
 // Uses k-way merge to maintain global sort order across buckets
 // Reads uncompressed .txt bucket files, writes compressed .gz output
+// ConcatenateBucketsFederated concatenates bucket files across all federations
+// It discovers which federations have data and processes each one
+// Output files go to {outDir}/{federation}/index/{dataset}_sorted.*.index.gz
+func ConcatenateBucketsFederated(pool *HybridWriterPool, outDir string, chunkIdx string, datasetState *DatasetState) (*BucketStats, error) {
+	// Get federations that have bucket data
+	federations := pool.GetFederationsWithData()
+	if len(federations) == 0 {
+		// Fallback: check for main federation
+		federations = []string{"main"}
+	}
+
+	log.Printf("Concatenating buckets for %d federations: %v", len(federations), federations)
+
+	// Aggregate stats across all federations
+	totalStats := &BucketStats{
+		PerDataset:       make(map[string]uint64),
+		PerDatasetSource: make(map[string]map[string]uint64),
+	}
+
+	for _, federation := range federations {
+		// Each federation has its own index directory
+		fedIndexDir := filepath.Join(outDir, federation, "index")
+
+		// Create the index directory if it doesn't exist
+		if err := os.MkdirAll(fedIndexDir, 0755); err != nil {
+			return nil, fmt.Errorf("creating index dir for federation %s: %w", federation, err)
+		}
+
+		log.Printf("Processing federation '%s' at %s", federation, fedIndexDir)
+
+		// Use the existing parallel concatenation with federation-specific indexDir
+		// Pass federation name to filter datasets belonging to this federation
+		stats, err := ConcatenateBucketsParallelFiltered(pool, fedIndexDir, outDir, chunkIdx, 0, datasetState, federation)
+		if err != nil {
+			return nil, fmt.Errorf("concatenating federation %s: %w", federation, err)
+		}
+
+		// Merge stats
+		if stats != nil {
+			totalStats.TotalLines += stats.TotalLines
+			for ds, lines := range stats.PerDataset {
+				totalStats.PerDataset[ds] += lines
+			}
+			for ds, sources := range stats.PerDatasetSource {
+				if totalStats.PerDatasetSource[ds] == nil {
+					totalStats.PerDatasetSource[ds] = make(map[string]uint64)
+				}
+				for src, lines := range sources {
+					totalStats.PerDatasetSource[ds][src] += lines
+				}
+			}
+		}
+	}
+
+	return totalStats, nil
+}
+
 // Bucket files are preserved after concatenation for debugging
 // Returns BucketStats with total lines and per-dataset breakdown
 // For multi-bucket-set datasets, produces separate output files: dataset_sorted_1.gz, dataset_sorted_2.gz
@@ -505,6 +562,135 @@ func ConcatenateBucketsParallel(pool *HybridWriterPool, indexDir, outDir string,
 
 	if skippedCount > 0 {
 		log.Printf("Skipped %d already-merged datasets", skippedCount)
+	}
+
+	if firstErr != nil {
+		return stats, firstErr
+	}
+	return stats, nil
+}
+
+// ConcatenateBucketsParallelFiltered is like ConcatenateBucketsParallel but filters datasets by federation
+// Only datasets belonging to the specified federation will be processed
+// federation: the federation name to filter by (e.g., "main", "dbsnp")
+func ConcatenateBucketsParallelFiltered(pool *HybridWriterPool, indexDir, outDir string, chunkIdx string, numWorkers int, datasetState *DatasetState, federation string) (*BucketStats, error) {
+	if numWorkers <= 0 {
+		numWorkers = BucketConcatWorkers
+	}
+
+	stats := &BucketStats{
+		PerDataset:       make(map[string]uint64),
+		PerDatasetSource: make(map[string]map[string]uint64),
+	}
+
+	// Get federation mapping from pool
+	datasetFederation := pool.GetDatasetFederation()
+
+	// Collect all jobs, filtering by federation
+	allWriters := pool.GetBucketWriters()
+	writers := make(map[string]*DatasetBucketWriter)
+
+	for key, writer := range allWriters {
+		datasetName := writer.config.DatasetName
+		// Check if this dataset belongs to the current federation
+		datasetFed := "main" // default
+		if datasetFederation != nil {
+			if fed, ok := datasetFederation[datasetName]; ok && fed != "" {
+				datasetFed = fed
+			}
+		}
+		if datasetFed == federation {
+			writers[key] = writer
+		}
+	}
+
+	log.Printf("Concatenating %d datasets for federation '%s' (filtered from %d total) with %d workers",
+		len(writers), federation, len(allWriters), numWorkers)
+
+	if len(writers) == 0 {
+		log.Printf("No datasets found for federation '%s'", federation)
+		return stats, nil
+	}
+
+	jobs := make(chan concatenateJob, len(writers))
+	results := make(chan concatenateResult, len(writers))
+
+	// Start workers
+	var wg sync.WaitGroup
+	for i := 0; i < numWorkers; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for job := range jobs {
+				datasetName := job.writer.config.DatasetName
+				datasetID := job.writer.datasetID
+
+				isAlreadyMerged := job.datasetState != nil && job.datasetState.GetDatasetStatus(datasetName) == StatusMerged
+
+				lines, perSourceLines, err := concatenateOneDatasetIncremental(job.writerKey, job.writer, job.indexDir, chunkIdx, isAlreadyMerged)
+
+				if err == nil && job.datasetState != nil {
+					job.datasetState.MarkDatasetsMerged([]string{datasetName})
+					if saveErr := SaveDatasetState(job.datasetState, job.outDir); saveErr != nil {
+						log.Printf("Warning: failed to save merged state for %s: %v", datasetName, saveErr)
+					} else {
+						log.Printf("Marked %s (ID:%s) as merged", datasetName, datasetID)
+					}
+				}
+
+				results <- concatenateResult{
+					datasetName:    datasetName,
+					lines:          lines,
+					perSourceLines: perSourceLines,
+					err:            err,
+				}
+			}
+		}()
+	}
+
+	// Send jobs
+	for writerKey, writer := range writers {
+		jobs <- concatenateJob{
+			writerKey:    writerKey,
+			writer:       writer,
+			datasetState: datasetState,
+			indexDir:     indexDir,
+			outDir:       outDir,
+		}
+	}
+	close(jobs)
+
+	// Wait for workers and close results
+	go func() {
+		wg.Wait()
+		close(results)
+	}()
+
+	// Collect results
+	var firstErr error
+	skippedCount := 0
+	for result := range results {
+		if result.err != nil && firstErr == nil {
+			firstErr = result.err
+		}
+		if result.skipped {
+			skippedCount++
+		}
+		stats.TotalLines += result.lines
+		stats.PerDataset[result.datasetName] += result.lines
+
+		if result.perSourceLines != nil && len(result.perSourceLines) > 0 {
+			if stats.PerDatasetSource[result.datasetName] == nil {
+				stats.PerDatasetSource[result.datasetName] = make(map[string]uint64)
+			}
+			for source, lines := range result.perSourceLines {
+				stats.PerDatasetSource[result.datasetName][source] += lines
+			}
+		}
+	}
+
+	if skippedCount > 0 {
+		log.Printf("Skipped %d already-merged datasets for federation '%s'", skippedCount, federation)
 	}
 
 	if firstErr != nil {

@@ -28,9 +28,12 @@ func IsSourceDataset(datasetName string) bool {
 	}
 
 	// Check if dataset has a path (source datasets have download paths)
+	// Some datasets use path variants like path_product1, path_product4, etc.
 	if dsConfig, exists := config.Dataconf[datasetName]; exists {
-		if _, hasPath := dsConfig["path"]; hasPath {
-			return true
+		for key := range dsConfig {
+			if key == "path" || strings.HasPrefix(key, "path_") {
+				return true
+			}
 		}
 	}
 
@@ -40,37 +43,40 @@ func IsSourceDataset(datasetName string) bool {
 // DatasetState tracks build state for incremental updates
 // Stored in the main output directory as dataset_state.json
 type DatasetState struct {
-	LastBuildTime  time.Time                    `json:"last_build_time"`
-	BuildVersion   string                       `json:"build_version"`   // Biobtree version
-	TotalKVSize    uint64                       `json:"total_kv_size"`   // Total KV lines across all datasets
-	Datasets       map[string]*DatasetBuildInfo `json:"datasets"`
+	LastBuildTime time.Time                    `json:"last_build_time"`
+	BuildVersion  string                       `json:"build_version"` // Biobtree version
+	Datasets      map[string]*DatasetBuildInfo `json:"datasets"`
 	// DB write stats - populated after generate/merge phase completes
 	DBKeysWritten   uint64 `json:"db_keys_written,omitempty"`   // Total keys written to database
 	DBSpecialKeys   uint64 `json:"db_special_keys,omitempty"`   // Total special keyword/link keys
 	DBValuesWritten uint64 `json:"db_values_written,omitempty"` // Total values written to database
 	// Internal fields (not persisted)
 	mu              sync.RWMutex    `json:"-"` // Mutex for concurrent access
-	kvSizeDelta     uint64          `json:"-"` // Delta to add to TotalKVSize on save (for concurrent safety)
 	deletedDatasets map[string]bool `json:"-"` // Datasets to remove on save (for concurrent safety)
 }
 
 // DatasetBuildInfo tracks build information for a single dataset
 type DatasetBuildInfo struct {
-	DatasetName     string    `json:"name"`
-	DatasetID       string    `json:"id"`
-	Status          string    `json:"status"`                     // processing, processed, or merged
-	LastBuildTime   time.Time `json:"last_build_time"`
-	SourceURL       string    `json:"source_url,omitempty"`       // Actual URL used for download
-	SourceVersion   string    `json:"source_version,omitempty"`   // e.g., "2024.01" for UniProt release
-	SourceDate      time.Time `json:"source_date,omitempty"`      // FTP file modification date
-	SourceSize      int64     `json:"source_size,omitempty"`      // File size for change detection
-	SourceETag      string    `json:"source_etag,omitempty"`      // HTTP ETag if available
-	SourceChecksum  string    `json:"source_checksum,omitempty"`  // MD5/SHA if available
-	TouchedDatasets []string  `json:"touched_datasets,omitempty"` // Datasets that received reverse xrefs
-	KVSize               int64             `json:"kv_size,omitempty"`               // Number of key-value lines after deduplication
-	SourceContributions  map[string]int64  `json:"source_contributions,omitempty"`  // Lines contributed by each source (forward, from_uniprot, etc.)
-	XrefCount            int64             `json:"xref_count,omitempty"`            // Number of xrefs created
-	BuildDuration        float64           `json:"build_duration_sec,omitempty"`    // Build time in seconds
+	DatasetName   string    `json:"name"`
+	Federation    string    `json:"federation,omitempty"` // Federation this dataset belongs to (default: "main")
+	Status        string    `json:"status"`               // processing, processed, or merged
+	LastBuildTime time.Time `json:"last_build_time"`
+	// Edge tracking fields
+	ForwardEdges map[string]int64 `json:"forward_edges,omitempty"` // Edges from source data (target -> count, "entry" for properties)
+	ReverseEdges map[string]int64 `json:"reverse_edges,omitempty"` // Edges written to other datasets (target -> count)
+	TotalEdges   int64            `json:"total_edges,omitempty"`   // sum(ForwardEdges) + sum(ReverseEdges)
+	// Source metadata
+	SourceURL      string    `json:"source_url,omitempty"`      // Actual URL used for download
+	SourceVersion  string    `json:"source_version,omitempty"`  // e.g., "2024.01" for UniProt release
+	SourceDate     time.Time `json:"source_date,omitempty"`     // FTP file modification date
+	SourceSize     int64     `json:"source_size,omitempty"`     // File size for change detection
+	SourceETag     string    `json:"source_etag,omitempty"`     // HTTP ETag if available
+	SourceChecksum string    `json:"source_checksum,omitempty"` // MD5/SHA if available
+	// Build metadata
+	TouchedDatasets     []string `json:"touched_datasets,omitempty"`     // Datasets that received reverse xrefs
+	XrefCount           int64    `json:"xref_count,omitempty"`           // Number of xrefs created
+	ProcessDuration     string   `json:"process_duration,omitempty"`     // Processing/parsing phase duration (e.g., "1m30s")
+	PostProcessDuration string   `json:"post_process_duration,omitempty"` // Sort/concatenation phase duration (e.g., "45s")
 	// DB write stats - populated after generate/merge phase completes
 	DBKeys   int64 `json:"db_keys,omitempty"`   // Keys written to database for this dataset
 	DBValues int64 `json:"db_values,omitempty"` // Values/xrefs written to database for this dataset
@@ -122,6 +128,19 @@ func LoadDatasetState(outDir string) (*DatasetState, error) {
 		return NewDatasetState(), nil
 	}
 
+	// Migrate old state format: check for datasets with zero TotalEdges
+	// Old format used kv_size and source_contributions which are now removed
+	// The next build will populate forward_edges/reverse_edges/total_edges correctly
+	oldFormatCount := 0
+	for _, info := range state.Datasets {
+		if info.TotalEdges == 0 && len(info.ForwardEdges) == 0 {
+			oldFormatCount++
+		}
+	}
+	if oldFormatCount > 0 {
+		log.Printf("Note: %d datasets have old state format (missing total_edges). They will be updated on next build.", oldFormatCount)
+	}
+
 	log.Printf("Loaded dataset state: %d datasets, last build: %s",
 		len(state.Datasets), state.LastBuildTime.Format(time.RFC3339))
 
@@ -143,8 +162,6 @@ func SaveDatasetState(state *DatasetState, outDir string) error {
 		currentDatasets[k] = &infoCopy
 	}
 	buildVersion := state.BuildVersion
-	kvSizeDelta := state.kvSizeDelta
-	state.kvSizeDelta = 0 // Clear delta after reading (will be added to disk value)
 	// Copy and clear deleted datasets delta
 	var deletedDatasets map[string]bool
 	if len(state.deletedDatasets) > 0 {
@@ -211,16 +228,11 @@ func SaveDatasetState(state *DatasetState, outDir string) error {
 		delete(diskState.Datasets, name)
 	}
 
-	diskState.LastBuildTime = time.Now()
+	diskState.LastBuildTime = time.Now().Truncate(time.Second)
 	if buildVersion != "" {
 		diskState.BuildVersion = buildVersion
 	}
-	// Merge scalar fields:
-	// - total_kv_size: ADD delta to disk value (safe for concurrent processes)
-	// - DB stats: OVERWRITE (these are set once at end of generate phase)
-	if kvSizeDelta > 0 {
-		diskState.TotalKVSize += kvSizeDelta
-	}
+	// Merge DB stats (OVERWRITE - these are set once at end of generate phase)
 	if dbKeysWritten > 0 {
 		diskState.DBKeysWritten = dbKeysWritten
 	}
@@ -287,7 +299,7 @@ func (s *DatasetState) UpdateDatasetInfo(info *DatasetBuildInfo) {
 		s.Datasets = make(map[string]*DatasetBuildInfo)
 	}
 
-	info.LastBuildTime = time.Now()
+	info.LastBuildTime = time.Now().Truncate(time.Second)
 	s.Datasets[info.DatasetName] = info
 }
 
@@ -366,7 +378,7 @@ func (s *DatasetState) GetDatasetsNeedingUpdate(changedDatasets []string) []stri
 
 // MarkDatasetProcessing marks a dataset as currently being processed
 // This is set when processing starts - if found on next run, dataset was interrupted
-func (s *DatasetState) MarkDatasetProcessing(datasetName, datasetID string) {
+func (s *DatasetState) MarkDatasetProcessing(datasetName string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -378,18 +390,26 @@ func (s *DatasetState) MarkDatasetProcessing(datasetName, datasetID string) {
 	if !exists {
 		info = &DatasetBuildInfo{
 			DatasetName: datasetName,
-			DatasetID:   datasetID,
 		}
 		s.Datasets[datasetName] = info
 	}
 
 	info.Status = StatusProcessing
-	info.LastBuildTime = time.Now()
+	info.LastBuildTime = time.Now().Truncate(time.Second)
+}
+
+// formatDuration formats a duration as human-readable string without decimals (e.g., "1h3m30s", "45s")
+func formatDuration(d time.Duration) string {
+	d = d.Truncate(time.Second)
+	if d == 0 {
+		return "0s"
+	}
+	return d.String()
 }
 
 // MarkDatasetProcessed marks a dataset as processed (bucket files written, awaiting merge)
 // This is set when dataset processing completes successfully
-func (s *DatasetState) MarkDatasetProcessed(datasetName, datasetID string, entryCount, xrefCount int64, duration float64) {
+func (s *DatasetState) MarkDatasetProcessed(datasetName string, xrefCount int64, duration time.Duration) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -401,23 +421,30 @@ func (s *DatasetState) MarkDatasetProcessed(datasetName, datasetID string, entry
 	if !exists {
 		info = &DatasetBuildInfo{
 			DatasetName: datasetName,
-			DatasetID:   datasetID,
 		}
 		s.Datasets[datasetName] = info
 	}
 
 	info.Status = StatusProcessed
-	info.LastBuildTime = time.Now()
-	// KVSize is set separately via SetKVSize after bucket concatenation
-	// entryCount parameter is kept for API compatibility but not used
+	info.LastBuildTime = time.Now().Truncate(time.Second)
 	info.XrefCount = xrefCount
-	info.BuildDuration = duration
+	info.ProcessDuration = formatDuration(duration)
 }
 
 // MarkDatasetBuilt is deprecated - use MarkDatasetProcessed instead
 // Kept for backward compatibility
-func (s *DatasetState) MarkDatasetBuilt(datasetName, datasetID string, entryCount, xrefCount int64, duration float64) {
-	s.MarkDatasetProcessed(datasetName, datasetID, entryCount, xrefCount, duration)
+func (s *DatasetState) MarkDatasetBuilt(datasetName string, xrefCount int64, duration time.Duration) {
+	s.MarkDatasetProcessed(datasetName, xrefCount, duration)
+}
+
+// SetPostProcessDuration sets the sort/concatenation phase duration for a dataset
+func (s *DatasetState) SetPostProcessDuration(datasetName string, duration time.Duration) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if info, exists := s.Datasets[datasetName]; exists {
+		info.PostProcessDuration = formatDuration(duration)
+	}
 }
 
 // MarkDatasetsMerged marks "processed" datasets as "merged"
@@ -541,83 +568,6 @@ func (s *DatasetState) RemoveDataset(datasetName string) {
 	s.deletedDatasets[datasetName] = true
 }
 
-// SetKVSize updates the KV size for a dataset (post-deduplication line count)
-// Only call this for source datasets that were explicitly requested via -d
-func (s *DatasetState) SetKVSize(datasetName string, count uint64) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	if s.Datasets == nil {
-		s.Datasets = make(map[string]*DatasetBuildInfo)
-	}
-
-	info, exists := s.Datasets[datasetName]
-	if !exists {
-		info = &DatasetBuildInfo{
-			DatasetName: datasetName,
-		}
-		s.Datasets[datasetName] = info
-	}
-	info.KVSize = int64(count)
-}
-
-// SetSourceContributions updates the per-source line counts for a dataset
-// sourceName is "forward" for own data, or the source dataset name for reverse xrefs (e.g., "uniprot")
-func (s *DatasetState) SetSourceContributions(datasetName string, contributions map[string]uint64) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	if s.Datasets == nil {
-		s.Datasets = make(map[string]*DatasetBuildInfo)
-	}
-
-	info, exists := s.Datasets[datasetName]
-	if !exists {
-		info = &DatasetBuildInfo{
-			DatasetName: datasetName,
-		}
-		s.Datasets[datasetName] = info
-	}
-
-	// Convert uint64 to int64 for JSON compatibility
-	info.SourceContributions = make(map[string]int64, len(contributions))
-	for source, count := range contributions {
-		info.SourceContributions[source] = int64(count)
-	}
-}
-
-// AddSourceContribution adds lines to a specific source contribution (for incremental updates)
-func (s *DatasetState) AddSourceContribution(datasetName, sourceName string, count uint64) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	if s.Datasets == nil {
-		s.Datasets = make(map[string]*DatasetBuildInfo)
-	}
-
-	info, exists := s.Datasets[datasetName]
-	if !exists {
-		info = &DatasetBuildInfo{
-			DatasetName: datasetName,
-		}
-		s.Datasets[datasetName] = info
-	}
-
-	if info.SourceContributions == nil {
-		info.SourceContributions = make(map[string]int64)
-	}
-	info.SourceContributions[sourceName] = int64(count)
-}
-
-// AddTotalKVSize records a delta to add to total KV size on next save
-// This is safe for concurrent processes - each process records its delta,
-// and SaveDatasetState adds it to the disk value atomically under file lock
-func (s *DatasetState) AddTotalKVSize(delta uint64) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	s.kvSizeDelta += delta
-}
-
 // SetDBWriteStats sets the database write statistics after generate/merge completes
 func (s *DatasetState) SetDBWriteStats(keysWritten, specialKeys, valuesWritten uint64) {
 	s.mu.Lock()
@@ -682,22 +632,142 @@ func (s *DatasetState) SetAllDatasetDBStats(perDatasetStats map[uint32][2]uint64
 	}
 }
 
-// GetTotalKVSize returns the total KV size
-func (s *DatasetState) GetTotalKVSize() uint64 {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-	return s.TotalKVSize
+// getOrCreateDataset is a helper to get or create a dataset entry (caller must hold lock)
+func (s *DatasetState) getOrCreateDataset(name string) *DatasetBuildInfo {
+	if s.Datasets == nil {
+		s.Datasets = make(map[string]*DatasetBuildInfo)
+	}
+	info, exists := s.Datasets[name]
+	if !exists {
+		info = &DatasetBuildInfo{DatasetName: name}
+		s.Datasets[name] = info
+	}
+	return info
 }
 
-// GetKVSize returns the KV size for a dataset
-func (s *DatasetState) GetKVSize(datasetName string) int64 {
+// recalculateTotal updates TotalEdges = sum(ForwardEdges) + sum(ReverseEdges)
+func (s *DatasetState) recalculateTotal(info *DatasetBuildInfo) {
+	var total int64
+	for _, count := range info.ForwardEdges {
+		total += count
+	}
+	for _, count := range info.ReverseEdges {
+		total += count
+	}
+	info.TotalEdges = total
+}
+
+// SetForwardEdges sets the forward edge counts for a dataset (target -> count)
+// "entry" key represents dataset ID -1 (properties/attributes)
+func (s *DatasetState) SetForwardEdges(datasetName string, forwardEdges map[string]int64) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	info := s.getOrCreateDataset(datasetName)
+	info.ForwardEdges = forwardEdges
+	s.recalculateTotal(info)
+}
+
+// SetReverseEdges sets reverse edge counts for all targets for a dataset
+func (s *DatasetState) SetReverseEdges(datasetName string, reverseEdges map[string]int64) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	info := s.getOrCreateDataset(datasetName)
+	info.ReverseEdges = reverseEdges
+	s.recalculateTotal(info)
+}
+
+// AddReverseEdges adds/updates reverse edge count for a specific target
+func (s *DatasetState) AddReverseEdges(datasetName, targetName string, count int64) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	info := s.getOrCreateDataset(datasetName)
+	if info.ReverseEdges == nil {
+		info.ReverseEdges = make(map[string]int64)
+	}
+	info.ReverseEdges[targetName] = count
+	s.recalculateTotal(info)
+}
+
+// GetTotalEdges returns the total edges for a dataset
+func (s *DatasetState) GetTotalEdges(datasetName string) int64 {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
 	if info, exists := s.Datasets[datasetName]; exists {
-		return info.KVSize
+		return info.TotalEdges
 	}
 	return 0
+}
+
+// GetTotalEdgesForFederation returns sum of TotalEdges for all datasets in federation
+func (s *DatasetState) GetTotalEdgesForFederation(federation string) int64 {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	var total int64
+	for _, info := range s.Datasets {
+		fed := info.Federation
+		if fed == "" {
+			fed = "main"
+		}
+		if fed == federation {
+			total += info.TotalEdges
+		}
+	}
+	return total
+}
+
+// SetFederation sets the federation for a dataset
+func (s *DatasetState) SetFederation(datasetName, federation string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if s.Datasets == nil {
+		s.Datasets = make(map[string]*DatasetBuildInfo)
+	}
+
+	info, exists := s.Datasets[datasetName]
+	if !exists {
+		info = &DatasetBuildInfo{
+			DatasetName: datasetName,
+		}
+		s.Datasets[datasetName] = info
+	}
+	info.Federation = federation
+}
+
+// GetFederation returns the federation for a dataset (defaults to "main" if not set)
+func (s *DatasetState) GetFederation(datasetName string) string {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	if info, exists := s.Datasets[datasetName]; exists {
+		if info.Federation != "" {
+			return info.Federation
+		}
+	}
+	return "main"
+}
+
+// GetDatasetsForFederation returns all dataset names belonging to a specific federation
+func (s *DatasetState) GetDatasetsForFederation(federation string) []string {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	var result []string
+	for name, info := range s.Datasets {
+		dsFed := info.Federation
+		if dsFed == "" {
+			dsFed = "main"
+		}
+		if dsFed == federation {
+			result = append(result, name)
+		}
+	}
+	return result
 }
 
 // GetLastBuildTime returns the last build time for a dataset

@@ -406,6 +406,10 @@ type Merge struct {
 	totalEntrySize          int64                 // Sum of all entry sizes for progress based on keys written
 	protoResBufferPool      *chan []*pbuf.XrefEntry
 	protoCountResBufferPool *chan []*pbuf.XrefDomainCount
+	// Federation support
+	federation              string  // Federation name (e.g., "main", "dbsnp")
+	indexDir                string  // Federation-specific index directory
+	dbDir                   string  // Federation-specific database directory
 	// Checkpoint/resume fields
 	checkpointPath          string
 	checkpointInterval      int
@@ -456,7 +460,7 @@ func (d *Merge) saveCheckpoint(lastKey string) error {
 		TotalKey:       d.totalKey,
 		TotalValue:     d.totalValue,
 		Timestamp:      time.Now(),
-		IndexDir:       config.Appconf["indexDir"],
+		IndexDir:       d.indexDir,
 		Version:        1,
 		FileStates:     fileStatesMap,
 	}
@@ -578,9 +582,9 @@ func (d *Merge) loadCheckpoint() (*MergeCheckpoint, error) {
 	}
 
 	// Verify checkpoint is for the same index directory
-	if checkpoint.IndexDir != config.Appconf["indexDir"] {
+	if checkpoint.IndexDir != d.indexDir {
 		log.Printf("Warning: Checkpoint index dir (%s) differs from current (%s). Starting fresh.",
-			checkpoint.IndexDir, config.Appconf["indexDir"])
+			checkpoint.IndexDir, d.indexDir)
 		return nil, nil
 	}
 
@@ -631,9 +635,21 @@ type kvMessage struct {
 	writekey     bool
 }
 
-func (d *Merge) Merge(c *configs.Conf, keep bool) (uint64, uint64, uint64) {
+func (d *Merge) Merge(c *configs.Conf, keep bool, federation string) (uint64, uint64, uint64) {
 
 	config = c
+
+	// Set federation and compute federation-specific paths
+	if federation == "" {
+		federation = "main"
+	}
+	d.federation = federation
+	d.indexDir = filepath.Join(config.Appconf["outDir"], federation, "index")
+	d.dbDir = filepath.Join(config.Appconf["outDir"], federation, "db")
+
+	log.Printf("=== Generating federation: %s ===", federation)
+	log.Printf("Index directory: %s", d.indexDir)
+	log.Printf("Database directory: %s", d.dbDir)
 
 	d.init()
 
@@ -1260,7 +1276,7 @@ func (d *Merge) init() {
 	}
 	// Set checkpoint path - default to db directory (so deleting db dir also removes checkpoint)
 	// Note: checkpoint is loaded BEFORE dbDir is cleared, so resume detection works correctly
-	d.checkpointPath = filepath.FromSlash(config.Appconf["dbDir"] + "/merge_checkpoint.json")
+	d.checkpointPath = filepath.Join(d.dbDir, "merge_checkpoint.json")
 	if _, ok := config.Appconf["mergeCheckpointPath"]; ok {
 		d.checkpointPath = config.Appconf["mergeCheckpointPath"]
 	}
@@ -1307,7 +1323,7 @@ func (d *Merge) init() {
 	// Initialize per-dataset statistics map
 	d.perDatasetStats = make(map[uint32]*DatasetMergeStats)
 
-	files, err := ioutil.ReadDir(config.Appconf["indexDir"])
+	files, err := ioutil.ReadDir(d.indexDir)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -1373,7 +1389,7 @@ func (d *Merge) init() {
 				}
 			}
 
-			path := filepath.FromSlash(config.Appconf["indexDir"] + "/" + f.Name())
+			path := filepath.Join(d.indexDir, f.Name())
 			file, err := os.Open(path)
 			if err != nil {
 				log.Printf("Error opening file %s: %v", path, err)
@@ -1409,36 +1425,44 @@ func (d *Merge) init() {
 		log.Printf("Resume: Skipped %d already-completed files, %d files to process", skippedFiles, len(fss))
 	}
 
-	// Read KV sizes from dataset_state.json in main output directory (replaces meta.json files)
-	var totalkv float64
-	var totalKVSize float64
+	// Read total_edges from dataset_state.json, filtered by federation
+	// Each federation only counts datasets that belong to it
+	var totalEdges int64
+	var datasetCount int
 	stateFile := filepath.Join(config.Appconf["outDir"], "dataset_state.json")
 	if stateData, err := ioutil.ReadFile(stateFile); err == nil {
 		var state map[string]interface{}
 		if err := json.Unmarshal(stateData, &state); err != nil {
 			log.Printf("Warning: failed to parse dataset_state.json: %v", err)
 		} else {
-			// Get total KV size (total KV lines across all datasets including derived)
-			if total, ok := state["total_kv_size"].(float64); ok {
-				totalkv = total
-			}
-			// Sum KV sizes from source datasets only
+			// Sum total_edges from datasets belonging to this federation only
 			if datasets, ok := state["datasets"].(map[string]interface{}); ok {
 				for _, dsInfo := range datasets {
 					if info, ok := dsInfo.(map[string]interface{}); ok {
-						if kvSize, ok := info["kv_size"].(float64); ok {
-							totalKVSize += kvSize
+						// Get dataset's federation (default to "main" if not set)
+						dsFederation := "main"
+						if fed, ok := info["federation"].(string); ok && fed != "" {
+							dsFederation = fed
+						}
+						// Only count datasets in the target federation
+						if dsFederation == d.federation {
+							if te, ok := info["total_edges"].(float64); ok {
+								totalEdges += int64(te)
+								datasetCount++
+							}
 						}
 					}
 				}
 			}
+			log.Printf("Federation '%s': total edges from %d datasets = %d",
+				d.federation, datasetCount, totalEdges)
 		}
 	} else {
 		log.Printf("Warning: could not read dataset_state.json: %v", err)
 	}
 
-	d.totalkvLine = int64(totalkv)
-	d.totalEntrySize = int64(totalKVSize)
+	d.totalkvLine = totalEdges
+	d.totalEntrySize = totalEdges
 
 	if checkpoint != nil {
 		// Resume mode: don't clear the database
@@ -1458,21 +1482,28 @@ func (d *Merge) init() {
 		d.totalValue = checkpoint.TotalValue
 	} else {
 		// Fresh start: clear the database directory
-		err = os.RemoveAll(filepath.FromSlash(config.Appconf["dbDir"]))
+		err = os.RemoveAll(d.dbDir)
 		if err != nil {
 			log.Fatal("Error cleaning the out dir check you have right permission")
 			panic(err)
 		}
-		err = os.Mkdir(filepath.FromSlash(config.Appconf["dbDir"]), 0700)
+		err = os.MkdirAll(d.dbDir, 0700)
 		if err != nil {
-			log.Fatal("Error creating dir", config.Appconf["dbDir"], "check you have right permission ")
+			log.Fatal("Error creating dir", d.dbDir, "check you have right permission ")
 			panic(err)
 		}
 	}
 
 	database := db.DB{}
 
-	d.wrEnv, d.wrDbi = database.OpenDBNew(true, d.totalkvLine, config.Appconf)
+	// Create a copy of appconf with federation-specific dbDir
+	fedAppconf := make(map[string]string)
+	for k, v := range config.Appconf {
+		fedAppconf[k] = v
+	}
+	fedAppconf["dbDir"] = d.dbDir
+
+	d.wrEnv, d.wrDbi = database.OpenDBNew(true, d.totalkvLine, fedAppconf)
 
 	// If resuming, verify checkpoint consistency with actual DB state
 	if d.isResuming {
@@ -1589,7 +1620,7 @@ func (d *Merge) close() {
 
 	if !d.keepUpdateFiles {
 
-		files, err := ioutil.ReadDir(filepath.FromSlash(config.Appconf["indexDir"]))
+		files, err := ioutil.ReadDir(d.indexDir)
 
 		if err == nil {
 
@@ -1597,7 +1628,7 @@ func (d *Merge) close() {
 
 				if !f.IsDir() && strings.HasSuffix(f.Name(), ".gz") {
 
-					err := os.Remove(filepath.FromSlash(config.Appconf["indexDir"] + "/" + f.Name()))
+					err := os.Remove(filepath.Join(d.indexDir, f.Name()))
 					if err != nil {
 						log.Printf("Database successfully created but index files could not deleted please delete manually %v\n", err)
 						break
@@ -1616,13 +1647,14 @@ func (d *Merge) close() {
 	mergeStats["totalKey"] = d.totalKey
 	mergeStats["totalValue"] = d.totalValue
 	mergeStats["totalKVLine"] = d.totalkvLine
+	mergeStats["federation"] = d.federation
 	data, err := json.Marshal(mergeStats)
 	if err != nil {
 		log.Printf("Database successfully created but meta file could not created %v\n", err)
 		return
 	}
 
-	err = ioutil.WriteFile(filepath.FromSlash(config.Appconf["dbDir"]+"/db.meta.json"), data, 0770)
+	err = ioutil.WriteFile(filepath.Join(d.dbDir, "db.meta.json"), data, 0770)
 
 	if err != nil {
 		log.Printf("Database successfully created but meta file could not created %v\n", err)

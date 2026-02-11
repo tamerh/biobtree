@@ -67,10 +67,6 @@ func main() {
 			Usage: "change the output directory by default it is out folder in the same directory",
 		},
 		cli.StringFlag{
-			Name:  "db-dir",
-			Usage: "change the database directory. By default it is {out-dir}/db",
-		},
-		cli.StringFlag{
 			Name:   "confdir",
 			Hidden: true,
 			Usage:  "to change default config directory while developing",
@@ -326,7 +322,7 @@ func runTestCommand(c *cli.Context) error {
 	includeOptionals := c.GlobalBool("include-optionals")
 
 	config = &configs.Conf{}
-	config.Init(confdir, versionTag, testOutDir, "", includeOptionals)
+	config.Init(confdir, versionTag, testOutDir, includeOptionals)
 
 	// Enable test mode
 	config.TestMode = true
@@ -472,13 +468,12 @@ func runUpdateCommand(c *cli.Context) error {
 
 	confdir := c.GlobalString("confdir")
 	outDir := c.GlobalString("out-dir")
-	dbDir := c.GlobalString("db-dir")
 	includeOptionals := c.GlobalBool("include-optionals")
 
 	// Only initialize config if not already initialized (e.g., by test command)
 	if config == nil || !config.TestMode {
 		config = &configs.Conf{}
-		config.Init(confdir, versionTag, outDir, dbDir, includeOptionals)
+		config.Init(confdir, versionTag, outDir, includeOptionals)
 	}
 
 	indataset := c.GlobalString("datasets")
@@ -636,13 +631,12 @@ func runGenerateCommand(c *cli.Context) error {
 
 	confdir := c.GlobalString("confdir")
 	outDir := c.GlobalString("out-dir")
-	dbDir := c.GlobalString("db-dir")
 	lmdbAllocSize := c.GlobalString("lmdb-alloc-size")
 
 	// Only initialize config if not already initialized (e.g., by test command)
 	if config == nil || !config.TestMode {
 		config = &configs.Conf{}
-		config.Init(confdir, versionTag, outDir, dbDir, true)
+		config.Init(confdir, versionTag, outDir, true)
 	}
 
 	if len(lmdbAllocSize) > 0 {
@@ -697,9 +691,8 @@ func runWebCommand(c *cli.Context) error {
 
 	confdir := c.GlobalString("confdir")
 	outDir := c.GlobalString("out-dir")
-	dbDir := c.GlobalString("db-dir")
 	config = &configs.Conf{}
-	config.Init(confdir, versionTag, outDir, dbDir, true)
+	config.Init(confdir, versionTag, outDir, true)
 
 	cpu := c.GlobalInt(" maxcpu")
 	if cpu > 1 {
@@ -723,9 +716,8 @@ func runQueryCommand(c *cli.Context) error {
 	// 2. Initialize config (same as web command)
 	confdir := c.GlobalString("confdir")
 	outDir := c.GlobalString("out-dir")
-	dbDir := c.GlobalString("db-dir")
 	config = &configs.Conf{}
-	config.Init(confdir, versionTag, outDir, dbDir, true)
+	config.Init(confdir, versionTag, outDir, true)
 
 	// 3. Execute query via CLI handler
 	cliHandler := service.CLI{}
@@ -742,10 +734,9 @@ func runInstallCommand(c *cli.Context) error {
 
 	confdir := c.GlobalString("confdir")
 	outDir := c.GlobalString("out-dir")
-	dbDir := c.GlobalString("db-dir")
 	preBuildSet := c.GlobalString("pre-built")
 	config = &configs.Conf{}
-	config.Install(confdir, versionTag, outDir, dbDir, preBuildSet, true)
+	config.Install(confdir, versionTag, outDir, preBuildSet, true)
 
 	return nil
 
@@ -754,9 +745,8 @@ func runInstallCommand(c *cli.Context) error {
 func runCheckCommand(c *cli.Context) error {
 	confdir := c.GlobalString("confdir")
 	outDir := c.GlobalString("out-dir")
-	dbDir := c.GlobalString("db-dir")
 	config = &configs.Conf{}
-	config.Init(confdir, versionTag, outDir, dbDir, true)
+	config.Init(confdir, versionTag, outDir, true)
 
 	// Initialize update package config for source checking
 	update.InitConfig(config)
@@ -905,9 +895,8 @@ func runProfileCommand(c *cli.Context) error {
 
 	confdir := c.GlobalString("confdir")
 	outDir := c.GlobalString("out-dir")
-	dbDir := c.GlobalString("db-dir")
 	config = &configs.Conf{}
-	config.Init(confdir, versionTag, outDir, dbDir, true)
+	config.Init(confdir, versionTag, outDir, true)
 
 	os.Remove("memprof.out")
 	os.Remove("cpuprof.out")

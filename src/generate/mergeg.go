@@ -409,7 +409,9 @@ type Merge struct {
 	// Federation support
 	federation              string  // Federation name (e.g., "main", "dbsnp")
 	indexDir                string  // Federation-specific index directory
-	dbDir                   string  // Federation-specific database directory
+	dbDir                   string  // Federation-specific database directory (versioned, e.g., db_v3)
+	dbVersion               int     // Current database version number
+	federationDir           string  // Federation directory (e.g., out/main)
 	// Checkpoint/resume fields
 	checkpointPath          string
 	checkpointInterval      int
@@ -644,11 +646,41 @@ func (d *Merge) Merge(c *configs.Conf, keep bool, federation string) (uint64, ui
 		federation = "main"
 	}
 	d.federation = federation
-	d.indexDir = filepath.Join(config.Appconf["outDir"], federation, "index")
-	d.dbDir = filepath.Join(config.Appconf["outDir"], federation, "db")
+	d.federationDir = filepath.Join(config.Appconf["outDir"], federation)
+	d.indexDir = filepath.Join(d.federationDir, "index")
 
 	log.Printf("=== Generating federation: %s ===", federation)
 	log.Printf("Index directory: %s", d.indexDir)
+
+	// Check for checkpoint in current db symlink to determine if resuming
+	currentDBPath := filepath.Join(d.federationDir, "db")
+	checkpointPath := filepath.Join(currentDBPath, "merge_checkpoint.json")
+	_, checkpointErr := os.Stat(checkpointPath)
+	hasCheckpoint := checkpointErr == nil
+
+	if hasCheckpoint {
+		// Resume mode: use the existing versioned directory
+		// Resolve the symlink to get the actual directory
+		if target, err := filepath.EvalSymlinks(currentDBPath); err == nil {
+			d.dbDir = target
+			d.dbVersion, _ = GetCurrentSymlinkVersion(d.federationDir)
+			log.Printf("Resuming with existing database: %s (version %d)", d.dbDir, d.dbVersion)
+		} else {
+			// Symlink doesn't exist or can't be resolved, use the path directly
+			d.dbDir = currentDBPath
+			d.dbVersion = -1
+			log.Printf("Resuming with database: %s", d.dbDir)
+		}
+	} else {
+		// Fresh start: create a new versioned directory
+		var err error
+		d.dbDir, d.dbVersion, err = CreateVersionedDBDir(d.federationDir)
+		if err != nil {
+			log.Fatalf("Failed to create versioned db directory: %v", err)
+		}
+		log.Printf("Creating new database: %s (version %d)", d.dbDir, d.dbVersion)
+	}
+
 	log.Printf("Database directory: %s", d.dbDir)
 
 	d.init()
@@ -1481,16 +1513,14 @@ func (d *Merge) init() {
 		d.totalKey = checkpoint.TotalKey
 		d.totalValue = checkpoint.TotalValue
 	} else {
-		// Fresh start: clear the database directory
-		err = os.RemoveAll(d.dbDir)
-		if err != nil {
-			log.Fatal("Error cleaning the out dir check you have right permission")
-			panic(err)
-		}
-		err = os.MkdirAll(d.dbDir, 0700)
-		if err != nil {
-			log.Fatal("Error creating dir", d.dbDir, "check you have right permission ")
-			panic(err)
+		// Fresh start: db directory was already created in Merge() with versioning
+		// Just ensure the directory exists (it should already)
+		if _, err := os.Stat(d.dbDir); os.IsNotExist(err) {
+			err = os.MkdirAll(d.dbDir, 0700)
+			if err != nil {
+				log.Fatal("Error creating dir", d.dbDir, "check you have right permission ")
+				panic(err)
+			}
 		}
 	}
 
@@ -1658,6 +1688,17 @@ func (d *Merge) close() {
 
 	if err != nil {
 		log.Printf("Database successfully created but meta file could not created %v\n", err)
+	}
+
+	// Log the new version for build.sh to use
+	if d.dbVersion > 0 {
+		log.Printf("=== DATABASE VERSION CREATED: db_v%d ===", d.dbVersion)
+		log.Printf("To activate: cd %s && ln -sf db_v%d db", d.federationDir, d.dbVersion)
+	}
+
+	// Remove checkpoint file on successful completion
+	if d.checkpointPath != "" {
+		os.Remove(d.checkpointPath)
 	}
 
 }

@@ -1,23 +1,25 @@
 #!/bin/bash
 
-# Biobtree Build Script - Sequential One-by-One
+# Biobtree Build & Management Script (bb.sh)
 # ==============================================
-# Runs each dataset individually for maximum reliability.
+# Build datasets, generate databases, manage versions, and run services.
 # Each dataset has its own log file for easy debugging.
-# All commands run in background - check logs for progress.
+# Long-running commands run in background - check logs for progress.
 #
 # Usage:
-#   ./build.sh                         # Update all datasets (default: out/)
-#   ./build.sh <output_dir>            # Update all datasets to specified directory
-#   ./build.sh --status                # Show dataset status
-#   ./build.sh --check                 # Check for changes only
-#   ./build.sh --from pubchem          # Resume from specific dataset
-#   ./build.sh --only pubchem          # Run single dataset
-#   ./build.sh --generate              # Run generate phase only (build database)
-#   ./build.sh --web                   # Start web server (foreground, default: out/)
-#   ./build.sh <output_dir> --web      # Start web server for custom dir (background, logs to web.log)
-#   ./build.sh --test                   # Run integration tests (requires server on localhost:9291)
-#   ./build.sh --test --prod            # Run tests against production MCP server (localhost:8000)
+#   ./bb.sh                            # Update all datasets (default: out/)
+#   ./bb.sh <output_dir>               # Update all datasets to specified directory
+#   ./bb.sh --status                   # Show dataset status
+#   ./bb.sh --check                    # Check for changes only
+#   ./bb.sh --from pubchem             # Resume from specific dataset
+#   ./bb.sh --only pubchem             # Run single dataset
+#   ./bb.sh --generate                 # Run generate phase only (build database)
+#   ./bb.sh --db-versions              # Show database versions
+#   ./bb.sh --activate                 # Activate latest db version
+#   ./bb.sh --activate 2               # Activate specific db version
+#   ./bb.sh --cleanup                  # Remove old db versions (keep last 2)
+#   ./bb.sh --web                      # Start web server
+#   ./bb.sh --test                     # Run integration tests
 
 set -e
 
@@ -27,7 +29,7 @@ set -e
 RUN_FOREGROUND=false
 for arg in "$@"; do
     case "$arg" in
-        --status|--check|--help|-h|--web|--test|--dry-run) RUN_FOREGROUND=true ;;
+        --status|--check|--help|-h|--web|--test|--dry-run|--db-versions|--activate|--cleanup) RUN_FOREGROUND=true ;;
     esac
 done
 if [[ -z "$BUILD_IN_BG" && "$RUN_FOREGROUND" == "false" ]]; then
@@ -199,6 +201,11 @@ show_help() {
     echo "  --prod            With --test: test against production MCP server (localhost:8000)"
     echo "  --help            Show this help message"
     echo ""
+    echo "Database Version Management:"
+    echo "  --db-versions     Show database versions for all federations"
+    echo "  --activate [N]    Activate db version N (default: latest) for all federations"
+    echo "  --cleanup [N]     Remove old db versions, keeping last N (default: 2)"
+    echo ""
     echo "Federations:"
     echo "  main              Default federation (most datasets)"
     echo "  dbsnp             dbSNP variants (separate large database)"
@@ -226,6 +233,11 @@ WEB_SERVER="false"
 RUN_TESTS="false"
 TEST_PROD="false"
 FEDERATION=""
+SHOW_DB_VERSIONS="false"
+ACTIVATE_VERSION=""
+DO_ACTIVATE="false"
+DO_CLEANUP="false"
+CLEANUP_KEEP=2
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -241,6 +253,27 @@ while [[ $# -gt 0 ]]; do
         --web)          WEB_SERVER="true"; shift ;;
         --test)         RUN_TESTS="true"; shift ;;
         --prod)         TEST_PROD="true"; shift ;;
+        --db-versions)  SHOW_DB_VERSIONS="true"; shift ;;
+        --activate)
+            DO_ACTIVATE="true"
+            # Check if next arg is a version number (not another option)
+            if [[ -n "$2" && ! "$2" == --* ]]; then
+                ACTIVATE_VERSION=$2
+                shift 2
+            else
+                shift
+            fi
+            ;;
+        --cleanup)
+            DO_CLEANUP="true"
+            # Check if next arg is a number
+            if [[ -n "$2" && "$2" =~ ^[0-9]+$ ]]; then
+                CLEANUP_KEEP=$2
+                shift 2
+            else
+                shift
+            fi
+            ;;
         --help|-h)      show_help ;;
         *)              echo "Unknown option: $1"; show_help ;;
     esac
@@ -362,6 +395,166 @@ get_federation() {
         dbsnp) echo "dbsnp" ;;
         *) echo "main" ;;
     esac
+}
+
+# ============================================================================
+# DATABASE VERSION MANAGEMENT
+# ============================================================================
+
+# Get all db versions for a federation (returns space-separated version numbers)
+get_db_versions() {
+    local federation=$1
+    local fed_dir="$OUT_DIR/$federation"
+
+    if [[ ! -d "$fed_dir" ]]; then
+        echo ""
+        return
+    fi
+
+    # Find db_v* directories and extract version numbers
+    ls -1 "$fed_dir" 2>/dev/null | grep -E '^db_v[0-9]+$' | sed 's/db_v//' | sort -n | tr '\n' ' '
+}
+
+# Get current version (what db symlink points to)
+get_current_version() {
+    local federation=$1
+    local symlink="$OUT_DIR/$federation/db"
+
+    if [[ ! -L "$symlink" ]]; then
+        # Not a symlink - might be old format directory
+        if [[ -d "$symlink" ]]; then
+            echo "legacy"
+        else
+            echo "none"
+        fi
+        return
+    fi
+
+    local target=$(readlink "$symlink")
+    if [[ "$target" =~ ^db_v([0-9]+)$ ]]; then
+        echo "${BASH_REMATCH[1]}"
+    else
+        echo "unknown"
+    fi
+}
+
+# Get latest (highest) version number
+get_latest_version() {
+    local federation=$1
+    local versions=$(get_db_versions "$federation")
+
+    if [[ -z "$versions" ]]; then
+        echo "0"
+        return
+    fi
+
+    # Get last (highest) version
+    echo "$versions" | tr ' ' '\n' | tail -1
+}
+
+# Activate a specific db version (update symlink)
+activate_db_version() {
+    local federation=$1
+    local version=$2
+    local fed_dir="$OUT_DIR/$federation"
+    local symlink="$fed_dir/db"
+    local target="db_v$version"
+    local target_path="$fed_dir/$target"
+
+    # Verify target exists
+    if [[ ! -d "$target_path" ]]; then
+        echo "ERROR: Version $version does not exist for federation '$federation'"
+        echo "Available versions: $(get_db_versions "$federation")"
+        return 1
+    fi
+
+    # Handle existing symlink or directory
+    if [[ -L "$symlink" ]]; then
+        rm "$symlink"
+    elif [[ -d "$symlink" ]]; then
+        # Legacy directory - rename to db_v0
+        echo "Migrating legacy db directory to db_v0..."
+        mv "$symlink" "$fed_dir/db_v0"
+    fi
+
+    # Create new symlink (relative path)
+    ln -s "$target" "$symlink"
+    echo "✓ Activated db_v$version for federation '$federation'"
+}
+
+# Cleanup old versions, keeping the last N
+cleanup_old_versions() {
+    local federation=$1
+    local keep=${2:-2}
+    local fed_dir="$OUT_DIR/$federation"
+    local current=$(get_current_version "$federation")
+
+    local versions=($(get_db_versions "$federation"))
+    local count=${#versions[@]}
+
+    if [[ $count -le $keep ]]; then
+        echo "Only $count version(s) exist, nothing to cleanup"
+        return
+    fi
+
+    local to_delete=$((count - keep))
+    echo "Cleaning up $to_delete old version(s), keeping last $keep..."
+
+    for ((i=0; i<to_delete; i++)); do
+        local ver=${versions[$i]}
+        if [[ "$ver" == "$current" ]]; then
+            echo "  Skipping db_v$ver (currently active)"
+            continue
+        fi
+        echo "  Removing db_v$ver..."
+        rm -rf "$fed_dir/db_v$ver"
+    done
+}
+
+# Show db versions for all federations
+show_db_versions() {
+    echo ""
+    echo "============================================"
+    echo "Database Versions"
+    echo "============================================"
+    echo "Output directory: $OUT_DIR"
+    echo ""
+
+    for federation in main dbsnp; do
+        local fed_dir="$OUT_DIR/$federation"
+        if [[ ! -d "$fed_dir" ]]; then
+            continue
+        fi
+
+        local current=$(get_current_version "$federation")
+        local latest=$(get_latest_version "$federation")
+        local versions=$(get_db_versions "$federation")
+
+        echo "Federation: $federation"
+        echo "  Current: ${current:-none}"
+        echo "  Latest:  ${latest:-none}"
+        echo -n "  Available: "
+
+        if [[ -z "$versions" ]]; then
+            echo "none"
+        else
+            for v in $versions; do
+                if [[ "$v" == "$current" ]]; then
+                    echo -n "v$v* "
+                else
+                    echo -n "v$v "
+                fi
+            done
+            echo ""
+        fi
+
+        # Show sizes
+        for v in $versions; do
+            local size=$(du -sh "$fed_dir/db_v$v" 2>/dev/null | cut -f1)
+            echo "    db_v$v: ${size:-unknown}"
+        done
+        echo ""
+    done
 }
 
 # Calculate actual KV size from index files for a dataset
@@ -542,7 +735,7 @@ run_tests() {
 # ============================================================================
 
 echo "============================================"
-echo "BiobTree Build Script - Sequential One-by-One"
+echo "BioBTree Build & Management Script"
 echo "============================================"
 echo "Output: $OUT_DIR"
 echo "CPUs: $MAXCPU"
@@ -568,6 +761,70 @@ if [[ "$SHOW_STATUS" == "true" ]]; then
     exit 0
 fi
 
+# DB versions mode
+if [[ "$SHOW_DB_VERSIONS" == "true" ]]; then
+    show_db_versions
+    exit 0
+fi
+
+# Activate version mode
+if [[ "$DO_ACTIVATE" == "true" ]]; then
+    echo ""
+    echo "============================================"
+    echo "Activating Database Version"
+    echo "============================================"
+
+    for federation in main dbsnp; do
+        fed_dir="$OUT_DIR/$federation"
+        if [[ ! -d "$fed_dir" ]]; then
+            continue
+        fi
+
+        version="$ACTIVATE_VERSION"
+        if [[ -z "$version" ]]; then
+            version=$(get_latest_version "$federation")
+        fi
+
+        if [[ "$version" == "0" || -z "$version" ]]; then
+            echo "No versions found for federation '$federation'"
+            continue
+        fi
+
+        current=$(get_current_version "$federation")
+        if [[ "$current" == "$version" ]]; then
+            echo "Federation '$federation': already on db_v$version"
+        else
+            activate_db_version "$federation" "$version"
+        fi
+    done
+
+    echo ""
+    echo "Note: Restart the web service to use the new version"
+    exit 0
+fi
+
+# Cleanup mode
+if [[ "$DO_CLEANUP" == "true" ]]; then
+    echo ""
+    echo "============================================"
+    echo "Cleaning Up Old Database Versions"
+    echo "============================================"
+    echo "Keeping last $CLEANUP_KEEP version(s)"
+    echo ""
+
+    for federation in main dbsnp; do
+        fed_dir="$OUT_DIR/$federation"
+        if [[ ! -d "$fed_dir" ]]; then
+            continue
+        fi
+
+        echo "Federation: $federation"
+        cleanup_old_versions "$federation" "$CLEANUP_KEEP"
+        echo ""
+    done
+    exit 0
+fi
+
 # Test mode
 if [[ "$RUN_TESTS" == "true" ]]; then
     if [[ "$TEST_PROD" == "true" ]]; then
@@ -588,7 +845,7 @@ if [[ "$WEB_SERVER" == "true" ]]; then
         # Custom directory - run in background with --prod
         echo "Starting web server in background..."
         echo "Log: ${LOG_DIR}/web.log"
-        nohup ./biobtree --db-dir "$OUT_DIR" --prod web > "${LOG_DIR}/web.log" 2>&1 &
+        nohup ./biobtree --out-dir "$OUT_DIR" --prod web > "${LOG_DIR}/web.log" 2>&1 &
         echo "PID: $!"
         echo "Monitor: tail -f ${LOG_DIR}/web.log"
     fi
@@ -620,6 +877,18 @@ if [[ "$GENERATE_ONLY" == "true" ]]; then
             echo "[DRY RUN] ./biobtree --out-dir \"$OUT_DIR\" --federation \"$FEDERATION\" --lmdb-safety-factor 4.5 generate"
         elif ./biobtree --out-dir "$OUT_DIR" --federation "$FEDERATION" --lmdb-safety-factor 4.5 generate > "${LOG_DIR}/generate_${FEDERATION}.log" 2>&1; then
             echo "✓ Generate complete ($FEDERATION federation)"
+
+            # Show version info
+            latest=$(get_latest_version "$FEDERATION")
+            current=$(get_current_version "$FEDERATION")
+            echo ""
+            echo "New version created: db_v$latest"
+            echo "Current active:      db_v$current"
+            if [[ "$latest" != "$current" ]]; then
+                echo ""
+                echo "To activate the new version:"
+                echo "  $0 $OUT_DIR --activate"
+            fi
         else
             echo "✗ Generate FAILED ($FEDERATION) - see ${LOG_DIR}/generate_${FEDERATION}.log"
             exit 1
@@ -633,6 +902,25 @@ if [[ "$GENERATE_ONLY" == "true" ]]; then
             echo "[DRY RUN] ./biobtree --out-dir \"$OUT_DIR\" --lmdb-safety-factor 4.5 generate"
         elif ./biobtree --out-dir "$OUT_DIR" --lmdb-safety-factor 4.5 generate > "${LOG_DIR}/generate.log" 2>&1; then
             echo "✓ Generate complete (all federations)"
+
+            # Show version info for each federation
+            echo ""
+            echo "Version Summary:"
+            for federation in main dbsnp; do
+                fed_dir="$OUT_DIR/$federation"
+                if [[ ! -d "$fed_dir" ]]; then
+                    continue
+                fi
+                latest=$(get_latest_version "$federation")
+                current=$(get_current_version "$federation")
+                if [[ "$latest" != "0" ]]; then
+                    echo "  $federation: created db_v$latest (active: db_v$current)"
+                fi
+            done
+
+            echo ""
+            echo "To activate the new version(s):"
+            echo "  $0 $OUT_DIR --activate"
         else
             echo "✗ Generate FAILED - see ${LOG_DIR}/generate.log"
             exit 1

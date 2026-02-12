@@ -152,12 +152,11 @@ func (c *collectri) update() {
 		c.d.addXref(targetGene, textLinkID, entryID, c.source, true)
 		c.d.addXref(entryID, textLinkID, entryID, c.source, true)
 
-		// Cross-reference to HGNC and Ensembl (human genes only)
-		// CollecTRI is a human TF-target database, so we go through HGNC
-		// to ensure we only get human genes (not mouse/rat/zebrafish)
-		// addHumanGeneXrefs creates xref to HGNC (Ensembl via HGNC→Ensembl)
-		c.d.addHumanGeneXrefs(tfGene, entryID, sourceID)
-		c.d.addHumanGeneXrefs(targetGene, entryID, sourceID)
+		// Cross-reference to human gene databases (HGNC, Entrez, Ensembl)
+		// CollecTRI is a human TF-target database
+		// addHumanGeneXrefsAll creates xrefs to all three gene databases
+		c.d.addHumanGeneXrefsAll(tfGene, entryID, sourceID)
+		c.d.addHumanGeneXrefsAll(targetGene, entryID, sourceID)
 
 		// Cross-reference to PubMed for literature citations
 		for _, pmid := range pmids {

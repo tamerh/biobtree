@@ -652,13 +652,25 @@ func (d *Merge) Merge(c *configs.Conf, keep bool, federation string) (uint64, ui
 	log.Printf("=== Generating federation: %s ===", federation)
 	log.Printf("Index directory: %s", d.indexDir)
 
+	// Check if versioning should be skipped (dev mode: test_out or out directories)
+	outDirBase := filepath.Base(config.Appconf["outDir"])
+	skipVersioning := outDirBase == "test_out" || outDirBase == "out"
+
 	// Check for checkpoint in current db symlink to determine if resuming
 	currentDBPath := filepath.Join(d.federationDir, "db")
 	checkpointPath := filepath.Join(currentDBPath, "merge_checkpoint.json")
 	_, checkpointErr := os.Stat(checkpointPath)
 	hasCheckpoint := checkpointErr == nil
 
-	if hasCheckpoint {
+	if skipVersioning {
+		// Dev mode: always use plain db directory (no versioning)
+		d.dbDir = currentDBPath
+		d.dbVersion = -1
+		if err := os.MkdirAll(d.dbDir, 0700); err != nil {
+			log.Fatalf("Failed to create db directory: %v", err)
+		}
+		log.Printf("Dev mode: using plain db directory (no versioning): %s", d.dbDir)
+	} else if hasCheckpoint {
 		// Resume mode: use the existing versioned directory
 		// Resolve the symlink to get the actual directory
 		if target, err := filepath.EvalSymlinks(currentDBPath); err == nil {
@@ -2066,6 +2078,11 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)
 				xref.Attributes = &pbuf.Xref_Cellphonedb{attr}
+			case "spliceai":
+				attr := &pbuf.SpliceAIAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Spliceai{attr}
 			case "drugcentral":
 				attr := &pbuf.DrugcentralAttr{}
 				barr := []byte((*kvProp[k])[0].value)
@@ -2487,6 +2504,11 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 					barr := []byte((*kvProp[k])[0].value)
 					ffjson.Unmarshal(barr, attr)
 					xref.Attributes = &pbuf.Xref_Cellphonedb{attr}
+				case "spliceai":
+					attr := &pbuf.SpliceAIAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_Spliceai{attr}
 				case "drugcentral":
 					attr := &pbuf.DrugcentralAttr{}
 					barr := []byte((*kvProp[k])[0].value)

@@ -74,7 +74,7 @@ class BiobtreeWebServer:
         try:
             db_dir = str(Path(self.out_dir) / "db")
             self.process = subprocess.Popen(
-                [str(biobtree_path), "--out-dir", self.out_dir, "--db-dir", db_dir, "web"],
+                [str(biobtree_path), "--out-dir", self.out_dir, "web"],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True

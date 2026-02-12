@@ -203,12 +203,13 @@ func (c *cellphonedb) update() {
 			}
 		}
 
-		// Cross-reference to HGNC via gene symbols (human genes)
+		// Cross-reference to human gene databases via gene symbols
+		// addHumanGeneXrefsAll creates xrefs to HGNC, Entrez, and Ensembl
 		for _, gene := range genesA {
-			c.d.addHumanGeneXrefs(gene, interactionID, sourceID)
+			c.d.addHumanGeneXrefsAll(gene, interactionID, sourceID)
 		}
 		for _, gene := range genesB {
-			c.d.addHumanGeneXrefs(gene, interactionID, sourceID)
+			c.d.addHumanGeneXrefsAll(gene, interactionID, sourceID)
 		}
 
 		// Extract and cross-reference PMIDs from source field

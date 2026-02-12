@@ -16,7 +16,8 @@ import (
 // mapFilterLite performs mapping and returns compact lite format response
 // Returns only IDs, sorted by has_attr (entries with attributes first)
 // Includes failed terms with source=nil and error field
-func (s *service) mapFilterLite(ids []string, mapFilterQuery, page string) (*pbuf.MapFilterResultLite, error) {
+// MapFilterLite performs mapping and returns compact lite format response
+func (s *Service) MapFilterLite(ids []string, mapFilterQuery, page string) (*pbuf.MapFilterResultLite, error) {
 
 	// Determine if this is a pagination request (page > 1)
 	isFirstPage := page == ""
@@ -38,7 +39,7 @@ func (s *service) mapFilterLite(ids []string, mapFilterQuery, page string) (*pbu
 	}
 
 	// Call mapFilterWithLimit with higher limit for lite mode (5x more results per page)
-	fullResult, err := s.mapFilterWithLimit(ids, mapFilterQuery, page, s.maxMappingResultLite)
+	fullResult, err := s.MapFilterWithLimit(ids, mapFilterQuery, page, s.maxMappingResultLite)
 	if err != nil {
 		// Return error for entire request
 		return nil, err
@@ -174,12 +175,14 @@ type mpInPage struct {
 }
 
 // rootPage is like search paging and second level paging is for each  mapping
-func (s *service) mapFilter(ids []string, mapFilterQuery, page string) (*pbuf.MapFilterResult, error) {
-	return s.mapFilterWithLimit(ids, mapFilterQuery, page, s.maxMappingResult)
+// MapFilter performs cross-reference mapping between datasets
+func (s *Service) MapFilter(ids []string, mapFilterQuery, page string) (*pbuf.MapFilterResult, error) {
+	return s.MapFilterWithLimit(ids, mapFilterQuery, page, s.maxMappingResult)
 }
 
 // mapFilterWithLimit is the internal implementation with configurable result limit
-func (s *service) mapFilterWithLimit(ids []string, mapFilterQuery, page string, maxResults int) (*pbuf.MapFilterResult, error) {
+// MapFilterWithLimit performs cross-reference mapping with configurable result limit
+func (s *Service) MapFilterWithLimit(ids []string, mapFilterQuery, page string, maxResults int) (*pbuf.MapFilterResult, error) {
 
 	startTime := time.Now()
 
@@ -364,7 +367,7 @@ startMapping:
 
 }
 
-func (s *service) mapFilterCacheKey(ids []string, mapFilterQuery, page string) string {
+func (s *Service) mapFilterCacheKey(ids []string, mapFilterQuery, page string) string {
 
 	var str strings.Builder
 	for _, id := range ids {
@@ -380,13 +383,13 @@ func (s *service) mapFilterCacheKey(ids []string, mapFilterQuery, page string) s
 
 }
 
-func (s *service) inputXrefs(ids []string, idsDomain uint32, filterq *query.Query, rootPage string, pages map[string]map[uint32]map[int]*mpPage) ([]*pbuf.Xref, string, error) {
+func (s *Service) inputXrefs(ids []string, idsDomain uint32, filterq *query.Query, rootPage string, pages map[string]map[uint32]map[int]*mpPage) ([]*pbuf.Xref, string, error) {
 
 	var inputXrefs []*pbuf.Xref
 
 	if pages == nil {
 
-		res, err := s.search(ids, idsDomain, rootPage, filterq, true, false)
+		res, err := s.Search(ids, idsDomain, rootPage, filterq, true, false)
 
 		if err != nil {
 			return nil, "", err
@@ -411,7 +414,7 @@ func (s *service) inputXrefs(ids []string, idsDomain uint32, filterq *query.Quer
 	for k, v := range pages {
 		for k2 := range v {
 
-			xref, err := s.getLmdbResult2(strings.ToUpper(k), k2)
+			xref, err := s.LookupByDataset(k, k2)
 			if err != nil {
 				return nil, "", err
 			}
@@ -424,7 +427,7 @@ func (s *service) inputXrefs(ids []string, idsDomain uint32, filterq *query.Quer
 
 }
 
-func (s *service) parsePagingKey(key string) (string, map[string]map[uint32]map[int]*mpPage, error) {
+func (s *Service) parsePagingKey(key string) (string, map[string]map[uint32]map[int]*mpPage, error) {
 
 	if key == "" {
 		return "", nil, nil
@@ -502,7 +505,7 @@ func (s *service) parsePagingKey(key string) (string, map[string]map[uint32]map[
 
 }
 
-func (s *service) setResultPaging(source *pbuf.Xref, pages map[int]*mpPage) string {
+func (s *Service) setResultPaging(source *pbuf.Xref, pages map[int]*mpPage) string {
 
 	sorted := make([]int, len(pages))
 	i := 0
@@ -537,7 +540,7 @@ func (s *service) setResultPaging(source *pbuf.Xref, pages map[int]*mpPage) stri
 }
 
 // parse mapping query and injects linkdataset queries if needed
-func (s *service) prepareQueries(mapFilterQuery string) ([]query.Query, error) {
+func (s *Service) prepareQueries(mapFilterQuery string) ([]query.Query, error) {
 
 	// Detect new syntax: doesn't start with map( or filter(
 	// This routes to ParserV2 for the new intuitive syntax
@@ -629,7 +632,7 @@ func (s *service) prepareQueries(mapFilterQuery string) ([]query.Query, error) {
 
 }
 
-func (s *service) xrefMapping(queries []query.Query, xref *pbuf.Xref, inPages map[int]*mpPage, maxResults int) ([]*pbuf.Xref, map[int]*mpPage, error) {
+func (s *Service) xrefMapping(queries []query.Query, xref *pbuf.Xref, inPages map[int]*mpPage, maxResults int) ([]*pbuf.Xref, map[int]*mpPage, error) {
 
 	var err error
 
@@ -661,7 +664,7 @@ func (s *service) xrefMapping(queries []query.Query, xref *pbuf.Xref, inPages ma
 			} else {
 				mapDatasetID = queries[i-1].MapDatasetID
 			}
-			source, err := s.getLmdbResult2(inPages[i].sourceID, mapDatasetID)
+			source, err := s.LookupByDataset(inPages[i].sourceID, mapDatasetID)
 
 			if err != nil {
 				return nil, nil, err
@@ -865,7 +868,7 @@ finish:
 
 }
 
-func (s *service) getEntries(xref *pbuf.Xref, mapDatasetID uint32, mpage *mpPage) ([]*pbuf.XrefEntry, error) {
+func (s *Service) getEntries(xref *pbuf.Xref, mapDatasetID uint32, mpage *mpPage) ([]*pbuf.XrefEntry, error) {
 
 	if mpage == nil { // root page first time
 		return xref.Entries, nil
@@ -888,7 +891,7 @@ func (s *service) getEntries(xref *pbuf.Xref, mapDatasetID uint32, mpage *mpPage
 
 		page := xref.DatasetPages[mapDatasetID].Pages[mpage.page]
 		pageKey := xref.Identifier + spacestr + config.DataconfIDToPageKey[xref.Dataset] + spacestr + page
-		source, err := s.getLmdbResult2(pageKey, xref.Dataset)
+		source, err := s.LookupByDataset(pageKey, xref.Dataset)
 		if err != nil {
 			return nil, err
 		}
@@ -904,7 +907,7 @@ func (s *service) getEntries(xref *pbuf.Xref, mapDatasetID uint32, mpage *mpPage
 
 }
 
-func (s *service) moveNextPage(entryMap map[int][]*pbuf.XrefEntry, source *pbuf.Xref, inPages map[int]*mpPage, index int, MapDatasetID uint32) (bool, error) {
+func (s *Service) moveNextPage(entryMap map[int][]*pbuf.XrefEntry, source *pbuf.Xref, inPages map[int]*mpPage, index int, MapDatasetID uint32) (bool, error) {
 
 	var err error
 	if _, ok := source.DatasetPages[MapDatasetID]; ok && inPages[index].page+1 < len(source.DatasetPages[MapDatasetID].Pages) {
@@ -921,7 +924,7 @@ func (s *service) moveNextPage(entryMap map[int][]*pbuf.XrefEntry, source *pbuf.
 
 }
 
-func (s *service) moveEntries(sourceEntries map[int][]*pbuf.XrefEntry, source *pbuf.Xref, inPages map[int]*mpPage, qind int, MapDatasetID uint32, entryIndex int) {
+func (s *Service) moveEntries(sourceEntries map[int][]*pbuf.XrefEntry, source *pbuf.Xref, inPages map[int]*mpPage, qind int, MapDatasetID uint32, entryIndex int) {
 
 	if entryIndex+1 < len(sourceEntries[qind]) {
 		sourceEntries[qind] = sourceEntries[qind][entryIndex+1:]
@@ -938,7 +941,7 @@ func (s *service) moveEntries(sourceEntries map[int][]*pbuf.XrefEntry, source *p
 
 }
 
-func (s *service) applyFilter(entry *pbuf.XrefEntry, q *query.Query) (bool, *pbuf.Xref, error) {
+func (s *Service) applyFilter(entry *pbuf.XrefEntry, q *query.Query) (bool, *pbuf.Xref, error) {
 
 	// OPTIMIZATION: Check filter cache BEFORE doing expensive LMDB lookup
 	// This prevents repeated DB reads for entries we already know will fail the filter
@@ -953,7 +956,7 @@ func (s *service) applyFilter(entry *pbuf.XrefEntry, q *query.Query) (bool, *pbu
 		}
 	}
 
-	target, err := s.getLmdbResult2(entry.Identifier, entry.Dataset)
+	target, err := s.LookupByDataset(entry.Identifier, entry.Dataset)
 	if err != nil {
 		// Entry not found as primary entry in target dataset - skip it
 		// This can happen when xrefs point to identifiers that aren't indexed
@@ -973,7 +976,7 @@ func (s *service) applyFilter(entry *pbuf.XrefEntry, q *query.Query) (bool, *pbu
 
 }
 
-func (s *service) execCelGo(query *query.Query, targetXref *pbuf.Xref) (bool, error) {
+func (s *Service) execCelGo(query *query.Query, targetXref *pbuf.Xref) (bool, error) {
 
 	if targetXref.GetEmpty() {
 		//err := fmt.Errorf("Filtered entry has not indexed for filtering->" + targetXref.Identifier)
@@ -1153,6 +1156,8 @@ func (s *service) execCelGo(query *query.Query, targetXref *pbuf.Xref) (bool, er
 		out, _, err = query.Program.Eval(map[string]interface{}{"brenda_inhibitor": targetXref.GetBrendaInhibitor()})
 	case "cellphonedb":
 		out, _, err = query.Program.Eval(map[string]interface{}{"cellphonedb": targetXref.GetCellphonedb()})
+	case "spliceai":
+		out, _, err = query.Program.Eval(map[string]interface{}{"spliceai": targetXref.GetSpliceai()})
 	default:
 		//err := fmt.Errorf("mapfilter query execution failed please check again query")
 		return false, nil

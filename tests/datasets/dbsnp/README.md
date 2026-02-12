@@ -129,11 +129,10 @@ dbSNP is NCBI's authoritative database of genetic variation, providing comprehen
 ### Cross-References
 
 **Gene Associations**:
-- **NCBI Gene (EntrezGene)**: Via gene_ids field for direct gene lookup
-- **Ensembl Genes**: Via gene symbol lookup using addXrefViaGeneSymbol()
-  - Handles paralogs by creating xrefs to all matching Ensembl genes
-  - Uses chromosome information for context
-  - Example: "BRCA1" search -> Ensembl gene -> "BRCA1 >> dbsnp" -> all SNPs
+- **HGNC**: Via gene symbol lookup (official human gene symbols only, ~45% coverage)
+- **NCBI Gene (Entrez)**: Via gene symbol lookup (comprehensive, ~78% coverage, includes LOC identifiers)
+- **Ensembl**: Via gene symbol lookup (human genome only, ~45% coverage)
+- See "Gene Symbol to Human Gene Database Mapping" section for details on coverage differences
 
 **Clinical Database Links**:
 - **ClinVar**: Via clinvar_variation_id for variants with clinical annotations
@@ -157,6 +156,44 @@ dbSNP is NCBI's authoritative database of genetic variation, providing comprehen
 - rs IDs indexed as keywords (direct lookup: "rs7903146")
 - Gene symbols indexed (symbol search: "TCF7L2" finds associated SNPs)
 
+### Gene Symbol to Human Gene Database Mapping
+
+dbSNP gene symbols (from GENEINFO and PSEUDOGENEINFO fields) are cross-referenced to **three** human gene databases using `addHumanGeneXrefsAll()`:
+
+| Database | Coverage | Description |
+|----------|----------|-------------|
+| **HGNC** | ~45% | Official human gene nomenclature (~43K genes). Only approved symbols. |
+| **Entrez** | ~78% | Comprehensive NCBI Gene database (~60K+ human genes). Includes LOC identifiers, predicted genes, pseudogenes. |
+| **Ensembl** | ~45% | Human genes with genomic coordinates. Similar coverage to HGNC. |
+
+**Why the coverage differs:**
+
+- **LOC identifiers** (e.g., LOC123456789): These are NCBI locus identifiers for predicted/uncharacterized genes. They exist **only in Entrez**, not in HGNC or Ensembl.
+- **Predicted genes**: NCBI predicts genes that Ensembl may not annotate. These are in Entrez only.
+- **Discontinued genes**: Some gene symbols are retired by NCBI. These won't map to any database.
+
+**Query paths for different gene types:**
+
+```
+# Official genes (BRCA1, TP53, etc.) - all paths work:
+BRCA1 >> hgnc >> dbsnp     ✓
+BRCA1 >> entrez >> dbsnp   ✓
+BRCA1 >> ensembl >> dbsnp  ✓
+
+# LOC identifiers - only Entrez path works:
+LOC123456 >> entrez >> dbsnp   ✓
+LOC123456 >> hgnc >> dbsnp     ✗ (not in HGNC)
+LOC123456 >> ensembl >> dbsnp  ✗ (not in Ensembl)
+
+# LOC to Ensembl (indirect, if Entrez has the xref):
+LOC123456 >> entrez >> ensembl  (works if Entrez has Ensembl xref for this gene)
+```
+
+**Recommendation for MCP queries:**
+- For **official gene analysis**: Use any path (HGNC preferred for nomenclature)
+- For **comprehensive variant analysis**: Use Entrez path (highest coverage)
+- For **genomic context** (coordinates, transcripts): Use Ensembl path
+
 ### Special Features
 
 **HGVS Nomenclature Support**:
@@ -175,14 +212,15 @@ dbSNP is NCBI's authoritative database of genetic variation, providing comprehen
 - Case-insensitive matching for population names
 - Stores both global gnomAD frequency and detailed population breakdowns
 
-**Gene Symbol to Ensembl Mapping**:
-- Gene symbols from GENEINFO and PSEUDOGENEINFO fields create bidirectional links
-- Uses `addXrefViaGeneSymbol()` for paralog-aware mapping
-- Creates xrefs to ALL matching Ensembl genes (deterministic principle)
+**Gene Symbol to Human Gene Database Mapping**:
+- Gene symbols from GENEINFO and PSEUDOGENEINFO fields create xrefs to HGNC, Entrez, and Ensembl
+- Uses `addHumanGeneXrefsAll()` which iterates through ALL entries to find human-specific genes
+- Entrez uses taxonomy 9606 filter, Ensembl uses genome="homo_sapiens" filter
+- See "Gene Symbol to Human Gene Database Mapping" section above for coverage details
 - Example workflow:
-  1. Search "DDX11L16" -> finds Ensembl gene(s)
+  1. Search "DDX11L16" -> finds HGNC, Entrez, and/or Ensembl entries
   2. Query "DDX11L16 >> dbsnp" -> returns all SNPs in that gene
-  3. For paralogs, returns SNPs from all chromosome copies
+  3. For LOC identifiers, only Entrez path works (LOC genes not in HGNC/Ensembl)
 
 **Comprehensive Functional Annotation**:
 - 11 functional impact flags enable precise filtering

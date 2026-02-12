@@ -1,7 +1,6 @@
 package update
 
 import (
-	"biobtree/db"
 	"biobtree/pbuf"
 	"encoding/json"
 	"fmt"
@@ -14,7 +13,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/golang/protobuf/proto"
 	"github.com/pquerna/ffjson/ffjson"
 )
 
@@ -22,9 +20,6 @@ type clinicalTrials struct {
 	source             string
 	d                  *DataUpdate
 	dataPath           string
-	lookupEnv          db.Env
-	lookupDbi          db.DBI
-	hasLookupDB        bool
 	medicalTermMappings *MedicalTermMappings
 	loggedMappings     map[string]bool  // Track logged conditions to avoid duplicates
 	loggedMisses       map[string]bool  // Track logged misses to avoid duplicates
@@ -52,10 +47,6 @@ func (ct *clinicalTrials) update() {
 	// Load medical term mappings configuration
 	ct.loadMedicalTermMappings()
 
-	// Initialize lookup database for ChEMBL mapping (if configured)
-	ct.initLookupDB()
-	defer ct.closeLookupDB()
-
 	// Process clinical trials (raw format has no duplicates)
 	totalTrials, err := ct.processTrials()
 	if err != nil {
@@ -64,50 +55,6 @@ func (ct *clinicalTrials) update() {
 	fmt.Printf("Completed processing clinical trials: %d trials\n", totalTrials)
 
 	ct.d.progChan <- &progressInfo{dataset: ct.source, done: true}
-}
-
-// Initialize read-only lookup database for ChEMBL mapping
-func (ct *clinicalTrials) initLookupDB() {
-	lookupDbDir, ok := config.Appconf["lookupDbDir"]
-	if !ok {
-		fmt.Println("Warning: lookupDbDir not configured, ChEMBL mapping disabled")
-		ct.hasLookupDB = false
-		return
-	}
-
-	// Check if meta file exists
-	metaFile := filepath.FromSlash(lookupDbDir + "/db.meta.json")
-	meta := make(map[string]interface{})
-	f, err := ioutil.ReadFile(metaFile)
-	if err != nil {
-		fmt.Printf("Warning: Cannot read lookup database meta file: %v, ChEMBL mapping disabled\n", err)
-		ct.hasLookupDB = false
-		return
-	}
-
-	if err := json.Unmarshal(f, &meta); err != nil {
-		fmt.Printf("Warning: Cannot parse lookup database meta: %v, ChEMBL mapping disabled\n", err)
-		ct.hasLookupDB = false
-		return
-	}
-
-	totalkvline := int64(meta["totalKVLine"].(float64))
-
-	// Open lookup database (read-only)
-	db1 := db.DB{}
-	lookupConf := make(map[string]string)
-	lookupConf["dbDir"] = lookupDbDir
-	lookupConf["dbBackend"] = "lmdb"
-	ct.lookupEnv, ct.lookupDbi = db1.OpenDBNew(false, totalkvline, lookupConf)
-	ct.hasLookupDB = true
-	log.Printf("Clinical Trials: Lookup database initialized for ChEMBL/MONDO/EFO mapping")
-}
-
-// Close lookup database
-func (ct *clinicalTrials) closeLookupDB() {
-	if ct.hasLookupDB {
-		ct.lookupEnv.Close()
-	}
 }
 
 // ensureDataFilesExist checks if the required clinical trials data files exist and are up-to-date.
@@ -227,40 +174,9 @@ func (ct *clinicalTrials) loadMedicalTermMappings() {
 	ct.medicalTermMappings = LoadMedicalTermMappings()
 }
 
-// Lookup identifier in biobtree database and return results
-func (ct *clinicalTrials) lookup(identifier string) (*pbuf.Result, error) {
-	if !ct.hasLookupDB {
-		return nil, fmt.Errorf("lookup database not available")
-	}
-
-	// Lookup is case-insensitive (convert to uppercase like service does)
-	identifier = strings.ToUpper(identifier)
-
-	var v []byte
-	err := ct.lookupEnv.View(func(txn db.Txn) (err error) {
-		v, err = txn.Get(ct.lookupDbi, []byte(identifier))
-		if db.IsNotFound(err) {
-			return nil
-		}
-		return err
-	})
-
-	if err != nil {
-		return nil, err
-	}
-
-	if len(v) == 0 {
-		return nil, nil
-	}
-
-	r := pbuf.Result{}
-	err = proto.Unmarshal(v, &r)
-	return &r, err
-}
-
 // Map intervention name to ChEMBL molecules (multi-attempt with splitting)
 func (ct *clinicalTrials) mapInterventionToChEMBL(nctID string, interventionName string, chemblDatasetID uint32, fr string) {
-	if !ct.hasLookupDB {
+	if ct.d.lookupService == nil {
 		return
 	}
 
@@ -318,7 +234,7 @@ func (ct *clinicalTrials) mapInterventionToChEMBL(nctID string, interventionName
 
 // Lookup name and collect ChEMBL IDs into the map
 func (ct *clinicalTrials) lookupAndCollectChEMBL(name string, chemblDatasetID uint32, chemblIDs map[string]bool) {
-	result, err := ct.lookup(name)
+	result, err := ct.d.lookup(name)
 	if err != nil || result == nil || len(result.Results) == 0 {
 		return
 	}
@@ -346,7 +262,7 @@ func (ct *clinicalTrials) createChEMBLXrefs(nctID string, fr string, chemblIDs m
 
 // Map clinical trial condition to MONDO disease ontology
 func (ct *clinicalTrials) mapConditionToMONDO(nctID string, condition string, mondoDatasetID uint32, fr string) {
-	if !ct.hasLookupDB {
+	if ct.d.lookupService == nil {
 		return
 	}
 
@@ -509,7 +425,7 @@ func (ct *clinicalTrials) mapConditionToMONDO(nctID string, condition string, mo
 
 // Lookup condition name and collect MONDO IDs into the map
 func (ct *clinicalTrials) lookupAndCollectMONDO(condition string, mondoDatasetID uint32, mondoIDs map[string]bool) {
-	result, err := ct.lookup(condition)
+	result, err := ct.d.lookup(condition)
 	if err != nil || result == nil || len(result.Results) == 0 {
 		return
 	}
@@ -538,7 +454,7 @@ func (ct *clinicalTrials) createMONDOXrefs(nctID string, fr string, mondoIDs map
 // Map condition to EFO disease ontology (parallel to MONDO)
 // Uses the same multi-attempt mapping strategies
 func (ct *clinicalTrials) mapConditionToEFO(nctID string, condition string, efoDatasetID uint32, fr string) {
-	if !ct.hasLookupDB {
+	if ct.d.lookupService == nil {
 		return
 	}
 
@@ -602,7 +518,7 @@ func (ct *clinicalTrials) mapConditionToEFO(nctID string, condition string, efoD
 
 // Lookup condition and collect EFO IDs into the map
 func (ct *clinicalTrials) lookupAndCollectEFO(condition string, efoDatasetID uint32, efoIDs map[string]bool) {
-	result, err := ct.lookup(condition)
+	result, err := ct.d.lookup(condition)
 	if err != nil || result == nil || len(result.Results) == 0 {
 		return
 	}

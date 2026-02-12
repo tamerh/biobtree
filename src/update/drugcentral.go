@@ -486,7 +486,7 @@ func (dc *drugcentral) createCrossReferences(structID string, attr *pbuf.Drugcen
 
 	// Cross-reference to chemical databases via InChI Key lookup
 	// This enables mapping chains like: >>chembl_molecule>>drugcentral and >>pubchem>>drugcentral
-	if attr.InchiKey != "" && dc.d.hasLookupDB {
+	if attr.InchiKey != "" && dc.d.lookupService != nil {
 		dc.createChemicalDatabaseXrefs(structID, attr.InchiKey, sourceID)
 	}
 

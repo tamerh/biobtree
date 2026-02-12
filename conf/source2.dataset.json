@@ -336,19 +336,5 @@
     "linkdataset": "bao",
     "hasFilter": "yes",
     "attrs": "type,name,[]synonyms"
-  },
-  "orphanet": {
-    "aliases": "Orphanet,Orphadata,ORPHA,rare disease",
-    "id": "218",
-    "name": "Orphanet",
-    "url": "https://www.orpha.net/consor/cgi-bin/OC_Exp.php?Lng=GB&Expert=£{id}",
-    "path_product1": "https://www.orphadata.com/data/xml/en_product1.xml",
-    "path_product4": "https://www.orphadata.com/data/xml/en_product4.xml",
-    "path_product6": "https://www.orphadata.com/data/xml/en_product6.xml",
-    "useLocalFile": "no",
-    "hasFilter": "yes",
-    "attrs": "name,[]synonyms,definition,disorder_type,[]phenotypes",
-    "test_entries_count": "100",
-    "bucketMethod": "numeric"
   }
 }

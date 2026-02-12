@@ -1018,7 +1018,7 @@
     "bucketMethod": "numeric"
   },
   "brenda": {
-    "id": "747",
+    "id": "118",
     "name": "BRENDA",
     "aliases": "BRENDA,EC number,enzyme,enzyme classification,enzyme commission",
     "url": "https://www.brenda-enzymes.org/enzyme.php?ecno=£{id}",
@@ -1031,7 +1031,7 @@
     "childDatasets": "brenda_kinetics,brenda_inhibitor"
   },
   "brenda_kinetics": {
-    "id": "748",
+    "id": "119",
     "name": "BRENDA Kinetics",
     "aliases": "BRENDA kinetics,enzyme kinetics,Km,kcat,Michaelis constant,turnover number,catalytic constant",
     "url": "https://www.brenda-enzymes.org/enzyme.php?ecno=£{id}",
@@ -1043,7 +1043,7 @@
     "bucketMethod": "alphabetic"
   },
   "brenda_inhibitor": {
-    "id": "749",
+    "id": "120",
     "name": "BRENDA Inhibitors",
     "aliases": "BRENDA inhibitor,enzyme inhibitor,Ki,IC50,inhibition,enzyme inhibition",
     "url": "https://www.brenda-enzymes.org/enzyme.php?ecno=£{id}",
@@ -1055,7 +1055,7 @@
     "bucketMethod": "alphabetic"
   },
   "cellphonedb": {
-    "id": "751",
+    "id": "121",
     "name": "CellPhoneDB",
     "aliases": "CellPhoneDB,cell-cell communication,ligand receptor,cell communication,secreted protein,receptor ligand,cell-cell interaction",
     "url": "https://www.cellphonedb.org/",
@@ -1067,7 +1067,7 @@
     "bucketMethod": "alphabetic"
   },
   "pdb": {
-    "id": "221",
+    "id": "122",
     "name": "Protein Data Bank",
     "aliases": "PDB,protein structure,3D structure,crystal structure,X-ray,NMR,cryo-EM,electron microscopy",
     "url": "https://www.rcsb.org/structure/£{id}",
@@ -1078,5 +1078,33 @@
     "attrs": "title,header,resolution,method,molecule_type,release_date,source_organism,[]authors,chain_count",
     "test_entries_count": "500",
     "bucketMethod": "alphanum"
+  },
+  "orphanet": {
+    "aliases": "Orphadata,ORPHA,rare disease",
+    "id": "123",
+    "name": "Orphanet",
+    "url": "https://www.orpha.net/consor/cgi-bin/OC_Exp.php?Lng=GB&Expert=£{id}",
+    "path_product1": "https://www.orphadata.com/data/xml/en_product1.xml",
+    "path_product4": "https://www.orphadata.com/data/xml/en_product4.xml",
+    "path_product6": "https://www.orphadata.com/data/xml/en_product6.xml",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "name,[]synonyms,definition,disorder_type,[]phenotypes",
+    "test_entries_count": "100",
+    "bucketMethod": "numeric"
+  },
+  "spliceai": {
+    "id": "752",
+    "name": "SpliceAI",
+    "aliases": "SpliceAI,splice prediction,splicing variant,splice site,delta score,splice donor,splice acceptor",
+    "url": "https://spliceailookup.broadinstitute.org/?variant=£{id}",
+    "path": "raw_data/spliceai/spliceai_filtered.tsv",
+    "useLocalFile": "yes",
+    "hasFilter": "yes",
+    "attrs": "chromosome,position,ref_allele,alt_allele,effect,score,gene_symbol,allele_info",
+    "test_entries_count": "10000",
+    "bucketMethod": "alphanum",
+    "geneGFF3": "https://ftp.ensembl.org/pub/current_gff3/homo_sapiens/Homo_sapiens.GRCh38.115.chr.gff3.gz"
   }
+
 }

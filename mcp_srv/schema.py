@@ -28,7 +28,7 @@ SCHEMA_EDGES = {
     "drugcentral": ["chembl_molecule", "uniprot"],
     "swisslipids": ["uniprot", "go", "chebi", "uberon"],
     "lipidmaps": ["chebi", "pubchem"],
-    "dbsnp": ["hgnc", "clinvar", "pharmgkb_variant"],
+    "dbsnp": ["hgnc", "clinvar", "pharmgkb_variant", "alphamissense", "spliceai"],
     "clinvar": ["hgnc", "mondo", "hpo", "dbsnp", "orphanet"],
     "alphamissense": ["uniprot", "transcript"],
     "gwas": ["gwas_study", "efo", "dbsnp", "hgnc"],
@@ -70,6 +70,7 @@ SCHEMA_EDGES = {
     "collectri": ["hgnc"],
     "esm2_similarity": ["uniprot"],
     "cellphonedb": ["uniprot", "ensembl", "hgnc", "pubmed"],
+    "spliceai": ["hgnc"],
     "pdb": ["uniprot", "go", "interpro", "pfam", "taxonomy", "pubmed"]
 }
 
@@ -118,6 +119,7 @@ SCHEMA_FILTERS = {
     "dbsnp": {"allele_frequency": "float", "clinical_significance": "str", "is_common": "bool"},
     "clinvar": {"germline_classification": "str (Pathogenic|Benign)", "review_status": "str"},
     "alphamissense": {"am_class": "str (likely_pathogenic|ambiguous|likely_benign)", "am_pathogenicity": "float 0-1"},
+    "spliceai": {"score": "float 0-1 (delta score, higher=more splice impact)", "effect": "str (acceptor_loss|acceptor_gain|donor_loss|donor_gain)"},
     "gwas": {"p_value": "float", "pvalue_mlog": "float"},
     "gencc": {"classification_title": "str (Definitive|Strong|Moderate|Limited)", "moi_title": "str"},
     "pharmgkb_clinical": {"level_of_evidence": "str (1A|1B|2A|2B|3|4)"},
@@ -165,6 +167,7 @@ SCHEMA_EXAMPLES = {
     "collectri": "MYC:TERT (MYC regulates TERT)",
     "esm2_similarity": "P04637 (TP53 UniProt ID)",
     "cellphonedb": "CPI-SC0A2DB962D (ligand-receptor interaction)",
+    "spliceai": "1:803428:TCCAT:T (chr:pos:ref:alt variant ID)",
     "pdb": "4HHB (Hemoglobin structure)"
 }
 

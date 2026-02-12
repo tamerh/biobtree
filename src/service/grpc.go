@@ -7,7 +7,6 @@ import (
 	"log"
 	"net"
 	"path/filepath"
-	"strings"
 
 	"biobtree/pbuf"
 	"biobtree/query"
@@ -16,7 +15,7 @@ import (
 )
 
 type biobtreegrpc struct {
-	service service
+	service *Service
 }
 
 func (g *biobtreegrpc) Start(prodMode bool) {
@@ -94,7 +93,7 @@ func (g *biobtreegrpc) Search(ctx context.Context, in *pbuf.SearchRequest) (*pbu
 	}
 
 	// Full mode (default)
-	res, err := g.service.search(in.Terms, src, in.Page, filterq, in.Detail, in.Url)
+	res, err := g.service.Search(in.Terms, src, in.Page, filterq, in.Detail, in.Url)
 
 	if err != nil {
 		return nil, err
@@ -119,7 +118,7 @@ func (g *biobtreegrpc) Mapping(ctx context.Context, in *pbuf.MappingRequest) (*p
 
 	// Check mode - lite or full (default)
 	if in.Mode == "lite" {
-		res, err := g.service.mapFilterLite(in.Terms, in.Query, in.Page)
+		res, err := g.service.MapFilterLite(in.Terms, in.Query, in.Page)
 		if err != nil {
 			return nil, err
 		}
@@ -128,7 +127,7 @@ func (g *biobtreegrpc) Mapping(ctx context.Context, in *pbuf.MappingRequest) (*p
 	}
 
 	// Full mode (default)
-	res, err := g.service.mapFilter(in.Terms, in.Query, in.Page)
+	res, err := g.service.MapFilter(in.Terms, in.Query, in.Page)
 	if err != nil {
 		return nil, err
 	}
@@ -158,7 +157,7 @@ func (g *biobtreegrpc) Entry(ctx context.Context, in *pbuf.EntryRequest) (*pbuf.
 			return nil, fmt.Errorf("Invalid dataset")
 		}
 	}
-	res, err := g.service.getLmdbResult2(strings.ToUpper(in.Identifier), src)
+	res, err := g.service.LookupByDataset(in.Identifier, src)
 	if err != nil {
 		return nil, err
 	}

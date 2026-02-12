@@ -235,10 +235,10 @@ func (g *gencc) update() {
 			g.d.addXref(classificationTitle, textLinkID, uuid, g.source, true)
 		}
 
-		// Cross-reference to HGNC and Ensembl via gene symbol lookup
-		// addHumanGeneXrefs creates xref to HGNC (Ensembl via HGNC→Ensembl)
+		// Cross-reference to human gene databases via gene symbol lookup
+		// addHumanGeneXrefsAll creates xrefs to HGNC, Entrez, and Ensembl
 		if geneSymbol != "" {
-			g.d.addHumanGeneXrefs(geneSymbol, uuid, sourceID)
+			g.d.addHumanGeneXrefsAll(geneSymbol, uuid, sourceID)
 		}
 
 		// Direct cross-reference to HGNC (gene_curie field contains "HGNC:1100" format)

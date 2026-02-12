@@ -392,8 +392,9 @@ func (o *orphanet) parseProduct6(entries map[string]*orphaEntry) int {
 
 					// Only use gene symbol lookup if no explicit HGNC reference was found
 					// This avoids duplicate xrefs (one with evidence, one without)
+					// addHumanGeneXrefsAll creates xrefs to HGNC, Entrez, and Ensembl
 					if geneSymbol != "" && !hasExplicitHGNC {
-						o.d.addHumanGeneXrefs(geneSymbol, orphaCode, sourceID)
+						o.d.addHumanGeneXrefsAll(geneSymbol, orphaCode, sourceID)
 					}
 
 					entry.geneCount++

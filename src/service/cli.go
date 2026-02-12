@@ -9,7 +9,7 @@ import (
 
 // CLI handles command-line query interface
 type CLI struct {
-	service service
+	service *Service
 }
 
 // Query executes a query from CLI and returns pretty-printed JSON
@@ -19,9 +19,9 @@ func (cli *CLI) Query(conf *configs.Conf, queryStr string, datasetFilter string,
 	config = conf
 
 	// Initialize service
-	cli.service = service{}
+	cli.service = &Service{}
 	cli.service.init()
-	defer cli.service.readEnv.Close()
+	defer cli.service.Close()
 
 	// Parse dataset filter (optional)
 	var datasetID uint32
@@ -56,10 +56,10 @@ func (cli *CLI) Query(conf *configs.Conf, queryStr string, datasetFilter string,
 		}
 
 		if mode == "lite" {
-			result, err = cli.service.mapFilterLite(ids, mappingQuery, "")
+			result, err = cli.service.MapFilterLite(ids, mappingQuery, "")
 		} else {
 			// Full mode - get result and enrich with query echo and stats
-			res, e := cli.service.mapFilter(ids, mappingQuery, "")
+			res, e := cli.service.MapFilter(ids, mappingQuery, "")
 			if e == nil {
 				rawQuery := idsStr + " >>" + mappingQuery
 				EnrichMapFilterResultFull(res, ids, mappingQuery, rawQuery)
@@ -77,7 +77,7 @@ func (cli *CLI) Query(conf *configs.Conf, queryStr string, datasetFilter string,
 			result, err = cli.service.searchLite(ids, datasetID, "", datasetFilter)
 		} else {
 			// Full mode - get result and enrich with query echo and stats
-			res, e := cli.service.search(ids, datasetID, "", nil, true, false)
+			res, e := cli.service.Search(ids, datasetID, "", nil, true, false)
 			if e == nil {
 				rawQuery := queryStr
 				if datasetFilter != "" {

@@ -1,6 +1,7 @@
 package service
 
 import (
+	"biobtree/configs"
 	"biobtree/query"
 	"encoding/json"
 	"fmt"
@@ -37,7 +38,9 @@ type federationDB struct {
 	meta map[string]interface{}
 }
 
-type service struct {
+// Service provides database lookup and query functionality.
+// Can be used by both web/CLI (with outDir) and update package (with lookupDbDir).
+type Service struct {
 	// Federation support: maps federation name to its database
 	federations              map[string]*federationDB
 	datasetFederation        map[uint32]string // cached: datasetID -> federation name
@@ -59,22 +62,44 @@ type service struct {
 	celProgOpts              cel.ProgramOption
 }
 
-func (s *service) init() {
+// NewService creates a new Service instance with a configurable database directory.
+// dbDir: Base directory containing federation databases (e.g., outDir or lookupDbDir)
+// conf: Global configuration
+func NewService(dbDir string, conf *configs.Conf) (*Service, error) {
+	config = conf // Set package-level config
+	s := &Service{}
+	if err := s.initWithDbDir(dbDir); err != nil {
+		return nil, err
+	}
+	return s, nil
+}
 
+// IsAvailable returns true if the service has a valid database connection
+func (s *Service) IsAvailable() bool {
+	return s.federations != nil && len(s.federations) > 0
+}
+
+// init initializes the service using outDir from config (backward compatibility)
+func (s *Service) init() {
+	outDir := config.Appconf["outDir"]
+	s.initWithDbDir(outDir)
+}
+
+// initWithDbDir initializes the service with a configurable database directory
+func (s *Service) initWithDbDir(dbDir string) error {
 	// Initialize federation support
 	s.federations = make(map[string]*federationDB)
 	s.datasetFederation = config.DatasetFederation
 
-	// Load all federations
-	outDir := config.Appconf["outDir"]
-	s.loadFederations(outDir)
+	// Load all federations from the specified directory
+	s.loadFederations(dbDir)
 
 	// Set legacy fields to main federation for backward compatibility
 	if mainFed, ok := s.federations["main"]; ok {
 		s.readEnv = mainFed.env
 		s.readDbi = mainFed.dbi
 	} else {
-		log.Fatalln("Main federation not found. Please make sure generate command completed successfully.")
+		return fmt.Errorf("main federation not found in %s - please make sure database was generated successfully", dbDir)
 	}
 
 	s.pager = &util.Pagekey{}
@@ -214,6 +239,7 @@ func (s *service) init() {
 		cel.Types(&pbuf.BrendaInhibitorAttr{}),
 		cel.Types(&pbuf.InhibitionMeasurement{}),
 		cel.Types(&pbuf.CellphonedbAttr{}),
+		cel.Types(&pbuf.SpliceAIAttr{}),
 		cel.Declarations(
 			decls.NewIdent("uniprot", decls.NewObjectType("pbuf.UniprotAttr"), nil)),
 		cel.Declarations(
@@ -361,6 +387,8 @@ func (s *service) init() {
 		cel.Declarations(
 			decls.NewIdent("cellphonedb", decls.NewObjectType("pbuf.CellphonedbAttr"), nil)),
 		cel.Declarations(
+			decls.NewIdent("spliceai", decls.NewObjectType("pbuf.SpliceAIAttr"), nil)),
+		cel.Declarations(
 			decls.NewFunction("overlaps",
 				decls.NewOverload("overlaps_int_int",
 					[]*exprpb.Type{decls.Int, decls.Int},
@@ -462,10 +490,11 @@ func (s *service) init() {
 		}
 	}
 
+	return nil
 }
 
 // loadFederations loads all federations that have database files
-func (s *service) loadFederations(outDir string) {
+func (s *Service) loadFederations(outDir string) {
 	// Always try to load main federation first
 	mainDir := filepath.Join(outDir, "main")
 	if err := s.loadFederation("main", mainDir); err != nil {
@@ -491,7 +520,7 @@ func (s *service) loadFederations(outDir string) {
 }
 
 // loadFederation loads a single federation from its directory
-func (s *service) loadFederation(name, dir string) error {
+func (s *Service) loadFederation(name, dir string) error {
 	// Check if db.meta.json exists
 	metaPath := filepath.Join(dir, "db", "db.meta.json")
 	metaData, err := ioutil.ReadFile(metaPath)
@@ -527,7 +556,7 @@ func (s *service) loadFederation(name, dir string) error {
 }
 
 // loadFederationLegacy loads from the legacy flat directory structure (pre-federation)
-func (s *service) loadFederationLegacy(name, outDir string) error {
+func (s *Service) loadFederationLegacy(name, outDir string) error {
 	metaPath := filepath.Join(outDir, "db", "db.meta.json")
 	metaData, err := ioutil.ReadFile(metaPath)
 	if err != nil {
@@ -555,7 +584,7 @@ func (s *service) loadFederationLegacy(name, outDir string) error {
 }
 
 // getFederationNames returns the names of all loaded federations
-func (s *service) getFederationNames() []string {
+func (s *Service) getFederationNames() []string {
 	names := make([]string, 0, len(s.federations))
 	for name := range s.federations {
 		names = append(names, name)
@@ -564,7 +593,7 @@ func (s *service) getFederationNames() []string {
 }
 
 // getDBForDataset returns the database connection for a specific dataset ID
-func (s *service) getDBForDataset(datasetID uint32) (db.Env, db.DBI) {
+func (s *Service) getDBForDataset(datasetID uint32) (db.Env, db.DBI) {
 	if s.datasetFederation != nil {
 		if fed, ok := s.datasetFederation[datasetID]; ok {
 			if fedDB, exists := s.federations[fed]; exists {
@@ -588,7 +617,7 @@ func (s *service) getDBForDataset(datasetID uint32) (db.Env, db.DBI) {
 // which tries all federations. This is slower but handles all cases correctly.
 // To enable: change getLmdbResult() to call searchAllFederations() instead of
 // using getDBForIdentifier() directly.
-func (s *service) getDBForIdentifier(identifier string) (db.Env, db.DBI) {
+func (s *Service) getDBForIdentifier(identifier string) (db.Env, db.DBI) {
 	// Check if identifier looks like an rsID (dbSNP variant)
 	// Add new federation ID patterns here as needed (e.g., "CHEMBL" prefix for chembl federation)
 	if isRsID(identifier) {
@@ -620,7 +649,7 @@ func isRsID(id string) bool {
 // Performance note: This is slower than getDBForIdentifier() as it may query
 // multiple LMDBs. For high-volume queries with known ID patterns, use
 // getDBForIdentifier() directly.
-func (s *service) searchAllFederations(identifier string) (*pbuf.Result, error) {
+func (s *Service) searchAllFederations(identifier string) (*pbuf.Result, error) {
 	// First try the likely federation based on identifier pattern
 	env, dbi := s.getDBForIdentifier(identifier)
 	result, err := s.getLmdbResultFrom(identifier, env, dbi)
@@ -644,7 +673,7 @@ func (s *service) searchAllFederations(identifier string) (*pbuf.Result, error) 
 }
 
 // getLmdbResultFrom retrieves a result from a specific database
-func (s *service) getLmdbResultFrom(identifier string, env db.Env, dbi db.DBI) (*pbuf.Result, error) {
+func (s *Service) getLmdbResultFrom(identifier string, env db.Env, dbi db.DBI) (*pbuf.Result, error) {
 	var v []byte
 	err := env.View(func(txn db.Txn) (err error) {
 		v, err = txn.Get(dbi, []byte(identifier))
@@ -667,11 +696,11 @@ func (s *service) getLmdbResultFrom(identifier string, env db.Env, dbi db.DBI) (
 	return &r, nil
 }
 
-func (s *service) aliasIDs(alias string) ([]string, error) {
+func (s *Service) aliasIDs(alias string) ([]string, error) {
 	return s.aliasStore.GetIDs(alias)
 }
 
-func (s *service) meta() *pbuf.MetaResponse {
+func (s *Service) meta() *pbuf.MetaResponse {
 
 	meta := pbuf.MetaResponse{}
 	results := map[string]*pbuf.MetaKeyValue{}
@@ -710,7 +739,7 @@ func (s *service) meta() *pbuf.MetaResponse {
 
 }
 
-func (s *service) metajson() string {
+func (s *Service) metajson() string {
 
 	var b strings.Builder
 	b.WriteString(`{ "datasets":{`)
@@ -796,7 +825,7 @@ type searchPageInfo struct {
 	linkIndexProcessed   bool
 }
 
-func (s *service) searchPageInfo(page string) (*searchPageInfo, error) {
+func (s *Service) searchPageInfo(page string) (*searchPageInfo, error) {
 
 	pageVals := strings.Split(page, pagingSep2)
 
@@ -851,14 +880,14 @@ func (s *service) searchPageInfo(page string) (*searchPageInfo, error) {
 }
 
 
-func (s *service) makeLite(xref *pbuf.Xref) {
+func (s *Service) makeLite(xref *pbuf.Xref) {
 	xref.Entries = nil
 	xref.DatasetPages = nil
 	xref.Pages = nil
 	xref.DatasetCounts = nil
 }
 
-func (s *service) makeLiteAll(res *pbuf.Result) {
+func (s *Service) makeLiteAll(res *pbuf.Result) {
 
 	for _, xref := range res.Results {
 		s.makeLite(xref)
@@ -867,7 +896,8 @@ func (s *service) makeLiteAll(res *pbuf.Result) {
 }
 
 
-func (s *service) search(ids []string, idsDomain uint32, page string, q *query.Query, detail, buildURL bool) (*pbuf.Result, error) {
+// Search performs a search across datasets with optional filtering
+func (s *Service) Search(ids []string, idsDomain uint32, page string, q *query.Query, detail, buildURL bool) (*pbuf.Result, error) {
 
 	//todo remove duplicate parts
 	result := &pbuf.Result{}
@@ -900,7 +930,7 @@ func (s *service) search(ids []string, idsDomain uint32, page string, q *query.Q
 			continue
 		}
 
-		result, err := s.getLmdbResult(id)
+		result, err := s.Lookup(id)
 		if err != nil {
 			return nil, err
 		}
@@ -936,7 +966,7 @@ func (s *service) search(ids []string, idsDomain uint32, page string, q *query.Q
 								continue
 							}
 
-							xref2, err := s.getLmdbResult2(b.Identifier, b.Dataset)
+							xref2, err := s.LookupByDataset(b.Identifier, b.Dataset)
 
 							if err != nil {
 								return nil, err
@@ -994,7 +1024,7 @@ func (s *service) search(ids []string, idsDomain uint32, page string, q *query.Q
 
 						for pageIndex, page := range xref.Pages {
 							pageKey := id + spacestr + config.DataconfIDToPageKey[0] + spacestr + page
-							xrefPage, err := s.getLmdbResult2(pageKey, xref.Dataset)
+							xrefPage, err := s.LookupByDataset(pageKey, xref.Dataset)
 							if err != nil {
 								return nil, err
 							}
@@ -1012,7 +1042,7 @@ func (s *service) search(ids []string, idsDomain uint32, page string, q *query.Q
 									continue
 								}
 
-								xref2, err := s.getLmdbResult2(b.Identifier, b.Dataset)
+								xref2, err := s.LookupByDataset(b.Identifier, b.Dataset)
 
 								if err != nil {
 									return nil, err
@@ -1134,13 +1164,10 @@ func (s *service) search(ids []string, idsDomain uint32, page string, q *query.Q
 
 }
 
-func (s *service) getLmdbResult(identifier string) (*pbuf.Result, error) {
-	// TODO: Consider adding caching here for frequently accessed identifiers
-	// The update layer now uses ristretto cache (see update.go:lookup()) which provides
-	// significant performance benefits for repeated lookups. Similar caching could be
-	// beneficial for the web service layer if query patterns show high repetition.
-	// However, web queries have different access patterns (diverse, random) vs update
-	// operations (same identifiers repeated millions of times), so cache tuning would differ.
+// Lookup performs a case-insensitive lookup with federation routing
+func (s *Service) Lookup(identifier string) (*pbuf.Result, error) {
+	// LMDB keys are stored uppercase - normalize input
+	identifier = strings.ToUpper(identifier)
 
 	// Use federation routing based on identifier pattern
 	env, dbi := s.getDBForIdentifier(identifier)
@@ -1174,7 +1201,10 @@ func (s *service) getLmdbResult(identifier string) (*pbuf.Result, error) {
 
 }
 
-func (s *service) getLmdbResult2(identifier string, domainID uint32) (*pbuf.Xref, error) {
+// LookupByDataset retrieves a specific Xref entry for an identifier in a dataset
+func (s *Service) LookupByDataset(identifier string, domainID uint32) (*pbuf.Xref, error) {
+	// LMDB keys are stored uppercase - normalize input
+	identifier = strings.ToUpper(identifier)
 
 	// Use federation routing based on domain (dataset) ID
 	env, dbi := s.getDBForDataset(domainID)
@@ -1229,11 +1259,11 @@ func (s *service) getLmdbResult2(identifier string, domainID uint32) (*pbuf.Xref
 // searchLite performs a search and returns compact lite format response
 // Uses the main search function and converts the result to lite format
 // Returns only IDs, sorted by has_attr (entries with attributes first)
-func (s *service) searchLite(ids []string, idsDomain uint32, page string, datasetFilter string) (*pbuf.ResultLite, error) {
+func (s *Service) searchLite(ids []string, idsDomain uint32, page string, datasetFilter string) (*pbuf.ResultLite, error) {
 	// Use the main search function - this ensures consistent behavior
 	// detail=false triggers makeLiteAll which strips attributes
 	// buildURL=false since we don't need URLs in lite mode
-	fullResult, err := s.search(ids, idsDomain, page, nil, false, false)
+	fullResult, err := s.Search(ids, idsDomain, page, nil, false, false)
 	if err != nil {
 		return nil, err
 	}
@@ -1313,4 +1343,152 @@ func (s *service) searchLite(ids []string, idsDomain uint32, page string, datase
 	}
 
 	return result, nil
+}
+
+// =============================================================================
+// EXPORTED HELPER METHODS FOR UPDATE PACKAGE
+// =============================================================================
+
+// Close closes all database connections
+func (s *Service) Close() {
+	for _, fed := range s.federations {
+		if fed.env != nil {
+			fed.env.Close()
+		}
+	}
+}
+
+// LookupInDataset looks up identifier (keyword) and returns the entry from the specified dataset.
+// This searches through text link results (IsLink=true) and finds entries matching the dataset.
+// Handles both inline entries and paginated entries.
+func (s *Service) LookupInDataset(identifier string, datasetID uint32) (*pbuf.XrefEntry, error) {
+	result, err := s.Lookup(identifier)
+	if err != nil {
+		return nil, err
+	}
+	if result == nil || len(result.Results) == 0 {
+		return nil, nil
+	}
+
+	identifier = strings.ToUpper(identifier)
+
+	// Search through results - look in IsLink entries for the target dataset
+	for _, xref := range result.Results {
+		if xref.IsLink {
+			// Check inline entries first
+			for _, entry := range xref.Entries {
+				if entry.Dataset == datasetID {
+					return entry, nil
+				}
+			}
+
+			// Check paginated entries if not found inline
+			if len(xref.Pages) > 0 {
+				for _, page := range xref.Pages {
+					// Build page key: identifier + " " + pageKeyPart + " " + page
+					pageKey := identifier + " " + config.DataconfIDToPageKey[0] + " " + page
+					pageResult, err := s.LookupPage(pageKey, xref.Dataset)
+					if err != nil {
+						continue
+					}
+					if pageResult != nil {
+						for _, entry := range pageResult.Entries {
+							if entry.Dataset == datasetID {
+								return entry, nil
+							}
+						}
+					}
+				}
+			}
+		} else if xref.Dataset == datasetID {
+			// Direct match (non-link result)
+			return &pbuf.XrefEntry{
+				Dataset:    xref.Dataset,
+				Identifier: xref.Identifier,
+			}, nil
+		}
+	}
+
+	return nil, nil // No entry found for this dataset
+}
+
+// LookupFullEntry fetches the full Xref with attributes for a specific identifier in a dataset.
+// This is used when you need to access attributes (e.g., to filter by genome).
+func (s *Service) LookupFullEntry(identifier string, datasetID uint32) (*pbuf.Xref, error) {
+	// LMDB keys are stored uppercase - normalize input
+	identifier = strings.ToUpper(identifier)
+
+	env, dbi := s.getDBForDataset(datasetID)
+
+	var v []byte
+	err := env.View(func(txn db.Txn) (err error) {
+		v, err = txn.Get(dbi, []byte(identifier))
+		if db.IsNotFound(err) {
+			return nil
+		}
+		return err
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	if len(v) == 0 {
+		return nil, nil
+	}
+
+	// Unmarshal the result
+	result := &pbuf.Result{}
+	err = proto.Unmarshal(v, result)
+	if err != nil {
+		return nil, err
+	}
+
+	// Find the Xref matching the dataset
+	for _, xref := range result.Results {
+		if xref.Dataset == datasetID {
+			xref.Identifier = identifier
+			return xref, nil
+		}
+	}
+
+	return nil, nil
+}
+
+// LookupPage fetches a page of entries from the appropriate federation database.
+func (s *Service) LookupPage(pageKey string, datasetID uint32) (*pbuf.Xref, error) {
+	// LMDB keys are stored uppercase - normalize input
+	pageKey = strings.ToUpper(pageKey)
+
+	env, dbi := s.getDBForDataset(datasetID)
+
+	var v []byte
+	err := env.View(func(txn db.Txn) (err error) {
+		v, err = txn.Get(dbi, []byte(pageKey))
+		if db.IsNotFound(err) {
+			return nil
+		}
+		return err
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	if len(v) == 0 {
+		return nil, nil
+	}
+
+	xref := &pbuf.Xref{}
+	err = proto.Unmarshal(v, xref)
+	if err != nil {
+		return nil, err
+	}
+
+	return xref, nil
+}
+
+// GetDBForDataset returns the database connection for a specific dataset ID (exported version)
+func (s *Service) GetDBForDataset(datasetID uint32) (db.Env, db.DBI) {
+	return s.getDBForDataset(datasetID)
 }

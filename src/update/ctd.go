@@ -543,7 +543,7 @@ func (c *ctd) createCrossReferences(chemID string, entry *ctdChemicalEntry, sour
 					c.d.addXref(chemID, sourceID, efoMeshID, "efo", false)
 				}
 				// CTD → MONDO via MeSH lookup
-				if _, exists := config.Dataconf["mondo"]; exists && c.d.hasLookupDB {
+				if _, exists := config.Dataconf["mondo"]; exists && c.d.lookupService != nil {
 					c.createMondoXrefViaMesh(chemID, sourceID, normalizedDiseaseID)
 				}
 			}

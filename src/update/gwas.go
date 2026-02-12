@@ -365,12 +365,12 @@ func (g *gwas) createCrossReferences(associationID string, snpIDs []string, sour
 		g.d.addXref(associationID, sourceID, attr.StudyAccession, "gwas_study", false)
 	}
 
-	// Gene symbols → Association cross-reference via HGNC and Ensembl
-	// addHumanGeneXrefs creates xref to HGNC (Ensembl via HGNC→Ensembl)
-	// Search "BRCA1" returns HGNC/Ensembl entry, then "BRCA1 >> gwas" returns all associations
+	// Gene symbols → Association cross-reference via human gene databases
+	// addHumanGeneXrefsAll creates xrefs to HGNC, Entrez, and Ensembl
+	// Search "BRCA1" returns gene entries, then "BRCA1 >> gwas" returns all associations
 	for _, gene := range attr.ReportedGenes {
 		if gene != "" && len(gene) < 50 {
-			g.d.addHumanGeneXrefs(gene, associationID, sourceID)
+			g.d.addHumanGeneXrefsAll(gene, associationID, sourceID)
 		}
 	}
 

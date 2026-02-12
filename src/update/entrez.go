@@ -156,6 +156,7 @@ func (e *entrez) update() {
 			Type:       geneType,
 			Synonyms:   synonyms,
 			Chromosome: chromosome,
+			TaxId:      taxID,
 		}
 
 		// Add summary if available

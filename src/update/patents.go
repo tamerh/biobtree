@@ -368,7 +368,7 @@ func (p *patents) processCompounds() (int, error) {
 	defer file.Close()
 
 	// Check if lookup database is available for ChEMBL mapping
-	if !p.d.hasLookupDB {
+	if p.d.lookupService == nil {
 		fmt.Println("Warning: No lookup database available, patent_compound linkdataset disabled")
 		fmt.Println("         Patent compounds will not be linked to ChEMBL molecules")
 		return 0, nil

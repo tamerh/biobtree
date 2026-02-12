@@ -303,9 +303,9 @@ func (h *hpo) parseGeneToPhenotype(path string) {
 			continue
 		}
 
-		// Create cross-reference: HPO term → HGNC and Ensembl (human only)
-		// addHumanGeneXrefs creates xref to HGNC (Ensembl via HGNC→Ensembl)
-		h.d.addHumanGeneXrefs(geneSymbol, hpoID, hpoDatasetID)
+		// Create cross-reference: HPO term → human gene databases
+		// addHumanGeneXrefsAll creates xrefs to HGNC, Entrez, and Ensembl
+		h.d.addHumanGeneXrefsAll(geneSymbol, hpoID, hpoDatasetID)
 
 		associationCount++
 	}

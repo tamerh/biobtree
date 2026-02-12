@@ -170,6 +170,7 @@ message Xref {
     BrendaKineticsAttr brenda_kinetics=84;
     BrendaInhibitorAttr brenda_inhibitor=85;
     CellphonedbAttr cellphonedb=87;
+    SpliceAIAttr spliceai=88;
 
   }
 

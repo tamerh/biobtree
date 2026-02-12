@@ -454,7 +454,7 @@ func (m *msigdb) createReferences(systematicName, standardName, collectionName s
 	// This enables: BRCA1 >> hgnc >> msigdb to find gene sets containing BRCA1
 	// Requires lookup database to resolve gene symbols to proper HGNC IDs (e.g., BRCA1 → HGNC:1100)
 	// Without lookup, HGNC xrefs are skipped to avoid creating spurious entries
-	if _, ok := config.Dataconf["hgnc"]; ok && m.d.hasLookupDB {
+	if _, ok := config.Dataconf["hgnc"]; ok && m.d.lookupService != nil {
 		for _, symbol := range geneSymbols {
 			m.d.addXrefViaKeyword(symbol, "hgnc", systematicName, m.source, config.Dataconf[m.source]["id"], false)
 		}

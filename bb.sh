@@ -189,7 +189,7 @@ show_help() {
     echo "Options:"
     echo "  --check           Check for source changes without updating"
     echo "  --from <dataset>  Resume from specific dataset"
-    echo "  --only <dataset>  Run only specific dataset"
+    echo "  --only <datasets> Run specific dataset(s), comma-separated (e.g., uniprot,hgnc,go)"
     echo "  --generate        Run generate phase only (build database)"
     echo "  --federation <name>  With --generate: build specific federation (main, dbsnp)"
     echo "  --force           Force update even if unchanged"
@@ -852,17 +852,38 @@ if [[ "$WEB_SERVER" == "true" ]]; then
     exit 0
 fi
 
-# Single dataset mode
+# Selected datasets mode (supports comma-separated list)
 if [[ -n "$ONLY_DATASET" ]]; then
-    if run_dataset "$ONLY_DATASET"; then
+    # Split by comma into array
+    IFS=',' read -ra SELECTED_DATASETS <<< "$ONLY_DATASET"
+
+    FAILED_SELECTED=()
+    COMPLETED_SELECTED=0
+    TOTAL_SELECTED=${#SELECTED_DATASETS[@]}
+
+    for dataset in "${SELECTED_DATASETS[@]}"; do
+        # Trim whitespace
+        dataset=$(echo "$dataset" | xargs)
+        ((COMPLETED_SELECTED++)) || true
+
         echo ""
-        echo "✓ Single dataset update complete: $ONLY_DATASET"
+        echo "[$COMPLETED_SELECTED/$TOTAL_SELECTED] Processing: $dataset"
+
+        if ! run_dataset "$dataset"; then
+            FAILED_SELECTED+=("$dataset")
+            echo "WARNING: $dataset failed, continuing..."
+        fi
+    done
+
+    echo ""
+    echo "============================================"
+    if [[ ${#FAILED_SELECTED[@]} -eq 0 ]]; then
+        echo "✓ All $TOTAL_SELECTED dataset(s) completed successfully"
     else
-        echo ""
-        echo "✗ Failed: $ONLY_DATASET"
+        echo "Completed: $((TOTAL_SELECTED - ${#FAILED_SELECTED[@]}))/$TOTAL_SELECTED"
+        echo "Failed: ${FAILED_SELECTED[*]}"
         exit 1
     fi
-
     exit 0
 fi
 

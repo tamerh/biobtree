@@ -59,12 +59,43 @@ func (db *dbsnp) checkTabixAvailable() {
 	}
 }
 
+// cleanupLocalTabixIndex removes any local .tbi index files that could interfere
+// with tabix remote access. When a local .tbi file exists, tabix uses it instead
+// of fetching from the remote server, which can cause incomplete data if the
+// local index is corrupted or outdated.
+func (db *dbsnp) cleanupLocalTabixIndex() {
+	vcfFileName := "GCF_000001405.40.gz"
+	tbiFileName := vcfFileName + ".tbi"
+
+	// Check multiple locations where tabix might find local index files
+	locations := []string{
+		tbiFileName,                                             // Current working directory
+		filepath.Join(config.Appconf["rootDir"], tbiFileName),   // Root directory
+		filepath.Join(config.Appconf["rootDir"], "cache", tbiFileName), // Cache directory
+	}
+
+	for _, tbiPath := range locations {
+		if _, err := os.Stat(tbiPath); err == nil {
+			log.Printf("dbSNP: Found local tabix index at %s - removing to ensure fresh remote fetch", tbiPath)
+			if err := os.Remove(tbiPath); err != nil {
+				log.Printf("dbSNP: Warning - failed to remove local tbi file %s: %v", tbiPath, err)
+			} else {
+				log.Printf("dbSNP: Successfully removed local tbi file: %s", tbiPath)
+			}
+		}
+	}
+}
+
 // Main update entry point
 func (db *dbsnp) update() {
 	defer db.d.wg.Done()
 
 	// Check tabix is available before starting - fail fast if not
 	db.checkTabixAvailable()
+
+	// Remove any local .tbi files that could interfere with remote tabix access
+	// This prevents issues where a corrupted/outdated local index causes incomplete data
+	db.cleanupLocalTabixIndex()
 
 	log.Println("dbSNP: Starting data processing...")
 	startTime := time.Now()
@@ -731,25 +762,34 @@ func (db *dbsnp) saveSNP(rsID string, attr *pbuf.DbsnpAttr, sourceID string) {
 
 // createCrossReferences creates cross-references from dbSNP to other datasets
 func (db *dbsnp) createCrossReferences(rsID, sourceID string, attr *pbuf.DbsnpAttr) {
-	// Note: Direct dbSNP → Entrez xrefs removed as redundant.
-	// Use path: dbSNP → HGNC → Entrez (HGNC has Entrez xrefs)
-
-	// Gene names → SNP cross-reference via HGNC and Ensembl (human only)
-	// addHumanGeneXrefs creates xref to HGNC (Ensembl via HGNC→Ensembl)
-	// Search "BRCA1" returns HGNC/Ensembl entry, then "BRCA1 >> dbsnp" returns all SNPs
-	for _, geneName := range attr.GeneNames {
-		if geneName != "" && len(geneName) < 100 {
-			db.d.addHumanGeneXrefs(geneName, rsID, sourceID)
+	// Direct Entrez xrefs from GENEINFO field (no lookup needed)
+	// GENEINFO format: "GENENAME:ENTREZID|GENENAME2:ENTREZID2"
+	// The Entrez IDs are already in attr.GeneIds from parsing
+	for _, entrezID := range attr.GeneIds {
+		if entrezID != "" && isValidNumericID(entrezID) {
+			db.d.addXref(rsID, sourceID, entrezID, "entrez", false)
 		}
 	}
 
-	// Pseudogene names → SNP cross-reference via HGNC and Ensembl
-	// Same pattern as genes, but for pseudogenes
-	for _, pseudogeneName := range attr.PseudogeneNames {
-		if pseudogeneName != "" && len(pseudogeneName) < 100 {
-			db.d.addHumanGeneXrefs(pseudogeneName, rsID, sourceID)
+	// Direct Entrez xrefs for pseudogenes (from PSEUDOGENEINFO field)
+	for _, entrezID := range attr.PseudogeneIds {
+		if entrezID != "" && isValidNumericID(entrezID) {
+			db.d.addXref(rsID, sourceID, entrezID, "entrez", false)
 		}
 	}
+
+	// COMMENTED OUT: HGNC/Ensembl lookups - these require lookupDB
+	// TODO: Re-enable when lookupDB is reliable or find alternative source
+	// for _, geneName := range attr.GeneNames {
+	// 	if geneName != "" && len(geneName) < 100 {
+	// 		db.d.addHumanGeneXrefsAll(geneName, rsID, sourceID)
+	// 	}
+	// }
+	// for _, pseudogeneName := range attr.PseudogeneNames {
+	// 	if pseudogeneName != "" && len(pseudogeneName) < 100 {
+	// 		db.d.addHumanGeneXrefsAll(pseudogeneName, rsID, sourceID)
+	// 	}
+	// }
 
 	// NEW: ClinVar cross-reference (if variation_id present and valid numeric)
 	if isValidNumericID(attr.ClinvarVariationId) {
@@ -808,6 +848,20 @@ func (db *dbsnp) createCrossReferences(rsID, sourceID string, attr *pbuf.DbsnpAt
 		alphamissenseID := fmt.Sprintf("%s:%d:%s:%s",
 			attr.Chromosome, attr.Position, attr.RefAllele, attr.AltAllele)
 		db.d.addXref(rsID, sourceID, alphamissenseID, "alphamissense", false)
+	}
+
+	// SpliceAI cross-reference (coordinate-based, for variants near splice sites)
+	// Enables direct query: rs12345 >> dbsnp >> spliceai
+	// SpliceAI uses format chr:pos:ref:alt (e.g., 1:69094:G:T)
+	// Include variants that might affect splicing: intronic, splice donor/acceptor
+	if attr.Chromosome != "" && attr.Position > 0 && attr.RefAllele != "" && attr.AltAllele != "" {
+		// Only create xref for variants likely to affect splicing
+		// Include: intronic, splice site adjacent (ass/dss), or near splice regions
+		if attr.Intron || attr.Ass || attr.Dss || attr.Nsn || attr.Nsm || attr.Nsf {
+			spliceaiID := fmt.Sprintf("%s:%d:%s:%s",
+				attr.Chromosome, attr.Position, attr.RefAllele, attr.AltAllele)
+			db.d.addXref(rsID, sourceID, spliceaiID, "spliceai", false)
+		}
 	}
 }
 

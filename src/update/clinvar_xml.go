@@ -328,10 +328,10 @@ func (c *clinvarXML) createXrefs(variation *xmlparser.XMLElement, variationID, s
 	if attr.GeneSymbol != "" {
 		addXrefOnce(attr.GeneSymbol, textLinkID, variationID, c.source, true)
 
-		// Gene symbol → HGNC and Ensembl cross-reference (human only)
-		// addHumanGeneXrefs creates xref to HGNC (Ensembl via HGNC→Ensembl)
-		// Search "BRCA1" returns HGNC/Ensembl entry, then "BRCA1 >> clinvar" returns all variants
-		c.d.addHumanGeneXrefs(attr.GeneSymbol, variationID, sourceID)
+		// Gene symbol → human gene databases cross-reference
+		// addHumanGeneXrefsAll creates xrefs to HGNC, Entrez, and Ensembl
+		// Search "BRCA1" returns gene entries, then "BRCA1 >> clinvar" returns all variants
+		c.d.addHumanGeneXrefsAll(attr.GeneSymbol, variationID, sourceID)
 	}
 
 	// Get ClassifiedRecord for XRefs

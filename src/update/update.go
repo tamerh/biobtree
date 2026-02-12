@@ -2,11 +2,9 @@ package update
 
 import (
 	"biobtree/configs"
-	"biobtree/db"
 	"biobtree/pbuf"
-	"encoding/json"
+	"biobtree/service"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"path/filepath"
 	"sort"
@@ -17,8 +15,6 @@ import (
 
 	"biobtree/util"
 
-	"github.com/dgraph-io/ristretto"
-	"github.com/golang/protobuf/proto"
 	"github.com/vbauerster/mpb"
 )
 
@@ -73,16 +69,28 @@ type DataUpdate struct {
 	skipEnsembl            bool
 	progChan               chan *progressInfo
 	progInterval           int64
-	lookupEnv              db.Env
-	lookupDbi              db.DBI
-	hasLookupDB            bool
-	lookupCache            *ristretto.Cache // Cache for lookup() to avoid repeated LMDB transactions
+	lookupService          *service.Service // Service for database lookups
 	bucketPool             *HybridWriterPool // Bucket writer pool for optimized datasets
 	bucketWg               *sync.WaitGroup   // WaitGroup for bucket writers
 	useLookupDB            bool              // Flag to enable/disable lookup database loading
 	resumeSort             bool              // Flag to resume from sorting phase (skip data processing)
 	forceRebuild           bool              // Flag to force reprocessing even if source unchanged
 	datasetState           *DatasetState     // State tracking for incremental updates
+	// Gene xref lookup statistics (for summary logging)
+	geneXrefStats          *geneXrefStats
+}
+
+// geneXrefStats tracks success/failure counts for gene symbol lookups
+type geneXrefStats struct {
+	sync.Mutex
+	hgncFound       int64
+	hgncNotFound    int64
+	entrezFound     int64
+	entrezNotFound  int64
+	entrezNotHuman  int64 // found in Entrez but failed isHumanGene check
+	ensemblFound    int64
+	ensemblNotFound int64
+	lastLogCount    int64 // total lookups at last log
 }
 
 type progressInfo struct {
@@ -160,6 +168,7 @@ func NewDataUpdate(datasets map[string]bool, targetDatasets, ensemblSpecies, ens
 		orthologsAllActive:     orthologsAll,
 		skipEnsembl:            skipEnsembl,
 		useLookupDB:            useLookupDB,
+		geneXrefStats:          &geneXrefStats{},
 	}
 
 }
@@ -174,143 +183,16 @@ func (d *DataUpdate) SetForceRebuild(force bool) {
 	d.forceRebuild = force
 }
 
-// Initialize read-only lookup database for keyword-to-ID resolution
-func (d *DataUpdate) initLookupDB() {
-	// Check if lookup database is disabled via --lookupdb flag
-	if !d.useLookupDB {
-		log.Println("Lookup database disabled (use --lookupdb flag to enable)")
-		d.hasLookupDB = false
-		return
-	}
-
-	lookupDbDir, ok := config.Appconf["lookupDbDir"]
-	if !ok {
-		d.hasLookupDB = false
-		return
-	}
-
-	// Check if meta file exists
-	metaFile := filepath.FromSlash(lookupDbDir + "/db.meta.json")
-	meta := make(map[string]interface{})
-	f, err := ioutil.ReadFile(metaFile)
-	if err != nil {
-		fmt.Printf("Warning: Cannot read lookup database meta file: %v, keyword lookup disabled\n", err)
-		d.hasLookupDB = false
-		return
-	}
-
-	if err := json.Unmarshal(f, &meta); err != nil {
-		fmt.Printf("Warning: Cannot parse lookup database meta: %v, keyword lookup disabled\n", err)
-		d.hasLookupDB = false
-		return
-	}
-
-	totalkvline := int64(meta["totalKVLine"].(float64))
-
-	// Open lookup database (read-only)
-	db1 := db.DB{}
-	lookupConf := make(map[string]string)
-	lookupConf["dbDir"] = lookupDbDir
-	lookupConf["dbBackend"] = "lmdb"
-	d.lookupEnv, d.lookupDbi = db1.OpenDBNew(false, totalkvline, lookupConf)
-	d.hasLookupDB = true
-
-	// Initialize lookup cache to avoid repeated LMDB transactions
-	// During update operations, the same gene names are looked up millions of times
-	// Cache is optimized for high hit rate (e.g., same ~20K genes repeated across 600M+ SNPs)
-	// DISABLED: Cache was causing memory growth due to storing full Result objects with nested Xrefs
-	// TODO: Re-enable with fixed cost calculation or cache only gene existence (not full Results)
-	d.lookupCache = nil
-	/*
-	var err2 error
-	d.lookupCache, err2 = ristretto.NewCache(&ristretto.Config{
-		NumCounters: 1e6,      // 1M counters to track frequency
-		MaxCost:     100 << 20, // 100MB max cache size
-		BufferItems: 64,       // number of keys per Get buffer
-	})
-	if err2 != nil {
-		log.Printf("Warning: Failed to initialize lookup cache: %v, will use uncached lookups\n", err2)
-		d.lookupCache = nil
-	}
-	*/
-}
-
-// Close lookup database
-func (d *DataUpdate) closeLookupDB() {
-	if d.hasLookupDB {
-		d.lookupEnv.Close()
-	}
-	if d.lookupCache != nil {
-		d.lookupCache.Close()
-	}
-}
-
-// Lookup identifier in biobtree database and return results
-// Uses in-memory cache to avoid repeated LMDB transactions for the same identifier
-func (d *DataUpdate) lookup(identifier string) (*pbuf.Result, error) {
-	if !d.hasLookupDB {
-		return nil, fmt.Errorf("lookup database not available")
-	}
-
-	// Lookup is case-insensitive (convert to uppercase like service does)
-	identifier = strings.ToUpper(identifier)
-
-	// Check cache first (if available)
-	if d.lookupCache != nil {
-		if cached, found := d.lookupCache.Get(identifier); found {
-			// Cache hit - return cached result
-			if cached == nil {
-				return nil, nil // Cached "not found" result
-			}
-			return cached.(*pbuf.Result), nil
-		}
-	}
-
-	// Cache miss - perform LMDB lookup
-	var v []byte
-	err := d.lookupEnv.View(func(txn db.Txn) (err error) {
-		v, err = txn.Get(d.lookupDbi, []byte(identifier))
-		if db.IsNotFound(err) {
-			return nil
-		}
-		return err
-	})
-
-	if err != nil {
-		return nil, err
-	}
-
-	// Handle not found
-	if len(v) == 0 {
-		// Store nil in cache to avoid repeated lookups for non-existent identifiers
-		if d.lookupCache != nil {
-			d.lookupCache.Set(identifier, nil, 1)
-		}
-		return nil, nil
-	}
-
-	// Unmarshal result
-	r := pbuf.Result{}
-	err = proto.Unmarshal(v, &r)
-	if err != nil {
-		return nil, err
-	}
-
-	// Store in cache (cost = approximate size)
-	if d.lookupCache != nil {
-		d.lookupCache.Set(identifier, &r, int64(len(v)))
-	}
-
-	return &r, nil
-}
-
 func (d *DataUpdate) Update() (uint64, uint64) {
 
 	log.Println("Update running please wait...")
 
 	// Initialize lookup database for keyword-based xref resolution
 	d.initLookupDB()
-	defer d.closeLookupDB()
+	defer func() {
+		d.LogGeneXrefStatsFinal()
+		d.closeLookupDB()
+	}()
 
 	// first check update for ensembl meta
 	checkEnsemblUpdate(d)
@@ -1038,6 +920,12 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			cpdb := cellphonedb{source: data, d: d}
 			d.datasets2 = append(d.datasets2, data)
 			go cpdb.update()
+			break
+		case "spliceai":
+			d.wg.Add(1)
+			sai := spliceai{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go sai.update()
 			break
 		case "brenda":
 			d.wg.Add(1)
@@ -1864,7 +1752,7 @@ func (d *DataUpdate) addProp3Bucketed(key, from string, attr []byte) {
 // from: Source dataset name
 // isLink: Whether this is a link-only relationship
 func (d *DataUpdate) addXrefViaKeyword(keyword string, keywordDataset string, targetValue string, targetDataset string, from string, isLink bool) {
-	if !d.hasLookupDB {
+	if d.lookupService == nil {
 		return
 	}
 
@@ -1927,24 +1815,28 @@ func (d *DataUpdate) addXrefViaKeyword(keyword string, keywordDataset string, ta
 	}
 }
 
-// addHumanGeneXrefs creates cross-reference to HGNC via gene symbol lookup
-// This ensures we only get human genes by going through HGNC
-// Creates: sourceID → HGNC (Ensembl connection comes for free via HGNC→Ensembl xref)
-// geneSymbol: Gene symbol (e.g., "BRCA1")
-// sourceID: The source entity identifier (e.g., variant ID, disease ID)
-// sourceDatasetID: The dataset ID of the source entity
-func (d *DataUpdate) addHumanGeneXrefs(geneSymbol, sourceID, sourceDatasetID string) {
-	if !d.hasLookupDB {
+// =============================================================================
+// HUMAN GENE CROSS-REFERENCE FUNCTIONS
+// =============================================================================
+// These functions create cross-references from source entities to human gene databases.
+// Use addHumanGeneXrefsAll for comprehensive coverage (recommended).
+// Individual functions available for specific use cases.
+//
+// Coverage comparison:
+// - HGNC:    ~43K official human gene symbols (no LOC/predicted genes)
+// - Entrez:  ~60K+ human genes (includes LOC identifiers, predicted genes)
+// - Ensembl: ~40K+ human genes (includes genomic coordinates, transcripts)
+// =============================================================================
+
+// addHumanGeneXrefsViaHGNC creates cross-reference to HGNC via gene symbol lookup
+// Uses HGNC which only contains official human gene symbols (~43K genes)
+// Does NOT include LOC identifiers or predicted genes
+// Creates: sourceID → HGNC (human only by definition)
+func (d *DataUpdate) addHumanGeneXrefsViaHGNC(geneSymbol, sourceID, sourceDatasetID string) {
+	if d.lookupService == nil {
 		return
 	}
 
-	// Step 1: Lookup gene symbol to find HGNC entry
-	result, err := d.lookup(geneSymbol)
-	if err != nil || result == nil || len(result.Results) == 0 {
-		return
-	}
-
-	// Step 2: Find HGNC entry in the results
 	hgncDatasetID, ok := config.Dataconf["hgnc"]["id"]
 	if !ok {
 		return
@@ -1953,33 +1845,202 @@ func (d *DataUpdate) addHumanGeneXrefs(geneSymbol, sourceID, sourceDatasetID str
 	var hgncDatasetInt uint32
 	fmt.Sscanf(hgncDatasetID, "%d", &hgncDatasetInt)
 
-	var hgncIdentifier string
-	for _, r := range result.Results {
-		// Look for link results (keyword search results)
-		if !r.IsLink || len(r.Entries) == 0 {
-			continue
-		}
+	hgncEntry, err := d.lookupInDataset(geneSymbol, hgncDatasetInt)
+	if err != nil || hgncEntry == nil {
+		d.geneXrefStats.Lock()
+		d.geneXrefStats.hgncNotFound++
+		d.geneXrefStats.Unlock()
+		return
+	}
 
-		// Find HGNC entry
-		for _, entry := range r.Entries {
-			if entry.Dataset == hgncDatasetInt {
-				hgncIdentifier = entry.Identifier
-				break
+	d.geneXrefStats.Lock()
+	d.geneXrefStats.hgncFound++
+	d.geneXrefStats.Unlock()
+	d.addXref(sourceID, sourceDatasetID, hgncEntry.Identifier, "hgnc", false)
+}
+
+// addHumanGeneXrefsViaEntrez creates cross-reference to Entrez via gene symbol lookup
+// Uses Entrez for comprehensive coverage (includes all LOC identifiers, predicted genes)
+// Filters to only human genes (has taxonomy 9606 cross-reference)
+// Creates: sourceID → Entrez (human only)
+func (d *DataUpdate) addHumanGeneXrefsViaEntrez(geneSymbol, sourceID, sourceDatasetID string) {
+	if d.lookupService == nil {
+		return
+	}
+
+	entrezDatasetID, ok := config.Dataconf["entrez"]["id"]
+	if !ok {
+		return
+	}
+	taxDatasetID, ok := config.Dataconf["taxonomy"]["id"]
+	if !ok {
+		return
+	}
+
+	var entrezDatasetInt, taxDatasetInt uint32
+	fmt.Sscanf(entrezDatasetID, "%d", &entrezDatasetInt)
+	fmt.Sscanf(taxDatasetID, "%d", &taxDatasetInt)
+
+	// Use lookupHumanEntrezGene which iterates through ALL matches to find human
+	entrezEntry, err := d.lookupHumanEntrezGene(geneSymbol, entrezDatasetInt, taxDatasetInt)
+	if err != nil {
+		log.Printf("[Entrez xref] Error looking up %s: %v", geneSymbol, err)
+		d.geneXrefStats.Lock()
+		d.geneXrefStats.entrezNotFound++
+		d.geneXrefStats.Unlock()
+		return
+	}
+	if entrezEntry == nil {
+		log.Printf("[Entrez xref] No entry found for %s", geneSymbol)
+		d.geneXrefStats.Lock()
+		d.geneXrefStats.entrezNotFound++
+		d.geneXrefStats.Unlock()
+		return
+	}
+
+	d.geneXrefStats.Lock()
+	d.geneXrefStats.entrezFound++
+	d.geneXrefStats.Unlock()
+	d.addXref(sourceID, sourceDatasetID, entrezEntry.Identifier, "entrez", false)
+}
+
+// addHumanGeneXrefsViaEnsembl creates cross-reference to Ensembl via gene symbol lookup
+// Uses Ensembl human genes (genome="homo_sapiens")
+// Provides access to genomic coordinates, transcripts, and Ensembl-specific data
+// Creates: sourceID → Ensembl (human only)
+func (d *DataUpdate) addHumanGeneXrefsViaEnsembl(geneSymbol, sourceID, sourceDatasetID string) {
+	if d.lookupService == nil {
+		return
+	}
+
+	ensemblDatasetID, ok := config.Dataconf["ensembl"]["id"]
+	if !ok {
+		return
+	}
+
+	var ensemblDatasetInt uint32
+	fmt.Sscanf(ensemblDatasetID, "%d", &ensemblDatasetInt)
+
+	// Use lookupHumanEnsemblGene which iterates through ALL matches to find human
+	ensemblEntry, err := d.lookupHumanEnsemblGene(geneSymbol, ensemblDatasetInt)
+	if err != nil || ensemblEntry == nil {
+		d.geneXrefStats.Lock()
+		d.geneXrefStats.ensemblNotFound++
+		d.geneXrefStats.Unlock()
+		return
+	}
+
+	d.geneXrefStats.Lock()
+	d.geneXrefStats.ensemblFound++
+	d.geneXrefStats.Unlock()
+	d.addXref(sourceID, sourceDatasetID, ensemblEntry.Identifier, "ensembl", false)
+}
+
+// addHumanGeneXrefsAll creates cross-references to ALL gene databases: HGNC, Entrez, and Ensembl
+// This ensures all query paths work: >>hgnc>>dataset, >>entrez>>dataset, >>ensembl>>dataset
+// Recommended for comprehensive gene symbol coverage
+// geneSymbol: Gene symbol (e.g., "BRCA1", "LOC124900163")
+// sourceID: The source entity identifier (e.g., variant ID, disease ID)
+// sourceDatasetID: The dataset ID of the source entity
+func (d *DataUpdate) addHumanGeneXrefsAll(geneSymbol, sourceID, sourceDatasetID string) {
+	d.addHumanGeneXrefsViaHGNC(geneSymbol, sourceID, sourceDatasetID)
+	d.addHumanGeneXrefsViaEntrez(geneSymbol, sourceID, sourceDatasetID)
+	d.addHumanGeneXrefsViaEnsembl(geneSymbol, sourceID, sourceDatasetID)
+	d.maybeLogGeneXrefStats()
+}
+
+// maybeLogGeneXrefStats logs gene xref statistics every 100K lookups
+func (d *DataUpdate) maybeLogGeneXrefStats() {
+	d.geneXrefStats.Lock()
+	entrezTotal := d.geneXrefStats.entrezFound + d.geneXrefStats.entrezNotFound + d.geneXrefStats.entrezNotHuman
+	total := d.geneXrefStats.hgncFound + d.geneXrefStats.hgncNotFound +
+		entrezTotal + d.geneXrefStats.ensemblFound + d.geneXrefStats.ensemblNotFound
+
+	// Log every 300K lookups (100K calls to addHumanGeneXrefsAll = 300K individual lookups)
+	if total-d.geneXrefStats.lastLogCount >= 300000 {
+		d.geneXrefStats.lastLogCount = total
+		log.Printf("Gene xref stats: HGNC %d/%d, Entrez %d/%d (notHuman:%d), Ensembl %d/%d",
+			d.geneXrefStats.hgncFound, d.geneXrefStats.hgncFound+d.geneXrefStats.hgncNotFound,
+			d.geneXrefStats.entrezFound, entrezTotal, d.geneXrefStats.entrezNotHuman,
+			d.geneXrefStats.ensemblFound, d.geneXrefStats.ensemblFound+d.geneXrefStats.ensemblNotFound)
+	}
+	d.geneXrefStats.Unlock()
+}
+
+// LogGeneXrefStatsFinal logs final gene xref statistics (call at end of processing)
+func (d *DataUpdate) LogGeneXrefStatsFinal() {
+	if d.geneXrefStats == nil {
+		return
+	}
+	d.geneXrefStats.Lock()
+	defer d.geneXrefStats.Unlock()
+
+	hgncTotal := d.geneXrefStats.hgncFound + d.geneXrefStats.hgncNotFound
+	entrezTotal := d.geneXrefStats.entrezFound + d.geneXrefStats.entrezNotFound + d.geneXrefStats.entrezNotHuman
+	ensemblTotal := d.geneXrefStats.ensemblFound + d.geneXrefStats.ensemblNotFound
+
+	if hgncTotal+entrezTotal+ensemblTotal == 0 {
+		return
+	}
+
+	log.Printf("=== Gene Xref Final Summary ===")
+	log.Printf("HGNC:    %d found / %d total (%.1f%% success)",
+		d.geneXrefStats.hgncFound, hgncTotal,
+		float64(d.geneXrefStats.hgncFound)*100/float64(hgncTotal+1))
+	log.Printf("Entrez:  %d found / %d total (%.1f%% success) [%d not found, %d failed human check]",
+		d.geneXrefStats.entrezFound, entrezTotal,
+		float64(d.geneXrefStats.entrezFound)*100/float64(entrezTotal+1),
+		d.geneXrefStats.entrezNotFound, d.geneXrefStats.entrezNotHuman)
+	log.Printf("Ensembl: %d found / %d total (%.1f%% success)",
+		d.geneXrefStats.ensemblFound, ensemblTotal,
+		float64(d.geneXrefStats.ensemblFound)*100/float64(ensemblTotal+1))
+}
+
+// isHumanGene checks if an Entrez gene is human by looking for taxonomy 9606 cross-reference
+func (d *DataUpdate) isHumanGene(entrezID string, entrezDatasetInt uint32) bool {
+	taxDatasetID, ok := config.Dataconf["taxonomy"]["id"]
+	if !ok {
+		return false
+	}
+
+	var taxDatasetInt uint32
+	fmt.Sscanf(taxDatasetID, "%d", &taxDatasetInt)
+
+	fullEntry, err := d.lookupFullEntry(entrezID, entrezDatasetInt)
+	if err != nil || fullEntry == nil {
+		return false
+	}
+
+	// Check inline entries for taxonomy 9606
+	for _, entry := range fullEntry.Entries {
+		if entry.Dataset == taxDatasetInt && entry.Identifier == "9606" {
+			return true
+		}
+	}
+
+	// Check paginated entries if taxonomy is in pages
+	if pageInfo, ok := fullEntry.DatasetPages[taxDatasetInt]; ok {
+		for _, page := range pageInfo.Pages {
+			pageKey := entrezID + " " + config.DataconfIDToPageKey[entrezDatasetInt] + " " + page
+			pageResult, err := d.lookupPage(pageKey, entrezDatasetInt)
+			if err != nil || pageResult == nil {
+				continue
+			}
+			for _, entry := range pageResult.Entries {
+				if entry.Dataset == taxDatasetInt && entry.Identifier == "9606" {
+					return true
+				}
 			}
 		}
-
-		if hgncIdentifier != "" {
-			break
-		}
 	}
 
-	if hgncIdentifier == "" {
-		return // No HGNC entry found
-	}
+	return false
+}
 
-	// Step 3: Create xref to HGNC only
-	// Ensembl connection comes for free via existing HGNC→Ensembl xref
-	d.addXref(sourceID, sourceDatasetID, hgncIdentifier, "hgnc", false)
+// addHumanGeneXrefs is a legacy alias for addHumanGeneXrefsViaEntrez
+// Deprecated: Use addHumanGeneXrefsAll for comprehensive coverage
+func (d *DataUpdate) addHumanGeneXrefs(geneSymbol, sourceID, sourceDatasetID string) {
+	d.addHumanGeneXrefsViaEntrez(geneSymbol, sourceID, sourceDatasetID)
 }
 
 // addXrefEnsemblViaEntrez creates a cross-reference to Ensembl gene via Entrez Gene ID
@@ -1987,7 +2048,7 @@ func (d *DataUpdate) addHumanGeneXrefs(geneSymbol, sourceID, sourceDatasetID str
 // sourceID: The identifier of the source entity (e.g., activity ID, bioassay ID)
 // sourceDatasetID: The dataset ID of the source entity
 func (d *DataUpdate) addXrefEnsemblViaEntrez(entrezGeneID, sourceID, sourceDatasetID string) {
-	if !d.hasLookupDB {
+	if d.lookupService == nil {
 		return
 	}
 
@@ -2098,4 +2159,132 @@ func checkWithContext(err error, dataset string, operation string) {
 	if err != nil {
 		log.Fatalf("[%s] Error during %s: %v", dataset, operation, err)
 	}
+}
+
+// initLookupDB initializes the lookup service for keyword-to-ID resolution
+func (d *DataUpdate) initLookupDB() {
+	// Check if lookup database is disabled via --lookupdb flag
+	if !d.useLookupDB {
+		log.Println("Lookup database disabled (use --lookupdb flag to enable)")
+		return
+	}
+
+	lookupDbDir, ok := config.Appconf["lookupDbDir"]
+	if !ok {
+		return
+	}
+
+	svc, err := service.NewService(lookupDbDir, config)
+	if err != nil {
+		log.Printf("Warning: Cannot init lookup service: %v", err)
+		return
+	}
+
+	if !svc.IsAvailable() {
+		log.Printf("Warning: Lookup service not available")
+		return
+	}
+
+	d.lookupService = svc
+	log.Println("Lookup service initialized")
+}
+
+// closeLookupDB closes the lookup service
+func (d *DataUpdate) closeLookupDB() {
+	if d.lookupService != nil {
+		d.lookupService.Close()
+	}
+}
+
+// lookup looks up identifier in biobtree database and returns all results
+// Uses the service package for database access
+func (d *DataUpdate) lookup(identifier string) (*pbuf.Result, error) {
+	if d.lookupService == nil {
+		return nil, fmt.Errorf("lookup service not available")
+	}
+	return d.lookupService.Lookup(identifier)
+}
+
+// lookupInDataset looks up identifier and returns the entry from the specified dataset
+func (d *DataUpdate) lookupInDataset(identifier string, datasetID uint32) (*pbuf.XrefEntry, error) {
+	if d.lookupService == nil {
+		return nil, fmt.Errorf("lookup service not available")
+	}
+	return d.lookupService.LookupInDataset(identifier, datasetID)
+}
+
+// lookupFullEntry fetches the full Xref with attributes for a specific identifier in a dataset
+func (d *DataUpdate) lookupFullEntry(identifier string, datasetID uint32) (*pbuf.Xref, error) {
+	if d.lookupService == nil {
+		return nil, fmt.Errorf("lookup service not available")
+	}
+	return d.lookupService.LookupFullEntry(identifier, datasetID)
+}
+
+// lookupPage fetches a page of entries from the appropriate federation database
+func (d *DataUpdate) lookupPage(pageKey string, datasetID uint32) (*pbuf.Xref, error) {
+	if d.lookupService == nil {
+		return nil, fmt.Errorf("lookup service not available")
+	}
+	return d.lookupService.LookupPage(pageKey, datasetID)
+}
+
+// lookupHumanEntrezGene looks up a gene symbol and returns the HUMAN Entrez gene entry
+// Uses the service's MapFilterLite function with taxonomy filter for reliable lookup
+func (d *DataUpdate) lookupHumanEntrezGene(geneSymbol string, entrezDatasetID, taxDatasetID uint32) (*pbuf.XrefEntry, error) {
+	if d.lookupService == nil {
+		return nil, fmt.Errorf("lookup service not available")
+	}
+
+	// Use MapFilterLite with taxonomy filter to find human Entrez gene
+	// Query: >>*>>entrez[filter] - >>* does text search, then maps to entrez with filter
+	result, err := d.lookupService.MapFilterLite([]string{geneSymbol}, ">>*>>entrez[entrez.tax_id==\"9606\"]", "")
+	if err != nil {
+		return nil, err
+	}
+
+	// Check for successful mapping
+	if result != nil && len(result.Mappings) > 0 {
+		for _, mapping := range result.Mappings {
+			if mapping.Error == "" && len(mapping.Targets) > 0 {
+				target := mapping.Targets[0]
+				return &pbuf.XrefEntry{
+					Dataset:    entrezDatasetID,
+					Identifier: target.Id,
+				}, nil
+			}
+		}
+	}
+
+	return nil, nil // No human Entrez entry found
+}
+
+// lookupHumanEnsemblGene looks up a gene symbol and returns the HUMAN Ensembl gene entry
+// Uses the service's MapFilterLite function with genome filter for reliable lookup
+func (d *DataUpdate) lookupHumanEnsemblGene(geneSymbol string, ensemblDatasetID uint32) (*pbuf.XrefEntry, error) {
+	if d.lookupService == nil {
+		return nil, fmt.Errorf("lookup service not available")
+	}
+
+	// Use MapFilterLite with genome filter to find human Ensembl gene
+	// Query: >>*>>ensembl[filter] - >>* does text search, then maps to ensembl with filter
+	result, err := d.lookupService.MapFilterLite([]string{geneSymbol}, ">>*>>ensembl[ensembl.genome==\"homo_sapiens\"]", "")
+	if err != nil {
+		return nil, err
+	}
+
+	// Check for successful mapping
+	if result != nil && len(result.Mappings) > 0 {
+		for _, mapping := range result.Mappings {
+			if mapping.Error == "" && len(mapping.Targets) > 0 {
+				target := mapping.Targets[0]
+				return &pbuf.XrefEntry{
+					Dataset:    ensemblDatasetID,
+					Identifier: target.Id,
+				}, nil
+			}
+		}
+	}
+
+	return nil, nil // No human Ensembl entry found
 }

@@ -1,21 +1,16 @@
 package update
 
 import (
-	"biobtree/db"
 	"biobtree/pbuf"
 	"bufio"
 	"encoding/csv"
-	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
-	"path/filepath"
 	"strings"
 	"time"
 
-	"github.com/golang/protobuf/proto"
 	"github.com/pquerna/ffjson/ffjson"
 )
 
@@ -23,9 +18,6 @@ type antibody struct {
 	source              string
 	d                   *DataUpdate
 	idMap               map[string]string       // Track IDs and their sources for conflict detection
-	lookupEnv           db.Env                  // LMDB environment for ontology lookup
-	lookupDbi           db.DBI                  // LMDB database index
-	hasLookupDB         bool                    // Whether lookup DB is available
 	medicalTermMappings *MedicalTermMappings    // Medical term normalization mappings
 }
 
@@ -46,10 +38,6 @@ func (a *antibody) update() {
 
 	// Load medical term mappings for disease name normalization
 	a.medicalTermMappings = LoadMedicalTermMappings()
-
-	// Initialize lookup database for EFO/MONDO ontology mapping
-	a.initLookupDB()
-	defer a.closeLookupDB()
 
 	// Test mode support
 	testLimit := config.GetTestLimit(a.source)
@@ -808,84 +796,9 @@ func extractList(s string) []string {
 // Map antibody indications to EFO/MONDO ontologies using 10-attempt cascade
 // ============================================================================
 
-// Initialize read-only lookup database for ontology mapping
-func (a *antibody) initLookupDB() {
-	lookupDbDir, ok := config.Appconf["lookupDbDir"]
-	if !ok {
-		log.Println("Antibody: Warning - lookupDbDir not configured, ontology mapping disabled")
-		a.hasLookupDB = false
-		return
-	}
-
-	// Check if meta file exists
-	metaFile := filepath.FromSlash(lookupDbDir + "/db.meta.json")
-	meta := make(map[string]interface{})
-	f, err := ioutil.ReadFile(metaFile)
-	if err != nil {
-		log.Printf("Antibody: Warning - cannot read lookup database meta file: %v, ontology mapping disabled", err)
-		a.hasLookupDB = false
-		return
-	}
-
-	if err := json.Unmarshal(f, &meta); err != nil {
-		log.Printf("Antibody: Warning - cannot parse lookup database meta: %v, ontology mapping disabled", err)
-		a.hasLookupDB = false
-		return
-	}
-
-	totalkvline := int64(meta["totalKVLine"].(float64))
-
-	// Open lookup database (read-only)
-	db1 := db.DB{}
-	lookupConf := make(map[string]string)
-	lookupConf["dbDir"] = lookupDbDir
-	lookupConf["dbBackend"] = "lmdb"
-	a.lookupEnv, a.lookupDbi = db1.OpenDBNew(false, totalkvline, lookupConf)
-	a.hasLookupDB = true
-	log.Printf("Antibody: Lookup database initialized for ontology mapping (path: %s, totalKVLine: %d)", lookupDbDir, totalkvline)
-}
-
-// Close lookup database
-func (a *antibody) closeLookupDB() {
-	if a.hasLookupDB {
-		a.lookupEnv.Close()
-	}
-}
-
-// Lookup identifier in biobtree database and return results
-func (a *antibody) lookup(identifier string) (*pbuf.Result, error) {
-	if !a.hasLookupDB {
-		return nil, fmt.Errorf("lookup database not available")
-	}
-
-	// Lookup is case-insensitive (convert to uppercase like service does)
-	identifier = strings.ToUpper(identifier)
-
-	var v []byte
-	err := a.lookupEnv.View(func(txn db.Txn) (err error) {
-		v, err = txn.Get(a.lookupDbi, []byte(identifier))
-		if db.IsNotFound(err) {
-			return nil
-		}
-		return err
-	})
-
-	if err != nil {
-		return nil, err
-	}
-
-	if len(v) == 0 {
-		return nil, nil
-	}
-
-	r := pbuf.Result{}
-	err = proto.Unmarshal(v, &r)
-	return &r, err
-}
-
 // Map indication to ontology using 10-attempt cascade (EFO or MONDO)
 func (a *antibody) mapIndicationToOntology(antibodyID string, indication string, ontologyDatasetID uint32, fr string, ontologyName string) {
-	if !a.hasLookupDB {
+	if a.d.lookupService == nil {
 		return
 	}
 
@@ -1027,7 +940,7 @@ func (a *antibody) mapIndicationToOntology(antibodyID string, indication string,
 
 // Lookup indication name and collect ontology IDs into the map
 func (a *antibody) lookupAndCollectOntology(indication string, ontologyDatasetID uint32, ontologyIDs map[string]bool) {
-	result, err := a.lookup(indication)
+	result, err := a.d.lookup(indication)
 	if err != nil {
 		log.Printf("Antibody ontology lookup error for '%s': %v", indication, err)
 		return

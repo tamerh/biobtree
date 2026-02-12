@@ -1130,9 +1130,9 @@
     },
     {
       "category": "clinical_variants",
-      "name": "Gene to ClinVar Variants via Ensembl",
-      "query": ">>ensembl>>clinvar",
-      "why": "Map genes to clinical variants - critical for clinical genetics and variant interpretation. NOTE: HGNC is embedded in Ensembl, so use ensembl path not hgnc.",
+      "name": "Gene to ClinVar Variants via HGNC",
+      "query": ">>hgnc>>clinvar",
+      "why": "Map genes to clinical variants - critical for clinical genetics. ClinVar links to HGNC (human genes only).",
       "should_pass": [
         "BRCA1",
         "TP53",
@@ -1143,8 +1143,8 @@
     {
       "category": "clinical_variants",
       "name": "Ensembl Gene ID to ClinVar Variants",
-      "query": ">>ensembl>>clinvar",
-      "why": "Direct Ensembl gene ID to ClinVar mapping for clinical research",
+      "query": ">>ensembl>>hgnc>>clinvar",
+      "why": "Ensembl gene ID to ClinVar via HGNC (Ensembl→HGNC→ClinVar path)",
       "should_pass": [
         "ENSG00000012048",
         "ENSG00000141510"
@@ -1154,7 +1154,7 @@
     {
       "category": "clinical_variants",
       "name": "Cancer Gene Panel to ClinVar",
-      "query": ">>ensembl>>clinvar",
+      "query": ">>hgnc>>clinvar",
       "why": "Batch query cancer genes to ClinVar for clinical panel analysis (Lynch syndrome genes)",
       "should_pass": [
         "MLH1",
@@ -1331,9 +1331,9 @@
     },
     {
       "category": "genomics",
-      "name": "Gene to dbSNP Variants",
-      "query": ">>ensembl[ensembl.genome==\"homo_sapiens\"]>>dbsnp",
-      "why": "Map genes to dbSNP variants for genetic variation analysis - core SNP discovery workflow",
+      "name": "Gene to dbSNP Variants via HGNC",
+      "query": ">>hgnc>>dbsnp",
+      "why": "Map genes to dbSNP variants for genetic variation analysis. dbSNP links to HGNC (human genes only).",
       "should_pass": [
         "BRCA1",
         "TP53",
@@ -1344,8 +1344,8 @@
     {
       "category": "genomics",
       "name": "Ensembl Gene ID to dbSNP",
-      "query": ">>ensembl>>dbsnp",
-      "why": "Direct Ensembl gene ID to dbSNP variant mapping",
+      "query": ">>ensembl>>hgnc>>dbsnp",
+      "why": "Ensembl gene ID to dbSNP via HGNC (Ensembl→HGNC→dbSNP path)",
       "should_pass": [
         "ENSG00000012048",
         "ENSG00000141510"
@@ -1368,9 +1368,9 @@
     },
     {
       "category": "genomics",
-      "name": "dbSNP to ClinVar via Gene",
-      "query": ">>dbsnp>>ensembl>>clinvar",
-      "why": "Find clinical significance of dbSNP variants via gene to ClinVar mapping",
+      "name": "dbSNP to ClinVar via HGNC",
+      "query": ">>dbsnp>>hgnc>>clinvar",
+      "why": "Find clinical significance of dbSNP variants via HGNC to ClinVar mapping",
       "should_pass": [
         "rs1801133"
       ],
@@ -1490,9 +1490,9 @@
     },
     {
       "category": "ncbi_datasets",
-      "name": "Entrez Gene to Ensembl to ClinVar",
-      "query": ">>entrez>>ensembl>>clinvar",
-      "why": "Multi-hop from Entrez gene to clinical variants via Ensembl",
+      "name": "Entrez Gene to ClinVar via HGNC",
+      "query": ">>entrez>>hgnc>>clinvar",
+      "why": "Multi-hop from Entrez gene to clinical variants via HGNC",
       "should_pass": [
         "BRCA1",
         "TP53"
@@ -1738,7 +1738,7 @@
       "category": "data_validation",
       "name": "BRCA1 ClinVar Count",
       "type": "validation",
-      "query": ">>ensembl>>clinvar",
+      "query": ">>hgnc>>clinvar",
       "identifier": "BRCA1",
       "why": "BRCA1 should have many ClinVar variants (>100)",
       "validations": [
@@ -1844,8 +1844,8 @@
     {
       "category": "gwas_genetics",
       "name": "Type 2 Diabetes MONDO to GWAS Genes",
-      "query": ">>mondo>>gwas>>ensembl",
-      "why": "Find genes associated with Type 2 Diabetes via GWAS studies - disease genetics workflow",
+      "query": ">>mondo>>gwas>>hgnc>>ensembl",
+      "why": "Find genes associated with Type 2 Diabetes via GWAS studies - disease genetics workflow. GWAS links to HGNC.",
       "should_pass": [
         "MONDO:0005148"
       ],
@@ -1854,8 +1854,8 @@
     {
       "category": "gwas_genetics",
       "name": "Disease to GWAS Genes via EFO (Human)",
-      "query": ">>mondo>>gwas_study>>gwas>>ensembl[ensembl.genome==\"homo_sapiens\"]",
-      "why": "Full disease to human genes path via GWAS studies. MONDO\u2192EFO direct mapping is sparse; go via gwas_study instead.",
+      "query": ">>mondo>>gwas_study>>gwas>>hgnc>>ensembl",
+      "why": "Full disease to human genes path via GWAS studies. GWAS links to HGNC (human genes only).",
       "should_pass": [
         "MONDO:0005148",
         "MONDO:0005044"
@@ -1865,8 +1865,8 @@
     {
       "category": "gwas_genetics",
       "name": "Glioblastoma Text to GWAS Genes",
-      "query": ">>mondo>>gwas_study>>gwas>>ensembl[ensembl.genome==\"homo_sapiens\"]",
-      "why": "Drug discovery workflow: disease text to genes via GWAS studies - tests text-based disease lookup. MONDO:0005044 is main glioblastoma (not subtypes like MONDO:0000457)",
+      "query": ">>mondo>>gwas_study>>gwas>>hgnc>>ensembl",
+      "why": "Drug discovery workflow: disease text to genes via GWAS studies. GWAS links to HGNC.",
       "should_pass": [
         "glioblastoma",
         "MONDO:0005044"
@@ -1876,8 +1876,8 @@
     {
       "category": "clinical_variants",
       "name": "Disease to ClinVar Genes via MONDO (Human)",
-      "query": ">>mondo>>clinvar>>ensembl[ensembl.genome==\"homo_sapiens\"]",
-      "why": "Full disease to human genes path via ClinVar - used in dbSNP path for gene retrieval",
+      "query": ">>mondo>>clinvar>>hgnc>>ensembl",
+      "why": "Full disease to human genes path via ClinVar. ClinVar links to HGNC (human genes only).",
       "should_pass": [
         "MONDO:0005148",
         "MONDO:0007254"
@@ -1887,8 +1887,8 @@
     {
       "category": "clinical_variants",
       "name": "Glioblastoma Text to ClinVar Genes",
-      "query": ">>mondo>>clinvar>>ensembl[ensembl.genome==\"homo_sapiens\"]",
-      "why": "Drug discovery workflow: disease text to genes via ClinVar - tests text-based disease lookup. MONDO:0005044 is main glioblastoma (not subtypes like MONDO:0000457)",
+      "query": ">>mondo>>clinvar>>hgnc>>ensembl",
+      "why": "Drug discovery workflow: disease text to genes via ClinVar. ClinVar links to HGNC.",
       "should_pass": [
         "glioblastoma",
         "MONDO:0005044"
@@ -1898,8 +1898,8 @@
     {
       "category": "clinical_variants",
       "name": "Protein to Pathogenic ClinVar Variants",
-      "query": ">>uniprot>>ensembl>>clinvar[clinvar.germline_classification==\"Pathogenic\"]",
-      "why": "Filter ClinVar variants to only pathogenic classifications - critical for clinical variant interpretation and identifying disease-causing mutations",
+      "query": ">>uniprot>>hgnc>>clinvar[clinvar.germline_classification==\"Pathogenic\"]",
+      "why": "Filter ClinVar variants to only pathogenic classifications via HGNC - critical for clinical variant interpretation",
       "should_pass": [
         "P06400",
         "P38398",
@@ -1910,7 +1910,7 @@
     {
       "category": "clinical_variants",
       "name": "Gene to Pathogenic ClinVar Variants",
-      "query": ">>ensembl>>clinvar[clinvar.germline_classification==\"Pathogenic\"]",
+      "query": ">>hgnc>>clinvar[clinvar.germline_classification==\"Pathogenic\"]",
       "why": "Find pathogenic variants for cancer genes - essential for clinical genetics panels and hereditary cancer testing",
       "should_pass": [
         "BRCA1",
@@ -1923,7 +1923,7 @@
     {
       "category": "clinical_variants",
       "name": "Gene to Likely Pathogenic ClinVar Variants",
-      "query": ">>ensembl>>clinvar[clinvar.germline_classification==\"Likely pathogenic\"]",
+      "query": ">>hgnc>>clinvar[clinvar.germline_classification==\"Likely pathogenic\"]",
       "why": "Find likely pathogenic variants - important for variant classification in clinical reports",
       "should_pass": [
         "BRCA1",
@@ -1934,7 +1934,7 @@
     {
       "category": "clinical_variants",
       "name": "Gene to SNV ClinVar Variants",
-      "query": ">>ensembl>>clinvar[clinvar.type==\"single nucleotide variant\"]",
+      "query": ">>hgnc>>clinvar[clinvar.type==\"single nucleotide variant\"]",
       "why": "Filter ClinVar to only single nucleotide variants - useful for SNP-focused analysis",
       "should_pass": [
         "BRCA1",
@@ -1945,7 +1945,7 @@
     {
       "category": "clinical_variants",
       "name": "Gene to Deletion ClinVar Variants",
-      "query": ">>ensembl>>clinvar[clinvar.type==\"Deletion\"]",
+      "query": ">>hgnc>>clinvar[clinvar.type==\"Deletion\"]",
       "why": "Filter ClinVar to deletion variants - important for detecting loss-of-function mutations",
       "should_pass": [
         "BRCA1",
@@ -1957,7 +1957,7 @@
       "category": "clinical_variants",
       "name": "ClinVar Pathogenic Variant Attributes Validation",
       "type": "validation",
-      "query": ">>ensembl>>clinvar[clinvar.germline_classification==\"Pathogenic\"]",
+      "query": ">>hgnc>>clinvar[clinvar.germline_classification==\"Pathogenic\"]",
       "identifier": "RB1",
       "why": "RB1 pathogenic variants should have correct classification attribute - filter ensures only pathogenic variants returned",
       "validations": [
@@ -2007,8 +2007,8 @@
     {
       "category": "drug_discovery",
       "name": "Disease Text to dbSNP Variants",
-      "query": ">>mondo>>gencc>>ensembl[ensembl.genome==\"homo_sapiens\"]>>dbsnp",
-      "why": "Drug discovery workflow: disease text to genetic variants for pharmacogenomics",
+      "query": ">>mondo>>gencc>>hgnc>>dbsnp",
+      "why": "Drug discovery workflow: disease text to genetic variants. GenCC links to HGNC, HGNC links to dbSNP.",
       "should_pass": [
         "glioblastoma",
         "breast cancer"
@@ -2018,8 +2018,8 @@
     {
       "category": "drug_discovery",
       "name": "Disease Text to IntAct Interactions",
-      "query": ">>mondo>>gencc>>ensembl[ensembl.genome==\"homo_sapiens\"]>>uniprot[uniprot.reviewed==true]>>intact",
-      "why": "Drug discovery workflow: disease text to experimentally validated protein interactions",
+      "query": ">>mondo>>gencc>>hgnc>>ensembl>>uniprot[uniprot.reviewed==true]>>intact",
+      "why": "Drug discovery workflow: disease text to protein interactions. GenCC links to HGNC.",
       "should_pass": [
         "glioblastoma"
       ],
@@ -3218,9 +3218,9 @@
     },
     {
       "category": "clinical_variants",
-      "name": "Human-Specific Pathogenic Variants",
-      "query": ">>ensembl[ensembl.genome==\"homo_sapiens\"]>>clinvar[clinvar.germline_classification==\"Pathogenic\"]",
-      "why": "Filter for human-only pathogenic variants (avoids mouse/rat orthologs)",
+      "name": "Human-Specific Pathogenic Variants via HGNC",
+      "query": ">>hgnc>>clinvar[clinvar.germline_classification==\"Pathogenic\"]",
+      "why": "HGNC is human-only, so this path automatically filters to human genes",
       "should_pass": [
         "BRCA1",
         "CFTR",
@@ -3408,9 +3408,9 @@
     },
     {
       "category": "filters_working",
-      "name": "GWAS Genome-Wide Significant",
-      "query": ">>ensembl>>gwas[gwas.p_value<0.00000005]",
-      "why": "Filter for genome-wide significant associations (p<5e-8)",
+      "name": "GWAS Genome-Wide Significant via HGNC",
+      "query": ">>hgnc>>gwas[gwas.p_value<0.00000005]",
+      "why": "Filter for genome-wide significant associations (p<5e-8). GWAS links to HGNC.",
       "should_pass": [
         "BRCA1"
       ],
@@ -3749,9 +3749,9 @@
     },
     {
       "category": "ncRNA_analysis",
-      "name": "lncRNA ClinVar Variants",
-      "query": ">>ensembl>>clinvar",
-      "why": "Find clinical variants in lncRNA genes - 38 for HOTAIR. MALAT1 resolves to zebrafish first and has no ClinVar entries.",
+      "name": "lncRNA ClinVar Variants via HGNC",
+      "query": ">>hgnc>>clinvar",
+      "why": "Find clinical variants in lncRNA genes via HGNC. HGNC is human-only.",
       "should_pass": [
         "HOTAIR"
       ],
@@ -3961,8 +3961,8 @@
     {
       "category": "complex_pipelines",
       "name": "Phenotype to Genes via ClinVar",
-      "query": ">>hpo>>clinvar>>ensembl",
-      "why": "Map clinical phenotypes to genes with pathogenic variants - 150+ for seizures",
+      "query": ">>hpo>>clinvar>>hgnc>>ensembl",
+      "why": "Map clinical phenotypes to genes with pathogenic variants. ClinVar links to HGNC.",
       "should_pass": [
         "HP:0001250"
       ],
@@ -3970,9 +3970,9 @@
     },
     {
       "category": "complex_pipelines",
-      "name": "Disease Genes to Model Organisms (4 hops)",
-      "query": ">>mondo>>gencc>>ensembl>>ortholog",
-      "why": "Find orthologs for disease genes - 49 for Huntington's",
+      "name": "Disease Genes to Model Organisms (5 hops)",
+      "query": ">>mondo>>gencc>>hgnc>>ensembl>>ortholog",
+      "why": "Find orthologs for disease genes. GenCC links to HGNC.",
       "should_pass": [
         "MONDO:0007739"
       ],
@@ -4352,8 +4352,8 @@
     {
       "category": "rare_diseases",
       "name": "Phenotype to Mendelian Disease Genes Pipeline",
-      "query": ">>hpo>>mim>>clinvar>>ensembl",
-      "why": "Phenotype to OMIM to ClinVar to genes - Mendelian disease gene discovery pipeline.",
+      "query": ">>hpo>>mim>>clinvar>>hgnc>>ensembl",
+      "why": "Phenotype to OMIM to ClinVar to genes via HGNC. ClinVar links to HGNC.",
       "should_pass": [
         "HP:0001250"
       ],
@@ -4591,9 +4591,9 @@
     },
     {
       "category": "cell_type_biology",
-      "name": "Cell Type to Pathogenic Variants",
-      "query": ">>cl>>bgee>>ensembl>>clinvar[clinvar.germline_classification==\"Pathogenic\"]",
-      "why": "Pathogenic variants in cell-type-expressed genes (4 hops with filter)",
+      "name": "Cell Type to Pathogenic Variants via HGNC",
+      "query": ">>cl>>bgee>>ensembl>>hgnc>>clinvar[clinvar.germline_classification==\"Pathogenic\"]",
+      "why": "Pathogenic variants in cell-type-expressed genes. ClinVar links to HGNC.",
       "should_pass": [
         "CL:0000540"
       ],
@@ -4783,9 +4783,9 @@
     },
     {
       "category": "gene_set_advanced",
-      "name": "Gene Set to Pathogenic Variants (4 hops filtered)",
-      "query": ">>msigdb>>hgnc>>ensembl>>clinvar[clinvar.germline_classification==\"Pathogenic\"]",
-      "why": "Pathogenic mutations within a pathway gene set",
+      "name": "Gene Set to Pathogenic Variants via HGNC",
+      "query": ">>msigdb>>hgnc>>clinvar[clinvar.germline_classification==\"Pathogenic\"]",
+      "why": "Pathogenic mutations within a pathway gene set. HGNC links to ClinVar.",
       "should_pass": [
         "M5902"
       ],
@@ -5008,9 +5008,9 @@
     },
     {
       "category": "advanced_multihop_pipelines",
-      "name": "Pathway to Diseases via ClinVar (4 hops)",
-      "query": ">>reactome>>ensembl>>clinvar>>mondo",
-      "why": "Diseases linked to pathway genes through clinical variants",
+      "name": "Pathway to Diseases via ClinVar (5 hops)",
+      "query": ">>reactome>>ensembl>>hgnc>>clinvar>>mondo",
+      "why": "Diseases linked to pathway genes through clinical variants. ClinVar links to HGNC.",
       "should_pass": [
         "R-HSA-5693567"
       ],
@@ -5522,9 +5522,9 @@
     },
     {
       "category": "ultra_complex_multihop",
-      "name": "Cell Type to Diseases via Variants (5 hops)",
-      "query": ">>cl>>scxa>>ensembl>>clinvar>>mondo",
-      "why": "Cell type marker genes to disease associations via variants",
+      "name": "Cell Type to Diseases via Variants (6 hops)",
+      "query": ">>cl>>scxa>>ensembl>>hgnc>>clinvar>>mondo",
+      "why": "Cell type marker genes to disease associations via variants. ClinVar links to HGNC.",
       "should_pass": [
         "CL:0000540"
       ],
@@ -5552,9 +5552,9 @@
     },
     {
       "category": "ultra_complex_multihop",
-      "name": "Disease to Drug Targets via Genetics (6 hops)",
-      "query": ">>mondo>>clinvar>>ensembl>>uniprot>>chembl_target_component>>chembl_target",
-      "why": "Genetics-informed drug target discovery",
+      "name": "Disease to Drug Targets via Genetics (7 hops)",
+      "query": ">>mondo>>clinvar>>hgnc>>ensembl>>uniprot>>chembl_target_component>>chembl_target",
+      "why": "Genetics-informed drug target discovery. ClinVar links to HGNC.",
       "should_pass": [
         "MONDO:0005148"
       ],
@@ -5562,9 +5562,9 @@
     },
     {
       "category": "ultra_complex_multihop",
-      "name": "Cell Type to GWAS Traits (5 hops)",
-      "query": ">>cl>>scxa>>ensembl>>gwas>>efo",
-      "why": "Link cell biology to population genetics via single-cell markers",
+      "name": "Cell Type to GWAS Traits (6 hops)",
+      "query": ">>cl>>scxa>>ensembl>>hgnc>>gwas>>efo",
+      "why": "Link cell biology to population genetics via single-cell markers. GWAS links to HGNC.",
       "should_pass": [
         "CL:0000084"
       ],
@@ -5572,9 +5572,9 @@
     },
     {
       "category": "ultra_complex_multihop",
-      "name": "Tissue to Rare Diseases (6 hops)",
-      "query": ">>uberon>>bgee>>ensembl>>clinvar>>mondo>>orphanet",
-      "why": "Tissue-centric rare disease discovery via expression and variants",
+      "name": "Tissue to Rare Diseases (7 hops)",
+      "query": ">>uberon>>bgee>>ensembl>>hgnc>>clinvar>>mondo>>orphanet",
+      "why": "Tissue-centric rare disease discovery via expression and variants. ClinVar links to HGNC.",
       "should_pass": [
         "UBERON:0002107"
       ],
@@ -5786,9 +5786,9 @@
     },
     {
       "category": "transcription_regulation",
-      "name": "CollecTRI to Ensembl (human genes)",
-      "query": ">>collectri>>ensembl",
-      "why": "CollecTRI entries have cross-references to human Ensembl genes via HGNC",
+      "name": "CollecTRI to Ensembl via HGNC",
+      "query": ">>collectri>>hgnc>>ensembl",
+      "why": "CollecTRI links to HGNC, HGNC links to Ensembl (human genes only)",
       "should_pass": [
         "MYC:TERT",
         "TP53:MDM2"
@@ -5819,9 +5819,9 @@
     },
     {
       "category": "transcription_regulation",
-      "name": "Ensembl to CollecTRI (reverse)",
-      "query": ">>ensembl>>collectri",
-      "why": "Find regulatory interactions for a human Ensembl gene",
+      "name": "Ensembl to CollecTRI via HGNC",
+      "query": ">>ensembl>>hgnc>>collectri",
+      "why": "Find regulatory interactions for a human Ensembl gene via HGNC",
       "should_pass": [
         "ENSG00000136997",
         "ENSG00000141510"
@@ -5841,9 +5841,9 @@
     },
     {
       "category": "transcription_regulation",
-      "name": "TF to Target to Pathway",
-      "query": ">>collectri>>ensembl>>reactome",
-      "why": "Multi-hop: find pathways containing genes regulated by a TF",
+      "name": "TF to Target to Pathway via HGNC",
+      "query": ">>collectri>>hgnc>>ensembl>>reactome",
+      "why": "Multi-hop: find pathways containing genes regulated by a TF. CollecTRI links to HGNC.",
       "should_pass": [
         "MYC:TERT",
         "TP53:MDM2"

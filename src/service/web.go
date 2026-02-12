@@ -20,7 +20,7 @@ var config *configs.Conf
 const spacestr = " "
 
 type Web struct {
-	service service
+	service *Service
 	metaRes []byte
 }
 
@@ -28,7 +28,7 @@ func (web *Web) Start(c *configs.Conf, nowebpopup bool, prodMode bool) {
 
 	config = c
 
-	s := service{}
+	s := &Service{}
 	s.init()
 
 	web.service = s
@@ -175,7 +175,7 @@ func (web *Web) entry(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(buf.String()))
 		return
 	}
-	r1, err := web.service.getLmdbResult2(strings.ToUpper(ids[0]), src)
+	r1, err := web.service.LookupByDataset(ids[0], src)
 
 	if err != nil {
 		buf.WriteString("[")
@@ -311,7 +311,7 @@ func (web *Web) search(w http.ResponseWriter, r *http.Request) {
 	} else {
 		// Full mode - complete response with attributes
 		detail := mode == "full"
-		res, err := web.service.search(ids, src, page, filterq, detail, url)
+		res, err := web.service.Search(ids, src, page, filterq, detail, url)
 
 		if err != nil {
 			buf.WriteString("[")
@@ -430,7 +430,7 @@ func (web *Web) mapFilter(w http.ResponseWriter, r *http.Request) {
 
 	if mode == "lite" {
 		// Lite mode - compact response with IDs only
-		res, err := web.service.mapFilterLite(ids, mapfil[0], page)
+		res, err := web.service.MapFilterLite(ids, mapfil[0], page)
 		if err != nil {
 			errStr := errString{Err: err.Error()}
 			jb, _ := ffjson.Marshal(errStr)
@@ -443,7 +443,7 @@ func (web *Web) mapFilter(w http.ResponseWriter, r *http.Request) {
 		buf.WriteString(string(jb))
 	} else {
 		// Full mode - complete response with attributes
-		res, err := web.service.mapFilter(ids, mapfil[0], page)
+		res, err := web.service.MapFilter(ids, mapfil[0], page)
 		if err != nil {
 			errStr := errString{Err: err.Error()}
 			jb, _ := ffjson.Marshal(errStr)

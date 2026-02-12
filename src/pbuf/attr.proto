@@ -1367,6 +1367,7 @@ message EntrezAttr {
   int64 end_position = 8;       // genomic end position
   string orientation = 9;       // strand orientation: + or -
   string genomic_accession = 10; // RefSeq genomic accession (e.g., NC_000001.11)
+  string tax_id = 11;            // NCBI taxonomy ID (e.g., "9606" for human)
 }
 
 // RefSeqAttr stores NCBI RefSeq sequence attributes
@@ -2343,5 +2344,21 @@ message CellphonedbAttr {
   repeated string genes_b = 14;    // Gene symbols for partner B
 
   bool is_integrin = 15;           // Involves integrin
+}
+
+// SpliceAI - Deep Learning Splice Variant Prediction (Dataset ID: 752)
+// Precomputed splice site impact predictions from Broad Institute
+// Source: https://spliceailookup.broadinstitute.org/
+// Primary key: chr:pos:ref:alt (e.g., "1:803428:TCCAT:T")
+// License: GPLv3 + CC BY-NC 4.0 (academic/non-commercial)
+message SpliceAIAttr {
+  string chromosome = 1;           // Chromosome (1-22, X, Y, M)
+  int64 position = 2;              // Genomic position (GRCh38)
+  string ref_allele = 3;           // Reference allele
+  string alt_allele = 4;           // Alternate allele
+  string effect = 5;               // Splice effect: acceptor_loss, acceptor_gain, donor_loss, donor_gain
+  float score = 6;                 // Delta score (0.0-1.0, higher = more splice impact)
+  string gene_symbol = 7;          // Gene symbol (if available)
+  string allele_info = 8;          // Original allele string from BED (chr-pos-ref-alt)
 }
 

@@ -1938,10 +1938,89 @@ func (d *DataUpdate) addHumanGeneXrefsViaEnsembl(geneSymbol, sourceID, sourceDat
 
 // addHumanGeneXrefsAll creates cross-references to ALL gene databases: HGNC, Entrez, and Ensembl
 // This ensures all query paths work: >>hgnc>>dataset, >>entrez>>dataset, >>ensembl>>dataset
-// Recommended for comprehensive gene symbol coverage
-// geneSymbol: Gene symbol (e.g., "BRCA1", "LOC124900163")
-// sourceID: The source entity identifier (e.g., variant ID, disease ID)
-// sourceDatasetID: The dataset ID of the source entity
+//
+// LOOKUP STRATEGY (Two-Phase Approach):
+// Each lookup (Entrez, Ensembl) uses a two-phase strategy:
+//   Phase 1: Direct text search with species filter
+//            - Entrez:  >>entrez[entrez.tax_id=="9606"]
+//            - Ensembl: >>ensembl[ensembl.genome=="homo_sapiens"]
+//   Phase 2: If Phase 1 fails, try via HGNC (no filter needed, HGNC is human-only)
+//            - Entrez:  >>hgnc>>entrez
+//            - Ensembl: >>hgnc>>ensembl
+//
+// WHY TWO PHASES?
+// - Phase 1 handles genes that exist directly in the target database with their symbol
+//   (e.g., LOC genes in Entrez, standard genes in Ensembl)
+// - Phase 2 handles genes with naming convention differences where HGNC provides
+//   the canonical mapping (e.g., MT-RNR2 -> HGNC:7471 -> entrez:4550)
+//
+// DATABASE COVERAGE COMPARISON (HGNC vs Entrez vs Ensembl):
+//
+// HGNC (HUGO Gene Nomenclature Committee):
+//   - Human-only database (~43,000 approved gene symbols)
+//   - Provides official, standardized gene symbols and names
+//   - Best for: Canonical gene symbol resolution, synonym mapping
+//   - Coverage: Protein-coding genes, RNA genes, pseudogenes with approved symbols
+//   - NOT covered: LOC genes, many provisional/unapproved gene annotations
+//
+// Entrez Gene (NCBI):
+//   - Multi-species database (~65 million genes across all species)
+//   - Human subset: ~65,000 genes including provisional annotations
+//   - Best for: Comprehensive coverage, LOC genes, recent annotations
+//   - Coverage: All annotated genes including provisional (LOC) IDs
+//   - Unique: LOC genes (e.g., LOC121852934) - NCBI provisional IDs
+//   - Naming: May use different symbols than HGNC (e.g., RNR2 vs MT-RNR2)
+//
+// Ensembl:
+//   - Multi-species database with focus on genome annotation
+//   - Human subset: ~60,000 genes (ENSG IDs)
+//   - Best for: Genome coordinates, transcripts, regulatory features
+//   - Coverage: Genes mapped to reference genome assembly
+//   - NOT covered: Many LOC genes, some provisional annotations
+//   - Naming: Uses HGNC symbols when available
+//
+// EXPECTED LOOKUP RESULTS BY GENE TYPE:
+//
+// ┌─────────────────────────┬────────┬────────┬─────────┐
+// │ Gene Type               │ HGNC   │ Entrez │ Ensembl │
+// ├─────────────────────────┼────────┼────────┼─────────┤
+// │ Standard genes          │ ✓      │ ✓      │ ✓       │
+// │ (BRCA1, TP53, EGFR)     │        │        │         │
+// ├─────────────────────────┼────────┼────────┼─────────┤
+// │ LOC genes               │ ✗      │ ✓      │ ✗       │
+// │ (LOC121852934)          │        │        │         │
+// ├─────────────────────────┼────────┼────────┼─────────┤
+// │ Non-coding RNA genes    │ ✓      │ ✗      │ ✓       │
+// │ (Y_RNA, SNORA, SNORD)   │        │        │         │
+// ├─────────────────────────┼────────┼────────┼─────────┤
+// │ Mitochondrial genes     │ ✓      │ ✓*     │ ✓       │
+// │ (MT-RNR2, MT-ND1)       │        │ *via   │         │
+// │                         │        │ HGNC   │         │
+// ├─────────────────────────┼────────┼────────┼─────────┤
+// │ Immunoglobulin loci     │ ✓      │ ✓      │ ✗       │
+// │ (IGH, IGK, IGL)         │        │        │ complex │
+// ├─────────────────────────┼────────┼────────┼─────────┤
+// │ tRNA genes              │ varies │ varies │ varies  │
+// │ (TRH-GTG2-1)            │        │        │         │
+// ├─────────────────────────┼────────┼────────┼─────────┤
+// │ Endogenous retroviruses │ varies │ ✓      │ varies  │
+// │ (ERVK-19, ERVFRD-2)     │        │        │         │
+// ├─────────────────────────┼────────┼────────┼─────────┤
+// │ Locus control regions   │ ✓      │ ✓      │ ✗       │
+// │ (H19-ICR, HBA-LCR)      │        │        │ not gene│
+// └─────────────────────────┴────────┴────────┴─────────┘
+//
+// NOTES:
+// - ✓ = Usually found, ✗ = Usually not found
+// - "varies" = Coverage depends on specific gene
+// - *via HGNC = Direct lookup may fail, but HGNC fallback succeeds
+// - LOC genes are the most common "not found" case for Ensembl lookups
+// - Non-coding RNA genes (Y_RNA, snoRNAs) often in HGNC/Ensembl but not Entrez
+//
+// PARAMETERS:
+//   geneSymbol: Gene symbol (e.g., "BRCA1", "TP53", "LOC124900163", "MT-RNR2")
+//   sourceID: The source entity identifier (e.g., variant ID, disease ID)
+//   sourceDatasetID: The dataset ID of the source entity
 func (d *DataUpdate) addHumanGeneXrefsAll(geneSymbol, sourceID, sourceDatasetID string) {
 	d.addHumanGeneXrefsViaHGNC(geneSymbol, sourceID, sourceDatasetID)
 	d.addHumanGeneXrefsViaEntrez(geneSymbol, sourceID, sourceDatasetID)
@@ -2231,14 +2310,15 @@ func (d *DataUpdate) lookupPage(pageKey string, datasetID uint32) (*pbuf.Xref, e
 
 // lookupHumanEntrezGene looks up a gene symbol and returns the HUMAN Entrez gene entry
 // Uses the service's MapFilterLite function with taxonomy filter for reliable lookup
+// Strategy: 1) Try >>entrez[filter] for direct matches (LOC genes, etc.)
+//           2) If not found, try >>hgnc>>entrez for genes with HGNC entries (synonym resolution)
 func (d *DataUpdate) lookupHumanEntrezGene(geneSymbol string, entrezDatasetID, taxDatasetID uint32) (*pbuf.XrefEntry, error) {
 	if d.lookupService == nil {
 		return nil, fmt.Errorf("lookup service not available")
 	}
 
-	// Use MapFilterLite with taxonomy filter to find human Entrez gene
-	// Query: >>*>>entrez[filter] - >>* does text search, then maps to entrez with filter
-	result, err := d.lookupService.MapFilterLite([]string{geneSymbol}, ">>*>>entrez[entrez.tax_id==\"9606\"]", "")
+	// First try: direct text search with filter (works for LOC genes, etc.)
+	result, err := d.lookupService.MapFilterLite([]string{geneSymbol}, ">>entrez[entrez.tax_id==\"9606\"]", "")
 	if err != nil {
 		return nil, err
 	}
@@ -2256,19 +2336,40 @@ func (d *DataUpdate) lookupHumanEntrezGene(geneSymbol string, entrezDatasetID, t
 		}
 	}
 
+	// Second try: via HGNC for synonym resolution (MT-RNR2 -> HGNC -> entrez 4550)
+	// No filter needed since HGNC is human-only
+	result, err = d.lookupService.MapFilterLite([]string{geneSymbol}, ">>hgnc>>entrez", "")
+	if err != nil {
+		return nil, err
+	}
+
+	if result != nil && len(result.Mappings) > 0 {
+		for _, mapping := range result.Mappings {
+			if mapping.Error == "" && len(mapping.Targets) > 0 {
+				target := mapping.Targets[0]
+				return &pbuf.XrefEntry{
+					Dataset:    entrezDatasetID,
+					Identifier: target.Id,
+				}, nil
+			}
+		}
+	}
+
+	log.Printf("[DEBUG lookupHumanEntrezGene] No mapping found for gene symbol: %s", geneSymbol)
 	return nil, nil // No human Entrez entry found
 }
 
 // lookupHumanEnsemblGene looks up a gene symbol and returns the HUMAN Ensembl gene entry
 // Uses the service's MapFilterLite function with genome filter for reliable lookup
+// Strategy: 1) Try >>ensembl[filter] for direct matches
+//           2) If not found, try >>hgnc>>ensembl for genes with HGNC entries (synonym resolution)
 func (d *DataUpdate) lookupHumanEnsemblGene(geneSymbol string, ensemblDatasetID uint32) (*pbuf.XrefEntry, error) {
 	if d.lookupService == nil {
 		return nil, fmt.Errorf("lookup service not available")
 	}
 
-	// Use MapFilterLite with genome filter to find human Ensembl gene
-	// Query: >>*>>ensembl[filter] - >>* does text search, then maps to ensembl with filter
-	result, err := d.lookupService.MapFilterLite([]string{geneSymbol}, ">>*>>ensembl[ensembl.genome==\"homo_sapiens\"]", "")
+	// First try: direct text search with filter
+	result, err := d.lookupService.MapFilterLite([]string{geneSymbol}, ">>ensembl[ensembl.genome==\"homo_sapiens\"]", "")
 	if err != nil {
 		return nil, err
 	}
@@ -2286,5 +2387,25 @@ func (d *DataUpdate) lookupHumanEnsemblGene(geneSymbol string, ensemblDatasetID 
 		}
 	}
 
+	// Second try: via HGNC for synonym resolution (MT-RNR2 -> HGNC -> ensembl)
+	// No filter needed since HGNC is human-only
+	result, err = d.lookupService.MapFilterLite([]string{geneSymbol}, ">>hgnc>>ensembl", "")
+	if err != nil {
+		return nil, err
+	}
+
+	if result != nil && len(result.Mappings) > 0 {
+		for _, mapping := range result.Mappings {
+			if mapping.Error == "" && len(mapping.Targets) > 0 {
+				target := mapping.Targets[0]
+				return &pbuf.XrefEntry{
+					Dataset:    ensemblDatasetID,
+					Identifier: target.Id,
+				}, nil
+			}
+		}
+	}
+
+	log.Printf("[DEBUG lookupHumanEnsemblGene] No mapping found for gene symbol: %s", geneSymbol)
 	return nil, nil // No human Ensembl entry found
 }

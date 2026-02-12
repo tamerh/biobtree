@@ -247,7 +247,12 @@ startMapping:
 	}
 
 	if len(inputXrefs) == 0 {
-		// No results found - return empty result with message instead of error
+		// No results in this page - check if there are more pages to search
+		if newRootPage != "" {
+			// Filter removed all entries from this page, continue to next page
+			goto startMapping
+		}
+		// No more pages - return empty result with message instead of error
 		result.Message = "No results found"
 		EnrichMapFilterResult(&result)
 		return &result, nil

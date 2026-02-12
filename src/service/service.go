@@ -1014,20 +1014,34 @@ func (s *Service) Search(ids []string, idsDomain uint32, page string, q *query.Q
 							linkIndex++
 						}
 					}
-					if len(xref.Pages) > 0 { // link pages
+					if len(xref.DatasetPages) > 0 { // link pages - use DatasetPages for correct page key prefix
 
-						if pagingInfo != nil && pagingInfo.linkActive && !pagingInfo.linkIndexProcessed {
-							if pagingInfo.linkPageIndex > -1 {
-								xref.Pages = xref.Pages[pagingInfo.linkPageIndex:]
+						// Iterate over DatasetPages to use correct target dataset prefix
+						for targetDatasetID, pageInfo := range xref.DatasetPages {
+							// If filtering by dataset, only process pages for that dataset
+							if idsDomain > 0 && targetDatasetID != idsDomain {
+								continue
 							}
-						}
 
-						for pageIndex, page := range xref.Pages {
-							pageKey := id + spacestr + config.DataconfIDToPageKey[0] + spacestr + page
-							xrefPage, err := s.LookupByDataset(pageKey, xref.Dataset)
-							if err != nil {
-								return nil, err
-							}
+							for pageIndex, page := range pageInfo.Pages {
+								// Build page key with SOURCE dataset prefix (0 for text links)
+								// Pages are stored under text link key prefix, not target dataset prefix
+								pageKey := id + spacestr + config.DataconfIDToPageKey[0] + spacestr + page
+								// Try target dataset first, then main (0) - pages may be stored in either
+								xrefPage, err := s.LookupPage(pageKey, targetDatasetID)
+								if err != nil {
+									return nil, err
+								}
+								if xrefPage == nil {
+									// Try main federation (pages might be stored there during text link merge)
+									xrefPage, err = s.LookupPage(pageKey, 0)
+									if err != nil {
+										return nil, err
+									}
+								}
+								if xrefPage == nil {
+									continue
+								}
 
 							if pagingInfo != nil && pagingInfo.linkActive && !pagingInfo.linkIndexProcessed {
 								xrefPage.Entries = xrefPage.Entries[pagingInfo.linkIndex:]
@@ -1098,6 +1112,7 @@ func (s *Service) Search(ids []string, idsDomain uint32, page string, q *query.Q
 								linkIndex++
 							}
 
+						}
 						}
 					}
 				} else {
@@ -1456,10 +1471,8 @@ func (s *Service) LookupFullEntry(identifier string, datasetID uint32) (*pbuf.Xr
 }
 
 // LookupPage fetches a page of entries from the appropriate federation database.
+// Pages are stored as pbuf.Result containing a single Xref with the page entries.
 func (s *Service) LookupPage(pageKey string, datasetID uint32) (*pbuf.Xref, error) {
-	// LMDB keys are stored uppercase - normalize input
-	pageKey = strings.ToUpper(pageKey)
-
 	env, dbi := s.getDBForDataset(datasetID)
 
 	var v []byte
@@ -1479,13 +1492,19 @@ func (s *Service) LookupPage(pageKey string, datasetID uint32) (*pbuf.Xref, erro
 		return nil, nil
 	}
 
-	xref := &pbuf.Xref{}
-	err = proto.Unmarshal(v, xref)
+	// Pages are stored as pbuf.Result, not pbuf.Xref
+	result := &pbuf.Result{}
+	err = proto.Unmarshal(v, result)
 	if err != nil {
 		return nil, err
 	}
 
-	return xref, nil
+	// Extract the first Xref from Results
+	if len(result.Results) == 0 {
+		return nil, nil
+	}
+
+	return result.Results[0], nil
 }
 
 // GetDBForDataset returns the database connection for a specific dataset ID (exported version)

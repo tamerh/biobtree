@@ -1,0 +1,23 @@
+[
+  {
+    "id": "EH38E2776516",
+    "ccre_class": "pELS",
+    "chromosome": "chr1",
+    "start": 10033,
+    "end": 10250
+  },
+  {
+    "id": "EH38E2776517",
+    "ccre_class": "pELS",
+    "chromosome": "chr1",
+    "start": 10361,
+    "end": 10485
+  },
+  {
+    "id": "EH38E1310189",
+    "ccre_class": "PLS",
+    "chromosome": "chr1",
+    "start": 11012,
+    "end": 11255
+  }
+]

@@ -823,8 +823,14 @@ func (b *biogrid) createCrossReferences(biogridID string, agg *biogridAggregator
 	}
 
 	// BioGRID ↔ RefSeq (bidirectional)
+	// Strip version suffix (e.g., NP_003001.2 -> NP_003001)
+	// RefSeq IDs are indexed by base accession
 	for _, refseqID := range agg.refseqIDs {
 		if refseqID != "" {
+			// Strip version suffix if present
+			if idx := strings.LastIndex(refseqID, "."); idx > 0 {
+				refseqID = refseqID[:idx]
+			}
 			b.d.addXref(biogridID, sourceID, refseqID, "refseq", false)
 		}
 	}

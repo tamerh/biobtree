@@ -1,0 +1,67 @@
+{
+  "common_tests": [
+    {
+      "name": "Lookup by matrix ID",
+      "type": "id_lookup",
+      "id": "@reference[0].id"
+    },
+    {
+      "name": "Lookup by TF name",
+      "type": "symbol_lookup",
+      "symbol": "@reference[0].name"
+    },
+    {
+      "name": "Check attributes present",
+      "type": "attribute_check",
+      "id": "@reference[0].id"
+    },
+    {
+      "name": "Lookup multiple IDs",
+      "type": "multi_lookup",
+      "count": 3,
+      "id_field": "id"
+    },
+    {
+      "name": "Case-insensitive name search",
+      "type": "case_insensitive",
+      "symbol": "@reference[0].name"
+    },
+    {
+      "name": "Invalid ID handling",
+      "type": "invalid_id",
+      "invalid_id": "MA9999999.1"
+    }
+  ],
+  "custom_tests": [
+    {
+      "name": "CORE collection entry",
+      "description": "Verify CORE collection entries have correct collection attribute",
+      "query_type": "search",
+      "query": "MA0004.1",
+      "expected": {
+        "has_results": true,
+        "attribute_contains": {
+          "collection": "CORE"
+        }
+      }
+    },
+    {
+      "name": "UniProt cross-reference",
+      "description": "Verify UniProt cross-references are created",
+      "query_type": "map",
+      "query": "MA0004.1 >> jaspar >> uniprot",
+      "expected": {
+        "has_results": true
+      }
+    },
+    {
+      "name": "Heterodimer gene symbol search",
+      "description": "Search for individual gene in heterodimer",
+      "query_type": "search",
+      "query": "MYC",
+      "expected": {
+        "has_results": true
+      }
+    }
+  ]
+}

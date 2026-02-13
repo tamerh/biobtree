@@ -114,6 +114,8 @@ DATASETS=(
     string
     signor
     collectri
+    jaspar
+    encode_ccre
     corum
     cellphonedb
     bgee
@@ -121,6 +123,7 @@ DATASETS=(
     cellxgene_celltype
     scxa
     scxa_expression
+    fantom5_promoter
     protein_similarity
     esm2_similarity
 

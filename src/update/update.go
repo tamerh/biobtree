@@ -927,6 +927,12 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			d.datasets2 = append(d.datasets2, data)
 			go sai.update()
 			break
+		case "mirdb":
+			d.wg.Add(1)
+			mdb := mirdb{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go mdb.update()
+			break
 		case "brenda":
 			d.wg.Add(1)
 			br := brenda{source: data, d: d}
@@ -963,6 +969,34 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			pdbParser := pdb{source: data, d: d}
 			d.datasets2 = append(d.datasets2, data)
 			go pdbParser.update()
+			break
+		case "fantom5_promoter":
+			d.wg.Add(1)
+			f5 := fantom5{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			// Also add child datasets to tracking
+			if _, exists := config.Dataconf["fantom5_enhancer"]; exists {
+				d.datasets2 = append(d.datasets2, "fantom5_enhancer")
+			}
+			if _, exists := config.Dataconf["fantom5_gene"]; exists {
+				d.datasets2 = append(d.datasets2, "fantom5_gene")
+			}
+			go f5.update()
+			break
+		case "fantom5_enhancer", "fantom5_gene":
+			// These are processed by the fantom5_promoter parser, skip standalone processing
+			break
+		case "jaspar":
+			d.wg.Add(1)
+			jp := jaspar{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go jp.update()
+			break
+		case "encode_ccre":
+			d.wg.Add(1)
+			ec := encode_ccre{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go ec.update()
 			break
 		default:
 			log.Fatal("ERROR Unrecognized dataset ->" + data)
@@ -1410,6 +1444,17 @@ func (d *DataUpdate) addProp3(key, from string, attr []byte) {
 	}
 
 	kup := strings.ToUpper(key)
+
+	// Panic on keys that exceed LMDB max key size - fix the data source instead of silently skipping
+	if len(kup) > LMDBMaxKeySize {
+		preview := kup
+		if len(preview) > 200 {
+			preview = preview[:200] + "..."
+		}
+		panic(fmt.Sprintf("addProp3: key too long (%d > %d bytes) - fix data source! from=%s key=%s",
+			len(kup), LMDBMaxKeySize, from, preview))
+	}
+
 	line := kup + tab + from + tab + string(attr) + tab + textStoreID
 
 	// Route through bucket system (always available, auto-creates configs for all datasets)
@@ -1540,6 +1585,96 @@ func (d *DataUpdate) addXrefFull(key string, from string, value string, valueFro
 		}
 	}
 
+}
+
+// =============================================================================
+// MODEL SPECIES PRIORITY FOR SEARCH RESULT ORDERING
+// =============================================================================
+// When searching for gene symbols, model species (human, mouse, etc.) should
+// appear first in results. This is achieved by adding a priority field during
+// text link creation, sorting by key+priority, then stripping the priority field.
+
+// modelSpeciesPriority maps taxonomy IDs to sort priority (lower = higher priority)
+// These are the most commonly studied model organisms in biology research
+var modelSpeciesPriority = map[string]string{
+	"9606":  "01", // Human (Homo sapiens)
+	"10090": "02", // Mouse (Mus musculus)
+	"10116": "03", // Rat (Rattus norvegicus)
+	"7955":  "04", // Zebrafish (Danio rerio)
+	"7227":  "05", // Fruit fly (Drosophila melanogaster)
+	"6239":  "06", // Nematode (Caenorhabditis elegans)
+	"4932":  "07", // Yeast (Saccharomyces cerevisiae)
+	"3702":  "08", // Arabidopsis (Arabidopsis thaliana)
+}
+
+// getModelSpeciesPriority returns the sort priority for a taxonomy ID
+// Model species get low priority numbers (sorted first), others get "99" (sorted last)
+func getModelSpeciesPriority(taxID string) string {
+	if p, ok := modelSpeciesPriority[taxID]; ok {
+		return p
+	}
+	return "99" // Non-model species sorted last
+}
+
+// addXrefWithPriority creates a text link with species priority for sorting
+// The priority field is appended as field 7 and is stripped after sorting
+// This ensures model species (human, mouse, etc.) appear first in search results
+// Format: KEY <tab> FROM <tab> VALUE <tab> DATASETID <tab> EVIDENCE <tab> RELATIONSHIP <tab> PRIORITY
+func (d *DataUpdate) addXrefWithPriority(key string, from string, value string, valueFrom string, isLink bool, taxID string) {
+	key = strings.TrimSpace(key)
+	value = strings.TrimSpace(value)
+
+	if len(key) == 0 || len(value) == 0 || len(from) == 0 {
+		return
+	}
+
+	if _, ok := config.Dataconf[valueFrom]; !isLink && !ok {
+		if val, _ := d.invalidXrefs.Get(valueFrom); val == nil {
+			d.invalidXrefs.Set(valueFrom, "true")
+		}
+		return
+	}
+
+	// CRITICAL: Validate that target dataset has a valid ID
+	if !isLink {
+		if config.Dataconf[valueFrom]["id"] == "" {
+			log.Printf("ERROR: Dataset '%s' has empty 'id' in config - cannot create xref from %s to %s", valueFrom, key, value)
+			return
+		}
+	}
+
+	// Target dataset filtering
+	if _, ok := d.targetDatasets[valueFrom]; d.hasTargets && !ok && !isLink {
+		return
+	}
+
+	kup := strings.ToUpper(key)
+	vup := strings.ToUpper(value)
+
+	// Get priority based on taxonomy ID
+	priority := getModelSpeciesPriority(taxID)
+
+	// Storage format with priority: KEY <tab> FROM <tab> VALUE <tab> DATASETID <tab> <tab> <tab> PRIORITY
+	// Empty evidence and relationship fields, priority at position 7
+	dataLine := kup + tab + from + tab + vup + tab + config.Dataconf[valueFrom]["id"] + tab + tab + tab + priority
+
+	if isLink {
+		// Skip keys that exceed LMDB max key size
+		if len(kup) > LMDBMaxKeySize {
+			preview := kup
+			if len(preview) > 100 {
+				preview = preview[:100] + "..."
+			}
+			log.Printf("[TextSearch] Skipping long key (%d bytes > %d max) from %s: %s",
+				len(kup), LMDBMaxKeySize, valueFrom, preview)
+			return
+		}
+		// Text/keyword links route to textsearch buckets
+		d.bucketPool.WriteReverse(TextSearchDatasetID, kup, dataLine, valueFrom)
+	} else {
+		// Non-link xrefs use standard addXrefFull (no priority needed for non-text-search)
+		d.addXrefFull(key, from, value, valueFrom, isLink, "", "")
+	}
 }
 
 // this is similar with addXref but for only link datasets like orthologes,paralogs where no need text link checking and reverse mapping creation
@@ -1740,6 +1875,17 @@ func (d *DataUpdate) addProp3Bucketed(key, from string, attr []byte) {
 	}
 
 	kup := strings.ToUpper(key)
+
+	// Panic on keys that exceed LMDB max key size - fix the data source instead of silently skipping
+	if len(kup) > LMDBMaxKeySize {
+		preview := kup
+		if len(preview) > 200 {
+			preview = preview[:200] + "..."
+		}
+		panic(fmt.Sprintf("addProp3Bucketed: key too long (%d > %d bytes) - fix data source! from=%s key=%s",
+			len(kup), LMDBMaxKeySize, from, preview))
+	}
+
 	line := kup + tab + from + tab + string(attr) + tab + textStoreID
 	d.bucketPool.WriteForward(from, datasetName, kup, line, "entry")
 }

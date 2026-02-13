@@ -28,7 +28,8 @@ InterPro is a comprehensive resource for protein families, domains, and function
 - **Member databases**: Pfam, PROSITE, SMART, PRINTS, ProDom, CDD, etc.
 - **Literature**: PubMed references
 - **Structural**: PDB entries
-- **Hierarchical**: Parent-child InterPro relationships
+- **Hierarchical**: Parent-child InterPro relationships (`interproparent`, `interprochild`)
+- **GO annotations**: Gene Ontology terms linked to each InterPro entry
 
 ### Entry Types
 
@@ -98,6 +99,20 @@ Query: InterPro domain → PDB cross-references → 3D structures
 Use: Structure-function relationship analysis
 ```
 
+**7. GO Term Discovery (NEW)**
+```
+Query: IPR000719 >> go → Find GO terms for protein kinase domain
+Query: GO:0004672 >> interpro → Find InterPro domains with kinase activity
+Use: Link protein domains to molecular functions and biological processes
+```
+
+**8. Domain Hierarchy Navigation (NEW)**
+```
+Query: IPR000719 >> interprochild → Find specialized kinase domains
+Query: IPR001245 >> interproparent → Find parent domain families
+Use: Navigate from general to specific domain classifications
+```
+
 ## Test Cases
 
 **Current Tests** (9 total):
@@ -131,21 +146,26 @@ Use: Structure-function relationship analysis
 - Not all member databases may be configured in biobtree
 - Cross-references only stored for databases in configuration
 
-**Hierarchy Navigation**:
-- Parent-child relationships stored but not heavily tested
-- Hierarchical queries may require additional implementation
-
 **Protein Sequences**:
 - InterPro stores signatures, not actual protein sequences
 - Must link to UniProt/other databases for sequence data
 
+## New Features (v2.0)
+
+**GO Term Integration**:
+- InterPro entries now linked to Gene Ontology terms via `class_list` extraction
+- Enables bidirectional queries: `interpro >> go` and `go >> interpro`
+
+**Hierarchy Navigation**:
+- Parent-child relationships now extracted via `interproparent` and `interprochild` datasets
+- Navigate domain families from general to specific classifications
+
 ## Future Work
 
-- Add comprehensive hierarchy navigation tests (parent → children, child → parents)
 - Test filtering by entry type (domain, family, site, repeat)
 - Add tests for different member database cross-references
 - Test literature reference validation
-- Add GO term association tests (InterPro entries linked to GO)
+- Add taxonomy distribution extraction for organism-specific domain analysis
 
 ## Maintenance
 

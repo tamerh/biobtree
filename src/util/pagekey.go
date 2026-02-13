@@ -48,7 +48,7 @@ func (p *Pagekey) Key(n int, keyLen int) string {
 
 	for i := len(buf) - 1; i >= 0; i-- {
 		n--
-		buf[i] = rune('a' + n%26)
+		buf[i] = rune('A' + n%26)
 		n /= 26
 	}
 

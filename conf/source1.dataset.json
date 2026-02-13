@@ -1094,7 +1094,7 @@
     "bucketMethod": "numeric"
   },
   "spliceai": {
-    "id": "752",
+    "id": "124",
     "name": "SpliceAI",
     "aliases": "SpliceAI,splice prediction,splicing variant,splice site,delta score,splice donor,splice acceptor",
     "url": "https://spliceailookup.broadinstitute.org/?variant=£{id}",
@@ -1105,6 +1105,91 @@
     "test_entries_count": "10000",
     "bucketMethod": "alphanum",
     "geneGFF3": "https://ftp.ensembl.org/pub/current_gff3/homo_sapiens/Homo_sapiens.GRCh38.115.chr.gff3.gz"
+  },
+  "mirdb": {
+    "id": "125",
+    "name": "miRDB",
+    "aliases": "miRDB,microRNA,miRNA,miRNA target,miRNA target prediction,microRNA target",
+    "url": "https://mirdb.org/cgi-bin/search.cgi?searchType=miRNA&searchBox=£{id}",
+    "path": "https://mirdb.org/download/miRDB_v6.0_prediction_result.txt.gz",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "mirna_id,species,target_count,avg_score,max_score,min_score,[]targets.refseq_id,[]targets.score",
+    "test_entries_count": "100",
+    "bucketMethod": "alphabetic"
+  },
+  "fantom5_promoter": {
+    "id": "126",
+    "name": "FANTOM5 Promoter",
+    "aliases": "FANTOM5,FANTOM,CAGE,promoter,TSS,transcription start site,CAGE peak",
+    "url": "https://fantom.gsc.riken.jp/zenbu/dex/#config=FANTOM5_human",
+    "path": "https://fantom.gsc.riken.jp/5/datafiles/reprocessed/hg38_latest/extra/",
+    "pathExpression": "CAGE_peaks_expression/hg38_fair+new_CAGE_peaks_phase1and2_tpm_ann.osc.txt.gz",
+    "pathCoordinates": "CAGE_peaks/hg38_fair+new_CAGE_peaks_phase1and2.bed.gz",
+    "pathAnnotation": "CAGE_peaks_annotation/hg38_liftover+new_CAGE_peaks_phase1and2_annot.txt.gz",
+    "pathTranscript": "CAGE_peaks_annotation/hg38_liftover+new_CAGE_peaks_phase1and2_trans.txt.gz",
+    "pathPeakNames": "CAGE_peaks_annotation/human_phase1and2_CAGE_Peak_name.txt.gz",
+    "pathSampleMeta": "https://fantom.gsc.riken.jp/5/datafiles/reprocessed/hg38_latest/basic/HumanSamples2.0.sdrf.xlsx",
+    "childDatasets": "fantom5_enhancer,fantom5_gene",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "fantom5_peak_id,fantom5_peak_name,chromosome,start,end,strand,gene_symbol,gene_id,entrez_id,uniprot_id,hgnc_id,tpm_average,tpm_max,samples_expressed,expression_breadth,[]top_tissues,[]top_cell_types",
+    "test_entries_count": "1000",
+    "bucketMethod": "numeric"
+  },
+  "fantom5_enhancer": {
+    "id": "127",
+    "name": "FANTOM5 Enhancer",
+    "aliases": "FANTOM5 enhancer,enhancer,eRNA,active enhancer",
+    "url": "https://fantom.gsc.riken.jp/zenbu/dex/#config=FANTOM5_human",
+    "path": "https://fantom.gsc.riken.jp/5/datafiles/reprocessed/hg38_latest/extra/enhancer/",
+    "pathCoordinates": "F5.hg38.enhancers.bed.gz",
+    "pathExpression": "F5.hg38.enhancers.expression.tpm.matrix.gz",
+    "pathSampleMeta": "https://fantom.gsc.riken.jp/5/datafiles/reprocessed/hg38_latest/basic/HumanSamples2.0.sdrf.xlsx",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "fantom5_enhancer_id,chromosome,start,end,tpm_average,tpm_max,samples_expressed,[]associated_genes,[]top_tissues",
+    "test_entries_count": "500",
+    "bucketMethod": "numeric"
+  },
+  "fantom5_gene": {
+    "id": "128",
+    "name": "FANTOM5 Gene",
+    "aliases": "FANTOM5 gene expression,CAGE gene expression",
+    "url": "https://fantom.gsc.riken.jp/zenbu/dex/#config=FANTOM5_human",
+    "path": "https://fantom.gsc.riken.jp/5/datafiles/reprocessed/hg38_latest/extra/CAGE_peaks_expression/",
+    "pathExpression": "hg38_fair+new_genes_phase1and2_tpm.osc.txt.gz",
+    "pathSampleMeta": "https://fantom.gsc.riken.jp/5/datafiles/reprocessed/hg38_latest/basic/HumanSamples2.0.sdrf.xlsx",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "gene_id,gene_symbol,entrez_id,tpm_average,tpm_max,samples_expressed,expression_breadth,[]top_tissues",
+    "test_entries_count": "500",
+    "bucketMethod": "numeric"
+  },
+  "jaspar": {
+    "id": "129",
+    "name": "JASPAR",
+    "aliases": "JASPAR,transcription factor binding,TFBS,PFM,PWM,binding motif,position weight matrix,DNA binding motif,sequence motif,TF motif",
+    "url": "https://jaspar.elixir.no/matrix/£{id}",
+    "path": "https://mencius.uio.no/JASPAR/JASPAR_metadata/2026/ultimate_metadata_table_CORE.tsv",
+    "pathUnvalidated": "https://mencius.uio.no/JASPAR/JASPAR_metadata/2026/ultimate_metadata_table_UNVALIDATED.tsv",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "matrix_id,name,collection,class,family,tax_group,type,species,version",
+    "test_entries_count": "200",
+    "bucketMethod": "alphabetic"
+  },
+  "encode_ccre": {
+    "id": "130",
+    "name": "ENCODE cCRE",
+    "aliases": "cCRE,ccre,ENCODE,cis-regulatory,regulatory element,CTCF binding",
+    "url": "https://screen.encodeproject.org/search/?q=£{id}",
+    "path": "https://encode-public.s3.amazonaws.com/2023/02/27/f8be19b8-5226-4e19-bbdf-636b05c6a45f/ENCFF420VPZ.bed.gz",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "ccre_id,ccre_class,chromosome,start,end",
+    "test_entries_count": "1000",
+    "bucketMethod": "alphanum"
   }
 
 }

@@ -12,11 +12,12 @@ SCHEMA_EDGES = {
     "ensembl": ["uniprot", "go", "transcript", "exon", "ortholog", "paralog", "hgnc", "entrez", "refseq", "bgee", "gwas", "gencc", "biogrid", "string", "antibody", "scxa"],
     "hgnc": ["ensembl", "uniprot", "entrez", "gencc", "pharmgkb_gene", "msigdb", "clinvar", "mim", "refseq", "alphafold", "collectri", "gwas", "dbsnp", "hpo", "cellphonedb"],
     "entrez": ["ensembl", "uniprot", "refseq", "go", "biogrid", "pubchem_activity"],
-    "refseq": ["ensembl", "uniprot", "entrez"],
+    "refseq": ["ensembl", "uniprot", "entrez", "mirdb"],
+    "mirdb": ["refseq"],
     "transcript": ["ensembl", "exon", "ufeature"],
-    "uniprot": ["ensembl", "alphafold", "interpro", "pdb", "ufeature", "intact", "string", "biogrid", "chembl_target_component", "go", "reactome", "rhea", "swisslipids", "bindingdb", "antibody", "pubchem_activity", "cellphonedb"],
+    "uniprot": ["ensembl", "alphafold", "interpro", "pdb", "ufeature", "intact", "string", "biogrid", "chembl_target_component", "go", "reactome", "rhea", "swisslipids", "bindingdb", "antibody", "pubchem_activity", "cellphonedb", "jaspar"],
     "alphafold": ["uniprot"],
-    "interpro": ["uniprot"],
+    "interpro": ["uniprot", "go", "interproparent", "interprochild"],
     "chembl_molecule": ["chembl_activity", "pubchem", "chebi", "drugcentral", "clinical_trials"],
     "chembl_activity": ["chembl_molecule", "chembl_assay"],
     "chembl_assay": ["chembl_activity", "chembl_target", "chembl_document"],
@@ -55,7 +56,7 @@ SCHEMA_EDGES = {
     "rnacentral": ["uniprot", "ensembl", "intact"],
     "reactome": ["ensembl", "uniprot", "chebi", "go"],
     "rhea": ["chebi", "uniprot", "go"],
-    "go": ["ensembl", "uniprot", "reactome", "msigdb", "swisslipids", "bgee"],
+    "go": ["ensembl", "uniprot", "reactome", "msigdb", "swisslipids", "bgee", "interpro"],
     "hpo": ["clinvar", "gencc", "mondo", "msigdb", "orphanet", "mim", "hmdb","hgnc"],
     "efo": ["gwas", "mondo", "cellxgene"],
     "uberon": ["bgee", "cellxgene", "cellxgene_celltype", "swisslipids"],
@@ -71,7 +72,12 @@ SCHEMA_EDGES = {
     "esm2_similarity": ["uniprot"],
     "cellphonedb": ["uniprot", "ensembl", "hgnc", "pubmed"],
     "spliceai": ["hgnc"],
-    "pdb": ["uniprot", "go", "interpro", "pfam", "taxonomy", "pubmed"]
+    "pdb": ["uniprot", "go", "interpro", "pfam", "taxonomy", "pubmed"],
+    "fantom5_promoter": ["ensembl", "hgnc", "entrez", "uniprot", "uberon", "cl"],
+    "fantom5_enhancer": ["ensembl", "uberon", "cl"],
+    "fantom5_gene": ["ensembl", "hgnc", "entrez"],
+    "jaspar": ["uniprot", "pubmed", "taxonomy"],
+    "encode_ccre": ["taxonomy"]
 }
 
 # =============================================================================
@@ -88,7 +94,8 @@ SCHEMA_HIERARCHIES = {
     "taxonomy": ["taxparent", "taxchild"],
     "reactome": ["reactomeparent", "reactomechild"],
     "mesh": ["meshparent", "meshchild"],
-    "eco": ["ecoparent", "ecochild"]
+    "eco": ["ecoparent", "ecochild"],
+    "interpro": ["interproparent", "interprochild"]
 }
 
 # =============================================================================
@@ -137,7 +144,12 @@ SCHEMA_FILTERS = {
     "collectri": {"tf_gene": "str (TF gene symbol)", "target_gene": "str (target gene symbol)", "regulation": "str (Activation|Repression|Unknown)", "confidence": "str (High|Low)"},
     "esm2_similarity": {"top_similarity": "float (0-1, highest cosine similarity)", "avg_similarity": "float (0-1)", "similarity_count": "int"},
     "cellphonedb": {"directionality": "str (Ligand-Receptor|Adhesion-Adhesion|etc)", "classification": "str (signaling pathway)", "receptor_a": "bool", "receptor_b": "bool", "secreted_a": "bool", "secreted_b": "bool", "is_complex_a": "bool", "is_complex_b": "bool", "is_integrin": "bool"},
-    "pdb": {"method": "str (X-RAY DIFFRACTION|ELECTRON MICROSCOPY|SOLUTION NMR)", "resolution": "float (Angstroms, lower=better)"}
+    "pdb": {"method": "str (X-RAY DIFFRACTION|ELECTRON MICROSCOPY|SOLUTION NMR)", "resolution": "float (Angstroms, lower=better)"},
+    "fantom5_promoter": {"tpm_average": "float", "tpm_max": "float", "samples_expressed": "int", "expression_breadth": "str (ubiquitous|broad|tissue_specific)"},
+    "fantom5_gene": {"tpm_average": "float", "tpm_max": "float", "expression_breadth": "str"},
+    "jaspar": {"collection": "str (CORE|UNVALIDATED)", "type": "str (ChIP-seq|SELEX|PBM)", "tax_group": "str (vertebrates|plants|insects|fungi)"},
+    "encode_ccre": {"ccre_class": "str (PLS|pELS|dELS|CA-CTCF|CA-TF|CA|TF)", "chromosome": "str (chr1..chr22,chrX,chrY)", "start": "int", "end": "int"},
+    "mirdb": {"target_count": "int", "max_score": "float 50-100", "avg_score": "float"}
 }
 
 # =============================================================================
@@ -168,7 +180,12 @@ SCHEMA_EXAMPLES = {
     "esm2_similarity": "P04637 (TP53 UniProt ID)",
     "cellphonedb": "CPI-SC0A2DB962D (ligand-receptor interaction)",
     "spliceai": "1:803428:TCCAT:T (chr:pos:ref:alt variant ID)",
-    "pdb": "4HHB (Hemoglobin structure)"
+    "pdb": "4HHB (Hemoglobin structure)",
+    "fantom5_promoter": "TP53 (gene symbol)",
+    "fantom5_gene": "BRCA1 (gene symbol)",
+    "jaspar": "MA0004.1 (TF binding profile)",
+    "encode_ccre": "EH38E2776516 (cCRE accession)",
+    "mirdb": "hsa-miR-21-5p (human miRNA)"
 }
 
 # =============================================================================
@@ -258,6 +275,12 @@ SCHEMA_PATTERNS = """# Human genes: use >>hgnc>>ensembl instead of >>ensembl[gen
 <cell_type> >> cl >> scxa_gene_experiment  # CL:0000788 -> 75 marker genes with TPM, logFC
 <gene> >> ensembl >> scxa_expression >> scxa_gene_experiment  # CD19 -> per-cell-type expression
 
+# ===== FANTOM5 CAGE EXPRESSION (promoters, enhancers, TSS) =====
+<gene> >> fantom5_promoter             # CAGE peaks/promoters for gene
+<gene> >> fantom5_gene                 # Gene-level CAGE expression
+<tissue> >> uberon >> fantom5_promoter # Promoters active in tissue
+<cell_type> >> cl >> fantom5_promoter  # Promoters active in cell type
+
 # ===== INTERACTIONS =====
 
 # Gene -> Interactions
@@ -308,7 +331,23 @@ SCHEMA_PATTERNS = """# Human genes: use >>hgnc>>ensembl instead of >>ensembl[gen
 
 # Disease <-> Clinical Trials (bidirectional)
 <disease> >> mondo >> clinical_trials   # trials for disease (12k+ for diabetes)
-<trial_id> >> clinical_trials >> mondo  # diseases in trial (106 for NCT00000466)"""
+<trial_id> >> clinical_trials >> mondo  # diseases in trial (106 for NCT00000466)
+
+# ===== TF BINDING PROFILES (JASPAR) =====
+
+<gene> >> ensembl >> uniprot >> jaspar                 # Gene to TF binding motifs
+<matrix_id> >> jaspar >> uniprot                       # Binding profile to protein
+<gene> >> jaspar[jaspar.collection=="CORE"]            # CORE collection only
+<gene> >> jaspar[jaspar.type=="ChIP-seq"]              # ChIP-seq derived profiles
+
+# ===== ENCODE cCRE (Regulatory Elements) =====
+
+<ccre_id> >> encode_ccre                                    # cCRE lookup (e.g., EH38E2776516)
+PLS >> encode_ccre                                          # Promoter-like sequences
+pELS >> encode_ccre                                         # Proximal enhancer-like sequences
+dELS >> encode_ccre                                         # Distal enhancer-like sequences
+<ccre_id> >> encode_ccre[encode_ccre.ccre_class=="PLS"]     # Filter by classification
+<ccre_id> >> encode_ccre[encode_ccre.chromosome=="chr1"]    # Filter by chromosome"""
 
 # =============================================================================
 # Text Search Support
@@ -319,6 +358,8 @@ SCHEMA_TEXT_SEARCH = """Datasets supporting partial text search:
 - chembl_molecule, pubchem, pharmgkb, bindingdb, hmdb: drug/compound/metabolite names ("warfarin", "aspirin", "glucose")
 - clinical_trials: conditions, interventions
 - antibody: antibody names ("bevacizumab")
+- fantom5_promoter, fantom5_gene, fantom5_enhancer: gene symbols ("TP53", "BRCA1")
+- encode_ccre: cCRE IDs or classifications ("EH38E2776516", "PLS", "pELS", "dELS", "CA-CTCF")
 
 NOTE: For drug discovery, query BOTH ChEMBL and PubChem for comprehensive coverage:
 - ChEMBL: curated medicinal chemistry, clinical phases, assay protocols

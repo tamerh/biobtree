@@ -797,10 +797,10 @@ func (d *Merge) Merge(c *configs.Conf, keep bool, federation string) (uint64, ui
 
 	log.Println("Generate finished with total key:", d.totalKey, " total special keyword keys:", d.totalLinkKey, " total value:", d.totalValue)
 
-	// Save DB write stats to dataset_state.json
+	// Save DB write stats to dataset_state.json (per federation)
 	outDir := config.Appconf["outDir"]
 	if state, err := update.LoadDatasetState(outDir); err == nil {
-		state.SetDBWriteStats(d.totalKey, d.totalLinkKey, d.totalValue)
+		state.SetDBWriteStats(d.federation, d.totalKey, d.totalLinkKey, d.totalValue)
 		// Save per-dataset DB stats
 		// Convert perDatasetStats to the format expected by SetAllDatasetDBStats
 		perDatasetStatsMap := make(map[uint32][2]uint64)
@@ -2083,6 +2083,36 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)
 				xref.Attributes = &pbuf.Xref_Spliceai{attr}
+			case "mirdb":
+				attr := &pbuf.MiRDBAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Mirdb{attr}
+			case "fantom5_promoter":
+				attr := &pbuf.Fantom5PromoterAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Fantom5Promoter{attr}
+			case "fantom5_enhancer":
+				attr := &pbuf.Fantom5EnhancerAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Fantom5Enhancer{attr}
+			case "fantom5_gene":
+				attr := &pbuf.Fantom5GeneAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Fantom5Gene{attr}
+			case "jaspar":
+				attr := &pbuf.JasparAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Jaspar{attr}
+			case "encode_ccre":
+				attr := &pbuf.EncodeCcreAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_EncodeCcre{attr}
 			case "drugcentral":
 				attr := &pbuf.DrugcentralAttr{}
 				barr := []byte((*kvProp[k])[0].value)
@@ -2509,6 +2539,31 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 					barr := []byte((*kvProp[k])[0].value)
 					ffjson.Unmarshal(barr, attr)
 					xref.Attributes = &pbuf.Xref_Spliceai{attr}
+				case "mirdb":
+					attr := &pbuf.MiRDBAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_Mirdb{attr}
+				case "fantom5_promoter":
+					attr := &pbuf.Fantom5PromoterAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_Fantom5Promoter{attr}
+				case "fantom5_enhancer":
+					attr := &pbuf.Fantom5EnhancerAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_Fantom5Enhancer{attr}
+				case "fantom5_gene":
+					attr := &pbuf.Fantom5GeneAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_Fantom5Gene{attr}
+				case "jaspar":
+					attr := &pbuf.JasparAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_Jaspar{attr}
 				case "drugcentral":
 					attr := &pbuf.DrugcentralAttr{}
 					barr := []byte((*kvProp[k])[0].value)
@@ -2529,6 +2584,11 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 					barr := []byte((*kvProp[k])[0].value)
 					ffjson.Unmarshal(barr, attr)
 					xref.Attributes = &pbuf.Xref_AlphamissenseTranscript{attr}
+				case "encode_ccre":
+					attr := &pbuf.EncodeCcreAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_EncodeCcre{attr}
 				}
 			}
 

@@ -133,6 +133,35 @@ func (i *interpro) update() {
 			}
 		}
 
+		// Parent InterPro entries (hierarchy)
+		for _, x := range r.Childs["parent_list"] {
+			for _, y := range x.Childs["rel_ref"] {
+				if iprRef, ok := y.Attrs["ipr_ref"]; ok && iprRef != "" {
+					i.d.addXref(entryid, fr, iprRef, "interproparent", false)
+				}
+			}
+		}
+
+		// Child InterPro entries (hierarchy)
+		for _, x := range r.Childs["child_list"] {
+			for _, y := range x.Childs["rel_ref"] {
+				if iprRef, ok := y.Attrs["ipr_ref"]; ok && iprRef != "" {
+					i.d.addXref(entryid, fr, iprRef, "interprochild", false)
+				}
+			}
+		}
+
+		// GO term annotations (class_list contains GO classifications)
+		for _, x := range r.Childs["class_list"] {
+			for _, y := range x.Childs["classification"] {
+				if classType, ok := y.Attrs["class_type"]; ok && classType == "GO" {
+					if goID, ok := y.Attrs["id"]; ok && goID != "" {
+						i.d.addXref(entryid, fr, goID, "go", false)
+					}
+				}
+			}
+		}
+
 		/**
 		// representativeMember--> dbreference
 		for _, v = range r.Elements["pub_list"] {

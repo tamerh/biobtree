@@ -240,6 +240,14 @@ func (s *Service) initWithDbDir(dbDir string) error {
 		cel.Types(&pbuf.InhibitionMeasurement{}),
 		cel.Types(&pbuf.CellphonedbAttr{}),
 		cel.Types(&pbuf.SpliceAIAttr{}),
+		cel.Types(&pbuf.MiRDBAttr{}),
+		cel.Types(&pbuf.MiRDBTarget{}),
+		cel.Types(&pbuf.Fantom5PromoterAttr{}),
+		cel.Types(&pbuf.Fantom5EnhancerAttr{}),
+		cel.Types(&pbuf.Fantom5GeneAttr{}),
+		cel.Types(&pbuf.Fantom5TopExpression{}),
+		cel.Types(&pbuf.JasparAttr{}),
+		cel.Types(&pbuf.EncodeCcreAttr{}),
 		cel.Declarations(
 			decls.NewIdent("uniprot", decls.NewObjectType("pbuf.UniprotAttr"), nil)),
 		cel.Declarations(
@@ -388,6 +396,18 @@ func (s *Service) initWithDbDir(dbDir string) error {
 			decls.NewIdent("cellphonedb", decls.NewObjectType("pbuf.CellphonedbAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("spliceai", decls.NewObjectType("pbuf.SpliceAIAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("mirdb", decls.NewObjectType("pbuf.MiRDBAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("fantom5_promoter", decls.NewObjectType("pbuf.Fantom5PromoterAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("fantom5_enhancer", decls.NewObjectType("pbuf.Fantom5EnhancerAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("fantom5_gene", decls.NewObjectType("pbuf.Fantom5GeneAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("jaspar", decls.NewObjectType("pbuf.JasparAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("encode_ccre", decls.NewObjectType("pbuf.EncodeCcreAttr"), nil)),
 		cel.Declarations(
 			decls.NewFunction("overlaps",
 				decls.NewOverload("overlaps_int_int",

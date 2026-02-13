@@ -169,14 +169,14 @@ func (e *entrez) update() {
 		b, _ := ffjson.Marshal(&attr)
 		e.d.addProp3(geneID, fr, b)
 
-		// Add text search for symbol
+		// Add text search for symbol (with model species priority for sorting)
 		if symbol != "" {
-			e.d.addXref(symbol, textLinkID, geneID, e.source, true)
+			e.d.addXrefWithPriority(symbol, textLinkID, geneID, e.source, true, taxID)
 		}
 
-		// Add text search for each synonym
+		// Add text search for each synonym (with model species priority for sorting)
 		for _, syn := range synonyms {
-			e.d.addXref(syn, textLinkID, geneID, e.source, true)
+			e.d.addXrefWithPriority(syn, textLinkID, geneID, e.source, true, taxID)
 		}
 
 		// Parse dbXrefs and create cross-references
@@ -853,8 +853,14 @@ func (e *entrez) processGeneNeighbors(fr string, testLimit int) {
 		}
 
 		// Create cross-reference to RefSeq genomic accession
+		// Strip version suffix (e.g., NC_000017.11 -> NC_000017)
+		// RefSeq IDs are indexed by base accession
 		if genomicAccession != "" {
-			e.d.addXref(geneID, fr, genomicAccession, "refseq", false)
+			refseqID := genomicAccession
+			if idx := strings.LastIndex(refseqID, "."); idx > 0 {
+				refseqID = refseqID[:idx]
+			}
+			e.d.addXref(geneID, fr, refseqID, "refseq", false)
 		}
 
 		// Process left neighbor genes

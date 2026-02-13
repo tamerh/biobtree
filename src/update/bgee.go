@@ -457,12 +457,13 @@ func (b *bgee) saveGenes(genes map[string]*BgeeGene, species SpeciesInfo) {
 func (b *bgee) createReferences(geneID string, gene *BgeeGene) {
 	fr := config.Dataconf[b.source]["id"]
 
-	// 1. Gene ID → Bgee (text search by gene ID)
-	b.d.addXref(geneID, textLinkID, geneID, b.source, true)
+	// 1. Gene ID → Bgee (text search by gene ID) with species priority
+	taxID := strconv.Itoa(gene.TaxonomyID)
+	b.d.addXrefWithPriority(geneID, textLinkID, geneID, b.source, true, taxID)
 
-	// 2. Gene name → Bgee (text search by gene symbol)
+	// 2. Gene name → Bgee (text search by gene symbol) with species priority
 	if gene.GeneName != "" {
-		b.d.addXref(gene.GeneName, textLinkID, geneID, b.source, true)
+		b.d.addXrefWithPriority(gene.GeneName, textLinkID, geneID, b.source, true, taxID)
 	}
 
 	// 3. Create cross-reference to Ensembl

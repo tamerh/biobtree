@@ -838,29 +838,22 @@ func (db *dbsnp) createCrossReferences(rsID, sourceID string, attr *pbuf.DbsnpAt
 		}
 	}
 
-	// NEW: AlphaMissense cross-reference (coordinate-based, for coding SNVs only)
-	// Enables direct query: rs12345 >> dbsnp >> alphamissense
-	// AlphaMissense uses format chr:pos:ref:alt (e.g., 1:69094:G:T)
-	// Only create xref for coding SNVs - AlphaMissense only has missense predictions
-	// Exclude: intronic, UTR, and other non-coding variants
-	if attr.VariantType == "SNV" && attr.Chromosome != "" && attr.Position > 0 &&
-		!attr.Intron && !attr.U3 && !attr.U5 && !attr.R3 && !attr.R5 {
-		alphamissenseID := fmt.Sprintf("%s:%d:%s:%s",
-			attr.Chromosome, attr.Position, attr.RefAllele, attr.AltAllele)
-		db.d.addXref(rsID, sourceID, alphamissenseID, "alphamissense", false)
-	}
-
-	// SpliceAI cross-reference (coordinate-based, for variants near splice sites)
-	// Enables direct query: rs12345 >> dbsnp >> spliceai
-	// SpliceAI uses format chr:pos:ref:alt (e.g., 1:69094:G:T)
-	// Include variants that might affect splicing: intronic, splice donor/acceptor
+	// Create text links from variant notation (chr:pos:ref:alt) to rsID
+	// This allows searching by variant notation to find the dbSNP rsID
+	// Also enables other datasets (SpliceAI, AlphaMissense) to be found via same search
 	if attr.Chromosome != "" && attr.Position > 0 && attr.RefAllele != "" && attr.AltAllele != "" {
-		// Only create xref for variants likely to affect splicing
-		// Include: intronic, splice site adjacent (ass/dss), or near splice regions
-		if attr.Intron || attr.Ass || attr.Dss || attr.Nsn || attr.Nsm || attr.Nsf {
-			spliceaiID := fmt.Sprintf("%s:%d:%s:%s",
-				attr.Chromosome, attr.Position, attr.RefAllele, attr.AltAllele)
-			db.d.addXref(rsID, sourceID, spliceaiID, "spliceai", false)
+		// Split multi-allelic variants - each alt allele gets its own text link
+		alts := strings.Split(attr.AltAllele, ",")
+		for _, alt := range alts {
+			variantKey := fmt.Sprintf("%s:%d:%s:%s",
+				attr.Chromosome, attr.Position, attr.RefAllele, alt)
+			if len(variantKey) > LMDBMaxKeySize {
+				log.Printf("dbSNP: SKIP long variant text link (%d bytes > %d max) for %s: %s",
+					len(variantKey), LMDBMaxKeySize, rsID, variantKey[:100]+"...")
+				continue
+			}
+			// Text link: variant notation -> rsID (isLink=true)
+			db.d.addXref(variantKey, textLinkID, rsID, "dbsnp", true)
 		}
 	}
 }

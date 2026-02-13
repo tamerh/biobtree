@@ -141,6 +141,16 @@ type BucketConfig struct {
 	// (datasets from xref*.json that have no parser, only receive reverse xrefs)
 	// Derived datasets are stored under _derived/ parent directory
 	IsDerived bool
+
+	// Custom sort configuration for datasets with special ordering needs
+	// SortFields: Unix sort key specification (e.g., "-k1,1 -k7,7" for key + priority)
+	// If empty, uses default "-k1,1" (sort by first field only)
+	SortFields string
+
+	// StripFieldAfterSort: Field index (1-based) to remove after sorting
+	// Used to remove temporary sort fields (like priority) that shouldn't be stored
+	// 0 = no stripping (default)
+	StripFieldAfterSort int
 }
 
 // linkDatasetMap maps child dataset IDs to their parent dataset IDs
@@ -429,23 +439,27 @@ func LoadBucketConfigs() map[string]*BucketConfig {
 	// Uses alphabetic bucketing with strict byte order (55 buckets)
 	// Marked as IsDerived because it receives data via WriteReverse (from_{source}/ directories)
 	// from multiple source datasets, not via WriteForward from a single parser
+	// SortFields: Sort by key (field 1) then priority (field 7) for model species ordering
+	// StripFieldAfterSort: Remove priority field (7) after sorting to save storage
 	cfgs[TextSearchDatasetID] = &BucketConfig{
-		DatasetID:        TextSearchDatasetID,
-		DatasetName:      "textsearch",
-		MethodName:       "alphabetic",
-		NumBuckets:       55,
-		Method:           alphabeticBucket,
-		SkipBucketSort:   false,
-		CompressBuckets:  CompressBuckets,             // Global setting
-		UseUnixSort:      BucketSortMethod == "unix",  // Global setting
-		NumSets:          1,
-		Methods:          []BucketMethod{alphabeticBucket},
-		MethodNames:      []string{"alphabetic"},
-		NumBucketsPerSet: []int{55},
-		IsDerived:        true, // Uses from_{source}/ subdirs, not forward/
+		DatasetID:           TextSearchDatasetID,
+		DatasetName:         "textsearch",
+		MethodName:          "alphabetic",
+		NumBuckets:          55,
+		Method:              alphabeticBucket,
+		SkipBucketSort:      false,
+		CompressBuckets:     CompressBuckets,            // Global setting
+		UseUnixSort:         BucketSortMethod == "unix", // Global setting
+		NumSets:             1,
+		Methods:             []BucketMethod{alphabeticBucket},
+		MethodNames:         []string{"alphabetic"},
+		NumBucketsPerSet:    []int{55},
+		IsDerived:           true,       // Uses from_{source}/ subdirs, not forward/
+		SortFields:          "-k1,1 -k7,7", // Sort by key, then model species priority
+		StripFieldAfterSort: 7,          // Strip priority field after sorting
 	}
-	log.Printf("Bucket config loaded: textsearch (ID:%s) method=alphabetic buckets=55 (derived-style) compress=%v",
-		TextSearchDatasetID, CompressBuckets)
+	log.Printf("Bucket config loaded: textsearch (ID:%s) method=alphabetic buckets=55 (derived-style) compress=%v sortFields=%s stripField=%d",
+		TextSearchDatasetID, CompressBuckets, "-k1,1 -k7,7", 7)
 
 	return cfgs
 }

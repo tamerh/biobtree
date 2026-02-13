@@ -1375,9 +1375,10 @@ message EntrezAttr {
 // RefSeq provides curated, non-redundant reference sequences for genomic DNA, transcripts, and proteins
 message RefSeqAttr {
   // Core identification
-  string accession = 1;           // Full accession with version (e.g., NM_001353961.2, NP_001340890.1)
+  string accession = 1;           // Base accession without version (e.g., NM_001353961, NP_001340890) - used as primary key
   string type = 2;                // Sequence type: mRNA, ncRNA, protein, genomic, misc_RNA, rRNA
   string status = 3;              // RefSeq status: VALIDATED, REVIEWED, PROVISIONAL, PREDICTED, MODEL, INFERRED, SUPPRESSED
+  string version = 32;            // Full versioned accession (e.g., NM_001353961.2) - for version-specific queries
 
   // Gene information (from GBFF FEATURES/gene)
   string symbol = 4;              // Gene symbol (e.g., BRCA1)
@@ -2360,5 +2361,124 @@ message SpliceAIAttr {
   float score = 6;                 // Delta score (0.0-1.0, higher = more splice impact)
   string gene_symbol = 7;          // Gene symbol (if available)
   string allele_info = 8;          // Original allele string from BED (chr-pos-ref-alt)
+}
+
+// miRDB - MicroRNA Target Prediction Database (Dataset ID: 450)
+// Predicted miRNA-gene target interactions using MirTarget algorithm (v6.0)
+// Source: https://mirdb.org/
+// Primary key: miRNA ID (e.g., "hsa-miR-21-5p", "mmu-let-7a")
+// Species: human (hsa), mouse (mmu), rat (rno), dog (cfa), chicken (gga)
+// License: Free for academic use
+message MiRDBAttr {
+  string mirna_id = 1;             // miRNA identifier (e.g., "hsa-miR-21-5p")
+  string species = 2;              // Species prefix: hsa, mmu, rno, cfa, gga
+  int32 target_count = 3;          // Number of predicted targets for this miRNA
+  float avg_score = 4;             // Average prediction score across all targets
+  float max_score = 5;             // Maximum prediction score
+  float min_score = 6;             // Minimum prediction score
+
+  // Target predictions
+  repeated MiRDBTarget targets = 7;
+}
+
+// Individual miRNA-target prediction
+message MiRDBTarget {
+  string refseq_id = 1;            // RefSeq transcript ID (e.g., "NM_001234")
+  float score = 2;                 // MirTarget prediction score (50-100, higher = more confident)
+}
+
+// FANTOM5 - Functional Annotation of the Mammalian Genome 5
+// CAGE-based promoter and enhancer atlas
+// Source: https://fantom.gsc.riken.jp/5/
+// License: CC BY 4.0
+
+// FANTOM5 Promoter/CAGE peak attributes (Dataset ID: 126)
+// Primary key: numeric ID (1, 2, 3, ...)
+// ~185,000 CAGE peaks across ~975 human samples
+message Fantom5PromoterAttr {
+  string fantom5_peak_id = 1;       // Original coordinate ID: chr1:631073..631118,+
+  string fantom5_peak_name = 2;     // Peak name: p1@TP53 (rank@gene)
+  string chromosome = 3;            // Chromosome (chr1, chr2, etc.)
+  int32 start = 4;                  // Start position (hg38)
+  int32 end = 5;                    // End position (hg38)
+  string strand = 6;                // Strand: + or -
+  string gene_symbol = 7;           // Associated gene symbol
+  string gene_id = 8;               // Ensembl gene ID
+  string entrez_id = 9;             // Entrez Gene ID
+  string uniprot_id = 10;           // UniProt accession
+  string hgnc_id = 11;              // HGNC ID
+  double tpm_average = 12;          // Average TPM across all samples
+  double tpm_max = 13;              // Maximum TPM across all samples
+  int32 samples_expressed = 14;     // Number of samples with TPM > threshold
+  string expression_breadth = 15;   // Classification: ubiquitous, broad, tissue_specific
+  repeated Fantom5TopExpression top_tissues = 16;     // Top expressed tissues
+  repeated Fantom5TopExpression top_cell_types = 17;  // Top expressed cell types
+}
+
+// FANTOM5 top expression entry for tissue/cell type ranking
+message Fantom5TopExpression {
+  string name = 1;                  // Tissue/cell type name (e.g., "brain, adult")
+  string ontology_id = 2;           // Ontology ID: UBERON:0000955 or CL:0000540
+  double tpm = 3;                   // TPM value in this tissue/cell type
+  int32 rank = 4;                   // Rank (1 = highest expression)
+}
+
+// FANTOM5 Enhancer attributes (Dataset ID: 127)
+// Primary key: numeric ID (1, 2, 3, ...)
+// ~65,000 active enhancers identified via bidirectional eRNA transcription
+message Fantom5EnhancerAttr {
+  string fantom5_enhancer_id = 1;   // Original coordinate ID: chr1:167440766-167441089
+  string chromosome = 2;            // Chromosome
+  int32 start = 3;                  // Start position (hg38)
+  int32 end = 4;                    // End position (hg38)
+  double tpm_average = 5;           // Average TPM across all samples
+  double tpm_max = 6;               // Maximum TPM
+  int32 samples_expressed = 7;      // Number of samples with enhancer activity
+  repeated string associated_genes = 8;  // Target genes (correlation-based)
+  repeated Fantom5TopExpression top_tissues = 9;  // Top active tissues
+}
+
+// FANTOM5 Gene-level expression attributes (Dataset ID: 128)
+// Primary key: numeric ID (1, 2, 3, ...)
+// ~20,000 genes with aggregated CAGE expression
+message Fantom5GeneAttr {
+  string gene_id = 1;               // Gene ID (Ensembl or Entrez)
+  string gene_symbol = 2;           // Gene symbol
+  string entrez_id = 3;             // Entrez Gene ID
+  double tpm_average = 4;           // Average TPM across all samples
+  double tpm_max = 5;               // Maximum TPM
+  int32 samples_expressed = 6;      // Number of samples expressed
+  string expression_breadth = 7;    // Classification: ubiquitous, broad, tissue_specific
+  repeated Fantom5TopExpression top_tissues = 8;  // Top expressed tissues
+}
+
+// JASPAR - Transcription Factor Binding Profiles (Dataset ID: 129)
+// Open-access database of TF binding motifs (PFMs/PWMs)
+// Source: https://jaspar.elixir.no/
+// Primary key: matrix_id (e.g., "MA0004.1", "UN0875.1")
+// License: CC BY 4.0
+message JasparAttr {
+  string matrix_id = 1;           // Full matrix ID with version (e.g., "MA0004.1")
+  string name = 2;                // TF name/gene symbol (e.g., "RUNX1", "Arnt")
+  string collection = 3;          // Collection: "CORE" or "UNVALIDATED"
+  string class = 4;               // TF class (e.g., "Basic helix-loop-helix factors (bHLH)")
+  string family = 5;              // TF family (e.g., "PAS domain factors")
+  string tax_group = 6;           // Taxonomic group: vertebrates, plants, insects, fungi, nematodes, urochordates
+  string type = 7;                // Experiment type: SELEX, ChIP-seq, PBM, ChIP-chip, etc.
+  string species = 8;             // Species name (e.g., "Homo sapiens")
+  int32 version = 9;              // Matrix version number
+}
+
+// ENCODE cCRE - Candidate cis-Regulatory Elements (Dataset ID: 130)
+// Registry of ~2.3M regulatory regions from ENCODE project
+// Source: https://screen.encodeproject.org/
+// Primary key: ccre_id (e.g., "EH38E2776516")
+// Classifications: PLS (promoter), pELS/dELS (enhancer), CA-CTCF, CA-TF, CA, TF
+message EncodeCcreAttr {
+  string ccre_id = 1;             // ENCODE cCRE accession (e.g., "EH38E2776516")
+  string ccre_class = 2;          // Classification: PLS, pELS, dELS, CA-CTCF, CA-TF, CA, TF
+  string chromosome = 3;          // Chromosome (e.g., "chr1")
+  int64 start = 4;                // Start position (0-based)
+  int64 end = 5;                  // End position
 }
 

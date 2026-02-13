@@ -336,5 +336,21 @@
     "linkdataset": "bao",
     "hasFilter": "yes",
     "attrs": "type,name,[]synonyms"
+  },
+  "interproparent": {
+    "name": "InterPro Parent",
+    "id": "131",
+    "url": "https://www.ebi.ac.uk/interpro/entry/InterPro/£{id}",
+    "linkdataset": "interpro",
+    "hasFilter": "yes",
+    "attrs": "[]names,short_name,type,protein_count"
+  },
+  "interprochild": {
+    "name": "InterPro Child",
+    "id": "132",
+    "url": "https://www.ebi.ac.uk/interpro/entry/InterPro/£{id}",
+    "linkdataset": "interpro",
+    "hasFilter": "yes",
+    "attrs": "[]names,short_name,type,protein_count"
   }
 }

@@ -40,16 +40,21 @@ func IsSourceDataset(datasetName string) bool {
 	return false
 }
 
+// FederationDBStats holds database write statistics for a single federation
+type FederationDBStats struct {
+	KeysWritten   uint64 `json:"keys_written"`   // Total keys written to database
+	SpecialKeys   uint64 `json:"special_keys"`   // Total special keyword/link keys
+	ValuesWritten uint64 `json:"values_written"` // Total values written to database
+}
+
 // DatasetState tracks build state for incremental updates
 // Stored in the main output directory as dataset_state.json
 type DatasetState struct {
 	LastBuildTime time.Time                    `json:"last_build_time"`
 	BuildVersion  string                       `json:"build_version"` // Biobtree version
 	Datasets      map[string]*DatasetBuildInfo `json:"datasets"`
-	// DB write stats - populated after generate/merge phase completes
-	DBKeysWritten   uint64 `json:"db_keys_written,omitempty"`   // Total keys written to database
-	DBSpecialKeys   uint64 `json:"db_special_keys,omitempty"`   // Total special keyword/link keys
-	DBValuesWritten uint64 `json:"db_values_written,omitempty"` // Total values written to database
+	// DB write stats per federation - populated after generate/merge phase completes
+	DBStats map[string]*FederationDBStats `json:"db_stats,omitempty"` // federation name -> stats
 	// Internal fields (not persisted)
 	mu              sync.RWMutex    `json:"-"` // Mutex for concurrent access
 	deletedDatasets map[string]bool `json:"-"` // Datasets to remove on save (for concurrent safety)
@@ -171,9 +176,18 @@ func SaveDatasetState(state *DatasetState, outDir string) error {
 		}
 		state.deletedDatasets = nil // Clear after reading
 	}
-	dbKeysWritten := state.DBKeysWritten
-	dbSpecialKeys := state.DBSpecialKeys
-	dbValuesWritten := state.DBValuesWritten
+	// Copy DBStats map for thread-safe access
+	var dbStats map[string]*FederationDBStats
+	if len(state.DBStats) > 0 {
+		dbStats = make(map[string]*FederationDBStats, len(state.DBStats))
+		for fed, stats := range state.DBStats {
+			dbStats[fed] = &FederationDBStats{
+				KeysWritten:   stats.KeysWritten,
+				SpecialKeys:   stats.SpecialKeys,
+				ValuesWritten: stats.ValuesWritten,
+			}
+		}
+	}
 	state.mu.Unlock()
 
 	statePath := filepath.Join(outDir, DatasetStateFileName)
@@ -232,15 +246,14 @@ func SaveDatasetState(state *DatasetState, outDir string) error {
 	if buildVersion != "" {
 		diskState.BuildVersion = buildVersion
 	}
-	// Merge DB stats (OVERWRITE - these are set once at end of generate phase)
-	if dbKeysWritten > 0 {
-		diskState.DBKeysWritten = dbKeysWritten
-	}
-	if dbSpecialKeys > 0 {
-		diskState.DBSpecialKeys = dbSpecialKeys
-	}
-	if dbValuesWritten > 0 {
-		diskState.DBValuesWritten = dbValuesWritten
+	// Merge DB stats per federation (OVERWRITE - these are set once at end of generate phase)
+	if len(dbStats) > 0 {
+		if diskState.DBStats == nil {
+			diskState.DBStats = make(map[string]*FederationDBStats)
+		}
+		for fed, stats := range dbStats {
+			diskState.DBStats[fed] = stats
+		}
 	}
 
 	// Marshal merged state
@@ -568,13 +581,18 @@ func (s *DatasetState) RemoveDataset(datasetName string) {
 	s.deletedDatasets[datasetName] = true
 }
 
-// SetDBWriteStats sets the database write statistics after generate/merge completes
-func (s *DatasetState) SetDBWriteStats(keysWritten, specialKeys, valuesWritten uint64) {
+// SetDBWriteStats sets the database write statistics for a federation after generate/merge completes
+func (s *DatasetState) SetDBWriteStats(federation string, keysWritten, specialKeys, valuesWritten uint64) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	s.DBKeysWritten = keysWritten
-	s.DBSpecialKeys = specialKeys
-	s.DBValuesWritten = valuesWritten
+	if s.DBStats == nil {
+		s.DBStats = make(map[string]*FederationDBStats)
+	}
+	s.DBStats[federation] = &FederationDBStats{
+		KeysWritten:   keysWritten,
+		SpecialKeys:   specialKeys,
+		ValuesWritten: valuesWritten,
+	}
 }
 
 // SetDatasetDBStats sets the per-dataset database write statistics after generate/merge completes

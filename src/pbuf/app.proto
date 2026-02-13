@@ -171,6 +171,12 @@ message Xref {
     BrendaInhibitorAttr brenda_inhibitor=85;
     CellphonedbAttr cellphonedb=87;
     SpliceAIAttr spliceai=88;
+    MiRDBAttr mirdb=89;
+    Fantom5PromoterAttr fantom5_promoter=90;
+    Fantom5EnhancerAttr fantom5_enhancer=91;
+    Fantom5GeneAttr fantom5_gene=92;
+    JasparAttr jaspar=93;
+    EncodeCcreAttr encode_ccre=94;
 
   }
 

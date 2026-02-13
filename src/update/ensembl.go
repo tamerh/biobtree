@@ -623,9 +623,15 @@ func (e *ensembl) update() {
 
 						attr.Branch = e.branch
 
+						// Get taxID for species priority sorting
+						taxID := ""
+						if tid, ok := e.taxids[genome]; ok {
+							taxID = strconv.Itoa(tid)
+						}
+
 						if _, ok := attrsMap["Name"]; ok {
 							attr.Name = attrsMap["Name"]
-							e.d.addXref(attrsMap["Name"], textLinkID, currGeneID, "ensembl", true)
+							e.d.addXrefWithPriority(attrsMap["Name"], textLinkID, currGeneID, "ensembl", true, taxID)
 						}
 
 						if _, ok := attrsMap["description"]; ok {
@@ -665,21 +671,21 @@ func (e *ensembl) update() {
 							// Make HGNC symbols searchable (resolving to Ensembl entry)
 							for _, symbol := range hgncData.Symbols {
 								if symbol != "" {
-									e.d.addXref(symbol, textLinkID, currGeneID, "ensembl", true)
+									e.d.addXrefWithPriority(symbol, textLinkID, currGeneID, "ensembl", true, taxID)
 								}
 							}
 
 							// Make HGNC aliases searchable
 							for _, alias := range hgncData.Aliases {
 								if alias != "" {
-									e.d.addXref(alias, textLinkID, currGeneID, "ensembl", true)
+									e.d.addXrefWithPriority(alias, textLinkID, currGeneID, "ensembl", true, taxID)
 								}
 							}
 
 							// Make HGNC previous symbols searchable
 							for _, prevSymbol := range hgncData.PrevSymbols {
 								if prevSymbol != "" {
-									e.d.addXref(prevSymbol, textLinkID, currGeneID, "ensembl", true)
+									e.d.addXrefWithPriority(prevSymbol, textLinkID, currGeneID, "ensembl", true, taxID)
 								}
 							}
 						}
@@ -901,17 +907,17 @@ func (e *ensembl) update() {
 						}
 
 						// maybe these values from configuration
-						e.xref(j, entryid, fr, "RefSeq_peptide", "RefSeq")
+						e.xrefRefSeq(j, entryid, fr, "RefSeq_peptide")
 						e.xref(j, entryid, fr, "EntrezGene", "GeneID")
 						e.xref(j, entryid, fr, "Reactome", "Reactome")
 						e.xref(j, entryid, fr, "Uniprot/SPTREMBL", "uniprot")
 						e.xref(j, entryid, fr, "KEGG_Enzyme", "KEGG")
 						e.xref(j, entryid, fr, "CDD", "CDD")
-						e.xref(j, entryid, fr, "RefSeq_mRNA", "RefSeq")
+						e.xrefRefSeq(j, entryid, fr, "RefSeq_mRNA")
 						e.xref(j, entryid, fr, "CCDS", "CCDS")
 						e.xref(j, entryid, fr, "Uniprot/SWISSPROT", "uniprot")
 						e.xref(j, entryid, fr, "UCSC", "UCSC")
-						e.xref(j, entryid, fr, "RefSeq_ncRNA_predicted", "RefSeq")
+						e.xrefRefSeq(j, entryid, fr, "RefSeq_ncRNA_predicted")
 						e.xrefGO(j, entryid, fr) // go terms are also under xrefs with source information.
 						// e.xref(j, entryid, fr, "HGNC", "hgnc")
 
@@ -947,18 +953,18 @@ func (e *ensembl) update() {
 									}
 								}
 
-								e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "RefSeq_peptide", "RefSeq")
+								e.xrefRefSeq(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "RefSeq_peptide")
 								e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "EntrezGene", "GeneID")
 								e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "Reactome", "Reactome")
 								e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "Uniprot/SPTREMBL", "uniprot")
 								e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "KEGG_Enzyme", "KEGG")
 								e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "CDD", "CDD")
-								e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "RefSeq_mRNA", "RefSeq")
+								e.xrefRefSeq(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "RefSeq_mRNA")
 								e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "CCDS", "CCDS")
 								e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "Uniprot/SWISSPROT", "uniprot")
 								e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "UCSC", "UCSC")
 								e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "Uniprot_gn", "uniprot")
-								e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "RefSeq_ncRNA_predicted", "RefSeq")
+								e.xrefRefSeq(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "RefSeq_ncRNA_predicted")
 								// e.xref(val, tentryid, ensemblTranscriptID, "HGNC", "hgnc")
 								e.xrefGO(val.(*jsparser.JSON), tentryid, ensemblTranscriptID)
 								if e.d.orthologsAllActive {
@@ -1072,6 +1078,21 @@ func (e *ensembl) xref(j *jsparser.JSON, entryid, from, propName, dbid string) {
 	if j.ObjectVals[propName] != nil {
 		for _, val := range j.ObjectVals[propName].(*jsparser.JSON).ArrayVals {
 			e.d.addXref(entryid, from, val.(string), dbid, false)
+		}
+	}
+}
+
+// xrefRefSeq creates cross-references to RefSeq, stripping version suffixes
+// RefSeq IDs are indexed by base accession (e.g., NM_007294 not NM_007294.4)
+func (e *ensembl) xrefRefSeq(j *jsparser.JSON, entryid, from, propName string) {
+	if j.ObjectVals[propName] != nil {
+		for _, val := range j.ObjectVals[propName].(*jsparser.JSON).ArrayVals {
+			refseqID := val.(string)
+			// Strip version suffix (e.g., NM_007294.4 -> NM_007294)
+			if idx := strings.LastIndex(refseqID, "."); idx > 0 {
+				refseqID = refseqID[:idx]
+			}
+			e.d.addXref(entryid, from, refseqID, "RefSeq", false)
 		}
 	}
 }

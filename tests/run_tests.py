@@ -312,6 +312,7 @@ Available datasets:
         'brenda': datasets_dir / "brenda" / "test_brenda.py",
         'cellphonedb': datasets_dir / "cellphonedb" / "test_cellphonedb.py",
         'pdb': datasets_dir / "pdb" / "test_pdb.py",
+        'encode_ccre': datasets_dir / "encode_ccre" / "test_encode_ccre.py",
     }
 
     # Parse dataset selection

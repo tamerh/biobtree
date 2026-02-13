@@ -113,6 +113,19 @@ func (r *refseq) check(err error, operation string) {
 	checkWithContext(err, r.source, operation)
 }
 
+// stripRefSeqVersion removes the version suffix from a RefSeq accession
+// e.g., "NM_007294.4" -> "NM_007294", "NP_005219.2" -> "NP_005219"
+func stripRefSeqVersion(accession string) string {
+	if idx := strings.LastIndex(accession, "."); idx > 0 {
+		// Verify the part after the dot is numeric (version number)
+		versionPart := accession[idx+1:]
+		if _, err := strconv.Atoi(versionPart); err == nil {
+			return accession[:idx]
+		}
+	}
+	return accession
+}
+
 // getRefSeqType determines the type of RefSeq accession based on its prefix
 func getRefSeqType(accession string) string {
 	if len(accession) < 3 {
@@ -395,12 +408,13 @@ func (r *refseq) loadMANEData(manePath string) {
 			strand:            strand,
 		}
 
-		// Map both RNA and protein accessions
+		// Map both RNA and protein accessions using base accession (without version)
+		// This ensures MANE enrichment works even if GBFF has different version
 		if refseqNuc != "" {
-			r.maneData[refseqNuc] = info
+			r.maneData[stripRefSeqVersion(refseqNuc)] = info
 		}
 		if refseqProt != "" {
-			r.maneData[refseqProt] = info
+			r.maneData[stripRefSeqVersion(refseqProt)] = info
 		}
 	}
 
@@ -514,8 +528,9 @@ func (r *refseq) extractTranscriptPosition(featureType, location, content, chrom
 		return
 	}
 
-	// Store position data
-	r.positionData[accession] = &refseqPosition{
+	// Store position data using base accession (without version)
+	// This ensures position enrichment works even if versions differ between files
+	r.positionData[stripRefSeqVersion(accession)] = &refseqPosition{
 		genomicAccession: chromosome,
 		start:            start,
 		end:              end,
@@ -704,8 +719,9 @@ func (r *refseq) parseGBFFRecord(lines []string, isProtein bool) *gbffRecord {
 		record.seqType = getRefSeqType(record.accession)
 	}
 
-	// Enrich with MANE data if available
-	if mane, ok := r.maneData[record.accession]; ok {
+	// Enrich with MANE data if available (lookup by base accession)
+	baseAccession := stripRefSeqVersion(record.accession)
+	if mane, ok := r.maneData[baseAccession]; ok {
 		record.isManeSelect = mane.status == "MANE Select"
 		record.isManePlusClin = mane.status == "MANE Plus Clinical"
 		record.ensemblTranscript = mane.ensemblTranscript
@@ -735,7 +751,8 @@ func (r *refseq) parseGBFFRecord(lines []string, isProtein bool) *gbffRecord {
 	}
 
 	// Fallback: Enrich with position data from genomic GBFF (if not already set by MANE)
-	if pos, ok := r.positionData[record.accession]; ok {
+	// Lookup by base accession to handle version differences between files
+	if pos, ok := r.positionData[baseAccession]; ok {
 		if record.startPosition == 0 && pos.start > 0 {
 			record.startPosition = pos.start
 		}
@@ -963,9 +980,14 @@ func (r *refseq) processRecord(record *gbffRecord, fr string) {
 	record.description = strings.TrimSpace(record.description)
 	record.description = strings.TrimSuffix(record.description, ".")
 
+	// Use base accession (without version) as primary key for better searchability
+	// Users typically search NM_007294, not NM_007294.4
+	baseAccession := stripRefSeqVersion(record.accession)
+
 	// Create attributes
 	attr := pbuf.RefSeqAttr{
-		Accession:         record.accession,
+		Accession:         baseAccession,      // Base accession without version (primary key)
+		Version:           record.accession,   // Full versioned accession for reference
 		Type:              record.seqType,
 		Status:            record.status,
 		Symbol:            record.symbol,
@@ -1002,34 +1024,39 @@ func (r *refseq) processRecord(record *gbffRecord, fr string) {
 	}
 
 	b, _ := ffjson.Marshal(&attr)
-	r.d.addProp3(record.accession, fr, b)
+	r.d.addProp3(baseAccession, fr, b)
 
 	// Add text search for symbol
 	if record.symbol != "" {
-		r.d.addXref(record.symbol, textLinkID, record.accession, r.source, true)
+		r.d.addXref(record.symbol, textLinkID, baseAccession, r.source, true)
 	}
 
 	// Add text search for gene synonyms
 	for _, syn := range record.synonyms {
 		if syn != "" {
-			r.d.addXref(syn, textLinkID, record.accession, r.source, true)
+			r.d.addXref(syn, textLinkID, baseAccession, r.source, true)
 		}
+	}
+
+	// Add text search for versioned accession (allows searching by full version)
+	if record.accession != baseAccession {
+		r.d.addXref(record.accession, textLinkID, baseAccession, r.source, true)
 	}
 
 	// Create cross-reference to Entrez Gene
 	if record.geneID != "" {
-		r.d.addXref(record.accession, fr, record.geneID, "entrez", false)
+		r.d.addXref(baseAccession, fr, record.geneID, "entrez", false)
 	}
 
 	// Create cross-reference to taxonomy
 	if record.taxID != "" {
-		r.d.addXref(record.accession, fr, record.taxID, "taxonomy", false)
+		r.d.addXref(baseAccession, fr, record.taxID, "taxonomy", false)
 	}
 
 	// Create cross-reference to human gene databases via gene symbol lookup
 	// addHumanGeneXrefsAll creates xrefs to HGNC, Entrez, and Ensembl
 	if record.symbol != "" {
-		r.d.addHumanGeneXrefsAll(record.symbol, record.accession, fr)
+		r.d.addHumanGeneXrefsAll(record.symbol, baseAccession, fr)
 	}
 
 	// Create cross-reference to Ensembl transcript
@@ -1039,7 +1066,7 @@ func (r *refseq) processRecord(record *gbffRecord, fr string) {
 		if idx := strings.Index(ensemblID, "."); idx > 0 {
 			ensemblID = ensemblID[:idx]
 		}
-		r.d.addXref(record.accession, fr, ensemblID, "ensembl", false)
+		r.d.addXref(baseAccession, fr, ensemblID, "ensembl", false)
 	}
 
 	// Create cross-reference to Ensembl protein
@@ -1048,24 +1075,31 @@ func (r *refseq) processRecord(record *gbffRecord, fr string) {
 		if idx := strings.Index(ensemblID, "."); idx > 0 {
 			ensemblID = ensemblID[:idx]
 		}
-		r.d.addXref(record.accession, fr, ensemblID, "ensembl", false)
+		r.d.addXref(baseAccession, fr, ensemblID, "ensembl", false)
 	}
 
 	// Create cross-references between RefSeq RNA and protein
-	if record.proteinAccession != "" && record.proteinAccession != record.accession {
-		r.d.addXref(record.accession, fr, record.proteinAccession, r.source, false)
+	// Use base accession (without version) to ensure xrefs work across version changes
+	if record.proteinAccession != "" {
+		proteinBase := stripRefSeqVersion(record.proteinAccession)
+		if proteinBase != baseAccession {
+			r.d.addXref(baseAccession, fr, proteinBase, r.source, false)
+		}
 	}
-	if record.rnaAccession != "" && record.rnaAccession != record.accession {
-		r.d.addXref(record.accession, fr, record.rnaAccession, r.source, false)
+	if record.rnaAccession != "" {
+		rnaBase := stripRefSeqVersion(record.rnaAccession)
+		if rnaBase != baseAccession {
+			r.d.addXref(baseAccession, fr, rnaBase, r.source, false)
+		}
 	}
 
 	// Cross-reference to CCDS
 	if record.ccdsID != "" {
-		r.d.addXref(record.accession, fr, record.ccdsID, "ccds", false)
+		r.d.addXref(baseAccession, fr, record.ccdsID, "ccds", false)
 	}
 
 	// Cross-reference to UniProt
 	if record.uniprotID != "" {
-		r.d.addXref(record.accession, fr, record.uniprotID, "uniprot", false)
+		r.d.addXref(baseAccession, fr, record.uniprotID, "uniprot", false)
 	}
 }

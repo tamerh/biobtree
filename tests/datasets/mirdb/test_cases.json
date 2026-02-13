@@ -1,0 +1,108 @@
+{
+  "dataset": "mirdb",
+  "description": "miRDB microRNA target prediction database tests",
+  "test_cases": [
+    {
+      "name": "search_human_mirna",
+      "description": "Search for a human miRNA (hsa-miR-21-5p)",
+      "type": "search",
+      "query": {
+        "terms": "hsa-miR-21-5p"
+      },
+      "expected": {
+        "has_results": true,
+        "min_results": 1,
+        "result_contains": {
+          "dataset": "mirdb",
+          "identifier_pattern": "hsa-miR-21-5p"
+        }
+      }
+    },
+    {
+      "name": "search_mouse_mirna",
+      "description": "Search for a mouse miRNA (mmu-let-7a)",
+      "type": "search",
+      "query": {
+        "terms": "mmu-let-7a"
+      },
+      "expected": {
+        "has_results": true,
+        "min_results": 1,
+        "result_contains": {
+          "dataset": "mirdb"
+        }
+      }
+    },
+    {
+      "name": "search_short_name",
+      "description": "Search by short miRNA name without species prefix",
+      "type": "search",
+      "query": {
+        "terms": "miR-21-5p"
+      },
+      "expected": {
+        "has_results": true,
+        "min_results": 1,
+        "result_contains": {
+          "dataset": "mirdb"
+        }
+      }
+    },
+    {
+      "name": "map_mirna_to_refseq",
+      "description": "Map miRNA to RefSeq targets",
+      "type": "map",
+      "query": {
+        "terms": "hsa-let-7a-5p",
+        "chain": ">>mirdb>>refseq"
+      },
+      "expected": {
+        "has_results": true,
+        "min_results": 10,
+        "result_contains": {
+          "dataset": "refseq"
+        }
+      }
+    },
+    {
+      "name": "entry_has_attributes",
+      "description": "Check that miRNA entry has expected attributes",
+      "type": "entry",
+      "query": {
+        "identifier": "hsa-miR-21-5p",
+        "dataset": "mirdb"
+      },
+      "expected": {
+        "has_attributes": true,
+        "attributes_contain": ["mirna_id", "species", "target_count"]
+      }
+    },
+    {
+      "name": "filter_by_target_count",
+      "description": "Filter miRNAs by minimum target count",
+      "type": "map",
+      "query": {
+        "terms": "hsa-let-7a-5p",
+        "chain": ">>mirdb[mirdb.target_count>100]"
+      },
+      "expected": {
+        "has_results": true
+      }
+    },
+    {
+      "name": "species_human",
+      "description": "Verify human miRNA has correct species attribute",
+      "type": "entry",
+      "query": {
+        "identifier": "hsa-miR-21-5p",
+        "dataset": "mirdb"
+      },
+      "expected": {
+        "has_attributes": true,
+        "attribute_values": {
+          "species": "hsa"
+        }
+      }
+    }
+  ]
+}

@@ -7,7 +7,7 @@ via identifiers and special keywors with simple or advance chain query capabilit
 
 ## Features
 
-* **Datasets** - supports wide datasets such as `Ensembl` `Uniprot` `ChEMBL` `HMDB` `BindingDB` `CTD` `STRING` `BioGRID` `MSigDB` `Taxonomy` `GO` `EFO` `HPO` `UBERON` `CL` `HGNC` `ECO` `Uniparc` `Uniref` `RNACentral` `Bgee` `GWAS Catalog` `dbSNP` `RefSeq` `IntAct` `GenCC` `AlphaMissense` `ClinVar` `PharmGKB` `CELLxGENE` `SCXA` `Orphanet` `CollecTRI` `SIGNOR` `CORUM` `BRENDA` `ESM2 Similarity` `CellPhoneDB` `PDB`  with tens of more via cross references
+* **Datasets** - supports wide datasets such as `Ensembl` `Uniprot` `ChEMBL` `HMDB` `BindingDB` `CTD` `STRING` `BioGRID` `MSigDB` `Taxonomy` `GO` `EFO` `HPO` `UBERON` `CL` `HGNC` `ECO` `Uniparc` `Uniref` `RNACentral` `Bgee` `GWAS Catalog` `dbSNP` `RefSeq` `IntAct` `GenCC` `AlphaMissense` `ClinVar` `PharmGKB` `CELLxGENE` `SCXA` `FANTOM5` `Orphanet` `CollecTRI` `SIGNOR` `CORUM` `BRENDA` `ESM2 Similarity` `CellPhoneDB` `PDB` `miRDB` `JASPAR` `ENCODE cCRE`  with tens of more via cross references
 by retrieving latest data from providers
 
 * **MapReduce** - processes small or large datasets based on users selection and build B+ tree based uniform local database via specialized MapReduce based tecnique with efficient storage usage 
@@ -34,7 +34,9 @@ by retrieving latest data from providers
 
 * **Non-Coding RNAs** - `RNACentral` database with 49.8M+ unique ncRNA sequences aggregated from 56 expert databases, including rRNA, miRNA, lncRNA, tRNA, and other RNA types with comprehensive metadata
 
-* **Gene Expression** - `Bgee` database with curated gene expression data across 30+ species and 1,000+ anatomical structures. Includes tissue-specific expression patterns, expression quality scores, multi-technology support (Affymetrix, RNA-Seq, scRNA-Seq), observation counts, and cross-references to Ensembl genes and UBERON tissues
+* **microRNA Target Prediction** - `miRDB` database with 7,000+ miRNAs and 6.8M target predictions across 5 species (human, mouse, rat, dog, chicken). Provides computationally predicted miRNA-target interactions using the MirTarget algorithm with prediction scores. Cross-references to RefSeq transcripts. Supports miRNA target discovery and post-transcriptional regulation analysis
+
+* **Gene Expression** - `Bgee` database with curated gene expression data across 30+ species and 1,000+ anatomical structures. Includes tissue-specific expression patterns, expression quality scores, multi-technology support (Affymetrix, RNA-Seq, scRNA-Seq), observation counts, and cross-references to Ensembl genes and UBERON tissues. `FANTOM5` CAGE expression atlas with ~185K promoters, ~65K enhancers, and ~20K gene-level aggregations across 1800+ human samples. Provides TPM expression values, tissue/cell type specificity, and cross-references to Ensembl/HGNC/Entrez/UniProt/UBERON/CL
 
 * **Single-Cell Transcriptomics** - `CELLxGENE` Census from CZ Science with 80M+ cells across 1,800+ datasets. Provides dataset metadata (organism, assay types, cell counts) and aggregated cell type data with tissue distribution and disease associations. Cross-references to Taxonomy, CL (Cell Ontology), UBERON (tissues), EFO (assays), and MONDO (diseases). Supports finding datasets by cell type, exploring cell type tissue distribution, and disease-associated single-cell studies
 
@@ -61,6 +63,10 @@ by retrieving latest data from providers
 * **Gene-Disease Validity** - `GenCC` (Gene Curation Coalition) database with 35,000+ standardized gene-disease validity curations from multiple authoritative sources including ClinGen, Ambry, Genomics England, and Orphanet. Provides classification levels (Definitive, Strong, Moderate, Limited, Supportive), mode of inheritance (autosomal dominant/recessive, X-linked), submitter information, and PubMed citations. Supports clinical variant interpretation, diagnostic panel design, and gene-disease relationship exploration with cross-references to MONDO, HPO, and PubMed
 
 * **Transcription Factor Regulation** - `CollecTRI` database with 43K+ human TF-target gene regulatory interactions from 12 evidence sources. Provides transcription factor and target gene pairs, regulation direction (Activation/Repression), confidence levels, PubMed references, and evidence sources. Cross-references to Ensembl genes. Supports gene regulatory network analysis, TF target discovery, and transcriptional pathway exploration. Note: TRED source excluded for licensing reasons
+
+* **TF Binding Profiles** - `JASPAR` database with 6K+ curated transcription factor binding profiles (PFMs/PWMs) from CORE and UNVALIDATED collections. Provides TF names, binding motif metadata, experiment types (ChIP-seq, SELEX, PBM), taxonomic groups (vertebrates, plants, insects, fungi), and species information. Cross-references to UniProt, PubMed, and Taxonomy. Supports TF binding site prediction, regulatory element analysis, and gene regulation studies
+
+* **Regulatory Elements** - `ENCODE cCRE` (candidate cis-Regulatory Elements) from ENCODE SCREEN with 2.3M+ human regulatory regions (GRCh38). Classifications include PLS (promoter-like), pELS/dELS (proximal/distal enhancer-like), CA-CTCF (CTCF-bound), CA-TF (TF-bound), and CA (chromatin accessible). Provides genomic coordinates (chromosome, start, end). Cross-references to Taxonomy. Supports regulatory element discovery, enhancer/promoter analysis, and epigenomics studies
 
 * **Causal Signaling Networks** - `SIGNOR` database with 114K+ manually curated causal relationships between biological entities (proteins, chemicals, phenotypes) across human, mouse, and rat. Provides regulatory effects (up/down-regulates), mechanisms (phosphorylation, binding, transcriptional regulation), confidence scores, and experimental context. Cross-references to UniProt, ChEBI, PubChem, DrugBank, PubMed, and Taxonomy. Supports signaling pathway analysis, drug mechanism discovery, and phenotype regulation studies with organism-specific filtering
 
@@ -125,6 +131,12 @@ biobtree -d "msigdb,hgnc,entrez,go,hpo" build
 # build with gene expression (requires Ensembl and works well with UBERON)
 biobtree -d "ensembl,bgee,uberon" build
 
+# build with FANTOM5 CAGE expression (promoters, enhancers, gene-level)
+biobtree -d "fantom5_promoter,ensembl,uberon,cl" build
+
+# build with microRNA target predictions (works well with RefSeq)
+biobtree -d "mirdb,refseq" build
+
 # build with single-cell transcriptomics (works well with CL, UBERON, MONDO, EFO)
 biobtree -d "cellxgene,cl,uberon,mondo,efo" build
 
@@ -148,6 +160,12 @@ biobtree -d "orphanet,hpo,mondo,ensembl,hgnc" build
 
 # build with transcription factor regulation (works well with Ensembl, HGNC)
 biobtree -d "collectri,ensembl,hgnc" --lookupdb build
+
+# build with TF binding profiles (works well with UniProt)
+biobtree -d "jaspar,uniprot" build
+
+# build with regulatory elements (ENCODE cCRE)
+biobtree -d "encode_ccre" build
 
 # build with causal signaling networks (works well with UniProt, ChEBI)
 biobtree -d "signor,uniprot,chebi" build
@@ -410,6 +428,18 @@ biobtree query "CL:0000576 >> bgee"               # Find genes expressed in mono
 biobtree query "ENSG00000139618 >> bgee >> uberon" # Gene to tissues where expressed
 biobtree query "ENSG00000139618 >> bgee >> cl"    # Gene to cell types where expressed
 
+# FANTOM5 CAGE expression queries
+biobtree query "TP53 >> fantom5_promoter"         # Gene to CAGE promoters/TSS
+biobtree query "TP53 >> fantom5_gene"             # Gene-level CAGE expression
+biobtree query "UBERON:0000955 >> fantom5_promoter"  # Promoters active in brain
+biobtree query "CL:0000540 >> fantom5_promoter"   # Promoters active in neurons
+
+# miRNA target prediction queries (miRDB)
+biobtree query "hsa-miR-21-5p"                    # Human miRNA lookup
+biobtree query "hsa-miR-21-5p >> mirdb"           # miRNA target predictions
+biobtree query "hsa-let-7a-5p >> mirdb >> refseq" # miRNA to RefSeq targets
+biobtree query "mmu-let-7a >> mirdb"              # Mouse miRNA targets
+
 # Single-cell transcriptomics queries (CELLxGENE)
 biobtree query "CL_0000540"                       # Cell type lookup (neuron)
 biobtree query "CL:0000540 >> cellxgene"          # Find datasets containing neurons
@@ -518,6 +548,22 @@ biobtree query "MYC >> collectri"                    # Find all targets of MYC
 biobtree query "TERT >> collectri"                   # Find TFs that regulate TERT
 biobtree query "TP53 >> ensembl >> collectri"        # Gene to TF regulatory interactions
 
+# JASPAR TF binding profile queries
+biobtree query "MA0004.1"                            # Matrix ID lookup (Arnt profile)
+biobtree query "MA0004.1 >> jaspar"                  # Get binding profile details
+biobtree query "RUNX1 >> jaspar"                     # Find binding profiles by TF name
+biobtree query "MA0004.1 >> jaspar >> uniprot"       # Binding profile to TF protein
+biobtree query "P53762 >> uniprot >> jaspar"         # Protein to binding profiles
+biobtree query "TP53 >> ensembl >> uniprot >> jaspar"  # Gene to TF binding profiles
+
+# ENCODE cCRE regulatory element queries
+biobtree query "EH38E2776516"                        # cCRE lookup by accession
+biobtree query "EH38E2776516 >> encode_ccre"         # Get cCRE details
+biobtree query "PLS >> encode_ccre"                  # Search promoter-like sequences
+biobtree query "pELS >> encode_ccre"                 # Search proximal enhancer-like
+biobtree query "dELS >> encode_ccre"                 # Search distal enhancer-like
+biobtree query "CA-CTCF >> encode_ccre"              # Search CTCF-bound regions
+
 # SIGNOR causal signaling queries
 biobtree query "SIGNOR-142566"                       # Signaling interaction lookup
 biobtree query "SIGNOR-142566 >> signor"             # Get interaction details
@@ -566,6 +612,17 @@ biobtree query "4HHB >> pdb >> interpro"             # Structure to protein doma
 biobtree query "4HHB >> pdb >> pfam"                 # Structure to Pfam families
 biobtree query "4HHB >> pdb >> taxonomy"             # Structure to organism
 biobtree query "4HHB >> pdb >> pubmed"               # Structure to literature
+
+# InterPro protein domain queries
+biobtree query "IPR000719"                           # Domain lookup (Protein kinase)
+biobtree query "IPR000719 >> interpro"               # Get domain details
+biobtree query "IPR000719 >> go"                     # Domain to GO annotations
+biobtree query "IPR000719 >> interprochild"          # Find child/specialized domains
+biobtree query "IPR001245 >> interproparent"         # Find parent domain families
+biobtree query "GO:0004672 >> interpro"              # Find domains with kinase activity
+biobtree query "P04637 >> uniprot >> interpro"       # Protein to InterPro domains
+biobtree query "Kringle >> interpro"                 # Search by domain short name
+biobtree query "IPR000719 >> interpro >> uniprot"    # Domain to proteins containing it
 ```
 
 #### Filter Syntax
@@ -591,6 +648,10 @@ biobtree query "hgnc >> chembl[chembl.molecule.highestDevelopmentPhase>2]"
 # Gene expression filters
 biobtree query "UBERON:0000955 >> bgee[bgee.expression_score>90]"  # High expression in brain
 biobtree query "ENSG00000139618 >> bgee[bgee.call_quality==\"gold quality\"]"  # Gold quality only
+
+# miRDB filters
+biobtree query "hsa-miR-21-5p >> mirdb[mirdb.target_count>500]"    # miRNAs with many targets
+biobtree query "hsa-let-7a-5p >> mirdb[mirdb.max_score>90.0]"      # High-confidence predictions
 
 # GWAS filters
 biobtree query "Type 2 diabetes >> gwas[gwas.p_value<0.00000005]"  # Genome-wide significant SNPs
@@ -638,6 +699,16 @@ biobtree query "warfarin >> pharmgkb >> pharmgkb_guideline[pharmgkb_guideline.so
 biobtree query "warfarin >> pharmgkb >> pharmgkb_pathway[pharmgkb_pathway.is_pharmacokinetic==true]"  # PK pathways only
 biobtree query "CYP2C9 >> hgnc >> pharmgkb_clinical[pharmgkb_clinical.level_of_evidence==\"1A\"]"  # Highest evidence
 biobtree query "CYP2C9 >> pharmgkb_gene[pharmgkb_gene.is_vip==true]"        # VIP genes only
+
+# JASPAR TF binding profile filters
+biobtree query "TP53 >> jaspar[jaspar.collection==\"CORE\"]"                # CORE collection only
+biobtree query "TP53 >> jaspar[jaspar.type==\"ChIP-seq\"]"                  # ChIP-seq derived profiles
+biobtree query "BRCA1 >> jaspar[jaspar.tax_group==\"vertebrates\"]"         # Vertebrate TFs only
+
+# ENCODE cCRE regulatory element filters
+biobtree query "PLS >> encode_ccre[encode_ccre.ccre_class==\"PLS\"]"        # Promoter-like only
+biobtree query "EH38E2776516 >> encode_ccre[encode_ccre.chromosome==\"chr1\"]"  # Filter by chromosome
+biobtree query "pELS >> encode_ccre[encode_ccre.start>10000 && encode_ccre.end<100000]"  # Coordinate range
 
 # SIGNOR causal signaling filters
 biobtree query "P00533 >> uniprot >> signor[signor.mechanism==\"phosphorylation\"]"  # Phosphorylation only

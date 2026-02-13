@@ -216,6 +216,249 @@ func SortBucketFile(filePath string, useUnixSort bool) error {
 	return SortBucketFileInMemory(filePath)
 }
 
+// SortBucketFileWithConfig sorts a bucket file using configuration options
+// Supports custom sort fields and post-sort field stripping (for model species priority)
+func SortBucketFileWithConfig(filePath string, cfg *BucketConfig) error {
+	if cfg == nil {
+		return SortBucketFile(filePath, false)
+	}
+	if cfg.UseUnixSort {
+		return SortBucketFileUnixEx(filePath, cfg.SortFields, cfg.StripFieldAfterSort)
+	}
+	return SortBucketFileInMemoryEx(filePath, cfg.SortFields, cfg.StripFieldAfterSort)
+}
+
+// SortBucketFileUnixEx sorts a bucket file using Unix sort with custom sort fields
+// sortFields: custom sort specification (e.g., "-k1,1 -k7,7" for key + priority)
+// stripField: 1-based field index to remove after sorting (0 = no stripping)
+func SortBucketFileUnixEx(filePath string, sortFields string, stripField int) error {
+	isCompressed := strings.HasSuffix(filePath, ".gz")
+	outPath := filePath + ".sorted"
+
+	// Default to sorting by first field if not specified
+	if sortFields == "" {
+		sortFields = "-k1,1"
+	}
+
+	var cmd *exec.Cmd
+
+	if isCompressed {
+		var cmdStr string
+		if stripField > 0 {
+			// Sort then strip the specified field using cut
+			// cut -f1-(n-1),(n+1)- removes field n
+			cutSpec := fmt.Sprintf("1-%d,%d-", stripField-1, stripField+1)
+			if stripField == 1 {
+				cutSpec = fmt.Sprintf("%d-", stripField+1)
+			}
+			cmdStr = fmt.Sprintf(
+				"set -o pipefail; zcat '%s' | LC_ALL=C sort -t$'\\t' %s %s | uniq | cut -f%s | %s > '%s'",
+				filePath,
+				sortFields,
+				UnixSortOptions,
+				cutSpec,
+				UnixSortCompressor,
+				outPath,
+			)
+		} else {
+			// Original behavior - no field stripping
+			cmdStr = fmt.Sprintf(
+				"set -o pipefail; zcat '%s' | LC_ALL=C sort -t$'\\t' %s %s | uniq | %s > '%s'",
+				filePath,
+				sortFields,
+				UnixSortOptions,
+				UnixSortCompressor,
+				outPath,
+			)
+		}
+		cmd = exec.Command("bash", "-c", cmdStr)
+	} else {
+		var cmdStr string
+		if stripField > 0 {
+			cutSpec := fmt.Sprintf("1-%d,%d-", stripField-1, stripField+1)
+			if stripField == 1 {
+				cutSpec = fmt.Sprintf("%d-", stripField+1)
+			}
+			cmdStr = fmt.Sprintf(
+				"set -o pipefail; LC_ALL=C sort -t$'\\t' %s %s '%s' | uniq | cut -f%s > '%s'",
+				sortFields,
+				UnixSortOptions,
+				filePath,
+				cutSpec,
+				outPath,
+			)
+		} else {
+			cmdStr = fmt.Sprintf(
+				"set -o pipefail; LC_ALL=C sort -t$'\\t' %s %s '%s' | uniq > '%s'",
+				sortFields,
+				UnixSortOptions,
+				filePath,
+				outPath,
+			)
+		}
+		cmd = exec.Command("bash", "-c", cmdStr)
+	}
+
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("unix sort failed for %s: %v, output: %s", filePath, err, string(output))
+	}
+
+	// Replace original with sorted
+	os.Remove(filePath)
+	if err := os.Rename(outPath, filePath); err != nil {
+		return fmt.Errorf("renaming sorted file %s: %w", outPath, err)
+	}
+
+	return nil
+}
+
+// SortBucketFileInMemoryEx sorts a bucket file using Go in-memory sort with custom options
+// sortFields: custom sort specification (e.g., "-k1,1 -k7,7" for key + priority)
+// stripField: 1-based field index to remove after sorting (0 = no stripping)
+func SortBucketFileInMemoryEx(filePath string, sortFields string, stripField int) error {
+	isCompressed := strings.HasSuffix(filePath, ".gz")
+
+	// Open and read all lines
+	f, err := os.Open(filePath)
+	if err != nil {
+		return err
+	}
+
+	var reader *bufio.Reader
+	var gzReader *gzip.Reader
+
+	if isCompressed {
+		gzReader, err = gzip.NewReader(f)
+		if err != nil {
+			f.Close()
+			return fmt.Errorf("opening gzip reader for %s: %w", filePath, err)
+		}
+		reader = bufio.NewReaderSize(gzReader, BucketReadBufferSize)
+	} else {
+		reader = bufio.NewReaderSize(f, BucketReadBufferSize)
+	}
+
+	// Determine if we need to sort by priority (field 7)
+	sortByPriority := strings.Contains(sortFields, "-k7")
+
+	type extendedKeyedLine struct {
+		key      string // Field 1 (primary sort key)
+		priority string // Field 7 (secondary sort key for model species)
+		line     string // Full line
+	}
+
+	var entries []extendedKeyedLine
+	for {
+		line, err := reader.ReadString('\n')
+		if err != nil && err != io.EOF {
+			break
+		}
+		if len(line) > 0 {
+			if line[len(line)-1] == '\n' {
+				line = line[:len(line)-1]
+			}
+			entry := extendedKeyedLine{line: line}
+			// Extract key (field 1) and priority (field 7) if needed
+			fields := strings.Split(line, "\t")
+			if len(fields) > 0 {
+				entry.key = fields[0]
+			}
+			if sortByPriority && len(fields) >= 7 {
+				entry.priority = fields[6] // 0-indexed, so field 7 is index 6
+			}
+			entries = append(entries, entry)
+		}
+		if err == io.EOF {
+			break
+		}
+	}
+
+	if gzReader != nil {
+		gzReader.Close()
+	}
+	f.Close()
+
+	if len(entries) == 0 {
+		return nil
+	}
+
+	// Sort by key, then by priority if configured
+	if sortByPriority {
+		sort.Slice(entries, func(i, j int) bool {
+			if entries[i].key != entries[j].key {
+				return entries[i].key < entries[j].key
+			}
+			return entries[i].priority < entries[j].priority
+		})
+	} else {
+		sort.Slice(entries, func(i, j int) bool {
+			return entries[i].key < entries[j].key
+		})
+	}
+
+	// Write back with deduplication and optional field stripping
+	outPath := filePath + ".sorted"
+	outF, err := os.Create(outPath)
+	if err != nil {
+		return err
+	}
+
+	var buf *bufio.Writer
+	var gzWriter *gzip.Writer
+
+	if isCompressed {
+		gzWriter, _ = gzip.NewWriterLevel(outF, gzip.BestSpeed)
+		buf = bufio.NewWriterSize(gzWriter, BucketWriteBufferSize)
+	} else {
+		buf = bufio.NewWriterSize(outF, BucketWriteBufferSize)
+	}
+
+	prevKey := ""
+	seenLines := make(map[string]bool)
+	for _, entry := range entries {
+		if entry.key != prevKey {
+			seenLines = make(map[string]bool)
+			prevKey = entry.key
+		}
+
+		// Determine the line to write (with or without field stripping)
+		lineToWrite := entry.line
+		if stripField > 0 {
+			lineToWrite = stripFieldFromLine(entry.line, stripField)
+		}
+
+		if !seenLines[lineToWrite] {
+			buf.WriteString(lineToWrite)
+			buf.WriteByte('\n')
+			seenLines[lineToWrite] = true
+		}
+	}
+
+	buf.Flush()
+	if gzWriter != nil {
+		gzWriter.Close()
+	}
+	outF.Close()
+
+	os.Remove(filePath)
+	os.Rename(outPath, filePath)
+
+	return nil
+}
+
+// stripFieldFromLine removes a specific field (1-based index) from a tab-delimited line
+func stripFieldFromLine(line string, fieldIdx int) string {
+	fields := strings.Split(line, "\t")
+	if fieldIdx <= 0 || fieldIdx > len(fields) {
+		return line // Field doesn't exist, return unchanged
+	}
+	// Remove the field at index (fieldIdx-1) since fields are 0-indexed
+	idx := fieldIdx - 1
+	result := append(fields[:idx], fields[idx+1:]...)
+	return strings.Join(result, "\t")
+}
+
 // sortJob holds info for sorting a single bucket file
 type sortJob struct {
 	filePath    string
@@ -925,6 +1168,7 @@ func concatenateOneDataset(writerKey string, writer *DatasetBucketWriter, indexD
 // concatenateTextsearchPerSource creates separate sorted files for each source dataset
 // Output format: textsearch_{source}_sorted.{chunkIdx}.index.gz
 // This enables incremental updates - when a dataset is updated, only its textsearch file is rebuilt
+// Uses model species priority sorting: sorts by key then priority field, then strips priority after sort
 func concatenateTextsearchPerSource(indexDir string, chunkIdx string, isDerived bool) (uint64, error) {
 	// Get bucket files grouped by source
 	filesPerSource, err := GetBucketFilesPerSource("textsearch", indexDir, isDerived)
@@ -937,6 +1181,11 @@ func concatenateTextsearchPerSource(indexDir string, chunkIdx string, isDerived 
 		return 0, nil
 	}
 
+	// Textsearch-specific sort configuration for model species priority
+	// Sort by key (field 1) then priority (field 7), strip priority field after sorting
+	textsearchSortFields := "-k1,1 -k7,7"
+	textsearchStripField := 7
+
 	totalLines := uint64(0)
 	sourcesProcessed := 0
 
@@ -946,10 +1195,17 @@ func concatenateTextsearchPerSource(indexDir string, chunkIdx string, isDerived 
 			continue
 		}
 
-		// Sort bucket files
+		// Sort bucket files with model species priority (sort by key + priority, then strip priority)
+		useUnix := BucketSortMethod == "unix"
 		for _, f := range bucketFiles {
-			if err := SortBucketFile(f, false); err != nil { // textsearch uses Go sort
-				log.Printf("Warning: error sorting textsearch bucket file %s: %v", f, err)
+			var sortErr error
+			if useUnix {
+				sortErr = SortBucketFileUnixEx(f, textsearchSortFields, textsearchStripField)
+			} else {
+				sortErr = SortBucketFileInMemoryEx(f, textsearchSortFields, textsearchStripField)
+			}
+			if sortErr != nil {
+				log.Printf("Warning: error sorting textsearch bucket file %s: %v", f, sortErr)
 			}
 		}
 

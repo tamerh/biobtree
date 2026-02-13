@@ -1,9 +1,12 @@
 {
   "metadata": {
-    "version": "9.1",
+    "version": "9.4",
     "description": "Expanded integration tests including newly added datasets and filter tests (2025-2026)",
     "server": "http://localhost:9291",
-    "last_updated": "2026-02-10",
+    "last_updated": "2026-02-13",
+    "changes_9.4": "Added encode_ccre category (13 tests): ENCODE cCRE (candidate cis-Regulatory Elements) integration tests. Direct cCRE ID lookup, text search by all 7 classifications (PLS, pELS, dELS, CA-CTCF, CA-TF, CA, TF), CEL filters for classification/chromosome/coordinate range, taxonomy cross-references, and attribute validation tests. Total: 680 tests.",
+    "changes_9.3": "Added jaspar_tf_binding category (14 tests): JASPAR transcription factor binding profile tests. Direct matrix ID lookup, TF name text search, UniProt/PubMed/Taxonomy cross-references, collection filters (CORE/UNVALIDATED), experiment type filters (ChIP-seq, SELEX), taxonomic group filters, gene to binding profiles via UniProt, and multi-hop queries (TF binding profile to pathways, diseases). Total: 667 tests.",
+    "changes_9.2": "Added fantom5_expression category (16 tests): FANTOM5 CAGE expression data integration tests. Gene symbol/Ensembl/HGNC/Entrez/UniProt to promoter mappings, promoter to Ensembl reverse mappings, gene-level expression lookups, enhancer associations, tissue (UBERON) and cell type (CL) expression mappings, multi-hop queries (disease to promoters, promoters to drug targets, gene expression to pathways, promoters to TF networks). Total: 653 tests.",
     "changes_9.1": "Added protein_structures_pdb category (18 tests): PDB protein structure database tests. Direct PDB ID lookup, UniProt/Gene to PDB mappings, experimental method filters (X-ray, cryo-EM, NMR), resolution filters, cross-references to GO/InterPro/Pfam/Taxonomy/PubMed, and multi-hop structure analysis workflows. Total: 637 tests.",
     "changes_9.0": "Added ligand_receptor category (15 tests): CellPhoneDB cell-cell communication tests. Direct interaction ID lookup, gene symbol to interactions, UniProt/Ensembl cross-references, directionality filters (Ligand-Receptor, Adhesion-Adhesion), classification filters, receptor/secreted partner tests, and multi-hop queries for single-cell analysis workflows. Total: 619 tests.",
     "changes_8.9": "Added protein_embedding_similarity category (15 tests): ESM2 protein embedding similarity tests. Direct UniProt ID lookup, ESM2→UniProt cross-references, multi-hop queries (Gene→ESM2→UniProt, ESM2→AlphaFold structures, ESM2→ChEMBL drug targets, ESM2→Pathways), filter tests for top_similarity and similarity_count. Total: 604 tests.",
@@ -71,7 +74,10 @@
     "enzyme_biochemistry": "Enzyme biochemistry (BRENDA): EC number enzyme classification, kinetic parameters (Km, kcat), inhibitor data (Ki, IC50), organism-specific enzyme information, and literature references. Multi-hop queries for enzyme-centric drug discovery and biochemical pathway analysis.",
     "protein_embedding_similarity": "ESM2 protein embedding similarity: Deep learning-based protein similarity using ESM2 embeddings. Captures functional and structural relationships beyond sequence identity. Top-50 similar proteins per query with cosine similarity scores. Multi-hop queries for homolog discovery, function transfer, and drug target expansion.",
     "ligand_receptor": "CellPhoneDB ligand-receptor interactions: 2,911 curated cell-cell communication interactions for single-cell analysis. Ligand-receptor pairs, adhesion molecules, secreted proteins, and protein complexes. Cross-references to UniProt, Ensembl, HGNC, PubMed. Filters for directionality, classification, receptor/secreted status. Essential for spatial transcriptomics and scRNA-seq communication analysis.",
-    "protein_structures_pdb": "PDB protein structure database: 248K+ experimentally determined 3D structures. Experimental methods (X-ray crystallography, cryo-EM, NMR), resolution data, cross-references to UniProt/GO/InterPro/Pfam/Taxonomy/PubMed. Filters for method type and resolution. Essential for structural biology, drug design, and protein engineering workflows."
+    "protein_structures_pdb": "PDB protein structure database: 248K+ experimentally determined 3D structures. Experimental methods (X-ray crystallography, cryo-EM, NMR), resolution data, cross-references to UniProt/GO/InterPro/Pfam/Taxonomy/PubMed. Filters for method type and resolution. Essential for structural biology, drug design, and protein engineering workflows.",
+    "fantom5_expression": "FANTOM5 CAGE expression data: ~185K promoters (CAGE peaks/TSS), ~65K enhancers, ~20K gene-level aggregations. TPM expression values across 1800+ samples. Cross-references to Ensembl/HGNC/Entrez/UniProt/UBERON/CL. Filters for TPM thresholds, expression breadth. Essential for promoter/enhancer biology, tissue-specific expression, and transcription start site analysis.",
+    "jaspar_tf_binding": "JASPAR transcription factor binding profiles: ~6K curated TF binding motifs (PFMs/PWMs) from CORE and UNVALIDATED collections. Cross-references to UniProt, PubMed, Taxonomy. Filters for collection (CORE/UNVALIDATED), experiment type (ChIP-seq, SELEX, PBM), taxonomic group (vertebrates, plants, insects). Essential for TF binding site prediction, regulatory element analysis, and gene regulation studies.",
+    "encode_ccre": "ENCODE cCRE (candidate cis-Regulatory Elements): ~2.3M regulatory regions from ENCODE SCREEN. Classifications include PLS (promoter-like), pELS (proximal enhancer-like), dELS (distal enhancer-like), CA-CTCF (CTCF-bound), CA-TF (TF-bound), CA (chromatin accessible), TF (transcription factor only). Genomic coordinates (chromosome, start, end). Cross-references to taxonomy (human GRCh38). Filters for classification, chromosome, coordinate range. Essential for regulatory element analysis, enhancer/promoter biology, and epigenomics studies."
   },
   "tests": [
     {
@@ -1130,9 +1136,9 @@
     },
     {
       "category": "clinical_variants",
-      "name": "Gene to ClinVar Variants via HGNC",
-      "query": ">>hgnc>>clinvar",
-      "why": "Map genes to clinical variants - critical for clinical genetics. ClinVar links to HGNC (human genes only).",
+      "name": "Gene to ClinVar Variants via Ensembl",
+      "query": ">>ensembl>>clinvar",
+      "why": "Map genes to clinical variants - critical for clinical genetics and variant interpretation. NOTE: HGNC is embedded in Ensembl, so use ensembl path not hgnc.",
       "should_pass": [
         "BRCA1",
         "TP53",
@@ -1143,8 +1149,8 @@
     {
       "category": "clinical_variants",
       "name": "Ensembl Gene ID to ClinVar Variants",
-      "query": ">>ensembl>>hgnc>>clinvar",
-      "why": "Ensembl gene ID to ClinVar via HGNC (Ensembl→HGNC→ClinVar path)",
+      "query": ">>ensembl>>clinvar",
+      "why": "Direct Ensembl gene ID to ClinVar mapping for clinical research",
       "should_pass": [
         "ENSG00000012048",
         "ENSG00000141510"
@@ -1154,7 +1160,7 @@
     {
       "category": "clinical_variants",
       "name": "Cancer Gene Panel to ClinVar",
-      "query": ">>hgnc>>clinvar",
+      "query": ">>ensembl>>clinvar",
       "why": "Batch query cancer genes to ClinVar for clinical panel analysis (Lynch syndrome genes)",
       "should_pass": [
         "MLH1",
@@ -1331,9 +1337,9 @@
     },
     {
       "category": "genomics",
-      "name": "Gene to dbSNP Variants via HGNC",
-      "query": ">>hgnc>>dbsnp",
-      "why": "Map genes to dbSNP variants for genetic variation analysis. dbSNP links to HGNC (human genes only).",
+      "name": "Gene to dbSNP Variants",
+      "query": ">>ensembl[ensembl.genome==\"homo_sapiens\"]>>dbsnp",
+      "why": "Map genes to dbSNP variants for genetic variation analysis - core SNP discovery workflow",
       "should_pass": [
         "BRCA1",
         "TP53",
@@ -1344,8 +1350,8 @@
     {
       "category": "genomics",
       "name": "Ensembl Gene ID to dbSNP",
-      "query": ">>ensembl>>hgnc>>dbsnp",
-      "why": "Ensembl gene ID to dbSNP via HGNC (Ensembl→HGNC→dbSNP path)",
+      "query": ">>ensembl>>dbsnp",
+      "why": "Direct Ensembl gene ID to dbSNP variant mapping",
       "should_pass": [
         "ENSG00000012048",
         "ENSG00000141510"
@@ -1368,9 +1374,9 @@
     },
     {
       "category": "genomics",
-      "name": "dbSNP to ClinVar via HGNC",
-      "query": ">>dbsnp>>hgnc>>clinvar",
-      "why": "Find clinical significance of dbSNP variants via HGNC to ClinVar mapping",
+      "name": "dbSNP to ClinVar via Gene",
+      "query": ">>dbsnp>>ensembl>>clinvar",
+      "why": "Find clinical significance of dbSNP variants via gene to ClinVar mapping",
       "should_pass": [
         "rs1801133"
       ],
@@ -1490,9 +1496,9 @@
     },
     {
       "category": "ncbi_datasets",
-      "name": "Entrez Gene to ClinVar via HGNC",
-      "query": ">>entrez>>hgnc>>clinvar",
-      "why": "Multi-hop from Entrez gene to clinical variants via HGNC",
+      "name": "Entrez Gene to Ensembl to ClinVar",
+      "query": ">>entrez>>ensembl>>clinvar",
+      "why": "Multi-hop from Entrez gene to clinical variants via Ensembl",
       "should_pass": [
         "BRCA1",
         "TP53"
@@ -1738,7 +1744,7 @@
       "category": "data_validation",
       "name": "BRCA1 ClinVar Count",
       "type": "validation",
-      "query": ">>hgnc>>clinvar",
+      "query": ">>ensembl>>clinvar",
       "identifier": "BRCA1",
       "why": "BRCA1 should have many ClinVar variants (>100)",
       "validations": [
@@ -1844,8 +1850,8 @@
     {
       "category": "gwas_genetics",
       "name": "Type 2 Diabetes MONDO to GWAS Genes",
-      "query": ">>mondo>>gwas>>hgnc>>ensembl",
-      "why": "Find genes associated with Type 2 Diabetes via GWAS studies - disease genetics workflow. GWAS links to HGNC.",
+      "query": ">>mondo>>gwas>>ensembl",
+      "why": "Find genes associated with Type 2 Diabetes via GWAS studies - disease genetics workflow",
       "should_pass": [
         "MONDO:0005148"
       ],
@@ -1854,8 +1860,8 @@
     {
       "category": "gwas_genetics",
       "name": "Disease to GWAS Genes via EFO (Human)",
-      "query": ">>mondo>>gwas_study>>gwas>>hgnc>>ensembl",
-      "why": "Full disease to human genes path via GWAS studies. GWAS links to HGNC (human genes only).",
+      "query": ">>mondo>>gwas_study>>gwas>>ensembl[ensembl.genome==\"homo_sapiens\"]",
+      "why": "Full disease to human genes path via GWAS studies. MONDO\u2192EFO direct mapping is sparse; go via gwas_study instead.",
       "should_pass": [
         "MONDO:0005148",
         "MONDO:0005044"
@@ -1865,8 +1871,8 @@
     {
       "category": "gwas_genetics",
       "name": "Glioblastoma Text to GWAS Genes",
-      "query": ">>mondo>>gwas_study>>gwas>>hgnc>>ensembl",
-      "why": "Drug discovery workflow: disease text to genes via GWAS studies. GWAS links to HGNC.",
+      "query": ">>mondo>>gwas_study>>gwas>>ensembl[ensembl.genome==\"homo_sapiens\"]",
+      "why": "Drug discovery workflow: disease text to genes via GWAS studies - tests text-based disease lookup. MONDO:0005044 is main glioblastoma (not subtypes like MONDO:0000457)",
       "should_pass": [
         "glioblastoma",
         "MONDO:0005044"
@@ -1876,8 +1882,8 @@
     {
       "category": "clinical_variants",
       "name": "Disease to ClinVar Genes via MONDO (Human)",
-      "query": ">>mondo>>clinvar>>hgnc>>ensembl",
-      "why": "Full disease to human genes path via ClinVar. ClinVar links to HGNC (human genes only).",
+      "query": ">>mondo>>clinvar>>ensembl[ensembl.genome==\"homo_sapiens\"]",
+      "why": "Full disease to human genes path via ClinVar - used in dbSNP path for gene retrieval",
       "should_pass": [
         "MONDO:0005148",
         "MONDO:0007254"
@@ -1887,8 +1893,8 @@
     {
       "category": "clinical_variants",
       "name": "Glioblastoma Text to ClinVar Genes",
-      "query": ">>mondo>>clinvar>>hgnc>>ensembl",
-      "why": "Drug discovery workflow: disease text to genes via ClinVar. ClinVar links to HGNC.",
+      "query": ">>mondo>>clinvar>>ensembl[ensembl.genome==\"homo_sapiens\"]",
+      "why": "Drug discovery workflow: disease text to genes via ClinVar - tests text-based disease lookup. MONDO:0005044 is main glioblastoma (not subtypes like MONDO:0000457)",
       "should_pass": [
         "glioblastoma",
         "MONDO:0005044"
@@ -1898,8 +1904,8 @@
     {
       "category": "clinical_variants",
       "name": "Protein to Pathogenic ClinVar Variants",
-      "query": ">>uniprot>>hgnc>>clinvar[clinvar.germline_classification==\"Pathogenic\"]",
-      "why": "Filter ClinVar variants to only pathogenic classifications via HGNC - critical for clinical variant interpretation",
+      "query": ">>uniprot>>ensembl>>clinvar[clinvar.germline_classification==\"Pathogenic\"]",
+      "why": "Filter ClinVar variants to only pathogenic classifications - critical for clinical variant interpretation and identifying disease-causing mutations",
       "should_pass": [
         "P06400",
         "P38398",
@@ -1910,7 +1916,7 @@
     {
       "category": "clinical_variants",
       "name": "Gene to Pathogenic ClinVar Variants",
-      "query": ">>hgnc>>clinvar[clinvar.germline_classification==\"Pathogenic\"]",
+      "query": ">>ensembl>>clinvar[clinvar.germline_classification==\"Pathogenic\"]",
       "why": "Find pathogenic variants for cancer genes - essential for clinical genetics panels and hereditary cancer testing",
       "should_pass": [
         "BRCA1",
@@ -1923,7 +1929,7 @@
     {
       "category": "clinical_variants",
       "name": "Gene to Likely Pathogenic ClinVar Variants",
-      "query": ">>hgnc>>clinvar[clinvar.germline_classification==\"Likely pathogenic\"]",
+      "query": ">>ensembl>>clinvar[clinvar.germline_classification==\"Likely pathogenic\"]",
       "why": "Find likely pathogenic variants - important for variant classification in clinical reports",
       "should_pass": [
         "BRCA1",
@@ -1934,7 +1940,7 @@
     {
       "category": "clinical_variants",
       "name": "Gene to SNV ClinVar Variants",
-      "query": ">>hgnc>>clinvar[clinvar.type==\"single nucleotide variant\"]",
+      "query": ">>ensembl>>clinvar[clinvar.type==\"single nucleotide variant\"]",
       "why": "Filter ClinVar to only single nucleotide variants - useful for SNP-focused analysis",
       "should_pass": [
         "BRCA1",
@@ -1945,7 +1951,7 @@
     {
       "category": "clinical_variants",
       "name": "Gene to Deletion ClinVar Variants",
-      "query": ">>hgnc>>clinvar[clinvar.type==\"Deletion\"]",
+      "query": ">>ensembl>>clinvar[clinvar.type==\"Deletion\"]",
       "why": "Filter ClinVar to deletion variants - important for detecting loss-of-function mutations",
       "should_pass": [
         "BRCA1",
@@ -1957,7 +1963,7 @@
       "category": "clinical_variants",
       "name": "ClinVar Pathogenic Variant Attributes Validation",
       "type": "validation",
-      "query": ">>hgnc>>clinvar[clinvar.germline_classification==\"Pathogenic\"]",
+      "query": ">>ensembl>>clinvar[clinvar.germline_classification==\"Pathogenic\"]",
       "identifier": "RB1",
       "why": "RB1 pathogenic variants should have correct classification attribute - filter ensures only pathogenic variants returned",
       "validations": [
@@ -2007,8 +2013,8 @@
     {
       "category": "drug_discovery",
       "name": "Disease Text to dbSNP Variants",
-      "query": ">>mondo>>gencc>>hgnc>>dbsnp",
-      "why": "Drug discovery workflow: disease text to genetic variants. GenCC links to HGNC, HGNC links to dbSNP.",
+      "query": ">>mondo>>gencc>>ensembl[ensembl.genome==\"homo_sapiens\"]>>dbsnp",
+      "why": "Drug discovery workflow: disease text to genetic variants for pharmacogenomics",
       "should_pass": [
         "glioblastoma",
         "breast cancer"
@@ -2018,8 +2024,8 @@
     {
       "category": "drug_discovery",
       "name": "Disease Text to IntAct Interactions",
-      "query": ">>mondo>>gencc>>hgnc>>ensembl>>uniprot[uniprot.reviewed==true]>>intact",
-      "why": "Drug discovery workflow: disease text to protein interactions. GenCC links to HGNC.",
+      "query": ">>mondo>>gencc>>ensembl[ensembl.genome==\"homo_sapiens\"]>>uniprot[uniprot.reviewed==true]>>intact",
+      "why": "Drug discovery workflow: disease text to experimentally validated protein interactions",
       "should_pass": [
         "glioblastoma"
       ],
@@ -3218,9 +3224,9 @@
     },
     {
       "category": "clinical_variants",
-      "name": "Human-Specific Pathogenic Variants via HGNC",
-      "query": ">>hgnc>>clinvar[clinvar.germline_classification==\"Pathogenic\"]",
-      "why": "HGNC is human-only, so this path automatically filters to human genes",
+      "name": "Human-Specific Pathogenic Variants",
+      "query": ">>ensembl[ensembl.genome==\"homo_sapiens\"]>>clinvar[clinvar.germline_classification==\"Pathogenic\"]",
+      "why": "Filter for human-only pathogenic variants (avoids mouse/rat orthologs)",
       "should_pass": [
         "BRCA1",
         "CFTR",
@@ -3408,9 +3414,9 @@
     },
     {
       "category": "filters_working",
-      "name": "GWAS Genome-Wide Significant via HGNC",
-      "query": ">>hgnc>>gwas[gwas.p_value<0.00000005]",
-      "why": "Filter for genome-wide significant associations (p<5e-8). GWAS links to HGNC.",
+      "name": "GWAS Genome-Wide Significant",
+      "query": ">>ensembl>>gwas[gwas.p_value<0.00000005]",
+      "why": "Filter for genome-wide significant associations (p<5e-8)",
       "should_pass": [
         "BRCA1"
       ],
@@ -3749,9 +3755,9 @@
     },
     {
       "category": "ncRNA_analysis",
-      "name": "lncRNA ClinVar Variants via HGNC",
-      "query": ">>hgnc>>clinvar",
-      "why": "Find clinical variants in lncRNA genes via HGNC. HGNC is human-only.",
+      "name": "lncRNA ClinVar Variants",
+      "query": ">>ensembl>>clinvar",
+      "why": "Find clinical variants in lncRNA genes - 38 for HOTAIR. MALAT1 resolves to zebrafish first and has no ClinVar entries.",
       "should_pass": [
         "HOTAIR"
       ],
@@ -3961,8 +3967,8 @@
     {
       "category": "complex_pipelines",
       "name": "Phenotype to Genes via ClinVar",
-      "query": ">>hpo>>clinvar>>hgnc>>ensembl",
-      "why": "Map clinical phenotypes to genes with pathogenic variants. ClinVar links to HGNC.",
+      "query": ">>hpo>>clinvar>>ensembl",
+      "why": "Map clinical phenotypes to genes with pathogenic variants - 150+ for seizures",
       "should_pass": [
         "HP:0001250"
       ],
@@ -3970,9 +3976,9 @@
     },
     {
       "category": "complex_pipelines",
-      "name": "Disease Genes to Model Organisms (5 hops)",
-      "query": ">>mondo>>gencc>>hgnc>>ensembl>>ortholog",
-      "why": "Find orthologs for disease genes. GenCC links to HGNC.",
+      "name": "Disease Genes to Model Organisms (4 hops)",
+      "query": ">>mondo>>gencc>>ensembl>>ortholog",
+      "why": "Find orthologs for disease genes - 49 for Huntington's",
       "should_pass": [
         "MONDO:0007739"
       ],
@@ -4352,8 +4358,8 @@
     {
       "category": "rare_diseases",
       "name": "Phenotype to Mendelian Disease Genes Pipeline",
-      "query": ">>hpo>>mim>>clinvar>>hgnc>>ensembl",
-      "why": "Phenotype to OMIM to ClinVar to genes via HGNC. ClinVar links to HGNC.",
+      "query": ">>hpo>>mim>>clinvar>>ensembl",
+      "why": "Phenotype to OMIM to ClinVar to genes - Mendelian disease gene discovery pipeline.",
       "should_pass": [
         "HP:0001250"
       ],
@@ -4591,9 +4597,9 @@
     },
     {
       "category": "cell_type_biology",
-      "name": "Cell Type to Pathogenic Variants via HGNC",
-      "query": ">>cl>>bgee>>ensembl>>hgnc>>clinvar[clinvar.germline_classification==\"Pathogenic\"]",
-      "why": "Pathogenic variants in cell-type-expressed genes. ClinVar links to HGNC.",
+      "name": "Cell Type to Pathogenic Variants",
+      "query": ">>cl>>bgee>>ensembl>>clinvar[clinvar.germline_classification==\"Pathogenic\"]",
+      "why": "Pathogenic variants in cell-type-expressed genes (4 hops with filter)",
       "should_pass": [
         "CL:0000540"
       ],
@@ -4783,9 +4789,9 @@
     },
     {
       "category": "gene_set_advanced",
-      "name": "Gene Set to Pathogenic Variants via HGNC",
-      "query": ">>msigdb>>hgnc>>clinvar[clinvar.germline_classification==\"Pathogenic\"]",
-      "why": "Pathogenic mutations within a pathway gene set. HGNC links to ClinVar.",
+      "name": "Gene Set to Pathogenic Variants (4 hops filtered)",
+      "query": ">>msigdb>>hgnc>>ensembl>>clinvar[clinvar.germline_classification==\"Pathogenic\"]",
+      "why": "Pathogenic mutations within a pathway gene set",
       "should_pass": [
         "M5902"
       ],
@@ -5008,9 +5014,9 @@
     },
     {
       "category": "advanced_multihop_pipelines",
-      "name": "Pathway to Diseases via ClinVar (5 hops)",
-      "query": ">>reactome>>ensembl>>hgnc>>clinvar>>mondo",
-      "why": "Diseases linked to pathway genes through clinical variants. ClinVar links to HGNC.",
+      "name": "Pathway to Diseases via ClinVar (4 hops)",
+      "query": ">>reactome>>ensembl>>clinvar>>mondo",
+      "why": "Diseases linked to pathway genes through clinical variants",
       "should_pass": [
         "R-HSA-5693567"
       ],
@@ -5522,9 +5528,9 @@
     },
     {
       "category": "ultra_complex_multihop",
-      "name": "Cell Type to Diseases via Variants (6 hops)",
-      "query": ">>cl>>scxa>>ensembl>>hgnc>>clinvar>>mondo",
-      "why": "Cell type marker genes to disease associations via variants. ClinVar links to HGNC.",
+      "name": "Cell Type to Diseases via Variants (5 hops)",
+      "query": ">>cl>>scxa>>ensembl>>clinvar>>mondo",
+      "why": "Cell type marker genes to disease associations via variants",
       "should_pass": [
         "CL:0000540"
       ],
@@ -5552,9 +5558,9 @@
     },
     {
       "category": "ultra_complex_multihop",
-      "name": "Disease to Drug Targets via Genetics (7 hops)",
-      "query": ">>mondo>>clinvar>>hgnc>>ensembl>>uniprot>>chembl_target_component>>chembl_target",
-      "why": "Genetics-informed drug target discovery. ClinVar links to HGNC.",
+      "name": "Disease to Drug Targets via Genetics (6 hops)",
+      "query": ">>mondo>>clinvar>>ensembl>>uniprot>>chembl_target_component>>chembl_target",
+      "why": "Genetics-informed drug target discovery",
       "should_pass": [
         "MONDO:0005148"
       ],
@@ -5562,9 +5568,9 @@
     },
     {
       "category": "ultra_complex_multihop",
-      "name": "Cell Type to GWAS Traits (6 hops)",
-      "query": ">>cl>>scxa>>ensembl>>hgnc>>gwas>>efo",
-      "why": "Link cell biology to population genetics via single-cell markers. GWAS links to HGNC.",
+      "name": "Cell Type to GWAS Traits (5 hops)",
+      "query": ">>cl>>scxa>>ensembl>>gwas>>efo",
+      "why": "Link cell biology to population genetics via single-cell markers",
       "should_pass": [
         "CL:0000084"
       ],
@@ -5572,9 +5578,9 @@
     },
     {
       "category": "ultra_complex_multihop",
-      "name": "Tissue to Rare Diseases (7 hops)",
-      "query": ">>uberon>>bgee>>ensembl>>hgnc>>clinvar>>mondo>>orphanet",
-      "why": "Tissue-centric rare disease discovery via expression and variants. ClinVar links to HGNC.",
+      "name": "Tissue to Rare Diseases (6 hops)",
+      "query": ">>uberon>>bgee>>ensembl>>clinvar>>mondo>>orphanet",
+      "why": "Tissue-centric rare disease discovery via expression and variants",
       "should_pass": [
         "UBERON:0002107"
       ],
@@ -5786,9 +5792,9 @@
     },
     {
       "category": "transcription_regulation",
-      "name": "CollecTRI to Ensembl via HGNC",
-      "query": ">>collectri>>hgnc>>ensembl",
-      "why": "CollecTRI links to HGNC, HGNC links to Ensembl (human genes only)",
+      "name": "CollecTRI to Ensembl (human genes)",
+      "query": ">>collectri>>ensembl",
+      "why": "CollecTRI entries have cross-references to human Ensembl genes via HGNC",
       "should_pass": [
         "MYC:TERT",
         "TP53:MDM2"
@@ -5819,9 +5825,9 @@
     },
     {
       "category": "transcription_regulation",
-      "name": "Ensembl to CollecTRI via HGNC",
-      "query": ">>ensembl>>hgnc>>collectri",
-      "why": "Find regulatory interactions for a human Ensembl gene via HGNC",
+      "name": "Ensembl to CollecTRI (reverse)",
+      "query": ">>ensembl>>collectri",
+      "why": "Find regulatory interactions for a human Ensembl gene",
       "should_pass": [
         "ENSG00000136997",
         "ENSG00000141510"
@@ -5841,9 +5847,9 @@
     },
     {
       "category": "transcription_regulation",
-      "name": "TF to Target to Pathway via HGNC",
-      "query": ">>collectri>>hgnc>>ensembl>>reactome",
-      "why": "Multi-hop: find pathways containing genes regulated by a TF. CollecTRI links to HGNC.",
+      "name": "TF to Target to Pathway",
+      "query": ">>collectri>>ensembl>>reactome",
+      "why": "Multi-hop: find pathways containing genes regulated by a TF",
       "should_pass": [
         "MYC:TERT",
         "TP53:MDM2"
@@ -6980,6 +6986,523 @@
         "4HHB"
       ],
       "should_fail": []
+    },
+    {
+      "category": "fantom5_expression",
+      "name": "Gene Symbol to FANTOM5 Promoters",
+      "query": ">>fantom5_promoter",
+      "why": "Find all CAGE peaks/promoters associated with a gene - TSS discovery and promoter analysis",
+      "should_pass": [
+        "TP53",
+        "BRCA1",
+        "EGFR"
+      ],
+      "should_fail": [
+        "NOTAREALGENE"
+      ]
+    },
+    {
+      "category": "fantom5_expression",
+      "name": "Gene Symbol to FANTOM5 Gene Expression",
+      "query": ">>fantom5_gene",
+      "why": "Get gene-level CAGE expression aggregated across all promoters - expression profiling",
+      "should_pass": [
+        "TP53",
+        "BRCA1",
+        "MYC"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "fantom5_expression",
+      "name": "Ensembl Gene to FANTOM5 Promoters",
+      "query": ">>ensembl>>fantom5_promoter",
+      "why": "Map Ensembl genes to their CAGE-defined promoters",
+      "should_pass": [
+        "ENSG00000141510",
+        "ENSG00000012048"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "fantom5_expression",
+      "name": "HGNC to FANTOM5 Promoters",
+      "query": ">>hgnc>>fantom5_promoter",
+      "why": "Map HGNC gene IDs to promoter expression data",
+      "should_pass": [
+        "HGNC:11998",
+        "HGNC:1100"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "fantom5_expression",
+      "name": "Entrez Gene to FANTOM5 Promoters",
+      "query": ">>entrez>>fantom5_promoter",
+      "why": "Map Entrez Gene IDs to CAGE promoter data",
+      "should_pass": [
+        "7157",
+        "672"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "fantom5_expression",
+      "name": "UniProt to FANTOM5 Promoters",
+      "query": ">>uniprot>>fantom5_promoter",
+      "why": "Find promoters for genes encoding specific proteins",
+      "should_pass": [
+        "P04637",
+        "P38398"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "fantom5_expression",
+      "name": "FANTOM5 Promoter to Ensembl Gene",
+      "query": ">>fantom5_promoter>>ensembl",
+      "why": "Reverse mapping: from promoter to gene - validate promoter-gene associations",
+      "should_pass": [
+        "TP53"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "fantom5_expression",
+      "name": "Gene Symbol to FANTOM5 Enhancers",
+      "query": ">>fantom5_enhancer",
+      "why": "Find active enhancers associated with a gene - regulatory element discovery",
+      "should_pass": [
+        "TP53",
+        "MYC"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "fantom5_expression",
+      "name": "FANTOM5 Promoter to UBERON Tissues",
+      "query": ">>fantom5_promoter>>uberon",
+      "why": "Find tissues where a gene's promoters are active - tissue specificity analysis",
+      "should_pass": [
+        "TP53"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "fantom5_expression",
+      "name": "FANTOM5 Promoter to CL Cell Types",
+      "query": ">>fantom5_promoter>>cl",
+      "why": "Find cell types where a gene's promoters are active - cell type specificity",
+      "should_pass": [
+        "TP53"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "fantom5_expression",
+      "name": "UBERON Tissue to FANTOM5 Promoters",
+      "query": ">>uberon>>fantom5_promoter",
+      "why": "Find all promoters active in a specific tissue - tissue expression atlas",
+      "should_pass": [
+        "UBERON:0000955",
+        "UBERON:0002107"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "fantom5_expression",
+      "name": "Cell Type to FANTOM5 Promoters",
+      "query": ">>cl>>fantom5_promoter",
+      "why": "Find all promoters active in a cell type - cell type expression signature",
+      "should_pass": [
+        "CL:0000540",
+        "CL:0000235"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "fantom5_expression",
+      "name": "Disease Gene to FANTOM5 Promoters via MONDO",
+      "query": ">>mondo>>gencc>>ensembl>>fantom5_promoter",
+      "why": "Multi-hop: disease to gene to promoters - disease-relevant TSS analysis",
+      "should_pass": [
+        "MONDO:0007254"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "fantom5_expression",
+      "name": "FANTOM5 Promoters to Drug Targets",
+      "query": ">>fantom5_promoter>>ensembl>>uniprot>>chembl_target_component>>chembl_target",
+      "why": "Multi-hop: from promoter expression to drug target - expression-based target prioritization",
+      "should_pass": [
+        "EGFR"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "fantom5_expression",
+      "name": "FANTOM5 Gene to Pathways",
+      "query": ">>fantom5_gene>>ensembl>>uniprot>>reactome",
+      "why": "Map gene expression data to pathway context",
+      "should_pass": [
+        "TP53"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "fantom5_expression",
+      "name": "FANTOM5 to Transcription Factors (CollecTRI)",
+      "query": ">>fantom5_promoter>>ensembl>>collectri",
+      "why": "Connect promoter expression to TF regulatory networks",
+      "should_pass": [
+        "TP53"
+      ],
+      "should_fail": []
+    },
+    {
+      "_comment": "====== JASPAR TF BINDING PROFILES (14 tests) ======"
+    },
+    {
+      "category": "jaspar_tf_binding",
+      "name": "JASPAR Direct Matrix ID Lookup",
+      "query": ">>jaspar",
+      "why": "Direct lookup of JASPAR matrix IDs - primary identifier for TF binding profiles",
+      "should_pass": [
+        "MA0004.1",
+        "MA0002.2",
+        "MA0107.1"
+      ],
+      "should_fail": [
+        "NOTREAL",
+        "INVALID123"
+      ]
+    },
+    {
+      "category": "jaspar_tf_binding",
+      "name": "JASPAR TF Name Text Search",
+      "query": ">>jaspar",
+      "why": "Find binding profiles by transcription factor gene symbol name",
+      "should_pass": [
+        "RUNX1",
+        "MYC",
+        "TP53",
+        "STAT3"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "jaspar_tf_binding",
+      "name": "JASPAR to UniProt (TF Protein)",
+      "query": ">>jaspar>>uniprot",
+      "why": "Map TF binding profiles to UniProt protein entries - essential for protein-level analysis",
+      "should_pass": [
+        "MA0004.1",
+        "MA0002.2"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "jaspar_tf_binding",
+      "name": "UniProt to JASPAR (Reverse)",
+      "query": ">>uniprot>>jaspar",
+      "why": "Find binding profiles for a given protein - discover TF binding motifs from protein ID",
+      "should_pass": [
+        "P53762",
+        "Q01094"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "jaspar_tf_binding",
+      "name": "JASPAR to PubMed Literature",
+      "query": ">>jaspar>>pubmed",
+      "why": "Access literature supporting TF binding profile data",
+      "should_pass": [
+        "MA0004.1",
+        "MA0002.2"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "jaspar_tf_binding",
+      "name": "JASPAR to Taxonomy (Species)",
+      "query": ">>jaspar>>taxonomy",
+      "why": "Map binding profiles to species taxonomy for organism-specific analysis",
+      "should_pass": [
+        "MA0004.1",
+        "MA0002.2"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "jaspar_tf_binding",
+      "name": "JASPAR CORE Collection Filter",
+      "query": ">>jaspar[jaspar.collection==\"CORE\"]",
+      "why": "Filter for high-quality curated CORE collection profiles only",
+      "should_pass": [
+        "RUNX1",
+        "MYC"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "jaspar_tf_binding",
+      "name": "JASPAR ChIP-seq Experiment Type Filter",
+      "query": ">>jaspar[jaspar.type==\"ChIP-seq\"]",
+      "why": "Filter for binding profiles derived from ChIP-seq experiments",
+      "should_pass": [
+        "TP53"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "jaspar_tf_binding",
+      "name": "JASPAR Vertebrates Tax Group Filter",
+      "query": ">>jaspar[jaspar.tax_group==\"vertebrates\"]",
+      "why": "Filter for vertebrate transcription factor binding profiles",
+      "should_pass": [
+        "BRCA1",
+        "TP53"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "jaspar_tf_binding",
+      "name": "Gene to JASPAR via UniProt",
+      "query": ">>ensembl>>uniprot>>jaspar",
+      "why": "Multi-hop: Gene symbol to TF binding profiles via protein - regulatory element discovery",
+      "should_pass": [
+        "TP53",
+        "RUNX1"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "jaspar_tf_binding",
+      "name": "JASPAR to Reactome Pathways",
+      "query": ">>jaspar>>uniprot>>reactome",
+      "why": "Multi-hop: TF binding profile to pathway involvement - regulatory network context",
+      "should_pass": [
+        "MA0004.1"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "jaspar_tf_binding",
+      "name": "JASPAR to Disease via MONDO",
+      "query": ">>jaspar>>uniprot>>gencc>>mondo",
+      "why": "Multi-hop: TF binding profile to disease associations - disease-relevant regulatory analysis",
+      "should_pass": [
+        "TP53"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "jaspar_tf_binding",
+      "name": "JASPAR to ChEMBL Drug Targets",
+      "query": ">>jaspar>>uniprot>>chembl_target_component>>chembl_target",
+      "why": "Multi-hop: TF binding profiles to drug targets - druggable TF identification",
+      "should_pass": [
+        "STAT3"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "jaspar_tf_binding",
+      "name": "JASPAR Attribute Validation",
+      "type": "validation",
+      "query": ">>jaspar",
+      "identifier": "MA0004.1",
+      "expected_identifier": "MA0004.1",
+      "why": "Validate JASPAR attributes for Arnt binding profile (MA0004.1)",
+      "validations": [
+        {
+          "path": "source.Attributes.Jaspar.name",
+          "expected": "Arnt",
+          "description": "TF name"
+        },
+        {
+          "path": "source.Attributes.Jaspar.collection",
+          "expected": "CORE",
+          "description": "Collection"
+        },
+        {
+          "path": "source.Attributes.Jaspar.tax_group",
+          "expected": "vertebrates",
+          "description": "Taxonomic group"
+        }
+      ]
+    },
+    {
+      "category": "encode_ccre",
+      "name": "ENCODE cCRE Direct Lookup",
+      "query": ">>encode_ccre",
+      "why": "Direct lookup of ENCODE cCRE regulatory elements by accession ID - foundational test",
+      "should_pass": [
+        "EH38E2776516",
+        "EH38E2776517",
+        "EH38E1310189"
+      ],
+      "should_fail": [
+        "INVALID_CCRE",
+        "NOTREAL123"
+      ]
+    },
+    {
+      "category": "encode_ccre",
+      "name": "ENCODE cCRE Text Search by Classification (PLS)",
+      "query": ">>encode_ccre",
+      "why": "Search cCREs by promoter-like sequence classification - find promoter regions",
+      "should_pass": [
+        "PLS"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "encode_ccre",
+      "name": "ENCODE cCRE Text Search by Classification (pELS)",
+      "query": ">>encode_ccre",
+      "why": "Search cCREs by proximal enhancer-like sequence classification - find enhancer regions near genes",
+      "should_pass": [
+        "pELS"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "encode_ccre",
+      "name": "ENCODE cCRE Text Search by Classification (dELS)",
+      "query": ">>encode_ccre",
+      "why": "Search cCREs by distal enhancer-like sequence classification - find distal regulatory regions",
+      "should_pass": [
+        "dELS"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "encode_ccre",
+      "name": "ENCODE cCRE Text Search by Classification (CA-CTCF)",
+      "query": ">>encode_ccre",
+      "why": "Search cCREs by CTCF-bound chromatin accessible regions - find insulator elements",
+      "should_pass": [
+        "CA-CTCF"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "encode_ccre",
+      "name": "ENCODE cCRE Text Search by Classification (CA-TF)",
+      "query": ">>encode_ccre",
+      "why": "Search cCREs by TF-bound chromatin accessible regions - find TF binding sites",
+      "should_pass": [
+        "CA-TF"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "encode_ccre",
+      "name": "ENCODE cCRE Filter by Classification (pELS)",
+      "query": ">>encode_ccre[encode_ccre.ccre_class==\"pELS\"]",
+      "why": "Filter cCREs by proximal enhancer classification using CEL expression",
+      "should_pass": [
+        "EH38E2776516",
+        "EH38E2776517"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "encode_ccre",
+      "name": "ENCODE cCRE Filter by Classification (PLS)",
+      "query": ">>encode_ccre[encode_ccre.ccre_class==\"PLS\"]",
+      "why": "Filter cCREs by promoter-like sequence classification using CEL expression",
+      "should_pass": [
+        "PLS"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "encode_ccre",
+      "name": "ENCODE cCRE Filter by Chromosome",
+      "query": ">>encode_ccre[encode_ccre.chromosome==\"chr1\"]",
+      "why": "Filter cCREs by chromosome - region-specific analysis",
+      "should_pass": [
+        "EH38E2776516",
+        "EH38E2776517"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "encode_ccre",
+      "name": "ENCODE cCRE Filter by Coordinate Range",
+      "query": ">>encode_ccre[encode_ccre.start>10000 && encode_ccre.end<100000]",
+      "why": "Filter cCREs by genomic coordinate range - region-specific regulatory element search",
+      "should_pass": [
+        "EH38E2776516"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "encode_ccre",
+      "name": "ENCODE cCRE to Taxonomy",
+      "query": ">>encode_ccre>>taxonomy",
+      "why": "Map cCREs to taxonomy - verify human (GRCh38) association",
+      "should_pass": [
+        "EH38E2776516",
+        "pELS"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "encode_ccre",
+      "name": "ENCODE cCRE Attribute Validation",
+      "type": "validation",
+      "query": ">>encode_ccre",
+      "identifier": "EH38E2776516",
+      "expected_identifier": "EH38E2776516",
+      "why": "Validate ENCODE cCRE attributes for a proximal enhancer-like sequence",
+      "validations": [
+        {
+          "path": "source.Attributes.EncodeCcre.ccre_id",
+          "expected": "EH38E2776516",
+          "description": "cCRE accession ID"
+        },
+        {
+          "path": "source.Attributes.EncodeCcre.ccre_class",
+          "expected": "pELS",
+          "description": "Classification (proximal enhancer-like)"
+        },
+        {
+          "path": "source.Attributes.EncodeCcre.chromosome",
+          "expected": "chr1",
+          "description": "Chromosome"
+        }
+      ]
+    },
+    {
+      "category": "encode_ccre",
+      "name": "ENCODE cCRE Second Entry Validation",
+      "type": "validation",
+      "query": ">>encode_ccre",
+      "identifier": "EH38E2776517",
+      "expected_identifier": "EH38E2776517",
+      "why": "Validate second ENCODE cCRE entry attributes",
+      "validations": [
+        {
+          "path": "source.Attributes.EncodeCcre.ccre_id",
+          "expected": "EH38E2776517",
+          "description": "cCRE accession ID"
+        },
+        {
+          "path": "source.Attributes.EncodeCcre.ccre_class",
+          "expected": "pELS",
+          "description": "Classification"
+        },
+        {
+          "path": "source.Attributes.EncodeCcre.chromosome",
+          "expected": "chr1",
+          "description": "Chromosome"
+        }
+      ]
     }
   ]
 }

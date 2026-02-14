@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-// EnrichResult adds all transient fields (dataset_name, url) to Result
+// EnrichResult adds all transient fields (dataset_name) to Result
 func EnrichResult(result *pbuf.Result) *pbuf.Result {
 	if result == nil {
 		return nil
@@ -44,7 +44,7 @@ func EnrichXref(xref *pbuf.Xref) *pbuf.Xref {
 }
 
 // enrichXref populates all transient fields in xref (modifies in place)
-// Transient fields: dataset_name, url, identifier, keyword
+// Transient fields: dataset_name
 func enrichXref(xref *pbuf.Xref) {
 	if xref == nil {
 		return
@@ -66,11 +66,13 @@ func enrichXref(xref *pbuf.Xref) {
 		}
 	}
 
-	// Set URL based on dataset type and identifier
-	setURL(xref)
+	// URL field removed - was not functional and added unnecessary response size
 }
 
 // setURL sets the URL field based on dataset type and identifier
+// DEPRECATED: This function is no longer used. URL field was removed from responses
+// as it was not functional (many URLs were broken) and added unnecessary response size.
+// Kept for reference in case URL support is needed in the future.
 func setURL(xref *pbuf.Xref) {
 	if xref.Identifier == "" {
 		return

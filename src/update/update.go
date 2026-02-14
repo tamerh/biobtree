@@ -2262,12 +2262,6 @@ func (d *DataUpdate) isHumanGene(entrezID string, entrezDatasetInt uint32) bool 
 	return false
 }
 
-// addHumanGeneXrefs is a legacy alias for addHumanGeneXrefsViaEntrez
-// Deprecated: Use addHumanGeneXrefsAll for comprehensive coverage
-func (d *DataUpdate) addHumanGeneXrefs(geneSymbol, sourceID, sourceDatasetID string) {
-	d.addHumanGeneXrefsViaEntrez(geneSymbol, sourceID, sourceDatasetID)
-}
-
 // addXrefEnsemblViaEntrez creates a cross-reference to Ensembl gene via Entrez Gene ID
 // entrezGeneID: NCBI Gene ID (Entrez Gene ID) as string
 // sourceID: The identifier of the source entity (e.g., activity ID, bioassay ID)

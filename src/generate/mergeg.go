@@ -1470,8 +1470,11 @@ func (d *Merge) init() {
 	}
 
 	// Read total_edges from dataset_state.json, filtered by federation
-	// Each federation only counts datasets that belong to it
+	// Each federation counts:
+	// 1. total_edges from datasets belonging to it
+	// 2. forward_edges from OTHER federations when they point to datasets in THIS federation
 	var totalEdges int64
+	var crossFedEdges int64
 	var datasetCount int
 	stateFile := filepath.Join(config.Appconf["outDir"], "dataset_state.json")
 	if stateData, err := ioutil.ReadFile(stateFile); err == nil {
@@ -1479,27 +1482,57 @@ func (d *Merge) init() {
 		if err := json.Unmarshal(stateData, &state); err != nil {
 			log.Printf("Warning: failed to parse dataset_state.json: %v", err)
 		} else {
-			// Sum total_edges from datasets belonging to this federation only
-			if datasets, ok := state["datasets"].(map[string]interface{}); ok {
-				for _, dsInfo := range datasets {
-					if info, ok := dsInfo.(map[string]interface{}); ok {
-						// Get dataset's federation (default to "main" if not set)
-						dsFederation := "main"
-						if fed, ok := info["federation"].(string); ok && fed != "" {
-							dsFederation = fed
+			datasets, ok := state["datasets"].(map[string]interface{})
+			if !ok {
+				datasets = make(map[string]interface{})
+			}
+
+			// First pass: build a map of dataset -> federation for quick lookup
+			datasetFederationMap := make(map[string]string)
+			for dsName, dsInfo := range datasets {
+				if info, ok := dsInfo.(map[string]interface{}); ok {
+					fed := "main"
+					if f, ok := info["federation"].(string); ok && f != "" {
+						fed = f
+					}
+					datasetFederationMap[dsName] = fed
+				}
+			}
+
+			// Second pass: count edges
+			for dsName, dsInfo := range datasets {
+				if info, ok := dsInfo.(map[string]interface{}); ok {
+					dsFederation := datasetFederationMap[dsName]
+
+					if dsFederation == d.federation {
+						// Dataset belongs to target federation - count its total_edges
+						if te, ok := info["total_edges"].(float64); ok {
+							totalEdges += int64(te)
+							datasetCount++
 						}
-						// Only count datasets in the target federation
-						if dsFederation == d.federation {
-							if te, ok := info["total_edges"].(float64); ok {
-								totalEdges += int64(te)
-								datasetCount++
+					} else {
+						// Dataset belongs to a DIFFERENT federation
+						// Check if it has forward_edges to datasets in OUR federation
+						if forwardEdges, ok := info["forward_edges"].(map[string]interface{}); ok {
+							for targetDS, edgeCount := range forwardEdges {
+								// Check if target dataset is in our federation
+								targetFed := datasetFederationMap[targetDS]
+								if targetFed == "" {
+									targetFed = "main" // default
+								}
+								if targetFed == d.federation {
+									if count, ok := edgeCount.(float64); ok {
+										crossFedEdges += int64(count)
+									}
+								}
 							}
 						}
 					}
 				}
 			}
-			log.Printf("Federation '%s': total edges from %d datasets = %d",
-				d.federation, datasetCount, totalEdges)
+			log.Printf("Federation '%s': total edges from %d datasets = %d, cross-federation incoming edges = %d",
+				d.federation, datasetCount, totalEdges, crossFedEdges)
+			totalEdges += crossFedEdges
 		}
 	} else {
 		log.Printf("Warning: could not read dataset_state.json: %v", err)

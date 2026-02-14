@@ -12,7 +12,7 @@ SCHEMA_EDGES = {
     "ensembl": ["uniprot", "go", "transcript", "exon", "ortholog", "paralog", "hgnc", "entrez", "refseq", "bgee", "gwas", "gencc", "biogrid", "string", "antibody", "scxa"],
     "hgnc": ["ensembl", "uniprot", "entrez", "gencc", "pharmgkb_gene", "msigdb", "clinvar", "mim", "refseq", "alphafold", "collectri", "gwas", "dbsnp", "hpo", "cellphonedb"],
     "entrez": ["ensembl", "uniprot", "refseq", "go", "biogrid", "pubchem_activity"],
-    "refseq": ["ensembl", "uniprot", "entrez", "mirdb"],
+    "refseq": ["ensembl", "entrez", "taxonomy", "ccds", "uniprot", "mirdb"],
     "mirdb": ["refseq"],
     "transcript": ["ensembl", "exon", "ufeature"],
     "uniprot": ["ensembl", "alphafold", "interpro", "pdb", "ufeature", "intact", "string", "biogrid", "chembl_target_component", "go", "reactome", "rhea", "swisslipids", "bindingdb", "antibody", "pubchem_activity", "cellphonedb", "jaspar"],

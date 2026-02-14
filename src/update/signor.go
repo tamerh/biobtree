@@ -293,9 +293,9 @@ func (s *signor) addDatabaseXref(database, id, entryID, sourceID string) {
 	case "UNIPROT":
 		targetDataset = "uniprot"
 	case "CHEBI":
-		// ChEBI IDs may have "CHEBI:" prefix or not
-		if strings.HasPrefix(id, "CHEBI:") {
-			id = id[6:] // Remove "CHEBI:" prefix
+		// ChEBI IDs should have "CHEBI:" prefix for consistency with ChEBI dataset
+		if !strings.HasPrefix(id, "CHEBI:") {
+			id = "CHEBI:" + id // Add "CHEBI:" prefix if missing
 		}
 		targetDataset = "chebi"
 	case "PUBCHEM":

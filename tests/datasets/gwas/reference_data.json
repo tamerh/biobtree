@@ -1,402 +1,402 @@
 [
   {
-    "accessionId": "GCST004963_1",
+    "accessionId": "GCST007431_1",
     "snp_id": "rs0"
   },
   {
-    "accessionId": "GCST004966_1",
+    "accessionId": "GCST007431_2",
     "snp_id": "rs1"
   },
   {
-    "accessionId": "GCST004966_2",
+    "accessionId": "GCST007431_3",
     "snp_id": "rs2"
   },
   {
-    "accessionId": "GCST004963_2",
+    "accessionId": "GCST007431_4",
     "snp_id": "rs3"
   },
   {
-    "accessionId": "GCST004959_1",
+    "accessionId": "GCST007430_1",
     "snp_id": "rs4"
   },
   {
-    "accessionId": "GCST004967_1",
+    "accessionId": "GCST007430_2",
     "snp_id": "rs5"
   },
   {
-    "accessionId": "GCST004962_1",
+    "accessionId": "GCST007430_3",
     "snp_id": "rs6"
   },
   {
-    "accessionId": "GCST004967_2",
+    "accessionId": "GCST007430_4",
     "snp_id": "rs7"
   },
   {
-    "accessionId": "GCST004967_3",
+    "accessionId": "GCST007430_5",
     "snp_id": "rs8"
   },
   {
-    "accessionId": "GCST004967_4",
+    "accessionId": "GCST007430_6",
     "snp_id": "rs9"
   },
   {
-    "accessionId": "GCST004967_5",
+    "accessionId": "GCST007430_7",
     "snp_id": "rs10"
   },
   {
-    "accessionId": "GCST004964_1",
+    "accessionId": "GCST007430_8",
     "snp_id": "rs11"
   },
   {
-    "accessionId": "GCST004964_2",
+    "accessionId": "GCST007430_9",
     "snp_id": "rs12"
   },
   {
-    "accessionId": "GCST004958_1",
+    "accessionId": "GCST007430_10",
     "snp_id": "rs13"
   },
   {
-    "accessionId": "GCST004958_2",
+    "accessionId": "GCST007430_11",
     "snp_id": "rs14"
   },
   {
-    "accessionId": "GCST004958_3",
+    "accessionId": "GCST007430_12",
     "snp_id": "rs15"
   },
   {
-    "accessionId": "GCST004958_4",
+    "accessionId": "GCST007430_13",
     "snp_id": "rs16"
   },
   {
-    "accessionId": "GCST004958_5",
+    "accessionId": "GCST007430_14",
     "snp_id": "rs17"
   },
   {
-    "accessionId": "GCST004957_1",
+    "accessionId": "GCST007430_15",
     "snp_id": "rs18"
   },
   {
-    "accessionId": "GCST004957_2",
+    "accessionId": "GCST007430_16",
     "snp_id": "rs19"
   },
   {
-    "accessionId": "GCST004963_3",
+    "accessionId": "GCST007430_17",
     "snp_id": "rs20"
   },
   {
-    "accessionId": "GCST004963_4",
+    "accessionId": "GCST007430_18",
     "snp_id": "rs21"
   },
   {
-    "accessionId": "GCST004963_5",
+    "accessionId": "GCST007430_19",
     "snp_id": "rs22"
   },
   {
-    "accessionId": "GCST004963_6",
+    "accessionId": "GCST007430_20",
     "snp_id": "rs23"
   },
   {
-    "accessionId": "GCST004963_7",
+    "accessionId": "GCST007430_21",
     "snp_id": "rs24"
   },
   {
-    "accessionId": "GCST004963_8",
+    "accessionId": "GCST90002351_1",
     "snp_id": "rs25"
   },
   {
-    "accessionId": "GCST004963_9",
+    "accessionId": "GCST90002351_2",
     "snp_id": "rs26"
   },
   {
-    "accessionId": "GCST004963_10",
+    "accessionId": "GCST90002351_3",
     "snp_id": "rs27"
   },
   {
-    "accessionId": "GCST004966_3",
+    "accessionId": "GCST90002351_4",
     "snp_id": "rs28"
   },
   {
-    "accessionId": "GCST004963_11",
+    "accessionId": "GCST90002351_5",
     "snp_id": "rs29"
   },
   {
-    "accessionId": "GCST004963_12",
+    "accessionId": "GCST90002351_6",
     "snp_id": "rs30"
   },
   {
-    "accessionId": "GCST004963_13",
+    "accessionId": "GCST90002351_7",
     "snp_id": "rs31"
   },
   {
-    "accessionId": "GCST004963_14",
+    "accessionId": "GCST90002351_8",
     "snp_id": "rs32"
   },
   {
-    "accessionId": "GCST004963_15",
+    "accessionId": "GCST90002351_9",
     "snp_id": "rs33"
   },
   {
-    "accessionId": "GCST004963_16",
+    "accessionId": "GCST90002351_10",
     "snp_id": "rs34"
   },
   {
-    "accessionId": "GCST004961_1",
+    "accessionId": "GCST90002351_11",
     "snp_id": "rs35"
   },
   {
-    "accessionId": "GCST004961_2",
+    "accessionId": "GCST90002351_12",
     "snp_id": "rs36"
   },
   {
-    "accessionId": "GCST004962_2",
+    "accessionId": "GCST90002351_13",
     "snp_id": "rs37"
   },
   {
-    "accessionId": "GCST004962_3",
+    "accessionId": "GCST90002351_14",
     "snp_id": "rs38"
   },
   {
-    "accessionId": "GCST004967_6",
+    "accessionId": "GCST90002351_15",
     "snp_id": "rs39"
   },
   {
-    "accessionId": "GCST004967_7",
+    "accessionId": "GCST90002351_16",
     "snp_id": "rs40"
   },
   {
-    "accessionId": "GCST007141_1",
+    "accessionId": "GCST90002351_17",
     "snp_id": "rs41"
   },
   {
-    "accessionId": "GCST007141_2",
+    "accessionId": "GCST90002351_18",
     "snp_id": "rs42"
   },
   {
-    "accessionId": "GCST007141_3",
+    "accessionId": "GCST90002351_19",
     "snp_id": "rs43"
   },
   {
-    "accessionId": "GCST007141_4",
+    "accessionId": "GCST90002351_20",
     "snp_id": "rs44"
   },
   {
-    "accessionId": "GCST007141_5",
+    "accessionId": "GCST90002351_21",
     "snp_id": "rs45"
   },
   {
-    "accessionId": "GCST007141_6",
+    "accessionId": "GCST90002351_22",
     "snp_id": "rs46"
   },
   {
-    "accessionId": "GCST007141_7",
+    "accessionId": "GCST90002351_23",
     "snp_id": "rs47"
   },
   {
-    "accessionId": "GCST007141_8",
+    "accessionId": "GCST90002351_24",
     "snp_id": "rs48"
   },
   {
-    "accessionId": "GCST007141_9",
+    "accessionId": "GCST90002351_25",
     "snp_id": "rs49"
   },
   {
-    "accessionId": "GCST007141_10",
+    "accessionId": "GCST90002351_26",
     "snp_id": "rs50"
   },
   {
-    "accessionId": "GCST007141_11",
+    "accessionId": "GCST90002351_27",
     "snp_id": "rs51"
   },
   {
-    "accessionId": "GCST007141_12",
+    "accessionId": "GCST90002351_28",
     "snp_id": "rs52"
   },
   {
-    "accessionId": "GCST007141_13",
+    "accessionId": "GCST90002351_29",
     "snp_id": "rs53"
   },
   {
-    "accessionId": "GCST007141_14",
+    "accessionId": "GCST90002351_30",
     "snp_id": "rs54"
   },
   {
-    "accessionId": "GCST007141_15",
+    "accessionId": "GCST90002351_31",
     "snp_id": "rs55"
   },
   {
-    "accessionId": "GCST007141_16",
+    "accessionId": "GCST90002351_32",
     "snp_id": "rs56"
   },
   {
-    "accessionId": "GCST007141_17",
+    "accessionId": "GCST90002351_33",
     "snp_id": "rs57"
   },
   {
-    "accessionId": "GCST007141_18",
+    "accessionId": "GCST90002351_34",
     "snp_id": "rs58"
   },
   {
-    "accessionId": "GCST007141_19",
+    "accessionId": "GCST90002351_35",
     "snp_id": "rs59"
   },
   {
-    "accessionId": "GCST007141_20",
+    "accessionId": "GCST90002351_36",
     "snp_id": "rs60"
   },
   {
-    "accessionId": "GCST007141_21",
+    "accessionId": "GCST90002351_37",
     "snp_id": "rs61"
   },
   {
-    "accessionId": "GCST007141_22",
+    "accessionId": "GCST90002351_38",
     "snp_id": "rs62"
   },
   {
-    "accessionId": "GCST007141_23",
+    "accessionId": "GCST90002351_39",
     "snp_id": "rs63"
   },
   {
-    "accessionId": "GCST007141_24",
+    "accessionId": "GCST90002351_40",
     "snp_id": "rs64"
   },
   {
-    "accessionId": "GCST007141_25",
+    "accessionId": "GCST90002351_41",
     "snp_id": "rs65"
   },
   {
-    "accessionId": "GCST007141_26",
+    "accessionId": "GCST90002351_42",
     "snp_id": "rs66"
   },
   {
-    "accessionId": "GCST007141_27",
+    "accessionId": "GCST90002351_43",
     "snp_id": "rs67"
   },
   {
-    "accessionId": "GCST007141_28",
+    "accessionId": "GCST90002351_44",
     "snp_id": "rs68"
   },
   {
-    "accessionId": "GCST007141_29",
+    "accessionId": "GCST90002351_45",
     "snp_id": "rs69"
   },
   {
-    "accessionId": "GCST007141_30",
+    "accessionId": "GCST90002351_46",
     "snp_id": "rs70"
   },
   {
-    "accessionId": "GCST007141_31",
+    "accessionId": "GCST90002351_47",
     "snp_id": "rs71"
   },
   {
-    "accessionId": "GCST007141_32",
+    "accessionId": "GCST90002351_48",
     "snp_id": "rs72"
   },
   {
-    "accessionId": "GCST007141_33",
+    "accessionId": "GCST90002351_49",
     "snp_id": "rs73"
   },
   {
-    "accessionId": "GCST007141_34",
+    "accessionId": "GCST90002351_50",
     "snp_id": "rs74"
   },
   {
-    "accessionId": "GCST007141_35",
+    "accessionId": "GCST007430_22",
     "snp_id": "rs75"
   },
   {
-    "accessionId": "GCST007141_36",
+    "accessionId": "GCST007430_23",
     "snp_id": "rs76"
   },
   {
-    "accessionId": "GCST007141_37",
+    "accessionId": "GCST007430_24",
     "snp_id": "rs77"
   },
   {
-    "accessionId": "GCST007141_38",
+    "accessionId": "GCST007430_25",
     "snp_id": "rs78"
   },
   {
-    "accessionId": "GCST007141_39",
+    "accessionId": "GCST007430_26",
     "snp_id": "rs79"
   },
   {
-    "accessionId": "GCST007141_40",
+    "accessionId": "GCST007430_27",
     "snp_id": "rs80"
   },
   {
-    "accessionId": "GCST007141_41",
+    "accessionId": "GCST007430_28",
     "snp_id": "rs81"
   },
   {
-    "accessionId": "GCST007141_42",
+    "accessionId": "GCST007430_29",
     "snp_id": "rs82"
   },
   {
-    "accessionId": "GCST007141_43",
+    "accessionId": "GCST007430_30",
     "snp_id": "rs83"
   },
   {
-    "accessionId": "GCST007141_44",
+    "accessionId": "GCST007430_31",
     "snp_id": "rs84"
   },
   {
-    "accessionId": "GCST007141_45",
+    "accessionId": "GCST007430_32",
     "snp_id": "rs85"
   },
   {
-    "accessionId": "GCST007141_46",
+    "accessionId": "GCST007430_33",
     "snp_id": "rs86"
   },
   {
-    "accessionId": "GCST007141_47",
+    "accessionId": "GCST007430_34",
     "snp_id": "rs87"
   },
   {
-    "accessionId": "GCST007141_48",
+    "accessionId": "GCST007430_35",
     "snp_id": "rs88"
   },
   {
-    "accessionId": "GCST007141_49",
+    "accessionId": "GCST007430_36",
     "snp_id": "rs89"
   },
   {
-    "accessionId": "GCST007141_50",
+    "accessionId": "GCST007430_37",
     "snp_id": "rs90"
   },
   {
-    "accessionId": "GCST007141_51",
+    "accessionId": "GCST007430_38",
     "snp_id": "rs91"
   },
   {
-    "accessionId": "GCST007141_52",
+    "accessionId": "GCST007430_39",
     "snp_id": "rs92"
   },
   {
-    "accessionId": "GCST007141_53",
+    "accessionId": "GCST007430_40",
     "snp_id": "rs93"
   },
   {
-    "accessionId": "GCST007141_54",
+    "accessionId": "GCST007430_41",
     "snp_id": "rs94"
   },
   {
-    "accessionId": "GCST007141_55",
+    "accessionId": "GCST007430_42",
     "snp_id": "rs95"
   },
   {
-    "accessionId": "GCST007141_56",
+    "accessionId": "GCST007430_43",
     "snp_id": "rs96"
   },
   {
-    "accessionId": "GCST007141_57",
+    "accessionId": "GCST007430_44",
     "snp_id": "rs97"
   },
   {
-    "accessionId": "GCST007141_58",
+    "accessionId": "GCST007430_45",
     "snp_id": "rs98"
   },
   {
-    "accessionId": "GCST007141_59",
+    "accessionId": "GCST007430_46",
     "snp_id": "rs99"
   }
 ]

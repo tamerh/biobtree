@@ -923,9 +923,14 @@ func (f *fantom5) createPromoterReferences(idStr string, promoter *Fantom5Promot
 		f.d.addXref(promoter.GeneSymbol, textLinkID, idStr, f.source, true)
 	}
 
-	// Cross-reference to Ensembl (via gene symbol lookup)
+	// Cross-reference to HGNC/Entrez/Ensembl via gene symbol lookup
+	// Handle complex formats: space-separated, comma-separated with promoter IDs (e.g., "SIK1,p2@SIK1B")
 	if promoter.GeneSymbol != "" {
-		f.d.addHumanGeneXrefs(promoter.GeneSymbol, idStr, fr)
+		for _, symbol := range extractGeneSymbols(promoter.GeneSymbol) {
+			if symbol != "" {
+				f.d.addHumanGeneXrefsAll(symbol, idStr, fr)
+			}
+		}
 	}
 
 	// Cross-reference to Entrez (skip "NA" placeholder values, handle space-separated multiple IDs)
@@ -1661,9 +1666,14 @@ func (f *fantom5) saveGenes(genes map[int]*Fantom5Gene) {
 			f.d.addXref(gene.GeneSymbol, textLinkID, idStr, "fantom5_gene", true)
 		}
 
-		// Cross-reference via gene symbol lookup
+		// Cross-reference to HGNC/Entrez/Ensembl via gene symbol lookup
+		// Handle complex formats: space-separated, comma-separated with promoter IDs
 		if gene.GeneSymbol != "" {
-			f.d.addHumanGeneXrefs(gene.GeneSymbol, idStr, fr)
+			for _, symbol := range extractGeneSymbols(gene.GeneSymbol) {
+				if symbol != "" {
+					f.d.addHumanGeneXrefsAll(symbol, idStr, fr)
+				}
+			}
 		}
 
 		// Cross-reference to Entrez (skip "NA" placeholder values)
@@ -1690,4 +1700,34 @@ func (f *fantom5) saveGenes(genes map[int]*Fantom5Gene) {
 
 	log.Printf("[%s] Successfully saved %d genes", f.source, savedCount)
 	atomic.AddUint64(&f.d.totalParsedEntry, savedCount)
+}
+
+// extractGeneSymbols parses complex FANTOM5 gene symbol formats and returns individual gene symbols.
+// Handles formats like:
+//   - "TP53" → ["TP53"]
+//   - "CDH15 CDH3" → ["CDH15", "CDH3"] (space-separated)
+//   - "SIK1,p2@SIK1B" → ["SIK1", "SIK1B"] (comma+promoter ID and @ separated)
+//   - "HOXC4,p2@HOXC5,p2@HOXC6" → ["HOXC4", "HOXC5", "HOXC6"]
+func extractGeneSymbols(geneSymbol string) []string {
+	var symbols []string
+	seen := make(map[string]bool)
+
+	// First split by whitespace
+	for _, part := range strings.Fields(geneSymbol) {
+		// Then split by @ to handle multi-gene entries
+		for _, subpart := range strings.Split(part, "@") {
+			// Extract gene name (before any comma+promoter ID like ",p2")
+			gene := subpart
+			if idx := strings.Index(gene, ","); idx > 0 {
+				gene = gene[:idx]
+			}
+			// Clean up and deduplicate
+			gene = strings.TrimSpace(gene)
+			if gene != "" && !seen[gene] {
+				symbols = append(symbols, gene)
+				seen[gene] = true
+			}
+		}
+	}
+	return symbols
 }

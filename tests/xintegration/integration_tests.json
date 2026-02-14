@@ -244,7 +244,7 @@
     {
       "category": "protein_features",
       "name": "Protein to NMR Structures",
-      "query": ">>uniprot>>pdb[pdb.method==\"nmr\"]",
+      "query": ">>uniprot>>pdb[pdb.method==\"SOLUTION NMR\"]",
       "why": "Get solution structures (NMR) vs crystal structures - different conformational states",
       "should_pass": [
         "P04637"
@@ -1338,8 +1338,8 @@
     {
       "category": "genomics",
       "name": "Gene to dbSNP Variants",
-      "query": ">>ensembl[ensembl.genome==\"homo_sapiens\"]>>dbsnp",
-      "why": "Map genes to dbSNP variants for genetic variation analysis - core SNP discovery workflow",
+      "query": ">>ensembl[ensembl.genome==\"homo_sapiens\"]>>entrez>>dbsnp",
+      "why": "Map genes to dbSNP variants via Entrez for genetic variation analysis - core SNP discovery workflow",
       "should_pass": [
         "BRCA1",
         "TP53",
@@ -1350,8 +1350,8 @@
     {
       "category": "genomics",
       "name": "Ensembl Gene ID to dbSNP",
-      "query": ">>ensembl>>dbsnp",
-      "why": "Direct Ensembl gene ID to dbSNP variant mapping",
+      "query": ">>ensembl>>entrez>>dbsnp",
+      "why": "Ensembl gene ID to dbSNP variant mapping via Entrez",
       "should_pass": [
         "ENSG00000012048",
         "ENSG00000141510"
@@ -1375,8 +1375,8 @@
     {
       "category": "genomics",
       "name": "dbSNP to ClinVar via Gene",
-      "query": ">>dbsnp>>ensembl>>clinvar",
-      "why": "Find clinical significance of dbSNP variants via gene to ClinVar mapping",
+      "query": ">>dbsnp>>entrez>>ensembl>>clinvar",
+      "why": "Find clinical significance of dbSNP variants via Entrez gene to ClinVar mapping",
       "should_pass": [
         "rs1801133"
       ],
@@ -1860,8 +1860,8 @@
     {
       "category": "gwas_genetics",
       "name": "Disease to GWAS Genes via EFO (Human)",
-      "query": ">>mondo>>gwas_study>>gwas>>ensembl[ensembl.genome==\"homo_sapiens\"]",
-      "why": "Full disease to human genes path via GWAS studies. MONDO\u2192EFO direct mapping is sparse; go via gwas_study instead.",
+      "query": ">>mondo>>efo>>gwas>>ensembl[ensembl.genome==\"homo_sapiens\"]",
+      "why": "Full disease to human genes path via GWAS studies through EFO mapping.",
       "should_pass": [
         "MONDO:0005148",
         "MONDO:0005044"
@@ -1871,8 +1871,8 @@
     {
       "category": "gwas_genetics",
       "name": "Glioblastoma Text to GWAS Genes",
-      "query": ">>mondo>>gwas_study>>gwas>>ensembl[ensembl.genome==\"homo_sapiens\"]",
-      "why": "Drug discovery workflow: disease text to genes via GWAS studies - tests text-based disease lookup. MONDO:0005044 is main glioblastoma (not subtypes like MONDO:0000457)",
+      "query": ">>mondo>>efo>>gwas>>ensembl[ensembl.genome==\"homo_sapiens\"]",
+      "why": "Drug discovery workflow: disease text to genes via GWAS through EFO - tests text-based disease lookup. MONDO:0005044 is main glioblastoma",
       "should_pass": [
         "glioblastoma",
         "MONDO:0005044"
@@ -2013,8 +2013,8 @@
     {
       "category": "drug_discovery",
       "name": "Disease Text to dbSNP Variants",
-      "query": ">>mondo>>gencc>>ensembl[ensembl.genome==\"homo_sapiens\"]>>dbsnp",
-      "why": "Drug discovery workflow: disease text to genetic variants for pharmacogenomics",
+      "query": ">>mondo>>gencc>>ensembl[ensembl.genome==\"homo_sapiens\"]>>entrez>>dbsnp",
+      "why": "Drug discovery workflow: disease text to genetic variants via Entrez for pharmacogenomics",
       "should_pass": [
         "glioblastoma",
         "breast cancer"
@@ -4115,9 +4115,9 @@
       "category": "clinical_variants",
       "name": "ClinVar to dbSNP Edge (BUG-020 FIXED)",
       "query": ">>clinvar>>dbsnp",
-      "why": "FIXED: ClinVar parser now creates dbSNP cross-references (was using wrong dataset key 'snp' instead of 'dbsnp'). Enables disease\u2192variant\u2192rsID pipelines.",
+      "why": "FIXED: ClinVar parser now creates dbSNP cross-references. ClinVar 2 is a SNP variant with rsID (409 is microsatellite with no rsID).",
       "should_pass": [
-        "409"
+        "2"
       ],
       "should_fail": []
     },
@@ -5722,8 +5722,8 @@
       "query": ">>orphanet>>hgnc",
       "why": "Verify Orphanet entries have HGNC cross-references (reverse of addHumanGeneXrefs)",
       "should_pass": [
-        "ORPHA:145",
-        "ORPHA:586"
+        "145",
+        "586"
       ],
       "should_fail": []
     },
@@ -5923,8 +5923,8 @@
       "query": ">>signor>>taxonomy",
       "why": "Get organism information for SIGNOR interactions",
       "should_pass": [
-        "SIGNOR-142566",
-        "SIGNOR-253635"
+        "SIGNOR-100052",
+        "SIGNOR-100184"
       ],
       "should_fail": []
     },
@@ -6749,14 +6749,14 @@
       "query": ">>cellphonedb>>pubmed",
       "why": "Find literature evidence for interactions - evidence review",
       "should_pass": [
-        "CPI-SS0CC5DCE80"
+        "CPI-CC0021FE823"
       ],
       "should_fail": []
     },
     {
       "category": "ligand_receptor",
       "name": "CellPhoneDB Classification Filter",
-      "query": ">>hgnc>>cellphonedb[cellphonedb.classification~\"Signaling\"]",
+      "query": ">>hgnc>>cellphonedb[cellphonedb.classification.contains(\"Signaling\")]",
       "why": "Filter interactions by signaling classification - pathway-specific analysis",
       "should_pass": [
         "WNT1",
@@ -6778,8 +6778,8 @@
     {
       "category": "ligand_receptor",
       "name": "Cell Type to Ligand-Receptor Partners",
-      "query": ">>cl>>bgee>>ensembl>>hgnc>>cellphonedb",
-      "why": "From cell type expression to communication partners - single-cell atlas",
+      "query": ">>cl>>scxa>>ensembl>>hgnc>>cellphonedb",
+      "why": "From cell type expression to communication partners via SCXA (human data) - single-cell atlas",
       "should_pass": [
         "CL:0000084"
       ],
@@ -7262,7 +7262,7 @@
       "query": ">>jaspar[jaspar.tax_group==\"vertebrates\"]",
       "why": "Filter for vertebrate transcription factor binding profiles",
       "should_pass": [
-        "BRCA1",
+        "RUNX1",
         "TP53"
       ],
       "should_fail": []

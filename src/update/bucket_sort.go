@@ -835,6 +835,13 @@ func ConcatenateBucketsParallelFiltered(pool *HybridWriterPool, indexDir, outDir
 
 	for key, writer := range allWriters {
 		datasetName := writer.config.DatasetName
+		// Special case: textsearch is included in ALL federations because it
+		// receives data from sources across multiple federations. Each federation's
+		// textsearch files are written to that federation's index directory.
+		if datasetName == "textsearch" {
+			writers[key] = writer
+			continue
+		}
 		// Check if this dataset belongs to the current federation
 		datasetFed := "main" // default
 		if datasetFederation != nil {

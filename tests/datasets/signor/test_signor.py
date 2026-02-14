@@ -51,12 +51,14 @@ class SIGNORTests:
             if entry.get("database_a") == "ChEBI" or entry.get("database_b") == "ChEBI":
                 chebi_id = entry.get("id_a") if entry.get("database_a") == "ChEBI" else entry.get("id_b")
                 if chebi_id:
-                    chebi_id_clean = chebi_id.replace("CHEBI:", "")
+                    # ChEBI IDs should be stored with CHEBI: prefix (e.g., "CHEBI:4031")
+                    # to match how the ChEBI dataset stores its entries
+                    chebi_id_with_prefix = chebi_id if chebi_id.startswith("CHEBI:") else f"CHEBI:{chebi_id}"
                     data = self.runner.lookup(entry["signor_id"])
                     if data and data.get("results"):
                         result = data["results"][0]
-                        if self.runner.has_xref(result, "chebi", chebi_id_clean):
-                            return True, f"Found ChEBI xref {chebi_id_clean} for {entry['signor_id']}"
+                        if self.runner.has_xref(result, "chebi", chebi_id_with_prefix):
+                            return True, f"Found ChEBI xref {chebi_id_with_prefix} for {entry['signor_id']}"
         return False, "No entry with ChEBI cross-reference found"
 
     @test

@@ -1053,11 +1053,11 @@ func (r *refseq) processRecord(record *gbffRecord, fr string) {
 		r.d.addXref(baseAccession, fr, record.taxID, "taxonomy", false)
 	}
 
-	// Create cross-reference to human gene databases via gene symbol lookup
-	// addHumanGeneXrefsAll creates xrefs to HGNC, Entrez, and Ensembl
-	if record.symbol != "" {
-		r.d.addHumanGeneXrefsAll(record.symbol, baseAccession, fr)
-	}
+	// Note: HGNC/Entrez/Ensembl gene xrefs are NOT added via lookup here because:
+	// - Entrez is already added directly from record.geneID above
+	// - Ensembl transcript/protein are added directly below from parsed MANE data
+	// - HGNC can be reached via: refseq >> entrez >> hgnc
+	// - Ensembl gene can be reached via: refseq >> transcript >> ensembl
 
 	// Create cross-reference to Ensembl transcript
 	if record.ensemblTranscript != "" {

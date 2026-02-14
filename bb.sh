@@ -33,8 +33,8 @@ for arg in "$@"; do
     esac
 done
 if [[ -z "$BUILD_IN_BG" && "$RUN_FOREGROUND" == "false" ]]; then
-    mkdir -p logs
-    LOG_FILE="logs/build_$(date +%Y%m%d_%H%M%S).log"
+    mkdir -p logs/archive
+    LOG_FILE="logs/archive/build_$(date +%Y%m%d_%H%M%S).log"
     echo "Running in background. Log: $LOG_FILE"
     echo "Monitor: tail -f $LOG_FILE"
     BUILD_IN_BG=1 nohup "$0" "$@" > "$LOG_FILE" 2>&1 &
@@ -327,6 +327,9 @@ run_dataset() {
         echo "[DRY RUN] ./biobtree --out-dir \"$OUT_DIR\" $opts -d \"$dataset\" update"
         return 0
     fi
+
+    # Rotate previous logs before writing new one
+    rotate_log "$log_file"
 
     # Run update (script itself is already in background)
     if ./biobtree --out-dir "$OUT_DIR" $opts -d "$dataset" update > "$log_file" 2>&1; then
@@ -847,8 +850,10 @@ if [[ "$WEB_SERVER" == "true" ]]; then
     else
         # Custom directory - run in background with --prod
         echo "Starting web server in background..."
-        echo "Log: ${LOG_DIR}/web.log"
-        nohup ./biobtree --out-dir "$OUT_DIR" --prod web > "${LOG_DIR}/web.log" 2>&1 &
+        WEB_LOG="${LOG_DIR}/web.log"
+        rotate_log "$WEB_LOG"
+        echo "Log: $WEB_LOG"
+        nohup ./biobtree --out-dir "$OUT_DIR" --prod web > "$WEB_LOG" 2>&1 &
         echo "PID: $!"
         echo "Monitor: tail -f ${LOG_DIR}/web.log"
     fi
@@ -890,16 +895,46 @@ if [[ -n "$ONLY_DATASET" ]]; then
     exit 0
 fi
 
+# Archive log file to subfolder with timestamp
+# Usage: rotate_log <log_file>
+# Moves: logs/uniprot.log -> logs/archive/uniprot_2026-02-14_093045.log
+rotate_log() {
+    local log_file=$1
+
+    if [[ ! -f "$log_file" ]]; then
+        return 0
+    fi
+
+    local log_dir=$(dirname "$log_file")
+    local log_name=$(basename "$log_file" .log)
+    local archive_dir="${log_dir}/archive"
+    local timestamp=$(date +%Y-%m-%d_%H%M%S)
+    local archive_file="${archive_dir}/${log_name}_${timestamp}.log"
+
+    # Create archive directory if needed
+    mkdir -p "$archive_dir"
+
+    # Move current log to archive with timestamp
+    mv "$log_file" "$archive_file"
+}
+
+# Backward compatibility alias
+backup_log() {
+    rotate_log "$1"
+}
+
 # Generate only mode
 if [[ "$GENERATE_ONLY" == "true" ]]; then
     if [[ -n "$FEDERATION" ]]; then
         log_header "Generate ($FEDERATION federation)"
         echo "Building $FEDERATION federation database..."
-        echo "Log: ${LOG_DIR}/generate_${FEDERATION}.log"
+        GEN_LOG="${LOG_DIR}/generate_${FEDERATION}.log"
+        rotate_log "$GEN_LOG"
+        echo "Log: $GEN_LOG"
 
         if [[ "$DRY_RUN" == "true" ]]; then
             echo "[DRY RUN] ./biobtree --out-dir \"$OUT_DIR\" --federation \"$FEDERATION\" --lmdb-safety-factor 4.5 generate"
-        elif ./biobtree --out-dir "$OUT_DIR" --federation "$FEDERATION" --lmdb-safety-factor 4.5 generate > "${LOG_DIR}/generate_${FEDERATION}.log" 2>&1; then
+        elif ./biobtree --out-dir "$OUT_DIR" --federation "$FEDERATION" --lmdb-safety-factor 4.5 generate > "$GEN_LOG" 2>&1; then
             echo "✓ Generate complete ($FEDERATION federation)"
 
             # Show version info
@@ -914,17 +949,19 @@ if [[ "$GENERATE_ONLY" == "true" ]]; then
                 echo "  $0 $OUT_DIR --activate"
             fi
         else
-            echo "✗ Generate FAILED ($FEDERATION) - see ${LOG_DIR}/generate_${FEDERATION}.log"
+            echo "✗ Generate FAILED ($FEDERATION) - see $GEN_LOG"
             exit 1
         fi
     else
         log_header "Generate (all federations)"
         echo "Building all federation databases..."
-        echo "Log: ${LOG_DIR}/generate.log"
+        GEN_LOG="${LOG_DIR}/generate.log"
+        rotate_log "$GEN_LOG"
+        echo "Log: $GEN_LOG"
 
         if [[ "$DRY_RUN" == "true" ]]; then
             echo "[DRY RUN] ./biobtree --out-dir \"$OUT_DIR\" --lmdb-safety-factor 4.5 generate"
-        elif ./biobtree --out-dir "$OUT_DIR" --lmdb-safety-factor 4.5 generate > "${LOG_DIR}/generate.log" 2>&1; then
+        elif ./biobtree --out-dir "$OUT_DIR" --lmdb-safety-factor 4.5 generate > "$GEN_LOG" 2>&1; then
             echo "✓ Generate complete (all federations)"
 
             # Show version info for each federation
@@ -946,7 +983,7 @@ if [[ "$GENERATE_ONLY" == "true" ]]; then
             echo "To activate the new version(s):"
             echo "  $0 $OUT_DIR --activate"
         else
-            echo "✗ Generate FAILED - see ${LOG_DIR}/generate.log"
+            echo "✗ Generate FAILED - see $GEN_LOG"
             exit 1
         fi
     fi

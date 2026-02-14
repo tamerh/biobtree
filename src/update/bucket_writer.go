@@ -284,10 +284,18 @@ func (p *HybridWriterPool) writeToSubdir(datasetID, entityID, line, subdir strin
 		bf = p.bucketFiles[bucketKey]
 		if bf == nil {
 			// Determine federation for this dataset
-			// The TARGET dataset determines which federation the file goes to
+			// For most datasets, the TARGET dataset determines which federation the file goes to
+			// Special case: textsearch routes to SOURCE dataset's federation
+			// (so textsearch_dbsnp goes to dbsnp federation, not main)
 			federation := "main" // default
 			if p.datasetFederation != nil {
-				if fed, ok := p.datasetFederation[cfg.DatasetName]; ok && fed != "" {
+				if cfg.DatasetName == "textsearch" && strings.HasPrefix(subdir, "from_") {
+					// Extract source dataset from subdir (e.g., "from_dbsnp" -> "dbsnp")
+					sourceDataset := strings.TrimPrefix(subdir, "from_")
+					if fed, ok := p.datasetFederation[sourceDataset]; ok && fed != "" {
+						federation = fed
+					}
+				} else if fed, ok := p.datasetFederation[cfg.DatasetName]; ok && fed != "" {
 					federation = fed
 				}
 			}

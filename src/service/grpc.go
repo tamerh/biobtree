@@ -82,15 +82,9 @@ func (g *biobtreegrpc) Search(ctx context.Context, in *pbuf.SearchRequest) (*pbu
 		}
 	}
 
-	// Check mode - lite or full (default)
-	if in.Mode == "lite" {
-		res, err := g.service.searchLite(in.Terms, src, in.Page, in.Dataset)
-		if err != nil {
-			return nil, err
-		}
-		grpcRes.ResultsLite = res
-		return &grpcRes, nil
-	}
+	// Note: gRPC lite mode currently returns full results
+	// The REST API lite mode uses the new pipe-delimited format
+	// TODO: Update protobuf definitions for new lite format if gRPC lite is needed
 
 	// Full mode (default)
 	res, err := g.service.Search(in.Terms, src, in.Page, filterq, in.Detail, in.Url)
@@ -116,15 +110,9 @@ func (g *biobtreegrpc) Mapping(ctx context.Context, in *pbuf.MappingRequest) (*p
 
 	grpcRes := pbuf.MappingResponse{}
 
-	// Check mode - lite or full (default)
-	if in.Mode == "lite" {
-		res, err := g.service.MapFilterLite(in.Terms, in.Query, in.Page)
-		if err != nil {
-			return nil, err
-		}
-		grpcRes.ResultsLite = res
-		return &grpcRes, nil
-	}
+	// Note: gRPC lite mode currently returns full results
+	// The REST API lite mode uses the new pipe-delimited format
+	// TODO: Update protobuf definitions for new lite format if gRPC lite is needed
 
 	// Full mode (default)
 	res, err := g.service.MapFilter(in.Terms, in.Query, in.Page)

@@ -8,7 +8,6 @@ import (
 	"io/ioutil"
 	"log"
 	"path/filepath"
-	"sort"
 	"strconv"
 	"strings"
 
@@ -1294,33 +1293,41 @@ func (s *Service) LookupByDataset(identifier string, domainID uint32) (*pbuf.Xre
 // searchLite performs a search and returns compact lite format response
 // Uses the main search function and converts the result to lite format
 // Returns only IDs, sorted by has_attr (entries with attributes first)
-func (s *Service) searchLite(ids []string, idsDomain uint32, page string, datasetFilter string) (*pbuf.ResultLite, error) {
-	// Use the main search function - this ensures consistent behavior
-	// detail=false triggers makeLiteAll which strips attributes
-	// buildURL=false since we don't need URLs in lite mode
-	fullResult, err := s.Search(ids, idsDomain, page, nil, false, false)
+// searchLite performs search and returns lite format response
+// Returns pipe-delimited data rows: id|dataset|name|xref_count
+func (s *Service) searchLite(ids []string, idsDomain uint32, page string, datasetFilter string) (*SearchLiteResponse, error) {
+	// Use the main search function with detail=true to get attributes for name extraction
+	fullResult, err := s.Search(ids, idsDomain, page, nil, true, false)
 	if err != nil {
 		return nil, err
 	}
 
-	// Convert full result to lite format
-	result := &pbuf.ResultLite{
-		Mode: "lite",
-		Query: &pbuf.SearchQueryInfo{
-			Terms:         ids,
+	response := &SearchLiteResponse{
+		Context: SearchLiteContext{
+			Query:         strings.Join(ids, ","),
 			DatasetFilter: datasetFilter,
-			Raw:           strings.Join(ids, ","),
 		},
+		Stats: SearchLiteStats{
+			Total: 0,
+		},
+		Pagination: LitePagination{
+			HasNext:   fullResult.Nextpage != "",
+			NextToken: fullResult.Nextpage,
+		},
+		Schema: "id|dataset|name|xref_count",
 	}
-
-	var liteResults []*pbuf.SearchResultLite
-	statsByDataset := make(map[string]int32)
 
 	// Track seen IDs to avoid duplicates
 	seenIDs := make(map[string]bool)
 
 	for _, xref := range fullResult.Results {
 		datasetName := config.DataconfIDIntToString[xref.Dataset]
+
+		// Apply dataset filter if specified
+		if datasetFilter != "" && datasetName != datasetFilter {
+			continue
+		}
+
 		identifier := xref.Identifier
 		if identifier == "" {
 			identifier = xref.Keyword
@@ -1333,51 +1340,12 @@ func (s *Service) searchLite(ids []string, idsDomain uint32, page string, datase
 		}
 		seenIDs[uniqueKey] = true
 
-		hasAttr := !xref.GetEmpty()
-
-		liteResult := &pbuf.SearchResultLite{
-			D:         datasetName,
-			Id:        identifier,
-			HasAttr:   hasAttr,
-			XrefCount: xref.Count,
-		}
-		liteResults = append(liteResults, liteResult)
-		statsByDataset[datasetName]++
+		row := GetSearchCompactRow(xref, datasetName)
+		response.Data = append(response.Data, row)
+		response.Stats.Total++
 	}
 
-	// Sort: entries with attributes first
-	sort.Slice(liteResults, func(i, j int) bool {
-		if liteResults[i].HasAttr != liteResults[j].HasAttr {
-			return liteResults[i].HasAttr // true (has attr) comes first
-		}
-		return false // stable sort for same has_attr value
-	})
-
-	// Apply lite mode pagination limit (5x higher than full mode)
-	totalResults := int32(len(liteResults))
-	hasNext := len(liteResults) > s.resultPageSizeLite
-	if hasNext {
-		liteResults = liteResults[:s.resultPageSizeLite]
-	}
-
-	result.Results = liteResults
-	result.Stats = &pbuf.SearchStats{
-		TotalResults: totalResults,
-		Returned:     int32(len(liteResults)),
-		ByDataset:    statsByDataset,
-	}
-	result.Pagination = &pbuf.PaginationInfo{
-		Page:    1,
-		HasNext: hasNext,
-	}
-
-	// Copy nextpage token if available
-	if fullResult.Nextpage != "" {
-		result.Pagination.NextToken = fullResult.Nextpage
-		result.Pagination.HasNext = true
-	}
-
-	return result, nil
+	return response, nil
 }
 
 // =============================================================================

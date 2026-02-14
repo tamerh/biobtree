@@ -2464,14 +2464,17 @@ func (d *DataUpdate) lookupHumanEntrezGene(geneSymbol string, entrezDatasetID, t
 	}
 
 	// Check for successful mapping
+	// New lite format: targets are pipe-delimited strings, first field is the ID
 	if result != nil && len(result.Mappings) > 0 {
 		for _, mapping := range result.Mappings {
-			if mapping.Error == "" && len(mapping.Targets) > 0 {
-				target := mapping.Targets[0]
-				return &pbuf.XrefEntry{
-					Dataset:    entrezDatasetID,
-					Identifier: target.Id,
-				}, nil
+			if len(mapping.Targets) > 0 {
+				targetID := extractIDFromLiteTarget(mapping.Targets[0])
+				if targetID != "" {
+					return &pbuf.XrefEntry{
+						Dataset:    entrezDatasetID,
+						Identifier: targetID,
+					}, nil
+				}
 			}
 		}
 	}
@@ -2485,12 +2488,14 @@ func (d *DataUpdate) lookupHumanEntrezGene(geneSymbol string, entrezDatasetID, t
 
 	if result != nil && len(result.Mappings) > 0 {
 		for _, mapping := range result.Mappings {
-			if mapping.Error == "" && len(mapping.Targets) > 0 {
-				target := mapping.Targets[0]
-				return &pbuf.XrefEntry{
-					Dataset:    entrezDatasetID,
-					Identifier: target.Id,
-				}, nil
+			if len(mapping.Targets) > 0 {
+				targetID := extractIDFromLiteTarget(mapping.Targets[0])
+				if targetID != "" {
+					return &pbuf.XrefEntry{
+						Dataset:    entrezDatasetID,
+						Identifier: targetID,
+					}, nil
+				}
 			}
 		}
 	}
@@ -2515,14 +2520,18 @@ func (d *DataUpdate) lookupHumanEnsemblGene(geneSymbol string, ensemblDatasetID 
 	}
 
 	// Check for successful mapping
+	// New lite format: targets are pipe-delimited strings, first field is the ID
 	if result != nil && len(result.Mappings) > 0 {
 		for _, mapping := range result.Mappings {
-			if mapping.Error == "" && len(mapping.Targets) > 0 {
-				target := mapping.Targets[0]
-				return &pbuf.XrefEntry{
-					Dataset:    ensemblDatasetID,
-					Identifier: target.Id,
-				}, nil
+			if len(mapping.Targets) > 0 {
+				// Extract ID from pipe-delimited target string (format: "id|name|...")
+				targetID := extractIDFromLiteTarget(mapping.Targets[0])
+				if targetID != "" {
+					return &pbuf.XrefEntry{
+						Dataset:    ensemblDatasetID,
+						Identifier: targetID,
+					}, nil
+				}
 			}
 		}
 	}
@@ -2536,16 +2545,30 @@ func (d *DataUpdate) lookupHumanEnsemblGene(geneSymbol string, ensemblDatasetID 
 
 	if result != nil && len(result.Mappings) > 0 {
 		for _, mapping := range result.Mappings {
-			if mapping.Error == "" && len(mapping.Targets) > 0 {
-				target := mapping.Targets[0]
-				return &pbuf.XrefEntry{
-					Dataset:    ensemblDatasetID,
-					Identifier: target.Id,
-				}, nil
+			if len(mapping.Targets) > 0 {
+				targetID := extractIDFromLiteTarget(mapping.Targets[0])
+				if targetID != "" {
+					return &pbuf.XrefEntry{
+						Dataset:    ensemblDatasetID,
+						Identifier: targetID,
+					}, nil
+				}
 			}
 		}
 	}
 
 	log.Printf("[DEBUG lookupHumanEnsemblGene] No mapping found for gene symbol: %s", geneSymbol)
 	return nil, nil // No human Ensembl entry found
+}
+
+// extractIDFromLiteTarget extracts the ID (first field) from a pipe-delimited lite target string
+func extractIDFromLiteTarget(target string) string {
+	if target == "" {
+		return ""
+	}
+	idx := strings.Index(target, "|")
+	if idx == -1 {
+		return target // No pipe, entire string is the ID
+	}
+	return target[:idx]
 }

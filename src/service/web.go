@@ -296,7 +296,7 @@ func (web *Web) search(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if mode == "lite" {
-		// Lite mode - compact response with IDs only
+		// Lite mode - LLM-friendly pipe-delimited format with names
 		res, err := web.service.searchLite(ids, src, page, datasetFilter)
 		if err != nil {
 			errStr := errString{Err: err.Error()}
@@ -429,7 +429,7 @@ func (web *Web) mapFilter(w http.ResponseWriter, r *http.Request) {
 	mode := parseMode(r)
 
 	if mode == "lite" {
-		// Lite mode - compact response with IDs only
+		// Lite mode - LLM-friendly grouped format with names
 		res, err := web.service.MapFilterLite(ids, mapfil[0], page)
 		if err != nil {
 			errStr := errString{Err: err.Error()}
@@ -470,7 +470,7 @@ type errString struct {
 }
 
 // parseMode extracts and validates the mode parameter from request
-// Returns "lite" or "full". Default is "full" for backward compatibility.
+// Returns "lite", "full", or "compact". Default is "full" for backward compatibility.
 func parseMode(r *http.Request) string {
 	modes, ok := r.URL.Query()["mode"]
 	if ok && len(modes[0]) > 0 {

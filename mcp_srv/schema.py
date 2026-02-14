@@ -494,16 +494,87 @@ SCHEMA_DISEASE_ONTOLOGY = """
 """
 
 # =============================================================================
+# Lite Mode Response Format
+# =============================================================================
+
+SCHEMA_RESPONSE_FORMAT = """
+# ===== LITE MODE RESPONSE FORMAT =====
+#
+# Lite mode returns compact, token-efficient responses with pipe-delimited data.
+# Parse by splitting on "|" using the schema as column headers.
+
+# ----- SEARCH RESPONSE -----
+{
+  "context": {"query": "TP53,BRCA1", "dataset_filter": ""},
+  "stats": {"total": 10},
+  "pagination": {"has_next": true, "next_token": "0,0,-1,10"},
+  "schema": "id|dataset|name|xref_count",
+  "data": [
+    "HGNC:11998|hgnc|tumor protein p53|24",
+    "ENSG00000141510|ensembl|TP53|337",
+    "P04637|uniprot|Cellular tumor antigen p53|5674"
+  ]
+}
+
+# Parsing search data:
+# - Split each row by "|" -> [id, dataset, name, xref_count]
+# - xref_count = number of cross-references (higher = more connected)
+
+# ----- MAP RESPONSE (grouped by input) -----
+{
+  "context": {
+    "query": ">>hgnc>>ensembl",
+    "source_dataset": "hgnc",
+    "target_dataset": "ensembl"
+  },
+  "stats": {"total": 3, "mapped": 3},
+  "pagination": {"has_next": false},
+  "schema": "id|name|biotype|genome",
+  "mappings": [
+    {
+      "input": "TP53",
+      "source": "HGNC:11998|tumor protein p53",
+      "targets": ["ENSG00000141510|TP53|protein_coding|homo_sapiens"]
+    },
+    {
+      "input": "BRCA1",
+      "source": "HGNC:1100|BRCA1 DNA repair associated",
+      "targets": ["ENSG00000012048|BRCA1|protein_coding|homo_sapiens"]
+    }
+  ]
+}
+
+# Parsing map data:
+# - Each mapping has: input (original term), source (resolved ID|name), targets (list)
+# - Split source by "|" -> [source_id, source_name]
+# - Split each target by "|" using schema columns -> [id, name, biotype, genome]
+# - Schema varies by target dataset (ensembl has biotype/genome, uniprot has reviewed, etc.)
+
+# ----- COMMON SCHEMAS BY DATASET -----
+# ensembl: id|name|biotype|genome
+# uniprot: id|reviewed (true = Swiss-Prot curated)
+# chembl_molecule: id|name|type|highestDevelopmentPhase
+# go: id|type|name
+# clinvar: id|name|type|germline_classification
+# dbsnp: id|chromosome|position|ref_allele|alt_allele
+"""
+
+# =============================================================================
 # Pagination Info
 # =============================================================================
 
 SCHEMA_PAGINATION = {
-    "description": "Results are automatically paginated (~150 results per page)",
-    "response_fields": {
-        "has_next": "boolean indicating more results available",
-        "next_token": "token to pass for next page of results"
+    "description": "Results are paginated by total targets across all inputs",
+    "limits": {
+        "lite_mode": "~150 targets per page (optimized for LLM token efficiency)",
+        "full_mode": "~30 targets per page (includes all attributes)"
     },
-    "usage": "When has_next is true, make another request with page=next_token to get more results"
+    "response_fields": {
+        "has_next": "boolean - true if more results available",
+        "next_token": "string - pass as 'page' parameter for next page"
+    },
+    "usage": "When has_next is true, call again with page=next_token to continue",
+    "note": "For map queries with multiple inputs, pagination groups complete mappings (all targets for an input stay together)"
 }
 
 
@@ -513,7 +584,8 @@ def get_schema(topic: str = "all") -> dict:
 
     Args:
         topic: One of "edges", "filters", "hierarchies", "patterns",
-               "examples", "filter_syntax", "disease_ontology", or "all"
+               "examples", "filter_syntax", "disease_ontology",
+               "response_format", or "all"
 
     Returns:
         Schema dictionary for the requested topic
@@ -532,6 +604,8 @@ def get_schema(topic: str = "all") -> dict:
         return {"filter_syntax": SCHEMA_FILTER_SYNTAX, "note": "CRITICAL: Float comparisons need .0 suffix (e.g., >90.0 not >90). No scientific notation."}
     elif topic == "disease_ontology":
         return {"disease_ontology_mapping": SCHEMA_DISEASE_ONTOLOGY, "note": "CRITICAL: Different databases use different ontologies. Use bridges and parent terms when direct mapping fails."}
+    elif topic == "response_format":
+        return {"response_format": SCHEMA_RESPONSE_FORMAT, "pagination": SCHEMA_PAGINATION, "note": "Lite mode returns compact pipe-delimited data. Parse by splitting on '|' using schema as headers."}
     else:  # "all"
         return {
             "query_syntax": "<terms> >> <dataset>[<filter>] >> <dataset>[<filter>] >> ...",
@@ -542,5 +616,5 @@ def get_schema(topic: str = "all") -> dict:
             "patterns": SCHEMA_PATTERNS,
             "text_search": SCHEMA_TEXT_SEARCH,
             "pagination": SCHEMA_PAGINATION,
-            "additional_topics": ["disease_ontology - use when cross-ontology mapping fails (MONDO/EFO/MeSH bridges)"]
+            "additional_topics": ["disease_ontology - cross-ontology mapping (MONDO/EFO/MeSH bridges)", "response_format - lite mode response structure and parsing"]
         }

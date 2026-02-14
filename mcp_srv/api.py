@@ -101,7 +101,7 @@ async def api_meta():
 
 @router.get("/help")
 async def api_help(
-    topic: str = Query("all", description="Topic: edges, filters, hierarchies, patterns, examples, filter_syntax, disease_ontology, or all")
+    topic: str = Query("all", description="Topic: edges, filters, hierarchies, patterns, examples, filter_syntax, disease_ontology, response_format, or all")
 ):
     """
     Get biobtree schema reference.

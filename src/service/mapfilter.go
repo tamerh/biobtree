@@ -17,149 +17,86 @@ import (
 // Returns only IDs, sorted by has_attr (entries with attributes first)
 // Includes failed terms with source=nil and error field
 // MapFilterLite performs mapping and returns compact lite format response
-func (s *Service) MapFilterLite(ids []string, mapFilterQuery, page string) (*pbuf.MapFilterResultLite, error) {
+// MapFilterLite performs mapping and returns lite format response
+// Returns pipe-delimited data rows optimized for LLM consumption
+func (s *Service) MapFilterLite(ids []string, mapFilterQuery, page string) (*MapLiteResponse, error) {
 
-	// Determine if this is a pagination request (page > 1)
-	isFirstPage := page == ""
-	currentPage := int32(1)
-	if !isFirstPage {
-		// Parse page number from the page token (format: "pageNum,..." or just use page count)
-		// The page token format is complex, so we just increment from 1 for subsequent pages
-		// A simple heuristic: if page param exists, it's page 2+
-		currentPage = 2 // For now, mark as page 2 for any pagination request
-	}
-
-	result := &pbuf.MapFilterResultLite{
-		Mode: "lite",
-		Query: &pbuf.MapFilterQueryInfo{
-			Terms: ids,
-			Chain: mapFilterQuery,
-			Raw:   strings.Join(ids, ",") + " " + mapFilterQuery,
-		},
-	}
-
-	// Call mapFilterWithLimit with higher limit for lite mode (5x more results per page)
+	// Call mapFilterWithLimit with higher limit for lite mode
 	fullResult, err := s.MapFilterWithLimit(ids, mapFilterQuery, page, s.maxMappingResultLite)
 	if err != nil {
-		// Return error for entire request
 		return nil, err
 	}
 
-	// Track statistics
-	var mapped, failed int32
-	var totalTargets int32
-	var warnings []string
-
-	// Build a map of input terms to track which ones were found
-	// Only track for first page - subsequent pages don't report "not found" errors
-	inputTermsMap := make(map[string]bool)
-	if isFirstPage {
-		for _, term := range ids {
-			inputTermsMap[strings.ToUpper(term)] = false // not found yet
-		}
+	response := &MapLiteResponse{
+		Context: MapLiteContext{
+			Query: mapFilterQuery,
+		},
+		Stats: LiteStats{
+			Total:  0,
+			Mapped: 0,
+		},
+		Pagination: LitePagination{
+			HasNext:   fullResult.Nextpage != "",
+			NextToken: fullResult.Nextpage,
+		},
 	}
 
-	// Process results from full mapFilter
+	// Track the target dataset for schema
+	var targetDataset string
+	var targetLiteFields []string
+
+	// Process results - group by source
 	for _, mapRes := range fullResult.Results {
 		if mapRes.Source == nil {
 			continue
 		}
 
-		// Mark this input term as found (use Keyword which contains original search term)
-		// Only track on first page
-		if isFirstPage {
-			keyword := strings.ToUpper(mapRes.Source.Keyword)
-			if keyword != "" {
-				inputTermsMap[keyword] = true
-			}
+		// Set context datasets from first result
+		if response.Context.SourceDataset == "" {
+			srcDataset := config.DataconfIDIntToString[mapRes.Source.Dataset]
+			response.Context.SourceDataset = srcDataset
 		}
 
-		mapLite := &pbuf.MapFilterLite{
-			Input: mapRes.Source.Identifier,
-			Source: &pbuf.LiteEntry{
-				D:       config.DataconfIDIntToString[mapRes.Source.Dataset],
-				Id:      mapRes.Source.Identifier,
-				HasAttr: !mapRes.Source.GetEmpty(),
-			},
+		// Get original input term (Keyword) or fall back to Identifier
+		inputTerm := mapRes.Source.Keyword
+		if inputTerm == "" {
+			inputTerm = mapRes.Source.Identifier
 		}
 
-		// Convert targets to lite format
-		var liteTargets []*pbuf.LiteEntry
+		// Build source string: "id|name"
+		sourceName := ExtractSourceName(mapRes.Source)
+		sourceStr := mapRes.Source.Identifier + "|" + sourceName
+
+		// Create mapping for this source
+		mapping := LiteMapping{
+			Input:   inputTerm,
+			Source:  sourceStr,
+			Targets: []string{},
+		}
+
+		// Extract lite rows for targets
 		for _, target := range mapRes.Targets {
-			liteTarget := &pbuf.LiteEntry{
-				D:       config.DataconfIDIntToString[target.Dataset],
-				Id:      target.Identifier,
-				HasAttr: !target.GetEmpty(),
+			// Set schema and target dataset from first target
+			if targetDataset == "" {
+				targetDataset = config.DataconfIDIntToString[target.Dataset]
+				targetLiteFields = config.GetCompactFields(targetDataset)
+				response.Schema = GetCompactSchema(targetLiteFields)
+				response.Context.TargetDataset = targetDataset
 			}
-			liteTargets = append(liteTargets, liteTarget)
-			totalTargets++
+
+			row := GetCompactRow(target, targetLiteFields)
+			mapping.Targets = append(mapping.Targets, row)
+			response.Stats.Total++
 		}
 
-		// Sort targets: entries with attributes first
-		sort.Slice(liteTargets, func(i, j int) bool {
-			if liteTargets[i].HasAttr != liteTargets[j].HasAttr {
-				return liteTargets[i].HasAttr // true (has attr) comes first
-			}
-			return false // stable sort for same has_attr value
-		})
+		response.Mappings = append(response.Mappings, mapping)
 
-		mapLite.Targets = liteTargets
-
-		if len(liteTargets) > 0 {
-			mapped++
-		}
-
-		result.Mappings = append(result.Mappings, mapLite)
-	}
-
-	// Add entries for input terms that weren't found (only on first page)
-	if isFirstPage {
-		for term, found := range inputTermsMap {
-			if !found {
-				failed++
-				mapLite := &pbuf.MapFilterLite{
-					Input: term,
-					Error: "No mapping found",
-				}
-				result.Mappings = append(result.Mappings, mapLite)
-			}
-		}
-
-		// Handle empty results message
-		if len(fullResult.Results) == 0 && fullResult.Message != "" {
-			// All terms failed
-			failed = int32(len(ids))
-			for _, term := range ids {
-				mapLite := &pbuf.MapFilterLite{
-					Input: term,
-					Error: fullResult.Message,
-				}
-				result.Mappings = append(result.Mappings, mapLite)
-			}
+		if len(mapRes.Targets) > 0 {
+			response.Stats.Mapped++
 		}
 	}
 
-	// Set statistics
-	result.Stats = &pbuf.MapFilterStats{
-		TotalTerms:   int32(len(ids)),
-		Mapped:       mapped,
-		Failed:       failed,
-		TotalTargets: totalTargets,
-	}
-
-	// Set pagination from full result
-	hasNext := fullResult.Nextpage != ""
-	result.Pagination = &pbuf.PaginationInfo{
-		Page:      currentPage,
-		HasNext:   hasNext,
-		NextToken: fullResult.Nextpage,
-	}
-
-	if len(warnings) > 0 {
-		result.Warnings = warnings
-	}
-
-	return result, nil
+	return response, nil
 }
 
 type mpPage struct {

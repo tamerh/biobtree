@@ -45,6 +45,9 @@ type Conf struct {
 	TestMode      bool   // Whether in test mode
 	TestOutputDir string // e.g., "test_out"
 	TestRefDir    string // e.g., "test_out/reference"
+
+	// Compact mode fields - for LLM-friendly output
+	CompactFields map[string][]string // dataset -> list of compact field names
 }
 
 func (c *Conf) Install(rootDir, bbBinaryVersion, outDir, preBuildSet string, optionalDatasetActive bool) {
@@ -181,6 +184,7 @@ func (c *Conf) Init(rootDir, bbBinaryVersion, outDir string, optionalDatasetActi
 	pager.Init()
 
 	c.FilterableDatasets = map[string]bool{}
+	c.CompactFields = map[string][]string{}
 
 	// Initialize federation maps
 	c.DatasetFederation = map[uint32]string{}
@@ -205,6 +209,15 @@ func (c *Conf) Init(rootDir, bbBinaryVersion, outDir string, optionalDatasetActi
 
 			c.FilterableDatasets[key] = true
 
+		}
+
+		// Parse compact_fields for compact mode output
+		if compactFieldsStr, ok := value["compact_fields"]; ok && compactFieldsStr != "" {
+			fields := strings.Split(compactFieldsStr, ",")
+			for i := range fields {
+				fields[i] = strings.TrimSpace(fields[i])
+			}
+			c.CompactFields[key] = fields
 		}
 
 		c.DataconfIDToPageKey[0] = pager.Key(0, 2) // for link dataset
@@ -681,4 +694,21 @@ func (c *Conf) GetFederationsWithData(outDir string) []string {
 		}
 	}
 	return result
+}
+
+// Compact mode helper methods
+
+// GetCompactFields returns the compact fields for a dataset
+// Returns nil if no compact fields are configured
+func (c *Conf) GetCompactFields(dataset string) []string {
+	if fields, ok := c.CompactFields[dataset]; ok {
+		return fields
+	}
+	return nil
+}
+
+// HasCompactFields checks if a dataset has compact fields configured
+func (c *Conf) HasCompactFields(dataset string) bool {
+	_, ok := c.CompactFields[dataset]
+	return ok
 }

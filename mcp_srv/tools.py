@@ -213,15 +213,16 @@ Call this tool when you need to:
 Returns a compact JSON schema with all dataset relationships and queryable attributes.
 
 PARAMETERS:
-- topic: Optional filter - "edges", "filters", "hierarchies", "patterns", "examples", "filter_syntax", "disease_ontology", or "all" (default)
+- topic: Optional filter - "edges", "filters", "hierarchies", "patterns", "examples", "filter_syntax", "disease_ontology", "response_format", or "all" (default)
   - "filter_syntax": CRITICAL - explains .0 suffix for floats, no scientific notation, case-sensitive strings
-  - "disease_ontology": CRITICAL - explains which ontology each database uses and how to use bridges/parent terms when direct mapping fails""",
+  - "disease_ontology": CRITICAL - explains which ontology each database uses and how to use bridges/parent terms when direct mapping fails
+  - "response_format": explains lite mode response structure (pipe-delimited data, schemas, pagination)""",
         inputSchema={
             "type": "object",
             "properties": {
                 "topic": {
                     "type": "string",
-                    "enum": ["edges", "filters", "hierarchies", "patterns", "examples", "filter_syntax", "disease_ontology", "all"],
+                    "enum": ["edges", "filters", "hierarchies", "patterns", "examples", "filter_syntax", "disease_ontology", "response_format", "all"],
                     "default": "all",
                     "description": "Which section of the schema to return"
                 }

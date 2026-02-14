@@ -10,6 +10,7 @@
     "useLocalFile": "no",
     "hasFilter": "yes",
     "attrs": "[]accessions,[]genes,[]names,[]alternative_names,[]submitted_names,sequence.seq,sequence.mass,reviewed",
+    "compact_fields": "reviewed",
     "test_entries_count": "100000",
     "bucketMethod": "uniprot"
   },
@@ -33,6 +34,7 @@
     "useLocalFile": "no",
     "hasFilter": "yes",
     "attrs": "name,description,start,end,biotype,genome,strand,seq_region,branch",
+    "compact_fields": "name,biotype,genome",
     "test_entries_count": "20",
     "bucketMethod": "ensembl_hybrid",
     "numBuckets": "100"
@@ -49,6 +51,7 @@
     "url": "https://www.ncbi.nlm.nih.gov/snp/?term=£{id}",
     "hasFilter": "yes",
     "attrs": "rs_id,build_id,chromosome,position,ref_allele,alt_allele,allele_frequency,gnomad_frequency,[]gene_names,[]gene_ids,[]pseudogene_names,[]pseudogene_ids,gene_locus,clinical_significance,variant_type,variant_class,sao,is_common,nsf,nsm,nsn,syn,u3,u5,ass,dss,intron,r3,r5,ssr,has_publication,has_pubmed_ref,has_genotypes,[]merged_rs_ids,[]pubmed_ids",
+    "compact_fields": "chromosome,position,ref_allele,alt_allele",
     "test_entries_count": "50000",
     "bucketMethod": "rsid",
     "federation": "dbsnp"
@@ -68,6 +71,7 @@
     "useLocalFile": "no",
     "hasFilter": "yes",
     "attrs": "name,symbol,type,[]synonyms,chromosome,summary,start_position,end_position,orientation,genomic_accession",
+    "compact_fields": "name,symbol,type",
     "test_entries_count": "1000",
     "bucketMethod": "numeric"
   },
@@ -149,6 +153,7 @@
     "aliases": "NCBITaxonomy,NCBItaxonomy,NCBI_taxonomy_id,common taxon ID,NCBI taxonomy,NCBI Taxonomy",
     "hasFilter": "yes",
     "attrs": "name,common_name,rank,taxonomic_division",
+    "compact_fields": "name,common_name,rank",
     "test_entries_count": "100",
     "bucketMethod": "numeric"
   },
@@ -161,6 +166,7 @@
     "useLocalFile": "no",
     "hasFilter": "yes",
     "attrs": "[]names,[]symbols,locus_group,[]aliases,locus_type,[]prev_names,[]prev_symbols,status,[]gene_groups",
+    "compact_fields": "locus_group,locus_type,status",
     "test_entries_count": "20000",
     "bucketMethod": "ontology"
   },
@@ -209,6 +215,7 @@
     "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=£{id}",
     "hasFilter": "yes",
     "attrs": "name,definition,[]synonyms,[]iupac_names,formula,average_mass,monoisotopic_mass,smiles,inchi,inchi_key,star_rating,status_id",
+    "compact_fields": "name,formula",
     "test_entries_count": "100",
     "bucketMethod": "ontology"
   },
@@ -221,6 +228,7 @@
     "useLocalFile": "no",
     "hasFilter": "yes",
     "attrs": "[]names,short_name,type,protein_count",
+    "compact_fields": "short_name,type",
     "test_entries_count": "20",
     "bucketMethod": "interpro"
   },
@@ -304,6 +312,7 @@
     "useLocalFile": "no",
     "hasFilter": "yes",
     "attrs": "chembl.molecule.desc,chembl.molecule.highestDevelopmentPhase,chembl.molecule.[]altNames,chembl.molecule.[]atcClassification,chembl.molecule.isBiotherapeutic,chembl.molecule.helmNotation,chembl.molecule.hracClassification,chembl.molecule.fracClassification,chembl.molecule.iracClassification,chembl.molecule.type,chembl.molecule.bioComponentType,chembl.molecule.bioComponentDescription,chembl.molecule.bioComponentSquence,chembl.molecule.bioComponentTaxo,chembl.molecule.parent,chembl.molecule.[]childs,chembl.molecule.mechanism.desc,chembl.molecule.mechanism.action,chembl.molecule.inchi,chembl.molecule.name,chembl.molecule.inchiKey,chembl.molecule.smiles,chembl.molecule.alogp,chembl.molecule.weightFreebase,chembl.molecule.hba,chembl.molecule.hbd,chembl.molecule.psa,chembl.molecule.rtb,chembl.molecule.ro3Pass,chembl.molecule.numRo5Violations,chembl.molecule.acdMostApka,chembl.molecule.acdMostBpka,chembl.molecule.acdLogp,chembl.molecule.acdLogd,chembl.molecule.molecularSpecies,chembl.molecule.weight,chembl.molecule.aromaticRings,chembl.molecule.heavyAtoms,chembl.molecule.formula,chembl.molecule.weightMonoisotopic,chembl.molecule.qedWeighted,chembl.molecule.[]indications.efoName,chembl.molecule.[]indications.meshHeading,chembl.molecule.[]indications.highestDevelopmentPhase,chembl.molecule.[]indications.efo,chembl.molecule.[]indications.mesh,chembl.molecule.[]indications.mechanism.desc,chembl.molecule.[]indications.mechanism.action",
+    "compact_fields": "name,type,highestDevelopmentPhase",
     "test_entries_count": "20",
     "bucketMethod": "chembl"
   },
@@ -393,6 +402,7 @@
     "useLocalFile": "no",
     "hasFilter": "yes",
     "attrs": "name,tax_id,alt_names,is_disease_pathway",
+    "compact_fields": "name",
     "test_entries_count": "50",
     "bucketMethod": "reactome"
   },
@@ -433,6 +443,7 @@
     "useLocalFile": "no",
     "hasFilter": "yes",
     "attrs": "variation_id,allele_id,name,type,chromosome,start,stop,reference_allele,alternate_allele,assembly,germline_classification,review_status,last_evaluated,number_submitters,gene_id,gene_symbol,hgnc_id,[]phenotype_list,[]phenotype_ids,[]hgvs_expressions,[]submissions,[]functional_consequences,evidence_support",
+    "compact_fields": "name,type,germline_classification",
     "test_entries_count": "10000",
     "bucketMethod": "numeric"
   },
@@ -1076,6 +1087,7 @@
     "useLocalFile": "no",
     "hasFilter": "yes",
     "attrs": "title,header,resolution,method,molecule_type,release_date,source_organism,[]authors,chain_count",
+    "compact_fields": "title,method,resolution",
     "test_entries_count": "500",
     "bucketMethod": "alphanum"
   },

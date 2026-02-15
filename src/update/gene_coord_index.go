@@ -108,6 +108,72 @@ func (idx *GeneCoordinateIndex) GeneCount() int {
 	return idx.geneCount
 }
 
+// FindNearbyGenes returns all genes within the specified distance from a genomic region.
+// This is useful for mapping enhancers to potential target genes.
+// The distance is measured from the region boundaries to the gene boundaries.
+// For example, with a 500kb threshold, genes where any part of the gene
+// is within 500kb of the region will be returned.
+func (idx *GeneCoordinateIndex) FindNearbyGenes(chr string, regionStart, regionEnd int64, distanceThreshold int64) []GeneInterval {
+	chr = normalizeChromosome(chr)
+
+	genes, ok := idx.chromosomes[chr]
+	if !ok || len(genes) == 0 {
+		return nil
+	}
+
+	var nearby []GeneInterval
+
+	// Calculate the search window
+	searchStart := regionStart - distanceThreshold
+	if searchStart < 0 {
+		searchStart = 0
+	}
+	searchEnd := regionEnd + distanceThreshold
+
+	// Binary search to find the first gene that could be in range
+	// A gene is in range if: gene.End >= searchStart AND gene.Start <= searchEnd
+	startIdx := sort.Search(len(genes), func(i int) bool {
+		return genes[i].Start > searchStart-500000 // Account for gene length
+	})
+
+	// Step back a bit to ensure we don't miss any long genes
+	if startIdx > 0 {
+		startIdx--
+	}
+
+	// Scan forward from startIdx to find all genes in range
+	for i := startIdx; i < len(genes); i++ {
+		gene := genes[i]
+
+		// If gene starts after our search window, we're done
+		if gene.Start > searchEnd {
+			break
+		}
+
+		// Check if gene overlaps with or is within distance of the region
+		// Gene is nearby if:
+		// 1. Gene overlaps with region: gene.Start <= regionEnd && gene.End >= regionStart
+		// 2. Gene is upstream within threshold: gene.End < regionStart && regionStart - gene.End <= distanceThreshold
+		// 3. Gene is downstream within threshold: gene.Start > regionEnd && gene.Start - regionEnd <= distanceThreshold
+
+		var distance int64 = 0
+		if gene.End < regionStart {
+			// Gene is upstream
+			distance = regionStart - gene.End
+		} else if gene.Start > regionEnd {
+			// Gene is downstream
+			distance = gene.Start - regionEnd
+		}
+		// Otherwise gene overlaps with region, distance = 0
+
+		if distance <= distanceThreshold {
+			nearby = append(nearby, gene)
+		}
+	}
+
+	return nearby
+}
+
 // normalizeChromosome removes 'chr' prefix and normalizes chromosome names
 func normalizeChromosome(chr string) string {
 	if strings.HasPrefix(chr, "chr") {

@@ -18,8 +18,9 @@ import (
 
 // fantom5 handles FANTOM5 promoter, enhancer, and gene-level expression data
 type fantom5 struct {
-	source string
-	d      *DataUpdate
+	source  string
+	d       *DataUpdate
+	geneIdx *GeneCoordinateIndex // Gene coordinate index for proximity-based enhancer-gene mapping
 }
 
 // Fantom5Sample represents sample metadata from SDRF
@@ -95,6 +96,30 @@ type Fantom5TopExpr struct {
 // check provides context-aware error checking
 func (f *fantom5) check(err error, operation string) {
 	checkWithContext(err, f.source, operation)
+}
+
+// loadGeneCoordinateIndex loads gene coordinates for proximity-based enhancer-gene mapping
+func (f *fantom5) loadGeneCoordinateIndex() {
+	// Try to get GFF3 path from fantom5_enhancer config, then fall back to fantom5_promoter
+	gff3Path := config.Dataconf["fantom5_enhancer"]["geneGFF3"]
+	if gff3Path == "" {
+		gff3Path = config.Dataconf["fantom5_promoter"]["geneGFF3"]
+	}
+	if gff3Path == "" {
+		log.Println("[fantom5] No geneGFF3 configured - enhancer-to-gene xrefs will not be created")
+		return
+	}
+
+	idx, err := LoadHumanGeneCoordinatesFromGFF3(gff3Path)
+	if err != nil {
+		log.Printf("[fantom5] Warning - could not load gene coordinates from GFF3: %v", err)
+		return
+	}
+
+	if idx != nil && idx.GeneCount() > 0 {
+		f.geneIdx = idx
+		log.Printf("[fantom5] Loaded %d genes from GFF3 for enhancer proximity mapping", idx.GeneCount())
+	}
 }
 
 func (f *fantom5) update() {
@@ -990,9 +1015,15 @@ func (f *fantom5) createPromoterReferences(idStr string, promoter *Fantom5Promot
 func (f *fantom5) processEnhancers(testLimit int, idLogFile *os.File) {
 	log.Printf("[%s] Loading FANTOM5 enhancer data...", f.source)
 
+	// Load gene coordinate index for proximity-based enhancer-gene mapping
+	f.loadGeneCoordinateIndex()
+
 	// Load enhancer coordinates
 	enhancers := f.loadEnhancerCoordinates(testLimit, idLogFile)
 	log.Printf("[%s] Loaded %d enhancer coordinates", f.source, len(enhancers))
+
+	// Map enhancers to nearby genes (within 500kb)
+	f.mapEnhancersToGenes(enhancers)
 
 	// Load and process expression data
 	sampleMeta := f.loadEnhancerSampleMeta()
@@ -1075,6 +1106,60 @@ func (f *fantom5) loadEnhancerCoordinates(testLimit int, idLogFile *os.File) map
 	}
 
 	return enhancers
+}
+
+// mapEnhancersToGenes maps enhancers to nearby genes using proximity-based lookup.
+// Distance threshold is configurable via "geneProximityKb" in dataset config (default: 500kb).
+// FANTOM5 used 500kb for enhancer-TSS correlation analysis, but a smaller threshold
+// like 50kb-100kb may be more appropriate for simple proximity-based mapping.
+func (f *fantom5) mapEnhancersToGenes(enhancers map[int]*Fantom5Enhancer) {
+	if f.geneIdx == nil {
+		log.Println("[fantom5_enhancer] Gene coordinate index not loaded - skipping enhancer-to-gene mapping")
+		return
+	}
+
+	// Get configurable distance threshold (default: 500kb)
+	distanceThreshold := int64(500000) // Default 500kb
+	if thresholdKb := config.Dataconf["fantom5_enhancer"]["geneProximityKb"]; thresholdKb != "" {
+		if kb, err := strconv.ParseInt(thresholdKb, 10, 64); err == nil && kb > 0 {
+			distanceThreshold = kb * 1000 // Convert kb to bp
+			log.Printf("[fantom5_enhancer] Using configured gene proximity threshold: %dkb", kb)
+		}
+	}
+
+	log.Printf("[fantom5_enhancer] Mapping %d enhancers to nearby genes (threshold: %dkb)...", len(enhancers), distanceThreshold/1000)
+
+	totalMapped := 0
+	totalGeneLinks := 0
+
+	for _, enhancer := range enhancers {
+		// Find genes within 500kb of the enhancer
+		nearbyGenes := f.geneIdx.FindNearbyGenes(
+			enhancer.Chromosome,
+			int64(enhancer.Start),
+			int64(enhancer.End),
+			distanceThreshold,
+		)
+
+		if len(nearbyGenes) > 0 {
+			totalMapped++
+			seen := make(map[string]bool)
+			for _, gene := range nearbyGenes {
+				// Only use genes with symbols (skip unannotated ENSG-only entries)
+				// This filters out pseudogenes, predicted genes, etc.
+				if gene.Symbol == "" {
+					continue
+				}
+				if !seen[gene.Symbol] {
+					enhancer.AssociatedGenes = append(enhancer.AssociatedGenes, gene.Symbol)
+					seen[gene.Symbol] = true
+					totalGeneLinks++
+				}
+			}
+		}
+	}
+
+	log.Printf("[fantom5_enhancer] Mapped %d enhancers to %d gene associations", totalMapped, totalGeneLinks)
 }
 
 // loadEnhancerSampleMeta loads sample metadata for enhancers
@@ -1324,6 +1409,15 @@ func (f *fantom5) saveEnhancers(enhancers map[int]*Fantom5Enhancer) {
 
 		// Create references (use "fantom5_enhancer" not parent f.source)
 		f.d.addXref(enhancer.EnhancerID, textLinkID, idStr, "fantom5_enhancer", true)
+
+		// Cross-reference to associated genes via gene symbol lookup
+		// This creates xrefs to ensembl/hgnc/entrez for each nearby gene
+		for _, geneRef := range enhancer.AssociatedGenes {
+			// Add text search by gene symbol so users can search "TP53 >> fantom5_enhancer"
+			f.d.addXref(geneRef, textLinkID, idStr, "fantom5_enhancer", true)
+			// Create cross-references to gene databases (ensembl, hgnc, entrez)
+			f.d.addHumanGeneXrefsAll(geneRef, idStr, fr)
+		}
 
 		// Cross-reference to UBERON
 		addedUberon := make(map[string]bool)

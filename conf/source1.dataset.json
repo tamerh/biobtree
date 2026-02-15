@@ -1158,6 +1158,8 @@
     "pathCoordinates": "F5.hg38.enhancers.bed.gz",
     "pathExpression": "F5.hg38.enhancers.expression.tpm.matrix.gz",
     "pathSampleMeta": "https://fantom.gsc.riken.jp/5/datafiles/reprocessed/hg38_latest/basic/HumanSamples2.0.sdrf.xlsx",
+    "geneGFF3": "https://ftp.ensembl.org/pub/current_gff3/homo_sapiens/Homo_sapiens.GRCh38.115.chr.gff3.gz",
+    "geneProximityKb": "500",
     "useLocalFile": "no",
     "hasFilter": "yes",
     "attrs": "fantom5_enhancer_id,chromosome,start,end,tpm_average,tpm_max,samples_expressed,[]associated_genes,[]top_tissues",

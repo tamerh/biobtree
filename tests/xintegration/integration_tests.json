@@ -5626,9 +5626,9 @@
     },
     {
       "category": "human_gene_xrefs",
-      "name": "Gene Symbol to dbSNP via HGNC",
-      "query": ">>hgnc>>dbsnp",
-      "why": "Verify dbSNP variants can be reached via HGNC (addHumanGeneXrefs creates HGNC xref)",
+      "name": "Gene Symbol to dbSNP via HGNC and Entrez",
+      "query": ">>hgnc>>entrez>>dbsnp",
+      "why": "Verify dbSNP variants can be reached via HGNC->Entrez (no direct HGNC->dbSNP link)",
       "should_pass": [
         "CYP2C9",
         "BRCA1",
@@ -5685,9 +5685,9 @@
     },
     {
       "category": "human_gene_xrefs",
-      "name": "dbSNP to HGNC (reverse xref)",
-      "query": ">>dbsnp>>hgnc",
-      "why": "Verify dbSNP entries have HGNC cross-references (reverse of addHumanGeneXrefs)",
+      "name": "dbSNP to HGNC via Entrez (reverse xref)",
+      "query": ">>dbsnp>>entrez>>hgnc",
+      "why": "Verify dbSNP entries can reach HGNC via Entrez (no direct dbSNP->HGNC link)",
       "should_pass": [
         "rs1799853",
         "rs121913279"

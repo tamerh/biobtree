@@ -1,135 +1,132 @@
-# FANTOM5 Dataset Tests
+# FANTOM5 Dataset
 
-This directory contains tests for the FANTOM5 (Functional Annotation of the Mammalian Genome 5) integration.
+## Overview
 
-## Datasets
+FANTOM5 (Functional Annotation of the Mammalian Genome 5) is a comprehensive atlas of human promoters and enhancers based on CAGE (Cap Analysis of Gene Expression) technology. Contains ~185K promoters, ~65K enhancers, and ~20K gene-level expression profiles across 1,800+ human samples.
 
-| Dataset | ID | Description | Expected Entries |
-|---------|-----|-------------|------------------|
-| `fantom5_promoter` | 126 | CAGE peak/promoter expression (parent) | ~185,000 |
-| `fantom5_enhancer` | 127 | Active enhancer expression (child) | ~65,000 |
-| `fantom5_gene` | 128 | Gene-level expression aggregation (child) | ~20,000 |
+**Source**: RIKEN FANTOM Consortium
+**Data Type**: CAGE expression data (promoters, enhancers, gene-level TPM)
 
-## Parent/Child Dataset Pattern
+## Integration Architecture
 
-`fantom5_promoter` is the parent dataset. When you update it, all three datasets are processed automatically:
+### Storage Model
 
-```bash
-# This updates fantom5_promoter, fantom5_enhancer, AND fantom5_gene
-./biobtree -d "fantom5_promoter" update
+**Primary Entries**: Three datasets with numeric IDs (1, 2, 3...)
+- `fantom5_promoter` (ID: 126) - CAGE peaks/TSS regions
+- `fantom5_enhancer` (ID: 127) - Active enhancer regions
+- `fantom5_gene` (ID: 128) - Gene-level expression aggregation
+
+**Searchable Text Links**:
+- Promoter: peak ID (chr:start..end,+), peak name (p1@TP53), gene symbol
+- Enhancer: coordinate ID (chr:start-end), **associated gene symbols** (within 500kb)
+- Gene: gene symbol, gene ID
+
+**Attributes Stored** (protobuf):
+- Promoter: coordinates, strand, gene annotations, TPM stats, expression breadth, top tissues/cell types
+- Enhancer: coordinates, TPM stats, **associated_genes** (nearby genes within 500kb)
+- Gene: symbol, TPM stats, expression breadth, top tissues
+
+**Cross-References**:
+- All datasets: taxonomy (9606), uberon (tissue expression)
+- Promoter: ensembl, hgnc, entrez, uniprot, cl (cell types)
+- Enhancer: ensembl, hgnc, entrez (via proximity-based gene mapping)
+- Gene: ensembl, entrez
+
+### Special Features
+
+1. **Parent/Child Dataset Pattern**: `fantom5_promoter` triggers processing of all three datasets
+2. **Proximity-Based Enhancer-Gene Mapping**: Enhancers linked to genes within 500kb threshold
+3. **Expression Breadth Classification**: ubiquitous, broad, tissue_specific, not_expressed
+4. **Bidirectional Gene Lookup**: Search enhancers by gene symbol (TP53 >> fantom5_enhancer)
+
+## Use Cases
+
+**1. Gene Regulatory Landscape**
+```
+Query: "What are the promoters for TP53?" -> TP53 >> fantom5_promoter
+Use: Identify TSS regions and alternative promoters for a gene
 ```
 
-The child datasets (`fantom5_enhancer`, `fantom5_gene`) do not need to be specified separately.
+**2. Enhancer-Gene Associations**
+```
+Query: "Which enhancers might regulate BRCA1?" -> BRCA1 >> hgnc >> fantom5_enhancer
+Use: Find regulatory elements near a gene of interest (within 500kb)
+```
+
+**3. Tissue-Specific Expression**
+```
+Query: "Where is this gene highly expressed?" -> entry(1, fantom5_gene) -> top_tissues
+Use: Identify tissue-specific expression patterns for biomarker discovery
+```
+
+**4. Expression Breadth Analysis**
+```
+Query: "Find tissue-specific promoters" -> filter by expression_breadth=="tissue_specific"
+Use: Identify cell-type-specific regulatory regions for targeted therapies
+```
+
+**5. Multi-Omics Integration**
+```
+Query: "TF targets with expression" -> TP53 >> collectri >> ensembl >> fantom5_gene
+Use: Combine TF regulation data with expression profiles
+```
+
+**6. Reverse Lookup**
+```
+Query: "Which genes are near this enhancer?" -> entry(1, fantom5_enhancer) -> associated_genes
+Use: Identify potential target genes for a regulatory element
+```
 
 ## Test Cases
 
-### Search Tests
+**Current Tests** (19 total):
+- 10 declarative tests (search, map, entry for all 3 datasets)
+- 9 custom tests (coordinates, gene associations, xrefs, expression data)
 
-```bash
-# Search for promoter by gene symbol
-curl "http://localhost:9292/ws/?i=TP53&d=fantom5_promoter"
+**Coverage**:
+- Search by gene symbol (promoter, enhancer, gene)
+- Mapping through HGNC/Ensembl to all datasets
+- Entry retrieval with attribute validation
+- Enhancer-gene associations and xrefs
+- Expression breadth classification
 
-# Search for promoter by peak name
-curl "http://localhost:9292/ws/?i=p1@TP53"
+**Recommended Additions**:
+- Filter tests (TPM thresholds, expression breadth)
+- UBERON/CL tissue mapping tests
+- Combined queries with CollecTRI
 
-# Search for enhancers
-curl "http://localhost:9292/ws/?i=BRCA1&d=fantom5_enhancer"
+## Performance
 
-# Search for gene expression
-curl "http://localhost:9292/ws/?i=EGFR&d=fantom5_gene"
-```
+- **Test Build**: ~30s (500 entries per dataset)
+- **Data Source**: FANTOM5 reprocessed hg38 data
+- **Update Frequency**: Static dataset (2014 release, hg38 lift-over 2019)
+- **Total Entries**: ~185K promoters, ~65K enhancers, ~20K genes
+- **Special notes**: Downloads ~200MB of expression matrices
 
-### Mapping Tests
+## Known Limitations
 
-```bash
-# Gene to promoters
-curl "http://localhost:9292/ws/map/?i=TP53&m=>>ensembl>>fantom5_promoter"
+1. **No correlation-based enhancer-gene links**: Original FANTOM5 correlation data unavailable (slidebase.binf.ku.dk down). Using proximity-only (500kb threshold).
+2. **Mouse data not included**: Only human (hg38) currently integrated.
+3. **No TF binding site predictions**: JASPAR motif scanning on enhancers not implemented.
+4. **Expression values are TPM**: Not raw counts or normalized values.
 
-# Gene to enhancers
-curl "http://localhost:9292/ws/map/?i=BRCA1&m=>>ensembl>>fantom5_enhancer"
+## Future Work
 
-# Gene to gene-level expression
-curl "http://localhost:9292/ws/map/?i=EGFR&m=>>ensembl>>fantom5_gene"
+1. **JASPAR Integration**: Scan enhancer sequences for TF binding motifs
+2. **Correlation Data**: If original FANTOM5 enhancer-TSS correlations become available
+3. **Mouse Support**: Add mm10 FANTOM5 data
+4. **ENCODE Integration**: Link enhancers to ENCODE cCRE regulatory elements
 
-# Tissue to promoters (via UBERON)
-curl "http://localhost:9292/ws/map/?i=brain&m=>>uberon>>fantom5_promoter"
+## Maintenance
 
-# Cell type to promoters (via CL)
-curl "http://localhost:9292/ws/map/?i=neuron&m=>>cl>>fantom5_promoter"
-```
-
-### Filter Tests
-
-```bash
-# High expression promoters
-curl "http://localhost:9292/ws/map/?i=TP53&m=>>ensembl>>fantom5_promoter[fantom5_promoter.tpm_average>10.0]"
-
-# Tissue-specific promoters
-curl "http://localhost:9292/ws/map/?i=brain&m=>>uberon>>fantom5_promoter[fantom5_promoter.expression_breadth==\"tissue_specific\"]"
-
-# Highly expressed genes
-curl "http://localhost:9292/ws/map/?i=*&m=>>fantom5_gene[fantom5_gene.tpm_max>1000.0]"
-```
-
-### Combined Queries with CollecTRI
-
-```bash
-# Find transcription factors regulating genes in brain promoters
-curl "http://localhost:9292/ws/map/?i=brain&m=>>uberon>>fantom5_promoter>>ensembl>>collectri"
-
-# Find target genes of a TF with their expression patterns
-curl "http://localhost:9292/ws/map/?i=TP53&m=>>collectri>>ensembl>>fantom5_gene"
-```
-
-## Attributes
-
-### fantom5_promoter
-- `fantom5_peak_id` - Original FANTOM5 peak ID (chr:start..end,strand)
-- `fantom5_peak_name` - Peak name (e.g., p1@TP53)
-- `chromosome`, `start`, `end`, `strand` - Genomic coordinates
-- `gene_symbol`, `gene_id`, `entrez_id`, `uniprot_id`, `hgnc_id` - Gene annotations
-- `tpm_average`, `tpm_max` - Expression levels
-- `samples_expressed` - Number of samples with expression
-- `expression_breadth` - "ubiquitous", "broad", or "tissue_specific"
-- `top_tissues` - Array of top expressing tissues with TPM and ontology IDs
-- `top_cell_types` - Array of top expressing cell types with TPM and ontology IDs
-
-### fantom5_enhancer
-- `fantom5_enhancer_id` - Enhancer ID (chr:start-end)
-- `chromosome`, `start`, `end` - Genomic coordinates
-- `tpm_average`, `tpm_max` - Expression levels
-- `samples_expressed` - Number of samples with expression
-- `associated_genes` - Predicted target genes
-- `top_tissues` - Array of top expressing tissues
-
-### fantom5_gene
-- `gene_id`, `gene_symbol`, `entrez_id` - Gene identifiers
-- `tpm_average`, `tpm_max` - Expression levels
-- `samples_expressed` - Number of samples with expression
-- `expression_breadth` - "ubiquitous", "broad", or "tissue_specific"
-- `top_tissues` - Array of top expressing tissues
-
-## Cross-References
-
-| From | To | Purpose |
-|------|-----|---------|
-| fantom5_promoter | ensembl | Gene association |
-| fantom5_promoter | entrez | Entrez Gene ID |
-| fantom5_promoter | uniprot | Protein mapping |
-| fantom5_promoter | hgnc | HGNC gene symbol |
-| fantom5_promoter | uberon | Tissue expression |
-| fantom5_promoter | cl | Cell type expression |
-| fantom5_promoter | taxonomy | Species (9606) |
-| fantom5_enhancer | ensembl | Target genes |
-| fantom5_enhancer | uberon | Tissue expression |
-| fantom5_enhancer | taxonomy | Species (9606) |
-| fantom5_gene | ensembl | Gene mapping |
-| fantom5_gene | entrez | Entrez Gene ID |
-| fantom5_gene | uberon | Tissue expression |
-| fantom5_gene | taxonomy | Species (9606) |
-
-## Data Source
-
-- **URL**: https://fantom.gsc.riken.jp/5/datafiles/reprocessed/hg38_latest/extra/
+- **Release Schedule**: Static (original FANTOM5 2014, hg38 reprocessed 2019)
+- **Data Format**: Gzipped TSV/BED files
+- **Test Data**: 500 entries per dataset
 - **License**: CC BY 4.0
-- **Reference**: FANTOM Consortium, Nature 507:462-470 (2014)
+- **Gene Coordinates**: Uses Ensembl GFF3 for proximity mapping
+
+## References
+
+- **Citation**: FANTOM Consortium, Nature 507:462-470 (2014)
+- **Website**: https://fantom.gsc.riken.jp/5/
+- **License**: CC BY 4.0

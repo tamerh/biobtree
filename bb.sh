@@ -315,6 +315,34 @@ get_dataset_options() {
     echo "$opts"
 }
 
+# Archive log file to subfolder with timestamp
+# Usage: rotate_log <log_file>
+# Moves: logs/uniprot.log -> logs/archive/uniprot_2026-02-14_093045.log
+rotate_log() {
+    local log_file=$1
+
+    if [[ ! -f "$log_file" ]]; then
+        return 0
+    fi
+
+    local log_dir=$(dirname "$log_file")
+    local log_name=$(basename "$log_file" .log)
+    local archive_dir="${log_dir}/archive"
+    local timestamp=$(date +%Y-%m-%d_%H%M%S)
+    local archive_file="${archive_dir}/${log_name}_${timestamp}.log"
+
+    # Create archive directory if needed
+    mkdir -p "$archive_dir"
+
+    # Move current log to archive with timestamp
+    mv "$log_file" "$archive_file"
+}
+
+# Backward compatibility alias
+backup_log() {
+    rotate_log "$1"
+}
+
 run_dataset() {
     local dataset=$1
     local log_file="${LOG_DIR}/${dataset}.log"
@@ -894,34 +922,6 @@ if [[ -n "$ONLY_DATASET" ]]; then
     fi
     exit 0
 fi
-
-# Archive log file to subfolder with timestamp
-# Usage: rotate_log <log_file>
-# Moves: logs/uniprot.log -> logs/archive/uniprot_2026-02-14_093045.log
-rotate_log() {
-    local log_file=$1
-
-    if [[ ! -f "$log_file" ]]; then
-        return 0
-    fi
-
-    local log_dir=$(dirname "$log_file")
-    local log_name=$(basename "$log_file" .log)
-    local archive_dir="${log_dir}/archive"
-    local timestamp=$(date +%Y-%m-%d_%H%M%S)
-    local archive_file="${archive_dir}/${log_name}_${timestamp}.log"
-
-    # Create archive directory if needed
-    mkdir -p "$archive_dir"
-
-    # Move current log to archive with timestamp
-    mv "$log_file" "$archive_file"
-}
-
-# Backward compatibility alias
-backup_log() {
-    rotate_log "$1"
-}
 
 # Generate only mode
 if [[ "$GENERATE_ONLY" == "true" ]]; then

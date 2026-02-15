@@ -313,6 +313,7 @@ Available datasets:
         'cellphonedb': datasets_dir / "cellphonedb" / "test_cellphonedb.py",
         'pdb': datasets_dir / "pdb" / "test_pdb.py",
         'encode_ccre': datasets_dir / "encode_ccre" / "test_encode_ccre.py",
+        'fantom5': datasets_dir / "fantom5" / "test_fantom5.py",
     }
 
     # Parse dataset selection
@@ -386,6 +387,15 @@ Available datasets:
         # RefSeq test data is for human only (uses /genomes/refseq/ with assembly_summary.txt)
         if not genome_taxids:
             genome_taxids = "9606"
+
+    # FANTOM5: fantom5_promoter is the parent that builds all three datasets
+    # (fantom5_promoter, fantom5_enhancer, fantom5_gene)
+    if 'fantom5' in selected_datasets:
+        # Replace 'fantom5' with 'fantom5_promoter' in build list
+        if 'fantom5' in build_datasets:
+            build_datasets.remove('fantom5')
+        if 'fantom5_promoter' not in build_datasets:
+            build_datasets.append('fantom5_promoter')
 
     # Build test database with selected datasets (including dependencies)
     datasets_str = ','.join(build_datasets)

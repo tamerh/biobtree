@@ -2500,7 +2500,7 @@ func (d *DataUpdate) lookupHumanEntrezGene(geneSymbol string, entrezDatasetID, t
 		}
 	}
 
-	log.Printf("[DEBUG lookupHumanEntrezGene] No mapping found for gene symbol: %s", geneSymbol)
+	//log.Printf("[DEBUG lookupHumanEntrezGene] No mapping found for gene symbol: %s", geneSymbol)
 	return nil, nil // No human Entrez entry found
 }
 
@@ -2557,7 +2557,7 @@ func (d *DataUpdate) lookupHumanEnsemblGene(geneSymbol string, ensemblDatasetID 
 		}
 	}
 
-	log.Printf("[DEBUG lookupHumanEnsemblGene] No mapping found for gene symbol: %s", geneSymbol)
+	//log.Printf("[DEBUG lookupHumanEnsemblGene] No mapping found for gene symbol: %s", geneSymbol)
 	return nil, nil // No human Ensembl entry found
 }
 

@@ -1228,7 +1228,38 @@ func (s *Service) Lookup(identifier string) (*pbuf.Result, error) {
 
 	if len(v) > 0 {
 		err = proto.Unmarshal(v, &r)
-		return &r, err
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// For rsID queries routed to dbsnp federation, also check main federation
+	// for text search links (e.g., pharmgkb_variant indexed by rsID)
+	if isRsID(identifier) {
+		mainFed, mainExists := s.federations["main"]
+		dbsnpFed, dbsnpExists := s.federations["dbsnp"]
+		// Only do this if we routed to dbsnp and main is different
+		if mainExists && dbsnpExists && env == dbsnpFed.env {
+			var mainV []byte
+			mainErr := mainFed.env.View(func(txn db.Txn) (err error) {
+				mainV, err = txn.Get(mainFed.dbi, []byte(identifier))
+				if db.IsNotFound(err) {
+					return nil
+				}
+				return err
+			})
+			if mainErr == nil && len(mainV) > 0 {
+				mainResult := pbuf.Result{}
+				if err := proto.Unmarshal(mainV, &mainResult); err == nil {
+					// Merge text search links from main federation
+					for _, xref := range mainResult.Results {
+						if xref.IsLink {
+							r.Results = append(r.Results, xref)
+						}
+					}
+				}
+			}
+		}
 	}
 
 	return &r, nil

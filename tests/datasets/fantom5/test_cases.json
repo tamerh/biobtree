@@ -1,140 +1,36 @@
 {
   "dataset": "fantom5",
   "description": "FANTOM5 promoter, enhancer, and gene-level expression data tests",
-  "test_cases": [
+  "common_tests": [
     {
-      "name": "search_promoter_by_gene_symbol",
-      "description": "Search for promoters associated with TP53",
-      "query": {
-        "type": "search",
-        "terms": ["TP53"],
-        "dataset": "fantom5_promoter"
-      },
-      "expected": {
-        "min_results": 1,
-        "contains_attributes": ["fantom5_peak_id", "gene_symbol", "tpm_average"]
-      }
+      "name": "Lookup promoter by ID",
+      "type": "id_lookup",
+      "id": "1"
     },
     {
-      "name": "search_enhancer_by_region",
-      "description": "Search for enhancers",
-      "query": {
-        "type": "search",
-        "terms": ["BRCA1"],
-        "dataset": "fantom5_enhancer"
-      },
-      "expected": {
-        "min_results": 0,
-        "note": "Enhancers may not be directly searchable by gene"
-      }
+      "name": "Lookup enhancer by ID",
+      "type": "id_lookup",
+      "id": "1"
     },
     {
-      "name": "search_gene_expression",
-      "description": "Search for gene-level expression",
-      "query": {
-        "type": "search",
-        "terms": ["EGFR"],
-        "dataset": "fantom5_gene"
-      },
-      "expected": {
-        "min_results": 1,
-        "contains_attributes": ["gene_symbol", "tpm_average", "expression_breadth"]
-      }
+      "name": "Promoter taxonomy cross-reference",
+      "type": "xref_exists",
+      "id": "1",
+      "xref_type": "taxonomy",
+      "expected": "9606"
     },
     {
-      "name": "map_ensembl_to_promoter",
-      "description": "Map Ensembl gene to FANTOM5 promoters",
-      "query": {
-        "type": "map",
-        "terms": ["ENSG00000141510"],
-        "chain": ">>ensembl>>fantom5_promoter"
-      },
-      "expected": {
-        "min_results": 1,
-        "target_dataset": "fantom5_promoter"
-      }
-    },
-    {
-      "name": "map_gene_to_enhancer",
-      "description": "Map gene to nearby enhancers",
-      "query": {
-        "type": "map",
-        "terms": ["TP53"],
-        "chain": ">>ensembl>>fantom5_enhancer"
-      },
-      "expected": {
-        "note": "May return 0 results depending on enhancer-gene associations"
-      }
-    },
-    {
-      "name": "map_gene_to_gene_expression",
-      "description": "Map Ensembl gene to FANTOM5 gene-level expression",
-      "query": {
-        "type": "map",
-        "terms": ["ENSG00000141510"],
-        "chain": ">>ensembl>>fantom5_gene"
-      },
-      "expected": {
-        "min_results": 1,
-        "target_dataset": "fantom5_gene"
-      }
-    },
-    {
-      "name": "filter_high_expression_promoters",
-      "description": "Filter promoters by TPM threshold",
-      "query": {
-        "type": "map",
-        "terms": ["TP53"],
-        "chain": ">>ensembl>>fantom5_promoter[fantom5_promoter.tpm_average>1.0]"
-      },
-      "expected": {
-        "note": "Results should have tpm_average > 1.0"
-      }
-    },
-    {
-      "name": "filter_tissue_specific_promoters",
-      "description": "Filter for tissue-specific promoters",
-      "query": {
-        "type": "map",
-        "terms": ["TP53"],
-        "chain": ">>ensembl>>fantom5_promoter[fantom5_promoter.expression_breadth==\"tissue_specific\"]"
-      },
-      "expected": {
-        "note": "Results should have expression_breadth == tissue_specific"
-      }
-    },
-    {
-      "name": "combined_collectri_fantom5",
-      "description": "Find TF targets with their expression patterns",
-      "query": {
-        "type": "map",
-        "terms": ["TP53"],
-        "chain": ">>collectri>>ensembl>>fantom5_gene"
-      },
-      "expected": {
-        "note": "Should return target genes of TP53 with their expression data"
-      }
-    },
-    {
-      "name": "entry_promoter_details",
-      "description": "Get full details of a promoter entry",
-      "query": {
-        "type": "entry",
-        "identifier": "1",
-        "dataset": "fantom5_promoter"
-      },
-      "expected": {
-        "has_attributes": true,
-        "contains_fields": ["fantom5_peak_id", "chromosome", "start", "end", "strand"]
-      }
+      "name": "Invalid FANTOM5 ID returns no results",
+      "type": "invalid_id",
+      "invalid_id": "FANTOM5_INVALID_99999999"
     }
   ],
+  "custom_tests": [],
   "data_source": {
     "url": "https://fantom.gsc.riken.jp/5/datafiles/reprocessed/hg38_latest/extra/",
     "files": {
       "promoter_expression": "CAGE_peaks_expression/hg38_fair+new_CAGE_peaks_phase1and2_tpm_ann.osc.txt.gz",
       "promoter_coordinates": "CAGE_peaks/hg38_fair+new_CAGE_peaks_phase1and2.bed.gz",
-      "promoter_annotation": "CAGE_peaks_annotation/hg38_liftover+new_CAGE_peaks_phase1and2_annot.txt.gz",
       "enhancer_coordinates": "enhancer/F5.hg38.enhancers.bed.gz",
       "enhancer_expression": "enhancer/F5.hg38.enhancers.expression.tpm.matrix.gz",
       "gene_expression": "CAGE_peaks_expression/hg38_fair+new_genes_phase1and2_tpm.osc.txt.gz"

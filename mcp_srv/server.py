@@ -50,8 +50,8 @@ def setup_logging():
 
     log_format = "%(asctime)s %(levelname)s [%(name)s] %(message)s"
 
-    # Console handler
-    console_handler = logging.StreamHandler(sys.stdout)
+    # Console handler (use stderr to avoid polluting stdout for MCP stdio mode)
+    console_handler = logging.StreamHandler(sys.stderr)
     console_handler.setFormatter(logging.Formatter(log_format))
 
     # Main log file (rotating, 10MB max, keep 5 backups)

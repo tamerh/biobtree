@@ -14,6 +14,10 @@ from fastapi.responses import JSONResponse
 from .biobtree_client import BiobtreeClient
 from .config import config
 from .tools import CHAT_TOOLS, execute_tool
+from .schema import (
+    SCHEMA_EDGES, SCHEMA_HIERARCHIES, SCHEMA_FILTERS,
+    SCHEMA_PATTERNS, SCHEMA_DISEASE_ONTOLOGY
+)
 
 
 def _build_query_url_from_args(tool_name: str, tool_args: dict) -> str | None:
@@ -54,15 +58,103 @@ async def get_client() -> BiobtreeClient:
     return _client
 
 
-DEFAULT_SYSTEM_PROMPT_WITH_TOOLS = """You are a helpful bioinformatics assistant with access to biobtree, a biological database integrating 70+ data sources including genes, proteins, drugs, diseases, variants, pathways, interactions, expression, rare diseases, clinical trials, and more.
+def _build_schema_prompt() -> str:
+    """Build system prompt with embedded schema for full context."""
+    edges_compact = {k: v for k, v in SCHEMA_EDGES.items()}
+
+    return f"""You are a helpful bioinformatics assistant with access to biobtree, a biological database integrating 70+ data sources.
+
+## BIOBTREE SCHEMA REFERENCE
+
+### Dataset Connections (what links to what)
+{json.dumps(edges_compact, indent=2)}
+
+### Ontology Hierarchies (for navigating up/down)
+{json.dumps(SCHEMA_HIERARCHIES, indent=2)}
+
+### Key Filters
+- ensembl: genome="homo_sapiens", biotype
+- uniprot: reviewed=true (Swiss-Prot)
+- clinvar: germline_classification="Pathogenic"
+- chembl_molecule: highestDevelopmentPhase>2
+
+### Query Patterns
+{SCHEMA_PATTERNS}
+
+### Disease Ontology Strategy (CRITICAL for complex questions)
+{SCHEMA_DISEASE_ONTOLOGY}
+
+## STRATEGIC GUIDANCE
+
+1. **When direct disease→gene fails**: Try disease hierarchy
+   - Use >>mondo>>mondoparent to get broader disease category
+   - Parent diseases often have more gene associations
+
+2. **Phenotype bridges via ClinVar/HPO**:
+   - Genes link to phenotypes: >>ensembl>>hpo
+   - Use >>hpo>>clinvar>>ensembl for phenotype→gene
+
+3. **Related genes via paralogs**:
+   - For any gene found in disease/phenotype context, check >>ensembl>>paralog
+   - Paralogs often share biological functions and disease involvement
+
+4. **Multi-path strategy**:
+   - Try BOTH chembl AND pubchem for drugs
+   - Try gencc, clinvar, AND orphanet for diseases
+   - If one path fails, try alternatives
+
+5. **Explore multiple pathways**: In biology, multiple mechanisms often contribute
+   to the same outcome. Don't stop at the first valid answer - explore alternative
+   pathways (e.g., hormonal, metabolic, regulatory) to provide a comprehensive answer.
+   Consider that different genes may be valid answers through different mechanisms.
+
+## TOOLS AVAILABLE
+- biobtree_search: Find identifiers
+- biobtree_map: Traverse dataset chains
+- biobtree_entry: Get full details
+- biobtree_help: Get additional guidance (topics: patterns, disease_ontology, edges, filters)
+
+When answering, include specific database identifiers and provide scientifically accurate answers."""
+
+
+# Full schema prompt (expensive ~5k tokens, use for testing)
+DEFAULT_SYSTEM_PROMPT_FULL = _build_schema_prompt()
+
+# Balanced prompt: minimal + strategic guidance (~400 tokens)
+DEFAULT_SYSTEM_PROMPT_MINIMAL = """You are a helpful bioinformatics assistant with access to biobtree, a biological database integrating 70+ data sources including genes, proteins, drugs, diseases, variants, pathways, interactions, expression, rare diseases, clinical trials, and more.
 
 IMPORTANT: Before answering any question, call biobtree_help with topic="patterns" to discover the available mapping chains. Do NOT guess chains — always check what connections exist first.
 
+## STRATEGIC GUIDANCE
+
+1. **When direct disease→gene fails**: Try disease hierarchy
+   - Use >>mondo>>mondoparent to get broader disease category
+   - Parent diseases often have more gene associations
+
+2. **Phenotype bridges via ClinVar/HPO**:
+   - Genes link to phenotypes: >>ensembl>>hpo
+   - Use >>hpo>>clinvar>>ensembl for phenotype→gene
+
+3. **Related genes via paralogs**:
+   - For any gene found in disease/phenotype context, check >>ensembl>>paralog
+   - Paralogs often share biological functions and disease involvement
+
+4. **Multi-path strategy**:
+   - Try BOTH chembl AND pubchem for drugs
+   - Try gencc, clinvar, AND orphanet for diseases
+   - If one path fails, try alternatives
+
+5. **Explore multiple pathways**: In biology, multiple mechanisms often contribute
+   to the same outcome. Don't stop at the first valid answer - explore alternative
+   pathways (e.g., hormonal, metabolic, regulatory) to provide a comprehensive answer.
+
 When answering:
-1. First call biobtree_help to find the right chain for the question
-2. Use biobtree_search to find identifiers, then biobtree_map to traverse chains
-3. Include specific database identifiers (IDs, accession numbers) in your answer
-4. Provide clear, scientifically accurate answers based on the retrieved data"""
+- Use biobtree_search to find identifiers, then biobtree_map to traverse chains
+- Include specific database identifiers (IDs, accession numbers) in your answer
+- Provide clear, scientifically accurate answers based on the retrieved data"""
+
+# Use balanced prompt by default (minimal + strategic guidance)
+DEFAULT_SYSTEM_PROMPT_WITH_TOOLS = DEFAULT_SYSTEM_PROMPT_MINIMAL
 
 DEFAULT_SYSTEM_PROMPT_NO_TOOLS = """You are a helpful bioinformatics assistant. Answer questions about genes, proteins, drugs, diseases, variants, pathways, and other biological topics based on your training knowledge.
 
@@ -106,7 +198,8 @@ async def chat_endpoint(request: Request):
         "question": "What proteins does BRCA1 encode?",
         "model": "anthropic/claude-sonnet-4",  // optional
         "with_tools": true,  // optional, default true
-        "system_prompt": "..."  // optional custom system prompt
+        "prompt_mode": "default",  // "default" (~400 tokens) or "full" (~5k tokens, expensive)
+        "system_prompt": "..."  // optional custom system prompt (overrides prompt_mode)
     }
 
     Response:
@@ -114,6 +207,7 @@ async def chat_endpoint(request: Request):
         "answer": "...",
         "model": "anthropic/claude-sonnet-4",
         "tools_used": true,
+        "prompt_mode": "default",
         "tool_calls": [...],
         "iterations": 2
     }
@@ -137,9 +231,16 @@ async def chat_endpoint(request: Request):
 
     model = body.get("model", config.default_model)
     with_tools = body.get("with_tools", True)
+    prompt_mode = body.get("prompt_mode", "default")  # "default" (~400 tokens), "full" (~5k tokens, expensive)
 
-    # Use appropriate default system prompt based on tools setting
-    default_prompt = DEFAULT_SYSTEM_PROMPT_WITH_TOOLS if with_tools else DEFAULT_SYSTEM_PROMPT_NO_TOOLS
+    # Select system prompt based on mode
+    if not with_tools:
+        default_prompt = DEFAULT_SYSTEM_PROMPT_NO_TOOLS
+    elif prompt_mode == "full":
+        default_prompt = DEFAULT_SYSTEM_PROMPT_FULL  # Full schema embedded (~5k tokens)
+    else:  # "default" - minimal + strategic guidance (~400 tokens)
+        default_prompt = DEFAULT_SYSTEM_PROMPT_MINIMAL
+
     system_prompt = body.get("system_prompt", default_prompt)
 
     # Import openai here to avoid startup dependency
@@ -257,6 +358,7 @@ async def chat_endpoint(request: Request):
                     "answer": final_answer,
                     "model": model,
                     "tools_used": with_tools,
+                    "prompt_mode": prompt_mode,
                     "tool_calls": tool_calls_log,
                     "iterations": iterations,
                     "data_sources": query_urls,
@@ -270,6 +372,7 @@ async def chat_endpoint(request: Request):
             "answer": final_answer,
             "model": model,
             "tools_used": with_tools,
+            "prompt_mode": prompt_mode,
             "tool_calls": tool_calls_log,
             "iterations": iterations,
             "data_sources": query_urls,

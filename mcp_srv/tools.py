@@ -104,6 +104,8 @@ QUICK EXAMPLES:
 - Disease to genes: terms="diabetes", chain=">>mondo>>gencc>>ensembl"
 - SNP to disease: terms="rs1799853", chain=">>dbsnp>>clinvar>>mondo"
 - Ontology parents: terms="GO:0006915", chain=">>go>>goparent"
+- Disease hierarchy: terms="MONDO:0005148", chain=">>mondo>>mondoparent"
+- Gene paralogs: terms="ENSG00000141510", chain=">>ensembl>>paralog"
 
 COMMON FILTERS:
 - >>ensembl[ensembl.genome=="homo_sapiens"]
@@ -344,18 +346,21 @@ async def execute_tool(
         JSON string with tool result
     """
     try:
+        # Default to lite mode for chat to save tokens (23x smaller responses)
+        default_mode = "lite"
+
         if tool_name == "biobtree_search":
             result = await client.search(
                 terms=arguments["terms"],
                 dataset=arguments.get("dataset"),
-                mode=arguments.get("mode"),
+                mode=arguments.get("mode", default_mode),
                 page=arguments.get("page")
             )
         elif tool_name == "biobtree_map":
             result = await client.map(
                 terms=arguments["terms"],
                 chain=arguments["chain"],
-                mode=arguments.get("mode"),
+                mode=arguments.get("mode", default_mode),
                 page=arguments.get("page")
             )
         elif tool_name == "biobtree_entry":

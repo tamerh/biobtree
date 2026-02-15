@@ -22,7 +22,7 @@
 	"batchSize": "100000",
 	"progressInterval": "5",
 	"maxMappingResult": "75",
-	"maxSearchResult": "10",
+	"maxSearchResult": "50",
 	"maxMappingResultLite": "150",
 	"maxSearchResultLite": "50",
 	"mapFilterTimeoutDuration": "300",

@@ -207,6 +207,11 @@ SCHEMA_PATTERNS = """# Human genes: use >>hgnc>>ensembl instead of >>ensembl[gen
 # Gene -> Approved drugs only (ChEMBL)
 <gene> >> ensembl >> uniprot >> chembl_target_component >> chembl_target >> chembl_assay >> chembl_activity >> chembl_molecule[chembl.molecule.highestDevelopmentPhase>2]
 
+# ChEMBL Molecule -> Gene targets (MUST use full activity/assay chain - NO shortcuts!)
+<chembl_id> >> chembl_molecule >> chembl_activity >> chembl_assay >> chembl_target >> chembl_target_component >> uniprot >> ensembl
+<chembl_id> >> chembl_molecule >> chembl_activity >> chembl_assay >> chembl_target >> chembl_target_component >> uniprot >> hgnc
+# WARNING: chembl_molecule >> chembl_target does NOT work (no direct edge exists)
+
 # Compound -> Gene/Protein targets via PubChem
 <compound> >> pubchem >> pubchem_activity >> ensembl
 <compound> >> pubchem >> pubchem_activity >> uniprot
@@ -248,7 +253,9 @@ SCHEMA_PATTERNS = """# Human genes: use >>hgnc>>ensembl instead of >>ensembl[gen
 <disease> >> mondo >> gencc >> ensembl[ensembl.genome=="homo_sapiens"] >> uniprot[uniprot.reviewed==true] >> alphafold
 
 # Disease -> All resources
-<disease> >> mondo >> gencc >> ensembl      # causative genes
+# NOTE: GenCC only covers ~35K Mendelian/genetic disease-gene curations. Non-genetic diseases
+# (paraneoplastic syndromes, infections, injuries) will return 0 results - this is expected.
+<disease> >> mondo >> gencc >> ensembl      # causative genes (genetic diseases only)
 <disease> >> mondo >> clinvar >> dbsnp      # pathogenic variants
 <disease> >> mondo >> clinical_trials       # active trials
 <disease> >> mondo >> antibody              # therapeutic antibodies
@@ -310,13 +317,22 @@ SCHEMA_PATTERNS = """# Human genes: use >>hgnc>>ensembl instead of >>ensembl[gen
 <pdb_id> >> pdb >> uniprot                             # Structure to proteins
 <pdb_id> >> pdb >> go                                  # Structure to GO terms
 
+# ===== GENE RELATIONSHIPS =====
+
+# Gene -> Paralogs (genes with similar function from same family)
+<gene> >> ensembl >> paralog        # Find genes with shared evolutionary origin
+<gene> >> hgnc >> ensembl >> paralog  # From gene symbol to paralogs
+
+# Gene -> Orthologs (same gene in other species)
+<gene> >> ensembl >> ortholog       # Cross-species gene mappings
+
 # ===== ONTOLOGY =====
 
 # Ontology navigation
 <term> >> go >> goparent
 <term> >> go >> gochild
-<term> >> mondo >> mondoparent
-<term> >> mondo >> mondochild
+<term> >> mondo >> mondoparent      # Broader disease terms (important when specific term has no data)
+<term> >> mondo >> mondochild       # More specific disease subtypes
 <mesh_id> >> mesh >> meshparent     # MeSH hierarchy (D001943 -> 2 parents)
 <mesh_id> >> mesh >> meshchild      # MeSH subtypes (D001943 -> 8 children)
 

@@ -33,6 +33,13 @@ PARAMETERS:
 - dataset: Filter to specific dataset (optional)
 - mode: "lite" (compact) or "full" (detailed) - default "lite"
 
+MODE SELECTION:
+- lite (default): For discovery and navigation. Returns IDs, names, xref counts.
+  Use for: finding connections, ID mapping, graph traversal.
+- full: For detailed attributes. Returns all fields including scores, values.
+  Use when you need: expression levels, clinical significance, binding affinities,
+  pathogenicity scores, development phases, confidence scores.
+
 EXAMPLES:
 - Search gene: terms="TP53"
 - Search protein: terms="P04637"
@@ -49,6 +56,7 @@ DATASETS (common):
 - Diseases: efo, mondo, mesh
 - Variants: dbsnp, clinvar, gwas
 - Pathways: reactome, go
+- Metabolites: chebi, hmdb
 - Expression: bgee, cellxgene
 - Pharmacogenomics: pharmgkb""",
         inputSchema={
@@ -93,6 +101,13 @@ PARAMETERS:
 - chain: Mapping chain like ">>ensembl>>uniprot" (required)
 - mode: "lite" or "full" - default "lite"
 
+MODE SELECTION:
+- lite (default): For graph traversal. Returns IDs and key attributes only.
+  Use for: discovering paths, finding related entities, building networks.
+- full: For detailed data. Returns all attributes including numeric values.
+  Use when you need: Ki/IC50 values (bindingdb), TPM expression (bgee, cellxgene),
+  p-values (gwas), pathogenicity scores (alphamissense), review status (clinvar).
+
 IMPORTANT: Use biobtree_help tool to get:
 - Valid dataset connections (edges)
 - Available filters per dataset
@@ -100,12 +115,27 @@ IMPORTANT: Use biobtree_help tool to get:
 
 QUICK EXAMPLES:
 - Gene to protein: terms="BRCA1", chain=">>ensembl>>uniprot"
-- Gene to drugs: terms="EGFR", chain=">>ensembl>>uniprot>>chembl_target_component>>chembl_target>>chembl_assay>>chembl_activity>>chembl_molecule"
+- Gene to drugs: terms="EGFR", chain=">>ensembl>>uniprot>>chembl_target>>chembl_molecule"
+- Drug to gene: terms="CHEMBL25", chain=">>chembl_molecule>>chembl_target>>uniprot>>hgnc"
+- Drug to metabolite: terms="CHEMBL25", chain=">>chembl_molecule>>chebi"
+- PubChem to ChEBI: terms="5793", chain=">>pubchem>>chebi"
 - Disease to genes: terms="diabetes", chain=">>mondo>>gencc>>ensembl"
+- Disease to drugs: terms="breast cancer", chain=">>mondo>>mesh>>ctd>>pubchem"
 - SNP to disease: terms="rs1799853", chain=">>dbsnp>>clinvar>>mondo"
 - Ontology parents: terms="GO:0006915", chain=">>go>>goparent"
+- Ontology children: terms="GO:0006954", chain=">>go>>gochild"
 - Disease hierarchy: terms="MONDO:0005148", chain=">>mondo>>mondoparent"
 - Gene paralogs: terms="ENSG00000141510", chain=">>ensembl>>paralog"
+- Protein to pathways: terms="P04637", chain=">>uniprot>>reactome"
+- Pathway to genes: terms="R-HSA-109582", chain=">>reactome>>ensembl"
+- Metabolite info: terms="glucose", chain=">>chebi>>pubchem"
+
+ONTOLOGY EXPANSION (IMPORTANT for drug/disease queries):
+When querying biological processes (GO) or diseases (MONDO), ALSO query child terms
+for broader coverage. Proteins may be annotated with regulatory terms (e.g.,
+"regulation of X") rather than the direct process term ("X").
+- First get children: chain=">>go>>gochild" or ">>mondo>>mondochild"
+- Then query relevant child terms for drugs/genes
 
 COMMON FILTERS:
 - >>ensembl[ensembl.genome=="homo_sapiens"]
@@ -141,7 +171,12 @@ COMMON FILTERS:
         description="""Get full entry details from biobtree.
 
 Retrieves complete information for a specific identifier in a dataset,
-including all attributes and cross-references.
+including ALL attributes and cross-references. Always returns full details.
+
+WHEN TO USE:
+- After search/map found an ID, use entry to get complete attributes
+- When you need specific values not in lite mode (scores, sequences, coordinates)
+- For detailed analysis of a single entity
 
 PARAMETERS:
 - identifier: The ID to look up (required)
@@ -150,17 +185,17 @@ PARAMETERS:
 EXAMPLES:
 - Protein details: identifier="P04637", dataset="uniprot"
 - Gene details: identifier="ENSG00000141510", dataset="ensembl"
-- Drug details: identifier="CHEMBL25", dataset="chembl"
-- Disease details: identifier="EFO:0000305", dataset="efo"
+- Drug details: identifier="CHEMBL25", dataset="chembl_molecule"
+- Disease details: identifier="MONDO:0005148", dataset="mondo"
 - Variant details: identifier="rs1799853", dataset="dbsnp"
-- Pathway details: identifier="R-HSA-109582", dataset="reactome"
+- TF regulation: identifier="NR3C1:PTHLH", dataset="collectri"
 
-USE CASES:
-- Get protein function, sequence features, disease associations
-- Get drug mechanism, targets, clinical phase
-- Get gene location, transcripts, orthologs
-- Get variant allele frequencies, clinical significance
-- Get pathway participants, hierarchy""",
+RETURNS (examples):
+- clinvar: germline_classification, review_status, conditions
+- pharmgkb: level_of_evidence, clinical_annotations, guidelines
+- alphamissense: am_pathogenicity score, am_class
+- drugcentral: mechanism of action, target info, action_type
+- bgee: expression_score, anatomical_entity, developmental_stage""",
         inputSchema={
             "type": "object",
             "properties": {
@@ -274,7 +309,7 @@ CHAT_TOOLS = [
                     },
                     "chain": {
                         "type": "string",
-                        "description": "Mapping chain (e.g., '>>ensembl>>uniprot' for gene to protein, '>>ensembl>>uniprot>>chembl_target_component>>chembl_target>>chembl_assay>>chembl_activity>>chembl_molecule' for gene to drugs)"
+                        "description": "Mapping chain (e.g., '>>ensembl>>uniprot' for gene to protein, '>>chembl_molecule>>chembl_target>>uniprot>>hgnc' for drug to gene)"
                     }
                 },
                 "required": ["terms", "chain"]

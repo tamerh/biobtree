@@ -498,6 +498,15 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			// Process all ontology datasets at once
 			ontologyDatasets := []string{"go", "eco", "efo", "uberon", "cl", "mondo", "hpo", "oba", "pato", "obi", "xco", "bao"}
 			for _, ontoData := range ontologyDatasets {
+				// Check if child dataset should be skipped (already built and source unchanged)
+				if !d.forceRebuild && d.shouldSkipDataset(ontoData) {
+					log.Printf("Skipping dataset %s (already built and source unchanged)", ontoData)
+					continue
+				}
+				// Clean up child dataset before processing (meta-datasets skip cleanup in Phase 1)
+				if err := CleanupForIncrementalUpdateFederated(ontoData, config.Appconf["outDir"], config.DatasetNameFederation, config.Dataconf); err != nil {
+					log.Printf("Warning: cleanup failed for %s: %v", ontoData, err)
+				}
 				switch ontoData {
 				case "go":
 					d.wg.Add(1)
@@ -773,19 +782,31 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			go u2.update(d.selectedTaxids)
 			break
 		case "chembl":
-			chemblDatasets := []string{"chembl_document", "chembl_assay", "chembl_activity", "chembl_molecule", "chembl_target", "chembl_target_component", "chembl_cell_line"}
+			// All ChEMBL datasets now use SQLite-based parser (RDF parser removed)
+			chemblDatasets := []string{"chembl_document", "chembl_assay", "chembl_activity", "chembl_molecule", "chembl_target", "chembl_cell_line"}
 			for _, chembldata := range chemblDatasets {
+				// Check if child dataset should be skipped (already built and source unchanged)
+				if !d.forceRebuild && d.shouldSkipDataset(chembldata) {
+					log.Printf("Skipping dataset %s (already built and source unchanged)", chembldata)
+					continue
+				}
+				// Clean up child dataset before processing (meta-datasets skip cleanup in Phase 1)
+				// This ensures old files with different source IDs are properly removed
+				if err := CleanupForIncrementalUpdateFederated(chembldata, config.Appconf["outDir"], config.DatasetNameFederation, config.Dataconf); err != nil {
+					log.Printf("Warning: cleanup failed for %s: %v", chembldata, err)
+				}
 				d.wg.Add(1)
-				c := chembl{source: chembldata, d: d}
 				d.datasets2 = append(d.datasets2, chembldata)
-				go c.update()
+				d.inDatasets[chembldata] = true // Track for edge statistics
+				cs := chemblSqlite{source: chembldata, d: d}
+				go cs.update()
 			}
 			break
-		case "chembl_document", "chembl_assay", "chembl_activity", "chembl_molecule", "chembl_target", "chembl_target_component", "chembl_cell_line":
+		case "chembl_document", "chembl_assay", "chembl_activity", "chembl_molecule", "chembl_target", "chembl_cell_line":
 			d.wg.Add(1)
-			c := chembl{source: data, d: d}
 			d.datasets2 = append(d.datasets2, data)
-			go c.update()
+			cs := chemblSqlite{source: data, d: d}
+			go cs.update()
 			break
 		case "gencc":
 			d.wg.Add(1)

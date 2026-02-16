@@ -51,13 +51,8 @@ This directory contains the testing infrastructure for biobtree datasets.
 
 **HMDB**: Uses static test file (`tests/hmdb/hmdb_test.zip`) due to zipstream limitations. Fast testing (~330ms) with 20 pre-extracted metabolites.
 
-**ChEMBL**: All 6 datasets (document, molecule, activity, assay, target, cell_line) use smart tracking for sparse RDF data. Test builds: 10-35 seconds for 20 entries. Target component data validated through target tests (API embeds components in target endpoint).
-- chembl_document: 10 tests (journal articles, patents, books)
-- chembl_molecule: 10 tests (small molecules, compounds)
-- chembl_activity: 10 tests (bioactivity measurements)
-- chembl_assay: 10 tests (screening assays, protocols)
-- chembl_target: 14 tests (drug targets + component validation)
-- chembl_cell_line: 10 tests (cell line information)
+**ChEMBL**: Consolidated test suite for all 6 entity types (target, molecule, activity, assay, document, cell_line). Uses SQLite-based extraction. Test builds: 2-3 minutes for 20 entries per entity type. Protein classifications and molecular properties delegated to UniProt/GO/InterPro and PubChem respectively.
+- chembl: 24 tests covering targets, molecules, activities, assays, documents, and cell lines
 
 **Ensembl**: Six divisions (ensembl, ensembl_bacteria, ensembl_fungi, ensembl_metazoa, ensembl_plants, ensembl_protists) with genome-specific test data. Uses `--genome-taxids` parameter to select 1 species per division (20 genes each). Test builds: ~4.7s for all 6 divisions. Each division: 7 tests (4 declarative + 3 custom).
 - Test taxids: 9606 (human), 1268975 (E. coli), 330879 (A. fumigatus), 7227 (D. melanogaster), 3702 (A. thaliana), 36329 (P. falciparum)

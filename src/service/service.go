@@ -1299,6 +1299,7 @@ func (s *Service) LookupByDataset(identifier string, domainID uint32) (*pbuf.Xre
 	if err != nil {
 		return nil, err
 	}
+
 	// in result get target xref result
 	var targetXref *pbuf.Xref
 	for _, xref := range r.Results {

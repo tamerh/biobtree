@@ -588,7 +588,7 @@ biobtree query "P04637 >> esm2_similarity"           # Find ESM2-similar protein
 biobtree query "P04637 >> esm2_similarity >> uniprot"  # Similar proteins with UniProt details
 biobtree query "BRCA1 >> ensembl >> uniprot >> esm2_similarity"  # Gene to similar proteins
 biobtree query "P04637 >> esm2_similarity >> uniprot >> go"  # Similar proteins to GO functions
-biobtree query "P04637 >> esm2_similarity >> uniprot >> chembl_target_component"  # Similar drug targets
+biobtree query "P04637 >> esm2_similarity >> uniprot >> chembl_target"  # Similar drug targets
 biobtree query "P04637 >> esm2_similarity >> uniprot >> alphafold"  # Similar proteins with structures
 
 # CellPhoneDB cell-cell communication queries

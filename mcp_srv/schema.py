@@ -15,14 +15,13 @@ SCHEMA_EDGES = {
     "refseq": ["ensembl", "entrez", "taxonomy", "ccds", "uniprot", "mirdb"],
     "mirdb": ["refseq"],
     "transcript": ["ensembl", "exon", "ufeature"],
-    "uniprot": ["ensembl", "alphafold", "interpro", "pdb", "ufeature", "intact", "string", "biogrid", "chembl_target_component", "go", "reactome", "rhea", "swisslipids", "bindingdb", "antibody", "pubchem_activity", "cellphonedb", "jaspar"],
+    "uniprot": ["ensembl", "alphafold", "interpro", "pdb", "ufeature", "intact", "string", "biogrid", "chembl_target", "go", "reactome", "rhea", "swisslipids", "bindingdb", "antibody", "pubchem_activity", "cellphonedb", "jaspar"],
     "alphafold": ["uniprot"],
     "interpro": ["uniprot", "go", "interproparent", "interprochild"],
-    "chembl_molecule": ["chembl_activity", "pubchem", "chebi", "drugcentral", "clinical_trials"],
+    "chembl_molecule": ["chembl_activity", "chembl_target", "pubchem", "chebi", "drugcentral", "clinical_trials"],
     "chembl_activity": ["chembl_molecule", "chembl_assay"],
     "chembl_assay": ["chembl_activity", "chembl_target", "chembl_document"],
-    "chembl_target": ["chembl_assay", "chembl_target_component"],
-    "chembl_target_component": ["chembl_target", "uniprot"],
+    "chembl_target": ["chembl_assay", "uniprot", "chembl_molecule"],
     "pubchem": ["chembl_molecule", "chebi", "hmdb", "pubchem_activity", "pubmed", "patent_compound", "bindingdb", "ctd", "pharmgkb"],
     "pubchem_activity": ["pubchem", "ensembl", "uniprot"],
     "chebi": ["pubchem", "chembl_molecule", "rhea", "intact"],
@@ -195,29 +194,41 @@ SCHEMA_EXAMPLES = {
 SCHEMA_PATTERNS = """# Human genes: use >>hgnc>>ensembl instead of >>ensembl[genome filter]
 # Pagination: to scan all results, use p=<next_token> until has_next==false
 
+# ===== ChEMBL DATA MODEL =====
+#
+# Target vs Molecule vs UniProt:
+#   - TARGET = the biological entity (protein) that a drug ACTS ON
+#   - MOLECULE = the chemical compound (drug) that does the targeting
+#   - UNIPROT = the protein sequence/annotation
+#
+# Relationships:
+#   molecule >> target    = "this drug acts on these targets"
+#   target >> uniprot     = "this target IS this protein"
+#   molecule >> target >> uniprot = "what proteins does this drug affect?"
+#   uniprot >> chembl_target >> chembl_molecule = "what drugs target this protein?"
+
 # ===== DRUG DISCOVERY (use BOTH ChEMBL AND PubChem for comprehensive results) =====
 
-# Gene -> Drugs via ChEMBL (medicinal chemistry focus, clinical phases)
-<gene> >> ensembl >> uniprot >> chembl_target_component >> chembl_target >> chembl_assay >> chembl_activity >> chembl_molecule
+# Gene -> Drugs via ChEMBL (semantic path: protein -> target -> molecules)
+<gene> >> ensembl >> uniprot >> chembl_target                # Protein to drug targets
+<gene> >> ensembl >> uniprot >> chembl_target >> chembl_molecule  # Protein to drugs
+<gene> >> ensembl >> uniprot >> chembl_target >> chembl_molecule[chembl.molecule.highestDevelopmentPhase>2]  # Approved drugs
 
 # Gene -> Drugs via PubChem (broader coverage, FDA approval, bioactivity)
 <gene> >> ensembl >> uniprot >> pubchem_activity >> pubchem
 <gene> >> ensembl >> uniprot >> pubchem_activity >> pubchem[pubchem.is_fda_approved==true]  # FDA approved only
 
-# Gene -> Approved drugs only (ChEMBL)
-<gene> >> ensembl >> uniprot >> chembl_target_component >> chembl_target >> chembl_assay >> chembl_activity >> chembl_molecule[chembl.molecule.highestDevelopmentPhase>2]
-
-# ChEMBL Molecule -> Gene targets (MUST use full activity/assay chain - NO shortcuts!)
-<chembl_id> >> chembl_molecule >> chembl_activity >> chembl_assay >> chembl_target >> chembl_target_component >> uniprot >> ensembl
-<chembl_id> >> chembl_molecule >> chembl_activity >> chembl_assay >> chembl_target >> chembl_target_component >> uniprot >> hgnc
-# WARNING: chembl_molecule >> chembl_target does NOT work (no direct edge exists)
+# ChEMBL Molecule -> Gene targets (semantic path: drug -> target -> protein)
+<chembl_id> >> chembl_molecule >> chembl_target >> uniprot   # Drug to protein targets
+<chembl_id> >> chembl_molecule >> chembl_target >> uniprot >> ensembl  # Drug to genes
 
 # Compound -> Gene/Protein targets via PubChem
 <compound> >> pubchem >> pubchem_activity >> ensembl
 <compound> >> pubchem >> pubchem_activity >> uniprot
 
 # Compound -> Cross-database links via PubChem
-<compound> >> pubchem >> hmdb            # metabolite data
+<compound> >> pubchem >> chebi           # ChEBI metabolite ontology
+<compound> >> pubchem >> hmdb            # HMDB metabolite data
 <compound> >> pubchem >> chembl_molecule # ChEMBL cross-ref
 <compound> >> pubchem >> pubmed          # literature references (63k+ for aspirin)
 <compound> >> pubchem >> patent_compound # patent information
@@ -236,6 +247,36 @@ SCHEMA_PATTERNS = """# Human genes: use >>hgnc>>ensembl instead of >>ensembl[gen
 # - PubChem embedded attributes (in full mode): mesh_terms, pharmacological_actions,
 #   compound_type (drug/bioactive/patent), unii (FDA), has_literature, has_patents,
 #   molecular properties (xlogp, tpsa, rotatable_bonds, hydrogen_bond_donors/acceptors)
+
+# ===== METABOLITES (ChEBI, HMDB) =====
+
+# ChEBI is the reference ontology for chemical entities of biological interest
+<metabolite> >> chebi >> pubchem         # ChEBI to PubChem
+<metabolite> >> chebi >> chembl_molecule # ChEBI to ChEMBL drugs
+<metabolite> >> chebi >> rhea            # ChEBI to biochemical reactions (Rhea)
+<metabolite> >> chebi >> reactome        # ChEBI in pathways
+
+# HMDB for human metabolome
+<metabolite> >> hmdb >> pubchem          # HMDB to PubChem
+<metabolite> >> hmdb >> chebi            # HMDB to ChEBI
+
+# Metabolite -> Protein/Enzyme connections
+<chebi_id> >> chebi >> rhea >> uniprot   # Metabolite to enzymes via reactions
+
+# ===== ONTOLOGY EXPANSION (CRITICAL for drug/disease queries) =====
+# When querying GO terms or diseases, ALSO query child terms for broader coverage.
+# Proteins are often annotated with regulatory terms ("regulation of X") rather than
+# the direct process term ("X"), so expanding to children captures more results.
+
+# Step 1: Get child terms
+<go_term> >> go >> gochild              # Get child GO terms
+<disease> >> mondo >> mondochild        # Get more specific disease subtypes
+<phenotype> >> hpo >> hpochild          # Get more specific phenotypes
+
+# Step 2: Query children for drugs
+# First get children, then query relevant child terms for broader drug coverage
+<go_term> >> go >> ensembl >> uniprot >> chembl_target >> chembl_molecule  # Direct query
+# Better: First expand with >>gochild, then query each relevant child term
 
 # ===== VARIANT ANALYSIS =====
 

@@ -108,11 +108,17 @@ def _build_schema_prompt() -> str:
    pathways (e.g., hormonal, metabolic, regulatory) to provide a comprehensive answer.
    Consider that different genes may be valid answers through different mechanisms.
 
+## MODE SELECTION (lite vs full)
+
+- **lite mode** (default): For navigation and discovery. Returns IDs, names, counts.
+- **full mode**: For detailed attributes. Use when you need numeric values, scores, clinical data.
+- **biobtree_entry**: For complete details on a single identifier.
+
 ## TOOLS AVAILABLE
-- biobtree_search: Find identifiers
-- biobtree_map: Traverse dataset chains
-- biobtree_entry: Get full details
-- biobtree_help: Get additional guidance (topics: patterns, disease_ontology, edges, filters)
+- biobtree_search: Find identifiers (lite for discovery, full for attributes)
+- biobtree_map: Traverse dataset chains (lite for paths, full for detailed data)
+- biobtree_entry: Get ALL details for one ID (always full)
+- biobtree_help: Get guidance (topics: patterns, disease_ontology, edges, filters)
 
 When answering, include specific database identifiers and provide scientifically accurate answers."""
 
@@ -148,8 +154,24 @@ IMPORTANT: Before answering any question, call biobtree_help with topic="pattern
    to the same outcome. Don't stop at the first valid answer - explore alternative
    pathways (e.g., hormonal, metabolic, regulatory) to provide a comprehensive answer.
 
+## MODE SELECTION (lite vs full)
+
+Use **lite mode** (default) for:
+- Discovering connections and paths between entities
+- ID mapping and cross-database navigation
+- Graph traversal (finding what connects to what)
+
+Use **full mode** when you need specific values:
+- Expression data: TPM, fold-change (bgee, cellxgene, scxa)
+- Clinical data: pathogenicity, review status (clinvar, alphamissense)
+- Drug data: development phase, binding affinity (chembl, bindingdb)
+- Evidence: confidence scores, p-values (gwas, string, pharmgkb)
+
+Use **biobtree_entry** for complete details on a single identifier.
+
 When answering:
 - Use biobtree_search to find identifiers, then biobtree_map to traverse chains
+- Start with lite mode for navigation, switch to full/entry for detailed attributes
 - Include specific database identifiers (IDs, accession numbers) in your answer
 - Provide clear, scientifically accurate answers based on the retrieved data"""
 

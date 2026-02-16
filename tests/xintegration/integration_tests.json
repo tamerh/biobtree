@@ -396,7 +396,7 @@
     {
       "category": "chembl_drug",
       "name": "ChEMBL Assay to Target Proteins",
-      "query": ">>chembl_assay>>chembl_target[chembl.target.type==\"single_protein\"]",
+      "query": ">>chembl_assay>>chembl_target[chembl.target.type==\"SINGLE PROTEIN\"]",
       "why": "Map assays to protein targets for mechanism of action studies",
       "should_pass": [
         "CHEMBL615156"
@@ -406,7 +406,7 @@
     {
       "category": "chembl_drug",
       "name": "ChEMBL Target to UniProt",
-      "query": ">>chembl_target>>chembl_target_component>>uniprot",
+      "query": ">>chembl_target>>uniprot",
       "why": "Link drug targets to protein sequences for structure-based drug design",
       "should_pass": [
         "CHEMBL2789"
@@ -416,7 +416,7 @@
     {
       "category": "chembl_drug",
       "name": "Cancer Genes to ChEMBL Targets",
-      "query": ">>ensembl>>uniprot>>chembl_target_component>>chembl_target",
+      "query": ">>ensembl>>uniprot>>chembl_target",
       "why": "Find drugs targeting cancer genes - critical for precision oncology",
       "should_pass": [
         "EGFR",
@@ -1266,7 +1266,7 @@
     {
       "category": "drug_discovery",
       "name": "Reactome Signal Transduction to Drug Targets",
-      "query": ">>reactome>>ensembl>>uniprot>>chembl_target_component",
+      "query": ">>reactome>>ensembl>>uniprot>>chembl_target",
       "why": "Signal transduction pathway to druggable protein components",
       "should_pass": [
         "R-HSA-162582"
@@ -1982,7 +1982,7 @@
     {
       "category": "drug_discovery",
       "name": "JAK2 Advanced Clinical Trial Drugs",
-      "query": ">>ensembl>>uniprot>>chembl_target_component>>chembl_target>>chembl_assay>>chembl_activity>>chembl_molecule[chembl.molecule.highestDevelopmentPhase>2]",
+      "query": ">>ensembl>>uniprot>>chembl_target>>chembl_molecule[chembl.molecule.highestDevelopmentPhase>2]",
       "why": "Find JAK2 drugs in advanced clinical trials (Phase 3/4) - full drug discovery chain. NOTE: This is a long chain query and may be slow (~60s)",
       "should_pass": [
         "JAK2"
@@ -2572,7 +2572,7 @@
     {
       "category": "disease_drug",
       "name": "Full ChEMBL Chain - BRAF",
-      "query": ">>ensembl>>uniprot>>chembl_target_component>>chembl_target>>chembl_assay>>chembl_activity>>chembl_molecule",
+      "query": ">>ensembl>>uniprot>>chembl_target>>chembl_molecule",
       "why": "BRAF is a validated oncology target with many drugs - test full 7-step chain",
       "should_pass": [
         "BRAF"
@@ -3294,7 +3294,7 @@
     {
       "category": "filters_working",
       "name": "ChEMBL Phase 4 Approved Drugs",
-      "query": ">>ensembl>>uniprot>>chembl_target_component>>chembl_target>>chembl_assay>>chembl_activity>>chembl_molecule[chembl.molecule.highestDevelopmentPhase==4]",
+      "query": ">>ensembl>>uniprot>>chembl_target>>chembl_molecule[chembl.molecule.highestDevelopmentPhase==4]",
       "why": "Filter for approved drugs (phase 4) - 157 for EGFR",
       "should_pass": [
         "EGFR"
@@ -3304,7 +3304,7 @@
     {
       "category": "filters_working",
       "name": "ChEMBL Phase 3+ Drugs",
-      "query": ">>ensembl>>uniprot>>chembl_target_component>>chembl_target>>chembl_assay>>chembl_activity>>chembl_molecule[chembl.molecule.highestDevelopmentPhase>2]",
+      "query": ">>ensembl>>uniprot>>chembl_target>>chembl_molecule[chembl.molecule.highestDevelopmentPhase>2]",
       "why": "Filter for Phase 3 and above drugs",
       "should_pass": [
         "EGFR",
@@ -3711,7 +3711,7 @@
     {
       "category": "ncRNA_analysis",
       "name": "miRNA Drug Target Discovery (ChEMBL)",
-      "query": ">>ensembl>>chembl_target_component>>chembl_target>>chembl_assay>>chembl_activity>>chembl_molecule",
+      "query": ">>ensembl>>uniprot>>chembl_target>>chembl_molecule",
       "why": "Find compounds tested against oncogenic miRNAs - 150+ for miR-21, 36 for miR-122 (HCV target). MIR155 has no ChEMBL target component mapping.",
       "should_pass": [
         "MIR21",
@@ -3925,7 +3925,7 @@
     {
       "category": "complex_pipelines",
       "name": "Tissue to Drug Targets (6 hops)",
-      "query": ">>uberon>>bgee>>ensembl>>uniprot>>chembl_target_component>>chembl_target",
+      "query": ">>uberon>>bgee>>ensembl>>uniprot>>chembl_target",
       "why": "Discover drug targets from tissue-specific expression - 316 targets for brain",
       "should_pass": [
         "brain",
@@ -3936,7 +3936,7 @@
     {
       "category": "complex_pipelines",
       "name": "Pathway to Drugs (8 hops)",
-      "query": ">>reactome>>ensembl>>uniprot>>chembl_target_component>>chembl_target>>chembl_assay>>chembl_activity>>chembl_molecule",
+      "query": ">>reactome>>ensembl>>uniprot>>chembl_target>>chembl_molecule",
       "why": "Find drugs targeting pathway components - 150+ for hemostasis",
       "should_pass": [
         "R-HSA-109582"
@@ -3956,7 +3956,7 @@
     {
       "category": "complex_pipelines",
       "name": "GO Process to Approved Drugs (8 hops)",
-      "query": ">>go>>ensembl>>uniprot>>chembl_target_component>>chembl_target>>chembl_assay>>chembl_activity>>chembl_molecule[chembl.molecule.highestDevelopmentPhase>2]",
+      "query": ">>go>>ensembl>>uniprot>>chembl_target>>chembl_molecule[chembl.molecule.highestDevelopmentPhase>2]",
       "why": "Find approved drugs targeting proteins in biological process",
       "should_pass": [
         "apoptosis",
@@ -4456,7 +4456,7 @@
     {
       "category": "patent_ip",
       "name": "Gene to Patent via Full ChEMBL Pipeline (9 hops)",
-      "query": ">>ensembl>>uniprot>>chembl_target_component>>chembl_target>>chembl_assay>>chembl_activity>>chembl_molecule>>pubchem>>patent_compound",
+      "query": ">>ensembl>>uniprot>>chembl_target>>chembl_molecule>>pubchem>>patent_compound",
       "why": "Complete gene-to-patent through entire drug discovery chain (9 hops)",
       "should_pass": [
         "EGFR"
@@ -4476,8 +4476,8 @@
     {
       "category": "clinical_trials_deep",
       "name": "Disease to Protein Targets of Trial Drugs (8 hops)",
-      "query": ">>mondo>>clinical_trials>>chembl_molecule>>chembl_activity>>chembl_assay>>chembl_target>>chembl_target_component>>uniprot",
-      "why": "What protein targets are being drugged in clinical trials for a disease",
+      "query": ">>mondo>>clinical_trials>>chembl_molecule>>chembl_target>>uniprot",
+      "why": "What protein targets are being drugged in clinical trials for a disease (via target)",
       "should_pass": [
         "MONDO:0007254"
       ],
@@ -4576,7 +4576,7 @@
     {
       "category": "rare_disease_deep",
       "name": "HPO Phenotype to Drug Candidates via Rare Disease (9 hops)",
-      "query": ">>hpo>>orphanet>>ensembl>>uniprot>>chembl_target_component>>chembl_target>>chembl_assay>>chembl_activity>>chembl_molecule",
+      "query": ">>hpo>>orphanet>>ensembl>>uniprot>>chembl_target>>chembl_molecule",
       "why": "Phenotype-driven drug discovery via rare disease genes (9 hops)",
       "should_pass": [
         "HP:0001250"
@@ -4639,7 +4639,7 @@
     {
       "category": "cell_type_biology",
       "name": "Tissue to Drug Targets via Expression (6 hops)",
-      "query": ">>uberon>>bgee>>ensembl>>uniprot>>chembl_target_component>>chembl_target",
+      "query": ">>uberon>>bgee>>ensembl>>uniprot>>chembl_target",
       "why": "Tissue-specific drug target discovery through expression data",
       "should_pass": [
         "UBERON:0001264",
@@ -4700,7 +4700,7 @@
     {
       "category": "ultra_long_chains",
       "name": "Phenotype to Patents (11 hops!)",
-      "query": ">>hpo>>orphanet>>ensembl>>uniprot>>chembl_target_component>>chembl_target>>chembl_assay>>chembl_activity>>chembl_molecule>>pubchem>>patent_compound",
+      "query": ">>hpo>>orphanet>>ensembl>>uniprot>>chembl_target>>chembl_molecule>>pubchem>>patent_compound",
       "why": "Longest working chain: clinical phenotype to patent filings (11 hops)",
       "should_pass": [
         "HP:0001250"
@@ -4830,7 +4830,7 @@
     {
       "category": "gene_set_advanced",
       "name": "GO Kinase to Drug Molecules (7 hops filtered)",
-      "query": ">>go>>uniprot[uniprot.reviewed==true]>>chembl_target_component>>chembl_target>>chembl_assay>>chembl_activity>>chembl_molecule",
+      "query": ">>go>>uniprot[uniprot.reviewed==true]>>chembl_molecule",
       "why": "From molecular function to drug chemistry via reviewed proteins (7 hops)",
       "should_pass": [
         "GO:0004672"
@@ -4910,7 +4910,7 @@
     {
       "category": "metabolomics",
       "name": "Metabolite to Drug Targets (7 hops)",
-      "query": ">>hmdb>>uniprot>>chembl_target_component>>chembl_target>>chembl_assay>>chembl_activity>>chembl_molecule",
+      "query": ">>hmdb>>uniprot>>chembl_target>>chembl_molecule",
       "why": "Full metabolite-to-drug pipeline through ChEMBL (7 hops)",
       "should_pass": [
         "HMDB0000067"
@@ -5035,7 +5035,7 @@
     {
       "category": "advanced_multihop_pipelines",
       "name": "Orphanet Disease to ChEMBL Drug Candidates (8 hops)",
-      "query": ">>orphanet>>ensembl>>uniprot>>chembl_target_component>>chembl_target>>chembl_assay>>chembl_activity>>chembl_molecule",
+      "query": ">>orphanet>>ensembl>>uniprot>>chembl_target>>chembl_molecule",
       "why": "Complete rare disease to drug discovery pipeline",
       "should_pass": [
         "586"
@@ -5559,7 +5559,7 @@
     {
       "category": "ultra_complex_multihop",
       "name": "Disease to Drug Targets via Genetics (6 hops)",
-      "query": ">>mondo>>clinvar>>ensembl>>uniprot>>chembl_target_component>>chembl_target",
+      "query": ">>mondo>>clinvar>>ensembl>>uniprot>>chembl_target",
       "why": "Genetics-informed drug target discovery",
       "should_pass": [
         "MONDO:0005148"
@@ -5589,7 +5589,7 @@
     {
       "category": "ultra_complex_multihop",
       "name": "GO Process to Drug Targets via Interactome (6 hops)",
-      "query": ">>go>>uniprot>>intact>>uniprot>>chembl_target_component>>chembl_target",
+      "query": ">>go>>uniprot>>intact>>uniprot>>chembl_target",
       "why": "Network pharmacology: drug targets in process interactome",
       "should_pass": [
         "GO:0006915"
@@ -6430,7 +6430,7 @@
     {
       "category": "enzyme_biochemistry",
       "name": "EC to ChEMBL Drug Targets",
-      "query": ">>brenda>>uniprot>>chembl_target_component>>chembl_target",
+      "query": ">>brenda>>uniprot>>chembl_target",
       "why": "Find if enzyme is a ChEMBL drug target - enzyme-based drug discovery",
       "should_pass": [
         "1.1.1.1",
@@ -6441,7 +6441,7 @@
     {
       "category": "enzyme_biochemistry",
       "name": "EC to Drug Activities",
-      "query": ">>brenda>>uniprot>>chembl_target_component>>chembl_target>>chembl_assay>>chembl_activity",
+      "query": ">>brenda>>uniprot>>chembl_target>>chembl_assay>>chembl_activity",
       "why": "Get bioactivity data for enzyme inhibitors from ChEMBL - compare with BRENDA Ki data",
       "should_pass": [
         "3.4.21.5"
@@ -6546,7 +6546,7 @@
     {
       "category": "protein_embedding_similarity",
       "name": "ESM2 Similar Proteins to ChEMBL Targets",
-      "query": ">>esm2_similarity>>uniprot>>chembl_target_component>>chembl_target",
+      "query": ">>esm2_similarity>>uniprot>>chembl_target",
       "why": "Discover druggable proteins similar to query - off-target prediction",
       "should_pass": [
         "Q6GZX4"
@@ -6616,7 +6616,7 @@
     {
       "category": "protein_embedding_similarity",
       "name": "Drug Target to ESM2 Similar Targets",
-      "query": ">>chembl_target>>chembl_target_component>>uniprot>>esm2_similarity>>uniprot",
+      "query": ">>chembl_target>>uniprot>>esm2_similarity>>uniprot",
       "why": "Expand drug targets using ESM2 similarity - novel target discovery",
       "should_pass": [
         "CHEMBL2073"
@@ -6726,7 +6726,7 @@
     {
       "category": "ligand_receptor",
       "name": "Gene to CellPhoneDB to Drug Targets",
-      "query": ">>hgnc>>cellphonedb>>uniprot>>chembl_target_component>>chembl_target",
+      "query": ">>hgnc>>cellphonedb>>uniprot>>chembl_target",
       "why": "Find druggable proteins in cell communication - therapeutic targets",
       "should_pass": [
         "EGFR"
@@ -6970,7 +6970,7 @@
     {
       "category": "protein_structures_pdb",
       "name": "PDB to Drug Targets",
-      "query": ">>pdb>>uniprot>>chembl_target_component>>chembl_target",
+      "query": ">>pdb>>uniprot>>chembl_target",
       "why": "From structure to drug target data - structure-based drug design",
       "should_pass": [
         "1TUP"
@@ -7133,7 +7133,7 @@
     {
       "category": "fantom5_expression",
       "name": "FANTOM5 Promoters to Drug Targets",
-      "query": ">>fantom5_promoter>>ensembl>>uniprot>>chembl_target_component>>chembl_target",
+      "query": ">>fantom5_promoter>>ensembl>>uniprot>>chembl_target",
       "why": "Multi-hop: from promoter expression to drug target - expression-based target prioritization",
       "should_pass": [
         "EGFR"
@@ -7301,7 +7301,7 @@
     {
       "category": "jaspar_tf_binding",
       "name": "JASPAR to ChEMBL Drug Targets",
-      "query": ">>jaspar>>uniprot>>chembl_target_component>>chembl_target",
+      "query": ">>jaspar>>uniprot>>chembl_target",
       "why": "Multi-hop: TF binding profiles to drug targets - druggable TF identification",
       "should_pass": [
         "STAT3"

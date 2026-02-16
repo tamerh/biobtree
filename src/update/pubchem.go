@@ -345,7 +345,11 @@ func (p *pubchem) loadFDADrugs() {
 		}
 
 		// Add text search link for synonym
-		p.d.addXref(synonym, textLinkID, cid, "pubchem", true)
+		// Skip database IDs to avoid conflicts with actual dataset entries
+		if !strings.HasPrefix(synonym, "CHEBI:") && !strings.HasPrefix(synonym, "chebi:") &&
+			!strings.HasPrefix(synonym, "HMDB") && !strings.HasPrefix(synonym, "CHEMBL") {
+			p.d.addXref(synonym, textLinkID, cid, "pubchem", true)
+		}
 
 		// Test mode: stop early if unique CID limit reached
 		if config.IsTestMode() && shouldStopProcessing(config.GetTestLimit(p.source), len(p.p0CIDs)) {
@@ -979,6 +983,36 @@ func (p *pubchem) loadSynonyms() {
 		// - Detect 27-char InChIKey format (XXXXXXXXXXXX-XXXXXXXXXX-X)
 		// - Use lookupDB to resolve InChIKey → ChEMBL compound → create xref
 		// Currently only ~79 such entries exist, so low priority.
+
+		// ChEBI IDs (e.g., "CHEBI:59527")
+		// Valid format: CHEBI: followed by digits
+		if strings.HasPrefix(synonym, "CHEBI:") || strings.HasPrefix(synonym, "chebi:") {
+			chebiID := synonym // Keep as-is with prefix (e.g., "CHEBI:59527")
+			// Validate format: CHEBI: + digits
+			numericPart := strings.TrimPrefix(strings.ToUpper(synonym), "CHEBI:")
+			if len(numericPart) > 0 && numericPart[0] >= '0' && numericPart[0] <= '9' {
+				if _, exists := config.Dataconf["chebi"]; exists {
+					p.d.addXref(cid, fr, chebiID, "chebi", false)
+					p.chebiToPubChem[chebiID] = append(p.chebiToPubChem[chebiID], cid)
+				}
+			}
+			continue // Don't add as text link, it's a database ID
+		}
+
+		// HMDB IDs (e.g., "HMDB0000001" or "HMDB00001")
+		// Valid format: HMDB followed by digits
+		if strings.HasPrefix(synonym, "HMDB") {
+			hmdbID := synonym // Keep as-is (e.g., "HMDB0000001")
+			// Validate format: HMDB + digits
+			numericPart := strings.TrimPrefix(synonym, "HMDB")
+			if len(numericPart) > 0 && numericPart[0] >= '0' && numericPart[0] <= '9' {
+				if _, exists := config.Dataconf["hmdb"]; exists {
+					p.d.addXref(cid, fr, hmdbID, "hmdb", false)
+					p.hmdbToPubChem[hmdbID] = append(p.hmdbToPubChem[hmdbID], cid)
+				}
+			}
+			continue // Don't add as text link, it's a database ID
+		}
 
 		// ChEMBL molecule IDs (e.g., "CHEMBL25" for aspirin)
 		// Note: SCHEMBL is SureChEMBL (patent chemistry), handled separately
@@ -1688,10 +1722,24 @@ func (p *pubchem) parseSDFRecord(record string, matchCount *int, scannedCount *i
 	}
 
 	// Add text search links for synonyms (makes synonyms searchable)
+	// Skip synonyms that look like database identifiers to avoid conflicts
 	for _, synonym := range synonyms {
-		if synonym != "" {
-			p.d.addXref(synonym, textLinkID, cid, "pubchem", true)
+		if synonym == "" {
+			continue
 		}
+		// Skip CHEBI IDs - these conflict with actual ChEBI entries
+		if strings.HasPrefix(synonym, "CHEBI:") || strings.HasPrefix(synonym, "chebi:") {
+			continue
+		}
+		// Skip HMDB IDs
+		if strings.HasPrefix(synonym, "HMDB") {
+			continue
+		}
+		// Skip ChEMBL IDs
+		if strings.HasPrefix(synonym, "CHEMBL") {
+			continue
+		}
+		p.d.addXref(synonym, textLinkID, cid, "pubchem", true)
 	}
 
 	// Create cross-references to MeSH terms

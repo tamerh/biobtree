@@ -209,7 +209,7 @@ Examples:
   %(prog)s hmdb,go,taxonomy   # Run multiple specific tests
 
 Available datasets:
-  uniprot, go, taxonomy, eco, efo, chebi, interpro, hmdb, lipidmaps, swisslipids, chembl_document, chembl_molecule, chembl_activity, chembl_assay, chembl_target, chembl_cell_line, ensembl, mondo, hpo, mesh, uberon, cl, oba, pato, obi, xco, bgee, patent, clinical_trials, clinvar, string, reactome, rhea, alphafold, alphamissense, alphamissense_transcript, rnacentral, uniparc, uniref50, uniref90, uniref100, gwas_study, gwas, dbsnp, intact, protein_similarity, antibody, pubchem, entrez, refseq, gencc, bindingdb, ctd, msigdb, collectri, signor
+  uniprot, go, taxonomy, eco, efo, chebi, interpro, hmdb, lipidmaps, swisslipids, chembl, ensembl, mondo, hpo, mesh, uberon, cl, oba, pato, obi, xco, bgee, patent, clinical_trials, clinvar, string, reactome, rhea, alphafold, alphamissense, alphamissense_transcript, rnacentral, uniparc, uniref50, uniref90, uniref100, gwas_study, gwas, dbsnp, intact, protein_similarity, antibody, pubchem, entrez, refseq, gencc, bindingdb, ctd, msigdb, collectri, signor
 
   Temporarily disabled (Ensembl Genomes API SSL issues):
   ensembl_bacteria, ensembl_fungi, ensembl_metazoa, ensembl_plants, ensembl_protists
@@ -250,12 +250,7 @@ Available datasets:
         #'hmdb': datasets_dir / "hmdb" / "test_hmdb.py",
         'lipidmaps': datasets_dir / "lipidmaps" / "test_lipidmaps.py",
         'swisslipids': datasets_dir / "swisslipids" / "test_swisslipids.py",
-        'chembl_document': datasets_dir / "chembl_document" / "test_chembl_document.py",
-        'chembl_molecule': datasets_dir / "chembl_molecule" / "test_chembl_molecule.py",
-        'chembl_activity': datasets_dir / "chembl_activity" / "test_chembl_activity.py",
-        'chembl_assay': datasets_dir / "chembl_assay" / "test_chembl_assay.py",
-        'chembl_target': datasets_dir / "chembl_target" / "test_chembl_target.py",
-        'chembl_cell_line': datasets_dir / "chembl_cell_line" / "test_chembl_cell_line.py",
+        'chembl': datasets_dir / "chembl" / "test_chembl.py",
         'ensembl': datasets_dir / "ensembl" / "test_ensembl.py",
         # Temporarily disabled due to Ensembl Genomes API SSL issues
         # 'ensembl_bacteria': datasets_dir / "ensembl_bacteria" / "test_ensembl_bacteria.py",
@@ -343,8 +338,15 @@ Available datasets:
     # Add dataset dependencies for database build
     # (tests may validate data from related datasets)
     build_datasets = selected_datasets.copy()
-    if 'chembl_target' in selected_datasets and 'chembl_target_component' not in build_datasets:
-        build_datasets.append('chembl_target_component')
+
+    # ChEMBL: consolidated 'chembl' test builds all 6 ChEMBL datasets
+    if 'chembl' in selected_datasets:
+        build_datasets.remove('chembl')
+        chembl_datasets = ['chembl_target', 'chembl_molecule', 'chembl_activity',
+                          'chembl_assay', 'chembl_document', 'chembl_cell_line']
+        for ds in chembl_datasets:
+            if ds not in build_datasets:
+                build_datasets.append(ds)
 
     # CELLxGENE: always build both datasets together (cellxgene + cellxgene_celltype)
     if 'cellxgene' in selected_datasets and 'cellxgene_celltype' not in build_datasets:

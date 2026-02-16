@@ -175,26 +175,47 @@ func (db *dbsnp) getChromosomes(vcfURL string) []string {
 
 	// Parse output - one chromosome/contig per line
 	lines := strings.Split(strings.TrimSpace(string(output)), "\n")
-	chromosomes := make([]string, 0, len(lines))
+	chromosomes := make([]string, 0, 25) // 25 main chromosomes expected
+	skippedContigs := 0
+
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
-		if line != "" {
+		if line == "" {
+			continue
+		}
+
+		// CONTIG HANDLING - DISABLED FOR NOW
+		// ===================================
+		// Issue: Same rsID appears on main chromosome AND alternate contigs with DIFFERENT positions.
+		// Example: rs1000 appears on:
+		//   - NC_000006.12 (chr6) at position 32,186,118
+		//   - NT_113891.3 (contig) at position 3,624,467
+		//   - NT_167244.2 (contig) at position 3,518,717
+		//
+		// Problem: During merge, only ONE property entry is kept (the first one in sort order).
+		// If a contig entry sorts before main chromosome, users get contig coordinates instead
+		// of the expected main chromosome coordinates (GRCh38 primary assembly).
+		//
+		// Current solution: Skip contigs, only process main chromosomes (NC_* accessions).
+		// This reduces entry count from ~1.19B to ~1.11B (skips ~75M duplicate/contig entries).
+		//
+		// Future improvements to consider:
+		// 1. Store multiple locations per rsID (requires schema change)
+		// 2. Fix merge to prefer main chromosome entries over contigs
+		// 3. Track seen rsIDs in memory to skip duplicates (high memory: ~16GB for 1B rsIDs)
+		// 4. Two-pass processing: main chromosomes first, then contigs with dedup check
+		//
+		// Related: entry count (1.19B) > db_keys (1.11B) was caused by these duplicates
+		if strings.HasPrefix(line, "NC_") {
 			chromosomes = append(chromosomes, line)
+		} else {
+			// Skip alternate contigs: NT_* (genomic contigs), NW_* (WGS contigs)
+			skippedContigs++
 		}
 	}
 
-	// Count main chromosomes vs contigs for logging
-	mainCount := 0
-	contigCount := 0
-	for _, c := range chromosomes {
-		if strings.HasPrefix(c, "NC_") {
-			mainCount++
-		} else {
-			contigCount++
-		}
-	}
-	log.Printf("dbSNP: Found %d sequences (%d main chromosomes, %d contigs)",
-		len(chromosomes), mainCount, contigCount)
+	log.Printf("dbSNP: Processing %d main chromosomes (skipped %d alternate contigs - see code comments)",
+		len(chromosomes), skippedContigs)
 
 	return chromosomes
 }
@@ -230,59 +251,174 @@ func (db *dbsnp) parseAndSaveVCF(testLimit int, idLogFile *os.File) {
 	// Source ID for cross-references
 	sourceID := config.Dataconf[db.source]["id"]
 
-	// Create worker pool
-	var wg sync.WaitGroup
-	chromChan := make(chan string, len(chromosomes))
+	// Track chromosome results (thread-safe)
+	type chromResult struct {
+		savedCount int64
+		err        error
+	}
+	chromResults := make(map[string]*chromResult)
+	var resultsMutex sync.Mutex
 
 	// ID log file mutex (for test mode)
 	var idLogMutex sync.Mutex
 
-	// Start workers
-	for i := 0; i < numWorkers; i++ {
-		wg.Add(1)
-		go func(workerID int) {
-			defer wg.Done()
-
-			for chrom := range chromChan {
-				savedCount, skippedCount := db.processChromosome(
-					workerID, vcfURL, chrom, sourceID, testLimit,
-					&totalSavedSNPs, idLogFile, &idLogMutex,
-				)
-
-				atomic.AddInt64(&totalSavedSNPs, savedCount)
-				atomic.AddInt64(&totalSkippedLines, skippedCount)
-
-				// Check if we've hit the test limit
-				if testLimit > 0 && atomic.LoadInt64(&totalSavedSNPs) >= int64(testLimit) {
-					log.Printf("dbSNP: [TEST MODE] Reached limit of %d SNPs", testLimit)
-					return
-				}
-			}
-		}(i)
+	// Initialize results map
+	for _, chrom := range chromosomes {
+		chromResults[chrom] = &chromResult{}
 	}
 
-	// Send chromosomes to workers
-	for _, chrom := range chromosomes {
-		// Check if we've hit the test limit before sending more work
-		if testLimit > 0 && atomic.LoadInt64(&totalSavedSNPs) >= int64(testLimit) {
+	// Process chromosomes with retry logic
+	maxRetries := 3
+	chromsToProcess := chromosomes
+
+	for attempt := 1; attempt <= maxRetries; attempt++ {
+		if len(chromsToProcess) == 0 {
 			break
 		}
-		chromChan <- chrom
+
+		if attempt > 1 {
+			log.Printf("dbSNP: Retry attempt %d/%d for %d failed chromosomes: %v",
+				attempt, maxRetries, len(chromsToProcess), chromsToProcess)
+			// Wait before retry to allow network recovery
+			time.Sleep(30 * time.Second)
+		}
+
+		// Create worker pool for this attempt
+		var wg sync.WaitGroup
+		chromChan := make(chan string, len(chromsToProcess))
+
+		// Start workers
+		for i := 0; i < numWorkers; i++ {
+			wg.Add(1)
+			go func(workerID int) {
+				defer wg.Done()
+
+				for chrom := range chromChan {
+					savedCount, skippedCount, err := db.processChromosome(
+						workerID, vcfURL, chrom, sourceID, testLimit,
+						&totalSavedSNPs, idLogFile, &idLogMutex,
+					)
+
+					atomic.AddInt64(&totalSavedSNPs, savedCount)
+					atomic.AddInt64(&totalSkippedLines, skippedCount)
+
+					// Store result (thread-safe)
+					resultsMutex.Lock()
+					chromResults[chrom] = &chromResult{savedCount: savedCount, err: err}
+					resultsMutex.Unlock()
+
+					// Check if we've hit the test limit
+					if testLimit > 0 && atomic.LoadInt64(&totalSavedSNPs) >= int64(testLimit) {
+						log.Printf("dbSNP: [TEST MODE] Reached limit of %d SNPs", testLimit)
+						return
+					}
+				}
+			}(i)
+		}
+
+		// Send chromosomes to workers
+		for _, chrom := range chromsToProcess {
+			// Check if we've hit the test limit before sending more work
+			if testLimit > 0 && atomic.LoadInt64(&totalSavedSNPs) >= int64(testLimit) {
+				break
+			}
+			chromChan <- chrom
+		}
+		close(chromChan)
+
+		// Wait for all workers to complete
+		wg.Wait()
+
+		// Collect failed chromosomes for retry
+		chromsToProcess = nil
+		resultsMutex.Lock()
+		for chrom, result := range chromResults {
+			if result.err != nil {
+				chromsToProcess = append(chromsToProcess, chrom)
+			}
+		}
+		resultsMutex.Unlock()
 	}
-	close(chromChan)
 
-	// Wait for all workers to complete
-	wg.Wait()
+	// Final summary with verification
+	var failedChromosomes []string
+	var suspiciousChromosomes []string
+	var successCount, failCount int
 
-	log.Printf("dbSNP: Total saved: %d SNPs, Skipped: %d lines",
-		totalSavedSNPs, totalSkippedLines)
+	// Minimum expected SNPs per main chromosome (approximate, based on typical dbSNP data)
+	// Main chromosomes should have millions of SNPs; if much lower, data may be incomplete
+	minExpectedSNPs := map[string]int64{
+		"NC_000001.11": 10000000, // chr1: ~20M SNPs expected
+		"NC_000002.12": 10000000, // chr2: ~18M SNPs expected
+		"NC_000003.12": 8000000,  // chr3: ~15M SNPs expected
+		"NC_000004.12": 8000000,  // chr4
+		"NC_000005.10": 8000000,  // chr5
+		"NC_000006.12": 8000000,  // chr6
+		"NC_000007.14": 7000000,  // chr7
+		"NC_000008.11": 7000000,  // chr8
+		"NC_000009.12": 6000000,  // chr9
+		"NC_000010.11": 6000000,  // chr10
+		"NC_000011.10": 6000000,  // chr11
+		"NC_000012.12": 6000000,  // chr12
+		// Smaller chromosomes have fewer, skip validation for those
+	}
+
+	resultsMutex.Lock()
+	for chrom, result := range chromResults {
+		if result.err != nil {
+			failedChromosomes = append(failedChromosomes, chrom)
+			failCount++
+		} else {
+			successCount++
+			// Check if main chromosome has suspiciously low count
+			if minExpected, ok := minExpectedSNPs[chrom]; ok {
+				if result.savedCount < minExpected {
+					suspiciousChromosomes = append(suspiciousChromosomes,
+						fmt.Sprintf("%s(%d SNPs, expected >%d)", chrom, result.savedCount, minExpected))
+				}
+			}
+		}
+	}
+	resultsMutex.Unlock()
+
+	if len(failedChromosomes) > 0 {
+		log.Printf("dbSNP: WARNING - %d chromosomes FAILED after %d retries: %v",
+			len(failedChromosomes), maxRetries, failedChromosomes)
+		log.Printf("dbSNP: This may result in missing variants! Consider re-running the update.")
+	}
+
+	if len(suspiciousChromosomes) > 0 {
+		log.Printf("dbSNP: WARNING - %d chromosomes have SUSPICIOUSLY LOW SNP counts: %v",
+			len(suspiciousChromosomes), suspiciousChromosomes)
+		log.Printf("dbSNP: This may indicate incomplete data transfer. Consider re-running the update.")
+	}
+
+	// Verify total SNP count against expected minimum
+	// dbSNP build 156+ has ~1.1 billion variants on main chromosomes (NC_* only)
+	// Note: With contigs included it would be ~1.2B, but we skip contigs (see getChromosomes)
+	// We set minimum at 1 billion to catch major failures while allowing some variance
+	const minExpectedTotalSNPs int64 = 1_000_000_000
+	if testLimit == 0 && totalSavedSNPs < minExpectedTotalSNPs {
+		log.Printf("dbSNP: CRITICAL WARNING - Total SNP count (%d) is below expected minimum (%d)",
+			totalSavedSNPs, minExpectedTotalSNPs)
+		log.Printf("dbSNP: Expected ~1 billion SNPs from dbSNP. Got only %.1f%% of expected.",
+			float64(totalSavedSNPs)/float64(minExpectedTotalSNPs)*100)
+		log.Printf("dbSNP: This indicates significant data loss! Check network connectivity and re-run update.")
+	} else if testLimit == 0 {
+		log.Printf("dbSNP: Total SNP count verification PASSED (%.1fM SNPs, %.1f%% of expected minimum)",
+			float64(totalSavedSNPs)/1_000_000, float64(totalSavedSNPs)/float64(minExpectedTotalSNPs)*100)
+	}
+
+	log.Printf("dbSNP: Completed %d/%d chromosomes successfully, Total saved: %d SNPs, Skipped: %d lines",
+		successCount, len(chromosomes), totalSavedSNPs, totalSkippedLines)
 
 	// Update entry statistics
 	atomic.AddUint64(&db.d.totalParsedEntry, uint64(totalSavedSNPs))
 }
 
 // processChromosome processes a single chromosome using tabix
-// Returns (savedCount, skippedCount)
+// Returns (savedCount, skippedCount, error)
+// Error is returned if tabix fails or exits with non-zero status
 func (db *dbsnp) processChromosome(
 	workerID int,
 	vcfURL string,
@@ -292,7 +428,7 @@ func (db *dbsnp) processChromosome(
 	globalSavedCount *int64,
 	idLogFile *os.File,
 	idLogMutex *sync.Mutex,
-) (int64, int64) {
+) (int64, int64, error) {
 
 	log.Printf("[Worker %d] Starting chromosome %s", workerID, chrom)
 	startTime := time.Now()
@@ -303,18 +439,19 @@ func (db *dbsnp) processChromosome(
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		log.Printf("[Worker %d] Error creating pipe for %s: %v", workerID, chrom, err)
-		return 0, 0
+		return 0, 0, fmt.Errorf("pipe error for %s: %w", chrom, err)
 	}
 
 	if err := cmd.Start(); err != nil {
 		log.Printf("[Worker %d] Error starting tabix for %s: %v", workerID, chrom, err)
-		return 0, 0
+		return 0, 0, fmt.Errorf("tabix start error for %s: %w", chrom, err)
 	}
 
 	// Read tabix output
 	reader := bufio.NewReaderSize(stdout, 4*1024*1024) // 4MB buffer
 
 	var savedSNPs, skippedLines int64
+	var readError error // Track read errors for retry logic
 	lastProgress := time.Now() // Initialize to now to avoid immediate logging
 
 	for {
@@ -333,7 +470,8 @@ func (db *dbsnp) processChromosome(
 					break
 				}
 			} else {
-				log.Printf("[Worker %d] Error reading from tabix for %s: %v", workerID, chrom, err)
+				readError = fmt.Errorf("read error for %s after %d SNPs: %w", chrom, savedSNPs, err)
+				log.Printf("[Worker %d] ERROR: %v", workerID, readError)
 				break
 			}
 		}
@@ -604,15 +742,30 @@ func (db *dbsnp) processChromosome(
 		}
 	}
 
-	// Wait for tabix to finish
-	cmd.Wait()
+	// Wait for tabix to finish and check exit code
+	var tabixErr error
+	if err := cmd.Wait(); err != nil {
+		// Check if it was killed intentionally (test limit reached)
+		if cmd.ProcessState != nil && cmd.ProcessState.ExitCode() == -1 {
+			// Process was killed (e.g., by us when test limit reached) - not an error
+			log.Printf("[Worker %d] tabix for %s was terminated (likely test limit reached)", workerID, chrom)
+		} else {
+			tabixErr = fmt.Errorf("tabix exited with error for %s: %w (exit code: %d)",
+				chrom, err, cmd.ProcessState.ExitCode())
+			log.Printf("[Worker %d] WARNING: %v", workerID, tabixErr)
+		}
+	}
 
 	elapsed := time.Since(startTime)
 	rate := float64(savedSNPs) / elapsed.Seconds()
 	log.Printf("[Worker %d] Completed %s: %d SNPs in %.1fs (%.0f SNPs/s)",
 		workerID, chrom, savedSNPs, elapsed.Seconds(), rate)
 
-	return savedSNPs, skippedLines
+	// Return read error if no tabix error (read error is more specific)
+	if tabixErr == nil && readError != nil {
+		return savedSNPs, skippedLines, readError
+	}
+	return savedSNPs, skippedLines, tabixErr
 }
 
 // parseINFO parses the VCF INFO field into a map
@@ -756,7 +909,7 @@ func (db *dbsnp) saveSNP(rsID string, attr *pbuf.DbsnpAttr, sourceID string) {
 	db.check(err, fmt.Sprintf("marshaling attributes for %s", rsID))
 
 	// Save entry using standard addProp3
-	// HybridWriterPool routes this to bucket files (bucketMethod: "rsid", numBuckets: 100)
+	// HybridWriterPool routes this to bucket files (bucketMethod: "rsid", numBuckets: 150)
 	db.d.addProp3(rsID, sourceID, attrBytes)
 }
 

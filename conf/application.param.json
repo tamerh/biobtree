@@ -38,8 +38,8 @@
 	"mergeArraySize": "150000",
 	"mergeCheckpointInterval": "100000",
 	"__dbsnp_config_comment": "dbSNP bucket sort configuration options below",
-	"dbsnpNumBuckets": "100",
-	"dbsnpNumWorkers": "12",
+	"dbsnpNumBuckets": "150",
+	"dbsnpNumWorkers": "6",
 	"dbsnpReverseXrefs": "yes",
 	"dbsnpLookupXrefs": "yes",
 	"__bucket_config_comment": "Bucket sort system configuration options below",
@@ -68,5 +68,8 @@
 	"patentsIncludeUSPTO": "yes",
 	"includePatentAbstracts": "yes",
 	"__clinical_trials_config_comment": "Clinical trials data processing configuration - output path derived from source1.dataset.json",
-	"clinicalTrialsPrepareScript": "src/scripts/clinical_trials/clinical_trials_prepare.py"
+	"clinicalTrialsPrepareScript": "src/scripts/clinical_trials/clinical_trials_prepare.py",
+	"__chembl_config_comment": "ChEMBL SQLite-based data extraction configuration",
+	"chemblExtractScript": "src/scripts/chembl/extract_chembl_data.py",
+	"chemblSqliteDb": "raw_data/chembl/chembl_36/chembl_36_sqlite/chembl_36.db"
 }

@@ -1756,10 +1756,16 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 
 	var result = pbuf.Result{}
 
-	// Calculate total number of xrefs needed (kv entries + property-only entries)
+	// Calculate total number of xrefs needed
+	// A key can be both:
+	// 1. A link keyword pointing to other entries (xrefs in kv)
+	// 2. An actual entry with its own properties (in kvProp)
+	// We need space for both: kv entries + kvProp entries not already in kv
 	xrefCount := len(kv)
-	if xrefCount == 0 && len(kvProp) > 0 {
-		xrefCount = len(kvProp)
+	for k := range kvProp {
+		if _, exists := kv[k]; !exists {
+			xrefCount++
+		}
 	}
 	var xrefs = make([]*pbuf.Xref, xrefCount)
 
@@ -2305,10 +2311,17 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 		d.perDatasetStats[datasetID].Keys++
 	}
 
-	// Handle entries with only properties but no xrefs (e.g., MONDO entries)
-	if len(kv) == 0 && len(kvProp) > 0 {
-		for k := range kvProp {
-			var xref = pbuf.Xref{}
+	// Handle properties that don't have matching xrefs
+	// This covers:
+	// 1. Entries with ONLY properties (e.g., MONDO ontology entries)
+	// 2. Entries where the key is both a link keyword AND an actual entry
+	//    (e.g., "CHEBI:59527" is a PubChem synonym but also an actual ChEBI entry)
+	for k := range kvProp {
+		// Skip if this dataset already has xrefs (properties were merged at line 1823)
+		if _, exists := kv[k]; exists {
+			continue
+		}
+		var xref = pbuf.Xref{}
 			did, err := strconv.ParseInt(k, 10, 16)
 			if err != nil {
 				panic("Error while converting to int16 for domain id->" + k)
@@ -2638,8 +2651,7 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 			if d.perDatasetStats[datasetID] == nil {
 				d.perDatasetStats[datasetID] = &DatasetMergeStats{}
 			}
-			d.perDatasetStats[datasetID].Keys++
-		}
+		d.perDatasetStats[datasetID].Keys++
 	}
 
 	//result.Identifier = id

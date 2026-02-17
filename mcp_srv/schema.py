@@ -143,24 +143,38 @@ chembl_target: Medicinal chemistry, requires activity/assay chain
   <chembl_id> >> chembl_molecule >> chembl_target >> uniprot
   NOTE: If chembl_molecule>>chembl_target returns 0, use drugcentral or pubchem instead
 
-# FINDING SUBSTRATES/EFFECTORS (what the target acts on)
+# BIOLOGICAL SYSTEM LEVELS
 
-When the question asks what is AFFECTED by the drug's mechanism:
+Biology operates at multiple levels - the answer depends on which level is asked:
+  Gene → Protein → Function → Substrate/Product → Signaling cascade → Phenotype
+
+# PROTEIN FUNCTION TYPES (what proteins DO)
+
+Enzymes: catalyze reactions - have SUBSTRATES (input) and PRODUCTS (output)
+  - Inhibiting an enzyme affects its substrate/product levels
+  - Look for: GO "peptidase activity", "kinase activity", "synthase activity"
+
+Receptors: bind ligands, trigger signaling cascades
+  - Activating/blocking a receptor affects downstream SIGNALING MOLECULES
+  - Look for: GO "receptor activity", "G protein-coupled", pathways in Reactome
+
+Channels: control flow of ions or molecules across membranes
+  - Modulating a channel affects the ION or MOLECULE it transports
+  - Look for: GO "channel activity", "ion transport"
+
+Transporters: move molecules across membranes
+  - Look for: GO "transporter activity", "transmembrane transport"
+
+# NAVIGATING FROM TARGET TO AFFECTED ENTITY
+
 1. Get target's GO terms: >>uniprot>>go
-2. Read GO term names - they contain substrate/product clues
-3. Search for the metabolite mentioned in GO term name (in chebi or pubchem)
-
-Example workflow:
-  - Find drug target: saxagliptin >> drugcentral >> uniprot >> P27487 (DPP4)
-  - Get GO terms: P27487 >> uniprot >> go >> "glucagon processing"
-  - Extract clue from GO name: "glucagon"
-  - Search metabolite: "glucagon-like peptide 1" >> find in pubchem/chembl
-  - Answer: GLP-1 (the substrate DPP4 acts on)
-
-Example GO term clues:
-  - "cAMP/PKA signal transduction" -> search cAMP -> CHEBI:17489
-  - "glucagon processing" -> search GLP-1 -> pubchem/chembl
-  - "chloride channel" -> search chloride -> CHEBI:17996
+   - Molecular function: tells you WHAT it does (enzyme, receptor, channel)
+   - Biological process: tells you WHICH processes it's involved in
+2. Get pathways: >>uniprot>>reactome
+   - Shows cascade of events and molecules involved
+3. Get reactions: >>uniprot>>rhea>>chebi (for enzymes)
+   - Shows actual substrates and products
+4. Search for the molecule/ion mentioned in GO terms or pathways
 
 # DISEASE-GENE (try multiple sources)
 

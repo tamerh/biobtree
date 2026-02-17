@@ -72,14 +72,13 @@ func (g *biobtreegrpc) Search(ctx context.Context, in *pbuf.SearchRequest) (*pbu
 		filterq.Filter = in.Query
 	}
 
-	var src uint32
-	var ok bool
+	var datasetFilters []uint32
 	if len(in.Dataset) > 0 {
-
-		src, ok = config.DataconfIDStringToInt[in.Dataset]
+		src, ok := config.DataconfIDStringToInt[in.Dataset]
 		if !ok {
 			return nil, fmt.Errorf("Invalid dataset")
 		}
+		datasetFilters = []uint32{src}
 	}
 
 	// Note: gRPC lite mode currently returns full results
@@ -87,7 +86,7 @@ func (g *biobtreegrpc) Search(ctx context.Context, in *pbuf.SearchRequest) (*pbu
 	// TODO: Update protobuf definitions for new lite format if gRPC lite is needed
 
 	// Full mode (default)
-	res, err := g.service.Search(in.Terms, src, in.Page, filterq, in.Detail, in.Url)
+	res, err := g.service.Search(in.Terms, datasetFilters, in.Page, filterq, in.Detail, in.Url)
 
 	if err != nil {
 		return nil, err

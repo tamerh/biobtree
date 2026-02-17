@@ -2,6 +2,7 @@
   "uniprot": {
     "id": "1",
     "name": "Uniprot",
+    "textPriority": "100",
     "_ftp_mirror_note": "All FTP paths use ftp.ebi.ac.uk (UK mirror). Alternative mirrors: ftp.uniprot.org (USA), ftp.expasy.org (Switzerland) can be used by manually editing URLs.",
     "path": "ftp://ftp.ebi.ac.uk/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.xml.gz",
     "aliases": "UniProtKB,uniprotkb,UniProtKB accession,UniProtKB/Swiss-Prot,UniProtKB/TrEMBL,UniProtKB/Swiss-Prot protein isoforms,TREMBL_VARSPLIC,UniProtKB_accession,uniprot_unreviewed",
@@ -18,6 +19,7 @@
     "aliases": "gene ID,Ensembl",
     "id": "2",
     "name": "Ensembl",
+    "textPriority": "100",
     "url": "https://www.ensembl.org/£{sp}/Gene/Summary?db=core;g=£{id}",
     "urlSearch": "https://www.ensembl.org/Multi/Search/Results?q=£{id};site=ensembl_all",
     "bacteriaUrl": "https://bacteria.ensembl.org/£{sp}/Gene/Summary?db=core;g=£{id}",
@@ -42,6 +44,7 @@
   "dbsnp": {
     "id": "3",
     "name": "dbSNP",
+    "textPriority": "80",
     "path": "https://ftp.ncbi.nlm.nih.gov/snp/latest_release/VCF/",
     "__ftpUrl": "ftp.ncbi.nlm.nih.gov:21",
     "__path_ftp": "/snp/latest_release/VCF/",
@@ -61,6 +64,7 @@
     "aliases": "GeneID,EntrezGene",
     "id": "4",
     "name": "NCBI/Entrez Gene",
+    "textPriority": "95",
     "url": "https://www.ncbi.nlm.nih.gov/gene/£{id}",
     "path": "https://ftp.ncbi.nlm.nih.gov/gene/DATA/gene_info.gz",
     "gene2goPath": "https://ftp.ncbi.nlm.nih.gov/gene/DATA/gene2go.gz",
@@ -80,6 +84,7 @@
     "aliases": "STRING",
     "id": "5",
     "name": "STRING",
+    "textPriority": "70",
     "path": "https://stringdb-downloads.org/download/protein.links.detailed.v12.0/",
     "url": "https://string-db.org/network/£{id}",
     "downloadUrlLinks": "https://stringdb-downloads.org/download/protein.links.detailed.v12.0/{taxid}.protein.links.detailed.v12.0.txt.gz",
@@ -95,6 +100,7 @@
   "pubchem": {
     "id": "6",
     "name": "PubChem",
+    "textPriority": "100",
     "aliases": "PubChem,PubChem CID,Pubchem,CID",
     "path": "https://ftp.ncbi.nlm.nih.gov/pubchem/Compound/",
     "url": "https://pubchem.ncbi.nlm.nih.gov/compound/£{id}",
@@ -133,6 +139,7 @@
   "refseq": {
     "id": "8",
     "name": "RefSeq",
+    "textPriority": "80",
     "aliases": "RefSeq,NCBI RefSeq,Reference Sequence,RefSeq accession,RefSeq transcript,RefSeq protein",
     "url": "https://www.ncbi.nlm.nih.gov/nuccore/£{id}",
     "proteinUrl": "https://www.ncbi.nlm.nih.gov/protein/£{id}",
@@ -161,6 +168,7 @@
   "hgnc": {
     "id": "10",
     "name": "HGNC",
+    "textPriority": "101",
     "path": "https://storage.googleapis.com/public-download-files/hgnc/json/json/hgnc_complete_set.json",
     "aliases": "HGNC",
     "url": "https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/£{id}",
@@ -210,6 +218,7 @@
   "chebi": {
     "id": "14",
     "name": "ChEBI",
+    "textPriority": "90",
     "path": "ftp://ftp.ebi.ac.uk/pub/databases/chebi/flat_files/",
     "files": "compounds.tsv.gz,names.tsv.gz,chemical_data.tsv.gz,structures.tsv.gz,relation.tsv.gz,source.tsv.gz,database_accession.tsv.gz",
     "aliases": "ChEBI",
@@ -244,6 +253,7 @@
   "hmdb": {
     "id": "17",
     "name": "hmdb",
+    "textPriority": "90",
     "aliases": "HMDB,HMDB accession",
     "path": "http://www.hmdb.ca/system/downloads/current/hmdb_metabolites.zip",
     "path2": "raw_data/hmdb/hmdb_metabolites.zip",
@@ -298,6 +308,7 @@
   "chembl_molecule": {
     "name": "chembl_molecule",
     "id": "22",
+    "textPriority": "90",
     "url": "https://www.ebi.ac.uk/chembl/compound_report_card/£{id}/",
     "path": "raw_data/chembl/extracted/chembl_molecules.jsonl",
     "useLocalFile": "no",
@@ -310,6 +321,7 @@
   "chembl_target": {
     "name": "chembl_target",
     "id": "24",
+    "textPriority": "90",
     "url": "https://www.ebi.ac.uk/chembl/target_report_card/£{id}/",
     "path": "raw_data/chembl/extracted/chembl_targets.jsonl",
     "useLocalFile": "no",
@@ -358,6 +370,7 @@
     "aliases": "Reactome,Reactome Pathways",
     "id": "28",
     "name": "Reactome",
+    "textPriority": "85",
     "url": "https://reactome.org/content/detail/£{id}",
     "downloadUrlPathways": "https://reactome.org/download/current/ReactomePathways.txt",
     "downloadUrlRelation": "https://reactome.org/download/current/ReactomePathwaysRelation.txt",
@@ -444,6 +457,7 @@
     "aliases": "BGEE,Bgee,Gene Expression Evolution,tissue expression,gene expression,expression",
     "id": "34",
     "name": "Bgee",
+    "textPriority": "50",
     "url": "https://www.bgee.org/?page=gene&gene_id=£{id}",
     "path": "https://www.bgee.org/ftp/current/download/calls/expr_calls/",
     "useLocalFile": "no",
@@ -494,6 +508,7 @@
   "intact": {
     "id": "38",
     "name": "IntAct",
+    "textPriority": "50",
     "path": "ftp://ftp.ebi.ac.uk/pub/databases/intact/current/psimitab/intact.txt",
     "aliases": "IntAct,protein interaction,protein-protein interaction,PPI,molecular interaction",
     "url": "https://www.ebi.ac.uk/intact/interaction/£{id}",
@@ -529,6 +544,7 @@
   "antibody": {
     "id": "40",
     "name": "Antibody db",
+    "textPriority": "50",
     "path": "raw_data/antibody/",
     "aliases": "therapeutic antibody,monoclonal antibody,mAb,antibody therapeutics,TheraSAbDab,SAbDab,IMGT,antibody structure,germline gene,antibody sequence",
     "url": "http://opig.stats.ox.ac.uk/webapps/therasabdab/therapeutics/£{id}",
@@ -549,6 +565,7 @@
   "pubchem_activity": {
     "id": "41",
     "name": "PubChem BioActivity",
+    "textPriority": "50",
     "aliases": "PubChem Activity,Pubchem Activity",
     "path": "https://ftp.ncbi.nlm.nih.gov/pubchem/Bioassay/Extras/",
     "url": "https://pubchem.ncbi.nlm.nih.gov/bioassay/£{aid}#section=Top",
@@ -562,6 +579,7 @@
   "pubchem_assay": {
     "id": "42",
     "name": "PubChem Assay",
+    "textPriority": "50",
     "aliases": "pubchem_bioassay,PubChem Bioassay,Pubchem Assay",
     "path": "https://ftp.ncbi.nlm.nih.gov/pubchem/Bioassay/Extras/",
     "url": "https://pubchem.ncbi.nlm.nih.gov/bioassay/£{aid}#section=Top",
@@ -575,6 +593,7 @@
   "mesh": {
     "id": "43",
     "name": "MeSH",
+    "textPriority": "100",
     "aliases": "Medical Subject Headings,MeSH Descriptor,MESH",
     "url": "https://www.ncbi.nlm.nih.gov/mesh/?term=£{id}",
     "path": "https://nlmpubs.nlm.nih.gov/projects/mesh/2025/asciimesh/d2025.bin",
@@ -609,6 +628,7 @@
   "paralog": {
     "name": "Paralog",
     "id": "46",
+    "textPriority": "50",
     "url": "https://www.ensembl.org/Multi/Search/Results?q=£{id};site=ensembl_all",
     "linkdataset": "ensembl",
     "hasFilter": "yes",
@@ -617,6 +637,7 @@
   "transcript": {
     "name": "Transcript",
     "id": "47",
+    "textPriority": "50",
     "url": "https://www.ensembl.org/Multi/Search/Results?q=£{id};site=ensembl_all",
     "bacteriaUrl": "http://bacteria.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
     "fungiUrl": "http://fungi.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
@@ -710,6 +731,7 @@
   "gencc": {
     "id": "59",
     "name": "GenCC",
+    "textPriority": "90",
     "path": "https://search.thegencc.org/download/action/submissions-export-tsv",
     "aliases": "GenCC,Gene Curation Coalition,gene-disease validity,gene-disease relationship",
     "url": "https://search.thegencc.org/genes/£{id}",
@@ -734,6 +756,7 @@
   "ctd": {
     "id": "61",
     "name": "CTD",
+    "textPriority": "90",
     "aliases": "CTD,Comparative Toxicogenomics Database,toxicogenomics,chemical-gene interaction,chemical-disease,gene-disease",
     "url": "https://ctdbase.org/detail.go?type=chem&acc=£{id}",
     "path": "https://ctdbase.org/reports/",
@@ -750,6 +773,7 @@
   "biogrid": {
     "id": "62",
     "name": "BioGRID",
+    "textPriority": "50",
     "aliases": "BioGRID,interaction database",
     "url": "https://thebiogrid.org/interaction/£{id}",
     "path": "https://downloads.thebiogrid.org/Download/BioGRID/Latest-Release/BIOGRID-ALL-LATEST.tab3.zip",
@@ -762,6 +786,7 @@
   "drugcentral": {
     "id": "63",
     "name": "DrugCentral",
+    "textPriority": "80",
     "aliases": "DrugCentral,drug central,drug-target,drug target interaction",
     "url": "https://drugcentral.org/drugcard/£{id}",
     "path": "https://unmtid-dbs.net/download/DrugCentral/2021_09_01/drug.target.interaction.tsv.gz",
@@ -812,6 +837,7 @@
   "pharmgkb": {
     "id": "67",
     "name": "PharmGKB",
+    "textPriority": "90",
     "aliases": "PharmGKB,ClinPGx,pharmacogenomics,PGx,drug-gene,pharmacogenomic,CPIC,DPWG,dosing guideline",
     "url": "https://www.clinpgx.org/chemical/£{id}",
     "path": "raw_data/clinpgx/",
@@ -834,6 +860,7 @@
   "pharmgkb_gene": {
     "id": "68",
     "name": "PharmGKB Gene",
+    "textPriority": "50",
     "aliases": "PharmGKB Gene,pharmacogene,VIP gene,very important pharmacogene",
     "url": "https://www.clinpgx.org/gene/£{id}",
     "path": "raw_data/clinpgx/",
@@ -845,6 +872,7 @@
   "pharmgkb_clinical": {
     "id": "69",
     "name": "PharmGKB Clinical Annotation",
+    "textPriority": "50",
     "aliases": "PharmGKB Clinical,clinical annotation,PGx annotation,variant-drug annotation,drug response",
     "url": "https://www.clinpgx.org/clinicalAnnotation/£{id}",
     "path": "raw_data/clinpgx/",
@@ -867,6 +895,7 @@
   "pharmgkb_guideline": {
     "id": "107",
     "name": "PharmGKB Guideline",
+    "textPriority": "90",
     "aliases": "PharmGKB Guideline,CPIC Guideline,DPWG Guideline,pharmacogenomic guideline,clinical guideline,PGx guideline",
     "url": "https://www.clinpgx.org/guidelineAnnotation/£{id}",
     "path": "raw_data/clinpgx/",
@@ -913,6 +942,7 @@
   "scxa": {
     "id": "111",
     "name": "SC Expression Atlas",
+    "textPriority": "50",
     "aliases": "SCXA,Single Cell Expression Atlas,scRNA-seq,single-cell RNA-seq,EMBL-EBI single cell,Expression Atlas single cell",
     "url": "https://www.ebi.ac.uk/gxa/sc/experiments/£{id}",
     "path": "https://ftp.ebi.ac.uk/pub/databases/microarray/data/atlas/sc_experiments/",
@@ -1048,6 +1078,7 @@
   "pdb": {
     "id": "122",
     "name": "Protein Data Bank",
+    "textPriority": "90",
     "aliases": "PDB,protein structure,3D structure,crystal structure,X-ray,NMR,cryo-EM,electron microscopy",
     "url": "https://www.rcsb.org/structure/£{id}",
     "path": "https://ftp.ebi.ac.uk/pub/databases/pdb/derived_data/index/entries.idx",
@@ -1063,6 +1094,7 @@
     "aliases": "Orphadata,ORPHA,rare disease",
     "id": "123",
     "name": "Orphanet",
+    "textPriority": "90",
     "url": "https://www.orpha.net/consor/cgi-bin/OC_Exp.php?Lng=GB&Expert=£{id}",
     "path_product1": "https://www.orphadata.com/data/xml/en_product1.xml",
     "path_product4": "https://www.orphadata.com/data/xml/en_product4.xml",

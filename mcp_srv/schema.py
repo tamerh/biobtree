@@ -9,7 +9,7 @@ Schema definitions for biobtree_help tool - dataset connections, filters, and qu
 # =============================================================================
 
 SCHEMA_EDGES = {
-    "ensembl": ["uniprot", "go", "transcript", "exon", "ortholog", "paralog", "hgnc", "entrez", "refseq", "bgee", "gwas", "gencc", "biogrid", "string", "antibody", "scxa"],
+    "ensembl": ["uniprot", "go", "transcript", "exon", "ortholog", "paralog", "hgnc", "entrez", "refseq", "bgee", "gwas", "gencc", "antibody", "scxa"],
     "hgnc": ["ensembl", "uniprot", "entrez", "gencc", "pharmgkb_gene", "msigdb", "clinvar", "mim", "refseq", "alphafold", "collectri", "gwas", "dbsnp", "hpo", "cellphonedb"],
     "entrez": ["ensembl", "uniprot", "refseq", "go", "biogrid", "pubchem_activity"],
     "refseq": ["ensembl", "entrez", "taxonomy", "ccds", "uniprot", "mirdb"],
@@ -24,9 +24,9 @@ SCHEMA_EDGES = {
     "chembl_target": ["chembl_assay", "uniprot", "chembl_molecule"],
     "pubchem": ["chembl_molecule", "chebi", "hmdb", "pubchem_activity", "pubmed", "patent_compound", "bindingdb", "ctd", "pharmgkb"],
     "pubchem_activity": ["pubchem", "ensembl", "uniprot"],
-    "chebi": ["pubchem", "chembl_molecule", "rhea", "intact"],
+    "chebi": ["pubchem", "rhea", "intact"],
     "drugcentral": ["chembl_molecule", "uniprot"],
-    "swisslipids": ["uniprot", "go", "chebi", "uberon"],
+    "swisslipids": ["uniprot", "go", "chebi", "uberon", "cl"],
     "lipidmaps": ["chebi", "pubchem"],
     "dbsnp": ["hgnc", "clinvar", "pharmgkb_variant", "alphamissense", "spliceai"],
     "clinvar": ["hgnc", "mondo", "hpo", "dbsnp", "orphanet"],
@@ -44,7 +44,7 @@ SCHEMA_EDGES = {
     "pharmgkb_pathway": ["hgnc", "pharmgkb"],
     "ctd": ["mesh", "entrez", "efo", "pubchem", "taxonomy"],
     "intact": ["uniprot", "chebi", "rnacentral"],
-    "string": ["uniprot", "ensembl"],
+    "string": ["uniprot"],
     "biogrid": ["entrez", "uniprot", "refseq", "taxonomy"],
     "bgee": ["ensembl", "uberon", "cl", "taxonomy"],
     "cellxgene": ["cl", "uberon", "mondo", "efo", "taxonomy"],
@@ -250,11 +250,22 @@ SCHEMA_PATTERNS = """# Human genes: use >>hgnc>>ensembl instead of >>ensembl[gen
 
 # ===== METABOLITES (ChEBI, HMDB) =====
 
-# ChEBI is the reference ontology for chemical entities of biological interest
-<metabolite> >> chebi >> pubchem         # ChEBI to PubChem
-<metabolite> >> chebi >> chembl_molecule # ChEBI to ChEMBL drugs
-<metabolite> >> chebi >> rhea            # ChEBI to biochemical reactions (Rhea)
-<metabolite> >> chebi >> reactome        # ChEBI in pathways
+# ===== COMPOUNDS/METABOLITES (PubChem is the central hub) =====
+# IMPORTANT: PubChem is the hub for all compound cross-references
+# Always route through PubChem for: chebi, hmdb, chembl_molecule, bindingdb, ctd, pharmgkb
+
+# PubChem connections:
+<compound> >> pubchem >> chebi           # PubChem to ChEBI metabolite ontology
+<compound> >> pubchem >> hmdb            # PubChem to Human Metabolome DB
+<compound> >> pubchem >> chembl_molecule # PubChem to ChEMBL drugs
+<compound> >> pubchem >> bindingdb       # PubChem to binding affinity data
+<compound> >> pubchem >> ctd             # PubChem to toxicogenomics
+<compound> >> pubchem >> pharmgkb        # PubChem to pharmacogenomics
+<compound> >> pubchem >> pubmed          # PubChem to literature
+
+# ChEBI (go via PubChem for cross-database)
+<metabolite> >> chebi >> pubchem         # ChEBI to PubChem (then to other DBs)
+<metabolite> >> chebi >> rhea            # ChEBI to biochemical reactions
 
 # HMDB for human metabolome
 <metabolite> >> hmdb >> pubchem          # HMDB to PubChem

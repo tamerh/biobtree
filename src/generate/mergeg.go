@@ -1818,6 +1818,20 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 			xentry.Relationship = (*v)[i].relationship // Set relationship type if present
 			entries[i] = &xentry
 		}
+
+		// Sort text link entries by target dataset priority (higher priority first)
+		// k == "0" means this is a text search link entry
+		if k == "0" && i > 1 {
+			sort.Slice(entries[:i], func(a, b int) bool {
+				priorityA := config.GetTextPriority(entries[a].Dataset)
+				priorityB := config.GetTextPriority(entries[b].Dataset)
+				if priorityA != priorityB {
+					return priorityA > priorityB // Higher priority first
+				}
+				return entries[a].Dataset < entries[b].Dataset // Stable sort by ID
+			})
+		}
+
 		entriesArr[index] = entries
 
 		if _, ok := kvProp[k]; ok && valPropIdx[k] > 0 { // xref attributes
@@ -2700,6 +2714,19 @@ func (d *Merge) toProtoPage(id string, dataset string, v *[]kvMessage, valIdx in
 		xentry.Relationship = (*v)[i].relationship // Set relationship type if present
 		entries[i] = &xentry
 		totalCount++
+	}
+
+	// Sort text link entries by target dataset priority (higher priority first)
+	// dataset == "0" means this is a text search link page
+	if dataset == "0" && i > 1 {
+		sort.Slice(entries[:i], func(a, b int) bool {
+			priorityA := config.GetTextPriority(entries[a].Dataset)
+			priorityB := config.GetTextPriority(entries[b].Dataset)
+			if priorityA != priorityB {
+				return priorityA > priorityB // Higher priority first
+			}
+			return entries[a].Dataset < entries[b].Dataset // Stable sort by ID
+		})
 	}
 
 	xref.Entries = entries[:i]

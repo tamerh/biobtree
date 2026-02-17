@@ -915,8 +915,23 @@ func (s *Service) makeLiteAll(res *pbuf.Result) {
 }
 
 
+// containsDataset checks if a dataset is in the filter list
+// If the filter list is empty, all datasets are included
+func containsDataset(filters []uint32, dataset uint32) bool {
+	if len(filters) == 0 {
+		return true // No filter = include all
+	}
+	for _, f := range filters {
+		if f == dataset {
+			return true
+		}
+	}
+	return false
+}
+
 // Search performs a search across datasets with optional filtering
-func (s *Service) Search(ids []string, idsDomain uint32, page string, q *query.Query, detail, buildURL bool) (*pbuf.Result, error) {
+// datasetFilters: list of dataset IDs to include (empty = include all)
+func (s *Service) Search(ids []string, datasetFilters []uint32, page string, q *query.Query, detail, buildURL bool) (*pbuf.Result, error) {
 
 	//todo remove duplicate parts
 	result := &pbuf.Result{}
@@ -977,11 +992,12 @@ func (s *Service) Search(ids []string, idsDomain uint32, page string, q *query.Q
 					}
 
 					if !skipRootLinks {
-						linkIndex := 0
-						for _, b := range xref.Entries { //link entries
+						// Use actualLinkIndex to track real array position for pagination
+						// This fixes the bug where filtering by dataset caused wrong resumption position
+						for actualLinkIndex, b := range xref.Entries { //link entries
 
 							// Filter by dataset BEFORE fetching to avoid errors from missing entries in other datasets
-							if idsDomain > 0 && b.Dataset != idsDomain {
+							if !containsDataset(datasetFilters, b.Dataset) {
 								continue
 							}
 
@@ -992,17 +1008,16 @@ func (s *Service) Search(ids []string, idsDomain uint32, page string, q *query.Q
 							}
 
 							if totalResult == s.resultPageSize {
-
-								if pagingInfo != nil {
-
-									if idIndex == pagingInfo.idIndex {
-										resultIndex = pagingInfo.resultIndex + resultIndex
-										linkIndex += pagingInfo.linkIndex
-									}
-
+								// Calculate actual position in original array for pagination token
+								// actualLinkIndex is position in current (possibly sliced) array
+								// Add pagingInfo.linkIndex to get position in original array
+								actualPos := actualLinkIndex
+								if pagingInfo != nil && idIndex == pagingInfo.idIndex {
+									resultIndex = pagingInfo.resultIndex + resultIndex
+									actualPos += pagingInfo.linkIndex
 								}
 
-								result.Nextpage = strconv.Itoa(idIndex) + pagingSep2 + strconv.Itoa(resultIndex) + pagingSep2 + "-1" + pagingSep2 + strconv.Itoa(linkIndex)
+								result.Nextpage = strconv.Itoa(idIndex) + pagingSep2 + strconv.Itoa(resultIndex) + pagingSep2 + "-1" + pagingSep2 + strconv.Itoa(actualPos)
 								result.Results = xrefs
 								return result, nil
 							}
@@ -1030,7 +1045,6 @@ func (s *Service) Search(ids []string, idsDomain uint32, page string, q *query.Q
 									totalResult++
 								}
 							}
-							linkIndex++
 						}
 					}
 					if len(xref.DatasetPages) > 0 { // link pages - use DatasetPages for correct page key prefix
@@ -1038,11 +1052,18 @@ func (s *Service) Search(ids []string, idsDomain uint32, page string, q *query.Q
 						// Iterate over DatasetPages to use correct target dataset prefix
 						for targetDatasetID, pageInfo := range xref.DatasetPages {
 							// If filtering by dataset, only process pages for that dataset
-							if idsDomain > 0 && targetDatasetID != idsDomain {
+							if !containsDataset(datasetFilters, targetDatasetID) {
 								continue
 							}
 
 							for pageIndex, page := range pageInfo.Pages {
+								// Skip pages we've already processed on previous pagination
+								if pagingInfo != nil && pagingInfo.linkActive && pagingInfo.linkPageIndex > -1 {
+									if pageIndex < pagingInfo.linkPageIndex {
+										continue // Skip this page entirely
+									}
+								}
+
 								// Build page key with SOURCE dataset prefix (0 for text links)
 								// Pages are stored under text link key prefix, not target dataset prefix
 								pageKey := id + spacestr + config.DataconfIDToPageKey[0] + spacestr + page
@@ -1062,16 +1083,17 @@ func (s *Service) Search(ids []string, idsDomain uint32, page string, q *query.Q
 									continue
 								}
 
-							if pagingInfo != nil && pagingInfo.linkActive && !pagingInfo.linkIndexProcessed {
+							// Slice entries only on the resumption page (not earlier pages)
+							if pagingInfo != nil && pagingInfo.linkActive && !pagingInfo.linkIndexProcessed && pageIndex == pagingInfo.linkPageIndex {
 								xrefPage.Entries = xrefPage.Entries[pagingInfo.linkIndex:]
 								pagingInfo.linkIndexProcessed = true
 							}
 
-							linkIndex := 0
-							for _, b := range xrefPage.Entries {
+							// Use actualLinkIndex to track real array position for pagination
+							for actualLinkIndex, b := range xrefPage.Entries {
 
 								// Filter by dataset BEFORE fetching to avoid errors from missing entries in other datasets
-								if idsDomain > 0 && b.Dataset != idsDomain {
+								if !containsDataset(datasetFilters, b.Dataset) {
 									continue
 								}
 
@@ -1082,21 +1104,19 @@ func (s *Service) Search(ids []string, idsDomain uint32, page string, q *query.Q
 								}
 
 								if totalResult == s.resultPageSize {
-									if pagingInfo != nil {
-
-										if idIndex == pagingInfo.idIndex {
-											resultIndex = pagingInfo.resultIndex + resultIndex
-
-											if pagingInfo.linkPageIndex > -1 { // move pageIndex
-												pageIndex += pagingInfo.linkPageIndex
-											}
-											if pageIndex == pagingInfo.linkPageIndex {
-												linkIndex += pagingInfo.linkIndex
-											}
+									// Calculate actual position for pagination token
+									// actualLinkIndex is position in current (possibly sliced) array
+									// If we sliced the array on resumption, add the offset
+									actualPos := actualLinkIndex
+									if pagingInfo != nil && idIndex == pagingInfo.idIndex {
+										resultIndex = pagingInfo.resultIndex + resultIndex
+										// If we're on the same page we resumed from, add the slice offset
+										if pageIndex == pagingInfo.linkPageIndex {
+											actualPos += pagingInfo.linkIndex
 										}
-
 									}
-									result.Nextpage = strconv.Itoa(idIndex) + pagingSep2 + strconv.Itoa(resultIndex) + pagingSep2 + strconv.Itoa(pageIndex) + pagingSep2 + strconv.Itoa(linkIndex)
+
+									result.Nextpage = strconv.Itoa(idIndex) + pagingSep2 + strconv.Itoa(resultIndex) + pagingSep2 + strconv.Itoa(pageIndex) + pagingSep2 + strconv.Itoa(actualPos)
 									result.Results = xrefs
 									return result, nil
 								}
@@ -1128,7 +1148,6 @@ func (s *Service) Search(ids []string, idsDomain uint32, page string, q *query.Q
 										totalResult++
 									}
 								}
-								linkIndex++
 							}
 
 						}
@@ -1136,7 +1155,7 @@ func (s *Service) Search(ids []string, idsDomain uint32, page string, q *query.Q
 					}
 				} else {
 
-					if idsDomain > 0 && xref.Dataset != idsDomain {
+					if !containsDataset(datasetFilters, xref.Dataset) {
 						continue
 					}
 
@@ -1327,9 +1346,9 @@ func (s *Service) LookupByDataset(identifier string, domainID uint32) (*pbuf.Xre
 // Returns only IDs, sorted by has_attr (entries with attributes first)
 // searchLite performs search and returns lite format response
 // Returns pipe-delimited data rows: id|dataset|name|xref_count
-func (s *Service) searchLite(ids []string, idsDomain uint32, page string, datasetFilter string) (*SearchLiteResponse, error) {
+func (s *Service) searchLite(ids []string, datasetFilters []uint32, page string, datasetFilter string) (*SearchLiteResponse, error) {
 	// Use the main search function with detail=true to get attributes for name extraction
-	fullResult, err := s.Search(ids, idsDomain, page, nil, true, false)
+	fullResult, err := s.Search(ids, datasetFilters, page, nil, true, false)
 	if err != nil {
 		return nil, err
 	}
@@ -1355,10 +1374,8 @@ func (s *Service) searchLite(ids []string, idsDomain uint32, page string, datase
 	for _, xref := range fullResult.Results {
 		datasetName := config.DataconfIDIntToString[xref.Dataset]
 
-		// Apply dataset filter if specified
-		if datasetFilter != "" && datasetName != datasetFilter {
-			continue
-		}
+		// Note: Dataset filtering is already done in Search() via datasetFilters parameter
+		// No need for additional filtering here
 
 		identifier := xref.Identifier
 		if identifier == "" {

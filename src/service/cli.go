@@ -23,13 +23,19 @@ func (cli *CLI) Query(conf *configs.Conf, queryStr string, datasetFilter string,
 	cli.service.init()
 	defer cli.service.Close()
 
-	// Parse dataset filter (optional)
-	var datasetID uint32
+	// Parse dataset filter (optional) - supports comma-separated: uniprot,ensembl,hgnc
+	var datasetFilters []uint32
 	if datasetFilter != "" {
-		var ok bool
-		datasetID, ok = config.DataconfIDStringToInt[datasetFilter]
-		if !ok {
-			return fmt.Errorf("unknown dataset: %s", datasetFilter)
+		for _, ds := range strings.Split(datasetFilter, ",") {
+			ds = strings.TrimSpace(ds)
+			if ds == "" {
+				continue
+			}
+			if id, ok := config.DataconfIDStringToInt[ds]; ok {
+				datasetFilters = append(datasetFilters, id)
+			} else {
+				return fmt.Errorf("unknown dataset: %s", ds)
+			}
 		}
 	}
 
@@ -74,10 +80,10 @@ func (cli *CLI) Query(conf *configs.Conf, queryStr string, datasetFilter string,
 		}
 
 		if mode == "lite" {
-			result, err = cli.service.searchLite(ids, datasetID, "", datasetFilter)
+			result, err = cli.service.searchLite(ids, datasetFilters, "", datasetFilter)
 		} else {
 			// Full mode - get result and enrich with query echo and stats
-			res, e := cli.service.Search(ids, datasetID, "", nil, true, false)
+			res, e := cli.service.Search(ids, datasetFilters, "", nil, true, false)
 			if e == nil {
 				rawQuery := queryStr
 				if datasetFilter != "" {

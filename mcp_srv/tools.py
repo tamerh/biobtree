@@ -33,6 +33,15 @@ PARAMETERS:
 - dataset: Filter to specific dataset (optional)
 - mode: "lite" (compact) or "full" (detailed) - default "lite"
 
+SEARCH STRATEGY:
+- Search WITHOUT dataset filter first to discover all database entries
+- This reveals available dataset entry points for your query
+- Then explore relevant paths from different sources for comprehensive results
+- If general search returns too many results, use focused dataset filter:
+  - Drugs: dataset="chembl_molecule,pubchem,drugcentral"
+  - Genes: dataset="ensembl,hgnc,uniprot"
+  - Diseases: dataset="mondo,efo,mesh"
+
 MODE SELECTION:
 - lite (default): For discovery and navigation. Returns IDs, names, xref counts.
   Use for: finding connections, ID mapping, graph traversal.
@@ -68,7 +77,7 @@ DATASETS (common):
                 },
                 "dataset": {
                     "type": "string",
-                    "description": "Filter to specific dataset (optional)"
+                    "description": "Filter to specific dataset(s), comma-separated (e.g., 'ensembl,hgnc,uniprot')"
                 },
                 "mode": {
                     "type": "string",
@@ -191,11 +200,18 @@ EXAMPLES:
 - TF regulation: identifier="NR3C1:PTHLH", dataset="collectri"
 
 RETURNS (examples):
+- pubchem: pharmacological_actions (drug mechanism e.g. "Protein Synthesis Inhibitors")
 - clinvar: germline_classification, review_status, conditions
 - pharmgkb: level_of_evidence, clinical_annotations, guidelines
 - alphamissense: am_pathogenicity score, am_class
 - drugcentral: mechanism of action, target info, action_type
-- bgee: expression_score, anatomical_entity, developmental_stage""",
+- bgee: expression_score, anatomical_entity, developmental_stage
+
+DRUG DATA TIP:
+- For drugs, check BOTH chembl_molecule AND pubchem entries
+- chembl_molecule: target data, clinical development phase, assay details
+- pubchem: pharmacological_actions (mechanism), FDA status, literature
+- They complement each other - neither has complete information alone""",
         inputSchema={
             "type": "object",
             "properties": {
@@ -288,7 +304,7 @@ CHAT_TOOLS = [
                     },
                     "dataset": {
                         "type": "string",
-                        "description": "Optional: Filter to specific dataset (e.g., 'ensembl', 'uniprot', 'chembl')"
+                        "description": "Optional: Filter to dataset(s), comma-separated (e.g., 'ensembl,hgnc,uniprot' for genes, 'chembl_molecule,pubchem,drugcentral' for drugs)"
                     }
                 },
                 "required": ["terms"]

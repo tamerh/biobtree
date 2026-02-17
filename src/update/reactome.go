@@ -496,8 +496,10 @@ func (r *reactome) processChEBIMappings(pathwayMap map[string]bool, testLimit in
 		// ChEBI IDs in Reactome are numeric - need to prepend "CHEBI:"
 		fullChebiID := "CHEBI:" + chebiID
 
-		// Create xref: ChEBI → Reactome with evidence code
+		// Create bidirectional xrefs: ChEBI ↔ Reactome with evidence code
 		r.d.addXrefWithEvidence(fullChebiID, chebiDatasetID, pathwayID, r.source, false, evidenceCode)
+		// Reverse xref: Reactome → ChEBI (enables >>reactome>>chebi queries)
+		r.d.addXrefWithEvidence(pathwayID, r.sourceID, fullChebiID, "chebi", false, evidenceCode)
 
 		mappingCount++
 

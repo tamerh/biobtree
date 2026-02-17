@@ -159,12 +159,14 @@ func (s *Service) MapFilterWithLimit(ids []string, mapFilterQuery, page string, 
 	}
 
 	// Extract lookup dataset from first query (if IsLookup == true)
-	var lookupDatasetID uint32
+	var lookupDatasetFilters []uint32
 	var filterQ *query.Query
 
 	if len(queries) > 0 && queries[0].IsLookup {
 		// First query is the lookup dataset
-		lookupDatasetID = queries[0].MapDatasetID
+		if queries[0].MapDatasetID > 0 {
+			lookupDatasetFilters = []uint32{queries[0].MapDatasetID}
+		}
 		if len(queries[0].Filter) > 0 {
 			filterQ = &queries[0]
 		}
@@ -177,7 +179,7 @@ func (s *Service) MapFilterWithLimit(ids []string, mapFilterQuery, page string, 
 	}
 
 startMapping:
-	inputXrefs, newRootPage, err := s.inputXrefs(ids, lookupDatasetID, filterQ, newRootPage, pages)
+	inputXrefs, newRootPage, err := s.inputXrefs(ids, lookupDatasetFilters, filterQ, newRootPage, pages)
 
 	if err != nil {
 		return nil, err
@@ -325,13 +327,13 @@ func (s *Service) mapFilterCacheKey(ids []string, mapFilterQuery, page string) s
 
 }
 
-func (s *Service) inputXrefs(ids []string, idsDomain uint32, filterq *query.Query, rootPage string, pages map[string]map[uint32]map[int]*mpPage) ([]*pbuf.Xref, string, error) {
+func (s *Service) inputXrefs(ids []string, datasetFilters []uint32, filterq *query.Query, rootPage string, pages map[string]map[uint32]map[int]*mpPage) ([]*pbuf.Xref, string, error) {
 
 	var inputXrefs []*pbuf.Xref
 
 	if pages == nil {
 
-		res, err := s.Search(ids, idsDomain, rootPage, filterq, true, false)
+		res, err := s.Search(ids, datasetFilters, rootPage, filterq, true, false)
 
 		if err != nil {
 			return nil, "", err

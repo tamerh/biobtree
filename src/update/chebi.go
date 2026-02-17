@@ -525,9 +525,10 @@ func (c *chebi) loadSourceMapping() map[string]string {
 }
 
 // mapPrefixToDataset maps ChEBI source prefix to biobtree dataset name
+// Note: ChEMBL is NOT included because ChEBI's database_accession.tsv has no valid
+// ChEMBL xrefs (only 1 erroneous CAS number entry). Use ChEMBL→ChEBI direction instead.
 func (c *chebi) mapPrefixToDataset(prefix string) string {
 	mapping := map[string]string{
-		"chembl":        "chembl",
 		"hmdb":          "hmdb",
 		"kegg.compound": "kegg",
 		"kegg.drug":     "kegg",

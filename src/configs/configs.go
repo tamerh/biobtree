@@ -48,6 +48,22 @@ type Conf struct {
 
 	// Compact mode fields - for LLM-friendly output
 	CompactFields map[string][]string // dataset -> list of compact field names
+
+	// Text search priority - higher value = higher priority in search results
+	TextPriority map[uint32]int // datasetID -> priority value
+}
+
+// GetTextPriority returns the text search priority for a dataset
+// Higher values appear first in search results
+// Returns 0 (lowest priority) for datasets without explicit priority
+func (c *Conf) GetTextPriority(datasetID uint32) int {
+	if c.TextPriority == nil {
+		return 0
+	}
+	if priority, ok := c.TextPriority[datasetID]; ok {
+		return priority
+	}
+	return 0
 }
 
 func (c *Conf) Install(rootDir, bbBinaryVersion, outDir, preBuildSet string, optionalDatasetActive bool) {
@@ -185,6 +201,7 @@ func (c *Conf) Init(rootDir, bbBinaryVersion, outDir string, optionalDatasetActi
 
 	c.FilterableDatasets = map[string]bool{}
 	c.CompactFields = map[string][]string{}
+	c.TextPriority = map[uint32]int{}
 
 	// Initialize federation maps
 	c.DatasetFederation = map[uint32]string{}
@@ -242,6 +259,15 @@ func (c *Conf) Init(rootDir, bbBinaryVersion, outDir string, optionalDatasetActi
 				c.DatasetNameFederation[key] = federation
 				c.FederationDatasets[federation] = append(c.FederationDatasets[federation], idint)
 				federationSet[federation] = true
+
+				// Text search priority: higher value = appears first in search results
+				if textPriorityStr, ok := value["textPriority"]; ok && textPriorityStr != "" {
+					if priority, err := strconv.Atoi(textPriorityStr); err == nil {
+						c.TextPriority[idint] = priority
+					} else {
+						log.Printf("Warning: Invalid textPriority '%s' for dataset %s", textPriorityStr, key)
+					}
+				}
 			} else {
 				log.Fatalf("identifier for dataset %s already used choose new unique one", key)
 			}

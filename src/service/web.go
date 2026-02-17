@@ -269,21 +269,27 @@ func (web *Web) search(w http.ResponseWriter, r *http.Request) {
 		filterq.Filter = filter[0]
 	}
 
-	var src uint32
+	var datasetFilters []uint32
 	srcStr, ok := r.URL.Query()["s"]
 	if ok && len(srcStr[0]) > 0 {
-
-		src, ok = config.DataconfIDStringToInt[srcStr[0]]
-		if !ok {
-			err := fmt.Errorf("invalid s param")
-			errStr := errString{Err: err.Error()}
-			jb, _ := ffjson.Marshal(errStr)
-			buf.WriteString(string(jb))
-			w.Write([]byte(buf.String()))
-			w.WriteHeader(http.StatusBadRequest)
-			return
+		// Parse comma-separated datasets: s=uniprot,ensembl,hgnc
+		for _, ds := range strings.Split(srcStr[0], ",") {
+			ds = strings.TrimSpace(ds)
+			if ds == "" {
+				continue
+			}
+			if id, ok := config.DataconfIDStringToInt[ds]; ok {
+				datasetFilters = append(datasetFilters, id)
+			} else {
+				err := fmt.Errorf("invalid dataset in s param: %s", ds)
+				errStr := errString{Err: err.Error()}
+				jb, _ := ffjson.Marshal(errStr)
+				buf.WriteString(string(jb))
+				w.Write([]byte(buf.String()))
+				w.WriteHeader(http.StatusBadRequest)
+				return
+			}
 		}
-
 	}
 
 	mode := parseMode(r)
@@ -297,7 +303,7 @@ func (web *Web) search(w http.ResponseWriter, r *http.Request) {
 
 	if mode == "lite" {
 		// Lite mode - LLM-friendly pipe-delimited format with names
-		res, err := web.service.searchLite(ids, src, page, datasetFilter)
+		res, err := web.service.searchLite(ids, datasetFilters, page, datasetFilter)
 		if err != nil {
 			errStr := errString{Err: err.Error()}
 			jb, _ := ffjson.Marshal(errStr)
@@ -311,7 +317,7 @@ func (web *Web) search(w http.ResponseWriter, r *http.Request) {
 	} else {
 		// Full mode - complete response with attributes
 		detail := mode == "full"
-		res, err := web.service.Search(ids, src, page, filterq, detail, url)
+		res, err := web.service.Search(ids, datasetFilters, page, filterq, detail, url)
 
 		if err != nil {
 			buf.WriteString("[")

@@ -369,13 +369,17 @@ class IntegrationTestRunner:
             }
 
         except Exception as e:
+            # If we expected this to fail and got an HTTP error, that's a pass
+            # (e.g., invalid dataset should return 400 error)
+            passed = not expected_pass
             return {
                 'test_name': test['name'],
                 'query': test['query'],
                 'identifier': identifier,
                 'expected_pass': expected_pass,
-                'passed': False,
-                'error': str(e),
+                'passed': passed,
+                'error': str(e) if not passed else None,
+                'expected_error': str(e) if passed else None,
                 'url': f"{url}?{urlencode(params)}",
                 'why': test['why'],
                 'response_time_ms': 0

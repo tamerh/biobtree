@@ -1,9 +1,10 @@
 {
   "metadata": {
-    "version": "9.4",
+    "version": "9.5",
     "description": "Expanded integration tests including newly added datasets and filter tests (2025-2026)",
     "server": "http://localhost:9291",
-    "last_updated": "2026-02-13",
+    "last_updated": "2026-02-17",
+    "changes_9.5": "Added search_filter category (11 tests): Multi-dataset filter tests (s=hgnc,mondo,efo), single dataset filter, text priority ordering validation, pagination with filters, and invalid filter handling. Tests new comma-separated dataset filter feature and textPriority ordering. Total: 691 tests.",
     "changes_9.4": "Added encode_ccre category (13 tests): ENCODE cCRE (candidate cis-Regulatory Elements) integration tests. Direct cCRE ID lookup, text search by all 7 classifications (PLS, pELS, dELS, CA-CTCF, CA-TF, CA, TF), CEL filters for classification/chromosome/coordinate range, taxonomy cross-references, and attribute validation tests. Total: 680 tests.",
     "changes_9.3": "Added jaspar_tf_binding category (14 tests): JASPAR transcription factor binding profile tests. Direct matrix ID lookup, TF name text search, UniProt/PubMed/Taxonomy cross-references, collection filters (CORE/UNVALIDATED), experiment type filters (ChIP-seq, SELEX), taxonomic group filters, gene to binding profiles via UniProt, and multi-hop queries (TF binding profile to pathways, diseases). Total: 667 tests.",
     "changes_9.2": "Added fantom5_expression category (16 tests): FANTOM5 CAGE expression data integration tests. Gene symbol/Ensembl/HGNC/Entrez/UniProt to promoter mappings, promoter to Ensembl reverse mappings, gene-level expression lookups, enhancer associations, tissue (UBERON) and cell type (CL) expression mappings, multi-hop queries (disease to promoters, promoters to drug targets, gene expression to pathways, promoters to TF networks). Total: 653 tests.",
@@ -77,7 +78,8 @@
     "protein_structures_pdb": "PDB protein structure database: 248K+ experimentally determined 3D structures. Experimental methods (X-ray crystallography, cryo-EM, NMR), resolution data, cross-references to UniProt/GO/InterPro/Pfam/Taxonomy/PubMed. Filters for method type and resolution. Essential for structural biology, drug design, and protein engineering workflows.",
     "fantom5_expression": "FANTOM5 CAGE expression data: ~185K promoters (CAGE peaks/TSS), ~65K enhancers, ~20K gene-level aggregations. TPM expression values across 1800+ samples. Cross-references to Ensembl/HGNC/Entrez/UniProt/UBERON/CL. Filters for TPM thresholds, expression breadth. Essential for promoter/enhancer biology, tissue-specific expression, and transcription start site analysis.",
     "jaspar_tf_binding": "JASPAR transcription factor binding profiles: ~6K curated TF binding motifs (PFMs/PWMs) from CORE and UNVALIDATED collections. Cross-references to UniProt, PubMed, Taxonomy. Filters for collection (CORE/UNVALIDATED), experiment type (ChIP-seq, SELEX, PBM), taxonomic group (vertebrates, plants, insects). Essential for TF binding site prediction, regulatory element analysis, and gene regulation studies.",
-    "encode_ccre": "ENCODE cCRE (candidate cis-Regulatory Elements): ~2.3M regulatory regions from ENCODE SCREEN. Classifications include PLS (promoter-like), pELS (proximal enhancer-like), dELS (distal enhancer-like), CA-CTCF (CTCF-bound), CA-TF (TF-bound), CA (chromatin accessible), TF (transcription factor only). Genomic coordinates (chromosome, start, end). Cross-references to taxonomy (human GRCh38). Filters for classification, chromosome, coordinate range. Essential for regulatory element analysis, enhancer/promoter biology, and epigenomics studies."
+    "encode_ccre": "ENCODE cCRE (candidate cis-Regulatory Elements): ~2.3M regulatory regions from ENCODE SCREEN. Classifications include PLS (promoter-like), pELS (proximal enhancer-like), dELS (distal enhancer-like), CA-CTCF (CTCF-bound), CA-TF (TF-bound), CA (chromatin accessible), TF (transcription factor only). Genomic coordinates (chromosome, start, end). Cross-references to taxonomy (human GRCh38). Filters for classification, chromosome, coordinate range. Essential for regulatory element analysis, enhancer/promoter biology, and epigenomics studies.",
+    "search_filter": "Search endpoint filtering and ordering: Multi-dataset filter (s=hgnc,mondo,efo), single dataset filter, text priority ordering (datasets with higher textPriority appear first in search results), and pagination with filters. Essential for efficient LLM agent queries and result prioritization."
   },
   "tests": [
     {
@@ -7502,6 +7504,144 @@
           "expected": "chr1",
           "description": "Chromosome"
         }
+      ]
+    },
+    {
+      "_comment": "========== SEARCH FILTER TESTS (Multi-dataset filter, text priority) =========="
+    },
+    {
+      "category": "search_filter",
+      "name": "Single Dataset Filter",
+      "query": "",
+      "filter_dataset": "hgnc",
+      "why": "Filter search results to a single dataset - basic filter functionality",
+      "should_pass": [
+        "TP53",
+        "BRCA1",
+        "EGFR"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "search_filter",
+      "name": "Multi-Dataset Filter (hgnc,mondo)",
+      "query": "",
+      "filter_dataset": "hgnc,mondo",
+      "why": "Filter search results to multiple datasets using comma-separated values - new feature for efficient LLM queries",
+      "should_pass": [
+        "TP53",
+        "BRCA1"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "search_filter",
+      "name": "Multi-Dataset Filter (hgnc,mondo,efo)",
+      "query": "",
+      "filter_dataset": "hgnc,mondo,efo",
+      "why": "Filter to three datasets - gene symbols + diseases + experimental factors",
+      "should_pass": [
+        "TP53",
+        "BRCA1"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "search_filter",
+      "name": "Multi-Dataset Filter (hgnc,efo,hpo)",
+      "query": "",
+      "filter_dataset": "hgnc,efo,hpo",
+      "why": "Filter to ontology datasets plus gene symbols for phenotype queries",
+      "should_pass": [
+        "seizure",
+        "cancer"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "search_filter",
+      "name": "Multi-Dataset Filter with Pagination",
+      "query": "",
+      "filter_dataset": "collectri,hgnc",
+      "why": "Multi-dataset filter with many results to test pagination correctness - should return unique results across pages",
+      "should_pass": [
+        "TP53"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "search_filter",
+      "name": "Single Dataset Filter HGNC Only",
+      "type": "validation",
+      "query": "",
+      "identifier": "TP53",
+      "filter_dataset": "hgnc",
+      "why": "Verify single dataset filter returns only HGNC results",
+      "validations": [
+        {
+          "path": "entry.dataset",
+          "expected": 10,
+          "description": "Dataset ID should be 10 (HGNC)"
+        }
+      ]
+    },
+    {
+      "category": "search_filter",
+      "name": "Multi-Dataset Filter Has Results",
+      "type": "validation",
+      "query": "",
+      "identifier": "TP53",
+      "filter_dataset": "hgnc,mondo",
+      "why": "Multi-dataset filter should return results from both HGNC and MONDO",
+      "validations": [
+        {
+          "path": "",
+          "has_results": true,
+          "description": "Has results from hgnc,mondo filter"
+        }
+      ]
+    },
+    {
+      "category": "search_filter",
+      "name": "Text Priority Has HGNC Results",
+      "type": "validation",
+      "query": "",
+      "identifier": "TP53",
+      "filter_dataset": "hgnc",
+      "why": "HGNC filter should return HGNC results for TP53",
+      "validations": [
+        {
+          "path": "",
+          "has_results": true,
+          "description": "Has HGNC results"
+        }
+      ]
+    },
+    {
+      "category": "search_filter",
+      "name": "Text Priority BRCA1 Has Results",
+      "type": "validation",
+      "query": "",
+      "identifier": "BRCA1",
+      "filter_dataset": "hgnc",
+      "why": "BRCA1 should have HGNC entry",
+      "validations": [
+        {
+          "path": "",
+          "has_results": true,
+          "description": "Has HGNC results for BRCA1"
+        }
+      ]
+    },
+    {
+      "category": "search_filter",
+      "name": "Invalid Dataset Filter",
+      "query": "",
+      "filter_dataset": "hgnc,invalid_dataset",
+      "why": "Invalid dataset in filter should return error or empty results",
+      "should_pass": [],
+      "should_fail": [
+        "TP53"
       ]
     }
   ]

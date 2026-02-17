@@ -584,19 +584,25 @@ func (s *swisslipids) parseTissuesTSV(reader io.Reader) {
 			}
 		}
 
-		// Get Tissue/Cell ID (Uberon)
+		// Get Tissue/Cell ID (can be UBERON, CL, or CARO ontology)
 		tissueID := s.getColumn(fields, colIndices, "Tissue/Cell ID")
 		if tissueID == "" || tissueID == "null" || tissueID == "-" {
 			continue
 		}
 
-		// Add tissue cross-reference to Uberon (anatomy ontology)
-		s.d.addXref(slmID, fr, tissueID, "uberon", false)
-		xrefCount++
+		// Route to correct dataset based on ontology prefix
+		if strings.HasPrefix(tissueID, "UBERON:") {
+			s.d.addXref(slmID, fr, tissueID, "uberon", false)
+			xrefCount++
+		} else if strings.HasPrefix(tissueID, "CL:") {
+			s.d.addXref(slmID, fr, tissueID, "cl", false)
+			xrefCount++
+		}
+		// Skip CARO: IDs - not a standard biobtree dataset
 	}
 
 	s.check(scanner.Err(), "scanning tissues.tsv")
-	log.Printf("[%s] Added %d Uberon tissue cross-references from tissues.tsv", s.source, xrefCount)
+	log.Printf("[%s] Added %d tissue/cell cross-references from tissues.tsv (UBERON + CL)", s.source, xrefCount)
 }
 
 // parseEnzymesTSV parses enzymes.tsv to add Rhea reaction cross-references

@@ -15,8 +15,7 @@ from .biobtree_client import BiobtreeClient
 from .config import config
 from .tools import CHAT_TOOLS, execute_tool
 from .schema import (
-    SCHEMA_EDGES, SCHEMA_HIERARCHIES, SCHEMA_FILTERS,
-    SCHEMA_PATTERNS, SCHEMA_DISEASE_ONTOLOGY
+    SCHEMA_EDGES, SCHEMA_FILTERS, SCHEMA_HINTS
 )
 
 
@@ -67,39 +66,11 @@ def _build_schema_prompt() -> str:
 ## BIOBTREE SCHEMA REFERENCE
 
 ### Dataset Connections (what links to what)
+Note: Ontology hierarchies (goparent/gochild, mondoparent/mondochild, etc.) are included in edges.
 {json.dumps(edges_compact, indent=2)}
 
-### Ontology Hierarchies (for navigating up/down)
-{json.dumps(SCHEMA_HIERARCHIES, indent=2)}
-
-### Key Filters
-- ensembl: genome="homo_sapiens", biotype
-- uniprot: reviewed=true (Swiss-Prot)
-- clinvar: germline_classification="Pathogenic"
-- chembl_molecule: highestDevelopmentPhase>2
-
-### Query Patterns
-{SCHEMA_PATTERNS}
-
-### Disease Ontology Strategy (CRITICAL for complex questions)
-{SCHEMA_DISEASE_ONTOLOGY}
-
-## STRATEGIC GUIDANCE
-
-1. **When direct disease→gene fails**: Try disease hierarchy
-   - Use >>mondo>>mondoparent to get broader disease category
-   - Parent diseases often have more gene associations
-
-2. **Phenotype bridges via ClinVar/HPO**:
-   - Genes link to phenotypes: >>ensembl>>hpo
-   - Use >>hpo>>clinvar>>ensembl for phenotype→gene
-
-3. **Related genes via paralogs**:
-   - For any gene found in disease/phenotype context, check >>ensembl>>paralog
-   - Paralogs often share biological functions and disease involvement
-
-4. **Multi-path strategy**:
-   - Try BOTH chembl AND pubchem for drugs
+### Hints
+{SCHEMA_HINTS}
    - Try gencc, clinvar, AND orphanet for diseases
    - If one path fails, try alternatives
 
@@ -129,51 +100,34 @@ DEFAULT_SYSTEM_PROMPT_FULL = _build_schema_prompt()
 # Balanced prompt: minimal + strategic guidance (~400 tokens)
 DEFAULT_SYSTEM_PROMPT_MINIMAL = """You are a helpful bioinformatics assistant with access to biobtree, a biological database integrating 70+ data sources including genes, proteins, drugs, diseases, variants, pathways, interactions, expression, rare diseases, clinical trials, and more.
 
-IMPORTANT: Before answering any question, call biobtree_help with topic="patterns" to discover the available mapping chains. Do NOT guess chains — always check what connections exist first.
+## CRITICAL WORKFLOW (follow this order)
 
-## STRATEGIC GUIDANCE
+1. **DISCOVER FIRST**: Always start with biobtree_search(terms="entity") - NO dataset filter
+   - This shows ALL databases that have your entity
+   - Look at results to see which databases have relevant data
+   - Don't assume which database to use - let the search results guide you
 
-1. **When direct disease→gene fails**: Try disease hierarchy
-   - Use >>mondo>>mondoparent to get broader disease category
-   - Parent diseases often have more gene associations
+2. **NAVIGATE**: Use biobtree_map with IDs from discovery results
+   - Pick IDs from databases that are likely to have the info you need
+   - If one database returns zero results, try another from the discovery results
 
-2. **Phenotype bridges via ClinVar/HPO**:
-   - Genes link to phenotypes: >>ensembl>>hpo
-   - Use >>hpo>>clinvar>>ensembl for phenotype→gene
+3. **DETAILS**: Use biobtree_entry when you need full attributes
 
-3. **Related genes via paralogs**:
-   - For any gene found in disease/phenotype context, check >>ensembl>>paralog
-   - Paralogs often share biological functions and disease involvement
+## FALLBACK STRATEGIES
 
-4. **Multi-path strategy**:
-   - Try BOTH chembl AND pubchem for drugs
-   - Try gencc, clinvar, AND orphanet for diseases
-   - If one path fails, try alternatives
+- Zero results on mapping? Try a different source database from your discovery results
+- Disease term not found? Try parent terms via >>mondoparent or >>hpoparent
+- One drug database empty? Try others - each has different coverage
 
-5. **Explore multiple pathways**: In biology, multiple mechanisms often contribute
-   to the same outcome. Don't stop at the first valid answer - explore alternative
-   pathways (e.g., hormonal, metabolic, regulatory) to provide a comprehensive answer.
+## MODE SELECTION
 
-## MODE SELECTION (lite vs full)
-
-Use **lite mode** (default) for:
-- Discovering connections and paths between entities
-- ID mapping and cross-database navigation
-- Graph traversal (finding what connects to what)
-
-Use **full mode** when you need specific values:
-- Expression data: TPM, fold-change (bgee, cellxgene, scxa)
-- Clinical data: pathogenicity, review status (clinvar, alphamissense)
-- Drug data: development phase, binding affinity (chembl, bindingdb)
-- Evidence: confidence scores, p-values (gwas, string, pharmgkb)
-
-Use **biobtree_entry** for complete details on a single identifier.
+- **lite mode** (default): For discovery and navigation
+- **full mode**: When you need numeric values, scores, clinical data
+- **biobtree_entry**: For complete details on a single identifier
 
 When answering:
-- Use biobtree_search to find identifiers, then biobtree_map to traverse chains
-- Start with lite mode for navigation, switch to full/entry for detailed attributes
-- Include specific database identifiers (IDs, accession numbers) in your answer
-- Provide clear, scientifically accurate answers based on the retrieved data"""
+- Include specific database identifiers (IDs) from your results
+- Provide scientifically accurate answers based on retrieved data"""
 
 # Use balanced prompt by default (minimal + strategic guidance)
 DEFAULT_SYSTEM_PROMPT_WITH_TOOLS = DEFAULT_SYSTEM_PROMPT_MINIMAL

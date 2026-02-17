@@ -61,6 +61,24 @@ type LitePagination struct {
 	NextToken string `json:"next_token,omitempty"`
 }
 
+// EntryLiteResponse represents the LLM-friendly lite format for entry queries
+// Keeps full attributes but compacts cross-references to counts only
+type EntryLiteResponse struct {
+	Dataset     uint32      `json:"dataset"`
+	DatasetName string      `json:"dataset_name"`
+	Identifier  string      `json:"identifier"`
+	Attributes  interface{} `json:"Attributes,omitempty"`
+	Count       uint32      `json:"count"`
+	Xrefs       XrefCounts  `json:"xrefs"`
+}
+
+// XrefCounts provides cross-reference counts by dataset
+type XrefCounts struct {
+	Total  int      `json:"total"`
+	Schema string   `json:"schema"`
+	Data   []string `json:"data"`
+}
+
 // GetCompactSchema returns pipe-delimited schema for a dataset
 func GetCompactSchema(compactFields []string) string {
 	if len(compactFields) == 0 {

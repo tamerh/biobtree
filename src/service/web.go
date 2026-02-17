@@ -175,26 +175,45 @@ func (web *Web) entry(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(buf.String()))
 		return
 	}
-	r1, err := web.service.LookupByDataset(ids[0], src)
 
+	// Always use lite mode - returns full attributes but compact xref counts
+	// Each dataset's entries can be retrieved using map query, e.g.:
+	//   /ws/map/?i=P04637&m=>>uniprot>>reactome  (get reactome xrefs)
+	//   /ws/map/?i=P04637&m=>>uniprot>>go        (get GO xrefs)
+	liteResult, err := web.service.entryLite(ids[0], src)
 	if err != nil {
-		buf.WriteString("[")
 		errStr := errString{Err: err.Error()}
 		jb, _ := ffjson.Marshal(errStr)
 		buf.WriteString(string(jb))
-		buf.WriteString("]")
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(buf.String()))
 		return
 	}
-
-	buf.WriteString("[")
-	//jb, _ := json.Marshal(r1)
-	jb, _ := ffjson.Marshal(r1)
-	buf.WriteString(string(jb))
-	buf.WriteString("]")
-	w.Write([]byte(buf.String()))
+	jb, _ := ffjson.Marshal(liteResult)
+	w.Write(jb)
 	return
+
+	// Full mode commented out - can be re-enabled if needed
+	// Full mode returns all xref entries which can be very large
+	// r1, err := web.service.LookupByDataset(ids[0], src)
+	//
+	// if err != nil {
+	// 	buf.WriteString("[")
+	// 	errStr := errString{Err: err.Error()}
+	// 	jb, _ := ffjson.Marshal(errStr)
+	// 	buf.WriteString(string(jb))
+	// 	buf.WriteString("]")
+	// 	w.WriteHeader(http.StatusBadRequest)
+	// 	w.Write([]byte(buf.String()))
+	// 	return
+	// }
+	//
+	// buf.WriteString("[")
+	// jb, _ := ffjson.Marshal(r1)
+	// buf.WriteString(string(jb))
+	// buf.WriteString("]")
+	// w.Write([]byte(buf.String()))
+	// return
 
 }
 

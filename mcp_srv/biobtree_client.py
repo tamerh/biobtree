@@ -186,7 +186,21 @@ class BiobtreeClient:
         Returns:
             Mapping results with source and target entries, plus query_url for full access
         """
-        params = {"i": terms, "m": chain}
+        # Validate and auto-correct chain syntax - must start with >>
+        chain_stripped = chain.strip()
+        if not chain_stripped.startswith(">>"):
+            # Auto-correct common mistake: ">dataset" -> ">>dataset"
+            if chain_stripped.startswith(">"):
+                corrected_chain = ">" + chain_stripped  # Add missing >
+                logger.info(f"Auto-corrected chain syntax: '{chain}' -> '{corrected_chain}'")
+                chain_stripped = corrected_chain
+            else:
+                raise BiobtreeAPIError(
+                    f"Invalid chain syntax: '{chain}'. Chain must start with '>>'. "
+                    f"Example: >>ensembl>>uniprot"
+                )
+
+        params = {"i": terms, "m": chain_stripped}
         if mode:
             params["mode"] = mode
         if page:
@@ -195,7 +209,7 @@ class BiobtreeClient:
         result = await self._request("/ws/map/", params)
 
         # Add query URL at START of response (survives truncation)
-        query_url = self._build_query_url("/ws/map/", {"i": terms, "m": chain})
+        query_url = self._build_query_url("/ws/map/", {"i": terms, "m": chain_stripped})
 
         # Return with query_url first (Python 3.7+ preserves dict order)
         return {"query_url": query_url, **result}

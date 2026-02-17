@@ -1341,6 +1341,42 @@ func (s *Service) LookupByDataset(identifier string, domainID uint32) (*pbuf.Xre
 
 }
 
+// entryLite returns a compact lite format response for a single entry lookup
+// Keeps full attributes but compacts cross-references to counts only
+func (s *Service) entryLite(identifier string, datasetID uint32) (*EntryLiteResponse, error) {
+	// Get the full entry using LookupByDataset
+	xref, err := s.LookupByDataset(identifier, datasetID)
+	if err != nil {
+		return nil, err
+	}
+
+	datasetName := config.DataconfIDIntToString[datasetID]
+
+	// Build xref counts from DatasetCounts
+	xrefData := make([]string, 0, len(xref.DatasetCounts))
+	totalXrefs := 0
+	for _, dc := range xref.DatasetCounts {
+		dsName := config.DataconfIDIntToString[dc.Dataset]
+		xrefData = append(xrefData, fmt.Sprintf("%s|%d", dsName, dc.Count))
+		totalXrefs += int(dc.Count)
+	}
+
+	response := &EntryLiteResponse{
+		Dataset:     xref.Dataset,
+		DatasetName: datasetName,
+		Identifier:  xref.Identifier,
+		Attributes:  xref.Attributes,
+		Count:       xref.Count,
+		Xrefs: XrefCounts{
+			Total:  totalXrefs,
+			Schema: "dataset|count",
+			Data:   xrefData,
+		},
+	}
+
+	return response, nil
+}
+
 // searchLite performs a search and returns compact lite format response
 // Uses the main search function and converts the result to lite format
 // Returns only IDs, sorted by has_attr (entries with attributes first)

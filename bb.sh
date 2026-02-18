@@ -131,7 +131,6 @@ DATASETS=(
     hmdb
     lipidmaps
     swisslipids
-    drugcentral
     bindingdb
     pharmgkb
 

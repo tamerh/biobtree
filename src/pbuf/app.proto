@@ -146,7 +146,6 @@ message Xref {
     BindingdbAttr bindingdb=60;
     CtdAttr ctd=61;
     BiogridAttr biogrid=62;
-    DrugcentralAttr drugcentral=63;
     MsigdbAttr msigdb=64;
     AlphaMissenseAttr alphamissense=65;
     AlphaMissenseTranscriptAttr alphamissense_transcript=66;

@@ -296,7 +296,6 @@ Available datasets:
         'ctd': datasets_dir / "ctd" / "test_ctd.py",
         'pharmgkb': datasets_dir / "pharmgkb" / "test_pharmgkb.py",
         'bao': datasets_dir / "bao" / "test_bao.py",
-        'drugcentral': datasets_dir / "drugcentral" / "test_drugcentral.py",
         'msigdb': datasets_dir / "msigdb" / "test_msigdb.py",
         'biogrid': datasets_dir / "biogrid" / "test_biogrid.py",
         'cellxgene': datasets_dir / "cellxgene" / "test_cellxgene.py",

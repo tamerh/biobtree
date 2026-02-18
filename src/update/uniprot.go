@@ -142,12 +142,12 @@ func (u *uniprot) processDbReference(entryid string, r *xmlparser.XMLElement) {
 			// Skip - UniProt's CTD dbReferences use gene IDs (e.g., "22", "29")
 			// but our CTD dataset uses MeSH chemical IDs (e.g., "D000082")
 			// The CTD parser creates proper xrefs from chemicals to genes
-		case "DrugCentral":
-			// Skip - UniProt's DrugCentral dbReferences incorrectly use UniProt accessions as IDs
-			// DrugCentral uses numeric IDs internally, the DrugCentral parser creates proper xrefs
 		case "SIGNOR":
 			// Skip - UniProt's SIGNOR dbReferences use UniProt accessions as IDs
 			// but SIGNOR uses interaction IDs (SIGNOR-XXXXXX). The SIGNOR parser creates proper xrefs
+		case "DrugCentral":
+			// Skip - UniProt's DrugCentral dbReferences incorrectly use UniProt accessions as IDs
+			// DrugCentral uses numeric IDs internally
 		case "MeSH", "MESH", "mesh":
 			// Validate MeSH ID format: should be letter followed by digits (e.g., D000082, C012345)
 			meshID := v.Attrs["id"]

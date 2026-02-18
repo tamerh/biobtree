@@ -996,8 +996,18 @@ func (s *Service) execCelGo(query *query.Query, targetXref *pbuf.Xref) (bool, er
 		out, _, err = query.Program.Eval(map[string]interface{}{query.MapDataset: targetXref.GetOntology()})
 	case "hpo":
 		out, _, err = query.Program.Eval(map[string]interface{}{"hpo": targetXref.GetHpoAttr()})
-	case "chembl_document", "chembl_assay", "chembl_activity", "chembl_molecule", "chembl_target", "chembl_target_component", "chembl_cell_line":
-		out, _, err = query.Program.Eval(map[string]interface{}{"chembl": targetXref.GetChembl()})
+	case "chembl_molecule":
+		out, _, err = query.Program.Eval(map[string]interface{}{"chembl_molecule": targetXref.GetChembl().GetMolecule()})
+	case "chembl_target":
+		out, _, err = query.Program.Eval(map[string]interface{}{"chembl_target": targetXref.GetChembl().GetTarget()})
+	case "chembl_activity":
+		out, _, err = query.Program.Eval(map[string]interface{}{"chembl_activity": targetXref.GetChembl().GetActivity()})
+	case "chembl_assay":
+		out, _, err = query.Program.Eval(map[string]interface{}{"chembl_assay": targetXref.GetChembl().GetAssay()})
+	case "chembl_document":
+		out, _, err = query.Program.Eval(map[string]interface{}{"chembl_document": targetXref.GetChembl().GetDoc()})
+	case "chembl_cell_line":
+		out, _, err = query.Program.Eval(map[string]interface{}{"chembl_cell_line": targetXref.GetChembl().GetCellLine()})
 	case "pubchem":
 		out, _, err = query.Program.Eval(map[string]interface{}{"pubchem": targetXref.GetPubchem()})
 	case "pubchem_activity":
@@ -1056,8 +1066,6 @@ func (s *Service) execCelGo(query *query.Query, targetXref *pbuf.Xref) (bool, er
 		out, _, err = query.Program.Eval(map[string]interface{}{"biogrid": targetXref.GetBiogrid()})
 	case "biogrid_interaction":
 		out, _, err = query.Program.Eval(map[string]interface{}{"biogrid_interaction": targetXref.GetBiogridInteraction()})
-	case "drugcentral":
-		out, _, err = query.Program.Eval(map[string]interface{}{"drugcentral": targetXref.GetDrugcentral()})
 	case "msigdb":
 		out, _, err = query.Program.Eval(map[string]interface{}{"msigdb": targetXref.GetMsigdb()})
 	case "alphamissense":

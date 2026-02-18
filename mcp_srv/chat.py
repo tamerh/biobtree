@@ -14,9 +14,7 @@ from fastapi.responses import JSONResponse
 from .biobtree_client import BiobtreeClient
 from .config import config
 from .tools import CHAT_TOOLS, execute_tool
-from .schema import (
-    SCHEMA_EDGES, SCHEMA_FILTERS, SCHEMA_HINTS
-)
+from .prompts import SYSTEM_PROMPT
 
 
 def _build_query_url_from_args(tool_name: str, tool_args: dict) -> str | None:
@@ -57,84 +55,8 @@ async def get_client() -> BiobtreeClient:
     return _client
 
 
-def _build_schema_prompt() -> str:
-    """Build system prompt with embedded schema for full context."""
-    edges_compact = {k: v for k, v in SCHEMA_EDGES.items()}
-
-    return f"""You are a helpful bioinformatics assistant with access to biobtree, a biological database integrating 70+ data sources.
-
-## BIOBTREE SCHEMA REFERENCE
-
-### Dataset Connections (what links to what)
-Note: Ontology hierarchies (goparent/gochild, mondoparent/mondochild, etc.) are included in edges.
-{json.dumps(edges_compact, indent=2)}
-
-### Hints
-{SCHEMA_HINTS}
-   - Try gencc, clinvar, AND orphanet for diseases
-   - If one path fails, try alternatives
-
-5. **Explore multiple pathways**: In biology, multiple mechanisms often contribute
-   to the same outcome. Don't stop at the first valid answer - explore alternative
-   pathways (e.g., hormonal, metabolic, regulatory) to provide a comprehensive answer.
-   Consider that different genes may be valid answers through different mechanisms.
-
-## MODE SELECTION (lite vs full)
-
-- **lite mode** (default): For navigation and discovery. Returns IDs, names, counts.
-- **full mode**: For detailed attributes. Use when you need numeric values, scores, clinical data.
-- **biobtree_entry**: For complete details on a single identifier.
-
-## TOOLS AVAILABLE
-- biobtree_search: Find identifiers (lite for discovery, full for attributes)
-- biobtree_map: Traverse dataset chains (lite for paths, full for detailed data)
-- biobtree_entry: Get ALL details for one ID (always full)
-- biobtree_help: Get guidance (topics: patterns, disease_ontology, edges, filters)
-
-When answering, include specific database identifiers and provide scientifically accurate answers."""
-
-
-# Full schema prompt (expensive ~5k tokens, use for testing)
-DEFAULT_SYSTEM_PROMPT_FULL = _build_schema_prompt()
-
-# Balanced prompt: minimal + strategic guidance (~400 tokens)
-DEFAULT_SYSTEM_PROMPT_MINIMAL = """You are a helpful bioinformatics assistant with access to biobtree, a biological database integrating 70+ data sources including genes, proteins, drugs, diseases, variants, pathways, interactions, expression, rare diseases, clinical trials, and more.
-
-## CRITICAL WORKFLOW (follow this order)
-
-1. **DISCOVER FIRST**: Always start with biobtree_search(terms="entity") - NO dataset filter
-   - This shows ALL databases that have your entity
-   - Look at results to see which databases have relevant data
-   - Don't assume which database to use - let the search results guide you
-
-2. **NAVIGATE**: Use biobtree_map with IDs from discovery results
-   - Pick IDs from databases that are likely to have the info you need
-   - If one database returns zero results, try another from the discovery results
-
-3. **DETAILS**: Use biobtree_entry when you need full attributes
-
-## FALLBACK STRATEGIES
-
-- Zero results on mapping? Try a different source database from your discovery results
-- Disease term not found? Try parent terms via >>mondoparent or >>hpoparent
-- One drug database empty? Try others - each has different coverage
-
-## MODE SELECTION
-
-- **lite mode** (default): For discovery and navigation
-- **full mode**: When you need numeric values, scores, clinical data
-- **biobtree_entry**: For complete details on a single identifier
-
-When answering:
-- Include specific database identifiers (IDs) from your results
-- Provide scientifically accurate answers based on retrieved data"""
-
-# Use balanced prompt by default (minimal + strategic guidance)
-DEFAULT_SYSTEM_PROMPT_WITH_TOOLS = DEFAULT_SYSTEM_PROMPT_MINIMAL
-
-DEFAULT_SYSTEM_PROMPT_NO_TOOLS = """You are a helpful bioinformatics assistant. Answer questions about genes, proteins, drugs, diseases, variants, pathways, and other biological topics based on your training knowledge.
-
-Provide clear, scientifically accurate answers. When discussing specific database entries, mention relevant identifiers if you know them (UniProt IDs, Ensembl IDs, etc.)."""
+# System prompt from prompts.py - single minimal prompt
+# Tool descriptions contain all guidance
 
 
 def _append_data_sources(answer: str, query_urls: list) -> str:
@@ -174,8 +96,7 @@ async def chat_endpoint(request: Request):
         "question": "What proteins does BRCA1 encode?",
         "model": "anthropic/claude-sonnet-4",  // optional
         "with_tools": true,  // optional, default true
-        "prompt_mode": "default",  // "default" (~400 tokens) or "full" (~5k tokens, expensive)
-        "system_prompt": "..."  // optional custom system prompt (overrides prompt_mode)
+        "system_prompt": "..."  // optional custom system prompt
     }
 
     Response:
@@ -183,7 +104,6 @@ async def chat_endpoint(request: Request):
         "answer": "...",
         "model": "anthropic/claude-sonnet-4",
         "tools_used": true,
-        "prompt_mode": "default",
         "tool_calls": [...],
         "iterations": 2
     }
@@ -207,17 +127,9 @@ async def chat_endpoint(request: Request):
 
     model = body.get("model", config.default_model)
     with_tools = body.get("with_tools", True)
-    prompt_mode = body.get("prompt_mode", "default")  # "default" (~400 tokens), "full" (~5k tokens, expensive)
 
-    # Select system prompt based on mode
-    if not with_tools:
-        default_prompt = DEFAULT_SYSTEM_PROMPT_NO_TOOLS
-    elif prompt_mode == "full":
-        default_prompt = DEFAULT_SYSTEM_PROMPT_FULL  # Full schema embedded (~5k tokens)
-    else:  # "default" - minimal + strategic guidance (~400 tokens)
-        default_prompt = DEFAULT_SYSTEM_PROMPT_MINIMAL
-
-    system_prompt = body.get("system_prompt", default_prompt)
+    # Single system prompt - all guidance is in tool descriptions
+    system_prompt = body.get("system_prompt", SYSTEM_PROMPT)
 
     # Import openai here to avoid startup dependency
     try:
@@ -334,7 +246,6 @@ async def chat_endpoint(request: Request):
                     "answer": final_answer,
                     "model": model,
                     "tools_used": with_tools,
-                    "prompt_mode": prompt_mode,
                     "tool_calls": tool_calls_log,
                     "iterations": iterations,
                     "data_sources": query_urls,
@@ -348,7 +259,6 @@ async def chat_endpoint(request: Request):
             "answer": final_answer,
             "model": model,
             "tools_used": with_tools,
-            "prompt_mode": prompt_mode,
             "tool_calls": tool_calls_log,
             "iterations": iterations,
             "data_sources": query_urls,

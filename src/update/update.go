@@ -857,12 +857,6 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			d.datasets2 = append(d.datasets2, data)
 			go bg.update()
 			break
-		case "drugcentral":
-			d.wg.Add(1)
-			dc := drugcentral{source: data, d: d}
-			d.datasets2 = append(d.datasets2, data)
-			go dc.update()
-			break
 		case "bao":
 			d.wg.Add(1)
 			ba := bao{source: data, d: d}

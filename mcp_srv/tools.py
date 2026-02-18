@@ -1,7 +1,9 @@
 """
 Biobtree Tool Definitions
 
-Shared tool definitions for MCP and Chat endpoints.
+Tool definitions for MCP and Chat endpoints.
+All definitions (TOOL_DESCRIPTIONS, INPUT_SCHEMAS) come from prompts.py.
+This file builds the tool objects and handles execution.
 """
 
 import json
@@ -11,7 +13,7 @@ from typing import Any, Dict, List
 from mcp.types import Tool
 
 from .biobtree_client import BiobtreeClient, BiobtreeError
-from .schema import get_schema
+from .prompts import TOOL_DESCRIPTIONS, INPUT_SCHEMAS
 
 logger = logging.getLogger(__name__)
 
@@ -23,155 +25,23 @@ logger = logging.getLogger(__name__)
 MCP_TOOLS = [
     Tool(
         name="biobtree_search",
-        description="""Search for biological identifiers across 70+ integrated databases.
-
-WORKFLOW:
-1. Search WITHOUT dataset filter to discover which databases have your entity
-2. For DRUG TARGETS, use these paths (try ALL until one works):
-   - drugcentral ID >> drugcentral >> uniprot (mechanism of action)
-   - pubchem ID >> pubchem >> pubchem_activity >> uniprot (bioactivity targets)
-   - chembl ID >> chembl_molecule >> chembl_target >> uniprot
-3. For DISEASE GENES: mondo/hpo ID >> gencc/clinvar/orphanet >> hgnc
-
-RETURNS: id | dataset | name | xref_count""",
-        inputSchema={
-            "type": "object",
-            "properties": {
-                "terms": {
-                    "type": "string",
-                    "description": "Comma-separated identifiers to search"
-                },
-                "dataset": {
-                    "type": "string",
-                    "description": "DO NOT USE for initial search. Only use after discovery to narrow results."
-                },
-                "mode": {
-                    "type": "string",
-                    "enum": ["lite", "full"],
-                    "default": "lite",
-                    "description": "Response mode"
-                },
-                "page": {
-                    "type": "string",
-                    "description": "Pagination token (next_token from previous response)"
-                }
-            },
-            "required": ["terms"]
-        }
+        description=TOOL_DESCRIPTIONS["biobtree_search"],
+        inputSchema=INPUT_SCHEMAS["biobtree_search"]
     ),
     Tool(
         name="biobtree_map",
-        description="""Map identifiers between databases using chain syntax.
-
-CRITICAL: Chain MUST start with ">>" (double angle brackets).
-WRONG: >drugcentral>>uniprot
-RIGHT: >>drugcentral>>uniprot
-
-DRUG TARGET PATTERNS:
-- >>drugcentral>>uniprot (FDA drug targets with mechanism)
-- >>pubchem>>pubchem_activity>>uniprot (bioactivity targets)
-- >>chembl_molecule>>chembl_target>>uniprot (medicinal chemistry)
-
-OTHER PATTERNS:
-- >>ensembl>>uniprot (gene to protein)
-- >>mondo>>gencc>>hgnc (disease to genes)
-
-SYNTAX: >>dataset1>>dataset2 (always starts with >>)""",
-        inputSchema={
-            "type": "object",
-            "properties": {
-                "terms": {
-                    "type": "string",
-                    "description": "Comma-separated identifiers to map"
-                },
-                "chain": {
-                    "type": "string",
-                    "description": "Mapping chain (e.g., '>> ensembl >> uniprot')"
-                },
-                "mode": {
-                    "type": "string",
-                    "enum": ["lite", "full"],
-                    "default": "lite",
-                    "description": "Response mode"
-                },
-                "page": {
-                    "type": "string",
-                    "description": "Pagination token (next_token from previous response)"
-                }
-            },
-            "required": ["terms", "chain"]
-        }
+        description=TOOL_DESCRIPTIONS["biobtree_map"],
+        inputSchema=INPUT_SCHEMAS["biobtree_map"]
     ),
     Tool(
         name="biobtree_entry",
-        description="""Get full details for a specific identifier in a dataset.
-
-SYNTAX: identifier="<id>", dataset="<dataset>"
-
-RETURNS: Attributes + xref counts (summary of connected datasets).
-
-To get actual cross-references, use biobtree_map (e.g., >>pubchem>>chembl_molecule).
-
-Use biobtree_help to see what attributes each dataset provides.""",
-        inputSchema={
-            "type": "object",
-            "properties": {
-                "identifier": {
-                    "type": "string",
-                    "description": "The identifier to look up"
-                },
-                "dataset": {
-                    "type": "string",
-                    "description": "The dataset containing the entry"
-                }
-            },
-            "required": ["identifier", "dataset"]
-        }
+        description=TOOL_DESCRIPTIONS["biobtree_entry"],
+        inputSchema=INPUT_SCHEMAS["biobtree_entry"]
     ),
     Tool(
         name="biobtree_meta",
-        description="""Get biobtree metadata and available datasets.
-
-Returns information about all integrated datasets including names,
-entry counts, and relationships. Useful for discovering what data
-is available and understanding the data model.
-
-NO PARAMETERS REQUIRED.
-
-RETURNS:
-- List of all datasets with IDs and names
-- Entry counts per dataset
-- Cross-reference relationships
-
-USE THIS TO:
-- See all available datasets before querying
-- Check if a specific database is integrated
-- Understand data coverage""",
-        inputSchema={
-            "type": "object",
-            "properties": {},
-        }
-    ),
-    Tool(
-        name="biobtree_help",
-        description="""Get the biobtree schema - dataset connections, filters, and descriptions.
-
-CALL THIS FIRST to understand:
-- EDGES: which datasets connect to which (required for building chains)
-- FILTERS: filter syntax and operators
-
-TOPICS: "edges", "filters", "all" (default)""",
-        inputSchema={
-            "type": "object",
-            "properties": {
-                "topic": {
-                    "type": "string",
-                    "enum": ["edges", "filters", "all"],
-                    "default": "all",
-                    "description": "Which section of the schema to return"
-                }
-            }
-        }
+        description=TOOL_DESCRIPTIONS["biobtree_meta"],
+        inputSchema=INPUT_SCHEMAS["biobtree_meta"]
     )
 ]
 
@@ -185,81 +55,32 @@ CHAT_TOOLS = [
         "type": "function",
         "function": {
             "name": "biobtree_search",
-            "description": "Search 70+ databases. For DRUG TARGETS: use drugcentral>>uniprot or pubchem>>pubchem_activity>>uniprot. For DISEASE GENES: use gencc/clinvar/orphanet.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "terms": {
-                        "type": "string",
-                        "description": "Comma-separated identifiers to search"
-                    },
-                    "dataset": {
-                        "type": "string",
-                        "description": "Optional filter. Omit for discovery."
-                    }
-                },
-                "required": ["terms"]
-            }
+            "description": TOOL_DESCRIPTIONS["biobtree_search"],
+            "parameters": INPUT_SCHEMAS["biobtree_search"]
         }
     },
     {
         "type": "function",
         "function": {
             "name": "biobtree_map",
-            "description": "Map IDs between databases. Chain MUST start with '>>'. DRUG TARGETS: >>drugcentral>>uniprot or >>pubchem>>pubchem_activity>>uniprot. DISEASE GENES: >>mondo>>gencc>>hgnc.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "terms": {
-                        "type": "string",
-                        "description": "Comma-separated identifiers to map"
-                    },
-                    "chain": {
-                        "type": "string",
-                        "description": "Chain MUST start with '>>'. Example: '>>drugcentral>>uniprot' (NOT '>drugcentral>>uniprot')"
-                    }
-                },
-                "required": ["terms", "chain"]
-            }
+            "description": TOOL_DESCRIPTIONS["biobtree_map"],
+            "parameters": INPUT_SCHEMAS["biobtree_map"]
         }
     },
     {
         "type": "function",
         "function": {
             "name": "biobtree_entry",
-            "description": "Get attributes + xref counts for an identifier. Use biobtree_map for actual cross-references.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "identifier": {
-                        "type": "string",
-                        "description": "The ID to look up"
-                    },
-                    "dataset": {
-                        "type": "string",
-                        "description": "The dataset containing the entry"
-                    }
-                },
-                "required": ["identifier", "dataset"]
-            }
+            "description": TOOL_DESCRIPTIONS["biobtree_entry"],
+            "parameters": INPUT_SCHEMAS["biobtree_entry"]
         }
     },
     {
         "type": "function",
         "function": {
-            "name": "biobtree_help",
-            "description": "Get biobtree schema - dataset connections (edges) and filter syntax. CALL THIS FIRST to understand what connects to what.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "topic": {
-                        "type": "string",
-                        "enum": ["edges", "filters", "all"],
-                        "description": "Which section to return"
-                    }
-                },
-                "required": []
-            }
+            "name": "biobtree_meta",
+            "description": TOOL_DESCRIPTIONS["biobtree_meta"],
+            "parameters": INPUT_SCHEMAS["biobtree_meta"]
         }
     }
 ]
@@ -288,7 +109,7 @@ async def execute_tool(
         JSON string with tool result
     """
     try:
-        # Default to lite mode for chat to save tokens (23x smaller responses)
+        # Default to lite mode to save tokens
         default_mode = "lite"
 
         if tool_name == "biobtree_search":
@@ -312,8 +133,6 @@ async def execute_tool(
             )
         elif tool_name == "biobtree_meta":
             result = await client.meta()
-        elif tool_name == "biobtree_help":
-            result = get_schema(arguments.get("topic", "all"))
         else:
             return json.dumps({"error": f"Unknown tool: {tool_name}"})
 

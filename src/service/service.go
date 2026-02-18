@@ -204,8 +204,6 @@ func (s *Service) initWithDbDir(dbDir string) error {
 		cel.Types(&pbuf.CtdAttr{}),
 		cel.Types(&pbuf.CtdGeneInteraction{}),
 		cel.Types(&pbuf.CtdDiseaseAssociation{}),
-		cel.Types(&pbuf.DrugcentralAttr{}),
-		cel.Types(&pbuf.DrugcentralTarget{}),
 		cel.Types(&pbuf.MsigdbAttr{}),
 		cel.Types(&pbuf.AlphaMissenseAttr{}),
 		cel.Types(&pbuf.AlphaMissenseTranscriptAttr{}),
@@ -304,7 +302,17 @@ func (s *Service) initWithDbDir(dbDir string) error {
 		cel.Declarations(
 			decls.NewIdent("reactome", decls.NewObjectType("pbuf.ReactomePathwayAttr"), nil)),
 		cel.Declarations(
-			decls.NewIdent("chembl", decls.NewObjectType("pbuf.ChemblAttr"), nil)),
+			decls.NewIdent("chembl_molecule", decls.NewObjectType("pbuf.ChemblMolecule"), nil)),
+		cel.Declarations(
+			decls.NewIdent("chembl_target", decls.NewObjectType("pbuf.ChemblTarget"), nil)),
+		cel.Declarations(
+			decls.NewIdent("chembl_activity", decls.NewObjectType("pbuf.ChemblActivity"), nil)),
+		cel.Declarations(
+			decls.NewIdent("chembl_assay", decls.NewObjectType("pbuf.ChemblAssay"), nil)),
+		cel.Declarations(
+			decls.NewIdent("chembl_document", decls.NewObjectType("pbuf.ChemblDocument"), nil)),
+		cel.Declarations(
+			decls.NewIdent("chembl_cell_line", decls.NewObjectType("pbuf.ChemblCellLine"), nil)),
 		cel.Declarations(
 			decls.NewIdent("lipidmaps", decls.NewObjectType("pbuf.LipidmapsAttr"), nil)),
 		cel.Declarations(
@@ -345,8 +353,6 @@ func (s *Service) initWithDbDir(dbDir string) error {
 			decls.NewIdent("biogrid", decls.NewObjectType("pbuf.BiogridAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("biogrid_interaction", decls.NewObjectType("pbuf.BiogridInteractionAttr"), nil)),
-		cel.Declarations(
-			decls.NewIdent("drugcentral", decls.NewObjectType("pbuf.DrugcentralAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("msigdb", decls.NewObjectType("pbuf.MsigdbAttr"), nil)),
 		cel.Declarations(

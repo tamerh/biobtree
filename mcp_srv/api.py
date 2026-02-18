@@ -10,7 +10,7 @@ from fastapi import APIRouter, Query
 from fastapi.responses import JSONResponse
 
 from .biobtree_client import BiobtreeClient, BiobtreeError
-from .schema import get_schema
+from .prompts import get_schema
 
 router = APIRouter(prefix="/api", tags=["api"])
 

@@ -150,6 +150,9 @@ func extractField(xref *pbuf.Xref, field string) string {
 	if a := xref.GetInterpro(); a != nil {
 		return extractInterproField(a, field)
 	}
+	if a := xref.GetPubchem(); a != nil {
+		return extractPubchemField(a, field)
+	}
 
 	return ""
 }
@@ -415,6 +418,29 @@ func extractInterproField(a *pbuf.InterproAttr, field string) string {
 	}
 }
 
+// extractPubchemField extracts a field from PubchemAttr
+func extractPubchemField(a *pbuf.PubchemAttr, field string) string {
+	switch field {
+	case "name", "title":
+		return a.Title
+	case "iupac_name":
+		return a.IupacName
+	case "formula", "molecular_formula":
+		return a.MolecularFormula
+	case "smiles":
+		return a.Smiles
+	case "inchi_key":
+		return a.InchiKey
+	case "is_fda_approved":
+		if a.IsFdaApproved {
+			return "true"
+		}
+		return "false"
+	default:
+		return ""
+	}
+}
+
 // escapePipe escapes pipe characters in values
 func escapePipe(s string) string {
 	return strings.ReplaceAll(s, "|", "\\|")
@@ -480,6 +506,9 @@ func ExtractSourceName(xref *pbuf.Xref) string {
 	}
 	if a := xref.GetPharmgkb(); a != nil {
 		return a.Name
+	}
+	if a := xref.GetPubchem(); a != nil {
+		return a.Title
 	}
 
 	return ""

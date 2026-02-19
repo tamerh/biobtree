@@ -25,9 +25,9 @@ transcript: ensembl, exon, ufeature
 uniprot: ensembl, alphafold, interpro, pdb, ufeature, intact, string, biogrid, chembl_target, go, reactome, rhea, swisslipids, bindingdb, antibody, pubchem_activity, cellphonedb, jaspar
 alphafold: uniprot
 interpro: uniprot, go, interproparent, interprochild
-chembl_molecule: chembl_activity, chembl_target, pubchem, chebi, clinical_trials
-chembl_activity: chembl_molecule, chembl_assay
-chembl_assay: chembl_activity, chembl_target, chembl_document
+chembl_molecule: mesh, chembl_activity, chembl_target, pubchem, chebi, clinical_trials
+chembl_activity: chembl_molecule, chembl_assay, bao
+chembl_assay: chembl_activity, chembl_target, chembl_document, bao
 chembl_target: chembl_assay, uniprot, chembl_molecule
 pubchem: chembl_molecule, chebi, hmdb, pubchem_activity, pubmed, patent_compound, bindingdb, ctd, pharmgkb
 pubchem_activity: pubchem, ensembl, uniprot
@@ -58,7 +58,7 @@ cellxgene_celltype: cl, uberon, mondo
 scxa: cl, uberon, taxonomy, ensembl, scxa_gene_experiment
 scxa_expression: ensembl, scxa, scxa_gene_experiment
 scxa_gene_experiment: ensembl, scxa, scxa_expression, cl
-rnacentral: uniprot, ensembl, intact
+rnacentral: uniprot, ensembl, intact, hgnc, refseq, ena
 reactome: ensembl, uniprot, chebi, go, reactomeparent, reactomechild
 rhea: chebi, uniprot, go
 go: ensembl, uniprot, reactome, msigdb, swisslipids, bgee, interpro, goparent, gochild
@@ -67,7 +67,7 @@ efo: gwas, mondo, cellxgene, efoparent, efochild
 uberon: bgee, cellxgene, cellxgene_celltype, swisslipids, uberonparent, uberonchild
 cl: bgee, cellxgene, cellxgene_celltype, scxa, scxa_gene_experiment, clparent, clchild
 taxonomy: ensembl, uniprot, bgee, biogrid, ctd, taxparent, taxchild
-mesh: pharmgkb, ctd, pubchem, mondo, meshparent, meshchild
+mesh: pharmgkb, ctd, pubchem, mondo, chembl_molecule, meshparent, meshchild
 eco: ecoparent, ecochild
 antibody: ensembl, uniprot, mondo, pdb
 msigdb: hgnc, entrez, go, hpo
@@ -84,6 +84,7 @@ fantom5_enhancer: ensembl, uberon, cl
 fantom5_gene: ensembl, hgnc, entrez
 jaspar: uniprot, pubmed, taxonomy
 encode_ccre: taxonomy
+bao: chembl_activity, chembl_assay, baoparent, baochild
 """
 
 
@@ -92,16 +93,21 @@ encode_ccre: taxonomy
 # =============================================================================
 
 FILTERS = """
-FILTER SYNTAX: >>dataset[dataset.field operator value]
+FILTER SYNTAX: >>dataset[field operator value]
 
 OPERATORS:
-  ==       equals           >>dataset[dataset.field=="value"]
-  !=       not equals       >>dataset[dataset.field!="value"]
-  >        greater than     >>dataset[dataset.field>value]
-  <        less than        >>dataset[dataset.field<value]
-  >=       greater or equal >>dataset[dataset.field>=value]
-  <=       less or equal    >>dataset[dataset.field<=value]
-  contains string match     >>dataset[dataset.field.contains("value")]
+  ==       equals           >>dataset[field=="value"]
+  !=       not equals       >>dataset[field!="value"]
+  >        greater than     >>dataset[field>value]
+  <        less than        >>dataset[field<value]
+  >=       greater or equal >>dataset[field>=value]
+  <=       less or equal    >>dataset[field<=value]
+  contains string match     >>dataset[field.contains("value")]
+
+LOGICAL OPERATORS:
+  &&       AND              >>dataset[field1>5 && field2<10]
+  ||       OR               >>dataset[field=="A" || field=="B"]
+  !        NOT              >>dataset[!field] or >>dataset[!(field=="value")]
 
 TYPE RULES:
   - FLOAT: use decimal point (70.0 not 70)
@@ -110,12 +116,12 @@ TYPE RULES:
   - BOOL: true/false (no quotes)
 
 EXAMPLES:
-  >>chembl_molecule[chembl_molecule.highestDevelopmentPhase==4]  # approved drugs
-  >>chembl_molecule[chembl_molecule.highestDevelopmentPhase>=3]  # Phase 3+
-  >>clinical_trials[clinical_trials.phase=="PHASE3"]
-  >>go[go.type=="biological_process"]
-  >>clinvar[clinvar.clinicalSignificance=="Pathogenic"]
-  >>reactome[reactome.name.contains("signaling")]
+  >>chembl_molecule[highestDevelopmentPhase==4]  # approved drugs
+  >>chembl_molecule[highestDevelopmentPhase>=3]  # Phase 3+
+  >>clinical_trials[phase=="PHASE3"]
+  >>go[type=="biological_process"]
+  >>clinvar[germline_classification=="Pathogenic"]
+  >>reactome[name.contains("signaling")]
 """
 
 
@@ -127,13 +133,23 @@ DESC_SEARCH = """Search 70+ biological databases.
 
 SYNTAX: biobtree_search(terms="entity")
 
+BEFORE SEARCHING - Use your training knowledge to plan:
+1. What type of entity is this? (disease, process, drug, gene, protein)
+2. What is the query asking for? (drugs, genes, function, etc.)
+3. What equivalent terms might give better results?
+   (e.g., "temperature homeostasis" is a process → related condition is "fever")
+4. Choose best entry point for query type (disease terms for drug queries)
+
 WORKFLOW:
 1. Search WITHOUT dataset filter first (discover where entity exists)
 2. Use IDs from results with biobtree_map
 
 QUERY PATTERNS (choose based on question):
 
-"DRUG FOR DISEASE X":
+"DRUG FOR DISEASE/CONDITION X":
+- Prefer disease terms (mesh/mondo/efo) over GO terms for drug queries
+- If search only returns GO term, search for the related CONDITION instead
+  (e.g., "temperature homeostasis" → search "fever" instead)
 - Search disease → mondo → clinical_trials → chembl_molecule
 - OR search drug class directly (e.g., "antipyretic", "NSAID", "antibiotic")
 - Verify mechanism for top 2-3 drugs only (don't enumerate all proteins!)
@@ -141,13 +157,19 @@ QUERY PATTERNS (choose based on question):
 "DRUG TARGETS" (use BOTH paths for complete picture):
 - chembl: >>chembl_molecule>>chembl_target>>uniprot (mechanism-level)
 - pubchem: >>pubchem>>pubchem_activity>>uniprot (protein-level, often 50+ targets)
-- Filter approved: >>chembl_molecule[chembl_molecule.highestDevelopmentPhase==4]
+- Filter approved: >>chembl_molecule[highestDevelopmentPhase==4]
 
 "DISEASE GENES":
 - Search disease → mondo/hpo → gencc/clinvar/orphanet → hgnc
 
 "PROTEIN FUNCTION":
 - Search protein → uniprot → go/reactome
+
+"MECHANISM QUERIES" (drug-disease):
+- Use biobtree_entry to see what's connected (xrefs)
+- Check EDGES to see where each xref leads
+- Follow connections relevant to your question
+- Build chain: Drug → Target → [connections] → Disease
 
 RETURNS: id | dataset | name | xref_count"""
 
@@ -167,13 +189,28 @@ ID TYPE → SOURCE:
 - HP:* → >>hpo
 - HGNC:* or gene symbols → >>hgnc
 
-DRUG TARGET PATTERNS (use BOTH for complete picture):
-- >>chembl_molecule>>chembl_target>>uniprot (mechanism-level)
-- >>pubchem>>pubchem_activity>>uniprot (protein-level, often 50+ targets)
+SOME DRUG EXPLORATION PATHS:
+- >>chembl_molecule>>chembl_target>>uniprot (drug targets)
+- >>pubchem>>pubchem_activity>>uniprot (bioactivity)
+- >>ensembl>>reactome>>chebi (pathway chemicals - when no direct targets)
+- Discover more via entry xrefs + EDGES
+
+WARNING - GO terms with high xref_count (>100):
+- Don't map GO → proteins → drugs (too many results)
+- Instead: search drug class for condition → verify targets this GO term
 
 DISEASE GENE PATTERNS:
 - >>mondo>>gencc>>hgnc (curated)
 - >>mondo>>clinvar>>hgnc (variant-based)
+
+DISEASE → DRUG PATTERNS:
+- >>mesh>>chembl_molecule (MeSH disease/condition → drugs with indications)
+- >>mondo>>clinical_trials>>chembl_molecule (disease → trial drugs)
+
+DISCOVERY APPROACH:
+- Use biobtree_entry to see xrefs (what's connected)
+- Use EDGES above to see where each dataset leads
+- Build chains based on what connections exist for YOUR entity
 
 RETURNS: mapped identifiers with dataset and name
 """
@@ -190,6 +227,9 @@ USE FOR:
 - See all attributes of an entry
 - Discover filterable fields
 - Get detailed info (sequences, scores, descriptions)
+- **DISCOVER CONNECTIONS**: xrefs show what datasets link to this entry
+
+WORKFLOW: Get entry → see xrefs → check EDGES for where they lead → follow relevant paths
 
 RETURNS: All attributes + xref counts to connected datasets"""
 

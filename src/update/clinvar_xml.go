@@ -334,6 +334,13 @@ func (c *clinvarXML) createXrefs(variation *xmlparser.XMLElement, variationID, s
 		c.d.addHumanGeneXrefsAll(attr.GeneSymbol, variationID, sourceID)
 	}
 
+	// NOTE: Clinical significance removed from text search
+	// Searching "Pathogenic" returns thousands of random variants - not useful
+	// Better workflow: gene >> clinvar or disease >> clinvar, then filter by attribute
+	// if attr.GermlineClassification != "" {
+	// 	addXrefOnce(attr.GermlineClassification, textLinkID, variationID, c.source, true)
+	// }
+
 	// Get ClassifiedRecord for XRefs
 	if classifiedRecords := variation.Childs["ClassifiedRecord"]; classifiedRecords != nil && len(classifiedRecords) > 0 {
 		classified := classifiedRecords[0]

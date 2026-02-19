@@ -83,7 +83,7 @@
       "type": "map",
       "query": {
         "terms": "hsa-let-7a-5p",
-        "chain": ">>mirdb[mirdb.target_count>100]"
+        "chain": ">>mirdb[target_count>100]"
       },
       "expected": {
         "has_results": true

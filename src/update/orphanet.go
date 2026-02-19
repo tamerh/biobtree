@@ -348,9 +348,6 @@ func (o *orphanet) parseProduct6(entries map[string]*orphaEntry) int {
 					}
 					gene := &geneNode[0]
 
-					// Gene identifiers
-					geneSymbol := getXMLChildText(gene, "Symbol")
-
 					// Association type for evidence
 					assocType := ""
 					if typeNode := geneAssoc.Childs["DisorderGeneAssociationType"]; typeNode != nil && len(typeNode) > 0 {
@@ -358,9 +355,6 @@ func (o *orphanet) parseProduct6(entries map[string]*orphaEntry) int {
 							assocType = typeName[0].InnerText
 						}
 					}
-
-					// Track whether we found explicit HGNC reference
-					hasExplicitHGNC := false
 
 					// External references (Ensembl, HGNC)
 					if extRefList := gene.Childs["ExternalReferenceList"]; extRefList != nil && len(extRefList) > 0 {
@@ -384,17 +378,9 @@ func (o *orphanet) parseProduct6(entries map[string]*orphaEntry) int {
 										hgncID = "HGNC:" + ref
 									}
 									o.d.addXrefWithEvidence(orphaCode, sourceID, hgncID, "hgnc", false, assocType)
-									hasExplicitHGNC = true
 								}
 							}
 						}
-					}
-
-					// Only use gene symbol lookup if no explicit HGNC reference was found
-					// This avoids duplicate xrefs (one with evidence, one without)
-					// addHumanGeneXrefsAll creates xrefs to HGNC, Entrez, and Ensembl
-					if geneSymbol != "" && !hasExplicitHGNC {
-						o.d.addHumanGeneXrefsAll(geneSymbol, orphaCode, sourceID)
 					}
 
 					entry.geneCount++
@@ -437,9 +423,13 @@ func (o *orphanet) saveAllEntries(entries map[string]*orphaEntry) {
 			}
 		}
 
+		// Pull MONDO synonyms for this Orphanet entry
+		// This makes Orphanet entries searchable via MONDO's richer synonym vocabulary
+		o.pullMondoSynonyms(orphaCode)
+
 		// Cross-references to OMIM
 		for _, omimID := range entry.omimIDs {
-			o.d.addXref2(orphaCode, sourceID, omimID, "mim")
+			o.d.addXref(orphaCode, sourceID, omimID, "mim", false)
 		}
 
 		// Cross-reference to MONDO
@@ -448,12 +438,12 @@ func (o *orphanet) saveAllEntries(entries map[string]*orphaEntry) {
 			if !strings.HasPrefix(mondoID, "MONDO:") {
 				mondoID = "MONDO:" + mondoID
 			}
-			o.d.addXref2(orphaCode, sourceID, mondoID, "mondo")
+			o.d.addXref(orphaCode, sourceID, mondoID, "mondo", false)
 		}
 
 		// Cross-references to MeSH
 		for _, meshID := range entry.meshIDs {
-			o.d.addXref2(orphaCode, sourceID, meshID, "mesh")
+			o.d.addXref(orphaCode, sourceID, meshID, "mesh", false)
 		}
 
 		// Cross-references to HPO phenotypes
@@ -462,7 +452,7 @@ func (o *orphanet) saveAllEntries(entries map[string]*orphaEntry) {
 			if evidence != "" {
 				o.d.addXrefWithEvidence(orphaCode, sourceID, pheno.HpoId, "hpo", false, evidence)
 			} else {
-				o.d.addXref2(orphaCode, sourceID, pheno.HpoId, "hpo")
+				o.d.addXref(orphaCode, sourceID, pheno.HpoId, "hpo", false)
 			}
 		}
 	}
@@ -488,4 +478,99 @@ func parseIntSafe(s string) int {
 		return 0
 	}
 	return val
+}
+
+// pullMondoSynonyms looks up MONDO entries that link to this Orphanet ID
+// and adds their synonyms as text search terms for the Orphanet entry
+func (o *orphanet) pullMondoSynonyms(orphaCode string) {
+	// Check if lookup service is available and MONDO is configured
+	if o.d.lookupService == nil {
+		return
+	}
+	if _, exists := config.Dataconf["mondo"]; !exists {
+		return
+	}
+
+	// Use MapFilter to find MONDO entries that link to this Orphanet ID
+	// Query: orphaCode >>orphanet>>mondo - finds MONDO entries via Orphanet xrefs
+	result, err := o.d.lookupService.MapFilter([]string{orphaCode}, ">>orphanet>>mondo", "")
+	if err != nil {
+		log.Printf("Orphanet pullMondoSynonyms: MapFilter error for %s: %v", orphaCode, err)
+		return
+	}
+	if result == nil || len(result.Results) == 0 {
+		return
+	}
+
+	mondoDatasetID := config.DataconfIDStringToInt["mondo"]
+
+	// Process each mapping result
+	for _, mapResult := range result.Results {
+		// Get MONDO targets from this mapping
+		for _, target := range mapResult.Targets {
+			if target.Dataset != mondoDatasetID || target.Identifier == "" {
+				continue
+			}
+
+			mondoID := target.Identifier
+			log.Printf("Orphanet pullMondoSynonyms: found MONDO %s for Orphanet %s", mondoID, orphaCode)
+
+			// Extract ontology attributes directly from target (contains synonyms)
+			ontologyAttr := target.GetOntology()
+			if ontologyAttr == nil {
+				// Try getting full entry if attributes not in target
+				mondoEntry, err := o.d.lookupFullEntry(mondoID, mondoDatasetID)
+				if err != nil || mondoEntry == nil {
+					continue
+				}
+				ontologyAttr = mondoEntry.GetOntology()
+				if ontologyAttr == nil {
+					continue
+				}
+			}
+
+			log.Printf("Orphanet pullMondoSynonyms: MONDO %s has name=%s, %d synonyms", mondoID, ontologyAttr.Name, len(ontologyAttr.Synonyms))
+
+			// Collect all phrases (name + synonyms)
+			allPhrases := []string{}
+			if ontologyAttr.Name != "" {
+				allPhrases = append(allPhrases, ontologyAttr.Name)
+			}
+			allPhrases = append(allPhrases, ontologyAttr.Synonyms...)
+
+			// Add full phrases as text search terms
+			for _, phrase := range allPhrases {
+				if phrase != "" {
+					o.d.addXref(phrase, textLinkID, orphaCode, o.source, true)
+				}
+			}
+
+			// Add individual significant words for partial matching
+			for _, phrase := range allPhrases {
+				for _, word := range strings.Fields(phrase) {
+					word = strings.Trim(word, ",.;:'\"()-")
+					if len(word) >= 4 && !isOrphanetStopWord(word) {
+						o.d.addXref(word, textLinkID, orphaCode, o.source, true)
+					}
+				}
+			}
+		}
+	}
+}
+
+// isOrphanetStopWord returns true for common medical terms that should not be indexed alone
+func isOrphanetStopWord(word string) bool {
+	word = strings.ToLower(word)
+	stopWords := map[string]bool{
+		// Disease type words
+		"disease": true, "disorder": true, "syndrome": true, "condition": true,
+		"type": true, "form": true, "variant": true,
+		// Common medical terms
+		"with": true, "without": true, "from": true, "that": true,
+		"associated": true, "related": true, "induced": true,
+		"chronic": true, "acute": true, "congenital": true,
+		"familial": true, "hereditary": true, "inherited": true,
+		"rare": true, "common": true,
+	}
+	return stopWords[word]
 }

@@ -148,7 +148,7 @@
       "description": "Filter biogrid_interaction by experimental_system_type",
       "type": "mapping",
       "input": "P45985",
-      "chain": ">>uniprot>>biogrid_interaction[biogrid_interaction.experimental_system_type=='physical']",
+      "chain": ">>uniprot>>biogrid_interaction[experimental_system_type=='physical']",
       "expected": {
         "has_results": true
       }

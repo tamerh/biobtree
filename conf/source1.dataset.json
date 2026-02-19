@@ -10,7 +10,7 @@
     "pathTrembl": "ftp://ftp.ebi.ac.uk/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_trembl.xml.gz",
     "useLocalFile": "no",
     "hasFilter": "yes",
-    "attrs": "[]accessions,[]genes,[]names,[]alternative_names,[]submitted_names,sequence.seq,sequence.mass,reviewed",
+    "attrs": "[]accessions,[]genes,[]names,[]alternative_names,[]submitted_names,sequence.seq,sequence.mass",
     "compact_fields": "",
     "test_entries_count": "100000",
     "bucketMethod": "uniprot"
@@ -358,6 +358,7 @@
     "aliases": "Clinical Trial,ClinicalTrial,NCT",
     "id": "27",
     "name": "Clinical Trials",
+    "textPriority": "30",
     "url": "https://clinicaltrials.gov/study/£{id}",
     "path": "raw_data/clinical_trials/",
     "useLocalFile": "yes",
@@ -846,7 +847,7 @@
   "pharmgkb_gene": {
     "id": "68",
     "name": "PharmGKB Gene",
-    "textPriority": "50",
+    "textPriority": "90",
     "aliases": "PharmGKB Gene,pharmacogene,VIP gene,very important pharmacogene",
     "url": "https://www.clinpgx.org/gene/£{id}",
     "path": "raw_data/clinpgx/",
@@ -858,7 +859,7 @@
   "pharmgkb_clinical": {
     "id": "69",
     "name": "PharmGKB Clinical Annotation",
-    "textPriority": "50",
+    "textPriority": "90",
     "aliases": "PharmGKB Clinical,clinical annotation,PGx annotation,variant-drug annotation,drug response",
     "url": "https://www.clinpgx.org/clinicalAnnotation/£{id}",
     "path": "raw_data/clinpgx/",
@@ -870,6 +871,7 @@
   "pharmgkb_variant": {
     "id": "106",
     "name": "PharmGKB Variant",
+    "textPriority": "90",
     "aliases": "PharmGKB Variant,pharmacogenomic variant,PGx variant,pharmacogenetic variant",
     "url": "https://www.clinpgx.org/variant/£{id}",
     "path": "raw_data/clinpgx/",
@@ -893,6 +895,7 @@
   "pharmgkb_pathway": {
     "id": "108",
     "name": "PharmGKB Pathway",
+    "textPriority": "90",
     "aliases": "PharmGKB Pathway,pharmacokinetic pathway,pharmacodynamic pathway,drug metabolism pathway,PK pathway,PD pathway",
     "url": "https://www.clinpgx.org/pathway/£{id}",
     "path": "raw_data/clinpgx/",
@@ -1088,6 +1091,7 @@
     "useLocalFile": "no",
     "hasFilter": "yes",
     "attrs": "name,[]synonyms,definition,disorder_type,[]phenotypes",
+    "compact_fields": "name,disorder_type",
     "test_entries_count": "100",
     "bucketMethod": "numeric"
   },

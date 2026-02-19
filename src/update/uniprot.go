@@ -438,7 +438,9 @@ uniloop:
 
 		attr := pbuf.UniprotAttr{}
 
-		attr.Reviewed = !u.trembl
+		// Note: attr.Reviewed field exists but is not set - we only use SwissProt (reviewed)
+		// so this field would always be true and is unnecessary. Leaving it unset (false)
+		// means it won't be serialized in JSON output due to omitempty behavior.
 
 		for i := 1; i < len(r.Childs["accession"]); i++ {
 			v = r.Childs["accession"][i]
@@ -475,6 +477,11 @@ uniloop:
 			for _, v = range x.Childs["recommendedName"] {
 				for _, z = range v.Childs["fullName"] {
 					attr.Names = append(attr.Names, z.InnerText)
+					// Enable protein name search for SwissProt only (not TrEMBL)
+					// Searching "Insulin" will find P01308
+					if !u.trembl {
+						u.d.addXref(z.InnerText, textLinkID, entryid, u.source, true)
+					}
 				}
 			}
 

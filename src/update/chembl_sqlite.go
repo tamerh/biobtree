@@ -147,6 +147,7 @@ type chemblActivityJSON struct {
 	PchemblValue     *float64 `json:"pchembl_value"`
 	AssayType        string   `json:"assay_type"`
 	ConfidenceScore  *int     `json:"confidence_score"`
+	BaoEndpoint      string   `json:"bao_endpoint"` // BAO ontology term for activity endpoint (e.g., BAO:0000190)
 }
 
 // chemblAssayJSON matches the extracted assay JSON format
@@ -164,6 +165,7 @@ type chemblAssayJSON struct {
 	TargetID            string `json:"target_id"`
 	DocumentID          string `json:"document_id"`
 	Source              string `json:"source"`
+	BaoFormat           string `json:"bao_format"` // BAO ontology term for assay format (e.g., BAO:0000019)
 }
 
 // chemblDocumentJSON matches the extracted document JSON format
@@ -793,6 +795,7 @@ func (c *chemblSqlite) processActivities(testLimit int) int64 {
 				StandardType:     entry.StandardType,
 				StandardRelation: entry.StandardRelation,
 				StandardUnits:    entry.StandardUnits,
+				Bao:              entry.BaoEndpoint, // BAO ontology term for activity endpoint
 			},
 		}
 
@@ -830,6 +833,13 @@ func (c *chemblSqlite) processActivities(testLimit int) int64 {
 		if entry.UniprotID != "" {
 			if _, uniprotExists := config.Dataconf["uniprot"]; uniprotExists {
 				c.d.addXref(activityID, sourceID, entry.UniprotID, "uniprot", false)
+			}
+		}
+
+		// Cross-reference to BAO (BioAssay Ontology)
+		if entry.BaoEndpoint != "" {
+			if _, baoExists := config.Dataconf["bao"]; baoExists {
+				c.d.addXref(activityID, sourceID, entry.BaoEndpoint, "bao", false)
 			}
 		}
 
@@ -916,6 +926,7 @@ func (c *chemblSqlite) processAssays(testLimit int) int64 {
 				SubCellFrac: entry.SubcellularFraction,
 				Strain:      entry.Strain,
 				Source:      entry.Source,
+				Bao:         entry.BaoFormat, // BAO ontology term for assay format
 			},
 		}
 
@@ -948,6 +959,13 @@ func (c *chemblSqlite) processAssays(testLimit int) int64 {
 		if entry.DocumentID != "" {
 			if _, docExists := config.Dataconf["chembl_document"]; docExists {
 				c.d.addXref(entry.AssayID, sourceID, entry.DocumentID, "chembl_document", false)
+			}
+		}
+
+		// Cross-reference to BAO (BioAssay Ontology)
+		if entry.BaoFormat != "" {
+			if _, baoExists := config.Dataconf["bao"]; baoExists {
+				c.d.addXref(entry.AssayID, sourceID, entry.BaoFormat, "bao", false)
 			}
 		}
 

@@ -58,7 +58,7 @@
       "name": "Chromosome filter",
       "description": "Filter cCREs by chromosome",
       "query_type": "map",
-      "query": "EH38E2776516 >> encode_ccre[encode_ccre.chromosome==\"chr1\"]",
+      "query": "EH38E2776516 >> encode_ccre[chromosome==\"chr1\"]",
       "expected": {
         "has_results": true
       }

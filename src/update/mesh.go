@@ -5,6 +5,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -443,6 +444,11 @@ func (m *mesh) saveEntry(id string, fr string, attr *pbuf.MeshAttr) {
 		}
 	}
 
+	// Pull synonyms from linked MONDO entries via lookup service
+	// This makes MeSH entries searchable via MONDO synonyms
+	// e.g., searching "hypercalcemia" finds C562390 via MONDO:0043455's synonym
+	m.pullMondoSynonyms(id)
+
 	// Create cross-references for pharmacological actions
 	// Link from this descriptor to its pharmacological action descriptors
 	// Only create xrefs for valid MeSH IDs (D/C/Q followed by digits)
@@ -452,6 +458,103 @@ func (m *mesh) saveEntry(id string, fr string, attr *pbuf.MeshAttr) {
 			m.d.addXref(id, fr, action, m.source, false)
 		}
 	}
+}
+
+// pullMondoSynonyms looks up MONDO entries that link to this MeSH ID
+// and adds their synonyms as text search terms for the MeSH entry
+func (m *mesh) pullMondoSynonyms(meshID string) {
+	// Check if lookup service is available and MONDO is configured
+	if m.d.lookupService == nil {
+		return
+	}
+	if _, exists := config.Dataconf["mondo"]; !exists {
+		return
+	}
+
+	// Use MapFilter to find MONDO entries that link to this MeSH ID
+	// Query: meshID >>mesh>>mondo - finds MONDO entries via MeSH xrefs
+	result, err := m.d.lookupService.MapFilter([]string{meshID}, ">>mesh>>mondo", "")
+	if err != nil {
+		log.Printf("MeSH pullMondoSynonyms: MapFilter error for %s: %v", meshID, err)
+		return
+	}
+	if result == nil || len(result.Results) == 0 {
+		return
+	}
+
+	mondoDatasetID := config.DataconfIDStringToInt["mondo"]
+
+	// Process each mapping result
+	for _, mapResult := range result.Results {
+		// Get MONDO targets from this mapping
+		for _, target := range mapResult.Targets {
+			if target.Dataset != mondoDatasetID || target.Identifier == "" {
+				continue
+			}
+
+			mondoID := target.Identifier
+			log.Printf("MeSH pullMondoSynonyms: found MONDO %s for MeSH %s", mondoID, meshID)
+
+			// Extract ontology attributes directly from target (contains synonyms)
+			ontologyAttr := target.GetOntology()
+			if ontologyAttr == nil {
+				// Try getting full entry if attributes not in target
+				mondoEntry, err := m.d.lookupFullEntry(mondoID, mondoDatasetID)
+				if err != nil || mondoEntry == nil {
+					continue
+				}
+				ontologyAttr = mondoEntry.GetOntology()
+				if ontologyAttr == nil {
+					continue
+				}
+			}
+
+			log.Printf("MeSH pullMondoSynonyms: MONDO %s has name=%s, %d synonyms", mondoID, ontologyAttr.Name, len(ontologyAttr.Synonyms))
+
+			// Collect all phrases (name + synonyms)
+			allPhrases := []string{}
+			if ontologyAttr.Name != "" {
+				allPhrases = append(allPhrases, ontologyAttr.Name)
+			}
+			allPhrases = append(allPhrases, ontologyAttr.Synonyms...)
+
+			// Add full phrases as text search terms
+			for _, phrase := range allPhrases {
+				if phrase != "" {
+					m.d.addXref(phrase, textLinkID, meshID, m.source, true)
+				}
+			}
+
+			// Add individual significant words for partial matching
+			// This allows searching "hypercalcemia" to find entries with "hypercalcemia of malignancy"
+			for _, phrase := range allPhrases {
+				for _, word := range strings.Fields(phrase) {
+					// Clean word of punctuation
+					word = strings.Trim(word, ",.;:'\"()-")
+					// Only add words with 4+ characters that aren't common stop words
+					if len(word) >= 4 && !isMeshStopWord(word) {
+						m.d.addXref(word, textLinkID, meshID, m.source, true)
+					}
+				}
+			}
+		}
+	}
+}
+
+// isMeshStopWord returns true for common medical terms that should not be indexed alone
+func isMeshStopWord(word string) bool {
+	word = strings.ToLower(word)
+	stopWords := map[string]bool{
+		// Disease type words
+		"disease": true, "disorder": true, "syndrome": true, "condition": true,
+		"type": true, "form": true, "variant": true,
+		// Common medical terms
+		"with": true, "without": true, "from": true, "that": true,
+		"associated": true, "related": true, "induced": true,
+		"chronic": true, "acute": true, "congenital": true,
+		"familial": true, "hereditary": true, "inherited": true,
+	}
+	return stopWords[word]
 }
 
 func (m *mesh) saveHierarchyRelations(id string, fr, frparent, frchild string, frparentStr, frchildStr string, treeNumbers []string) {

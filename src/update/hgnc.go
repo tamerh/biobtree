@@ -178,12 +178,13 @@ func (e *hgnc) update() {
 
 			switch t := j.ObjectVals["name"].(type) {
 			case string:
-				// e.d.addXref(t, textLinkID, entryid, "hgnc", true)
+				// Enable protein name search: "insulin" should find INS gene
+				e.d.addXref(t, textLinkID, entryid, "hgnc", true)
 				attr.Names = append(attr.Names, t)
 			case (*jsparser.JSON):
 				if _, ok = j.ObjectVals["name"]; ok && len(t.ArrayVals) > 0 {
 					for _, v := range t.ArrayVals {
-						// e.d.addXref(v.(string), textLinkID, entryid, "hgnc", true)
+						e.d.addXref(v.(string), textLinkID, entryid, "hgnc", true)
 						attr.Names = append(attr.Names, v.(string))
 					}
 				}
@@ -204,14 +205,15 @@ func (e *hgnc) update() {
 
 			switch t := j.ObjectVals["locus_group"].(type) {
 			case string:
-				e.d.addXref(t, textLinkID, entryid, "hgnc", true)
+				// NOTE: Removed from text search - "protein-coding gene" returned 50+ entries
+				// Still stored in attr for filtering
 				attr.LocusGroup = t
 			default:
 			}
 
 			switch t := j.ObjectVals["locus_type"].(type) {
 			case string:
-				e.d.addXref(t, textLinkID, entryid, "hgnc", true)
+				// NOTE: Removed from text search - same pollution issue as locus_group
 				attr.LocusType = t
 			default:
 			}
@@ -231,12 +233,11 @@ func (e *hgnc) update() {
 
 			switch t := j.ObjectVals["gene_group"].(type) {
 			case string:
-				e.d.addXref(t, textLinkID, entryid, "hgnc", true)
+				// NOTE: Removed from text search - "Ring finger proteins" etc. caused pollution
 				attr.GeneGroups = append(attr.GeneGroups, t)
 			case (*jsparser.JSON):
 				if _, ok = j.ObjectVals["gene_group"]; ok && len(t.ArrayVals) > 0 {
 					for _, v := range t.ArrayVals {
-						e.d.addXref(v.(string), textLinkID, entryid, "hgnc", true)
 						attr.GeneGroups = append(attr.GeneGroups, v.(string))
 					}
 				}

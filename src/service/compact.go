@@ -510,6 +510,21 @@ func ExtractSourceName(xref *pbuf.Xref) string {
 	if a := xref.GetPubchem(); a != nil {
 		return a.Title
 	}
+	if a := xref.GetMesh(); a != nil {
+		return a.DescriptorName
+	}
+	if a := xref.GetCtd(); a != nil {
+		return a.ChemicalName
+	}
+	if a := xref.GetClinicalTrials(); a != nil {
+		return a.BriefTitle
+	}
+	if a := xref.GetOrphanet(); a != nil {
+		return a.Name
+	}
+	if a := xref.GetScxa(); a != nil {
+		return a.Description
+	}
 
 	return ""
 }

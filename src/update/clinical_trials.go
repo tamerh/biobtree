@@ -813,14 +813,14 @@ func (ct *clinicalTrials) processTrialsFile(trialsFile string, fr string, chembl
 			ct.d.addProp3(nctID, fr, b)
 
 			// Create cross-references for intervention names
-			// This allows searching trials by drug name
+			// NOTE: Text search removed - interventions reachable via chembl_molecule >> clinical_trials
 			for _, interv := range interventions {
 				if interv.Name != "" {
 					// Normalize intervention name for searchability
 					normalizedName := normalizeInterventionName(interv.Name)
 					if normalizedName != "" {
-						// Create text-based xref: intervention_name → NCT_ID
-						ct.d.addXref(normalizedName, textLinkID, nctID, ct.source, true)
+						// Text search commented out - use ChEMBL mapping instead
+						// ct.d.addXref(normalizedName, textLinkID, nctID, ct.source, true)
 
 						// Map intervention to ChEMBL molecules if lookup DB available
 						ct.mapInterventionToChEMBL(nctID, normalizedName, chemblDatasetID, fr)
@@ -829,26 +829,21 @@ func (ct *clinicalTrials) processTrialsFile(trialsFile string, fr string, chembl
 			}
 		}
 
-		// Phase as searchable attribute
-		if phase != "" && phase != "nan" {
-			ct.d.addXref(phase, textLinkID, nctID, ct.source, true)
-		}
+		// Phase - removed from text search, use attribute filtering instead
+		// if phase != "" && phase != "nan" {
+		// 	ct.d.addXref(phase, textLinkID, nctID, ct.source, true)
+		// }
 
-		// Status as searchable attribute
-		if overallStatus != "" {
-			ct.d.addXref(overallStatus, textLinkID, nctID, ct.source, true)
-		}
-
-		// Study type as searchable attribute
-		if studyType != "" {
-			ct.d.addXref(studyType, textLinkID, nctID, ct.source, true)
-		}
+		// NOTE: Removed overallStatus and studyType from text search index
+		// These caused pollution: "Recruiting" matched GO terms, "Completed" was too generic
+		// Status and study type are still stored in attributes for filtering
 
 		// Map conditions to MONDO disease ontology
+		// NOTE: Text search removed - conditions reachable via MONDO >> clinical_trials
 		for _, condition := range conditions {
 			if condition != "" {
-				// Create text search xref for condition
-				ct.d.addXref(condition, textLinkID, nctID, ct.source, true)
+				// Text search commented out - use MONDO/EFO mapping instead
+				// ct.d.addXref(condition, textLinkID, nctID, ct.source, true)
 
 				// Map condition to MONDO disease IDs if lookup DB available
 				ct.mapConditionToMONDO(nctID, condition, mondoDatasetID, fr)

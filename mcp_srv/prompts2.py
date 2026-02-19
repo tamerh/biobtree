@@ -26,8 +26,8 @@ uniprot: ensembl, alphafold, interpro, pdb, ufeature, intact, string, biogrid, c
 alphafold: uniprot
 interpro: uniprot, go, interproparent, interprochild
 chembl_molecule: chembl_activity, chembl_target, pubchem, chebi, clinical_trials
-chembl_activity: chembl_molecule, chembl_assay
-chembl_assay: chembl_activity, chembl_target, chembl_document
+chembl_activity: chembl_molecule, chembl_assay, bao
+chembl_assay: chembl_activity, chembl_target, chembl_document, bao
 chembl_target: chembl_assay, uniprot, chembl_molecule
 pubchem: chembl_molecule, chebi, hmdb, pubchem_activity, pubmed, patent_compound, bindingdb, ctd, pharmgkb
 pubchem_activity: pubchem, ensembl, uniprot
@@ -84,6 +84,7 @@ fantom5_enhancer: ensembl, uberon, cl
 fantom5_gene: ensembl, hgnc, entrez
 jaspar: uniprot, pubmed, taxonomy
 encode_ccre: taxonomy
+bao: chembl_activity, chembl_assay, baoparent, baochild
 """
 
 

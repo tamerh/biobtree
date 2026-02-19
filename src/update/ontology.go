@@ -3,6 +3,7 @@ package update
 import (
 	"biobtree/pbuf"
 	"bufio"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -200,6 +201,12 @@ func (g *ontology) update() {
 					for term := range searchTerms {
 						g.d.addXref(term, textLinkID, entryid, g.source, true)
 					}
+
+					// Pull MONDO synonyms for EFO entries (diseases)
+					// This makes EFO entries searchable via MONDO's richer synonym vocabulary
+					if g.source == "efo" {
+						g.pullMondoSynonyms(entryid)
+					}
 				}
 
 			}
@@ -269,4 +276,82 @@ func isOntologyStopWord(word string) bool {
 		"susceptibility": true, "modifier": true, "obsolete": true,
 	}
 	return stopWords[strings.ToLower(word)]
+}
+
+// pullMondoSynonyms looks up MONDO entries that link to this EFO ID
+// and adds their synonyms as text search terms for the EFO entry
+func (g *ontology) pullMondoSynonyms(efoID string) {
+	// Check if lookup service is available and MONDO is configured
+	if g.d.lookupService == nil {
+		return
+	}
+	if _, exists := config.Dataconf["mondo"]; !exists {
+		return
+	}
+
+	// Use MapFilter to find MONDO entries that link to this EFO ID
+	// Query: efoID >>efo>>mondo - finds MONDO entries via EFO xrefs
+	result, err := g.d.lookupService.MapFilter([]string{efoID}, ">>efo>>mondo", "")
+	if err != nil {
+		log.Printf("EFO pullMondoSynonyms: MapFilter error for %s: %v", efoID, err)
+		return
+	}
+	if result == nil || len(result.Results) == 0 {
+		return
+	}
+
+	mondoDatasetID := config.DataconfIDStringToInt["mondo"]
+
+	// Process each mapping result
+	for _, mapResult := range result.Results {
+		// Get MONDO targets from this mapping
+		for _, target := range mapResult.Targets {
+			if target.Dataset != mondoDatasetID || target.Identifier == "" {
+				continue
+			}
+
+			mondoID := target.Identifier
+			log.Printf("EFO pullMondoSynonyms: found MONDO %s for EFO %s", mondoID, efoID)
+
+			// Extract ontology attributes directly from target (contains synonyms)
+			ontologyAttr := target.GetOntology()
+			if ontologyAttr == nil {
+				// Try getting full entry if attributes not in target
+				mondoEntry, err := g.d.lookupFullEntry(mondoID, mondoDatasetID)
+				if err != nil || mondoEntry == nil {
+					continue
+				}
+				ontologyAttr = mondoEntry.GetOntology()
+				if ontologyAttr == nil {
+					continue
+				}
+			}
+
+			log.Printf("EFO pullMondoSynonyms: MONDO %s has name=%s, %d synonyms", mondoID, ontologyAttr.Name, len(ontologyAttr.Synonyms))
+
+			// Collect all phrases (name + synonyms)
+			allPhrases := []string{}
+			if ontologyAttr.Name != "" {
+				allPhrases = append(allPhrases, ontologyAttr.Name)
+			}
+			allPhrases = append(allPhrases, ontologyAttr.Synonyms...)
+
+			// Add full phrases as text search terms
+			for _, phrase := range allPhrases {
+				if phrase != "" {
+					g.d.addXref(phrase, textLinkID, efoID, g.source, true)
+				}
+			}
+
+			// Add individual significant words for partial matching
+			for _, phrase := range allPhrases {
+				for _, word := range strings.Fields(phrase) {
+					word = strings.Trim(word, ",.;:'\"()-")
+					if len(word) >= 4 && !isOntologyStopWord(word) {
+						g.d.addXref(word, textLinkID, efoID, g.source, true)
+					}
+				}
+			}
+		}
+	}
 }

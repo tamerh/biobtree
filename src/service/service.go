@@ -245,6 +245,8 @@ func (s *Service) initWithDbDir(dbDir string) error {
 		cel.Types(&pbuf.Fantom5TopExpression{}),
 		cel.Types(&pbuf.JasparAttr{}),
 		cel.Types(&pbuf.EncodeCcreAttr{}),
+		cel.Types(&pbuf.StringAttr{}),
+		cel.Types(&pbuf.StringInteractionAttr{}),
 		cel.Declarations(
 			decls.NewIdent("uniprot", decls.NewObjectType("pbuf.UniprotAttr"), nil)),
 		cel.Declarations(
@@ -413,6 +415,10 @@ func (s *Service) initWithDbDir(dbDir string) error {
 			decls.NewIdent("jaspar", decls.NewObjectType("pbuf.JasparAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("encode_ccre", decls.NewObjectType("pbuf.EncodeCcreAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("stringdb", decls.NewObjectType("pbuf.StringAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("string_interaction", decls.NewObjectType("pbuf.StringInteractionAttr"), nil)),
 		cel.Declarations(
 			decls.NewFunction("overlaps",
 				decls.NewOverload("overlaps_int_int",

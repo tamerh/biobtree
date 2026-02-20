@@ -379,13 +379,14 @@ class TestRunner:
 
         return results if results else None
 
-    def map_query(self, identifier: str, mapping_path: str, timeout: int = 30) -> Optional[Dict]:
+    def map_query(self, identifier: str, mapping_path: str, mode: str = None, timeout: int = 30) -> Optional[Dict]:
         """
         Execute a mapping query (e.g., >>cl>>cellxgene).
 
         Args:
             identifier: Starting identifier
             mapping_path: Mapping path (e.g., ">>cl>>cellxgene")
+            mode: Optional mode ("lite" for compact output, "full" for all details)
             timeout: Request timeout in seconds
 
         Returns:
@@ -394,6 +395,8 @@ class TestRunner:
         try:
             import requests
             url = f"{self.api_url}/ws/map?i={identifier}&m={mapping_path}"
+            if mode:
+                url += f"&mode={mode}"
             response = requests.get(url, timeout=timeout)
             if response.status_code == 200:
                 return response.json()

@@ -10,7 +10,7 @@
     "pathTrembl": "ftp://ftp.ebi.ac.uk/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_trembl.xml.gz",
     "useLocalFile": "no",
     "hasFilter": "yes",
-    "attrs": "[]accessions,[]genes,[]names,[]alternative_names,[]submitted_names,sequence.seq,sequence.mass",
+    "attrs": "[]genes,[]names,[]alternative_names,[]submitted_names,sequence.length,sequence.mass",
     "compact_fields": "",
     "test_entries_count": "100000",
     "bucketMethod": "uniprot"
@@ -84,6 +84,7 @@
     "aliases": "STRING",
     "id": "5",
     "name": "STRING",
+    "filterName": "stringdb",
     "textPriority": "70",
     "path": "https://stringdb-downloads.org/download/protein.links.detailed.v12.0/",
     "url": "https://string-db.org/network/£{id}",
@@ -93,8 +94,19 @@
     "useLocalFile": "no",
     "hasFilter": "yes",
     "scoreThreshold": "0",
-    "attrs": "string_id,organism_taxid,preferred_name,protein_size,annotation,[]interactions.partner,[]interactions.score,[]interactions.has_experimental,[]interactions.has_database,[]interactions.has_textmining,[]interactions.has_coexpression",
+    "attrs": "string_id,organism_taxid,preferred_name,protein_size,annotation,interaction_count",
     "test_entries_count": "50",
+    "bucketMethod": "string",
+    "childDatasets":"string_interaction"
+  },
+  "string_interaction": {
+    "id": "63",
+    "name": "STRING Interaction",
+    "path":"",
+    "url": "#",
+    "hasFilter": "yes",
+    "attrs": "protein_a,protein_b,uniprot_a,uniprot_b,score,has_experimental,has_database,has_textmining,has_coexpression",
+    "compact_fields": "score,uniprot_b",
     "bucketMethod": "string"
   },
   "pubchem": {

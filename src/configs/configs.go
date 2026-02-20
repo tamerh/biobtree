@@ -237,6 +237,17 @@ func (c *Conf) Init(rootDir, bbBinaryVersion, outDir string, optionalDatasetActi
 			c.CompactFields[key] = fields
 		}
 
+		// Set filterName for CEL filter expressions
+		// Defaults to dataset name, or linkdataset if set, or explicit filterName
+		// This is needed because some dataset names (like "string") conflict with CEL reserved words
+		if _, hasFilterName := value["filterName"]; !hasFilterName {
+			if linkDataset, hasLink := value["linkdataset"]; hasLink && linkDataset != "" {
+				value["filterName"] = linkDataset
+			} else {
+				value["filterName"] = key
+			}
+		}
+
 		c.DataconfIDToPageKey[0] = pager.Key(0, 2) // for link dataset
 		if _, ok := value["id"]; ok {
 			id, err := strconv.Atoi(value["id"])

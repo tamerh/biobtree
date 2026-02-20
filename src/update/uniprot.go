@@ -2,17 +2,164 @@ package update
 
 import (
 	"biobtree/pbuf"
+	"fmt"
 	"log"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 	"sync/atomic"
 	"time"
+	"unicode"
 
 	"github.com/pquerna/ffjson/ffjson"
 
 	xmlparser "github.com/tamerh/xml-stream-parser"
 )
+
+// uniprotStopWords contains common terms in protein names that are too generic for search
+// These are filtered when creating tokenized text search entries
+var uniprotStopWords = map[string]bool{
+	// Very high frequency generic terms
+	"protein": true, "subunit": true, "ribosomal": true,
+	"large": true, "small": true, "factor": true,
+	"uncharacterized": true, "probable": true, "putative": true,
+	"chain": true, "homolog": true, "hypothetical": true,
+
+	// Roman numerals
+	"ii": true, "iii": true, "iv": true, "vi": true, "vii": true, "viii": true,
+
+	// Location/compartment
+	"mitochondrial": true, "chloroplastic": true, "membrane": true,
+	"nuclear": true, "transmembrane": true, "cytoplasmic": true,
+	"periplasmic": true, "extracellular": true, "cytosolic": true,
+
+	// Functional descriptors (enzyme classes)
+	"oxidoreductase": true, "transferase": true, "hydrolase": true,
+	"lyase": true, "isomerase": true, "ligase": true, "synthase": true,
+	"synthetase": true, "polymerase": true, "protease": true,
+	"peptidase": true, "phosphatase": true, "kinase": true,
+	"dehydrogenase": true, "reductase": true, "oxidase": true,
+	"decarboxylase": true, "deaminase": true, "translocase": true,
+	"helicase": true, "endonuclease": true, "exonuclease": true,
+	"methyltransferase": true, "acetyltransferase": true,
+	"aminotransferase": true, "carboxylase": true, "monooxygenase": true,
+	"dioxygenase": true, "hydroxylase": true, "oxygenase": true,
+
+	// Type descriptors
+	"type": true, "family": true, "member": true, "class": true,
+	"domain": true, "containing": true, "dependent": true, "binding": true,
+	"regulatory": true, "catalytic": true, "structural": true,
+	"like": true, "related": true, "associated": true,
+
+	// Process words
+	"biosynthesis": true, "repair": true, "import": true, "export": true,
+	"transport": true, "assembly": true, "replication": true,
+	"maturation": true, "biogenesis": true, "modification": true,
+	"division": true, "elongation": true, "initiation": true,
+	"termination": true, "translation": true, "transcription": true,
+
+	// Common biological terms
+	"complex": true, "system": true, "component": true, "channel": true,
+	"carrier": true, "center": true, "junction": true, "receptor": true,
+	"transporter": true, "regulator": true, "activator": true,
+	"inhibitor": true, "repressor": true, "chaperone": true,
+	"chaperonin": true, "accessory": true, "resistance": true,
+
+	// Common short words
+	"and": true, "of": true, "the": true, "with": true, "for": true,
+	"to": true, "in": true, "by": true, "or": true, "at": true,
+}
+
+// tokenizeProteinName splits a protein name into significant tokens for search indexing
+// It filters out stop words and keeps alphanumeric identifiers like P53, IL6, BCL2
+var tokenSplitRegex = regexp.MustCompile(`[^a-zA-Z0-9]+`)
+
+func tokenizeProteinName(name string) []string {
+	tokens := tokenSplitRegex.Split(name, -1)
+	var significant []string
+
+	for _, token := range tokens {
+		token = strings.TrimSpace(token)
+		if len(token) < 2 {
+			continue // Skip single characters
+		}
+
+		lower := strings.ToLower(token)
+
+		// Always keep alphanumeric tokens (like P53, IL6, BCL2, CD4)
+		if hasLetterAndDigit(token) {
+			significant = append(significant, token)
+			continue
+		}
+
+		// Skip stop words
+		if uniprotStopWords[lower] {
+			continue
+		}
+
+		// Keep tokens with minimum length of 4 (filters short generic words)
+		if len(token) >= 4 {
+			significant = append(significant, token)
+		}
+	}
+
+	return significant
+}
+
+// hasLetterAndDigit checks if a string contains both letters and digits
+// Used to identify protein/gene identifiers like P53, IL6, BCL2
+func hasLetterAndDigit(s string) bool {
+	hasLetter := false
+	hasDigit := false
+	for _, r := range s {
+		if unicode.IsLetter(r) {
+			hasLetter = true
+		}
+		if unicode.IsDigit(r) {
+			hasDigit = true
+		}
+		if hasLetter && hasDigit {
+			return true
+		}
+	}
+	return false
+}
+
+// uniprotSpeciesPriority maps taxonomy IDs to sort priority for UniProt entries
+// Lower number = higher priority (appears first in search results)
+var uniprotSpeciesPriority = map[string]string{
+	"9606":  "01", // Human
+	"10090": "02", // Mouse
+	"10116": "03", // Rat
+	"7955":  "04", // Zebrafish
+	"7227":  "05", // Fruit fly
+	"6239":  "06", // C. elegans
+	"4932":  "07", // Yeast
+	"3702":  "08", // Arabidopsis
+}
+
+// getUniprotSearchPriority computes combined priority for protein name search indexing
+// Combines species priority (2 digits) + inverted xref count (6 digits)
+// Example: Human protein with 100 xrefs → "01" + "999900" = "01999900"
+// This ensures: 1) Human proteins first, 2) Within species, more-connected proteins first
+func getUniprotSearchPriority(taxID string, xrefCount int) string {
+	// Get species priority (01-08 for model organisms, 99 for others)
+	speciesPriority := "99"
+	if p, ok := uniprotSpeciesPriority[taxID]; ok {
+		speciesPriority = p
+	}
+
+	// Invert xref count so higher counts sort first (lower number = higher priority)
+	// Cap at 999999 to fit in 6 digits
+	invertedCount := 999999 - xrefCount
+	if invertedCount < 0 {
+		invertedCount = 0
+	}
+
+	// Format: SS + NNNNNN (8 characters total)
+	return fmt.Sprintf("%s%06d", speciesPriority, invertedCount)
+}
 
 type uniprot struct {
 	source      string
@@ -184,7 +331,10 @@ func (u *uniprot) processSequence(entryid string, r *xmlparser.XMLElement, attr 
 
 		attr.Sequence = &pbuf.UniSequence{}
 		seqq := strings.Replace(seq.InnerText, "\n", "", -1)
-		attr.Sequence.Seq = seqq
+		// Note: sequence.Seq not populated to reduce payload (~50% reduction)
+		// Users can get full sequences from UniProt API directly
+		// attr.Sequence.Seq = seqq
+		attr.Sequence.Length = int32(len(seqq))
 
 		if _, ok := seq.Attrs["mass"]; ok {
 			c, err := strconv.Atoi(seq.Attrs["mass"])
@@ -412,6 +562,11 @@ uniloop:
 
 		entryid = r.Childs["accession"][0].InnerText
 
+		// Track taxonomy ID and xref count for priority-based text search indexing
+		var entryTaxID string
+		// Count dbReferences for priority calculation (approximate xref count)
+		entryXrefCount := len(r.Childs["dbReference"])
+
 		for _, v = range r.Childs["organism"] {
 			for _, z = range v.Childs["dbReference"] {
 
@@ -425,6 +580,9 @@ uniloop:
 					}
 				}
 
+				// Capture taxonomy ID for protein name priority sorting
+				entryTaxID = z.Attrs["id"]
+
 				// Use bucketed xref for taxonomy (has bucket config)
 				u.d.addXrefBucketed(entryid, fr, z.Attrs["id"], z.Attrs["type"], false)
 
@@ -436,6 +594,10 @@ uniloop:
 			}
 		}
 
+		// Compute combined priority: species (2 digits) + inverted xref count (6 digits)
+		// Human proteins with more xrefs appear first in search results
+		entryPriority := getUniprotSearchPriority(entryTaxID, entryXrefCount)
+
 		attr := pbuf.UniprotAttr{}
 
 		// Note: attr.Reviewed field exists but is not set - we only use SwissProt (reviewed)
@@ -445,7 +607,8 @@ uniloop:
 		for i := 1; i < len(r.Childs["accession"]); i++ {
 			v = r.Childs["accession"][i]
 			u.d.addXref(v.InnerText, textLinkID, entryid, u.source, true)
-			attr.Accessions = append(attr.Accessions, v.InnerText)
+			// Note: accessions are searchable via text index above, no need to store in attr
+			// attr.Accessions = append(attr.Accessions, v.InnerText)
 		}
 
 		for _, v = range r.Childs["name"] {
@@ -480,7 +643,15 @@ uniloop:
 					// Enable protein name search for SwissProt only (not TrEMBL)
 					// Searching "Insulin" will find P01308
 					if !u.trembl {
-						u.d.addXref(z.InnerText, textLinkID, entryid, u.source, true)
+						// Index full protein name with priority (species + xref count)
+						u.d.addTextLinkWithPriority(z.InnerText, textLinkID, entryid, u.source, entryPriority)
+						// Also index significant tokens from protein name for partial search
+						// e.g., "Hemoglobin subunit beta" -> "Hemoglobin", "beta"
+						// Uses combined priority (species + xref count) so human proteins
+						// with more cross-references appear first in search results
+						for _, token := range tokenizeProteinName(z.InnerText) {
+							u.d.addTextLinkWithPriority(token, textLinkID, entryid, u.source, entryPriority)
+						}
 					}
 				}
 			}

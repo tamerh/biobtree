@@ -1692,6 +1692,37 @@ func (d *DataUpdate) addXrefWithPriority(key string, from string, value string, 
 	}
 }
 
+// addTextLinkWithPriority creates a text link with a pre-computed priority string
+// Used when callers need custom priority logic (e.g., combining species + xref count)
+// priority: Pre-computed priority string for sorting (e.g., "01999900" for human with high xref count)
+func (d *DataUpdate) addTextLinkWithPriority(key string, from string, value string, valueFrom string, priority string) {
+	key = strings.TrimSpace(key)
+	value = strings.TrimSpace(value)
+
+	if len(key) == 0 || len(value) == 0 || len(from) == 0 {
+		return
+	}
+
+	kup := strings.ToUpper(key)
+	vup := strings.ToUpper(value)
+
+	// Storage format with priority: KEY <tab> FROM <tab> VALUE <tab> DATASETID <tab> <tab> <tab> PRIORITY
+	dataLine := kup + tab + from + tab + vup + tab + config.Dataconf[valueFrom]["id"] + tab + tab + tab + priority
+
+	// Skip keys that exceed LMDB max key size
+	if len(kup) > LMDBMaxKeySize {
+		preview := kup
+		if len(preview) > 100 {
+			preview = preview[:100] + "..."
+		}
+		log.Printf("[TextSearch] Skipping long key (%d bytes > %d max) from %s: %s",
+			len(kup), LMDBMaxKeySize, valueFrom, preview)
+		return
+	}
+	// Text/keyword links route to textsearch buckets
+	d.bucketPool.WriteReverse(TextSearchDatasetID, kup, dataLine, valueFrom)
+}
+
 // this is similar with addXref but for only link datasets like orthologes,paralogs where no need text link checking and reverse mapping creation
 func (d *DataUpdate) addXref2(key string, from string, value string, valueFrom string) {
 

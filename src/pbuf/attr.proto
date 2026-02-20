@@ -152,8 +152,9 @@ message UniprotAttr {
 }
 
 message UniSequence {
-  string seq =1;
+  string seq =1;  // Note: not populated to reduce payload - get from UniProt directly
   int32 mass =2;
+  int32 length =3;  // Amino acid count
 }
 
 message UniprotFeatureAttr {
@@ -470,16 +471,21 @@ message StringAttr {
   string preferred_name =3;
   int32 protein_size =4;
   string annotation =5;
-  repeated StringInteraction interactions =6;
+  // Field 6 removed: interactions array moved to string_interaction dataset
+  int32 interaction_count =7;  // Summary count of interactions
 }
 
-message StringInteraction {
-  string partner =1;
-  int32 score =2;
-  bool has_experimental =3;
-  bool has_database =4;
-  bool has_textmining =5;
-  bool has_coexpression =6;
+// Standalone interaction entry for string_interaction dataset
+message StringInteractionAttr {
+  string protein_a =1;           // Source STRING ID (e.g., "9606.ENSP00000269305")
+  string protein_b =2;           // Partner STRING ID
+  string uniprot_a =3;           // Source UniProt AC
+  string uniprot_b =4;           // Partner UniProt AC
+  int32 score =5;                // Combined score (0-1000)
+  bool has_experimental =6;
+  bool has_database =7;
+  bool has_textmining =8;
+  bool has_coexpression =9;
 }
 
 message AlphaFoldAttr {

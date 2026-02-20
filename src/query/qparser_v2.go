@@ -262,19 +262,14 @@ func (p *ParserV2) parseDatasetWithFilter(part string) (string, string, error) {
 	// This allows: >>chembl_molecule[highestDevelopmentPhase==4]
 	// instead of:  >>chembl_molecule[chembl_molecule.highestDevelopmentPhase==4]
 	//
-	// For link datasets (like ortholog -> ensembl), use the linkdataset as prefix
-	// since they share the same attribute structure.
-	if dataset != "" {
-		filterPrefix := dataset
-		// Check if this is a link dataset - if so, use the linkdataset as prefix
-		if p.config != nil {
-			if datasetConf, exists := p.config.Dataconf[dataset]; exists {
-				if linkDataset, hasLink := datasetConf["linkdataset"]; hasLink && linkDataset != "" {
-					filterPrefix = linkDataset
-				}
-			}
+	// Uses filterName from config (set at config load time) which handles:
+	// - Link datasets (ortholog -> ensembl)
+	// - CEL reserved word conflicts (string -> stringdb)
+	// - Default: dataset name itself
+	if dataset != "" && p.config != nil {
+		if datasetConf, exists := p.config.Dataconf[dataset]; exists {
+			filter = normalizeFilter(filter, datasetConf["filterName"])
 		}
-		filter = normalizeFilter(filter, filterPrefix)
 	}
 
 	return dataset, filter, nil

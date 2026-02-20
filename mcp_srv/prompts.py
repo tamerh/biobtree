@@ -50,7 +50,8 @@ pharmgkb_guideline: hgnc, pharmgkb
 pharmgkb_pathway: hgnc, pharmgkb
 ctd: mesh, entrez, efo, pubchem, taxonomy
 intact: uniprot, chebi, rnacentral
-string: uniprot
+string: uniprot, string_interaction
+string_interaction: string, uniprot
 biogrid: entrez, uniprot, refseq, taxonomy
 bgee: ensembl, uberon, cl, taxonomy
 cellxgene: cl, uberon, mondo, efo, taxonomy

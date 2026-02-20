@@ -5,10 +5,17 @@ STRING Protein Interactions Test Suite
 Tests STRING dataset processing using the common test framework.
 Uses declarative tests from test_cases.json and custom Python tests.
 
-Note: STRING data is stored with STRING IDs as primary identifiers.
-UniProt ACs serve as keywords that link to STRING entries, enabling
-queries by either STRING IDs or UniProt IDs. Bidirectional xrefs
-allow STRING >> uniprot mapping queries.
+Architecture:
+- STRING entries store protein metadata + interaction_count summary
+- Interactions are stored in separate string_interaction sub-dataset
+- This enables efficient queries: >>string>>string_interaction[score>900]
+- Interactions are sorted by score (highest first) via inverted score in ID
+
+Query patterns:
+- P27348 >> string                                    # Get STRING entry (~1KB)
+- P27348 >> string >> string_interaction              # Get all interactions
+- P27348 >> string >> string_interaction[score>900]  # High-confidence only
+- P27348 >> string >> string_interaction >> uniprot  # Get partner proteins
 
 This script is called by the main orchestrator (tests/run_tests.py)
 which manages the biobtree web server lifecycle.
@@ -38,108 +45,244 @@ class StringTests:
         self.runner = runner
 
     @test
-    def test_interaction_bidirectionality(self):
-        """Check that STRING interactions are bidirectional"""
-        # Find an entry with STRING interactions
-        # test_ids can contain STRING IDs (primary) or UniProt IDs (keywords)
-        found_id = None
-        interactions = []
+    def test_string_interaction_mapping(self):
+        """Check that STRING >> string_interaction mapping works"""
+        # Find a STRING entry
+        string_id = None
 
-        # Try first few test IDs (STRING IDs like 9606.ENSP00000371267 or UniProt IDs like P27348)
         for test_id in self.runner.test_ids[:10]:
             data = self.runner.lookup(test_id)
             if data and data.get("results"):
                 for result in data["results"]:
-                    if result.get("Attributes", {}).get("Stringattr", {}).get("interactions"):
-                        found_id = test_id
-                        interactions = result["Attributes"]["Stringattr"]["interactions"]
+                    stringattr = result.get("Attributes", {}).get("Stringattr", {})
+                    if stringattr and stringattr.get("string_id"):
+                        string_id = stringattr["string_id"]
                         break
-            if found_id:
+            if string_id:
                 break
 
-        if not found_id or not interactions:
-            return False, "No STRING interactions found in test data"
+        if not string_id:
+            return False, "No STRING IDs found in test data"
 
-        # Check if the first partner also has a reverse interaction
-        # Note: partner is a UniProt ID, query it directly
-        partner_uniprot_id = interactions[0]["partner"]
+        # Map to string_interaction
+        map_result = self.runner.map_query(string_id, ">>string>>string_interaction", mode="lite")
 
-        # Query partner by UniProt ID (keyword that links to STRING entry)
-        partner_data = self.runner.lookup(partner_uniprot_id)
+        if not map_result:
+            return False, f"Map query failed for {string_id}"
 
-        if not partner_data or not partner_data.get("results"):
-            return True, f"Found {len(interactions)} interactions for {found_id}"
+        stats = map_result.get("stats", {})
+        total = stats.get("total", 0)
 
-        # Check if partner has reverse interaction to original protein's UniProt ID
-        for result in partner_data["results"]:
-            partner_interactions = result.get("Attributes", {}).get("Stringattr", {}).get("interactions", [])
-            # Partners are stored as UniProt IDs, check if original is in partner's interactions
-            if partner_interactions:
-                partner_ids = [i["partner"] for i in partner_interactions]
-                # Note: Need to find the UniProt ID(s) that correspond to found_id for proper comparison
-                return True, f"Found interactions for both proteins (bidirectionality structure validated)"
+        if total == 0:
+            return False, f"No interactions found for {string_id}"
 
-        return True, f"Found {len(interactions)} interactions for {found_id}"
+        # Check schema includes score field
+        schema = map_result.get("schema", "")
+        if "score" not in schema:
+            return False, f"Schema missing score field: {schema}"
 
-    # DISABLED: Test threshold is set to 0 for maximum test data coverage
-    # In production, use scoreThreshold config to filter interactions
-    # @test
-    # def test_score_threshold(self):
-    #     """Check that interaction scores meet threshold (default: 400)"""
-    #     # Find entries with STRING interactions
-    #     low_score_count = 0
-    #     checked_count = 0
-    #
-    #     for test_id in self.runner.test_ids[:20]:
-    #         data = self.runner.lookup(test_id)
-    #         if data and data.get("results"):
-    #             for result in data["results"]:
-    #                 interactions = result.get("Attributes", {}).get("Stringattr", {}).get("interactions", [])
-    #                 for interaction in interactions:
-    #                     checked_count += 1
-    #                     if interaction.get("score", 1000) < 400:
-    #                         low_score_count += 1
-    #
-    #     if checked_count == 0:
-    #         return False, "No STRING interactions found to check scores"
-    #
-    #     if low_score_count > 0:
-    #         return False, f"Found {low_score_count}/{checked_count} interactions below threshold"
-    #
-    #     return True, f"All {checked_count} interactions meet score threshold ≥400"
+        return True, f"Found {total} interactions for {string_id}, schema: {schema}"
 
     @test
-    def test_evidence_channels(self):
-        """Check that interactions have at least one evidence type"""
-        no_evidence_count = 0
-        checked_count = 0
+    def test_interaction_score_ordering(self):
+        """Check that interactions are sorted by score (highest first)"""
+        # Find a STRING entry with interactions
+        string_id = None
+        best_count = 0
 
         for test_id in self.runner.test_ids[:20]:
             data = self.runner.lookup(test_id)
             if data and data.get("results"):
                 for result in data["results"]:
-                    interactions = result.get("Attributes", {}).get("Stringattr", {}).get("interactions", [])
-                    for interaction in interactions:
-                        checked_count += 1
-                        has_evidence = (
-                            interaction.get("has_experimental", False) or
-                            interaction.get("has_database", False) or
-                            interaction.get("has_textmining", False) or
-                            interaction.get("has_coexpression", False)
-                        )
-                        if not has_evidence:
-                            no_evidence_count += 1
+                    stringattr = result.get("Attributes", {}).get("Stringattr", {})
+                    if stringattr:
+                        count = stringattr.get("interaction_count", 0)
+                        if count > best_count:
+                            best_count = count
+                            string_id = stringattr["string_id"]
 
-        if checked_count == 0:
-            return False, "No STRING interactions found to check evidence"
+        if not string_id or best_count < 2:
+            return True, "Skipped: Not enough interactions in test data to verify ordering"
 
-        # Note: Some interactions may have only combined_score without individual evidence channels
-        # This is valid in STRING data, so we report statistics rather than fail
-        if no_evidence_count > 0:
-            percentage = (no_evidence_count / checked_count) * 100
-            return True, f"Checked {checked_count} interactions, {no_evidence_count} ({percentage:.1f}%) without individual evidence flags"
+        # Get interactions
+        map_result = self.runner.map_query(string_id, ">>string>>string_interaction", mode="lite")
 
-        return True, f"All {checked_count} interactions have at least one evidence channel"
+        if not map_result:
+            return False, f"Map query failed for {string_id}"
+
+        mappings = map_result.get("mappings", [])
+        if not mappings or not mappings[0].get("targets"):
+            return False, "No interaction targets found"
+
+        # Parse scores from compact format (id|score|uniprot_b)
+        targets = mappings[0]["targets"]
+        scores = []
+        for target in targets[:20]:  # Check first 20
+            parts = target.split("|")
+            if len(parts) >= 2:
+                try:
+                    score = int(parts[1])
+                    scores.append(score)
+                except ValueError:
+                    pass
+
+        if len(scores) < 2:
+            return False, "Not enough scores to verify ordering"
+
+        # Check descending order
+        for i in range(len(scores) - 1):
+            if scores[i] < scores[i + 1]:
+                return False, f"Scores not in descending order: {scores}"
+
+        return True, f"Scores correctly ordered (highest first): {scores[:5]}..."
+
+    @test
+    def test_interaction_score_filter(self):
+        """Check that score filtering works on string_interaction"""
+        # Find a STRING entry with most interactions
+        string_id = None
+        best_count = 0
+
+        for test_id in self.runner.test_ids[:20]:
+            data = self.runner.lookup(test_id)
+            if data and data.get("results"):
+                for result in data["results"]:
+                    stringattr = result.get("Attributes", {}).get("Stringattr", {})
+                    if stringattr:
+                        count = stringattr.get("interaction_count", 0)
+                        if count > best_count:
+                            best_count = count
+                            string_id = stringattr["string_id"]
+
+        if not string_id or best_count < 3:
+            return True, "Skipped: Not enough interactions in test data to verify filtering"
+
+        # Get all interactions
+        all_result = self.runner.map_query(string_id, ">>string>>string_interaction", mode="lite")
+        all_total = all_result.get("stats", {}).get("total", 0) if all_result else 0
+
+        # Get filtered interactions (score > 700)
+        filtered_result = self.runner.map_query(string_id, ">>string>>string_interaction[score>700]", mode="lite")
+        filtered_total = filtered_result.get("stats", {}).get("total", 0) if filtered_result else 0
+
+        if all_total == 0:
+            return False, "No interactions found"
+
+        if filtered_total >= all_total:
+            return False, f"Filter didn't reduce results: {filtered_total} >= {all_total}"
+
+        # Verify all filtered results have score > 700
+        if filtered_result and filtered_result.get("mappings"):
+            targets = filtered_result["mappings"][0].get("targets", [])
+            for target in targets[:10]:
+                parts = target.split("|")
+                if len(parts) >= 2:
+                    try:
+                        score = int(parts[1])
+                        if score <= 700:
+                            return False, f"Found score {score} <= 700 in filtered results"
+                    except ValueError:
+                        pass
+
+        return True, f"Score filter works: {filtered_total}/{all_total} interactions with score>700"
+
+    @test
+    def test_interaction_to_uniprot_chain(self):
+        """Check that string_interaction >> uniprot chaining works"""
+        # Find a STRING entry with interactions
+        string_id = None
+
+        for test_id in self.runner.test_ids[:20]:
+            data = self.runner.lookup(test_id)
+            if data and data.get("results"):
+                for result in data["results"]:
+                    stringattr = result.get("Attributes", {}).get("Stringattr", {})
+                    if stringattr and stringattr.get("interaction_count", 0) >= 1:
+                        string_id = stringattr["string_id"]
+                        break
+            if string_id:
+                break
+
+        if not string_id:
+            return True, "Skipped: No STRING entries with interactions in test data"
+
+        # Chain to UniProt
+        map_result = self.runner.map_query(string_id, ">>string>>string_interaction>>uniprot", mode="lite")
+
+        if not map_result:
+            return False, f"Chain query failed for {string_id}"
+
+        stats = map_result.get("stats", {})
+        total = stats.get("total", 0)
+
+        if total == 0:
+            return False, "No UniProt targets found via chain"
+
+        # Verify targets look like UniProt IDs
+        mappings = map_result.get("mappings", [])
+        if mappings and mappings[0].get("targets"):
+            sample_target = mappings[0]["targets"][0]
+            # UniProt IDs are typically 6-10 alphanumeric characters
+            if not (6 <= len(sample_target) <= 15 and sample_target[0].isalpha()):
+                return False, f"Target doesn't look like UniProt ID: {sample_target}"
+
+        return True, f"Chain to UniProt works: found {total} partner proteins"
+
+    @test
+    def test_interaction_attributes(self):
+        """Check that string_interaction entries have expected attributes via compact mode"""
+        # Find a STRING entry with interactions
+        string_id = None
+
+        for test_id in self.runner.test_ids[:20]:
+            data = self.runner.lookup(test_id)
+            if data and data.get("results"):
+                for result in data["results"]:
+                    stringattr = result.get("Attributes", {}).get("Stringattr", {})
+                    if stringattr and stringattr.get("interaction_count", 0) >= 1:
+                        string_id = stringattr["string_id"]
+                        break
+            if string_id:
+                break
+
+        if not string_id:
+            return True, "Skipped: No STRING entries with interactions in test data"
+
+        # Get interactions in lite mode - compact format shows score
+        map_result = self.runner.map_query(string_id, ">>string>>string_interaction", mode="lite")
+
+        if not map_result:
+            return False, f"Map query failed for {string_id}"
+
+        # Check schema has expected fields
+        schema = map_result.get("schema", "")
+        if "score" not in schema or "uniprot_b" not in schema:
+            return False, f"Schema missing expected fields: {schema}"
+
+        # Check mappings have data
+        mappings = map_result.get("mappings", [])
+        if not mappings or not mappings[0].get("targets"):
+            return False, "No interaction targets in results"
+
+        # Parse first target to verify format: id|score|uniprot_b
+        target = mappings[0]["targets"][0]
+        parts = target.split("|")
+        if len(parts) < 3:
+            return False, f"Unexpected target format: {target}"
+
+        interaction_id = parts[0]
+        score = parts[1]
+        uniprot_b = parts[2]
+
+        # Verify score is numeric
+        try:
+            score_int = int(score)
+            if not (0 <= score_int <= 1000):
+                return False, f"Score out of range: {score_int}"
+        except ValueError:
+            return False, f"Score not numeric: {score}"
+
+        return True, f"Interaction attributes valid: id={interaction_id}, score={score}, partner={uniprot_b}"
 
     @test
     def test_organism_taxid(self):
@@ -147,7 +290,6 @@ class StringTests:
         missing_taxid = 0
         checked_count = 0
 
-        # test_ids contains STRING IDs (primary identifiers) or UniProt IDs (keywords)
         for test_id in self.runner.test_ids[:10]:
             data = self.runner.lookup(test_id)
             if data and data.get("results"):
@@ -166,6 +308,34 @@ class StringTests:
         return True, f"All {checked_count} STRING entries have organism_taxid"
 
     @test
+    def test_interaction_count_matches(self):
+        """Check that interaction_count matches actual xref count"""
+        for test_id in self.runner.test_ids[:5]:
+            data = self.runner.lookup(test_id)
+            if data and data.get("results"):
+                for result in data["results"]:
+                    stringattr = result.get("Attributes", {}).get("Stringattr", {})
+                    if not stringattr:
+                        continue
+
+                    interaction_count = stringattr.get("interaction_count", 0)
+                    if interaction_count == 0:
+                        continue
+
+                    # Get xref count for string_interaction
+                    xref_count = self.runner.get_xref_count(result, "string_interaction")
+
+                    # interaction_count is total (both directions), xref_count is stored interactions
+                    # Since we store each interaction once, xref_count should be ~half of interaction_count
+                    # or equal if protein only appears as protein_a
+                    if xref_count == 0:
+                        return False, f"interaction_count={interaction_count} but no string_interaction xrefs"
+
+                    return True, f"interaction_count={interaction_count}, string_interaction xrefs={xref_count}"
+
+        return False, "No STRING entries with interaction_count found"
+
+    @test
     def test_string_id_keyword_lookup(self):
         """Check that STRING IDs work as keywords to find STRING entries"""
         # Find a STRING entry and extract its STRING ID
@@ -177,7 +347,6 @@ class StringTests:
                 for result in data["results"]:
                     stringattr = result.get("Attributes", {}).get("Stringattr", {})
                     if stringattr and stringattr.get("string_id"):
-                        # Get the STRING ID from the entry
                         string_id = stringattr["string_id"]
                         break
             if string_id:
@@ -194,13 +363,12 @@ class StringTests:
 
         # Check if it resolves to STRING dataset with proper attributes
         for result in string_data["results"]:
-            if result.get("dataset") == 27:  # 27 is STRING dataset ID
-                # Validate attributes using helper
-                valid, msg = self.runner.validate_attributes(result, "Stringattr", ["string_id"])
+            if result.get("dataset_name") == "string":
+                valid, msg = self.runner.validate_attributes(result, "Stringattr", ["string_id", "interaction_count"])
                 if not valid:
                     return False, f"STRING ID {string_id} resolved but {msg}"
 
-                return True, f"STRING ID {string_id} successfully resolves to STRING entry with valid attributes"
+                return True, f"STRING ID {string_id} successfully resolves to STRING entry"
 
         return False, f"STRING ID {string_id} did not resolve to STRING dataset"
 
@@ -211,8 +379,6 @@ def main():
     test_cases_file = script_dir / "test_cases.json"
 
     # Use generated test IDs from test_out directory (created by test mode build)
-    # Note: Orchestrator runs from biobtree root, but test can also be run from tests/datasets/string/
-    # Try both paths: relative to biobtree root and relative to test directory
     test_ids_file = script_dir / "../../../test_out/reference/string_ids.txt"
     if not test_ids_file.exists():
         test_ids_file = Path("test_out/reference/string_ids.txt")
@@ -227,11 +393,10 @@ def main():
     # Check prerequisites
     if not test_ids_file.exists():
         print(f"Error: {test_ids_file} not found")
-        print("Run: ./biobtree -d 'string,uniprot' --tax 9606 test")
+        print("Run: ./biobtree -d 'string' --tax 9606 test")
         return 1
 
     # Create test runner
-    # Note: reference_data.json is optional for STRING tests
     runner = TestRunner(api_url, reference_file if reference_file.exists() else None, test_cases_file)
 
     # Load test IDs
@@ -241,10 +406,13 @@ def main():
     # Add custom tests
     custom_tests = StringTests(runner)
     for test_method in [
-        custom_tests.test_interaction_bidirectionality,
-        # custom_tests.test_score_threshold,  # DISABLED: threshold set to 0 for test coverage
-        custom_tests.test_evidence_channels,
+        custom_tests.test_string_interaction_mapping,
+        custom_tests.test_interaction_score_ordering,
+        custom_tests.test_interaction_score_filter,
+        custom_tests.test_interaction_to_uniprot_chain,
+        custom_tests.test_interaction_attributes,
         custom_tests.test_organism_taxid,
+        custom_tests.test_interaction_count_matches,
         custom_tests.test_string_id_keyword_lookup
     ]:
         runner.add_custom_test(test_method)

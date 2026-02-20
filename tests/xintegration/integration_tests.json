@@ -1,9 +1,10 @@
 {
   "metadata": {
-    "version": "9.6",
+    "version": "9.7",
     "description": "Expanded integration tests including newly added datasets and filter tests (2025-2026)",
     "server": "http://localhost:9291",
     "last_updated": "2026-02-19",
+    "changes_9.7": "Added string_interaction sub-dataset tests (8 tests): STRING interaction mapping (>>string>>string_interaction), interaction to partner proteins chain, score filters (>900 high-confidence, >700 medium-confidence), evidence channel filters (has_experimental, has_database), multi-hop gene to interactions, gene to high-confidence partners. Tests new string_interaction sub-dataset that separates interactions from STRING entries for efficient queries. Total: 714 tests.",
     "changes_9.6": "Added text_search category (15 tests): Protein name search (UniProt SwissProt - Insulin, Hemoglobin, Spike glycoprotein), PharmGKB gene search (CYP2D6, VKORC1, SLCO1B1), Orphanet disease name search and validation, HGNC protein name search, Clinical trials sponsor-only search (Pfizer, Novartis), and pollution prevention tests (drug names and conditions should NOT match clinical trials). Tests search improvements including compact.go ExtractSourceName fix for Orphanet names and priority adjustments. Total: 706 tests.",
     "changes_9.5": "Added search_filter category (11 tests): Multi-dataset filter tests (s=hgnc,mondo,efo), single dataset filter, text priority ordering validation, pagination with filters, and invalid filter handling. Tests new comma-separated dataset filter feature and textPriority ordering. Total: 691 tests.",
     "changes_9.4": "Added encode_ccre category (13 tests): ENCODE cCRE (candidate cis-Regulatory Elements) integration tests. Direct cCRE ID lookup, text search by all 7 classifications (PLS, pELS, dELS, CA-CTCF, CA-TF, CA, TF), CEL filters for classification/chromosome/coordinate range, taxonomy cross-references, and attribute validation tests. Total: 680 tests.",
@@ -104,7 +105,7 @@
     {
       "category": "gene_mapping",
       "name": "Gene Symbol to Reviewed Uniprot (Swiss-Prot)",
-      "query": ">>ensembl>>uniprot[reviewed==true]",
+      "query": ">>ensembl>>uniprot",
       "why": "Get only manually curated Swiss-Prot entries for higher confidence protein data",
       "should_pass": [
         "BRCA1",
@@ -116,7 +117,7 @@
     {
       "category": "gene_mapping",
       "name": "Gene Symbol to Human Reviewed UniProt",
-      "query": ">>ensembl[genome==\"homo_sapiens\"]>>uniprot[reviewed==true]",
+      "query": ">>ensembl[genome==\"homo_sapiens\"]>>uniprot",
       "why": "Human-specific mapping to Swiss-Prot - used in AlphaFold and IntAct paths for precise mapping",
       "should_pass": [
         "BRCA1",
@@ -176,7 +177,7 @@
     {
       "category": "gene_mapping",
       "name": "Cancer Genes to Uniprot via HGNC",
-      "query": ">>ensembl>>uniprot[reviewed==true]",
+      "query": ">>ensembl>>uniprot",
       "why": "Cancer gene panel analysis - get curated protein entries for tumor suppressor genes",
       "should_pass": [
         "BRCA1",
@@ -369,7 +370,7 @@
     {
       "category": "chembl_drug",
       "name": "Compound to IC50 Activities",
-      "query": ">>*>>chembl_activity[bao==\"BAO_0000190\"]",
+      "query": ">>*>>chembl_activity[bao==\"BAO:0000190\"]",
       "why": "Filter for IC50 measurements - standard potency metric for drug discovery",
       "should_pass": [
         "GSK2606414"
@@ -1009,7 +1010,7 @@
     {
       "category": "protein_structures",
       "name": "Gene to AlphaFold via UniProt",
-      "query": ">>ensembl[genome==\"homo_sapiens\"]>>uniprot[reviewed==true]>>alphafold",
+      "query": ">>ensembl[genome==\"homo_sapiens\"]>>uniprot>>alphafold",
       "why": "Map genes to AlphaFold predicted structures for drug discovery - structure-based drug design workflow",
       "should_pass": [
         "BRCA1",
@@ -1985,7 +1986,7 @@
     {
       "category": "drug_discovery",
       "name": "Disease Text to AlphaFold Structures",
-      "query": ">>mondo>>gencc>>ensembl[genome==\"homo_sapiens\"]>>uniprot[reviewed==true]>>alphafold",
+      "query": ">>mondo>>gencc>>ensembl[genome==\"homo_sapiens\"]>>uniprot>>alphafold",
       "why": "Drug discovery workflow: disease text to AlphaFold structures for structure-based drug design",
       "should_pass": [
         "glioblastoma",
@@ -2017,7 +2018,7 @@
     {
       "category": "drug_discovery",
       "name": "Disease Text to IntAct Interactions",
-      "query": ">>mondo>>gencc>>ensembl[genome==\"homo_sapiens\"]>>uniprot[reviewed==true]>>intact",
+      "query": ">>mondo>>gencc>>ensembl[genome==\"homo_sapiens\"]>>uniprot>>intact",
       "why": "Drug discovery workflow: disease text to experimentally validated protein interactions",
       "should_pass": [
         "glioblastoma"
@@ -2736,6 +2737,92 @@
     },
     {
       "category": "pathway_network",
+      "name": "STRING to Interaction Sub-dataset",
+      "query": ">>string>>string_interaction",
+      "why": "Map STRING protein to its interaction entries (sub-dataset for efficient queries)",
+      "should_pass": [
+        "9606.ENSP00000269305",
+        "P04637"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "pathway_network",
+      "name": "STRING Interaction to Partner Proteins",
+      "query": ">>string>>string_interaction>>uniprot",
+      "why": "Chain through interactions to get partner UniProt proteins with details",
+      "should_pass": [
+        "9606.ENSP00000269305",
+        "P04637"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "pathway_network",
+      "name": "STRING High-Confidence Interactions",
+      "query": ">>string>>string_interaction[score>900]",
+      "why": "Filter STRING interactions by combined score >900 for high-confidence partners",
+      "should_pass": [
+        "9606.ENSP00000269305",
+        "P04637"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "pathway_network",
+      "name": "STRING Medium-Confidence Interactions",
+      "query": ">>string>>string_interaction[score>700]",
+      "why": "Filter STRING interactions by combined score >700 for medium-confidence partners",
+      "should_pass": [
+        "9606.ENSP00000269305",
+        "P04637",
+        "P38398"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "pathway_network",
+      "name": "STRING Experimental Evidence Interactions",
+      "query": ">>string>>string_interaction[has_experimental==true]",
+      "why": "Filter for interactions with experimental evidence channel",
+      "should_pass": [
+        "9606.ENSP00000269305"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "pathway_network",
+      "name": "STRING Database Evidence Interactions",
+      "query": ">>string>>string_interaction[has_database==true]",
+      "why": "Filter for interactions from curated databases",
+      "should_pass": [
+        "9606.ENSP00000269305"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "pathway_network",
+      "name": "Gene to STRING Interactions",
+      "query": ">>hgnc>>uniprot>>string>>string_interaction",
+      "why": "Multi-hop: gene symbol to protein interactions via STRING",
+      "should_pass": [
+        "TP53",
+        "BRCA1"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "pathway_network",
+      "name": "Gene to High-Confidence Partners",
+      "query": ">>hgnc>>uniprot>>string>>string_interaction[score>900]>>uniprot",
+      "why": "Multi-hop: gene to high-confidence interaction partners",
+      "should_pass": [
+        "TP53"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "pathway_network",
       "name": "Protein Interaction Network via IntAct",
       "query": ">>uniprot>>intact>>uniprot",
       "why": "Find protein interaction partners via IntAct",
@@ -3415,7 +3502,7 @@
     {
       "category": "filters_working",
       "name": "UniProt Reviewed Swiss-Prot",
-      "query": ">>ensembl>>uniprot[reviewed==true]",
+      "query": ">>ensembl>>uniprot",
       "why": "Filter for curated Swiss-Prot entries only",
       "should_pass": [
         "TP53",
@@ -4728,7 +4815,7 @@
     {
       "category": "gene_set_advanced",
       "name": "GO Kinase to Drug Molecules (7 hops filtered)",
-      "query": ">>go>>uniprot[reviewed==true]>>chembl_target>>chembl_molecule",
+      "query": ">>go>>uniprot>>chembl_target>>chembl_molecule",
       "why": "From molecular function to drug chemistry via reviewed proteins (7 hops)",
       "should_pass": [
         "GO:0004672"
@@ -6221,7 +6308,7 @@
         {
       "category": "enzyme_biochemistry",
       "name": "EC to Reviewed Proteins",
-      "query": ">>brenda>>uniprot[reviewed==true]",
+      "query": ">>brenda>>uniprot",
       "why": "Find Swiss-Prot curated proteins for an enzyme - high-quality protein sequences for enzyme studies",
       "should_pass": [
         "1.1.1.1",
@@ -6232,7 +6319,7 @@
     {
       "category": "enzyme_biochemistry",
       "name": "EC to Human Proteins",
-      "query": ">>brenda>>uniprot[reviewed==true]>>taxonomy",
+      "query": ">>brenda>>uniprot>>taxonomy",
       "why": "Find organism distribution for an enzyme - important for species-specific enzyme research",
       "should_pass": [
         "1.1.1.1"
@@ -6242,7 +6329,7 @@
     {
       "category": "enzyme_biochemistry",
       "name": "EC to Protein Structures (AlphaFold)",
-      "query": ">>brenda>>uniprot[reviewed==true]>>alphafold",
+      "query": ">>brenda>>uniprot>>alphafold",
       "why": "Get predicted 3D structures for enzyme proteins - structural biology and drug design",
       "should_pass": [
         "1.1.1.1"
@@ -6359,7 +6446,7 @@
     {
       "category": "protein_embedding_similarity",
       "name": "ESM2 to Reviewed UniProt",
-      "query": ">>esm2_similarity>>uniprot[reviewed==true]",
+      "query": ">>esm2_similarity>>uniprot",
       "why": "Find similar proteins that are manually curated Swiss-Prot entries",
       "should_pass": [
         "Q6GZX4"

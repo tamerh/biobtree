@@ -1888,6 +1888,11 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)
 				xref.Attributes = &pbuf.Xref_Stringattr{attr}
+			case "string_interaction":
+				attr := &pbuf.StringInteractionAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_StringInteraction{attr}
 			case "alphafold":
 				// Merge multiple AlphaFoldAttr properties (FTP pLDDT + GCS PAE)
 				if valPropIdx[k] > 1 {
@@ -2371,6 +2376,11 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 					barr := []byte((*kvProp[k])[0].value)
 					ffjson.Unmarshal(barr, attr)
 					xref.Attributes = &pbuf.Xref_Stringattr{attr}
+				case "string_interaction":
+					attr := &pbuf.StringInteractionAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_StringInteraction{attr}
 				case "alphafold":
 					// Merge multiple AlphaFoldAttr properties (FTP pLDDT + GCS PAE)
 					if valPropIdx[k] > 1 {

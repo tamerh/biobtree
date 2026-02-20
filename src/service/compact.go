@@ -153,6 +153,9 @@ func extractField(xref *pbuf.Xref, field string) string {
 	if a := xref.GetPubchem(); a != nil {
 		return extractPubchemField(a, field)
 	}
+	if a := xref.GetStringInteraction(); a != nil {
+		return extractStringInteractionField(a, field)
+	}
 
 	return ""
 }
@@ -433,6 +436,44 @@ func extractPubchemField(a *pbuf.PubchemAttr, field string) string {
 		return a.InchiKey
 	case "is_fda_approved":
 		if a.IsFdaApproved {
+			return "true"
+		}
+		return "false"
+	default:
+		return ""
+	}
+}
+
+// extractStringInteractionField extracts a field from StringInteractionAttr
+func extractStringInteractionField(a *pbuf.StringInteractionAttr, field string) string {
+	switch field {
+	case "protein_a":
+		return a.ProteinA
+	case "protein_b":
+		return a.ProteinB
+	case "uniprot_a":
+		return a.UniprotA
+	case "uniprot_b":
+		return a.UniprotB
+	case "score":
+		return fmt.Sprintf("%d", a.Score)
+	case "has_experimental":
+		if a.HasExperimental {
+			return "true"
+		}
+		return "false"
+	case "has_database":
+		if a.HasDatabase {
+			return "true"
+		}
+		return "false"
+	case "has_textmining":
+		if a.HasTextmining {
+			return "true"
+		}
+		return "false"
+	case "has_coexpression":
+		if a.HasCoexpression {
 			return "true"
 		}
 		return "false"

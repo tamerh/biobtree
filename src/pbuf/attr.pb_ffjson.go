@@ -99016,34 +99016,9 @@ func (j *StringAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.WriteJsonString(buf, string(j.Annotation))
 		buf.WriteByte(',')
 	}
-	if len(j.Interactions) != 0 {
-		buf.WriteString(`"interactions":`)
-		if j.Interactions != nil {
-			buf.WriteString(`[`)
-			for i, v := range j.Interactions {
-				if i != 0 {
-					buf.WriteString(`,`)
-				}
-
-				{
-
-					if v == nil {
-						buf.WriteString("null")
-					} else {
-
-						err = v.MarshalJSONBuf(buf)
-						if err != nil {
-							return err
-						}
-
-					}
-
-				}
-			}
-			buf.WriteString(`]`)
-		} else {
-			buf.WriteString(`null`)
-		}
+	if j.InteractionCount != 0 {
+		buf.WriteString(`"interaction_count":`)
+		fflib.FormatBits2(buf, uint64(j.InteractionCount), 10, j.InteractionCount < 0)
 		buf.WriteByte(',')
 	}
 	buf.Rewind(1)
@@ -99065,7 +99040,7 @@ const (
 
 	ffjtStringAttrAnnotation
 
-	ffjtStringAttrInteractions
+	ffjtStringAttrInteractionCount
 )
 
 var ffjKeyStringAttrStringId = []byte("string_id")
@@ -99078,7 +99053,7 @@ var ffjKeyStringAttrProteinSize = []byte("protein_size")
 
 var ffjKeyStringAttrAnnotation = []byte("annotation")
 
-var ffjKeyStringAttrInteractions = []byte("interactions")
+var ffjKeyStringAttrInteractionCount = []byte("interaction_count")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *StringAttr) UnmarshalJSON(input []byte) error {
@@ -99151,8 +99126,8 @@ mainparse:
 
 				case 'i':
 
-					if bytes.Equal(ffjKeyStringAttrInteractions, kn) {
-						currentKey = ffjtStringAttrInteractions
+					if bytes.Equal(ffjKeyStringAttrInteractionCount, kn) {
+						currentKey = ffjtStringAttrInteractionCount
 						state = fflib.FFParse_want_colon
 						goto mainparse
 					}
@@ -99188,8 +99163,8 @@ mainparse:
 
 				}
 
-				if fflib.EqualFoldRight(ffjKeyStringAttrInteractions, kn) {
-					currentKey = ffjtStringAttrInteractions
+				if fflib.AsciiEqualFold(ffjKeyStringAttrInteractionCount, kn) {
+					currentKey = ffjtStringAttrInteractionCount
 					state = fflib.FFParse_want_colon
 					goto mainparse
 				}
@@ -99256,8 +99231,8 @@ mainparse:
 				case ffjtStringAttrAnnotation:
 					goto handle_Annotation
 
-				case ffjtStringAttrInteractions:
-					goto handle_Interactions
+				case ffjtStringAttrInteractionCount:
+					goto handle_InteractionCount
 
 				case ffjtStringAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -99411,74 +99386,30 @@ handle_Annotation:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
-handle_Interactions:
+handle_InteractionCount:
 
-	/* handler: j.Interactions type=[]*pbuf.StringInteraction kind=slice quoted=false*/
+	/* handler: j.InteractionCount type=int32 kind=int32 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for int32", tok))
+		}
+	}
 
 	{
 
-		{
-			if tok != fflib.FFTok_left_brace && tok != fflib.FFTok_null {
-				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for ", tok))
-			}
-		}
-
 		if tok == fflib.FFTok_null {
-			j.Interactions = nil
+
 		} else {
 
-			j.Interactions = []*StringInteraction{}
+			tval, err := fflib.ParseInt(fs.Output.Bytes(), 10, 32)
 
-			wantVal := true
-
-			for {
-
-				var tmpJInteractions *StringInteraction
-
-				tok = fs.Scan()
-				if tok == fflib.FFTok_error {
-					goto tokerror
-				}
-				if tok == fflib.FFTok_right_brace {
-					break
-				}
-
-				if tok == fflib.FFTok_comma {
-					if wantVal == true {
-						// TODO(pquerna): this isn't an ideal error message, this handles
-						// things like [,,,] as an array value.
-						return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
-					}
-					continue
-				} else {
-					wantVal = true
-				}
-
-				/* handler: tmpJInteractions type=*pbuf.StringInteraction kind=ptr quoted=false*/
-
-				{
-					if tok == fflib.FFTok_null {
-
-						tmpJInteractions = nil
-
-					} else {
-
-						if tmpJInteractions == nil {
-							tmpJInteractions = new(StringInteraction)
-						}
-
-						err = tmpJInteractions.UnmarshalJSONFFLexer(fs, fflib.FFParse_want_key)
-						if err != nil {
-							return err
-						}
-					}
-					state = fflib.FFParse_after_value
-				}
-
-				j.Interactions = append(j.Interactions, tmpJInteractions)
-
-				wantVal = false
+			if err != nil {
+				return fs.WrapErr(err)
 			}
+
+			j.InteractionCount = int32(tval)
+
 		}
 	}
 
@@ -99504,7 +99435,7 @@ done:
 }
 
 // MarshalJSON marshal bytes to json - template
-func (j *StringInteraction) MarshalJSON() ([]byte, error) {
+func (j *StringInteractionAttr) MarshalJSON() ([]byte, error) {
 	var buf fflib.Buffer
 	if j == nil {
 		buf.WriteString("null")
@@ -99518,7 +99449,7 @@ func (j *StringInteraction) MarshalJSON() ([]byte, error) {
 }
 
 // MarshalJSONBuf marshal buff to json - template
-func (j *StringInteraction) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
+func (j *StringInteractionAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 	if j == nil {
 		buf.WriteString("null")
 		return nil
@@ -99528,9 +99459,24 @@ func (j *StringInteraction) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 	_ = obj
 	_ = err
 	buf.WriteString(`{ `)
-	if len(j.Partner) != 0 {
-		buf.WriteString(`"partner":`)
-		fflib.WriteJsonString(buf, string(j.Partner))
+	if len(j.ProteinA) != 0 {
+		buf.WriteString(`"protein_a":`)
+		fflib.WriteJsonString(buf, string(j.ProteinA))
+		buf.WriteByte(',')
+	}
+	if len(j.ProteinB) != 0 {
+		buf.WriteString(`"protein_b":`)
+		fflib.WriteJsonString(buf, string(j.ProteinB))
+		buf.WriteByte(',')
+	}
+	if len(j.UniprotA) != 0 {
+		buf.WriteString(`"uniprot_a":`)
+		fflib.WriteJsonString(buf, string(j.UniprotA))
+		buf.WriteByte(',')
+	}
+	if len(j.UniprotB) != 0 {
+		buf.WriteString(`"uniprot_b":`)
+		fflib.WriteJsonString(buf, string(j.UniprotB))
 		buf.WriteByte(',')
 	}
 	if j.Score != 0 {
@@ -99576,44 +99522,56 @@ func (j *StringInteraction) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 }
 
 const (
-	ffjtStringInteractionbase = iota
-	ffjtStringInteractionnosuchkey
+	ffjtStringInteractionAttrbase = iota
+	ffjtStringInteractionAttrnosuchkey
 
-	ffjtStringInteractionPartner
+	ffjtStringInteractionAttrProteinA
 
-	ffjtStringInteractionScore
+	ffjtStringInteractionAttrProteinB
 
-	ffjtStringInteractionHasExperimental
+	ffjtStringInteractionAttrUniprotA
 
-	ffjtStringInteractionHasDatabase
+	ffjtStringInteractionAttrUniprotB
 
-	ffjtStringInteractionHasTextmining
+	ffjtStringInteractionAttrScore
 
-	ffjtStringInteractionHasCoexpression
+	ffjtStringInteractionAttrHasExperimental
+
+	ffjtStringInteractionAttrHasDatabase
+
+	ffjtStringInteractionAttrHasTextmining
+
+	ffjtStringInteractionAttrHasCoexpression
 )
 
-var ffjKeyStringInteractionPartner = []byte("partner")
+var ffjKeyStringInteractionAttrProteinA = []byte("protein_a")
 
-var ffjKeyStringInteractionScore = []byte("score")
+var ffjKeyStringInteractionAttrProteinB = []byte("protein_b")
 
-var ffjKeyStringInteractionHasExperimental = []byte("has_experimental")
+var ffjKeyStringInteractionAttrUniprotA = []byte("uniprot_a")
 
-var ffjKeyStringInteractionHasDatabase = []byte("has_database")
+var ffjKeyStringInteractionAttrUniprotB = []byte("uniprot_b")
 
-var ffjKeyStringInteractionHasTextmining = []byte("has_textmining")
+var ffjKeyStringInteractionAttrScore = []byte("score")
 
-var ffjKeyStringInteractionHasCoexpression = []byte("has_coexpression")
+var ffjKeyStringInteractionAttrHasExperimental = []byte("has_experimental")
+
+var ffjKeyStringInteractionAttrHasDatabase = []byte("has_database")
+
+var ffjKeyStringInteractionAttrHasTextmining = []byte("has_textmining")
+
+var ffjKeyStringInteractionAttrHasCoexpression = []byte("has_coexpression")
 
 // UnmarshalJSON umarshall json - template of ffjson
-func (j *StringInteraction) UnmarshalJSON(input []byte) error {
+func (j *StringInteractionAttr) UnmarshalJSON(input []byte) error {
 	fs := fflib.NewFFLexer(input)
 	return j.UnmarshalJSONFFLexer(fs, fflib.FFParse_map_start)
 }
 
 // UnmarshalJSONFFLexer fast json unmarshall - template ffjson
-func (j *StringInteraction) UnmarshalJSONFFLexer(fs *fflib.FFLexer, state fflib.FFParseState) error {
+func (j *StringInteractionAttr) UnmarshalJSONFFLexer(fs *fflib.FFLexer, state fflib.FFParseState) error {
 	var err error
-	currentKey := ffjtStringInteractionbase
+	currentKey := ffjtStringInteractionAttrbase
 	_ = currentKey
 	tok := fflib.FFTok_init
 	wantedTok := fflib.FFTok_init
@@ -99659,7 +99617,7 @@ mainparse:
 			kn := fs.Output.Bytes()
 			if len(kn) <= 0 {
 				// "" case. hrm.
-				currentKey = ffjtStringInteractionnosuchkey
+				currentKey = ffjtStringInteractionAttrnosuchkey
 				state = fflib.FFParse_want_colon
 				goto mainparse
 			} else {
@@ -99667,82 +99625,118 @@ mainparse:
 
 				case 'h':
 
-					if bytes.Equal(ffjKeyStringInteractionHasExperimental, kn) {
-						currentKey = ffjtStringInteractionHasExperimental
+					if bytes.Equal(ffjKeyStringInteractionAttrHasExperimental, kn) {
+						currentKey = ffjtStringInteractionAttrHasExperimental
 						state = fflib.FFParse_want_colon
 						goto mainparse
 
-					} else if bytes.Equal(ffjKeyStringInteractionHasDatabase, kn) {
-						currentKey = ffjtStringInteractionHasDatabase
+					} else if bytes.Equal(ffjKeyStringInteractionAttrHasDatabase, kn) {
+						currentKey = ffjtStringInteractionAttrHasDatabase
 						state = fflib.FFParse_want_colon
 						goto mainparse
 
-					} else if bytes.Equal(ffjKeyStringInteractionHasTextmining, kn) {
-						currentKey = ffjtStringInteractionHasTextmining
+					} else if bytes.Equal(ffjKeyStringInteractionAttrHasTextmining, kn) {
+						currentKey = ffjtStringInteractionAttrHasTextmining
 						state = fflib.FFParse_want_colon
 						goto mainparse
 
-					} else if bytes.Equal(ffjKeyStringInteractionHasCoexpression, kn) {
-						currentKey = ffjtStringInteractionHasCoexpression
+					} else if bytes.Equal(ffjKeyStringInteractionAttrHasCoexpression, kn) {
+						currentKey = ffjtStringInteractionAttrHasCoexpression
 						state = fflib.FFParse_want_colon
 						goto mainparse
 					}
 
 				case 'p':
 
-					if bytes.Equal(ffjKeyStringInteractionPartner, kn) {
-						currentKey = ffjtStringInteractionPartner
+					if bytes.Equal(ffjKeyStringInteractionAttrProteinA, kn) {
+						currentKey = ffjtStringInteractionAttrProteinA
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyStringInteractionAttrProteinB, kn) {
+						currentKey = ffjtStringInteractionAttrProteinB
 						state = fflib.FFParse_want_colon
 						goto mainparse
 					}
 
 				case 's':
 
-					if bytes.Equal(ffjKeyStringInteractionScore, kn) {
-						currentKey = ffjtStringInteractionScore
+					if bytes.Equal(ffjKeyStringInteractionAttrScore, kn) {
+						currentKey = ffjtStringInteractionAttrScore
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'u':
+
+					if bytes.Equal(ffjKeyStringInteractionAttrUniprotA, kn) {
+						currentKey = ffjtStringInteractionAttrUniprotA
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyStringInteractionAttrUniprotB, kn) {
+						currentKey = ffjtStringInteractionAttrUniprotB
 						state = fflib.FFParse_want_colon
 						goto mainparse
 					}
 
 				}
 
-				if fflib.EqualFoldRight(ffjKeyStringInteractionHasCoexpression, kn) {
-					currentKey = ffjtStringInteractionHasCoexpression
+				if fflib.EqualFoldRight(ffjKeyStringInteractionAttrHasCoexpression, kn) {
+					currentKey = ffjtStringInteractionAttrHasCoexpression
 					state = fflib.FFParse_want_colon
 					goto mainparse
 				}
 
-				if fflib.EqualFoldRight(ffjKeyStringInteractionHasTextmining, kn) {
-					currentKey = ffjtStringInteractionHasTextmining
+				if fflib.EqualFoldRight(ffjKeyStringInteractionAttrHasTextmining, kn) {
+					currentKey = ffjtStringInteractionAttrHasTextmining
 					state = fflib.FFParse_want_colon
 					goto mainparse
 				}
 
-				if fflib.EqualFoldRight(ffjKeyStringInteractionHasDatabase, kn) {
-					currentKey = ffjtStringInteractionHasDatabase
+				if fflib.EqualFoldRight(ffjKeyStringInteractionAttrHasDatabase, kn) {
+					currentKey = ffjtStringInteractionAttrHasDatabase
 					state = fflib.FFParse_want_colon
 					goto mainparse
 				}
 
-				if fflib.EqualFoldRight(ffjKeyStringInteractionHasExperimental, kn) {
-					currentKey = ffjtStringInteractionHasExperimental
+				if fflib.EqualFoldRight(ffjKeyStringInteractionAttrHasExperimental, kn) {
+					currentKey = ffjtStringInteractionAttrHasExperimental
 					state = fflib.FFParse_want_colon
 					goto mainparse
 				}
 
-				if fflib.EqualFoldRight(ffjKeyStringInteractionScore, kn) {
-					currentKey = ffjtStringInteractionScore
+				if fflib.EqualFoldRight(ffjKeyStringInteractionAttrScore, kn) {
+					currentKey = ffjtStringInteractionAttrScore
 					state = fflib.FFParse_want_colon
 					goto mainparse
 				}
 
-				if fflib.SimpleLetterEqualFold(ffjKeyStringInteractionPartner, kn) {
-					currentKey = ffjtStringInteractionPartner
+				if fflib.AsciiEqualFold(ffjKeyStringInteractionAttrUniprotB, kn) {
+					currentKey = ffjtStringInteractionAttrUniprotB
 					state = fflib.FFParse_want_colon
 					goto mainparse
 				}
 
-				currentKey = ffjtStringInteractionnosuchkey
+				if fflib.AsciiEqualFold(ffjKeyStringInteractionAttrUniprotA, kn) {
+					currentKey = ffjtStringInteractionAttrUniprotA
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyStringInteractionAttrProteinB, kn) {
+					currentKey = ffjtStringInteractionAttrProteinB
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyStringInteractionAttrProteinA, kn) {
+					currentKey = ffjtStringInteractionAttrProteinA
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				currentKey = ffjtStringInteractionAttrnosuchkey
 				state = fflib.FFParse_want_colon
 				goto mainparse
 			}
@@ -99759,25 +99753,34 @@ mainparse:
 			if tok == fflib.FFTok_left_brace || tok == fflib.FFTok_left_bracket || tok == fflib.FFTok_integer || tok == fflib.FFTok_double || tok == fflib.FFTok_string || tok == fflib.FFTok_bool || tok == fflib.FFTok_null {
 				switch currentKey {
 
-				case ffjtStringInteractionPartner:
-					goto handle_Partner
+				case ffjtStringInteractionAttrProteinA:
+					goto handle_ProteinA
 
-				case ffjtStringInteractionScore:
+				case ffjtStringInteractionAttrProteinB:
+					goto handle_ProteinB
+
+				case ffjtStringInteractionAttrUniprotA:
+					goto handle_UniprotA
+
+				case ffjtStringInteractionAttrUniprotB:
+					goto handle_UniprotB
+
+				case ffjtStringInteractionAttrScore:
 					goto handle_Score
 
-				case ffjtStringInteractionHasExperimental:
+				case ffjtStringInteractionAttrHasExperimental:
 					goto handle_HasExperimental
 
-				case ffjtStringInteractionHasDatabase:
+				case ffjtStringInteractionAttrHasDatabase:
 					goto handle_HasDatabase
 
-				case ffjtStringInteractionHasTextmining:
+				case ffjtStringInteractionAttrHasTextmining:
 					goto handle_HasTextmining
 
-				case ffjtStringInteractionHasCoexpression:
+				case ffjtStringInteractionAttrHasCoexpression:
 					goto handle_HasCoexpression
 
-				case ffjtStringInteractionnosuchkey:
+				case ffjtStringInteractionAttrnosuchkey:
 					err = fs.SkipField(tok)
 					if err != nil {
 						return fs.WrapErr(err)
@@ -99791,9 +99794,9 @@ mainparse:
 		}
 	}
 
-handle_Partner:
+handle_ProteinA:
 
-	/* handler: j.Partner type=string kind=string quoted=false*/
+	/* handler: j.ProteinA type=string kind=string quoted=false*/
 
 	{
 
@@ -99809,7 +99812,85 @@ handle_Partner:
 
 			outBuf := fs.Output.Bytes()
 
-			j.Partner = string(string(outBuf))
+			j.ProteinA = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_ProteinB:
+
+	/* handler: j.ProteinB type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.ProteinB = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_UniprotA:
+
+	/* handler: j.UniprotA type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.UniprotA = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_UniprotB:
+
+	/* handler: j.UniprotB type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.UniprotB = string(string(outBuf))
 
 		}
 	}
@@ -101525,6 +101606,11 @@ func (j *UniSequence) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.FormatBits2(buf, uint64(j.Mass), 10, j.Mass < 0)
 		buf.WriteByte(',')
 	}
+	if j.Length != 0 {
+		buf.WriteString(`"length":`)
+		fflib.FormatBits2(buf, uint64(j.Length), 10, j.Length < 0)
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -101537,11 +101623,15 @@ const (
 	ffjtUniSequenceSeq
 
 	ffjtUniSequenceMass
+
+	ffjtUniSequenceLength
 )
 
 var ffjKeyUniSequenceSeq = []byte("seq")
 
 var ffjKeyUniSequenceMass = []byte("mass")
+
+var ffjKeyUniSequenceLength = []byte("length")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *UniSequence) UnmarshalJSON(input []byte) error {
@@ -101604,6 +101694,14 @@ mainparse:
 			} else {
 				switch kn[0] {
 
+				case 'l':
+
+					if bytes.Equal(ffjKeyUniSequenceLength, kn) {
+						currentKey = ffjtUniSequenceLength
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 'm':
 
 					if bytes.Equal(ffjKeyUniSequenceMass, kn) {
@@ -101620,6 +101718,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyUniSequenceLength, kn) {
+					currentKey = ffjtUniSequenceLength
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.EqualFoldRight(ffjKeyUniSequenceMass, kn) {
@@ -101656,6 +101760,9 @@ mainparse:
 
 				case ffjtUniSequenceMass:
 					goto handle_Mass
+
+				case ffjtUniSequenceLength:
+					goto handle_Length
 
 				case ffjtUniSequencenosuchkey:
 					err = fs.SkipField(tok)
@@ -101720,6 +101827,36 @@ handle_Mass:
 			}
 
 			j.Mass = int32(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Length:
+
+	/* handler: j.Length type=int32 kind=int32 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for int32", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseInt(fs.Output.Bytes(), 10, 32)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.Length = int32(tval)
 
 		}
 	}

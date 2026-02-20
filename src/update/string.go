@@ -30,6 +30,12 @@ func (s *stringProcessor) update(selectedTaxids []int) {
 
 	s.sourceID = config.Dataconf[s.source]["id"]
 
+	// Get string_interaction dataset ID for creating interaction entries
+	var stringInteractionSourceID string
+	if _, exists := config.Dataconf["string_interaction"]; exists {
+		stringInteractionSourceID = config.Dataconf["string_interaction"]["id"]
+	}
+
 	// Get score threshold from config (default: 400)
 	scoreThresholdStr, ok := config.Dataconf[s.source]["scoreThreshold"]
 	if !ok {
@@ -80,7 +86,7 @@ func (s *stringProcessor) update(selectedTaxids []int) {
 		}
 
 		// Step 3: Process interactions
-		proteins, interactions, err := s.processInteractions(taxid, forwardMap, reverseMap, proteinInfo, idLogFile, testLimit)
+		proteins, interactions, err := s.processInteractions(taxid, forwardMap, reverseMap, proteinInfo, idLogFile, testLimit, stringInteractionSourceID)
 		if err != nil {
 			log.Printf("Error processing interactions for taxid %d: %v", taxid, err)
 			continue
@@ -265,7 +271,7 @@ func (s *stringProcessor) loadProteinInfo(taxid int) (map[string]*ProteinInfo, e
 
 // Process interactions from links.detailed file
 func (s *stringProcessor) processInteractions(taxid int, forwardMap map[string]string, reverseMap map[string]string,
-	proteinInfo map[string]*ProteinInfo, idLogFile *os.File, testLimit int) (uint64, uint64, error) {
+	proteinInfo map[string]*ProteinInfo, idLogFile *os.File, testLimit int, stringInteractionSourceID string) (uint64, uint64, error) {
 
 	var filePath string
 
@@ -285,9 +291,9 @@ func (s *stringProcessor) processInteractions(taxid int, forwardMap map[string]s
 	}
 	defer closeReaders(gz, ftpFile, client, localFile)
 
-	// Track protein interactions by STRING ID (not UniProt AC)
-	// This allows all UniProt ACs mapping to same STRING ID to share interactions
-	stringInteractions := make(map[string][]*pbuf.StringInteraction)
+	// Track interaction counts by STRING ID (not UniProt AC)
+	// Actual interactions are stored as separate string_interaction entries
+	stringInteractionCounts := make(map[string]int32)
 
 	reader := bufio.NewReaderSize(br, 1024*1024) // 1MB buffer
 
@@ -356,35 +362,67 @@ func (s *stringProcessor) processInteractions(taxid int, forwardMap map[string]s
 			continue
 		}
 
-		// Create bidirectional interactions
+		// Create bidirectional interactions as separate string_interaction entries
 		// Store by STRING ID (not UniProt AC) so ALL UniProt ACs for same STRING ID get interactions
+		// ID format: {STRING_ID}_{INVERTED_SCORE}_{UNIPROT_PARTNER}
+		// Inverted score (1000-score) ensures highest scores sort first lexicographically
+
 		// Protein1 → Protein2
-		interaction12 := &pbuf.StringInteraction{
-			Partner:         uniprot2,
+		invertedScore := fmt.Sprintf("%04d", 1000-combinedScore)
+		interactionID12 := protein1 + "_" + invertedScore + "_" + uniprot2
+		interaction12 := &pbuf.StringInteractionAttr{
+			ProteinA:        protein1,
+			ProteinB:        protein2,
+			UniprotA:        uniprot1,
+			UniprotB:        uniprot2,
 			Score:           int32(combinedScore),
 			HasExperimental: experimental > 0,
 			HasDatabase:     database > 0,
 			HasTextmining:   textmining > 0,
 			HasCoexpression: coexpression > 0,
 		}
-		stringInteractions[protein1] = append(stringInteractions[protein1], interaction12)
+
+		// Marshal and store interaction entry
+		b12, errMarshal := ffjson.Marshal(interaction12)
+		if errMarshal == nil && stringInteractionSourceID != "" {
+			s.d.addProp3(interactionID12, stringInteractionSourceID, b12)
+			// Xref: string -> string_interaction
+			s.d.addXref(protein1, s.sourceID, interactionID12, "string_interaction", false)
+			// Xref: string_interaction -> uniprot (partner)
+			s.d.addXref(interactionID12, stringInteractionSourceID, uniprot2, "uniprot", false)
+		}
+		stringInteractionCounts[protein1]++
 
 		// Protein2 → Protein1 (bidirectional)
-		interaction21 := &pbuf.StringInteraction{
-			Partner:         uniprot1,
+		interactionID21 := protein2 + "_" + invertedScore + "_" + uniprot1
+		interaction21 := &pbuf.StringInteractionAttr{
+			ProteinA:        protein2,
+			ProteinB:        protein1,
+			UniprotA:        uniprot2,
+			UniprotB:        uniprot1,
 			Score:           int32(combinedScore),
 			HasExperimental: experimental > 0,
 			HasDatabase:     database > 0,
 			HasTextmining:   textmining > 0,
 			HasCoexpression: coexpression > 0,
 		}
-		stringInteractions[protein2] = append(stringInteractions[protein2], interaction21)
+
+		// Marshal and store interaction entry
+		b21, errMarshal := ffjson.Marshal(interaction21)
+		if errMarshal == nil && stringInteractionSourceID != "" {
+			s.d.addProp3(interactionID21, stringInteractionSourceID, b21)
+			// Xref: string -> string_interaction
+			s.d.addXref(protein2, s.sourceID, interactionID21, "string_interaction", false)
+			// Xref: string_interaction -> uniprot (partner)
+			s.d.addXref(interactionID21, stringInteractionSourceID, uniprot1, "uniprot", false)
+		}
+		stringInteractionCounts[protein2]++
 
 		totalRead += len(line)
 
 		// In test mode, stop reading once we have enough interactions
 		// Note: Total protein count will be determined later from reverseMap
-		if testLimit > 0 && len(stringInteractions) >= testLimit {
+		if testLimit > 0 && len(stringInteractionCounts) >= testLimit {
 			// fmt.Printf("  [TEST MODE] Reached limit of %d proteins with interactions, stopping interaction processing\n", testLimit)
 			break
 		}
@@ -403,14 +441,14 @@ func (s *stringProcessor) processInteractions(taxid int, forwardMap map[string]s
 	}
 
 	// Build protein data keyed by STRING ID (primary identifier)
-	// This eliminates duplication - each interaction list stored only once
-	fmt.Printf("DEBUG: Total STRING IDs with interactions: %d\n", len(stringInteractions))
+	// Interactions are already stored as separate string_interaction entries
+	fmt.Printf("DEBUG: Total STRING IDs with interactions: %d\n", len(stringInteractionCounts))
 	fmt.Printf("DEBUG: Total STRING IDs with protein info: %d\n", len(proteinInfo))
 
-	// Debug: Check overlap between stringInteractions and proteinInfo
+	// Debug: Check overlap between stringInteractionCounts and proteinInfo
 	overlapCount := 0
 	sampleWithInteractions := []string{}
-	for stringID := range stringInteractions {
+	for stringID := range stringInteractionCounts {
 		if len(sampleWithInteractions) < 5 {
 			sampleWithInteractions = append(sampleWithInteractions, stringID)
 		}
@@ -428,17 +466,17 @@ func (s *stringProcessor) processInteractions(taxid int, forwardMap map[string]s
 
 	// Helper function to process a protein
 	processProtein := func(stringID string, info *ProteinInfo) bool {
-		// Get interactions for this STRING ID (may be empty/nil)
-		interactions := stringInteractions[stringID]
+		// Get interaction count for this STRING ID (may be 0)
+		interactionCount := stringInteractionCounts[stringID]
 
-		// Create STRING attribute
+		// Create STRING attribute (interactions stored separately in string_interaction dataset)
 		attr := pbuf.StringAttr{
-			StringId:      stringID,
-			OrganismTaxid: int32(taxid),
-			PreferredName: info.PreferredName,
-			ProteinSize:   info.ProteinSize,
-			Annotation:    info.Annotation,
-			Interactions:  interactions,
+			StringId:         stringID,
+			OrganismTaxid:    int32(taxid),
+			PreferredName:    info.PreferredName,
+			ProteinSize:      info.ProteinSize,
+			Annotation:       info.Annotation,
+			InteractionCount: interactionCount,
 		}
 
 		// Marshal STRING attributes
@@ -470,14 +508,14 @@ func (s *stringProcessor) processInteractions(taxid int, forwardMap map[string]s
 		}
 
 		totalProteins++
-		totalInteractions += uint64(len(interactions))
+		totalInteractions += uint64(interactionCount)
 		return true
 	}
 
 	// In test mode, prioritize proteins with interactions
 	if testLimit > 0 {
 		// First, process proteins WITH interactions
-		for stringID := range stringInteractions {
+		for stringID := range stringInteractionCounts {
 			if info, exists := proteinInfo[stringID]; exists {
 				if processProtein(stringID, info) {
 					processedIDs++
@@ -492,7 +530,7 @@ func (s *stringProcessor) processInteractions(taxid int, forwardMap map[string]s
 		// Then fill out with proteins WITHOUT interactions (up to test limit)
 		for stringID, info := range proteinInfo {
 			// Skip if already processed (has interactions)
-			if _, hasInteractions := stringInteractions[stringID]; hasInteractions {
+			if _, hasInteractions := stringInteractionCounts[stringID]; hasInteractions {
 				continue
 			}
 
@@ -500,7 +538,7 @@ func (s *stringProcessor) processInteractions(taxid int, forwardMap map[string]s
 				processedIDs++
 				if config.IsTestMode() && shouldStopProcessing(testLimit, processedIDs) {
 					fmt.Printf("DEBUG: Stopped after processing %d total proteins (%d with interactions)\n",
-						processedIDs, len(stringInteractions))
+						processedIDs, len(stringInteractionCounts))
 					return totalProteins, totalInteractions, nil
 				}
 			}

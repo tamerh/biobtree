@@ -13,7 +13,8 @@
     "attrs": "[]genes,[]names,[]alternative_names,[]submitted_names,sequence.length,sequence.mass",
     "compact_fields": "",
     "test_entries_count": "100000",
-    "bucketMethod": "uniprot"
+    "bucketMethod": "uniprot",
+    "childDatasets": "drugbank,ena"
   },
   "ensembl": {
     "aliases": "gene ID,Ensembl",
@@ -39,7 +40,8 @@
     "compact_fields": "name,biotype,genome",
     "test_entries_count": "20",
     "bucketMethod": "ensembl_hybrid",
-    "numBuckets": "100"
+    "numBuckets": "100",
+    "childDatasets": "ortholog,paralog,transcript,exon,cds"
   },
   "dbsnp": {
     "id": "3",
@@ -622,6 +624,7 @@
   "exon": {
     "name": "Exon",
     "id": "44",
+    "path": "derived:ensembl",
     "url": "https://www.ensembl.org/Multi/Search/Results?q=£{id};site=ensembl_all",
     "bacteriaUrl": "http://bacteria.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
     "fungiUrl": "http://fungi.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
@@ -630,6 +633,15 @@
     "protistsUrl": "http://protists.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
     "hasFilter": "yes",
     "attrs": "start,end,strand,seq_region"
+  },
+  "cds": {
+    "aliases": "eprotein",
+    "name": "CDS",
+    "id": "443",
+    "path": "derived:ensembl",
+    "url": "https://www.ensembl.org/Multi/Search/Results?q=£{id};site=ensembl_all",
+    "hasFilter": "yes",
+    "attrs": "start,end,strand,seq_region,frame"
   },
   "ortholog": {
     "name": "Ortholog",
@@ -650,6 +662,7 @@
   "transcript": {
     "name": "Transcript",
     "id": "47",
+    "path": "derived:ensembl",
     "textPriority": "50",
     "url": "https://www.ensembl.org/Multi/Search/Results?q=£{id};site=ensembl_all",
     "bacteriaUrl": "http://bacteria.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
@@ -794,6 +807,7 @@
     "hasFilter": "yes",
     "attrs": "biogrid_id,[]interactions,interaction_count,unique_partners,physical_count,genetic_count,[]organisms,[]experimental_systems,[]pubmed_ids",
     "test_entries_count": "100",
+    "childDatasets": "biogrid_interaction",
     "bucketMethod": "numeric"
   },
   "msigdb": {

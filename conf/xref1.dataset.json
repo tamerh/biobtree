@@ -3,37 +3,37 @@
     "aliases": "CATH",
     "name": "CATH",
     "id": "200",
-    "url": "http://www.cathdb.info/version/latest/superfamily/£{id}"
+    "url": "http://www.cathdb.info/version/latest/superfamily/\u00a3{id}"
   },
   "cathgene3d": {
     "aliases": "CATHGENE3D,Gene3D",
     "name": "CATH",
     "id": "201",
-    "url": "http://www.cathdb.info/version/latest/superfamily/£{id}"
+    "url": "http://www.cathdb.info/version/latest/superfamily/\u00a3{id}"
   },
   "ccds": {
     "aliases": "CCDS",
     "name": "CCDS",
     "id": "202",
-    "url": "https://www.ncbi.nlm.nih.gov/gene/?term=£{id}"
+    "url": "https://www.ncbi.nlm.nih.gov/gene/?term=\u00a3{id}"
   },
   "cdd": {
     "aliases": "CDD",
     "name": "CDD",
     "id": "203",
-    "url": "https://www.ncbi.nlm.nih.gov/Structure/cdd/cddsrv.cgi?uid=£{id}"
+    "url": "https://www.ncbi.nlm.nih.gov/Structure/cdd/cddsrv.cgi?uid=\u00a3{id}"
   },
   "doi": {
     "aliases": "DOI",
     "name": "DOI",
     "id": "204",
-    "url": "https://doi.org/£{id}"
+    "url": "https://doi.org/\u00a3{id}"
   },
   "drugbank": {
     "aliases": "DrugBank,DrugBank accession",
     "name": "DrugBank",
     "id": "205",
-    "url": "https://www.drugbank.ca/drugs/£{id}",
+    "url": "https://www.drugbank.ca/drugs/\u00a3{id}",
     "hasFilter": "yes",
     "attrs": "name"
   },
@@ -41,13 +41,13 @@
     "aliases": "EC,Intenz",
     "name": "Intenz",
     "id": "206",
-    "url": "https://www.ebi.ac.uk/intenz/query?cmd=SearchEC&ec=£{id}"
+    "url": "https://www.ebi.ac.uk/intenz/query?cmd=SearchEC&ec=\u00a3{id}"
   },
   "ena": {
     "aliases": "EMBL,EMBL_CON,TREMBLNEW,EMBLWGS,REMTREMBL,EMBL_TPA,EMBL_TSA,protein sequence ID,embl",
     "name": "ENA",
     "id": "207",
-    "url": "//www.ebi.ac.uk/ena/data/view/£{id}",
+    "url": "//www.ebi.ac.uk/ena/data/view/\u00a3{id}",
     "hasFilter": "yes",
     "attrs": "type"
   },
@@ -55,25 +55,25 @@
     "aliases": "ExpressionAtlas",
     "name": "E.Atlas",
     "id": "208",
-    "url": "https://www.ebi.ac.uk/gxa/genes/£{id}"
+    "url": "https://www.ebi.ac.uk/gxa/genes/\u00a3{id}"
   },
   "flybase": {
     "aliases": "FlyBase",
     "name": "FlyBase",
     "id": "209",
-    "url": "http://flybase.org/reports/£{id}.html"
+    "url": "http://flybase.org/reports/\u00a3{id}.html"
   },
   "hamap": {
     "aliases": "HAMAP",
     "name": "HAMAP",
     "id": "210",
-    "url": "https://hamap.expasy.org/signature/£{id}"
+    "url": "https://hamap.expasy.org/signature/\u00a3{id}"
   },
   "kegg": {
     "aliases": "KEGG,KEGG COMPOUND accession,KEGG GLYCAN accession,KEGG DRUG accession",
     "name": "KEGG",
     "id": "211",
-    "url": "https://www.genome.jp/dbget-bin/www_bfind_sub?mode=bfind&max_hit=1&dbkey=alldb&keywords=£{id}"
+    "url": "https://www.genome.jp/dbget-bin/www_bfind_sub?mode=bfind&max_hit=1&dbkey=alldb&keywords=\u00a3{id}"
   },
   "kegg map": {
     "aliases": "KEGG MAP",
@@ -85,947 +85,1119 @@
     "aliases": "KO",
     "name": "KO",
     "id": "213",
-    "url": "https://www.genome.jp/dbget-bin/www_bget?ko:£{id}"
+    "url": "https://www.genome.jp/dbget-bin/www_bget?ko:\u00a3{id}"
   },
   "mim": {
     "aliases": "omim,MIM",
     "name": "MIM",
     "id": "214",
-    "url": "https://www.omim.org/entry/£{id}",
+    "url": "https://www.omim.org/entry/\u00a3{id}",
     "bucketMethod": "alphanum"
   },
   "metacyc": {
     "aliases": "MetaCyc,MetaCyc accession,METACYC",
     "name": "MetaCyc",
     "id": "215",
-    "url": "https://metacyc.org/compound?orgid=META&id=£{id}"
+    "url": "https://metacyc.org/compound?orgid=META&id=\u00a3{id}"
   },
   "genbank": {
     "aliases": "NCBI_GI",
     "name": "NCBI GeneBank",
     "id": "216",
-    "url": "https://www.ncbi.nlm.nih.gov/nuccore/£{id}"
+    "url": "https://www.ncbi.nlm.nih.gov/nuccore/\u00a3{id}"
   },
   "opentargets": {
     "aliases": "OpenTargets",
     "name": "OpenTargets",
     "id": "217",
-    "url": "https://www.targetvalidation.org/target/£{id}/associations"
+    "url": "https://www.targetvalidation.org/target/\u00a3{id}/associations"
   },
   "panther": {
     "aliases": "PANTHER",
     "name": "Panther",
     "id": "219",
-    "url": "//www.pantherdb.org/panther/family.do?clsAccession=£{id}"
+    "url": "//www.pantherdb.org/panther/family.do?clsAccession=\u00a3{id}"
   },
   "patric": {
     "aliases": "PATRIC",
     "name": "PATRIC",
     "id": "220",
-    "url": "https://www.patricbrc.org/search/?keyword(%22£{id}%22)"
+    "url": "https://www.patricbrc.org/search/?keyword(%22\u00a3{id}%22)"
   },
   "pdbechem": {
     "aliases": "PDBeChem,PDBeChem accession",
     "name": "PDBeChem",
     "id": "222",
-    "url": "https://www.ebi.ac.uk/pdbe/entry/pdb/£{id}"
+    "url": "https://www.ebi.ac.uk/pdbe/entry/pdb/\u00a3{id}"
   },
   "pfam": {
     "aliases": "Pfam,PFAM",
     "name": "PFAM",
     "id": "223",
-    "url": "http://pfam.xfam.org/family/£{id}"
+    "url": "http://pfam.xfam.org/family/\u00a3{id}"
   },
   "proteomes": {
     "aliases": "Proteomes,proteome_id",
     "name": "Proteomes",
     "id": "224",
-    "url": "https://www.uniprot.org/proteomes/£{id}"
+    "url": "https://www.uniprot.org/proteomes/\u00a3{id}"
   },
   "pubmed": {
     "aliases": "PubMed,PubMed citation,PUBMED,pmc,PMC,PubMed Central citation",
     "name": "PubMed",
     "id": "225",
-    "url": "https://europepmc.org/search?query=£{id}",
+    "url": "https://europepmc.org/search?query=\u00a3{id}",
     "bucketMethod": "numeric"
   },
   "supfam": {
     "aliases": "SUPFAM",
     "name": "SUPFAM",
     "id": "226",
-    "url": "http://supfam.org/SUPERFAMILY/cgi-bin/scop.cgi?ipid=£{id}"
+    "url": "http://supfam.org/SUPERFAMILY/cgi-bin/scop.cgi?ipid=\u00a3{id}"
   },
   "vgnc": {
     "aliases": "VGNC",
     "name": "VGNC",
     "id": "227",
-    "url": "https://vertebrate.genenames.org/data/gene-symbol-report/#!/vgnc_id/£{id}"
+    "url": "https://vertebrate.genenames.org/data/gene-symbol-report/#!/vgnc_id/\u00a3{id}"
   },
   "wbparasite": {
     "aliases": "WBParaSite",
     "name": "WBParaSite",
     "id": "228",
-    "url": "http://ensemblgenomes.org/id/£{id}"
+    "url": "http://ensemblgenomes.org/id/\u00a3{id}"
   },
   "affy_bovine": {
     "name": "affy_bovine",
     "id": "229",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_c_elegans": {
     "name": "affy_c_elegans",
     "id": "230",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_canine_2": {
     "name": "affy_canine_2",
     "id": "231",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_chicken": {
     "name": "affy_chicken",
     "id": "232",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_chogene_2_0_st_v1": {
     "name": "affy_chogene_2_0_st_v1",
     "id": "233",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_chogene_2_1_st_v1": {
     "name": "affy_chogene_2_1_st_v1",
     "id": "234",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_cint06a520380f": {
     "name": "affy_cint06a520380f",
     "id": "235",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_cyngene_1_0_st_v1": {
     "name": "affy_cyngene_1_0_st_v1",
     "id": "236",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_cyrgene_1_0_st_v1": {
     "name": "affy_cyrgene_1_0_st_v1",
     "id": "237",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_drosgenome1": {
     "name": "affy_drosgenome1",
     "id": "238",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_drosophila_2": {
     "name": "affy_drosophila_2",
     "id": "239",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_equgene_1_0_st_v1": {
     "name": "affy_equgene_1_0_st_v1",
     "id": "240",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_equgene_1_1_st_v1": {
     "name": "affy_equgene_1_1_st_v1",
     "id": "241",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_felgene_1_0_st_v1": {
     "name": "affy_felgene_1_0_st_v1",
     "id": "242",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_felgene_1_1_st_v1": {
     "name": "affy_felgene_1_1_st_v1",
     "id": "243",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_gpl19230": {
     "name": "affy_gpl19230",
     "id": "244",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_hc_g110": {
     "name": "affy_hc_g110",
     "id": "245",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_hg_focus": {
     "name": "affy_hg_focus",
     "id": "246",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_hg_u133_plus_2": {
     "name": "affy_hg_u133_plus_2",
     "id": "247",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_hg_u133a": {
     "name": "affy_hg_u133a",
     "id": "248",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_hg_u133a_2": {
     "name": "affy_hg_u133a_2",
     "id": "249",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_hg_u133b": {
     "name": "affy_hg_u133b",
     "id": "250",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_hg_u95a": {
     "name": "affy_hg_u95a",
     "id": "251",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_hg_u95av2": {
     "name": "affy_hg_u95av2",
     "id": "252",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_hg_u95b": {
     "name": "affy_hg_u95b",
     "id": "253",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_hg_u95c": {
     "name": "affy_hg_u95c",
     "id": "254",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_hg_u95d": {
     "name": "affy_hg_u95d",
     "id": "255",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_hg_u95e": {
     "name": "affy_hg_u95e",
     "id": "256",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_hta_2_0": {
     "name": "affy_hta_2_0",
     "id": "257",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_huex_1_0_st_v2": {
     "name": "affy_huex_1_0_st_v2",
     "id": "258",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_hugene_1_0_st_v1": {
     "name": "affy_hugene_1_0_st_v1",
     "id": "259",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_hugene_2_0_st_v1": {
     "name": "affy_hugene_2_0_st_v1",
     "id": "260",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_hugenefl": {
     "name": "affy_hugenefl",
     "id": "261",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_mg_u74a": {
     "name": "affy_mg_u74a",
     "id": "262",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_mg_u74av2": {
     "name": "affy_mg_u74av2",
     "id": "263",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_mg_u74b": {
     "name": "affy_mg_u74b",
     "id": "264",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_mg_u74bv2": {
     "name": "affy_mg_u74bv2",
     "id": "265",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_mg_u74c": {
     "name": "affy_mg_u74c",
     "id": "266",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_mg_u74cv2": {
     "name": "affy_mg_u74cv2",
     "id": "267",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_moe430a": {
     "name": "affy_moe430a",
     "id": "268",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_moe430b": {
     "name": "affy_moe430b",
     "id": "269",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_moex_1_0_st_v1": {
     "name": "affy_moex_1_0_st_v1",
     "id": "270",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_mogene_1_0_st_v1": {
     "name": "affy_mogene_1_0_st_v1",
     "id": "271",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_mogene_2_1_st_v1": {
     "name": "affy_mogene_2_1_st_v1",
     "id": "272",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_mouse430_2": {
     "name": "affy_mouse430_2",
     "id": "273",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_mouse430a_2": {
     "name": "affy_mouse430a_2",
     "id": "274",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_mu11ksuba": {
     "name": "affy_mu11ksuba",
     "id": "275",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_mu11ksubb": {
     "name": "affy_mu11ksubb",
     "id": "276",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_platypus_exon": {
     "name": "affy_platypus_exon",
     "id": "277",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_porcine": {
     "name": "affy_porcine",
     "id": "278",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_primeview": {
     "name": "affy_primeview",
     "id": "279",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_rae230a": {
     "name": "affy_rae230a",
     "id": "280",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_rae230b": {
     "name": "affy_rae230b",
     "id": "281",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_raex_1_0_st_v1": {
     "name": "affy_raex_1_0_st_v1",
     "id": "282",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_ragene_1_0_st_v1": {
     "name": "affy_ragene_1_0_st_v1",
     "id": "283",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_ragene_2_1_st_v1": {
     "name": "affy_ragene_2_1_st_v1",
     "id": "284",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_rat230_2": {
     "name": "affy_rat230_2",
     "id": "285",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_rg_u34a": {
     "name": "affy_rg_u34a",
     "id": "286",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_rg_u34b": {
     "name": "affy_rg_u34b",
     "id": "287",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_rg_u34c": {
     "name": "affy_rg_u34c",
     "id": "288",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_rhegene_1_0_st_v1": {
     "name": "affy_rhegene_1_0_st_v1",
     "id": "289",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_rhegene_1_1_st_v1": {
     "name": "affy_rhegene_1_1_st_v1",
     "id": "290",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_rhesus": {
     "name": "affy_rhesus",
     "id": "291",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_rn_u34": {
     "name": "affy_rn_u34",
     "id": "292",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_rt_u34": {
     "name": "affy_rt_u34",
     "id": "293",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_u133_x3p": {
     "name": "affy_u133_x3p",
     "id": "294",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_x_tropicalis": {
     "name": "affy_x_tropicalis",
     "id": "295",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_yeast_2": {
     "name": "affy_yeast_2",
     "id": "296",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_yg_s98": {
     "name": "affy_yg_s98",
     "id": "297",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_zebgene_1_0_st_v1": {
     "name": "affy_zebgene_1_0_st_v1",
     "id": "298",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_zebgene_1_1_st_v1": {
     "name": "affy_zebgene_1_1_st_v1",
     "id": "299",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_zebrafish": {
     "name": "affy_zebrafish",
     "id": "300",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_012795": {
     "name": "agilent_012795",
     "id": "301",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_015061": {
     "name": "agilent_015061",
     "id": "302",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_020186": {
     "name": "agilent_020186",
     "id": "303",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_037725_hamarrayv": {
     "name": "agilent_037725_hamarrayv",
     "id": "304",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_059389_chicken_ge_8x60k": {
     "name": "agilent_059389_chicken_ge_8x60k",
     "id": "305",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_agilent_8x15k": {
     "name": "agilent_agilent_8x15k",
     "id": "306",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_arraystar": {
     "name": "agilent_arraystar",
     "id": "307",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_cgh_44b": {
     "name": "agilent_cgh_44b",
     "id": "308",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_cho2agl44v1": {
     "name": "agilent_cho2agl44v1",
     "id": "309",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_g2518a": {
     "name": "agilent_g2518a",
     "id": "310",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_g2519f": {
     "name": "agilent_g2519f",
     "id": "311",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_gpl10157": {
     "name": "agilent_gpl10157",
     "id": "312",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_gpl10158": {
     "name": "agilent_gpl10158",
     "id": "313",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_gpl10248": {
     "name": "agilent_gpl10248",
     "id": "314",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_gpl13394": {
     "name": "agilent_gpl13394",
     "id": "315",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_gpl13522": {
     "name": "agilent_gpl13522",
     "id": "316",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_gpl13723": {
     "name": "agilent_gpl13723",
     "id": "317",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_gpl13795": {
     "name": "agilent_gpl13795",
     "id": "318",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_gpl13914": {
     "name": "agilent_gpl13914",
     "id": "319",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_gpl14144": {
     "name": "agilent_gpl14144",
     "id": "320",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_gpl14629": {
     "name": "agilent_gpl14629",
     "id": "321",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_gpl14664": {
     "name": "agilent_gpl14664",
     "id": "322",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_gpl15189": {
     "name": "agilent_gpl15189",
     "id": "323",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_gpl15190": {
     "name": "agilent_gpl15190",
     "id": "324",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_gpl15204": {
     "name": "agilent_gpl15204",
     "id": "325",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_gpl15217": {
     "name": "agilent_gpl15217",
     "id": "326",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_gpl15450": {
     "name": "agilent_gpl15450",
     "id": "327",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_gpl15747": {
     "name": "agilent_gpl15747",
     "id": "328",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_gpl15799": {
     "name": "agilent_gpl15799",
     "id": "329",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_gpl16032": {
     "name": "agilent_gpl16032",
     "id": "330",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_gpl16776": {
     "name": "agilent_gpl16776",
     "id": "331",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_gpl17465": {
     "name": "agilent_gpl17465",
     "id": "332",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_gpl17670": {
     "name": "agilent_gpl17670",
     "id": "333",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_gpl17686": {
     "name": "agilent_gpl17686",
     "id": "334",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_gpl17689": {
     "name": "agilent_gpl17689",
     "id": "335",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_gpl18520": {
     "name": "agilent_gpl18520",
     "id": "336",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_gpl18606": {
     "name": "agilent_gpl18606",
     "id": "337",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_gpl19384": {
     "name": "agilent_gpl19384",
     "id": "338",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_gpl19516": {
     "name": "agilent_gpl19516",
     "id": "339",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_gpl19564": {
     "name": "agilent_gpl19564",
     "id": "340",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_gpl19666": {
     "name": "agilent_gpl19666",
     "id": "341",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_gpl20686": {
     "name": "agilent_gpl20686",
     "id": "342",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_gpl20834": {
     "name": "agilent_gpl20834",
     "id": "343",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_gpl20900": {
     "name": "agilent_gpl20900",
     "id": "344",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_gpl20908": {
     "name": "agilent_gpl20908",
     "id": "345",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_gpl21244": {
     "name": "agilent_gpl21244",
     "id": "346",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_gpl21361": {
     "name": "agilent_gpl21361",
     "id": "347",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_gpl21860": {
     "name": "agilent_gpl21860",
     "id": "348",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_gpl22083": {
     "name": "agilent_gpl22083",
     "id": "349",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_gpl23036": {
     "name": "agilent_gpl23036",
     "id": "350",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_gpl23307": {
     "name": "agilent_gpl23307",
     "id": "351",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_gpl23389": {
     "name": "agilent_gpl23389",
     "id": "352",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_gpl6848": {
     "name": "agilent_gpl6848",
     "id": "353",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_gpl7244": {
     "name": "agilent_gpl7244",
     "id": "354",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_gpl7301": {
     "name": "agilent_gpl7301",
     "id": "355",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_gpl7302": {
     "name": "agilent_gpl7302",
     "id": "356",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_gpl7735": {
     "name": "agilent_gpl7735",
     "id": "357",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_gpl7801": {
     "name": "agilent_gpl7801",
     "id": "358",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_gpl8304": {
     "name": "agilent_gpl8304",
     "id": "359",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_gpl9060": {
     "name": "agilent_gpl9060",
     "id": "360",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_gpl9074": {
     "name": "agilent_gpl9074",
     "id": "361",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_sureprint_g3_ge_8x60k": {
     "name": "agilent_sureprint_g3_ge_8x60k",
     "id": "362",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_sureprint_g3_ge_8x60k_v2": {
     "name": "agilent_sureprint_g3_ge_8x60k_v2",
     "id": "363",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_sureprint_gpl7083_4x44k": {
     "name": "agilent_sureprint_gpl7083_4x44k",
     "id": "364",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_sureprnt_gpl16709_4x44k": {
     "name": "agilent_sureprnt_gpl16709_4x44k",
     "id": "365",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_wholegenome": {
     "name": "agilent_wholegenome",
     "id": "366",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_wholegenome_4x44k": {
     "name": "agilent_wholegenome_4x44k",
     "id": "367",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_wholegenome_4x44k_v1": {
     "name": "agilent_wholegenome_4x44k_v1",
     "id": "368",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_wholegenome_4x44k_v2": {
     "name": "agilent_wholegenome_4x44k_v2",
     "id": "369",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_wholegenome_4x44k_v3": {
     "name": "agilent_wholegenome_4x44k_v3",
     "id": "370",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "codelink_codelink": {
     "name": "codelink_codelink",
     "id": "371",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "illumina_humanht_12_v3": {
     "name": "illumina_humanht_12_v3",
     "id": "372",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "illumina_humanht_12_v4": {
     "name": "illumina_humanht_12_v4",
     "id": "373",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "illumina_humanref_8_v3": {
     "name": "illumina_humanref_8_v3",
     "id": "374",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "illumina_humanwg_6_v1": {
     "name": "illumina_humanwg_6_v1",
     "id": "375",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "illumina_humanwg_6_v2": {
     "name": "illumina_humanwg_6_v2",
     "id": "376",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "illumina_humanwg_6_v3": {
     "name": "illumina_humanwg_6_v3",
     "id": "377",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "illumina_mouseref_8": {
     "name": "illumina_mouseref_8",
     "id": "378",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "illumina_mousewg_6_v1": {
     "name": "illumina_mousewg_6_v1",
     "id": "379",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "illumina_mousewg_6_v2": {
     "name": "illumina_mousewg_6_v2",
     "id": "380",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "illumina_ratref_12_v1": {
     "name": "illumina_ratref_12_v1",
     "id": "381",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "leiden_leiden2": {
     "name": "leiden_leiden2",
     "id": "382",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "leiden_leiden3": {
     "name": "leiden_leiden3",
     "id": "383",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "nimblegen_gpl10076": {
     "name": "nimblegen_gpl10076",
     "id": "384",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "nimblegen_gpl10392": {
     "name": "nimblegen_gpl10392",
     "id": "385",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "nimblegen_gpl13318": {
     "name": "nimblegen_gpl13318",
     "id": "386",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "nimblegen_gpl13762": {
     "name": "nimblegen_gpl13762",
     "id": "387",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "nimblegen_gpl13784": {
     "name": "nimblegen_gpl13784",
     "id": "388",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "nimblegen_gpl14375": {
     "name": "nimblegen_gpl14375",
     "id": "389",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "nimblegen_gpl14562": {
     "name": "nimblegen_gpl14562",
     "id": "390",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "nimblegen_gpl14607": {
     "name": "nimblegen_gpl14607",
     "id": "391",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "nimblegen_gpl14994": {
     "name": "nimblegen_gpl14994",
     "id": "392",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "nimblegen_gpl17210": {
     "name": "nimblegen_gpl17210",
     "id": "393",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "nimblegen_gpl21301": {
     "name": "nimblegen_gpl21301",
     "id": "394",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "nimblegen_gpl21560": {
     "name": "nimblegen_gpl21560",
     "id": "395",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "nimblegen_gpl22527": {
     "name": "nimblegen_gpl22527",
     "id": "396",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "nimblegen_gpl7338": {
     "name": "nimblegen_gpl7338",
     "id": "397",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "nimblegen_gpl8673": {
     "name": "nimblegen_gpl8673",
     "id": "398",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "nimblegen_nimblegen_13k": {
     "name": "nimblegen_nimblegen_13k",
     "id": "399",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "phalanx_onearray": {
     "name": "phalanx_onearray",
     "id": "400",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "slri_gpl3518": {
     "name": "slri_gpl3518",
@@ -1045,177 +1217,212 @@
   "affy_aragene": {
     "name": "affy_aragene",
     "id": "404",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_ath1_121501": {
     "name": "affy_ath1_121501",
     "id": "405",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_barley1": {
     "name": "affy_barley1",
     "id": "406",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_cotton": {
     "name": "affy_cotton",
     "id": "407",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_gpl16720": {
     "name": "affy_gpl16720",
     "id": "408",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_maize": {
     "name": "affy_maize",
     "id": "409",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_medgene": {
     "name": "affy_medgene",
     "id": "410",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_medicago": {
     "name": "affy_medicago",
     "id": "411",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_poplar": {
     "name": "affy_poplar",
     "id": "412",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_rcngene": {
     "name": "affy_rcngene",
     "id": "413",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_rice": {
     "name": "affy_rice",
     "id": "414",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_rjpgene": {
     "name": "affy_rjpgene",
     "id": "415",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_soybean": {
     "name": "affy_soybean",
     "id": "416",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_soygene": {
     "name": "affy_soygene",
     "id": "417",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_tomato": {
     "name": "affy_tomato",
     "id": "418",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_tomgene": {
     "name": "affy_tomgene",
     "id": "419",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_vitis_vinifera": {
     "name": "affy_vitis_vinifera",
     "id": "420",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_wheat": {
     "name": "affy_wheat",
     "id": "421",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_g2519f_015058": {
     "name": "agilent_g2519f_015058",
     "id": "422",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_g2519f_015059": {
     "name": "agilent_g2519f_015059",
     "id": "423",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_g2519f_015241": {
     "name": "agilent_g2519f_015241",
     "id": "424",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_g2519f_016047": {
     "name": "agilent_g2519f_016047",
     "id": "425",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_g2519f_016772": {
     "name": "agilent_g2519f_016772",
     "id": "426",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_g2519f_021113": {
     "name": "agilent_g2519f_021113",
     "id": "427",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_g2519f_021169": {
     "name": "agilent_g2519f_021169",
     "id": "428",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_g2519f_021623": {
     "name": "agilent_g2519f_021623",
     "id": "429",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_g2519f_022270": {
     "name": "agilent_g2519f_022270",
     "id": "430",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_g2519f_022297": {
     "name": "agilent_g2519f_022297",
     "id": "431",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_g2519f_022520": {
     "name": "agilent_g2519f_022520",
     "id": "432",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_g2519f_022523": {
     "name": "agilent_g2519f_022523",
     "id": "433",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_g2519f_022524": {
     "name": "agilent_g2519f_022524",
     "id": "434",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_g4136a_011839": {
     "name": "agilent_g4136a_011839",
     "id": "435",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_g4136b_013324": {
     "name": "agilent_g4136b_013324",
     "id": "436",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_g4138a_012106": {
     "name": "agilent_g4138a_012106",
     "id": "437",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_g4142a_012600": {
     "name": "agilent_g4142a_012600",
     "id": "438",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "catma_catma_v5": {
     "name": "catma_catma_v5",
@@ -1237,38 +1444,35 @@
     "id": "442",
     "url": ""
   },
-  "cds": {
-    "aliases": "eprotein",
-    "name": "CDS",
-    "id": "443",
-    "url": "https://www.ensembl.org/Multi/Search/Results?q=£{id};site=ensembl_all",
-    "hasFilter": "yes",
-    "attrs": "start,end,strand,seq_region,frame"
-  },
   "affy_unibasa_gossypiisysyng001a": {
     "name": "affy_unibasa_gossypiisysyng001a",
     "id": "444",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_gpl26966": {
     "name": "agilent_gpl26966",
     "id": "445",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_hugene_2_1_st_v1": {
     "name": "affy_hugene_2_1_st_v1",
     "id": "446",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "affy_ht_hg_u133_plus_pm": {
     "name": "affy_ht_hg_u133_plus_pm",
     "id": "447",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "agilent_gpl19072": {
     "name": "agilent_gpl19072",
     "id": "448",
-    "url": ""
+    "url": "",
+    "dynamicallyDerivedFrom": "ensembl"
   },
   "patent_family": {
     "name": "Patent Family",

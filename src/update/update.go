@@ -285,7 +285,16 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 				forwardStats := d.bucketPool.GetForwardXrefStats()
 				reverseStats := d.bucketPool.GetReverseXrefStats()
 
-				for datasetName := range d.inDatasets {
+				// Collect all datasets that have stats (includes ensembl which is removed from inDatasets)
+				allDatasetsWithStats := make(map[string]bool)
+				for datasetName := range forwardStats {
+					allDatasetsWithStats[datasetName] = true
+				}
+				for datasetName := range reverseStats {
+					allDatasetsWithStats[datasetName] = true
+				}
+
+				for datasetName := range allDatasetsWithStats {
 					// Forward edges: from bucket writer (target → count, "entry" for properties)
 					if targets, ok := forwardStats[datasetName]; ok && len(targets) > 0 {
 						forwardEdges := make(map[string]int64)
@@ -332,6 +341,41 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 
 	// first start ensembls
 	if len(ensembls) > 0 && !d.skipEnsembl {
+		// Cleanup ensembl datasets BEFORE processing starts
+		// Ensembl is handled separately from other datasets (removed from inDatasets),
+		// so it needs its own cleanup phase here
+		for ens := range ensembls {
+			// Check if dataset should be skipped (already built and source unchanged)
+			if !d.forceRebuild && d.shouldSkipDataset(ens) {
+				log.Printf("Skipping ensembl dataset %s (already built and source unchanged)", ens)
+				delete(ensembls, ens)
+				continue
+			}
+
+			// Mark dataset as "processing" for crash recovery
+			if d.datasetState != nil {
+				d.datasetState.MarkDatasetProcessing(ens)
+				// Set federation from config (defaults to "main" if not specified)
+				if federation, ok := config.DatasetNameFederation[ens]; ok && federation != "" {
+					d.datasetState.SetFederation(ens, federation)
+				} else {
+					d.datasetState.SetFederation(ens, "main")
+				}
+			}
+
+			// Clean up old bucket files and sorted files before re-processing
+			if err := CleanupForIncrementalUpdateFederated(ens, config.Appconf["outDir"], config.DatasetNameFederation, config.Dataconf); err != nil {
+				log.Printf("Warning: cleanup failed for ensembl dataset %s: %v", ens, err)
+			}
+		}
+
+		// Save state after cleanup (crash recovery)
+		if d.datasetState != nil && len(ensembls) > 0 {
+			if err := SaveDatasetState(d.datasetState, config.Appconf["outDir"]); err != nil {
+				log.Printf("Warning: failed to save processing state for ensembl: %v", err)
+			}
+		}
+
 		for ens := range ensembls {
 			d.datasets2 = append(d.datasets2, ens) // for the progress bar
 			d.progChan <- &progressInfo{dataset: ens, waiting: true}
@@ -1070,7 +1114,16 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 				forwardStats := d.bucketPool.GetForwardXrefStats()
 				reverseStats := d.bucketPool.GetReverseXrefStats()
 
-				for datasetName := range d.inDatasets {
+				// Collect all datasets that have stats (includes ensembl which is removed from inDatasets)
+				allDatasetsWithStats := make(map[string]bool)
+				for datasetName := range forwardStats {
+					allDatasetsWithStats[datasetName] = true
+				}
+				for datasetName := range reverseStats {
+					allDatasetsWithStats[datasetName] = true
+				}
+
+				for datasetName := range allDatasetsWithStats {
 					// Forward edges: from bucket writer (target → count, "entry" for properties)
 					if targets, ok := forwardStats[datasetName]; ok && len(targets) > 0 {
 						forwardEdges := make(map[string]int64)

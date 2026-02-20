@@ -170,14 +170,14 @@ async def chat_endpoint(request: Request):
         while iterations < config.chat_max_iterations:
             iterations += 1
 
-            # Call LLM
+            # Call LLM - use higher max_tokens for complex reasoning
             response = await client.chat.completions.create(
                 model=model,
                 messages=messages,
                 tools=tools,
                 tool_choice="auto" if tools else None,
                 temperature=0.0,
-                max_tokens=4096
+                max_tokens=8192
             )
 
             msg = response.choices[0].message
@@ -217,8 +217,8 @@ async def chat_endpoint(request: Request):
 
                     logger.info(f"Chat tool call: {tool_name}({tool_args})")
 
-                    # Execute tool
-                    result = await execute_tool(tool_name, tool_args, biobtree, max_result_length=15000)
+                    # Execute tool - use same limit as MCP for consistent results
+                    result = await execute_tool(tool_name, tool_args, biobtree, max_result_length=50000)
 
                     # Build query_url from tool arguments (more reliable than parsing truncated results)
                     query_url = _build_query_url_from_args(tool_name, tool_args)

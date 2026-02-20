@@ -461,25 +461,22 @@ func (m *msigdb) createReferences(systematicName, standardName, collectionName s
 	}
 
 	// 4. Cross-reference to Entrez Gene IDs
-	// This enables: 672 >>entrez>>msigdb to find gene sets containing BRCA1 (Entrez:672)
-	if entrezID, ok := config.Dataconf["entrez"]; ok {
-		for _, ncbiID := range entrezIDs {
-			m.d.addXref(ncbiID, entrezID["id"], systematicName, m.source, false)
-		}
+	// MSigDB → Entrez (enables >>msigdb>>entrez queries)
+	msigdbID := config.Dataconf[m.source]["id"]
+	for _, ncbiID := range entrezIDs {
+		m.d.addXref(systematicName, msigdbID, ncbiID, "entrez", false)
 	}
 
 	// 5. Cross-reference to PubMed
+	// MSigDB → PubMed (enables >>msigdb>>pubmed queries)
 	if pmid != "" && pmid != "0" {
-		if pubmedID, ok := config.Dataconf["pubmed"]; ok {
-			m.d.addXref(pmid, pubmedID["id"], systematicName, m.source, false)
-		}
+		m.d.addXref(systematicName, msigdbID, pmid, "pubmed", false)
 	}
 
 	// 6. Cross-reference to GO terms (bidirectional)
 	// Forward: GO → MSigDB (enables >>go>>msigdb queries)
 	// Reverse: MSigDB → GO (enables >>msigdb>>go queries)
 	if goID, ok := config.Dataconf["go"]; ok {
-		msigdbID := config.Dataconf[m.source]["id"]
 		for _, goTerm := range goTerms {
 			// Forward: GO term → MSigDB gene set
 			m.d.addXref(goTerm, goID["id"], systematicName, m.source, false)
@@ -492,7 +489,6 @@ func (m *msigdb) createReferences(systematicName, standardName, collectionName s
 	// Forward: HPO → MSigDB (enables >>hpo>>msigdb queries)
 	// Reverse: MSigDB → HPO (enables >>msigdb>>hpo queries)
 	if hpoID, ok := config.Dataconf["hpo"]; ok {
-		msigdbID := config.Dataconf[m.source]["id"]
 		for _, hpoTerm := range hpoTerms {
 			// Forward: HPO term → MSigDB gene set
 			m.d.addXref(hpoTerm, hpoID["id"], systematicName, m.source, false)

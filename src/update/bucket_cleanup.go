@@ -14,8 +14,8 @@ import (
 var childDatasets = map[string][]string{
 	"uniprot":  {"ufeature"},
 	"taxonomy": {"taxchild", "taxparent"},
-	"ensembl":  {"ortholog", "paralog"},
-	"go":       {"gochild", "goparent"},
+	// ensembl childDatasets defined in source1.dataset.json: ortholog,paralog,transcript,exon,cds
+	"go": {"gochild", "goparent"},
 	"mesh":     {"meshchild", "meshparent"},
 	"hpo":      {"hpochild", "hpoparent"},
 	"reactome": {"reactomeparent", "reactomechild"},
@@ -54,6 +54,28 @@ func GetChildDatasets(datasetName string, dataconf map[string]map[string]string)
 	}
 
 	return children
+}
+
+// GetDynamicallyDerivedDatasets returns all datasets that have "dynamicallyDerivedFrom" attribute
+// matching the given parent dataset name.
+// This is used for datasets like affy_*, agilent_*, illumina_* which are
+// dynamically created during ensembl/biomart processing and should be cleaned when ensembl is rebuilt.
+// These are different from regular "derived" datasets (like textsearch) - they are xref datasets
+// whose names depend on the source data files.
+func GetDynamicallyDerivedDatasets(parentDataset string, dataconf map[string]map[string]string) []string {
+	var derived []string
+
+	if dataconf == nil {
+		return derived
+	}
+
+	for dsName, dsConfig := range dataconf {
+		if derivedFrom, exists := dsConfig["dynamicallyDerivedFrom"]; exists && derivedFrom == parentDataset {
+			derived = append(derived, dsName)
+		}
+	}
+
+	return derived
 }
 
 // CleanupForIncrementalUpdateFederated removes old bucket files and sorted files for a dataset
@@ -294,7 +316,7 @@ func CleanupForIncrementalUpdate(datasetName string, indexDir string, dataconf m
 
 	// Log preserved from_* sources (contributions FROM other datasets TO this dataset)
 	// These are preserved because the source datasets haven't changed
-	// Note: We exclude child datasets from this log since they will be cleaned next
+	// Note: We exclude child and dynamically derived datasets from this log since they will be cleaned next
 	datasetDir := filepath.Join(indexDir, datasetName)
 	if fromDirs, err := filepath.Glob(filepath.Join(datasetDir, "from_*")); err == nil && len(fromDirs) > 0 {
 		// Get child datasets to filter them out of the preserved list
@@ -303,11 +325,16 @@ func CleanupForIncrementalUpdate(datasetName string, indexDir string, dataconf m
 		for _, child := range children {
 			childSet[child] = true
 		}
+		// Also get dynamically derived datasets to filter them out
+		derived := GetDynamicallyDerivedDatasets(datasetName, dataconf)
+		for _, d := range derived {
+			childSet[d] = true
+		}
 
 		var preserved []string
 		for _, fromDir := range fromDirs {
 			sourceName := strings.TrimPrefix(filepath.Base(fromDir), "from_")
-			// Skip if this is a child dataset (will be cleaned next)
+			// Skip if this is a child or dynamically derived dataset (will be cleaned next)
 			if !childSet[sourceName] {
 				preserved = append(preserved, sourceName)
 			}
@@ -327,6 +354,20 @@ func CleanupForIncrementalUpdate(datasetName string, indexDir string, dataconf m
 			log.Printf("Also cleaning child dataset %s (built by %s)", childName, datasetName)
 			if err := cleanupChildDataset(childName, indexDir); err != nil {
 				log.Printf("Warning: failed to cleanup child dataset %s: %v", childName, err)
+			}
+		}
+	}
+
+	// 8. Clean up dynamically derived datasets that have "dynamicallyDerivedFrom" attribute pointing to this dataset
+	// e.g., when ensembl is cleaned, also clean affy_*, agilent_*, illumina_* datasets
+	// which are dynamically created during ensembl/biomart processing
+	derived := GetDynamicallyDerivedDatasets(datasetName, dataconf)
+	if len(derived) > 0 {
+		log.Printf("Also cleaning %d dynamically derived datasets (dynamicallyDerivedFrom=%s)", len(derived), datasetName)
+		for _, derivedName := range derived {
+			log.Printf("Cleaning dynamically derived dataset %s", derivedName)
+			if err := cleanupChildDataset(derivedName, indexDir); err != nil {
+				log.Printf("Warning: failed to cleanup derived dataset %s: %v", derivedName, err)
 			}
 		}
 	}
@@ -669,6 +710,12 @@ func CleanupInterruptedDatasets(state *DatasetState, indexDir, outDir string, da
 		children := GetChildDatasets(datasetName, dataconf)
 		for _, childName := range children {
 			state.RemoveDataset(childName)
+		}
+
+		// Also remove dynamically derived datasets from state (datasets with dynamicallyDerivedFrom attribute)
+		derived := GetDynamicallyDerivedDatasets(datasetName, dataconf)
+		for _, derivedName := range derived {
+			state.RemoveDataset(derivedName)
 		}
 	}
 

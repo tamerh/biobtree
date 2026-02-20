@@ -209,20 +209,6 @@ func (u *uniprot) processDbReference(entryid string, r *xmlparser.XMLElement) {
 			}
 		case "PDB":
 			u.d.addXref(entryid, u.sourceID, v.Attrs["id"], v.Attrs["type"], false)
-			attr := pbuf.PdbAttr{}
-			for _, z := range v.Childs["property"] {
-				switch z.Attrs["type"] {
-				case "method":
-					attr.Method = strings.ToLower(z.Attrs["value"])
-				case "chains":
-					attr.Chains = z.Attrs["value"]
-				case "resolution":
-					attr.Resolution = z.Attrs["value"]
-				}
-			}
-			//todo if empty
-			b, _ := ffjson.Marshal(attr)
-			u.d.addProp3(v.Attrs["id"], config.Dataconf[v.Attrs["type"]]["id"], b)
 
 		case "DrugBank":
 			u.d.addXref(entryid, u.sourceID, v.Attrs["id"], v.Attrs["type"], false)
@@ -251,26 +237,8 @@ func (u *uniprot) processDbReference(entryid string, r *xmlparser.XMLElement) {
 
 		case "Orphanet":
 			u.d.addXref(entryid, u.sourceID, v.Attrs["id"], v.Attrs["type"], false)
-			for _, z := range v.Childs["property"] {
-				switch z.Attrs["type"] {
-				case "disease":
-					attr := pbuf.OrphanetAttr{}
-					attr.Name = z.Attrs["value"]
-					b, _ := ffjson.Marshal(attr)
-					u.d.addProp3(v.Attrs["id"], config.Dataconf[v.Attrs["type"]]["id"], b)
-				}
-			}
 		case "Reactome":
 			u.d.addXref(entryid, u.sourceID, v.Attrs["id"], v.Attrs["type"], false)
-			for _, z := range v.Childs["property"] {
-				switch z.Attrs["type"] {
-				case "pathway name":
-					attr := pbuf.ReactomePathwayAttr{}
-					attr.Name = z.Attrs["value"]
-					b, _ := ffjson.Marshal(attr)
-					u.d.addProp3(v.Attrs["id"], config.Dataconf[v.Attrs["type"]]["id"], b)
-				}
-			}
 		case "GO":
 			// Use bucketed xref for GO (has bucket config)
 			u.d.addXrefBucketed(entryid, u.sourceID, v.Attrs["id"], v.Attrs["type"], false)

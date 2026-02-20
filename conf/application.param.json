@@ -32,7 +32,7 @@
 	"disableEnsemblReleaseCheck": "y",
 	"disableRemoteConfigCheck": "y",
 	"dbBackend": "lmdb",
-	"lmdbSafetyFactor": "10",
+	"lmdbSafetyFactor": "20",
 	"lookupDbDir": "out_prod_v5/",
 	"tmpRuneSize": "10000000",
 	"mergeArraySize": "150000",

@@ -23,6 +23,12 @@ const textStoreID = "-1"
 const tab = "\t"
 const newline = "\n"
 
+// pageKeySep separates the root key from the dataset+page suffix in page keys.
+// Page key format: rootKey + \x00 + datasetKey(2 chars) + pageIndex(variable)
+// Example: "TOXIN\x00AAC" where "AA" is dataset, "C" is page index
+// MUST match the format used in generate/mergeg.go during database creation.
+const pageKeySep = "\x00"
+
 // LMDBMaxKeySize is the maximum key size for LMDB (default 511 bytes)
 // Keys longer than this will be skipped to prevent MDB_BAD_VALSIZE errors
 const LMDBMaxKeySize = 511
@@ -2343,9 +2349,10 @@ func (d *DataUpdate) isHumanGene(entrezID string, entrezDatasetInt uint32) bool 
 	}
 
 	// Check paginated entries if taxonomy is in pages
+	// Page key format: rootKey + \x00 + datasetKey(2 chars) + pageIndex
 	if pageInfo, ok := fullEntry.DatasetPages[taxDatasetInt]; ok {
 		for _, page := range pageInfo.Pages {
-			pageKey := entrezID + " " + config.DataconfIDToPageKey[entrezDatasetInt] + " " + page
+			pageKey := entrezID + pageKeySep + config.DataconfIDToPageKey[entrezDatasetInt] + page
 			pageResult, err := d.lookupPage(pageKey, entrezDatasetInt)
 			if err != nil || pageResult == nil {
 				continue

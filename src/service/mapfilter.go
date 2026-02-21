@@ -832,9 +832,9 @@ func (s *Service) getEntries(xref *pbuf.Xref, mapDatasetID uint32, mpage *mpPage
 		return xref.Entries[mpage.entryIndex:], nil
 
 	} else {
-
+		// Build page key: rootKey + \x00 + datasetKey(2 chars) + pageIndex
 		page := xref.DatasetPages[mapDatasetID].Pages[mpage.page]
-		pageKey := xref.Identifier + spacestr + config.DataconfIDToPageKey[xref.Dataset] + spacestr + page
+		pageKey := xref.Identifier + pageKeySep + config.DataconfIDToPageKey[xref.Dataset] + page
 		source, err := s.LookupByDataset(pageKey, xref.Dataset)
 		if err != nil {
 			return nil, err

@@ -370,6 +370,20 @@ const newliner rune = '\n'
 const spacestr = " "
 const eof = rune(0)
 
+// pageKeySep separates the root key from the dataset+page suffix in page keys.
+//
+// Page key format: rootKey + pageKeySep + datasetKey + pageIndex
+// Example: "TOXIN" + \x00 + "AA" + "C" = "TOXIN\x00AAC"
+//
+// - datasetKey is ALWAYS 2 characters (from pager.Key(datasetInt, 2))
+// - pageIndex is variable length (1-5 chars depending on page count)
+// - No separator between datasetKey and pageIndex (saves 1 byte per page key)
+// - Parse by: split on \x00, then first 2 chars = dataset, rest = page
+//
+// CRITICAL: Must NOT be a space character to avoid collision with root keys.
+// Example collision with space: root "TOXIN" page key "TOXIN AA C" vs root "TOXIN AA C"
+const pageKeySep = "\x00"
+
 var fileBufSize = 65536
 
 // Helper function for min of two integers
@@ -1118,8 +1132,9 @@ func (d *Merge) mergeg() {
 				keyLen := d.pager.KeyLen(pageSize)
 
 				for i := 1; i < len(arrIds); i++ {
-
-					pageKey := kv.key + spacestr + d.pager.Key(datasetInt, 2) + spacestr + d.pager.Key(i-1, keyLen)
+					// Page key format: rootKey + \x00 + datasetKey(2 chars) + pageIndex(variable)
+					// No separator between datasetKey and pageIndex - saves 1 byte per page key
+					pageKey := kv.key + pageKeySep + d.pager.Key(datasetInt, 2) + d.pager.Key(i-1, keyLen)
 					d.batchKeys[d.batchIndex] = []byte(pageKey)
 					valIdx := keyArrIndx[kv.key][domain][i]
 					d.batchVals[d.batchIndex] = d.toProtoPage(pageKey, domain, &all[arrIds[i]], valIdx)

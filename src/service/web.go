@@ -19,6 +19,12 @@ var config *configs.Conf
 
 const spacestr = " "
 
+// pageKeySep separates the root key from the dataset+page suffix in page keys.
+// Page key format: rootKey + \x00 + datasetKey(2 chars) + pageIndex(variable)
+// Example: "TOXIN\x00AAC" where "AA" is dataset, "C" is page index
+// MUST match the format used in generate/mergeg.go during database creation.
+const pageKeySep = "\x00"
+
 type Web struct {
 	service *Service
 	metaRes []byte

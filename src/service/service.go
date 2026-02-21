@@ -1076,9 +1076,9 @@ func (s *Service) Search(ids []string, datasetFilters []uint32, page string, q *
 									}
 								}
 
-								// Build page key with SOURCE dataset prefix (0 for text links)
-								// Pages are stored under text link key prefix, not target dataset prefix
-								pageKey := id + spacestr + config.DataconfIDToPageKey[0] + spacestr + page
+								// Build page key: rootKey + \x00 + datasetKey(2 chars) + pageIndex
+								// Pages are stored under text link key prefix (dataset 0), not target dataset prefix
+								pageKey := id + pageKeySep + config.DataconfIDToPageKey[0] + page
 								// Try target dataset first, then main (0) - pages may be stored in either
 								xrefPage, err := s.LookupPage(pageKey, targetDatasetID)
 								if err != nil {
@@ -1485,8 +1485,8 @@ func (s *Service) LookupInDataset(identifier string, datasetID uint32) (*pbuf.Xr
 			// Check paginated entries if not found inline
 			if len(xref.Pages) > 0 {
 				for _, page := range xref.Pages {
-					// Build page key: identifier + " " + pageKeyPart + " " + page
-					pageKey := identifier + " " + config.DataconfIDToPageKey[0] + " " + page
+					// Build page key: rootKey + \x00 + datasetKey(2 chars) + pageIndex
+					pageKey := identifier + pageKeySep + config.DataconfIDToPageKey[0] + page
 					pageResult, err := s.LookupPage(pageKey, xref.Dataset)
 					if err != nil {
 						continue

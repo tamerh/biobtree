@@ -1,9 +1,10 @@
 {
   "metadata": {
-    "version": "9.7",
+    "version": "9.8",
     "description": "Expanded integration tests including newly added datasets and filter tests (2025-2026)",
     "server": "http://localhost:9291",
-    "last_updated": "2026-02-19",
+    "last_updated": "2026-02-22",
+    "changes_9.8": "Added bgee_evidence_sorting category (8 tests): Bgee expression evidence sorting validation tests. Basic mapping tests (bgee>>bgee_evidence, uberon>>bgee_evidence, cl>>bgee_evidence), species priority sorting validation (human genes before mouse before cattle), expression score descending order validation. New validation types: first_n_start_with, first_n_not_start_with, descending_scores for sorting verification. Total: 722 tests.",
     "changes_9.7": "Added string_interaction sub-dataset tests (8 tests): STRING interaction mapping (>>string>>string_interaction), interaction to partner proteins chain, score filters (>900 high-confidence, >700 medium-confidence), evidence channel filters (has_experimental, has_database), multi-hop gene to interactions, gene to high-confidence partners. Tests new string_interaction sub-dataset that separates interactions from STRING entries for efficient queries. Total: 714 tests.",
     "changes_9.6": "Added text_search category (15 tests): Protein name search (UniProt SwissProt - Insulin, Hemoglobin, Spike glycoprotein), PharmGKB gene search (CYP2D6, VKORC1, SLCO1B1), Orphanet disease name search and validation, HGNC protein name search, Clinical trials sponsor-only search (Pfizer, Novartis), and pollution prevention tests (drug names and conditions should NOT match clinical trials). Tests search improvements including compact.go ExtractSourceName fix for Orphanet names and priority adjustments. Total: 706 tests.",
     "changes_9.5": "Added search_filter category (11 tests): Multi-dataset filter tests (s=hgnc,mondo,efo), single dataset filter, text priority ordering validation, pagination with filters, and invalid filter handling. Tests new comma-separated dataset filter feature and textPriority ordering. Total: 691 tests.",
@@ -82,7 +83,8 @@
     "jaspar_tf_binding": "JASPAR transcription factor binding profiles: ~6K curated TF binding motifs (PFMs/PWMs) from CORE and UNVALIDATED collections. Cross-references to UniProt, PubMed, Taxonomy. Filters for collection (CORE/UNVALIDATED), experiment type (ChIP-seq, SELEX, PBM), taxonomic group (vertebrates, plants, insects). Essential for TF binding site prediction, regulatory element analysis, and gene regulation studies.",
     "encode_ccre": "ENCODE cCRE (candidate cis-Regulatory Elements): ~2.3M regulatory regions from ENCODE SCREEN. Classifications include PLS (promoter-like), pELS (proximal enhancer-like), dELS (distal enhancer-like), CA-CTCF (CTCF-bound), CA-TF (TF-bound), CA (chromatin accessible), TF (transcription factor only). Genomic coordinates (chromosome, start, end). Cross-references to taxonomy (human GRCh38). Filters for classification, chromosome, coordinate range. Essential for regulatory element analysis, enhancer/promoter biology, and epigenomics studies.",
     "search_filter": "Search endpoint filtering and ordering: Multi-dataset filter (s=hgnc,mondo,efo), single dataset filter, text priority ordering (datasets with higher textPriority appear first in search results), and pagination with filters. Essential for efficient LLM agent queries and result prioritization.",
-    "text_search": "Text search improvements: Protein name discovery (UniProt SwissProt), PharmGKB gene priority, Orphanet disease names, clinical trials sponsor search. Tests search result quality and pollution prevention."
+    "text_search": "Text search improvements: Protein name discovery (UniProt SwissProt), PharmGKB gene priority, Orphanet disease names, clinical trials sponsor search. Tests search result quality and pollution prevention.",
+    "bgee_evidence_sorting": "Bgee evidence sorting validation: Tests species priority sorting (human genes first, then mouse, then others) and expression score descending order for bgee_evidence dataset. Validates bgee >> bgee_evidence and uberon/cl >> bgee_evidence query paths with correct sorting."
   },
   "tests": [
     {
@@ -7741,6 +7743,124 @@
       "should_pass": [],
       "should_fail": [
         "Breast Cancer"
+      ]
+    },
+    {
+      "category": "bgee_evidence_sorting",
+      "name": "Gene to Expression Evidence Basic",
+      "query": ">>bgee>>bgee_evidence",
+      "why": "Map gene to all expression evidence entries (tissue/cell type expression data)",
+      "should_pass": [
+        "ENSG00000141510",
+        "ENSG00000157764"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "bgee_evidence_sorting",
+      "name": "Tissue to Expression Evidence Basic",
+      "query": ">>uberon>>bgee_evidence",
+      "why": "Map tissue to all genes with expression evidence in that tissue",
+      "should_pass": [
+        "UBERON:0000955",
+        "UBERON:0000002"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "bgee_evidence_sorting",
+      "name": "Cell Type to Expression Evidence Basic",
+      "query": ">>cl>>bgee_evidence",
+      "why": "Map cell type to all genes with expression evidence in that cell type",
+      "should_pass": [
+        "CL:0000576"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "bgee_evidence_sorting",
+      "name": "Gene Expression Score Descending Order",
+      "type": "validation",
+      "query": ">>bgee>>bgee_evidence",
+      "identifier": "ENSG00000141510",
+      "why": "Expression evidence for TP53 should be sorted by expression_score descending (highest scores first)",
+      "validations": [
+        {
+          "path": "",
+          "descending_scores": "Attributes.BgeeEvidence.expression_score",
+          "n": 20,
+          "description": "First 20 results sorted by expression score descending"
+        }
+      ]
+    },
+    {
+      "category": "bgee_evidence_sorting",
+      "name": "Tissue Expression Human Genes First",
+      "type": "validation",
+      "query": ">>uberon>>bgee_evidence",
+      "identifier": "UBERON:0000002",
+      "why": "For cervix (UBERON:0000002), human genes (ENSG) should appear before cattle (ENSBTAG) due to species priority sorting",
+      "validations": [
+        {
+          "path": "",
+          "first_n_start_with": "ENSG",
+          "n": 50,
+          "description": "First 50 results should be human genes (ENSG prefix)"
+        },
+        {
+          "path": "",
+          "first_n_not_start_with": "ENSBTAG",
+          "n": 50,
+          "description": "First 50 results should NOT contain cattle genes (ENSBTAG prefix)"
+        }
+      ]
+    },
+    {
+      "category": "bgee_evidence_sorting",
+      "name": "Tissue Expression Score Order Within Species",
+      "type": "validation",
+      "query": ">>uberon>>bgee_evidence",
+      "identifier": "UBERON:0000002",
+      "why": "Within human genes, results should be sorted by expression_score descending",
+      "validations": [
+        {
+          "path": "",
+          "descending_scores": "Attributes.BgeeEvidence.expression_score",
+          "n": 30,
+          "description": "First 30 results (all human) sorted by expression score descending"
+        }
+      ]
+    },
+    {
+      "category": "bgee_evidence_sorting",
+      "name": "Cell Type Expression Human Genes First",
+      "type": "validation",
+      "query": ">>cl>>bgee_evidence",
+      "identifier": "CL:0000576",
+      "why": "For monocyte (CL:0000576), human genes should appear before other species due to species priority sorting",
+      "validations": [
+        {
+          "path": "",
+          "first_n_start_with": "ENSG",
+          "n": 30,
+          "description": "First 30 results should be human genes (ENSG prefix)"
+        }
+      ]
+    },
+    {
+      "category": "bgee_evidence_sorting",
+      "name": "Bgee to Evidence Human Before Mouse",
+      "type": "validation",
+      "query": ">>bgee>>bgee_evidence",
+      "identifier": "ENSG00000141510,ENSMUSG00000059552",
+      "why": "When querying multiple genes (human TP53 + mouse Trp53), human gene evidence should appear first",
+      "validations": [
+        {
+          "path": "",
+          "first_n_start_with": "ENSG",
+          "n": 20,
+          "description": "First 20 results should be from human gene (ENSG prefix)"
+        }
       ]
     }
   ]

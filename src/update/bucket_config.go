@@ -45,6 +45,12 @@ var (
 	// This ensures consistent compression for both forward and reverse xrefs
 	// Default: true - reduces disk usage significantly for large datasets
 	CompressBuckets = true
+
+	// ReverseXrefSortLevels stores sort level configurations for reverse xrefs
+	// Map: sourceDataset -> targetDataset -> []sortLevelTypes
+	// Example: {"bgee": {"uberon": ["speciesPriority", "expressionScore"]}}
+	// This determines how {target}/from_{source}/ bucket files are sorted
+	ReverseXrefSortLevels = make(map[string]map[string][]string)
 )
 
 // LoadBucketSystemConfig loads bucket system configuration from Appconf
@@ -310,6 +316,17 @@ func LoadBucketConfigs() map[string]*BucketConfig {
 			cfg.Method = cfg.Methods[0]
 			cfg.NumBuckets = cfg.NumBucketsPerSet[0]
 
+			// Read custom sortFields from config (e.g., "-k1,1 -k5,5r" for evidence-based sorting)
+			if sortFields, ok := props["sortFields"]; ok && sortFields != "" {
+				cfg.SortFields = sortFields
+			}
+			// Read stripFieldAfterSort (1-based field index to remove after sorting)
+			if stripField, ok := props["stripFieldAfterSort"]; ok && stripField != "" {
+				if fieldNum, err := strconv.Atoi(stripField); err == nil && fieldNum > 0 {
+					cfg.StripFieldAfterSort = fieldNum
+				}
+			}
+
 			cfgs[datasetID] = cfg
 			log.Printf("Bucket config loaded (multi-set): %s (ID:%s) methods=%v buckets=%v skipSort=%v",
 				datasetName, datasetID, methodNames, cfg.NumBucketsPerSet, skipSort)
@@ -367,6 +384,17 @@ func LoadBucketConfigs() map[string]*BucketConfig {
 					HybridMode:       true,
 				}
 
+				// Read custom sortFields from config (e.g., "-k1,1 -k5,5r" for evidence-based sorting)
+				if sortFields, ok := props["sortFields"]; ok && sortFields != "" {
+					cfgs[datasetID].SortFields = sortFields
+				}
+				// Read stripFieldAfterSort (1-based field index to remove after sorting)
+				if stripField, ok := props["stripFieldAfterSort"]; ok && stripField != "" {
+					if fieldNum, err := strconv.Atoi(stripField); err == nil && fieldNum > 0 {
+						cfgs[datasetID].StripFieldAfterSort = fieldNum
+					}
+				}
+
 				log.Printf("Bucket config loaded (hybrid): %s (ID:%s) method=%s sets=%d buckets=%d totalBuckets=%d skipSort=%v compress=%v",
 					datasetName, datasetID, methodName, hybridNumSets, numBuckets, totalBuckets, skipSort, CompressBuckets)
 			} else {
@@ -387,7 +415,21 @@ func LoadBucketConfigs() map[string]*BucketConfig {
 					HybridMode:       false,
 				}
 
-				if CompressBuckets {
+				// Read custom sortFields from config (e.g., "-k1,1 -k5,5r" for evidence-based sorting)
+				if sortFields, ok := props["sortFields"]; ok && sortFields != "" {
+					cfgs[datasetID].SortFields = sortFields
+				}
+				// Read stripFieldAfterSort (1-based field index to remove after sorting)
+				if stripField, ok := props["stripFieldAfterSort"]; ok && stripField != "" {
+					if fieldNum, err := strconv.Atoi(stripField); err == nil && fieldNum > 0 {
+						cfgs[datasetID].StripFieldAfterSort = fieldNum
+					}
+				}
+
+				if cfgs[datasetID].SortFields != "" {
+					log.Printf("Bucket config loaded: %s (ID:%s) method=%s buckets=%d skipSort=%v sortFields=%s stripField=%d",
+						datasetName, datasetID, methodName, numBuckets, skipSort, cfgs[datasetID].SortFields, cfgs[datasetID].StripFieldAfterSort)
+				} else if CompressBuckets {
 					log.Printf("Bucket config loaded: %s (ID:%s) method=%s buckets=%d skipSort=%v compress=true",
 						datasetName, datasetID, methodName, numBuckets, skipSort)
 				} else {
@@ -461,7 +503,87 @@ func LoadBucketConfigs() map[string]*BucketConfig {
 	log.Printf("Bucket config loaded: textsearch (ID:%s) method=alphabetic buckets=55 (derived-style) compress=%v sortFields=%s stripField=%d",
 		TextSearchDatasetID, CompressBuckets, "-k1,1 -k7,7", 7)
 
+	// Load reverseXrefSort configurations
+	// This specifies how reverse xrefs (target/from_source/) should be sorted
+	LoadReverseXrefSortConfigs()
+
 	return cfgs
+}
+
+// LoadReverseXrefSortConfigs loads sort level configurations for reverse xrefs
+// Config format in source.dataset.json:
+//
+//	"bgee": {
+//	  "reverseXrefSort": {
+//	    "uberon": ["speciesPriority", "expressionScore"],
+//	    "cl": ["speciesPriority", "expressionScore"]
+//	  }
+//	}
+//
+// This means: when sorting uberon/from_bgee/, use these sort levels
+func LoadReverseXrefSortConfigs() {
+	for datasetName, props := range config.Dataconf {
+		// Skip aliases
+		if props["_alias"] == "true" {
+			continue
+		}
+
+		reverseXrefSortStr, ok := props["reverseXrefSort"]
+		if !ok || reverseXrefSortStr == "" {
+			continue
+		}
+
+		// Parse the JSON-like config: {"uberon": ["speciesPriority", "expressionScore"]}
+		// Format: target1:level1,level2;target2:level1,level2
+		// Example: uberon:speciesPriority,expressionScore;cl:speciesPriority,expressionScore
+		if ReverseXrefSortLevels[datasetName] == nil {
+			ReverseXrefSortLevels[datasetName] = make(map[string][]string)
+		}
+
+		// Parse semicolon-separated target configs
+		targetConfigs := strings.Split(reverseXrefSortStr, ";")
+		for _, targetConfig := range targetConfigs {
+			targetConfig = strings.TrimSpace(targetConfig)
+			if targetConfig == "" {
+				continue
+			}
+
+			// Parse target:levels format
+			parts := strings.SplitN(targetConfig, ":", 2)
+			if len(parts) != 2 {
+				continue
+			}
+
+			targetDataset := strings.TrimSpace(parts[0])
+			levelsStr := strings.TrimSpace(parts[1])
+
+			// Parse comma-separated levels
+			levels := strings.Split(levelsStr, ",")
+			var sortLevels []string
+			for _, level := range levels {
+				level = strings.TrimSpace(level)
+				if level != "" {
+					sortLevels = append(sortLevels, level)
+				}
+			}
+
+			if len(sortLevels) > 0 {
+				ReverseXrefSortLevels[datasetName][targetDataset] = sortLevels
+				log.Printf("Reverse xref sort config: %s -> %s: %v", datasetName, targetDataset, sortLevels)
+			}
+		}
+	}
+}
+
+// GetReverseXrefSortLevels returns the sort levels for a source->target xref
+// Returns nil if no sort levels are configured
+func GetReverseXrefSortLevels(sourceDataset, targetDataset string) []string {
+	if targets, ok := ReverseXrefSortLevels[sourceDataset]; ok {
+		if levels, ok := targets[targetDataset]; ok {
+			return levels
+		}
+	}
+	return nil
 }
 
 // LoadDerivedBucketConfigs auto-creates bucket configs for derived datasets

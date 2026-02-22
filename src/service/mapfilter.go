@@ -829,6 +829,11 @@ func (s *Service) getEntries(xref *pbuf.Xref, mapDatasetID uint32, mpage *mpPage
 			return xref.Entries, nil
 		}
 
+		// Bounds check to prevent panic if entryIndex exceeds entries length
+		if mpage.entryIndex >= len(xref.Entries) {
+			return entries, nil // Return empty slice
+		}
+
 		return xref.Entries[mpage.entryIndex:], nil
 
 	} else {
@@ -841,6 +846,11 @@ func (s *Service) getEntries(xref *pbuf.Xref, mapDatasetID uint32, mpage *mpPage
 		}
 		if mpage.entryIndex == 0 {
 			return source.Entries, nil
+		}
+
+		// Bounds check to prevent panic if entryIndex exceeds entries length
+		if mpage.entryIndex >= len(source.Entries) {
+			return entries, nil // Return empty slice
 		}
 
 		return source.Entries[mpage.entryIndex:], nil
@@ -1036,6 +1046,8 @@ func (s *Service) execCelGo(query *query.Query, targetXref *pbuf.Xref) (bool, er
 		out, _, err = query.Program.Eval(map[string]interface{}{"swisslipids": targetXref.GetSwisslipids()})
 	case "bgee":
 		out, _, err = query.Program.Eval(map[string]interface{}{"bgee": targetXref.GetBgee()})
+	case "bgee_evidence":
+		out, _, err = query.Program.Eval(map[string]interface{}{"bgee_evidence": targetXref.GetBgeeEvidence()})
 	case "rhea":
 		out, _, err = query.Program.Eval(map[string]interface{}{"rhea": targetXref.GetRhea()})
 	case "gwas_study":

@@ -242,6 +242,34 @@ class IntegrationTestRunner:
             passed = bool(data.get('results')) == validation['has_results']
             if not passed:
                 return {**result_base, 'passed': False, 'error': f"Expected has_results={validation['has_results']}"}
+        elif 'first_n_start_with' in validation:
+            # Check that first N targets all start with the specified prefix
+            # Used for sorting validation (e.g., human genes should appear before other species)
+            prefix = validation['first_n_start_with']
+            n = validation.get('n', 10)
+            targets = self.get_first_n_targets(data, n)
+            non_matching = [t for t in targets if not t.startswith(prefix)]
+            passed = len(non_matching) == 0
+            if not passed:
+                return {**result_base, 'passed': False, 'error': f"First {n} targets should start with '{prefix}', found non-matching: {non_matching[:3]}"}
+        elif 'first_n_not_start_with' in validation:
+            # Check that first N targets do NOT start with the specified prefix
+            # Used for negative sorting validation (e.g., no cattle genes in first N)
+            prefix = validation['first_n_not_start_with']
+            n = validation.get('n', 10)
+            targets = self.get_first_n_targets(data, n)
+            matching = [t for t in targets if t.startswith(prefix)]
+            passed = len(matching) == 0
+            if not passed:
+                return {**result_base, 'passed': False, 'error': f"First {n} targets should NOT start with '{prefix}', found: {matching[:3]}"}
+        elif 'descending_scores' in validation:
+            # Check that scores are in descending order (for expression score sorting)
+            score_path = validation['descending_scores']
+            n = validation.get('n', 10)
+            scores = self.get_first_n_scores(data, score_path, n)
+            passed = all(scores[i] >= scores[i+1] for i in range(len(scores)-1)) if len(scores) > 1 else True
+            if not passed:
+                return {**result_base, 'passed': False, 'error': f"Scores not in descending order: {scores[:5]}"}
         else:
             passed = value is not None
             if not passed:
@@ -294,6 +322,35 @@ class IntegrationTestRunner:
                 if target.get('identifier') == target_id:
                     return True
         return False
+
+    def get_first_n_targets(self, data, n):
+        """Get first N target identifiers from results (for sorting validation)"""
+        targets = []
+        for result in data.get('results', []):
+            for target in result.get('targets', []):
+                targets.append(target.get('identifier', ''))
+                if len(targets) >= n:
+                    return targets
+        return targets
+
+    def get_first_n_scores(self, data, score_path, n):
+        """Get first N scores from results for descending order validation"""
+        scores = []
+        for result in data.get('results', []):
+            for target in result.get('targets', []):
+                # Navigate the score path (e.g., "Attributes.BgeeEvidence.expression_score")
+                value = target
+                for part in score_path.split('.'):
+                    if isinstance(value, dict):
+                        value = value.get(part)
+                    else:
+                        value = None
+                        break
+                if value is not None:
+                    scores.append(float(value))
+                if len(scores) >= n:
+                    return scores
+        return scores
 
     def print_validation_result(self, result):
         """Print validation test result"""

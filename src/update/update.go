@@ -1557,6 +1557,109 @@ func (d *DataUpdate) addXrefWithRelationship(key string, from string, value stri
 	d.addXrefFull(key, from, value, valueFrom, isLink, "", relationship)
 }
 
+// =============================================================================
+// SORT LEVEL SYSTEM FOR REVERSE XREF ORDERING
+// =============================================================================
+// When querying reverse xrefs (e.g., UBERON >> bgee), results can be sorted by
+// multiple levels: species priority, expression score, etc.
+// Sort level values are appended to xref lines, used for sorting, then stripped.
+
+// SortLevelType defines the type of sort level
+type SortLevelType string
+
+const (
+	SortLevelSpeciesPriority SortLevelType = "speciesPriority"
+	SortLevelExpressionScore SortLevelType = "expressionScore"
+)
+
+// ComputeSortLevelValue computes the string value for a sort level
+// All values are formatted for ascending lexicographic sort
+func ComputeSortLevelValue(levelType SortLevelType, params map[string]interface{}) string {
+	switch levelType {
+	case SortLevelSpeciesPriority:
+		// taxID -> priority string (01=human, 02=mouse, etc.)
+		if taxID, ok := params["taxID"].(string); ok {
+			return getModelSpeciesPriority(taxID)
+		}
+		return "99"
+	case SortLevelExpressionScore:
+		// Invert score so higher scores sort first with ascending sort
+		// score 95.11 -> "004.89", score 10.00 -> "090.00"
+		if score, ok := params["score"].(float64); ok {
+			invertedScore := 100.0 - score
+			return fmt.Sprintf("%06.2f", invertedScore)
+		}
+		return "100.00"
+	default:
+		return ""
+	}
+}
+
+// addXrefWithSortLevels adds cross-reference with sort level values for ordering
+// sortLevelValues: Pre-computed sort level values to append (e.g., ["01", "004.89"])
+// These values are appended to both forward and reverse xref lines
+// They will be stripped after sorting based on the count of sort levels
+func (d *DataUpdate) addXrefWithSortLevels(key string, from string, value string, valueFrom string, sortLevelValues []string) {
+	key = strings.TrimSpace(key)
+	value = strings.TrimSpace(value)
+
+	if len(key) == 0 || len(value) == 0 || len(from) == 0 {
+		return
+	}
+
+	if _, ok := config.Dataconf[valueFrom]; !ok {
+		if val, _ := d.invalidXrefs.Get(valueFrom); val == nil {
+			d.invalidXrefs.Set(valueFrom, "true")
+		}
+		return
+	}
+
+	// Validate that target dataset has a valid ID
+	if config.Dataconf[valueFrom]["id"] == "" {
+		log.Printf("ERROR: Dataset '%s' has empty 'id' in config - cannot create xref from %s to %s", valueFrom, key, value)
+		return
+	}
+
+	// Target datasets check
+	if _, ok := d.targetDatasets[valueFrom]; d.hasTargets && !ok {
+		return
+	}
+
+	kup := strings.ToUpper(key)
+	vup := strings.ToUpper(value)
+	valueFromID := config.Dataconf[valueFrom]["id"]
+
+	// Build base data lines
+	dataLine := kup + tab + from + tab + vup + tab + valueFromID
+	reverseDataLine := vup + tab + valueFromID + tab + kup + tab + from
+
+	// Append sort level values
+	for _, levelValue := range sortLevelValues {
+		dataLine += tab + levelValue
+		reverseDataLine += tab + levelValue
+	}
+
+	// Get source dataset name for directory naming
+	sourceDatasetName := GetDatasetName(from)
+	if sourceDatasetName == "" {
+		sourceDatasetName = "unknown"
+	}
+
+	// Get target dataset name
+	targetDatasetName := GetDatasetName(valueFromID)
+	if targetDatasetName == "" {
+		targetDatasetName = valueFrom
+	}
+
+	// Route through bucket system
+	if !d.bucketPool.WriteForward(from, sourceDatasetName, kup, dataLine, targetDatasetName) {
+		log.Printf("ERROR: addXrefWithSortLevels forward bucket write failed for dataset %s key %s", sourceDatasetName, kup)
+	}
+	if !d.bucketPool.WriteReverse(valueFromID, vup, reverseDataLine, sourceDatasetName) {
+		log.Printf("ERROR: addXrefWithSortLevels reverse bucket write failed for target %s key %s", valueFrom, vup)
+	}
+}
+
 // addXrefFull adds cross-reference with optional evidence code and relationship type
 // evidence: Optional evidence/quality metadata (e.g., "TAS", "IEA" for Reactome)
 // relationship: Optional relationship type (e.g., "Related pseudogene" for Entrez gene_group)

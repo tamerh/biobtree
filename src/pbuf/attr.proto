@@ -71,9 +71,6 @@ message EnsemblAttr  {
   int32 version =14;
   string source =15;
   int32 frame =16;
-
-  // HGNC nomenclature data (populated for human genes only, when taxid=9606)
-  HgncAttr hgnc = 17;
 }
 
 enum ensemblbranch {
@@ -613,7 +610,7 @@ message SwisslipidsAttr {
   string charge = 13;                  // Molecular charge
 }
 
-// Bgee gene expression - Complete implementation supporting all TSV formats
+// Bgee gene expression - Compact format with top conditions
 message BgeeAttr {
   // Gene identification
   string gene_id = 1;                                    // Ensembl gene ID (e.g., "ENSG00000012048")
@@ -621,8 +618,9 @@ message BgeeAttr {
   string species = 3;                                    // Species name (e.g., "Homo sapiens")
   int32 species_taxid = 4;                              // NCBI Taxonomy ID (e.g., 9606)
 
-  // Expression data
-  repeated BgeeExpressionCondition expression_conditions = 5;  // All expression conditions
+  // REMOVED: expression_conditions moved to bgee_evidence dataset
+  // Field 5 reserved for backwards compatibility
+  reserved 5;
 
   // Summary statistics (pre-computed for performance)
   int32 total_present_calls = 6;                        // Count of tissues where gene is expressed
@@ -633,9 +631,33 @@ message BgeeAttr {
   double max_expression_score = 11;                     // Highest expression score
   double average_expression_score = 12;                 // Mean expression score across present calls
   int32 gold_quality_count = 13;                        // Number of gold quality calls
+
+  // Compact top conditions (new fields)
+  string conditions_schema = 14;                         // Schema: "entity_id|name|expr|score|quality"
+  repeated string top_conditions = 15;                   // Top N conditions, pipe-delimited per schema
+}
+
+// Bgee expression evidence - detailed gene-tissue expression data (Dataset ID: 131)
+// Separate dataset for granular queries without bloating gene entries
+message BgeeEvidenceAttr {
+  string gene_id = 1;                                    // Parent gene ID (e.g., "ENSG00000012048")
+  string anatomical_entity_id = 2;                       // UBERON/CL ID (e.g., "UBERON:0000955", "CL:0000015")
+  string anatomical_entity_name = 3;                     // Human-readable name (e.g., "brain", "male germ cell")
+  string expression = 4;                                 // "present" or "absent"
+  string call_quality = 5;                               // "gold quality", "silver quality", "bronze quality"
+  double fdr = 6;                                        // False discovery rate (0.0-1.0)
+  double expression_score = 7;                           // Normalized expression score (0-100)
+  double expression_rank = 8;                            // Rank for this gene (lower = more highly expressed)
+  // Data type flags (which technologies support this call)
+  bool has_affymetrix = 9;                               // Microarray data available
+  bool has_rna_seq = 10;                                 // Bulk RNA-Seq data available
+  bool has_single_cell = 11;                             // Single-cell RNA-Seq data available
+  bool has_est = 12;                                     // EST data available
+  bool has_in_situ = 13;                                 // In situ hybridization data available
 }
 
 // Individual expression condition - supports both simple and advanced formats
+// (Kept for internal parsing, data is stored in compact format in BgeeAttr and BgeeEvidenceAttr)
 message BgeeExpressionCondition {
   // Anatomical location (present in ALL formats)
   string anatomical_entity_id = 1;                      // UBERON/CL ID (e.g., "UBERON:0000955", "CL:0000015")

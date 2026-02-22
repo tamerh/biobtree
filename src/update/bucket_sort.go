@@ -245,11 +245,13 @@ func SortBucketFileUnixEx(filePath string, sortFields string, stripField int) er
 	if isCompressed {
 		var cmdStr string
 		if stripField > 0 {
-			// Sort then strip the specified field using cut
-			// cut -f1-(n-1),(n+1)- removes field n
-			cutSpec := fmt.Sprintf("1-%d,%d-", stripField-1, stripField+1)
+			// Sort then strip fields from stripField onwards (keep fields 1 to stripField-1)
+			// This allows stripping multiple trailing sort fields (e.g., species priority + expression score)
+			// cut -f1-N keeps only fields 1 through N
+			cutSpec := fmt.Sprintf("1-%d", stripField-1)
 			if stripField == 1 {
-				cutSpec = fmt.Sprintf("%d-", stripField+1)
+				// Special case: stripping from field 1 means keep nothing (unlikely but handle it)
+				cutSpec = "1"
 			}
 			cmdStr = fmt.Sprintf(
 				"set -o pipefail; zcat '%s' | LC_ALL=C sort -t$'\\t' %s %s | uniq | cut -f%s | %s > '%s'",
@@ -275,9 +277,10 @@ func SortBucketFileUnixEx(filePath string, sortFields string, stripField int) er
 	} else {
 		var cmdStr string
 		if stripField > 0 {
-			cutSpec := fmt.Sprintf("1-%d,%d-", stripField-1, stripField+1)
+			// Sort then strip fields from stripField onwards (keep fields 1 to stripField-1)
+			cutSpec := fmt.Sprintf("1-%d", stripField-1)
 			if stripField == 1 {
-				cutSpec = fmt.Sprintf("%d-", stripField+1)
+				cutSpec = "1"
 			}
 			cmdStr = fmt.Sprintf(
 				"set -o pipefail; LC_ALL=C sort -t$'\\t' %s %s '%s' | uniq | cut -f%s > '%s'",
@@ -447,22 +450,103 @@ func SortBucketFileInMemoryEx(filePath string, sortFields string, stripField int
 	return nil
 }
 
-// stripFieldFromLine removes a specific field (1-based index) from a tab-delimited line
+// stripFieldFromLine removes fields from fieldIdx onwards (1-based index) from a tab-delimited line
+// This keeps fields 1 to fieldIdx-1, stripping fieldIdx and all subsequent fields
+// Used to remove sort-only fields (e.g., species priority, expression score) after sorting
 func stripFieldFromLine(line string, fieldIdx int) string {
 	fields := strings.Split(line, "\t")
 	if fieldIdx <= 0 || fieldIdx > len(fields) {
 		return line // Field doesn't exist, return unchanged
 	}
-	// Remove the field at index (fieldIdx-1) since fields are 0-indexed
-	idx := fieldIdx - 1
-	result := append(fields[:idx], fields[idx+1:]...)
+	// Keep only fields 0 to fieldIdx-2 (1-based fieldIdx means keep up to fieldIdx-1)
+	result := fields[:fieldIdx-1]
 	return strings.Join(result, "\t")
 }
 
 // sortJob holds info for sorting a single bucket file
 type sortJob struct {
-	filePath    string
-	useUnixSort bool
+	filePath       string
+	useUnixSort    bool
+	sortFields     string // Custom sort fields (e.g., "-k1,1 -k5,5r" for evidence sorting)
+	sortLevelCount int    // Number of trailing sort level fields to strip (0 = use static config)
+}
+
+// extractSourceFromPath extracts the source dataset name from a bucket file path
+// Looks for "/from_{source}/" pattern in the path
+// Returns empty string if not a reverse xref file
+func extractSourceFromPath(filePath string) string {
+	// Look for /from_{source}/ pattern
+	idx := strings.Index(filePath, "/from_")
+	if idx == -1 {
+		return ""
+	}
+	// Extract source name between "from_" and next "/"
+	rest := filePath[idx+6:] // skip "/from_"
+	endIdx := strings.Index(rest, "/")
+	if endIdx == -1 {
+		return ""
+	}
+	return rest[:endIdx]
+}
+
+// countFieldsInFile peeks at the first line of a file and counts tab-separated fields
+func countFieldsInFile(filePath string) (int, error) {
+	isCompressed := strings.HasSuffix(filePath, ".gz")
+
+	f, err := os.Open(filePath)
+	if err != nil {
+		return 0, err
+	}
+	defer f.Close()
+
+	var reader *bufio.Reader
+	if isCompressed {
+		gzReader, err := gzip.NewReader(f)
+		if err != nil {
+			return 0, err
+		}
+		defer gzReader.Close()
+		reader = bufio.NewReader(gzReader)
+	} else {
+		reader = bufio.NewReader(f)
+	}
+
+	// Read first line
+	line, err := reader.ReadString('\n')
+	if err != nil && err != io.EOF {
+		return 0, err
+	}
+	if len(line) == 0 {
+		return 0, nil
+	}
+
+	// Count fields
+	line = strings.TrimSuffix(line, "\n")
+	fields := strings.Split(line, "\t")
+	return len(fields), nil
+}
+
+// generateDynamicSortSpec creates a sort specification for dynamic sort levels
+// totalFields: total number of fields in the file
+// sortLevelCount: number of trailing fields that are sort levels
+// Returns sort spec like "-k1,1 -k5,5 -k6,6" and strip field index
+func generateDynamicSortSpec(totalFields, sortLevelCount int) (string, int) {
+	if sortLevelCount <= 0 || totalFields <= sortLevelCount {
+		return "-k1,1", 0
+	}
+
+	baseFields := totalFields - sortLevelCount
+	sortLevelStart := baseFields + 1
+
+	// Build sort spec: key first, then each sort level
+	sortSpec := "-k1,1"
+	for i := 0; i < sortLevelCount; i++ {
+		fieldPos := sortLevelStart + i
+		sortSpec += fmt.Sprintf(" -k%d,%d", fieldPos, fieldPos)
+	}
+
+	// Strip from sortLevelStart onwards (keep baseFields)
+	return sortSpec, sortLevelStart
 }
 
 // SortAllBuckets sorts all bucket files in parallel
@@ -486,12 +570,29 @@ func SortAllBuckets(pool *HybridWriterPool, numWorkers int) error {
 			skippedDatasets = append(skippedDatasets, writer.config.DatasetName)
 			continue
 		}
+		targetDataset := writer.config.DatasetName
+
 		for _, bucket := range writer.buckets {
 			if bucket.fileCreated {
-				filesToSort = append(filesToSort, sortJob{
+				job := sortJob{
 					filePath:    bucket.filePath,
 					useUnixSort: useUnixSort,
-				})
+					sortFields:  writer.config.SortFields,
+				}
+
+				// Check if this is a reverse xref file (from_{source}/) with sort levels
+				sourceDataset := extractSourceFromPath(bucket.filePath)
+				if sourceDataset != "" {
+					sortLevels := GetReverseXrefSortLevels(sourceDataset, targetDataset)
+					if len(sortLevels) > 0 {
+						// Dynamic sort levels - will be computed at sort time
+						job.sortLevelCount = len(sortLevels)
+						// Clear static sortFields - will be computed dynamically
+						job.sortFields = ""
+					}
+				}
+
+				filesToSort = append(filesToSort, job)
 			}
 		}
 		_ = datasetID // suppress unused warning
@@ -526,7 +627,29 @@ func SortAllBuckets(pool *HybridWriterPool, numWorkers int) error {
 		go func() {
 			defer wg.Done()
 			for job := range jobs {
-				if err := SortBucketFile(job.filePath, job.useUnixSort); err != nil {
+				var err error
+				sortFields := job.sortFields
+				stripField := 0
+
+				// Handle dynamic sort levels (for reverse xrefs with sortLevelCount > 0)
+				if job.sortLevelCount > 0 {
+					// Count fields in file to compute dynamic sort spec
+					totalFields, countErr := countFieldsInFile(job.filePath)
+					if countErr != nil {
+						errors <- fmt.Errorf("counting fields in %s: %w", job.filePath, countErr)
+						continue
+					}
+					if totalFields > 0 {
+						sortFields, stripField = generateDynamicSortSpec(totalFields, job.sortLevelCount)
+					}
+				}
+
+				if job.useUnixSort {
+					err = SortBucketFileUnixEx(job.filePath, sortFields, stripField)
+				} else {
+					err = SortBucketFileInMemoryEx(job.filePath, sortFields, stripField)
+				}
+				if err != nil {
 					errors <- fmt.Errorf("sorting %s: %w", job.filePath, err)
 				}
 			}
@@ -1070,13 +1193,8 @@ func concatenateSourceFiles(datasetName string, writer *DatasetBucketWriter, fil
 			continue
 		}
 
-		// Sort bucket files before merge
-		for _, f := range bucketFiles {
-			if err := SortBucketFile(f, writer.config.UseUnixSort); err != nil {
-				log.Printf("Warning: error sorting bucket file %s: %v", f, err)
-			}
-		}
-
+		// Bucket files are already sorted by SortAllBuckets - no need to re-sort here
+		// Just sort the file names for consistent k-way merge order
 		sort.Strings(bucketFiles)
 
 		outPath := getSourceOutputPath(datasetName, sourceName, indexDir, chunkIdx, writer.setIndex)
@@ -1310,6 +1428,17 @@ func concatenateTextsearchPerSource(indexDir string, chunkIdx string, isDerived 
 // This is used for incremental updates where we don't have a HybridWriterPool
 // If useUnixSort is true, uses Unix sort command (bounded memory)
 func SortBucketsForDataset(datasetName string, indexDir string, isDerived bool, numWorkers int, useUnixSort bool) error {
+	// Create minimal config with just UseUnixSort for backward compatibility
+	cfg := &BucketConfig{
+		UseUnixSort: useUnixSort,
+	}
+	return SortBucketsForDatasetWithConfig(datasetName, indexDir, isDerived, numWorkers, cfg)
+}
+
+// SortBucketsForDatasetWithConfig sorts all bucket files for a dataset using BucketConfig
+// Uses cfg.SortFields for custom sort order (e.g., "-k1,1 -k5,5r" for evidence-based sorting)
+// Uses cfg.UseUnixSort to determine sort method
+func SortBucketsForDatasetWithConfig(datasetName string, indexDir string, isDerived bool, numWorkers int, cfg *BucketConfig) error {
 	if numWorkers <= 0 {
 		numWorkers = BucketSortWorkers
 	}
@@ -1325,11 +1454,22 @@ func SortBucketsForDataset(datasetName string, indexDir string, isDerived bool, 
 		return nil
 	}
 
+	useUnixSort := false
+	sortFields := ""
+	if cfg != nil {
+		useUnixSort = cfg.UseUnixSort
+		sortFields = cfg.SortFields
+	}
+
 	sortMethod := "Go in-memory"
 	if useUnixSort {
 		sortMethod = "Unix external"
 	}
-	log.Printf("Sorting %d bucket files for %s with %d workers (%s sort)", len(files), datasetName, numWorkers, sortMethod)
+	if sortFields != "" {
+		log.Printf("Sorting %d bucket files for %s with %d workers (%s sort, fields: %s)", len(files), datasetName, numWorkers, sortMethod, sortFields)
+	} else {
+		log.Printf("Sorting %d bucket files for %s with %d workers (%s sort)", len(files), datasetName, numWorkers, sortMethod)
+	}
 
 	// Create job channel
 	jobs := make(chan string, len(files))
@@ -1347,7 +1487,8 @@ func SortBucketsForDataset(datasetName string, indexDir string, isDerived bool, 
 		go func() {
 			defer wg.Done()
 			for filePath := range jobs {
-				if err := SortBucketFile(filePath, useUnixSort); err != nil {
+				// Use config-aware sort function to apply SortFields
+				if err := SortBucketFileWithConfig(filePath, cfg); err != nil {
 					errors <- fmt.Errorf("sorting %s: %w", filePath, err)
 				}
 			}
@@ -1491,7 +1632,7 @@ func SortAndConcatenateAllDatasets(configs map[string]*BucketConfig, indexDir st
 
 		// Sort bucket files
 		if !cfg.SkipBucketSort {
-			if err := SortBucketsForDataset(datasetName, indexDir, isDerived, numWorkers, cfg.UseUnixSort); err != nil {
+			if err := SortBucketsForDatasetWithConfig(datasetName, indexDir, isDerived, numWorkers, cfg); err != nil {
 				return nil, fmt.Errorf("sorting %s: %w", datasetName, err)
 			}
 		}

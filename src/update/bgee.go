@@ -384,12 +384,19 @@ func (b *bgee) getTopTissues(gene *BgeeGene, topN int) []string {
 }
 
 // saveGenes saves all genes to database with attributes and cross-references
+// Uses compact format for bgee entries and creates separate bgee_evidence entries
 func (b *bgee) saveGenes(genes map[string]*BgeeGene, species SpeciesInfo) {
 	fr := config.Dataconf[b.source]["id"]
+	evidenceFr := config.Dataconf["bgee_evidence"]["id"]
 	savedCount := uint64(0)
+	evidenceCount := uint64(0)
+
+	// Schema for compact top_conditions format
+	conditionsSchema := "entity_id|name|expr|score|quality"
+	topN := 30
 
 	for geneID, gene := range genes {
-		// Build BgeeAttr protobuf message
+		// Build BgeeAttr protobuf message (compact format)
 		attr := &pbuf.BgeeAttr{
 			GeneId:                 gene.GeneID,
 			GeneName:               gene.GeneName,
@@ -403,63 +410,107 @@ func (b *bgee) saveGenes(genes map[string]*BgeeGene, species SpeciesInfo) {
 			MaxExpressionScore:     gene.MaxExpressionScore,
 			AverageExpressionScore: gene.AverageExpressionScore,
 			GoldQualityCount:       int32(gene.GoldQualityCount),
+			ConditionsSchema:       conditionsSchema,
 		}
 
-		// Add all expression conditions
-		for _, cond := range gene.Conditions {
-			pbCond := &pbuf.BgeeExpressionCondition{
-				AnatomicalEntityId:         cond.AnatomicalEntityID,
-				AnatomicalEntityName:       cond.AnatomicalEntityName,
-				Expression:                 cond.Expression,
-				CallQuality:                cond.CallQuality,
-				Fdr:                        cond.FDR,
-				ExpressionScore:            cond.ExpressionScore,
-				ExpressionRank:             cond.ExpressionRank,
-				DevelopmentalStageId:       cond.DevelopmentalStageID,
-				DevelopmentalStageName:     cond.DevelopmentalStageName,
-				Sex:                        cond.Sex,
-				Strain:                     cond.Strain,
-				IncludingObservedData:      cond.IncludingObservedData,
-				SelfObservationCount:       int32(cond.SelfObservationCount),
-				DescendantObservationCount: int32(cond.DescendantObservationCount),
-				Affymetrix:                 dataTypeToProto(cond.AffymetrixData),
-				Est:                        dataTypeToProto(cond.ESTData),
-				InSitu:                     dataTypeToProto(cond.InSituData),
-				RnaSeq:                     dataTypeToProto(cond.RNASeqData),
-				SingleCell:                 dataTypeToProto(cond.SingleCellData),
-			}
-			attr.ExpressionConditions = append(attr.ExpressionConditions, pbCond)
-		}
+		// Sort conditions by expression score (highest first)
+		sortedConditions := make([]ExpressionCondition, len(gene.Conditions))
+		copy(sortedConditions, gene.Conditions)
+		sort.Slice(sortedConditions, func(i, j int) bool {
+			return sortedConditions[i].ExpressionScore > sortedConditions[j].ExpressionScore
+		})
 
-		// Marshal and save
+		// Build compact top_conditions (already sorted, take top N)
+		attr.TopConditions = b.buildTopConditionsFromSorted(sortedConditions, topN)
+
+		// Marshal and save bgee entry
 		attrBytes, err := ffjson.Marshal(attr)
 		b.check(err, "marshaling Bgee attributes")
 		b.d.addProp3(geneID, fr, attrBytes)
 
-		// Create cross-references and text search
+		// Create bgee_evidence entries for each expression condition (sorted by score)
+		taxIDStr := strconv.Itoa(gene.TaxonomyID)
+		for _, cond := range sortedConditions {
+			evidenceID := geneID + "|" + cond.AnatomicalEntityID
+			evidenceAttr := &pbuf.BgeeEvidenceAttr{
+				GeneId:               geneID,
+				AnatomicalEntityId:   cond.AnatomicalEntityID,
+				AnatomicalEntityName: cond.AnatomicalEntityName,
+				Expression:           cond.Expression,
+				CallQuality:          cond.CallQuality,
+				Fdr:                  cond.FDR,
+				ExpressionScore:      cond.ExpressionScore,
+				ExpressionRank:       cond.ExpressionRank,
+				HasAffymetrix:        cond.AffymetrixData != nil,
+				HasRnaSeq:            cond.RNASeqData != nil,
+				HasSingleCell:        cond.SingleCellData != nil,
+				HasEst:               cond.ESTData != nil,
+				HasInSitu:            cond.InSituData != nil,
+			}
+
+			evidenceBytes, err := ffjson.Marshal(evidenceAttr)
+			b.check(err, "marshaling BgeeEvidence attributes")
+			b.d.addProp3(evidenceID, evidenceFr, evidenceBytes)
+
+			// Xrefs for bgee_evidence:
+			// Sort levels: speciesPriority (human first) then expressionScore (highest first)
+			sortLevels := []string{
+				ComputeSortLevelValue(SortLevelSpeciesPriority, map[string]interface{}{"taxID": taxIDStr}),
+				ComputeSortLevelValue(SortLevelExpressionScore, map[string]interface{}{"score": cond.ExpressionScore}),
+			}
+
+			// 1. bgee_evidence → bgee (enables bgee >> bgee_evidence)
+			b.d.addXrefWithSortLevels(evidenceID, evidenceFr, geneID, b.source, sortLevels)
+
+			// 2. bgee_evidence → uberon/cl (enables UBERON:xxx >> bgee_evidence)
+			if strings.HasPrefix(cond.AnatomicalEntityID, "UBERON:") {
+				b.d.addXrefWithSortLevels(evidenceID, evidenceFr, cond.AnatomicalEntityID, "uberon", sortLevels)
+			} else if strings.HasPrefix(cond.AnatomicalEntityID, "CL:") {
+				b.d.addXrefWithSortLevels(evidenceID, evidenceFr, cond.AnatomicalEntityID, "cl", sortLevels)
+			}
+
+			evidenceCount++
+		}
+
+		// Create cross-references and text search for bgee entry
 		b.createReferences(geneID, gene)
 
 		savedCount++
 
 		// Progress logging every 1000 genes
 		if savedCount%1000 == 0 {
-			log.Printf("[%s] Saved %d genes...", b.source, savedCount)
+			log.Printf("[%s] Saved %d genes, %d evidence entries...", b.source, savedCount, evidenceCount)
 		}
 	}
 
-	log.Printf("[%s] Successfully saved %d genes to database", b.source, savedCount)
+	log.Printf("[%s] Successfully saved %d genes and %d evidence entries to database", b.source, savedCount, evidenceCount)
 
 	// Report statistics
-	atomic.AddUint64(&b.d.totalParsedEntry, savedCount)
+	atomic.AddUint64(&b.d.totalParsedEntry, savedCount+evidenceCount)
+}
+
+// buildTopConditionsFromSorted creates compact pipe-delimited condition strings from pre-sorted conditions
+// Format: entity_id|name|expr|score|quality
+func (b *bgee) buildTopConditionsFromSorted(sortedConditions []ExpressionCondition, topN int) []string {
+	var result []string
+	for i := 0; i < topN && i < len(sortedConditions); i++ {
+		c := sortedConditions[i]
+		// Escape pipe characters in name if any
+		name := strings.ReplaceAll(c.AnatomicalEntityName, "|", "/")
+		row := c.AnatomicalEntityID + "|" + name + "|" + c.Expression + "|" +
+			strconv.FormatFloat(c.ExpressionScore, 'f', 2, 64) + "|" + c.CallQuality
+		result = append(result, row)
+	}
+	return result
 }
 
 // createReferences creates text search keywords and cross-references
 func (b *bgee) createReferences(geneID string, gene *BgeeGene) {
 	fr := config.Dataconf[b.source]["id"]
 
-	// 1. Gene ID → Bgee (text search by gene ID) with species priority
+	// 1. Gene ID text search removed - entry is already findable by its primary key (Ensembl ID)
+	// This was causing duplicate search results
 	taxID := strconv.Itoa(gene.TaxonomyID)
-	b.d.addXrefWithPriority(geneID, textLinkID, geneID, b.source, true, taxID)
 
 	// 2. Gene name → Bgee (text search by gene symbol) with species priority
 	if gene.GeneName != "" {
@@ -472,15 +523,30 @@ func (b *bgee) createReferences(geneID string, gene *BgeeGene) {
 	// Reverse: ensembl/from_bgee/ (ensembl → bgee) - this is what the query uses
 	b.d.addXref(geneID, fr, geneID, "ensembl", false)
 
+	// 3b. HGNC xref commented out - only ~65% of genes have HGNC entries (pseudogenes, lncRNAs don't)
+	// This inconsistency may confuse the model. Users can still query via Ensembl ID.
+	// Uncomment if needed:
+	// if gene.TaxonomyID == 9606 && gene.GeneName != "" {
+	// 	b.d.addHumanGeneXrefsViaHGNC(gene.GeneName, geneID, fr)
+	// }
+
+	// Get taxonomy ID for species priority sorting (human=01, mouse=02, etc.)
+	taxIDStr := strconv.Itoa(gene.TaxonomyID)
+
 	// 4. Create cross-reference to UBERON for expressed tissues
 	// This enables: UBERON:XXXXX >> bgee to find genes expressed in that tissue
+	// Sort levels: speciesPriority (human first), expressionScore (highest first)
 	// Forward: bgee/forward/, Reverse: uberon/from_bgee/
 	addedUberon := make(map[string]bool)
 	for _, cond := range gene.Conditions {
 		if cond.Expression == "present" && strings.HasPrefix(cond.AnatomicalEntityID, "UBERON:") {
 			if !addedUberon[cond.AnatomicalEntityID] {
-				// Bgee gene → UBERON (reverse enables UBERON >> bgee queries)
-				b.d.addXref(geneID, fr, cond.AnatomicalEntityID, "uberon", false)
+				// Compute sort level values
+				sortLevels := []string{
+					ComputeSortLevelValue(SortLevelSpeciesPriority, map[string]interface{}{"taxID": taxIDStr}),
+					ComputeSortLevelValue(SortLevelExpressionScore, map[string]interface{}{"score": cond.ExpressionScore}),
+				}
+				b.d.addXrefWithSortLevels(geneID, fr, cond.AnatomicalEntityID, "uberon", sortLevels)
 				addedUberon[cond.AnatomicalEntityID] = true
 			}
 		}
@@ -488,13 +554,18 @@ func (b *bgee) createReferences(geneID string, gene *BgeeGene) {
 
 	// 4b. Create cross-reference to CL for cell type expression
 	// This enables: CL:XXXXX >> bgee to find genes expressed in that cell type
+	// Sort levels: speciesPriority (human first), expressionScore (highest first)
 	// Forward: bgee/forward/, Reverse: cl/from_bgee/
 	addedCL := make(map[string]bool)
 	for _, cond := range gene.Conditions {
 		if cond.Expression == "present" && strings.HasPrefix(cond.AnatomicalEntityID, "CL:") {
 			if !addedCL[cond.AnatomicalEntityID] {
-				// Bgee gene → CL (reverse enables CL >> bgee queries)
-				b.d.addXref(geneID, fr, cond.AnatomicalEntityID, "cl", false)
+				// Compute sort level values
+				sortLevels := []string{
+					ComputeSortLevelValue(SortLevelSpeciesPriority, map[string]interface{}{"taxID": taxIDStr}),
+					ComputeSortLevelValue(SortLevelExpressionScore, map[string]interface{}{"score": cond.ExpressionScore}),
+				}
+				b.d.addXrefWithSortLevels(geneID, fr, cond.AnatomicalEntityID, "cl", sortLevels)
 				addedCL[cond.AnatomicalEntityID] = true
 			}
 		}
@@ -502,7 +573,6 @@ func (b *bgee) createReferences(geneID string, gene *BgeeGene) {
 
 	// 5. Create cross-reference to Taxonomy
 	// Forward: bgee/forward/, Reverse: taxonomy/from_bgee/
-	taxIDStr := strconv.Itoa(gene.TaxonomyID)
 	b.d.addXref(geneID, fr, taxIDStr, "taxonomy", false)
 }
 

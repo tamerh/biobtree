@@ -177,6 +177,7 @@ message Xref {
     JasparAttr jaspar=93;
     EncodeCcreAttr encode_ccre=94;
     StringInteractionAttr string_interaction=95;
+    BgeeEvidenceAttr bgee_evidence=131;
 
   }
 

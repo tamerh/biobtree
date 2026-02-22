@@ -477,12 +477,28 @@
     "path": "https://www.bgee.org/ftp/current/download/calls/expr_calls/",
     "useLocalFile": "no",
     "hasFilter": "yes",
-    "attrs": "gene_id,gene_name,species,species_taxid,[]expression_conditions,total_present_calls,total_absent_calls,total_conditions,[]top_expressed_tissues,expression_breadth,max_expression_score,average_expression_score,gold_quality_count",
+    "attrs": "gene_id,gene_name,species,species_taxid,total_present_calls,total_absent_calls,total_conditions,[]top_expressed_tissues,expression_breadth,max_expression_score,average_expression_score,gold_quality_count,conditions_schema,[]top_conditions",
     "test_entries_count": "100",
     "file_format": "advanced",
     "include_all_conditions": "no",
-    "species_taxid": "9606,10090,10116,7955,7227,6239",
-    "species": "Homo_sapiens,Mus_musculus,Rattus_norvegicus,Danio_rerio,Drosophila_melanogaster,Caenorhabditis_elegans"
+    "species_taxid2": "9606,9913",
+    "species_taxid": "9606,10090,10116,7955,7227,6239,9598,9544,9913,9823,9031,8364,9615,9940",
+    "species": "Homo_sapiens,Mus_musculus,Rattus_norvegicus,Danio_rerio,Drosophila_melanogaster,Caenorhabditis_elegans,Pan_troglodytes,Macaca_mulatta,Bos_taurus,Sus_scrofa,Gallus_gallus,Xenopus_tropicalis,Canis_lupus_familiaris,Ovis_aries",
+    "species2": "Homo_sapiens,Bos_taurus",
+    "childDatasets": "bgee_evidence",
+    "bucketMethod": "ensembl_hybrid",
+    "reverseXrefSort": "uberon:speciesPriority,expressionScore;cl:speciesPriority,expressionScore"
+  },
+  "bgee_evidence": {
+    "id": "133",
+    "name": "Bgee Expression Evidence",
+    "url": "https://www.bgee.org/?page=gene&gene_id=£{id}",
+    "path": "derived:bgee",
+    "hasFilter": "yes",
+    "attrs": "gene_id,anatomical_entity_id,anatomical_entity_name,expression,call_quality,fdr,expression_score,expression_rank,has_affymetrix,has_rna_seq,has_single_cell,has_est,has_in_situ",
+    "bucketMethod": "ensembl_hybrid",
+    "compact_fields": "anatomical_entity_name,expression,expression_score,call_quality,expression_rank",
+    "reverseXrefSort": "bgee:speciesPriority,expressionScore;uberon:speciesPriority,expressionScore;cl:speciesPriority,expressionScore"
   },
   "rhea": {
     "id": "35",

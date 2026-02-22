@@ -53,7 +53,8 @@ intact: uniprot, chebi, rnacentral
 string: uniprot, string_interaction
 string_interaction: string, uniprot
 biogrid: entrez, uniprot, refseq, taxonomy
-bgee: ensembl, uberon, cl, taxonomy
+bgee: ensembl, uberon, cl, taxonomy, bgee_evidence
+bgee_evidence: bgee, uberon, cl
 cellxgene: cl, uberon, mondo, efo, taxonomy
 cellxgene_celltype: cl, uberon, mondo
 scxa: cl, uberon, taxonomy, ensembl, scxa_gene_experiment

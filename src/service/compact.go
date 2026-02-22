@@ -156,6 +156,9 @@ func extractField(xref *pbuf.Xref, field string) string {
 	if a := xref.GetStringInteraction(); a != nil {
 		return extractStringInteractionField(a, field)
 	}
+	if a := xref.GetBgeeEvidence(); a != nil {
+		return extractBgeeEvidenceField(a, field)
+	}
 
 	return ""
 }
@@ -568,6 +571,30 @@ func ExtractSourceName(xref *pbuf.Xref) string {
 	}
 
 	return ""
+}
+
+// extractBgeeEvidenceField extracts a field from BgeeEvidenceAttr
+func extractBgeeEvidenceField(a *pbuf.BgeeEvidenceAttr, field string) string {
+	switch field {
+	case "gene_id":
+		return a.GeneId
+	case "anatomical_entity_id":
+		return a.AnatomicalEntityId
+	case "anatomical_entity_name":
+		return a.AnatomicalEntityName
+	case "expression":
+		return a.Expression
+	case "call_quality":
+		return a.CallQuality
+	case "expression_score":
+		return fmt.Sprintf("%.2f", a.ExpressionScore)
+	case "expression_rank":
+		return fmt.Sprintf("%.0f", a.ExpressionRank)
+	case "fdr":
+		return fmt.Sprintf("%.2e", a.Fdr)
+	default:
+		return ""
+	}
 }
 
 // GetSearchCompactRow creates a pipe-delimited row for search results

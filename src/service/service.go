@@ -190,6 +190,7 @@ func (s *Service) initWithDbDir(dbDir string) error {
 		cel.Types(&pbuf.OrphanetAttr_PhenotypeAssociation{}),
 		cel.Types(&pbuf.ReactomePathwayAttr{}),
 		cel.Types(&pbuf.BgeeAttr{}),
+		cel.Types(&pbuf.BgeeEvidenceAttr{}),
 		cel.Types(&pbuf.GwasAttr{}),
 		cel.Types(&pbuf.AntibodyAttr{}),
 		cel.Types(&pbuf.Esm2SimilarityAttr{}),
@@ -321,6 +322,8 @@ func (s *Service) initWithDbDir(dbDir string) error {
 			decls.NewIdent("swisslipids", decls.NewObjectType("pbuf.SwisslipidsAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("bgee", decls.NewObjectType("pbuf.BgeeAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("bgee_evidence", decls.NewObjectType("pbuf.BgeeEvidenceAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("rhea", decls.NewObjectType("pbuf.RheaAttr"), nil)),
 		cel.Declarations(

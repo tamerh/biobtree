@@ -382,14 +382,19 @@ func (s *stringProcessor) processInteractions(taxid int, forwardMap map[string]s
 			HasCoexpression: coexpression > 0,
 		}
 
+		// Compute sort levels for interaction score (higher scores first)
+		scoreSortLevels := []string{
+			ComputeSortLevelValue(SortLevelInteractionScore, map[string]interface{}{"score": combinedScore}),
+		}
+
 		// Marshal and store interaction entry
 		b12, errMarshal := ffjson.Marshal(interaction12)
 		if errMarshal == nil && stringInteractionSourceID != "" {
 			s.d.addProp3(interactionID12, stringInteractionSourceID, b12)
 			// Xref: string -> string_interaction
 			s.d.addXref(protein1, s.sourceID, interactionID12, "string_interaction", false)
-			// Xref: string_interaction -> uniprot (partner)
-			s.d.addXref(interactionID12, stringInteractionSourceID, uniprot2, "uniprot", false)
+			// Xref: string_interaction -> uniprot (partner) - sorted by score
+			s.d.addXrefWithSortLevels(interactionID12, stringInteractionSourceID, uniprot2, "uniprot", scoreSortLevels)
 		}
 		stringInteractionCounts[protein1]++
 
@@ -413,8 +418,8 @@ func (s *stringProcessor) processInteractions(taxid int, forwardMap map[string]s
 			s.d.addProp3(interactionID21, stringInteractionSourceID, b21)
 			// Xref: string -> string_interaction
 			s.d.addXref(protein2, s.sourceID, interactionID21, "string_interaction", false)
-			// Xref: string_interaction -> uniprot (partner)
-			s.d.addXref(interactionID21, stringInteractionSourceID, uniprot1, "uniprot", false)
+			// Xref: string_interaction -> uniprot (partner) - sorted by score
+			s.d.addXrefWithSortLevels(interactionID21, stringInteractionSourceID, uniprot1, "uniprot", scoreSortLevels)
 		}
 		stringInteractionCounts[protein2]++
 

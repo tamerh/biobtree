@@ -27,6 +27,25 @@ type scxaExpression struct {
 	d           *DataUpdate
 	clLookupCache map[string]string // Cache for cell type name → CL ID lookups
 	cellTypeCLMappings map[string]map[string]string // expID → cellTypeName → CL ID (for xref creation)
+	experimentTaxIDs map[string]int32 // expID → species taxon ID (for sorting)
+}
+
+// scxaSpeciesTaxIDMap maps species names to NCBI taxonomy IDs
+var scxaSpeciesTaxIDMap = map[string]int32{
+	"homo sapiens":                  9606,
+	"mus musculus":                  10090,
+	"rattus norvegicus":             10116,
+	"danio rerio":                   7955,
+	"drosophila melanogaster":       7227,
+	"caenorhabditis elegans":        6239,
+	"saccharomyces cerevisiae":      4932,
+	"arabidopsis thaliana":          3702,
+	"gallus gallus":                 9031,
+	"sus scrofa":                    9823,
+	"bos taurus":                    9913,
+	"ovis aries":                    9940,
+	"macaca mulatta":                9544,
+	"xenopus tropicalis":            8364,
 }
 
 const scxaExpressionFtpBase = "https://ftp.ebi.ac.uk/pub/databases/microarray/data/atlas/sc_experiments/"
@@ -66,9 +85,10 @@ func (s *scxaExpression) update() {
 	log.Println("SCXA_EXPRESSION: Starting gene-centric expression data processing...")
 	startTime := time.Now()
 
-	// Initialize CL lookup cache and per-experiment CL mappings
+	// Initialize CL lookup cache, per-experiment CL mappings, and taxID cache
 	s.clLookupCache = make(map[string]string)
 	s.cellTypeCLMappings = make(map[string]map[string]string)
+	s.experimentTaxIDs = make(map[string]int32)
 
 	// Test mode support
 	testLimit := config.GetTestLimit(s.source)
@@ -159,6 +179,9 @@ func (s *scxaExpression) processAllExperiments(experiments []string, geneData ma
 			s.d.progChan <- &progressInfo{dataset: s.source, currentKBPerSec: int64(len(geneData) / int(elapsed+1))}
 		}
 
+		// Fetch and cache experiment species (for sorting xrefs)
+		s.fetchExperimentSpecies(expID)
+
 		// Process this experiment's marker_stats file (numbered clusters)
 		processed := s.processExperimentMarkerStats(expID, geneData)
 		if processed {
@@ -176,6 +199,111 @@ func (s *scxaExpression) processAllExperiments(experiments []string, geneData ma
 	}
 
 	return expCount
+}
+
+// fetchExperimentSpecies fetches the species for an experiment
+// Tries cell_metadata.tsv first (simpler format), falls back to condensed-sdrf.tsv
+// Returns the taxon ID or 0 if not found
+func (s *scxaExpression) fetchExperimentSpecies(expID string) int32 {
+	// Check cache first
+	if taxID, ok := s.experimentTaxIDs[expID]; ok {
+		return taxID
+	}
+
+	// Try cell_metadata.tsv first (most experiments have this, simpler format)
+	taxID := s.fetchSpeciesFromCellMetadata(expID)
+	if taxID > 0 {
+		s.experimentTaxIDs[expID] = taxID
+		return taxID
+	}
+
+	// Fallback to condensed-sdrf.tsv
+	taxID = s.fetchSpeciesFromCondensedSDRF(expID)
+	s.experimentTaxIDs[expID] = taxID
+	return taxID
+}
+
+// fetchSpeciesFromCondensedSDRF extracts species from condensed-sdrf.tsv
+func (s *scxaExpression) fetchSpeciesFromCondensedSDRF(expID string) int32 {
+	url := scxaExpressionFtpBase + expID + "/" + expID + ".condensed-sdrf.tsv"
+	resp, err := http.Get(url)
+	if err != nil {
+		return 0
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return 0
+	}
+
+	scanner := bufio.NewScanner(resp.Body)
+	for scanner.Scan() {
+		line := scanner.Text()
+		parts := strings.Split(line, "\t")
+		if len(parts) < 6 {
+			continue
+		}
+		factorType := strings.TrimSpace(parts[3])
+		factorName := strings.ToLower(strings.TrimSpace(parts[4]))
+		value := strings.TrimSpace(parts[5])
+
+		if factorType == "characteristic" && factorName == "organism" && value != "" {
+			speciesLower := strings.ToLower(value)
+			if taxID, ok := scxaSpeciesTaxIDMap[speciesLower]; ok {
+				return taxID
+			}
+		}
+	}
+	return 0
+}
+
+// fetchSpeciesFromCellMetadata extracts species from cell_metadata.tsv (organism column)
+func (s *scxaExpression) fetchSpeciesFromCellMetadata(expID string) int32 {
+	url := scxaExpressionFtpBase + expID + "/" + expID + ".cell_metadata.tsv"
+	resp, err := http.Get(url)
+	if err != nil {
+		return 0
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return 0
+	}
+
+	scanner := bufio.NewScanner(resp.Body)
+
+	// Parse header to find organism column index
+	if !scanner.Scan() {
+		return 0
+	}
+	header := scanner.Text()
+	headers := strings.Split(header, "\t")
+	organismIdx := -1
+	for i, h := range headers {
+		if strings.ToLower(strings.TrimSpace(h)) == "organism" {
+			organismIdx = i
+			break
+		}
+	}
+	if organismIdx < 0 {
+		return 0
+	}
+
+	// Read first data line to get organism
+	if !scanner.Scan() {
+		return 0
+	}
+	line := scanner.Text()
+	parts := strings.Split(line, "\t")
+	if organismIdx >= len(parts) {
+		return 0
+	}
+
+	speciesLower := strings.ToLower(strings.TrimSpace(parts[organismIdx]))
+	if taxID, ok := scxaSpeciesTaxIDMap[speciesLower]; ok {
+		return taxID
+	}
+	return 0
 }
 
 // processExperimentMarkerStats downloads and parses marker_stats file for an experiment
@@ -830,16 +958,23 @@ func (s *scxaExpression) saveGeneExperimentDetails(gene *ScxaGeneData, geneExpSo
 
 		// Add Cell Ontology xrefs for clusters with cell type names
 		// Use cached CL mapping from experiment metadata
-		// Note: addXref automatically creates bidirectional mappings (forward + reverse)
+		// Sort by species priority (human first) then expression score (highest first)
 		if clMapping, hasMapping := s.cellTypeCLMappings[expID]; hasMapping {
 			clSeen := make(map[string]bool)
+			// Use experiment's taxon ID (from cache) for species priority sorting
+			expTaxID := s.experimentTaxIDs[expID]
+			taxIDStr := strconv.Itoa(int(expTaxID))
+			sortLevels := []string{
+				ComputeSortLevelValue(SortLevelSpeciesPriority, map[string]interface{}{"taxID": taxIDStr}),
+				ComputeSortLevelValue(SortLevelExpressionScore, map[string]interface{}{"score": expData.MaxMean}),
+			}
 			for _, cluster := range expData.Clusters {
 				if cluster.CellTypeName != "" {
 					if clID, ok := clMapping[cluster.CellTypeName]; ok && clID != "" && !clSeen[clID] {
 						clSeen[clID] = true
 						if _, exists := config.Dataconf["cl"]; exists {
-							// Detail <-> CL (bidirectional via addXref)
-							s.d.addXref(compositeKey, geneExpSourceID, clID, "cl", false)
+							// Detail <-> CL with species priority + expression score sorting
+							s.d.addXrefWithSortLevels(compositeKey, geneExpSourceID, clID, "cl", sortLevels)
 						}
 					}
 				}

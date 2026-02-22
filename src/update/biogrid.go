@@ -948,24 +948,34 @@ func (b *biogrid) saveIndividualInteraction(interaction *pbuf.BiogridInteraction
 	// Create cross-references from interaction to both proteins
 	// This enables queries like: protein >> biogrid_interaction >> protein
 
-	// Interaction → UniProt proteins (both interactors)
+	// Compute sort levels for each interactor based on their organism
+	taxIDA := strconv.Itoa(int(organismA))
+	taxIDB := strconv.Itoa(int(organismB))
+	sortLevelsA := []string{
+		ComputeSortLevelValue(SortLevelSpeciesPriority, map[string]interface{}{"taxID": taxIDA}),
+	}
+	sortLevelsB := []string{
+		ComputeSortLevelValue(SortLevelSpeciesPriority, map[string]interface{}{"taxID": taxIDB}),
+	}
+
+	// Interaction → UniProt proteins (both interactors) with species sorting
 	for _, uid := range uniprotA {
 		if uid != "" {
-			b.d.addXref(interactionID, interactionSourceID, uid, "uniprot", false)
+			b.d.addXrefWithSortLevels(interactionID, interactionSourceID, uid, "uniprot", sortLevelsA)
 		}
 	}
 	for _, uid := range uniprotB {
 		if uid != "" {
-			b.d.addXref(interactionID, interactionSourceID, uid, "uniprot", false)
+			b.d.addXrefWithSortLevels(interactionID, interactionSourceID, uid, "uniprot", sortLevelsB)
 		}
 	}
 
-	// Interaction → Entrez genes (both interactors)
+	// Interaction → Entrez genes (both interactors) with species sorting
 	if entrezA != "" {
-		b.d.addXref(interactionID, interactionSourceID, entrezA, "entrez", false)
+		b.d.addXrefWithSortLevels(interactionID, interactionSourceID, entrezA, "entrez", sortLevelsA)
 	}
 	if entrezB != "" {
-		b.d.addXref(interactionID, interactionSourceID, entrezB, "entrez", false)
+		b.d.addXrefWithSortLevels(interactionID, interactionSourceID, entrezB, "entrez", sortLevelsB)
 	}
 
 	// Interaction → PubMed

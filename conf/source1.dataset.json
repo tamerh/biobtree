@@ -109,7 +109,8 @@
     "hasFilter": "yes",
     "attrs": "protein_a,protein_b,uniprot_a,uniprot_b,score,has_experimental,has_database,has_textmining,has_coexpression",
     "compact_fields": "score,uniprot_b",
-    "bucketMethod": "string"
+    "bucketMethod": "string",
+    "reverseXrefSort": "uniprot:interactionScore"
   },
   "pubchem": {
     "id": "6",
@@ -472,7 +473,6 @@
     "aliases": "BGEE,Bgee,Gene Expression Evolution,tissue expression,gene expression,expression",
     "id": "34",
     "name": "Bgee",
-    "textPriority": "50",
     "url": "https://www.bgee.org/?page=gene&gene_id=£{id}",
     "path": "https://www.bgee.org/ftp/current/download/calls/expr_calls/",
     "useLocalFile": "no",
@@ -956,7 +956,8 @@
     "hasFilter": "yes",
     "attrs": "title,collection_name,cell_count,organism,[]assay_types,[]cell_types,[]tissues,[]diseases",
     "test_entries_count": "100",
-    "bucketMethod": "alphabetic"
+    "bucketMethod": "alphabetic",
+    "reverseXrefSort": "cl:speciesPriority,cellCount;uberon:speciesPriority,cellCount;mondo:speciesPriority,cellCount;efo:speciesPriority,cellCount"
   },
   "cellxgene_celltype": {
     "id": "110",
@@ -1007,7 +1008,8 @@
     "hasFilter": "yes",
     "attrs": "gene_id,experiment_id,is_marker_in_experiment,marker_cluster_count,max_mean_expression",
     "test_entries_count": "5000",
-    "bucketMethod": "alphabetic"
+    "bucketMethod": "alphabetic",
+    "reverseXrefSort": "cl:speciesPriority,expressionScore"
   },
   "biogrid_interaction": {
     "id": "114",
@@ -1016,7 +1018,8 @@
     "url": "https://thebiogrid.org/interaction/£{id}",
     "hasFilter": "yes",
     "attrs": "interaction_id,experimental_system,experimental_system_type,author,publication,throughput,score,modification,qualifications,tags,source_database,interactor_a_id,interactor_a_symbol,interactor_a_organism,interactor_b_id,interactor_b_symbol,interactor_b_organism",
-    "bucketMethod": "numeric"
+    "bucketMethod": "numeric",
+    "reverseXrefSort": "uniprot:speciesPriority;entrez:speciesPriority"
   },
   "collectri": {
     "id": "115",

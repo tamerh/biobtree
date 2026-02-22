@@ -508,16 +508,10 @@ func (b *bgee) buildTopConditionsFromSorted(sortedConditions []ExpressionConditi
 func (b *bgee) createReferences(geneID string, gene *BgeeGene) {
 	fr := config.Dataconf[b.source]["id"]
 
-	// 1. Gene ID text search removed - entry is already findable by its primary key (Ensembl ID)
-	// This was causing duplicate search results
-	taxID := strconv.Itoa(gene.TaxonomyID)
+	// Text search removed - bgee entries are discovered via mapping (gene >> ensembl >> bgee)
+	// Adding gene symbols to text search caused pollution with multiple species results
 
-	// 2. Gene name → Bgee (text search by gene symbol) with species priority
-	if gene.GeneName != "" {
-		b.d.addXrefWithPriority(gene.GeneName, textLinkID, geneID, b.source, true, taxID)
-	}
-
-	// 3. Create cross-reference to Ensembl
+	// Create cross-reference to Ensembl
 	// This enables: ENSG00000000419 >> bgee to get expression data
 	// Forward: bgee/forward/ (bgee gene → ensembl)
 	// Reverse: ensembl/from_bgee/ (ensembl → bgee) - this is what the query uses

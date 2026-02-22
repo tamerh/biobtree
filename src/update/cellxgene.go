@@ -328,54 +328,60 @@ func (c *cellxgene) processDatasets(testLimit int) int64 {
 }
 
 // createDatasetCrossRefs creates cross-references from dataset to ontologies
+// Uses sorted xrefs for cl, uberon, mondo, efo (sorted by species priority, then cell count)
 func (c *cellxgene) createDatasetCrossRefs(entry cellxgeneDatasetJSON, sourceID string) {
-	// Cross-reference to Cell Ontology (CL)
+	// Extract taxon ID for sorting (strip NCBITaxon: prefix if present)
+	taxID := entry.OrganismTaxid
+	if strings.HasPrefix(strings.ToUpper(taxID), "NCBITAXON:") {
+		taxID = taxID[10:] // len("NCBITaxon:") = 10
+	}
+
+	// Compute sort levels: species priority (human first) + cell count (higher first)
+	sortLevels := []string{
+		ComputeSortLevelValue(SortLevelSpeciesPriority, map[string]interface{}{"taxID": taxID}),
+		ComputeSortLevelValue(SortLevelCellCount, map[string]interface{}{"count": entry.CellCount}),
+	}
+
+	// Cross-reference to Cell Ontology (CL) with sorting
 	for _, clID := range entry.CellTypeCLIDs {
 		if clID != "" && strings.HasPrefix(clID, "CL:") {
 			if _, exists := config.Dataconf["cl"]; exists {
-				c.d.addXref(entry.DatasetID, sourceID, clID, "cl", false)
+				c.d.addXrefWithSortLevels(entry.DatasetID, sourceID, clID, "cl", sortLevels)
 			}
 		}
 	}
 
-	// Cross-reference to UBERON (anatomy)
+	// Cross-reference to UBERON (anatomy) with sorting
 	for _, uberonID := range entry.TissueUberonIDs {
 		if uberonID != "" && strings.HasPrefix(uberonID, "UBERON:") {
 			if _, exists := config.Dataconf["uberon"]; exists {
-				c.d.addXref(entry.DatasetID, sourceID, uberonID, "uberon", false)
+				c.d.addXrefWithSortLevels(entry.DatasetID, sourceID, uberonID, "uberon", sortLevels)
 			}
 		}
 	}
 
-	// Cross-reference to MONDO (diseases)
+	// Cross-reference to MONDO (diseases) with sorting
 	for _, mondoID := range entry.DiseaseMondoIDs {
 		if mondoID != "" && strings.HasPrefix(mondoID, "MONDO:") {
 			if _, exists := config.Dataconf["mondo"]; exists {
-				c.d.addXref(entry.DatasetID, sourceID, mondoID, "mondo", false)
+				c.d.addXrefWithSortLevels(entry.DatasetID, sourceID, mondoID, "mondo", sortLevels)
 			}
 		}
 	}
 
-	// Cross-reference to EFO (assays)
+	// Cross-reference to EFO (assays) with sorting
 	for _, efoID := range entry.AssayEfoIDs {
 		if efoID != "" && strings.HasPrefix(efoID, "EFO:") {
 			if _, exists := config.Dataconf["efo"]; exists {
-				c.d.addXref(entry.DatasetID, sourceID, efoID, "efo", false)
+				c.d.addXrefWithSortLevels(entry.DatasetID, sourceID, efoID, "efo", sortLevels)
 			}
 		}
 	}
 
-	// Cross-reference to taxonomy (strip NCBITaxon: prefix if present)
-	if entry.OrganismTaxid != "" {
+	// Cross-reference to taxonomy (no sorting needed - single relationship)
+	if taxID != "" {
 		if _, exists := config.Dataconf["taxonomy"]; exists {
-			taxid := entry.OrganismTaxid
-			// Remove NCBITaxon: prefix (case-insensitive)
-			if strings.HasPrefix(strings.ToUpper(taxid), "NCBITAXON:") {
-				taxid = taxid[10:] // len("NCBITaxon:") = 10
-			}
-			if taxid != "" {
-				c.d.addXref(entry.DatasetID, sourceID, taxid, "taxonomy", false)
-			}
+			c.d.addXref(entry.DatasetID, sourceID, taxID, "taxonomy", false)
 		}
 	}
 }

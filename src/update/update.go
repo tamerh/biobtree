@@ -1568,8 +1568,10 @@ func (d *DataUpdate) addXrefWithRelationship(key string, from string, value stri
 type SortLevelType string
 
 const (
-	SortLevelSpeciesPriority SortLevelType = "speciesPriority"
-	SortLevelExpressionScore SortLevelType = "expressionScore"
+	SortLevelSpeciesPriority  SortLevelType = "speciesPriority"
+	SortLevelExpressionScore  SortLevelType = "expressionScore"
+	SortLevelCellCount        SortLevelType = "cellCount"
+	SortLevelInteractionScore SortLevelType = "interactionScore"
 )
 
 // ComputeSortLevelValue computes the string value for a sort level
@@ -1590,6 +1592,28 @@ func ComputeSortLevelValue(levelType SortLevelType, params map[string]interface{
 			return fmt.Sprintf("%06.2f", invertedScore)
 		}
 		return "100.00"
+	case SortLevelCellCount:
+		// Invert count so higher counts sort first with ascending sort
+		// Uses 12-digit format to handle counts up to 999 billion
+		// count 1000000 -> "999999999000" (inverted)
+		maxCount := int64(999999999999)
+		if count, ok := params["count"].(int64); ok {
+			inverted := maxCount - count
+			if inverted < 0 {
+				inverted = 0
+			}
+			return fmt.Sprintf("%012d", inverted)
+		}
+		return "999999999999" // Low priority for missing counts
+	case SortLevelInteractionScore:
+		// Invert score so higher scores sort first with ascending sort
+		// STRING scores are 0-1000, invert using 4-digit format
+		// score 950 -> "0050", score 400 -> "0600"
+		if score, ok := params["score"].(int); ok {
+			inverted := 1000 - score
+			return fmt.Sprintf("%04d", inverted)
+		}
+		return "1000" // Low priority for missing scores
 	default:
 		return ""
 	}

@@ -546,7 +546,8 @@
     "hasFilter": "yes",
     "attrs": "interaction_id,protein_a,protein_a_gene,protein_b,protein_b_gene,detection_method,interaction_type,confidence_score,pubmed_id,host_organism_name,method_reliability_score,detection_method_parsed,interaction_type_parsed,confidence_scores,[]features_a,[]features_b,[]parameters,[]interaction_xrefs",
     "test_entries_count": "100",
-    "bucketMethod": "alphabetic"
+    "bucketMethod": "alphabetic",
+    "reverseXrefSort": "uniprot:speciesPriority,interactionScore"
   },
   "protein_similarity": {
     "id": "39",
@@ -824,6 +825,7 @@
     "attrs": "biogrid_id,[]interactions,interaction_count,unique_partners,physical_count,genetic_count,[]organisms,[]experimental_systems,[]pubmed_ids",
     "test_entries_count": "100",
     "childDatasets": "biogrid_interaction",
+    "compact_fields": "interaction_count,unique_partners",
     "bucketMethod": "numeric"
   },
   "msigdb": {
@@ -956,6 +958,7 @@
     "hasFilter": "yes",
     "attrs": "title,collection_name,cell_count,organism,[]assay_types,[]cell_types,[]tissues,[]diseases",
     "test_entries_count": "100",
+    "compact_fields": "title,organism,cell_count",
     "bucketMethod": "alphabetic",
     "reverseXrefSort": "cl:speciesPriority,cellCount;uberon:speciesPriority,cellCount;mondo:speciesPriority,cellCount;efo:speciesPriority,cellCount"
   },
@@ -969,6 +972,7 @@
     "hasFilter": "yes",
     "attrs": "name,definition,[]synonyms,[]found_in_tissues,[]associated_diseases,total_cells,[]expression_by_tissue",
     "test_entries_count": "100",
+    "compact_fields": "name,total_cells",
     "bucketMethod": "ontology"
   },
   "scxa": {
@@ -983,6 +987,7 @@
     "hasFilter": "yes",
     "attrs": "experiment_accession,description,species,kingdom,load_date,last_update,experiment_type,[]technology_types,number_of_cells,[]experimental_factors,[]experiment_projects,[]cell_types,[]tissues,[]diseases",
     "test_entries_count": "50",
+    "compact_fields": "description,species,number_of_cells",
     "bucketMethod": "scxa"
   },
   "scxa_expression": {
@@ -996,6 +1001,7 @@
     "attrs": "gene_id,gene_name,species_taxid,total_experiments,marker_experiment_count,max_mean_expression,total_clusters",
     "test_entries_count": "1000",
     "childDatasets":"scxa_gene_experiment",
+    "compact_fields": "gene_name,total_experiments,marker_experiment_count",
     "bucketMethod": "ensembl_hybrid"
   },
   "scxa_gene_experiment": {
@@ -1008,6 +1014,7 @@
     "hasFilter": "yes",
     "attrs": "gene_id,experiment_id,is_marker_in_experiment,marker_cluster_count,max_mean_expression",
     "test_entries_count": "5000",
+    "compact_fields": "experiment_id,is_marker_in_experiment,max_mean_expression",
     "bucketMethod": "alphabetic",
     "reverseXrefSort": "cl:speciesPriority,expressionScore"
   },
@@ -1018,6 +1025,7 @@
     "url": "https://thebiogrid.org/interaction/£{id}",
     "hasFilter": "yes",
     "attrs": "interaction_id,experimental_system,experimental_system_type,author,publication,throughput,score,modification,qualifications,tags,source_database,interactor_a_id,interactor_a_symbol,interactor_a_organism,interactor_b_id,interactor_b_symbol,interactor_b_organism",
+    "compact_fields": "interactor_b_symbol,experimental_system",
     "bucketMethod": "numeric",
     "reverseXrefSort": "uniprot:speciesPriority;entrez:speciesPriority"
   },
@@ -1046,7 +1054,8 @@
     "hasFilter": "yes",
     "attrs": "entity_a,type_a,id_a,database_a,entity_b,type_b,id_b,database_b,effect,mechanism,residue,sequence,tax_id,cell_data,tissue_data,direct,score",
     "test_entries_count": "500",
-    "bucketMethod": "signor"
+    "bucketMethod": "signor",
+    "reverseXrefSort": "uniprot:speciesPriority,interactionScore;chebi:interactionScore"
   },
   "corum": {
     "id": "117",
@@ -1161,9 +1170,10 @@
     "path": "https://mirdb.org/download/miRDB_v6.0_prediction_result.txt.gz",
     "useLocalFile": "no",
     "hasFilter": "yes",
-    "attrs": "mirna_id,species,target_count,avg_score,max_score,min_score,[]targets.refseq_id,[]targets.score",
+    "attrs": "mirna_id,species,target_count,avg_score,max_score,min_score,top_targets_schema,[]top_targets",
     "test_entries_count": "100",
-    "bucketMethod": "alphabetic"
+    "bucketMethod": "alphabetic",
+    "reverseXrefSort": "refseq:speciesPriority,interactionScore"
   },
   "fantom5_promoter": {
     "id": "126",

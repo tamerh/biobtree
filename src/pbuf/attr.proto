@@ -2348,14 +2348,13 @@ message MiRDBAttr {
   float max_score = 5;             // Maximum prediction score
   float min_score = 6;             // Minimum prediction score
 
-  // Target predictions
-  repeated MiRDBTarget targets = 7;
-}
+  // Compact top targets (sorted by score descending, up to 50)
+  string top_targets_schema = 8;   // Schema: "refseq|score"
+  repeated string top_targets = 9; // Top 50 targets: "NM_001234|95.5"
 
-// Individual miRNA-target prediction
-message MiRDBTarget {
-  string refseq_id = 1;            // RefSeq transcript ID (e.g., "NM_001234")
-  float score = 2;                 // MirTarget prediction score (50-100, higher = more confident)
+  // DEPRECATED: Full targets list removed to reduce entry size (was 45KB per entry)
+  // Use >>mirdb>>refseq for complete target list with sorting
+  // repeated MiRDBTarget targets = 7;
 }
 
 // FANTOM5 - Functional Annotation of the Mammalian Genome 5

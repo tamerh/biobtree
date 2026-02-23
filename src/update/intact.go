@@ -296,10 +296,12 @@ func (i *intact) parseAndSaveInteractions(testLimit int, idLogFile *os.File) {
 			continue
 		}
 
+		// Extract taxonomy IDs for both interactors (needed for test mode filtering and species sorting)
+		taxidA := i.extractTaxid(getField(row, colMap, "Taxid interactor A"))
+		taxidB := i.extractTaxid(getField(row, colMap, "Taxid interactor B"))
+
 		// In test mode, filter to only human interactions (taxid:9606)
 		if config.IsTestMode() {
-			taxidA := i.extractTaxid(getField(row, colMap, "Taxid interactor A"))
-			taxidB := i.extractTaxid(getField(row, colMap, "Taxid interactor B"))
 			// For non-protein interactors, taxid might be 0 or -1, so only check protein side
 			if hasProteinA && hasProteinB {
 				if taxidA != 9606 || taxidB != 9606 {
@@ -345,13 +347,28 @@ func (i *intact) parseAndSaveInteractions(testLimit int, idLogFile *os.File) {
 		}
 		i.d.addProp3(interactionID, sourceID, attrBytes)
 
+		// Extract confidence score for sorting (MIscore: 0.0-1.0)
+		// Convert to 0-1000 int range for SortLevelInteractionScore
+		confidenceScore := i.extractConfidenceScore(getField(row, colMap, "Confidence value(s)"))
+		confidenceScoreInt := int(confidenceScore * 1000)
+
 		// Create cross-references based on interactor types
-		// interaction (IntAct) → UniProt proteins
+		// interaction (IntAct) → UniProt proteins (with species priority + confidence score sorting)
 		if hasProteinA {
-			i.d.addXref(interactionID, sourceID, proteinA, "uniprot", false)
+			taxIDAStr := strconv.Itoa(int(taxidA))
+			sortLevelsA := []string{
+				ComputeSortLevelValue(SortLevelSpeciesPriority, map[string]interface{}{"taxID": taxIDAStr}),
+				ComputeSortLevelValue(SortLevelInteractionScore, map[string]interface{}{"score": confidenceScoreInt}),
+			}
+			i.d.addXrefWithSortLevels(interactionID, sourceID, proteinA, "uniprot", sortLevelsA)
 		}
 		if hasProteinB && proteinA != proteinB {
-			i.d.addXref(interactionID, sourceID, proteinB, "uniprot", false)
+			taxIDBStr := strconv.Itoa(int(taxidB))
+			sortLevelsB := []string{
+				ComputeSortLevelValue(SortLevelSpeciesPriority, map[string]interface{}{"taxID": taxIDBStr}),
+				ComputeSortLevelValue(SortLevelInteractionScore, map[string]interface{}{"score": confidenceScoreInt}),
+			}
+			i.d.addXrefWithSortLevels(interactionID, sourceID, proteinB, "uniprot", sortLevelsB)
 		}
 
 		// interaction (IntAct) → ChEBI compounds

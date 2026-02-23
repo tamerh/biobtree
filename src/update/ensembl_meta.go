@@ -31,6 +31,12 @@ type ensemblGLatestVersion struct {
 	Version int `json:"version"`
 }
 
+// checkEnsemblUpdate checks for new Ensembl releases and updates all branch metadata files.
+// Version check is based on Ensembl Genomes version (eg_version API, e.g., 62) since Ensembl
+// releases both main Ensembl and Ensembl Genomes at the same time. When EG version changes,
+// all branches are updated including main Ensembl.
+// Note: The version stored in ensembl.paths.json will be the EG version number (e.g., 62),
+// not the main Ensembl release number (e.g., 115). This is intentional as both are released together.
 func checkEnsemblUpdate(du *DataUpdate) {
 
 	if config.Appconf["disableEnsemblReleaseCheck"] != "y" {
@@ -56,6 +62,9 @@ func checkEnsemblUpdate(du *DataUpdate) {
 
 }
 
+// hasEnsemblNewRelease checks if there's a new Ensembl Genomes release by comparing
+// local version (from ensembl_metazoa.paths.json) against the remote eg_version API.
+// Returns true if any paths.json file is missing OR if remote version differs from local.
 func hasEnsemblNewRelease() (bool, int) {
 
 	// Check if ALL required paths.json files exist

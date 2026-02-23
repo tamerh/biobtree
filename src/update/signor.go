@@ -230,8 +230,9 @@ func (s *signor) processFile(filePath, sourceID string, idLogFile *os.File, rema
 		s.d.addXref(signorID, textLinkID, signorID, s.source, true)
 
 		// Cross-reference to external databases based on DATABASEA/DATABASEB
-		s.addDatabaseXref(databaseA, idA, signorID, sourceID)
-		s.addDatabaseXref(databaseB, idB, signorID, sourceID)
+		// Pass taxID and score for sorting (species priority + confidence score)
+		s.addDatabaseXref(databaseA, idA, signorID, sourceID, taxID, score)
+		s.addDatabaseXref(databaseB, idB, signorID, sourceID, taxID, score)
 
 		// Cross-reference to PubMed
 		if pmidStr != "" && pmidStr != "Other" {
@@ -280,7 +281,8 @@ func (s *signor) getField(row []string, colMap map[string]int, colName string) s
 }
 
 // addDatabaseXref creates cross-references based on the source database
-func (s *signor) addDatabaseXref(database, id, entryID, sourceID string) {
+// taxID and score are used for sorting reverse xrefs (species priority + confidence score)
+func (s *signor) addDatabaseXref(database, id, entryID, sourceID string, taxID int, score float64) {
 	if id == "" || database == "" {
 		return
 	}
@@ -288,16 +290,19 @@ func (s *signor) addDatabaseXref(database, id, entryID, sourceID string) {
 	// Normalize database name and map to biobtree dataset
 	db := strings.ToUpper(database)
 	var targetDataset string
+	var useSorting bool
 
 	switch db {
 	case "UNIPROT":
 		targetDataset = "uniprot"
+		useSorting = true // Sort by species priority + score
 	case "CHEBI":
 		// ChEBI IDs should have "CHEBI:" prefix for consistency with ChEBI dataset
 		if !strings.HasPrefix(id, "CHEBI:") {
 			id = "CHEBI:" + id // Add "CHEBI:" prefix if missing
 		}
 		targetDataset = "chebi"
+		useSorting = true // Sort by score only (no species for chemicals)
 	case "PUBCHEM":
 		// PubChem IDs may have "CID:" or "SID:" prefix
 		if strings.HasPrefix(id, "CID:") {
@@ -318,7 +323,33 @@ func (s *signor) addDatabaseXref(database, id, entryID, sourceID string) {
 		return
 	}
 
-	if targetDataset != "" {
+	if targetDataset == "" {
+		return
+	}
+
+	if useSorting {
+		// Convert score to int (0-1000 range, score is typically 0-1)
+		scoreInt := int(score * 1000)
+		if scoreInt > 1000 {
+			scoreInt = 1000
+		}
+
+		var sortLevels []string
+		if targetDataset == "uniprot" {
+			// UniProt: species priority + score
+			taxIDStr := strconv.Itoa(taxID)
+			sortLevels = []string{
+				ComputeSortLevelValue(SortLevelSpeciesPriority, map[string]interface{}{"taxID": taxIDStr}),
+				ComputeSortLevelValue(SortLevelInteractionScore, map[string]interface{}{"score": scoreInt}),
+			}
+		} else {
+			// ChEBI: score only (no species for chemicals)
+			sortLevels = []string{
+				ComputeSortLevelValue(SortLevelInteractionScore, map[string]interface{}{"score": scoreInt}),
+			}
+		}
+		s.d.addXrefWithSortLevels(entryID, sourceID, id, targetDataset, sortLevels)
+	} else {
 		s.d.addXref(entryID, sourceID, id, targetDataset, false)
 	}
 }

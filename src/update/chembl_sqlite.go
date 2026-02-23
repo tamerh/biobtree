@@ -666,6 +666,12 @@ func (c *chemblSqlite) processMolecules(testLimit int) int64 {
 		// Text search: InChI Key (useful for structure lookup)
 		if entry.InchiKey != "" {
 			c.d.addXref(entry.InchiKey, textLinkID, entry.MoleculeID, c.source, true)
+
+			// Cross-reference to ChEBI via InChI Key
+			// This creates chembl_molecule → chebi links for structurally identical compounds
+			if _, chebiExists := config.Dataconf["chebi"]; chebiExists {
+				c.d.addXrefViaKeyword(entry.InchiKey, "chebi", entry.MoleculeID, c.source, sourceID, false)
+			}
 		}
 
 		// Text search: synonyms (trade names, research codes, etc.)

@@ -530,6 +530,9 @@ func countFieldsInFile(filePath string) (int, error) {
 // totalFields: total number of fields in the file
 // sortLevelCount: number of trailing fields that are sort levels
 // Returns sort spec like "-k1,1 -k5,5 -k6,6" and strip field index
+// NOTE: Strip field is returned but NOT used during per-bucket sort.
+// Sort levels are preserved during per-bucket sort so that k-way merge
+// can maintain proper order across buckets. Stripping happens during merge.
 func generateDynamicSortSpec(totalFields, sortLevelCount int) (string, int) {
 	if sortLevelCount <= 0 || totalFields <= sortLevelCount {
 		return "-k1,1", 0
@@ -545,8 +548,40 @@ func generateDynamicSortSpec(totalFields, sortLevelCount int) (string, int) {
 		sortSpec += fmt.Sprintf(" -k%d,%d", fieldPos, fieldPos)
 	}
 
-	// Strip from sortLevelStart onwards (keep baseFields)
-	return sortSpec, sortLevelStart
+	// Return stripField=0 to NOT strip during per-bucket sort
+	// Stripping will happen during k-way merge output
+	// Store the actual strip position for later use
+	return sortSpec, 0
+}
+
+// stripSortLevels removes trailing sort level fields from a line
+// Given a line like "NM_001\t8\tHSA-MIR\t125\t01\t0030\n" and baseFields=4
+// Returns "NM_001\t8\tHSA-MIR\t125\n"
+func stripSortLevels(line string, baseFields int) string {
+	if baseFields <= 0 {
+		return line
+	}
+	// Find the position after baseFields tabs
+	tabCount := 0
+	for i, c := range line {
+		if c == '\t' {
+			tabCount++
+			if tabCount == baseFields {
+				// Return everything up to this position, plus newline
+				return line[:i] + "\n"
+			}
+		}
+	}
+	// Not enough tabs, return original line
+	return line
+}
+
+// countLineFields counts the number of tab-separated fields in a line
+func countLineFields(line string) int {
+	if line == "" {
+		return 0
+	}
+	return strings.Count(line, "\t") + 1
 }
 
 // SortAllBuckets sorts all bucket files in parallel
@@ -1197,6 +1232,24 @@ func concatenateSourceFiles(datasetName string, writer *DatasetBucketWriter, fil
 		// Just sort the file names for consistent k-way merge order
 		sort.Strings(bucketFiles)
 
+		// Check if this is a reverse xref source with sort levels
+		// sourceName is either "forward" (dataset's own entries) or the source dataset name (reverse xrefs)
+		// e.g., for refseq/from_mirdb/, sourceName is "mirdb"
+		baseFields := 0 // 0 means no stripping
+		if sourceName != "forward" {
+			// This is a reverse xref source - check if it has sort levels configured
+			sortLevels := GetReverseXrefSortLevels(sourceName, datasetName)
+			if len(sortLevels) > 0 {
+				// Peek at first bucket file to count fields
+				if len(bucketFiles) > 0 {
+					totalFields, err := countFieldsInFile(bucketFiles[0])
+					if err == nil && totalFields > len(sortLevels) {
+						baseFields = totalFields - len(sortLevels)
+					}
+				}
+			}
+		}
+
 		outPath := getSourceOutputPath(datasetName, sourceName, indexDir, chunkIdx, writer.setIndex)
 
 		outF, err := os.Create(outPath)
@@ -1223,28 +1276,40 @@ func concatenateSourceFiles(datasetName string, writer *DatasetBucketWriter, fil
 			}
 		}
 
-		// K-way merge
+		// K-way merge with full line comparison for sort level ordering
+		// When baseFields > 0, sort levels exist and we must:
+		// 1. Compare by full line (not just key) to maintain sort order across buckets
+		// 2. Strip sort levels when writing output
 		for len(readers) > 0 {
-			minKey := readers[0].curKey
+			// Find the reader with the minimum line
+			minIdx := 0
 			for i := 1; i < len(readers); i++ {
-				if readers[i].curKey < minKey {
-					minKey = readers[i].curKey
+				if baseFields > 0 {
+					// Compare by full line to maintain sort order across buckets
+					if readers[i].curLine < readers[minIdx].curLine {
+						minIdx = i
+					}
+				} else {
+					// Compare by key only (no sort levels)
+					if readers[i].curKey < readers[minIdx].curKey {
+						minIdx = i
+					}
 				}
 			}
 
-			i := 0
-			for i < len(readers) {
-				if readers[i].curKey == minKey {
-					buf.WriteString(readers[i].curLine)
-					linesWritten++
-					readers[i].readNext()
-					if readers[i].eof {
-						readers[i].close()
-						readers = append(readers[:i], readers[i+1:]...)
-						continue
-					}
-				}
-				i++
+			// Write the minimum line (stripping sort levels if needed)
+			line := readers[minIdx].curLine
+			if baseFields > 0 {
+				line = stripSortLevels(line, baseFields)
+			}
+			buf.WriteString(line)
+			linesWritten++
+
+			// Advance the reader that had the minimum
+			readers[minIdx].readNext()
+			if readers[minIdx].eof {
+				readers[minIdx].close()
+				readers = append(readers[:minIdx], readers[minIdx+1:]...)
 			}
 		}
 

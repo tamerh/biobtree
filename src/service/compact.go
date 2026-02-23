@@ -159,6 +159,27 @@ func extractField(xref *pbuf.Xref, field string) string {
 	if a := xref.GetBgeeEvidence(); a != nil {
 		return extractBgeeEvidenceField(a, field)
 	}
+	if a := xref.GetCellxgene(); a != nil {
+		return extractCellxgeneField(a, field)
+	}
+	if a := xref.GetCellxgeneCelltype(); a != nil {
+		return extractCellxgeneCelltypeField(a, field)
+	}
+	if a := xref.GetScxa(); a != nil {
+		return extractScxaField(a, field)
+	}
+	if a := xref.GetScxaExpression(); a != nil {
+		return extractScxaExpressionField(a, field)
+	}
+	if a := xref.GetScxaGeneExperiment(); a != nil {
+		return extractScxaGeneExperimentField(a, field)
+	}
+	if a := xref.GetBiogrid(); a != nil {
+		return extractBiogridField(a, field)
+	}
+	if a := xref.GetBiogridInteraction(); a != nil {
+		return extractBiogridInteractionField(a, field)
+	}
 
 	return ""
 }
@@ -592,6 +613,135 @@ func extractBgeeEvidenceField(a *pbuf.BgeeEvidenceAttr, field string) string {
 		return fmt.Sprintf("%.0f", a.ExpressionRank)
 	case "fdr":
 		return fmt.Sprintf("%.2e", a.Fdr)
+	default:
+		return ""
+	}
+}
+
+// extractCellxgeneField extracts a field from CellxgeneAttr
+func extractCellxgeneField(a *pbuf.CellxgeneAttr, field string) string {
+	switch field {
+	case "title":
+		return a.Title
+	case "collection_name":
+		return a.CollectionName
+	case "organism":
+		return a.Organism
+	case "cell_count":
+		return fmt.Sprintf("%d", a.CellCount)
+	default:
+		return ""
+	}
+}
+
+// extractCellxgeneCelltypeField extracts a field from CellxgeneCelltypeAttr
+func extractCellxgeneCelltypeField(a *pbuf.CellxgeneCelltypeAttr, field string) string {
+	switch field {
+	case "name":
+		return a.Name
+	case "definition":
+		return a.Definition
+	case "total_cells":
+		return fmt.Sprintf("%d", a.TotalCells)
+	default:
+		return ""
+	}
+}
+
+// extractScxaField extracts a field from ScxaAttr
+func extractScxaField(a *pbuf.ScxaAttr, field string) string {
+	switch field {
+	case "experiment_accession":
+		return a.ExperimentAccession
+	case "description":
+		return a.Description
+	case "species":
+		return a.Species
+	case "number_of_cells":
+		return fmt.Sprintf("%d", a.NumberOfCells)
+	case "experiment_type":
+		return a.ExperimentType
+	default:
+		return ""
+	}
+}
+
+// extractScxaExpressionField extracts a field from ScxaExpressionAttr
+func extractScxaExpressionField(a *pbuf.ScxaExpressionAttr, field string) string {
+	switch field {
+	case "gene_id":
+		return a.GeneId
+	case "gene_name":
+		return a.GeneName
+	case "total_experiments":
+		return fmt.Sprintf("%d", a.TotalExperiments)
+	case "marker_experiment_count":
+		return fmt.Sprintf("%d", a.MarkerExperimentCount)
+	case "max_mean_expression":
+		return fmt.Sprintf("%.2f", a.MaxMeanExpression)
+	default:
+		return ""
+	}
+}
+
+// extractScxaGeneExperimentField extracts a field from ScxaGeneExperimentAttr
+func extractScxaGeneExperimentField(a *pbuf.ScxaGeneExperimentAttr, field string) string {
+	switch field {
+	case "gene_id":
+		return a.GeneId
+	case "experiment_id":
+		return a.ExperimentId
+	case "is_marker_in_experiment":
+		if a.IsMarkerInExperiment {
+			return "true"
+		}
+		return "false"
+	case "marker_cluster_count":
+		return fmt.Sprintf("%d", a.MarkerClusterCount)
+	case "max_mean_expression":
+		return fmt.Sprintf("%.2f", a.MaxMeanExpression)
+	default:
+		return ""
+	}
+}
+
+// extractBiogridField extracts a field from BiogridAttr
+func extractBiogridField(a *pbuf.BiogridAttr, field string) string {
+	switch field {
+	case "biogrid_id":
+		return a.BiogridId
+	case "interaction_count":
+		return fmt.Sprintf("%d", a.InteractionCount)
+	case "unique_partners":
+		return fmt.Sprintf("%d", a.UniquePartners)
+	case "physical_count":
+		return fmt.Sprintf("%d", a.PhysicalCount)
+	case "genetic_count":
+		return fmt.Sprintf("%d", a.GeneticCount)
+	default:
+		return ""
+	}
+}
+
+// extractBiogridInteractionField extracts a field from BiogridInteractionAttr
+func extractBiogridInteractionField(a *pbuf.BiogridInteractionAttr, field string) string {
+	switch field {
+	case "interaction_id":
+		return a.InteractionId
+	case "interactor_b_symbol":
+		return a.InteractorBSymbol
+	case "interactor_b_id":
+		return a.InteractorBId
+	case "experimental_system":
+		return a.ExperimentalSystem
+	case "experimental_system_type":
+		return a.ExperimentalSystemType
+	case "author":
+		return a.Author
+	case "publication":
+		return a.Publication
+	case "score":
+		return fmt.Sprintf("%.2f", a.Score)
 	default:
 		return ""
 	}

@@ -239,7 +239,7 @@ func (s *Service) initWithDbDir(dbDir string) error {
 		cel.Types(&pbuf.CellphonedbAttr{}),
 		cel.Types(&pbuf.SpliceAIAttr{}),
 		cel.Types(&pbuf.MiRDBAttr{}),
-		cel.Types(&pbuf.MiRDBTarget{}),
+		// MiRDBTarget removed - now using compact string format (top_targets)
 		cel.Types(&pbuf.Fantom5PromoterAttr{}),
 		cel.Types(&pbuf.Fantom5EnhancerAttr{}),
 		cel.Types(&pbuf.Fantom5GeneAttr{}),

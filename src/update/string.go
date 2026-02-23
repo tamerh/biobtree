@@ -24,6 +24,63 @@ type stringProcessor struct {
 	scoreThreshold int
 }
 
+// uniprotPriority returns priority score for UniProt accession (lower = better)
+// P + 5 chars = 1 (classic Swiss-Prot, highest priority)
+// Q + 5 chars = 2
+// O + 5 chars = 3
+// Everything else (A0A..., etc.) = 9 (lowest priority)
+func uniprotPriority(acc string) int {
+	if len(acc) != 6 {
+		return 9 // Non-canonical length
+	}
+	switch acc[0] {
+	case 'P':
+		return 1
+	case 'Q':
+		return 2
+	case 'O':
+		return 3
+	default:
+		return 9
+	}
+}
+
+// resolveCanonicalUniprot looks up a UniProt ID and resolves it to the canonical/primary accession
+// For example: A0A... or secondary accessions -> P04637 (primary)
+// Returns the input if lookup fails or no better match found
+func (s *stringProcessor) resolveCanonicalUniprot(uniprotID string) string {
+	if s.d == nil || uniprotID == "" {
+		return uniprotID
+	}
+
+	// Already canonical (P + 5 chars)? No need to lookup
+	if uniprotPriority(uniprotID) == 1 {
+		return uniprotID
+	}
+
+	// Get UniProt dataset ID
+	uniprotConfig, ok := config.Dataconf["uniprot"]
+	if !ok {
+		return uniprotID
+	}
+	uniprotDatasetID, err := strconv.ParseUint(uniprotConfig["id"], 10, 32)
+	if err != nil {
+		return uniprotID
+	}
+
+	// Use lookupInDataset - it searches text link entries and returns the target identifier
+	entry, err := s.d.lookupInDataset(uniprotID, uint32(uniprotDatasetID))
+	if err != nil {
+		return uniprotID
+	}
+
+	if entry != nil && entry.Identifier != "" {
+		return entry.Identifier
+	}
+
+	return uniprotID
+}
+
 // Main update entry point
 func (s *stringProcessor) update(selectedTaxids []int) {
 	defer s.d.wg.Done()
@@ -168,8 +225,11 @@ func (s *stringProcessor) buildAliasMap(taxid int) (map[string]string, map[strin
 		// Store ALL UniProt_AC mappings in BOTH directions
 		// This ensures all UniProt accessions (canonical + secondary/isoforms) get STRING entries
 		if source == "UniProt_AC" {
-			// Forward map: use last one for interactions (not critical which)
-			forwardMap[stringID] = alias
+			// Forward map: just store one UniProt AC per STRING ID
+			// The actual canonical resolution happens later via biobtree lookup
+			if _, hasExisting := forwardMap[stringID]; !hasExisting {
+				forwardMap[stringID] = alias
+			}
 			// Reverse map: ALL UniProt ACs → their STRING ID
 			reverseMap[alias] = stringID
 		}
@@ -362,6 +422,11 @@ func (s *stringProcessor) processInteractions(taxid int, forwardMap map[string]s
 			continue
 		}
 
+		// Resolve to canonical UniProt IDs using biobtree lookup
+		// This converts secondary/non-canonical accessions (A0A..., Q...) to primary (P...)
+		uniprot1 = s.resolveCanonicalUniprot(uniprot1)
+		uniprot2 = s.resolveCanonicalUniprot(uniprot2)
+
 		// Create bidirectional interactions as separate string_interaction entries
 		// Store by STRING ID (not UniProt AC) so ALL UniProt ACs for same STRING ID get interactions
 		// ID format: {STRING_ID}_{INVERTED_SCORE}_{UNIPROT_PARTNER}
@@ -393,7 +458,9 @@ func (s *stringProcessor) processInteractions(taxid int, forwardMap map[string]s
 			s.d.addProp3(interactionID12, stringInteractionSourceID, b12)
 			// Xref: string -> string_interaction
 			s.d.addXref(protein1, s.sourceID, interactionID12, "string_interaction", false)
-			// Xref: string_interaction -> uniprot (partner) - sorted by score
+			// Xref: string_interaction -> uniprot (BOTH proteins) - sorted by score
+			// This enables queries like: uniprot >> string_interaction
+			s.d.addXrefWithSortLevels(interactionID12, stringInteractionSourceID, uniprot1, "uniprot", scoreSortLevels)
 			s.d.addXrefWithSortLevels(interactionID12, stringInteractionSourceID, uniprot2, "uniprot", scoreSortLevels)
 		}
 		stringInteractionCounts[protein1]++
@@ -418,8 +485,9 @@ func (s *stringProcessor) processInteractions(taxid int, forwardMap map[string]s
 			s.d.addProp3(interactionID21, stringInteractionSourceID, b21)
 			// Xref: string -> string_interaction
 			s.d.addXref(protein2, s.sourceID, interactionID21, "string_interaction", false)
-			// Xref: string_interaction -> uniprot (partner) - sorted by score
+			// Xref: string_interaction -> uniprot (BOTH proteins) - sorted by score
 			s.d.addXrefWithSortLevels(interactionID21, stringInteractionSourceID, uniprot1, "uniprot", scoreSortLevels)
+			s.d.addXrefWithSortLevels(interactionID21, stringInteractionSourceID, uniprot2, "uniprot", scoreSortLevels)
 		}
 		stringInteractionCounts[protein2]++
 

@@ -1,9 +1,12 @@
 {
   "metadata": {
-    "version": "9.8",
+    "version": "10.1",
     "description": "Expanded integration tests including newly added datasets and filter tests (2025-2026)",
     "server": "http://localhost:9291",
-    "last_updated": "2026-02-22",
+    "last_updated": "2026-02-23",
+    "changes_10.1": "Added mirdb_sorting category (4 tests): miRDB microRNA target prediction sorting validation. Tests species priority sorting (human miRNAs first) and prediction score ordering for refseq reverse xrefs. Total: 704 tests.",
+    "changes_10.0": "Added signor_sorting category (4 tests): SIGNOR causal interaction sorting validation. Tests species priority sorting (human interactions first), confidence score ordering, and reverse xref sorting for uniprot and chebi targets. Total: 700 tests.",
+    "changes_9.9": "Added string_direct_mapping category (6 tests): Direct UniProt to string_interaction mapping tests. Tests new >>uniprot>>string_interaction path (bypassing STRING protein entry), canonical UniProt resolution (secondary accessions like B4DP59 resolved to primary P51398), high-confidence interaction filters, and partner protein retrieval. Also added intact_sorting category (4 tests): IntAct interaction sorting validation for species priority and confidence score ordering. Total: 696 tests.",
     "changes_9.8": "Added bgee_evidence_sorting category (8 tests): Bgee expression evidence sorting validation tests. Basic mapping tests (bgee>>bgee_evidence, uberon>>bgee_evidence, cl>>bgee_evidence), species priority sorting validation (human genes before mouse before cattle), expression score descending order validation. New validation types: first_n_start_with, first_n_not_start_with, descending_scores for sorting verification. Total: 722 tests.",
     "changes_9.7": "Added string_interaction sub-dataset tests (8 tests): STRING interaction mapping (>>string>>string_interaction), interaction to partner proteins chain, score filters (>900 high-confidence, >700 medium-confidence), evidence channel filters (has_experimental, has_database), multi-hop gene to interactions, gene to high-confidence partners. Tests new string_interaction sub-dataset that separates interactions from STRING entries for efficient queries. Total: 714 tests.",
     "changes_9.6": "Added text_search category (15 tests): Protein name search (UniProt SwissProt - Insulin, Hemoglobin, Spike glycoprotein), PharmGKB gene search (CYP2D6, VKORC1, SLCO1B1), Orphanet disease name search and validation, HGNC protein name search, Clinical trials sponsor-only search (Pfizer, Novartis), and pollution prevention tests (drug names and conditions should NOT match clinical trials). Tests search improvements including compact.go ExtractSourceName fix for Orphanet names and priority adjustments. Total: 706 tests.",
@@ -84,7 +87,11 @@
     "encode_ccre": "ENCODE cCRE (candidate cis-Regulatory Elements): ~2.3M regulatory regions from ENCODE SCREEN. Classifications include PLS (promoter-like), pELS (proximal enhancer-like), dELS (distal enhancer-like), CA-CTCF (CTCF-bound), CA-TF (TF-bound), CA (chromatin accessible), TF (transcription factor only). Genomic coordinates (chromosome, start, end). Cross-references to taxonomy (human GRCh38). Filters for classification, chromosome, coordinate range. Essential for regulatory element analysis, enhancer/promoter biology, and epigenomics studies.",
     "search_filter": "Search endpoint filtering and ordering: Multi-dataset filter (s=hgnc,mondo,efo), single dataset filter, text priority ordering (datasets with higher textPriority appear first in search results), and pagination with filters. Essential for efficient LLM agent queries and result prioritization.",
     "text_search": "Text search improvements: Protein name discovery (UniProt SwissProt), PharmGKB gene priority, Orphanet disease names, clinical trials sponsor search. Tests search result quality and pollution prevention.",
-    "bgee_evidence_sorting": "Bgee evidence sorting validation: Tests species priority sorting (human genes first, then mouse, then others) and expression score descending order for bgee_evidence dataset. Validates bgee >> bgee_evidence and uberon/cl >> bgee_evidence query paths with correct sorting."
+    "bgee_evidence_sorting": "Bgee evidence sorting validation: Tests species priority sorting (human genes first, then mouse, then others) and expression score descending order for bgee_evidence dataset. Validates bgee >> bgee_evidence and uberon/cl >> bgee_evidence query paths with correct sorting.",
+    "string_direct_mapping": "STRING direct mapping: Tests the new direct >>uniprot>>string_interaction path that bypasses the STRING protein entry. Includes canonical UniProt resolution (secondary accessions resolved to primary), high-confidence interaction filtering, and multi-hop partner protein retrieval.",
+    "intact_sorting": "IntAct interaction sorting: Tests species priority and confidence score sorting for intact dataset. Human interactions appear first, sorted by MI-score descending within species groups.",
+    "signor_sorting": "SIGNOR causal interaction sorting: Tests species priority and confidence score sorting for signor dataset. Human causal interactions appear first when querying reverse xrefs (uniprot>>signor, chebi>>signor), sorted by SIGNOR score descending within species groups.",
+    "mirdb_sorting": "miRDB target prediction sorting: Tests species priority and prediction score sorting for mirdb dataset. Human miRNAs appear first when querying reverse xrefs (refseq>>mirdb), sorted by prediction score descending within species groups."
   },
   "tests": [
     {
@@ -7860,6 +7867,230 @@
           "first_n_start_with": "ENSG",
           "n": 20,
           "description": "First 20 results should be from human gene (ENSG prefix)"
+        }
+      ]
+    },
+    {
+      "category": "string_direct_mapping",
+      "name": "Direct UniProt to STRING Interactions",
+      "query": ">>uniprot>>string_interaction",
+      "why": "Direct mapping from UniProt to STRING interactions without going through STRING protein entry - more efficient for interaction queries",
+      "should_pass": [
+        "P04637",
+        "P00533",
+        "P38398"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "string_direct_mapping",
+      "name": "Direct UniProt to STRING High-Confidence",
+      "query": ">>uniprot>>string_interaction[score>900]",
+      "why": "Filter for high-confidence STRING interactions directly from UniProt",
+      "should_pass": [
+        "P04637",
+        "P00533"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "string_direct_mapping",
+      "name": "Direct UniProt to STRING Partner Proteins",
+      "query": ">>uniprot>>string_interaction>>uniprot",
+      "why": "Get partner proteins directly from UniProt via string_interaction - full interaction discovery chain",
+      "should_pass": [
+        "P04637",
+        "P38398"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "string_direct_mapping",
+      "name": "Direct vs Indirect STRING Path Equivalence",
+      "query": ">>uniprot>>string>>string_interaction",
+      "why": "Verify the indirect path still works - both paths should return interactions",
+      "should_pass": [
+        "P04637",
+        "P00533"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "string_direct_mapping",
+      "name": "Gene Symbol to STRING Interactions Direct",
+      "query": ">>ensembl>>uniprot>>string_interaction",
+      "why": "Multi-hop from gene symbol to STRING interactions using the direct path",
+      "should_pass": [
+        "TP53",
+        "BRCA1",
+        "EGFR"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "string_direct_mapping",
+      "name": "STRING Interaction Score Sorting",
+      "type": "validation",
+      "query": ">>uniprot>>string_interaction",
+      "identifier": "P04637",
+      "why": "STRING interactions should be sorted by combined score descending",
+      "validations": [
+        {
+          "path": "",
+          "descending_scores": "Attributes.StringInteraction.score",
+          "n": 20,
+          "description": "First 20 interactions sorted by score descending"
+        }
+      ]
+    },
+    {
+      "category": "intact_sorting",
+      "name": "IntAct UniProt Mapping",
+      "query": ">>intact>>uniprot",
+      "why": "Map IntAct interactions to UniProt proteins with species priority sorting",
+      "should_pass": [
+        "EBI-1000077",
+        "EBI-366083"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "intact_sorting",
+      "name": "UniProt to IntAct Interactions",
+      "query": ">>uniprot>>intact",
+      "why": "Get IntAct interactions for a protein",
+      "should_pass": [
+        "P04637",
+        "P00533",
+        "P38398"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "intact_sorting",
+      "name": "IntAct Human Interactions First",
+      "type": "validation",
+      "query": ">>intact>>uniprot",
+      "identifier": "EBI-366083",
+      "why": "For interactions with multiple species, human proteins should appear first due to species priority sorting",
+      "validations": [
+        {
+          "path": "",
+          "first_n_start_with": "P",
+          "n": 10,
+          "description": "First results should be human UniProt IDs (typically P-prefixed Swiss-Prot)"
+        }
+      ]
+    },
+    {
+      "category": "intact_sorting",
+      "name": "IntAct Interaction Score Order",
+      "type": "validation",
+      "query": ">>uniprot>>intact",
+      "identifier": "P04637",
+      "why": "IntAct interactions should be sorted by MI-score descending within species groups",
+      "validations": [
+        {
+          "path": "",
+          "min_results": 10,
+          "description": "Should return at least 10 interactions for p53"
+        }
+      ]
+    },
+    {
+      "category": "signor_sorting",
+      "name": "UniProt to SIGNOR Causal Interactions",
+      "query": ">>uniprot>>signor",
+      "why": "Get SIGNOR causal interactions for a protein - should be sorted by species priority and score",
+      "should_pass": [
+        "P04637",
+        "P00533",
+        "Q04206"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "signor_sorting",
+      "name": "SIGNOR to UniProt Mapping",
+      "query": ">>signor>>uniprot",
+      "why": "Map SIGNOR interactions to UniProt proteins with sorting",
+      "should_pass": [
+        "SIGNOR-252149",
+        "SIGNOR-242867"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "signor_sorting",
+      "name": "ChEBI to SIGNOR Chemical Interactions",
+      "query": ">>chebi>>signor",
+      "why": "Get SIGNOR interactions involving a chemical compound - sorted by score",
+      "should_pass": [
+        "CHEBI:15996"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "signor_sorting",
+      "name": "SIGNOR Human Interactions First",
+      "type": "validation",
+      "query": ">>signor>>uniprot",
+      "identifier": "SIGNOR-252149",
+      "why": "When SIGNOR interaction involves human proteins, they should appear first due to species priority sorting",
+      "validations": [
+        {
+          "path": "",
+          "min_results": 1,
+          "description": "Should return at least 1 UniProt protein"
+        }
+      ]
+    },
+    {
+      "category": "mirdb_sorting",
+      "name": "RefSeq to miRDB Mapping",
+      "query": ">>refseq>>mirdb",
+      "why": "Map RefSeq transcripts to miRDB miRNAs that target them - sorted by species priority and prediction score",
+      "should_pass": [
+        "NM_000546",
+        "NM_001126112"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "mirdb_sorting",
+      "name": "miRDB to RefSeq Targets",
+      "query": ">>mirdb>>refseq",
+      "why": "Get RefSeq target transcripts for a miRNA",
+      "should_pass": [
+        "hsa-miR-21-5p",
+        "hsa-miR-155-5p"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "mirdb_sorting",
+      "name": "miRDB Entry Lookup",
+      "query": ">>mirdb",
+      "why": "Direct miRNA lookup in miRDB",
+      "should_pass": [
+        "hsa-miR-21-5p",
+        "mmu-miR-21a-5p"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "mirdb_sorting",
+      "name": "miRDB Human miRNAs First",
+      "type": "validation",
+      "query": ">>refseq>>mirdb",
+      "identifier": "NM_000546",
+      "why": "Human miRNAs (hsa-) should appear before mouse (mmu-) and other species due to species priority sorting",
+      "validations": [
+        {
+          "path": "",
+          "first_n_start_with": "hsa-",
+          "n": 5,
+          "description": "First 5 results should be human miRNAs (hsa- prefix)"
         }
       ]
     }

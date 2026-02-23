@@ -4,11 +4,13 @@ import (
 	"biobtree/pbuf"
 	"bufio"
 	"compress/gzip"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 	"sync/atomic"
@@ -32,6 +34,15 @@ var mirdbSpeciesMap = map[string]string{
 	"rno": "Rattus norvegicus",
 	"cfa": "Canis familiaris",
 	"gga": "Gallus gallus",
+}
+
+// Species prefix to taxID mapping for sorting
+var mirdbSpeciesTaxID = map[string]string{
+	"hsa": "9606",  // Human
+	"mmu": "10090", // Mouse
+	"rno": "10116", // Rat
+	"cfa": "9615",  // Dog
+	"gga": "9031",  // Chicken
 }
 
 // Helper for context-aware error checking
@@ -250,24 +261,32 @@ func (m *mirdb) parseAndSavePredictions(testLimit int, idLogFile *os.File, sourc
 		}
 		avgScore := sumScore / float32(len(targets))
 
-		// Build target list for attributes
-		pbufTargets := make([]*pbuf.MiRDBTarget, 0, len(targets))
-		for _, t := range targets {
-			pbufTargets = append(pbufTargets, &pbuf.MiRDBTarget{
-				RefseqId: t.RefSeqID,
-				Score:    t.Score,
-			})
+		// Sort targets by score descending for top N selection
+		sort.Slice(targets, func(i, j int) bool {
+			return targets[i].Score > targets[j].Score
+		})
+
+		// Build compact top 50 targets: "refseq|score"
+		topN := 50
+		if len(targets) < topN {
+			topN = len(targets)
+		}
+		topTargets := make([]string, 0, topN)
+		for i := 0; i < topN; i++ {
+			t := targets[i]
+			topTargets = append(topTargets, fmt.Sprintf("%s|%.1f", t.RefSeqID, t.Score))
 		}
 
-		// Create attributes
+		// Create attributes with compact top targets
 		attr := &pbuf.MiRDBAttr{
-			MirnaId:     mirnaID,
-			Species:     species,
-			TargetCount: int32(len(targets)),
-			AvgScore:    avgScore,
-			MaxScore:    maxScore,
-			MinScore:    minScore,
-			Targets:     pbufTargets,
+			MirnaId:          mirnaID,
+			Species:          species,
+			TargetCount:      int32(len(targets)),
+			AvgScore:         avgScore,
+			MaxScore:         maxScore,
+			MinScore:         minScore,
+			TopTargetsSchema: "refseq|score",
+			TopTargets:       topTargets,
 		}
 
 		// Marshal and save
@@ -287,9 +306,25 @@ func (m *mirdb) parseAndSavePredictions(testLimit int, idLogFile *os.File, sourc
 			m.d.addXref(shortName, textLinkID, mirnaID, m.source, true)
 		}
 
-		// Cross-reference to RefSeq targets
+		// Cross-reference to RefSeq targets with sorting (species priority + prediction score)
+		// Get taxID for species priority sorting
+		taxID := mirdbSpeciesTaxID[species]
+		if taxID == "" {
+			taxID = "0" // Unknown species gets lowest priority
+		}
+
 		for _, t := range targets {
-			m.d.addXref(mirnaID, sourceID, t.RefSeqID, "refseq", false)
+			// Scale score from 0-100 to 0-1000 for interactionScore
+			scoreInt := int(t.Score * 10)
+			if scoreInt > 1000 {
+				scoreInt = 1000
+			}
+
+			sortLevels := []string{
+				ComputeSortLevelValue(SortLevelSpeciesPriority, map[string]interface{}{"taxID": taxID}),
+				ComputeSortLevelValue(SortLevelInteractionScore, map[string]interface{}{"score": scoreInt}),
+			}
+			m.d.addXrefWithSortLevels(mirnaID, sourceID, t.RefSeqID, "refseq", sortLevels)
 		}
 
 		// Log ID for test mode

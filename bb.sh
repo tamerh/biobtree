@@ -193,7 +193,8 @@ show_help() {
     echo "  --from <dataset>  Resume from specific dataset"
     echo "  --only <datasets> Run specific dataset(s), comma-separated (e.g., uniprot,hgnc,go)"
     echo "  --generate        Run generate phase only (build database)"
-    echo "  --federation <name>  With --generate: build specific federation (main, dbsnp)"
+    echo "  --generate-after  Run generate after --only completes successfully"
+    echo "  --federation <name>  With --generate or --generate-after: build specific federation (main, dbsnp)"
     echo "  --force           Force update even if unchanged"
     echo "  --maxcpu <N>      Max CPUs (default: 8)"
     echo "  --dry-run         Show what would be done"
@@ -240,6 +241,7 @@ ACTIVATE_VERSION=""
 DO_ACTIVATE="false"
 DO_CLEANUP="false"
 CLEANUP_KEEP=2
+GENERATE_AFTER="false"
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -276,6 +278,7 @@ while [[ $# -gt 0 ]]; do
                 shift
             fi
             ;;
+        --generate-after) GENERATE_AFTER="true"; shift ;;
         --help|-h)      show_help ;;
         *)              echo "Unknown option: $1"; show_help ;;
     esac
@@ -918,6 +921,72 @@ if [[ -n "$ONLY_DATASET" ]]; then
         echo "Completed: $((TOTAL_SELECTED - ${#FAILED_SELECTED[@]}))/$TOTAL_SELECTED"
         echo "Failed: ${FAILED_SELECTED[*]}"
         exit 1
+    fi
+
+    # Run generate after if requested
+    if [[ "$GENERATE_AFTER" == "true" ]]; then
+        if [[ -n "$FEDERATION" ]]; then
+            log_header "Generate ($FEDERATION federation)"
+            echo "Building $FEDERATION federation database..."
+            GEN_LOG="${LOG_DIR}/generate_${FEDERATION}.log"
+            rotate_log "$GEN_LOG"
+            echo "Log: $GEN_LOG"
+
+            if [[ "$DRY_RUN" == "true" ]]; then
+                echo "[DRY RUN] ./biobtree --out-dir \"$OUT_DIR\" --federation \"$FEDERATION\" --lmdb-safety-factor 4.5 generate"
+            elif ./biobtree --out-dir "$OUT_DIR" --federation "$FEDERATION" --lmdb-safety-factor 4.5 generate > "$GEN_LOG" 2>&1; then
+                echo "✓ Generate complete ($FEDERATION federation)"
+
+                # Show version info
+                latest=$(get_latest_version "$FEDERATION")
+                current=$(get_current_version "$FEDERATION")
+                echo ""
+                echo "New version created: db_v$latest"
+                echo "Current active:      db_v$current"
+                if [[ "$latest" != "$current" ]]; then
+                    echo ""
+                    echo "To activate the new version:"
+                    echo "  $0 $OUT_DIR --activate"
+                fi
+            else
+                echo "✗ Generate FAILED ($FEDERATION) - see $GEN_LOG"
+                exit 1
+            fi
+        else
+            log_header "Generate (all federations)"
+            echo "Building all federation databases..."
+            GEN_LOG="${LOG_DIR}/generate.log"
+            rotate_log "$GEN_LOG"
+            echo "Log: $GEN_LOG"
+
+            if [[ "$DRY_RUN" == "true" ]]; then
+                echo "[DRY RUN] ./biobtree --out-dir \"$OUT_DIR\" --lmdb-safety-factor 4.5 generate"
+            elif ./biobtree --out-dir "$OUT_DIR" --lmdb-safety-factor 4.5 generate > "$GEN_LOG" 2>&1; then
+                echo "✓ Generate complete (all federations)"
+
+                # Show version info for each federation
+                echo ""
+                echo "Version Summary:"
+                for federation in main dbsnp; do
+                    fed_dir="$OUT_DIR/$federation"
+                    if [[ ! -d "$fed_dir" ]]; then
+                        continue
+                    fi
+                    latest=$(get_latest_version "$federation")
+                    current=$(get_current_version "$federation")
+                    if [[ "$latest" != "0" ]]; then
+                        echo "  $federation: created db_v$latest (active: db_v$current)"
+                    fi
+                done
+
+                echo ""
+                echo "To activate the new version(s):"
+                echo "  $0 $OUT_DIR --activate"
+            else
+                echo "✗ Generate FAILED - see $GEN_LOG"
+                exit 1
+            fi
+        fi
     fi
     exit 0
 fi

@@ -45,42 +45,6 @@ func uniprotPriority(acc string) int {
 	}
 }
 
-// resolveCanonicalUniprot looks up a UniProt ID and resolves it to the canonical/primary accession
-// For example: A0A... or secondary accessions -> P04637 (primary)
-// Returns the input if lookup fails or no better match found
-func (s *stringProcessor) resolveCanonicalUniprot(uniprotID string) string {
-	if s.d == nil || uniprotID == "" {
-		return uniprotID
-	}
-
-	// Already canonical (P + 5 chars)? No need to lookup
-	if uniprotPriority(uniprotID) == 1 {
-		return uniprotID
-	}
-
-	// Get UniProt dataset ID
-	uniprotConfig, ok := config.Dataconf["uniprot"]
-	if !ok {
-		return uniprotID
-	}
-	uniprotDatasetID, err := strconv.ParseUint(uniprotConfig["id"], 10, 32)
-	if err != nil {
-		return uniprotID
-	}
-
-	// Use lookupInDataset - it searches text link entries and returns the target identifier
-	entry, err := s.d.lookupInDataset(uniprotID, uint32(uniprotDatasetID))
-	if err != nil {
-		return uniprotID
-	}
-
-	if entry != nil && entry.Identifier != "" {
-		return entry.Identifier
-	}
-
-	return uniprotID
-}
-
 // Main update entry point
 func (s *stringProcessor) update(selectedTaxids []int) {
 	defer s.d.wg.Done()
@@ -222,16 +186,22 @@ func (s *stringProcessor) buildAliasMap(taxid int) (map[string]string, map[strin
 		alias := fields[1]
 		source := fields[2]
 
-		// Store ALL UniProt_AC mappings in BOTH directions
-		// This ensures all UniProt accessions (canonical + secondary/isoforms) get STRING entries
+		// Store BEST UniProt_AC mapping only (canonical preferred)
+		// Secondary/alias accessions are resolved via UniProt's own text links
 		if source == "UniProt_AC" {
-			// Forward map: just store one UniProt AC per STRING ID
-			// The actual canonical resolution happens later via biobtree lookup
-			if _, hasExisting := forwardMap[stringID]; !hasExisting {
+			// Forward map: store the BEST UniProt AC per STRING ID (prefer canonical P > Q > O > others)
+			if existing, hasExisting := forwardMap[stringID]; !hasExisting {
 				forwardMap[stringID] = alias
+				reverseMap[alias] = stringID
+			} else {
+				// Keep the one with higher priority (lower number = better)
+				if uniprotPriority(alias) < uniprotPriority(existing) {
+					forwardMap[stringID] = alias
+					// Update reverse map: remove old, add new
+					delete(reverseMap, existing)
+					reverseMap[alias] = stringID
+				}
 			}
-			// Reverse map: ALL UniProt ACs → their STRING ID
-			reverseMap[alias] = stringID
 		}
 
 		if err == io.EOF {
@@ -422,10 +392,8 @@ func (s *stringProcessor) processInteractions(taxid int, forwardMap map[string]s
 			continue
 		}
 
-		// Resolve to canonical UniProt IDs using biobtree lookup
-		// This converts secondary/non-canonical accessions (A0A..., Q...) to primary (P...)
-		uniprot1 = s.resolveCanonicalUniprot(uniprot1)
-		uniprot2 = s.resolveCanonicalUniprot(uniprot2)
+		// Note: uniprot1/uniprot2 are already the best (canonical) IDs
+		// selected by uniprotPriority() during alias map building
 
 		// Create bidirectional interactions as separate string_interaction entries
 		// Store by STRING ID (not UniProt AC) so ALL UniProt ACs for same STRING ID get interactions

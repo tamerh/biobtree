@@ -12,7 +12,7 @@
     "hasFilter": "yes",
     "attrs": "[]genes,[]names,[]alternative_names,[]submitted_names,sequence.length,sequence.mass",
     "compact_fields": "",
-    "test_entries_count": "100000",
+    "test_entries_count": "1000",
     "bucketMethod": "uniprot",
     "childDatasets": "drugbank,ena"
   },
@@ -110,7 +110,7 @@
     "attrs": "protein_a,protein_b,uniprot_a,uniprot_b,score,has_experimental,has_database,has_textmining,has_coexpression",
     "compact_fields": "score,uniprot_b",
     "bucketMethod": "string",
-    "reverseXrefSort": "uniprot:interactionScore"
+    "xrefSort": "uniprot:interactionScore"
   },
   "pubchem": {
     "id": "6",
@@ -487,7 +487,7 @@
     "species2": "Homo_sapiens,Bos_taurus",
     "childDatasets": "bgee_evidence",
     "bucketMethod": "ensembl_hybrid",
-    "reverseXrefSort": "uberon:speciesPriority,expressionScore;cl:speciesPriority,expressionScore"
+    "xrefSort": "uberon:speciesPriority,expressionScore;cl:speciesPriority,expressionScore"
   },
   "bgee_evidence": {
     "id": "133",
@@ -498,7 +498,7 @@
     "attrs": "gene_id,anatomical_entity_id,anatomical_entity_name,expression,call_quality,fdr,expression_score,expression_rank,has_affymetrix,has_rna_seq,has_single_cell,has_est,has_in_situ",
     "bucketMethod": "ensembl_hybrid",
     "compact_fields": "anatomical_entity_name,expression,expression_score,call_quality,expression_rank",
-    "reverseXrefSort": "bgee:speciesPriority,expressionScore;uberon:speciesPriority,expressionScore;cl:speciesPriority,expressionScore"
+    "xrefSort": "bgee:speciesPriority,expressionScore;uberon:speciesPriority,expressionScore;cl:speciesPriority,expressionScore"
   },
   "rhea": {
     "id": "35",
@@ -547,7 +547,7 @@
     "attrs": "interaction_id,protein_a,protein_a_gene,protein_b,protein_b_gene,detection_method,interaction_type,confidence_score,pubmed_id,host_organism_name,method_reliability_score,detection_method_parsed,interaction_type_parsed,confidence_scores,[]features_a,[]features_b,[]parameters,[]interaction_xrefs",
     "test_entries_count": "100",
     "bucketMethod": "alphabetic",
-    "reverseXrefSort": "uniprot:speciesPriority,interactionScore"
+    "xrefSort": "uniprot:speciesPriority,interactionScore"
   },
   "protein_similarity": {
     "id": "39",
@@ -960,7 +960,7 @@
     "test_entries_count": "100",
     "compact_fields": "title,organism,cell_count",
     "bucketMethod": "alphabetic",
-    "reverseXrefSort": "cl:speciesPriority,cellCount;uberon:speciesPriority,cellCount;mondo:speciesPriority,cellCount;efo:speciesPriority,cellCount"
+    "xrefSort": "cl:speciesPriority,cellCount;uberon:speciesPriority,cellCount;mondo:speciesPriority,cellCount;efo:speciesPriority,cellCount"
   },
   "cellxgene_celltype": {
     "id": "110",
@@ -1016,7 +1016,7 @@
     "test_entries_count": "5000",
     "compact_fields": "experiment_id,is_marker_in_experiment,max_mean_expression",
     "bucketMethod": "alphabetic",
-    "reverseXrefSort": "cl:speciesPriority,expressionScore"
+    "xrefSort": "cl:speciesPriority,expressionScore"
   },
   "biogrid_interaction": {
     "id": "114",
@@ -1027,7 +1027,7 @@
     "attrs": "interaction_id,experimental_system,experimental_system_type,author,publication,throughput,score,modification,qualifications,tags,source_database,interactor_a_id,interactor_a_symbol,interactor_a_organism,interactor_b_id,interactor_b_symbol,interactor_b_organism",
     "compact_fields": "interactor_b_symbol,experimental_system",
     "bucketMethod": "numeric",
-    "reverseXrefSort": "uniprot:speciesPriority;entrez:speciesPriority"
+    "xrefSort": "uniprot:speciesPriority;entrez:speciesPriority"
   },
   "collectri": {
     "id": "115",
@@ -1055,7 +1055,7 @@
     "attrs": "entity_a,type_a,id_a,database_a,entity_b,type_b,id_b,database_b,effect,mechanism,residue,sequence,tax_id,cell_data,tissue_data,direct,score",
     "test_entries_count": "500",
     "bucketMethod": "signor",
-    "reverseXrefSort": "uniprot:speciesPriority,interactionScore;chebi:interactionScore"
+    "xrefSort": "uniprot:speciesPriority,interactionScore;chebi:interactionScore"
   },
   "corum": {
     "id": "117",
@@ -1173,7 +1173,7 @@
     "attrs": "mirna_id,species,target_count,avg_score,max_score,min_score,top_targets_schema,[]top_targets",
     "test_entries_count": "100",
     "bucketMethod": "alphabetic",
-    "reverseXrefSort": "refseq:speciesPriority,interactionScore"
+    "xrefSort": "refseq:speciesPriority,interactionScore"
   },
   "fantom5_promoter": {
     "id": "126",

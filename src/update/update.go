@@ -1531,6 +1531,10 @@ func (d *DataUpdate) addProp3(key, from string, attr []byte) {
 
 	line := kup + tab + from + tab + string(attr) + tab + textStoreID
 
+	// Add dummy sort values only for datasets with sorting configured
+	// This ensures entries have same field count as xrefs with sort levels
+	line += GetDummySortValues(datasetName)
+
 	// Route through bucket system (always available, auto-creates configs for all datasets)
 	// Target is "entry" for properties (dataset ID -1)
 	if !d.bucketPool.WriteForward(from, datasetName, kup, line, "entry") {
@@ -1775,6 +1779,12 @@ func (d *DataUpdate) addXrefFull(key string, from string, value string, valueFro
 			targetDatasetName = valueFrom // fallback to alias if not found
 		}
 
+		// Add dummy sort values if source dataset has sorting configured
+		// This ensures all forward and reverse xrefs have consistent field count
+		dummySortValues := GetDummySortValues(sourceDatasetName)
+		dataLine += dummySortValues
+		reverseDataLine += dummySortValues
+
 		// Route through bucket system (always available, auto-creates configs for all datasets)
 		// Forward xref → {source}/forward/bucket_*.txt
 		// Reverse xref → {target}/from_{source}/bucket_*.txt
@@ -1955,6 +1965,9 @@ func (d *DataUpdate) addXref2(key string, from string, value string, valueFrom s
 		targetDatasetName = valueFrom // fallback to alias if not found
 	}
 
+	// Add dummy sort values if source dataset has sorting configured
+	line += GetDummySortValues(sourceDatasetName)
+
 	// Route through bucket system (always available, auto-creates configs for all datasets)
 	// Link datasets only have forward xrefs (no reverse mapping)
 	// Try source dataset first, then target dataset as fallback
@@ -2015,6 +2028,9 @@ func (d *DataUpdate) addXref2Bucketed(key string, from string, value string, val
 		targetDatasetName = valueFrom // fallback to alias if not found
 	}
 
+	// Add dummy sort values if bucket dataset has sorting configured
+	line += GetDummySortValues(bucketDatasetName)
+
 	// Route through bucket pool using the specified bucket dataset
 	// This allows link datasets (taxchild, taxparent) to use parent dataset's buckets
 	d.bucketPool.WriteForward(bucketDatasetID, bucketDatasetName, kup, line, targetDatasetName)
@@ -2064,6 +2080,11 @@ func (d *DataUpdate) addXrefBucketed(key, from, value, valueFrom string, isLink 
 	if targetDatasetName == "" {
 		targetDatasetName = valueFrom // fallback to alias if not found
 	}
+
+	// Add dummy sort values if source dataset has sorting configured
+	dummySortValues := GetDummySortValues(sourceDatasetName)
+	forwardLine += dummySortValues
+	reverseLine += dummySortValues
 
 	// Route through source-tagged bucket directories
 	// Forward xref → {source}/forward/bucket_*.txt
@@ -2119,6 +2140,10 @@ func (d *DataUpdate) addProp3Bucketed(key, from string, attr []byte) {
 	}
 
 	line := kup + tab + from + tab + string(attr) + tab + textStoreID
+
+	// Add dummy sort values only for datasets with sorting configured
+	line += GetDummySortValues(datasetName)
+
 	d.bucketPool.WriteForward(from, datasetName, kup, line, "entry")
 }
 

@@ -4,6 +4,7 @@ import (
 	"biobtree/pbuf"
 	"bufio"
 	"log"
+	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -349,8 +350,9 @@ func (i *intact) parseAndSaveInteractions(testLimit int, idLogFile *os.File) {
 
 		// Extract confidence score for sorting (MIscore: 0.0-1.0)
 		// Convert to 0-1000 int range for SortLevelInteractionScore
+		// Use math.Round to avoid float truncation
 		confidenceScore := i.extractConfidenceScore(getField(row, colMap, "Confidence value(s)"))
-		confidenceScoreInt := int(confidenceScore * 1000)
+		confidenceScoreInt := int(math.Round(confidenceScore * 1000))
 
 		// Create cross-references based on interactor types
 		// interaction (IntAct) → UniProt proteins (with species priority + confidence score sorting)

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"math"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -315,7 +316,8 @@ func (m *mirdb) parseAndSavePredictions(testLimit int, idLogFile *os.File, sourc
 
 		for _, t := range targets {
 			// Scale score from 0-100 to 0-1000 for interactionScore
-			scoreInt := int(t.Score * 10)
+			// Use math.Round to avoid float32 precision truncation (98.6 → 985.999 → 985)
+			scoreInt := int(math.Round(float64(t.Score) * 10))
 			if scoreInt > 1000 {
 				scoreInt = 1000
 			}

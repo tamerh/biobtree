@@ -6,14 +6,84 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/jlaffaye/ftp"
 )
+
+// httpClient is a custom HTTP client with timeouts configured for large file downloads
+// Note: No overall Timeout set - that would limit body reading time for large files
+var httpClient = &http.Client{
+	Transport: &http.Transport{
+		DialContext: (&net.Dialer{
+			Timeout:   30 * time.Second, // Connection timeout
+			KeepAlive: 30 * time.Second,
+		}).DialContext,
+		TLSHandshakeTimeout:   30 * time.Second, // TLS handshake timeout (fixes bgee.org issue)
+		ResponseHeaderTimeout: 60 * time.Second, // Wait for response headers
+		ExpectContinueTimeout: 1 * time.Second,
+		MaxIdleConns:          10,
+		IdleConnTimeout:       90 * time.Second,
+	},
+}
+
+// httpGetWithRetry performs an HTTP GET request with retry logic for transient failures
+func httpGetWithRetry(url string, maxRetries int) (*http.Response, error) {
+	var lastErr error
+	for attempt := 0; attempt <= maxRetries; attempt++ {
+		if attempt > 0 {
+			// Exponential backoff: 5s, 10s, 20s, ...
+			backoff := time.Duration(5<<(attempt-1)) * time.Second
+			log.Printf("Retry %d/%d for %s after %v...", attempt, maxRetries, url, backoff)
+			time.Sleep(backoff)
+		}
+
+		resp, err := httpClient.Get(url)
+		if err != nil {
+			lastErr = err
+			// Check if it's a transient error worth retrying
+			if isTransientError(err) {
+				continue
+			}
+			return nil, err
+		}
+
+		if resp.StatusCode == http.StatusOK {
+			return resp, nil
+		}
+
+		// Close body for non-OK responses before retry
+		resp.Body.Close()
+
+		// Retry on server errors (5xx) or rate limiting (429)
+		if resp.StatusCode >= 500 || resp.StatusCode == 429 {
+			lastErr = fmt.Errorf("HTTP status %d", resp.StatusCode)
+			continue
+		}
+
+		// Non-retryable client error
+		return nil, fmt.Errorf("HTTP GET failed with status %d for %s", resp.StatusCode, url)
+	}
+	return nil, fmt.Errorf("failed after %d retries: %v", maxRetries, lastErr)
+}
+
+// isTransientError checks if an error is transient and worth retrying
+// Conservative list - only clear network transient failures
+func isTransientError(err error) bool {
+	if err == nil {
+		return false
+	}
+	errStr := err.Error()
+	return strings.Contains(errStr, "TLS handshake timeout") ||
+		strings.Contains(errStr, "connection reset by peer") ||
+		strings.Contains(errStr, "i/o timeout")
+}
 
 // Helper function to decompress .Z (Unix compress) format using external uncompress command
 func decompressZ(input io.Reader) (io.ReadCloser, error) {
@@ -111,13 +181,9 @@ func getDataReaderNew(datatype string, ftpAddr string, ftpPath string, filePath 
 
 	// Handle direct HTTPS URLs (e.g., STRING, HGNC, etc.)
 	if strings.HasPrefix(filePath, "https://") || strings.HasPrefix(filePath, "http://") {
-		resp, err := http.Get(filePath)
+		resp, err := httpGetWithRetry(filePath, 3)
 		if err != nil {
 			return nil, nil, nil, nil, nil, 0, fmt.Errorf("HTTP GET failed for %s: %v", filePath, err)
-		}
-		if resp.StatusCode != http.StatusOK {
-			resp.Body.Close()
-			return nil, nil, nil, nil, nil, 0, fmt.Errorf("HTTP GET failed with status %d for %s", resp.StatusCode, filePath)
 		}
 
 		fileSize = resp.ContentLength
@@ -152,8 +218,8 @@ func getDataReaderNew(datatype string, ftpAddr string, ftpPath string, filePath 
 	// Try HTTPS for EBI (FTP protocol has been disabled)
 	if strings.HasPrefix(ftpAddr, "ftp.ebi.ac.uk") {
 		httpsURL := "https://ftp.ebi.ac.uk" + ftpPath + filePath
-		resp, err := http.Get(httpsURL)
-		if err == nil && resp.StatusCode == http.StatusOK {
+		resp, err := httpGetWithRetry(httpsURL, 3)
+		if err == nil {
 			fileSize = resp.ContentLength
 
 			var br *bufio.Reader
@@ -241,39 +307,30 @@ func getDataReaderNew(datatype string, ftpAddr string, ftpPath string, filePath 
 
 		log.Printf("DEBUG Ensembl: FTP failed, trying HTTPS URL: %s\n", httpsURL)
 
-		resp, err := http.Get(httpsURL)
+		resp, err := httpGetWithRetry(httpsURL, 3)
 		if err != nil {
 			log.Printf("DEBUG Ensembl: HTTPS request failed: %v\n", err)
 			return nil, nil, nil, nil, nil, 0, err
 		}
 
-		log.Printf("DEBUG Ensembl: HTTPS status code: %d\n", resp.StatusCode)
+		log.Printf("DEBUG Ensembl: HTTPS succeeded\n")
 
-		if resp.StatusCode == http.StatusOK {
-			fileSize = resp.ContentLength
+		fileSize = resp.ContentLength
 
-			var br *bufio.Reader
-			var gz *gzip.Reader
+		var br *bufio.Reader
+		var gz *gzip.Reader
 
-			if filepath.Ext(filePath) == ".gz" {
-				gz, err = gzip.NewReader(resp.Body)
-				if err != nil {
-					resp.Body.Close()
-					return nil, nil, nil, nil, nil, 0, err
-				}
-				br = bufio.NewReaderSize(gz, fileBufSize)
-				return br, gz, nil, nil, nil, fileSize, nil
-			} else {
-				br = bufio.NewReaderSize(resp.Body, fileBufSize)
-				return br, nil, nil, nil, nil, fileSize, nil
+		if filepath.Ext(filePath) == ".gz" {
+			gz, err = gzip.NewReader(resp.Body)
+			if err != nil {
+				resp.Body.Close()
+				return nil, nil, nil, nil, nil, 0, err
 			}
+			br = bufio.NewReaderSize(gz, fileBufSize)
+			return br, gz, nil, nil, nil, fileSize, nil
 		}
-
-		// HTTPS also failed - return proper error
-		if resp.Body != nil {
-			resp.Body.Close()
-		}
-		return nil, nil, nil, nil, nil, 0, fmt.Errorf("HTTPS request failed with status %d for URL: %s", resp.StatusCode, httpsURL)
+		br = bufio.NewReaderSize(resp.Body, fileBufSize)
+		return br, nil, nil, nil, nil, fileSize, nil
 	}
 
 	// For other FTP servers (not Ensembl, not EBI)

@@ -584,6 +584,39 @@ func countLineFields(line string) int {
 	return strings.Count(line, "\t") + 1
 }
 
+// extractSortKey extracts the comparison key for k-way merge
+// For lines with sort levels, returns: field1 + sortLevelFields (to match Unix sort -k1,1 -k5,5 -k6,6)
+// baseFields is the number of non-sort fields (e.g., 4 for KEY,FROM,VALUE,VALUEFROMID)
+// Example: "KEY\tFROM\tVALUE\tVFID\t01\t0015" with baseFields=4 returns "KEY\t01\t0015"
+func extractSortKey(line string, baseFields int) string {
+	if baseFields <= 0 {
+		// No sort levels - just return first field (key)
+		if idx := strings.IndexByte(line, '\t'); idx >= 0 {
+			return line[:idx]
+		}
+		return line
+	}
+
+	// Find field positions
+	fields := strings.Split(strings.TrimSuffix(line, "\n"), "\t")
+	if len(fields) <= baseFields {
+		// No sort level fields, just return key
+		if len(fields) > 0 {
+			return fields[0]
+		}
+		return line
+	}
+
+	// Build sort key: field[0] + sort level fields (fields[baseFields:])
+	var sb strings.Builder
+	sb.WriteString(fields[0])
+	for i := baseFields; i < len(fields); i++ {
+		sb.WriteByte('\t')
+		sb.WriteString(fields[i])
+	}
+	return sb.String()
+}
+
 // SortAllBuckets sorts all bucket files in parallel
 // Uses BucketSortWorkers from config if numWorkers is 0
 // Skips datasets with SkipBucketSort=true in their config
@@ -615,15 +648,26 @@ func SortAllBuckets(pool *HybridWriterPool, numWorkers int) error {
 					sortFields:  writer.config.SortFields,
 				}
 
-				// Check if this is a reverse xref file (from_{source}/) with sort levels
-				sourceDataset := extractSourceFromPath(bucket.filePath)
-				if sourceDataset != "" {
-					sortLevels := GetReverseXrefSortLevels(sourceDataset, targetDataset)
-					if len(sortLevels) > 0 {
-						// Dynamic sort levels - will be computed at sort time
-						job.sortLevelCount = len(sortLevels)
-						// Clear static sortFields - will be computed dynamically
-						job.sortFields = ""
+				// Check if this file has sort levels (forward or reverse xrefs)
+				if strings.Contains(bucket.filePath, "/forward/") {
+					// Forward xref file - get sort level count from config
+					// Don't assume 4 base fields (evidence/relationship add more)
+					sortLevelCount := GetSortLevelCount(targetDataset)
+					if sortLevelCount > 0 {
+						job.sortLevelCount = sortLevelCount
+						job.sortFields = "" // Will be computed dynamically
+					}
+				} else {
+					// Check if this is a reverse xref file (from_{source}/) with sort levels
+					sourceDataset := extractSourceFromPath(bucket.filePath)
+					if sourceDataset != "" {
+						sortLevels := GetXrefSortLevels(sourceDataset, targetDataset)
+						if len(sortLevels) > 0 {
+							// Dynamic sort levels - will be computed at sort time
+							job.sortLevelCount = len(sortLevels)
+							// Clear static sortFields - will be computed dynamically
+							job.sortFields = ""
+						}
 					}
 				}
 
@@ -1232,13 +1276,22 @@ func concatenateSourceFiles(datasetName string, writer *DatasetBucketWriter, fil
 		// Just sort the file names for consistent k-way merge order
 		sort.Strings(bucketFiles)
 
-		// Check if this is a reverse xref source with sort levels
+		// Check if this source has sort levels (works for both forward and reverse)
 		// sourceName is either "forward" (dataset's own entries) or the source dataset name (reverse xrefs)
 		// e.g., for refseq/from_mirdb/, sourceName is "mirdb"
 		baseFields := 0 // 0 means no stripping
-		if sourceName != "forward" {
+		if sourceName == "forward" {
+			// Forward xrefs - get sort level count from config (don't assume 4 base fields)
+			sortLevelCount := GetSortLevelCount(datasetName)
+			if sortLevelCount > 0 && len(bucketFiles) > 0 {
+				totalFields, err := countFieldsInFile(bucketFiles[0])
+				if err == nil && totalFields > sortLevelCount {
+					baseFields = totalFields - sortLevelCount
+				}
+			}
+		} else {
 			// This is a reverse xref source - check if it has sort levels configured
-			sortLevels := GetReverseXrefSortLevels(sourceName, datasetName)
+			sortLevels := GetXrefSortLevels(sourceName, datasetName)
 			if len(sortLevels) > 0 {
 				// Peek at first bucket file to count fields
 				if len(bucketFiles) > 0 {
@@ -1276,21 +1329,26 @@ func concatenateSourceFiles(datasetName string, writer *DatasetBucketWriter, fil
 			}
 		}
 
-		// K-way merge with full line comparison for sort level ordering
+		// K-way merge with sort key comparison for sort level ordering
 		// When baseFields > 0, sort levels exist and we must:
-		// 1. Compare by full line (not just key) to maintain sort order across buckets
+		// 1. Compare by key + sort levels (to match Unix sort -k1,1 -k5,5 -k6,6)
 		// 2. Strip sort levels when writing output
 		for len(readers) > 0 {
 			// Find the reader with the minimum line
 			minIdx := 0
-			for i := 1; i < len(readers); i++ {
-				if baseFields > 0 {
-					// Compare by full line to maintain sort order across buckets
-					if readers[i].curLine < readers[minIdx].curLine {
+			if baseFields > 0 {
+				// Compare by key + sort levels - cache sortKeyMin to avoid recomputing
+				sortKeyMin := extractSortKey(readers[0].curLine, baseFields)
+				for i := 1; i < len(readers); i++ {
+					sortKeyI := extractSortKey(readers[i].curLine, baseFields)
+					if sortKeyI < sortKeyMin {
 						minIdx = i
+						sortKeyMin = sortKeyI // Reuse already computed value
 					}
-				} else {
-					// Compare by key only (no sort levels)
+				}
+			} else {
+				// Compare by key only (no sort levels)
+				for i := 1; i < len(readers); i++ {
 					if readers[i].curKey < readers[minIdx].curKey {
 						minIdx = i
 					}

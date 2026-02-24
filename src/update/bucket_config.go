@@ -46,11 +46,11 @@ var (
 	// Default: true - reduces disk usage significantly for large datasets
 	CompressBuckets = true
 
-	// ReverseXrefSortLevels stores sort level configurations for reverse xrefs
+	// XrefSortLevels stores sort level configurations for reverse xrefs
 	// Map: sourceDataset -> targetDataset -> []sortLevelTypes
 	// Example: {"bgee": {"uberon": ["speciesPriority", "expressionScore"]}}
 	// This determines how {target}/from_{source}/ bucket files are sorted
-	ReverseXrefSortLevels = make(map[string]map[string][]string)
+	XrefSortLevels = make(map[string]map[string][]string)
 )
 
 // LoadBucketSystemConfig loads bucket system configuration from Appconf
@@ -503,45 +503,45 @@ func LoadBucketConfigs() map[string]*BucketConfig {
 	log.Printf("Bucket config loaded: textsearch (ID:%s) method=alphabetic buckets=55 (derived-style) compress=%v sortFields=%s stripField=%d",
 		TextSearchDatasetID, CompressBuckets, "-k1,1 -k7,7", 7)
 
-	// Load reverseXrefSort configurations
+	// Load xrefSort configurations
 	// This specifies how reverse xrefs (target/from_source/) should be sorted
-	LoadReverseXrefSortConfigs()
+	LoadXrefSortConfigs()
 
 	return cfgs
 }
 
-// LoadReverseXrefSortConfigs loads sort level configurations for reverse xrefs
+// LoadXrefSortConfigs loads sort level configurations for reverse xrefs
 // Config format in source.dataset.json:
 //
 //	"bgee": {
-//	  "reverseXrefSort": {
+//	  "xrefSort": {
 //	    "uberon": ["speciesPriority", "expressionScore"],
 //	    "cl": ["speciesPriority", "expressionScore"]
 //	  }
 //	}
 //
 // This means: when sorting uberon/from_bgee/, use these sort levels
-func LoadReverseXrefSortConfigs() {
+func LoadXrefSortConfigs() {
 	for datasetName, props := range config.Dataconf {
 		// Skip aliases
 		if props["_alias"] == "true" {
 			continue
 		}
 
-		reverseXrefSortStr, ok := props["reverseXrefSort"]
-		if !ok || reverseXrefSortStr == "" {
+		xrefSortStr, ok := props["xrefSort"]
+		if !ok || xrefSortStr == "" {
 			continue
 		}
 
 		// Parse the JSON-like config: {"uberon": ["speciesPriority", "expressionScore"]}
 		// Format: target1:level1,level2;target2:level1,level2
 		// Example: uberon:speciesPriority,expressionScore;cl:speciesPriority,expressionScore
-		if ReverseXrefSortLevels[datasetName] == nil {
-			ReverseXrefSortLevels[datasetName] = make(map[string][]string)
+		if XrefSortLevels[datasetName] == nil {
+			XrefSortLevels[datasetName] = make(map[string][]string)
 		}
 
 		// Parse semicolon-separated target configs
-		targetConfigs := strings.Split(reverseXrefSortStr, ";")
+		targetConfigs := strings.Split(xrefSortStr, ";")
 		for _, targetConfig := range targetConfigs {
 			targetConfig = strings.TrimSpace(targetConfig)
 			if targetConfig == "" {
@@ -568,22 +568,63 @@ func LoadReverseXrefSortConfigs() {
 			}
 
 			if len(sortLevels) > 0 {
-				ReverseXrefSortLevels[datasetName][targetDataset] = sortLevels
+				XrefSortLevels[datasetName][targetDataset] = sortLevels
 				log.Printf("Reverse xref sort config: %s -> %s: %v", datasetName, targetDataset, sortLevels)
 			}
 		}
 	}
 }
 
-// GetReverseXrefSortLevels returns the sort levels for a source->target xref
+// GetXrefSortLevels returns the sort levels for a source->target xref
 // Returns nil if no sort levels are configured
-func GetReverseXrefSortLevels(sourceDataset, targetDataset string) []string {
-	if targets, ok := ReverseXrefSortLevels[sourceDataset]; ok {
+func GetXrefSortLevels(sourceDataset, targetDataset string) []string {
+	if targets, ok := XrefSortLevels[sourceDataset]; ok {
 		if levels, ok := targets[targetDataset]; ok {
 			return levels
 		}
 	}
 	return nil
+}
+
+// HasSortLevels returns true if the dataset has any sort levels configured
+// Used to determine if entry lines need dummy sort values
+func HasSortLevels(datasetName string) bool {
+	if targets, ok := XrefSortLevels[datasetName]; ok {
+		return len(targets) > 0
+	}
+	return false
+}
+
+// GetSortLevelCount returns the max sort level count for a dataset
+// Returns 0 if no sort levels are configured
+func GetSortLevelCount(datasetName string) int {
+	if targets, ok := XrefSortLevels[datasetName]; ok {
+		maxCount := 0
+		for _, levels := range targets {
+			if len(levels) > maxCount {
+				maxCount = len(levels)
+			}
+		}
+		return maxCount
+	}
+	return 0
+}
+
+// GetDummySortValues returns dummy sort level values for a dataset
+// These ensure entries/xrefs without real sort values have consistent field count
+// Returns empty string if no sorting configured
+// Dummy values use "0000" which sorts before all real values (both priority "01"+ and scores "0001"+)
+func GetDummySortValues(datasetName string) string {
+	count := GetSortLevelCount(datasetName)
+	if count == 0 {
+		return ""
+	}
+	// Build dummy values: "0000" for each level (sorts first for both priority and score types)
+	result := ""
+	for i := 0; i < count; i++ {
+		result += "\t0000"
+	}
+	return result
 }
 
 // LoadDerivedBucketConfigs auto-creates bucket configs for derived datasets

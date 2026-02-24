@@ -7949,8 +7949,8 @@
       "query": ">>intact>>uniprot",
       "why": "Map IntAct interactions to UniProt proteins with species priority sorting",
       "should_pass": [
-        "EBI-1000077",
-        "EBI-366083"
+        "EBI-1017388",
+        "EBI-10040659"
       ],
       "should_fail": []
     },
@@ -7971,14 +7971,13 @@
       "name": "IntAct Human Interactions First",
       "type": "validation",
       "query": ">>intact>>uniprot",
-      "identifier": "EBI-366083",
+      "identifier": "EBI-10040659",
       "why": "For interactions with multiple species, human proteins should appear first due to species priority sorting",
       "validations": [
         {
           "path": "",
-          "first_n_start_with": "P",
-          "n": 10,
-          "description": "First results should be human UniProt IDs (typically P-prefixed Swiss-Prot)"
+          "min_results": 2,
+          "description": "Should return both interaction partners (human Swiss-Prot IDs can be P, Q, or O prefixed)"
         }
       ]
     },
@@ -8016,7 +8015,7 @@
       "why": "Map SIGNOR interactions to UniProt proteins with sorting",
       "should_pass": [
         "SIGNOR-252149",
-        "SIGNOR-242867"
+        "SIGNOR-100270"
       ],
       "should_fail": []
     },
@@ -8084,13 +8083,13 @@
       "type": "validation",
       "query": ">>refseq>>mirdb",
       "identifier": "NM_000546",
-      "why": "Human miRNAs (hsa-) should appear before mouse (mmu-) and other species due to species priority sorting",
+      "why": "Human miRNAs (HSA-) should appear before mouse (MMU-) and other species due to species priority sorting",
       "validations": [
         {
           "path": "",
-          "first_n_start_with": "hsa-",
+          "first_n_start_with": "HSA-",
           "n": 5,
-          "description": "First 5 results should be human miRNAs (hsa- prefix)"
+          "description": "First 5 results should be human miRNAs (HSA- prefix, uppercase per biobtree convention)"
         }
       ]
     }

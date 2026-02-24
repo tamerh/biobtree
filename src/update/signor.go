@@ -4,6 +4,7 @@ import (
 	"biobtree/pbuf"
 	"bufio"
 	"log"
+	"math"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -329,7 +330,8 @@ func (s *signor) addDatabaseXref(database, id, entryID, sourceID string, taxID i
 
 	if useSorting {
 		// Convert score to int (0-1000 range, score is typically 0-1)
-		scoreInt := int(score * 1000)
+		// Use math.Round to avoid float truncation (e.g., 0.986 * 1000 = 985.999 → 985)
+		scoreInt := int(math.Round(score * 1000))
 		if scoreInt > 1000 {
 			scoreInt = 1000
 		}

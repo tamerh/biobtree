@@ -158,14 +158,15 @@ class BiobtreeClient:
 
         result = await self._request("/ws/", params)
 
-        # Add query URL at START of response (survives truncation)
-        url_params = {"i": terms}
-        if dataset:
-            url_params["s"] = dataset
-        query_url = self._build_query_url("/ws/", url_params)
+        # # Add query URL at START of response (survives truncation)
+        # url_params = {"i": terms}
+        # if dataset:
+        #     url_params["s"] = dataset
+        # query_url = self._build_query_url("/ws/", url_params)
 
-        # Return with query_url first (Python 3.7+ preserves dict order)
-        return {"query_url": query_url, **result}
+        # # Return with query_url first (Python 3.7+ preserves dict order)
+        # return {"query_url": query_url, **result}
+        return result
 
     async def map(
         self,
@@ -208,11 +209,12 @@ class BiobtreeClient:
 
         result = await self._request("/ws/map/", params)
 
-        # Add query URL at START of response (survives truncation)
-        query_url = self._build_query_url("/ws/map/", {"i": terms, "m": chain_stripped})
+        # # Add query URL at START of response (survives truncation)
+        # query_url = self._build_query_url("/ws/map/", {"i": terms, "m": chain_stripped})
 
-        # Return with query_url first (Python 3.7+ preserves dict order)
-        return {"query_url": query_url, **result}
+        # # Return with query_url first (Python 3.7+ preserves dict order)
+        # return {"query_url": query_url, **result}
+        return result
 
     async def entry(
         self,
@@ -236,11 +238,12 @@ class BiobtreeClient:
         if isinstance(result, list):
             result = {"results": result}
 
-        # Add query URL at START of response (survives truncation)
-        query_url = self._build_query_url("/ws/entry/", params)
+        # # Add query URL at START of response (survives truncation)
+        # query_url = self._build_query_url("/ws/entry/", params)
 
-        # Return with query_url first (Python 3.7+ preserves dict order)
-        return {"query_url": query_url, **result}
+        # # Return with query_url first (Python 3.7+ preserves dict order)
+        # return {"query_url": query_url, **result}
+        return result
 
     async def meta(self) -> dict:
         """

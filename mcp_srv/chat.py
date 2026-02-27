@@ -151,9 +151,16 @@ async def chat_endpoint(request: Request):
         }
     )
 
-    # Build messages
+    # Build messages with prompt caching for Anthropic models
+    # cache_control caches the system prompt + tool descriptions (~2,100 tokens)
+    # First request: full price, subsequent requests: 90% savings
+    # See docs/LLM_CACHING.md for details
     messages = [
-        {"role": "system", "content": system_prompt},
+        {
+            "role": "system",
+            "content": system_prompt,
+            "cache_control": {"type": "ephemeral"}
+        },
         {"role": "user", "content": question}
     ]
 
@@ -161,7 +168,13 @@ async def chat_endpoint(request: Request):
     tool_calls_log = []
     query_urls = []  # Collect all query URLs from tool results
     iterations = 0
-    total_tokens = {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}
+    total_tokens = {
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "total_tokens": 0,
+        "cache_read_input_tokens": 0,      # Tokens read from cache (cheap)
+        "cache_creation_input_tokens": 0   # Tokens written to cache (first request)
+    }
 
     # Get biobtree client for tool execution
     biobtree = await get_client()
@@ -182,11 +195,14 @@ async def chat_endpoint(request: Request):
 
             msg = response.choices[0].message
 
-            # Accumulate token usage
+            # Accumulate token usage including cache metrics
             if hasattr(response, 'usage') and response.usage:
                 total_tokens["prompt_tokens"] += getattr(response.usage, 'prompt_tokens', 0) or 0
                 total_tokens["completion_tokens"] += getattr(response.usage, 'completion_tokens', 0) or 0
                 total_tokens["total_tokens"] += getattr(response.usage, 'total_tokens', 0) or 0
+                # Cache metrics (Anthropic models via OpenRouter)
+                total_tokens["cache_read_input_tokens"] += getattr(response.usage, 'cache_read_input_tokens', 0) or 0
+                total_tokens["cache_creation_input_tokens"] += getattr(response.usage, 'cache_creation_input_tokens', 0) or 0
 
             # Check if model wants to call tools
             if msg.tool_calls and with_tools:

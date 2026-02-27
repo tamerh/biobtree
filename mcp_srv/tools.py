@@ -50,6 +50,9 @@ MCP_TOOLS = [
 # OpenAI/Chat Tool Definitions
 # =============================================================================
 
+# Tool definitions with prompt caching support for Anthropic models.
+# cache_control on the LAST tool caches ALL tool definitions (~2,100 tokens).
+# See docs/LLM_CACHING.md for details.
 CHAT_TOOLS = [
     {
         "type": "function",
@@ -81,7 +84,9 @@ CHAT_TOOLS = [
             "name": "biobtree_meta",
             "description": TOOL_DESCRIPTIONS["biobtree_meta"],
             "parameters": INPUT_SCHEMAS["biobtree_meta"]
-        }
+        },
+        # Cache control on last tool caches entire tools array
+        "cache_control": {"type": "ephemeral"}
     }
 ]
 

@@ -45,6 +45,42 @@ func uniprotPriority(acc string) int {
 	}
 }
 
+// resolveCanonicalUniprot looks up a UniProt ID and resolves it to the canonical/primary accession
+// For example: A0A... or secondary accessions -> P04637 (primary)
+// Returns the input if lookup fails or no better match found
+func (s *stringProcessor) resolveCanonicalUniprot(uniprotID string) string {
+	if s.d == nil || uniprotID == "" {
+		return uniprotID
+	}
+
+	// Already canonical (P + 5 chars)? No need to lookup
+	if uniprotPriority(uniprotID) == 1 {
+		return uniprotID
+	}
+
+	// Get UniProt dataset ID
+	uniprotConfig, ok := config.Dataconf["uniprot"]
+	if !ok {
+		return uniprotID
+	}
+	uniprotDatasetID, err := strconv.ParseUint(uniprotConfig["id"], 10, 32)
+	if err != nil {
+		return uniprotID
+	}
+
+	// Use lookupInDataset - it searches text link entries and returns the target identifier
+	entry, err := s.d.lookupInDataset(uniprotID, uint32(uniprotDatasetID))
+	if err != nil {
+		return uniprotID
+	}
+
+	if entry != nil && entry.Identifier != "" {
+		return entry.Identifier
+	}
+
+	return uniprotID
+}
+
 // Main update entry point
 func (s *stringProcessor) update(selectedTaxids []int) {
 	defer s.d.wg.Done()
@@ -210,6 +246,13 @@ func (s *stringProcessor) buildAliasMap(taxid int) (map[string]string, map[strin
 	}
 
 	fmt.Printf("DEBUG: Built forwardMap with %d STRING IDs, reverseMap with %d UniProt ACs\n", len(forwardMap), len(reverseMap))
+
+	// DEBUG: Check TP53 STRING ID
+	if up, ok := forwardMap["9606.ENSP00000269305"]; ok {
+		fmt.Printf("DEBUG: forwardMap[9606.ENSP00000269305] = %s\n", up)
+	} else {
+		fmt.Printf("DEBUG: 9606.ENSP00000269305 NOT IN forwardMap!\n")
+	}
 
 	// Return both maps
 	return forwardMap, reverseMap, nil
@@ -392,8 +435,10 @@ func (s *stringProcessor) processInteractions(taxid int, forwardMap map[string]s
 			continue
 		}
 
-		// Note: uniprot1/uniprot2 are already the best (canonical) IDs
-		// selected by uniprotPriority() during alias map building
+		// Resolve to canonical UniProt IDs using biobtree lookup
+		// This converts secondary/non-canonical accessions (A0A..., Q...) to primary (P...)
+		uniprot1 = s.resolveCanonicalUniprot(uniprot1)
+		uniprot2 = s.resolveCanonicalUniprot(uniprot2)
 
 		// Create bidirectional interactions as separate string_interaction entries
 		// Store by STRING ID (not UniProt AC) so ALL UniProt ACs for same STRING ID get interactions
@@ -445,6 +490,11 @@ func (s *stringProcessor) processInteractions(taxid int, forwardMap map[string]s
 			HasDatabase:     database > 0,
 			HasTextmining:   textmining > 0,
 			HasCoexpression: coexpression > 0,
+		}
+
+		// DEBUG: Print first TP53 interaction being stored
+		if protein2 == "9606.ENSP00000269305" && stringInteractionCounts[protein2] == 0 {
+			fmt.Printf("[DEBUG STORE] ID=%s UniprotA=%s UniprotB=%s\n", interactionID21, interaction21.UniprotA, interaction21.UniprotB)
 		}
 
 		// Marshal and store interaction entry

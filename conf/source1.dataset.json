@@ -97,6 +97,7 @@
     "hasFilter": "yes",
     "scoreThreshold": "0",
     "attrs": "string_id,organism_taxid,preferred_name,protein_size,annotation,interaction_count",
+    "compact_fields": "preferred_name,protein_size,interaction_count,annotation",
     "test_entries_count": "50",
     "bucketMethod": "string",
     "childDatasets":"string_interaction"
@@ -122,6 +123,7 @@
     "useLocalFile": "no",
     "hasFilter": "yes",
     "attrs": "cid,title,inchi_key,smiles,molecular_formula,molecular_weight,xlogp,hba,hbd,is_fda_approved,is_clinical_trial,is_natural_product,compound_type,[]synonyms,[]mesh_terms,[]pmids",
+    "compact_fields": "title,molecular_formula,is_fda_approved,compound_type,mesh_terms",
     "test_entries_count": "20",
     "pathDrugNames": "Extras/Drug-Names.tsv.gz",
     "pathXML": "CURRENT-Full/XML/",
@@ -165,6 +167,7 @@
     "useLocalFile": "no",
     "hasFilter": "yes",
     "attrs": "accession,type,status,symbol,description,[]synonyms,assembly,chromosome,start_position,end_position,orientation,genomic_accession,protein_accession,rna_accession,is_mane_select,is_mane_plus_clinical,ensembl_transcript,ensembl_protein,hgnc_id,ccds_id,uniprot_id,protein_length,molecular_weight,protein_name,taxid,organism,seq_length,mol_type,is_lrg,lrg_id,exon_count",
+    "compact_fields": "symbol,type,status,chromosome,is_mane_select",
     "test_entries_count": "100",
     "bucketMethod": "refseq"
   },
@@ -240,7 +243,7 @@
     "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=£{id}",
     "hasFilter": "yes",
     "attrs": "name,definition,[]synonyms,[]iupac_names,formula,average_mass,monoisotopic_mass,smiles,inchi,inchi_key,star_rating,status_id",
-    "compact_fields": "name,formula",
+    "compact_fields": "name,formula,star_rating",
     "test_entries_count": "100",
     "bucketMethod": "ontology"
   },
@@ -253,7 +256,7 @@
     "useLocalFile": "no",
     "hasFilter": "yes",
     "attrs": "[]names,short_name,type,protein_count",
-    "compact_fields": "short_name,type",
+    "compact_fields": "short_name,type,protein_count",
     "test_entries_count": "20",
     "bucketMethod": "interpro"
   },
@@ -276,6 +279,7 @@
     "useLocalFile": "yes",
     "hasFilter": "yes",
     "attrs": "name,desc,[]accessions,[]synonyms,[]diseases,formula,averageWeight,monisotopicWeight,iupacName,smiles,inchi,inchiKey,[]cellularLocations,[]biospecimens,[]tissueLocations,[]pathways,props.rotatableBondCount,props.physiologicalCharge,props.ruleOfFive,props.pkaStrongestAcidic,props.monoMass,props.ghose_filter,props.refractivity,props.formalCharge,props.bioavailability,props.solubility,props.pka_strongest_basic,props.polarSurfaceArea,props.veberRule,props.mddrLikeRule,props.logp,props.polarizability,props.donorCount,props.averageMass,props.acceptorCount,props.numberOfRings,props.logs,experimentalProps.boolingPoint,experimentalProps.meltingPoint,experimentalProps.logp,experimentalProps.waterSolubility",
+    "compact_fields": "name,formula,diseases,pathways,biospecimens,tissue_locations",
     "test_entries_count": "20",
     "bucketMethod": "hmdb"
   },
@@ -305,6 +309,7 @@
     "path": "raw_data/chembl/extracted/chembl_assays.jsonl",
     "useLocalFile": "no",
     "hasFilter": "yes",
+    "compact_fields": "desc,type",
     "attrs": "chembl.assay.desc,chembl.assay.type,chembl.assay.targetConfDesc,chembl.assay.targetRelType,chembl.assay.targetRelDesc,chembl.assay.targetConfScore,chembl.assay.subCellFrac,chembl.assay.testType,chembl.assay.strain,chembl.assay.cellType,chembl.assay.tissue,chembl.assay.tax,chembl.assay.category,chembl.assay.source,chembl.assay.sourceDesc,chembl.assay.bao",
     "test_entries_count": "20",
     "bucketMethod": "chembl"
@@ -316,6 +321,7 @@
     "path": "raw_data/chembl/extracted/chembl_activities.jsonl",
     "useLocalFile": "no",
     "hasFilter": "yes",
+    "compact_fields": "standard_type,standard_value,standard_units,pchembl",
     "attrs": "chembl.activity.type,chembl.activity.relation,chembl.activity.value,chembl.activity.units,chembl.activity.standardType,chembl.activity.standardRelation,chembl.activity.standardValue,chembl.activity.standardUnits,chembl.activity.dataValidityIssue,chembl.activity.dataValidityComment,chembl.activity.pChembl,chembl.activity.activityComment,chembl.activity.potentialDuplicate,chembl.activity.bao",
     "test_entries_count": "20",
     "bucketMethod": "chembl"
@@ -341,6 +347,7 @@
     "path": "raw_data/chembl/extracted/chembl_targets.jsonl",
     "useLocalFile": "no",
     "hasFilter": "yes",
+    "compact_fields": "title,type",
     "attrs": "chembl.target.title,chembl.target.isSpeciesGroup,chembl.target.type,chembl.target.[]subsetofs,chembl.target.[]equivalents,chembl.target.[]subsets,chembl.target.[]overlaps,chembl.target.bindingSite.name,chembl.target.bindingSite.mechanism.desc,chembl.target.bindingSite.mechanism.action,chembl.target.[]ptclassifications.className,chembl.target.[]ptclassifications.classLevel,chembl.target.[]ptclassifications.classPath,chembl.target.[]components.type,chembl.target.[]components.acc,chembl.target.mechanism.desc,chembl.target.mechanism.action,chembl.target.tax",
     "test_entries_count": "20",
     "bucketMethod": "chembl"
@@ -353,6 +360,7 @@
     "useLocalFile": "no",
     "hasFilter": "yes",
     "attrs": "chembl.cellLine.desc,chembl.cellLine.cellosaurusId,chembl.cellLine.efo,chembl.cellLine.clo,chembl.cellLine.tax,chembl.cellLine.[]cellxref",
+    "compact_fields": "desc,cellosaurus_id,efo,clo,tax",
     "test_entries_count": "20",
     "bucketMethod": "chembl"
   },
@@ -366,6 +374,7 @@
     "useLocalFile": "yes",
     "hasFilter": "yes",
     "attrs": "title,country,publication_date,family_id,[]cpc,[]ipcr,[]ipc,[]ecla,[]asignee",
+    "compact_fields": "title,country,publication_date",
     "test_entries_count": "50",
     "bucketMethod": "patent_us,patent_ep,patent_wo,patent_other"
   },
@@ -379,6 +388,7 @@
     "useLocalFile": "yes",
     "hasFilter": "yes",
     "attrs": "brief_title,overall_status,phase,study_type,[]interventions",
+    "compact_fields": "brief_title,overall_status,phase,study_type",
     "test_entries_count": "20",
     "bucketMethod": "nct"
   },
@@ -399,7 +409,7 @@
     "useLocalFile": "no",
     "hasFilter": "yes",
     "attrs": "name,tax_id,alt_names,is_disease_pathway",
-    "compact_fields": "name",
+    "compact_fields": "name,tax_id,is_disease_pathway",
     "test_entries_count": "50",
     "bucketMethod": "reactome"
   },
@@ -413,6 +423,7 @@
     "useLocalFile": "no",
     "hasFilter": "yes",
     "attrs": "global_metric,fraction_plddt_very_high,fraction_plddt_confident,fraction_plddt_low,fraction_plddt_very_low,model_entity_id,gene,max_pae,mean_pae,fraction_pae_confident,version,fragment_number,sequence_length",
+    "compact_fields": "gene,global_metric,sequence_length,fraction_plddt_very_high",
     "test_entries_count": "20",
     "bucketMethod": "alphabetic"
   },
@@ -426,6 +437,7 @@
     "useLocalFile": "no",
     "hasFilter": "yes",
     "attrs": "rna_type,description,length,organism_count,[]databases,is_active,md5",
+    "compact_fields": "rna_type,length,organism_count",
     "test_entries_count": "100",
     "bucketMethod": "rnacentral"
   },
@@ -440,7 +452,7 @@
     "useLocalFile": "no",
     "hasFilter": "yes",
     "attrs": "variation_id,allele_id,name,type,chromosome,start,stop,reference_allele,alternate_allele,assembly,germline_classification,review_status,last_evaluated,number_submitters,gene_id,gene_symbol,hgnc_id,[]phenotype_list,[]phenotype_ids,[]hgvs_expressions,[]submissions,[]functional_consequences,evidence_support",
-    "compact_fields": "name,type,germline_classification",
+    "compact_fields": "name,type,germline_classification,gene_symbol,review_status,chromosome",
     "test_entries_count": "10000",
     "bucketMethod": "numeric"
   },
@@ -453,6 +465,7 @@
     "useLocalFile": "no",
     "hasFilter": "yes",
     "attrs": "name,systematic_name,[]synonyms,abbreviation,category,main_class,sub_class,class_level4,exact_mass,formula,inchi,inchi_key,smiles",
+    "compact_fields": "name,category,main_class,formula",
     "test_entries_count": "100",
     "bucketMethod": "lipidmaps"
   },
@@ -466,6 +479,7 @@
     "path": "raw_data/swisslipids/lipids.tsv.gz",
     "hasFilter": "yes",
     "attrs": "name,abbreviation,[]synonyms,category,main_class,sub_class,level,smiles,inchi,inchi_key,formula,mass,charge",
+    "compact_fields": "name,category,main_class,formula",
     "test_entries_count": "100",
     "bucketMethod": "ontology"
   },
@@ -478,6 +492,7 @@
     "useLocalFile": "no",
     "hasFilter": "yes",
     "attrs": "gene_id,gene_name,species,species_taxid,total_present_calls,total_absent_calls,total_conditions,[]top_expressed_tissues,expression_breadth,max_expression_score,average_expression_score,gold_quality_count,conditions_schema,[]top_conditions",
+    "compact_fields": "gene_name,species,expression_breadth,total_present_calls,max_expression_score",
     "test_entries_count": "100",
     "file_format": "advanced",
     "include_all_conditions": "no",
@@ -509,6 +524,7 @@
     "useLocalFile": "no",
     "hasFilter": "yes",
     "attrs": "equation,direction,status,is_transport,[]chebi_participants,[]ec_numbers,[]go_terms,uniprot_count,reaction_smiles,[]parent_reactions,[]child_reactions",
+    "compact_fields": "equation,direction,status,uniprot_count",
     "test_entries_count": "100",
     "bucketMethod": "rhea"
   },
@@ -521,6 +537,7 @@
     "useLocalFile": "no",
     "hasFilter": "yes",
     "attrs": "study_accession,pubmed_id,first_author,publication_date,journal,study,disease_trait,initial_sample_size,replication_sample_size,platform,association_count,[]mapped_traits,[]mapped_trait_uris,cohort,summary_stats,gxe",
+    "compact_fields": "disease_trait,first_author,journal,publication_date",
     "test_entries_count": "100",
     "bucketMethod": "gcst"
   },
@@ -533,6 +550,7 @@
     "useLocalFile": "no",
     "hasFilter": "yes",
     "attrs": "snp_id,study_accession,strongest_snp_risk_allele,chr_id,chr_pos,region,context,intergenic,[]reported_genes,mapped_gene,upstream_gene_id,downstream_gene_id,[]snp_gene_ids,disease_trait,[]mapped_traits,[]efo_traits,p_value,pvalue_mlog,or_beta,ci_95,risk_allele_frequency,pubmed_id,first_author,date,platform",
+    "compact_fields": "disease_trait,mapped_gene,chr_id,p_value",
     "test_entries_count": "100",
     "bucketMethod": "gwas"
   },
@@ -545,6 +563,7 @@
     "url": "https://www.ebi.ac.uk/intact/interaction/£{id}",
     "hasFilter": "yes",
     "attrs": "interaction_id,protein_a,protein_a_gene,protein_b,protein_b_gene,detection_method,interaction_type,confidence_score,pubmed_id,host_organism_name,method_reliability_score,detection_method_parsed,interaction_type_parsed,confidence_scores,[]features_a,[]features_b,[]parameters,[]interaction_xrefs",
+    "compact_fields": "protein_a_gene,protein_b_gene,interaction_type,confidence_score",
     "test_entries_count": "100",
     "bucketMethod": "alphabetic",
     "xrefSort": "uniprot:speciesPriority,interactionScore"
@@ -558,6 +577,7 @@
     "useLocalFile": "yes",
     "hasFilter": "yes",
     "attrs": "protein_id,[]similarities,similarity_count,top_identity,top_bitscore",
+    "compact_fields": "similarity_count,top_identity,top_bitscore",
     "test_entries_count": "100",
     "bucketMethod": "uniprot"
   },
@@ -570,6 +590,7 @@
     "useLocalFile": "yes",
     "hasFilter": "yes",
     "attrs": "protein_id,[]similarities,similarity_count,top_similarity,avg_similarity",
+    "compact_fields": "similarity_count,top_similarity,avg_similarity",
     "test_entries_count": "100",
     "bucketMethod": "uniprot"
   },
@@ -583,6 +604,7 @@
     "useLocalFile": "yes",
     "hasFilter": "yes",
     "attrs": "source,antibody_type,inn_name,pdb_id,gene_name,sequence_id,format,isotype,light_chain,clinical_stage,status,[]heavy_chain_seq,[]light_chain_seq,[]targets,[]indications,[]pdb_ids,resolution,method,organism,functionality,allele",
+    "compact_fields": "format,isotype,clinical_stage,status,targets",
     "test_entries_count": "50",
     "therasabdab_path":"raw_data/antibody/TheraSAbDab_SeqStruc_OnlineDownload.csv",
     "therasabdab_path2": "https://opig.stats.ox.ac.uk/webapps/sabdab-sabpred/static/downloads/TheraSAbDab_SeqStruc_OnlineDownload.csv",
@@ -604,6 +626,7 @@
     "useLocalFile": "no",
     "hasFilter": "no",
     "attrs": "activity_id,cid,aid,activity_outcome,activity_type,qualifier,value,unit,protein_accession,gene_id,target_taxid,pmid",
+    "compact_fields": "activity_outcome,activity_type,value,unit",
     "test_entries_count": "5000",
     "pathBioactivities": "bioactivities.tsv.gz",
     "bucketMethod": "pubchem_activity"
@@ -618,6 +641,7 @@
     "useLocalFile": "no",
     "hasFilter": "no",
     "attrs": "aid,name,source_name,source_id,substance_type,outcome_type,project_category,bioassay_group,bioassay_types,protein_accessions,uniprot_ids,gene_ids,target_taxids,test_organism_taxids,tested_sids,active_sids,tested_cids,active_cids,hit_rate,deposit_date,modify_date",
+    "compact_fields": "name,source_name,substance_type,outcome_type,tested_sids,active_sids,hit_rate",
     "test_entries_count": "5000",
     "pathBioassays": "bioassays.tsv.gz",
     "bucketMethod": "numeric"
@@ -635,6 +659,7 @@
     "useLocalFile": "no",
     "hasFilter": "yes",
     "attrs": "descriptor_ui,descriptor_name,descriptor_class,[]entry_terms,[]tree_numbers,scope_note,[]allowable_qualifiers,[]pharmacological_actions,is_supplementary,registry_number,heading_mapped_to,date_created,date_established,date_revised",
+    "compact_fields": "descriptor_name,descriptor_class,tree_numbers,is_supplementary,registry_number,pharmacological_actions",
     "test_entries_count": "100",
     "bucketMethod": "mesh"
   },
@@ -649,7 +674,8 @@
     "plantsUrl": "http://plants.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
     "protistsUrl": "http://protists.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
     "hasFilter": "yes",
-    "attrs": "start,end,strand,seq_region"
+    "attrs": "start,end,strand,seq_region",
+    "compact_fields": "start,end,strand,seq_region"
   },
   "cds": {
     "aliases": "eprotein",
@@ -658,7 +684,8 @@
     "path": "derived:ensembl",
     "url": "https://www.ensembl.org/Multi/Search/Results?q=£{id};site=ensembl_all",
     "hasFilter": "yes",
-    "attrs": "start,end,strand,seq_region,frame"
+    "attrs": "start,end,strand,seq_region,frame",
+    "compact_fields": "start,end,strand,seq_region,frame"
   },
   "ortholog": {
     "name": "Ortholog",
@@ -688,14 +715,16 @@
     "plantsUrl": "http://plants.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
     "protistsUrl": "http://protists.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
     "hasFilter": "yes",
-    "attrs": "name,start,end,biotype,strand,seq_region,utr5Start,utr5End,utr3Start,utr3End,source"
+    "attrs": "name,start,end,biotype,strand,seq_region,utr5Start,utr5End,utr3Start,utr3End,source",
+    "compact_fields": "biotype,start,end,strand,seq_region,utr5Start,utr5End,utr3Start,utr3End"
   },
   "ufeature": {
     "name": "Protein Feature",
     "id": "48",
     "url": "//www.uniprot.org/uniprot/£{id}",
     "hasFilter": "yes",
-    "attrs": "type,description,id,original,variation,location.begin,location.end,[]evidences.type,[]evidences.source,[]evidences.id"
+    "attrs": "type,description,id,original,variation,location.begin,location.end,[]evidences.type,[]evidences.source,[]evidences.id",
+    "compact_fields": "type,description,location_begin,location_end"
   },
   "taxchild": {
     "name": "Tax Childs",
@@ -781,6 +810,7 @@
     "useLocalFile": "no",
     "hasFilter": "yes",
     "attrs": "uuid,gene_curie,gene_symbol,disease_curie,disease_title,classification_curie,classification_title,moi_curie,moi_title,submitter_curie,submitter_title,submitted_as_date,submitted_as_public_report_url,[]submitted_as_pmids",
+    "compact_fields": "gene_symbol,disease_title,classification_title,moi_title,submitter_title",
     "test_entries_count": "100",
     "bucketMethod": "alphabetic"
   },
@@ -794,6 +824,7 @@
     "useLocalFile": "no",
     "hasFilter": "yes",
     "attrs": "bindingdb_id,ligand_name,target_name,target_source_organism,ki,ic50,kd,ec50,kon,koff,ph,temp_c,[]uniprot_ids,[]pubchem_cids,[]chembl_ids,[]chebi_ids,doi,pmid,patent_number,institution",
+    "compact_fields": "ligand_name,target_name,target_source_organism,ki,ic50,kd,ec50",
     "test_entries_count": "1000",
     "bucketMethod": "numeric"
   },
@@ -811,6 +842,7 @@
     "useLocalFile": "no",
     "hasFilter": "yes",
     "attrs": "chemical_id,chemical_name,cas_rn,definition,[]synonyms,[]mesh_tree_numbers,pubchem_cid,inchi_key,gene_interaction_count,disease_association_count,[]inferred_genes",
+    "compact_fields": "chemical_name,cas_rn,pubchem_cid,gene_interaction_count,disease_association_count",
     "test_entries_count": "500",
     "bucketMethod": "mesh",
     "childDatasets": "ctd_gene_interaction,ctd_disease_association"
@@ -863,6 +895,7 @@
     "useLocalFile": "yes",
     "hasFilter": "yes",
     "attrs": "systematic_name,standard_name,collection,description,[]gene_symbols,gene_count,pmid,source_species,external_url,[]go_terms,[]hpo_terms",
+    "compact_fields": "standard_name,collection,description,gene_count",
     "test_entries_count": "500",
     "bucketMethod": "msigdb"
   },
@@ -876,6 +909,7 @@
     "useLocalFile": "no",
     "hasFilter": "yes",
     "attrs": "chromosome,position,ref_allele,alt_allele,uniprot_id,transcript_ids,protein_variant,am_pathogenicity,am_class,gene_symbol",
+    "compact_fields": "gene_symbol,protein_variant,am_pathogenicity,am_class",
     "test_entries_count": "10000",
     "bucketMethod": "alphanum"
   },
@@ -888,6 +922,7 @@
     "useLocalFile": "no",
     "hasFilter": "yes",
     "attrs": "transcript_id,mean_am_pathogenicity",
+    "compact_fields": "mean_am_pathogenicity",
     "test_entries_count": "50000",
     "bucketMethod": "ensembl_hybrid"
   },
@@ -912,6 +947,7 @@
     "useLocalFile": "yes",
     "hasFilter": "yes",
     "attrs": "pharmgkb_id,name,type,[]generic_names,[]trade_names,smiles,inchi_key,[]rxnorm_ids,[]atc_codes,[]pubchem_cids,clinical_annotation_count,variant_annotation_count,pathway_count,top_clinical_level,top_fda_label_level,has_dosing_guideline,[]dosing_guideline_sources",
+    "compact_fields": "name,type,clinical_annotation_count,variant_annotation_count,pathway_count",
     "bucketMethod": "ontology"
   },
   "pharmgkb_gene": {
@@ -924,6 +960,7 @@
     "useLocalFile": "yes",
     "hasFilter": "yes",
     "attrs": "pharmgkb_id,symbol,name,[]alternate_symbols,is_vip,has_variant_annotation,has_cpic_guideline,chromosome,start_grch38,end_grch38",
+    "compact_fields": "symbol,name,is_vip,has_cpic_guideline,chromosome",
     "bucketMethod": "ontology"
   },
   "pharmgkb_clinical": {
@@ -936,6 +973,7 @@
     "useLocalFile": "yes",
     "hasFilter": "yes",
     "attrs": "variant,gene,type,level_of_evidence,[]chemicals,[]phenotypes",
+    "compact_fields": "variant,gene,type,level_of_evidence,chemicals,phenotypes",
     "bucketMethod": "alphabetic"
   },
   "pharmgkb_variant": {
@@ -948,6 +986,7 @@
     "useLocalFile": "yes",
     "hasFilter": "yes",
     "attrs": "variant_id,variant_name,[]gene_symbols,location,variant_annotation_count,clinical_annotation_count,guideline_annotation_count,label_annotation_count,[]synonyms,level_of_evidence,score,[]phenotype_categories,[]associated_drugs,[]associated_phenotypes,pmid_count",
+    "compact_fields": "variant_name,gene_symbols,level_of_evidence,score,clinical_annotation_count,associated_drugs",
     "bucketMethod": "ontology"
   },
   "pharmgkb_guideline": {
@@ -960,6 +999,7 @@
     "useLocalFile": "yes",
     "hasFilter": "yes",
     "attrs": "guideline_id,name,source,[]gene_symbols,[]chemical_names,has_dosing_info,has_testing_info,has_recommendation,alternate_drug_available,is_pediatric,summary",
+    "compact_fields": "name,source,gene_symbols,chemical_names,has_dosing_info,has_recommendation",
     "bucketMethod": "ontology"
   },
   "pharmgkb_pathway": {
@@ -972,6 +1012,7 @@
     "useLocalFile": "yes",
     "hasFilter": "yes",
     "attrs": "pathway_id,name,is_pharmacokinetic,is_pharmacodynamic,[]gene_symbols,[]chemical_names,[]disease_names,summary",
+    "compact_fields": "name,is_pharmacokinetic,is_pharmacodynamic,gene_symbols,chemical_names",
     "bucketMethod": "ontology"
   },
   "cellxgene": {
@@ -1064,6 +1105,7 @@
     "useLocalFile": "no",
     "hasFilter": "yes",
     "attrs": "tf_gene,target_gene,[]sources,[]pmids,regulation,confidence",
+    "compact_fields": "tf_gene,target_gene,regulation,confidence",
     "test_entries_count": "100",
     "bucketMethod": "alphabetic"
   },
@@ -1079,6 +1121,7 @@
     "useLocalFile": "yes",
     "hasFilter": "yes",
     "attrs": "entity_a,type_a,id_a,database_a,entity_b,type_b,id_b,database_b,effect,mechanism,residue,sequence,tax_id,cell_data,tissue_data,direct,score",
+    "compact_fields": "entity_a,entity_b,effect,mechanism,direct,score",
     "test_entries_count": "500",
     "bucketMethod": "signor",
     "xrefSort": "uniprot:speciesPriority,interactionScore;chebi:interactionScore"
@@ -1092,6 +1135,7 @@
     "useLocalFile": "yes",
     "hasFilter": "yes",
     "attrs": "name,[]synonyms,organism,cell_line,comment,comment_disease,comment_drug,[]subunit_genes,subunit_count,[]purification_methods,pmid,has_drug_targets,has_splice_variants",
+    "compact_fields": "name,organism,subunit_count,subunit_genes,has_drug_targets",
     "test_entries_count": "100",
     "bucketMethod": "numeric"
   },
@@ -1104,6 +1148,7 @@
     "useLocalFile": "yes",
     "hasFilter": "yes",
     "attrs": "recommended_name,systematic_name,[]synonyms,[]reactions,[]cofactors,[]organisms,organism_count,substrate_count,inhibitor_count,km_count,kcat_count,reference_count,[]reaction_types",
+    "compact_fields": "recommended_name,organism_count,substrate_count,inhibitor_count,km_count,kcat_count",
     "test_entries_count": "100",
     "bucketMethod": "numeric",
     "childDatasets": "brenda_kinetics,brenda_inhibitor"
@@ -1117,6 +1162,7 @@
     "useLocalFile": "yes",
     "hasFilter": "yes",
     "attrs": "ec_number,substrate,substrate_type,[]km_values,[]kcat_values,[]ki_values,km_count,kcat_count,ki_count,min_km,max_km,min_kcat,max_kcat",
+    "compact_fields": "substrate_type,km_count,kcat_count,min_km,max_km",
     "test_entries_count": "500",
     "bucketMethod": "alphabetic"
   },
@@ -1129,6 +1175,7 @@
     "useLocalFile": "yes",
     "hasFilter": "yes",
     "attrs": "ec_number,inhibitor,[]ki_values,[]ic50_values,[]inhibition_data,ki_count,ic50_count,inhibition_count,min_ki,max_ki,min_ic50,max_ic50",
+    "compact_fields": "ki_count,ic50_count,min_ki,max_ki,min_ic50,max_ic50",
     "test_entries_count": "500",
     "bucketMethod": "alphabetic"
   },
@@ -1141,6 +1188,7 @@
     "useLocalFile": "yes",
     "hasFilter": "yes",
     "attrs": "partner_a,partner_b,directionality,classification,source,[]genes_a,[]genes_b,receptor_a,receptor_b,secreted_a,secreted_b,is_integrin,is_complex_a,is_complex_b",
+    "compact_fields": "partner_a,partner_b,directionality,classification,genes_a,genes_b",
     "test_entries_count": "100",
     "bucketMethod": "alphabetic"
   },
@@ -1155,7 +1203,7 @@
     "useLocalFile": "no",
     "hasFilter": "yes",
     "attrs": "title,header,resolution,method,molecule_type,release_date,source_organism,[]authors,chain_count",
-    "compact_fields": "title,method,resolution",
+    "compact_fields": "title,method,resolution,source_organism,chain_count,header",
     "test_entries_count": "500",
     "bucketMethod": "alphanum"
   },
@@ -1171,7 +1219,7 @@
     "useLocalFile": "no",
     "hasFilter": "yes",
     "attrs": "name,[]synonyms,definition,disorder_type,[]phenotypes",
-    "compact_fields": "name,disorder_type",
+    "compact_fields": "name,disorder_type,gene_count,phenotype_count",
     "test_entries_count": "100",
     "bucketMethod": "numeric"
   },
@@ -1184,6 +1232,7 @@
     "useLocalFile": "yes",
     "hasFilter": "yes",
     "attrs": "chromosome,position,ref_allele,alt_allele,effect,score,gene_symbol,allele_info",
+    "compact_fields": "gene_symbol,effect,score",
     "test_entries_count": "10000",
     "bucketMethod": "alphanum",
     "geneGFF3": "https://ftp.ensembl.org/pub/current_gff3/homo_sapiens/Homo_sapiens.GRCh38.115.chr.gff3.gz"
@@ -1197,6 +1246,7 @@
     "useLocalFile": "no",
     "hasFilter": "yes",
     "attrs": "mirna_id,species,target_count,avg_score,max_score,min_score,top_targets_schema,[]top_targets",
+    "compact_fields": "species,target_count,avg_score,max_score",
     "test_entries_count": "100",
     "bucketMethod": "alphabetic",
     "xrefSort": "refseq:speciesPriority,interactionScore"
@@ -1217,6 +1267,7 @@
     "useLocalFile": "no",
     "hasFilter": "yes",
     "attrs": "fantom5_peak_id,fantom5_peak_name,chromosome,start,end,strand,gene_symbol,gene_id,entrez_id,uniprot_id,hgnc_id,tpm_average,tpm_max,samples_expressed,expression_breadth,[]top_tissues,[]top_cell_types",
+    "compact_fields": "gene_symbol,chromosome,strand,tpm_average,samples_expressed",
     "test_entries_count": "1000",
     "bucketMethod": "numeric"
   },
@@ -1234,6 +1285,7 @@
     "useLocalFile": "no",
     "hasFilter": "yes",
     "attrs": "fantom5_enhancer_id,chromosome,start,end,tpm_average,tpm_max,samples_expressed,[]associated_genes,[]top_tissues",
+    "compact_fields": "chromosome,tpm_average,samples_expressed,associated_genes",
     "test_entries_count": "500",
     "bucketMethod": "numeric"
   },
@@ -1248,6 +1300,7 @@
     "useLocalFile": "no",
     "hasFilter": "yes",
     "attrs": "gene_id,gene_symbol,entrez_id,tpm_average,tpm_max,samples_expressed,expression_breadth,[]top_tissues",
+    "compact_fields": "gene_symbol,tpm_average,tpm_max,samples_expressed,expression_breadth",
     "test_entries_count": "500",
     "bucketMethod": "numeric"
   },
@@ -1261,6 +1314,7 @@
     "useLocalFile": "no",
     "hasFilter": "yes",
     "attrs": "matrix_id,name,collection,class,family,tax_group,type,species,version",
+    "compact_fields": "name,collection,class,family,species",
     "test_entries_count": "200",
     "bucketMethod": "alphabetic"
   },
@@ -1273,6 +1327,7 @@
     "useLocalFile": "no",
     "hasFilter": "yes",
     "attrs": "ccre_id,ccre_class,chromosome,start,end",
+    "compact_fields": "ccre_class,chromosome",
     "test_entries_count": "1000",
     "bucketMethod": "alphanum"
   }

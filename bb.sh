@@ -752,7 +752,7 @@ run_tests() {
         extra_args="--mcp"
     fi
 
-    python3 "$test_script" --server "$server_url" --no-report $extra_args
+    python3 "$test_script" --server "$server_url" $extra_args
     local exit_code=$?
 
     if [[ $exit_code -eq 0 ]]; then

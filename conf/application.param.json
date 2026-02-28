@@ -23,7 +23,7 @@
 	"progressInterval": "5",
 	"maxMappingResult": "75",
 	"maxSearchResult": "50",
-	"maxMappingResultLite": "150",
+	"maxMappingResultLite": "100",
 	"maxSearchResultLite": "50",
 	"mapFilterTimeoutDuration": "300",
 	"cacheMaxEntrySize": "25000",

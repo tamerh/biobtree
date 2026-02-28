@@ -20,3 +20,5 @@ tests/datasets/dbsnp/GCF_000001405.40.gz
 tests/datasets/hmdb/hmdb_metabolites.zip
 raw_data/
 new_lookup/
+.claude/
+.gemini/

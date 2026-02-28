@@ -787,6 +787,7 @@
   "bindingdb": {
     "id": "60",
     "name": "BindingDB",
+    "textPriority": "70",
     "path": "https://www.bindingdb.org/rwd/bind/downloads/BindingDB_All_202512_tsv.zip",
     "aliases": "BindingDB",
     "url": "https://www.bindingdb.org/bind/chemsearch/marvin/MolStructure.jsp?monession=£{id}",
@@ -800,7 +801,7 @@
     "id": "61",
     "name": "CTD",
     "textPriority": "90",
-    "aliases": "CTD,Comparative Toxicogenomics Database,toxicogenomics,chemical-gene interaction,chemical-disease,gene-disease",
+    "aliases": "CTD,Comparative Toxicogenomics Database,toxicogenomics",
     "url": "https://ctdbase.org/detail.go?type=chem&acc=£{id}",
     "path": "https://ctdbase.org/reports/",
     "chemGeneIxnsFile": "CTD_chem_gene_ixns.tsv.gz",
@@ -809,9 +810,34 @@
     "geneDiseasesFile": "CTD_genes_diseases.tsv.gz",
     "useLocalFile": "no",
     "hasFilter": "yes",
-    "attrs": "chemical_id,chemical_name,cas_rn,definition,[]synonyms,[]mesh_tree_numbers,[]gene_interactions,gene_interaction_count,[]disease_associations,disease_association_count,[]inferred_genes",
+    "attrs": "chemical_id,chemical_name,cas_rn,definition,[]synonyms,[]mesh_tree_numbers,pubchem_cid,inchi_key,gene_interaction_count,disease_association_count,[]inferred_genes",
     "test_entries_count": "500",
-    "bucketMethod": "mesh"
+    "bucketMethod": "mesh",
+    "childDatasets": "ctd_gene_interaction,ctd_disease_association"
+  },
+  "ctd_gene_interaction": {
+    "id": "134",
+    "name": "CTD Gene Interaction",
+    "aliases": "chemical-gene interaction",
+    "path": "derived:ctd",
+    "url": "https://ctdbase.org/detail.go?type=chem&acc=£{id}",
+    "hasFilter": "yes",
+    "attrs": "interaction_id,chemical_id,chemical_name,gene_symbol,gene_id,organism,organism_id,interaction,[]interaction_actions,gene_forms,pubmed_count",
+    "compact_fields": "chemical_name,gene_symbol,organism,interaction,interaction_actions,pubmed_count",
+    "bucketMethod": "mesh",
+    "xrefSort": "ctd:speciesPriority;entrez:speciesPriority"
+  },
+  "ctd_disease_association": {
+    "id": "135",
+    "name": "CTD Disease Association",
+    "path":"derived:ctd",
+    "aliases": "chemical-disease association",
+    "url": "https://ctdbase.org/detail.go?type=chem&acc=£{id}",
+    "hasFilter": "yes",
+    "attrs": "association_id,chemical_id,chemical_name,disease_name,disease_id,[]direct_evidence,[]inference_gene_symbols,inference_score,pubmed_count",
+    "compact_fields": "chemical_name,disease_name,direct_evidence,inference_gene_symbols,inference_score,pubmed_count",
+    "bucketMethod": "mesh",
+    "xrefSort": "ctd:interactionScore;mesh:interactionScore"
   },
   "biogrid": {
     "id": "62",

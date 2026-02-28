@@ -1,9 +1,11 @@
 {
   "metadata": {
-    "version": "10.1",
+    "version": "10.3",
     "description": "Expanded integration tests including newly added datasets and filter tests (2025-2026)",
     "server": "http://localhost:9291",
-    "last_updated": "2026-02-23",
+    "last_updated": "2026-02-28",
+    "changes_10.3": "Added ctd_interactions category (10 tests): CTD gene interaction and disease association sub-dataset tests. Updated 10 existing tests with new CTD architecture paths (ctd→ctd_gene_interaction→entrez instead of ctd→entrez, etc.). New aggregated data model with interaction descriptions, inference genes, species sorting, and PubMed literature as xrefs. Total: 722 tests.",
+    "changes_10.2": "Added brenda_kinetics_compact category (8 tests): BRENDA enzyme kinetics compact storage validation. Tests new pipe-delimited format (value|unit|organism|conditions|pubmed_id|comment), schema field validation, organism priority sorting (Homo sapiens first), and min/max value checks. New validation types: 'contains' for substring matching, array indexing support (e.g., km_values[0]). Total: 712 tests.",
     "changes_10.1": "Added mirdb_sorting category (4 tests): miRDB microRNA target prediction sorting validation. Tests species priority sorting (human miRNAs first) and prediction score ordering for refseq reverse xrefs. Total: 704 tests.",
     "changes_10.0": "Added signor_sorting category (4 tests): SIGNOR causal interaction sorting validation. Tests species priority sorting (human interactions first), confidence score ordering, and reverse xref sorting for uniprot and chebi targets. Total: 700 tests.",
     "changes_9.9": "Added string_direct_mapping category (6 tests): Direct UniProt to string_interaction mapping tests. Tests new >>uniprot>>string_interaction path (bypassing STRING protein entry), canonical UniProt resolution (secondary accessions like B4DP59 resolved to primary P51398), high-confidence interaction filters, and partner protein retrieval. Also added intact_sorting category (4 tests): IntAct interaction sorting validation for species priority and confidence score ordering. Total: 696 tests.",
@@ -73,6 +75,7 @@
     "interpro_domain": "InterPro domain analysis (domain to genes, drugs, pathways, structures)",
     "gene_set_advanced": "Gene set advanced workflows (MSigDB multi-hop, disease to gene sets, GO to drugs)",
     "evidence_triangulation": "Evidence triangulation and multi-database integration patterns",
+    "ctd_interactions": "CTD chemical-gene interactions and chemical-disease associations. Sub-datasets with aggregated interaction descriptions, inference genes, species sorting, and PubMed literature links.",
     "advanced_multihop_pipelines": "Advanced multi-hop pipelines (4-8 hops): BioGRID network to pathways, metabolite to rare disease, cell type to drugs/interactions, phenotype to clinical trials, Orphanet to drug candidates",
     "human_gene_xrefs": "Human gene cross-references via HGNC: tests for addHumanGeneXrefs (gene symbol \u2192 HGNC \u2192 ClinVar/dbSNP/GWAS/HPO/Orphanet). Ensures human-only gene mappings.",
     "transcription_regulation": "Transcription factor regulatory networks (CollecTRI): TF-target gene interactions with evidence from 12+ databases, regulation direction (activation/repression), confidence levels, and PubMed literature links.",
@@ -91,7 +94,8 @@
     "string_direct_mapping": "STRING direct mapping: Tests the new direct >>uniprot>>string_interaction path that bypasses the STRING protein entry. Includes canonical UniProt resolution (secondary accessions resolved to primary), high-confidence interaction filtering, and multi-hop partner protein retrieval.",
     "intact_sorting": "IntAct interaction sorting: Tests species priority and confidence score sorting for intact dataset. Human interactions appear first, sorted by MI-score descending within species groups.",
     "signor_sorting": "SIGNOR causal interaction sorting: Tests species priority and confidence score sorting for signor dataset. Human causal interactions appear first when querying reverse xrefs (uniprot>>signor, chebi>>signor), sorted by SIGNOR score descending within species groups.",
-    "mirdb_sorting": "miRDB target prediction sorting: Tests species priority and prediction score sorting for mirdb dataset. Human miRNAs appear first when querying reverse xrefs (refseq>>mirdb), sorted by prediction score descending within species groups."
+    "mirdb_sorting": "miRDB target prediction sorting: Tests species priority and prediction score sorting for mirdb dataset. Human miRNAs appear first when querying reverse xrefs (refseq>>mirdb), sorted by prediction score descending within species groups.",
+    "brenda_kinetics_compact": "BRENDA kinetics compact storage: Tests the new compact pipe-delimited storage format for enzyme kinetics (Km, kcat, Ki values). Validates schema field format, organism priority sorting (Homo sapiens first), and value ordering within organism groups. Uses schema: value|unit|organism|conditions|pubmed_id|comment."
   },
   "tests": [
     {
@@ -2405,8 +2409,8 @@
     {
       "category": "disease_drug",
       "name": "MONDO Disease to CTD via MeSH Bridge",
-      "query": ">>mondo>>mesh>>ctd>>pubchem",
-      "why": "Disease to compounds via MeSH bridge - reliable workaround for MONDO->CTD (BUG-010)",
+      "query": ">>mondo>>mesh>>ctd_disease_association>>ctd>>pubchem",
+      "why": "Disease to compounds via MeSH→ctd_disease_association→ctd→pubchem. Updated path for new CTD architecture.",
       "should_pass": [
         "MONDO:0005148",
         "MONDO:0005044"
@@ -2416,8 +2420,8 @@
     {
       "category": "disease_drug",
       "name": "MeSH Disease to CTD Compounds",
-      "query": ">>mesh>>ctd>>pubchem",
-      "why": "Direct MeSH to CTD to PubChem - high-volume toxicogenomics (5000+ for D001943)",
+      "query": ">>mesh>>ctd_disease_association>>ctd>>pubchem",
+      "why": "MeSH disease to compounds via ctd_disease_association. Updated path for new CTD architecture.",
       "should_pass": [
         "D001943",
         "D003924"
@@ -2438,15 +2442,118 @@
     {
       "category": "disease_drug",
       "name": "CTD to EFO Disease Ontology",
-      "query": ">>ctd>>efo",
-      "why": "CTD chemicals map to EFO disease ontology via disease associations. D001241=Aspirin, D000082=Acetaminophen. D003924 was wrong (disease MeSH, not CTD chemical).",
+      "query": ">>ctd>>ctd_disease_association>>mesh>>mondo>>efo",
+      "why": "CTD chemicals map to EFO via disease associations→MeSH→MONDO→EFO. D001241=Aspirin, D000082=Acetaminophen. Updated path for new CTD architecture.",
       "should_pass": [
         "D001241",
         "D000082"
       ],
-      "should_fail": [
-        "D003924"
-      ]
+      "should_fail": []
+    },
+    {
+      "_comment": "=== CTD GENE INTERACTION AND DISEASE ASSOCIATION TESTS (2026-02-28) ==="
+    },
+    {
+      "category": "ctd_interactions",
+      "name": "CTD to Gene Interactions",
+      "query": ">>ctd>>ctd_gene_interaction",
+      "why": "Chemical to gene interaction sub-dataset. Shows all gene interactions for a chemical with species, interaction descriptions, and PubMed evidence.",
+      "should_pass": [
+        "D001241",
+        "D000082"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ctd_interactions",
+      "name": "CTD to Disease Associations",
+      "query": ">>ctd>>ctd_disease_association",
+      "why": "Chemical to disease association sub-dataset. Shows therapeutic/marker evidence, inference genes, and inference scores.",
+      "should_pass": [
+        "D001241",
+        "D000082"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ctd_interactions",
+      "name": "Gene Interaction to Entrez Gene",
+      "query": ">>ctd_gene_interaction>>entrez",
+      "why": "Gene interaction entry to Entrez Gene. Each interaction links to its target gene.",
+      "should_pass": [
+        "D001241_5743_9606"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ctd_interactions",
+      "name": "Gene Interaction to Taxonomy",
+      "query": ">>ctd_gene_interaction>>taxonomy",
+      "why": "Gene interaction entry to organism taxonomy. Each interaction has organism context.",
+      "should_pass": [
+        "D001241_5743_9606"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ctd_interactions",
+      "name": "Gene Interaction to PubMed",
+      "query": ">>ctd_gene_interaction>>pubmed",
+      "why": "Gene interaction entry to PubMed literature. Each interaction links to supporting publications.",
+      "should_pass": [
+        "D001241_5743_9606"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ctd_interactions",
+      "name": "Disease Association to MeSH",
+      "query": ">>ctd_disease_association>>mesh",
+      "why": "Disease association entry to MeSH disease term.",
+      "should_pass": [
+        "D001241_D003920"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ctd_interactions",
+      "name": "Disease Association to PubMed",
+      "query": ">>ctd_disease_association>>pubmed",
+      "why": "Disease association entry to PubMed literature. Each association links to supporting publications.",
+      "should_pass": [
+        "D001241_D003920"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ctd_interactions",
+      "name": "Entrez Gene to CTD Gene Interactions (Reverse)",
+      "query": ">>entrez>>ctd_gene_interaction",
+      "why": "Gene to all chemical interactions (reverse xref). Find which chemicals interact with a gene.",
+      "should_pass": [
+        "5743"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ctd_interactions",
+      "name": "MeSH Disease to CTD Disease Associations (Reverse)",
+      "query": ">>mesh>>ctd_disease_association",
+      "why": "Disease to all chemical associations (reverse xref). Find which chemicals are associated with a disease.",
+      "should_pass": [
+        "D003920"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ctd_interactions",
+      "name": "Gene to Chemical Interactions via Entrez",
+      "query": ">>hgnc>>entrez>>ctd_gene_interaction",
+      "why": "Gene symbol to chemical interactions via Entrez. Multi-hop to find chemicals affecting a gene.",
+      "should_pass": [
+        "PTGS2"
+      ],
+      "should_fail": []
     },
     {
       "_comment": "=== NEW TESTS FROM AGENT EXPLORATION (2026-01-31) ==="
@@ -3822,8 +3929,8 @@
     {
       "category": "toxicogenomics",
       "name": "CTD Chemical to Gene Targets",
-      "query": ">>ctd>>entrez",
-      "why": "Find genes affected by chemical exposure - 24 for Acetaminophen",
+      "query": ">>ctd>>ctd_gene_interaction>>entrez",
+      "why": "Find genes affected by chemical exposure via gene interactions. Updated path: ctd→ctd_gene_interaction→entrez",
       "should_pass": [
         "D000082"
       ],
@@ -3831,9 +3938,9 @@
     },
     {
       "category": "toxicogenomics",
-      "name": "CTD Chemical to Pathways (4 hops)",
-      "query": ">>ctd>>entrez>>ensembl>>reactome",
-      "why": "Map toxic chemicals to affected pathways - 124 pathways for Acetaminophen",
+      "name": "CTD Chemical to Pathways (5 hops)",
+      "query": ">>ctd>>ctd_gene_interaction>>entrez>>ensembl>>reactome",
+      "why": "Map toxic chemicals to affected pathways via gene interactions. Updated path adds ctd_gene_interaction hop.",
       "should_pass": [
         "D000082"
       ],
@@ -3842,8 +3949,8 @@
     {
       "category": "toxicogenomics",
       "name": "Disease to Toxic Chemicals via MeSH",
-      "query": ">>mesh>>ctd",
-      "why": "Find chemicals associated with diseases - 150+ for breast neoplasms",
+      "query": ">>mesh>>ctd_disease_association>>ctd",
+      "why": "Find chemicals associated with diseases via disease associations. D001943=Breast Neoplasms. Updated path: mesh→ctd_disease_association→ctd",
       "should_pass": [
         "D001943"
       ],
@@ -4590,8 +4697,8 @@
     {
       "category": "rare_disease_deep",
       "name": "OMIM to Toxicogenomic Genes",
-      "query": ">>mim>>ctd>>entrez",
-      "why": "OMIM disease to environmental modifier genes via CTD (3 hops)",
+      "query": ">>mim>>ctd_disease_association>>ctd>>ctd_gene_interaction>>entrez",
+      "why": "OMIM disease to environmental modifier genes via CTD disease associations and gene interactions (5 hops). Updated path for new CTD architecture.",
       "should_pass": [
         "100300"
       ],
@@ -4693,9 +4800,9 @@
     },
     {
       "category": "reverse_drug",
-      "name": "Drug to Disease via Toxicogenomics (4 hops)",
-      "query": ">>pubchem>>ctd>>mesh>>mondo",
-      "why": "Map drug safety profile to disease ontology",
+      "name": "Drug to Disease via Toxicogenomics (5 hops)",
+      "query": ">>pubchem>>ctd>>ctd_disease_association>>mesh>>mondo",
+      "why": "Map drug safety profile to disease ontology via CTD disease associations. Updated for new CTD architecture.",
       "should_pass": [
         "aspirin"
       ],
@@ -5027,9 +5134,9 @@
     },
     {
       "category": "advanced_multihop_pipelines",
-      "name": "Orphanet to PubChem via Phenotypes (5 hops)",
-      "query": ">>orphanet>>hpo>>mim>>ctd>>pubchem",
-      "why": "Compounds for rare disease via HPO/OMIM/CTD path",
+      "name": "Orphanet to PubChem via Phenotypes (6 hops)",
+      "query": ">>orphanet>>hpo>>mim>>ctd_disease_association>>ctd>>pubchem",
+      "why": "Compounds for rare disease via HPO/OMIM/CTD path. Updated for new CTD architecture with ctd_disease_association.",
       "should_pass": [
         "586"
       ],
@@ -5299,8 +5406,8 @@
     {
       "category": "mim_omim_disease",
       "name": "OMIM to Toxicogenomics",
-      "query": ">>mim>>ctd>>pubchem",
-      "why": "Connect Mendelian disease to CTD compounds (3 hops)",
+      "query": ">>mim>>ctd_disease_association>>ctd>>pubchem",
+      "why": "Connect Mendelian disease to CTD compounds via disease associations (4 hops). Updated for new CTD architecture.",
       "should_pass": [
         "154700"
       ],
@@ -5372,8 +5479,8 @@
     {
       "category": "taxonomy_cross_species",
       "name": "Taxonomy to Toxicogenomics",
-      "query": ">>taxonomy>>ctd",
-      "why": "Organism-specific chemical-gene data from CTD",
+      "query": ">>taxonomy>>ctd_gene_interaction>>ctd",
+      "why": "Organism-specific chemical-gene data from CTD via gene interactions. Updated path: taxonomy→ctd_gene_interaction→ctd",
       "should_pass": [
         "9606"
       ],
@@ -5402,8 +5509,8 @@
     {
       "category": "taxonomy_cross_species",
       "name": "CTD Chemicals by Organism",
-      "query": ">>ctd>>taxonomy",
-      "why": "Find species with toxicogenomic data for a chemical",
+      "query": ">>ctd>>ctd_gene_interaction>>taxonomy",
+      "why": "Find species with toxicogenomic data for a chemical via gene interactions. Updated path: ctd→ctd_gene_interaction→taxonomy",
       "should_pass": [
         "D000082"
       ],
@@ -8090,6 +8197,126 @@
           "first_n_start_with": "HSA-",
           "n": 5,
           "description": "First 5 results should be human miRNAs (HSA- prefix, uppercase per biobtree convention)"
+        }
+      ]
+    },
+    {
+      "category": "brenda_kinetics_compact",
+      "name": "Brenda Kinetics Direct Lookup",
+      "query": ">>brenda_kinetics",
+      "why": "Direct lookup of enzyme kinetics entry by EC|substrate identifier",
+      "should_pass": [
+        "1.1.1.1|ethanol",
+        "3.4.21.5|fibrinogen"
+      ],
+      "should_fail": [
+        "99.99.99.99|fake"
+      ]
+    },
+    {
+      "category": "brenda_kinetics_compact",
+      "name": "Brenda Kinetics Schema Field Exists",
+      "type": "validation",
+      "query": ">>brenda_kinetics",
+      "identifier": "1.1.1.1|ethanol",
+      "why": "Compact format should have km_schema field with pipe-delimited field names",
+      "validations": [
+        {
+          "path": "source.Attributes.BrendaKinetics.km_schema",
+          "expected": "value|unit|organism|conditions|pubmed_id|comment",
+          "description": "km_schema should define the pipe-delimited format"
+        }
+      ]
+    },
+    {
+      "category": "brenda_kinetics_compact",
+      "name": "Brenda Kinetics Has Km Values Array",
+      "type": "validation",
+      "query": ">>brenda_kinetics",
+      "identifier": "1.1.1.1|ethanol",
+      "why": "Entry should have km_values array with compact pipe-delimited measurements",
+      "validations": [
+        {
+          "path": "source.Attributes.BrendaKinetics.km_count",
+          "min": 50,
+          "description": "Ethanol kinetics should have many Km measurements (>50)"
+        }
+      ]
+    },
+    {
+      "category": "brenda_kinetics_compact",
+      "name": "Brenda Kinetics Human First In Values",
+      "type": "validation",
+      "query": ">>brenda_kinetics",
+      "identifier": "1.1.1.1|ethanol",
+      "why": "Km values should be sorted by organism priority - Homo sapiens measurements first",
+      "validations": [
+        {
+          "path": "source.Attributes.BrendaKinetics.km_values[0]",
+          "contains": "Homo sapiens",
+          "description": "First km_value should contain Homo sapiens (human first sorting)"
+        }
+      ]
+    },
+    {
+      "category": "brenda_kinetics_compact",
+      "name": "Brenda Kinetics Kcat Schema",
+      "type": "validation",
+      "query": ">>brenda_kinetics",
+      "identifier": "1.1.1.1|ethanol",
+      "why": "Kcat values should also use compact format with schema",
+      "validations": [
+        {
+          "path": "source.Attributes.BrendaKinetics.kcat_schema",
+          "expected": "value|unit|organism|conditions|pubmed_id|comment",
+          "description": "kcat_schema should match km_schema format"
+        }
+      ]
+    },
+    {
+      "category": "brenda_kinetics_compact",
+      "name": "Brenda Kinetics EC to Kinetics Mapping",
+      "query": ">>brenda>>brenda_kinetics",
+      "why": "Map EC number to all substrate kinetics entries",
+      "should_pass": [
+        "1.1.1.1",
+        "3.4.21.5"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "brenda_kinetics_compact",
+      "name": "Brenda Kinetics Min Max Values",
+      "type": "validation",
+      "query": ">>brenda_kinetics",
+      "identifier": "1.1.1.1|ethanol",
+      "why": "Entry should have pre-computed min/max Km values for filtering",
+      "validations": [
+        {
+          "path": "source.Attributes.BrendaKinetics.min_km",
+          "min": 0.001,
+          "max": 1.0,
+          "description": "min_km should be a small positive value"
+        },
+        {
+          "path": "source.Attributes.BrendaKinetics.max_km",
+          "min": 100,
+          "description": "max_km should be a larger value for ethanol"
+        }
+      ]
+    },
+    {
+      "category": "brenda_kinetics_compact",
+      "name": "Brenda Kinetics Substrate Type",
+      "type": "validation",
+      "query": ">>brenda_kinetics",
+      "identifier": "1.1.1.1|ethanol",
+      "why": "Entry should have substrate_type field indicating substrate/inhibitor/cofactor",
+      "validations": [
+        {
+          "path": "source.Attributes.BrendaKinetics.substrate_type",
+          "expected": "substrate",
+          "description": "Ethanol is a substrate for alcohol dehydrogenase"
         }
       ]
     }

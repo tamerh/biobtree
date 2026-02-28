@@ -216,13 +216,13 @@ func (b *bindingdb) parseAndSaveEntries(testLimit int, idLogFile *os.File) {
 		}
 
 		// Build entry
-		attr := b.buildEntry(row, colMap, bindingdbID)
+		attr, drugbankIDs := b.buildEntry(row, colMap, bindingdbID)
 		if attr == nil {
 			continue
 		}
 
 		// Save entry
-		b.saveEntry(bindingdbID, attr, sourceID)
+		b.saveEntry(bindingdbID, attr, sourceID, drugbankIDs)
 
 		// Log ID for testing
 		if idLogFile != nil {
@@ -260,7 +260,8 @@ func (b *bindingdb) parseAndSaveEntries(testLimit int, idLogFile *os.File) {
 }
 
 // buildEntry creates a BindingDB entry from row
-func (b *bindingdb) buildEntry(row []string, colMap map[string]int, bindingdbID string) *pbuf.BindingdbAttr {
+// Returns attr and drugbankIDs (for xref creation, not stored in attr)
+func (b *bindingdb) buildEntry(row []string, colMap map[string]int, bindingdbID string) (*pbuf.BindingdbAttr, []string) {
 	// Extract UniProt IDs from all target chains (up to 50 chains supported)
 	// BindingDB TSV has numbered columns: "UniProt (SwissProt) Primary ID of Target Chain 1", etc.
 	var uniprotIDs []string
@@ -332,10 +333,22 @@ func (b *bindingdb) buildEntry(row []string, colMap map[string]int, bindingdbID 
 		}
 	}
 
+	// Extract DrugBank IDs
+	drugbankField := getField(row, colMap, "DrugBank ID of Ligand")
+	var drugbankIDs []string
+	if drugbankField != "" {
+		for _, id := range strings.Split(drugbankField, "|") {
+			id = strings.TrimSpace(id)
+			if id != "" {
+				drugbankIDs = append(drugbankIDs, id)
+			}
+		}
+	}
+
 	// Build attribute object
 	attr := &pbuf.BindingdbAttr{
 		BindingdbId:          bindingdbID,
-		LigandName:           getField(row, colMap, "Ligand Name"),
+		LigandName:           getField(row, colMap, "BindingDB Ligand Name"),
 		LigandSmiles:         getField(row, colMap, "Ligand SMILES"),
 		LigandInchi:          getField(row, colMap, "Ligand InChI"),
 		LigandInchiKey:       getField(row, colMap, "Ligand InChI Key"),
@@ -360,7 +373,7 @@ func (b *bindingdb) buildEntry(row []string, colMap map[string]int, bindingdbID 
 		CurationDate:         getField(row, colMap, "Curation/DataSource"),
 	}
 
-	return attr
+	return attr, drugbankIDs
 }
 
 // formatAffinityValue formats binding affinity values with units
@@ -378,7 +391,7 @@ func formatAffinityValue(value string) string {
 }
 
 // saveEntry creates and saves a BindingDB entry
-func (b *bindingdb) saveEntry(bindingdbID string, attr *pbuf.BindingdbAttr, sourceID string) {
+func (b *bindingdb) saveEntry(bindingdbID string, attr *pbuf.BindingdbAttr, sourceID string, drugbankIDs []string) {
 	// Marshal attributes
 	attrBytes, err := ffjson.Marshal(attr)
 	b.check(err, fmt.Sprintf("marshaling BindingDB attributes for %s", bindingdbID))
@@ -388,6 +401,15 @@ func (b *bindingdb) saveEntry(bindingdbID string, attr *pbuf.BindingdbAttr, sour
 
 	// Create cross-references
 	b.createCrossReferences(bindingdbID, attr, sourceID)
+
+	// Bidirectional cross-reference: BindingDB ↔ DrugBank (not stored in attr)
+	if _, exists := config.Dataconf["drugbank"]; exists {
+		for _, drugbankID := range drugbankIDs {
+			if drugbankID != "" {
+				b.d.addXref(bindingdbID, sourceID, drugbankID, "drugbank", false)
+			}
+		}
+	}
 }
 
 // createCrossReferences builds all cross-references for a BindingDB entry

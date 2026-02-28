@@ -178,6 +178,8 @@ message Xref {
     EncodeCcreAttr encode_ccre=94;
     StringInteractionAttr string_interaction=95;
     BgeeEvidenceAttr bgee_evidence=131;
+    CtdGeneInteractionAttr ctd_gene_interaction=134;
+    CtdDiseaseAssociationAttr ctd_disease_association=135;
 
   }
 

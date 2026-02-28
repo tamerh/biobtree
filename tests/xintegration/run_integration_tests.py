@@ -233,6 +233,12 @@ class IntegrationTestRunner:
             passed = value and str(value).startswith(validation['starts_with'])
             if not passed:
                 return {**result_base, 'passed': False, 'error': f"Expected to start with '{validation['starts_with']}', got '{value}'"}
+        elif 'contains' in validation:
+            # Check if value contains the specified substring
+            # Used for compact format validation (e.g., first km_value should contain "Homo sapiens")
+            passed = value and validation['contains'] in str(value)
+            if not passed:
+                return {**result_base, 'passed': False, 'error': f"Expected to contain '{validation['contains']}', got '{value[:100] if value else None}'"}
         elif 'contains_identifier' in validation:
             # Check if any target has the specified identifier
             passed = self.check_contains_identifier(data, validation['contains_identifier'])
@@ -306,7 +312,23 @@ class IntegrationTestRunner:
         # Navigate path
         parts = path.split('.')
         for part in parts:
-            if isinstance(obj, dict):
+            # Handle array indexing like "km_values[0]"
+            if '[' in part and ']' in part:
+                key = part[:part.index('[')]
+                idx_str = part[part.index('[')+1:part.index(']')]
+                try:
+                    idx = int(idx_str)
+                except ValueError:
+                    return None
+                if isinstance(obj, dict):
+                    obj = obj.get(key)
+                    if isinstance(obj, list) and 0 <= idx < len(obj):
+                        obj = obj[idx]
+                    else:
+                        return None
+                else:
+                    return None
+            elif isinstance(obj, dict):
                 obj = obj.get(part)
             else:
                 return None

@@ -203,6 +203,8 @@ func (s *Service) initWithDbDir(dbDir string) error {
 		cel.Types(&pbuf.GenccAttr{}),
 		cel.Types(&pbuf.BindingdbAttr{}),
 		cel.Types(&pbuf.CtdAttr{}),
+		cel.Types(&pbuf.CtdGeneInteractionAttr{}),
+		cel.Types(&pbuf.CtdDiseaseAssociationAttr{}),
 		cel.Types(&pbuf.CtdGeneInteraction{}),
 		cel.Types(&pbuf.CtdDiseaseAssociation{}),
 		cel.Types(&pbuf.MsigdbAttr{}),
@@ -233,7 +235,7 @@ func (s *Service) initWithDbDir(dbDir string) error {
 		cel.Types(&pbuf.CorumSubunit{}),
 		cel.Types(&pbuf.BrendaAttr{}),
 		cel.Types(&pbuf.BrendaKineticsAttr{}),
-		cel.Types(&pbuf.KineticMeasurement{}),
+		// KineticMeasurement removed - now using compact string format (km_values, kcat_values, ki_values)
 		cel.Types(&pbuf.BrendaInhibitorAttr{}),
 		cel.Types(&pbuf.InhibitionMeasurement{}),
 		cel.Types(&pbuf.CellphonedbAttr{}),
@@ -354,6 +356,10 @@ func (s *Service) initWithDbDir(dbDir string) error {
 			decls.NewIdent("bindingdb", decls.NewObjectType("pbuf.BindingdbAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("ctd", decls.NewObjectType("pbuf.CtdAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("ctd_gene_interaction", decls.NewObjectType("pbuf.CtdGeneInteractionAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("ctd_disease_association", decls.NewObjectType("pbuf.CtdDiseaseAssociationAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("biogrid", decls.NewObjectType("pbuf.BiogridAttr"), nil)),
 		cel.Declarations(

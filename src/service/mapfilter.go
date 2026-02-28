@@ -1074,6 +1074,10 @@ func (s *Service) execCelGo(query *query.Query, targetXref *pbuf.Xref) (bool, er
 		out, _, err = query.Program.Eval(map[string]interface{}{"bindingdb": targetXref.GetBindingdb()})
 	case "ctd":
 		out, _, err = query.Program.Eval(map[string]interface{}{"ctd": targetXref.GetCtd()})
+	case "ctd_gene_interaction":
+		out, _, err = query.Program.Eval(map[string]interface{}{"ctd_gene_interaction": targetXref.GetCtdGeneInteraction()})
+	case "ctd_disease_association":
+		out, _, err = query.Program.Eval(map[string]interface{}{"ctd_disease_association": targetXref.GetCtdDiseaseAssociation()})
 	case "biogrid":
 		out, _, err = query.Program.Eval(map[string]interface{}{"biogrid": targetXref.GetBiogrid()})
 	case "biogrid_interaction":

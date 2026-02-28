@@ -2066,6 +2066,16 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)
 				xref.Attributes = &pbuf.Xref_Ctd{attr}
+			case "ctd_gene_interaction":
+				attr := &pbuf.CtdGeneInteractionAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_CtdGeneInteraction{attr}
+			case "ctd_disease_association":
+				attr := &pbuf.CtdDiseaseAssociationAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_CtdDiseaseAssociation{attr}
 			case "pharmgkb":
 				attr := &pbuf.PharmgkbAttr{}
 				barr := []byte((*kvProp[k])[0].value)
@@ -2549,6 +2559,16 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 					barr := []byte((*kvProp[k])[0].value)
 					ffjson.Unmarshal(barr, attr)
 					xref.Attributes = &pbuf.Xref_Ctd{attr}
+				case "ctd_gene_interaction":
+					attr := &pbuf.CtdGeneInteractionAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_CtdGeneInteraction{attr}
+				case "ctd_disease_association":
+					attr := &pbuf.CtdDiseaseAssociationAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_CtdDiseaseAssociation{attr}
 				case "pharmgkb":
 					attr := &pbuf.PharmgkbAttr{}
 					barr := []byte((*kvProp[k])[0].value)

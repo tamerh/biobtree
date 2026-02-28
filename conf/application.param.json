@@ -50,7 +50,7 @@
 	"bucketWriteBufferSize": "65536",
 	"bucketSortWorkers": "8",
 	"bucketConcatWorkers":"5",
-	"keepBucketFiles": "yes",
+	"keepBucketFiles": "no",
 	"__unix_sort_config_comment": "Unix external sort configuration (bounded memory, good for large datasets like dbsnp)",
 	"unixSortOptions": "-S 4G --parallel=4 -T /data2/tmp",
 	"unixSortCompressor": "pigz",

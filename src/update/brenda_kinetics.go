@@ -4,6 +4,7 @@ import (
 	"biobtree/pbuf"
 	"bufio"
 	"encoding/json"
+	"fmt"
 	"log"
 	"math"
 	"os"
@@ -20,6 +21,7 @@ import (
 
 // brendaKinetics parses BRENDA kinetic measurements (Km, kcat, Ki)
 // Creates entries keyed by EC|substrate with detailed kinetic data
+// Uses compact pipe-delimited storage format, sorted by organism priority (human first)
 type brendaKinetics struct {
 	source string
 	d      *DataUpdate
@@ -34,6 +36,19 @@ func (b *brendaKinetics) check(err error, operation string) {
 // e.g., "0.05 {benzyl alcohol}" -> value=0.05, substrate="benzyl alcohol"
 var kmValueRegex = regexp.MustCompile(`^([\d.]+(?:E[+-]?\d+)?)\s*\{([^}]+)\}`)
 var numericRegex = regexp.MustCompile(`^([\d.]+(?:E[+-]?\d+)?)`)
+
+// kineticMeasurement is a local struct for collecting measurements before compact conversion
+type kineticMeasurement struct {
+	value      float64
+	unit       string
+	organism   string
+	conditions string
+	pubmedID   string
+	comment    string
+}
+
+// Schema for compact kinetic measurements
+const kineticMeasurementSchema = "value|unit|organism|conditions|pubmed_id|comment"
 
 func (b *brendaKinetics) update() {
 	defer b.d.wg.Done()
@@ -130,12 +145,12 @@ func (b *brendaKinetics) update() {
 			organism := b.getOrganism(km.Proteins, proteinToOrganism)
 			pubmed := b.getPubmed(km.References, refToPubmed)
 
-			sd.kmValues = append(sd.kmValues, &pbuf.KineticMeasurement{
-				Value:      value,
-				Unit:       "mM",
-				Organism:   organism,
-				Conditions: km.Comment,
-				PubmedId:   pubmed,
+			sd.kmValues = append(sd.kmValues, kineticMeasurement{
+				value:      value,
+				unit:       "mM",
+				organism:   organism,
+				conditions: km.Comment,
+				pubmedID:   pubmed,
 			})
 		}
 
@@ -150,12 +165,12 @@ func (b *brendaKinetics) update() {
 			organism := b.getOrganism(kcat.Proteins, proteinToOrganism)
 			pubmed := b.getPubmed(kcat.References, refToPubmed)
 
-			sd.kcatValues = append(sd.kcatValues, &pbuf.KineticMeasurement{
-				Value:      value,
-				Unit:       "s⁻¹",
-				Organism:   organism,
-				Conditions: kcat.Comment,
-				PubmedId:   pubmed,
+			sd.kcatValues = append(sd.kcatValues, kineticMeasurement{
+				value:      value,
+				unit:       "s⁻¹",
+				organism:   organism,
+				conditions: kcat.Comment,
+				pubmedID:   pubmed,
 			})
 		}
 
@@ -175,13 +190,13 @@ func (b *brendaKinetics) update() {
 			// Try to extract Ki from comment
 			kiValue := b.extractKiFromComment(inh.Comment)
 			if !math.IsNaN(kiValue) {
-				sd.kiValues = append(sd.kiValues, &pbuf.KineticMeasurement{
-					Value:      kiValue,
-					Unit:       "mM",
-					Organism:   organism,
-					Conditions: inh.Comment,
-					PubmedId:   pubmed,
-					Comment:    inhibitorName,
+				sd.kiValues = append(sd.kiValues, kineticMeasurement{
+					value:      kiValue,
+					unit:       "mM",
+					organism:   organism,
+					conditions: inh.Comment,
+					pubmedID:   pubmed,
+					comment:    inhibitorName,
 				})
 			}
 		}
@@ -196,6 +211,11 @@ func (b *brendaKinetics) update() {
 			// Create entry ID: EC|substrate
 			entryID := ecID + "|" + substrate
 
+			// Sort measurements by organism priority and convert to compact format
+			kmCompact := b.sortAndCompactMeasurements(sd.kmValues)
+			kcatCompact := b.sortAndCompactMeasurements(sd.kcatValues)
+			kiCompact := b.sortAndCompactMeasurements(sd.kiValues)
+
 			// Calculate min/max values
 			minKm, maxKm := b.getMinMax(sd.kmValues)
 			minKcat, maxKcat := b.getMinMax(sd.kcatValues)
@@ -204,9 +224,12 @@ func (b *brendaKinetics) update() {
 				EcNumber:      ecID,
 				Substrate:     substrate,
 				SubstrateType: sd.substrateType,
-				KmValues:      sd.kmValues,
-				KcatValues:    sd.kcatValues,
-				KiValues:      sd.kiValues,
+				KmSchema:      kineticMeasurementSchema,
+				KmValues:      kmCompact,
+				KcatSchema:    kineticMeasurementSchema,
+				KcatValues:    kcatCompact,
+				KiSchema:      kineticMeasurementSchema,
+				KiValues:      kiCompact,
 				KmCount:       int32(len(sd.kmValues)),
 				KcatCount:     int32(len(sd.kcatValues)),
 				KiCount:       int32(len(sd.kiValues)),
@@ -258,9 +281,9 @@ done:
 // substrateData holds kinetics for a single substrate
 type substrateData struct {
 	substrateType string
-	kmValues      []*pbuf.KineticMeasurement
-	kcatValues    []*pbuf.KineticMeasurement
-	kiValues      []*pbuf.KineticMeasurement
+	kmValues      []kineticMeasurement
+	kcatValues    []kineticMeasurement
+	kiValues      []kineticMeasurement
 }
 
 func (b *brendaKinetics) getOrCreateSubstrate(m map[string]*substrateData, substrate, substrateType string) *substrateData {
@@ -364,7 +387,7 @@ func (b *brendaKinetics) extractKiFromComment(comment string) float64 {
 }
 
 // getMinMax calculates min and max values from measurements
-func (b *brendaKinetics) getMinMax(measurements []*pbuf.KineticMeasurement) (float64, float64) {
+func (b *brendaKinetics) getMinMax(measurements []kineticMeasurement) (float64, float64) {
 	if len(measurements) == 0 {
 		return 0, 0
 	}
@@ -373,13 +396,103 @@ func (b *brendaKinetics) getMinMax(measurements []*pbuf.KineticMeasurement) (flo
 	maxVal := -math.MaxFloat64
 
 	for _, m := range measurements {
-		if m.Value < minVal {
-			minVal = m.Value
+		if m.value < minVal {
+			minVal = m.value
 		}
-		if m.Value > maxVal {
-			maxVal = m.Value
+		if m.value > maxVal {
+			maxVal = m.value
 		}
 	}
 
 	return minVal, maxVal
+}
+
+// organismPriority returns sort priority for organism (lower = higher priority)
+// Human first, then model organisms, then others
+func (b *brendaKinetics) organismPriority(organism string) int {
+	org := strings.ToLower(organism)
+
+	// Human - highest priority
+	if strings.Contains(org, "homo sapiens") {
+		return 1
+	}
+	// Mouse
+	if strings.Contains(org, "mus musculus") {
+		return 2
+	}
+	// Rat - use specific match to avoid "auratus" matching "rat"
+	if strings.Contains(org, "rattus") {
+		return 3
+	}
+	// Zebrafish
+	if strings.Contains(org, "danio rerio") {
+		return 4
+	}
+	// Fruit fly
+	if strings.Contains(org, "drosophila melanogaster") || strings.Contains(org, "drosophila ") {
+		return 5
+	}
+	// C. elegans
+	if strings.Contains(org, "caenorhabditis elegans") {
+		return 6
+	}
+	// Yeast
+	if strings.Contains(org, "saccharomyces cerevisiae") || strings.Contains(org, "saccharomyces ") {
+		return 7
+	}
+	// Arabidopsis
+	if strings.Contains(org, "arabidopsis thaliana") || strings.Contains(org, "arabidopsis ") {
+		return 8
+	}
+	// E. coli - common model
+	if strings.Contains(org, "escherichia coli") {
+		return 9
+	}
+	// Other organisms
+	return 99
+}
+
+// sortAndCompactMeasurements sorts measurements by organism priority and converts to compact format
+// Schema: "value|unit|organism|conditions|pubmed_id|comment"
+func (b *brendaKinetics) sortAndCompactMeasurements(measurements []kineticMeasurement) []string {
+	if len(measurements) == 0 {
+		return nil
+	}
+
+	// Sort by organism priority, then by value
+	sort.Slice(measurements, func(i, j int) bool {
+		priI := b.organismPriority(measurements[i].organism)
+		priJ := b.organismPriority(measurements[j].organism)
+		if priI != priJ {
+			return priI < priJ
+		}
+		// Within same organism priority, sort by value ascending
+		return measurements[i].value < measurements[j].value
+	})
+
+	// Convert to compact pipe-delimited format
+	result := make([]string, len(measurements))
+	for i, m := range measurements {
+		result[i] = b.measurementToCompact(m)
+	}
+	return result
+}
+
+// measurementToCompact converts a measurement to pipe-delimited string
+// Schema: "value|unit|organism|conditions|pubmed_id|comment"
+func (b *brendaKinetics) measurementToCompact(m kineticMeasurement) string {
+	// Escape pipe characters in fields
+	organism := escapePipeChar(m.organism)
+	conditions := escapePipeChar(m.conditions)
+	comment := escapePipeChar(m.comment)
+
+	// Format value with appropriate precision
+	valueStr := fmt.Sprintf("%.6g", m.value)
+
+	return valueStr + "|" + m.unit + "|" + organism + "|" + conditions + "|" + m.pubmedID + "|" + comment
+}
+
+// escapePipeChar escapes pipe characters in a string (replace with /)
+func escapePipeChar(s string) string {
+	return strings.ReplaceAll(s, "|", "/")
 }

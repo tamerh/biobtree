@@ -18,7 +18,7 @@ EDGES = """
 EDGES (what connects to what):
 ensembl: uniprot, go, transcript, exon, ortholog, paralog, hgnc, entrez, refseq, bgee, gwas, gencc, antibody, scxa
 hgnc: ensembl, uniprot, entrez, gencc, pharmgkb_gene, msigdb, clinvar, mim, refseq, alphafold, collectri, gwas, dbsnp, hpo, cellphonedb
-entrez: ensembl, uniprot, refseq, go, biogrid, pubchem_activity
+entrez: ensembl, uniprot, refseq, go, biogrid, pubchem_activity, ctd_gene_interaction
 refseq: ensembl, entrez, taxonomy, ccds, uniprot, mirdb
 mirdb: refseq
 transcript: ensembl, exon, ufeature
@@ -48,7 +48,9 @@ pharmgkb_gene: hgnc, entrez, ensembl, pharmgkb
 pharmgkb_clinical: dbsnp, hgnc, mesh, pharmgkb_variant
 pharmgkb_guideline: hgnc, pharmgkb
 pharmgkb_pathway: hgnc, pharmgkb
-ctd: mesh, entrez, efo, pubchem, taxonomy
+ctd: mesh, ctd_gene_interaction, ctd_disease_association, pubchem
+ctd_gene_interaction: ctd, entrez, taxonomy, pubmed
+ctd_disease_association: ctd, mesh, mim, pubmed
 intact: uniprot, chebi, rnacentral
 string: uniprot, string_interaction
 string_interaction: string, uniprot
@@ -68,13 +70,13 @@ hpo: clinvar, gencc, mondo, msigdb, orphanet, mim, hmdb, hgnc, hpoparent, hpochi
 efo: gwas, mondo, cellxgene, efoparent, efochild
 uberon: bgee, cellxgene, cellxgene_celltype, swisslipids, uberonparent, uberonchild
 cl: bgee, cellxgene, cellxgene_celltype, scxa, scxa_gene_experiment, clparent, clchild
-taxonomy: ensembl, uniprot, bgee, biogrid, ctd, taxparent, taxchild
-mesh: pharmgkb, ctd, pubchem, mondo, chembl_molecule, meshparent, meshchild
+taxonomy: ensembl, uniprot, bgee, biogrid, ctd_gene_interaction, taxparent, taxchild
+mesh: pharmgkb, ctd, ctd_disease_association, pubchem, mondo, chembl_molecule, meshparent, meshchild
 eco: ecoparent, ecochild
 antibody: ensembl, uniprot, mondo, pdb
 msigdb: hgnc, entrez, go, hpo
 orphanet: hpo, uniprot, mondo, hgnc, clinvar, mim, mesh
-mim: clinvar, hpo, mondo, uniprot, ctd
+mim: clinvar, hpo, mondo, uniprot, ctd_disease_association
 hmdb: pubchem, hpo, chebi, uniprot
 collectri: hgnc
 esm2_similarity: uniprot
@@ -87,6 +89,9 @@ fantom5_gene: ensembl, hgnc, entrez
 jaspar: uniprot, pubmed, taxonomy
 encode_ccre: taxonomy
 bao: chembl_activity, chembl_assay, baoparent, baochild
+brenda: uniprot, pubmed, brenda_kinetics, brenda_inhibitor
+brenda_kinetics: brenda
+brenda_inhibitor: brenda
 """
 
 

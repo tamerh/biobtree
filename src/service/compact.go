@@ -180,6 +180,12 @@ func extractField(xref *pbuf.Xref, field string) string {
 	if a := xref.GetBiogridInteraction(); a != nil {
 		return extractBiogridInteractionField(a, field)
 	}
+	if a := xref.GetCtdGeneInteraction(); a != nil {
+		return extractCtdGeneInteractionField(a, field)
+	}
+	if a := xref.GetCtdDiseaseAssociation(); a != nil {
+		return extractCtdDiseaseAssociationField(a, field)
+	}
 
 	return ""
 }
@@ -590,6 +596,16 @@ func ExtractSourceName(xref *pbuf.Xref) string {
 	if a := xref.GetScxa(); a != nil {
 		return a.Description
 	}
+	if a := xref.GetCtdGeneInteraction(); a != nil {
+		// Format: "ChemicalName → GeneSymbol (Organism): Interaction"
+		return fmt.Sprintf("%s → %s (%s): %s", a.ChemicalName, a.GeneSymbol, a.Organism, a.Interaction)
+	}
+	if a := xref.GetCtdDiseaseAssociation(); a != nil {
+		// Format: "ChemicalName → DiseaseName [Evidence]: InferenceGenes"
+		evidence := strings.Join(a.DirectEvidence, ";")
+		genes := strings.Join(a.InferenceGeneSymbols, ";")
+		return fmt.Sprintf("%s → %s [%s]: %s", a.ChemicalName, a.DiseaseName, evidence, genes)
+	}
 
 	return ""
 }
@@ -742,6 +758,62 @@ func extractBiogridInteractionField(a *pbuf.BiogridInteractionAttr, field string
 		return a.Publication
 	case "score":
 		return fmt.Sprintf("%.2f", a.Score)
+	default:
+		return ""
+	}
+}
+
+// extractCtdGeneInteractionField extracts a field from CtdGeneInteractionAttr
+func extractCtdGeneInteractionField(a *pbuf.CtdGeneInteractionAttr, field string) string {
+	switch field {
+	case "interaction_id":
+		return a.InteractionId
+	case "chemical_id":
+		return a.ChemicalId
+	case "chemical_name":
+		return a.ChemicalName
+	case "gene_symbol":
+		return a.GeneSymbol
+	case "gene_id":
+		return a.GeneId
+	case "organism":
+		return a.Organism
+	case "organism_id":
+		return fmt.Sprintf("%d", a.OrganismId)
+	case "interaction":
+		return a.Interaction
+	case "interaction_actions":
+		return strings.Join(a.InteractionActions, ";")
+	case "gene_forms":
+		return a.GeneForms
+	case "pubmed_count":
+		return fmt.Sprintf("%d", a.PubmedCount)
+	default:
+		return ""
+	}
+}
+
+// extractCtdDiseaseAssociationField extracts a field from CtdDiseaseAssociationAttr
+func extractCtdDiseaseAssociationField(a *pbuf.CtdDiseaseAssociationAttr, field string) string {
+	switch field {
+	case "association_id":
+		return a.AssociationId
+	case "chemical_id":
+		return a.ChemicalId
+	case "chemical_name":
+		return a.ChemicalName
+	case "disease_name":
+		return a.DiseaseName
+	case "disease_id":
+		return a.DiseaseId
+	case "direct_evidence":
+		return strings.Join(a.DirectEvidence, ";")
+	case "inference_gene_symbols":
+		return strings.Join(a.InferenceGeneSymbols, ";")
+	case "inference_score":
+		return fmt.Sprintf("%.2f", a.InferenceScore)
+	case "pubmed_count":
+		return fmt.Sprintf("%d", a.PubmedCount)
 	default:
 		return ""
 	}

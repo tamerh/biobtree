@@ -1536,12 +1536,14 @@ message GenccAttr {
   repeated string submitted_as_pmids = 14;      // PubMed IDs supporting the curation
 }
 
-// CTD - Comparative Toxicogenomics Database (Dataset ID: 104)
+// CTD - Comparative Toxicogenomics Database (Dataset ID: 61)
 // Curated chemical-gene, chemical-disease, and gene-disease associations
 // Source: https://ctdbase.org/
+// Note: Gene interactions and disease associations are stored as separate datasets
+// (ctd_gene_interaction ID:131, ctd_disease_association ID:132)
 message CtdAttr {
   // Chemical identification (primary entry is indexed by MeSH chemical ID)
-  string chemical_id = 1;                         // MeSH ID (e.g., "MESH:D000082")
+  string chemical_id = 1;                         // MeSH ID (e.g., "D000082")
   string chemical_name = 2;                       // Chemical name (e.g., "Acetaminophen")
   string cas_rn = 3;                              // CAS Registry Number
   string definition = 4;                          // Chemical definition from CTD
@@ -1555,19 +1557,56 @@ message CtdAttr {
   string drugbank_id = 8;                         // DrugBank ID
   string inchi_key = 9;                           // InChI Key for structure matching
 
-  // Gene interactions (aggregated from CTD_chem_gene_ixns.tsv)
-  repeated CtdGeneInteraction gene_interactions = 10;  // Top gene interactions
+  // Gene interactions - stored as separate ctd_gene_interaction entries
+  // Use >>ctd>>ctd_gene_interaction to access
+  reserved 10;                                    // Previously: gene_interactions (now separate dataset)
   int32 gene_interaction_count = 11;              // Total number of gene interactions
 
-  // Disease associations (aggregated from CTD_chemicals_diseases.tsv)
-  repeated CtdDiseaseAssociation disease_associations = 12;  // Top disease associations
+  // Disease associations - stored as separate ctd_disease_association entries
+  // Use >>ctd>>ctd_disease_association to access
+  reserved 12;                                    // Previously: disease_associations (now separate dataset)
   int32 disease_association_count = 13;           // Total number of disease associations
 
   // Inferred genes (genes associated via disease)
   repeated string inferred_genes = 14;            // Gene symbols inferred from chemical-disease-gene triangulation
 }
 
-// Individual chemical-gene interaction from CTD
+// CTD Gene Interaction entry (Dataset ID: 131)
+// Individual chemical-gene interaction stored as separate entry
+// ID format: {chemical_id}_{gene_id}_{organism_id}
+// Access via: >>ctd>>ctd_gene_interaction or >>entrez>>ctd_gene_interaction
+message CtdGeneInteractionAttr {
+  string interaction_id = 1;                      // Composite ID: chemID_geneID_taxID
+  string chemical_id = 2;                         // MeSH chemical ID
+  string chemical_name = 3;                       // Chemical name for display
+  string gene_symbol = 4;                         // Gene symbol (e.g., "TP53")
+  string gene_id = 5;                             // NCBI Entrez Gene ID
+  string organism = 6;                            // Organism name (e.g., "Homo sapiens")
+  int32 organism_id = 7;                          // NCBI Taxonomy ID
+  string interaction = 8;                         // Full interaction text
+  repeated string interaction_actions = 9;        // Parsed actions (e.g., "increases^expression")
+  string gene_forms = 10;                         // Gene form (protein, mRNA, etc.)
+  int32 pubmed_count = 11;                        // Number of PubMed references (actual IDs via xref to pubmed)
+}
+
+// CTD Disease Association entry (Dataset ID: 132)
+// Individual chemical-disease association stored as separate entry
+// ID format: {chemical_id}_{disease_id}
+// Access via: >>ctd>>ctd_disease_association or >>mesh>>ctd_disease_association
+message CtdDiseaseAssociationAttr {
+  string association_id = 1;                      // Composite ID: chemID_diseaseID
+  string chemical_id = 2;                         // MeSH chemical ID
+  string chemical_name = 3;                       // Chemical name for display
+  string disease_name = 4;                        // Disease name
+  string disease_id = 5;                          // MeSH or OMIM disease ID
+  repeated string direct_evidence = 6;            // Evidence types (therapeutic, marker/mechanism) - aggregated
+  repeated string inference_gene_symbols = 7;     // Genes linking chemical to disease - aggregated
+  double inference_score = 8;                     // Max CTD inference score (for sorting/filtering)
+  int32 pubmed_count = 9;                         // Number of PubMed references (actual IDs via xref to pubmed)
+}
+
+// Legacy embedded types - kept for backward compatibility during transition
+// These are no longer used in CtdAttr but may be referenced elsewhere
 message CtdGeneInteraction {
   string gene_symbol = 1;                         // Gene symbol (e.g., "TP53")
   string gene_id = 2;                             // NCBI Gene ID
@@ -1579,7 +1618,7 @@ message CtdGeneInteraction {
   repeated string pubmed_ids = 8;                 // Supporting PubMed IDs
 }
 
-// Individual chemical-disease association from CTD
+// Legacy embedded type - kept for backward compatibility
 message CtdDiseaseAssociation {
   string disease_name = 1;                        // Disease name
   string disease_id = 2;                          // MeSH or OMIM disease ID
@@ -2234,30 +2273,35 @@ message BrendaAttr {
 // Source: https://www.brenda-enzymes.org/
 // Primary key: EC|substrate (e.g., "1.1.1.1|ethanol")
 // License: CC BY 4.0
+// Compact storage: measurements stored as pipe-delimited strings, sorted by organism priority (human first)
 message BrendaKineticsAttr {
   string ec_number = 1;                    // EC number (e.g., "1.1.1.1")
   string substrate = 2;                    // Substrate/inhibitor name
   string substrate_type = 3;               // "substrate", "inhibitor", or "cofactor"
-  repeated KineticMeasurement km_values = 4;   // Km measurements
-  repeated KineticMeasurement kcat_values = 5; // kcat measurements
-  repeated KineticMeasurement ki_values = 6;   // Ki measurements (inhibition constants)
-  int32 km_count = 7;                      // Number of Km measurements
-  int32 kcat_count = 8;                    // Number of kcat measurements
-  int32 ki_count = 9;                      // Number of Ki measurements
-  double min_km = 10;                      // Minimum Km value (mM)
-  double max_km = 11;                      // Maximum Km value (mM)
-  double min_kcat = 12;                    // Minimum kcat value (s⁻¹)
-  double max_kcat = 13;                    // Maximum kcat value (s⁻¹)
-}
 
-// Individual kinetic measurement
-message KineticMeasurement {
-  double value = 1;                        // Numeric value
-  string unit = 2;                         // Unit (mM, s⁻¹, etc.)
-  string organism = 3;                     // Source organism
-  string conditions = 4;                   // Experimental conditions (pH, temp, etc.)
-  string pubmed_id = 5;                    // PubMed reference
-  string comment = 6;                      // Additional notes
+  // Compact Km measurements - sorted by organism priority (human first)
+  // Schema: "value|unit|organism|conditions|pubmed_id|comment"
+  // Example: "0.05|mM|Homo sapiens|pH 7.4, 25°C|12345678|wild-type"
+  string km_schema = 4;                    // Field schema for parsing
+  repeated string km_values = 5;           // Pipe-delimited measurements
+
+  // Compact kcat measurements - sorted by organism priority (human first)
+  // Schema: "value|unit|organism|conditions|pubmed_id|comment"
+  string kcat_schema = 6;                  // Field schema for parsing
+  repeated string kcat_values = 7;         // Pipe-delimited measurements
+
+  // Compact Ki measurements - sorted by organism priority (human first)
+  // Schema: "value|unit|organism|conditions|pubmed_id|comment"
+  string ki_schema = 8;                    // Field schema for parsing
+  repeated string ki_values = 9;           // Pipe-delimited measurements
+
+  int32 km_count = 10;                     // Number of Km measurements
+  int32 kcat_count = 11;                   // Number of kcat measurements
+  int32 ki_count = 12;                     // Number of Ki measurements
+  double min_km = 13;                      // Minimum Km value (mM)
+  double max_km = 14;                      // Maximum Km value (mM)
+  double min_kcat = 15;                    // Minimum kcat value (s⁻¹)
+  double max_kcat = 16;                    // Maximum kcat value (s⁻¹)
 }
 
 // BRENDA Inhibitor - Enzyme inhibition data per EC+inhibitor

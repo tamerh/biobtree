@@ -9,34 +9,11 @@
 conda env create -f conf/conda.yaml
 conda activate biobtree
 
-# Build
-make build
-```
-
-The conda environment (`conf/conda.yaml`) includes:
-- **Go 1.20+** - Backend compiler
-- **Python 3.12** - MCP server, scripts
-- **Build tools** - make, gcc, protobuf
-- **MCP dependencies** - fastapi, httpx, mcp
-- **Data tools** - pandas, pyarrow, cellxgene-census
-- **Utilities** - jq, curl, tabix
-
-### Manual Setup
-
-Requirements:
-- Go 1.23+
-- Python 3.8+ (for MCP server)
-- make, gcc
-
 ### Build
 
 ```bash
 # Using Makefile
 make build
-
-# Or directly
-cd src && go build -o ../biobtree
-```
 
 ## Development vs Production
 

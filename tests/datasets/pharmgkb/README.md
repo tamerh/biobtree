@@ -1,1 +1,0 @@
-../../../docs/datasets/pharmgkb.md

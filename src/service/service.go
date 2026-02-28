@@ -227,6 +227,11 @@ func (s *Service) initWithDbDir(dbDir string) error {
 		cel.Types(&pbuf.ScxaClusterExpression{}),
 		cel.Types(&pbuf.ClinvarAttr{}),
 		cel.Types(&pbuf.BiogridInteractionAttr{}),
+		cel.Types(&pbuf.IntactAttr{}),
+		cel.Types(&pbuf.IntactConfidenceScores{}),
+		cel.Types(&pbuf.IntactFeature{}),
+		cel.Types(&pbuf.IntactParameter{}),
+		cel.Types(&pbuf.IntactXref{}),
 		cel.Types(&pbuf.AlphaFoldAttr{}),
 		cel.Types(&pbuf.ClinicalTrialAttr{}),
 		cel.Types(&pbuf.CollecTriAttr{}),
@@ -364,6 +369,8 @@ func (s *Service) initWithDbDir(dbDir string) error {
 			decls.NewIdent("biogrid", decls.NewObjectType("pbuf.BiogridAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("biogrid_interaction", decls.NewObjectType("pbuf.BiogridInteractionAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("intact", decls.NewObjectType("pbuf.IntactAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("msigdb", decls.NewObjectType("pbuf.MsigdbAttr"), nil)),
 		cel.Declarations(

@@ -18,14 +18,6 @@ Welcome to the Biobtree documentation. Biobtree provides unified access to 70+ b
 
 ## Getting Started
 
-### Installation
-
-Download the latest release for your platform:
-- [GitHub Releases](https://github.com/tamerh/biobtree/releases/latest)
-
-Or use wrapper packages:
-- **R**: [biobtreeR](https://github.com/tamerh/biobtreeR)
-- **Python**: [biobtreePy](https://github.com/tamerh/biobtreePy)
 
 ### Quickstart
 

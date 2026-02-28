@@ -1,1 +1,0 @@
-../../../docs/datasets/uniprot.md

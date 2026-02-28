@@ -1,1 +1,0 @@
-../../../docs/datasets/esm2_similarity.md

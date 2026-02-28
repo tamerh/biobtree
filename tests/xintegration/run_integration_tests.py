@@ -1,17 +1,16 @@
 #!/usr/bin/env python3
 """
-Simple Cross-Integration Test Runner
+Cross-Integration Test Runner
 
 Executes integration tests from integration_tests.json
 
 Usage:
-    python3 run_integration_tests.py [--server URL] [--verbose]
+    python3 run_integration_tests.py [--server URL] [--verbose] [--category CAT]
 """
 
 import json
 import requests
 import sys
-from datetime import datetime
 from pathlib import Path
 import argparse
 from urllib.parse import urlencode
@@ -35,7 +34,6 @@ class IntegrationTestRunner:
         self.category = category
         self.use_mcp = use_mcp  # Use MCP server API endpoints instead of biobtree direct
         self.results = []
-        self.start_time = datetime.now()
 
     def load_tests(self):
         with open(self.test_file, 'r') as f:
@@ -501,187 +499,6 @@ class IntegrationTestRunner:
         else:
             return f"{Colors.RED}[{elapsed_ms/1000:.1f}s]{Colors.END}"
 
-    def generate_report(self, report_dir: str = 'reports'):
-        """Generate markdown report"""
-        report_path = Path(report_dir) / f"{self.start_time.strftime('%Y-%m-%d_%H%M')}_analysis.md"
-        report_path.parent.mkdir(exist_ok=True, parents=True)
-
-        with open(report_path, 'w') as f:
-            f.write(self.format_report())
-
-        return report_path
-
-    def format_report(self):
-        """Format results as markdown"""
-        total = len(self.results)
-        passed = sum(1 for r in self.results if r['passed'])
-        failed = total - passed
-        pass_rate = (passed / total * 100) if total > 0 else 0
-
-        # Timing stats
-        times = [r.get('response_time_ms', 0) for r in self.results if r.get('response_time_ms', 0) > 0]
-        avg_time = sum(times) / len(times) if times else 0
-        max_time = max(times) if times else 0
-        total_time = sum(times)
-
-        report = f"""# Integration Test Analysis
-
-**Date**: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}
-**Server**: {self.server}
-**Tests**: {total}
-**Passed**: {passed} ({pass_rate:.1f}%)
-**Failed**: {failed} ({100-pass_rate:.1f}%)
-
----
-
-## ⏱️ Response Time Summary
-
-| Metric | Value |
-|--------|-------|
-| Total Time | {total_time/1000:.1f}s |
-| Average | {avg_time:.0f}ms |
-| Max | {max_time:.0f}ms |
-
-"""
-        # Slow queries section
-        slow_queries = sorted(
-            [r for r in self.results if r.get('response_time_ms', 0) > 500],
-            key=lambda x: x.get('response_time_ms', 0),
-            reverse=True
-        )
-        if slow_queries:
-            report += "### 🐢 Slow Queries (>500ms)\n\n"
-            report += "| Time | Identifier | Query | Status |\n"
-            report += "|------|------------|-------|--------|\n"
-            for r in slow_queries[:20]:
-                elapsed = r.get('response_time_ms', 0)
-                identifier = r.get('identifier', r.get('validation_desc', '?'))
-                query = r.get('query', '') or '(lookup)'
-                status = "✓" if r['passed'] else "✗"
-                if elapsed >= 1000:
-                    time_str = f"**{elapsed/1000:.1f}s**"
-                else:
-                    time_str = f"{elapsed:.0f}ms"
-                report += f"| {time_str} | `{identifier}` | `{query}` | {status} |\n"
-            report += "\n"
-
-        report += """---
-
-## ✅ Passing Tests
-
-"""
-        # Group by test name
-        by_test = {}
-        for r in self.results:
-            name = r['test_name']
-            if name not in by_test:
-                by_test[name] = {'passed': [], 'failed': []}
-
-            if r['passed']:
-                by_test[name]['passed'].append(r)
-            else:
-                by_test[name]['failed'].append(r)
-
-        for test_name, results in by_test.items():
-            if results['passed']:
-                first = results['passed'][0]
-                report += f"### {test_name}\n"
-                report += f"**Why**: {first['why']}\n"
-                report += f"**Query**: `{first['query']}`\n\n"
-                for r in results['passed']:
-                    expected = "pass" if r['expected_pass'] else "fail (correctly)"
-                    elapsed = r.get('response_time_ms', 0)
-                    time_str = f" ({elapsed:.0f}ms)" if elapsed > 0 else ""
-                    report += f"- ✓ `{r['identifier']}` (expected to {expected}){time_str}\n"
-                report += "\n"
-
-        report += "\n---\n\n## ❌ Failing Tests\n\n"
-
-        failures_found = False
-        for test_name, results in by_test.items():
-            if results['failed']:
-                failures_found = True
-                first = results['failed'][0]
-                report += f"### {test_name}\n"
-                report += f"**Why**: {first['why']}\n"
-                report += f"**Query**: `{first['query']}`\n\n"
-
-                for r in results['failed']:
-                    expected = "pass" if r['expected_pass'] else "fail"
-                    if 'error' in r:
-                        reason = f"Error: {r['error']}"
-                    elif r['expected_pass'] and not r.get('has_results'):
-                        reason = "Expected results but got none"
-                    elif not r['expected_pass'] and r.get('has_results'):
-                        reason = "Expected no results but got data"
-                    else:
-                        reason = "Unknown failure"
-
-                    elapsed = r.get('response_time_ms', 0)
-                    time_str = f" ({elapsed:.0f}ms)" if elapsed > 0 else ""
-                    report += f"- ✗ `{r['identifier']}` (expected to {expected}){time_str}\n"
-                    report += f"  - **Failure**: {reason}\n"
-                    report += f"  - **URL**: {r['url']}\n\n"
-
-        if not failures_found:
-            report += "_No failures! All tests passed._\n\n"
-
-        report += f"""
----
-
-## 📊 Summary
-
-**Total Queries**: {total}
-**Success Rate**: {pass_rate:.1f}%
-**Execution Time**: {(datetime.now() - self.start_time).total_seconds():.2f}s
-
----
-
-## 📝 Test Coverage
-
-"""
-        for test in self.tests['tests']:
-            # Skip comment entries
-            if 'name' not in test:
-                continue
-            test_results = [r for r in self.results if r['test_name'] == test['name']]
-            test_passed = sum(1 for r in test_results if r['passed'])
-            test_total = len(test_results)
-            if test_results:
-                avg_time = sum(r.get('response_time_ms', 0) for r in test_results) / len(test_results)
-                report += f"- **{test['name']}**: {test_passed}/{test_total} passed (avg {avg_time:.0f}ms)\n"
-            else:
-                report += f"- **{test['name']}**: {test_passed}/{test_total} passed\n"
-
-        # Full response times table
-        report += """
----
-
-## ⏱️ All Response Times
-
-| Test | Identifier | Query | Time | Status |
-|------|------------|-------|------|--------|
-"""
-        for r in sorted(self.results, key=lambda x: x.get('response_time_ms', 0), reverse=True):
-            test_name = r['test_name'][:30] + "..." if len(r['test_name']) > 30 else r['test_name']
-            identifier = r.get('identifier', r.get('validation_desc', '?'))
-            if len(identifier) > 25:
-                identifier = identifier[:22] + "..."
-            query = r.get('query', '') or '(lookup)'
-            if len(query) > 40:
-                query = query[:37] + "..."
-            elapsed = r.get('response_time_ms', 0)
-            status = "✓" if r['passed'] else "✗"
-            if elapsed >= 1000:
-                time_str = f"**{elapsed/1000:.1f}s**"
-            elif elapsed >= 500:
-                time_str = f"*{elapsed:.0f}ms*"
-            else:
-                time_str = f"{elapsed:.0f}ms"
-            report += f"| {test_name} | `{identifier}` | `{query}` | {time_str} | {status} |\n"
-
-        return report
-
     def print_summary(self):
         """Print summary to console"""
         total = len(self.results)
@@ -757,7 +574,6 @@ def main():
     parser.add_argument('test_file', nargs='?', help='Test file (default: integration_tests.json)', default='integration_tests.json')
     parser.add_argument('--server', help='Server URL', default=None)
     parser.add_argument('--verbose', '-v', help='Verbose output', action='store_true')
-    parser.add_argument('--no-report', help='Skip report generation', action='store_true')
     parser.add_argument('--category', '-c', help='Run only tests in specified category', default=None)
     parser.add_argument('--list-categories', help='List available test categories', action='store_true')
     parser.add_argument('--mcp', help='Use MCP server API endpoints instead of biobtree direct', action='store_true')
@@ -789,10 +605,6 @@ def main():
         sys.exit(1)
 
     runner.print_summary()
-
-    if not args.no_report:
-        report_path = runner.generate_report()
-        print(f"{Colors.GREEN}✓{Colors.END} Report: {report_path}")
 
     sys.exit(0 if all(r['passed'] for r in runner.results) else 1)
 

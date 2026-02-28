@@ -1,1 +1,0 @@
-../../../docs/datasets/gwas_study.md

@@ -227,11 +227,6 @@ func (e *esm2Similarity) saveProtein(proteinID string, similarities []*pbuf.Esm2
 
 // createCrossReferences creates cross-references from ESM2 similarity to UniProt
 func (e *esm2Similarity) createCrossReferences(proteinID string, similarities []*pbuf.Esm2Similarity, sourceID string) {
-	textLinkID := "0"
-
-	// Protein ID → Text search
-	e.d.addXref(proteinID, textLinkID, proteinID, e.source, true)
-
 	// ESM2 similarity → UniProt (same ID)
 	e.d.addXref(proteinID, sourceID, proteinID, "uniprot", false)
 

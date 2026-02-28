@@ -2,34 +2,18 @@
 
 ## Installation
 
-Download the latest release for your platform:
-- [GitHub Releases](https://github.com/tamerh/biobtree/releases/latest)
-
-Extract and run from the extracted directory.
-
-### Environment Setup (conda)
-
-For development or running data processing scripts, use the provided conda environment:
-
 ```bash
-# Create environment
+# Clone repository
+git clone https://github.com/tamerh/biobtree.git
+cd biobtree
+
+# Setup environment
 conda env create -f conf/conda.yaml
-
-# Activate
 conda activate biobtree
+
+# Build
+make build
 ```
-
-This includes:
-- Go 1.20+ compiler
-- Python 3.12 with MCP server dependencies
-- Build tools (make, gcc)
-- Data processing tools (pandas, pyarrow)
-- CELLxGENE Census for single-cell data
-
-### Alternative: Wrapper Packages
-
-- **R**: [biobtreeR](https://github.com/tamerh/biobtreeR)
-- **Python**: [biobtreePy](https://github.com/tamerh/biobtreePy)
 
 ## Production Build (bb.sh)
 

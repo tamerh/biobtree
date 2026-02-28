@@ -1,1 +1,0 @@
-../../../docs/datasets/msigdb.md

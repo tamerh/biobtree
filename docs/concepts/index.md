@@ -96,11 +96,6 @@ Apply CEL-based filters at any step:
 └───────────────────────────────────────────────────────────────┘
 ```
 
-## Response Modes
-
-- **Full mode**: Complete data with all attributes (default)
-- **Lite mode**: Compact IDs-only format (~50x smaller)
-
 Lite mode is optimized for AI agents and bulk operations.
 
 ## See Also

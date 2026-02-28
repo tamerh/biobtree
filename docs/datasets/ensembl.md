@@ -57,12 +57,6 @@ Ensembl provides comprehensive genome annotations for vertebrates and selected m
 
 ### Special Features
 
-**HGNC Integration (Human Genes Only)**:
-- HGNC nomenclature data automatically embedded in human Ensembl genes
-- During human genome processing (taxid 9606), HGNC data is loaded from remote source
-- Mapping by exact Ensembl gene ID as provided by HGNC
-- HGNC symbols and IDs made searchable, resolving to Ensembl entries
-- **Single gene hub architecture**: Searching "BRCA1" or "HGNC:5" returns the Ensembl entry with embedded HGNC data
 - **Important - Paralog Cases**: Some gene symbols (e.g., DDX11L16) appear on multiple chromosomes
   - HGNC assigns official IDs to one locus only (typically the primary/reference locus)
   - Other paralogs with the same symbol will not have HGNC data embedded

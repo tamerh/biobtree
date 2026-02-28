@@ -96,8 +96,8 @@ curl "localhost:9292/ws/map/?i=BRCA1&m=>>alphamissense[am_class==\"likely_pathog
 
 ### Response Modes
 
-- **full** (default): Complete data with all attributes
-- **lite**: Compact IDs-only format (~50x smaller, optimized for AI agents)
+- **lite**: Compact mode it is recommened mode especially for LLM.
+- **full**: Complete data avoid unless lite mode is not enough.
 
 ```bash
 curl "localhost:9292/ws/map/?i=TP53&m=>>ensembl>>uniprot&mode=lite"

@@ -66,19 +66,19 @@ CL integrates with:
 
 ```bash
 # Lookup cell type
-biobtree query "CL:0000576"  # monocyte
+curl "localhost:9292/ws/map/?i=CL:0000576&mode=lite"  # monocyte
 
 # Find genes expressed in monocytes
-biobtree query "CL:0000576 >> bgee"
+curl "localhost:9292/ws/map/?i=CL:0000576 >> bgee&mode=lite"
 
 # Find genes expressed in granulocytes
-biobtree query "CL:0000094 >> bgee"
+curl "localhost:9292/ws/map/?i=CL:0000094 >> bgee&mode=lite"
 
 # Search by cell type name
-biobtree query "monocyte"
+curl "localhost:9292/ws/map/?i=monocyte&mode=lite"
 
 # Gene to cell types where expressed
-biobtree query "ENSG00000139618 >> bgee >> cl"
+curl "localhost:9292/ws/map/?i=ENSG00000139618 >> bgee >> cl&mode=lite"
 ```
 
 ## Notes

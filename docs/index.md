@@ -35,10 +35,10 @@ Or use wrapper packages:
 ./bb.sh --status             # Check progress
 ./bb.sh --generate           # Build database
 ./bb.sh --activate           # Activate new version
-./bb.sh --web                # Start web server
+./bb.sh --web                # Start web server (localhost:9292)
 
-# Query via CLI
-biobtree query "BRCA1 >> ensembl >> uniprot"
+# Query via API
+curl "localhost:9292/ws/map/?i=BRCA1&m=>>ensembl>>uniprot&mode=lite"
 ```
 
 ### Build Management
@@ -70,13 +70,13 @@ identifier >> dataset1 >> dataset2 >> dataset3
 **Examples:**
 ```bash
 # Gene symbol → Ensembl → UniProt → Drug targets
-biobtree query "TP53 >> ensembl >> uniprot >> chembl_target"
+curl "localhost:9292/ws/map/?i=TP53&m=>>ensembl>>uniprot>>chembl_target&mode=lite"
 
 # Protein → Pathways
-biobtree query "P04637 >> reactome"
+curl "localhost:9292/ws/map/?i=P04637&m=>>reactome&mode=lite"
 
 # Disease → Genes
-biobtree query "breast cancer >> mondo >> gencc >> hgnc"
+curl "localhost:9292/ws/map/?i=breast%20cancer&m=>>mondo>>gencc>>hgnc&mode=lite"
 ```
 
 ### Filters
@@ -85,13 +85,13 @@ Apply CEL-based filters at any step:
 
 ```bash
 # Reviewed proteins only
-biobtree query "TP53 >> uniprot[reviewed==true]"
+curl "localhost:9292/ws/map/?i=TP53&m=>>uniprot[reviewed==true]&mode=lite"
 
 # High-resolution structures
-biobtree query "P04637 >> pdb[resolution<2.0]"
+curl "localhost:9292/ws/map/?i=P04637&m=>>pdb[resolution<2.0]&mode=lite"
 
 # Pathogenic variants
-biobtree query "BRCA1 >> alphamissense[am_class==\"likely_pathogenic\"]"
+curl "localhost:9292/ws/map/?i=BRCA1&m=>>alphamissense[am_class==\"likely_pathogenic\"]&mode=lite"
 ```
 
 ### Response Modes
@@ -100,7 +100,7 @@ biobtree query "BRCA1 >> alphamissense[am_class==\"likely_pathogenic\"]"
 - **lite**: Compact IDs-only format (~50x smaller, optimized for AI agents)
 
 ```bash
-biobtree query -m lite "TP53 >> ensembl >> uniprot"
+curl "localhost:9292/ws/map/?i=TP53&m=>>ensembl>>uniprot&mode=lite"
 ```
 
 ---

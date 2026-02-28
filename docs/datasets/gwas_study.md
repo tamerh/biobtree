@@ -48,13 +48,13 @@ This dataset provides study **metadata**. The separate `gwas` dataset provides S
 
 ```bash
 # Find studies about diabetes
-biobtree query "diabetes >> gwas_study"
+curl "localhost:9292/ws/map/?i=diabetes >> gwas_study&mode=lite"
 
 # Find SNPs from a specific study
-biobtree query "GCST010481 >> gwas"
+curl "localhost:9292/ws/map/?i=GCST010481 >> gwas&mode=lite"
 
 # Find studies that found associations for a gene
-biobtree query "BRCA1 >> gwas >> gwas_study"
+curl "localhost:9292/ws/map/?i=BRCA1 >> gwas >> gwas_study&mode=lite"
 ```
 
 ## Performance

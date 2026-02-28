@@ -60,8 +60,8 @@ cd src && go build -o ../biobtree
 # Start web server
 ./biobtree web
 
-# Query
-./biobtree query "BRCA1 >> ensembl"
+# Query (server must be running)
+curl "localhost:9292/ws/map/?i=BRCA1&m=>>ensembl&mode=lite"
 ```
 
 ### Run Tests

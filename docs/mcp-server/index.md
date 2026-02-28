@@ -61,7 +61,7 @@ Environment variables:
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `BIOBTREE_URL` | `http://localhost:9291` | Backend URL |
+| `BIOBTREE_URL` | `http://localhost:9292` | Backend URL |
 | `BIOBTREE_PORT` | `8000` | Server port |
 | `OPENROUTER_API_KEY` | (required for /chat) | OpenRouter API key |
 

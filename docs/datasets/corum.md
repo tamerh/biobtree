@@ -69,18 +69,18 @@ python3 test_corum.py
 
 ```bash
 # Direct lookup
-biobtree query "1"                           # Complex by ID
-biobtree query "BCL6-HDAC4 complex"          # By name
+curl "localhost:9292/ws/map/?i=1&mode=lite"                           # Complex by ID
+curl "localhost:9292/ws/map/?i=BCL6-HDAC4 complex&mode=lite"          # By name
 
 # Mapping queries
-biobtree query "P41182 >> uniprot >> corum"  # Protein to complexes
-biobtree query "1 >> corum >> uniprot"       # Complex to subunit proteins
-biobtree query "1 >> corum >> go"            # Complex to GO terms
+curl "localhost:9292/ws/map/?i=P41182 >> uniprot >> corum&mode=lite"  # Protein to complexes
+curl "localhost:9292/ws/map/?i=1 >> corum >> uniprot&mode=lite"       # Complex to subunit proteins
+curl "localhost:9292/ws/map/?i=1 >> corum >> go&mode=lite"            # Complex to GO terms
 
 # Filtered queries
-biobtree query "P04637 >> uniprot >> corum[organism==\"Human\"]"
-biobtree query "P04637 >> uniprot >> corum[subunit_count>5]"
-biobtree query "P04637 >> uniprot >> corum[has_drug_targets==true]"
+curl "localhost:9292/ws/map/?i=P04637 >> uniprot >> corum[organism==\&mode=lite"Human\"]"
+curl "localhost:9292/ws/map/?i=P04637 >> uniprot >> corum[subunit_count>5]&mode=lite"
+curl "localhost:9292/ws/map/?i=P04637 >> uniprot >> corum[has_drug_targets==true]&mode=lite"
 ```
 
 ## Known Limitations

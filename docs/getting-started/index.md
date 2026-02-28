@@ -56,20 +56,27 @@ After updates complete:
 ### 3. Start Web Server
 
 ```bash
-./bb.sh --web                # Start server (localhost:9291)
+./bb.sh --web                # Start server (localhost:9292)
 ```
 
 ### 4. Query
 
-**CLI:**
+**Web API:**
 ```bash
-biobtree query "BRCA1 >> ensembl >> uniprot"
+# Search
+curl "localhost:9292/ws/?i=BRCA1&mode=lite"
+
+# Map through datasets
+curl "localhost:9292/ws/map/?i=BRCA1&m=>>ensembl>>uniprot&mode=lite"
+
+# Get entry details
+curl "localhost:9292/ws/entry/?i=P04637&s=uniprot"
 ```
 
-**Web API:**
-```
-http://localhost:9291/ws/?i=BRCA1
-http://localhost:9291/ws/map/?i=BRCA1&m=>>ensembl>>uniprot
+**MCP Server (for LLM integration):**
+```bash
+cd mcp_srv && python -m mcp_srv --mode http
+# Then use Claude Desktop or API at localhost:8000
 ```
 
 ## Build Management

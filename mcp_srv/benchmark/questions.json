@@ -28,9 +28,23 @@
       "theme": "expression_cell_type",
       "why_llm_fails": "LLMs know SCN9A is expressed in sensory neurons but cannot provide comprehensive tissue coverage with quantitative scores. May miss non-obvious high-expression tissues like endometrium (score 83.65).",
       "ground_truth": {
-        "must_mention": ["SCN9A", "Nav1.7"],
-        "must_mention_any": ["dorsal root", "ganglion", "sensory", "expression", "tissue"],
-        "tool_only_terms": ["83.65", "88.05", "ENSG00000169432", "endometrium"],
+        "must_mention": [
+          "SCN9A",
+          "Nav1.7"
+        ],
+        "must_mention_any": [
+          "dorsal root",
+          "ganglion",
+          "sensory",
+          "expression",
+          "tissue"
+        ],
+        "tool_only_terms": [
+          "83.65",
+          "88.05",
+          "ENSG00000169432",
+          "endometrium"
+        ],
         "biobtree_chain": ">>ensembl[ensembl.genome==\"homo_sapiens\"]>>bgee",
         "key_values": {
           "drg_score": 88.05,
@@ -49,9 +63,28 @@
       "theme": "disease_drug",
       "why_llm_fails": "LLMs know the HGD gene and nitisinone but cannot enumerate all 9 clinical trials. May miss recent/obscure trials like NCT06298292 (NOT_YET_RECRUITING) or NCT04142671 (gait modification).",
       "ground_truth": {
-        "must_mention": ["HGD", "nitisinone"],
-        "must_mention_any": ["NCT00005909", "NCT00107783", "NCT01390077", "NCT01828463", "NCT01916382", "NCT04142671", "NCT04196959", "NCT04761588", "NCT06298292"],
-        "tool_only_terms": ["NCT04761588", "NCT06298292", "NCT04142671", "MONDO:0008753", "ENSG00000113924"],
+        "must_mention": [
+          "HGD",
+          "nitisinone"
+        ],
+        "must_mention_any": [
+          "NCT00005909",
+          "NCT00107783",
+          "NCT01390077",
+          "NCT01828463",
+          "NCT01916382",
+          "NCT04142671",
+          "NCT04196959",
+          "NCT04761588",
+          "NCT06298292"
+        ],
+        "tool_only_terms": [
+          "NCT04761588",
+          "NCT06298292",
+          "NCT04142671",
+          "MONDO:0008753",
+          "ENSG00000113924"
+        ],
         "biobtree_chain": ">>mondo>>clinical_trials",
         "key_values": {
           "total_trials": 9,
@@ -70,14 +103,35 @@
       "theme": "exhaustive_enumeration",
       "why_llm_fails": "Exhaustive enumeration is impossible for LLMs - they can only recall examples from training. Cannot list 150+ specific ClinVar IDs. Even with web search, complete enumeration is impractical.",
       "ground_truth": {
-        "must_mention": ["NPC1", "pathogenic"],
-        "must_mention_any": ["ClinVar", "variant", "HGVS", "c.", "p."],
-        "tool_only_terms": ["1030709", "1705750", "2782515", "ENSG00000141458", "150"],
+        "must_mention": [
+          "NPC1",
+          "pathogenic"
+        ],
+        "must_mention_any": [
+          "ClinVar",
+          "variant",
+          "HGVS",
+          "c.",
+          "p."
+        ],
+        "tool_only_terms": [
+          "1030709",
+          "1705750",
+          "2782515",
+          "ENSG00000141458",
+          "150"
+        ],
         "biobtree_chain": ">>ensembl>>clinvar[clinvar.germline_classification==\"Pathogenic\"]",
         "key_values": {
           "total_variants": "150+",
           "gene_ensembl": "ENSG00000141458",
-          "example_clinvar_ids": ["1030709", "1050802", "1066745", "21134", "21137"]
+          "example_clinvar_ids": [
+            "1030709",
+            "1050802",
+            "1066745",
+            "21134",
+            "21137"
+          ]
         }
       }
     },
@@ -91,14 +145,34 @@
       "theme": "gwas_associations",
       "why_llm_fails": "LLMs know famous APOE-Alzheimer's link but cannot enumerate 400+ GWAS associations or provide specific GCST study IDs. Cannot give accurate count of total associations.",
       "ground_truth": {
-        "must_mention": ["APOE", "Alzheimer"],
-        "must_mention_any": ["GCST", "GWAS", "cholesterol", "lipid", "cognitive"],
-        "tool_only_terms": ["GCST007881", "GCST003279", "403", "ENSG00000130203", "Lewy bodies"],
+        "must_mention": [
+          "APOE",
+          "Alzheimer"
+        ],
+        "must_mention_any": [
+          "GCST",
+          "GWAS",
+          "cholesterol",
+          "lipid",
+          "cognitive"
+        ],
+        "tool_only_terms": [
+          "GCST007881",
+          "GCST003279",
+          "403",
+          "ENSG00000130203",
+          "Lewy bodies"
+        ],
         "biobtree_chain": ">>ensembl[ensembl.genome==\"homo_sapiens\"]>>gwas",
         "key_values": {
           "total_associations": "403+",
           "gene_ensembl": "ENSG00000130203",
-          "example_gcst_ids": ["GCST000018", "GCST000121", "GCST007881", "GCST003279"]
+          "example_gcst_ids": [
+            "GCST000018",
+            "GCST000121",
+            "GCST007881",
+            "GCST003279"
+          ]
         }
       }
     },
@@ -110,11 +184,27 @@
       "tier": 2,
       "hops": 4,
       "theme": "multi_hop_pipeline",
-      "why_llm_fails": "LLMs know CYP2C19-clopidogrel connection but cannot enumerate 37 guidelines, provide specific PharmGKB IDs, or give exact annotation counts. Multi-hop traversal (Gene→Guidelines→Drugs→Variants→Labels) requires database access.",
+      "why_llm_fails": "LLMs know CYP2C19-clopidogrel connection but cannot enumerate 37 guidelines, provide specific PharmGKB IDs, or give exact annotation counts. Multi-hop traversal (Gene\u2192Guidelines\u2192Drugs\u2192Variants\u2192Labels) requires database access.",
       "ground_truth": {
-        "must_mention": ["CYP2C19", "clopidogrel"],
-        "must_mention_any": ["rs4244285", "*2", "CPIC", "DPWG", "PharmGKB"],
-        "tool_only_terms": ["37", "873", "PA166104948", "PA449053", "ENSG00000165841", "47066"],
+        "must_mention": [
+          "CYP2C19",
+          "clopidogrel"
+        ],
+        "must_mention_any": [
+          "rs4244285",
+          "*2",
+          "CPIC",
+          "DPWG",
+          "PharmGKB"
+        ],
+        "tool_only_terms": [
+          "37",
+          "873",
+          "PA166104948",
+          "PA449053",
+          "ENSG00000165841",
+          "47066"
+        ],
         "biobtree_chain": ">>hgnc>>pharmgkb_guideline",
         "key_values": {
           "total_guidelines": 37,
@@ -133,11 +223,29 @@
       "tier": 3,
       "hops": 5,
       "theme": "phenotype_to_drug_pipeline",
-      "why_llm_fails": "Requires 5 database traversals (HPO→Orphanet→Ensembl→ClinVar→Clinical Trials). LLMs know Marfan/FBN1 but cannot enumerate 19 diseases, 248+ variants, or specific trial IDs. Cross-database integration impossible without tools.",
+      "why_llm_fails": "Requires 5 database traversals (HPO\u2192Orphanet\u2192Ensembl\u2192ClinVar\u2192Clinical Trials). LLMs know Marfan/FBN1 but cannot enumerate 19 diseases, 248+ variants, or specific trial IDs. Cross-database integration impossible without tools.",
       "ground_truth": {
-        "must_mention": ["Marfan", "FBN1"],
-        "must_mention_any": ["ectopia lentis", "homocystinuria", "CBS", "Weill-Marchesani", "losartan", "clinical trial"],
-        "tool_only_terms": ["ORPHA:558", "ENSG00000166147", "NCT00429364", "248", "19 diseases", "LTBP2", "ADAMTS10"],
+        "must_mention": [
+          "Marfan",
+          "FBN1"
+        ],
+        "must_mention_any": [
+          "ectopia lentis",
+          "homocystinuria",
+          "CBS",
+          "Weill-Marchesani",
+          "losartan",
+          "clinical trial"
+        ],
+        "tool_only_terms": [
+          "ORPHA:558",
+          "ENSG00000166147",
+          "NCT00429364",
+          "248",
+          "19 diseases",
+          "LTBP2",
+          "ADAMTS10"
+        ],
         "biobtree_chain": ">>hpo>>orphanet>>ensembl>>clinvar",
         "key_values": {
           "total_diseases": 19,
@@ -158,9 +266,25 @@
       "theme": "rare_disease_profiling",
       "why_llm_fails": "Ultra-rare disease (~100 cases). LLMs know basic disease IDs but cannot enumerate 192 ClinVar variants or 178 HPO phenotypes. Risk of Ensembl ID hallucination.",
       "ground_truth": {
-        "must_mention": ["DOORS", "ATP6V1B2"],
-        "must_mention_any": ["TBC1D24", "Orphanet", "OMIM", "79500", "220500", "HPO"],
-        "tool_only_terms": ["ENSG00000147416", "ENSG00000162065", "192", "178", "MONDO:0009079"],
+        "must_mention": [
+          "DOORS",
+          "ATP6V1B2"
+        ],
+        "must_mention_any": [
+          "TBC1D24",
+          "Orphanet",
+          "OMIM",
+          "79500",
+          "220500",
+          "HPO"
+        ],
+        "tool_only_terms": [
+          "ENSG00000147416",
+          "ENSG00000162065",
+          "192",
+          "178",
+          "MONDO:0009079"
+        ],
         "biobtree_chain": ">>orphanet>>ensembl>>clinvar",
         "key_values": {
           "orphanet_id": "79500",
@@ -184,32 +308,71 @@
       "theme": "post_cutoff_enumeration",
       "why_llm_fails": "Tests data freshness with NCT07 prefix trials (definitively post-training cutoff). LLMs with web search can find some recent trials but cannot systematically enumerate all 28 registered studies.",
       "ground_truth": {
-        "must_mention": ["suzetrigine", "NaV1.8"],
-        "must_mention_any": ["NCT", "clinical trial", "ChEMBL", "acute pain", "DPN"],
-        "tool_only_terms": ["NCT07145346", "NCT07195669", "NCT07219888", "NCT07226700", "NCT07231419", "NCT07257133", "CHEMBL5314487", "PA166364461", "28"],
+        "must_mention": [
+          "suzetrigine",
+          "NaV1.8"
+        ],
+        "must_mention_any": [
+          "NCT",
+          "clinical trial",
+          "ChEMBL",
+          "acute pain",
+          "DPN"
+        ],
+        "tool_only_terms": [
+          "NCT07145346",
+          "NCT07195669",
+          "NCT07219888",
+          "NCT07226700",
+          "NCT07231419",
+          "NCT07257133",
+          "CHEMBL5314487",
+          "PA166364461",
+          "28"
+        ],
         "biobtree_chain": ">>chembl_molecule>>clinical_trials",
         "key_values": {
           "total_trials": 28,
           "chembl_id": "CHEMBL5314487",
           "pharmgkb_id": "PA166364461",
           "nct07_trials": 6,
-          "indications": ["DPN", "Lumbosacral Radiculopathy", "Postherpetic Neuralgia", "Acute Pain"]
+          "indications": [
+            "DPN",
+            "Lumbosacral Radiculopathy",
+            "Postherpetic Neuralgia",
+            "Acute Pain"
+          ]
         }
       }
     },
     {
       "id": 9,
       "question_id": "apoe_alphamissense",
-      "question": "The APOE ε4 variant (rs429358, C130R) is the strongest genetic risk factor for late-onset Alzheimer's disease. What is the exact AlphaMissense pathogenicity score for this variant? What does ClinVar report as clinical significance? What Reactome pathways involve APOE? Explain any apparent discrepancy between being a major disease risk factor and the AlphaMissense prediction.",
+      "question": "The APOE \u03b54 variant (rs429358, C130R) is the strongest genetic risk factor for late-onset Alzheimer's disease. What is the exact AlphaMissense pathogenicity score for this variant? What does ClinVar report as clinical significance? What Reactome pathways involve APOE? Explain any apparent discrepancy between being a major disease risk factor and the AlphaMissense prediction.",
       "category": "data_accuracy",
       "tier": 2,
       "hops": 3,
       "theme": "specific_value_retrieval",
       "why_llm_fails": "Tests data accuracy rather than enumeration. LLMs cannot retrieve exact AlphaMissense scores from memory. Risk of fabricating plausible-sounding values (Gemini reported 0.091 when actual is 0.0365 - a 2.5x error).",
       "ground_truth": {
-        "must_mention": ["APOE", "rs429358"],
-        "must_mention_any": ["AlphaMissense", "pathogenicity", "ClinVar", "Reactome", "Alzheimer"],
-        "tool_only_terms": ["0.0365", "likely_benign", "19:44908684:T:C", "P02649", "12 pathways"],
+        "must_mention": [
+          "APOE",
+          "rs429358"
+        ],
+        "must_mention_any": [
+          "AlphaMissense",
+          "pathogenicity",
+          "ClinVar",
+          "Reactome",
+          "Alzheimer"
+        ],
+        "tool_only_terms": [
+          "0.0365",
+          "likely_benign",
+          "19:44908684:T:C",
+          "P02649",
+          "12 pathways"
+        ],
         "biobtree_chain": ">>dbsnp>>alphamissense",
         "key_values": {
           "alphamissense_score": 0.0365,
@@ -231,9 +394,24 @@
       "theme": "cell_type_specificity",
       "why_llm_fails": "This tests whether LLMs know LRRK2's immune cell expression (well-established in PD literature). Unlike SCN9A/endometrium, this is NOT a biobtree advantage case - LLMs correctly identify immune > neurons. Biobtree advantage is only quantitative scores.",
       "ground_truth": {
-        "must_mention": ["LRRK2", "Parkinson"],
-        "must_mention_any": ["monocyte", "immune", "neuron", "macrophage", "expression"],
-        "tool_only_terms": ["97.06", "96.79", "66.31", "ENSG00000188906", "CL:0000576"],
+        "must_mention": [
+          "LRRK2",
+          "Parkinson"
+        ],
+        "must_mention_any": [
+          "monocyte",
+          "immune",
+          "neuron",
+          "macrophage",
+          "expression"
+        ],
+        "tool_only_terms": [
+          "97.06",
+          "96.79",
+          "66.31",
+          "ENSG00000188906",
+          "CL:0000576"
+        ],
         "biobtree_chain": ">>ensembl[ensembl.genome==\"homo_sapiens\"]>>bgee",
         "key_values": {
           "monocyte_score": 97.06,
@@ -256,9 +434,23 @@
       "theme": "immune_cell_specificity",
       "why_llm_fails": "LLMs know CD19 is a B-cell marker but lack quantitative subtype-level data. This tests whether biobtree's single-cell data provides B-cell subtype resolution (naive vs memory vs plasma). OpenTargets with BLUEPRINT may have advantage here.",
       "ground_truth": {
-        "must_mention": ["CD19", "B cell"],
-        "must_mention_any": ["naive", "memory", "plasma", "lymph node", "expression"],
-        "tool_only_terms": ["ENSG00000177455", "93.9", "89.47", "P15391"],
+        "must_mention": [
+          "CD19",
+          "B cell"
+        ],
+        "must_mention_any": [
+          "naive",
+          "memory",
+          "plasma",
+          "lymph node",
+          "expression"
+        ],
+        "tool_only_terms": [
+          "ENSG00000177455",
+          "93.9",
+          "89.47",
+          "P15391"
+        ],
         "biobtree_chain": ">>ensembl[ensembl.genome==\"homo_sapiens\"]>>bgee",
         "key_values": {
           "lymph_node_score": 93.9,
@@ -266,6 +458,76 @@
           "bone_marrow_score": 82.39,
           "gene_ensembl": "ENSG00000177455",
           "expected_outcome": "MIXED_REQUIRES_INVESTIGATION - SCXA shows expected CD19 plasma cell downregulation, but BLUEPRINT should excel for immune targets. Discrepancy needs investigation."
+        }
+      }
+    },
+    {
+      "id": 12,
+      "question_id": "brca1_comprehensive_pipeline",
+      "question": "BRCA1 is critical for hereditary breast/ovarian cancer genetic testing. For a comprehensive gene annotation used in clinical reporting:\n1. Gene structure: How many transcripts? How many exons in the canonical?\n2. Protein products: How many UniProt entries? What domains (InterPro)?\n3. 3D structures: How many PDB structures exist? What experimental methods?\n4. Clinical variants: How many ClinVar variants? How many pathogenic?\n5. Pathways: What Reactome pathways involve BRCA1?\n\nThis is a gene-to-function pipeline. Provide specific database IDs at each level.\n\nIMPORTANT: LIST ALL THE ITEMS, AT LEAST THE FIRST 100 RECORDS FOR EACH CATEGORY.",
+      "category": "gene_structure",
+      "tier": 3,
+      "hops": 5,
+      "theme": "multi_database_pipeline",
+      "why_llm_fails": "Requires 5 database traversals (Ensembl->Transcript->UniProt->PDB->ClinVar->Reactome). LLMs cannot enumerate 47 transcripts, 22 UniProt entries, 33 PDB structures, 15,445 ClinVar variants, and 59 pathways with specific IDs. Even with web search, exhaustive enumeration of 100+ items per category is impossible.",
+      "ground_truth": {
+        "must_mention": [
+          "BRCA1",
+          "transcript",
+          "variant"
+        ],
+        "must_mention_any": [
+          "exon",
+          "UniProt",
+          "PDB",
+          "ClinVar",
+          "Reactome",
+          "domain",
+          "ENST"
+        ],
+        "tool_only_terms": [
+          "47",
+          "23",
+          "33",
+          "15445",
+          "ENSG00000012048",
+          "P38398",
+          "BRCT",
+          "IPR001357",
+          "ENST00000357654",
+          "3719",
+          "27",
+          "2"
+        ],
+        "biobtree_chain": ">>ensembl>>transcript>>exon, >>ensembl>>uniprot>>pdb, >>ensembl>>uniprot>>interpro, >>ensembl>>clinvar, >>ensembl>>reactome, >>ensembl>>spliceai",
+        "key_values": {
+          "total_transcripts": 47,
+          "canonical_transcript": "ENST00000357654",
+          "canonical_exons": 23,
+          "uniprot_entries": 2,
+          "canonical_uniprot": "P38398",
+          "pdb_structures": 33,
+          "interpro_domains": 9,
+          "clinvar_variants": 15445,
+          "spliceai_predictions": 3719,
+          "reactome_pathways": 27,
+          "reactome_disease_pathways": 7,
+          "gene_ensembl": "ENSG00000012048",
+          "chromosome": "17",
+          "key_domains": [
+            "BRCT",
+            "RING zinc finger",
+            "IPR001357",
+            "IPR001841"
+          ],
+          "key_pathways": [
+            "DNA Double-Strand Break Repair",
+            "Homology Directed Repair",
+            "HDR through Homologous Recombination"
+          ],
+          "pdb_note": "From >>uniprot>>pdb mapping (xrefs show 65 but includes duplicates)",
+          "uniprot_note": "HGNC xrefs show 2; mapping returns 1 canonical (P38398)",
+          "reactome_note": "From >>uniprot>>reactome mapping: 20 normal + 7 disease pathways"
         }
       }
     }

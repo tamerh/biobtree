@@ -109,6 +109,9 @@ class IntegrationTestRunner:
         dataset_id = test.get('dataset_id')
         filter_dataset = test.get('filter_dataset')  # Dataset name to filter results
 
+        # Check if test needs xref_count validation (requires entry endpoint for detailed xrefs)
+        needs_entry_endpoint = any('xref_count' in v for v in test.get('validations', []))
+
         # Fetch data
         try:
             if self.use_mcp:
@@ -123,13 +126,23 @@ class IntegrationTestRunner:
                     url = f"{self.server}/api/map"
             else:
                 # Biobtree direct endpoints
-                if query == '':
+                if needs_entry_endpoint and query == '':
+                    # Use entry endpoint for xref_count validations (returns detailed xrefs)
+                    params = {'i': identifier}
+                    if filter_dataset:
+                        params['s'] = filter_dataset
+                    url = f"{self.server}/ws/entry/"
+                elif query == '':
                     params = {'i': identifier}
                     if filter_dataset:
                         params['s'] = filter_dataset
                     url = f"{self.server}/ws/"
                 else:
                     params = {'i': identifier, 'm': query}
+                    # Use lite mode for mapping_total validations (returns stats.total)
+                    needs_mapping_total = any('mapping_total' in v for v in test.get('validations', []))
+                    if needs_mapping_total:
+                        params['mode'] = 'lite'
                     url = f"{self.server}/ws/map/"
 
             start_time = time.time()
@@ -161,7 +174,11 @@ class IntegrationTestRunner:
         # Find the entry to validate
         entry = None
         expected_identifier = test.get('expected_identifier')
-        if data.get('results'):
+
+        # Entry endpoint returns data directly, not wrapped in results
+        if needs_entry_endpoint and 'identifier' in data and 'xrefs' in data:
+            entry = data
+        elif data.get('results'):
             if expected_identifier:
                 # Find by expected identifier (exact match)
                 for r in data['results']:
@@ -211,7 +228,45 @@ class IntegrationTestRunner:
             return {**result_base, 'passed': False, 'error': f"Path error: {e}"}
 
         # Check validation conditions
-        if 'expected' in validation:
+        # NOTE: xref_count and mapping_total must be checked BEFORE generic min/max
+        # because they also use min/max keys but handle them specially
+        if 'xref_count' in validation:
+            # Check xref count for a specific dataset (e.g., "pdb" from xrefs.data: ["pdb|33", ...])
+            # Used to detect xref inflation bugs where counts are ~2x actual unique entries
+            dataset_name = validation['xref_count']
+            xref_count = self.get_xref_count(entry, dataset_name)
+            if xref_count is None:
+                return {**result_base, 'passed': False, 'error': f"Xref dataset '{dataset_name}' not found"}
+            if 'min' in validation and 'max' in validation:
+                passed = validation['min'] <= xref_count <= validation['max']
+                if not passed:
+                    return {**result_base, 'passed': False, 'error': f"Xref count for '{dataset_name}' expected {validation['min']}-{validation['max']}, got {xref_count}"}
+            elif 'expected' in validation:
+                passed = xref_count == validation['expected']
+                if not passed:
+                    return {**result_base, 'passed': False, 'error': f"Xref count for '{dataset_name}' expected {validation['expected']}, got {xref_count}"}
+            else:
+                passed = xref_count > 0
+                if not passed:
+                    return {**result_base, 'passed': False, 'error': f"Xref count for '{dataset_name}' is 0"}
+            return {**result_base, 'passed': True, 'has_results': True}
+        elif 'mapping_total' in validation:
+            # Check mapping stats.total matches expected range (validates no inflation)
+            stats_total = data.get('stats', {}).get('total', 0)
+            if 'min' in validation and 'max' in validation:
+                passed = validation['min'] <= stats_total <= validation['max']
+                if not passed:
+                    return {**result_base, 'passed': False, 'error': f"Mapping total expected {validation['min']}-{validation['max']}, got {stats_total}"}
+            elif 'expected' in validation:
+                passed = stats_total == validation['expected']
+                if not passed:
+                    return {**result_base, 'passed': False, 'error': f"Mapping total expected {validation['expected']}, got {stats_total}"}
+            else:
+                passed = stats_total > 0
+                if not passed:
+                    return {**result_base, 'passed': False, 'error': f"Mapping total is 0"}
+            return {**result_base, 'passed': True, 'has_results': True}
+        elif 'expected' in validation:
             passed = value == validation['expected']
             if not passed:
                 return {**result_base, 'passed': False, 'error': f"Expected '{validation['expected']}', got '{value}'"}
@@ -352,6 +407,26 @@ class IntegrationTestRunner:
                 if len(targets) >= n:
                     return targets
         return targets
+
+    def get_xref_count(self, entry, dataset_name):
+        """Get xref count for a specific dataset from entry's xrefs.data array.
+
+        xrefs.data format: ["pdb|33", "reactome|27", ...]
+        Returns the count for the specified dataset, or None if not found.
+        """
+        if not entry:
+            return None
+        xrefs = entry.get('xrefs', {})
+        data = xrefs.get('data', [])
+        for item in data:
+            if '|' in item:
+                ds, count = item.split('|', 1)
+                if ds == dataset_name:
+                    try:
+                        return int(count)
+                    except ValueError:
+                        return None
+        return None
 
     def get_first_n_scores(self, data, score_path, n):
         """Get first N scores from results for descending order validation"""

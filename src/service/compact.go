@@ -198,8 +198,8 @@ func extractField(xref *pbuf.Xref, field string) string {
 	if a := xref.GetIntact(); a != nil {
 		return extractIntactField(a, field)
 	}
-	if a := xref.GetProteinSimilarity(); a != nil {
-		return extractProteinSimilarityField(a, field)
+	if a := xref.GetDiamondSimilarity(); a != nil {
+		return extractDiamondSimilarityField(a, field)
 	}
 	if a := xref.GetEsm2Similarity(); a != nil {
 		return extractEsm2SimilarityField(a, field)
@@ -1361,8 +1361,8 @@ func extractIntactField(a *pbuf.IntactAttr, field string) string {
 	}
 }
 
-// extractProteinSimilarityField extracts a field from ProteinSimilarityAttr
-func extractProteinSimilarityField(a *pbuf.ProteinSimilarityAttr, field string) string {
+// extractDiamondSimilarityField extracts a field from DiamondSimilarityAttr
+func extractDiamondSimilarityField(a *pbuf.DiamondSimilarityAttr, field string) string {
 	switch field {
 	case "protein_id":
 		return a.ProteinId

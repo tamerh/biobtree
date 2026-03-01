@@ -871,10 +871,10 @@ def cmd_show(questions_file: Path, results_dir: Path, question_ref: str) -> int:
     return 0
 
 
-WEB_RESPONSE_FILE = Path(__file__).parent / "web_response.txt"
+RESPONSE_FILE = Path(__file__).parent / "response.txt"
 
 def cmd_add_web(questions_file: Path, results_dir: Path) -> int:
-    """Interactive: add a web LLM response for a question."""
+    """Interactive: add a web LLM or CLI response for a question."""
     registry = load_questions_registry(questions_file)
     questions = registry.get("questions", [])
 
@@ -917,12 +917,13 @@ def cmd_add_web(questions_file: Path, results_dir: Path) -> int:
 
     # Get model by number
     web_models = [
-        ("web_chatgpt52", "ChatGPT 5.2"),
-        ("web_gemini3_pro", "Gemini 3 Pro"),
-        ("web_claude46", "Claude 4.6"),
-        ("claude_46_opentargets_mcp_desktop", "Claude 4.6 + OpenTargets MCP")
+        ("web_chatgpt52", "ChatGPT 5.2 (web)"),
+        ("web_gemini3_pro", "Gemini 3 Pro (web)"),
+        ("web_claude46", "Claude 4.6 (web)"),
+        ("claude_46_opentargets_mcp_desktop", "Claude 4.6 + OpenTargets MCP (desktop)"),
+        ("cli_claude_biobtree_mcp", "Claude CLI + Biobtree MCP"),
     ]
-    print("\nWeb models:")
+    print("\nModels (web or CLI):")
     for i, (key, name) in enumerate(web_models, 1):
         print(f"  {i}. {name} ({key})")
 
@@ -946,7 +947,7 @@ def cmd_add_web(questions_file: Path, results_dir: Path) -> int:
     print(f"Selected: {model_name}")
 
     # Get response from file (default) or inline
-    default_file = WEB_RESPONSE_FILE
+    default_file = RESPONSE_FILE
     print(f"\nResponse file [{default_file}]:")
     print("  - Press Enter to read from default file")
     print("  - Or type a different file path")

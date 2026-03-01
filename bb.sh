@@ -124,7 +124,7 @@ DATASETS=(
     scxa
     scxa_expression
     fantom5_promoter
-    protein_similarity
+    diamond_similarity
     esm2_similarity
 
     # Compounds & drugs

@@ -209,7 +209,7 @@ Examples:
   %(prog)s hmdb,go,taxonomy   # Run multiple specific tests
 
 Available datasets:
-  uniprot, go, taxonomy, eco, efo, chebi, interpro, hmdb, lipidmaps, swisslipids, chembl, ensembl, mondo, hpo, mesh, uberon, cl, oba, pato, obi, xco, bgee, patent, clinical_trials, clinvar, string, reactome, rhea, alphafold, alphamissense, alphamissense_transcript, rnacentral, uniparc, uniref50, uniref90, uniref100, gwas_study, gwas, dbsnp, intact, protein_similarity, antibody, pubchem, entrez, refseq, gencc, bindingdb, ctd, msigdb, collectri, signor
+  uniprot, go, taxonomy, eco, efo, chebi, interpro, hmdb, lipidmaps, swisslipids, chembl, ensembl, mondo, hpo, mesh, uberon, cl, oba, pato, obi, xco, bgee, patent, clinical_trials, clinvar, string, reactome, rhea, alphafold, alphamissense, alphamissense_transcript, rnacentral, uniparc, uniref50, uniref90, uniref100, gwas_study, gwas, dbsnp, intact, diamond_similarity, antibody, pubchem, entrez, refseq, gencc, bindingdb, ctd, msigdb, collectri, signor
 
   Temporarily disabled (Ensembl Genomes API SSL issues):
   ensembl_bacteria, ensembl_fungi, ensembl_metazoa, ensembl_plants, ensembl_protists
@@ -286,7 +286,7 @@ Available datasets:
         'gwas': datasets_dir / "gwas" / "test_gwas.py",
         'dbsnp': datasets_dir / "dbsnp" / "test_dbsnp.py",
         'intact': datasets_dir / "intact" / "test_intact.py",
-        'protein_similarity': datasets_dir / "protein_similarity" / "test_protein_similarity.py",
+        'diamond_similarity': datasets_dir / "diamond_similarity" / "test_diamond_similarity.py",
        # 'antibody': datasets_dir / "antibody" / "test_antibody.py",
         'pubchem': datasets_dir / "pubchem" / "test_pubchem.py",
         'entrez': datasets_dir / "entrez" / "test_entrez.py",

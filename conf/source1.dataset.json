@@ -568,11 +568,11 @@
     "bucketMethod": "alphabetic",
     "xrefSort": "uniprot:speciesPriority,interactionScore"
   },
-  "protein_similarity": {
+  "diamond_similarity": {
     "id": "39",
-    "name": "Protein Similarity",
+    "name": "DIAMOND Protein Similarity",
     "path": "/data/bioyoda/snapshots/diamond_latest/data/processed/diamond/merged/filtered_top100.tsv",
-    "aliases": "diamond,protein similarity,sequence similarity,__BLASTP,__homology,__orthology",
+    "aliases": "protein_similarity,diamond,protein similarity,sequence similarity,__BLASTP,__homology,__orthology",
     "url": "https://www.uniprot.org/uniprotkb/£{id}",
     "useLocalFile": "yes",
     "hasFilter": "yes",

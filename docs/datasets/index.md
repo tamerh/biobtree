@@ -36,7 +36,7 @@ Protein sequences, structures, domains, and features.
 | pdb | Protein Data Bank structures | [README](pdb.md) |
 | interpro | Protein domains and families | [README](interpro.md) |
 | esm2_similarity | ESM2 embedding-based protein similarity | [README](esm2_similarity.md) |
-| protein_similarity | Sequence-based protein similarity | [README](protein_similarity.md) |
+| diamond_similarity | DIAMOND sequence-based protein similarity | [README](diamond_similarity.md) |
 | jaspar | TF binding profiles (PFMs/PWMs) | [README](jaspar.md) |
 | antibody | Antibody sequences | [README](antibody.md) |
 

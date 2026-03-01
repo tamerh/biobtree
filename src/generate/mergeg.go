@@ -1042,6 +1042,10 @@ func (d *Merge) mergeg() {
 	keyPropArrIndx := map[string]map[string][]int{}
 
 	kvCounts := map[string]map[string]map[string]uint32{}
+	// kvSeen tracks unique (db:valuedb:value) tuples per key to prevent double-counting
+	// when the same xref relationship is written by multiple parsers (e.g., both UniProt
+	// and PDB write UniProt<->PDB links, causing ~2x inflation in xref counts)
+	kvSeen := map[string]map[string]bool{}
 
 	d.wg.Done()
 
@@ -1174,6 +1178,7 @@ func (d *Merge) mergeg() {
 			delete(keyArrIds, kv.key)
 			delete(keyArrIndx, kv.key)
 			delete(kvCounts, kv.key)
+			delete(kvSeen, kv.key)
 			if _, ok := keyPropArrIds[kv.key]; ok {
 				delete(keyPropArrIds, kv.key)
 			}
@@ -1253,10 +1258,13 @@ func (d *Merge) mergeg() {
 
 			all[arrayID][0] = kv
 
-			// key value count
+			// key value count - initialize with deduplication tracking
 			kvCounts[kv.key] = map[string]map[string]uint32{}
 			kvCounts[kv.key][kv.db] = map[string]uint32{}
 			kvCounts[kv.key][kv.db][kv.valuedb] = 1
+			// Track this xref to prevent double-counting from bidirectional writes
+			kvSeen[kv.key] = map[string]bool{}
+			kvSeen[kv.key][kv.db+":"+kv.valuedb+":"+kv.value] = true
 
 		} else if _, ok := keyArrIds[kv.key][kv.db]; !ok {
 
@@ -1269,8 +1277,21 @@ func (d *Merge) mergeg() {
 
 			all[arrayID][0] = kv
 
-			kvCounts[kv.key][kv.db] = map[string]uint32{}
-			kvCounts[kv.key][kv.db][kv.valuedb] = 1
+			// Check deduplication before counting
+			seenKey := kv.db + ":" + kv.valuedb + ":" + kv.value
+			if kvSeen[kv.key] == nil {
+				kvSeen[kv.key] = map[string]bool{}
+			}
+			if !kvSeen[kv.key][seenKey] {
+				kvSeen[kv.key][seenKey] = true
+				kvCounts[kv.key][kv.db] = map[string]uint32{}
+				kvCounts[kv.key][kv.db][kv.valuedb] = 1
+			} else {
+				// Duplicate xref - initialize count structure but don't increment
+				if kvCounts[kv.key][kv.db] == nil {
+					kvCounts[kv.key][kv.db] = map[string]uint32{}
+				}
+			}
 
 		} else {
 
@@ -1289,12 +1310,20 @@ func (d *Merge) mergeg() {
 			all[arrayID][idx] = kv
 			keyArrIndx[kv.key][kv.db][lastArrayIDIdx] = keyArrIndx[kv.key][kv.db][lastArrayIDIdx] + 1
 
-			// key value counts
-			if _, ok = kvCounts[kv.key][kv.db][kv.valuedb]; !ok {
-				kvCounts[kv.key][kv.db][kv.valuedb] = 1
-			} else {
-				kvCounts[kv.key][kv.db][kv.valuedb] = kvCounts[kv.key][kv.db][kv.valuedb] + 1
+			// key value counts - only count unique xrefs (deduplicate bidirectional writes)
+			seenKey := kv.db + ":" + kv.valuedb + ":" + kv.value
+			if kvSeen[kv.key] == nil {
+				kvSeen[kv.key] = map[string]bool{}
 			}
+			if !kvSeen[kv.key][seenKey] {
+				kvSeen[kv.key][seenKey] = true
+				if _, ok = kvCounts[kv.key][kv.db][kv.valuedb]; !ok {
+					kvCounts[kv.key][kv.db][kv.valuedb] = 1
+				} else {
+					kvCounts[kv.key][kv.db][kv.valuedb] = kvCounts[kv.key][kv.db][kv.valuedb] + 1
+				}
+			}
+			// If seenKey exists, this is a duplicate xref - skip counting
 
 		}
 
@@ -1992,11 +2021,11 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)
 				xref.Attributes = &pbuf.Xref_BiogridInteraction{attr}
-			case "protein_similarity":
-				attr := &pbuf.ProteinSimilarityAttr{}
+			case "diamond_similarity":
+				attr := &pbuf.DiamondSimilarityAttr{}
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)
-				xref.Attributes = &pbuf.Xref_ProteinSimilarity{attr}
+				xref.Attributes = &pbuf.Xref_DiamondSimilarity{attr}
 			case "esm2_similarity":
 				attr := &pbuf.Esm2SimilarityAttr{}
 				barr := []byte((*kvProp[k])[0].value)
@@ -2485,11 +2514,11 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 					barr := []byte((*kvProp[k])[0].value)
 					ffjson.Unmarshal(barr, attr)
 					xref.Attributes = &pbuf.Xref_BiogridInteraction{attr}
-				case "protein_similarity":
-					attr := &pbuf.ProteinSimilarityAttr{}
+				case "diamond_similarity":
+					attr := &pbuf.DiamondSimilarityAttr{}
 					barr := []byte((*kvProp[k])[0].value)
 					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_ProteinSimilarity{attr}
+					xref.Attributes = &pbuf.Xref_DiamondSimilarity{attr}
 				case "esm2_similarity":
 					attr := &pbuf.Esm2SimilarityAttr{}
 					barr := []byte((*kvProp[k])[0].value)

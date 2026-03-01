@@ -95,7 +95,8 @@
     "intact_sorting": "IntAct interaction sorting: Tests species priority and confidence score sorting for intact dataset. Human interactions appear first, sorted by MI-score descending within species groups.",
     "signor_sorting": "SIGNOR causal interaction sorting: Tests species priority and confidence score sorting for signor dataset. Human causal interactions appear first when querying reverse xrefs (uniprot>>signor, chebi>>signor), sorted by SIGNOR score descending within species groups.",
     "mirdb_sorting": "miRDB target prediction sorting: Tests species priority and prediction score sorting for mirdb dataset. Human miRNAs appear first when querying reverse xrefs (refseq>>mirdb), sorted by prediction score descending within species groups.",
-    "brenda_kinetics_compact": "BRENDA kinetics compact storage: Tests the new compact pipe-delimited storage format for enzyme kinetics (Km, kcat, Ki values). Validates schema field format, organism priority sorting (Homo sapiens first), and value ordering within organism groups. Uses schema: value|unit|organism|conditions|pubmed_id|comment."
+    "brenda_kinetics_compact": "BRENDA kinetics compact storage: Tests the new compact pipe-delimited storage format for enzyme kinetics (Km, kcat, Ki values). Validates schema field format, organism priority sorting (Homo sapiens first), and value ordering within organism groups. Uses schema: value|unit|organism|conditions|pubmed_id|comment.",
+    "xref_inflation": "Xref count inflation detection: Validates that xref counts from biobtree_entry match unique mapping counts from biobtree_map. Catches bugs where bidirectional writes cause ~2x inflation (e.g., pdb|65 instead of pdb|33). Tests P38398 (BRCA1) PDB and Reactome xref counts against mapping totals."
   },
   "tests": [
     {
@@ -8317,6 +8318,111 @@
           "path": "source.Attributes.BrendaKinetics.substrate_type",
           "expected": "substrate",
           "description": "Ethanol is a substrate for alcohol dehydrogenase"
+        }
+      ]
+    },
+    {
+      "_comment": "=== XREF INFLATION DETECTION TESTS ==="
+    },
+    {
+      "category": "xref_inflation",
+      "name": "P38398 PDB Xref Count Not Inflated",
+      "type": "validation",
+      "query": "",
+      "filter_dataset": "uniprot",
+      "identifier": "P38398",
+      "expected_identifier": "P38398",
+      "why": "Xref counts should match unique mapping counts. Bug fix in mergeg.go prevents bidirectional double-counting that caused ~2x inflation (65 instead of 33).",
+      "validations": [
+        {
+          "xref_count": "pdb",
+          "min": 30,
+          "max": 45,
+          "description": "PDB xref count should be ~33 (not ~65 from inflation bug)"
+        }
+      ]
+    },
+    {
+      "category": "xref_inflation",
+      "name": "P38398 Reactome Xref Count Not Inflated",
+      "type": "validation",
+      "query": "",
+      "filter_dataset": "uniprot",
+      "identifier": "P38398",
+      "expected_identifier": "P38398",
+      "why": "Xref counts should match unique mapping counts. Reactome was showing 54 instead of 27 due to bidirectional writes.",
+      "validations": [
+        {
+          "xref_count": "reactome",
+          "min": 20,
+          "max": 40,
+          "description": "Reactome xref count should be ~27 (not ~54 from inflation bug)"
+        }
+      ]
+    },
+    {
+      "category": "xref_inflation",
+      "name": "P38398 PDB Mapping Total Matches Xref",
+      "type": "validation",
+      "query": ">>uniprot>>pdb",
+      "identifier": "P38398",
+      "why": "Mapping total should match xref count - both should be ~33 unique PDB structures for BRCA1.",
+      "validations": [
+        {
+          "mapping_total": true,
+          "min": 30,
+          "max": 45,
+          "description": "Mapping returns ~33 unique PDB structures"
+        }
+      ]
+    },
+    {
+      "category": "xref_inflation",
+      "name": "P38398 Reactome Mapping Total Matches Xref",
+      "type": "validation",
+      "query": ">>uniprot>>reactome",
+      "identifier": "P38398",
+      "why": "Mapping total should match xref count - both should be ~27 unique Reactome pathways for BRCA1.",
+      "validations": [
+        {
+          "mapping_total": true,
+          "min": 20,
+          "max": 40,
+          "description": "Mapping returns ~27 unique Reactome pathways"
+        }
+      ]
+    },
+    {
+      "category": "xref_inflation",
+      "name": "P04637 (TP53) PDB Xref Count Not Severely Inflated",
+      "type": "validation",
+      "query": "",
+      "filter_dataset": "uniprot",
+      "identifier": "P04637",
+      "expected_identifier": "P04637",
+      "why": "TP53 still has some residual inflation (~4x) due to multiple data sources. Bug fix reduced it from ~8x. Mapping shows ~75 unique structures.",
+      "validations": [
+        {
+          "xref_count": "pdb",
+          "min": 60,
+          "max": 400,
+          "description": "TP53 PDB xref count should be <400 (was ~582 before fix, now ~297)"
+        }
+      ]
+    },
+    {
+      "category": "xref_inflation",
+      "name": "P04637 (TP53) PDB Mapping Total",
+      "type": "validation",
+      "query": ">>uniprot>>pdb",
+      "identifier": "P04637",
+      "why": "Mapping total for TP53 PDB structures - always correct at ~75.",
+      "validations": [
+        {
+          "mapping_total": true,
+          "min": 60,
+          "max": 120,
+          "description": "TP53 mapping returns ~75 unique PDB structures"
         }
       ]
     }

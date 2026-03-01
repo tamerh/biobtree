@@ -249,7 +249,7 @@ func (p *proteinSimilarity) extractProteinName(pipeID string) string {
 func (p *proteinSimilarity) saveProtein(proteinID string, similarities []*pbuf.DiamondSimilarity,
 	topIdentity, topBitscore float32, sourceID string) {
 
-	attr := &pbuf.ProteinSimilarityAttr{
+	attr := &pbuf.DiamondSimilarityAttr{
 		ProteinId:       proteinID,
 		Similarities:    similarities,
 		SimilarityCount: int32(len(similarities)),
@@ -284,7 +284,7 @@ func (p *proteinSimilarity) createCrossReferences(proteinID string, similarities
 
 	for _, sim := range similarities {
 		// Protein similarity → Similar protein (UniProt)
-		// This allows queries: P01942 >> protein_similarity >> uniprot
+		// This allows queries: P01942 >> diamond_similarity >> uniprot
 		if sim.TargetUniprot != "" && !uniqueSimilar[sim.TargetUniprot] {
 			p.d.addXref(proteinID, sourceID, sim.TargetUniprot, "uniprot", false)
 			uniqueSimilar[sim.TargetUniprot] = true

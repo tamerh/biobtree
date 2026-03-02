@@ -22,7 +22,7 @@ entrez: ensembl, uniprot, refseq, go, biogrid, pubchem_activity, ctd_gene_intera
 refseq: ensembl, entrez, taxonomy, ccds, uniprot, mirdb
 mirdb: refseq
 transcript: ensembl, exon, ufeature
-uniprot: ensembl, alphafold, interpro, pdb, ufeature, intact, string, string_interaction, biogrid, biogrid_interaction, chembl_target, go, reactome, rhea, swisslipids, bindingdb, antibody, pubchem_activity, cellphonedb, jaspar, signor
+uniprot: ensembl, alphafold, interpro, pdb, ufeature, intact, string, string_interaction, biogrid, biogrid_interaction, chembl_target, go, reactome, rhea, swisslipids, bindingdb, antibody, pubchem_activity, cellphonedb, jaspar, signor, diamond_similarity, esm2_similarity
 alphafold: uniprot
 interpro: uniprot, go, interproparent, interprochild
 chembl_molecule: mesh, chembl_activity, chembl_target, pubchem, chebi, clinical_trials
@@ -80,6 +80,7 @@ mim: clinvar, hpo, mondo, uniprot, ctd_disease_association
 hmdb: pubchem, hpo, chebi, uniprot
 collectri: hgnc
 esm2_similarity: uniprot
+diamond_similarity: uniprot
 cellphonedb: uniprot, ensembl, hgnc, pubmed
 spliceai: hgnc
 pdb: uniprot, go, interpro, pfam, taxonomy, pubmed

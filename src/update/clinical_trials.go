@@ -175,7 +175,7 @@ func (ct *clinicalTrials) loadMedicalTermMappings() {
 }
 
 // Map intervention name to ChEMBL molecules (multi-attempt with splitting)
-func (ct *clinicalTrials) mapInterventionToChEMBL(nctID string, interventionName string, chemblDatasetID uint32, fr string) {
+func (ct *clinicalTrials) mapInterventionToChEMBL(nctID string, interventionName string, chemblDatasetID uint32, fr string, phase string) {
 	if ct.d.lookupService == nil {
 		return
 	}
@@ -187,7 +187,7 @@ func (ct *clinicalTrials) mapInterventionToChEMBL(nctID string, interventionName
 	// ATTEMPT 1: Try full normalized name
 	ct.lookupAndCollectChEMBL(interventionName, chemblDatasetID, foundChEMBLs)
 	if len(foundChEMBLs) > 0 {
-		ct.createChEMBLXrefs(nctID, fr, foundChEMBLs)
+		ct.createChEMBLXrefs(nctID, fr, foundChEMBLs, phase)
 		return
 	}
 
@@ -196,7 +196,7 @@ func (ct *clinicalTrials) mapInterventionToChEMBL(nctID string, interventionName
 	if baseName != interventionName {
 		ct.lookupAndCollectChEMBL(baseName, chemblDatasetID, foundChEMBLs)
 		if len(foundChEMBLs) > 0 {
-			ct.createChEMBLXrefs(nctID, fr, foundChEMBLs)
+			ct.createChEMBLXrefs(nctID, fr, foundChEMBLs, phase)
 			return
 		}
 	}
@@ -228,7 +228,7 @@ func (ct *clinicalTrials) mapInterventionToChEMBL(nctID string, interventionName
 
 	// Create all unique xrefs found
 	if len(foundChEMBLs) > 0 {
-		ct.createChEMBLXrefs(nctID, fr, foundChEMBLs)
+		ct.createChEMBLXrefs(nctID, fr, foundChEMBLs, phase)
 	}
 }
 
@@ -253,15 +253,18 @@ func (ct *clinicalTrials) lookupAndCollectChEMBL(name string, chemblDatasetID ui
 	}
 }
 
-// Create ChEMBL cross-references
-func (ct *clinicalTrials) createChEMBLXrefs(nctID string, fr string, chemblIDs map[string]bool) {
+// Create ChEMBL cross-references (sorted by clinical trial phase)
+func (ct *clinicalTrials) createChEMBLXrefs(nctID string, fr string, chemblIDs map[string]bool, phase string) {
+	sortLevels := []string{
+		ComputeSortLevelValue(SortLevelPhaseScore, map[string]interface{}{"score": PhaseToSortScore(phase)}),
+	}
 	for chemblID := range chemblIDs {
-		ct.d.addXref(nctID, fr, chemblID, "chembl_molecule", false)
+		ct.d.addXrefWithSortLevels(nctID, fr, chemblID, "chembl_molecule", sortLevels)
 	}
 }
 
 // Map clinical trial condition to MONDO disease ontology
-func (ct *clinicalTrials) mapConditionToMONDO(nctID string, condition string, mondoDatasetID uint32, fr string) {
+func (ct *clinicalTrials) mapConditionToMONDO(nctID string, condition string, mondoDatasetID uint32, fr string, phase string) {
 	if ct.d.lookupService == nil {
 		return
 	}
@@ -273,7 +276,7 @@ func (ct *clinicalTrials) mapConditionToMONDO(nctID string, condition string, mo
 	ct.lookupAndCollectMONDO(condition, mondoDatasetID, foundMONDOs)
 	if len(foundMONDOs) > 0 {
 		// ct.logMappingSuccess(condition, "1_EXACT", condition, len(foundMONDOs))
-		ct.createMONDOXrefs(nctID, fr, foundMONDOs)
+		ct.createMONDOXrefs(nctID, fr, foundMONDOs, phase)
 		return
 	}
 
@@ -284,7 +287,7 @@ func (ct *clinicalTrials) mapConditionToMONDO(nctID string, condition string, mo
 				ct.lookupAndCollectMONDO(corrected, mondoDatasetID, foundMONDOs)
 				if len(foundMONDOs) > 0 {
 					// ct.logMappingSuccess(condition, "2_CORRECTION", corrected, len(foundMONDOs))
-					ct.createMONDOXrefs(nctID, fr, foundMONDOs)
+					ct.createMONDOXrefs(nctID, fr, foundMONDOs, phase)
 					return
 				}
 			}
@@ -298,7 +301,7 @@ func (ct *clinicalTrials) mapConditionToMONDO(nctID string, condition string, mo
 			ct.lookupAndCollectMONDO(spellingVariant, mondoDatasetID, foundMONDOs)
 			if len(foundMONDOs) > 0 {
 				// ct.logMappingSuccess(condition, "3_SPELLING", spellingVariant, len(foundMONDOs))
-				ct.createMONDOXrefs(nctID, fr, foundMONDOs)
+				ct.createMONDOXrefs(nctID, fr, foundMONDOs, phase)
 				return
 			}
 		}
@@ -311,7 +314,7 @@ func (ct *clinicalTrials) mapConditionToMONDO(nctID string, condition string, mo
 			ct.lookupAndCollectMONDO(cancerAbbrevVariant, mondoDatasetID, foundMONDOs)
 			if len(foundMONDOs) > 0 {
 				// ct.logMappingSuccess(condition, "3b_CANCER_ABBREV", cancerAbbrevVariant, len(foundMONDOs))
-				ct.createMONDOXrefs(nctID, fr, foundMONDOs)
+				ct.createMONDOXrefs(nctID, fr, foundMONDOs, phase)
 				return
 			}
 		}
@@ -325,7 +328,7 @@ func (ct *clinicalTrials) mapConditionToMONDO(nctID string, condition string, mo
 			ct.lookupAndCollectMONDO(withoutCancerQualifiers, mondoDatasetID, foundMONDOs)
 			if len(foundMONDOs) > 0 {
 				// ct.logMappingSuccess(condition, "3c_CANCER_QUALIFIERS", withoutCancerQualifiers, len(foundMONDOs))
-				ct.createMONDOXrefs(nctID, fr, foundMONDOs)
+				ct.createMONDOXrefs(nctID, fr, foundMONDOs, phase)
 				return
 			}
 		}
@@ -338,7 +341,7 @@ func (ct *clinicalTrials) mapConditionToMONDO(nctID string, condition string, mo
 		ct.lookupAndCollectMONDO(simplifiedCondition, mondoDatasetID, foundMONDOs)
 		if len(foundMONDOs) > 0 {
 			// ct.logMappingSuccess(condition, "4_NO_PARENS", simplifiedCondition, len(foundMONDOs))
-			ct.createMONDOXrefs(nctID, fr, foundMONDOs)
+			ct.createMONDOXrefs(nctID, fr, foundMONDOs, phase)
 			return
 		}
 	}
@@ -349,7 +352,7 @@ func (ct *clinicalTrials) mapConditionToMONDO(nctID string, condition string, mo
 		ct.lookupAndCollectMONDO(variation, mondoDatasetID, foundMONDOs)
 		if len(foundMONDOs) > 0 {
 			// ct.logMappingSuccess(condition, "5_SLASH_SPLIT", variation, len(foundMONDOs))
-			ct.createMONDOXrefs(nctID, fr, foundMONDOs)
+			ct.createMONDOXrefs(nctID, fr, foundMONDOs, phase)
 			return
 		}
 	}
@@ -361,7 +364,7 @@ func (ct *clinicalTrials) mapConditionToMONDO(nctID string, condition string, mo
 			ct.lookupAndCollectMONDO(variation, mondoDatasetID, foundMONDOs)
 			if len(foundMONDOs) > 0 {
 				// ct.logMappingSuccess(condition, "6_SPECIFIC_PATTERN", variation, len(foundMONDOs))
-				ct.createMONDOXrefs(nctID, fr, foundMONDOs)
+				ct.createMONDOXrefs(nctID, fr, foundMONDOs, phase)
 				return
 			}
 		}
@@ -374,7 +377,7 @@ func (ct *clinicalTrials) mapConditionToMONDO(nctID string, condition string, mo
 			ct.lookupAndCollectMONDO(withoutQualifiers, mondoDatasetID, foundMONDOs)
 			if len(foundMONDOs) > 0 {
 				// ct.logMappingSuccess(condition, "7_NO_QUALIFIERS", withoutQualifiers, len(foundMONDOs))
-				ct.createMONDOXrefs(nctID, fr, foundMONDOs)
+				ct.createMONDOXrefs(nctID, fr, foundMONDOs, phase)
 				return
 			}
 		}
@@ -386,7 +389,7 @@ func (ct *clinicalTrials) mapConditionToMONDO(nctID string, condition string, mo
 		ct.lookupAndCollectMONDO(wordOrderVariation, mondoDatasetID, foundMONDOs)
 		if len(foundMONDOs) > 0 {
 			// ct.logMappingSuccess(condition, "8_WORD_ORDER", wordOrderVariation, len(foundMONDOs))
-			ct.createMONDOXrefs(nctID, fr, foundMONDOs)
+			ct.createMONDOXrefs(nctID, fr, foundMONDOs, phase)
 			return
 		}
 	}
@@ -398,7 +401,7 @@ func (ct *clinicalTrials) mapConditionToMONDO(nctID string, condition string, mo
 			ct.lookupAndCollectMONDO(variation, mondoDatasetID, foundMONDOs)
 			if len(foundMONDOs) > 0 {
 				// ct.logMappingSuccess(condition, "9_ANATOMICAL", variation, len(foundMONDOs))
-				ct.createMONDOXrefs(nctID, fr, foundMONDOs)
+				ct.createMONDOXrefs(nctID, fr, foundMONDOs, phase)
 				return
 			}
 		}
@@ -416,7 +419,7 @@ func (ct *clinicalTrials) mapConditionToMONDO(nctID string, condition string, mo
 
 	// Create all unique xrefs found
 	if len(foundMONDOs) > 0 {
-		ct.createMONDOXrefs(nctID, fr, foundMONDOs)
+		ct.createMONDOXrefs(nctID, fr, foundMONDOs, phase)
 	} else {
 		// Log conditions that failed all mapping attempts (unique only)
 		// ct.logMappingMiss(condition)
@@ -444,16 +447,19 @@ func (ct *clinicalTrials) lookupAndCollectMONDO(condition string, mondoDatasetID
 	}
 }
 
-// Create MONDO cross-references
-func (ct *clinicalTrials) createMONDOXrefs(nctID string, fr string, mondoIDs map[string]bool) {
+// Create MONDO cross-references (sorted by clinical trial phase)
+func (ct *clinicalTrials) createMONDOXrefs(nctID string, fr string, mondoIDs map[string]bool, phase string) {
+	sortLevels := []string{
+		ComputeSortLevelValue(SortLevelPhaseScore, map[string]interface{}{"score": PhaseToSortScore(phase)}),
+	}
 	for mondoID := range mondoIDs {
-		ct.d.addXref(nctID, fr, mondoID, "mondo", false)
+		ct.d.addXrefWithSortLevels(nctID, fr, mondoID, "mondo", sortLevels)
 	}
 }
 
 // Map condition to EFO disease ontology (parallel to MONDO)
 // Uses the same multi-attempt mapping strategies
-func (ct *clinicalTrials) mapConditionToEFO(nctID string, condition string, efoDatasetID uint32, fr string) {
+func (ct *clinicalTrials) mapConditionToEFO(nctID string, condition string, efoDatasetID uint32, fr string, phase string) {
 	if ct.d.lookupService == nil {
 		return
 	}
@@ -464,7 +470,7 @@ func (ct *clinicalTrials) mapConditionToEFO(nctID string, condition string, efoD
 	// ATTEMPT 1: Try exact condition name
 	ct.lookupAndCollectEFO(condition, efoDatasetID, foundEFOs)
 	if len(foundEFOs) > 0 {
-		ct.createEFOXrefs(nctID, fr, foundEFOs)
+		ct.createEFOXrefs(nctID, fr, foundEFOs, phase)
 		return
 	}
 
@@ -474,7 +480,7 @@ func (ct *clinicalTrials) mapConditionToEFO(nctID string, condition string, efoD
 			if strings.EqualFold(condition, original) {
 				ct.lookupAndCollectEFO(corrected, efoDatasetID, foundEFOs)
 				if len(foundEFOs) > 0 {
-					ct.createEFOXrefs(nctID, fr, foundEFOs)
+					ct.createEFOXrefs(nctID, fr, foundEFOs, phase)
 					return
 				}
 			}
@@ -487,7 +493,7 @@ func (ct *clinicalTrials) mapConditionToEFO(nctID string, condition string, efoD
 		if spellingVariant != condition {
 			ct.lookupAndCollectEFO(spellingVariant, efoDatasetID, foundEFOs)
 			if len(foundEFOs) > 0 {
-				ct.createEFOXrefs(nctID, fr, foundEFOs)
+				ct.createEFOXrefs(nctID, fr, foundEFOs, phase)
 				return
 			}
 		}
@@ -498,7 +504,7 @@ func (ct *clinicalTrials) mapConditionToEFO(nctID string, condition string, efoD
 	if simplifiedCondition != condition {
 		ct.lookupAndCollectEFO(simplifiedCondition, efoDatasetID, foundEFOs)
 		if len(foundEFOs) > 0 {
-			ct.createEFOXrefs(nctID, fr, foundEFOs)
+			ct.createEFOXrefs(nctID, fr, foundEFOs, phase)
 			return
 		}
 	}
@@ -509,7 +515,7 @@ func (ct *clinicalTrials) mapConditionToEFO(nctID string, condition string, efoD
 		if withoutQualifiers != condition {
 			ct.lookupAndCollectEFO(withoutQualifiers, efoDatasetID, foundEFOs)
 			if len(foundEFOs) > 0 {
-				ct.createEFOXrefs(nctID, fr, foundEFOs)
+				ct.createEFOXrefs(nctID, fr, foundEFOs, phase)
 				return
 			}
 		}
@@ -538,10 +544,13 @@ func (ct *clinicalTrials) lookupAndCollectEFO(condition string, efoDatasetID uin
 	}
 }
 
-// Create EFO cross-references
-func (ct *clinicalTrials) createEFOXrefs(nctID string, fr string, efoIDs map[string]bool) {
+// Create EFO cross-references (sorted by clinical trial phase)
+func (ct *clinicalTrials) createEFOXrefs(nctID string, fr string, efoIDs map[string]bool, phase string) {
+	sortLevels := []string{
+		ComputeSortLevelValue(SortLevelPhaseScore, map[string]interface{}{"score": PhaseToSortScore(phase)}),
+	}
 	for efoID := range efoIDs {
-		ct.d.addXref(nctID, fr, efoID, "efo", false)
+		ct.d.addXrefWithSortLevels(nctID, fr, efoID, "efo", sortLevels)
 	}
 }
 
@@ -823,7 +832,7 @@ func (ct *clinicalTrials) processTrialsFile(trialsFile string, fr string, chembl
 						// ct.d.addXref(normalizedName, textLinkID, nctID, ct.source, true)
 
 						// Map intervention to ChEMBL molecules if lookup DB available
-						ct.mapInterventionToChEMBL(nctID, normalizedName, chemblDatasetID, fr)
+						ct.mapInterventionToChEMBL(nctID, normalizedName, chemblDatasetID, fr, phase)
 					}
 				}
 			}
@@ -846,19 +855,24 @@ func (ct *clinicalTrials) processTrialsFile(trialsFile string, fr string, chembl
 				// ct.d.addXref(condition, textLinkID, nctID, ct.source, true)
 
 				// Map condition to MONDO disease IDs if lookup DB available
-				ct.mapConditionToMONDO(nctID, condition, mondoDatasetID, fr)
+				ct.mapConditionToMONDO(nctID, condition, mondoDatasetID, fr, phase)
 				// Also map to EFO (parallel disease ontology)
-				ct.mapConditionToEFO(nctID, condition, efoDatasetID, fr)
+				ct.mapConditionToEFO(nctID, condition, efoDatasetID, fr, phase)
 			}
 		}
 
-		// Extract and link publications (PMIDs)
+		// Extract and link publications (PMIDs) - sorted by phase
 		// Forward: clinical_trials/forward/, Reverse: pubmed/from_clinical_trials/
 		publications := ct.extractPublications(trialData)
-		for _, pmid := range publications {
-			if pmid != "" {
-				// Create cross-reference: NCT_ID → PMID (reverse enables PMID >> clinical_trials queries)
-				ct.d.addXref(nctID, fr, pmid, "pubmed", false)
+		if len(publications) > 0 {
+			pubmedSortLevels := []string{
+				ComputeSortLevelValue(SortLevelPhaseScore, map[string]interface{}{"score": PhaseToSortScore(phase)}),
+			}
+			for _, pmid := range publications {
+				if pmid != "" {
+					// Create cross-reference: NCT_ID → PMID (reverse enables PMID >> clinical_trials queries)
+					ct.d.addXrefWithSortLevels(nctID, fr, pmid, "pubmed", pubmedSortLevels)
+				}
 			}
 		}
 

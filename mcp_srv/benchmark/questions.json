@@ -530,6 +530,39 @@
           "reactome_note": "From >>uniprot>>reactome mapping: 20 normal + 7 disease pathways"
         }
       }
+    },
+    {
+      "id": 13,
+      "question_id": "imatinib_comprehensive_profile",
+      "question": "Imatinib (Gleevec) revolutionized cancer treatment as the first targeted tyrosine kinase inhibitor. For a comprehensive drug mechanism analysis:\n1. Protein targets: How many UniProt targets does imatinib have? List the key ones with names.\n2. Clinical trials: How many clinical trials involve imatinib? What phases?\n3. Disease indications: What diseases is it approved/investigated for?\n4. Bioactivities: How many ChEMBL activity records exist? How many PubChem activity records?\n5. Drug interactions: What other molecules share targets with imatinib?\n\nThis is a drug-to-target-to-disease pipeline using BOTH ChEMBL and PubChem. Provide specific database IDs.\n\nIMPORTANT: LIST ALL THE ITEMS, AT LEAST THE FIRST 100 RECORDS FOR EACH CATEGORY.",
+      "category": "drug_mechanism",
+      "tier": 3,
+      "hops": 4,
+      "theme": "drug_target_disease",
+      "why_llm_fails": "Requires traversing chembl_molecule→chembl_target→uniprot for 84 targets, pubchem→pubchem_activity→uniprot for 200+ protein bioactivities, chembl_molecule→clinical_trials for 100+ trials, and chembl_activity for 424+ records. LLMs cannot enumerate all targets, trials, and indications with specific IDs across both ChEMBL and PubChem.",
+      "ground_truth": {
+        "must_mention": ["imatinib", "CHEMBL941", "target", "clinical trial"],
+        "must_mention_any": ["BCR-ABL", "KIT", "PDGFR", "tyrosine kinase", "CML", "GIST", "PubChem", "5291"],
+        "tool_only_terms": ["84", "424", "2048", "CHEMBL941", "5291", "P00519", "P10721", "P09619", "NCT00471497", "NCT00481247"],
+        "biobtree_chain": ">>chembl_molecule>>chembl_target>>uniprot, >>chembl_molecule>>clinical_trials, >>chembl_molecule>>chembl_activity, >>pubchem>>pubchem_activity>>uniprot, >>chembl_molecule>>pubchem",
+        "key_values": {
+          "chembl_id": "CHEMBL941",
+          "pubchem_id": "5291",
+          "uniprot_targets_chembl": 84,
+          "uniprot_targets_pubchem": "200+",
+          "clinical_trials": "100+",
+          "chembl_activities": 424,
+          "pubchem_activities": 2048,
+          "disease_indications": 52,
+          "development_phase": 4,
+          "drug_type": "Small molecule",
+          "is_fda_approved": true,
+          "pubmed_references": 15577,
+          "key_targets": ["P00519 (ABL1)", "P10721 (KIT)", "P09619 (PDGFRB)", "P16234 (PDGFRA)"],
+          "key_indications": ["CML", "GIST", "Ph+ ALL"],
+          "pubchem_note": "PubChem bioactivity data provides broader target coverage (200+ proteins) compared to ChEMBL mechanism targets (84)"
+        }
+      }
     }
   ]
 }

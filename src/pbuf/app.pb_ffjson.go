@@ -3801,6 +3801,22 @@ func (j *MapFilterStats) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.FormatBits2(buf, uint64(j.TotalTargets), 10, j.TotalTargets < 0)
 		buf.WriteByte(',')
 	}
+	if len(j.NotFound) != 0 {
+		buf.WriteString(`"not_found":`)
+		if j.NotFound != nil {
+			buf.WriteString(`[`)
+			for i, v := range j.NotFound {
+				if i != 0 {
+					buf.WriteString(`,`)
+				}
+				fflib.WriteJsonString(buf, string(v))
+			}
+			buf.WriteString(`]`)
+		} else {
+			buf.WriteString(`null`)
+		}
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -3817,6 +3833,8 @@ const (
 	ffjtMapFilterStatsFailed
 
 	ffjtMapFilterStatsTotalTargets
+
+	ffjtMapFilterStatsNotFound
 )
 
 var ffjKeyMapFilterStatsTotalTerms = []byte("total_terms")
@@ -3826,6 +3844,8 @@ var ffjKeyMapFilterStatsMapped = []byte("mapped")
 var ffjKeyMapFilterStatsFailed = []byte("failed")
 
 var ffjKeyMapFilterStatsTotalTargets = []byte("total_targets")
+
+var ffjKeyMapFilterStatsNotFound = []byte("not_found")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *MapFilterStats) UnmarshalJSON(input []byte) error {
@@ -3904,6 +3924,14 @@ mainparse:
 						goto mainparse
 					}
 
+				case 'n':
+
+					if bytes.Equal(ffjKeyMapFilterStatsNotFound, kn) {
+						currentKey = ffjtMapFilterStatsNotFound
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 't':
 
 					if bytes.Equal(ffjKeyMapFilterStatsTotalTerms, kn) {
@@ -3917,6 +3945,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyMapFilterStatsNotFound, kn) {
+					currentKey = ffjtMapFilterStatsNotFound
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.EqualFoldRight(ffjKeyMapFilterStatsTotalTargets, kn) {
@@ -3971,6 +4005,9 @@ mainparse:
 
 				case ffjtMapFilterStatsTotalTargets:
 					goto handle_TotalTargets
+
+				case ffjtMapFilterStatsNotFound:
+					goto handle_NotFound
 
 				case ffjtMapFilterStatsnosuchkey:
 					err = fs.SkipField(tok)
@@ -4100,6 +4137,80 @@ handle_TotalTargets:
 
 			j.TotalTargets = int32(tval)
 
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_NotFound:
+
+	/* handler: j.NotFound type=[]string kind=slice quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_left_brace && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for ", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+			j.NotFound = nil
+		} else {
+
+			j.NotFound = []string{}
+
+			wantVal := true
+
+			for {
+
+				var tmpJNotFound string
+
+				tok = fs.Scan()
+				if tok == fflib.FFTok_error {
+					goto tokerror
+				}
+				if tok == fflib.FFTok_right_brace {
+					break
+				}
+
+				if tok == fflib.FFTok_comma {
+					if wantVal == true {
+						// TODO(pquerna): this isn't an ideal error message, this handles
+						// things like [,,,] as an array value.
+						return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
+					}
+					continue
+				} else {
+					wantVal = true
+				}
+
+				/* handler: tmpJNotFound type=string kind=string quoted=false*/
+
+				{
+
+					{
+						if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+							return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+						}
+					}
+
+					if tok == fflib.FFTok_null {
+
+					} else {
+
+						outBuf := fs.Output.Bytes()
+
+						tmpJNotFound = string(string(outBuf))
+
+					}
+				}
+
+				j.NotFound = append(j.NotFound, tmpJNotFound)
+
+				wantVal = false
+			}
 		}
 	}
 

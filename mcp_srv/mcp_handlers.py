@@ -9,8 +9,7 @@ import json
 import logging
 from typing import Optional, List
 
-from fastapi import APIRouter, Request
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter, Request, Response
 from sse_starlette.sse import EventSourceResponse
 from mcp.server import Server
 from mcp.types import TextContent
@@ -121,6 +120,13 @@ async def mcp_message(request: Request):
         method = body.get("method")
         params = body.get("params", {})
         request_id = body.get("id")
+
+        # JSON-RPC notifications do not have an "id" and must not produce
+        # an error response for unimplemented notification methods.
+        if request_id is None:
+            if method == "notifications/initialized" or str(method).startswith("notifications/"):
+                return Response(status_code=202)
+            return Response(status_code=202)
 
         if method == "tools/list":
             # Return list of tools

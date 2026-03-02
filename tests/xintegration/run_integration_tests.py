@@ -139,9 +139,13 @@ class IntegrationTestRunner:
                     url = f"{self.server}/ws/"
                 else:
                     params = {'i': identifier, 'm': query}
-                    # Use lite mode for mapping_total validations (returns stats.total)
-                    needs_mapping_total = any('mapping_total' in v for v in test.get('validations', []))
-                    if needs_mapping_total:
+                    # Use lite mode for validations that need lite response format
+                    lite_validation_keys = ['mapping_total', 'stats_queried', 'stats_mapped', 'not_found_contains', 'not_found_count']
+                    needs_lite_mode = any(
+                        any(k in v for k in lite_validation_keys)
+                        for v in test.get('validations', [])
+                    )
+                    if needs_lite_mode:
                         params['mode'] = 'lite'
                     url = f"{self.server}/ws/map/"
 
@@ -329,6 +333,41 @@ class IntegrationTestRunner:
             passed = all(scores[i] >= scores[i+1] for i in range(len(scores)-1)) if len(scores) > 1 else True
             if not passed:
                 return {**result_base, 'passed': False, 'error': f"Scores not in descending order: {scores[:5]}"}
+        elif 'not_found_contains' in validation:
+            # Check that not_found array contains the specified items
+            # Used for batch query tracking validation
+            expected_items = validation['not_found_contains']
+            not_found = data.get('not_found', [])
+            # Also check stats.not_found for full mode
+            if not not_found and data.get('stats', {}).get('not_found'):
+                not_found = data.get('stats', {}).get('not_found', [])
+            missing = [item for item in expected_items if item not in not_found]
+            passed = len(missing) == 0
+            if not passed:
+                return {**result_base, 'passed': False, 'error': f"not_found should contain {expected_items}, missing: {missing}, got: {not_found}"}
+        elif 'stats_queried' in validation:
+            # Check stats.queried equals expected value
+            queried = data.get('stats', {}).get('queried', 0)
+            expected = validation['stats_queried']
+            passed = queried == expected
+            if not passed:
+                return {**result_base, 'passed': False, 'error': f"stats.queried expected {expected}, got {queried}"}
+        elif 'stats_mapped' in validation:
+            # Check stats.mapped equals expected value
+            mapped = data.get('stats', {}).get('mapped', 0)
+            expected = validation['stats_mapped']
+            passed = mapped == expected
+            if not passed:
+                return {**result_base, 'passed': False, 'error': f"stats.mapped expected {expected}, got {mapped}"}
+        elif 'not_found_count' in validation:
+            # Check not_found array length
+            not_found = data.get('not_found', [])
+            if not not_found and data.get('stats', {}).get('not_found'):
+                not_found = data.get('stats', {}).get('not_found', [])
+            expected = validation['not_found_count']
+            passed = len(not_found) == expected
+            if not passed:
+                return {**result_base, 'passed': False, 'error': f"not_found count expected {expected}, got {len(not_found)}"}
         else:
             passed = value is not None
             if not passed:

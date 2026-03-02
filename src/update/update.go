@@ -1576,7 +1576,34 @@ const (
 	SortLevelExpressionScore  SortLevelType = "expressionScore"
 	SortLevelCellCount        SortLevelType = "cellCount"
 	SortLevelInteractionScore SortLevelType = "interactionScore"
+
+	// Semantic aliases - reuse existing logic with meaningful names
+	// pChembl uses expressionScore logic: 100-score inversion, %06.2f format
+	// pChembl range 0-14 fits within 0-100, higher pChembl = stronger binding = sorts first
+	SortLevelPchemblScore SortLevelType = "expressionScore"
+	// Phase uses interactionScore logic: 1000-score inversion, %04d format
+	// Use PhaseToSortScore() to convert phase string to 0-1000 int first
+	SortLevelPhaseScore SortLevelType = "interactionScore"
 )
+
+// PhaseToSortScore converts clinical trial phase to sortable integer (0-1000)
+// Higher phases (more advanced) get higher scores, which invert to lower sort values
+// PHASE4 (approved) sorts first, NA/unknown sorts last
+func PhaseToSortScore(phase string) int {
+	phaseUpper := strings.ToUpper(strings.TrimSpace(phase))
+	switch {
+	case strings.Contains(phaseUpper, "PHASE4") || phaseUpper == "4":
+		return 1000
+	case strings.Contains(phaseUpper, "PHASE3") || phaseUpper == "3":
+		return 750
+	case strings.Contains(phaseUpper, "PHASE2") || phaseUpper == "2":
+		return 500
+	case strings.Contains(phaseUpper, "PHASE1") || phaseUpper == "1":
+		return 250
+	default:
+		return 0 // NA, NOT_APPLICABLE, empty, or unknown phases sort last
+	}
+}
 
 // ComputeSortLevelValue computes the string value for a sort level
 // All values are formatted for ascending lexicographic sort

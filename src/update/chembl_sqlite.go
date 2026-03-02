@@ -821,28 +821,37 @@ func (c *chemblSqlite) processActivities(testLimit int) int64 {
 		// Save primary entry
 		c.d.addProp3(activityID, sourceID, attrBytes)
 
-		// Cross-reference to molecule
+		// Compute pChembl sort level (higher pChembl = stronger binding = sorts first)
+		pchembl := 0.0
+		if entry.PchemblValue != nil {
+			pchembl = *entry.PchemblValue
+		}
+		sortLevels := []string{
+			ComputeSortLevelValue(SortLevelPchemblScore, map[string]interface{}{"score": pchembl}),
+		}
+
+		// Cross-reference to molecule (sorted by pChembl)
 		if entry.MoleculeID != "" {
 			if _, molExists := config.Dataconf["chembl_molecule"]; molExists {
-				c.d.addXref(activityID, sourceID, entry.MoleculeID, "chembl_molecule", false)
+				c.d.addXrefWithSortLevels(activityID, sourceID, entry.MoleculeID, "chembl_molecule", sortLevels)
 			}
 		}
 
-		// Cross-reference to target
+		// Cross-reference to target (sorted by pChembl)
 		if entry.TargetID != "" {
 			if _, targetExists := config.Dataconf["chembl_target"]; targetExists {
-				c.d.addXref(activityID, sourceID, entry.TargetID, "chembl_target", false)
+				c.d.addXrefWithSortLevels(activityID, sourceID, entry.TargetID, "chembl_target", sortLevels)
 			}
 		}
 
-		// Cross-reference to uniprot
+		// Cross-reference to uniprot (sorted by pChembl)
 		if entry.UniprotID != "" {
 			if _, uniprotExists := config.Dataconf["uniprot"]; uniprotExists {
-				c.d.addXref(activityID, sourceID, entry.UniprotID, "uniprot", false)
+				c.d.addXrefWithSortLevels(activityID, sourceID, entry.UniprotID, "uniprot", sortLevels)
 			}
 		}
 
-		// Cross-reference to BAO (BioAssay Ontology)
+		// Cross-reference to BAO (BioAssay Ontology) - no pChembl sorting needed
 		if entry.BaoEndpoint != "" {
 			if _, baoExists := config.Dataconf["bao"]; baoExists {
 				c.d.addXref(activityID, sourceID, entry.BaoEndpoint, "bao", false)

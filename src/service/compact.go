@@ -13,6 +13,7 @@ type MapLiteResponse struct {
 	Pagination LitePagination  `json:"pagination"`
 	Schema     string          `json:"schema"`
 	Mappings   []LiteMapping   `json:"mappings"`
+	NotFound   []string        `json:"not_found,omitempty"`
 }
 
 // LiteMapping represents a single input-to-targets mapping group
@@ -31,8 +32,9 @@ type MapLiteContext struct {
 
 // LiteStats provides summary statistics
 type LiteStats struct {
-	Total  int `json:"total"`
-	Mapped int `json:"mapped,omitempty"`
+	Queried int `json:"queried,omitempty"`
+	Total   int `json:"total"`
+	Mapped  int `json:"mapped,omitempty"`
 }
 
 // SearchLiteResponse represents the LLM-friendly lite format for search queries

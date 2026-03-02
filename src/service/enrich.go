@@ -203,13 +203,21 @@ func EnrichMapFilterResultFull(result *pbuf.MapFilterResult, terms []string, cha
 		}
 	}
 
-	// Count how many unique input terms were mapped
+	// Count how many unique input terms were mapped and collect not_found
 	var mapped, failed int32
-	for _, found := range inputTermsMap {
+	var notFound []string
+	for term, found := range inputTermsMap {
 		if found {
 			mapped++
 		} else {
 			failed++
+			// Find original case version of the term
+			for _, origTerm := range terms {
+				if strings.ToUpper(origTerm) == term {
+					notFound = append(notFound, origTerm)
+					break
+				}
+			}
 		}
 	}
 
@@ -218,6 +226,7 @@ func EnrichMapFilterResultFull(result *pbuf.MapFilterResult, terms []string, cha
 		Mapped:       mapped,
 		Failed:       failed,
 		TotalTargets: totalTargets,
+		NotFound:     notFound,
 	}
 
 	// Set pagination info

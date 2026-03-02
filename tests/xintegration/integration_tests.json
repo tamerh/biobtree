@@ -1,9 +1,10 @@
 {
   "metadata": {
-    "version": "10.3",
+    "version": "10.4",
     "description": "Expanded integration tests including newly added datasets and filter tests (2025-2026)",
     "server": "http://localhost:9291",
-    "last_updated": "2026-02-28",
+    "last_updated": "2026-03-02",
+    "changes_10.4": "Added not_found_tracking category (6 tests, 16 validations): Batch query not_found tracking validation. Tests stats.queried count, stats.mapped count, and not_found array for invalid input terms in lite mode. New validation types: not_found_contains, not_found_count, stats_queried, stats_mapped. Validates explicit tracking of failed input terms in batch mapping queries. Total: 738 tests.",
     "changes_10.3": "Added ctd_interactions category (10 tests): CTD gene interaction and disease association sub-dataset tests. Updated 10 existing tests with new CTD architecture paths (ctd→ctd_gene_interaction→entrez instead of ctd→entrez, etc.). New aggregated data model with interaction descriptions, inference genes, species sorting, and PubMed literature as xrefs. Total: 722 tests.",
     "changes_10.2": "Added brenda_kinetics_compact category (8 tests): BRENDA enzyme kinetics compact storage validation. Tests new pipe-delimited format (value|unit|organism|conditions|pubmed_id|comment), schema field validation, organism priority sorting (Homo sapiens first), and min/max value checks. New validation types: 'contains' for substring matching, array indexing support (e.g., km_values[0]). Total: 712 tests.",
     "changes_10.1": "Added mirdb_sorting category (4 tests): miRDB microRNA target prediction sorting validation. Tests species priority sorting (human miRNAs first) and prediction score ordering for refseq reverse xrefs. Total: 704 tests.",
@@ -96,7 +97,8 @@
     "signor_sorting": "SIGNOR causal interaction sorting: Tests species priority and confidence score sorting for signor dataset. Human causal interactions appear first when querying reverse xrefs (uniprot>>signor, chebi>>signor), sorted by SIGNOR score descending within species groups.",
     "mirdb_sorting": "miRDB target prediction sorting: Tests species priority and prediction score sorting for mirdb dataset. Human miRNAs appear first when querying reverse xrefs (refseq>>mirdb), sorted by prediction score descending within species groups.",
     "brenda_kinetics_compact": "BRENDA kinetics compact storage: Tests the new compact pipe-delimited storage format for enzyme kinetics (Km, kcat, Ki values). Validates schema field format, organism priority sorting (Homo sapiens first), and value ordering within organism groups. Uses schema: value|unit|organism|conditions|pubmed_id|comment.",
-    "xref_inflation": "Xref count inflation detection: Validates that xref counts from biobtree_entry match unique mapping counts from biobtree_map. Catches bugs where bidirectional writes cause ~2x inflation (e.g., pdb|65 instead of pdb|33). Tests P38398 (BRCA1) PDB and Reactome xref counts against mapping totals."
+    "xref_inflation": "Xref count inflation detection: Validates that xref counts from biobtree_entry match unique mapping counts from biobtree_map. Catches bugs where bidirectional writes cause ~2x inflation (e.g., pdb|65 instead of pdb|33). Tests P38398 (BRCA1) PDB and Reactome xref counts against mapping totals.",
+    "not_found_tracking": "Batch query not_found tracking: Validates that when mapping multiple IDs, the response includes not_found array listing input terms that didn't resolve. Tests stats.queried count, stats.mapped count, and explicit not_found array in both lite and full modes."
   },
   "tests": [
     {
@@ -8423,6 +8425,130 @@
           "min": 60,
           "max": 120,
           "description": "TP53 mapping returns ~75 unique PDB structures"
+        }
+      ]
+    },
+    {
+      "category": "not_found_tracking",
+      "name": "Lite Mode Not Found Array",
+      "type": "validation",
+      "query": ">>hgnc>>ensembl",
+      "identifier": "BRCA1,INVALID_GENE_XYZ,TP53,FAKE123",
+      "why": "When batch mapping with invalid terms, not_found array should list the terms that didn't resolve.",
+      "validations": [
+        {
+          "not_found_contains": ["INVALID_GENE_XYZ", "FAKE123"],
+          "description": "not_found should contain INVALID_GENE_XYZ and FAKE123"
+        },
+        {
+          "not_found_count": 2,
+          "description": "Exactly 2 terms should be in not_found"
+        }
+      ]
+    },
+    {
+      "category": "not_found_tracking",
+      "name": "Lite Mode Stats Queried Count",
+      "type": "validation",
+      "query": ">>hgnc>>ensembl",
+      "identifier": "BRCA1,INVALID_XYZ,TP53",
+      "why": "stats.queried should equal total input terms count (3), regardless of how many mapped.",
+      "validations": [
+        {
+          "stats_queried": 3,
+          "description": "stats.queried should be 3 (total input terms)"
+        },
+        {
+          "stats_mapped": 2,
+          "description": "stats.mapped should be 2 (BRCA1 and TP53)"
+        }
+      ]
+    },
+    {
+      "category": "not_found_tracking",
+      "name": "Lite Mode All Valid Terms",
+      "type": "validation",
+      "query": ">>hgnc>>ensembl",
+      "identifier": "BRCA1,TP53,EGFR",
+      "why": "When all terms are valid, not_found should be empty or absent.",
+      "validations": [
+        {
+          "not_found_count": 0,
+          "description": "not_found should be empty when all terms resolve"
+        },
+        {
+          "stats_queried": 3,
+          "description": "stats.queried should be 3"
+        },
+        {
+          "stats_mapped": 3,
+          "description": "stats.mapped should be 3"
+        }
+      ]
+    },
+    {
+      "category": "not_found_tracking",
+      "name": "Lite Mode All Invalid Terms",
+      "type": "validation",
+      "query": ">>hgnc>>ensembl",
+      "identifier": "FAKE1,FAKE2,FAKE3",
+      "why": "When all terms are invalid, all should appear in not_found.",
+      "validations": [
+        {
+          "not_found_count": 3,
+          "description": "not_found should have all 3 invalid terms"
+        },
+        {
+          "stats_queried": 3,
+          "description": "stats.queried should be 3"
+        },
+        {
+          "stats_mapped": 0,
+          "description": "stats.mapped should be 0"
+        }
+      ]
+    },
+    {
+      "category": "not_found_tracking",
+      "name": "Lite Mode Single Valid Term",
+      "type": "validation",
+      "query": ">>hgnc>>ensembl",
+      "identifier": "BRCA1",
+      "why": "Single valid term should have queried=1, mapped=1, empty not_found.",
+      "validations": [
+        {
+          "stats_queried": 1,
+          "description": "stats.queried should be 1"
+        },
+        {
+          "stats_mapped": 1,
+          "description": "stats.mapped should be 1"
+        },
+        {
+          "not_found_count": 0,
+          "description": "not_found should be empty"
+        }
+      ]
+    },
+    {
+      "category": "not_found_tracking",
+      "name": "Lite Mode Single Invalid Term",
+      "type": "validation",
+      "query": ">>hgnc>>ensembl",
+      "identifier": "COMPLETELY_FAKE",
+      "why": "Single invalid term should have queried=1, mapped=0, not_found=[term].",
+      "validations": [
+        {
+          "stats_queried": 1,
+          "description": "stats.queried should be 1"
+        },
+        {
+          "stats_mapped": 0,
+          "description": "stats.mapped should be 0"
+        },
+        {
+          "not_found_contains": ["COMPLETELY_FAKE"],
+          "description": "not_found should contain the invalid term"
         }
       ]
     }

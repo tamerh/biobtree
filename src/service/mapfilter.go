@@ -32,8 +32,9 @@ func (s *Service) MapFilterLite(ids []string, mapFilterQuery, page string) (*Map
 			Query: mapFilterQuery,
 		},
 		Stats: LiteStats{
-			Total:  0,
-			Mapped: 0,
+			Queried: len(ids),
+			Total:   0,
+			Mapped:  0,
 		},
 		Pagination: LitePagination{
 			HasNext:   fullResult.Nextpage != "",
@@ -44,6 +45,9 @@ func (s *Service) MapFilterLite(ids []string, mapFilterQuery, page string) (*Map
 	// Track the target dataset for schema
 	var targetDataset string
 	var targetLiteFields []string
+
+	// Track which input terms were found (for not_found calculation)
+	foundInputs := make(map[string]bool)
 
 	// Process results - group by source
 	for _, mapRes := range fullResult.Results {
@@ -62,6 +66,9 @@ func (s *Service) MapFilterLite(ids []string, mapFilterQuery, page string) (*Map
 		if inputTerm == "" {
 			inputTerm = mapRes.Source.Identifier
 		}
+
+		// Mark this input as found
+		foundInputs[inputTerm] = true
 
 		// Build source string: "id|name"
 		sourceName := ExtractSourceName(mapRes.Source)
@@ -93,6 +100,13 @@ func (s *Service) MapFilterLite(ids []string, mapFilterQuery, page string) (*Map
 
 		if len(mapRes.Targets) > 0 {
 			response.Stats.Mapped++
+		}
+	}
+
+	// Calculate not_found: input terms that weren't in any result
+	for _, id := range ids {
+		if !foundInputs[id] {
+			response.NotFound = append(response.NotFound, id)
 		}
 	}
 

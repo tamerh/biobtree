@@ -285,6 +285,7 @@ message MapFilterStats {
     int32 mapped = 2;                             // Successfully mapped
     int32 failed = 3;                             // Failed to map
     int32 total_targets = 4;                      // Total target count
+    repeated string not_found = 5;                // List of input terms that weren't found
 }
 
 message SearchStats {

@@ -83,6 +83,9 @@ func setAttributeId(xref *pbuf.Xref) {
 	case *pbuf.Xref_Uniprot:
 		if attr.Uniprot != nil {
 			attr.Uniprot.Id = xref.Identifier
+			if len(attr.Uniprot.Names) > 0 {
+				attr.Uniprot.Name = attr.Uniprot.Names[0]
+			}
 		}
 	case *pbuf.Xref_Ufeature:
 		// UniprotFeatureAttr already has id field (field 3) - no action needed
@@ -97,6 +100,9 @@ func setAttributeId(xref *pbuf.Xref) {
 	case *pbuf.Xref_Hgnc:
 		if attr.Hgnc != nil {
 			attr.Hgnc.Id = xref.Identifier
+			if len(attr.Hgnc.Names) > 0 {
+				attr.Hgnc.Name = attr.Hgnc.Names[0]
+			}
 		}
 	case *pbuf.Xref_Ontology:
 		if attr.Ontology != nil {

@@ -464,12 +464,12 @@
     {
       "id": 12,
       "question_id": "brca1_comprehensive_pipeline",
-      "question": "BRCA1 is critical for hereditary breast/ovarian cancer genetic testing. For a comprehensive gene annotation used in clinical reporting:\n1. Gene structure: How many transcripts? How many exons in the canonical?\n2. Protein products: How many UniProt entries? What domains (InterPro)?\n3. 3D structures: How many PDB structures exist? What experimental methods?\n4. Clinical variants: How many ClinVar variants? How many pathogenic?\n5. Pathways: What Reactome pathways involve BRCA1?\n\nThis is a gene-to-function pipeline. Provide specific database IDs at each level.\n\nIMPORTANT: LIST ALL THE ITEMS, AT LEAST THE FIRST 100 RECORDS FOR EACH CATEGORY.",
+      "question": "BRCA1 is critical for hereditary breast/ovarian cancer genetic testing. For a comprehensive gene annotation used in clinical reporting:\n1. Gene structure: How many transcripts? How many exons in the canonical?\n2. Protein products: How many UniProt entries? What domains (InterPro)?\n3. 3D structures: How many PDB structures exist? What experimental methods?\n4. Clinical variants: How many ClinVar variants? How many pathogenic?\n5. Pathways: What Reactome pathways involve BRCA1?\n6. AI variant predictions: How many SpliceAI splice-altering predictions exist? How many AlphaMissense missense pathogenicity scores? Show examples of likely_pathogenic variants with scores.\n\nThis is a gene-to-function pipeline. Provide specific database IDs at each level.\n\nIMPORTANT: LIST ALL THE ITEMS, AT LEAST THE FIRST 100 RECORDS FOR EACH CATEGORY.",
       "category": "gene_structure",
       "tier": 3,
       "hops": 5,
       "theme": "multi_database_pipeline",
-      "why_llm_fails": "Requires 5 database traversals (Ensembl->Transcript->UniProt->PDB->ClinVar->Reactome). LLMs cannot enumerate 47 transcripts, 22 UniProt entries, 33 PDB structures, 15,445 ClinVar variants, and 59 pathways with specific IDs. Even with web search, exhaustive enumeration of 100+ items per category is impossible.",
+      "why_llm_fails": "Requires 6 database traversals (Ensembl->Transcript->UniProt->PDB->ClinVar->Reactome->SpliceAI->AlphaMissense). LLMs cannot enumerate 47 transcripts, 33 PDB structures, 15,445 ClinVar variants, 3,719 SpliceAI predictions, and 12,463 AlphaMissense scores. AI variant prediction tools (SpliceAI, AlphaMissense) are not accessible to web LLMs.",
       "ground_truth": {
         "must_mention": [
           "BRCA1",
@@ -483,7 +483,9 @@
           "ClinVar",
           "Reactome",
           "domain",
-          "ENST"
+          "ENST",
+          "SpliceAI",
+          "AlphaMissense"
         ],
         "tool_only_terms": [
           "47",
@@ -496,10 +498,14 @@
           "IPR001357",
           "ENST00000357654",
           "3719",
+          "12463",
           "27",
-          "2"
+          "2",
+          "likely_pathogenic",
+          "acceptor_gain",
+          "donor_loss"
         ],
-        "biobtree_chain": ">>ensembl>>transcript>>exon, >>ensembl>>uniprot>>pdb, >>ensembl>>uniprot>>interpro, >>ensembl>>clinvar, >>ensembl>>reactome, >>ensembl>>spliceai",
+        "biobtree_chain": ">>ensembl>>transcript>>exon, >>ensembl>>uniprot>>pdb, >>ensembl>>uniprot>>interpro, >>ensembl>>clinvar, >>ensembl>>reactome, >>hgnc>>spliceai, >>uniprot>>alphamissense",
         "key_values": {
           "total_transcripts": 47,
           "canonical_transcript": "ENST00000357654",
@@ -510,6 +516,7 @@
           "interpro_domains": 9,
           "clinvar_variants": 15445,
           "spliceai_predictions": 3719,
+          "alphamissense_predictions": 12463,
           "reactome_pathways": 27,
           "reactome_disease_pathways": 7,
           "gene_ensembl": "ENSG00000012048",
@@ -561,6 +568,40 @@
           "key_targets": ["P00519 (ABL1)", "P10721 (KIT)", "P09619 (PDGFRB)", "P16234 (PDGFRA)"],
           "key_indications": ["CML", "GIST", "Ph+ ALL"],
           "pubchem_note": "PubChem bioactivity data provides broader target coverage (200+ proteins) compared to ChEMBL mechanism targets (84)"
+        }
+      }
+    },
+    {
+      "id": 14,
+      "question_id": "tp53_regulatory_network",
+      "question": "TP53 is the master tumor suppressor regulating cell fate decisions. For a comprehensive transcription factor network analysis:\n1. How many genes does TP53 regulate? List the first 50 with regulation type.\n2. Which TP53 target genes encode cell surface receptors to better analyse cell to cell communication?\n3. How many JASPAR binding profiles exist? What is the binding motif family?\n4. How many evolutionarily similar proteins exist? List top 10 with similarity scores.\n5. How many proteins share sequence homology? List top 10 with identity scores.\n6. How many high-confidence protein interactions?\n7. What transcription factors regulate TP53 itself in the upstream?\n\nIMPORTANT: LIST ALL ITEMS WITH DATABASE IDs AND SCORES.",
+      "category": "transcription_factor",
+      "tier": 3,
+      "hops": 5,
+      "theme": "tf_regulatory_network",
+      "why_llm_fails": "Requires traversing hgnc→collectri for 1207 regulatory targets with regulation types, identifying which targets are cell surface receptors in CellPhoneDB (FAS, TNFRSF10B are death receptors), uniprot→jaspar for 3 binding profiles, uniprot→esm2_similarity for 57 similar proteins, uniprot→diamond_similarity for 40 sequence homologs. LLMs cannot enumerate hundreds of regulatory relationships, identify which are cell surface receptors, provide specific CellPhoneDB IDs, nor compute protein similarities.",
+      "ground_truth": {
+        "must_mention": ["TP53", "P04637", "regulatory", "transcription factor"],
+        "must_mention_any": ["target gene", "binding motif", "similarity", "FAS", "death receptor", "apoptosis", "upstream"],
+        "tool_only_terms": ["1207", "MA0106.1", "MA0106.2", "MA0106.3", "57", "40", "CPI-SS0D168412F", "CPI-SS001865B32", "FASLG", "TNFSF10", "O09185", "P02340"],
+        "biobtree_chain": ">>hgnc>>collectri, >>collectri>>hgnc>>cellphonedb (for target genes FAS, TNFRSF10B), >>uniprot>>jaspar, >>uniprot>>esm2_similarity, >>uniprot>>diamond_similarity, >>uniprot>>string_interaction",
+        "key_values": {
+          "hgnc_id": "HGNC:11998",
+          "uniprot_id": "P04637",
+          "collectri_targets": 1207,
+          "cellphonedb_targets": ["FAS", "TNFRSF10B"],
+          "cellphonedb_interactions": ["FASLG-FAS (CPI-SS0D168412F)", "TNFSF10-TNFRSF10B (CPI-SS001865B32)"],
+          "jaspar_profiles": 3,
+          "jaspar_ids": ["MA0106.1", "MA0106.2", "MA0106.3"],
+          "jaspar_family": "p53 domain factors",
+          "esm2_similar": 57,
+          "diamond_similar": 40,
+          "string_interactions": 14764,
+          "upstream_regulators": "75+ (from CollecTRI reverse lookup)",
+          "key_targets": ["FAS (death receptor)", "TNFRSF10B (TRAIL receptor)", "BAX", "CDKN1A (p21)", "MDM2"],
+          "key_regulators": ["E2F1", "HIF1A", "JUN", "MYC", "BRCA1"],
+          "regulation_types": ["Activation", "Repression", "Unknown"],
+          "confidence_levels": ["High", "Low"]
         }
       }
     }

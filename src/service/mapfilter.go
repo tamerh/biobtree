@@ -1008,6 +1008,9 @@ func (s *Service) execCelGo(query *query.Query, targetXref *pbuf.Xref) (bool, er
 	case "uniprot":
 		if attr := targetXref.GetUniprot(); attr != nil {
 			attr.Id = id
+			if len(attr.Names) > 0 {
+				attr.Name = attr.Names[0]
+			}
 			evalMap["uniprot"] = attr
 		}
 	case "ufeature":
@@ -1041,6 +1044,9 @@ func (s *Service) execCelGo(query *query.Query, targetXref *pbuf.Xref) (bool, er
 	case "hgnc":
 		if attr := targetXref.GetHgnc(); attr != nil {
 			attr.Id = id
+			if len(attr.Names) > 0 {
+				attr.Name = attr.Names[0]
+			}
 			evalMap["hgnc"] = attr
 		}
 	case "go", "efo", "eco", "mondo", "uberon", "oba", "cl", "pato", "obi", "xco", "bao":

@@ -41,7 +41,7 @@ message HgncAttr {
   repeated string symbols = 2;
   string locus_group = 3;
   string location = 4;
-  
+
   repeated string aliases=5;
   string locus_type=6;
   repeated string prev_names=7;
@@ -49,6 +49,7 @@ message HgncAttr {
   string status=9;
   repeated string gene_groups=10;
   string id = 100; // transient - populated at runtime from Xref.Identifier
+  string name = 101; // transient - populated at runtime from names[0]
 }
 
 message InterproAttr {
@@ -159,6 +160,7 @@ message UniprotAttr {
  UniSequence sequence=7;
  bool reviewed=8;
   string id = 100; // transient - populated at runtime from Xref.Identifier
+  string name = 101; // transient - populated at runtime from names[0]
 }
 
 message UniSequence {

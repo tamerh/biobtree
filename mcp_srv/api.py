@@ -30,17 +30,17 @@ async def get_client() -> BiobtreeClient:
 async def api_search(
     i: str = Query(..., description="Comma-separated identifiers to search"),
     s: Optional[str] = Query(None, description="Filter to specific dataset"),
-    mode: Optional[str] = Query(None, description="Response mode: lite or full"),
     p: Optional[str] = Query(None, description="Pagination token")
 ):
     """
     Search for biological identifiers.
 
     Finds entries matching the given terms across 70+ integrated databases.
+    Returns lite format: id|dataset|name|xref_count
     """
     try:
         biobtree = await get_client()
-        result = await biobtree.search(terms=i, dataset=s, mode=mode, page=p)
+        result = await biobtree.search(terms=i, dataset=s, page=p)
         return result
     except BiobtreeError as e:
         return JSONResponse(status_code=503, content={"error": str(e)})
@@ -50,17 +50,17 @@ async def api_search(
 async def api_map(
     i: str = Query(..., description="Comma-separated identifiers to map"),
     m: str = Query(..., description="Mapping chain (e.g., '>>ensembl>>uniprot')"),
-    mode: Optional[str] = Query(None, description="Response mode: lite or full"),
     p: Optional[str] = Query(None, description="Pagination token")
 ):
     """
     Map identifiers through dataset chains.
 
     The core endpoint for cross-database queries.
+    Returns lite format with compact fields grouped by input.
     """
     try:
         biobtree = await get_client()
-        result = await biobtree.map(terms=i, chain=m, mode=mode, page=p)
+        result = await biobtree.map(terms=i, chain=m, page=p)
         return result
     except BiobtreeError as e:
         return JSONResponse(status_code=503, content={"error": str(e)})

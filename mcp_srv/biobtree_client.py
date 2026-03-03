@@ -2,6 +2,17 @@
 Biobtree HTTP Client
 
 Async HTTP client for biobtree REST API with logging and error handling.
+
+Response Mode Design:
+    - search/map: Always use "lite" mode (hardcoded)
+        - 5x higher result limits (50 vs 10 search, 150 vs 75 map)
+        - ~50x smaller payloads (pipe-delimited compact fields)
+        - Optimized for both LLM token efficiency and API consumers
+    - entry: Returns full attributes + compact xref counts (no mode param)
+        - Full details when you need them (sequences, descriptions, etc.)
+        - Xref counts prevent mega-payloads for entries with 1000s of refs
+
+    Go backend at :9291 still supports mode=full for direct access if needed.
 """
 
 import logging
@@ -130,8 +141,7 @@ class BiobtreeClient:
         terms: str,
         dataset: Optional[str] = None,
         page: Optional[str] = None,
-        filter_expr: Optional[str] = None,
-        mode: Optional[str] = None
+        filter_expr: Optional[str] = None
     ) -> dict:
         """
         Search for identifiers.
@@ -141,14 +151,11 @@ class BiobtreeClient:
             dataset: Filter to specific dataset (optional)
             page: Pagination token (optional)
             filter_expr: Filter expression (optional)
-            mode: Response mode - "lite" or "full" (optional, uses biobtree default if not set)
 
         Returns:
-            Search results with matching entries and query_url for full access
+            Search results with matching entries (lite format: id|dataset|name|xref_count)
         """
-        params = {"i": terms}
-        if mode:
-            params["mode"] = mode
+        params = {"i": terms, "mode": "lite"}
         if dataset:
             params["s"] = dataset
         if page:
@@ -172,20 +179,18 @@ class BiobtreeClient:
         self,
         terms: str,
         chain: str,
-        page: Optional[str] = None,
-        mode: Optional[str] = None
+        page: Optional[str] = None
     ) -> dict:
         """
         Map identifiers through dataset chain.
 
         Args:
             terms: Comma-separated identifiers to map
-            chain: Mapping chain (e.g., ">> ensembl >> uniprot")
+            chain: Mapping chain (e.g., ">>ensembl>>uniprot")
             page: Pagination token (optional)
-            mode: Response mode - "lite" or "full" (optional, uses biobtree default if not set)
 
         Returns:
-            Mapping results with source and target entries, plus query_url for full access
+            Mapping results with source and target entries (lite format with compact fields)
         """
         # Validate and auto-correct chain syntax - must start with >>
         chain_stripped = chain.strip()
@@ -201,9 +206,7 @@ class BiobtreeClient:
                     f"Example: >>ensembl>>uniprot"
                 )
 
-        params = {"i": terms, "m": chain_stripped}
-        if mode:
-            params["mode"] = mode
+        params = {"i": terms, "m": chain_stripped, "mode": "lite"}
         if page:
             params["p"] = page
 

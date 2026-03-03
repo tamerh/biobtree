@@ -78,10 +78,10 @@ msigdb: hgnc, entrez, go, hpo
 orphanet: hpo, uniprot, mondo, hgnc, clinvar, mim, mesh
 mim: clinvar, hpo, mondo, uniprot, ctd_disease_association
 hmdb: pubchem, hpo, chebi, uniprot
-collectri: hgnc
-esm2_similarity: uniprot
-diamond_similarity: uniprot
-cellphonedb: uniprot, ensembl, hgnc, pubmed
+collectri: hgnc  # transcription factor → target gene interactions
+esm2_similarity: uniprot  # protein structural similarity
+diamond_similarity: uniprot  # protein sequence similarity
+cellphonedb: uniprot, ensembl, hgnc, pubmed  # ligand-receptor pairs for cell-cell communication
 spliceai: hgnc
 pdb: uniprot, go, interpro, pfam, taxonomy, pubmed
 fantom5_promoter: ensembl, hgnc, entrez, uniprot, uberon, cl
@@ -242,13 +242,6 @@ WORKFLOW: Get entry → see xrefs → check EDGES for where they lead → follow
 RETURNS: All attributes + xref counts to connected datasets"""
 
 
-DESC_META = """Get list of all available datasets.
-
-SYNTAX: biobtree_meta()
-
-RETURNS: Dataset names, entry counts, relationships"""
-
-
 # =============================================================================
 # TOOL_DESCRIPTIONS dict - references the variables above
 # =============================================================================
@@ -257,7 +250,6 @@ TOOL_DESCRIPTIONS = {
     "biobtree_search": DESC_SEARCH,
     "biobtree_map": DESC_MAP,
     "biobtree_entry": DESC_ENTRY,
-    "biobtree_meta": DESC_META,
 }
 
 
@@ -280,7 +272,6 @@ INPUT_SCHEMAS = {
         "properties": {
             "terms": {"type": "string", "description": "Comma-separated identifiers to search"},
             "dataset": {"type": "string", "description": "Filter to specific dataset (omit for discovery)"},
-            "mode": {"type": "string", "enum": ["lite", "full"], "default": "lite"},
             "page": {"type": "string", "description": "Pagination token"}
         },
         "required": ["terms"]
@@ -290,7 +281,6 @@ INPUT_SCHEMAS = {
         "properties": {
             "terms": {"type": "string", "description": "Comma-separated identifiers to map"},
             "chain": {"type": "string", "description": "Mapping chain (e.g., >>ensembl>>uniprot)"},
-            "mode": {"type": "string", "enum": ["lite", "full"], "default": "lite"},
             "page": {"type": "string", "description": "Pagination token"}
         },
         "required": ["terms", "chain"]
@@ -302,10 +292,6 @@ INPUT_SCHEMAS = {
             "dataset": {"type": "string", "description": "The dataset containing the entry"}
         },
         "required": ["identifier", "dataset"]
-    },
-    "biobtree_meta": {
-        "type": "object",
-        "properties": {}
     }
 }
 

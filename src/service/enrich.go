@@ -67,6 +67,340 @@ func enrichXref(xref *pbuf.Xref) {
 	}
 
 	// URL field removed - was not functional and added unnecessary response size
+
+	// Set id in attributes (transient - enables filtering by id)
+	setAttributeId(xref)
+}
+
+// setAttributeId populates the transient Id field in attribute protos
+// This enables CEL filtering like: >>go[id=="GO:0005886"]
+func setAttributeId(xref *pbuf.Xref) {
+	if xref == nil || xref.Identifier == "" {
+		return
+	}
+
+	switch attr := xref.Attributes.(type) {
+	case *pbuf.Xref_Uniprot:
+		if attr.Uniprot != nil {
+			attr.Uniprot.Id = xref.Identifier
+		}
+	case *pbuf.Xref_Ufeature:
+		// UniprotFeatureAttr already has id field (field 3) - no action needed
+	case *pbuf.Xref_Ensembl:
+		if attr.Ensembl != nil {
+			attr.Ensembl.Id = xref.Identifier
+		}
+	case *pbuf.Xref_Taxonomy:
+		if attr.Taxonomy != nil {
+			attr.Taxonomy.Id = xref.Identifier
+		}
+	case *pbuf.Xref_Hgnc:
+		if attr.Hgnc != nil {
+			attr.Hgnc.Id = xref.Identifier
+		}
+	case *pbuf.Xref_Ontology:
+		if attr.Ontology != nil {
+			attr.Ontology.Id = xref.Identifier
+		}
+	case *pbuf.Xref_HpoAttr:
+		if attr.HpoAttr != nil {
+			attr.HpoAttr.Id = xref.Identifier
+		}
+	case *pbuf.Xref_Chembl:
+		if attr.Chembl != nil {
+			// Set id on nested types used in CEL
+			if attr.Chembl.Molecule != nil {
+				attr.Chembl.Molecule.Id = xref.Identifier
+			}
+			if attr.Chembl.Target != nil {
+				attr.Chembl.Target.Id = xref.Identifier
+			}
+			if attr.Chembl.Activity != nil {
+				attr.Chembl.Activity.Id = xref.Identifier
+			}
+			if attr.Chembl.Assay != nil {
+				attr.Chembl.Assay.Id = xref.Identifier
+			}
+			if attr.Chembl.Doc != nil {
+				attr.Chembl.Doc.Id = xref.Identifier
+			}
+			if attr.Chembl.CellLine != nil {
+				attr.Chembl.CellLine.Id = xref.Identifier
+			}
+		}
+	case *pbuf.Xref_Interpro:
+		if attr.Interpro != nil {
+			attr.Interpro.Id = xref.Identifier
+		}
+	case *pbuf.Xref_Ena:
+		if attr.Ena != nil {
+			attr.Ena.Id = xref.Identifier
+		}
+	case *pbuf.Xref_Hmdb:
+		if attr.Hmdb != nil {
+			attr.Hmdb.Id = xref.Identifier
+		}
+	case *pbuf.Xref_Chebi:
+		if attr.Chebi != nil {
+			attr.Chebi.Id = xref.Identifier
+		}
+	case *pbuf.Xref_Pdb:
+		if attr.Pdb != nil {
+			attr.Pdb.Id = xref.Identifier
+		}
+	case *pbuf.Xref_Drugbank:
+		if attr.Drugbank != nil {
+			attr.Drugbank.Id = xref.Identifier
+		}
+	case *pbuf.Xref_Orphanet:
+		if attr.Orphanet != nil {
+			attr.Orphanet.Id = xref.Identifier
+		}
+	case *pbuf.Xref_Reactome:
+		if attr.Reactome != nil {
+			attr.Reactome.Id = xref.Identifier
+		}
+	case *pbuf.Xref_Pubchem:
+		if attr.Pubchem != nil {
+			attr.Pubchem.Id = xref.Identifier
+		}
+	case *pbuf.Xref_PubchemActivity:
+		if attr.PubchemActivity != nil {
+			attr.PubchemActivity.Id = xref.Identifier
+		}
+	case *pbuf.Xref_PubchemAssay:
+		if attr.PubchemAssay != nil {
+			attr.PubchemAssay.Id = xref.Identifier
+		}
+	case *pbuf.Xref_Lipidmaps:
+		if attr.Lipidmaps != nil {
+			attr.Lipidmaps.Id = xref.Identifier
+		}
+	case *pbuf.Xref_Swisslipids:
+		if attr.Swisslipids != nil {
+			attr.Swisslipids.Id = xref.Identifier
+		}
+	case *pbuf.Xref_Bgee:
+		if attr.Bgee != nil {
+			attr.Bgee.Id = xref.Identifier
+		}
+	case *pbuf.Xref_BgeeEvidence:
+		if attr.BgeeEvidence != nil {
+			attr.BgeeEvidence.Id = xref.Identifier
+		}
+	case *pbuf.Xref_Rhea:
+		if attr.Rhea != nil {
+			attr.Rhea.Id = xref.Identifier
+		}
+	case *pbuf.Xref_GwasStudy:
+		if attr.GwasStudy != nil {
+			attr.GwasStudy.Id = xref.Identifier
+		}
+	case *pbuf.Xref_Gwas:
+		if attr.Gwas != nil {
+			attr.Gwas.Id = xref.Identifier
+		}
+	case *pbuf.Xref_Intact:
+		if attr.Intact != nil {
+			attr.Intact.Id = xref.Identifier
+		}
+	case *pbuf.Xref_Dbsnp:
+		if attr.Dbsnp != nil {
+			attr.Dbsnp.Id = xref.Identifier
+		}
+	case *pbuf.Xref_Clinvar:
+		if attr.Clinvar != nil {
+			attr.Clinvar.Id = xref.Identifier
+		}
+	case *pbuf.Xref_Antibody:
+		if attr.Antibody != nil {
+			attr.Antibody.Id = xref.Identifier
+		}
+	case *pbuf.Xref_Esm2Similarity:
+		if attr.Esm2Similarity != nil {
+			attr.Esm2Similarity.Id = xref.Identifier
+		}
+	case *pbuf.Xref_DiamondSimilarity:
+		if attr.DiamondSimilarity != nil {
+			attr.DiamondSimilarity.Id = xref.Identifier
+		}
+	case *pbuf.Xref_Entrez:
+		if attr.Entrez != nil {
+			attr.Entrez.Id = xref.Identifier
+		}
+	case *pbuf.Xref_Refseq:
+		if attr.Refseq != nil {
+			attr.Refseq.Id = xref.Identifier
+		}
+	case *pbuf.Xref_Gencc:
+		if attr.Gencc != nil {
+			attr.Gencc.Id = xref.Identifier
+		}
+	case *pbuf.Xref_Bindingdb:
+		if attr.Bindingdb != nil {
+			attr.Bindingdb.Id = xref.Identifier
+		}
+	case *pbuf.Xref_Ctd:
+		if attr.Ctd != nil {
+			attr.Ctd.Id = xref.Identifier
+		}
+	case *pbuf.Xref_CtdGeneInteraction:
+		if attr.CtdGeneInteraction != nil {
+			attr.CtdGeneInteraction.Id = xref.Identifier
+		}
+	case *pbuf.Xref_CtdDiseaseAssociation:
+		if attr.CtdDiseaseAssociation != nil {
+			attr.CtdDiseaseAssociation.Id = xref.Identifier
+		}
+	case *pbuf.Xref_Biogrid:
+		if attr.Biogrid != nil {
+			attr.Biogrid.Id = xref.Identifier
+		}
+	case *pbuf.Xref_BiogridInteraction:
+		if attr.BiogridInteraction != nil {
+			attr.BiogridInteraction.Id = xref.Identifier
+		}
+	case *pbuf.Xref_Msigdb:
+		if attr.Msigdb != nil {
+			attr.Msigdb.Id = xref.Identifier
+		}
+	case *pbuf.Xref_Alphamissense:
+		if attr.Alphamissense != nil {
+			attr.Alphamissense.Id = xref.Identifier
+		}
+	case *pbuf.Xref_AlphamissenseTranscript:
+		if attr.AlphamissenseTranscript != nil {
+			attr.AlphamissenseTranscript.Id = xref.Identifier
+		}
+	case *pbuf.Xref_Pharmgkb:
+		if attr.Pharmgkb != nil {
+			attr.Pharmgkb.Id = xref.Identifier
+		}
+	case *pbuf.Xref_PharmgkbGene:
+		if attr.PharmgkbGene != nil {
+			attr.PharmgkbGene.Id = xref.Identifier
+		}
+	case *pbuf.Xref_PharmgkbClinical:
+		if attr.PharmgkbClinical != nil {
+			attr.PharmgkbClinical.Id = xref.Identifier
+		}
+	case *pbuf.Xref_PharmgkbVariant:
+		if attr.PharmgkbVariant != nil {
+			attr.PharmgkbVariant.Id = xref.Identifier
+		}
+	case *pbuf.Xref_PharmgkbGuideline:
+		if attr.PharmgkbGuideline != nil {
+			attr.PharmgkbGuideline.Id = xref.Identifier
+		}
+	case *pbuf.Xref_PharmgkbPathway:
+		if attr.PharmgkbPathway != nil {
+			attr.PharmgkbPathway.Id = xref.Identifier
+		}
+	case *pbuf.Xref_Cellxgene:
+		if attr.Cellxgene != nil {
+			attr.Cellxgene.Id = xref.Identifier
+		}
+	case *pbuf.Xref_CellxgeneCelltype:
+		if attr.CellxgeneCelltype != nil {
+			attr.CellxgeneCelltype.Id = xref.Identifier
+		}
+	case *pbuf.Xref_Scxa:
+		if attr.Scxa != nil {
+			attr.Scxa.Id = xref.Identifier
+		}
+	case *pbuf.Xref_ScxaExpression:
+		if attr.ScxaExpression != nil {
+			attr.ScxaExpression.Id = xref.Identifier
+		}
+	case *pbuf.Xref_ScxaGeneExperiment:
+		if attr.ScxaGeneExperiment != nil {
+			attr.ScxaGeneExperiment.Id = xref.Identifier
+		}
+	case *pbuf.Xref_Alphafold:
+		if attr.Alphafold != nil {
+			attr.Alphafold.Id = xref.Identifier
+		}
+	case *pbuf.Xref_ClinicalTrials:
+		if attr.ClinicalTrials != nil {
+			attr.ClinicalTrials.Id = xref.Identifier
+		}
+	case *pbuf.Xref_Collectri:
+		if attr.Collectri != nil {
+			attr.Collectri.Id = xref.Identifier
+		}
+	case *pbuf.Xref_Brenda:
+		if attr.Brenda != nil {
+			attr.Brenda.Id = xref.Identifier
+		}
+	case *pbuf.Xref_BrendaKinetics:
+		if attr.BrendaKinetics != nil {
+			attr.BrendaKinetics.Id = xref.Identifier
+		}
+	case *pbuf.Xref_BrendaInhibitor:
+		if attr.BrendaInhibitor != nil {
+			attr.BrendaInhibitor.Id = xref.Identifier
+		}
+	case *pbuf.Xref_Cellphonedb:
+		if attr.Cellphonedb != nil {
+			attr.Cellphonedb.Id = xref.Identifier
+		}
+	case *pbuf.Xref_Spliceai:
+		if attr.Spliceai != nil {
+			attr.Spliceai.Id = xref.Identifier
+		}
+	case *pbuf.Xref_Mirdb:
+		if attr.Mirdb != nil {
+			attr.Mirdb.Id = xref.Identifier
+		}
+	case *pbuf.Xref_Fantom5Promoter:
+		if attr.Fantom5Promoter != nil {
+			attr.Fantom5Promoter.Id = xref.Identifier
+		}
+	case *pbuf.Xref_Fantom5Enhancer:
+		if attr.Fantom5Enhancer != nil {
+			attr.Fantom5Enhancer.Id = xref.Identifier
+		}
+	case *pbuf.Xref_Fantom5Gene:
+		if attr.Fantom5Gene != nil {
+			attr.Fantom5Gene.Id = xref.Identifier
+		}
+	case *pbuf.Xref_Jaspar:
+		if attr.Jaspar != nil {
+			attr.Jaspar.Id = xref.Identifier
+		}
+	case *pbuf.Xref_EncodeCcre:
+		if attr.EncodeCcre != nil {
+			attr.EncodeCcre.Id = xref.Identifier
+		}
+	case *pbuf.Xref_Signor:
+		if attr.Signor != nil {
+			attr.Signor.Id = xref.Identifier
+		}
+	case *pbuf.Xref_Corum:
+		if attr.Corum != nil {
+			attr.Corum.Id = xref.Identifier
+		}
+	case *pbuf.Xref_Stringattr:
+		if attr.Stringattr != nil {
+			attr.Stringattr.Id = xref.Identifier
+		}
+	case *pbuf.Xref_StringInteraction:
+		if attr.StringInteraction != nil {
+			attr.StringInteraction.Id = xref.Identifier
+		}
+	case *pbuf.Xref_Mesh:
+		if attr.Mesh != nil {
+			attr.Mesh.Id = xref.Identifier
+		}
+	case *pbuf.Xref_Patent:
+		if attr.Patent != nil {
+			attr.Patent.Id = xref.Identifier
+		}
+	case *pbuf.Xref_Rnacentral:
+		if attr.Rnacentral != nil {
+			attr.Rnacentral.Id = xref.Identifier
+		}
+	}
 }
 
 // setURL sets the URL field based on dataset type and identifier

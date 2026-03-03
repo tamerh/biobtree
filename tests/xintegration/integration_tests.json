@@ -1,9 +1,11 @@
 {
   "metadata": {
-    "version": "10.4",
+    "version": "10.6",
     "description": "Expanded integration tests including newly added datasets and filter tests (2025-2026)",
     "server": "http://localhost:9291",
-    "last_updated": "2026-03-02",
+    "last_updated": "2026-03-03",
+    "changes_10.6": "Added id_filter category (12 tests): Identifier filter tests. Tests filtering by entry identifier using id field (e.g., go[id==\"GO:0005886\"]). Covers single-hop id filters (ensembl, uniprot, go, mondo, chembl_molecule, hgnc, pdb, pubchem, chebi, efo, taxonomy, interpro), multi-hop chains with multiple filters including id, and combinations of id filter with other attribute filters. Total: 758 tests.",
+    "changes_10.5": "Added chembl_pchembl_sorting category (4 tests): ChEMBL activity pChembl sorting validation. Tests that chembl_activity xrefs are sorted by pChembl descending (highest binding affinity first). Also added clinical_trials_phase_sorting category (4 tests): Clinical trials phase sorting validation. Tests that clinical_trials xrefs to MONDO/ChEMBL are sorted by phase (PHASE4 first). Total: 746 tests.",
     "changes_10.4": "Added not_found_tracking category (6 tests, 16 validations): Batch query not_found tracking validation. Tests stats.queried count, stats.mapped count, and not_found array for invalid input terms in lite mode. New validation types: not_found_contains, not_found_count, stats_queried, stats_mapped. Validates explicit tracking of failed input terms in batch mapping queries. Total: 738 tests.",
     "changes_10.3": "Added ctd_interactions category (10 tests): CTD gene interaction and disease association sub-dataset tests. Updated 10 existing tests with new CTD architecture paths (ctd→ctd_gene_interaction→entrez instead of ctd→entrez, etc.). New aggregated data model with interaction descriptions, inference genes, species sorting, and PubMed literature as xrefs. Total: 722 tests.",
     "changes_10.2": "Added brenda_kinetics_compact category (8 tests): BRENDA enzyme kinetics compact storage validation. Tests new pipe-delimited format (value|unit|organism|conditions|pubmed_id|comment), schema field validation, organism priority sorting (Homo sapiens first), and min/max value checks. New validation types: 'contains' for substring matching, array indexing support (e.g., km_values[0]). Total: 712 tests.",
@@ -98,7 +100,10 @@
     "mirdb_sorting": "miRDB target prediction sorting: Tests species priority and prediction score sorting for mirdb dataset. Human miRNAs appear first when querying reverse xrefs (refseq>>mirdb), sorted by prediction score descending within species groups.",
     "brenda_kinetics_compact": "BRENDA kinetics compact storage: Tests the new compact pipe-delimited storage format for enzyme kinetics (Km, kcat, Ki values). Validates schema field format, organism priority sorting (Homo sapiens first), and value ordering within organism groups. Uses schema: value|unit|organism|conditions|pubmed_id|comment.",
     "xref_inflation": "Xref count inflation detection: Validates that xref counts from biobtree_entry match unique mapping counts from biobtree_map. Catches bugs where bidirectional writes cause ~2x inflation (e.g., pdb|65 instead of pdb|33). Tests P38398 (BRCA1) PDB and Reactome xref counts against mapping totals.",
-    "not_found_tracking": "Batch query not_found tracking: Validates that when mapping multiple IDs, the response includes not_found array listing input terms that didn't resolve. Tests stats.queried count, stats.mapped count, and explicit not_found array in both lite and full modes."
+    "not_found_tracking": "Batch query not_found tracking: Validates that when mapping multiple IDs, the response includes not_found array listing input terms that didn't resolve. Tests stats.queried count, stats.mapped count, and explicit not_found array in both lite and full modes.",
+    "chembl_pchembl_sorting": "ChEMBL activity pChembl sorting: Tests that chembl_activity xrefs are sorted by pChembl descending (highest binding affinity first). Activities with higher pChembl values (stronger binding) appear before weaker binders. Validates >>chembl_molecule>>chembl_activity and >>chembl_target>>chembl_activity paths.",
+    "clinical_trials_phase_sorting": "Clinical trials phase sorting: Tests that clinical_trials xrefs to MONDO, EFO, and ChEMBL are sorted by phase (PHASE4 first, then PHASE3, PHASE2, PHASE1). Later phase trials represent more advanced drug development and are prioritized in results.",
+    "id_filter": "Identifier filter tests: Tests filtering by entry identifier using the transient id field. Enables queries like go[id==\"GO:0005886\"] to filter results by exact identifier. Works across all datasets. Supports single-hop filters, multi-hop chains with multiple id filters, and combinations with other attribute filters. Essential for LLM agents to precisely filter mapping results."
   },
   "tests": [
     {
@@ -8551,6 +8556,249 @@
           "description": "not_found should contain the invalid term"
         }
       ]
+    },
+    {
+      "_comment": "=== ChEMBL pChembl Sorting Tests ===",
+      "category": "chembl_pchembl_sorting",
+      "name": "Molecule to Activity Basic",
+      "query": ">>chembl_molecule>>chembl_activity",
+      "why": "Map drug molecule to all bioactivity assay results",
+      "should_pass": [
+        "CHEMBL25",
+        "CHEMBL192"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "chembl_pchembl_sorting",
+      "name": "Target to Activity Basic",
+      "query": ">>chembl_target>>chembl_activity",
+      "why": "Map ChEMBL target to all bioactivity assay results for that target",
+      "should_pass": [
+        "CHEMBL2093872",
+        "CHEMBL1824"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "chembl_pchembl_sorting",
+      "name": "Activity pChembl Descending Order",
+      "type": "validation",
+      "query": ">>chembl_target>>chembl_activity",
+      "identifier": "CHEMBL1824",
+      "why": "Activities for P2Y12 receptor (CHEMBL1824) should be sorted by pChembl descending - highest binding affinity first",
+      "validations": [
+        {
+          "path": "",
+          "descending_scores": "Attributes.ChemblActivity.pchembl_value",
+          "n": 20,
+          "description": "First 20 activity results sorted by pChembl descending"
+        }
+      ]
+    },
+    {
+      "category": "chembl_pchembl_sorting",
+      "name": "Molecule Activity pChembl Descending Order",
+      "type": "validation",
+      "query": ">>chembl_molecule>>chembl_activity",
+      "identifier": "CHEMBL25",
+      "why": "Activities for aspirin (CHEMBL25) should be sorted by pChembl descending - highest binding affinity first",
+      "validations": [
+        {
+          "path": "",
+          "descending_scores": "Attributes.ChemblActivity.pchembl_value",
+          "n": 15,
+          "description": "First 15 activity results sorted by pChembl descending"
+        }
+      ]
+    },
+    {
+      "_comment": "=== Clinical Trials Phase Sorting Tests ===",
+      "category": "clinical_trials_phase_sorting",
+      "name": "MONDO to Clinical Trials Basic",
+      "query": ">>mondo>>clinical_trials",
+      "why": "Map disease (MONDO) to all clinical trials for that disease",
+      "should_pass": [
+        "MONDO:0007254",
+        "MONDO:0005015"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "clinical_trials_phase_sorting",
+      "name": "ChEMBL Molecule to Clinical Trials",
+      "query": ">>chembl_molecule>>clinical_trials",
+      "why": "Map drug (ChEMBL molecule) to clinical trials using that drug",
+      "should_pass": [
+        "CHEMBL25",
+        "CHEMBL192"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "clinical_trials_phase_sorting",
+      "name": "Disease Trials Phase4 First",
+      "type": "validation",
+      "query": ">>mondo>>clinical_trials",
+      "identifier": "MONDO:0005015",
+      "why": "Clinical trials for diabetes (MONDO:0005015) should have PHASE4 trials first, as they represent approved drugs with most evidence",
+      "validations": [
+        {
+          "path": "",
+          "first_n_contain_attribute": "Attributes.ClinicalTrials.phase",
+          "expected_value": "PHASE4",
+          "n": 10,
+          "description": "First 10 trials should be PHASE4"
+        }
+      ]
+    },
+    {
+      "category": "clinical_trials_phase_sorting",
+      "name": "Drug Trials Phase Sorting",
+      "type": "validation",
+      "query": ">>chembl_molecule>>clinical_trials",
+      "identifier": "CHEMBL25",
+      "why": "Clinical trials for aspirin should have PHASE4 trials appear before earlier phases",
+      "validations": [
+        {
+          "path": "",
+          "first_n_contain_attribute": "Attributes.ClinicalTrials.phase",
+          "expected_value": "PHASE4",
+          "n": 5,
+          "description": "First 5 trials should be PHASE4"
+        }
+      ]
+    },
+    {
+      "category": "id_filter",
+      "name": "GO Term ID Filter",
+      "query": ">>hgnc>>ensembl>>go[id==\"GO:0005634\"]",
+      "why": "Filter GO mappings to specific GO term (nucleus) by identifier",
+      "should_pass": [
+        "TP53",
+        "BRCA1"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "id_filter",
+      "name": "Ensembl ID Filter",
+      "query": ">>hgnc>>ensembl[id==\"ENSG00000141510\"]",
+      "why": "Filter Ensembl mappings to specific gene ID (TP53)",
+      "should_pass": [
+        "TP53"
+      ],
+      "should_fail": [
+        "BRCA1"
+      ]
+    },
+    {
+      "category": "id_filter",
+      "name": "UniProt ID Filter",
+      "query": ">>ensembl>>uniprot[id==\"P04637\"]",
+      "why": "Filter UniProt mappings to specific protein ID (p53)",
+      "should_pass": [
+        "TP53"
+      ],
+      "should_fail": [
+        "BRCA1"
+      ]
+    },
+    {
+      "category": "id_filter",
+      "name": "MONDO Disease ID Filter",
+      "query": ">>mondo[id==\"MONDO:0007254\"]",
+      "why": "Filter MONDO search to specific disease ID (breast cancer)",
+      "should_pass": [
+        "breast cancer"
+      ],
+      "should_fail": [
+        "diabetes"
+      ]
+    },
+    {
+      "category": "id_filter",
+      "name": "ChEMBL Molecule ID Filter",
+      "query": ">>chembl_molecule[id==\"CHEMBL25\"]",
+      "why": "Filter ChEMBL molecules to specific compound ID (aspirin)",
+      "should_pass": [
+        "aspirin"
+      ],
+      "should_fail": [
+        "metformin"
+      ]
+    },
+    {
+      "category": "id_filter",
+      "name": "HGNC ID Filter",
+      "query": ">>ensembl>>hgnc[id==\"HGNC:11998\"]",
+      "why": "Filter HGNC mappings to specific gene ID (TP53)",
+      "should_pass": [
+        "ENSG00000141510"
+      ],
+      "should_fail": [
+        "ENSG00000012048"
+      ]
+    },
+    {
+      "category": "id_filter",
+      "name": "PDB Structure ID Filter",
+      "query": ">>uniprot>>pdb[id==\"1TUP\"]",
+      "why": "Filter PDB structures to specific structure ID",
+      "should_pass": [
+        "P04637"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "id_filter",
+      "name": "InterPro Domain ID Filter",
+      "query": ">>uniprot>>interpro[id==\"IPR001357\"]",
+      "why": "Filter InterPro mappings to specific domain ID (BRCT domain)",
+      "should_pass": [
+        "P38398"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "id_filter",
+      "name": "Multi-hop with Multiple ID Filters",
+      "query": ">>hgnc[id==\"HGNC:11998\"]>>ensembl>>uniprot>>go[id==\"GO:0005634\"]",
+      "why": "Chain with ID filters at start and end - TP53 to nucleus",
+      "should_pass": [
+        "TP53"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "id_filter",
+      "name": "ID Filter with Attribute Filter",
+      "query": ">>ensembl[id==\"ENSG00000012048\"]>>uniprot>>pdb[method.contains(\"X-RAY\")]",
+      "why": "Combine ID filter with attribute filter - BRCA1 X-ray structures",
+      "should_pass": [
+        "ENSG00000012048"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "id_filter",
+      "name": "Drug to Target with ID Filter",
+      "query": ">>chembl_molecule[highestDevelopmentPhase==4]>>chembl_target>>uniprot[id==\"P23219\"]",
+      "why": "Approved drug to specific target (COX-1) via ID filter",
+      "should_pass": [
+        "aspirin"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "id_filter",
+      "name": "Disease Trials with Multiple Filters",
+      "query": ">>mondo[id==\"MONDO:0005148\"]>>clinical_trials[phase==\"PHASE3\"]>>chembl_molecule[highestDevelopmentPhase>=3]",
+      "why": "Type 2 diabetes (by ID) to Phase 3 trial drugs - tests 3 filters in chain",
+      "should_pass": [
+        "MONDO:0005148"
+      ],
+      "should_fail": []
     }
   ]
 }

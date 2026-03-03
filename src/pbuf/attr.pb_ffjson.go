@@ -407,6 +407,11 @@ func (j *AlphaFoldAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.FormatBits2(buf, uint64(j.SequenceLength), 10, j.SequenceLength < 0)
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -441,6 +446,8 @@ const (
 	ffjtAlphaFoldAttrFragmentNumber
 
 	ffjtAlphaFoldAttrSequenceLength
+
+	ffjtAlphaFoldAttrId
 )
 
 var ffjKeyAlphaFoldAttrGlobalMetric = []byte("global_metric")
@@ -468,6 +475,8 @@ var ffjKeyAlphaFoldAttrVersion = []byte("version")
 var ffjKeyAlphaFoldAttrFragmentNumber = []byte("fragment_number")
 
 var ffjKeyAlphaFoldAttrSequenceLength = []byte("sequence_length")
+
+var ffjKeyAlphaFoldAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *AlphaFoldAttr) UnmarshalJSON(input []byte) error {
@@ -576,6 +585,14 @@ mainparse:
 						goto mainparse
 					}
 
+				case 'i':
+
+					if bytes.Equal(ffjKeyAlphaFoldAttrId, kn) {
+						currentKey = ffjtAlphaFoldAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 'm':
 
 					if bytes.Equal(ffjKeyAlphaFoldAttrModelEntityId, kn) {
@@ -610,6 +627,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyAlphaFoldAttrId, kn) {
+					currentKey = ffjtAlphaFoldAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.EqualFoldRight(ffjKeyAlphaFoldAttrSequenceLength, kn) {
@@ -745,6 +768,9 @@ mainparse:
 
 				case ffjtAlphaFoldAttrSequenceLength:
 					goto handle_SequenceLength
+
+				case ffjtAlphaFoldAttrId:
+					goto handle_Id
 
 				case ffjtAlphaFoldAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -1142,6 +1168,32 @@ handle_SequenceLength:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
 wantedvalue:
 	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
 wrongtokenerror:
@@ -1246,6 +1298,11 @@ func (j *AlphaMissenseAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.WriteJsonString(buf, string(j.AmClass))
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -1274,6 +1331,8 @@ const (
 	ffjtAlphaMissenseAttrAmPathogenicity
 
 	ffjtAlphaMissenseAttrAmClass
+
+	ffjtAlphaMissenseAttrId
 )
 
 var ffjKeyAlphaMissenseAttrChromosome = []byte("chromosome")
@@ -1295,6 +1354,8 @@ var ffjKeyAlphaMissenseAttrGeneSymbol = []byte("gene_symbol")
 var ffjKeyAlphaMissenseAttrAmPathogenicity = []byte("am_pathogenicity")
 
 var ffjKeyAlphaMissenseAttrAmClass = []byte("am_class")
+
+var ffjKeyAlphaMissenseAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *AlphaMissenseAttr) UnmarshalJSON(input []byte) error {
@@ -1391,6 +1452,14 @@ mainparse:
 						goto mainparse
 					}
 
+				case 'i':
+
+					if bytes.Equal(ffjKeyAlphaMissenseAttrId, kn) {
+						currentKey = ffjtAlphaMissenseAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 'p':
 
 					if bytes.Equal(ffjKeyAlphaMissenseAttrPosition, kn) {
@@ -1428,6 +1497,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyAlphaMissenseAttrId, kn) {
+					currentKey = ffjtAlphaMissenseAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.EqualFoldRight(ffjKeyAlphaMissenseAttrAmClass, kn) {
@@ -1536,6 +1611,9 @@ mainparse:
 
 				case ffjtAlphaMissenseAttrAmClass:
 					goto handle_AmClass
+
+				case ffjtAlphaMissenseAttrId:
+					goto handle_Id
 
 				case ffjtAlphaMissenseAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -1867,6 +1945,32 @@ handle_AmClass:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
 wantedvalue:
 	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
 wrongtokenerror:
@@ -1925,6 +2029,11 @@ func (j *AlphaMissenseTranscriptAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) e
 		fflib.WriteJsonString(buf, string(j.TranscriptIdVersioned))
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -1939,6 +2048,8 @@ const (
 	ffjtAlphaMissenseTranscriptAttrMeanAmPathogenicity
 
 	ffjtAlphaMissenseTranscriptAttrTranscriptIdVersioned
+
+	ffjtAlphaMissenseTranscriptAttrId
 )
 
 var ffjKeyAlphaMissenseTranscriptAttrTranscriptId = []byte("transcript_id")
@@ -1946,6 +2057,8 @@ var ffjKeyAlphaMissenseTranscriptAttrTranscriptId = []byte("transcript_id")
 var ffjKeyAlphaMissenseTranscriptAttrMeanAmPathogenicity = []byte("mean_am_pathogenicity")
 
 var ffjKeyAlphaMissenseTranscriptAttrTranscriptIdVersioned = []byte("transcript_id_versioned")
+
+var ffjKeyAlphaMissenseTranscriptAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *AlphaMissenseTranscriptAttr) UnmarshalJSON(input []byte) error {
@@ -2008,6 +2121,14 @@ mainparse:
 			} else {
 				switch kn[0] {
 
+				case 'i':
+
+					if bytes.Equal(ffjKeyAlphaMissenseTranscriptAttrId, kn) {
+						currentKey = ffjtAlphaMissenseTranscriptAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 'm':
 
 					if bytes.Equal(ffjKeyAlphaMissenseTranscriptAttrMeanAmPathogenicity, kn) {
@@ -2029,6 +2150,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyAlphaMissenseTranscriptAttrId, kn) {
+					currentKey = ffjtAlphaMissenseTranscriptAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.EqualFoldRight(ffjKeyAlphaMissenseTranscriptAttrTranscriptIdVersioned, kn) {
@@ -2074,6 +2201,9 @@ mainparse:
 
 				case ffjtAlphaMissenseTranscriptAttrTranscriptIdVersioned:
 					goto handle_TranscriptIdVersioned
+
+				case ffjtAlphaMissenseTranscriptAttrId:
+					goto handle_Id
 
 				case ffjtAlphaMissenseTranscriptAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -2164,6 +2294,32 @@ handle_TranscriptIdVersioned:
 			outBuf := fs.Output.Bytes()
 
 			j.TranscriptIdVersioned = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
 
 		}
 	}
@@ -2390,6 +2546,11 @@ func (j *AntibodyAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		}
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -2442,6 +2603,8 @@ const (
 	ffjtAntibodyAttrAllele
 
 	ffjtAntibodyAttrCrossReferences
+
+	ffjtAntibodyAttrId
 )
 
 var ffjKeyAntibodyAttrSource = []byte("source")
@@ -2487,6 +2650,8 @@ var ffjKeyAntibodyAttrFunctionality = []byte("functionality")
 var ffjKeyAntibodyAttrAllele = []byte("allele")
 
 var ffjKeyAntibodyAttrCrossReferences = []byte("cross_references")
+
+var ffjKeyAntibodyAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *AntibodyAttr) UnmarshalJSON(input []byte) error {
@@ -2620,6 +2785,11 @@ mainparse:
 						currentKey = ffjtAntibodyAttrIndications
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyAntibodyAttrId, kn) {
+						currentKey = ffjtAntibodyAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 'l':
@@ -2698,6 +2868,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyAntibodyAttrId, kn) {
+					currentKey = ffjtAntibodyAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.EqualFoldRight(ffjKeyAntibodyAttrCrossReferences, kn) {
@@ -2914,6 +3090,9 @@ mainparse:
 
 				case ffjtAntibodyAttrCrossReferences:
 					goto handle_CrossReferences
+
+				case ffjtAntibodyAttrId:
+					goto handle_Id
 
 				case ffjtAntibodyAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -3789,6 +3968,32 @@ handle_CrossReferences:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
 wantedvalue:
 	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
 wrongtokenerror:
@@ -3924,6 +4129,11 @@ func (j *BgeeAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		}
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -3960,6 +4170,8 @@ const (
 	ffjtBgeeAttrConditionsSchema
 
 	ffjtBgeeAttrTopConditions
+
+	ffjtBgeeAttrId
 )
 
 var ffjKeyBgeeAttrGeneId = []byte("gene_id")
@@ -3989,6 +4201,8 @@ var ffjKeyBgeeAttrGoldQualityCount = []byte("gold_quality_count")
 var ffjKeyBgeeAttrConditionsSchema = []byte("conditions_schema")
 
 var ffjKeyBgeeAttrTopConditions = []byte("top_conditions")
+
+var ffjKeyBgeeAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *BgeeAttr) UnmarshalJSON(input []byte) error {
@@ -4093,6 +4307,14 @@ mainparse:
 						goto mainparse
 					}
 
+				case 'i':
+
+					if bytes.Equal(ffjKeyBgeeAttrId, kn) {
+						currentKey = ffjtBgeeAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 'm':
 
 					if bytes.Equal(ffjKeyBgeeAttrMaxExpressionScore, kn) {
@@ -4142,6 +4364,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyBgeeAttrId, kn) {
+					currentKey = ffjtBgeeAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.EqualFoldRight(ffjKeyBgeeAttrTopConditions, kn) {
@@ -4286,6 +4514,9 @@ mainparse:
 
 				case ffjtBgeeAttrTopConditions:
 					goto handle_TopConditions
+
+				case ffjtBgeeAttrId:
+					goto handle_Id
 
 				case ffjtBgeeAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -4783,6 +5014,32 @@ handle_TopConditions:
 
 				wantVal = false
 			}
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
 		}
 	}
 
@@ -5557,6 +5814,11 @@ func (j *BgeeEvidenceAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		}
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -5591,6 +5853,8 @@ const (
 	ffjtBgeeEvidenceAttrHasEst
 
 	ffjtBgeeEvidenceAttrHasInSitu
+
+	ffjtBgeeEvidenceAttrId
 )
 
 var ffjKeyBgeeEvidenceAttrGeneId = []byte("gene_id")
@@ -5618,6 +5882,8 @@ var ffjKeyBgeeEvidenceAttrHasSingleCell = []byte("has_single_cell")
 var ffjKeyBgeeEvidenceAttrHasEst = []byte("has_est")
 
 var ffjKeyBgeeEvidenceAttrHasInSitu = []byte("has_in_situ")
+
+var ffjKeyBgeeEvidenceAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *BgeeEvidenceAttr) UnmarshalJSON(input []byte) error {
@@ -5763,6 +6029,20 @@ mainparse:
 						goto mainparse
 					}
 
+				case 'i':
+
+					if bytes.Equal(ffjKeyBgeeEvidenceAttrId, kn) {
+						currentKey = ffjtBgeeEvidenceAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyBgeeEvidenceAttrId, kn) {
+					currentKey = ffjtBgeeEvidenceAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.EqualFoldRight(ffjKeyBgeeEvidenceAttrHasInSitu, kn) {
@@ -5898,6 +6178,9 @@ mainparse:
 
 				case ffjtBgeeEvidenceAttrHasInSitu:
 					goto handle_HasInSitu
+
+				case ffjtBgeeEvidenceAttrId:
+					goto handle_Id
 
 				case ffjtBgeeEvidenceAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -6301,6 +6584,32 @@ handle_HasInSitu:
 				err = errors.New("unexpected bytes for true/false value")
 				return fs.WrapErr(err)
 			}
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
 
 		}
 	}
@@ -7699,6 +8008,11 @@ func (j *BindingdbAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.WriteJsonString(buf, string(j.CurationDate))
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -7755,6 +8069,8 @@ const (
 	ffjtBindingdbAttrInstitution
 
 	ffjtBindingdbAttrCurationDate
+
+	ffjtBindingdbAttrId
 )
 
 var ffjKeyBindingdbAttrBindingdbId = []byte("bindingdb_id")
@@ -7804,6 +8120,8 @@ var ffjKeyBindingdbAttrPatentNumber = []byte("patent_number")
 var ffjKeyBindingdbAttrInstitution = []byte("institution")
 
 var ffjKeyBindingdbAttrCurationDate = []byte("curation_date")
+
+var ffjKeyBindingdbAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *BindingdbAttr) UnmarshalJSON(input []byte) error {
@@ -7919,6 +8237,11 @@ mainparse:
 						currentKey = ffjtBindingdbAttrInstitution
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyBindingdbAttrId, kn) {
+						currentKey = ffjtBindingdbAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 'k':
@@ -8016,6 +8339,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyBindingdbAttrId, kn) {
+					currentKey = ffjtBindingdbAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.AsciiEqualFold(ffjKeyBindingdbAttrCurationDate, kn) {
@@ -8250,6 +8579,9 @@ mainparse:
 
 				case ffjtBindingdbAttrCurationDate:
 					goto handle_CurationDate
+
+				case ffjtBindingdbAttrId:
+					goto handle_Id
 
 				case ffjtBindingdbAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -9081,6 +9413,32 @@ handle_CurationDate:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
 wantedvalue:
 	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
 wrongtokenerror:
@@ -9227,6 +9585,11 @@ func (j *BiogridAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		}
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -9253,6 +9616,8 @@ const (
 	ffjtBiogridAttrExperimentalSystems
 
 	ffjtBiogridAttrPubmedIds
+
+	ffjtBiogridAttrId
 )
 
 var ffjKeyBiogridAttrBiogridId = []byte("biogrid_id")
@@ -9272,6 +9637,8 @@ var ffjKeyBiogridAttrOrganisms = []byte("organisms")
 var ffjKeyBiogridAttrExperimentalSystems = []byte("experimental_systems")
 
 var ffjKeyBiogridAttrPubmedIds = []byte("pubmed_ids")
+
+var ffjKeyBiogridAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *BiogridAttr) UnmarshalJSON(input []byte) error {
@@ -9369,6 +9736,11 @@ mainparse:
 						currentKey = ffjtBiogridAttrInteractionCount
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyBiogridAttrId, kn) {
+						currentKey = ffjtBiogridAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 'o':
@@ -9400,6 +9772,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyBiogridAttrId, kn) {
+					currentKey = ffjtBiogridAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.EqualFoldRight(ffjKeyBiogridAttrPubmedIds, kn) {
@@ -9499,6 +9877,9 @@ mainparse:
 
 				case ffjtBiogridAttrPubmedIds:
 					goto handle_PubmedIds
+
+				case ffjtBiogridAttrId:
+					goto handle_Id
 
 				case ffjtBiogridAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -9954,6 +10335,32 @@ handle_PubmedIds:
 
 				wantVal = false
 			}
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
 		}
 	}
 
@@ -11211,6 +11618,11 @@ func (j *BiogridInteractionAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error 
 		fflib.WriteJsonString(buf, string(j.OntologyTermId))
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -11257,6 +11669,8 @@ const (
 	ffjtBiogridInteractionAttrPhenotype
 
 	ffjtBiogridInteractionAttrOntologyTermId
+
+	ffjtBiogridInteractionAttrId
 )
 
 var ffjKeyBiogridInteractionAttrInteractionId = []byte("interaction_id")
@@ -11296,6 +11710,8 @@ var ffjKeyBiogridInteractionAttrInteractorBOrganism = []byte("interactor_b_organ
 var ffjKeyBiogridInteractionAttrPhenotype = []byte("phenotype")
 
 var ffjKeyBiogridInteractionAttrOntologyTermId = []byte("ontology_term_id")
+
+var ffjKeyBiogridInteractionAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *BiogridInteractionAttr) UnmarshalJSON(input []byte) error {
@@ -11415,6 +11831,11 @@ mainparse:
 						currentKey = ffjtBiogridInteractionAttrInteractorBOrganism
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyBiogridInteractionAttrId, kn) {
+						currentKey = ffjtBiogridInteractionAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 'm':
@@ -11480,6 +11901,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyBiogridInteractionAttrId, kn) {
+					currentKey = ffjtBiogridInteractionAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.AsciiEqualFold(ffjKeyBiogridInteractionAttrOntologyTermId, kn) {
@@ -11669,6 +12096,9 @@ mainparse:
 
 				case ffjtBiogridInteractionAttrOntologyTermId:
 					goto handle_OntologyTermId
+
+				case ffjtBiogridInteractionAttrId:
+					goto handle_Id
 
 				case ffjtBiogridInteractionAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -12186,6 +12616,32 @@ handle_OntologyTermId:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
 wantedvalue:
 	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
 wrongtokenerror:
@@ -12354,6 +12810,11 @@ func (j *BrendaAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		}
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -12390,6 +12851,8 @@ const (
 	ffjtBrendaAttrReferenceCount
 
 	ffjtBrendaAttrReactionTypes
+
+	ffjtBrendaAttrId
 )
 
 var ffjKeyBrendaAttrEcNumber = []byte("ec_number")
@@ -12419,6 +12882,8 @@ var ffjKeyBrendaAttrKcatCount = []byte("kcat_count")
 var ffjKeyBrendaAttrReferenceCount = []byte("reference_count")
 
 var ffjKeyBrendaAttrReactionTypes = []byte("reaction_types")
+
+var ffjKeyBrendaAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *BrendaAttr) UnmarshalJSON(input []byte) error {
@@ -12503,6 +12968,11 @@ mainparse:
 						currentKey = ffjtBrendaAttrInhibitorCount
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyBrendaAttrId, kn) {
+						currentKey = ffjtBrendaAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 'k':
@@ -12572,6 +13042,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyBrendaAttrId, kn) {
+					currentKey = ffjtBrendaAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.EqualFoldRight(ffjKeyBrendaAttrReactionTypes, kn) {
@@ -12716,6 +13192,9 @@ mainparse:
 
 				case ffjtBrendaAttrReactionTypes:
 					goto handle_ReactionTypes
+
+				case ffjtBrendaAttrId:
+					goto handle_Id
 
 				case ffjtBrendaAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -13359,6 +13838,32 @@ handle_ReactionTypes:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
 wantedvalue:
 	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
 wrongtokenerror:
@@ -13537,6 +14042,11 @@ func (j *BrendaInhibitorAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.AppendFloat(buf, float64(j.MaxIc50), 'g', -1, 64)
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -13569,6 +14079,8 @@ const (
 	ffjtBrendaInhibitorAttrMinIc50
 
 	ffjtBrendaInhibitorAttrMaxIc50
+
+	ffjtBrendaInhibitorAttrId
 )
 
 var ffjKeyBrendaInhibitorAttrEcNumber = []byte("ec_number")
@@ -13594,6 +14106,8 @@ var ffjKeyBrendaInhibitorAttrMaxKi = []byte("max_ki")
 var ffjKeyBrendaInhibitorAttrMinIc50 = []byte("min_ic50")
 
 var ffjKeyBrendaInhibitorAttrMaxIc50 = []byte("max_ic50")
+
+var ffjKeyBrendaInhibitorAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *BrendaInhibitorAttr) UnmarshalJSON(input []byte) error {
@@ -13690,6 +14204,11 @@ mainparse:
 						currentKey = ffjtBrendaInhibitorAttrInhibitionCount
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyBrendaInhibitorAttrId, kn) {
+						currentKey = ffjtBrendaInhibitorAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 'k':
@@ -13728,6 +14247,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyBrendaInhibitorAttrId, kn) {
+					currentKey = ffjtBrendaInhibitorAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.AsciiEqualFold(ffjKeyBrendaInhibitorAttrMaxIc50, kn) {
@@ -13854,6 +14379,9 @@ mainparse:
 
 				case ffjtBrendaInhibitorAttrMaxIc50:
 					goto handle_MaxIc50
+
+				case ffjtBrendaInhibitorAttrId:
+					goto handle_Id
 
 				case ffjtBrendaInhibitorAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -14353,6 +14881,32 @@ handle_MaxIc50:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
 wantedvalue:
 	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
 wrongtokenerror:
@@ -14509,6 +15063,11 @@ func (j *BrendaKineticsAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.AppendFloat(buf, float64(j.MaxKcat), 'g', -1, 64)
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -14549,6 +15108,8 @@ const (
 	ffjtBrendaKineticsAttrMinKcat
 
 	ffjtBrendaKineticsAttrMaxKcat
+
+	ffjtBrendaKineticsAttrId
 )
 
 var ffjKeyBrendaKineticsAttrEcNumber = []byte("ec_number")
@@ -14582,6 +15143,8 @@ var ffjKeyBrendaKineticsAttrMaxKm = []byte("max_km")
 var ffjKeyBrendaKineticsAttrMinKcat = []byte("min_kcat")
 
 var ffjKeyBrendaKineticsAttrMaxKcat = []byte("max_kcat")
+
+var ffjKeyBrendaKineticsAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *BrendaKineticsAttr) UnmarshalJSON(input []byte) error {
@@ -14648,6 +15211,14 @@ mainparse:
 
 					if bytes.Equal(ffjKeyBrendaKineticsAttrEcNumber, kn) {
 						currentKey = ffjtBrendaKineticsAttrEcNumber
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'i':
+
+					if bytes.Equal(ffjKeyBrendaKineticsAttrId, kn) {
+						currentKey = ffjtBrendaKineticsAttrId
 						state = fflib.FFParse_want_colon
 						goto mainparse
 					}
@@ -14736,6 +15307,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyBrendaKineticsAttrId, kn) {
+					currentKey = ffjtBrendaKineticsAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.EqualFoldRight(ffjKeyBrendaKineticsAttrMaxKcat, kn) {
@@ -14898,6 +15475,9 @@ mainparse:
 
 				case ffjtBrendaKineticsAttrMaxKcat:
 					goto handle_MaxKcat
+
+				case ffjtBrendaKineticsAttrId:
+					goto handle_Id
 
 				case ffjtBrendaKineticsAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -15501,6 +16081,32 @@ handle_MaxKcat:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
 wantedvalue:
 	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
 wrongtokenerror:
@@ -15665,6 +16271,11 @@ func (j *CellphonedbAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		}
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -15703,6 +16314,8 @@ const (
 	ffjtCellphonedbAttrGenesB
 
 	ffjtCellphonedbAttrIsIntegrin
+
+	ffjtCellphonedbAttrId
 )
 
 var ffjKeyCellphonedbAttrPartnerA = []byte("partner_a")
@@ -15734,6 +16347,8 @@ var ffjKeyCellphonedbAttrIsComplexB = []byte("is_complex_b")
 var ffjKeyCellphonedbAttrGenesB = []byte("genes_b")
 
 var ffjKeyCellphonedbAttrIsIntegrin = []byte("is_integrin")
+
+var ffjKeyCellphonedbAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *CellphonedbAttr) UnmarshalJSON(input []byte) error {
@@ -15846,6 +16461,11 @@ mainparse:
 						currentKey = ffjtCellphonedbAttrIsIntegrin
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyCellphonedbAttrId, kn) {
+						currentKey = ffjtCellphonedbAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 'p':
@@ -15892,6 +16512,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyCellphonedbAttrId, kn) {
+					currentKey = ffjtCellphonedbAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.EqualFoldRight(ffjKeyCellphonedbAttrIsIntegrin, kn) {
@@ -16045,6 +16671,9 @@ mainparse:
 
 				case ffjtCellphonedbAttrIsIntegrin:
 					goto handle_IsIntegrin
+
+				case ffjtCellphonedbAttrId:
+					goto handle_Id
 
 				case ffjtCellphonedbAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -16618,6 +17247,32 @@ handle_IsIntegrin:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
 wantedvalue:
 	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
 wrongtokenerror:
@@ -16834,6 +17489,11 @@ func (j *CellxgeneAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.WriteJsonString(buf, string(j.Citation))
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -16876,6 +17536,8 @@ const (
 	ffjtCellxgeneAttrPublicationDoi
 
 	ffjtCellxgeneAttrCitation
+
+	ffjtCellxgeneAttrId
 )
 
 var ffjKeyCellxgeneAttrDatasetId = []byte("dataset_id")
@@ -16911,6 +17573,8 @@ var ffjKeyCellxgeneAttrDiseaseMondoIds = []byte("disease_mondo_ids")
 var ffjKeyCellxgeneAttrPublicationDoi = []byte("publication_doi")
 
 var ffjKeyCellxgeneAttrCitation = []byte("citation")
+
+var ffjKeyCellxgeneAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *CellxgeneAttr) UnmarshalJSON(input []byte) error {
@@ -17037,6 +17701,14 @@ mainparse:
 						goto mainparse
 					}
 
+				case 'i':
+
+					if bytes.Equal(ffjKeyCellxgeneAttrId, kn) {
+						currentKey = ffjtCellxgeneAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 'o':
 
 					if bytes.Equal(ffjKeyCellxgeneAttrOrganism, kn) {
@@ -17076,6 +17748,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyCellxgeneAttrId, kn) {
+					currentKey = ffjtCellxgeneAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.SimpleLetterEqualFold(ffjKeyCellxgeneAttrCitation, kn) {
@@ -17247,6 +17925,9 @@ mainparse:
 
 				case ffjtCellxgeneAttrCitation:
 					goto handle_Citation
+
+				case ffjtCellxgeneAttrId:
+					goto handle_Id
 
 				case ffjtCellxgeneAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -18092,6 +18773,32 @@ handle_Citation:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
 wantedvalue:
 	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
 wrongtokenerror:
@@ -18339,6 +19046,11 @@ func (j *CellxgeneCelltypeAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		}
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -18379,6 +19091,8 @@ const (
 	ffjtCellxgeneCelltypeAttrUniqueCellCount
 
 	ffjtCellxgeneCelltypeAttrExpressionByTissue
+
+	ffjtCellxgeneCelltypeAttrId
 )
 
 var ffjKeyCellxgeneCelltypeAttrCellTypeCl = []byte("cell_type_cl")
@@ -18412,6 +19126,8 @@ var ffjKeyCellxgeneCelltypeAttrTotalCellCount = []byte("total_cell_count")
 var ffjKeyCellxgeneCelltypeAttrUniqueCellCount = []byte("unique_cell_count")
 
 var ffjKeyCellxgeneCelltypeAttrExpressionByTissue = []byte("expression_by_tissue")
+
+var ffjKeyCellxgeneCelltypeAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *CellxgeneCelltypeAttr) UnmarshalJSON(input []byte) error {
@@ -18544,6 +19260,14 @@ mainparse:
 						goto mainparse
 					}
 
+				case 'i':
+
+					if bytes.Equal(ffjKeyCellxgeneCelltypeAttrId, kn) {
+						currentKey = ffjtCellxgeneCelltypeAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 'n':
 
 					if bytes.Equal(ffjKeyCellxgeneCelltypeAttrName, kn) {
@@ -18581,6 +19305,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyCellxgeneCelltypeAttrId, kn) {
+					currentKey = ffjtCellxgeneCelltypeAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.EqualFoldRight(ffjKeyCellxgeneCelltypeAttrExpressionByTissue, kn) {
@@ -18743,6 +19473,9 @@ mainparse:
 
 				case ffjtCellxgeneCelltypeAttrExpressionByTissue:
 					goto handle_ExpressionByTissue
+
+				case ffjtCellxgeneCelltypeAttrId:
+					goto handle_Id
 
 				case ffjtCellxgeneCelltypeAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -19666,6 +20399,32 @@ handle_ExpressionByTissue:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
 wantedvalue:
 	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
 wrongtokenerror:
@@ -20169,6 +20928,11 @@ func (j *ChebiAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.FormatBits2(buf, uint64(j.StatusId), 10, j.StatusId < 0)
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -20213,6 +20977,8 @@ const (
 	ffjtChebiAttrParentIds
 
 	ffjtChebiAttrStatusId
+
+	ffjtChebiAttrId
 )
 
 var ffjKeyChebiAttrName = []byte("name")
@@ -20250,6 +21016,8 @@ var ffjKeyChebiAttrRoles = []byte("roles")
 var ffjKeyChebiAttrParentIds = []byte("parent_ids")
 
 var ffjKeyChebiAttrStatusId = []byte("status_id")
+
+var ffjKeyChebiAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *ChebiAttr) UnmarshalJSON(input []byte) error {
@@ -20373,6 +21141,11 @@ mainparse:
 						currentKey = ffjtChebiAttrInchiKey
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyChebiAttrId, kn) {
+						currentKey = ffjtChebiAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 'm':
@@ -20435,6 +21208,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyChebiAttrId, kn) {
+					currentKey = ffjtChebiAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.EqualFoldRight(ffjKeyChebiAttrStatusId, kn) {
@@ -20615,6 +21394,9 @@ mainparse:
 
 				case ffjtChebiAttrStatusId:
 					goto handle_StatusId
+
+				case ffjtChebiAttrId:
+					goto handle_Id
 
 				case ffjtChebiAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -21406,6 +22188,32 @@ handle_StatusId:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
 wantedvalue:
 	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
 wrongtokenerror:
@@ -21519,6 +22327,11 @@ func (j *ChemblActivity) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.WriteJsonString(buf, string(j.Bao))
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -21555,6 +22368,8 @@ const (
 	ffjtChemblActivityPotentialDuplicate
 
 	ffjtChemblActivityBao
+
+	ffjtChemblActivityId
 )
 
 var ffjKeyChemblActivityType = []byte("type")
@@ -21584,6 +22399,8 @@ var ffjKeyChemblActivityActivityComment = []byte("activityComment")
 var ffjKeyChemblActivityPotentialDuplicate = []byte("potentialDuplicate")
 
 var ffjKeyChemblActivityBao = []byte("bao")
+
+var ffjKeyChemblActivityId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *ChemblActivity) UnmarshalJSON(input []byte) error {
@@ -21675,6 +22492,14 @@ mainparse:
 						goto mainparse
 					}
 
+				case 'i':
+
+					if bytes.Equal(ffjKeyChemblActivityId, kn) {
+						currentKey = ffjtChemblActivityId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 'p':
 
 					if bytes.Equal(ffjKeyChemblActivityPChembl, kn) {
@@ -21743,6 +22568,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyChemblActivityId, kn) {
+					currentKey = ffjtChemblActivityId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.SimpleLetterEqualFold(ffjKeyChemblActivityBao, kn) {
@@ -21887,6 +22718,9 @@ mainparse:
 
 				case ffjtChemblActivityBao:
 					goto handle_Bao
+
+				case ffjtChemblActivityId:
+					goto handle_Id
 
 				case ffjtChemblActivitynosuchkey:
 					err = fs.SkipField(tok)
@@ -22278,6 +23112,32 @@ handle_Bao:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
 wantedvalue:
 	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
 wrongtokenerror:
@@ -22401,6 +23261,11 @@ func (j *ChemblAssay) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.WriteJsonString(buf, string(j.Bao))
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -22441,6 +23306,8 @@ const (
 	ffjtChemblAssaySourceDesc
 
 	ffjtChemblAssayBao
+
+	ffjtChemblAssayId
 )
 
 var ffjKeyChemblAssayDesc = []byte("desc")
@@ -22474,6 +23341,8 @@ var ffjKeyChemblAssaySource = []byte("source")
 var ffjKeyChemblAssaySourceDesc = []byte("sourceDesc")
 
 var ffjKeyChemblAssayBao = []byte("bao")
+
+var ffjKeyChemblAssayId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *ChemblAssay) UnmarshalJSON(input []byte) error {
@@ -22565,6 +23434,14 @@ mainparse:
 						goto mainparse
 					}
 
+				case 'i':
+
+					if bytes.Equal(ffjKeyChemblAssayId, kn) {
+						currentKey = ffjtChemblAssayId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 's':
 
 					if bytes.Equal(ffjKeyChemblAssaySubCellFrac, kn) {
@@ -22631,6 +23508,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyChemblAssayId, kn) {
+					currentKey = ffjtChemblAssayId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.SimpleLetterEqualFold(ffjKeyChemblAssayBao, kn) {
@@ -22793,6 +23676,9 @@ mainparse:
 
 				case ffjtChemblAssayBao:
 					goto handle_Bao
+
+				case ffjtChemblAssayId:
+					goto handle_Id
 
 				case ffjtChemblAssaynosuchkey:
 					err = fs.SkipField(tok)
@@ -23228,6 +24114,32 @@ handle_Bao:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
 wantedvalue:
 	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
 wrongtokenerror:
@@ -23376,6 +24288,11 @@ func (j *ChemblAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 			buf.WriteByte(',')
 		}
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -23398,6 +24315,8 @@ const (
 	ffjtChemblAttrTargetComponent
 
 	ffjtChemblAttrCellLine
+
+	ffjtChemblAttrId
 )
 
 var ffjKeyChemblAttrDoc = []byte("doc")
@@ -23413,6 +24332,8 @@ var ffjKeyChemblAttrTarget = []byte("target")
 var ffjKeyChemblAttrTargetComponent = []byte("targetComponent")
 
 var ffjKeyChemblAttrCellLine = []byte("cellLine")
+
+var ffjKeyChemblAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *ChemblAttr) UnmarshalJSON(input []byte) error {
@@ -23504,6 +24425,14 @@ mainparse:
 						goto mainparse
 					}
 
+				case 'i':
+
+					if bytes.Equal(ffjKeyChemblAttrId, kn) {
+						currentKey = ffjtChemblAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 'm':
 
 					if bytes.Equal(ffjKeyChemblAttrMolecule, kn) {
@@ -23525,6 +24454,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyChemblAttrId, kn) {
+					currentKey = ffjtChemblAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.SimpleLetterEqualFold(ffjKeyChemblAttrCellLine, kn) {
@@ -23606,6 +24541,9 @@ mainparse:
 
 				case ffjtChemblAttrCellLine:
 					goto handle_CellLine
+
+				case ffjtChemblAttrId:
+					goto handle_Id
 
 				case ffjtChemblAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -23798,6 +24736,32 @@ handle_CellLine:
 			}
 		}
 		state = fflib.FFParse_after_value
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
+		}
 	}
 
 	state = fflib.FFParse_after_value
@@ -24148,6 +25112,11 @@ func (j *ChemblCellLine) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		}
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -24168,6 +25137,8 @@ const (
 	ffjtChemblCellLineTax
 
 	ffjtChemblCellLineCellxref
+
+	ffjtChemblCellLineId
 )
 
 var ffjKeyChemblCellLineDesc = []byte("desc")
@@ -24181,6 +25152,8 @@ var ffjKeyChemblCellLineClo = []byte("clo")
 var ffjKeyChemblCellLineTax = []byte("tax")
 
 var ffjKeyChemblCellLineCellxref = []byte("cellxref")
+
+var ffjKeyChemblCellLineId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *ChemblCellLine) UnmarshalJSON(input []byte) error {
@@ -24277,6 +25250,14 @@ mainparse:
 						goto mainparse
 					}
 
+				case 'i':
+
+					if bytes.Equal(ffjKeyChemblCellLineId, kn) {
+						currentKey = ffjtChemblCellLineId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 't':
 
 					if bytes.Equal(ffjKeyChemblCellLineTax, kn) {
@@ -24285,6 +25266,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyChemblCellLineId, kn) {
+					currentKey = ffjtChemblCellLineId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.SimpleLetterEqualFold(ffjKeyChemblCellLineCellxref, kn) {
@@ -24357,6 +25344,9 @@ mainparse:
 
 				case ffjtChemblCellLineCellxref:
 					goto handle_Cellxref
+
+				case ffjtChemblCellLineId:
+					goto handle_Id
 
 				case ffjtChemblCellLinenosuchkey:
 					err = fs.SkipField(tok)
@@ -24576,6 +25566,32 @@ handle_Cellxref:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
 wantedvalue:
 	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
 wrongtokenerror:
@@ -24639,6 +25655,11 @@ func (j *ChemblDocument) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.WriteJsonString(buf, string(j.JournalShortName))
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -24655,6 +25676,8 @@ const (
 	ffjtChemblDocumentJournal
 
 	ffjtChemblDocumentJournalShortName
+
+	ffjtChemblDocumentId
 )
 
 var ffjKeyChemblDocumentTitle = []byte("title")
@@ -24664,6 +25687,8 @@ var ffjKeyChemblDocumentType = []byte("type")
 var ffjKeyChemblDocumentJournal = []byte("journal")
 
 var ffjKeyChemblDocumentJournalShortName = []byte("journalShortName")
+
+var ffjKeyChemblDocumentId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *ChemblDocument) UnmarshalJSON(input []byte) error {
@@ -24726,6 +25751,14 @@ mainparse:
 			} else {
 				switch kn[0] {
 
+				case 'i':
+
+					if bytes.Equal(ffjKeyChemblDocumentId, kn) {
+						currentKey = ffjtChemblDocumentId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 'j':
 
 					if bytes.Equal(ffjKeyChemblDocumentJournal, kn) {
@@ -24752,6 +25785,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyChemblDocumentId, kn) {
+					currentKey = ffjtChemblDocumentId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.EqualFoldRight(ffjKeyChemblDocumentJournalShortName, kn) {
@@ -24806,6 +25845,9 @@ mainparse:
 
 				case ffjtChemblDocumentJournalShortName:
 					goto handle_JournalShortName
+
+				case ffjtChemblDocumentId:
+					goto handle_Id
 
 				case ffjtChemblDocumentnosuchkey:
 					err = fs.SkipField(tok)
@@ -24918,6 +25960,32 @@ handle_JournalShortName:
 			outBuf := fs.Output.Bytes()
 
 			j.JournalShortName = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
 
 		}
 	}
@@ -25956,6 +27024,11 @@ func (j *ChemblMolecule) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.AppendFloat(buf, float64(j.QedWeighted), 'g', -1, 64)
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -26046,6 +27119,8 @@ const (
 	ffjtChemblMoleculeWeightMonoisotopic
 
 	ffjtChemblMoleculeQedWeighted
+
+	ffjtChemblMoleculeId
 )
 
 var ffjKeyChemblMoleculeDesc = []byte("desc")
@@ -26129,6 +27204,8 @@ var ffjKeyChemblMoleculeFormula = []byte("formula")
 var ffjKeyChemblMoleculeWeightMonoisotopic = []byte("weightMonoisotopic")
 
 var ffjKeyChemblMoleculeQedWeighted = []byte("qedWeighted")
+
+var ffjKeyChemblMoleculeId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *ChemblMolecule) UnmarshalJSON(input []byte) error {
@@ -26345,6 +27422,11 @@ mainparse:
 						currentKey = ffjtChemblMoleculeInchiKey
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyChemblMoleculeId, kn) {
+						currentKey = ffjtChemblMoleculeId
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 'm':
@@ -26441,6 +27523,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyChemblMoleculeId, kn) {
+					currentKey = ffjtChemblMoleculeId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.SimpleLetterEqualFold(ffjKeyChemblMoleculeQedWeighted, kn) {
@@ -26828,6 +27916,9 @@ mainparse:
 
 				case ffjtChemblMoleculeQedWeighted:
 					goto handle_QedWeighted
+
+				case ffjtChemblMoleculeId:
+					goto handle_Id
 
 				case ffjtChemblMoleculenosuchkey:
 					err = fs.SkipField(tok)
@@ -28169,6 +29260,32 @@ handle_QedWeighted:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
 wantedvalue:
 	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
 wrongtokenerror:
@@ -28683,6 +29800,11 @@ func (j *ChemblTarget) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.WriteJsonString(buf, string(j.Tax))
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -28715,6 +29837,8 @@ const (
 	ffjtChemblTargetMechanism
 
 	ffjtChemblTargetTax
+
+	ffjtChemblTargetId
 )
 
 var ffjKeyChemblTargetTitle = []byte("title")
@@ -28740,6 +29864,8 @@ var ffjKeyChemblTargetComponents = []byte("components")
 var ffjKeyChemblTargetMechanism = []byte("mechanism")
 
 var ffjKeyChemblTargetTax = []byte("tax")
+
+var ffjKeyChemblTargetId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *ChemblTarget) UnmarshalJSON(input []byte) error {
@@ -28832,6 +29958,11 @@ mainparse:
 						currentKey = ffjtChemblTargetIsSpeciesGroup
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyChemblTargetId, kn) {
+						currentKey = ffjtChemblTargetId
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 'm':
@@ -28889,6 +30020,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyChemblTargetId, kn) {
+					currentKey = ffjtChemblTargetId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.SimpleLetterEqualFold(ffjKeyChemblTargetTax, kn) {
@@ -29015,6 +30152,9 @@ mainparse:
 
 				case ffjtChemblTargetTax:
 					goto handle_Tax
+
+				case ffjtChemblTargetId:
+					goto handle_Id
 
 				case ffjtChemblTargetnosuchkey:
 					err = fs.SkipField(tok)
@@ -29623,6 +30763,32 @@ handle_Tax:
 			outBuf := fs.Output.Bytes()
 
 			j.Tax = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
 
 		}
 	}
@@ -30972,6 +32138,11 @@ func (j *ClinicalTrialAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		}
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -30992,6 +32163,8 @@ const (
 	ffjtClinicalTrialAttrInterventions
 
 	ffjtClinicalTrialAttrConditions
+
+	ffjtClinicalTrialAttrId
 )
 
 var ffjKeyClinicalTrialAttrBriefTitle = []byte("brief_title")
@@ -31005,6 +32178,8 @@ var ffjKeyClinicalTrialAttrStudyType = []byte("study_type")
 var ffjKeyClinicalTrialAttrInterventions = []byte("interventions")
 
 var ffjKeyClinicalTrialAttrConditions = []byte("conditions")
+
+var ffjKeyClinicalTrialAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *ClinicalTrialAttr) UnmarshalJSON(input []byte) error {
@@ -31089,6 +32264,11 @@ mainparse:
 						currentKey = ffjtClinicalTrialAttrInterventions
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyClinicalTrialAttrId, kn) {
+						currentKey = ffjtClinicalTrialAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 'o':
@@ -31115,6 +32295,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyClinicalTrialAttrId, kn) {
+					currentKey = ffjtClinicalTrialAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.EqualFoldRight(ffjKeyClinicalTrialAttrConditions, kn) {
@@ -31187,6 +32373,9 @@ mainparse:
 
 				case ffjtClinicalTrialAttrConditions:
 					goto handle_Conditions
+
+				case ffjtClinicalTrialAttrId:
+					goto handle_Id
 
 				case ffjtClinicalTrialAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -31448,6 +32637,32 @@ handle_Conditions:
 
 				wantVal = false
 			}
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
 		}
 	}
 
@@ -31730,6 +32945,11 @@ func (j *ClinvarAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.WriteJsonString(buf, string(j.EvidenceSupport))
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -31788,6 +33008,8 @@ const (
 	ffjtClinvarAttrAlleleFrequencies
 
 	ffjtClinvarAttrEvidenceSupport
+
+	ffjtClinvarAttrId
 )
 
 var ffjKeyClinvarAttrVariationId = []byte("variation_id")
@@ -31839,6 +33061,8 @@ var ffjKeyClinvarAttrFunctionalConsequences = []byte("functional_consequences")
 var ffjKeyClinvarAttrAlleleFrequencies = []byte("allele_frequencies")
 
 var ffjKeyClinvarAttrEvidenceSupport = []byte("evidence_support")
+
+var ffjKeyClinvarAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *ClinvarAttr) UnmarshalJSON(input []byte) error {
@@ -31987,6 +33211,14 @@ mainparse:
 						goto mainparse
 					}
 
+				case 'i':
+
+					if bytes.Equal(ffjKeyClinvarAttrId, kn) {
+						currentKey = ffjtClinvarAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 'l':
 
 					if bytes.Equal(ffjKeyClinvarAttrLastEvaluated, kn) {
@@ -32068,6 +33300,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyClinvarAttrId, kn) {
+					currentKey = ffjtClinvarAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.EqualFoldRight(ffjKeyClinvarAttrEvidenceSupport, kn) {
@@ -32311,6 +33549,9 @@ mainparse:
 
 				case ffjtClinvarAttrEvidenceSupport:
 					goto handle_EvidenceSupport
+
+				case ffjtClinvarAttrId:
+					goto handle_Id
 
 				case ffjtClinvarAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -33276,6 +34517,32 @@ handle_EvidenceSupport:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
 wantedvalue:
 	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
 wrongtokenerror:
@@ -33355,6 +34622,11 @@ func (j *CollecTriAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.WriteJsonString(buf, string(j.Confidence))
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -33373,6 +34645,8 @@ const (
 	ffjtCollecTriAttrRegulation
 
 	ffjtCollecTriAttrConfidence
+
+	ffjtCollecTriAttrId
 )
 
 var ffjKeyCollecTriAttrTfGene = []byte("tf_gene")
@@ -33384,6 +34658,8 @@ var ffjKeyCollecTriAttrSources = []byte("sources")
 var ffjKeyCollecTriAttrRegulation = []byte("regulation")
 
 var ffjKeyCollecTriAttrConfidence = []byte("confidence")
+
+var ffjKeyCollecTriAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *CollecTriAttr) UnmarshalJSON(input []byte) error {
@@ -33454,6 +34730,14 @@ mainparse:
 						goto mainparse
 					}
 
+				case 'i':
+
+					if bytes.Equal(ffjKeyCollecTriAttrId, kn) {
+						currentKey = ffjtCollecTriAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 'r':
 
 					if bytes.Equal(ffjKeyCollecTriAttrRegulation, kn) {
@@ -33483,6 +34767,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyCollecTriAttrId, kn) {
+					currentKey = ffjtCollecTriAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.SimpleLetterEqualFold(ffjKeyCollecTriAttrConfidence, kn) {
@@ -33546,6 +34836,9 @@ mainparse:
 
 				case ffjtCollecTriAttrConfidence:
 					goto handle_Confidence
+
+				case ffjtCollecTriAttrId:
+					goto handle_Id
 
 				case ffjtCollecTriAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -33739,6 +35032,32 @@ handle_Confidence:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
 wantedvalue:
 	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
 wrongtokenerror:
@@ -33916,6 +35235,11 @@ func (j *CorumAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		}
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -33952,6 +35276,8 @@ const (
 	ffjtCorumAttrHasSpliceVariants
 
 	ffjtCorumAttrSubunits
+
+	ffjtCorumAttrId
 )
 
 var ffjKeyCorumAttrName = []byte("name")
@@ -33981,6 +35307,8 @@ var ffjKeyCorumAttrHasDrugTargets = []byte("has_drug_targets")
 var ffjKeyCorumAttrHasSpliceVariants = []byte("has_splice_variants")
 
 var ffjKeyCorumAttrSubunits = []byte("subunits")
+
+var ffjKeyCorumAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *CorumAttr) UnmarshalJSON(input []byte) error {
@@ -34079,6 +35407,14 @@ mainparse:
 						goto mainparse
 					}
 
+				case 'i':
+
+					if bytes.Equal(ffjKeyCorumAttrId, kn) {
+						currentKey = ffjtCorumAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 'n':
 
 					if bytes.Equal(ffjKeyCorumAttrName, kn) {
@@ -34131,6 +35467,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyCorumAttrId, kn) {
+					currentKey = ffjtCorumAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.EqualFoldRight(ffjKeyCorumAttrSubunits, kn) {
@@ -34275,6 +35617,9 @@ mainparse:
 
 				case ffjtCorumAttrSubunits:
 					goto handle_Subunits
+
+				case ffjtCorumAttrId:
+					goto handle_Id
 
 				case ffjtCorumAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -34866,6 +36211,32 @@ handle_Subunits:
 
 				wantVal = false
 			}
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
 		}
 	}
 
@@ -35526,6 +36897,11 @@ func (j *CtdAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		}
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -35558,6 +36934,8 @@ const (
 	ffjtCtdAttrDiseaseAssociationCount
 
 	ffjtCtdAttrInferredGenes
+
+	ffjtCtdAttrId
 )
 
 var ffjKeyCtdAttrChemicalId = []byte("chemical_id")
@@ -35583,6 +36961,8 @@ var ffjKeyCtdAttrGeneInteractionCount = []byte("gene_interaction_count")
 var ffjKeyCtdAttrDiseaseAssociationCount = []byte("disease_association_count")
 
 var ffjKeyCtdAttrInferredGenes = []byte("inferred_genes")
+
+var ffjKeyCtdAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *CtdAttr) UnmarshalJSON(input []byte) error {
@@ -35700,6 +37080,11 @@ mainparse:
 						currentKey = ffjtCtdAttrInferredGenes
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyCtdAttrId, kn) {
+						currentKey = ffjtCtdAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 'm':
@@ -35726,6 +37111,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyCtdAttrId, kn) {
+					currentKey = ffjtCtdAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.EqualFoldRight(ffjKeyCtdAttrInferredGenes, kn) {
@@ -35852,6 +37243,9 @@ mainparse:
 
 				case ffjtCtdAttrInferredGenes:
 					goto handle_InferredGenes
+
+				case ffjtCtdAttrId:
+					goto handle_Id
 
 				case ffjtCtdAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -36325,6 +37719,32 @@ handle_InferredGenes:
 
 				wantVal = false
 			}
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
 		}
 	}
 
@@ -37065,6 +38485,11 @@ func (j *CtdDiseaseAssociationAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) err
 		fflib.FormatBits2(buf, uint64(j.PubmedCount), 10, j.PubmedCount < 0)
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -37091,6 +38516,8 @@ const (
 	ffjtCtdDiseaseAssociationAttrInferenceScore
 
 	ffjtCtdDiseaseAssociationAttrPubmedCount
+
+	ffjtCtdDiseaseAssociationAttrId
 )
 
 var ffjKeyCtdDiseaseAssociationAttrAssociationId = []byte("association_id")
@@ -37110,6 +38537,8 @@ var ffjKeyCtdDiseaseAssociationAttrInferenceGeneSymbols = []byte("inference_gene
 var ffjKeyCtdDiseaseAssociationAttrInferenceScore = []byte("inference_score")
 
 var ffjKeyCtdDiseaseAssociationAttrPubmedCount = []byte("pubmed_count")
+
+var ffjKeyCtdDiseaseAssociationAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *CtdDiseaseAssociationAttr) UnmarshalJSON(input []byte) error {
@@ -37222,6 +38651,11 @@ mainparse:
 						currentKey = ffjtCtdDiseaseAssociationAttrInferenceScore
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyCtdDiseaseAssociationAttrId, kn) {
+						currentKey = ffjtCtdDiseaseAssociationAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 'p':
@@ -37232,6 +38666,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyCtdDiseaseAssociationAttrId, kn) {
+					currentKey = ffjtCtdDiseaseAssociationAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.AsciiEqualFold(ffjKeyCtdDiseaseAssociationAttrPubmedCount, kn) {
@@ -37331,6 +38771,9 @@ mainparse:
 
 				case ffjtCtdDiseaseAssociationAttrPubmedCount:
 					goto handle_PubmedCount
+
+				case ffjtCtdDiseaseAssociationAttrId:
+					goto handle_Id
 
 				case ffjtCtdDiseaseAssociationAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -37677,6 +39120,32 @@ handle_PubmedCount:
 			}
 
 			j.PubmedCount = int32(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
 
 		}
 	}
@@ -38466,6 +39935,11 @@ func (j *CtdGeneInteractionAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error 
 		fflib.FormatBits2(buf, uint64(j.PubmedCount), 10, j.PubmedCount < 0)
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -38496,6 +39970,8 @@ const (
 	ffjtCtdGeneInteractionAttrGeneForms
 
 	ffjtCtdGeneInteractionAttrPubmedCount
+
+	ffjtCtdGeneInteractionAttrId
 )
 
 var ffjKeyCtdGeneInteractionAttrInteractionId = []byte("interaction_id")
@@ -38519,6 +39995,8 @@ var ffjKeyCtdGeneInteractionAttrInteractionActions = []byte("interaction_actions
 var ffjKeyCtdGeneInteractionAttrGeneForms = []byte("gene_forms")
 
 var ffjKeyCtdGeneInteractionAttrPubmedCount = []byte("pubmed_count")
+
+var ffjKeyCtdGeneInteractionAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *CtdGeneInteractionAttr) UnmarshalJSON(input []byte) error {
@@ -38628,6 +40106,11 @@ mainparse:
 						currentKey = ffjtCtdGeneInteractionAttrInteractionActions
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyCtdGeneInteractionAttrId, kn) {
+						currentKey = ffjtCtdGeneInteractionAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 'o':
@@ -38651,6 +40134,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyCtdGeneInteractionAttrId, kn) {
+					currentKey = ffjtCtdGeneInteractionAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.AsciiEqualFold(ffjKeyCtdGeneInteractionAttrPubmedCount, kn) {
@@ -38768,6 +40257,9 @@ mainparse:
 
 				case ffjtCtdGeneInteractionAttrPubmedCount:
 					goto handle_PubmedCount
+
+				case ffjtCtdGeneInteractionAttrId:
+					goto handle_Id
 
 				case ffjtCtdGeneInteractionAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -39118,6 +40610,32 @@ handle_PubmedCount:
 			}
 
 			j.PubmedCount = int32(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
 
 		}
 	}
@@ -39616,6 +41134,11 @@ func (j *DbsnpAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		}
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -39716,6 +41239,8 @@ const (
 	ffjtDbsnpAttrHgvsMane
 
 	ffjtDbsnpAttrHgvsTranscripts
+
+	ffjtDbsnpAttrId
 )
 
 var ffjKeyDbsnpAttrRsId = []byte("rs_id")
@@ -39809,6 +41334,8 @@ var ffjKeyDbsnpAttrClinvarHgvs = []byte("clinvar_hgvs")
 var ffjKeyDbsnpAttrHgvsMane = []byte("hgvs_mane")
 
 var ffjKeyDbsnpAttrHgvsTranscripts = []byte("hgvs_transcripts")
+
+var ffjKeyDbsnpAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *DbsnpAttr) UnmarshalJSON(input []byte) error {
@@ -40020,6 +41547,11 @@ mainparse:
 						currentKey = ffjtDbsnpAttrIntron
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyDbsnpAttrId, kn) {
+						currentKey = ffjtDbsnpAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 'm':
@@ -40146,6 +41678,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyDbsnpAttrId, kn) {
+					currentKey = ffjtDbsnpAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.EqualFoldRight(ffjKeyDbsnpAttrHgvsTranscripts, kn) {
@@ -40578,6 +42116,9 @@ mainparse:
 
 				case ffjtDbsnpAttrHgvsTranscripts:
 					goto handle_HgvsTranscripts
+
+				case ffjtDbsnpAttrId:
+					goto handle_Id
 
 				case ffjtDbsnpAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -42476,6 +44017,32 @@ handle_HgvsTranscripts:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
 wantedvalue:
 	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
 wrongtokenerror:
@@ -43371,6 +44938,11 @@ func (j *DiamondSimilarityAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.AppendFloat(buf, float64(j.TopBitscore), 'g', -1, 32)
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -43389,6 +44961,8 @@ const (
 	ffjtDiamondSimilarityAttrTopIdentity
 
 	ffjtDiamondSimilarityAttrTopBitscore
+
+	ffjtDiamondSimilarityAttrId
 )
 
 var ffjKeyDiamondSimilarityAttrProteinId = []byte("protein_id")
@@ -43400,6 +44974,8 @@ var ffjKeyDiamondSimilarityAttrSimilarityCount = []byte("similarity_count")
 var ffjKeyDiamondSimilarityAttrTopIdentity = []byte("top_identity")
 
 var ffjKeyDiamondSimilarityAttrTopBitscore = []byte("top_bitscore")
+
+var ffjKeyDiamondSimilarityAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *DiamondSimilarityAttr) UnmarshalJSON(input []byte) error {
@@ -43462,6 +45038,14 @@ mainparse:
 			} else {
 				switch kn[0] {
 
+				case 'i':
+
+					if bytes.Equal(ffjKeyDiamondSimilarityAttrId, kn) {
+						currentKey = ffjtDiamondSimilarityAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 'p':
 
 					if bytes.Equal(ffjKeyDiamondSimilarityAttrProteinId, kn) {
@@ -43496,6 +45080,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyDiamondSimilarityAttrId, kn) {
+					currentKey = ffjtDiamondSimilarityAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.EqualFoldRight(ffjKeyDiamondSimilarityAttrTopBitscore, kn) {
@@ -43559,6 +45149,9 @@ mainparse:
 
 				case ffjtDiamondSimilarityAttrTopBitscore:
 					goto handle_TopBitscore
+
+				case ffjtDiamondSimilarityAttrId:
+					goto handle_Id
 
 				case ffjtDiamondSimilarityAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -43764,6 +45357,32 @@ handle_TopBitscore:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
 wantedvalue:
 	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
 wrongtokenerror:
@@ -43812,6 +45431,11 @@ func (j *DrugbankAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.WriteJsonString(buf, string(j.Name))
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -43822,9 +45446,13 @@ const (
 	ffjtDrugbankAttrnosuchkey
 
 	ffjtDrugbankAttrName
+
+	ffjtDrugbankAttrId
 )
 
 var ffjKeyDrugbankAttrName = []byte("name")
+
+var ffjKeyDrugbankAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *DrugbankAttr) UnmarshalJSON(input []byte) error {
@@ -43887,6 +45515,14 @@ mainparse:
 			} else {
 				switch kn[0] {
 
+				case 'i':
+
+					if bytes.Equal(ffjKeyDrugbankAttrId, kn) {
+						currentKey = ffjtDrugbankAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 'n':
 
 					if bytes.Equal(ffjKeyDrugbankAttrName, kn) {
@@ -43895,6 +45531,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyDrugbankAttrId, kn) {
+					currentKey = ffjtDrugbankAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.SimpleLetterEqualFold(ffjKeyDrugbankAttrName, kn) {
@@ -43922,6 +45564,9 @@ mainparse:
 
 				case ffjtDrugbankAttrName:
 					goto handle_Name
+
+				case ffjtDrugbankAttrId:
+					goto handle_Id
 
 				case ffjtDrugbankAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -43956,6 +45601,32 @@ handle_Name:
 			outBuf := fs.Output.Bytes()
 
 			j.Name = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
 
 		}
 	}
@@ -44011,6 +45682,11 @@ func (j *EnaAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.WriteJsonString(buf, string(j.Type))
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -44021,9 +45697,13 @@ const (
 	ffjtEnaAttrnosuchkey
 
 	ffjtEnaAttrType
+
+	ffjtEnaAttrId
 )
 
 var ffjKeyEnaAttrType = []byte("type")
+
+var ffjKeyEnaAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *EnaAttr) UnmarshalJSON(input []byte) error {
@@ -44086,6 +45766,14 @@ mainparse:
 			} else {
 				switch kn[0] {
 
+				case 'i':
+
+					if bytes.Equal(ffjKeyEnaAttrId, kn) {
+						currentKey = ffjtEnaAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 't':
 
 					if bytes.Equal(ffjKeyEnaAttrType, kn) {
@@ -44094,6 +45782,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyEnaAttrId, kn) {
+					currentKey = ffjtEnaAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.SimpleLetterEqualFold(ffjKeyEnaAttrType, kn) {
@@ -44121,6 +45815,9 @@ mainparse:
 
 				case ffjtEnaAttrType:
 					goto handle_Type
+
+				case ffjtEnaAttrId:
+					goto handle_Id
 
 				case ffjtEnaAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -44155,6 +45852,32 @@ handle_Type:
 			outBuf := fs.Output.Bytes()
 
 			j.Type = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
 
 		}
 	}
@@ -44230,6 +45953,11 @@ func (j *EncodeCcreAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.FormatBits2(buf, uint64(j.End), 10, j.End < 0)
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -44248,6 +45976,8 @@ const (
 	ffjtEncodeCcreAttrStart
 
 	ffjtEncodeCcreAttrEnd
+
+	ffjtEncodeCcreAttrId
 )
 
 var ffjKeyEncodeCcreAttrCcreId = []byte("ccre_id")
@@ -44259,6 +45989,8 @@ var ffjKeyEncodeCcreAttrChromosome = []byte("chromosome")
 var ffjKeyEncodeCcreAttrStart = []byte("start")
 
 var ffjKeyEncodeCcreAttrEnd = []byte("end")
+
+var ffjKeyEncodeCcreAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *EncodeCcreAttr) UnmarshalJSON(input []byte) error {
@@ -44347,6 +46079,14 @@ mainparse:
 						goto mainparse
 					}
 
+				case 'i':
+
+					if bytes.Equal(ffjKeyEncodeCcreAttrId, kn) {
+						currentKey = ffjtEncodeCcreAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 's':
 
 					if bytes.Equal(ffjKeyEncodeCcreAttrStart, kn) {
@@ -44355,6 +46095,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyEncodeCcreAttrId, kn) {
+					currentKey = ffjtEncodeCcreAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.SimpleLetterEqualFold(ffjKeyEncodeCcreAttrEnd, kn) {
@@ -44418,6 +46164,9 @@ mainparse:
 
 				case ffjtEncodeCcreAttrEnd:
 					goto handle_End
+
+				case ffjtEncodeCcreAttrId:
+					goto handle_Id
 
 				case ffjtEncodeCcreAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -44571,6 +46320,32 @@ handle_End:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
 wantedvalue:
 	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
 wrongtokenerror:
@@ -44694,6 +46469,11 @@ func (j *EnsemblAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.FormatBits2(buf, uint64(j.Frame), 10, j.Frame < 0)
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -44734,6 +46514,8 @@ const (
 	ffjtEnsemblAttrSource
 
 	ffjtEnsemblAttrFrame
+
+	ffjtEnsemblAttrId
 )
 
 var ffjKeyEnsemblAttrName = []byte("name")
@@ -44767,6 +46549,8 @@ var ffjKeyEnsemblAttrVersion = []byte("version")
 var ffjKeyEnsemblAttrSource = []byte("source")
 
 var ffjKeyEnsemblAttrFrame = []byte("frame")
+
+var ffjKeyEnsemblAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *EnsemblAttr) UnmarshalJSON(input []byte) error {
@@ -44874,6 +46658,14 @@ mainparse:
 						goto mainparse
 					}
 
+				case 'i':
+
+					if bytes.Equal(ffjKeyEnsemblAttrId, kn) {
+						currentKey = ffjtEnsemblAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 'n':
 
 					if bytes.Equal(ffjKeyEnsemblAttrName, kn) {
@@ -44936,6 +46728,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyEnsemblAttrId, kn) {
+					currentKey = ffjtEnsemblAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.SimpleLetterEqualFold(ffjKeyEnsemblAttrFrame, kn) {
@@ -45098,6 +46896,9 @@ mainparse:
 
 				case ffjtEnsemblAttrFrame:
 					goto handle_Frame
+
+				case ffjtEnsemblAttrId:
+					goto handle_Id
 
 				case ffjtEnsemblAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -45565,6 +47366,32 @@ handle_Frame:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
 wantedvalue:
 	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
 wrongtokenerror:
@@ -45674,6 +47501,11 @@ func (j *EntrezAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.WriteJsonString(buf, string(j.TaxId))
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -45704,6 +47536,8 @@ const (
 	ffjtEntrezAttrGenomicAccession
 
 	ffjtEntrezAttrTaxId
+
+	ffjtEntrezAttrId
 )
 
 var ffjKeyEntrezAttrName = []byte("name")
@@ -45727,6 +47561,8 @@ var ffjKeyEntrezAttrOrientation = []byte("orientation")
 var ffjKeyEntrezAttrGenomicAccession = []byte("genomic_accession")
 
 var ffjKeyEntrezAttrTaxId = []byte("tax_id")
+
+var ffjKeyEntrezAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *EntrezAttr) UnmarshalJSON(input []byte) error {
@@ -45813,6 +47649,14 @@ mainparse:
 						goto mainparse
 					}
 
+				case 'i':
+
+					if bytes.Equal(ffjKeyEntrezAttrId, kn) {
+						currentKey = ffjtEntrezAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 'n':
 
 					if bytes.Equal(ffjKeyEntrezAttrName, kn) {
@@ -45865,6 +47709,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyEntrezAttrId, kn) {
+					currentKey = ffjtEntrezAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.AsciiEqualFold(ffjKeyEntrezAttrTaxId, kn) {
@@ -45982,6 +47832,9 @@ mainparse:
 
 				case ffjtEntrezAttrTaxId:
 					goto handle_TaxId
+
+				case ffjtEntrezAttrId:
+					goto handle_Id
 
 				case ffjtEntrezAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -46332,6 +48185,32 @@ handle_TaxId:
 			outBuf := fs.Output.Bytes()
 
 			j.TaxId = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
 
 		}
 	}
@@ -46743,6 +48622,11 @@ func (j *Esm2SimilarityAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.AppendFloat(buf, float64(j.AvgSimilarity), 'g', -1, 32)
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -46761,6 +48645,8 @@ const (
 	ffjtEsm2SimilarityAttrTopSimilarity
 
 	ffjtEsm2SimilarityAttrAvgSimilarity
+
+	ffjtEsm2SimilarityAttrId
 )
 
 var ffjKeyEsm2SimilarityAttrProteinId = []byte("protein_id")
@@ -46772,6 +48658,8 @@ var ffjKeyEsm2SimilarityAttrSimilarityCount = []byte("similarity_count")
 var ffjKeyEsm2SimilarityAttrTopSimilarity = []byte("top_similarity")
 
 var ffjKeyEsm2SimilarityAttrAvgSimilarity = []byte("avg_similarity")
+
+var ffjKeyEsm2SimilarityAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *Esm2SimilarityAttr) UnmarshalJSON(input []byte) error {
@@ -46842,6 +48730,14 @@ mainparse:
 						goto mainparse
 					}
 
+				case 'i':
+
+					if bytes.Equal(ffjKeyEsm2SimilarityAttrId, kn) {
+						currentKey = ffjtEsm2SimilarityAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 'p':
 
 					if bytes.Equal(ffjKeyEsm2SimilarityAttrProteinId, kn) {
@@ -46871,6 +48767,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyEsm2SimilarityAttrId, kn) {
+					currentKey = ffjtEsm2SimilarityAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.EqualFoldRight(ffjKeyEsm2SimilarityAttrAvgSimilarity, kn) {
@@ -46934,6 +48836,9 @@ mainparse:
 
 				case ffjtEsm2SimilarityAttrAvgSimilarity:
 					goto handle_AvgSimilarity
+
+				case ffjtEsm2SimilarityAttrId:
+					goto handle_Id
 
 				case ffjtEsm2SimilarityAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -47139,6 +49044,32 @@ handle_AvgSimilarity:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
 wantedvalue:
 	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
 wrongtokenerror:
@@ -47263,6 +49194,11 @@ func (j *Fantom5EnhancerAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		}
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -47289,6 +49225,8 @@ const (
 	ffjtFantom5EnhancerAttrAssociatedGenes
 
 	ffjtFantom5EnhancerAttrTopTissues
+
+	ffjtFantom5EnhancerAttrId
 )
 
 var ffjKeyFantom5EnhancerAttrFantom5EnhancerId = []byte("fantom5_enhancer_id")
@@ -47308,6 +49246,8 @@ var ffjKeyFantom5EnhancerAttrSamplesExpressed = []byte("samples_expressed")
 var ffjKeyFantom5EnhancerAttrAssociatedGenes = []byte("associated_genes")
 
 var ffjKeyFantom5EnhancerAttrTopTissues = []byte("top_tissues")
+
+var ffjKeyFantom5EnhancerAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *Fantom5EnhancerAttr) UnmarshalJSON(input []byte) error {
@@ -47402,6 +49342,14 @@ mainparse:
 						goto mainparse
 					}
 
+				case 'i':
+
+					if bytes.Equal(ffjKeyFantom5EnhancerAttrId, kn) {
+						currentKey = ffjtFantom5EnhancerAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 's':
 
 					if bytes.Equal(ffjKeyFantom5EnhancerAttrStart, kn) {
@@ -47433,6 +49381,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyFantom5EnhancerAttrId, kn) {
+					currentKey = ffjtFantom5EnhancerAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.EqualFoldRight(ffjKeyFantom5EnhancerAttrTopTissues, kn) {
@@ -47532,6 +49486,9 @@ mainparse:
 
 				case ffjtFantom5EnhancerAttrTopTissues:
 					goto handle_TopTissues
+
+				case ffjtFantom5EnhancerAttrId:
+					goto handle_Id
 
 				case ffjtFantom5EnhancerAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -47897,6 +49854,32 @@ handle_TopTissues:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
 wantedvalue:
 	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
 wrongtokenerror:
@@ -48005,6 +49988,11 @@ func (j *Fantom5GeneAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		}
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -48029,6 +50017,8 @@ const (
 	ffjtFantom5GeneAttrExpressionBreadth
 
 	ffjtFantom5GeneAttrTopTissues
+
+	ffjtFantom5GeneAttrId
 )
 
 var ffjKeyFantom5GeneAttrGeneId = []byte("gene_id")
@@ -48046,6 +50036,8 @@ var ffjKeyFantom5GeneAttrSamplesExpressed = []byte("samples_expressed")
 var ffjKeyFantom5GeneAttrExpressionBreadth = []byte("expression_breadth")
 
 var ffjKeyFantom5GeneAttrTopTissues = []byte("top_tissues")
+
+var ffjKeyFantom5GeneAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *Fantom5GeneAttr) UnmarshalJSON(input []byte) error {
@@ -48134,6 +50126,14 @@ mainparse:
 						goto mainparse
 					}
 
+				case 'i':
+
+					if bytes.Equal(ffjKeyFantom5GeneAttrId, kn) {
+						currentKey = ffjtFantom5GeneAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 's':
 
 					if bytes.Equal(ffjKeyFantom5GeneAttrSamplesExpressed, kn) {
@@ -48160,6 +50160,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyFantom5GeneAttrId, kn) {
+					currentKey = ffjtFantom5GeneAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.EqualFoldRight(ffjKeyFantom5GeneAttrTopTissues, kn) {
@@ -48250,6 +50256,9 @@ mainparse:
 
 				case ffjtFantom5GeneAttrTopTissues:
 					goto handle_TopTissues
+
+				case ffjtFantom5GeneAttrId:
+					goto handle_Id
 
 				case ffjtFantom5GeneAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -48533,6 +50542,32 @@ handle_TopTissues:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
 wantedvalue:
 	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
 wrongtokenerror:
@@ -48711,6 +50746,11 @@ func (j *Fantom5PromoterAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		}
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -48753,6 +50793,8 @@ const (
 	ffjtFantom5PromoterAttrTopTissues
 
 	ffjtFantom5PromoterAttrTopCellTypes
+
+	ffjtFantom5PromoterAttrId
 )
 
 var ffjKeyFantom5PromoterAttrFantom5PeakId = []byte("fantom5_peak_id")
@@ -48788,6 +50830,8 @@ var ffjKeyFantom5PromoterAttrExpressionBreadth = []byte("expression_breadth")
 var ffjKeyFantom5PromoterAttrTopTissues = []byte("top_tissues")
 
 var ffjKeyFantom5PromoterAttrTopCellTypes = []byte("top_cell_types")
+
+var ffjKeyFantom5PromoterAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *Fantom5PromoterAttr) UnmarshalJSON(input []byte) error {
@@ -48910,6 +50954,14 @@ mainparse:
 						goto mainparse
 					}
 
+				case 'i':
+
+					if bytes.Equal(ffjKeyFantom5PromoterAttrId, kn) {
+						currentKey = ffjtFantom5PromoterAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 's':
 
 					if bytes.Equal(ffjKeyFantom5PromoterAttrStart, kn) {
@@ -48959,6 +51011,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyFantom5PromoterAttrId, kn) {
+					currentKey = ffjtFantom5PromoterAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.EqualFoldRight(ffjKeyFantom5PromoterAttrTopCellTypes, kn) {
@@ -49130,6 +51188,9 @@ mainparse:
 
 				case ffjtFantom5PromoterAttrTopCellTypes:
 					goto handle_TopCellTypes
+
+				case ffjtFantom5PromoterAttrId:
+					goto handle_Id
 
 				case ffjtFantom5PromoterAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -49697,6 +51758,32 @@ handle_TopCellTypes:
 
 				wantVal = false
 			}
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
 		}
 	}
 
@@ -50493,6 +52580,11 @@ func (j *GenccAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		}
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -50529,6 +52621,8 @@ const (
 	ffjtGenccAttrSubmittedAsPublicReportUrl
 
 	ffjtGenccAttrSubmittedAsPmids
+
+	ffjtGenccAttrId
 )
 
 var ffjKeyGenccAttrUuid = []byte("uuid")
@@ -50558,6 +52652,8 @@ var ffjKeyGenccAttrSubmittedAsDate = []byte("submitted_as_date")
 var ffjKeyGenccAttrSubmittedAsPublicReportUrl = []byte("submitted_as_public_report_url")
 
 var ffjKeyGenccAttrSubmittedAsPmids = []byte("submitted_as_pmids")
+
+var ffjKeyGenccAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *GenccAttr) UnmarshalJSON(input []byte) error {
@@ -50659,6 +52755,14 @@ mainparse:
 						goto mainparse
 					}
 
+				case 'i':
+
+					if bytes.Equal(ffjKeyGenccAttrId, kn) {
+						currentKey = ffjtGenccAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 'm':
 
 					if bytes.Equal(ffjKeyGenccAttrMoiCurie, kn) {
@@ -50708,6 +52812,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyGenccAttrId, kn) {
+					currentKey = ffjtGenccAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.EqualFoldRight(ffjKeyGenccAttrSubmittedAsPmids, kn) {
@@ -50852,6 +52962,9 @@ mainparse:
 
 				case ffjtGenccAttrSubmittedAsPmids:
 					goto handle_SubmittedAsPmids
+
+				case ffjtGenccAttrId:
+					goto handle_Id
 
 				case ffjtGenccAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -51273,6 +53386,32 @@ handle_SubmittedAsPmids:
 
 				wantVal = false
 			}
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
 		}
 	}
 
@@ -52598,6 +54737,11 @@ func (j *GwasAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.WriteJsonString(buf, string(j.Platform))
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -52656,6 +54800,8 @@ const (
 	ffjtGwasAttrDate
 
 	ffjtGwasAttrPlatform
+
+	ffjtGwasAttrId
 )
 
 var ffjKeyGwasAttrSnpId = []byte("snp_id")
@@ -52707,6 +54853,8 @@ var ffjKeyGwasAttrFirstAuthor = []byte("first_author")
 var ffjKeyGwasAttrDate = []byte("date")
 
 var ffjKeyGwasAttrPlatform = []byte("platform")
+
+var ffjKeyGwasAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *GwasAttr) UnmarshalJSON(input []byte) error {
@@ -52832,6 +54980,11 @@ mainparse:
 						currentKey = ffjtGwasAttrIntergenic
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyGwasAttrId, kn) {
+						currentKey = ffjtGwasAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 'm':
@@ -52927,6 +55080,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyGwasAttrId, kn) {
+					currentKey = ffjtGwasAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.SimpleLetterEqualFold(ffjKeyGwasAttrPlatform, kn) {
@@ -53170,6 +55329,9 @@ mainparse:
 
 				case ffjtGwasAttrPlatform:
 					goto handle_Platform
+
+				case ffjtGwasAttrId:
+					goto handle_Id
 
 				case ffjtGwasAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -54048,6 +56210,32 @@ handle_Platform:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
 wantedvalue:
 	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
 wrongtokenerror:
@@ -54224,6 +56412,11 @@ func (j *GwasStudyAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		}
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -54262,6 +56455,8 @@ const (
 	ffjtGwasStudyAttrAssociationCount
 
 	ffjtGwasStudyAttrTopAssociations
+
+	ffjtGwasStudyAttrId
 )
 
 var ffjKeyGwasStudyAttrStudyAccession = []byte("study_accession")
@@ -54293,6 +56488,8 @@ var ffjKeyGwasStudyAttrPlatform = []byte("platform")
 var ffjKeyGwasStudyAttrAssociationCount = []byte("association_count")
 
 var ffjKeyGwasStudyAttrTopAssociations = []byte("top_associations")
+
+var ffjKeyGwasStudyAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *GwasStudyAttr) UnmarshalJSON(input []byte) error {
@@ -54385,6 +56582,11 @@ mainparse:
 						currentKey = ffjtGwasStudyAttrInitialSampleSize
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyGwasStudyAttrId, kn) {
+						currentKey = ffjtGwasStudyAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 'j':
@@ -54460,6 +56662,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyGwasStudyAttrId, kn) {
+					currentKey = ffjtGwasStudyAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.EqualFoldRight(ffjKeyGwasStudyAttrTopAssociations, kn) {
@@ -54613,6 +56821,9 @@ mainparse:
 
 				case ffjtGwasStudyAttrTopAssociations:
 					goto handle_TopAssociations
+
+				case ffjtGwasStudyAttrId:
+					goto handle_Id
 
 				case ffjtGwasStudyAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -55214,6 +57425,32 @@ handle_TopAssociations:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
 wantedvalue:
 	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
 wrongtokenerror:
@@ -55313,6 +57550,11 @@ func (j *HPOAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		}
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -55329,6 +57571,8 @@ const (
 	ffjtHPOAttrDefinition
 
 	ffjtHPOAttrDiseases
+
+	ffjtHPOAttrId
 )
 
 var ffjKeyHPOAttrName = []byte("name")
@@ -55338,6 +57582,8 @@ var ffjKeyHPOAttrSynonyms = []byte("synonyms")
 var ffjKeyHPOAttrDefinition = []byte("definition")
 
 var ffjKeyHPOAttrDiseases = []byte("diseases")
+
+var ffjKeyHPOAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *HPOAttr) UnmarshalJSON(input []byte) error {
@@ -55413,6 +57659,14 @@ mainparse:
 						goto mainparse
 					}
 
+				case 'i':
+
+					if bytes.Equal(ffjKeyHPOAttrId, kn) {
+						currentKey = ffjtHPOAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 'n':
 
 					if bytes.Equal(ffjKeyHPOAttrName, kn) {
@@ -55429,6 +57683,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyHPOAttrId, kn) {
+					currentKey = ffjtHPOAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.EqualFoldRight(ffjKeyHPOAttrDiseases, kn) {
@@ -55483,6 +57743,9 @@ mainparse:
 
 				case ffjtHPOAttrDiseases:
 					goto handle_Diseases
+
+				case ffjtHPOAttrId:
+					goto handle_Id
 
 				case ffjtHPOAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -55692,6 +57955,32 @@ handle_Diseases:
 
 				wantVal = false
 			}
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
 		}
 	}
 
@@ -56473,6 +58762,11 @@ func (j *HgncAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		}
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -56501,6 +58795,8 @@ const (
 	ffjtHgncAttrStatus
 
 	ffjtHgncAttrGeneGroups
+
+	ffjtHgncAttrId
 )
 
 var ffjKeyHgncAttrNames = []byte("names")
@@ -56522,6 +58818,8 @@ var ffjKeyHgncAttrPrevSymbols = []byte("prev_symbols")
 var ffjKeyHgncAttrStatus = []byte("status")
 
 var ffjKeyHgncAttrGeneGroups = []byte("gene_groups")
+
+var ffjKeyHgncAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *HgncAttr) UnmarshalJSON(input []byte) error {
@@ -56600,6 +58898,14 @@ mainparse:
 						goto mainparse
 					}
 
+				case 'i':
+
+					if bytes.Equal(ffjKeyHgncAttrId, kn) {
+						currentKey = ffjtHgncAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 'l':
 
 					if bytes.Equal(ffjKeyHgncAttrLocusGroup, kn) {
@@ -56652,6 +58958,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyHgncAttrId, kn) {
+					currentKey = ffjtHgncAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.EqualFoldRight(ffjKeyHgncAttrGeneGroups, kn) {
@@ -56760,6 +59072,9 @@ mainparse:
 
 				case ffjtHgncAttrGeneGroups:
 					goto handle_GeneGroups
+
+				case ffjtHgncAttrId:
+					goto handle_Id
 
 				case ffjtHgncAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -57317,6 +59632,32 @@ handle_GeneGroups:
 
 				wantVal = false
 			}
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
 		}
 	}
 
@@ -58082,6 +60423,11 @@ func (j *HmdbAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		}
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -58126,6 +60472,8 @@ const (
 	ffjtHmdbAttrTissueLocations
 
 	ffjtHmdbAttrPathways
+
+	ffjtHmdbAttrId
 )
 
 var ffjKeyHmdbAttrName = []byte("name")
@@ -58163,6 +60511,8 @@ var ffjKeyHmdbAttrBiospecimens = []byte("biospecimens")
 var ffjKeyHmdbAttrTissueLocations = []byte("tissueLocations")
 
 var ffjKeyHmdbAttrPathways = []byte("pathways")
+
+var ffjKeyHmdbAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *HmdbAttr) UnmarshalJSON(input []byte) error {
@@ -58299,6 +60649,11 @@ mainparse:
 						currentKey = ffjtHmdbAttrInchiKey
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyHmdbAttrId, kn) {
+						currentKey = ffjtHmdbAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 'm':
@@ -58351,6 +60706,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyHmdbAttrId, kn) {
+					currentKey = ffjtHmdbAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.EqualFoldRight(ffjKeyHmdbAttrPathways, kn) {
@@ -58531,6 +60892,9 @@ mainparse:
 
 				case ffjtHmdbAttrPathways:
 					goto handle_Pathways
+
+				case ffjtHmdbAttrId:
+					goto handle_Id
 
 				case ffjtHmdbAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -59352,6 +61716,32 @@ handle_Pathways:
 
 				wantVal = false
 			}
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
 		}
 	}
 
@@ -61972,6 +64362,11 @@ func (j *IntactAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.WriteJsonString(buf, string(j.TranscriptB))
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -62090,6 +64485,8 @@ const (
 	ffjtIntactAttrTranscriptA
 
 	ffjtIntactAttrTranscriptB
+
+	ffjtIntactAttrId
 )
 
 var ffjKeyIntactAttrInteractionId = []byte("interaction_id")
@@ -62201,6 +64598,8 @@ var ffjKeyIntactAttrReactomeB = []byte("reactome_b")
 var ffjKeyIntactAttrTranscriptA = []byte("transcript_a")
 
 var ffjKeyIntactAttrTranscriptB = []byte("transcript_b")
+
+var ffjKeyIntactAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *IntactAttr) UnmarshalJSON(input []byte) error {
@@ -62432,6 +64831,11 @@ mainparse:
 						currentKey = ffjtIntactAttrInteractorIdB
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyIntactAttrId, kn) {
+						currentKey = ffjtIntactAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 'm':
@@ -62580,6 +64984,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyIntactAttrId, kn) {
+					currentKey = ffjtIntactAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.EqualFoldRight(ffjKeyIntactAttrTranscriptB, kn) {
@@ -63093,6 +65503,9 @@ mainparse:
 
 				case ffjtIntactAttrTranscriptB:
 					goto handle_TranscriptB
+
+				case ffjtIntactAttrId:
+					goto handle_Id
 
 				case ffjtIntactAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -64767,6 +67180,32 @@ handle_TranscriptB:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
 wantedvalue:
 	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
 wrongtokenerror:
@@ -66283,6 +68722,11 @@ func (j *InterproAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.FormatBits2(buf, uint64(j.ProteinCount), 10, j.ProteinCount < 0)
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -66299,6 +68743,8 @@ const (
 	ffjtInterproAttrType
 
 	ffjtInterproAttrProteinCount
+
+	ffjtInterproAttrId
 )
 
 var ffjKeyInterproAttrNames = []byte("names")
@@ -66308,6 +68754,8 @@ var ffjKeyInterproAttrShortName = []byte("short_name")
 var ffjKeyInterproAttrType = []byte("type")
 
 var ffjKeyInterproAttrProteinCount = []byte("protein_count")
+
+var ffjKeyInterproAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *InterproAttr) UnmarshalJSON(input []byte) error {
@@ -66370,6 +68818,14 @@ mainparse:
 			} else {
 				switch kn[0] {
 
+				case 'i':
+
+					if bytes.Equal(ffjKeyInterproAttrId, kn) {
+						currentKey = ffjtInterproAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 'n':
 
 					if bytes.Equal(ffjKeyInterproAttrNames, kn) {
@@ -66402,6 +68858,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyInterproAttrId, kn) {
+					currentKey = ffjtInterproAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.AsciiEqualFold(ffjKeyInterproAttrProteinCount, kn) {
@@ -66456,6 +68918,9 @@ mainparse:
 
 				case ffjtInterproAttrProteinCount:
 					goto handle_ProteinCount
+
+				case ffjtInterproAttrId:
+					goto handle_Id
 
 				case ffjtInterproAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -66620,6 +69085,32 @@ handle_ProteinCount:
 			}
 
 			j.ProteinCount = int32(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
 
 		}
 	}
@@ -67018,6 +69509,11 @@ func (j *JasparAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.FormatBits2(buf, uint64(j.Version), 10, j.Version < 0)
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -67044,6 +69540,8 @@ const (
 	ffjtJasparAttrSpecies
 
 	ffjtJasparAttrVersion
+
+	ffjtJasparAttrId
 )
 
 var ffjKeyJasparAttrMatrixId = []byte("matrix_id")
@@ -67063,6 +69561,8 @@ var ffjKeyJasparAttrType = []byte("type")
 var ffjKeyJasparAttrSpecies = []byte("species")
 
 var ffjKeyJasparAttrVersion = []byte("version")
+
+var ffjKeyJasparAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *JasparAttr) UnmarshalJSON(input []byte) error {
@@ -67146,6 +69646,14 @@ mainparse:
 						goto mainparse
 					}
 
+				case 'i':
+
+					if bytes.Equal(ffjKeyJasparAttrId, kn) {
+						currentKey = ffjtJasparAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 'm':
 
 					if bytes.Equal(ffjKeyJasparAttrMatrixId, kn) {
@@ -67191,6 +69699,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyJasparAttrId, kn) {
+					currentKey = ffjtJasparAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.EqualFoldRight(ffjKeyJasparAttrVersion, kn) {
@@ -67290,6 +69804,9 @@ mainparse:
 
 				case ffjtJasparAttrVersion:
 					goto handle_Version
+
+				case ffjtJasparAttrId:
+					goto handle_Id
 
 				case ffjtJasparAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -67543,6 +70060,32 @@ handle_Version:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
 wantedvalue:
 	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
 wrongtokenerror:
@@ -67662,6 +70205,11 @@ func (j *LipidmapsAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.WriteJsonString(buf, string(j.Smiles))
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -67696,6 +70244,8 @@ const (
 	ffjtLipidmapsAttrInchiKey
 
 	ffjtLipidmapsAttrSmiles
+
+	ffjtLipidmapsAttrId
 )
 
 var ffjKeyLipidmapsAttrName = []byte("name")
@@ -67723,6 +70273,8 @@ var ffjKeyLipidmapsAttrInchi = []byte("inchi")
 var ffjKeyLipidmapsAttrInchiKey = []byte("inchi_key")
 
 var ffjKeyLipidmapsAttrSmiles = []byte("smiles")
+
+var ffjKeyLipidmapsAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *LipidmapsAttr) UnmarshalJSON(input []byte) error {
@@ -67833,6 +70385,11 @@ mainparse:
 						currentKey = ffjtLipidmapsAttrInchiKey
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyLipidmapsAttrId, kn) {
+						currentKey = ffjtLipidmapsAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 'm':
@@ -67874,6 +70431,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyLipidmapsAttrId, kn) {
+					currentKey = ffjtLipidmapsAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.EqualFoldRight(ffjKeyLipidmapsAttrSmiles, kn) {
@@ -68009,6 +70572,9 @@ mainparse:
 
 				case ffjtLipidmapsAttrSmiles:
 					goto handle_Smiles
+
+				case ffjtLipidmapsAttrId:
+					goto handle_Id
 
 				case ffjtLipidmapsAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -68410,6 +70976,32 @@ handle_Smiles:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
 wantedvalue:
 	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
 wrongtokenerror:
@@ -68612,6 +71204,11 @@ func (j *MeshAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.WriteJsonString(buf, string(j.DateRevised))
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -68656,6 +71253,8 @@ const (
 	ffjtMeshAttrDateEstablished
 
 	ffjtMeshAttrDateRevised
+
+	ffjtMeshAttrId
 )
 
 var ffjKeyMeshAttrDescriptorUi = []byte("descriptor_ui")
@@ -68693,6 +71292,8 @@ var ffjKeyMeshAttrDateCreated = []byte("date_created")
 var ffjKeyMeshAttrDateEstablished = []byte("date_established")
 
 var ffjKeyMeshAttrDateRevised = []byte("date_revised")
+
+var ffjKeyMeshAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *MeshAttr) UnmarshalJSON(input []byte) error {
@@ -68828,6 +71429,11 @@ mainparse:
 						currentKey = ffjtMeshAttrIsSupplementary
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyMeshAttrId, kn) {
+						currentKey = ffjtMeshAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 'p':
@@ -68872,6 +71478,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyMeshAttrId, kn) {
+					currentKey = ffjtMeshAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.EqualFoldRight(ffjKeyMeshAttrDateRevised, kn) {
@@ -69052,6 +71664,9 @@ mainparse:
 
 				case ffjtMeshAttrDateRevised:
 					goto handle_DateRevised
+
+				case ffjtMeshAttrId:
+					goto handle_Id
 
 				case ffjtMeshAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -69832,6 +72447,32 @@ handle_DateRevised:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
 wantedvalue:
 	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
 wrongtokenerror:
@@ -69926,6 +72567,11 @@ func (j *MiRDBAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		}
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -69950,6 +72596,8 @@ const (
 	ffjtMiRDBAttrTopTargetsSchema
 
 	ffjtMiRDBAttrTopTargets
+
+	ffjtMiRDBAttrId
 )
 
 var ffjKeyMiRDBAttrMirnaId = []byte("mirna_id")
@@ -69967,6 +72615,8 @@ var ffjKeyMiRDBAttrMinScore = []byte("min_score")
 var ffjKeyMiRDBAttrTopTargetsSchema = []byte("top_targets_schema")
 
 var ffjKeyMiRDBAttrTopTargets = []byte("top_targets")
+
+var ffjKeyMiRDBAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *MiRDBAttr) UnmarshalJSON(input []byte) error {
@@ -70037,6 +72687,14 @@ mainparse:
 						goto mainparse
 					}
 
+				case 'i':
+
+					if bytes.Equal(ffjKeyMiRDBAttrId, kn) {
+						currentKey = ffjtMiRDBAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 'm':
 
 					if bytes.Equal(ffjKeyMiRDBAttrMirnaId, kn) {
@@ -70081,6 +72739,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyMiRDBAttrId, kn) {
+					currentKey = ffjtMiRDBAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.EqualFoldRight(ffjKeyMiRDBAttrTopTargets, kn) {
@@ -70171,6 +72835,9 @@ mainparse:
 
 				case ffjtMiRDBAttrTopTargets:
 					goto handle_TopTargets
+
+				case ffjtMiRDBAttrId:
+					goto handle_Id
 
 				case ffjtMiRDBAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -70458,6 +73125,32 @@ handle_TopTargets:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
 wantedvalue:
 	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
 wrongtokenerror:
@@ -70614,6 +73307,11 @@ func (j *MsigdbAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.WriteJsonString(buf, string(j.ContributorOrg))
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -70654,6 +73352,8 @@ const (
 	ffjtMsigdbAttrContributor
 
 	ffjtMsigdbAttrContributorOrg
+
+	ffjtMsigdbAttrId
 )
 
 var ffjKeyMsigdbAttrSystematicName = []byte("systematic_name")
@@ -70687,6 +73387,8 @@ var ffjKeyMsigdbAttrSourceSpecies = []byte("source_species")
 var ffjKeyMsigdbAttrContributor = []byte("contributor")
 
 var ffjKeyMsigdbAttrContributorOrg = []byte("contributor_org")
+
+var ffjKeyMsigdbAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *MsigdbAttr) UnmarshalJSON(input []byte) error {
@@ -70819,6 +73521,14 @@ mainparse:
 						goto mainparse
 					}
 
+				case 'i':
+
+					if bytes.Equal(ffjKeyMsigdbAttrId, kn) {
+						currentKey = ffjtMsigdbAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 'p':
 
 					if bytes.Equal(ffjKeyMsigdbAttrPmid, kn) {
@@ -70850,6 +73560,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyMsigdbAttrId, kn) {
+					currentKey = ffjtMsigdbAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.AsciiEqualFold(ffjKeyMsigdbAttrContributorOrg, kn) {
@@ -71012,6 +73728,9 @@ mainparse:
 
 				case ffjtMsigdbAttrContributorOrg:
 					goto handle_ContributorOrg
+
+				case ffjtMsigdbAttrId:
+					goto handle_Id
 
 				case ffjtMsigdbAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -71591,6 +74310,32 @@ handle_ContributorOrg:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
 wantedvalue:
 	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
 wrongtokenerror:
@@ -71660,6 +74405,11 @@ func (j *OntologyAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		}
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -71674,6 +74424,8 @@ const (
 	ffjtOntologyAttrName
 
 	ffjtOntologyAttrSynonyms
+
+	ffjtOntologyAttrId
 )
 
 var ffjKeyOntologyAttrType = []byte("type")
@@ -71681,6 +74433,8 @@ var ffjKeyOntologyAttrType = []byte("type")
 var ffjKeyOntologyAttrName = []byte("name")
 
 var ffjKeyOntologyAttrSynonyms = []byte("synonyms")
+
+var ffjKeyOntologyAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *OntologyAttr) UnmarshalJSON(input []byte) error {
@@ -71743,6 +74497,14 @@ mainparse:
 			} else {
 				switch kn[0] {
 
+				case 'i':
+
+					if bytes.Equal(ffjKeyOntologyAttrId, kn) {
+						currentKey = ffjtOntologyAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 'n':
 
 					if bytes.Equal(ffjKeyOntologyAttrName, kn) {
@@ -71767,6 +74529,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyOntologyAttrId, kn) {
+					currentKey = ffjtOntologyAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.EqualFoldRight(ffjKeyOntologyAttrSynonyms, kn) {
@@ -71812,6 +74580,9 @@ mainparse:
 
 				case ffjtOntologyAttrSynonyms:
 					goto handle_Synonyms
+
+				case ffjtOntologyAttrId:
+					goto handle_Id
 
 				case ffjtOntologyAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -71953,6 +74724,32 @@ handle_Synonyms:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
 wantedvalue:
 	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
 wrongtokenerror:
@@ -72067,6 +74864,11 @@ func (j *OrphanetAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.FormatBits2(buf, uint64(j.PhenotypeCount), 10, j.PhenotypeCount < 0)
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -72089,6 +74891,8 @@ const (
 	ffjtOrphanetAttrGeneCount
 
 	ffjtOrphanetAttrPhenotypeCount
+
+	ffjtOrphanetAttrId
 )
 
 var ffjKeyOrphanetAttrName = []byte("name")
@@ -72104,6 +74908,8 @@ var ffjKeyOrphanetAttrPhenotypes = []byte("phenotypes")
 var ffjKeyOrphanetAttrGeneCount = []byte("gene_count")
 
 var ffjKeyOrphanetAttrPhenotypeCount = []byte("phenotype_count")
+
+var ffjKeyOrphanetAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *OrphanetAttr) UnmarshalJSON(input []byte) error {
@@ -72187,6 +74993,14 @@ mainparse:
 						goto mainparse
 					}
 
+				case 'i':
+
+					if bytes.Equal(ffjKeyOrphanetAttrId, kn) {
+						currentKey = ffjtOrphanetAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 'n':
 
 					if bytes.Equal(ffjKeyOrphanetAttrName, kn) {
@@ -72216,6 +75030,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyOrphanetAttrId, kn) {
+					currentKey = ffjtOrphanetAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.AsciiEqualFold(ffjKeyOrphanetAttrPhenotypeCount, kn) {
@@ -72297,6 +75117,9 @@ mainparse:
 
 				case ffjtOrphanetAttrPhenotypeCount:
 					goto handle_PhenotypeCount
+
+				case ffjtOrphanetAttrId:
+					goto handle_Id
 
 				case ffjtOrphanetAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -72591,6 +75414,32 @@ handle_PhenotypeCount:
 			}
 
 			j.PhenotypeCount = int32(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
 
 		}
 	}
@@ -73099,6 +75948,11 @@ func (j *PatentAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.WriteJsonString(buf, string(j.Abstract))
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -73127,6 +75981,8 @@ const (
 	ffjtPatentAttrAsignee
 
 	ffjtPatentAttrAbstract
+
+	ffjtPatentAttrId
 )
 
 var ffjKeyPatentAttrTitle = []byte("title")
@@ -73148,6 +76004,8 @@ var ffjKeyPatentAttrEcla = []byte("ecla")
 var ffjKeyPatentAttrAsignee = []byte("asignee")
 
 var ffjKeyPatentAttrAbstract = []byte("abstract")
+
+var ffjKeyPatentAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *PatentAttr) UnmarshalJSON(input []byte) error {
@@ -73263,6 +76121,11 @@ mainparse:
 						currentKey = ffjtPatentAttrIpc
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyPatentAttrId, kn) {
+						currentKey = ffjtPatentAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 'p':
@@ -73281,6 +76144,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyPatentAttrId, kn) {
+					currentKey = ffjtPatentAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.EqualFoldRight(ffjKeyPatentAttrAbstract, kn) {
@@ -73389,6 +76258,9 @@ mainparse:
 
 				case ffjtPatentAttrAbstract:
 					goto handle_Abstract
+
+				case ffjtPatentAttrId:
+					goto handle_Id
 
 				case ffjtPatentAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -73904,6 +76776,32 @@ handle_Abstract:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
 wantedvalue:
 	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
 wrongtokenerror:
@@ -74008,6 +76906,11 @@ func (j *PdbAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.FormatBits2(buf, uint64(j.ChainCount), 10, j.ChainCount < 0)
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -74036,6 +76939,8 @@ const (
 	ffjtPdbAttrAuthors
 
 	ffjtPdbAttrChainCount
+
+	ffjtPdbAttrId
 )
 
 var ffjKeyPdbAttrMethod = []byte("method")
@@ -74057,6 +76962,8 @@ var ffjKeyPdbAttrMoleculeType = []byte("molecule_type")
 var ffjKeyPdbAttrAuthors = []byte("authors")
 
 var ffjKeyPdbAttrChainCount = []byte("chain_count")
+
+var ffjKeyPdbAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *PdbAttr) UnmarshalJSON(input []byte) error {
@@ -74148,6 +77055,14 @@ mainparse:
 						goto mainparse
 					}
 
+				case 'i':
+
+					if bytes.Equal(ffjKeyPdbAttrId, kn) {
+						currentKey = ffjtPdbAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 'm':
 
 					if bytes.Equal(ffjKeyPdbAttrMethod, kn) {
@@ -74190,6 +77105,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyPdbAttrId, kn) {
+					currentKey = ffjtPdbAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.AsciiEqualFold(ffjKeyPdbAttrChainCount, kn) {
@@ -74298,6 +77219,9 @@ mainparse:
 
 				case ffjtPdbAttrChainCount:
 					goto handle_ChainCount
+
+				case ffjtPdbAttrId:
+					goto handle_Id
 
 				case ffjtPdbAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -74625,6 +77549,32 @@ handle_ChainCount:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
 wantedvalue:
 	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
 wrongtokenerror:
@@ -74916,6 +77866,11 @@ func (j *PharmgkbAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		}
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -74970,6 +77925,8 @@ const (
 	ffjtPharmgkbAttrRelatedGenes
 
 	ffjtPharmgkbAttrDrugLabels
+
+	ffjtPharmgkbAttrId
 )
 
 var ffjKeyPharmgkbAttrPharmgkbId = []byte("pharmgkb_id")
@@ -75017,6 +77974,8 @@ var ffjKeyPharmgkbAttrDosingGuidelineSources = []byte("dosing_guideline_sources"
 var ffjKeyPharmgkbAttrRelatedGenes = []byte("related_genes")
 
 var ffjKeyPharmgkbAttrDrugLabels = []byte("drug_labels")
+
+var ffjKeyPharmgkbAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *PharmgkbAttr) UnmarshalJSON(input []byte) error {
@@ -75148,6 +78107,11 @@ mainparse:
 						currentKey = ffjtPharmgkbAttrInchiKey
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyPharmgkbAttrId, kn) {
+						currentKey = ffjtPharmgkbAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 'n':
@@ -75233,6 +78197,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyPharmgkbAttrId, kn) {
+					currentKey = ffjtPharmgkbAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.EqualFoldRight(ffjKeyPharmgkbAttrDrugLabels, kn) {
@@ -75458,6 +78428,9 @@ mainparse:
 
 				case ffjtPharmgkbAttrDrugLabels:
 					goto handle_DrugLabels
+
+				case ffjtPharmgkbAttrId:
+					goto handle_Id
 
 				case ffjtPharmgkbAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -76533,6 +79506,32 @@ handle_DrugLabels:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
 wantedvalue:
 	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
 wrongtokenerror:
@@ -76628,6 +79627,11 @@ func (j *PharmgkbClinicalAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		}
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -76648,6 +79652,8 @@ const (
 	ffjtPharmgkbClinicalAttrChemicals
 
 	ffjtPharmgkbClinicalAttrPhenotypes
+
+	ffjtPharmgkbClinicalAttrId
 )
 
 var ffjKeyPharmgkbClinicalAttrVariant = []byte("variant")
@@ -76661,6 +79667,8 @@ var ffjKeyPharmgkbClinicalAttrLevelOfEvidence = []byte("level_of_evidence")
 var ffjKeyPharmgkbClinicalAttrChemicals = []byte("chemicals")
 
 var ffjKeyPharmgkbClinicalAttrPhenotypes = []byte("phenotypes")
+
+var ffjKeyPharmgkbClinicalAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *PharmgkbClinicalAttr) UnmarshalJSON(input []byte) error {
@@ -76739,6 +79747,14 @@ mainparse:
 						goto mainparse
 					}
 
+				case 'i':
+
+					if bytes.Equal(ffjKeyPharmgkbClinicalAttrId, kn) {
+						currentKey = ffjtPharmgkbClinicalAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 'l':
 
 					if bytes.Equal(ffjKeyPharmgkbClinicalAttrLevelOfEvidence, kn) {
@@ -76771,6 +79787,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyPharmgkbClinicalAttrId, kn) {
+					currentKey = ffjtPharmgkbClinicalAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.EqualFoldRight(ffjKeyPharmgkbClinicalAttrPhenotypes, kn) {
@@ -76843,6 +79865,9 @@ mainparse:
 
 				case ffjtPharmgkbClinicalAttrPhenotypes:
 					goto handle_Phenotypes
+
+				case ffjtPharmgkbClinicalAttrId:
+					goto handle_Id
 
 				case ffjtPharmgkbClinicalAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -77104,6 +80129,32 @@ handle_Phenotypes:
 
 				wantVal = false
 			}
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
 		}
 	}
 
@@ -78027,6 +81078,11 @@ func (j *PharmgkbGeneAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.WriteJsonString(buf, string(j.EnsemblId))
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -78067,6 +81123,8 @@ const (
 	ffjtPharmgkbGeneAttrEntrezId
 
 	ffjtPharmgkbGeneAttrEnsemblId
+
+	ffjtPharmgkbGeneAttrId
 )
 
 var ffjKeyPharmgkbGeneAttrPharmgkbId = []byte("pharmgkb_id")
@@ -78100,6 +81158,8 @@ var ffjKeyPharmgkbGeneAttrHgncId = []byte("hgnc_id")
 var ffjKeyPharmgkbGeneAttrEntrezId = []byte("entrez_id")
 
 var ffjKeyPharmgkbGeneAttrEnsemblId = []byte("ensembl_id")
+
+var ffjKeyPharmgkbGeneAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *PharmgkbGeneAttr) UnmarshalJSON(input []byte) error {
@@ -78230,6 +81290,11 @@ mainparse:
 						currentKey = ffjtPharmgkbGeneAttrIsVip
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyPharmgkbGeneAttrId, kn) {
+						currentKey = ffjtPharmgkbGeneAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 'n':
@@ -78266,6 +81331,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyPharmgkbGeneAttrId, kn) {
+					currentKey = ffjtPharmgkbGeneAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.EqualFoldRight(ffjKeyPharmgkbGeneAttrEnsemblId, kn) {
@@ -78428,6 +81499,9 @@ mainparse:
 
 				case ffjtPharmgkbGeneAttrEnsemblId:
 					goto handle_EnsemblId
+
+				case ffjtPharmgkbGeneAttrId:
+					goto handle_Id
 
 				case ffjtPharmgkbGeneAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -78998,6 +82072,32 @@ handle_EnsemblId:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
 wantedvalue:
 	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
 wrongtokenerror:
@@ -79189,6 +82289,11 @@ func (j *PharmgkbGuidelineAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		}
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -79227,6 +82332,8 @@ const (
 	ffjtPharmgkbGuidelineAttrSummary
 
 	ffjtPharmgkbGuidelineAttrPmids
+
+	ffjtPharmgkbGuidelineAttrId
 )
 
 var ffjKeyPharmgkbGuidelineAttrGuidelineId = []byte("guideline_id")
@@ -79258,6 +82365,8 @@ var ffjKeyPharmgkbGuidelineAttrIsCancerGenome = []byte("is_cancer_genome")
 var ffjKeyPharmgkbGuidelineAttrSummary = []byte("summary")
 
 var ffjKeyPharmgkbGuidelineAttrPmids = []byte("pmids")
+
+var ffjKeyPharmgkbGuidelineAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *PharmgkbGuidelineAttr) UnmarshalJSON(input []byte) error {
@@ -79388,6 +82497,11 @@ mainparse:
 						currentKey = ffjtPharmgkbGuidelineAttrIsCancerGenome
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyPharmgkbGuidelineAttrId, kn) {
+						currentKey = ffjtPharmgkbGuidelineAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 'n':
@@ -79419,6 +82533,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyPharmgkbGuidelineAttrId, kn) {
+					currentKey = ffjtPharmgkbGuidelineAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.EqualFoldRight(ffjKeyPharmgkbGuidelineAttrPmids, kn) {
@@ -79572,6 +82692,9 @@ mainparse:
 
 				case ffjtPharmgkbGuidelineAttrPmids:
 					goto handle_Pmids
+
+				case ffjtPharmgkbGuidelineAttrId:
+					goto handle_Id
 
 				case ffjtPharmgkbGuidelineAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -80271,6 +83394,32 @@ handle_Pmids:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
 wantedvalue:
 	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
 wrongtokenerror:
@@ -80464,6 +83613,11 @@ func (j *PharmgkbPathwayAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.WriteJsonString(buf, string(j.ImageLink))
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -80502,6 +83656,8 @@ const (
 	ffjtPharmgkbPathwayAttrBiopaxLink
 
 	ffjtPharmgkbPathwayAttrImageLink
+
+	ffjtPharmgkbPathwayAttrId
 )
 
 var ffjKeyPharmgkbPathwayAttrPathwayId = []byte("pathway_id")
@@ -80533,6 +83689,8 @@ var ffjKeyPharmgkbPathwayAttrDescription = []byte("description")
 var ffjKeyPharmgkbPathwayAttrBiopaxLink = []byte("biopax_link")
 
 var ffjKeyPharmgkbPathwayAttrImageLink = []byte("image_link")
+
+var ffjKeyPharmgkbPathwayAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *PharmgkbPathwayAttr) UnmarshalJSON(input []byte) error {
@@ -80668,6 +83826,11 @@ mainparse:
 						currentKey = ffjtPharmgkbPathwayAttrImageLink
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyPharmgkbPathwayAttrId, kn) {
+						currentKey = ffjtPharmgkbPathwayAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 'n':
@@ -80694,6 +83857,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyPharmgkbPathwayAttrId, kn) {
+					currentKey = ffjtPharmgkbPathwayAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.EqualFoldRight(ffjKeyPharmgkbPathwayAttrImageLink, kn) {
@@ -80847,6 +84016,9 @@ mainparse:
 
 				case ffjtPharmgkbPathwayAttrImageLink:
 					goto handle_ImageLink
+
+				case ffjtPharmgkbPathwayAttrId:
+					goto handle_Id
 
 				case ffjtPharmgkbPathwayAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -81567,6 +84739,32 @@ handle_ImageLink:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
 wantedvalue:
 	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
 wrongtokenerror:
@@ -82111,6 +85309,11 @@ func (j *PharmgkbVariantAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.FormatBits2(buf, uint64(j.PmidCount), 10, j.PmidCount < 0)
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -82151,6 +85354,8 @@ const (
 	ffjtPharmgkbVariantAttrAssociatedPhenotypes
 
 	ffjtPharmgkbVariantAttrPmidCount
+
+	ffjtPharmgkbVariantAttrId
 )
 
 var ffjKeyPharmgkbVariantAttrVariantId = []byte("variant_id")
@@ -82184,6 +85389,8 @@ var ffjKeyPharmgkbVariantAttrAssociatedDrugs = []byte("associated_drugs")
 var ffjKeyPharmgkbVariantAttrAssociatedPhenotypes = []byte("associated_phenotypes")
 
 var ffjKeyPharmgkbVariantAttrPmidCount = []byte("pmid_count")
+
+var ffjKeyPharmgkbVariantAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *PharmgkbVariantAttr) UnmarshalJSON(input []byte) error {
@@ -82285,6 +85492,14 @@ mainparse:
 						goto mainparse
 					}
 
+				case 'i':
+
+					if bytes.Equal(ffjKeyPharmgkbVariantAttrId, kn) {
+						currentKey = ffjtPharmgkbVariantAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 'l':
 
 					if bytes.Equal(ffjKeyPharmgkbVariantAttrLocation, kn) {
@@ -82347,6 +85562,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyPharmgkbVariantAttrId, kn) {
+					currentKey = ffjtPharmgkbVariantAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.AsciiEqualFold(ffjKeyPharmgkbVariantAttrPmidCount, kn) {
@@ -82509,6 +85730,9 @@ mainparse:
 
 				case ffjtPharmgkbVariantAttrPmidCount:
 					goto handle_PmidCount
+
+				case ffjtPharmgkbVariantAttrId:
+					goto handle_Id
 
 				case ffjtPharmgkbVariantAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -83245,6 +86469,32 @@ handle_PmidCount:
 			}
 
 			j.PmidCount = int32(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
 
 		}
 	}
@@ -84744,6 +87994,11 @@ func (j *PubchemActivityAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.WriteJsonString(buf, string(j.Pmid))
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -84776,6 +88031,8 @@ const (
 	ffjtPubchemActivityAttrTargetTaxid
 
 	ffjtPubchemActivityAttrPmid
+
+	ffjtPubchemActivityAttrId
 )
 
 var ffjKeyPubchemActivityAttrActivityId = []byte("activity_id")
@@ -84801,6 +88058,8 @@ var ffjKeyPubchemActivityAttrGeneId = []byte("gene_id")
 var ffjKeyPubchemActivityAttrTargetTaxid = []byte("target_taxid")
 
 var ffjKeyPubchemActivityAttrPmid = []byte("pmid")
+
+var ffjKeyPubchemActivityAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *PubchemActivityAttr) UnmarshalJSON(input []byte) error {
@@ -84902,6 +88161,14 @@ mainparse:
 						goto mainparse
 					}
 
+				case 'i':
+
+					if bytes.Equal(ffjKeyPubchemActivityAttrId, kn) {
+						currentKey = ffjtPubchemActivityAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 'p':
 
 					if bytes.Equal(ffjKeyPubchemActivityAttrProteinAccession, kn) {
@@ -84947,6 +88214,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyPubchemActivityAttrId, kn) {
+					currentKey = ffjtPubchemActivityAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.SimpleLetterEqualFold(ffjKeyPubchemActivityAttrPmid, kn) {
@@ -85073,6 +88346,9 @@ mainparse:
 
 				case ffjtPubchemActivityAttrPmid:
 					goto handle_Pmid
+
+				case ffjtPubchemActivityAttrId:
+					goto handle_Id
 
 				case ffjtPubchemActivityAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -85408,6 +88684,32 @@ handle_Pmid:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
 wantedvalue:
 	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
 wrongtokenerror:
@@ -85657,6 +88959,11 @@ func (j *PubchemAssayAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.WriteJsonString(buf, string(j.MeasurementType))
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -85721,6 +89028,8 @@ const (
 	ffjtPubchemAssayAttrAssayStage
 
 	ffjtPubchemAssayAttrMeasurementType
+
+	ffjtPubchemAssayAttrId
 )
 
 var ffjKeyPubchemAssayAttrAid = []byte("aid")
@@ -85778,6 +89087,8 @@ var ffjKeyPubchemAssayAttrAssayDesign = []byte("assay_design")
 var ffjKeyPubchemAssayAttrAssayStage = []byte("assay_stage")
 
 var ffjKeyPubchemAssayAttrMeasurementType = []byte("measurement_type")
+
+var ffjKeyPubchemAssayAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *PubchemAssayAttr) UnmarshalJSON(input []byte) error {
@@ -85920,6 +89231,14 @@ mainparse:
 						goto mainparse
 					}
 
+				case 'i':
+
+					if bytes.Equal(ffjKeyPubchemAssayAttrId, kn) {
+						currentKey = ffjtPubchemAssayAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 'm':
 
 					if bytes.Equal(ffjKeyPubchemAssayAttrModifyDate, kn) {
@@ -86016,6 +89335,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyPubchemAssayAttrId, kn) {
+					currentKey = ffjtPubchemAssayAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.EqualFoldRight(ffjKeyPubchemAssayAttrMeasurementType, kn) {
@@ -86286,6 +89611,9 @@ mainparse:
 
 				case ffjtPubchemAssayAttrMeasurementType:
 					goto handle_MeasurementType
+
+				case ffjtPubchemAssayAttrId:
+					goto handle_Id
 
 				case ffjtPubchemAssayAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -87345,6 +90673,32 @@ handle_MeasurementType:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
 wantedvalue:
 	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
 wrongtokenerror:
@@ -87762,6 +91116,11 @@ func (j *PubchemAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		}
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -87852,6 +91211,8 @@ const (
 	ffjtPubchemAttrZincIds
 
 	ffjtPubchemAttrNscIds
+
+	ffjtPubchemAttrId
 )
 
 var ffjKeyPubchemAttrCid = []byte("cid")
@@ -87935,6 +91296,8 @@ var ffjKeyPubchemAttrDtxsid = []byte("dtxsid")
 var ffjKeyPubchemAttrZincIds = []byte("zinc_ids")
 
 var ffjKeyPubchemAttrNscIds = []byte("nsc_ids")
+
+var ffjKeyPubchemAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *PubchemAttr) UnmarshalJSON(input []byte) error {
@@ -88126,6 +91489,11 @@ mainparse:
 						currentKey = ffjtPubchemAttrIsFdaApproved
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyPubchemAttrId, kn) {
+						currentKey = ffjtPubchemAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 'm':
@@ -88250,6 +91618,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyPubchemAttrId, kn) {
+					currentKey = ffjtPubchemAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.EqualFoldRight(ffjKeyPubchemAttrNscIds, kn) {
@@ -88637,6 +92011,9 @@ mainparse:
 
 				case ffjtPubchemAttrNscIds:
 					goto handle_NscIds
+
+				case ffjtPubchemAttrId:
+					goto handle_Id
 
 				case ffjtPubchemAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -90426,6 +93803,32 @@ handle_NscIds:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
 wantedvalue:
 	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
 wrongtokenerror:
@@ -90503,6 +93906,11 @@ func (j *ReactomePathwayAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		}
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -90519,6 +93927,8 @@ const (
 	ffjtReactomePathwayAttrAltNames
 
 	ffjtReactomePathwayAttrIsDiseasePathway
+
+	ffjtReactomePathwayAttrId
 )
 
 var ffjKeyReactomePathwayAttrName = []byte("name")
@@ -90528,6 +93938,8 @@ var ffjKeyReactomePathwayAttrTaxId = []byte("tax_id")
 var ffjKeyReactomePathwayAttrAltNames = []byte("alt_names")
 
 var ffjKeyReactomePathwayAttrIsDiseasePathway = []byte("is_disease_pathway")
+
+var ffjKeyReactomePathwayAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *ReactomePathwayAttr) UnmarshalJSON(input []byte) error {
@@ -90604,6 +94016,11 @@ mainparse:
 						currentKey = ffjtReactomePathwayAttrIsDiseasePathway
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyReactomePathwayAttrId, kn) {
+						currentKey = ffjtReactomePathwayAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 'n':
@@ -90622,6 +94039,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyReactomePathwayAttrId, kn) {
+					currentKey = ffjtReactomePathwayAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.EqualFoldRight(ffjKeyReactomePathwayAttrIsDiseasePathway, kn) {
@@ -90676,6 +94099,9 @@ mainparse:
 
 				case ffjtReactomePathwayAttrIsDiseasePathway:
 					goto handle_IsDiseasePathway
+
+				case ffjtReactomePathwayAttrId:
+					goto handle_Id
 
 				case ffjtReactomePathwayAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -90849,6 +94275,32 @@ handle_IsDiseasePathway:
 				err = errors.New("unexpected bytes for true/false value")
 				return fs.WrapErr(err)
 			}
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
 
 		}
 	}
@@ -91079,6 +94531,11 @@ func (j *RefSeqAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.FormatBits2(buf, uint64(j.ExonCount), 10, j.ExonCount < 0)
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -91151,6 +94608,8 @@ const (
 	ffjtRefSeqAttrLrgId
 
 	ffjtRefSeqAttrExonCount
+
+	ffjtRefSeqAttrId
 )
 
 var ffjKeyRefSeqAttrAccession = []byte("accession")
@@ -91216,6 +94675,8 @@ var ffjKeyRefSeqAttrIsLrg = []byte("is_lrg")
 var ffjKeyRefSeqAttrLrgId = []byte("lrg_id")
 
 var ffjKeyRefSeqAttrExonCount = []byte("exon_count")
+
+var ffjKeyRefSeqAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *RefSeqAttr) UnmarshalJSON(input []byte) error {
@@ -91367,6 +94828,11 @@ mainparse:
 						currentKey = ffjtRefSeqAttrIsLrg
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyRefSeqAttrId, kn) {
+						currentKey = ffjtRefSeqAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 'l':
@@ -91486,6 +94952,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyRefSeqAttrId, kn) {
+					currentKey = ffjtRefSeqAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.AsciiEqualFold(ffjKeyRefSeqAttrExonCount, kn) {
@@ -91792,6 +95264,9 @@ mainparse:
 
 				case ffjtRefSeqAttrExonCount:
 					goto handle_ExonCount
+
+				case ffjtRefSeqAttrId:
+					goto handle_Id
 
 				case ffjtRefSeqAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -92742,6 +96217,32 @@ handle_ExonCount:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
 wantedvalue:
 	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
 wrongtokenerror:
@@ -92933,6 +96434,11 @@ func (j *RheaAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		}
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -92967,6 +96473,8 @@ const (
 	ffjtRheaAttrParentReactions
 
 	ffjtRheaAttrChildReactions
+
+	ffjtRheaAttrId
 )
 
 var ffjKeyRheaAttrEquation = []byte("equation")
@@ -92994,6 +96502,8 @@ var ffjKeyRheaAttrReactionSmiles = []byte("reaction_smiles")
 var ffjKeyRheaAttrParentReactions = []byte("parent_reactions")
 
 var ffjKeyRheaAttrChildReactions = []byte("child_reactions")
+
+var ffjKeyRheaAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *RheaAttr) UnmarshalJSON(input []byte) error {
@@ -93104,6 +96614,11 @@ mainparse:
 						currentKey = ffjtRheaAttrIsTransport
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyRheaAttrId, kn) {
+						currentKey = ffjtRheaAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 'm':
@@ -93154,6 +96669,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyRheaAttrId, kn) {
+					currentKey = ffjtRheaAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.EqualFoldRight(ffjKeyRheaAttrChildReactions, kn) {
@@ -93289,6 +96810,9 @@ mainparse:
 
 				case ffjtRheaAttrChildReactions:
 					goto handle_ChildReactions
+
+				case ffjtRheaAttrId:
+					goto handle_Id
 
 				case ffjtRheaAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -93943,6 +97467,32 @@ handle_ChildReactions:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
 wantedvalue:
 	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
 wrongtokenerror:
@@ -94443,6 +97993,11 @@ func (j *RnacentralAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.WriteJsonString(buf, string(j.Md5))
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -94465,6 +98020,8 @@ const (
 	ffjtRnacentralAttrIsActive
 
 	ffjtRnacentralAttrMd5
+
+	ffjtRnacentralAttrId
 )
 
 var ffjKeyRnacentralAttrRnaType = []byte("rna_type")
@@ -94480,6 +98037,8 @@ var ffjKeyRnacentralAttrDatabases = []byte("databases")
 var ffjKeyRnacentralAttrIsActive = []byte("is_active")
 
 var ffjKeyRnacentralAttrMd5 = []byte("md5")
+
+var ffjKeyRnacentralAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *RnacentralAttr) UnmarshalJSON(input []byte) error {
@@ -94561,6 +98120,11 @@ mainparse:
 						currentKey = ffjtRnacentralAttrIsActive
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyRnacentralAttrId, kn) {
+						currentKey = ffjtRnacentralAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 'l':
@@ -94595,6 +98159,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyRnacentralAttrId, kn) {
+					currentKey = ffjtRnacentralAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.AsciiEqualFold(ffjKeyRnacentralAttrMd5, kn) {
@@ -94676,6 +98246,9 @@ mainparse:
 
 				case ffjtRnacentralAttrMd5:
 					goto handle_Md5
+
+				case ffjtRnacentralAttrId:
+					goto handle_Id
 
 				case ffjtRnacentralAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -94931,6 +98504,32 @@ handle_Md5:
 			outBuf := fs.Output.Bytes()
 
 			j.Md5 = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
 
 		}
 	}
@@ -95210,6 +98809,11 @@ func (j *ScxaAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.WriteJsonString(buf, string(j.PublicationDoi))
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -95260,6 +98864,8 @@ const (
 	ffjtScxaAttrPubmedId
 
 	ffjtScxaAttrPublicationDoi
+
+	ffjtScxaAttrId
 )
 
 var ffjKeyScxaAttrExperimentAccession = []byte("experiment_accession")
@@ -95303,6 +98909,8 @@ var ffjKeyScxaAttrTopMarkerGenes = []byte("top_marker_genes")
 var ffjKeyScxaAttrPubmedId = []byte("pubmed_id")
 
 var ffjKeyScxaAttrPublicationDoi = []byte("publication_doi")
+
+var ffjKeyScxaAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *ScxaAttr) UnmarshalJSON(input []byte) error {
@@ -95419,6 +99027,14 @@ mainparse:
 						goto mainparse
 					}
 
+				case 'i':
+
+					if bytes.Equal(ffjKeyScxaAttrId, kn) {
+						currentKey = ffjtScxaAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 'k':
 
 					if bytes.Equal(ffjKeyScxaAttrKingdom, kn) {
@@ -95500,6 +99116,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyScxaAttrId, kn) {
+					currentKey = ffjtScxaAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.AsciiEqualFold(ffjKeyScxaAttrPublicationDoi, kn) {
@@ -95707,6 +99329,9 @@ mainparse:
 
 				case ffjtScxaAttrPublicationDoi:
 					goto handle_PublicationDoi
+
+				case ffjtScxaAttrId:
+					goto handle_Id
 
 				case ffjtScxaAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -96752,6 +100377,32 @@ handle_PublicationDoi:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
 wantedvalue:
 	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
 wrongtokenerror:
@@ -97477,6 +101128,11 @@ func (j *ScxaExpressionAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.FormatBits2(buf, uint64(j.TotalClusters), 10, j.TotalClusters < 0)
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -97501,6 +101157,8 @@ const (
 	ffjtScxaExpressionAttrAvgMeanExpression
 
 	ffjtScxaExpressionAttrTotalClusters
+
+	ffjtScxaExpressionAttrId
 )
 
 var ffjKeyScxaExpressionAttrGeneId = []byte("gene_id")
@@ -97518,6 +101176,8 @@ var ffjKeyScxaExpressionAttrMaxMeanExpression = []byte("max_mean_expression")
 var ffjKeyScxaExpressionAttrAvgMeanExpression = []byte("avg_mean_expression")
 
 var ffjKeyScxaExpressionAttrTotalClusters = []byte("total_clusters")
+
+var ffjKeyScxaExpressionAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *ScxaExpressionAttr) UnmarshalJSON(input []byte) error {
@@ -97601,6 +101261,14 @@ mainparse:
 						goto mainparse
 					}
 
+				case 'i':
+
+					if bytes.Equal(ffjKeyScxaExpressionAttrId, kn) {
+						currentKey = ffjtScxaExpressionAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 'm':
 
 					if bytes.Equal(ffjKeyScxaExpressionAttrMarkerExperimentCount, kn) {
@@ -97635,6 +101303,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyScxaExpressionAttrId, kn) {
+					currentKey = ffjtScxaExpressionAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.EqualFoldRight(ffjKeyScxaExpressionAttrTotalClusters, kn) {
@@ -97725,6 +101399,9 @@ mainparse:
 
 				case ffjtScxaExpressionAttrTotalClusters:
 					goto handle_TotalClusters
+
+				case ffjtScxaExpressionAttrId:
+					goto handle_Id
 
 				case ffjtScxaExpressionAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -97972,6 +101649,32 @@ handle_TotalClusters:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
 wantedvalue:
 	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
 wrongtokenerror:
@@ -98073,6 +101776,11 @@ func (j *ScxaGeneExperimentAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error 
 		fflib.AppendFloat(buf, float64(j.MaxMeanExpression), 'g', -1, 64)
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -98093,6 +101801,8 @@ const (
 	ffjtScxaGeneExperimentAttrMarkerClusterCount
 
 	ffjtScxaGeneExperimentAttrMaxMeanExpression
+
+	ffjtScxaGeneExperimentAttrId
 )
 
 var ffjKeyScxaGeneExperimentAttrGeneId = []byte("gene_id")
@@ -98106,6 +101816,8 @@ var ffjKeyScxaGeneExperimentAttrIsMarkerInExperiment = []byte("is_marker_in_expe
 var ffjKeyScxaGeneExperimentAttrMarkerClusterCount = []byte("marker_cluster_count")
 
 var ffjKeyScxaGeneExperimentAttrMaxMeanExpression = []byte("max_mean_expression")
+
+var ffjKeyScxaGeneExperimentAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *ScxaGeneExperimentAttr) UnmarshalJSON(input []byte) error {
@@ -98198,6 +101910,11 @@ mainparse:
 						currentKey = ffjtScxaGeneExperimentAttrIsMarkerInExperiment
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyScxaGeneExperimentAttrId, kn) {
+						currentKey = ffjtScxaGeneExperimentAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 'm':
@@ -98213,6 +101930,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyScxaGeneExperimentAttrId, kn) {
+					currentKey = ffjtScxaGeneExperimentAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.EqualFoldRight(ffjKeyScxaGeneExperimentAttrMaxMeanExpression, kn) {
@@ -98285,6 +102008,9 @@ mainparse:
 
 				case ffjtScxaGeneExperimentAttrMaxMeanExpression:
 					goto handle_MaxMeanExpression
+
+				case ffjtScxaGeneExperimentAttrId:
+					goto handle_Id
 
 				case ffjtScxaGeneExperimentAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -98514,6 +102240,32 @@ handle_MaxMeanExpression:
 			}
 
 			j.MaxMeanExpression = float64(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
 
 		}
 	}
@@ -99015,6 +102767,11 @@ func (j *SignorAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.AppendFloat(buf, float64(j.Score), 'g', -1, 64)
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -99057,6 +102814,8 @@ const (
 	ffjtSignorAttrDirect
 
 	ffjtSignorAttrScore
+
+	ffjtSignorAttrId
 )
 
 var ffjKeySignorAttrEntityA = []byte("entity_a")
@@ -99092,6 +102851,8 @@ var ffjKeySignorAttrTissueData = []byte("tissue_data")
 var ffjKeySignorAttrDirect = []byte("direct")
 
 var ffjKeySignorAttrScore = []byte("score")
+
+var ffjKeySignorAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *SignorAttr) UnmarshalJSON(input []byte) error {
@@ -99209,6 +102970,11 @@ mainparse:
 						currentKey = ffjtSignorAttrIdB
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeySignorAttrId, kn) {
+						currentKey = ffjtSignorAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 'm':
@@ -99263,6 +103029,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeySignorAttrId, kn) {
+					currentKey = ffjtSignorAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.EqualFoldRight(ffjKeySignorAttrScore, kn) {
@@ -99434,6 +103206,9 @@ mainparse:
 
 				case ffjtSignorAttrScore:
 					goto handle_Score
+
+				case ffjtSignorAttrId:
+					goto handle_Id
 
 				case ffjtSignorAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -99908,6 +103683,32 @@ handle_Score:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
 wantedvalue:
 	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
 wrongtokenerror:
@@ -99991,6 +103792,11 @@ func (j *SpliceAIAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.WriteJsonString(buf, string(j.AlleleInfo))
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -100015,6 +103821,8 @@ const (
 	ffjtSpliceAIAttrGeneSymbol
 
 	ffjtSpliceAIAttrAlleleInfo
+
+	ffjtSpliceAIAttrId
 )
 
 var ffjKeySpliceAIAttrChromosome = []byte("chromosome")
@@ -100032,6 +103840,8 @@ var ffjKeySpliceAIAttrScore = []byte("score")
 var ffjKeySpliceAIAttrGeneSymbol = []byte("gene_symbol")
 
 var ffjKeySpliceAIAttrAlleleInfo = []byte("allele_info")
+
+var ffjKeySpliceAIAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *SpliceAIAttr) UnmarshalJSON(input []byte) error {
@@ -100131,6 +103941,14 @@ mainparse:
 						goto mainparse
 					}
 
+				case 'i':
+
+					if bytes.Equal(ffjKeySpliceAIAttrId, kn) {
+						currentKey = ffjtSpliceAIAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 'p':
 
 					if bytes.Equal(ffjKeySpliceAIAttrPosition, kn) {
@@ -100155,6 +103973,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeySpliceAIAttrId, kn) {
+					currentKey = ffjtSpliceAIAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.AsciiEqualFold(ffjKeySpliceAIAttrAlleleInfo, kn) {
@@ -100245,6 +104069,9 @@ mainparse:
 
 				case ffjtSpliceAIAttrAlleleInfo:
 					goto handle_AlleleInfo
+
+				case ffjtSpliceAIAttrId:
+					goto handle_Id
 
 				case ffjtSpliceAIAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -100476,6 +104303,32 @@ handle_AlleleInfo:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
 wantedvalue:
 	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
 wrongtokenerror:
@@ -100549,6 +104402,11 @@ func (j *StringAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.FormatBits2(buf, uint64(j.InteractionCount), 10, j.InteractionCount < 0)
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -100569,6 +104427,8 @@ const (
 	ffjtStringAttrAnnotation
 
 	ffjtStringAttrInteractionCount
+
+	ffjtStringAttrId
 )
 
 var ffjKeyStringAttrStringId = []byte("string_id")
@@ -100582,6 +104442,8 @@ var ffjKeyStringAttrProteinSize = []byte("protein_size")
 var ffjKeyStringAttrAnnotation = []byte("annotation")
 
 var ffjKeyStringAttrInteractionCount = []byte("interaction_count")
+
+var ffjKeyStringAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *StringAttr) UnmarshalJSON(input []byte) error {
@@ -100658,6 +104520,11 @@ mainparse:
 						currentKey = ffjtStringAttrInteractionCount
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyStringAttrId, kn) {
+						currentKey = ffjtStringAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 'o':
@@ -100689,6 +104556,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyStringAttrId, kn) {
+					currentKey = ffjtStringAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.AsciiEqualFold(ffjKeyStringAttrInteractionCount, kn) {
@@ -100761,6 +104634,9 @@ mainparse:
 
 				case ffjtStringAttrInteractionCount:
 					goto handle_InteractionCount
+
+				case ffjtStringAttrId:
+					goto handle_Id
 
 				case ffjtStringAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -100944,6 +104820,32 @@ handle_InteractionCount:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
 wantedvalue:
 	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
 wrongtokenerror:
@@ -101044,6 +104946,11 @@ func (j *StringInteractionAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		}
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -101070,6 +104977,8 @@ const (
 	ffjtStringInteractionAttrHasTextmining
 
 	ffjtStringInteractionAttrHasCoexpression
+
+	ffjtStringInteractionAttrId
 )
 
 var ffjKeyStringInteractionAttrProteinA = []byte("protein_a")
@@ -101089,6 +104998,8 @@ var ffjKeyStringInteractionAttrHasDatabase = []byte("has_database")
 var ffjKeyStringInteractionAttrHasTextmining = []byte("has_textmining")
 
 var ffjKeyStringInteractionAttrHasCoexpression = []byte("has_coexpression")
+
+var ffjKeyStringInteractionAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *StringInteractionAttr) UnmarshalJSON(input []byte) error {
@@ -101174,6 +105085,14 @@ mainparse:
 						goto mainparse
 					}
 
+				case 'i':
+
+					if bytes.Equal(ffjKeyStringInteractionAttrId, kn) {
+						currentKey = ffjtStringInteractionAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 'p':
 
 					if bytes.Equal(ffjKeyStringInteractionAttrProteinA, kn) {
@@ -101208,6 +105127,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyStringInteractionAttrId, kn) {
+					currentKey = ffjtStringInteractionAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.EqualFoldRight(ffjKeyStringInteractionAttrHasCoexpression, kn) {
@@ -101307,6 +105232,9 @@ mainparse:
 
 				case ffjtStringInteractionAttrHasCoexpression:
 					goto handle_HasCoexpression
+
+				case ffjtStringInteractionAttrId:
+					goto handle_Id
 
 				case ffjtStringInteractionAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -101596,6 +105524,32 @@ handle_HasCoexpression:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
 wantedvalue:
 	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
 wrongtokenerror:
@@ -101715,6 +105669,11 @@ func (j *SwisslipidsAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.WriteJsonString(buf, string(j.Charge))
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -101749,6 +105708,8 @@ const (
 	ffjtSwisslipidsAttrMass
 
 	ffjtSwisslipidsAttrCharge
+
+	ffjtSwisslipidsAttrId
 )
 
 var ffjKeySwisslipidsAttrName = []byte("name")
@@ -101776,6 +105737,8 @@ var ffjKeySwisslipidsAttrFormula = []byte("formula")
 var ffjKeySwisslipidsAttrMass = []byte("mass")
 
 var ffjKeySwisslipidsAttrCharge = []byte("charge")
+
+var ffjKeySwisslipidsAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *SwisslipidsAttr) UnmarshalJSON(input []byte) error {
@@ -101878,6 +105841,11 @@ mainparse:
 						currentKey = ffjtSwisslipidsAttrInchiKey
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeySwisslipidsAttrId, kn) {
+						currentKey = ffjtSwisslipidsAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 'l':
@@ -101927,6 +105895,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeySwisslipidsAttrId, kn) {
+					currentKey = ffjtSwisslipidsAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.SimpleLetterEqualFold(ffjKeySwisslipidsAttrCharge, kn) {
@@ -102062,6 +106036,9 @@ mainparse:
 
 				case ffjtSwisslipidsAttrCharge:
 					goto handle_Charge
+
+				case ffjtSwisslipidsAttrId:
+					goto handle_Id
 
 				case ffjtSwisslipidsAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -102463,6 +106440,32 @@ handle_Charge:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
 wantedvalue:
 	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
 wrongtokenerror:
@@ -102526,6 +106529,11 @@ func (j *TaxoAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.WriteJsonString(buf, string(j.TaxonomicDivision))
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -102542,6 +106550,8 @@ const (
 	ffjtTaxoAttrRank
 
 	ffjtTaxoAttrTaxonomicDivision
+
+	ffjtTaxoAttrId
 )
 
 var ffjKeyTaxoAttrName = []byte("name")
@@ -102551,6 +106561,8 @@ var ffjKeyTaxoAttrCommonName = []byte("common_name")
 var ffjKeyTaxoAttrRank = []byte("rank")
 
 var ffjKeyTaxoAttrTaxonomicDivision = []byte("taxonomic_division")
+
+var ffjKeyTaxoAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *TaxoAttr) UnmarshalJSON(input []byte) error {
@@ -102621,6 +106633,14 @@ mainparse:
 						goto mainparse
 					}
 
+				case 'i':
+
+					if bytes.Equal(ffjKeyTaxoAttrId, kn) {
+						currentKey = ffjtTaxoAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 'n':
 
 					if bytes.Equal(ffjKeyTaxoAttrName, kn) {
@@ -102645,6 +106665,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyTaxoAttrId, kn) {
+					currentKey = ffjtTaxoAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.EqualFoldRight(ffjKeyTaxoAttrTaxonomicDivision, kn) {
@@ -102699,6 +106725,9 @@ mainparse:
 
 				case ffjtTaxoAttrTaxonomicDivision:
 					goto handle_TaxonomicDivision
+
+				case ffjtTaxoAttrId:
+					goto handle_Id
 
 				case ffjtTaxoAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -102815,6 +106844,32 @@ handle_TaxonomicDivision:
 			outBuf := fs.Output.Bytes()
 
 			j.TaxonomicDivision = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
 
 		}
 	}
@@ -103538,6 +107593,11 @@ func (j *UniprotAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		}
 		buf.WriteByte(',')
 	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -103560,6 +107620,8 @@ const (
 	ffjtUniprotAttrSequence
 
 	ffjtUniprotAttrReviewed
+
+	ffjtUniprotAttrId
 )
 
 var ffjKeyUniprotAttrAccessions = []byte("accessions")
@@ -103575,6 +107637,8 @@ var ffjKeyUniprotAttrSubmittedNames = []byte("submitted_names")
 var ffjKeyUniprotAttrSequence = []byte("sequence")
 
 var ffjKeyUniprotAttrReviewed = []byte("reviewed")
+
+var ffjKeyUniprotAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *UniprotAttr) UnmarshalJSON(input []byte) error {
@@ -103658,6 +107722,14 @@ mainparse:
 						goto mainparse
 					}
 
+				case 'i':
+
+					if bytes.Equal(ffjKeyUniprotAttrId, kn) {
+						currentKey = ffjtUniprotAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 'n':
 
 					if bytes.Equal(ffjKeyUniprotAttrNames, kn) {
@@ -103687,6 +107759,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyUniprotAttrId, kn) {
+					currentKey = ffjtUniprotAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.SimpleLetterEqualFold(ffjKeyUniprotAttrReviewed, kn) {
@@ -103768,6 +107846,9 @@ mainparse:
 
 				case ffjtUniprotAttrReviewed:
 					goto handle_Reviewed
+
+				case ffjtUniprotAttrId:
+					goto handle_Id
 
 				case ffjtUniprotAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -104207,6 +108288,32 @@ handle_Reviewed:
 				err = errors.New("unexpected bytes for true/false value")
 				return fs.WrapErr(err)
 			}
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
 
 		}
 	}

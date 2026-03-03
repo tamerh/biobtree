@@ -999,171 +999,416 @@ func (s *Service) execCelGo(query *query.Query, targetXref *pbuf.Xref) (bool, er
 
 	var out ref.Val
 
+	// Build evaluation map for CEL filtering
+	// Set transient id field on attributes for filtering like: >>go[id=="GO:0005886"]
+	evalMap := map[string]interface{}{}
+	id := targetXref.Identifier
+
 	switch query.MapDataset {
 	case "uniprot":
-		out, _, err = query.Program.Eval(map[string]interface{}{"uniprot": targetXref.GetUniprot()})
+		if attr := targetXref.GetUniprot(); attr != nil {
+			attr.Id = id
+			evalMap["uniprot"] = attr
+		}
 	case "ufeature":
-		out, _, err = query.Program.Eval(map[string]interface{}{"ufeature": targetXref.GetUfeature()})
+		// UniprotFeatureAttr already has id field (field 3)
+		evalMap["ufeature"] = targetXref.GetUfeature()
 	case "ensembl":
-		out, _, err = query.Program.Eval(map[string]interface{}{"ensembl": targetXref.GetEnsembl()})
+		if attr := targetXref.GetEnsembl(); attr != nil {
+			attr.Id = id
+			evalMap["ensembl"] = attr
+		}
 	case "transcript":
-		out, _, err = query.Program.Eval(map[string]interface{}{"transcript": targetXref.GetEnsembl()})
+		if attr := targetXref.GetEnsembl(); attr != nil {
+			attr.Id = id
+			evalMap["transcript"] = attr
+		}
 	case "exon":
-		out, _, err = query.Program.Eval(map[string]interface{}{"exon": targetXref.GetEnsembl()})
+		if attr := targetXref.GetEnsembl(); attr != nil {
+			attr.Id = id
+			evalMap["exon"] = attr
+		}
 	case "cds":
-		out, _, err = query.Program.Eval(map[string]interface{}{"cds": targetXref.GetEnsembl()})
+		if attr := targetXref.GetEnsembl(); attr != nil {
+			attr.Id = id
+			evalMap["cds"] = attr
+		}
 	case "taxonomy":
-		out, _, err = query.Program.Eval(map[string]interface{}{"taxonomy": targetXref.GetTaxonomy()})
+		if attr := targetXref.GetTaxonomy(); attr != nil {
+			attr.Id = id
+			evalMap["taxonomy"] = attr
+		}
 	case "hgnc":
-		out, _, err = query.Program.Eval(map[string]interface{}{"hgnc": targetXref.GetHgnc()})
+		if attr := targetXref.GetHgnc(); attr != nil {
+			attr.Id = id
+			evalMap["hgnc"] = attr
+		}
 	case "go", "efo", "eco", "mondo", "uberon", "oba", "cl", "pato", "obi", "xco", "bao":
-		out, _, err = query.Program.Eval(map[string]interface{}{query.MapDataset: targetXref.GetOntology()})
+		if attr := targetXref.GetOntology(); attr != nil {
+			attr.Id = id
+			evalMap[query.MapDataset] = attr
+		}
 	case "hpo":
-		out, _, err = query.Program.Eval(map[string]interface{}{"hpo": targetXref.GetHpoAttr()})
+		if attr := targetXref.GetHpoAttr(); attr != nil {
+			attr.Id = id
+			evalMap["hpo"] = attr
+		}
 	case "chembl_molecule":
-		out, _, err = query.Program.Eval(map[string]interface{}{"chembl_molecule": targetXref.GetChembl().GetMolecule()})
+		if attr := targetXref.GetChembl().GetMolecule(); attr != nil {
+			attr.Id = id
+			evalMap["chembl_molecule"] = attr
+		}
 	case "chembl_target":
-		out, _, err = query.Program.Eval(map[string]interface{}{"chembl_target": targetXref.GetChembl().GetTarget()})
+		if attr := targetXref.GetChembl().GetTarget(); attr != nil {
+			attr.Id = id
+			evalMap["chembl_target"] = attr
+		}
 	case "chembl_activity":
-		out, _, err = query.Program.Eval(map[string]interface{}{"chembl_activity": targetXref.GetChembl().GetActivity()})
+		if attr := targetXref.GetChembl().GetActivity(); attr != nil {
+			attr.Id = id
+			evalMap["chembl_activity"] = attr
+		}
 	case "chembl_assay":
-		out, _, err = query.Program.Eval(map[string]interface{}{"chembl_assay": targetXref.GetChembl().GetAssay()})
+		if attr := targetXref.GetChembl().GetAssay(); attr != nil {
+			attr.Id = id
+			evalMap["chembl_assay"] = attr
+		}
 	case "chembl_document":
-		out, _, err = query.Program.Eval(map[string]interface{}{"chembl_document": targetXref.GetChembl().GetDoc()})
+		if attr := targetXref.GetChembl().GetDoc(); attr != nil {
+			attr.Id = id
+			evalMap["chembl_document"] = attr
+		}
 	case "chembl_cell_line":
-		out, _, err = query.Program.Eval(map[string]interface{}{"chembl_cell_line": targetXref.GetChembl().GetCellLine()})
+		if attr := targetXref.GetChembl().GetCellLine(); attr != nil {
+			attr.Id = id
+			evalMap["chembl_cell_line"] = attr
+		}
 	case "pubchem":
-		out, _, err = query.Program.Eval(map[string]interface{}{"pubchem": targetXref.GetPubchem()})
+		if attr := targetXref.GetPubchem(); attr != nil {
+			attr.Id = id
+			evalMap["pubchem"] = attr
+		}
 	case "pubchem_activity":
-		out, _, err = query.Program.Eval(map[string]interface{}{"pubchem_activity": targetXref.GetPubchemActivity()})
+		if attr := targetXref.GetPubchemActivity(); attr != nil {
+			attr.Id = id
+			evalMap["pubchem_activity"] = attr
+		}
 	case "pubchem_assay":
-		out, _, err = query.Program.Eval(map[string]interface{}{"pubchem_assay": targetXref.GetPubchemAssay()})
+		if attr := targetXref.GetPubchemAssay(); attr != nil {
+			attr.Id = id
+			evalMap["pubchem_assay"] = attr
+		}
 	case "interpro":
-		out, _, err = query.Program.Eval(map[string]interface{}{"interpro": targetXref.GetInterpro()})
+		if attr := targetXref.GetInterpro(); attr != nil {
+			attr.Id = id
+			evalMap["interpro"] = attr
+		}
 	case "ena":
-		out, _, err = query.Program.Eval(map[string]interface{}{"ena": targetXref.GetEna()})
+		if attr := targetXref.GetEna(); attr != nil {
+			attr.Id = id
+			evalMap["ena"] = attr
+		}
 	case "hmdb":
-		out, _, err = query.Program.Eval(map[string]interface{}{"hmdb": targetXref.GetHmdb()})
+		if attr := targetXref.GetHmdb(); attr != nil {
+			attr.Id = id
+			evalMap["hmdb"] = attr
+		}
 	case "chebi":
-		out, _, err = query.Program.Eval(map[string]interface{}{"chebi": targetXref.GetChebi()})
+		if attr := targetXref.GetChebi(); attr != nil {
+			attr.Id = id
+			evalMap["chebi"] = attr
+		}
 	case "pdb":
-		out, _, err = query.Program.Eval(map[string]interface{}{"pdb": targetXref.GetPdb()})
+		if attr := targetXref.GetPdb(); attr != nil {
+			attr.Id = id
+			evalMap["pdb"] = attr
+		}
 	case "drugbank":
-		out, _, err = query.Program.Eval(map[string]interface{}{"drugbank": targetXref.GetDrugbank()})
+		if attr := targetXref.GetDrugbank(); attr != nil {
+			attr.Id = id
+			evalMap["drugbank"] = attr
+		}
 	case "orphanet":
-		out, _, err = query.Program.Eval(map[string]interface{}{"orphanet": targetXref.GetOrphanet()})
+		if attr := targetXref.GetOrphanet(); attr != nil {
+			attr.Id = id
+			evalMap["orphanet"] = attr
+		}
 	case "reactome":
-		out, _, err = query.Program.Eval(map[string]interface{}{"reactome": targetXref.GetReactome()})
+		if attr := targetXref.GetReactome(); attr != nil {
+			attr.Id = id
+			evalMap["reactome"] = attr
+		}
 	case "lipidmaps":
-		out, _, err = query.Program.Eval(map[string]interface{}{"lipidmaps": targetXref.GetLipidmaps()})
+		if attr := targetXref.GetLipidmaps(); attr != nil {
+			attr.Id = id
+			evalMap["lipidmaps"] = attr
+		}
 	case "swisslipids":
-		out, _, err = query.Program.Eval(map[string]interface{}{"swisslipids": targetXref.GetSwisslipids()})
+		if attr := targetXref.GetSwisslipids(); attr != nil {
+			attr.Id = id
+			evalMap["swisslipids"] = attr
+		}
 	case "bgee":
-		out, _, err = query.Program.Eval(map[string]interface{}{"bgee": targetXref.GetBgee()})
+		if attr := targetXref.GetBgee(); attr != nil {
+			attr.Id = id
+			evalMap["bgee"] = attr
+		}
 	case "bgee_evidence":
-		out, _, err = query.Program.Eval(map[string]interface{}{"bgee_evidence": targetXref.GetBgeeEvidence()})
+		if attr := targetXref.GetBgeeEvidence(); attr != nil {
+			attr.Id = id
+			evalMap["bgee_evidence"] = attr
+		}
 	case "rhea":
-		out, _, err = query.Program.Eval(map[string]interface{}{"rhea": targetXref.GetRhea()})
+		if attr := targetXref.GetRhea(); attr != nil {
+			attr.Id = id
+			evalMap["rhea"] = attr
+		}
 	case "gwas_study":
-		out, _, err = query.Program.Eval(map[string]interface{}{"gwas_study": targetXref.GetGwasStudy()})
+		if attr := targetXref.GetGwasStudy(); attr != nil {
+			attr.Id = id
+			evalMap["gwas_study"] = attr
+		}
 	case "gwas":
-		out, _, err = query.Program.Eval(map[string]interface{}{"gwas": targetXref.GetGwas()})
+		if attr := targetXref.GetGwas(); attr != nil {
+			attr.Id = id
+			evalMap["gwas"] = attr
+		}
 	case "intact":
-		out, _, err = query.Program.Eval(map[string]interface{}{"intact": targetXref.GetIntact()})
+		if attr := targetXref.GetIntact(); attr != nil {
+			attr.Id = id
+			evalMap["intact"] = attr
+		}
 	case "dbsnp":
-		out, _, err = query.Program.Eval(map[string]interface{}{"dbsnp": targetXref.GetDbsnp()})
+		if attr := targetXref.GetDbsnp(); attr != nil {
+			attr.Id = id
+			evalMap["dbsnp"] = attr
+		}
 	case "clinvar":
-		out, _, err = query.Program.Eval(map[string]interface{}{"clinvar": targetXref.GetClinvar()})
+		if attr := targetXref.GetClinvar(); attr != nil {
+			attr.Id = id
+			evalMap["clinvar"] = attr
+		}
 	case "antibody":
-		out, _, err = query.Program.Eval(map[string]interface{}{"antibody": targetXref.GetAntibody()})
+		if attr := targetXref.GetAntibody(); attr != nil {
+			attr.Id = id
+			evalMap["antibody"] = attr
+		}
 	case "esm2_similarity":
-		out, _, err = query.Program.Eval(map[string]interface{}{"esm2_similarity": targetXref.GetEsm2Similarity()})
+		if attr := targetXref.GetEsm2Similarity(); attr != nil {
+			attr.Id = id
+			evalMap["esm2_similarity"] = attr
+		}
 	case "entrez":
-		out, _, err = query.Program.Eval(map[string]interface{}{"entrez": targetXref.GetEntrez()})
+		if attr := targetXref.GetEntrez(); attr != nil {
+			attr.Id = id
+			evalMap["entrez"] = attr
+		}
 	case "refseq":
-		out, _, err = query.Program.Eval(map[string]interface{}{"refseq": targetXref.GetRefseq()})
+		if attr := targetXref.GetRefseq(); attr != nil {
+			attr.Id = id
+			evalMap["refseq"] = attr
+		}
 	case "gencc":
-		out, _, err = query.Program.Eval(map[string]interface{}{"gencc": targetXref.GetGencc()})
+		if attr := targetXref.GetGencc(); attr != nil {
+			attr.Id = id
+			evalMap["gencc"] = attr
+		}
 	case "bindingdb":
-		out, _, err = query.Program.Eval(map[string]interface{}{"bindingdb": targetXref.GetBindingdb()})
+		if attr := targetXref.GetBindingdb(); attr != nil {
+			attr.Id = id
+			evalMap["bindingdb"] = attr
+		}
 	case "ctd":
-		out, _, err = query.Program.Eval(map[string]interface{}{"ctd": targetXref.GetCtd()})
+		if attr := targetXref.GetCtd(); attr != nil {
+			attr.Id = id
+			evalMap["ctd"] = attr
+		}
 	case "ctd_gene_interaction":
-		out, _, err = query.Program.Eval(map[string]interface{}{"ctd_gene_interaction": targetXref.GetCtdGeneInteraction()})
+		if attr := targetXref.GetCtdGeneInteraction(); attr != nil {
+			attr.Id = id
+			evalMap["ctd_gene_interaction"] = attr
+		}
 	case "ctd_disease_association":
-		out, _, err = query.Program.Eval(map[string]interface{}{"ctd_disease_association": targetXref.GetCtdDiseaseAssociation()})
+		if attr := targetXref.GetCtdDiseaseAssociation(); attr != nil {
+			attr.Id = id
+			evalMap["ctd_disease_association"] = attr
+		}
 	case "biogrid":
-		out, _, err = query.Program.Eval(map[string]interface{}{"biogrid": targetXref.GetBiogrid()})
+		if attr := targetXref.GetBiogrid(); attr != nil {
+			attr.Id = id
+			evalMap["biogrid"] = attr
+		}
 	case "biogrid_interaction":
-		out, _, err = query.Program.Eval(map[string]interface{}{"biogrid_interaction": targetXref.GetBiogridInteraction()})
+		if attr := targetXref.GetBiogridInteraction(); attr != nil {
+			attr.Id = id
+			evalMap["biogrid_interaction"] = attr
+		}
 	case "msigdb":
-		out, _, err = query.Program.Eval(map[string]interface{}{"msigdb": targetXref.GetMsigdb()})
+		if attr := targetXref.GetMsigdb(); attr != nil {
+			attr.Id = id
+			evalMap["msigdb"] = attr
+		}
 	case "alphamissense":
-		out, _, err = query.Program.Eval(map[string]interface{}{"alphamissense": targetXref.GetAlphamissense()})
+		if attr := targetXref.GetAlphamissense(); attr != nil {
+			attr.Id = id
+			evalMap["alphamissense"] = attr
+		}
 	case "alphamissense_transcript":
-		out, _, err = query.Program.Eval(map[string]interface{}{"alphamissense_transcript": targetXref.GetAlphamissenseTranscript()})
+		if attr := targetXref.GetAlphamissenseTranscript(); attr != nil {
+			attr.Id = id
+			evalMap["alphamissense_transcript"] = attr
+		}
 	case "pharmgkb":
-		out, _, err = query.Program.Eval(map[string]interface{}{"pharmgkb": targetXref.GetPharmgkb()})
+		if attr := targetXref.GetPharmgkb(); attr != nil {
+			attr.Id = id
+			evalMap["pharmgkb"] = attr
+		}
 	case "pharmgkb_gene":
-		out, _, err = query.Program.Eval(map[string]interface{}{"pharmgkb_gene": targetXref.GetPharmgkbGene()})
+		if attr := targetXref.GetPharmgkbGene(); attr != nil {
+			attr.Id = id
+			evalMap["pharmgkb_gene"] = attr
+		}
 	case "pharmgkb_clinical":
-		out, _, err = query.Program.Eval(map[string]interface{}{"pharmgkb_clinical": targetXref.GetPharmgkbClinical()})
+		if attr := targetXref.GetPharmgkbClinical(); attr != nil {
+			attr.Id = id
+			evalMap["pharmgkb_clinical"] = attr
+		}
 	case "pharmgkb_variant":
-		out, _, err = query.Program.Eval(map[string]interface{}{"pharmgkb_variant": targetXref.GetPharmgkbVariant()})
+		if attr := targetXref.GetPharmgkbVariant(); attr != nil {
+			attr.Id = id
+			evalMap["pharmgkb_variant"] = attr
+		}
 	case "pharmgkb_guideline":
-		out, _, err = query.Program.Eval(map[string]interface{}{"pharmgkb_guideline": targetXref.GetPharmgkbGuideline()})
+		if attr := targetXref.GetPharmgkbGuideline(); attr != nil {
+			attr.Id = id
+			evalMap["pharmgkb_guideline"] = attr
+		}
 	case "pharmgkb_pathway":
-		out, _, err = query.Program.Eval(map[string]interface{}{"pharmgkb_pathway": targetXref.GetPharmgkbPathway()})
+		if attr := targetXref.GetPharmgkbPathway(); attr != nil {
+			attr.Id = id
+			evalMap["pharmgkb_pathway"] = attr
+		}
 	case "cellxgene":
-		out, _, err = query.Program.Eval(map[string]interface{}{"cellxgene": targetXref.GetCellxgene()})
+		if attr := targetXref.GetCellxgene(); attr != nil {
+			attr.Id = id
+			evalMap["cellxgene"] = attr
+		}
 	case "cellxgene_celltype":
-		out, _, err = query.Program.Eval(map[string]interface{}{"cellxgene_celltype": targetXref.GetCellxgeneCelltype()})
+		if attr := targetXref.GetCellxgeneCelltype(); attr != nil {
+			attr.Id = id
+			evalMap["cellxgene_celltype"] = attr
+		}
 	case "scxa":
-		out, _, err = query.Program.Eval(map[string]interface{}{"scxa": targetXref.GetScxa()})
+		if attr := targetXref.GetScxa(); attr != nil {
+			attr.Id = id
+			evalMap["scxa"] = attr
+		}
 	case "scxa_expression":
-		out, _, err = query.Program.Eval(map[string]interface{}{"scxa_expression": targetXref.GetScxaExpression()})
+		if attr := targetXref.GetScxaExpression(); attr != nil {
+			attr.Id = id
+			evalMap["scxa_expression"] = attr
+		}
 	case "scxa_gene_experiment":
-		out, _, err = query.Program.Eval(map[string]interface{}{"scxa_gene_experiment": targetXref.GetScxaGeneExperiment()})
+		if attr := targetXref.GetScxaGeneExperiment(); attr != nil {
+			attr.Id = id
+			evalMap["scxa_gene_experiment"] = attr
+		}
 	case "alphafold":
-		out, _, err = query.Program.Eval(map[string]interface{}{"alphafold": targetXref.GetAlphafold()})
+		if attr := targetXref.GetAlphafold(); attr != nil {
+			attr.Id = id
+			evalMap["alphafold"] = attr
+		}
 	case "clinical_trials":
-		out, _, err = query.Program.Eval(map[string]interface{}{"clinical_trials": targetXref.GetClinicalTrials()})
+		if attr := targetXref.GetClinicalTrials(); attr != nil {
+			attr.Id = id
+			evalMap["clinical_trials"] = attr
+		}
 	case "collectri":
-		out, _, err = query.Program.Eval(map[string]interface{}{"collectri": targetXref.GetCollectri()})
+		if attr := targetXref.GetCollectri(); attr != nil {
+			attr.Id = id
+			evalMap["collectri"] = attr
+		}
 	case "brenda":
-		out, _, err = query.Program.Eval(map[string]interface{}{"brenda": targetXref.GetBrenda()})
+		if attr := targetXref.GetBrenda(); attr != nil {
+			attr.Id = id
+			evalMap["brenda"] = attr
+		}
 	case "brenda_kinetics":
-		out, _, err = query.Program.Eval(map[string]interface{}{"brenda_kinetics": targetXref.GetBrendaKinetics()})
+		if attr := targetXref.GetBrendaKinetics(); attr != nil {
+			attr.Id = id
+			evalMap["brenda_kinetics"] = attr
+		}
 	case "brenda_inhibitor":
-		out, _, err = query.Program.Eval(map[string]interface{}{"brenda_inhibitor": targetXref.GetBrendaInhibitor()})
+		if attr := targetXref.GetBrendaInhibitor(); attr != nil {
+			attr.Id = id
+			evalMap["brenda_inhibitor"] = attr
+		}
 	case "cellphonedb":
-		out, _, err = query.Program.Eval(map[string]interface{}{"cellphonedb": targetXref.GetCellphonedb()})
+		if attr := targetXref.GetCellphonedb(); attr != nil {
+			attr.Id = id
+			evalMap["cellphonedb"] = attr
+		}
 	case "spliceai":
-		out, _, err = query.Program.Eval(map[string]interface{}{"spliceai": targetXref.GetSpliceai()})
+		if attr := targetXref.GetSpliceai(); attr != nil {
+			attr.Id = id
+			evalMap["spliceai"] = attr
+		}
 	case "mirdb":
-		out, _, err = query.Program.Eval(map[string]interface{}{"mirdb": targetXref.GetMirdb()})
+		if attr := targetXref.GetMirdb(); attr != nil {
+			attr.Id = id
+			evalMap["mirdb"] = attr
+		}
 	case "fantom5_promoter":
-		out, _, err = query.Program.Eval(map[string]interface{}{"fantom5_promoter": targetXref.GetFantom5Promoter()})
+		if attr := targetXref.GetFantom5Promoter(); attr != nil {
+			attr.Id = id
+			evalMap["fantom5_promoter"] = attr
+		}
 	case "fantom5_enhancer":
-		out, _, err = query.Program.Eval(map[string]interface{}{"fantom5_enhancer": targetXref.GetFantom5Enhancer()})
+		if attr := targetXref.GetFantom5Enhancer(); attr != nil {
+			attr.Id = id
+			evalMap["fantom5_enhancer"] = attr
+		}
 	case "fantom5_gene":
-		out, _, err = query.Program.Eval(map[string]interface{}{"fantom5_gene": targetXref.GetFantom5Gene()})
+		if attr := targetXref.GetFantom5Gene(); attr != nil {
+			attr.Id = id
+			evalMap["fantom5_gene"] = attr
+		}
 	case "jaspar":
-		out, _, err = query.Program.Eval(map[string]interface{}{"jaspar": targetXref.GetJaspar()})
+		if attr := targetXref.GetJaspar(); attr != nil {
+			attr.Id = id
+			evalMap["jaspar"] = attr
+		}
 	case "encode_ccre":
-		out, _, err = query.Program.Eval(map[string]interface{}{"encode_ccre": targetXref.GetEncodeCcre()})
+		if attr := targetXref.GetEncodeCcre(); attr != nil {
+			attr.Id = id
+			evalMap["encode_ccre"] = attr
+		}
 	case "signor":
-		out, _, err = query.Program.Eval(map[string]interface{}{"signor": targetXref.GetSignor()})
+		if attr := targetXref.GetSignor(); attr != nil {
+			attr.Id = id
+			evalMap["signor"] = attr
+		}
 	case "corum":
-		out, _, err = query.Program.Eval(map[string]interface{}{"corum": targetXref.GetCorum()})
+		if attr := targetXref.GetCorum(); attr != nil {
+			attr.Id = id
+			evalMap["corum"] = attr
+		}
 	case "string":
-		out, _, err = query.Program.Eval(map[string]interface{}{"stringdb": targetXref.GetStringattr()})
+		if attr := targetXref.GetStringattr(); attr != nil {
+			attr.Id = id
+			evalMap["stringdb"] = attr
+		}
 	case "string_interaction":
-		out, _, err = query.Program.Eval(map[string]interface{}{"string_interaction": targetXref.GetStringInteraction()})
+		if attr := targetXref.GetStringInteraction(); attr != nil {
+			attr.Id = id
+			evalMap["string_interaction"] = attr
+		}
 	default:
 		//err := fmt.Errorf("mapfilter query execution failed please check again query")
 		return false, nil
 	}
+
+	out, _, err = query.Program.Eval(evalMap)
 
 	if err != nil {
 		err := fmt.Errorf("mapfilter query execution failed: %s", err)

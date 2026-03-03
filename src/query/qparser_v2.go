@@ -60,6 +60,8 @@ func normalizeFilter(filter string, dataset string) string {
 	// Note: "type" is NOT included here because it's commonly used as a field name
 	// in biobtree datasets (e.g., go.type=="biological_process"). CEL's type()
 	// function is called with parentheses which our logic handles separately.
+	// Note: "id" is NOT reserved - it gets prefixed like other fields (e.g., go.id)
+	// and is populated as a transient field in each attribute proto.
 	reserved := map[string]bool{
 		"true": true, "false": true, "null": true,
 		"in": true, "has": true, "all": true, "exists": true, "exists_one": true,

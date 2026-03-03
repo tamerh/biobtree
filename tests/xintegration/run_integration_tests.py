@@ -333,6 +333,19 @@ class IntegrationTestRunner:
             passed = all(scores[i] >= scores[i+1] for i in range(len(scores)-1)) if len(scores) > 1 else True
             if not passed:
                 return {**result_base, 'passed': False, 'error': f"Scores not in descending order: {scores[:5]}"}
+        elif 'first_n_contain_attribute' in validation:
+            # Check that first N results have the expected attribute value
+            # Used for phase sorting validation (e.g., PHASE4 trials first)
+            attr_path = validation['first_n_contain_attribute']
+            expected_value = validation['expected_value']
+            n = validation.get('n', 10)
+            values = self.get_first_n_attributes(data, attr_path, n)
+            non_matching = [v for v in values if v != expected_value]
+            passed = len(non_matching) == 0 and len(values) > 0
+            if not passed:
+                if len(values) == 0:
+                    return {**result_base, 'passed': False, 'error': f"No results found with attribute '{attr_path}'"}
+                return {**result_base, 'passed': False, 'error': f"First {n} should have {attr_path}='{expected_value}', found: {values[:5]}"}
         elif 'not_found_contains' in validation:
             # Check that not_found array contains the specified items
             # Used for batch query tracking validation
@@ -485,6 +498,25 @@ class IntegrationTestRunner:
                 if len(scores) >= n:
                     return scores
         return scores
+
+    def get_first_n_attributes(self, data, attr_path, n):
+        """Get first N attribute values from results for sorting validation"""
+        values = []
+        for result in data.get('results', []):
+            for target in result.get('targets', []):
+                # Navigate the attribute path (e.g., "Attributes.ClinicalTrial.phase")
+                value = target
+                for part in attr_path.split('.'):
+                    if isinstance(value, dict):
+                        value = value.get(part)
+                    else:
+                        value = None
+                        break
+                if value is not None:
+                    values.append(str(value))
+                if len(values) >= n:
+                    return values
+        return values
 
     def print_validation_result(self, result):
         """Print validation test result"""

@@ -37,11 +37,6 @@ MCP_TOOLS = [
         name="biobtree_entry",
         description=TOOL_DESCRIPTIONS["biobtree_entry"],
         inputSchema=INPUT_SCHEMAS["biobtree_entry"]
-    ),
-    Tool(
-        name="biobtree_meta",
-        description=TOOL_DESCRIPTIONS["biobtree_meta"],
-        inputSchema=INPUT_SCHEMAS["biobtree_meta"]
     )
 ]
 
@@ -76,14 +71,6 @@ CHAT_TOOLS = [
             "name": "biobtree_entry",
             "description": TOOL_DESCRIPTIONS["biobtree_entry"],
             "parameters": INPUT_SCHEMAS["biobtree_entry"]
-        }
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "biobtree_meta",
-            "description": TOOL_DESCRIPTIONS["biobtree_meta"],
-            "parameters": INPUT_SCHEMAS["biobtree_meta"]
         },
         # Cache control on last tool caches entire tools array
         "cache_control": {"type": "ephemeral"}
@@ -114,21 +101,16 @@ async def execute_tool(
         JSON string with tool result
     """
     try:
-        # Default to lite mode to save tokens
-        default_mode = "lite"
-
         if tool_name == "biobtree_search":
             result = await client.search(
                 terms=arguments["terms"],
                 dataset=arguments.get("dataset"),
-                mode=arguments.get("mode", default_mode),
                 page=arguments.get("page")
             )
         elif tool_name == "biobtree_map":
             result = await client.map(
                 terms=arguments["terms"],
                 chain=arguments["chain"],
-                mode=arguments.get("mode", default_mode),
                 page=arguments.get("page")
             )
         elif tool_name == "biobtree_entry":
@@ -136,8 +118,6 @@ async def execute_tool(
                 identifier=arguments["identifier"],
                 dataset=arguments["dataset"]
             )
-        elif tool_name == "biobtree_meta":
-            result = await client.meta()
         else:
             return json.dumps({"error": f"Unknown tool: {tool_name}"})
 

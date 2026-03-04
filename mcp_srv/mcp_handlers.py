@@ -61,51 +61,30 @@ async def call_tool(name: str, arguments: dict) -> List[TextContent]:
 # HTTP Endpoints for MCP
 # =============================================================================
 
-@router.get("/mcp")
-async def mcp_sse(request: Request):
-    """
-    MCP over SSE endpoint for Claude Desktop/CLI.
-
-    Configure Claude Desktop with:
-    {
-        "mcpServers": {
-            "biobtree": {
-                "url": "https://sugi.bio/mcp"
-            }
-        }
-    }
-    """
-    async def event_generator():
-        """Generate SSE events for MCP protocol."""
-        # Send initial connection event
-        yield {
-            "event": "open",
-            "data": json.dumps({
-                "protocolVersion": "2024-11-05",
-                "serverInfo": {
-                    "name": config.mcp_server_name,
-                    "version": "1.0.0"
-                },
-                "capabilities": {
-                    "tools": {}
-                }
-            })
-        }
-
-        # Keep connection alive and handle messages
-        try:
-            while True:
-                if await request.is_disconnected():
-                    break
-
-                # Send keepalive ping every 30 seconds
-                yield {"event": "ping", "data": ""}
-                await asyncio.sleep(30)
-
-        except asyncio.CancelledError:
-            pass
-
-    return EventSourceResponse(event_generator())
+# SSE endpoint disabled - using Streamable HTTP (POST) only
+# @router.get("/mcp")
+# async def mcp_sse(request: Request):
+#     """
+#     MCP over SSE endpoint for Claude Desktop/CLI.
+#     """
+#     async def event_generator():
+#         yield {
+#             "event": "open",
+#             "data": json.dumps({
+#                 "protocolVersion": "2024-11-05",
+#                 "serverInfo": {"name": config.mcp_server_name, "version": "1.0.0"},
+#                 "capabilities": {"tools": {}}
+#             })
+#         }
+#         try:
+#             while True:
+#                 if await request.is_disconnected():
+#                     break
+#                 yield {"event": "ping", "data": ""}
+#                 await asyncio.sleep(30)
+#         except asyncio.CancelledError:
+#             pass
+#     return EventSourceResponse(event_generator())
 
 
 @router.post("/mcp")

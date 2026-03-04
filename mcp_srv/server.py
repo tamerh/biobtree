@@ -176,12 +176,18 @@ app = FastAPI(
 )
 
 # Add CORS middleware
+# Restrict to sugi.bio domain for browser-based requests
+# MCP calls are server-to-server and don't need CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=[
+        "https://sugi.bio",
+        "https://www.sugi.bio",
+        "http://localhost:3000",  # Local development
+    ],
+    allow_credentials=False,
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization"],
 )
 
 # Add request logging middleware
@@ -193,11 +199,11 @@ app.add_middleware(RequestLoggingMiddleware)
 # =============================================================================
 
 from .api import router as api_router
-from .chat import router as chat_router
+# from .chat import router as chat_router  # Disabled for initial launch - requires OPENROUTER_API_KEY
 from .mcp_handlers import router as mcp_router
 
 app.include_router(api_router)
-app.include_router(chat_router)
+# app.include_router(chat_router)  # Disabled for initial launch
 app.include_router(mcp_router)
 
 

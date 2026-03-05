@@ -5,7 +5,6 @@ out/
 *.zip
 logs/
 website/
-scripts/
 out*/
 *.log
 *.tmp
@@ -22,3 +21,4 @@ raw_data/
 new_lookup/
 .claude/
 .gemini/
+**/cache

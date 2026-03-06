@@ -1,8 +1,6 @@
 # 🧬 BioBTree v2
 
-**A unified biomedical database that connects 50+ primary data sources and makes them queryable by both researchers and AI.**
-
-BioBTree v2 integrates genes, proteins, chemical compounds, diseases, pathways, variants, expression data, and more into a single graph with billions of cross-reference edges. Instead of navigating dozens of databases with different interfaces and identifiers, you write one query that traverses them all:
+**A unified biomedical graph database that integrates 50+ primary data sources — genes, proteins, compounds, diseases, pathways, variants, expression, and more — into a single queryable graph with billions of cross-reference edges, accessible by both researchers and AI.**
 
 ```
 BRCA1 >> ensembl >> uniprot >> pdb[resolution<2.0]
@@ -41,13 +39,11 @@ https://sugi.bio/biobtree/api/ws/map/?i=BRCA1&m=>>ensembl>>uniprot>>chembl_targe
 https://sugi.bio/biobtree/api/ws/entry/?i=P38398&s=uniprot
 ```
 
-## 🤝 Collaboration
-
-We are looking for an academic lab — preferably in Germany — to collaborate on expanding BioBTree v2. A preprint is available; we would submit to a peer-reviewed journal together with collaborating partners. If you're interested, please reach out: **tamer.gur07@gmail.com**
-
 ## 📖 Documentation
 
-Query syntax, [integrated databases](docs/datasets/index.md) (50+), MCP server setup, and self-hosting: **[docs/](docs/index.md)**
+Query syntax, [integrated databases](docs/datasets/index.md), development, and other details check the : **[docs/](docs/index.md)** or refer to latest preprint. 
+
+For any questions, issues, or collaboration ideas, feel free to [create an issue](https://github.com/tamerh/biobtree/issues) or reach out at **tamer.gur07@gmail.com**.
 
 ## 📄 Publication
 

@@ -1,79 +1,60 @@
-# Biobtree
+# 🧬 BioBTree v2
 
-**Unified access to 70+ biological databases through intuitive chain queries.**
+**A unified biomedical database that connects 50+ primary data sources and makes them queryable by both researchers and AI.**
 
-Biobtree aggregates data from major bioinformatics resources (UniProt, Ensembl, ChEMBL, PubChem, ClinVar, GWAS, and 60+ more) into a local, queryable database with cross-reference mapping.
-
-## Key Features
-
-- **70+ Databases** - Genes, proteins, drugs, diseases, pathways, variants, expression data
-- **Chain Queries** - Intuitive `>>` syntax: `BRCA1 >> ensembl >> uniprot >> chembl`
-- **Filters** - CEL-based filtering: `[reviewed==true]`, `[resolution<2.0]`
-- **LLM Integration** - MCP server for Claude Desktop/CLI with natural language queries
-- **Fast Local Access** - MapReduce processing with B+ tree indexing
-
-## Quick Start
-
-```bash
-# Setup environment and build
-conda env create -f conf/conda.yaml
-conda activate biobtree
-make build
-
-# Build all datasets (production)
-./bb.sh                      # Updates all datasets, runs in background
-./bb.sh --status             # Check progress
-./bb.sh --generate           # Build database after updates
-./bb.sh --activate           # Activate new database version
-./bb.sh --web                # Start web server (localhost:9292)
-```
-
-## Query Examples
-
-```bash
-# Gene to drug targets
-curl "localhost:9292/ws/map/?i=BRCA1&m=>>ensembl>>uniprot>>chembl_target>>chembl_molecule&mode=lite"
-
-# Protein interactions
-curl "localhost:9292/ws/map/?i=P04637&m=>>uniprot>>string&mode=lite"
-
-# Disease variants (with filter)
-curl "localhost:9292/ws/map/?i=BRCA1&m=>>clinvar[germline_classification==\"Pathogenic\"]&mode=lite"
-
-# Drug binding affinity
-curl "localhost:9292/ws/map/?i=aspirin&m=>>bindingdb>>uniprot&mode=lite"
-```
-
-## Web API
+BioBTree v2 integrates genes, proteins, chemical compounds, diseases, pathways, variants, expression data, and more into a single graph with billions of cross-reference edges. Instead of navigating dozens of databases with different interfaces and identifiers, you write one query that traverses them all:
 
 ```
-GET /ws/?i={terms}&mode={full|lite}           # Search
-GET /ws/map/?i={terms}&m={chain}&mode=lite    # Map through datasets
-GET /ws/entry/?i={id}&s={dataset}             # Get full entry
-GET /ws/meta                                   # List datasets
+BRCA1 >> ensembl >> uniprot >> pdb[resolution<2.0]
 ```
 
-## Documentation
+This finds BRCA1 in Ensembl, maps to UniProt proteins, and returns high-resolution PDB structures — crossing three databases in a single line.
 
-Full documentation: **[docs/](docs/index.md)**
+## 🔗 Try It
 
-| Topic | Link |
-|-------|------|
-| Getting Started | [docs/getting-started/](docs/getting-started/) |
-| Query Syntax | [docs/api/query-syntax.md](docs/api/query-syntax.md) |
-| All Datasets | [docs/datasets/](docs/datasets/index.md) |
-| MCP Server | [docs/mcp-server/](docs/mcp-server/) |
-| Development | [docs/development/](docs/development/) |
+The fastest way to experience BioBTree v2 is through an AI assistant with MCP (Model Context Protocol). We recommend **Claude CLI** (tested extensively), though **Codex CLI** and **Gemini CLI** also work:
 
-## Wrappers
+```json
+{
+  "mcpServers": {
+    "biobtree": {
+      "type": "http",
+      "url": "https://sugi.bio/biobtree/mcp"
+    }
+  }
+}
+```
 
-- **R**: [biobtreeR](https://github.com/tamerh/biobtreeR)
-- **Python**: [biobtreePy](https://github.com/tamerh/biobtreePy)
+Once connected, just ask questions in natural language — the AI will query BioBTree automatically:
 
-## Publication
+> 💊 *"What tissues express SCN9A most highly? Are there safety concerns for a Nav1.7 inhibitor?"*
 
-[F1000Research Article](https://f1000research.com/articles/8-145)
+> 🧪 *"How many ClinVar variants does BRCA1 have? How many are pathogenic?"*
 
-## License
+> 🎯 *"What are all the protein targets of Alectinib with IC50 values?"*
 
-Apache 2.0
+A REST API is also available for direct programmatic access:
+
+```
+https://sugi.bio/biobtree/api/ws/?i=BRCA1
+https://sugi.bio/biobtree/api/ws/map/?i=BRCA1&m=>>ensembl>>uniprot>>chembl_target
+https://sugi.bio/biobtree/api/ws/entry/?i=P38398&s=uniprot
+```
+
+## 🤝 Collaboration
+
+We are looking for an academic lab — preferably in Germany — to collaborate on expanding BioBTree v2. A preprint is available; we would submit to a peer-reviewed journal together with collaborating partners. If you're interested, please reach out: **tamer.gur07@gmail.com**
+
+## 📖 Documentation
+
+Query syntax, [integrated databases](docs/datasets/index.md) (50+), MCP server setup, and self-hosting: **[docs/](docs/index.md)**
+
+## 📄 Publication
+
+**BioBTree v2: Grounding LLM Responses with Large-Scale Structured Biomedical Data**
+Preprint: [link forthcoming]
+BioBTree v1: [F1000Research](https://f1000research.com/articles/8-145)
+
+## ⚖️ License
+
+GPL-v3

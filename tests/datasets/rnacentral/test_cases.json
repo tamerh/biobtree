@@ -1,0 +1,54 @@
+{
+  "common_tests": [
+    {
+      "name": "Lookup by RNACentral ID",
+      "type": "id_lookup",
+      "id": "@reference[0].rnacentral_id"
+    },
+    {
+      "name": "Check RNA type attribute",
+      "type": "attribute_check",
+      "id": "@reference[0].rnacentral_id",
+      "attribute": "rna_type",
+      "expected_value": "@reference[0].rnacentral_entry.rna_type"
+    },
+    {
+      "name": "Check description attribute",
+      "type": "attribute_check",
+      "id": "@reference[0].rnacentral_id",
+      "attribute": "description"
+    },
+    {
+      "name": "Check sequence length",
+      "type": "attribute_check",
+      "id": "@reference[0].rnacentral_id",
+      "attribute": "length",
+      "expected_value": "@reference[0].rnacentral_entry.length"
+    },
+    {
+      "name": "Check organism count",
+      "type": "attribute_check",
+      "id": "@reference[0].rnacentral_id",
+      "attribute": "organism_count"
+    },
+    {
+      "name": "Check active status",
+      "type": "attribute_check",
+      "id": "@reference[0].rnacentral_id",
+      "attribute": "is_active",
+      "expected_value": true
+    },
+    {
+      "name": "Lookup multiple IDs",
+      "type": "multi_lookup",
+      "count": 3,
+      "id_field": "rnacentral_id"
+    },
+    {
+      "name": "Invalid ID handling",
+      "type": "invalid_id",
+      "invalid_id": "URS9999999999"
+    }
+  ],
+  "custom_tests": []
+}

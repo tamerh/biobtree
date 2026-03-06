@@ -1,0 +1,27 @@
+{
+  "_comment": "Tests for SCXA dataset family: scxa, scxa_expression, scxa_gene_experiment",
+  "common_tests": [
+    {
+      "name": "[scxa] Lookup by experiment accession",
+      "type": "id_lookup",
+      "id": "@reference[0].id"
+    },
+    {
+      "name": "[scxa] Check attributes present",
+      "type": "attribute_check",
+      "id": "@reference[0].id"
+    },
+    {
+      "name": "[scxa] Lookup multiple experiment IDs",
+      "type": "multi_lookup",
+      "count": 3,
+      "id_field": "id"
+    },
+    {
+      "name": "[scxa] Invalid experiment ID handling",
+      "type": "invalid_id",
+      "invalid_id": "E-FAKE-99999"
+    }
+  ],
+  "custom_tests": []
+}

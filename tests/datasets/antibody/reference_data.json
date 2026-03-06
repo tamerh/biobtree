@@ -1,0 +1,11 @@
+{
+  "note": "Antibody dataset integrates 4 sources without unified REST APIs",
+  "sources": {
+    "therasabdab": "CSV file - no REST API",
+    "sabdab": "TSV file - no official REST API",
+    "imgt_gene": "FASTA from FTP",
+    "imgt_ligm": "Compressed FASTA from FTP"
+  },
+  "test_approach": "Validate integrated biobtree data structure",
+  "test_ids_file": "antibody_ids.txt"
+}

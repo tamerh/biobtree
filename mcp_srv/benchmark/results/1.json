@@ -1,0 +1,178 @@
+{
+  "id": 1,
+  "question_id": "scn9a_drug_safety",
+  "results": {
+    "biobtree_sonnet": {
+      "model": "anthropic/claude-sonnet-4",
+      "timestamp": "2026-02-06T12:45:57.609027",
+      "response": "Based on the comprehensive expression data I've retrieved for SCN9A (Nav1.7), I can provide you with a detailed tissue expression profile to help assess potential off-target effects for your drug development:\n\n## SCN9A (Nav1.7) Tissue Expression Profile - Safety Assessment\n\n### **Highest Expression Tissues (Potential Safety Concerns):**\n\n**1. Nervous System (Expected - Primary Target)**\n- **Dorsal root ganglion neurons**: Expression score 99.99 (rank 100) - **HIGHEST**\n- **Sympathetic neurons**: Expression score 99.99 (rank 100) \n- **Trigeminal ganglion**: Expression score 99.99 (rank 100)\n- **Peripheral nervous system**: Expression score 99.99 (rank 100)\n- **Spinal cord**: Expression score 99.99 (rank 100)\n\n**2. Non-Pain Related Tissues with Significant Expression (Safety Concerns):**\n\n**Cardiovascular System:**\n- **Heart muscle**: Expression score 99.99 (rank 100) - **MAJOR CONCERN**\n- **Cardiac muscle**: Expression score 99.99 (rank 100) - **MAJOR CONCERN**\n- **Aorta**: Expression score 99.99 (rank 100)\n- **Coronary artery**: Expression score 99.99 (rank 100)\n\n**Gastrointestinal System:**\n- **Stomach**: Expression score 99.99 (rank 100) - **CONCERN**\n- **Small intestine**: Expression score 99.99 (rank 100)\n- **Colon**: Expression score 99.99 (rank 100)\n- **Esophagus**: Expression score 99.99 (rank 100)\n\n**Reproductive System:**\n- **Testis**: Expression score 99.99 (rank 100)\n- **Ovary**: Expression score 99.99 (rank 100)\n- **Uterus**: Expression score 99.99 (rank 100)\n- **Prostate**: Expression score 99.99 (rank 100)\n\n**Endocrine System:**\n- **Adrenal gland**: Expression score 99.99 (rank 100) - **CONCERN**\n- **Thyroid**: Expression score 99.99 (rank 100)\n- **Pancreatic epithelial cells**: Expression score 62 (rank 17,700)\n\n**Immune System:**\n- **Bone marrow cells**: Expression score 65.75 (rank 16,000)\n- **Monocytes**: Expression score 65.01 (rank 16,300)\n- **Leukocytes**: Expression score 63.92 (rank 16,800)\n\n### **Key Safety Implications:**\n\n**1. Cardiac Toxicity Risk (HIGHEST PRIORITY)**\n- SCN9A is highly expressed in heart muscle and cardiac tissue\n- Nav1.7 inhibition could potentially affect cardiac conduction\n- **Recommendation**: Comprehensive cardiac safety studies including ECG monitoring, cardiac electrophysiology, and assessment of QT interval\n\n**2. Gastrointestinal Effects**\n- High expression in stomach and intestinal tissues\n- Potential for GI motility issues, gastroparesis, or digestive dysfunction\n- **Recommendation**: GI safety monitoring in preclinical and clinical studies\n\n**3. Endocrine Disruption**\n- Expression in adrenal glands could affect stress response\n- Thyroid expression may impact metabolic function\n- **Recommendation**: Endocrine function monitoring\n\n**4. Reproductive Safety**\n- High expression in reproductive organs\n- **Recommendation**: Reproductive toxicology studies\n\n### **Tissues with Low/Absent Expression (Lower Risk):**\n- **Liver**: Absent expression\n- **Kidney**: Absent expression  \n- **Lung**: Absent expression\n- **Brain cortex**: Lower expression than peripheral tissues\n- **Endothelial cells**: Absent expression\n\n### **Clinical Development Recommendations:**\n\n1. **Prioritize cardiac safety**: Given the high cardiac expression, implement comprehensive cardiovascular monitoring from early development\n2. **Dose optimization**: The high expression in non-target tissues suggests narrow therapeutic windows may be needed\n3. **Biomarker development**: Consider cardiac troponins, ECG parameters, and GI function markers\n4. **Patient selection**: May need to exclude patients with cardiac conduction disorders\n5. **Formulation strategy**: Consider targeted delivery approaches to minimize systemic exposure\n\nThe expression data indicates that while SCN9A is an excellent target for pain (high expression in pain-relevant neurons), the significant expression in cardiac and GI tissues presents notable safety challenges that will require careful monitoring and potentially limit the therapeutic window.\n\n---\n**Data Sources:**\n- http://biobtree:9291/ws/?i=SCN9A\n- http://biobtree:9291/ws/?i=SCN9A&s=ensembl\n- http://biobtree:9291/ws/map/?i=ENSG00000169432&m=>>ensembl>>bgee\n- http://biobtree:9291/ws/map/?i=ENSG00000169432&m=>>ensembl>>scxa_expression\n- http://biobtree:9291/ws/entry/?i=ENSG00000169432&s=bgee",
+      "tool_calls": 6,
+      "elapsed_seconds": 44.5,
+      "auto_score": 1.0,
+      "found_terms": [
+        "SCN9A",
+        "Nav1.7",
+        "dorsal root",
+        "ganglion",
+        "expression",
+        "tissue",
+        "ENSG00000169432"
+      ],
+      "missing_terms": [],
+      "usage": {
+        "prompt_tokens": 83801,
+        "completion_tokens": 1724,
+        "total_tokens": 85525
+      }
+    },
+    "biobtree_gpt41": {
+      "model": "openai/gpt-4.1",
+      "timestamp": "2026-02-06T12:46:26.589841",
+      "response": "Here is a summary of the tissue expression profile for SCN9A (Nav1.7 sodium channel, Ensembl: ENSG00000169432):\n\n### Highest Expression Tissues (from Bgee and Single Cell Expression Atlas)\n- **Nervous system (not shown in the truncated output, but well-established in literature):** SCN9A is most highly expressed in peripheral neurons, especially nociceptive (pain-sensing) neurons in dorsal root ganglia (DRG). This is the primary target for pain modulation.\n- **Immune cells:** There is notable expression in some immune cell types:\n  - **Monocytes** (CL:0000576): Present, high-quality evidence.\n  - **Leukocytes** (CL:0000738): Present, high-quality evidence.\n  - **Granulocytes** (CL:0000094): Present, high-quality evidence.\n  - **Mononuclear cells** (CL:0000842): Present, high-quality evidence.\n- **Male germ line stem cells in testis** (CL:0000089 \u2229 UBERON:0000473): Present, high-quality evidence.\n- **Primordial germ cells in gonad** (CL:0000670 \u2229 UBERON:0000991): Present, high-quality evidence.\n- **Epithelial cells of pancreas** (CL:0000083): Present, moderate evidence.\n\n### Tissues with Absent or Low Expression\n- **Endothelial cells** (CL:0000115): Absent.\n- **Type B pancreatic cells** (CL:0000169): Absent.\n- **Oocytes, sperm, secondary oocytes:** Absent.\n\n### Safety Considerations (Non-pain-related tissues with significant expression)\n- **Immune system:** Expression in monocytes, leukocytes, and granulocytes suggests potential for off-target effects on immune function.\n- **Reproductive system:** Expression in male germ line stem cells and primordial germ cells could indicate possible effects on fertility or germ cell biology.\n- **Pancreas:** Some expression in pancreatic epithelial cells may warrant monitoring for metabolic or pancreatic side effects.\n\n### Conclusion\n- **Primary expression is in peripheral neurons (pain pathway), which is your intended target.**\n- **Significant non-neuronal expression is seen in immune cells and male germ line cells.** These findings suggest you should monitor for possible immunological or reproductive side effects in preclinical and clinical studies.\n- **Pancreatic expression is present but less prominent.** Consider monitoring for metabolic effects.\n\n**Key IDs for reference:**\n- Ensembl gene: ENSG00000169432\n- UniProt: Q15858\n\nIf you need a more detailed, tissue-by-tissue quantitative breakdown or want to see the full list of tissues/cell types, I can provide the complete Bgee/SCXA data or direct links to the relevant datasets.\n\n---\n**Data Sources:**\n- http://biobtree:9291/ws/?i=SCN9A&s=ensembl\n- http://biobtree:9291/ws/map/?i=ENSG00000169432&m=>>ensembl>>scxa\n- http://biobtree:9291/ws/map/?i=ENSG00000169432&m=>>ensembl>>bgee",
+      "tool_calls": 4,
+      "elapsed_seconds": 22.3,
+      "auto_score": 1.0,
+      "found_terms": [
+        "SCN9A",
+        "Nav1.7",
+        "dorsal root",
+        "expression",
+        "tissue",
+        "ENSG00000169432"
+      ],
+      "missing_terms": [],
+      "usage": {
+        "prompt_tokens": 22335,
+        "completion_tokens": 720,
+        "total_tokens": 23055
+      }
+    },
+    "biobtree_gemini25": {
+      "model": "google/gemini-2.5-pro-preview-03-25",
+      "timestamp": "2026-02-06T12:47:12.956379",
+      "response": "Based on the Single Cell Expression Atlas (SCXA) data, SCN9A is expressed in the following tissues and cell types:\n\n*   **Highest Expression:**\n    *   **Dorsal Root Ganglion (DRG):** This is expected, as the DRG contains the cell bodies of sensory neurons that transmit pain signals. SCN9A is a well-established key player in this process. The data shows high expression in various DRG neuron subtypes, including those involved in nociception (pain sensing).\n    *   **Trigeminal Ganglion:** Similar to the DRG, the trigeminal ganglion contains sensory neurons, but for the face and head. High SCN9A expression here is also consistent with its role in pain sensation.\n\n*   **Significant Expression in Non-Pain-Related Tissues:**\n    *   **Bone Marrow:** The SCXA data reveals SCN9A expression in mononuclear cells of the bone marrow. This is an important finding, as it suggests a potential for your drug to affect hematopoietic cells. This could translate to hematological side effects, and warrants further investigation.\n    *   **Sympathetic Ganglion:** SCN9A is also expressed in sympathetic ganglion neurons. While part of the peripheral nervous system, the sympathetic nervous system is primarily involved in \"fight-or-flight\" responses, not directly in pain sensation. Off-target effects here could potentially influence autonomic functions like heart rate, blood pressure, and digestion.\n    *   **Olfactory Epithelium:** Expression was also noted in the olfactory epithelium, which is responsible for the sense of smell. This could indicate a risk of olfactory side effects, such as a reduced or altered sense of smell.\n\n**Summary of Potential Off-Target Concerns:**\n\nThe expression of SCN9A in the **bone marrow** is a primary concern from a safety perspective, given the potential for hematological toxicity. The expression in the **sympathetic ganglion** and **olfactory epithelium** also raises flags for potential autonomic and olfactory side effects, respectively.\n\n**Recommendations:**\n\nBefore proceeding to clinical trials, I would strongly recommend further preclinical studies to:\n\n1.  **Investigate the specific function of SCN9A in bone marrow cells.**\n2.  **Assess the potential for your drug to cause hematological, autonomic, and olfactory adverse effects in animal models.**\n\nThis information will be crucial for designing a safe and effective clinical trial.\n\n---\n**Data Sources:**\n- http://biobtree:9291/ws/?i=SCN9A&s=ensembl\n- http://biobtree:9291/ws/map/?i=ENSG00000169432&m=>>ensembl>>scxa",
+      "tool_calls": 3,
+      "elapsed_seconds": 39.4,
+      "auto_score": 0.833,
+      "found_terms": [
+        "SCN9A",
+        "dorsal root",
+        "ganglion",
+        "sensory",
+        "expression",
+        "tissue",
+        "ENSG00000169432"
+      ],
+      "missing_terms": [
+        "Nav1.7"
+      ],
+      "usage": {
+        "prompt_tokens": 13924,
+        "completion_tokens": 2354,
+        "total_tokens": 16278
+      }
+    },
+    "web_chatgpt52": {
+      "model": "ChatGPT 5.2 (web)",
+      "timestamp": "2026-02-06",
+      "response": "Great question\u2014this is exactly the right thing to sanity-check before you head toward the clinic.\n\n## Where SCN9A (Nav1.7) is most highly expressed\n\n**SCN9A is one of the most pain-selective voltage-gated sodium channels**, and its expression pattern strongly reflects that biology.\n\n### Highest expression (core pain pathway)\n\nThese are the tissues that dominate transcriptomic and protein-level datasets (GTEx, Allen Brain Atlas, rodent IHC):\n\n* **Dorsal root ganglion (DRG) sensory neurons**\n  * By far the highest expression\n  * Especially small-diameter nociceptors (C-fibers, A\u03b4 fibers)\n* **Trigeminal ganglion**\n  * Facial and craniofacial pain\n* **Peripheral sensory neurons**\n  * Including nociceptive endings in skin and viscera\n* **Olfactory sensory neurons**\n  * High but very cell-type-restricted (important clinically\u2014see below)\n\nThis tight enrichment is why **loss-of-function SCN9A mutations cause congenital insensitivity to pain**, with relatively limited systemic phenotypes.\n\n## Non-pain tissues with notable expression (safety-relevant)\n\nOverall, **SCN9A expression outside sensory neurons is low**, but a few sites are worth flagging during risk assessment.\n\n### Olfactory system (high confidence, clinically validated)\n\n* **Olfactory epithelium & olfactory bulb neurons**\n* Human genetics: anosmia is a consistent phenotype in SCN9A loss-of-function patients\n* **Clinical implication:**\n  * Smell disturbance is the *most reproducible on-target side effect*\n  * Often dose-dependent and reversible\n\n\u27a1\ufe0f This is the **primary non-pain safety signal** you should expect.\n\n### Central nervous system (low to moderate, region-restricted)\n\n* **Hypothalamus**\n* **Thalamus (sensory relay nuclei)**\n* **Brainstem sensory nuclei**\n\nExpression here is:\n* Much lower than DRG\n* Often developmentally regulated or neuron-subtype-specific\n\n\u27a1\ufe0f **Risk:** subtle CNS effects at high exposure (e.g., altered sensory processing), but Nav1.7 is *not* a dominant channel for cortical excitability (unlike Nav1.1, 1.2, 1.6).\n\n### Neuroendocrine / autonomic-related tissues (low)\n\n* Sparse expression reported in:\n  * **Adrenal chromaffin cells**\n  * **Enteric sensory neurons**\n\n\u27a1\ufe0f Generally not associated with strong phenotypes in human genetics or animal knockouts.\n\n## Tissues with *minimal to no* SCN9A expression (good news)\n\nImportantly for safety margins, SCN9A is **not meaningfully expressed** in:\n\n* **Heart (cardiomyocytes)** \u2192 low arrhythmia risk *from on-target inhibition*\n* **Skeletal muscle**\n* **Liver, kidney, lung**\n* **Immune cells**\n\nThis is a major advantage over less selective sodium channel targets.",
+      "auto_score": 0.667,
+      "entered_by": "TH",
+      "found_terms": [
+        "SCN9A",
+        "Nav1.7",
+        "dorsal root",
+        "ganglion",
+        "sensory",
+        "expression",
+        "tissue"
+      ],
+      "missing_terms": []
+    },
+    "web_gemini3_pro": {
+      "model": "Gemini 3 Pro (web)",
+      "timestamp": "2026-02-06",
+      "response": "Inhibiting SCN9A (Nav1.7) is a validated approach for pain relief, but the tissue expression profile reveals specific off-target risks that you must anticipate for your clinical safety monitoring plan.\n\n### 1. High Expression Tissues (Primary Targets)\n\nNav1.7 is most highly expressed in the **Peripheral Nervous System (PNS)**. These are your therapeutic targets but also the sources of on-target toxicity.\n\n* **Dorsal Root Ganglia (DRG) & Trigeminal Ganglia:**\n  * **Expression:** High. Specifically in nociceptive (pain-sensing) neurons (C-fibers and A\u03b4-fibers).\n  * **Function:** Initiates action potentials in response to noxious stimuli.\n  * **Drug Implication:** This is your primary mechanism of action (analgesia).\n\n* **Sympathetic Ganglia:**\n  * **Expression:** High. Present in sympathetic neurons (e.g., superior cervical ganglion).\n  * **Function:** Regulates autonomic processes, including vasomotor tone.\n  * **Drug Implication:** Inhibition can dampen the sympathetic response.\n\n### 2. Non-Pain Tissues with Significant Expression (Safety Concerns)\n\n#### **A. Olfactory Sensory Neurons (Highest Risk Concern)**\n\n* **Expression:** Extremely High. Nav1.7 is critical for signal transmission in the olfactory epithelium.\n* **Safety Risk:** **Anosmia (Loss of Smell).**\n* **Clinical Consequence:** This is the most likely and profound side effect of a potent, systemic Nav1.7 inhibitor.\n\n#### **B. Pancreatic Beta Cells (Metabolic Concern)**\n\n* **Expression:** Moderate to Significant.\n* **Safety Risk:** **Dysregulated Glucose Homeostasis.**\n\n#### **C. Enteric Nervous System (GI Concern)**\n\n* **Expression:** Present in myenteric neurons of the gut.\n* **Safety Risk:** **Gastrointestinal Motility Issues.**\n\n### Summary Table for Safety Monitoring\n\n| Tissue | Expression Level | Potential Adverse Event (AE) |\n| --- | --- | --- |\n| **Olfactory Epithelium** | **Very High** | **Anosmia / Hyposmia (Critical)** |\n| **Sympathetic Ganglia** | High | Orthostatic hypotension |\n| **Pancreas (Beta Cells)** | Moderate | Altered insulin secretion |\n| **Enteric Nerves** | Moderate | Constipation / GI motility changes |\n| **Heart** | Very Low | Arrhythmia (Only if selectivity for Nav1.5 is poor) |",
+      "auto_score": 0.667,
+      "entered_by": "TH",
+      "found_terms": [
+        "SCN9A",
+        "Nav1.7",
+        "dorsal root",
+        "ganglion",
+        "sensory",
+        "expression",
+        "tissue"
+      ],
+      "missing_terms": []
+    },
+    "web_claude46": {
+      "model": "Claude 4.6 (web)",
+      "timestamp": "2026-02-06",
+      "response": "Great question \u2014 understanding the tissue expression profile of your target is critical for anticipating off-target effects. Let me pull up information on SCN9A from ChEMBL and supplement with what's known about its expression biology.\n\n## SCN9A (Nav1.7) \u2014 Target Profile from ChEMBL\n\nThe ChEMBL single protein target is **CHEMBL4296** (UniProt: Q15858). The GO annotations confirm roles in **sensory perception of pain**, **behavioral response to pain**, **neuronal action potential**, **circadian rhythm**, and notably **cardiac muscle cell action potential involved in contraction**.\n\n## Tissue Expression Profile\n\nRNA-seq analysis found SCN9A expressed in all 27 tissues examined at varying levels, with the highest non-neuronal expression in testis, placenta, and colon.\n\nThe **primary expression sites** are neuronal:\n\n- Nav1.7 is usually expressed at high levels in nociceptive neurons at the dorsal root ganglion (DRG) and trigeminal ganglion, and in sympathetic ganglion neurons.\n- SCN9A is also expressed in subcortical structures of the brain.\n- Nav1.7 is preferentially expressed in DRG and sympathetic neurons in the PNS, and its expression in olfactory sensory neurons was also reported.\n\n## Key Safety Concerns for Clinical Development\n\n**1. Olfactory System (Anosmia) \u2014 High Risk**\n\nNav1.7 is highly expressed in olfactory sensory neurons. Mice and humans lacking functional Nav1.7 exhibit a loss of smell (anosmia).\n\n**2. Cardiovascular / Autonomic Nervous System \u2014 Major Concern**\n\nRecent clinical assessment of a Nav1.7 antagonist suggested that cardiovascular adverse events could be related to on-target activity. The selective Nav1.7 inhibitor MK-2075 demonstrated cardiovascular effects at supratherapeutic exposures.\n\n**3. Cough Reflex / Vagal Neurons**\n\nIn vagal sensory neurons that arise from the trachea, larynx and the lungs, Nav1.7 is the predominant Nav isoform.\n\n**4. GI Tract (Colon)**\n\nGiven colonic expression, monitor for GI motility effects.\n\n**5. Off-target Nav Isoform Selectivity**\n\nTherapeutics targeted against Nav1.7 need very high selectivity over key Nav channel subtypes such as Nav1.5 (cardiac) and Nav1.6 (motor neurons).",
+      "auto_score": 0.667,
+      "entered_by": "TH",
+      "found_terms": [
+        "SCN9A",
+        "Nav1.7",
+        "dorsal root",
+        "ganglion",
+        "sensory",
+        "expression",
+        "tissue"
+      ],
+      "missing_terms": []
+    },
+    "anthropic_claude_sonnet_4_5": {
+      "model": "anthropic/claude-sonnet-4-5",
+      "timestamp": "2026-02-06T17:35:33.375945",
+      "response": "Based on the comprehensive expression data I've retrieved from the Bgee database for SCN9A (Nav1.7), I can now provide you with a detailed tissue expression profile to help assess potential off-target effects for your drug development.\n\n## SCN9A (Nav1.7) Tissue Expression Profile - Safety Assessment\n\n### **Highest Expression Tissues (Potential Safety Concerns):**\n\n#### **1. NERVOUS SYSTEM - Expected Pain-Related Expression:**\n- **Dorsal root ganglion (DRG)**: Expression score **99.99** (rank 10) - HIGHEST\n- **Trigeminal ganglion**: Expression score **99.99** (rank 10)\n- **Spinal cord**: Expression score **87.64** (rank 5,760)\n- **Peripheral nerve**: Expression score **85.99** (rank 6,560)\n- **Sympathetic ganglion**: Expression score **99.99** (rank 10)\n\nThese are the expected primary sites for pain signaling - your therapeutic targets.\n\n#### **2. CARDIOVASCULAR SYSTEM - \u26a0\ufe0f MAJOR SAFETY CONCERN:**\n- **Heart**: Expression score **72.64** (rank 12,700)\n- **Cardiac muscle tissue**: Expression score **72.64** (rank 12,700)\n- **Heart left ventricle**: Expression score **71.62** (rank 13,200)\n- **Heart right atrium**: Expression score **71.62** (rank 13,200)\n\n**Clinical Significance**: Cardiac expression is a well-known concern for Nav1.7 inhibitors. While SCN9A is expressed at moderate levels in the heart, it's important to note that the heart primarily uses **SCN5A (Nav1.5)** for cardiac action potentials. However, off-target cardiac effects should still be monitored, particularly:\n- QT interval prolongation\n- Arrhythmias\n- Cardiac conduction abnormalities\n\n#### **3. ENDOCRINE/REPRODUCTIVE SYSTEM - \u26a0\ufe0f MODERATE CONCERN:**\n- **Adrenal gland**: Expression score **87.64** (rank 5,760)\n- **Adrenal medulla**: Expression score **99.99** (rank 10) - VERY HIGH\n- **Ovary**: Expression score **83.65** (rank 7,620)\n- **Uterus/Endometrium**: Expression score **83.65-87.64**\n- **Testis (germ cells)**: Expression score **78.17** (rank 10,200)\n- **Prostate**: Expression score **72.64** (rank 12,700)\n\n**Clinical Significance**: The very high expression in **adrenal medulla** is particularly noteworthy as this tissue is involved in catecholamine (epinephrine/norepinephrine) secretion. This could potentially affect:\n- Stress response\n- Blood pressure regulation\n- Sympathetic nervous system function\n\n#### **4. GASTROINTESTINAL SYSTEM - \u26a0\ufe0f MODERATE CONCERN:**\n- **Stomach**: Expression score **87.64** (rank 5,760)\n- **Colon**: Expression score **83.65** (rank 7,620)\n- **Small intestine**: Expression score **79.43** (rank 9,560)\n- **Esophagus**: Expression score **72.64** (rank 12,700)\n\n**Clinical Significance**: GI expression may lead to:\n- Altered gut motility\n- Potential GI side effects\n- Changes in visceral pain perception\n\n#### **5. IMMUNE SYSTEM - MODERATE EXPRESSION:**\n- **Bone marrow cells**: Expression score **65.75-71.62**\n- **Monocytes**: Expression score **65.01** (rank 16,300)\n- **Leukocytes**: Expression score **63.92** (rank 16,800)\n- **Granulocytes**: Expression score **53.02** (rank 21,900)\n\n#### **6. OTHER TISSUES WITH NOTABLE EXPRESSION:**\n- **Pancreas (epithelial cells)**: Expression score **62** (rank 17,700)\n- **Lung**: Expression score **72.64** (rank 12,700)\n- **Kidney**: Expression score **72.64** (rank 12,700)\n- **Skeletal muscle**: Expression score **65.75** (rank 16,000)\n- **Skin**: Expression score **79.43** (rank 9,560)\n\n### **Tissues with LOW/ABSENT Expression (Lower Safety Concerns):**\n- **Liver**: Expression score **39.75-44.48** (absent/low)\n- **Brain cortex**: Lower than peripheral nervous system\n- **Sperm**: Absent\n- **Endothelial cells**: Absent\n- **Pancreatic beta cells**: Absent\n\n---\n\n## **Key Safety Recommendations for Clinical Development:**\n\n### **1. Cardiovascular Monitoring (HIGH PRIORITY):**\n- Comprehensive ECG monitoring (QT interval, PR interval, QRS duration)\n- Holter monitoring for arrhythmia detection\n- Cardiac safety pharmacology studies\n- Consider selectivity testing against SCN5A (Nav1.5)\n\n### **2. Endocrine Function Assessment:**\n- **Adrenal function tests** (cortisol, catecholamines)\n- Blood pressure monitoring (orthostatic hypotension risk)\n- Stress response evaluation\n- Reproductive hormone monitoring in long-term studies\n\n### **3. Gastrointestinal Monitoring:**\n- GI motility assessment\n- Monitor for constipation, diarrhea, or other GI disturbances\n- Visceral pain perception changes\n\n### **4. Immune Function:**\n- Complete blood counts\n- Immune function markers\n- Infection surveillance\n\n### **5. Selectivity Profile:**\nGiven that lamotrigine (found in the database) blocks multiple sodium channels including SCN9A, ensure your compound has:\n- High selectivity for Nav1.7 vs. Nav1.5 (cardiac)\n- Selectivity vs. other neuronal sodium channels (Nav1.1, Nav1.2, Nav1.3, Nav1.6)\n\n### **6. Genetic Validation:**\nThe database shows SCN9A is associated with:\n- **Orphanet:306577** - Paroxysmal extreme pain disorder (gain-of-function mutations)\n- **Orphanet:33069** - Primary erythromelalgia\n- Multiple ClinVar pathogenic variants\n\nThis genetic evidence supports the pain-related function but also highlights the importance of careful dosing to avoid complete channel blockade.\n\n---\n\n## **Database Identifiers for Further Research:**\n- **Gene**: ENSG00000169432 (Ensembl)\n- **Protein**: Q15858 (UniProt - SCN9A_HUMAN)\n- **Location**: Chromosome 2q24.3\n- **Entrez**: 6335\n- **HGNC**: HGNC:10597\n\nWould you like me to retrieve additional information about specific tissues, drug interactions, or clinical trials targeting SCN9A?\n\n---\n**Data Sources:**\n- http://biobtree:9291/ws/?i=SCN9A\n- http://biobtree:9291/ws/entry/?i=Q15858&s=uniprot\n- http://biobtree:9291/ws/map/?i=SCN9A&m=>>ensembl\n- http://biobtree:9291/ws/map/?i=ENSG00000169432&m=>>gtex\n- http://biobtree:9291/ws/map/?i=ENSG00000169432&m=>>hpa\n- http://biobtree:9291/ws/entry/?i=ENSG00000169432&s=hpa\n- http://biobtree:9291/ws/entry/?i=ENSG00000169432&s=ensembl\n- http://biobtree:9291/ws/entry/?i=ENSG00000169432&s=bgee\n- http://biobtree:9291/ws/map/?i=ENSG00000169432&m=>>bgee>>uberon",
+      "tool_calls": 10,
+      "elapsed_seconds": 60.1,
+      "auto_score": 1.0,
+      "found_terms": [
+        "SCN9A",
+        "Nav1.7",
+        "dorsal root",
+        "ganglion",
+        "expression",
+        "tissue",
+        "83.65",
+        "ENSG00000169432",
+        "endometrium"
+      ],
+      "missing_terms": [],
+      "usage": {
+        "prompt_tokens": 127061,
+        "completion_tokens": 2601,
+        "total_tokens": 129662
+      }
+    },
+    "claude_46_opentargets_mcp_desktop": {
+      "model": "Claude 4.6 + OpenTargets MCP",
+      "timestamp": "2026-02-07",
+      "response": "Great question for preclinical safety assessment. Let me pull together data from multiple sources on SCN9A/Nav1.7 expression and known pharmacology.Now let me check for existing Nav1.7 drugs and known safety data:Here's a comprehensive analysis of SCN9A/Nav1.7 tissue expression and the safety implications for your drug program.\n\n## SCN9A/Nav1.7 Tissue Expression Profile\n\nBased on Open Targets expression data (from GTEx RNA-seq and Human Protein Atlas), SCN9A shows a surprisingly **broad expression pattern** that extends well beyond its well-characterized role in nociceptor neurons. Here are the key findings:\n\n### Highest RNA Expression Tissues (by TPM)\n\n**Tier 1 \u2014 Very High (>1000 TPM, RNA level 3\u20134):**\n- **Bone marrow** (~1574 TPM) \u2014 highest expression overall\n- **Neutrophilic metamyelocytes** (~1546 TPM)\n- **Granulocyte-monocyte progenitors** (~1266 TPM)\n- **Segmented neutrophils of bone marrow** (~1158 TPM)\n- **Hematopoietic stem cells** (~1053 TPM)\n- **Hematopoietic multipotent progenitors** (~963 TPM)\n- **Sigmoid colon** (~1043 TPM)\n- **Hypothalamus** (~1003 TPM)\n- **Placenta** (~1013 TPM)\n- **Liver** (~992 TPM)\n\n**Tier 2 \u2014 High (500\u20131000 TPM):**\n- **Conventional dendritic cells** (~915 TPM)\n- **Mature neutrophils** (~865 TPM)\n- **Colon** (~804 TPM), **Tibial nerve** (~795 TPM)\n- **Rectum** (~720 TPM), **Spleen** (~701 TPM)\n- **Transverse colon** (~661 TPM), **CD4+ thymocytes** (~652 TPM)\n- **Endothelial cells of umbilical vein** (~434\u2013604 TPM)\n- **Pancreas** (~524 TPM), **Blood** (~446 TPM)\n- **Kidney** (~441 TPM)\n\n**Tier 3 \u2014 Moderate (200\u2013500 TPM):**\n- Adipose tissue, skin, GI tract (small intestine, stomach, esophagus), testis, CD8+ T cells, subcutaneous fat, smooth muscle, pituitary, amygdala, substantia nigra, nucleus accumbens\n\n### Protein Expression Highlights\nAt the protein level (from HPA), notable expression includes: **colon glandular cells (level 3), placental trophoblasts and decidual cells (level 3), testis seminiferous duct cells (level 3), hepatocytes (level 2), pancreatic cells (level 2), kidney tubular cells (level 2),** and **cardiomyocytes (level 2).**\n\n---\n\n## Safety Concerns for Clinical Development\n\n### 1. **Hematopoietic System \u2014 Major Concern** \u26a0\ufe0f\nThe single most striking finding is that the **highest SCN9A expression is in bone marrow and myeloid progenitor cells**, not in DRG neurons where you'd expect it. Hematopoietic stem cells, granulocyte-monocyte progenitors, and neutrophilic metamyelocytes all show very high expression. This raises concerns about potential effects on hematopoiesis, neutrophil maturation, and immune cell function. You should include routine CBC monitoring with differentials in your clinical protocol and consider bone marrow assessments in preclinical tox studies.\n\n### 2. **Gastrointestinal System \u2014 Significant Concern** \u26a0\ufe0f\nVery high expression across the entire GI tract (sigmoid colon ~1043 TPM, colon ~804 TPM, rectum ~720 TPM, small intestine ~368 TPM). Nav1.7 likely plays a role in enteric nervous system signaling and GI motility. Expect potential GI side effects such as altered motility, constipation, or diarrhea. The GO annotations for SCN9A include \"sensory perception of sweet, bitter, and umami (glutamate) taste\" via Reactome, suggesting possible taste disturbances as well.\n\n### 3. **Liver \u2014 Notable Concern** \u26a0\ufe0f\nLiver expression is quite high (~992 TPM, protein level 2 in hepatocytes and cholangiocytes). This warrants careful hepatic safety monitoring (LFTs) and consideration of hepatotoxicity risk in preclinical studies.\n\n### 4. **Heart \u2014 Monitor Closely**\nWhile cardiac expression is moderate at the RNA level (~100\u2013170 TPM for heart regions), HPA shows **protein-level expression in cardiomyocytes (level 2)**. Critically, the GO annotations for Nav1.7 include \"cardiac muscle cell action potential involved in contraction.\" Given that other Nav channel subtypes (especially Nav1.5/SCN5A) are cardiac-critical, cross-reactivity against cardiac Nav channels should be profiled extensively. A thorough QT/hERG assessment and cardiac safety panel are essential.\n\n### 5. **CNS/Hypothalamus**\nHypothalamic expression is high (~1003 TPM), and moderate expression is seen across multiple brain regions (amygdala, substantia nigra, nucleus accumbens, hippocampus, cerebral cortex). Nav1.7 inhibition in the CNS could affect neuroendocrine function, autonomic regulation, and potentially olfaction (Nav1.7 loss-of-function in humans causes congenital anosmia).\n\n### 6. **Reproductive System**\nPlacenta shows high expression (~1013 TPM) and testis has significant expression (~380 TPM, protein level 3 in seminiferous ducts). This flags reproductive toxicity studies as essential, and the drug would likely need to be contraindicated in pregnancy.\n\n### 7. **Kidney and Pancreas**\nBoth show elevated expression (kidney ~441 TPM, pancreas ~524 TPM), suggesting monitoring of renal function and glucose homeostasis.\n\n---\n\n## Key Selectivity Recommendation\n\nChEMBL identifies SCN9A (CHEMBL4296) as a single protein target and also as part of the broader **sodium channel alpha subunit family** (CHEMBL2331043), which includes SCN1A, SCN2A, SCN3A, SCN4A, SCN5A, SCN7A, SCN8A, SCN10A, and SCN11A. Your drug's selectivity profile against all nine Nav subtypes is critical:\n\n- **SCN5A (Nav1.5)** \u2014 cardiac, cross-reactivity = arrhythmia risk\n- **SCN1A (Nav1.1)** \u2014 CNS, cross-reactivity = seizure risk (Dravet syndrome phenocopy)\n- **SCN4A (Nav1.4)** \u2014 skeletal muscle, cross-reactivity = muscle weakness\n- **SCN8A (Nav1.6)** \u2014 CNS/PNS, cross-reactivity = ataxia, motor dysfunction\n\nI'd recommend building a selectivity panel across all nine Nav subtypes at the earliest stage, and designing your preclinical tox program with hematopoietic, hepatic, GI, cardiac, and reproductive endpoints as top priorities.",
+      "auto_score": 0.667,
+      "entered_by": "USER",
+      "found_terms": [
+        "SCN9A",
+        "Nav1.7",
+        "sensory",
+        "expression",
+        "tissue"
+      ],
+      "missing_terms": []
+    }
+  },
+  "reviews": {
+    "review_1": {
+      "timestamp": "2026-02-06",
+      "reviewer": "TH",
+      "outcome": "biobtree_wins",
+      "status": "featured",
+      "key_finding": "Biobtree+Sonnet found endometrium (83.65) as high-expression tissue with quantitative Bgee scores - ALL 3 web LLMs missed this, focusing on olfactory/CNS instead",
+      "preprint_section": "drug_safety",
+      "notes": "Web LLMs (ChatGPT 5.2, Gemini 3 Pro, Claude 4.6) all gave textbook answers about DRG/olfactory but none provided quantitative expression data or mentioned reproductive tissue safety concerns. Biobtree models returned actual database IDs (ENSG00000169432) and cell-type specific expression scores from Bgee. This demonstrates the value of real-time database access vs parametric knowledge for drug safety assessment."
+    }
+  }
+}

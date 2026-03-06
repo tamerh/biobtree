@@ -1,0 +1,6 @@
+{
+  "note": "Reference data will be populated after first test run or by extract_reference_data.py",
+  "source": "PubChem PUG REST API",
+  "timestamp": "pending",
+  "compounds": {}
+}

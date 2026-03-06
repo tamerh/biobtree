@@ -1,0 +1,60 @@
+{
+  "metadata": {
+    "total_ids": 10,
+    "fetched": 6,
+    "failed": 4
+  },
+  "entries": [
+    {
+      "id": "OBA:0000001",
+      "name": "biological attribute",
+      "description": null,
+      "type": "biological_attribute"
+    },
+    {
+      "id": "OBA:0000003",
+      "name": "ER calcium ion concentration",
+      "description": "The concentration of of a calcium ion when measured in endoplasmic reticulum.",
+      "type": "biological_attribute",
+      "synonyms": [
+        "endoplasmic reticulum calcium ion concentration of"
+      ]
+    },
+    {
+      "id": "OBA:0000005",
+      "name": "Golgi calcium ion concentration",
+      "description": "The concentration of of a calcium ion when measured in Golgi apparatus.",
+      "type": "biological_attribute",
+      "synonyms": [
+        "Golgi apparatus calcium ion concentration of"
+      ]
+    },
+    {
+      "id": "OBA:0000006",
+      "name": "Malpighian tubule diameter",
+      "description": "The diameter of a Malpighian tubule.",
+      "type": "biological_attribute",
+      "synonyms": [
+        "diameter of Malpighian tubule"
+      ]
+    },
+    {
+      "id": "OBA:0000007",
+      "name": "Malpighian tubule size",
+      "description": "The size of a Malpighian tubule.",
+      "type": "biological_attribute",
+      "synonyms": [
+        "size of Malpighian tubule"
+      ]
+    },
+    {
+      "id": "OBA:0000009",
+      "name": "RNA stability",
+      "description": "The macromolecular stability of a RNA.",
+      "type": "biological_attribute",
+      "synonyms": [
+        "macromolecular stability of RNA"
+      ]
+    }
+  ]
+}

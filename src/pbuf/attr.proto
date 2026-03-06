@@ -1,0 +1,2581 @@
+syntax = "proto3";
+
+package pbuf;
+
+message OntologyAttr {
+  string type =1;
+  string name =2;
+  repeated string synonyms=3;
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// HPOAttr provides rich attributes for Human Phenotype Ontology terms
+// Extends OntologyAttr with queryable disease-phenotype annotations from phenotype.hpoa
+// Enables queries like: [hpo.diseases.exists(d, d.evidence=="PCS" && d.frequency > 0.5)]
+message HPOAttr {
+  string name = 1;
+  repeated string synonyms = 2;
+  string definition = 3;
+
+  // Disease associations from phenotype.hpoa (~280K annotations)
+  repeated DiseaseAssoc diseases = 4;
+
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+
+  // Nested message for disease-phenotype associations
+  message DiseaseAssoc {
+    string id = 1;             // Disease identifier (e.g., "619340" for OMIM, "Orphanet:558")
+    string dataset = 2;        // Target dataset name: "mim", "orphanet", "mondo"
+    string name = 3;           // Disease name for display (e.g., "Marfan syndrome")
+    string evidence = 4;       // Evidence code: "PCS", "TAS", "IEA"
+    double frequency = 5;      // Frequency as decimal (0.375 for "3/8"), -1.0 if unavailable
+    string frequency_raw = 6;  // Raw frequency string (e.g., "3/8", "HP:0040283")
+    string onset = 7;          // Age of onset HP term (e.g., "HP:0003581")
+    string sex = 8;            // Sex specificity: "MALE", "FEMALE", or empty
+    string reference = 9;      // Citation (e.g., "PMID:31675180")
+  }
+}
+
+message HgncAttr {
+  repeated string names =1;
+  repeated string symbols = 2;
+  string locus_group = 3;
+  string location = 4;
+
+  repeated string aliases=5;
+  string locus_type=6;
+  repeated string prev_names=7;
+  repeated string prev_symbols=8;
+  string status=9;
+  repeated string gene_groups=10;
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+  string name = 101; // transient - populated at runtime from names[0]
+}
+
+message InterproAttr {
+  repeated string names = 1;
+  string short_name =2;
+  string type = 3;
+  int32 protein_count = 4;
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+message EnsemblAttr {
+  string name =1;
+  string description =2;
+  int32 start =3;
+  int32 end =4;
+  string biotype =5;
+  string genome =6;
+  string strand =7;
+  string seq_region =8;
+  ensemblbranch branch=9;
+  int32 utr5Start =10;
+  int32 utr5End =11;
+  int32 utr3Start =12;
+  int32 utr3End =13;
+  int32 version =14;
+  string source =15;
+  int32 frame =16;
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+enum ensemblbranch {
+  NONE=0;
+  ENSEMBL=1;
+  BACTERIA=2;
+  FUNGI=3;
+  METAZOA=4;
+  PLANT=5;
+  PROTIST=6;
+}
+
+message TaxoAttr {
+  string name =1;
+  string common_name =2;
+  int32 rank =3;
+  string taxonomic_division =4;
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+message  EnaAttr {
+  string type =1;
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+message  PdbAttr {
+  string method = 1;           // Experimental method (X-RAY DIFFRACTION, NMR, ELECTRON MICROSCOPY)
+  string chains = 2;           // Comma-separated chain IDs
+  string resolution = 3;       // Resolution in Angstroms
+  string title = 4;            // Structure title/description
+  string header = 5;           // Classification category (OXYGEN TRANSPORT, HYDROLASE, etc.)
+  string release_date = 6;     // Deposition date (MM/DD/YY format)
+  string source_organism = 7;  // Source organism name
+  string molecule_type = 8;    // Molecule type: prot, nuc, prot-nuc, other
+  repeated string authors = 9; // Author list
+  int32 chain_count = 10;      // Number of polymer chains
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+message  DrugbankAttr {
+  string name =1;
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+message OrphanetAttr {
+  string name = 1;
+  repeated string synonyms = 2;
+  string definition = 3;
+  string disorder_type = 4;
+  repeated PhenotypeAssociation phenotypes = 5;
+  int32 gene_count = 6;
+  int32 phenotype_count = 7;
+
+  message PhenotypeAssociation {
+    string hpo_id = 1;
+    string hpo_term = 2;
+    string frequency = 3;
+    double frequency_value = 4;
+  }
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+message  ReactomePathwayAttr {
+  string name =1;
+  int32 tax_id =2;
+  repeated string alt_names =3;  // Alternative/synonym names for pathway
+                                  // TODO: Populate from pre-generated file (see analysis/reactome/REACTOME_ENHANCEMENTS.md)
+                                  // Source: Reactome API 'name' field (array of alternative names)
+                                  // Future: Generate ReactomeAltNames.txt via extract_reference_data.py for all pathways
+  bool is_disease_pathway =4;    // True if pathway is disease-related (from HumanDiseasePathways.txt)
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+message UniprotAttr {
+ repeated string accessions =1;
+ repeated string genes =2;
+ repeated string names =3;
+ repeated string alternative_names =4;
+ repeated string submitted_names =5;
+ UniSequence sequence=7;
+ bool reviewed=8;
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+  string name = 101; // transient - populated at runtime from names[0]
+}
+
+message UniSequence {
+  string seq =1;  // Note: not populated to reduce payload - get from UniProt directly
+  int32 mass =2;
+  int32 length =3;  // Amino acid count
+}
+
+message UniprotFeatureAttr {
+ string type =1;
+ string description =2;
+ string id =3; // Note: this is the feature ID, also serves as entry identifier for filtering
+ repeated UniprotFeatureEvidence evidences =4;
+ string original =5;
+ string variation =6;
+ UniLocation location=7;
+}
+
+message UniprotFeatureEvidence {
+  string type=1;
+  string source=2;
+  string id=3;
+}
+
+
+message UniLocation {
+   int32 begin=1;
+   int32 end=2;
+}
+
+message ChemblAttr {
+  ChemblDocument doc=1;
+  ChemblAssay assay=2;
+  ChemblActivity activity=3;
+  ChemblMolecule molecule=4;
+  ChemblTarget target=5;
+  ChemblTargetComponent targetComponent=6;
+  ChemblCellLine cellLine=7;
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+message ChemblDocument {
+  string title=1;
+  string type =2;
+  string journal=3;
+  string journalShortName=4;
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+message ChemblActivity {
+  
+  string type=1;
+  string relation =2;
+  double value=3;
+  string units=4;
+  string standardType=5;
+  string standardRelation=6;
+  double standardValue=7;
+  string standardUnits=8;
+  string dataValidityIssue=9;
+  string dataValidityComment=10; 
+  double pChembl=11;
+  string activityComment=12;
+  string potentialDuplicate=13;
+  string bao=14;
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+message ChemblMolecule { 
+  string desc=1;
+  int32 highestDevelopmentPhase =2;
+  repeated string altNames=3;
+  repeated string atcClassification=4;
+  string isBiotherapeutic=5;
+  string helmNotation=6;
+  string hracClassification=7;
+  string fracClassification=8;
+  string iracClassification=9;
+  string type=10;
+  string bioComponentType =11;
+  string bioComponentDescription=12;
+  string bioComponentSquence=13;
+  string bioComponentTaxo=14;
+  repeated ChemblIndication indications=15;
+  string parent=16;
+  repeated string childs=17;
+  ChemblMechanism mechanism=18;
+  string inchi=19;
+  string name=20;
+  string inchiKey=21;
+  string smiles=22;
+  double alogp=23;
+  double weightFreebase=24;
+  double hba=25;
+  double hbd=26;
+  double psa=27;
+  double rtb=28;
+  string ro3Pass=29;
+  double numRo5Violations=30;
+  double acdMostApka=31;
+  double acdMostBpka=32;
+  double acdLogp=33;
+  double acdLogd=34;
+  string molecularSpecies=35;
+  double weight=36;
+  double aromaticRings=37;
+  double heavyAtoms=38;
+  string formula=39;  
+  double weightMonoisotopic=40;
+  double qedWeighted=41;
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+message ChemblIndication {
+	string efoName=1;                 
+	string meshHeading=2;
+	int32 highestDevelopmentPhase=3;
+	string efo=4;
+	string mesh=5;
+  ChemblMechanism mechanism=6;
+}
+
+message ChemblTarget {
+  string title=1;
+  string isSpeciesGroup=2;
+  string type=3;
+  repeated string subsetofs=4;
+  repeated string equivalents=5;
+  repeated string subsets=6;
+  repeated string overlaps=7;
+  ChemblBindingSite bindingSite=8;
+  repeated ChemblProteinTargetClassification ptclassifications=9;
+  // target_components maps to target both via xref and here  because connection has property like single,group,complex
+  repeated ChemblTargetComponentInfo components=10; 
+  ChemblMechanism mechanism=11;
+  string tax=12;
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+message ChemblProteinTargetClassification {
+  string className=1;
+  string classLevel=2;
+  string classPath=3;
+}
+
+message ChemblCellLine {
+  string desc=1;
+  string cellosaurusId=2;
+  string efo=3;
+  string clo=4;
+  string tax=5;
+  repeated string cellxref=6;
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+message ChemblTargetComponentInfo {
+    string type =1;
+    string acc=2;
+}
+
+message ChemblTargetComponent {
+  string desc=1;
+  string altLabel=2;
+  string type=3;
+  repeated ChemblProteinTargetClassification ptclassifications=4;
+  string acc=5; // target component represents an uniprot or ensembl identifier
+  string tax=6;
+}
+
+message ChemblAssay {
+  string desc=1;
+  string type =2;
+  string targetConfDesc=3;
+  string targetRelType=4;
+  string targetRelDesc=5;
+  int32 targetConfScore=6;
+  string subCellFrac=7;
+  string testType=8;
+  string strain=9;
+  string cellType=10; 
+  string tissue=11;
+  string tax=12;
+  string category=13;
+  string source=14;
+  string sourceDesc=15;
+  string bao=16;
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+message ChemblBindingSite {
+    string name=1;
+    ChemblMechanism mechanism=2;
+}
+
+message ChemblMechanism {
+    string desc=1;
+    string action=2;
+}
+
+message HmdbAttr {
+  string name =1;
+  string desc =2;
+  repeated string accessions =3;
+  repeated string synonyms =4;
+  repeated string diseases =5;
+  string formula =6;
+  double averageWeight=7;
+  double monisotopicWeight=8;
+  string iupacName=9;
+  string smiles=10;
+  string inchi=11;
+  string inchiKey=12;
+  //HmdbTaxonomy taxonomy = 13;
+  HmdbPredictedProps props=14;
+  HmdbExperimentalProps experimentalProps=15;
+  repeated string cellularLocations=16;
+  repeated string biospecimens=17;
+  repeated string tissueLocations=18;
+  repeated string pathways=19;
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+message ChebiAttr {
+  // Core identification
+  string name = 1;                    // Primary compound name (e.g., "acetylsalicylic acid")
+  string definition = 2;              // Scientific definition
+  int32 star_rating = 3;              // Quality: 1=preliminary, 2=3rd party, 3=curated
+  string source = 4;                  // Original source (KEGG, ChEMBL, etc.)
+
+  // Names and synonyms
+  repeated string synonyms = 5;       // All alternative names
+  repeated string iupac_names = 6;    // IUPAC systematic names
+  repeated string brand_names = 7;    // Commercial/trade names
+  repeated string inn_names = 8;      // International Nonproprietary Names
+
+  // Chemical properties
+  string formula = 9;                 // Molecular formula (e.g., "C9H8O4")
+  double average_mass = 10;           // Average molecular weight
+  double monoisotopic_mass = 11;      // Exact mass for MS
+  int32 charge = 12;                  // Ionic charge state
+
+  // Chemical structures
+  string smiles = 13;                 // SMILES notation
+  string inchi = 14;                  // Standard InChI
+  string inchi_key = 15;              // InChI Key (for structure search!)
+
+  // Ontology relationships (for Phase 2)
+  repeated string roles = 16;         // Biological/chemical roles
+  repeated string parent_ids = 17;    // Classification hierarchy
+
+  // Status
+  int32 status_id = 18;               // 1=active, 3=deprecated
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+message HmdbPredictedProps {
+  int32   rotatableBondCount=1;
+  int32   physiologicalCharge=2;
+  string  ruleOfFive=3;
+  double  pkaStrongestAcidic=4;
+  double  monoMass=5;
+  string  ghose_filter=6;
+  double  refractivity=7;
+  double  formalCharge=8;
+  string  bioavailability=9;
+  string  solubility=10;
+  double  pka_strongest_basic=11;
+  double  polarSurfaceArea= 12;
+  string  veberRule=13;
+  string  mddrLikeRule=14;
+  double  logp=15;
+  double  polarizability=16;
+  int32   donorCount=17;
+  double  averageMass=18;
+  int32   acceptorCount=19;
+  int32   numberOfRings=20;
+  double  logs=21;
+}
+
+message HmdbExperimentalProps {
+  string boolingPoint=1;
+  string meltingPoint=2;
+  double logp=3;
+  string waterSolubility=4;
+}
+
+/**
+message HmdbTaxonomy {
+  string desc=1;
+  string parent=2;
+  string kingdom=3;
+  string class=4;
+  string subClass=5;
+  string framework=6;
+}
+**/
+
+message PatentAttr {
+  string title =1;
+  string country =2;
+  string publication_date =3;
+  string family_id =4;
+  repeated string cpc =5;
+  repeated string ipcr =6;
+  repeated string ipc =7;
+  repeated string ecla =8;
+  repeated string asignee =9;
+  string abstract =10;  // USPTO abstract (optional, controlled by includePatentAbstracts config)
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+message ClinicalTrialAttr {
+  string brief_title =1;
+  string overall_status =2;
+  string phase =3;
+  string study_type =4;
+  repeated Intervention interventions =5;
+  repeated string conditions =6;
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+message Intervention {
+  string type =1;
+  string name =2;
+  string description =3;
+}
+
+message StringAttr {
+  string string_id =1;
+  int32 organism_taxid =2;
+  string preferred_name =3;
+  int32 protein_size =4;
+  string annotation =5;
+  // Field 6 removed: interactions array moved to string_interaction dataset
+  int32 interaction_count =7;  // Summary count of interactions
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// Standalone interaction entry for string_interaction dataset
+message StringInteractionAttr {
+  string protein_a =1;           // Source STRING ID (e.g., "9606.ENSP00000269305")
+  string protein_b =2;           // Partner STRING ID
+  string uniprot_a =3;           // Source UniProt AC
+  string uniprot_b =4;           // Partner UniProt AC
+  int32 score =5;                // Combined score (0-1000)
+  bool has_experimental =6;
+  bool has_database =7;
+  bool has_textmining =8;
+  bool has_coexpression =9;
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+message AlphaFoldAttr {
+  // pLDDT confidence metrics (from FTP PDB files)
+  double global_metric =1;                  // Average pLDDT score for the entire structure
+  double fraction_plddt_very_high =2;       // Fraction of residues with pLDDT > 90
+  double fraction_plddt_confident =3;       // Fraction of residues with pLDDT between 70-90
+  double fraction_plddt_low =4;             // Fraction of residues with pLDDT between 50-70
+  double fraction_plddt_very_low =5;        // Fraction of residues with pLDDT < 50
+  string model_entity_id =6;                // AlphaFold model identifier (e.g., AF-Q9Y6K9-F1)
+  string gene =7;                           // Gene symbol
+
+  // PAE (Predicted Aligned Error) metrics (from GCS proteome tars)
+  double max_pae =8;                        // Maximum PAE value in matrix (0-31.75 Angstroms)
+  double mean_pae =9;                       // Mean PAE value across all residue pairs
+  double fraction_pae_confident =10;        // Fraction of residue pairs with PAE < 5 Angstroms
+  int32 version =11;                        // AlphaFold model version (e.g., 4, 6)
+
+  // Fragment information (for large proteins split into multiple fragments)
+  int32 fragment_number =12;                // Fragment number (1, 2, 3...) from model ID (AF-xxxx-F1)
+  int32 sequence_length =13;                // Length of this fragment/structure in residues
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+message RnacentralAttr {
+  string rna_type =1;                       // RNA type (e.g., rRNA, miRNA, lncRNA, tRNA, snoRNA)
+  string description =2;                    // Description from FASTA header
+  int32 length =3;                          // Sequence length in nucleotides
+  int32 organism_count =4;                  // Number of distinct organisms
+  repeated string databases =5;             // List of source databases (e.g., ENA, RefSeq, miRBase)
+  bool is_active =6;                        // Whether this is an active (non-obsolete) entry
+  string md5 =7;                            // MD5 checksum of the sequence
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+message ClinicalSubmission {
+  string scv_id = 1;                        // SCV accession (e.g., SCV000123456)
+  string submitter_name = 2;                // Organization that submitted
+  string classification = 3;                // Their classification (Pathogenic, etc.)
+  string review_status = 4;                 // Review status for this submission
+  string date_last_evaluated = 5;           // When they evaluated
+  string method_type = 6;                   // Method used (clinical testing, etc.)
+}
+
+message FunctionalConsequence {
+  string so_id = 1;                         // Sequence Ontology ID (e.g., SO:0001583)
+  string consequence = 2;                   // Human-readable (e.g., "missense variant")
+  string hgvs_expression = 3;               // HGVS for this consequence
+}
+
+message AlleleFrequency {
+  string source = 1;                        // Database (e.g., "gnomAD", "1000 Genomes")
+  double frequency = 2;                     // Allele frequency (0.0-1.0)
+  string population = 3;                    // Population studied
+}
+
+message ClinvarAttr {
+  // Identifiers
+  string variation_id =1;                   // Primary key (VariationID)
+  string allele_id =2;                      // AlleleID
+  string name =3;                           // Preferred HGVS name
+  repeated string hgvs_expressions =4;      // All HGVS representations
+  string dbsnp_id =5;                       // rs identifier
+
+  // Variant Classification
+  string type =6;                           // Variant type (SNV, indel, CNV, etc.)
+
+  // Genomic Location (GRCh38 primary)
+  string chromosome =7;
+  int32 start =8;
+  int32 stop =9;
+  string reference_allele =10;
+  string alternate_allele =11;
+  string assembly =12;                      // GRCh38 or GRCh37
+
+  // Clinical Significance
+  string germline_classification =13;       // Pathogenic, Benign, VUS, etc.
+  string review_status =14;                 // Curation quality level
+  string last_evaluated =15;                // Date of last assessment
+  int32 number_submitters =16;
+
+  // Associated Conditions
+  repeated string phenotype_list =17;       // Human-readable condition names
+  repeated string phenotype_ids =18;        // MedGen/MONDO/OMIM IDs
+
+  // Gene Association
+  string gene_id =19;                       // Entrez Gene ID
+  string gene_symbol =20;                   // HGNC symbol
+  string hgnc_id =21;                       // HGNC identifier
+
+  // NEW: XML-only fields for enhanced data completeness
+  repeated ClinicalSubmission submissions = 22;         // Individual submitter details
+  repeated FunctionalConsequence functional_consequences = 23;  // SO annotations
+  repeated AlleleFrequency allele_frequencies = 24;     // Population frequencies
+  string evidence_support = 25;             // Evidence level/support summary
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+message LipidmapsAttr {
+  string name = 1;                    // Common name
+  string systematic_name = 2;          // IUPAC systematic name
+  repeated string synonyms = 3;        // List of synonyms
+  string abbreviation = 4;             // Short form (e.g., "18:1(9Z)")
+  string category = 5;                 // Top category (e.g., "Fatty Acyls")
+  string main_class = 6;               // Main class with code
+  string sub_class = 7;                // Sub class with code
+  string class_level4 = 8;             // Level 4 classification
+  string exact_mass = 9;               // Exact mass as string
+  string formula = 10;                 // Molecular formula
+  string inchi = 11;                   // InChI string
+  string inchi_key = 12;               // InChI Key
+  string smiles = 13;                  // SMILES string
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+message SwisslipidsAttr {
+  string name = 1;                     // Lipid name
+  string abbreviation = 2;             // Short name
+  repeated string synonyms = 3;        // Alternative names
+  string category = 4;                 // Level 1: Category (e.g., "Glycerophospholipids")
+  string main_class = 5;               // Level 2: Main class (e.g., "Glycerophosphocholines")
+  string sub_class = 6;                // Level 3: Subclass
+  string level = 7;                    // Hierarchy level (species/subspecies/isomeric/etc)
+  string smiles = 8;                   // SMILES representation
+  string inchi = 9;                    // InChI string
+  string inchi_key = 10;               // InChI Key
+  string formula = 11;                 // Molecular formula
+  string mass = 12;                    // Exact mass
+  string charge = 13;                  // Molecular charge
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// Bgee gene expression - Compact format with top conditions
+message BgeeAttr {
+  // Gene identification
+  string gene_id = 1;                                    // Ensembl gene ID (e.g., "ENSG00000012048")
+  string gene_name = 2;                                  // Gene symbol (e.g., "BRCA1")
+  string species = 3;                                    // Species name (e.g., "Homo sapiens")
+  int32 species_taxid = 4;                              // NCBI Taxonomy ID (e.g., 9606)
+
+  // REMOVED: expression_conditions moved to bgee_evidence dataset
+  // Field 5 reserved for backwards compatibility
+  reserved 5;
+
+  // Summary statistics (pre-computed for performance)
+  int32 total_present_calls = 6;                        // Count of tissues where gene is expressed
+  int32 total_absent_calls = 7;                         // Count of tissues where gene is NOT expressed
+  int32 total_conditions = 8;                           // Total conditions tested
+  repeated string top_expressed_tissues = 9;            // Top 10 tissues by expression score
+  string expression_breadth = 10;                       // "ubiquitous", "tissue_specific", "lowly_expressed"
+  double max_expression_score = 11;                     // Highest expression score
+  double average_expression_score = 12;                 // Mean expression score across present calls
+  int32 gold_quality_count = 13;                        // Number of gold quality calls
+
+  // Compact top conditions (new fields)
+  string conditions_schema = 14;                         // Schema: "entity_id|name|expr|score|quality"
+  repeated string top_conditions = 15;                   // Top N conditions, pipe-delimited per schema
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// Bgee expression evidence - detailed gene-tissue expression data (Dataset ID: 131)
+// Separate dataset for granular queries without bloating gene entries
+message BgeeEvidenceAttr {
+  string gene_id = 1;                                    // Parent gene ID (e.g., "ENSG00000012048")
+  string anatomical_entity_id = 2;                       // UBERON/CL ID (e.g., "UBERON:0000955", "CL:0000015")
+  string anatomical_entity_name = 3;                     // Human-readable name (e.g., "brain", "male germ cell")
+  string expression = 4;                                 // "present" or "absent"
+  string call_quality = 5;                               // "gold quality", "silver quality", "bronze quality"
+  double fdr = 6;                                        // False discovery rate (0.0-1.0)
+  double expression_score = 7;                           // Normalized expression score (0-100)
+  double expression_rank = 8;                            // Rank for this gene (lower = more highly expressed)
+  // Data type flags (which technologies support this call)
+  bool has_affymetrix = 9;                               // Microarray data available
+  bool has_rna_seq = 10;                                 // Bulk RNA-Seq data available
+  bool has_single_cell = 11;                             // Single-cell RNA-Seq data available
+  bool has_est = 12;                                     // EST data available
+  bool has_in_situ = 13;                                 // In situ hybridization data available
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// Individual expression condition - supports both simple and advanced formats
+// (Kept for internal parsing, data is stored in compact format in BgeeAttr and BgeeEvidenceAttr)
+message BgeeExpressionCondition {
+  // Anatomical location (present in ALL formats)
+  string anatomical_entity_id = 1;                      // UBERON/CL ID (e.g., "UBERON:0000955", "CL:0000015")
+  string anatomical_entity_name = 2;                    // Human-readable tissue name (e.g., "brain", "male germ cell")
+
+  // Expression call (present in ALL formats)
+  string expression = 3;                                // "present" or "absent"
+  string call_quality = 4;                              // "gold quality", "silver quality", "bronze quality"
+  double fdr = 5;                                       // False discovery rate (0.0-1.0)
+  double expression_score = 6;                          // Normalized expression score (0-100)
+  double expression_rank = 7;                           // Rank for this gene (lower = more highly expressed)
+
+  // Developmental and demographic context (from _all_conditions files)
+  string developmental_stage_id = 8;                    // Stage ID (e.g., "HsapDv:0000240") - empty if not available
+  string developmental_stage_name = 9;                  // Stage name (e.g., "sixth decade stage") - empty if not available
+  string sex = 10;                                      // "male", "female", "hermaphrodite", "not annotated"
+  string strain = 11;                                   // Genetic strain (e.g., "White", "C57BL/6J")
+
+  // Observation metadata (from advanced formats)
+  bool including_observed_data = 12;                    // Whether condition has direct experimental data
+  int32 self_observation_count = 13;                    // Number of experiments directly in this condition
+  int32 descendant_observation_count = 14;              // Number of experiments in child anatomical structures
+
+  // Per-data-type breakdown (from advanced formats) - only populated if advanced file used
+  BgeeDataTypeExpression affymetrix = 15;               // Microarray data
+  BgeeDataTypeExpression est = 16;                      // EST data
+  BgeeDataTypeExpression in_situ = 17;                  // In situ hybridization
+  BgeeDataTypeExpression rna_seq = 18;                  // Bulk RNA-Seq
+  BgeeDataTypeExpression single_cell = 19;              // Single-cell RNA-Seq
+}
+
+// Data type-specific expression info (for advanced format only)
+message BgeeDataTypeExpression {
+  string expression = 1;                                // "present", "absent", "no data"
+  string call_quality = 2;                              // Quality for this data type
+  double fdr = 3;                                       // Data type-specific FDR
+  double expression_score = 4;                          // Data type-specific score
+  double expression_rank = 5;                           // Data type-specific rank
+  double weight = 6;                                    // Weight for rank and score computation
+  bool including_observed_data = 7;                     // Direct data available
+  int32 self_observation_count = 8;                     // Direct experiments
+  int32 descendant_observation_count = 9;               // Child structure experiments
+}
+
+// Rhea biochemical reaction database (Dataset ID: 38)
+message RheaAttr {
+  // Core reaction information
+  string equation = 1;                                  // Reaction equation (e.g., "ATP + H2O = ADP + Pi")
+  string direction = 2;                                 // "LR" (left-to-right), "RL", "BI" (bidirectional), "UN" (undirected)
+  string status = 3;                                    // "Approved", "Preliminary", "Obsolete"
+  bool is_transport = 4;                                // True if reaction involves transport across membrane
+
+  // Participants
+  repeated RheaParticipant chebi_participants = 5;      // ChEBI compounds with stoichiometry and side
+
+  // Annotations
+  repeated string ec_numbers = 6;                       // EC enzyme classification numbers
+  repeated string go_terms = 7;                         // GO Molecular Function terms
+  int32 uniprot_count = 8;                              // Number of UniProt enzymes catalyzing this reaction
+
+  // Directional variant metadata
+  string master_id = 9;                                 // Master reaction ID (for directional variants)
+  repeated string variant_ids = 10;                     // All directional variant IDs
+
+  // Chemical structure
+  string reaction_smiles = 11;                          // Reaction SMILES representation
+
+  // Hierarchical relationships
+  repeated string parent_reactions = 12;                // Parent reaction IDs (more generic reactions)
+  repeated string child_reactions = 13;                 // Child reaction IDs (more specific reactions)
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// Reaction participant (ChEBI compound with metadata)
+message RheaParticipant {
+  string chebi_id = 1;                                  // ChEBI identifier (e.g., "CHEBI:15377")
+  string name = 2;                                      // Compound name
+  int32 stoichiometry = 3;                              // Stoichiometric coefficient
+  string side = 4;                                      // "left", "right", or "both" (for catalysts)
+  string role = 5;                                      // "reactant", "product", "catalyst"
+}
+
+// GWAS Catalog - Genome-Wide Association Studies (Dataset ID: 39)
+// https://www.ebi.ac.uk/gwas/
+message GwasStudyAttr {
+  // Study identification
+  string study_accession = 1;                           // GCST ID (e.g., "GCST000001")
+  string pubmed_id = 2;                                 // PubMed ID
+  string first_author = 3;                              // First author name
+  string publication_date = 4;                          // Publication date
+  string journal = 5;                                   // Journal name
+  string study = 6;                                     // Study description/title
+
+  // Trait/Disease information
+  string disease_trait = 7;                             // Disease or trait studied
+  repeated string trait_efos = 8;                       // EFO ontology term IDs
+
+  // Sample information
+  string initial_sample_size = 9;                       // Initial GWAS sample description
+  string replication_sample_size = 10;                  // Replication sample description
+
+  // Gene associations
+  repeated string reported_genes = 11;                  // Genes reported by author
+  repeated string mapped_genes = 12;                    // Mapped Ensembl gene IDs
+
+  // Platform/Methodology
+  string platform = 13;                                 // Genotyping platform description
+  int32 association_count = 14;                         // Number of SNP associations in this study
+
+  // Top associations summary (for display)
+  repeated GwasAssociation top_associations = 15;       // Top 10 most significant associations
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// Individual GWAS SNP-trait association
+message GwasAssociation {
+  // SNP identification
+  string strongest_snp_risk_allele = 1;                 // SNP-risk allele (e.g., "rs123-A")
+  string snp_id_current = 2;                            // Current rs number
+  repeated string merged_snp_ids = 3;                   // Merged/historical rs numbers
+
+  // Genomic location
+  string chromosome_name = 4;                           // Chromosome (e.g., "1", "X")
+  int64 chromosome_position = 5;                        // Base pair position
+  string region = 6;                                    // Cytogenetic region
+  string context = 7;                                   // Genomic context (intergenic, intronic, etc.)
+  bool intergenic = 8;                                  // Is intergenic variant
+
+  // Association statistics
+  double pvalue = 9;                                    // P-value
+  double pvalue_mlog = 10;                              // -log10(p-value)
+  string or_or_beta = 11;                               // Odds ratio or beta coefficient (as string to preserve format)
+  string ci_95 = 12;                                    // 95% confidence interval
+  string risk_allele_frequency = 13;                    // Risk allele frequency
+
+  // Gene mapping
+  repeated string reported_genes = 14;                  // Genes reported for this SNP
+  repeated string mapped_genes = 15;                    // Genes mapped for this SNP (Ensembl IDs)
+}
+
+// GWAS Catalog - Variant-Trait Associations (Dataset ID: 43)
+// This is the primary 'gwas' dataset (associations), not gwas_study
+message GwasAttr {
+  // Primary identifier
+  string snp_id = 1;                                    // rs number (e.g., "rs7903146")
+  string study_accession = 2;                           // Link to gwas_study (GCST*)
+
+  // SNP details
+  string strongest_snp_risk_allele = 3;                 // SNP-risk allele (e.g., "rs7903146-T")
+  string chr_id = 4;                                    // Chromosome
+  int64 chr_pos = 5;                                    // Position
+  string region = 6;                                    // Cytogenetic region
+  string context = 7;                                   // Variant context (intergenic, intronic, etc.)
+  bool intergenic = 8;                                  // Is intergenic
+
+  // Genes
+  repeated string reported_genes = 9;                   // Genes from publication
+  string mapped_gene = 10;                              // Primary mapped gene
+  string upstream_gene_id = 11;                         // Upstream gene
+  string downstream_gene_id = 12;                       // Downstream gene
+  repeated string snp_gene_ids = 13;                    // Ensembl gene IDs
+
+  // Disease/Trait
+  string disease_trait = 14;                            // Disease or trait
+  repeated string mapped_traits = 15;                   // Mapped trait terms
+  repeated string efo_traits = 16;                      // EFO IDs (e.g., "EFO:0001360")
+
+  // Statistics
+  double p_value = 17;                                  // P-value
+  double pvalue_mlog = 18;                              // -log10(p-value)
+  string or_beta = 19;                                  // Odds ratio or beta
+  string ci_95 = 20;                                    // 95% CI
+  string risk_allele_frequency = 21;                    // RAF
+
+  // Study metadata (denormalized for convenience)
+  string pubmed_id = 22;
+  string first_author = 23;
+  string date = 24;
+  string platform = 25;
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// Population frequency data for dbSNP variants
+// Used to store population-specific allele frequencies from gnomAD, 1000 Genomes, etc.
+message PopulationFrequency {
+  string population = 1;      // Population name (e.g., "gnomAD", "gnomAD_AFR", "1000Genomes", "TOPMED")
+  double frequency = 2;       // Alternate allele frequency (0.0-1.0)
+  int32 allele_count = 3;     // Allele count (AC) - if available
+  int32 allele_number = 4;    // Allele number (AN) - if available
+  int32 homozygote_count = 5; // Homozygote count - if available
+}
+
+// dbSNP - Single Nucleotide Polymorphism Database (Dataset ID: 123)
+// NCBI's database of genetic variation containing SNPs, indels, and structural variants
+message DbsnpAttr {
+  // Primary identifier
+  string rs_id = 1;                                     // RefSNP ID (e.g., "rs7903146")
+  string build_id = 2;                                  // dbSNP build version (e.g., "157")
+
+  // Genomic location (GRCh38 reference assembly)
+  string chromosome = 3;                                // Chromosome (e.g., "1", "X", "MT")
+  int64 position = 4;                                   // Chromosomal position (1-based)
+  string ref_allele = 5;                                // Reference allele
+  string alt_allele = 6;                                // Alternate allele
+
+  // Allele frequencies
+  double allele_frequency = 7;                          // Global allele frequency (1000 Genomes)
+  double gnomad_frequency = 8;                          // gnomAD global population frequency (from FREQ field)
+
+  // Gene context (can be multiple genes per SNP)
+  repeated string gene_names = 9;                       // Gene symbols (e.g., ["BRCA1", "TP53"])
+  repeated string gene_ids = 10;                        // Entrez Gene IDs
+  repeated string pseudogene_names = 17;                // Pseudogene symbols
+  repeated string pseudogene_ids = 18;                  // Pseudogene IDs
+  string gene_locus = 11;                               // Cytogenetic locus (e.g., "17q21.31") - from LOC field
+
+  // Functional annotation
+  string clinical_significance = 12;                    // Clinical significance (from ClinVar CLNSIG)
+  string variant_type = 13;                             // Variant type (SNV, insertion, deletion, etc.)
+  string variant_class = 14;                            // Variant class (e.g., "single nucleotide variant")
+
+  // Variant origin and quality
+  int32 sao = 19;                                       // Variant Allele Origin: 0=unspecified, 1=Germline, 2=Somatic, 3=Both
+  bool is_common = 20;                                  // Common SNP flag (MAF >= 1% in 1000 Genomes)
+
+  // Functional impact flags (coding region effects)
+  bool nsf = 21;                                        // Non-synonymous frameshift (FxnClass=44)
+  bool nsm = 22;                                        // Non-synonymous missense (FxnClass=42)
+  bool nsn = 23;                                        // Non-synonymous nonsense/STOP (FxnClass=41)
+  bool syn = 24;                                        // Synonymous (FxnCode=3)
+
+  // UTR and splice site flags
+  bool u3 = 25;                                         // In 3' UTR (FxnCode=53)
+  bool u5 = 26;                                         // In 5' UTR (FxnCode=55)
+  bool ass = 27;                                        // In acceptor splice site (FxnCode=73)
+  bool dss = 28;                                        // In donor splice site (FxnCode=75)
+
+  // Gene region flags
+  bool intron = 29;                                     // In intron (FxnCode=6)
+  bool r3 = 30;                                         // In 3' gene region (FxnCode=13)
+  bool r5 = 31;                                         // In 5' gene region (FxnCode=15)
+
+  // Quality and evidence indicators
+  int32 ssr = 32;                                       // Suspect Reason Codes (can be sum of: 1=Paralog, 2=byEST, 4=oldAlign, 8=Para_EST, 16=1kg_failed, 1024=other)
+  bool has_publication = 33;                            // PM flag: Variant has associated publication
+  bool has_pubmed_ref = 34;                             // PUB flag: RefSNP mentioned in a publication
+  bool has_genotypes = 35;                              // GNO flag: Genotypes available
+
+  // Historical data
+  repeated string merged_rs_ids = 15;                   // Merged rs IDs (historical) - from OLD field
+
+  // Literature
+  repeated string pubmed_ids = 16;                      // PubMed citation IDs - from PMID field
+
+  // === NEW FIELDS (40-51) - Added for enhanced dbSNP support ===
+
+  // Population Frequencies (P0 - High Priority)
+  // Parsed from FREQ field: "gnomAD:0.999,0.001|1000Genomes:0.998,0.002|..."
+  repeated PopulationFrequency gnomad_populations = 40;           // gnomAD population-specific frequencies
+  repeated PopulationFrequency thousand_genomes_populations = 41; // 1000 Genomes population-specific frequencies
+
+  // Enhanced ClinVar Integration (P1)
+  // These fields provide direct ClinVar linkage for clinical variant interpretation
+  string clinvar_variation_id = 44;           // ClinVar Variation ID (from CLNVI) - for direct ClinVar linking
+  string clinvar_accession = 45;              // ClinVar RCV accession (from CLNACC)
+  string clinvar_review_status = 46;          // Review quality indicator (from CLNREVSTAT)
+                                              // Values: no_assertion, criteria_provided, reviewed_by_expert_panel, practice_guideline
+  repeated string clinvar_disease_ids = 47;   // Disease database IDs (from CLNDISDB) - MedGen, OMIM, Orphanet
+  repeated string clinvar_disease_names = 48; // Disease/condition names (from CLNDN)
+  int32 clinvar_origin = 49;                  // Variant origin (from CLNORIGIN)
+                                              // 0=unknown, 1=germline, 2=somatic, 4=inherited, 8=paternal, 16=maternal, 32=de-novo, 64=biparental, 128=uniparental, 256=not-tested, 512=tested-inconclusive, 1073741824=other
+  string clinvar_hgvs = 50;                   // HGVS expression (from CLNHGVS) - standard clinical nomenclature
+
+  // === HGVS Nomenclature (computed from RefSeq GFF3) ===
+  // Provides standardized nomenclature for clinical reporting
+  HgvsAnnotation hgvs_mane = 52;              // MANE Select transcript (primary clinical reference)
+  repeated HgvsAnnotation hgvs_transcripts = 53;  // All affected transcripts (complete picture)
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// HGVS annotation for a single transcript
+// Used by dbSNP to provide standardized clinical nomenclature
+message HgvsAnnotation {
+  string transcript_id = 1;     // RefSeq transcript accession (e.g., "NM_001005484.2")
+  string gene_symbol = 2;       // Gene symbol (e.g., "BRCA1", "TP53")
+  string hgvs_c = 3;            // Coding DNA notation (e.g., "c.215C>G", "c.215+10A>G" for intronic)
+  string hgvs_p = 4;            // Protein notation (e.g., "p.Pro72Arg") - only for coding changes
+  string consequence = 5;       // Variant consequence: "coding", "intronic", "5_utr", "3_utr", "upstream", "downstream"
+  bool is_mane_select = 6;      // True if this is the MANE Select transcript
+  bool is_mane_plus_clinical = 7; // True if this is a MANE Plus Clinical transcript
+}
+
+// IntAct - Protein-Protein Interactions (Dataset ID: 44)
+// EBI's manually curated database of molecular interactions derived from literature and direct submissions
+// Contains ~1.8M experimentally validated protein-protein interactions with detailed experimental evidence
+
+// PSI-MI Term - Structured representation of PSI-MI controlled vocabulary terms
+message PsiMiTerm {
+  string mi_id = 1;                                     // MI identifier (e.g., "MI:0018")
+  string term_name = 2;                                 // Term name (e.g., "two hybrid")
+  string full_string = 3;                               // Original raw string for backward compatibility
+}
+
+// Confidence score components - detailed breakdown of IntAct MIscore
+message IntactConfidenceScores {
+  double miscore = 1;                                   // Combined IntAct MIscore (0-1)
+  double method_score = 2;                              // Detection method component
+  double type_score = 3;                                // Interaction type component
+  double author_score = 4;                              // Author-assigned score (if any)
+  string raw_string = 5;                                // Original pipe-delimited string
+}
+
+// Binding site/feature annotation
+message IntactFeature {
+  string feature_type = 1;                              // Type (binding site, mutation, PTM)
+  int32 range_start = 2;                                // Start residue position
+  int32 range_end = 3;                                  // End residue position
+  string mi_type = 4;                                   // MI term for feature type
+  string description = 5;                               // Free text description
+}
+
+// Kinetic parameter (Kd, IC50, Ki, etc.)
+message IntactParameter {
+  string parameter_type = 1;                            // Type: kd, ic50, ki
+  double value = 2;                                     // Numeric value
+  string unit = 3;                                      // Unit: M, nM, s^-1
+  string raw_string = 4;                                // Original string
+}
+
+// Interaction cross-reference to other databases
+message IntactXref {
+  string database = 1;                                  // Database name: go, reactome, imex
+  string identifier = 2;                                // Database identifier (e.g., GO:0006915)
+}
+
+// IntAct attributes - Single interaction record (stored per interaction ID)
+// Entry key: interaction_id (e.g., "EBI-7121552")
+// Cross-refs: protein_a → interaction, protein_b → interaction (bidirectional)
+message IntactAttr {
+  // Interaction identifier (entry key)
+  string interaction_id = 1;                            // IntAct interaction ID (e.g., "EBI-7121552")
+
+  // Both interacting proteins (symmetric representation)
+  string protein_a = 2;                                 // First protein UniProt ID
+  string protein_a_gene = 3;                            // First protein gene name
+  string protein_b = 4;                                 // Second protein UniProt ID
+  string protein_b_gene = 5;                            // Second protein gene name
+
+  // Experimental details
+  string detection_method = 6;                          // PSI-MI detection method (e.g., "MI:0018(two hybrid)")
+  string interaction_type = 7;                          // PSI-MI interaction type (e.g., "MI:0407(direct interaction)")
+
+  // Confidence and quality
+  double confidence_score = 8;                          // IntAct MIscore (0.0-1.0, higher is better)
+
+  // Experimental context
+  string experimental_role_a = 9;                       // Role of protein A (e.g., "bait", "prey", "neutral")
+  string experimental_role_b = 10;                      // Role of protein B
+
+  // Organism information
+  int32 taxid_a = 11;                                   // NCBI Taxonomy ID for protein A
+  int32 taxid_b = 12;                                   // NCBI Taxonomy ID for protein B
+  string organism_a = 13;                               // Organism name for protein A (e.g., "Homo sapiens")
+  string organism_b = 14;                               // Organism name for protein B
+
+  // Literature evidence
+  string pubmed_id = 15;                                // PubMed ID for the supporting publication
+  string first_author = 16;                             // First author and year (e.g., "Cestra et al. (1999)")
+
+  // Source database
+  string source_database = 17;                          // Original source (e.g., "MINT", "IntAct", "DIP")
+
+  // Negative evidence flag
+  bool is_negative = 18;                                // True if this is a negative interaction (no interaction found)
+
+  // Temporal metadata
+  string creation_date = 19;                            // Date interaction was added (YYYY/MM/DD)
+  string update_date = 20;                              // Date interaction was last updated
+
+  // Structured PSI-MI terms (P0)
+  PsiMiTerm detection_method_parsed = 21;               // Parsed detection method
+  PsiMiTerm interaction_type_parsed = 22;               // Parsed interaction type
+  PsiMiTerm biological_role_a = 23;                     // Biological role of protein A
+  PsiMiTerm biological_role_b = 24;                     // Biological role of protein B
+
+  // Detailed confidence scores (P0)
+  IntactConfidenceScores confidence_scores = 25;        // Full confidence score breakdown
+
+  // Host organism (P2) - where experiment was performed
+  int32 host_taxid = 26;                                // Host organism taxonomy ID
+  string host_organism_name = 27;                       // Host organism name (e.g., "in vitro")
+
+  // Binding site features (P1)
+  repeated IntactFeature features_a = 28;               // Features on interactor A
+  repeated IntactFeature features_b = 29;               // Features on interactor B
+
+  // Stoichiometry (P2)
+  int32 stoichiometry_a = 30;                           // Stoichiometry of interactor A
+  int32 stoichiometry_b = 31;                           // Stoichiometry of interactor B
+
+  // Kinetic parameters (P2)
+  repeated IntactParameter parameters = 32;             // Kd, IC50, Ki values
+
+  // Interaction cross-references (P1/P2)
+  repeated IntactXref interaction_xrefs = 33;           // GO, Reactome xrefs
+  string imex_id = 34;                                  // IMEx consortium ID
+
+  // Method reliability score (P1)
+  double method_reliability_score = 35;                 // Pre-computed reliability (0-1)
+
+  // Non-protein interactor support (for protein-small molecule, protein-RNA interactions)
+  string interactor_type_a = 36;                        // PSI-MI type: "protein", "small molecule", "rna", etc.
+  string interactor_type_b = 37;                        // PSI-MI type for interactor B
+  string chebi_a = 38;                                  // ChEBI ID if interactor A is small molecule (e.g., "CHEBI:50210")
+  string chebi_b = 39;                                  // ChEBI ID if interactor B is small molecule
+  string rnacentral_a = 40;                             // RNAcentral ID if interactor A is RNA (e.g., "URS00002AFD52")
+  string rnacentral_b = 41;                             // RNAcentral ID if interactor B is RNA
+
+  // Extended interactor identification (for DNA, gene, peptide, complex interactions)
+  string interactor_id_a = 42;                          // Raw source ID (e.g., "EBI-969266", "ENSG00000180228")
+  string interactor_id_b = 43;                          // Raw source ID for interactor B
+  string mi_type_id_a = 44;                             // PSI-MI type code (MI:0326=protein, MI:0319=DNA, MI:0250=gene)
+  string mi_type_id_b = 45;                             // PSI-MI type code for interactor B
+
+  // DNA interactors (GenBank/DDBJ/EMBL accessions)
+  string dna_genbank_a = 46;                            // GenBank accession if available (e.g., "AF004877")
+  string dna_genbank_b = 47;
+
+  // Gene interactors (Ensembl gene IDs)
+  string ensembl_gene_a = 48;                           // Ensembl gene ID (e.g., "ENSG00000139618")
+  string ensembl_gene_b = 49;
+
+  // Additional external database IDs
+  string refseq_a = 50;                                 // RefSeq ID if available
+  string refseq_b = 51;
+  string reactome_a = 52;                               // Reactome ID if available
+  string reactome_b = 53;
+
+  // Transcript interactors (for mRNA-miRNA interactions)
+  string transcript_a = 54;                             // Ensembl transcript ID (e.g., "ENST00000373204")
+  string transcript_b = 55;
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// DIAMOND similarity hit (individual alignment result)
+message DiamondSimilarity {
+  // Target protein identifiers
+  string target_uniprot = 1;                            // Target UniProt ID (extracted from "sp|P01946|HBA_RAT")
+  string target_name = 2;                               // Target protein name (extracted: "HBA_RAT")
+
+  // Alignment statistics
+  float identity = 3;                                   // Sequence identity percentage (0-100)
+  int32 alignment_length = 4;                           // Length of alignment
+  int32 mismatches = 5;                                 // Number of mismatches
+  int32 gap_opens = 6;                                  // Number of gap openings
+
+  // Alignment positions
+  int32 q_start = 7;                                    // Query alignment start position
+  int32 q_end = 8;                                      // Query alignment end position
+  int32 s_start = 9;                                    // Subject alignment start position
+  int32 s_end = 10;                                     // Subject alignment end position
+
+  // Scoring metrics
+  double evalue = 11;                                   // E-value (expectation value)
+  float bitscore = 12;                                  // Bit score
+}
+
+// DIAMOND Similarity attributes (DIAMOND BLASTP results, stored per protein)
+message DiamondSimilarityAttr {
+  // Primary identifier (UniProt AC with "d" prefix, e.g., "dP01942")
+  string protein_id = 1;                                // DIAMOND ID (d + UniProt accession)
+
+  // Similarity hits
+  repeated DiamondSimilarity similarities = 2;          // Top N similar proteins (variable, typically 10-100)
+
+  // Summary statistics
+  int32 similarity_count = 3;                           // Total number of similarity hits
+  float top_identity = 4;                               // Highest identity percentage
+  float top_bitscore = 5;                               // Highest bit score
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// ESM2 embedding-based protein similarity
+message Esm2Similarity {
+  string target_uniprot = 1;                            // Target UniProt ID
+  float cosine_similarity = 2;                          // Cosine similarity score (0-1)
+  int32 rank = 3;                                       // Rank among similar proteins (1 = most similar)
+}
+
+message Esm2SimilarityAttr {
+  string protein_id = 1;                                // Query UniProt ID
+  repeated Esm2Similarity similarities = 2;             // Top N similar proteins
+  int32 similarity_count = 3;                           // Number of similar proteins stored
+  float top_similarity = 4;                             // Highest cosine similarity
+  float avg_similarity = 5;                             // Average cosine similarity
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// Antibody - Unified Antibody Database (TheraSAbDab, SAbDab, IMGT/GENE-DB, IMGT/LIGM-DB)
+message AntibodyAttr {
+  // Metadata - which source this entry came from
+  string source = 1;                                    // therasabdab, sabdab, imgt_gene, imgt_ligm
+  string antibody_type = 2;                             // therapeutic, structure, germline, sequence
+
+  // Primary identifiers (depending on source)
+  string inn_name = 3;                                  // TheraSAbDab: INN (e.g., "pembrolizumab")
+  string pdb_id = 4;                                    // SAbDab: PDB ID (e.g., "5JXE")
+  string gene_name = 5;                                 // IMGT/GENE-DB: Gene allele (e.g., "IGHV1-69*01")
+  string sequence_id = 6;                               // IMGT/LIGM-DB: Sequence accession
+
+  // Antibody format and structure (TheraSAbDab, SAbDab)
+  string format = 7;                                    // IgG, Fab, scFv, VHH (nanobody), etc.
+  string isotype = 8;                                   // IgG1, IgG2, IgG4, etc.
+  string light_chain = 9;                               // kappa, lambda
+
+  // Clinical development information (TheraSAbDab)
+  string clinical_stage = 10;                           // Approved, Phase I/II/III, Preclinical, Withdrawn
+  string status = 11;                                   // Active, Discontinued, Withdrawn
+
+  // Sequence information (TheraSAbDab, IMGT)
+  repeated string heavy_chain_seq = 12;                 // Variable domain heavy chain sequences
+  repeated string light_chain_seq = 13;                 // Variable domain light chain sequences
+
+  // Target and indication information (TheraSAbDab)
+  repeated string targets = 14;                         // Target protein names (e.g., "PD-1", "EGFR")
+  repeated string indications = 15;                     // Disease indications
+
+  // Structure information (TheraSAbDab, SAbDab)
+  repeated string pdb_ids = 16;                         // Associated PDB structure IDs
+  string resolution = 17;                               // SAbDab: Structure resolution (e.g., "2.5")
+  string method = 18;                                   // SAbDab: Experimental method (X-ray, NMR, EM)
+
+  // IMGT/GENE-DB specific fields
+  string organism = 19;                                 // Organism (e.g., "Homo sapiens")
+  string functionality = 20;                            // F (functional), ORF, P (pseudogene)
+  string allele = 21;                                   // Allele designation
+
+  // Additional metadata
+  repeated string cross_references = 22;                // Cross-references to other databases
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// PubChem - Biotech-Focused Subset (Priority 0-3: FDA drugs, clinical trials, natural products, bioassay-tested)
+// Dataset ID: 45
+// Source: NCBI PubChem Compound Database
+message PubchemAttr {
+  // Core Identifiers
+  string cid = 1;                         // PubChem Compound ID
+  string inchi = 2;                       // Full InChI string
+  string inchi_key = 3;                   // InChI Key (structure identifier)
+  string smiles = 4;                      // Canonical SMILES
+  string isomeric_smiles = 5;             // Isomeric SMILES (stereo-aware)
+
+  // Nomenclature
+  string title = 6;                       // Preferred compound name
+  string iupac_name = 7;                  // IUPAC systematic name
+  repeated string synonyms = 8;           // Synonyms (filtered to top 20)
+
+  // Molecular Properties (FOR FILTERING)
+  string molecular_formula = 9;           // Chemical formula
+  double molecular_weight = 10;           // Molecular weight (Da)
+  double exact_mass = 11;                 // Exact mass
+  double monoisotopic_weight = 34;        // Monoisotopic weight (most abundant isotope)
+
+  // Drug-like Properties (Lipinski Rule of 5)
+  double xlogp = 12;                      // Lipophilicity (XLogP3)
+  int32 hydrogen_bond_donors = 13;        // H-bond donors (HBD)
+  int32 hydrogen_bond_acceptors = 14;     // H-bond acceptors (HBA)
+  int32 rotatable_bonds = 15;             // Rotatable bond count
+  double tpsa = 16;                       // Topological polar surface area
+
+  // Biological Classifications
+  bool is_fda_approved = 17;              // FDA-approved drug flag (P0)
+  bool has_literature = 18;               // Has literature references (P1)
+  bool has_patents = 19;                  // Has patent associations (P2)
+  repeated string drug_names = 20;        // Trade names (if drug)
+  repeated string mesh_terms = 21;        // MeSH medical subject headings
+
+  // Bioactivity Indicators
+  int32 bioassay_count = 22;              // Number of linked bioassays
+  bool has_bioactivity = 23;              // Has screening data
+
+  // Cross-References (Bidirectional)
+  repeated string chebi_ids = 24;         // ChEBI cross-references
+  repeated string chembl_ids = 25;        // ChEMBL cross-references
+  repeated string hmdb_ids = 26;          // HMDB cross-references
+  repeated string clinical_trial_ids = 27; // NCT IDs from ClinicalTrials.gov
+
+  // Literature
+  repeated int64 pmids = 28;              // PubMed references (top 10)
+  int32 total_pmid_count = 29;            // Total literature citations
+
+  // Patents
+  repeated string patent_ids = 31;        // Patent IDs (top 10)
+  int32 total_patent_count = 32;          // Total patent associations
+
+  // Metadata
+  string compound_type = 30;              // "drug" | "clinical_trial" | "natural_product" | "bioactive"
+  string creation_date = 35;              // Date when CID first appeared in PubChem (YYYY-MM-DD)
+  string parent_cid = 36;                 // Parent compound CID (for salts, hydrates, etc.)
+  repeated string pharmacological_actions = 37; // MeSH pharmacological action terms
+
+  // BioAssay Activities (ALL activities for this compound - avg 17, max ~131)
+  repeated PubchemActivity activities = 33;
+
+  // External Database Identifiers (extracted from synonyms, searchable)
+  // TODO: UNII could become a full dataset - FDA UNII database has rich substance info
+  string unii = 38;                       // FDA Unique Ingredient Identifier (e.g., "362O9ITL9D")
+  // TODO: DTXSID could become a full dataset - EPA CompTox has toxicity/environmental data
+  string dtxsid = 39;                     // EPA DSSTox Substance ID (e.g., "DTXSID7020182")
+  repeated string zinc_ids = 40;          // ZINC database IDs for virtual screening
+  repeated string nsc_ids = 41;           // NCI compound numbers (cancer research)
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// PubChem Activity (individual bioassay measurement)
+// PubChem BioActivity - Activity measurement (separate dataset)
+// Dataset ID: 46
+// Cross-references: CID (pubchem), Protein, Gene, BioAssay
+message PubchemActivityAttr {
+  string activity_id = 1;         // Unique ID: CID_AID_index
+  string cid = 2;                  // PubChem Compound ID (xref)
+  string aid = 3;                  // BioAssay ID (xref)
+  string activity_outcome = 4;     // Active, Inactive, Probe, Inconclusive
+  string activity_type = 5;        // IC50, Ki, Kd, EC50, GI50, AC50, ED50
+  string qualifier = 6;            // <, <=, =, >=, >
+  double value = 7;                // Numerical value
+  string unit = 8;                 // uM, nM, pM, mg/mL, %
+  string protein_accession = 9;    // NCBI Protein (xref)
+  string gene_id = 10;             // NCBI Gene ID (xref)
+  int32 target_taxid = 11;         // Target organism
+  string pmid = 12;                // PubMed reference
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// DEPRECATED: PubchemActivity - kept for backward compatibility, use PubchemActivityAttr instead
+message PubchemActivity {
+  string aid = 1;
+  string activity_outcome = 2;
+  string activity_type = 3;
+  string qualifier = 4;
+  double value = 5;
+  string unit = 6;
+  string protein_accession = 7;
+  string gene_id = 8;
+  int32 target_taxid = 9;
+  string pmid = 10;
+}
+
+// PubChem Assay - Assay metadata (separate dataset for browsing assays)
+// Dataset ID: 47
+// Cross-references: Protein, Gene, PubchemActivity (via AID)
+message PubchemAssayAttr {
+  // Assay identification
+  string aid = 1;                         // BioAssay ID (primary key)
+  string name = 2;                        // BioAssay descriptive name
+  string source_name = 3;                 // Source organization (e.g., "NCATS", "ChEMBL")
+  string source_id = 4;                   // Source internal ID
+
+  // Assay classification
+  string substance_type = 5;              // small-molecule, siRNA, antibody, etc.
+  string outcome_type = 6;                // Screening, Confirmatory, Summary, Literature, Other
+  string project_category = 7;            // Project classification (e.g., "MLPCN", "Other")
+  string bioassay_group = 8;              // Assay grouping
+  repeated string bioassay_types = 9;     // Assay type tags (semicolon-separated in source)
+
+  // Target information
+  repeated string protein_accessions = 10; // NCBI Protein accessions (xref)
+  repeated string uniprot_ids = 11;        // UniProt IDs (xref)
+  repeated string gene_ids = 12;           // NCBI Gene IDs (xref)
+  repeated int32 target_taxids = 13;       // Target organism taxonomy IDs
+
+  // Test organism context
+  repeated int32 test_organism_taxids = 14; // Test organism taxonomy IDs
+
+  // Statistics
+  int32 tested_sids = 15;                 // Number of substances tested
+  int32 active_sids = 16;                 // Number of active substances
+  int32 tested_cids = 17;                 // Number of compounds tested
+  int32 active_cids = 18;                 // Number of active compounds
+  double hit_rate = 19;                   // active_cids / tested_cids (if tested_cids > 0)
+
+  // Metadata
+  string deposit_date = 20;               // Date deposited (YYYYMMDD format)
+  string modify_date = 21;                // Last modification date (YYYYMMDD format)
+
+  // BAO (BioAssay Ontology) annotations - from Aid2CategorizedComment.gz
+  string detection_technology = 22;       // Detection method (e.g., "luminescence: bioluminescence", "fluorescence polarization")
+  string molecular_target = 23;           // Molecular target type (e.g., "protein target: enzyme: protease")
+  string biological_process = 24;         // Biological process target (e.g., "cell death", "regulation of gene expression")
+  string assay_format = 25;               // Assay format (e.g., "cell-based format", "biochemical format")
+  string assay_design = 26;               // Assay design (e.g., "binding reporter", "inducible reporter")
+  string assay_stage = 27;                // Assay stage (e.g., "primary", "confirmatory")
+  string measurement_type = 28;           // Measurement type (e.g., "endpoint assay", "kinetic assay")
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// MeSH - Medical Subject Headings (Dataset ID: 48)
+// NLM's controlled vocabulary for indexing biomedical literature
+// Source: https://www.nlm.nih.gov/mesh/
+message MeshAttr {
+  // Core identification
+  string descriptor_ui = 1;               // Unique ID (e.g., "D000001")
+  string descriptor_name = 2;             // Primary term name
+  string descriptor_class = 3;            // 1=Topical, 2=Publication Types, 3=Check Tags, 4=Geographic
+
+  // Terms and synonyms
+  repeated string entry_terms = 4;        // All synonyms/alternative names (flattened)
+
+  // Hierarchical classification
+  repeated string tree_numbers = 5;       // Tree classification codes (e.g., "C10.228.140.300")
+
+  // Definitions and scope
+  string scope_note = 6;                  // Usage definition and guidance
+  string annotation = 7;                  // Indexing notes
+  string history_note = 8;                // Historical information
+
+  // Qualifiers and relationships
+  repeated string allowable_qualifiers = 9;     // Permitted subheadings (QualifierUI)
+  repeated string see_related = 10;             // Cross-reference descriptor IDs
+  repeated string pharmacological_actions = 11; // Drug action classifications
+  repeated string previous_indexing = 12;       // Historical indexing terms
+
+  // Supplementary Concept Record fields (for chemicals)
+  bool is_supplementary = 13;             // True if SCR (chemical), false if Descriptor
+  string registry_number = 14;            // CAS/EC/UNII/Taxonomy ID
+  string heading_mapped_to = 15;          // Descriptor automatically assigned in PubMed
+
+  // Temporal metadata
+  string date_created = 16;
+  string date_established = 17;
+  string date_revised = 18;
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// EntrezAttr stores NCBI Entrez Gene attributes
+// Source: ftp.ncbi.nlm.nih.gov/gene/DATA/gene_info.gz, gene_summary.gz, and gene_neighbors.gz
+message EntrezAttr {
+  string name = 1;              // gene description (column 8)
+  string symbol = 2;            // official gene symbol, e.g. TP53 (column 2)
+  string type = 3;              // gene type: protein-coding, ncRNA, pseudo, etc. (column 9)
+  repeated string synonyms = 4; // alternative gene symbols (column 4, pipe-separated)
+  string chromosome = 5;        // chromosome location (column 6)
+  string summary = 6;           // detailed functional summary from gene_summary.gz
+  // Genomic position from gene_neighbors.gz
+  int64 start_position = 7;     // genomic start position
+  int64 end_position = 8;       // genomic end position
+  string orientation = 9;       // strand orientation: + or -
+  string genomic_accession = 10; // RefSeq genomic accession (e.g., NC_000001.11)
+  string tax_id = 11;            // NCBI taxonomy ID (e.g., "9606" for human)
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// RefSeqAttr stores NCBI RefSeq sequence attributes
+// Source: ftp.ncbi.nlm.nih.gov/refseq/H_sapiens/mRNA_Prot/ (GBFF/GPFF files)
+// RefSeq provides curated, non-redundant reference sequences for genomic DNA, transcripts, and proteins
+message RefSeqAttr {
+  // Core identification
+  string accession = 1;           // Base accession without version (e.g., NM_001353961, NP_001340890) - used as primary key
+  string type = 2;                // Sequence type: mRNA, ncRNA, protein, genomic, misc_RNA, rRNA
+  string status = 3;              // RefSeq status: VALIDATED, REVIEWED, PROVISIONAL, PREDICTED, MODEL, INFERRED, SUPPRESSED
+  string version = 32;            // Full versioned accession (e.g., NM_001353961.2) - for version-specific queries
+
+  // Gene information (from GBFF FEATURES/gene)
+  string symbol = 4;              // Gene symbol (e.g., BRCA1)
+  string description = 5;         // DEFINITION field - full description
+  repeated string synonyms = 6;   // Gene synonyms from /gene_synonym qualifier
+
+  // Genomic context
+  string assembly = 7;            // Assembly name (e.g., GRCh38.p14)
+  string chromosome = 8;          // Chromosome number/name
+  int64 start_position = 9;       // Start position on genomic accession
+  int64 end_position = 10;        // End position on genomic accession
+  string orientation = 11;        // Strand orientation: + or -
+
+  // Related accessions (cross-links between transcript, protein, genomic)
+  string genomic_accession = 12;  // Genomic nucleotide accession (e.g., NC_000001.11)
+  string protein_accession = 13;  // Protein accession (e.g., NP_001340890.1)
+  string rna_accession = 14;      // RNA/transcript accession (e.g., NM_001353961.2)
+
+  // MANE (Matched Annotation from NCBI and EBI) - gold standard transcripts
+  bool is_mane_select = 15;       // MANE Select: one transcript per protein-coding gene
+  bool is_mane_plus_clinical = 16; // MANE Plus Clinical: additional clinically relevant transcripts
+  string ensembl_transcript = 17; // Corresponding Ensembl transcript ID (e.g., ENST00000357654.9)
+  string ensembl_protein = 18;    // Corresponding Ensembl protein ID (e.g., ENSP00000350283.3)
+
+  // Cross-references (from GBFF DBSOURCE and /db_xref qualifiers)
+  string hgnc_id = 19;            // HGNC ID (e.g., HGNC:1100)
+  string ccds_id = 20;            // CCDS ID (e.g., CCDS11456.1)
+  string uniprot_id = 21;         // UniProt accession
+
+  // Protein-specific fields (from GPFF)
+  int32 protein_length = 22;      // Protein length in amino acids
+  double molecular_weight = 23;   // Calculated molecular weight in Daltons
+  string protein_name = 24;       // Protein product name
+
+  // Taxonomy
+  int32 taxid = 25;               // NCBI Taxonomy ID (e.g., 9606 for human)
+  string organism = 26;           // Organism name (e.g., "Homo sapiens")
+
+  // Sequence metadata
+  int32 seq_length = 27;          // Sequence length (nucleotides for RNA, aa for protein)
+  string mol_type = 28;           // Molecule type from source qualifier
+
+  // Clinical and quality annotations
+  bool is_lrg = 29;               // Has LRG (Locus Reference Genomic) reference
+  string lrg_id = 30;             // LRG ID if applicable (e.g., LRG_1)
+
+  // Exon structure (for transcripts)
+  int32 exon_count = 31;          // Number of exons
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// BindingDB - Binding Affinity Database (Dataset ID: 103)
+// Measured binding affinities between proteins and drug-like molecules
+// Source: https://www.bindingdb.org/
+message BindingdbAttr {
+  // Primary identifier
+  string bindingdb_id = 1;                        // BindingDB Monomer ID (e.g., "50000001")
+
+  // Ligand information
+  string ligand_name = 2;                         // Compound name
+  string ligand_smiles = 3;                       // SMILES representation
+  string ligand_inchi = 4;                        // InChI string
+  string ligand_inchi_key = 5;                    // InChI Key
+
+  // Target information
+  string target_name = 6;                         // Target protein name
+  string target_source_organism = 7;              // Organism of target (e.g., "Homo sapiens")
+
+  // Binding affinity measurements (stored as strings to preserve original format)
+  string ki = 8;                                  // Ki value with units (e.g., "10 nM", ">10000 nM")
+  string ic50 = 9;                                // IC50 value with units
+  string kd = 10;                                 // Kd value with units
+  string ec50 = 11;                               // EC50 value with units
+  string kon = 12;                                // Association rate constant
+  string koff = 13;                               // Dissociation rate constant
+
+  // Experimental conditions
+  string ph = 14;                                 // pH of assay
+  string temp_c = 15;                             // Temperature in Celsius
+
+  // Cross-references (for bidirectional linking)
+  repeated string uniprot_ids = 16;               // UniProt target accessions
+  repeated string pubchem_cids = 17;              // PubChem Compound IDs
+  repeated string chembl_ids = 18;                // ChEMBL compound IDs
+  repeated string chebi_ids = 19;                 // ChEBI IDs
+
+  // Literature references
+  string doi = 20;                                // DOI of source publication
+  string pmid = 21;                               // PubMed ID
+  string patent_number = 22;                      // Patent number if from patent
+
+  // Data provenance
+  string institution = 23;                        // Depositing institution
+  string curation_date = 24;                      // Date of curation
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// GenCC - Gene Curation Coalition (Dataset ID: 747)
+// Gene-disease validity curations from multiple sources
+// Source: https://thegencc.org/
+message GenccAttr {
+  // Unique identifier for this curation
+  string uuid = 1;                              // GenCC UUID for the submission
+
+  // Gene information
+  string gene_curie = 2;                        // Gene CURIE (e.g., "HGNC:10896")
+  string gene_symbol = 3;                       // Gene symbol (e.g., "RYR1")
+
+  // Disease information
+  string disease_curie = 4;                     // Disease CURIE (e.g., "MONDO:0008056")
+  string disease_title = 5;                     // Disease name (e.g., "malignant hyperthermia")
+
+  // Classification (gene-disease validity)
+  string classification_curie = 6;              // Classification CURIE (e.g., "GENCC:100001")
+  string classification_title = 7;              // Classification label (e.g., "Definitive")
+                                                 // Values: Definitive, Strong, Moderate, Limited, Disputed, Refuted, Animal Model Only, No Known Disease Relationship
+
+  // Mode of Inheritance
+  string moi_curie = 8;                         // Mode of Inheritance CURIE (e.g., "HP:0000006")
+  string moi_title = 9;                         // Mode of Inheritance name (e.g., "Autosomal dominant")
+
+  // Submitter information
+  string submitter_curie = 10;                  // Submitter CURIE (e.g., "GENCC:000101")
+  string submitter_title = 11;                  // Submitter name (e.g., "ClinGen")
+
+  // Submission metadata
+  string submitted_as_date = 12;                // Submission date (ISO format)
+  string submitted_as_public_report_url = 13;   // URL to the public report
+  repeated string submitted_as_pmids = 14;      // PubMed IDs supporting the curation
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// CTD - Comparative Toxicogenomics Database (Dataset ID: 61)
+// Curated chemical-gene, chemical-disease, and gene-disease associations
+// Source: https://ctdbase.org/
+// Note: Gene interactions and disease associations are stored as separate datasets
+// (ctd_gene_interaction ID:131, ctd_disease_association ID:132)
+message CtdAttr {
+  // Chemical identification (primary entry is indexed by MeSH chemical ID)
+  string chemical_id = 1;                         // MeSH ID (e.g., "D000082")
+  string chemical_name = 2;                       // Chemical name (e.g., "Acetaminophen")
+  string cas_rn = 3;                              // CAS Registry Number
+  string definition = 4;                          // Chemical definition from CTD
+
+  // Chemical synonyms and classification
+  repeated string synonyms = 5;                   // CTD-curated and MeSH synonyms
+  repeated string mesh_tree_numbers = 6;          // MeSH tree classification numbers
+
+  // External identifiers
+  string pubchem_cid = 7;                         // PubChem Compound ID
+  string drugbank_id = 8;                         // DrugBank ID
+  string inchi_key = 9;                           // InChI Key for structure matching
+
+  // Gene interactions - stored as separate ctd_gene_interaction entries
+  // Use >>ctd>>ctd_gene_interaction to access
+  reserved 10;                                    // Previously: gene_interactions (now separate dataset)
+  int32 gene_interaction_count = 11;              // Total number of gene interactions
+
+  // Disease associations - stored as separate ctd_disease_association entries
+  // Use >>ctd>>ctd_disease_association to access
+  reserved 12;                                    // Previously: disease_associations (now separate dataset)
+  int32 disease_association_count = 13;           // Total number of disease associations
+
+  // Inferred genes (genes associated via disease)
+  repeated string inferred_genes = 14;            // Gene symbols inferred from chemical-disease-gene triangulation
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// CTD Gene Interaction entry (Dataset ID: 131)
+// Individual chemical-gene interaction stored as separate entry
+// ID format: {chemical_id}_{gene_id}_{organism_id}
+// Access via: >>ctd>>ctd_gene_interaction or >>entrez>>ctd_gene_interaction
+message CtdGeneInteractionAttr {
+  string interaction_id = 1;                      // Composite ID: chemID_geneID_taxID
+  string chemical_id = 2;                         // MeSH chemical ID
+  string chemical_name = 3;                       // Chemical name for display
+  string gene_symbol = 4;                         // Gene symbol (e.g., "TP53")
+  string gene_id = 5;                             // NCBI Entrez Gene ID
+  string organism = 6;                            // Organism name (e.g., "Homo sapiens")
+  int32 organism_id = 7;                          // NCBI Taxonomy ID
+  string interaction = 8;                         // Full interaction text
+  repeated string interaction_actions = 9;        // Parsed actions (e.g., "increases^expression")
+  string gene_forms = 10;                         // Gene form (protein, mRNA, etc.)
+  int32 pubmed_count = 11;                        // Number of PubMed references (actual IDs via xref to pubmed)
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// CTD Disease Association entry (Dataset ID: 132)
+// Individual chemical-disease association stored as separate entry
+// ID format: {chemical_id}_{disease_id}
+// Access via: >>ctd>>ctd_disease_association or >>mesh>>ctd_disease_association
+message CtdDiseaseAssociationAttr {
+  string association_id = 1;                      // Composite ID: chemID_diseaseID
+  string chemical_id = 2;                         // MeSH chemical ID
+  string chemical_name = 3;                       // Chemical name for display
+  string disease_name = 4;                        // Disease name
+  string disease_id = 5;                          // MeSH or OMIM disease ID
+  repeated string direct_evidence = 6;            // Evidence types (therapeutic, marker/mechanism) - aggregated
+  repeated string inference_gene_symbols = 7;     // Genes linking chemical to disease - aggregated
+  double inference_score = 8;                     // Max CTD inference score (for sorting/filtering)
+  int32 pubmed_count = 9;                         // Number of PubMed references (actual IDs via xref to pubmed)
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// Legacy embedded types - kept for backward compatibility during transition
+// These are no longer used in CtdAttr but may be referenced elsewhere
+message CtdGeneInteraction {
+  string gene_symbol = 1;                         // Gene symbol (e.g., "TP53")
+  string gene_id = 2;                             // NCBI Gene ID
+  string organism = 3;                            // Organism (e.g., "Homo sapiens")
+  int32 organism_id = 4;                          // NCBI Taxonomy ID
+  string interaction = 5;                         // Full interaction text
+  repeated string interaction_actions = 6;        // Parsed action codes (e.g., "increases^expression")
+  string gene_forms = 7;                          // Gene form (protein, mRNA, etc.)
+  repeated string pubmed_ids = 8;                 // Supporting PubMed IDs
+}
+
+// Legacy embedded type - kept for backward compatibility
+message CtdDiseaseAssociation {
+  string disease_name = 1;                        // Disease name
+  string disease_id = 2;                          // MeSH or OMIM disease ID
+  string direct_evidence = 3;                     // Direct evidence type (therapeutic, marker/mechanism)
+  string inference_gene_symbol = 4;               // Gene linking chemical to disease
+  double inference_score = 5;                     // CTD inference score
+  repeated string omim_ids = 6;                   // Related OMIM IDs
+  repeated string pubmed_ids = 7;                 // Supporting PubMed IDs
+}
+
+// BioGRID - Biological General Repository for Interaction Datasets (Dataset ID: 105)
+// Curated protein-protein and genetic interactions from literature
+// Source: https://thebiogrid.org/
+// Format: PSI-MITAB 2.5 (BIOGRID-ALL-LATEST.mitab.zip)
+message BiogridAttr {
+  // Primary identifier (BioGRID Interactor ID)
+  string biogrid_id = 1;                          // BioGRID ID for the primary interactor (e.g., "103")
+
+  // Interaction list - aggregated by primary interactor
+  repeated BiogridInteraction interactions = 2;    // All interactions for this interactor
+
+  // Summary statistics
+  int32 interaction_count = 3;                    // Total number of interactions
+  int32 unique_partners = 4;                      // Number of unique interaction partners
+  int32 physical_count = 5;                       // Count of physical interactions
+  int32 genetic_count = 6;                        // Count of genetic interactions
+
+  // Aggregated metadata
+  repeated int32 organisms = 7;                   // Unique organism taxonomy IDs involved
+  repeated string experimental_systems = 8;       // Unique experimental systems used
+  repeated string pubmed_ids = 9;                 // Unique PubMed IDs supporting interactions
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// Single BioGRID interaction record
+message BiogridInteraction {
+  // Interaction identifier
+  string interaction_id = 1;                      // BioGRID Interaction ID (e.g., "103")
+
+  // Partner information
+  string partner_biogrid_id = 2;                  // Partner's BioGRID ID
+  string partner_entrez_id = 3;                   // Partner's Entrez Gene ID
+  string partner_symbol = 4;                      // Partner's official gene symbol
+  string partner_systematic_name = 5;             // Partner's systematic name
+
+  // Experimental details
+  string experimental_system = 6;                 // Experimental system (e.g., "Two-hybrid", "Affinity Capture-MS")
+  string experimental_system_type = 7;            // "physical" or "genetic"
+  string throughput = 8;                          // "High Throughput", "Low Throughput", or "Both"
+
+  // Organism information
+  int32 organism_a = 9;                           // NCBI Taxonomy ID for interactor A
+  int32 organism_b = 10;                          // NCBI Taxonomy ID for interactor B
+
+  // Literature reference
+  string pubmed_id = 11;                          // PubMed ID for the publication
+  string author = 12;                             // First author with publication year
+
+  // Quality and scoring
+  string score = 13;                              // Quantitative score (if available)
+  string modification = 14;                       // Post-translational modification (if applicable)
+  string qualifications = 15;                     // Additional qualifications
+  string tags = 16;                               // Tags/annotations
+
+  // Phenotype information (for genetic interactions)
+  string phenotype = 17;                          // Phenotype term
+  string ontology_term_id = 18;                   // Ontology term ID (e.g., GO, HP)
+
+  // Source database
+  string source_database = 19;                    // Original source database
+}
+
+// BioGRID Interaction - Individual interaction record (Dataset ID: 114)
+// Stores each protein-protein or genetic interaction as a separate entry
+// Follows IntAct pattern for efficient querying of interaction networks
+message BiogridInteractionAttr {
+  // Interaction identifier
+  string interaction_id = 1;                      // BioGRID Interaction ID (e.g., "103")
+
+  // Experimental details
+  string experimental_system = 2;                 // Experimental system (e.g., "Two-hybrid", "Affinity Capture-MS")
+  string experimental_system_type = 3;            // "physical" or "genetic"
+  string author = 4;                              // First author with publication year
+  string publication = 5;                         // PubMed ID for the publication
+  string throughput = 6;                          // "High Throughput", "Low Throughput", or "Both"
+
+  // Quality and scoring
+  string score = 7;                               // Quantitative score (if available)
+  string modification = 8;                        // Post-translational modification (if applicable)
+  string qualifications = 9;                      // Additional qualifications
+  string tags = 10;                               // Tags/annotations
+  string source_database = 11;                    // Original source database
+
+  // Interactor A
+  string interactor_a_id = 12;                    // Interactor A's identifier (UniProt/Entrez)
+  string interactor_a_symbol = 13;                // Interactor A's gene symbol
+  int32 interactor_a_organism = 14;               // Interactor A's NCBI Taxonomy ID
+
+  // Interactor B
+  string interactor_b_id = 15;                    // Interactor B's identifier (UniProt/Entrez)
+  string interactor_b_symbol = 16;                // Interactor B's gene symbol
+  int32 interactor_b_organism = 17;               // Interactor B's NCBI Taxonomy ID
+
+  // Phenotype information (for genetic interactions)
+  string phenotype = 18;                          // Phenotype term
+  string ontology_term_id = 19;                   // Ontology term ID (e.g., GO, HP)
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// MSigDB - Molecular Signatures Database (Dataset ID: 107)
+// Gene sets for GSEA analysis from Broad Institute
+// Source: https://www.gsea-msigdb.org/gsea/msigdb
+message MsigdbAttr {
+  // Primary identifiers
+  string systematic_name = 1;                     // MSigDB ID (e.g., "M5890", "M49136")
+  string standard_name = 2;                       // Human-readable name (e.g., "HALLMARK_APOPTOSIS")
+
+  // Classification
+  string collection = 3;                          // Collection code (e.g., "H", "C2:CGP", "C5:GO:BP")
+  string sub_collection = 4;                      // Sub-collection if applicable
+
+  // Description
+  string description = 5;                         // Brief description of the gene set
+  string exact_source = 6;                        // Original source of the gene set
+
+  // Gene membership
+  repeated string gene_symbols = 7;               // HGNC gene symbols in this set
+  int32 gene_count = 8;                           // Number of genes in the set
+
+  // Cross-references
+  string pmid = 9;                                // PubMed ID of source publication
+  string doi = 10;                                // DOI of source publication
+  string external_url = 11;                       // External details URL
+
+  // Ontology links (from external_term table)
+  repeated string go_terms = 12;                  // Associated GO term IDs
+  repeated string hpo_terms = 13;                 // Associated HPO term IDs
+
+  // Species information
+  string source_species = 14;                     // Source species code (e.g., "Hs" for human)
+
+  // Metadata
+  string contributor = 15;                        // Who contributed this gene set
+  string contributor_org = 16;                    // Contributing organization
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// AlphaMissense - DeepMind's missense variant pathogenicity predictions (Dataset ID: 108)
+// Pre-computed pathogenicity scores for all possible human missense variants
+// Uses AlphaFold protein structure predictions
+// Source: https://github.com/google-deepmind/alphamissense
+// License: CC BY-NC-SA 4.0
+message AlphaMissenseAttr {
+  // Genomic coordinates (GRCh38/hg38)
+  string chromosome = 1;                          // Chromosome (1-22, X, Y, M)
+  int64 position = 2;                             // 1-based genomic position
+  string ref_allele = 3;                          // Reference allele
+  string alt_allele = 4;                          // Alternate allele
+
+  // Protein information
+  string uniprot_id = 5;                          // UniProt accession (e.g., "Q8NH21")
+  repeated string transcript_ids = 6;             // Ensembl transcript IDs (all affected isoforms)
+  string protein_variant = 7;                     // Amino acid change (e.g., "V2L", "R175H")
+  string gene_symbol = 8;                         // Gene symbol (derived from UniProt)
+
+  // Pathogenicity prediction
+  double am_pathogenicity = 9;                    // AlphaMissense score (0-1, higher = more pathogenic)
+  string am_class = 10;                           // Classification: "likely_benign", "ambiguous", "likely_pathogenic"
+
+  // Thresholds for interpretation:
+  // - likely_benign: score < 0.34
+  // - ambiguous: 0.34 <= score < 0.564
+  // - likely_pathogenic: score >= 0.564
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// AlphaMissense transcript-level pathogenicity summary (Dataset ID: 109)
+// Separate dataset: alphamissense_transcript
+// Keyed by Ensembl transcript ID without version (e.g., "ENST00000000233")
+message AlphaMissenseTranscriptAttr {
+  string transcript_id = 1;                       // Ensembl transcript ID (base, without version) - same as entry ID
+  double mean_am_pathogenicity = 2;               // Average pathogenicity score for all variants in this transcript
+  string transcript_id_versioned = 3;             // Full transcript ID with version (e.g., ENST00000335137.4)
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// PharmGKB - Pharmacogenomics Knowledge Base (Dataset ID: 110)
+// Drugs and chemicals with pharmacogenomic annotations
+// Source: https://www.pharmgkb.org/ (now https://www.clinpgx.org/)
+// License: CC BY-SA 4.0
+message PharmgkbAttr {
+  // Primary identification
+  string pharmgkb_id = 1;                         // PharmGKB Accession ID (e.g., "PA448004")
+  string name = 2;                                // Primary drug/chemical name
+  string type = 3;                                // Type: Drug, Metabolite, Prodrug, Ion, Biological Intermediate, etc.
+
+  // Names and synonyms
+  repeated string generic_names = 4;              // Generic drug names
+  repeated string trade_names = 5;                // Trade/brand names
+  repeated string brand_mixtures = 6;             // Brand mixture names
+
+  // Chemical structure
+  string smiles = 7;                              // SMILES representation
+  string inchi = 8;                               // InChI string
+  string inchi_key = 9;                           // InChI Key
+
+  // Cross-references
+  repeated string rxnorm_ids = 10;                // RxNorm identifiers
+  repeated string atc_codes = 11;                 // ATC classification codes
+  repeated string pubchem_cids = 12;              // PubChem Compound IDs
+
+  // Annotation counts and statistics
+  int32 clinical_annotation_count = 13;           // Number of clinical annotations
+  int32 variant_annotation_count = 14;            // Number of variant annotations
+  int32 pathway_count = 15;                       // Number of pathways
+
+  // Clinical evidence levels
+  string top_clinical_level = 16;                 // Highest clinical annotation level (1A, 1B, 2A, 2B, 3, 4)
+  string top_fda_label_level = 17;                // FDA label testing level
+  string top_any_label_level = 18;                // Top level from any drug label
+
+  // Dosing guideline information
+  bool has_dosing_guideline = 19;                 // Whether dosing guidelines exist
+  bool has_prescribing_info = 20;                 // Whether prescribing info is in label
+  repeated string dosing_guideline_sources = 21;  // Sources: CPIC, DPWG, etc.
+
+  // Related entities (aggregated from relationships)
+  repeated PharmgkbRelatedGene related_genes = 22; // Genes associated with this drug
+
+  // Drug labels (FDA, EMA, etc.)
+  repeated PharmgkbDrugLabel drug_labels = 23;     // Regulatory drug label annotations
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// Gene associated with a PharmGKB drug entry
+message PharmgkbRelatedGene {
+  string gene_symbol = 1;                         // Gene symbol (e.g., "CYP2D6")
+  string pharmgkb_gene_id = 2;                    // PharmGKB Gene ID (e.g., "PA128")
+  string relationship_type = 3;                   // Relationship type: PK, PD, etc.
+  string evidence_type = 4;                       // Evidence type from relationships file
+}
+
+// PharmGKB Gene - Pharmacogene information (Dataset ID: 111)
+// Genes with pharmacogenomic relevance
+message PharmgkbGeneAttr {
+  // Primary identification
+  string pharmgkb_id = 1;                         // PharmGKB Gene ID (e.g., "PA128")
+  string symbol = 2;                              // Official gene symbol (e.g., "CYP2D6")
+  string name = 3;                                // Full gene name
+
+  // Alternative names
+  repeated string alternate_names = 4;            // Alternative gene names
+  repeated string alternate_symbols = 5;          // Alternative gene symbols
+
+  // PharmGKB-specific flags
+  bool is_vip = 6;                                // Is Very Important Pharmacogene
+  bool has_variant_annotation = 7;                // Has variant annotations
+  bool has_cpic_guideline = 8;                    // Has CPIC dosing guideline
+
+  // Genomic location
+  string chromosome = 9;                          // Chromosome
+  int64 start_grch37 = 10;                        // Start position (GRCh37)
+  int64 end_grch37 = 11;                          // End position (GRCh37)
+  int64 start_grch38 = 12;                        // Start position (GRCh38)
+  int64 end_grch38 = 13;                          // End position (GRCh38)
+
+  // Cross-references (for bidirectional linking)
+  string hgnc_id = 14;                            // HGNC ID
+  string entrez_id = 15;                          // NCBI Entrez Gene ID
+  string ensembl_id = 16;                         // Ensembl Gene ID
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// PharmGKB Clinical Annotation (Dataset ID: 112)
+// Variant-drug clinical annotations with evidence levels
+// Source: clinicalVariants.tsv
+message PharmgkbClinicalAttr {
+  // Variant information
+  string variant = 1;                             // Variant/haplotype (e.g., "CYP2C19*2", "rs4244285")
+  string gene = 2;                                // Gene symbol (e.g., "CYP2C19")
+
+  // Annotation type
+  string type = 3;                                // Phenotype category: Metabolism/PK, Efficacy, Toxicity, Dosage, Other
+
+  // Evidence level
+  string level_of_evidence = 4;                   // Level: 1A, 1B, 2A, 2B, 3, 4
+
+  // Associated chemicals and phenotypes
+  repeated string chemicals = 5;                  // Drug names
+  repeated string phenotypes = 6;                 // Associated phenotypes/diseases
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// Drug label annotation (FDA, EMA, etc.) - embedded in PharmgkbAttr
+message PharmgkbDrugLabel {
+  string label_id = 1;                            // PharmGKB label ID (e.g., "PA166269401")
+  string name = 2;                                // Label name/description
+  string source = 3;                              // Source: FDA, EMA, HCSC, Swissmedic, PMDA
+  string testing_level = 4;                       // Testing level: "Actionable PGx", "Testing Required", etc.
+  bool has_prescribing_info = 5;                  // Label has prescribing information
+  bool has_dosing_info = 6;                       // Label has dosing information
+  bool has_alternate_drug = 7;                    // Label suggests alternate drug
+  repeated string genes = 8;                      // Genes mentioned in label
+  repeated string variants = 9;                   // Variants/haplotypes mentioned
+}
+
+// PharmGKB Variant entry (Dataset ID: 113)
+message PharmgkbVariantAttr {
+  string variant_id = 1;                          // PharmGKB Variant ID (e.g., "PA166156302")
+  string variant_name = 2;                        // Variant name (e.g., "rs1000002")
+  repeated string gene_ids = 3;                   // PharmGKB Gene IDs
+  repeated string gene_symbols = 4;               // Gene symbols
+  string location = 5;                            // Genomic location (e.g., "NC_000003.12:183917980")
+  int32 variant_annotation_count = 6;             // Number of variant annotations
+  int32 clinical_annotation_count = 7;            // Number of clinical annotations
+  int32 guideline_annotation_count = 8;           // Number of guideline annotations
+  int32 label_annotation_count = 9;               // Number of label annotations
+  repeated string synonyms = 10;                  // Synonym rsIDs and other identifiers
+
+  // Summary annotation data (from summaryAnnotations.zip)
+  string level_of_evidence = 11;                  // Highest level: 1A, 1B, 2A, 2B, 3, 4
+  double score = 12;                              // Evidence score
+  repeated string phenotype_categories = 13;      // Phenotype categories: Efficacy, Toxicity, Metabolism/PK, etc.
+  repeated string associated_drugs = 14;          // Drug names from annotations
+  repeated string associated_phenotypes = 15;     // Phenotype/disease names
+  int32 pmid_count = 16;                          // Total PubMed references
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// PharmGKB Guideline - CPIC/DPWG Clinical Guidelines (Dataset ID: 114)
+// Source: guidelineAnnotations.json.zip
+message PharmgkbGuidelineAttr {
+  string guideline_id = 1;                        // PharmGKB Guideline ID (e.g., "PA166363221")
+  string name = 2;                                // Guideline name (e.g., "Annotation of DPWG Guideline for rosuvastatin and SLCO1B1")
+  string source = 3;                              // Source: CPIC, DPWG, CPNDS, RNPGx, etc.
+
+  // Related entities
+  repeated string gene_symbols = 4;               // Related gene symbols (e.g., ["CYP2D6", "CYP2C19"])
+  repeated string gene_ids = 5;                   // PharmGKB gene IDs
+  repeated string chemical_names = 6;             // Related drug/chemical names
+  repeated string chemical_ids = 7;               // PharmGKB chemical IDs
+
+  // Guideline content flags
+  bool has_dosing_info = 8;                       // Contains dosing information
+  bool has_testing_info = 9;                      // Contains genetic testing information
+  bool has_recommendation = 10;                   // Contains clinical recommendations
+  bool alternate_drug_available = 11;             // Suggests alternative drug options
+  bool is_pediatric = 12;                         // Pediatric-specific guideline
+  bool is_cancer_genome = 13;                     // Cancer genome-related
+
+  // Content
+  string summary = 14;                            // Summary text (HTML stripped)
+
+  // Literature
+  repeated string pmids = 15;                     // PubMed references
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// PharmGKB Pathway - Pharmacokinetic/Pharmacodynamic Pathways (Dataset ID: 115)
+// Source: pathways.json.zip
+message PharmgkbPathwayAttr {
+  string pathway_id = 1;                          // PharmGKB Pathway ID (e.g., "PA166163705")
+  string name = 2;                                // Pathway name (e.g., "Diclofenac Pathway, Pharmacokinetics")
+
+  // Classification
+  bool is_pharmacokinetic = 3;                    // Pharmacokinetic pathway
+  bool is_pharmacodynamic = 4;                    // Pharmacodynamic pathway
+  bool is_pediatric = 5;                          // Pediatric-specific
+
+  // Related entities
+  repeated string gene_symbols = 6;               // Gene symbols involved
+  repeated string gene_ids = 7;                   // PharmGKB gene IDs
+  repeated string chemical_names = 8;             // Chemicals/drugs in pathway
+  repeated string chemical_ids = 9;               // PharmGKB chemical IDs
+  repeated string disease_names = 10;             // Related diseases
+  repeated string disease_ids = 11;               // PharmGKB disease IDs
+
+  // Content
+  string summary = 12;                            // Summary text (HTML stripped)
+  string description = 13;                        // Full description (HTML stripped)
+
+  // Links
+  string biopax_link = 14;                        // BioPAX format download link
+  string image_link = 15;                         // Pathway image link
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// =============================================================================
+// CZ CELLxGENE Census - Single Cell Data Platform
+// Source: https://cellxgene.cziscience.com/
+// CONSOLIDATED VERSION: 2 datasets (cellxgene + cellxgene_celltype)
+// =============================================================================
+
+// CELLxGENE Dataset metadata (Dataset ID: 450)
+// Source: Census API datasets table
+message CellxgeneAttr {
+  string dataset_id = 1;                          // Unique dataset identifier (UUID format)
+  string title = 2;                               // Dataset title
+  string collection_name = 3;                     // Parent collection name
+  string collection_doi = 4;                      // Collection DOI
+  int64 cell_count = 5;                           // Number of cells in dataset
+  string organism = 6;                            // Organism name (e.g., "Homo sapiens")
+  string organism_taxid = 7;                      // NCBI Taxonomy ID
+
+  // Ontology-mapped metadata (arrays)
+  repeated string assay_types = 8;                // Assay type names (e.g., "10x 3' v3")
+  repeated string assay_efo_ids = 9;              // EFO ontology IDs (e.g., "EFO:0009922")
+  repeated string cell_types = 10;                // Cell type names
+  repeated string cell_type_cl_ids = 11;          // Cell Ontology IDs (e.g., "CL:0000624")
+  repeated string tissues = 12;                   // Tissue names
+  repeated string tissue_uberon_ids = 13;         // UBERON ontology IDs
+  repeated string diseases = 14;                  // Disease names
+  repeated string disease_mondo_ids = 15;         // MONDO ontology IDs
+
+  // Publication info
+  string publication_doi = 16;                    // Publication DOI
+  string citation = 17;                           // Full citation text
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// Tissue expression entry (nested in CellxgeneCelltypeAttr)
+// Stores cell count per tissue for a cell type
+message CellxgeneTissueExpression {
+  string tissue_uberon = 1;                       // UBERON ontology ID
+  string tissue_name = 2;                         // Tissue name
+  int64 cell_count = 3;                           // Number of cells of this type in this tissue
+}
+
+// CELLxGENE Consolidated Cell Type (Dataset ID: 451)
+// Source: Census API - merges cellguide, markers, expression, counts
+// Primary key: Cell Ontology ID (CL:XXXXXXX)
+message CellxgeneCelltypeAttr {
+  string cell_type_cl = 1;                        // Cell Ontology ID (primary key)
+  string name = 2;                                // Cell type name
+  string definition = 3;                          // Cell type definition (from CL ontology)
+  repeated string synonyms = 4;                   // Alternative names
+
+  // Marker genes
+  repeated string canonical_markers = 5;          // Canonical marker gene symbols
+  repeated string canonical_marker_ids = 6;       // Ensembl IDs for canonical markers
+
+  // Cell type hierarchy (from Cell Ontology)
+  repeated string develops_from = 7;              // Parent cell type names
+  repeated string develops_from_ids = 8;          // Parent CL IDs
+
+  // Tissue distribution
+  repeated string found_in_tissues = 9;           // Tissue names where found
+  repeated string found_in_tissue_ids = 10;       // UBERON IDs
+
+  // Disease associations
+  repeated string associated_diseases = 11;       // Associated disease names
+  repeated string associated_disease_ids = 12;    // MONDO IDs
+
+  // Cell counts
+  int64 total_cells = 13;                         // Total cells of this type (from obs)
+  int64 total_cell_count = 14;                    // Total cells (from summary_cell_counts)
+  int64 unique_cell_count = 15;                   // Unique cells (from summary_cell_counts)
+
+  // Expression by tissue (nested array - replaces separate expression dataset)
+  repeated CellxgeneTissueExpression expression_by_tissue = 16;
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// SC Expression Atlas Marker Gene (nested in ScxaAttr)
+// Top marker genes per experiment cluster
+message ScxaMarkerGene {
+  string ensembl_id = 1;         // Ensembl gene ID (e.g., ENSG00000226260)
+  string cluster = 2;            // Cluster identifier
+  float score = 3;               // Marker score
+  float log_fold_change = 4;     // Log fold change vs rest
+}
+
+// SC Expression Atlas Experiment (Dataset ID: 111)
+// Source: EMBL-EBI Single Cell Expression Atlas FTP (https://ftp.ebi.ac.uk/pub/databases/microarray/data/atlas/sc_experiments/)
+// Primary key: Experiment accession (E-MTAB-XXXXX, E-ANND-X, E-GEOD-XXXXXX, etc.)
+message ScxaAttr {
+  string experiment_accession = 1;        // Unique experiment ID (e.g., E-MTAB-6386)
+  string description = 2;                 // Investigation title from IDF file
+  string species = 3;                     // Species name from SDRF (e.g., "Homo sapiens")
+  string kingdom = 4;                     // Taxonomic kingdom (animals, plants, fungi)
+  string load_date = 5;                   // Public release date from IDF (DD-MM-YYYY)
+  string last_update = 6;                 // Last update date (DD-MM-YYYY)
+  string experiment_type = 7;             // Type: Baseline or Differential (from IDF Comment[EAExperimentType])
+  string raw_experiment_type = 8;         // Raw type (e.g., SINGLE_CELL_RNASEQ_MRNA_BASELINE)
+  repeated string technology_types = 9;   // Technology platforms extracted from protocol description
+  int64 number_of_cells = 10;             // Number of cells/assays in the experiment
+  repeated string experimental_factors = 11;  // Experimental Factor Name from IDF
+  repeated string experiment_projects = 12;   // Projects (Human Cell Atlas, etc.)
+
+  // Cell types found in experiment (from condensed-sdrf.tsv)
+  repeated string cell_types = 13;           // Unique cell type names
+  repeated string cell_type_cl_ids = 14;     // Cell Ontology IDs (CL:XXXXXXX)
+
+  // Tissues found in experiment (from condensed-sdrf.tsv)
+  repeated string tissues = 15;              // Unique tissue/organism part names
+  repeated string tissue_uberon_ids = 16;    // UBERON ontology IDs
+
+  // Diseases found in experiment (from condensed-sdrf.tsv)
+  repeated string diseases = 17;             // Unique disease names
+  repeated string disease_ids = 18;          // MONDO/EFO/PATO disease IDs
+
+  // Top marker genes (from marker_genes_*.tsv files)
+  repeated ScxaMarkerGene top_marker_genes = 19;  // Top marker genes across clusters
+
+  // Additional metadata from IDF
+  string pubmed_id = 20;                     // PubMed ID if published
+  string publication_doi = 21;               // Publication DOI
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// SC Expression Atlas Gene Expression (Dataset ID: 112)
+// Gene-centric SUMMARY view of single-cell expression data
+// Primary key: Ensembl Gene ID (ENSG...)
+// Detailed expression data stored in scxa_gene_exp entries (linked via xrefs)
+message ScxaExpressionAttr {
+  string gene_id = 1;                        // Ensembl gene ID (ENSG00000006118)
+  string gene_name = 2;                      // Gene symbol if available
+  int32 species_taxid = 3;                   // NCBI taxonomy ID
+
+  // Summary statistics only (detailed data in scxa_gene_exp)
+  int32 total_experiments = 5;               // Number of experiments with expression
+  int32 marker_experiment_count = 6;         // Experiments where it's a marker
+  double max_mean_expression = 7;            // Highest mean expression across clusters
+  double avg_mean_expression = 8;            // Average expression
+  int32 total_clusters = 9;                  // Total cluster entries across all experiments
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// SC Expression Atlas Gene-Experiment Detail (Dataset ID: 113)
+// Detailed cluster-level expression for a gene in a specific experiment
+// Primary key: {gene_id}_{experiment_id} (e.g., ENSG00000019582_E-MTAB-6386)
+// Linked from scxa_expression (gene summary) and scxa (experiment)
+message ScxaGeneExperimentAttr {
+  string gene_id = 1;                        // Ensembl gene ID
+  string experiment_id = 2;                  // SCXA experiment accession
+
+  // Cluster-level expression data for this gene in this experiment
+  repeated ScxaClusterExpression clusters = 3;
+
+  // Summary for this gene-experiment pair
+  bool is_marker_in_experiment = 4;          // True if gene is marker in any cluster
+  int32 marker_cluster_count = 5;            // Number of clusters where it's a marker
+  double max_mean_expression = 6;            // Highest mean expression in this experiment
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// Cluster-level expression data (used in ScxaGeneExperimentAttr)
+// For experiments with inferred_cell_type files (e.g., E-CURD-*), cell_type_name is populated
+message ScxaClusterExpression {
+  string cluster_id = 1;           // Cluster identifier (number or cell type name)
+  double mean_expression = 2;      // Mean expression in this cluster
+  double median_expression = 3;    // Median expression
+  double p_value = 4;              // Marker p-value
+  bool is_marker = 5;              // True if gene is marker for this cluster
+  // Fields below populated from inferred_cell_type files (when available)
+  string cell_type_name = 6;       // Cell type name (e.g., "naive B cell")
+  // Note: CL ID is stored as xref, not as attribute (use >>cl>>scxa_gene_experiment for mapping)
+  double log_fold_change = 8;      // Log fold change vs rest
+  double p_value_adj = 9;          // Adjusted p-value
+  int32 rank = 10;                 // Rank within cell type (0 = top marker)
+}
+
+// CollecTRI - Transcription Factor-Target Gene Regulatory Network (Dataset ID: 115)
+// Comprehensive collection of TF-target gene interactions from multiple sources
+// Source: https://zenodo.org/record/7773985
+// Primary key: TF_gene:Target_gene (e.g., "MYC:TERT")
+// Note: TRED source is excluded for licensing reasons
+message CollecTriAttr {
+  string tf_gene = 1;                         // Transcription factor gene symbol (e.g., "MYC")
+  string target_gene = 2;                     // Target gene symbol (e.g., "TERT")
+  repeated string sources = 3;                // Evidence sources (e.g., "ExTRI", "HTRI", "TRRUST", "TFactS", etc.)
+  // pmids moved to xrefs (field 4 reserved for backwards compatibility)
+  string regulation = 5;                      // Regulation direction: "Activation", "Repression", "Unknown"
+  string confidence = 6;                      // Confidence level: "High", "Low", or empty
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// SIGNOR - SIGnaling Network Open Resource (Dataset ID: 116)
+// Manually curated causal relationships between biological entities
+// Source: https://signor.uniroma2.it/
+// Primary key: SIGNOR-XXXXXX (e.g., "SIGNOR-142566")
+// Supports human (9606), mouse (10090), and rat (10116)
+message SignorAttr {
+  string entity_a = 1;          // Source entity name (e.g., "SNX9", "EGFR:neuregulin 1 complex")
+  string type_a = 2;            // Source type: protein, complex, smallmolecule, proteinfamily, mirna, stimulus, phenotype
+  string id_a = 3;              // Source external ID (UniProt, ChEBI, etc.)
+  string database_a = 4;        // Source database: UNIPROT, ChEBI, SIGNOR, PUBCHEM, RNAcentral, DRUGBANK
+  string entity_b = 5;          // Target entity name
+  string type_b = 6;            // Target type
+  string id_b = 7;              // Target external ID
+  string database_b = 8;        // Target database
+  string effect = 9;            // Regulatory effect (up-regulates activity, down-regulates, up-regulates quantity, etc.)
+  string mechanism = 10;        // Mechanism (phosphorylation, binding, transcriptional regulation, etc.)
+  string residue = 11;          // Modification residue (e.g., "Ser473", "Tyr1068")
+  string sequence = 12;         // Sequence context around modification site
+  int32 tax_id = 13;            // Taxonomy ID (9606=human, 10090=mouse, 10116=rat)
+  string cell_data = 14;        // Cell type (BTO ontology ID, e.g., "BTO:0000007")
+  string tissue_data = 15;      // Tissue data
+  bool direct = 16;             // Direct interaction flag (YES→true, NO→false)
+  double score = 17;            // Confidence score (0-1)
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// CORUM - Comprehensive Resource of Mammalian Protein Complexes (Dataset ID: 117)
+// Manually curated repository of experimentally characterized protein complexes
+// Source: https://mips.helmholtz-muenchen.de/corum/
+// Primary key: complex_id (integer, e.g., "1", "582", "7969")
+// Organisms: Human (~70%), Mouse (~16%), Rat (~8%), others
+message CorumAttr {
+  string name = 1;                      // Complex name (e.g., "BCL6-HDAC4 complex")
+  repeated string synonyms = 2;         // Alternative names
+  string organism = 3;                  // Organism (Human, Mouse, Rat, Bovine, etc.)
+  string cell_line = 4;                 // Cell line where characterized
+  string comment = 5;                   // Complex description/function
+  string comment_disease = 6;           // Disease associations
+  string comment_drug = 7;              // Drug associations
+
+  // Subunit summary (flattened for easy filtering)
+  repeated string subunit_genes = 8;    // Gene symbols of subunits (e.g., ["BCL6", "HDAC4"])
+  int32 subunit_count = 10;             // Number of subunits
+
+  // Experimental evidence
+  repeated string purification_methods = 13;  // PSI-MI method names (e.g., "anti tag coimmunoprecipitation")
+  int32 pmid = 14;                      // Primary PubMed ID
+
+  // Subset flags for filtering (replaces separate datasets)
+  bool has_drug_targets = 15;           // true if any subunit.gene.drugs is non-empty
+  bool has_splice_variants = 16;        // true if comment_members mentions "splice"
+
+  // Detailed subunits (nested for complex queries)
+  repeated CorumSubunit subunits = 17;
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// CorumSubunit represents a protein complex subunit
+message CorumSubunit {
+  string uniprot_id = 1;                // UniProt accession (e.g., "P41182")
+  string gene_name = 2;                 // Gene symbol (e.g., "BCL6")
+  string protein_name = 3;              // Protein name (e.g., "B-cell lymphoma 6 protein")
+  string entrez_id = 4;                 // Entrez Gene ID (e.g., "604")
+  string stoichiometry = 5;             // Stoichiometry if known (often empty)
+  repeated string drugs = 6;            // Associated drugs from gene.drugs
+}
+
+// BRENDA - The Comprehensive Enzyme Information System (Dataset ID: 747)
+// Manually curated enzyme database with kinetic data and functional annotations
+// Source: https://www.brenda-enzymes.org/
+// Primary key: EC number (e.g., "1.1.1.1", "3.4.21.5")
+// License: CC BY 4.0
+message BrendaAttr {
+  string ec_number = 1;                    // EC number (e.g., "1.1.1.1")
+  string recommended_name = 2;             // IUBMB recommended enzyme name
+  string systematic_name = 3;              // IUBMB systematic name
+  repeated string synonyms = 4;            // Alternative names
+  repeated string reactions = 5;           // Catalyzed reaction equations
+  repeated string cofactors = 6;           // Required cofactors
+  repeated string organisms = 7;           // Organisms where enzyme is found (top 50)
+  int32 organism_count = 8;                // Total number of organisms
+  int32 substrate_count = 11;              // Total substrate/product entries
+  int32 inhibitor_count = 12;              // Total inhibitor entries
+  // Note: Substrates available via >>brenda>>brenda_kinetics
+  // Note: Inhibitors available via >>brenda>>brenda_inhibitor
+  int32 km_count = 13;                     // Total Km value entries
+  int32 kcat_count = 14;                   // Total kcat (turnover number) entries
+  int32 reference_count = 15;              // Total literature references
+  repeated string reaction_types = 17;     // Reaction types (e.g., "redox reaction")
+  // Note: PubMed IDs are stored as cross-references, not as attributes
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// BRENDA Kinetics - Individual kinetic measurements per EC+substrate
+// Source: https://www.brenda-enzymes.org/
+// Primary key: EC|substrate (e.g., "1.1.1.1|ethanol")
+// License: CC BY 4.0
+// Compact storage: measurements stored as pipe-delimited strings, sorted by organism priority (human first)
+message BrendaKineticsAttr {
+  string ec_number = 1;                    // EC number (e.g., "1.1.1.1")
+  string substrate = 2;                    // Substrate/inhibitor name
+  string substrate_type = 3;               // "substrate", "inhibitor", or "cofactor"
+
+  // Compact Km measurements - sorted by organism priority (human first)
+  // Schema: "value|unit|organism|conditions|pubmed_id|comment"
+  // Example: "0.05|mM|Homo sapiens|pH 7.4, 25°C|12345678|wild-type"
+  string km_schema = 4;                    // Field schema for parsing
+  repeated string km_values = 5;           // Pipe-delimited measurements
+
+  // Compact kcat measurements - sorted by organism priority (human first)
+  // Schema: "value|unit|organism|conditions|pubmed_id|comment"
+  string kcat_schema = 6;                  // Field schema for parsing
+  repeated string kcat_values = 7;         // Pipe-delimited measurements
+
+  // Compact Ki measurements - sorted by organism priority (human first)
+  // Schema: "value|unit|organism|conditions|pubmed_id|comment"
+  string ki_schema = 8;                    // Field schema for parsing
+  repeated string ki_values = 9;           // Pipe-delimited measurements
+
+  int32 km_count = 10;                     // Number of Km measurements
+  int32 kcat_count = 11;                   // Number of kcat measurements
+  int32 ki_count = 12;                     // Number of Ki measurements
+  double min_km = 13;                      // Minimum Km value (mM)
+  double max_km = 14;                      // Maximum Km value (mM)
+  double min_kcat = 15;                    // Minimum kcat value (s⁻¹)
+  double max_kcat = 16;                    // Maximum kcat value (s⁻¹)
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// BRENDA Inhibitor - Enzyme inhibition data per EC+inhibitor
+// Source: https://www.brenda-enzymes.org/
+// Primary key: EC|inhibitor (e.g., "1.1.1.1|pyrazole")
+// License: CC BY 4.0
+message BrendaInhibitorAttr {
+  string ec_number = 1;                    // EC number (e.g., "1.1.1.1")
+  string inhibitor = 2;                    // Inhibitor compound name
+  repeated InhibitionMeasurement ki_values = 3;    // Ki measurements
+  repeated InhibitionMeasurement ic50_values = 4;  // IC50 measurements
+  repeated InhibitionMeasurement inhibition_data = 5; // General inhibition data (% inhibition)
+  int32 ki_count = 6;                      // Number of Ki measurements
+  int32 ic50_count = 7;                    // Number of IC50 measurements
+  int32 inhibition_count = 8;              // Number of general inhibition entries
+  double min_ki = 9;                       // Minimum Ki value (mM)
+  double max_ki = 10;                      // Maximum Ki value (mM)
+  double min_ic50 = 11;                    // Minimum IC50 value (mM)
+  double max_ic50 = 12;                    // Maximum IC50 value (mM)
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// Individual inhibition measurement
+message InhibitionMeasurement {
+  double value = 1;                        // Numeric value (Ki, IC50, or % inhibition)
+  string unit = 2;                         // Unit (mM, µM, nM, %)
+  string organism = 3;                     // Source organism
+  string conditions = 4;                   // Experimental conditions (pH, temp, concentration)
+  string pubmed_id = 5;                    // PubMed reference
+  string inhibition_type = 6;              // Type: competitive, non-competitive, uncompetitive, mixed
+  string comment = 7;                      // Additional notes
+}
+
+// CellPhoneDB - Ligand-Receptor Interaction Database (Dataset ID: 751)
+// Curated cell-cell communication interactions for single-cell analysis
+// Source: https://www.cellphonedb.org/
+// Primary key: CPI-* interaction ID (e.g., "CPI-SC0A2DB962D")
+// License: GPLv3
+message CellphonedbAttr {
+  string partner_a = 1;            // Partner A name (UniProt ID or complex name)
+  string partner_b = 2;            // Partner B name
+  string directionality = 3;       // "Ligand-Receptor", "Adhesion-Adhesion", etc.
+  string classification = 4;       // Signaling type (e.g., "Signaling by WNT")
+  string source = 5;               // Evidence source (PMID, UniProt, Reactome)
+  bool is_ppi = 6;                 // Protein-protein interaction flag
+
+  // Partner A details
+  bool receptor_a = 7;             // Is partner A a receptor
+  bool secreted_a = 8;             // Is partner A secreted
+  bool is_complex_a = 9;           // Is partner A a complex
+  repeated string genes_a = 10;    // Gene symbols for partner A
+
+  // Partner B details
+  bool receptor_b = 11;            // Is partner B a receptor
+  bool secreted_b = 12;            // Is partner B secreted
+  bool is_complex_b = 13;          // Is partner B a complex
+  repeated string genes_b = 14;    // Gene symbols for partner B
+
+  bool is_integrin = 15;           // Involves integrin
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// SpliceAI - Deep Learning Splice Variant Prediction (Dataset ID: 752)
+// Precomputed splice site impact predictions from Broad Institute
+// Source: https://spliceailookup.broadinstitute.org/
+// Primary key: chr:pos:ref:alt (e.g., "1:803428:TCCAT:T")
+// License: GPLv3 + CC BY-NC 4.0 (academic/non-commercial)
+message SpliceAIAttr {
+  string chromosome = 1;           // Chromosome (1-22, X, Y, M)
+  int64 position = 2;              // Genomic position (GRCh38)
+  string ref_allele = 3;           // Reference allele
+  string alt_allele = 4;           // Alternate allele
+  string effect = 5;               // Splice effect: acceptor_loss, acceptor_gain, donor_loss, donor_gain
+  float score = 6;                 // Delta score (0.0-1.0, higher = more splice impact)
+  string gene_symbol = 7;          // Gene symbol (if available)
+  string allele_info = 8;          // Original allele string from BED (chr-pos-ref-alt)
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// miRDB - MicroRNA Target Prediction Database (Dataset ID: 450)
+// Predicted miRNA-gene target interactions using MirTarget algorithm (v6.0)
+// Source: https://mirdb.org/
+// Primary key: miRNA ID (e.g., "hsa-miR-21-5p", "mmu-let-7a")
+// Species: human (hsa), mouse (mmu), rat (rno), dog (cfa), chicken (gga)
+// License: Free for academic use
+message MiRDBAttr {
+  string mirna_id = 1;             // miRNA identifier (e.g., "hsa-miR-21-5p")
+  string species = 2;              // Species prefix: hsa, mmu, rno, cfa, gga
+  int32 target_count = 3;          // Number of predicted targets for this miRNA
+  float avg_score = 4;             // Average prediction score across all targets
+  float max_score = 5;             // Maximum prediction score
+  float min_score = 6;             // Minimum prediction score
+
+  // Compact top targets (sorted by score descending, up to 50)
+  string top_targets_schema = 8;   // Schema: "refseq|score"
+  repeated string top_targets = 9; // Top 50 targets: "NM_001234|95.5"
+
+  // DEPRECATED: Full targets list removed to reduce entry size (was 45KB per entry)
+  // Use >>mirdb>>refseq for complete target list with sorting
+  // repeated MiRDBTarget targets = 7;
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// FANTOM5 - Functional Annotation of the Mammalian Genome 5
+// CAGE-based promoter and enhancer atlas
+// Source: https://fantom.gsc.riken.jp/5/
+// License: CC BY 4.0
+
+// FANTOM5 Promoter/CAGE peak attributes (Dataset ID: 126)
+// Primary key: numeric ID (1, 2, 3, ...)
+// ~185,000 CAGE peaks across ~975 human samples
+message Fantom5PromoterAttr {
+  string fantom5_peak_id = 1;       // Original coordinate ID: chr1:631073..631118,+
+  string fantom5_peak_name = 2;     // Peak name: p1@TP53 (rank@gene)
+  string chromosome = 3;            // Chromosome (chr1, chr2, etc.)
+  int32 start = 4;                  // Start position (hg38)
+  int32 end = 5;                    // End position (hg38)
+  string strand = 6;                // Strand: + or -
+  string gene_symbol = 7;           // Associated gene symbol
+  string gene_id = 8;               // Ensembl gene ID
+  string entrez_id = 9;             // Entrez Gene ID
+  string uniprot_id = 10;           // UniProt accession
+  string hgnc_id = 11;              // HGNC ID
+  double tpm_average = 12;          // Average TPM across all samples
+  double tpm_max = 13;              // Maximum TPM across all samples
+  int32 samples_expressed = 14;     // Number of samples with TPM > threshold
+  string expression_breadth = 15;   // Classification: ubiquitous, broad, tissue_specific
+  repeated Fantom5TopExpression top_tissues = 16;     // Top expressed tissues
+  repeated Fantom5TopExpression top_cell_types = 17;  // Top expressed cell types
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// FANTOM5 top expression entry for tissue/cell type ranking
+message Fantom5TopExpression {
+  string name = 1;                  // Tissue/cell type name (e.g., "brain, adult")
+  string ontology_id = 2;           // Ontology ID: UBERON:0000955 or CL:0000540
+  double tpm = 3;                   // TPM value in this tissue/cell type
+  int32 rank = 4;                   // Rank (1 = highest expression)
+}
+
+// FANTOM5 Enhancer attributes (Dataset ID: 127)
+// Primary key: numeric ID (1, 2, 3, ...)
+// ~65,000 active enhancers identified via bidirectional eRNA transcription
+message Fantom5EnhancerAttr {
+  string fantom5_enhancer_id = 1;   // Original coordinate ID: chr1:167440766-167441089
+  string chromosome = 2;            // Chromosome
+  int32 start = 3;                  // Start position (hg38)
+  int32 end = 4;                    // End position (hg38)
+  double tpm_average = 5;           // Average TPM across all samples
+  double tpm_max = 6;               // Maximum TPM
+  int32 samples_expressed = 7;      // Number of samples with enhancer activity
+  repeated string associated_genes = 8;  // Target genes (correlation-based)
+  repeated Fantom5TopExpression top_tissues = 9;  // Top active tissues
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// FANTOM5 Gene-level expression attributes (Dataset ID: 128)
+// Primary key: numeric ID (1, 2, 3, ...)
+// ~20,000 genes with aggregated CAGE expression
+message Fantom5GeneAttr {
+  string gene_id = 1;               // Gene ID (Ensembl or Entrez)
+  string gene_symbol = 2;           // Gene symbol
+  string entrez_id = 3;             // Entrez Gene ID
+  double tpm_average = 4;           // Average TPM across all samples
+  double tpm_max = 5;               // Maximum TPM
+  int32 samples_expressed = 6;      // Number of samples expressed
+  string expression_breadth = 7;    // Classification: ubiquitous, broad, tissue_specific
+  repeated Fantom5TopExpression top_tissues = 8;  // Top expressed tissues
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// JASPAR - Transcription Factor Binding Profiles (Dataset ID: 129)
+// Open-access database of TF binding motifs (PFMs/PWMs)
+// Source: https://jaspar.elixir.no/
+// Primary key: matrix_id (e.g., "MA0004.1", "UN0875.1")
+// License: CC BY 4.0
+message JasparAttr {
+  string matrix_id = 1;           // Full matrix ID with version (e.g., "MA0004.1")
+  string name = 2;                // TF name/gene symbol (e.g., "RUNX1", "Arnt")
+  string collection = 3;          // Collection: "CORE" or "UNVALIDATED"
+  string class = 4;               // TF class (e.g., "Basic helix-loop-helix factors (bHLH)")
+  string family = 5;              // TF family (e.g., "PAS domain factors")
+  string tax_group = 6;           // Taxonomic group: vertebrates, plants, insects, fungi, nematodes, urochordates
+  string type = 7;                // Experiment type: SELEX, ChIP-seq, PBM, ChIP-chip, etc.
+  string species = 8;             // Species name (e.g., "Homo sapiens")
+  int32 version = 9;              // Matrix version number
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// ENCODE cCRE - Candidate cis-Regulatory Elements (Dataset ID: 130)
+// Registry of ~2.3M regulatory regions from ENCODE project
+// Source: https://screen.encodeproject.org/
+// Primary key: ccre_id (e.g., "EH38E2776516")
+// Classifications: PLS (promoter), pELS/dELS (enhancer), CA-CTCF, CA-TF, CA, TF
+message EncodeCcreAttr {
+  string ccre_id = 1;             // ENCODE cCRE accession (e.g., "EH38E2776516")
+  string ccre_class = 2;          // Classification: PLS, pELS, dELS, CA-CTCF, CA-TF, CA, TF
+  string chromosome = 3;          // Chromosome (e.g., "chr1")
+  int64 start = 4;                // Start position (0-based)
+  int64 end = 5;                  // End position
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+

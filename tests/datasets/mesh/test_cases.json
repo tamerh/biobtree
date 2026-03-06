@@ -1,0 +1,77 @@
+{
+  "common_tests": [
+    {
+      "name": "Lookup by descriptor ID",
+      "type": "id_lookup",
+      "id": "@reference[0].id"
+    },
+    {
+      "name": "Check attributes present",
+      "type": "attribute_check",
+      "id": "@reference[0].id"
+    },
+    {
+      "name": "Lookup multiple descriptor IDs",
+      "type": "multi_lookup",
+      "count": 3,
+      "id_field": "id"
+    },
+    {
+      "name": "Invalid ID handling",
+      "type": "invalid_id",
+      "invalid_id": "D999999999"
+    }
+  ],
+  "custom_tests": [
+    {
+      "name": "Descriptor with tree numbers has parents",
+      "description": "D000001 (Calcimycin) should have parent descriptors via tree hierarchy",
+      "test_type": "mapping",
+      "source_id": "D000001",
+      "query": ">>mesh>>meshparent",
+      "expect_results": true,
+      "min_results": 1
+    },
+    {
+      "name": "Parent descriptor has children",
+      "description": "D000095662 (Polyether Polyketides) should have child descriptors",
+      "test_type": "mapping",
+      "source_id": "D000095662",
+      "query": ">>mesh>>meshchild",
+      "expect_results": true,
+      "min_results": 1
+    },
+    {
+      "name": "Search by descriptor name",
+      "description": "Search for 'Calcimycin' should return D000001",
+      "test_type": "search",
+      "search_term": "Calcimycin",
+      "dataset_filter": "mesh",
+      "expect_id": "D000001"
+    },
+    {
+      "name": "Search by entry term (synonym)",
+      "description": "Search for 'A23187' (synonym) should return D000001",
+      "test_type": "search",
+      "search_term": "A23187",
+      "dataset_filter": "mesh",
+      "expect_id": "D000001"
+    },
+    {
+      "name": "Tree numbers in attributes",
+      "description": "D000001 should have tree_numbers in attributes",
+      "test_type": "attribute_exists",
+      "source_id": "D000001",
+      "attribute_path": "Mesh.tree_numbers",
+      "expect_min_length": 1
+    },
+    {
+      "name": "Scope note in attributes",
+      "description": "D000001 should have scope_note in attributes",
+      "test_type": "attribute_exists",
+      "source_id": "D000001",
+      "attribute_path": "Mesh.scope_note",
+      "expect_not_empty": true
+    }
+  ]
+}

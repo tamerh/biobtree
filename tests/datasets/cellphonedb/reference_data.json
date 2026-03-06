@@ -1,0 +1,2271 @@
+[
+  {
+    "id": "CPI-SC0A2DB962D",
+    "partner_a": "P12830",
+    "partner_b": "integrin_a2b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Cadherin",
+    "source": "PMID:12392763",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": false,
+    "is_complex_a": false,
+    "genes_a": [
+      "CDH1"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA2"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC0B5CEA47D",
+    "partner_a": "Q03692",
+    "partner_b": "integrin_a2b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL10A1"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA2"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC0C8B7BCBB",
+    "partner_a": "P12107",
+    "partner_b": "integrin_a2b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL11A1"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA2"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC0D3C12C3F",
+    "partner_a": "P13942",
+    "partner_b": "integrin_a2b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL11A2"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA2"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC0B86B7CED",
+    "partner_a": "Q99715",
+    "partner_b": "integrin_a2b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL12A1"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA2"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC0FA343CEF",
+    "partner_a": "Q5TAT6",
+    "partner_b": "integrin_a2b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": false,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL13A1"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA2"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC0CCCF9A7F",
+    "partner_a": "Q05707",
+    "partner_b": "integrin_a2b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL14A1"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA2"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC0E85E1FB0",
+    "partner_a": "P39059",
+    "partner_b": "integrin_a2b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL15A1"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA2"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC0956F4A31",
+    "partner_a": "Q07092",
+    "partner_b": "integrin_a2b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL16A1"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA2"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC06EEEC092",
+    "partner_a": "Q9UMD9",
+    "partner_b": "integrin_a2b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL17A1"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA2"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC04BD52124",
+    "partner_a": "P39060",
+    "partner_b": "integrin_a2b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL18A1"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA2"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC0BDD04147",
+    "partner_a": "Q14993",
+    "partner_b": "integrin_a2b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL19A1"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA2"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC04BCFC59C",
+    "partner_a": "P02452",
+    "partner_b": "integrin_a2b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL1A1"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA2"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC03D0A4AD2",
+    "partner_a": "P08123",
+    "partner_b": "integrin_a2b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL1A2"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA2"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC0D5DDAD29",
+    "partner_a": "Q9P218",
+    "partner_b": "integrin_a2b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL20A1"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA2"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC0D10396B4",
+    "partner_a": "Q96P44",
+    "partner_b": "integrin_a2b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL21A1"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA2"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC04D3AE2F6",
+    "partner_a": "Q8NFW1",
+    "partner_b": "integrin_a2b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL22A1"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA2"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC088A27EA5",
+    "partner_a": "Q17RW2",
+    "partner_b": "integrin_a2b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL24A1"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA2"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC0F179D307",
+    "partner_a": "Q96A83",
+    "partner_b": "integrin_a2b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL26A1"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA2"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC044C2FDA4",
+    "partner_a": "Q8IZC6",
+    "partner_b": "integrin_a2b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL27A1"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA2"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC04251A46C",
+    "partner_a": "Q2UY09",
+    "partner_b": "integrin_a2b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL28A1"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA2"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC09C62F412",
+    "partner_a": "P02458",
+    "partner_b": "integrin_a2b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL2A1"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA2"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC06A152CC0",
+    "partner_a": "P02461",
+    "partner_b": "integrin_a2b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL3A1"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA2"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC03515B178",
+    "partner_a": "P02462",
+    "partner_b": "integrin_a2b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL4A1"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA2"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC046604E76",
+    "partner_a": "P08572",
+    "partner_b": "integrin_a2b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL4A2"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA2"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC0926FDACC",
+    "partner_a": "Q01955",
+    "partner_b": "integrin_a2b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL4A3"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA2"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC072376C7B",
+    "partner_a": "P53420",
+    "partner_b": "integrin_a2b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL4A4"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA2"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC0C287AFC3",
+    "partner_a": "P29400",
+    "partner_b": "integrin_a2b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL4A5"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA2"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC0FDD31EAB",
+    "partner_a": "Q14031",
+    "partner_b": "integrin_a2b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL4A6"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA2"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC0681DB40E",
+    "partner_a": "P20908",
+    "partner_b": "integrin_a2b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL5A1"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA2"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC0345262E7",
+    "partner_a": "P05997",
+    "partner_b": "integrin_a2b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL5A2"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA2"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC0D5418330",
+    "partner_a": "P25940",
+    "partner_b": "integrin_a2b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL5A3"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA2"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC0CCB0D955",
+    "partner_a": "P12109",
+    "partner_b": "integrin_a2b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL6A1"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA2"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC01A5C5096",
+    "partner_a": "P12110",
+    "partner_b": "integrin_a2b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL6A2"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA2"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC084C79E20",
+    "partner_a": "P12111",
+    "partner_b": "integrin_a2b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL6A3"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA2"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC0A6F94686",
+    "partner_a": "A8TX70",
+    "partner_b": "integrin_a2b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL6A5"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA2"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC00D0AFED0",
+    "partner_a": "A6NMZ7",
+    "partner_b": "integrin_a2b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL6A6"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA2"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC05640277E",
+    "partner_a": "Q02388",
+    "partner_b": "integrin_a2b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL7A1"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA2"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC0B3564B15",
+    "partner_a": "P27658",
+    "partner_b": "integrin_a2b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL8A1"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA2"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC0F94B7D8F",
+    "partner_a": "P25067",
+    "partner_b": "integrin_a2b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL8A2"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA2"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC00065C95C",
+    "partner_a": "P20849",
+    "partner_b": "integrin_a2b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL9A1"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA2"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC0A916E0E2",
+    "partner_a": "Q14055",
+    "partner_b": "integrin_a2b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL9A2"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA2"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC0BB68FB34",
+    "partner_a": "Q14050",
+    "partner_b": "integrin_a2b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL9A3"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA2"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC01D1C56CC",
+    "partner_a": "P02751",
+    "partner_b": "integrin_a2b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Fibronectin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "FN1"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA2"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC0A460766C",
+    "partner_a": "P11047",
+    "partner_b": "integrin_a2b1_complex",
+    "directionality": "Ligand-Receptor",
+    "classification": "Adhesion by Laminin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "LAMC1"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA2"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC09D882C18",
+    "partner_a": "P12830",
+    "partner_b": "integrin_aEb7_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Cadherin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": false,
+    "is_complex_a": false,
+    "genes_a": [
+      "CDH1"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB7",
+      "ITGAE"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SS0CC5DCE80",
+    "partner_a": "P12830",
+    "partner_b": "Q96E93",
+    "directionality": "Ligand-Receptor",
+    "classification": "Adhesion by Cadherin",
+    "source": "PMC3030123",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": false,
+    "is_complex_a": false,
+    "genes_a": [
+      "CDH1"
+    ],
+    "receptor_b": true,
+    "secreted_b": false,
+    "is_complex_b": false,
+    "genes_b": [
+      "KLRG1"
+    ],
+    "is_integrin": false
+  },
+  {
+    "id": "CPI-SS0EE09A201",
+    "partner_a": "P19022",
+    "partner_b": "P19022",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Cadherin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": false,
+    "is_complex_a": false,
+    "genes_a": [
+      "CDH2"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": false,
+    "genes_b": [
+      "CDH2"
+    ],
+    "is_integrin": false
+  },
+  {
+    "id": "CPI-SS0ADFF0666",
+    "partner_a": "P19022",
+    "partner_b": "P06734",
+    "directionality": "Ligand-Receptor",
+    "classification": "Adhesion by Cadherin",
+    "source": "Shilts screen - VALIDATED",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": false,
+    "is_complex_a": false,
+    "genes_a": [
+      "CDH2"
+    ],
+    "receptor_b": true,
+    "secreted_b": true,
+    "is_complex_b": false,
+    "genes_b": [
+      "FCER2"
+    ],
+    "is_integrin": false
+  },
+  {
+    "id": "CPI-SS0DA0F5556",
+    "partner_a": "P22223",
+    "partner_b": "P22223",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Cadherin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": false,
+    "is_complex_a": false,
+    "genes_a": [
+      "CDH3"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": false,
+    "genes_b": [
+      "CDH3"
+    ],
+    "is_integrin": false
+  },
+  {
+    "id": "CPI-SS00C24ED50",
+    "partner_a": "P33151",
+    "partner_b": "P33151",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Cadherin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": false,
+    "is_complex_a": false,
+    "genes_a": [
+      "CDH5"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": false,
+    "genes_b": [
+      "CDH5"
+    ],
+    "is_integrin": false
+  },
+  {
+    "id": "CPI-SS0C53F7672",
+    "partner_a": "P55285",
+    "partner_b": "P55285",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Cadherin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": false,
+    "is_complex_a": false,
+    "genes_a": [
+      "CDH6"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": false,
+    "genes_b": [
+      "CDH6"
+    ],
+    "is_integrin": false
+  },
+  {
+    "id": "CPI-SS0BE3D537D",
+    "partner_a": "Q9ULB5",
+    "partner_b": "Q9ULB5",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Cadherin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": false,
+    "is_complex_a": false,
+    "genes_a": [
+      "CDH7"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": false,
+    "genes_b": [
+      "CDH7"
+    ],
+    "is_integrin": false
+  },
+  {
+    "id": "CPI-SS0889E281D",
+    "partner_a": "Q9BY67",
+    "partner_b": "Q9BY67",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by CADM",
+    "source": "PMID:24503895",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": false,
+    "is_complex_a": false,
+    "genes_a": [
+      "CADM1"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": false,
+    "genes_b": [
+      "CADM1"
+    ],
+    "is_integrin": false
+  },
+  {
+    "id": "CPI-SS09C06644C",
+    "partner_a": "Q8N126",
+    "partner_b": "Q9BY67",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by CADM",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": false,
+    "is_complex_a": false,
+    "genes_a": [
+      "CADM3"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": false,
+    "genes_b": [
+      "CADM1"
+    ],
+    "is_integrin": false
+  },
+  {
+    "id": "CPI-SS0C9696AAA",
+    "partner_a": "O95727",
+    "partner_b": "Q9BY67",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": false,
+    "is_complex_a": false,
+    "genes_a": [
+      "CRTAM"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": false,
+    "genes_b": [
+      "CADM1"
+    ],
+    "is_integrin": false
+  },
+  {
+    "id": "CPI-SS0B990492C",
+    "partner_a": "Q9BY67",
+    "partner_b": "Q9NQS3",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by CADM",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": false,
+    "is_complex_a": false,
+    "genes_a": [
+      "CADM1"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": false,
+    "genes_b": [
+      "NECTIN3"
+    ],
+    "is_integrin": false
+  },
+  {
+    "id": "CPI-SS00550260E",
+    "partner_a": "Q8N126",
+    "partner_b": "Q9NQS3",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by CADM",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": false,
+    "is_complex_a": false,
+    "genes_a": [
+      "CADM3"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": false,
+    "genes_b": [
+      "NECTIN3"
+    ],
+    "is_integrin": false
+  },
+  {
+    "id": "CPI-SS0C5E9FBFB",
+    "partner_a": "Q15223",
+    "partner_b": "Q9NQS3",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Nectin",
+    "source": "PMID:12740392",
+    "is_ppi": true,
+    "receptor_a": true,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "NECTIN1"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": false,
+    "genes_b": [
+      "NECTIN3"
+    ],
+    "is_integrin": false
+  },
+  {
+    "id": "CPI-SS02FBD007E",
+    "partner_a": "Q92692",
+    "partner_b": "Q9NQS3",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Nectin",
+    "source": "PMID:19011627;PMID:12740392",
+    "is_ppi": true,
+    "receptor_a": true,
+    "secreted_a": false,
+    "is_complex_a": false,
+    "genes_a": [
+      "NECTIN2"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": false,
+    "genes_b": [
+      "NECTIN3"
+    ],
+    "is_integrin": false
+  },
+  {
+    "id": "CPI-SS02D18D12B",
+    "partner_a": "Q8N126",
+    "partner_b": "Q8NFZ8",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by CADM",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": false,
+    "is_complex_a": false,
+    "genes_a": [
+      "CADM3"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": false,
+    "genes_b": [
+      "CADM4"
+    ],
+    "is_integrin": false
+  },
+  {
+    "id": "CPI-SS0B3829651",
+    "partner_a": "Q8N126",
+    "partner_b": "Q9H4G0",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by CADM",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": false,
+    "is_complex_a": false,
+    "genes_a": [
+      "CADM3"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": false,
+    "genes_b": [
+      "EPB41L1"
+    ],
+    "is_integrin": false
+  },
+  {
+    "id": "CPI-SS055B305F1",
+    "partner_a": "P13688",
+    "partner_b": "Q9NNX6",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by CEAM",
+    "source": "PMID:16282604;PMID:16246332",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "CEACAM1"
+    ],
+    "receptor_b": true,
+    "secreted_b": true,
+    "is_complex_b": false,
+    "genes_b": [
+      "CD209"
+    ],
+    "is_integrin": false
+  },
+  {
+    "id": "CPI-SS0544D2759",
+    "partner_a": "P13598",
+    "partner_b": "Q9NNX6",
+    "directionality": "Ligand-Receptor",
+    "classification": "Adhesion by ICAM",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": false,
+    "is_complex_a": false,
+    "genes_a": [
+      "ICAM2"
+    ],
+    "receptor_b": true,
+    "secreted_b": true,
+    "is_complex_b": false,
+    "genes_b": [
+      "CD209"
+    ],
+    "is_integrin": false
+  },
+  {
+    "id": "CPI-SS0A2949959",
+    "partner_a": "P32942",
+    "partner_b": "Q9NNX6",
+    "directionality": "Ligand-Receptor",
+    "classification": "Adhesion by ICAM",
+    "source": "PMID:15795245",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": false,
+    "is_complex_a": false,
+    "genes_a": [
+      "ICAM3"
+    ],
+    "receptor_b": true,
+    "secreted_b": true,
+    "is_complex_b": false,
+    "genes_b": [
+      "CD209"
+    ],
+    "is_integrin": false
+  },
+  {
+    "id": "CPI-SS0A2D7895C",
+    "partner_a": "P13688",
+    "partner_b": "P40199",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by CEAM",
+    "source": "PMID:21982860",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "CEACAM1"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": false,
+    "genes_b": [
+      "CEACAM6"
+    ],
+    "is_integrin": false
+  },
+  {
+    "id": "CPI-SS0322747C2",
+    "partner_a": "P06731",
+    "partner_b": "P40199",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by CEAM",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": false,
+    "is_complex_a": false,
+    "genes_a": [
+      "CEACAM5"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": false,
+    "genes_b": [
+      "CEACAM6"
+    ],
+    "is_integrin": false
+  },
+  {
+    "id": "CPI-SS001BF66E8",
+    "partner_a": "P40199",
+    "partner_b": "P40199",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by CEAM",
+    "source": "PMID:11590190",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": false,
+    "is_complex_a": false,
+    "genes_a": [
+      "CEACAM6"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": false,
+    "genes_b": [
+      "CEACAM6"
+    ],
+    "is_integrin": false
+  },
+  {
+    "id": "CPI-SS08C411721",
+    "partner_a": "P31997",
+    "partner_b": "P40199",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by CEAM",
+    "source": "PMID:11590190",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": false,
+    "is_complex_a": false,
+    "genes_a": [
+      "CEACAM8"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": false,
+    "genes_b": [
+      "CEACAM6"
+    ],
+    "is_integrin": false
+  },
+  {
+    "id": "CPI-SS0CCDBBBC0",
+    "partner_a": "P13688",
+    "partner_b": "P31997",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by CEAM",
+    "source": "PMID:24743304",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "CEACAM1"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": false,
+    "genes_b": [
+      "CEACAM8"
+    ],
+    "is_integrin": false
+  },
+  {
+    "id": "CPI-SS0BDC04683",
+    "partner_a": "P13688",
+    "partner_b": "P16581",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by CEAM",
+    "source": "PMID:1378450",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "CEACAM1"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": false,
+    "genes_b": [
+      "SELE"
+    ],
+    "is_integrin": false
+  },
+  {
+    "id": "CPI-SS0B111D2F5",
+    "partner_a": "Q9NZ53",
+    "partner_b": "P16581",
+    "directionality": "Ligand-Receptor",
+    "classification": "Signaling by Podocalyxin-like protein",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": false,
+    "is_complex_a": false,
+    "genes_a": [
+      "PODXL2"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": false,
+    "genes_b": [
+      "SELE"
+    ],
+    "is_integrin": false
+  },
+  {
+    "id": "CPI-SS085C6A191",
+    "partner_a": "Q14242",
+    "partner_b": "P16581",
+    "directionality": "Ligand-Receptor",
+    "classification": "Signaling by Selectin",
+    "source": "PMC4571854",
+    "is_ppi": true,
+    "receptor_a": true,
+    "secreted_a": false,
+    "is_complex_a": false,
+    "genes_a": [
+      "SELPLG"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": false,
+    "genes_b": [
+      "SELE"
+    ],
+    "is_integrin": false
+  },
+  {
+    "id": "CPI-SS06F83AE58",
+    "partner_a": "P16070",
+    "partner_b": "P16581",
+    "directionality": "Ligand-Receptor",
+    "classification": "",
+    "source": "PMC4571854",
+    "is_ppi": true,
+    "receptor_a": true,
+    "secreted_a": false,
+    "is_complex_a": false,
+    "genes_a": [
+      "CD44"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": false,
+    "genes_b": [
+      "SELE"
+    ],
+    "is_integrin": false
+  },
+  {
+    "id": "CPI-SS0AC66088D",
+    "partner_a": "P06731",
+    "partner_b": "P15813",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by CEAM",
+    "source": "PMID:24104458",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": false,
+    "is_complex_a": false,
+    "genes_a": [
+      "CEACAM5"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": false,
+    "genes_b": [
+      "CD1D"
+    ],
+    "is_integrin": false
+  },
+  {
+    "id": "CPI-SS04B37190C",
+    "partner_a": "P06731",
+    "partner_b": "P01732",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by CEAM",
+    "source": "PMID:24104458",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": false,
+    "is_complex_a": false,
+    "genes_a": [
+      "CEACAM5"
+    ],
+    "receptor_b": true,
+    "secreted_b": true,
+    "is_complex_b": false,
+    "genes_b": [
+      "CD8A"
+    ],
+    "is_integrin": false
+  },
+  {
+    "id": "CPI-SS0B537DD3F",
+    "partner_a": "P06731",
+    "partner_b": "P13688",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by CEAM",
+    "source": "Induces_NK_Cell_Inhibition._Reviewed_in_PMID:24987108",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": false,
+    "is_complex_a": false,
+    "genes_a": [
+      "CEACAM5"
+    ],
+    "receptor_b": false,
+    "secreted_b": true,
+    "is_complex_b": false,
+    "genes_b": [
+      "CEACAM1"
+    ],
+    "is_integrin": false
+  },
+  {
+    "id": "CPI-SC04FA882F7",
+    "partner_a": "Q03692",
+    "partner_b": "integrin_a1b1_complex",
+    "directionality": "Ligand-Receptor",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL10A1"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA1"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC0E53A238E",
+    "partner_a": "P12107",
+    "partner_b": "integrin_a1b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL11A1"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA1"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC071163509",
+    "partner_a": "P13942",
+    "partner_b": "integrin_a1b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL11A2"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA1"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC0E83A4B71",
+    "partner_a": "Q99715",
+    "partner_b": "integrin_a1b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL12A1"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA1"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC0FCF853DB",
+    "partner_a": "Q5TAT6",
+    "partner_b": "integrin_a1b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": false,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL13A1"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA1"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC0AB5FBF10",
+    "partner_a": "Q05707",
+    "partner_b": "integrin_a1b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL14A1"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA1"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC027893337",
+    "partner_a": "P39059",
+    "partner_b": "integrin_a1b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL15A1"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA1"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC06AD39F88",
+    "partner_a": "Q07092",
+    "partner_b": "integrin_a1b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL16A1"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA1"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC0C841033A",
+    "partner_a": "Q9UMD9",
+    "partner_b": "integrin_a1b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL17A1"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA1"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC0C739EDCE",
+    "partner_a": "P39060",
+    "partner_b": "integrin_a1b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL18A1"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA1"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC079D293A2",
+    "partner_a": "Q14993",
+    "partner_b": "integrin_a1b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL19A1"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA1"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC08DBCCFF0",
+    "partner_a": "P02452",
+    "partner_b": "integrin_a1b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL1A1"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA1"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC09DB9D20A",
+    "partner_a": "P08123",
+    "partner_b": "integrin_a1b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL1A2"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA1"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC0804EB2C0",
+    "partner_a": "Q9P218",
+    "partner_b": "integrin_a1b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL20A1"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA1"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC065DB6486",
+    "partner_a": "Q96P44",
+    "partner_b": "integrin_a1b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL21A1"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA1"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC0713C9654",
+    "partner_a": "Q8NFW1",
+    "partner_b": "integrin_a1b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL22A1"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA1"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC073A7317A",
+    "partner_a": "Q17RW2",
+    "partner_b": "integrin_a1b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL24A1"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA1"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC01E6BE079",
+    "partner_a": "Q96A83",
+    "partner_b": "integrin_a1b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL26A1"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA1"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC050F64BB5",
+    "partner_a": "Q8IZC6",
+    "partner_b": "integrin_a1b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL27A1"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA1"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC01C274A51",
+    "partner_a": "Q2UY09",
+    "partner_b": "integrin_a1b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL28A1"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA1"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC0EA8ABCFD",
+    "partner_a": "P02458",
+    "partner_b": "integrin_a1b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL2A1"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA1"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC00367777A",
+    "partner_a": "P02461",
+    "partner_b": "integrin_a1b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL3A1"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA1"
+    ],
+    "is_integrin": true
+  },
+  {
+    "id": "CPI-SC0744E13CB",
+    "partner_a": "P02462",
+    "partner_b": "integrin_a1b1_complex",
+    "directionality": "Adhesion-Adhesion",
+    "classification": "Adhesion by Collagen/Integrin",
+    "source": "uniprot",
+    "is_ppi": true,
+    "receptor_a": false,
+    "secreted_a": true,
+    "is_complex_a": false,
+    "genes_a": [
+      "COL4A1"
+    ],
+    "receptor_b": false,
+    "secreted_b": false,
+    "is_complex_b": true,
+    "genes_b": [
+      "ITGB1",
+      "ITGA1"
+    ],
+    "is_integrin": true
+  }
+]

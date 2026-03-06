@@ -1,0 +1,1103 @@
+{
+  "targets": [
+    {
+      "target_chembl_id": "CHEMBL1075021",
+      "pref_name": "DNA gyrase subunit B",
+      "target_type": "SINGLE PROTEIN",
+      "organism": "Streptococcus pneumoniae serotype 4 (strain ATCC BAA-334 / TIGR4)",
+      "tax_id": 170187,
+      "uniprot_ids": [
+        "P0A4L9"
+      ]
+    },
+    {
+      "target_chembl_id": "CHEMBL1075025",
+      "pref_name": "Isoprenyl transferase",
+      "target_type": "SINGLE PROTEIN",
+      "organism": "Streptococcus pneumoniae serotype 4 (strain ATCC BAA-334 / TIGR4)",
+      "tax_id": 170187,
+      "uniprot_ids": [
+        "Q97SR4"
+      ]
+    },
+    {
+      "target_chembl_id": "CHEMBL1075026",
+      "pref_name": "Streptavidin",
+      "target_type": "SINGLE PROTEIN",
+      "organism": "Streptomyces avidinii",
+      "tax_id": 1895,
+      "uniprot_ids": [
+        "P22629"
+      ]
+    },
+    {
+      "target_chembl_id": "CHEMBL1075030",
+      "pref_name": "Urokinase-type plasminogen activator",
+      "target_type": "SINGLE PROTEIN",
+      "organism": "Sus scrofa",
+      "tax_id": 9823,
+      "uniprot_ids": [
+        "P04185"
+      ]
+    },
+    {
+      "target_chembl_id": "CHEMBL1075031",
+      "pref_name": "5-methylthioadenosine/S-adenosylhomocysteine deaminase",
+      "target_type": "SINGLE PROTEIN",
+      "organism": "Thermotoga maritima (strain ATCC 43589 / MSB8 / DSM 3109 / JCM 10099)",
+      "tax_id": 243274,
+      "uniprot_ids": [
+        "Q9X034"
+      ]
+    },
+    {
+      "target_chembl_id": "CHEMBL1075032",
+      "pref_name": "Adenosylhomocysteinase",
+      "target_type": "SINGLE PROTEIN",
+      "organism": "Thermotoga maritima (strain ATCC 43589 / MSB8 / DSM 3109 / JCM 10099)",
+      "tax_id": 243274,
+      "uniprot_ids": [
+        "O51933"
+      ]
+    },
+    {
+      "target_chembl_id": "CHEMBL1075034",
+      "pref_name": "Thymidine kinase",
+      "target_type": "SINGLE PROTEIN",
+      "organism": "Vaccinia virus (strain Western Reserve) (VACV) (Vaccinia virus (strainWR))",
+      "tax_id": 10254,
+      "uniprot_ids": [
+        "P68563"
+      ]
+    },
+    {
+      "target_chembl_id": "CHEMBL1075035",
+      "pref_name": "Beta-hexosaminidase",
+      "target_type": "SINGLE PROTEIN",
+      "organism": "Vibrio cholerae serotype O1 (strain ATCC 39315 / El Tor Inaba N16961)",
+      "tax_id": 243277,
+      "uniprot_ids": [
+        "Q9KU37"
+      ]
+    },
+    {
+      "target_chembl_id": "CHEMBL1075037",
+      "pref_name": "Plasminogen activator",
+      "target_type": "SINGLE PROTEIN",
+      "organism": "Yersinia pestis",
+      "tax_id": 632,
+      "uniprot_ids": [
+        "P17811"
+      ]
+    },
+    {
+      "target_chembl_id": "CHEMBL1075038",
+      "pref_name": "Beta-glucosidase",
+      "target_type": "SINGLE PROTEIN",
+      "organism": "Agrobacterium sp. ATCC 21400",
+      "tax_id": 74562,
+      "uniprot_ids": [
+        "P12614"
+      ]
+    },
+    {
+      "target_chembl_id": "CHEMBL1075039",
+      "pref_name": "Cytochrome P450 165B3",
+      "target_type": "SINGLE PROTEIN",
+      "organism": "Amycolatopsis orientalis",
+      "tax_id": 31958,
+      "uniprot_ids": [
+        "Q8RN04"
+      ]
+    },
+    {
+      "target_chembl_id": "CHEMBL1075040",
+      "pref_name": "UDP-3-O-acyl-N-acetylglucosamine deacetylase",
+      "target_type": "SINGLE PROTEIN",
+      "organism": "Aquifex aeolicus (strain VF5)",
+      "tax_id": 224324,
+      "uniprot_ids": [
+        "O67648"
+      ]
+    },
+    {
+      "target_chembl_id": "CHEMBL1075041",
+      "pref_name": "Peptide deformylase 1A, chloroplastic/mitochondrial",
+      "target_type": "SINGLE PROTEIN",
+      "organism": "Arabidopsis thaliana",
+      "tax_id": 3702,
+      "uniprot_ids": [
+        "Q9FV53"
+      ]
+    },
+    {
+      "target_chembl_id": "CHEMBL1075043",
+      "pref_name": "Guanyl-specific ribonuclease T1",
+      "target_type": "SINGLE PROTEIN",
+      "organism": "Aspergillus oryzae (strain ATCC 42149 / RIB 40)",
+      "tax_id": 510516,
+      "uniprot_ids": [
+        "P00651"
+      ]
+    },
+    {
+      "target_chembl_id": "CHEMBL1075044",
+      "pref_name": "Enoyl-[acyl-carrier-protein] reductase [NADH] FabI",
+      "target_type": "SINGLE PROTEIN",
+      "organism": "Bacillus subtilis (strain 168)",
+      "tax_id": 224308,
+      "uniprot_ids": [
+        "P54616"
+      ]
+    },
+    {
+      "target_chembl_id": "CHEMBL1075047",
+      "pref_name": "DNA polymerase III subunit epsilon",
+      "target_type": "SINGLE PROTEIN",
+      "organism": "Escherichia coli K-12",
+      "tax_id": 83333,
+      "uniprot_ids": [
+        "P03007"
+      ]
+    },
+    {
+      "target_chembl_id": "CHEMBL1075048",
+      "pref_name": "Protoporphyrinogen oxidase",
+      "target_type": "SINGLE PROTEIN",
+      "organism": "Bacillus subtilis (strain 168)",
+      "tax_id": 224308,
+      "uniprot_ids": [
+        "P32397"
+      ]
+    },
+    {
+      "target_chembl_id": "CHEMBL1075049",
+      "pref_name": "Demethylmenaquinone methyltransferase",
+      "target_type": "SINGLE PROTEIN",
+      "organism": "Bacillus subtilis (strain 168)",
+      "tax_id": 224308,
+      "uniprot_ids": [
+        "P31113"
+      ]
+    },
+    {
+      "target_chembl_id": "CHEMBL1075050",
+      "pref_name": "Dipeptidyl peptidase 1",
+      "target_type": "SINGLE PROTEIN",
+      "organism": "Bos taurus",
+      "tax_id": 9913,
+      "uniprot_ids": [
+        "Q3ZCJ8"
+      ]
+    },
+    {
+      "target_chembl_id": "CHEMBL1075051",
+      "pref_name": "Dihydrofolate reductase",
+      "target_type": "SINGLE PROTEIN",
+      "organism": "Bos taurus",
+      "tax_id": 9913,
+      "uniprot_ids": [
+        "P00376"
+      ]
+    }
+  ],
+  "molecules": [
+    {
+      "molecule_chembl_id": "CHEMBL265667",
+      "pref_name": null,
+      "molecule_type": "Small molecule",
+      "max_phase": null,
+      "synonyms": []
+    },
+    {
+      "molecule_chembl_id": "CHEMBL266457",
+      "pref_name": null,
+      "molecule_type": "Small molecule",
+      "max_phase": null,
+      "synonyms": []
+    },
+    {
+      "molecule_chembl_id": "CHEMBL267864",
+      "pref_name": null,
+      "molecule_type": "Small molecule",
+      "max_phase": null,
+      "synonyms": []
+    },
+    {
+      "molecule_chembl_id": "CHEMBL268097",
+      "pref_name": null,
+      "molecule_type": "Small molecule",
+      "max_phase": null,
+      "synonyms": []
+    },
+    {
+      "molecule_chembl_id": "CHEMBL268365",
+      "pref_name": null,
+      "molecule_type": "Small molecule",
+      "max_phase": null,
+      "synonyms": []
+    },
+    {
+      "molecule_chembl_id": "CHEMBL268556",
+      "pref_name": null,
+      "molecule_type": "Small molecule",
+      "max_phase": null,
+      "synonyms": []
+    },
+    {
+      "molecule_chembl_id": "CHEMBL269758",
+      "pref_name": null,
+      "molecule_type": "Small molecule",
+      "max_phase": null,
+      "synonyms": []
+    },
+    {
+      "molecule_chembl_id": "CHEMBL6206",
+      "pref_name": "BROMOENOL LACTONE",
+      "molecule_type": "Small molecule",
+      "max_phase": null,
+      "synonyms": []
+    },
+    {
+      "molecule_chembl_id": "CHEMBL6214",
+      "pref_name": null,
+      "molecule_type": "Small molecule",
+      "max_phase": null,
+      "synonyms": []
+    },
+    {
+      "molecule_chembl_id": "CHEMBL6222",
+      "pref_name": null,
+      "molecule_type": "Small molecule",
+      "max_phase": null,
+      "synonyms": []
+    },
+    {
+      "molecule_chembl_id": "CHEMBL6223",
+      "pref_name": null,
+      "molecule_type": "Small molecule",
+      "max_phase": null,
+      "synonyms": []
+    },
+    {
+      "molecule_chembl_id": "CHEMBL6228",
+      "pref_name": null,
+      "molecule_type": "Small molecule",
+      "max_phase": null,
+      "synonyms": []
+    },
+    {
+      "molecule_chembl_id": "CHEMBL6230",
+      "pref_name": null,
+      "molecule_type": "Small molecule",
+      "max_phase": null,
+      "synonyms": []
+    },
+    {
+      "molecule_chembl_id": "CHEMBL6254",
+      "pref_name": null,
+      "molecule_type": "Small molecule",
+      "max_phase": null,
+      "synonyms": []
+    },
+    {
+      "molecule_chembl_id": "CHEMBL6268",
+      "pref_name": null,
+      "molecule_type": "Small molecule",
+      "max_phase": null,
+      "synonyms": []
+    },
+    {
+      "molecule_chembl_id": "CHEMBL6328",
+      "pref_name": null,
+      "molecule_type": "Small molecule",
+      "max_phase": null,
+      "synonyms": []
+    },
+    {
+      "molecule_chembl_id": "CHEMBL6329",
+      "pref_name": null,
+      "molecule_type": "Small molecule",
+      "max_phase": null,
+      "synonyms": []
+    },
+    {
+      "molecule_chembl_id": "CHEMBL6352",
+      "pref_name": null,
+      "molecule_type": "Small molecule",
+      "max_phase": null,
+      "synonyms": []
+    },
+    {
+      "molecule_chembl_id": "CHEMBL6362",
+      "pref_name": null,
+      "molecule_type": "Small molecule",
+      "max_phase": null,
+      "synonyms": []
+    },
+    {
+      "molecule_chembl_id": "CHEMBL6363",
+      "pref_name": null,
+      "molecule_type": "Small molecule",
+      "max_phase": null,
+      "synonyms": []
+    }
+  ],
+  "activities": [
+    {
+      "activity_chembl_id": "CHEMBL_ACT_31864",
+      "molecule_chembl_id": "CHEMBL324340",
+      "assay_chembl_id": "CHEMBL872937",
+      "target_chembl_id": "CHEMBL3921",
+      "document_chembl_id": "CHEMBL1146658",
+      "standard_type": "IC50",
+      "standard_value": 2500,
+      "standard_units": "nM",
+      "target_organism": "Homo sapiens"
+    },
+    {
+      "activity_chembl_id": "CHEMBL_ACT_31866",
+      "molecule_chembl_id": "CHEMBL109600",
+      "assay_chembl_id": "CHEMBL872937",
+      "target_chembl_id": "CHEMBL3921",
+      "document_chembl_id": "CHEMBL1146658",
+      "standard_type": "IC50",
+      "standard_value": 9000,
+      "standard_units": "nM",
+      "target_organism": "Homo sapiens"
+    },
+    {
+      "activity_chembl_id": "CHEMBL_ACT_31868",
+      "molecule_chembl_id": "CHEMBL357278",
+      "assay_chembl_id": "CHEMBL760688",
+      "target_chembl_id": "CHEMBL4632",
+      "document_chembl_id": "CHEMBL1148425",
+      "standard_type": "IC50",
+      "standard_value": 4000,
+      "standard_units": "nM",
+      "target_organism": "Rattus norvegicus"
+    },
+    {
+      "activity_chembl_id": "CHEMBL_ACT_31870",
+      "molecule_chembl_id": "CHEMBL357119",
+      "assay_chembl_id": "CHEMBL760688",
+      "target_chembl_id": "CHEMBL4632",
+      "document_chembl_id": "CHEMBL1148425",
+      "standard_type": "IC50",
+      "standard_value": 17000,
+      "standard_units": "nM",
+      "target_organism": "Rattus norvegicus"
+    },
+    {
+      "activity_chembl_id": "CHEMBL_ACT_31872",
+      "molecule_chembl_id": "CHEMBL152968",
+      "assay_chembl_id": "CHEMBL760688",
+      "target_chembl_id": "CHEMBL4632",
+      "document_chembl_id": "CHEMBL1148425",
+      "standard_type": "IC50",
+      "standard_value": 180,
+      "standard_units": "nM",
+      "target_organism": "Rattus norvegicus"
+    },
+    {
+      "activity_chembl_id": "CHEMBL_ACT_31874",
+      "molecule_chembl_id": "CHEMBL152968",
+      "assay_chembl_id": "CHEMBL666153",
+      "target_chembl_id": "CHEMBL3356",
+      "document_chembl_id": "CHEMBL1148425",
+      "standard_type": "IC50",
+      "standard_value": 6000,
+      "standard_units": "nM",
+      "target_organism": "Homo sapiens"
+    },
+    {
+      "activity_chembl_id": "CHEMBL_ACT_31875",
+      "molecule_chembl_id": "CHEMBL152968",
+      "assay_chembl_id": "CHEMBL665756",
+      "target_chembl_id": "CHEMBL340",
+      "document_chembl_id": "CHEMBL1148425",
+      "standard_type": "IC50",
+      "standard_value": 37000,
+      "standard_units": "nM",
+      "target_organism": "Homo sapiens"
+    },
+    {
+      "activity_chembl_id": "CHEMBL_ACT_31876",
+      "molecule_chembl_id": "CHEMBL152968",
+      "assay_chembl_id": "CHEMBL660388",
+      "target_chembl_id": "CHEMBL3397",
+      "document_chembl_id": "CHEMBL1148425",
+      "standard_type": "IC50",
+      "standard_value": 24000,
+      "standard_units": "nM",
+      "target_organism": "Homo sapiens"
+    },
+    {
+      "activity_chembl_id": "CHEMBL_ACT_31889",
+      "molecule_chembl_id": "CHEMBL268177",
+      "assay_chembl_id": "CHEMBL873200",
+      "target_chembl_id": "CHEMBL261",
+      "document_chembl_id": "CHEMBL1146805",
+      "standard_type": "Ki",
+      "standard_value": 6000,
+      "standard_units": "nM",
+      "target_organism": "Homo sapiens"
+    },
+    {
+      "activity_chembl_id": "CHEMBL_ACT_31890",
+      "molecule_chembl_id": "CHEMBL268177",
+      "assay_chembl_id": "CHEMBL657848",
+      "target_chembl_id": "CHEMBL205",
+      "document_chembl_id": "CHEMBL1146805",
+      "standard_type": "Ki",
+      "standard_value": 70,
+      "standard_units": "nM",
+      "target_organism": "Homo sapiens"
+    },
+    {
+      "activity_chembl_id": "CHEMBL_ACT_31891",
+      "molecule_chembl_id": "CHEMBL268177",
+      "assay_chembl_id": "CHEMBL657970",
+      "target_chembl_id": "CHEMBL3594",
+      "document_chembl_id": "CHEMBL1146805",
+      "standard_type": "Ki",
+      "standard_value": 285,
+      "standard_units": "nM",
+      "target_organism": "Homo sapiens"
+    },
+    {
+      "activity_chembl_id": "CHEMBL_ACT_31892",
+      "molecule_chembl_id": "CHEMBL268177",
+      "assay_chembl_id": "CHEMBL657976",
+      "target_chembl_id": "CHEMBL2186",
+      "document_chembl_id": "CHEMBL1146805",
+      "standard_type": "Ki",
+      "standard_value": 50,
+      "standard_units": "nM",
+      "target_organism": "Mus musculus"
+    },
+    {
+      "activity_chembl_id": "CHEMBL_ACT_31893",
+      "molecule_chembl_id": "CHEMBL268439",
+      "assay_chembl_id": "CHEMBL873200",
+      "target_chembl_id": "CHEMBL261",
+      "document_chembl_id": "CHEMBL1146805",
+      "standard_type": "Ki",
+      "standard_value": 6,
+      "standard_units": "nM",
+      "target_organism": "Homo sapiens"
+    },
+    {
+      "activity_chembl_id": "CHEMBL_ACT_31894",
+      "molecule_chembl_id": "CHEMBL268439",
+      "assay_chembl_id": "CHEMBL657848",
+      "target_chembl_id": "CHEMBL205",
+      "document_chembl_id": "CHEMBL1146805",
+      "standard_type": "Ki",
+      "standard_value": 2,
+      "standard_units": "nM",
+      "target_organism": "Homo sapiens"
+    },
+    {
+      "activity_chembl_id": "CHEMBL_ACT_31895",
+      "molecule_chembl_id": "CHEMBL268439",
+      "assay_chembl_id": "CHEMBL657970",
+      "target_chembl_id": "CHEMBL3594",
+      "document_chembl_id": "CHEMBL1146805",
+      "standard_type": "Ki",
+      "standard_value": 38,
+      "standard_units": "nM",
+      "target_organism": "Homo sapiens"
+    },
+    {
+      "activity_chembl_id": "CHEMBL_ACT_31896",
+      "molecule_chembl_id": "CHEMBL268439",
+      "assay_chembl_id": "CHEMBL657976",
+      "target_chembl_id": "CHEMBL2186",
+      "document_chembl_id": "CHEMBL1146805",
+      "standard_type": "Ki",
+      "standard_value": 2,
+      "standard_units": "nM",
+      "target_organism": "Mus musculus"
+    },
+    {
+      "activity_chembl_id": "CHEMBL_ACT_31909",
+      "molecule_chembl_id": "CHEMBL54530",
+      "assay_chembl_id": "CHEMBL663871",
+      "target_chembl_id": "CHEMBL4320",
+      "document_chembl_id": "CHEMBL1122565",
+      "standard_type": "Ki",
+      "standard_value": 19010.78,
+      "standard_units": "nM",
+      "target_organism": "Bacillus subtilis (strain 168)"
+    },
+    {
+      "activity_chembl_id": "CHEMBL_ACT_31931",
+      "molecule_chembl_id": "CHEMBL302907",
+      "assay_chembl_id": "CHEMBL694844",
+      "target_chembl_id": "CHEMBL2882",
+      "document_chembl_id": "CHEMBL1122014",
+      "standard_type": "Kd",
+      "standard_value": 25.12,
+      "standard_units": "nM",
+      "target_organism": "Cavia porcellus"
+    },
+    {
+      "activity_chembl_id": "CHEMBL_ACT_31934",
+      "molecule_chembl_id": "CHEMBL302907",
+      "assay_chembl_id": "CHEMBL652668",
+      "target_chembl_id": "CHEMBL2095166",
+      "document_chembl_id": "CHEMBL1122014",
+      "standard_type": "Kd",
+      "standard_value": 50118.72,
+      "standard_units": "nM",
+      "target_organism": "Rattus norvegicus"
+    }
+  ],
+  "assays": [
+    {
+      "assay_chembl_id": "CHEMBL615117",
+      "description": "The compound was tested for the in vitro inhibition of platelet 12-lipoxygenase at a concentration of 30 uM",
+      "assay_type": "B",
+      "assay_organism": null,
+      "assay_tissue": null,
+      "target_chembl_id": "CHEMBL2741",
+      "document_chembl_id": "CHEMBL1125582"
+    },
+    {
+      "assay_chembl_id": "CHEMBL615118",
+      "description": "Compound was evaluated for its ability to mobilize calcium in 1321NI cells",
+      "assay_type": "F",
+      "assay_organism": null,
+      "assay_tissue": null,
+      "target_chembl_id": "CHEMBL612545",
+      "document_chembl_id": "CHEMBL1127008"
+    },
+    {
+      "assay_chembl_id": "CHEMBL615119",
+      "description": null,
+      "assay_type": "B",
+      "assay_organism": null,
+      "assay_tissue": null,
+      "target_chembl_id": "CHEMBL2362975",
+      "document_chembl_id": "CHEMBL1133101"
+    },
+    {
+      "assay_chembl_id": "CHEMBL615120",
+      "description": "Binding affinity against A2 adenosine receptor in bovine striatal membranes using [3H]CGS-21680",
+      "assay_type": "B",
+      "assay_organism": "Bos taurus",
+      "assay_tissue": "Striatum",
+      "target_chembl_id": "CHEMBL2094257",
+      "document_chembl_id": "CHEMBL1149169"
+    },
+    {
+      "assay_chembl_id": "CHEMBL615121",
+      "description": "In vitro cell cytotoxicity against 143-B cell lines (Human osteosarcoma cell line)",
+      "assay_type": "F",
+      "assay_organism": "Homo sapiens",
+      "assay_tissue": null,
+      "target_chembl_id": "CHEMBL614508",
+      "document_chembl_id": "CHEMBL1136729"
+    },
+    {
+      "assay_chembl_id": "CHEMBL615122",
+      "description": "In vitro cell cytotoxicity against 143-B cell lines (Human osteosarcoma cell line)",
+      "assay_type": "F",
+      "assay_organism": "Homo sapiens",
+      "assay_tissue": null,
+      "target_chembl_id": "CHEMBL614508",
+      "document_chembl_id": "CHEMBL1136729"
+    },
+    {
+      "assay_chembl_id": "CHEMBL615123",
+      "description": "Cytotoxic Activity was evaluated against 143B (TK-) tumor cells",
+      "assay_type": "F",
+      "assay_organism": "Mus musculus",
+      "assay_tissue": null,
+      "target_chembl_id": "CHEMBL614508",
+      "document_chembl_id": "CHEMBL1129493"
+    },
+    {
+      "assay_chembl_id": "CHEMBL615124",
+      "description": "In vitro cell cytotoxicity was determined against 143B cell line",
+      "assay_type": "F",
+      "assay_organism": "Homo sapiens",
+      "assay_tissue": null,
+      "target_chembl_id": "CHEMBL614508",
+      "document_chembl_id": "CHEMBL1149129"
+    },
+    {
+      "assay_chembl_id": "CHEMBL615125",
+      "description": "Inhibitory activity against tumor osteosarcoma cell line 143B after 72 hr continuous exposure to compound",
+      "assay_type": "F",
+      "assay_organism": "Homo sapiens",
+      "assay_tissue": null,
+      "target_chembl_id": "CHEMBL614508",
+      "document_chembl_id": "CHEMBL1133252"
+    },
+    {
+      "assay_chembl_id": "CHEMBL615126",
+      "description": "In vitro cell cytotoxicity against 143B-LTK cell lines expressed in HSV-1 TK",
+      "assay_type": "F",
+      "assay_organism": "Homo sapiens",
+      "assay_tissue": null,
+      "target_chembl_id": "CHEMBL614508",
+      "document_chembl_id": "CHEMBL1136729"
+    },
+    {
+      "assay_chembl_id": "CHEMBL615127",
+      "description": "In vitro cell cytotoxicity against 143B-LTK cell lines expressed in HSV-1 TK",
+      "assay_type": "F",
+      "assay_organism": "Homo sapiens",
+      "assay_tissue": null,
+      "target_chembl_id": "CHEMBL614508",
+      "document_chembl_id": "CHEMBL1136729"
+    },
+    {
+      "assay_chembl_id": "CHEMBL615128",
+      "description": "In vitro cell cytotoxicity was determined against 143B-LTK cell line",
+      "assay_type": "F",
+      "assay_organism": "Homo sapiens",
+      "assay_tissue": null,
+      "target_chembl_id": "CHEMBL614508",
+      "document_chembl_id": "CHEMBL1149129"
+    },
+    {
+      "assay_chembl_id": "CHEMBL615129",
+      "description": "The compound was tested for minimum inhibitory concentration in Staphylococcus aureus,147N penicillin sensitive Staphylococcus aureus",
+      "assay_type": "F",
+      "assay_organism": "Staphylococcus aureus",
+      "assay_tissue": null,
+      "target_chembl_id": "CHEMBL352",
+      "document_chembl_id": "CHEMBL1126299"
+    },
+    {
+      "assay_chembl_id": "CHEMBL615130",
+      "description": "The compound was tested for minimum inhibitory concentration in Staphylococcus aureus,147N penicillin sensitive Staphylococcus aureus",
+      "assay_type": "F",
+      "assay_organism": "Staphylococcus aureus",
+      "assay_tissue": null,
+      "target_chembl_id": "CHEMBL352",
+      "document_chembl_id": "CHEMBL1126299"
+    },
+    {
+      "assay_chembl_id": "CHEMBL615131",
+      "description": "The compound was tested for minimum inhibitory concentration in Staphylococcus aureus,147N penicillin sensitive Staphylococcus aureus",
+      "assay_type": "F",
+      "assay_organism": "Staphylococcus aureus",
+      "assay_tissue": null,
+      "target_chembl_id": "CHEMBL352",
+      "document_chembl_id": "CHEMBL1126299"
+    },
+    {
+      "assay_chembl_id": "CHEMBL615132",
+      "description": "Concentration that cause 50% activation of human reticulocyte 15-lipoxygenase (15-HLO)",
+      "assay_type": "B",
+      "assay_organism": null,
+      "assay_tissue": null,
+      "target_chembl_id": "CHEMBL2903",
+      "document_chembl_id": "CHEMBL1135472"
+    },
+    {
+      "assay_chembl_id": "CHEMBL615133",
+      "description": "Inhibition of partially purified 15-lipoxygenase from human leukocytes",
+      "assay_type": "B",
+      "assay_organism": null,
+      "assay_tissue": null,
+      "target_chembl_id": "CHEMBL2903",
+      "document_chembl_id": "CHEMBL1124599"
+    },
+    {
+      "assay_chembl_id": "CHEMBL615134",
+      "description": "Inhibitory activity against human reticulocyte 15-lipoxygenase (15-HLO)",
+      "assay_type": "B",
+      "assay_organism": null,
+      "assay_tissue": null,
+      "target_chembl_id": "CHEMBL2903",
+      "document_chembl_id": "CHEMBL1135472"
+    },
+    {
+      "assay_chembl_id": "CHEMBL857900",
+      "description": "The compound was tested for minimum inhibitory concentration in Staphylococcus aureus,147N penicillin sensitive Staphylococcus aureus",
+      "assay_type": "F",
+      "assay_organism": "Staphylococcus aureus",
+      "assay_tissue": null,
+      "target_chembl_id": "CHEMBL352",
+      "document_chembl_id": "CHEMBL1126299"
+    },
+    {
+      "assay_chembl_id": "CHEMBL884521",
+      "description": "Inhibition of cytochrome P450 progesterone 15-alpha hydroxylase",
+      "assay_type": "A",
+      "assay_organism": "Rattus norvegicus",
+      "assay_tissue": null,
+      "target_chembl_id": "CHEMBL3705",
+      "document_chembl_id": "CHEMBL1125500"
+    }
+  ],
+  "documents": [
+    {
+      "document_chembl_id": "CHEMBL1139439",
+      "title": "Folate-synthesizing enzyme system as target for development of inhibitors and inhibitor combinations against Candida albicans-synthesis and biological activity of new 2,4-diaminopyrimidines and 4'-substituted 4-aminodiphenyl sulfones.",
+      "doc_type": "PUBLICATION",
+      "journal": "J Med Chem",
+      "year": 2004,
+      "pubmed_id": 14695838,
+      "doi": "10.1021/jm030931w"
+    },
+    {
+      "document_chembl_id": "CHEMBL1139440",
+      "title": "Chemical function based pharmacophore generation of endothelin-A selective receptor antagonists.",
+      "doc_type": "PUBLICATION",
+      "journal": "J Med Chem",
+      "year": 2004,
+      "pubmed_id": 15139753,
+      "doi": "10.1021/jm031041j"
+    },
+    {
+      "document_chembl_id": "CHEMBL1139441",
+      "title": "Design, synthesis, molecular modeling studies, and calpain inhibitory activity of novel alpha-ketoamides incorporating polar residues at the P1'-position.",
+      "doc_type": "PUBLICATION",
+      "journal": "J Med Chem",
+      "year": 2004,
+      "pubmed_id": 14695821,
+      "doi": "10.1021/jm0301336"
+    },
+    {
+      "document_chembl_id": "CHEMBL1139442",
+      "title": "Pyrrolobenzimidazoles linked to heterocycles and peptides. Design of DNA base pair specific phosphate hydrolyzing agents and novel cytotoxic agents.",
+      "doc_type": "PUBLICATION",
+      "journal": "J Med Chem",
+      "year": 2004,
+      "pubmed_id": 14695823,
+      "doi": "10.1021/jm0302750"
+    },
+    {
+      "document_chembl_id": "CHEMBL1139443",
+      "title": "Antitumor agents. Part 230: C4'-esters of GL-331 as cytotoxic agents and DNA topoisomerase II inhibitors.",
+      "doc_type": "PUBLICATION",
+      "journal": "Bioorg Med Chem Lett",
+      "year": 2004,
+      "pubmed_id": 15125972,
+      "doi": "10.1016/j.bmcl.2004.02.102"
+    },
+    {
+      "document_chembl_id": "CHEMBL1139444",
+      "title": "Oxazolidinone: search for highly potent antibacterial.",
+      "doc_type": "PUBLICATION",
+      "journal": "Bioorg Med Chem Lett",
+      "year": 2004,
+      "pubmed_id": 15149661,
+      "doi": "10.1016/j.bmcl.2004.04.024"
+    },
+    {
+      "document_chembl_id": "CHEMBL1139451",
+      "title": "The discovery of ezetimibe: a view from outside the receptor.",
+      "doc_type": "PUBLICATION",
+      "journal": "J Med Chem",
+      "year": 2004,
+      "pubmed_id": 14695813,
+      "doi": "10.1021/jm030283g"
+    },
+    {
+      "document_chembl_id": "CHEMBL1139452",
+      "title": "Synthesis and structure-activity relationships of 5,6,7,8-tetrahydro-4H-thieno[3,2-b]azepine derivatives: novel arginine vasopressin antagonists.",
+      "doc_type": "PUBLICATION",
+      "journal": "J Med Chem",
+      "year": 2004,
+      "pubmed_id": 14695824,
+      "doi": "10.1021/jm030287l"
+    },
+    {
+      "document_chembl_id": "CHEMBL1139453",
+      "title": "Potent inhibitors of the Plasmodium falciparum enzymes plasmepsin I and II devoid of cathepsin D inhibitory activity.",
+      "doc_type": "PUBLICATION",
+      "journal": "J Med Chem",
+      "year": 2004,
+      "pubmed_id": 14695825,
+      "doi": "10.1021/jm030933g"
+    },
+    {
+      "document_chembl_id": "CHEMBL1139454",
+      "title": "NMR structural characterization of peptide inhibitors bound to the Hepatitis C virus NS3 protease: design of a new P2 substituent.",
+      "doc_type": "PUBLICATION",
+      "journal": "J Med Chem",
+      "year": 2004,
+      "pubmed_id": 14695826,
+      "doi": "10.1021/jm0303002"
+    },
+    {
+      "document_chembl_id": "CHEMBL1139455",
+      "title": "Three-dimensional quantitative structure-activity relationship modeling of cocaine binding by a novel human monoclonal antibody.",
+      "doc_type": "PUBLICATION",
+      "journal": "J Med Chem",
+      "year": 2004,
+      "pubmed_id": 14695827,
+      "doi": "10.1021/jm030351z"
+    },
+    {
+      "document_chembl_id": "CHEMBL1139456",
+      "title": "Discovery of alpha,gamma-diketo acids as potent selective and reversible inhibitors of hepatitis C virus NS5b RNA-dependent RNA polymerase.",
+      "doc_type": "PUBLICATION",
+      "journal": "J Med Chem",
+      "year": 2004,
+      "pubmed_id": 14695815,
+      "doi": "10.1021/jm0342109"
+    },
+    {
+      "document_chembl_id": "CHEMBL1139457",
+      "title": "Pyrrolo[1,3]benzothiazepine-based serotonin and dopamine receptor antagonists. Molecular modeling, further structure-activity relationship studies, and identification of novel atypical antipsychotic agents.",
+      "doc_type": "PUBLICATION",
+      "journal": "J Med Chem",
+      "year": 2004,
+      "pubmed_id": 14695828,
+      "doi": "10.1021/jm0309811"
+    },
+    {
+      "document_chembl_id": "CHEMBL1139458",
+      "title": "Discovery of small-molecule inhibitors of the ATPase activity of human papillomavirus E1 helicase.",
+      "doc_type": "PUBLICATION",
+      "journal": "J Med Chem",
+      "year": 2004,
+      "pubmed_id": 14695816,
+      "doi": "10.1021/jm034206x"
+    },
+    {
+      "document_chembl_id": "CHEMBL1139459",
+      "title": "Effects of pH on the cytotoxicity of sodium trioxodinitrate (Angeli's salt).",
+      "doc_type": "PUBLICATION",
+      "journal": "J Med Chem",
+      "year": 2004,
+      "pubmed_id": 14695834,
+      "doi": "10.1021/jm030192j"
+    },
+    {
+      "document_chembl_id": "CHEMBL1146638",
+      "title": "Chemical basis for the biological activity of imexon and related cyanoaziridines.",
+      "doc_type": "PUBLICATION",
+      "journal": "J Med Chem",
+      "year": 2004,
+      "pubmed_id": 14695835,
+      "doi": "10.1021/jm030225v"
+    },
+    {
+      "document_chembl_id": "CHEMBL1148466",
+      "title": "Self-association of okadaic acid upon complexation with potassium ion.",
+      "doc_type": "PUBLICATION",
+      "journal": "J Med Chem",
+      "year": 2004,
+      "pubmed_id": 14695814,
+      "doi": "10.1021/jm034189b"
+    },
+    {
+      "document_chembl_id": "CHEMBL1148467",
+      "title": "Benzoxazinones as PPARgamma agonists. 2. SAR of the amide substituent and in vivo results in a type 2 diabetes model.",
+      "doc_type": "PUBLICATION",
+      "journal": "J Med Chem",
+      "year": 2004,
+      "pubmed_id": 14695833,
+      "doi": "10.1021/jm0301888"
+    },
+    {
+      "document_chembl_id": "CHEMBL1149166",
+      "title": "Antimycobacterial agents. 1. Thio analogues of purine.",
+      "doc_type": "PUBLICATION",
+      "journal": "J Med Chem",
+      "year": 2004,
+      "pubmed_id": 14695841,
+      "doi": "10.1021/jm030389b"
+    },
+    {
+      "document_chembl_id": "CHEMBL1158643",
+      "title": "Unpublished dataset",
+      "doc_type": "DATASET",
+      "journal": null,
+      "year": null,
+      "pubmed_id": null,
+      "doi": null
+    }
+  ],
+  "cell_lines": [
+    {
+      "cell_chembl_id": "CHEMBL3307241",
+      "cell_name": "DC3F",
+      "cell_description": "DC3F",
+      "cell_source_organism": "Cricetulus griseus",
+      "cell_source_tax_id": 10029,
+      "cell_source_tissue": "Lung",
+      "cellosaurus_id": "CVCL_4704"
+    },
+    {
+      "cell_chembl_id": "CHEMBL3307242",
+      "cell_name": "P3HR-1",
+      "cell_description": "P3HR-1",
+      "cell_source_organism": "Homo sapiens",
+      "cell_source_tax_id": 9606,
+      "cell_source_tissue": "Lyphoma",
+      "cellosaurus_id": "CVCL_2676"
+    },
+    {
+      "cell_chembl_id": "CHEMBL3307243",
+      "cell_name": "UCLA P-3",
+      "cell_description": "UCLA P-3",
+      "cell_source_organism": "Homo sapiens",
+      "cell_source_tax_id": 9606,
+      "cell_source_tissue": "Lung Adenocarcinoma",
+      "cellosaurus_id": "CVCL_N513"
+    },
+    {
+      "cell_chembl_id": "CHEMBL3307244",
+      "cell_name": "UMSCC22B",
+      "cell_description": "UMSCC22B",
+      "cell_source_organism": "Homo sapiens",
+      "cell_source_tax_id": 9606,
+      "cell_source_tissue": "Carcinoma",
+      "cellosaurus_id": "CVCL_7732"
+    },
+    {
+      "cell_chembl_id": "CHEMBL3307245",
+      "cell_name": "UMUC3",
+      "cell_description": "UMUC3",
+      "cell_source_organism": "Homo sapiens",
+      "cell_source_tax_id": 9606,
+      "cell_source_tissue": "Bladder Carcinoma",
+      "cellosaurus_id": "CVCL_1783"
+    },
+    {
+      "cell_chembl_id": "CHEMBL3307246",
+      "cell_name": "V79-4",
+      "cell_description": "V79-4",
+      "cell_source_organism": "Cricetulus griseus",
+      "cell_source_tax_id": 10029,
+      "cell_source_tissue": "Lung",
+      "cellosaurus_id": "CVCL_2796"
+    },
+    {
+      "cell_chembl_id": "CHEMBL3307247",
+      "cell_name": "VCR100",
+      "cell_description": "VCR100",
+      "cell_source_organism": "Mus musculus",
+      "cell_source_tax_id": 10090,
+      "cell_source_tissue": "Leukaemia",
+      "cellosaurus_id": null
+    },
+    {
+      "cell_chembl_id": "CHEMBL3307248",
+      "cell_name": "W256",
+      "cell_description": "W256",
+      "cell_source_organism": "Rattus norvegicus",
+      "cell_source_tax_id": 10116,
+      "cell_source_tissue": "Monocytic Carcinosarcoma",
+      "cellosaurus_id": "CVCL_3537"
+    },
+    {
+      "cell_chembl_id": "CHEMBL3307249",
+      "cell_name": "WEHI265.1",
+      "cell_description": "WEHI265.1",
+      "cell_source_organism": "Mus musculus",
+      "cell_source_tax_id": 10090,
+      "cell_source_tissue": "Macrophage",
+      "cellosaurus_id": "CVCL_3620"
+    },
+    {
+      "cell_chembl_id": "CHEMBL3307250",
+      "cell_name": "WiDr-NTR",
+      "cell_description": "WiDr-NTR",
+      "cell_source_organism": "Homo sapiens",
+      "cell_source_tax_id": 9606,
+      "cell_source_tissue": "Colon Adenocarcinoma",
+      "cellosaurus_id": null
+    },
+    {
+      "cell_chembl_id": "CHEMBL3307251",
+      "cell_name": "XC",
+      "cell_description": "XC",
+      "cell_source_organism": "Rattus norvegicus",
+      "cell_source_tax_id": 10116,
+      "cell_source_tissue": "Sarcoma",
+      "cellosaurus_id": "CVCL_1891"
+    },
+    {
+      "cell_chembl_id": "CHEMBL3307253",
+      "cell_name": "YAPC",
+      "cell_description": "YAPC",
+      "cell_source_organism": "Homo sapiens",
+      "cell_source_tax_id": 9606,
+      "cell_source_tissue": "Pancreas Carcinoma",
+      "cellosaurus_id": "CVCL_1794"
+    },
+    {
+      "cell_chembl_id": "CHEMBL3307254",
+      "cell_name": "YT-NU",
+      "cell_description": "YT-NU",
+      "cell_source_organism": "Homo sapiens",
+      "cell_source_tax_id": 9606,
+      "cell_source_tissue": "Neuroblastoma",
+      "cellosaurus_id": "CVCL_H524"
+    },
+    {
+      "cell_chembl_id": "CHEMBL3307255",
+      "cell_name": "T6400",
+      "cell_description": "T6400",
+      "cell_source_organism": "Mus musculus",
+      "cell_source_tax_id": 10090,
+      "cell_source_tissue": "Fibroblasts",
+      "cellosaurus_id": "CVCL_R998"
+    },
+    {
+      "cell_chembl_id": "CHEMBL3307256",
+      "cell_name": "T78-1",
+      "cell_description": "T78-1",
+      "cell_source_organism": "Cricetulus griseus",
+      "cell_source_tax_id": 10029,
+      "cell_source_tissue": "Lung",
+      "cellosaurus_id": "CVCL_X527"
+    },
+    {
+      "cell_chembl_id": "CHEMBL3307257",
+      "cell_name": "T78-1/T79-A3",
+      "cell_description": "T78-1/T79-A3",
+      "cell_source_organism": "Cricetulus griseus",
+      "cell_source_tax_id": 10029,
+      "cell_source_tissue": "Lung",
+      "cellosaurus_id": null
+    },
+    {
+      "cell_chembl_id": "CHEMBL3307258",
+      "cell_name": "TA3",
+      "cell_description": "TA3",
+      "cell_source_organism": "Mus musculus",
+      "cell_source_tax_id": 10090,
+      "cell_source_tissue": "Mammary Carcinoma",
+      "cellosaurus_id": "CVCL_4315"
+    },
+    {
+      "cell_chembl_id": "CHEMBL3307259",
+      "cell_name": "UMR106-06",
+      "cell_description": "UMR106-06",
+      "cell_source_organism": "Rattus norvegicus",
+      "cell_source_tax_id": 10116,
+      "cell_source_tissue": "Osteosarcoma",
+      "cellosaurus_id": "CVCL_S477"
+    },
+    {
+      "cell_chembl_id": "CHEMBL3308394",
+      "cell_name": "G-401",
+      "cell_description": "G-401",
+      "cell_source_organism": "Homo sapiens",
+      "cell_source_tax_id": 9606,
+      "cell_source_tissue": "Kidney Wilm's tumor",
+      "cellosaurus_id": "CVCL_0270"
+    },
+    {
+      "cell_chembl_id": "CHEMBL3308406",
+      "cell_name": "AIK-T8",
+      "cell_description": "AIK-T8",
+      "cell_source_organism": "Homo sapiens",
+      "cell_source_tax_id": 9606,
+      "cell_source_tissue": "Lymphocyte",
+      "cellosaurus_id": "CVCL_1B43"
+    }
+  ]
+}

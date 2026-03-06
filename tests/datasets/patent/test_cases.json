@@ -1,0 +1,26 @@
+{
+  "common_tests": [
+    {
+      "name": "Lookup by patent number",
+      "type": "id_lookup",
+      "id": "@reference[0].patent_number"
+    },
+    {
+      "name": "Check attributes present",
+      "type": "attribute_check",
+      "id": "@reference[0].patent_number"
+    },
+    {
+      "name": "Lookup multiple patents",
+      "type": "multi_lookup",
+      "count": 3,
+      "id_field": "patent_number"
+    },
+    {
+      "name": "Invalid patent ID handling",
+      "type": "invalid_id",
+      "invalid_id": "US-99999999-A"
+    }
+  ],
+  "custom_tests": []
+}

@@ -1,0 +1,15 @@
+{
+  "common_tests": [
+    {
+      "name": "Invalid target ID handling",
+      "type": "invalid_id",
+      "invalid_id": "CHEMBL99999999"
+    },
+    {
+      "name": "Invalid activity ID handling",
+      "type": "invalid_id",
+      "invalid_id": "CHEMBL_ACT_99999999"
+    }
+  ],
+  "custom_tests": []
+}

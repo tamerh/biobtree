@@ -1,0 +1,902 @@
+[
+  {
+    "GeneID": "5692769",
+    "gene_id": "5692769",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "2827857",
+    "gene_id": "2827857",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "10823747",
+    "gene_id": "10823747",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "6951813",
+    "gene_id": "6951813",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "3758873",
+    "gene_id": "3758873",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "5129993",
+    "gene_id": "5129993",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441593",
+    "gene_id": "67441593",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441594",
+    "gene_id": "67441594",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441595",
+    "gene_id": "67441595",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441596",
+    "gene_id": "67441596",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441597",
+    "gene_id": "67441597",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441598",
+    "gene_id": "67441598",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441599",
+    "gene_id": "67441599",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441600",
+    "gene_id": "67441600",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441601",
+    "gene_id": "67441601",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441602",
+    "gene_id": "67441602",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441603",
+    "gene_id": "67441603",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441604",
+    "gene_id": "67441604",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441605",
+    "gene_id": "67441605",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441606",
+    "gene_id": "67441606",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441607",
+    "gene_id": "67441607",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441608",
+    "gene_id": "67441608",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441609",
+    "gene_id": "67441609",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441610",
+    "gene_id": "67441610",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441611",
+    "gene_id": "67441611",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441612",
+    "gene_id": "67441612",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441613",
+    "gene_id": "67441613",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441614",
+    "gene_id": "67441614",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441615",
+    "gene_id": "67441615",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441616",
+    "gene_id": "67441616",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441617",
+    "gene_id": "67441617",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441618",
+    "gene_id": "67441618",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441619",
+    "gene_id": "67441619",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441620",
+    "gene_id": "67441620",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441621",
+    "gene_id": "67441621",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441622",
+    "gene_id": "67441622",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441623",
+    "gene_id": "67441623",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441624",
+    "gene_id": "67441624",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441625",
+    "gene_id": "67441625",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441626",
+    "gene_id": "67441626",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441627",
+    "gene_id": "67441627",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441628",
+    "gene_id": "67441628",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441629",
+    "gene_id": "67441629",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441630",
+    "gene_id": "67441630",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441631",
+    "gene_id": "67441631",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441632",
+    "gene_id": "67441632",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441633",
+    "gene_id": "67441633",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441634",
+    "gene_id": "67441634",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441635",
+    "gene_id": "67441635",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441636",
+    "gene_id": "67441636",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441637",
+    "gene_id": "67441637",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441638",
+    "gene_id": "67441638",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441639",
+    "gene_id": "67441639",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441640",
+    "gene_id": "67441640",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441641",
+    "gene_id": "67441641",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441642",
+    "gene_id": "67441642",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441643",
+    "gene_id": "67441643",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441644",
+    "gene_id": "67441644",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441645",
+    "gene_id": "67441645",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441646",
+    "gene_id": "67441646",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441647",
+    "gene_id": "67441647",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441648",
+    "gene_id": "67441648",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441649",
+    "gene_id": "67441649",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441650",
+    "gene_id": "67441650",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441651",
+    "gene_id": "67441651",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441652",
+    "gene_id": "67441652",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441653",
+    "gene_id": "67441653",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441654",
+    "gene_id": "67441654",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441655",
+    "gene_id": "67441655",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441656",
+    "gene_id": "67441656",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441657",
+    "gene_id": "67441657",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441658",
+    "gene_id": "67441658",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441659",
+    "gene_id": "67441659",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441660",
+    "gene_id": "67441660",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441661",
+    "gene_id": "67441661",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441662",
+    "gene_id": "67441662",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441663",
+    "gene_id": "67441663",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441664",
+    "gene_id": "67441664",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441665",
+    "gene_id": "67441665",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441666",
+    "gene_id": "67441666",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441667",
+    "gene_id": "67441667",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441668",
+    "gene_id": "67441668",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441669",
+    "gene_id": "67441669",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441670",
+    "gene_id": "67441670",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441671",
+    "gene_id": "67441671",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441672",
+    "gene_id": "67441672",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441673",
+    "gene_id": "67441673",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441674",
+    "gene_id": "67441674",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441675",
+    "gene_id": "67441675",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441676",
+    "gene_id": "67441676",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441677",
+    "gene_id": "67441677",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441678",
+    "gene_id": "67441678",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441679",
+    "gene_id": "67441679",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441680",
+    "gene_id": "67441680",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441681",
+    "gene_id": "67441681",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441682",
+    "gene_id": "67441682",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441683",
+    "gene_id": "67441683",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441684",
+    "gene_id": "67441684",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441685",
+    "gene_id": "67441685",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  },
+  {
+    "GeneID": "67441686",
+    "gene_id": "67441686",
+    "Symbol": "",
+    "description": "",
+    "chromosome": "",
+    "type_of_gene": "",
+    "tax_id": ""
+  }
+]

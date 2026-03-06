@@ -1,0 +1,101 @@
+{
+  "dataset_info": {
+    "name": "Reactome Pathways",
+    "version": "89 (September 2025)",
+    "test_entries": 50,
+    "description": "Biological pathways with protein and compound mappings"
+  },
+  "tests": [
+    {
+      "name": "reactome_basic_lookup",
+      "description": "Basic Reactome pathway lookup",
+      "type": "lookup",
+      "identifier": "R-HSA-177929",
+      "dataset": "reactome",
+      "expected": {
+        "has_results": true,
+        "min_results": 1
+      }
+    },
+    {
+      "name": "reactome_pathway_name",
+      "description": "Pathway should have a name attribute",
+      "type": "attribute_check",
+      "identifier": "R-HSA-177929",
+      "dataset": "reactome",
+      "attribute_path": "Attributes.Reactome.name",
+      "expected": {
+        "exists": true,
+        "not_empty": true
+      }
+    },
+    {
+      "name": "reactome_taxonomy_id",
+      "description": "Pathway should have taxonomy ID",
+      "type": "attribute_check",
+      "identifier": "R-HSA-177929",
+      "dataset": "reactome",
+      "attribute_path": "Attributes.Reactome.tax_id",
+      "expected": {
+        "exists": true,
+        "value": 9606
+      }
+    },
+    {
+      "name": "reactome_taxonomy_xref",
+      "description": "Pathway should link to taxonomy",
+      "type": "xref_exists",
+      "identifier": "R-HSA-177929",
+      "dataset": "reactome",
+      "expected_xref": {
+        "dataset": "taxonomy",
+        "identifier": "9606"
+      }
+    },
+    {
+      "name": "reactome_uniprot_xrefs",
+      "description": "Pathway should have UniProt protein cross-references",
+      "type": "attribute_check",
+      "identifier": "R-HSA-177929",
+      "dataset": "reactome",
+      "attribute_path": "count",
+      "expected": {
+        "exists": true,
+        "min_value": 1
+      }
+    },
+    {
+      "name": "reactome_parent_hierarchy",
+      "description": "Pathway should have parent pathway in hierarchy",
+      "type": "xref_exists",
+      "identifier": "R-HSA-177929",
+      "dataset": "reactome",
+      "expected_xref": {
+        "dataset": "reactomeparent",
+        "min_count": 1
+      }
+    },
+    {
+      "name": "reactome_child_hierarchy",
+      "description": "Pathway should have child pathways in hierarchy",
+      "type": "xref_exists",
+      "identifier": "R-HSA-177929",
+      "dataset": "reactome",
+      "expected_xref": {
+        "dataset": "reactomechild",
+        "min_count": 1
+      }
+    },
+    {
+      "name": "reactome_multi_species_lookup",
+      "description": "Mouse pathway lookup should work",
+      "type": "lookup",
+      "identifier": "R-MMU-177929",
+      "dataset": "reactome",
+      "expected": {
+        "has_results": true,
+        "min_results": 1
+      }
+    }
+  ]
+}

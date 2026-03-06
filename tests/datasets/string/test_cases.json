@@ -1,0 +1,10 @@
+{
+  "dataset_info": {
+    "name": "STRING Protein Interactions",
+    "version": "12.0",
+    "organism": "Homo sapiens (9606)",
+    "test_entries": 50,
+    "description": "Protein-protein interaction networks with evidence channels. Interactions stored in separate string_interaction sub-dataset for efficient querying."
+  },
+  "common_tests": []
+}

@@ -1,0 +1,5402 @@
+{
+  "metadata": {
+    "total_ids": 100,
+    "fetched": 100,
+    "failed": 0,
+    "no_data": 0,
+    "date": "2025-10-29T19:06:16Z"
+  },
+  "entries": [
+    {
+      "omim_id": [
+        "138670"
+      ],
+      "mane_select": [
+        "ENST00000263100.8",
+        "NM_130786.4"
+      ],
+      "refseq_accession": [
+        "NM_130786"
+      ],
+      "date_approved_reserved": "1989-06-30T00:00:00Z",
+      "agr": "HGNC:5",
+      "gene_group": [
+        "Immunoglobulin like domain containing"
+      ],
+      "ucsc_id": "uc002qsd.5",
+      "entrez_id": "1",
+      "mgd_id": [
+        "MGI:2152878"
+      ],
+      "vega_id": "OTTHUMG00000183507",
+      "ensembl_gene_id": "ENSG00000121410",
+      "date_modified": "2023-01-20T00:00:00Z",
+      "merops": "I43.950",
+      "ccds_id": [
+        "CCDS12976"
+      ],
+      "symbol": "A1BG",
+      "locus_type": "gene with protein product",
+      "uniprot_ids": [
+        "P04217"
+      ],
+      "location": "19q13.43",
+      "status": "Approved",
+      "gene_group_id": [
+        594
+      ],
+      "rgd_id": [
+        "RGD:69417"
+      ],
+      "name": "alpha-1-B glycoprotein",
+      "hgnc_id": "HGNC:5",
+      "pubmed_id": [
+        2591067
+      ],
+      "uuid": "f03e557f-c35d-4fab-92f2-5815188c3bde",
+      "locus_group": "protein-coding gene"
+    },
+    {
+      "prev_name": [
+        "non-protein coding RNA 181",
+        "A1BG antisense RNA (non-protein coding)",
+        "A1BG antisense RNA 1 (non-protein coding)"
+      ],
+      "hgnc_id": "HGNC:37133",
+      "locus_group": "non-coding RNA",
+      "uuid": "bc6ba773-5348-4fca-a0a4-5e76b6ce34e0",
+      "date_symbol_changed": "2010-11-25T00:00:00Z",
+      "name": "A1BG antisense RNA 1",
+      "gene_group_id": [
+        1987
+      ],
+      "lncipedia": "A1BG-AS1",
+      "ena": [
+        "BC040926"
+      ],
+      "location": "19q13.43",
+      "status": "Approved",
+      "locus_type": "RNA, long non-coding",
+      "symbol": "A1BG-AS1",
+      "ensembl_gene_id": "ENSG00000268895",
+      "vega_id": "OTTHUMG00000183508",
+      "alias_symbol": [
+        "FLJ23569"
+      ],
+      "date_modified": "2013-06-27T00:00:00Z",
+      "rna_central_id": [
+        "URS00007E4F6E"
+      ],
+      "date_name_changed": "2012-08-15T00:00:00Z",
+      "entrez_id": "503538",
+      "ucsc_id": "uc002qse.3",
+      "gene_group": [
+        "Antisense RNAs"
+      ],
+      "agr": "HGNC:37133",
+      "date_approved_reserved": "2009-07-20T00:00:00Z",
+      "refseq_accession": [
+        "NR_015380"
+      ],
+      "prev_symbol": [
+        "NCRNA00181",
+        "A1BGAS",
+        "A1BG-AS"
+      ]
+    },
+    {
+      "agr": "HGNC:24086",
+      "gene_group": [
+        "RNA binding motif containing"
+      ],
+      "ucsc_id": "uc057tgv.1",
+      "date_approved_reserved": "2007-11-23T00:00:00Z",
+      "mane_select": [
+        "ENST00000373997.8",
+        "NM_014576.4"
+      ],
+      "refseq_accession": [
+        "NM_014576"
+      ],
+      "omim_id": [
+        "618199"
+      ],
+      "mgd_id": [
+        "MGI:1917115"
+      ],
+      "entrez_id": "29974",
+      "gene_group_id": [
+        725
+      ],
+      "rgd_id": [
+        "RGD:619834"
+      ],
+      "ccds_id": [
+        "CCDS73133",
+        "CCDS7241",
+        "CCDS7242",
+        "CCDS7243"
+      ],
+      "ena": [
+        "AF271790"
+      ],
+      "symbol": "A1CF",
+      "uniprot_ids": [
+        "Q9NQ94"
+      ],
+      "status": "Approved",
+      "location": "10q11.23",
+      "locus_type": "gene with protein product",
+      "vega_id": "OTTHUMG00000018240",
+      "ensembl_gene_id": "ENSG00000148584",
+      "date_modified": "2023-01-20T00:00:00Z",
+      "alias_symbol": [
+        "ACF",
+        "ASP",
+        "ACF64",
+        "ACF65",
+        "APOBEC1CF"
+      ],
+      "hgnc_id": "HGNC:24086",
+      "pubmed_id": [
+        11815617,
+        11072063
+      ],
+      "uuid": "9feda11a-685d-49b1-aa3e-3749f324c85b",
+      "locus_group": "protein-coding gene",
+      "name": "APOBEC1 complementation factor"
+    },
+    {
+      "gencc": "HGNC:7",
+      "name": "alpha-2-macroglobulin",
+      "locus_group": "protein-coding gene",
+      "uuid": "7d7f9638-4f13-4518-92e1-f3a5bd7d8a40",
+      "pubmed_id": [
+        2408344,
+        9697696
+      ],
+      "hgnc_id": "HGNC:7",
+      "lsdb": [
+        "LRG_591|http://ftp.ebi.ac.uk/pub/databases/lrgex/LRG_591.xml"
+      ],
+      "alias_symbol": [
+        "FWP007",
+        "S863-7",
+        "CPAMD5"
+      ],
+      "merops": "I39.001",
+      "date_modified": "2023-01-20T00:00:00Z",
+      "ensembl_gene_id": "ENSG00000175899",
+      "vega_id": "OTTHUMG00000150267",
+      "locus_type": "gene with protein product",
+      "uniprot_ids": [
+        "P01023"
+      ],
+      "location": "12p13.31",
+      "status": "Approved",
+      "symbol": "A2M",
+      "ena": [
+        "BX647329",
+        "X68728",
+        "M11313"
+      ],
+      "ccds_id": [
+        "CCDS44827"
+      ],
+      "rgd_id": [
+        "RGD:2004"
+      ],
+      "gene_group_id": [
+        2148
+      ],
+      "entrez_id": "2",
+      "mgd_id": [
+        "MGI:2449119"
+      ],
+      "omim_id": [
+        "103950"
+      ],
+      "refseq_accession": [
+        "NM_000014"
+      ],
+      "mane_select": [
+        "ENST00000318602.12",
+        "NM_000014.6"
+      ],
+      "date_approved_reserved": "1986-01-01T00:00:00Z",
+      "gene_group": [
+        "Alpha-2-macroglobulin family"
+      ],
+      "ucsc_id": "uc001qvk.2",
+      "agr": "HGNC:7"
+    },
+    {
+      "date_approved_reserved": "2012-06-23T00:00:00Z",
+      "gene_group": [
+        "Antisense RNAs"
+      ],
+      "ucsc_id": "uc009zgj.2",
+      "agr": "HGNC:27057",
+      "refseq_accession": [
+        "NR_026971"
+      ],
+      "rna_central_id": [
+        "URS00001F234A"
+      ],
+      "date_name_changed": "2018-03-21T00:00:00Z",
+      "entrez_id": "144571",
+      "lncipedia": "A2M-AS1",
+      "gene_group_id": [
+        1987
+      ],
+      "ensembl_gene_id": "ENSG00000245105",
+      "vega_id": "OTTHUMG00000168289",
+      "date_modified": "2018-03-21T00:00:00Z",
+      "location": "12p13.31",
+      "locus_type": "RNA, long non-coding",
+      "status": "Approved",
+      "symbol": "A2M-AS1",
+      "hgnc_id": "HGNC:27057",
+      "locus_group": "non-coding RNA",
+      "uuid": "469902c7-0a4a-4d8e-9933-7c260c6bbe05",
+      "prev_name": [
+        "A2M antisense RNA 1 (non-protein coding)",
+        "A2M antisense RNA 1"
+      ],
+      "name": "A2M antisense RNA 1"
+    },
+    {
+      "date_name_changed": "2016-03-07T00:00:00Z",
+      "entrez_id": "144568",
+      "orphanet": 410627,
+      "omim_id": [
+        "610627"
+      ],
+      "prev_symbol": [
+        "CPAMD9"
+      ],
+      "refseq_accession": [
+        "NM_144670"
+      ],
+      "mane_select": [
+        "ENST00000299698.12",
+        "NM_144670.6"
+      ],
+      "date_approved_reserved": "2005-07-20T00:00:00Z",
+      "ucsc_id": "uc001quz.6",
+      "gene_group": [
+        "Alpha-2-macroglobulin family"
+      ],
+      "agr": "HGNC:23336",
+      "gencc": "HGNC:23336",
+      "name": "alpha-2-macroglobulin like 1",
+      "locus_group": "protein-coding gene",
+      "uuid": "049dcaa8-c159-47fd-9af9-2d83aa2cd09c",
+      "date_symbol_changed": "2005-09-01T00:00:00Z",
+      "pubmed_id": [
+        16298998
+      ],
+      "hgnc_id": "HGNC:23336",
+      "prev_name": [
+        "C3 and PZP-like, alpha-2-macroglobulin domain containing 9"
+      ],
+      "alias_symbol": [
+        "FLJ25179",
+        "p170"
+      ],
+      "date_modified": "2023-01-20T00:00:00Z",
+      "merops": "I39.007",
+      "ensembl_gene_id": "ENSG00000166535",
+      "vega_id": "OTTHUMG00000128499",
+      "location": "12p13.31",
+      "uniprot_ids": [
+        "A8K2U0"
+      ],
+      "locus_type": "gene with protein product",
+      "status": "Approved",
+      "symbol": "A2ML1",
+      "ena": [
+        "AK057908"
+      ],
+      "ccds_id": [
+        "CCDS8596",
+        "CCDS73439"
+      ],
+      "gene_group_id": [
+        2148
+      ]
+    },
+    {
+      "date_approved_reserved": "2011-05-05T00:00:00Z",
+      "lncipedia": "A2ML1-AS1",
+      "gene_group_id": [
+        1987
+      ],
+      "ucsc_id": "uc058kxy.1",
+      "gene_group": [
+        "Antisense RNAs"
+      ],
+      "vega_id": "OTTHUMG00000168273",
+      "ensembl_gene_id": "ENSG00000256661",
+      "date_modified": "2014-11-19T00:00:00Z",
+      "refseq_accession": [
+        "NR_046715"
+      ],
+      "symbol": "A2ML1-AS1",
+      "locus_type": "RNA, long non-coding",
+      "location": "12p13.31",
+      "status": "Approved",
+      "hgnc_id": "HGNC:41022",
+      "uuid": "cf9d6fd8-d765-4c38-8406-87582205d55b",
+      "locus_group": "non-coding RNA",
+      "prev_name": [
+        "A2ML1 antisense RNA 1 (non-protein coding)"
+      ],
+      "date_name_changed": "2012-08-15T00:00:00Z",
+      "entrez_id": "100874108",
+      "rna_central_id": [
+        "URS00005F9A07"
+      ],
+      "name": "A2ML1 antisense RNA 1"
+    },
+    {
+      "locus_type": "RNA, long non-coding",
+      "location": "12p13.31",
+      "status": "Approved",
+      "symbol": "A2ML1-AS2",
+      "ensembl_gene_id": "ENSG00000256904",
+      "vega_id": "OTTHUMG00000168274",
+      "date_modified": "2014-11-19T00:00:00Z",
+      "gene_group_id": [
+        1987
+      ],
+      "ucsc_id": "uc058kyb.1",
+      "gene_group": [
+        "Antisense RNAs"
+      ],
+      "date_approved_reserved": "2011-05-05T00:00:00Z",
+      "lncipedia": "A2ML1-AS2",
+      "name": "A2ML1 antisense RNA 2",
+      "rna_central_id": [
+        "URS00001BFF15"
+      ],
+      "date_name_changed": "2012-08-15T00:00:00Z",
+      "entrez_id": "106478979",
+      "prev_name": [
+        "A2ML1 antisense RNA 2 (non-protein coding)"
+      ],
+      "hgnc_id": "HGNC:41523",
+      "locus_group": "non-coding RNA",
+      "uuid": "95747eb4-649d-4aec-83bd-14c3295ecf4d"
+    },
+    {
+      "prev_name": [
+        "alpha 1,3-galactosyltransferase 2, pseudogene"
+      ],
+      "uuid": "313f83bc-46b9-4c3f-95c2-ae7d248e64e7",
+      "pubmed_id": [
+        10854427,
+        18630988
+      ],
+      "date_symbol_changed": "2013-03-11T00:00:00Z",
+      "locus_group": "protein-coding gene",
+      "hgnc_id": "HGNC:30005",
+      "name": "alpha 1,3-galactosyltransferase 2",
+      "rgd_id": [
+        "RGD:727913"
+      ],
+      "gene_group_id": [
+        429
+      ],
+      "symbol": "A3GALT2",
+      "uniprot_ids": [
+        "U3KPV4"
+      ],
+      "status": "Approved",
+      "location": "1p35.1",
+      "locus_type": "gene with protein product",
+      "ccds_id": [
+        "CCDS60080"
+      ],
+      "date_modified": "2023-01-20T00:00:00Z",
+      "alias_symbol": [
+        "IGBS3S",
+        "IGB3S"
+      ],
+      "vega_id": "OTTHUMG00000004125",
+      "ensembl_gene_id": "ENSG00000184389",
+      "alias_name": [
+        "iGb3 synthase",
+        "isoglobotriaosylceramide synthase"
+      ],
+      "mgd_id": [
+        "MGI:2685279"
+      ],
+      "entrez_id": "127550",
+      "date_name_changed": "2013-03-11T00:00:00Z",
+      "agr": "HGNC:30005",
+      "ucsc_id": "uc031plq.1",
+      "gene_group": [
+        "Glycosyltransferase family 6"
+      ],
+      "date_approved_reserved": "2005-05-06T00:00:00Z",
+      "mane_select": [
+        "ENST00000442999.3",
+        "NM_001080438.1"
+      ],
+      "refseq_accession": [
+        "NM_001080438"
+      ],
+      "omim_id": [
+        "619850"
+      ],
+      "prev_symbol": [
+        "A3GALT2P"
+      ]
+    },
+    {
+      "gene_group_id": [
+        442,
+        454
+      ],
+      "rgd_id": [
+        "RGD:621583"
+      ],
+      "ccds_id": [
+        "CCDS14041"
+      ],
+      "location": "22q13.2",
+      "uniprot_ids": [
+        "Q9NPC4"
+      ],
+      "status": "Approved",
+      "locus_type": "gene with protein product",
+      "symbol": "A4GALT",
+      "ensembl_gene_id": "ENSG00000128274",
+      "vega_id": "OTTHUMG00000150744",
+      "alias_symbol": [
+        "A14GALT",
+        "Gb3S",
+        "P(k)"
+      ],
+      "date_modified": "2023-11-07T00:00:00Z",
+      "prev_name": [
+        "alpha 1,4-galactosyltransferase (globotriaosylceramide synthase, P blood group)",
+        "P one antigen (P blood group)",
+        "alpha 1,4-galactosyltransferase (P blood group)"
+      ],
+      "hgnc_id": "HGNC:18149",
+      "lsdb": [
+        "LRG_795|http://ftp.ebi.ac.uk/pub/databases/lrgex/LRG_795.xml"
+      ],
+      "locus_group": "protein-coding gene",
+      "uuid": "d8055a3f-6bb6-485d-aeed-8e9204f73611",
+      "pubmed_id": [
+        10854428,
+        20971946
+      ],
+      "name": "alpha 1,4-galactosyltransferase (P1PK blood group)",
+      "gene_group": [
+        "Alpha 1,4-glycosyltransferases",
+        "Blood group antigens"
+      ],
+      "ucsc_id": "uc062ewl.1",
+      "agr": "HGNC:18149",
+      "date_approved_reserved": "2002-02-06T00:00:00Z",
+      "refseq_accession": [
+        "NM_017436"
+      ],
+      "mane_select": [
+        "ENST00000642412.2",
+        "NM_017436.7"
+      ],
+      "prev_symbol": [
+        "P1"
+      ],
+      "omim_id": [
+        "607922"
+      ],
+      "alias_name": [
+        "Gb3 synthase",
+        "CD77 synthase",
+        "globotriaosylceramide synthase",
+        "lactosylceramide 4-alpha-galactosyltransferase"
+      ],
+      "enzyme_id": [
+        "2.4.1.228"
+      ],
+      "mgd_id": [
+        "MGI:3512453"
+      ],
+      "date_name_changed": "2023-11-07T00:00:00Z",
+      "entrez_id": "53947"
+    },
+    {
+      "uniprot_ids": [
+        "Q9UNA3"
+      ],
+      "status": "Approved",
+      "locus_type": "gene with protein product",
+      "location": "3q22.3",
+      "symbol": "A4GNT",
+      "ena": [
+        "AF141315"
+      ],
+      "ccds_id": [
+        "CCDS3097"
+      ],
+      "alias_symbol": [
+        "alpha4GnT"
+      ],
+      "date_modified": "2023-01-20T00:00:00Z",
+      "ensembl_gene_id": "ENSG00000118017",
+      "vega_id": "OTTHUMG00000159820",
+      "rgd_id": [
+        "RGD:1590210"
+      ],
+      "gene_group_id": [
+        442
+      ],
+      "name": "alpha-1,4-N-acetylglucosaminyltransferase",
+      "locus_group": "protein-coding gene",
+      "pubmed_id": [
+        10430883
+      ],
+      "uuid": "672a213a-a36a-4320-afa0-f2ed4276616c",
+      "hgnc_id": "HGNC:17968",
+      "refseq_accession": [
+        "NM_016161"
+      ],
+      "mane_select": [
+        "ENST00000236709.4",
+        "NM_016161.3"
+      ],
+      "omim_id": [
+        "616709"
+      ],
+      "ucsc_id": "uc003ers.2",
+      "gene_group": [
+        "Alpha 1,4-glycosyltransferases"
+      ],
+      "agr": "HGNC:17968",
+      "date_approved_reserved": "2004-07-12T00:00:00Z",
+      "entrez_id": "51146",
+      "mgd_id": [
+        "MGI:2143261"
+      ]
+    },
+    {
+      "omim_id": [
+        "605378"
+      ],
+      "mane_select": [
+        "ENST00000209873.9",
+        "NM_015665.6"
+      ],
+      "refseq_accession": [
+        "NM_001173466"
+      ],
+      "date_approved_reserved": "2000-11-08T00:00:00Z",
+      "agr": "HGNC:13666",
+      "ucsc_id": "uc001scr.5",
+      "gene_group": [
+        "WD repeat domain containing",
+        "Nucleoporins"
+      ],
+      "date_name_changed": "2015-12-14T00:00:00Z",
+      "entrez_id": "8086",
+      "mgd_id": [
+        "MGI:2443767"
+      ],
+      "alias_name": [
+        "aladin",
+        "Allgrove, triple-A",
+        "adracalin"
+      ],
+      "orphanet": 117613,
+      "vega_id": "OTTHUMG00000169729",
+      "ensembl_gene_id": "ENSG00000094914",
+      "date_modified": "2024-06-07T00:00:00Z",
+      "ccds_id": [
+        "CCDS53797",
+        "CCDS8856"
+      ],
+      "ena": [
+        "AJ289841"
+      ],
+      "symbol": "AAAS",
+      "uniprot_ids": [
+        "Q9NRG9"
+      ],
+      "location": "12q13.13",
+      "status": "Approved",
+      "locus_type": "gene with protein product",
+      "gene_group_id": [
+        362,
+        1051
+      ],
+      "rgd_id": [
+        "RGD:1308701"
+      ],
+      "gencc": "HGNC:13666",
+      "name": "aladin WD repeat nucleoporin",
+      "hgnc_id": "HGNC:13666",
+      "pubmed_id": [
+        11062474,
+        12196509
+      ],
+      "uuid": "d734cf9a-60a3-4af8-8863-4acff03e493b",
+      "locus_group": "protein-coding gene",
+      "prev_name": [
+        "achalasia, adrenocortical insufficiency, alacrimia (Allgrove, triple-A)",
+        "achalasia, adrenocortical insufficiency, alacrimia"
+      ]
+    },
+    {
+      "rgd_id": [
+        "RGD:708522"
+      ],
+      "gene_group_id": [
+        40
+      ],
+      "alias_symbol": [
+        "FLJ12389",
+        "SUR-5",
+        "ACSF1"
+      ],
+      "date_modified": "2023-01-20T00:00:00Z",
+      "ensembl_gene_id": "ENSG00000081760",
+      "vega_id": "OTTHUMG00000168550",
+      "status": "Approved",
+      "uniprot_ids": [
+        "Q86V21"
+      ],
+      "location": "12q24.31",
+      "locus_type": "gene with protein product",
+      "symbol": "AACS",
+      "ena": [
+        "AK022451"
+      ],
+      "ccds_id": [
+        "CCDS9263"
+      ],
+      "locus_group": "protein-coding gene",
+      "pubmed_id": [
+        12623130,
+        17762044
+      ],
+      "uuid": "606a936b-7e23-4d76-b1d7-3fbca3110025",
+      "hgnc_id": "HGNC:21298",
+      "name": "acetoacetyl-CoA synthetase",
+      "date_approved_reserved": "2003-06-02T00:00:00Z",
+      "ucsc_id": "uc001uhc.4",
+      "gene_group": [
+        "Acyl-CoA synthetase family"
+      ],
+      "agr": "HGNC:21298",
+      "omim_id": [
+        "614364"
+      ],
+      "refseq_accession": [
+        "NM_023928"
+      ],
+      "mane_select": [
+        "ENST00000316519.11",
+        "NM_023928.5"
+      ],
+      "mgd_id": [
+        "MGI:1926144"
+      ],
+      "enzyme_id": [
+        "6.2.1.16"
+      ],
+      "alias_name": [
+        "acyl-CoA synthetase family member 1"
+      ],
+      "entrez_id": "65985"
+    },
+    {
+      "prev_symbol": [
+        "AACSL"
+      ],
+      "ensembl_gene_id": "ENSG00000250420",
+      "vega_id": "OTTHUMG00000163584",
+      "date_modified": "2020-04-20T00:00:00Z",
+      "refseq_accession": [
+        "NR_024035"
+      ],
+      "location": "5q35.3",
+      "status": "Approved",
+      "locus_type": "pseudogene",
+      "symbol": "AACSP1",
+      "date_approved_reserved": "2004-06-04T00:00:00Z",
+      "agr": "HGNC:18226",
+      "date_name_changed": "2010-09-29T00:00:00Z",
+      "entrez_id": "729522",
+      "name": "acetoacetyl-CoA synthetase pseudogene 1",
+      "hgnc_id": "HGNC:18226",
+      "locus_group": "pseudogene",
+      "date_symbol_changed": "2010-09-29T00:00:00Z",
+      "uuid": "4d60525d-6eeb-4396-b2ba-a4881ff545a7",
+      "prev_name": [
+        "acetoacetyl-CoA synthetase-like"
+      ]
+    },
+    {
+      "omim_id": [
+        "600338"
+      ],
+      "mane_select": [
+        "ENST00000232892.12",
+        "NM_001086.3"
+      ],
+      "refseq_accession": [
+        "NM_001086"
+      ],
+      "date_approved_reserved": "1996-12-27T00:00:00Z",
+      "agr": "HGNC:17",
+      "ucsc_id": "uc003eze.4",
+      "gene_group": [
+        "Lipases",
+        "Arylacetamide deacetylase family"
+      ],
+      "entrez_id": "13",
+      "date_name_changed": "2012-07-13T00:00:00Z",
+      "mgd_id": [
+        "MGI:1915008"
+      ],
+      "enzyme_id": [
+        "3.1.1.3"
+      ],
+      "merops": "S09.991",
+      "date_modified": "2023-01-20T00:00:00Z",
+      "alias_symbol": [
+        "DAC",
+        "CES5A1"
+      ],
+      "vega_id": "OTTHUMG00000159876",
+      "ensembl_gene_id": "ENSG00000114771",
+      "symbol": "AADAC",
+      "uniprot_ids": [
+        "P22760"
+      ],
+      "locus_type": "gene with protein product",
+      "location": "3q25.1",
+      "status": "Approved",
+      "ccds_id": [
+        "CCDS33877"
+      ],
+      "ena": [
+        "L32179"
+      ],
+      "rgd_id": [
+        "RGD:631440"
+      ],
+      "gene_group_id": [
+        464,
+        465
+      ],
+      "gencc": "HGNC:17",
+      "name": "arylacetamide deacetylase",
+      "pubmed_id": [
+        8063807,
+        9299245
+      ],
+      "uuid": "c5f7c4de-35e9-471f-bc0a-a8db8ded1573",
+      "locus_group": "protein-coding gene",
+      "hgnc_id": "HGNC:17",
+      "prev_name": [
+        "arylacetamide deacetylase (esterase)"
+      ]
+    },
+    {
+      "name": "arylacetamide deacetylase like 2",
+      "locus_group": "protein-coding gene",
+      "uuid": "1638609d-5728-40a9-a0ec-a5245d1a6fd8",
+      "pubmed_id": [
+        25715734
+      ],
+      "hgnc_id": "HGNC:24427",
+      "alias_symbol": [
+        "MGC72001"
+      ],
+      "date_modified": "2023-01-20T00:00:00Z",
+      "ensembl_gene_id": "ENSG00000197953",
+      "vega_id": "OTTHUMG00000155914",
+      "uniprot_ids": [
+        "Q6P093"
+      ],
+      "status": "Approved",
+      "location": "3q25.1",
+      "locus_type": "gene with protein product",
+      "symbol": "AADACL2",
+      "ena": [
+        "BC065724"
+      ],
+      "ccds_id": [
+        "CCDS3161"
+      ],
+      "rgd_id": [
+        "RGD:1563197"
+      ],
+      "gene_group_id": [
+        465
+      ],
+      "date_name_changed": "2016-05-26T00:00:00Z",
+      "entrez_id": "344752",
+      "mgd_id": [
+        "MGI:3646333"
+      ],
+      "refseq_accession": [
+        "NM_207365"
+      ],
+      "mane_select": [
+        "ENST00000356517.4",
+        "NM_207365.4"
+      ],
+      "date_approved_reserved": "2005-03-18T00:00:00Z",
+      "gene_group": [
+        "Arylacetamide deacetylase family"
+      ],
+      "ucsc_id": "uc003ezc.4",
+      "agr": "HGNC:24427"
+    },
+    {
+      "gene_group": [
+        "Antisense RNAs"
+      ],
+      "gene_group_id": [
+        1987
+      ],
+      "agr": "HGNC:50301",
+      "date_approved_reserved": "2014-04-07T00:00:00Z",
+      "lncipedia": "AADACL2-AS1",
+      "refseq_accession": [
+        "NR_110202"
+      ],
+      "locus_type": "RNA, long non-coding",
+      "location": "3q25.1",
+      "status": "Approved",
+      "symbol": "AADACL2-AS1",
+      "ensembl_gene_id": "ENSG00000242908",
+      "vega_id": "OTTHUMG00000159877",
+      "date_modified": "2014-04-07T00:00:00Z",
+      "hgnc_id": "HGNC:50301",
+      "locus_group": "non-coding RNA",
+      "uuid": "ceaae76d-5fbf-468f-aba6-5838e8d5cf69",
+      "name": "AADACL2 antisense RNA 1",
+      "rna_central_id": [
+        "URS000075D0ED"
+      ],
+      "entrez_id": "101928142"
+    },
+    {
+      "ccds_id": [
+        "CCDS41253"
+      ],
+      "symbol": "AADACL3",
+      "location": "1p36.21",
+      "uniprot_ids": [
+        "Q5VUY0"
+      ],
+      "status": "Approved",
+      "locus_type": "gene with protein product",
+      "vega_id": "OTTHUMG00000001887",
+      "ensembl_gene_id": "ENSG00000188984",
+      "date_modified": "2023-03-15T00:00:00Z",
+      "alias_symbol": [
+        "OTTHUMG00000001887"
+      ],
+      "gene_group_id": [
+        465
+      ],
+      "rgd_id": [
+        "RGD:1563257"
+      ],
+      "name": "arylacetamide deacetylase like 3",
+      "hgnc_id": "HGNC:32037",
+      "uuid": "891182c3-b9d6-480e-9e71-b6a32adda24c",
+      "locus_group": "protein-coding gene",
+      "mane_select": [
+        "ENST00000359318.8",
+        "NM_001103170.3"
+      ],
+      "refseq_accession": [
+        "NM_001103170"
+      ],
+      "agr": "HGNC:32037",
+      "ucsc_id": "uc057ckc.1",
+      "gene_group": [
+        "Arylacetamide deacetylase family"
+      ],
+      "date_approved_reserved": "2006-06-30T00:00:00Z",
+      "entrez_id": "126767",
+      "date_name_changed": "2016-05-26T00:00:00Z",
+      "mgd_id": [
+        "MGI:2685281"
+      ]
+    },
+    {
+      "rgd_id": [
+        "RGD:1565761"
+      ],
+      "gene_group_id": [
+        465
+      ],
+      "status": "Approved",
+      "uniprot_ids": [
+        "Q5VUY2"
+      ],
+      "location": "1p36.21",
+      "locus_type": "gene with protein product",
+      "symbol": "AADACL4",
+      "ccds_id": [
+        "CCDS30590"
+      ],
+      "alias_symbol": [
+        "OTTHUMG00000001889"
+      ],
+      "date_modified": "2023-01-20T00:00:00Z",
+      "ensembl_gene_id": "ENSG00000204518",
+      "vega_id": "OTTHUMG00000001889",
+      "locus_group": "protein-coding gene",
+      "uuid": "b4d80ae4-fc3f-4741-9b5b-543025258e7e",
+      "hgnc_id": "HGNC:32038",
+      "name": "arylacetamide deacetylase like 4",
+      "gene_group": [
+        "Arylacetamide deacetylase family"
+      ],
+      "ucsc_id": "uc001auf.3",
+      "agr": "HGNC:32038",
+      "date_approved_reserved": "2006-06-30T00:00:00Z",
+      "refseq_accession": [
+        "NM_001013630"
+      ],
+      "mane_select": [
+        "ENST00000376221.2",
+        "NM_001013630.2"
+      ],
+      "mgd_id": [
+        "MGI:2685282",
+        "MGI:2685284",
+        "MGI:2685880",
+        "MGI:3650257",
+        "MGI:3650721",
+        "MGI:3652194"
+      ],
+      "entrez_id": "343066",
+      "date_name_changed": "2016-05-26T00:00:00Z"
+    },
+    {
+      "locus_group": "pseudogene",
+      "uuid": "f63a360e-8638-4846-9387-9e13f98893e8",
+      "hgnc_id": "HGNC:50305",
+      "name": "arylacetamide deacetylase pseudogene 1",
+      "entrez_id": "201651",
+      "agr": "HGNC:50305",
+      "date_approved_reserved": "2014-04-07T00:00:00Z",
+      "location": "3q25.1",
+      "status": "Approved",
+      "locus_type": "pseudogene",
+      "symbol": "AADACP1",
+      "refseq_accession": [
+        "NR_026915"
+      ],
+      "pseudogene.org": "PGOHUM00000299631",
+      "date_modified": "2016-08-22T00:00:00Z",
+      "ensembl_gene_id": "ENSG00000240602",
+      "vega_id": "OTTHUMG00000159879"
+    },
+    {
+      "entrez_id": "51166",
+      "alias_name": [
+        "kynurenine aminotransferase II",
+        "L kynurenine/alpha aminoadipate aminotransferase"
+      ],
+      "mgd_id": [
+        "MGI:1345167"
+      ],
+      "enzyme_id": [
+        "2.6.1.39",
+        "2.6.1.7"
+      ],
+      "mane_select": [
+        "ENST00000337664.9",
+        "NM_016228.4"
+      ],
+      "refseq_accession": [
+        "NM_016228"
+      ],
+      "omim_id": [
+        "611754"
+      ],
+      "agr": "HGNC:17929",
+      "gene_group": [
+        "Transaminases"
+      ],
+      "ucsc_id": "uc032udw.1",
+      "date_approved_reserved": "2002-01-16T00:00:00Z",
+      "name": "aminoadipate aminotransferase",
+      "pubmed_id": [
+        12126930,
+        10441733,
+        18056995
+      ],
+      "uuid": "243bcebc-cf1b-421b-888f-fe6eca5f7e18",
+      "locus_group": "protein-coding gene",
+      "hgnc_id": "HGNC:17929",
+      "symbol": "AADAT",
+      "status": "Approved",
+      "uniprot_ids": [
+        "Q8N5Z0"
+      ],
+      "locus_type": "gene with protein product",
+      "location": "4q33",
+      "ccds_id": [
+        "CCDS3814",
+        "CCDS75209"
+      ],
+      "ena": [
+        "AF097994"
+      ],
+      "date_modified": "2023-01-20T00:00:00Z",
+      "alias_symbol": [
+        "KATII",
+        "KAT2",
+        "KYAT2"
+      ],
+      "vega_id": "OTTHUMG00000160912",
+      "ensembl_gene_id": "ENSG00000109576",
+      "rgd_id": [
+        "RGD:2948"
+      ],
+      "gene_group_id": [
+        3517
+      ]
+    },
+    {
+      "mane_select": [
+        "ENST00000261880.10",
+        "NM_024666.5"
+      ],
+      "refseq_accession": [
+        "NM_024666"
+      ],
+      "omim_id": [
+        "614888"
+      ],
+      "agr": "HGNC:25662",
+      "ucsc_id": "uc002aqk.6",
+      "date_approved_reserved": "2009-07-20T00:00:00Z",
+      "entrez_id": "79719",
+      "date_name_changed": "2017-06-13T00:00:00Z",
+      "orphanet": 317366,
+      "mgd_id": [
+        "MGI:1914189"
+      ],
+      "ccds_id": [
+        "CCDS61679",
+        "CCDS42050"
+      ],
+      "ena": [
+        "AL136715"
+      ],
+      "symbol": "AAGAB",
+      "uniprot_ids": [
+        "Q6PD74"
+      ],
+      "status": "Approved",
+      "location": "15q23",
+      "locus_type": "gene with protein product",
+      "vega_id": "OTTHUMG00000172246",
+      "ensembl_gene_id": "ENSG00000103591",
+      "date_modified": "2023-01-20T00:00:00Z",
+      "alias_symbol": [
+        "FLJ11506",
+        "p34"
+      ],
+      "rgd_id": [
+        "RGD:621601"
+      ],
+      "name": "alpha and gamma adaptin binding protein",
+      "gencc": "HGNC:25662",
+      "hgnc_id": "HGNC:25662",
+      "pubmed_id": [
+        11230166,
+        10477754
+      ],
+      "uuid": "c0592342-2c48-4e5c-919a-99713c6b5c09",
+      "locus_group": "protein-coding gene"
+    },
+    {
+      "ucsc_id": "uc002sfp.3",
+      "gene_group": [
+        "Small nucleolar RNA protein coding host genes"
+      ],
+      "agr": "HGNC:19679",
+      "date_approved_reserved": "2003-07-21T00:00:00Z",
+      "refseq_accession": [
+        "NM_014911"
+      ],
+      "mane_select": [
+        "ENST00000409085.9",
+        "NM_014911.5"
+      ],
+      "omim_id": [
+        "616405"
+      ],
+      "mgd_id": [
+        "MGI:1098687"
+      ],
+      "entrez_id": "22848",
+      "gene_group_id": [
+        1835
+      ],
+      "rgd_id": [
+        "RGD:1305520"
+      ],
+      "ena": [
+        "AB028971"
+      ],
+      "ccds_id": [
+        "CCDS1893"
+      ],
+      "uniprot_ids": [
+        "Q2M2I8"
+      ],
+      "location": "2p13.3",
+      "locus_type": "gene with protein product",
+      "status": "Approved",
+      "symbol": "AAK1",
+      "ensembl_gene_id": "ENSG00000115977",
+      "vega_id": "OTTHUMG00000129648",
+      "alias_symbol": [
+        "KIAA1048",
+        "DKFZp686K16132"
+      ],
+      "date_modified": "2023-01-20T00:00:00Z",
+      "hgnc_id": "HGNC:19679",
+      "locus_group": "protein-coding gene",
+      "uuid": "c3919c5f-d576-4274-b939-9b0682d798fc",
+      "pubmed_id": [
+        11877461,
+        12471243
+      ],
+      "name": "AP2 associated kinase 1"
+    },
+    {
+      "hgnc_id": "HGNC:30205",
+      "uuid": "40558dc0-88dc-4de5-9063-f3c2836be60f",
+      "pubmed_id": [
+        22279136
+      ],
+      "date_symbol_changed": "2012-10-08T00:00:00Z",
+      "locus_group": "protein-coding gene",
+      "prev_name": [
+        "chromosome 11 open reading frame 67"
+      ],
+      "name": "adipogenesis associated Mth938 domain containing",
+      "rgd_id": [
+        "RGD:1561459"
+      ],
+      "vega_id": "OTTHUMG00000166651",
+      "ensembl_gene_id": "ENSG00000087884",
+      "date_modified": "2023-01-20T00:00:00Z",
+      "alias_symbol": [
+        "PTD015",
+        "FLJ21035",
+        "CK067"
+      ],
+      "ccds_id": [
+        "CCDS81605",
+        "CCDS81604",
+        "CCDS8254",
+        "CCDS91546"
+      ],
+      "ena": [
+        "BC016854"
+      ],
+      "symbol": "AAMDC",
+      "uniprot_ids": [
+        "Q9H7C9"
+      ],
+      "status": "Approved",
+      "location": "11q14.1",
+      "locus_type": "gene with protein product",
+      "mgd_id": [
+        "MGI:1913523"
+      ],
+      "date_name_changed": "2016-06-21T00:00:00Z",
+      "entrez_id": "28971",
+      "date_approved_reserved": "2006-03-27T00:00:00Z",
+      "agr": "HGNC:30205",
+      "ucsc_id": "uc058fuq.1",
+      "prev_symbol": [
+        "C11orf67"
+      ],
+      "omim_id": [
+        "620474"
+      ],
+      "mane_select": [
+        "ENST00000393427.7",
+        "NM_024684.4"
+      ],
+      "refseq_accession": [
+        "NM_024684"
+      ]
+    },
+    {
+      "uuid": "e7a42219-b534-4cc2-a182-1e68bcdcfc24",
+      "pubmed_id": [
+        7743515
+      ],
+      "locus_group": "protein-coding gene",
+      "hgnc_id": "HGNC:18",
+      "name": "angio associated migratory cell protein",
+      "rgd_id": [
+        "RGD:1306281"
+      ],
+      "gene_group_id": [
+        362
+      ],
+      "date_modified": "2023-01-20T00:00:00Z",
+      "vega_id": "OTTHUMG00000155202",
+      "ensembl_gene_id": "ENSG00000127837",
+      "symbol": "AAMP",
+      "status": "Approved",
+      "uniprot_ids": [
+        "Q13685"
+      ],
+      "locus_type": "gene with protein product",
+      "location": "2q35",
+      "ccds_id": [
+        "CCDS33378",
+        "CCDS77530"
+      ],
+      "ena": [
+        "AB209790"
+      ],
+      "mgd_id": [
+        "MGI:107809"
+      ],
+      "date_name_changed": "2015-12-08T00:00:00Z",
+      "entrez_id": "14",
+      "date_approved_reserved": "1996-11-13T00:00:00Z",
+      "agr": "HGNC:18",
+      "ucsc_id": "uc002vhk.4",
+      "gene_group": [
+        "WD repeat domain containing"
+      ],
+      "omim_id": [
+        "603488"
+      ],
+      "mane_select": [
+        "ENST00000248450.9",
+        "NM_001087.5"
+      ],
+      "refseq_accession": [
+        "NM_001087"
+      ]
+    },
+    {
+      "prev_name": [
+        "arylalkylamine N-acetyltransferase"
+      ],
+      "hgnc_id": "HGNC:19",
+      "locus_group": "protein-coding gene",
+      "pubmed_id": [
+        8661026
+      ],
+      "uuid": "6ec1af5b-6000-4dc3-9dc7-b6ca6c38d4f9",
+      "name": "aralkylamine N-acetyltransferase",
+      "gene_group_id": [
+        1134
+      ],
+      "rgd_id": [
+        "RGD:2006"
+      ],
+      "ena": [
+        "U40347"
+      ],
+      "ccds_id": [
+        "CCDS11745",
+        "CCDS54169"
+      ],
+      "locus_type": "gene with protein product",
+      "uniprot_ids": [
+        "Q16613"
+      ],
+      "location": "17q25.1",
+      "status": "Approved",
+      "symbol": "AANAT",
+      "ensembl_gene_id": "ENSG00000129673",
+      "vega_id": "OTTHUMG00000180179",
+      "alias_symbol": [
+        "SNAT"
+      ],
+      "date_modified": "2023-01-20T00:00:00Z",
+      "orphanet": 469884,
+      "alias_name": [
+        "serotonin N-acetyltransferase"
+      ],
+      "enzyme_id": [
+        "2.3.1.87"
+      ],
+      "mgd_id": [
+        "MGI:1328365"
+      ],
+      "entrez_id": "15",
+      "date_name_changed": "2010-05-07T00:00:00Z",
+      "gene_group": [
+        "GCN5 related N-acetyltransferases"
+      ],
+      "ucsc_id": "uc002jro.4",
+      "agr": "HGNC:19",
+      "date_approved_reserved": "1995-12-13T00:00:00Z",
+      "refseq_accession": [
+        "NM_001088"
+      ],
+      "mane_select": [
+        "ENST00000392492.8",
+        "NM_001088.3"
+      ],
+      "omim_id": [
+        "600950"
+      ]
+    },
+    {
+      "name": "AAR2 splicing factor",
+      "gencc": "HGNC:15886",
+      "prev_name": [
+        "chromosome 20 open reading frame 4",
+        "AAR2 splicing factor homolog (S. cerevisiae)",
+        "AAR2 splicing factor homolog"
+      ],
+      "uuid": "a5e0f944-354a-486a-8b1a-d30dddab4465",
+      "pubmed_id": [
+        26527271
+      ],
+      "date_symbol_changed": "2012-07-20T00:00:00Z",
+      "locus_group": "protein-coding gene",
+      "hgnc_id": "HGNC:15886",
+      "symbol": "AAR2",
+      "locus_type": "gene with protein product",
+      "uniprot_ids": [
+        "Q9Y312"
+      ],
+      "location": "20q11.23",
+      "status": "Approved",
+      "ccds_id": [
+        "CCDS13273"
+      ],
+      "date_modified": "2023-01-20T00:00:00Z",
+      "alias_symbol": [
+        "bA234K24.2"
+      ],
+      "vega_id": "OTTHUMG00000032380",
+      "ensembl_gene_id": "ENSG00000131043",
+      "rgd_id": [
+        "RGD:1311066"
+      ],
+      "date_name_changed": "2019-02-18T00:00:00Z",
+      "entrez_id": "25980",
+      "mgd_id": [
+        "MGI:1915545"
+      ],
+      "mane_select": [
+        "ENST00000320849.9",
+        "NM_001271874.2"
+      ],
+      "refseq_accession": [
+        "NM_015511"
+      ],
+      "omim_id": [
+        "617365"
+      ],
+      "prev_symbol": [
+        "C20orf4"
+      ],
+      "agr": "HGNC:15886",
+      "ucsc_id": "uc002xfc.4",
+      "date_approved_reserved": "2001-06-21T00:00:00Z"
+    },
+    {
+      "name": "alanine and arginine rich domain containing protein",
+      "prev_name": [
+        "chromosome 8 open reading frame 85"
+      ],
+      "pubmed_id": [
+        27959439
+      ],
+      "uuid": "aa799bef-0b0d-4f4b-9b8b-a41fe0bdc9da",
+      "date_symbol_changed": "2012-04-19T00:00:00Z",
+      "locus_group": "protein-coding gene",
+      "hgnc_id": "HGNC:33842",
+      "symbol": "AARD",
+      "uniprot_ids": [
+        "Q4LEZ3"
+      ],
+      "locus_type": "gene with protein product",
+      "location": "8q24.11",
+      "status": "Approved",
+      "ccds_id": [
+        "CCDS34935"
+      ],
+      "ena": [
+        "AB181519",
+        "BC140924"
+      ],
+      "date_modified": "2023-01-20T00:00:00Z",
+      "alias_symbol": [
+        "LOC441376"
+      ],
+      "vega_id": "OTTHUMG00000164961",
+      "ensembl_gene_id": "ENSG00000205002",
+      "rgd_id": [
+        "RGD:631378"
+      ],
+      "entrez_id": "441376",
+      "date_name_changed": "2012-04-19T00:00:00Z",
+      "alias_name": [
+        "Alanine and arginine-rich domain-containing protein"
+      ],
+      "mgd_id": [
+        "MGI:2181621"
+      ],
+      "mane_select": [
+        "ENST00000378279.4",
+        "NM_001025357.3"
+      ],
+      "refseq_accession": [
+        "NM_001025357"
+      ],
+      "omim_id": [
+        "621042"
+      ],
+      "prev_symbol": [
+        "C8orf85"
+      ],
+      "agr": "HGNC:33842",
+      "ucsc_id": "uc003yof.4",
+      "date_approved_reserved": "2009-01-23T00:00:00Z"
+    },
+    {
+      "rgd_id": [
+        "RGD:1304832"
+      ],
+      "gene_group_id": [
+        132
+      ],
+      "date_modified": "2023-01-20T00:00:00Z",
+      "alias_symbol": [
+        "CMT2N",
+        "AlaRS"
+      ],
+      "vega_id": "OTTHUMG00000177042",
+      "ensembl_gene_id": "ENSG00000090861",
+      "symbol": "AARS1",
+      "uniprot_ids": [
+        "P49588"
+      ],
+      "location": "16q22.1",
+      "status": "Approved",
+      "locus_type": "gene with protein product",
+      "ccds_id": [
+        "CCDS32474"
+      ],
+      "ena": [
+        "D32050"
+      ],
+      "date_symbol_changed": "2019-07-15T00:00:00Z",
+      "uuid": "5337df65-7786-4bbf-8eb0-1777c9e821b4",
+      "pubmed_id": [
+        8595897
+      ],
+      "locus_group": "protein-coding gene",
+      "hgnc_id": "HGNC:20",
+      "lsdb": [
+        "LRG_359|http://ftp.ebi.ac.uk/pub/databases/lrgex/LRG_359.xml"
+      ],
+      "prev_name": [
+        "alanyl-tRNA synthetase"
+      ],
+      "gencc": "HGNC:20",
+      "name": "alanyl-tRNA synthetase 1",
+      "date_approved_reserved": "1995-07-11T00:00:00Z",
+      "agr": "HGNC:20",
+      "ucsc_id": "uc002eyn.2",
+      "gene_group": [
+        "Aminoacyl tRNA synthetases, Class II"
+      ],
+      "omim_id": [
+        "601065"
+      ],
+      "prev_symbol": [
+        "AARS"
+      ],
+      "mane_select": [
+        "ENST00000261772.13",
+        "NM_001605.3"
+      ],
+      "refseq_accession": [
+        "NM_001605"
+      ],
+      "mgd_id": [
+        "MGI:2384560"
+      ],
+      "enzyme_id": [
+        "6.1.1.7"
+      ],
+      "alias_name": [
+        "alanine tRNA ligase 1, cytoplasmic"
+      ],
+      "orphanet": 232194,
+      "entrez_id": "16",
+      "date_name_changed": "2019-07-15T00:00:00Z"
+    },
+    {
+      "agr": "HGNC:49894",
+      "date_approved_reserved": "2014-03-18T00:00:00Z",
+      "locus_type": "pseudogene",
+      "location": "4q28.3",
+      "status": "Approved",
+      "symbol": "AARS1P1",
+      "ensembl_gene_id": "ENSG00000249038",
+      "prev_symbol": [
+        "AARSP1"
+      ],
+      "vega_id": "OTTHUMG00000161188",
+      "pseudogene.org": "PGOHUM00000246081",
+      "date_modified": "2020-04-20T00:00:00Z",
+      "prev_name": [
+        "alanyl-tRNA synthetase pseudogene 1"
+      ],
+      "hgnc_id": "HGNC:49894",
+      "locus_group": "pseudogene",
+      "uuid": "83a23955-1e81-411f-982a-30799aa1f06f",
+      "date_symbol_changed": "2019-07-15T00:00:00Z",
+      "name": "alanyl-tRNA synthetase 1 pseudogene 1",
+      "date_name_changed": "2019-07-15T00:00:00Z",
+      "entrez_id": "106480683"
+    },
+    {
+      "gencc": "HGNC:21022",
+      "name": "alanyl-tRNA synthetase 2, mitochondrial",
+      "hgnc_id": "HGNC:21022",
+      "locus_group": "protein-coding gene",
+      "date_symbol_changed": "2007-02-23T00:00:00Z",
+      "uuid": "16568f65-0024-443e-be0c-0f0e5b04e785",
+      "pubmed_id": [
+        15779907,
+        21549344
+      ],
+      "prev_name": [
+        "alanyl-tRNA synthetase like",
+        "alanyl-tRNA synthetase 2, mitochondrial (putative)"
+      ],
+      "ensembl_gene_id": "ENSG00000124608",
+      "vega_id": "OTTHUMG00000014766",
+      "alias_symbol": [
+        "KIAA1270",
+        "bA444E17.1"
+      ],
+      "date_modified": "2023-01-20T00:00:00Z",
+      "ena": [
+        "AB033096"
+      ],
+      "ccds_id": [
+        "CCDS34464"
+      ],
+      "uniprot_ids": [
+        "Q5JTZ9"
+      ],
+      "location": "6p21.1",
+      "locus_type": "gene with protein product",
+      "status": "Approved",
+      "symbol": "AARS2",
+      "gene_group_id": [
+        132
+      ],
+      "rgd_id": [
+        "RGD:1310617"
+      ],
+      "date_name_changed": "2012-10-26T00:00:00Z",
+      "entrez_id": "57505",
+      "enzyme_id": [
+        "6.1.1.7"
+      ],
+      "mgd_id": [
+        "MGI:2681839"
+      ],
+      "orphanet": 269639,
+      "alias_name": [
+        "alanine tRNA ligase 2, mitochondrial"
+      ],
+      "prev_symbol": [
+        "AARSL"
+      ],
+      "omim_id": [
+        "612035"
+      ],
+      "refseq_accession": [
+        "NM_020745"
+      ],
+      "mane_select": [
+        "ENST00000244571.5",
+        "NM_020745.4"
+      ],
+      "date_approved_reserved": "2003-05-08T00:00:00Z",
+      "gene_group": [
+        "Aminoacyl tRNA synthetases, Class II"
+      ],
+      "ucsc_id": "uc010jza.2",
+      "agr": "HGNC:21022"
+    },
+    {
+      "entrez_id": "80755",
+      "mgd_id": [
+        "MGI:1916934"
+      ],
+      "omim_id": [
+        "613212"
+      ],
+      "refseq_accession": [
+        "NM_001261434"
+      ],
+      "mane_select": [
+        "ENST00000427569.7",
+        "NM_001261434.2"
+      ],
+      "date_approved_reserved": "2005-11-15T00:00:00Z",
+      "ucsc_id": "uc031raq.2",
+      "agr": "HGNC:28417",
+      "name": "alanyl-tRNA synthetase domain containing 1",
+      "hgnc_id": "HGNC:28417",
+      "locus_group": "protein-coding gene",
+      "pubmed_id": [
+        26884463
+      ],
+      "uuid": "38aa98cd-ebfa-4206-b5e9-dc82e398b694",
+      "ensembl_gene_id": "ENSG00000266967",
+      "vega_id": "OTTHUMG00000153515",
+      "alias_symbol": [
+        "MGC2744",
+        "AlaXp"
+      ],
+      "date_modified": "2023-01-20T00:00:00Z",
+      "ena": [
+        "BC004172"
+      ],
+      "ccds_id": [
+        "CCDS58552"
+      ],
+      "uniprot_ids": [
+        "Q9BTE6"
+      ],
+      "location": "17q21.31",
+      "status": "Approved",
+      "locus_type": "gene with protein product",
+      "symbol": "AARSD1",
+      "rgd_id": [
+        "RGD:1561650"
+      ]
+    },
+    {
+      "date_modified": "2020-11-24T00:00:00Z",
+      "pseudogene.org": "PGOHUM00000305150",
+      "ensembl_gene_id": "ENSG00000234969",
+      "symbol": "AARSD1P1",
+      "locus_type": "pseudogene",
+      "location": "Xq13.2",
+      "status": "Approved",
+      "date_approved_reserved": "2020-05-15T00:00:00Z",
+      "entrez_id": "117981788",
+      "name": "AARSD1 pseudogene 1",
+      "uuid": "feea4cb1-1e51-4258-a343-d0e9eb1a9615",
+      "locus_group": "pseudogene",
+      "hgnc_id": "HGNC:54994"
+    },
+    {
+      "agr": "HGNC:23993",
+      "gene_group": [
+        "Acyl-CoA synthetase family"
+      ],
+      "ucsc_id": "uc003hbn.5",
+      "date_approved_reserved": "2007-10-17T00:00:00Z",
+      "mane_select": [
+        "ENST00000205214.11",
+        "NM_181806.4"
+      ],
+      "refseq_accession": [
+        "NM_181806"
+      ],
+      "omim_id": [
+        "614365"
+      ],
+      "alias_name": [
+        "acyl-CoA synthetase family member 4",
+        "Beta-alanine-activating enzyme"
+      ],
+      "enzyme_id": [
+        "1.2.1.31"
+      ],
+      "mgd_id": [
+        "MGI:2442517"
+      ],
+      "entrez_id": "132949",
+      "gene_group_id": [
+        40
+      ],
+      "rgd_id": [
+        "RGD:1311135"
+      ],
+      "ccds_id": [
+        "CCDS3504",
+        "CCDS75126",
+        "CCDS68706",
+        "CCDS75127",
+        "CCDS68705"
+      ],
+      "ena": [
+        "AF516672"
+      ],
+      "symbol": "AASDH",
+      "uniprot_ids": [
+        "Q4L235"
+      ],
+      "status": "Approved",
+      "locus_type": "gene with protein product",
+      "location": "4q12",
+      "vega_id": "OTTHUMG00000128841",
+      "ensembl_gene_id": "ENSG00000157426",
+      "date_modified": "2023-01-20T00:00:00Z",
+      "alias_symbol": [
+        "NRPS998",
+        "LYS2",
+        "ACSF4"
+      ],
+      "hgnc_id": "HGNC:23993",
+      "uuid": "4d95a5ba-c05f-4221-9bd1-d7523d7b1db7",
+      "pubmed_id": [
+        15865210,
+        12712191,
+        17762044
+      ],
+      "locus_group": "protein-coding gene",
+      "name": "aminoadipate-semialdehyde dehydrogenase"
+    },
+    {
+      "symbol": "AASDH-DT",
+      "locus_type": "RNA, long non-coding",
+      "status": "Approved",
+      "location": "4q12",
+      "ensembl_gene_id": "ENSG00000269921",
+      "date_modified": "2025-10-22T00:00:00Z",
+      "gene_group_id": [
+        1990
+      ],
+      "gene_group": [
+        "Divergent transcripts"
+      ],
+      "date_approved_reserved": "2025-10-22T00:00:00Z",
+      "name": "AASDH divergent transcript",
+      "hgnc_id": "HGNC:58795",
+      "uuid": "ada6ea13-2433-454d-b525-c7923ae1a79e",
+      "locus_group": "non-coding RNA"
+    },
+    {
+      "ena": [
+        "AF302110"
+      ],
+      "ccds_id": [
+        "CCDS31664"
+      ],
+      "status": "Approved",
+      "uniprot_ids": [
+        "Q9NRN7"
+      ],
+      "locus_type": "gene with protein product",
+      "location": "11q22.3",
+      "symbol": "AASDHPPT",
+      "ensembl_gene_id": "ENSG00000149313",
+      "vega_id": "OTTHUMG00000166253",
+      "alias_symbol": [
+        "LYS5",
+        "CGI-80",
+        "AASD-PPT",
+        "ACPS"
+      ],
+      "date_modified": "2023-01-20T00:00:00Z",
+      "rgd_id": [
+        "RGD:1311360"
+      ],
+      "name": "aminoadipate-semialdehyde dehydrogenase-phosphopantetheinyl transferase",
+      "hgnc_id": "HGNC:14235",
+      "locus_group": "protein-coding gene",
+      "pubmed_id": [
+        12815048,
+        11286508,
+        18022563
+      ],
+      "uuid": "9dcd1927-6c92-4abf-b039-6cb487ed070e",
+      "refseq_accession": [
+        "NM_015423"
+      ],
+      "mane_select": [
+        "ENST00000278618.9",
+        "NM_015423.3"
+      ],
+      "omim_id": [
+        "607756"
+      ],
+      "ucsc_id": "uc001pjc.2",
+      "agr": "HGNC:14235",
+      "date_approved_reserved": "2000-12-21T00:00:00Z",
+      "entrez_id": "60496",
+      "alias_name": [
+        "holo ACP synthase",
+        "holo-[acyl-carrier-protein] synthase"
+      ],
+      "enzyme_id": [
+        "2.7.8.7"
+      ],
+      "mgd_id": [
+        "MGI:1914868"
+      ]
+    },
+    {
+      "hgnc_id": "HGNC:58262",
+      "uuid": "ce9cc860-3add-4a4a-a42e-69f866b36c51",
+      "locus_group": "non-coding RNA",
+      "name": "AASDHPPT antisense RNA 1",
+      "date_approved_reserved": "2025-01-27T00:00:00Z",
+      "gene_group_id": [
+        1987
+      ],
+      "gene_group": [
+        "Antisense RNAs"
+      ],
+      "ensembl_gene_id": "ENSG00000254433",
+      "date_modified": "2025-01-27T00:00:00Z",
+      "symbol": "AASDHPPT-AS1",
+      "locus_type": "RNA, long non-coding",
+      "status": "Approved",
+      "location": "11q22.3"
+    },
+    {
+      "ucsc_id": "uc003vkb.4",
+      "agr": "HGNC:17366",
+      "date_approved_reserved": "2002-01-09T00:00:00Z",
+      "refseq_accession": [
+        "NM_005763"
+      ],
+      "mane_select": [
+        "ENST00000417368.7",
+        "NM_005763.4"
+      ],
+      "omim_id": [
+        "605113"
+      ],
+      "orphanet": 123389,
+      "alias_name": [
+        "alpha-aminoadipic semialdehyde synthase",
+        "lysine ketoglutarate reductase/saccharopine dehydrogenase",
+        "saccharopine dehydrogenase (NAD(+), L-glutamate-forming)",
+        "saccharopine dehydrogenase (NADP(+), L-lysine-forming)"
+      ],
+      "enzyme_id": [
+        "1.5.1.8",
+        "1.5.1.9"
+      ],
+      "mgd_id": [
+        "MGI:1353573"
+      ],
+      "entrez_id": "10157",
+      "rgd_id": [
+        "RGD:1310811"
+      ],
+      "ena": [
+        "AF229180"
+      ],
+      "ccds_id": [
+        "CCDS5783"
+      ],
+      "uniprot_ids": [
+        "Q9UDR5"
+      ],
+      "status": "Approved",
+      "locus_type": "gene with protein product",
+      "location": "7q31.32",
+      "symbol": "AASS",
+      "ensembl_gene_id": "ENSG00000008311",
+      "vega_id": "OTTHUMG00000157058",
+      "alias_symbol": [
+        "LORSDH",
+        "LKRSDH",
+        "LKR/SDH"
+      ],
+      "date_modified": "2024-06-14T00:00:00Z",
+      "hgnc_id": "HGNC:17366",
+      "locus_group": "protein-coding gene",
+      "pubmed_id": [
+        10775527,
+        36128717
+      ],
+      "uuid": "46fd35bc-5fc1-48b6-8bb4-bd1bb1bc6726",
+      "name": "aminoadipate-semialdehyde synthase",
+      "gencc": "HGNC:17366"
+    },
+    {
+      "locus_group": "non-coding RNA",
+      "uuid": "5f7c05a2-3254-4070-944c-49a1a74f663b",
+      "pubmed_id": [
+        25473900
+      ],
+      "hgnc_id": "HGNC:51526",
+      "name": "apoptosis associated transcript in bladder cancer",
+      "lncipedia": "AATBC",
+      "gene_group_id": [
+        1992
+      ],
+      "date_modified": "2023-03-15T00:00:00Z",
+      "ensembl_gene_id": "ENSG00000215458",
+      "vega_id": "OTTHUMG00000086882",
+      "location": "21q22.3",
+      "status": "Approved",
+      "locus_type": "RNA, long non-coding",
+      "symbol": "AATBC",
+      "alias_name": [
+        "apoptosis-associated transcript in bladder cancer"
+      ],
+      "rna_central_id": [
+        "URS000075DB22"
+      ],
+      "entrez_id": "284837",
+      "date_approved_reserved": "2015-02-13T00:00:00Z",
+      "gene_group": [
+        "Long non-coding RNAs with non-systematic symbols"
+      ],
+      "agr": "HGNC:51526",
+      "refseq_accession": [
+        "NR_026961"
+      ]
+    },
+    {
+      "gene_group_id": [
+        1691
+      ],
+      "rgd_id": [
+        "RGD:620685"
+      ],
+      "ccds_id": [
+        "CCDS32632",
+        "CCDS92291"
+      ],
+      "ena": [
+        "AF083208"
+      ],
+      "symbol": "AATF",
+      "status": "Approved",
+      "uniprot_ids": [
+        "Q9NY61"
+      ],
+      "locus_type": "gene with protein product",
+      "location": "17q12",
+      "vega_id": "OTTHUMG00000188458",
+      "ensembl_gene_id": "ENSG00000275700",
+      "date_modified": "2023-01-20T00:00:00Z",
+      "alias_symbol": [
+        "DED",
+        "CHE-1",
+        "CHE1",
+        "BFR2"
+      ],
+      "hgnc_id": "HGNC:19235",
+      "uuid": "0ed05046-895a-4ea2-aa50-b2a20ecccdac",
+      "pubmed_id": [
+        11027528,
+        10783144
+      ],
+      "locus_group": "protein-coding gene",
+      "name": "apoptosis antagonizing transcription factor",
+      "agr": "HGNC:19235",
+      "gene_group": [
+        "MicroRNA protein coding host genes"
+      ],
+      "ucsc_id": "uc002hni.3",
+      "date_approved_reserved": "2002-09-13T00:00:00Z",
+      "mane_select": [
+        "ENST00000619387.5",
+        "NM_012138.4"
+      ],
+      "refseq_accession": [
+        "NM_012138"
+      ],
+      "omim_id": [
+        "608463"
+      ],
+      "mgd_id": [
+        "MGI:1929608"
+      ],
+      "entrez_id": "26574"
+    },
+    {
+      "name": "apoptosis associated tyrosine kinase",
+      "hgnc_id": "HGNC:21",
+      "locus_group": "protein-coding gene",
+      "pubmed_id": [
+        9734811,
+        10083745,
+        22573681
+      ],
+      "uuid": "b745cdd1-d842-42de-adb5-e7dac3433db5",
+      "ensembl_gene_id": "ENSG00000181409",
+      "vega_id": "OTTHUMG00000132717",
+      "alias_symbol": [
+        "AATYK",
+        "KIAA0641",
+        "LMTK1",
+        "LMR1",
+        "AATYK1",
+        "PPP1R77"
+      ],
+      "date_modified": "2023-01-20T00:00:00Z",
+      "ena": [
+        "AB014541"
+      ],
+      "ccds_id": [
+        "CCDS58607",
+        "CCDS45807"
+      ],
+      "location": "17q25.3",
+      "uniprot_ids": [
+        "Q6ZMQ8"
+      ],
+      "status": "Approved",
+      "locus_type": "gene with protein product",
+      "symbol": "AATK",
+      "gene_group_id": [
+        321,
+        694,
+        1691
+      ],
+      "rgd_id": [
+        "RGD:1590980"
+      ],
+      "date_name_changed": "2016-06-09T00:00:00Z",
+      "entrez_id": "9625",
+      "mgd_id": [
+        "MGI:1197518"
+      ],
+      "alias_name": [
+        "lemur tyrosine kinase 1",
+        "protein phosphatase 1, regulatory subunit 77"
+      ],
+      "omim_id": [
+        "605276"
+      ],
+      "refseq_accession": [
+        "NM_004920"
+      ],
+      "mane_select": [
+        "ENST00000326724.9",
+        "NM_001080395.3"
+      ],
+      "date_approved_reserved": "1999-09-16T00:00:00Z",
+      "gene_group": [
+        "Receptor tyrosine kinases",
+        "Protein phosphatase 1 regulatory subunits",
+        "MicroRNA protein coding host genes"
+      ],
+      "ucsc_id": "uc010dia.4",
+      "agr": "HGNC:21"
+    },
+    {
+      "entrez_id": "17",
+      "name": "adeno-associated virus integration site 1",
+      "locus_group": "other",
+      "pubmed_id": [
+        1334463
+      ],
+      "uuid": "04ffaa30-5a88-4ac9-80e8-b9a1be3fc2d1",
+      "hgnc_id": "HGNC:22",
+      "alias_symbol": [
+        "AAV"
+      ],
+      "omim_id": [
+        "102699"
+      ],
+      "date_modified": "2010-06-16T00:00:00Z",
+      "locus_type": "virus integration site",
+      "status": "Approved",
+      "location": "19q13",
+      "symbol": "AAVS1",
+      "ena": [
+        "S51329"
+      ],
+      "date_approved_reserved": "1990-09-10T00:00:00Z"
+    },
+    {
+      "pubmed_id": [
+        7721088
+      ],
+      "uuid": "a1e510ad-08b6-4737-b412-782cccb771cf",
+      "locus_group": "protein-coding gene",
+      "hgnc_id": "HGNC:23",
+      "name": "4-aminobutyrate aminotransferase",
+      "gencc": "HGNC:23",
+      "rgd_id": [
+        "RGD:620948"
+      ],
+      "gene_group_id": [
+        3517
+      ],
+      "symbol": "ABAT",
+      "uniprot_ids": [
+        "P80404"
+      ],
+      "status": "Approved",
+      "locus_type": "gene with protein product",
+      "location": "16p13.2",
+      "ccds_id": [
+        "CCDS10534",
+        "CCDS92104"
+      ],
+      "ena": [
+        "L32961"
+      ],
+      "date_modified": "2023-01-20T00:00:00Z",
+      "alias_symbol": [
+        "GABAT",
+        "GABA-T"
+      ],
+      "vega_id": "OTTHUMG00000048201",
+      "ensembl_gene_id": "ENSG00000183044",
+      "alias_name": [
+        "4-aminobutyrate transaminase",
+        "gamma-aminobutyrate aminotransferase",
+        "GABA transaminase"
+      ],
+      "orphanet": 117617,
+      "mgd_id": [
+        "MGI:2443582"
+      ],
+      "enzyme_id": [
+        "2.6.1.19"
+      ],
+      "entrez_id": "18",
+      "agr": "HGNC:23",
+      "gene_group": [
+        "Transaminases"
+      ],
+      "ucsc_id": "uc002czc.5",
+      "date_approved_reserved": "1996-03-13T00:00:00Z",
+      "mane_select": [
+        "ENST00000268251.13",
+        "NM_020686.6"
+      ],
+      "refseq_accession": [
+        "NM_020686"
+      ],
+      "omim_id": [
+        "137150"
+      ]
+    },
+    {
+      "omim_id": [
+        "600046"
+      ],
+      "prev_symbol": [
+        "ABC1",
+        "HDLDT1"
+      ],
+      "mane_select": [
+        "ENST00000374736.8",
+        "NM_005502.4"
+      ],
+      "refseq_accession": [
+        "NM_005502"
+      ],
+      "date_approved_reserved": "2005-03-17T00:00:00Z",
+      "agr": "HGNC:29",
+      "gene_group": [
+        "ATP binding cassette subfamily A",
+        "ATPase phospholipid transporting"
+      ],
+      "ucsc_id": "uc004bcl.4",
+      "date_name_changed": "2015-11-13T00:00:00Z",
+      "entrez_id": "19",
+      "mgd_id": [
+        "MGI:99607"
+      ],
+      "enzyme_id": [
+        "7.6.2.1"
+      ],
+      "alias_name": [
+        "Tangier disease"
+      ],
+      "orphanet": 159528,
+      "date_modified": "2024-09-16T00:00:00Z",
+      "alias_symbol": [
+        "TGD"
+      ],
+      "vega_id": "OTTHUMG00000020417",
+      "ensembl_gene_id": "ENSG00000165029",
+      "symbol": "ABCA1",
+      "uniprot_ids": [
+        "O95477"
+      ],
+      "location": "9q31.1",
+      "status": "Approved",
+      "locus_type": "gene with protein product",
+      "ccds_id": [
+        "CCDS6762"
+      ],
+      "ena": [
+        "AJ012376"
+      ],
+      "rgd_id": [
+        "RGD:631344"
+      ],
+      "gene_group_id": [
+        805,
+        1210
+      ],
+      "gencc": "HGNC:29",
+      "name": "ATP binding cassette subfamily A member 1",
+      "uuid": "f28284b0-d578-441e-bc33-595bb550bfd1",
+      "pubmed_id": [
+        8088782,
+        10431236,
+        10431237,
+        10431238
+      ],
+      "locus_group": "protein-coding gene",
+      "hgnc_id": "HGNC:29",
+      "lsdb": [
+        "LRG_542|http://ftp.ebi.ac.uk/pub/databases/lrgex/LRG_542.xml"
+      ],
+      "prev_name": [
+        "ATP-binding cassette, sub-family A (ABC1), member 1"
+      ]
+    },
+    {
+      "gene_group_id": [
+        805
+      ],
+      "rgd_id": [
+        "RGD:620238"
+      ],
+      "ensembl_gene_id": "ENSG00000107331",
+      "vega_id": "OTTHUMG00000020958",
+      "date_modified": "2023-01-20T00:00:00Z",
+      "ena": [
+        "U18235"
+      ],
+      "ccds_id": [
+        "CCDS94539",
+        "CCDS43909",
+        "CCDS94538"
+      ],
+      "uniprot_ids": [
+        "Q9BZC7"
+      ],
+      "locus_type": "gene with protein product",
+      "location": "9q34.3",
+      "status": "Approved",
+      "symbol": "ABCA2",
+      "hgnc_id": "HGNC:32",
+      "locus_group": "protein-coding gene",
+      "uuid": "aa049842-12e6-469d-a231-81b9020e4124",
+      "pubmed_id": [
+        8088782
+      ],
+      "prev_name": [
+        "ATP-binding cassette, sub-family A (ABC1), member 2"
+      ],
+      "gencc": "HGNC:32",
+      "name": "ATP binding cassette subfamily A member 2",
+      "date_approved_reserved": "1994-03-16T00:00:00Z",
+      "ucsc_id": "uc064xhf.1",
+      "gene_group": [
+        "ATP binding cassette subfamily A"
+      ],
+      "agr": "HGNC:32",
+      "prev_symbol": [
+        "ABC2"
+      ],
+      "omim_id": [
+        "600047"
+      ],
+      "refseq_accession": [
+        "NM_001606"
+      ],
+      "mane_select": [
+        "ENST00000341511.11",
+        "NM_001606.5"
+      ],
+      "mgd_id": [
+        "MGI:99606"
+      ],
+      "date_name_changed": "2015-11-13T00:00:00Z",
+      "entrez_id": "20"
+    },
+    {
+      "prev_symbol": [
+        "ABC3"
+      ],
+      "omim_id": [
+        "601615"
+      ],
+      "mane_select": [
+        "ENST00000301732.10",
+        "NM_001089.3"
+      ],
+      "refseq_accession": [
+        "NM_001089"
+      ],
+      "date_approved_reserved": "1996-08-08T00:00:00Z",
+      "agr": "HGNC:33",
+      "gene_group": [
+        "ATP binding cassette subfamily A",
+        "ATPase phospholipid transporting"
+      ],
+      "ucsc_id": "uc002cpy.2",
+      "entrez_id": "21",
+      "date_name_changed": "2015-11-13T00:00:00Z",
+      "enzyme_id": [
+        "7.6.2.1"
+      ],
+      "mgd_id": [
+        "MGI:1351617"
+      ],
+      "orphanet": 140560,
+      "vega_id": "OTTHUMG00000128845",
+      "ensembl_gene_id": "ENSG00000167972",
+      "date_modified": "2024-09-16T00:00:00Z",
+      "alias_symbol": [
+        "ABC-C",
+        "EST111653",
+        "LBM180"
+      ],
+      "ccds_id": [
+        "CCDS10466"
+      ],
+      "ena": [
+        "U78735"
+      ],
+      "symbol": "ABCA3",
+      "location": "16p13.3",
+      "uniprot_ids": [
+        "Q99758"
+      ],
+      "locus_type": "gene with protein product",
+      "status": "Approved",
+      "gene_group_id": [
+        805,
+        1210
+      ],
+      "rgd_id": [
+        "RGD:1307174"
+      ],
+      "gencc": "HGNC:33",
+      "name": "ATP binding cassette subfamily A member 3",
+      "hgnc_id": "HGNC:33",
+      "pubmed_id": [
+        8706931
+      ],
+      "uuid": "00a34c44-029a-42e3-8cf1-f364529b84ec",
+      "locus_group": "protein-coding gene",
+      "prev_name": [
+        "ATP-binding cassette, sub-family A (ABC1), member 3"
+      ]
+    },
+    {
+      "uuid": "11d7f35b-0db4-4ab6-86e4-e70ad920d7d8",
+      "locus_group": "pseudogene",
+      "hgnc_id": "HGNC:55707",
+      "name": "ABCA3 pseudogene 1",
+      "entrez_id": "342293",
+      "date_approved_reserved": "2021-07-05T00:00:00Z",
+      "symbol": "ABCA3P1",
+      "locus_type": "pseudogene",
+      "status": "Approved",
+      "location": "16p12.2",
+      "refseq_accession": [
+        "NG_022511"
+      ],
+      "date_modified": "2021-07-05T00:00:00Z",
+      "ensembl_gene_id": "ENSG00000257408"
+    },
+    {
+      "enzyme_id": [
+        "7.6.2.1"
+      ],
+      "mgd_id": [
+        "MGI:109424"
+      ],
+      "alias_name": [
+        "Stargardt disease"
+      ],
+      "orphanet": 117623,
+      "date_name_changed": "2015-11-13T00:00:00Z",
+      "entrez_id": "24",
+      "date_approved_reserved": "1994-07-14T00:00:00Z",
+      "agr": "HGNC:34",
+      "ucsc_id": "uc001dqh.4",
+      "gene_group": [
+        "ATP binding cassette subfamily A",
+        "ATPase phospholipid transporting"
+      ],
+      "prev_symbol": [
+        "STGD1",
+        "ABCR",
+        "RP19",
+        "STGD"
+      ],
+      "omim_id": [
+        "601691"
+      ],
+      "mane_select": [
+        "ENST00000370225.4",
+        "NM_000350.3"
+      ],
+      "refseq_accession": [
+        "NM_000350"
+      ],
+      "hgnc_id": "HGNC:34",
+      "lsdb": [
+        "Mutations of the ATP-binding Cassette Transporter Retina|http://www.retina-international.org/files/sci-news/abcrmut.htm"
+      ],
+      "uuid": "8fb1f949-0d16-458f-89c9-1282d6f29007",
+      "pubmed_id": [
+        9490294
+      ],
+      "locus_group": "protein-coding gene",
+      "prev_name": [
+        "ATP-binding cassette transporter, retinal-specific",
+        "ATP-binding cassette, sub-family A (ABC1), member 4"
+      ],
+      "gencc": "HGNC:34",
+      "name": "ATP binding cassette subfamily A member 4",
+      "gene_group_id": [
+        805,
+        1210
+      ],
+      "rgd_id": [
+        "RGD:1309445"
+      ],
+      "vega_id": "OTTHUMG00000010622",
+      "ensembl_gene_id": "ENSG00000198691",
+      "date_modified": "2024-09-16T00:00:00Z",
+      "alias_symbol": [
+        "FFM",
+        "ARMD2",
+        "CORD3"
+      ],
+      "ccds_id": [
+        "CCDS747"
+      ],
+      "ena": [
+        "U88667"
+      ],
+      "symbol": "ABCA4",
+      "location": "1p22.1",
+      "uniprot_ids": [
+        "P78363"
+      ],
+      "locus_type": "gene with protein product",
+      "status": "Approved"
+    },
+    {
+      "gene_group_id": [
+        805
+      ],
+      "rgd_id": [
+        "RGD:628661"
+      ],
+      "ena": [
+        "U66672"
+      ],
+      "ccds_id": [
+        "CCDS11685"
+      ],
+      "status": "Approved",
+      "uniprot_ids": [
+        "Q8WWZ7"
+      ],
+      "location": "17q24.3",
+      "locus_type": "gene with protein product",
+      "symbol": "ABCA5",
+      "ensembl_gene_id": "ENSG00000154265",
+      "vega_id": "OTTHUMG00000180303",
+      "alias_symbol": [
+        "EST90625"
+      ],
+      "date_modified": "2023-01-20T00:00:00Z",
+      "prev_name": [
+        "ATP-binding cassette, sub-family A (ABC1), member 5"
+      ],
+      "hgnc_id": "HGNC:35",
+      "locus_group": "protein-coding gene",
+      "uuid": "02c3e67d-2897-4ca7-b4c8-754683e6887b",
+      "pubmed_id": [
+        8894702
+      ],
+      "name": "ATP binding cassette subfamily A member 5",
+      "gencc": "HGNC:35",
+      "gene_group": [
+        "ATP binding cassette subfamily A"
+      ],
+      "ucsc_id": "uc002jig.3",
+      "agr": "HGNC:35",
+      "date_approved_reserved": "1999-10-26T00:00:00Z",
+      "refseq_accession": [
+        "NM_018672"
+      ],
+      "mane_select": [
+        "ENST00000392676.8",
+        "NM_172232.4"
+      ],
+      "omim_id": [
+        "612503"
+      ],
+      "orphanet": 404800,
+      "mgd_id": [
+        "MGI:2386607"
+      ],
+      "date_name_changed": "2015-11-13T00:00:00Z",
+      "entrez_id": "23461"
+    },
+    {
+      "prev_name": [
+        "ATP-binding cassette, sub-family A (ABC1), member 6"
+      ],
+      "locus_group": "protein-coding gene",
+      "uuid": "251e0d61-59a0-4f1e-8503-e2edd33fbc07",
+      "pubmed_id": [
+        8894702
+      ],
+      "hgnc_id": "HGNC:36",
+      "name": "ATP binding cassette subfamily A member 6",
+      "rgd_id": [
+        "RGD:1308998"
+      ],
+      "gene_group_id": [
+        805,
+        1691
+      ],
+      "location": "17q24.2-q24.3",
+      "uniprot_ids": [
+        "Q8N139"
+      ],
+      "locus_type": "gene with protein product",
+      "status": "Approved",
+      "symbol": "ABCA6",
+      "ena": [
+        "U66680"
+      ],
+      "ccds_id": [
+        "CCDS11683"
+      ],
+      "alias_symbol": [
+        "EST155051"
+      ],
+      "date_modified": "2023-01-20T00:00:00Z",
+      "ensembl_gene_id": "ENSG00000154262",
+      "vega_id": "OTTHUMG00000180258",
+      "mgd_id": [
+        "MGI:1923434"
+      ],
+      "entrez_id": "23460",
+      "date_name_changed": "2015-11-13T00:00:00Z",
+      "gene_group": [
+        "ATP binding cassette subfamily A",
+        "MicroRNA protein coding host genes"
+      ],
+      "ucsc_id": "uc002jhw.2",
+      "agr": "HGNC:36",
+      "date_approved_reserved": "1999-10-26T00:00:00Z",
+      "refseq_accession": [
+        "NM_080284"
+      ],
+      "mane_select": [
+        "ENST00000284425.7",
+        "NM_080284.3"
+      ],
+      "omim_id": [
+        "612504"
+      ]
+    },
+    {
+      "uuid": "0e23f6da-2f97-4d09-a7aa-fb5fcfbc45e7",
+      "pubmed_id": [
+        10873640,
+        11435699,
+        12917409
+      ],
+      "locus_group": "protein-coding gene",
+      "hgnc_id": "HGNC:37",
+      "prev_name": [
+        "ATP-binding cassette, sub-family A (ABC1), member 7"
+      ],
+      "gencc": "HGNC:37",
+      "name": "ATP binding cassette subfamily A member 7",
+      "rgd_id": [
+        "RGD:1303134"
+      ],
+      "gene_group_id": [
+        805,
+        1210
+      ],
+      "date_modified": "2024-09-16T00:00:00Z",
+      "alias_symbol": [
+        "ABCX"
+      ],
+      "vega_id": "OTTHUMG00000167547",
+      "ensembl_gene_id": "ENSG00000064687",
+      "symbol": "ABCA7",
+      "uniprot_ids": [
+        "Q8IZY2"
+      ],
+      "location": "19p13.3",
+      "status": "Approved",
+      "locus_type": "gene with protein product",
+      "ccds_id": [
+        "CCDS12055"
+      ],
+      "ena": [
+        "AF328787"
+      ],
+      "mgd_id": [
+        "MGI:1351646"
+      ],
+      "enzyme_id": [
+        "7.6.2.1"
+      ],
+      "entrez_id": "10347",
+      "date_name_changed": "2015-11-13T00:00:00Z",
+      "date_approved_reserved": "1999-06-11T00:00:00Z",
+      "agr": "HGNC:37",
+      "gene_group": [
+        "ATP binding cassette subfamily A",
+        "ATPase phospholipid transporting"
+      ],
+      "ucsc_id": "uc002lqw.5",
+      "omim_id": [
+        "605414"
+      ],
+      "mane_select": [
+        "ENST00000263094.11",
+        "NM_019112.4"
+      ],
+      "refseq_accession": [
+        "NM_019112"
+      ]
+    },
+    {
+      "date_approved_reserved": "1999-06-11T00:00:00Z",
+      "ucsc_id": "uc002jhq.5",
+      "gene_group": [
+        "ATP binding cassette subfamily A"
+      ],
+      "agr": "HGNC:38",
+      "iuphar": "HGNC:38",
+      "omim_id": [
+        "612505"
+      ],
+      "refseq_accession": [
+        "NM_007168"
+      ],
+      "mane_select": [
+        "ENST00000586539.6",
+        "NM_001288985.2"
+      ],
+      "mgd_id": [
+        "MGI:1351668",
+        "MGI:2386846"
+      ],
+      "entrez_id": "10351",
+      "date_name_changed": "2015-11-13T00:00:00Z",
+      "gene_group_id": [
+        805
+      ],
+      "rgd_id": [
+        "RGD:1307069"
+      ],
+      "ensembl_gene_id": "ENSG00000141338",
+      "vega_id": "OTTHUMG00000180192",
+      "alias_symbol": [
+        "KIAA0822"
+      ],
+      "date_modified": "2023-01-20T00:00:00Z",
+      "ena": [
+        "AB020629"
+      ],
+      "ccds_id": [
+        "CCDS74139",
+        "CCDS74138",
+        "CCDS11680"
+      ],
+      "uniprot_ids": [
+        "O94911"
+      ],
+      "status": "Approved",
+      "location": "17q24.2",
+      "locus_type": "gene with protein product",
+      "symbol": "ABCA8",
+      "hgnc_id": "HGNC:38",
+      "locus_group": "protein-coding gene",
+      "uuid": "7b3798ba-567a-4796-ad5b-34030f038998",
+      "pubmed_id": [
+        12379217,
+        23560799
+      ],
+      "prev_name": [
+        "ATP-binding cassette, sub-family A (ABC1), member 8"
+      ],
+      "name": "ATP binding cassette subfamily A member 8"
+    },
+    {
+      "name": "ATP binding cassette subfamily A member 9",
+      "prev_name": [
+        "ATP-binding cassette, sub-family A (ABC1), member 9"
+      ],
+      "pubmed_id": [
+        12150964
+      ],
+      "uuid": "3e56dc1e-81e8-4d01-bc7c-55f1c4455ca6",
+      "locus_group": "protein-coding gene",
+      "hgnc_id": "HGNC:39",
+      "symbol": "ABCA9",
+      "uniprot_ids": [
+        "Q8IUA7"
+      ],
+      "locus_type": "gene with protein product",
+      "location": "17q24.2",
+      "status": "Approved",
+      "ccds_id": [
+        "CCDS11681"
+      ],
+      "ena": [
+        "AF423307"
+      ],
+      "date_modified": "2025-10-14T00:00:00Z",
+      "alias_symbol": [
+        "EST640918"
+      ],
+      "vega_id": "OTTHUMG00000140371",
+      "ensembl_gene_id": "ENSG00000154258",
+      "rgd_id": [
+        "RGD:1305931"
+      ],
+      "gene_group_id": [
+        805
+      ],
+      "entrez_id": "10350",
+      "date_name_changed": "2015-11-13T00:00:00Z",
+      "mgd_id": [
+        "MGI:2386796"
+      ],
+      "enzyme_id": [
+        "7.6.2.-"
+      ],
+      "mane_select": [
+        "ENST00000340001.9",
+        "NM_080283.4"
+      ],
+      "refseq_accession": [
+        "NM_172386"
+      ],
+      "omim_id": [
+        "612507"
+      ],
+      "iuphar": "HGNC:39",
+      "agr": "HGNC:39",
+      "ucsc_id": "uc002jhu.4",
+      "gene_group": [
+        "ATP binding cassette subfamily A"
+      ],
+      "date_approved_reserved": "1999-06-11T00:00:00Z"
+    },
+    {
+      "date_modified": "2014-11-19T00:00:00Z",
+      "vega_id": "OTTHUMG00000140370",
+      "ensembl_gene_id": "ENSG00000231749",
+      "symbol": "ABCA9-AS1",
+      "location": "17q24.2",
+      "status": "Approved",
+      "locus_type": "RNA, long non-coding",
+      "lncipedia": "ABCA9-AS1",
+      "gene_group_id": [
+        1987
+      ],
+      "name": "ABCA9 antisense RNA 1",
+      "uuid": "80658281-a6a4-4352-8fc6-ce693ba25c09",
+      "locus_group": "non-coding RNA",
+      "hgnc_id": "HGNC:39983",
+      "prev_name": [
+        "ABCA9 antisense RNA 1 (non-protein coding)"
+      ],
+      "refseq_accession": [
+        "NR_126414"
+      ],
+      "date_approved_reserved": "2011-04-20T00:00:00Z",
+      "agr": "HGNC:39983",
+      "gene_group": [
+        "Antisense RNAs"
+      ],
+      "ucsc_id": "uc060jgk.1",
+      "entrez_id": "104355297",
+      "date_name_changed": "2012-08-15T00:00:00Z",
+      "rna_central_id": [
+        "URS000018F63F"
+      ]
+    },
+    {
+      "omim_id": [
+        "612508"
+      ],
+      "refseq_accession": [
+        "NM_080282"
+      ],
+      "mane_select": [
+        "ENST00000690296.1",
+        "NM_001377321.1"
+      ],
+      "date_approved_reserved": "1999-06-11T00:00:00Z",
+      "gene_group": [
+        "ATP binding cassette subfamily A"
+      ],
+      "ucsc_id": "uc010dfa.2",
+      "agr": "HGNC:30",
+      "entrez_id": "10349",
+      "date_name_changed": "2015-11-13T00:00:00Z",
+      "enzyme_id": [
+        "7.6.2.-"
+      ],
+      "orphanet": 469886,
+      "ensembl_gene_id": "ENSG00000154263",
+      "vega_id": "OTTHUMG00000164716",
+      "alias_symbol": [
+        "EST698739"
+      ],
+      "date_modified": "2025-10-14T00:00:00Z",
+      "ena": [
+        "AY247065"
+      ],
+      "ccds_id": [
+        "CCDS11684"
+      ],
+      "location": "17q24.3",
+      "uniprot_ids": [
+        "Q8WWZ4"
+      ],
+      "locus_type": "gene with protein product",
+      "status": "Approved",
+      "symbol": "ABCA10",
+      "gene_group_id": [
+        805
+      ],
+      "rgd_id": [
+        "RGD:1307333"
+      ],
+      "name": "ATP binding cassette subfamily A member 10",
+      "hgnc_id": "HGNC:30",
+      "locus_group": "protein-coding gene",
+      "uuid": "3619bd84-825d-4327-9bdd-65c6f327eb54",
+      "pubmed_id": [
+        12821155,
+        11435397
+      ],
+      "prev_name": [
+        "ATP-binding cassette, sub-family A (ABC1), member 10"
+      ]
+    },
+    {
+      "symbol": "ABCA11P",
+      "locus_type": "pseudogene",
+      "location": "4p16.3",
+      "status": "Approved",
+      "ena": [
+        "AK024359"
+      ],
+      "date_modified": "2023-03-15T00:00:00Z",
+      "pseudogene.org": "PGOHUM00000245425",
+      "alias_symbol": [
+        "EST1133530",
+        "FLJ14297"
+      ],
+      "vega_id": "OTTHUMG00000159884",
+      "ensembl_gene_id": "ENSG00000251595",
+      "gene_group_id": [
+        805
+      ],
+      "name": "ATP binding cassette subfamily A member 11, pseudogene",
+      "prev_name": [
+        "ATP-binding cassette, sub-family A (ABC1), member 11, pseudogene"
+      ],
+      "date_symbol_changed": "2008-09-09T00:00:00Z",
+      "uuid": "385b0b5c-418d-4633-b4c6-c2361b698f1b",
+      "locus_group": "pseudogene",
+      "hgnc_id": "HGNC:31",
+      "refseq_accession": [
+        "NR_002451.2"
+      ],
+      "prev_symbol": [
+        "ABCA11"
+      ],
+      "agr": "HGNC:31",
+      "gene_group": [
+        "ATP binding cassette subfamily A"
+      ],
+      "date_approved_reserved": "1999-06-11T00:00:00Z",
+      "entrez_id": "79963",
+      "date_name_changed": "2015-11-13T00:00:00Z"
+    },
+    {
+      "enzyme_id": [
+        "7.6.2.1"
+      ],
+      "mgd_id": [
+        "MGI:2676312"
+      ],
+      "orphanet": 117620,
+      "entrez_id": "26154",
+      "date_name_changed": "2015-11-13T00:00:00Z",
+      "date_approved_reserved": "2001-08-16T00:00:00Z",
+      "agr": "HGNC:14637",
+      "gene_group": [
+        "ATP binding cassette subfamily A",
+        "ATPase phospholipid transporting"
+      ],
+      "ucsc_id": "uc002vew.3",
+      "prev_symbol": [
+        "ICR2B"
+      ],
+      "omim_id": [
+        "607800"
+      ],
+      "mane_select": [
+        "ENST00000272895.12",
+        "NM_173076.3"
+      ],
+      "refseq_accession": [
+        "NM_173076"
+      ],
+      "hgnc_id": "HGNC:14637",
+      "uuid": "b422abbd-aecc-4d1b-8b06-448ba8637786",
+      "pubmed_id": [
+        11435397,
+        12915478,
+        8845852,
+        10094194
+      ],
+      "locus_group": "protein-coding gene",
+      "prev_name": [
+        "ichthyosis congenita II, lamellar ichthyosis B",
+        "ATP-binding cassette, sub-family A (ABC1), member 12"
+      ],
+      "gencc": "HGNC:14637",
+      "name": "ATP binding cassette subfamily A member 12",
+      "gene_group_id": [
+        805,
+        1210
+      ],
+      "rgd_id": [
+        "RGD:1304586"
+      ],
+      "vega_id": "OTTHUMG00000154801",
+      "ensembl_gene_id": "ENSG00000144452",
+      "date_modified": "2024-09-16T00:00:00Z",
+      "alias_symbol": [
+        "DKFZP434G232",
+        "LI2"
+      ],
+      "ccds_id": [
+        "CCDS33373",
+        "CCDS33372"
+      ],
+      "ena": [
+        "AF418105"
+      ],
+      "symbol": "ABCA12",
+      "uniprot_ids": [
+        "Q86UK0"
+      ],
+      "locus_type": "gene with protein product",
+      "location": "2q35",
+      "status": "Approved"
+    },
+    {
+      "locus_group": "protein-coding gene",
+      "pubmed_id": [
+        12697998
+      ],
+      "uuid": "56c7d6ee-0804-47c0-99d0-93dcf62751bd",
+      "lsdb": [
+        "Global Variome shared LOVD|https://databases.lovd.nl/shared/genes/ABCA13"
+      ],
+      "hgnc_id": "HGNC:14638",
+      "prev_name": [
+        "ATP-binding cassette, sub-family A (ABC1), member 13"
+      ],
+      "gencc": "HGNC:14638",
+      "name": "ATP binding cassette subfamily A member 13",
+      "rgd_id": [
+        "RGD:1305895"
+      ],
+      "gene_group_id": [
+        805
+      ],
+      "alias_symbol": [
+        "FLJ33876",
+        "FLJ33951"
+      ],
+      "date_modified": "2023-01-20T00:00:00Z",
+      "ensembl_gene_id": "ENSG00000179869",
+      "vega_id": "OTTHUMG00000155840",
+      "uniprot_ids": [
+        "Q86UQ4"
+      ],
+      "location": "7p12.3",
+      "locus_type": "gene with protein product",
+      "status": "Approved",
+      "symbol": "ABCA13",
+      "ena": [
+        "AY204751"
+      ],
+      "ccds_id": [
+        "CCDS47584"
+      ],
+      "mgd_id": [
+        "MGI:2388707"
+      ],
+      "date_name_changed": "2015-11-13T00:00:00Z",
+      "entrez_id": "154664",
+      "date_approved_reserved": "2004-12-21T00:00:00Z",
+      "gene_group": [
+        "ATP binding cassette subfamily A"
+      ],
+      "ucsc_id": "uc003toq.2",
+      "agr": "HGNC:14638",
+      "omim_id": [
+        "607807"
+      ],
+      "refseq_accession": [
+        "NM_152701"
+      ],
+      "mane_select": [
+        "ENST00000435803.6",
+        "NM_152701.5"
+      ]
+    },
+    {
+      "agr": "HGNC:34405",
+      "ucsc_id": "uc010bwr.2",
+      "date_approved_reserved": "2009-01-26T00:00:00Z",
+      "refseq_accession": [
+        "NR_026675"
+      ],
+      "prev_symbol": [
+        "NCRNA00169",
+        "CRYM-AS1"
+      ],
+      "mgd_id": [
+        "MGI:2388709"
+      ],
+      "entrez_id": "400508",
+      "date_name_changed": "2022-06-16T00:00:00Z",
+      "lncipedia": "CRYM-AS1",
+      "symbol": "ABCA15P",
+      "status": "Approved",
+      "location": "16p12.2",
+      "locus_type": "pseudogene",
+      "date_modified": "2023-03-15T00:00:00Z",
+      "alias_symbol": [
+        "FLJ41766"
+      ],
+      "vega_id": "OTTHUMG00000156701",
+      "ensembl_gene_id": "ENSG00000189149",
+      "prev_name": [
+        "non-protein coding RNA 169",
+        "CRYM antisense RNA 1 (non-protein coding)",
+        "CRYM antisense RNA 1"
+      ],
+      "pubmed_id": [
+        35414504
+      ],
+      "uuid": "8ad86467-da36-4daf-bd4b-6504c7eb56aa",
+      "date_symbol_changed": "2022-06-16T00:00:00Z",
+      "locus_group": "pseudogene",
+      "hgnc_id": "HGNC:34405",
+      "name": "ATP binding cassette subfamily A member 15, pseudogene"
+    },
+    {
+      "hgnc_id": "HGNC:32972",
+      "pubmed_id": [
+        16968533
+      ],
+      "uuid": "4b109283-f053-44c3-b68d-038c3492be9b",
+      "locus_group": "pseudogene",
+      "prev_name": [
+        "ATP-binding cassette, sub-family A (ABC1), member 17, pseudogene"
+      ],
+      "name": "ATP binding cassette subfamily A member 17, pseudogene",
+      "gene_group_id": [
+        805,
+        3418
+      ],
+      "vega_id": "OTTHUMG00000154348",
+      "ensembl_gene_id": "ENSG00000238098",
+      "date_modified": "2020-08-13T00:00:00Z",
+      "pseudogene.org": "PGOHUM00000250669",
+      "ena": [
+        "DQ266102"
+      ],
+      "symbol": "ABCA17P",
+      "status": "Approved",
+      "location": "16p13.3",
+      "locus_type": "pseudogene",
+      "mgd_id": [
+        "MGI:3625331"
+      ],
+      "date_name_changed": "2015-11-13T00:00:00Z",
+      "entrez_id": "650655",
+      "date_approved_reserved": "2006-09-19T00:00:00Z",
+      "agr": "HGNC:32972",
+      "gene_group": [
+        "ATP binding cassette subfamily A",
+        "Unitary pseudogenes"
+      ],
+      "refseq_accession": [
+        "NR_003574"
+      ]
+    },
+    {
+      "prev_name": [
+        "colchicin sensitivity",
+        "ATP-binding cassette, sub-family B (MDR/TAP), member 1"
+      ],
+      "hgnc_id": "HGNC:40",
+      "locus_group": "protein-coding gene",
+      "uuid": "c66c6bc9-092d-4695-968c-6533907a0c44",
+      "pubmed_id": [
+        3027054
+      ],
+      "name": "ATP binding cassette subfamily B member 1",
+      "cd": "CD243",
+      "gene_group_id": [
+        471,
+        806,
+        1210
+      ],
+      "rgd_id": [
+        "RGD:619951"
+      ],
+      "ena": [
+        "M14758"
+      ],
+      "ccds_id": [
+        "CCDS5608"
+      ],
+      "uniprot_ids": [
+        "P08183"
+      ],
+      "status": "Approved",
+      "location": "7q21.12",
+      "locus_type": "gene with protein product",
+      "symbol": "ABCB1",
+      "ensembl_gene_id": "ENSG00000085563",
+      "vega_id": "OTTHUMG00000023393",
+      "alias_symbol": [
+        "P-gp",
+        "CD243",
+        "GP170",
+        "ABC20",
+        "p-170",
+        "PGY1"
+      ],
+      "date_modified": "2024-09-16T00:00:00Z",
+      "orphanet": 318801,
+      "alias_name": [
+        "multidrug resistance protein 1",
+        "P-glycoprotein"
+      ],
+      "enzyme_id": [
+        "7.6.2.1"
+      ],
+      "mgd_id": [
+        "MGI:97570",
+        "MGI:97568"
+      ],
+      "entrez_id": "5243",
+      "date_name_changed": "2015-11-13T00:00:00Z",
+      "gene_group": [
+        "CD molecules",
+        "ATP binding cassette subfamily B",
+        "ATPase phospholipid transporting"
+      ],
+      "ucsc_id": "uc003uiz.3",
+      "agr": "HGNC:40",
+      "iuphar": "HGNC:40",
+      "date_approved_reserved": "1986-01-01T00:00:00Z",
+      "refseq_accession": [
+        "NM_000927"
+      ],
+      "mane_select": [
+        "ENST00000622132.5",
+        "NM_001348946.2"
+      ],
+      "prev_symbol": [
+        "PGY1",
+        "MDR1",
+        "CLCS"
+      ],
+      "omim_id": [
+        "171050"
+      ]
+    },
+    {
+      "mane_select": [
+        "ENST00000649586.2",
+        "NM_000443.4"
+      ],
+      "refseq_accession": [
+        "NM_000443"
+      ],
+      "prev_symbol": [
+        "PGY3",
+        "MDR3"
+      ],
+      "omim_id": [
+        "171060"
+      ],
+      "agr": "HGNC:45",
+      "gene_group": [
+        "ATP binding cassette subfamily B",
+        "ATPase phospholipid transporting"
+      ],
+      "ucsc_id": "uc003uix.1",
+      "iuphar": "HGNC:45",
+      "date_approved_reserved": "1988-05-11T00:00:00Z",
+      "date_name_changed": "2015-11-13T00:00:00Z",
+      "entrez_id": "5244",
+      "orphanet": 117639,
+      "enzyme_id": [
+        "7.6.2.1"
+      ],
+      "mgd_id": [
+        "MGI:97569"
+      ],
+      "ccds_id": [
+        "CCDS5606",
+        "CCDS5605",
+        "CCDS5607"
+      ],
+      "ena": [
+        "M23234"
+      ],
+      "symbol": "ABCB4",
+      "uniprot_ids": [
+        "P21439"
+      ],
+      "status": "Approved",
+      "location": "7q21.12",
+      "locus_type": "gene with protein product",
+      "vega_id": "OTTHUMG00000023396",
+      "ensembl_gene_id": "ENSG00000005471",
+      "date_modified": "2024-09-16T00:00:00Z",
+      "alias_symbol": [
+        "MDR2",
+        "PFIC-3",
+        "GBD1"
+      ],
+      "gene_group_id": [
+        806,
+        1210
+      ],
+      "rgd_id": [
+        "RGD:620248"
+      ],
+      "name": "ATP binding cassette subfamily B member 4",
+      "gencc": "HGNC:45",
+      "prev_name": [
+        "ATP-binding cassette, sub-family B (MDR/TAP), member 4"
+      ],
+      "hgnc_id": "HGNC:45",
+      "pubmed_id": [
+        2892668,
+        11313316
+      ],
+      "uuid": "380b3c9e-a2a2-41d6-997e-13ac9b4010d4",
+      "locus_group": "protein-coding gene"
+    },
+    {
+      "prev_name": [
+        "ATP-binding cassette, sub-family B (MDR/TAP), member 5"
+      ],
+      "locus_group": "protein-coding gene",
+      "uuid": "00c0f66b-571a-44d1-a6e3-58ecece37d5c",
+      "pubmed_id": [
+        8894702,
+        12960149
+      ],
+      "hgnc_id": "HGNC:46",
+      "name": "ATP binding cassette subfamily B member 5",
+      "rgd_id": [
+        "RGD:1566342"
+      ],
+      "gene_group_id": [
+        806
+      ],
+      "location": "7p21.1",
+      "uniprot_ids": [
+        "Q2M3G0"
+      ],
+      "locus_type": "gene with protein product",
+      "status": "Approved",
+      "symbol": "ABCB5",
+      "ena": [
+        "U66692"
+      ],
+      "ccds_id": [
+        "CCDS55092",
+        "CCDS55090",
+        "CCDS55091",
+        "CCDS5371"
+      ],
+      "alias_symbol": [
+        "EST422562",
+        "ABCB5beta",
+        "ABCB5alpha"
+      ],
+      "date_modified": "2024-09-16T00:00:00Z",
+      "ensembl_gene_id": "ENSG00000004846",
+      "vega_id": "OTTHUMG00000094789",
+      "alias_name": [
+        "P-glycoprotein ABCB5",
+        "ATP-binding cassette protein"
+      ],
+      "mgd_id": [
+        "MGI:1924956"
+      ],
+      "enzyme_id": [
+        "7.6.2.2"
+      ],
+      "entrez_id": "340273",
+      "date_name_changed": "2015-11-13T00:00:00Z",
+      "iuphar": "HGNC:46",
+      "ucsc_id": "uc010kuh.4",
+      "gene_group": [
+        "ATP binding cassette subfamily B"
+      ],
+      "agr": "HGNC:46",
+      "date_approved_reserved": "1999-10-26T00:00:00Z",
+      "refseq_accession": [
+        "NM_178559"
+      ],
+      "mane_select": [
+        "ENST00000404938.7",
+        "NM_001163941.2"
+      ],
+      "omim_id": [
+        "611785"
+      ]
+    },
+    {
+      "uuid": "d7e2563b-ccc4-43b3-b9eb-167a2d2053f8",
+      "pubmed_id": [
+        8894702,
+        9110174
+      ],
+      "locus_group": "protein-coding gene",
+      "hgnc_id": "HGNC:47",
+      "lsdb": [
+        "LRG_824|http://ftp.ebi.ac.uk/pub/databases/lrgex/LRG_824.xml"
+      ],
+      "prev_name": [
+        "ATP-binding cassette, sub-family B (MDR/TAP), member 6",
+        "ATP binding cassette subfamily B member 6 (Langereis blood group)"
+      ],
+      "gencc": "HGNC:47",
+      "name": "ATP binding cassette subfamily B member 6 (LAN blood group)",
+      "rgd_id": [
+        "RGD:71077"
+      ],
+      "gene_group_id": [
+        454,
+        806
+      ],
+      "date_modified": "2024-09-16T00:00:00Z",
+      "alias_symbol": [
+        "EST45597",
+        "umat",
+        "MTABC3"
+      ],
+      "vega_id": "OTTHUMG00000133131",
+      "ensembl_gene_id": "ENSG00000115657",
+      "symbol": "ABCB6",
+      "uniprot_ids": [
+        "Q9NP58"
+      ],
+      "location": "2q35",
+      "locus_type": "gene with protein product",
+      "status": "Approved",
+      "ccds_id": [
+        "CCDS2436",
+        "CCDS86920"
+      ],
+      "ena": [
+        "AF070598"
+      ],
+      "mgd_id": [
+        "MGI:1921354"
+      ],
+      "enzyme_id": [
+        "7.6.2.5"
+      ],
+      "alias_name": [
+        "ATP-binding cassette half-transporter"
+      ],
+      "orphanet": 291794,
+      "date_name_changed": "2024-01-22T00:00:00Z",
+      "entrez_id": "10058",
+      "date_approved_reserved": "1999-10-26T00:00:00Z",
+      "iuphar": "HGNC:47",
+      "agr": "HGNC:47",
+      "gene_group": [
+        "Blood group antigens",
+        "ATP binding cassette subfamily B"
+      ],
+      "ucsc_id": "uc002vkc.3",
+      "omim_id": [
+        "605452"
+      ],
+      "mane_select": [
+        "ENST00000265316.9",
+        "NM_005689.4"
+      ],
+      "refseq_accession": [
+        "NM_005689"
+      ]
+    },
+    {
+      "mgd_id": [
+        "MGI:109533"
+      ],
+      "orphanet": 117646,
+      "entrez_id": "22",
+      "date_name_changed": "2015-11-13T00:00:00Z",
+      "date_approved_reserved": "1997-09-12T00:00:00Z",
+      "iuphar": "HGNC:48",
+      "agr": "HGNC:48",
+      "gene_group": [
+        "ATP binding cassette subfamily B"
+      ],
+      "ucsc_id": "uc004ebz.5",
+      "omim_id": [
+        "300135"
+      ],
+      "prev_symbol": [
+        "ABC7"
+      ],
+      "mane_select": [
+        "ENST00000373394.8",
+        "NM_001271696.3"
+      ],
+      "refseq_accession": [
+        "NM_004299"
+      ],
+      "uuid": "5c3f6e2c-870a-438b-adf2-9710baeea852",
+      "pubmed_id": [
+        9143506
+      ],
+      "locus_group": "protein-coding gene",
+      "hgnc_id": "HGNC:48",
+      "lsdb": [
+        "Global Variome shared LOVD|https://databases.lovd.nl/shared/genes/ABCB7",
+        "LRG_1162|http://ftp.ebi.ac.uk/pub/databases/lrgex/LRG_1162.xml"
+      ],
+      "prev_name": [
+        "ATP-binding cassette, sub-family B (MDR/TAP), member 7"
+      ],
+      "gencc": "HGNC:48",
+      "name": "ATP binding cassette subfamily B member 7",
+      "rgd_id": [
+        "RGD:1303086"
+      ],
+      "gene_group_id": [
+        806
+      ],
+      "date_modified": "2023-01-20T00:00:00Z",
+      "alias_symbol": [
+        "EST140535",
+        "Atm1p",
+        "ASAT"
+      ],
+      "vega_id": "OTTHUMG00000021862",
+      "ensembl_gene_id": "ENSG00000131269",
+      "symbol": "ABCB7",
+      "uniprot_ids": [
+        "O75027"
+      ],
+      "locus_type": "gene with protein product",
+      "location": "Xq13.3",
+      "status": "Approved",
+      "ccds_id": [
+        "CCDS75994",
+        "CCDS14428",
+        "CCDS65290",
+        "CCDS65291"
+      ],
+      "ena": [
+        "AF038950"
+      ]
+    },
+    {
+      "gene_group_id": [
+        806
+      ],
+      "rgd_id": [
+        "RGD:1307655"
+      ],
+      "vega_id": "OTTHUMG00000158686",
+      "ensembl_gene_id": "ENSG00000197150",
+      "date_modified": "2023-01-20T00:00:00Z",
+      "alias_symbol": [
+        "EST328128",
+        "M-ABC1",
+        "MABC1",
+        "MITOSUR"
+      ],
+      "ccds_id": [
+        "CCDS64799",
+        "CCDS64800",
+        "CCDS5913",
+        "CCDS64798"
+      ],
+      "ena": [
+        "AF047690"
+      ],
+      "symbol": "ABCB8",
+      "location": "7q36.1",
+      "uniprot_ids": [
+        "Q9NUT2"
+      ],
+      "status": "Approved",
+      "locus_type": "gene with protein product",
+      "hgnc_id": "HGNC:49",
+      "uuid": "ac5cb7f7-093c-4e71-9b12-40344f235646",
+      "pubmed_id": [
+        8894702
+      ],
+      "locus_group": "protein-coding gene",
+      "prev_name": [
+        "ATP-binding cassette, sub-family B (MDR/TAP), member 8"
+      ],
+      "name": "ATP binding cassette subfamily B member 8",
+      "date_approved_reserved": "1999-10-26T00:00:00Z",
+      "agr": "HGNC:49",
+      "gene_group": [
+        "ATP binding cassette subfamily B"
+      ],
+      "ucsc_id": "uc003wik.6",
+      "iuphar": "HGNC:49",
+      "omim_id": [
+        "605464"
+      ],
+      "mane_select": [
+        "ENST00000358849.9",
+        "NM_007188.5"
+      ],
+      "refseq_accession": [
+        "NM_007188"
+      ],
+      "mgd_id": [
+        "MGI:1351667"
+      ],
+      "alias_name": [
+        "mitochondrial ABC protein"
+      ],
+      "orphanet": 469888,
+      "date_name_changed": "2015-11-13T00:00:00Z",
+      "entrez_id": "11194"
+    },
+    {
+      "date_name_changed": "2015-11-13T00:00:00Z",
+      "entrez_id": "23457",
+      "enzyme_id": [
+        "7.4.2.6"
+      ],
+      "mgd_id": [
+        "MGI:1861729"
+      ],
+      "refseq_accession": [
+        "NM_019624"
+      ],
+      "mane_select": [
+        "ENST00000280560.13",
+        "NM_019625.4"
+      ],
+      "omim_id": [
+        "605453"
+      ],
+      "ucsc_id": "uc058upb.1",
+      "gene_group": [
+        "ATP binding cassette subfamily B"
+      ],
+      "agr": "HGNC:50",
+      "iuphar": "HGNC:50",
+      "date_approved_reserved": "1999-10-26T00:00:00Z",
+      "name": "ATP binding cassette subfamily B member 9",
+      "prev_name": [
+        "ATP-binding cassette, sub-family B (MDR/TAP), member 9"
+      ],
+      "hgnc_id": "HGNC:50",
+      "locus_group": "protein-coding gene",
+      "pubmed_id": [
+        8894702
+      ],
+      "uuid": "3f47c1f8-cf58-4200-9615-2fc69569ed01",
+      "ena": [
+        "U66676"
+      ],
+      "ccds_id": [
+        "CCDS58287",
+        "CCDS58286",
+        "CCDS9241",
+        "CCDS58288"
+      ],
+      "uniprot_ids": [
+        "Q9NP78"
+      ],
+      "location": "12q24.31",
+      "status": "Approved",
+      "locus_type": "gene with protein product",
+      "symbol": "ABCB9",
+      "ensembl_gene_id": "ENSG00000150967",
+      "vega_id": "OTTHUMG00000168769",
+      "alias_symbol": [
+        "EST122234"
+      ],
+      "date_modified": "2025-10-02T00:00:00Z",
+      "gene_group_id": [
+        806
+      ],
+      "rgd_id": [
+        "RGD:620254"
+      ]
+    },
+    {
+      "mgd_id": [
+        "MGI:1860508"
+      ],
+      "alias_name": [
+        "ATP-binding cassette sub-family B member 10, mitochondrial",
+        "ATP-binding cassette transporter 10",
+        "ABC transporter 10 protein",
+        "mitochondrial ATP-binding cassette 2"
+      ],
+      "entrez_id": "23456",
+      "date_name_changed": "2015-11-13T00:00:00Z",
+      "date_approved_reserved": "1999-10-26T00:00:00Z",
+      "ucsc_id": "uc001htp.4",
+      "gene_group": [
+        "ATP binding cassette subfamily B"
+      ],
+      "agr": "HGNC:41",
+      "iuphar": "HGNC:41",
+      "omim_id": [
+        "605454"
+      ],
+      "refseq_accession": [
+        "NM_012089"
+      ],
+      "mane_select": [
+        "ENST00000344517.5",
+        "NM_012089.3"
+      ],
+      "hgnc_id": "HGNC:41",
+      "locus_group": "protein-coding gene",
+      "uuid": "51dfcd81-24c6-419e-a5cb-1b1fa4f17350",
+      "pubmed_id": [
+        7766993
+      ],
+      "prev_name": [
+        "ATP-binding cassette, sub-family B (MDR/TAP), member 10"
+      ],
+      "name": "ATP binding cassette subfamily B member 10",
+      "gene_group_id": [
+        806
+      ],
+      "rgd_id": [
+        "RGD:1311222"
+      ],
+      "ensembl_gene_id": "ENSG00000135776",
+      "vega_id": "OTTHUMG00000039471",
+      "alias_symbol": [
+        "EST20237",
+        "M-ABC2",
+        "MTABC2"
+      ],
+      "date_modified": "2023-01-20T00:00:00Z",
+      "ena": [
+        "U18237"
+      ],
+      "ccds_id": [
+        "CCDS1580"
+      ],
+      "uniprot_ids": [
+        "Q9NRK6"
+      ],
+      "location": "1q42.13",
+      "status": "Approved",
+      "locus_type": "gene with protein product",
+      "symbol": "ABCB10"
+    },
+    {
+      "entrez_id": "56476",
+      "date_name_changed": "2018-05-23T00:00:00Z",
+      "prev_symbol": [
+        "ABCB10P",
+        "ABCB10P2"
+      ],
+      "refseq_accession": [
+        "NG_005041"
+      ],
+      "date_approved_reserved": "2001-07-13T00:00:00Z",
+      "agr": "HGNC:14114",
+      "name": "ABCB10 pseudogene 1",
+      "hgnc_id": "HGNC:14114",
+      "uuid": "d6ac08e9-3508-48aa-836c-06fcd5da47cd",
+      "pubmed_id": [
+        7766993,
+        10922475
+      ],
+      "date_symbol_changed": "2008-09-09T00:00:00Z",
+      "locus_group": "pseudogene",
+      "prev_name": [
+        "ATP-binding cassette, sub-family B (MDR/TAP), member 10 pseudogene",
+        "ATP-binding cassette, sub-family B (MDR/TAP), member 10 pseudogene 2",
+        "ATP-binding cassette, sub-family B (MDR/TAP), member 10 pseudogene 1",
+        "ATP binding cassette subfamily B member 10 pseudogene 1"
+      ],
+      "vega_id": "OTTHUMG00000188344",
+      "ensembl_gene_id": "ENSG00000274099",
+      "date_modified": "2018-05-23T00:00:00Z",
+      "pseudogene.org": "PGOHUM00000293137",
+      "alias_symbol": [
+        "M-ABC2",
+        "MABC2"
+      ],
+      "ena": [
+        "AF218417"
+      ],
+      "symbol": "ABCB10P1",
+      "status": "Approved",
+      "location": "15q11.2",
+      "locus_type": "pseudogene"
+    },
+    {
+      "prev_name": [
+        "ATP-binding cassette, sub-family B (MDR/TAP), member 10 pseudogene 3",
+        "ATP binding cassette subfamily B member 10 pseudogene 3"
+      ],
+      "locus_group": "pseudogene",
+      "uuid": "c3d4f10b-62a9-4575-a446-11852e9338b1",
+      "hgnc_id": "HGNC:31129",
+      "name": "ABCB10 pseudogene 3",
+      "entrez_id": "728248",
+      "date_name_changed": "2018-05-23T00:00:00Z",
+      "agr": "HGNC:31129",
+      "date_approved_reserved": "2010-06-17T00:00:00Z",
+      "status": "Approved",
+      "location": "15q13.1",
+      "locus_type": "pseudogene",
+      "symbol": "ABCB10P3",
+      "refseq_accession": [
+        "NG_022122"
+      ],
+      "pseudogene.org": "PGOHUM00000293151",
+      "date_modified": "2018-05-23T00:00:00Z",
+      "ensembl_gene_id": "ENSG00000261524",
+      "vega_id": "OTTHUMG00000175874"
+    },
+    {
+      "name": "ABCB10 pseudogene 4",
+      "date_name_changed": "2018-05-23T00:00:00Z",
+      "entrez_id": "100132289",
+      "prev_name": [
+        "ATP-binding cassette, sub-family B (MDR/TAP), member 10 pseudogene 4",
+        "ATP binding cassette subfamily B member 10 pseudogene 4"
+      ],
+      "locus_group": "pseudogene",
+      "uuid": "c42aecb6-3d77-4ef2-ad9d-6ebea48187e2",
+      "hgnc_id": "HGNC:31130",
+      "location": "15q13.1",
+      "locus_type": "pseudogene",
+      "status": "Approved",
+      "symbol": "ABCB10P4",
+      "refseq_accession": [
+        "NG_022102"
+      ],
+      "pseudogene.org": "PGOHUM00000292862",
+      "date_modified": "2018-05-23T00:00:00Z",
+      "ensembl_gene_id": "ENSG00000260053",
+      "vega_id": "OTTHUMG00000175877",
+      "agr": "HGNC:31130",
+      "date_approved_reserved": "2010-06-17T00:00:00Z"
+    },
+    {
+      "gencc": "HGNC:42",
+      "name": "ATP binding cassette subfamily B member 11",
+      "lsdb": [
+        "CCHMC-BMI & UC Hearing Loss Mutation Database|https://research.cchmc.org/LOVD/home.php?select_db=ABCB11",
+        "LRG_1199|http://ftp.ebi.ac.uk/pub/databases/lrgex/LRG_1199.xml"
+      ],
+      "hgnc_id": "HGNC:42",
+      "locus_group": "protein-coding gene",
+      "uuid": "b6c42d9c-ef43-445c-8e6a-d32c012147c6",
+      "pubmed_id": [
+        9806540
+      ],
+      "prev_name": [
+        "progressive familial intrahepatic cholestasis 2",
+        "bile salt export pump",
+        "ATP-binding cassette, sub-family B (MDR/TAP), member 11"
+      ],
+      "ensembl_gene_id": "ENSG00000073734",
+      "vega_id": "OTTHUMG00000154039",
+      "alias_symbol": [
+        "ABC16",
+        "SPGP",
+        "PFIC-2",
+        "PGY4"
+      ],
+      "date_modified": "2023-01-20T00:00:00Z",
+      "ena": [
+        "AF091582"
+      ],
+      "ccds_id": [
+        "CCDS46444"
+      ],
+      "status": "Approved",
+      "uniprot_ids": [
+        "O95342"
+      ],
+      "location": "2q31.1",
+      "locus_type": "gene with protein product",
+      "symbol": "ABCB11",
+      "gene_group_id": [
+        806
+      ],
+      "rgd_id": [
+        "RGD:619930"
+      ],
+      "entrez_id": "8647",
+      "date_name_changed": "2015-11-13T00:00:00Z",
+      "mgd_id": [
+        "MGI:1351619"
+      ],
+      "orphanet": 117631,
+      "alias_name": [
+        "ABC member 16, MDR/TAP subfamily"
+      ],
+      "prev_symbol": [
+        "BSEP",
+        "PFIC2"
+      ],
+      "omim_id": [
+        "603201"
+      ],
+      "refseq_accession": [
+        "NM_003742"
+      ],
+      "mane_select": [
+        "ENST00000650372.1",
+        "NM_003742.4"
+      ],
+      "date_approved_reserved": "1998-09-25T00:00:00Z",
+      "gene_group": [
+        "ATP binding cassette subfamily B"
+      ],
+      "ucsc_id": "uc002ueo.2",
+      "agr": "HGNC:42",
+      "iuphar": "HGNC:42"
+    },
+    {
+      "orphanet": 469890,
+      "alias_name": [
+        "glutathione S-conjugate export pump"
+      ],
+      "mgd_id": [
+        "MGI:102676"
+      ],
+      "enzyme_id": [
+        "7.6.2.2",
+        "7.6.2.3"
+      ],
+      "date_name_changed": "2023-11-02T00:00:00Z",
+      "entrez_id": "4363",
+      "iuphar": "HGNC:51",
+      "gene_group": [
+        "Blood group antigens",
+        "ATP binding cassette subfamily C"
+      ],
+      "ucsc_id": "uc010bvi.4",
+      "agr": "HGNC:51",
+      "date_approved_reserved": "1993-06-29T00:00:00Z",
+      "refseq_accession": [
+        "NM_004996"
+      ],
+      "mane_select": [
+        "ENST00000399410.8",
+        "NM_004996.4"
+      ],
+      "omim_id": [
+        "158343"
+      ],
+      "prev_symbol": [
+        "MRP",
+        "MRP1"
+      ],
+      "prev_name": [
+        "multidrug resistance associated protein 1",
+        "ATP-binding cassette, sub-family C (CFTR/MRP), member 1",
+        "ATP binding cassette subfamily C member 1"
+      ],
+      "locus_group": "protein-coding gene",
+      "uuid": "34f39502-4ab9-450a-9627-8bfb364b4a36",
+      "pubmed_id": [
+        8098549,
+        1360704
+      ],
+      "hgnc_id": "HGNC:51",
+      "name": "ATP binding cassette subfamily C member 1 (ABCC1 blood group)",
+      "gencc": "HGNC:51",
+      "rgd_id": [
+        "RGD:3112"
+      ],
+      "gene_group_id": [
+        454,
+        807
+      ],
+      "location": "16p13.11",
+      "uniprot_ids": [
+        "P33527"
+      ],
+      "locus_type": "gene with protein product",
+      "status": "Approved",
+      "symbol": "ABCC1",
+      "ena": [
+        "L05628"
+      ],
+      "ccds_id": [
+        "CCDS45427",
+        "CCDS42122"
+      ],
+      "alias_symbol": [
+        "GS-X"
+      ],
+      "date_modified": "2025-10-02T00:00:00Z",
+      "ensembl_gene_id": "ENSG00000103222",
+      "vega_id": "OTTHUMG00000048267"
+    },
+    {
+      "gencc": "HGNC:53",
+      "name": "ATP binding cassette subfamily C member 2",
+      "hgnc_id": "HGNC:53",
+      "lsdb": [
+        "LRG_1208|http://ftp.ebi.ac.uk/pub/databases/lrgex/LRG_1208.xml"
+      ],
+      "pubmed_id": [
+        8797578,
+        9284939
+      ],
+      "uuid": "3be06643-809d-4ea7-ac36-8228d7e1bd92",
+      "locus_group": "protein-coding gene",
+      "prev_name": [
+        "canalicular multispecific organic anion transporter 1",
+        "ATP-binding cassette, sub-family C (CFTR/MRP), member 2"
+      ],
+      "vega_id": "OTTHUMG00000018895",
+      "ensembl_gene_id": "ENSG00000023839",
+      "date_modified": "2024-09-16T00:00:00Z",
+      "alias_symbol": [
+        "DJS",
+        "MRP2",
+        "cMRP"
+      ],
+      "ccds_id": [
+        "CCDS7484"
+      ],
+      "ena": [
+        "U63970"
+      ],
+      "symbol": "ABCC2",
+      "uniprot_ids": [
+        "Q92887"
+      ],
+      "locus_type": "gene with protein product",
+      "location": "10q24.2",
+      "status": "Approved",
+      "gene_group_id": [
+        807
+      ],
+      "rgd_id": [
+        "RGD:2366"
+      ],
+      "date_name_changed": "2015-11-13T00:00:00Z",
+      "entrez_id": "1244",
+      "enzyme_id": [
+        "7.6.2.2",
+        "7.6.2.3"
+      ],
+      "mgd_id": [
+        "MGI:1352447"
+      ],
+      "orphanet": 117652,
+      "prev_symbol": [
+        "CMOAT"
+      ],
+      "omim_id": [
+        "601107"
+      ],
+      "mane_select": [
+        "ENST00000647814.1",
+        "NM_000392.5"
+      ],
+      "refseq_accession": [
+        "NM_000392"
+      ],
+      "date_approved_reserved": "1997-05-09T00:00:00Z",
+      "agr": "HGNC:53",
+      "gene_group": [
+        "ATP binding cassette subfamily C"
+      ],
+      "ucsc_id": "uc001kqf.3",
+      "iuphar": "HGNC:53"
+    },
+    {
+      "hgnc_id": "HGNC:54",
+      "uuid": "4f5c1b85-1cf7-4a2f-af16-1146a421f947",
+      "pubmed_id": [
+        8894702,
+        9827529
+      ],
+      "locus_group": "protein-coding gene",
+      "prev_name": [
+        "ATP-binding cassette, sub-family C (CFTR/MRP), member 3"
+      ],
+      "name": "ATP binding cassette subfamily C member 3",
+      "gene_group_id": [
+        807
+      ],
+      "rgd_id": [
+        "RGD:71101"
+      ],
+      "vega_id": "OTTHUMG00000162245",
+      "ensembl_gene_id": "ENSG00000108846",
+      "date_modified": "2025-10-02T00:00:00Z",
+      "alias_symbol": [
+        "MRP3",
+        "cMOAT2",
+        "EST90757",
+        "MLP2",
+        "MOAT-D"
+      ],
+      "ccds_id": [
+        "CCDS32681",
+        "CCDS45739"
+      ],
+      "ena": [
+        "Y17151"
+      ],
+      "symbol": "ABCC3",
+      "uniprot_ids": [
+        "O15438"
+      ],
+      "locus_type": "gene with protein product",
+      "location": "17q21.33",
+      "status": "Approved",
+      "enzyme_id": [
+        "7.6.2.2",
+        "7.6.2.3 "
+      ],
+      "mgd_id": [
+        "MGI:1923658"
+      ],
+      "alias_name": [
+        "canalicular multispecific organic anion transporter 2"
+      ],
+      "orphanet": 469892,
+      "entrez_id": "8714",
+      "date_name_changed": "2015-11-13T00:00:00Z",
+      "date_approved_reserved": "1999-10-26T00:00:00Z",
+      "agr": "HGNC:54",
+      "ucsc_id": "uc002isl.4",
+      "gene_group": [
+        "ATP binding cassette subfamily C"
+      ],
+      "iuphar": "HGNC:54",
+      "omim_id": [
+        "604323"
+      ],
+      "mane_select": [
+        "ENST00000285238.13",
+        "NM_003786.4"
+      ],
+      "refseq_accession": [
+        "NM_020038"
+      ]
+    },
+    {
+      "alias_name": [
+        "canalicular multispecific organic anion transporter (ABC superfamily)",
+        "bA464I2.1 (ATP-binding cassette, sub-family C (CFTR/MRP), member 4)",
+        "multidrug resistance-associated protein 4",
+        "multispecific organic anion transporter B"
+      ],
+      "orphanet": 469894,
+      "mgd_id": [
+        "MGI:2443111"
+      ],
+      "enzyme_id": [
+        "7.6.2.2",
+        "7.6.2.3"
+      ],
+      "entrez_id": "10257",
+      "date_name_changed": "2023-11-02T00:00:00Z",
+      "iuphar": "HGNC:55",
+      "agr": "HGNC:55",
+      "ucsc_id": "uc001vmd.5",
+      "gene_group": [
+        "Blood group antigens",
+        "ATP binding cassette subfamily C"
+      ],
+      "date_approved_reserved": "1999-10-26T00:00:00Z",
+      "mane_select": [
+        "ENST00000645237.2",
+        "NM_005845.5"
+      ],
+      "refseq_accession": [
+        "NM_005845"
+      ],
+      "omim_id": [
+        "605250"
+      ],
+      "prev_name": [
+        "ATP-binding cassette, sub-family C (CFTR/MRP), member 4",
+        "ATP binding cassette subfamily C member 4"
+      ],
+      "pubmed_id": [
+        8894702,
+        9661885
+      ],
+      "uuid": "f4df6d97-f278-4e9b-b5a3-a72c4b85ca5e",
+      "locus_group": "protein-coding gene",
+      "hgnc_id": "HGNC:55",
+      "lsdb": [
+        "LRG_1183|http://ftp.ebi.ac.uk/pub/databases/lrgex/LRG_1183.xml"
+      ],
+      "name": "ATP binding cassette subfamily C member 4 (PEL blood group)",
+      "gencc": "HGNC:55",
+      "rgd_id": [
+        "RGD:620266"
+      ],
+      "gene_group_id": [
+        454,
+        807
+      ],
+      "symbol": "ABCC4",
+      "location": "13q32.1",
+      "uniprot_ids": [
+        "O15439"
+      ],
+      "status": "Approved",
+      "locus_type": "gene with protein product",
+      "ccds_id": [
+        "CCDS9474",
+        "CCDS86356",
+        "CCDS76643",
+        "CCDS45061"
+      ],
+      "ena": [
+        "U66682"
+      ],
+      "date_modified": "2025-10-02T00:00:00Z",
+      "alias_symbol": [
+        "MRP4",
+        "EST170205",
+        "MOAT-B",
+        "MOATB"
+      ],
+      "vega_id": "OTTHUMG00000017216",
+      "ensembl_gene_id": "ENSG00000125257"
+    },
+    {
+      "date_name_changed": "2015-11-13T00:00:00Z",
+      "entrez_id": "10057",
+      "enzyme_id": [
+        "7.6.2.2",
+        "7.6.2.3"
+      ],
+      "mgd_id": [
+        "MGI:1351644"
+      ],
+      "mane_select": [
+        "ENST00000334444.11",
+        "NM_005688.4"
+      ],
+      "refseq_accession": [
+        "NM_005688"
+      ],
+      "omim_id": [
+        "605251"
+      ],
+      "agr": "HGNC:56",
+      "ucsc_id": "uc003fmg.4",
+      "gene_group": [
+        "ATP binding cassette subfamily C"
+      ],
+      "iuphar": "HGNC:56",
+      "date_approved_reserved": "1999-10-26T00:00:00Z",
+      "name": "ATP binding cassette subfamily C member 5",
+      "prev_name": [
+        "ATP-binding cassette, sub-family C (CFTR/MRP), member 5"
+      ],
+      "hgnc_id": "HGNC:56",
+      "uuid": "b53e9f88-c22d-44f3-adbf-a90320ab9cda",
+      "pubmed_id": [
+        8894702,
+        9827529
+      ],
+      "locus_group": "protein-coding gene",
+      "ccds_id": [
+        "CCDS33898",
+        "CCDS43176"
+      ],
+      "ena": [
+        "AF104942"
+      ],
+      "symbol": "ABCC5",
+      "uniprot_ids": [
+        "O15440"
+      ],
+      "locus_type": "gene with protein product",
+      "location": "3q27.1",
+      "status": "Approved",
+      "vega_id": "OTTHUMG00000156871",
+      "ensembl_gene_id": "ENSG00000114770",
+      "date_modified": "2025-10-02T00:00:00Z",
+      "alias_symbol": [
+        "MRP5",
+        "SMRP",
+        "EST277145",
+        "MOAT-C"
+      ],
+      "gene_group_id": [
+        807
+      ],
+      "rgd_id": [
+        "RGD:70913"
+      ]
+    },
+    {
+      "hgnc_id": "HGNC:40055",
+      "uuid": "783ee435-a961-498f-a666-b0fbefc2552b",
+      "locus_group": "non-coding RNA",
+      "prev_name": [
+        "ABCC5 antisense RNA 1 (non-protein coding)"
+      ],
+      "name": "ABCC5 antisense RNA 1",
+      "lncipedia": "ABCC5-AS1",
+      "gene_group_id": [
+        1987
+      ],
+      "vega_id": "OTTHUMG00000156870",
+      "ensembl_gene_id": "ENSG00000223882",
+      "date_modified": "2014-11-18T00:00:00Z",
+      "symbol": "ABCC5-AS1",
+      "status": "Approved",
+      "location": "3q27.1",
+      "locus_type": "RNA, long non-coding",
+      "entrez_id": "100873982",
+      "date_name_changed": "2012-08-15T00:00:00Z",
+      "rna_central_id": [
+        "URS0000221CD6"
+      ],
+      "date_approved_reserved": "2011-07-27T00:00:00Z",
+      "agr": "HGNC:40055",
+      "gene_group": [
+        "Antisense RNAs"
+      ],
+      "ucsc_id": "uc031scp.1",
+      "refseq_accession": [
+        "NR_046570"
+      ]
+    },
+    {
+      "entrez_id": "368",
+      "date_name_changed": "2015-11-13T00:00:00Z",
+      "mgd_id": [
+        "MGI:1351634"
+      ],
+      "enzyme_id": [
+        "7.6.2.3"
+      ],
+      "orphanet": 117658,
+      "omim_id": [
+        "603234"
+      ],
+      "prev_symbol": [
+        "ARA",
+        "PXE"
+      ],
+      "refseq_accession": [
+        "NM_001079528"
+      ],
+      "mane_select": [
+        "ENST00000205557.12",
+        "NM_001171.6"
+      ],
+      "date_approved_reserved": "1997-10-27T00:00:00Z",
+      "iuphar": "HGNC:57",
+      "gene_group": [
+        "ATP binding cassette subfamily C"
+      ],
+      "ucsc_id": "uc002den.5",
+      "agr": "HGNC:57",
+      "gencc": "HGNC:57",
+      "name": "ATP binding cassette subfamily C member 6",
+      "locus_group": "protein-coding gene",
+      "pubmed_id": [
+        9721217,
+        11439001
+      ],
+      "uuid": "2677e762-eccb-416b-a2c1-5d0dae1e42de",
+      "hgnc_id": "HGNC:57",
+      "lsdb": [
+        "Mutations of the Multidrug Resistance-associated Protein 6 (ABCC6/ MPR6/ MOAT-E)|http://www.retina-international.org/files/sci-news/abcc6mut.htm",
+        "LOVD at NCBI|http://www.ncbi.nlm.nih.gov/lovd/home.php?select_db=ABCC6",
+        "LRG_1115|http://ftp.ebi.ac.uk/pub/databases/lrgex/LRG_1115.xml"
+      ],
+      "prev_name": [
+        "pseudoxanthoma elasticum",
+        "ATP-binding cassette, sub-family C (CFTR/MRP), member 6"
+      ],
+      "alias_symbol": [
+        "MRP6",
+        "EST349056",
+        "MLP1",
+        "URG7"
+      ],
+      "date_modified": "2025-10-02T00:00:00Z",
+      "ensembl_gene_id": "ENSG00000091262",
+      "vega_id": "OTTHUMG00000129967",
+      "location": "16p13.11",
+      "uniprot_ids": [
+        "O95255"
+      ],
+      "locus_type": "gene with protein product",
+      "status": "Approved",
+      "symbol": "ABCC6",
+      "ena": [
+        "AF076622"
+      ],
+      "ccds_id": [
+        "CCDS58430",
+        "CCDS10568"
+      ],
+      "rgd_id": [
+        "RGD:620268"
+      ],
+      "gene_group_id": [
+        807
+      ]
+    },
+    {
+      "hgnc_id": "HGNC:33352",
+      "locus_group": "pseudogene",
+      "uuid": "06523888-a34d-4eec-b3ff-6155a7f87533",
+      "pubmed_id": [
+        18405356,
+        22873774
+      ],
+      "prev_name": [
+        "ATP-binding cassette, sub-family C, member 6 pseudogene 1",
+        "ATP-binding cassette, sub-family C, member 6 pseudogene 1 (functional)",
+        "ATP binding cassette subfamily C member 6 pseudogene 1 (functional)"
+      ],
+      "date_name_changed": "2016-01-29T00:00:00Z",
+      "entrez_id": "653190",
+      "name": "ATP binding cassette subfamily C member 6 pseudogene 1",
+      "date_approved_reserved": "2007-02-23T00:00:00Z",
+      "agr": "HGNC:33352",
+      "ensembl_gene_id": "ENSG00000256340",
+      "vega_id": "OTTHUMG00000177192",
+      "pseudogene.org": "PGOHUM00000307541",
+      "date_modified": "2016-08-22T00:00:00Z",
+      "refseq_accession": [
+        "NR_003569"
+      ],
+      "ena": [
+        "BC075833"
+      ],
+      "location": "16p12.3",
+      "status": "Approved",
+      "locus_type": "pseudogene",
+      "symbol": "ABCC6P1"
+    },
+    {
+      "date_modified": "2016-08-22T00:00:00Z",
+      "pseudogene.org": "PGOHUM00000293430",
+      "vega_id": "OTTHUMG00000166266",
+      "ensembl_gene_id": "ENSG00000255277",
+      "symbol": "ABCC6P2",
+      "status": "Approved",
+      "location": "16p13.11",
+      "locus_type": "pseudogene",
+      "refseq_accession": [
+        "NR_023387"
+      ],
+      "date_approved_reserved": "2007-02-23T00:00:00Z",
+      "agr": "HGNC:33353",
+      "date_name_changed": "2015-11-13T00:00:00Z",
+      "entrez_id": "730013",
+      "name": "ATP binding cassette subfamily C member 6 pseudogene 2",
+      "uuid": "09fc89d5-ca47-4239-a36e-fd69aa4fcf79",
+      "pubmed_id": [
+        22873774
+      ],
+      "locus_group": "pseudogene",
+      "hgnc_id": "HGNC:33353",
+      "prev_name": [
+        "ATP-binding cassette, sub-family C, member 6 pseudogene 2"
+      ]
+    },
+    {
+      "name": "ATP binding cassette subfamily C member 8",
+      "gencc": "HGNC:59",
+      "prev_name": [
+        "ATP-binding cassette, sub-family C (CFTR/MRP), member 8"
+      ],
+      "locus_group": "protein-coding gene",
+      "uuid": "0c5b2517-36bd-43fd-b250-21cf60791fec",
+      "pubmed_id": [
+        7920639,
+        7716548
+      ],
+      "hgnc_id": "HGNC:59",
+      "lsdb": [
+        "LRG_790|http://ftp.ebi.ac.uk/pub/databases/lrgex/LRG_790.xml"
+      ],
+      "location": "11p15.1",
+      "uniprot_ids": [
+        "Q09428"
+      ],
+      "status": "Approved",
+      "locus_type": "gene with protein product",
+      "symbol": "ABCC8",
+      "ena": [
+        "L78207"
+      ],
+      "ccds_id": [
+        "CCDS86185",
+        "CCDS86183",
+        "CCDS86184",
+        "CCDS31437",
+        "CCDS73264"
+      ],
+      "alias_symbol": [
+        "HI",
+        "PHHI",
+        "SUR1",
+        "MRP8",
+        "ABC36",
+        "HHF1",
+        "TNDM2"
+      ],
+      "date_modified": "2023-01-20T00:00:00Z",
+      "ensembl_gene_id": "ENSG00000006071",
+      "vega_id": "OTTHUMG00000166316",
+      "rgd_id": [
+        "RGD:3786"
+      ],
+      "gene_group_id": [
+        807
+      ],
+      "date_name_changed": "2015-11-13T00:00:00Z",
+      "entrez_id": "6833",
+      "orphanet": 117665,
+      "alias_name": [
+        "sulfonylurea receptor (hyperinsulinemia)"
+      ],
+      "mgd_id": [
+        "MGI:1352629"
+      ],
+      "refseq_accession": [
+        "NM_000352"
+      ],
+      "mane_select": [
+        "ENST00000389817.8",
+        "NM_000352.6"
+      ],
+      "omim_id": [
+        "600509"
+      ],
+      "prev_symbol": [
+        "SUR",
+        "HRINS"
+      ],
+      "iuphar": "HGNC:59",
+      "gene_group": [
+        "ATP binding cassette subfamily C"
+      ],
+      "ucsc_id": "uc001mnc.4",
+      "agr": "HGNC:59",
+      "date_approved_reserved": "1995-01-10T00:00:00Z"
+    },
+    {
+      "refseq_accession": [
+        "NM_005691"
+      ],
+      "mane_select": [
+        "ENST00000261200.9",
+        "NM_020297.4"
+      ],
+      "omim_id": [
+        "601439"
+      ],
+      "ucsc_id": "uc001rfi.2",
+      "gene_group": [
+        "ATP binding cassette subfamily C"
+      ],
+      "agr": "HGNC:60",
+      "iuphar": "HGNC:60",
+      "date_approved_reserved": "1999-10-26T00:00:00Z",
+      "entrez_id": "10060",
+      "date_name_changed": "2015-11-13T00:00:00Z",
+      "orphanet": 117673,
+      "alias_name": [
+        "sulfonylurea receptor 2"
+      ],
+      "mgd_id": [
+        "MGI:1352630"
+      ],
+      "ena": [
+        "AF061323"
+      ],
+      "ccds_id": [
+        "CCDS8694",
+        "CCDS8693"
+      ],
+      "status": "Approved",
+      "uniprot_ids": [
+        "O60706"
+      ],
+      "location": "12p12.1",
+      "locus_type": "gene with protein product",
+      "symbol": "ABCC9",
+      "ensembl_gene_id": "ENSG00000069431",
+      "vega_id": "OTTHUMG00000169094",
+      "alias_symbol": [
+        "SUR2",
+        "CMD1O"
+      ],
+      "date_modified": "2023-03-15T00:00:00Z",
+      "gene_group_id": [
+        807
+      ],
+      "rgd_id": [
+        "RGD:3787"
+      ],
+      "name": "ATP binding cassette subfamily C member 9",
+      "gencc": "HGNC:60",
+      "prev_name": [
+        "ATP-binding cassette, sub-family C (CFTR/MRP), member 9"
+      ],
+      "hgnc_id": "HGNC:60",
+      "lsdb": [
+        "LRG_377|http://ftp.ebi.ac.uk/pub/databases/lrgex/LRG_377.xml"
+      ],
+      "locus_group": "protein-coding gene",
+      "uuid": "a6855db8-561c-40b9-a87c-13430c11e55e",
+      "pubmed_id": [
+        9457174,
+        15034580
+      ]
+    },
+    {
+      "date_approved_reserved": "1999-10-26T00:00:00Z",
+      "iuphar": "HGNC:52",
+      "agr": "HGNC:52",
+      "ucsc_id": "uc003ouz.1",
+      "gene_group": [
+        "ATP binding cassette subfamily C",
+        "MicroRNA protein coding host genes"
+      ],
+      "omim_id": [
+        "612509"
+      ],
+      "mane_select": [
+        "ENST00000372530.9",
+        "NM_001198934.2"
+      ],
+      "refseq_accession": [
+        "NM_033450"
+      ],
+      "mgd_id": [
+        "MGI:2386976"
+      ],
+      "enzyme_id": [
+        "7.6.2.2",
+        "7.6.2.3"
+      ],
+      "entrez_id": "89845",
+      "date_name_changed": "2015-11-13T00:00:00Z",
+      "rgd_id": [
+        "RGD:1306696"
+      ],
+      "gene_group_id": [
+        807,
+        1691
+      ],
+      "date_modified": "2024-09-16T00:00:00Z",
+      "alias_symbol": [
+        "EST182763",
+        "MRP7",
+        "SIMRP7"
+      ],
+      "vega_id": "OTTHUMG00000014733",
+      "ensembl_gene_id": "ENSG00000124574",
+      "symbol": "ABCC10",
+      "uniprot_ids": [
+        "Q5T3U5"
+      ],
+      "status": "Approved",
+      "location": "6p21.1",
+      "locus_type": "gene with protein product",
+      "ccds_id": [
+        "CCDS56430",
+        "CCDS4896"
+      ],
+      "ena": [
+        "U66684"
+      ],
+      "pubmed_id": [
+        8894702
+      ],
+      "uuid": "888a33cb-68b1-41dd-8db4-14820f9113c0",
+      "locus_group": "protein-coding gene",
+      "hgnc_id": "HGNC:52",
+      "prev_name": [
+        "ATP-binding cassette, sub-family C (CFTR/MRP), member 10"
+      ],
+      "name": "ATP binding cassette subfamily C member 10"
+    },
+    {
+      "gene_group": [
+        "ATP binding cassette subfamily C"
+      ],
+      "ucsc_id": "uc059txd.1",
+      "agr": "HGNC:14639",
+      "iuphar": "HGNC:14639",
+      "date_approved_reserved": "2001-06-01T00:00:00Z",
+      "refseq_accession": [
+        "NM_032583"
+      ],
+      "mane_select": [
+        "ENST00000356608.7",
+        "NM_001370497.1"
+      ],
+      "omim_id": [
+        "607040"
+      ],
+      "enzyme_id": [
+        "7.6.2.2",
+        "7.6.2.3"
+      ],
+      "date_name_changed": "2015-11-13T00:00:00Z",
+      "entrez_id": "85320",
+      "gene_group_id": [
+        807
+      ],
+      "ena": [
+        "AF367202"
+      ],
+      "ccds_id": [
+        "CCDS10732",
+        "CCDS10733"
+      ],
+      "uniprot_ids": [
+        "Q96J66"
+      ],
+      "location": "16q12.1",
+      "locus_type": "gene with protein product",
+      "status": "Approved",
+      "symbol": "ABCC11",
+      "ensembl_gene_id": "ENSG00000121270",
+      "vega_id": "OTTHUMG00000133146",
+      "alias_symbol": [
+        "MRP8"
+      ],
+      "date_modified": "2024-09-16T00:00:00Z",
+      "prev_name": [
+        "ATP-binding cassette, sub-family C (CFTR/MRP), member 11"
+      ],
+      "hgnc_id": "HGNC:14639",
+      "locus_group": "protein-coding gene",
+      "uuid": "458175ca-4e72-47d8-ab64-4ae50b963b3e",
+      "pubmed_id": [
+        11483364,
+        11435397
+      ],
+      "name": "ATP binding cassette subfamily C member 11"
+    },
+    {
+      "mgd_id": [
+        "MGI:2441679"
+      ],
+      "entrez_id": "94160",
+      "date_name_changed": "2015-11-13T00:00:00Z",
+      "gene_group": [
+        "ATP binding cassette subfamily C"
+      ],
+      "ucsc_id": "uc002efc.1",
+      "agr": "HGNC:14640",
+      "iuphar": "HGNC:14640",
+      "date_approved_reserved": "2001-08-16T00:00:00Z",
+      "refseq_accession": [
+        "NM_033226"
+      ],
+      "mane_select": [
+        "ENST00000311303.8",
+        "NM_001393797.1"
+      ],
+      "omim_id": [
+        "607041"
+      ],
+      "prev_name": [
+        "ATP-binding cassette, sub-family C (CFTR/MRP), member 12"
+      ],
+      "hgnc_id": "HGNC:14640",
+      "locus_group": "protein-coding gene",
+      "pubmed_id": [
+        11435397,
+        11483364
+      ],
+      "uuid": "4fa98a98-dde4-44ff-9afb-bb2b4b26e67e",
+      "name": "ATP binding cassette subfamily C member 12",
+      "gene_group_id": [
+        807
+      ],
+      "rgd_id": [
+        "RGD:735100"
+      ],
+      "ena": [
+        "AY040220"
+      ],
+      "ccds_id": [
+        "CCDS92154",
+        "CCDS92153",
+        "CCDS92155"
+      ],
+      "location": "16q12.1",
+      "uniprot_ids": [
+        "Q96J65"
+      ],
+      "status": "Approved",
+      "locus_type": "gene with protein product",
+      "symbol": "ABCC12",
+      "ensembl_gene_id": "ENSG00000140798",
+      "vega_id": "OTTHUMG00000133143",
+      "alias_symbol": [
+        "MRP9"
+      ],
+      "date_modified": "2023-03-15T00:00:00Z"
+    },
+    {
+      "date_approved_reserved": "2002-11-11T00:00:00Z",
+      "agr": "HGNC:16022",
+      "gene_group": [
+        "ATP binding cassette subfamily C",
+        "Unitary pseudogenes"
+      ],
+      "omim_id": [
+        "608835"
+      ],
+      "refseq_accession": [
+        "NR_003087"
+      ],
+      "date_name_changed": "2016-01-06T00:00:00Z",
+      "entrez_id": "150000",
+      "gene_group_id": [
+        807,
+        3418
+      ],
+      "date_modified": "2023-03-15T00:00:00Z",
+      "pseudogene.org": "PGOHUM00000258120",
+      "alias_symbol": [
+        "PRED6",
+        "C21orf73",
+        "ABCC13P"
+      ],
+      "vega_id": "OTTHUMG00000074257",
+      "ensembl_gene_id": "ENSG00000243064",
+      "symbol": "ABCC13",
+      "location": "21q11.2",
+      "status": "Approved",
+      "locus_type": "pseudogene",
+      "ena": [
+        "AF418600"
+      ],
+      "uuid": "7692c1bc-3865-4f6c-8a09-23738c95b613",
+      "pubmed_id": [
+        12445816,
+        15203202
+      ],
+      "locus_group": "pseudogene",
+      "hgnc_id": "HGNC:16022",
+      "prev_name": [
+        "ATP-binding cassette, sub-family C (CFTR/MRP), member 13"
+      ],
+      "name": "ATP binding cassette subfamily C member 13 (pseudogene)"
+    },
+    {
+      "date_approved_reserved": "1986-01-01T00:00:00Z",
+      "agr": "HGNC:61",
+      "gene_group": [
+        "ATP binding cassette subfamily D"
+      ],
+      "ucsc_id": "uc004fif.2",
+      "iuphar": "HGNC:61",
+      "prev_symbol": [
+        "ALD"
+      ],
+      "omim_id": [
+        "300371"
+      ],
+      "mane_select": [
+        "ENST00000218104.6",
+        "NM_000033.4"
+      ],
+      "refseq_accession": [
+        "NM_000033"
+      ],
+      "enzyme_id": [
+        "3.1.2.-",
+        "7.6.2.- "
+      ],
+      "mgd_id": [
+        "MGI:1349215"
+      ],
+      "orphanet": 117677,
+      "date_name_changed": "2015-11-13T00:00:00Z",
+      "entrez_id": "215",
+      "gene_group_id": [
+        808
+      ],
+      "rgd_id": [
+        "RGD:1562128"
+      ],
+      "vega_id": "OTTHUMG00000024215",
+      "ensembl_gene_id": "ENSG00000101986",
+      "date_modified": "2025-10-02T00:00:00Z",
+      "alias_symbol": [
+        "AMN",
+        "ALDP",
+        "adrenoleukodystrophy"
+      ],
+      "ccds_id": [
+        "CCDS14728"
+      ],
+      "ena": [
+        "Z21876"
+      ],
+      "symbol": "ABCD1",
+      "location": "Xq28",
+      "uniprot_ids": [
+        "P33897"
+      ],
+      "status": "Approved",
+      "locus_type": "gene with protein product",
+      "lsdb": [
+        "X-linked Adrenoleukodystrophy Database|http://www.x-ald.nl",
+        "Global Variome shared LOVD|https://databases.lovd.nl/shared/genes/ABCD1",
+        "LRG_1017|http://ftp.ebi.ac.uk/pub/databases/lrgex/LRG_1017.xml"
+      ],
+      "hgnc_id": "HGNC:61",
+      "uuid": "154b7182-b40f-4c81-8134-10803258f867",
+      "pubmed_id": [
+        8441467,
+        6795626
+      ],
+      "locus_group": "protein-coding gene",
+      "prev_name": [
+        "ATP-binding cassette, sub-family D (ALD), member 1"
+      ],
+      "gencc": "HGNC:61",
+      "name": "ATP binding cassette subfamily D member 1"
+    },
+    {
+      "status": "Approved",
+      "location": "2p11.2",
+      "locus_type": "pseudogene",
+      "symbol": "ABCD1P1",
+      "ena": [
+        "U90290"
+      ],
+      "pseudogene.org": "PGOHUM00000297984",
+      "date_modified": "2020-04-07T00:00:00Z",
+      "agr": "HGNC:62",
+      "date_approved_reserved": "1999-10-29T00:00:00Z",
+      "name": "ATP binding cassette subfamily D member 1 pseudogene 1",
+      "date_name_changed": "2015-11-13T00:00:00Z",
+      "entrez_id": "23785",
+      "prev_name": [
+        "ATP-binding cassette, sub-family D (ALD), member 1, pseudogene 1"
+      ],
+      "locus_group": "pseudogene",
+      "uuid": "8b7399e3-006f-484f-a691-b2e7633912a5",
+      "pubmed_id": [
+        8829626,
+        9215666
+      ],
+      "hgnc_id": "HGNC:62"
+    },
+    {
+      "hgnc_id": "HGNC:63",
+      "uuid": "762f4b45-316e-47cb-b642-de5f0d0a6623",
+      "pubmed_id": [
+        9215666
+      ],
+      "locus_group": "pseudogene",
+      "prev_name": [
+        "ATP-binding cassette, sub-family D (ALD), member 1, pseudogene 2"
+      ],
+      "date_name_changed": "2015-11-13T00:00:00Z",
+      "entrez_id": "26983",
+      "name": "ATP binding cassette subfamily D member 1 pseudogene 2",
+      "date_approved_reserved": "1999-12-17T00:00:00Z",
+      "agr": "HGNC:63",
+      "vega_id": "OTTHUMG00000018003",
+      "ensembl_gene_id": "ENSG00000215151",
+      "date_modified": "2015-11-13T00:00:00Z",
+      "pseudogene.org": "PGOHUM00000238740",
+      "alias_symbol": [
+        "bA453N3.6"
+      ],
+      "ena": [
+        "U90288"
+      ],
+      "symbol": "ABCD1P2",
+      "locus_type": "pseudogene",
+      "location": "10p11.1",
+      "status": "Approved"
+    },
+    {
+      "pseudogene.org": "PGOHUM00000259051",
+      "date_modified": "2015-11-13T00:00:00Z",
+      "ensembl_gene_id": "ENSG00000261233",
+      "vega_id": "OTTHUMG00000176500",
+      "location": "16p11.2",
+      "locus_type": "pseudogene",
+      "status": "Approved",
+      "symbol": "ABCD1P3",
+      "ena": [
+        "U90289"
+      ],
+      "date_approved_reserved": "1999-12-17T00:00:00Z",
+      "agr": "HGNC:64",
+      "entrez_id": "26982",
+      "date_name_changed": "2015-11-13T00:00:00Z",
+      "name": "ATP binding cassette subfamily D member 1 pseudogene 3",
+      "locus_group": "pseudogene",
+      "uuid": "c35ec787-c8f3-4478-8602-677f8e106251",
+      "pubmed_id": [
+        9215666
+      ],
+      "hgnc_id": "HGNC:64",
+      "prev_name": [
+        "ATP-binding cassette, sub-family D (ALD), member 1, pseudogene 3"
+      ]
+    },
+    {
+      "date_modified": "2015-11-13T00:00:00Z",
+      "pseudogene.org": "PGOHUM00000246377",
+      "vega_id": "OTTHUMG00000030330",
+      "ensembl_gene_id": "ENSG00000225293",
+      "symbol": "ABCD1P4",
+      "status": "Approved",
+      "location": "22q11.1",
+      "locus_type": "pseudogene",
+      "ena": [
+        "U90291"
+      ],
+      "date_approved_reserved": "1999-12-17T00:00:00Z",
+      "agr": "HGNC:65",
+      "entrez_id": "26957",
+      "date_name_changed": "2015-11-13T00:00:00Z",
+      "name": "ATP binding cassette subfamily D member 1 pseudogene 4",
+      "pubmed_id": [
+        9215666,
+        10591208
+      ],
+      "uuid": "99cb62d2-480d-464d-adf3-9f641806a176",
+      "locus_group": "pseudogene",
+      "hgnc_id": "HGNC:65",
+      "prev_name": [
+        "ATP-binding cassette, sub-family D (ALD), member 1, pseudogene 4"
+      ]
+    },
+    {
+      "hgnc_id": "HGNC:42662",
+      "uuid": "f5cda11c-a7f8-4a14-bbcd-71a45fb82de7",
+      "locus_group": "pseudogene",
+      "prev_name": [
+        "ATP-binding cassette, sub-family D (ALD), member 1, pseudogene 5"
+      ],
+      "date_name_changed": "2015-11-13T00:00:00Z",
+      "entrez_id": "642762",
+      "name": "ATP binding cassette subfamily D member 1 pseudogene 5",
+      "date_approved_reserved": "2011-08-12T00:00:00Z",
+      "agr": "HGNC:42662",
+      "vega_id": "OTTHUMG00000155089",
+      "ensembl_gene_id": "ENSG00000214330",
+      "date_modified": "2015-11-13T00:00:00Z",
+      "pseudogene.org": "PGOHUM00000240771",
+      "symbol": "ABCD1P5",
+      "location": "2p11.1",
+      "status": "Approved",
+      "locus_type": "pseudogene"
+    },
+    {
+      "vega_id": "OTTHUMG00000169337",
+      "ensembl_gene_id": "ENSG00000173208",
+      "date_modified": "2025-10-02T00:00:00Z",
+      "alias_symbol": [
+        "ALDR",
+        "ALDRP"
+      ],
+      "ccds_id": [
+        "CCDS8734"
+      ],
+      "ena": [
+        "U28150"
+      ],
+      "symbol": "ABCD2",
+      "uniprot_ids": [
+        "Q9UBJ2"
+      ],
+      "location": "12q12",
+      "locus_type": "gene with protein product",
+      "status": "Approved",
+      "gene_group_id": [
+        808
+      ],
+      "rgd_id": [
+        "RGD:69244"
+      ],
+      "name": "ATP binding cassette subfamily D member 2",
+      "hgnc_id": "HGNC:66",
+      "uuid": "af59695b-163d-4a0a-95ec-84fd5485bbba",
+      "pubmed_id": [
+        8577752
+      ],
+      "locus_group": "protein-coding gene",
+      "prev_name": [
+        "ATP-binding cassette, sub-family D (ALD), member 2"
+      ],
+      "prev_symbol": [
+        "ALDL1"
+      ],
+      "omim_id": [
+        "601081"
+      ],
+      "mane_select": [
+        "ENST00000308666.4",
+        "NM_005164.4"
+      ],
+      "refseq_accession": [
+        "NM_005164"
+      ],
+      "date_approved_reserved": "1997-10-10T00:00:00Z",
+      "agr": "HGNC:66",
+      "gene_group": [
+        "ATP binding cassette subfamily D"
+      ],
+      "ucsc_id": "uc001rmb.3",
+      "iuphar": "HGNC:66",
+      "date_name_changed": "2015-11-13T00:00:00Z",
+      "entrez_id": "225",
+      "enzyme_id": [
+        "3.1.2.-",
+        "7.6.2.- "
+      ],
+      "mgd_id": [
+        "MGI:1349467"
+      ],
+      "orphanet": 469896
+    },
+    {
+      "mgd_id": [
+        "MGI:1349216"
+      ],
+      "orphanet": 469898,
+      "alias_name": [
+        "peroxisomal membrane protein 70 kDa"
+      ],
+      "date_name_changed": "2015-11-13T00:00:00Z",
+      "entrez_id": "5825",
+      "date_approved_reserved": "1992-03-03T00:00:00Z",
+      "iuphar": "HGNC:67",
+      "gene_group": [
+        "ATP binding cassette subfamily D",
+        "GOLD domain containing"
+      ],
+      "ucsc_id": "uc001dqn.5",
+      "agr": "HGNC:67",
+      "omim_id": [
+        "170995"
+      ],
+      "prev_symbol": [
+        "PXMP1"
+      ],
+      "refseq_accession": [
+        "NM_002858"
+      ],
+      "mane_select": [
+        "ENST00000370214.9",
+        "NM_002858.4"
+      ],
+      "locus_group": "protein-coding gene",
+      "uuid": "b7f47d2b-3955-4179-8821-0c329154657c",
+      "pubmed_id": [
+        1301993,
+        8449508
+      ],
+      "hgnc_id": "HGNC:67",
+      "prev_name": [
+        "ATP-binding cassette, sub-family D (ALD), member 3",
+        "peroxisomal membrane protein 1 (70kD, Zellweger syndrome)"
+      ],
+      "gencc": "HGNC:67",
+      "name": "ATP binding cassette subfamily D member 3",
+      "rgd_id": [
+        "RGD:2007"
+      ],
+      "gene_group_id": [
+        808,
+        1062
+      ],
+      "alias_symbol": [
+        "PMP70",
+        "ZWS2"
+      ],
+      "date_modified": "2023-01-20T00:00:00Z",
+      "ensembl_gene_id": "ENSG00000117528",
+      "vega_id": "OTTHUMG00000010717",
+      "location": "1p21.3",
+      "uniprot_ids": [
+        "P28288"
+      ],
+      "status": "Approved",
+      "locus_type": "gene with protein product",
+      "symbol": "ABCD3",
+      "ena": [
+        "M81182"
+      ],
+      "ccds_id": [
+        "CCDS44175",
+        "CCDS749"
+      ]
+    },
+    {
+      "location": "14q24.3",
+      "uniprot_ids": [
+        "O14678"
+      ],
+      "status": "Approved",
+      "locus_type": "gene with protein product",
+      "symbol": "ABCD4",
+      "ena": [
+        "AF009746"
+      ],
+      "ccds_id": [
+        "CCDS9828"
+      ],
+      "alias_symbol": [
+        "PMP69",
+        "P70R",
+        "EST352188"
+      ],
+      "date_modified": "2024-09-16T00:00:00Z",
+      "ensembl_gene_id": "ENSG00000119688",
+      "vega_id": "OTTHUMG00000171207",
+      "rgd_id": [
+        "RGD:1307273"
+      ],
+      "gene_group_id": [
+        808
+      ],
+      "name": "ATP binding cassette subfamily D member 4",
+      "gencc": "HGNC:68",
+      "prev_name": [
+        "ATP-binding cassette, sub-family D (ALD), member 4"
+      ],
+      "locus_group": "protein-coding gene",
+      "uuid": "f10ed21e-3342-44d7-a12b-c52726d888f0",
+      "pubmed_id": [
+        9266848,
+        9302272,
+        33845046
+      ],
+      "hgnc_id": "HGNC:68",
+      "refseq_accession": [
+        "NM_005050"
+      ],
+      "mane_select": [
+        "ENST00000356924.9",
+        "NM_005050.4"
+      ],
+      "omim_id": [
+        "603214"
+      ],
+      "prev_symbol": [
+        "PXMP1L"
+      ],
+      "ucsc_id": "uc001xpr.3",
+      "gene_group": [
+        "ATP binding cassette subfamily D"
+      ],
+      "agr": "HGNC:68",
+      "date_approved_reserved": "1997-10-27T00:00:00Z",
+      "entrez_id": "5826",
+      "date_name_changed": "2015-11-13T00:00:00Z",
+      "orphanet": 315413,
+      "alias_name": [
+        "Lysosomal cobalamin transporter ABCD4"
+      ],
+      "mgd_id": [
+        "MGI:1349217"
+      ],
+      "enzyme_id": [
+        "7.6.2.8"
+      ]
+    },
+    {
+      "mane_select": [
+        "ENST00000296577.9",
+        "NM_002940.3"
+      ],
+      "refseq_accession": [
+        "NM_002940"
+      ],
+      "omim_id": [
+        "601213"
+      ],
+      "prev_symbol": [
+        "RNASEL1",
+        "RNASELI",
+        "RNS4I"
+      ],
+      "agr": "HGNC:69",
+      "ucsc_id": "uc003ijy.4",
+      "gene_group": [
+        "ATP binding cassette subfamily E"
+      ],
+      "date_approved_reserved": "1995-11-01T00:00:00Z",
+      "entrez_id": "6059",
+      "date_name_changed": "2015-11-13T00:00:00Z",
+      "alias_name": [
+        "RNase L inhibitor 1"
+      ],
+      "mgd_id": [
+        "MGI:1195458"
+      ],
+      "enzyme_id": [
+        "3.6.5.-"
+      ],
+      "symbol": "ABCE1",
+      "status": "Approved",
+      "uniprot_ids": [
+        "P61221"
+      ],
+      "location": "4q31.21",
+      "locus_type": "gene with protein product",
+      "ccds_id": [
+        "CCDS34071"
+      ],
+      "ena": [
+        "X74987"
+      ],
+      "date_modified": "2025-10-02T00:00:00Z",
+      "alias_symbol": [
+        "RLI",
+        "OABP",
+        "RLI1"
+      ],
+      "vega_id": "OTTHUMG00000161478",
+      "ensembl_gene_id": "ENSG00000164163",
+      "rgd_id": [
+        "RGD:1305301"
+      ],
+      "gene_group_id": [
+        809
+      ],
+      "name": "ATP binding cassette subfamily E member 1",
+      "prev_name": [
+        "ATP-binding cassette, sub-family E (OABP), member 1"
+      ],
+      "uuid": "f3dc93dc-6884-48e9-8656-f08865eee93e",
+      "pubmed_id": [
+        7539425
+      ],
+      "locus_group": "protein-coding gene",
+      "hgnc_id": "HGNC:69"
+    },
+    {
+      "locus_group": "pseudogene",
+      "uuid": "c62a21b3-47d7-48fc-af92-d4905bd0a54c",
+      "hgnc_id": "HGNC:58656",
+      "entrez_id": "442517",
+      "name": "ABCE1 pseudogene 1",
+      "date_approved_reserved": "2025-07-25T00:00:00Z",
+      "date_modified": "2025-07-25T00:00:00Z",
+      "ensembl_gene_id": "ENSG00000224785",
+      "locus_type": "pseudogene",
+      "status": "Approved",
+      "location": "7p15.3",
+      "symbol": "ABCE1P1"
+    },
+    {
+      "entrez_id": "647150",
+      "name": "ABCE1 pseudogene 2",
+      "hgnc_id": "HGNC:58657",
+      "locus_group": "pseudogene",
+      "uuid": "82da0935-2bcd-4c92-ad2f-e1ef11eff432",
+      "ensembl_gene_id": "ENSG00000226723",
+      "date_modified": "2025-07-25T00:00:00Z",
+      "status": "Approved",
+      "locus_type": "pseudogene",
+      "location": "1q31.2",
+      "symbol": "ABCE1P2",
+      "date_approved_reserved": "2025-07-25T00:00:00Z"
+    },
+    {
+      "date_approved_reserved": "2025-07-25T00:00:00Z",
+      "hgnc_id": "HGNC:58658",
+      "uuid": "8cec1359-e673-4bcb-bba6-828b9c52646c",
+      "locus_group": "pseudogene",
+      "ensembl_gene_id": "ENSG00000236792",
+      "date_modified": "2025-07-25T00:00:00Z",
+      "name": "ABCE1 pseudogene 3",
+      "symbol": "ABCE1P3",
+      "locus_type": "pseudogene",
+      "location": "1q31.2",
+      "status": "Approved"
+    }
+  ]
+}

@@ -1,0 +1,301 @@
+syntax = "proto3";
+
+import "attr.proto";
+
+package pbuf;
+
+service BiobtreeService {
+  rpc Search        (SearchRequest)         returns (SearchResponse);
+  rpc Mapping       (MappingRequest)        returns (MappingResponse);
+  rpc Entry         (EntryRequest)          returns (EntryResponse);
+  rpc Meta          (MetaRequest)           returns (MetaResponse);
+  rpc ListGenomes   (ListGenomesRequest)    returns (ListGenomesResponse);
+}
+
+message SearchRequest {
+  	repeated string terms=1;
+    string dataset=2;
+    string page=3;
+    string query=4;
+    bool detail=5;
+    bool url=6;
+    string mode=7;  // "full" (default) or "lite"
+}
+
+message SearchResponse {
+  	Result results =1;
+    ResultLite results_lite =2;  // Used when mode="lite"
+}
+
+message MappingRequest {
+  	repeated string terms = 1;
+    string dataset=2;
+    string query = 3;
+    string page =4;
+    string mode=5;  // "full" (default) or "lite"
+}
+
+message MappingResponse {
+    MapFilterResult results =1;
+    MapFilterResultLite results_lite =2;  // Used when mode="lite"
+}
+
+message EntryRequest {
+  	string identifier = 1;
+    string dataset=2;
+}
+
+message EntryResponse {
+  	Xref result =1;
+}
+
+message MetaRequest {
+}
+
+message MetaResponse {
+   map<string, MetaKeyValue> results = 1;
+}
+
+message MetaKeyValue{
+  map<string, string> keyvalues = 1;
+}
+
+message ListGenomesRequest {
+  	string type = 1;
+}
+
+message ListGenomesResponse {
+    string results = 1;
+}
+
+message Result {
+  	repeated Xref results = 1;
+    string nextpage=2;
+    string message=3; // transient - informational message (e.g., "No results found")
+    // Full mode enhancements (transient - populated at response time)
+    SearchQueryInfo query = 4;                    // Query echo
+    SearchStats stats = 5;                        // Statistics
+    PaginationInfo pagination = 6;                // Structured pagination
+}
+
+message MapFilterResult {
+  	repeated MapFilter results = 1;
+    string nextpage=2;
+    string message=3; // transient - informational message (e.g., "No results found")
+    // Full mode enhancements (transient - populated at response time)
+    MapFilterQueryInfo query = 4;                 // Query echo
+    MapFilterStats stats = 5;                     // Statistics
+    PaginationInfo pagination = 6;                // Structured pagination
+}
+
+message MapFilter {
+  	 Xref source = 1;
+     repeated Xref targets = 2;
+}
+
+message Xref {
+
+  uint32 dataset = 1;
+  string dataset_name = 31; // transient - populated at response time
+  bool is_link=2;
+  string identifier=3;// transient
+  string keyword =4;  // transient
+
+  oneof attributes{
+
+    bool empty = 5 ;
+    UniprotAttr uniprot=6;
+    OntologyAttr ontology=7;
+    HgncAttr hgnc= 8;
+    InterproAttr interpro= 9;
+    EnsemblAttr ensembl= 10;
+    TaxoAttr taxonomy= 11;
+    HmdbAttr hmdb= 12;
+    ChebiAttr chebi= 32;
+    EnaAttr ena= 13;
+    PdbAttr pdb= 14;
+    DrugbankAttr drugbank= 15;
+    OrphanetAttr orphanet= 16;
+    ReactomePathwayAttr reactome= 17;
+    ChemblAttr chembl=18;
+    UniprotFeatureAttr ufeature=19;
+    PatentAttr patent=26;
+    ClinicalTrialAttr clinical_trials=27;
+    StringAttr stringattr=28;
+    AlphaFoldAttr alphafold=29;
+    RnacentralAttr rnacentral=30;
+    ClinvarAttr clinvar=33;
+    LipidmapsAttr lipidmaps=34;
+    SwisslipidsAttr swisslipids=35;
+    BgeeAttr bgee=36;
+    RheaAttr rhea=38;
+    GwasStudyAttr gwas_study=39;
+    GwasAttr gwas=43;
+    IntactAttr intact=44;
+    DiamondSimilarityAttr diamond_similarity=45;
+    Esm2SimilarityAttr esm2_similarity=86;
+    AntibodyAttr antibody=46;
+    PubchemAttr pubchem=47;
+    PubchemActivityAttr pubchem_activity=48;
+    PubchemAssayAttr pubchem_assay=49;
+    DbsnpAttr dbsnp=123;
+    MeshAttr mesh=50;
+    EntrezAttr entrez=53;
+    RefSeqAttr refseq=57;
+    GenccAttr gencc=58;
+    BindingdbAttr bindingdb=60;
+    CtdAttr ctd=61;
+    BiogridAttr biogrid=62;
+    MsigdbAttr msigdb=64;
+    AlphaMissenseAttr alphamissense=65;
+    AlphaMissenseTranscriptAttr alphamissense_transcript=66;
+    PharmgkbAttr pharmgkb=67;
+    PharmgkbGeneAttr pharmgkb_gene=68;
+    PharmgkbClinicalAttr pharmgkb_clinical=69;
+    PharmgkbVariantAttr pharmgkb_variant=70;
+    PharmgkbGuidelineAttr pharmgkb_guideline=71;
+    PharmgkbPathwayAttr pharmgkb_pathway=72;
+    CellxgeneAttr cellxgene=73;
+    CellxgeneCelltypeAttr cellxgene_celltype=74;
+    ScxaAttr scxa=75;
+    ScxaExpressionAttr scxa_expression=76;
+    ScxaGeneExperimentAttr scxa_gene_experiment=77;
+    BiogridInteractionAttr biogrid_interaction=78;
+    HPOAttr hpo_attr=79;
+    CollecTriAttr collectri=80;
+    SignorAttr signor=81;
+    CorumAttr corum=82;
+    BrendaAttr brenda=83;
+    BrendaKineticsAttr brenda_kinetics=84;
+    BrendaInhibitorAttr brenda_inhibitor=85;
+    CellphonedbAttr cellphonedb=87;
+    SpliceAIAttr spliceai=88;
+    MiRDBAttr mirdb=89;
+    Fantom5PromoterAttr fantom5_promoter=90;
+    Fantom5EnhancerAttr fantom5_enhancer=91;
+    Fantom5GeneAttr fantom5_gene=92;
+    JasparAttr jaspar=93;
+    EncodeCcreAttr encode_ccre=94;
+    StringInteractionAttr string_interaction=95;
+    BgeeEvidenceAttr bgee_evidence=131;
+    CtdGeneInteractionAttr ctd_gene_interaction=134;
+    CtdDiseaseAssociationAttr ctd_disease_association=135;
+
+  }
+
+  uint32 count =20;
+  repeated XrefEntry entries=21;
+  repeated XrefDomainCount dataset_counts=22;
+  map<uint32,PageInfo> datasetPages=23;
+  repeated string pages=24;
+  string url =25; // transient
+}
+
+message PageInfo {
+  repeated string pages=1;
+}
+
+message XrefEntry {
+
+  uint32 dataset = 1;
+  string dataset_name = 4; // transient - populated at response time
+  string identifier = 2;
+  string evidence = 3;  // Evidence code for relationship quality (used by Reactome: TAS, IEA, IEP)
+                        // TAS = Traceable Author Statement (manually curated)
+                        // IEA = Inferred by Electronic Annotation (computationally inferred)
+  string relationship = 5; // Relationship type between entities (e.g., "Related pseudogene", "Readthrough sibling")
+                           // Used by Entrez gene_group.gz to specify the nature of gene relationships
+
+}
+
+message XrefDomainCount {
+
+  uint32 dataset = 1;
+  uint32 count =2;
+
+}
+
+message Alias {
+    repeated string identifiers = 1;
+}
+
+// ============================================================================
+// LITE MODE RESPONSE MESSAGES
+// Compact JSON format for AI agents - IDs only, sorted by has_attributes
+// ============================================================================
+
+// Lite mode response for mapping queries
+message MapFilterResultLite {
+    string mode = 1;                              // "lite"
+    MapFilterQueryInfo query = 2;                 // Echo query back
+    repeated MapFilterLite mappings = 3;          // Compact mappings
+    MapFilterStats stats = 4;                     // Summary statistics
+    PaginationInfo pagination = 5;                // Structured pagination
+    repeated string warnings = 6;                 // Non-fatal issues
+}
+
+message MapFilterLite {
+    string input = 1;                             // Original search term
+    LiteEntry source = 2;                         // Source entry (null if not found)
+    repeated LiteEntry targets = 3;               // Target entries (sorted by has_attr)
+    string error = 4;                             // Per-term error message
+}
+
+message LiteEntry {
+    string d = 1;                                 // Dataset name (short key)
+    string id = 2;                                // Identifier
+    bool has_attr = 3;                            // Has indexed attributes (!empty)
+}
+
+// Lite mode response for search queries
+message ResultLite {
+    string mode = 1;                              // "lite"
+    SearchQueryInfo query = 2;                    // Echo query back
+    repeated SearchResultLite results = 3;        // Compact results
+    SearchStats stats = 4;                        // Summary statistics
+    PaginationInfo pagination = 5;                // Structured pagination
+}
+
+message SearchResultLite {
+    string d = 1;                                 // Dataset name
+    string id = 2;                                // Identifier
+    bool has_attr = 3;                            // Has indexed attributes
+    uint32 xref_count = 4;                        // Number of cross-references
+}
+
+// ============================================================================
+// SHARED METADATA MESSAGES
+// Used by both lite and full modes for query echo, stats, and pagination
+// ============================================================================
+
+message MapFilterQueryInfo {
+    repeated string terms = 1;                    // Input identifiers
+    string chain = 2;                             // Mapping chain (e.g., ">>ensembl>>uniprot")
+    string raw = 3;                               // Original raw query string
+}
+
+message SearchQueryInfo {
+    repeated string terms = 1;                    // Search terms
+    string dataset_filter = 2;                    // Dataset filter if provided
+    string raw = 3;                               // Original query
+}
+
+message MapFilterStats {
+    int32 total_terms = 1;                        // Number of input terms
+    int32 mapped = 2;                             // Successfully mapped
+    int32 failed = 3;                             // Failed to map
+    int32 total_targets = 4;                      // Total target count
+    repeated string not_found = 5;                // List of input terms that weren't found
+}
+
+message SearchStats {
+    int32 total_results = 1;                      // Total results found
+    int32 returned = 2;                           // Results in this response
+    map<string, int32> by_dataset = 3;            // Count per dataset
+}
+
+message PaginationInfo {
+    int32 page = 1;                               // Current page (1-indexed)
+    bool has_next = 2;                            // More pages available
+    string next_token = 3;                        // Opaque token for next page
+}

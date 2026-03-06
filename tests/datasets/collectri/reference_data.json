@@ -1,0 +1,1921 @@
+[
+  {
+    "id": "MYC:TERT",
+    "tf_gene": "MYC",
+    "target_gene": "TERT",
+    "sources": [
+      "ExTRI",
+      "HTRI",
+      "TRRUST",
+      "TFactS",
+      "GOA",
+      "NTNU Curated",
+      "Pavlidis2021",
+      "DoRothEA_A"
+    ],
+    "pmids": [
+      "10491298",
+      "14519204",
+      "15655249",
+      "21995449",
+      "15958520",
+      "10022128",
+      "11606399",
+      "21807113",
+      "19806010",
+      "23860446"
+    ],
+    "regulation": "Activation",
+    "confidence": "High"
+  },
+  {
+    "id": "AP1:CAT",
+    "tf_gene": "AP1",
+    "target_gene": "CAT",
+    "sources": [
+      "ExTRI"
+    ],
+    "pmids": [
+      "12036993",
+      "7651432",
+      "7489329",
+      "9168892",
+      "9142914",
+      "9687385",
+      "17935786",
+      "10022519",
+      "7818486",
+      "8867782"
+    ],
+    "regulation": "Unknown",
+    "confidence": "High"
+  },
+  {
+    "id": "SPI1:BGLAP",
+    "tf_gene": "SPI1",
+    "target_gene": "BGLAP",
+    "sources": [
+      "ExTRI"
+    ],
+    "pmids": [
+      "10022617"
+    ],
+    "regulation": "Unknown",
+    "confidence": "Low"
+  },
+  {
+    "id": "AP1:ADAM2",
+    "tf_gene": "AP1",
+    "target_gene": "ADAM2",
+    "sources": [
+      "ExTRI"
+    ],
+    "pmids": [
+      "10644332",
+      "11741970",
+      "8940178",
+      "18600430",
+      "18045590",
+      "10022869",
+      "20665665"
+    ],
+    "regulation": "Unknown",
+    "confidence": "High"
+  },
+  {
+    "id": "AP1:JUN",
+    "tf_gene": "AP1",
+    "target_gene": "JUN",
+    "sources": [
+      "ExTRI",
+      "TRRUST",
+      "NTNU Curated"
+    ],
+    "pmids": [
+      "11736649",
+      "2548844",
+      "8947050",
+      "7775415",
+      "8892460",
+      "10366004",
+      "12400010",
+      "8453101",
+      "12903123",
+      "22658828"
+    ],
+    "regulation": "Activation",
+    "confidence": "High"
+  },
+  {
+    "id": "SMAD3:ADAM2",
+    "tf_gene": "SMAD3",
+    "target_gene": "ADAM2",
+    "sources": [
+      "ExTRI"
+    ],
+    "pmids": [
+      "14630914",
+      "12702545",
+      "15761025",
+      "11590167",
+      "10753944",
+      "10220381",
+      "15150273",
+      "9792626",
+      "10022869",
+      "10887185"
+    ],
+    "regulation": "Unknown",
+    "confidence": "High"
+  },
+  {
+    "id": "SMAD3:JUN",
+    "tf_gene": "SMAD3",
+    "target_gene": "JUN",
+    "sources": [
+      "ExTRI",
+      "TRRUST",
+      "TFactS",
+      "NTNU Curated",
+      "DoRothEA_A"
+    ],
+    "pmids": [
+      "10022869",
+      "12374795"
+    ],
+    "regulation": "Activation",
+    "confidence": "High"
+  },
+  {
+    "id": "SMAD4:ADAM2",
+    "tf_gene": "SMAD4",
+    "target_gene": "ADAM2",
+    "sources": [
+      "ExTRI"
+    ],
+    "pmids": [
+      "14630914",
+      "10753944",
+      "14750902",
+      "9792626",
+      "10022869",
+      "10887185"
+    ],
+    "regulation": "Unknown",
+    "confidence": "High"
+  },
+  {
+    "id": "SMAD4:JUN",
+    "tf_gene": "SMAD4",
+    "target_gene": "JUN",
+    "sources": [
+      "ExTRI",
+      "TRRUST",
+      "TFactS",
+      "NTNU Curated",
+      "DoRothEA_A"
+    ],
+    "pmids": [
+      "10022869",
+      "12374795"
+    ],
+    "regulation": "Activation",
+    "confidence": "High"
+  },
+  {
+    "id": "STAT5A:IL2",
+    "tf_gene": "STAT5A",
+    "target_gene": "IL2",
+    "sources": [
+      "ExTRI"
+    ],
+    "pmids": [
+      "7479881",
+      "8943338",
+      "17182565",
+      "11435608",
+      "22854263",
+      "8683106",
+      "17911616",
+      "24550509",
+      "24587342",
+      "10022878"
+    ],
+    "regulation": "Unknown",
+    "confidence": "High"
+  },
+  {
+    "id": "STAT5B:IL2",
+    "tf_gene": "STAT5B",
+    "target_gene": "IL2",
+    "sources": [
+      "ExTRI"
+    ],
+    "pmids": [
+      "10022878"
+    ],
+    "regulation": "Unknown",
+    "confidence": "Low"
+  },
+  {
+    "id": "RELA:FAS",
+    "tf_gene": "RELA",
+    "target_gene": "FAS",
+    "sources": [
+      "ExTRI",
+      "TRRUST",
+      "NTNU Curated"
+    ],
+    "pmids": [
+      "16784892",
+      "23604035",
+      "11290773",
+      "10022897",
+      "19628709",
+      "9733827",
+      "22669972",
+      "16317104",
+      "11473033",
+      "10871852"
+    ],
+    "regulation": "Activation",
+    "confidence": "High"
+  },
+  {
+    "id": "WT1:NR0B1",
+    "tf_gene": "WT1",
+    "target_gene": "NR0B1",
+    "sources": [
+      "ExTRI",
+      "GEREDB"
+    ],
+    "pmids": [
+      "10022915",
+      "12151099"
+    ],
+    "regulation": "Activation",
+    "confidence": "High"
+  },
+  {
+    "id": "NR0B2:CASP1",
+    "tf_gene": "NR0B2",
+    "target_gene": "CASP1",
+    "sources": [
+      "ExTRI"
+    ],
+    "pmids": [
+      "10022928"
+    ],
+    "regulation": "Unknown",
+    "confidence": "Low"
+  },
+  {
+    "id": "SP1:ALDOA",
+    "tf_gene": "SP1",
+    "target_gene": "ALDOA",
+    "sources": [
+      "ExTRI",
+      "TFactS",
+      "DoRothEA_A"
+    ],
+    "pmids": [
+      "8524331",
+      "10023068"
+    ],
+    "regulation": "Activation",
+    "confidence": "Low"
+  },
+  {
+    "id": "TP53:IGF1R",
+    "tf_gene": "TP53",
+    "target_gene": "IGF1R",
+    "sources": [
+      "ExTRI",
+      "TRRUST",
+      "GEREDB",
+      "NTNU Curated",
+      "DoRothEA_A"
+    ],
+    "pmids": [
+      "17600529",
+      "20633551",
+      "12089352",
+      "15131018",
+      "22033326",
+      "24205274",
+      "11001824",
+      "10023442",
+      "17097318",
+      "8710868"
+    ],
+    "regulation": "Repression",
+    "confidence": "High"
+  },
+  {
+    "id": "ZBTB16:CCNA2",
+    "tf_gene": "ZBTB16",
+    "target_gene": "CCNA2",
+    "sources": [
+      "ExTRI",
+      "TRRUST",
+      "TFactS",
+      "DoRothEA_A"
+    ],
+    "pmids": [
+      "20731660",
+      "11920165",
+      "18504436",
+      "14527952",
+      "10023668"
+    ],
+    "regulation": "Repression",
+    "confidence": "High"
+  },
+  {
+    "id": "ETV6:IL3",
+    "tf_gene": "ETV6",
+    "target_gene": "IL3",
+    "sources": [
+      "ExTRI",
+      "NTNU Curated"
+    ],
+    "pmids": [
+      "10023677"
+    ],
+    "regulation": "Repression",
+    "confidence": "High"
+  },
+  {
+    "id": "RUNX1:IL3",
+    "tf_gene": "RUNX1",
+    "target_gene": "IL3",
+    "sources": [
+      "ExTRI",
+      "TRRUST",
+      "TFactS",
+      "CytReg",
+      "DoRothEA_A"
+    ],
+    "pmids": [
+      "15735013",
+      "8180380",
+      "10023677",
+      "11997340",
+      "20506188",
+      "9036972"
+    ],
+    "regulation": "Repression",
+    "confidence": "High"
+  },
+  {
+    "id": "RUNX1:RHD",
+    "tf_gene": "RUNX1",
+    "target_gene": "RHD",
+    "sources": [
+      "ExTRI"
+    ],
+    "pmids": [
+      "10023677"
+    ],
+    "regulation": "Unknown",
+    "confidence": "Low"
+  },
+  {
+    "id": "STAT1:CDKN1A",
+    "tf_gene": "STAT1",
+    "target_gene": "CDKN1A",
+    "sources": [
+      "ExTRI",
+      "TRRUST",
+      "TFactS",
+      "DoRothEA_A"
+    ],
+    "pmids": [
+      "22591439",
+      "10023678",
+      "10866323",
+      "20738848",
+      "21307941",
+      "11162600",
+      "12239594",
+      "16449678"
+    ],
+    "regulation": "Activation",
+    "confidence": "High"
+  },
+  {
+    "id": "STAT3:CDKN1A",
+    "tf_gene": "STAT3",
+    "target_gene": "CDKN1A",
+    "sources": [
+      "ExTRI",
+      "TRRUST",
+      "NTNU Curated",
+      "DoRothEA_A"
+    ],
+    "pmids": [
+      "10023678",
+      "9694869",
+      "11773079",
+      "21184768",
+      "18320073",
+      "16923815",
+      "22328012",
+      "12438313",
+      "19329556",
+      "15286705"
+    ],
+    "regulation": "Activation",
+    "confidence": "High"
+  },
+  {
+    "id": "MYC:DLST",
+    "tf_gene": "MYC",
+    "target_gene": "DLST",
+    "sources": [
+      "ExTRI"
+    ],
+    "pmids": [
+      "19710912",
+      "10023683"
+    ],
+    "regulation": "Unknown",
+    "confidence": "Low"
+  },
+  {
+    "id": "TP53:POLI",
+    "tf_gene": "TP53",
+    "target_gene": "POLI",
+    "sources": [
+      "ExTRI"
+    ],
+    "pmids": [
+      "10913176",
+      "10023689"
+    ],
+    "regulation": "Unknown",
+    "confidence": "High"
+  },
+  {
+    "id": "ETV4:GGT1",
+    "tf_gene": "ETV4",
+    "target_gene": "GGT1",
+    "sources": [
+      "ExTRI",
+      "NTNU Curated"
+    ],
+    "pmids": [
+      "9209098",
+      "10026114"
+    ],
+    "regulation": "Unknown",
+    "confidence": "High"
+  },
+  {
+    "id": "MTF1:MCAT",
+    "tf_gene": "MTF1",
+    "target_gene": "MCAT",
+    "sources": [
+      "ExTRI",
+      "TRRUST",
+      "SIGNOR"
+    ],
+    "pmids": [
+      "17363595",
+      "11551972",
+      "21870250",
+      "12716893",
+      "16423564",
+      "23374901",
+      "18023887",
+      "18230604",
+      "10026134",
+      "20979157"
+    ],
+    "regulation": "Activation",
+    "confidence": "High"
+  },
+  {
+    "id": "CREB1:HMGCS2",
+    "tf_gene": "CREB1",
+    "target_gene": "HMGCS2",
+    "sources": [
+      "ExTRI",
+      "NTNU Curated"
+    ],
+    "pmids": [
+      "10026135"
+    ],
+    "regulation": "Activation",
+    "confidence": "High"
+  },
+  {
+    "id": "FOXA2:GCG",
+    "tf_gene": "FOXA2",
+    "target_gene": "GCG",
+    "sources": [
+      "ExTRI",
+      "TRRUST",
+      "TFactS",
+      "NTNU Curated"
+    ],
+    "pmids": [
+      "10026208",
+      "11773447",
+      "21824254",
+      "15828872",
+      "11875061",
+      "8164696",
+      "9121428",
+      "7776982"
+    ],
+    "regulation": "Unknown",
+    "confidence": "High"
+  },
+  {
+    "id": "NFATC2:GCG",
+    "tf_gene": "NFATC2",
+    "target_gene": "GCG",
+    "sources": [
+      "ExTRI"
+    ],
+    "pmids": [
+      "10026208"
+    ],
+    "regulation": "Unknown",
+    "confidence": "High"
+  },
+  {
+    "id": "CEBPB:PCK1",
+    "tf_gene": "CEBPB",
+    "target_gene": "PCK1",
+    "sources": [
+      "ExTRI",
+      "NTNU Curated"
+    ],
+    "pmids": [
+      "9867832",
+      "15793235",
+      "10026211",
+      "20930553",
+      "10224054",
+      "12070172",
+      "8928898",
+      "11453665",
+      "8093246",
+      "10854692"
+    ],
+    "regulation": "Unknown",
+    "confidence": "High"
+  },
+  {
+    "id": "FOS:ABCB1",
+    "tf_gene": "FOS",
+    "target_gene": "ABCB1",
+    "sources": [
+      "ExTRI"
+    ],
+    "pmids": [
+      "10026303"
+    ],
+    "regulation": "Unknown",
+    "confidence": "Low"
+  },
+  {
+    "id": "RELA:ABCB1",
+    "tf_gene": "RELA",
+    "target_gene": "ABCB1",
+    "sources": [
+      "ExTRI",
+      "TRRUST",
+      "TFactS",
+      "DoRothEA_A"
+    ],
+    "pmids": [
+      "19763573",
+      "18234965",
+      "21054339",
+      "22927901",
+      "12527911",
+      "10026303"
+    ],
+    "regulation": "Activation",
+    "confidence": "High"
+  },
+  {
+    "id": "TCF3:TERT",
+    "tf_gene": "TCF3",
+    "target_gene": "TERT",
+    "sources": [
+      "ExTRI"
+    ],
+    "pmids": [
+      "10029071"
+    ],
+    "regulation": "Unknown",
+    "confidence": "High"
+  },
+  {
+    "id": "PLAG1:PLAG1",
+    "tf_gene": "PLAG1",
+    "target_gene": "PLAG1",
+    "sources": [
+      "ExTRI"
+    ],
+    "pmids": [
+      "10029085",
+      "11284386"
+    ],
+    "regulation": "Unknown",
+    "confidence": "Low"
+  },
+  {
+    "id": "TP53:CDKN1A",
+    "tf_gene": "TP53",
+    "target_gene": "CDKN1A",
+    "sources": [
+      "ExTRI",
+      "HTRI",
+      "TRRUST",
+      "TFactS",
+      "GOA",
+      "SIGNOR",
+      "NTNU Curated",
+      "DoRothEA_A"
+    ],
+    "pmids": [
+      "11444825",
+      "16103882",
+      "14580351",
+      "11557753",
+      "8878553",
+      "15851483",
+      "11668476",
+      "21557991",
+      "18645021",
+      "21900401"
+    ],
+    "regulation": "Activation",
+    "confidence": "High"
+  },
+  {
+    "id": "TP53:RB1",
+    "tf_gene": "TP53",
+    "target_gene": "RB1",
+    "sources": [
+      "ExTRI",
+      "HTRI",
+      "TRRUST",
+      "TFactS",
+      "GEREDB",
+      "NTNU Curated",
+      "DoRothEA_A"
+    ],
+    "pmids": [
+      "16931621",
+      "11121443",
+      "9774636",
+      "21496227",
+      "22729911",
+      "8845569",
+      "23474762",
+      "8119988",
+      "8720930",
+      "12749855"
+    ],
+    "regulation": "Repression",
+    "confidence": "High"
+  },
+  {
+    "id": "E2F1:CDKN1A",
+    "tf_gene": "E2F1",
+    "target_gene": "CDKN1A",
+    "sources": [
+      "ExTRI",
+      "TRRUST",
+      "TFactS",
+      "GEREDB",
+      "NTNU Curated",
+      "DoRothEA_A"
+    ],
+    "pmids": [
+      "9191053",
+      "17167174",
+      "16923815",
+      "10030670",
+      "10702805",
+      "9748148",
+      "15048076",
+      "17008321"
+    ],
+    "regulation": "Activation",
+    "confidence": "High"
+  },
+  {
+    "id": "E2F3:CDKN1A",
+    "tf_gene": "E2F3",
+    "target_gene": "CDKN1A",
+    "sources": [
+      "ExTRI",
+      "TRRUST",
+      "TFactS",
+      "GEREDB",
+      "NTNU Curated",
+      "DoRothEA_A"
+    ],
+    "pmids": [
+      "17167174",
+      "15855772",
+      "22894933",
+      "10030670",
+      "17008321"
+    ],
+    "regulation": "Activation",
+    "confidence": "High"
+  },
+  {
+    "id": "HBP1:CDKN1A",
+    "tf_gene": "HBP1",
+    "target_gene": "CDKN1A",
+    "sources": [
+      "ExTRI",
+      "TRRUST",
+      "TFactS"
+    ],
+    "pmids": [
+      "11748232",
+      "10030670"
+    ],
+    "regulation": "Repression",
+    "confidence": "High"
+  },
+  {
+    "id": "YY1:NR3C1",
+    "tf_gene": "YY1",
+    "target_gene": "NR3C1",
+    "sources": [
+      "ExTRI",
+      "TRRUST",
+      "TFactS",
+      "NTNU Curated",
+      "Pavlidis2021",
+      "DoRothEA_A"
+    ],
+    "pmids": [
+      "10030686",
+      "12039077"
+    ],
+    "regulation": "Activation",
+    "confidence": "High"
+  },
+  {
+    "id": "AP1:ESR1",
+    "tf_gene": "AP1",
+    "target_gene": "ESR1",
+    "sources": [
+      "ExTRI"
+    ],
+    "pmids": [
+      "1822395",
+      "17369819",
+      "9520467",
+      "9658402",
+      "16679312",
+      "11566442",
+      "10037172",
+      "15514030",
+      "12682913",
+      "19920132"
+    ],
+    "regulation": "Unknown",
+    "confidence": "High"
+  },
+  {
+    "id": "AP1:TRIB3",
+    "tf_gene": "AP1",
+    "target_gene": "TRIB3",
+    "sources": [
+      "ExTRI"
+    ],
+    "pmids": [
+      "23929433",
+      "9360994",
+      "11112784",
+      "9115394",
+      "9603908",
+      "11500387",
+      "19962414",
+      "9136992",
+      "10037172",
+      "8149484"
+    ],
+    "regulation": "Unknown",
+    "confidence": "High"
+  },
+  {
+    "id": "ESR1:MAPK8",
+    "tf_gene": "ESR1",
+    "target_gene": "MAPK8",
+    "sources": [
+      "ExTRI"
+    ],
+    "pmids": [
+      "18794136",
+      "10037172"
+    ],
+    "regulation": "Unknown",
+    "confidence": "Low"
+  },
+  {
+    "id": "JUN:AP1",
+    "tf_gene": "JUN",
+    "target_gene": "AP1",
+    "sources": [
+      "ExTRI",
+      "TRRUST",
+      "TFactS",
+      "SIGNOR",
+      "GEREDB",
+      "NTNU Curated",
+      "DoRothEA_A"
+    ],
+    "pmids": [
+      "12392213",
+      "8837013",
+      "2548844",
+      "10521486",
+      "8453101",
+      "9178763",
+      "9502786",
+      "17933457",
+      "10421838",
+      "2169353"
+    ],
+    "regulation": "Activation",
+    "confidence": "High"
+  },
+  {
+    "id": "JUN:MAPK8",
+    "tf_gene": "JUN",
+    "target_gene": "MAPK8",
+    "sources": [
+      "ExTRI",
+      "TRRUST"
+    ],
+    "pmids": [
+      "20353950",
+      "19010898",
+      "8610116",
+      "12183409",
+      "12637567",
+      "23608488",
+      "9746785",
+      "9867853",
+      "22344299",
+      "9743233"
+    ],
+    "regulation": "Activation",
+    "confidence": "High"
+  },
+  {
+    "id": "NR1I3:CYP2B6",
+    "tf_gene": "NR1I3",
+    "target_gene": "CYP2B6",
+    "sources": [
+      "ExTRI",
+      "TRRUST",
+      "SIGNOR",
+      "GEREDB",
+      "NTNU Curated"
+    ],
+    "pmids": [
+      "21965327",
+      "9742082",
+      "14570762",
+      "19928584",
+      "18332083",
+      "16623664",
+      "18677425",
+      "11075820",
+      "18303024",
+      "19467232"
+    ],
+    "regulation": "Activation",
+    "confidence": "High"
+  },
+  {
+    "id": "GATA1:SPTA1",
+    "tf_gene": "GATA1",
+    "target_gene": "SPTA1",
+    "sources": [
+      "ExTRI",
+      "SIGNOR"
+    ],
+    "pmids": [
+      "18250154",
+      "12196550",
+      "16648487",
+      "7858429",
+      "20216212",
+      "17964543",
+      "2266112",
+      "16339652",
+      "8634425",
+      "15920470"
+    ],
+    "regulation": "Activation",
+    "confidence": "High"
+  },
+  {
+    "id": "CEBPG:IVL",
+    "tf_gene": "CEBPG",
+    "target_gene": "IVL",
+    "sources": [
+      "ExTRI",
+      "NTNU Curated"
+    ],
+    "pmids": [
+      "10037704"
+    ],
+    "regulation": "Activation",
+    "confidence": "Low"
+  },
+  {
+    "id": "MAFK:HBB",
+    "tf_gene": "MAFK",
+    "target_gene": "HBB",
+    "sources": [
+      "ExTRI"
+    ],
+    "pmids": [
+      "9478996",
+      "18308612",
+      "14747657",
+      "10037736"
+    ],
+    "regulation": "Unknown",
+    "confidence": "High"
+  },
+  {
+    "id": "NFE2L3:HBB",
+    "tf_gene": "NFE2L3",
+    "target_gene": "HBB",
+    "sources": [
+      "ExTRI",
+      "NTNU Curated"
+    ],
+    "pmids": [
+      "10037736"
+    ],
+    "regulation": "Repression",
+    "confidence": "Low"
+  },
+  {
+    "id": "TP53:ACTA1",
+    "tf_gene": "TP53",
+    "target_gene": "ACTA1",
+    "sources": [
+      "ExTRI"
+    ],
+    "pmids": [
+      "10037739"
+    ],
+    "regulation": "Unknown",
+    "confidence": "High"
+  },
+  {
+    "id": "TP53:BCL2",
+    "tf_gene": "TP53",
+    "target_gene": "BCL2",
+    "sources": [
+      "ExTRI",
+      "TRRUST",
+      "TFactS",
+      "GOA",
+      "SIGNOR",
+      "NTNU Curated",
+      "DoRothEA_A"
+    ],
+    "pmids": [
+      "11713302",
+      "17693666",
+      "16294215",
+      "18682598",
+      "19411072",
+      "19555669",
+      "10329733",
+      "20428827",
+      "20501806",
+      "21666495"
+    ],
+    "regulation": "Repression",
+    "confidence": "High"
+  },
+  {
+    "id": "PHOX2A:DBH",
+    "tf_gene": "PHOX2A",
+    "target_gene": "DBH",
+    "sources": [
+      "ExTRI",
+      "TRRUST",
+      "TFactS",
+      "GOA",
+      "NTNU Curated"
+    ],
+    "pmids": [
+      "12609984",
+      "16280598",
+      "21241805",
+      "10037744",
+      "9341190",
+      "11034547",
+      "14512028",
+      "9798905",
+      "9763470",
+      "10644760"
+    ],
+    "regulation": "Activation",
+    "confidence": "High"
+  },
+  {
+    "id": "STAT4:IL12B",
+    "tf_gene": "STAT4",
+    "target_gene": "IL12B",
+    "sources": [
+      "ExTRI"
+    ],
+    "pmids": [
+      "12893768",
+      "10037767"
+    ],
+    "regulation": "Unknown",
+    "confidence": "Low"
+  },
+  {
+    "id": "STAT4:IFNA1",
+    "tf_gene": "STAT4",
+    "target_gene": "IFNA1",
+    "sources": [
+      "ExTRI"
+    ],
+    "pmids": [
+      "10037767"
+    ],
+    "regulation": "Unknown",
+    "confidence": "High"
+  },
+  {
+    "id": "STAT4:IRF1",
+    "tf_gene": "STAT4",
+    "target_gene": "IRF1",
+    "sources": [
+      "ExTRI",
+      "TRRUST",
+      "DoRothEA_A"
+    ],
+    "pmids": [
+      "10358173",
+      "10068671",
+      "10037767"
+    ],
+    "regulation": "Unknown",
+    "confidence": "High"
+  },
+  {
+    "id": "IRF1:IRF1",
+    "tf_gene": "IRF1",
+    "target_gene": "IRF1",
+    "sources": [
+      "ExTRI"
+    ],
+    "pmids": [
+      "14656743",
+      "18079498",
+      "15467738",
+      "17016442",
+      "10358173",
+      "1431317",
+      "8015552",
+      "18694960",
+      "9307237",
+      "21219575"
+    ],
+    "regulation": "Unknown",
+    "confidence": "Low"
+  },
+  {
+    "id": "AP1:IL6",
+    "tf_gene": "AP1",
+    "target_gene": "IL6",
+    "sources": [
+      "ExTRI",
+      "TRRUST",
+      "TFactS",
+      "CytReg",
+      "GEREDB",
+      "NTNU Curated",
+      "DoRothEA_A"
+    ],
+    "pmids": [
+      "10405202",
+      "20351184",
+      "19687301",
+      "12853840",
+      "15158360",
+      "17332680",
+      "15389813",
+      "9661072",
+      "11886848",
+      "15649404"
+    ],
+    "regulation": "Activation",
+    "confidence": "High"
+  },
+  {
+    "id": "ATF2:IL6",
+    "tf_gene": "ATF2",
+    "target_gene": "IL6",
+    "sources": [
+      "ExTRI",
+      "SIGNOR",
+      "CytReg"
+    ],
+    "pmids": [
+      "10037779",
+      "20086235"
+    ],
+    "regulation": "Activation",
+    "confidence": "High"
+  },
+  {
+    "id": "WT1:ODC1",
+    "tf_gene": "WT1",
+    "target_gene": "ODC1",
+    "sources": [
+      "ExTRI",
+      "TRRUST",
+      "TFactS",
+      "DoRothEA_A"
+    ],
+    "pmids": [
+      "8604351",
+      "10047468"
+    ],
+    "regulation": "Activation",
+    "confidence": "High"
+  },
+  {
+    "id": "NR2C2:CCND1",
+    "tf_gene": "NR2C2",
+    "target_gene": "CCND1",
+    "sources": [
+      "ExTRI",
+      "NTNU Curated"
+    ],
+    "pmids": [
+      "10048449"
+    ],
+    "regulation": "Activation",
+    "confidence": "High"
+  },
+  {
+    "id": "IRF3:IFNA1",
+    "tf_gene": "IRF3",
+    "target_gene": "IFNA1",
+    "sources": [
+      "ExTRI",
+      "TRRUST",
+      "CytReg",
+      "DoRothEA_A"
+    ],
+    "pmids": [
+      "10048763",
+      "22593165",
+      "17785777",
+      "11162841",
+      "23028052",
+      "24278020",
+      "24535579",
+      "10933732",
+      "11473119",
+      "19349300"
+    ],
+    "regulation": "Activation",
+    "confidence": "High"
+  },
+  {
+    "id": "NFKB:BCL2",
+    "tf_gene": "NFKB",
+    "target_gene": "BCL2",
+    "sources": [
+      "ExTRI",
+      "TRRUST",
+      "TFactS",
+      "IntAct",
+      "GEREDB",
+      "NTNU Curated",
+      "DoRothEA_A"
+    ],
+    "pmids": [
+      "18279996",
+      "24566868",
+      "12835724",
+      "22318685",
+      "18158998",
+      "19259124",
+      "16022909",
+      "15962308",
+      "15131058",
+      "10049353"
+    ],
+    "regulation": "Activation",
+    "confidence": "High"
+  },
+  {
+    "id": "NFKB:BCL2A1",
+    "tf_gene": "NFKB",
+    "target_gene": "BCL2A1",
+    "sources": [
+      "ExTRI",
+      "HTRI",
+      "TRRUST",
+      "TFactS",
+      "SIGNOR",
+      "DoRothEA_A"
+    ],
+    "pmids": [
+      "10430908",
+      "12665576",
+      "14747545",
+      "11880364",
+      "10049356",
+      "19343319",
+      "10049353",
+      "17000776",
+      "15592513",
+      "10733571"
+    ],
+    "regulation": "Activation",
+    "confidence": "High"
+  },
+  {
+    "id": "NFKB:SLC31A1",
+    "tf_gene": "NFKB",
+    "target_gene": "SLC31A1",
+    "sources": [
+      "ExTRI"
+    ],
+    "pmids": [
+      "10049353"
+    ],
+    "regulation": "Unknown",
+    "confidence": "Low"
+  },
+  {
+    "id": "NFKB:TCF3",
+    "tf_gene": "NFKB",
+    "target_gene": "TCF3",
+    "sources": [
+      "ExTRI"
+    ],
+    "pmids": [
+      "10229863",
+      "10049353",
+      "19576240"
+    ],
+    "regulation": "Unknown",
+    "confidence": "Low"
+  },
+  {
+    "id": "NFKB:TNF",
+    "tf_gene": "NFKB",
+    "target_gene": "TNF",
+    "sources": [
+      "ExTRI",
+      "TRRUST",
+      "TFactS",
+      "IntAct",
+      "CytReg",
+      "GEREDB",
+      "NTNU Curated",
+      "DoRothEA_A"
+    ],
+    "pmids": [
+      "11094063",
+      "26516703",
+      "22723832",
+      "15928193",
+      "9281604",
+      "16004996",
+      "10837498",
+      "7907090",
+      "12193734",
+      "23857586"
+    ],
+    "regulation": "Activation",
+    "confidence": "High"
+  },
+  {
+    "id": "NFKB:CCL13",
+    "tf_gene": "NFKB",
+    "target_gene": "CCL13",
+    "sources": [
+      "ExTRI",
+      "TRRUST"
+    ],
+    "pmids": [
+      "10049733"
+    ],
+    "regulation": "Unknown",
+    "confidence": "Low"
+  },
+  {
+    "id": "TFAP2A:CCL13",
+    "tf_gene": "TFAP2A",
+    "target_gene": "CCL13",
+    "sources": [
+      "ExTRI"
+    ],
+    "pmids": [
+      "10049733"
+    ],
+    "regulation": "Unknown",
+    "confidence": "Low"
+  },
+  {
+    "id": "FOS:FOS",
+    "tf_gene": "FOS",
+    "target_gene": "FOS",
+    "sources": [
+      "ExTRI",
+      "TRRUST"
+    ],
+    "pmids": [
+      "1922053",
+      "2511006",
+      "8031467",
+      "1944274",
+      "8846788",
+      "9019156",
+      "2498646",
+      "21920361",
+      "10319324",
+      "15123357"
+    ],
+    "regulation": "Repression",
+    "confidence": "Low"
+  },
+  {
+    "id": "HNF1A:IGF1",
+    "tf_gene": "HNF1A",
+    "target_gene": "IGF1",
+    "sources": [
+      "ExTRI",
+      "TFactS",
+      "SIGNOR",
+      "NTNU Curated",
+      "DoRothEA_A"
+    ],
+    "pmids": [
+      "10050749",
+      "17210751",
+      "15933209",
+      "7836361",
+      "8584026",
+      "12031966",
+      "8943227",
+      "11544200"
+    ],
+    "regulation": "Activation",
+    "confidence": "High"
+  },
+  {
+    "id": "STAT5A:IGF1",
+    "tf_gene": "STAT5A",
+    "target_gene": "IGF1",
+    "sources": [
+      "ExTRI",
+      "HTRI",
+      "TFactS",
+      "SIGNOR",
+      "DoRothEA_A"
+    ],
+    "pmids": [
+      "10050749",
+      "14532269",
+      "18276757",
+      "21651786",
+      "20378540",
+      "17509524",
+      "23071812",
+      "20372799",
+      "15677453",
+      "19920132"
+    ],
+    "regulation": "Activation",
+    "confidence": "High"
+  },
+  {
+    "id": "TFAP2A:GNAS",
+    "tf_gene": "TFAP2A",
+    "target_gene": "GNAS",
+    "sources": [
+      "ExTRI"
+    ],
+    "pmids": [
+      "10051455",
+      "9771969"
+    ],
+    "regulation": "Unknown",
+    "confidence": "High"
+  },
+  {
+    "id": "AP1:TIMP1",
+    "tf_gene": "AP1",
+    "target_gene": "TIMP1",
+    "sources": [
+      "ExTRI",
+      "TRRUST",
+      "GEREDB",
+      "NTNU Curated"
+    ],
+    "pmids": [
+      "10051488",
+      "15860571",
+      "24036113",
+      "12525489",
+      "17133482",
+      "15987715",
+      "10388555",
+      "8601460",
+      "8557686",
+      "1420363"
+    ],
+    "regulation": "Repression",
+    "confidence": "High"
+  },
+  {
+    "id": "ETS1:TIMP1",
+    "tf_gene": "ETS1",
+    "target_gene": "TIMP1",
+    "sources": [
+      "ExTRI",
+      "TFactS",
+      "NTNU Curated",
+      "DoRothEA_A"
+    ],
+    "pmids": [
+      "10051488",
+      "8557686"
+    ],
+    "regulation": "Repression",
+    "confidence": "High"
+  },
+  {
+    "id": "ETV4:TIMP1",
+    "tf_gene": "ETV4",
+    "target_gene": "TIMP1",
+    "sources": [
+      "ExTRI",
+      "NTNU Curated"
+    ],
+    "pmids": [
+      "10051488",
+      "1420363",
+      "10692475"
+    ],
+    "regulation": "Unknown",
+    "confidence": "High"
+  },
+  {
+    "id": "TCF3:NOS2",
+    "tf_gene": "TCF3",
+    "target_gene": "NOS2",
+    "sources": [
+      "ExTRI"
+    ],
+    "pmids": [
+      "10051498",
+      "7518621",
+      "10868937"
+    ],
+    "regulation": "Unknown",
+    "confidence": "High"
+  },
+  {
+    "id": "CEBPB:ADRA1D",
+    "tf_gene": "CEBPB",
+    "target_gene": "ADRA1D",
+    "sources": [
+      "ExTRI"
+    ],
+    "pmids": [
+      "16431954",
+      "10051504",
+      "11058951",
+      "10796884",
+      "11481261",
+      "10871045"
+    ],
+    "regulation": "Unknown",
+    "confidence": "High"
+  },
+  {
+    "id": "ARNT:CYP1B1",
+    "tf_gene": "ARNT",
+    "target_gene": "CYP1B1",
+    "sources": [
+      "ExTRI",
+      "HTRI",
+      "TRRUST",
+      "SIGNOR",
+      "GEREDB",
+      "DoRothEA_A"
+    ],
+    "pmids": [
+      "19255421",
+      "19376845",
+      "12376470",
+      "24299737",
+      "19287966",
+      "21742528",
+      "10051545",
+      "16115918",
+      "12801909"
+    ],
+    "regulation": "Activation",
+    "confidence": "High"
+  },
+  {
+    "id": "ARNT:CYP21A1P",
+    "tf_gene": "ARNT",
+    "target_gene": "CYP21A1P",
+    "sources": [
+      "ExTRI"
+    ],
+    "pmids": [
+      "17466327",
+      "10051545"
+    ],
+    "regulation": "Unknown",
+    "confidence": "Low"
+  },
+  {
+    "id": "AHR:CYP1B1",
+    "tf_gene": "AHR",
+    "target_gene": "CYP1B1",
+    "sources": [
+      "ExTRI",
+      "HTRI",
+      "TRRUST",
+      "SIGNOR",
+      "GEREDB",
+      "Pavlidis2021",
+      "DoRothEA_A"
+    ],
+    "pmids": [
+      "17785579",
+      "24299737",
+      "19287966",
+      "14728982",
+      "10051545",
+      "19126602",
+      "19805408",
+      "12213569",
+      "19789301",
+      "21742528"
+    ],
+    "regulation": "Activation",
+    "confidence": "High"
+  },
+  {
+    "id": "TP53:CCNB1",
+    "tf_gene": "TP53",
+    "target_gene": "CCNB1",
+    "sources": [
+      "ExTRI",
+      "TRRUST",
+      "GEREDB",
+      "DoRothEA_A"
+    ],
+    "pmids": [
+      "14627709",
+      "12874009",
+      "11522645",
+      "11892838",
+      "17942917",
+      "12379461",
+      "20395210",
+      "11313928",
+      "15710382",
+      "11162602"
+    ],
+    "regulation": "Repression",
+    "confidence": "High"
+  },
+  {
+    "id": "PAX6:L1CAM",
+    "tf_gene": "PAX6",
+    "target_gene": "L1CAM",
+    "sources": [
+      "ExTRI"
+    ],
+    "pmids": [
+      "10051657",
+      "7917011"
+    ],
+    "regulation": "Unknown",
+    "confidence": "High"
+  },
+  {
+    "id": "CARF:CREBBP",
+    "tf_gene": "CARF",
+    "target_gene": "CREBBP",
+    "sources": [
+      "ExTRI"
+    ],
+    "pmids": [
+      "10064599"
+    ],
+    "regulation": "Unknown",
+    "confidence": "Low"
+  },
+  {
+    "id": "STAT5A:CCND1",
+    "tf_gene": "STAT5A",
+    "target_gene": "CCND1",
+    "sources": [
+      "ExTRI",
+      "TRRUST",
+      "TFactS",
+      "NTNU Curated",
+      "DoRothEA_A"
+    ],
+    "pmids": [
+      "14645506",
+      "21719533",
+      "23504816",
+      "16155412",
+      "15885880",
+      "10064602",
+      "18927468",
+      "19426693",
+      "23223023",
+      "20372799"
+    ],
+    "regulation": "Activation",
+    "confidence": "High"
+  },
+  {
+    "id": "STAT5A:IL3",
+    "tf_gene": "STAT5A",
+    "target_gene": "IL3",
+    "sources": [
+      "ExTRI"
+    ],
+    "pmids": [
+      "24367002",
+      "10064602",
+      "15358227",
+      "14627821",
+      "12574125"
+    ],
+    "regulation": "Unknown",
+    "confidence": "High"
+  },
+  {
+    "id": "CEBPB:VLDLR",
+    "tf_gene": "CEBPB",
+    "target_gene": "VLDLR",
+    "sources": [
+      "ExTRI"
+    ],
+    "pmids": [
+      "10064725"
+    ],
+    "regulation": "Unknown",
+    "confidence": "Low"
+  },
+  {
+    "id": "NFYA:VLDLR",
+    "tf_gene": "NFYA",
+    "target_gene": "VLDLR",
+    "sources": [
+      "ExTRI"
+    ],
+    "pmids": [
+      "10064725"
+    ],
+    "regulation": "Unknown",
+    "confidence": "High"
+  },
+  {
+    "id": "CEBPG:VLDLR",
+    "tf_gene": "CEBPG",
+    "target_gene": "VLDLR",
+    "sources": [
+      "ExTRI"
+    ],
+    "pmids": [
+      "10064725"
+    ],
+    "regulation": "Unknown",
+    "confidence": "Low"
+  },
+  {
+    "id": "TP53:MDM2",
+    "tf_gene": "TP53",
+    "target_gene": "MDM2",
+    "sources": [
+      "ExTRI",
+      "HTRI",
+      "TRRUST",
+      "TFactS",
+      "SIGNOR",
+      "GEREDB",
+      "NTNU Curated",
+      "DoRothEA_A"
+    ],
+    "pmids": [
+      "23874713",
+      "19590512",
+      "21957016",
+      "18359851",
+      "18583933",
+      "10469568",
+      "15851483",
+      "10891494",
+      "17043642",
+      "7624148"
+    ],
+    "regulation": "Activation",
+    "confidence": "High"
+  },
+  {
+    "id": "TBP:CD74",
+    "tf_gene": "TBP",
+    "target_gene": "CD74",
+    "sources": [
+      "ExTRI"
+    ],
+    "pmids": [
+      "7518774",
+      "8670810",
+      "9837969",
+      "8743879",
+      "24048476",
+      "22424775",
+      "12417716",
+      "10066420",
+      "10669725",
+      "8247010"
+    ],
+    "regulation": "Unknown",
+    "confidence": "High"
+  },
+  {
+    "id": "TBP:ERVW-4",
+    "tf_gene": "TBP",
+    "target_gene": "ERVW-4",
+    "sources": [
+      "ExTRI"
+    ],
+    "pmids": [
+      "7518774",
+      "7521915",
+      "20226026",
+      "9837969",
+      "8743879",
+      "23454483",
+      "12417716",
+      "10066420",
+      "8058785",
+      "8247010"
+    ],
+    "regulation": "Unknown",
+    "confidence": "High"
+  },
+  {
+    "id": "ZNF148:CDKN1A",
+    "tf_gene": "ZNF148",
+    "target_gene": "CDKN1A",
+    "sources": [
+      "ExTRI",
+      "NTNU Curated"
+    ],
+    "pmids": [
+      "16952553",
+      "22214764",
+      "10066455",
+      "12840224",
+      "10899165"
+    ],
+    "regulation": "Unknown",
+    "confidence": "High"
+  },
+  {
+    "id": "NFIC:CREBBP",
+    "tf_gene": "NFIC",
+    "target_gene": "CREBBP",
+    "sources": [
+      "ExTRI"
+    ],
+    "pmids": [
+      "10066764"
+    ],
+    "regulation": "Unknown",
+    "confidence": "Low"
+  },
+  {
+    "id": "NFIC:SRC",
+    "tf_gene": "NFIC",
+    "target_gene": "SRC",
+    "sources": [
+      "ExTRI"
+    ],
+    "pmids": [
+      "10066764"
+    ],
+    "regulation": "Unknown",
+    "confidence": "Low"
+  },
+  {
+    "id": "NFIC:ADAM2",
+    "tf_gene": "NFIC",
+    "target_gene": "ADAM2",
+    "sources": [
+      "ExTRI"
+    ],
+    "pmids": [
+      "10066764"
+    ],
+    "regulation": "Unknown",
+    "confidence": "Low"
+  },
+  {
+    "id": "NFIC:GAL",
+    "tf_gene": "NFIC",
+    "target_gene": "GAL",
+    "sources": [
+      "ExTRI"
+    ],
+    "pmids": [
+      "10066764"
+    ],
+    "regulation": "Unknown",
+    "confidence": "Low"
+  },
+  {
+    "id": "NFIC:NFIC",
+    "tf_gene": "NFIC",
+    "target_gene": "NFIC",
+    "sources": [
+      "ExTRI"
+    ],
+    "pmids": [
+      "10066764",
+      "23407945",
+      "10762365"
+    ],
+    "regulation": "Unknown",
+    "confidence": "Low"
+  },
+  {
+    "id": "NR3C1:ADAM2",
+    "tf_gene": "NR3C1",
+    "target_gene": "ADAM2",
+    "sources": [
+      "ExTRI"
+    ],
+    "pmids": [
+      "18938207",
+      "10066764",
+      "22851703",
+      "8502237",
+      "20478996",
+      "21883217",
+      "19307749",
+      "11739747",
+      "17180578"
+    ],
+    "regulation": "Unknown",
+    "confidence": "High"
+  },
+  {
+    "id": "RBPJ:MYOD1",
+    "tf_gene": "RBPJ",
+    "target_gene": "MYOD1",
+    "sources": [
+      "ExTRI",
+      "TFactS",
+      "GEREDB"
+    ],
+    "pmids": [
+      "10066785",
+      "12050162",
+      "10079231"
+    ],
+    "regulation": "Repression",
+    "confidence": "Low"
+  }
+]

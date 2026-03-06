@@ -1,0 +1,741 @@
+{
+  "metadata": {
+    "total_ids": 100,
+    "fetched": 100,
+    "failed": 0
+  },
+  "entries": [
+    {
+      "id": "PATO:0000001",
+      "name": "quality",
+      "description": "A dependent entity that inheres in a bearer by virtue of how the bearer is related to other entities",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000004",
+      "name": "mobility",
+      "description": "A quality of inhering in a bearer by virtue of the bearer's disposition to move freely.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000008",
+      "name": "speed",
+      "description": "A physical quality inhering in a bearer by virtue of the bearer's scalar absolute value of the rate of change of the bearer's position.",
+      "type": "quality",
+      "synonyms": [
+        "velocity"
+      ]
+    },
+    {
+      "id": "PATO:0000011",
+      "name": "age",
+      "description": "A time quality inhering in a bearer by virtue of how long the bearer has existed.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000014",
+      "name": "color",
+      "description": "A composite chromatic quality composed of hue, saturation and intensity parts.",
+      "type": "quality",
+      "synonyms": [
+        "colour",
+        "relative color"
+      ]
+    },
+    {
+      "id": "PATO:0000015",
+      "name": "color hue",
+      "description": "A chromatic scalar-circular quality inhering in an object that manifests in an observer by virtue of the dominant wavelength of the visible light; may be subject to fiat divisions, typically into 7 or 8 spectra.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000016",
+      "name": "color brightness",
+      "description": "A scalar optical property that is the intensity, value or amount of perceived light.",
+      "type": "quality",
+      "synonyms": [
+        "color intensity",
+        "color lightness",
+        "color value"
+      ]
+    },
+    {
+      "id": "PATO:0000017",
+      "name": "color saturation",
+      "description": "A scalar chromatic property that is the degree of purity of perceived light.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000018",
+      "name": "fluorescence",
+      "description": "A luminous flux quality inhering in a bearer by virtue of the bearer's emitting longer wavelength light following the absorption of shorter wavelength radiation; fluorescence is common with aromatic compounds with several rings joined together.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000019",
+      "name": "color pattern",
+      "description": "A chromatic property that is the relative position of different hues or degrees of saturation.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000021",
+      "name": "compatibility",
+      "description": "A quality inhering in a bearer by virtue of the bearer's disposition to harmonious coexistence.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000025",
+      "name": "composition",
+      "description": "A single physical entity inhering in an bearer by virtue of the bearer's quantities or relative ratios of subparts.",
+      "type": "quality",
+      "synonyms": [
+        "composed of",
+        "compositionality",
+        "content",
+        "structure, composition"
+      ]
+    },
+    {
+      "id": "PATO:0000033",
+      "name": "concentration of",
+      "description": "A quality inhering in a substance by virtue of the amount of the bearer's there is mixed with another substance.",
+      "type": "quality",
+      "synonyms": [
+        "concentration"
+      ]
+    },
+    {
+      "id": "PATO:0000037",
+      "name": "consistency",
+      "description": "A physical quality inhering in a bearer by virtue of the bearer's density, firmness, or viscosity.",
+      "type": "quality",
+      "synonyms": [
+        "firmness"
+      ]
+    },
+    {
+      "id": "PATO:0000039",
+      "name": "direction",
+      "description": "A physical quality inhering in a bearer by virtue of the bearer's orientation in space.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000040",
+      "name": "distance",
+      "description": "A quality that is the extent of space between two entities.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000043",
+      "name": "flavor",
+      "description": "A quality of a physical entity inhering in a bearer by virtue of whether the bearer's molecules are being perceived by a taste and odorant receptors.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000044",
+      "name": "frequency",
+      "description": "A physical quality which inheres in a bearer by virtue of the number of the bearer's repetitive actions in a particular time.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000047",
+      "name": "biological sex",
+      "description": "An organismal quality inhering in a bearer by virtue of the bearer's ability to undergo sexual reproduction in order to differentiate the individuals or types involved.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000048",
+      "name": "hardness",
+      "description": "A physical quality inhering in a bearer by virtue of the bearer's resistance to pressure, being broken, or pierced",
+      "type": "quality",
+      "synonyms": [
+        "impenetrability",
+        "toughness"
+      ]
+    },
+    {
+      "id": "PATO:0000049",
+      "name": "intensity",
+      "description": "A quality inhering in a bearer by virtue of the bearer's possessing or displaying a distinctive feature in type or degree or effect or force.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000050",
+      "name": "life span",
+      "description": "A time quality inhering in a bearer by virtue of the bearer's expected maximum age.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000051",
+      "name": "morphology",
+      "description": "A quality of a single physical entity inhering in the bearer by virtue of the bearer's size or shape or structure.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000052",
+      "name": "shape",
+      "description": "A morphological quality inhering in a bearer by virtue of the bearer's ratios of distances between its features (points, edges, surfaces and also holes etc).",
+      "type": "quality",
+      "synonyms": [
+        "relational shape quality"
+      ]
+    },
+    {
+      "id": "PATO:0000056",
+      "name": "trophic quality",
+      "description": "An organismal quality inhering in a bearer by virtue of the bearer's disposition to synthesize a particular organic compound required for its growth.",
+      "type": "quality",
+      "synonyms": [
+        "nutritional quality"
+      ]
+    },
+    {
+      "id": "PATO:0000057",
+      "name": "occurrence",
+      "description": "A quality of a single process inhering in a bearer by virtue of the bearer's occurrence.",
+      "type": "quality",
+      "synonyms": [
+        "temporal",
+        "incidence"
+      ]
+    },
+    {
+      "id": "PATO:0000058",
+      "name": "odor",
+      "description": "A physical quality inhering in a bearer by virtue of the bearer's molecules being are aerially dispersed and perceived by an odorant receptor.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000060",
+      "name": "spatial pattern",
+      "description": "A spatial quality inhering in a bearer by virtue of the bearer's exhibiting repetition of placement of its parts.",
+      "type": "quality",
+      "synonyms": [
+        "distribution",
+        "pattern"
+      ]
+    },
+    {
+      "id": "PATO:0000062",
+      "name": "sleep pattern",
+      "description": "A sleep quality defined by the mathematic properties of the relative time frames of the sleep cycle.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000066",
+      "name": "pilosity",
+      "description": "A texture quality inhering in a bearer by virtue of the bearer's having hair or bristles.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000068",
+      "name": "qualitative",
+      "description": "A quality of an entity that is descriptive or observational, typically not represented numerically.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000069",
+      "name": "deviation (from_normal)",
+      "description": "A quality inhering in a bearer by virtue of the whether the bearer differs from normal or average.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000070",
+      "name": "amount",
+      "description": "The number of entities of this type that are part of the whole organism.",
+      "type": "quality",
+      "synonyms": [
+        "presence or absence in organism",
+        "quantitative",
+        "count in organism",
+        "number",
+        "presence"
+      ]
+    },
+    {
+      "id": "PATO:0000077",
+      "name": "response to",
+      "description": "A quality inhering in a bearer by virtue of the whether the bearer's disposition to react to a stimulus or an agent.",
+      "type": "quality",
+      "synonyms": [
+        "reactivity",
+        "response",
+        "responsivity"
+      ]
+    },
+    {
+      "id": "PATO:0000078",
+      "name": "rhythm quality",
+      "description": "A quality of a single process inhering in a bearer by virtue of the bearer's movement or variation characterized by the regular recurrence or alternation of different quantities or conditions.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000080",
+      "name": "amplitude",
+      "description": "A physical quality of a process inhering in a bearer by virtue of the size of the bearer's maximum displacement from the 'normal' position, when periodic motion is taking place.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000082",
+      "name": "persistence",
+      "description": "A rhythm quality inhering in a bearer by virtue of the repetitiveness of bearer's rhythm.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000083",
+      "name": "phase",
+      "description": "A quality that exists by virtue of being a particular point in the time of a cycle.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000085",
+      "name": "sensitivity toward",
+      "description": "A quality inhering in a bearer by virtue of the bearer's disposition to detect or perceive external stimulation.",
+      "type": "quality",
+      "synonyms": [
+        "sensitivity"
+      ]
+    },
+    {
+      "id": "PATO:0000117",
+      "name": "size",
+      "description": "A morphology quality inhering in a bearer by virtue of the bearer's physical magnitude.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000119",
+      "name": "height",
+      "description": "A 1-D extent quality inhering in a bearer by virtue of the bearer's vertical dimension of extension.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000122",
+      "name": "length",
+      "description": "A 1-D extent quality which is equal to the distance between two points.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000125",
+      "name": "mass",
+      "description": "A physical quality that inheres in a bearer by virtue of the proportion of the bearer's amount of matter.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000128",
+      "name": "weight",
+      "description": "A physical quality inhering in a bearer that has mass near a gravitational body. Important usage note: Note that this ontology has a class for a similar concept, mass (PATO:0000125). Mass and weight are not equivalent. For most use cases, the class mass is strongly preferred over weight.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000133",
+      "name": "orientation",
+      "description": "A spatial quality inhering in a bearer by virtue of the bearer's placement which is defined by the angle between the bearer and an axis, or the angle between the bearer and another object.",
+      "type": "quality",
+      "synonyms": [
+        "angular placement",
+        "amount of rotation",
+        "angle",
+        "angular magnitude",
+        "plane angle"
+      ]
+    },
+    {
+      "id": "PATO:0000136",
+      "name": "closure",
+      "description": "A morphological quality pertaining to the degree to which an object contains an opening, aperture, orifice or vent.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000140",
+      "name": "position",
+      "description": "A spatial quality inhering in a bearer by virtue of the bearer's spatial location relative to other objects in the vicinity.",
+      "type": "quality",
+      "synonyms": [
+        "location",
+        "placement",
+        "relational spatial quality"
+      ]
+    },
+    {
+      "id": "PATO:0000141",
+      "name": "structure",
+      "description": "A morphology quality inhering in a bearer by virtue of the bearer's relative position, shape, arrangements and connectivity of an organism's various parts; the pattern underlying its form.",
+      "type": "quality",
+      "synonyms": [
+        "conformation",
+        "relational structural quality"
+      ]
+    },
+    {
+      "id": "PATO:0000146",
+      "name": "temperature",
+      "description": "A physical quality of the thermal energy of a system.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000150",
+      "name": "texture",
+      "description": "A morphologic quality inhering in a bearer by virtue of the bearer's relative size, organization and distribution of its surface elements or the representation or invention of the appearance of its surface; visual and tactile surface characteristics.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000152",
+      "name": "threshold",
+      "description": "A quality inhering in a bearer by virtue of the bearer's sensitivity towards a fixed location or value where a change is observed; upper limit.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000161",
+      "name": "rate",
+      "description": "A quality of a single process inhering in a bearer by virtue of the bearer's occurrence per unit time.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000165",
+      "name": "time",
+      "description": "A quality in which events occur in sequence.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000169",
+      "name": "viability",
+      "description": "An organismal quality inhering in a bearer or a population by virtue of the bearer's disposition to survive and develop normally or the number of surviving individuals in a given population.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000185",
+      "name": "balance",
+      "description": "A behavioral quality inhering in a bearer by virtue of having physical steadiness.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000186",
+      "name": "behavioral quality",
+      "description": "An organismal quality inhering in a bearer by virtue of the bearer's behavior aggregate of the responses or reactions or movements in a given situation.",
+      "type": "quality",
+      "synonyms": [
+        "behavioural quality"
+      ]
+    },
+    {
+      "id": "PATO:0000188",
+      "name": "coordination",
+      "description": "A behavioral quality inhering in a bearer by virtue of the bearer's having or lacking skillful and effective interaction of movement.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000189",
+      "name": "discrimination",
+      "description": "A behavioral quality inhering in a bearer by virtue of whether the bearer's disposition to perceive differences between two or more stimuli.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000261",
+      "name": "maturity",
+      "description": "A quality of a single physical entity which is held by a bearer when the latter exhibits a state of growth, differentiation, or development.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000273",
+      "name": "fecundity",
+      "description": "A reproductive quality inhering in an organism or population by virtue of the bearer's potential reproductive capacity ad measured by the number of gametes.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000274",
+      "name": "fertility",
+      "description": "A reproductive quality inhering in a bearer by virtue of the bearer's initiating, sustaining, or supporting reproduction.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000276",
+      "name": "brood size",
+      "description": "A reproductive quality inhering in the young of an animal by virtue of their number.",
+      "type": "quality",
+      "synonyms": [
+        "litter size"
+      ]
+    },
+    {
+      "id": "PATO:0000277",
+      "name": "female fertility",
+      "description": "A fertility quality inhering in a female by virtue of the bearer's disposition to initiate, sustain, or support reproduction.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000279",
+      "name": "male fertility",
+      "description": "A fertility quality of inhering in a male by virtue of the bearer's disposition to initiate, sustain, or support reproduction.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000297",
+      "name": "arrested",
+      "description": "A quality of a process which ends earlier than the natural end time or reference process.",
+      "type": "quality",
+      "synonyms": [
+        "abolished",
+        "incomplete"
+      ]
+    },
+    {
+      "id": "PATO:0000299",
+      "name": "mobile",
+      "description": "A mobility quality of inhering in a bearer by virtue of the bearer's disposition to move freely.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000300",
+      "name": "immobile",
+      "description": "A mobility quality inhering in a bearer by virtue of the bearer's being incapable to move freely.",
+      "type": "quality",
+      "synonyms": [
+        "fixed"
+      ]
+    },
+    {
+      "id": "PATO:0000303",
+      "name": "increased speed",
+      "description": "A speed which is relatively high.",
+      "type": "quality",
+      "synonyms": [
+        "high speed",
+        "fast speed"
+      ]
+    },
+    {
+      "id": "PATO:0000304",
+      "name": "decreased speed",
+      "description": "A speed which is relatively low.",
+      "type": "quality",
+      "synonyms": [
+        "slow",
+        "slow speed"
+      ]
+    },
+    {
+      "id": "PATO:0000308",
+      "name": "old",
+      "description": "An age which is relatively high.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000309",
+      "name": "young",
+      "description": "An age which is relatively low.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000317",
+      "name": "black",
+      "description": "A color that lacks any hues as parts.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000318",
+      "name": "blue",
+      "description": "A color hue with low wavelength of that portion of the visible spectrum lying between green and indigo, evoked in the human observer by radiant energy with wavelengths of approximately 420 to 490 nanometers.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000319",
+      "name": "cyan",
+      "description": "A color consisting of green and blue hue.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000320",
+      "name": "green",
+      "description": "A color hue with medium-low wavelength of that portion of the visible spectrum lying between yellow and blue, evoked in the human observer by radiant energy with wavelengths of approximately 490 to 570 nanometers.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000321",
+      "name": "magenta",
+      "description": "A color consisting of red and blue hues.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000322",
+      "name": "red",
+      "description": "A color hue with high wavelength of the long-wave end of the visible spectrum, evoked in the human observer by radiant energy with wavelengths of approximately 630 to 750 nanometers.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000323",
+      "name": "white",
+      "description": "An achromatic color of maximum brightness; the color of objects that reflect nearly all light of all visible wavelengths.",
+      "type": "quality",
+      "synonyms": [
+        "whitish"
+      ]
+    },
+    {
+      "id": "PATO:0000324",
+      "name": "yellow",
+      "description": "A color hue with medium wavelength of that portion of the visible spectrum lying between orange and green, evoked in the human observer by radiant energy with wavelengths of approximately 570 to 590 nanometers.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000327",
+      "name": "low brightness",
+      "description": "A color brightness which is relatively low.",
+      "type": "quality",
+      "synonyms": [
+        "dark"
+      ]
+    },
+    {
+      "id": "PATO:0000328",
+      "name": "low saturation",
+      "description": "A color saturation which is of low purity.",
+      "type": "quality",
+      "synonyms": [
+        "pale",
+        "dull"
+      ]
+    },
+    {
+      "id": "PATO:0000329",
+      "name": "blotchy",
+      "description": "A color pattern inhering in a bearer by virtue of bearer's being marked with irregularly shaped spots or blots of a different hue or degree of saturation.",
+      "type": "quality",
+      "synonyms": [
+        "blotched"
+      ]
+    },
+    {
+      "id": "PATO:0000330",
+      "name": "irregular spatial pattern",
+      "description": "A spatial pattern inhering in a bearer by virtue of the bearer's magnitude of or the relationships between its repeated parts lack consistency.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000331",
+      "name": "discolored",
+      "description": "A color quality inhering in a bearer by virtue of the bearer's being altered or spoiled in color.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000333",
+      "name": "spotted",
+      "description": "A color pattern inhering in a bearer by virtue of bearer's being marked with a round area of different hue or degree of saturation.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000336",
+      "name": "colored",
+      "description": "A color quality inhering in a bearer by virtue of the bearer's having color.",
+      "type": "quality",
+      "synonyms": [
+        "pigmented"
+      ]
+    },
+    {
+      "id": "PATO:0000337",
+      "name": "colorless",
+      "description": "A color quality inhering in a bearer by virtue of the bearer's lacking color.",
+      "type": "quality",
+      "synonyms": [
+        "unpigmented"
+      ]
+    },
+    {
+      "id": "PATO:0000344",
+      "name": "compatible",
+      "description": "A compatibility quality inhering in a bearer by virtue of the bearer's being capable of harmonious coexistence.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000345",
+      "name": "incompatible",
+      "description": "A compatibility quality inhering in a bearer by virtue of the bearer's being incapable of harmonious coexistence.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000365",
+      "name": "down",
+      "description": "A directional quality inhering in a bearer by virtue of the bearer's direction from a higher to a lower point.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000366",
+      "name": "left",
+      "description": "A directional quality inhering in a bearer by virtue of the bearer's direction that is similar to the direction of an object to the north when it faces east.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000367",
+      "name": "right",
+      "description": "A directional quality inhering in a bearer by virtue of the bearer's direction that is similar to the direction of an object to the north when it faces west.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000370",
+      "name": "up",
+      "description": "A directional quality inhering in a bearer by virtue of the bearer's direction from a lower to a higher point.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000374",
+      "name": "increased distance",
+      "description": "A distance which is greater relative to the normal or average.",
+      "type": "quality",
+      "synonyms": [
+        "long distance"
+      ]
+    },
+    {
+      "id": "PATO:0000375",
+      "name": "decreased distance",
+      "description": "A distance which is lesser relative to the normal or average.",
+      "type": "quality",
+      "synonyms": [
+        "short distance"
+      ]
+    },
+    {
+      "id": "PATO:0000380",
+      "name": "increased frequency",
+      "description": "A frequency which is relatively high.",
+      "type": "quality",
+      "synonyms": [
+        "high frequency",
+        "frequent"
+      ]
+    },
+    {
+      "id": "PATO:0000381",
+      "name": "decreased frequency",
+      "description": "A frequency which is relatively low.",
+      "type": "quality",
+      "synonyms": [
+        "low frequency",
+        "infrequent"
+      ]
+    },
+    {
+      "id": "PATO:0000383",
+      "name": "female",
+      "description": "A biological sex quality inhering in an individual or a population that only produces gametes that can be fertilised by male gametes.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000384",
+      "name": "male",
+      "description": "A biological sex quality inhering in an individual or a population whose sex organs contain only male gametes.",
+      "type": "quality"
+    },
+    {
+      "id": "PATO:0000386",
+      "name": "hard",
+      "description": "A hardness quality of being rigid and resistant to pressure.",
+      "type": "quality",
+      "synonyms": [
+        "firm",
+        "impenetrable",
+        "tough"
+      ]
+    }
+  ]
+}

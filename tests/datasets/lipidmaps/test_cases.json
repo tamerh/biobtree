@@ -1,0 +1,53 @@
+{
+  "common_tests": [
+    {
+      "name": "Lookup by LIPID MAPS ID",
+      "type": "id_lookup",
+      "id": "@reference[0].LM_ID"
+    },
+    {
+      "name": "Lookup by common name",
+      "type": "name_lookup",
+      "name": "@reference[0].NAME"
+    },
+    {
+      "name": "Lookup by systematic name",
+      "type": "alias_lookup",
+      "alias": "@reference[0].SYSTEMATIC_NAME",
+      "expected_id": "@reference[0].LM_ID"
+    },
+    {
+      "name": "Lookup by abbreviation",
+      "type": "alias_lookup",
+      "alias": "@reference[50].ABBREVIATION",
+      "expected_id": "@reference[50].LM_ID"
+    },
+    {
+      "name": "Lookup by synonym",
+      "type": "alias_lookup",
+      "alias": "@reference[0].SYNONYMS[0]",
+      "expected_id": "@reference[0].LM_ID"
+    },
+    {
+      "name": "Check attributes present",
+      "type": "attribute_check",
+      "id": "@reference[0].LM_ID"
+    },
+    {
+      "name": "Lookup multiple IDs",
+      "type": "multi_lookup",
+      "count": 3,
+      "id_field": "LM_ID"
+    },
+    {
+      "name": "Case-insensitive name search",
+      "type": "case_insensitive",
+      "symbol": "@reference[0].NAME"
+    },
+    {
+      "name": "Invalid ID handling",
+      "type": "invalid_id",
+      "invalid_id": "LMFA99999999"
+    }
+  ]
+}

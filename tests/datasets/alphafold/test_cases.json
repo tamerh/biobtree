@@ -1,0 +1,226 @@
+{
+  "dataset_info": {
+    "name": "AlphaFold Protein Structure Predictions",
+    "version": "v6",
+    "subset": "Swiss-Prot only",
+    "test_entries": 20,
+    "description": "AlphaFold protein structure predictions with pLDDT confidence scores"
+  },
+  "tests": [
+    {
+      "name": "alphafold_basic_lookup",
+      "description": "Basic AlphaFold data lookup for a known UniProt protein",
+      "type": "lookup",
+      "identifier": "A0A009IHW8",
+      "dataset": "alphafold",
+      "expected": {
+        "has_results": true,
+        "min_results": 1
+      }
+    },
+    {
+      "name": "alphafold_global_metric_present",
+      "description": "AlphaFold entry should have global metric (average pLDDT)",
+      "type": "attribute_check",
+      "identifier": "A0A009IHW8",
+      "dataset": "alphafold",
+      "attribute_path": "Attributes.Alphafold.global_metric",
+      "expected": {
+        "exists": true,
+        "min_value": 0.0,
+        "max_value": 100.0
+      }
+    },
+    {
+      "name": "alphafold_global_metric_value",
+      "description": "Global metric should match expected value",
+      "type": "attribute_check",
+      "identifier": "A0A009IHW8",
+      "dataset": "alphafold",
+      "attribute_path": "Attributes.Alphafold.global_metric",
+      "expected": {
+        "exists": true,
+        "value": 85.0,
+        "tolerance": 0.5
+      }
+    },
+    {
+      "name": "alphafold_fraction_very_high",
+      "description": "AlphaFold entry should have fraction_pldddt_very_high",
+      "type": "attribute_check",
+      "identifier": "A0A009IHW8",
+      "dataset": "alphafold",
+      "attribute_path": "Attributes.Alphafold.fraction_plddt_very_high",
+      "expected": {
+        "exists": true,
+        "min_value": 0.0,
+        "max_value": 1.0
+      }
+    },
+    {
+      "name": "alphafold_fraction_confident",
+      "description": "AlphaFold entry should have fraction_pldddt_confident",
+      "type": "attribute_check",
+      "identifier": "A0A009IHW8",
+      "dataset": "alphafold",
+      "attribute_path": "Attributes.Alphafold.fraction_plddt_confident",
+      "expected": {
+        "exists": true,
+        "min_value": 0.0,
+        "max_value": 1.0
+      }
+    },
+    {
+      "name": "alphafold_fraction_low",
+      "description": "AlphaFold entry should have fraction_pldddt_low",
+      "type": "attribute_check",
+      "identifier": "A0A009IHW8",
+      "dataset": "alphafold",
+      "attribute_path": "Attributes.Alphafold.fraction_plddt_low",
+      "expected": {
+        "exists": true,
+        "min_value": 0.0,
+        "max_value": 1.0
+      }
+    },
+    {
+      "name": "alphafold_fraction_very_low",
+      "description": "AlphaFold entry should have fraction_pldddt_very_low",
+      "type": "attribute_check",
+      "identifier": "A0A009IHW8",
+      "dataset": "alphafold",
+      "attribute_path": "Attributes.Alphafold.fraction_plddt_very_low",
+      "expected": {
+        "exists": true,
+        "min_value": 0.0,
+        "max_value": 1.0
+      }
+    },
+    {
+      "name": "alphafold_model_entity_id",
+      "description": "AlphaFold entry should have model entity ID",
+      "type": "attribute_check",
+      "identifier": "A0A009IHW8",
+      "dataset": "alphafold",
+      "attribute_path": "Attributes.Alphafold.model_entity_id",
+      "expected": {
+        "exists": true,
+        "pattern": "^AF-[A-Z0-9]+-F\\d+$"
+      }
+    },
+    {
+      "name": "alphafold_model_id_value",
+      "description": "Model entity ID should match expected value",
+      "type": "attribute_check",
+      "identifier": "A0A009IHW8",
+      "dataset": "alphafold",
+      "attribute_path": "Attributes.Alphafold.model_entity_id",
+      "expected": {
+        "exists": true,
+        "value": "AF-A0A009IHW8-F1"
+      }
+    },
+    {
+      "name": "alphafold_gene_annotation",
+      "description": "AlphaFold entry may have gene annotation",
+      "type": "attribute_check",
+      "identifier": "A0A009IHW8",
+      "dataset": "alphafold",
+      "attribute_path": "Attributes.Alphafold.gene",
+      "expected": {
+        "exists": true,
+        "value": "J512_3302"
+      }
+    },
+    {
+      "name": "alphafold_model_id_keyword_lookup",
+      "description": "AlphaFold model ID should resolve via keyword lookup",
+      "type": "lookup",
+      "identifier": "AF-A0A009IHW8-F1",
+      "dataset": "alphafold",
+      "expected": {
+        "has_results": true,
+        "min_results": 1
+      }
+    },
+    {
+      "name": "alphafold_second_entry_lookup",
+      "description": "Second test entry should be present",
+      "type": "lookup",
+      "identifier": "A0A017SE81",
+      "dataset": "alphafold",
+      "expected": {
+        "has_results": true,
+        "min_results": 1
+      }
+    },
+    {
+      "name": "alphafold_second_entry_model_id",
+      "description": "Second entry should have correct model ID",
+      "type": "attribute_check",
+      "identifier": "A0A017SE81",
+      "dataset": "alphafold",
+      "attribute_path": "Attributes.Alphafold.model_entity_id",
+      "expected": {
+        "exists": true,
+        "value": "AF-A0A017SE81-F1"
+      }
+    },
+    {
+      "name": "alphafold_max_pae_present",
+      "description": "AlphaFold entry should have max PAE (for model organisms with PAE data)",
+      "type": "attribute_check",
+      "identifier": "P04637",
+      "dataset": "alphafold",
+      "attribute_path": "Attributes.Alphafold.max_pae",
+      "expected": {
+        "exists": true,
+        "min_value": 0.0,
+        "max_value": 32.0
+      },
+      "skip_reason": "PAE data only available for model organisms"
+    },
+    {
+      "name": "alphafold_mean_pae_range",
+      "description": "Mean PAE should be within valid range",
+      "type": "attribute_check",
+      "identifier": "P04637",
+      "dataset": "alphafold",
+      "attribute_path": "Attributes.Alphafold.mean_pae",
+      "expected": {
+        "exists": true,
+        "min_value": 0.0,
+        "max_value": 32.0
+      },
+      "skip_reason": "PAE data only available for model organisms"
+    },
+    {
+      "name": "alphafold_fraction_pae_confident",
+      "description": "Fraction of confident PAE pairs should be between 0 and 1",
+      "type": "attribute_check",
+      "identifier": "P04637",
+      "dataset": "alphafold",
+      "attribute_path": "Attributes.Alphafold.fraction_pae_confident",
+      "expected": {
+        "exists": true,
+        "min_value": 0.0,
+        "max_value": 1.0
+      },
+      "skip_reason": "PAE data only available for model organisms"
+    },
+    {
+      "name": "alphafold_version_present",
+      "description": "AlphaFold entry should have version (for model organisms with PAE data)",
+      "type": "attribute_check",
+      "identifier": "P04637",
+      "dataset": "alphafold",
+      "attribute_path": "Attributes.Alphafold.version",
+      "expected": {
+        "exists": true,
+        "min_value": 1,
+        "max_value": 10
+      },
+      "skip_reason": "Version only available from PAE data for model organisms"
+    }
+  ]
+}

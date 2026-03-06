@@ -1,0 +1,602 @@
+[
+  {
+    "bindingdb_id": "608734",
+    "MonomerID": "608734",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "22",
+    "MonomerID": "22",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "23",
+    "MonomerID": "23",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "24",
+    "MonomerID": "24",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "25",
+    "MonomerID": "25",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "26",
+    "MonomerID": "26",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "27",
+    "MonomerID": "27",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "28",
+    "MonomerID": "28",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "29",
+    "MonomerID": "29",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "30",
+    "MonomerID": "30",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "31",
+    "MonomerID": "31",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "32",
+    "MonomerID": "32",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "33",
+    "MonomerID": "33",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "34",
+    "MonomerID": "34",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "35",
+    "MonomerID": "35",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "36",
+    "MonomerID": "36",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "37",
+    "MonomerID": "37",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "38",
+    "MonomerID": "38",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "39",
+    "MonomerID": "39",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "40",
+    "MonomerID": "40",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "41",
+    "MonomerID": "41",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "42",
+    "MonomerID": "42",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "43",
+    "MonomerID": "43",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "44",
+    "MonomerID": "44",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "45",
+    "MonomerID": "45",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "46",
+    "MonomerID": "46",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "47",
+    "MonomerID": "47",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "48",
+    "MonomerID": "48",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "49",
+    "MonomerID": "49",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "152",
+    "MonomerID": "152",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "51",
+    "MonomerID": "51",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "52",
+    "MonomerID": "52",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "53",
+    "MonomerID": "53",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "54",
+    "MonomerID": "54",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "112654",
+    "MonomerID": "112654",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "56",
+    "MonomerID": "56",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "57",
+    "MonomerID": "57",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "58",
+    "MonomerID": "58",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "59",
+    "MonomerID": "59",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "60",
+    "MonomerID": "60",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "61",
+    "MonomerID": "61",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "62",
+    "MonomerID": "62",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "63",
+    "MonomerID": "63",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "64",
+    "MonomerID": "64",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "65",
+    "MonomerID": "65",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "66",
+    "MonomerID": "66",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "67",
+    "MonomerID": "67",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "68",
+    "MonomerID": "68",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "69",
+    "MonomerID": "69",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "70",
+    "MonomerID": "70",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "71",
+    "MonomerID": "71",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "72",
+    "MonomerID": "72",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "73",
+    "MonomerID": "73",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "74",
+    "MonomerID": "74",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "75",
+    "MonomerID": "75",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "76",
+    "MonomerID": "76",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "77",
+    "MonomerID": "77",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "78",
+    "MonomerID": "78",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "79",
+    "MonomerID": "79",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "80",
+    "MonomerID": "80",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "81",
+    "MonomerID": "81",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "82",
+    "MonomerID": "82",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "83",
+    "MonomerID": "83",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "84",
+    "MonomerID": "84",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "85",
+    "MonomerID": "85",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "86",
+    "MonomerID": "86",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "87",
+    "MonomerID": "87",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "88",
+    "MonomerID": "88",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "89",
+    "MonomerID": "89",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "90",
+    "MonomerID": "90",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "91",
+    "MonomerID": "91",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "92",
+    "MonomerID": "92",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "93",
+    "MonomerID": "93",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "94",
+    "MonomerID": "94",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "95",
+    "MonomerID": "95",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "96",
+    "MonomerID": "96",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "97",
+    "MonomerID": "97",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "98",
+    "MonomerID": "98",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "99",
+    "MonomerID": "99",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "100",
+    "MonomerID": "100",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "101",
+    "MonomerID": "101",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "102",
+    "MonomerID": "102",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "103",
+    "MonomerID": "103",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "104",
+    "MonomerID": "104",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "105",
+    "MonomerID": "105",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "106",
+    "MonomerID": "106",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "107",
+    "MonomerID": "107",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "108",
+    "MonomerID": "108",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "109",
+    "MonomerID": "109",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "110",
+    "MonomerID": "110",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "111",
+    "MonomerID": "111",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "112",
+    "MonomerID": "112",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "113",
+    "MonomerID": "113",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "114",
+    "MonomerID": "114",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "115",
+    "MonomerID": "115",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "116",
+    "MonomerID": "116",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "117",
+    "MonomerID": "117",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "118",
+    "MonomerID": "118",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "119",
+    "MonomerID": "119",
+    "target_name": "",
+    "ligand_name": ""
+  },
+  {
+    "bindingdb_id": "120",
+    "MonomerID": "120",
+    "target_name": "",
+    "ligand_name": ""
+  }
+]

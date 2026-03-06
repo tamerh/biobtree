@@ -1,0 +1,77 @@
+{
+  "dataset": "signor",
+  "description": "SIGNOR - SIGnaling Network Open Resource declarative tests",
+  "tests": [
+    {
+      "name": "id_lookup_first",
+      "type": "id_lookup",
+      "input": "@reference[0].signor_id",
+      "expected": {
+        "found": true,
+        "dataset": "signor"
+      }
+    },
+    {
+      "name": "id_lookup_second",
+      "type": "id_lookup",
+      "input": "@reference[1].signor_id",
+      "expected": {
+        "found": true,
+        "dataset": "signor"
+      }
+    },
+    {
+      "name": "id_lookup_third",
+      "type": "id_lookup",
+      "input": "@reference[2].signor_id",
+      "expected": {
+        "found": true,
+        "dataset": "signor"
+      }
+    },
+    {
+      "name": "attribute_entity_a",
+      "type": "attribute_check",
+      "input": "@reference[0].signor_id",
+      "expected": {
+        "attribute": "entity_a",
+        "not_empty": true
+      }
+    },
+    {
+      "name": "attribute_entity_b",
+      "type": "attribute_check",
+      "input": "@reference[0].signor_id",
+      "expected": {
+        "attribute": "entity_b",
+        "not_empty": true
+      }
+    },
+    {
+      "name": "attribute_effect",
+      "type": "attribute_check",
+      "input": "@reference[0].signor_id",
+      "expected": {
+        "attribute": "effect",
+        "not_empty": true
+      }
+    },
+    {
+      "name": "attribute_tax_id",
+      "type": "attribute_check",
+      "input": "@reference[0].signor_id",
+      "expected": {
+        "attribute": "tax_id",
+        "not_empty": true
+      }
+    },
+    {
+      "name": "invalid_id_handling",
+      "type": "invalid_id",
+      "input": "SIGNOR-999999999",
+      "expected": {
+        "found": false
+      }
+    }
+  ]
+}

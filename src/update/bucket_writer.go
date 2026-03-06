@@ -1,0 +1,616 @@
+package update
+
+import (
+	"bufio"
+	"compress/gzip"
+	"fmt"
+	"log"
+	"os"
+	"path/filepath"
+	"strings"
+	"sync"
+)
+
+// BucketFile represents a single bucket file with mutex protection
+// Files are written uncompressed by default, or gzip-compressed if CompressBuckets is enabled
+// Compression reduces disk usage for large datasets (like dbsnp) at cost of CPU during write
+type BucketFile struct {
+	filePath   string
+	file       *os.File
+	buf        *bufio.Writer
+	gzWriter   *gzip.Writer // nil if uncompressed, set if CompressBuckets=true
+	mutex      sync.Mutex
+	created    bool
+	lineCount  uint64
+	compressed bool // tracks if this file is compressed
+}
+
+// validateBucketLine checks if a line has the minimum required format: KEY\tDB\tVALUE\tVALUEDB
+// Returns true if valid, false if malformed.
+// CRITICAL: All 4 fields must be non-empty to prevent "Error while converting to int16" panics
+// during the generate phase when VALUEDB is empty.
+func validateBucketLine(line string) bool {
+	// Find first tab - KEY must be non-empty (idx > 0)
+	idx1 := strings.IndexByte(line, '\t')
+	if idx1 <= 0 {
+		return false
+	}
+
+	// Find second tab - DB field must exist and be non-empty
+	rest := line[idx1+1:]
+	idx2 := strings.IndexByte(rest, '\t')
+	if idx2 <= 0 {
+		return false
+	}
+
+	// Find third tab - VALUE field must exist and be non-empty
+	rest = rest[idx2+1:]
+	idx3 := strings.IndexByte(rest, '\t')
+	if idx3 <= 0 {
+		return false
+	}
+
+	// VALUEDB field must be non-empty (everything after 3rd tab, before 4th tab or end)
+	rest = rest[idx3+1:]
+	if len(rest) == 0 {
+		return false
+	}
+	// Check that VALUEDB is not empty (could be followed by more tabs for evidence/relationship)
+	idx4 := strings.IndexByte(rest, '\t')
+	if idx4 == 0 {
+		return false
+	}
+
+	return true
+}
+
+// HybridWriterPool provides direct mutex-based writes to bucket files
+// This avoids channel overhead by having callers write directly with per-bucket locks
+type HybridWriterPool struct {
+	bucketConfigs     map[string]*BucketConfig // datasetID → config
+	bucketFiles       map[string]*BucketFile   // "datasetID_subdir_bucketNum" → file
+	outputDir         string
+	datasetFederation map[string]string // datasetName → federation (e.g., "dbsnp" → "dbsnp")
+	poolMutex         sync.RWMutex      // Mutex for lazy bucket file creation
+	// Forward xref stats: tracks lines written by source to each target
+	// Used for state file: source.forward_edges[target] = count
+	// "entry" is used for dataset ID -1 (properties/attributes)
+	forwardXrefStats map[string]map[string]uint64 // sourceDataset → targetDataset → lineCount
+	forwardStatsMu   sync.Mutex
+	// Reverse xref stats: tracks lines written by each source to each target
+	// Used for state file: source.reverse_edges[target] = lines written to target/from_source/
+	reverseXrefStats map[string]map[string]uint64 // sourceDataset → targetDataset → lineCount
+	reverseStatsMu   sync.Mutex
+}
+
+// NewHybridWriterPool creates the pool with bucket configs
+func NewHybridWriterPool(configs map[string]*BucketConfig, outputDir string, wg *sync.WaitGroup) *HybridWriterPool {
+	return NewHybridWriterPoolWithWorkers(configs, outputDir, wg, 0, nil)
+}
+
+// NewHybridWriterPoolWithFederation creates the pool with federation support
+func NewHybridWriterPoolWithFederation(configs map[string]*BucketConfig, outputDir string, wg *sync.WaitGroup, datasetFederation map[string]string) *HybridWriterPool {
+	return NewHybridWriterPoolWithWorkers(configs, outputDir, wg, 0, datasetFederation)
+}
+
+// NewHybridWriterPoolWithWorkers creates the pool (numWorkers ignored - direct writes)
+// All bucket files/directories are created lazily via writeToSubdir() when data is written
+// datasetFederation maps dataset names to federation names (e.g., "dbsnp" → "dbsnp")
+func NewHybridWriterPoolWithWorkers(configs map[string]*BucketConfig, outputDir string, wg *sync.WaitGroup, numWorkers int, datasetFederation map[string]string) *HybridWriterPool {
+	pool := &HybridWriterPool{
+		bucketConfigs:     configs,
+		bucketFiles:       make(map[string]*BucketFile),
+		outputDir:         outputDir,
+		datasetFederation: datasetFederation,
+		forwardXrefStats:  make(map[string]map[string]uint64),
+		reverseXrefStats:  make(map[string]map[string]uint64),
+	}
+
+	// Log federation info if enabled
+	if datasetFederation != nil && len(datasetFederation) > 0 {
+		federationCount := make(map[string]int)
+		for _, fed := range datasetFederation {
+			federationCount[fed]++
+		}
+		fmt.Printf("Bucket writer initialized with %d dataset configs, federation support enabled (%v), outputDir=%s\n",
+			len(configs), federationCount, outputDir)
+	} else {
+		fmt.Printf("Bucket writer initialized with %d dataset configs (lazy directory creation)\n",
+			len(configs))
+	}
+
+	return pool
+}
+
+// WriteForward writes a forward xref to the source dataset's forward/ directory
+// Used for source-tagged bucket files to enable incremental updates
+// Directory structure: {dataset}/forward/bucket_*.txt
+// For derived datasets: _derived/{dataset}/forward/bucket_*.txt
+// Also tracks forward xref stats for state file: source.forward_edges[target] = count
+// targetDatasetName: the target dataset name (use "entry" for properties/attributes)
+func (p *HybridWriterPool) WriteForward(sourceDatasetID, sourceDatasetName, entityID, line, targetDatasetName string) bool {
+	success := p.writeToSubdir(sourceDatasetID, entityID, line, "forward")
+
+	if success {
+		p.forwardStatsMu.Lock()
+		if p.forwardXrefStats[sourceDatasetName] == nil {
+			p.forwardXrefStats[sourceDatasetName] = make(map[string]uint64)
+		}
+		p.forwardXrefStats[sourceDatasetName][targetDatasetName]++
+		p.forwardStatsMu.Unlock()
+	}
+
+	return success
+}
+
+// WriteReverse writes a reverse xref to the target dataset's from_{source}/ directory
+// Used for source-tagged bucket files to enable incremental updates
+// Directory structure: {dataset}/from_{source}/bucket_*.txt
+// For derived datasets: _derived/{dataset}/from_{source}/bucket_*.txt
+// Also tracks reverse xref stats for state file: source.reverse_lines[target] = count
+func (p *HybridWriterPool) WriteReverse(targetDatasetID, entityID, line, sourceDatasetName string) bool {
+	subdir := fmt.Sprintf("from_%s", sourceDatasetName)
+	success := p.writeToSubdir(targetDatasetID, entityID, line, subdir)
+
+	// Track reverse xref stats: attribute this line to the SOURCE dataset
+	if success {
+		// Get target dataset name from config
+		targetDatasetName := ""
+		if cfg, ok := p.bucketConfigs[targetDatasetID]; ok {
+			targetDatasetName = cfg.DatasetName
+		} else {
+			targetDatasetName = targetDatasetID // fallback to ID if name not found
+		}
+
+		p.reverseStatsMu.Lock()
+		if p.reverseXrefStats[sourceDatasetName] == nil {
+			p.reverseXrefStats[sourceDatasetName] = make(map[string]uint64)
+		}
+		p.reverseXrefStats[sourceDatasetName][targetDatasetName]++
+		p.reverseStatsMu.Unlock()
+	}
+
+	return success
+}
+
+// GetForwardXrefStats returns the forward xref edge counts per source dataset
+// Returns: sourceDataset → targetDataset → edgeCount
+// Used to populate source.forward_edges[target] in the state file
+// "entry" represents dataset ID -1 (properties/attributes)
+func (p *HybridWriterPool) GetForwardXrefStats() map[string]map[string]uint64 {
+	p.forwardStatsMu.Lock()
+	defer p.forwardStatsMu.Unlock()
+
+	// Return a copy to avoid race conditions
+	result := make(map[string]map[string]uint64)
+	for source, targets := range p.forwardXrefStats {
+		result[source] = make(map[string]uint64)
+		for target, count := range targets {
+			result[source][target] = count
+		}
+	}
+	return result
+}
+
+// GetReverseXrefStats returns the reverse xref edge counts per source dataset
+// Returns: sourceDataset → targetDataset → edgeCount
+// Used to populate source.reverse_edges[target] in the state file
+func (p *HybridWriterPool) GetReverseXrefStats() map[string]map[string]uint64 {
+	p.reverseStatsMu.Lock()
+	defer p.reverseStatsMu.Unlock()
+
+	// Return a copy to avoid race conditions
+	result := make(map[string]map[string]uint64)
+	for source, targets := range p.reverseXrefStats {
+		result[source] = make(map[string]uint64)
+		for target, count := range targets {
+			result[source][target] = count
+		}
+	}
+	return result
+}
+
+// writeToSubdir writes data to a source-tagged subdirectory with lazy bucket file creation
+// Supports both regular datasets and derived datasets (stored under _derived/)
+func (p *HybridWriterPool) writeToSubdir(datasetID, entityID, line, subdir string) bool {
+	// Resolve link dataset if needed
+	resolvedID := datasetID
+	if linkDatasetMap != nil {
+		if parentID, isLink := linkDatasetMap[datasetID]; isLink {
+			resolvedID = parentID
+		}
+	}
+
+	// Get bucket config
+	cfg, hasBucket := p.bucketConfigs[resolvedID]
+	if !hasBucket {
+		return false
+	}
+
+	// Compute bucket number using the bucket method
+	var bucketNum int
+	if cfg.NumSets > 1 && !cfg.HybridMode {
+		// Multi-bucket-set: try each method, use first match
+		matched := false
+		for _, method := range cfg.Methods {
+			bucketNum = method(entityID, cfg.NumBucketsPerSet[0])
+			if bucketNum >= 0 {
+				matched = true
+				break
+			}
+		}
+		if !matched {
+			// No method matched - use alphabetic fallback
+			bucketNum = alphabeticBucket(entityID, cfg.NumBucketsPerSet[0])
+			if bucketNum < 0 {
+				bucketNum = 0
+			}
+		}
+	} else if cfg.HybridMode {
+		// Hybrid mode: decode bucket from encoded value
+		numBucketsPerSet := cfg.NumBucketsPerSet[0]
+		encodedBucket := cfg.Method(entityID, numBucketsPerSet)
+		if encodedBucket < 0 {
+			// Unknown pattern - use alphabetic fallback bucket
+			// This ensures ALL data goes through bucket system for incremental updates
+			bucketNum = alphabeticBucket(entityID, numBucketsPerSet)
+			if bucketNum < 0 {
+				bucketNum = 0
+			}
+		} else {
+			bucketNum = encodedBucket % numBucketsPerSet
+		}
+	} else {
+		// Single bucket set
+		bucketNum = cfg.Method(entityID, cfg.NumBuckets)
+		if bucketNum < 0 || bucketNum >= cfg.NumBuckets {
+			bucketNum = 0
+		}
+	}
+
+	// Build bucket key for source-tagged subdirectory
+	// Format: "datasetID_subdir_bucketNum"
+	bucketKey := fmt.Sprintf("%s_%s_%d", resolvedID, subdir, bucketNum)
+
+	// Fast path: check if bucket file already exists (read lock)
+	p.poolMutex.RLock()
+	bf := p.bucketFiles[bucketKey]
+	p.poolMutex.RUnlock()
+
+	// Slow path: create bucket file if not exists (write lock)
+	if bf == nil {
+		p.poolMutex.Lock()
+		// Double-check after acquiring write lock
+		bf = p.bucketFiles[bucketKey]
+		if bf == nil {
+			// Determine federation for this dataset
+			// For most datasets, the TARGET dataset determines which federation the file goes to
+			// Special case: textsearch routes to SOURCE dataset's federation
+			// (so textsearch_dbsnp goes to dbsnp federation, not main)
+			federation := "main" // default
+			if p.datasetFederation != nil {
+				if cfg.DatasetName == "textsearch" && strings.HasPrefix(subdir, "from_") {
+					// Extract source dataset from subdir (e.g., "from_dbsnp" -> "dbsnp")
+					sourceDataset := strings.TrimPrefix(subdir, "from_")
+					if fed, ok := p.datasetFederation[sourceDataset]; ok && fed != "" {
+						federation = fed
+					}
+				} else if fed, ok := p.datasetFederation[cfg.DatasetName]; ok && fed != "" {
+					federation = fed
+				}
+			}
+
+			// Build directory path: {outDir}/{federation}/index/{dataset}/{subdir}/
+			var dir string
+			if cfg.IsDerived {
+				// Derived datasets go under _derived/
+				dir = filepath.Join(p.outputDir, federation, "index", "_derived", cfg.DatasetName, subdir)
+			} else {
+				dir = filepath.Join(p.outputDir, federation, "index", cfg.DatasetName, subdir)
+			}
+
+			// Create directory if needed
+			if err := os.MkdirAll(dir, 0755); err != nil {
+				p.poolMutex.Unlock()
+				log.Printf("Error creating bucket dir %s: %v", dir, err)
+				return false
+			}
+
+			// Create bucket file entry with compression support
+			// Uses global CompressBuckets setting (fixes reverse xref inheritance bug)
+			var filePath string
+			if CompressBuckets {
+				filePath = filepath.Join(dir, fmt.Sprintf("bucket_%03d.txt.gz", bucketNum))
+			} else {
+				filePath = filepath.Join(dir, fmt.Sprintf("bucket_%03d.txt", bucketNum))
+			}
+			bf = &BucketFile{
+				filePath:   filePath,
+				compressed: CompressBuckets,
+			}
+			p.bucketFiles[bucketKey] = bf
+		}
+		p.poolMutex.Unlock()
+	}
+
+	// Validate line format before writing
+	// Log details and panic to catch bugs at source - malformed data blocks merge phase
+	if !validateBucketLine(line) {
+		log.Printf("ERROR: Malformed bucket line detected!")
+		log.Printf("  Dataset: %s, Subdir: %s, BucketKey: %s", datasetID, subdir, bucketKey)
+		log.Printf("  Line preview (first 200 chars): %.200s", line)
+		panic(fmt.Sprintf("Malformed bucket line. Dataset=%s, Line=%.100s", datasetID, line))
+	}
+
+	// Write to bucket file with per-file mutex
+	bf.mutex.Lock()
+	defer bf.mutex.Unlock()
+
+	// Lazy file creation
+	if !bf.created {
+		var err error
+		bf.file, err = os.Create(bf.filePath)
+		if err != nil {
+			log.Printf("Error creating bucket file %s: %v", bf.filePath, err)
+			return false
+		}
+		if bf.compressed {
+			// Use gzip.BestSpeed (level 1) for fast compression during processing
+			var gzErr error
+			bf.gzWriter, gzErr = gzip.NewWriterLevel(bf.file, gzip.BestSpeed)
+			if gzErr != nil {
+				log.Printf("Error creating gzip writer for %s: %v", bf.filePath, gzErr)
+				bf.file.Close()
+				return false
+			}
+			bf.buf = bufio.NewWriterSize(bf.gzWriter, BucketWriteBufferSize)
+		} else {
+			bf.buf = bufio.NewWriterSize(bf.file, BucketWriteBufferSize)
+		}
+		bf.created = true
+	}
+
+	// Atomic write: combine line + newline to reduce partial write window
+	if _, err := bf.buf.WriteString(line + "\n"); err != nil {
+		log.Printf("Error writing to bucket file %s: %v", bf.filePath, err)
+		return false
+	}
+	bf.lineCount++
+
+	return true
+}
+
+// GetTotalWrites returns the total number of lines written to buckets
+// Must be called after Close() to get accurate count
+func (p *HybridWriterPool) GetTotalWrites() uint64 {
+	var total uint64
+	for _, bf := range p.bucketFiles {
+		total += bf.lineCount
+	}
+	return total
+}
+
+// WriteXref writes forward xref and optionally reverse xref using source-tagged directories
+// Deprecated: Use WriteForward and WriteReverse directly for better control
+func (p *HybridWriterPool) WriteXref(
+	sourceDataset string, sourceID string, forwardLine string,
+	targetDataset string, targetID string, reverseLine string,
+) {
+	// Get source dataset name for directory naming
+	sourceDatasetName := GetDatasetName(sourceDataset)
+	if sourceDatasetName == "" {
+		sourceDatasetName = "unknown"
+	}
+
+	// Get target dataset name for stats tracking
+	targetDatasetName := GetDatasetName(targetDataset)
+	if targetDatasetName == "" {
+		targetDatasetName = "unknown"
+	}
+
+	// Forward xref → {source}/forward/
+	p.WriteForward(sourceDataset, sourceDatasetName, sourceID, forwardLine, targetDatasetName)
+
+	// Reverse xref → {target}/from_{source}/ (if provided)
+	if targetDataset != "" && reverseLine != "" {
+		p.WriteReverse(targetDataset, targetID, reverseLine, sourceDatasetName)
+	}
+}
+
+// HasBucketConfig returns true if dataset has bucket configuration
+// Also returns true for link datasets whose parent has bucket config
+func (p *HybridWriterPool) HasBucketConfig(datasetID string) bool {
+	// Resolve link dataset to parent dataset
+	resolvedID := GetLinkDatasetID(datasetID)
+	_, ok := p.bucketConfigs[resolvedID]
+	return ok
+}
+
+// Close flushes and closes all bucket files
+// Must acquire mutex for each file to prevent race with concurrent writes
+func (p *HybridWriterPool) Close() {
+	// Close all bucket files (both compressed and uncompressed)
+	for key, bf := range p.bucketFiles {
+		bf.mutex.Lock()
+		if bf.created && bf.buf != nil {
+			if err := bf.buf.Flush(); err != nil {
+				log.Printf("Warning: error flushing bucket file %s: %v", bf.filePath, err)
+			}
+			if bf.gzWriter != nil {
+				if err := bf.gzWriter.Close(); err != nil {
+					log.Printf("Warning: error closing gzip writer for %s: %v", bf.filePath, err)
+				}
+			}
+			// Sync to ensure data is written to disk before close
+			// This prevents data loss if the system crashes or process is interrupted
+			if err := bf.file.Sync(); err != nil {
+				log.Printf("Warning: error syncing bucket file %s: %v", bf.filePath, err)
+			}
+			if err := bf.file.Close(); err != nil {
+				log.Printf("Warning: error closing bucket file %s: %v", bf.filePath, err)
+			}
+		}
+		bf.mutex.Unlock()
+		_ = key // suppress unused warning
+	}
+}
+
+// ValidateCreatedFiles verifies that all files marked as created actually exist on disk
+// Returns the count of missing files and logs warnings for each
+// Call this after Close() to detect bucket file creation issues
+func (p *HybridWriterPool) ValidateCreatedFiles() int {
+	missingCount := 0
+	for key, bf := range p.bucketFiles {
+		if bf.created {
+			if _, err := os.Stat(bf.filePath); os.IsNotExist(err) {
+				log.Printf("BUCKET VALIDATION ERROR: file marked as created but does not exist: %s (key=%s, lines=%d)",
+					bf.filePath, key, bf.lineCount)
+				missingCount++
+			}
+		}
+	}
+	if missingCount > 0 {
+		log.Printf("BUCKET VALIDATION: %d files marked as created but missing on disk", missingCount)
+	}
+	return missingCount
+}
+
+// GetBucketFiles returns all non-empty bucket files for merging
+func (p *HybridWriterPool) GetBucketFiles() []string {
+	var files []string
+	for _, bf := range p.bucketFiles {
+		if bf.created {
+			files = append(files, bf.filePath)
+		}
+	}
+	return files
+}
+
+// GetBucketWriters returns bucket info for sorting/concatenation
+// Returns a compatible structure for existing sort code
+// For multi-bucket-set configs, returns separate entries for each set
+// IMPORTANT: This now includes ALL bucket files (both old buckets_{chunkIdx}/ and new forward/, from_*/)
+func (p *HybridWriterPool) GetBucketWriters() map[string]*DatasetBucketWriter {
+	result := make(map[string]*DatasetBucketWriter)
+
+	// Collect all created bucket files by dataset
+	// Key format from writeToSubdir: "{datasetID}_{subdir}_{bucketNum}"
+	// Key format from initialization: "{datasetID}_{bucketNum}" or "{datasetID}_{setIdx}_{bucketNum}"
+	datasetFiles := make(map[string][]*BucketFile)
+	for key, bf := range p.bucketFiles {
+		if !bf.created {
+			continue // Skip files that were never written to
+		}
+		// Extract datasetID from key (first part before underscore)
+		parts := strings.SplitN(key, "_", 2)
+		if len(parts) < 1 {
+			continue
+		}
+		datasetID := parts[0]
+		datasetFiles[datasetID] = append(datasetFiles[datasetID], bf)
+	}
+
+	// Build result from collected files
+	for datasetID, files := range datasetFiles {
+		cfg, hasCfg := p.bucketConfigs[datasetID]
+		if !hasCfg {
+			// Try resolving via link dataset map
+			if parentID := GetLinkDatasetID(datasetID); parentID != datasetID {
+				cfg, hasCfg = p.bucketConfigs[parentID]
+			}
+		}
+		if !hasCfg {
+			continue
+		}
+
+		// Convert to BucketWriter array
+		buckets := make([]*BucketWriter, len(files))
+		for i, bf := range files {
+			buckets[i] = &BucketWriter{
+				filePath:    bf.filePath,
+				fileCreated: bf.created,
+				lineCount:   bf.lineCount,
+			}
+		}
+
+		result[datasetID] = &DatasetBucketWriter{
+			datasetID: datasetID,
+			config:    cfg,
+			outputDir: p.outputDir,
+			buckets:   buckets,
+			setIndex:  -1,
+		}
+	}
+
+	return result
+}
+
+// DatasetBucketWriter is kept for compatibility with sorting code
+type DatasetBucketWriter struct {
+	datasetID string
+	config    *BucketConfig
+	buckets   []*BucketWriter
+	outputDir string
+	wg        *sync.WaitGroup
+	setIndex  int // -1 for single set, 0+ for multi-set index
+}
+
+// BucketWriter is kept for compatibility with sorting code
+type BucketWriter struct {
+	filePath    string
+	fileCreated bool
+	lineCount   uint64
+}
+
+// MarkExistingFilesCreated scans bucket directories and marks files that exist as created
+// Used for resume-from-sort mode where bucket files already exist from a previous run
+func (p *HybridWriterPool) MarkExistingFilesCreated() int {
+	count := 0
+	for _, bf := range p.bucketFiles {
+		if _, err := os.Stat(bf.filePath); err == nil {
+			bf.created = true
+			count++
+		}
+	}
+	log.Printf("Resume mode: found %d existing bucket files", count)
+	return count
+}
+
+// GetFederationsWithData returns the list of federations that have bucket files
+// Used by concatenation to process each federation's index directory
+func (p *HybridWriterPool) GetFederationsWithData() []string {
+	federationSet := make(map[string]bool)
+
+	for _, bf := range p.bucketFiles {
+		if !bf.created {
+			continue
+		}
+		// Extract federation from file path
+		// Path format: {outDir}/{federation}/index/{dataset}/{subdir}/bucket_*.txt
+		relPath, err := filepath.Rel(p.outputDir, bf.filePath)
+		if err != nil {
+			continue
+		}
+		parts := strings.Split(relPath, string(filepath.Separator))
+		if len(parts) > 0 {
+			federationSet[parts[0]] = true
+		}
+	}
+
+	// Convert set to slice, with "main" first
+	var result []string
+	if federationSet["main"] {
+		result = append(result, "main")
+		delete(federationSet, "main")
+	}
+	for fed := range federationSet {
+		result = append(result, fed)
+	}
+
+	return result
+}
+
+// GetDatasetFederation returns the federation mapping
+func (p *HybridWriterPool) GetDatasetFederation() map[string]string {
+	return p.datasetFederation
+}

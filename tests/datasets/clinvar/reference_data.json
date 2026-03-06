@@ -1,0 +1,5393 @@
+[
+  {
+    "variation_id": "323",
+    "name": "NM_012338.4(TSPAN12):c.361-5_361-1del",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "TSPAN12"
+    ],
+    "gene_ids": [
+      "23554"
+    ],
+    "hgnc_ids": [
+      "HGNC:21641"
+    ],
+    "hgvs_expressions": [
+      "NC_000007.13:g.120450625_120450629del",
+      "NC_000007.14:g.120810571_120810575del",
+      "NG_023203.1:g.52549_52553del",
+      "NM_012338.4:c.361-5_361-1del"
+    ],
+    "chromosome": "7",
+    "start": "120810571",
+    "stop": "120810575",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Exudative vitreoretinopathy 5"
+    ],
+    "phenotype_ids": [
+      "Genetic Alliance:Exudative+vitreoretinopathy+5/8365",
+      "MONDO:MONDO:0013218",
+      "OMIM:613310",
+      "Orphanet:891",
+      "MedGen:C2750079",
+      "MONDO:MONDO:0013218",
+      "OMIM:613310"
+    ]
+  },
+  {
+    "variation_id": "409",
+    "name": "NC_000004.11:g.3076606GCA[40_?]",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "practice guideline",
+    "gene_symbols": [
+      "HTT",
+      "LOC109461479",
+      "LOC129929027"
+    ],
+    "gene_ids": [
+      "3064",
+      "109461479",
+      "129929027"
+    ],
+    "hgnc_ids": [
+      "HGNC:4851"
+    ],
+    "hgvs_expressions": [
+      "NG_009378.1:g.5198_5200(41_?)",
+      "NM_002111.6:c.53AGC[(41_?)]",
+      "NG_009378.1:g.5198AGC[(41_?)]",
+      "NM_002111.8:c.52CAG[40_?]",
+      "LRG_763:g.5198_5200(41_?)",
+      "NG_009378.1:g.5198AGC[40_?]",
+      "LRG_763t1:c.52CAG[40_?]",
+      "NM_002111.8:c.52CAR[(40_?)]"
+    ],
+    "chromosome": "4",
+    "start": "3074935",
+    "stop": "3074936",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Huntington's chorea"
+    ],
+    "phenotype_ids": [
+      "Genetic Alliance:Huntington+disease/3497",
+      "SNOMED CT:58756001",
+      "OMIM:143100",
+      "MONDO:MONDO:0007739",
+      "OMIM:143100",
+      "GeneReviews:NBK1305",
+      "Office of Rare Diseases:6677",
+      "Orphanet:248111",
+      "Orphanet:399",
+      "MedGen:C0020179",
+      "MONDO:MONDO:0007739",
+      "OMIM:143100"
+    ]
+  },
+  {
+    "variation_id": "455",
+    "name": "NM_000097.7(CPOX):c.489_509del (p.Cys164_Val170del)",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "CPOX"
+    ],
+    "gene_ids": [
+      "1371"
+    ],
+    "hgnc_ids": [
+      "HGNC:2321"
+    ],
+    "hgvs_expressions": [
+      "LRG_1077t1:c.489_509del",
+      "LRG_1077:g.5596_5616del",
+      "NC_000003.11:g.98311845_98311865del",
+      "NC_000003.12:g.98593001_98593021del",
+      "NG_015994.2:g.5596_5616del",
+      "NM_000097.7:c.489_509del"
+    ],
+    "chromosome": "3",
+    "start": "98592996",
+    "stop": "98593016",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Coproporphyria"
+    ],
+    "phenotype_ids": [
+      "SNOMED CT:190915002",
+      "MedGen:C0342856"
+    ]
+  },
+  {
+    "variation_id": "441",
+    "name": "NG_007480.1:g.(7267_8082)_(8469_9169)del",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "BCAM"
+    ],
+    "gene_ids": [
+      "4059"
+    ],
+    "hgnc_ids": [
+      "HGNC:6722"
+    ],
+    "hgvs_expressions": [
+      "LRG_798:g.(7267_8082)_(8469_9169)del",
+      "NG_007480.1:g.(7267_8082)_(8469_9169)del"
+    ],
+    "chromosome": "19",
+    "start": "44809059",
+    "stop": "44821421",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "BLOOD GROUP--LUTHERAN NULL"
+    ],
+    "phenotype_ids": [
+      "OMIM:612773.0005",
+      "OMIM:612773.0006",
+      "OMIM:612773.0003",
+      "OMIM:612773.0004",
+      "MedGen:C4017284"
+    ]
+  },
+  {
+    "variation_id": "838",
+    "name": "APC, 1-BP DEL, 3720T",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "APC"
+    ],
+    "gene_ids": [
+      "324"
+    ],
+    "hgnc_ids": [
+      "HGNC:583"
+    ],
+    "hgvs_expressions": [],
+    "chromosome": "5",
+    "start": "112707498",
+    "stop": "112846239",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Desmoid tumor, somatic"
+    ],
+    "phenotype_ids": [
+      "MONDO:MONDO:0100168",
+      "MedGen:C2675440",
+      "MONDO:MONDO:0100168"
+    ]
+  },
+  {
+    "variation_id": "815",
+    "name": "NC_000005.9:g.112172610_112244011del",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "REEP5",
+      "SRP19",
+      "APC",
+      "LOC112997553",
+      "LOC126807477",
+      "LOC129994372"
+    ],
+    "gene_ids": [
+      "7905",
+      "6728",
+      "324",
+      "112997553",
+      "126807477",
+      "129994372"
+    ],
+    "hgnc_ids": [
+      "HGNC:30077",
+      "HGNC:11300",
+      "HGNC:583"
+    ],
+    "hgvs_expressions": [
+      "NC_000005.10:g.112836913_112908314del",
+      "NC_000005.9:g.112172610_112244011del"
+    ],
+    "chromosome": "5",
+    "start": "112836913",
+    "stop": "112908314",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "APC-Associated Polyposis Conditions"
+    ],
+    "phenotype_ids": [
+      "GeneReviews:NBK1345",
+      "OMIM:611731.0034",
+      "OMIM:611731.0036",
+      "OMIM:611731.0042",
+      "OMIM:611731.0049",
+      "OMIM:611731.0021",
+      "OMIM:611731.0028",
+      "OMIM:611731.0035",
+      "OMIM:611731.0038",
+      "OMIM:611731.0043",
+      "MONDO:MONDO:0021056",
+      "OMIM:175100",
+      "OMIM:175100",
+      "Genetic Testing Registry (GTR):GTR000501794",
+      "Genetic Testing Registry (GTR):GTR000520077",
+      "Genetic Testing Registry (GTR):GTR000520868",
+      "Genetic Testing Registry (GTR):GTR000520869",
+      "Genetic Testing Registry (GTR):GTR000520872",
+      "Genetic Testing Registry (GTR):GTR000527984",
+      "Genetic Testing Registry (GTR):GTR000552290",
+      "Genetic Testing Registry (GTR):GTR000552303",
+      "Genetic Testing Registry (GTR):GTR000591173",
+      "Genetic Testing Registry (GTR):GTR000592450",
+      "Genetic Testing Registry (GTR):GTR000500894",
+      "Genetic Testing Registry (GTR):GTR000501393",
+      "Genetic Testing Registry (GTR):GTR000508954",
+      "Genetic Testing Registry (GTR):GTR000520047",
+      "Genetic Testing Registry (GTR):GTR000520069",
+      "Genetic Testing Registry (GTR):GTR000520394",
+      "Genetic Testing Registry (GTR):GTR000520870",
+      "Genetic Testing Registry (GTR):GTR000521915",
+      "Genetic Testing Registry (GTR):GTR000529017",
+      "Genetic Testing Registry (GTR):GTR000530028",
+      "Genetic Testing Registry (GTR):GTR000530118",
+      "Genetic Testing Registry (GTR):GTR000321103",
+      "Genetic Testing Registry (GTR):GTR000330056",
+      "Genetic Testing Registry (GTR):GTR000501394",
+      "Genetic Testing Registry (GTR):GTR000512645",
+      "Genetic Testing Registry (GTR):GTR000515534",
+      "Genetic Testing Registry (GTR):GTR000520865",
+      "Genetic Testing Registry (GTR):GTR000527982",
+      "Genetic Testing Registry (GTR):GTR000558907",
+      "Genetic Testing Registry (GTR):GTR000604264",
+      "Genetic Testing Registry (GTR):GTR000172265",
+      "Genetic Testing Registry (GTR):GTR000512300",
+      "Genetic Testing Registry (GTR):GTR000515899",
+      "Genetic Testing Registry (GTR):GTR000522559",
+      "Genetic Testing Registry (GTR):GTR000528912",
+      "Genetic Testing Registry (GTR):GTR000530120",
+      "Genetic Testing Registry (GTR):GTR000530202",
+      "Genetic Testing Registry (GTR):GTR000552245",
+      "Genetic Testing Registry (GTR):GTR000569916",
+      "Genetic Testing Registry (GTR):GTR000570011",
+      "Genetic Testing Registry (GTR):GTR000593435",
+      "GeneReviews:NBK1345",
+      "MedGen:C2713442",
+      "MONDO:MONDO:0021056",
+      "OMIM:175100"
+    ]
+  },
+  {
+    "variation_id": "834",
+    "name": "APC deletion",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "APC",
+      "LOC129994371"
+    ],
+    "gene_ids": [
+      "324",
+      "129994371"
+    ],
+    "hgnc_ids": [
+      "HGNC:583"
+    ],
+    "hgvs_expressions": [
+      "NC_000005.10:g.(?_112707504)_(112846240_?)del",
+      "NC_000005.9:g.(?_112043201)_(112181937_?)del"
+    ],
+    "chromosome": "5",
+    "start": "",
+    "stop": "",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "APC-Associated Polyposis Conditions"
+    ],
+    "phenotype_ids": [
+      "GeneReviews:NBK1345",
+      "OMIM:611731.0034",
+      "OMIM:611731.0036",
+      "OMIM:611731.0042",
+      "OMIM:611731.0049",
+      "OMIM:611731.0021",
+      "OMIM:611731.0028",
+      "OMIM:611731.0035",
+      "OMIM:611731.0038",
+      "OMIM:611731.0043",
+      "MONDO:MONDO:0021056",
+      "OMIM:175100",
+      "OMIM:175100",
+      "Genetic Testing Registry (GTR):GTR000501794",
+      "Genetic Testing Registry (GTR):GTR000520077",
+      "Genetic Testing Registry (GTR):GTR000520868",
+      "Genetic Testing Registry (GTR):GTR000520869",
+      "Genetic Testing Registry (GTR):GTR000520872",
+      "Genetic Testing Registry (GTR):GTR000527984",
+      "Genetic Testing Registry (GTR):GTR000552290",
+      "Genetic Testing Registry (GTR):GTR000552303",
+      "Genetic Testing Registry (GTR):GTR000591173",
+      "Genetic Testing Registry (GTR):GTR000592450",
+      "Genetic Testing Registry (GTR):GTR000500894",
+      "Genetic Testing Registry (GTR):GTR000501393",
+      "Genetic Testing Registry (GTR):GTR000508954",
+      "Genetic Testing Registry (GTR):GTR000520047",
+      "Genetic Testing Registry (GTR):GTR000520069",
+      "Genetic Testing Registry (GTR):GTR000520394",
+      "Genetic Testing Registry (GTR):GTR000520870",
+      "Genetic Testing Registry (GTR):GTR000521915",
+      "Genetic Testing Registry (GTR):GTR000529017",
+      "Genetic Testing Registry (GTR):GTR000530028",
+      "Genetic Testing Registry (GTR):GTR000530118",
+      "Genetic Testing Registry (GTR):GTR000321103",
+      "Genetic Testing Registry (GTR):GTR000330056",
+      "Genetic Testing Registry (GTR):GTR000501394",
+      "Genetic Testing Registry (GTR):GTR000512645",
+      "Genetic Testing Registry (GTR):GTR000515534",
+      "Genetic Testing Registry (GTR):GTR000520865",
+      "Genetic Testing Registry (GTR):GTR000527982",
+      "Genetic Testing Registry (GTR):GTR000558907",
+      "Genetic Testing Registry (GTR):GTR000604264",
+      "Genetic Testing Registry (GTR):GTR000172265",
+      "Genetic Testing Registry (GTR):GTR000512300",
+      "Genetic Testing Registry (GTR):GTR000515899",
+      "Genetic Testing Registry (GTR):GTR000522559",
+      "Genetic Testing Registry (GTR):GTR000528912",
+      "Genetic Testing Registry (GTR):GTR000530120",
+      "Genetic Testing Registry (GTR):GTR000530202",
+      "Genetic Testing Registry (GTR):GTR000552245",
+      "Genetic Testing Registry (GTR):GTR000569916",
+      "Genetic Testing Registry (GTR):GTR000570011",
+      "Genetic Testing Registry (GTR):GTR000593435",
+      "GeneReviews:NBK1345",
+      "MedGen:C2713442",
+      "MONDO:MONDO:0021056",
+      "OMIM:175100"
+    ]
+  },
+  {
+    "variation_id": "556",
+    "name": "NM_000140.5(FECH):c.314+6A>C",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "FECH"
+    ],
+    "gene_ids": [
+      "2235"
+    ],
+    "hgnc_ids": [
+      "HGNC:3647"
+    ],
+    "hgvs_expressions": [
+      "NC_000018.10:g.57573240T>G",
+      "NC_000018.9:g.55240472T>G",
+      "NG_008175.1:g.18498A>C",
+      "NM_001371094.1:c.314+6A>C",
+      "NM_001374778.1:c.314+6A>C",
+      "NM_000140.5:c.314+6A>C",
+      "NM_001012515.4:c.332+6A>C",
+      "NM_001371095.1:c.98+6A>C",
+      "LRG_1080:g.18498A>C",
+      "LRG_1080t1:c.314+6A>C",
+      "LRG_1080t2:c.332+6A>C"
+    ],
+    "chromosome": "18",
+    "start": "57573240",
+    "stop": "57573240",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Erythropoietic Protoporphyria, Autosomal Recessive"
+    ],
+    "phenotype_ids": [
+      "GeneReviews:NBK100826",
+      "MONDO:MONDO:0008319",
+      "OMIM:177000",
+      "OMIM:177000",
+      "OMIM:177000",
+      "GeneReviews:NBK100826",
+      "Orphanet:79278",
+      "MedGen:C4692546",
+      "MONDO:MONDO:0008319",
+      "OMIM:177000"
+    ]
+  },
+  {
+    "variation_id": "1212",
+    "name": "GNAS, 4.7-KB DEL",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "GNAS",
+      "GNAS-AS1"
+    ],
+    "gene_ids": [
+      "2778",
+      "149775"
+    ],
+    "hgnc_ids": [
+      "HGNC:4392",
+      "HGNC:24872"
+    ],
+    "hgvs_expressions": [],
+    "chromosome": "20",
+    "start": "58818918",
+    "stop": "58850902",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Pseudohypoparathyroidism type 1B"
+    ],
+    "phenotype_ids": [
+      "Genetic Alliance:Pseudohypoparathyroidism+type+1B/6036",
+      "MONDO:MONDO:0011301",
+      "OMIM:603233",
+      "OMIM:603233",
+      "GeneReviews:NBK459117",
+      "Office of Rare Diseases:10680",
+      "Orphanet:94089",
+      "MedGen:C1864100",
+      "MONDO:MONDO:0011301",
+      "OMIM:603233"
+    ]
+  },
+  {
+    "variation_id": "826",
+    "name": "NM_000038.6(APC):c.1311_1312+1del",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "reviewed by expert panel",
+    "gene_symbols": [
+      "APC"
+    ],
+    "gene_ids": [
+      "324"
+    ],
+    "hgnc_ids": [
+      "HGNC:583"
+    ],
+    "hgvs_expressions": [
+      "LRG_130:g.131823_131825del",
+      "NC_000005.10:g.112819343_112819345del",
+      "NC_000005.9:g.112155040_112155042del",
+      "NM_001354895.2:c.1311_1312+1del",
+      "NM_001354897.2:c.1341_1342+1del",
+      "NM_001354902.2:c.1038_1039+1del",
+      "NM_001127511.3:c.1257_1258+1del",
+      "NM_001127510.3:c.1311_1312+1del",
+      "NM_001354898.2:c.1236_1237+1del",
+      "NM_001354904.2:c.933_934+1del",
+      "NM_001354906.2:c.462_463+1del",
+      "NM_001354896.2:c.1311_1312+1del",
+      "NM_000038.6:c.1311_1312+1del",
+      "NM_001354903.2:c.1008_1009+1del",
+      "NM_001354899.2:c.1227_1228+1del",
+      "NM_001354900.2:c.1134_1135+1del",
+      "NM_001354901.2:c.1134_1135+1del",
+      "NM_001354905.2:c.831_832+1del",
+      "NG_008481.4:g.131823_131825del"
+    ],
+    "chromosome": "5",
+    "start": "112819343",
+    "stop": "112819345",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "POLYPOSIS, ADENOMATOUS INTESTINAL"
+    ],
+    "phenotype_ids": [
+      "OMIM:175100",
+      "GeneReviews:NBK1345",
+      "OMIM:611731.0034",
+      "OMIM:611731.0036",
+      "OMIM:611731.0042",
+      "OMIM:611731.0049",
+      "OMIM:611731.0021",
+      "OMIM:611731.0028",
+      "OMIM:611731.0035",
+      "OMIM:611731.0038",
+      "OMIM:611731.0043",
+      "MONDO:MONDO:0021056",
+      "OMIM:175100",
+      "Genetic Testing Registry (GTR):GTR000321103",
+      "Genetic Testing Registry (GTR):GTR000330056",
+      "Genetic Testing Registry (GTR):GTR000501394",
+      "Genetic Testing Registry (GTR):GTR000512645",
+      "Genetic Testing Registry (GTR):GTR000515534",
+      "Genetic Testing Registry (GTR):GTR000520865",
+      "Genetic Testing Registry (GTR):GTR000527982",
+      "Genetic Testing Registry (GTR):GTR000558907",
+      "Genetic Testing Registry (GTR):GTR000500894",
+      "Genetic Testing Registry (GTR):GTR000501393",
+      "Genetic Testing Registry (GTR):GTR000508954",
+      "Genetic Testing Registry (GTR):GTR000520047",
+      "Genetic Testing Registry (GTR):GTR000520069",
+      "Genetic Testing Registry (GTR):GTR000520394",
+      "Genetic Testing Registry (GTR):GTR000520870",
+      "Genetic Testing Registry (GTR):GTR000521915",
+      "Genetic Testing Registry (GTR):GTR000529017",
+      "Genetic Testing Registry (GTR):GTR000530028",
+      "Genetic Testing Registry (GTR):GTR000530118",
+      "Genetic Testing Registry (GTR):GTR000172265",
+      "Genetic Testing Registry (GTR):GTR000512300",
+      "Genetic Testing Registry (GTR):GTR000515899",
+      "Genetic Testing Registry (GTR):GTR000522559",
+      "Genetic Testing Registry (GTR):GTR000528912",
+      "Genetic Testing Registry (GTR):GTR000530120",
+      "Genetic Testing Registry (GTR):GTR000530202",
+      "Genetic Testing Registry (GTR):GTR000552245",
+      "Genetic Testing Registry (GTR):GTR000569916",
+      "Genetic Testing Registry (GTR):GTR000570011",
+      "Genetic Testing Registry (GTR):GTR000593435",
+      "Genetic Testing Registry (GTR):GTR000501794",
+      "Genetic Testing Registry (GTR):GTR000520077",
+      "Genetic Testing Registry (GTR):GTR000520868",
+      "Genetic Testing Registry (GTR):GTR000520869",
+      "Genetic Testing Registry (GTR):GTR000520872",
+      "Genetic Testing Registry (GTR):GTR000527984",
+      "Genetic Testing Registry (GTR):GTR000552290",
+      "Genetic Testing Registry (GTR):GTR000552303",
+      "Genetic Testing Registry (GTR):GTR000591173",
+      "Genetic Testing Registry (GTR):GTR000592450",
+      "GeneReviews:NBK1345",
+      "MedGen:C2713442",
+      "MONDO:MONDO:0021056",
+      "OMIM:175100"
+    ]
+  },
+  {
+    "variation_id": "841",
+    "name": "NG_008481.4:g.(?_150033)_(158719_?)del",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "criteria provided, single submitter",
+    "gene_symbols": [
+      "APC"
+    ],
+    "gene_ids": [
+      "324"
+    ],
+    "hgnc_ids": [
+      "HGNC:583"
+    ],
+    "hgvs_expressions": [
+      "NG_008481.4:g.(?_150033)_(158719_?)del",
+      "LRG_130:g.(?_150033)_(158719_?)del",
+      "NC_000005.10:g.(?_112837553)_(112846239_?)del",
+      "NC_000005.9:g.(?_112173250)_(112181936_?)del"
+    ],
+    "chromosome": "5",
+    "start": "",
+    "stop": "",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "FAMILIAL ADENOMATOUS POLYPOSIS 1, ATTENUATED"
+    ],
+    "phenotype_ids": [
+      "OMIM:611731.0021",
+      "OMIM:611731.0038",
+      "OMIM:611731.0042",
+      "OMIM:611731.0028",
+      "OMIM:611731.0043",
+      "OMIM:611731.0034",
+      "OMIM:611731.0049",
+      "OMIM:611731.0035",
+      "OMIM:611731.0036",
+      "OMIM:175100",
+      "MONDO:MONDO:0021056",
+      "GeneReviews:NBK1345",
+      "OMIM:175100",
+      "Genetic Testing Registry (GTR):GTR000515534",
+      "Genetic Testing Registry (GTR):GTR000591173",
+      "Genetic Testing Registry (GTR):GTR000592450",
+      "Genetic Testing Registry (GTR):GTR000521915",
+      "Genetic Testing Registry (GTR):GTR000501394",
+      "Genetic Testing Registry (GTR):GTR000330056",
+      "Genetic Testing Registry (GTR):GTR000501393",
+      "Genetic Testing Registry (GTR):GTR000593435",
+      "Genetic Testing Registry (GTR):GTR000520869",
+      "Genetic Testing Registry (GTR):GTR000520069",
+      "Genetic Testing Registry (GTR):GTR000520077",
+      "Genetic Testing Registry (GTR):GTR000604264",
+      "Genetic Testing Registry (GTR):GTR000520868",
+      "Genetic Testing Registry (GTR):GTR000528912",
+      "Genetic Testing Registry (GTR):GTR000552303",
+      "Genetic Testing Registry (GTR):GTR000527982",
+      "Genetic Testing Registry (GTR):GTR000558907",
+      "Genetic Testing Registry (GTR):GTR000520047",
+      "Genetic Testing Registry (GTR):GTR000529017",
+      "Genetic Testing Registry (GTR):GTR000522559",
+      "Genetic Testing Registry (GTR):GTR000530120",
+      "Genetic Testing Registry (GTR):GTR000552245",
+      "Genetic Testing Registry (GTR):GTR000527984",
+      "GeneReviews:NBK1345",
+      "MedGen:C2713442",
+      "MONDO:MONDO:0021056",
+      "OMIM:175100"
+    ]
+  },
+  {
+    "variation_id": "842",
+    "name": "APC, 5-BP DEL, NT3221",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "APC"
+    ],
+    "gene_ids": [
+      "324"
+    ],
+    "hgnc_ids": [
+      "HGNC:583"
+    ],
+    "hgvs_expressions": [],
+    "chromosome": "5",
+    "start": "112707498",
+    "stop": "112846239",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "FAMILIAL ADENOMATOUS POLYPOSIS 1, ATTENUATED"
+    ],
+    "phenotype_ids": [
+      "OMIM:611731.0034",
+      "OMIM:611731.0036",
+      "OMIM:611731.0042",
+      "OMIM:611731.0049",
+      "OMIM:611731.0021",
+      "OMIM:611731.0028",
+      "OMIM:611731.0035",
+      "OMIM:611731.0038",
+      "OMIM:611731.0043",
+      "MONDO:MONDO:0021056",
+      "OMIM:175100",
+      "GeneReviews:NBK1345",
+      "OMIM:175100",
+      "GeneReviews:NBK1345",
+      "Genetic Testing Registry (GTR):GTR000501794",
+      "Genetic Testing Registry (GTR):GTR000520077",
+      "Genetic Testing Registry (GTR):GTR000520868",
+      "Genetic Testing Registry (GTR):GTR000520869",
+      "Genetic Testing Registry (GTR):GTR000520872",
+      "Genetic Testing Registry (GTR):GTR000527984",
+      "Genetic Testing Registry (GTR):GTR000552290",
+      "Genetic Testing Registry (GTR):GTR000552303",
+      "Genetic Testing Registry (GTR):GTR000591173",
+      "Genetic Testing Registry (GTR):GTR000592450",
+      "Genetic Testing Registry (GTR):GTR000500894",
+      "Genetic Testing Registry (GTR):GTR000501393",
+      "Genetic Testing Registry (GTR):GTR000508954",
+      "Genetic Testing Registry (GTR):GTR000172265",
+      "Genetic Testing Registry (GTR):GTR000512300",
+      "Genetic Testing Registry (GTR):GTR000515899",
+      "Genetic Testing Registry (GTR):GTR000522559",
+      "Genetic Testing Registry (GTR):GTR000528912",
+      "Genetic Testing Registry (GTR):GTR000530120",
+      "Genetic Testing Registry (GTR):GTR000530202",
+      "Genetic Testing Registry (GTR):GTR000552245",
+      "Genetic Testing Registry (GTR):GTR000569916",
+      "Genetic Testing Registry (GTR):GTR000570011",
+      "Genetic Testing Registry (GTR):GTR000593435",
+      "Genetic Testing Registry (GTR):GTR000321103",
+      "Genetic Testing Registry (GTR):GTR000330056",
+      "Genetic Testing Registry (GTR):GTR000501394",
+      "Genetic Testing Registry (GTR):GTR000512645",
+      "Genetic Testing Registry (GTR):GTR000515534",
+      "Genetic Testing Registry (GTR):GTR000520865",
+      "Genetic Testing Registry (GTR):GTR000527982",
+      "Genetic Testing Registry (GTR):GTR000558907",
+      "Genetic Testing Registry (GTR):GTR000520047",
+      "Genetic Testing Registry (GTR):GTR000520069",
+      "Genetic Testing Registry (GTR):GTR000520394",
+      "Genetic Testing Registry (GTR):GTR000520870",
+      "Genetic Testing Registry (GTR):GTR000521915",
+      "Genetic Testing Registry (GTR):GTR000529017",
+      "Genetic Testing Registry (GTR):GTR000530028",
+      "Genetic Testing Registry (GTR):GTR000530118",
+      "MedGen:C2713442",
+      "MONDO:MONDO:0021056",
+      "OMIM:175100"
+    ]
+  },
+  {
+    "variation_id": "1521",
+    "name": "NM_000237.3(LPL):c.898_1019-1234dup",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "LPL"
+    ],
+    "gene_ids": [
+      "4023"
+    ],
+    "hgnc_ids": [
+      "HGNC:6677"
+    ],
+    "hgvs_expressions": [
+      "NC_000008.10:g.19813474_19815537dup",
+      "NC_000008.11:g.19955963_19958026dup",
+      "NG_008855.2:g.59247_61310dup",
+      "NM_000237.3:c.898_1019-1234dup",
+      "LRG_1298:g.59247_61310dup",
+      "LRG_1298t1:c.898_1019-1234dup"
+    ],
+    "chromosome": "8",
+    "start": "19955962",
+    "stop": "19955963",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Familial hyperlipo-proteinemia type 1"
+    ],
+    "phenotype_ids": [
+      "OMIM:238600",
+      "OMIM:238600",
+      "OMIM:609708.0029",
+      "OMIM:609708.0018",
+      "OMIM:609708.0005",
+      "OMIM:609708.0027",
+      "OMIM:609708.0034",
+      "OMIM:609708.0012",
+      "OMIM:609708.0026",
+      "OMIM:609708.0025",
+      "OMIM:609708.0024",
+      "OMIM:609708.0039",
+      "OMIM:609708.0007",
+      "OMIM:609708.0021",
+      "OMIM:609708.0003",
+      "OMIM:609708.0010",
+      "OMIM:609708.0030",
+      "OMIM:609708.0009",
+      "OMIM:609708.0020",
+      "OMIM:609708.0019",
+      "OMIM:609708.0004",
+      "OMIM:609708.0002",
+      "OMIM:609708.0011",
+      "OMIM:609708.0031",
+      "OMIM:609708.0001",
+      "OMIM:609708.0037",
+      "OMIM:609708.0041",
+      "OMIM:609708.0017",
+      "OMIM:609708.0036",
+      "OMIM:609708.0023",
+      "OMIM:609708.0006",
+      "OMIM:609708.0016",
+      "OMIM:609708.0028",
+      "OMIM:609708.0013",
+      "OMIM:609708.0040",
+      "OMIM:609708.0008",
+      "OMIM:609708.0015",
+      "OMIM:238600",
+      "SNOMED CT:238086005",
+      "Genetic Alliance:Hyperlipoproteinemia+type+1/3574",
+      "SNOMED CT:275598004",
+      "Office of Rare Diseases:12241",
+      "GeneReviews:NBK1308",
+      "Genetic Testing Registry (GTR):GTR000030379",
+      "Genetic Testing Registry (GTR):GTR000511673",
+      "Genetic Testing Registry (GTR):GTR000511672",
+      "Orphanet:309015",
+      "Orphanet:444490",
+      "MedGen:C0023817",
+      "MONDO:MONDO:0009387",
+      "OMIM:238600"
+    ]
+  },
+  {
+    "variation_id": "1523",
+    "name": "NG_008855.2:g.(51625_55052)_(57638_59124)del",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "LPL"
+    ],
+    "gene_ids": [
+      "4023"
+    ],
+    "hgnc_ids": [
+      "HGNC:6677"
+    ],
+    "hgvs_expressions": [
+      "NG_008855.2:g.(51625_55052)_(57638_59124)del",
+      "LRG_1298:g.(51625_55052)_(57638_59124)del"
+    ],
+    "chromosome": "8",
+    "start": "19939253",
+    "stop": "19967259",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Familial hyperlipo-proteinemia type 1"
+    ],
+    "phenotype_ids": [
+      "OMIM:238600",
+      "OMIM:238600",
+      "OMIM:609708.0029",
+      "OMIM:609708.0018",
+      "OMIM:609708.0005",
+      "OMIM:609708.0027",
+      "OMIM:609708.0034",
+      "OMIM:609708.0012",
+      "OMIM:609708.0026",
+      "OMIM:609708.0025",
+      "OMIM:609708.0024",
+      "OMIM:609708.0039",
+      "OMIM:609708.0007",
+      "OMIM:609708.0021",
+      "OMIM:609708.0003",
+      "OMIM:609708.0010",
+      "OMIM:609708.0030",
+      "OMIM:609708.0009",
+      "OMIM:609708.0020",
+      "OMIM:609708.0019",
+      "OMIM:609708.0004",
+      "OMIM:609708.0002",
+      "OMIM:609708.0011",
+      "OMIM:609708.0031",
+      "OMIM:609708.0001",
+      "OMIM:609708.0037",
+      "OMIM:609708.0041",
+      "OMIM:609708.0017",
+      "OMIM:609708.0036",
+      "OMIM:609708.0023",
+      "OMIM:609708.0006",
+      "OMIM:609708.0016",
+      "OMIM:609708.0028",
+      "OMIM:609708.0013",
+      "OMIM:609708.0040",
+      "OMIM:609708.0008",
+      "OMIM:609708.0015",
+      "OMIM:238600",
+      "SNOMED CT:238086005",
+      "Genetic Alliance:Hyperlipoproteinemia+type+1/3574",
+      "SNOMED CT:275598004",
+      "Office of Rare Diseases:12241",
+      "GeneReviews:NBK1308",
+      "Genetic Testing Registry (GTR):GTR000030379",
+      "Genetic Testing Registry (GTR):GTR000511673",
+      "Genetic Testing Registry (GTR):GTR000511672",
+      "Orphanet:309015",
+      "Orphanet:444490",
+      "MedGen:C0023817",
+      "MONDO:MONDO:0009387",
+      "OMIM:238600"
+    ]
+  },
+  {
+    "variation_id": "984",
+    "name": "NM_024782.3(NHEJ1):c.177+1_177+3delinsTT",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "NHEJ1"
+    ],
+    "gene_ids": [
+      "79840"
+    ],
+    "hgnc_ids": [
+      "HGNC:25737"
+    ],
+    "hgvs_expressions": [
+      "NC_000002.11:g.220022905_220022907delinsAA",
+      "NC_000002.12:g.219158183_219158185delinsAA",
+      "NG_007880.1:g.7681_7683delinsTT",
+      "NM_024782.3:c.177+1_177+3delinsTT",
+      "NM_001377499.1:c.177+1_177+3delinsTT",
+      "NM_001377498.1:c.177+1_177+3delinsTT",
+      "LRG_90:g.7681_7683delinsTT"
+    ],
+    "chromosome": "2",
+    "start": "219158183",
+    "stop": "219158185",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "SCID, AUTOSOMAL RECESSIVE, T CELL-NEGATIVE, B CELL-NEGATIVE, NK CELL-POSITIVE, WITH MICROCEPHALY, GROWTH RETARDATION, AND SENSITIVITY TO IONIZING RADIATION"
+    ],
+    "phenotype_ids": [
+      "OMIM:611291",
+      "OMIM:611291",
+      "MONDO:MONDO:0012650",
+      "OMIM:611291",
+      "OMIM:611290.0002",
+      "OMIM:611290.0008",
+      "OMIM:611290.0003",
+      "OMIM:611290.0001",
+      "OMIM:611290.0007",
+      "OMIM:611290.0005",
+      "OMIM:611290.0004",
+      "OMIM:611290.0006",
+      "OMIM:611291",
+      "Office of Rare Diseases:17045",
+      "Orphanet:169079",
+      "MedGen:C1969799",
+      "MONDO:MONDO:0012650",
+      "OMIM:611291"
+    ]
+  },
+  {
+    "variation_id": "1101",
+    "name": "AGL, EcoRI FRAGMENT INS",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "AGL"
+    ],
+    "gene_ids": [
+      "178"
+    ],
+    "hgnc_ids": [
+      "HGNC:321"
+    ],
+    "hgvs_expressions": [],
+    "chromosome": "1",
+    "start": "99849258",
+    "stop": "99924023",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Glycogen storage disease IIIa"
+    ],
+    "phenotype_ids": [
+      "OMIM:232400",
+      "MedGen:C1968739"
+    ]
+  },
+  {
+    "variation_id": "1172",
+    "name": "NC_000008.11:g.(142876886_142877022)_(142914909_142915045)dup",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "CYP11B1",
+      "CYP11B2",
+      "LOC106799833",
+      "LOC106799834",
+      "LOC110673972"
+    ],
+    "gene_ids": [
+      "1584",
+      "1585",
+      "106799833",
+      "106799834",
+      "110673972"
+    ],
+    "hgnc_ids": [
+      "HGNC:2591",
+      "HGNC:2592"
+    ],
+    "hgvs_expressions": [
+      "NC_000008.11:g.(142876886_142877022)_(142914909_142915045)dup"
+    ],
+    "chromosome": "8",
+    "start": "",
+    "stop": "",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Glucocorticoid-remediable aldosteronism"
+    ],
+    "phenotype_ids": [
+      "Genetic Alliance:Glucocorticoid-remediable+aldosteronism/8476",
+      "MONDO:MONDO:0007080",
+      "OMIM:103900",
+      "OMIM:103900",
+      "OMIM:103900",
+      "OMIM:103900",
+      "OMIM:103900",
+      "OMIM:103900",
+      "OMIM:103900",
+      "Office of Rare Diseases:2790",
+      "Orphanet:403",
+      "MedGen:C3838731",
+      "MONDO:MONDO:0007080",
+      "OMIM:103900"
+    ]
+  },
+  {
+    "variation_id": "1730",
+    "name": "A114N",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "NIPAL4"
+    ],
+    "gene_ids": [
+      "348938"
+    ],
+    "hgnc_ids": [
+      "HGNC:28018"
+    ],
+    "hgvs_expressions": [],
+    "chromosome": "5",
+    "start": "157460213",
+    "stop": "157474722",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Autosomal recessive congenital ichthyosis 6"
+    ],
+    "phenotype_ids": [
+      "Genetic Alliance:Autosomal+recessive+congenital+ichthyosis%2C+NIPAL4-related/7788",
+      "MONDO:MONDO:0012847",
+      "OMIM:612281",
+      "GeneReviews:NBK1420",
+      "Orphanet:313",
+      "Orphanet:79394",
+      "MedGen:C2677065",
+      "MONDO:MONDO:0012847",
+      "OMIM:612281"
+    ]
+  },
+  {
+    "variation_id": "1732",
+    "name": "NM_001099287.2(NIPAL4):c.586+1G>A",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "NIPAL4"
+    ],
+    "gene_ids": [
+      "348938"
+    ],
+    "hgnc_ids": [
+      "HGNC:28018"
+    ],
+    "hgvs_expressions": [
+      "NC_000005.10:g.157471818G>A",
+      "NC_000005.9:g.156898826G>A",
+      "NG_016626.1:g.16800G>A",
+      "NM_001099287.2:c.586+1G>A",
+      "NM_001172292.2:c.529+1G>A"
+    ],
+    "chromosome": "5",
+    "start": "157471818",
+    "stop": "157471818",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Autosomal recessive congenital ichthyosis 6"
+    ],
+    "phenotype_ids": [
+      "Genetic Alliance:Autosomal+recessive+congenital+ichthyosis%2C+NIPAL4-related/7788",
+      "MONDO:MONDO:0012847",
+      "OMIM:612281",
+      "GeneReviews:NBK1420",
+      "Orphanet:313",
+      "Orphanet:79394",
+      "MedGen:C2677065",
+      "MONDO:MONDO:0012847",
+      "OMIM:612281"
+    ]
+  },
+  {
+    "variation_id": "1807",
+    "name": "NM_000102.4(CYP17A1):c.437-2A>C",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "CYP17A1"
+    ],
+    "gene_ids": [
+      "1586"
+    ],
+    "hgnc_ids": [
+      "HGNC:2593"
+    ],
+    "hgvs_expressions": [
+      "NM_000102.4:c.437-2A>C",
+      "NC_000010.10:g.104594773T>G",
+      "NC_000010.11:g.102835016T>G",
+      "NG_007955.1:g.7518A>C"
+    ],
+    "chromosome": "10",
+    "start": "102835016",
+    "stop": "102835016",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "17-alpha-hydroxylase/17,20-lyase deficiency, combined partial"
+    ],
+    "phenotype_ids": [
+      "MONDO:MONDO:0800380",
+      "MedGen:C4017190",
+      "MONDO:MONDO:0800380"
+    ]
+  },
+  {
+    "variation_id": "1310",
+    "name": "NM_001174089.2(SLC4A11):c.2019-16_2019-6delinsGGCCGGCCGG",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "SLC4A11"
+    ],
+    "gene_ids": [
+      "83959"
+    ],
+    "hgnc_ids": [
+      "HGNC:16438"
+    ],
+    "hgvs_expressions": [
+      "NC_000020.10:g.3209663_3209673delinsCCGGCCGGCC",
+      "NC_000020.11:g.3229017_3229027delinsCCGGCCGGCC",
+      "NG_012093.2:g.25151_25161delinsCCGGCCGGCC",
+      "NG_017072.1:g.15215_15225delinsGGCCGGCCGG",
+      "NM_001363745.2:c.1905-16_1905-6delinsGGCCGGCCGG",
+      "NM_001174089.2:c.2019-16_2019-6delinsGGCCGGCCGG",
+      "NM_001174090.2:c.2148-16_2148-6delinsGGCCGGCCGG",
+      "NM_032034.4:c.2067-16_2067-6delinsGGCCGGCCGG"
+    ],
+    "chromosome": "20",
+    "start": "3229017",
+    "stop": "3229027",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Congenital hereditary endothelial dystrophy of cornea"
+    ],
+    "phenotype_ids": [
+      "MONDO:MONDO:0009019",
+      "OMIM:217700",
+      "Orphanet:293603",
+      "OMIM:217700",
+      "OMIM:121700",
+      "Office of Rare Diseases:6196",
+      "Orphanet:293603",
+      "MedGen:C1857569",
+      "MONDO:MONDO:0009019",
+      "OMIM:217700"
+    ]
+  },
+  {
+    "variation_id": "1975",
+    "name": "NM_000022.4(ADA):c.781-3_781delinsTGGAAGAGCAGATCTGG",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "ADA"
+    ],
+    "gene_ids": [
+      "100"
+    ],
+    "hgnc_ids": [
+      "HGNC:186"
+    ],
+    "hgvs_expressions": [
+      "NC_000020.10:g.43251293_43251296delinsCCAGATCTGCTCTTCCA",
+      "NC_000020.11:g.44622652_44622655delinsCCAGATCTGCTCTTCCA",
+      "NG_007385.1:g.34081_34084delinsTGGAAGAGCAGATCTGG",
+      "NM_001322050.2:c.376-3_376delinsTGGAAGAGCAGATCTGG",
+      "NM_001322051.2:c.709-3_709delinsTGGAAGAGCAGATCTGG",
+      "NM_000022.4:c.781-3_781delinsTGGAAGAGCAGATCTGG",
+      "LRG_16:g.34081_34084delinsTGGAAGAGCAGATCTGG"
+    ],
+    "chromosome": "20",
+    "start": "44622652",
+    "stop": "44622655",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "SCID DUE TO ADA DEFICIENCY"
+    ],
+    "phenotype_ids": [
+      "OMIM:102700",
+      "OMIM:102700",
+      "OMIM:102700",
+      "MONDO:MONDO:0007064",
+      "Office of Rare Diseases:5748",
+      "GeneReviews:NBK1483",
+      "Orphanet:277",
+      "MedGen:C1863236",
+      "MONDO:MONDO:0007064",
+      "OMIM:102700"
+    ]
+  },
+  {
+    "variation_id": "1549",
+    "name": "NM_000237.3(LPL):c.-227T>C",
+    "type": "",
+    "germline_classification": "Uncertain significance",
+    "review_status": "criteria provided, single submitter",
+    "gene_symbols": [
+      "LPL"
+    ],
+    "gene_ids": [
+      "4023"
+    ],
+    "hgnc_ids": [
+      "HGNC:6677"
+    ],
+    "hgvs_expressions": [
+      "NC_000008.10:g.19796725T>C",
+      "NC_000008.11:g.19939214T>C",
+      "NG_008855.2:g.42498T>C",
+      "LRG_1298:g.42498T>C",
+      "NM_000237.3:c.-227T>C",
+      "LRG_1298t1:c.-227T>C"
+    ],
+    "chromosome": "8",
+    "start": "19939214",
+    "stop": "19939214",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Hyperlipidemia, familial combined, susceptibility to"
+    ],
+    "phenotype_ids": [
+      "MedGen:C4016424"
+    ]
+  },
+  {
+    "variation_id": "1558",
+    "name": "LPL, 1-BP DEL, CODON 172",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "LPL"
+    ],
+    "gene_ids": [
+      "4023"
+    ],
+    "hgnc_ids": [
+      "HGNC:6677"
+    ],
+    "hgvs_expressions": [],
+    "chromosome": "8",
+    "start": "19939253",
+    "stop": "19967259",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Familial hyperlipo-proteinemia type 1"
+    ],
+    "phenotype_ids": [
+      "OMIM:238600",
+      "OMIM:238600",
+      "OMIM:609708.0029",
+      "OMIM:609708.0018",
+      "OMIM:609708.0005",
+      "OMIM:609708.0027",
+      "OMIM:609708.0034",
+      "OMIM:609708.0012",
+      "OMIM:609708.0026",
+      "OMIM:609708.0025",
+      "OMIM:609708.0024",
+      "OMIM:609708.0039",
+      "OMIM:609708.0007",
+      "OMIM:609708.0021",
+      "OMIM:609708.0003",
+      "OMIM:609708.0010",
+      "OMIM:609708.0030",
+      "OMIM:609708.0009",
+      "OMIM:609708.0020",
+      "OMIM:609708.0019",
+      "OMIM:609708.0004",
+      "OMIM:609708.0002",
+      "OMIM:609708.0011",
+      "OMIM:609708.0031",
+      "OMIM:609708.0001",
+      "OMIM:609708.0037",
+      "OMIM:609708.0041",
+      "OMIM:609708.0017",
+      "OMIM:609708.0036",
+      "OMIM:609708.0023",
+      "OMIM:609708.0006",
+      "OMIM:609708.0016",
+      "OMIM:609708.0028",
+      "OMIM:609708.0013",
+      "OMIM:609708.0040",
+      "OMIM:609708.0008",
+      "OMIM:609708.0015",
+      "OMIM:238600",
+      "SNOMED CT:238086005",
+      "Genetic Alliance:Hyperlipoproteinemia+type+1/3574",
+      "SNOMED CT:275598004",
+      "Office of Rare Diseases:12241",
+      "GeneReviews:NBK1308",
+      "Genetic Testing Registry (GTR):GTR000030379",
+      "Genetic Testing Registry (GTR):GTR000511673",
+      "Genetic Testing Registry (GTR):GTR000511672",
+      "Orphanet:309015",
+      "Orphanet:444490",
+      "MedGen:C0023817",
+      "MONDO:MONDO:0009387",
+      "OMIM:238600"
+    ]
+  },
+  {
+    "variation_id": "1520",
+    "name": "LPL, INS",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "LPL"
+    ],
+    "gene_ids": [
+      "4023"
+    ],
+    "hgnc_ids": [
+      "HGNC:6677"
+    ],
+    "hgvs_expressions": [],
+    "chromosome": "8",
+    "start": "19939253",
+    "stop": "19967259",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Familial hyperlipo-proteinemia type 1"
+    ],
+    "phenotype_ids": [
+      "OMIM:238600",
+      "OMIM:238600",
+      "OMIM:609708.0029",
+      "OMIM:609708.0018",
+      "OMIM:609708.0005",
+      "OMIM:609708.0027",
+      "OMIM:609708.0034",
+      "OMIM:609708.0012",
+      "OMIM:609708.0026",
+      "OMIM:609708.0025",
+      "OMIM:609708.0024",
+      "OMIM:609708.0039",
+      "OMIM:609708.0007",
+      "OMIM:609708.0021",
+      "OMIM:609708.0003",
+      "OMIM:609708.0010",
+      "OMIM:609708.0030",
+      "OMIM:609708.0009",
+      "OMIM:609708.0020",
+      "OMIM:609708.0019",
+      "OMIM:609708.0004",
+      "OMIM:609708.0002",
+      "OMIM:609708.0011",
+      "OMIM:609708.0031",
+      "OMIM:609708.0001",
+      "OMIM:609708.0037",
+      "OMIM:609708.0041",
+      "OMIM:609708.0017",
+      "OMIM:609708.0036",
+      "OMIM:609708.0023",
+      "OMIM:609708.0006",
+      "OMIM:609708.0016",
+      "OMIM:609708.0028",
+      "OMIM:609708.0013",
+      "OMIM:609708.0040",
+      "OMIM:609708.0008",
+      "OMIM:609708.0015",
+      "OMIM:238600",
+      "SNOMED CT:238086005",
+      "Genetic Alliance:Hyperlipoproteinemia+type+1/3574",
+      "SNOMED CT:275598004",
+      "Office of Rare Diseases:12241",
+      "GeneReviews:NBK1308",
+      "Genetic Testing Registry (GTR):GTR000030379",
+      "Genetic Testing Registry (GTR):GTR000511673",
+      "Genetic Testing Registry (GTR):GTR000511672",
+      "Orphanet:309015",
+      "Orphanet:444490",
+      "MedGen:C0023817",
+      "MONDO:MONDO:0009387",
+      "OMIM:238600"
+    ]
+  },
+  {
+    "variation_id": "2148",
+    "name": "NM_133433.4(NIPBL):c.7861-1G>C",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "NIPBL"
+    ],
+    "gene_ids": [
+      "25836"
+    ],
+    "hgnc_ids": [
+      "HGNC:28862"
+    ],
+    "hgvs_expressions": [
+      "NC_000005.10:g.37063789G>C",
+      "NC_000005.9:g.37063891G>C",
+      "NG_006987.2:g.191907G>C",
+      "NM_133433.4:c.7861-1G>C",
+      "NM_015384.5:c.7861-1G>C"
+    ],
+    "chromosome": "5",
+    "start": "37063789",
+    "stop": "37063789",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "TYPUS DEGENERATIVUS AMSTELODAMENSIS"
+    ],
+    "phenotype_ids": [
+      "OMIM:122470",
+      "MONDO:MONDO:0007387",
+      "OMIM:122470",
+      "OMIM:122470",
+      "GeneReviews:NBK1104",
+      "Orphanet:199",
+      "MedGen:C4551851",
+      "MONDO:MONDO:0007387",
+      "OMIM:122470"
+    ]
+  },
+  {
+    "variation_id": "1461",
+    "name": "NM_000190.4(HMBS):c.211-1G>A",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "HMBS"
+    ],
+    "gene_ids": [
+      "3145"
+    ],
+    "hgnc_ids": [
+      "HGNC:4982"
+    ],
+    "hgvs_expressions": [
+      "LRG_1076t2:c.160-1G>A",
+      "LRG_1076t1:c.211-1G>A",
+      "NC_000011.10:g.119089216G>A",
+      "NC_000011.9:g.118959926G>A",
+      "NG_008093.1:g.9340G>A",
+      "NM_001258209.2:c.160-1G>A",
+      "NM_000190.4:c.211-1G>A",
+      "NM_001258208.2:c.211-1G>A",
+      "NM_001024382.2:c.160-1G>A",
+      "LRG_1076:g.9340G>A"
+    ],
+    "chromosome": "11",
+    "start": "119089216",
+    "stop": "119089216",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "HMBS deficiency"
+    ],
+    "phenotype_ids": [
+      "OMIM:176000",
+      "OMIM:176000",
+      "OMIM:176000",
+      "OMIM:176000",
+      "OMIM:176000",
+      "Genetic Alliance:Acute+Intermittent+Porphyria/187",
+      "MONDO:MONDO:0008294",
+      "SNOMED CT:234422006",
+      "GenomeConnect, ClinGen:genomeconnect_14819_622",
+      "OMIM:176000",
+      "GeneReviews:NBK1193",
+      "Office of Rare Diseases:5732",
+      "Orphanet:79276",
+      "MedGen:C0162565",
+      "MONDO:MONDO:0008294",
+      "OMIM:176000"
+    ]
+  },
+  {
+    "variation_id": "1475",
+    "name": "NM_000190.4(HMBS):c.771+1G>C",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "HMBS"
+    ],
+    "gene_ids": [
+      "3145"
+    ],
+    "hgnc_ids": [
+      "HGNC:4982"
+    ],
+    "hgvs_expressions": [
+      "LRG_1076t2:c.720+1G>C",
+      "NC_000011.10:g.119092524G>C",
+      "NC_000011.9:g.118963234G>C",
+      "NG_008093.1:g.12648G>C",
+      "NM_001258209.2:c.601-234G>C",
+      "NM_000190.4:c.771+1G>C",
+      "NM_001258208.2:c.652-234G>C",
+      "NM_001024382.2:c.720+1G>C",
+      "LRG_1076:g.12648G>C",
+      "LRG_1076t1:c.771+1G>C"
+    ],
+    "chromosome": "11",
+    "start": "119092524",
+    "stop": "119092524",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "HMBS deficiency"
+    ],
+    "phenotype_ids": [
+      "OMIM:176000",
+      "OMIM:176000",
+      "OMIM:176000",
+      "OMIM:176000",
+      "OMIM:176000",
+      "Genetic Alliance:Acute+Intermittent+Porphyria/187",
+      "MONDO:MONDO:0008294",
+      "SNOMED CT:234422006",
+      "GenomeConnect, ClinGen:genomeconnect_14819_622",
+      "OMIM:176000",
+      "GeneReviews:NBK1193",
+      "Office of Rare Diseases:5732",
+      "Orphanet:79276",
+      "MedGen:C0162565",
+      "MONDO:MONDO:0008294",
+      "OMIM:176000"
+    ]
+  },
+  {
+    "variation_id": "1477",
+    "name": "NM_000190.4(HMBS):c.266+1G>C",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "HMBS"
+    ],
+    "gene_ids": [
+      "3145"
+    ],
+    "hgnc_ids": [
+      "HGNC:4982"
+    ],
+    "hgvs_expressions": [
+      "NC_000011.10:g.119089273G>C",
+      "NC_000011.9:g.118959983G>C",
+      "NG_008093.1:g.9397G>C",
+      "NM_001258209.2:c.215+1G>C",
+      "NM_000190.4:c.266+1G>C",
+      "NM_001258208.2:c.266+1G>C",
+      "NM_001024382.2:c.215+1G>C",
+      "LRG_1076:g.9397G>C",
+      "LRG_1076t1:c.266+1G>C",
+      "LRG_1076t2:c.215+1G>C"
+    ],
+    "chromosome": "11",
+    "start": "119089273",
+    "stop": "119089273",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "HMBS deficiency"
+    ],
+    "phenotype_ids": [
+      "OMIM:176000",
+      "OMIM:176000",
+      "OMIM:176000",
+      "OMIM:176000",
+      "OMIM:176000",
+      "Genetic Alliance:Acute+Intermittent+Porphyria/187",
+      "MONDO:MONDO:0008294",
+      "SNOMED CT:234422006",
+      "GenomeConnect, ClinGen:genomeconnect_14819_622",
+      "OMIM:176000",
+      "GeneReviews:NBK1193",
+      "Office of Rare Diseases:5732",
+      "Orphanet:79276",
+      "MedGen:C0162565",
+      "MONDO:MONDO:0008294",
+      "OMIM:176000"
+    ]
+  },
+  {
+    "variation_id": "1526",
+    "name": "NM_000237.3(LPL):c.250-1G>A",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "LPL"
+    ],
+    "gene_ids": [
+      "4023"
+    ],
+    "hgnc_ids": [
+      "HGNC:6677"
+    ],
+    "hgvs_expressions": [
+      "NC_000008.10:g.19809279G>A",
+      "NC_000008.11:g.19951768G>A",
+      "NG_008855.2:g.55052G>A",
+      "NM_000237.3:c.250-1G>A",
+      "LRG_1298:g.55052G>A",
+      "LRG_1298t1:c.250-1G>A"
+    ],
+    "chromosome": "8",
+    "start": "19951768",
+    "stop": "19951768",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Familial hyperlipo-proteinemia type 1"
+    ],
+    "phenotype_ids": [
+      "OMIM:238600",
+      "OMIM:238600",
+      "OMIM:609708.0029",
+      "OMIM:609708.0018",
+      "OMIM:609708.0005",
+      "OMIM:609708.0027",
+      "OMIM:609708.0034",
+      "OMIM:609708.0012",
+      "OMIM:609708.0026",
+      "OMIM:609708.0025",
+      "OMIM:609708.0024",
+      "OMIM:609708.0039",
+      "OMIM:609708.0007",
+      "OMIM:609708.0021",
+      "OMIM:609708.0003",
+      "OMIM:609708.0010",
+      "OMIM:609708.0030",
+      "OMIM:609708.0009",
+      "OMIM:609708.0020",
+      "OMIM:609708.0019",
+      "OMIM:609708.0004",
+      "OMIM:609708.0002",
+      "OMIM:609708.0011",
+      "OMIM:609708.0031",
+      "OMIM:609708.0001",
+      "OMIM:609708.0037",
+      "OMIM:609708.0041",
+      "OMIM:609708.0017",
+      "OMIM:609708.0036",
+      "OMIM:609708.0023",
+      "OMIM:609708.0006",
+      "OMIM:609708.0016",
+      "OMIM:609708.0028",
+      "OMIM:609708.0013",
+      "OMIM:609708.0040",
+      "OMIM:609708.0008",
+      "OMIM:609708.0015",
+      "OMIM:238600",
+      "SNOMED CT:238086005",
+      "Genetic Alliance:Hyperlipoproteinemia+type+1/3574",
+      "SNOMED CT:275598004",
+      "Office of Rare Diseases:12241",
+      "GeneReviews:NBK1308",
+      "Genetic Testing Registry (GTR):GTR000030379",
+      "Genetic Testing Registry (GTR):GTR000511673",
+      "Genetic Testing Registry (GTR):GTR000511672",
+      "Orphanet:309015",
+      "Orphanet:444490",
+      "MedGen:C0023817",
+      "MONDO:MONDO:0009387",
+      "OMIM:238600"
+    ]
+  },
+  {
+    "variation_id": "1542",
+    "name": "NM_000237.3(LPL):c.88+1G>C",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "LPL"
+    ],
+    "gene_ids": [
+      "4023"
+    ],
+    "hgnc_ids": [
+      "HGNC:6677"
+    ],
+    "hgvs_expressions": [
+      "NC_000008.10:g.19797040G>C",
+      "NC_000008.11:g.19939529G>C",
+      "NG_008855.2:g.42813G>C",
+      "NM_000237.3:c.88+1G>C",
+      "LRG_1298:g.42813G>C",
+      "LRG_1298t1:c.88+1G>C"
+    ],
+    "chromosome": "8",
+    "start": "19939529",
+    "stop": "19939529",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Familial hyperlipo-proteinemia type 1"
+    ],
+    "phenotype_ids": [
+      "OMIM:238600",
+      "OMIM:238600",
+      "OMIM:609708.0029",
+      "OMIM:609708.0018",
+      "OMIM:609708.0005",
+      "OMIM:609708.0027",
+      "OMIM:609708.0034",
+      "OMIM:609708.0012",
+      "OMIM:609708.0026",
+      "OMIM:609708.0025",
+      "OMIM:609708.0024",
+      "OMIM:609708.0039",
+      "OMIM:609708.0007",
+      "OMIM:609708.0021",
+      "OMIM:609708.0003",
+      "OMIM:609708.0010",
+      "OMIM:609708.0030",
+      "OMIM:609708.0009",
+      "OMIM:609708.0020",
+      "OMIM:609708.0019",
+      "OMIM:609708.0004",
+      "OMIM:609708.0002",
+      "OMIM:609708.0011",
+      "OMIM:609708.0031",
+      "OMIM:609708.0001",
+      "OMIM:609708.0037",
+      "OMIM:609708.0041",
+      "OMIM:609708.0017",
+      "OMIM:609708.0036",
+      "OMIM:609708.0023",
+      "OMIM:609708.0006",
+      "OMIM:609708.0016",
+      "OMIM:609708.0028",
+      "OMIM:609708.0013",
+      "OMIM:609708.0040",
+      "OMIM:609708.0008",
+      "OMIM:609708.0015",
+      "OMIM:238600",
+      "SNOMED CT:238086005",
+      "Genetic Alliance:Hyperlipoproteinemia+type+1/3574",
+      "SNOMED CT:275598004",
+      "Office of Rare Diseases:12241",
+      "GeneReviews:NBK1308",
+      "Genetic Testing Registry (GTR):GTR000030379",
+      "Genetic Testing Registry (GTR):GTR000511673",
+      "Genetic Testing Registry (GTR):GTR000511672",
+      "Orphanet:309015",
+      "Orphanet:444490",
+      "MedGen:C0023817",
+      "MONDO:MONDO:0009387",
+      "OMIM:238600"
+    ]
+  },
+  {
+    "variation_id": "1609",
+    "name": "NM_024884.3(L2HGDH):c.906+1G>T",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "L2HGDH"
+    ],
+    "gene_ids": [
+      "79944"
+    ],
+    "hgnc_ids": [
+      "HGNC:20499"
+    ],
+    "hgvs_expressions": [
+      "NC_000014.8:g.50735880C>A",
+      "NC_000014.9:g.50269162C>A",
+      "NG_008092.1:g.48068G>T",
+      "NM_024884.3:c.906+1G>T"
+    ],
+    "chromosome": "14",
+    "start": "50269162",
+    "stop": "50269162",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "L-2-hydroxyglutaric aciduria"
+    ],
+    "phenotype_ids": [
+      "Genetic Alliance:L-2-hydroxyglutaric+aciduria/4061",
+      "Human Phenotype Ontology:HP:0040144",
+      "MONDO:MONDO:0009370",
+      "OMIM:236792",
+      "Office of Rare Diseases:10472",
+      "Orphanet:79314",
+      "MedGen:C1855995",
+      "MONDO:MONDO:0009370",
+      "OMIM:236792",
+      "Human Phenotype Ontology:HP:0040144"
+    ]
+  },
+  {
+    "variation_id": "2525",
+    "name": "NM_001130969.3(NSMF):c.1132-23_1132-15del",
+    "type": "",
+    "germline_classification": "risk factor",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "NSMF"
+    ],
+    "gene_ids": [
+      "26012"
+    ],
+    "hgnc_ids": [
+      "HGNC:29843"
+    ],
+    "hgvs_expressions": [
+      "NC_000009.11:g.140347053_140347061del",
+      "NC_000009.12:g.137452601_137452609del",
+      "NG_021362.1:g.11726_11734del",
+      "NM_001130971.2:c.1057-23_1057-15del",
+      "NM_015537.5:c.1126-23_1126-15del",
+      "NM_001130970.2:c.1063-23_1063-15del",
+      "NM_001178064.2:c.1042-23_1042-15del",
+      "NM_001130969.3:c.1132-23_1132-15del"
+    ],
+    "chromosome": "9",
+    "start": "137452601",
+    "stop": "137452609",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "NELF-Related Hypogonadotropic Hypogonadism"
+    ],
+    "phenotype_ids": [
+      "OMIM:608137.0001",
+      "OMIM:608137.0002",
+      "MONDO:MONDO:0013911",
+      "OMIM:614838",
+      "GeneReviews:NBK1334",
+      "Orphanet:478",
+      "MedGen:C3553842",
+      "MONDO:MONDO:0013911",
+      "OMIM:614838"
+    ]
+  },
+  {
+    "variation_id": "2527",
+    "name": "NM_017680.6(ASPN):c.114TGA[15] (p.Asp50_Glu51insAspAsp)",
+    "type": "",
+    "germline_classification": "Benign",
+    "review_status": "criteria provided, single submitter",
+    "gene_symbols": [
+      "ASPN",
+      "CENPP"
+    ],
+    "gene_ids": [
+      "54829",
+      "401541"
+    ],
+    "hgnc_ids": [
+      "HGNC:14872",
+      "HGNC:32933"
+    ],
+    "hgvs_expressions": [
+      "NC_000009.11:g.95237027ATC[15]",
+      "NC_000009.12:g.92474745ATC[15]",
+      "NG_023430.2:g.12723TGA[15]",
+      "NM_001193335.3:c.114TGA[15]",
+      "NM_017680.6:c.114TGA[15]",
+      "NM_001286969.1:c.228+94884TCA[15]",
+      "NM_001012267.3:c.564+94884TCA[15]"
+    ],
+    "chromosome": "9",
+    "start": "92474742",
+    "stop": "92474743",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "CENPP-related disorder"
+    ],
+    "phenotype_ids": []
+  },
+  {
+    "variation_id": "1754",
+    "name": "MSH2, DEL 50 CODONS",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "MSH2"
+    ],
+    "gene_ids": [
+      "4436"
+    ],
+    "hgnc_ids": [
+      "HGNC:7325"
+    ],
+    "hgvs_expressions": [],
+    "chromosome": "2",
+    "start": "47403067",
+    "stop": "47709830",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "MSH2-Related Hereditary Non-Polyposis Colon Cancer"
+    ],
+    "phenotype_ids": [
+      "MONDO:MONDO:0007356",
+      "Genetic Alliance:Colorectal+Cancer%2C+Hereditary+Nonpolyposis%2C+Type+1/1748",
+      "OMIM:120435",
+      "OMIM:120435",
+      "OMIM:120435",
+      "Genetic Testing Registry (GTR):GTR000595970",
+      "Genetic Testing Registry (GTR):GTR000501401",
+      "Genetic Testing Registry (GTR):GTR000512645",
+      "Genetic Testing Registry (GTR):GTR000558503",
+      "Genetic Testing Registry (GTR):GTR000569406",
+      "Genetic Testing Registry (GTR):GTR000530120",
+      "Genetic Testing Registry (GTR):GTR000518997",
+      "Genetic Testing Registry (GTR):GTR000510683",
+      "Genetic Testing Registry (GTR):GTR000507864",
+      "Genetic Testing Registry (GTR):GTR000518999",
+      "Genetic Testing Registry (GTR):GTR000501399",
+      "Genetic Testing Registry (GTR):GTR000514729",
+      "Office of Rare Diseases:15052",
+      "GeneReviews:NBK1211",
+      "Orphanet:144",
+      "MedGen:C2936783",
+      "MONDO:MONDO:0007356",
+      "OMIM:120435"
+    ]
+  },
+  {
+    "variation_id": "1611",
+    "name": "L2HGDH, EX1-9DEL",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "L2HGDH",
+      "LINC01588",
+      "LINC01599",
+      "LOC125024479",
+      "LOC125024480",
+      "LOC129390630",
+      "LOC130055566",
+      "LOC130055567",
+      "LOC130055568",
+      "LOC130055569",
+      "LOC130055570",
+      "LOC130055571",
+      "LOC130055572",
+      "LOC130055573",
+      "LOC130055574",
+      "LOC130055575",
+      "LOC130055576",
+      "LOC130055577",
+      "LOC130055578",
+      "LOC130055579",
+      "LOC130055580",
+      "LOC130055581",
+      "LOC130055582",
+      "LOC130055583",
+      "LOC130055584",
+      "LOC130055585",
+      "LOC130055586",
+      "LOC130055587",
+      "LOC130055588",
+      "LOC130055589",
+      "SOS2",
+      "VCPKMT"
+    ],
+    "gene_ids": [
+      "79944",
+      "283551",
+      "196913",
+      "125024479",
+      "125024480",
+      "129390630",
+      "130055566",
+      "130055567",
+      "130055568",
+      "130055569",
+      "130055570",
+      "130055571",
+      "130055572",
+      "130055573",
+      "130055574",
+      "130055575",
+      "130055576",
+      "130055577",
+      "130055578",
+      "130055579",
+      "130055580",
+      "130055581",
+      "130055582",
+      "130055583",
+      "130055584",
+      "130055585",
+      "130055586",
+      "130055587",
+      "130055588",
+      "130055589",
+      "6655",
+      "79609"
+    ],
+    "hgnc_ids": [
+      "HGNC:20499",
+      "HGNC:27503",
+      "HGNC:27285",
+      "HGNC:11188",
+      "HGNC:20352"
+    ],
+    "hgvs_expressions": [
+      "NC_000014.9:g.(50000000_?)_(?_50247254)del"
+    ],
+    "chromosome": "14",
+    "start": "",
+    "stop": "",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "L-2-hydroxyglutaric aciduria"
+    ],
+    "phenotype_ids": [
+      "Genetic Alliance:L-2-hydroxyglutaric+aciduria/4061",
+      "Human Phenotype Ontology:HP:0040144",
+      "MONDO:MONDO:0009370",
+      "OMIM:236792",
+      "Office of Rare Diseases:10472",
+      "Orphanet:79314",
+      "MedGen:C1855995",
+      "MONDO:MONDO:0009370",
+      "OMIM:236792",
+      "Human Phenotype Ontology:HP:0040144"
+    ]
+  },
+  {
+    "variation_id": "1765",
+    "name": "MSH2, 24-BP INS",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "MSH2"
+    ],
+    "gene_ids": [
+      "4436"
+    ],
+    "hgnc_ids": [
+      "HGNC:7325"
+    ],
+    "hgvs_expressions": [],
+    "chromosome": "2",
+    "start": "47403067",
+    "stop": "47709830",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "MSH2-Related Hereditary Non-Polyposis Colon Cancer"
+    ],
+    "phenotype_ids": [
+      "MONDO:MONDO:0007356",
+      "Genetic Alliance:Colorectal+Cancer%2C+Hereditary+Nonpolyposis%2C+Type+1/1748",
+      "OMIM:120435",
+      "OMIM:120435",
+      "OMIM:120435",
+      "Genetic Testing Registry (GTR):GTR000595970",
+      "Genetic Testing Registry (GTR):GTR000501401",
+      "Genetic Testing Registry (GTR):GTR000512645",
+      "Genetic Testing Registry (GTR):GTR000558503",
+      "Genetic Testing Registry (GTR):GTR000569406",
+      "Genetic Testing Registry (GTR):GTR000530120",
+      "Genetic Testing Registry (GTR):GTR000518997",
+      "Genetic Testing Registry (GTR):GTR000510683",
+      "Genetic Testing Registry (GTR):GTR000507864",
+      "Genetic Testing Registry (GTR):GTR000518999",
+      "Genetic Testing Registry (GTR):GTR000501399",
+      "Genetic Testing Registry (GTR):GTR000514729",
+      "Office of Rare Diseases:15052",
+      "GeneReviews:NBK1211",
+      "Orphanet:144",
+      "MedGen:C2936783",
+      "MONDO:MONDO:0007356",
+      "OMIM:120435"
+    ]
+  },
+  {
+    "variation_id": "1774",
+    "name": "MSH2, 32-KB DEL, EX1-6",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "MSH2"
+    ],
+    "gene_ids": [
+      "4436"
+    ],
+    "hgnc_ids": [
+      "HGNC:7325"
+    ],
+    "hgvs_expressions": [
+      "NC_000002.11:g.47618487_47650860delinsN[155]"
+    ],
+    "chromosome": "2",
+    "start": "47403067",
+    "stop": "47709830",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Muir-Torre syndrome"
+    ],
+    "phenotype_ids": [
+      "MONDO:MONDO:0008018",
+      "Genetic Alliance:Keratoacanthoma/3972",
+      "SNOMED CT:403824007",
+      "OMIM:158320",
+      "GeneReviews:NBK1211",
+      "Office of Rare Diseases:6821",
+      "Genetic Testing Registry (GTR):GTR000530202",
+      "Genetic Testing Registry (GTR):GTR000514728",
+      "Genetic Testing Registry (GTR):GTR000528529",
+      "Genetic Testing Registry (GTR):GTR000514729",
+      "Genetic Testing Registry (GTR):GTR000530120",
+      "Genetic Testing Registry (GTR):GTR000515534",
+      "Genetic Testing Registry (GTR):GTR000527981",
+      "Genetic Testing Registry (GTR):GTR000528914",
+      "Genetic Testing Registry (GTR):GTR000556509",
+      "Genetic Testing Registry (GTR):GTR000527984",
+      "Genetic Testing Registry (GTR):GTR000529017",
+      "Genetic Testing Registry (GTR):GTR000501401",
+      "Genetic Testing Registry (GTR):GTR000528339",
+      "Genetic Testing Registry (GTR):GTR000518997",
+      "Genetic Testing Registry (GTR):GTR000501399",
+      "Genetic Testing Registry (GTR):GTR000595970",
+      "Genetic Testing Registry (GTR):GTR000520069",
+      "Genetic Testing Registry (GTR):GTR000569423",
+      "Genetic Testing Registry (GTR):GTR000528915",
+      "Genetic Testing Registry (GTR):GTR000528930",
+      "Orphanet:587",
+      "MedGen:C1321489",
+      "MONDO:MONDO:0008018",
+      "OMIM:158320"
+    ]
+  },
+  {
+    "variation_id": "1781",
+    "name": "NG_007955.1:g.7152_7674delins469",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "CYP17A1"
+    ],
+    "gene_ids": [
+      "1586"
+    ],
+    "hgnc_ids": [
+      "HGNC:2593"
+    ],
+    "hgvs_expressions": [
+      "NG_007955.1:g.7152_7674delins469"
+    ],
+    "chromosome": "10",
+    "start": "102830531",
+    "stop": "102837413",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "17-alpha-hydroxylase/17,20-lyase deficiency, combined complete"
+    ],
+    "phenotype_ids": [
+      "MONDO:MONDO:0800379",
+      "MedGen:CN042980",
+      "MONDO:MONDO:0800379"
+    ]
+  },
+  {
+    "variation_id": "1790",
+    "name": "NM_000102.4(CYP17A1):c.436+5G>T",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "CYP17A1"
+    ],
+    "gene_ids": [
+      "1586"
+    ],
+    "hgnc_ids": [
+      "HGNC:2593"
+    ],
+    "hgvs_expressions": [
+      "NG_007955.1:g.7285G>T",
+      "NM_000102.4:c.436+5G>T",
+      "NC_000010.10:g.104595006C>A",
+      "NC_000010.11:g.102835249C>A"
+    ],
+    "chromosome": "10",
+    "start": "102835249",
+    "stop": "102835249",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "17-alpha-hydroxylase/17,20-lyase deficiency, combined complete"
+    ],
+    "phenotype_ids": [
+      "MONDO:MONDO:0800379",
+      "MedGen:CN042980",
+      "MONDO:MONDO:0800379"
+    ]
+  },
+  {
+    "variation_id": "1960",
+    "name": "NC_000020.11:g.44649961_44653216del",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "ADA",
+      "LOC107303343",
+      "LOC108167311",
+      "LOC108167312"
+    ],
+    "gene_ids": [
+      "100",
+      "107303343",
+      "108167311",
+      "108167312"
+    ],
+    "hgnc_ids": [
+      "HGNC:186"
+    ],
+    "hgvs_expressions": [
+      "NC_000020.10:g.43278602_43281857del",
+      "NC_000020.11:g.44649961_44653216del",
+      "NG_007385.1:g.3546_6801del",
+      "NG_046759.2:g.21058_23668del",
+      "NG_050901.1:g.331_504del",
+      "NG_050902.1:g.1_310del",
+      "LRG_16:g.3546_6801del"
+    ],
+    "chromosome": "20",
+    "start": "44649935",
+    "stop": "44653190",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "SCID DUE TO ADA DEFICIENCY"
+    ],
+    "phenotype_ids": [
+      "OMIM:102700",
+      "OMIM:102700",
+      "OMIM:102700",
+      "MONDO:MONDO:0007064",
+      "Office of Rare Diseases:5748",
+      "GeneReviews:NBK1483",
+      "Orphanet:277",
+      "MedGen:C1863236",
+      "MONDO:MONDO:0007064",
+      "OMIM:102700"
+    ]
+  },
+  {
+    "variation_id": "1976",
+    "name": "NM_000022.4(ADA):c.33+1G>C",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "ADA",
+      "LOC107303343"
+    ],
+    "gene_ids": [
+      "100",
+      "107303343"
+    ],
+    "hgnc_ids": [
+      "HGNC:186"
+    ],
+    "hgvs_expressions": [
+      "NC_000020.10:g.43280215C>G",
+      "NC_000020.11:g.44651574C>G",
+      "NG_007385.1:g.5162G>C",
+      "NG_046759.1:g.22671C>G",
+      "NG_046759.2:g.22671C>G",
+      "NM_001322050.2:c.-257+1G>C",
+      "NM_001322051.2:c.33+1G>C",
+      "NM_000022.4:c.33+1G>C",
+      "LRG_16:g.5162G>C",
+      "LRG_16t1:c.33+1G>C"
+    ],
+    "chromosome": "20",
+    "start": "44651574",
+    "stop": "44651574",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "SCID DUE TO ADA DEFICIENCY"
+    ],
+    "phenotype_ids": [
+      "OMIM:102700",
+      "OMIM:102700",
+      "OMIM:102700",
+      "MONDO:MONDO:0007064",
+      "Office of Rare Diseases:5748",
+      "GeneReviews:NBK1483",
+      "Orphanet:277",
+      "MedGen:C1863236",
+      "MONDO:MONDO:0007064",
+      "OMIM:102700"
+    ]
+  },
+  {
+    "variation_id": "2058",
+    "name": "NM_152443.3(RDH12):c.658+1G>A",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "criteria provided, multiple submitters, no conflicts",
+    "gene_symbols": [
+      "GPHN",
+      "RDH12"
+    ],
+    "gene_ids": [
+      "10243",
+      "145226"
+    ],
+    "hgnc_ids": [
+      "HGNC:15465",
+      "HGNC:19977"
+    ],
+    "hgvs_expressions": [
+      "NC_000014.8:g.68193908G>A",
+      "NC_000014.9:g.67727191G>A",
+      "NG_008321.1:g.30306G>A",
+      "NG_008875.2:g.1224046G>A",
+      "NG_011836.2:g.94399C>T",
+      "NM_152443.3:c.658+1G>A"
+    ],
+    "chromosome": "14",
+    "start": "67727191",
+    "stop": "67727191",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Retinitis pigmentosa"
+    ],
+    "phenotype_ids": [
+      "ADAM:CN038210",
+      "Genetic Alliance:Retinitis+pigmentosa/6248",
+      "MONDO:MONDO:0019200",
+      "OMIM:PS268000",
+      "SNOMED CT:28835009",
+      "Human Phenotype Ontology:HP:0000547",
+      "OMIM:268000",
+      "Genetic Testing Registry (GTR):GTR000561973",
+      "Office of Rare Diseases:5694",
+      "Orphanet:791",
+      "MedGen:C0035334",
+      "MeSH:D012174",
+      "MONDO:MONDO:0019200",
+      "OMIM:268000",
+      "OMIM:PS268000",
+      "Human Phenotype Ontology:HP:0000547"
+    ]
+  },
+  {
+    "variation_id": "1836",
+    "name": "NM_001379228.1(MRAP):c.106+1G>T",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "MRAP"
+    ],
+    "gene_ids": [
+      "56246"
+    ],
+    "hgnc_ids": [
+      "HGNC:1304"
+    ],
+    "hgvs_expressions": [
+      "NC_000021.8:g.33671389G>T",
+      "NC_000021.9:g.32299078G>T",
+      "NG_016234.1:g.12266G>T",
+      "NM_206898.2:c.106+1G>T",
+      "NM_178817.4:c.106+1G>T",
+      "NM_001285394.2:c.-72+5946G>T",
+      "NM_001379228.1:c.106+1G>T"
+    ],
+    "chromosome": "21",
+    "start": "32299078",
+    "stop": "32299078",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Glucocorticoid deficiency 2"
+    ],
+    "phenotype_ids": [
+      "Genetic Alliance:Glucocorticoid+deficiency+2/8474",
+      "MONDO:MONDO:0011826",
+      "OMIM:607398",
+      "OMIM:607398",
+      "OMIM:607398",
+      "Orphanet:361",
+      "MedGen:C4049714",
+      "MONDO:MONDO:0011826",
+      "OMIM:607398"
+    ]
+  },
+  {
+    "variation_id": "1838",
+    "name": "NM_001379228.1(MRAP):c.106+1G>A",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "MRAP"
+    ],
+    "gene_ids": [
+      "56246"
+    ],
+    "hgnc_ids": [
+      "HGNC:1304"
+    ],
+    "hgvs_expressions": [
+      "NC_000021.8:g.33671389G>A",
+      "NC_000021.9:g.32299078G>A",
+      "NG_016234.1:g.12266G>A",
+      "NM_206898.2:c.106+1G>A",
+      "NM_178817.4:c.106+1G>A",
+      "NM_001285394.2:c.-72+5946G>A",
+      "NM_001379228.1:c.106+1G>A"
+    ],
+    "chromosome": "21",
+    "start": "32299078",
+    "stop": "32299078",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Glucocorticoid deficiency 2"
+    ],
+    "phenotype_ids": [
+      "Genetic Alliance:Glucocorticoid+deficiency+2/8474",
+      "MONDO:MONDO:0011826",
+      "OMIM:607398",
+      "OMIM:607398",
+      "OMIM:607398",
+      "Orphanet:361",
+      "MedGen:C4049714",
+      "MONDO:MONDO:0011826",
+      "OMIM:607398"
+    ]
+  },
+  {
+    "variation_id": "1986",
+    "name": "NM_207361.6(FREM2):c.7519+1G>A",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "FREM2"
+    ],
+    "gene_ids": [
+      "341640"
+    ],
+    "hgnc_ids": [
+      "HGNC:25396"
+    ],
+    "hgvs_expressions": [
+      "NC_000013.10:g.39433728G>A",
+      "NC_000013.11:g.38859591G>A",
+      "NG_008125.2:g.177556G>A",
+      "NM_207361.6:c.7519+1G>A"
+    ],
+    "chromosome": "13",
+    "start": "38859591",
+    "stop": "38859591",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Fraser syndrome 2"
+    ],
+    "phenotype_ids": [
+      "MONDO:MONDO:0054738",
+      "OMIM:617666",
+      "MedGen:C4540036",
+      "MONDO:MONDO:0054738",
+      "OMIM:617666"
+    ]
+  },
+  {
+    "variation_id": "2262",
+    "name": "NM_000101.4(CYBA):c.287+1G>A",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "CYBA"
+    ],
+    "gene_ids": [
+      "1535"
+    ],
+    "hgnc_ids": [
+      "HGNC:2577"
+    ],
+    "hgvs_expressions": [
+      "NC_000016.10:g.88646754C>T",
+      "NC_000016.9:g.88713162C>T",
+      "NG_007291.1:g.9296G>A",
+      "NM_000101.4:c.287+1G>A",
+      "LRG_52:g.9296G>A"
+    ],
+    "chromosome": "16",
+    "start": "88646754",
+    "stop": "88646754",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Chronic granulomatous disease, autosomal, due to deficiency of CYBA"
+    ],
+    "phenotype_ids": [
+      "Genetic Alliance:Granulomatous+disease%2C+chronic%2C+autosomal+recessive%2C+cytochrome+b-negative/8493",
+      "MONDO:MONDO:0009308",
+      "OMIM:233690",
+      "OMIM:608508.0010",
+      "OMIM:608508.0002",
+      "OMIM:608508.0003",
+      "OMIM:608508.0007",
+      "OMIM:608508.0004",
+      "OMIM:608508.0012",
+      "OMIM:608508.0009",
+      "OMIM:608508.0006",
+      "OMIM:608508.0011",
+      "OMIM:608508.0001",
+      "OMIM:608508.0005",
+      "OMIM:233690",
+      "OMIM:233690",
+      "OMIM:233690",
+      "Office of Rare Diseases:15175",
+      "GeneReviews:NBK99496",
+      "Orphanet:379",
+      "MedGen:C1856255",
+      "MONDO:MONDO:0009308",
+      "OMIM:233690"
+    ]
+  },
+  {
+    "variation_id": "2204",
+    "name": "NM_018668.5(VPS33B):c.700+1G>A",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "VPS33B"
+    ],
+    "gene_ids": [
+      "26276"
+    ],
+    "hgnc_ids": [
+      "HGNC:12712"
+    ],
+    "hgvs_expressions": [
+      "LRG_884:g.20655G>A",
+      "LRG_884t1:c.700+1G>A",
+      "NC_000015.10:g.91006949C>T",
+      "NC_000015.9:g.91550179C>T",
+      "NG_012162.1:g.20655G>A",
+      "NM_001289148.1:c.619+1G>A",
+      "NM_001289149.1:c.427+1G>A",
+      "NM_018668.5:c.700+1G>A"
+    ],
+    "chromosome": "15",
+    "start": "91006949",
+    "stop": "91006949",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Arthrogryposis, renal dysfunction, and cholestasis 1"
+    ],
+    "phenotype_ids": [
+      "MONDO:MONDO:0008822",
+      "OMIM:208085",
+      "Orphanet:2697",
+      "MedGen:C1859722",
+      "MONDO:MONDO:0008822",
+      "OMIM:208085"
+    ]
+  },
+  {
+    "variation_id": "2256",
+    "name": "NC_000016.10:g.(?_88638115)(88648115_88650955)del",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "CYBA"
+    ],
+    "gene_ids": [
+      "1535"
+    ],
+    "hgnc_ids": [
+      "HGNC:2577"
+    ],
+    "hgvs_expressions": [
+      "NC_000016.10:g.(?_88638115)(88648115_88650955)del"
+    ],
+    "chromosome": "16",
+    "start": "88643289",
+    "stop": "88651053",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Chronic granulomatous disease, autosomal, due to deficiency of CYBA"
+    ],
+    "phenotype_ids": [
+      "Genetic Alliance:Granulomatous+disease%2C+chronic%2C+autosomal+recessive%2C+cytochrome+b-negative/8493",
+      "MONDO:MONDO:0009308",
+      "OMIM:233690",
+      "OMIM:608508.0010",
+      "OMIM:608508.0002",
+      "OMIM:608508.0003",
+      "OMIM:608508.0007",
+      "OMIM:608508.0004",
+      "OMIM:608508.0012",
+      "OMIM:608508.0009",
+      "OMIM:608508.0006",
+      "OMIM:608508.0011",
+      "OMIM:608508.0001",
+      "OMIM:608508.0005",
+      "OMIM:233690",
+      "OMIM:233690",
+      "OMIM:233690",
+      "Office of Rare Diseases:15175",
+      "GeneReviews:NBK99496",
+      "Orphanet:379",
+      "MedGen:C1856255",
+      "MONDO:MONDO:0009308",
+      "OMIM:233690"
+    ]
+  },
+  {
+    "variation_id": "3327",
+    "name": "NC_000020.11:g.(51758515_51770114)_(51894383_?)del",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "ATP9A",
+      "LINC01429",
+      "LOC130066178",
+      "SALL4"
+    ],
+    "gene_ids": [
+      "10079",
+      "101927678",
+      "130066178",
+      "57167"
+    ],
+    "hgnc_ids": [
+      "HGNC:13540",
+      "HGNC:50741",
+      "HGNC:15924"
+    ],
+    "hgvs_expressions": [
+      "NC_000020.11:g.(51758515_51770114)_(51894383_?)del"
+    ],
+    "chromosome": "20",
+    "start": "",
+    "stop": "",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Duane-Radial Ray Syndrome/Okihiro Syndrome"
+    ],
+    "phenotype_ids": [
+      "OMIM:607323",
+      "OMIM:607323",
+      "OMIM:607323",
+      "Genetic Alliance:Duane-Radial+Ray+Syndrome/2337",
+      "MONDO:MONDO:0011812",
+      "OMIM:607323",
+      "Genetic Testing Registry (GTR):GTR000528276",
+      "Genetic Testing Registry (GTR):GTR000322837",
+      "Genetic Testing Registry (GTR):GTR000561850",
+      "Office of Rare Diseases:9182",
+      "GeneReviews:NBK1373",
+      "Orphanet:93293",
+      "Orphanet:959",
+      "MedGen:C1623209",
+      "MONDO:MONDO:0011812",
+      "OMIM:607323"
+    ]
+  },
+  {
+    "variation_id": "3420",
+    "name": "nsv1067914",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "C1orf74",
+      "IRF6"
+    ],
+    "gene_ids": [
+      "148304",
+      "3664"
+    ],
+    "hgnc_ids": [
+      "HGNC:26319",
+      "HGNC:6121"
+    ],
+    "hgvs_expressions": [
+      "NC_000001.10:g.209955818_209972979del"
+    ],
+    "chromosome": "1",
+    "start": "209782473",
+    "stop": "209799634",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Van der Woude syndrome 1"
+    ],
+    "phenotype_ids": [
+      "MONDO:MONDO:0007333",
+      "OMIM:119300",
+      "OMIM:119300",
+      "GeneReviews:NBK1407",
+      "MedGen:C4551864",
+      "MONDO:MONDO:0007333",
+      "OMIM:119300"
+    ]
+  },
+  {
+    "variation_id": "3468",
+    "name": "NM_001368894.2(PAX6):c.1075-2A>G",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "criteria provided, multiple submitters, no conflicts",
+    "gene_symbols": [
+      "PAX6"
+    ],
+    "gene_ids": [
+      "5080"
+    ],
+    "hgnc_ids": [
+      "HGNC:8620"
+    ],
+    "hgvs_expressions": [
+      "NC_000011.10:g.31790862T>C",
+      "NC_000011.9:g.31812410T>C",
+      "NG_008679.1:g.32100A>G",
+      "NG_034086.2:g.286097T>C",
+      "NM_001127612.3:c.1033-2A>G",
+      "NM_001368921.2:c.874-843A>G",
+      "NM_001368923.2:c.874-2A>G",
+      "NM_001258462.3:c.1075-2A>G",
+      "NM_001368919.2:c.1150-2A>G",
+      "NM_001368890.2:c.1033-2A>G",
+      "NM_001310158.2:c.1075-2A>G",
+      "NM_001368888.2:c.1033-2A>G",
+      "NM_001258463.2:c.1075-2A>G",
+      "NM_001368915.2:c.1033-843A>G",
+      "NM_001368887.2:c.1033-2A>G",
+      "NM_001258464.2:c.1033-2A>G",
+      "NM_001368926.2:c.874-2A>G",
+      "NM_001368914.2:c.1075-843A>G",
+      "NM_001604.6:c.1075-2A>G",
+      "NM_001368893.2:c.1075-2A>G",
+      "NM_001368917.2:c.1033-843A>G",
+      "NM_000280.6:c.1033-2A>G",
+      "NM_001368927.2:c.874-2A>G",
+      "NM_001368912.2:c.1075-843A>G",
+      "NM_001368894.2:c.1075-2A>G",
+      "NM_001368910.2:c.1276-2A>G",
+      "NM_001368922.2:c.874-2A>G",
+      "NM_001368909.2:c.625-2A>G",
+      "NM_001368911.2:c.1078-843A>G",
+      "NM_001368904.2:c.625-2A>G",
+      "NM_001368928.2:c.832-2A>G",
+      "NM_001368916.2:c.1033-843A>G",
+      "NM_001258465.3:c.1033-2A>G",
+      "NM_001368925.2:c.874-2A>G",
+      "NM_001368913.2:c.1075-843A>G",
+      "NM_001368892.2:c.1075-2A>G",
+      "NM_001368905.2:c.625-2A>G",
+      "NM_001368920.2:c.1108-2A>G",
+      "NM_001368918.2:c.1150-2A>G",
+      "NM_001368889.2:c.1033-2A>G",
+      "NM_001368891.2:c.1033-2A>G",
+      "NM_001368924.2:c.874-2A>G",
+      "NM_001368906.2:c.625-2A>G",
+      "NM_001368908.2:c.625-2A>G",
+      "NM_001368901.2:c.625-2A>G",
+      "NM_001310161.3:c.625-2A>G",
+      "NM_001310160.2:c.625-2A>G",
+      "NM_001368899.2:c.625-2A>G",
+      "NM_001368900.2:c.625-2A>G",
+      "NM_001368907.2:c.625-2A>G",
+      "NM_001368902.2:c.625-2A>G",
+      "NM_001368929.2:c.625-843A>G",
+      "NM_001368903.2:c.625-2A>G",
+      "NM_001368930.2:c.430-2A>G",
+      "LRG_720:g.32100A>G",
+      "LRG_720t1:c.1033-2A>G"
+    ],
+    "chromosome": "11",
+    "start": "31790862",
+    "stop": "31790862",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Aniridia 1",
+      "ANTERIOR SEGMENT DYSGENESIS 5"
+    ],
+    "phenotype_ids": [
+      "MONDO:MONDO:0024507",
+      "OMIM:106210",
+      "GeneReviews:NBK1360",
+      "Orphanet:250923",
+      "MedGen:C0344542",
+      "MONDO:MONDO:0024507",
+      "OMIM:106210",
+      "OMIM:604229",
+      "Genetic Alliance:Irido-corneo-trabecular+dysgenesis/8682",
+      "SNOMED CT:204153003",
+      "OMIM:604229",
+      "Office of Rare Diseases:7377",
+      "Orphanet:708",
+      "MedGen:C0344559",
+      "MONDO:MONDO:0011414",
+      "OMIM:604229",
+      "Human Phenotype Ontology:HP:0000659"
+    ]
+  },
+  {
+    "variation_id": "2149",
+    "name": "NIPBL, IVS44DS, A-G, +4",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "NIPBL"
+    ],
+    "gene_ids": [
+      "25836"
+    ],
+    "hgnc_ids": [
+      "HGNC:28862"
+    ],
+    "hgvs_expressions": [],
+    "chromosome": "5",
+    "start": "36876769",
+    "stop": "37066413",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "TYPUS DEGENERATIVUS AMSTELODAMENSIS"
+    ],
+    "phenotype_ids": [
+      "OMIM:122470",
+      "MONDO:MONDO:0007387",
+      "OMIM:122470",
+      "OMIM:122470",
+      "GeneReviews:NBK1104",
+      "Orphanet:199",
+      "MedGen:C4551851",
+      "MONDO:MONDO:0007387",
+      "OMIM:122470"
+    ]
+  },
+  {
+    "variation_id": "2151",
+    "name": "NM_133433.4(NIPBL):c.-321_-320delinsA",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "NIPBL"
+    ],
+    "gene_ids": [
+      "25836"
+    ],
+    "hgnc_ids": [
+      "HGNC:28862"
+    ],
+    "hgvs_expressions": [
+      "NC_000005.10:g.36876937_36876938delinsA",
+      "NC_000005.9:g.36877039_36877040delinsA",
+      "NG_006987.2:g.5055_5056delinsA",
+      "NM_015384.5:c.-321_-320delinsA",
+      "NM_133433.4:c.-321_-320delinsA"
+    ],
+    "chromosome": "5",
+    "start": "36876937",
+    "stop": "36876938",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "TYPUS DEGENERATIVUS AMSTELODAMENSIS"
+    ],
+    "phenotype_ids": [
+      "OMIM:122470",
+      "MONDO:MONDO:0007387",
+      "OMIM:122470",
+      "OMIM:122470",
+      "GeneReviews:NBK1104",
+      "Orphanet:199",
+      "MedGen:C4551851",
+      "MONDO:MONDO:0007387",
+      "OMIM:122470"
+    ]
+  },
+  {
+    "variation_id": "2335",
+    "name": "NM_182961.4(SYNE1):c.24313-2A>G",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "SYNE1"
+    ],
+    "gene_ids": [
+      "23345"
+    ],
+    "hgnc_ids": [
+      "HGNC:17089"
+    ],
+    "hgvs_expressions": [
+      "LRG_427:g.490708A>G",
+      "LRG_427t2:c.24100-2A>G",
+      "LRG_427t1:c.24313-2A>G",
+      "NC_000006.11:g.152472827T>C",
+      "NC_000006.12:g.152151692T>C",
+      "NG_012855.2:g.490708A>G",
+      "NM_182961.4:c.24313-2A>G",
+      "NM_033071.5:c.24100-2A>G",
+      "NM_001347701.2:c.919-2A>G",
+      "NM_001347702.2:c.778-2A>G"
+    ],
+    "chromosome": "6",
+    "start": "152151692",
+    "stop": "152151692",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Arthrogryposis multiplex congenita 3, myogenic type"
+    ],
+    "phenotype_ids": [
+      "MONDO:MONDO:0032778",
+      "OMIM:618484",
+      "OMIM:618484",
+      "OMIM:618484",
+      "MedGen:C5193121",
+      "MONDO:MONDO:0032778",
+      "OMIM:618484"
+    ]
+  },
+  {
+    "variation_id": "2374",
+    "name": "NC_000009.12:g.12891379_qterdelins[T;NC_000020.11:g.47204889_qterinv]",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [],
+    "gene_ids": [],
+    "hgnc_ids": [],
+    "hgvs_expressions": [
+      "NC_000009.12:g.12891379_qterdelins[T;NC_000020.11:g.47204889_qterinv]"
+    ],
+    "chromosome": "9",
+    "start": "12891379",
+    "stop": "12891380",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "AGAMMAGLOBULINEMIA, AUTOSOMAL DOMINANT, DUE TO LRRC8A DEFECT"
+    ],
+    "phenotype_ids": [
+      "OMIM:613506",
+      "Genetic Alliance:Agammaglobulinemia+5%2C+autosomal+dominant/7646",
+      "MONDO:MONDO:0013290",
+      "OMIM:613506",
+      "MedGen:C3150753",
+      "MONDO:MONDO:0013290",
+      "OMIM:613506"
+    ]
+  },
+  {
+    "variation_id": "2597",
+    "name": "NM_000126.4(ETFA):c.963+1del",
+    "type": "",
+    "germline_classification": "Conflicting classifications of pathogenicity",
+    "review_status": "criteria provided, conflicting classifications",
+    "gene_symbols": [
+      "ETFA"
+    ],
+    "gene_ids": [
+      "2108"
+    ],
+    "hgnc_ids": [
+      "HGNC:3481"
+    ],
+    "hgvs_expressions": [
+      "NM_000126.3:c.963+1delG",
+      "NC_000015.10:g.76225849del",
+      "NC_000015.9:g.76518190del",
+      "NG_007077.2:g.90622del",
+      "NM_001127716.2:c.816+1del",
+      "NM_000126.4:c.963+1del"
+    ],
+    "chromosome": "15",
+    "start": "76225848",
+    "stop": "76225848",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Glutaric Acidemia type 2"
+    ],
+    "phenotype_ids": [
+      "Genetic Alliance:Glutaric+Acidemia+II/3111",
+      "SNOMED CT:22886006",
+      "MONDO:MONDO:0009282",
+      "OMIM:231680",
+      "OMIM:231680",
+      "OMIM:231680",
+      "OMIM:231680",
+      "Office of Rare Diseases:6523",
+      "GeneReviews:NBK558236",
+      "Orphanet:26791",
+      "MedGen:C0268596",
+      "MONDO:MONDO:0009282",
+      "OMIM:231680"
+    ]
+  },
+  {
+    "variation_id": "2713",
+    "name": "NM_017671.5(FERMT1):c.385+2T>C",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "FERMT1"
+    ],
+    "gene_ids": [
+      "55612"
+    ],
+    "hgnc_ids": [
+      "HGNC:15889"
+    ],
+    "hgvs_expressions": [
+      "NC_000020.10:g.6096456A>G",
+      "NC_000020.11:g.6115809A>G",
+      "NG_016213.1:g.12736T>C",
+      "NM_017671.5:c.385+2T>C"
+    ],
+    "chromosome": "20",
+    "start": "6115809",
+    "stop": "6115809",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "POIKILODERMA, CONGENITAL, WITH BULLAE, WEARY TYPE"
+    ],
+    "phenotype_ids": [
+      "OMIM:173650",
+      "OMIM:173650",
+      "OMIM:173650",
+      "SNOMED CT:238835001",
+      "MONDO:MONDO:0008260",
+      "SNOMED CT:238836000",
+      "Genetic Alliance:Poikiloderma+of+Kindler/5812",
+      "SNOMED CT:238836000",
+      "OMIM:173650",
+      "GeneReviews:NBK349072",
+      "Office of Rare Diseases:4391",
+      "Orphanet:2908",
+      "Orphanet:306539",
+      "MedGen:C0406557",
+      "MONDO:MONDO:0008260",
+      "OMIM:173650"
+    ]
+  },
+  {
+    "variation_id": "3486",
+    "name": "NM_024426.6(WT1):c.1447+6T>A",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "WT1"
+    ],
+    "gene_ids": [
+      "7490"
+    ],
+    "hgnc_ids": [
+      "HGNC:12796"
+    ],
+    "hgvs_expressions": [
+      "NC_000011.10:g.32391966A>T",
+      "NC_000011.9:g.32413512A>T",
+      "NG_009272.1:g.48576T>A",
+      "NM_001407050.1:c.1273+6T>A",
+      "NM_001407047.1:c.1315+15T>A",
+      "NM_001407048.1:c.1306+6T>A",
+      "NM_001407049.1:c.1303+700T>A",
+      "NM_000378.6:c.1387+15T>A",
+      "NM_001407045.1:c.1396+6T>A",
+      "NM_001407044.1:c.1432+15T>A",
+      "NM_001407046.1:c.1354+700T>A",
+      "NM_024424.5:c.1438+15T>A",
+      "NM_024426.6:c.1447+6T>A",
+      "NM_001407051.1:c.685+6T>A",
+      "NM_001198552.2:c.745+6T>A",
+      "NM_001198551.2:c.787+15T>A",
+      "NM_001367854.1:c.259+6T>A",
+      "LRG_525:g.48576T>A"
+    ],
+    "chromosome": "11",
+    "start": "32391966",
+    "stop": "32391966",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Frasier syndrome"
+    ],
+    "phenotype_ids": [
+      "Genetic Alliance:Frasier+Syndrome/2919",
+      "MONDO:MONDO:0007635",
+      "SNOMED CT:445431000",
+      "Office of Rare Diseases:2375",
+      "GeneReviews:NBK556455",
+      "Orphanet:347",
+      "MedGen:C0950122",
+      "MeSH:D052159",
+      "MONDO:MONDO:0007635",
+      "OMIM:136680"
+    ]
+  },
+  {
+    "variation_id": "3572",
+    "name": "NC_000010.11:g.(102444036_?)_(?_104726221)del",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "ACTR1A",
+      "ARL3",
+      "AS3MT",
+      "ATP5MK",
+      "BORCS7",
+      "BORCS7-ASMT",
+      "C10orf95",
+      "C10orf95-AS1",
+      "CALHM1",
+      "CALHM2",
+      "CALHM3",
+      "CFAP43",
+      "CFAP58",
+      "CFAP58-DT",
+      "CNNM2",
+      "COL17A1",
+      "CYP17A1",
+      "CYP17A1-AS1",
+      "GSTO1",
+      "GSTO2",
+      "INA",
+      "ITPRIP",
+      "ITPRIP-AS1",
+      "LINC02620",
+      "LOC107984265",
+      "LOC110408762",
+      "LOC111501773",
+      "LOC111875818",
+      "LOC111875819",
+      "LOC111875820",
+      "LOC111875821",
+      "LOC111875822",
+      "LOC116216120",
+      "LOC121366077",
+      "LOC121366078",
+      "LOC121366079",
+      "LOC121366080",
+      "LOC121815965",
+      "LOC121815966",
+      "LOC121815967",
+      "LOC124416895",
+      "LOC124416896",
+      "LOC124416897",
+      "LOC124416898",
+      "LOC126861024",
+      "LOC126861025",
+      "LOC126861026",
+      "LOC126861027",
+      "LOC126861028",
+      "LOC128772341",
+      "LOC129390226",
+      "LOC130004609",
+      "LOC130004610",
+      "LOC130004611",
+      "LOC130004612",
+      "LOC130004613",
+      "LOC130004614",
+      "LOC130004615",
+      "LOC130004616",
+      "LOC130004617",
+      "LOC130004618",
+      "LOC130004619",
+      "LOC130004620",
+      "LOC130004621",
+      "LOC130004622",
+      "LOC130004623",
+      "LOC130004624",
+      "LOC130004625",
+      "LOC130004626",
+      "LOC130004627",
+      "LOC130004628",
+      "LOC130004629",
+      "LOC130004630",
+      "LOC130004631",
+      "LOC130004632",
+      "LOC130004633",
+      "LOC130004634",
+      "LOC130004635",
+      "LOC130004636",
+      "LOC130004637",
+      "LOC130004638",
+      "LOC130004639",
+      "LOC130004640",
+      "LOC130004641",
+      "LOC130004642",
+      "LOC130004643",
+      "LOC130004644",
+      "LOC130004645",
+      "LOC130004646",
+      "LOC130004647",
+      "LOC130004648",
+      "LOC130004649",
+      "LOC130004650",
+      "LOC130004651",
+      "LOC130004652",
+      "LOC130004653",
+      "LOC130004654",
+      "LOC130004655",
+      "LOC130004656",
+      "LOC130004657",
+      "LOC130004658",
+      "LOC130004659",
+      "LOC130004660",
+      "LOC130004661",
+      "LOC130004662",
+      "LOC130004663",
+      "LOC130004664",
+      "LOC130004665",
+      "LOC130004666",
+      "LOC130004667",
+      "LOC130004668",
+      "LOC130004669",
+      "LOC130004670",
+      "MFSD13A",
+      "MIR1307",
+      "MIR4482",
+      "MIR609",
+      "MIR936",
+      "NEURL1",
+      "NEURL1-AS1",
+      "NT5C2",
+      "PCGF6",
+      "PDCD11",
+      "RPEL1",
+      "SFR1",
+      "SFXN2",
+      "SH3PXD2A",
+      "SH3PXD2A-AS1",
+      "SLK",
+      "SORCS3",
+      "SORCS3-AS1",
+      "STN1",
+      "SUFU",
+      "TAF5",
+      "TRIM8",
+      "TRIM8-DT",
+      "WBP1L"
+    ],
+    "gene_ids": [
+      "10121",
+      "403",
+      "57412",
+      "84833",
+      "119032",
+      "100528007",
+      "79946",
+      "100505761",
+      "255022",
+      "51063",
+      "119395",
+      "80217",
+      "159686",
+      "100505869",
+      "54805",
+      "1308",
+      "1586",
+      "102724307",
+      "9446",
+      "119391",
+      "9118",
+      "85450",
+      "101927472",
+      "101927523",
+      "107984265",
+      "110408762",
+      "111501773",
+      "111875818",
+      "111875819",
+      "111875820",
+      "111875821",
+      "111875822",
+      "116216120",
+      "121366077",
+      "121366078",
+      "121366079",
+      "121366080",
+      "121815965",
+      "121815966",
+      "121815967",
+      "124416895",
+      "124416896",
+      "124416897",
+      "124416898",
+      "126861024",
+      "126861025",
+      "126861026",
+      "126861027",
+      "126861028",
+      "128772341",
+      "129390226",
+      "130004609",
+      "130004610",
+      "130004611",
+      "130004612",
+      "130004613",
+      "130004614",
+      "130004615",
+      "130004616",
+      "130004617",
+      "130004618",
+      "130004619",
+      "130004620",
+      "130004621",
+      "130004622",
+      "130004623",
+      "130004624",
+      "130004625",
+      "130004626",
+      "130004627",
+      "130004628",
+      "130004629",
+      "130004630",
+      "130004631",
+      "130004632",
+      "130004633",
+      "130004634",
+      "130004635",
+      "130004636",
+      "130004637",
+      "130004638",
+      "130004639",
+      "130004640",
+      "130004641",
+      "130004642",
+      "130004643",
+      "130004644",
+      "130004645",
+      "130004646",
+      "130004647",
+      "130004648",
+      "130004649",
+      "130004650",
+      "130004651",
+      "130004652",
+      "130004653",
+      "130004654",
+      "130004655",
+      "130004656",
+      "130004657",
+      "130004658",
+      "130004659",
+      "130004660",
+      "130004661",
+      "130004662",
+      "130004663",
+      "130004664",
+      "130004665",
+      "130004666",
+      "130004667",
+      "130004668",
+      "130004669",
+      "130004670",
+      "79847",
+      "100302174",
+      "100616323",
+      "693194",
+      "100126326",
+      "9148",
+      "102724341",
+      "22978",
+      "84108",
+      "22984",
+      "729020",
+      "119392",
+      "118980",
+      "9644",
+      "100505839",
+      "9748",
+      "22986",
+      "100505890",
+      "79991",
+      "51684",
+      "6877",
+      "81603",
+      "121232369",
+      "54838"
+    ],
+    "hgnc_ids": [
+      "HGNC:167",
+      "HGNC:694",
+      "HGNC:17452",
+      "HGNC:30889",
+      "HGNC:23516",
+      "HGNC:49183",
+      "HGNC:25880",
+      "HGNC:45238",
+      "HGNC:23494",
+      "HGNC:23493",
+      "HGNC:23458",
+      "HGNC:26684",
+      "HGNC:26676",
+      "HGNC:45243",
+      "HGNC:103",
+      "HGNC:2194",
+      "HGNC:2593",
+      "HGNC:31671",
+      "HGNC:13312",
+      "HGNC:23064",
+      "HGNC:6057",
+      "HGNC:29370",
+      "HGNC:54100",
+      "HGNC:54097",
+      "HGNC:26196",
+      "HGNC:35372",
+      "HGNC:41792",
+      "HGNC:32865",
+      "HGNC:33679",
+      "HGNC:7761",
+      "HGNC:51220",
+      "HGNC:8022",
+      "HGNC:21156",
+      "HGNC:13408",
+      "HGNC:45241",
+      "HGNC:29574",
+      "HGNC:16086",
+      "HGNC:23664",
+      "HGNC:45242",
+      "HGNC:11088",
+      "HGNC:16699",
+      "HGNC:45244",
+      "HGNC:26200",
+      "HGNC:16466",
+      "HGNC:11539",
+      "HGNC:15579",
+      "HGNC:55573",
+      "HGNC:23510"
+    ],
+    "hgvs_expressions": [
+      "NC_000010.11:(102444036_?)_(?_104726221)del",
+      "NC_000010.11:g.(102444036_?)_(?_104726221)del"
+    ],
+    "chromosome": "10",
+    "start": "",
+    "stop": "",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Medulloblastoma, desmoplastic, somatic"
+    ],
+    "phenotype_ids": [
+      "MONDO:MONDO:0016711",
+      "Office of Rare Diseases:17215",
+      "Orphanet:251863",
+      "MedGen:C0751291",
+      "MONDO:MONDO:0016711"
+    ]
+  },
+  {
+    "variation_id": "3711",
+    "name": "NM_000527.5(LDLR):c.2311+251_*813del",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "LDLR"
+    ],
+    "gene_ids": [
+      "3949"
+    ],
+    "hgnc_ids": [
+      "HGNC:6547"
+    ],
+    "hgvs_expressions": [
+      "NC_000019.10:g.11123595_11132129del",
+      "NC_000019.9:g.11234271_11242805del",
+      "NG_009060.1:g.39215_47749del",
+      "NM_000527.5:c.2311+251_*813del",
+      "NM_001195798.2:c.2311+251_*813del",
+      "NM_001195803.2:c.1777+251_*813del",
+      "NM_001195800.2:c.1807+251_*813del",
+      "NM_001195799.2:c.2188+251_*813del",
+      "LRG_274:g.39215_47749del"
+    ],
+    "chromosome": "19",
+    "start": "11123590",
+    "stop": "11132124",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Hypercholesterolemia, familial, 1"
+    ],
+    "phenotype_ids": [
+      "MONDO:MONDO:0007750",
+      "OMIM:143890",
+      "OMIM:143890",
+      "OMIM:143890",
+      "OMIM:144400",
+      "SNOMED CT:397915002",
+      "OMIM:600946.0028",
+      "OMIM:143890",
+      "OMIM:143890",
+      "GeneReviews:NBK174884",
+      "Orphanet:391665",
+      "MedGen:C0745103",
+      "MONDO:MONDO:0007750",
+      "OMIM:143890"
+    ]
+  },
+  {
+    "variation_id": "3713",
+    "name": "FH Vancouver 3",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "criteria provided, single submitter",
+    "gene_symbols": [
+      "LDLR"
+    ],
+    "gene_ids": [
+      "3949"
+    ],
+    "hgnc_ids": [
+      "HGNC:6547"
+    ],
+    "hgvs_expressions": [
+      "NG_009060.1:g.(15966_18283)_(27260_28897)del",
+      "LRG_274:g.(15966_18283)_(27260_28897)del",
+      "NC_000019.10:g.(11100346_11102663)_(11111640_11113277)del",
+      "NC_000019.9:g.(11211022_11213339)_(11222316_11223953)del"
+    ],
+    "chromosome": "19",
+    "start": "",
+    "stop": "",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Hypercholesterolemia, familial, 1"
+    ],
+    "phenotype_ids": [
+      "MONDO:MONDO:0007750",
+      "OMIM:143890",
+      "OMIM:143890",
+      "OMIM:143890",
+      "OMIM:144400",
+      "SNOMED CT:397915002",
+      "OMIM:600946.0028",
+      "OMIM:143890",
+      "OMIM:143890",
+      "GeneReviews:NBK174884",
+      "Orphanet:391665",
+      "MedGen:C0745103",
+      "MONDO:MONDO:0007750",
+      "OMIM:143890"
+    ]
+  },
+  {
+    "variation_id": "2864",
+    "name": "NM_173076.3(ABCA12):c.(872+1_873-1)_(985+1_986-1)del (p.Ser291Argfs)",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "ABCA12"
+    ],
+    "gene_ids": [
+      "26154"
+    ],
+    "hgnc_ids": [
+      "HGNC:14637"
+    ],
+    "hgvs_expressions": [
+      "NC_000002.11:g.(215896621_215901676)_(215901790_215910560)del",
+      "NG_007074.2:g.(97790_106560)_(106674_111729)del"
+    ],
+    "chromosome": "2",
+    "start": "214931542",
+    "stop": "215138626",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "HARLEQUIN ICHTHYOSIS"
+    ],
+    "phenotype_ids": [
+      "OMIM:242500",
+      "OMIM:242500",
+      "Genetic Alliance:Harlequin+Ichthyosis/3242",
+      "MONDO:MONDO:0009443",
+      "OMIM:242500",
+      "OMIM:242500",
+      "Office of Rare Diseases:6568",
+      "GeneReviews:NBK1420",
+      "Orphanet:457",
+      "MedGen:C0598226",
+      "MONDO:MONDO:0009443",
+      "OMIM:242500"
+    ]
+  },
+  {
+    "variation_id": "2760",
+    "name": "NM_014319.5(LEMD3):c.1522+1G>A",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "LEMD3"
+    ],
+    "gene_ids": [
+      "23592"
+    ],
+    "hgnc_ids": [
+      "HGNC:28887"
+    ],
+    "hgvs_expressions": [
+      "NC_000012.11:g.65564899G>A",
+      "NC_000012.12:g.65171119G>A",
+      "NG_016210.2:g.6549G>A",
+      "NM_014319.5:c.1522+1G>A",
+      "NM_001167614.2:c.1522+1G>A"
+    ],
+    "chromosome": "12",
+    "start": "65171119",
+    "stop": "65171119",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Dermatofibrosis lenticularis disseminata, isolated"
+    ],
+    "phenotype_ids": [
+      "MedGen:C3149399"
+    ]
+  },
+  {
+    "variation_id": "3722",
+    "name": "LDLR, EX17-18DEL",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "LDLR"
+    ],
+    "gene_ids": [
+      "3949"
+    ],
+    "hgnc_ids": [
+      "HGNC:6547"
+    ],
+    "hgvs_expressions": [],
+    "chromosome": "19",
+    "start": "11089463",
+    "stop": "11133820",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Hypercholesterolemia, familial, 1"
+    ],
+    "phenotype_ids": [
+      "MONDO:MONDO:0007750",
+      "OMIM:143890",
+      "OMIM:143890",
+      "OMIM:143890",
+      "OMIM:144400",
+      "SNOMED CT:397915002",
+      "OMIM:600946.0028",
+      "OMIM:143890",
+      "OMIM:143890",
+      "GeneReviews:NBK174884",
+      "Orphanet:391665",
+      "MedGen:C0745103",
+      "MONDO:MONDO:0007750",
+      "OMIM:143890"
+    ]
+  },
+  {
+    "variation_id": "2756",
+    "name": "LEMD3, 1941+5delG",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "LEMD3"
+    ],
+    "gene_ids": [
+      "23592"
+    ],
+    "hgnc_ids": [
+      "HGNC:28887"
+    ],
+    "hgvs_expressions": [],
+    "chromosome": "12",
+    "start": "65169583",
+    "stop": "65248355",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Osteopoikilosis"
+    ],
+    "phenotype_ids": [
+      "Genetic Alliance:Osteopoikilosis/5484",
+      "Human Phenotype Ontology:HP:0010739",
+      "MONDO:MONDO:0001414",
+      "Office of Rare Diseases:4158",
+      "MedGen:C0029455",
+      "MONDO:MONDO:0001414",
+      "Human Phenotype Ontology:HP:0010739"
+    ]
+  },
+  {
+    "variation_id": "2890",
+    "name": "NM_000419.5(ITGA2B):c.188+484_892-70delinsCAATCCCACA",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "ITGA2B",
+      "LOC130060983"
+    ],
+    "gene_ids": [
+      "3674",
+      "130060983"
+    ],
+    "hgnc_ids": [
+      "HGNC:6138"
+    ],
+    "hgvs_expressions": [
+      "NC_000017.10:g.42461576_42466170delinsTGTGGGATTG",
+      "NC_000017.11:g.44384208_44388802delinsTGTGGGATTG",
+      "NG_008331.1:g.5704_10298delinsCAATCCCACA",
+      "NG_196222.1:g.1_340delinsTGTGGGATTG",
+      "NM_000419.5:c.188+484_892-70delinsCAATCCCACA",
+      "LRG_479:g.5704_10298delinsCAATCCCACA"
+    ],
+    "chromosome": "17",
+    "start": "44384208",
+    "stop": "44388802",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Glanzmann thrombasthenia 1"
+    ],
+    "phenotype_ids": [
+      "MONDO:MONDO:0031332",
+      "OMIM:273800",
+      "OMIM:273800",
+      "OMIM:273800",
+      "OMIM:273800",
+      "OMIM:273800",
+      "Office of Rare Diseases:15240",
+      "MedGen:CN300358",
+      "MONDO:MONDO:0031332",
+      "OMIM:273800"
+    ]
+  },
+  {
+    "variation_id": "2921",
+    "name": "NM_024077.5(SECISBP2):c.1212+29G>A",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "SECISBP2"
+    ],
+    "gene_ids": [
+      "79048"
+    ],
+    "hgnc_ids": [
+      "HGNC:30972"
+    ],
+    "hgvs_expressions": [
+      "NC_000009.11:g.91953524G>A",
+      "NC_000009.12:g.89338609G>A",
+      "NG_012177.1:g.25113G>A",
+      "NM_024077.5:c.1212+29G>A",
+      "NM_001354702.2:c.327+29G>A",
+      "NM_001354697.2:c.1098+29G>A",
+      "NM_001354696.2:c.1095+29G>A",
+      "NM_001354698.2:c.1095+29G>A",
+      "NM_001282688.2:c.1209+29G>A",
+      "NM_001282689.2:c.993+29G>A",
+      "NM_001282690.1:c.1008+29G>A"
+    ],
+    "chromosome": "9",
+    "start": "89338609",
+    "stop": "89338609",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Short stature-delayed bone age due to thyroid hormone metabolism deficiency"
+    ],
+    "phenotype_ids": [
+      "MONDO:MONDO:0800046",
+      "MONDO:MONDO:0800046",
+      "OMIM:609698",
+      "OMIM:609698",
+      "Office of Rare Diseases:17068",
+      "Orphanet:171706",
+      "MedGen:C5676891",
+      "MONDO:MONDO:0800046",
+      "OMIM:609698"
+    ]
+  },
+  {
+    "variation_id": "2924",
+    "name": "NM_016103.4(SAR1B):c.75_76del (p.Thr25_Gly26insTer)",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "SAR1B"
+    ],
+    "gene_ids": [
+      "51128"
+    ],
+    "hgnc_ids": [
+      "HGNC:10535"
+    ],
+    "hgvs_expressions": [
+      "NC_000005.10:g.134621035_134621036del",
+      "NC_000005.9:g.133956725_133956726del",
+      "NG_017002.1:g.16808_16809del",
+      "NM_001033503.3:c.75_76del",
+      "NM_016103.4:c.75_76del"
+    ],
+    "chromosome": "5",
+    "start": "134621035",
+    "stop": "134621036",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "HYPOBETALIPOPROTEINEMIA WITH ACCUMULATION OF APOLIPOPROTEIN B-LIKE PROTEIN IN INTESTINAL CELLS"
+    ],
+    "phenotype_ids": [
+      "OMIM:246700",
+      "OMIM:246700",
+      "Genetic Alliance:Chylomicron+Retention+Disease/1633",
+      "MONDO:MONDO:0009528",
+      "OMIM:246700",
+      "OMIM:246700",
+      "Office of Rare Diseases:9683",
+      "GeneReviews:NBK578949",
+      "Orphanet:71",
+      "MedGen:C0795956",
+      "MONDO:MONDO:0009528",
+      "OMIM:246700"
+    ]
+  },
+  {
+    "variation_id": "4138",
+    "name": "NM_022455.5(NSD1):c.6151+1G>A",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "criteria provided, single submitter",
+    "gene_symbols": [
+      "NSD1"
+    ],
+    "gene_ids": [
+      "64324"
+    ],
+    "hgnc_ids": [
+      "HGNC:14234"
+    ],
+    "hgvs_expressions": [
+      "NC_000005.10:g.177283929G>A",
+      "NC_000005.9:g.176710930G>A",
+      "NG_009821.1:g.155851G>A",
+      "NM_001409301.1:c.6151+1G>A",
+      "NM_001409304.1:c.5731+1G>A",
+      "NM_001409305.1:c.5398+1G>A",
+      "NM_001409306.1:c.5389+1G>A",
+      "NM_001409308.1:c.5278+1G>A",
+      "NM_001409302.1:c.6151+1G>A",
+      "NM_001409307.1:c.5389+1G>A",
+      "NM_172349.5:c.5278+1G>A",
+      "NM_001409303.1:c.6151+1G>A",
+      "NM_001409309.1:c.5136+1348G>A",
+      "NM_022455.5:c.6151+1G>A",
+      "NM_001365684.2:c.5278+1G>A",
+      "LRG_512:g.155851G>A",
+      "LRG_512t1:c.6151+1G>A"
+    ],
+    "chromosome": "5",
+    "start": "177283929",
+    "stop": "177283929",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "RECLASSIFIED - ADRA2C POLYMORPHISM"
+    ],
+    "phenotype_ids": [
+      "OMIM:104250.0001",
+      "OMIM:109630.0001",
+      "Center for Genomic Medicine, King Faisal Specialist Hospital and Research Center:13DG0619",
+      "MedGen:C3661900"
+    ]
+  },
+  {
+    "variation_id": "4490",
+    "name": "NM_020451.2(SELENON):c.1385G>A (p.Sec462=)",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "SELENON"
+    ],
+    "gene_ids": [
+      "57190"
+    ],
+    "hgnc_ids": [
+      "HGNC:15999"
+    ],
+    "hgvs_expressions": [
+      "NG_009930.1:g.17615G>A",
+      "NC_000001.10:g.26139281G>A",
+      "NC_000001.11:g.25812790G>A",
+      "NM_020451.3:c.1385G>A",
+      "NM_206926.2:c.1283G>A",
+      "LRG_857:g.17615G>A",
+      "LRG_857t1:c.1385G>A"
+    ],
+    "chromosome": "1",
+    "start": "25812790",
+    "stop": "25812790",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "MYOPATHY, SEPN1-RELATED"
+    ],
+    "phenotype_ids": [
+      "OMIM:602771",
+      "MONDO:MONDO:0011271",
+      "Genetic Alliance:Eichsfeld+type+congenital+muscular+dystrophy/8301",
+      "SNOMED CT:240063002",
+      "OMIM:602771",
+      "OMIM:606210.0013",
+      "OMIM:606210.0003",
+      "OMIM:606210.0008",
+      "OMIM:606210.0001",
+      "OMIM:606210.0007",
+      "OMIM:606210.0004",
+      "OMIM:606210.0012",
+      "OMIM:606210.0011",
+      "OMIM:606210.0002",
+      "OMIM:606210.0010",
+      "OMIM:606210.0005",
+      "OMIM:606210.0009",
+      "OMIM:606210.0006",
+      "OMIM:602771",
+      "OMIM:602771",
+      "OMIM:602771",
+      "MedGen:C0410180",
+      "MONDO:MONDO:0011271",
+      "OMIM:602771"
+    ]
+  },
+  {
+    "variation_id": "4538",
+    "name": "NM_001122955.4(BSCL2):c.630+1G>A",
+    "type": "",
+    "germline_classification": "Conflicting classifications of pathogenicity",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "BSCL2",
+      "HNRNPUL2-BSCL2"
+    ],
+    "gene_ids": [
+      "26580",
+      "100534595"
+    ],
+    "hgnc_ids": [
+      "HGNC:15832",
+      "HGNC:49189"
+    ],
+    "hgvs_expressions": [
+      "LRG_235:g.20008G>A",
+      "LRG_235t2:c.438+1G>A",
+      "NC_000011.10:g.62694567C>T",
+      "NC_000011.9:g.62462039C>T",
+      "NG_008461.1:g.20008G>A",
+      "NG_033077.1:g.333G>A",
+      "NM_001130702.2:c.438+1G>A",
+      "NM_032667.6:c.438+1G>A",
+      "NM_001386028.1:c.630+1G>A",
+      "NM_001386027.1:c.630+1G>A",
+      "NM_001122955.4:c.630+1G>A"
+    ],
+    "chromosome": "11",
+    "start": "62694567",
+    "stop": "62694567",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Berardinelli-Seip congenital lipodystrophy"
+    ],
+    "phenotype_ids": [
+      "GenePathDx, GenePath diagnostics:GPDx_BSCL_BSCL2_001",
+      "MONDO:MONDO:0018883",
+      "Office of Rare Diseases:13388",
+      "Orphanet:528",
+      "MedGen:CN262437",
+      "MONDO:MONDO:0018883"
+    ]
+  },
+  {
+    "variation_id": "4574",
+    "name": "BBS2, ASP170FS, TER171",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "BBS2"
+    ],
+    "gene_ids": [
+      "583"
+    ],
+    "hgnc_ids": [
+      "HGNC:967"
+    ],
+    "hgvs_expressions": [],
+    "chromosome": "16",
+    "start": "56470403",
+    "stop": "56520024",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Bardet-biedl syndrome 1/2, digenic"
+    ],
+    "phenotype_ids": [
+      "MedGen:C4016957"
+    ]
+  },
+  {
+    "variation_id": "3139",
+    "name": "KCNQ1, IVS1",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "KCNQ1"
+    ],
+    "gene_ids": [
+      "3784"
+    ],
+    "hgnc_ids": [
+      "HGNC:6294"
+    ],
+    "hgvs_expressions": [],
+    "chromosome": "11",
+    "start": "2445008",
+    "stop": "2849105",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Jervell and Lange-Nielsen syndrome 1"
+    ],
+    "phenotype_ids": [
+      "MONDO:MONDO:0024540",
+      "OMIM:220400",
+      "OMIM:220400",
+      "OMIM:220400",
+      "OMIM:220400",
+      "OMIM:220400",
+      "GeneReviews:NBK1405",
+      "Orphanet:768",
+      "Orphanet:90647",
+      "MedGen:C4551509",
+      "MONDO:MONDO:0024540",
+      "OMIM:220400"
+    ]
+  },
+  {
+    "variation_id": "4581",
+    "name": "BBS2, LEU168FS, TER170",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "BBS2"
+    ],
+    "gene_ids": [
+      "583"
+    ],
+    "hgnc_ids": [
+      "HGNC:967"
+    ],
+    "hgvs_expressions": [],
+    "chromosome": "16",
+    "start": "56470403",
+    "stop": "56520024",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "BARDET-BIEDL SYNDROME 2/6, DIGENIC"
+    ],
+    "phenotype_ids": [
+      "OMIM:606151.0016",
+      "OMIM:606151.0013",
+      "OMIM:604896.0012",
+      "OMIM:606151.0003",
+      "OMIM:604896.0013",
+      "OMIM:606151.0014",
+      "MedGen:C4016908"
+    ]
+  },
+  {
+    "variation_id": "4833",
+    "name": "NM_000441.2(SLC26A4):c.1002-4C>G",
+    "type": "",
+    "germline_classification": "Likely pathogenic",
+    "review_status": "criteria provided, single submitter",
+    "gene_symbols": [
+      "SLC26A4"
+    ],
+    "gene_ids": [
+      "5172"
+    ],
+    "hgnc_ids": [
+      "HGNC:8818"
+    ],
+    "hgvs_expressions": [
+      "NC_000007.13:g.107329494C>G",
+      "NC_000007.14:g.107689049C>G",
+      "NG_008489.1:g.33415C>G",
+      "NM_000441.2:c.1002-4C>G"
+    ],
+    "chromosome": "7",
+    "start": "107689049",
+    "stop": "107689049",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "FOXI1-Related Pendred Syndrome"
+    ],
+    "phenotype_ids": [
+      "OMIM:605646.0029",
+      "OMIM:602208.0008",
+      "OMIM:605646.0031",
+      "OMIM:602208.0009",
+      "OMIM:605646.0028",
+      "OMIM:601093.0001",
+      "OMIM:600791",
+      "NCI:C158787",
+      "MONDO:MONDO:0010933",
+      "OMIM:600791",
+      "OMIM:600791",
+      "OMIM:600791",
+      "Genetic Testing Registry (GTR):GTR000500213",
+      "Office of Rare Diseases:22584",
+      "GeneReviews:NBK1467",
+      "Orphanet:90636",
+      "MedGen:C3538946",
+      "MONDO:MONDO:0010933",
+      "OMIM:600791"
+    ]
+  },
+  {
+    "variation_id": "3633",
+    "name": "NC_000017.11:g.58281401C>T",
+    "type": "",
+    "germline_classification": "protective; risk factor",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "LOC106694315",
+      "MPO"
+    ],
+    "gene_ids": [
+      "106694315",
+      "4353"
+    ],
+    "hgnc_ids": [
+      "HGNC:7218"
+    ],
+    "hgvs_expressions": [
+      "NC_000017.10:g.56358762C>T",
+      "NC_000017.11:g.58281401C>T",
+      "NG_009629.1:g.4535G>A",
+      "NG_044959.1:g.1914C>T",
+      "LRG_84:g.4535G>A"
+    ],
+    "chromosome": "17",
+    "start": "58281401",
+    "stop": "58281401",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Alzheimer disease, susceptibility to"
+    ],
+    "phenotype_ids": []
+  },
+  {
+    "variation_id": "3701",
+    "name": "FH Cape Town 2",
+    "type": "",
+    "germline_classification": "Pathogenic/Likely pathogenic",
+    "review_status": "criteria provided, multiple submitters, no conflicts",
+    "gene_symbols": [
+      "LDLR"
+    ],
+    "gene_ids": [
+      "3949"
+    ],
+    "hgnc_ids": [
+      "HGNC:6547"
+    ],
+    "hgvs_expressions": [
+      "LRG_274t1:c.941-?_1186+?del",
+      "LRG_274:g.(23135_26271)_(27260_28897)del",
+      "NC_000019.10:g.(11107515_11110651)_(11111640_11113277)del",
+      "NC_000019.9:g.(11218191_11221327)_(11222316_11223953)del",
+      "NG_009060.1:g.(23135_26271)_(27260_28897)del",
+      "NM_000527.5:c.941_1186del"
+    ],
+    "chromosome": "19",
+    "start": "",
+    "stop": "",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Hypercholesterolemia, familial, 1"
+    ],
+    "phenotype_ids": [
+      "MONDO:MONDO:0007750",
+      "OMIM:143890",
+      "OMIM:143890",
+      "OMIM:143890",
+      "OMIM:144400",
+      "SNOMED CT:397915002",
+      "OMIM:600946.0028",
+      "OMIM:143890",
+      "OMIM:143890",
+      "GeneReviews:NBK174884",
+      "Orphanet:391665",
+      "MedGen:C0745103",
+      "MONDO:MONDO:0007750",
+      "OMIM:143890"
+    ]
+  },
+  {
+    "variation_id": "3715",
+    "name": "FH London 2",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "LDLR"
+    ],
+    "gene_ids": [
+      "3949"
+    ],
+    "hgnc_ids": [
+      "HGNC:6547"
+    ],
+    "hgvs_expressions": [
+      "NG_009060.1:g.(23135_26271)_(26392_27133)del",
+      "LRG_274:g.(23135_26271)_(26392_27133)del"
+    ],
+    "chromosome": "19",
+    "start": "11089463",
+    "stop": "11133820",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Hypercholesterolemia, familial, 1"
+    ],
+    "phenotype_ids": [
+      "MONDO:MONDO:0007750",
+      "OMIM:143890",
+      "OMIM:143890",
+      "OMIM:143890",
+      "OMIM:144400",
+      "SNOMED CT:397915002",
+      "OMIM:600946.0028",
+      "OMIM:143890",
+      "OMIM:143890",
+      "GeneReviews:NBK174884",
+      "Orphanet:391665",
+      "MedGen:C0745103",
+      "MONDO:MONDO:0007750",
+      "OMIM:143890"
+    ]
+  },
+  {
+    "variation_id": "3716",
+    "name": "FH Osaka 2",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "LDLR",
+      "MIR6886"
+    ],
+    "gene_ids": [
+      "3949",
+      "102465534"
+    ],
+    "hgnc_ids": [
+      "HGNC:6547",
+      "HGNC:50121"
+    ],
+    "hgvs_expressions": [
+      "NG_009060.1:g.25950_37425del",
+      "LRG_274:g.25950_37425del",
+      "NC_000019.10:g.11110330_11121805del",
+      "NC_000019.9:g.11221006_11232481del"
+    ],
+    "chromosome": "19",
+    "start": "11110330",
+    "stop": "11121805",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Hypercholesterolemia, familial, 1"
+    ],
+    "phenotype_ids": [
+      "MONDO:MONDO:0007750",
+      "OMIM:143890",
+      "OMIM:143890",
+      "OMIM:143890",
+      "OMIM:144400",
+      "SNOMED CT:397915002",
+      "OMIM:600946.0028",
+      "OMIM:143890",
+      "OMIM:143890",
+      "GeneReviews:NBK174884",
+      "Orphanet:391665",
+      "MedGen:C0745103",
+      "MONDO:MONDO:0007750",
+      "OMIM:143890"
+    ]
+  },
+  {
+    "variation_id": "5065",
+    "name": "NC_000001.10:g.(196722206_?)_(?_196808505)del",
+    "type": "",
+    "germline_classification": "Pathogenic; risk factor",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "CFHR1",
+      "CFHR3"
+    ],
+    "gene_ids": [
+      "3078",
+      "10878"
+    ],
+    "hgnc_ids": [
+      "HGNC:4888",
+      "HGNC:16980"
+    ],
+    "hgvs_expressions": [
+      "NC_000001.10:g.(196722206_?)_(?_196808505)del",
+      "NC_000001.11:g.(196753076_?)_(?_196839375)del"
+    ],
+    "chromosome": "1",
+    "start": "",
+    "stop": "",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Age-related macular degeneration"
+    ],
+    "phenotype_ids": [
+      "MONDO:MONDO:0005150",
+      "SNOMED CT:267718000",
+      "OMIM:134371.0001",
+      "OMIM:605336.0001",
+      "OMIM:615489",
+      "MedGen:C0242383",
+      "MONDO:MONDO:0005150",
+      "OMIM:PS603075"
+    ]
+  },
+  {
+    "variation_id": "3967",
+    "name": "NM_001371623.1(TCOF1):c.376_378+15del",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "TCOF1"
+    ],
+    "gene_ids": [
+      "6949"
+    ],
+    "hgnc_ids": [
+      "HGNC:11654"
+    ],
+    "hgvs_expressions": [
+      "NC_000005.10:g.150367915_150367932del",
+      "NC_000005.9:g.149747478_149747495del",
+      "NG_011341.1:g.15277_15294del",
+      "NM_001371623.1:c.376_378+15del",
+      "NM_001135243.2:c.376_378+15del",
+      "NM_001135244.2:c.376_378+15del",
+      "NM_001195141.2:c.376_378+15del",
+      "NM_001135245.2:c.376_378+15del",
+      "NM_000356.4:c.376_378+15del",
+      "NM_001008657.3:c.376_378+15del"
+    ],
+    "chromosome": "5",
+    "start": "150367912",
+    "stop": "150367929",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Treacher Collins syndrome 1"
+    ],
+    "phenotype_ids": [
+      "Genetic Alliance:Treacher+Collins+syndrome/7175",
+      "MONDO:MONDO:0007944",
+      "OMIM:154500",
+      "OMIM:154500",
+      "OMIM:154500",
+      "GeneReviews:NBK1532",
+      "Orphanet:861",
+      "MedGen:CN315775",
+      "MONDO:MONDO:0007944",
+      "OMIM:154500"
+    ]
+  },
+  {
+    "variation_id": "3559",
+    "name": "NM_001370497.1(ABCC11):c.3939_3965del (p.Asp1313_Arg1321del)",
+    "type": "",
+    "germline_classification": "Affects",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "ABCC11"
+    ],
+    "gene_ids": [
+      "85320"
+    ],
+    "hgnc_ids": [
+      "HGNC:14639"
+    ],
+    "hgvs_expressions": [
+      "NG_011522.1:g.72565_72591del",
+      "NC_000016.10:g.48167589_48167615del",
+      "NC_000016.9:g.48201500_48201526del",
+      "NM_001370496.1:c.3945_3971del",
+      "NM_001370497.1:c.3939_3965del",
+      "NM_032583.4:c.3939_3965del",
+      "NM_033151.4:c.3939_3965del",
+      "NM_145186.3:c.3825_3851del"
+    ],
+    "chromosome": "16",
+    "start": "48167587",
+    "stop": "48167613",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "EAR WAX, WET/DRY"
+    ],
+    "phenotype_ids": [
+      "OMIM:117800",
+      "OMIM:607040.0001",
+      "OMIM:607040.0002",
+      "OMIM:117800",
+      "OMIM:117800",
+      "OMIM:607040.0001",
+      "OMIM:607040.0002",
+      "OMIM:117800",
+      "OMIM:117800",
+      "OMIM:117800",
+      "OMIM:117800",
+      "OMIM:117800",
+      "MedGen:C1861696",
+      "OMIM:117800"
+    ]
+  },
+  {
+    "variation_id": "3641",
+    "name": "NM_020247.5(COQ8A):c.1398+2T>C",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "criteria provided, single submitter",
+    "gene_symbols": [
+      "COQ8A"
+    ],
+    "gene_ids": [
+      "56997"
+    ],
+    "hgnc_ids": [
+      "HGNC:16812"
+    ],
+    "hgvs_expressions": [
+      "NC_000001.10:g.227171938T>C",
+      "NC_000001.11:g.226984237T>C",
+      "NG_012825.2:g.91702T>C",
+      "NM_020247.5:c.1398+2T>C",
+      "LRG_1092:g.91702T>C",
+      "LRG_1092t1:c.1398+2T>C"
+    ],
+    "chromosome": "1",
+    "start": "226984237",
+    "stop": "226984237",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "SPINOCEREBELLAR ATAXIA, AUTOSOMAL RECESSIVE 9"
+    ],
+    "phenotype_ids": [
+      "OMIM:612016",
+      "MONDO:MONDO:0012784",
+      "OMIM:612016",
+      "OMIM:612016",
+      "GeneReviews:NBK410087",
+      "Office of Rare Diseases:10294",
+      "Orphanet:139485",
+      "MedGen:C2677589",
+      "MONDO:MONDO:0012784",
+      "OMIM:612016"
+    ]
+  },
+  {
+    "variation_id": "4134",
+    "name": "NC_000005.10:g.(?_177131798)_(177300213_)?)del",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "NSD1"
+    ],
+    "gene_ids": [
+      "64324"
+    ],
+    "hgnc_ids": [
+      "HGNC:14234"
+    ],
+    "hgvs_expressions": [
+      "NC_000005.10:(?_177131798)_(177300213_)?)del",
+      "NC_000005.10:g.(?_177131798)_(177300213_)?)del"
+    ],
+    "chromosome": "5",
+    "start": "177131798",
+    "stop": "177300213",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Sotos' syndrome"
+    ],
+    "phenotype_ids": [
+      "Genetic Alliance:Sotos+syndrome/6665",
+      "SNOMED CT:75968004",
+      "MONDO:MONDO:0019349",
+      "OMIM:PS117550",
+      "OMIM:117550",
+      "OMIM:117550",
+      "OMIM:117550",
+      "OMIM:117550",
+      "GeneReviews:NBK1479",
+      "Office of Rare Diseases:10091",
+      "Orphanet:821",
+      "MedGen:C0175695",
+      "MONDO:MONDO:0019349",
+      "OMIM:117550"
+    ]
+  },
+  {
+    "variation_id": "3709",
+    "name": "NC_000019.10:g.(11077742_11077775)_(11093595_11093630)del",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "LDLR",
+      "LDLR-AS1",
+      "LOC126862855"
+    ],
+    "gene_ids": [
+      "3949",
+      "115271120",
+      "126862855"
+    ],
+    "hgnc_ids": [
+      "HGNC:6547",
+      "HGNC:54407"
+    ],
+    "hgvs_expressions": [
+      "NC_000019.10:g.(11077742_11077775)_(11093595_11093630)del"
+    ],
+    "chromosome": "19",
+    "start": "",
+    "stop": "",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Hypercholesterolemia, familial, 1"
+    ],
+    "phenotype_ids": [
+      "MONDO:MONDO:0007750",
+      "OMIM:143890",
+      "OMIM:143890",
+      "OMIM:143890",
+      "OMIM:144400",
+      "SNOMED CT:397915002",
+      "OMIM:600946.0028",
+      "OMIM:143890",
+      "OMIM:143890",
+      "GeneReviews:NBK174884",
+      "Orphanet:391665",
+      "MedGen:C0745103",
+      "MONDO:MONDO:0007750",
+      "OMIM:143890"
+    ]
+  },
+  {
+    "variation_id": "3710",
+    "name": "FH French Canadian 5",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "criteria provided, multiple submitters, no conflicts",
+    "gene_symbols": [
+      "LDLR",
+      "LDLR-AS1",
+      "LOC126862855",
+      "LOC126862856"
+    ],
+    "gene_ids": [
+      "3949",
+      "115271120",
+      "126862855",
+      "126862856"
+    ],
+    "hgnc_ids": [
+      "HGNC:6547",
+      "HGNC:54407"
+    ],
+    "hgvs_expressions": [
+      "NG_009060.1:g.(5236_15842)_(18407_20839)del",
+      "LRG_274:g.(5236_15842)_(18407_20839)del",
+      "NC_000019.10:g.(11089616_11100222)_(11102787_11105219)del",
+      "NC_000019.9:g.(11200292_11210898)_(11213463_11215895)del",
+      "NM_000527.5:c.(67+1_68-1)_(313+1_314-1)del",
+      "LRG_274t1:c.68-?_313+?del"
+    ],
+    "chromosome": "19",
+    "start": "",
+    "stop": "",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Hypercholesterolemia, familial, 1"
+    ],
+    "phenotype_ids": [
+      "MONDO:MONDO:0007750",
+      "OMIM:143890",
+      "OMIM:143890",
+      "OMIM:143890",
+      "OMIM:144400",
+      "SNOMED CT:397915002",
+      "OMIM:600946.0028",
+      "OMIM:143890",
+      "OMIM:143890",
+      "GeneReviews:NBK174884",
+      "Orphanet:391665",
+      "MedGen:C0745103",
+      "MONDO:MONDO:0007750",
+      "OMIM:143890"
+    ]
+  },
+  {
+    "variation_id": "3723",
+    "name": "FH Leiden 2",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "LDLR"
+    ],
+    "gene_ids": [
+      "3949"
+    ],
+    "hgnc_ids": [
+      "HGNC:6547"
+    ],
+    "hgvs_expressions": [
+      "NM_000527.5:c.(2311+1_2312-1)_(2389+1_2390-1)del"
+    ],
+    "chromosome": "19",
+    "start": "11089463",
+    "stop": "11133820",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Hypercholesterolemia, familial, 1"
+    ],
+    "phenotype_ids": [
+      "MONDO:MONDO:0007750",
+      "OMIM:143890",
+      "OMIM:143890",
+      "OMIM:143890",
+      "OMIM:144400",
+      "SNOMED CT:397915002",
+      "OMIM:600946.0028",
+      "OMIM:143890",
+      "OMIM:143890",
+      "GeneReviews:NBK174884",
+      "Orphanet:391665",
+      "MedGen:C0745103",
+      "MONDO:MONDO:0007750",
+      "OMIM:143890"
+    ]
+  },
+  {
+    "variation_id": "5494",
+    "name": "NM_014141.5(CNTNAP2):c.(?_97)+117643_(1670_?)+6605del",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "CNTNAP2",
+      "CNTNAP2-AS1",
+      "LOC123956262",
+      "LOC129389920",
+      "MIR548F4"
+    ],
+    "gene_ids": [
+      "26047",
+      "101928700",
+      "123956262",
+      "129389920",
+      "100313895"
+    ],
+    "hgnc_ids": [
+      "HGNC:13830",
+      "HGNC:40657",
+      "HGNC:35308"
+    ],
+    "hgvs_expressions": [
+      "NC_000007.14:g.(?_146234616)_(147402385_?)del",
+      "NC_000007.12:g.(?_145562641)_(146730410_?)del",
+      "NC_000007.13:g.(?_145931708)_(147099477_?)del"
+    ],
+    "chromosome": "7",
+    "start": "",
+    "stop": "",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Cortical dysplasia-focal epilepsy syndrome"
+    ],
+    "phenotype_ids": [
+      "Genetic Alliance:Cortical+dysplasia-focal+epilepsy+syndrome/8098",
+      "MONDO:MONDO:0012400",
+      "OMIM:610042",
+      "Office of Rare Diseases:16997",
+      "Orphanet:163681",
+      "Orphanet:221150",
+      "MedGen:C2750246",
+      "MONDO:MONDO:0012400",
+      "OMIM:610042"
+    ]
+  },
+  {
+    "variation_id": "3412",
+    "name": "NM_006147.4(IRF6):c.870_888delinsA (p.Phe290_Asp296delinsLeu)",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "IRF6"
+    ],
+    "gene_ids": [
+      "3664"
+    ],
+    "hgnc_ids": [
+      "HGNC:6121"
+    ],
+    "hgvs_expressions": [
+      "NC_000001.10:g.209964012_209964030delinsT",
+      "NC_000001.11:g.209790667_209790685delinsT",
+      "NG_007081.2:g.20450_20468delinsA",
+      "NM_001206696.2:c.585_603delinsA",
+      "NM_006147.4:c.870_888delinsA"
+    ],
+    "chromosome": "1",
+    "start": "209790667",
+    "stop": "209790685",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Van der Woude syndrome 1"
+    ],
+    "phenotype_ids": [
+      "MONDO:MONDO:0007333",
+      "OMIM:119300",
+      "OMIM:119300",
+      "GeneReviews:NBK1407",
+      "MedGen:C4551864",
+      "MONDO:MONDO:0007333",
+      "OMIM:119300"
+    ]
+  },
+  {
+    "variation_id": "4285",
+    "name": "NM_021175.4(HAMP):c.148_150+1del",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "HAMP"
+    ],
+    "gene_ids": [
+      "57817"
+    ],
+    "hgnc_ids": [
+      "HGNC:15598"
+    ],
+    "hgvs_expressions": [
+      "NM_021175.4:c.148_150+1del",
+      "NC_000019.10:g.35284846_35284849del",
+      "NC_000019.9:g.35775749_35775752del",
+      "NG_011563.2:g.7340_7343del",
+      "LRG_791:g.7340_7343del",
+      "LRG_791t1:c.148_150+1del"
+    ],
+    "chromosome": "19",
+    "start": "35284843",
+    "stop": "35284846",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Hemochromatosis, juvenile, digenic"
+    ],
+    "phenotype_ids": [
+      "MedGen:C3150862"
+    ]
+  },
+  {
+    "variation_id": "5778",
+    "name": "NM_003919.3(SGCE):c.663-6109_825+550del",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "CASD1",
+      "SGCE"
+    ],
+    "gene_ids": [
+      "64921",
+      "8910"
+    ],
+    "hgnc_ids": [
+      "HGNC:16014",
+      "HGNC:10808"
+    ],
+    "hgvs_expressions": [
+      "NC_000007.13:g.94232058_94238879del",
+      "NC_000007.14:g.94602746_94609567del",
+      "NG_008893.3:g.52012_58833del",
+      "NM_001362809.2:c.540-6109_702+550del",
+      "NM_001301139.2:c.540-6109_702+550del",
+      "NM_001346717.2:c.663-6109_825+550del",
+      "NM_001099400.2:c.663-6109_825+550del",
+      "NM_003919.3:c.663-6109_825+550del",
+      "NM_001099401.2:c.663-6109_825+550del",
+      "NM_001346715.2:c.771-6109_933+550del",
+      "NM_001346713.2:c.771-6109_933+550del",
+      "NM_001362807.2:c.576-6109_738+550del",
+      "NM_001362808.2:c.390-6109_552+550del",
+      "NM_001346720.2:c.390-6109_552+550del",
+      "NM_001346719.2:c.576-6109_738+550del",
+      "LRG_206:g.52012_58833del",
+      "LRG_206t1:c.663-6109_825+550del"
+    ],
+    "chromosome": "7",
+    "start": "94602740",
+    "stop": "94609561",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Myoclonic dystonia"
+    ],
+    "phenotype_ids": [
+      "SNOMED CT:439732004",
+      "MONDO:MONDO:0008044",
+      "OMIM:159900",
+      "Office of Rare Diseases:18616",
+      "GeneReviews:NBK1414",
+      "Orphanet:36899",
+      "MedGen:C1834570",
+      "MONDO:MONDO:0008044",
+      "OMIM:159900"
+    ]
+  },
+  {
+    "variation_id": "4534",
+    "name": "BSCL2, 258-BP DEL/12-BP INS",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "BSCL2"
+    ],
+    "gene_ids": [
+      "26580"
+    ],
+    "hgnc_ids": [
+      "HGNC:15832"
+    ],
+    "hgvs_expressions": [],
+    "chromosome": "11",
+    "start": "62690262",
+    "stop": "62709537",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "SEIP SYNDROME"
+    ],
+    "phenotype_ids": [
+      "OMIM:269700",
+      "Genetic Alliance:Congenital+Generalized+Lipodystrophy+Type+2/1830",
+      "MONDO:MONDO:0010020",
+      "OMIM:269700",
+      "OMIM:269700",
+      "OMIM:269700",
+      "Office of Rare Diseases:10212",
+      "GeneReviews:NBK1212",
+      "Orphanet:528",
+      "MedGen:C1720863",
+      "MONDO:MONDO:0010020",
+      "OMIM:269700"
+    ]
+  },
+  {
+    "variation_id": "3976",
+    "name": "NC_000008.11:g.52623770_52685461del",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "RB1CC1"
+    ],
+    "gene_ids": [
+      "9821"
+    ],
+    "hgnc_ids": [
+      "HGNC:15574"
+    ],
+    "hgvs_expressions": [
+      "NC_000008.10:g.53536328_53598019del",
+      "NC_000008.11:g.52623770_52685461del"
+    ],
+    "chromosome": "8",
+    "start": "52623768",
+    "stop": "52685459",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Breast cancer, somatic"
+    ],
+    "phenotype_ids": [
+      "MONDO:MONDO:0004988",
+      "MedGen:C0858252",
+      "MONDO:MONDO:0004988"
+    ]
+  },
+  {
+    "variation_id": "3977",
+    "name": "nsv1067861",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "RB1CC1"
+    ],
+    "gene_ids": [
+      "9821"
+    ],
+    "hgnc_ids": [
+      "HGNC:15574"
+    ],
+    "hgvs_expressions": [
+      "NC_000008.10:g.53537321_53574220del"
+    ],
+    "chromosome": "8",
+    "start": "52624761",
+    "stop": "52661660",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Breast cancer, somatic"
+    ],
+    "phenotype_ids": [
+      "MONDO:MONDO:0004988",
+      "MedGen:C0858252",
+      "MONDO:MONDO:0004988"
+    ]
+  },
+  {
+    "variation_id": "6126",
+    "name": "NM_001029.5(RPS26):c.3+1G>A",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "RPS26"
+    ],
+    "gene_ids": [
+      "6231"
+    ],
+    "hgnc_ids": [
+      "HGNC:10414"
+    ],
+    "hgvs_expressions": [
+      "LRG_1146:g.5269G>A",
+      "LRG_1146t1:c.3+1G>A",
+      "NC_000012.11:g.56435954G>A",
+      "NC_000012.12:g.56042170G>A",
+      "NG_023201.1:g.5269G>A",
+      "NG_125851.1:g.632G>A",
+      "NG_125851.2:g.632G>A",
+      "NM_001029.5:c.3+1G>A"
+    ],
+    "chromosome": "12",
+    "start": "56042170",
+    "stop": "56042170",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Diamond-Blackfan anemia 10"
+    ],
+    "phenotype_ids": [
+      "Genetic Alliance:Diamond-Blackfan+anemia+10/8227",
+      "MONDO:MONDO:0013217",
+      "OMIM:613309",
+      "GeneReviews:NBK7047",
+      "Orphanet:124",
+      "MedGen:C2750080",
+      "MONDO:MONDO:0013217",
+      "OMIM:613309"
+    ]
+  },
+  {
+    "variation_id": "6146",
+    "name": "NM_003738.5(PTCH2):c.3357+5C>T",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "PTCH2"
+    ],
+    "gene_ids": [
+      "8643"
+    ],
+    "hgnc_ids": [
+      "HGNC:9586"
+    ],
+    "hgvs_expressions": [
+      "NC_000001.10:g.45288736G>A",
+      "NC_000001.11:g.44823064G>A",
+      "NG_013369.1:g.24881C>T",
+      "NM_001166292.2:c.3357+5C>T",
+      "NM_003738.5:c.3357+5C>T"
+    ],
+    "chromosome": "1",
+    "start": "44823064",
+    "stop": "44823064",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Basal cell carcinoma, somatic"
+    ],
+    "phenotype_ids": [
+      "MedGen:C3838465"
+    ]
+  },
+  {
+    "variation_id": "4495",
+    "name": "NM_020451.3(SELENON):c.1384T>G",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "SELENON"
+    ],
+    "gene_ids": [
+      "57190"
+    ],
+    "hgnc_ids": [
+      "HGNC:15999"
+    ],
+    "hgvs_expressions": [
+      "NC_000001.10:g.26139280T>G",
+      "NC_000001.11:g.25812789T>G",
+      "NG_009930.1:g.17614T>G",
+      "NM_020451.3:c.1384T>G",
+      "NM_206926.2:c.1282T>G",
+      "LRG_857:g.17614T>G",
+      "LRG_857t1:c.1384T>G"
+    ],
+    "chromosome": "1",
+    "start": "25812789",
+    "stop": "25812789",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "MYOPATHY, SEPN1-RELATED"
+    ],
+    "phenotype_ids": [
+      "OMIM:602771",
+      "MONDO:MONDO:0011271",
+      "Genetic Alliance:Eichsfeld+type+congenital+muscular+dystrophy/8301",
+      "SNOMED CT:240063002",
+      "OMIM:602771",
+      "OMIM:606210.0013",
+      "OMIM:606210.0003",
+      "OMIM:606210.0008",
+      "OMIM:606210.0001",
+      "OMIM:606210.0007",
+      "OMIM:606210.0004",
+      "OMIM:606210.0012",
+      "OMIM:606210.0011",
+      "OMIM:606210.0002",
+      "OMIM:606210.0010",
+      "OMIM:606210.0005",
+      "OMIM:606210.0009",
+      "OMIM:606210.0006",
+      "OMIM:602771",
+      "OMIM:602771",
+      "OMIM:602771",
+      "MedGen:C0410180",
+      "MONDO:MONDO:0011271",
+      "OMIM:602771"
+    ]
+  },
+  {
+    "variation_id": "4542",
+    "name": "NM_001122955.4(BSCL2):c.864-3C>G",
+    "type": "",
+    "germline_classification": "Conflicting classifications of pathogenicity",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "BSCL2",
+      "HNRNPUL2-BSCL2"
+    ],
+    "gene_ids": [
+      "26580",
+      "100534595"
+    ],
+    "hgnc_ids": [
+      "HGNC:15832",
+      "HGNC:49189"
+    ],
+    "hgvs_expressions": [
+      "LRG_235:g.23151C>G",
+      "LRG_235t2:c.672-3C>G",
+      "NC_000011.10:g.62691424G>C",
+      "NC_000011.9:g.62458896G>C",
+      "NG_008461.1:g.23151C>G",
+      "NG_033077.1:g.3476C>G",
+      "NM_001130702.2:c.672-283C>G",
+      "NM_032667.6:c.672-3C>G",
+      "NM_001386028.1:c.864-3C>G",
+      "NM_001386027.1:c.864-3C>G",
+      "NM_001122955.4:c.864-3C>G"
+    ],
+    "chromosome": "11",
+    "start": "62691424",
+    "stop": "62691424",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Berardinelli-Seip congenital lipodystrophy"
+    ],
+    "phenotype_ids": [
+      "GenePathDx, GenePath diagnostics:GPDx_BSCL_BSCL2_001",
+      "MONDO:MONDO:0018883",
+      "Office of Rare Diseases:13388",
+      "Orphanet:528",
+      "MedGen:CN262437",
+      "MONDO:MONDO:0018883"
+    ]
+  },
+  {
+    "variation_id": "4579",
+    "name": "NM_031885.5(BBS2):c.118-1G>C",
+    "type": "",
+    "germline_classification": "Pathogenic",
+    "review_status": "no assertion criteria provided",
+    "gene_symbols": [
+      "BBS2"
+    ],
+    "gene_ids": [
+      "583"
+    ],
+    "hgnc_ids": [
+      "HGNC:967"
+    ],
+    "hgvs_expressions": [
+      "NC_000016.10:g.56514681C>G",
+      "NC_000016.9:g.56548593C>G",
+      "NG_009312.2:g.10344G>C",
+      "NM_001377456.1:c.118-1G>C",
+      "NM_031885.5:c.118-1G>C"
+    ],
+    "chromosome": "16",
+    "start": "56514681",
+    "stop": "56514681",
+    "assembly": "GRCh38",
+    "reference_allele": "",
+    "alternate_allele": "",
+    "phenotype_list": [
+      "Bardet-Biedl syndrome 2"
+    ],
+    "phenotype_ids": [
+      "Genetic Alliance:Bardet-Biedl+Syndrome+2/728",
+      "MONDO:MONDO:0014432",
+      "OMIM:615981",
+      "Office of Rare Diseases:821",
+      "Orphanet:110",
+      "MedGen:C2936863",
+      "MONDO:MONDO:0014432",
+      "OMIM:615981"
+    ]
+  }
+]

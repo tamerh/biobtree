@@ -1,0 +1,85 @@
+{
+  "common_tests": [
+    {
+      "name": "Lookup by cCRE ID",
+      "type": "id_lookup",
+      "id": "@reference[0].id"
+    },
+    {
+      "name": "Lookup by classification (PLS)",
+      "type": "symbol_lookup",
+      "symbol": "PLS"
+    },
+    {
+      "name": "Lookup by classification (pELS)",
+      "type": "symbol_lookup",
+      "symbol": "pELS"
+    },
+    {
+      "name": "Check attributes present",
+      "type": "attribute_check",
+      "id": "@reference[0].id"
+    },
+    {
+      "name": "Lookup multiple IDs",
+      "type": "multi_lookup",
+      "count": 3,
+      "id_field": "id"
+    },
+    {
+      "name": "Invalid ID handling",
+      "type": "invalid_id",
+      "invalid_id": "EH38E9999999"
+    }
+  ],
+  "custom_tests": [
+    {
+      "name": "Proximal enhancer-like entry",
+      "description": "Verify pELS classification entries have correct class attribute",
+      "query_type": "search",
+      "query": "EH38E2776516",
+      "expected": {
+        "has_results": true,
+        "attribute_contains": {
+          "ccre_class": "pELS"
+        }
+      }
+    },
+    {
+      "name": "Taxonomy cross-reference",
+      "description": "Verify taxonomy cross-references are created (human)",
+      "query_type": "map",
+      "query": "EH38E2776516 >> encode_ccre >> taxonomy",
+      "expected": {
+        "has_results": true
+      }
+    },
+    {
+      "name": "Chromosome filter",
+      "description": "Filter cCREs by chromosome",
+      "query_type": "map",
+      "query": "EH38E2776516 >> encode_ccre[chromosome==\"chr1\"]",
+      "expected": {
+        "has_results": true
+      }
+    },
+    {
+      "name": "Classification filter (dELS)",
+      "description": "Search for distal enhancer-like sequences",
+      "query_type": "search",
+      "query": "dELS",
+      "expected": {
+        "has_results": true
+      }
+    },
+    {
+      "name": "Classification filter (CA-CTCF)",
+      "description": "Search for CTCF-bound chromatin accessible regions",
+      "query_type": "search",
+      "query": "CA-CTCF",
+      "expected": {
+        "has_results": true
+      }
+    }
+  ]
+}

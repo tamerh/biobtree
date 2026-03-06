@@ -1,0 +1,103 @@
+{
+  "id": 11,
+  "results": {
+    "biobtree_sonnet": {
+      "model": "anthropic/claude-sonnet-4",
+      "timestamp": "2026-02-07T10:32:20.100041",
+      "response": "Based on my comprehensive analysis of the biobtree data, I can provide you with detailed information about CD19 expression across different cell types, with specific focus on B-cell subtypes.\n\n## CD19 Expression Profile\n\n**CD19 (Gene ID: ENSG00000177455, UniProt: P15391)** is a B-lymphocyte surface antigen that serves as a critical marker for B-cell identification and is highly expressed across the B-cell lineage.\n\n### Cell Types Expressing CD19\n\n**Primary Expression:**\n- **Bone marrow cells**: High expression (expression score: 82.39, rank: 8210) - CD19 is strongly expressed in bone marrow where B-cell development occurs\n- **Leukocytes**: Present with gold quality evidence (expression score: 65.71, rank: 16000)\n- **Mononuclear cells**: Present (expression score: 63.85, rank: 16900)\n- **Monocytes**: Present (expression score: 63.19, rank: 17200)\n- **Granulocytes**: Present (expression score: 89.47, rank: 4910)\n\n**Absent Expression:**\n- Epithelial cells, endothelial cells, pancreatic cells, germ cells, and most non-hematopoietic cell types\n\n### B-Cell Subtype Expression Analysis\n\nFrom the Single Cell Expression Atlas (SCXA) data and CellxGene datasets, CD19 shows differential expression across B-cell subtypes:\n\n**1. Naive B Cells (CL:0000788)**\n- CD19 is **highly expressed** in naive B cells\n- Found in 81+ CellxGene datasets containing naive B cells\n- Expression data from breast cancer atlas shows robust CD19 expression in naive B cells\n\n**2. Memory B Cells (CL:0000787)**\n- CD19 expression is **maintained** in memory B cells\n- Present in 80+ CellxGene datasets\n- Shows continued high expression as B cells transition from naive to memory phenotype\n\n**3. Plasma Cells (CL:0000786)**\n- CD19 expression is **significantly reduced or lost** in plasma cells\n- This is consistent with the known biology that CD19 is downregulated during plasma cell differentiation\n- Plasma cells typically lose most B-cell surface markers including CD19\n\n### Specific Expression Data\n\n**From Cross-tissue Analysis (E-CURD-122):**\n- CD19 appears as a **top marker gene** (rank 11th) with log fold change of **7.239332**\n- This dataset includes 356,580 cells across multiple tissues\n- Cell types identified include: naive B cells, memory B cells, plasma cells, plasmablasts\n\n**Expression Hierarchy (Highest to Lowest):**\n1. **Naive B cells** - Highest CD19 expression\n2. **Memory B cells** - High CD19 expression (slightly lower than naive)\n3. **Plasmablasts** - Intermediate expression (transitional stage)\n4. **Plasma cells** - Lowest/absent CD19 expression\n\n### Clinical Significance\n\nCD19 is a critical therapeutic target:\n- **Blinatumomab** (BiTE antibody): Targets both CD19 and CD3\n- **Inebilizumab**: Anti-CD19 monoclonal antibody\n- **Tafasitamab**: Anti-CD19 antibody for lymphoma treatment\n- **Loncastuximab tesirine**: CD19-directed antibody-drug conjugate\n\n### Summary\n\nCD19 expression follows a clear pattern in B-cell development: **highest in naive B cells**, **maintained in memory B cells**, and **progressively lost during plasma cell differentiation**. This makes CD19 an excellent pan-B-cell marker for identifying most B-cell populations, with the notable exception of terminally differentiated plasma cells. The expression data confirms CD19's role as a lineage-specific marker that is essential for B-cell receptor signaling and B-cell development.\n\n---\n**Data Sources:**\n- http://biobtree:9291/ws/?i=CD19\n- http://biobtree:9291/ws/?i=CD19&s=hgnc\n- http://biobtree:9291/ws/map/?i=ENSG00000177455&m=>>ensembl>>scxa\n- http://biobtree:9291/ws/map/?i=ENSG00000177455&m=>>ensembl>>cellxgene\n- http://biobtree:9291/ws/?i=B cell&s=cellxgene\n- http://biobtree:9291/ws/?i=naive B cell, memory B cell, plasma cell&s=cl\n- http://biobtree:9291/ws/entry/?i=04D87DE6-C20A-4186-8884-F47DBA20B0A4&s=cellxgene\n- http://biobtree:9291/ws/?i=bone marrow&s=uberon\n- http://biobtree:9291/ws/map/?i=UBERON:0002371&m=>>uberon>>bgee>>ensembl\n- http://biobtree:9291/ws/?i=ENSG00000177455&s=bgee\n- http://biobtree:9291/ws/entry/?i=P15391&s=uniprot",
+      "tool_calls": 12,
+      "elapsed_seconds": 67.7,
+      "auto_score": 1.0,
+      "found_terms": [
+        "CD19",
+        "B cell",
+        "naive",
+        "memory",
+        "plasma",
+        "expression",
+        "ENSG00000177455",
+        "89.47",
+        "P15391"
+      ],
+      "missing_terms": [],
+      "usage": {
+        "prompt_tokens": 275574,
+        "completion_tokens": 2219,
+        "total_tokens": 277793
+      }
+    },
+    "claude_46_opentargets_mcp_desktop": {
+      "model": "Claude 4.6 + OpenTargets MCP",
+      "timestamp": "2026-02-07",
+      "response": "Let me look up CD19 in Open Targets to get expression data.Now let me query CD19's expression data across tissues and cell types:Here's a comprehensive summary of CD19 expression from Open Targets Platform data:\n\n## CD19 Expression Overview\n\n**CD19 (CD19 molecule)** is a hallmark B-cell lineage marker. The expression data from Open Targets confirms this strongly, with expression concentrated in B-cell-rich tissues and B-cell subtypes.\n\n### Highest RNA Expression (by TPM)\n\nThe tissues/cell types with the strongest CD19 expression are overwhelmingly B-cell associated:\n\n| Tissue / Cell Type | TPM | RNA Level | Z-score |\n|---|---|---|---|\n| **Lymph node** | 8,360 | 5 | +5 |\n| **Tonsil** | 8,124 | 5 | +5 |\n| **Spleen** | 6,959 | 4 | +5 |\n| **Naive B cell** (CD38\u207b) | 5,712 | 4 | +4 |\n| **EBV-transformed lymphocyte** | 5,513 | 4 | +4 |\n| **Plasma cell** | 5,511 | 4 | +4 |\n| **Memory B cell** | 4,834 | 4 | +4 |\n| **Vermiform appendix** | 4,207 | 4 | +4 |\n| **Class-switched memory B cell** | 3,560 | 4 | +4 |\n| **Peyer's patch** (small intestine) | 870 | 3 | +2 |\n| **Whole blood** | 795 | 3 | +2 |\n| **Bone marrow** | 371 | 3 | +1 |\n\n### B-Cell Subtypes Ranked by Expression\n\nAmong the specific B-cell populations in the dataset:\n\n1. **Naive B cells** (CD38\u207b) \u2014 ~5,712 TPM \u2014 highest among defined B-cell subtypes\n2. **Plasma cells** \u2014 ~5,511 TPM\n3. **Memory B cells** \u2014 ~4,834 TPM\n4. **Class-switched memory B cells** \u2014 ~3,560 TPM\n\nSo naive B cells show the highest CD19 RNA expression, followed closely by plasma cells and memory B cells. All B-cell subtypes show dramatically elevated expression (z-scores of +4) compared to non-B-cell lineages.\n\n### Protein-Level Expression\n\nAt the protein level (from Human Protein Atlas), the highest CD19 staining (level 3, \"high\") is found in:\n- **Lymph node** \u2014 germinal center cells and non-germinal center cells\n- **Tonsil** \u2014 germinal center and non-germinal center cells\n- **Spleen** \u2014 white pulp and red pulp cells\n- **Appendix** \u2014 non-germinal center cells (level 3) and germinal center cells (level 2)\n\n### Notably Absent Expression\n\nCD19 is essentially absent (TPM \u2264 5, z-score -1) in T cells (CD4\u207a, CD8\u207a, thymocytes), NK cells, macrophages, erythroblasts, megakaryocyte progenitors, endothelial cells, and most non-immune tissues like brain, heart, and muscle \u2014 consistent with its role as a strict B-cell lineage marker.\n\nThis expression profile explains why CD19 is a primary target for B-cell malignancy therapies (e.g., blinatumomab, CAR-T therapies like tisagenlecleucel), as it is highly and selectively expressed across essentially all B-cell developmental stages from early B cells through to plasma cells.",
+      "auto_score": 0.667,
+      "entered_by": "USER",
+      "found_terms": [
+        "CD19",
+        "B cell",
+        "naive",
+        "memory",
+        "plasma",
+        "lymph node",
+        "expression"
+      ],
+      "missing_terms": []
+    },
+    "biobtree_sonnet_20260208_071719": {
+      "model": "anthropic/claude-sonnet-4",
+      "timestamp": "2026-02-08T07:18:28.456689",
+      "response": "Based on the data I've retrieved, I can provide you with comprehensive information about CD19 expression across different cell types, with specific focus on B-cell subtypes.\n\n## CD19 Expression Across Cell Types\n\n**CD19 (ENSG00000177455)** is a B-lymphocyte surface antigen that serves as a critical marker for B-cell identification and is involved in B-cell proliferation regulation.\n\n### Primary Expression Pattern\n\nCD19 shows **highly specific expression in B-lymphocyte lineage cells**, with the highest expression levels found in:\n\n1. **B-cell lineage cells** - Primary expression site\n2. **Leukocytes** (general immune cells) - Present with gold quality evidence\n3. **Monocytes** - Present but at lower levels\n4. **Granulocytes** - Present expression\n\n### B-Cell Subtype Expression Data\n\nFrom the single-cell expression data, CD19 shows differential expression across B-cell developmental stages:\n\n#### **Highest Expression B-Cell Subtypes:**\n- **Mature B cells** (clusters 6, 9, 10): **~280-290 TPM**\n  - Cluster 10: 291.12 TPM (median: 257.93) - marked as significant marker\n  - Cluster 9: 278.78 TPM (median: 234.88)\n  - Cluster 6: 282.32 TPM (median: 226.19)\n\n- **Activated B cells** (clusters 4, 16, 34, 46, 47, 50): **~240-260 TPM**\n  - Cluster 4: 261.22 TPM (median: 204.04)\n  - Cluster 50: 262.05 TPM (median: 210.02)\n  - Cluster 34: 247.91 TPM (median: 201.84)\n\n#### **Moderate Expression:**\n- **Memory B cells**: **~140-200 TPM** (clusters 60, 94, 98)\n  - Cluster 98: 201.42 TPM (median: 164.85)\n  - Cluster 94: 167.36 TPM\n  - Cluster 60: 142.08 TPM (median: 103.75)\n\n- **Naive B cells**: **~80-125 TPM** (clusters 74, 77, 79, 81)\n  - Cluster 81: 125.01 TPM\n  - Cluster 79: 116.04 TPM\n  - Cluster 77: 79.54 TPM\n  - Cluster 74: 79.54 TPM\n\n#### **Lower Expression:**\n- **Plasma cells/Plasmablasts**: **~30-60 TPM** (clusters 2, 3, 32, 52, 53, 58, 61, 62, 64)\n  - Cluster 2: 59.86 TPM\n  - Cluster 58: 53.89 TPM\n  - Cluster 64: 55.49 TPM\n  - Cluster 32: 51.59 TPM\n\n### Key Findings:\n\n1. **CD19 expression is inversely correlated with B-cell differentiation** - highest in mature/activated B cells, progressively decreasing through memory B cells, naive B cells, and lowest in plasma cells.\n\n2. **Tissue Distribution**: CD19+ cells are found across multiple tissues including:\n   - **Blood** (1.3M+ cells) - highest abundance\n   - **Spleen** (92K+ cells)\n   - **Lymph nodes** (thoracic: 69K, mesenteric: 68K, inguinal: 13K)\n   - **Bone marrow** (39K cells)\n   - **Tonsils** (12K cells)\n   - **Various mucosal tissues** (colon, small intestine, stomach)\n\n3. **Clinical Relevance**: CD19 is targeted by therapeutic antibodies including:\n   - **Blinatumomab** (BiTE therapy, Kd = 9 nM)\n   - **Inebilizumab** (Kd = 9.8 nM)\n   - **Tafasitamab** (Kd = 9.39 nM)\n\n### Summary for Specific B-Cell Subtypes:\n\n- **Naive B cells**: 80-125 TPM (moderate expression)\n- **Memory B cells**: 140-200 TPM (high expression)  \n- **Plasma cells**: 30-60 TPM (lowest expression among B cells)\n\nThis expression pattern reflects CD19's role as a co-receptor that's most important during B-cell activation and proliferation, with downregulation occurring as cells terminally differentiate into antibody-secreting plasma cells.\n\n---\n**Data Sources:**\n- http://biobtree:9291/ws/?i=CD19\n- http://biobtree:9291/ws/map/?i=ENSG00000177455&m=>>ensembl>>scxa_expression>>scxa_gene_experiment\n- http://biobtree:9291/ws/entry/?i=E-CURD-122&s=scxa_experiment\n- http://biobtree:9291/ws/?i=naive B cell\n- http://biobtree:9291/ws/?i=memory B cell\n- http://biobtree:9291/ws/?i=plasma cell\n- http://biobtree:9291/ws/map/?i=CL:0000788&m=>>cl>>scxa_gene_experiment\n- http://biobtree:9291/ws/?i=CL:0000788\n- http://biobtree:9291/ws/entry/?i=ENSG00000177455_E-ANND-3&s=scxa_gene_experiment\n- http://biobtree:9291/ws/?i=CD19&s=scxa_gene_experiment\n- http://biobtree:9291/ws/?i=ENSG00000177455&s=scxa_gene_experiment\n- http://biobtree:9291/ws/map/?i=ENSG00000177455&m=>>ensembl>>bgee",
+      "tool_calls": 13,
+      "elapsed_seconds": 68.5,
+      "auto_score": 1.0,
+      "found_terms": [
+        "CD19",
+        "B cell",
+        "naive",
+        "memory",
+        "plasma",
+        "lymph node",
+        "expression",
+        "ENSG00000177455"
+      ],
+      "missing_terms": [],
+      "usage": {
+        "prompt_tokens": 296267,
+        "completion_tokens": 2387,
+        "total_tokens": 298654
+      }
+    }
+  },
+  "reviews": {
+    "review_1": {
+      "outcome": "mixed_requires_investigation",
+      "date": "2026-02-08",
+      "key_finding": "SCXA integration resolves previous limitation - biobtree now provides B-cell subtype TPM values. However, comparison with OpenTargets BLUEPRINT reveals discrepancy in plasma cell expression that requires investigation.",
+      "previous_limitation": "Before SCXA, biobtree only had tissue-level Bgee data (lymph node 93.9, bone marrow 82.39) without B-cell subtype resolution. Ground truth noted 'POTENTIAL_OPENTARGETS_WIN - BLUEPRINT has B-cell subtype data'.",
+      "data_comparison": {
+        "biobtree_scxa": {
+          "mature_bcells": "280-290 TPM",
+          "memory_bcells": "140-200 TPM",
+          "naive_bcells": "80-125 TPM",
+          "plasma_cells": "30-60 TPM (lowest)"
+        },
+        "opentargets_blueprint": {
+          "naive_bcells": "5,712 TPM",
+          "plasma_cells": "5,511 TPM",
+          "memory_bcells": "4,834 TPM"
+        }
+      },
+      "biological_question": "CD19 is known to be downregulated during plasma cell differentiation. Biobtree SCXA shows this pattern (plasma lowest at 30-60 TPM). OpenTargets BLUEPRINT shows plasma cells at similar levels to naive (5,511 vs 5,712 TPM). Which reflects true biology?",
+      "context_from_q1_analysis": "Per analysis in 1_analysis.txt: OpenTargets integrates BLUEPRINT consortium data (haematopoietic cell profiling). For immune/blood targets, BLUEPRINT should provide superior cell-type resolution. However, the plasma cell CD19 expression discrepancy suggests potential methodology differences in how plasma cells are defined or measured.",
+      "requires_investigation": [
+        "Is BLUEPRINT's plasma cell definition different from SCXA?",
+        "Are SCXA cluster annotations for plasma cells accurate?",
+        "Is this a measurement methodology issue (bulk vs single-cell)?",
+        "What does published literature say about CD19 TPM in plasma cells?"
+      ],
+      "preliminary_assessment": "Biobtree SCXA pattern matches expected CD19 biology (downregulation in plasma cells), but this is an immune target where BLUEPRINT should theoretically excel. The discrepancy warrants deeper investigation before declaring a winner.",
+      "quotable": "CD19 benchmark reveals complexity in expression database comparison - even for immune targets where BLUEPRINT excels, single-cell data may capture differentiation dynamics that bulk profiling misses."
+    }
+  },
+  "question_id": "cd19_bcell_subtypes"
+}

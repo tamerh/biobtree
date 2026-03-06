@@ -1,0 +1,197 @@
+package update
+
+import (
+	"biobtree/pbuf"
+	"os"
+	"strconv"
+	"sync/atomic"
+	"time"
+
+	"github.com/pquerna/ffjson/ffjson"
+	xmlparser "github.com/tamerh/xml-stream-parser"
+)
+
+type interpro struct {
+	source string
+	d      *DataUpdate
+}
+
+// check provides context-aware error checking for interpro processor
+func (i *interpro) check(err error, operation string) {
+	checkWithContext(err, i.source, operation)
+}
+
+func (i *interpro) update() {
+
+	fr := config.Dataconf[i.source]["id"]
+	// Path in config is now a full FTP URL
+	br, gz, ftpFile, client, localFile, _, err := getDataReaderNew(i.source, "", "", config.Dataconf[i.source]["path"])
+	check(err)
+
+	if ftpFile != nil {
+		defer ftpFile.Close()
+	}
+	if localFile != nil {
+		defer localFile.Close()
+	}
+	defer gz.Close()
+	defer i.d.wg.Done()
+
+	if client != nil {
+		defer client.Quit()
+	}
+
+	// Test mode: get limit and open ID log file
+	testLimit := config.GetTestLimit(i.source)
+	var idLogFile *os.File
+	if config.IsTestMode() {
+		idLogFile = openIDLogFile(config.TestRefDir, i.source+"_ids.txt")
+		if idLogFile != nil {
+			defer idLogFile.Close()
+		}
+	}
+
+	p := xmlparser.NewXMLParser(br, i.source).SkipElements([]string{"abstract", "p"})
+
+	var total uint64
+	var entryCount int64
+	var entryid string
+	var previous int64
+	attr := pbuf.InterproAttr{}
+
+	for r := range p.Stream() {
+
+		elapsed := int64(time.Since(i.d.start).Seconds())
+		if elapsed > previous+i.d.progInterval {
+			kbytesPerSecond := int64(p.TotalReadSize) / elapsed / 1024
+			previous = elapsed
+			i.d.progChan <- &progressInfo{dataset: i.source, currentKBPerSec: kbytesPerSecond}
+		}
+
+		// id
+		entryid = r.Attrs["id"]
+
+		// Test mode: log ID
+		if idLogFile != nil {
+			logProcessedID(idLogFile, entryid)
+		}
+
+		attr.Reset()
+
+		if _, ok := r.Attrs["short_name"]; ok {
+			i.d.addXref(r.Attrs["short_name"], textLinkID, entryid, i.source, true)
+			attr.ShortName = r.Attrs["short_name"]
+		}
+
+		if _, ok := r.Attrs["type"]; ok {
+			attr.Type = r.Attrs["type"]
+		}
+
+		if _, ok := r.Attrs["protein_count"]; ok {
+			c, err := strconv.Atoi(r.Attrs["protein_count"])
+			if err != nil {
+				attr.ProteinCount = int32(c)
+			}
+		}
+
+		for _, v := range r.Childs["name"] {
+			attr.Names = append(attr.Names, v.InnerText)
+		}
+
+		b, _ := ffjson.Marshal(attr)
+		i.d.addProp3(entryid, fr, b)
+
+		for _, x := range r.Childs["pub_list"] {
+			for _, y := range x.Childs["publication"] {
+				for _, z := range y.Childs["db_xref"] {
+					i.d.addXref(entryid, fr, z.Attrs["dbkey"], z.Attrs["db"], false)
+				}
+			}
+		}
+
+		for _, x := range r.Childs["found_in"] {
+			for _, y := range x.Childs["rel_ref"] {
+				i.d.addXref(entryid, fr, y.Attrs["ipr_ref"], i.source, false)
+			}
+		}
+
+		for _, x := range r.Childs["member_list"] {
+			for _, y := range x.Childs["db_xref"] {
+				i.d.addXref(entryid, fr, y.Attrs["dbkey"], y.Attrs["db"], false)
+			}
+		}
+
+		for _, x := range r.Childs["external_doc_list"] {
+			for _, y := range x.Childs["db_xref"] {
+				i.d.addXref(entryid, fr, y.Attrs["dbkey"], y.Attrs["db"], false)
+			}
+		}
+
+		for _, x := range r.Childs["structure_db_links"] {
+			for _, y := range x.Childs["db_xref"] {
+				i.d.addXref(entryid, fr, y.Attrs["dbkey"], y.Attrs["db"], false)
+			}
+		}
+
+		// Parent InterPro entries (hierarchy)
+		for _, x := range r.Childs["parent_list"] {
+			for _, y := range x.Childs["rel_ref"] {
+				if iprRef, ok := y.Attrs["ipr_ref"]; ok && iprRef != "" {
+					i.d.addXref(entryid, fr, iprRef, "interproparent", false)
+				}
+			}
+		}
+
+		// Child InterPro entries (hierarchy)
+		for _, x := range r.Childs["child_list"] {
+			for _, y := range x.Childs["rel_ref"] {
+				if iprRef, ok := y.Attrs["ipr_ref"]; ok && iprRef != "" {
+					i.d.addXref(entryid, fr, iprRef, "interprochild", false)
+				}
+			}
+		}
+
+		// GO term annotations (class_list contains GO classifications)
+		for _, x := range r.Childs["class_list"] {
+			for _, y := range x.Childs["classification"] {
+				if classType, ok := y.Attrs["class_type"]; ok && classType == "GO" {
+					if goID, ok := y.Attrs["id"]; ok && goID != "" {
+						i.d.addXref(entryid, fr, goID, "go", false)
+					}
+				}
+			}
+		}
+
+		/**
+		// representativeMember--> dbreference
+		for _, v = range r.Elements["pub_list"] {
+			if _, ok = v.Childs["publication"]; ok {
+				for _, z = range v.Childs["publication"] {
+					i.d.addXref(&entryid, fr, &z)
+				}
+			}
+		}
+		// member --> dbreference
+		for _, v = range r.Elements["member"] {
+			if _, ok = v.Childs["dbReference"]; ok {
+				for _, z = range v.Childs["dbReference"] {
+					i.d.addXref(&entryid, fr, &z)
+				}
+			}
+		}
+		**/
+
+		total++
+		entryCount++
+
+		// Test mode: check if limit reached
+		if config.IsTestMode() && shouldStopProcessing(testLimit, int(entryCount)) {
+			i.d.progChan <- &progressInfo{dataset: i.source, done: true}
+			break
+		}
+
+	}
+
+	i.d.progChan <- &progressInfo{dataset: i.source, done: true}
+	atomic.AddUint64(&i.d.totalParsedEntry, total)
+}

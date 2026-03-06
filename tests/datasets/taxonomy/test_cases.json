@@ -1,0 +1,37 @@
+{
+  "common_tests": [
+    {
+      "name": "Lookup by taxonomy ID",
+      "type": "id_lookup",
+      "id": "@reference[0].taxonId"
+    },
+    {
+      "name": "Check attributes present",
+      "type": "attribute_check",
+      "id": "@reference[0].taxonId"
+    },
+    {
+      "name": "Lookup by scientific name",
+      "type": "name_lookup",
+      "scientific_name": "@reference[0].scientificName"
+    },
+    {
+      "name": "Lookup by scientific name with underscores",
+      "type": "alias_lookup",
+      "alias": "Azorhizobium_caulinodans",
+      "expected_id": "7"
+    },
+    {
+      "name": "Lookup multiple IDs",
+      "type": "multi_lookup",
+      "count": 3,
+      "id_field": "taxonId"
+    },
+    {
+      "name": "Invalid ID handling",
+      "type": "invalid_id",
+      "invalid_id": "999999999"
+    }
+  ],
+  "custom_tests": []
+}

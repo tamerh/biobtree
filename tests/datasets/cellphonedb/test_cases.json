@@ -1,0 +1,41 @@
+{
+  "common_tests": [
+    {
+      "name": "Lookup by interaction ID",
+      "type": "id_lookup",
+      "id": "@reference[0].id"
+    },
+    {
+      "name": "Lookup by partner A gene",
+      "type": "symbol_lookup",
+      "symbol": "@reference[0].genes_a[0]"
+    },
+    {
+      "name": "Lookup by partner B gene",
+      "type": "symbol_lookup",
+      "symbol": "@reference[0].genes_b[0]"
+    },
+    {
+      "name": "Check attributes present",
+      "type": "attribute_check",
+      "id": "@reference[0].id"
+    },
+    {
+      "name": "Lookup multiple IDs",
+      "type": "multi_lookup",
+      "count": 3,
+      "id_field": "id"
+    },
+    {
+      "name": "Case-insensitive gene search",
+      "type": "case_insensitive",
+      "symbol": "@reference[0].genes_a[0]"
+    },
+    {
+      "name": "Invalid ID handling",
+      "type": "invalid_id",
+      "invalid_id": "CPI-INVALID999999"
+    }
+  ],
+  "custom_tests": []
+}

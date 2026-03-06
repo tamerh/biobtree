@@ -1,0 +1,74 @@
+{
+  "metadata": {
+    "total_ids": 10,
+    "fetched": 10,
+    "failed": 0
+  },
+  "entries": [
+    {
+      "id": "XCO:0000000",
+      "name": "experimental condition",
+      "description": "A state of being, an external or environmental factor or a treatment observed or administered prior to or concurrent with an investigative procedure such as an assessment of a morphological or physiological state or property in a single individual or sample or in a group of individuals or samples, especially a state, factor or treatment which has the potential to influence the outcome of such an assessment.",
+      "type": "experimental_condition"
+    },
+    {
+      "id": "XCO:0000001",
+      "name": "activity",
+      "description": "The state of being involved in some action, either physical or mental.",
+      "type": "experimental_condition"
+    },
+    {
+      "id": "XCO:0000002",
+      "name": "resting",
+      "description": "A state in which the organism is not exhibiting any physical exertion.",
+      "type": "experimental_condition"
+    },
+    {
+      "id": "XCO:0000003",
+      "name": "resting on treadmill",
+      "description": "A state in which the organism is on an non-operating exercise machine in which there is an endless belt that moves when operational so that the organism can walk or run in place.",
+      "type": "experimental_condition"
+    },
+    {
+      "id": "XCO:0000004",
+      "name": "walking on treadmill",
+      "description": "The action of ambulation on an exercise apparatus with an endless moving belt on which the organism can walk in place.",
+      "type": "experimental_condition"
+    },
+    {
+      "id": "XCO:0000005",
+      "name": "running on treadmill",
+      "description": "The act of rapidly moving the feet on an exercise apparatus with an endless belt that allows the user to perform the action of running in place.",
+      "type": "experimental_condition"
+    },
+    {
+      "id": "XCO:0000006",
+      "name": "swimming",
+      "description": "This is any condition in which the main influencing factor is swimming, the action of a subject moving it's appendages to propel itself through water.",
+      "type": "experimental_condition"
+    },
+    {
+      "id": "XCO:0000007",
+      "name": "walking",
+      "description": "This is any condition in which the main influencing factor is walking, the act of ambulation, moving oneself forward on legs or on an exercise apparatus.",
+      "type": "experimental_condition"
+    },
+    {
+      "id": "XCO:0000008",
+      "name": "running",
+      "description": "This is any condition in which the main influencing factor is running, the action of rapid movement of feet that propels the organism forward or is done on an exercise machine so that the organism performs the activity in place.",
+      "type": "experimental_condition"
+    },
+    {
+      "id": "XCO:0000009",
+      "name": "controlled air content",
+      "description": "This is any condition in which the main influencing factor is control of the amount of one or more of the gases or particles which make up or are found in the air surrounding an organism during the time course of some biological measurement.",
+      "type": "experimental_condition",
+      "synonyms": [
+        "controlled atmosphere composition",
+        "controlled atmospheric composition",
+        "Not4Curation"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,602 @@
+[
+  {
+    "rsId": "rs1570391677",
+    "rs_id": "rs1570391677",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1570391692",
+    "rs_id": "rs1570391692",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1570391694",
+    "rs_id": "rs1570391694",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1639538116",
+    "rs_id": "rs1639538116",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1570391698",
+    "rs_id": "rs1570391698",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1570391702",
+    "rs_id": "rs1570391702",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1639538192",
+    "rs_id": "rs1639538192",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1639538231",
+    "rs_id": "rs1639538231",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1639538207",
+    "rs_id": "rs1639538207",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1570391706",
+    "rs_id": "rs1570391706",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1639541071",
+    "rs_id": "rs1639541071",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs775809821",
+    "rs_id": "rs775809821",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1570391708",
+    "rs_id": "rs1570391708",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1570391710",
+    "rs_id": "rs1570391710",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1639541672",
+    "rs_id": "rs1639541672",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1639541720",
+    "rs_id": "rs1639541720",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1639541758",
+    "rs_id": "rs1639541758",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1639541744",
+    "rs_id": "rs1639541744",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1570391712",
+    "rs_id": "rs1570391712",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1570391716",
+    "rs_id": "rs1570391716",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1639542057",
+    "rs_id": "rs1639542057",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1639542078",
+    "rs_id": "rs1639542078",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1639542312",
+    "rs_id": "rs1639542312",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1639542364",
+    "rs_id": "rs1639542364",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1570391720",
+    "rs_id": "rs1570391720",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1570391722",
+    "rs_id": "rs1570391722",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1639542429",
+    "rs_id": "rs1639542429",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1639542418",
+    "rs_id": "rs1639542418",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1639542451",
+    "rs_id": "rs1639542451",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs978760828",
+    "rs_id": "rs978760828",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1639542564",
+    "rs_id": "rs1639542564",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1639542499",
+    "rs_id": "rs1639542499",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1639543024",
+    "rs_id": "rs1639543024",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1639543135",
+    "rs_id": "rs1639543135",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1008829651",
+    "rs_id": "rs1008829651",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1639543152",
+    "rs_id": "rs1639543152",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1570391729",
+    "rs_id": "rs1570391729",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1639543279",
+    "rs_id": "rs1639543279",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1639543364",
+    "rs_id": "rs1639543364",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1639543533",
+    "rs_id": "rs1639543533",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1639543682",
+    "rs_id": "rs1639543682",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1639543555",
+    "rs_id": "rs1639543555",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1052373574",
+    "rs_id": "rs1052373574",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1326880612",
+    "rs_id": "rs1326880612",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1639543753",
+    "rs_id": "rs1639543753",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1639543798",
+    "rs_id": "rs1639543798",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1639543820",
+    "rs_id": "rs1639543820",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs768019142",
+    "rs_id": "rs768019142",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs892501864",
+    "rs_id": "rs892501864",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1570391738",
+    "rs_id": "rs1570391738",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1570391741",
+    "rs_id": "rs1570391741",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1639544026",
+    "rs_id": "rs1639544026",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1570391745",
+    "rs_id": "rs1570391745",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1639544146",
+    "rs_id": "rs1639544146",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1639544159",
+    "rs_id": "rs1639544159",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1010989343",
+    "rs_id": "rs1010989343",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1489251879",
+    "rs_id": "rs1489251879",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1639545042",
+    "rs_id": "rs1639545042",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1639545104",
+    "rs_id": "rs1639545104",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1639545079",
+    "rs_id": "rs1639545079",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1570391755",
+    "rs_id": "rs1570391755",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1639545200",
+    "rs_id": "rs1639545200",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1639545182",
+    "rs_id": "rs1639545182",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1639545215",
+    "rs_id": "rs1639545215",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1639545236",
+    "rs_id": "rs1639545236",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1639545252",
+    "rs_id": "rs1639545252",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1570391757",
+    "rs_id": "rs1570391757",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1022805358",
+    "rs_id": "rs1022805358",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1639545320",
+    "rs_id": "rs1639545320",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1570391762",
+    "rs_id": "rs1570391762",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1570391767",
+    "rs_id": "rs1570391767",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1639545755",
+    "rs_id": "rs1639545755",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1570391770",
+    "rs_id": "rs1570391770",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1570391772",
+    "rs_id": "rs1570391772",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1639545857",
+    "rs_id": "rs1639545857",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1639545829",
+    "rs_id": "rs1639545829",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1639545881",
+    "rs_id": "rs1639545881",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1570391775",
+    "rs_id": "rs1570391775",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1639545943",
+    "rs_id": "rs1639545943",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1639545966",
+    "rs_id": "rs1639545966",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1639545986",
+    "rs_id": "rs1639545986",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs62651026",
+    "rs_id": "rs62651026",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1322538365",
+    "rs_id": "rs1322538365",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1377973775",
+    "rs_id": "rs1377973775",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1639546068",
+    "rs_id": "rs1639546068",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs376007522",
+    "rs_id": "rs376007522",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1462685959",
+    "rs_id": "rs1462685959",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1639546129",
+    "rs_id": "rs1639546129",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs2521501693",
+    "rs_id": "rs2521501693",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs2521501699",
+    "rs_id": "rs2521501699",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1570391787",
+    "rs_id": "rs1570391787",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1570391788",
+    "rs_id": "rs1570391788",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1639546167",
+    "rs_id": "rs1639546167",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1639546233",
+    "rs_id": "rs1639546233",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1639546252",
+    "rs_id": "rs1639546252",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs2100298979",
+    "rs_id": "rs2100298979",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1639546198",
+    "rs_id": "rs1639546198",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs2521501720",
+    "rs_id": "rs2521501720",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs1156821933",
+    "rs_id": "rs1156821933",
+    "geneName": "",
+    "gene_name": ""
+  },
+  {
+    "rsId": "rs2521501724",
+    "rs_id": "rs2521501724",
+    "geneName": "",
+    "gene_name": ""
+  }
+]

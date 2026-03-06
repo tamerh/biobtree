@@ -1,0 +1,40 @@
+{
+  "dataset": "fantom5",
+  "description": "FANTOM5 promoter, enhancer, and gene-level expression data tests",
+  "common_tests": [
+    {
+      "name": "Lookup promoter by ID",
+      "type": "id_lookup",
+      "id": "1"
+    },
+    {
+      "name": "Lookup enhancer by ID",
+      "type": "id_lookup",
+      "id": "1"
+    },
+    {
+      "name": "Promoter taxonomy cross-reference",
+      "type": "xref_exists",
+      "id": "1",
+      "xref_type": "taxonomy",
+      "expected": "9606"
+    },
+    {
+      "name": "Invalid FANTOM5 ID returns no results",
+      "type": "invalid_id",
+      "invalid_id": "FANTOM5_INVALID_99999999"
+    }
+  ],
+  "custom_tests": [],
+  "data_source": {
+    "url": "https://fantom.gsc.riken.jp/5/datafiles/reprocessed/hg38_latest/extra/",
+    "files": {
+      "promoter_expression": "CAGE_peaks_expression/hg38_fair+new_CAGE_peaks_phase1and2_tpm_ann.osc.txt.gz",
+      "promoter_coordinates": "CAGE_peaks/hg38_fair+new_CAGE_peaks_phase1and2.bed.gz",
+      "enhancer_coordinates": "enhancer/F5.hg38.enhancers.bed.gz",
+      "enhancer_expression": "enhancer/F5.hg38.enhancers.expression.tpm.matrix.gz",
+      "gene_expression": "CAGE_peaks_expression/hg38_fair+new_genes_phase1and2_tpm.osc.txt.gz"
+    },
+    "license": "CC BY 4.0"
+  }
+}

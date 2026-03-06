@@ -1,0 +1,118 @@
+{
+  "common_tests": [
+    {
+      "name": "ID Lookup - First Variant",
+      "type": "id_lookup",
+      "id": "@reference[0].variation_id",
+      "expected": {
+        "should_find": true,
+        "has_name": true
+      }
+    },
+    {
+      "name": "ID Lookup - Second Variant",
+      "type": "id_lookup",
+      "id": "@reference[1].variation_id",
+      "expected": {
+        "should_find": true,
+        "has_name": true
+      }
+    },
+    {
+      "name": "ID Lookup - Third Variant",
+      "type": "id_lookup",
+      "id": "@reference[2].variation_id",
+      "expected": {
+        "should_find": true,
+        "has_name": true
+      }
+    },
+    {
+      "name": "MONDO Disease Mapping",
+      "type": "mapping_check",
+      "description": "ClinVar variants with disease phenotypes should map to MONDO ontology",
+      "test_queries": [
+        {
+          "variant_id": "100177",
+          "expected_mondo": "MONDO:0015628"
+        },
+        {
+          "variant_id": "100179",
+          "expected_mondo": "MONDO:0019565"
+        }
+      ]
+    },
+    {
+      "name": "MONDO Bidirectional - Disease to Variants",
+      "type": "reverse_mapping",
+      "description": "MONDO disease terms should link back to ClinVar variants",
+      "mondo_ids": [
+        "MONDO:0015628",
+        "MONDO:0019565"
+      ]
+    },
+    {
+      "name": "MeSH Disease Mapping",
+      "type": "mapping_check",
+      "description": "ClinVar variants should map to MeSH disease descriptors",
+      "test_queries": [
+        {
+          "variant_id": "100179",
+          "expected_mesh": "D014842"
+        }
+      ]
+    },
+    {
+      "name": "OMIM Mapping",
+      "type": "mapping_check",
+      "description": "ClinVar variants should map to OMIM entries",
+      "test_queries": [
+        {
+          "variant_id": "100177",
+          "expected_omim": "166084"
+        }
+      ]
+    },
+    {
+      "name": "Variant with Type",
+      "type": "attribute_check",
+      "id": "@reference[0].variation_id",
+      "attributes": ["type"]
+    },
+    {
+      "name": "Variant with Clinical Significance",
+      "type": "attribute_check",
+      "id": "@reference[0].variation_id",
+      "attributes": ["germline_classification"]
+    },
+    {
+      "name": "Variant with Chromosome Location",
+      "type": "attribute_check",
+      "id": "@reference[0].variation_id",
+      "attributes": ["chromosome", "start", "stop"]
+    },
+    {
+      "name": "Variant with Gene Symbol",
+      "type": "attribute_check",
+      "id": "@reference[0].variation_id",
+      "attributes": ["gene_symbol"]
+    },
+    {
+      "name": "Variant with Phenotype Data",
+      "type": "attribute_check",
+      "id": "@reference[0].variation_id",
+      "attributes": ["phenotype_list", "phenotype_ids"]
+    },
+    {
+      "name": "Multi-Lookup - Multiple Variants",
+      "type": "multi_lookup",
+      "count": 3,
+      "id_field": "variation_id"
+    },
+    {
+      "name": "Invalid ID - Should Return Empty",
+      "type": "invalid_id",
+      "id": "99999999"
+    }
+  ]
+}

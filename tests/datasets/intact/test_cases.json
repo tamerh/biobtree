@@ -1,0 +1,96 @@
+{
+  "dataset_name": "IntAct",
+  "description": "Protein-protein interaction database with experimental evidence - interaction-centric model",
+  "test_cases": [
+    {
+      "name": "Lookup interaction by ID",
+      "type": "lookup",
+      "query": "{interaction_id}",
+      "expected": {
+        "found": true,
+        "has_attributes": true
+      }
+    },
+    {
+      "name": "Check interaction has protein_a",
+      "type": "attribute_exists",
+      "query": "{interaction_id}",
+      "attribute_path": "Intact.protein_a",
+      "expected": {
+        "exists": true
+      }
+    },
+    {
+      "name": "Check interaction has protein_b",
+      "type": "attribute_exists",
+      "query": "{interaction_id}",
+      "attribute_path": "Intact.protein_b",
+      "expected": {
+        "exists": true
+      }
+    },
+    {
+      "name": "Check interaction has detection_method",
+      "type": "attribute_exists",
+      "query": "{interaction_id}",
+      "attribute_path": "Intact.detection_method",
+      "expected": {
+        "exists": true
+      }
+    },
+    {
+      "name": "Check PSI-MI parsed detection method (P0)",
+      "type": "attribute_exists",
+      "query": "{interaction_id}",
+      "attribute_path": "Intact.detection_method_parsed",
+      "expected": {
+        "exists": true
+      }
+    },
+    {
+      "name": "Check PSI-MI parsed interaction type (P0)",
+      "type": "attribute_exists",
+      "query": "{interaction_id}",
+      "attribute_path": "Intact.interaction_type_parsed",
+      "expected": {
+        "exists": true
+      }
+    },
+    {
+      "name": "Check confidence score components (P0)",
+      "type": "attribute_exists",
+      "query": "{interaction_id}",
+      "attribute_path": "Intact.confidence_scores",
+      "expected": {
+        "exists": true
+      }
+    },
+    {
+      "name": "Check method reliability score (P1)",
+      "type": "attribute_exists",
+      "query": "{interaction_id}",
+      "attribute_path": "Intact.method_reliability_score",
+      "expected": {
+        "exists": true
+      }
+    },
+    {
+      "name": "Check host organism name (P2)",
+      "type": "attribute_exists",
+      "query": "{interaction_id}",
+      "attribute_path": "Intact.host_organism_name",
+      "expected": {
+        "exists": true
+      }
+    },
+    {
+      "name": "Check pubmed_id",
+      "type": "attribute_exists",
+      "query": "{interaction_id}",
+      "attribute_path": "Intact.pubmed_id",
+      "expected": {
+        "exists": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "_comment": "ChEBI Test Cases - Full compound database with attributes",
+  "_note": "ChEBI now provides complete compound data including names, structures, formulas, and ontology classifications",
+
+  "common_tests": [
+    {
+      "name": "Lookup by ChEBI ID",
+      "type": "id_lookup",
+      "id": "@reference[0].identifier"
+    },
+    {
+      "name": "Lookup by compound name",
+      "type": "name_lookup",
+      "name": "@reference[0].Attributes.Chebi.name"
+    },
+    {
+      "name": "Lookup by synonym",
+      "type": "alias_lookup",
+      "alias": "@reference[0].Attributes.Chebi.synonyms[0]",
+      "expected_id": "@reference[0].identifier"
+    },
+    {
+      "name": "Lookup by formula",
+      "type": "alias_lookup",
+      "alias": "@reference[0].Attributes.Chebi.formula",
+      "expected_id": "@reference[0].identifier"
+    },
+    {
+      "name": "Lookup by InChI Key",
+      "type": "alias_lookup",
+      "alias": "@reference[0].Attributes.Chebi.inchi_key",
+      "expected_id": "@reference[0].identifier"
+    },
+    {
+      "name": "Check attributes present",
+      "type": "attribute_check",
+      "id": "@reference[0].identifier"
+    },
+    {
+      "name": "Lookup multiple IDs",
+      "type": "multi_lookup",
+      "count": 3,
+      "id_field": "identifier"
+    },
+    {
+      "name": "Case-insensitive name search",
+      "type": "case_insensitive",
+      "symbol": "@reference[0].Attributes.Chebi.name"
+    },
+    {
+      "name": "Invalid ID handling",
+      "type": "invalid_id",
+      "invalid_id": "CHEBI:99999999"
+    }
+  ],
+
+  "custom_tests": [
+    {
+      "name": "Check compound has full attributes",
+      "description": "Verify ChEBI entries have name, definition, formula, structures"
+    },
+    {
+      "name": "Check IUPAC names present",
+      "description": "Verify IUPAC names are stored for compounds that have them"
+    },
+    {
+      "name": "Check cross-references work",
+      "description": "Verify ChEBI cross-references to other databases are maintained"
+    }
+  ]
+}

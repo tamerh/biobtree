@@ -1,6 +1,6 @@
 # 🧬 BioBTree v2
 
-**A unified biomedical graph database that integrates 50+ primary data sources — genes, proteins, compounds, diseases, pathways, variants, expression, and more — into a single queryable graph with billions of cross-reference edges, accessible by both researchers and AI.**
+****A unified biomedical graph database that integrates 50+ primary data sources—genes, proteins, compounds, diseases, pathways, and clinical data—into a single queryable graph with billions of cross-reference edges and intiutive query syntax. Built with a native MCP server, it complements the reasoning and contextual power of LLMs with this massive-scale structured biomedical data, overcoming literature bias and eliminating identifier hallucinations.****
 
 ```
 BRCA1 >> ensembl >> uniprot >> pdb[resolution<2.0]
@@ -8,9 +8,10 @@ BRCA1 >> ensembl >> uniprot >> pdb[resolution<2.0]
 
 This finds BRCA1 in Ensembl, maps to UniProt proteins, and returns high-resolution PDB structures — crossing three databases in a single line.
 
+    
 ## 🔗 Try It
 
-The fastest way to experience BioBTree v2 is through an AI assistant with MCP (Model Context Protocol). We recommend **Claude CLI** (tested extensively), though **Codex CLI** and **Gemini CLI** also work:
+The fastest way to experience BioBTree v2 is through MCP. We recommend **Claude CLI** (tested extensively), though **Codex CLI** and **Gemini CLI** also work:
 
 ```json
 {
@@ -48,7 +49,9 @@ For any questions, issues, or collaboration ideas, feel free to [create an issue
 ## 📄 Publication
 
 **BioBTree v2: Grounding LLM Responses with Large-Scale Structured Biomedical Data**
-Preprint: [link forthcoming]
+
+Pending bioRxiv publication. The full manuscript, detailing the graph architecture and comparative LLM use cases, will be linked here shortly.
+
 BioBTree v1: [F1000Research](https://f1000research.com/articles/8-145)
 
 ## ⚖️ License

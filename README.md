@@ -50,7 +50,7 @@ For any questions, issues, or collaboration ideas, feel free to [create an issue
 
 **BioBTree v2: Grounding LLM Responses with Large-Scale Structured Biomedical Data**
 
-Pending bioRxiv publication. The full manuscript, detailing the graph architecture and comparative LLM use cases, will be linked here shortly.
+The full preprint manuscript, detailing the graph architecture and comparative LLM use cases is available on Zenodo: [https://zenodo.org/records/18962899](https://zenodo.org/records/18962899)
 
 BioBTree v1: [F1000Research](https://f1000research.com/articles/8-145)
 

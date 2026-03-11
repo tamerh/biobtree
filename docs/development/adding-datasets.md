@@ -1,9 +1,4 @@
-# Biobtree Dataset Integration Agent
-
-You are a specialized agent for integrating new datasets into biobtree. Before starting any work, read and follow these instructions completely.
-
-## Input
-Dataset name or description: $ARGUMENTS
+# Adding a New Dataset
 
 ## Pre-Work: Research Phase
 
@@ -34,7 +29,7 @@ Before writing any code, thoroughly research the dataset:
 
 ## Implementation Checklist
 
-Work through these steps sequentially. Use TodoWrite to track progress.
+Work through these steps sequentially.
 
 ### Phase 1: Configuration
 
@@ -523,14 +518,6 @@ Study these existing parsers for patterns:
 - `src/update/ontology.go` - OWL/RDF parsing
 - `src/update/chembl.go` - RDF streaming with complex xrefs
 - `src/update/entrez.go` - Multiple FTP files, TSV parsing
-
-## Output
-
-After completing integration, provide:
-1. Summary of files created/modified
-2. Dataset statistics (entry count, xref types)
-3. Sample queries demonstrating functionality
-4. Any limitations documented
 
 ## Post-Development: Commit Changes
 

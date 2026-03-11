@@ -17,6 +17,7 @@
 
 - Development
   - [Overview](development/index.md)
+  - [Adding Datasets](development/adding-datasets.md)
 
 - Internals
   - [Overview](internals/index.md)

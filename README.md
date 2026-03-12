@@ -56,4 +56,6 @@ BioBTree v1: [F1000Research](https://f1000research.com/articles/8-145)
 
 ## ⚖️ License
 
-GPL-v3
+AGPL-v3  
+
+The public MCP server hosted at sugi.bio is for academic and personal use only due to upstream non-commercial data licenses.

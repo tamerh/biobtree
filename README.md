@@ -1,6 +1,6 @@
 # 🧬 BioBTree v2
 
-****A unified biomedical graph database that integrates 50+ primary data sources—genes, proteins, compounds, diseases, pathways, and clinical data—into a single queryable graph with billions of cross-reference edges and intiutive query syntax. Built with a native MCP server, it complements the reasoning and contextual power of LLMs with this massive-scale structured biomedical data, overcoming literature bias and eliminating identifier hallucinations.****
+****A unified biomedical graph database that integrates 50+ primary data sources — genes, proteins, compounds, diseases, pathways, and clinical data — into a single queryable graph with billions of cross-reference edges. Its native MCP server gives LLMs direct access to structured, authoritative biomedical data, complementing their reasoning with reliable identifiers and up-to-date database content.****
 
 ```
 BRCA1 >> ensembl >> uniprot >> pdb[resolution<2.0]

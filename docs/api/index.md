@@ -4,49 +4,47 @@
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/ws/` | GET | Search identifiers |
-| `/ws/map/` | GET | Map through dataset chains |
-| `/ws/entry/` | GET | Get full entry details |
-| `/ws/meta` | GET | List all datasets |
+| `/api/search` | GET | Search identifiers |
+| `/api/map` | GET | Map through dataset chains |
+| `/api/entry` | GET | Get full entry details |
+| `/api/meta` | GET | List all datasets |
 
 ### Search
 
 ```
-GET /ws/?i={terms}&s={dataset}&mode={full|lite}&p={page}
+GET /api/search?i={terms}&s={dataset}&p={page}
 ```
 
 **Parameters:**
 - `i` (required): Comma-separated identifiers
 - `s` (optional): Filter to specific dataset
-- `mode` (optional): `full` (default) or `lite`
 - `p` (optional): Pagination token
 
 **Example:**
 ```bash
-curl "http://localhost:9292/ws/?i=P04637&mode=lite"
+curl "http://localhost:8000/api/search?i=BRCA1"
 ```
 
 ### Mapping
 
 ```
-GET /ws/map/?i={terms}&m={chain}&mode={full|lite}&p={page}
+GET /api/map?i={terms}&m={chain}&p={page}
 ```
 
 **Parameters:**
 - `i` (required): Comma-separated identifiers
 - `m` (required): Mapping chain (e.g., `>>ensembl>>uniprot`)
-- `mode` (optional): `full` (default) or `lite`
 - `p` (optional): Pagination token
 
 **Example:**
 ```bash
-curl "http://localhost:9292/ws/map/?i=TP53&m=>>ensembl>>uniprot&mode=lite"
+curl "http://localhost:8000/api/map?i=TP53&m=>>ensembl>>uniprot"
 ```
 
 ### Entry Details
 
 ```
-GET /ws/entry/?i={identifier}&s={dataset}
+GET /api/entry?i={identifier}&s={dataset}
 ```
 
 **Parameters:**
@@ -55,21 +53,47 @@ GET /ws/entry/?i={identifier}&s={dataset}
 
 **Example:**
 ```bash
-curl "http://localhost:9292/ws/entry/?i=P04637&s=uniprot"
+curl "http://localhost:8000/api/entry?i=P04637&s=uniprot"
 ```
 
 ### Metadata
 
 ```
-GET /ws/meta
+GET /api/meta
 ```
 
 Returns list of all available datasets.
 
-## Response Modes
+### Help/Schema
 
-- **full**: Complete data with all attributes
-- **lite**: Compact IDs-only (~50x smaller, for AI agents)
+```
+GET /api/help?topic={topic}
+```
+
+**Parameters:**
+- `topic` (optional): `edges`, `filters`, `hierarchies`, `patterns`, `examples`, or `all` (default)
+
+Returns biobtree schema reference including dataset connections and query patterns.
+
+## Public API
+
+The public API is available at:
+
+```
+https://sugi.bio/biobtree/api/
+```
+
+**Examples:**
+```bash
+# Search
+curl "https://sugi.bio/biobtree/api/search?i=SCN9A"
+
+# Map gene to proteins
+curl "https://sugi.bio/biobtree/api/map?i=BRCA1&m=>>ensembl>>uniprot"
+
+# Get entry details
+curl "https://sugi.bio/biobtree/api/entry?i=HGNC:10597&s=hgnc"
+```
 
 ## See Also
 

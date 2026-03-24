@@ -35,9 +35,9 @@ Once connected, just ask questions in natural language — the AI will query Bio
 A REST API is also available for direct programmatic access:
 
 ```
-https://sugi.bio/biobtree/api/ws/?i=BRCA1
-https://sugi.bio/biobtree/api/ws/map/?i=BRCA1&m=>>ensembl>>uniprot>>chembl_target
-https://sugi.bio/biobtree/api/ws/entry/?i=P38398&s=uniprot
+https://sugi.bio/biobtree/api/search?i=BRCA1
+https://sugi.bio/biobtree/api/map?i=BRCA1&m=>>ensembl>>uniprot>>chembl_target
+https://sugi.bio/biobtree/api/entry?i=P38398&s=uniprot
 ```
 
 ## 📖 Documentation

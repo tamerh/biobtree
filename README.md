@@ -40,6 +40,10 @@ https://sugi.bio/biobtree/api/map?i=BRCA1&m=>>ensembl>>uniprot>>chembl_target
 https://sugi.bio/biobtree/api/entry?i=P38398&s=uniprot
 ```
 
+## Q&A
+
+Browse biological questions answered with BioBTree: [sugi.bio/biobtree](https://sugi.bio/biobtree/)
+
 ## 📖 Documentation
 
 Query syntax, [integrated databases](docs/datasets/index.md), development, and other details check the : **[docs/](docs/index.md)** or refer to latest preprint. 

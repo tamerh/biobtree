@@ -14,7 +14,6 @@ require (
 	github.com/krolaw/zipstream v0.0.0-20180621105154-0a2661891f94
 	github.com/pquerna/ffjson v0.0.0-20190930134022-aa0246cd15f7
 	github.com/tamerh/jsparser v1.4.0
-	github.com/tamerh/rdf v0.0.0-20190712184806-55b841cd359c
 	github.com/tamerh/xml-stream-parser v1.1.4
 	github.com/urfave/cli v1.20.0
 	github.com/vbauerster/mpb v3.4.0+incompatible
@@ -41,7 +40,7 @@ require (
 	golang.org/x/term v0.18.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	google.golang.org/protobuf v1.25.0 // indirect
-	gopkg.in/yaml.v2 v2.2.4 // indirect
+	gopkg.in/yaml.v2 v2.2.8 // indirect
 	modernc.org/gc/v3 v3.0.0-20240107210532-573471604cb6 // indirect
 	modernc.org/libc v1.55.3 // indirect
 	modernc.org/mathutil v1.6.0 // indirect

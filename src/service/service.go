@@ -91,7 +91,9 @@ func (s *Service) initWithDbDir(dbDir string) error {
 	s.datasetFederation = config.DatasetFederation
 
 	// Load all federations from the specified directory
-	s.loadFederations(dbDir)
+	if err := s.loadFederations(dbDir); err != nil {
+		return err
+	}
 
 	// Set legacy fields to main federation for backward compatibility
 	if mainFed, ok := s.federations["main"]; ok {
@@ -436,6 +438,12 @@ func (s *Service) initWithDbDir(dbDir string) error {
 		cel.Declarations(
 			decls.NewIdent("string_interaction", decls.NewObjectType("pbuf.StringInteractionAttr"), nil)),
 		cel.Declarations(
+			decls.NewIdent("gtopdb", decls.NewObjectType("pbuf.GtopdbAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("gtopdb_ligand", decls.NewObjectType("pbuf.GtopdbLigandAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("gtopdb_interaction", decls.NewObjectType("pbuf.GtopdbInteractionAttr"), nil)),
+		cel.Declarations(
 			decls.NewFunction("overlaps",
 				decls.NewOverload("overlaps_int_int",
 					[]*exprpb.Type{decls.Int, decls.Int},
@@ -541,14 +549,14 @@ func (s *Service) initWithDbDir(dbDir string) error {
 }
 
 // loadFederations loads all federations that have database files
-func (s *Service) loadFederations(outDir string) {
+func (s *Service) loadFederations(outDir string) error {
 	// Always try to load main federation first
 	mainDir := filepath.Join(outDir, "main")
 	if err := s.loadFederation("main", mainDir); err != nil {
 		// Fallback: try to load from legacy location (direct outDir)
 		log.Printf("Main federation not found at %s, trying legacy location", mainDir)
 		if err := s.loadFederationLegacy("main", outDir); err != nil {
-			log.Fatalf("Could not load main federation: %v", err)
+			return fmt.Errorf("could not load main federation: %v", err)
 		}
 	}
 
@@ -564,6 +572,7 @@ func (s *Service) loadFederations(outDir string) {
 	}
 
 	log.Printf("Loaded %d federation(s): %v", len(s.federations), s.getFederationNames())
+	return nil
 }
 
 // loadFederation loads a single federation from its directory

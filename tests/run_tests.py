@@ -308,6 +308,7 @@ Available datasets:
         'pdb': datasets_dir / "pdb" / "test_pdb.py",
         'encode_ccre': datasets_dir / "encode_ccre" / "test_encode_ccre.py",
         'fantom5': datasets_dir / "fantom5" / "test_fantom5.py",
+        'gtopdb': datasets_dir / "gtopdb" / "test_gtopdb.py",
     }
 
     # Parse dataset selection
@@ -397,6 +398,9 @@ Available datasets:
             build_datasets.remove('fantom5')
         if 'fantom5_promoter' not in build_datasets:
             build_datasets.append('fantom5_promoter')
+
+    # GtoPdb: gtopdb is the parent that builds all three datasets
+    # (gtopdb, gtopdb_ligand, gtopdb_interaction)
 
     # Build test database with selected datasets (including dependencies)
     datasets_str = ','.join(build_datasets)

@@ -1409,6 +1409,21 @@ func (s *Service) execCelGo(query *query.Query, targetXref *pbuf.Xref) (bool, er
 			attr.Id = id
 			evalMap["string_interaction"] = attr
 		}
+	case "gtopdb":
+		if attr := targetXref.GetGtopdb(); attr != nil {
+			attr.Id = id
+			evalMap["gtopdb"] = attr
+		}
+	case "gtopdb_ligand":
+		if attr := targetXref.GetGtopdbLigand(); attr != nil {
+			attr.Id = id
+			evalMap["gtopdb_ligand"] = attr
+		}
+	case "gtopdb_interaction":
+		if attr := targetXref.GetGtopdbInteraction(); attr != nil {
+			attr.Id = id
+			evalMap["gtopdb_interaction"] = attr
+		}
 	default:
 		//err := fmt.Errorf("mapfilter query execution failed please check again query")
 		return false, nil

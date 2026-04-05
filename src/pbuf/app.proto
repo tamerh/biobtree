@@ -180,6 +180,9 @@ message Xref {
     BgeeEvidenceAttr bgee_evidence=131;
     CtdGeneInteractionAttr ctd_gene_interaction=134;
     CtdDiseaseAssociationAttr ctd_disease_association=135;
+    GtopdbAttr gtopdb=136;
+    GtopdbLigandAttr gtopdb_ligand=137;
+    GtopdbInteractionAttr gtopdb_interaction=138;
 
   }
 

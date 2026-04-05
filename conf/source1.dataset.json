@@ -1332,6 +1332,57 @@
     "compact_fields": "ccre_class,chromosome",
     "test_entries_count": "1000",
     "bucketMethod": "alphanum"
+  },
+  "gtopdb": {
+    "id": "136",
+    "name": "GtoPdb",
+    "aliases": "GtoPdb,Guide to Pharmacology,drug target,pharmacology target,GPCR,ion channel,receptor",
+    "childDatasets": "gtopdb_ligand,gtopdb_interaction",
+    "textPriority": "85",
+    "url": "https://www.guidetopharmacology.org/GRAC/ObjectDisplayForward?objectId=£{id}",
+    "path": "https://www.guidetopharmacology.org/DATA/",
+    "targetsFile": "targets_and_families.csv",
+    "uniprotMappingFile": "GtP_to_UniProt_mapping.csv",
+    "hgncMappingFile": "GtP_to_HGNC_mapping.csv",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "name,type,family_name,[]family_ids,[]subunit_ids,[]complex_ids",
+    "compact_fields": "name,type,family_name",
+    "test_entries_count": "100",
+    "bucketMethod": "numeric"
+  },
+  "gtopdb_ligand": {
+    "id": "137",
+    "name": "GtoPdb Ligand",
+    "aliases": "GtoPdb ligand,Guide to Pharmacology ligand,pharmacology ligand",
+    "textPriority": "85",
+    "url": "https://www.guidetopharmacology.org/GRAC/LigandDisplayForward?ligandId=£{id}",
+    "path": "https://www.guidetopharmacology.org/DATA/",
+    "ligandsFile": "ligands.csv",
+    "idMappingFile": "ligand_id_mapping.csv",
+    "physchemFile": "ligand_physchem_properties.csv",
+    "peptidesFile": "peptides.csv",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "name,type,inn,approved,withdrawn,who_essential,antibacterial,radioactive,labelled,smiles,inchi_key,molecular_weight,logp,hba,hbd,psa,rotatable_bonds,lipinski_rules_broken,one_letter_seq,three_letter_seq",
+    "compact_fields": "name,type,approved,molecular_weight,logp",
+    "test_entries_count": "100",
+    "bucketMethod": "numeric"
+  },
+  "gtopdb_interaction": {
+    "id": "138",
+    "name": "GtoPdb Interaction",
+    "aliases": "GtoPdb interaction,drug-target interaction,ligand-target interaction,binding affinity,pharmacology interaction",
+    "url": "https://www.guidetopharmacology.org/GRAC/LigandDisplayForward?ligandId=£{id}",
+    "path": "https://www.guidetopharmacology.org/DATA/",
+    "interactionsFile": "interactions.csv",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "target_id,ligand_id,target_name,ligand_name,target_species,type,action,selectivity,endogenous,primary_target,affinity,affinity_parameter,affinity_units,affinity_value,[]pubmed_ids",
+    "compact_fields": "target_name,ligand_name,type,action,affinity,affinity_parameter",
+    "test_entries_count": "500",
+    "bucketMethod": "numeric",
+    "xrefSort": "gtopdb:affinityScore;gtopdb_ligand:affinityScore;uniprot:affinityScore"
   }
 
 }

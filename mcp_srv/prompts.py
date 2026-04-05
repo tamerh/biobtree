@@ -37,9 +37,9 @@ lipidmaps: chebi, pubchem
 dbsnp: hgnc, clinvar, pharmgkb_variant, alphamissense, spliceai
 clinvar: hgnc, mondo, hpo, dbsnp, orphanet
 alphamissense: uniprot, transcript
-gwas: gwas_study, efo, dbsnp, hgnc
-gwas_study: gwas, efo
-mondo: gencc, clinvar, efo, mesh, hpo, clinical_trials, antibody, cellxgene, cellxgene_celltype, orphanet, mondoparent, mondochild
+gwas: gwas_study, efo, dbsnp, hgnc, mondo
+gwas_study: gwas, efo, mondo
+mondo: gencc, clinvar, efo, mesh, hpo, clinical_trials, antibody, cellxgene, cellxgene_celltype, orphanet, mondoparent, mondochild, gwas, gwas_study
 gencc: mondo, hpo, hgnc, ensembl
 clinical_trials: mondo, chembl_molecule
 pharmgkb: hgnc, dbsnp, mesh, pharmgkb_gene, pharmgkb_variant, pharmgkb_clinical, pharmgkb_guideline, pharmgkb_pathway
@@ -93,6 +93,9 @@ bao: chembl_activity, chembl_assay, baoparent, baochild
 brenda: uniprot, pubmed, brenda_kinetics, brenda_inhibitor
 brenda_kinetics: brenda
 brenda_inhibitor: brenda
+gtopdb: uniprot, hgnc, gtopdb_ligand, gtopdb_interaction  # drug targets (GPCRs, ion channels, enzymes)
+gtopdb_ligand: pubchem, chebi, chembl_molecule, gtopdb_interaction  # ligands/drugs with binding data
+gtopdb_interaction: gtopdb, gtopdb_ligand, pubmed  # target-ligand binding with affinity values
 """
 
 
@@ -130,6 +133,10 @@ EXAMPLES:
   >>go[type=="biological_process"]
   >>clinvar[germline_classification=="Pathogenic"]
   >>reactome[name.contains("signaling")]
+  >>gtopdb[type=="gpcr"]  # GPCR targets
+  >>gtopdb[type=="ion_channel"]  # ion channel targets
+  >>gtopdb_ligand[approved==true]  # approved drugs only
+  >>gtopdb_interaction[endogenous==true]  # endogenous ligand interactions
 """
 
 
@@ -200,6 +207,7 @@ ID TYPE → SOURCE:
 SOME DRUG EXPLORATION PATHS:
 - >>chembl_molecule>>chembl_target>>uniprot (drug targets)
 - >>pubchem>>pubchem_activity>>uniprot (bioactivity)
+- >>gtopdb_ligand>>gtopdb_interaction>>gtopdb>>uniprot (curated pharmacology with affinity data)
 - >>ensembl>>reactome>>chebi (pathway chemicals - when no direct targets)
 - Discover more via entry xrefs + EDGES
 

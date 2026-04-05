@@ -1,9 +1,10 @@
 {
   "metadata": {
-    "version": "10.6",
+    "version": "10.7",
     "description": "Expanded integration tests including newly added datasets and filter tests (2025-2026)",
     "server": "http://localhost:9291",
-    "last_updated": "2026-03-03",
+    "last_updated": "2026-04-05",
+    "changes_10.7": "Added gtopdb_pharmacology category (24 tests): GtoPdb Guide to Pharmacology integration tests. Three sub-datasets: gtopdb (drug targets - GPCRs, ion channels, kinases), gtopdb_ligand (pharmacological compounds with ADME properties), gtopdb_interaction (target-ligand binding with affinity data). Cross-references to UniProt, HGNC, PubChem, ChEMBL, ChEBI, PubMed. CEL filters for target type, approved drugs, affinity values. Multi-hop drug discovery workflows. Total: 802 tests.",
     "changes_10.6": "Added id_filter category (12 tests): Identifier filter tests. Tests filtering by entry identifier using id field (e.g., go[id==\"GO:0005886\"]). Covers single-hop id filters (ensembl, uniprot, go, mondo, chembl_molecule, hgnc, pdb, pubchem, chebi, efo, taxonomy, interpro), multi-hop chains with multiple filters including id, and combinations of id filter with other attribute filters. Total: 758 tests.",
     "changes_10.5": "Added chembl_pchembl_sorting category (4 tests): ChEMBL activity pChembl sorting validation. Tests that chembl_activity xrefs are sorted by pChembl descending (highest binding affinity first). Also added clinical_trials_phase_sorting category (4 tests): Clinical trials phase sorting validation. Tests that clinical_trials xrefs to MONDO/ChEMBL are sorted by phase (PHASE4 first). Total: 746 tests.",
     "changes_10.4": "Added not_found_tracking category (6 tests, 16 validations): Batch query not_found tracking validation. Tests stats.queried count, stats.mapped count, and not_found array for invalid input terms in lite mode. New validation types: not_found_contains, not_found_count, stats_queried, stats_mapped. Validates explicit tracking of failed input terms in batch mapping queries. Total: 738 tests.",
@@ -103,7 +104,8 @@
     "not_found_tracking": "Batch query not_found tracking: Validates that when mapping multiple IDs, the response includes not_found array listing input terms that didn't resolve. Tests stats.queried count, stats.mapped count, and explicit not_found array in both lite and full modes.",
     "chembl_pchembl_sorting": "ChEMBL activity pChembl sorting: Tests that chembl_activity xrefs are sorted by pChembl descending (highest binding affinity first). Activities with higher pChembl values (stronger binding) appear before weaker binders. Validates >>chembl_molecule>>chembl_activity and >>chembl_target>>chembl_activity paths.",
     "clinical_trials_phase_sorting": "Clinical trials phase sorting: Tests that clinical_trials xrefs to MONDO, EFO, and ChEMBL are sorted by phase (PHASE4 first, then PHASE3, PHASE2, PHASE1). Later phase trials represent more advanced drug development and are prioritized in results.",
-    "id_filter": "Identifier filter tests: Tests filtering by entry identifier using the transient id field. Enables queries like go[id==\"GO:0005886\"] to filter results by exact identifier. Works across all datasets. Supports single-hop filters, multi-hop chains with multiple id filters, and combinations with other attribute filters. Essential for LLM agents to precisely filter mapping results."
+    "id_filter": "Identifier filter tests: Tests filtering by entry identifier using the transient id field. Enables queries like go[id==\"GO:0005886\"] to filter results by exact identifier. Works across all datasets. Supports single-hop filters, multi-hop chains with multiple id filters, and combinations with other attribute filters. Essential for LLM agents to precisely filter mapping results.",
+    "gtopdb_pharmacology": "GtoPdb Guide to Pharmacology integration: Three sub-datasets covering drug targets (gtopdb - GPCRs, ion channels, kinases, enzymes), pharmacological ligands (gtopdb_ligand - approved drugs, investigational compounds with ADME properties), and target-ligand interactions (gtopdb_interaction - binding affinity data with pKi/pKd/pIC50). Cross-references to UniProt, HGNC, PubChem, ChEMBL, ChEBI, PubMed. CEL filters for target type, drug approval status, affinity values. Text search by drug names, receptor synonyms (e.g., 'serotonin' finds all serotonin receptors). Essential for pharmacology research, drug discovery, and target validation workflows."
   },
   "tests": [
     {
@@ -8797,6 +8799,277 @@
       "why": "Type 2 diabetes (by ID) to Phase 3 trial drugs - tests 3 filters in chain",
       "should_pass": [
         "MONDO:0005148"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "gtopdb_pharmacology",
+      "name": "GtoPdb Target Direct Lookup",
+      "query": ">>gtopdb",
+      "why": "Direct lookup of GtoPdb drug target by numeric ID - foundational test",
+      "should_pass": [
+        "1",
+        "2",
+        "10"
+      ],
+      "should_fail": [
+        "INVALID_TARGET"
+      ]
+    },
+    {
+      "category": "gtopdb_pharmacology",
+      "name": "GtoPdb Ligand Direct Lookup",
+      "query": ">>gtopdb_ligand",
+      "why": "Direct lookup of GtoPdb ligand by numeric ID - foundational test",
+      "should_pass": [
+        "1",
+        "5",
+        "940"
+      ],
+      "should_fail": [
+        "INVALID_LIGAND"
+      ]
+    },
+    {
+      "category": "gtopdb_pharmacology",
+      "name": "GtoPdb Interaction Direct Lookup",
+      "query": ">>gtopdb_interaction",
+      "why": "Direct lookup of target-ligand interaction by composite ID (target_ligand)",
+      "should_pass": [
+        "1_1",
+        "1_5",
+        "10_5"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "gtopdb_pharmacology",
+      "name": "GtoPdb Target to UniProt",
+      "query": ">>gtopdb>>uniprot",
+      "why": "Map drug target to UniProt protein - essential for structural and functional analysis",
+      "should_pass": [
+        "1",
+        "2",
+        "10"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "gtopdb_pharmacology",
+      "name": "GtoPdb Target to HGNC",
+      "query": ">>gtopdb>>hgnc",
+      "why": "Map drug target to HGNC gene - links to genetic/genomic resources",
+      "should_pass": [
+        "1",
+        "2"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "gtopdb_pharmacology",
+      "name": "GtoPdb Ligand to PubChem",
+      "query": ">>gtopdb_ligand>>pubchem",
+      "why": "Map ligand to PubChem compound - access chemical properties and bioassays",
+      "should_pass": [
+        "1",
+        "5",
+        "940"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "gtopdb_pharmacology",
+      "name": "GtoPdb Ligand to ChEMBL",
+      "query": ">>gtopdb_ligand>>chembl_molecule",
+      "why": "Map ligand to ChEMBL molecule - access bioactivity data and drug development info",
+      "should_pass": [
+        "1",
+        "5"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "gtopdb_pharmacology",
+      "name": "GtoPdb Ligand to ChEBI",
+      "query": ">>gtopdb_ligand>>chebi",
+      "why": "Map ligand to ChEBI - access chemical ontology and metabolite links",
+      "should_pass": [
+        "5"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "gtopdb_pharmacology",
+      "name": "GtoPdb Target to Interactions",
+      "query": ">>gtopdb>>gtopdb_interaction",
+      "why": "Get all ligand interactions for a drug target - core pharmacology query",
+      "should_pass": [
+        "1",
+        "2",
+        "10"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "gtopdb_pharmacology",
+      "name": "GtoPdb Ligand to Interactions",
+      "query": ">>gtopdb_ligand>>gtopdb_interaction",
+      "why": "Get all target interactions for a ligand - identify drug promiscuity",
+      "should_pass": [
+        "1",
+        "5",
+        "940"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "gtopdb_pharmacology",
+      "name": "GtoPdb Interaction to PubMed",
+      "query": ">>gtopdb_interaction>>pubmed",
+      "why": "Get literature evidence for target-ligand interaction",
+      "should_pass": [
+        "1_5",
+        "1_1"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "gtopdb_pharmacology",
+      "name": "GtoPdb Target to Ligands via Interactions",
+      "query": ">>gtopdb>>gtopdb_interaction>>gtopdb_ligand",
+      "why": "Find all ligands that bind to a target - drug discovery screening hits",
+      "should_pass": [
+        "1",
+        "2"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "gtopdb_pharmacology",
+      "name": "GtoPdb GPCR Targets Filter",
+      "query": ">>gtopdb[type==\"gpcr\"]",
+      "why": "Filter for GPCR targets only - GPCRs are major drug target class",
+      "should_pass": [
+        "1",
+        "2",
+        "10"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "gtopdb_pharmacology",
+      "name": "GtoPdb Approved Drugs Filter",
+      "query": ">>gtopdb_ligand[approved==true]",
+      "why": "Filter for approved drugs only - identify marketed therapeutics",
+      "should_pass": [
+        "940"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "gtopdb_pharmacology",
+      "name": "GtoPdb Target to Pathways",
+      "query": ">>gtopdb>>uniprot>>reactome",
+      "why": "Map drug target to biological pathways - understand mechanism of action",
+      "should_pass": [
+        "1",
+        "2"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "gtopdb_pharmacology",
+      "name": "GtoPdb Target to Diseases",
+      "query": ">>gtopdb>>hgnc>>mondo",
+      "why": "Map drug target to associated diseases via HGNC - target validation",
+      "should_pass": [
+        "1"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "gtopdb_pharmacology",
+      "name": "GtoPdb Target to Clinical Variants",
+      "query": ">>gtopdb>>hgnc>>clinvar",
+      "why": "Find clinical variants in drug target genes - pharmacogenomics relevance",
+      "should_pass": [
+        "1",
+        "2"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "gtopdb_pharmacology",
+      "name": "GtoPdb Target to AlphaFold Structure",
+      "query": ">>gtopdb>>uniprot>>alphafold",
+      "why": "Get predicted 3D structure for drug target - structure-based drug design",
+      "should_pass": [
+        "1",
+        "2"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "gtopdb_pharmacology",
+      "name": "GtoPdb Target to PDB Structures",
+      "query": ">>gtopdb>>uniprot>>pdb",
+      "why": "Get experimental 3D structures for drug target - structure-based drug design",
+      "should_pass": [
+        "1",
+        "2"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "gtopdb_pharmacology",
+      "name": "GtoPdb Ligand to ChEMBL Bioactivity",
+      "query": ">>gtopdb_ligand>>chembl_molecule>>chembl_activity",
+      "why": "Get ChEMBL bioactivity data for GtoPdb ligand - compare binding data",
+      "should_pass": [
+        "940"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "gtopdb_pharmacology",
+      "name": "GtoPdb Target to Clinical Trials",
+      "query": ">>gtopdb>>hgnc>>clinical_trials",
+      "why": "Find clinical trials targeting a GtoPdb drug target",
+      "should_pass": [
+        "1"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "gtopdb_pharmacology",
+      "name": "Gene Symbol to GtoPdb Target",
+      "query": ">>hgnc>>gtopdb",
+      "why": "Reverse lookup - find GtoPdb target from gene symbol",
+      "should_pass": [
+        "HTR1A",
+        "DRD2"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "gtopdb_pharmacology",
+      "name": "UniProt to GtoPdb Target",
+      "query": ">>uniprot>>gtopdb",
+      "why": "Reverse lookup - find GtoPdb target from UniProt accession",
+      "should_pass": [
+        "P08908",
+        "P14416"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "gtopdb_pharmacology",
+      "name": "PubChem to GtoPdb Ligand",
+      "query": ">>pubchem>>gtopdb_ligand",
+      "why": "Reverse lookup - find GtoPdb ligand from PubChem CID",
+      "should_pass": [
+        "5202",
+        "681"
       ],
       "should_fail": []
     }

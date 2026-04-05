@@ -270,6 +270,9 @@ func (u *uniprot) processDbReference(entryid string, r *xmlparser.XMLElement) {
 				u.d.addXref(entryid, u.sourceID, meshID, v.Attrs["type"], false)
 			}
 			// Skip malformed MeSH IDs (e.g., just "2" instead of "D000002")
+		case "GuideToPHARMACOLOGY":
+			// Map to gtopdb dataset (UniProt uses full name, we use abbreviation)
+			u.d.addXref(entryid, u.sourceID, v.Attrs["id"], "gtopdb", false)
 		default:
 			u.d.addXref(entryid, u.sourceID, v.Attrs["id"], v.Attrs["type"], false)
 		}

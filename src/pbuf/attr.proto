@@ -2579,3 +2579,97 @@ message EncodeCcreAttr {
   string id = 100; // transient - populated at runtime from Xref.Identifier
 }
 
+// ============================================================================
+// GtoPdb - IUPHAR/BPS Guide to Pharmacology
+// Expert-curated database of drug targets, ligands, and their interactions
+// Source: https://www.guidetopharmacology.org/
+// License: Open Database License (ODbL) - Attribution required
+// ============================================================================
+
+// GtoPdb - Drug targets (Dataset ID: 136)
+// Primary key: numeric target_id (e.g., "1", "2", "1234")
+// ~3,000 curated drug targets including GPCRs, ion channels, enzymes, transporters
+message GtopdbAttr {
+  string name = 1;                    // Target name (e.g., "5-HT₁A receptor")
+  string type = 2;                    // Target type: GPCR, Ion channel, Enzyme, Transporter, etc.
+  string family_name = 3;             // Family name (e.g., "5-Hydroxytryptamine receptors")
+  repeated int32 family_ids = 4;      // Family IDs this target belongs to
+  repeated int32 subunit_ids = 5;     // Subunit target IDs (for complexes)
+  repeated int32 complex_ids = 6;     // Complex IDs this target is part of
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// GtoPdb Ligand - Pharmacological ligands (Dataset ID: 137)
+// Primary key: numeric ligand_id (e.g., "1", "2", "5432")
+// ~12,000 ligands including approved drugs, investigational compounds, peptides
+message GtopdbLigandAttr {
+  // Basic identification
+  string name = 1;                    // Ligand name (e.g., "flesinoxan")
+  string type = 2;                    // Type: Synthetic organic, Peptide, Antibody, Natural product, etc.
+  string inn = 3;                     // International Nonproprietary Name
+
+  // Regulatory status
+  bool approved = 4;                  // FDA/EMA approved drug
+  bool withdrawn = 5;                 // Withdrawn from market
+  bool who_essential = 6;             // WHO Essential Medicine
+
+  // Classification flags
+  bool antibacterial = 7;             // Antibacterial agent
+  bool radioactive = 8;               // Radioactive compound
+  bool labelled = 9;                  // Isotope-labelled
+
+  // Chemical identifiers
+  string smiles = 10;                 // SMILES notation
+  string inchi_key = 11;              // InChIKey
+
+  // Physico-chemical properties (ADME-related)
+  double molecular_weight = 12;       // Molecular weight (Da)
+  double logp = 13;                   // LogP (lipophilicity)
+  int32 hba = 14;                     // Hydrogen bond acceptors
+  int32 hbd = 15;                     // Hydrogen bond donors
+  double psa = 16;                    // Polar surface area (Å²)
+  int32 rotatable_bonds = 17;         // Number of rotatable bonds
+  int32 lipinski_rules_broken = 18;   // Lipinski Rule of 5 violations (0-4)
+
+  // Peptide-specific fields
+  string one_letter_seq = 19;         // One-letter amino acid sequence
+  string three_letter_seq = 20;       // Three-letter amino acid sequence
+
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// GtoPdb Interaction - Ligand-target binding data (Dataset ID: 138)
+// Primary key: numeric interaction_id or composite "target_id_ligand_id"
+// ~100,000+ curated interactions with affinity values
+// Enables ADME queries: CYP inhibitors, transporter substrates, receptor binding
+message GtopdbInteractionAttr {
+  // Identifiers
+  int32 target_id = 1;                // GtoPdb target ID
+  int32 ligand_id = 2;                // GtoPdb ligand ID
+  string target_name = 3;             // Target name (for display)
+  string ligand_name = 4;             // Ligand name (for display)
+
+  // Species and context
+  string target_species = 5;          // Species: Human, Mouse, Rat, etc.
+
+  // Action classification
+  string type = 6;                    // Action type: Agonist, Antagonist, Inhibitor, Modulator, etc.
+  string action = 7;                  // Detailed action: Full agonist, Partial agonist, Inverse agonist, etc.
+  string selectivity = 8;             // Selectivity: Selective, Non-selective, Not determined
+
+  // Interaction flags
+  bool endogenous = 9;                // Endogenous ligand (natural)
+  bool primary_target = 10;           // Primary target for this ligand
+
+  // Affinity data
+  string affinity = 11;               // Affinity value as string (e.g., "7.5", "7.1 - 7.5")
+  string affinity_parameter = 12;     // Parameter type: pKi, pIC50, pEC50, pKd, pA2, etc.
+  string affinity_units = 13;         // Units (typically M for molar)
+  double affinity_value = 14;         // Parsed numeric value for filtering (midpoint if range)
+
+  // References
+  repeated string pubmed_ids = 15;    // PubMed IDs for supporting literature
+
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+

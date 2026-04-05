@@ -1,6 +1,6 @@
 # Dataset Reference
 
-Biobtree integrates **73 datasets** across major biological domains. Each dataset has detailed documentation including storage model, use cases, and query examples.
+Biobtree integrates **76 datasets** across major biological domains. Each dataset has detailed documentation including storage model, use cases, and query examples.
 
 ---
 
@@ -54,6 +54,7 @@ Chemical compounds, drugs, binding affinity, and metabolism.
 | pubchem_activity | PubChem bioactivity data | [README](pubchem_activity.md) |
 | hmdb | Human Metabolome Database | [README](hmdb.md) |
 | bindingdb | Binding affinity measurements | [README](bindingdb.md) |
+| gtopdb | Guide to Pharmacology targets & ligands | [README](gtopdb.md) |
 | swisslipids | SwissLipids lipid structures | [README](swisslipids.md) |
 | lipidmaps | LIPID MAPS lipid classification | [README](lipidmaps.md) |
 | rhea | Rhea biochemical reactions | [README](rhea.md) |
@@ -154,6 +155,8 @@ uniprot: ensembl, alphafold, interpro, pdb, go, reactome, chembl_target, string,
 chembl_molecule: mesh, chembl_target, pubchem, chebi, clinical_trials
 clinvar: hgnc, mondo, hpo, dbsnp, orphanet
 go: ensembl, uniprot, reactome, msigdb, interpro
+gtopdb: uniprot, hgnc, gtopdb_ligand, gtopdb_interaction
+gtopdb_ligand: pubchem, chebi, chembl_molecule, gtopdb_interaction
 ```
 
 See [Edge Reference](../api/edge-reference.md) for complete connectivity map.

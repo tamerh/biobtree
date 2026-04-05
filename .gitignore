@@ -21,4 +21,5 @@ raw_data/
 new_lookup/
 .claude/
 .gemini/
+CLAUDE.md
 **/cache

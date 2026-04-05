@@ -962,6 +962,22 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			d.datasets2 = append(d.datasets2, data)
 			go orph.update()
 			break
+		case "gtopdb":
+			d.wg.Add(1)
+			gtp := gtopdb{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			// Also add subsidiary datasets to tracking
+			if _, exists := config.Dataconf["gtopdb_ligand"]; exists {
+				d.datasets2 = append(d.datasets2, "gtopdb_ligand")
+			}
+			if _, exists := config.Dataconf["gtopdb_interaction"]; exists {
+				d.datasets2 = append(d.datasets2, "gtopdb_interaction")
+			}
+			go gtp.update()
+			break
+		case "gtopdb_ligand", "gtopdb_interaction":
+			// These are processed by the gtopdb parser, skip standalone processing
+			break
 		case "collectri":
 			d.wg.Add(1)
 			ct := collectri{source: data, d: d}

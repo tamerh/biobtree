@@ -133,6 +133,7 @@ DATASETS=(
     swisslipids
     bindingdb
     pharmgkb
+    gtopdb
 
     # Enzymes & biochemistry
     brenda

@@ -2304,6 +2304,21 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 					ffjson.Unmarshal(barr, attr)
 					xref.Attributes = &pbuf.Xref_Chembl{attr}
 				}
+			case "gtopdb":
+				attr := &pbuf.GtopdbAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Gtopdb{attr}
+			case "gtopdb_ligand":
+				attr := &pbuf.GtopdbLigandAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_GtopdbLigand{attr}
+			case "gtopdb_interaction":
+				attr := &pbuf.GtopdbInteractionAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_GtopdbInteraction{attr}
 			}
 
 		}

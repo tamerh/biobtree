@@ -1,0 +1,99 @@
+[
+  {
+    "target_id": "1",
+    "name": "5-HT1A receptor",
+    "type": "GPCR",
+    "family_id": "1",
+    "family_name": "5-HT receptors",
+    "uniprot_id": "P08908",
+    "hgnc_id": "5286",
+    "hgnc_symbol": "HTR1A"
+  },
+  {
+    "target_id": "2",
+    "name": "5-HT1B receptor",
+    "type": "GPCR",
+    "family_id": "1",
+    "family_name": "5-HT receptors",
+    "uniprot_id": "P28222",
+    "hgnc_id": "5287",
+    "hgnc_symbol": "HTR1B"
+  },
+  {
+    "target_id": "3",
+    "name": "5-HT1D receptor",
+    "type": "GPCR",
+    "family_id": "1",
+    "family_name": "5-HT receptors",
+    "uniprot_id": "P28221",
+    "hgnc_id": "5288",
+    "hgnc_symbol": "HTR1D"
+  },
+  {
+    "target_id": "4",
+    "name": "5-HT1E receptor",
+    "type": "GPCR",
+    "family_id": "1",
+    "family_name": "5-HT receptors",
+    "uniprot_id": "P28566",
+    "hgnc_id": "5289",
+    "hgnc_symbol": "HTR1E"
+  },
+  {
+    "target_id": "5",
+    "name": "5-HT1F receptor",
+    "type": "GPCR",
+    "family_id": "1",
+    "family_name": "5-HT receptors",
+    "uniprot_id": "P30939",
+    "hgnc_id": "5290",
+    "hgnc_symbol": "HTR1F"
+  },
+  {
+    "target_id": "6",
+    "name": "5-HT2A receptor",
+    "type": "GPCR",
+    "family_id": "1",
+    "family_name": "5-HT receptors",
+    "uniprot_id": "P28223",
+    "hgnc_id": "5293",
+    "hgnc_symbol": "HTR2A"
+  },
+  {
+    "target_id": "7",
+    "name": "5-HT2B receptor",
+    "type": "GPCR",
+    "family_id": "1",
+    "family_name": "5-HT receptors",
+    "uniprot_id": "P41595",
+    "hgnc_id": "5294",
+    "hgnc_symbol": "HTR2B"
+  },
+  {
+    "target_id": "8",
+    "name": "5-HT2C receptor",
+    "type": "GPCR",
+    "family_id": "1",
+    "family_name": "5-HT receptors",
+    "uniprot_id": "P28335",
+    "hgnc_id": "5295",
+    "hgnc_symbol": "HTR2C"
+  },
+  {
+    "target_id": "9",
+    "name": "5-HT3AB receptor",
+    "type": "LGIC",
+    "family_id": "68",
+    "family_name": "5-HT3 receptors"
+  },
+  {
+    "target_id": "10",
+    "name": "5-HT4 receptor",
+    "type": "GPCR",
+    "family_id": "1",
+    "family_name": "5-HT receptors",
+    "uniprot_id": "Q13639",
+    "hgnc_id": "5299",
+    "hgnc_symbol": "HTR4"
+  }
+]

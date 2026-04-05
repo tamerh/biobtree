@@ -1,0 +1,74 @@
+{
+  "common_tests": [
+    {
+      "name": "Lookup by GtoPdb Target ID",
+      "type": "id_lookup",
+      "id": "@reference[0].target_id"
+    },
+    {
+      "name": "Check target attributes present",
+      "type": "attribute_check",
+      "id": "@reference[0].target_id"
+    },
+    {
+      "name": "Lookup multiple GtoPdb targets",
+      "type": "multi_lookup",
+      "count": 3,
+      "id_field": "target_id"
+    },
+    {
+      "name": "Invalid ID handling",
+      "type": "invalid_id",
+      "invalid_id": "999999999"
+    }
+  ],
+  "custom_tests": [
+    {
+      "name": "gtopdb_ligand lookup",
+      "type": "dataset_lookup",
+      "dataset": "gtopdb_ligand",
+      "identifier": "1",
+      "expected_attr": "GtopdbLigand",
+      "check_field": "name"
+    },
+    {
+      "name": "gtopdb_interaction lookup",
+      "type": "dataset_lookup",
+      "dataset": "gtopdb_interaction",
+      "identifier": "1_1",
+      "expected_attr": "GtopdbInteraction"
+    },
+    {
+      "name": "gtopdb to uniprot mapping",
+      "type": "mapping_check",
+      "source_id": "1",
+      "source_dataset": "gtopdb",
+      "target_dataset": "uniprot",
+      "min_targets": 1
+    },
+    {
+      "name": "gtopdb to hgnc mapping",
+      "type": "mapping_check",
+      "source_id": "1",
+      "source_dataset": "gtopdb",
+      "target_dataset": "hgnc",
+      "min_targets": 1
+    },
+    {
+      "name": "gtopdb_ligand to pubchem mapping",
+      "type": "mapping_check",
+      "source_id": "1",
+      "source_dataset": "gtopdb_ligand",
+      "target_dataset": "pubchem",
+      "min_targets": 1
+    },
+    {
+      "name": "gtopdb_ligand to chembl_molecule mapping",
+      "type": "mapping_check",
+      "source_id": "1",
+      "source_dataset": "gtopdb_ligand",
+      "target_dataset": "chembl_molecule",
+      "min_targets": 1
+    }
+  ]
+}

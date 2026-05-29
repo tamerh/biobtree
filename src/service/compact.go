@@ -332,6 +332,30 @@ func extractField(xref *pbuf.Xref, field string) string {
 	if a := xref.GetEncodeCcre(); a != nil {
 		return extractEncodeCcreField(a, field)
 	}
+	if a := xref.GetGtopdb(); a != nil {
+		return extractGtopdbField(a, field)
+	}
+	if a := xref.GetGtopdbLigand(); a != nil {
+		return extractGtopdbLigandField(a, field)
+	}
+	if a := xref.GetGtopdbInteraction(); a != nil {
+		return extractGtopdbInteractionField(a, field)
+	}
+	if a := xref.GetCivic(); a != nil {
+		return extractCivicField(a, field)
+	}
+	if a := xref.GetCivicVariant(); a != nil {
+		return extractCivicVariantField(a, field)
+	}
+	if a := xref.GetCivicEvidence(); a != nil {
+		return extractCivicEvidenceField(a, field)
+	}
+	if a := xref.GetCivicAssertion(); a != nil {
+		return extractCivicAssertionField(a, field)
+	}
+	if a := xref.GetIntogen(); a != nil {
+		return extractIntogenField(a, field)
+	}
 
 	return ""
 }
@@ -2189,4 +2213,139 @@ func GetSearchCompactRow(xref *pbuf.Xref, datasetName string) string {
 	xrefCount := fmt.Sprintf("%d", xref.Count)
 
 	return escapePipe(id) + "|" + escapePipe(datasetName) + "|" + escapePipe(name) + "|" + xrefCount
+}
+
+// --- GtoPdb / CIViC / intOGen compact field extractors -----------------------
+
+func extractGtopdbField(a *pbuf.GtopdbAttr, field string) string {
+	switch field {
+	case "name":
+		return a.Name
+	case "type":
+		return a.Type
+	case "family_name":
+		return a.FamilyName
+	default:
+		return ""
+	}
+}
+
+func extractGtopdbLigandField(a *pbuf.GtopdbLigandAttr, field string) string {
+	switch field {
+	case "name":
+		return a.Name
+	case "type":
+		return a.Type
+	case "approved":
+		if a.Approved {
+			return "true"
+		}
+		return "false"
+	case "molecular_weight":
+		if a.MolecularWeight == 0 {
+			return ""
+		}
+		return fmt.Sprintf("%g", a.MolecularWeight)
+	case "logp":
+		if a.Logp == 0 {
+			return ""
+		}
+		return fmt.Sprintf("%g", a.Logp)
+	default:
+		return ""
+	}
+}
+
+func extractGtopdbInteractionField(a *pbuf.GtopdbInteractionAttr, field string) string {
+	switch field {
+	case "target_name":
+		return a.TargetName
+	case "ligand_name":
+		return a.LigandName
+	case "type":
+		return a.Type
+	case "action":
+		return a.Action
+	case "affinity":
+		return a.Affinity
+	case "affinity_parameter":
+		return a.AffinityParameter
+	default:
+		return ""
+	}
+}
+
+func extractCivicField(a *pbuf.CivicGeneAttr, field string) string {
+	switch field {
+	case "name":
+		return a.Name
+	case "feature_type":
+		return a.FeatureType
+	case "description":
+		return a.Description
+	default:
+		return ""
+	}
+}
+
+func extractCivicVariantField(a *pbuf.CivicVariantAttr, field string) string {
+	switch field {
+	case "name":
+		return a.Name
+	case "gene":
+		return a.Gene
+	case "variant_types":
+		return strings.Join(a.VariantTypes, ",")
+	default:
+		return ""
+	}
+}
+
+func extractCivicEvidenceField(a *pbuf.CivicEvidenceAttr, field string) string {
+	switch field {
+	case "molecular_profile":
+		return a.MolecularProfile
+	case "disease":
+		return a.Disease
+	case "therapies":
+		return strings.Join(a.Therapies, ",")
+	case "evidence_type":
+		return a.EvidenceType
+	case "evidence_level":
+		return a.EvidenceLevel
+	case "significance":
+		return a.Significance
+	default:
+		return ""
+	}
+}
+
+func extractCivicAssertionField(a *pbuf.CivicAssertionAttr, field string) string {
+	switch field {
+	case "molecular_profile":
+		return a.MolecularProfile
+	case "disease":
+		return a.Disease
+	case "assertion_type":
+		return a.AssertionType
+	case "amp_category":
+		return a.AmpCategory
+	case "significance":
+		return a.Significance
+	default:
+		return ""
+	}
+}
+
+func extractIntogenField(a *pbuf.IntogenAttr, field string) string {
+	switch field {
+	case "symbol":
+		return a.Symbol
+	case "role":
+		return a.Role
+	case "cancer_types":
+		return strings.Join(a.CancerTypes, ",")
+	default:
+		return ""
+	}
 }

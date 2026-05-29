@@ -352,21 +352,61 @@ type xref struct {
 }
 ```
 
-Add unmarshal case in the switch statement:
+Add an unmarshal case in **both** switch statements (there are two — one for
+inline entries, one for paginated/bucketed entries; grep for an existing
+dataset like `gencc` to find both):
 ```go
-case <dataset_id>:
-    xr.DatasetName = &pbuf.DatasetNameAttr{}
-    err := proto.Unmarshal(valbyte, xr.DatasetName)
-    if err != nil {
-        log.Println("DatasetName unmarshal error:", err)
-    }
+case "datasetname":
+    attr := &pbuf.DatasetNameAttr{}
+    barr := []byte((*kvProp[k])[0].value)
+    ffjson.Unmarshal(barr, attr)
+    xref.Attributes = &pbuf.Xref_Datasetname{attr}
 ```
 
 **Without this step, attributes will appear empty in query results!**
 
-### Phase 5: Filter Support (if hasFilter="yes")
+### Phase 5: Map Compact Output (REQUIRED if the dataset has `compact_fields`)
 
-#### 5.1 Update `src/service/service.go`
+#### 5.1 Update `src/service/compact.go`
+
+Map queries default to **lite/compact mode** (this is what the MCP server and
+LLMs use), which renders each mapped target as `id|field1|field2|...` using the
+dataset's `compact_fields`. The field values are pulled by `extractField()`,
+a per-dataset chain. **A dataset missing here returns only its id with all
+declared columns blank** — the schema advertises fields the map can't fill.
+
+Add a branch to `extractField()`:
+```go
+if a := xref.GetDatasetname(); a != nil {
+    return extractDatasetnameField(a, field)
+}
+```
+
+And an extractor mapping each `compact_fields` name to its attribute:
+```go
+func extractDatasetnameField(a *pbuf.DatasetNameAttr, field string) string {
+    switch field {
+    case "name":
+        return a.Name
+    case "some_array":            // []-prefixed attrs: join for a scalar column
+        return strings.Join(a.SomeArray, ",")
+    default:
+        return ""
+    }
+}
+```
+
+Notes:
+- The `compact_fields` config value must use **plain names** (no `[]` prefix);
+  the prefix is for `attrs`, not `compact_fields`. The name in `extractField`'s
+  `case` must match the `compact_fields` entry exactly.
+- Verify with a map query in lite mode:
+  `curl ".../ws/map/?i=<id>&m=>><dataset>&mode=lite"` — every declared column
+  should be populated, not blank.
+
+### Phase 6: Filter Support (if hasFilter="yes")
+
+#### 6.1 Update `src/service/service.go`
 Add CEL type registration:
 ```go
 cel.Types(&pbuf.DatasetNameAttr{}),
@@ -377,10 +417,10 @@ Add CEL declaration:
 decls.NewIdent("datasetname", decls.NewObjectType("pbuf.DatasetNameAttr"), nil),
 ```
 
-#### 5.2 Update `src/service/mapfilter.go`
+#### 6.2 Update `src/service/mapfilter.go`
 Add filter evaluation case for the dataset.
 
-### Phase 6: Build and Verify
+### Phase 7: Build and Verify
 
 **IMPORTANT: Biobtree Command Structure**
 - Extra parameters ALWAYS come BEFORE the command
@@ -453,14 +493,14 @@ BRCA1   0       12345   datasetname TRUE
 - Column 5: Evidence (TRUE for text search links)
 - Column 6: Relationship type (optional, e.g., "left_neighbor")
 
-### Phase 7: Tests
+### Phase 8: Tests
 
-#### 7.1 Create Test Directory
+#### 8.1 Create Test Directory
 ```bash
 mkdir -p tests/datasets/datasetname
 ```
 
-#### 7.2 Required Test Files
+#### 8.2 Required Test Files
 - `test_cases.json` - Declarative tests
 - `test_datasetname.py` - Custom tests with main()
 - `extract_reference_data.py` - Fetch reference data from source API
@@ -468,13 +508,13 @@ mkdir -p tests/datasets/datasetname
 - `datasetname_ids.txt` - Test entry IDs
 - `README.md` - Following standard format from tests/README.md
 
-#### 7.3 Add to Orchestrator
+#### 8.3 Add to Orchestrator
 Edit `tests/run_tests.py`:
 - Add to help text
 - Add to `all_datasets` dictionary
 - Add dependency handling if needed
 
-#### 7.4 Run Tests
+#### 8.4 Run Tests
 ```bash
 python3 tests/run_tests.py datasetname
 ```

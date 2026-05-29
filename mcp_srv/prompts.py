@@ -17,8 +17,8 @@ DESIGN PRINCIPLES:
 EDGES = """
 EDGES (what connects to what):
 ensembl: uniprot, go, transcript, exon, ortholog, paralog, hgnc, entrez, refseq, bgee, gwas, gencc, antibody, scxa
-hgnc: ensembl, uniprot, entrez, gencc, pharmgkb_gene, msigdb, clinvar, mim, refseq, alphafold, collectri, gwas, dbsnp, hpo, cellphonedb
-entrez: ensembl, uniprot, refseq, go, biogrid, pubchem_activity, ctd_gene_interaction
+hgnc: ensembl, uniprot, entrez, gencc, pharmgkb_gene, msigdb, clinvar, mim, refseq, alphafold, collectri, gwas, hpo, cellphonedb
+entrez: ensembl, uniprot, refseq, go, biogrid, pubchem_activity, ctd_gene_interaction, dbsnp
 refseq: ensembl, entrez, taxonomy, ccds, uniprot, mirdb
 mirdb: refseq
 transcript: ensembl, exon, ufeature, alphamissense
@@ -34,7 +34,7 @@ pubchem_activity: pubchem, ensembl, uniprot
 chebi: pubchem, rhea, intact
 swisslipids: uniprot, go, chebi, uberon, cl
 lipidmaps: chebi, pubchem
-dbsnp: hgnc, clinvar, pharmgkb_variant, alphamissense, spliceai
+dbsnp: entrez, clinvar, pharmgkb_variant, alphamissense, spliceai
 clinvar: hgnc, mondo, hpo, dbsnp, orphanet
 alphamissense: uniprot, transcript
 gwas: gwas_study, efo, dbsnp, hgnc, mondo

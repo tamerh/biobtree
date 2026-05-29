@@ -15,7 +15,9 @@ Response Mode Design:
     Go backend at :9291 still supports mode=full for direct access if needed.
 """
 
+import difflib
 import logging
+import re
 import time
 from typing import Optional
 
@@ -24,6 +26,9 @@ import httpx
 from .config import config
 
 logger = logging.getLogger(__name__)
+
+# biobtree rejects an unknown dataset name in a chain with: unknown dataset: 'x'
+_UNKNOWN_DATASET_RE = re.compile(r"unknown dataset:\s*'([^']+)'")
 
 
 class BiobtreeError(Exception):
@@ -57,6 +62,7 @@ class BiobtreeClient:
         self.base_url = (base_url or config.biobtree_url).rstrip("/")
         self.timeout = timeout or config.biobtree_timeout
         self._client: Optional[httpx.AsyncClient] = None
+        self._dataset_ids: Optional[list] = None  # cached canonical dataset names
 
     async def _get_client(self) -> httpx.AsyncClient:
         """Get or create HTTP client."""
@@ -99,7 +105,18 @@ class BiobtreeClient:
             )
 
             response.raise_for_status()
-            return response.json()
+            result = response.json()
+
+            # biobtree signals query-level errors with an {"Err": "..."} body,
+            # sometimes with a 2xx status. Surface that message instead of
+            # silently returning an error envelope to the caller.
+            if isinstance(result, dict) and result.get("Err"):
+                raise BiobtreeAPIError(
+                    await self._with_suggestion(result["Err"]),
+                    status_code=response.status_code,
+                )
+
+            return result
 
         except httpx.ConnectError as e:
             elapsed_ms = (time.perf_counter() - start_time) * 1000
@@ -117,13 +134,64 @@ class BiobtreeClient:
 
         except httpx.HTTPStatusError as e:
             elapsed_ms = (time.perf_counter() - start_time) * 1000
+
+            # Extract biobtree's own error message from the response body so the
+            # caller gets an actionable hint (e.g. "unknown dataset: 'omim'")
+            # instead of a bare status code.
+            detail = None
+            try:
+                body = e.response.json()
+                if isinstance(body, dict):
+                    detail = body.get("Err") or body.get("error") or body.get("message")
+            except Exception:
+                text = (e.response.text or "").strip()
+                if text:
+                    detail = text[:300]
+
             logger.error(
-                f"[{endpoint}] HTTP error: {e.response.status_code} time={elapsed_ms:.1f}ms"
+                f"[{endpoint}] HTTP error: {e.response.status_code} "
+                f"detail={detail!r} time={elapsed_ms:.1f}ms"
             )
+            message = detail or f"Biobtree API error: {e.response.status_code}"
             raise BiobtreeAPIError(
-                f"Biobtree API error: {e.response.status_code}",
+                await self._with_suggestion(message),
                 status_code=e.response.status_code
             ) from e
+
+    async def _valid_dataset_ids(self) -> list:
+        """Lazily fetch and cache the canonical dataset names from /ws/meta."""
+        if self._dataset_ids is not None:
+            return self._dataset_ids
+        try:
+            meta = await self.meta()
+            datasets = meta.get("datasets", {}) if isinstance(meta, dict) else {}
+            self._dataset_ids = sorted({
+                v["id"] for v in datasets.values()
+                if isinstance(v, dict) and v.get("id")
+            })
+        except Exception:
+            # Leave the cache unset so a later call can retry.
+            return []
+        return self._dataset_ids
+
+    async def _with_suggestion(self, message: str) -> str:
+        """Append the nearest valid dataset name to an 'unknown dataset' error.
+
+        Only a single, high-confidence match is offered (cutoff 0.8) so we catch
+        obvious typos (omim->mim, ensemble->ensembl) without emitting misleading
+        guesses for ambiguous inputs (e.g. 'chembl' stays unsuggested rather than
+        pointing at the unrelated 'chebi').
+        """
+        if not message:
+            return message
+        match = _UNKNOWN_DATASET_RE.search(message)
+        if not match:
+            return message
+        candidates = await self._valid_dataset_ids()
+        nearest = difflib.get_close_matches(match.group(1), candidates, n=1, cutoff=0.8)
+        if nearest:
+            return f"{message}. Did you mean '{nearest[0]}'?"
+        return message
 
     def _build_query_url(self, endpoint: str, params: dict) -> str:
         """Build a user-friendly query URL for full data access."""
@@ -212,11 +280,53 @@ class BiobtreeClient:
 
         result = await self._request("/ws/map/", params)
 
+        # Distinguish "recognized input, but this chain produced no mappings"
+        # from "input not recognized at all" — both arrive here as not_found.
+        result = await self._split_not_found(result)
+
         # # Add query URL at START of response (survives truncation)
         # query_url = self._build_query_url("/ws/map/", {"i": terms, "m": chain_stripped})
 
         # # Return with query_url first (Python 3.7+ preserves dict order)
         # return {"query_url": query_url, **result}
+        return result
+
+    async def _is_recognized(self, term: str) -> bool:
+        """Return True if biobtree knows `term` at all (in any dataset)."""
+        try:
+            probe = await self._request("/ws/", {"i": term, "mode": "lite"})
+        except BiobtreeError:
+            return False
+        stats = probe.get("stats") if isinstance(probe, dict) else None
+        return bool(stats and stats.get("total", 0) > 0)
+
+    async def _split_not_found(self, result: dict) -> dict:
+        """Split a map result's `not_found` into recognized-but-unmapped vs unknown.
+
+        A recognized input that simply has no path through the requested chain is
+        moved to a new `unmapped` list (with a guiding message) so callers don't
+        mistake it for a nonexistent entity and give up / hallucinate.
+        """
+        if not isinstance(result, dict):
+            return result
+        not_found = result.get("not_found")
+        if not not_found:
+            return result
+
+        unmapped, unknown = [], []
+        for term in not_found:
+            (unmapped if await self._is_recognized(term) else unknown).append(term)
+
+        if unmapped:
+            result["unmapped"] = unmapped
+            result["message"] = (
+                "Recognized but no mapping for this chain: "
+                f"{', '.join(unmapped)}. Try a shorter chain."
+            )
+        if unknown:
+            result["not_found"] = unknown
+        else:
+            result.pop("not_found", None)
         return result
 
     async def entry(

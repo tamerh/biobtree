@@ -30,7 +30,7 @@ async def get_client() -> BiobtreeClient:
 async def api_search(
     i: str = Query(..., description="Comma-separated identifiers to search"),
     s: Optional[str] = Query(None, description="Filter to specific dataset"),
-    p: Optional[str] = Query(None, description="Pagination token")
+    p: Optional[str] = Query(None, description="Pagination token: pass back the 'next_token' value from a previous response to fetch the next page")
 ):
     """
     Search for biological identifiers.
@@ -50,7 +50,7 @@ async def api_search(
 async def api_map(
     i: str = Query(..., description="Comma-separated identifiers to map"),
     m: str = Query(..., description="Mapping chain (e.g., '>>ensembl>>uniprot')"),
-    p: Optional[str] = Query(None, description="Pagination token")
+    p: Optional[str] = Query(None, description="Pagination token: pass back the 'next_token' value from a previous response to fetch the next page")
 ):
     """
     Map identifiers through dataset chains.

@@ -76049,6 +76049,853 @@ done:
 }
 
 // MarshalJSON marshal bytes to json - template
+func (j *IntogenAttr) MarshalJSON() ([]byte, error) {
+	var buf fflib.Buffer
+	if j == nil {
+		buf.WriteString("null")
+		return buf.Bytes(), nil
+	}
+	err := j.MarshalJSONBuf(&buf)
+	if err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
+}
+
+// MarshalJSONBuf marshal buff to json - template
+func (j *IntogenAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
+	if j == nil {
+		buf.WriteString("null")
+		return nil
+	}
+	var err error
+	var obj []byte
+	_ = obj
+	_ = err
+	buf.WriteString(`{ `)
+	if len(j.Symbol) != 0 {
+		buf.WriteString(`"symbol":`)
+		fflib.WriteJsonString(buf, string(j.Symbol))
+		buf.WriteByte(',')
+	}
+	if len(j.Role) != 0 {
+		buf.WriteString(`"role":`)
+		fflib.WriteJsonString(buf, string(j.Role))
+		buf.WriteByte(',')
+	}
+	if len(j.Transcript) != 0 {
+		buf.WriteString(`"transcript":`)
+		fflib.WriteJsonString(buf, string(j.Transcript))
+		buf.WriteByte(',')
+	}
+	if len(j.CancerTypes) != 0 {
+		buf.WriteString(`"cancer_types":`)
+		if j.CancerTypes != nil {
+			buf.WriteString(`[`)
+			for i, v := range j.CancerTypes {
+				if i != 0 {
+					buf.WriteString(`,`)
+				}
+				fflib.WriteJsonString(buf, string(v))
+			}
+			buf.WriteString(`]`)
+		} else {
+			buf.WriteString(`null`)
+		}
+		buf.WriteByte(',')
+	}
+	if len(j.CancerNames) != 0 {
+		buf.WriteString(`"cancer_names":`)
+		if j.CancerNames != nil {
+			buf.WriteString(`[`)
+			for i, v := range j.CancerNames {
+				if i != 0 {
+					buf.WriteString(`,`)
+				}
+				fflib.WriteJsonString(buf, string(v))
+			}
+			buf.WriteString(`]`)
+		} else {
+			buf.WriteString(`null`)
+		}
+		buf.WriteByte(',')
+	}
+	if len(j.Methods) != 0 {
+		buf.WriteString(`"methods":`)
+		if j.Methods != nil {
+			buf.WriteString(`[`)
+			for i, v := range j.Methods {
+				if i != 0 {
+					buf.WriteString(`,`)
+				}
+				fflib.WriteJsonString(buf, string(v))
+			}
+			buf.WriteString(`]`)
+		} else {
+			buf.WriteString(`null`)
+		}
+		buf.WriteByte(',')
+	}
+	if j.NumCohorts != 0 {
+		buf.WriteString(`"num_cohorts":`)
+		fflib.FormatBits2(buf, uint64(j.NumCohorts), 10, j.NumCohorts < 0)
+		buf.WriteByte(',')
+	}
+	if j.TotalSamples != 0 {
+		buf.WriteString(`"total_samples":`)
+		fflib.FormatBits2(buf, uint64(j.TotalSamples), 10, j.TotalSamples < 0)
+		buf.WriteByte(',')
+	}
+	if j.TotalMutations != 0 {
+		buf.WriteString(`"total_mutations":`)
+		fflib.FormatBits2(buf, uint64(j.TotalMutations), 10, j.TotalMutations < 0)
+		buf.WriteByte(',')
+	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
+	buf.Rewind(1)
+	buf.WriteByte('}')
+	return nil
+}
+
+const (
+	ffjtIntogenAttrbase = iota
+	ffjtIntogenAttrnosuchkey
+
+	ffjtIntogenAttrSymbol
+
+	ffjtIntogenAttrRole
+
+	ffjtIntogenAttrTranscript
+
+	ffjtIntogenAttrCancerTypes
+
+	ffjtIntogenAttrCancerNames
+
+	ffjtIntogenAttrMethods
+
+	ffjtIntogenAttrNumCohorts
+
+	ffjtIntogenAttrTotalSamples
+
+	ffjtIntogenAttrTotalMutations
+
+	ffjtIntogenAttrId
+)
+
+var ffjKeyIntogenAttrSymbol = []byte("symbol")
+
+var ffjKeyIntogenAttrRole = []byte("role")
+
+var ffjKeyIntogenAttrTranscript = []byte("transcript")
+
+var ffjKeyIntogenAttrCancerTypes = []byte("cancer_types")
+
+var ffjKeyIntogenAttrCancerNames = []byte("cancer_names")
+
+var ffjKeyIntogenAttrMethods = []byte("methods")
+
+var ffjKeyIntogenAttrNumCohorts = []byte("num_cohorts")
+
+var ffjKeyIntogenAttrTotalSamples = []byte("total_samples")
+
+var ffjKeyIntogenAttrTotalMutations = []byte("total_mutations")
+
+var ffjKeyIntogenAttrId = []byte("id")
+
+// UnmarshalJSON umarshall json - template of ffjson
+func (j *IntogenAttr) UnmarshalJSON(input []byte) error {
+	fs := fflib.NewFFLexer(input)
+	return j.UnmarshalJSONFFLexer(fs, fflib.FFParse_map_start)
+}
+
+// UnmarshalJSONFFLexer fast json unmarshall - template ffjson
+func (j *IntogenAttr) UnmarshalJSONFFLexer(fs *fflib.FFLexer, state fflib.FFParseState) error {
+	var err error
+	currentKey := ffjtIntogenAttrbase
+	_ = currentKey
+	tok := fflib.FFTok_init
+	wantedTok := fflib.FFTok_init
+
+mainparse:
+	for {
+		tok = fs.Scan()
+		//	println(fmt.Sprintf("debug: tok: %v  state: %v", tok, state))
+		if tok == fflib.FFTok_error {
+			goto tokerror
+		}
+
+		switch state {
+
+		case fflib.FFParse_map_start:
+			if tok != fflib.FFTok_left_bracket {
+				wantedTok = fflib.FFTok_left_bracket
+				goto wrongtokenerror
+			}
+			state = fflib.FFParse_want_key
+			continue
+
+		case fflib.FFParse_after_value:
+			if tok == fflib.FFTok_comma {
+				state = fflib.FFParse_want_key
+			} else if tok == fflib.FFTok_right_bracket {
+				goto done
+			} else {
+				wantedTok = fflib.FFTok_comma
+				goto wrongtokenerror
+			}
+
+		case fflib.FFParse_want_key:
+			// json {} ended. goto exit. woo.
+			if tok == fflib.FFTok_right_bracket {
+				goto done
+			}
+			if tok != fflib.FFTok_string {
+				wantedTok = fflib.FFTok_string
+				goto wrongtokenerror
+			}
+
+			kn := fs.Output.Bytes()
+			if len(kn) <= 0 {
+				// "" case. hrm.
+				currentKey = ffjtIntogenAttrnosuchkey
+				state = fflib.FFParse_want_colon
+				goto mainparse
+			} else {
+				switch kn[0] {
+
+				case 'c':
+
+					if bytes.Equal(ffjKeyIntogenAttrCancerTypes, kn) {
+						currentKey = ffjtIntogenAttrCancerTypes
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyIntogenAttrCancerNames, kn) {
+						currentKey = ffjtIntogenAttrCancerNames
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'i':
+
+					if bytes.Equal(ffjKeyIntogenAttrId, kn) {
+						currentKey = ffjtIntogenAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'm':
+
+					if bytes.Equal(ffjKeyIntogenAttrMethods, kn) {
+						currentKey = ffjtIntogenAttrMethods
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'n':
+
+					if bytes.Equal(ffjKeyIntogenAttrNumCohorts, kn) {
+						currentKey = ffjtIntogenAttrNumCohorts
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'r':
+
+					if bytes.Equal(ffjKeyIntogenAttrRole, kn) {
+						currentKey = ffjtIntogenAttrRole
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 's':
+
+					if bytes.Equal(ffjKeyIntogenAttrSymbol, kn) {
+						currentKey = ffjtIntogenAttrSymbol
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 't':
+
+					if bytes.Equal(ffjKeyIntogenAttrTranscript, kn) {
+						currentKey = ffjtIntogenAttrTranscript
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyIntogenAttrTotalSamples, kn) {
+						currentKey = ffjtIntogenAttrTotalSamples
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyIntogenAttrTotalMutations, kn) {
+						currentKey = ffjtIntogenAttrTotalMutations
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyIntogenAttrId, kn) {
+					currentKey = ffjtIntogenAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyIntogenAttrTotalMutations, kn) {
+					currentKey = ffjtIntogenAttrTotalMutations
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyIntogenAttrTotalSamples, kn) {
+					currentKey = ffjtIntogenAttrTotalSamples
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyIntogenAttrNumCohorts, kn) {
+					currentKey = ffjtIntogenAttrNumCohorts
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyIntogenAttrMethods, kn) {
+					currentKey = ffjtIntogenAttrMethods
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyIntogenAttrCancerNames, kn) {
+					currentKey = ffjtIntogenAttrCancerNames
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyIntogenAttrCancerTypes, kn) {
+					currentKey = ffjtIntogenAttrCancerTypes
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyIntogenAttrTranscript, kn) {
+					currentKey = ffjtIntogenAttrTranscript
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyIntogenAttrRole, kn) {
+					currentKey = ffjtIntogenAttrRole
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyIntogenAttrSymbol, kn) {
+					currentKey = ffjtIntogenAttrSymbol
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				currentKey = ffjtIntogenAttrnosuchkey
+				state = fflib.FFParse_want_colon
+				goto mainparse
+			}
+
+		case fflib.FFParse_want_colon:
+			if tok != fflib.FFTok_colon {
+				wantedTok = fflib.FFTok_colon
+				goto wrongtokenerror
+			}
+			state = fflib.FFParse_want_value
+			continue
+		case fflib.FFParse_want_value:
+
+			if tok == fflib.FFTok_left_brace || tok == fflib.FFTok_left_bracket || tok == fflib.FFTok_integer || tok == fflib.FFTok_double || tok == fflib.FFTok_string || tok == fflib.FFTok_bool || tok == fflib.FFTok_null {
+				switch currentKey {
+
+				case ffjtIntogenAttrSymbol:
+					goto handle_Symbol
+
+				case ffjtIntogenAttrRole:
+					goto handle_Role
+
+				case ffjtIntogenAttrTranscript:
+					goto handle_Transcript
+
+				case ffjtIntogenAttrCancerTypes:
+					goto handle_CancerTypes
+
+				case ffjtIntogenAttrCancerNames:
+					goto handle_CancerNames
+
+				case ffjtIntogenAttrMethods:
+					goto handle_Methods
+
+				case ffjtIntogenAttrNumCohorts:
+					goto handle_NumCohorts
+
+				case ffjtIntogenAttrTotalSamples:
+					goto handle_TotalSamples
+
+				case ffjtIntogenAttrTotalMutations:
+					goto handle_TotalMutations
+
+				case ffjtIntogenAttrId:
+					goto handle_Id
+
+				case ffjtIntogenAttrnosuchkey:
+					err = fs.SkipField(tok)
+					if err != nil {
+						return fs.WrapErr(err)
+					}
+					state = fflib.FFParse_after_value
+					goto mainparse
+				}
+			} else {
+				goto wantedvalue
+			}
+		}
+	}
+
+handle_Symbol:
+
+	/* handler: j.Symbol type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Symbol = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Role:
+
+	/* handler: j.Role type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Role = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Transcript:
+
+	/* handler: j.Transcript type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Transcript = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_CancerTypes:
+
+	/* handler: j.CancerTypes type=[]string kind=slice quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_left_brace && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for ", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+			j.CancerTypes = nil
+		} else {
+
+			j.CancerTypes = []string{}
+
+			wantVal := true
+
+			for {
+
+				var tmpJCancerTypes string
+
+				tok = fs.Scan()
+				if tok == fflib.FFTok_error {
+					goto tokerror
+				}
+				if tok == fflib.FFTok_right_brace {
+					break
+				}
+
+				if tok == fflib.FFTok_comma {
+					if wantVal == true {
+						// TODO(pquerna): this isn't an ideal error message, this handles
+						// things like [,,,] as an array value.
+						return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
+					}
+					continue
+				} else {
+					wantVal = true
+				}
+
+				/* handler: tmpJCancerTypes type=string kind=string quoted=false*/
+
+				{
+
+					{
+						if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+							return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+						}
+					}
+
+					if tok == fflib.FFTok_null {
+
+					} else {
+
+						outBuf := fs.Output.Bytes()
+
+						tmpJCancerTypes = string(string(outBuf))
+
+					}
+				}
+
+				j.CancerTypes = append(j.CancerTypes, tmpJCancerTypes)
+
+				wantVal = false
+			}
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_CancerNames:
+
+	/* handler: j.CancerNames type=[]string kind=slice quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_left_brace && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for ", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+			j.CancerNames = nil
+		} else {
+
+			j.CancerNames = []string{}
+
+			wantVal := true
+
+			for {
+
+				var tmpJCancerNames string
+
+				tok = fs.Scan()
+				if tok == fflib.FFTok_error {
+					goto tokerror
+				}
+				if tok == fflib.FFTok_right_brace {
+					break
+				}
+
+				if tok == fflib.FFTok_comma {
+					if wantVal == true {
+						// TODO(pquerna): this isn't an ideal error message, this handles
+						// things like [,,,] as an array value.
+						return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
+					}
+					continue
+				} else {
+					wantVal = true
+				}
+
+				/* handler: tmpJCancerNames type=string kind=string quoted=false*/
+
+				{
+
+					{
+						if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+							return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+						}
+					}
+
+					if tok == fflib.FFTok_null {
+
+					} else {
+
+						outBuf := fs.Output.Bytes()
+
+						tmpJCancerNames = string(string(outBuf))
+
+					}
+				}
+
+				j.CancerNames = append(j.CancerNames, tmpJCancerNames)
+
+				wantVal = false
+			}
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Methods:
+
+	/* handler: j.Methods type=[]string kind=slice quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_left_brace && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for ", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+			j.Methods = nil
+		} else {
+
+			j.Methods = []string{}
+
+			wantVal := true
+
+			for {
+
+				var tmpJMethods string
+
+				tok = fs.Scan()
+				if tok == fflib.FFTok_error {
+					goto tokerror
+				}
+				if tok == fflib.FFTok_right_brace {
+					break
+				}
+
+				if tok == fflib.FFTok_comma {
+					if wantVal == true {
+						// TODO(pquerna): this isn't an ideal error message, this handles
+						// things like [,,,] as an array value.
+						return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
+					}
+					continue
+				} else {
+					wantVal = true
+				}
+
+				/* handler: tmpJMethods type=string kind=string quoted=false*/
+
+				{
+
+					{
+						if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+							return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+						}
+					}
+
+					if tok == fflib.FFTok_null {
+
+					} else {
+
+						outBuf := fs.Output.Bytes()
+
+						tmpJMethods = string(string(outBuf))
+
+					}
+				}
+
+				j.Methods = append(j.Methods, tmpJMethods)
+
+				wantVal = false
+			}
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_NumCohorts:
+
+	/* handler: j.NumCohorts type=int64 kind=int64 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for int64", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseInt(fs.Output.Bytes(), 10, 64)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.NumCohorts = int64(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_TotalSamples:
+
+	/* handler: j.TotalSamples type=int64 kind=int64 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for int64", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseInt(fs.Output.Bytes(), 10, 64)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.TotalSamples = int64(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_TotalMutations:
+
+	/* handler: j.TotalMutations type=int64 kind=int64 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for int64", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseInt(fs.Output.Bytes(), 10, 64)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.TotalMutations = int64(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+wantedvalue:
+	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
+wrongtokenerror:
+	return fs.WrapErr(fmt.Errorf("ffjson: wanted token: %v, but got token: %v output=%s", wantedTok, tok, fs.Output.String()))
+tokerror:
+	if fs.BigError != nil {
+		return fs.WrapErr(fs.BigError)
+	}
+	err = fs.Error.ToError()
+	if err != nil {
+		return fs.WrapErr(err)
+	}
+	panic("ffjson-generated: unreachable, please report bug.")
+done:
+
+	return nil
+}
+
+// MarshalJSON marshal bytes to json - template
 func (j *JasparAttr) MarshalJSON() ([]byte, error) {
 	var buf fflib.Buffer
 	if j == nil {

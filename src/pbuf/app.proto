@@ -187,6 +187,7 @@ message Xref {
     CivicVariantAttr civic_variant=753;
     CivicEvidenceAttr civic_evidence=754;
     CivicAssertionAttr civic_assertion=755;
+    IntogenAttr intogen=756;
 
   }
 

@@ -2742,3 +2742,19 @@ message CivicAssertionAttr {
   string id = 100; // transient - populated at runtime from Xref.Identifier
 }
 
+// intOGen cancer driver gene (dataset "intogen"). One entry per driver gene,
+// aggregated across the cohorts/tumor types where it is a significant driver.
+message IntogenAttr {
+  string symbol = 1;                  // HUGO gene symbol
+  string role = 2;                    // Consensus mode of action: Act / LoF / ambiguous
+  string transcript = 3;              // Ensembl transcript
+  repeated string cancer_types = 4;   // intOGen cancer-type acronyms it drives
+  repeated string cancer_names = 5;   // Full cancer-type names
+  repeated string methods = 6;        // Detection methods that flagged it as driver
+  int64 num_cohorts = 7;              // Number of cohorts where it is a driver
+  int64 total_samples = 8;           // Summed mutated samples across cohorts
+  int64 total_mutations = 9;         // Summed somatic mutations across cohorts
+
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+

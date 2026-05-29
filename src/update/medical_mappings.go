@@ -379,3 +379,137 @@ func ApplyDiseaseCorrections(m *MedicalTermMappings, condition string) (string, 
 	}
 	return condition, false
 }
+
+// collectOntologyIDs resolves a free-text disease/condition name to ontology
+// IDs (MONDO or EFO — pass the target dataset's numeric id) using a
+// multi-strategy normalization cascade, stopping at the first strategy that
+// yields any hit. Returns the deduplicated set of matched identifiers.
+//
+// This is the shared core extracted from clinical_trials' condition mapping so
+// that clinical_trials, intogen and civic all resolve disease names the same
+// way. Callers decide how to emit the resulting xrefs.
+func collectOntologyIDs(d *DataUpdate, m *MedicalTermMappings, condition string, ontologyDatasetID uint32) map[string]bool {
+	found := make(map[string]bool)
+	if d == nil || d.lookupService == nil || strings.TrimSpace(condition) == "" {
+		return found
+	}
+
+	collect := func(name string) {
+		if strings.TrimSpace(name) == "" {
+			return
+		}
+		result, err := d.lookup(name)
+		if err != nil || result == nil {
+			return
+		}
+		for _, xref := range result.Results {
+			if xref.IsLink {
+				// Text-search link: the ontology target sits in Entries.
+				for _, entry := range xref.Entries {
+					if entry.Dataset == ontologyDatasetID {
+						found[entry.Identifier] = true
+					}
+				}
+			} else if xref.Dataset == ontologyDatasetID {
+				found[xref.Identifier] = true
+			}
+		}
+	}
+
+	// 1: exact name
+	collect(condition)
+	if len(found) > 0 {
+		return found
+	}
+	// 2: disease corrections (covid19 -> COVID-19, hiv -> HIV infection)
+	if m != nil {
+		for original, corrected := range m.DiseaseCorrections {
+			if strings.EqualFold(condition, original) {
+				collect(corrected)
+				if len(found) > 0 {
+					return found
+				}
+			}
+		}
+	}
+	// 3: spelling variations
+	if m != nil {
+		if v := ApplySpellingVariations(m, condition); v != condition {
+			collect(v)
+			if len(found) > 0 {
+				return found
+			}
+		}
+	}
+	// 3b: cancer abbreviations (NSCLC -> non-small cell lung cancer)
+	if m != nil {
+		if v := ApplyCancerAbbreviations(m, condition); v != condition {
+			collect(v)
+			if len(found) > 0 {
+				return found
+			}
+		}
+	}
+	// 3c: remove cancer-specific qualifiers (stage, receptor, metastatic)
+	if m != nil {
+		if v := RemoveCancerQualifiers(m, condition); v != condition {
+			collect(v)
+			if len(found) > 0 {
+				return found
+			}
+		}
+	}
+	// 4: remove parentheses
+	if v := RemoveParentheses(condition); v != condition {
+		collect(v)
+		if len(found) > 0 {
+			return found
+		}
+	}
+	// 5: slash/or split (HIV/AIDS)
+	for _, v := range SplitSlashOr(condition) {
+		collect(v)
+		if len(found) > 0 {
+			return found
+		}
+	}
+	// 6: specific medical term patterns (heart attack -> myocardial infarction)
+	if m != nil {
+		for _, v := range ApplySpecificPatterns(m, condition) {
+			collect(v)
+			if len(found) > 0 {
+				return found
+			}
+		}
+	}
+	// 7: remove general qualifiers (Acute, Chronic, ...)
+	if m != nil {
+		if v := RemoveQualifiers(m, condition); v != condition {
+			collect(v)
+			if len(found) > 0 {
+				return found
+			}
+		}
+	}
+	// 8: word order swap (Amyloidosis Cardiac -> Cardiac Amyloidosis)
+	if v := TryWordOrderSwap(condition); v != condition {
+		collect(v)
+		if len(found) > 0 {
+			return found
+		}
+	}
+	// 9: anatomical term variations (heart -> cardiac, kidney -> renal)
+	if m != nil {
+		for _, v := range ApplyAnatomicalTerms(m, condition) {
+			collect(v)
+			if len(found) > 0 {
+				return found
+			}
+		}
+	}
+	// 10: singular/plural
+	if v := ToSingular(condition); v != condition {
+		collect(v)
+	}
+	return found
+}

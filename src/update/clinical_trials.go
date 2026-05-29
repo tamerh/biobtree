@@ -269,184 +269,15 @@ func (ct *clinicalTrials) mapConditionToMONDO(nctID string, condition string, mo
 		return
 	}
 
-	// Track found MONDO IDs to prevent duplicates
-	foundMONDOs := make(map[string]bool)
-
-	// ATTEMPT 1: Try exact condition name
-	ct.lookupAndCollectMONDO(condition, mondoDatasetID, foundMONDOs)
-	if len(foundMONDOs) > 0 {
-		// ct.logMappingSuccess(condition, "1_EXACT", condition, len(foundMONDOs))
-		ct.createMONDOXrefs(nctID, fr, foundMONDOs, phase)
-		return
-	}
-
-	// ATTEMPT 2: Try disease corrections (covid19 → COVID-19, hiv → HIV infection)
-	if ct.medicalTermMappings != nil {
-		for original, corrected := range ct.medicalTermMappings.DiseaseCorrections {
-			if strings.EqualFold(condition, original) {
-				ct.lookupAndCollectMONDO(corrected, mondoDatasetID, foundMONDOs)
-				if len(foundMONDOs) > 0 {
-					// ct.logMappingSuccess(condition, "2_CORRECTION", corrected, len(foundMONDOs))
-					ct.createMONDOXrefs(nctID, fr, foundMONDOs, phase)
-					return
-				}
-			}
-		}
-	}
-
-	// ATTEMPT 3: Try spelling variations (British/American, common typos)
-	if ct.medicalTermMappings != nil {
-		spellingVariant := ApplySpellingVariations(ct.medicalTermMappings, condition)
-		if spellingVariant != condition {
-			ct.lookupAndCollectMONDO(spellingVariant, mondoDatasetID, foundMONDOs)
-			if len(foundMONDOs) > 0 {
-				// ct.logMappingSuccess(condition, "3_SPELLING", spellingVariant, len(foundMONDOs))
-				ct.createMONDOXrefs(nctID, fr, foundMONDOs, phase)
-				return
-			}
-		}
-	}
-
-	// ATTEMPT 3b: Try cancer abbreviations (NSCLC → non-small cell lung cancer)
-	if ct.medicalTermMappings != nil {
-		cancerAbbrevVariant := ApplyCancerAbbreviations(ct.medicalTermMappings, condition)
-		if cancerAbbrevVariant != condition {
-			ct.lookupAndCollectMONDO(cancerAbbrevVariant, mondoDatasetID, foundMONDOs)
-			if len(foundMONDOs) > 0 {
-				// ct.logMappingSuccess(condition, "3b_CANCER_ABBREV", cancerAbbrevVariant, len(foundMONDOs))
-				ct.createMONDOXrefs(nctID, fr, foundMONDOs, phase)
-				return
-			}
-		}
-	}
-
-	// ATTEMPT 3c: Try removing cancer-specific qualifiers (stage, receptor, metastatic)
-	// This is BEFORE general qualifiers to be more aggressive with cancer terms
-	if ct.medicalTermMappings != nil {
-		withoutCancerQualifiers := RemoveCancerQualifiers(ct.medicalTermMappings, condition)
-		if withoutCancerQualifiers != condition {
-			ct.lookupAndCollectMONDO(withoutCancerQualifiers, mondoDatasetID, foundMONDOs)
-			if len(foundMONDOs) > 0 {
-				// ct.logMappingSuccess(condition, "3c_CANCER_QUALIFIERS", withoutCancerQualifiers, len(foundMONDOs))
-				ct.createMONDOXrefs(nctID, fr, foundMONDOs, phase)
-				return
-			}
-		}
-	}
-
-	// ATTEMPT 4: Remove parentheses and their contents
-	// Example: "Heart Arrest (Cardiac)" → "Heart Arrest"
-	simplifiedCondition := RemoveParentheses(condition)
-	if simplifiedCondition != condition {
-		ct.lookupAndCollectMONDO(simplifiedCondition, mondoDatasetID, foundMONDOs)
-		if len(foundMONDOs) > 0 {
-			// ct.logMappingSuccess(condition, "4_NO_PARENS", simplifiedCondition, len(foundMONDOs))
-			ct.createMONDOXrefs(nctID, fr, foundMONDOs, phase)
-			return
-		}
-	}
-
-	// ATTEMPT 5: Try slash/or splitting (HIV/AIDS → try both)
-	slashVariations := SplitSlashOr(condition)
-	for _, variation := range slashVariations {
-		ct.lookupAndCollectMONDO(variation, mondoDatasetID, foundMONDOs)
-		if len(foundMONDOs) > 0 {
-			// ct.logMappingSuccess(condition, "5_SLASH_SPLIT", variation, len(foundMONDOs))
-			ct.createMONDOXrefs(nctID, fr, foundMONDOs, phase)
-			return
-		}
-	}
-
-	// ATTEMPT 6: Try specific medical term patterns (heart attack → myocardial infarction)
-	if ct.medicalTermMappings != nil {
-		variations := ApplySpecificPatterns(ct.medicalTermMappings, condition)
-		for _, variation := range variations {
-			ct.lookupAndCollectMONDO(variation, mondoDatasetID, foundMONDOs)
-			if len(foundMONDOs) > 0 {
-				// ct.logMappingSuccess(condition, "6_SPECIFIC_PATTERN", variation, len(foundMONDOs))
-				ct.createMONDOXrefs(nctID, fr, foundMONDOs, phase)
-				return
-			}
-		}
-	}
-
-	// ATTEMPT 7: Remove medical qualifiers (Acute, Chronic, Mild, etc.)
-	if ct.medicalTermMappings != nil {
-		withoutQualifiers := RemoveQualifiers(ct.medicalTermMappings, condition)
-		if withoutQualifiers != condition {
-			ct.lookupAndCollectMONDO(withoutQualifiers, mondoDatasetID, foundMONDOs)
-			if len(foundMONDOs) > 0 {
-				// ct.logMappingSuccess(condition, "7_NO_QUALIFIERS", withoutQualifiers, len(foundMONDOs))
-				ct.createMONDOXrefs(nctID, fr, foundMONDOs, phase)
-				return
-			}
-		}
-	}
-
-	// ATTEMPT 8: Try word order normalization (Amyloidosis Cardiac → Cardiac Amyloidosis)
-	wordOrderVariation := TryWordOrderSwap(condition)
-	if wordOrderVariation != condition {
-		ct.lookupAndCollectMONDO(wordOrderVariation, mondoDatasetID, foundMONDOs)
-		if len(foundMONDOs) > 0 {
-			// ct.logMappingSuccess(condition, "8_WORD_ORDER", wordOrderVariation, len(foundMONDOs))
-			ct.createMONDOXrefs(nctID, fr, foundMONDOs, phase)
-			return
-		}
-	}
-
-	// ATTEMPT 9: Try anatomical term variations (heart → cardiac, kidney → renal)
-	if ct.medicalTermMappings != nil {
-		anatomicalVariations := ApplyAnatomicalTerms(ct.medicalTermMappings, condition)
-		for _, variation := range anatomicalVariations {
-			ct.lookupAndCollectMONDO(variation, mondoDatasetID, foundMONDOs)
-			if len(foundMONDOs) > 0 {
-				// ct.logMappingSuccess(condition, "9_ANATOMICAL", variation, len(foundMONDOs))
-				ct.createMONDOXrefs(nctID, fr, foundMONDOs, phase)
-				return
-			}
-		}
-	}
-
-	// ATTEMPT 10: Try singular/plural variations
-	// "Seizures" → "Seizure", "Cardiovascular Diseases" → "Cardiovascular Disease"
-	singularCondition := ToSingular(condition)
-	if singularCondition != condition {
-		ct.lookupAndCollectMONDO(singularCondition, mondoDatasetID, foundMONDOs)
-		if len(foundMONDOs) > 0 {
-			// ct.logMappingSuccess(condition, "10_SINGULAR", singularCondition, len(foundMONDOs))
-		}
-	}
-
-	// Create all unique xrefs found
+	// Shared normalization cascade (extracted to medical_mappings.go so
+	// clinical_trials, intogen and civic resolve disease names identically).
+	foundMONDOs := collectOntologyIDs(ct.d, ct.medicalTermMappings, condition, mondoDatasetID)
 	if len(foundMONDOs) > 0 {
 		ct.createMONDOXrefs(nctID, fr, foundMONDOs, phase)
-	} else {
-		// Log conditions that failed all mapping attempts (unique only)
-		// ct.logMappingMiss(condition)
 	}
 }
 
 // Lookup condition name and collect MONDO IDs into the map
-func (ct *clinicalTrials) lookupAndCollectMONDO(condition string, mondoDatasetID uint32, mondoIDs map[string]bool) {
-	result, err := ct.d.lookup(condition)
-	if err != nil || result == nil || len(result.Results) == 0 {
-		return
-	}
-
-	for _, xref := range result.Results {
-		if xref.IsLink {
-			// Text link - actual xrefs are in Entries
-			for _, entry := range xref.Entries {
-				if entry.Dataset == mondoDatasetID {
-					mondoIDs[entry.Identifier] = true
-				}
-			}
-		} else if xref.Dataset == mondoDatasetID {
-			mondoIDs[xref.Identifier] = true
-		}
-	}
-}
-
 // Create MONDO cross-references (sorted by clinical trial phase)
 func (ct *clinicalTrials) createMONDOXrefs(nctID string, fr string, mondoIDs map[string]bool, phase string) {
 	sortLevels := []string{
@@ -464,86 +295,14 @@ func (ct *clinicalTrials) mapConditionToEFO(nctID string, condition string, efoD
 		return
 	}
 
-	// Track found EFO IDs to prevent duplicates
-	foundEFOs := make(map[string]bool)
-
-	// ATTEMPT 1: Try exact condition name
-	ct.lookupAndCollectEFO(condition, efoDatasetID, foundEFOs)
+	// Shared normalization cascade (see medical_mappings.go).
+	foundEFOs := collectOntologyIDs(ct.d, ct.medicalTermMappings, condition, efoDatasetID)
 	if len(foundEFOs) > 0 {
 		ct.createEFOXrefs(nctID, fr, foundEFOs, phase)
-		return
-	}
-
-	// ATTEMPT 2: Try disease corrections
-	if ct.medicalTermMappings != nil {
-		for original, corrected := range ct.medicalTermMappings.DiseaseCorrections {
-			if strings.EqualFold(condition, original) {
-				ct.lookupAndCollectEFO(corrected, efoDatasetID, foundEFOs)
-				if len(foundEFOs) > 0 {
-					ct.createEFOXrefs(nctID, fr, foundEFOs, phase)
-					return
-				}
-			}
-		}
-	}
-
-	// ATTEMPT 3: Try spelling variations
-	if ct.medicalTermMappings != nil {
-		spellingVariant := ApplySpellingVariations(ct.medicalTermMappings, condition)
-		if spellingVariant != condition {
-			ct.lookupAndCollectEFO(spellingVariant, efoDatasetID, foundEFOs)
-			if len(foundEFOs) > 0 {
-				ct.createEFOXrefs(nctID, fr, foundEFOs, phase)
-				return
-			}
-		}
-	}
-
-	// ATTEMPT 4: Remove parentheses
-	simplifiedCondition := RemoveParentheses(condition)
-	if simplifiedCondition != condition {
-		ct.lookupAndCollectEFO(simplifiedCondition, efoDatasetID, foundEFOs)
-		if len(foundEFOs) > 0 {
-			ct.createEFOXrefs(nctID, fr, foundEFOs, phase)
-			return
-		}
-	}
-
-	// ATTEMPT 5: Try general qualifiers removal
-	if ct.medicalTermMappings != nil {
-		withoutQualifiers := RemoveQualifiers(ct.medicalTermMappings, condition)
-		if withoutQualifiers != condition {
-			ct.lookupAndCollectEFO(withoutQualifiers, efoDatasetID, foundEFOs)
-			if len(foundEFOs) > 0 {
-				ct.createEFOXrefs(nctID, fr, foundEFOs, phase)
-				return
-			}
-		}
 	}
 }
 
 // Lookup condition and collect EFO IDs into the map
-func (ct *clinicalTrials) lookupAndCollectEFO(condition string, efoDatasetID uint32, efoIDs map[string]bool) {
-	result, err := ct.d.lookup(condition)
-	if err != nil || result == nil || len(result.Results) == 0 {
-		return
-	}
-
-	// Check if any result entries are EFO IDs
-	for _, xref := range result.Results {
-		if xref.Dataset == 0 {
-			// Text link - actual xrefs are in Entries
-			for _, entry := range xref.Entries {
-				if entry.Dataset == efoDatasetID {
-					efoIDs[entry.Identifier] = true
-				}
-			}
-		} else if xref.Dataset == efoDatasetID {
-			efoIDs[xref.Identifier] = true
-		}
-	}
-}
-
 // Create EFO cross-references (sorted by clinical trial phase)
 func (ct *clinicalTrials) createEFOXrefs(nctID string, fr string, efoIDs map[string]bool, phase string) {
 	sortLevels := []string{

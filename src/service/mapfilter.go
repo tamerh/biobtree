@@ -1239,6 +1239,11 @@ func (s *Service) execCelGo(query *query.Query, targetXref *pbuf.Xref) (bool, er
 			attr.Id = id
 			evalMap["civic_assertion"] = attr
 		}
+	case "intogen":
+		if attr := targetXref.GetIntogen(); attr != nil {
+			attr.Id = id
+			evalMap["intogen"] = attr
+		}
 	case "bindingdb":
 		if attr := targetXref.GetBindingdb(); attr != nil {
 			attr.Id = id

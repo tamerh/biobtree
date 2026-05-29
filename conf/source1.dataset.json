@@ -1333,6 +1333,22 @@
     "test_entries_count": "1000",
     "bucketMethod": "alphanum"
   },
+  "intogen": {
+    "id": "756",
+    "name": "intOGen",
+    "aliases": "intOGen,cancer driver,cancer driver gene,somatic driver,driver gene,Compendium of Cancer Genes",
+    "path": "https://www.intogen.org/download?file=",
+    "driversFile": "IntOGen-Drivers-20240920.zip",
+    "cohortsFile": "IntOGen-Cohorts-20240920.zip",
+    "url": "https://www.intogen.org/search?gene=£{id}",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "symbol,role,transcript,[]cancer_types,[]cancer_names,[]methods,num_cohorts,total_samples,total_mutations",
+    "compact_fields": "symbol,role,[]cancer_types",
+    "test_entries_count": "100",
+    "textPriority": "85",
+    "bucketMethod": "alphabetic"
+  },
   "civic": {
     "id": "752",
     "name": "CIViC",

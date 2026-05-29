@@ -21,8 +21,26 @@ import (
 // an in-memory join map (mpID -> variantIDs) so evidence/assertion edges fan
 // out to every gene/variant in the profile (including combination profiles).
 type civic struct {
-	source string
-	d      *DataUpdate
+	source       string
+	d            *DataUpdate
+	mappings     *MedicalTermMappings
+	mondoInt     uint32
+	diseaseMondo map[string][]string // disease name -> MONDO ids (cache)
+}
+
+// mondoForDisease resolves (and caches) a disease name to MONDO ids via the
+// shared normalization mapper. Many evidence rows share a disease, so caching
+// avoids re-running the cascade thousands of times.
+func (c *civic) mondoForDisease(name string) []string {
+	if c.mondoInt == 0 || name == "" {
+		return nil
+	}
+	if ids, ok := c.diseaseMondo[name]; ok {
+		return ids
+	}
+	ids := mapBoolKeys(collectOntologyIDs(c.d, c.mappings, name, c.mondoInt))
+	c.diseaseMondo[name] = ids
+	return ids
 }
 
 func (c *civic) check(err error, operation string) {
@@ -191,6 +209,15 @@ func (c *civic) update() {
 	variantSourceID := config.Dataconf["civic_variant"]["id"]
 	evidenceSourceID := config.Dataconf["civic_evidence"]["id"]
 	assertionSourceID := config.Dataconf["civic_assertion"]["id"]
+
+	// For the direct disease-name -> MONDO supplement (in addition to the
+	// precise DOID -> MONDO bridge). Covers DOIDs without a MONDO xref and
+	// makes `mondo >> civic_evidence` a one-hop query.
+	c.mappings = LoadMedicalTermMappings()
+	c.diseaseMondo = map[string][]string{}
+	if id, ok := config.Dataconf["mondo"]["id"]; ok {
+		fmt.Sscanf(id, "%d", &c.mondoInt)
+	}
 
 	// ---- 1. Variants: build join maps + store variant entries -------------
 	vGene := map[string]string{}    // variant_id -> gene symbol
@@ -476,9 +503,14 @@ func (c *civic) emitClinicalEdges(id, sourceID, dataset, mpID, doid, disease, pr
 		c.d.addHumanGeneXrefsViaHGNC(g, id, sourceID)
 	}
 
-	// Disease -> DOID (bridged to MONDO via mondo.obo DOID xrefs)
+	// Disease -> DOID (precise; bridged to MONDO via mondo.obo DOID xrefs)
 	if isAllDigits(doid) {
 		c.d.addXref(id, sourceID, "DOID:"+doid, "doid", false)
+	}
+	// Disease -> MONDO supplement via the shared name mapper: gives a one-hop
+	// mondo >> civic_evidence and covers DOIDs lacking a MONDO xref.
+	for _, mid := range c.mondoForDisease(disease) {
+		c.d.addXref(id, sourceID, mid, "mondo", false)
 	}
 
 	// Therapies -> chembl_molecule (best-effort name match) + always text.

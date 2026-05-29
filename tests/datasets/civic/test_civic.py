@@ -28,6 +28,16 @@ class CivicTests:
         ref = self.runner.reference_data
         return ref.get("evidence", []) if isinstance(ref, dict) else []
 
+    def _entry(self, identifier, dataset_name):
+        """Return the result entry (with its xrefs) for an id in a dataset."""
+        data = self.runner.lookup(identifier)
+        if not data:
+            return None
+        for r in data.get("results", []):
+            if r.get("dataset_name") == dataset_name:
+                return r
+        return None
+
     @test
     def test_gene_entry_exists(self):
         """A CIViC gene feature is retrievable by feature_id"""
@@ -35,9 +45,8 @@ class CivicTests:
         if not genes:
             return False, "No genes in reference data"
         fid = genes[0]["feature_id"]
-        data = self.runner.lookup(fid)
-        if not data or not data.get("results"):
-            return False, f"No results for feature_id {fid}"
+        if self._entry(fid, "civic") is None:
+            return False, f"No civic gene entry for feature_id {fid}"
         return True, f"Gene {genes[0]['name']} (feature {fid}) found"
 
     @test
@@ -59,8 +68,9 @@ class CivicTests:
         if not genes:
             return False, "No genes in reference data"
         fid = genes[0]["feature_id"]
-        if not self.runner.query.has_path(fid, "hgnc"):
-            return False, f"feature {fid} did not map to hgnc"
+        e = self._entry(fid, "civic")
+        if e is None or not self.runner.has_xref(e, "hgnc"):
+            return False, f"feature {fid} has no hgnc xref"
         return True, f"feature {fid} -> hgnc OK"
 
     @test
@@ -70,8 +80,9 @@ class CivicTests:
         if not genes:
             return False, "No genes in reference data"
         fid = genes[0]["feature_id"]
-        if not self.runner.query.has_path(fid, "entrez"):
-            return False, f"feature {fid} did not map to entrez"
+        e = self._entry(fid, "civic")
+        if e is None or not self.runner.has_xref(e, "entrez"):
+            return False, f"feature {fid} has no entrez xref"
         return True, f"feature {fid} -> entrez OK"
 
     @test
@@ -81,21 +92,23 @@ class CivicTests:
         if not ev:
             return False, "No evidence in reference data"
         eid = ev[0]["evidence_id"]
-        data = self.runner.lookup(eid)
-        if not data or not data.get("results"):
-            return False, f"No results for evidence_id {eid}"
+        if self._entry(eid, "civic_evidence") is None:
+            return False, f"No civic_evidence entry for {eid}"
         return True, f"Evidence {eid} found ({ev[0]['disease']})"
 
     @test
-    def test_evidence_maps_to_doid(self):
-        """Evidence item links to its DOID disease (DOID -> MONDO bridge)"""
+    def test_evidence_maps_to_disease(self):
+        """Evidence item links to its disease (DOID and/or MONDO)"""
         ev = self._evidence()
         if not ev:
             return False, "No evidence in reference data"
         eid = ev[0]["evidence_id"]
-        if not self.runner.query.has_path(eid, "doid"):
-            return False, f"evidence {eid} did not map to doid"
-        return True, f"evidence {eid} -> doid OK"
+        e = self._entry(eid, "civic_evidence")
+        if e is None:
+            return False, f"No civic_evidence entry for {eid}"
+        if not (self.runner.has_xref(e, "doid") or self.runner.has_xref(e, "mondo")):
+            return False, f"evidence {eid} has no doid/mondo xref"
+        return True, f"evidence {eid} -> disease OK"
 
 
 def main():
@@ -118,7 +131,7 @@ def main():
         custom.test_gene_maps_to_hgnc,
         custom.test_gene_maps_to_entrez,
         custom.test_evidence_exists,
-        custom.test_evidence_maps_to_doid,
+        custom.test_evidence_maps_to_disease,
     ]:
         runner.add_custom_test(m)
 

@@ -148,6 +148,7 @@ DATASETS=(
     antibody
     gencc
     civic
+    intogen
     ctd
     msigdb
 

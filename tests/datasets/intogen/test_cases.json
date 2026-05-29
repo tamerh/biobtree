@@ -1,0 +1,20 @@
+{
+  "common_tests": [
+    {
+      "name": "Lookup intOGen driver gene TP53",
+      "type": "id_lookup",
+      "id": "TP53"
+    },
+    {
+      "name": "Driver gene attributes present (TP53)",
+      "type": "attribute_check",
+      "id": "TP53"
+    },
+    {
+      "name": "Invalid symbol handling",
+      "type": "invalid_id",
+      "invalid_id": "INTOGEN_NOT_A_GENE_99999"
+    }
+  ],
+  "custom_tests": []
+}

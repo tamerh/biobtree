@@ -1,0 +1,474 @@
+{
+  "genes": [
+    {
+      "symbol": "ABCC4",
+      "role": "Act",
+      "cancer_types": [
+        "ANGS"
+      ]
+    },
+    {
+      "symbol": "ABL1",
+      "role": "LoF",
+      "cancer_types": [
+        "UCEC"
+      ]
+    },
+    {
+      "symbol": "ABL2",
+      "role": "Act",
+      "cancer_types": [
+        "BRCA",
+        "UCEC"
+      ]
+    },
+    {
+      "symbol": "ACKR3",
+      "role": "Act",
+      "cancer_types": [
+        "OVT"
+      ]
+    },
+    {
+      "symbol": "ACSL3",
+      "role": "Act",
+      "cancer_types": [
+        "AML"
+      ]
+    },
+    {
+      "symbol": "ACSL6",
+      "role": "Act",
+      "cancer_types": [
+        "LIPO"
+      ]
+    },
+    {
+      "symbol": "ACSM3",
+      "role": "Act",
+      "cancer_types": [
+        "GBM"
+      ]
+    },
+    {
+      "symbol": "ACVR1",
+      "role": "Act",
+      "cancer_types": [
+        "HGGNOS",
+        "HNSC",
+        "UCEC"
+      ]
+    },
+    {
+      "symbol": "ACVR1B",
+      "role": "LoF",
+      "cancer_types": [
+        "BRCA",
+        "COAD",
+        "COADREAD",
+        "LUAD",
+        "PAAD"
+      ]
+    },
+    {
+      "symbol": "ACVR2A",
+      "role": "LoF",
+      "cancer_types": [
+        "COADREAD",
+        "CSCC",
+        "HCC",
+        "PAAD",
+        "PRAD",
+        "STAD",
+        "UCEC"
+      ]
+    },
+    {
+      "symbol": "ADAMTS9",
+      "role": "LoF",
+      "cancer_types": [
+        "PCM"
+      ]
+    },
+    {
+      "symbol": "AFDN",
+      "role": "LoF",
+      "cancer_types": [
+        "BRCA",
+        "COADREAD"
+      ]
+    },
+    {
+      "symbol": "AFF1",
+      "role": "LoF",
+      "cancer_types": [
+        "MEL"
+      ]
+    },
+    {
+      "symbol": "AFF3",
+      "role": "LoF",
+      "cancer_types": [
+        "LUAD",
+        "WDTC"
+      ]
+    },
+    {
+      "symbol": "AFF4",
+      "role": "Act",
+      "cancer_types": [
+        "HCC"
+      ]
+    },
+    {
+      "symbol": "AJUBA",
+      "role": "LoF",
+      "cancer_types": [
+        "HNSC"
+      ]
+    },
+    {
+      "symbol": "AKAP9",
+      "role": "Act",
+      "cancer_types": [
+        "BCC",
+        "BLCA",
+        "BRCA",
+        "CCRCC",
+        "ESCA",
+        "HCC",
+        "HNSC",
+        "SKCM",
+        "STOMACH",
+        "UCEC"
+      ]
+    },
+    {
+      "symbol": "AKT1",
+      "role": "Act",
+      "cancer_types": [
+        "ALL",
+        "BRCA",
+        "CESC",
+        "COADREAD",
+        "PRAD",
+        "PROSTATE",
+        "SARCNOS",
+        "UCEC",
+        "WDTC"
+      ]
+    },
+    {
+      "symbol": "AKT3",
+      "role": "Act",
+      "cancer_types": [
+        "PROSTATE",
+        "SKCM"
+      ]
+    },
+    {
+      "symbol": "ALDH2",
+      "role": "Act",
+      "cancer_types": [
+        "OS"
+      ]
+    },
+    {
+      "symbol": "ALK",
+      "role": "Act",
+      "cancer_types": [
+        "BRCA",
+        "HCC",
+        "NBL",
+        "NSCLC",
+        "PROSTATE",
+        "SCLC"
+      ]
+    },
+    {
+      "symbol": "ALPK1",
+      "role": "Act",
+      "cancer_types": [
+        "PAAD"
+      ]
+    },
+    {
+      "symbol": "AMER1",
+      "role": "LoF",
+      "cancer_types": [
+        "COAD",
+        "COADREAD",
+        "READ",
+        "WT"
+      ]
+    },
+    {
+      "symbol": "ANK1",
+      "role": "Act",
+      "cancer_types": [
+        "ANGS",
+        "CHOL",
+        "COAD",
+        "COADREAD",
+        "LUAD",
+        "PRAD"
+      ]
+    },
+    {
+      "symbol": "ANKRD11",
+      "role": "LoF",
+      "cancer_types": [
+        "MLYM"
+      ]
+    },
+    {
+      "symbol": "APC",
+      "role": "LoF",
+      "cancer_types": [
+        "AML",
+        "ANSC",
+        "CHOL",
+        "COAD",
+        "COADREAD",
+        "CSCC",
+        "EGC",
+        "ESCA",
+        "ESCC",
+        "HCC",
+        "LUAD",
+        "MEL",
+        "MT",
+        "NETNOS",
+        "NSCLC",
+        "PRAD",
+        "PROSTATE",
+        "READ",
+        "STAD",
+        "STOMACH",
+        "UM",
+        "VULVA"
+      ]
+    },
+    {
+      "symbol": "AR",
+      "role": "Act",
+      "cancer_types": [
+        "BRCA",
+        "CHOL",
+        "COAD",
+        "DLBCLNOS",
+        "GBC",
+        "GBM",
+        "LMS",
+        "NPC",
+        "NSCLC",
+        "PCM",
+        "PRAD",
+        "PROSTATE",
+        "STAD",
+        "STOMACH"
+      ]
+    },
+    {
+      "symbol": "ARAF",
+      "role": "Act",
+      "cancer_types": [
+        "CHOL",
+        "LUAD",
+        "SCLC"
+      ]
+    },
+    {
+      "symbol": "ARHGAP35",
+      "role": "LoF",
+      "cancer_types": [
+        "AML",
+        "BCC",
+        "BLCA",
+        "BRCA",
+        "CCRCC",
+        "LUSC",
+        "OVT",
+        "UCEC",
+        "UTUC"
+      ]
+    },
+    {
+      "symbol": "ARHGAP5",
+      "role": "LoF",
+      "cancer_types": [
+        "BLCA",
+        "PAAD",
+        "PCM",
+        "PLMESO",
+        "WDTC"
+      ]
+    },
+    {
+      "symbol": "ARHGEF10",
+      "role": "LoF",
+      "cancer_types": [
+        "BLCA",
+        "CSCC",
+        "NSCLC",
+        "SCLC"
+      ]
+    },
+    {
+      "symbol": "ARHGEF10L",
+      "role": "LoF",
+      "cancer_types": [
+        "BCC",
+        "CCRCC"
+      ]
+    },
+    {
+      "symbol": "ARHGEF12",
+      "role": "LoF",
+      "cancer_types": [
+        "BRCA",
+        "CCRCC"
+      ]
+    },
+    {
+      "symbol": "ARID1A",
+      "role": "LoF",
+      "cancer_types": [
+        "BL",
+        "BLCA",
+        "BRCA",
+        "CCRCC",
+        "CESC",
+        "CHOL",
+        "CLLSLL",
+        "COAD",
+        "COADREAD",
+        "DLBCLNOS",
+        "EGC",
+        "ESCA",
+        "ESCC",
+        "GBC",
+        "GBM",
+        "HCC",
+        "LGGNOS",
+        "LUAD",
+        "LUNG",
+        "LUSC",
+        "MBL",
+        "MLYM",
+        "MT",
+        "NHL",
+        "NSCLC",
+        "OS",
+        "OVT",
+        "PAAD",
+        "PANCREAS",
+        "PAST",
+        "PRAD",
+        "RCC",
+        "SCLC",
+        "SKIN",
+        "STAD",
+        "UCEC",
+        "UCS",
+        "UTUC"
+      ]
+    },
+    {
+      "symbol": "ARID1B",
+      "role": "LoF",
+      "cancer_types": [
+        "ANGS",
+        "BLCA",
+        "BRCA",
+        "CCRCC",
+        "CEAD",
+        "COADREAD",
+        "DLBCLNOS",
+        "HCC",
+        "LGGNOS",
+        "LUSC",
+        "MBL",
+        "MLYM",
+        "PAAD",
+        "PAST",
+        "PRAD",
+        "PRCC",
+        "SACA",
+        "STAD",
+        "UCEC",
+        "WDTC"
+      ]
+    },
+    {
+      "symbol": "ARID2",
+      "role": "LoF",
+      "cancer_types": [
+        "CHOL",
+        "CSCC",
+        "ESCA",
+        "ESCC",
+        "GB",
+        "GBC",
+        "HCC",
+        "HNSC",
+        "LGGNOS",
+        "LUAD",
+        "MBL",
+        "MEL",
+        "NPC",
+        "NSCLC",
+        "OVT",
+        "PAAD",
+        "PAST",
+        "PRCC",
+        "SKCM",
+        "STAD",
+        "WDTC"
+      ]
+    },
+    {
+      "symbol": "ARNT",
+      "role": "LoF",
+      "cancer_types": [
+        "SCLC"
+      ]
+    },
+    {
+      "symbol": "ASXL1",
+      "role": "LoF",
+      "cancer_types": [
+        "AML",
+        "BLCA",
+        "BRCA",
+        "CCRCC",
+        "CHOL",
+        "CLLSLL",
+        "COAD",
+        "ESCA",
+        "HGGNOS",
+        "HNSC",
+        "MBL",
+        "PAST",
+        "PRAD",
+        "STOMACH"
+      ]
+    },
+    {
+      "symbol": "ASXL2",
+      "role": "LoF",
+      "cancer_types": [
+        "AML",
+        "BLCA"
+      ]
+    },
+    {
+      "symbol": "ATF7IP",
+      "role": "LoF",
+      "cancer_types": [
+        "LUAD",
+        "UCEC"
+      ]
+    }
+  ]
+}

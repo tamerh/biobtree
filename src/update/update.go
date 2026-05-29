@@ -997,6 +997,12 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 		case "civic_variant", "civic_evidence", "civic_assertion":
 			// These are processed by the civic parser, skip standalone processing
 			break
+		case "intogen":
+			d.wg.Add(1)
+			ig := intogen{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go ig.update()
+			break
 		case "collectri":
 			d.wg.Add(1)
 			ct := collectri{source: data, d: d}

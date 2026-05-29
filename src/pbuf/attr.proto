@@ -2673,3 +2673,72 @@ message GtopdbInteractionAttr {
   string id = 100; // transient - populated at runtime from Xref.Identifier
 }
 
+// CIViC gene/feature summary (parent dataset "civic")
+message CivicGeneAttr {
+  string name = 1;                    // HGNC gene symbol (e.g., "PIK3CA")
+  string feature_type = 2;            // Feature type (e.g., "Gene", "Fusion")
+  string description = 3;             // Curated gene-level summary
+  string entrez_id = 4;               // NCBI Entrez Gene ID
+  string ncit_id = 5;                 // NCI Thesaurus ID for the gene (if any)
+  repeated string aliases = 6;        // Gene aliases / previous symbols
+
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// CIViC variant summary (dataset "civic_variant")
+message CivicVariantAttr {
+  string name = 1;                    // Variant name (e.g., "E542K", "Amplification")
+  string gene = 2;                    // Gene symbol the variant belongs to
+  repeated string variant_types = 3;  // Sequence Ontology consequence terms
+  repeated string aliases = 4;        // Variant aliases
+  string hgvs_descriptions = 5;       // HGVS descriptions (c./p.)
+  string clinvar_ids = 6;             // Associated ClinVar variation IDs
+  string allele_registry_id = 7;      // ClinGen Allele Registry ID (CA...)
+  string representative_transcript = 8; // Representative Ensembl transcript
+  string reference_build = 9;         // Genome reference build
+  string ncit_id = 10;                // NCI Thesaurus ID (if any)
+
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// CIViC clinical evidence item (dataset "civic_evidence")
+message CivicEvidenceAttr {
+  string molecular_profile = 1;       // Molecular profile name (variant or combination)
+  string disease = 2;                 // Disease name
+  string doid = 3;                     // Disease Ontology ID (bare numeric)
+  repeated string therapies = 4;      // Associated therapy names
+  string therapy_interaction_type = 5; // Combination/Substitutes/Sequential (if multiple therapies)
+  string evidence_type = 6;           // Predictive/Prognostic/Diagnostic/Predisposing/Oncogenic/Functional
+  string evidence_direction = 7;      // Supports / Does Not Support
+  string evidence_level = 8;          // A-E evidence level
+  string significance = 9;            // Clinical significance (e.g., Sensitivity/Response, Resistance)
+  string evidence_statement = 10;     // Free-text evidence statement
+  repeated string phenotypes = 11;    // Associated phenotype terms (HPO names)
+  string citation_id = 12;            // Source citation ID (PMID when source_type=PubMed)
+  string rating = 13;                 // Curator trust rating (1-5)
+  string evidence_status = 14;        // accepted / submitted
+  string variant_origin = 15;         // Somatic / Germline / etc.
+
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// CIViC assertion (dataset "civic_assertion")
+message CivicAssertionAttr {
+  string molecular_profile = 1;       // Molecular profile name
+  string disease = 2;                 // Disease name
+  string doid = 3;                     // Disease Ontology ID (bare numeric)
+  repeated string therapies = 4;      // Associated therapy names
+  string assertion_type = 5;          // Predictive/Prognostic/Diagnostic/Predisposing/Oncogenic
+  string assertion_direction = 6;     // Supports / Does Not Support
+  string significance = 7;            // Clinical significance
+  string amp_category = 8;            // AMP/ASCO/CAP tier (e.g., "Tier I - Level A")
+  repeated string acmg_codes = 9;     // ACMG/AMP codes
+  string nccn_guideline = 10;         // NCCN guideline reference
+  string regulatory_approval = 11;    // Regulatory approval status
+  string fda_companion_test = 12;     // FDA companion test info
+  string assertion_summary = 13;      // Assertion summary text
+  string evidence_status = 14;        // accepted / submitted
+
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+

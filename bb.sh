@@ -147,6 +147,7 @@ DATASETS=(
     clinical_trials
     antibody
     gencc
+    civic
     ctd
     msigdb
 

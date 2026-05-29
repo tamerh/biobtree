@@ -2085,6 +2085,26 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)
 				xref.Attributes = &pbuf.Xref_Gencc{attr}
+			case "civic":
+				attr := &pbuf.CivicGeneAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Civic{attr}
+			case "civic_variant":
+				attr := &pbuf.CivicVariantAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_CivicVariant{attr}
+			case "civic_evidence":
+				attr := &pbuf.CivicEvidenceAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_CivicEvidence{attr}
+			case "civic_assertion":
+				attr := &pbuf.CivicAssertionAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_CivicAssertion{attr}
 			case "bindingdb":
 				attr := &pbuf.BindingdbAttr{}
 				barr := []byte((*kvProp[k])[0].value)
@@ -2593,6 +2613,26 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 					barr := []byte((*kvProp[k])[0].value)
 					ffjson.Unmarshal(barr, attr)
 					xref.Attributes = &pbuf.Xref_Gencc{attr}
+				case "civic":
+					attr := &pbuf.CivicGeneAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_Civic{attr}
+				case "civic_variant":
+					attr := &pbuf.CivicVariantAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_CivicVariant{attr}
+				case "civic_evidence":
+					attr := &pbuf.CivicEvidenceAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_CivicEvidence{attr}
+				case "civic_assertion":
+					attr := &pbuf.CivicAssertionAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_CivicAssertion{attr}
 				case "bindingdb":
 					attr := &pbuf.BindingdbAttr{}
 					barr := []byte((*kvProp[k])[0].value)

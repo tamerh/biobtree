@@ -203,6 +203,10 @@ func (s *Service) initWithDbDir(dbDir string) error {
 		cel.Types(&pbuf.EntrezAttr{}),
 		cel.Types(&pbuf.RefSeqAttr{}),
 		cel.Types(&pbuf.GenccAttr{}),
+		cel.Types(&pbuf.CivicGeneAttr{}),
+		cel.Types(&pbuf.CivicVariantAttr{}),
+		cel.Types(&pbuf.CivicEvidenceAttr{}),
+		cel.Types(&pbuf.CivicAssertionAttr{}),
 		cel.Types(&pbuf.BindingdbAttr{}),
 		cel.Types(&pbuf.CtdAttr{}),
 		cel.Types(&pbuf.CtdGeneInteractionAttr{}),
@@ -359,6 +363,14 @@ func (s *Service) initWithDbDir(dbDir string) error {
 			decls.NewIdent("refseq", decls.NewObjectType("pbuf.RefSeqAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("gencc", decls.NewObjectType("pbuf.GenccAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("civic", decls.NewObjectType("pbuf.CivicGeneAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("civic_variant", decls.NewObjectType("pbuf.CivicVariantAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("civic_evidence", decls.NewObjectType("pbuf.CivicEvidenceAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("civic_assertion", decls.NewObjectType("pbuf.CivicAssertionAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("bindingdb", decls.NewObjectType("pbuf.BindingdbAttr"), nil)),
 		cel.Declarations(

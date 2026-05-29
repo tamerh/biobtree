@@ -125,9 +125,18 @@ func NewLMDBEnv(cfg *Config) (Env, DBI, error) {
 	}
 
 	// Open with appropriate flags
+	readOnly := !cfg.WriteMode && cfg.AppConf != nil && cfg.AppConf["lmdbReadonly"] == "yes"
 	var flags uint
 	if cfg.WriteMode {
 		flags = lmdb.WriteMap
+	} else if readOnly {
+		// True read-only attach for lookup-only use against a live/production DB
+		// (see initLookupDB). Readonly => physically cannot write. NoLock => we
+		// do not touch the shared reader lock table at all, so there is zero
+		// interaction with another process (e.g. the prod web server) holding
+		// the same DB open. Safe because the lookup DB is static (no concurrent
+		// writer); only read transactions are issued.
+		flags = lmdb.Readonly | lmdb.NoLock
 	}
 
 	err = env.Open(cfg.Dir, flags, 0700)
@@ -136,18 +145,28 @@ func NewLMDBEnv(cfg *Config) (Env, DBI, error) {
 		return nil, nil, err
 	}
 
-	// Check stale readers
-	staleReaders, _ := env.ReaderCheck()
-	if staleReaders > 0 {
-		// Log if needed
+	// Check stale readers (skipped under NoLock, where there is no reader table)
+	if !readOnly {
+		staleReaders, _ := env.ReaderCheck()
+		if staleReaders > 0 {
+			// Log if needed
+		}
 	}
 
-	// Create/open database
+	// Open the database. A read-only env cannot begin the write transaction
+	// that CreateDBI requires, so open the existing DBI inside a read txn.
 	var dbi lmdb.DBI
-	err = env.Update(func(txn *lmdb.Txn) (err error) {
-		dbi, err = txn.CreateDBI("mydb")
-		return err
-	})
+	if readOnly {
+		err = env.View(func(txn *lmdb.Txn) (err error) {
+			dbi, err = txn.OpenDBI("mydb", 0)
+			return err
+		})
+	} else {
+		err = env.Update(func(txn *lmdb.Txn) (err error) {
+			dbi, err = txn.CreateDBI("mydb")
+			return err
+		})
+	}
 	if err != nil {
 		env.Close()
 		return nil, nil, err

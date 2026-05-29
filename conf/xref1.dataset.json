@@ -29,6 +29,13 @@
     "id": "204",
     "url": "https://doi.org/\u00a3{id}"
   },
+  "doid": {
+    "aliases": "DOID,Disease Ontology,Human Disease Ontology",
+    "name": "DOID",
+    "id": "751",
+    "url": "https://disease-ontology.org/?id=\u00a3{id}",
+    "bucketMethod": "ontology"
+  },
   "drugbank": {
     "aliases": "DrugBank,DrugBank accession",
     "name": "DrugBank",

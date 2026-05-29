@@ -1,0 +1,662 @@
+{
+  "genes": [
+    {
+      "feature_id": "1",
+      "name": "ALK",
+      "gene_symbol": "ALK",
+      "entrez_id": "238",
+      "feature_type": "Gene"
+    },
+    {
+      "feature_id": "2",
+      "name": "AKT1",
+      "gene_symbol": "AKT1",
+      "entrez_id": "207",
+      "feature_type": "Gene"
+    },
+    {
+      "feature_id": "3",
+      "name": "ARAF",
+      "gene_symbol": "ARAF",
+      "entrez_id": "369",
+      "feature_type": "Gene"
+    },
+    {
+      "feature_id": "4",
+      "name": "ABL1",
+      "gene_symbol": "ABL1",
+      "entrez_id": "25",
+      "feature_type": "Gene"
+    },
+    {
+      "feature_id": "5",
+      "name": "BRAF",
+      "gene_symbol": "BRAF",
+      "entrez_id": "673",
+      "feature_type": "Gene"
+    },
+    {
+      "feature_id": "6",
+      "name": "BRCA1",
+      "gene_symbol": "BRCA1",
+      "entrez_id": "672",
+      "feature_type": "Gene"
+    },
+    {
+      "feature_id": "7",
+      "name": "BRCA2",
+      "gene_symbol": "BRCA2",
+      "entrez_id": "675",
+      "feature_type": "Gene"
+    },
+    {
+      "feature_id": "8",
+      "name": "CCND1",
+      "gene_symbol": "CCND1",
+      "entrez_id": "595",
+      "feature_type": "Gene"
+    },
+    {
+      "feature_id": "9",
+      "name": "CCND2",
+      "gene_symbol": "CCND2",
+      "entrez_id": "894",
+      "feature_type": "Gene"
+    },
+    {
+      "feature_id": "10",
+      "name": "CCND3",
+      "gene_symbol": "CCND3",
+      "entrez_id": "896",
+      "feature_type": "Gene"
+    },
+    {
+      "feature_id": "11",
+      "name": "CCNE1",
+      "gene_symbol": "CCNE1",
+      "entrez_id": "898",
+      "feature_type": "Gene"
+    },
+    {
+      "feature_id": "12",
+      "name": "CDK6",
+      "gene_symbol": "CDK6",
+      "entrez_id": "1021",
+      "feature_type": "Gene"
+    },
+    {
+      "feature_id": "13",
+      "name": "CDK4",
+      "gene_symbol": "CDK4",
+      "entrez_id": "1019",
+      "feature_type": "Gene"
+    },
+    {
+      "feature_id": "14",
+      "name": "CDKN2A",
+      "gene_symbol": "CDKN2A",
+      "entrez_id": "1029",
+      "feature_type": "Gene"
+    },
+    {
+      "feature_id": "15",
+      "name": "CEBPA",
+      "gene_symbol": "CEBPA",
+      "entrez_id": "1050",
+      "feature_type": "Gene"
+    },
+    {
+      "feature_id": "18",
+      "name": "DNMT3A",
+      "gene_symbol": "DNMT3A",
+      "entrez_id": "1788",
+      "feature_type": "Gene"
+    },
+    {
+      "feature_id": "19",
+      "name": "EGFR",
+      "gene_symbol": "EGFR",
+      "entrez_id": "1956",
+      "feature_type": "Gene"
+    },
+    {
+      "feature_id": "20",
+      "name": "ERBB2",
+      "gene_symbol": "ERBB2",
+      "entrez_id": "2064",
+      "feature_type": "Gene"
+    },
+    {
+      "feature_id": "21",
+      "name": "ESR1",
+      "gene_symbol": "ESR1",
+      "entrez_id": "2099",
+      "feature_type": "Gene"
+    },
+    {
+      "feature_id": "22",
+      "name": "FGFR2",
+      "gene_symbol": "FGFR2",
+      "entrez_id": "2263",
+      "feature_type": "Gene"
+    },
+    {
+      "feature_id": "23",
+      "name": "FGFR3",
+      "gene_symbol": "FGFR3",
+      "entrez_id": "2261",
+      "feature_type": "Gene"
+    },
+    {
+      "feature_id": "24",
+      "name": "FLT3",
+      "gene_symbol": "FLT3",
+      "entrez_id": "2322",
+      "feature_type": "Gene"
+    },
+    {
+      "feature_id": "25",
+      "name": "GATA2",
+      "gene_symbol": "GATA2",
+      "entrez_id": "2624",
+      "feature_type": "Gene"
+    },
+    {
+      "feature_id": "26",
+      "name": "IDH1",
+      "gene_symbol": "IDH1",
+      "entrez_id": "3417",
+      "feature_type": "Gene"
+    },
+    {
+      "feature_id": "27",
+      "name": "IDH2",
+      "gene_symbol": "IDH2",
+      "entrez_id": "3418",
+      "feature_type": "Gene"
+    },
+    {
+      "feature_id": "28",
+      "name": "JAK2",
+      "gene_symbol": "JAK2",
+      "entrez_id": "3717",
+      "feature_type": "Gene"
+    },
+    {
+      "feature_id": "29",
+      "name": "KIT",
+      "gene_symbol": "KIT",
+      "entrez_id": "3815",
+      "feature_type": "Gene"
+    },
+    {
+      "feature_id": "30",
+      "name": "KRAS",
+      "gene_symbol": "KRAS",
+      "entrez_id": "3845",
+      "feature_type": "Gene"
+    },
+    {
+      "feature_id": "31",
+      "name": "MAP2K1",
+      "gene_symbol": "MAP2K1",
+      "entrez_id": "5604",
+      "feature_type": "Gene"
+    },
+    {
+      "feature_id": "32",
+      "name": "MEF2D",
+      "gene_symbol": "MEF2D",
+      "entrez_id": "4209",
+      "feature_type": "Gene"
+    },
+    {
+      "feature_id": "33",
+      "name": "CSF1R",
+      "gene_symbol": "CSF1R",
+      "entrez_id": "1436",
+      "feature_type": "Gene"
+    },
+    {
+      "feature_id": "34",
+      "name": "MGMT",
+      "gene_symbol": "MGMT",
+      "entrez_id": "4255",
+      "feature_type": "Gene"
+    },
+    {
+      "feature_id": "35",
+      "name": "NPM1",
+      "gene_symbol": "NPM1",
+      "entrez_id": "4869",
+      "feature_type": "Gene"
+    },
+    {
+      "feature_id": "36",
+      "name": "NRAS",
+      "gene_symbol": "NRAS",
+      "entrez_id": "4893",
+      "feature_type": "Gene"
+    },
+    {
+      "feature_id": "37",
+      "name": "PIK3CA",
+      "gene_symbol": "PIK3CA",
+      "entrez_id": "5290",
+      "feature_type": "Gene"
+    },
+    {
+      "feature_id": "38",
+      "name": "PDGFRA",
+      "gene_symbol": "PDGFRA",
+      "entrez_id": "5156",
+      "feature_type": "Gene"
+    },
+    {
+      "feature_id": "39",
+      "name": "PML",
+      "gene_symbol": "PML",
+      "entrez_id": "5371",
+      "feature_type": "Gene"
+    },
+    {
+      "feature_id": "41",
+      "name": "PTEN",
+      "gene_symbol": "PTEN",
+      "entrez_id": "5728",
+      "feature_type": "Gene"
+    },
+    {
+      "feature_id": "42",
+      "name": "RET",
+      "gene_symbol": "RET",
+      "entrez_id": "5979",
+      "feature_type": "Gene"
+    },
+    {
+      "feature_id": "43",
+      "name": "RUNX1",
+      "gene_symbol": "RUNX1",
+      "entrez_id": "861",
+      "feature_type": "Gene"
+    }
+  ],
+  "evidence": [
+    {
+      "evidence_id": "1",
+      "disease": "Lymphoid Leukemia",
+      "doid": "1037",
+      "therapies": [],
+      "evidence_type": "Diagnostic",
+      "evidence_level": "B"
+    },
+    {
+      "evidence_id": "2",
+      "disease": "Gastrointestinal Stromal Tumor",
+      "doid": "9253",
+      "therapies": [],
+      "evidence_type": "Diagnostic",
+      "evidence_level": "B"
+    },
+    {
+      "evidence_id": "4",
+      "disease": "Acute Myeloid Leukemia",
+      "doid": "9119",
+      "therapies": [],
+      "evidence_type": "Diagnostic",
+      "evidence_level": "B"
+    },
+    {
+      "evidence_id": "5",
+      "disease": "Chronic Myeloid Leukemia",
+      "doid": "8552",
+      "therapies": [],
+      "evidence_type": "Diagnostic",
+      "evidence_level": "B"
+    },
+    {
+      "evidence_id": "6",
+      "disease": "Chronic Myeloid Leukemia",
+      "doid": "8552",
+      "therapies": [],
+      "evidence_type": "Diagnostic",
+      "evidence_level": "B"
+    },
+    {
+      "evidence_id": "7",
+      "disease": "Bone Marrow Cancer",
+      "doid": "4960",
+      "therapies": [],
+      "evidence_type": "Diagnostic",
+      "evidence_level": "B"
+    },
+    {
+      "evidence_id": "8",
+      "disease": "Acute Leukemia",
+      "doid": "12603",
+      "therapies": [],
+      "evidence_type": "Diagnostic",
+      "evidence_level": "B"
+    },
+    {
+      "evidence_id": "10",
+      "disease": "Melanoma",
+      "doid": "1909",
+      "therapies": [],
+      "evidence_type": "Diagnostic",
+      "evidence_level": "B"
+    },
+    {
+      "evidence_id": "11",
+      "disease": "Acute Myeloid Leukemia",
+      "doid": "9119",
+      "therapies": [
+        "Daunorubicin"
+      ],
+      "evidence_type": "Predictive",
+      "evidence_level": "B"
+    },
+    {
+      "evidence_id": "12",
+      "disease": "Melanoma",
+      "doid": "1909",
+      "therapies": [
+        "Selumetinib"
+      ],
+      "evidence_type": "Predictive",
+      "evidence_level": "D"
+    },
+    {
+      "evidence_id": "13",
+      "disease": "Melanoma",
+      "doid": "1909",
+      "therapies": [
+        "Selumetinib"
+      ],
+      "evidence_type": "Predictive",
+      "evidence_level": "D"
+    },
+    {
+      "evidence_id": "14",
+      "disease": "Melanoma",
+      "doid": "1909",
+      "therapies": [
+        "Vemurafenib"
+      ],
+      "evidence_type": "Predictive",
+      "evidence_level": "B"
+    },
+    {
+      "evidence_id": "15",
+      "disease": "Gastrointestinal Stromal Tumor",
+      "doid": "9253",
+      "therapies": [
+        "Imatinib"
+      ],
+      "evidence_type": "Predictive",
+      "evidence_level": "B"
+    },
+    {
+      "evidence_id": "16",
+      "disease": "Gastrointestinal Stromal Tumor",
+      "doid": "9253",
+      "therapies": [
+        "Imatinib"
+      ],
+      "evidence_type": "Predictive",
+      "evidence_level": "B"
+    },
+    {
+      "evidence_id": "17",
+      "disease": "Lung Non-small Cell Carcinoma",
+      "doid": "3908",
+      "therapies": [
+        "Sorafenib"
+      ],
+      "evidence_type": "Predictive",
+      "evidence_level": "C"
+    },
+    {
+      "evidence_id": "18",
+      "disease": "Acute Myeloid Leukemia",
+      "doid": "9119",
+      "therapies": [
+        "Idarubicin"
+      ],
+      "evidence_type": "Predictive",
+      "evidence_level": "B"
+    },
+    {
+      "evidence_id": "19",
+      "disease": "Polycythemia Vera",
+      "doid": "8997",
+      "therapies": [
+        "Peginterferon Alfa-2b"
+      ],
+      "evidence_type": "Predictive",
+      "evidence_level": "B"
+    },
+    {
+      "evidence_id": "20",
+      "disease": "Polycythemia Vera",
+      "doid": "8997",
+      "therapies": [
+        "Fedratinib"
+      ],
+      "evidence_type": "Predictive",
+      "evidence_level": "D"
+    },
+    {
+      "evidence_id": "21",
+      "disease": "Melanoma",
+      "doid": "1909",
+      "therapies": [
+        "Tanespimycin"
+      ],
+      "evidence_type": "Predictive",
+      "evidence_level": "C"
+    },
+    {
+      "evidence_id": "22",
+      "disease": "Melanoma",
+      "doid": "1909",
+      "therapies": [
+        "Temozolomide"
+      ],
+      "evidence_type": "Predictive",
+      "evidence_level": "C"
+    },
+    {
+      "evidence_id": "23",
+      "disease": "Melanoma",
+      "doid": "1909",
+      "therapies": [
+        "Temozolomide"
+      ],
+      "evidence_type": "Predictive",
+      "evidence_level": "C"
+    },
+    {
+      "evidence_id": "24",
+      "disease": "Acute Myeloid Leukemia",
+      "doid": "9119",
+      "therapies": [],
+      "evidence_type": "Prognostic",
+      "evidence_level": "B"
+    },
+    {
+      "evidence_id": "25",
+      "disease": "Acute Myeloid Leukemia",
+      "doid": "9119",
+      "therapies": [],
+      "evidence_type": "Prognostic",
+      "evidence_level": "B"
+    },
+    {
+      "evidence_id": "26",
+      "disease": "Acute Myeloid Leukemia",
+      "doid": "9119",
+      "therapies": [],
+      "evidence_type": "Prognostic",
+      "evidence_level": "B"
+    },
+    {
+      "evidence_id": "27",
+      "disease": "Colorectal Cancer",
+      "doid": "9256",
+      "therapies": [],
+      "evidence_type": "Prognostic",
+      "evidence_level": "B"
+    },
+    {
+      "evidence_id": "30",
+      "disease": "Melanoma",
+      "doid": "1909",
+      "therapies": [],
+      "evidence_type": "Diagnostic",
+      "evidence_level": "B"
+    },
+    {
+      "evidence_id": "31",
+      "disease": "Acute Myeloid Leukemia",
+      "doid": "9119",
+      "therapies": [],
+      "evidence_type": "Diagnostic",
+      "evidence_level": "B"
+    },
+    {
+      "evidence_id": "32",
+      "disease": "Inflammatory Myofibroblastic Tumor",
+      "doid": "0050905",
+      "therapies": [
+        "Crizotinib"
+      ],
+      "evidence_type": "Predictive",
+      "evidence_level": "D"
+    },
+    {
+      "evidence_id": "33",
+      "disease": "Lung Non-small Cell Carcinoma",
+      "doid": "3908",
+      "therapies": [
+        "Crizotinib"
+      ],
+      "evidence_type": "Predictive",
+      "evidence_level": "D"
+    },
+    {
+      "evidence_id": "34",
+      "disease": "Melanoma",
+      "doid": "1909",
+      "therapies": [
+        "Nilotinib",
+        "Imatinib",
+        "Sorafenib"
+      ],
+      "evidence_type": "Predictive",
+      "evidence_level": "D"
+    },
+    {
+      "evidence_id": "35",
+      "disease": "Lung Non-small Cell Carcinoma",
+      "doid": "3908",
+      "therapies": [
+        "Gefitinib",
+        "Erlotinib"
+      ],
+      "evidence_type": "Predictive",
+      "evidence_level": "B"
+    },
+    {
+      "evidence_id": "36",
+      "disease": "Colorectal Cancer",
+      "doid": "9256",
+      "therapies": [
+        "Cetuximab",
+        "Chemotherapy"
+      ],
+      "evidence_type": "Predictive",
+      "evidence_level": "B"
+    },
+    {
+      "evidence_id": "37",
+      "disease": "Neuroblastoma",
+      "doid": "769",
+      "therapies": [
+        "Alectinib"
+      ],
+      "evidence_type": "Predictive",
+      "evidence_level": "D"
+    },
+    {
+      "evidence_id": "38",
+      "disease": "Neuroblastoma",
+      "doid": "769",
+      "therapies": [
+        "Crizotinib"
+      ],
+      "evidence_type": "Predictive",
+      "evidence_level": "D"
+    },
+    {
+      "evidence_id": "39",
+      "disease": "Cancer",
+      "doid": "162",
+      "therapies": [
+        "ALK Inhibitor TAE684"
+      ],
+      "evidence_type": "Predictive",
+      "evidence_level": "D"
+    },
+    {
+      "evidence_id": "40",
+      "disease": "Lung Non-small Cell Carcinoma",
+      "doid": "3908",
+      "therapies": [
+        "Sorafenib"
+      ],
+      "evidence_type": "Predictive",
+      "evidence_level": "D"
+    },
+    {
+      "evidence_id": "41",
+      "disease": "Lung Non-small Cell Carcinoma",
+      "doid": "3908",
+      "therapies": [
+        "Trametinib"
+      ],
+      "evidence_type": "Predictive",
+      "evidence_level": "D"
+    },
+    {
+      "evidence_id": "42",
+      "disease": "Melanoma",
+      "doid": "1909",
+      "therapies": [
+        "Dasatinib"
+      ],
+      "evidence_type": "Predictive",
+      "evidence_level": "D"
+    },
+    {
+      "evidence_id": "43",
+      "disease": "Gastrointestinal Stromal Tumor",
+      "doid": "9253",
+      "therapies": [
+        "Crenolanib"
+      ],
+      "evidence_type": "Predictive",
+      "evidence_level": "D"
+    },
+    {
+      "evidence_id": "44",
+      "disease": "Gastrointestinal Stromal Tumor",
+      "doid": "9253",
+      "therapies": [
+        "Crenolanib"
+      ],
+      "evidence_type": "Predictive",
+      "evidence_level": "D"
+    }
+  ]
+}

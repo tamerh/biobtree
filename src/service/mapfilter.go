@@ -1219,6 +1219,26 @@ func (s *Service) execCelGo(query *query.Query, targetXref *pbuf.Xref) (bool, er
 			attr.Id = id
 			evalMap["gencc"] = attr
 		}
+	case "civic":
+		if attr := targetXref.GetCivic(); attr != nil {
+			attr.Id = id
+			evalMap["civic"] = attr
+		}
+	case "civic_variant":
+		if attr := targetXref.GetCivicVariant(); attr != nil {
+			attr.Id = id
+			evalMap["civic_variant"] = attr
+		}
+	case "civic_evidence":
+		if attr := targetXref.GetCivicEvidence(); attr != nil {
+			attr.Id = id
+			evalMap["civic_evidence"] = attr
+		}
+	case "civic_assertion":
+		if attr := targetXref.GetCivicAssertion(); attr != nil {
+			attr.Id = id
+			evalMap["civic_assertion"] = attr
+		}
 	case "bindingdb":
 		if attr := targetXref.GetBindingdb(); attr != nil {
 			attr.Id = id

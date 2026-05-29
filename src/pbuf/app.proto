@@ -183,6 +183,10 @@ message Xref {
     GtopdbAttr gtopdb=136;
     GtopdbLigandAttr gtopdb_ligand=137;
     GtopdbInteractionAttr gtopdb_interaction=138;
+    CivicGeneAttr civic=752;
+    CivicVariantAttr civic_variant=753;
+    CivicEvidenceAttr civic_evidence=754;
+    CivicAssertionAttr civic_assertion=755;
 
   }
 

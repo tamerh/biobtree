@@ -292,6 +292,7 @@ Available datasets:
         'entrez': datasets_dir / "entrez" / "test_entrez.py",
         'refseq': datasets_dir / "refseq" / "test_refseq.py",
         'gencc': datasets_dir / "gencc" / "test_gencc.py",
+        'civic': datasets_dir / "civic" / "test_civic.py",
         'bindingdb': datasets_dir / "bindingdb" / "test_bindingdb.py",
         'ctd': datasets_dir / "ctd" / "test_ctd.py",
         'pharmgkb': datasets_dir / "pharmgkb" / "test_pharmgkb.py",

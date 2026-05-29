@@ -310,9 +310,11 @@ func (m *mondo) parseXref(line string, mondoID string, mondoDatasetID string) {
 		targetDatasetName = "uberon"
 		targetID = xrefID
 	} else if strings.HasPrefix(xrefID, "DOID:") {
-		// TODO: Disease Ontology - not currently in biobtree (11,866 xrefs available)
-		// Would provide comprehensive disease classification
-		return
+		// Disease Ontology (11,866 xrefs available). Used to resolve CIViC's
+		// DOID-coded diseases into the MONDO/EFO graph. Keep the prefixed form
+		// (e.g. DOID:1612) consistent with other ontology xref targets.
+		targetDatasetName = "doid"
+		targetID = xrefID
 	} else if strings.HasPrefix(xrefID, "MESH:") {
 		// MeSH - Medical Subject Headings (8,378 xrefs available)
 		// MeSH IDs use format like "D012345", trim MESH: prefix

@@ -978,6 +978,25 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 		case "gtopdb_ligand", "gtopdb_interaction":
 			// These are processed by the gtopdb parser, skip standalone processing
 			break
+		case "civic":
+			d.wg.Add(1)
+			cv := civic{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			// Also add subsidiary datasets to tracking
+			if _, exists := config.Dataconf["civic_variant"]; exists {
+				d.datasets2 = append(d.datasets2, "civic_variant")
+			}
+			if _, exists := config.Dataconf["civic_evidence"]; exists {
+				d.datasets2 = append(d.datasets2, "civic_evidence")
+			}
+			if _, exists := config.Dataconf["civic_assertion"]; exists {
+				d.datasets2 = append(d.datasets2, "civic_assertion")
+			}
+			go cv.update()
+			break
+		case "civic_variant", "civic_evidence", "civic_assertion":
+			// These are processed by the civic parser, skip standalone processing
+			break
 		case "collectri":
 			d.wg.Add(1)
 			ct := collectri{source: data, d: d}
@@ -2692,6 +2711,14 @@ func (d *DataUpdate) initLookupDB() {
 	lookupDbDir, ok := config.Appconf["lookupDbDir"]
 	if !ok {
 		return
+	}
+
+	// The lookup database is only ever read. Attach it strictly read-only so
+	// it is safe to point lookupDbDir at a live/production LMDB (no writer
+	// lock, physically cannot modify the data). Only affects the update
+	// process's lookup attach; the generate phase opens its own DB read-write.
+	if config.Appconf != nil {
+		config.Appconf["lmdbReadonly"] = "yes"
 	}
 
 	svc, err := service.NewService(lookupDbDir, config)

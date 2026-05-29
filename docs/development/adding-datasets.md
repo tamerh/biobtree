@@ -396,6 +396,15 @@ func extractDatasetnameField(a *pbuf.DatasetNameAttr, field string) string {
 }
 ```
 
+Also add a case to **`ExtractSourceName()`** in the same file (returns the
+entity's display name for search results — the `name` column of
+`id|dataset|name|xref_count`). Without it, search/lookup rows show a blank name:
+```go
+if a := xref.GetDatasetname(); a != nil {
+    return a.Name
+}
+```
+
 Notes:
 - The `compact_fields` config value must use **plain names** (no `[]` prefix);
   the prefix is for `attrs`, not `compact_fields`. The name in `extractField`'s

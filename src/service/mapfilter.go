@@ -1244,6 +1244,11 @@ func (s *Service) execCelGo(query *query.Query, targetXref *pbuf.Xref) (bool, er
 			attr.Id = id
 			evalMap["intogen"] = attr
 		}
+	case "cellosaurus":
+		if attr := targetXref.GetCellosaurus(); attr != nil {
+			attr.Id = id
+			evalMap["cellosaurus"] = attr
+		}
 	case "bindingdb":
 		if attr := targetXref.GetBindingdb(); attr != nil {
 			attr.Id = id

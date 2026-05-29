@@ -213,6 +213,7 @@ var fixedBuckets = map[string]int{
 	"rnacentral":     256, // hex 00-FF
 	"uniref":         55,  // alphabetic on member ID (uses alphabeticBucket)
 	"patent_nodash":  55,  // alphabetic for no-dash patents (uses alphabeticBucket)
+	"cellosaurus":    37,  // CVCL_ suffix first char: 0-9 (0-9) + A-Z (10-35) + other (36)
 }
 
 // hybridBucketMethods defines methods that support hybrid mode

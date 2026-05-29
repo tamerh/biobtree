@@ -149,6 +149,7 @@ DATASETS=(
     gencc
     civic
     intogen
+    cellosaurus
     ctd
     msigdb
 

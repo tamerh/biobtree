@@ -2758,3 +2758,21 @@ message IntogenAttr {
   string id = 100; // transient - populated at runtime from Xref.Identifier
 }
 
+// Cellosaurus cell line (dataset "cellosaurus", CC BY 4.0). One entry per
+// CVCL_ accession.
+message CellosaurusAttr {
+  string name = 1;                    // Recommended cell line name (ID line)
+  repeated string synonyms = 2;       // Synonyms (SY)
+  string sex = 3;                     // Sex of cell (SX)
+  string age = 4;                     // Age of donor at sampling (AG)
+  string category = 5;                // Category (CA), e.g. "Cancer cell line"
+  repeated string diseases = 6;       // Disease terms (DI), "NCIt:Cxxxx=name" / "ORDO:..."
+  repeated string species = 7;        // Species of origin (OX), "9606=Homo sapiens"
+  repeated string parent = 8;         // Parent cell line CVCL_ ids (HI)
+  repeated string same_individual = 9; // Same-individual CVCL_ ids (OI)
+  repeated string external_refs = 10; // Non-biobtree DR cross-refs, "ATCC:HTB-30"
+  repeated string comments = 11;      // Raw CC comment lines (nothing dropped)
+
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+

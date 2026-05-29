@@ -1333,6 +1333,20 @@
     "test_entries_count": "1000",
     "bucketMethod": "alphanum"
   },
+  "cellosaurus": {
+    "id": "757",
+    "name": "Cellosaurus",
+    "aliases": "Cellosaurus,cell line,cell-line,CVCL,cell line knowledge resource",
+    "path": "https://ftp.expasy.org/databases/cellosaurus/cellosaurus.txt",
+    "url": "https://www.cellosaurus.org/£{id}",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "name,[]synonyms,sex,age,category,[]diseases,[]species,[]parent,[]same_individual,[]external_refs,[]comments",
+    "compact_fields": "name,category,sex",
+    "test_entries_count": "100",
+    "textPriority": "85",
+    "bucketMethod": "cellosaurus"
+  },
   "intogen": {
     "id": "756",
     "name": "intOGen",

@@ -2110,6 +2110,11 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)
 				xref.Attributes = &pbuf.Xref_Intogen{attr}
+			case "cellosaurus":
+				attr := &pbuf.CellosaurusAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Cellosaurus{attr}
 			case "bindingdb":
 				attr := &pbuf.BindingdbAttr{}
 				barr := []byte((*kvProp[k])[0].value)
@@ -2643,6 +2648,11 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 					barr := []byte((*kvProp[k])[0].value)
 					ffjson.Unmarshal(barr, attr)
 					xref.Attributes = &pbuf.Xref_Intogen{attr}
+				case "cellosaurus":
+					attr := &pbuf.CellosaurusAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_Cellosaurus{attr}
 				case "bindingdb":
 					attr := &pbuf.BindingdbAttr{}
 					barr := []byte((*kvProp[k])[0].value)

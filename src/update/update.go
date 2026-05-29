@@ -1003,6 +1003,12 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			d.datasets2 = append(d.datasets2, data)
 			go ig.update()
 			break
+		case "cellosaurus":
+			d.wg.Add(1)
+			cs := cellosaurus{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go cs.update()
+			break
 		case "collectri":
 			d.wg.Add(1)
 			ct := collectri{source: data, d: d}

@@ -208,6 +208,7 @@ func (s *Service) initWithDbDir(dbDir string) error {
 		cel.Types(&pbuf.CivicEvidenceAttr{}),
 		cel.Types(&pbuf.CivicAssertionAttr{}),
 		cel.Types(&pbuf.IntogenAttr{}),
+		cel.Types(&pbuf.CellosaurusAttr{}),
 		cel.Types(&pbuf.BindingdbAttr{}),
 		cel.Types(&pbuf.CtdAttr{}),
 		cel.Types(&pbuf.CtdGeneInteractionAttr{}),
@@ -374,6 +375,8 @@ func (s *Service) initWithDbDir(dbDir string) error {
 			decls.NewIdent("civic_assertion", decls.NewObjectType("pbuf.CivicAssertionAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("intogen", decls.NewObjectType("pbuf.IntogenAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("cellosaurus", decls.NewObjectType("pbuf.CellosaurusAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("bindingdb", decls.NewObjectType("pbuf.BindingdbAttr"), nil)),
 		cel.Declarations(

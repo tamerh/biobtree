@@ -106,7 +106,8 @@
     "clinical_trials_phase_sorting": "Clinical trials phase sorting: Tests that clinical_trials xrefs to MONDO, EFO, and ChEMBL are sorted by phase (PHASE4 first, then PHASE3, PHASE2, PHASE1). Later phase trials represent more advanced drug development and are prioritized in results.",
     "id_filter": "Identifier filter tests: Tests filtering by entry identifier using the transient id field. Enables queries like go[id==\"GO:0005886\"] to filter results by exact identifier. Works across all datasets. Supports single-hop filters, multi-hop chains with multiple id filters, and combinations with other attribute filters. Essential for LLM agents to precisely filter mapping results.",
     "gtopdb_pharmacology": "GtoPdb Guide to Pharmacology integration: Three sub-datasets covering drug targets (gtopdb - GPCRs, ion channels, kinases, enzymes), pharmacological ligands (gtopdb_ligand - approved drugs, investigational compounds with ADME properties), and target-ligand interactions (gtopdb_interaction - binding affinity data with pKi/pKd/pIC50). Cross-references to UniProt, HGNC, PubChem, ChEMBL, ChEBI, PubMed. CEL filters for target type, drug approval status, affinity values. Text search by drug names, receptor synonyms (e.g., 'serotonin' finds all serotonin receptors). Essential for pharmacology research, drug discovery, and target validation workflows.",
-    "somatic_cancer": "Somatic cancer drivers and clinical evidence (CIViC + intOGen): gene drivers with oncogene/TSG role, cancer->driver-gene routes, somatic clinical evidence (disease/therapy/level), and druggability. Complements the germline-only disease->gene routes (GenCC/GWAS/ClinVar/OMIM/Orphanet)."
+    "somatic_cancer": "Somatic cancer drivers and clinical evidence (CIViC + intOGen): gene drivers with oncogene/TSG role, cancer->driver-gene routes, somatic clinical evidence (disease/therapy/level), and druggability. Complements the germline-only disease->gene routes (GenCC/GWAS/ClinVar/OMIM/Orphanet).",
+    "cellosaurus": "Cell-line knowledge resource (Cellosaurus, CC BY 4.0): cell lines as a connected hub - species, disease (NCIt/ORDO->orphanet/mondo), mutated genes (CC Sequence variation->hgnc/clinvar), tissue (uberon), COSMIC, ChEMBL cell line/target, literature, and CVCL hierarchy. Enables disease->cell-line-model and gene->cell-line routes."
   },
   "tests": [
     {
@@ -9194,6 +9195,91 @@
       "should_pass": [
         "BRAF",
         "KRAS"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "cellosaurus",
+      "name": "Cell line to species",
+      "query": ">>cellosaurus>>taxonomy",
+      "why": "Every cell line carries its species of origin (OX line)",
+      "should_pass": [
+        "CVCL_0030",
+        "CVCL_0001"
+      ],
+      "should_fail": [
+        "CVCL_NOTREAL999"
+      ]
+    },
+    {
+      "category": "cellosaurus",
+      "name": "Cell line to mutated genes",
+      "query": ">>cellosaurus>>hgnc",
+      "why": "Genes mutated in the cell line, mined from CC Sequence variation lines",
+      "should_pass": [
+        "CVCL_0001"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "cellosaurus",
+      "name": "Cell line to tissue of origin (UBERON)",
+      "query": ">>cellosaurus>>uberon",
+      "why": "Anatomical site the cell line derives from (CC Derived from site)",
+      "should_pass": [
+        "CVCL_0030"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "cellosaurus",
+      "name": "Cell line to COSMIC",
+      "query": ">>cellosaurus>>cosmic",
+      "why": "Catalogue of Somatic Mutations in Cancer cross-reference",
+      "should_pass": [
+        "CVCL_0030"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "cellosaurus",
+      "name": "Cell line to ChEMBL cell line (loop-closer)",
+      "query": ">>cellosaurus>>chembl_cell_line",
+      "why": "Closes the loop on ChEMBL's chembl_cell_line.cellosaurusId attribute",
+      "should_pass": [
+        "CVCL_0030"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "cellosaurus",
+      "name": "Gene to cell lines (via mutations)",
+      "query": ">>hgnc>>cellosaurus",
+      "why": "Cell lines carrying a mutation in this gene - reverse of the CC mining",
+      "should_pass": [
+        "TP53",
+        "EGFR",
+        "KRAS"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "cellosaurus",
+      "name": "Cancer to cell line models",
+      "query": ">>mondo>>cellosaurus",
+      "why": "Cell-line models of a disease (osteosarcoma motivation: MONDO -> CVCL_ models)",
+      "should_pass": [
+        "MONDO:0005105"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "cellosaurus",
+      "name": "Cancer cell line category filter (CEL)",
+      "query": ">>cellosaurus[cellosaurus.category==\"Cancer cell line\"]",
+      "why": "Filter to cancer cell lines - validates the CellosaurusAttr CEL filter",
+      "should_pass": [
+        "CVCL_0030"
       ],
       "should_fail": []
     }

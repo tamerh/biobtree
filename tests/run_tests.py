@@ -294,6 +294,7 @@ Available datasets:
         'gencc': datasets_dir / "gencc" / "test_gencc.py",
         'civic': datasets_dir / "civic" / "test_civic.py",
         'intogen': datasets_dir / "intogen" / "test_intogen.py",
+        'cellosaurus': datasets_dir / "cellosaurus" / "test_cellosaurus.py",
         'bindingdb': datasets_dir / "bindingdb" / "test_bindingdb.py",
         'ctd': datasets_dir / "ctd" / "test_ctd.py",
         'pharmgkb': datasets_dir / "pharmgkb" / "test_pharmgkb.py",

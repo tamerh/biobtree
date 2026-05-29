@@ -1,0 +1,20 @@
+{
+  "common_tests": [
+    {
+      "name": "Lookup cell line CVCL_0030 (HeLa)",
+      "type": "id_lookup",
+      "id": "CVCL_0030"
+    },
+    {
+      "name": "Cell line attributes present (CVCL_0030)",
+      "type": "attribute_check",
+      "id": "CVCL_0030"
+    },
+    {
+      "name": "Invalid accession handling",
+      "type": "invalid_id",
+      "invalid_id": "CVCL_NOTREAL999"
+    }
+  ],
+  "custom_tests": []
+}

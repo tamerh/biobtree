@@ -356,6 +356,9 @@ func extractField(xref *pbuf.Xref, field string) string {
 	if a := xref.GetIntogen(); a != nil {
 		return extractIntogenField(a, field)
 	}
+	if a := xref.GetCellosaurus(); a != nil {
+		return extractCellosaurusField(a, field)
+	}
 
 	return ""
 }
@@ -941,6 +944,33 @@ func ExtractSourceName(xref *pbuf.Xref) string {
 		evidence := strings.Join(a.DirectEvidence, ";")
 		genes := strings.Join(a.InferenceGeneSymbols, ";")
 		return fmt.Sprintf("%s → %s [%s]: %s", a.ChemicalName, a.DiseaseName, evidence, genes)
+	}
+	if a := xref.GetCellosaurus(); a != nil {
+		return a.Name
+	}
+	if a := xref.GetGtopdb(); a != nil {
+		return a.Name
+	}
+	if a := xref.GetGtopdbLigand(); a != nil {
+		return a.Name
+	}
+	if a := xref.GetGtopdbInteraction(); a != nil {
+		return a.TargetName
+	}
+	if a := xref.GetCivic(); a != nil {
+		return a.Name
+	}
+	if a := xref.GetCivicVariant(); a != nil {
+		return a.Name
+	}
+	if a := xref.GetCivicEvidence(); a != nil {
+		return a.MolecularProfile
+	}
+	if a := xref.GetCivicAssertion(); a != nil {
+		return a.MolecularProfile
+	}
+	if a := xref.GetIntogen(); a != nil {
+		return a.Symbol
 	}
 
 	return ""
@@ -2345,6 +2375,25 @@ func extractIntogenField(a *pbuf.IntogenAttr, field string) string {
 		return a.Role
 	case "cancer_types":
 		return strings.Join(a.CancerTypes, ",")
+	default:
+		return ""
+	}
+}
+
+func extractCellosaurusField(a *pbuf.CellosaurusAttr, field string) string {
+	switch field {
+	case "name":
+		return a.Name
+	case "category":
+		return a.Category
+	case "sex":
+		return a.Sex
+	case "age":
+		return a.Age
+	case "diseases":
+		return strings.Join(a.Diseases, ",")
+	case "species":
+		return strings.Join(a.Species, ",")
 	default:
 		return ""
 	}

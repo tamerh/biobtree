@@ -1,0 +1,154 @@
+{
+  "cells": [
+    {
+      "accession": "CVCL_VG99",
+      "name": "(L)PC6",
+      "disease": "Lung carcinoma"
+    },
+    {
+      "accession": "CVCL_D1GY",
+      "name": "00-143",
+      "disease": "NUT carcinoma"
+    },
+    {
+      "accession": "CVCL_D2Y7",
+      "name": "01Abic immortal clone #2",
+      "disease": "Facioscapulohumeral muscular dystrophy 1"
+    },
+    {
+      "accession": "CVCL_D2Y8",
+      "name": "01Abic immortal clone #6",
+      "disease": "Facioscapulohumeral muscular dystrophy 1"
+    },
+    {
+      "accession": "CVCL_XB90",
+      "name": "0225-02Sp",
+      "disease": "Lung squamous cell carcinoma"
+    },
+    {
+      "accession": "CVCL_A2TM",
+      "name": "03-04 fibroblast",
+      "disease": "Autism spectrum disorder"
+    },
+    {
+      "accession": "CVCL_A2UU",
+      "name": "03-04 iPS #1",
+      "disease": "Autism spectrum disorder"
+    },
+    {
+      "accession": "CVCL_A2UV",
+      "name": "03-04 iPS #3",
+      "disease": "Autism spectrum disorder"
+    },
+    {
+      "accession": "CVCL_A2UW",
+      "name": "03-04 iPS #5",
+      "disease": "Autism spectrum disorder"
+    },
+    {
+      "accession": "CVCL_A2UX",
+      "name": "03-04 iPS #6",
+      "disease": "Autism spectrum disorder"
+    },
+    {
+      "accession": "CVCL_IP58",
+      "name": "0308",
+      "disease": "Glioblastoma"
+    },
+    {
+      "accession": "CVCL_IJ15",
+      "name": "031M-CUMC/INSERM",
+      "disease": "Prader-Willi syndrome"
+    },
+    {
+      "accession": "CVCL_C7W5",
+      "name": "0342 mel",
+      "disease": "Cutaneous melanoma"
+    },
+    {
+      "accession": "CVCL_A6HV",
+      "name": "0467.3",
+      "disease": "Lesch-Nyhan syndrome"
+    },
+    {
+      "accession": "CVCL_WU68",
+      "name": "04T036",
+      "disease": "Lung sarcomatoid carcinoma"
+    },
+    {
+      "accession": "CVCL_IJ16",
+      "name": "066MD-CUMC/INSERM",
+      "disease": "Prader-Willi syndrome"
+    },
+    {
+      "accession": "CVCL_A2ZB",
+      "name": "07-03 fibroblast",
+      "disease": "Autism spectrum disorder"
+    },
+    {
+      "accession": "CVCL_A2ZC",
+      "name": "07-03 iPS #3",
+      "disease": "Autism spectrum disorder"
+    },
+    {
+      "accession": "CVCL_A2ZD",
+      "name": "07-03 iPS #7",
+      "disease": "Autism spectrum disorder"
+    },
+    {
+      "accession": "CVCL_A2ZE",
+      "name": "07-03 iPS #9",
+      "disease": "Autism spectrum disorder"
+    },
+    {
+      "accession": "CVCL_IP59",
+      "name": "0822",
+      "disease": "Glioblastoma"
+    },
+    {
+      "accession": "CVCL_T913",
+      "name": "090727 LQT3/BrS g1",
+      "disease": "Long QT syndrome 3"
+    },
+    {
+      "accession": "CVCL_T914",
+      "name": "090727 LQT3/BrS g2",
+      "disease": "Long QT syndrome 3"
+    },
+    {
+      "accession": "CVCL_VG25",
+      "name": "09097C",
+      "disease": "Costello syndrome"
+    },
+    {
+      "accession": "CVCL_C5PU",
+      "name": "1-185-37",
+      "disease": "Myasthenia gravis"
+    },
+    {
+      "accession": "CVCL_C5PV",
+      "name": "1-187-29",
+      "disease": "Myasthenia gravis"
+    },
+    {
+      "accession": "CVCL_2260",
+      "name": "1-5c-4",
+      "disease": "Human papillomavirus-related endocervical adenocarcinoma"
+    },
+    {
+      "accession": "CVCL_D231",
+      "name": "1-87",
+      "disease": "Lung adenocarcinoma"
+    },
+    {
+      "accession": "CVCL_L211",
+      "name": "1-LN",
+      "disease": "Prostate carcinoma"
+    },
+    {
+      "accession": "CVCL_C8GH",
+      "name": "1.11",
+      "disease": "Renal cell carcinoma"
+    }
+  ]
+}

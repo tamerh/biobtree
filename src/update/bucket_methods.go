@@ -32,6 +32,7 @@ var BucketMethods = map[string]BucketMethod{
 	"chembl":    chemblBucket,   // CHEMBL123456, CHEMBL_ACT_93229, CHEMBL_TC_47, etc.
 	"interpro":  interproBucket, // IPR000001 → numeric part after "IPR"
 	"hmdb":      hmdbBucket,      // HMDB0000001 → numeric part after "HMDB"
+	"cellosaurus": cellosaurusBucket, // CVCL_xxxx → first suffix char (base36)
 	"nct":       nctBucket,       // NCT06401707 → numeric part after "NCT"
 	"lipidmaps": lipidmapsBucket, // LMFA00000001 → numeric part after 4-char prefix
 	"rhea":      rheaBucket,      // RHEA:16066 → numeric part after "RHEA:"
@@ -176,6 +177,25 @@ func hmdbBucket(id string, numBuckets int) int {
 		panic("hmdbBucket: invalid HMDB id format: " + id)
 	}
 	return numericLexBucket(id[4:], numBuckets)
+}
+
+// cellosaurusBucket - CVCL_xxxx → first char of the 4-char alphanumeric suffix
+// (base36, lexicographic-order preserving: '0'-'9'→0-9, 'A'-'Z'→10-35). 36 buckets.
+func cellosaurusBucket(id string, numBuckets int) int {
+	if len(id) < 6 || !strings.HasPrefix(id, "CVCL_") {
+		panic("cellosaurusBucket: invalid CVCL id format: " + id)
+	}
+	c := id[5]
+	switch {
+	case c >= '0' && c <= '9':
+		return int(c - '0')
+	case c >= 'A' && c <= 'Z':
+		return int(c-'A') + 10
+	case c >= 'a' && c <= 'z':
+		return int(c-'a') + 10
+	default:
+		return 36 // fallback (matches alphanum's "other" bucket)
+	}
 }
 
 // nctBucket - NCT06401707 → numeric part after "NCT"

@@ -25,6 +25,7 @@ type civic struct {
 	d            *DataUpdate
 	mappings     *MedicalTermMappings
 	mondoInt     uint32
+	chemblMolInt uint32
 	diseaseMondo map[string][]string // disease name -> MONDO ids (cache)
 }
 
@@ -75,6 +76,9 @@ func (c *civic) readTSV(fileName string) (map[string]int, [][]string) {
 	resp, err := http.Get(url)
 	c.check(err, "downloading "+fileName)
 	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		c.check(fmt.Errorf("unexpected HTTP %d for %s", resp.StatusCode, url), "downloading "+fileName)
+	}
 
 	br := bufio.NewReaderSize(resp.Body, fileBufSize)
 	scanner := bufio.NewScanner(br)
@@ -163,15 +167,10 @@ func splitList(v string) []string {
 // general keyword lookup and filter the results to the chembl_molecule dataset.
 // Tries the raw name then a salt-stripped form (e.g. "Imatinib Mesylate").
 func (c *civic) chemblMoleculeID(name string) string {
-	if c.d.lookupService == nil || name == "" {
+	if c.d.lookupService == nil || name == "" || c.chemblMolInt == 0 {
 		return ""
 	}
-	cid, ok := config.Dataconf["chembl_molecule"]["id"]
-	if !ok {
-		return ""
-	}
-	var di uint32
-	fmt.Sscanf(cid, "%d", &di)
+	di := c.chemblMolInt
 
 	seen := map[string]bool{}
 	for _, cand := range []string{name, stripSalt(name)} {
@@ -217,6 +216,9 @@ func (c *civic) update() {
 	c.diseaseMondo = map[string][]string{}
 	if id, ok := config.Dataconf["mondo"]["id"]; ok {
 		fmt.Sscanf(id, "%d", &c.mondoInt)
+	}
+	if id, ok := config.Dataconf["chembl_molecule"]["id"]; ok {
+		fmt.Sscanf(id, "%d", &c.chemblMolInt)
 	}
 
 	// ---- 1. Variants: build join maps + store variant entries -------------

@@ -9,6 +9,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"sort"
 	"strconv"
 	"strings"
 	"sync/atomic"
@@ -42,6 +43,9 @@ func (it *intogen) readZipEntry(fileParam, entrySuffix string) []byte {
 	resp, err := http.Get(url)
 	it.check(err, "downloading "+fileParam)
 	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		it.check(fmt.Errorf("unexpected HTTP %d for %s (release file may have moved)", resp.StatusCode, url), "downloading "+fileParam)
+	}
 
 	raw, err := io.ReadAll(resp.Body)
 	it.check(err, "reading "+fileParam)
@@ -94,6 +98,7 @@ func mapBoolKeys(m map[string]bool) []string {
 	for k := range m {
 		out = append(out, k)
 	}
+	sort.Strings(out) // stable order for reproducible attr JSON / xref emission
 	return out
 }
 
@@ -250,6 +255,12 @@ func (it *intogen) update() {
 			}
 		}
 		total++
+	}
+
+	// Fail loudly rather than silently shipping an empty dataset (e.g. if the
+	// pinned release filename moved and the download/parse yielded nothing).
+	if total == 0 {
+		it.check(fmt.Errorf("no driver genes parsed - check the configured release files"), "intogen")
 	}
 
 	it.d.progChan <- &progressInfo{dataset: it.source, done: true}

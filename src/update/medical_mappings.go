@@ -403,15 +403,17 @@ func collectOntologyIDs(d *DataUpdate, m *MedicalTermMappings, condition string,
 			return
 		}
 		for _, xref := range result.Results {
-			if xref.IsLink {
-				// Text-search link: the ontology target sits in Entries.
-				for _, entry := range xref.Entries {
-					if entry.Dataset == ontologyDatasetID {
-						found[entry.Identifier] = true
-					}
-				}
-			} else if xref.Dataset == ontologyDatasetID {
+			// Top-level entity directly in the ontology (e.g. an exact MONDO hit).
+			if xref.Dataset == ontologyDatasetID {
 				found[xref.Identifier] = true
+			}
+			// Ontology targets nested in Entries: the common case for a
+			// text-search link, but also when another dataset (clinical_trials,
+			// ctd, ...) is the top-level result with the ontology nested under it.
+			for _, entry := range xref.Entries {
+				if entry.Dataset == ontologyDatasetID {
+					found[entry.Identifier] = true
+				}
 			}
 		}
 	}

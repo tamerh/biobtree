@@ -54,7 +54,13 @@ func (l *lipidmaps) update() {
 		lipidmapsURL := config.Dataconf[l.source]["path"]
 		log.Printf("[%s] Downloading LIPID MAPS SDF from: %s", l.source, lipidmapsURL)
 
-		resp, err := http.Get(lipidmapsURL)
+		// LIPID MAPS sits behind Cloudflare, which 403s the default Go-http-client
+		// User-Agent. Send a browser User-Agent to get past the bot block.
+		req, err := http.NewRequest(http.MethodGet, lipidmapsURL, nil)
+		l.check(err, "building LIPID MAPS request for: "+lipidmapsURL)
+		req.Header.Set("User-Agent", "Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0")
+
+		resp, err := http.DefaultClient.Do(req)
 		l.check(err, "downloading LIPID MAPS ZIP file from: "+lipidmapsURL)
 		defer resp.Body.Close()
 

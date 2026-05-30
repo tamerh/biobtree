@@ -104,7 +104,7 @@ DATASETS=(
     clinvar
     gwas_study
     gwas
-    dbsnp
+    # dbsnp   # separate 'dbsnp' federation — excluded for a main-only update
     alphamissense
     alphamissense_transcript
 

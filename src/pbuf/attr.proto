@@ -159,8 +159,16 @@ message UniprotAttr {
  repeated string submitted_names =5;
  UniSequence sequence=7;
  bool reviewed=8;
+ map<string, string> comments =9;        // CC narrative blocks: lowercase type (e.g. function, subcellular_location, disease) -> text
+ repeated UniIsoform isoforms =10;        // named alternative products (isoform id + names)
   string id = 100; // transient - populated at runtime from Xref.Identifier
   string name = 101; // transient - populated at runtime from names[0]
+}
+
+message UniIsoform {
+  string id =1;                  // e.g. P04637-2
+  repeated string names =2;      // e.g. ["2","I9RET","p53beta"]
+  bool is_canonical =3;          // true when UniProt marks the sequence as "displayed"
 }
 
 message UniSequence {

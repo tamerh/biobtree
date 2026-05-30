@@ -517,7 +517,10 @@ func (u *uniprot) update(taxoids []int) {
 		defer client.Quit()
 	}
 
-	p := xmlparser.NewXMLParser(br, "entry").SkipElements([]string{"comment"})
+	// Comment subtrees are parsed (not skipped): they carry the CC narrative blocks
+	// (FUNCTION, SUBCELLULAR LOCATION, DISEASE, ...) and the named isoforms under
+	// "alternative products". Benchmarked at ~0% parse-time cost vs skipping.
+	p := xmlparser.NewXMLParser(br, "entry")
 
 	var total uint64
 	var v, x, z xmlparser.XMLElement
@@ -649,6 +652,97 @@ uniloop:
 				}
 			}
 
+		}
+
+		// CC comment narrative blocks + named isoforms (alternative products).
+		// Keys are lowercased with spaces->underscores (e.g. "subcellular_location").
+		// Curated disease MIM ids are also linked to the mim dataset.
+		addComment := func(key, val string) {
+			if val == "" {
+				return
+			}
+			if attr.Comments == nil {
+				attr.Comments = map[string]string{}
+			}
+			if existing := attr.Comments[key]; existing != "" {
+				attr.Comments[key] = existing + " " + val
+			} else {
+				attr.Comments[key] = val
+			}
+		}
+		diseaseMimSeen := map[string]bool{}
+		for _, c := range r.Childs["comment"] {
+			switch c.Attrs["type"] {
+			case "alternative products":
+				for _, iso := range c.Childs["isoform"] {
+					ui := &pbuf.UniIsoform{}
+					if ids := iso.Childs["id"]; len(ids) > 0 {
+						ui.Id = ids[0].InnerText
+					}
+					for _, nm := range iso.Childs["name"] {
+						ui.Names = append(ui.Names, nm.InnerText)
+					}
+					if seqs := iso.Childs["sequence"]; len(seqs) > 0 && seqs[0].Attrs["type"] == "displayed" {
+						ui.IsCanonical = true
+					}
+					if ui.Id != "" {
+						attr.Isoforms = append(attr.Isoforms, ui)
+					}
+				}
+			case "subcellular location":
+				var locs []string
+				for _, sl := range c.Childs["subcellularLocation"] {
+					for _, loc := range sl.Childs["location"] {
+						locs = append(locs, loc.InnerText)
+					}
+				}
+				addComment("subcellular_location", strings.Join(locs, ". "))
+			case "disease":
+				var parts []string
+				for _, dis := range c.Childs["disease"] {
+					name := ""
+					if n := dis.Childs["name"]; len(n) > 0 {
+						name = n[0].InnerText
+					}
+					acr := ""
+					if a := dis.Childs["acronym"]; len(a) > 0 {
+						acr = a[0].InnerText
+					}
+					for _, ref := range dis.Childs["dbReference"] {
+						if ref.Attrs["type"] != "MIM" {
+							continue
+						}
+						mimID := ref.Attrs["id"]
+						if mimID == "" {
+							continue
+						}
+						if !diseaseMimSeen[mimID] {
+							diseaseMimSeen[mimID] = true
+							u.d.addXref(entryid, fr, mimID, "mim", false)
+						}
+						if name != "" {
+							if acr != "" {
+								parts = append(parts, fmt.Sprintf("%s (%s) [MIM:%s]", name, acr, mimID))
+							} else {
+								parts = append(parts, fmt.Sprintf("%s [MIM:%s]", name, mimID))
+							}
+						}
+					}
+					if desc := dis.Childs["description"]; len(desc) > 0 {
+						parts = append(parts, desc[0].InnerText)
+					}
+				}
+				for _, t := range c.Childs["text"] {
+					parts = append(parts, t.InnerText)
+				}
+				addComment("disease", strings.Join(parts, " "))
+			default:
+				// Narrative types carrying a <text> child (function, subunit, ptm,
+				// induction, domain, tissue specificity, miscellaneous, ...).
+				for _, t := range c.Childs["text"] {
+					addComment(strings.ToLower(strings.ReplaceAll(c.Attrs["type"], " ", "_")), t.InnerText)
+				}
+			}
 		}
 
 		u.processDbReference(entryid, r)

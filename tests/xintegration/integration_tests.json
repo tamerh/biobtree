@@ -8423,6 +8423,61 @@
       ]
     },
     {
+      "category": "uniprot_comments",
+      "name": "P04637 UniProt CC FUNCTION narrative present",
+      "type": "validation",
+      "query": "",
+      "filter_dataset": "uniprot",
+      "identifier": "P04637",
+      "expected_identifier": "P04637",
+      "why": "UniProt CC comment narrative blocks are now exposed on entry?s=uniprot (feature: comments map). FUNCTION is the highest-leverage field for AI/agent consumers.",
+      "validations": [
+        {
+          "path": "Uniprot.comments.function",
+          "min_length": 30,
+          "description": "comments.function should carry the curated FUNCTION paragraph"
+        }
+      ]
+    },
+    {
+      "category": "uniprot_comments",
+      "name": "P04637 named isoforms exposed",
+      "type": "validation",
+      "query": "",
+      "filter_dataset": "uniprot",
+      "identifier": "P04637",
+      "expected_identifier": "P04637",
+      "why": "ALTERNATIVE PRODUCTS isoform names (p53alpha/beta/gamma) are now exposed as isoforms[]; first is the canonical displayed sequence.",
+      "validations": [
+        {
+          "path": "Uniprot.isoforms[0].id",
+          "expected": "P04637-1",
+          "description": "first isoform is the canonical accession P04637-1"
+        },
+        {
+          "path": "Uniprot.isoforms[0].is_canonical",
+          "expected": true,
+          "description": "first isoform marked canonical (UniProt 'displayed' sequence)"
+        }
+      ]
+    },
+    {
+      "category": "uniprot_comments",
+      "name": "P04637 curated disease links to MIM",
+      "type": "validation",
+      "query": ">>uniprot>>mim",
+      "filter_dataset": "uniprot",
+      "identifier": "P04637",
+      "why": "DISEASE CC comments now emit uniprot->mim xrefs from the curated <disease> MIM ids (e.g. Li-Fraumeni MIM:151623).",
+      "validations": [
+        {
+          "path": "",
+          "has_results": true,
+          "description": "TP53 has curated disease MIM links via >>uniprot>>mim"
+        }
+      ]
+    },
+    {
       "category": "xref_inflation",
       "name": "P04637 (TP53) PDB Mapping Total",
       "type": "validation",

@@ -16,13 +16,13 @@ DESIGN PRINCIPLES:
 
 EDGES = """
 EDGES (what connects to what):
-ensembl: uniprot, go, transcript, exon, ortholog, paralog, hgnc, entrez, refseq, bgee, gwas, gencc, antibody, scxa
-hgnc: ensembl, uniprot, entrez, gencc, pharmgkb_gene, msigdb, clinvar, mim, refseq, alphafold, collectri, gwas, hpo, cellphonedb
-entrez: ensembl, uniprot, refseq, go, biogrid, pubchem_activity, ctd_gene_interaction, dbsnp
+ensembl: uniprot, go, transcript, exon, ortholog, paralog, hgnc, entrez, refseq, bgee, gwas, gencc, antibody, scxa, civic, intogen
+hgnc: ensembl, uniprot, entrez, gencc, pharmgkb_gene, msigdb, clinvar, mim, refseq, alphafold, collectri, gwas, hpo, cellphonedb, civic, intogen, cellosaurus
+entrez: ensembl, uniprot, refseq, go, biogrid, pubchem_activity, ctd_gene_interaction, dbsnp, civic, intogen
 refseq: ensembl, entrez, taxonomy, ccds, uniprot, mirdb
 mirdb: refseq
 transcript: ensembl, exon, ufeature, alphamissense
-uniprot: ensembl, alphafold, interpro, pfam, pdb, ufeature, intact, string, string_interaction, biogrid, biogrid_interaction, chembl_target, go, reactome, rhea, swisslipids, bindingdb, antibody, pubchem_activity, cellphonedb, jaspar, signor, diamond_similarity, esm2_similarity, alphamissense
+uniprot: ensembl, alphafold, interpro, pfam, pdb, ufeature, intact, string, string_interaction, biogrid, biogrid_interaction, chembl_target, go, reactome, rhea, swisslipids, bindingdb, antibody, pubchem_activity, cellphonedb, jaspar, signor, diamond_similarity, esm2_similarity, alphamissense, cellosaurus
 alphafold: uniprot
 interpro: uniprot, go, interproparent, interprochild
 chembl_molecule: mesh, chembl_activity, chembl_target, pubchem, chebi, clinical_trials
@@ -35,11 +35,11 @@ chebi: pubchem, rhea, intact
 swisslipids: uniprot, go, chebi, uberon, cl
 lipidmaps: chebi, pubchem
 dbsnp: entrez, clinvar, pharmgkb_variant, alphamissense, spliceai
-clinvar: hgnc, mondo, hpo, dbsnp, orphanet
+clinvar: hgnc, mondo, hpo, dbsnp, orphanet, civic_variant, cellosaurus
 alphamissense: uniprot, transcript
 gwas: gwas_study, efo, dbsnp, hgnc, mondo
 gwas_study: gwas, efo, mondo
-mondo: gencc, clinvar, efo, mesh, hpo, clinical_trials, antibody, cellxgene, cellxgene_celltype, orphanet, mondoparent, mondochild, gwas, gwas_study
+mondo: gencc, clinvar, efo, mesh, hpo, clinical_trials, antibody, cellxgene, cellxgene_celltype, orphanet, mondoparent, mondochild, gwas, gwas_study, civic, intogen, cellosaurus
 gencc: mondo, hpo, hgnc, ensembl
 clinical_trials: mondo, chembl_molecule
 pharmgkb: hgnc, dbsnp, mesh, pharmgkb_gene, pharmgkb_variant, pharmgkb_clinical, pharmgkb_guideline, pharmgkb_pathway
@@ -96,6 +96,12 @@ brenda_inhibitor: brenda
 gtopdb: uniprot, hgnc, gtopdb_ligand, gtopdb_interaction  # drug targets (GPCRs, ion channels, enzymes)
 gtopdb_ligand: pubchem, chebi, chembl_molecule, gtopdb_interaction  # ligands/drugs with binding data
 gtopdb_interaction: gtopdb, gtopdb_ligand, pubmed  # target-ligand binding with affinity values
+civic: entrez, ensembl, civic_variant, civic_evidence, civic_assertion  # clinical interpretation of cancer variants
+civic_variant: civic, clinvar, civic_evidence, civic_assertion
+civic_evidence: civic_variant, civic, mondo, chembl_molecule, pubmed, clinical_trials
+civic_assertion: civic_variant, civic, mondo, chembl_molecule
+intogen: hgnc, entrez, ensembl, mondo, pubmed  # cancer driver genes
+cellosaurus: taxonomy, uniprot, hgnc, mondo, orphanet, clinvar, dbsnp, uberon, cl, chebi, doi, patent, pubmed  # cell lines (CVCL)
 """
 
 
@@ -218,6 +224,10 @@ WARNING - GO terms with high xref_count (>100):
 DISEASE GENE PATTERNS:
 - >>mondo>>gencc>>hgnc (curated)
 - >>mondo>>clinvar>>hgnc (variant-based)
+
+CANCER / CELL LINE:
+- >>hgnc>>intogen (cancer driver gene?), >>hgnc>>civic (clinical variant interpretations)
+- >>uniprot>>cellosaurus (cell lines for a protein/gene)
 
 DISEASE → DRUG PATTERNS:
 - >>mesh>>chembl_molecule (MeSH disease/condition → drugs with indications)

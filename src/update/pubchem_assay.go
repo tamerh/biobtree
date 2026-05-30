@@ -443,12 +443,14 @@ func (p *pubchemAssay) processBioassayFile(fullURL string, testLimit int, idLogF
 			}
 		}
 
-		// BioAssay → Gene → Ensembl (NCBI Gene ID / Entrez Gene ID)
-		// Use lookup to find Entrez entry, then extract Ensembl gene ID
+		// BioAssay → Gene → Ensembl + UniProt (NCBI Gene ID / Entrez Gene ID)
+		// Derive both the Ensembl gene and the UniProt protein from the curated Entrez
+		// entry via a single lookup. This backfills protein links for gene-only assays
+		// where the assay's own UniProt target column is empty.
 		for _, geneID := range geneIDs {
 			if geneID != "" {
 				//log.Printf("[PubChem Assay] ✓ Gene mapping: AID=%s -> Entrez Gene %s", aid, geneID)
-				p.d.addXrefEnsemblViaEntrez(geneID, aid, fr)
+				p.d.addXrefEnsemblUniProtViaEntrez(geneID, aid, fr)
 			}
 		}
 

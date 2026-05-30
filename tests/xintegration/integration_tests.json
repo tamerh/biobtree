@@ -2401,10 +2401,11 @@
       "category": "pubchem_drug",
       "name": "Protein to PubChem Activities",
       "query": ">>uniprot>>pubchem_activity",
-      "why": "Find all PubChem bioactivity data for a protein target",
+      "why": "Find all PubChem bioactivity data for a protein target. P01116 (KRAS) is the issue #12 regression marker: its bioactivities.tsv.gz rows carry no protein accession, so the link is derived from the Aid2GeneidAccessionUniProt.gz AID->UniProt mapping.",
       "should_pass": [
         "P35354",
-        "P00533"
+        "P00533",
+        "P01116"
       ],
       "should_fail": []
     },

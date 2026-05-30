@@ -422,6 +422,7 @@
     "url": "https://alphafold.ebi.ac.uk/entry/£{id}",
     "path": "https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/swissprot_pdb_v6.tar",
     "proteomeTaxIds": "9606,10090,3702,10116,559292,284812,83333,6239,39947,7955,7227,44689,237561,243232,3847,4577",
+    "largeProteinBackfill": "no",
     "useLocalFile": "no",
     "hasFilter": "yes",
     "attrs": "global_metric,fraction_plddt_very_high,fraction_plddt_confident,fraction_plddt_low,fraction_plddt_very_low,model_entity_id,gene,max_pae,mean_pae,fraction_pae_confident,version,fragment_number,sequence_length",
@@ -631,6 +632,7 @@
     "compact_fields": "activity_outcome,activity_type,value,unit",
     "test_entries_count": "5000",
     "pathBioactivities": "bioactivities.tsv.gz",
+    "pathAidUniprot": "Aid2GeneidAccessionUniProt.gz",
     "bucketMethod": "pubchem_activity"
   },
   "pubchem_assay": {

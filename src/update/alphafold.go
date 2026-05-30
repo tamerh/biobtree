@@ -5,9 +5,11 @@ import (
 	"biobtree/pbuf"
 	"bufio"
 	"compress/gzip"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
+	"net/url"
 	"os"
 	"strconv"
 	"strings"
@@ -21,6 +23,11 @@ type alphafoldProcessor struct {
 	source   string
 	sourceID string
 	d        *DataUpdate
+	// processedIDs records UniProt accessions ingested from the swissprot tar.
+	// Only allocated when largeProteinBackfill is enabled, so the backfill pass
+	// can skip proteins already covered (avoids duplicate props at the 2700aa
+	// fragmentation boundary). nil otherwise (no overhead on normal builds).
+	processedIDs map[string]bool
 }
 
 // Main update entry point
@@ -41,6 +48,11 @@ func (a *alphafoldProcessor) update() {
 
 	fmt.Printf("Processing AlphaFold structures...\n")
 
+	// Enable boundary dedup tracking only when the large-protein backfill runs.
+	if config.Dataconf[a.source]["largeProteinBackfill"] == "yes" {
+		a.processedIDs = make(map[string]bool)
+	}
+
 	// Get data source path
 	filePath := config.Dataconf[a.source]["path"]
 
@@ -56,6 +68,12 @@ func (a *alphafoldProcessor) update() {
 	// PAE data will be merged with pLDDT data by mergeg.go
 	paeProcessed := processPAEData(a.source, a.sourceID, a.d, idLogFile, testLimit)
 	totalProcessed += paeProcessed
+
+	// Backfill large/fragmented proteins absent from swissprot_pdb_v*.tar.
+	// Opt-in (largeProteinBackfill=yes) because it makes live UniProt + AlphaFold
+	// API calls. No-op otherwise.
+	backfilled := a.processLargeProteins(idLogFile)
+	totalProcessed += backfilled
 
 	fmt.Printf("AlphaFold total processing complete: %d entries\n", totalProcessed)
 
@@ -169,6 +187,11 @@ func (a *alphafoldProcessor) processTarFile(filePath string, idLogFile *os.File,
 		}
 
 		a.d.addProp3(uniprotID, a.sourceID, b)
+
+		// Track for the large-protein backfill boundary dedup (when enabled).
+		if a.processedIDs != nil {
+			a.processedIDs[uniprotID] = true
+		}
 
 		// Create cross-reference: AlphaFold → UniProt
 		// Forward: alphafold/forward/, Reverse: uniprot/from_alphafold/
@@ -329,6 +352,218 @@ func calculateAverage(scores []float64) float64 {
 	}
 
 	return sum / float64(len(scores))
+}
+
+// afPrediction is one model entry from the AlphaFold prediction API
+// (https://alphafold.ebi.ac.uk/api/prediction/{accession}).
+type afPrediction struct {
+	EntryId          string `json:"entryId"`
+	UniprotAccession string `json:"uniprotAccession"`
+	PdbUrl           string `json:"pdbUrl"`
+	UniprotStart     int    `json:"uniprotStart"`
+	UniprotEnd       int    `json:"uniprotEnd"`
+}
+
+// processLargeProteins backfills AlphaFold structures for large proteins that the
+// swissprot_pdb_v*.tar deliberately omits (AlphaFold fragments proteins above ~2700aa
+// and ships those fragments only in per-proteome archives, not the SwissProt tar).
+//
+// It enumerates reviewed UniProt accessions at/above the length threshold, queries the
+// AlphaFold prediction API per accession, and ingests whatever models actually exist
+// (canonical fragments and/or isoform models), storing one aggregate AlphaFoldAttr per
+// protein (length-weighted mean pLDDT, pooled confidence fractions, total residues,
+// fragment count). Proteins AlphaFold no longer models (e.g. ATM, BRCA2 in v6) simply
+// stay empty — no dead links are created.
+//
+// This is opt-in via the alphafold dataset's largeProteinBackfill="yes" flag because it
+// makes ~N live HTTP calls (one UniProt query + one AF API call per large protein, plus
+// PDB downloads only for those that have models). It is fully fail-soft: any network
+// error logs a warning and processing continues.
+func (a *alphafoldProcessor) processLargeProteins(idLogFile *os.File) uint64 {
+	if config.Dataconf[a.source]["largeProteinBackfill"] != "yes" {
+		return 0
+	}
+
+	minLen := 2701
+	if v, ok := config.Appconf["alphafoldLargeProteinMinLength"]; ok {
+		if n, err := strconv.Atoi(v); err == nil && n > 0 {
+			minLen = n
+		}
+	}
+
+	accs, err := a.fetchLargeProteinAccessions(minLen)
+	if err != nil {
+		log.Printf("AlphaFold: large-protein backfill skipped, could not fetch UniProt list: %v", err)
+		return 0
+	}
+	log.Printf("AlphaFold: large-protein backfill: %d reviewed proteins >= %d aa to check via AF API", len(accs), minLen)
+
+	var processed uint64
+	apiCalls := 0
+	withModels := 0
+
+	for _, acc := range accs {
+		// Skip proteins already ingested from the tar (boundary overlap).
+		if a.processedIDs != nil && a.processedIDs[acc] {
+			continue
+		}
+
+		apiCalls++
+		models, ferr := a.fetchAlphaFoldModels(acc)
+		if ferr != nil {
+			// Fail-soft: skip this protein, keep going.
+			continue
+		}
+		if len(models) == 0 {
+			continue
+		}
+
+		attr := a.aggregateModels(acc, models)
+		if attr == nil {
+			continue
+		}
+		withModels++
+
+		b, merr := ffjson.Marshal(attr)
+		if merr != nil {
+			continue
+		}
+		a.d.addProp3(acc, a.sourceID, b)
+		// AlphaFold → UniProt (and reverse uniprot → alphafold).
+		a.d.addXref(acc, a.sourceID, acc, "uniprot", false)
+		// Model ID → UniProt entry for the search endpoint, mirroring the tar pass.
+		a.d.addXref(attr.ModelEntityId, textLinkID, acc, a.source, true)
+		processed++
+
+		if idLogFile != nil {
+			logProcessedID(idLogFile, acc)
+		}
+
+		if apiCalls%100 == 0 {
+			log.Printf("AlphaFold backfill: checked %d/%d, %d had models, %d stored", apiCalls, len(accs), withModels, processed)
+		}
+	}
+
+	log.Printf("AlphaFold large-protein backfill complete: checked %d, %d had models, %d stored", apiCalls, withModels, processed)
+	return processed
+}
+
+// fetchLargeProteinAccessions returns reviewed UniProt accessions with sequence
+// length >= minLen via the UniProt REST stream endpoint (one accession per line).
+func (a *alphafoldProcessor) fetchLargeProteinAccessions(minLen int) ([]string, error) {
+	query := fmt.Sprintf("reviewed:true AND length:[%d TO *]", minLen)
+	reqURL := "https://rest.uniprot.org/uniprotkb/stream?query=" +
+		url.QueryEscape(query) + "&fields=accession&format=list"
+
+	resp, err := httpGetWithRetry(reqURL, 3)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != 200 {
+		return nil, fmt.Errorf("UniProt REST returned status %d", resp.StatusCode)
+	}
+
+	var accs []string
+	scanner := bufio.NewScanner(resp.Body)
+	scanner.Buffer(make([]byte, 0, 64*1024), 1024*1024)
+	for scanner.Scan() {
+		acc := strings.TrimSpace(scanner.Text())
+		if acc != "" {
+			accs = append(accs, acc)
+		}
+	}
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
+	return accs, nil
+}
+
+// fetchAlphaFoldModels returns the AlphaFold models available for an accession,
+// or an empty slice if AlphaFold has no structure for it.
+func (a *alphafoldProcessor) fetchAlphaFoldModels(acc string) ([]afPrediction, error) {
+	reqURL := "https://alphafold.ebi.ac.uk/api/prediction/" + url.PathEscape(acc)
+	resp, err := httpGetWithRetry(reqURL, 2)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode == 404 {
+		return nil, nil // No model for this accession.
+	}
+	if resp.StatusCode != 200 {
+		return nil, fmt.Errorf("AF API status %d for %s", resp.StatusCode, acc)
+	}
+
+	var models []afPrediction
+	if err := json.NewDecoder(resp.Body).Decode(&models); err != nil {
+		return nil, err
+	}
+	return models, nil
+}
+
+// aggregateModels downloads each model's PDB, pools per-residue pLDDT across all
+// fragments/isoforms, and returns a single summary AlphaFoldAttr for the protein.
+// Returns nil if no model yielded usable pLDDT data.
+func (a *alphafoldProcessor) aggregateModels(acc string, models []afPrediction) *pbuf.AlphaFoldAttr {
+	var totalResidues int
+	var sum float64
+	var veryHigh, confident, low, veryLow int
+	modelCount := 0
+
+	for _, m := range models {
+		if m.PdbUrl == "" {
+			continue
+		}
+		plddt, err := a.fetchPDBPlddt(m.PdbUrl)
+		if err != nil || len(plddt) == 0 {
+			continue
+		}
+		for _, s := range plddt {
+			sum += s
+			if s > 90 {
+				veryHigh++
+			} else if s >= 70 {
+				confident++
+			} else if s >= 50 {
+				low++
+			} else {
+				veryLow++
+			}
+		}
+		totalResidues += len(plddt)
+		modelCount++
+	}
+
+	if totalResidues == 0 {
+		return nil
+	}
+	total := float64(totalResidues)
+	return &pbuf.AlphaFoldAttr{
+		GlobalMetric:           sum / total,
+		FractionPlddtVeryHigh:  float64(veryHigh) / total,
+		FractionPlddtConfident: float64(confident) / total,
+		FractionPlddtLow:       float64(low) / total,
+		FractionPlddtVeryLow:   float64(veryLow) / total,
+		ModelEntityId:          "AF-" + acc + "-F1",
+		FragmentNumber:         int32(modelCount),
+		SequenceLength:         int32(totalResidues),
+		Version:                6,
+	}
+}
+
+// fetchPDBPlddt downloads a (non-gzipped) AlphaFold PDB file and extracts pLDDT
+// scores from the B-factor column, reusing the tar-path PDB parser.
+func (a *alphafoldProcessor) fetchPDBPlddt(pdbURL string) ([]float64, error) {
+	resp, err := httpGetWithRetry(pdbURL, 2)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != 200 {
+		return nil, fmt.Errorf("PDB download status %d", resp.StatusCode)
+	}
+	return a.parsePDBFile(resp.Body)
 }
 
 // Helper to close readers

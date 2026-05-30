@@ -2594,44 +2594,45 @@ func (d *DataUpdate) isHumanGene(entrezID string, entrezDatasetInt uint32) bool 
 	return false
 }
 
-// addXrefEnsemblViaEntrez creates a cross-reference to Ensembl gene via Entrez Gene ID
-// entrezGeneID: NCBI Gene ID (Entrez Gene ID) as string
-// sourceID: The identifier of the source entity (e.g., activity ID, bioassay ID)
-// sourceDatasetID: The dataset ID of the source entity
-func (d *DataUpdate) addXrefEnsemblViaEntrez(entrezGeneID, sourceID, sourceDatasetID string) {
+// resolveEntrezEntry looks up an Entrez Gene ID and returns its Xref entry
+// (carrying that gene's cross-references), or nil if the lookup service is
+// unavailable, the dataset is not configured, or the gene is not found.
+func (d *DataUpdate) resolveEntrezEntry(entrezGeneID string) *pbuf.Xref {
 	if d.lookupService == nil {
-		return
+		return nil
 	}
 
-	// Get Entrez dataset ID
 	entrezDatasetID, ok := config.Dataconf["entrez"]["id"]
 	if !ok {
-		return // Entrez dataset not configured
+		return nil // Entrez dataset not configured
 	}
 
 	var entrezDatasetInt uint32
 	fmt.Sscanf(entrezDatasetID, "%d", &entrezDatasetInt)
 
-	// Step 1: Lookup Entrez Gene ID
 	result, err := d.lookup(entrezGeneID)
 	if err != nil || result == nil || len(result.Results) == 0 {
-		return // Entrez Gene ID not found in database
+		return nil // Entrez Gene ID not found in database
 	}
 
-	// Step 2: Find Entrez entry in results (filter by dataset)
-	var entrezEntry *pbuf.Xref
 	for _, xref := range result.Results {
 		if xref.Dataset == entrezDatasetInt {
-			entrezEntry = xref
-			break
+			return xref
 		}
 	}
+	return nil
+}
 
+// addXrefEnsemblViaEntrez creates a cross-reference to Ensembl gene via Entrez Gene ID
+// entrezGeneID: NCBI Gene ID (Entrez Gene ID) as string
+// sourceID: The identifier of the source entity (e.g., activity ID, bioassay ID)
+// sourceDatasetID: The dataset ID of the source entity
+func (d *DataUpdate) addXrefEnsemblViaEntrez(entrezGeneID, sourceID, sourceDatasetID string) {
+	entrezEntry := d.resolveEntrezEntry(entrezGeneID)
 	if entrezEntry == nil || len(entrezEntry.Entries) == 0 {
 		return // No Entrez entry found or no cross-references
 	}
 
-	// Step 3: Find Ensembl cross-reference in Entrez entry
 	ensemblDatasetID, ok := config.Dataconf["ensembl"]["id"]
 	if !ok {
 		return
@@ -2646,6 +2647,46 @@ func (d *DataUpdate) addXrefEnsemblViaEntrez(entrezGeneID, sourceID, sourceDatas
 			// Found Ensembl gene - create cross-reference
 			d.addXref(sourceID, sourceDatasetID, entry.Identifier, "ensembl", false)
 			return // Only need one Ensembl reference
+		}
+	}
+}
+
+// addXrefEnsemblUniProtViaEntrez creates Ensembl gene AND UniProt cross-references
+// for a source entry via a single Entrez Gene lookup.
+//
+// Some sources (e.g. PubChem BioAssay/BioActivity) carry only an NCBI Gene ID, and
+// their protein-accession column is sparsely populated — so the direct source->uniprot
+// edge is missing for many well-studied targets (e.g. KRAS: gene 3845 -> P01116).
+// The curated Entrez entry already links the gene to its protein products (UniProt's
+// `DR GeneID` lines produce the reverse entrez->uniprot edge), so we derive the protein
+// link from the same lookup that resolves Ensembl. This reuses the existing lookup call,
+// adding no extra cost over addXrefEnsemblViaEntrez.
+func (d *DataUpdate) addXrefEnsemblUniProtViaEntrez(entrezGeneID, sourceID, sourceDatasetID string) {
+	entrezEntry := d.resolveEntrezEntry(entrezGeneID)
+	if entrezEntry == nil || len(entrezEntry.Entries) == 0 {
+		return // No Entrez entry found or no cross-references
+	}
+
+	ensemblDatasetID, ensOk := config.Dataconf["ensembl"]["id"]
+	uniprotDatasetID, uniOk := config.Dataconf["uniprot"]["id"]
+
+	var ensemblDatasetInt, uniprotDatasetInt uint32
+	if ensOk {
+		fmt.Sscanf(ensemblDatasetID, "%d", &ensemblDatasetInt)
+	}
+	if uniOk {
+		fmt.Sscanf(uniprotDatasetID, "%d", &uniprotDatasetInt)
+	}
+
+	ensemblDone := false
+	for _, entry := range entrezEntry.Entries {
+		if ensOk && !ensemblDone && entry.Dataset == ensemblDatasetInt {
+			// One Ensembl gene reference is enough.
+			d.addXref(sourceID, sourceDatasetID, entry.Identifier, "ensembl", false)
+			ensemblDone = true
+		} else if uniOk && entry.Dataset == uniprotDatasetInt {
+			// A gene can have multiple curated protein products; link each.
+			d.addXref(sourceID, sourceDatasetID, entry.Identifier, "uniprot", false)
 		}
 	}
 }

@@ -79,6 +79,10 @@ func (p *pubchemActivity) loadAndStreamActivities() {
 	}
 	log.Printf("[PubChem Activity] Streaming entries directly to database (no memory accumulation)")
 
+	// Authoritative AID->UniProt mapping (bioactivities.tsv.gz protein/gene columns
+	// are almost always empty). Loaded once; reused across retries.
+	aidUniProt := p.loadAidUniProtMap()
+
 	// State that persists across retries for resume capability
 	var lastError error
 	resumeFromLine := 0                        // Line to resume from on retry
@@ -92,7 +96,7 @@ func (p *pubchemActivity) loadAndStreamActivities() {
 			log.Printf("[PubChem Activity] Resuming from line %d (skipping %d already processed lines)...", resumeFromLine, resumeFromLine)
 		}
 
-		processedLines, newActivityCount, err := p.processActivityFile(fullURL, testLimit, idLogFile, resumeFromLine, activityIndex)
+		processedLines, newActivityCount, err := p.processActivityFile(fullURL, testLimit, idLogFile, resumeFromLine, activityIndex, aidUniProt)
 		activityCount += newActivityCount
 
 		if err == nil {
@@ -110,11 +114,127 @@ func (p *pubchemActivity) loadAndStreamActivities() {
 	log.Panicf("[PubChem Activity] FATAL: All %d retry attempts failed. Last error: %v", maxRetries+1, lastError)
 }
 
+// loadAidUniProtMap downloads Aid2GeneidAccessionUniProt.gz and builds an
+// AID -> []UniProt accession map.
+//
+// bioactivities.tsv.gz leaves its Protein Accession and Gene ID columns almost
+// entirely empty, so the per-row activity->protein link cannot be derived from
+// the activity file itself. The authoritative per-assay target mapping lives in
+// this separate file (e.g. KRAS assays -> P01116). Keying by AID lets us attach
+// the protein link to every activity measurement of that assay.
+//
+// Assays that target a large protein panel (> panelLimit distinct proteins) are
+// skipped: bioactivities.tsv.gz gives no per-measurement target, so we cannot tell
+// which panel member a given activity row belongs to, and linking every measurement
+// to every panel protein would pollute those proteins' activity lists. Per the
+// upstream data, >99.9% of assays map to <=25 proteins, so the default limit drops
+// only a handful of mega-panels.
+func (p *pubchemActivity) loadAidUniProtMap() map[string][]string {
+	basePath := config.Dataconf["pubchem_activity"]["path"]
+	relPath := config.Dataconf["pubchem_activity"]["pathAidUniprot"]
+	if relPath == "" {
+		log.Printf("[PubChem Activity] pathAidUniprot not configured; activity->uniprot links limited to populated protein_accession rows")
+		return nil
+	}
+	fullURL := basePath + relPath
+
+	panelLimit := 25
+	if v, ok := config.Appconf["pubchemActivityPanelLimit"]; ok {
+		if parsed, err := strconv.Atoi(v); err == nil && parsed > 0 {
+			panelLimit = parsed
+		}
+	}
+
+	log.Printf("[PubChem Activity] Loading AID->UniProt mapping from %s (panel limit %d)", fullURL, panelLimit)
+
+	br, gz, ftpFile, client, localFile, _, err := getDataReaderNew("pubchem_activity", "", "", fullURL)
+	if err != nil {
+		log.Printf("[PubChem Activity] WARNING: could not open %s: %v -- activity->uniprot links will be limited", relPath, err)
+		return nil
+	}
+	defer func() {
+		if gz != nil {
+			gz.Close()
+		}
+		if ftpFile != nil {
+			ftpFile.Close()
+		}
+		if client != nil {
+			client.Quit()
+		}
+		if localFile != nil {
+			localFile.Close()
+		}
+	}()
+
+	reader := bufio.NewReaderSize(br, 1024*1024)
+	m := make(map[string][]string)
+	headerSkipped := false
+	lineCount := 0
+	pairCount := 0
+
+	for {
+		line, rerr := reader.ReadString('\n')
+		if rerr != nil && rerr != io.EOF {
+			log.Printf("[PubChem Activity] WARNING: error reading AID->UniProt map at line %d: %v (using partial map)", lineCount, rerr)
+			break
+		}
+
+		line = strings.TrimSpace(line)
+		if line != "" {
+			if !headerSkipped {
+				headerSkipped = true
+			} else {
+				// Columns: AID, Geneid, Accession, UniProtKB_AC/ID
+				rec := strings.Split(line, "\t")
+				if len(rec) >= 4 {
+					aid := strings.TrimSpace(rec[0])
+					acc := strings.TrimSpace(rec[3])
+					// Only keep UniProt-shaped accessions (letter followed by digit).
+					if aid != "" && len(acc) >= 2 &&
+						acc[0] >= 'A' && acc[0] <= 'Z' && acc[1] >= '0' && acc[1] <= '9' {
+						existing := m[aid]
+						dup := false
+						for _, e := range existing {
+							if e == acc {
+								dup = true
+								break
+							}
+						}
+						if !dup {
+							m[aid] = append(existing, acc)
+							pairCount++
+						}
+					}
+				}
+				lineCount++
+			}
+		}
+
+		if rerr == io.EOF {
+			break
+		}
+	}
+
+	// Drop mega-panel assays we cannot disambiguate per measurement.
+	skipped := 0
+	for aid, accs := range m {
+		if len(accs) > panelLimit {
+			delete(m, aid)
+			skipped++
+		}
+	}
+
+	log.Printf("[PubChem Activity] AID->UniProt map: %d assays, %d (aid,uniprot) pairs, %d mega-panel assays skipped (>%d proteins)",
+		len(m), pairCount, skipped, panelLimit)
+	return m
+}
+
 // processActivityFile handles the actual file processing
 // Returns (linesProcessed, activitiesCreated, error) for resume capability
 // resumeFromLine: skip this many data lines before processing (for retry resume)
 // activityIndex: shared map that persists across retries for consistent activity IDs
-func (p *pubchemActivity) processActivityFile(fullURL string, testLimit int, idLogFile *os.File, resumeFromLine int, activityIndex map[string]int) (int, int, error) {
+func (p *pubchemActivity) processActivityFile(fullURL string, testLimit int, idLogFile *os.File, resumeFromLine int, activityIndex map[string]int, aidUniProt map[string][]string) (int, int, error) {
 	// Download and open file (pass full FTP URL directly)
 	br, gz, _, _, localFile, _, err := getDataReaderNew("pubchem_activity", "", "", fullURL)
 	if err != nil {
@@ -308,12 +428,29 @@ func (p *pubchemActivity) processActivityFile(fullURL string, testLimit int, idL
             // Silently skip other formats (no more logging)
         }
 
-        // Activity → Gene → Ensembl (if present)
-        // gene_id is NCBI Gene ID (Entrez Gene ID)
-        // Use lookup to find Entrez entry, then extract Ensembl gene ID
+        // Activity → UniProt via authoritative per-assay target mapping.
+        // The Protein Accession column above is empty for the vast majority of
+        // rows, so derive the protein link from Aid2GeneidAccessionUniProt.gz
+        // keyed by AID. This is what restores coverage for targets like KRAS
+        // (P01116), whose assays carry no protein accession in bioactivities.tsv.gz.
+        if aidUniProt != nil && aid != "" {
+            if accs, ok := aidUniProt[aid]; ok {
+                for _, acc := range accs {
+                    p.d.addXref(activityID, fr, acc, "uniprot", false)
+                }
+            }
+        }
+
+        // Activity → Gene → Ensembl + UniProt (if present)
+        // gene_id is NCBI Gene ID (Entrez Gene ID). The protein_accession column
+        // (handled above) is sparsely populated in bioactivities.tsv.gz, so for many
+        // well-studied targets the direct activity->uniprot edge is missing
+        // (e.g. KRAS gene 3845 has 256 assays but no protein accession in the rows).
+        // Deriving uniprot from the curated Entrez entry via the same lookup restores
+        // protein coverage in addition to the Ensembl gene link.
         if geneID != "" {
             //log.Printf("[PubChem Activity] ✓ Gene mapping: activity %s -> Entrez Gene %s", activityID, geneID)
-            p.d.addXrefEnsemblViaEntrez(geneID, activityID, fr)
+            p.d.addXrefEnsemblUniProtViaEntrez(geneID, activityID, fr)
         } else {
             if activityCount < 5 { // Only log first few for debugging
                 log.Printf("[PubChem Activity] DEBUG: No gene_id for activity %s", activityID)

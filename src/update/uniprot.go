@@ -382,7 +382,17 @@ func (u *uniprot) processFeatures(entryid string, r *xmlparser.XMLElement) {
 					feature.Evidences = append(feature.Evidences, &pbuf.UniprotFeatureEvidence{Type: evidences[key].typee, Id: evidences[key].sourceID, Source: evidences[key].source})
 					if len(evidences[key].source) > 0 && len(evidences[key].sourceID) > 0 {
 						if _, ok := config.Dataconf[evidences[key].source]; ok {
-							u.d.addXref(fentryid, u.featureID, evidences[key].sourceID, evidences[key].source, false)
+							if evidences[key].source == "uniprot" {
+								// "By similarity" evidence cites another (often cross-species)
+								// UniProt accession. Keep the forward feature->uniprot provenance
+								// edge but NOT the reverse: a reverse makes that protein appear
+								// linked to every feature (across species) that cites it as
+								// evidence, leaking ortholog features into `uniprot >> ufeature`.
+								// The evidence is preserved in feature.Evidences regardless.
+								u.d.addXref2(fentryid, u.featureID, evidences[key].sourceID, evidences[key].source)
+							} else {
+								u.d.addXref(fentryid, u.featureID, evidences[key].sourceID, evidences[key].source, false)
+							}
 						}
 					}
 				}

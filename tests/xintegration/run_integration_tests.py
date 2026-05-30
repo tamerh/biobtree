@@ -34,10 +34,60 @@ class IntegrationTestRunner:
         self.category = category
         self.use_mcp = use_mcp  # Use MCP server API endpoints instead of biobtree direct
         self.results = []
+        self._id_to_name = None  # lazy dataset-id -> canonical-name map (MCP mode)
 
     def load_tests(self):
         with open(self.test_file, 'r') as f:
             return json.load(f)
+
+    def dataset_name_for_id(self, dataset_id):
+        """Resolve a numeric dataset id to its canonical name (e.g. 8 -> 'refseq').
+
+        Needed in MCP mode because /api/entry requires an `s` (dataset) param, and a
+        few lookup tests carry only `dataset_id`, not `filter_dataset`. Cached via
+        /api/meta (or /ws/meta in direct mode)."""
+        if dataset_id is None:
+            return None
+        if self._id_to_name is None:
+            self._id_to_name = {}
+            try:
+                meta_url = f"{self.server}/api/meta" if self.use_mcp else f"{self.server}/ws/meta"
+                meta = requests.get(meta_url, timeout=30).json()
+                for num_id, info in (meta.get('datasets') or {}).items():
+                    name = info.get('id') or info.get('name')
+                    if name:
+                        self._id_to_name[str(num_id)] = name
+            except Exception:
+                pass
+        return self._id_to_name.get(str(dataset_id))
+
+    def normalize_mcp(self, data):
+        """Adapt a compact MCP /api response toward the biobtree shape so the shared
+        validators work for identifier / stats / not_found checks.
+
+        The MCP /api/map output is intentionally compact (pipe-delimited `mappings`,
+        `unmapped` instead of `not_found`, and NO nested per-target attributes or
+        scores). We expose `not_found` and build a minimal `results` of identifiers;
+        validations that read `source.Attributes.*`, target attribute fields, or
+        scores cannot be satisfied through the compact API and remain unvalidated."""
+        if not self.use_mcp or not isinstance(data, dict):
+            return data
+        if 'mappings' in data:
+            if data.get('unmapped') is not None and 'not_found' not in data:
+                data['not_found'] = data.get('unmapped')
+            results = []
+            for m in (data.get('mappings') or []):
+                src = m.get('source')
+                src_id = src.split('|')[0] if isinstance(src, str) else ''
+                targets = [
+                    {'identifier': t.split('|')[0] if isinstance(t, str) else ''}
+                    for t in (m.get('targets') or [])
+                ]
+                results.append({'source': {'identifier': src_id},
+                                'targets': targets,
+                                'input': m.get('input')})
+            data.setdefault('results', results)
+        return data
 
     def get_categories(self):
         """Get available test categories"""
@@ -117,10 +167,23 @@ class IntegrationTestRunner:
             if self.use_mcp:
                 # MCP server API endpoints (same params as biobtree)
                 if query == '':
-                    params = {'i': identifier}
-                    if filter_dataset:
-                        params['s'] = filter_dataset
-                    url = f"{self.server}/api/search"
+                    # Use the rich entry endpoint only when a validation actually reads
+                    # entry attributes/xrefs (it needs an exact id + single dataset).
+                    # Pure existence checks (has_results) and name inputs go to /api/search.
+                    rich = needs_entry_endpoint or any(
+                        v.get('path') for v in test.get('validations', [])
+                    )
+                    if rich:
+                        params = {'i': identifier}
+                        ds = filter_dataset or self.dataset_name_for_id(dataset_id)
+                        if ds:
+                            params['s'] = ds
+                        url = f"{self.server}/api/entry"
+                    else:
+                        params = {'i': identifier}
+                        if filter_dataset:
+                            params['s'] = filter_dataset
+                        url = f"{self.server}/api/search"
                 else:
                     params = {'i': identifier, 'm': query}
                     url = f"{self.server}/api/map"
@@ -154,7 +217,7 @@ class IntegrationTestRunner:
             elapsed_ms = (time.time() - start_time) * 1000
 
             response.raise_for_status()
-            data = response.json()
+            data = self.normalize_mcp(response.json())
             full_url = response.url
         except Exception as e:
             # All validations fail if we can't fetch data
@@ -179,8 +242,9 @@ class IntegrationTestRunner:
         entry = None
         expected_identifier = test.get('expected_identifier')
 
-        # Entry endpoint returns data directly, not wrapped in results
-        if needs_entry_endpoint and 'identifier' in data and 'xrefs' in data:
+        # Entry endpoint returns a single entry directly, not wrapped in results
+        # (both /ws/entry/ and the MCP /api/entry use this shape).
+        if 'identifier' in data and ('xrefs' in data or 'Attributes' in data):
             entry = data
         elif data.get('results'):
             if expected_identifier:
@@ -302,7 +366,8 @@ class IntegrationTestRunner:
             if not passed:
                 return {**result_base, 'passed': False, 'error': f"Target '{validation['contains_identifier']}' not found"}
         elif 'has_results' in validation:
-            passed = bool(data.get('results')) == validation['has_results']
+            got = bool((data.get('results') or []) or (data.get('mappings') or []) or (data.get('data') or []))
+            passed = got == validation['has_results']
             if not passed:
                 return {**result_base, 'passed': False, 'error': f"Expected has_results={validation['has_results']}"}
         elif 'first_n_start_with' in validation:
@@ -564,15 +629,19 @@ class IntegrationTestRunner:
             elapsed_ms = (time.time() - start_time) * 1000
 
             response.raise_for_status()
-            data = response.json()
+            data = self.normalize_mcp(response.json())
 
             # Store full URL for debugging
             full_url = response.url
 
-            # Check for results (full mode) or mappings (lite mode)
+            # Check for results across all response shapes:
+            #   biobtree direct -> 'results'; MCP /api/map -> 'mappings' (may be null
+            #   for an empty chain); MCP /api/search -> 'data'. Guard against null
+            #   values (the key can be present with value None).
             has_results = (
-                ('results' in data and len(data.get('results', [])) > 0) or
-                ('mappings' in data and len(data.get('mappings', [])) > 0)
+                len(data.get('results') or []) > 0 or
+                len(data.get('mappings') or []) > 0 or
+                len(data.get('data') or []) > 0
             )
 
             # Test passes if: (expected to pass AND has results) OR (expected to fail AND no results)

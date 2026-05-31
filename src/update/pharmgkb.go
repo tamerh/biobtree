@@ -12,6 +12,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 	"sync/atomic"
@@ -103,6 +104,26 @@ func (p *pharmgkb) update() {
 		log.Printf("PharmGKB: [TEST MODE] Processing up to %d entries", testLimit)
 	}
 
+	// Download the ClinPGx source zips to a temp dir and read from there, instead
+	// of requiring them pre-placed in raw_data/clinpgx/. Removed when done (on
+	// normal return and on panic). Mirrors the pubchem_activity local-staging
+	// approach but for the set of named files in conf.
+	destDir, err := p.downloadSources()
+	if destDir != "" {
+		defer func() {
+			if rmErr := os.RemoveAll(destDir); rmErr != nil {
+				log.Printf("PharmGKB: Warning: could not remove temp dir %s: %v", destDir, rmErr)
+			} else {
+				log.Printf("PharmGKB: Removed temp dir %s", destDir)
+			}
+		}()
+	}
+	if err != nil {
+		log.Panicf("PharmGKB: FATAL: could not download source files: %v", err)
+	}
+	// Point the parser's file reads at the freshly downloaded copies.
+	config.Dataconf[p.source]["path"] = destDir
+
 	// Phase 1: Load chemicals (drugs) - main dataset
 	chemicals := p.loadChemicals(testLimit)
 	log.Printf("PharmGKB: Phase 1 complete - loaded %d chemicals", len(chemicals))
@@ -164,6 +185,118 @@ func (p *pharmgkb) openZipFile(filename string) (*zip.Reader, []byte, error) {
 	}
 
 	return zipReader, zipBytes, nil
+}
+
+// downloadSources downloads every configured ClinPGx source file (the conf keys
+// ending in "File") from downloadBaseUrl into a temp dir under outDir, and returns
+// that dir for cleanup. The PharmGKB/ClinPGx bulk files are public but are not
+// auto-fetched by the old flow (useLocalFile=yes expected them in raw_data/clinpgx/);
+// this removes that manual step.
+func (p *pharmgkb) downloadSources() (string, error) {
+	baseURL := config.Dataconf[p.source]["downloadBaseUrl"]
+	if baseURL == "" {
+		return "", fmt.Errorf("downloadBaseUrl not configured for %s", p.source)
+	}
+
+	destDir := filepath.Join(config.Appconf["outDir"], "pharmgkb_clinpgx")
+	if err := os.MkdirAll(destDir, 0755); err != nil {
+		return "", fmt.Errorf("cannot create %s: %v", destDir, err)
+	}
+
+	// The files to fetch are the conf values whose key ends in "File" AND whose
+	// value is a .zip filename (excludes unrelated keys like "useLocalFile":"yes").
+	files := make([]string, 0, len(config.Dataconf[p.source]))
+	for k, v := range config.Dataconf[p.source] {
+		if strings.HasSuffix(k, "File") && strings.HasSuffix(v, ".zip") {
+			files = append(files, v)
+		}
+	}
+	if len(files) == 0 {
+		return destDir, fmt.Errorf("no *File entries configured for %s", p.source)
+	}
+	sort.Strings(files) // deterministic order for logs
+
+	log.Printf("PharmGKB: downloading %d source files from %s into %s", len(files), baseURL, destDir)
+	for _, fname := range files {
+		if err := p.downloadFile(baseURL+fname, filepath.Join(destDir, fname)); err != nil {
+			return destDir, fmt.Errorf("downloading %s: %v", fname, err)
+		}
+	}
+	return destDir, nil
+}
+
+// downloadFile fetches url to dest (retried), verifying the result is actually a
+// ZIP archive (PK\x03\x04) so a redirect/error HTML page is rejected rather than
+// saved as a corrupt zip.
+func (p *pharmgkb) downloadFile(url, dest string) error {
+	maxRetries := 3
+	var lastErr error
+	for attempt := 0; attempt <= maxRetries; attempt++ {
+		if attempt > 0 {
+			log.Printf("PharmGKB: download retry %d/%d for %s ...", attempt, maxRetries, url)
+		}
+
+		resp, err := httpGetWithRetry(url, 3)
+		if err != nil {
+			lastErr = err
+			continue
+		}
+
+		out, err := os.Create(dest)
+		if err != nil {
+			resp.Body.Close()
+			return fmt.Errorf("cannot create %s: %v", dest, err)
+		}
+		n, copyErr := io.Copy(out, resp.Body)
+		expected := resp.ContentLength
+		resp.Body.Close()
+		out.Close()
+
+		if copyErr != nil {
+			lastErr = copyErr
+			log.Printf("PharmGKB: download interrupted after %d bytes: %v (will retry)", n, copyErr)
+			continue
+		}
+		if expected > 0 && n != expected {
+			lastErr = fmt.Errorf("incomplete download: got %d bytes, expected %d", n, expected)
+			continue
+		}
+		if !isZipFile(dest) {
+			lastErr = fmt.Errorf("downloaded file is not a ZIP archive (got an error/redirect page?): %s", dest)
+			continue
+		}
+
+		log.Printf("PharmGKB: downloaded %s (%d bytes)", filepath.Base(dest), n)
+		return nil
+	}
+	return fmt.Errorf("failed after %d attempts: %v", maxRetries+1, lastErr)
+}
+
+// addGeneXrefs resolves a gene field to canonical HGNC:id / Entrez / Ensembl
+// cross-references, one gene at a time. PharmGKB gene fields sometimes list
+// several genes separated by commas or semicolons (e.g. the UGT1A cluster
+// "UGT1A1,UGT1A3,...,UGT1A9"); passing the whole string to the lookup never
+// resolves, so split it first.
+func (p *pharmgkb) addGeneXrefs(geneField, sourceID, sourceDatasetID string) {
+	for _, sym := range strings.FieldsFunc(geneField, func(r rune) bool { return r == ',' || r == ';' }) {
+		if sym = strings.TrimSpace(sym); sym != "" {
+			p.d.addHumanGeneXrefsAll(sym, sourceID, sourceDatasetID)
+		}
+	}
+}
+
+// isZipFile reports whether the file starts with the ZIP magic bytes (PK\x03\x04).
+func isZipFile(path string) bool {
+	f, err := os.Open(path)
+	if err != nil {
+		return false
+	}
+	defer f.Close()
+	sig := make([]byte, 4)
+	if _, err := io.ReadFull(f, sig); err != nil {
+		return false
+	}
+	return sig[0] == 0x50 && sig[1] == 0x4b && sig[2] == 0x03 && sig[3] == 0x04
 }
 
 // loadChemicals reads chemicals.zip and creates base chemical entries
@@ -790,13 +923,12 @@ func (p *pharmgkb) processClinicalVariants(testLimit int, phenotypeMappings map[
 					clinicalByVariant[variant] = append(clinicalByVariant[variant], clinID)
 				}
 
-				// Cross-reference to gene: resolve the bare symbol to the canonical
+				// Cross-reference to gene: resolve each symbol to the canonical
 				// HGNC:id (plus Entrez/Ensembl) so the reverse edge attaches to the real
 				// gene entry. A bare-symbol "hgnc" xref files the reverse under the
 				// symbol string, so >>hgnc>>pharmgkb_clinical returned 0 (issue #13).
-				if gene != "" {
-					p.d.addHumanGeneXrefsAll(gene, clinID, clinSourceID)
-				}
+				// The field may list several genes (e.g. the UGT1A cluster), so split.
+				p.addGeneXrefs(gene, clinID, clinSourceID)
 
 				// Cross-reference to MeSH via phenotype mappings
 				if _, meshExists := config.Dataconf["mesh"]; meshExists {
@@ -1080,7 +1212,7 @@ func (p *pharmgkb) processVariants(testLimit int, summaryAnnotations map[string]
 				// unreachable, so >>hgnc>>pharmgkb_variant returned 0 (issue #13).
 				for _, geneSymbol := range attr.GeneSymbols {
 					if geneSymbol != "" {
-						p.d.addHumanGeneXrefsAll(geneSymbol, variantID, varSourceID)
+						p.addGeneXrefs(geneSymbol, variantID, varSourceID)
 					}
 				}
 
@@ -1488,7 +1620,7 @@ func (p *pharmgkb) processGuidelines(testLimit int) {
 		// "hgnc" xref left >>hgnc>>pharmgkb_guideline returning 0 (issue #13).
 		for _, symbol := range geneSymbols {
 			if symbol != "" {
-				p.d.addHumanGeneXrefsAll(symbol, g.ID, guideSourceID)
+				p.addGeneXrefs(symbol, g.ID, guideSourceID)
 			}
 		}
 

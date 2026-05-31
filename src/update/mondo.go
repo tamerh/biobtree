@@ -138,6 +138,10 @@ func (m *mondo) update() {
 		} else if strings.HasPrefix(line, "xref: ") {
 			// Parse xref line: xref: DATABASE:ID {props}
 			m.parseXref(line, currentID, fr)
+		} else if strings.HasPrefix(line, "relationship: disease_has_location ") ||
+			strings.HasPrefix(line, "intersection_of: disease_has_location ") {
+			// Anatomical location: disease_has_location UBERON:... -> mondo->uberon edge
+			m.parseDiseaseLocation(line, currentID, fr)
 		} else if strings.HasPrefix(line, "is_obsolete: true") {
 			isObsolete = true
 		}
@@ -250,6 +254,25 @@ func extractSynonymText(line string) string {
 	return line[1 : endQuote+1]
 }
 
+// parseDiseaseLocation links a Mondo term to its anatomical location (UBERON)
+// from a `disease_has_location` clause and emits a mondo -> uberon cross-reference.
+// Example: relationship: disease_has_location UBERON:0000310 ! breast
+func (m *mondo) parseDiseaseLocation(line string, mondoID string, mondoDatasetID string) {
+	const rel = "disease_has_location "
+	idx := strings.Index(line, rel)
+	if idx == -1 {
+		return
+	}
+	rest := strings.TrimSpace(line[idx+len(rel):])
+	// rest looks like "UBERON:0000310 ! breast" — take the first token.
+	if sp := strings.IndexAny(rest, " \t"); sp != -1 {
+		rest = rest[:sp]
+	}
+	if strings.HasPrefix(rest, "UBERON:") {
+		m.d.addXref(mondoID, mondoDatasetID, rest, "uberon", false)
+	}
+}
+
 // parseXref parses xref lines and creates cross-references
 // Example: xref: DOID:10493 {source="MONDO:equivalentTo"}
 func (m *mondo) parseXref(line string, mondoID string, mondoDatasetID string) {
@@ -321,49 +344,53 @@ func (m *mondo) parseXref(line string, mondoID string, mondoDatasetID string) {
 		targetDatasetName = "mesh"
 		targetID = strings.TrimPrefix(xrefID, "MESH:")
 	} else if strings.HasPrefix(xrefID, "NCIT:") {
-		// TODO: NCI Thesaurus - not currently in biobtree (7,550 xrefs available)
-		// Cancer-focused terminology from National Cancer Institute
-		return
+		// NCI Thesaurus (cancer-focused terminology). Keep the C-code.
+		targetDatasetName = "ncit"
+		targetID = strings.TrimPrefix(xrefID, "NCIT:")
 	} else if strings.HasPrefix(xrefID, "UMLS:") {
-		// TODO: UMLS - not currently in biobtree (21,381 xrefs available)
-		// Unified Medical Language System - comprehensive medical terminology
-		return
+		// UMLS CUI (Unified Medical Language System).
+		targetDatasetName = "umls"
+		targetID = strings.TrimPrefix(xrefID, "UMLS:")
 	} else if strings.HasPrefix(xrefID, "MEDGEN:") {
-		// TODO: MEDGEN - not currently in biobtree (21,381 xrefs available)
-		// NCBI's gene-disease relationships database
-		return
+		// NCBI MedGen.
+		targetDatasetName = "medgen"
+		targetID = strings.TrimPrefix(xrefID, "MEDGEN:")
 	} else if strings.HasPrefix(xrefID, "GARD:") {
-		// TODO: GARD - not currently in biobtree (10,730 xrefs available)
-		// Genetic and Rare Diseases Information Center
-		return
+		// Genetic and Rare Diseases Information Center.
+		targetDatasetName = "gard"
+		targetID = strings.TrimPrefix(xrefID, "GARD:")
 	} else if strings.HasPrefix(xrefID, "SCTID:") {
-		// TODO: SNOMED CT - not currently in biobtree (9,278 xrefs available)
-		// Clinical terminology standard
-		return
+		// SNOMED CT clinical terminology.
+		targetDatasetName = "sctid"
+		targetID = strings.TrimPrefix(xrefID, "SCTID:")
 	} else if strings.HasPrefix(xrefID, "ICD9:") {
-		// TODO: ICD-9 - not currently in biobtree (5,732 xrefs available)
-		// International Classification of Diseases version 9
-		return
-	} else if strings.HasPrefix(xrefID, "ICD10") {
-		// TODO: ICD-10 variants - not currently in biobtree (2,918 xrefs available)
-		// ICD10CM, ICD10WHO, ICD10EXP
-		return
+		// ICD-9.
+		targetDatasetName = "icd9"
+		targetID = strings.TrimPrefix(xrefID, "ICD9:")
+	} else if strings.HasPrefix(xrefID, "ICD10CM:") {
+		// ICD-10-CM (clinical modification).
+		targetDatasetName = "icd10cm"
+		targetID = strings.TrimPrefix(xrefID, "ICD10CM:")
+	} else if strings.HasPrefix(xrefID, "ICD10WHO:") || strings.HasPrefix(xrefID, "ICD10:") || strings.HasPrefix(xrefID, "ICD10EXP:") {
+		// ICD-10 (WHO and expanded variants).
+		targetDatasetName = "icd10who"
+		targetID = xrefID[strings.Index(xrefID, ":")+1:]
 	} else if strings.HasPrefix(xrefID, "icd11.foundation:") {
-		// TODO: ICD-11 - not currently in biobtree (4,170 xrefs available)
-		// Latest version of International Classification of Diseases
-		return
+		// ICD-11 (foundation).
+		targetDatasetName = "icd11"
+		targetID = strings.TrimPrefix(xrefID, "icd11.foundation:")
 	} else if strings.HasPrefix(xrefID, "NANDO:") {
-		// TODO: NANDO - not currently in biobtree (2,345 xrefs available)
-		// Nanbyo Disease Ontology (Japanese rare diseases)
-		return
+		// Nanbyo Disease Ontology (Japanese rare diseases).
+		targetDatasetName = "nando"
+		targetID = strings.TrimPrefix(xrefID, "NANDO:")
 	} else if strings.HasPrefix(xrefID, "MedDRA:") {
-		// TODO: MedDRA - not currently in biobtree (1,488 xrefs available)
-		// Medical Dictionary for Regulatory Activities
-		return
+		// Medical Dictionary for Regulatory Activities.
+		targetDatasetName = "meddra"
+		targetID = strings.TrimPrefix(xrefID, "MedDRA:")
 	} else if strings.HasPrefix(xrefID, "NORD:") {
-		// TODO: NORD - not currently in biobtree (908 xrefs available)
-		// National Organization for Rare Disorders
-		return
+		// National Organization for Rare Disorders.
+		targetDatasetName = "nord"
+		targetID = strings.TrimPrefix(xrefID, "NORD:")
 	} else if strings.HasPrefix(xrefID, "HP:") {
 		// HPO - Human Phenotype Ontology (579 xrefs available)
 		// Phenotypic abnormalities in human disease

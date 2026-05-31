@@ -36,6 +36,90 @@
     "url": "https://disease-ontology.org/?id=\u00a3{id}",
     "bucketMethod": "ontology"
   },
+  "ncit": {
+    "aliases": "NCIT,NCI Thesaurus,NCI",
+    "name": "NCI Thesaurus",
+    "id": "760",
+    "url": "https://ncithesaurus.nci.nih.gov/ncitbrowser/ConceptReport.jsp?dictionary=NCI_Thesaurus&code=\u00a3{id}",
+    "bucketMethod": "alphanum"
+  },
+  "umls": {
+    "aliases": "UMLS,Unified Medical Language System,CUI",
+    "name": "UMLS",
+    "id": "761",
+    "url": "https://uts.nlm.nih.gov/uts/umls/concept/\u00a3{id}",
+    "bucketMethod": "alphanum"
+  },
+  "medgen": {
+    "aliases": "MEDGEN,MedGen",
+    "name": "MedGen",
+    "id": "762",
+    "url": "https://www.ncbi.nlm.nih.gov/medgen/\u00a3{id}",
+    "bucketMethod": "alphanum"
+  },
+  "gard": {
+    "aliases": "GARD,Genetic and Rare Diseases",
+    "name": "GARD",
+    "id": "763",
+    "url": "https://rarediseases.info.nih.gov/diseases/\u00a3{id}/index",
+    "bucketMethod": "alphanum"
+  },
+  "sctid": {
+    "aliases": "SCTID,SNOMED,SNOMED CT,SNOMEDCT",
+    "name": "SNOMED CT",
+    "id": "764",
+    "url": "https://browser.ihtsdotools.org/?perspective=full&conceptId1=\u00a3{id}",
+    "bucketMethod": "alphanum"
+  },
+  "icd9": {
+    "aliases": "ICD9,ICD-9",
+    "name": "ICD-9",
+    "id": "765",
+    "url": "http://www.icd9data.com/getICD9Code.ashx?icd9=\u00a3{id}",
+    "bucketMethod": "alphanum"
+  },
+  "icd10cm": {
+    "aliases": "ICD10CM,ICD-10-CM",
+    "name": "ICD-10-CM",
+    "id": "766",
+    "url": "https://www.icd10data.com/ICD10CM/Codes/\u00a3{id}",
+    "bucketMethod": "alphanum"
+  },
+  "icd10who": {
+    "aliases": "ICD10WHO,ICD-10",
+    "name": "ICD-10 (WHO)",
+    "id": "767",
+    "url": "https://icd.who.int/browse10/2019/en#/\u00a3{id}",
+    "bucketMethod": "alphanum"
+  },
+  "icd11": {
+    "aliases": "ICD11,ICD-11,icd11.foundation",
+    "name": "ICD-11",
+    "id": "768",
+    "url": "https://icd.who.int/dev11/f/en#/\u00a3{id}",
+    "bucketMethod": "alphanum"
+  },
+  "nando": {
+    "aliases": "NANDO,Nanbyo Disease Ontology",
+    "name": "NANDO",
+    "id": "769",
+    "url": "https://nanbyodata.jp/en/disease/\u00a3{id}",
+    "bucketMethod": "alphanum"
+  },
+  "meddra": {
+    "aliases": "MedDRA,MEDDRA",
+    "name": "MedDRA",
+    "id": "770",
+    "url": "https://bioportal.bioontology.org/ontologies/MEDDRA/?conceptid=\u00a3{id}",
+    "bucketMethod": "alphanum"
+  },
+  "nord": {
+    "aliases": "NORD,National Organization for Rare Disorders",
+    "name": "NORD",
+    "id": "771",
+    "url": "https://rarediseases.org/rare-diseases/\u00a3{id}",
+    "bucketMethod": "alphanum"
+  },
   "drugbank": {
     "aliases": "DrugBank,DrugBank accession",
     "name": "DrugBank",

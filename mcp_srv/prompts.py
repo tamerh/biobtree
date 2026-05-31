@@ -39,7 +39,7 @@ clinvar: hgnc, mondo, hpo, dbsnp, orphanet, civic_variant, cellosaurus
 alphamissense: uniprot, transcript
 gwas: gwas_study, efo, dbsnp, hgnc, mondo
 gwas_study: gwas, efo, mondo
-mondo: gencc, clinvar, efo, mesh, hpo, clinical_trials, antibody, cellxgene, cellxgene_celltype, orphanet, mondoparent, mondochild, gwas, gwas_study, civic, intogen, cellosaurus
+mondo: gencc, clinvar, efo, mesh, hpo, clinical_trials, antibody, cellxgene, cellxgene_celltype, orphanet, mondoparent, mondochild, gwas, gwas_study, civic, intogen, cellosaurus, doid, mim, ncit, umls, medgen, gard, sctid, icd9, icd10cm, icd10who, icd11, nando, meddra, nord, uberon  # disease cross-refs + disease_has_location anatomy, from the Mondo OBO
 gencc: mondo, hpo, hgnc, ensembl
 clinical_trials: mondo, chembl_molecule
 pharmgkb: hgnc, dbsnp, mesh, pharmgkb_gene, pharmgkb_variant, pharmgkb_clinical, pharmgkb_guideline, pharmgkb_pathway

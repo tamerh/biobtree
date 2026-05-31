@@ -790,11 +790,12 @@ func (p *pharmgkb) processClinicalVariants(testLimit int, phenotypeMappings map[
 					clinicalByVariant[variant] = append(clinicalByVariant[variant], clinID)
 				}
 
-				// Cross-reference to gene
+				// Cross-reference to gene: resolve the bare symbol to the canonical
+				// HGNC:id (plus Entrez/Ensembl) so the reverse edge attaches to the real
+				// gene entry. A bare-symbol "hgnc" xref files the reverse under the
+				// symbol string, so >>hgnc>>pharmgkb_clinical returned 0 (issue #13).
 				if gene != "" {
-					if _, exists := config.Dataconf["hgnc"]; exists {
-						p.d.addXref(clinID, clinSourceID, gene, "hgnc", false)
-					}
+					p.d.addHumanGeneXrefsAll(gene, clinID, clinSourceID)
 				}
 
 				// Cross-reference to MeSH via phenotype mappings
@@ -1074,12 +1075,12 @@ func (p *pharmgkb) processVariants(testLimit int, summaryAnnotations map[string]
 					}
 				}
 
-				// Cross-reference to genes
+				// Cross-reference to genes: resolve symbol -> canonical HGNC:id /
+				// Entrez / Ensembl. A bare-symbol "hgnc" xref left the reverse edge
+				// unreachable, so >>hgnc>>pharmgkb_variant returned 0 (issue #13).
 				for _, geneSymbol := range attr.GeneSymbols {
 					if geneSymbol != "" {
-						if _, exists := config.Dataconf["hgnc"]; exists {
-							p.d.addXref(variantID, varSourceID, geneSymbol, "hgnc", false)
-						}
+						p.d.addHumanGeneXrefsAll(geneSymbol, variantID, varSourceID)
 					}
 				}
 
@@ -1482,10 +1483,12 @@ func (p *pharmgkb) processGuidelines(testLimit int) {
 			p.d.addXref(g.Name, textLinkID, g.ID, guideSource, true)
 		}
 
-		// Cross-reference to genes
+		// Cross-reference to genes: resolve symbol -> canonical HGNC:id / Entrez /
+		// Ensembl so the reverse edge attaches to the real gene entry. A bare-symbol
+		// "hgnc" xref left >>hgnc>>pharmgkb_guideline returning 0 (issue #13).
 		for _, symbol := range geneSymbols {
-			if _, exists := config.Dataconf["hgnc"]; exists {
-				p.d.addXref(g.ID, guideSourceID, symbol, "hgnc", false)
+			if symbol != "" {
+				p.d.addHumanGeneXrefsAll(symbol, g.ID, guideSourceID)
 			}
 		}
 

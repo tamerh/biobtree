@@ -601,6 +601,26 @@
     },
     {
       "category": "chembl_drug",
+      "name": "ChEMBL salt-form child to parent molecule",
+      "query": ">>chembl_molecule>>chembl_moleculeparent",
+      "why": "Issue #15: salt/anhydrous forms are separate ChEMBL IDs; the parent linkdataset edge collapses dedupe to one map hop. DOCETAXEL (CHEMBL3545252) -> anhydrous parent CHEMBL92.",
+      "should_pass": [
+        "CHEMBL3545252"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "chembl_drug",
+      "name": "ChEMBL parent molecule to salt-form children",
+      "query": ">>chembl_molecule>>chembl_moleculechild",
+      "why": "Issue #15 reverse edge: parent molecule -> its salt/child forms. AZATHIOPRINE (CHEMBL1542) and DOCETAXEL ANHYDROUS (CHEMBL92) have child salt forms.",
+      "should_pass": [
+        "CHEMBL92"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "chembl_drug",
       "name": "ChEMBL Molecule to PubChem (UniChem)",
       "query": ">>chembl_molecule>>pubchem",
       "why": "ChEMBL molecule to PubChem compound via UniChem mappings - enables disease\u2192compound queries",

@@ -25,7 +25,7 @@ transcript: ensembl, exon, ufeature, alphamissense
 uniprot: ensembl, alphafold, interpro, pfam, pdb, ufeature, intact, string, string_interaction, biogrid, biogrid_interaction, chembl_target, go, reactome, rhea, swisslipids, bindingdb, antibody, pubchem_activity, cellphonedb, jaspar, signor, diamond_similarity, esm2_similarity, alphamissense, cellosaurus
 alphafold: uniprot
 interpro: uniprot, go, interproparent, interprochild
-chembl_molecule: mesh, chembl_activity, chembl_target, pubchem, chebi, clinical_trials
+chembl_molecule: mesh, chembl_activity, chembl_target, pubchem, chebi, clinical_trials, chembl_moleculeparent, chembl_moleculechild  # parent=anhydrous/parent form, child=salt forms
 chembl_activity: chembl_molecule, chembl_assay, bao
 chembl_assay: chembl_activity, chembl_target, chembl_document, bao
 chembl_target: chembl_assay, uniprot, chembl_molecule

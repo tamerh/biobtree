@@ -69,7 +69,8 @@
 	"includePatentAbstracts": "yes",
 	"__clinical_trials_config_comment": "Clinical trials data processing configuration - output path derived from source1.dataset.json",
 	"clinicalTrialsPrepareScript": "src/scripts/clinical_trials/clinical_trials_prepare.py",
-	"__chembl_config_comment": "ChEMBL SQLite-based data extraction configuration",
+	"__chembl_config_comment": "ChEMBL SQLite auto-download: chemblVersion is pinned (not blind-latest) since the parser runs version-specific SQL; bump it to upgrade. The DB is cached under chemblDir (downloaded once, not deleted, reused by later builds incl. test runs). A newer-release check logs an upgrade hint. To use a pre-existing DB and skip the download (e.g. for testing), add \"chemblSqliteDb\": \"/path/to/chembl_NN.db\" — when set it is used as-is and never auto-downloaded.",
 	"chemblExtractScript": "src/scripts/chembl/extract_chembl_data.py",
-	"chemblSqliteDb": "raw_data/chembl/chembl_36/chembl_36_sqlite/chembl_36.db"
+	"chemblVersion": "37",
+	"chemblDir": "raw_data/chembl"
 }

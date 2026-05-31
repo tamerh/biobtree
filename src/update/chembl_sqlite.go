@@ -1,15 +1,21 @@
 package update
 
 import (
+	"archive/tar"
 	"biobtree/pbuf"
 	"bufio"
+	"compress/gzip"
 	"encoding/json"
+	"fmt"
+	"io"
 	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 	"sync/atomic"
 
 	"github.com/pquerna/ffjson/ffjson"
@@ -293,19 +299,16 @@ func (c *chemblSqlite) ensureDataFilesExist() bool {
 		return false
 	}
 
-	// Get database path
-	dbPath := config.Appconf["chemblSqliteDb"]
-	if dbPath == "" {
-		dbPath = "raw_data/chembl/chembl_36/chembl_36_sqlite/chembl_36.db"
-	}
-	dbPath = c.resolvePath(dbPath, rootDir)
-
-	if !fileExists(dbPath) {
-		log.Printf("ChEMBL-SQLite: Database not found at %s", dbPath)
-		log.Println("ChEMBL-SQLite: Please download ChEMBL SQLite first:")
-		log.Println("  cd raw_data/chembl")
-		log.Println("  wget https://ftp.ebi.ac.uk/pub/databases/chembl/ChEMBLdb/latest/chembl_36_sqlite.tar.gz")
-		log.Println("  tar -xzf chembl_36_sqlite.tar.gz")
+	// Resolve the SQLite DB. With an explicit chemblSqliteDb it must already exist
+	// (no download); otherwise it's the configured version, auto-downloaded + cached.
+	dbPath, chemblDir, version, autoDownload := c.chemblDBPath(rootDir)
+	if autoDownload {
+		if !c.ensureChemblDB(dbPath, chemblDir, version) {
+			log.Printf("ChEMBL-SQLite: ChEMBL %s SQLite DB unavailable at %s", version, dbPath)
+			return false
+		}
+	} else if !fileExists(dbPath) {
+		log.Printf("ChEMBL-SQLite: chemblSqliteDb points to %s but it does not exist (unset it to auto-download ChEMBL %s)", dbPath, version)
 		return false
 	}
 
@@ -351,6 +354,182 @@ func (c *chemblSqlite) resolvePath(path, rootDir string) string {
 		return path
 	}
 	return filepath.Join(rootDir, path)
+}
+
+const chemblFTPBase = "https://ftp.ebi.ac.uk/pub/databases/chembl/ChEMBLdb/"
+
+var (
+	// chemblDBMutex serializes the (large) SQLite download/extract across the 6
+	// chembl sub-datasets, which run as parallel goroutines.
+	chemblDBMutex sync.Mutex
+	// chemblReleaseOnce ensures the upstream-release check logs only once per run.
+	chemblReleaseOnce sync.Once
+)
+
+// chemblDBPath returns the SQLite path, the cache directory, the version, and
+// whether biobtree may auto-download it.
+//
+//   - If chemblSqliteDb is set (explicit override), use that path as-is and do
+//     NOT auto-download — for testing or pointing at a pre-existing DB.
+//   - Otherwise derive <chemblDir>/chembl_<v>/chembl_<v>_sqlite/chembl_<v>.db from
+//     the configurable chemblVersion / chemblDir and auto-download (cached) if
+//     missing. No version is hardcoded.
+func (c *chemblSqlite) chemblDBPath(rootDir string) (dbPath, chemblDir, version string, autoDownload bool) {
+	version = config.Appconf["chemblVersion"]
+	if version == "" {
+		version = "37"
+	}
+	chemblDir = config.Appconf["chemblDir"]
+	if chemblDir == "" {
+		chemblDir = "raw_data/chembl"
+	}
+	chemblDir = c.resolvePath(chemblDir, rootDir)
+
+	if override := config.Appconf["chemblSqliteDb"]; override != "" {
+		return c.resolvePath(override, rootDir), chemblDir, version, false
+	}
+
+	name := "chembl_" + version
+	dbPath = filepath.Join(chemblDir, name, name+"_sqlite", name+".db")
+	return dbPath, chemblDir, version, true
+}
+
+// ensureChemblDB returns true once the configured-version SQLite DB is available,
+// downloading+extracting it (cached, kept for later builds) if missing. Safe to
+// call concurrently from the parallel chembl datasets.
+func (c *chemblSqlite) ensureChemblDB(dbPath, chemblDir, version string) bool {
+	chemblReleaseOnce.Do(func() { checkChemblRelease(version) })
+
+	if fileExists(dbPath) {
+		return true
+	}
+
+	// Only one goroutine downloads; the rest wait then find the DB present.
+	chemblDBMutex.Lock()
+	defer chemblDBMutex.Unlock()
+	if fileExists(dbPath) {
+		return true
+	}
+
+	log.Printf("ChEMBL-SQLite: ChEMBL %s SQLite not found at %s, downloading (~6GB compressed, kept cached)...", version, dbPath)
+	if err := downloadAndExtractChembl(version, chemblDir); err != nil {
+		log.Printf("ChEMBL-SQLite: download/extract failed: %v", err)
+		return false
+	}
+	if !fileExists(dbPath) {
+		log.Printf("ChEMBL-SQLite: extracted archive but DB not at expected path %s", dbPath)
+		return false
+	}
+	log.Printf("ChEMBL-SQLite: ChEMBL %s ready at %s", version, dbPath)
+	return true
+}
+
+// checkChemblRelease logs (informational, non-fatal) whether a newer ChEMBL
+// release than `current` is available upstream.
+func checkChemblRelease(current string) {
+	resp, err := httpGetWithRetry(chemblFTPBase+"latest/", 2)
+	if err != nil {
+		return
+	}
+	defer resp.Body.Close()
+	body, _ := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
+	m := regexp.MustCompile(`chembl_(\d+)_sqlite\.tar\.gz`).FindStringSubmatch(string(body))
+	if len(m) < 2 {
+		return
+	}
+	latest := m[1]
+	li, _ := strconv.Atoi(latest)
+	ci, _ := strconv.Atoi(current)
+	if li > ci {
+		log.Printf("ChEMBL-SQLite: NOTE — ChEMBL %s is available upstream (currently using %s). To upgrade, set chemblVersion=%s in application.param.json.", latest, current, latest)
+	} else {
+		log.Printf("ChEMBL-SQLite: ChEMBL %s is the latest upstream release", current)
+	}
+}
+
+// downloadAndExtractChembl fetches chembl_<version>_sqlite.tar.gz into chemblDir,
+// extracts it, and removes the tarball (keeping the extracted .db cached).
+func downloadAndExtractChembl(version, chemblDir string) error {
+	if err := os.MkdirAll(chemblDir, 0755); err != nil {
+		return err
+	}
+	name := "chembl_" + version + "_sqlite.tar.gz"
+	url := chemblFTPBase + "releases/chembl_" + version + "/" + name
+	tarPath := filepath.Join(chemblDir, name)
+
+	resp, err := httpGetWithRetry(url, 3)
+	if err != nil {
+		return fmt.Errorf("download %s: %v", url, err)
+	}
+	out, err := os.Create(tarPath)
+	if err != nil {
+		resp.Body.Close()
+		return err
+	}
+	n, copyErr := io.Copy(out, resp.Body)
+	resp.Body.Close()
+	out.Close()
+	if copyErr != nil {
+		os.Remove(tarPath)
+		return fmt.Errorf("download interrupted after %d bytes: %v", n, copyErr)
+	}
+	log.Printf("ChEMBL-SQLite: downloaded %s (%d bytes), extracting...", name, n)
+
+	if err := extractTarGz(tarPath, chemblDir); err != nil {
+		return err
+	}
+	// Keep the extracted .db cached; only the (large) tarball is removed.
+	os.Remove(tarPath)
+	return nil
+}
+
+// extractTarGz extracts a .tar.gz into destDir, guarding against path traversal.
+func extractTarGz(tarPath, destDir string) error {
+	f, err := os.Open(tarPath)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	gz, err := gzip.NewReader(f)
+	if err != nil {
+		return err
+	}
+	defer gz.Close()
+	tr := tar.NewReader(gz)
+	cleanDest := filepath.Clean(destDir)
+	for {
+		hdr, err := tr.Next()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return err
+		}
+		target := filepath.Join(destDir, hdr.Name)
+		if target != cleanDest && !strings.HasPrefix(target, cleanDest+string(os.PathSeparator)) {
+			return fmt.Errorf("unsafe path in tar: %s", hdr.Name)
+		}
+		switch hdr.Typeflag {
+		case tar.TypeDir:
+			if err := os.MkdirAll(target, 0755); err != nil {
+				return err
+			}
+		case tar.TypeReg:
+			if err := os.MkdirAll(filepath.Dir(target), 0755); err != nil {
+				return err
+			}
+			w, err := os.Create(target)
+			if err != nil {
+				return err
+			}
+			if _, err := io.Copy(w, tr); err != nil {
+				w.Close()
+				return err
+			}
+			w.Close()
+		}
+	}
+	return nil
 }
 
 // processTargets processes the targets file (chembl_targets.jsonl)
@@ -619,6 +798,22 @@ func (c *chemblSqlite) processMolecules(testLimit int) int64 {
 		// Child molecules
 		if len(entry.ChildChemblIDs) > 0 {
 			attr.Molecule.Childs = entry.ChildChemblIDs
+		}
+
+		// Hierarchical parent/child edges (issue #15): ChEMBL stores salt/anhydrous
+		// forms as separate molecule IDs. Following the reactome/ontology linkdataset
+		// pattern, lay traversable edges so >>chembl_molecule>>chembl_moleculeparent
+		// (salt -> parent) and >>chembl_molecule>>chembl_moleculechild (parent ->
+		// salts) resolve in a single map hop. Driven by each child's parent_chembl_id.
+		if entry.ParentChemblID != "" && entry.ParentChemblID != entry.MoleculeID {
+			parentLinkID := config.Dataconf["chembl_moleculeparent"]["id"]
+			childLinkID := config.Dataconf["chembl_moleculechild"]["id"]
+			// child (this molecule) -> parent
+			c.d.addXref2(entry.MoleculeID, sourceID, entry.ParentChemblID, "chembl_moleculeparent")
+			c.d.addXref2(entry.ParentChemblID, parentLinkID, entry.ParentChemblID, c.source)
+			// parent -> child
+			c.d.addXref2(entry.ParentChemblID, sourceID, entry.MoleculeID, "chembl_moleculechild")
+			c.d.addXref2(entry.MoleculeID, childLinkID, entry.MoleculeID, c.source)
 		}
 
 		// Synonyms as altNames (deduplicated)

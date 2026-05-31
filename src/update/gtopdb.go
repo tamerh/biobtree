@@ -856,7 +856,9 @@ func (g *gtopdb) createLigandCrossRefs(ligandID string, entry *gtopdbLigandEntry
 	// Text search: synonyms (e.g., "serotonin" for 5-hydroxytryptamine)
 	for _, synonym := range entry.synonyms {
 		cleanSyn := cleanGtoPdbText(synonym)
-		if cleanSyn != "" && cleanSyn != entry.name && cleanSyn != entry.inn {
+		// Skip bare-numeric synonyms — they collide with the numeric ligand-ID
+		// namespace (issue #18b).
+		if cleanSyn != "" && cleanSyn != entry.name && cleanSyn != entry.inn && !isAllDigits(cleanSyn) {
 			// Index full synonym
 			g.d.addXref(cleanSyn, textLinkID, ligandID, "gtopdb_ligand", true)
 			// Also index significant individual words from multi-word synonyms
@@ -1193,6 +1195,14 @@ func extractSignificantWords(phrase string) []string {
 			continue
 		}
 		if gtopdbStopWords[word] {
+			continue
+		}
+		// Skip bare-numeric tokens. gtopdb_ligand IDs are plain integers, so a
+		// numeric synonym fragment (e.g. "7519" from a code like "AT 7519")
+		// would be indexed as a keyword that collides with the ligand-ID
+		// namespace — querying ligand 7519 (olaparib) then also resolves the
+		// ligand whose synonym yielded "7519", leaking its interactions (issue #18b).
+		if isAllDigits(word) {
 			continue
 		}
 		significant = append(significant, word)

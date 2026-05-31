@@ -1,6 +1,6 @@
 # Dataset Reference
 
-Biobtree integrates **76 datasets** across major biological domains. Each dataset has detailed documentation including storage model, use cases, and query examples.
+Biobtree integrates **78 datasets** across major biological domains. Each dataset has detailed documentation including storage model, use cases, and query examples.
 
 ---
 

@@ -130,12 +130,22 @@ message OrphanetAttr {
   repeated PhenotypeAssociation phenotypes = 5;
   int32 gene_count = 6;
   int32 phenotype_count = 7;
+  repeated Prevalence prevalences = 8;   // epidemiology from en_product9_prev.xml
 
   message PhenotypeAssociation {
     string hpo_id = 1;
     string hpo_term = 2;
     string frequency = 3;
     double frequency_value = 4;
+  }
+
+  message Prevalence {
+    string prevalence_type = 1;       // e.g. "Point prevalence", "Cases/families", "Incidence"
+    string prevalence_class = 2;      // human-readable range, e.g. "1-9 / 100 000", "<1 / 1 000 000"
+    string qualification = 3;         // e.g. "Value and class", "Class only", "Case(s)"
+    double val_moy = 4;               // mean numeric value when given
+    string geographic = 5;            // e.g. "Worldwide", "Europe"
+    string validation_status = 6;     // e.g. "Validated", "Not yet validated"
   }
   string id = 100; // transient - populated at runtime from Xref.Identifier
 }

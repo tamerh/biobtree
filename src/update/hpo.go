@@ -315,6 +315,28 @@ func (h *hpo) parseGeneToPhenotype(path string) {
 	}
 }
 
+// hpoFrequencyRange maps an HPO frequency subontology term to its percentage
+// range, so qualitative frequencies in phenotype.hpoa become usable instead of
+// dropped. Returns "" for unknown terms.
+func hpoFrequencyRange(hpoFreqID string) string {
+	switch hpoFreqID {
+	case "HP:0040280":
+		return "100%" // Obligate
+	case "HP:0040281":
+		return "80-99%" // Very frequent
+	case "HP:0040282":
+		return "30-79%" // Frequent
+	case "HP:0040283":
+		return "5-29%" // Occasional
+	case "HP:0040284":
+		return "1-4%" // Very rare
+	case "HP:0040285":
+		return "0%" // Excluded
+	default:
+		return ""
+	}
+}
+
 // parsePhenotypeAnnotations parses phenotype.hpoa file for disease-phenotype associations
 // This is the official HPO annotation file containing ~280K disease-phenotype associations
 // Format: 12 tab-separated columns (see https://obophenotype.github.io/human-phenotype-ontology/annotations/phenotype_hpoa/)
@@ -397,12 +419,19 @@ func (h *hpo) parsePhenotypeAnnotations(path string) {
 			continue
 		}
 
-		// Build evidence string with frequency if available
-		// Format: "PCS;freq=3/8" or just "PCS"
+		// Build evidence string with frequency if available.
+		// Format: "PCS;freq=3/8" (ratio/percentage) or "PCS;freq=80-99%" (mapped
+		// from an HPO frequency term like HP:0040281). Numeric ratios/percentages
+		// are kept as-is; HPO frequency terms are mapped to their percentage range.
 		evidenceStr := evidence
-		if frequency != "" && !strings.HasPrefix(frequency, "HP:") {
-			// Only include numeric frequencies (e.g., "3/8"), not HP terms
-			evidenceStr = evidence + ";freq=" + frequency
+		if frequency != "" {
+			f := frequency
+			if strings.HasPrefix(frequency, "HP:") {
+				f = hpoFrequencyRange(frequency)
+			}
+			if f != "" {
+				evidenceStr = evidence + ";freq=" + f
+			}
 		}
 
 		// Determine target dataset and ID from database_id prefix

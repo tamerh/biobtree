@@ -1237,6 +1237,7 @@
     "path_product1": "https://www.orphadata.com/data/xml/en_product1.xml",
     "path_product4": "https://www.orphadata.com/data/xml/en_product4.xml",
     "path_product6": "https://www.orphadata.com/data/xml/en_product6.xml",
+    "path_product9": "https://www.orphadata.com/data/xml/en_product9_prev.xml",
     "useLocalFile": "no",
     "hasFilter": "yes",
     "attrs": "name,[]synonyms,definition,disorder_type,[]phenotypes",

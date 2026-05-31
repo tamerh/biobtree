@@ -83492,6 +83492,36 @@ func (j *OrphanetAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.FormatBits2(buf, uint64(j.PhenotypeCount), 10, j.PhenotypeCount < 0)
 		buf.WriteByte(',')
 	}
+	if len(j.Prevalences) != 0 {
+		buf.WriteString(`"prevalences":`)
+		if j.Prevalences != nil {
+			buf.WriteString(`[`)
+			for i, v := range j.Prevalences {
+				if i != 0 {
+					buf.WriteString(`,`)
+				}
+
+				{
+
+					if v == nil {
+						buf.WriteString("null")
+					} else {
+
+						err = v.MarshalJSONBuf(buf)
+						if err != nil {
+							return err
+						}
+
+					}
+
+				}
+			}
+			buf.WriteString(`]`)
+		} else {
+			buf.WriteString(`null`)
+		}
+		buf.WriteByte(',')
+	}
 	if len(j.Id) != 0 {
 		buf.WriteString(`"id":`)
 		fflib.WriteJsonString(buf, string(j.Id))
@@ -83520,6 +83550,8 @@ const (
 
 	ffjtOrphanetAttrPhenotypeCount
 
+	ffjtOrphanetAttrPrevalences
+
 	ffjtOrphanetAttrId
 )
 
@@ -83536,6 +83568,8 @@ var ffjKeyOrphanetAttrPhenotypes = []byte("phenotypes")
 var ffjKeyOrphanetAttrGeneCount = []byte("gene_count")
 
 var ffjKeyOrphanetAttrPhenotypeCount = []byte("phenotype_count")
+
+var ffjKeyOrphanetAttrPrevalences = []byte("prevalences")
 
 var ffjKeyOrphanetAttrId = []byte("id")
 
@@ -83648,6 +83682,11 @@ mainparse:
 						currentKey = ffjtOrphanetAttrPhenotypeCount
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyOrphanetAttrPrevalences, kn) {
+						currentKey = ffjtOrphanetAttrPrevalences
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 's':
@@ -83662,6 +83701,12 @@ mainparse:
 
 				if fflib.SimpleLetterEqualFold(ffjKeyOrphanetAttrId, kn) {
 					currentKey = ffjtOrphanetAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyOrphanetAttrPrevalences, kn) {
+					currentKey = ffjtOrphanetAttrPrevalences
 					state = fflib.FFParse_want_colon
 					goto mainparse
 				}
@@ -83745,6 +83790,9 @@ mainparse:
 
 				case ffjtOrphanetAttrPhenotypeCount:
 					goto handle_PhenotypeCount
+
+				case ffjtOrphanetAttrPrevalences:
+					goto handle_Prevalences
 
 				case ffjtOrphanetAttrId:
 					goto handle_Id
@@ -84043,6 +84091,80 @@ handle_PhenotypeCount:
 
 			j.PhenotypeCount = int32(tval)
 
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Prevalences:
+
+	/* handler: j.Prevalences type=[]*pbuf.OrphanetAttr_Prevalence kind=slice quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_left_brace && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for ", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+			j.Prevalences = nil
+		} else {
+
+			j.Prevalences = []*OrphanetAttr_Prevalence{}
+
+			wantVal := true
+
+			for {
+
+				var tmpJPrevalences *OrphanetAttr_Prevalence
+
+				tok = fs.Scan()
+				if tok == fflib.FFTok_error {
+					goto tokerror
+				}
+				if tok == fflib.FFTok_right_brace {
+					break
+				}
+
+				if tok == fflib.FFTok_comma {
+					if wantVal == true {
+						// TODO(pquerna): this isn't an ideal error message, this handles
+						// things like [,,,] as an array value.
+						return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
+					}
+					continue
+				} else {
+					wantVal = true
+				}
+
+				/* handler: tmpJPrevalences type=*pbuf.OrphanetAttr_Prevalence kind=ptr quoted=false*/
+
+				{
+					if tok == fflib.FFTok_null {
+
+						tmpJPrevalences = nil
+
+					} else {
+
+						if tmpJPrevalences == nil {
+							tmpJPrevalences = new(OrphanetAttr_Prevalence)
+						}
+
+						err = tmpJPrevalences.UnmarshalJSONFFLexer(fs, fflib.FFParse_want_key)
+						if err != nil {
+							return err
+						}
+					}
+					state = fflib.FFParse_after_value
+				}
+
+				j.Prevalences = append(j.Prevalences, tmpJPrevalences)
+
+				wantVal = false
+			}
 		}
 	}
 
@@ -84421,6 +84543,463 @@ handle_FrequencyValue:
 			}
 
 			j.FrequencyValue = float64(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+wantedvalue:
+	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
+wrongtokenerror:
+	return fs.WrapErr(fmt.Errorf("ffjson: wanted token: %v, but got token: %v output=%s", wantedTok, tok, fs.Output.String()))
+tokerror:
+	if fs.BigError != nil {
+		return fs.WrapErr(fs.BigError)
+	}
+	err = fs.Error.ToError()
+	if err != nil {
+		return fs.WrapErr(err)
+	}
+	panic("ffjson-generated: unreachable, please report bug.")
+done:
+
+	return nil
+}
+
+// MarshalJSON marshal bytes to json - template
+func (j *OrphanetAttr_Prevalence) MarshalJSON() ([]byte, error) {
+	var buf fflib.Buffer
+	if j == nil {
+		buf.WriteString("null")
+		return buf.Bytes(), nil
+	}
+	err := j.MarshalJSONBuf(&buf)
+	if err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
+}
+
+// MarshalJSONBuf marshal buff to json - template
+func (j *OrphanetAttr_Prevalence) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
+	if j == nil {
+		buf.WriteString("null")
+		return nil
+	}
+	var err error
+	var obj []byte
+	_ = obj
+	_ = err
+	buf.WriteString(`{ `)
+	if len(j.PrevalenceType) != 0 {
+		buf.WriteString(`"prevalence_type":`)
+		fflib.WriteJsonString(buf, string(j.PrevalenceType))
+		buf.WriteByte(',')
+	}
+	if len(j.PrevalenceClass) != 0 {
+		buf.WriteString(`"prevalence_class":`)
+		fflib.WriteJsonString(buf, string(j.PrevalenceClass))
+		buf.WriteByte(',')
+	}
+	if len(j.Qualification) != 0 {
+		buf.WriteString(`"qualification":`)
+		fflib.WriteJsonString(buf, string(j.Qualification))
+		buf.WriteByte(',')
+	}
+	if j.ValMoy != 0 {
+		buf.WriteString(`"val_moy":`)
+		fflib.AppendFloat(buf, float64(j.ValMoy), 'g', -1, 64)
+		buf.WriteByte(',')
+	}
+	if len(j.Geographic) != 0 {
+		buf.WriteString(`"geographic":`)
+		fflib.WriteJsonString(buf, string(j.Geographic))
+		buf.WriteByte(',')
+	}
+	if len(j.ValidationStatus) != 0 {
+		buf.WriteString(`"validation_status":`)
+		fflib.WriteJsonString(buf, string(j.ValidationStatus))
+		buf.WriteByte(',')
+	}
+	buf.Rewind(1)
+	buf.WriteByte('}')
+	return nil
+}
+
+const (
+	ffjtOrphanetAttr_Prevalencebase = iota
+	ffjtOrphanetAttr_Prevalencenosuchkey
+
+	ffjtOrphanetAttr_PrevalencePrevalenceType
+
+	ffjtOrphanetAttr_PrevalencePrevalenceClass
+
+	ffjtOrphanetAttr_PrevalenceQualification
+
+	ffjtOrphanetAttr_PrevalenceValMoy
+
+	ffjtOrphanetAttr_PrevalenceGeographic
+
+	ffjtOrphanetAttr_PrevalenceValidationStatus
+)
+
+var ffjKeyOrphanetAttr_PrevalencePrevalenceType = []byte("prevalence_type")
+
+var ffjKeyOrphanetAttr_PrevalencePrevalenceClass = []byte("prevalence_class")
+
+var ffjKeyOrphanetAttr_PrevalenceQualification = []byte("qualification")
+
+var ffjKeyOrphanetAttr_PrevalenceValMoy = []byte("val_moy")
+
+var ffjKeyOrphanetAttr_PrevalenceGeographic = []byte("geographic")
+
+var ffjKeyOrphanetAttr_PrevalenceValidationStatus = []byte("validation_status")
+
+// UnmarshalJSON umarshall json - template of ffjson
+func (j *OrphanetAttr_Prevalence) UnmarshalJSON(input []byte) error {
+	fs := fflib.NewFFLexer(input)
+	return j.UnmarshalJSONFFLexer(fs, fflib.FFParse_map_start)
+}
+
+// UnmarshalJSONFFLexer fast json unmarshall - template ffjson
+func (j *OrphanetAttr_Prevalence) UnmarshalJSONFFLexer(fs *fflib.FFLexer, state fflib.FFParseState) error {
+	var err error
+	currentKey := ffjtOrphanetAttr_Prevalencebase
+	_ = currentKey
+	tok := fflib.FFTok_init
+	wantedTok := fflib.FFTok_init
+
+mainparse:
+	for {
+		tok = fs.Scan()
+		//	println(fmt.Sprintf("debug: tok: %v  state: %v", tok, state))
+		if tok == fflib.FFTok_error {
+			goto tokerror
+		}
+
+		switch state {
+
+		case fflib.FFParse_map_start:
+			if tok != fflib.FFTok_left_bracket {
+				wantedTok = fflib.FFTok_left_bracket
+				goto wrongtokenerror
+			}
+			state = fflib.FFParse_want_key
+			continue
+
+		case fflib.FFParse_after_value:
+			if tok == fflib.FFTok_comma {
+				state = fflib.FFParse_want_key
+			} else if tok == fflib.FFTok_right_bracket {
+				goto done
+			} else {
+				wantedTok = fflib.FFTok_comma
+				goto wrongtokenerror
+			}
+
+		case fflib.FFParse_want_key:
+			// json {} ended. goto exit. woo.
+			if tok == fflib.FFTok_right_bracket {
+				goto done
+			}
+			if tok != fflib.FFTok_string {
+				wantedTok = fflib.FFTok_string
+				goto wrongtokenerror
+			}
+
+			kn := fs.Output.Bytes()
+			if len(kn) <= 0 {
+				// "" case. hrm.
+				currentKey = ffjtOrphanetAttr_Prevalencenosuchkey
+				state = fflib.FFParse_want_colon
+				goto mainparse
+			} else {
+				switch kn[0] {
+
+				case 'g':
+
+					if bytes.Equal(ffjKeyOrphanetAttr_PrevalenceGeographic, kn) {
+						currentKey = ffjtOrphanetAttr_PrevalenceGeographic
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'p':
+
+					if bytes.Equal(ffjKeyOrphanetAttr_PrevalencePrevalenceType, kn) {
+						currentKey = ffjtOrphanetAttr_PrevalencePrevalenceType
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyOrphanetAttr_PrevalencePrevalenceClass, kn) {
+						currentKey = ffjtOrphanetAttr_PrevalencePrevalenceClass
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'q':
+
+					if bytes.Equal(ffjKeyOrphanetAttr_PrevalenceQualification, kn) {
+						currentKey = ffjtOrphanetAttr_PrevalenceQualification
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'v':
+
+					if bytes.Equal(ffjKeyOrphanetAttr_PrevalenceValMoy, kn) {
+						currentKey = ffjtOrphanetAttr_PrevalenceValMoy
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyOrphanetAttr_PrevalenceValidationStatus, kn) {
+						currentKey = ffjtOrphanetAttr_PrevalenceValidationStatus
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				}
+
+				if fflib.EqualFoldRight(ffjKeyOrphanetAttr_PrevalenceValidationStatus, kn) {
+					currentKey = ffjtOrphanetAttr_PrevalenceValidationStatus
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyOrphanetAttr_PrevalenceGeographic, kn) {
+					currentKey = ffjtOrphanetAttr_PrevalenceGeographic
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyOrphanetAttr_PrevalenceValMoy, kn) {
+					currentKey = ffjtOrphanetAttr_PrevalenceValMoy
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyOrphanetAttr_PrevalenceQualification, kn) {
+					currentKey = ffjtOrphanetAttr_PrevalenceQualification
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyOrphanetAttr_PrevalencePrevalenceClass, kn) {
+					currentKey = ffjtOrphanetAttr_PrevalencePrevalenceClass
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyOrphanetAttr_PrevalencePrevalenceType, kn) {
+					currentKey = ffjtOrphanetAttr_PrevalencePrevalenceType
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				currentKey = ffjtOrphanetAttr_Prevalencenosuchkey
+				state = fflib.FFParse_want_colon
+				goto mainparse
+			}
+
+		case fflib.FFParse_want_colon:
+			if tok != fflib.FFTok_colon {
+				wantedTok = fflib.FFTok_colon
+				goto wrongtokenerror
+			}
+			state = fflib.FFParse_want_value
+			continue
+		case fflib.FFParse_want_value:
+
+			if tok == fflib.FFTok_left_brace || tok == fflib.FFTok_left_bracket || tok == fflib.FFTok_integer || tok == fflib.FFTok_double || tok == fflib.FFTok_string || tok == fflib.FFTok_bool || tok == fflib.FFTok_null {
+				switch currentKey {
+
+				case ffjtOrphanetAttr_PrevalencePrevalenceType:
+					goto handle_PrevalenceType
+
+				case ffjtOrphanetAttr_PrevalencePrevalenceClass:
+					goto handle_PrevalenceClass
+
+				case ffjtOrphanetAttr_PrevalenceQualification:
+					goto handle_Qualification
+
+				case ffjtOrphanetAttr_PrevalenceValMoy:
+					goto handle_ValMoy
+
+				case ffjtOrphanetAttr_PrevalenceGeographic:
+					goto handle_Geographic
+
+				case ffjtOrphanetAttr_PrevalenceValidationStatus:
+					goto handle_ValidationStatus
+
+				case ffjtOrphanetAttr_Prevalencenosuchkey:
+					err = fs.SkipField(tok)
+					if err != nil {
+						return fs.WrapErr(err)
+					}
+					state = fflib.FFParse_after_value
+					goto mainparse
+				}
+			} else {
+				goto wantedvalue
+			}
+		}
+	}
+
+handle_PrevalenceType:
+
+	/* handler: j.PrevalenceType type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.PrevalenceType = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_PrevalenceClass:
+
+	/* handler: j.PrevalenceClass type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.PrevalenceClass = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Qualification:
+
+	/* handler: j.Qualification type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Qualification = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_ValMoy:
+
+	/* handler: j.ValMoy type=float64 kind=float64 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_double && tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for float64", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseFloat(fs.Output.Bytes(), 64)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.ValMoy = float64(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Geographic:
+
+	/* handler: j.Geographic type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Geographic = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_ValidationStatus:
+
+	/* handler: j.ValidationStatus type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.ValidationStatus = string(string(outBuf))
 
 		}
 	}

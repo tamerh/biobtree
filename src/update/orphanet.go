@@ -2,6 +2,7 @@ package update
 
 import (
 	"biobtree/pbuf"
+	"html"
 	"log"
 	"os"
 	"strconv"
@@ -85,6 +86,10 @@ func (o *orphanet) update() {
 	// Phase 3: Parse product6.xml (gene associations)
 	phase3Count := o.parseProduct6(entries)
 	log.Printf("Orphanet: Phase 3 complete - %d disorders with genes from product6.xml", phase3Count)
+
+	// Phase 4: Parse product9_prev.xml (prevalence / epidemiology)
+	phase4Count := o.parseProduct9(entries)
+	log.Printf("Orphanet: Phase 4 complete - %d disorders with prevalence from product9_prev.xml", phase4Count)
 
 	// Save all entries and create cross-references
 	o.saveAllEntries(entries)
@@ -296,6 +301,80 @@ func (o *orphanet) parseProduct4(entries map[string]*orphaEntry) int {
 		}
 
 		if entry.phenoCount > 0 {
+			updatedCount++
+		}
+	}
+
+	return updatedCount
+}
+
+// getXMLNestedName returns parent.<childName>.Name text, e.g. the "en" label of
+// a Prevalence sub-element like <PrevalenceType><Name lang="en">Point prevalence</Name>.
+// HTML entities are decoded so e.g. "&lt;1 / 1 000 000" becomes "<1 / 1 000 000".
+func getXMLNestedName(parent *xmlparser.XMLElement, childName string) string {
+	if children := parent.Childs[childName]; len(children) > 0 {
+		return html.UnescapeString(getXMLChildText(&children[0], "Name"))
+	}
+	return ""
+}
+
+// parseProduct9 parses en_product9_prev.xml for prevalence/epidemiology data and
+// attaches it to disorders already loaded from product1.
+// XML structure: JDBOR -> DisorderList -> Disorder -> PrevalenceList -> Prevalence
+func (o *orphanet) parseProduct9(entries map[string]*orphaEntry) int {
+	pathKey := "path_product9"
+	filePath := config.Dataconf[o.source][pathKey]
+	if filePath == "" {
+		log.Printf("Orphanet: No path_product9 configured, skipping")
+		return 0
+	}
+
+	log.Printf("Orphanet: Phase 4 - Downloading product9_prev.xml from %s", filePath)
+
+	br, gz, ftpFile, client, localFile, _, err := getDataReaderNew(o.source, "", "", filePath)
+	o.check(err, "opening product9_prev.xml")
+	defer closeReaders(gz, ftpFile, client, localFile)
+
+	parser := xmlparser.NewXMLParser(br, "Disorder")
+
+	updatedCount := 0
+	for disorder := range parser.Stream() {
+		orphaCode := getXMLChildText(disorder, "OrphaCode")
+		if orphaCode == "" {
+			continue
+		}
+		entry, exists := entries[orphaCode]
+		if !exists {
+			continue
+		}
+
+		prevListNode := disorder.Childs["PrevalenceList"]
+		if len(prevListNode) == 0 {
+			continue
+		}
+		added := false
+		for i := range prevListNode[0].Childs["Prevalence"] {
+			p := &prevListNode[0].Childs["Prevalence"][i]
+			prev := &pbuf.OrphanetAttr_Prevalence{
+				PrevalenceType:   getXMLNestedName(p, "PrevalenceType"),
+				PrevalenceClass:  getXMLNestedName(p, "PrevalenceClass"),
+				Qualification:    getXMLNestedName(p, "PrevalenceQualification"),
+				Geographic:       getXMLNestedName(p, "PrevalenceGeographic"),
+				ValidationStatus: getXMLNestedName(p, "PrevalenceValidationStatus"),
+			}
+			if vm := getXMLChildText(p, "ValMoy"); vm != "" {
+				if f, e := strconv.ParseFloat(vm, 64); e == nil {
+					prev.ValMoy = f
+				}
+			}
+			// Skip empty/uninformative entries (no class and no type).
+			if prev.PrevalenceClass == "" && prev.PrevalenceType == "" {
+				continue
+			}
+			entry.attr.Prevalences = append(entry.attr.Prevalences, prev)
+			added = true
+		}
+		if added {
 			updatedCount++
 		}
 	}

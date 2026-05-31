@@ -24,3 +24,17 @@ Full analysis: [`docs/somatic_cancer_feasibility.md`](docs/somatic_cancer_feasib
 | OncoKB | Proprietary, per-account token | 🔴 Rejected — token-gated, non-commercial, no redistribution |
 
 CIViC + intOGen (both CC0) together satisfy all three requested edge types: `mondo/efo → driver → hgnc`, `hgnc → role/tumor-types`, and `driver → ChEMBL` (CIViC).
+
+## ClinGen feature decision (2026-05-31)
+
+All ClinGen (Clinical Genome Resource, NIH-funded) curated content is released under **CC0 1.0 (public domain)** — attribution requested as a courtesy only. Three of ClinGen's four curation activities ingested as a family; files refresh nightly.
+
+| Dataset (id) | License | Verdict |
+|---|---|---|
+| **ClinGen Gene-Disease Validity** (139) | CC0 1.0 | 🟢 **Ingest** — gene→disease evidence tier (Definitive..Refuted) + MOI |
+| **ClinGen Dosage Sensitivity** (140) | CC0 1.0 | 🟢 **Ingest** — per-gene haploinsufficiency/triplosensitivity |
+| **ClinGen Variant Pathogenicity** (141) | CC0 1.0 | 🟢 **Ingest** — VCEP ACMG assertions, bridged to ClinVar |
+| Clinical Actionability | CC0 1.0 | 🟡 Deferred — smallest, age-split REST API |
+| Dosage region curations (ISCA) | CC0 1.0 | 🟡 Deferred — orphan ISCA namespace, no graph link |
+
+All keys (HGNC, Entrez, MONDO, OMIM, Orphanet, ClinVar) land on existing biobtree datasets; variant pathogenicity joins the ClinVar hub via its ClinVar Variation Id, inheriting dbSNP/gene/disease links.

@@ -1,0 +1,20 @@
+{
+  "common_tests": [
+    {
+      "name": "Lookup BRCA1 dosage (Entrez 672)",
+      "type": "id_lookup",
+      "id": "672"
+    },
+    {
+      "name": "Dosage attributes present (BRCA1)",
+      "type": "attribute_check",
+      "id": "672"
+    },
+    {
+      "name": "Invalid gene id handling",
+      "type": "invalid_id",
+      "invalid_id": "999999999"
+    }
+  ],
+  "custom_tests": []
+}

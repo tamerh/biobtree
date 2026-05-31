@@ -257,6 +257,15 @@ func extractField(xref *pbuf.Xref, field string) string {
 	if a := xref.GetGencc(); a != nil {
 		return extractGenccField(a, field)
 	}
+	if a := xref.GetClingenGeneValidity(); a != nil {
+		return extractClingenGeneValidityField(a, field)
+	}
+	if a := xref.GetClingenDosage(); a != nil {
+		return extractClingenDosageField(a, field)
+	}
+	if a := xref.GetClingenVariant(); a != nil {
+		return extractClingenVariantField(a, field)
+	}
 	if a := xref.GetBindingdb(); a != nil {
 		return extractBindingdbField(a, field)
 	}
@@ -972,6 +981,15 @@ func ExtractSourceName(xref *pbuf.Xref) string {
 	if a := xref.GetIntogen(); a != nil {
 		return a.Symbol
 	}
+	if a := xref.GetClingenGeneValidity(); a != nil {
+		return a.GeneSymbol
+	}
+	if a := xref.GetClingenDosage(); a != nil {
+		return a.GeneSymbol
+	}
+	if a := xref.GetClingenVariant(); a != nil {
+		return a.VariationName
+	}
 
 	return ""
 }
@@ -1627,6 +1645,68 @@ func extractGenccField(a *pbuf.GenccAttr, field string) string {
 		return a.SubmitterTitle
 	case "uuid":
 		return a.Uuid
+	default:
+		return ""
+	}
+}
+
+// extractClingenGeneValidityField extracts a field from ClingenGeneValidityAttr
+func extractClingenGeneValidityField(a *pbuf.ClingenGeneValidityAttr, field string) string {
+	switch field {
+	case "gene_symbol":
+		return a.GeneSymbol
+	case "gene_hgnc_id":
+		return a.GeneHgncId
+	case "disease_label":
+		return a.DiseaseLabel
+	case "disease_mondo_id":
+		return a.DiseaseMondoId
+	case "moi":
+		return a.Moi
+	case "classification":
+		return a.Classification
+	case "gcep":
+		return a.Gcep
+	default:
+		return ""
+	}
+}
+
+// extractClingenDosageField extracts a field from ClingenDosageAttr
+func extractClingenDosageField(a *pbuf.ClingenDosageAttr, field string) string {
+	switch field {
+	case "gene_symbol":
+		return a.GeneSymbol
+	case "gene_id":
+		return a.GeneId
+	case "haplo_score":
+		return a.HaploScore
+	case "haplo_label":
+		return a.HaploLabel
+	case "triplo_score":
+		return a.TriploScore
+	case "triplo_label":
+		return a.TriploLabel
+	default:
+		return ""
+	}
+}
+
+// extractClingenVariantField extracts a field from ClingenVariantAttr
+func extractClingenVariantField(a *pbuf.ClingenVariantAttr, field string) string {
+	switch field {
+	case "gene_symbol":
+		return a.GeneSymbol
+	case "disease":
+		return a.Disease
+	case "assertion":
+		return a.Assertion
+	case "vcep":
+		return a.Vcep
+	case "variation_name":
+		return a.VariationName
+	case "clinvar_variation_id":
+		return a.ClinvarVariationId
 	default:
 		return ""
 	}

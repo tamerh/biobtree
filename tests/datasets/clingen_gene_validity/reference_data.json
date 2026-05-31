@@ -1,0 +1,214 @@
+{
+  "curations": [
+    {
+      "assertion_id": "92de3832-c272-4993-8586-288c6331dec2",
+      "gene_symbol": "AARS1",
+      "hgnc_id": "HGNC:20",
+      "mondo_id": "MONDO:0013212",
+      "classification": "Definitive"
+    },
+    {
+      "assertion_id": "583e237c-18f6-4427-a04f-82ea0f020daf",
+      "gene_symbol": "AARS2",
+      "hgnc_id": "HGNC:21022",
+      "mondo_id": "MONDO:0044970",
+      "classification": "Definitive"
+    },
+    {
+      "assertion_id": "f3e2d402-69a2-496f-af67-ba3aae132eab",
+      "gene_symbol": "ABCA3",
+      "hgnc_id": "HGNC:33",
+      "mondo_id": "MONDO:0012582",
+      "classification": "Definitive"
+    },
+    {
+      "assertion_id": "38729563-bf36-48ae-929e-fa69a225de39",
+      "gene_symbol": "ABCA4",
+      "hgnc_id": "HGNC:34",
+      "mondo_id": "MONDO:0800406",
+      "classification": "Definitive"
+    },
+    {
+      "assertion_id": "009134d7-b79c-4a90-9bae-c1f302439258",
+      "gene_symbol": "ABCB4",
+      "hgnc_id": "HGNC:45",
+      "mondo_id": "MONDO:0011214",
+      "classification": "Definitive"
+    },
+    {
+      "assertion_id": "45ec3fba-48fd-4bf4-b865-2c2d7216e8eb",
+      "gene_symbol": "ABCB6",
+      "hgnc_id": "HGNC:47",
+      "mondo_id": "MONDO:0013783",
+      "classification": "Limited"
+    },
+    {
+      "assertion_id": "93bbbc0a-5f6f-4d80-b560-3265d7b89ed3",
+      "gene_symbol": "ABCB6",
+      "hgnc_id": "HGNC:47",
+      "mondo_id": "MONDO:0014169",
+      "classification": "Moderate"
+    },
+    {
+      "assertion_id": "f3ff096d-abfb-47df-8ac1-c942a98828b0",
+      "gene_symbol": "ABCB7",
+      "hgnc_id": "HGNC:48",
+      "mondo_id": "MONDO:0044970",
+      "classification": "Moderate"
+    },
+    {
+      "assertion_id": "33c0dfa5-c6ea-42fd-8118-be6ff97beb3e",
+      "gene_symbol": "ABCC8",
+      "hgnc_id": "HGNC:59",
+      "mondo_id": "MONDO:0015967",
+      "classification": "Definitive"
+    },
+    {
+      "assertion_id": "815e0f84-b530-4fd2-81a9-02e02bf352ee",
+      "gene_symbol": "ABCD1",
+      "hgnc_id": "HGNC:61",
+      "mondo_id": "MONDO:0018544",
+      "classification": "Definitive"
+    },
+    {
+      "assertion_id": "c52c7403-8975-4a3f-8796-a966e977f708",
+      "gene_symbol": "ABCG5",
+      "hgnc_id": "HGNC:13886",
+      "mondo_id": "MONDO:0008863",
+      "classification": "Definitive"
+    },
+    {
+      "assertion_id": "af59edc2-1148-4dca-b804-192639017b65",
+      "gene_symbol": "ABCG8",
+      "hgnc_id": "HGNC:13887",
+      "mondo_id": "MONDO:0008863",
+      "classification": "Definitive"
+    },
+    {
+      "assertion_id": "ccd68c20-2024-4239-be51-26697e19a6b4",
+      "gene_symbol": "ABHD12",
+      "hgnc_id": "HGNC:15868",
+      "mondo_id": "MONDO:0012984",
+      "classification": "Definitive"
+    },
+    {
+      "assertion_id": "19bf65b3-0c75-46e2-8796-5664ce6dd371",
+      "gene_symbol": "ABHD5",
+      "hgnc_id": "HGNC:21396",
+      "mondo_id": "MONDO:0010155",
+      "classification": "Definitive"
+    },
+    {
+      "assertion_id": "0d260f0e-df71-420a-9281-92e4bddcddbb",
+      "gene_symbol": "ACAD8",
+      "hgnc_id": "HGNC:87",
+      "mondo_id": "MONDO:0012648",
+      "classification": "Definitive"
+    },
+    {
+      "assertion_id": "5fad1866-75ce-470f-984c-e64bb7e11168",
+      "gene_symbol": "ACAD9",
+      "hgnc_id": "HGNC:21497",
+      "mondo_id": "MONDO:0012624",
+      "classification": "Definitive"
+    },
+    {
+      "assertion_id": "fb987774-0e5b-4466-924f-6f19fccc6599",
+      "gene_symbol": "ACADM",
+      "hgnc_id": "HGNC:89",
+      "mondo_id": "MONDO:0008721",
+      "classification": "Definitive"
+    },
+    {
+      "assertion_id": "c6bc94e9-cdf2-4efb-b654-004541efc344",
+      "gene_symbol": "ACADS",
+      "hgnc_id": "HGNC:90",
+      "mondo_id": "MONDO:0008722",
+      "classification": "Definitive"
+    },
+    {
+      "assertion_id": "8bfa3857-c96c-40ac-b4c1-2cf04fd4eb4f",
+      "gene_symbol": "ACADSB",
+      "hgnc_id": "HGNC:91",
+      "mondo_id": "MONDO:0012392",
+      "classification": "Definitive"
+    },
+    {
+      "assertion_id": "130ca053-9f40-4fd5-b89c-b9b374694fda",
+      "gene_symbol": "ACADVL",
+      "hgnc_id": "HGNC:92",
+      "mondo_id": "MONDO:0008723",
+      "classification": "Definitive"
+    },
+    {
+      "assertion_id": "99bcab0a-de59-479d-8fe6-8b76cbce90ee",
+      "gene_symbol": "ACAT1",
+      "hgnc_id": "HGNC:93",
+      "mondo_id": "MONDO:0008760",
+      "classification": "Definitive"
+    },
+    {
+      "assertion_id": "7cb46678-6e33-4d34-86ba-fdf59e59fb80",
+      "gene_symbol": "ACAT2",
+      "hgnc_id": "HGNC:94",
+      "mondo_id": "MONDO:0013548",
+      "classification": "No Known Disease Relationship"
+    },
+    {
+      "assertion_id": "c29b6517-54ab-414e-a3ab-e5aa006e0d54",
+      "gene_symbol": "ACD",
+      "hgnc_id": "HGNC:25070",
+      "mondo_id": "MONDO:0100569",
+      "classification": "Definitive"
+    },
+    {
+      "assertion_id": "2bca6e9c-e167-4862-bf45-3ec787b92f49",
+      "gene_symbol": "ACO2",
+      "hgnc_id": "HGNC:118",
+      "mondo_id": "MONDO:0044970",
+      "classification": "Strong"
+    },
+    {
+      "assertion_id": "5892fec8-dc8b-467b-abba-fb6be142bb7a",
+      "gene_symbol": "ACO2",
+      "hgnc_id": "HGNC:118",
+      "mondo_id": "MONDO:0044970",
+      "classification": "Definitive"
+    },
+    {
+      "assertion_id": "96026ae4-050d-4eb5-849c-178c703a556e",
+      "gene_symbol": "ACOX1",
+      "hgnc_id": "HGNC:119",
+      "mondo_id": "MONDO:0009919",
+      "classification": "Definitive"
+    },
+    {
+      "assertion_id": "b215e20c-7781-49a0-b473-9219cb07e0b9",
+      "gene_symbol": "ACSF3",
+      "hgnc_id": "HGNC:27288",
+      "mondo_id": "MONDO:0013661",
+      "classification": "Definitive"
+    },
+    {
+      "assertion_id": "b4da722c-f7fc-4dc4-ad19-1d1b023d488f",
+      "gene_symbol": "ACSL4",
+      "hgnc_id": "HGNC:3571",
+      "mondo_id": "MONDO:0019181",
+      "classification": "Definitive"
+    },
+    {
+      "assertion_id": "098a7b3a-26ab-4915-8187-f6db682cef4f",
+      "gene_symbol": "ACTA1",
+      "hgnc_id": "HGNC:129",
+      "mondo_id": "MONDO:0100084",
+      "classification": "Definitive"
+    },
+    {
+      "assertion_id": "ba47597e-07a0-45e3-a971-f15807e8a1a4",
+      "gene_symbol": "ACTA1",
+      "hgnc_id": "HGNC:129",
+      "mondo_id": "MONDO:0100084",
+      "classification": "Definitive"
+    }
+  ]
+}

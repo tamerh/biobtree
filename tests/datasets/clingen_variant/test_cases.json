@@ -1,0 +1,10 @@
+{
+  "common_tests": [
+    {
+      "name": "Invalid CA id handling",
+      "type": "invalid_id",
+      "invalid_id": "CA-NOTREAL-99999999"
+    }
+  ],
+  "custom_tests": []
+}

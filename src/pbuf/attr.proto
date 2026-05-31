@@ -2794,3 +2794,67 @@ message CellosaurusAttr {
   string id = 100; // transient - populated at runtime from Xref.Identifier
 }
 
+// ClinGen Gene-Disease Validity (Dataset ID: 139)
+// Strength-of-evidence that a gene causes a disease, curated by Gene Curation Expert Panels.
+// Source: https://search.clinicalgenome.org/kb/gene-validity/download (CC0)
+// Keyed by the ClinGen assertion id (GUID extracted from the online report URL).
+message ClingenGeneValidityAttr {
+  string gene_symbol = 1;          // e.g. "BRCA1"
+  string gene_hgnc_id = 2;         // "HGNC:1100"
+  string disease_label = 3;        // e.g. "hereditary breast ovarian cancer syndrome"
+  string disease_mondo_id = 4;     // "MONDO:0003582"
+  string moi = 5;                  // Mode of inheritance, e.g. "AD", "AR"
+  string sop = 6;                  // ClinGen SOP version, e.g. "SOP10"
+  string classification = 7;       // Definitive/Strong/Moderate/Limited/Disputed/Refuted/No Known
+  string gcep = 8;                 // Gene Curation Expert Panel name
+  string classification_date = 9;  // ISO date of classification
+  string report_url = 10;          // Online report URL
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// ClinGen Dosage Sensitivity (Dataset ID: 140)
+// Per-gene haploinsufficiency / triplosensitivity dosage scores.
+// Source: https://ftp.clinicalgenome.org/ClinGen_gene_curation_list_GRCh38.tsv (CC0)
+// Keyed by NCBI/Entrez gene id. ~1642 curated genes (absence != not-sensitive).
+// Score encoding: 3=sufficient evidence, 2=emerging, 1=little, 0=no evidence,
+//   30=gene assoc. with autosomal-recessive phenotype, 40=dosage sensitivity unlikely.
+message ClingenDosageAttr {
+  string gene_symbol = 1;          // e.g. "BRCA1"
+  string gene_id = 2;              // NCBI/Entrez gene id, e.g. "672"
+  string cytoband = 3;             // e.g. "17q21.31"
+  string genomic_location = 4;     // GRCh38 coordinates
+  string haplo_score = 5;          // Haploinsufficiency score (raw, see encoding above)
+  string haplo_label = 6;          // Haploinsufficiency description
+  string haplo_disease_id = 7;     // HI disease id ("MONDO:..." / "OMIM:...")
+  string triplo_score = 8;         // Triplosensitivity score (raw)
+  string triplo_label = 9;         // Triplosensitivity description
+  string triplo_disease_id = 10;   // TS disease id
+  string date_last_evaluated = 11; // ISO date
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// ClinGen Variant Pathogenicity (Dataset ID: 141)
+// Expert-panel (VCEP) ACMG variant interpretations from the Evidence Repository.
+// Source: https://erepo.clinicalgenome.org/evrepo/api/summary/classifications/download (CC0)
+// Keyed by Allele Registry CA id (always present; ClinVar Variation Id is an optional xref).
+message ClingenVariantAttr {
+  string variation_name = 1;             // Human-readable variant name
+  string clinvar_variation_id = 2;       // ClinVar Variation Id (may be empty)
+  string allele_registry_id = 3;         // "CA281951"
+  string gene_symbol = 4;                // HGNC gene symbol
+  string disease = 5;                    // Disease label
+  string disease_mondo_id = 6;           // "MONDO:..."
+  string moi = 7;                        // Mode of inheritance
+  string assertion = 8;                  // Pathogenic/Likely Pathogenic/VUS/...
+  repeated string evidence_codes_met = 9;     // Applied ACMG codes (met)
+  repeated string evidence_codes_not_met = 10;// Applied ACMG codes (not met)
+  string summary = 11;                   // Summary of interpretation
+  string vcep = 12;                      // Variant Curation Expert Panel
+  string guideline = 13;                 // Guideline reference
+  string approval_date = 14;             // ISO date
+  string published_date = 15;            // ISO date
+  string evidence_repo_link = 16;        // Evidence Repo classification URL
+  string uuid = 17;                      // Evidence Repo UUID
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+

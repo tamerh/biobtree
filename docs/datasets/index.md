@@ -93,6 +93,12 @@ Disease associations, clinical variants, rare diseases.
 | gwas | GWAS Catalog associations | [README](gwas.md) |
 | gwas_study | GWAS Catalog studies | [README](gwas_study.md) |
 | gencc | Gene-disease validity curations | [README](gencc.md) |
+| clingen_gene_validity | ClinGen gene-disease validity (evidence tier) | [README](clingen_gene_validity.md) |
+| clingen_dosage | ClinGen dosage sensitivity (haploinsufficiency) | [README](clingen_dosage.md) |
+| clingen_variant | ClinGen variant pathogenicity (VCEP ACMG) | [README](clingen_variant.md) |
+| civic | CIViC somatic cancer variant interpretation | [README](civic.md) |
+| intogen | intOGen cancer driver genes | [README](intogen.md) |
+| cellosaurus | Cellosaurus cell lines | [README](cellosaurus.md) |
 | clinical_trials | ClinicalTrials.gov | [README](clinical_trials.md) |
 | pharmgkb | PharmGKB pharmacogenomics | [README](pharmgkb.md) |
 

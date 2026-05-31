@@ -2085,6 +2085,21 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)
 				xref.Attributes = &pbuf.Xref_Gencc{attr}
+			case "clingen_gene_validity":
+				attr := &pbuf.ClingenGeneValidityAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_ClingenGeneValidity{attr}
+			case "clingen_dosage":
+				attr := &pbuf.ClingenDosageAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_ClingenDosage{attr}
+			case "clingen_variant":
+				attr := &pbuf.ClingenVariantAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_ClingenVariant{attr}
 			case "civic":
 				attr := &pbuf.CivicGeneAttr{}
 				barr := []byte((*kvProp[k])[0].value)
@@ -2623,6 +2638,21 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 					barr := []byte((*kvProp[k])[0].value)
 					ffjson.Unmarshal(barr, attr)
 					xref.Attributes = &pbuf.Xref_Gencc{attr}
+				case "clingen_gene_validity":
+					attr := &pbuf.ClingenGeneValidityAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_ClingenGeneValidity{attr}
+				case "clingen_dosage":
+					attr := &pbuf.ClingenDosageAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_ClingenDosage{attr}
+				case "clingen_variant":
+					attr := &pbuf.ClingenVariantAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_ClingenVariant{attr}
 				case "civic":
 					attr := &pbuf.CivicGeneAttr{}
 					barr := []byte((*kvProp[k])[0].value)

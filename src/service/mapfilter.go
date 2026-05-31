@@ -1219,6 +1219,21 @@ func (s *Service) execCelGo(query *query.Query, targetXref *pbuf.Xref) (bool, er
 			attr.Id = id
 			evalMap["gencc"] = attr
 		}
+	case "clingen_gene_validity":
+		if attr := targetXref.GetClingenGeneValidity(); attr != nil {
+			attr.Id = id
+			evalMap["clingen_gene_validity"] = attr
+		}
+	case "clingen_dosage":
+		if attr := targetXref.GetClingenDosage(); attr != nil {
+			attr.Id = id
+			evalMap["clingen_dosage"] = attr
+		}
+	case "clingen_variant":
+		if attr := targetXref.GetClingenVariant(); attr != nil {
+			attr.Id = id
+			evalMap["clingen_variant"] = attr
+		}
 	case "civic":
 		if attr := targetXref.GetCivic(); attr != nil {
 			attr.Id = id

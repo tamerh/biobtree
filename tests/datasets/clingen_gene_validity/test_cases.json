@@ -1,0 +1,10 @@
+{
+  "common_tests": [
+    {
+      "name": "Invalid assertion id handling",
+      "type": "invalid_id",
+      "invalid_id": "CLINGEN-INVALID-99999999"
+    }
+  ],
+  "custom_tests": []
+}

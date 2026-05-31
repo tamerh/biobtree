@@ -834,6 +834,48 @@
     "test_entries_count": "100",
     "bucketMethod": "alphabetic"
   },
+  "clingen_gene_validity": {
+    "id": "139",
+    "name": "ClinGen Gene-Disease Validity",
+    "textPriority": "90",
+    "path": "https://search.clinicalgenome.org/kb/gene-validity/download",
+    "aliases": "ClinGen Gene-Disease Validity,ClinGen Validity,ClinGen GeneValidity",
+    "url": "https://search.clinicalgenome.org/kb/gene-validity/£{id}",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "gene_symbol,gene_hgnc_id,disease_label,disease_mondo_id,moi,sop,classification,gcep,classification_date,report_url",
+    "compact_fields": "gene_symbol,disease_label,classification,moi",
+    "test_entries_count": "100",
+    "bucketMethod": "alphanum"
+  },
+  "clingen_dosage": {
+    "id": "140",
+    "name": "ClinGen Dosage Sensitivity",
+    "textPriority": "90",
+    "path": "https://ftp.clinicalgenome.org/ClinGen_gene_curation_list_GRCh38.tsv",
+    "aliases": "ClinGen Dosage,ClinGen Dosage Sensitivity,haploinsufficiency,triplosensitivity,dosage sensitivity",
+    "url": "https://www.ncbi.nlm.nih.gov/gene/£{id}",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "gene_symbol,gene_id,cytoband,genomic_location,haplo_score,haplo_label,haplo_disease_id,triplo_score,triplo_label,triplo_disease_id,date_last_evaluated",
+    "compact_fields": "gene_symbol,haplo_score,triplo_score",
+    "test_entries_count": "100",
+    "bucketMethod": "numeric"
+  },
+  "clingen_variant": {
+    "id": "141",
+    "name": "ClinGen Variant Pathogenicity",
+    "textPriority": "90",
+    "path": "https://erepo.clinicalgenome.org/evrepo/api/summary/classifications/download",
+    "aliases": "ClinGen Variant Pathogenicity,ClinGen Variant,VCEP,ClinGen ACMG",
+    "url": "https://reg.clinicalgenome.org/redmine/projects/registry/genboree_registry/by_caid?caid=£{id}",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "variation_name,clinvar_variation_id,allele_registry_id,gene_symbol,disease,disease_mondo_id,moi,assertion,[]evidence_codes_met,[]evidence_codes_not_met,summary,vcep,guideline,approval_date,published_date,evidence_repo_link,uuid",
+    "compact_fields": "gene_symbol,disease,assertion,vcep",
+    "test_entries_count": "100",
+    "bucketMethod": "alphanum"
+  },
   "bindingdb": {
     "id": "60",
     "name": "BindingDB",

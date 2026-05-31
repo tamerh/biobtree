@@ -17,8 +17,8 @@ DESIGN PRINCIPLES:
 EDGES = """
 EDGES (what connects to what):
 ensembl: uniprot, go, transcript, exon, ortholog, paralog, hgnc, entrez, refseq, bgee, gwas, gencc, antibody, scxa, civic, intogen
-hgnc: ensembl, uniprot, entrez, gencc, pharmgkb_gene, msigdb, clinvar, mim, refseq, alphafold, collectri, gwas, hpo, cellphonedb, civic, intogen, cellosaurus
-entrez: ensembl, uniprot, refseq, go, biogrid, pubchem_activity, ctd_gene_interaction, dbsnp, civic, intogen
+hgnc: ensembl, uniprot, entrez, gencc, pharmgkb_gene, msigdb, clinvar, mim, refseq, alphafold, collectri, gwas, hpo, cellphonedb, civic, intogen, cellosaurus, clingen_gene_validity, clingen_dosage, clingen_variant
+entrez: ensembl, uniprot, refseq, go, biogrid, pubchem_activity, ctd_gene_interaction, dbsnp, civic, intogen, clingen_dosage
 refseq: ensembl, entrez, taxonomy, ccds, uniprot, mirdb
 mirdb: refseq
 transcript: ensembl, exon, ufeature, alphamissense
@@ -35,12 +35,15 @@ chebi: pubchem, rhea, intact
 swisslipids: uniprot, go, chebi, uberon, cl
 lipidmaps: chebi, pubchem
 dbsnp: entrez, clinvar, pharmgkb_variant, alphamissense, spliceai
-clinvar: hgnc, mondo, hpo, dbsnp, orphanet, civic_variant, cellosaurus
+clinvar: hgnc, mondo, hpo, dbsnp, orphanet, civic_variant, cellosaurus, clingen_variant
 alphamissense: uniprot, transcript
 gwas: gwas_study, efo, dbsnp, hgnc, mondo
 gwas_study: gwas, efo, mondo
 mondo: gencc, clinvar, efo, mesh, hpo, clinical_trials, antibody, cellxgene, cellxgene_celltype, orphanet, mondoparent, mondochild, gwas, gwas_study, civic, intogen, cellosaurus, doid, mim, ncit, umls, medgen, gard, sctid, icd9, icd10cm, icd10who, icd11, nando, meddra, nord, uberon  # disease cross-refs + disease_has_location anatomy, from the Mondo OBO
 gencc: mondo, hpo, hgnc, ensembl
+clingen_gene_validity: hgnc, entrez, ensembl, mondo  # ClinGen gene-disease validity tier (Definitive..Refuted) + MOI
+clingen_dosage: entrez, hgnc, ensembl, mondo, mim, pubmed  # ClinGen haploinsufficiency/triplosensitivity per gene
+clingen_variant: clinvar, hgnc, entrez, ensembl, mondo, pubmed  # ClinGen VCEP ACMG variant pathogenicity (clinvar bridges to dbsnp)
 clinical_trials: mondo, chembl_molecule
 pharmgkb: hgnc, dbsnp, mesh, pharmgkb_gene, pharmgkb_variant, pharmgkb_clinical, pharmgkb_guideline, pharmgkb_pathway
 pharmgkb_variant: pharmgkb_clinical, hgnc, mesh, dbsnp
@@ -224,6 +227,7 @@ WARNING - GO terms with high xref_count (>100):
 DISEASE GENE PATTERNS:
 - >>mondo>>gencc>>hgnc (curated)
 - >>mondo>>clinvar>>hgnc (variant-based)
+- >>hgnc>>clingen_gene_validity (ClinGen evidence tier), >>hgnc>>clingen_dosage (haploinsufficiency), >>hgnc>>clingen_variant>>clinvar (ACMG, then dbsnp)
 
 CANCER / CELL LINE:
 - >>hgnc>>intogen (cancer driver gene?), >>hgnc>>civic (clinical variant interpretations)

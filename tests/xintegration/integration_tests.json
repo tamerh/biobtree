@@ -8,7 +8,7 @@
     "changes_10.6": "Added id_filter category (12 tests): Identifier filter tests. Tests filtering by entry identifier using id field (e.g., go[id==\"GO:0005886\"]). Covers single-hop id filters (ensembl, uniprot, go, mondo, chembl_molecule, hgnc, pdb, pubchem, chebi, efo, taxonomy, interpro), multi-hop chains with multiple filters including id, and combinations of id filter with other attribute filters. Total: 758 tests.",
     "changes_10.5": "Added chembl_pchembl_sorting category (4 tests): ChEMBL activity pChembl sorting validation. Tests that chembl_activity xrefs are sorted by pChembl descending (highest binding affinity first). Also added clinical_trials_phase_sorting category (4 tests): Clinical trials phase sorting validation. Tests that clinical_trials xrefs to MONDO/ChEMBL are sorted by phase (PHASE4 first). Total: 746 tests.",
     "changes_10.4": "Added not_found_tracking category (6 tests, 16 validations): Batch query not_found tracking validation. Tests stats.queried count, stats.mapped count, and not_found array for invalid input terms in lite mode. New validation types: not_found_contains, not_found_count, stats_queried, stats_mapped. Validates explicit tracking of failed input terms in batch mapping queries. Total: 738 tests.",
-    "changes_10.3": "Added ctd_interactions category (10 tests): CTD gene interaction and disease association sub-dataset tests. Updated 10 existing tests with new CTD architecture paths (ctd→ctd_gene_interaction→entrez instead of ctd→entrez, etc.). New aggregated data model with interaction descriptions, inference genes, species sorting, and PubMed literature as xrefs. Total: 722 tests.",
+    "changes_10.3": "Added ctd_interactions category (10 tests): CTD gene interaction and disease association sub-dataset tests. Updated 10 existing tests with new CTD architecture paths (ctd\u2192ctd_gene_interaction\u2192entrez instead of ctd\u2192entrez, etc.). New aggregated data model with interaction descriptions, inference genes, species sorting, and PubMed literature as xrefs. Total: 722 tests.",
     "changes_10.2": "Added brenda_kinetics_compact category (8 tests): BRENDA enzyme kinetics compact storage validation. Tests new pipe-delimited format (value|unit|organism|conditions|pubmed_id|comment), schema field validation, organism priority sorting (Homo sapiens first), and min/max value checks. New validation types: 'contains' for substring matching, array indexing support (e.g., km_values[0]). Total: 712 tests.",
     "changes_10.1": "Added mirdb_sorting category (4 tests): miRDB microRNA target prediction sorting validation. Tests species priority sorting (human miRNAs first) and prediction score ordering for refseq reverse xrefs. Total: 704 tests.",
     "changes_10.0": "Added signor_sorting category (4 tests): SIGNOR causal interaction sorting validation. Tests species priority sorting (human interactions first), confidence score ordering, and reverse xref sorting for uniprot and chebi targets. Total: 700 tests.",
@@ -107,7 +107,8 @@
     "id_filter": "Identifier filter tests: Tests filtering by entry identifier using the transient id field. Enables queries like go[id==\"GO:0005886\"] to filter results by exact identifier. Works across all datasets. Supports single-hop filters, multi-hop chains with multiple id filters, and combinations with other attribute filters. Essential for LLM agents to precisely filter mapping results.",
     "gtopdb_pharmacology": "GtoPdb Guide to Pharmacology integration: Three sub-datasets covering drug targets (gtopdb - GPCRs, ion channels, kinases, enzymes), pharmacological ligands (gtopdb_ligand - approved drugs, investigational compounds with ADME properties), and target-ligand interactions (gtopdb_interaction - binding affinity data with pKi/pKd/pIC50). Cross-references to UniProt, HGNC, PubChem, ChEMBL, ChEBI, PubMed. CEL filters for target type, drug approval status, affinity values. Text search by drug names, receptor synonyms (e.g., 'serotonin' finds all serotonin receptors). Essential for pharmacology research, drug discovery, and target validation workflows.",
     "somatic_cancer": "Somatic cancer drivers and clinical evidence (CIViC + intOGen): gene drivers with oncogene/TSG role, cancer->driver-gene routes, somatic clinical evidence (disease/therapy/level), and druggability. Complements the germline-only disease->gene routes (GenCC/GWAS/ClinVar/OMIM/Orphanet).",
-    "cellosaurus": "Cell-line knowledge resource (Cellosaurus, CC BY 4.0): cell lines as a connected hub - species, disease (NCIt/ORDO->orphanet/mondo), mutated genes (CC Sequence variation->hgnc/clinvar), tissue (uberon), COSMIC, ChEMBL cell line/target, literature, and CVCL hierarchy. Enables disease->cell-line-model and gene->cell-line routes."
+    "cellosaurus": "Cell-line knowledge resource (Cellosaurus, CC BY 4.0): cell lines as a connected hub - species, disease (NCIt/ORDO->orphanet/mondo), mutated genes (CC Sequence variation->hgnc/clinvar), tissue (uberon), COSMIC, ChEMBL cell line/target, literature, and CVCL hierarchy. Enables disease->cell-line-model and gene->cell-line routes.",
+    "clingen_curation": "ClinGen expert curations (CC0): dosage sensitivity (haploinsufficiency/triplosensitivity per gene), gene-disease validity (evidence tier Definitive..Refuted), and variant pathogenicity (VCEP ACMG, bridged to ClinVar -> dbSNP/gene/disease)."
   },
   "tests": [
     {
@@ -2443,7 +2444,7 @@
       "category": "disease_drug",
       "name": "MONDO Disease to CTD via MeSH Bridge",
       "query": ">>mondo>>mesh>>ctd_disease_association>>ctd>>pubchem",
-      "why": "Disease to compounds via MeSH→ctd_disease_association→ctd→pubchem. Updated path for new CTD architecture.",
+      "why": "Disease to compounds via MeSH\u2192ctd_disease_association\u2192ctd\u2192pubchem. Updated path for new CTD architecture.",
       "should_pass": [
         "MONDO:0005148",
         "MONDO:0005044"
@@ -2476,7 +2477,7 @@
       "category": "disease_drug",
       "name": "CTD to EFO Disease Ontology",
       "query": ">>ctd>>ctd_disease_association>>mesh>>mondo>>efo",
-      "why": "CTD chemicals map to EFO via disease associations→MeSH→MONDO→EFO. D001241=Aspirin, D000082=Acetaminophen. Updated path for new CTD architecture.",
+      "why": "CTD chemicals map to EFO via disease associations\u2192MeSH\u2192MONDO\u2192EFO. D001241=Aspirin, D000082=Acetaminophen. Updated path for new CTD architecture.",
       "should_pass": [
         "D001241",
         "D000082"
@@ -3963,7 +3964,7 @@
       "category": "toxicogenomics",
       "name": "CTD Chemical to Gene Targets",
       "query": ">>ctd>>ctd_gene_interaction>>entrez",
-      "why": "Find genes affected by chemical exposure via gene interactions. Updated path: ctd→ctd_gene_interaction→entrez",
+      "why": "Find genes affected by chemical exposure via gene interactions. Updated path: ctd\u2192ctd_gene_interaction\u2192entrez",
       "should_pass": [
         "D000082"
       ],
@@ -3983,7 +3984,7 @@
       "category": "toxicogenomics",
       "name": "Disease to Toxic Chemicals via MeSH",
       "query": ">>mesh>>ctd_disease_association>>ctd",
-      "why": "Find chemicals associated with diseases via disease associations. D001943=Breast Neoplasms. Updated path: mesh→ctd_disease_association→ctd",
+      "why": "Find chemicals associated with diseases via disease associations. D001943=Breast Neoplasms. Updated path: mesh\u2192ctd_disease_association\u2192ctd",
       "should_pass": [
         "D001943"
       ],
@@ -4398,7 +4399,7 @@
       ],
       "should_fail": []
     },
-        {
+    {
       "_comment": "=== RARE DISEASE WORKFLOWS (Orphanet, MIM/OMIM) ==="
     },
     {
@@ -4769,7 +4770,7 @@
       ],
       "should_fail": []
     },
-        {
+    {
       "category": "cell_type_biology",
       "name": "Disease to Cell Types via CellXGene (reverse)",
       "query": ">>mondo>>cellxgene>>cl",
@@ -5513,7 +5514,7 @@
       "category": "taxonomy_cross_species",
       "name": "Taxonomy to Toxicogenomics",
       "query": ">>taxonomy>>ctd_gene_interaction>>ctd",
-      "why": "Organism-specific chemical-gene data from CTD via gene interactions. Updated path: taxonomy→ctd_gene_interaction→ctd",
+      "why": "Organism-specific chemical-gene data from CTD via gene interactions. Updated path: taxonomy\u2192ctd_gene_interaction\u2192ctd",
       "should_pass": [
         "9606"
       ],
@@ -5543,7 +5544,7 @@
       "category": "taxonomy_cross_species",
       "name": "CTD Chemicals by Organism",
       "query": ">>ctd>>ctd_gene_interaction>>taxonomy",
-      "why": "Find species with toxicogenomic data for a chemical via gene interactions. Updated path: ctd→ctd_gene_interaction→taxonomy",
+      "why": "Find species with toxicogenomic data for a chemical via gene interactions. Updated path: ctd\u2192ctd_gene_interaction\u2192taxonomy",
       "should_pass": [
         "D000082"
       ],
@@ -6454,7 +6455,7 @@
       ],
       "should_fail": []
     },
-        {
+    {
       "category": "enzyme_biochemistry",
       "name": "EC to Reviewed Proteins",
       "query": ">>brenda>>uniprot",
@@ -6822,7 +6823,7 @@
       ],
       "should_fail": []
     },
-        {
+    {
       "category": "ligand_receptor",
       "name": "CellPhoneDB to Literature",
       "query": ">>cellphonedb>>pubmed",
@@ -7367,7 +7368,7 @@
       ],
       "should_fail": []
     },
-        {
+    {
       "category": "jaspar_tf_binding",
       "name": "JASPAR to ChEMBL Drug Targets",
       "query": ">>jaspar>>uniprot>>chembl_target",
@@ -8522,7 +8523,10 @@
       "why": "When batch mapping with invalid terms, not_found array should list the terms that didn't resolve.",
       "validations": [
         {
-          "not_found_contains": ["INVALID_GENE_XYZ", "FAKE123"],
+          "not_found_contains": [
+            "INVALID_GENE_XYZ",
+            "FAKE123"
+          ],
           "description": "not_found should contain INVALID_GENE_XYZ and FAKE123"
         },
         {
@@ -8632,7 +8636,9 @@
           "description": "stats.mapped should be 0"
         },
         {
-          "not_found_contains": ["COMPLETELY_FAKE"],
+          "not_found_contains": [
+            "COMPLETELY_FAKE"
+          ],
           "description": "not_found should contain the invalid term"
         }
       ]
@@ -9358,6 +9364,91 @@
         "CVCL_0030"
       ],
       "should_fail": []
+    },
+    {
+      "category": "clingen_curation",
+      "name": "Gene to ClinGen dosage sensitivity",
+      "query": ">>clingen_dosage",
+      "why": "Clinicians need per-gene haploinsufficiency/triplosensitivity scores for CNV/variant interpretation",
+      "should_pass": [
+        "AAGAB",
+        "ABCB4",
+        "ACVRL1",
+        "BRCA1"
+      ],
+      "should_fail": [
+        "NOTREAL",
+        "FAKE123"
+      ]
+    },
+    {
+      "category": "clingen_curation",
+      "name": "ClinGen dosage gene to disease",
+      "query": ">>clingen_dosage>>mondo",
+      "why": "Dosage-sensitive genes carry the MONDO disease their dosage change causes",
+      "should_pass": [
+        "AAGAB",
+        "BRCA1"
+      ],
+      "should_fail": [
+        "NOTREAL"
+      ]
+    },
+    {
+      "category": "clingen_curation",
+      "name": "Gene to ClinGen gene-disease validity",
+      "query": ">>clingen_gene_validity",
+      "why": "Researchers need ClinGen's evidence tier (Definitive..Refuted) for gene-disease causality",
+      "should_pass": [
+        "AARS1",
+        "ABCA4",
+        "ABCB4"
+      ],
+      "should_fail": [
+        "NOTREAL",
+        "FAKE123"
+      ]
+    },
+    {
+      "category": "clingen_curation",
+      "name": "ClinGen validity to MONDO disease",
+      "query": ">>clingen_gene_validity>>mondo",
+      "why": "Validity assertions link a gene to its curated MONDO disease",
+      "should_pass": [
+        "AARS1",
+        "ABCA4"
+      ],
+      "should_fail": [
+        "NOTREAL"
+      ]
+    },
+    {
+      "category": "clingen_curation",
+      "name": "Gene to ClinGen variant pathogenicity",
+      "query": ">>clingen_variant",
+      "why": "VCEP ACMG variant interpretations are retrievable from the variant's gene",
+      "should_pass": [
+        "GJB2",
+        "PAH",
+        "PTEN"
+      ],
+      "should_fail": [
+        "NOTREAL",
+        "FAKE123"
+      ]
+    },
+    {
+      "category": "clingen_curation",
+      "name": "ClinGen variant bridges to ClinVar",
+      "query": ">>clingen_variant>>clinvar",
+      "why": "ClinGen variants join the ClinVar hub via ClinVar Variation Id, inheriting dbSNP/gene/disease links",
+      "should_pass": [
+        "GJB2",
+        "PTEN"
+      ],
+      "should_fail": [
+        "NOTREAL"
+      ]
     }
   ]
 }

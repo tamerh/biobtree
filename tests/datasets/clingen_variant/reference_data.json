@@ -1,0 +1,214 @@
+{
+  "variants": [
+    {
+      "ca_id": "CA172206",
+      "clinvar_id": "17000",
+      "gene_symbol": "GJB2",
+      "mondo_id": "MONDO:0019497",
+      "assertion": "Pathogenic"
+    },
+    {
+      "ca_id": "CA267645",
+      "clinvar_id": "120270",
+      "gene_symbol": "PAH",
+      "mondo_id": "MONDO:0009861",
+      "assertion": "Pathogenic"
+    },
+    {
+      "ca_id": "CA267637",
+      "clinvar_id": "120265",
+      "gene_symbol": "PAH",
+      "mondo_id": "MONDO:0009861",
+      "assertion": "Uncertain Significance"
+    },
+    {
+      "ca_id": "CA229598",
+      "clinvar_id": "102716",
+      "gene_symbol": "PAH",
+      "mondo_id": "MONDO:0009861",
+      "assertion": "Likely Pathogenic"
+    },
+    {
+      "ca_id": "CA229812",
+      "clinvar_id": "102869",
+      "gene_symbol": "PAH",
+      "mondo_id": "MONDO:0009861",
+      "assertion": "Pathogenic"
+    },
+    {
+      "ca_id": "CA16020732",
+      "clinvar_id": "805827",
+      "gene_symbol": "PAH",
+      "mondo_id": "MONDO:0009861",
+      "assertion": "Likely Pathogenic"
+    },
+    {
+      "ca_id": "CA16020810",
+      "clinvar_id": "555366",
+      "gene_symbol": "PAH",
+      "mondo_id": "MONDO:0009861",
+      "assertion": "Likely Pathogenic"
+    },
+    {
+      "ca_id": "CA229561",
+      "clinvar_id": "102687",
+      "gene_symbol": "PAH",
+      "mondo_id": "MONDO:0009861",
+      "assertion": "Likely Pathogenic"
+    },
+    {
+      "ca_id": "CA220584",
+      "clinvar_id": "92743",
+      "gene_symbol": "PAH",
+      "mondo_id": "MONDO:0009861",
+      "assertion": "Likely Pathogenic"
+    },
+    {
+      "ca_id": "CA229576",
+      "clinvar_id": "102698",
+      "gene_symbol": "PAH",
+      "mondo_id": "MONDO:0009861",
+      "assertion": "Likely Pathogenic"
+    },
+    {
+      "ca_id": "CA16020938",
+      "clinvar_id": "619153",
+      "gene_symbol": "PAH",
+      "mondo_id": "MONDO:0009861",
+      "assertion": "Uncertain Significance"
+    },
+    {
+      "ca_id": "CA275937",
+      "clinvar_id": "208180",
+      "gene_symbol": "PAH",
+      "mondo_id": "MONDO:0009861",
+      "assertion": "Likely Pathogenic"
+    },
+    {
+      "ca_id": "CA16020901",
+      "clinvar_id": "619151",
+      "gene_symbol": "PAH",
+      "mondo_id": "MONDO:0009861",
+      "assertion": "Uncertain Significance"
+    },
+    {
+      "ca_id": "CA229821",
+      "clinvar_id": "102877",
+      "gene_symbol": "PAH",
+      "mondo_id": "MONDO:0009861",
+      "assertion": "Pathogenic"
+    },
+    {
+      "ca_id": "CA16020750",
+      "clinvar_id": "619158",
+      "gene_symbol": "PAH",
+      "mondo_id": "MONDO:0009861",
+      "assertion": "Likely Pathogenic"
+    },
+    {
+      "ca_id": "CA229475",
+      "clinvar_id": "102620",
+      "gene_symbol": "PAH",
+      "mondo_id": "MONDO:0009861",
+      "assertion": "Uncertain Significance"
+    },
+    {
+      "ca_id": "CA267639",
+      "clinvar_id": "120266",
+      "gene_symbol": "PAH",
+      "mondo_id": "MONDO:0009861",
+      "assertion": "Likely Pathogenic"
+    },
+    {
+      "ca_id": "CA16020865",
+      "clinvar_id": "619152",
+      "gene_symbol": "PAH",
+      "mondo_id": "MONDO:0009861",
+      "assertion": "Likely Pathogenic"
+    },
+    {
+      "ca_id": "CA286508",
+      "clinvar_id": "102850",
+      "gene_symbol": "PAH",
+      "mondo_id": "MONDO:0009861",
+      "assertion": "Likely Pathogenic"
+    },
+    {
+      "ca_id": "CA180267",
+      "clinvar_id": "102795",
+      "gene_symbol": "PAH",
+      "mondo_id": "MONDO:0009861",
+      "assertion": "Benign"
+    },
+    {
+      "ca_id": "CA114372",
+      "clinvar_id": "632",
+      "gene_symbol": "PAH",
+      "mondo_id": "MONDO:0009861",
+      "assertion": "Pathogenic"
+    },
+    {
+      "ca_id": "CA229574",
+      "clinvar_id": "102696",
+      "gene_symbol": "PAH",
+      "mondo_id": "MONDO:0009861",
+      "assertion": "Pathogenic"
+    },
+    {
+      "ca_id": "CA114362",
+      "clinvar_id": "593",
+      "gene_symbol": "PAH",
+      "mondo_id": "MONDO:0009861",
+      "assertion": "Pathogenic"
+    },
+    {
+      "ca_id": "CA229414",
+      "clinvar_id": "592",
+      "gene_symbol": "PAH",
+      "mondo_id": "MONDO:0009861",
+      "assertion": "Pathogenic"
+    },
+    {
+      "ca_id": "CA114369",
+      "clinvar_id": "628",
+      "gene_symbol": "PAH",
+      "mondo_id": "MONDO:0009861",
+      "assertion": "Pathogenic"
+    },
+    {
+      "ca_id": "CA229379",
+      "clinvar_id": "601",
+      "gene_symbol": "PAH",
+      "mondo_id": "MONDO:0009861",
+      "assertion": "Pathogenic"
+    },
+    {
+      "ca_id": "CA16020843",
+      "clinvar_id": "619163",
+      "gene_symbol": "PAH",
+      "mondo_id": "MONDO:0009861",
+      "assertion": "Pathogenic"
+    },
+    {
+      "ca_id": "CA16020847",
+      "clinvar_id": "619166",
+      "gene_symbol": "PAH",
+      "mondo_id": "MONDO:0009861",
+      "assertion": "Likely Pathogenic"
+    },
+    {
+      "ca_id": "CA229789",
+      "clinvar_id": "102853",
+      "gene_symbol": "PAH",
+      "mondo_id": "MONDO:0009861",
+      "assertion": "Pathogenic"
+    },
+    {
+      "ca_id": "CA000494",
+      "clinvar_id": "189411",
+      "gene_symbol": "PTEN",
+      "mondo_id": "MONDO:0017623",
+      "assertion": "Pathogenic"
+    }
+  ]
+}

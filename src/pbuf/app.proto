@@ -189,6 +189,9 @@ message Xref {
     CivicAssertionAttr civic_assertion=755;
     IntogenAttr intogen=756;
     CellosaurusAttr cellosaurus=757;
+    ClingenGeneValidityAttr clingen_gene_validity=758;
+    ClingenDosageAttr clingen_dosage=759;
+    ClingenVariantAttr clingen_variant=760;
 
   }
 

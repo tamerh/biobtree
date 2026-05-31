@@ -864,6 +864,24 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			d.datasets2 = append(d.datasets2, data)
 			go gc.update()
 			break
+		case "clingen_gene_validity":
+			d.wg.Add(1)
+			cgv := clingenGeneValidity{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go cgv.update()
+			break
+		case "clingen_dosage":
+			d.wg.Add(1)
+			cds := clingenDosage{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go cds.update()
+			break
+		case "clingen_variant":
+			d.wg.Add(1)
+			cvr := clingenVariant{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go cvr.update()
+			break
 		case "bindingdb":
 			d.wg.Add(1)
 			bdb := bindingdb{source: data, d: d}

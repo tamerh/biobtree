@@ -1,0 +1,184 @@
+{
+  "genes": [
+    {
+      "gene_id": "79719",
+      "gene_symbol": "AAGAB",
+      "haplo_score": "3",
+      "haplo_disease_id": "MONDO:0007858"
+    },
+    {
+      "gene_id": "5244",
+      "gene_symbol": "ABCB4",
+      "haplo_score": "3",
+      "haplo_disease_id": "MONDO:0010939"
+    },
+    {
+      "gene_id": "215",
+      "gene_symbol": "ABCD1",
+      "haplo_score": "3",
+      "haplo_disease_id": "MONDO:0018544"
+    },
+    {
+      "gene_id": "94",
+      "gene_symbol": "ACVRL1",
+      "haplo_score": "3",
+      "haplo_disease_id": "MONDO:0010880"
+    },
+    {
+      "gene_id": "23394",
+      "gene_symbol": "ADNP",
+      "haplo_score": "3",
+      "haplo_disease_id": "MONDO:0014379"
+    },
+    {
+      "gene_id": "2334",
+      "gene_symbol": "AFF2",
+      "haplo_score": "3",
+      "haplo_disease_id": "MONDO:0010659"
+    },
+    {
+      "gene_id": "27245",
+      "gene_symbol": "AHDC1",
+      "haplo_score": "3",
+      "haplo_disease_id": "MONDO:0014358"
+    },
+    {
+      "gene_id": "60529",
+      "gene_symbol": "ALX4",
+      "haplo_score": "3",
+      "haplo_disease_id": "MONDO:0012309"
+    },
+    {
+      "gene_id": "287",
+      "gene_symbol": "ANK2",
+      "haplo_score": "3",
+      "haplo_disease_id": "MONDO:0100038"
+    },
+    {
+      "gene_id": "29123",
+      "gene_symbol": "ANKRD11",
+      "haplo_score": "3",
+      "haplo_disease_id": "MONDO:0007846"
+    },
+    {
+      "gene_id": "26057",
+      "gene_symbol": "ANKRD17",
+      "haplo_score": "3",
+      "haplo_disease_id": "MONDO:0000508"
+    },
+    {
+      "gene_id": "3730",
+      "gene_symbol": "ANOS1",
+      "haplo_score": "3",
+      "haplo_disease_id": "MONDO:0010635"
+    },
+    {
+      "gene_id": "8905",
+      "gene_symbol": "AP1S2",
+      "haplo_score": "3",
+      "haplo_disease_id": "MONDO:0010574"
+    },
+    {
+      "gene_id": "324",
+      "gene_symbol": "APC",
+      "haplo_score": "3",
+      "haplo_disease_id": "MONDO:0021057"
+    },
+    {
+      "gene_id": "338",
+      "gene_symbol": "APOB",
+      "haplo_score": "3",
+      "haplo_disease_id": "MONDO:0014252"
+    },
+    {
+      "gene_id": "367",
+      "gene_symbol": "AR",
+      "haplo_score": "3",
+      "haplo_disease_id": "MONDO:0019154"
+    },
+    {
+      "gene_id": "372",
+      "gene_symbol": "ARCN1",
+      "haplo_score": "3",
+      "haplo_disease_id": "MONDO:0014948"
+    },
+    {
+      "gene_id": "23229",
+      "gene_symbol": "ARHGEF9",
+      "haplo_score": "3",
+      "haplo_disease_id": "MONDO:0100148"
+    },
+    {
+      "gene_id": "8289",
+      "gene_symbol": "ARID1A",
+      "haplo_score": "3",
+      "haplo_disease_id": "MONDO:0013819"
+    },
+    {
+      "gene_id": "57492",
+      "gene_symbol": "ARID1B",
+      "haplo_score": "3",
+      "haplo_disease_id": "MONDO:0007617"
+    },
+    {
+      "gene_id": "196528",
+      "gene_symbol": "ARID2",
+      "haplo_score": "3",
+      "haplo_disease_id": "MONDO:0033492"
+    },
+    {
+      "gene_id": "170302",
+      "gene_symbol": "ARX",
+      "haplo_score": "3",
+      "haplo_disease_id": "MONDO:0010268"
+    },
+    {
+      "gene_id": "55870",
+      "gene_symbol": "ASH1L",
+      "haplo_score": "3",
+      "haplo_disease_id": "MONDO:0100038"
+    },
+    {
+      "gene_id": "171023",
+      "gene_symbol": "ASXL1",
+      "haplo_score": "3",
+      "haplo_disease_id": "MONDO:0011510"
+    },
+    {
+      "gene_id": "80816",
+      "gene_symbol": "ASXL3",
+      "haplo_score": "3",
+      "haplo_disease_id": "MONDO:0014205"
+    },
+    {
+      "gene_id": "472",
+      "gene_symbol": "ATM",
+      "haplo_score": "3",
+      "haplo_disease_id": "MONDO:0008840"
+    },
+    {
+      "gene_id": "538",
+      "gene_symbol": "ATP7A",
+      "haplo_score": "3",
+      "haplo_disease_id": "MONDO:0010651"
+    },
+    {
+      "gene_id": "546",
+      "gene_symbol": "ATRX",
+      "haplo_score": "3",
+      "haplo_disease_id": "MONDO:0010519"
+    },
+    {
+      "gene_id": "26053",
+      "gene_symbol": "AUTS2",
+      "haplo_score": "3",
+      "haplo_disease_id": "MONDO:0014361"
+    },
+    {
+      "gene_id": "554",
+      "gene_symbol": "AVPR2",
+      "haplo_score": "3",
+      "haplo_disease_id": "MONDO:0010581"
+    }
+  ]
+}

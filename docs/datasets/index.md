@@ -99,6 +99,9 @@ Disease associations, clinical variants, rare diseases.
 | civic | CIViC somatic cancer variant interpretation | [README](civic.md) |
 | intogen | intOGen cancer driver genes | [README](intogen.md) |
 | cellosaurus | Cellosaurus cell lines | [README](cellosaurus.md) |
+| generif | NCBI GeneRIF cited functional claims | [README](generif.md) |
+| depmap | DepMap CRISPR gene essentiality | [README](depmap.md) |
+| depmap_dependency | DepMap per-cell-line dependencies | [README](depmap_dependency.md) |
 | clinical_trials | ClinicalTrials.gov | [README](clinical_trials.md) |
 | pharmgkb | PharmGKB pharmacogenomics | [README](pharmgkb.md) |
 

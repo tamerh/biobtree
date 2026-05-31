@@ -1,0 +1,28 @@
+{
+  "genes": [
+    {
+      "gene_id": "3845",
+      "gene_symbol": "KRAS"
+    },
+    {
+      "gene_id": "673",
+      "gene_symbol": "BRAF"
+    },
+    {
+      "gene_id": "7157",
+      "gene_symbol": "TP53"
+    },
+    {
+      "gene_id": "5728",
+      "gene_symbol": "PTEN"
+    },
+    {
+      "gene_id": "4609",
+      "gene_symbol": "MYC"
+    },
+    {
+      "gene_id": "6122",
+      "gene_symbol": "RPL3"
+    }
+  ]
+}

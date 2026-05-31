@@ -153,6 +153,8 @@ DATASETS=(
     clingen_gene_validity
     clingen_dosage
     clingen_variant
+    generif
+    depmap
     ctd
     msigdb
 

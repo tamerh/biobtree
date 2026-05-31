@@ -2858,3 +2858,47 @@ message ClingenVariantAttr {
   string id = 100; // transient - populated at runtime from Xref.Identifier
 }
 
+// GeneRIF - NCBI Gene Reference Into Function (Dataset ID: 142)
+// One curated one-line functional claim per row, anchored to a PubMed citation.
+// Source: https://ftp.ncbi.nlm.nih.gov/gene/GeneRIF/generifs_basic.gz (NCBI public domain)
+// Keyed by <gene_id>_<pmid>_<n>; cross-references entrez (gene) + pubmed (citation).
+message GenerifAttr {
+  string gene_id = 1;              // NCBI/Entrez gene id
+  repeated string pmids = 2;       // PubMed IDs supporting the claim
+  string text = 3;                 // The GeneRIF claim sentence
+  string timestamp = 4;            // Last update timestamp
+  string tax_id = 5;               // NCBI taxonomy id of the organism
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// DepMap - Cancer Dependency Map, per-gene CRISPR essentiality aggregate (Dataset ID: 143)
+// Per-gene summary of Chronos gene-effect across all screened cancer cell lines.
+// Source: https://depmap.org (CRISPRGeneEffect.csv, CC BY 4.0)
+// Keyed by Entrez gene id. Dependency threshold: Chronos gene effect < -0.5.
+message DepmapAttr {
+  string gene_symbol = 1;          // e.g. "KRAS"
+  string gene_id = 2;              // Entrez gene id
+  double mean_gene_effect = 3;     // mean Chronos gene effect across lines (negative = essential)
+  int32 num_lines = 4;             // number of cell lines screened for this gene
+  int32 num_dependent = 5;         // lines where gene effect < -0.5
+  double pct_dependent = 6;        // num_dependent / num_lines (0-100)
+  bool common_essential = 7;       // dependent in >= 90% of lines (pan-essential)
+  bool strongly_selective = 8;     // dependent in a small fraction (selective target)
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// DepMap dependency - per cell-line x gene dependency edge (Dataset ID: 144)
+// One entry per (cell line, gene) where the gene is a dependency (effect < -0.5).
+// Source: https://depmap.org (CRISPRGeneEffect.csv + Model.csv, CC BY 4.0)
+// Keyed by <model_id>_<gene_id>; bridges to cellosaurus via Model.csv RRID.
+message DepmapDependencyAttr {
+  string gene_symbol = 1;          // dependent gene symbol
+  string gene_id = 2;              // Entrez gene id
+  string model_id = 3;             // DepMap model id (ACH-xxxxxx)
+  string cell_line_name = 4;       // cell line name
+  string rrid = 5;                 // Cellosaurus CVCL id
+  string oncotree_lineage = 6;     // cancer lineage
+  double gene_effect = 7;          // Chronos gene effect in this cell line
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+

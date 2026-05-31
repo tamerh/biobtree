@@ -108,7 +108,8 @@
     "gtopdb_pharmacology": "GtoPdb Guide to Pharmacology integration: Three sub-datasets covering drug targets (gtopdb - GPCRs, ion channels, kinases, enzymes), pharmacological ligands (gtopdb_ligand - approved drugs, investigational compounds with ADME properties), and target-ligand interactions (gtopdb_interaction - binding affinity data with pKi/pKd/pIC50). Cross-references to UniProt, HGNC, PubChem, ChEMBL, ChEBI, PubMed. CEL filters for target type, drug approval status, affinity values. Text search by drug names, receptor synonyms (e.g., 'serotonin' finds all serotonin receptors). Essential for pharmacology research, drug discovery, and target validation workflows.",
     "somatic_cancer": "Somatic cancer drivers and clinical evidence (CIViC + intOGen): gene drivers with oncogene/TSG role, cancer->driver-gene routes, somatic clinical evidence (disease/therapy/level), and druggability. Complements the germline-only disease->gene routes (GenCC/GWAS/ClinVar/OMIM/Orphanet).",
     "cellosaurus": "Cell-line knowledge resource (Cellosaurus, CC BY 4.0): cell lines as a connected hub - species, disease (NCIt/ORDO->orphanet/mondo), mutated genes (CC Sequence variation->hgnc/clinvar), tissue (uberon), COSMIC, ChEMBL cell line/target, literature, and CVCL hierarchy. Enables disease->cell-line-model and gene->cell-line routes.",
-    "clingen_curation": "ClinGen expert curations (CC0): dosage sensitivity (haploinsufficiency/triplosensitivity per gene), gene-disease validity (evidence tier Definitive..Refuted), and variant pathogenicity (VCEP ACMG, bridged to ClinVar -> dbSNP/gene/disease)."
+    "clingen_curation": "ClinGen expert curations (CC0): dosage sensitivity (haploinsufficiency/triplosensitivity per gene), gene-disease validity (evidence tier Definitive..Refuted), and variant pathogenicity (VCEP ACMG, bridged to ClinVar -> dbSNP/gene/disease).",
+    "gene_dependency_function": "Gene essentiality, dependency and cited function (DepMap CC BY 4.0 + NCBI GeneRIF public domain): per-gene CRISPR essentiality aggregate, per-cell-line dependencies bridged to Cellosaurus, and cited one-line functional claims. Powers target tractability and RAG grounding."
   },
   "tests": [
     {
@@ -9448,6 +9449,74 @@
       ],
       "should_fail": [
         "NOTREAL"
+      ]
+    },
+    {
+      "category": "gene_dependency_function",
+      "name": "Gene to DepMap essentiality",
+      "query": ">>depmap",
+      "why": "Target tractability: is the gene a cancer dependency, and how broadly",
+      "should_pass": [
+        "KRAS",
+        "BRAF",
+        "TP53",
+        "MYC"
+      ],
+      "should_fail": [
+        "NOTREAL",
+        "FAKE123"
+      ]
+    },
+    {
+      "category": "gene_dependency_function",
+      "name": "Entrez gene to GeneRIF claims",
+      "query": ">>entrez>>generif",
+      "why": "Cited per-gene functional claims for grounding/RAG",
+      "should_pass": [
+        "672",
+        "7157",
+        "3845"
+      ],
+      "should_fail": [
+        "999999999"
+      ]
+    },
+    {
+      "category": "gene_dependency_function",
+      "name": "GeneRIF claim to PubMed citation",
+      "query": ">>entrez>>generif>>pubmed",
+      "why": "Every GeneRIF claim carries its PubMed citation",
+      "should_pass": [
+        "672",
+        "7157"
+      ],
+      "should_fail": [
+        "999999999"
+      ]
+    },
+    {
+      "category": "gene_dependency_function",
+      "name": "Gene to per-cell-line dependencies",
+      "query": ">>entrez>>depmap_dependency",
+      "why": "Which cell lines depend on this gene (CRISPR effect < -0.5)",
+      "should_pass": [
+        "3845",
+        "673"
+      ],
+      "should_fail": [
+        "999999999"
+      ]
+    },
+    {
+      "category": "gene_dependency_function",
+      "name": "Dependency bridges to Cellosaurus",
+      "query": ">>entrez>>depmap_dependency>>cellosaurus",
+      "why": "Dependency edges link to the cell line in Cellosaurus",
+      "should_pass": [
+        "3845"
+      ],
+      "should_fail": [
+        "999999999"
       ]
     }
   ]

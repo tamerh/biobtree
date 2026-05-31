@@ -209,7 +209,7 @@ Examples:
   %(prog)s hmdb,go,taxonomy   # Run multiple specific tests
 
 Available datasets:
-  uniprot, go, taxonomy, eco, efo, chebi, interpro, hmdb, lipidmaps, swisslipids, chembl, ensembl, mondo, hpo, mesh, uberon, cl, oba, pato, obi, xco, bgee, patent, clinical_trials, clinvar, string, reactome, rhea, alphafold, alphamissense, alphamissense_transcript, rnacentral, uniparc, uniref50, uniref90, uniref100, gwas_study, gwas, dbsnp, intact, diamond_similarity, antibody, pubchem, entrez, refseq, gencc, clingen_gene_validity, clingen_dosage, clingen_variant, bindingdb, ctd, msigdb, collectri, signor
+  uniprot, go, taxonomy, eco, efo, chebi, interpro, hmdb, lipidmaps, swisslipids, chembl, ensembl, mondo, hpo, mesh, uberon, cl, oba, pato, obi, xco, bgee, patent, clinical_trials, clinvar, string, reactome, rhea, alphafold, alphamissense, alphamissense_transcript, rnacentral, uniparc, uniref50, uniref90, uniref100, gwas_study, gwas, dbsnp, intact, diamond_similarity, antibody, pubchem, entrez, refseq, gencc, clingen_gene_validity, clingen_dosage, clingen_variant, generif, depmap, depmap_dependency, bindingdb, ctd, msigdb, collectri, signor
 
   Temporarily disabled (Ensembl Genomes API SSL issues):
   ensembl_bacteria, ensembl_fungi, ensembl_metazoa, ensembl_plants, ensembl_protists
@@ -298,6 +298,9 @@ Available datasets:
         'clingen_gene_validity': datasets_dir / "clingen_gene_validity" / "test_clingen_gene_validity.py",
         'clingen_dosage': datasets_dir / "clingen_dosage" / "test_clingen_dosage.py",
         'clingen_variant': datasets_dir / "clingen_variant" / "test_clingen_variant.py",
+        'generif': datasets_dir / "generif" / "test_generif.py",
+        'depmap': datasets_dir / "depmap" / "test_depmap.py",
+        'depmap_dependency': datasets_dir / "depmap_dependency" / "test_depmap_dependency.py",
         'bindingdb': datasets_dir / "bindingdb" / "test_bindingdb.py",
         'ctd': datasets_dir / "ctd" / "test_ctd.py",
         'pharmgkb': datasets_dir / "pharmgkb" / "test_pharmgkb.py",

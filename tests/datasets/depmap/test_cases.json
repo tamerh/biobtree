@@ -1,0 +1,15 @@
+{
+  "common_tests": [
+    {
+      "name": "Lookup KRAS DepMap (Entrez 3845)",
+      "type": "id_lookup",
+      "id": "3845"
+    },
+    {
+      "name": "Invalid gene id handling",
+      "type": "invalid_id",
+      "invalid_id": "999999999"
+    }
+  ],
+  "custom_tests": []
+}

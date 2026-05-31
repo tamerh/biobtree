@@ -2100,6 +2100,21 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)
 				xref.Attributes = &pbuf.Xref_ClingenVariant{attr}
+			case "generif":
+				attr := &pbuf.GenerifAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Generif{attr}
+			case "depmap":
+				attr := &pbuf.DepmapAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Depmap{attr}
+			case "depmap_dependency":
+				attr := &pbuf.DepmapDependencyAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_DepmapDependency{attr}
 			case "civic":
 				attr := &pbuf.CivicGeneAttr{}
 				barr := []byte((*kvProp[k])[0].value)
@@ -2653,6 +2668,21 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 					barr := []byte((*kvProp[k])[0].value)
 					ffjson.Unmarshal(barr, attr)
 					xref.Attributes = &pbuf.Xref_ClingenVariant{attr}
+				case "generif":
+					attr := &pbuf.GenerifAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_Generif{attr}
+				case "depmap":
+					attr := &pbuf.DepmapAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_Depmap{attr}
+				case "depmap_dependency":
+					attr := &pbuf.DepmapDependencyAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_DepmapDependency{attr}
 				case "civic":
 					attr := &pbuf.CivicGeneAttr{}
 					barr := []byte((*kvProp[k])[0].value)

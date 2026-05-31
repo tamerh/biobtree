@@ -882,6 +882,24 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			d.datasets2 = append(d.datasets2, data)
 			go cvr.update()
 			break
+		case "generif":
+			d.wg.Add(1)
+			grf := generif{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go grf.update()
+			break
+		case "depmap":
+			d.wg.Add(1)
+			dm := depmap{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			if _, exists := config.Dataconf["depmap_dependency"]; exists {
+				d.datasets2 = append(d.datasets2, "depmap_dependency")
+			}
+			go dm.update()
+			break
+		case "depmap_dependency":
+			// Processed by the depmap parser, skip standalone processing
+			break
 		case "bindingdb":
 			d.wg.Add(1)
 			bdb := bindingdb{source: data, d: d}

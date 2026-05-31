@@ -266,6 +266,15 @@ func extractField(xref *pbuf.Xref, field string) string {
 	if a := xref.GetClingenVariant(); a != nil {
 		return extractClingenVariantField(a, field)
 	}
+	if a := xref.GetGenerif(); a != nil {
+		return extractGenerifField(a, field)
+	}
+	if a := xref.GetDepmap(); a != nil {
+		return extractDepmapField(a, field)
+	}
+	if a := xref.GetDepmapDependency(); a != nil {
+		return extractDepmapDependencyField(a, field)
+	}
 	if a := xref.GetBindingdb(); a != nil {
 		return extractBindingdbField(a, field)
 	}
@@ -990,6 +999,15 @@ func ExtractSourceName(xref *pbuf.Xref) string {
 	if a := xref.GetClingenVariant(); a != nil {
 		return a.VariationName
 	}
+	if a := xref.GetGenerif(); a != nil {
+		return a.Text
+	}
+	if a := xref.GetDepmap(); a != nil {
+		return a.GeneSymbol
+	}
+	if a := xref.GetDepmapDependency(); a != nil {
+		return a.CellLineName
+	}
 
 	return ""
 }
@@ -1707,6 +1725,70 @@ func extractClingenVariantField(a *pbuf.ClingenVariantAttr, field string) string
 		return a.VariationName
 	case "clinvar_variation_id":
 		return a.ClinvarVariationId
+	default:
+		return ""
+	}
+}
+
+// extractGenerifField extracts a field from GenerifAttr
+func extractGenerifField(a *pbuf.GenerifAttr, field string) string {
+	switch field {
+	case "gene_id":
+		return a.GeneId
+	case "text":
+		return a.Text
+	case "pmids":
+		return strings.Join(a.Pmids, ",")
+	case "timestamp":
+		return a.Timestamp
+	case "tax_id":
+		return a.TaxId
+	default:
+		return ""
+	}
+}
+
+// extractDepmapField extracts a field from DepmapAttr
+func extractDepmapField(a *pbuf.DepmapAttr, field string) string {
+	switch field {
+	case "gene_symbol":
+		return a.GeneSymbol
+	case "gene_id":
+		return a.GeneId
+	case "mean_gene_effect":
+		return fmt.Sprintf("%.3f", a.MeanGeneEffect)
+	case "num_lines":
+		return fmt.Sprintf("%d", a.NumLines)
+	case "num_dependent":
+		return fmt.Sprintf("%d", a.NumDependent)
+	case "pct_dependent":
+		return fmt.Sprintf("%.1f", a.PctDependent)
+	case "common_essential":
+		return fmt.Sprintf("%t", a.CommonEssential)
+	case "strongly_selective":
+		return fmt.Sprintf("%t", a.StronglySelective)
+	default:
+		return ""
+	}
+}
+
+// extractDepmapDependencyField extracts a field from DepmapDependencyAttr
+func extractDepmapDependencyField(a *pbuf.DepmapDependencyAttr, field string) string {
+	switch field {
+	case "gene_symbol":
+		return a.GeneSymbol
+	case "gene_id":
+		return a.GeneId
+	case "model_id":
+		return a.ModelId
+	case "cell_line_name":
+		return a.CellLineName
+	case "rrid":
+		return a.Rrid
+	case "oncotree_lineage":
+		return a.OncotreeLineage
+	case "gene_effect":
+		return fmt.Sprintf("%.3f", a.GeneEffect)
 	default:
 		return ""
 	}

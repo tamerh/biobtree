@@ -38,3 +38,20 @@ All ClinGen (Clinical Genome Resource, NIH-funded) curated content is released u
 | Dosage region curations (ISCA) | CC0 1.0 | 🟡 Deferred — orphan ISCA namespace, no graph link |
 
 All keys (HGNC, Entrez, MONDO, OMIM, Orphanet, ClinVar) land on existing biobtree datasets; variant pathogenicity joins the ClinVar hub via its ClinVar Variation Id, inheriting dbSNP/gene/disease links.
+
+## Gene-page / target datasets (2026-05-31)
+
+Batch reviewed alongside ClinGen.
+
+| Dataset | License | Verdict |
+|---|---|---|
+| **GeneRIF** (142) | NCBI U.S. public domain | 🟢 **Ingest** — cited per-gene functional claims; entrez+pubmed edges |
+| **DepMap** (143) + **depmap_dependency** (144) | CC BY 4.0 | 🟢 **Ingest** — CRISPR essentiality (gene aggregate + per-cell-line, bridged to cellosaurus) |
+| Entrez gene summary | NCBI public domain | ✅ already integrated (entrez `summary` attr) |
+| IMPC mouse knockouts | CC BY 4.0 | 🟡 Later — cross-species, new MP ontology |
+| TCGA / cBioPortal mutation freq | ODbL + per-study (GDC open tier) | 🟡 Phase-2 (deliberate own project) |
+| **DGIdb** | MIT code; data = 44 mixed-license sources | 🔴 Rejected — wrapper-of-a-wrapper; open partition duplicates ChEMBL/GtoPdb/PharmGKB/CIViC we already carry |
+| **SIDER** | CC BY-NC-SA 4.0 (non-commercial) | 🔴 Rejected — non-commercial, disqualified like COSMIC/OncoKB |
+| **OFFSIDES / TWOSIDES** | no explicit license | 🔴 Rejected — ambiguous/not redistributable |
+
+Drug-safety gap is real but the clean path is **FDA FAERS (U.S. public domain)**, not SIDER/OFFSIDES, if/when wanted.

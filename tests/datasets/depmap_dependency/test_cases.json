@@ -1,0 +1,10 @@
+{
+  "common_tests": [
+    {
+      "name": "Invalid dependency id handling",
+      "type": "invalid_id",
+      "invalid_id": "ACH-000000_999999999"
+    }
+  ],
+  "custom_tests": []
+}

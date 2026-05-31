@@ -1234,6 +1234,21 @@ func (s *Service) execCelGo(query *query.Query, targetXref *pbuf.Xref) (bool, er
 			attr.Id = id
 			evalMap["clingen_variant"] = attr
 		}
+	case "generif":
+		if attr := targetXref.GetGenerif(); attr != nil {
+			attr.Id = id
+			evalMap["generif"] = attr
+		}
+	case "depmap":
+		if attr := targetXref.GetDepmap(); attr != nil {
+			attr.Id = id
+			evalMap["depmap"] = attr
+		}
+	case "depmap_dependency":
+		if attr := targetXref.GetDepmapDependency(); attr != nil {
+			attr.Id = id
+			evalMap["depmap_dependency"] = attr
+		}
 	case "civic":
 		if attr := targetXref.GetCivic(); attr != nil {
 			attr.Id = id

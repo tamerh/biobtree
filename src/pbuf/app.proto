@@ -192,6 +192,9 @@ message Xref {
     ClingenGeneValidityAttr clingen_gene_validity=758;
     ClingenDosageAttr clingen_dosage=759;
     ClingenVariantAttr clingen_variant=760;
+    GenerifAttr generif=761;
+    DepmapAttr depmap=762;
+    DepmapDependencyAttr depmap_dependency=763;
 
   }
 

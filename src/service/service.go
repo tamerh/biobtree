@@ -206,6 +206,9 @@ func (s *Service) initWithDbDir(dbDir string) error {
 		cel.Types(&pbuf.ClingenGeneValidityAttr{}),
 		cel.Types(&pbuf.ClingenDosageAttr{}),
 		cel.Types(&pbuf.ClingenVariantAttr{}),
+		cel.Types(&pbuf.GenerifAttr{}),
+		cel.Types(&pbuf.DepmapAttr{}),
+		cel.Types(&pbuf.DepmapDependencyAttr{}),
 		cel.Types(&pbuf.CivicGeneAttr{}),
 		cel.Types(&pbuf.CivicVariantAttr{}),
 		cel.Types(&pbuf.CivicEvidenceAttr{}),
@@ -374,6 +377,12 @@ func (s *Service) initWithDbDir(dbDir string) error {
 			decls.NewIdent("clingen_dosage", decls.NewObjectType("pbuf.ClingenDosageAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("clingen_variant", decls.NewObjectType("pbuf.ClingenVariantAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("generif", decls.NewObjectType("pbuf.GenerifAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("depmap", decls.NewObjectType("pbuf.DepmapAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("depmap_dependency", decls.NewObjectType("pbuf.DepmapDependencyAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("civic", decls.NewObjectType("pbuf.CivicGeneAttr"), nil)),
 		cel.Declarations(

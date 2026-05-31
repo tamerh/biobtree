@@ -17,8 +17,8 @@ DESIGN PRINCIPLES:
 EDGES = """
 EDGES (what connects to what):
 ensembl: uniprot, go, transcript, exon, ortholog, paralog, hgnc, entrez, refseq, bgee, gwas, gencc, antibody, scxa, civic, intogen
-hgnc: ensembl, uniprot, entrez, gencc, pharmgkb_gene, msigdb, clinvar, mim, refseq, alphafold, collectri, gwas, hpo, cellphonedb, civic, intogen, cellosaurus, clingen_gene_validity, clingen_dosage, clingen_variant
-entrez: ensembl, uniprot, refseq, go, biogrid, pubchem_activity, ctd_gene_interaction, dbsnp, civic, intogen, clingen_dosage
+hgnc: ensembl, uniprot, entrez, gencc, pharmgkb_gene, msigdb, clinvar, mim, refseq, alphafold, collectri, gwas, hpo, cellphonedb, civic, intogen, cellosaurus, clingen_gene_validity, clingen_dosage, clingen_variant, depmap
+entrez: ensembl, uniprot, refseq, go, biogrid, pubchem_activity, ctd_gene_interaction, dbsnp, civic, intogen, clingen_dosage, generif, depmap, depmap_dependency
 refseq: ensembl, entrez, taxonomy, ccds, uniprot, mirdb
 mirdb: refseq
 transcript: ensembl, exon, ufeature, alphamissense
@@ -104,7 +104,10 @@ civic_variant: civic, clinvar, civic_evidence, civic_assertion
 civic_evidence: civic_variant, civic, mondo, chembl_molecule, pubmed, clinical_trials
 civic_assertion: civic_variant, civic, mondo, chembl_molecule
 intogen: hgnc, entrez, ensembl, mondo, pubmed  # cancer driver genes
-cellosaurus: taxonomy, uniprot, hgnc, mondo, orphanet, clinvar, dbsnp, uberon, cl, chebi, doi, patent, pubmed  # cell lines (CVCL)
+cellosaurus: taxonomy, uniprot, hgnc, mondo, orphanet, clinvar, dbsnp, uberon, cl, chebi, doi, patent, pubmed, depmap_dependency  # cell lines (CVCL)
+generif: entrez, pubmed  # NCBI cited per-gene functional claims (RAG grounding)
+depmap: entrez, hgnc, ensembl  # CRISPR gene essentiality aggregate (cancer dependency / target tractability)
+depmap_dependency: entrez, cellosaurus  # per cell-line gene dependency (effect < -0.5)
 """
 
 
@@ -232,6 +235,10 @@ DISEASE GENE PATTERNS:
 CANCER / CELL LINE:
 - >>hgnc>>intogen (cancer driver gene?), >>hgnc>>civic (clinical variant interpretations)
 - >>uniprot>>cellosaurus (cell lines for a protein/gene)
+- >>hgnc>>depmap (CRISPR essentiality / target tractability), >>hgnc>>entrez>>depmap_dependency>>cellosaurus (which lines depend on the gene)
+
+GENE FUNCTION / LITERATURE:
+- >>entrez>>generif (cited one-line functional claims; >>generif>>pubmed for citations)
 
 DISEASE → DRUG PATTERNS:
 - >>mesh>>chembl_molecule (MeSH disease/condition → drugs with indications)

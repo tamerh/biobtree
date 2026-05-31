@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -79,6 +80,38 @@ func (p *pubchemActivity) loadAndStreamActivities() {
 	}
 	log.Printf("[PubChem Activity] Streaming entries directly to database (no memory accumulation)")
 
+	// Stage the large bioactivities file locally before parsing. The long-lived
+	// streaming HTTP connection to NCBI gets reset on big transfers (~3GB), which
+	// surfaced as mid-parse "unexpected EOF" and (via the resume path) a silently
+	// truncated index. A plain full download (drained fast, retried on failure)
+	// followed by reading the local copy avoids that. Skipped in test mode, which
+	// early-stops and does not need the whole file. The temp file is removed after.
+	srcPath := fullURL
+	if !config.IsTestMode() {
+		localPath := filepath.Join(config.Appconf["outDir"], "pubchem_activity_bioactivities.tsv.gz")
+		// Clear any leftover from a previously hard-killed run (a SIGKILL can't run
+		// the deferred cleanup below), then register cleanup BEFORE downloading so a
+		// failed/partial download is removed too. Normal return and panics both run
+		// this defer; only an external hard-kill can leave the file — and the next
+		// run's up-front Remove clears it.
+		os.Remove(localPath)
+		defer func() {
+			if err := os.Remove(localPath); err != nil && !os.IsNotExist(err) {
+				log.Printf("[PubChem Activity] Warning: could not remove temp file %s: %v", localPath, err)
+			} else if err == nil {
+				log.Printf("[PubChem Activity] Removed temp file %s", localPath)
+			}
+		}()
+
+		if err := p.downloadToFile(fullURL, localPath); err != nil {
+			log.Panicf("[PubChem Activity] FATAL: could not download %s: %v", fullURL, err)
+		}
+		// Reuse biobtree's existing local-file reader for the parse pass.
+		config.Dataconf["pubchem_activity"]["useLocalFile"] = "yes"
+		defer func() { config.Dataconf["pubchem_activity"]["useLocalFile"] = "no" }()
+		srcPath = localPath
+	}
+
 	// Authoritative AID->UniProt mapping (bioactivities.tsv.gz protein/gene columns
 	// are almost always empty). Loaded once; reused across retries.
 	aidUniProt := p.loadAidUniProtMap()
@@ -96,7 +129,7 @@ func (p *pubchemActivity) loadAndStreamActivities() {
 			log.Printf("[PubChem Activity] Resuming from line %d (skipping %d already processed lines)...", resumeFromLine, resumeFromLine)
 		}
 
-		processedLines, newActivityCount, err := p.processActivityFile(fullURL, testLimit, idLogFile, resumeFromLine, activityIndex, aidUniProt)
+		processedLines, newActivityCount, err := p.processActivityFile(srcPath, testLimit, idLogFile, resumeFromLine, activityIndex, aidUniProt)
 		activityCount += newActivityCount
 
 		if err == nil {
@@ -112,6 +145,59 @@ func (p *pubchemActivity) loadAndStreamActivities() {
 
 	// All retries exhausted - panic
 	log.Panicf("[PubChem Activity] FATAL: All %d retry attempts failed. Last error: %v", maxRetries+1, lastError)
+}
+
+// downloadToFile performs a plain full download of url to destPath, retried on
+// failure. Unlike streaming-while-parsing, the socket is drained as fast as the
+// network allows, so the connection is held open for far less time and is much
+// less likely to be reset mid-transfer; a failed download just restarts cleanly.
+// Verifies the byte count against Content-Length when provided.
+func (p *pubchemActivity) downloadToFile(url, destPath string) error {
+	maxRetries := 4
+	if v, ok := config.Appconf["pubchemRetryCount"]; ok {
+		if n, err := strconv.Atoi(v); err == nil && n >= 0 {
+			maxRetries = n
+		}
+	}
+
+	var lastErr error
+	for attempt := 0; attempt <= maxRetries; attempt++ {
+		if attempt > 0 {
+			log.Printf("[PubChem Activity] Download retry %d/%d for %s ...", attempt, maxRetries, url)
+		}
+
+		resp, err := httpGetWithRetry(url, 3)
+		if err != nil {
+			lastErr = err
+			continue
+		}
+
+		out, err := os.Create(destPath)
+		if err != nil {
+			resp.Body.Close()
+			return fmt.Errorf("cannot create %s: %v", destPath, err)
+		}
+
+		n, copyErr := io.Copy(out, resp.Body)
+		expected := resp.ContentLength
+		resp.Body.Close()
+		out.Close()
+
+		if copyErr != nil {
+			lastErr = copyErr
+			log.Printf("[PubChem Activity] Download interrupted after %d bytes: %v (will retry)", n, copyErr)
+			continue
+		}
+		if expected > 0 && n != expected {
+			lastErr = fmt.Errorf("incomplete download: got %d bytes, expected %d", n, expected)
+			log.Printf("[PubChem Activity] %v (will retry)", lastErr)
+			continue
+		}
+
+		log.Printf("[PubChem Activity] Downloaded %d bytes to %s", n, destPath)
+		return nil
+	}
+	return fmt.Errorf("download failed after %d attempts: %v", maxRetries+1, lastErr)
 }
 
 // loadAidUniProtMap downloads Aid2GeneidAccessionUniProt.gz and builds an
@@ -285,7 +371,13 @@ func (p *pubchemActivity) processActivityFile(fullURL string, testLimit int, idL
 			log.Printf("[PubChem Activity] ERROR at line %d (total %d):", lineCount-resumeFromLine, lineCount)
 			log.Printf("[PubChem Activity]   Last successful line: %s", lastSuccessfulLine)
 			log.Printf("[PubChem Activity]   Partial line read: %s", partialLine)
-			return lineCount, activityCount, fmt.Errorf("error reading stream at line %d (total line %d): %v", lineCount-resumeFromLine, lineCount, err)
+			// Return lines processed in THIS batch (relative), matching the success
+			// path — the caller accumulates `resumeFromLine += processedLines`.
+			// Returning the absolute lineCount here double-counted the already-skipped
+			// prefix, overshooting resumeFromLine past EOF on later retries, which
+			// silently skipped the unprocessed tail of the file (e.g. high-numbered
+			// AIDs like KRAS) and reported "Successfully completed" with a truncated index.
+			return lineCount - resumeFromLine, activityCount, fmt.Errorf("error reading stream at line %d (total line %d): %v", lineCount-resumeFromLine, lineCount, err)
 		}
 
 		line = strings.TrimSpace(line)

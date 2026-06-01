@@ -519,6 +519,7 @@ func (p *patents) processMappings() (int, error) {
 	defer file.Close()
 
 	fr := config.Dataconf[p.source]["id"]
+	patentCompoundDatasetID := config.Dataconf["patent_compound"]["id"]
 
 	// We need to map patent IDs (strings) back to patent numbers
 	// Build a map from patent.id → patent.patent_number
@@ -555,23 +556,33 @@ func (p *patents) processMappings() (int, error) {
 			continue
 		}
 
-		// Get patent number (+ packed publication_date) from patent ID
+		// Unpack patent number + publication_date + family_id from patent ID
 		packed, ok := patentIDMap[patentID]
 		if !ok {
 			// Patent not in our dataset (or filtered out in test mode)
 			continue
 		}
-		patentNumber := packed
-		pubDate := ""
-		if tab := strings.IndexByte(packed, '\t'); tab >= 0 {
-			patentNumber = packed[:tab]
-			pubDate = packed[tab+1:]
+		parts := strings.SplitN(packed, "\t", 3)
+		patentNumber := parts[0]
+		pubDate, familyID := "", ""
+		if len(parts) > 1 {
+			pubDate = parts[1]
+		}
+		if len(parts) > 2 {
+			familyID = parts[2]
 		}
 
 		// Patent ↔ Patent Compound (bidirectional), date-sorted so the reverse
 		// query (patent_compound >> patent) returns newest patents first.
 		dateSort := ComputeSortLevelValue(SortLevelPublicationDate, map[string]interface{}{"date": pubDate})
 		p.d.addXrefWithSortLevels(patentNumber, fr, compoundID, "patent_compound", []string{dateSort})
+
+		// #26: patent_compound → patent_family (forward-only). Index dedup
+		// collapses duplicate (compound, family) pairs, so the xref count is the
+		// distinct-family count (the honest dedup of a drug's patent footprint).
+		if familyID != "" && familyID != "0" {
+			p.d.addXref2(compoundID, patentCompoundDatasetID, familyID, "patent_family")
+		}
 
 		// Test mode: Count processed mappings and check limit
 		if config.IsTestMode() {
@@ -612,9 +623,10 @@ func (p *patents) buildPatentIDMap() (map[string]string, error) {
 
 		id := getString(j, "id")
 		patentNumber := getString(j, "patent_number")
-		// Pack publication_date so processMappings can sort patent_compound→patent
-		// by date (newest first) without a second pass over patents.json.
-		packed := patentNumber + "\t" + getString(j, "publication_date")
+		// Pack publication_date (for #27 date sort) and family_id (for #26
+		// patent_compound→patent_family rollup) so processMappings has both
+		// without a second pass over patents.json.
+		packed := patentNumber + "\t" + getString(j, "publication_date") + "\t" + getString(j, "family_id")
 
 		if id != "" && id != "0" && patentNumber != "" {
 			// Test mode: Only include patents we processed

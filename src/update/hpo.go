@@ -124,6 +124,9 @@ func (h *hpo) update() {
 			currentID = strings.TrimPrefix(line, "id: ")
 		} else if strings.HasPrefix(line, "name: ") {
 			attr.Name = strings.TrimPrefix(line, "name: ")
+		} else if strings.HasPrefix(line, "def: ") {
+			// Parse definition line: def: "text" [refs]
+			attr.Definition = extractDefText(line)
 		} else if strings.HasPrefix(line, "synonym: ") {
 			// Parse synonym line: synonym: "text" EXACT [refs]
 			synonym := extractSynonymText(line)
@@ -173,6 +176,20 @@ phase2:
 
 	h.d.progChan <- &progressInfo{dataset: h.source, done: true}
 	atomic.AddUint64(&h.d.totalParsedEntry, total)
+}
+
+// extractDefText extracts the quoted definition from an OBO "def:" line:
+//   def: "Some text." [PMID:123, HPO:probinson]
+func extractDefText(line string) string {
+	line = strings.TrimPrefix(line, "def: ")
+	if len(line) < 2 || line[0] != '"' {
+		return ""
+	}
+	endQuote := strings.Index(line[1:], "\"")
+	if endQuote == -1 {
+		return ""
+	}
+	return line[1 : endQuote+1]
 }
 
 func (h *hpo) saveEntry(id string, datasetID string, attr *pbuf.HPOAttr) {

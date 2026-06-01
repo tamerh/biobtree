@@ -393,7 +393,8 @@
     "attrs": "title,country,publication_date,family_id,[]cpc,[]ipcr,[]ipc,[]ecla,[]asignee",
     "compact_fields": "title,country,publication_date",
     "test_entries_count": "50",
-    "bucketMethod": "patent_us,patent_ep,patent_wo,patent_other"
+    "bucketMethod": "patent_us,patent_ep,patent_wo,patent_other",
+    "xrefSort": "patent_compound:publicationDate"
   },
   "clinical_trials": {
     "aliases": "Clinical Trial,ClinicalTrial,NCT",

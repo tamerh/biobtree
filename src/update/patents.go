@@ -555,15 +555,23 @@ func (p *patents) processMappings() (int, error) {
 			continue
 		}
 
-		// Get patent number from patent ID
-		patentNumber, ok := patentIDMap[patentID]
+		// Get patent number (+ packed publication_date) from patent ID
+		packed, ok := patentIDMap[patentID]
 		if !ok {
 			// Patent not in our dataset (or filtered out in test mode)
 			continue
 		}
+		patentNumber := packed
+		pubDate := ""
+		if tab := strings.IndexByte(packed, '\t'); tab >= 0 {
+			patentNumber = packed[:tab]
+			pubDate = packed[tab+1:]
+		}
 
-		// Patent ↔ Patent Compound (bidirectional)
-		p.d.addXref(patentNumber, fr, compoundID, "patent_compound", false)
+		// Patent ↔ Patent Compound (bidirectional), date-sorted so the reverse
+		// query (patent_compound >> patent) returns newest patents first.
+		dateSort := ComputeSortLevelValue(SortLevelPublicationDate, map[string]interface{}{"date": pubDate})
+		p.d.addXrefWithSortLevels(patentNumber, fr, compoundID, "patent_compound", []string{dateSort})
 
 		// Test mode: Count processed mappings and check limit
 		if config.IsTestMode() {
@@ -604,19 +612,22 @@ func (p *patents) buildPatentIDMap() (map[string]string, error) {
 
 		id := getString(j, "id")
 		patentNumber := getString(j, "patent_number")
+		// Pack publication_date so processMappings can sort patent_compound→patent
+		// by date (newest first) without a second pass over patents.json.
+		packed := patentNumber + "\t" + getString(j, "publication_date")
 
 		if id != "" && id != "0" && patentNumber != "" {
 			// Test mode: Only include patents we processed
 			if config.IsTestMode() {
 				if p.testPatentIDs != nil && p.testPatentIDs[patentNumber] {
-					idMap[id] = patentNumber
+					idMap[id] = packed
 					// Early exit when we've found all test patents
 					if len(idMap) >= len(p.testPatentIDs) {
 						break
 					}
 				}
 			} else {
-				idMap[id] = patentNumber
+				idMap[id] = packed
 			}
 		}
 	}

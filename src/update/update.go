@@ -1667,6 +1667,10 @@ const (
 	// Phase uses interactionScore logic: 1000-score inversion, %04d format
 	// Use PhaseToSortScore() to convert phase string to 0-1000 int first
 	SortLevelPhaseScore SortLevelType = "interactionScore"
+
+	// Publication date: newest first. Pass {"date":"YYYY-MM-DD"} to
+	// ComputeSortLevelValue; inverts YYYYMMDD so the most recent sorts first.
+	SortLevelPublicationDate SortLevelType = "publicationDate"
 )
 
 // PhaseToSortScore converts clinical trial phase to sortable integer (0-1000)
@@ -1728,6 +1732,18 @@ func ComputeSortLevelValue(levelType SortLevelType, params map[string]interface{
 			return fmt.Sprintf("%04d", inverted)
 		}
 		return "1000" // Low priority for missing scores
+	case SortLevelPublicationDate:
+		// "YYYY-MM-DD" -> invert YYYYMMDD so the newest patent sorts first
+		// (ascending lex). 2026-06-01 -> 79739398, 2007-01-01 -> 79929898.
+		if dateStr, ok := params["date"].(string); ok {
+			digits := strings.ReplaceAll(dateStr, "-", "")
+			if len(digits) >= 8 {
+				if ymd, err := strconv.Atoi(digits[:8]); err == nil && ymd > 0 {
+					return fmt.Sprintf("%08d", 99999999-ymd)
+				}
+			}
+		}
+		return "99999999" // missing/invalid date sorts last
 	default:
 		return ""
 	}

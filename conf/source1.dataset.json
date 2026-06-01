@@ -1000,7 +1000,7 @@
     "name": "MSigDB",
     "aliases": "MSigDB,Molecular Signatures Database,gene set,pathway,hallmark,GSEA,gene signature,MSigDB C1,MSigDB C2,MSigDB C5,MSigDB C7,MSigDB C8",
     "url": "https://www.gsea-msigdb.org/gsea/msigdb/geneset_page.jsp?geneSetName=£{id}",
-    "path": "raw_data/msigdb/msigdb_v2025.1.Hs.db",
+    "path": "raw_data/msigdb/msigdb_v2026.1.Hs.db",
     "useLocalFile": "yes",
     "hasFilter": "yes",
     "attrs": "systematic_name,standard_name,collection,description,[]gene_symbols,gene_count,pmid,source_species,external_url,[]go_terms,[]hpo_terms",

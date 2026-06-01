@@ -284,18 +284,14 @@ func (p *patents) processPatents() (int, error) {
 		pubDate := getString(j, "publication_date")
 		familyIDStr := getString(j, "family_id")
 
-		cpcStr := getString(j, "cpc")
-		ipcrStr := getString(j, "ipcr")
-		ipcStr := getString(j, "ipc")
-		eclaStr := getString(j, "ecla")
-		assigneeStr := getString(j, "asignee")
-
-		// Parse array fields
-		cpcList := parseStringList(cpcStr)
-		ipcrList := parseStringList(ipcrStr)
-		ipcList := parseStringList(ipcStr)
-		eclaList := parseStringList(eclaStr)
-		asigneeList := parseStringList(assigneeStr)
+		// Classification + assignee fields arrive as JSON arrays in patents.json
+		// (from the SureChEMBL parquet list columns), so read them as arrays.
+		// getString returns "" for arrays, which is why these were silently empty.
+		cpcList := getStringList(j, "cpc")
+		ipcrList := getStringList(j, "ipcr")
+		ipcList := getStringList(j, "ipc")
+		eclaList := getStringList(j, "ecla")
+		asigneeList := getStringList(j, "asignee")
 
 		// Store patent attributes
 		attr := pbuf.PatentAttr{
@@ -629,6 +625,32 @@ func (p *patents) buildPatentIDMap() (map[string]string, error) {
 }
 
 // Helper functions to extract values from jsparser.JSON
+// getStringList reads a JSON array of strings (e.g. cpc/ipc/ipcr/ecla/asignee
+// in patents.json, which come from SureChEMBL parquet list columns). Falls back
+// to parsing a delimited string if the value happens to be a scalar.
+func getStringList(j *jsparser.JSON, key string) []string {
+	raw, ok := j.ObjectVals[key]
+	if !ok || raw == nil {
+		return nil
+	}
+	switch v := raw.(type) {
+	case *jsparser.JSON:
+		var out []string
+		for _, el := range v.ArrayVals {
+			if s, ok := el.(string); ok {
+				s = strings.TrimSpace(s)
+				if s != "" {
+					out = append(out, s)
+				}
+			}
+		}
+		return out
+	case string:
+		return parseStringList(v)
+	}
+	return nil
+}
+
 func getString(j *jsparser.JSON, key string) string {
 	if j.ObjectVals[key] != nil {
 		switch v := j.ObjectVals[key].(type) {

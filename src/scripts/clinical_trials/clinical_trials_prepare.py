@@ -186,33 +186,40 @@ class AACTDownloader:
         })
 
     def get_latest_snapshot_info(self) -> dict:
-        """Get information about the latest AACT flat file snapshot."""
-        log(f"Fetching snapshot information from {self.base_url}")
+        """Get information about the latest AACT flat file snapshot.
+
+        AACT serves dated daily flat-file exports at
+        /static/exported_files/daily/YYYY-MM-DD?source=web . The snapshot
+        listing page (/downloads/snapshots?type=flatfiles) lists them, and the
+        most recent ISO date is the latest snapshot.
+
+        (Replaces the previous DigitalOcean-Spaces link scraping, which broke
+        when AACT moved hosting and renamed the files in 2026.)
+        """
+        listing_url = self.base_url.rstrip('/') + '/snapshots?type=flatfiles'
+        log(f"Fetching snapshot information from {listing_url}")
 
         try:
-            response = self.session.get(self.base_url, timeout=30)
+            response = self.session.get(listing_url, timeout=30)
             response.raise_for_status()
 
-            soup = BeautifulSoup(response.content, 'html.parser')
+            # Dated daily-export paths; ISO dates sort lexicographically
+            dates = re.findall(r'/static/exported_files/daily/(\d{4}-\d{2}-\d{2})', response.text)
+            if not dates:
+                raise ValueError("No daily flat-file export links found on AACT snapshots page")
 
-            # Find all DigitalOcean Spaces links for flat files
-            all_links = []
-            for link in soup.find_all('a', href=True):
-                href = link['href']
-                if 'digitaloceanspaces.com' in href and 'Download File' in link.get_text():
-                    all_links.append(href)
+            latest_date = max(dates)
+            origin = self.base_url.split('/downloads')[0]  # scheme://host
+            flat_file_url = f"{origin}/static/exported_files/daily/{latest_date}?source=web"
 
-            if len(all_links) >= 2:
-                flat_file_url = all_links[1]  # Second link is flat files
-                snapshot_info = {
-                    'filename': f"aact_flat_files_{datetime.now().strftime('%Y%m%d')}.zip",
-                    'url': flat_file_url,
-                    'type': 'flat_files'
-                }
-                log(f"Found flat file snapshot: {snapshot_info['filename']}")
-                return snapshot_info
-            else:
-                raise ValueError(f"Could not find flat file link. Found {len(all_links)} links.")
+            snapshot_info = {
+                'filename': f"aact_flat_files_{latest_date.replace('-', '')}.zip",
+                'url': flat_file_url,
+                'type': 'flat_files',
+                'snapshot_date': latest_date,
+            }
+            log(f"Found flat file snapshot: {snapshot_info['filename']} ({flat_file_url})")
+            return snapshot_info
 
         except requests.RequestException as e:
             log(f"ERROR: Failed to fetch snapshot information: {e}")

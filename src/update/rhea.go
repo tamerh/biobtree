@@ -5,10 +5,12 @@ import (
 	"bufio"
 	"compress/gzip"
 	"fmt"
+	"html"
 	"io"
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 	"sync/atomic"
 
@@ -71,13 +73,25 @@ func (r *rhea) update() {
 	}
 	log.Printf("[%s] Loaded %d direction mappings", r.source, len(directionMap))
 
+	// Step 3.5: Load equation text + real ChEBI participants from the RDF (the
+	// flat TSV files ship neither). This fills RheaAttr.Equation and replaces the
+	// former hardcoded placeholder ChEBI participants.
+	log.Printf("[%s] Pre-loading RDF reaction data (rhea.rdf.gz: equations + participants)", r.source)
+	equationMap, participantsMap, err := r.loadRDFReactionData()
+	if err != nil {
+		log.Printf("[%s] Warning: Could not load RDF reaction data: %v", r.source, err)
+		equationMap = make(map[string]string)
+		participantsMap = make(map[string][]*pbuf.RheaParticipant)
+	}
+	log.Printf("[%s] Loaded %d equations, participants for %d reactions", r.source, len(equationMap), len(participantsMap))
+
 	// Step 4: Load main reactions (creates primary entries with SMILES and hierarchy)
 	log.Printf("[%s] Processing main reactions (rhea.tsv or equivalent)", r.source)
-	reactionMap, err := r.loadReactions(idLogFile, testLimit, directionMap, smilesMap, parentMap, childMap)
+	reactionMap, chebiXrefCount, err := r.loadReactions(idLogFile, testLimit, directionMap, smilesMap, parentMap, childMap, equationMap, participantsMap)
 	if err != nil {
 		log.Fatalf("[%s] Error loading reactions: %v", r.source, err)
 	}
-	log.Printf("[%s] Loaded %d reactions", r.source, len(reactionMap))
+	log.Printf("[%s] Loaded %d reactions, %d ChEBI participant xrefs", r.source, len(reactionMap), chebiXrefCount)
 
 	// Step 5: Process EC number mappings
 	log.Printf("[%s] Processing EC mappings (rhea2ec.tsv)", r.source)
@@ -111,14 +125,8 @@ func (r *rhea) update() {
 	// tremblMappings, err := r.processUniProtTrEMBLMappings(reactionMap, testLimit)
 	// File: rhea2uniprot_trembl.tsv.gz
 
-	// Step 8: Process ChEBI participant mappings
-	log.Printf("[%s] Processing ChEBI participant mappings", r.source)
-	chebiMappings, err := r.processChEBIMappings(reactionMap, testLimit)
-	if err != nil {
-		log.Printf("[%s] Warning: Error processing ChEBI mappings: %v", r.source, err)
-	} else {
-		log.Printf("[%s] Processed %d ChEBI mappings", r.source, chebiMappings)
-	}
+	// Step 8: ChEBI participant cross-references are now created in loadReactions
+	// from real RDF participant data (see chebiXrefCount above).
 
 	// Step 9: Process pathway cross-references (Reactome, KEGG, MetaCyc, EcoCyc)
 	log.Printf("[%s] Processing pathway cross-references", r.source)
@@ -131,10 +139,167 @@ func (r *rhea) update() {
 
 	totalReactions := uint64(len(reactionMap))
 	log.Printf("[%s] Rhea processing complete: %d reactions (with %d SMILES, %d/%d hierarchies), %d EC, %d GO, %d UniProt, %d ChEBI, %d pathway",
-		r.source, totalReactions, len(smilesMap), len(parentMap), len(childMap), ecMappings, goMappings, uniprotMappings, chebiMappings, pathwayMappings)
+		r.source, totalReactions, len(smilesMap), len(parentMap), len(childMap), ecMappings, goMappings, uniprotMappings, chebiXrefCount, pathwayMappings)
 
 	atomic.AddUint64(&r.d.totalParsedEntry, totalReactions)
 	r.d.progChan <- &progressInfo{dataset: r.source, done: true}
+}
+
+// rdfAttrValue extracts the value of attr="..." from an RDF/XML line.
+func rdfAttrValue(line, attr string) string {
+	key := attr + `="`
+	i := strings.Index(line, key)
+	if i < 0 {
+		return ""
+	}
+	i += len(key)
+	j := strings.IndexByte(line[i:], '"')
+	if j < 0 {
+		return ""
+	}
+	return line[i : i+j]
+}
+
+// rdfTagText extracts the text between <tag>...</tag> on a single line.
+func rdfTagText(line, tag string) string {
+	open, clos := "<"+tag+">", "</"+tag+">"
+	i := strings.Index(line, open)
+	if i < 0 {
+		return ""
+	}
+	i += len(open)
+	j := strings.Index(line[i:], clos)
+	if j < 0 {
+		return ""
+	}
+	return line[i : i+j]
+}
+
+func isNumericStr(s string) bool {
+	if s == "" {
+		return false
+	}
+	for _, c := range s {
+		if c < '0' || c > '9' {
+			return false
+		}
+	}
+	return true
+}
+
+// loadRDFReactionData parses rhea.rdf.gz to build two maps that the flat TSV
+// files do not provide: the human-readable equation per reaction id, and the
+// real ChEBI participants (with side + stoichiometry) per master reaction. This
+// replaces the previous placeholder-ChEBI behaviour and fills RheaAttr.Equation.
+func (r *rhea) loadRDFReactionData() (map[string]string, map[string][]*pbuf.RheaParticipant, error) {
+	rdfURL := config.Dataconf[r.source]["rdf_path"]
+	if rdfURL == "" {
+		rdfURL = "https://ftp.expasy.org/databases/rhea/rdf/rhea.rdf.gz"
+	}
+
+	resp, err := http.Get(rdfURL)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to download rhea rdf: %w", err)
+	}
+	defer resp.Body.Close()
+
+	gz, err := gzip.NewReader(resp.Body)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to gunzip rhea rdf: %w", err)
+	}
+	defer gz.Close()
+
+	scanner := bufio.NewScanner(gz)
+	scanner.Buffer(make([]byte, 1024*1024), 1024*1024)
+
+	equationMap := make(map[string]string)   // "RHEA:10000" -> equation text
+	compoundChebi := make(map[string]string) // compoundID -> "CHEBI:x"
+	compoundName := make(map[string]string)  // compoundID -> name
+
+	type pcontain struct {
+		cid    string
+		side   string
+		stoich int32
+	}
+	sideContains := make(map[string][]pcontain) // master reaction numeric id -> participants
+
+	var about string
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+
+		if strings.HasPrefix(line, "<rdf:Description ") {
+			about = strings.TrimPrefix(rdfAttrValue(line, "rdf:about"), "http://rdf.rhea-db.org/")
+			continue
+		}
+		if about == "" {
+			continue
+		}
+
+		switch {
+		// Reaction equation (master uses "=", directional variants use "=>")
+		case isNumericStr(about) && strings.HasPrefix(line, "<rh:equation>"):
+			equationMap["RHEA:"+about] = html.UnescapeString(rdfTagText(line, "rh:equation"))
+
+		// Compound -> ChEBI accession + name
+		case strings.HasPrefix(about, "Compound_") && strings.HasPrefix(line, "<rh:accession>"):
+			compoundChebi[strings.TrimPrefix(about, "Compound_")] = rdfTagText(line, "rh:accession")
+		case strings.HasPrefix(about, "Compound_") && strings.HasPrefix(line, "<rh:name>"):
+			compoundName[strings.TrimPrefix(about, "Compound_")] = html.UnescapeString(rdfTagText(line, "rh:name"))
+
+		// Reaction side -> participants. Predicate suffix encodes stoichiometry
+		// (rh:contains1 == 1); the bare "rh:contains" duplicates contains1 so we
+		// skip it to avoid double-counting.
+		case (strings.HasSuffix(about, "_L") || strings.HasSuffix(about, "_R")) && strings.HasPrefix(line, "<rh:contains"):
+			rest := line[len("<rh:contains"):]
+			sp := strings.IndexByte(rest, ' ')
+			if sp <= 0 { // sp==0 -> bare "<rh:contains " (duplicate); sp<0 -> malformed
+				continue
+			}
+			suffix := rest[:sp]
+			res := strings.TrimPrefix(rdfAttrValue(line, "rdf:resource"), "http://rdf.rhea-db.org/Participant_")
+			ix := strings.Index(res, "_compound_")
+			if ix < 0 {
+				continue
+			}
+			rid := res[:ix]
+			cid := res[ix+len("_compound_"):]
+			side := "left"
+			if strings.HasSuffix(about, "_R") {
+				side = "right"
+			}
+			var stoich int32
+			if isNumericStr(suffix) {
+				if n, e := strconv.Atoi(suffix); e == nil {
+					stoich = int32(n)
+				}
+			}
+			sideContains[rid] = append(sideContains[rid], pcontain{cid: cid, side: side, stoich: stoich})
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		return nil, nil, fmt.Errorf("error reading rhea rdf: %w", err)
+	}
+
+	participantsMap := make(map[string][]*pbuf.RheaParticipant, len(sideContains))
+	for rid, plist := range sideContains {
+		parts := make([]*pbuf.RheaParticipant, 0, len(plist))
+		for _, p := range plist {
+			chebi := compoundChebi[p.cid]
+			if chebi == "" {
+				continue
+			}
+			parts = append(parts, &pbuf.RheaParticipant{
+				ChebiId:       chebi,
+				Name:          compoundName[p.cid],
+				Stoichiometry: p.stoich,
+				Side:          p.side,
+			})
+		}
+		participantsMap["RHEA:"+rid] = parts
+	}
+
+	return equationMap, participantsMap, nil
 }
 
 // loadSMILESMap pre-loads SMILES data for all reactions
@@ -285,19 +450,21 @@ func (r *rhea) loadDirectionMappings() (map[string][]string, error) {
 // loadReactions loads main reaction data from rhea-directions.tsv
 // This file contains all reaction IDs with their directional variants
 func (r *rhea) loadReactions(idLogFile *os.File, testLimit int, directionMap map[string][]string,
-	smilesMap map[string]string, parentMap map[string][]string, childMap map[string][]string) (map[string]bool, error) {
+	smilesMap map[string]string, parentMap map[string][]string, childMap map[string][]string,
+	equationMap map[string]string, participantsMap map[string][]*pbuf.RheaParticipant) (map[string]bool, int, error) {
 
 	ftpPath := config.Dataconf[r.source]["path"]
 	filePath := ftpPath + "rhea-directions.tsv"
 
 	resp, err := http.Get(filePath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to fetch rhea-directions.tsv: %v", err)
+		return nil, 0, fmt.Errorf("failed to fetch rhea-directions.tsv: %v", err)
 	}
 	defer resp.Body.Close()
 
 	reactionMap := make(map[string]bool)
 	processedCount := 0
+	chebiXrefCount := 0
 
 	scanner := bufio.NewScanner(resp.Body)
 
@@ -334,17 +501,23 @@ func (r *rhea) loadReactions(idLogFile *os.File, testLimit int, directionMap map
 			{biID, "BI"},      // Bidirectional
 		}
 
+		// Real ChEBI participants are keyed by the master reaction (sides are
+		// <master>_L / <master>_R); the same compound set applies to every
+		// directional variant.
+		participants := participantsMap[masterID]
+
 		for _, d := range directionIDs {
 			rheaID := d.id
 
 			// Create reaction with basic attributes
 			attr := pbuf.RheaAttr{
+				Equation:          equationMap[rheaID],
 				Direction:         d.direction,
 				Status:            "Approved",
 				IsTransport:       false,
 				UniprotCount:      0,
 				MasterId:          masterID,
-				ChebiParticipants: []*pbuf.RheaParticipant{},
+				ChebiParticipants: participants,
 				EcNumbers:         []string{},
 				GoTerms:           []string{},
 				VariantIds:        []string{},
@@ -355,6 +528,19 @@ func (r *rhea) loadReactions(idLogFile *os.File, testLimit int, directionMap map
 
 			b, _ := ffjson.Marshal(&attr)
 			r.d.addProp3(rheaID, r.sourceID, b)
+
+			// Real Rhea <-> ChEBI cross-references (replaces the former
+			// water/ATP/ADP/phosphate placeholders). Dedupe so a compound that
+			// appears on both sides (e.g. H2O) yields a single xref per reaction.
+			seenChebi := make(map[string]bool, len(participants))
+			for _, p := range participants {
+				if p.ChebiId == "" || seenChebi[p.ChebiId] {
+					continue
+				}
+				seenChebi[p.ChebiId] = true
+				r.d.addXref(rheaID, r.sourceID, p.ChebiId, "chebi", false)
+				chebiXrefCount++
+			}
 
 			reactionMap[rheaID] = true
 
@@ -374,10 +560,10 @@ func (r *rhea) loadReactions(idLogFile *os.File, testLimit int, directionMap map
 	}
 
 	if err := scanner.Err(); err != nil {
-		return nil, fmt.Errorf("error reading rhea-directions.tsv: %v", err)
+		return nil, chebiXrefCount, fmt.Errorf("error reading rhea-directions.tsv: %v", err)
 	}
 
-	return reactionMap, nil
+	return reactionMap, chebiXrefCount, nil
 }
 
 // processECMappings creates Rhea → EC cross-references
@@ -563,41 +749,6 @@ func (r *rhea) processUniProtMappings(reactionMap map[string]bool, testLimit int
 
 	if err := scanner.Err(); err != nil {
 		return mappingCount, fmt.Errorf("error reading rhea2uniprot_sprot.tsv: %v", err)
-	}
-
-	return mappingCount, nil
-}
-
-// processChEBIMappings creates Rhea ↔ ChEBI cross-references for participants
-func (r *rhea) processChEBIMappings(reactionMap map[string]bool, testLimit int) (int, error) {
-	// For initial implementation, we'll create placeholder ChEBI mappings
-	// In production, this would parse actual rhea2chebi.tsv or extract from reaction equations
-
-	mappingCount := 0
-
-	// Common ChEBI IDs for testing (water, ATP, ADP, phosphate)
-	testChEBIs := map[string]string{
-		"CHEBI:15377": "water",
-		"CHEBI:30616": "ATP",
-		"CHEBI:456216": "ADP",
-		"CHEBI:43474": "phosphate",
-	}
-
-	// Add placeholder ChEBI mappings for test reactions
-	for rheaID := range reactionMap {
-		for chebiID := range testChEBIs {
-			// Create cross-reference: Rhea → ChEBI
-			// addXref creates both forward and reverse:
-			//   Forward: rhea/forward/ (Rhea → ChEBI)
-			//   Reverse: chebi/from_rhea/ (ChEBI → Rhea)
-			r.d.addXref(rheaID, r.sourceID, chebiID, "chebi", false)
-			mappingCount++
-		}
-
-		// Only process a few per reaction in test mode
-		if config.IsTestMode() {
-			break
-		}
 	}
 
 	return mappingCount, nil

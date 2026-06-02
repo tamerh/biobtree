@@ -2328,6 +2328,18 @@ func (d *DataUpdate) addXrefViaKeyword(keyword string, keywordDataset string, ta
 				continue
 			}
 
+			// Tokenized ontology targets (efo/bao/cl/mondo/...) index every
+			// significant word of each name/synonym, so a keyword can match a
+			// term that merely mentions the word (e.g. one metabolite -> 100 EFO
+			// terms). Require an exact name/synonym match for those. Non-ontology
+			// targets (mesh/ensembl/hgnc, full-name indexed) return no names here
+			// and pass through unchanged.
+			if names := d.ontologyTermNames(entry.Identifier, entry.Dataset); len(names) > 0 {
+				if !names[strings.ToLower(strings.TrimSpace(keyword))] {
+					continue
+				}
+			}
+
 			// Determine the target dataset name for the xref
 			// If keywordDataset was specified, use it; otherwise use the resolved name
 			xrefTargetDataset := keywordDataset

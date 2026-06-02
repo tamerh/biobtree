@@ -788,7 +788,11 @@ func (s *scxaExpression) lookupCellTypeCLFromBiobtree(cellTypeName string) strin
 		if xref.Dataset == uint32(clDatasetID) {
 			// Found a CL entry - get the identifier from entries
 			for _, entry := range xref.Entries {
-				if entry.Dataset == uint32(clDatasetID) && strings.HasPrefix(entry.Identifier, "CL:") {
+				// CL is word-token indexed, so a lookup can return a CL term that
+				// merely mentions a word of the cell-type name. Require an exact
+				// name/synonym match before accepting it.
+				if entry.Dataset == uint32(clDatasetID) && strings.HasPrefix(entry.Identifier, "CL:") &&
+					s.d.ontologyTermNames(entry.Identifier, uint32(clDatasetID))[strings.ToLower(strings.TrimSpace(cellTypeName))] {
 					return entry.Identifier
 				}
 			}

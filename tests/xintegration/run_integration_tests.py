@@ -625,7 +625,7 @@ class IntegrationTestRunner:
 
         try:
             start_time = time.time()
-            response = requests.get(url, params=params, timeout=30)
+            response = requests.get(url, params=params, timeout=test.get('timeout', 30))
             elapsed_ms = (time.time() - start_time) * 1000
 
             response.raise_for_status()

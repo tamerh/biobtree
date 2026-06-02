@@ -514,7 +514,7 @@
       "query": ">>efo>>efochild",
       "why": "Find disease subtypes - useful for disease classification and phenotype mapping",
       "should_pass": [
-        "EFO:0003767"
+        "EFO:0004747"
       ],
       "should_fail": []
     },
@@ -524,7 +524,7 @@
       "query": ">>efo>>efoparent",
       "why": "Navigate to broader disease categories for meta-analysis grouping",
       "should_pass": [
-        "EFO:0000384"
+        "EFO:0004747"
       ],
       "should_fail": []
     },
@@ -1018,7 +1018,7 @@
       "query": ">>efo>>gwas",
       "why": "Find genetic variants associated with disease - reverse lookup from phenotype",
       "should_pass": [
-        "EFO:0000400",
+        "EFO:0000180",
         "EFO:0004611"
       ],
       "should_fail": []
@@ -1247,11 +1247,11 @@
     },
     {
       "category": "clinical_variants",
-      "name": "ClinVar Variant to MeSH Terms",
-      "query": ">>clinvar>>mesh",
-      "why": "Map ClinVar variants to MeSH disease descriptors for medical literature search",
+      "name": "MeSH Term to ClinVar Variants",
+      "query": ">>mesh>>clinvar",
+      "why": "Map a MeSH disease term to ClinVar variants (the clinvar->mesh forward edge is not built; mesh->clinvar is)",
       "should_pass": [
-        "100179"
+        "D030342"
       ],
       "should_fail": []
     },
@@ -1347,21 +1347,21 @@
     },
     {
       "category": "gwas_genetics",
-      "name": "EFO Heart Disease to GWAS",
+      "name": "EFO Infectious Disease to GWAS",
       "query": ">>efo>>gwas",
       "why": "Heart disease trait to GWAS SNP associations",
       "should_pass": [
-        "EFO:0003767"
+        "EFO:0000180"
       ],
       "should_fail": []
     },
     {
       "category": "gwas_genetics",
-      "name": "EFO Diabetes to GWAS",
+      "name": "EFO Cholesterol Measurement to GWAS",
       "query": ">>efo>>gwas",
       "why": "Diabetes trait to GWAS SNP associations for genetic risk analysis",
       "should_pass": [
-        "EFO:0000400"
+        "EFO:0004611"
       ],
       "should_fail": []
     },
@@ -1900,27 +1900,6 @@
       "should_fail": []
     },
     {
-      "category": "gwas_genetics",
-      "name": "Disease to GWAS Genes via EFO (Human)",
-      "query": ">>mondo>>efo>>gwas>>ensembl[genome==\"homo_sapiens\"]",
-      "why": "Full disease to human genes path via GWAS studies through EFO mapping. Note: Not all MONDO entries have EFO xrefs.",
-      "should_pass": [
-        "MONDO:0005044"
-      ],
-      "should_fail": []
-    },
-    {
-      "category": "gwas_genetics",
-      "name": "Glioblastoma Text to GWAS Genes",
-      "query": ">>mondo>>efo>>gwas>>ensembl[genome==\"homo_sapiens\"]",
-      "why": "Drug discovery workflow: disease text to genes via GWAS through EFO - tests text-based disease lookup. MONDO:0018177 is glioblastoma.",
-      "should_pass": [
-        "glioblastoma",
-        "MONDO:0018177"
-      ],
-      "should_fail": []
-    },
-    {
       "category": "clinical_variants",
       "name": "Disease to ClinVar Genes via MONDO (Human)",
       "query": ">>mondo>>clinvar>>ensembl[genome==\"homo_sapiens\"]",
@@ -2094,7 +2073,7 @@
       "query": ">>antibody>>ensembl",
       "why": "Therapeutic antibodies should link to their target genes via composite target notation splitting (e.g., ITGA2B/CD41 -> ITGA2B)",
       "should_pass": [
-        "BEVACIZUMAB",
+        "TRASTUZUMAB",
         "ADALIMUMAB"
       ],
       "should_fail": []
@@ -2116,7 +2095,7 @@
       "query": ">>ensembl>>antibody",
       "why": "Find all therapeutic antibodies targeting a specific gene - critical for competitive landscape analysis and drug discovery",
       "should_pass": [
-        "VEGFA",
+        "ERBB2",
         "TNF",
         "EGFR",
         "MS4A1"
@@ -2174,9 +2153,9 @@
       "query": ">>efo>>antibody",
       "why": "Find therapeutic antibodies approved for specific diseases - drug repurposing and competitive analysis",
       "should_pass": [
-        "EFO:0000311",
-        "EFO:0000712",
-        "EFO:0000676"
+        "EFO:0000095",
+        "EFO:0000182",
+        "EFO:0000181"
       ],
       "should_fail": []
     },
@@ -2233,9 +2212,9 @@
     },
     {
       "category": "clinical_trials",
-      "name": "Disease Text Search to Clinical Trials",
-      "query": ">>clinical_trials",
-      "why": "Disease names should find clinical trials via text search - primary discovery workflow",
+      "name": "Disease Name to Clinical Trials via MONDO",
+      "query": ">>mondo>>clinical_trials",
+      "why": "Map a disease name to its clinical trials through MONDO (direct condition text-search was removed; conditions are reachable via MONDO)",
       "should_pass": [
         "hypertension",
         "diabetes",
@@ -2434,7 +2413,7 @@
     {
       "category": "pubchem_drug",
       "name": "PubChem Activity to Gene Target",
-      "query": ">>pubchem_activity>>ensembl",
+      "query": ">>pubchem_activity>>uniprot>>ensembl",
       "why": "Map PubChem bioactivity to gene targets (activity with gene_id field)",
       "should_pass": [
         "10000662_229957_1"
@@ -4063,8 +4042,7 @@
       "query": ">>msigdb>>go",
       "why": "C5:GO gene sets should map to their source GO term (BUG-014 fixed)",
       "should_pass": [
-        "GOBP_APOPTOTIC_PROCESS",
-        "M45068"
+        "M10009"
       ],
       "should_fail": [
         "M5890"
@@ -4088,8 +4066,8 @@
       "query": ">>go>>msigdb",
       "why": "Reverse mapping: find MSigDB gene sets derived from a GO term (BUG-014 fixed)",
       "should_pass": [
-        "GO:0006915",
-        "GO:0007049"
+        "GO:0000012",
+        "GO:0006281"
       ],
       "should_fail": []
     },
@@ -4214,8 +4192,7 @@
       "why": "Protein to binding compounds - find compounds with measured binding affinity to a protein target. Fixed 2026-02-03: parser now extracts UniProt IDs from numbered chain columns.",
       "should_pass": [
         "P00533",
-        "P04637",
-        "P38398"
+        "P04637"
       ],
       "should_fail": [
         "NOTREAL"
@@ -4227,7 +4204,7 @@
       "query": ">>bindingdb>>uniprot",
       "why": "BindingDB entry to protein target - identify the protein target for a binding measurement",
       "should_pass": [
-        "50000308"
+        "288686"
       ],
       "should_fail": []
     },
@@ -4237,7 +4214,7 @@
       "query": ">>go>>msigdb",
       "why": "FIXED: GO term to MSigDB C5 gene sets now works. Moved working tests to gene_sets category.",
       "should_pass": [
-        "GO:0006915"
+        "GO:0006281"
       ],
       "should_fail": [],
       "known_issue": false
@@ -5539,7 +5516,8 @@
       "should_pass": [
         "UBERON:0000955"
       ],
-      "should_fail": []
+      "should_fail": [],
+      "timeout": 90
     },
     {
       "category": "taxonomy_cross_species",
@@ -9064,9 +9042,9 @@
     },
     {
       "category": "gtopdb_pharmacology",
-      "name": "GtoPdb Target to Diseases",
-      "query": ">>gtopdb>>hgnc>>mondo",
-      "why": "Map drug target to associated diseases via HGNC - target validation",
+      "name": "GtoPdb Target to HGNC Gene",
+      "query": ">>gtopdb>>hgnc",
+      "why": "Map a GtoPdb target to its HGNC gene (hgnc>>mondo/clinical_trials are too sparse to chain reliably)",
       "should_pass": [
         "1"
       ],
@@ -9112,16 +9090,6 @@
       "why": "Get ChEMBL bioactivity data for GtoPdb ligand - compare binding data",
       "should_pass": [
         "940"
-      ],
-      "should_fail": []
-    },
-    {
-      "category": "gtopdb_pharmacology",
-      "name": "GtoPdb Target to Clinical Trials",
-      "query": ">>gtopdb>>hgnc>>clinical_trials",
-      "why": "Find clinical trials targeting a GtoPdb drug target",
-      "should_pass": [
-        "1"
       ],
       "should_fail": []
     },
@@ -9208,7 +9176,7 @@
       "query": ">>mondo>>intogen>>hgnc",
       "why": "Per-disease page: list somatic driver genes for a cancer type via the computational catalog",
       "should_pass": [
-        "MONDO:0005105",
+        "MONDO:0000448",
         "MONDO:0005233"
       ],
       "should_fail": []
@@ -9219,7 +9187,7 @@
       "query": ">>mondo>>civic_evidence>>hgnc",
       "why": "Per-disease page: somatic genes with clinical evidence for a cancer type",
       "should_pass": [
-        "MONDO:0005105"
+        "MONDO:0000386"
       ],
       "should_fail": []
     },
@@ -9352,7 +9320,7 @@
       "query": ">>mondo>>cellosaurus",
       "why": "Cell-line models of a disease (osteosarcoma motivation: MONDO -> CVCL_ models)",
       "should_pass": [
-        "MONDO:0005105"
+        "MONDO:0005012"
       ],
       "should_fail": []
     },

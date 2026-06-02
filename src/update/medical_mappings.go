@@ -402,17 +402,30 @@ func collectOntologyIDs(d *DataUpdate, m *MedicalTermMappings, condition string,
 		if err != nil || result == nil {
 			return
 		}
+		nameLower := strings.ToLower(strings.TrimSpace(name))
+		// Only accept an ontology id whose own name or a synonym EQUALS the
+		// looked-up name. The text-search index also keys each significant word
+		// of every name/synonym (for partial search), so a bare lookup returns
+		// every term that merely *mentions* the word — e.g. condition "cataract"
+		// returns Vici syndrome (synonym "...cataract..."). Verifying exact
+		// name/synonym equality drops those word-token hits while keeping real
+		// matches. (Fixes mondo/efo over-linking in clinical_trials/intogen/civic.)
+		add := func(id string) {
+			if d.ontologyTermNames(id, ontologyDatasetID)[nameLower] {
+				found[id] = true
+			}
+		}
 		for _, xref := range result.Results {
 			// Top-level entity directly in the ontology (e.g. an exact MONDO hit).
 			if xref.Dataset == ontologyDatasetID {
-				found[xref.Identifier] = true
+				add(xref.Identifier)
 			}
 			// Ontology targets nested in Entries: the common case for a
 			// text-search link, but also when another dataset (clinical_trials,
 			// ctd, ...) is the top-level result with the ontology nested under it.
 			for _, entry := range xref.Entries {
 				if entry.Dataset == ontologyDatasetID {
-					found[entry.Identifier] = true
+					add(entry.Identifier)
 				}
 			}
 		}

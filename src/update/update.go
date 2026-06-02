@@ -56,6 +56,7 @@ type DataUpdate struct {
 	mergeGateCh            *chan mergeInfo // Channel for sending files to merge pipeline
 	invalidXrefs           util.HashMaper
 	sampleXrefs            util.HashMaper
+	ontologyNameCache      sync.Map // "datasetID:id" -> map[string]bool of lowercased name+synonyms (exact-match verification)
 	sampleCount            int
 	sampleWritten          bool
 	uniprotFtp             string
@@ -2871,6 +2872,32 @@ func (d *DataUpdate) lookupFullEntry(identifier string, datasetID uint32) (*pbuf
 		return nil, fmt.Errorf("lookup service not available")
 	}
 	return d.lookupService.LookupFullEntry(identifier, datasetID)
+}
+
+// ontologyTermNames returns the lowercased name + synonyms of an ontology term
+// (mondo/efo/...), cached per (datasetID, id). Used by collectOntologyIDs to
+// verify an exact name/synonym match instead of accepting word-token text-search
+// hits. The cache bounds cost to one full-entry fetch per distinct term.
+func (d *DataUpdate) ontologyTermNames(identifier string, datasetID uint32) map[string]bool {
+	key := strconv.FormatUint(uint64(datasetID), 10) + ":" + identifier
+	if v, ok := d.ontologyNameCache.Load(key); ok {
+		return v.(map[string]bool)
+	}
+	names := make(map[string]bool)
+	if xref, err := d.lookupFullEntry(identifier, datasetID); err == nil && xref != nil {
+		if o := xref.GetOntology(); o != nil {
+			if n := strings.ToLower(strings.TrimSpace(o.Name)); n != "" {
+				names[n] = true
+			}
+			for _, s := range o.Synonyms {
+				if s = strings.ToLower(strings.TrimSpace(s)); s != "" {
+					names[s] = true
+				}
+			}
+		}
+	}
+	d.ontologyNameCache.Store(key, names)
+	return names
 }
 
 // lookupPage fetches a page of entries from the appropriate federation database

@@ -103,6 +103,7 @@
     "childDatasets":"string_interaction"
   },
   "string_interaction": {
+    "data_version": "STRING v12.0",
     "id": "63",
     "name": "STRING Interaction",
     "path":"",
@@ -269,6 +270,7 @@
     "bucketMethod": "numeric"
   },
   "hmdb": {
+    "data_version": "HMDB 5.0",
     "id": "17",
     "name": "hmdb",
     "textPriority": "90",
@@ -382,6 +384,7 @@
     "bucketMethod": "chembl"
   },
   "patent": {
+    "data_version": "SureChEMBL 2026-06-01",
     "aliases": "Patent,Patent accession",
     "id": "26",
     "name": "Patent",
@@ -590,6 +593,7 @@
     "xrefSort": "uniprot:speciesPriority,interactionScore"
   },
   "diamond_similarity": {
+    "checkURL": "ftp://ftp.ebi.ac.uk/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.xml.gz",
     "id": "39",
     "name": "DIAMOND Protein Similarity",
     "path": "/data/bioyoda/snapshots/diamond_latest/data/processed/diamond/merged/filtered_top100.tsv",
@@ -603,6 +607,7 @@
     "bucketMethod": "uniprot"
   },
   "esm2_similarity": {
+    "checkURL": "ftp://ftp.ebi.ac.uk/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.xml.gz",
     "id": "750",
     "name": "ESM2 Protein Similarity",
     "path": "raw_data/esm2_similarity/esm2_similarities_top50.tsv",
@@ -616,6 +621,7 @@
     "bucketMethod": "uniprot"
   },
   "antibody": {
+    "checkURL": "https://opig.stats.ox.ac.uk/webapps/sabdab-sabpred/static/downloads/TheraSAbDab_SeqStruc_OnlineDownload.csv",
     "id": "40",
     "name": "Antibody db",
     "textPriority": "50",
@@ -1038,6 +1044,7 @@
     "bucketMethod": "ensembl_hybrid"
   },
   "pharmgkb": {
+    "checkURL": "https://api.pharmgkb.org/v1/download/file/data/genes.zip",
     "id": "67",
     "name": "PharmGKB",
     "textPriority": "90",
@@ -1063,6 +1070,7 @@
     "bucketMethod": "ontology"
   },
   "pharmgkb_gene": {
+    "checkURL": "https://api.pharmgkb.org/v1/download/file/data/genes.zip",
     "id": "68",
     "name": "PharmGKB Gene",
     "textPriority": "90",
@@ -1076,6 +1084,7 @@
     "bucketMethod": "ontology"
   },
   "pharmgkb_clinical": {
+    "checkURL": "https://api.pharmgkb.org/v1/download/file/data/genes.zip",
     "id": "69",
     "name": "PharmGKB Clinical Annotation",
     "textPriority": "90",
@@ -1089,6 +1098,7 @@
     "bucketMethod": "alphabetic"
   },
   "pharmgkb_variant": {
+    "checkURL": "https://api.pharmgkb.org/v1/download/file/data/genes.zip",
     "id": "106",
     "name": "PharmGKB Variant",
     "textPriority": "90",
@@ -1102,6 +1112,7 @@
     "bucketMethod": "ontology"
   },
   "pharmgkb_guideline": {
+    "checkURL": "https://api.pharmgkb.org/v1/download/file/data/genes.zip",
     "id": "107",
     "name": "PharmGKB Guideline",
     "textPriority": "90",
@@ -1115,6 +1126,7 @@
     "bucketMethod": "ontology"
   },
   "pharmgkb_pathway": {
+    "checkURL": "https://api.pharmgkb.org/v1/download/file/data/genes.zip",
     "id": "108",
     "name": "PharmGKB Pathway",
     "textPriority": "90",
@@ -1320,6 +1332,7 @@
     "bucketMethod": "alphanum"
   },
   "orphanet": {
+    "checkURL": "https://www.orphadata.com/data/xml/en_product1.xml",
     "aliases": "Orphadata,ORPHA,rare disease",
     "id": "123",
     "name": "Orphanet",
@@ -1337,6 +1350,7 @@
     "bucketMethod": "numeric"
   },
   "spliceai": {
+    "data_version": "static (one-time build)",
     "id": "124",
     "name": "SpliceAI",
     "aliases": "SpliceAI,splice prediction,splicing variant,splice site,delta score,splice donor,splice acceptor",

@@ -71,6 +71,29 @@ func GetSourceConfig(datasetName string) *SourceConfig {
 		return nil
 	}
 
+	// An explicit checkURL overrides everything: it lets manually-staged
+	// (useLocalFile) and derived datasets be freshness-checked against a real
+	// download URL — or against their parent's source (e.g. the similarity
+	// datasets point at UniProt, so a newer UniProt flags them for rebuild).
+	if cu, ok := props["checkURL"]; ok && cu != "" {
+		cfg.SourceURL = cu
+		switch {
+		case strings.HasPrefix(cu, "ftp://"):
+			if strings.HasSuffix(cu, "/") {
+				cfg.SourceType = SourceTypeFTPFolder
+			} else {
+				cfg.SourceType = SourceTypeFTPFile
+			}
+		default:
+			if strings.HasSuffix(cu, "/") {
+				cfg.SourceType = SourceTypeHTTPFolder
+			} else {
+				cfg.SourceType = SourceTypeHTTPFile
+			}
+		}
+		return cfg
+	}
+
 	// Check for explicit sourceType first
 	if st, ok := props["sourceType"]; ok {
 		cfg.SourceType = SourceType(st)

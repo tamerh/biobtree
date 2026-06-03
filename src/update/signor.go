@@ -3,8 +3,11 @@ package update
 import (
 	"biobtree/pbuf"
 	"bufio"
+	"fmt"
+	"io"
 	"log"
 	"math"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -47,41 +50,57 @@ func (s *signor) update() {
 		log.Printf("SIGNOR: [TEST MODE] Processing up to %d entries", testLimit)
 	}
 
-	// Get base path and organism-specific file paths
-	basePath := config.Dataconf[s.source]["path"]
+	// When path is the SIGNOR "latest release" URL, download it once: it is the
+	// complete cross-species dump (all TAX_IDs) and is always current, so it
+	// replaces the legacy per-species local files. Falls back to the local
+	// human/mouse/rat files under localDir if the download fails.
+	path := config.Dataconf[s.source]["path"]
 	pathHuman := config.Dataconf[s.source]["pathHuman"]
 	pathMouse := config.Dataconf[s.source]["pathMouse"]
 	pathRat := config.Dataconf[s.source]["pathRat"]
+	localDir := config.Dataconf[s.source]["localDir"]
+	if localDir == "" {
+		localDir = path // legacy: path was the local directory
+	}
 
 	sourceID := config.Dataconf[s.source]["id"]
 
-	// Track total entries across all files
 	var totalSaved int
 	var testLimitReached bool
 
-	// Process each organism file
-	organismFiles := []struct {
-		name     string
-		filename string
-	}{
-		{"Human", pathHuman},
-		{"Mouse", pathMouse},
-		{"Rat", pathRat},
+	type srcFile struct{ name, path string }
+	var files []srcFile
+
+	if strings.HasPrefix(path, "http://") || strings.HasPrefix(path, "https://") {
+		log.Printf("SIGNOR: downloading latest release (all species) from %s", path)
+		tmp, err := s.downloadRelease(path)
+		if err != nil {
+			log.Printf("SIGNOR: Warning: release download failed (%v); falling back to local files in %s", err, localDir)
+		} else {
+			defer os.Remove(tmp)
+			files = []srcFile{{"latest release (all species)", tmp}}
+		}
+	}
+	if len(files) == 0 {
+		files = []srcFile{
+			{"Human", filepath.Join(localDir, pathHuman)},
+			{"Mouse", filepath.Join(localDir, pathMouse)},
+			{"Rat", filepath.Join(localDir, pathRat)},
+		}
 	}
 
-	for _, org := range organismFiles {
+	for _, f := range files {
 		if testLimitReached {
 			break
 		}
 
-		filePath := filepath.Join(basePath, org.filename)
-		log.Printf("SIGNOR: Processing %s data from %s", org.name, filePath)
+		log.Printf("SIGNOR: Processing %s from %s", f.name, f.path)
 
-		saved, limitReached := s.processFile(filePath, sourceID, idLogFile, testLimit-totalSaved)
+		saved, limitReached := s.processFile(f.path, sourceID, idLogFile, testLimit-totalSaved)
 		totalSaved += saved
 		testLimitReached = limitReached
 
-		log.Printf("SIGNOR: Processed %d interactions from %s file", saved, org.name)
+		log.Printf("SIGNOR: Processed %d interactions from %s", saved, f.name)
 	}
 
 	log.Printf("SIGNOR: Saved %d total causal interactions", totalSaved)
@@ -96,6 +115,30 @@ func (s *signor) update() {
 
 // processFile processes a single SIGNOR TSV file
 // Returns: number of saved entries and whether test limit was reached
+// downloadRelease fetches the SIGNOR latest-release dump to a temp file and
+// returns its path (caller removes it).
+func (s *signor) downloadRelease(url string) (string, error) {
+	resp, err := http.Get(url)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("status %d", resp.StatusCode)
+	}
+	tmp, err := os.CreateTemp("", "signor_release_*.tsv")
+	if err != nil {
+		return "", err
+	}
+	if _, err := io.Copy(tmp, resp.Body); err != nil {
+		tmp.Close()
+		os.Remove(tmp.Name())
+		return "", err
+	}
+	tmp.Close()
+	return tmp.Name(), nil
+}
+
 func (s *signor) processFile(filePath, sourceID string, idLogFile *os.File, remainingLimit int) (int, bool) {
 	// Open file
 	file, err := os.Open(filePath)

@@ -817,15 +817,25 @@ func checkHTTPFile(url string, lastBuild *DatasetBuildInfo) (*SourceChangeInfo, 
 		return info, nil
 	}
 
-	// Compare ETag first (most reliable)
-	if info.NewETag != "" && lastBuild.SourceETag != "" {
+	// Compare ETag first (most reliable), then date, then size. When no source
+	// baseline was stored (no etag, zero source_date), compare the upstream date
+	// against our last build time — otherwise a missing/zero stored size made
+	// every such dataset (e.g. dbsnp) falsely report "changed". Mirrors the
+	// FTP file/folder checks.
+	switch {
+	case info.NewETag != "" && lastBuild.SourceETag != "":
 		info.HasChanged = info.NewETag != lastBuild.SourceETag
-	} else if !info.NewDate.IsZero() && !lastBuild.SourceDate.IsZero() {
-		// Fall back to date comparison
-		info.HasChanged = info.NewDate.After(lastBuild.SourceDate)
-	} else if info.NewSize != lastBuild.SourceSize {
-		// Fall back to size comparison
-		info.HasChanged = true
+	case !info.NewDate.IsZero():
+		baseline := lastBuild.SourceDate
+		if baseline.IsZero() {
+			baseline = lastBuild.LastBuildTime
+		}
+		info.HasChanged = info.NewDate.After(baseline)
+	case info.NewSize > 0 && lastBuild.SourceSize > 0:
+		info.HasChanged = info.NewSize != lastBuild.SourceSize
+	default:
+		// No reliable signal — don't cry wolf.
+		info.HasChanged = false
 	}
 
 	log.Printf("HTTP check %s: etag=%s date=%s size=%d changed=%v",

@@ -836,6 +836,26 @@ func (s *Service) metajson() string {
 	var b strings.Builder
 	b.WriteString(`{ "datasets":{`)
 	keymap := map[string]bool{}
+
+	// Per-dataset freshness from dataset_state.json (best-effort, keyed by dataset
+	// name). Zero/missing values are NOT emitted, so the API never reports a fake
+	// date — callers fall back to data_version (curated) or last_built.
+	type dsFreshness struct {
+		LastBuildTime string `json:"last_build_time"`
+		SourceDate    string `json:"source_date"`
+		SourceURL     string `json:"source_url"`
+		Status        string `json:"status"`
+	}
+	freshness := map[string]dsFreshness{}
+	if raw, err := ioutil.ReadFile(filepath.Join(config.Appconf["outDir"], "dataset_state.json")); err == nil {
+		var st struct {
+			Datasets map[string]dsFreshness `json:"datasets"`
+		}
+		if json.Unmarshal(raw, &st) == nil {
+			freshness = st.Datasets
+		}
+	}
+
 	for k := range config.Dataconf {
 		if config.Dataconf[k]["_alias"] == "" { // not send the alias
 			id := config.Dataconf[k]["id"]
@@ -854,6 +874,26 @@ func (s *Service) metajson() string {
 
 				if _, ok := config.Dataconf[k]["attrs"]; ok {
 					b.WriteString(`"attrs":"` + config.Dataconf[k]["attrs"] + `",`)
+				}
+
+				// Freshness: curated data_version (authoritative when set) wins;
+				// real source_date emitted only when present; last_built always.
+				if fr, ok := freshness[k]; ok {
+					if fr.LastBuildTime != "" {
+						b.WriteString(`"last_built":"` + fr.LastBuildTime + `",`)
+					}
+					if fr.SourceDate != "" && !strings.HasPrefix(fr.SourceDate, "0001-01-01") {
+						b.WriteString(`"source_date":"` + fr.SourceDate + `",`)
+					}
+					if fr.SourceURL != "" {
+						b.WriteString(`"source_url":` + strconv.Quote(fr.SourceURL) + `,`)
+					}
+					if fr.Status != "" {
+						b.WriteString(`"status":"` + fr.Status + `",`)
+					}
+				}
+				if dv := config.Dataconf[k]["data_version"]; dv != "" {
+					b.WriteString(`"data_version":` + strconv.Quote(dv) + `,`)
 				}
 
 				b.WriteString(`"id":"` + k + `"`)

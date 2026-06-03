@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"log"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -856,60 +857,144 @@ func (s *Service) metajson() string {
 		}
 	}
 
-	for k := range config.Dataconf {
-		if config.Dataconf[k]["_alias"] == "" { // not send the alias
-			id := config.Dataconf[k]["id"]
-			if _, ok := keymap[id]; !ok {
-				b.WriteString(`"` + id + `":{`)
-
-				if len(config.Dataconf[k]["name"]) > 0 {
-					b.WriteString(`"name":"` + config.Dataconf[k]["name"] + `",`)
-				} else {
-					b.WriteString(`"name":"` + k + `",`)
+	// Category is metadata-only and kept INDEPENDENT of config.Dataconf (which the
+	// query/production path reads): derive it here by reading which conf file each
+	// dataset is defined in. source1/source2 = primary data sources; the rest = xref.
+	primary := map[string]bool{}
+	confDir := filepath.Join(config.Appconf["rootDir"], "conf")
+	for _, fn := range []string{"source1.dataset.json", "source2.dataset.json"} {
+		if raw, err := ioutil.ReadFile(filepath.Join(confDir, fn)); err == nil {
+			var m map[string]map[string]string
+			if json.Unmarshal(raw, &m) == nil {
+				for k := range m {
+					primary[k] = true
 				}
-
-				if len(config.Dataconf[k]["linkdataset"]) > 0 {
-					b.WriteString(`"linkdataset":"` + config.Dataconf[k]["linkdataset"] + `",`)
-				}
-
-				if _, ok := config.Dataconf[k]["attrs"]; ok {
-					b.WriteString(`"attrs":"` + config.Dataconf[k]["attrs"] + `",`)
-				}
-
-				// Freshness: curated data_version (authoritative when set) wins;
-				// real source_date emitted only when present; last_built always.
-				// A subdataset inherits its parent's freshness via derivedFrom.
-				fk := k
-				if parent := config.Dataconf[k]["derivedFrom"]; parent != "" {
-					fk = parent
-					b.WriteString(`"derived_from":"` + parent + `",`)
-				}
-				if fr, ok := freshness[fk]; ok {
-					if fr.LastBuildTime != "" {
-						b.WriteString(`"last_built":"` + fr.LastBuildTime + `",`)
-					}
-					if fr.SourceDate != "" && !strings.HasPrefix(fr.SourceDate, "0001-01-01") {
-						b.WriteString(`"source_date":"` + fr.SourceDate + `",`)
-					}
-					if fr.SourceURL != "" {
-						b.WriteString(`"source_url":` + strconv.Quote(fr.SourceURL) + `,`)
-					}
-					if fr.Status != "" {
-						b.WriteString(`"status":"` + fr.Status + `",`)
-					}
-				}
-				if dv := config.Dataconf[k]["data_version"]; dv != "" {
-					b.WriteString(`"data_version":` + strconv.Quote(dv) + `,`)
-				}
-
-				b.WriteString(`"id":"` + k + `"`)
-
-				b.WriteString(`},`)
-
-				keymap[id] = true
 			}
 		}
 	}
+	catOf := func(k string) string {
+		if primary[k] {
+			return "primary"
+		}
+		return "xref"
+	}
+
+	// Parent/child + derived relationships (read-only from existing fields), so each
+	// primary is listed followed by its derived/child datasets, then xref last.
+	names := make([]string, 0, len(config.Dataconf))
+	for k := range config.Dataconf {
+		if config.Dataconf[k]["_alias"] == "" {
+			names = append(names, k)
+		}
+	}
+	sort.Strings(names)
+	childrenOf := map[string][]string{}
+	parentOf := map[string]string{}
+	for _, k := range names {
+		if cd := config.Dataconf[k]["childDatasets"]; cd != "" {
+			for _, c := range strings.Split(cd, ",") {
+				c = strings.TrimSpace(c)
+				if c != "" && c != k && parentOf[c] == "" {
+					parentOf[c] = k
+					childrenOf[k] = append(childrenOf[k], c)
+				}
+			}
+		}
+		if p := config.Dataconf[k]["path"]; strings.HasPrefix(p, "derived:") {
+			if par := strings.TrimSpace(strings.TrimPrefix(p, "derived:")); par != "" && parentOf[k] == "" {
+				parentOf[k] = par
+				childrenOf[par] = append(childrenOf[par], k)
+			}
+		}
+	}
+
+	emitOne := func(k string) {
+		b.WriteString(`"` + config.Dataconf[k]["id"] + `":{`)
+
+		if len(config.Dataconf[k]["name"]) > 0 {
+			b.WriteString(`"name":"` + config.Dataconf[k]["name"] + `",`)
+		} else {
+			b.WriteString(`"name":"` + k + `",`)
+		}
+
+		b.WriteString(`"category":"` + catOf(k) + `",`)
+
+		if len(config.Dataconf[k]["linkdataset"]) > 0 {
+			b.WriteString(`"linkdataset":"` + config.Dataconf[k]["linkdataset"] + `",`)
+		}
+
+		if _, ok := config.Dataconf[k]["attrs"]; ok {
+			b.WriteString(`"attrs":"` + config.Dataconf[k]["attrs"] + `",`)
+		}
+
+		// Lineage: derivedFrom (explicit), else childDatasets/derived: parent.
+		// Freshness inherits the parent only when the dataset has no own source
+		// (explicit derivedFrom or a "derived:" path); child datasets keep their own.
+		parent := config.Dataconf[k]["derivedFrom"]
+		inherit := parent != "" || strings.HasPrefix(config.Dataconf[k]["path"], "derived:")
+		if parent == "" {
+			parent = parentOf[k]
+		}
+		fk := k
+		if inherit && parent != "" {
+			fk = parent
+		}
+		if parent != "" {
+			b.WriteString(`"derived_from":"` + parent + `",`)
+		}
+		if fr, ok := freshness[fk]; ok {
+			if fr.LastBuildTime != "" {
+				b.WriteString(`"last_built":"` + fr.LastBuildTime + `",`)
+			}
+			if fr.SourceDate != "" && !strings.HasPrefix(fr.SourceDate, "0001-01-01") {
+				b.WriteString(`"source_date":"` + fr.SourceDate + `",`)
+			}
+			if fr.SourceURL != "" {
+				b.WriteString(`"source_url":` + strconv.Quote(fr.SourceURL) + `,`)
+			}
+			if fr.Status != "" {
+				b.WriteString(`"status":"` + fr.Status + `",`)
+			}
+		}
+		if dv := config.Dataconf[k]["data_version"]; dv != "" {
+			b.WriteString(`"data_version":` + strconv.Quote(dv) + `,`)
+		}
+
+		b.WriteString(`"id":"` + k + `"`)
+		b.WriteString(`},`)
+	}
+
+	// emit a dataset then its derived/children (dedup by id), depth-first.
+	var emit func(k string)
+	emit = func(k string) {
+		id := config.Dataconf[k]["id"]
+		if keymap[id] {
+			return
+		}
+		keymap[id] = true
+		emitOne(k)
+		ch := append([]string(nil), childrenOf[k]...)
+		sort.Strings(ch)
+		for _, c := range ch {
+			emit(c)
+		}
+	}
+
+	// 1) primary roots (+ their subtrees), 2) any leftover primary, 3) xref last.
+	for _, k := range names {
+		if catOf(k) == "primary" && parentOf[k] == "" {
+			emit(k)
+		}
+	}
+	for _, k := range names {
+		if catOf(k) == "primary" {
+			emit(k)
+		}
+	}
+	for _, k := range names {
+		emit(k)
+	}
+
 	s2 := b.String()
 	s2 = s2[:len(s2)-1]
 	s2 = s2 + "}"

@@ -881,7 +881,10 @@ func runCheckCommand(c *cli.Context) error {
 
 		fmt.Printf("%-25s %-15s %-10s %s\n", dsName, displayType, status, details)
 
-		if !isUnknown {
+		// Record a reliable update_available only: skip local (file-state based,
+		// not upstream), unknown, and datasets with no own build time (derived/
+		// unbuilt — they'd always flag and inherit the parent's verdict in meta).
+		if changeInfo.SourceType != update.SourceTypeLocal && !isUnknown && lastBuild != nil && !lastBuild.LastBuildTime.IsZero() {
 			freshness[dsName] = changeInfo.HasChanged
 		}
 	}

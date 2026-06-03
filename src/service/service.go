@@ -878,7 +878,13 @@ func (s *Service) metajson() string {
 
 				// Freshness: curated data_version (authoritative when set) wins;
 				// real source_date emitted only when present; last_built always.
-				if fr, ok := freshness[k]; ok {
+				// A subdataset inherits its parent's freshness via derivedFrom.
+				fk := k
+				if parent := config.Dataconf[k]["derivedFrom"]; parent != "" {
+					fk = parent
+					b.WriteString(`"derived_from":"` + parent + `",`)
+				}
+				if fr, ok := freshness[fk]; ok {
 					if fr.LastBuildTime != "" {
 						b.WriteString(`"last_built":"` + fr.LastBuildTime + `",`)
 					}

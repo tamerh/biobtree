@@ -103,6 +103,7 @@
     "childDatasets":"string_interaction"
   },
   "string_interaction": {
+    "derivedFrom": "string",
     "data_version": "STRING v12.0",
     "id": "63",
     "name": "STRING Interaction",
@@ -1154,6 +1155,7 @@
     "xrefSort": "cl:speciesPriority,cellCount;uberon:speciesPriority,cellCount;mondo:speciesPriority,cellCount;efo:speciesPriority,cellCount"
   },
   "cellxgene_celltype": {
+    "derivedFrom": "cellxgene",
     "id": "110",
     "name": "CELLxGENE Cell Type",
     "aliases": "cellguide,cell guide,sc cell type,single cell type",

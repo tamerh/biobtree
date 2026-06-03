@@ -5,9 +5,12 @@ import (
 	"biobtree/generate"
 	"biobtree/service"
 	"biobtree/update"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
 	"runtime"
 	"runtime/pprof"
 	"sort"
@@ -792,6 +795,9 @@ func runCheckCommand(c *cli.Context) error {
 
 	var notBuiltCount int
 
+	// Per-dataset update_available, persisted for /ws/meta (independent file).
+	freshness := map[string]bool{}
+
 	for _, dsName := range datasets {
 		dsName = strings.TrimSpace(dsName)
 		lastBuild := state.GetDatasetInfo(dsName)
@@ -874,6 +880,26 @@ func runCheckCommand(c *cli.Context) error {
 		}
 
 		fmt.Printf("%-25s %-15s %-10s %s\n", dsName, displayType, status, details)
+
+		if !isUnknown {
+			freshness[dsName] = changeInfo.HasChanged
+		}
+	}
+
+	// Persist per-dataset freshness (separate file; build state/Dataconf untouched).
+	{
+		out := struct {
+			CheckedAt string          `json:"checked_at"`
+			Datasets  map[string]bool `json:"datasets"`
+		}{time.Now().UTC().Format(time.RFC3339), freshness}
+		if data, e := json.MarshalIndent(out, "", "  "); e == nil {
+			fp := filepath.Join(outDir, "freshness.json")
+			if e := ioutil.WriteFile(fp, data, 0644); e != nil {
+				log.Printf("Warning: could not write %s: %v", fp, e)
+			} else {
+				fmt.Printf("\nFreshness saved to %s (%d datasets)\n", fp, len(freshness))
+			}
+		}
 	}
 
 	fmt.Println()

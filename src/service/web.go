@@ -10,6 +10,8 @@ import (
 	"os/exec"
 	"runtime"
 	"strings"
+	"sync/atomic"
+	"time"
 
 	"github.com/NYTimes/gziphandler"
 	"github.com/pquerna/ffjson/ffjson"
@@ -27,7 +29,7 @@ const pageKeySep = "\x00"
 
 type Web struct {
 	service *Service
-	metaRes []byte
+	metaRes atomic.Value // []byte; rebuilt periodically so daily freshness.json shows without a restart
 }
 
 func (web *Web) Start(c *configs.Conf, nowebpopup bool, prodMode bool) {
@@ -44,8 +46,14 @@ func (web *Web) Start(c *configs.Conf, nowebpopup bool, prodMode bool) {
 	}
 	rpc.Start(prodMode)
 
-	//setup rest ws
-	web.metaRes = []byte(s.metajson())
+	//setup rest ws — meta is cached but rebuilt every 30 min so the daily
+	// freshness.json (and any conf edits) surface without a server restart.
+	web.metaRes.Store([]byte(s.metajson()))
+	go func() {
+		for range time.NewTicker(30 * time.Minute).C {
+			web.metaRes.Store([]byte(s.metajson()))
+		}
+	}()
 
 	searchGz := gziphandler.GzipHandler(http.HandlerFunc(web.search))
 	metaGz := gziphandler.GzipHandler(http.HandlerFunc(web.meta))
@@ -123,7 +131,9 @@ func (web *Web) meta(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("content-type", "application/json")
 	w.Header().Add("Access-Control-Allow-Origin", "*")
 
-	w.Write(web.metaRes)
+	if v := web.metaRes.Load(); v != nil {
+		w.Write(v.([]byte))
+	}
 
 }
 

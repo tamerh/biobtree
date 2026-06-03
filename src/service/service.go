@@ -857,6 +857,21 @@ func (s *Service) metajson() string {
 		}
 	}
 
+	// Live freshness verdict from the (daily) source-change check — a separate
+	// file written by `biobtree check`, never the build state.
+	updateAvail := map[string]bool{}
+	freshnessCheckedAt := ""
+	if raw, err := ioutil.ReadFile(filepath.Join(config.Appconf["outDir"], "freshness.json")); err == nil {
+		var fc struct {
+			CheckedAt string          `json:"checked_at"`
+			Datasets  map[string]bool `json:"datasets"`
+		}
+		if json.Unmarshal(raw, &fc) == nil {
+			freshnessCheckedAt = fc.CheckedAt
+			updateAvail = fc.Datasets
+		}
+	}
+
 	// Category is metadata-only and kept INDEPENDENT of config.Dataconf (which the
 	// query/production path reads): derive it here by reading which conf file each
 	// dataset is defined in. source1/source2 = primary data sources; the rest = xref.
@@ -984,6 +999,13 @@ func (s *Service) metajson() string {
 		if dv := config.Dataconf[k]["data_version"]; dv != "" {
 			b.WriteString(`"data_version":` + strconv.Quote(dv) + `,`)
 		}
+		if ua, ok := updateAvail[fk]; ok {
+			if ua {
+				b.WriteString(`"update_available":true,`)
+			} else {
+				b.WriteString(`"update_available":false,`)
+			}
+		}
 
 		b.WriteString(`"id":"` + k + `"`)
 		b.WriteString(`},`)
@@ -1027,12 +1049,17 @@ func (s *Service) metajson() string {
 	// additional params
 	// mark builtin db if exist
 	s2 = s2 + `, "appparams":{`
+	if freshnessCheckedAt != "" {
+		s2 = s2 + `"freshness_checked_at":"` + freshnessCheckedAt + `",`
+	}
 
 	// Check main federation's index dir for special meta files
 	mainIndexDir := filepath.Join(config.Appconf["outDir"], "main", "index")
 	files, err := ioutil.ReadDir(mainIndexDir)
 	if err != nil {
-		log.Fatal(err)
+		// Non-fatal: metajson is rebuilt periodically in a background goroutine;
+		// a transient read error must not kill the server (just skip builtinset).
+		log.Printf("metajson: could not read index dir %s: %v", mainIndexDir, err)
 	}
 
 loop:
@@ -1058,7 +1085,7 @@ loop:
 		}
 	}
 
-	s2 = s2 + `}}`
+	s2 = strings.TrimSuffix(s2, ",") + `}}`
 	return s2
 
 }

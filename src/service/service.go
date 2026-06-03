@@ -907,6 +907,21 @@ func (s *Service) metajson() string {
 			}
 		}
 	}
+	// Ontology hierarchy (efochild/taxparent…) and relationship datasets
+	// (neighborentrez…) are parser-generated extensions of a base dataset named by
+	// linkdataset — treat that base as their parent so they're not counted as main
+	// data sources. Runs after the above so real childDatasets wins.
+	for _, k := range names {
+		if parentOf[k] != "" {
+			continue
+		}
+		if ld := config.Dataconf[k]["linkdataset"]; ld != "" && ld != k {
+			if _, ok := config.Dataconf[ld]; ok {
+				parentOf[k] = ld
+				childrenOf[ld] = append(childrenOf[ld], k)
+			}
+		}
+	}
 
 	emitOne := func(k string) {
 		b.WriteString(`"` + config.Dataconf[k]["id"] + `":{`)
@@ -931,16 +946,18 @@ func (s *Service) metajson() string {
 		// Freshness inherits the parent only when the dataset has no own source
 		// (explicit derivedFrom or a "derived:" path); child datasets keep their own.
 		parent := config.Dataconf[k]["derivedFrom"]
-		inherit := parent != "" || strings.HasPrefix(config.Dataconf[k]["path"], "derived:")
 		if parent == "" {
 			parent = parentOf[k]
 		}
+		// Inherit the parent's freshness when this dataset has no dated source of
+		// its own (hierarchy/derived/relationship datasets); independently-sourced
+		// children keep their own.
 		fk := k
-		if inherit && parent != "" {
+		if own, ok := freshness[k]; parent != "" && (!ok || own.SourceDate == "" || strings.HasPrefix(own.SourceDate, "0001-01-01")) {
 			fk = parent
 		}
 		if parent != "" {
-			b.WriteString(`"derived_from":"` + parent + `",`)
+			b.WriteString(`"parent":"` + parent + `",`)
 		}
 		if fr, ok := freshness[fk]; ok {
 			if fr.LastBuildTime != "" {

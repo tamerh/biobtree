@@ -5,6 +5,7 @@ import (
 	"bufio"
 	"io"
 	"log"
+	"math"
 	"net/http"
 	"os"
 	"regexp"
@@ -306,8 +307,29 @@ func (s *scxaExpression) fetchSpeciesFromCellMetadata(expID string) int32 {
 	return 0
 }
 
+// scxaMarkerThresholds returns the significance cutoffs used to decide whether a
+// gene counts as a cell-type marker (vs merely ranked/present). A real marker is
+// significantly OVER-expressed in its cluster, so the fold-change gate is on the
+// positive direction (signed logFC), not magnitude. Configurable via
+// application.param.json; padj<0.05 is the load-bearing filter.
+func scxaMarkerThresholds() (pvalMax, logFCMin float64) {
+	pvalMax, logFCMin = 0.05, 1.0
+	if v, ok := config.Appconf["scxaMarkerPvalMax"]; ok {
+		if f, e := strconv.ParseFloat(v, 64); e == nil {
+			pvalMax = f
+		}
+	}
+	if v, ok := config.Appconf["scxaMarkerLogFCMin"]; ok {
+		if f, e := strconv.ParseFloat(v, 64); e == nil {
+			logFCMin = f
+		}
+	}
+	return
+}
+
 // processExperimentMarkerStats downloads and parses marker_stats file for an experiment
 func (s *scxaExpression) processExperimentMarkerStats(expID string, geneData map[string]*ScxaGeneData) bool {
+	pvalMax, logFCMin := scxaMarkerThresholds() // logFCMin applied as cross-cluster log2 fold-change
 	// Try marker_stats_filtered_normalised.tsv first
 	url := scxaExpressionFtpBase + expID + "/" + expID + ".marker_stats_filtered_normalised.tsv"
 
@@ -329,6 +351,19 @@ func (s *scxaExpression) processExperimentMarkerStats(expID string, geneData map
 
 	isHeader := true
 	lineCount := 0
+
+	// marker_stats has no logFC column, so the marker decision is deferred until a
+	// gene's per-cluster means are known: a real cell-type marker is over-expressed
+	// in its cluster vs the others. clusterMeans[gene\x00grouping][cluster] = mean.
+	type markerCand struct {
+		key, cluster string
+		pval         float64
+		entry        *pbuf.ScxaClusterExpression
+		expData      *ScxaGeneExpData
+		gene         *ScxaGeneData
+	}
+	clusterMeans := make(map[string]map[string]float64)
+	var cands []markerCand
 
 	for scanner.Scan() {
 		if isHeader {
@@ -352,6 +387,7 @@ func (s *scxaExpression) processExperimentMarkerStats(expID string, geneData map
 			continue
 		}
 
+		grouping := strings.TrimSpace(parts[1]) // clustering scheme
 		clusterID := strings.TrimSpace(parts[3])
 		markerGroup := strings.TrimSpace(parts[2]) // Which cluster it's a marker for
 
@@ -359,9 +395,6 @@ func (s *scxaExpression) processExperimentMarkerStats(expID string, geneData map
 		pValue, _ := strconv.ParseFloat(strings.TrimSpace(parts[4]), 64)
 		meanExpr, _ := strconv.ParseFloat(strings.TrimSpace(parts[5]), 64)
 		medianExpr, _ := strconv.ParseFloat(strings.TrimSpace(parts[6]), 64)
-
-		// Is this gene a marker for this cluster?
-		isMarker := markerGroup == clusterID
 
 		// Get or create gene data
 		gene, exists := geneData[geneID]
@@ -383,22 +416,29 @@ func (s *scxaExpression) processExperimentMarkerStats(expID string, geneData map
 			gene.ExperimentData[expID] = expData
 		}
 
-		// Add cluster expression entry
+		// Add cluster expression entry (IsMarker decided after the FC pass below)
 		clusterEntry := &pbuf.ScxaClusterExpression{
 			ClusterId:        clusterID,
 			MeanExpression:   meanExpr,
 			MedianExpression: medianExpr,
 			PValue:           pValue,
-			IsMarker:         isMarker,
+			IsMarker:         false,
 		}
 		expData.Clusters = append(expData.Clusters, clusterEntry)
 
-		// Update experiment-level stats
-		if isMarker {
-			expData.IsMarker = true
-			expData.MarkerCount++
-			gene.MarkerCount++
+		// Accumulate per-cluster means for the cross-cluster fold-change, and record
+		// the candidate marker rows (gene flagged as marker for its own cluster).
+		key := geneID + "\x00" + grouping
+		cm := clusterMeans[key]
+		if cm == nil {
+			cm = make(map[string]float64)
+			clusterMeans[key] = cm
 		}
+		cm[clusterID] = meanExpr
+		if markerGroup == clusterID {
+			cands = append(cands, markerCand{key, clusterID, pValue, clusterEntry, expData, gene})
+		}
+
 		if meanExpr > expData.MaxMean {
 			expData.MaxMean = meanExpr
 		}
@@ -411,6 +451,43 @@ func (s *scxaExpression) processExperimentMarkerStats(expID string, geneData map
 		gene.TotalClusters++
 	}
 
+	// Decide markers: significant (p < pvalMax) AND over-expressed in the cluster
+	// vs the other clusters (log2 fold-change >= logFCMin). This is what separates a
+	// real cell-type marker from a housekeeping gene that is "ranked" in every cluster.
+	for _, c := range cands {
+		if c.pval >= pvalMax {
+			continue
+		}
+		cm := clusterMeans[c.key]
+		mIn := cm[c.cluster]
+		if mIn <= 0 {
+			continue
+		}
+		var sumOther float64
+		var nOther int
+		for cl, m := range cm {
+			if cl != c.cluster {
+				sumOther += m
+				nOther++
+			}
+		}
+		isMarker := false
+		if nOther == 0 {
+			isMarker = true // single cluster: can't compare, but expressed + significant
+		} else {
+			meanOther := sumOther / float64(nOther)
+			if meanOther <= 0 || math.Log2(mIn/meanOther) >= logFCMin {
+				isMarker = true
+			}
+		}
+		if isMarker {
+			c.entry.IsMarker = true
+			c.expData.IsMarker = true
+			c.expData.MarkerCount++
+			c.gene.MarkerCount++
+		}
+	}
+
 	return lineCount > 0
 }
 
@@ -419,6 +496,7 @@ func (s *scxaExpression) processExperimentMarkerStats(expID string, geneData map
 // Format: cluster, ref, rank, genes, scores, logfoldchanges, pvals, pvals_adj
 // Only available for some experiments (e.g., E-CURD-* cross-tissue atlases)
 func (s *scxaExpression) processExperimentCellTypeMarkers(expID string, geneData map[string]*ScxaGeneData) bool {
+	pvalMax, logFCMin := scxaMarkerThresholds()
 	// Try to fetch the inferred_cell_type file
 	url := scxaExpressionFtpBase + expID + "/" + expID + ".marker_genes_inferred_cell_type_-_ontology_labels.tsv"
 
@@ -513,13 +591,18 @@ func (s *scxaExpression) processExperimentCellTypeMarkers(expID string, geneData
 			cellTypeCLMapping[cellTypeName] = cellTypeCL
 		}
 
+		// rank_genes_groups ranks EVERY gene per cluster, so presence here does not
+		// imply the gene is a marker. A real cell-type marker is significantly
+		// OVER-expressed: gate on adjusted p-value and positive log fold-change.
+		isMarker := pvalAdj < pvalMax && logFC >= logFCMin
+
 		// Add cell-type-labeled cluster expression entry
 		// Note: CL ID not stored in attribute - will be added as xref during save
 		clusterEntry := &pbuf.ScxaClusterExpression{
 			ClusterId:      cellTypeName, // Use cell type name as cluster ID
 			MeanExpression: score,        // Use score as expression value
 			PValue:         pval,
-			IsMarker:       true, // These are all marker genes
+			IsMarker:       isMarker,
 			CellTypeName:   cellTypeName,
 			LogFoldChange:  logFC,
 			PValueAdj:      pvalAdj,
@@ -528,10 +611,12 @@ func (s *scxaExpression) processExperimentCellTypeMarkers(expID string, geneData
 		expData.Clusters = append(expData.Clusters, clusterEntry)
 		addedCount++
 
-		// Update experiment-level stats
-		expData.IsMarker = true
-		expData.MarkerCount++
-		gene.MarkerCount++
+		// Update experiment-level stats (only count significant markers)
+		if isMarker {
+			expData.IsMarker = true
+			expData.MarkerCount++
+			gene.MarkerCount++
+		}
 
 		if score > expData.MaxMean {
 			expData.MaxMean = score

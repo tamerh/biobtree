@@ -1,5 +1,6 @@
 {
   "uniprot": {
+    "group": "uniprot",
     "id": "1",
     "name": "Uniprot",
     "textPriority": "100",
@@ -116,6 +117,7 @@
     "xrefSort": "uniprot:interactionScore"
   },
   "pubchem": {
+    "group": "pubchem",
     "id": "6",
     "name": "PubChem",
     "textPriority": "100",
@@ -144,6 +146,7 @@
     "bucketMethod": "numeric"
   },
   "uniparc": {
+    "group": "uniprot",
     "id": "7",
     "name": "Uniparc",
     "path": "ftp://ftp.ebi.ac.uk/pub/databases/uniprot/current_release/uniparc/xml/all/",
@@ -200,6 +203,7 @@
     "bucketMethod": "ontology"
   },
   "uniref50": {
+    "group": "uniprot",
     "id": "11",
     "name": "Uniref",
     "path": "ftp://ftp.ebi.ac.uk/pub/databases/uniprot/current_release/uniref/uniref50/uniref50.xml.gz",
@@ -212,6 +216,7 @@
     "bucketMethod": "uniref"
   },
   "uniref90": {
+    "group": "uniprot",
     "id": "12",
     "name": "Uniref",
     "path": "ftp://ftp.ebi.ac.uk/pub/databases/uniprot/current_release/uniref/uniref90/uniref90.xml.gz",
@@ -224,6 +229,7 @@
     "bucketMethod": "uniref"
   },
   "uniref100": {
+    "group": "uniprot",
     "id": "13",
     "name": "Uniref",
     "path": "ftp://ftp.ebi.ac.uk/pub/databases/uniprot/current_release/uniref/uniref100/uniref100.xml.gz",
@@ -295,6 +301,7 @@
     "forceRebuild": "yes"
   },
   "chembl_document": {
+    "group": "chembl",
     "name": "chembl_document",
     "id": "19",
     "url": "https://www.ebi.ac.uk/chembl/document_report_card/£{id}/",
@@ -306,6 +313,7 @@
     "bucketMethod": "chembl"
   },
   "chembl_assay": {
+    "group": "chembl",
     "name": "chembl_assay",
     "id": "20",
     "url": "https://www.ebi.ac.uk/chembl/assay_report_card/£{id}/",
@@ -318,6 +326,7 @@
     "bucketMethod": "chembl"
   },
   "chembl_activity": {
+    "group": "chembl",
     "name": "chembl_activity",
     "id": "21",
     "url": "#",
@@ -347,6 +356,7 @@
     "attrs": "chembl.molecule.name,chembl.molecule.type"
   },
   "chembl_molecule": {
+    "group": "chembl",
     "name": "chembl_molecule",
     "id": "22",
     "textPriority": "90",
@@ -360,6 +370,7 @@
     "bucketMethod": "chembl"
   },
   "chembl_target": {
+    "group": "chembl",
     "name": "chembl_target",
     "id": "24",
     "textPriority": "90",
@@ -373,6 +384,7 @@
     "bucketMethod": "chembl"
   },
   "chembl_cell_line": {
+    "group": "chembl",
     "name": "chembl_cell_line",
     "id": "25",
     "url": "https://www.ebi.ac.uk/chembl/cell_line_report_card/£{id}/",
@@ -385,6 +397,7 @@
     "bucketMethod": "chembl"
   },
   "patent": {
+    "group": "patent",
     "data_version": "SureChEMBL 2026-06-01",
     "aliases": "Patent,Patent accession",
     "id": "26",
@@ -554,6 +567,7 @@
     "bucketMethod": "rhea"
   },
   "gwas_study": {
+    "group": "gwas",
     "id": "36",
     "name": "GWAS Study",
     "path": "ftp://ftp.ebi.ac.uk/pub/databases/gwas/releases/latest/gwas-catalog-download-studies-v1.0.3.1.txt",
@@ -567,6 +581,7 @@
     "bucketMethod": "gcst"
   },
   "gwas": {
+    "group": "gwas",
     "id": "37",
     "name": "GWAS Association",
     "path": "ftp://ftp.ebi.ac.uk/pub/databases/gwas/releases/latest/gwas-catalog-associations_ontology-annotated-full.zip",
@@ -645,6 +660,7 @@
     "bucketMethod": "alphabetic"
   },
   "pubchem_activity": {
+    "group": "pubchem",
     "id": "41",
     "name": "PubChem BioActivity",
     "textPriority": "50",
@@ -661,6 +677,7 @@
     "bucketMethod": "pubchem_activity"
   },
   "pubchem_assay": {
+    "group": "pubchem",
     "id": "42",
     "name": "PubChem Assay",
     "textPriority": "50",
@@ -748,6 +765,7 @@
     "compact_fields": "biotype,start,end,strand,seq_region,utr5Start,utr5End,utr3Start,utr3End"
   },
   "ufeature": {
+    "group": "uniprot",
     "name": "Protein Feature",
     "id": "48",
     "url": "//www.uniprot.org/uniprot/£{id}",
@@ -772,6 +790,7 @@
     "attrs": "name,common_name,rank,taxonomic_division"
   },
   "patent_compound": {
+    "group": "patent",
     "name": "Patent Compound",
     "id": "51",
     "url": "",
@@ -844,6 +863,7 @@
     "bucketMethod": "alphabetic"
   },
   "clingen_gene_validity": {
+    "group": "clingen",
     "id": "139",
     "name": "ClinGen Gene-Disease Validity",
     "textPriority": "90",
@@ -858,6 +878,7 @@
     "bucketMethod": "alphanum"
   },
   "clingen_dosage": {
+    "group": "clingen",
     "id": "140",
     "name": "ClinGen Dosage Sensitivity",
     "textPriority": "90",
@@ -872,6 +893,7 @@
     "bucketMethod": "numeric"
   },
   "clingen_variant": {
+    "group": "clingen",
     "id": "141",
     "name": "ClinGen Variant Pathogenicity",
     "textPriority": "90",
@@ -1018,6 +1040,7 @@
     "bucketMethod": "msigdb"
   },
   "alphamissense": {
+    "group": "alphamissense",
     "id": "65",
     "name": "AlphaMissense",
     "aliases": "AlphaMissense,alpha missense,pathogenicity,missense prediction,protein variant effect,DeepMind",
@@ -1032,6 +1055,7 @@
     "bucketMethod": "alphanum"
   },
   "alphamissense_transcript": {
+    "group": "alphamissense",
     "id": "66",
     "name": "AlphaMissense Transcript",
     "aliases": "AlphaMissense Transcript,alphamissense gene,transcript pathogenicity,gene pathogenicity",

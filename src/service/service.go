@@ -883,7 +883,7 @@ func (s *Service) metajson() string {
 	// primary is listed followed by its derived/child datasets, then xref last.
 	names := make([]string, 0, len(config.Dataconf))
 	for k := range config.Dataconf {
-		if config.Dataconf[k]["_alias"] == "" {
+		if config.Dataconf[k]["_alias"] == "" && k != "my_data" { // my_data is a placeholder, not a source
 			names = append(names, k)
 		}
 	}
@@ -933,6 +933,14 @@ func (s *Service) metajson() string {
 		}
 
 		b.WriteString(`"category":"` + catOf(k) + `",`)
+
+		// group: source-family key so multi-dataset providers (chembl_*, pubchem*,
+		// uniprot family, …) collapse to one line; defaults to the dataset's own id.
+		grp := config.Dataconf[k]["group"]
+		if grp == "" {
+			grp = k
+		}
+		b.WriteString(`"group":"` + grp + `",`)
 
 		if len(config.Dataconf[k]["linkdataset"]) > 0 {
 			b.WriteString(`"linkdataset":"` + config.Dataconf[k]["linkdataset"] + `",`)

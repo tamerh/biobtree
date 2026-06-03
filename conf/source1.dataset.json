@@ -1306,6 +1306,7 @@
     "bucketMethod": "alphabetic"
   },
   "cellphonedb": {
+    "data_version": "CellPhoneDB v5.0",
     "id": "121",
     "name": "CellPhoneDB",
     "aliases": "CellPhoneDB,cell-cell communication,ligand receptor,cell communication,secreted protein,receptor ligand,cell-cell interaction",

@@ -52,6 +52,11 @@ type SourceConfig struct {
 // SourceTypeLocal is for local files (useLocalFile=yes)
 const SourceTypeLocal SourceType = "local"
 
+// SourceTypeManual marks a dataset whose freshness is asserted by a curated
+// data_version (niche DBs that release every few years, no checkable upstream).
+// The check reports it as up-to-date but flags it for periodic re-verification.
+const SourceTypeManual SourceType = "manual"
+
 // SourceTypeMultiFile is for datasets with multiple source files
 const SourceTypeMultiFile SourceType = "multi_file"
 
@@ -117,6 +122,12 @@ func GetSourceConfig(datasetName string) *SourceConfig {
 	// If sourceType is not explicitly set, auto-detect from path
 	if cfg.SourceType == "" || cfg.SourceType == SourceTypeUnknown {
 		cfg.SourceType, cfg.SourceURL = autoDetectSourceType(datasetName, props)
+	}
+
+	// A curated data_version on a dataset with no checkable upstream means we've
+	// manually asserted its freshness (e.g. a niche DB at its latest release).
+	if props["data_version"] != "" && (cfg.SourceType == SourceTypeLocal || cfg.SourceType == SourceTypeUnknown) {
+		cfg.SourceType = SourceTypeManual
 	}
 
 	return cfg
@@ -358,6 +369,14 @@ func CheckSourceChanged(datasetName string, lastBuild *DatasetBuildInfo) (*Sourc
 	var sourceURL string
 
 	switch cfg.SourceType {
+	case SourceTypeManual:
+		// Freshness asserted by a curated data_version; not auto-verifiable.
+		result = &SourceChangeInfo{
+			SourceType:  SourceTypeManual,
+			HasChanged:  false,
+			NewVersion:  config.Dataconf[datasetName]["data_version"],
+			CheckMethod: "manual_assert",
+		}
 	case SourceTypeLocal:
 		// Check local file modification time
 		result, err = checkLocalFile(datasetName, lastBuild)

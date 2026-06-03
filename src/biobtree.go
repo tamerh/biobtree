@@ -822,6 +822,8 @@ func runCheckCommand(c *cli.Context) error {
 		} else {
 			displayType = string(changeInfo.SourceType)
 			switch changeInfo.SourceType {
+			case update.SourceTypeManual:
+				details = fmt.Sprintf("manually fresh: %s — re-verify periodically", changeInfo.NewVersion)
 			case update.SourceTypeLocal:
 				if changeInfo.Error != "" {
 					details = changeInfo.Error

@@ -12,6 +12,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"unicode"
 
 	"biobtree/util"
 
@@ -1629,6 +1630,75 @@ func (d *DataUpdate) addProp3(key, from string, attr []byte) {
 func (d *DataUpdate) addXref(key string, from string, value string, valueFrom string, isLink bool) {
 	// Backward compatible - calls new function with empty evidence
 	d.addXrefWithEvidence(key, from, value, valueFrom, isLink, "")
+}
+
+// searchDashes is the set of hyphen/dash runes treated as word separators and
+// normalized to spaces for hyphen-insensitive text search.
+const searchDashes = "-‐‑‒–—"
+
+var searchHyphenReplacer = strings.NewReplacer(
+	"-", " ", "‐", " ", "‑", " ", "‒", " ", "–", " ", "—", " ",
+)
+
+// searchWordSep splits on whitespace AND hyphen/dash, so a hyphenated token
+// like "anti-NMDA" also yields "anti" and "NMDA".
+func searchWordSep(r rune) bool {
+	return unicode.IsSpace(r) || strings.ContainsRune(searchDashes, r)
+}
+
+// normalizeSearchHyphens replaces hyphen/dash runs with single spaces and
+// collapses whitespace. Fast-path returns the input unchanged when no dash is
+// present.
+func normalizeSearchHyphens(s string) string {
+	if !strings.ContainsAny(s, searchDashes) {
+		return s
+	}
+	return strings.Join(strings.Fields(searchHyphenReplacer.Replace(s)), " ")
+}
+
+// indexSearchText registers free-text search keys (text-link dataset
+// textLinkID -> id) for an entry's name/synonym phrases, so it is findable by
+// full phrase and by significant word.
+//
+// Hyphen handling is ADDITIVE and index-side only: every original key is kept
+// and a hyphen-normalized variant is added, so "anti-NMDA receptor
+// encephalitis" and "anti NMDA receptor encephalitis" both resolve. The query
+// path is unchanged (exact uppercase key lookup), so hyphenated identifier
+// lookups like "HLA-A" are unaffected — only recall increases.
+//
+// For each phrase it emits: the full phrase key, its hyphen-normalized variant
+// (when different), each whitespace-split word (internal hyphen kept, original
+// behavior) and each hyphen-split sub-word — filtered to len >= minLen and not
+// a stop word (isStop may be nil).
+func (d *DataUpdate) indexSearchText(source, textLinkID, id string, phrases []string, minLen int, isStop func(string) bool) {
+	terms := make(map[string]bool)
+	addWord := func(w string) {
+		if len(w) >= minLen && (isStop == nil || !isStop(w)) {
+			terms[w] = true
+		}
+	}
+	for _, p := range phrases {
+		p = strings.TrimSpace(p)
+		if p == "" {
+			continue
+		}
+		terms[p] = true // full phrase key (unchanged behavior)
+		if n := normalizeSearchHyphens(p); n != p && n != "" {
+			terms[n] = true // hyphen-insensitive full phrase key (additive)
+		}
+		// Original behavior: whitespace split, trim edge punctuation incl hyphen
+		// (keeps internal hyphen, e.g. "anti-NMDA").
+		for _, w := range strings.Fields(p) {
+			addWord(strings.Trim(w, ",.;:'\"()-"))
+		}
+		// Additive: hyphen-split sub-words (e.g. "anti", "NMDA").
+		for _, w := range strings.FieldsFunc(p, searchWordSep) {
+			addWord(strings.Trim(w, ",.;:'\"()"))
+		}
+	}
+	for t := range terms {
+		d.addXref(t, textLinkID, id, source, true)
+	}
 }
 
 // addXrefWithEvidence adds cross-reference with optional evidence code

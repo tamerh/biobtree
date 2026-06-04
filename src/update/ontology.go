@@ -170,37 +170,12 @@ func (g *ontology) update() {
 				// Add text search for all OWL-based ontologies (GO, ECO, EFO, UBERON, CL)
 				// Enables keyword search by term names and synonyms
 				if g.source == "go" || g.source == "eco" || g.source == "efo" || g.source == "uberon" || g.source == "cl" {
-					// Deduplicate search terms
-					searchTerms := make(map[string]bool)
-
-					// Add full name
-					if attr.Name != "" {
-						searchTerms[attr.Name] = true
-					}
-
-					// Add all synonyms
-					for _, syn := range attr.Synonyms {
-						if syn != "" {
-							searchTerms[syn] = true
-						}
-					}
-
-					// Add individual significant words for partial matching
+					// Index name + synonyms (full phrase + per-word) via the shared
+					// helper, which also adds hyphen-normalized keys so hyphenated
+					// terms are found whether or not the query uses the hyphen.
 					allPhrases := []string{attr.Name}
 					allPhrases = append(allPhrases, attr.Synonyms...)
-					for _, phrase := range allPhrases {
-						for _, word := range strings.Fields(phrase) {
-							word = strings.Trim(word, ",.;:'\"()-")
-							if len(word) >= 4 && !isOntologyStopWord(word) {
-								searchTerms[word] = true
-							}
-						}
-					}
-
-					// Create text search xrefs
-					for term := range searchTerms {
-						g.d.addXref(term, textLinkID, entryid, g.source, true)
-					}
+					g.d.indexSearchText(g.source, textLinkID, entryid, allPhrases, 4, isOntologyStopWord)
 
 					// Pull MONDO synonyms for EFO entries (diseases)
 					// This makes EFO entries searchable via MONDO's richer synonym vocabulary
@@ -336,22 +311,9 @@ func (g *ontology) pullMondoSynonyms(efoID string) {
 			}
 			allPhrases = append(allPhrases, ontologyAttr.Synonyms...)
 
-			// Add full phrases as text search terms
-			for _, phrase := range allPhrases {
-				if phrase != "" {
-					g.d.addXref(phrase, textLinkID, efoID, g.source, true)
-				}
-			}
-
-			// Add individual significant words for partial matching
-			for _, phrase := range allPhrases {
-				for _, word := range strings.Fields(phrase) {
-					word = strings.Trim(word, ",.;:'\"()-")
-					if len(word) >= 4 && !isOntologyStopWord(word) {
-						g.d.addXref(word, textLinkID, efoID, g.source, true)
-					}
-				}
-			}
+			// Index the MONDO-sourced phrases for this EFO entry (full phrase +
+			// per-word + hyphen-normalized keys) via the shared helper.
+			g.d.indexSearchText(g.source, textLinkID, efoID, allPhrases, 4, isOntologyStopWord)
 		}
 	}
 }

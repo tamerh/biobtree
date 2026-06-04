@@ -369,16 +369,29 @@ func (s *Service) inputXrefs(ids []string, datasetFilters []uint32, filterq *que
 	}
 	**/
 
-	for k, v := range pages {
+	// Deterministic iteration: Go map ranging is randomized, which would make
+	// paged results (page 2+) return a different ordering/subset on each call.
+	// Sort the source identifiers and dataset IDs so the assembled input xref
+	// order is stable across requests.
+	pageKeys := make([]string, 0, len(pages))
+	for k := range pages {
+		pageKeys = append(pageKeys, k)
+	}
+	sort.Strings(pageKeys)
+	for _, k := range pageKeys {
+		v := pages[k]
+		dsIDs := make([]uint32, 0, len(v))
 		for k2 := range v {
-
+			dsIDs = append(dsIDs, k2)
+		}
+		sort.Slice(dsIDs, func(i, j int) bool { return dsIDs[i] < dsIDs[j] })
+		for _, k2 := range dsIDs {
 			xref, err := s.LookupByDataset(k, k2)
 			if err != nil {
 				return nil, "", err
 			}
 			inputXrefs = append(inputXrefs, xref)
 		}
-
 	}
 
 	return inputXrefs, rootPage, nil

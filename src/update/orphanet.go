@@ -492,15 +492,12 @@ func (o *orphanet) saveAllEntries(entries map[string]*orphaEntry) {
 		}
 		o.d.addProp3(orphaCode, sourceID, val)
 
-		// Create text search entries for name and synonyms
-		if entry.attr.Name != "" {
-			o.d.addXref(entry.attr.Name, textLinkID, orphaCode, o.source, true)
-		}
-		for _, syn := range entry.attr.Synonyms {
-			if syn != "" {
-				o.d.addXref(syn, textLinkID, orphaCode, o.source, true)
-			}
-		}
+		// Index name + synonyms (full phrase + per-word + hyphen-normalized keys)
+		// via the shared helper, so Orphanet terms are found whether or not the
+		// query uses the hyphen.
+		allPhrases := []string{entry.attr.Name}
+		allPhrases = append(allPhrases, entry.attr.Synonyms...)
+		o.d.indexSearchText(o.source, textLinkID, orphaCode, allPhrases, 4, isOrphanetStopWord)
 
 		// Pull MONDO synonyms for this Orphanet entry
 		// This makes Orphanet entries searchable via MONDO's richer synonym vocabulary
@@ -617,22 +614,9 @@ func (o *orphanet) pullMondoSynonyms(orphaCode string) {
 			}
 			allPhrases = append(allPhrases, ontologyAttr.Synonyms...)
 
-			// Add full phrases as text search terms
-			for _, phrase := range allPhrases {
-				if phrase != "" {
-					o.d.addXref(phrase, textLinkID, orphaCode, o.source, true)
-				}
-			}
-
-			// Add individual significant words for partial matching
-			for _, phrase := range allPhrases {
-				for _, word := range strings.Fields(phrase) {
-					word = strings.Trim(word, ",.;:'\"()-")
-					if len(word) >= 4 && !isOrphanetStopWord(word) {
-						o.d.addXref(word, textLinkID, orphaCode, o.source, true)
-					}
-				}
-			}
+			// Index the MONDO-sourced phrases (full phrase + per-word +
+			// hyphen-normalized keys) via the shared helper.
+			o.d.indexSearchText(o.source, textLinkID, orphaCode, allPhrases, 4, isOrphanetStopWord)
 		}
 	}
 }

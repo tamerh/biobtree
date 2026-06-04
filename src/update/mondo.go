@@ -173,39 +173,13 @@ func (m *mondo) saveEntry(id string, datasetID string, attr *pbuf.OntologyAttr) 
 	b, _ := ffjson.Marshal(attr)
 	m.d.addProp3(id, datasetID, b)
 
-	// Deduplicate search terms to avoid duplicate text xrefs
-	searchTerms := make(map[string]bool)
-
-	// Add disease name to search terms
-	if attr.Name != "" {
-		searchTerms[attr.Name] = true
-	}
-
-	// Add all synonyms to search terms (will automatically deduplicate)
-	for _, synonym := range attr.Synonyms {
-		if synonym != "" {
-			searchTerms[synonym] = true
-		}
-	}
-
-	// Add individual significant words from name and synonyms for partial matching
-	// This allows searching "alzheimer" to find "Alzheimer disease"
+	// Index name + synonyms for full-phrase and per-word search. The shared
+	// helper also adds hyphen-normalized phrase keys so e.g. "anti-NMDA receptor
+	// encephalitis" is also found as "anti NMDA receptor encephalitis"
+	// (clinical-trial conditions frequently drop/alter the hyphen).
 	allPhrases := []string{attr.Name}
 	allPhrases = append(allPhrases, attr.Synonyms...)
-	for _, phrase := range allPhrases {
-		for _, word := range strings.Fields(phrase) {
-			// Clean word of punctuation
-			word = strings.Trim(word, ",.;:'\"()-")
-			if len(word) >= 4 && !isMondoStopWord(word) {
-				searchTerms[word] = true
-			}
-		}
-	}
-
-	// Create text search xrefs for all unique terms
-	for term := range searchTerms {
-		m.d.addXref(term, textLinkID, id, m.source, true)
-	}
+	m.d.indexSearchText(m.source, textLinkID, id, allPhrases, 4, isMondoStopWord)
 }
 
 // isMondoStopWord returns true for common medical terms that should not be indexed alone

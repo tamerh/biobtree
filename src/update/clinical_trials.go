@@ -25,7 +25,14 @@ type clinicalTrials struct {
 	loggedMisses       map[string]bool  // Track logged misses to avoid duplicates
 	mu                 sync.Mutex       // Mutex for thread-safe map access
 	testTrialIDs       map[string]bool  // Track trial IDs in test mode
+	condLogged         map[string]bool  // BB_CT_MAPLOG: one CTMONDO line per distinct condition
 }
+
+// ctMapLog, when BB_CT_MAPLOG is set, makes mapConditionToMONDO emit one
+// "CTMONDO\t<matchCount>\t<condition>" line per distinct condition. A pure
+// diagnostic for the matcher recall A/B (exact vs normalized) — off by default,
+// no effect on the normal update path.
+var ctMapLog = os.Getenv("BB_CT_MAPLOG") != ""
 
 // MedicalTermMappings, QualifiersToRemove, CancerQualifiers types
 // are now defined in medical_mappings.go for shared use
@@ -43,6 +50,7 @@ func (ct *clinicalTrials) update() {
 	// Initialize tracking maps for unique logging
 	ct.loggedMappings = make(map[string]bool)
 	ct.loggedMisses = make(map[string]bool)
+	ct.condLogged = make(map[string]bool)
 
 	// Load medical term mappings configuration
 	ct.loadMedicalTermMappings()
@@ -272,6 +280,14 @@ func (ct *clinicalTrials) mapConditionToMONDO(nctID string, condition string, mo
 	// Shared normalization cascade (extracted to medical_mappings.go so
 	// clinical_trials, intogen and civic resolve disease names identically).
 	foundMONDOs := collectOntologyIDs(ct.d, ct.medicalTermMappings, condition, mondoDatasetID)
+	if ctMapLog {
+		ct.mu.Lock()
+		if !ct.condLogged[condition] {
+			ct.condLogged[condition] = true
+			fmt.Printf("CTMONDO\t%d\t%s\n", len(foundMONDOs), condition)
+		}
+		ct.mu.Unlock()
+	}
 	if len(foundMONDOs) > 0 {
 		ct.createMONDOXrefs(nctID, fr, foundMONDOs, phase)
 	}

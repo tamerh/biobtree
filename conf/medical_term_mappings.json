@@ -1,7 +1,6 @@
 {
   "version": "1.0.0",
   "description": "Medical term synonym mappings for MONDO disease ontology integration",
-  
   "specific_patterns": {
     "comment": "High-priority exact phrase replacements - most medically accurate",
     "mappings": {
@@ -20,7 +19,6 @@
       "lung disease": "pulmonary disease"
     }
   },
-  
   "anatomical_terms": {
     "comment": "General anatomical term synonyms - used as fallback",
     "mappings": {
@@ -38,7 +36,6 @@
       "vessel": "vascular"
     }
   },
-  
   "qualifiers_to_remove": {
     "comment": "Medical qualifiers/modifiers to strip from condition names",
     "prefixes": [
@@ -77,7 +74,6 @@
       "-induced"
     ]
   },
-  
   "disease_corrections": {
     "comment": "Common misspellings or alternative names",
     "mappings": {
@@ -87,7 +83,6 @@
       "aids": "acquired immunodeficiency syndrome"
     }
   },
-
   "spelling_variations": {
     "comment": "British/American spelling and common variations",
     "mappings": {
@@ -109,7 +104,6 @@
       "gynaeco": "gyneco"
     }
   },
-
   "cancer_qualifiers": {
     "comment": "Cancer-specific qualifiers to remove (processed before general qualifiers)",
     "stage_qualifiers": [
@@ -244,7 +238,6 @@
       "er-/pr-/her2-"
     ]
   },
-
   "cancer_abbreviations": {
     "comment": "Common cancer abbreviations and term mappings",
     "mappings": {
@@ -267,6 +260,12 @@
       "relapsing-remitting": "relapsing remitting",
       "b-cell": "b cell",
       "colon cancer liver metastasis": "colon cancer with liver metastasis"
+    }
+  },
+  "abbreviations": {
+    "description": "Whole-word abbreviation expansions applied symmetrically (condition + ontology synonym) by normalizeForMatch. Keep unambiguous; short collision-prone tokens (ms, ad, md) are intentionally excluded. Grow this from the clinical_trials recall quantification's confirmed misses.",
+    "mappings": {
+      "nmdar": "nmda receptor"
     }
   }
 }

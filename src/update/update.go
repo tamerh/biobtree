@@ -1632,6 +1632,17 @@ func (d *DataUpdate) addXref(key string, from string, value string, valueFrom st
 	d.addXrefWithEvidence(key, from, value, valueFrom, isLink, "")
 }
 
+// Text-search relevance tiers, written into the priority field (7) of text
+// links. The textsearch bucket sorts each key's entries by this field, and the
+// merge preserves that order (stable sort), so lower-valued (exact) tiers rank
+// ahead of partial-word matches and survive the result cap. Values are chosen
+// so that "0" < "1" lexically (the bucket sorts field 7 as a string).
+const (
+	textTierName    = "0" // key equals the primary name (or its hyphen-normalized form)
+	textTierSynonym = "1" // key equals a synonym (or its hyphen-normalized form)
+	textTierWord    = "2" // key is one significant word within a name/synonym
+)
+
 // searchDashes is the set of hyphen/dash runes treated as word separators and
 // normalized to spaces for hyphen-insensitive text search.
 const searchDashes = "-‐‑‒–—"
@@ -1671,33 +1682,59 @@ func normalizeSearchHyphens(s string) string {
 // behavior) and each hyphen-split sub-word — filtered to len >= minLen and not
 // a stop word (isStop may be nil).
 func (d *DataUpdate) indexSearchText(source, textLinkID, id string, phrases []string, minLen int, isStop func(string) bool) {
-	terms := make(map[string]bool)
-	addWord := func(w string) {
-		if len(w) >= minLen && (isStop == nil || !isStop(w)) {
-			terms[w] = true
+	name := make(map[string]bool) // keys equal to the primary name (phrases[0])
+	syn := make(map[string]bool)  // keys equal to a synonym (phrases[1:])
+	word := make(map[string]bool) // individual significant words
+	addPhrase := func(p string, full map[string]bool) {
+		full[p] = true // full phrase key
+		if n := normalizeSearchHyphens(p); n != p && n != "" {
+			full[n] = true // hyphen-insensitive full phrase is still a full match
+		}
+		// whitespace split, trim edge punctuation incl hyphen (keeps internal
+		// hyphen, e.g. "anti-NMDA"); plus hyphen-split sub-words ("anti","NMDA").
+		add := func(w string) {
+			if len(w) >= minLen && (isStop == nil || !isStop(w)) {
+				word[w] = true
+			}
+		}
+		for _, w := range strings.Fields(p) {
+			add(strings.Trim(w, ",.;:'\"()-"))
+		}
+		for _, w := range strings.FieldsFunc(p, searchWordSep) {
+			add(strings.Trim(w, ",.;:'\"()"))
 		}
 	}
-	for _, p := range phrases {
+	for i, p := range phrases {
 		p = strings.TrimSpace(p)
 		if p == "" {
 			continue
 		}
-		terms[p] = true // full phrase key (unchanged behavior)
-		if n := normalizeSearchHyphens(p); n != p && n != "" {
-			terms[n] = true // hyphen-insensitive full phrase key (additive)
-		}
-		// Original behavior: whitespace split, trim edge punctuation incl hyphen
-		// (keeps internal hyphen, e.g. "anti-NMDA").
-		for _, w := range strings.Fields(p) {
-			addWord(strings.Trim(w, ",.;:'\"()-"))
-		}
-		// Additive: hyphen-split sub-words (e.g. "anti", "NMDA").
-		for _, w := range strings.FieldsFunc(p, searchWordSep) {
-			addWord(strings.Trim(w, ",.;:'\"()"))
+		if i == 0 {
+			addPhrase(p, name) // phrases[0] is the primary name
+		} else {
+			addPhrase(p, syn)
 		}
 	}
-	for t := range terms {
-		d.addXref(t, textLinkID, id, source, true)
+	// Relevance tier written into the priority field (7): the textsearch bucket
+	// sorts each key's entries by it (-k7,7) and the merge keeps that order
+	// (stable sort), so the term whose primary NAME matches leads, then synonym
+	// matches, then partial word matches — and the exact term survives the
+	// result cap instead of being buried. Precedence per key: name > synonym >
+	// word (a key promoted to a higher tier is not re-emitted at a lower one).
+	for k := range name {
+		d.addTextLinkWithPriority(k, textLinkID, id, source, textTierName)
+	}
+	for k := range syn {
+		if name[k] {
+			continue
+		}
+		d.addTextLinkWithPriority(k, textLinkID, id, source, textTierSynonym)
+	}
+	for k := range word {
+		if name[k] || syn[k] {
+			continue
+		}
+		d.addTextLinkWithPriority(k, textLinkID, id, source, textTierWord)
 	}
 }
 

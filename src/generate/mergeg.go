@@ -1863,16 +1863,19 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 			entries[i] = &xentry
 		}
 
-		// Sort text link entries by target dataset priority (higher priority first)
-		// k == "0" means this is a text search link entry
+		// Sort text link entries by target dataset priority (higher priority first).
+		// k == "0" means this is a text search link entry. STABLE sort so the
+		// within-dataset order from the bucket (relevance tier: exact name/synonym
+		// matches before partial word matches — see indexSearchText) is preserved,
+		// keeping a term's own page ahead of partial hits within the result cap.
 		if k == "0" && i > 1 {
-			sort.Slice(entries[:i], func(a, b int) bool {
+			sort.SliceStable(entries[:i], func(a, b int) bool {
 				priorityA := config.GetTextPriority(entries[a].Dataset)
 				priorityB := config.GetTextPriority(entries[b].Dataset)
 				if priorityA != priorityB {
 					return priorityA > priorityB // Higher priority first
 				}
-				return entries[a].Dataset < entries[b].Dataset // Stable sort by ID
+				return entries[a].Dataset < entries[b].Dataset // by dataset ID
 			})
 		}
 
@@ -2920,16 +2923,18 @@ func (d *Merge) toProtoPage(id string, dataset string, v *[]kvMessage, valIdx in
 		totalCount++
 	}
 
-	// Sort text link entries by target dataset priority (higher priority first)
-	// dataset == "0" means this is a text search link page
+	// Sort text link entries by target dataset priority (higher priority first).
+	// dataset == "0" means this is a text search link page. STABLE sort so the
+	// within-dataset relevance-tier order from the bucket (exact before partial
+	// — see indexSearchText) is preserved across pagination too.
 	if dataset == "0" && i > 1 {
-		sort.Slice(entries[:i], func(a, b int) bool {
+		sort.SliceStable(entries[:i], func(a, b int) bool {
 			priorityA := config.GetTextPriority(entries[a].Dataset)
 			priorityB := config.GetTextPriority(entries[b].Dataset)
 			if priorityA != priorityB {
 				return priorityA > priorityB // Higher priority first
 			}
-			return entries[a].Dataset < entries[b].Dataset // Stable sort by ID
+			return entries[a].Dataset < entries[b].Dataset // by dataset ID
 		})
 	}
 

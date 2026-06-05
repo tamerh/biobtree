@@ -2407,59 +2407,78 @@ func (d *DataUpdate) addXrefViaKeyword(keyword string, keywordDataset string, ta
 	//}
 	//fmt.Println("==========================================")
 
-	// When lookup returns a keyword result, the actual identifiers are in the entries
-	// We need to extract them from all results
+	// Resolve the filter dataset id once (when a specific keywordDataset is requested).
+	var filterID uint32
+	hasFilter := false
+	if keywordDataset != "" {
+		if idStr, ok := config.Dataconf[keywordDataset]["id"]; ok {
+			fmt.Sscanf(idStr, "%d", &filterID)
+			hasFilter = true
+		}
+	}
+	keywordLower := strings.ToLower(strings.TrimSpace(keyword))
+	keywordKey := strings.ToUpper(keywordLower) // stored keys are uppercased
+
+	// processEntry filters, guards, and creates the xref for one looked-up entry.
+	// Shared by the root-page entries and the continuation-page entries below.
+	processEntry := func(entry *pbuf.XrefEntry) {
+		if hasFilter && entry.Dataset != filterID {
+			return
+		}
+		resolvedDatasetName, ok := config.DataconfIDIntToString[entry.Dataset]
+		if !ok {
+			return
+		}
+		// Tokenized ontology targets (efo/bao/cl/mondo/...) index every
+		// significant word of each name/synonym, so a keyword can match a term
+		// that merely mentions the word. Require an exact name/synonym match for
+		// those. Non-ontology targets (mesh/ensembl/hgnc, full-name indexed)
+		// return no names here and pass through unchanged.
+		if names := d.ontologyTermNames(entry.Identifier, entry.Dataset); len(names) > 0 {
+			if !names[keywordLower] {
+				return
+			}
+		}
+		xrefTargetDataset := keywordDataset
+		if xrefTargetDataset == "" {
+			xrefTargetDataset = resolvedDatasetName
+		}
+		// Create xref FROM the source (targetValue/targetDataset) TO the entry.
+		d.addXref(targetValue, from, entry.Identifier, xrefTargetDataset, isLink)
+	}
+
+	// When lookup returns a keyword result, the actual identifiers are in the entries.
 	for _, r := range result.Results {
-		// Check if this is a link result (keyword lookup)
-		if !r.IsLink || len(r.Entries) == 0 {
+		if !r.IsLink {
 			continue
 		}
-
-		// Loop through entries to get actual dataset IDs and identifiers
+		// Root-page entries.
 		for _, entry := range r.Entries {
-			// Filter by keywordDataset if specified
-			if keywordDataset != "" {
-				datasetID, ok := config.Dataconf[keywordDataset]["id"]
-				if ok {
-					var targetID uint32
-					fmt.Sscanf(datasetID, "%d", &targetID)
-					if entry.Dataset != targetID {
-						continue // Skip entries that don't match the filter
+			processEntry(entry)
+		}
+		// Follow continuation pages so high-cardinality keywords (e.g. "EGFR",
+		// ~1.5K entries across many pages) don't drop a target that sits beyond
+		// the root page — addXref via Lookup otherwise only sees the root.
+		// Scoped to the requested dataset's pages (DatasetPages carries the page
+		// list per dataset), so this stays cheap; keywordDataset=="" stays
+		// root-only (no single target dataset to page through).
+		if hasFilter && len(r.DatasetPages) > 0 {
+			if pageInfo, ok := r.DatasetPages[filterID]; ok {
+				for _, page := range pageInfo.Pages {
+					pageKey := keywordKey + pageKeySep + config.DataconfIDToPageKey[0] + page
+					xrefPage, perr := d.lookupPage(pageKey, filterID)
+					if (perr != nil || xrefPage == nil) && filterID != 0 {
+						// pages may be stored under the main (0) federation
+						xrefPage, perr = d.lookupPage(pageKey, 0)
+					}
+					if perr != nil || xrefPage == nil {
+						continue
+					}
+					for _, entry := range xrefPage.Entries {
+						processEntry(entry)
 					}
 				}
 			}
-
-			// Verify dataset ID exists in config
-			resolvedDatasetName, ok := config.DataconfIDIntToString[entry.Dataset]
-			if !ok {
-				continue
-			}
-
-			// Tokenized ontology targets (efo/bao/cl/mondo/...) index every
-			// significant word of each name/synonym, so a keyword can match a
-			// term that merely mentions the word (e.g. one metabolite -> 100 EFO
-			// terms). Require an exact name/synonym match for those. Non-ontology
-			// targets (mesh/ensembl/hgnc, full-name indexed) return no names here
-			// and pass through unchanged.
-			if names := d.ontologyTermNames(entry.Identifier, entry.Dataset); len(names) > 0 {
-				if !names[strings.ToLower(strings.TrimSpace(keyword))] {
-					continue
-				}
-			}
-
-			// Determine the target dataset name for the xref
-			// If keywordDataset was specified, use it; otherwise use the resolved name
-			xrefTargetDataset := keywordDataset
-			if xrefTargetDataset == "" {
-				xrefTargetDataset = resolvedDatasetName
-			}
-
-			// Create xref FROM the source (targetValue/targetDataset) TO the looked-up entry
-			// This ensures forward xrefs go to the processing dataset's forward/ directory
-			// e.g., dbsnp processing creates: RS123 → ENSG123
-			//   Forward: dbsnp/forward/ (RS123 → ENSG123)
-			//   Reverse: ensembl/from_dbsnp/ (ENSG123 → RS123)
-			d.addXref(targetValue, from, entry.Identifier, xrefTargetDataset, isLink)
 		}
 	}
 }

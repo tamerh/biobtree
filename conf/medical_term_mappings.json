@@ -22,6 +22,7 @@
   "anatomical_terms": {
     "comment": "General anatomical term synonyms - used as fallback",
     "mappings": {
+      "prostatic": "prostate",
       "heart": "cardiac",
       "kidney": "renal",
       "liver": "hepatic",

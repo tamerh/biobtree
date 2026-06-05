@@ -1049,6 +1049,16 @@ func (s *Service) metajson() string {
 	// additional params
 	// mark builtin db if exist
 	s2 = s2 + `, "appparams":{`
+	// biobtree build version (stamped via ldflags; set in runWebCommand).
+	if v := config.Appconf["biobtreeVersion"]; v != "" {
+		s2 = s2 + `"biobtree_version":` + strconv.Quote(v) + `,`
+	}
+	if v := config.Appconf["biobtreeCommit"]; v != "" {
+		s2 = s2 + `"biobtree_commit":` + strconv.Quote(v) + `,`
+	}
+	if v := config.Appconf["biobtreeBuildDate"]; v != "" {
+		s2 = s2 + `"biobtree_build_date":` + strconv.Quote(v) + `,`
+	}
 	if freshnessCheckedAt != "" {
 		s2 = s2 + `"freshness_checked_at":"` + freshnessCheckedAt + `",`
 	}

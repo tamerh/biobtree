@@ -22,4 +22,5 @@ new_lookup/
 .claude/
 .gemini/
 CLAUDE.md
-**/cache
+**/cachedist/
+dist/

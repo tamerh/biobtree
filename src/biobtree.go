@@ -21,8 +21,24 @@ import (
 	"github.com/urfave/cli"
 )
 
-const version = "1.8.0"
-const versionTag = "v1.8.0"
+// Version, Commit and BuildDate are stamped at build time via -ldflags
+// (see build.sh). They default to dev values for a plain `go build`.
+//
+//	go build -ldflags "-X main.Version=v1.8.0 -X main.Commit=$(git rev-parse --short HEAD) -X main.BuildDate=$(date -u +%Y-%m-%d)"
+var (
+	Version   = "dev"
+	Commit    = "none"
+	BuildDate = "unknown"
+)
+
+// versionTag is the vMAJOR.MINOR.PATCH form used for the remote
+// "newer release available" check (config.Init). Derived from Version.
+var versionTag = func() string {
+	if Version == "dev" || strings.HasPrefix(Version, "v") {
+		return Version
+	}
+	return "v" + Version
+}()
 
 var config *configs.Conf
 
@@ -36,7 +52,7 @@ func main() {
 
 	app := cli.NewApp()
 	app.Name = "biobtree"
-	app.Version = version
+	app.Version = fmt.Sprintf("%s (commit %s, built %s)", versionTag, Commit, BuildDate)
 	app.Usage = "A tool to search and map bioinformatics identifiers and special keywords"
 	app.Copyright = ""
 	app.Authors = []cli.Author{
@@ -696,6 +712,11 @@ func runWebCommand(c *cli.Context) error {
 	outDir := c.GlobalString("out-dir")
 	config = &configs.Conf{}
 	config.Init(confdir, versionTag, outDir, true)
+
+	// Expose the build version via /ws/meta (appparams) for clients (e.g. Atlas).
+	config.Appconf["biobtreeVersion"] = versionTag
+	config.Appconf["biobtreeCommit"] = Commit
+	config.Appconf["biobtreeBuildDate"] = BuildDate
 
 	cpu := c.GlobalInt(" maxcpu")
 	if cpu > 1 {

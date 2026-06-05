@@ -964,7 +964,7 @@
     "useLocalFile": "no",
     "hasFilter": "yes",
     "attrs": "bindingdb_id,ligand_name,target_name,target_source_organism,ki,ic50,kd,ec50,kon,koff,ph,temp_c,[]uniprot_ids,[]pubchem_cids,[]chembl_ids,[]chebi_ids,doi,pmid,patent_number,institution",
-    "compact_fields": "ligand_name,target_name,target_source_organism,ki,ic50,kd,ec50,pubchem_cids,chembl_ids",
+    "compact_fields": "ligand_name,target_name,target_source_organism,ki,ic50,kd,ec50,pubchem_cids,chembl_ids,patent_number",
     "test_entries_count": "1000",
     "bucketMethod": "numeric"
   },

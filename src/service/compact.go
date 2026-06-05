@@ -1817,6 +1817,8 @@ func extractBindingdbField(a *pbuf.BindingdbAttr, field string) string {
 		return a.Ph
 	case "temp_c":
 		return a.TempC
+	case "patent_number":
+		return a.PatentNumber
 	// Array fields (joined with ';', same convention as antibody targets) so the
 	// map can recover a real chemical name for patent-only ligands whose
 	// ligand_name is just a patent reference (Atlas issue #35).

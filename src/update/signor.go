@@ -220,7 +220,10 @@ func (s *signor) processFile(filePath, sourceID string, idLogFile *os.File, rema
 		tissueData := s.getField(row, colMap, "TISSUE_DATA")
 		directStr := s.getField(row, colMap, "DIRECT")
 		pmidStr := s.getField(row, colMap, "PMID")
-		scoreStr := s.getField(row, colMap, "SCORE")
+		// NOTE: SIGNOR removed the SCORE column from its release dump
+		// (see KNOWN_ISSUES.md). Score handling is disabled until/unless it
+		// returns; entries no longer carry a confidence score.
+		// scoreStr := s.getField(row, colMap, "SCORE")
 
 		// Parse tax_id
 		taxID := 0
@@ -233,13 +236,10 @@ func (s *signor) processFile(filePath, sourceID string, idLogFile *os.File, rema
 		// Parse direct flag
 		direct := strings.ToUpper(directStr) == "YES"
 
-		// Parse score
+		// Score disabled — SIGNOR dropped the SCORE column. Kept as 0 for the
+		// addDatabaseXref sort-key signature below (sorting by a constant is a
+		// no-op, so reverse xrefs fall back to species-priority ordering).
 		score := 0.0
-		if scoreStr != "" {
-			if parsed, err := strconv.ParseFloat(scoreStr, 64); err == nil {
-				score = parsed
-			}
-		}
 
 		// Build attribute
 		attr := &pbuf.SignorAttr{
@@ -259,7 +259,7 @@ func (s *signor) processFile(filePath, sourceID string, idLogFile *os.File, rema
 			CellData:   cellData,
 			TissueData: tissueData,
 			Direct:     direct,
-			Score:      score,
+			// Score:   score, // disabled — SIGNOR dropped the SCORE column
 		}
 
 		// Marshal and save

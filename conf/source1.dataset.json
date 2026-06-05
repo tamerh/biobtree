@@ -1271,8 +1271,8 @@
     "pathRat": "all_data_R_norvegicus_09_02_26.tsv",
     "useLocalFile": "no",
     "hasFilter": "yes",
-    "attrs": "entity_a,type_a,id_a,database_a,entity_b,type_b,id_b,database_b,effect,mechanism,residue,sequence,tax_id,cell_data,tissue_data,direct,score",
-    "compact_fields": "entity_a,entity_b,effect,mechanism,direct,score",
+    "attrs": "entity_a,type_a,id_a,database_a,entity_b,type_b,id_b,database_b,effect,mechanism,residue,sequence,tax_id,cell_data,tissue_data,direct",
+    "compact_fields": "entity_a,entity_b,effect,mechanism,direct",
     "test_entries_count": "500",
     "bucketMethod": "signor",
     "xrefSort": "uniprot:speciesPriority,interactionScore;chebi:interactionScore"

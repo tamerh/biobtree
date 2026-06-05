@@ -6077,17 +6077,6 @@
       "should_fail": []
     },
     {
-      "category": "causal_signaling",
-      "name": "SIGNOR High Confidence Filter",
-      "query": ">>uniprot>>signor[score>0.5]",
-      "why": "Filter SIGNOR interactions by confidence score for higher quality results",
-      "should_pass": [
-        "P00533",
-        "P04637"
-      ],
-      "should_fail": []
-    },
-    {
       "category": "protein_complexes",
       "name": "CORUM Complex ID Lookup",
       "query": ">>corum",

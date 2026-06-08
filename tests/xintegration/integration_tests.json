@@ -2597,6 +2597,48 @@
     },
     {
       "category": "variant_pharmacogenomics",
+      "name": "Gene to PharmGKB Variant Annotations (evidence fan)",
+      "query": ">>hgnc>>pharmgkb_var_annotation",
+      "why": "Gene to the per-publication variant-annotation evidence layer (PMID-cited sentences + study stats) beneath the curated clinical verdicts",
+      "should_pass": [
+        "CYP2C9",
+        "CYP2D6"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "variant_pharmacogenomics",
+      "name": "Variant to PharmGKB Variant Annotations",
+      "query": ">>pharmgkb_var_annotation",
+      "why": "dbSNP variant directly to its per-publication pharmacogenomic annotations",
+      "should_pass": [
+        "rs1799853"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "variant_pharmacogenomics",
+      "name": "PharmGKB Variant Annotation to PubMed",
+      "query": ">>hgnc>>pharmgkb_var_annotation>>pubmed",
+      "why": "Variant annotations carry a citable PMID link to the source publication",
+      "should_pass": [
+        "CYP2C9"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "reverse_drug",
+      "name": "Drug to PharmGKB Clinical Annotations (reverse edge)",
+      "query": ">>pharmgkb>>pharmgkb_clinical",
+      "why": "Reverse drug->clinical edge lets a drug reach its clinical annotations without fanning over related genes (Atlas Q3)",
+      "should_pass": [
+        "metformin",
+        "warfarin"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "variant_pharmacogenomics",
       "name": "Drug to CPIC Guidelines",
       "query": ">>pharmgkb>>pharmgkb_guideline",
       "why": "CPIC dosing guideline retrieval for pharmacogenomics",

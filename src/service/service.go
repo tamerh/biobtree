@@ -233,6 +233,8 @@ func (s *Service) initWithDbDir(dbDir string) error {
 		cel.Types(&pbuf.PharmgkbVariantAttr{}),
 		cel.Types(&pbuf.PharmgkbGuidelineAttr{}),
 		cel.Types(&pbuf.PharmgkbPathwayAttr{}),
+		cel.Types(&pbuf.PharmgkbVarAnnotationAttr{}),
+		cel.Types(&pbuf.PharmgkbStudyParameter{}),
 		cel.Types(&pbuf.CellxgeneAttr{}),
 		cel.Types(&pbuf.CellxgeneCelltypeAttr{}),
 		cel.Types(&pbuf.CellxgeneTissueExpression{}),
@@ -428,6 +430,8 @@ func (s *Service) initWithDbDir(dbDir string) error {
 			decls.NewIdent("pharmgkb_guideline", decls.NewObjectType("pbuf.PharmgkbGuidelineAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("pharmgkb_pathway", decls.NewObjectType("pbuf.PharmgkbPathwayAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("pharmgkb_var_annotation", decls.NewObjectType("pbuf.PharmgkbVarAnnotationAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("cellxgene", decls.NewObjectType("pbuf.CellxgeneAttr"), nil)),
 		cel.Declarations(

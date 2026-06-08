@@ -1069,15 +1069,15 @@
     "bucketMethod": "ensembl_hybrid"
   },
   "pharmgkb": {
-    "checkURL": "https://api.pharmgkb.org/v1/download/file/data/genes.zip",
+    "checkURL": "https://api.clinpgx.org/v1/download/file/data/genes.zip",
     "id": "67",
     "name": "PharmGKB",
     "textPriority": "90",
     "aliases": "PharmGKB,ClinPGx,pharmacogenomics,PGx,drug-gene,pharmacogenomic,CPIC,DPWG,dosing guideline",
     "url": "https://www.clinpgx.org/chemical/£{id}",
     "path": "raw_data/clinpgx/",
-    "downloadBaseUrl": "https://api.pharmgkb.org/v1/download/file/data/",
-    "childDatasets": "pharmgkb_gene,pharmgkb_clinical,pharmgkb_variant,pharmgkb_guideline,pharmgkb_pathway",
+    "downloadBaseUrl": "https://api.clinpgx.org/v1/download/file/data/",
+    "childDatasets": "pharmgkb_gene,pharmgkb_clinical,pharmgkb_variant,pharmgkb_guideline,pharmgkb_pathway,pharmgkb_var_annotation",
     "chemicalsFile": "chemicals.zip",
     "genesFile": "genes.zip",
     "variantsFile": "variants.zip",
@@ -1088,6 +1088,7 @@
     "pathwaysFile": "pathways.json.zip",
     "phenotypesFile": "phenotypes.zip",
     "summaryAnnotationsFile": "summaryAnnotations.zip",
+    "variantAnnotationsFile": "variantAnnotations.zip",
     "useLocalFile": "yes",
     "hasFilter": "yes",
     "attrs": "pharmgkb_id,name,type,[]generic_names,[]trade_names,smiles,inchi_key,[]rxnorm_ids,[]atc_codes,[]pubchem_cids,clinical_annotation_count,variant_annotation_count,pathway_count,top_clinical_level,top_fda_label_level,has_dosing_guideline,[]dosing_guideline_sources",
@@ -1095,7 +1096,7 @@
     "bucketMethod": "ontology"
   },
   "pharmgkb_gene": {
-    "checkURL": "https://api.pharmgkb.org/v1/download/file/data/genes.zip",
+    "checkURL": "https://api.clinpgx.org/v1/download/file/data/genes.zip",
     "id": "68",
     "name": "PharmGKB Gene",
     "textPriority": "90",
@@ -1104,12 +1105,12 @@
     "path": "raw_data/clinpgx/",
     "useLocalFile": "yes",
     "hasFilter": "yes",
-    "attrs": "pharmgkb_id,symbol,name,[]alternate_symbols,is_vip,has_variant_annotation,has_cpic_guideline,chromosome,start_grch38,end_grch38",
-    "compact_fields": "symbol,name,is_vip,has_cpic_guideline,chromosome",
+    "attrs": "pharmgkb_id,symbol,name,[]alternate_symbols,has_variant_annotation,has_cpic_guideline,chromosome,start_grch38,end_grch38",
+    "compact_fields": "symbol,name,has_cpic_guideline,chromosome",
     "bucketMethod": "ontology"
   },
   "pharmgkb_clinical": {
-    "checkURL": "https://api.pharmgkb.org/v1/download/file/data/genes.zip",
+    "checkURL": "https://api.clinpgx.org/v1/download/file/data/genes.zip",
     "id": "69",
     "name": "PharmGKB Clinical Annotation",
     "textPriority": "90",
@@ -1123,7 +1124,7 @@
     "bucketMethod": "alphabetic"
   },
   "pharmgkb_variant": {
-    "checkURL": "https://api.pharmgkb.org/v1/download/file/data/genes.zip",
+    "checkURL": "https://api.clinpgx.org/v1/download/file/data/genes.zip",
     "id": "106",
     "name": "PharmGKB Variant",
     "textPriority": "90",
@@ -1137,7 +1138,7 @@
     "bucketMethod": "ontology"
   },
   "pharmgkb_guideline": {
-    "checkURL": "https://api.pharmgkb.org/v1/download/file/data/genes.zip",
+    "checkURL": "https://api.clinpgx.org/v1/download/file/data/genes.zip",
     "id": "107",
     "name": "PharmGKB Guideline",
     "textPriority": "90",
@@ -1151,7 +1152,7 @@
     "bucketMethod": "ontology"
   },
   "pharmgkb_pathway": {
-    "checkURL": "https://api.pharmgkb.org/v1/download/file/data/genes.zip",
+    "checkURL": "https://api.clinpgx.org/v1/download/file/data/genes.zip",
     "id": "108",
     "name": "PharmGKB Pathway",
     "textPriority": "90",
@@ -1162,6 +1163,19 @@
     "hasFilter": "yes",
     "attrs": "pathway_id,name,is_pharmacokinetic,is_pharmacodynamic,[]gene_symbols,[]chemical_names,[]disease_names,summary",
     "compact_fields": "name,is_pharmacokinetic,is_pharmacodynamic,gene_symbols,chemical_names",
+    "bucketMethod": "ontology"
+  },
+  "pharmgkb_var_annotation": {
+    "id": "772",
+    "name": "PharmGKB Variant Annotation",
+    "textPriority": "90",
+    "aliases": "PharmGKB Variant Annotation,variant annotation,PGx evidence,pharmacogenomic evidence,literature annotation",
+    "url": "https://www.clinpgx.org/variantAnnotation/£{id}",
+    "path": "raw_data/clinpgx/",
+    "useLocalFile": "yes",
+    "hasFilter": "yes",
+    "attrs": "variant_annotation_id,annotation_type,variant,gene,[]drugs,pmid,phenotype_category,significance,sentence,notes,alleles,specialty_population,metabolizer_types,is_associated,direction_of_effect,comparison_alleles,comparison_metabolizer,phenotype,side_effect_efficacy,pd_pk_terms,assay_type,functional_terms,cell_type,study_parameter_count",
+    "compact_fields": "annotation_type,variant,gene,drugs,pmid,phenotype_category,significance,direction_of_effect,sentence",
     "bucketMethod": "ontology"
   },
   "cellxgene": {

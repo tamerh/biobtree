@@ -146,9 +146,14 @@ func (p *pharmgkb) update() {
 	phenotypeMappings := p.loadPhenotypeMappings()
 	log.Printf("PharmGKB: Phase 6 complete - loaded %d phenotype mappings", len(phenotypeMappings))
 
+	// Build a drug-name -> pharmgkb chemical ID index so clinical annotations can
+	// gain a reverse pharmgkb(chemical) -> pharmgkb_clinical edge (Atlas Q3: lets
+	// chembl_molecule>>pubchem>>pharmgkb>>pharmgkb_clinical avoid the gene fan).
+	chemNameToID := buildChemNameIndex(chemicals)
+
 	// Phase 7: Process clinical annotations as separate dataset (pharmgkb_clinical)
 	// Returns map of variant rsID -> clinical entry IDs for cross-referencing in Phase 8
-	clinicalByVariant := p.processClinicalVariants(testLimit, phenotypeMappings)
+	clinicalByVariant := p.processClinicalVariants(testLimit, phenotypeMappings, chemNameToID)
 
 	// Phase 8: Process variants as separate dataset (pharmgkb_variant)
 	// First load summary annotations for enrichment, then process variants
@@ -160,6 +165,9 @@ func (p *pharmgkb) update() {
 
 	// Phase 10: Process pathways as separate dataset (pharmgkb_pathway)
 	p.processPathways(testLimit)
+
+	// Phase 11: Process per-publication variant annotations (pharmgkb_var_annotation)
+	p.processVarAnnotations(testLimit)
 
 	log.Printf("PharmGKB: Processing complete (%.2fs)", time.Since(startTime).Seconds())
 
@@ -541,6 +549,28 @@ func (p *pharmgkb) saveChemicalEntries(chemicals map[string]*pharmgkbChemicalEnt
 	log.Printf("PharmGKB: Total chemical entries saved: %d", savedCount)
 }
 
+// buildChemNameIndex maps lowercased chemical names (primary, generic, trade) to the
+// pharmgkb chemical ID, for resolving the drug names listed on clinical annotations
+// back to their pharmgkb chemical node (Atlas Q3 reverse drug -> clinical edge).
+func buildChemNameIndex(chemicals map[string]*pharmgkbChemicalEntry) map[string]string {
+	idx := make(map[string]string, len(chemicals)*2)
+	add := func(name, id string) {
+		if name = strings.TrimSpace(name); name != "" {
+			idx[strings.ToLower(name)] = id
+		}
+	}
+	for id, e := range chemicals {
+		add(e.name, id)
+		for _, n := range e.genericNames {
+			add(n, id)
+		}
+		for _, n := range e.tradeNames {
+			add(n, id)
+		}
+	}
+	return idx
+}
+
 // buildChemicalAttr creates the protobuf attribute for a chemical entry
 func (p *pharmgkb) buildChemicalAttr(entry *pharmgkbChemicalEntry) *pbuf.PharmgkbAttr {
 	return &pbuf.PharmgkbAttr{
@@ -742,7 +772,11 @@ func (p *pharmgkb) parseGeneEntry(fields []string, colMap map[string]int) *pharm
 	entry.alternateNames = parseQuotedList(safeFieldByCol(fields, colMap, "Alternate Names"))
 	entry.alternateSymbols = parseQuotedList(safeFieldByCol(fields, colMap, "Alternate Symbols"))
 
-	entry.isVIP = safeFieldByCol(fields, colMap, "Is VIP") == "Yes"
+	// is_vip dropped: ClinPGx retired the VIP designation — the "Is VIP" column now
+	// reads "Yes" for ALL genes (always-true = no signal), same class as the SIGNOR
+	// score constant. Not exposed in attrs/compact_fields. Leave false until/unless
+	// ClinPGx ships a real successor field. (Atlas + biobtree decision, p.txt 2026-06-08)
+	// entry.isVIP = safeFieldByCol(fields, colMap, "Is VIP") == "Yes"
 	entry.hasVariantAnnot = safeFieldByCol(fields, colMap, "Has Variant Annotation") == "Yes"
 	entry.hasCPICGuideline = safeFieldByCol(fields, colMap, "Has CPIC Dosing Guideline") == "Yes"
 
@@ -815,7 +849,7 @@ func (p *pharmgkb) createGeneCrossRefs(entry *pharmgkbGeneEntry, sourceID string
 }
 
 // processClinicalVariants reads clinicalVariants.zip and saves to pharmgkb_clinical dataset
-func (p *pharmgkb) processClinicalVariants(testLimit int, phenotypeMappings map[string]*phenotypeMapping) map[string][]string {
+func (p *pharmgkb) processClinicalVariants(testLimit int, phenotypeMappings map[string]*phenotypeMapping, chemNameToID map[string]string) map[string][]string {
 	clinicalByVariant := make(map[string][]string)
 	clinSource := "pharmgkb_clinical"
 	if _, exists := config.Dataconf[clinSource]; !exists {
@@ -824,6 +858,12 @@ func (p *pharmgkb) processClinicalVariants(testLimit int, phenotypeMappings map[
 	}
 
 	clinSourceID := config.Dataconf[clinSource]["id"]
+
+	// pharmgkb (chemical) source id for the reverse drug -> clinical edge (Atlas Q3).
+	var pharmgkbChemSourceID string
+	if c, ok := config.Dataconf["pharmgkb"]; ok {
+		pharmgkbChemSourceID = c["id"]
+	}
 
 	clinFile := config.Dataconf[p.source]["clinicalVariantsFile"]
 	zipReader, _, err := p.openZipFile(clinFile)
@@ -938,6 +978,22 @@ func (p *pharmgkb) processClinicalVariants(testLimit int, phenotypeMappings map[
 								p.d.addXref(clinID, clinSourceID, meshID, "mesh", false)
 							}
 						}
+					}
+				}
+
+				// Reverse drug -> clinical edge (Atlas Q3): resolve each chemical name to
+				// its pharmgkb chemical ID so >>pharmgkb>>pharmgkb_clinical works without
+				// fanning over a drug's related genes. Deduped per clinical entry.
+				if pharmgkbChemSourceID != "" && len(chemNameToID) > 0 {
+					chemSeen := make(map[string]bool)
+					for _, chemName := range chemicals {
+						chemID, ok := chemNameToID[strings.ToLower(strings.TrimSpace(chemName))]
+						if !ok || chemSeen[chemID] {
+							continue
+						}
+						chemSeen[chemID] = true
+						p.d.addXref(chemID, pharmgkbChemSourceID, clinID, "pharmgkb_clinical", false)
+						p.d.addXref(clinID, clinSourceID, chemID, "pharmgkb", false)
 					}
 				}
 
@@ -1258,6 +1314,258 @@ func (p *pharmgkb) processVariants(testLimit int, summaryAnnotations map[string]
 
 	// Signal completion for variant dataset
 	p.d.progChan <- &progressInfo{dataset: varSource, done: true}
+}
+
+// processVarAnnotations reads variantAnnotations.zip — the per-publication evidence
+// layer beneath the curated pharmgkb_clinical verdict — and saves entries to the
+// pharmgkb_var_annotation dataset. Three annotation files share one "Variant
+// Annotation ID" space: var_drug_ann.tsv (drug), var_pheno_ann.tsv (phenotype),
+// var_fa_ann.tsv (functional). study_parameters.tsv carries the quantitative stats
+// (p-value / effect ratio / CI / cohorts), keyed by Variant Annotation ID; we attach
+// them to their parent annotation.
+func (p *pharmgkb) processVarAnnotations(testLimit int) {
+	vaSource := "pharmgkb_var_annotation"
+	if _, exists := config.Dataconf[vaSource]; !exists {
+		log.Printf("PharmGKB: Skipping variant annotations - %s dataset not configured", vaSource)
+		return
+	}
+	vaSourceID := config.Dataconf[vaSource]["id"]
+
+	vaFile := config.Dataconf[p.source]["variantAnnotationsFile"]
+	if vaFile == "" {
+		log.Printf("PharmGKB: No variantAnnotationsFile configured, skipping variant annotations")
+		return
+	}
+
+	zipReader, _, err := p.openZipFile(vaFile)
+	if err != nil {
+		log.Printf("PharmGKB: Warning - could not open variant annotations: %v", err)
+		return
+	}
+
+	// Phase A: load study parameters keyed by Variant Annotation ID.
+	studyParams := p.loadStudyParameters(zipReader)
+	log.Printf("PharmGKB: Loaded study parameters for %d annotations", len(studyParams))
+
+	var idLogFile *os.File
+	if config.IsTestMode() {
+		idLogFile = openIDLogFile(config.TestRefDir, vaSource+"_ids.txt")
+		if idLogFile != nil {
+			defer idLogFile.Close()
+		}
+	}
+
+	// Phase B: parse the three annotation files into pharmgkb_var_annotation entries.
+	annFiles := []struct {
+		name    string
+		annType string
+	}{
+		{"var_drug_ann.tsv", "drug"},
+		{"var_pheno_ann.tsv", "phenotype"},
+		{"var_fa_ann.tsv", "functional"},
+	}
+
+	var total int
+	for _, af := range annFiles {
+		total += p.parseVarAnnFile(zipReader, af.name, af.annType, vaSource, vaSourceID, studyParams, idLogFile, testLimit)
+	}
+
+	atomic.AddUint64(&p.d.totalParsedEntry, uint64(total))
+	log.Printf("PharmGKB: Total variant annotation entries saved: %d", total)
+
+	// Signal completion for variant annotation dataset
+	p.d.progChan <- &progressInfo{dataset: vaSource, done: true}
+}
+
+// loadStudyParameters reads study_parameters.tsv and groups rows by Variant Annotation
+// ID (capped per annotation to bound entry size — the average is ~1.2 rows/annotation).
+func (p *pharmgkb) loadStudyParameters(zipReader *zip.Reader) map[string][]*pbuf.PharmgkbStudyParameter {
+	const maxParamsPerAnnotation = 15
+	params := make(map[string][]*pbuf.PharmgkbStudyParameter)
+
+	for _, file := range zipReader.File {
+		if file.Name != "study_parameters.tsv" {
+			continue
+		}
+		reader, err := file.Open()
+		if err != nil {
+			log.Printf("PharmGKB: Error opening study_parameters.tsv: %v", err)
+			return params
+		}
+		defer reader.Close()
+
+		scanner := bufio.NewScanner(reader)
+		buf := make([]byte, 1024*1024)
+		scanner.Buffer(buf, 1024*1024)
+
+		var headerParsed bool
+		var colMap map[string]int
+
+		for scanner.Scan() {
+			line := scanner.Text()
+			if line == "" {
+				continue
+			}
+			fields := strings.Split(line, "\t")
+			if !headerParsed {
+				colMap = make(map[string]int)
+				for i, name := range fields {
+					colMap[strings.TrimSpace(name)] = i
+				}
+				headerParsed = true
+				continue
+			}
+
+			vaID := safeFieldByCol(fields, colMap, "Variant Annotation ID")
+			if vaID == "" || len(params[vaID]) >= maxParamsPerAnnotation {
+				continue
+			}
+			params[vaID] = append(params[vaID], &pbuf.PharmgkbStudyParameter{
+				StudyType:             safeFieldByCol(fields, colMap, "Study Type"),
+				StudyCases:            safeFieldByCol(fields, colMap, "Study Cases"),
+				StudyControls:         safeFieldByCol(fields, colMap, "Study Controls"),
+				PValue:                safeFieldByCol(fields, colMap, "P Value"),
+				RatioStatType:         safeFieldByCol(fields, colMap, "Ratio Stat Type"),
+				RatioStat:             safeFieldByCol(fields, colMap, "Ratio Stat"),
+				CiStart:               safeFieldByCol(fields, colMap, "Confidence Interval Start"),
+				CiStop:                safeFieldByCol(fields, colMap, "Confidence Interval Stop"),
+				BiogeographicalGroups: safeFieldByCol(fields, colMap, "Biogeographical Groups"),
+			})
+		}
+		if err := scanner.Err(); err != nil {
+			log.Printf("PharmGKB: Scanner error reading study_parameters: %v", err)
+		}
+		break
+	}
+	return params
+}
+
+// parseVarAnnFile parses one variant-annotation TSV (drug/phenotype/functional),
+// saves entries and their cross-references, and returns the number of entries saved.
+// Cross-references: gene -> canonical HGNC/Entrez/Ensembl (enables the gene-side fan
+// >>hgnc>>pharmgkb_var_annotation), rsID variants -> dbSNP, and PMID -> pubmed (the
+// citable per-publication link Atlas surfaces in the evidence drill-down).
+func (p *pharmgkb) parseVarAnnFile(zipReader *zip.Reader, fileName, annType, vaSource, vaSourceID string, studyParams map[string][]*pbuf.PharmgkbStudyParameter, idLogFile *os.File, testLimit int) int {
+	var entryCount int
+	_, pubmedExists := config.Dataconf["pubmed"]
+	_, dbsnpExists := config.Dataconf["dbsnp"]
+
+	for _, file := range zipReader.File {
+		if file.Name != fileName {
+			continue
+		}
+		reader, err := file.Open()
+		if err != nil {
+			log.Printf("PharmGKB: Error opening %s: %v", fileName, err)
+			return entryCount
+		}
+		defer reader.Close()
+
+		scanner := bufio.NewScanner(reader)
+		buf := make([]byte, 1024*1024)
+		scanner.Buffer(buf, 1024*1024)
+
+		var headerParsed bool
+		var colMap map[string]int
+
+		for scanner.Scan() {
+			line := scanner.Text()
+			if line == "" {
+				continue
+			}
+			fields := strings.Split(line, "\t")
+			if !headerParsed {
+				colMap = make(map[string]int)
+				for i, name := range fields {
+					colMap[strings.TrimSpace(name)] = i
+				}
+				headerParsed = true
+				continue
+			}
+
+			vaID := safeFieldByCol(fields, colMap, "Variant Annotation ID")
+			if vaID == "" {
+				continue
+			}
+
+			variant := safeFieldByCol(fields, colMap, "Variant/Haplotypes")
+			gene := safeFieldByCol(fields, colMap, "Gene")
+			pmid := safeFieldByCol(fields, colMap, "PMID")
+
+			attr := &pbuf.PharmgkbVarAnnotationAttr{
+				VariantAnnotationId:   vaID,
+				AnnotationType:        annType,
+				Variant:               variant,
+				Gene:                  gene,
+				Drugs:                 splitAndClean(safeFieldByCol(fields, colMap, "Drug(s)"), ","),
+				Pmid:                  pmid,
+				PhenotypeCategory:     safeFieldByCol(fields, colMap, "Phenotype Category"),
+				Significance:          safeFieldByCol(fields, colMap, "Significance"),
+				Sentence:              safeFieldByCol(fields, colMap, "Sentence"),
+				Notes:                 safeFieldByCol(fields, colMap, "Notes"),
+				Alleles:               safeFieldByCol(fields, colMap, "Alleles"),
+				SpecialtyPopulation:   safeFieldByCol(fields, colMap, "Specialty Population"),
+				MetabolizerTypes:      safeFieldByCol(fields, colMap, "Metabolizer types"),
+				IsAssociated:          safeFieldByCol(fields, colMap, "Is/Is Not associated"),
+				DirectionOfEffect:     safeFieldByCol(fields, colMap, "Direction of effect"),
+				ComparisonAlleles:     safeFieldByCol(fields, colMap, "Comparison Allele(s) or Genotype(s)"),
+				ComparisonMetabolizer: safeFieldByCol(fields, colMap, "Comparison Metabolizer types"),
+				// Type-specific fields (only one set is populated per annType)
+				Phenotype:          safeFieldByCol(fields, colMap, "Phenotype"),
+				SideEffectEfficacy: safeFieldByCol(fields, colMap, "Side effect/efficacy/other"),
+				PdPkTerms:          safeFieldByCol(fields, colMap, "PD/PK terms"),
+				AssayType:          safeFieldByCol(fields, colMap, "Assay type"),
+				FunctionalTerms:    safeFieldByCol(fields, colMap, "Functional terms"),
+				CellType:           safeFieldByCol(fields, colMap, "Cell type"),
+			}
+
+			if sp, ok := studyParams[vaID]; ok {
+				attr.StudyParameters = sp
+				attr.StudyParameterCount = int32(len(sp))
+			}
+
+			attrBytes, err := ffjson.Marshal(attr)
+			if err != nil {
+				log.Printf("PharmGKB: Error marshaling var annotation %s: %v", vaID, err)
+				continue
+			}
+			p.d.addProp3(vaID, vaSourceID, attrBytes)
+
+			// Gene -> canonical HGNC:id / Entrez / Ensembl (reverse edge reaches here).
+			p.addGeneXrefs(gene, vaID, vaSourceID)
+
+			// Each variant/haplotype token -> text search; rsIDs also -> dbSNP.
+			for _, v := range strings.Split(variant, ",") {
+				if v = strings.TrimSpace(v); v == "" {
+					continue
+				}
+				p.d.addXref(v, textLinkID, vaID, vaSource, true)
+				if dbsnpExists && strings.HasPrefix(v, "rs") {
+					p.d.addXref(vaID, vaSourceID, v, "dbsnp", false)
+				}
+			}
+
+			// PMID -> pubmed (the citable per-publication evidence link).
+			if pubmedExists && pmid != "" {
+				p.d.addXref(vaID, vaSourceID, pmid, "pubmed", false)
+			}
+
+			if idLogFile != nil {
+				idLogFile.WriteString(vaID + "\n")
+			}
+
+			entryCount++
+			if testLimit > 0 && entryCount >= testLimit {
+				log.Printf("PharmGKB: [TEST MODE] Reached var annotation limit of %d for %s", testLimit, fileName)
+				break
+			}
+		}
+		if err := scanner.Err(); err != nil {
+			log.Printf("PharmGKB: Scanner error reading %s: %v", fileName, err)
+		}
+		break
+	}
+	return entryCount
 }
 
 // parseSemicolonList splits a semicolon-separated list

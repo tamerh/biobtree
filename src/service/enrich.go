@@ -302,6 +302,10 @@ func setAttributeId(xref *pbuf.Xref) {
 		if attr.PharmgkbPathway != nil {
 			attr.PharmgkbPathway.Id = xref.Identifier
 		}
+	case *pbuf.Xref_PharmgkbVarAnnotation:
+		if attr.PharmgkbVarAnnotation != nil {
+			attr.PharmgkbVarAnnotation.Id = xref.Identifier
+		}
 	case *pbuf.Xref_Cellxgene:
 		if attr.Cellxgene != nil {
 			attr.Cellxgene.Id = xref.Identifier

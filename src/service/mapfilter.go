@@ -1367,6 +1367,11 @@ func (s *Service) execCelGo(query *query.Query, targetXref *pbuf.Xref) (bool, er
 			attr.Id = id
 			evalMap["pharmgkb_pathway"] = attr
 		}
+	case "pharmgkb_var_annotation":
+		if attr := targetXref.GetPharmgkbVarAnnotation(); attr != nil {
+			attr.Id = id
+			evalMap["pharmgkb_var_annotation"] = attr
+		}
 	case "cellxgene":
 		if attr := targetXref.GetCellxgene(); attr != nil {
 			attr.Id = id

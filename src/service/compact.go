@@ -305,6 +305,9 @@ func extractField(xref *pbuf.Xref, field string) string {
 	if a := xref.GetPharmgkbPathway(); a != nil {
 		return extractPharmgkbPathwayField(a, field)
 	}
+	if a := xref.GetPharmgkbVarAnnotation(); a != nil {
+		return extractPharmgkbVarAnnotationField(a, field)
+	}
 	if a := xref.GetCollectri(); a != nil {
 		return extractCollectriField(a, field)
 	}
@@ -2037,6 +2040,62 @@ func extractPharmgkbPathwayField(a *pbuf.PharmgkbPathwayAttr, field string) stri
 		return strings.Join(a.ChemicalNames, ";")
 	case "disease_names":
 		return strings.Join(a.DiseaseNames, ";")
+	default:
+		return ""
+	}
+}
+
+// extractPharmgkbVarAnnotationField extracts a field from PharmgkbVarAnnotationAttr
+func extractPharmgkbVarAnnotationField(a *pbuf.PharmgkbVarAnnotationAttr, field string) string {
+	switch field {
+	case "variant_annotation_id":
+		return a.VariantAnnotationId
+	case "annotation_type":
+		return a.AnnotationType
+	case "variant":
+		return a.Variant
+	case "gene":
+		return a.Gene
+	case "drugs":
+		return strings.Join(a.Drugs, ";")
+	case "pmid":
+		return a.Pmid
+	case "phenotype_category":
+		return a.PhenotypeCategory
+	case "significance":
+		return a.Significance
+	case "sentence":
+		return a.Sentence
+	case "notes":
+		return a.Notes
+	case "alleles":
+		return a.Alleles
+	case "specialty_population":
+		return a.SpecialtyPopulation
+	case "metabolizer_types":
+		return a.MetabolizerTypes
+	case "is_associated":
+		return a.IsAssociated
+	case "direction_of_effect":
+		return a.DirectionOfEffect
+	case "comparison_alleles":
+		return a.ComparisonAlleles
+	case "comparison_metabolizer":
+		return a.ComparisonMetabolizer
+	case "phenotype":
+		return a.Phenotype
+	case "side_effect_efficacy":
+		return a.SideEffectEfficacy
+	case "pd_pk_terms":
+		return a.PdPkTerms
+	case "assay_type":
+		return a.AssayType
+	case "functional_terms":
+		return a.FunctionalTerms
+	case "cell_type":
+		return a.CellType
+	case "study_parameter_count":
+		return fmt.Sprintf("%d", a.StudyParameterCount)
 	default:
 		return ""
 	}

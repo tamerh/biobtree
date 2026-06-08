@@ -2077,6 +2077,57 @@ message PharmgkbPathwayAttr {
   string id = 100; // transient - populated at runtime from Xref.Identifier
 }
 
+// PharmGKB Variant Annotation - individual per-publication variant annotation
+// records (the evidence layer beneath the curated pharmgkb_clinical verdict).
+// Source: variantAnnotations.zip (var_drug_ann / var_pheno_ann / var_fa_ann +
+// study_parameters.tsv). One entry per "Variant Annotation ID".
+message PharmgkbVarAnnotationAttr {
+  string variant_annotation_id = 1;               // Variant Annotation ID (e.g., "1448631512")
+  string annotation_type = 2;                     // "drug" | "phenotype" | "functional"
+  string variant = 3;                             // Variant/Haplotypes (e.g., "rs622342", "CYP2D6*4")
+  string gene = 4;                                // Gene symbol(s)
+  repeated string drugs = 5;                      // Drug(s)
+  string pmid = 6;                                // PubMed ID of the source publication
+  string phenotype_category = 7;                  // Efficacy, Toxicity, Dosage, Metabolism/PK, Other
+  string significance = 8;                        // Was the association statistically significant? (yes/no/not stated)
+  string sentence = 9;                            // Curated finding sentence
+  string notes = 10;                              // Curator notes
+  string alleles = 11;                            // Alleles/genotypes studied
+  string specialty_population = 12;               // e.g. Pediatric
+  string metabolizer_types = 13;                  // Metabolizer phenotype, if any
+  string is_associated = 14;                      // "associated with" / "not associated with"
+  string direction_of_effect = 15;                // increased/decreased
+  string comparison_alleles = 16;                 // Comparison Allele(s) or Genotype(s)
+  string comparison_metabolizer = 17;             // Comparison Metabolizer types
+
+  // Type-specific fields
+  string phenotype = 18;                          // (phenotype ann) Phenotype
+  string side_effect_efficacy = 19;               // (phenotype ann) Side effect/efficacy/other
+  string pd_pk_terms = 20;                        // (drug ann) PD/PK terms
+  string assay_type = 21;                         // (functional ann) Assay type
+  string functional_terms = 22;                   // (functional ann) Functional terms
+  string cell_type = 23;                          // (functional ann) Cell type
+
+  // Quantitative study parameters (from study_parameters.tsv, keyed by Variant Annotation ID)
+  int32 study_parameter_count = 24;               // Number of study-parameter rows for this annotation
+  repeated PharmgkbStudyParameter study_parameters = 25;
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// A single study-parameter row backing a PharmGKB variant annotation (the
+// quantitative stats: p-value, effect ratio, confidence interval, cohorts).
+message PharmgkbStudyParameter {
+  string study_type = 1;                          // GWAS, clinical trial, cohort, case/control, ...
+  string study_cases = 2;                         // Number of cases
+  string study_controls = 3;                      // Number of controls
+  string p_value = 4;                             // P value (as reported, may include operator e.g. "= 0.003")
+  string ratio_stat_type = 5;                     // Effect statistic type: OR, HR, RR, ...
+  string ratio_stat = 6;                          // Effect statistic value
+  string ci_start = 7;                            // Confidence interval start
+  string ci_stop = 8;                             // Confidence interval stop
+  string biogeographical_groups = 9;              // Population/biogeographical groups
+}
+
 // =============================================================================
 // CZ CELLxGENE Census - Single Cell Data Platform
 // Source: https://cellxgene.cziscience.com/

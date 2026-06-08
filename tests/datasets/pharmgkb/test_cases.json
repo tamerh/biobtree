@@ -85,6 +85,45 @@
       "source_dataset": "hgnc",
       "target_dataset": "pharmgkb_variant",
       "min_targets": 1
+    },
+    {
+      "name": "pharmgkb_var_annotation lookup via rsID",
+      "type": "dataset_lookup",
+      "dataset": "pharmgkb_var_annotation",
+      "identifier": "rs1799853",
+      "expected_attr": "PharmgkbVarAnnotation"
+    },
+    {
+      "name": "dbsnp to pharmgkb_var_annotation mapping",
+      "type": "mapping_check",
+      "source_id": "rs1799853",
+      "source_dataset": "dbsnp",
+      "target_dataset": "pharmgkb_var_annotation",
+      "min_targets": 1
+    },
+    {
+      "name": "hgnc to pharmgkb_var_annotation mapping (gene evidence fan)",
+      "type": "mapping_check",
+      "source_id": "CYP2C9",
+      "source_dataset": "hgnc",
+      "target_dataset": "pharmgkb_var_annotation",
+      "min_targets": 1
+    },
+    {
+      "name": "pharmgkb_var_annotation to pubmed mapping (citable evidence)",
+      "type": "mapping_check",
+      "source_id": "CYP2C9",
+      "source_dataset": "hgnc",
+      "target_dataset": "pubmed",
+      "min_targets": 1
+    },
+    {
+      "name": "pharmgkb chemical to pharmgkb_clinical reverse edge",
+      "type": "mapping_check",
+      "source_id": "metformin",
+      "source_dataset": "pharmgkb",
+      "target_dataset": "pharmgkb_clinical",
+      "min_targets": 1
     }
   ]
 }

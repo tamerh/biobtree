@@ -394,6 +394,55 @@ class AACTExtractor:
             log(f"ERROR: Failed to load table {table_name}: {e}")
             return None
 
+    def extract_adverse_events_summary(self, trial_events) -> Dict[str, Any]:
+        """Lightweight adverse-events summary for one trial (ported from BioYoda).
+
+        Consumed by BioYoda's semantic-search embedder; ignored by biobtree's
+        own indexing. Kept here so trials.json is a superset for both consumers.
+        """
+        if len(trial_events) == 0:
+            return {'has_events': False, 'serious_events_count': 0, 'other_events_count': 0}
+
+        serious = trial_events[trial_events['event_type'] == 'serious']
+        other = trial_events[trial_events['event_type'] == 'other']
+        serious_terms = set(serious['adverse_event_term'].dropna())
+        other_terms = set(other['adverse_event_term'].dropna())
+
+        total_at_risk = trial_events['subjects_at_risk'].max()
+        if pd.isna(total_at_risk):
+            total_at_risk = 0
+
+        event_counts = trial_events.groupby('adverse_event_term').agg({
+            'subjects_affected': 'sum',
+            'organ_system': 'first'
+        }).reset_index()
+        top_events = event_counts.nlargest(5, 'subjects_affected')
+
+        common_events = []
+        for _, row in top_events.iterrows():
+            term = row['adverse_event_term']
+            count = row['subjects_affected']
+            organ_sys = row['organ_system']
+            if pd.notna(term) and pd.notna(count):
+                percentage = round(float(count) / total_at_risk * 100, 1) if total_at_risk > 0 else 0
+                common_events.append({
+                    'term': str(term),
+                    'organ_system': str(organ_sys) if pd.notna(organ_sys) else '',
+                    'subjects_affected': int(count),
+                    'percentage': percentage
+                })
+
+        organ_systems = [str(o) for o in trial_events['organ_system'].dropna().unique()[:10]]
+
+        return {
+            'has_events': True,
+            'serious_events_count': len(serious_terms),
+            'other_events_count': len(other_terms),
+            'total_subjects_at_risk': int(total_at_risk),
+            'common_events': common_events,
+            'organ_systems_affected': organ_systems
+        }
+
     def extract_trials(self, limit: Optional[int] = None,
                       exclude_withdrawn: bool = True) -> List[Dict[str, Any]]:
         """Extract trials from AACT tables into biobtree format."""
@@ -439,6 +488,16 @@ class AACTExtractor:
 
         kept_nct_ids = set(studies['nct_id'].values)
         log(f"Processing {len(kept_nct_ids):,} studies")
+
+        # Merge eligibility (criteria/age/gender) onto studies — BioYoda compatibility
+        eligibilities = self.load_table('eligibilities')
+        if eligibilities is not None:
+            elig_cols = ['criteria', 'gender', 'minimum_age', 'maximum_age']
+            available_cols = ['nct_id'] + [c for c in elig_cols if c in eligibilities.columns]
+            studies = studies.merge(
+                eligibilities[available_cols],
+                on='nct_id', how='left', suffixes=('', '_elig')
+            )
 
         # Process interventions
         interventions_dict = {}
@@ -499,6 +558,69 @@ class AACTExtractor:
                             'citation': str(row.get('citation', ''))
                         })
 
+        # Process outcomes (one-to-many) — BioYoda compatibility
+        outcomes_dict = {}
+        design_outcomes = self.load_table('design_outcomes')
+        if design_outcomes is not None:
+            design_outcomes = design_outcomes[design_outcomes['nct_id'].isin(kept_nct_ids)]
+            for nct_id, group in design_outcomes.groupby('nct_id'):
+                outcomes_dict[nct_id] = []
+                for _, row in group.iterrows():
+                    outcomes_dict[nct_id].append({
+                        'outcome_type': str(row.get('outcome_type', '')),
+                        'measure': str(row.get('measure', '')),
+                        'description': str(row.get('description', ''))
+                    })
+
+        # Process facilities (one-to-many) — BioYoda compatibility
+        facilities_dict = {}
+        facilities = self.load_table('facilities')
+        if facilities is not None:
+            facilities = facilities[facilities['nct_id'].isin(kept_nct_ids)]
+            for nct_id, group in facilities.groupby('nct_id'):
+                facilities_dict[nct_id] = []
+                for _, row in group.iterrows():
+                    facility_name = str(row.get('name', ''))
+                    if facility_name and facility_name != 'nan':
+                        facilities_dict[nct_id].append({
+                            'name': facility_name,
+                            'city': str(row.get('city', '')),
+                            'state': str(row.get('state', '')),
+                            'country': str(row.get('country', '')),
+                            'status': str(row.get('status', ''))
+                        })
+
+        # Process study arms (one-to-many) — BioYoda compatibility
+        study_arms_dict = {}
+        design_groups = self.load_table('design_groups')
+        if design_groups is not None:
+            design_groups = design_groups[design_groups['nct_id'].isin(kept_nct_ids)]
+            for nct_id, group in design_groups.groupby('nct_id'):
+                study_arms_dict[nct_id] = []
+                for _, row in group.iterrows():
+                    arm_title = str(row.get('title', ''))
+                    if arm_title and arm_title != 'nan':
+                        study_arms_dict[nct_id].append({
+                            'title': arm_title,
+                            'type': str(row.get('group_type', '')),
+                            'description': str(row.get('description', ''))
+                        })
+
+        # Process adverse events (summary) — BioYoda compatibility
+        adverse_events_dict = {}
+        reported_events = self.load_table('reported_events')
+        if reported_events is not None:
+            reported_events = reported_events[reported_events['nct_id'].isin(kept_nct_ids)]
+            trials_with_events = reported_events['nct_id'].unique()
+            log(f"Found {len(trials_with_events):,} trials with adverse events data")
+            grouped_events = reported_events.groupby('nct_id')
+            for nct_id in trials_with_events:
+                try:
+                    adverse_events_dict[nct_id] = self.extract_adverse_events_summary(
+                        grouped_events.get_group(nct_id))
+                except KeyError:
+                    pass
+
         # Convert to list of dicts
         log("Converting to final format...")
         extracted_trials = []
@@ -521,8 +643,23 @@ class AACTExtractor:
                 'interventions': interventions_dict.get(nct_id, []),
                 'conditions': conditions_dict.get(nct_id, []),
                 'sponsors': sponsors_dict.get(nct_id, []),
-                'publications': publications_dict.get(nct_id, [])
+                'publications': publications_dict.get(nct_id, []),
+                # BioYoda-compatibility fields (ignored by biobtree's own indexing)
+                'outcomes': outcomes_dict.get(nct_id, []),
+                'facilities': facilities_dict.get(nct_id, []),
+                'study_arms': study_arms_dict.get(nct_id, []),
+                'adverse_events_summary': adverse_events_dict.get(nct_id, {
+                    'has_events': False, 'serious_events_count': 0, 'other_events_count': 0
+                })
             }
+
+            if 'criteria' in row:
+                trial_data['eligibility'] = {
+                    'criteria': str(row.get('criteria', '')),
+                    'gender': str(row.get('gender', '')),
+                    'minimum_age': str(row.get('minimum_age', '')),
+                    'maximum_age': str(row.get('maximum_age', ''))
+                }
 
             extracted_trials.append(trial_data)
 

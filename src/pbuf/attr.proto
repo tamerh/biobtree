@@ -2129,6 +2129,84 @@ message PharmgkbStudyParameter {
 }
 
 // =============================================================================
+// Human Protein Atlas (HPA) - protein localization, expression, pathology
+// Source: https://www.proteinatlas.org/ (proteinatlas.xml.gz, CC BY 4.0)
+// Gene-keyed parent + expression/pathology/antibody children (mirrors Bgee).
+// =============================================================================
+
+// HpaAttr - gene-level "card" (Dataset ID: 773), keyed by Ensembl gene ID.
+message HpaAttr {
+  string gene_id = 1;                              // Ensembl gene ID (e.g., "ENSG00000000003")
+  string gene_name = 2;                            // Gene symbol (e.g., "TSPAN6")
+  repeated string synonyms = 3;                    // Gene synonyms
+  string uniprot = 4;                              // UniProt accession
+  string entrez = 5;                               // NCBI Entrez Gene ID
+  string chromosome = 6;
+  string position = 7;
+  repeated string protein_classes = 8;             // HPA protein class names
+  string protein_evidence = 9;                     // e.g. "Evidence at protein level"
+  string predicted_location = 10;                  // e.g. "Membrane", "Intracellular"
+  repeated string subcellular_main = 11;           // main subcellular locations (IF)
+  repeated string subcellular_additional = 12;     // additional subcellular locations
+  string secretome_location = 13;                  // secretome classification
+  string rna_tissue_specificity = 14;             // e.g. "Tissue enriched", "Low tissue specificity"
+  string rna_tissue_distribution = 15;            // e.g. "Detected in many"
+  string rna_single_cell_specificity = 16;
+  string rna_cancer_specificity = 17;
+  string rna_blood_specificity = 18;
+  double blood_concentration_im = 19;             // Conc. blood immunoassay [pg/L]
+  double blood_concentration_ms = 20;             // Conc. blood mass-spec [pg/L]
+  string antibody_reliability = 21;               // best IH/IF reliability summary
+  repeated string top_tissues = 22;               // top expressed tissues, "name|nTPM"
+  repeated string top_cell_types = 23;            // top single-cell types, "name|nCPM"
+  string id = 100; // transient
+}
+
+// HpaExpressionAttr - per (gene, tissue/cell/cell-line) expression (Dataset ID: 774).
+// Key = "ENSG|entityID" (entityID is UBERON/CL/Cellosaurus or a name). Analog of bgee_evidence.
+message HpaExpressionAttr {
+  string gene_id = 1;                              // Ensembl gene ID
+  string entity_id = 2;                            // UBERON:/CL:/CVCL_ ID, or name if unmapped
+  string entity_name = 3;                          // tissue / cell-type / cell-line name
+  string axis = 4;                                 // "tissue" | "single_cell" | "brain" | "blood" | "cell_line"
+  double ntpm = 5;                                 // normalized RNA expression (nTPM / nCPM)
+  string protein_level = 6;                        // IHC staining: "High"/"Medium"/"Low"/"Not detected"
+  string reliability = 7;                          // IHC reliability for this assay
+  repeated string cell_levels = 8;                 // per-cell-type IHC within a tissue, "cellType|level"
+  string id = 100; // transient
+}
+
+// HpaPathologyAttr - per (gene, cancer) prognostic association (Dataset ID: 775).
+// Key = "ENSG|cancer". dataSource often TCGA (third-party-derived prognostics).
+message HpaPathologyAttr {
+  string gene_id = 1;                              // Ensembl gene ID
+  string cancer = 2;                               // cancer type name
+  string cancer_id = 3;                            // SNOMED / mapped disease ID, if available
+  bool is_prognostic = 4;                          // significant prognostic association
+  string prognostic_type = 5;                      // "favorable" | "unfavorable"
+  string prognostic = 6;                           // e.g. "potential prognostic" / "unprognostic"
+  double p_value = 7;                              // survival analysis p-value
+  string data_source = 8;                          // "TCGA" | "validation"
+  repeated string expression_summary = 9;          // staining-level summary (optional)
+  string id = 100; // transient
+}
+
+// HpaAntibodyAttr - HPA research/validation antibody (Dataset ID: 776), keyed by HPA antibody ID.
+// Distinct from the therapeutic-antibody dataset (id 40).
+message HpaAntibodyAttr {
+  string antibody_id = 1;                          // HPA antibody ID (e.g., "HPA004109", "CAB...")
+  string gene = 2;                                 // target gene symbol
+  string gene_id = 3;                              // target Ensembl gene ID
+  string antigen_sequence = 4;                     // antigen sequence
+  string reliability_ih = 5;                       // immunohistochemistry reliability
+  string reliability_if = 6;                       // immunofluorescence reliability
+  repeated string validations = 7;                 // validation notes (RNA consistency, etc.)
+  string rrid = 8;                                 // Antibody Registry RRID (if available)
+  string release_version = 9;
+  string id = 100; // transient
+}
+
+// =============================================================================
 // CZ CELLxGENE Census - Single Cell Data Platform
 // Source: https://cellxgene.cziscience.com/
 // CONSOLIDATED VERSION: 2 datasets (cellxgene + cellxgene_celltype)

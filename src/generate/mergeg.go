@@ -2203,6 +2203,26 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)
 				xref.Attributes = &pbuf.Xref_PharmgkbVarAnnotation{attr}
+			case "hpa":
+				attr := &pbuf.HpaAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Hpa{attr}
+			case "hpa_expression":
+				attr := &pbuf.HpaExpressionAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_HpaExpression{attr}
+			case "hpa_pathology":
+				attr := &pbuf.HpaPathologyAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_HpaPathology{attr}
+			case "hpa_antibody":
+				attr := &pbuf.HpaAntibodyAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_HpaAntibody{attr}
 			case "cellxgene":
 				attr := &pbuf.CellxgeneAttr{}
 				barr := []byte((*kvProp[k])[0].value)
@@ -2776,6 +2796,26 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 					barr := []byte((*kvProp[k])[0].value)
 					ffjson.Unmarshal(barr, attr)
 					xref.Attributes = &pbuf.Xref_PharmgkbVarAnnotation{attr}
+				case "hpa":
+					attr := &pbuf.HpaAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_Hpa{attr}
+				case "hpa_expression":
+					attr := &pbuf.HpaExpressionAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_HpaExpression{attr}
+				case "hpa_pathology":
+					attr := &pbuf.HpaPathologyAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_HpaPathology{attr}
+				case "hpa_antibody":
+					attr := &pbuf.HpaAntibodyAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_HpaAntibody{attr}
 				case "cellxgene":
 					attr := &pbuf.CellxgeneAttr{}
 					barr := []byte((*kvProp[k])[0].value)

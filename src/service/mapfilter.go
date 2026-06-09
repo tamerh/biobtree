@@ -1372,6 +1372,26 @@ func (s *Service) execCelGo(query *query.Query, targetXref *pbuf.Xref) (bool, er
 			attr.Id = id
 			evalMap["pharmgkb_var_annotation"] = attr
 		}
+	case "hpa":
+		if attr := targetXref.GetHpa(); attr != nil {
+			attr.Id = id
+			evalMap["hpa"] = attr
+		}
+	case "hpa_expression":
+		if attr := targetXref.GetHpaExpression(); attr != nil {
+			attr.Id = id
+			evalMap["hpa_expression"] = attr
+		}
+	case "hpa_pathology":
+		if attr := targetXref.GetHpaPathology(); attr != nil {
+			attr.Id = id
+			evalMap["hpa_pathology"] = attr
+		}
+	case "hpa_antibody":
+		if attr := targetXref.GetHpaAntibody(); attr != nil {
+			attr.Id = id
+			evalMap["hpa_antibody"] = attr
+		}
 	case "cellxgene":
 		if attr := targetXref.GetCellxgene(); attr != nil {
 			attr.Id = id

@@ -311,12 +311,6 @@
     "id": "657",
     "url": "http://pbil.univ-lyon1.fr/cgi-bin/acnuc-ac2tree?query=£{id}&db=HOVERGEN"
   },
-  "hpa": {
-    "aliases": "HPA",
-    "name": "HPA",
-    "id": "658",
-    "url": "http://www.proteinatlas.org/tissue_profile.php?antibody_id=£{id}"
-  },
   "imgt_gene-db": {
     "aliases": "IMGT_GENE-DB",
     "name": "IMGT_GENE-DB",

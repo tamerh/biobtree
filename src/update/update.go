@@ -936,8 +936,22 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			}
 			go pgkb.update()
 			break
-		case "pharmgkb_gene", "pharmgkb_clinical", "pharmgkb_variant", "pharmgkb_guideline", "pharmgkb_pathway":
+		case "pharmgkb_gene", "pharmgkb_clinical", "pharmgkb_variant", "pharmgkb_guideline", "pharmgkb_pathway", "pharmgkb_var_annotation":
 			// These are processed by the pharmgkb parser, skip standalone processing
+			break
+		case "hpa":
+			d.wg.Add(1)
+			h := hpa{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			for _, child := range []string{"hpa_expression", "hpa_pathology", "hpa_antibody"} {
+				if _, exists := config.Dataconf[child]; exists {
+					d.datasets2 = append(d.datasets2, child)
+				}
+			}
+			go h.update()
+			break
+		case "hpa_expression", "hpa_pathology", "hpa_antibody":
+			// Processed by the hpa parser, skip standalone processing
 			break
 		case "biogrid":
 			d.wg.Add(1)

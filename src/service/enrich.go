@@ -306,6 +306,22 @@ func setAttributeId(xref *pbuf.Xref) {
 		if attr.PharmgkbVarAnnotation != nil {
 			attr.PharmgkbVarAnnotation.Id = xref.Identifier
 		}
+	case *pbuf.Xref_Hpa:
+		if attr.Hpa != nil {
+			attr.Hpa.Id = xref.Identifier
+		}
+	case *pbuf.Xref_HpaExpression:
+		if attr.HpaExpression != nil {
+			attr.HpaExpression.Id = xref.Identifier
+		}
+	case *pbuf.Xref_HpaPathology:
+		if attr.HpaPathology != nil {
+			attr.HpaPathology.Id = xref.Identifier
+		}
+	case *pbuf.Xref_HpaAntibody:
+		if attr.HpaAntibody != nil {
+			attr.HpaAntibody.Id = xref.Identifier
+		}
 	case *pbuf.Xref_Cellxgene:
 		if attr.Cellxgene != nil {
 			attr.Cellxgene.Id = xref.Identifier

@@ -268,6 +268,7 @@ Available datasets:
         'obi': datasets_dir / "obi" / "test_obi.py",
         'xco': datasets_dir / "xco" / "test_xco.py",
         'bgee': datasets_dir / "bgee" / "test_bgee.py",
+        'hpa': datasets_dir / "hpa" / "test_hpa.py",
         'patent': datasets_dir / "patent" / "test_patent.py",
         'clinical_trials': datasets_dir / "clinical_trials" / "test_clinical_trials.py",
         'clinvar': datasets_dir / "clinvar" / "test_clinvar.py",

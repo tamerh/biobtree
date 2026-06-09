@@ -308,6 +308,18 @@ func extractField(xref *pbuf.Xref, field string) string {
 	if a := xref.GetPharmgkbVarAnnotation(); a != nil {
 		return extractPharmgkbVarAnnotationField(a, field)
 	}
+	if a := xref.GetHpa(); a != nil {
+		return extractHpaField(a, field)
+	}
+	if a := xref.GetHpaExpression(); a != nil {
+		return extractHpaExpressionField(a, field)
+	}
+	if a := xref.GetHpaPathology(); a != nil {
+		return extractHpaPathologyField(a, field)
+	}
+	if a := xref.GetHpaAntibody(); a != nil {
+		return extractHpaAntibodyField(a, field)
+	}
 	if a := xref.GetCollectri(); a != nil {
 		return extractCollectriField(a, field)
 	}
@@ -937,6 +949,18 @@ func ExtractSourceName(xref *pbuf.Xref) string {
 	}
 	if a := xref.GetPharmgkb(); a != nil {
 		return a.Name
+	}
+	if a := xref.GetHpa(); a != nil {
+		return a.GeneName
+	}
+	if a := xref.GetHpaExpression(); a != nil {
+		return a.EntityName
+	}
+	if a := xref.GetHpaPathology(); a != nil {
+		return a.Cancer
+	}
+	if a := xref.GetHpaAntibody(); a != nil {
+		return a.AntibodyId
 	}
 	if a := xref.GetPubchem(); a != nil {
 		return a.Title
@@ -2096,6 +2120,127 @@ func extractPharmgkbVarAnnotationField(a *pbuf.PharmgkbVarAnnotationAttr, field 
 		return a.CellType
 	case "study_parameter_count":
 		return fmt.Sprintf("%d", a.StudyParameterCount)
+	default:
+		return ""
+	}
+}
+
+// extractHpaField extracts a field from HpaAttr (gene card)
+func extractHpaField(a *pbuf.HpaAttr, field string) string {
+	switch field {
+	case "gene_name":
+		return a.GeneName
+	case "gene_id":
+		return a.GeneId
+	case "uniprot":
+		return a.Uniprot
+	case "entrez":
+		return a.Entrez
+	case "chromosome":
+		return a.Chromosome
+	case "protein_classes":
+		return strings.Join(a.ProteinClasses, ";")
+	case "protein_evidence":
+		return a.ProteinEvidence
+	case "predicted_location":
+		return a.PredictedLocation
+	case "subcellular_main":
+		return strings.Join(a.SubcellularMain, ";")
+	case "subcellular_additional":
+		return strings.Join(a.SubcellularAdditional, ";")
+	case "secretome_location":
+		return a.SecretomeLocation
+	case "rna_tissue_specificity":
+		return a.RnaTissueSpecificity
+	case "rna_tissue_distribution":
+		return a.RnaTissueDistribution
+	case "rna_single_cell_specificity":
+		return a.RnaSingleCellSpecificity
+	case "rna_cancer_specificity":
+		return a.RnaCancerSpecificity
+	case "rna_blood_specificity":
+		return a.RnaBloodSpecificity
+	case "antibody_reliability":
+		return a.AntibodyReliability
+	case "top_tissues":
+		return strings.Join(a.TopTissues, ";")
+	case "top_cell_types":
+		return strings.Join(a.TopCellTypes, ";")
+	default:
+		return ""
+	}
+}
+
+// extractHpaExpressionField extracts a field from HpaExpressionAttr
+func extractHpaExpressionField(a *pbuf.HpaExpressionAttr, field string) string {
+	switch field {
+	case "gene_id":
+		return a.GeneId
+	case "entity_id":
+		return a.EntityId
+	case "entity_name":
+		return a.EntityName
+	case "axis":
+		return a.Axis
+	case "ntpm":
+		return fmt.Sprintf("%.1f", a.Ntpm)
+	case "protein_level":
+		return a.ProteinLevel
+	case "reliability":
+		return a.Reliability
+	case "cell_levels":
+		return strings.Join(a.CellLevels, ";")
+	default:
+		return ""
+	}
+}
+
+// extractHpaPathologyField extracts a field from HpaPathologyAttr
+func extractHpaPathologyField(a *pbuf.HpaPathologyAttr, field string) string {
+	switch field {
+	case "gene_id":
+		return a.GeneId
+	case "cancer":
+		return a.Cancer
+	case "cancer_id":
+		return a.CancerId
+	case "is_prognostic":
+		if a.IsPrognostic {
+			return "true"
+		}
+		return "false"
+	case "prognostic_type":
+		return a.PrognosticType
+	case "prognostic":
+		return a.Prognostic
+	case "p_value":
+		return fmt.Sprintf("%g", a.PValue)
+	case "data_source":
+		return a.DataSource
+	case "expression_summary":
+		return strings.Join(a.ExpressionSummary, ";")
+	default:
+		return ""
+	}
+}
+
+// extractHpaAntibodyField extracts a field from HpaAntibodyAttr
+func extractHpaAntibodyField(a *pbuf.HpaAntibodyAttr, field string) string {
+	switch field {
+	case "antibody_id":
+		return a.AntibodyId
+	case "gene":
+		return a.Gene
+	case "gene_id":
+		return a.GeneId
+	case "reliability_ih":
+		return a.ReliabilityIh
+	case "reliability_if":
+		return a.ReliabilityIf
+	case "rrid":
+		return a.Rrid
+	case "release_version":
+		return a.ReleaseVersion
 	default:
 		return ""
 	}

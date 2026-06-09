@@ -156,6 +156,10 @@ message Xref {
     PharmgkbGuidelineAttr pharmgkb_guideline=71;
     PharmgkbPathwayAttr pharmgkb_pathway=72;
     PharmgkbVarAnnotationAttr pharmgkb_var_annotation=764;
+    HpaAttr hpa=765;
+    HpaExpressionAttr hpa_expression=766;
+    HpaPathologyAttr hpa_pathology=767;
+    HpaAntibodyAttr hpa_antibody=768;
     CellxgeneAttr cellxgene=73;
     CellxgeneCelltypeAttr cellxgene_celltype=74;
     ScxaAttr scxa=75;

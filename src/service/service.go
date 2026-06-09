@@ -235,6 +235,10 @@ func (s *Service) initWithDbDir(dbDir string) error {
 		cel.Types(&pbuf.PharmgkbPathwayAttr{}),
 		cel.Types(&pbuf.PharmgkbVarAnnotationAttr{}),
 		cel.Types(&pbuf.PharmgkbStudyParameter{}),
+		cel.Types(&pbuf.HpaAttr{}),
+		cel.Types(&pbuf.HpaExpressionAttr{}),
+		cel.Types(&pbuf.HpaPathologyAttr{}),
+		cel.Types(&pbuf.HpaAntibodyAttr{}),
 		cel.Types(&pbuf.CellxgeneAttr{}),
 		cel.Types(&pbuf.CellxgeneCelltypeAttr{}),
 		cel.Types(&pbuf.CellxgeneTissueExpression{}),
@@ -432,6 +436,14 @@ func (s *Service) initWithDbDir(dbDir string) error {
 			decls.NewIdent("pharmgkb_pathway", decls.NewObjectType("pbuf.PharmgkbPathwayAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("pharmgkb_var_annotation", decls.NewObjectType("pbuf.PharmgkbVarAnnotationAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("hpa", decls.NewObjectType("pbuf.HpaAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("hpa_expression", decls.NewObjectType("pbuf.HpaExpressionAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("hpa_pathology", decls.NewObjectType("pbuf.HpaPathologyAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("hpa_antibody", decls.NewObjectType("pbuf.HpaAntibodyAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("cellxgene", decls.NewObjectType("pbuf.CellxgeneAttr"), nil)),
 		cel.Declarations(

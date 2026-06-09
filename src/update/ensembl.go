@@ -683,7 +683,7 @@ func (e *ensembl) update() {
 
 						if e.d.orthologsAllActive {
 							e.xref(j, entryid, fr, "Interpro", "interpro")
-							e.xref(j, entryid, fr, "HPA", "HPA")
+							e.xref(j, entryid, fr, "HPA", "hpa_antibody")
 							e.xref(j, entryid, fr, "ArrayExpress", "ExpressionAtlas")
 							e.xref(j, entryid, fr, "GENE3D", "CATHGENE3D")
 							e.xref(j, entryid, fr, "MIM_GENE", "MIM")
@@ -729,7 +729,7 @@ func (e *ensembl) update() {
 								e.xrefGO(val.(*jsparser.JSON), tentryid, ensemblTranscriptID)
 								if e.d.orthologsAllActive {
 									e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "Interpro", "interpro")
-									e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "HPA", "HPA")
+									e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "HPA", "hpa_antibody")
 									e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "ArrayExpress", "ExpressionAtlas")
 									e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "GENE3D", "CATHGENE3D")
 									e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "MIM_GENE", "MIM")

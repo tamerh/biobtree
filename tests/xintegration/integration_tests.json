@@ -867,6 +867,27 @@
     },
     {
       "category": "gene_expression",
+      "name": "Gene symbol (HGNC) to HPA card",
+      "query": ">>hgnc>>hpa",
+      "why": "HPA gene card reachable from the gene symbol via HGNC (primary gene hub)",
+      "should_pass": [
+        "TP53",
+        "BRCA1"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "gene_expression",
+      "name": "Gene symbol (HGNC) to HPA Expression",
+      "query": ">>hgnc>>hpa>>hpa_expression",
+      "why": "HPA per-tissue expression reachable from the gene symbol via HGNC",
+      "should_pass": [
+        "TP53"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "gene_expression",
       "name": "Gene to HPA Expression",
       "query": ">>ensembl>>hpa>>hpa_expression",
       "why": "HPA per-tissue RNA nTPM + IHC staining for a gene",

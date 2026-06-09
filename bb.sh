@@ -203,6 +203,8 @@ show_help() {
     echo "  --only <datasets> Run specific dataset(s), comma-separated (e.g., uniprot,hgnc,go)"
     echo "  --generate        Run generate phase only (build database)"
     echo "  --generate-after  Run generate after --only completes successfully"
+    echo "  --generate-after-main  Like --generate-after but only the 'main' federation"
+    echo "                    (use when dbsnp data is unchanged, e.g. a pharmgkb-only re-index)"
     echo "  --federation <name>  With --generate or --generate-after: build specific federation (main, dbsnp)"
     echo "  --force           Force update even if unchanged"
     echo "  --maxcpu <N>      Max CPUs (default: 8)"
@@ -288,6 +290,7 @@ while [[ $# -gt 0 ]]; do
             fi
             ;;
         --generate-after) GENERATE_AFTER="true"; shift ;;
+        --generate-after-main) GENERATE_AFTER="true"; FEDERATION="main"; shift ;;
         --help|-h)      show_help ;;
         *)              echo "Unknown option: $1"; show_help ;;
     esac

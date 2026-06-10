@@ -770,8 +770,8 @@
     "id": "48",
     "url": "//www.uniprot.org/uniprot/£{id}",
     "hasFilter": "yes",
-    "attrs": "type,description,id,original,variation,location.begin,location.end,[]evidences.type,[]evidences.source,[]evidences.id",
-    "compact_fields": "type,description,location_begin,location_end"
+    "attrs": "type,description,id,original,variation,location.begin,location.end,ligand,ligand_id,[]evidences.type,[]evidences.source,[]evidences.id",
+    "compact_fields": "type,description,location_begin,location_end,ligand"
   },
   "taxchild": {
     "name": "Tax Childs",

@@ -195,6 +195,8 @@ message UniprotFeatureAttr {
  string original =5;
  string variation =6;
  UniLocation location=7;
+ string ligand =8;     // binding-site ligand name (e.g. ATP, Mg2+, heme), from <ligand><name>
+ string ligand_id =9;  // ligand ChEBI id, from <ligand><dbReference type="ChEBI">
 }
 
 message UniprotFeatureEvidence {

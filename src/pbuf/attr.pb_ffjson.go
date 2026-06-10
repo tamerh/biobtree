@@ -128760,6 +128760,16 @@ func (j *UniprotFeatureAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 			buf.WriteByte(',')
 		}
 	}
+	if len(j.Ligand) != 0 {
+		buf.WriteString(`"ligand":`)
+		fflib.WriteJsonString(buf, string(j.Ligand))
+		buf.WriteByte(',')
+	}
+	if len(j.LigandId) != 0 {
+		buf.WriteString(`"ligand_id":`)
+		fflib.WriteJsonString(buf, string(j.LigandId))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -128782,6 +128792,10 @@ const (
 	ffjtUniprotFeatureAttrVariation
 
 	ffjtUniprotFeatureAttrLocation
+
+	ffjtUniprotFeatureAttrLigand
+
+	ffjtUniprotFeatureAttrLigandId
 )
 
 var ffjKeyUniprotFeatureAttrType = []byte("type")
@@ -128797,6 +128811,10 @@ var ffjKeyUniprotFeatureAttrOriginal = []byte("original")
 var ffjKeyUniprotFeatureAttrVariation = []byte("variation")
 
 var ffjKeyUniprotFeatureAttrLocation = []byte("location")
+
+var ffjKeyUniprotFeatureAttrLigand = []byte("ligand")
+
+var ffjKeyUniprotFeatureAttrLigandId = []byte("ligand_id")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *UniprotFeatureAttr) UnmarshalJSON(input []byte) error {
@@ -128889,6 +128907,16 @@ mainparse:
 						currentKey = ffjtUniprotFeatureAttrLocation
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyUniprotFeatureAttrLigand, kn) {
+						currentKey = ffjtUniprotFeatureAttrLigand
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyUniprotFeatureAttrLigandId, kn) {
+						currentKey = ffjtUniprotFeatureAttrLigandId
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 'o':
@@ -128915,6 +128943,18 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyUniprotFeatureAttrLigandId, kn) {
+					currentKey = ffjtUniprotFeatureAttrLigandId
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyUniprotFeatureAttrLigand, kn) {
+					currentKey = ffjtUniprotFeatureAttrLigand
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.SimpleLetterEqualFold(ffjKeyUniprotFeatureAttrLocation, kn) {
@@ -128996,6 +129036,12 @@ mainparse:
 
 				case ffjtUniprotFeatureAttrLocation:
 					goto handle_Location
+
+				case ffjtUniprotFeatureAttrLigand:
+					goto handle_Ligand
+
+				case ffjtUniprotFeatureAttrLigandId:
+					goto handle_LigandId
 
 				case ffjtUniprotFeatureAttrnosuchkey:
 					err = fs.SkipField(tok)
@@ -129236,6 +129282,58 @@ handle_Location:
 			}
 		}
 		state = fflib.FFParse_after_value
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Ligand:
+
+	/* handler: j.Ligand type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Ligand = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_LigandId:
+
+	/* handler: j.LigandId type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.LigandId = string(string(outBuf))
+
+		}
 	}
 
 	state = fflib.FFParse_after_value

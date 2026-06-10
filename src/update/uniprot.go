@@ -324,6 +324,27 @@ type evidence struct {
 	sourceID string
 }
 
+// featureLigand extracts the binding-site ligand name + ChEBI id from a feature's
+// <ligand><name> / <dbReference type="ChEBI"> children. Returns empty strings if the
+// feature has no <ligand> (Atlas issue #38: binding-site ligand was being dropped).
+func featureLigand(f *xmlparser.XMLElement) (name, chebiID string) {
+	ligs := f.Childs["ligand"]
+	if len(ligs) == 0 {
+		return
+	}
+	lig := ligs[0]
+	if n := lig.Childs["name"]; len(n) > 0 {
+		name = n[0].InnerText
+	}
+	for _, dbref := range lig.Childs["dbReference"] {
+		if dbref.Attrs["type"] == "ChEBI" {
+			chebiID = dbref.Attrs["id"]
+			break
+		}
+	}
+	return
+}
+
 func (u *uniprot) processFeatures(entryid string, r *xmlparser.XMLElement) {
 
 	evidences := map[string]evidence{} // for now value is just the evidence id there is also reference to evidence
@@ -448,6 +469,19 @@ func (u *uniprot) processFeatures(entryid string, r *xmlparser.XMLElement) {
 
 			}
 
+		}
+
+		// Binding-site (and similar) features store their ligand in a
+		// <ligand><name> child element, NOT in the description attribute, so the
+		// description came out empty (Atlas issue #38). Project the ligand name +
+		// ChEBI id, and fold the name into description when description is empty so
+		// the existing id|type|description|... projection shows the role.
+		if name, chebiID := featureLigand(&f); name != "" {
+			feature.Ligand = name
+			feature.LigandId = chebiID
+			if feature.Description == "" {
+				feature.Description = strings.ToLower(name)
+			}
 		}
 
 		// feature xref

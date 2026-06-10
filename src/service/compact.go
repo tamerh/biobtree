@@ -1636,6 +1636,10 @@ func extractUfeatureField(a *pbuf.UniprotFeatureAttr, field string) string {
 			return fmt.Sprintf("%d", a.Location.End)
 		}
 		return ""
+	case "ligand":
+		return a.Ligand
+	case "ligand_id":
+		return a.LigandId
 	default:
 		return ""
 	}

@@ -496,13 +496,15 @@ get_latest_version() {
     local federation=$1
     local versions=$(get_db_versions "$federation")
 
-    if [[ -z "$versions" ]]; then
+    if [[ -z "${versions// }" ]]; then
         echo "0"
         return
     fi
 
-    # Get last (highest) version
-    echo "$versions" | tr ' ' '\n' | tail -1
+    # Get last (highest) version. get_db_versions emits a trailing space, so use
+    # awk $NF (ignores trailing whitespace) rather than tail -1 on a split, which
+    # would grab the empty trailing field.
+    echo "$versions" | awk '{print $NF}'
 }
 
 # Activate a specific db version (update symlink)

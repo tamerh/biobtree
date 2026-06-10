@@ -15,8 +15,8 @@
 #   ./bb.sh --only pubchem             # Run single dataset
 #   ./bb.sh --generate                 # Run generate phase only (build database)
 #   ./bb.sh --db-versions              # Show database versions
-#   ./bb.sh --activate                 # Activate latest db version
-#   ./bb.sh --activate 2               # Activate specific db version
+#   ./bb.sh --activate                 # Activate each federation's own latest version
+#   ./bb.sh --activate 32 --federation main   # Activate a specific version for one federation
 #   ./bb.sh --cleanup                  # Remove old db versions (keep last 2)
 #   ./bb.sh --web                      # Start web server
 #   ./bb.sh --test                     # Run integration tests
@@ -218,7 +218,11 @@ show_help() {
     echo ""
     echo "Database Version Management:"
     echo "  --db-versions     Show database versions for all federations"
-    echo "  --activate [N]    Activate db version N (default: latest) for all federations"
+    echo "  --activate        Activate each federation's OWN latest version (main + dbsnp"
+    echo "                    have independent, diverged version numbers)"
+    echo "  --activate N --federation <fed>   Activate version N for ONE federation only"
+    echo "                    (e.g. --activate 32 --federation main); a bare version"
+    echo "                    without --federation is rejected (ambiguous across feds)"
     echo "  --cleanup [N]     Remove old db versions, keeping last N (default: 2)"
     echo ""
     echo "Federations:"
@@ -823,9 +827,29 @@ if [[ "$DO_ACTIVATE" == "true" ]]; then
     echo "Activating Database Version"
     echo "============================================"
 
-    for federation in main dbsnp; do
+    # Federations have INDEPENDENT, diverged version numbers (e.g. main=db_v32,
+    # dbsnp=db_v2). So:
+    #   - which federations to touch: only --federation if given, else all.
+    #   - an explicit version (--activate N) is per-federation and ambiguous across
+    #     several, so require --federation with it.
+    #   - bare --activate sets EACH targeted federation to ITS OWN latest.
+    if [[ -n "$FEDERATION" ]]; then
+        activate_federations="$FEDERATION"
+    else
+        activate_federations="main dbsnp"
+        if [[ -n "$ACTIVATE_VERSION" ]]; then
+            echo "ERROR: a specific version (--activate $ACTIVATE_VERSION) needs --federation,"
+            echo "       because federations have independent version numbers."
+            echo "       e.g.  $0 $OUT_DIR --activate $ACTIVATE_VERSION --federation main"
+            echo "       Or use bare --activate to set each federation to its own latest."
+            exit 1
+        fi
+    fi
+
+    for federation in $activate_federations; do
         fed_dir="$OUT_DIR/$federation"
         if [[ ! -d "$fed_dir" ]]; then
+            echo "Federation '$federation': directory not found, skipping"
             continue
         fi
 

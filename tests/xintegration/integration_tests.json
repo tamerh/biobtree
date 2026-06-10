@@ -3831,6 +3831,38 @@
       "should_fail": []
     },
     {
+      "category": "filters_working",
+      "name": "UniProt Feature Binding Site",
+      "query": ">>uniprot>>ufeature[type==\"binding site\"]",
+      "why": "Filter for ligand/substrate binding-site residues (issue #38)",
+      "should_pass": [
+        "P00533",
+        "P01116"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "filters_working",
+      "name": "UniProt Feature Binding-Site Ligand (ATP)",
+      "query": ">>uniprot>>ufeature[ligand.contains(\"ATP\")]",
+      "why": "Binding-site ligand now projected from <ligand><name> (issue #38): EGFR binds ATP",
+      "should_pass": [
+        "P00533"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "protein_features",
+      "name": "Gene to Binding-Site Ligands",
+      "query": ">>ensembl>>uniprot>>ufeature[type==\"binding site\"]",
+      "why": "Functional-residue ligand/substrate binding sites with role (ligand) populated",
+      "should_pass": [
+        "EGFR",
+        "KRAS"
+      ],
+      "should_fail": []
+    },
+    {
       "_comment": "=== BROKEN FILTER TESTS (2026-02-01) - Document for fixing ==="
     },
     {

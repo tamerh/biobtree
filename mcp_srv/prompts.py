@@ -16,13 +16,13 @@ DESIGN PRINCIPLES:
 
 EDGES = """
 EDGES (what connects to what):
-ensembl: uniprot, go, transcript, exon, ortholog, paralog, hgnc, entrez, refseq, bgee, gwas, gencc, antibody, scxa, civic, intogen
-hgnc: ensembl, uniprot, entrez, gencc, pharmgkb_gene, msigdb, clinvar, mim, refseq, alphafold, collectri, gwas, hpo, cellphonedb, civic, intogen, cellosaurus, clingen_gene_validity, clingen_dosage, clingen_variant, depmap
-entrez: ensembl, uniprot, refseq, go, biogrid, pubchem_activity, ctd_gene_interaction, dbsnp, civic, intogen, clingen_dosage, generif, depmap, depmap_dependency
+ensembl: uniprot, go, transcript, exon, ortholog, paralog, hgnc, entrez, refseq, bgee, gwas, gencc, antibody, scxa, civic, intogen, hpa, hpa_antibody, pharmgkb_var_annotation
+hgnc: ensembl, uniprot, entrez, gencc, pharmgkb_gene, msigdb, clinvar, mim, refseq, alphafold, collectri, gwas, hpo, cellphonedb, civic, intogen, cellosaurus, clingen_gene_validity, clingen_dosage, clingen_variant, depmap, hpa, pharmgkb_var_annotation
+entrez: ensembl, uniprot, refseq, go, biogrid, pubchem_activity, ctd_gene_interaction, dbsnp, civic, intogen, clingen_dosage, generif, depmap, depmap_dependency, hpa, pharmgkb_var_annotation
 refseq: ensembl, entrez, taxonomy, ccds, uniprot, mirdb
 mirdb: refseq
 transcript: ensembl, exon, ufeature, alphamissense
-uniprot: ensembl, alphafold, interpro, pfam, pdb, ufeature, intact, string, string_interaction, biogrid, biogrid_interaction, chembl_target, go, reactome, rhea, swisslipids, bindingdb, antibody, pubchem_activity, cellphonedb, jaspar, signor, diamond_similarity, esm2_similarity, alphamissense, cellosaurus
+uniprot: ensembl, alphafold, interpro, pfam, pdb, ufeature, intact, string, string_interaction, biogrid, biogrid_interaction, chembl_target, go, reactome, rhea, swisslipids, bindingdb, antibody, pubchem_activity, cellphonedb, jaspar, signor, diamond_similarity, esm2_similarity, alphamissense, cellosaurus, hpa
 alphafold: uniprot
 interpro: uniprot, go, interproparent, interprochild
 chembl_molecule: mesh, chembl_activity, chembl_target, pubchem, chebi, clinical_trials, chembl_moleculeparent, chembl_moleculechild  # parent=anhydrous/parent form, child=salt forms
@@ -34,7 +34,7 @@ pubchem_activity: pubchem, ensembl, uniprot
 chebi: pubchem, rhea, intact
 swisslipids: uniprot, go, chebi, uberon, cl
 lipidmaps: chebi, pubchem
-dbsnp: entrez, clinvar, pharmgkb_variant, alphamissense, spliceai
+dbsnp: entrez, clinvar, pharmgkb_variant, alphamissense, spliceai, pharmgkb_var_annotation
 clinvar: hgnc, mondo, hpo, dbsnp, orphanet, civic_variant, cellosaurus, clingen_variant
 alphamissense: uniprot, transcript
 gwas: gwas_study, efo, dbsnp, hgnc, mondo
@@ -48,9 +48,10 @@ clinical_trials: mondo, chembl_molecule
 pharmgkb: hgnc, dbsnp, mesh, pharmgkb_gene, pharmgkb_variant, pharmgkb_clinical, pharmgkb_guideline, pharmgkb_pathway
 pharmgkb_variant: pharmgkb_clinical, hgnc, mesh, dbsnp
 pharmgkb_gene: hgnc, entrez, ensembl, pharmgkb
-pharmgkb_clinical: dbsnp, hgnc, mesh, pharmgkb_variant
+pharmgkb_clinical: dbsnp, hgnc, mesh, pharmgkb_variant, pharmgkb  # pharmgkb = reverse drug→clinical edge (drug >> pharmgkb >> pharmgkb_clinical)
 pharmgkb_guideline: hgnc, pharmgkb
 pharmgkb_pathway: hgnc, pharmgkb
+pharmgkb_var_annotation: hgnc, entrez, ensembl, dbsnp, pubmed  # per-publication variant-annotation evidence (finding sentence, PMID, significance, study stats) beneath pharmgkb_clinical; reach via gene or rsID
 ctd: mesh, ctd_gene_interaction, ctd_disease_association, pubchem
 ctd_gene_interaction: ctd, entrez, taxonomy, pubmed
 ctd_disease_association: ctd, mesh, mim, pubmed
@@ -65,13 +66,17 @@ cellxgene_celltype: cl, uberon, mondo
 scxa: cl, uberon, taxonomy, ensembl, scxa_gene_experiment
 scxa_expression: ensembl, scxa, scxa_gene_experiment
 scxa_gene_experiment: ensembl, scxa, scxa_expression, cl
+hpa: ensembl, uniprot, hgnc, entrez, go, uberon, hpa_expression, hpa_pathology, hpa_antibody  # Human Protein Atlas gene card: subcellular location (→go), specificity calls, top tissues
+hpa_expression: hpa, uberon, cellosaurus  # per (gene,tissue/cell-line) RNA nTPM + IHC staining; reach genes-in-a-tissue via uberon >> hpa_expression
+hpa_pathology: hpa  # per (gene,cancer) prognostic survival association
+hpa_antibody: hpa, ensembl  # HPA validation antibody (reliability, antigen)
 rnacentral: uniprot, ensembl, intact, hgnc, refseq, ena
 reactome: ensembl, uniprot, chebi, go, reactomeparent, reactomechild
 rhea: chebi, uniprot, go
-go: ensembl, uniprot, reactome, msigdb, swisslipids, bgee, interpro, goparent, gochild
+go: ensembl, uniprot, reactome, msigdb, swisslipids, bgee, interpro, goparent, gochild, hpa
 hpo: clinvar, gencc, mondo, msigdb, orphanet, mim, hmdb, hgnc, hpoparent, hpochild
 efo: gwas, mondo, cellxgene, efoparent, efochild
-uberon: bgee, cellxgene, cellxgene_celltype, swisslipids, uberonparent, uberonchild
+uberon: bgee, cellxgene, cellxgene_celltype, swisslipids, uberonparent, uberonchild, hpa, hpa_expression
 cl: bgee, cellxgene, cellxgene_celltype, scxa, scxa_gene_experiment, clparent, clchild
 taxonomy: ensembl, uniprot, bgee, biogrid, ctd_gene_interaction, taxparent, taxchild
 mesh: pharmgkb, ctd, ctd_disease_association, pubchem, mondo, chembl_molecule, meshparent, meshchild
@@ -104,7 +109,7 @@ civic_variant: civic, clinvar, civic_evidence, civic_assertion
 civic_evidence: civic_variant, civic, mondo, chembl_molecule, pubmed, clinical_trials
 civic_assertion: civic_variant, civic, mondo, chembl_molecule
 intogen: hgnc, entrez, ensembl, mondo, pubmed  # cancer driver genes
-cellosaurus: taxonomy, uniprot, hgnc, mondo, orphanet, clinvar, dbsnp, uberon, cl, chebi, doi, patent, pubmed, depmap_dependency  # cell lines (CVCL)
+cellosaurus: taxonomy, uniprot, hgnc, mondo, orphanet, clinvar, dbsnp, uberon, cl, chebi, doi, patent, pubmed, depmap_dependency, hpa_expression  # cell lines (CVCL)
 generif: entrez, pubmed  # NCBI cited per-gene functional claims (RAG grounding)
 depmap: entrez, hgnc, ensembl  # CRISPR gene essentiality aggregate (cancer dependency / target tractability)
 depmap_dependency: entrez, cellosaurus  # per cell-line gene dependency (effect < -0.5)

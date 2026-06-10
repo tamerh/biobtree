@@ -904,7 +904,7 @@
       "why": "Find genes expressed in a tissue through HPA (UBERON reverse edge)",
       "should_pass": [
         "UBERON:0002107",
-        "UBERON:0000955"
+        "UBERON:0000956"
       ],
       "should_fail": []
     },

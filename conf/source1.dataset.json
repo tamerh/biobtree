@@ -1190,8 +1190,8 @@
     "useLocalFile": "no",
     "hasFilter": "yes",
     "childDatasets": "hpa_expression,hpa_pathology,hpa_antibody",
-    "attrs": "gene_id,gene_name,[]synonyms,uniprot,entrez,chromosome,position,[]protein_classes,protein_evidence,predicted_location,[]subcellular_main,[]subcellular_additional,secretome_location,rna_tissue_specificity,rna_tissue_distribution,rna_single_cell_specificity,rna_cancer_specificity,rna_blood_specificity,blood_concentration_im,blood_concentration_ms,antibody_reliability,[]top_tissues,[]top_cell_types",
-    "compact_fields": "gene_name,protein_evidence,rna_tissue_specificity,subcellular_main,antibody_reliability",
+    "attrs": "gene_id,gene_name,[]synonyms,uniprot,entrez,chromosome,position,[]protein_classes,protein_evidence,predicted_location,[]subcellular_main,[]subcellular_additional,secretome_location,rna_tissue_specificity,rna_tissue_distribution,rna_single_cell_specificity,rna_cancer_specificity,rna_blood_specificity,blood_concentration_im,blood_concentration_ms,reliability_ih,reliability_if,[]top_tissues,[]top_cell_types",
+    "compact_fields": "gene_name,protein_evidence,rna_tissue_specificity,subcellular_main,reliability_ih",
     "bucketMethod": "ensembl_hybrid",
     "test_entries_count": "200"
   },

@@ -15,7 +15,9 @@ Datasets (gene-keyed parent + children, mirroring Bgee):
 - **Cell-type → CL mapping is deferred.** The XML provides UBERON IDs inline for tissues and GO IDs for subcellular locations, but cell types (single-cell, tissue cell types) are names only — so `hpa_expression` single-cell entities are name-keyed (`name:<cell type>`) and not yet linked to Cell Ontology. Tissue expression (UBERON) and cell-line (Cellosaurus) are linked.
 - **Cancer → MONDO/SNOMED mapping is deferred.** `hpa_pathology` stores the cancer type name; no disease-ontology xref yet (the XML doesn't carry a disease ID for the prognostic cancer types).
 - **Third-party-derived data flagged, not excluded.** Cancer prognostics carry `data_source` (often TCGA); GTEx/FANTOM RNA are integrated upstream by HPA. Only HPA's own derived calls are ingested.
-- **`blood_concentration` and antibody `rrid`** are not populated from the XML in this version (best-effort; phase-2).
+- **Reliability** (Enhanced/Supported/Approved/Uncertain) IS populated: gene card carries `reliability_ih` (from tissueExpression verification) + `reliability_if` (from cellExpression verification); `hpa_antibody` carries per-antibody `reliability_ih` + `validations` (RNAConsistency / literatureConformity notes).
+- **`blood_concentration` and antibody `rrid`** are not populated — `rrid` is not present in the HPA bulk XML at all (would need an external Antibody Registry mapping); blood concentration is phase-2.
+- **`antigen_sequence`** is populated for HPA-prefixed antibodies; older `CAB…` antibodies have no antigen sequence in the source.
 - Image URLs are not stored.
 
 ## Test entries

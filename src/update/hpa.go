@@ -59,7 +59,8 @@ type hpaXMLEntry struct {
 	PredictedLocation string `xml:"predictedLocation"`
 	// Subcellular localization (immunofluorescence); locations carry GO IDs.
 	CellExpression []struct {
-		Data struct {
+		Verifications []hpaVerification `xml:"verification"`
+		Data          struct {
 			Locations []struct {
 				Status string `xml:"status,attr"`
 				GOId   string `xml:"GOId,attr"`
@@ -86,11 +87,9 @@ type hpaXMLEntry struct {
 	} `xml:"rnaExpression"`
 	// Protein IHC staining per tissue (per cell type).
 	TissueExpression []struct {
-		AssayType string `xml:"assayType,attr"`
-		Verification struct {
-			Value string `xml:",chardata"`
-		} `xml:"verification"`
-		Data []struct {
+		AssayType     string            `xml:"assayType,attr"`
+		Verifications []hpaVerification `xml:"verification"`
+		Data          []struct {
 			Tissue      hpaTissueRef `xml:"tissue"`
 			Level       hpaIHCLevel  `xml:"level"`
 			TissueCells []struct {
@@ -115,14 +114,24 @@ type hpaXMLEntry struct {
 	} `xml:"cancerExpression"`
 	// Validation antibodies.
 	Antibodies []struct {
-		ID              string          `xml:"id,attr"`
-		ReleaseVersion  string          `xml:"releaseVersion,attr"`
-		AntigenSequence string          `xml:"antigenSequence"`
-		Validations     []hpaValidation `xml:"validation"`
+		ID              string `xml:"id,attr"`
+		ReleaseVersion  string `xml:"releaseVersion,attr"`
+		AntigenSequence string `xml:"antigenSequence"`
+		// IHC reliability + per-antibody validation notes are nested one level
+		// deeper, inside the antibody's own <tissueExpression>.
+		TissueExpression []struct {
+			Verifications []hpaVerification `xml:"verification"`
+			Validations   []hpaValidation   `xml:"validation"`
+		} `xml:"tissueExpression"`
 	} `xml:"antibody"`
 }
 
 type hpaValidation struct {
+	Type  string `xml:"type,attr"`
+	Value string `xml:",chardata"`
+}
+
+type hpaVerification struct {
 	Type  string `xml:"type,attr"`
 	Value string `xml:",chardata"`
 }
@@ -368,10 +377,17 @@ func (h *hpa) processEntry(e *hpaXMLEntry, geneID, hpaID, exprID, pathID, abID s
 	attr.TopTissues = topExpressed(exprByEntity, order, "tissue", 10)
 	attr.TopCellTypes = topExpressed(exprByEntity, order, "single_cell", 10)
 
-	// antibody reliability summary (first non-empty)
-	for _, ab := range e.Antibodies {
-		if r := ihReliability(ab.Validations); r != "" {
-			attr.AntibodyReliability = r
+	// Gene reliability (Enhanced/Supported/Approved/Uncertain): IHC from the
+	// entry-level tissueExpression verification, IF from cellExpression verification.
+	for _, te := range e.TissueExpression {
+		if v := pickReliability(te.Verifications); v != "" {
+			attr.ReliabilityIh = v
+			break
+		}
+	}
+	for _, ce := range e.CellExpression {
+		if v := pickReliability(ce.Verifications); v != "" {
+			attr.ReliabilityIf = v
 			break
 		}
 	}
@@ -477,12 +493,18 @@ func (h *hpa) processEntry(e *hpaXMLEntry, geneID, hpaID, exprID, pathID, abID s
 				Gene:            e.Name,
 				GeneId:          geneID,
 				AntigenSequence: ab.AntigenSequence,
-				ReliabilityIh:   ihReliability(ab.Validations),
 				ReleaseVersion:  ab.ReleaseVersion,
 			}
-			for _, v := range ab.Validations {
-				if v.Value != "" {
-					aattr.Validations = append(aattr.Validations, v.Type+": "+strings.TrimSpace(v.Value))
+			// Per-antibody IHC reliability + validation notes live inside the
+			// antibody's own <tissueExpression>.
+			for _, te := range ab.TissueExpression {
+				if aattr.ReliabilityIh == "" {
+					aattr.ReliabilityIh = pickReliability(te.Verifications)
+				}
+				for _, v := range te.Validations {
+					if v.Value != "" {
+						aattr.Validations = append(aattr.Validations, v.Type+": "+strings.TrimSpace(v.Value))
+					}
 				}
 			}
 			if b, err := ffjson.Marshal(aattr); err == nil {
@@ -559,17 +581,21 @@ func topExpressed(m map[string]*hpaExprAccum, order []string, axis string, n int
 	return out
 }
 
-// ihReliability extracts an IHC/validation reliability string from validation entries.
-func ihReliability(vals []hpaValidation) string {
-	for _, v := range vals {
-		if v.Type == "validation" || v.Type == "RNAConsistency" {
+// pickReliability returns the reliability level (Enhanced/Supported/Approved/
+// Uncertain) from a set of <verification> elements — preferring type="reliability"
+// or type="validation", else the first non-empty value.
+func pickReliability(verifs []hpaVerification) string {
+	for _, v := range verifs {
+		if v.Type == "reliability" || v.Type == "validation" {
 			if s := strings.TrimSpace(v.Value); s != "" {
 				return s
 			}
 		}
 	}
-	if len(vals) > 0 {
-		return strings.TrimSpace(vals[0].Value)
+	for _, v := range verifs {
+		if s := strings.TrimSpace(v.Value); s != "" {
+			return s
+		}
 	}
 	return ""
 }

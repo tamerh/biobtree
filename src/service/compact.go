@@ -2160,8 +2160,10 @@ func extractHpaField(a *pbuf.HpaAttr, field string) string {
 		return a.RnaCancerSpecificity
 	case "rna_blood_specificity":
 		return a.RnaBloodSpecificity
-	case "antibody_reliability":
-		return a.AntibodyReliability
+	case "reliability_ih":
+		return a.ReliabilityIh
+	case "reliability_if":
+		return a.ReliabilityIf
 	case "top_tissues":
 		return strings.Join(a.TopTissues, ";")
 	case "top_cell_types":

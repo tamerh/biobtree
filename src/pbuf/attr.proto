@@ -2156,9 +2156,10 @@ message HpaAttr {
   string rna_blood_specificity = 18;
   double blood_concentration_im = 19;             // Conc. blood immunoassay [pg/L]
   double blood_concentration_ms = 20;             // Conc. blood mass-spec [pg/L]
-  string antibody_reliability = 21;               // best IH/IF reliability summary
+  string reliability_ih = 21;                     // gene IHC reliability (Enhanced/Supported/Approved/Uncertain), from tissueExpression verification
   repeated string top_tissues = 22;               // top expressed tissues, "name|nTPM"
   repeated string top_cell_types = 23;            // top single-cell types, "name|nCPM"
+  string reliability_if = 24;                     // gene IF reliability, from cellExpression verification
   string id = 100; // transient
 }
 

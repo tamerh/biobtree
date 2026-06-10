@@ -76420,9 +76420,9 @@ func (j *HpaAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.AppendFloat(buf, float64(j.BloodConcentrationMs), 'g', -1, 64)
 		buf.WriteByte(',')
 	}
-	if len(j.AntibodyReliability) != 0 {
-		buf.WriteString(`"antibody_reliability":`)
-		fflib.WriteJsonString(buf, string(j.AntibodyReliability))
+	if len(j.ReliabilityIh) != 0 {
+		buf.WriteString(`"reliability_ih":`)
+		fflib.WriteJsonString(buf, string(j.ReliabilityIh))
 		buf.WriteByte(',')
 	}
 	if len(j.TopTissues) != 0 {
@@ -76455,6 +76455,11 @@ func (j *HpaAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		} else {
 			buf.WriteString(`null`)
 		}
+		buf.WriteByte(',')
+	}
+	if len(j.ReliabilityIf) != 0 {
+		buf.WriteString(`"reliability_if":`)
+		fflib.WriteJsonString(buf, string(j.ReliabilityIf))
 		buf.WriteByte(',')
 	}
 	if len(j.Id) != 0 {
@@ -76511,11 +76516,13 @@ const (
 
 	ffjtHpaAttrBloodConcentrationMs
 
-	ffjtHpaAttrAntibodyReliability
+	ffjtHpaAttrReliabilityIh
 
 	ffjtHpaAttrTopTissues
 
 	ffjtHpaAttrTopCellTypes
+
+	ffjtHpaAttrReliabilityIf
 
 	ffjtHpaAttrId
 )
@@ -76560,11 +76567,13 @@ var ffjKeyHpaAttrBloodConcentrationIm = []byte("blood_concentration_im")
 
 var ffjKeyHpaAttrBloodConcentrationMs = []byte("blood_concentration_ms")
 
-var ffjKeyHpaAttrAntibodyReliability = []byte("antibody_reliability")
+var ffjKeyHpaAttrReliabilityIh = []byte("reliability_ih")
 
 var ffjKeyHpaAttrTopTissues = []byte("top_tissues")
 
 var ffjKeyHpaAttrTopCellTypes = []byte("top_cell_types")
+
+var ffjKeyHpaAttrReliabilityIf = []byte("reliability_if")
 
 var ffjKeyHpaAttrId = []byte("id")
 
@@ -76628,14 +76637,6 @@ mainparse:
 				goto mainparse
 			} else {
 				switch kn[0] {
-
-				case 'a':
-
-					if bytes.Equal(ffjKeyHpaAttrAntibodyReliability, kn) {
-						currentKey = ffjtHpaAttrAntibodyReliability
-						state = fflib.FFParse_want_colon
-						goto mainparse
-					}
 
 				case 'b':
 
@@ -76736,6 +76737,16 @@ mainparse:
 						currentKey = ffjtHpaAttrRnaBloodSpecificity
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyHpaAttrReliabilityIh, kn) {
+						currentKey = ffjtHpaAttrReliabilityIh
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyHpaAttrReliabilityIf, kn) {
+						currentKey = ffjtHpaAttrReliabilityIf
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 's':
@@ -76790,6 +76801,12 @@ mainparse:
 					goto mainparse
 				}
 
+				if fflib.AsciiEqualFold(ffjKeyHpaAttrReliabilityIf, kn) {
+					currentKey = ffjtHpaAttrReliabilityIf
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
 				if fflib.EqualFoldRight(ffjKeyHpaAttrTopCellTypes, kn) {
 					currentKey = ffjtHpaAttrTopCellTypes
 					state = fflib.FFParse_want_colon
@@ -76802,8 +76819,8 @@ mainparse:
 					goto mainparse
 				}
 
-				if fflib.AsciiEqualFold(ffjKeyHpaAttrAntibodyReliability, kn) {
-					currentKey = ffjtHpaAttrAntibodyReliability
+				if fflib.AsciiEqualFold(ffjKeyHpaAttrReliabilityIh, kn) {
+					currentKey = ffjtHpaAttrReliabilityIh
 					state = fflib.FFParse_want_colon
 					goto mainparse
 				}
@@ -77005,14 +77022,17 @@ mainparse:
 				case ffjtHpaAttrBloodConcentrationMs:
 					goto handle_BloodConcentrationMs
 
-				case ffjtHpaAttrAntibodyReliability:
-					goto handle_AntibodyReliability
+				case ffjtHpaAttrReliabilityIh:
+					goto handle_ReliabilityIh
 
 				case ffjtHpaAttrTopTissues:
 					goto handle_TopTissues
 
 				case ffjtHpaAttrTopCellTypes:
 					goto handle_TopCellTypes
+
+				case ffjtHpaAttrReliabilityIf:
+					goto handle_ReliabilityIf
 
 				case ffjtHpaAttrId:
 					goto handle_Id
@@ -77751,9 +77771,9 @@ handle_BloodConcentrationMs:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
-handle_AntibodyReliability:
+handle_ReliabilityIh:
 
-	/* handler: j.AntibodyReliability type=string kind=string quoted=false*/
+	/* handler: j.ReliabilityIh type=string kind=string quoted=false*/
 
 	{
 
@@ -77769,7 +77789,7 @@ handle_AntibodyReliability:
 
 			outBuf := fs.Output.Bytes()
 
-			j.AntibodyReliability = string(string(outBuf))
+			j.ReliabilityIh = string(string(outBuf))
 
 		}
 	}
@@ -77919,6 +77939,32 @@ handle_TopCellTypes:
 
 				wantVal = false
 			}
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_ReliabilityIf:
+
+	/* handler: j.ReliabilityIf type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.ReliabilityIf = string(string(outBuf))
+
 		}
 	}
 

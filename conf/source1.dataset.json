@@ -1439,10 +1439,11 @@
     "path_product9": "https://www.orphadata.com/data/xml/en_product9_prev.xml",
     "useLocalFile": "no",
     "hasFilter": "yes",
-    "attrs": "name,[]synonyms,definition,disorder_type,[]phenotypes",
+    "attrs": "name,[]synonyms,definition,disorder_type,[]inheritance,[]onset,[]phenotypes",
     "compact_fields": "name,disorder_type,gene_count,phenotype_count",
     "test_entries_count": "100",
-    "bucketMethod": "numeric"
+    "bucketMethod": "numeric",
+    "path_product9_ages": "https://www.orphadata.com/data/xml/en_product9_ages.xml"
   },
   "spliceai": {
     "data_version": "static (one-time build)",

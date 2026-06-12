@@ -91,6 +91,10 @@ func (o *orphanet) update() {
 	phase4Count := o.parseProduct9(entries)
 	log.Printf("Orphanet: Phase 4 complete - %d disorders with prevalence from product9_prev.xml", phase4Count)
 
+	// Phase 5: Parse product9_ages.xml (mode of inheritance / age of onset)
+	phase5Count := o.parseProduct9Ages(entries)
+	log.Printf("Orphanet: Phase 5 complete - %d disorders with inheritance/onset from product9_ages.xml", phase5Count)
+
 	// Save all entries and create cross-references
 	o.saveAllEntries(entries)
 
@@ -180,11 +184,19 @@ func (o *orphanet) parseProduct1(entries map[string]*orphaEntry, testLimit int, 
 			}
 		}
 
-		// Definition/summary (optional in some entries)
-		if summaryNode := disorder.Childs["SummaryInformation"]; summaryNode != nil && len(summaryNode) > 0 {
-			if textSec := summaryNode[0].Childs["TextSection"]; textSec != nil && len(textSec) > 0 {
-				if contents := textSec[0].Childs["Contents"]; contents != nil && len(contents) > 0 {
-					entry.attr.Definition = contents[0].InnerText
+		// Definition/summary. The real Orphadata nesting is
+		// SummaryInformationList > SummaryInformation > TextSectionList >
+		// TextSection > Contents (the parser previously looked for the inner
+		// elements as direct children, skipping the ...List wrappers, so the
+		// declared `definition` field was always empty — Atlas issue #40).
+		if sumList := disorder.Childs["SummaryInformationList"]; len(sumList) > 0 {
+			if summaryNode := sumList[0].Childs["SummaryInformation"]; len(summaryNode) > 0 {
+				if tsList := summaryNode[0].Childs["TextSectionList"]; len(tsList) > 0 {
+					if textSec := tsList[0].Childs["TextSection"]; len(textSec) > 0 {
+						if contents := textSec[0].Childs["Contents"]; len(contents) > 0 {
+							entry.attr.Definition = stripHTML(contents[0].InnerText)
+						}
+					}
 				}
 			}
 		}
@@ -373,6 +385,62 @@ func (o *orphanet) parseProduct9(entries map[string]*orphaEntry) int {
 			}
 			entry.attr.Prevalences = append(entry.attr.Prevalences, prev)
 			added = true
+		}
+		if added {
+			updatedCount++
+		}
+	}
+
+	return updatedCount
+}
+
+// parseProduct9Ages parses en_product9_ages.xml for mode of inheritance and
+// average age of onset, keyed by OrphaCode (Atlas issue #42).
+func (o *orphanet) parseProduct9Ages(entries map[string]*orphaEntry) int {
+	pathKey := "path_product9_ages"
+	filePath := config.Dataconf[o.source][pathKey]
+	if filePath == "" {
+		log.Printf("Orphanet: No path_product9_ages configured, skipping")
+		return 0
+	}
+
+	log.Printf("Orphanet: Phase 5 - Downloading product9_ages.xml from %s", filePath)
+
+	br, gz, ftpFile, client, localFile, _, err := getDataReaderNew(o.source, "", "", filePath)
+	o.check(err, "opening product9_ages.xml")
+	defer closeReaders(gz, ftpFile, client, localFile)
+
+	parser := xmlparser.NewXMLParser(br, "Disorder")
+
+	updatedCount := 0
+	for disorder := range parser.Stream() {
+		orphaCode := getXMLChildText(disorder, "OrphaCode")
+		if orphaCode == "" {
+			continue
+		}
+		entry, exists := entries[orphaCode]
+		if !exists {
+			continue
+		}
+
+		added := false
+		// TypeOfInheritanceList > TypeOfInheritance > Name
+		if inhList := disorder.Childs["TypeOfInheritanceList"]; len(inhList) > 0 {
+			for i := range inhList[0].Childs["TypeOfInheritance"] {
+				if name := getXMLChildText(&inhList[0].Childs["TypeOfInheritance"][i], "Name"); name != "" {
+					entry.attr.Inheritance = append(entry.attr.Inheritance, name)
+					added = true
+				}
+			}
+		}
+		// AverageAgeOfOnsetList > AverageAgeOfOnset > Name
+		if onsetList := disorder.Childs["AverageAgeOfOnsetList"]; len(onsetList) > 0 {
+			for i := range onsetList[0].Childs["AverageAgeOfOnset"] {
+				if name := getXMLChildText(&onsetList[0].Childs["AverageAgeOfOnset"][i], "Name"); name != "" {
+					entry.attr.Onset = append(entry.attr.Onset, name)
+					added = true
+				}
+			}
 		}
 		if added {
 			updatedCount++

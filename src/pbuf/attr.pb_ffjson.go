@@ -91764,6 +91764,38 @@ func (j *OrphanetAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		}
 		buf.WriteByte(',')
 	}
+	if len(j.Inheritance) != 0 {
+		buf.WriteString(`"inheritance":`)
+		if j.Inheritance != nil {
+			buf.WriteString(`[`)
+			for i, v := range j.Inheritance {
+				if i != 0 {
+					buf.WriteString(`,`)
+				}
+				fflib.WriteJsonString(buf, string(v))
+			}
+			buf.WriteString(`]`)
+		} else {
+			buf.WriteString(`null`)
+		}
+		buf.WriteByte(',')
+	}
+	if len(j.Onset) != 0 {
+		buf.WriteString(`"onset":`)
+		if j.Onset != nil {
+			buf.WriteString(`[`)
+			for i, v := range j.Onset {
+				if i != 0 {
+					buf.WriteString(`,`)
+				}
+				fflib.WriteJsonString(buf, string(v))
+			}
+			buf.WriteString(`]`)
+		} else {
+			buf.WriteString(`null`)
+		}
+		buf.WriteByte(',')
+	}
 	if len(j.Id) != 0 {
 		buf.WriteString(`"id":`)
 		fflib.WriteJsonString(buf, string(j.Id))
@@ -91794,6 +91826,10 @@ const (
 
 	ffjtOrphanetAttrPrevalences
 
+	ffjtOrphanetAttrInheritance
+
+	ffjtOrphanetAttrOnset
+
 	ffjtOrphanetAttrId
 )
 
@@ -91812,6 +91848,10 @@ var ffjKeyOrphanetAttrGeneCount = []byte("gene_count")
 var ffjKeyOrphanetAttrPhenotypeCount = []byte("phenotype_count")
 
 var ffjKeyOrphanetAttrPrevalences = []byte("prevalences")
+
+var ffjKeyOrphanetAttrInheritance = []byte("inheritance")
+
+var ffjKeyOrphanetAttrOnset = []byte("onset")
 
 var ffjKeyOrphanetAttrId = []byte("id")
 
@@ -91899,7 +91939,12 @@ mainparse:
 
 				case 'i':
 
-					if bytes.Equal(ffjKeyOrphanetAttrId, kn) {
+					if bytes.Equal(ffjKeyOrphanetAttrInheritance, kn) {
+						currentKey = ffjtOrphanetAttrInheritance
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyOrphanetAttrId, kn) {
 						currentKey = ffjtOrphanetAttrId
 						state = fflib.FFParse_want_colon
 						goto mainparse
@@ -91909,6 +91954,14 @@ mainparse:
 
 					if bytes.Equal(ffjKeyOrphanetAttrName, kn) {
 						currentKey = ffjtOrphanetAttrName
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'o':
+
+					if bytes.Equal(ffjKeyOrphanetAttrOnset, kn) {
+						currentKey = ffjtOrphanetAttrOnset
 						state = fflib.FFParse_want_colon
 						goto mainparse
 					}
@@ -91943,6 +91996,18 @@ mainparse:
 
 				if fflib.SimpleLetterEqualFold(ffjKeyOrphanetAttrId, kn) {
 					currentKey = ffjtOrphanetAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyOrphanetAttrOnset, kn) {
+					currentKey = ffjtOrphanetAttrOnset
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyOrphanetAttrInheritance, kn) {
+					currentKey = ffjtOrphanetAttrInheritance
 					state = fflib.FFParse_want_colon
 					goto mainparse
 				}
@@ -92035,6 +92100,12 @@ mainparse:
 
 				case ffjtOrphanetAttrPrevalences:
 					goto handle_Prevalences
+
+				case ffjtOrphanetAttrInheritance:
+					goto handle_Inheritance
+
+				case ffjtOrphanetAttrOnset:
+					goto handle_Onset
 
 				case ffjtOrphanetAttrId:
 					goto handle_Id
@@ -92404,6 +92475,154 @@ handle_Prevalences:
 				}
 
 				j.Prevalences = append(j.Prevalences, tmpJPrevalences)
+
+				wantVal = false
+			}
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Inheritance:
+
+	/* handler: j.Inheritance type=[]string kind=slice quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_left_brace && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for ", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+			j.Inheritance = nil
+		} else {
+
+			j.Inheritance = []string{}
+
+			wantVal := true
+
+			for {
+
+				var tmpJInheritance string
+
+				tok = fs.Scan()
+				if tok == fflib.FFTok_error {
+					goto tokerror
+				}
+				if tok == fflib.FFTok_right_brace {
+					break
+				}
+
+				if tok == fflib.FFTok_comma {
+					if wantVal == true {
+						// TODO(pquerna): this isn't an ideal error message, this handles
+						// things like [,,,] as an array value.
+						return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
+					}
+					continue
+				} else {
+					wantVal = true
+				}
+
+				/* handler: tmpJInheritance type=string kind=string quoted=false*/
+
+				{
+
+					{
+						if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+							return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+						}
+					}
+
+					if tok == fflib.FFTok_null {
+
+					} else {
+
+						outBuf := fs.Output.Bytes()
+
+						tmpJInheritance = string(string(outBuf))
+
+					}
+				}
+
+				j.Inheritance = append(j.Inheritance, tmpJInheritance)
+
+				wantVal = false
+			}
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Onset:
+
+	/* handler: j.Onset type=[]string kind=slice quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_left_brace && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for ", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+			j.Onset = nil
+		} else {
+
+			j.Onset = []string{}
+
+			wantVal := true
+
+			for {
+
+				var tmpJOnset string
+
+				tok = fs.Scan()
+				if tok == fflib.FFTok_error {
+					goto tokerror
+				}
+				if tok == fflib.FFTok_right_brace {
+					break
+				}
+
+				if tok == fflib.FFTok_comma {
+					if wantVal == true {
+						// TODO(pquerna): this isn't an ideal error message, this handles
+						// things like [,,,] as an array value.
+						return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
+					}
+					continue
+				} else {
+					wantVal = true
+				}
+
+				/* handler: tmpJOnset type=string kind=string quoted=false*/
+
+				{
+
+					{
+						if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+							return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+						}
+					}
+
+					if tok == fflib.FFTok_null {
+
+					} else {
+
+						outBuf := fs.Output.Bytes()
+
+						tmpJOnset = string(string(outBuf))
+
+					}
+				}
+
+				j.Onset = append(j.Onset, tmpJOnset)
 
 				wantVal = false
 			}

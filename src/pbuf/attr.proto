@@ -131,6 +131,8 @@ message OrphanetAttr {
   int32 gene_count = 6;
   int32 phenotype_count = 7;
   repeated Prevalence prevalences = 8;   // epidemiology from en_product9_prev.xml
+  repeated string inheritance = 9;       // mode(s) of inheritance, from en_product9_ages.xml
+  repeated string onset = 10;            // average age(s) of onset, from en_product9_ages.xml
 
   message PhenotypeAssociation {
     string hpo_id = 1;

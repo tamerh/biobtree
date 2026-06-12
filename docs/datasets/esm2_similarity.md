@@ -118,11 +118,11 @@ Use: Build protein families including remote homologs
 
 ## Regenerating the data (the full update procedure)
 
-Unlike `diamond_similarity` (which ships a ready flat TSV at a bioyoda snapshot
-path), the ESM2 similarity TSV is **generated on the biobtree side** by querying a
+Unlike `diamond_similarity` (which ships a ready flat TSV at an
+external snapshot path), the ESM2 similarity TSV is **generated on the biobtree side** by querying a
 Qdrant vector DB. So an ESM2 update is a two-step flow:
 
-**Prerequisite (bioyoda side):** the ESM2 embeddings are (re)loaded into a Qdrant
+**Prerequisite (upstream embedding pipeline):** the ESM2 embeddings are (re)loaded into a Qdrant
 collection named `esm2` and the Qdrant server is started (default
 `http://localhost:6333`). Verify it's ready:
 ```bash

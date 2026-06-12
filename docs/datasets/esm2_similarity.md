@@ -131,19 +131,18 @@ curl -s http://localhost:6333/collections/esm2 | python3 -c "import sys,json;pri
 ```
 
 **Step 1 — export top-K similarities from Qdrant → TSV.** The export script needs
-`qdrant-client` + `tqdm`; the **bioyoda** conda env has them (the biobtree env does
-not), so run it with that interpreter. It writes to the exact path the conf's
-`useLocalFile` expects (`raw_data/esm2_similarity/esm2_similarities_top50.tsv`), and
-is checkpoint/resumable:
+`qdrant-client` + `tqdm` (install into whichever env runs it). It writes to the exact
+path the conf's `useLocalFile` expects (`raw_data/esm2_similarity/esm2_similarities_top50.tsv`,
+relative to the biobtree root), and is checkpoint/resumable. Run from the biobtree
+root:
 ```bash
-mkdir -p /data/biobtree/raw_data/esm2_similarity
-/data/miniconda3/envs/bioyoda/bin/python \
-  /data/biobtree/src/scripts/esm2/export_esm2_similarities.py \
+mkdir -p raw_data/esm2_similarity
+python src/scripts/esm2/export_esm2_similarities.py \
   --qdrant-url http://localhost:6333 \
   --collection esm2 \
-  --output /data/biobtree/raw_data/esm2_similarity/esm2_similarities_top50.tsv \
+  --output raw_data/esm2_similarity/esm2_similarities_top50.tsv \
   --top-k 50 --workers 4 \
-  --checkpoint /data/biobtree/raw_data/esm2_similarity/export.checkpoint
+  --checkpoint raw_data/esm2_similarity/export.checkpoint
 ```
 Takes a few hours (~50 proteins/s × ~574k). Output: `query_id\ttarget_id\tcosine_similarity\trank` (the format `esm2_similarity.go` parses).
 
@@ -157,8 +156,8 @@ Takes a few hours (~50 proteins/s × ~574k). Output: `query_id\ttarget_id\tcosin
 
 Notes:
 - The conf `path` is the **local** `raw_data/esm2_similarity/esm2_similarities_top50.tsv`
-  (not a `/data/bioyoda/snapshots/...` path), because the file is produced locally by
-  the export above.
+  (not an external snapshot path), because the file is produced locally by the
+  export above.
 - `--checkpoint` lets a long export resume after an interruption.
 
 ## References

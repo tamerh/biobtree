@@ -116,6 +116,51 @@ Use: Build protein families including remote homologs
 - **License**: Data follows UniProt license terms
 - **Dependencies**: Requires UniProt dataset for cross-references
 
+## Regenerating the data (the full update procedure)
+
+Unlike `diamond_similarity` (which ships a ready flat TSV at a bioyoda snapshot
+path), the ESM2 similarity TSV is **generated on the biobtree side** by querying a
+Qdrant vector DB. So an ESM2 update is a two-step flow:
+
+**Prerequisite (bioyoda side):** the ESM2 embeddings are (re)loaded into a Qdrant
+collection named `esm2` and the Qdrant server is started (default
+`http://localhost:6333`). Verify it's ready:
+```bash
+curl -s http://localhost:6333/collections/esm2 | python3 -c "import sys,json;print(json.load(sys.stdin)['result']['points_count'])"
+# expect a green collection with ~574k points
+```
+
+**Step 1 — export top-K similarities from Qdrant → TSV.** The export script needs
+`qdrant-client` + `tqdm`; the **bioyoda** conda env has them (the biobtree env does
+not), so run it with that interpreter. It writes to the exact path the conf's
+`useLocalFile` expects (`raw_data/esm2_similarity/esm2_similarities_top50.tsv`), and
+is checkpoint/resumable:
+```bash
+mkdir -p /data/biobtree/raw_data/esm2_similarity
+/data/miniconda3/envs/bioyoda/bin/python \
+  /data/biobtree/src/scripts/esm2/export_esm2_similarities.py \
+  --qdrant-url http://localhost:6333 \
+  --collection esm2 \
+  --output /data/biobtree/raw_data/esm2_similarity/esm2_similarities_top50.tsv \
+  --top-k 50 --workers 4 \
+  --checkpoint /data/biobtree/raw_data/esm2_similarity/export.checkpoint
+```
+Takes a few hours (~50 proteins/s × ~574k). Output: `query_id\ttarget_id\tcosine_similarity\trank` (the format `esm2_similarity.go` parses).
+
+**Step 2 — re-index (update only), then fold into the next main generate:**
+```bash
+./bb.sh out_prod --only esm2_similarity --force          # update phase only
+# later, in the batched evening generate:
+./bb.sh out_prod --generate --federation main
+./bb.sh out_prod --activate --federation main             # then restart the web server
+```
+
+Notes:
+- The conf `path` is the **local** `raw_data/esm2_similarity/esm2_similarities_top50.tsv`
+  (not a `/data/bioyoda/snapshots/...` path), because the file is produced locally by
+  the export above.
+- `--checkpoint` lets a long export resume after an interruption.
+
 ## References
 
 - **ESM2**: Lin Z, et al. (2023) Evolutionary-scale prediction of atomic level protein structure with a language model. Science. 379(6637):1123-1130.

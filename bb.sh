@@ -566,6 +566,43 @@ cleanup_old_versions() {
     done
 }
 
+# Pre-generate cleanup: run BEFORE building a new version to free disk and stop
+# stale versions from piling up. Keeps ONLY the active (deployed) version plus
+# the single newest non-active version; deletes everything older. Never touches
+# the active symlink target ("prod"). Because it only ever trims down to
+# {active + 1 previous}, a failed new generate still leaves 2 good rollback
+# copies, and after a successful generate we hold {active, 1 previous, new}.
+pre_generate_cleanup() {
+    local federation=$1
+    local fed_dir="$OUT_DIR/$federation"
+    [[ -d "$fed_dir" ]] || return 0
+
+    local current=$(get_current_version "$federation")
+    local versions=($(get_db_versions "$federation"))   # ascending
+    local count=${#versions[@]}
+    [[ $count -eq 0 ]] && return 0
+
+    # Newest non-active version to keep alongside the active one
+    local keep_other=""
+    for ((i=count-1; i>=0; i--)); do
+        if [[ "${versions[$i]}" != "$current" ]]; then
+            keep_other=${versions[$i]}
+            break
+        fi
+    done
+
+    echo "Pre-generate cleanup ($federation): keeping db_v$current (active)${keep_other:+ + db_v$keep_other (newest previous)}"
+    for ver in "${versions[@]}"; do
+        [[ "$ver" == "$current" || "$ver" == "$keep_other" ]] && continue
+        if [[ "$DRY_RUN" == "true" ]]; then
+            echo "  [DRY RUN] would remove db_v$ver"
+        else
+            echo "  Removing db_v$ver ($(du -sh "$fed_dir/db_v$ver" 2>/dev/null | cut -f1))..."
+            rm -rf "$fed_dir/db_v$ver"
+        fi
+    done
+}
+
 # Show db versions for all federations
 show_db_versions() {
     echo ""
@@ -971,9 +1008,11 @@ if [[ -n "$ONLY_DATASET" ]]; then
             rotate_log "$GEN_LOG"
             echo "Log: $GEN_LOG"
 
+            pre_generate_cleanup "$FEDERATION"
+
             if [[ "$DRY_RUN" == "true" ]]; then
-                echo "[DRY RUN] ./biobtree --out-dir \"$OUT_DIR\" --federation \"$FEDERATION\" --lmdb-safety-factor 4.5 generate"
-            elif ./biobtree --out-dir "$OUT_DIR" --federation "$FEDERATION" --lmdb-safety-factor 4.5 generate > "$GEN_LOG" 2>&1; then
+                echo "[DRY RUN] ./biobtree --out-dir \"$OUT_DIR\" --federation \"$FEDERATION\" --lmdb-safety-factor 10 generate"
+            elif ./biobtree --out-dir "$OUT_DIR" --federation "$FEDERATION" --lmdb-safety-factor 10 generate > "$GEN_LOG" 2>&1; then
                 echo "✓ Generate complete ($FEDERATION federation)"
 
                 # Show version info
@@ -998,9 +1037,13 @@ if [[ -n "$ONLY_DATASET" ]]; then
             rotate_log "$GEN_LOG"
             echo "Log: $GEN_LOG"
 
+            for federation in main dbsnp; do
+                pre_generate_cleanup "$federation"
+            done
+
             if [[ "$DRY_RUN" == "true" ]]; then
-                echo "[DRY RUN] ./biobtree --out-dir \"$OUT_DIR\" --lmdb-safety-factor 4.5 generate"
-            elif ./biobtree --out-dir "$OUT_DIR" --lmdb-safety-factor 4.5 generate > "$GEN_LOG" 2>&1; then
+                echo "[DRY RUN] ./biobtree --out-dir \"$OUT_DIR\" --lmdb-safety-factor 10 generate"
+            elif ./biobtree --out-dir "$OUT_DIR" --lmdb-safety-factor 10 generate > "$GEN_LOG" 2>&1; then
                 echo "✓ Generate complete (all federations)"
 
                 # Show version info for each federation
@@ -1039,9 +1082,11 @@ if [[ "$GENERATE_ONLY" == "true" ]]; then
         rotate_log "$GEN_LOG"
         echo "Log: $GEN_LOG"
 
+        pre_generate_cleanup "$FEDERATION"
+
         if [[ "$DRY_RUN" == "true" ]]; then
-            echo "[DRY RUN] ./biobtree --out-dir \"$OUT_DIR\" --federation \"$FEDERATION\" --lmdb-safety-factor 4.5 generate"
-        elif ./biobtree --out-dir "$OUT_DIR" --federation "$FEDERATION" --lmdb-safety-factor 4.5 generate > "$GEN_LOG" 2>&1; then
+            echo "[DRY RUN] ./biobtree --out-dir \"$OUT_DIR\" --federation \"$FEDERATION\" --lmdb-safety-factor 10 generate"
+        elif ./biobtree --out-dir "$OUT_DIR" --federation "$FEDERATION" --lmdb-safety-factor 10 generate > "$GEN_LOG" 2>&1; then
             echo "✓ Generate complete ($FEDERATION federation)"
 
             # Show version info
@@ -1066,9 +1111,13 @@ if [[ "$GENERATE_ONLY" == "true" ]]; then
         rotate_log "$GEN_LOG"
         echo "Log: $GEN_LOG"
 
+        for federation in main dbsnp; do
+            pre_generate_cleanup "$federation"
+        done
+
         if [[ "$DRY_RUN" == "true" ]]; then
-            echo "[DRY RUN] ./biobtree --out-dir \"$OUT_DIR\" --lmdb-safety-factor 4.5 generate"
-        elif ./biobtree --out-dir "$OUT_DIR" --lmdb-safety-factor 4.5 generate > "$GEN_LOG" 2>&1; then
+            echo "[DRY RUN] ./biobtree --out-dir \"$OUT_DIR\" --lmdb-safety-factor 10 generate"
+        elif ./biobtree --out-dir "$OUT_DIR" --lmdb-safety-factor 10 generate > "$GEN_LOG" 2>&1; then
             echo "✓ Generate complete (all federations)"
 
             # Show version info for each federation

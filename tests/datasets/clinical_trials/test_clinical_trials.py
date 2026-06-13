@@ -32,9 +32,20 @@ class ClinicalTrialsTests:
     def __init__(self, runner: TestRunner):
         self.runner = runner
 
+    def _ct_attrs(self, nct_id):
+        """Return the ClinicalTrials attribute dict the API actually projects
+        for nct_id, or None if the entry/result is missing."""
+        data = self.runner.lookup(nct_id)
+        if not data or not data.get("results"):
+            return None
+        for r in data["results"]:
+            if r.get("dataset_name") == "clinical_trials":
+                return r.get("Attributes", {}).get("ClinicalTrials", {})
+        return None
+
     @test
     def test_trial_with_interventions(self):
-        """Check trial with interventions."""
+        """API must actually project interventions, not just declare them (Atlas #45)."""
         entry = next(
             (e for e in self.runner.reference_data
              if e.get("interventions") and len(e["interventions"]) > 0),
@@ -42,16 +53,21 @@ class ClinicalTrialsTests:
         )
 
         if not entry:
-            return True, "No entries with interventions"
+            return True, "No reference entries with interventions"
 
         nct_id = entry["nct_id"]
-        data = self.runner.lookup(nct_id)
+        attrs = self._ct_attrs(nct_id)
+        if attrs is None:
+            return False, f"No clinical_trials result for {nct_id}"
 
-        if not data or not data.get("results"):
-            return False, f"No results for {nct_id}"
+        api_interv = attrs.get("interventions") or []
+        if not api_interv:
+            return False, f"{nct_id}: interventions empty in API payload (regression of #45)"
+        if not any(i.get("name") for i in api_interv):
+            return False, f"{nct_id}: interventions present but carry no names"
 
-        intervention_names = [i.get("name", "") for i in entry["interventions"]]
-        return True, f"{nct_id} has interventions: {', '.join(intervention_names[:3])}"
+        names = [i.get("name", "")[:30] for i in api_interv[:3]]
+        return True, f"{nct_id} API interventions: {', '.join(names)}"
 
     @test
     def test_trial_with_conditions(self):
@@ -136,24 +152,60 @@ class ClinicalTrialsTests:
 
     @test
     def test_trial_with_drug_interventions(self):
-        """Check trial with DRUG intervention type."""
+        """API must project the intervention type (DRUG) (Atlas #45 type-key fix).
+
+        Both reference_data (source shape) and the API serialize the
+        intervention type under 'type'."""
         entry = next(
             (e for e in self.runner.reference_data
-             if any(i.get("intervention_type") == "DRUG" for i in e.get("interventions", []))),
+             if any(i.get("type") == "DRUG" for i in e.get("interventions", []))),
             None
         )
 
         if not entry:
-            return True, "No entries with DRUG interventions"
+            return True, "No reference entries with DRUG interventions"
 
         nct_id = entry["nct_id"]
-        data = self.runner.lookup(nct_id)
+        attrs = self._ct_attrs(nct_id)
+        if attrs is None:
+            return False, f"No clinical_trials result for {nct_id}"
 
-        if not data or not data.get("results"):
-            return False, f"No results for {nct_id}"
+        drugs = [i.get("name", "") for i in (attrs.get("interventions") or [])
+                 if i.get("type") == "DRUG"]
+        if not drugs:
+            return False, f"{nct_id}: no DRUG-typed interventions in API payload (type not projected)"
 
-        drug_interventions = [i.get("name", "") for i in entry["interventions"] if i.get("intervention_type") == "DRUG"]
-        return True, f"{nct_id} has DRUG interventions: {', '.join(drug_interventions[:2])}"
+        return True, f"{nct_id} API DRUG interventions: {', '.join(drugs[:2])}"
+
+    @test
+    def test_trial_with_sponsor(self):
+        """API must project lead_sponsor + sponsors (Atlas #46)."""
+        entry = next(
+            (e for e in self.runner.reference_data
+             if any(s.get("role") == "lead" for s in e.get("sponsors", []))),
+            None
+        )
+
+        if not entry:
+            return True, "No reference entries with a lead sponsor"
+
+        nct_id = entry["nct_id"]
+        expected_lead = next(s["name"] for s in entry["sponsors"] if s.get("role") == "lead")
+
+        attrs = self._ct_attrs(nct_id)
+        if attrs is None:
+            return False, f"No clinical_trials result for {nct_id}"
+
+        lead = attrs.get("lead_sponsor", "")
+        sponsors = attrs.get("sponsors") or []
+        if not lead:
+            return False, f"{nct_id}: lead_sponsor empty in API payload (regression of #46)"
+        if lead != expected_lead:
+            return False, f"{nct_id}: lead_sponsor '{lead}' != expected '{expected_lead}'"
+        if expected_lead not in sponsors:
+            return False, f"{nct_id}: lead '{expected_lead}' missing from sponsors {sponsors}"
+
+        return True, f"{nct_id} lead_sponsor='{lead}', {len(sponsors)} sponsor(s)"
 
     @test
     def test_mondo_mapping(self):
@@ -206,6 +258,7 @@ def main():
         custom_tests.test_trial_recruiting,
         custom_tests.test_trial_interventional,
         custom_tests.test_trial_with_drug_interventions,
+        custom_tests.test_trial_with_sponsor,
         custom_tests.test_mondo_mapping,
     ]:
         runner.add_custom_test(test_method)

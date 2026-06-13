@@ -329,17 +329,20 @@ func (ct *clinicalTrials) createEFOXrefs(nctID string, fr string, efoIDs map[str
 	}
 }
 
-// Extract sponsor names from trial data
-func (ct *clinicalTrials) extractSponsors(trialData map[string]interface{}) []string {
+// Extract sponsors from trial data. Returns the lead sponsor (role == "lead")
+// and the full list of sponsor names (lead + collaborators), in source order.
+// trials.json carries sponsor objects as {name, agency_class, role}.
+func (ct *clinicalTrials) extractSponsorDetails(trialData map[string]interface{}) (string, []string) {
+	var leadSponsor string
 	var sponsors []string
 
 	if trialData["sponsors"] == nil {
-		return sponsors
+		return leadSponsor, sponsors
 	}
 
 	sponsorList, ok := trialData["sponsors"].([]interface{})
 	if !ok {
-		return sponsors
+		return leadSponsor, sponsors
 	}
 
 	for _, item := range sponsorList {
@@ -348,14 +351,18 @@ func (ct *clinicalTrials) extractSponsors(trialData map[string]interface{}) []st
 			continue
 		}
 
-		// Extract sponsor name
 		name := getStringFromMap(sponsorMap, "name")
-		if name != "" {
-			sponsors = append(sponsors, name)
+		if name == "" {
+			continue
+		}
+		sponsors = append(sponsors, name)
+
+		if leadSponsor == "" && strings.EqualFold(getStringFromMap(sponsorMap, "role"), "lead") {
+			leadSponsor = name
 		}
 	}
 
-	return sponsors
+	return leadSponsor, sponsors
 }
 
 // Normalize sponsor/company names for consistent cross-referencing
@@ -576,39 +583,36 @@ func (ct *clinicalTrials) processTrialsFile(trialsFile string, fr string, chembl
 		// Extract conditions (diseases/medical conditions)
 		conditions := extractStringArrayFromMap(trialData, "conditions")
 
-		// Store trial attributes
+		// Extract interventions and sponsors up front: the attr is stored with a
+		// SINGLE addProp3 call below. A second addProp3 for the same key does not
+		// override the first (the merge keeps the earliest record), so every field
+		// must be present in that one write — the old two-write path is exactly
+		// why interventions never reached the output (Atlas #45).
+		interventions := ct.extractInterventionsFromMap(trialData)
+		leadSponsor, sponsorNames := ct.extractSponsorDetails(trialData)
+
+		// Store trial attributes (single write)
 		attr := pbuf.ClinicalTrialAttr{
 			BriefTitle:    briefTitle,
 			OverallStatus: overallStatus,
 			Phase:         phase,
 			StudyType:     studyType,
 			Conditions:    conditions,
+			Interventions: interventions,
+			LeadSponsor:   leadSponsor,
+			Sponsors:      sponsorNames,
 		}
 
 		b, _ := ffjson.Marshal(attr)
 		ct.d.addProp3(nctID, fr, b)
 
-		// Extract and process interventions
-		interventions := ct.extractInterventionsFromMap(trialData)
-		if len(interventions) > 0 {
-			// Store interventions as part of attributes
-			attr.Interventions = interventions
-			b, _ = ffjson.Marshal(attr)
-			ct.d.addProp3(nctID, fr, b)
-
-			// Create cross-references for intervention names
-			// NOTE: Text search removed - interventions reachable via chembl_molecule >> clinical_trials
-			for _, interv := range interventions {
-				if interv.Name != "" {
-					// Normalize intervention name for searchability
-					normalizedName := normalizeInterventionName(interv.Name)
-					if normalizedName != "" {
-						// Text search commented out - use ChEMBL mapping instead
-						// ct.d.addXref(normalizedName, textLinkID, nctID, ct.source, true)
-
-						// Map intervention to ChEMBL molecules if lookup DB available
-						ct.mapInterventionToChEMBL(nctID, normalizedName, chemblDatasetID, fr, phase)
-					}
+		// Map intervention names to ChEMBL molecules if lookup DB available.
+		// NOTE: Text search removed - interventions reachable via chembl_molecule >> clinical_trials
+		for _, interv := range interventions {
+			if interv.Name != "" {
+				normalizedName := normalizeInterventionName(interv.Name)
+				if normalizedName != "" {
+					ct.mapInterventionToChEMBL(nctID, normalizedName, chemblDatasetID, fr, phase)
 				}
 			}
 		}
@@ -651,14 +655,13 @@ func (ct *clinicalTrials) processTrialsFile(trialsFile string, fr string, chembl
 			}
 		}
 
-		// Extract and process sponsors with normalization
-		// Enables linking clinical trials to patents (same organizations)
-		sponsors := ct.extractSponsors(trialData)
-		for _, sponsor := range sponsors {
+		// Sponsor text links (search "Pfizer" → find trials). Names were already
+		// extracted above for the attr; normalize here for cross-linking to
+		// patents (same organizations).
+		for _, sponsor := range sponsorNames {
 			if sponsor != "" {
 				normalizedName := normalizeSponsorName(sponsor)
 				if normalizedName != "" {
-					// Add as text link for searchability (search "Pfizer" → find trials)
 					ct.d.addXref(normalizedName, textLinkID, nctID, ct.source, true)
 				}
 			}
@@ -697,7 +700,9 @@ func (ct *clinicalTrials) extractInterventionsFromMap(trialData map[string]inter
 
 		intervention := &pbuf.Intervention{}
 
-		if intervType, ok := intervMap["intervention_type"].(string); ok {
+		// trials.json writes the intervention type under "type" (the prepare
+		// script renames AACT's intervention_type column to "type").
+		if intervType, ok := intervMap["type"].(string); ok {
 			intervention.Type = intervType
 		}
 

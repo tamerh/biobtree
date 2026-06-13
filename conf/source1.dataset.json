@@ -422,7 +422,7 @@
     "path": "raw_data/clinical_trials/",
     "useLocalFile": "yes",
     "hasFilter": "yes",
-    "attrs": "brief_title,overall_status,phase,study_type,[]interventions",
+    "attrs": "brief_title,overall_status,phase,study_type,[]interventions,lead_sponsor,[]sponsors",
     "compact_fields": "brief_title,overall_status,phase,study_type",
     "test_entries_count": "20",
     "bucketMethod": "nct",

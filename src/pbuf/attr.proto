@@ -500,6 +500,8 @@ message ClinicalTrialAttr {
   string study_type =4;
   repeated Intervention interventions =5;
   repeated string conditions =6;
+  string lead_sponsor =7;          // sponsor whose role is "lead"
+  repeated string sponsors =8;     // all sponsor names (lead + collaborators)
   string id = 100; // transient - populated at runtime from Xref.Identifier
 }
 

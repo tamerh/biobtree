@@ -39454,6 +39454,27 @@ func (j *ClinicalTrialAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		}
 		buf.WriteByte(',')
 	}
+	if len(j.LeadSponsor) != 0 {
+		buf.WriteString(`"lead_sponsor":`)
+		fflib.WriteJsonString(buf, string(j.LeadSponsor))
+		buf.WriteByte(',')
+	}
+	if len(j.Sponsors) != 0 {
+		buf.WriteString(`"sponsors":`)
+		if j.Sponsors != nil {
+			buf.WriteString(`[`)
+			for i, v := range j.Sponsors {
+				if i != 0 {
+					buf.WriteString(`,`)
+				}
+				fflib.WriteJsonString(buf, string(v))
+			}
+			buf.WriteString(`]`)
+		} else {
+			buf.WriteString(`null`)
+		}
+		buf.WriteByte(',')
+	}
 	if len(j.Id) != 0 {
 		buf.WriteString(`"id":`)
 		fflib.WriteJsonString(buf, string(j.Id))
@@ -39480,6 +39501,10 @@ const (
 
 	ffjtClinicalTrialAttrConditions
 
+	ffjtClinicalTrialAttrLeadSponsor
+
+	ffjtClinicalTrialAttrSponsors
+
 	ffjtClinicalTrialAttrId
 )
 
@@ -39494,6 +39519,10 @@ var ffjKeyClinicalTrialAttrStudyType = []byte("study_type")
 var ffjKeyClinicalTrialAttrInterventions = []byte("interventions")
 
 var ffjKeyClinicalTrialAttrConditions = []byte("conditions")
+
+var ffjKeyClinicalTrialAttrLeadSponsor = []byte("lead_sponsor")
+
+var ffjKeyClinicalTrialAttrSponsors = []byte("sponsors")
 
 var ffjKeyClinicalTrialAttrId = []byte("id")
 
@@ -39587,6 +39616,14 @@ mainparse:
 						goto mainparse
 					}
 
+				case 'l':
+
+					if bytes.Equal(ffjKeyClinicalTrialAttrLeadSponsor, kn) {
+						currentKey = ffjtClinicalTrialAttrLeadSponsor
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 'o':
 
 					if bytes.Equal(ffjKeyClinicalTrialAttrOverallStatus, kn) {
@@ -39609,12 +39646,29 @@ mainparse:
 						currentKey = ffjtClinicalTrialAttrStudyType
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyClinicalTrialAttrSponsors, kn) {
+						currentKey = ffjtClinicalTrialAttrSponsors
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				}
 
 				if fflib.SimpleLetterEqualFold(ffjKeyClinicalTrialAttrId, kn) {
 					currentKey = ffjtClinicalTrialAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyClinicalTrialAttrSponsors, kn) {
+					currentKey = ffjtClinicalTrialAttrSponsors
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyClinicalTrialAttrLeadSponsor, kn) {
+					currentKey = ffjtClinicalTrialAttrLeadSponsor
 					state = fflib.FFParse_want_colon
 					goto mainparse
 				}
@@ -39689,6 +39743,12 @@ mainparse:
 
 				case ffjtClinicalTrialAttrConditions:
 					goto handle_Conditions
+
+				case ffjtClinicalTrialAttrLeadSponsor:
+					goto handle_LeadSponsor
+
+				case ffjtClinicalTrialAttrSponsors:
+					goto handle_Sponsors
 
 				case ffjtClinicalTrialAttrId:
 					goto handle_Id
@@ -39950,6 +40010,106 @@ handle_Conditions:
 				}
 
 				j.Conditions = append(j.Conditions, tmpJConditions)
+
+				wantVal = false
+			}
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_LeadSponsor:
+
+	/* handler: j.LeadSponsor type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.LeadSponsor = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Sponsors:
+
+	/* handler: j.Sponsors type=[]string kind=slice quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_left_brace && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for ", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+			j.Sponsors = nil
+		} else {
+
+			j.Sponsors = []string{}
+
+			wantVal := true
+
+			for {
+
+				var tmpJSponsors string
+
+				tok = fs.Scan()
+				if tok == fflib.FFTok_error {
+					goto tokerror
+				}
+				if tok == fflib.FFTok_right_brace {
+					break
+				}
+
+				if tok == fflib.FFTok_comma {
+					if wantVal == true {
+						// TODO(pquerna): this isn't an ideal error message, this handles
+						// things like [,,,] as an array value.
+						return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
+					}
+					continue
+				} else {
+					wantVal = true
+				}
+
+				/* handler: tmpJSponsors type=string kind=string quoted=false*/
+
+				{
+
+					{
+						if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+							return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+						}
+					}
+
+					if tok == fflib.FFTok_null {
+
+					} else {
+
+						outBuf := fs.Output.Bytes()
+
+						tmpJSponsors = string(string(outBuf))
+
+					}
+				}
+
+				j.Sponsors = append(j.Sponsors, tmpJSponsors)
 
 				wantVal = false
 			}

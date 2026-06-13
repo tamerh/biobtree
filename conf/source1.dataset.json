@@ -423,7 +423,7 @@
     "useLocalFile": "yes",
     "hasFilter": "yes",
     "attrs": "brief_title,overall_status,phase,study_type,[]interventions,lead_sponsor,[]sponsors",
-    "compact_fields": "brief_title,overall_status,phase,study_type",
+    "compact_fields": "brief_title,overall_status,phase,study_type,lead_sponsor,intervention_names",
     "test_entries_count": "20",
     "bucketMethod": "nct",
     "xrefSort": "chembl_molecule:phaseScore;mondo:phaseScore;efo:phaseScore;pubmed:phaseScore"

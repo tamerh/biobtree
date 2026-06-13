@@ -680,6 +680,31 @@ func extractClinicalTrialsField(a *pbuf.ClinicalTrialAttr, field string) string 
 		return a.StudyType
 	case "conditions":
 		return strings.Join(a.Conditions, ";")
+	case "lead_sponsor":
+		return a.LeadSponsor
+	case "sponsors":
+		return strings.Join(a.Sponsors, ";")
+	case "intervention_names":
+		// Drug/biological intervention names only, semicolon-joined (same
+		// convention as CORUM subunit_genes). Surfaces the trial drugs on the
+		// disease->trials map edge so Atlas needn't fetch each trial entry.
+		// Dedup, preserve order.
+		var names []string
+		seen := make(map[string]bool)
+		for _, iv := range a.Interventions {
+			if iv == nil || iv.Name == "" {
+				continue
+			}
+			if iv.Type != "DRUG" && iv.Type != "BIOLOGICAL" {
+				continue
+			}
+			if seen[iv.Name] {
+				continue
+			}
+			seen[iv.Name] = true
+			names = append(names, iv.Name)
+		}
+		return strings.Join(names, ";")
 	default:
 		return ""
 	}

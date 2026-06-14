@@ -152,6 +152,12 @@ func extractField(xref *pbuf.Xref, field string) string {
 	if a := xref.GetClinicalTrials(); a != nil {
 		return extractClinicalTrialsField(a, field)
 	}
+	if a := xref.GetNcrnaDisease(); a != nil {
+		return extractNcrnaDiseaseField(a, field)
+	}
+	if a := xref.GetNcrnaInteraction(); a != nil {
+		return extractNcrnaInteractionField(a, field)
+	}
 	if a := xref.GetRefseq(); a != nil {
 		return extractRefseqField(a, field)
 	}
@@ -729,6 +735,66 @@ func extractClinicalTrialsField(a *pbuf.ClinicalTrialAttr, field string) string 
 			names = append(names, iv.Name)
 		}
 		return strings.Join(names, ";")
+	default:
+		return ""
+	}
+}
+
+// extractNcrnaDiseaseField extracts a field from NcrnaDiseaseAttr
+func extractNcrnaDiseaseField(a *pbuf.NcrnaDiseaseAttr, field string) string {
+	switch field {
+	case "ncrna_symbol":
+		return a.NcrnaSymbol
+	case "ncrna_category":
+		return a.NcrnaCategory
+	case "species":
+		return a.Species
+	case "disease_name":
+		return a.DiseaseName
+	case "dysfunction_pattern":
+		return a.DysfunctionPattern
+	case "validated_method":
+		return a.ValidatedMethod
+	case "causality":
+		return a.Causality
+	case "clinical_application":
+		return a.ClinicalApplication
+	case "description":
+		return a.Description
+	case "source":
+		return a.Source
+	default:
+		return ""
+	}
+}
+
+// extractNcrnaInteractionField extracts a field from NcrnaInteractionAttr
+func extractNcrnaInteractionField(a *pbuf.NcrnaInteractionAttr, field string) string {
+	switch field {
+	case "ncrna_name":
+		return a.NcrnaName
+	case "ncrna_type":
+		return a.NcrnaType
+	case "partner_name":
+		return a.PartnerName
+	case "partner_type":
+		return a.PartnerType
+	case "interaction_class":
+		return a.InteractionClass
+	case "level":
+		return a.Level
+	case "experiment":
+		return a.Experiment
+	case "datasource":
+		return a.Datasource
+	case "organism":
+		return a.Organism
+	case "tissue_or_cell":
+		return a.TissueOrCell
+	case "description":
+		return a.Description
+	case "source":
+		return a.Source
 	default:
 		return ""
 	}

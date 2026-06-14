@@ -9707,6 +9707,56 @@
       "should_fail": [
         "GO:9999999"
       ]
+    },
+    {
+      "category": "ncrna_disease",
+      "name": "lncRNA to disease association",
+      "query": ">>*>>ncrna_disease",
+      "why": "Curated ncRNA-disease associations give bare lncRNAs a disease layer (Atlas #48, LncRNADisease)",
+      "should_pass": [
+        "MALAT1",
+        "HOTAIR"
+      ],
+      "should_fail": [
+        "999999999"
+      ]
+    },
+    {
+      "category": "ncrna_disease",
+      "name": "lncRNA to disease ontology (MONDO)",
+      "query": ">>*>>ncrna_disease>>mondo",
+      "why": "ncRNA-disease associations resolve to the MONDO disease ontology",
+      "should_pass": [
+        "MALAT1"
+      ],
+      "should_fail": [
+        "999999999"
+      ]
+    },
+    {
+      "category": "ncrna_interaction",
+      "name": "ncRNA to protein interaction",
+      "query": ">>*>>ncrna_interaction>>uniprot",
+      "why": "Experimentally-supported ncRNA-protein interactions give bare lncRNAs a partner/function layer (Atlas #48, NPInter)",
+      "should_pass": [
+        "MALAT1",
+        "NEAT1"
+      ],
+      "should_fail": [
+        "999999999"
+      ]
+    },
+    {
+      "category": "ncrna_interaction",
+      "name": "ncRNA interaction record",
+      "query": ">>*>>ncrna_interaction",
+      "why": "ncRNA molecular interactions reachable from the ncRNA gene",
+      "should_pass": [
+        "MALAT1"
+      ],
+      "should_fail": [
+        "999999999"
+      ]
     }
   ]
 }

@@ -1432,6 +1432,16 @@ func (s *Service) execCelGo(query *query.Query, targetXref *pbuf.Xref) (bool, er
 			attr.Id = id
 			evalMap["clinical_trials"] = attr
 		}
+	case "ncrna_disease":
+		if attr := targetXref.GetNcrnaDisease(); attr != nil {
+			attr.Id = id
+			evalMap["ncrna_disease"] = attr
+		}
+	case "ncrna_interaction":
+		if attr := targetXref.GetNcrnaInteraction(); attr != nil {
+			attr.Id = id
+			evalMap["ncrna_interaction"] = attr
+		}
 	case "collectri":
 		if attr := targetXref.GetCollectri(); attr != nil {
 			attr.Id = id

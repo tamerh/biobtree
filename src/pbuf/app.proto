@@ -160,6 +160,8 @@ message Xref {
     HpaExpressionAttr hpa_expression=766;
     HpaPathologyAttr hpa_pathology=767;
     HpaAntibodyAttr hpa_antibody=768;
+    NcrnaDiseaseAttr ncrna_disease=769;
+    NcrnaInteractionAttr ncrna_interaction=770;
     CellxgeneAttr cellxgene=73;
     CellxgeneCelltypeAttr cellxgene_celltype=74;
     ScxaAttr scxa=75;

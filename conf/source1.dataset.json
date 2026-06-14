@@ -352,6 +352,35 @@
     "test_entries_count": "20",
     "bucketMethod": "chembl"
   },
+  "ncrna_disease": {
+    "id": "778",
+    "name": "ncRNA Disease",
+    "aliases": "ncRNA disease,lncRNA disease,LncRNADisease,ncRNA-disease association",
+    "url": "http://www.rnanut.net/lncrnadisease/",
+    "path": "http://www.rnanut.net/lncrnadisease/static/download/website_alldata.tsv",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "ncrna_symbol,ncrna_category,species,disease_name,dysfunction_pattern,validated_method,causality,clinical_application,description,source",
+    "compact_fields": "ncrna_symbol,ncrna_category,disease_name,causality,validated_method",
+    "test_entries_count": "100",
+    "textPriority": "70",
+    "bucketMethod": "alphanum"
+  },
+  "ncrna_interaction": {
+    "id": "779",
+    "name": "ncRNA Interaction",
+    "aliases": "ncRNA interaction,ncRNA-protein interaction,NPInter,RNA interaction",
+    "url": "http://bigdata.ibp.ac.cn/npinter5/",
+    "path": "http://bigdata.ibp.ac.cn/npinter5/download/file/interaction_NPInterv5.txt.gz",
+    "pathExpr": "http://bigdata.ibp.ac.cn/npinter5/download/file/interaction_NPInterv5.expr.txt.gz",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "ncrna_name,ncrna_type,partner_name,partner_type,interaction_class,level,experiment,datasource,organism,tissue_or_cell,description,source",
+    "compact_fields": "ncrna_name,ncrna_type,partner_name,partner_type,level,datasource",
+    "test_entries_count": "100",
+    "textPriority": "60",
+    "bucketMethod": "alphanum"
+  },
   "chembl_moleculeparent": {
     "name": "ChEMBL Molecule Parent",
     "id": "758",

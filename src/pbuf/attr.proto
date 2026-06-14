@@ -586,6 +586,41 @@ message RnacentralAttr {
   string id = 100; // transient - populated at runtime from Xref.Identifier
 }
 
+// One curated ncRNA->disease association (LncRNADisease v3.0). Record entity:
+// edges to hgnc/ensembl (the ncRNA gene) + mondo/efo (disease) + pubmed.
+message NcrnaDiseaseAttr {
+  string ncrna_symbol=1;
+  string ncrna_category=2;          // LncRNA / circRNA
+  string species=3;
+  string disease_name=4;
+  string dysfunction_pattern=5;
+  string validated_method=6;        // experimental method (this DB is experimentally supported)
+  string causality=7;               // Yes / No (causal vs correlative)
+  string clinical_application=8;
+  string description=9;
+  string source=10;                 // provenance, e.g. "LncRNADisease"
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// One ncRNA molecular interaction (NPInter v5). Record entity: edges to the
+// partner (uniprot for protein / gene for RNA) + the ncRNA gene + pubmed. The
+// datasource field carries the evidence tier (literature / high-throughput / ...).
+message NcrnaInteractionAttr {
+  string ncrna_name=1;
+  string ncrna_type=2;              // lncRNA / miRNA / circRNA / snoRNA / snRNA
+  string partner_name=3;
+  string partner_type=4;            // protein / RNA / DNA
+  string interaction_class=5;       // e.g. binding
+  string level=6;                   // RNA-Protein / RNA-RNA / RNA-DNA
+  string experiment=7;
+  string datasource=8;              // evidence tier (literature mining / high-throughput / ...)
+  string organism=9;
+  string tissue_or_cell=10;
+  string description=11;
+  string source=12;                 // provenance, e.g. "NPInter"
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
 message ClinicalSubmission {
   string scv_id = 1;                        // SCV accession (e.g., SCV000123456)
   string submitter_name = 2;                // Organization that submitted

@@ -791,6 +791,18 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			d.datasets2 = append(d.datasets2, data)
 			go rc.update()
 			break
+		case "ncrna_disease":
+			d.wg.Add(1)
+			nd := ncrnaDisease{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go nd.update()
+			break
+		case "ncrna_interaction":
+			d.wg.Add(1)
+			ni := ncrnaInteraction{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go ni.update()
+			break
 		case "clinvar":
 			d.wg.Add(1)
 			cv := clinvarXML{source: data, d: d}

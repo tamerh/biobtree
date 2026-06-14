@@ -98,11 +98,13 @@ DATASETS=(
     alphafold
     pdb
     rnacentral
+    ncrna_interaction
     reactome
     rhea
 
     # Variants & disease
     clinvar
+    ncrna_disease
     gwas_study
     gwas
     # dbsnp   # separate 'dbsnp' federation — excluded for a main-only update

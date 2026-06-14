@@ -43,7 +43,11 @@ Even NPInter's base file is mostly high-throughput/prediction; the `datasource`
 attribute is the evidence label so consumers can filter (e.g. literature-curated only)
 — nothing is silently dropped or exposed unlabeled.
 
-## Notes
+## Use Cases
+- Give a bare lncRNA a function layer via its protein partners (e.g. MALAT1, NEAT1).
+- "Which ncRNAs interact with this RBP?" — protein → ncRNA partners.
+
+## Known Limitations
 - The download is served behind a trailing-slash redirect and, despite the `.gz`
   name, the body has been observed as both gzip and a single-entry ZIP — the parser
   sniffs the magic bytes (`1f8b` gzip / `504b` zip) and handles either.

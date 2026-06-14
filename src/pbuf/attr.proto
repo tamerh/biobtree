@@ -621,6 +621,26 @@ message NcrnaInteractionAttr {
   string id = 100; // transient - populated at runtime from Xref.Identifier
 }
 
+// One ncRNA <-> drug association (ncRNADrug): drug-resistance or drug-target.
+// Record entity: edges to the ncRNA gene (ensembl/hgnc), the drug (drugbank /
+// pubchem / chembl_molecule), the targeted gene, and pubmed.
+message NcrnaDrugAttr {
+  string ncrna_name=1;
+  string ncrna_type=2;              // lncRNA / miRNA / circRNA
+  string symbol=3;                  // ncRNA gene symbol
+  string drug_name=4;
+  string drugbank_id=5;
+  string relation=6;                // drug_resistance / drug_target
+  string effect=7;                  // resistance effect / expression pattern
+  string target_gene=8;             // gene the ncRNA targets
+  string pathway=9;
+  string fda=10;                    // FDA-approved flag for the drug
+  string detection_method=11;
+  string condition=12;              // cancer / condition
+  string source=13;                 // provenance, e.g. "ncRNADrug"
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
 message ClinicalSubmission {
   string scv_id = 1;                        // SCV accession (e.g., SCV000123456)
   string submitter_name = 2;                // Organization that submitted

@@ -162,6 +162,7 @@ message Xref {
     HpaAntibodyAttr hpa_antibody=768;
     NcrnaDiseaseAttr ncrna_disease=769;
     NcrnaInteractionAttr ncrna_interaction=770;
+    NcrnaDrugAttr ncrna_drug=771;
     CellxgeneAttr cellxgene=73;
     CellxgeneCelltypeAttr cellxgene_celltype=74;
     ScxaAttr scxa=75;

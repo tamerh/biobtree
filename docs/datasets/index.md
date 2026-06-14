@@ -77,6 +77,7 @@ Biological pathways, protein-protein interactions, signaling networks.
 | collectri | CollecTRI TF-target regulation | [README](collectri.md) |
 | cellphonedb | CellPhoneDB ligand-receptor | [README](cellphonedb.md) |
 | corum | CORUM protein complexes | [README](corum.md) |
+| ncrna_interaction | Experimental ncRNA-protein/RNA interactions (NPInter) | [README](ncrna_interaction.md) |
 
 ---
 
@@ -104,6 +105,8 @@ Disease associations, clinical variants, rare diseases.
 | depmap_dependency | DepMap per-cell-line dependencies | [README](depmap_dependency.md) |
 | clinical_trials | ClinicalTrials.gov | [README](clinical_trials.md) |
 | pharmgkb | PharmGKB pharmacogenomics | [README](pharmgkb.md) |
+| ncrna_disease | Curated ncRNA-disease associations (LncRNADisease + HMDD) | [README](ncrna_disease.md) |
+| ncrna_drug | ncRNA drug-resistance / drug-target (ncRNADrug) | [README](ncrna_drug.md) |
 
 ---
 

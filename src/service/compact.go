@@ -158,6 +158,9 @@ func extractField(xref *pbuf.Xref, field string) string {
 	if a := xref.GetNcrnaInteraction(); a != nil {
 		return extractNcrnaInteractionField(a, field)
 	}
+	if a := xref.GetNcrnaDrug(); a != nil {
+		return extractNcrnaDrugField(a, field)
+	}
 	if a := xref.GetRefseq(); a != nil {
 		return extractRefseqField(a, field)
 	}
@@ -793,6 +796,40 @@ func extractNcrnaInteractionField(a *pbuf.NcrnaInteractionAttr, field string) st
 		return a.TissueOrCell
 	case "description":
 		return a.Description
+	case "source":
+		return a.Source
+	default:
+		return ""
+	}
+}
+
+// extractNcrnaDrugField extracts a field from NcrnaDrugAttr
+func extractNcrnaDrugField(a *pbuf.NcrnaDrugAttr, field string) string {
+	switch field {
+	case "ncrna_name":
+		return a.NcrnaName
+	case "ncrna_type":
+		return a.NcrnaType
+	case "symbol":
+		return a.Symbol
+	case "drug_name":
+		return a.DrugName
+	case "drugbank_id":
+		return a.DrugbankId
+	case "relation":
+		return a.Relation
+	case "effect":
+		return a.Effect
+	case "target_gene":
+		return a.TargetGene
+	case "pathway":
+		return a.Pathway
+	case "fda":
+		return a.Fda
+	case "detection_method":
+		return a.DetectionMethod
+	case "condition":
+		return a.Condition
 	case "source":
 		return a.Source
 	default:

@@ -105,6 +105,7 @@ DATASETS=(
     # Variants & disease
     clinvar
     ncrna_disease
+    ncrna_drug
     gwas_study
     gwas
     # dbsnp   # separate 'dbsnp' federation — excluded for a main-only update

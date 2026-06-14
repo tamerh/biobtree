@@ -9757,6 +9757,31 @@
       "should_fail": [
         "999999999"
       ]
+    },
+    {
+      "category": "ncrna_drug",
+      "name": "ncRNA to drug (resistance / target)",
+      "query": ">>*>>ncrna_drug>>chembl_molecule",
+      "why": "Curated ncRNA-drug resistance/target associations surface drugs on ncRNA gene pages (ncRNADrug)",
+      "should_pass": [
+        "HOTAIR",
+        "MALAT1"
+      ],
+      "should_fail": [
+        "999999999"
+      ]
+    },
+    {
+      "category": "ncrna_drug",
+      "name": "ncRNA drug-association record",
+      "query": ">>*>>ncrna_drug",
+      "why": "ncRNA-drug associations reachable from the ncRNA gene",
+      "should_pass": [
+        "HOTAIR"
+      ],
+      "should_fail": [
+        "999999999"
+      ]
     }
   ]
 }

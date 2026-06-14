@@ -92726,6 +92726,869 @@ done:
 }
 
 // MarshalJSON marshal bytes to json - template
+func (j *NcrnaDrugAttr) MarshalJSON() ([]byte, error) {
+	var buf fflib.Buffer
+	if j == nil {
+		buf.WriteString("null")
+		return buf.Bytes(), nil
+	}
+	err := j.MarshalJSONBuf(&buf)
+	if err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
+}
+
+// MarshalJSONBuf marshal buff to json - template
+func (j *NcrnaDrugAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
+	if j == nil {
+		buf.WriteString("null")
+		return nil
+	}
+	var err error
+	var obj []byte
+	_ = obj
+	_ = err
+	buf.WriteString(`{ `)
+	if len(j.NcrnaName) != 0 {
+		buf.WriteString(`"ncrna_name":`)
+		fflib.WriteJsonString(buf, string(j.NcrnaName))
+		buf.WriteByte(',')
+	}
+	if len(j.NcrnaType) != 0 {
+		buf.WriteString(`"ncrna_type":`)
+		fflib.WriteJsonString(buf, string(j.NcrnaType))
+		buf.WriteByte(',')
+	}
+	if len(j.Symbol) != 0 {
+		buf.WriteString(`"symbol":`)
+		fflib.WriteJsonString(buf, string(j.Symbol))
+		buf.WriteByte(',')
+	}
+	if len(j.DrugName) != 0 {
+		buf.WriteString(`"drug_name":`)
+		fflib.WriteJsonString(buf, string(j.DrugName))
+		buf.WriteByte(',')
+	}
+	if len(j.DrugbankId) != 0 {
+		buf.WriteString(`"drugbank_id":`)
+		fflib.WriteJsonString(buf, string(j.DrugbankId))
+		buf.WriteByte(',')
+	}
+	if len(j.Relation) != 0 {
+		buf.WriteString(`"relation":`)
+		fflib.WriteJsonString(buf, string(j.Relation))
+		buf.WriteByte(',')
+	}
+	if len(j.Effect) != 0 {
+		buf.WriteString(`"effect":`)
+		fflib.WriteJsonString(buf, string(j.Effect))
+		buf.WriteByte(',')
+	}
+	if len(j.TargetGene) != 0 {
+		buf.WriteString(`"target_gene":`)
+		fflib.WriteJsonString(buf, string(j.TargetGene))
+		buf.WriteByte(',')
+	}
+	if len(j.Pathway) != 0 {
+		buf.WriteString(`"pathway":`)
+		fflib.WriteJsonString(buf, string(j.Pathway))
+		buf.WriteByte(',')
+	}
+	if len(j.Fda) != 0 {
+		buf.WriteString(`"fda":`)
+		fflib.WriteJsonString(buf, string(j.Fda))
+		buf.WriteByte(',')
+	}
+	if len(j.DetectionMethod) != 0 {
+		buf.WriteString(`"detection_method":`)
+		fflib.WriteJsonString(buf, string(j.DetectionMethod))
+		buf.WriteByte(',')
+	}
+	if len(j.Condition) != 0 {
+		buf.WriteString(`"condition":`)
+		fflib.WriteJsonString(buf, string(j.Condition))
+		buf.WriteByte(',')
+	}
+	if len(j.Source) != 0 {
+		buf.WriteString(`"source":`)
+		fflib.WriteJsonString(buf, string(j.Source))
+		buf.WriteByte(',')
+	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
+	buf.Rewind(1)
+	buf.WriteByte('}')
+	return nil
+}
+
+const (
+	ffjtNcrnaDrugAttrbase = iota
+	ffjtNcrnaDrugAttrnosuchkey
+
+	ffjtNcrnaDrugAttrNcrnaName
+
+	ffjtNcrnaDrugAttrNcrnaType
+
+	ffjtNcrnaDrugAttrSymbol
+
+	ffjtNcrnaDrugAttrDrugName
+
+	ffjtNcrnaDrugAttrDrugbankId
+
+	ffjtNcrnaDrugAttrRelation
+
+	ffjtNcrnaDrugAttrEffect
+
+	ffjtNcrnaDrugAttrTargetGene
+
+	ffjtNcrnaDrugAttrPathway
+
+	ffjtNcrnaDrugAttrFda
+
+	ffjtNcrnaDrugAttrDetectionMethod
+
+	ffjtNcrnaDrugAttrCondition
+
+	ffjtNcrnaDrugAttrSource
+
+	ffjtNcrnaDrugAttrId
+)
+
+var ffjKeyNcrnaDrugAttrNcrnaName = []byte("ncrna_name")
+
+var ffjKeyNcrnaDrugAttrNcrnaType = []byte("ncrna_type")
+
+var ffjKeyNcrnaDrugAttrSymbol = []byte("symbol")
+
+var ffjKeyNcrnaDrugAttrDrugName = []byte("drug_name")
+
+var ffjKeyNcrnaDrugAttrDrugbankId = []byte("drugbank_id")
+
+var ffjKeyNcrnaDrugAttrRelation = []byte("relation")
+
+var ffjKeyNcrnaDrugAttrEffect = []byte("effect")
+
+var ffjKeyNcrnaDrugAttrTargetGene = []byte("target_gene")
+
+var ffjKeyNcrnaDrugAttrPathway = []byte("pathway")
+
+var ffjKeyNcrnaDrugAttrFda = []byte("fda")
+
+var ffjKeyNcrnaDrugAttrDetectionMethod = []byte("detection_method")
+
+var ffjKeyNcrnaDrugAttrCondition = []byte("condition")
+
+var ffjKeyNcrnaDrugAttrSource = []byte("source")
+
+var ffjKeyNcrnaDrugAttrId = []byte("id")
+
+// UnmarshalJSON umarshall json - template of ffjson
+func (j *NcrnaDrugAttr) UnmarshalJSON(input []byte) error {
+	fs := fflib.NewFFLexer(input)
+	return j.UnmarshalJSONFFLexer(fs, fflib.FFParse_map_start)
+}
+
+// UnmarshalJSONFFLexer fast json unmarshall - template ffjson
+func (j *NcrnaDrugAttr) UnmarshalJSONFFLexer(fs *fflib.FFLexer, state fflib.FFParseState) error {
+	var err error
+	currentKey := ffjtNcrnaDrugAttrbase
+	_ = currentKey
+	tok := fflib.FFTok_init
+	wantedTok := fflib.FFTok_init
+
+mainparse:
+	for {
+		tok = fs.Scan()
+		//	println(fmt.Sprintf("debug: tok: %v  state: %v", tok, state))
+		if tok == fflib.FFTok_error {
+			goto tokerror
+		}
+
+		switch state {
+
+		case fflib.FFParse_map_start:
+			if tok != fflib.FFTok_left_bracket {
+				wantedTok = fflib.FFTok_left_bracket
+				goto wrongtokenerror
+			}
+			state = fflib.FFParse_want_key
+			continue
+
+		case fflib.FFParse_after_value:
+			if tok == fflib.FFTok_comma {
+				state = fflib.FFParse_want_key
+			} else if tok == fflib.FFTok_right_bracket {
+				goto done
+			} else {
+				wantedTok = fflib.FFTok_comma
+				goto wrongtokenerror
+			}
+
+		case fflib.FFParse_want_key:
+			// json {} ended. goto exit. woo.
+			if tok == fflib.FFTok_right_bracket {
+				goto done
+			}
+			if tok != fflib.FFTok_string {
+				wantedTok = fflib.FFTok_string
+				goto wrongtokenerror
+			}
+
+			kn := fs.Output.Bytes()
+			if len(kn) <= 0 {
+				// "" case. hrm.
+				currentKey = ffjtNcrnaDrugAttrnosuchkey
+				state = fflib.FFParse_want_colon
+				goto mainparse
+			} else {
+				switch kn[0] {
+
+				case 'c':
+
+					if bytes.Equal(ffjKeyNcrnaDrugAttrCondition, kn) {
+						currentKey = ffjtNcrnaDrugAttrCondition
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'd':
+
+					if bytes.Equal(ffjKeyNcrnaDrugAttrDrugName, kn) {
+						currentKey = ffjtNcrnaDrugAttrDrugName
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyNcrnaDrugAttrDrugbankId, kn) {
+						currentKey = ffjtNcrnaDrugAttrDrugbankId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyNcrnaDrugAttrDetectionMethod, kn) {
+						currentKey = ffjtNcrnaDrugAttrDetectionMethod
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'e':
+
+					if bytes.Equal(ffjKeyNcrnaDrugAttrEffect, kn) {
+						currentKey = ffjtNcrnaDrugAttrEffect
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'f':
+
+					if bytes.Equal(ffjKeyNcrnaDrugAttrFda, kn) {
+						currentKey = ffjtNcrnaDrugAttrFda
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'i':
+
+					if bytes.Equal(ffjKeyNcrnaDrugAttrId, kn) {
+						currentKey = ffjtNcrnaDrugAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'n':
+
+					if bytes.Equal(ffjKeyNcrnaDrugAttrNcrnaName, kn) {
+						currentKey = ffjtNcrnaDrugAttrNcrnaName
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyNcrnaDrugAttrNcrnaType, kn) {
+						currentKey = ffjtNcrnaDrugAttrNcrnaType
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'p':
+
+					if bytes.Equal(ffjKeyNcrnaDrugAttrPathway, kn) {
+						currentKey = ffjtNcrnaDrugAttrPathway
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'r':
+
+					if bytes.Equal(ffjKeyNcrnaDrugAttrRelation, kn) {
+						currentKey = ffjtNcrnaDrugAttrRelation
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 's':
+
+					if bytes.Equal(ffjKeyNcrnaDrugAttrSymbol, kn) {
+						currentKey = ffjtNcrnaDrugAttrSymbol
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyNcrnaDrugAttrSource, kn) {
+						currentKey = ffjtNcrnaDrugAttrSource
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 't':
+
+					if bytes.Equal(ffjKeyNcrnaDrugAttrTargetGene, kn) {
+						currentKey = ffjtNcrnaDrugAttrTargetGene
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyNcrnaDrugAttrId, kn) {
+					currentKey = ffjtNcrnaDrugAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyNcrnaDrugAttrSource, kn) {
+					currentKey = ffjtNcrnaDrugAttrSource
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyNcrnaDrugAttrCondition, kn) {
+					currentKey = ffjtNcrnaDrugAttrCondition
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyNcrnaDrugAttrDetectionMethod, kn) {
+					currentKey = ffjtNcrnaDrugAttrDetectionMethod
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyNcrnaDrugAttrFda, kn) {
+					currentKey = ffjtNcrnaDrugAttrFda
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyNcrnaDrugAttrPathway, kn) {
+					currentKey = ffjtNcrnaDrugAttrPathway
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyNcrnaDrugAttrTargetGene, kn) {
+					currentKey = ffjtNcrnaDrugAttrTargetGene
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyNcrnaDrugAttrEffect, kn) {
+					currentKey = ffjtNcrnaDrugAttrEffect
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyNcrnaDrugAttrRelation, kn) {
+					currentKey = ffjtNcrnaDrugAttrRelation
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyNcrnaDrugAttrDrugbankId, kn) {
+					currentKey = ffjtNcrnaDrugAttrDrugbankId
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyNcrnaDrugAttrDrugName, kn) {
+					currentKey = ffjtNcrnaDrugAttrDrugName
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyNcrnaDrugAttrSymbol, kn) {
+					currentKey = ffjtNcrnaDrugAttrSymbol
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyNcrnaDrugAttrNcrnaType, kn) {
+					currentKey = ffjtNcrnaDrugAttrNcrnaType
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyNcrnaDrugAttrNcrnaName, kn) {
+					currentKey = ffjtNcrnaDrugAttrNcrnaName
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				currentKey = ffjtNcrnaDrugAttrnosuchkey
+				state = fflib.FFParse_want_colon
+				goto mainparse
+			}
+
+		case fflib.FFParse_want_colon:
+			if tok != fflib.FFTok_colon {
+				wantedTok = fflib.FFTok_colon
+				goto wrongtokenerror
+			}
+			state = fflib.FFParse_want_value
+			continue
+		case fflib.FFParse_want_value:
+
+			if tok == fflib.FFTok_left_brace || tok == fflib.FFTok_left_bracket || tok == fflib.FFTok_integer || tok == fflib.FFTok_double || tok == fflib.FFTok_string || tok == fflib.FFTok_bool || tok == fflib.FFTok_null {
+				switch currentKey {
+
+				case ffjtNcrnaDrugAttrNcrnaName:
+					goto handle_NcrnaName
+
+				case ffjtNcrnaDrugAttrNcrnaType:
+					goto handle_NcrnaType
+
+				case ffjtNcrnaDrugAttrSymbol:
+					goto handle_Symbol
+
+				case ffjtNcrnaDrugAttrDrugName:
+					goto handle_DrugName
+
+				case ffjtNcrnaDrugAttrDrugbankId:
+					goto handle_DrugbankId
+
+				case ffjtNcrnaDrugAttrRelation:
+					goto handle_Relation
+
+				case ffjtNcrnaDrugAttrEffect:
+					goto handle_Effect
+
+				case ffjtNcrnaDrugAttrTargetGene:
+					goto handle_TargetGene
+
+				case ffjtNcrnaDrugAttrPathway:
+					goto handle_Pathway
+
+				case ffjtNcrnaDrugAttrFda:
+					goto handle_Fda
+
+				case ffjtNcrnaDrugAttrDetectionMethod:
+					goto handle_DetectionMethod
+
+				case ffjtNcrnaDrugAttrCondition:
+					goto handle_Condition
+
+				case ffjtNcrnaDrugAttrSource:
+					goto handle_Source
+
+				case ffjtNcrnaDrugAttrId:
+					goto handle_Id
+
+				case ffjtNcrnaDrugAttrnosuchkey:
+					err = fs.SkipField(tok)
+					if err != nil {
+						return fs.WrapErr(err)
+					}
+					state = fflib.FFParse_after_value
+					goto mainparse
+				}
+			} else {
+				goto wantedvalue
+			}
+		}
+	}
+
+handle_NcrnaName:
+
+	/* handler: j.NcrnaName type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.NcrnaName = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_NcrnaType:
+
+	/* handler: j.NcrnaType type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.NcrnaType = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Symbol:
+
+	/* handler: j.Symbol type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Symbol = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_DrugName:
+
+	/* handler: j.DrugName type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.DrugName = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_DrugbankId:
+
+	/* handler: j.DrugbankId type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.DrugbankId = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Relation:
+
+	/* handler: j.Relation type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Relation = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Effect:
+
+	/* handler: j.Effect type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Effect = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_TargetGene:
+
+	/* handler: j.TargetGene type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.TargetGene = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Pathway:
+
+	/* handler: j.Pathway type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Pathway = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Fda:
+
+	/* handler: j.Fda type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Fda = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_DetectionMethod:
+
+	/* handler: j.DetectionMethod type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.DetectionMethod = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Condition:
+
+	/* handler: j.Condition type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Condition = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Source:
+
+	/* handler: j.Source type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Source = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+wantedvalue:
+	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
+wrongtokenerror:
+	return fs.WrapErr(fmt.Errorf("ffjson: wanted token: %v, but got token: %v output=%s", wantedTok, tok, fs.Output.String()))
+tokerror:
+	if fs.BigError != nil {
+		return fs.WrapErr(fs.BigError)
+	}
+	err = fs.Error.ToError()
+	if err != nil {
+		return fs.WrapErr(err)
+	}
+	panic("ffjson-generated: unreachable, please report bug.")
+done:
+
+	return nil
+}
+
+// MarshalJSON marshal bytes to json - template
 func (j *NcrnaInteractionAttr) MarshalJSON() ([]byte, error) {
 	var buf fflib.Buffer
 	if j == nil {

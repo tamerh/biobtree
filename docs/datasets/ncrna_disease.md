@@ -2,13 +2,16 @@
 
 ## Overview
 
-Curated non-coding-RNA → disease associations from **LncRNADisease v3.0**
-(experimentally supported; lncRNA + circRNA). This is the disease layer that
+Curated non-coding-RNA → disease associations. This is the disease layer that
 RNAcentral's Rfam/GO annotations cannot give bare lncRNAs — most lncRNAs are not
-in Rfam, so their clinical/disease story comes from curation like this.
+in Rfam, so their clinical/disease story comes from curation like this. Multiple
+sources are unified into this one dataset, each association tagged with its `source`.
 
-**Source**: LncRNADisease v3.0 — `website_alldata.tsv` (the all-experimental cut)
-**License**: redistribution permitted with citation (cite LncRNADisease v3.0)
+**Sources** (experimentally supported):
+- **LncRNADisease v3.0** — `website_alldata.tsv` — lncRNA + circRNA → disease
+  (`source="LncRNADisease"`). License: redistribution with citation.
+- **HMDD v4** — `alldata_v4.txt` — miRNA → disease (`source="HMDD"`,
+  `ncrna_category="miRNA"`). License: CC BY-NC (acceptable; attribute).
 **Data type**: experimentally-supported ncRNA-disease associations
 
 ## Integration Architecture
@@ -38,11 +41,13 @@ from ncRNA symbol + disease + PubMed + method; references are via edges).
 - Surface the disease associations of an lncRNA on its gene page (e.g. CAHM, HOTAIR).
 - Enumerate the ncRNAs implicated in a disease, with causality + evidence method.
 
-## Notes
+## Known Limitations
 - Experimentally-supported only; the predicted LncRNADisease cut is deferred (would
   be added with an explicit `predicted` flag).
 - Disease coverage depends on the name→MONDO/EFO matcher; some free-text disease
   names won't map (the association + gene/pubmed edges still resolve).
+- For HMDD miRNA rows the miRBase name → HGNC/Ensembl gene mapping is best-effort
+  (miRNA→gene is fuzzy); the disease + PubMed edges are the reliable value there.
 
 ## Maintenance
 - **Update**: re-download `website_alldata.tsv` and re-index.

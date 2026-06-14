@@ -46,9 +46,19 @@ func (n *ncrnaDisease) update() {
 	if err != nil {
 		log.Printf("ncRNA Disease: error processing %s: %v", filePath, err)
 	}
-	fmt.Printf("ncRNA Disease: processed %d associations\n", count)
+	fmt.Printf("ncRNA Disease: processed %d LncRNADisease associations\n", count)
 
-	atomic.AddUint64(&n.d.totalParsedEntry, count)
+	// HMDD v4 — miRNA->disease, folded into this dataset with source="HMDD".
+	var hmddCount uint64
+	if hmddPath := config.Dataconf[n.source]["pathHmdd"]; hmddPath != "" {
+		hmddCount, err = n.processHmddFile(hmddPath, idLogFile, testLimit)
+		if err != nil {
+			log.Printf("ncRNA Disease: error processing HMDD %s: %v", hmddPath, err)
+		}
+		fmt.Printf("ncRNA Disease: processed %d HMDD (miRNA) associations\n", hmddCount)
+	}
+
+	atomic.AddUint64(&n.d.totalParsedEntry, count+hmddCount)
 	n.d.progChan <- &progressInfo{dataset: n.source, done: true}
 }
 
@@ -144,34 +154,10 @@ func (n *ncrnaDisease) processRow(f []string, mondoID, efoID, hgncID, ensemblID 
 	n.d.addProp3(id, n.sourceID, b)
 
 	// ncRNA gene -> hgnc / ensembl (lncRNA genes are in HGNC/Ensembl)
-	n.linkGene(id, symbol, hgncID, ensemblID)
+	n.linkGene(id, []string{symbol}, hgncID, ensemblID)
 
-	// disease name -> MONDO / EFO via the shared matcher (same as clinical_trials/civic).
-	// LncRNADisease uses MeSH names, often comma-inverted ("Carcinoma, Hepatocellular"),
-	// so also try the de-inverted form ("Hepatocellular Carcinoma").
-	candidates := diseaseNameVariants(disease)
-	if mondoID != 0 {
-		seen := make(map[string]bool)
-		for _, dc := range candidates {
-			for m := range collectOntologyIDs(n.d, n.medical, dc, mondoID) {
-				if !seen[m] {
-					seen[m] = true
-					n.d.addXref(id, n.sourceID, m, "mondo", false)
-				}
-			}
-		}
-	}
-	if efoID != 0 {
-		seen := make(map[string]bool)
-		for _, dc := range candidates {
-			for e := range collectOntologyIDs(n.d, n.medical, dc, efoID) {
-				if !seen[e] {
-					seen[e] = true
-					n.d.addXref(id, n.sourceID, e, "efo", false)
-				}
-			}
-		}
-	}
+	// disease name -> MONDO / EFO via the shared matcher
+	n.mapDisease(id, disease, mondoID, efoID)
 
 	// PubMed citation
 	if pmid := get(11); pmid != "" && pmid != "nan" {
@@ -186,6 +172,145 @@ func (n *ncrnaDisease) processRow(f []string, mondoID, efoID, hgncID, ensemblID 
 		logProcessedID(idLogFile, id)
 	}
 	return true
+}
+
+// mapDisease maps a disease name to MONDO/EFO via the shared matcher (same as
+// clinical_trials/civic), trying comma de-inverted MeSH variants too.
+func (n *ncrnaDisease) mapDisease(id, disease string, mondoID, efoID uint32) {
+	candidates := diseaseNameVariants(disease)
+	mapTo := func(ontID uint32, ds string) {
+		if ontID == 0 {
+			return
+		}
+		seen := make(map[string]bool)
+		for _, dc := range candidates {
+			for o := range collectOntologyIDs(n.d, n.medical, dc, ontID) {
+				if !seen[o] {
+					seen[o] = true
+					n.d.addXref(id, n.sourceID, o, ds, false)
+				}
+			}
+		}
+	}
+	mapTo(mondoID, "mondo")
+	mapTo(efoID, "efo")
+}
+
+// processHmddFile ingests HMDD v4 (miRNA->disease) into this dataset with
+// source="HMDD". Columns: code, PMID, miRNA, disease, description.
+func (n *ncrnaDisease) processHmddFile(filePath string, idLogFile *os.File, testLimit int) (uint64, error) {
+	br, gz, ftpFile, client, localFile, _, err := getDataReaderNew(n.source, "", "", filePath)
+	if err != nil {
+		return 0, fmt.Errorf("failed to open HMDD file: %v", err)
+	}
+	defer closeRnacentralReaders(gz, ftpFile, client, localFile)
+
+	var reader *bufio.Reader
+	if gz != nil {
+		reader = bufio.NewReaderSize(gz, 1024*1024)
+	} else {
+		reader = bufio.NewReaderSize(br, 1024*1024)
+	}
+
+	hgncID := config.DataconfIDStringToInt["hgnc"]
+	ensemblID := config.DataconfIDStringToInt["ensembl"]
+	mondoID := config.DataconfIDStringToInt["mondo"]
+	efoID := config.DataconfIDStringToInt["efo"]
+
+	var count uint64
+	header := true
+	for {
+		line, rerr := reader.ReadString('\n')
+		if rerr != nil && rerr != io.EOF {
+			return count, fmt.Errorf("read error: %v", rerr)
+		}
+		if len(line) == 0 && rerr == io.EOF {
+			break
+		}
+		line = strings.TrimRight(line, "\r\n")
+		if header {
+			header = false
+		} else if line != "" {
+			f := strings.Split(line, "\t")
+			if n.processHmddRow(f, mondoID, efoID, hgncID, ensemblID, idLogFile) {
+				count++
+				if testLimit > 0 && int(count) >= testLimit {
+					break
+				}
+			}
+		}
+		if rerr == io.EOF {
+			break
+		}
+	}
+	return count, nil
+}
+
+// columns: 0 code(evidence category), 1 PMID, 2 miRNA, 3 disease, 4 description
+func (n *ncrnaDisease) processHmddRow(f []string, mondoID, efoID, hgncID, ensemblID uint32, idLogFile *os.File) bool {
+	get := func(i int) string {
+		if i < len(f) {
+			return strings.TrimSpace(f[i])
+		}
+		return ""
+	}
+	mirna := get(2)
+	disease := get(3)
+	if mirna == "" || disease == "" {
+		return false
+	}
+
+	attr := &pbuf.NcrnaDiseaseAttr{
+		NcrnaSymbol:     mirna,
+		NcrnaCategory:   "miRNA",
+		Species:         "Homo sapiens", // HMDD is human
+		DiseaseName:     disease,
+		ValidatedMethod: get(0), // HMDD evidence category (genetics/epigenetics/tissue/...)
+		Description:     get(4),
+		Source:          "HMDD",
+	}
+	h := fnv.New64a()
+	h.Write([]byte("hmdd|" + mirna + "|" + disease + "|" + get(1)))
+	id := fmt.Sprintf("HMDD_%016x", h.Sum64())
+
+	b, err := ffjson.Marshal(attr)
+	if err != nil {
+		return false
+	}
+	n.d.addProp3(id, n.sourceID, b)
+
+	n.linkGene(id, mirnaGeneCandidates(mirna), hgncID, ensemblID)
+	n.mapDisease(id, disease, mondoID, efoID)
+
+	if pmid := get(1); pmid != "" && pmid != "nan" {
+		n.d.addXref(id, n.sourceID, pmid, "pubmed", false)
+	}
+	n.d.addXref(mirna, textLinkID, id, n.source, true)
+	n.d.addXref(disease, textLinkID, id, n.source, true)
+
+	if idLogFile != nil {
+		logProcessedID(idLogFile, id)
+	}
+	return true
+}
+
+// mirnaGeneCandidates derives lookup candidates from a miRBase name so the miRNA
+// can resolve to its HGNC/Ensembl gene (best-effort): the raw name plus a gene-style
+// form ("hsa-mir-29b" -> "MIR29B", "hsa-let-7a" -> "MIRLET7A").
+func mirnaGeneCandidates(name string) []string {
+	out := []string{name}
+	s := strings.ToUpper(strings.TrimSpace(name))
+	if i := strings.Index(s, "-"); i >= 0 && i <= 4 { // strip species prefix (HSA-, MMU-, ...)
+		s = s[i+1:]
+	}
+	s = strings.ReplaceAll(s, "-", "")
+	if strings.HasPrefix(s, "LET") {
+		s = "MIR" + s
+	}
+	if s != "" && s != strings.ToUpper(name) {
+		out = append(out, s)
+	}
+	return out
 }
 
 // diseaseNameVariants returns the disease name plus, for comma-inverted MeSH names
@@ -204,15 +329,12 @@ func diseaseNameVariants(name string) []string {
 	return out
 }
 
-// linkGene resolves the ncRNA gene symbol to hgnc/ensembl via the lookup DB and
-// links the association to it, so gene pages surface the disease and disease pages
-// surface the ncRNA.
-func (n *ncrnaDisease) linkGene(id, symbol string, hgncID, ensemblID uint32) {
-	if n.d.lookupService == nil || symbol == "" {
-		return
-	}
-	result, err := n.d.lookup(symbol)
-	if err != nil || result == nil || len(result.Results) == 0 {
+// linkGene resolves ncRNA name candidate(s) to hgnc/ensembl via the lookup DB and
+// links the association to them, so gene pages surface the disease and disease pages
+// surface the ncRNA. Multiple candidates support miRNA name normalization
+// (e.g. "hsa-mir-29b" -> "MIR29B").
+func (n *ncrnaDisease) linkGene(id string, names []string, hgncID, ensemblID uint32) {
+	if n.d.lookupService == nil {
 		return
 	}
 	seen := make(map[string]bool)
@@ -235,13 +357,24 @@ func (n *ncrnaDisease) linkGene(id, symbol string, hgncID, ensemblID uint32) {
 			add("ensembl", ident)
 		}
 	}
-	for _, x := range result.Results {
-		if x.IsLink {
-			for _, e := range x.Entries {
-				classify(e.Dataset, e.Identifier)
+	tried := make(map[string]bool)
+	for _, name := range names {
+		if name == "" || tried[name] {
+			continue
+		}
+		tried[name] = true
+		result, err := n.d.lookup(name)
+		if err != nil || result == nil {
+			continue
+		}
+		for _, x := range result.Results {
+			if x.IsLink {
+				for _, e := range x.Entries {
+					classify(e.Dataset, e.Identifier)
+				}
+			} else {
+				classify(x.Dataset, x.Identifier)
 			}
-		} else {
-			classify(x.Dataset, x.Identifier)
 		}
 	}
 }

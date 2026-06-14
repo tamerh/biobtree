@@ -25460,6 +25460,21 @@ func (j *ChemblAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 			buf.WriteByte(',')
 		}
 	}
+	if j.Mechanism != nil {
+		if true {
+			buf.WriteString(`"mechanism":`)
+
+			{
+
+				err = j.Mechanism.MarshalJSONBuf(buf)
+				if err != nil {
+					return err
+				}
+
+			}
+			buf.WriteByte(',')
+		}
+	}
 	if len(j.Id) != 0 {
 		buf.WriteString(`"id":`)
 		fflib.WriteJsonString(buf, string(j.Id))
@@ -25488,6 +25503,8 @@ const (
 
 	ffjtChemblAttrCellLine
 
+	ffjtChemblAttrMechanism
+
 	ffjtChemblAttrId
 )
 
@@ -25504,6 +25521,8 @@ var ffjKeyChemblAttrTarget = []byte("target")
 var ffjKeyChemblAttrTargetComponent = []byte("targetComponent")
 
 var ffjKeyChemblAttrCellLine = []byte("cellLine")
+
+var ffjKeyChemblAttrMechanism = []byte("mechanism")
 
 var ffjKeyChemblAttrId = []byte("id")
 
@@ -25611,6 +25630,11 @@ mainparse:
 						currentKey = ffjtChemblAttrMolecule
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyChemblAttrMechanism, kn) {
+						currentKey = ffjtChemblAttrMechanism
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 't':
@@ -25630,6 +25654,12 @@ mainparse:
 
 				if fflib.SimpleLetterEqualFold(ffjKeyChemblAttrId, kn) {
 					currentKey = ffjtChemblAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyChemblAttrMechanism, kn) {
+					currentKey = ffjtChemblAttrMechanism
 					state = fflib.FFParse_want_colon
 					goto mainparse
 				}
@@ -25713,6 +25743,9 @@ mainparse:
 
 				case ffjtChemblAttrCellLine:
 					goto handle_CellLine
+
+				case ffjtChemblAttrMechanism:
+					goto handle_Mechanism
 
 				case ffjtChemblAttrId:
 					goto handle_Id
@@ -25903,6 +25936,32 @@ handle_CellLine:
 			}
 
 			err = j.CellLine.UnmarshalJSONFFLexer(fs, fflib.FFParse_want_key)
+			if err != nil {
+				return err
+			}
+		}
+		state = fflib.FFParse_after_value
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Mechanism:
+
+	/* handler: j.Mechanism type=pbuf.ChemblMechanismRecord kind=struct quoted=false*/
+
+	{
+		if tok == fflib.FFTok_null {
+
+			j.Mechanism = nil
+
+		} else {
+
+			if j.Mechanism == nil {
+				j.Mechanism = new(ChemblMechanismRecord)
+			}
+
+			err = j.Mechanism.UnmarshalJSONFFLexer(fs, fflib.FFParse_want_key)
 			if err != nil {
 				return err
 			}
@@ -27873,6 +27932,584 @@ handle_Action:
 			outBuf := fs.Output.Bytes()
 
 			j.Action = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+wantedvalue:
+	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
+wrongtokenerror:
+	return fs.WrapErr(fmt.Errorf("ffjson: wanted token: %v, but got token: %v output=%s", wantedTok, tok, fs.Output.String()))
+tokerror:
+	if fs.BigError != nil {
+		return fs.WrapErr(fs.BigError)
+	}
+	err = fs.Error.ToError()
+	if err != nil {
+		return fs.WrapErr(err)
+	}
+	panic("ffjson-generated: unreachable, please report bug.")
+done:
+
+	return nil
+}
+
+// MarshalJSON marshal bytes to json - template
+func (j *ChemblMechanismRecord) MarshalJSON() ([]byte, error) {
+	var buf fflib.Buffer
+	if j == nil {
+		buf.WriteString("null")
+		return buf.Bytes(), nil
+	}
+	err := j.MarshalJSONBuf(&buf)
+	if err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
+}
+
+// MarshalJSONBuf marshal buff to json - template
+func (j *ChemblMechanismRecord) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
+	if j == nil {
+		buf.WriteString("null")
+		return nil
+	}
+	var err error
+	var obj []byte
+	_ = obj
+	_ = err
+	buf.WriteString(`{ `)
+	if len(j.MechanismOfAction) != 0 {
+		buf.WriteString(`"mechanism_of_action":`)
+		fflib.WriteJsonString(buf, string(j.MechanismOfAction))
+		buf.WriteByte(',')
+	}
+	if len(j.ActionType) != 0 {
+		buf.WriteString(`"action_type":`)
+		fflib.WriteJsonString(buf, string(j.ActionType))
+		buf.WriteByte(',')
+	}
+	if j.DirectInteraction != false {
+		if j.DirectInteraction {
+			buf.WriteString(`"direct_interaction":true`)
+		} else {
+			buf.WriteString(`"direct_interaction":false`)
+		}
+		buf.WriteByte(',')
+	}
+	if j.MolecularMechanism != false {
+		if j.MolecularMechanism {
+			buf.WriteString(`"molecular_mechanism":true`)
+		} else {
+			buf.WriteString(`"molecular_mechanism":false`)
+		}
+		buf.WriteByte(',')
+	}
+	if len(j.MechanismComment) != 0 {
+		buf.WriteString(`"mechanism_comment":`)
+		fflib.WriteJsonString(buf, string(j.MechanismComment))
+		buf.WriteByte(',')
+	}
+	if len(j.TargetName) != 0 {
+		buf.WriteString(`"target_name":`)
+		fflib.WriteJsonString(buf, string(j.TargetName))
+		buf.WriteByte(',')
+	}
+	if len(j.TargetType) != 0 {
+		buf.WriteString(`"target_type":`)
+		fflib.WriteJsonString(buf, string(j.TargetType))
+		buf.WriteByte(',')
+	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
+	buf.Rewind(1)
+	buf.WriteByte('}')
+	return nil
+}
+
+const (
+	ffjtChemblMechanismRecordbase = iota
+	ffjtChemblMechanismRecordnosuchkey
+
+	ffjtChemblMechanismRecordMechanismOfAction
+
+	ffjtChemblMechanismRecordActionType
+
+	ffjtChemblMechanismRecordDirectInteraction
+
+	ffjtChemblMechanismRecordMolecularMechanism
+
+	ffjtChemblMechanismRecordMechanismComment
+
+	ffjtChemblMechanismRecordTargetName
+
+	ffjtChemblMechanismRecordTargetType
+
+	ffjtChemblMechanismRecordId
+)
+
+var ffjKeyChemblMechanismRecordMechanismOfAction = []byte("mechanism_of_action")
+
+var ffjKeyChemblMechanismRecordActionType = []byte("action_type")
+
+var ffjKeyChemblMechanismRecordDirectInteraction = []byte("direct_interaction")
+
+var ffjKeyChemblMechanismRecordMolecularMechanism = []byte("molecular_mechanism")
+
+var ffjKeyChemblMechanismRecordMechanismComment = []byte("mechanism_comment")
+
+var ffjKeyChemblMechanismRecordTargetName = []byte("target_name")
+
+var ffjKeyChemblMechanismRecordTargetType = []byte("target_type")
+
+var ffjKeyChemblMechanismRecordId = []byte("id")
+
+// UnmarshalJSON umarshall json - template of ffjson
+func (j *ChemblMechanismRecord) UnmarshalJSON(input []byte) error {
+	fs := fflib.NewFFLexer(input)
+	return j.UnmarshalJSONFFLexer(fs, fflib.FFParse_map_start)
+}
+
+// UnmarshalJSONFFLexer fast json unmarshall - template ffjson
+func (j *ChemblMechanismRecord) UnmarshalJSONFFLexer(fs *fflib.FFLexer, state fflib.FFParseState) error {
+	var err error
+	currentKey := ffjtChemblMechanismRecordbase
+	_ = currentKey
+	tok := fflib.FFTok_init
+	wantedTok := fflib.FFTok_init
+
+mainparse:
+	for {
+		tok = fs.Scan()
+		//	println(fmt.Sprintf("debug: tok: %v  state: %v", tok, state))
+		if tok == fflib.FFTok_error {
+			goto tokerror
+		}
+
+		switch state {
+
+		case fflib.FFParse_map_start:
+			if tok != fflib.FFTok_left_bracket {
+				wantedTok = fflib.FFTok_left_bracket
+				goto wrongtokenerror
+			}
+			state = fflib.FFParse_want_key
+			continue
+
+		case fflib.FFParse_after_value:
+			if tok == fflib.FFTok_comma {
+				state = fflib.FFParse_want_key
+			} else if tok == fflib.FFTok_right_bracket {
+				goto done
+			} else {
+				wantedTok = fflib.FFTok_comma
+				goto wrongtokenerror
+			}
+
+		case fflib.FFParse_want_key:
+			// json {} ended. goto exit. woo.
+			if tok == fflib.FFTok_right_bracket {
+				goto done
+			}
+			if tok != fflib.FFTok_string {
+				wantedTok = fflib.FFTok_string
+				goto wrongtokenerror
+			}
+
+			kn := fs.Output.Bytes()
+			if len(kn) <= 0 {
+				// "" case. hrm.
+				currentKey = ffjtChemblMechanismRecordnosuchkey
+				state = fflib.FFParse_want_colon
+				goto mainparse
+			} else {
+				switch kn[0] {
+
+				case 'a':
+
+					if bytes.Equal(ffjKeyChemblMechanismRecordActionType, kn) {
+						currentKey = ffjtChemblMechanismRecordActionType
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'd':
+
+					if bytes.Equal(ffjKeyChemblMechanismRecordDirectInteraction, kn) {
+						currentKey = ffjtChemblMechanismRecordDirectInteraction
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'i':
+
+					if bytes.Equal(ffjKeyChemblMechanismRecordId, kn) {
+						currentKey = ffjtChemblMechanismRecordId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'm':
+
+					if bytes.Equal(ffjKeyChemblMechanismRecordMechanismOfAction, kn) {
+						currentKey = ffjtChemblMechanismRecordMechanismOfAction
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyChemblMechanismRecordMolecularMechanism, kn) {
+						currentKey = ffjtChemblMechanismRecordMolecularMechanism
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyChemblMechanismRecordMechanismComment, kn) {
+						currentKey = ffjtChemblMechanismRecordMechanismComment
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 't':
+
+					if bytes.Equal(ffjKeyChemblMechanismRecordTargetName, kn) {
+						currentKey = ffjtChemblMechanismRecordTargetName
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyChemblMechanismRecordTargetType, kn) {
+						currentKey = ffjtChemblMechanismRecordTargetType
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyChemblMechanismRecordId, kn) {
+					currentKey = ffjtChemblMechanismRecordId
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyChemblMechanismRecordTargetType, kn) {
+					currentKey = ffjtChemblMechanismRecordTargetType
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyChemblMechanismRecordTargetName, kn) {
+					currentKey = ffjtChemblMechanismRecordTargetName
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyChemblMechanismRecordMechanismComment, kn) {
+					currentKey = ffjtChemblMechanismRecordMechanismComment
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyChemblMechanismRecordMolecularMechanism, kn) {
+					currentKey = ffjtChemblMechanismRecordMolecularMechanism
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyChemblMechanismRecordDirectInteraction, kn) {
+					currentKey = ffjtChemblMechanismRecordDirectInteraction
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyChemblMechanismRecordActionType, kn) {
+					currentKey = ffjtChemblMechanismRecordActionType
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyChemblMechanismRecordMechanismOfAction, kn) {
+					currentKey = ffjtChemblMechanismRecordMechanismOfAction
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				currentKey = ffjtChemblMechanismRecordnosuchkey
+				state = fflib.FFParse_want_colon
+				goto mainparse
+			}
+
+		case fflib.FFParse_want_colon:
+			if tok != fflib.FFTok_colon {
+				wantedTok = fflib.FFTok_colon
+				goto wrongtokenerror
+			}
+			state = fflib.FFParse_want_value
+			continue
+		case fflib.FFParse_want_value:
+
+			if tok == fflib.FFTok_left_brace || tok == fflib.FFTok_left_bracket || tok == fflib.FFTok_integer || tok == fflib.FFTok_double || tok == fflib.FFTok_string || tok == fflib.FFTok_bool || tok == fflib.FFTok_null {
+				switch currentKey {
+
+				case ffjtChemblMechanismRecordMechanismOfAction:
+					goto handle_MechanismOfAction
+
+				case ffjtChemblMechanismRecordActionType:
+					goto handle_ActionType
+
+				case ffjtChemblMechanismRecordDirectInteraction:
+					goto handle_DirectInteraction
+
+				case ffjtChemblMechanismRecordMolecularMechanism:
+					goto handle_MolecularMechanism
+
+				case ffjtChemblMechanismRecordMechanismComment:
+					goto handle_MechanismComment
+
+				case ffjtChemblMechanismRecordTargetName:
+					goto handle_TargetName
+
+				case ffjtChemblMechanismRecordTargetType:
+					goto handle_TargetType
+
+				case ffjtChemblMechanismRecordId:
+					goto handle_Id
+
+				case ffjtChemblMechanismRecordnosuchkey:
+					err = fs.SkipField(tok)
+					if err != nil {
+						return fs.WrapErr(err)
+					}
+					state = fflib.FFParse_after_value
+					goto mainparse
+				}
+			} else {
+				goto wantedvalue
+			}
+		}
+	}
+
+handle_MechanismOfAction:
+
+	/* handler: j.MechanismOfAction type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.MechanismOfAction = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_ActionType:
+
+	/* handler: j.ActionType type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.ActionType = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_DirectInteraction:
+
+	/* handler: j.DirectInteraction type=bool kind=bool quoted=false*/
+
+	{
+		if tok != fflib.FFTok_bool && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for bool", tok))
+		}
+	}
+
+	{
+		if tok == fflib.FFTok_null {
+
+		} else {
+			tmpb := fs.Output.Bytes()
+
+			if bytes.Compare([]byte{'t', 'r', 'u', 'e'}, tmpb) == 0 {
+
+				j.DirectInteraction = true
+
+			} else if bytes.Compare([]byte{'f', 'a', 'l', 's', 'e'}, tmpb) == 0 {
+
+				j.DirectInteraction = false
+
+			} else {
+				err = errors.New("unexpected bytes for true/false value")
+				return fs.WrapErr(err)
+			}
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_MolecularMechanism:
+
+	/* handler: j.MolecularMechanism type=bool kind=bool quoted=false*/
+
+	{
+		if tok != fflib.FFTok_bool && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for bool", tok))
+		}
+	}
+
+	{
+		if tok == fflib.FFTok_null {
+
+		} else {
+			tmpb := fs.Output.Bytes()
+
+			if bytes.Compare([]byte{'t', 'r', 'u', 'e'}, tmpb) == 0 {
+
+				j.MolecularMechanism = true
+
+			} else if bytes.Compare([]byte{'f', 'a', 'l', 's', 'e'}, tmpb) == 0 {
+
+				j.MolecularMechanism = false
+
+			} else {
+				err = errors.New("unexpected bytes for true/false value")
+				return fs.WrapErr(err)
+			}
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_MechanismComment:
+
+	/* handler: j.MechanismComment type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.MechanismComment = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_TargetName:
+
+	/* handler: j.TargetName type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.TargetName = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_TargetType:
+
+	/* handler: j.TargetType type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.TargetType = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
 
 		}
 	}

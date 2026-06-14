@@ -339,6 +339,19 @@
     "bucketMethod": "chembl",
     "xrefSort": "chembl_molecule:pchemblScore;chembl_target:pchemblScore;uniprot:pchemblScore"
   },
+  "chembl_mechanism": {
+    "group": "chembl",
+    "name": "chembl_mechanism",
+    "id": "777",
+    "url": "#",
+    "path": "raw_data/chembl/extracted/chembl_mechanisms.jsonl",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "compact_fields": "mechanism_of_action,action_type,target_name,target_type",
+    "attrs": "chembl.mechanism.mechanism_of_action,chembl.mechanism.action_type,chembl.mechanism.direct_interaction,chembl.mechanism.molecular_mechanism,chembl.mechanism.mechanism_comment,chembl.mechanism.target_name,chembl.mechanism.target_type",
+    "test_entries_count": "20",
+    "bucketMethod": "chembl"
+  },
   "chembl_moleculeparent": {
     "name": "ChEMBL Molecule Parent",
     "id": "758",

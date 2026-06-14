@@ -78,6 +78,21 @@ type chemblMechanismJSON struct {
 	Action      string `json:"action"`
 }
 
+// chemblMechanismRecordJSON matches one extracted drug_mechanism row
+// (the chembl_mechanism dataset — curated molecule→target MOA edge).
+type chemblMechanismRecordJSON struct {
+	MechanismID        string `json:"mechanism_id"`
+	MoleculeID         string `json:"molecule_id"`
+	TargetID           string `json:"target_id"`
+	TargetName         string `json:"target_name"`
+	TargetType         string `json:"target_type"`
+	MechanismOfAction  string `json:"mechanism_of_action"`
+	ActionType         string `json:"action_type"`
+	DirectInteraction  bool   `json:"direct_interaction"`
+	MolecularMechanism bool   `json:"molecular_mechanism"`
+	MechanismComment   string `json:"mechanism_comment"`
+}
+
 // chemblMoleculeJSON matches the extracted molecule JSON format
 type chemblMoleculeJSON struct {
 	MoleculeID        string   `json:"molecule_id"`
@@ -241,6 +256,9 @@ func (c *chemblSqlite) update() {
 	case "chembl_cell_line":
 		count := c.processCellLines(testLimit)
 		log.Printf("ChEMBL-SQLite: Processed %d cell lines", count)
+	case "chembl_mechanism":
+		count := c.processMechanisms(testLimit)
+		log.Printf("ChEMBL-SQLite: Processed %d mechanisms", count)
 	default:
 		log.Printf("ChEMBL-SQLite: Unknown source %s", c.source)
 	}
@@ -274,6 +292,8 @@ func (c *chemblSqlite) ensureDataFilesExist() bool {
 			dataPath = c.resolvePath("raw_data/chembl/extracted/chembl_documents.jsonl", rootDir)
 		case "chembl_cell_line":
 			dataPath = c.resolvePath("raw_data/chembl/extracted/chembl_cell_lines.jsonl", rootDir)
+		case "chembl_mechanism":
+			dataPath = c.resolvePath("raw_data/chembl/extracted/chembl_mechanisms.jsonl", rootDir)
 		default:
 			dataPath = c.resolvePath("raw_data/chembl/extracted/chembl_targets.jsonl", rootDir)
 		}
@@ -1074,6 +1094,192 @@ func (c *chemblSqlite) processActivities(testLimit int) int64 {
 }
 
 // processAssays processes the assays file (chembl_assays.jsonl)
+// processMechanisms builds the chembl_mechanism dataset from chembl_mechanisms.jsonl.
+// Each record is one curated drug_mechanism row (MOA + action_type) linking a molecule
+// to a target. Edges: chembl_molecule <-> chembl_mechanism <-> chembl_target. This is
+// the curated drug→target ChEMBL bioactivity misses — notably RNA therapeutics, which
+// have no bioactivity edge at all (Atlas #49).
+func (c *chemblSqlite) processMechanisms(testLimit int) int64 {
+	sourceID := config.Dataconf[c.source]["id"]
+
+	rootDir := config.Appconf["rootDir"]
+	if rootDir == "" {
+		rootDir = "./"
+	}
+
+	filePath := c.resolvePath(config.Dataconf[c.source]["path"], rootDir)
+	if filePath == "" {
+		filePath = c.resolvePath("raw_data/chembl/extracted/chembl_mechanisms.jsonl", rootDir)
+	}
+
+	file, err := os.Open(filePath)
+	if err != nil {
+		log.Printf("ChEMBL-SQLite: Error opening mechanisms file %s: %v", filePath, err)
+		return 0
+	}
+	defer file.Close()
+
+	var idLogFile *os.File
+	if config.IsTestMode() {
+		idLogFile = openIDLogFile(config.TestRefDir, c.source+"_ids.txt")
+		if idLogFile != nil {
+			defer idLogFile.Close()
+		}
+	}
+
+	scanner := bufio.NewScanner(file)
+	buf := make([]byte, 0, 1024*1024)
+	scanner.Buffer(buf, 10*1024*1024)
+
+	var entryCount int64
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		if line == "" {
+			continue
+		}
+
+		var entry chemblMechanismRecordJSON
+		if err := json.Unmarshal([]byte(line), &entry); err != nil {
+			log.Printf("ChEMBL-SQLite: Error parsing mechanism JSON: %v", err)
+			continue
+		}
+
+		if entry.MechanismID == "" || entry.MoleculeID == "" {
+			continue
+		}
+
+		attr := &pbuf.ChemblAttr{
+			Mechanism: &pbuf.ChemblMechanismRecord{
+				MechanismOfAction:  entry.MechanismOfAction,
+				ActionType:         entry.ActionType,
+				DirectInteraction:  entry.DirectInteraction,
+				MolecularMechanism: entry.MolecularMechanism,
+				MechanismComment:   entry.MechanismComment,
+				TargetName:         entry.TargetName,
+				TargetType:         entry.TargetType,
+			},
+		}
+
+		attrBytes, err := ffjson.Marshal(attr)
+		if err != nil {
+			log.Printf("ChEMBL-SQLite: Error marshaling mechanism %s: %v", entry.MechanismID, err)
+			continue
+		}
+		c.d.addProp3(entry.MechanismID, sourceID, attrBytes)
+
+		// Edge: chembl_mechanism <-> chembl_molecule
+		// (reverse enables >>chembl_molecule>>chembl_mechanism)
+		if _, ok := config.Dataconf["chembl_molecule"]; ok {
+			c.d.addXref(entry.MechanismID, sourceID, entry.MoleculeID, "chembl_molecule", false)
+		}
+
+		// Edge: chembl_mechanism <-> chembl_target (protein targets reach the gene
+		// transitively via chembl_target -> uniprot)
+		if entry.TargetID != "" {
+			if _, ok := config.Dataconf["chembl_target"]; ok {
+				c.d.addXref(entry.MechanismID, sourceID, entry.TargetID, "chembl_target", false)
+			}
+		}
+
+		// Searchable: the MOA phrase links to this mechanism
+		if entry.MechanismOfAction != "" {
+			c.d.addXref(entry.MechanismOfAction, textLinkID, entry.MechanismID, c.source, true)
+		}
+
+		// Phase 2: RNA / nucleic-acid targets carry no UniProt protein, so the
+		// chembl_target -> uniprot bridge can't reach the gene. The gene is in the
+		// target name ("PCSK9 mRNA"); resolve it so gene pages surface RNA
+		// therapeutics (PCSK9 -> inclisiran, TTR -> patisiran).
+		c.linkMechanismGeneFromRNATarget(&entry, sourceID)
+
+		if idLogFile != nil {
+			logProcessedID(idLogFile, entry.MechanismID)
+		}
+
+		entryCount++
+
+		if testLimit > 0 && entryCount >= int64(testLimit) {
+			log.Printf("ChEMBL-SQLite: [TEST MODE] Reached mechanism limit of %d", testLimit)
+			break
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		log.Printf("ChEMBL-SQLite: Scanner error reading mechanisms: %v", err)
+	}
+
+	atomic.AddUint64(&c.d.totalParsedEntry, uint64(entryCount))
+	return entryCount
+}
+
+// linkMechanismGeneFromRNATarget (Phase 2) handles nucleic-acid (RNA) mechanism
+// targets, which have no UniProt protein. It recovers the gene/protein name from
+// the ChEMBL target name (e.g. "PCSK9 mRNA" -> "PCSK9") and resolves it via the
+// lookup DB to hgnc / ensembl / uniprot, adding edges so the gene page surfaces the
+// RNA therapeutic. Protein targets are skipped (they already reach the gene via
+// chembl_target -> uniprot).
+func (c *chemblSqlite) linkMechanismGeneFromRNATarget(entry *chemblMechanismRecordJSON, sourceID string) {
+	if c.d.lookupService == nil || entry.TargetName == "" {
+		return
+	}
+	tt := strings.ToUpper(entry.TargetType)
+	lname := strings.ToLower(entry.TargetName)
+	if !strings.Contains(tt, "NUCLEIC") && !strings.Contains(tt, "RNA") &&
+		!strings.Contains(lname, "mrna") && !strings.Contains(lname, " rna") {
+		return
+	}
+
+	gene := strings.TrimSpace(entry.TargetName)
+	for _, suf := range []string{" mRNA", " pre-mRNA", " RNA", " mrna", " rna"} {
+		gene = strings.TrimSuffix(gene, suf)
+	}
+	gene = strings.TrimSpace(gene)
+	if gene == "" {
+		return
+	}
+
+	result, err := c.d.lookup(gene)
+	if err != nil || result == nil || len(result.Results) == 0 {
+		return
+	}
+
+	hgncID := config.DataconfIDStringToInt["hgnc"]
+	ensemblID := config.DataconfIDStringToInt["ensembl"]
+	uniprotID := config.DataconfIDStringToInt["uniprot"]
+	seen := make(map[string]bool)
+	add := func(ds, id string) {
+		if id == "" {
+			return
+		}
+		key := ds + "\t" + id
+		if seen[key] {
+			return
+		}
+		seen[key] = true
+		c.d.addXref(entry.MechanismID, sourceID, id, ds, false)
+	}
+	classify := func(ds uint32, id string) {
+		switch ds {
+		case hgncID:
+			add("hgnc", id)
+		case ensemblID:
+			add("ensembl", id)
+		case uniprotID:
+			add("uniprot", id)
+		}
+	}
+	for _, xref := range result.Results {
+		if xref.IsLink {
+			for _, e := range xref.Entries {
+				classify(e.Dataset, e.Identifier)
+			}
+		} else {
+			classify(xref.Dataset, xref.Identifier)
+		}
+	}
+}
+
 func (c *chemblSqlite) processAssays(testLimit int) int64 {
 	sourceID := config.Dataconf[c.source]["id"]
 

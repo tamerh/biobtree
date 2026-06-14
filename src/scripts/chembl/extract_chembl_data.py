@@ -819,6 +819,67 @@ def extract_cell_lines(conn: sqlite3.Connection, output_dir: str, test_mode: boo
     return len(records)
 
 
+def extract_mechanisms(conn: sqlite3.Connection, output_dir: str, test_mode: bool = False) -> int:
+    """
+    Extract curated drug mechanism-of-action records (drug_mechanism table).
+
+    This is ChEMBL's curated "what this drug acts on" (molecule -> target +
+    action_type), distinct from promiscuous bioactivity assay hits. Critically it
+    is the only place RNA therapeutics (siRNA/ASO) carry a target edge, since they
+    have no bioactivity target (e.g. inclisiran -> PCSK9 mRNA, patisiran -> TTR mRNA).
+    """
+    logger.info("Extracting drug mechanisms (MOA)...")
+    start_time = time.time()
+
+    query = """
+    SELECT
+        dm.mec_id,
+        md.chembl_id AS molecule_id,
+        td.chembl_id AS target_id,
+        td.pref_name AS target_name,
+        td.target_type AS target_type,
+        dm.mechanism_of_action,
+        dm.action_type,
+        dm.direct_interaction,
+        dm.molecular_mechanism,
+        dm.mechanism_comment
+    FROM drug_mechanism dm
+    JOIN molecule_dictionary md ON dm.molregno = md.molregno
+    LEFT JOIN target_dictionary td ON dm.tid = td.tid
+    ORDER BY dm.mec_id
+    """
+    if test_mode:
+        query = query.replace("ORDER BY", "LIMIT 5000 --")
+
+    cursor = conn.cursor()
+    cursor.execute(query)
+
+    records = []
+    for row in cursor:
+        records.append({
+            "mechanism_id": "CHEMBL_MEC_" + str(row[0]),
+            "molecule_id": row[1] or "",
+            "target_id": row[2] or "",
+            "target_name": row[3] or "",
+            "target_type": row[4] or "",
+            "mechanism_of_action": row[5] or "",
+            "action_type": row[6] or "",
+            "direct_interaction": bool(row[7]) if row[7] is not None else False,
+            "molecular_mechanism": bool(row[8]) if row[8] is not None else False,
+            "mechanism_comment": row[9] or "",
+        })
+
+    logger.info(f"Found {len(records):,} mechanism records")
+
+    output_path = os.path.join(output_dir, "chembl_mechanisms.jsonl")
+    write_json_lines(output_path, records, "mechanisms")
+
+    elapsed = time.time() - start_time
+    logger.info(f"Mechanism extraction completed in {elapsed:.2f}s")
+
+    return len(records)
+
+
 def get_database_stats(conn: sqlite3.Connection) -> Dict[str, int]:
     """Get counts from main tables for verification."""
     stats = {}
@@ -916,6 +977,9 @@ def main():
 
         # 6. Extract cell lines
         extraction_stats["cell_lines"] = extract_cell_lines(conn, args.output_dir, args.test_mode)
+
+        # 7. Extract drug mechanisms (curated MOA)
+        extraction_stats["mechanisms"] = extract_mechanisms(conn, args.output_dir, args.test_mode)
 
         # Write metadata
         metadata = {

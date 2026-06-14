@@ -221,6 +221,7 @@ message ChemblAttr {
   ChemblTarget target=5;
   ChemblTargetComponent targetComponent=6;
   ChemblCellLine cellLine=7;
+  ChemblMechanismRecord mechanism=8;
   string id = 100; // transient - populated at runtime from Xref.Identifier
 }
 
@@ -334,6 +335,20 @@ message ChemblCellLine {
   string clo=4;
   string tax=5;
   repeated string cellxref=6;
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// Standalone curated mechanism-of-action record (the chembl_mechanism dataset).
+// Distinct from the tiny embedded ChemblMechanism{desc,action} on molecule/target —
+// this carries the full MOA edge (Atlas #49).
+message ChemblMechanismRecord {
+  string mechanism_of_action=1;   // curated MOA text, e.g. "PCSK9 mRNA RNAi inhibitor"
+  string action_type=2;           // INHIBITOR / AGONIST / RNAI INHIBITOR / ...
+  bool direct_interaction=3;
+  bool molecular_mechanism=4;
+  string mechanism_comment=5;
+  string target_name=6;           // ChEMBL target pref_name (e.g. "PCSK9 mRNA")
+  string target_type=7;           // SINGLE PROTEIN / NUCLEIC-ACID / ...
   string id = 100; // transient - populated at runtime from Xref.Identifier
 }
 

@@ -1102,6 +1102,11 @@ func (s *Service) execCelGo(query *query.Query, targetXref *pbuf.Xref) (bool, er
 			attr.Id = id
 			evalMap["chembl_cell_line"] = attr
 		}
+	case "chembl_mechanism":
+		if attr := targetXref.GetChembl().GetMechanism(); attr != nil {
+			attr.Id = id
+			evalMap["chembl_mechanism"] = attr
+		}
 	case "pubchem":
 		if attr := targetXref.GetPubchem(); attr != nil {
 			attr.Id = id

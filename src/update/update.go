@@ -835,7 +835,7 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			break
 		case "chembl":
 			// All ChEMBL datasets now use SQLite-based parser (RDF parser removed)
-			chemblDatasets := []string{"chembl_document", "chembl_assay", "chembl_activity", "chembl_molecule", "chembl_target", "chembl_cell_line"}
+			chemblDatasets := []string{"chembl_document", "chembl_assay", "chembl_activity", "chembl_molecule", "chembl_target", "chembl_cell_line", "chembl_mechanism"}
 			for _, chembldata := range chemblDatasets {
 				// Check if child dataset should be skipped (already built and source unchanged)
 				if !d.forceRebuild && d.shouldSkipDataset(chembldata) {
@@ -854,7 +854,7 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 				go cs.update()
 			}
 			break
-		case "chembl_document", "chembl_assay", "chembl_activity", "chembl_molecule", "chembl_target", "chembl_cell_line":
+		case "chembl_document", "chembl_assay", "chembl_activity", "chembl_molecule", "chembl_target", "chembl_cell_line", "chembl_mechanism":
 			d.wg.Add(1)
 			d.datasets2 = append(d.datasets2, data)
 			cs := chemblSqlite{source: data, d: d}

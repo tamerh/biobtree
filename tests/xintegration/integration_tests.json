@@ -9633,6 +9633,56 @@
       "should_fail": [
         "999999999"
       ]
+    },
+    {
+      "category": "chembl_mechanism",
+      "name": "Compound to curated mechanism of action",
+      "query": ">>*>>chembl_mechanism",
+      "why": "Curated drug MOA (target + action_type), distinct from promiscuous bioactivity (Atlas #49)",
+      "should_pass": [
+        "imatinib",
+        "inclisiran"
+      ],
+      "should_fail": [
+        "999999999"
+      ]
+    },
+    {
+      "category": "chembl_mechanism",
+      "name": "RNA therapeutic to mechanism target",
+      "query": ">>*>>chembl_mechanism>>chembl_target",
+      "why": "RNA therapeutics have no bioactivity target; the MOA edge is the only path to their target (inclisiran -> PCSK9 mRNA)",
+      "should_pass": [
+        "inclisiran",
+        "patisiran"
+      ],
+      "should_fail": [
+        "999999999"
+      ]
+    },
+    {
+      "category": "chembl_mechanism",
+      "name": "RNA therapeutic to gene via MOA target (phase 2)",
+      "query": ">>*>>chembl_mechanism>>hgnc",
+      "why": "NUCLEIC-ACID targets carry no UniProt; the gene is resolved from the target name so gene pages surface RNA drugs (inclisiran -> PCSK9)",
+      "should_pass": [
+        "inclisiran"
+      ],
+      "should_fail": [
+        "999999999"
+      ]
+    },
+    {
+      "category": "chembl_mechanism",
+      "name": "Gene to drug via curated mechanism (reverse)",
+      "query": ">>*>>chembl_mechanism>>chembl_molecule",
+      "why": "Gene pages surface drugs whose curated mechanism targets the gene, including RNA therapeutics (PCSK9 -> inclisiran)",
+      "should_pass": [
+        "PCSK9"
+      ],
+      "should_fail": [
+        "999999999"
+      ]
     }
   ]
 }

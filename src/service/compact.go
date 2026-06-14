@@ -561,6 +561,30 @@ func extractChemblField(a *pbuf.ChemblAttr, field string) string {
 			return cl.Tax
 		}
 	}
+	if mec := a.GetMechanism(); mec != nil {
+		switch field {
+		case "mechanism_of_action":
+			return mec.MechanismOfAction
+		case "action_type":
+			return mec.ActionType
+		case "target_name":
+			return mec.TargetName
+		case "target_type":
+			return mec.TargetType
+		case "mechanism_comment":
+			return mec.MechanismComment
+		case "direct_interaction":
+			if mec.DirectInteraction {
+				return "true"
+			}
+			return "false"
+		case "molecular_mechanism":
+			if mec.MolecularMechanism {
+				return "true"
+			}
+			return "false"
+		}
+	}
 	return ""
 }
 

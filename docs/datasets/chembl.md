@@ -11,13 +11,14 @@ ChEMBL is the world's largest open-access drug discovery database, containing bi
 
 ### Storage Model
 
-**Primary Entries**: 6 entity types stored as primary entries
+**Primary Entries**: 7 entity types stored as primary entries
 - Targets: CHEMBL203 (drug targets)
 - Molecules: CHEMBL25 (drug compounds)
 - Activities: CHEMBL_ACT_93229 (bioactivity measurements)
 - Assays: CHEMBL1217643 (experimental protocols)
 - Documents: CHEMBL1152233 (literature references)
 - Cell Lines: CHEMBL3307243 (cell line metadata)
+- Mechanisms: CHEMBL_MEC_7770 (curated mechanism-of-action records)
 
 **Searchable Text Links**:
 - Target names (preferred name)
@@ -32,6 +33,7 @@ ChEMBL is the world's largest open-access drug discovery database, containing bi
 - Assay: description, type, target, document
 - Document: title, docType, journal, year
 - Cell Line: name, description, organism, tax
+- Mechanism: mechanism_of_action, action_type, direct_interaction, molecular_mechanism, mechanism_comment, target_name, target_type
 
 **Cross-References**:
 - Target -> UniProt (direct), Taxonomy
@@ -40,6 +42,7 @@ ChEMBL is the world's largest open-access drug discovery database, containing bi
 - Assay -> Target, Document
 - Document -> PubMed (literature_mappings)
 - Cell Line -> Taxonomy, EFO
+- Mechanism -> Molecule, Target, and (for RNA/NUCLEIC-ACID targets) HGNC/Ensembl/UniProt resolved from the target name
 
 ### Key Relationships: Target vs Molecule vs UniProt
 
@@ -57,6 +60,30 @@ chembl_molecule ──────→ chembl_target ──────→ unipro
 - `target >> uniprot`: "What protein is this target?"
 - `molecule >> target >> uniprot`: "What proteins does this drug affect?"
 - `uniprot >> chembl_target >> chembl_molecule`: "What drugs target this protein?"
+
+### chembl_mechanism: curated mechanism of action (MOA)
+
+`chembl_mechanism` is ChEMBL's curated `drug_mechanism` table — the authoritative
+"what this drug actually acts on" (target + `action_type`), as distinct from the
+promiscuous bioactivity hits in `chembl_activity`. Each record is one MOA row.
+
+```
+chembl_molecule ──→ chembl_mechanism ──→ chembl_target ──→ uniprot   (protein targets)
+                                    └──→ hgnc / ensembl           (RNA targets, phase 2)
+```
+
+- `molecule >> chembl_mechanism`: curated MOA target(s) + action type for a drug.
+- `chembl_mechanism >> chembl_target >> uniprot`: protein target of the mechanism.
+- `gene >> ... >> chembl_mechanism >> chembl_molecule`: drugs whose *curated* mechanism
+  targets this gene (reverse) — including drugs absent from the bioactivity edge.
+
+**Why it matters — RNA therapeutics.** siRNA/ASO drugs (inclisiran, patisiran,
+nusinersen) are in ChEMBL as molecules but have **no `chembl_target` bioactivity edge**;
+the MOA table is the only place their target lives. Their MOA target is an mRNA
+(`target_type = NUCLEIC-ACID`, e.g. "PCSK9 mRNA") with no UniProt protein, so a
+**phase-2** step resolves the gene from the target name and links the mechanism to
+HGNC/Ensembl — letting gene pages surface RNA therapeutics (PCSK9 → inclisiran).
+Protein-target mechanisms reach the gene normally via `chembl_target >> uniprot`.
 
 ### Special Features
 

@@ -581,6 +581,8 @@ message RnacentralAttr {
   repeated string databases =5;             // List of source databases (e.g., ENA, RefSeq, miRBase)
   bool is_active =6;                        // Whether this is an active (non-obsolete) entry
   string md5 =7;                            // MD5 checksum of the sequence
+  string rfam_id =8;                        // Rfam family/model id (e.g. RF00177), if any
+  string rfam_description =9;               // Rfam family description (e.g. "tRNA")
   string id = 100; // transient - populated at runtime from Xref.Identifier
 }
 

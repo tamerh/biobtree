@@ -19,6 +19,10 @@ type rnacentralProcessor struct {
 	source   string
 	sourceID string
 	d        *DataUpdate
+	// testURS, populated only in test mode, restricts the Rfam/GO enrichment
+	// phases to the URS ids actually ingested from the FASTA. nil in a full prod
+	// run (process everything).
+	testURS map[string]bool
 }
 
 // Main update entry point
@@ -35,6 +39,7 @@ func (r *rnacentralProcessor) update() {
 		if idLogFile != nil {
 			defer idLogFile.Close()
 		}
+		r.testURS = make(map[string]bool)
 	}
 
 	fmt.Printf("Processing RNACentral sequences...\n")
@@ -59,6 +64,28 @@ func (r *rnacentralProcessor) update() {
 			log.Printf("Warning: Error processing ID mapping file: %v", err)
 		} else {
 			fmt.Printf("RNACentral ID mapping complete: %d cross-references added\n", xrefCount)
+		}
+	}
+
+	// Rfam family annotations (URS -> Rfam model + description), merged onto the entry.
+	rfamPath := config.Dataconf[r.source]["pathRfam"]
+	if rfamPath != "" {
+		fmt.Printf("Processing RNACentral Rfam annotations...\n")
+		if n, err := r.processRfamFile(rfamPath); err != nil {
+			log.Printf("Warning: Error processing Rfam annotations: %v", err)
+		} else {
+			fmt.Printf("RNACentral Rfam annotations complete: %d entries annotated\n", n)
+		}
+	}
+
+	// GO annotations (Rfam-derived) -> cross-references to the GO ontology.
+	goPath := config.Dataconf[r.source]["pathGo"]
+	if goPath != "" {
+		fmt.Printf("Processing RNACentral GO annotations...\n")
+		if n, err := r.processGoFile(goPath); err != nil {
+			log.Printf("Warning: Error processing GO annotations: %v", err)
+		} else {
+			fmt.Printf("RNACentral GO annotations complete: %d GO cross-references added\n", n)
 		}
 	}
 
@@ -202,6 +229,10 @@ func (r *rnacentralProcessor) processEntry(id, description, sequence string, idL
 	}
 
 	r.d.addProp3(id, r.sourceID, b)
+
+	if r.testURS != nil {
+		r.testURS[id] = true
+	}
 
 	// Text search: index RNA type from FASTA (allows searching "miRNA", "lncRNA", "rRNA", etc.)
 	// Gene names and specific RNA names are indexed from id_mapping.tsv in processIdMappingFile
@@ -487,4 +518,137 @@ func (r *rnacentralProcessor) processIdMappingFile(filePath string, testLimit in
 	fmt.Printf("RNACentral text search: %d gene name terms indexed\n", textSearchCount)
 
 	return xrefCount, nil
+}
+
+// processRfamFile streams the Rfam annotations TSV and merges the Rfam family id +
+// description onto each RNAcentral entry as a second prop (merged at generate). File
+// format: URS  Rfam-Model-Id  score  evalue  s_start  s_stop  m_start  m_stop  Rfam-Description.
+// The file is URS-sorted, so the first row per URS is taken. In test mode only
+// FASTA-ingested URS are annotated and a line cap bounds the stream.
+func (r *rnacentralProcessor) processRfamFile(filePath string) (uint64, error) {
+	// Test builds skip the multi-hundred-MB remote stream (the FASTA is not
+	// URS-sorted, so a bounded prefix wouldn't cover the test URS anyway). A local
+	// fixture path is still processed so the phase is testable.
+	if config.IsTestMode() && strings.HasPrefix(filePath, "http") {
+		return 0, nil
+	}
+
+	br, gz, ftpFile, client, localFile, _, err := getDataReaderNew(r.source, "", "", filePath)
+	if err != nil {
+		return 0, fmt.Errorf("failed to open Rfam annotations file: %v", err)
+	}
+	defer closeRnacentralReaders(gz, ftpFile, client, localFile)
+
+	var reader *bufio.Reader
+	if gz != nil {
+		reader = bufio.NewReaderSize(gz, 1024*1024)
+	} else {
+		reader = bufio.NewReaderSize(br, 1024*1024)
+	}
+
+	testMode := config.IsTestMode()
+	var annotated uint64
+	lastURS := ""
+
+	for {
+		line, rerr := reader.ReadString('\n')
+		if rerr != nil && rerr != io.EOF {
+			return annotated, fmt.Errorf("error reading Rfam annotations: %v", rerr)
+		}
+		if len(line) == 0 && rerr == io.EOF {
+			break
+		}
+		line = strings.TrimRight(line, "\r\n")
+		if line != "" {
+			fields := strings.Split(line, "\t")
+			if len(fields) >= 2 {
+				ursID := fields[0]
+				if ursID != lastURS { // first Rfam model per URS only (URS-sorted)
+					lastURS = ursID
+					if !testMode || r.testURS[ursID] {
+						rfamDesc := ""
+						if len(fields) >= 9 {
+							rfamDesc = fields[8]
+						}
+						attr := pbuf.RnacentralAttr{RfamId: fields[1], RfamDescription: rfamDesc}
+						if b, mErr := ffjson.Marshal(&attr); mErr == nil {
+							r.d.addProp3(ursID, r.sourceID, b)
+							annotated++
+						}
+					}
+				}
+			}
+		}
+		if rerr == io.EOF {
+			break
+		}
+	}
+	return annotated, nil
+}
+
+// processGoFile streams the Rfam-derived GO annotations TSV (URS_taxid  GO:term  Rfam:model)
+// and adds cross-references from the RNAcentral entry (bare URS) to the GO ontology.
+// GO terms are deduplicated per URS across taxids. In test mode only FASTA-ingested URS
+// are linked and a line cap bounds the stream.
+func (r *rnacentralProcessor) processGoFile(filePath string) (uint64, error) {
+	if _, ok := config.Dataconf["go"]; !ok {
+		return 0, nil // GO ontology not in this build; skip to avoid dangling xrefs
+	}
+	if config.IsTestMode() && strings.HasPrefix(filePath, "http") {
+		return 0, nil // see processRfamFile: skip the large remote stream in test mode
+	}
+
+	br, gz, ftpFile, client, localFile, _, err := getDataReaderNew(r.source, "", "", filePath)
+	if err != nil {
+		return 0, fmt.Errorf("failed to open GO annotations file: %v", err)
+	}
+	defer closeRnacentralReaders(gz, ftpFile, client, localFile)
+
+	var reader *bufio.Reader
+	if gz != nil {
+		reader = bufio.NewReaderSize(gz, 1024*1024)
+	} else {
+		reader = bufio.NewReaderSize(br, 1024*1024)
+	}
+
+	testMode := config.IsTestMode()
+	var added uint64
+	curURS := ""
+	seen := make(map[string]bool)
+
+	for {
+		line, rerr := reader.ReadString('\n')
+		if rerr != nil && rerr != io.EOF {
+			return added, fmt.Errorf("error reading GO annotations: %v", rerr)
+		}
+		if len(line) == 0 && rerr == io.EOF {
+			break
+		}
+		line = strings.TrimRight(line, "\r\n")
+		if line != "" {
+			fields := strings.Split(line, "\t")
+			if len(fields) >= 2 {
+				ursID := fields[0]
+				if i := strings.IndexByte(ursID, '_'); i > 0 {
+					ursID = ursID[:i] // strip _taxid -> bare URS
+				}
+				goTerm := fields[1]
+				if ursID != curURS {
+					curURS = ursID
+					seen = make(map[string]bool)
+				}
+				if strings.HasPrefix(goTerm, "GO:") && !seen[goTerm] {
+					if !testMode || r.testURS[ursID] {
+						seen[goTerm] = true
+						r.d.addXref(ursID, r.sourceID, goTerm, "go", false)
+						added++
+					}
+				}
+			}
+		}
+		if rerr == io.EOF {
+			break
+		}
+	}
+	return added, nil
 }

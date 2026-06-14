@@ -1960,10 +1960,25 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 					xref.Attributes = &pbuf.Xref_Alphafold{attr}
 				}
 			case "rnacentral":
-				attr := &pbuf.RnacentralAttr{}
-				barr := []byte((*kvProp[k])[0].value)
-				ffjson.Unmarshal(barr, attr)
-				xref.Attributes = &pbuf.Xref_Rnacentral{attr}
+				// Multiple props per URS (FASTA base attr + Rfam family attr from
+				// the rfam phase) are merged so both reach the entry.
+				if valPropIdx[k] > 1 {
+					finalAttr := pbuf.RnacentralAttr{}
+					for a := 0; a < valPropIdx[k]; a++ {
+						barr := []byte((*kvProp[k])[a].value)
+						attr := &pbuf.RnacentralAttr{}
+						ffjson.Unmarshal(barr, attr)
+						if err := mergo.Merge(&finalAttr, attr, mergo.WithAppendSlice); err != nil {
+							panic(err)
+						}
+					}
+					xref.Attributes = &pbuf.Xref_Rnacentral{&finalAttr}
+				} else {
+					attr := &pbuf.RnacentralAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_Rnacentral{attr}
+				}
 			case "clinvar":
 				attr := &pbuf.ClinvarAttr{}
 				barr := []byte((*kvProp[k])[0].value)
@@ -2563,10 +2578,23 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 						xref.Attributes = &pbuf.Xref_Alphafold{attr}
 					}
 				case "rnacentral":
-					attr := &pbuf.RnacentralAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_Rnacentral{attr}
+					if valPropIdx[k] > 1 {
+						finalAttr := pbuf.RnacentralAttr{}
+						for a := 0; a < valPropIdx[k]; a++ {
+							barr := []byte((*kvProp[k])[a].value)
+							attr := &pbuf.RnacentralAttr{}
+							ffjson.Unmarshal(barr, attr)
+							if err := mergo.Merge(&finalAttr, attr, mergo.WithAppendSlice); err != nil {
+								panic(err)
+							}
+						}
+						xref.Attributes = &pbuf.Xref_Rnacentral{&finalAttr}
+					} else {
+						attr := &pbuf.RnacentralAttr{}
+						barr := []byte((*kvProp[k])[0].value)
+						ffjson.Unmarshal(barr, attr)
+						xref.Attributes = &pbuf.Xref_Rnacentral{attr}
+					}
 				case "clinvar":
 					attr := &pbuf.ClinvarAttr{}
 					barr := []byte((*kvProp[k])[0].value)

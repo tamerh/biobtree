@@ -1349,6 +1349,10 @@ func extractRnacentralField(a *pbuf.RnacentralAttr, field string) string {
 			return "true"
 		}
 		return "false"
+	case "rfam_id":
+		return a.RfamId
+	case "rfam_description":
+		return a.RfamDescription
 	default:
 		return ""
 	}

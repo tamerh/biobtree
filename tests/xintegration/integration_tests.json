@@ -9683,6 +9683,30 @@
       "should_fail": [
         "999999999"
       ]
+    },
+    {
+      "category": "rnacentral_function",
+      "name": "ncRNA to GO function (Rfam-derived)",
+      "query": ">>rnacentral>>go",
+      "why": "RNAcentral entries now carry Rfam-derived GO annotations, giving ncRNAs a Function zone (Atlas #48)",
+      "should_pass": [
+        "URS0000000008"
+      ],
+      "should_fail": [
+        "URS999999999999"
+      ]
+    },
+    {
+      "category": "rnacentral_function",
+      "name": "GO term to ncRNAs (reverse)",
+      "query": ">>go>>rnacentral",
+      "why": "Which ncRNAs are annotated with a given GO function",
+      "should_pass": [
+        "GO:0030533"
+      ],
+      "should_fail": [
+        "GO:9999999"
+      ]
     }
   ]
 }

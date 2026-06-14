@@ -26,6 +26,8 @@ RNACentral is a comprehensive database of non-coding RNA sequences that aggregat
 - `databases`: Array of source database names (e.g., ["ENA", "RefSeq", "miRBase"])
 - `is_active`: Boolean indicating if entry is active (non-obsolete)
 - `md5`: MD5 checksum of sequence (for future validation)
+- `rfam_id`: Rfam family/model id (e.g. `RF00005`), if the sequence maps to one
+- `rfam_description`: Rfam family description (e.g. `tRNA`)
 
 **Cross-References** (via id_mapping.tsv.gz):
 - Self-reference for keyword lookup
@@ -35,6 +37,16 @@ RNACentral is a comprehensive database of non-coding RNA sequences that aggregat
 - PDB (structure IDs, chain stripped)
 - HGNC
 - Model organism databases: MGI, RGD, FlyBase, SGD, TAIR
+
+**Functional annotation (Rfam-derived):**
+- `>>rnacentral>>go`: GO term cross-references from RNAcentral's Rfam-based GO
+  annotations (`go_annotations/rnacentral_rfam_annotations.tsv.gz`), giving ncRNAs
+  a Function zone. GO terms are deduplicated per URS across taxids.
+- The Rfam family (`rfam_id`/`rfam_description`) comes from
+  `rfam/rfam_annotations.tsv.gz` and is merged onto the entry.
+- Coverage note: Rfam (and thus the Rfam-derived GO) covers **structured** RNAs
+  (rRNA, tRNA, snoRNA, miRNA, riboswitches). Most bare lncRNAs are not in Rfam, so
+  their functional layer comes from other sources, not this path.
 
 ### Special Features
 

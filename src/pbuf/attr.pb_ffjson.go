@@ -118651,6 +118651,16 @@ func (j *RnacentralAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.WriteJsonString(buf, string(j.Md5))
 		buf.WriteByte(',')
 	}
+	if len(j.RfamId) != 0 {
+		buf.WriteString(`"rfam_id":`)
+		fflib.WriteJsonString(buf, string(j.RfamId))
+		buf.WriteByte(',')
+	}
+	if len(j.RfamDescription) != 0 {
+		buf.WriteString(`"rfam_description":`)
+		fflib.WriteJsonString(buf, string(j.RfamDescription))
+		buf.WriteByte(',')
+	}
 	if len(j.Id) != 0 {
 		buf.WriteString(`"id":`)
 		fflib.WriteJsonString(buf, string(j.Id))
@@ -118679,6 +118689,10 @@ const (
 
 	ffjtRnacentralAttrMd5
 
+	ffjtRnacentralAttrRfamId
+
+	ffjtRnacentralAttrRfamDescription
+
 	ffjtRnacentralAttrId
 )
 
@@ -118695,6 +118709,10 @@ var ffjKeyRnacentralAttrDatabases = []byte("databases")
 var ffjKeyRnacentralAttrIsActive = []byte("is_active")
 
 var ffjKeyRnacentralAttrMd5 = []byte("md5")
+
+var ffjKeyRnacentralAttrRfamId = []byte("rfam_id")
+
+var ffjKeyRnacentralAttrRfamDescription = []byte("rfam_description")
 
 var ffjKeyRnacentralAttrId = []byte("id")
 
@@ -118815,12 +118833,34 @@ mainparse:
 						currentKey = ffjtRnacentralAttrRnaType
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyRnacentralAttrRfamId, kn) {
+						currentKey = ffjtRnacentralAttrRfamId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyRnacentralAttrRfamDescription, kn) {
+						currentKey = ffjtRnacentralAttrRfamDescription
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				}
 
 				if fflib.SimpleLetterEqualFold(ffjKeyRnacentralAttrId, kn) {
 					currentKey = ffjtRnacentralAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyRnacentralAttrRfamDescription, kn) {
+					currentKey = ffjtRnacentralAttrRfamDescription
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyRnacentralAttrRfamId, kn) {
+					currentKey = ffjtRnacentralAttrRfamId
 					state = fflib.FFParse_want_colon
 					goto mainparse
 				}
@@ -118904,6 +118944,12 @@ mainparse:
 
 				case ffjtRnacentralAttrMd5:
 					goto handle_Md5
+
+				case ffjtRnacentralAttrRfamId:
+					goto handle_RfamId
+
+				case ffjtRnacentralAttrRfamDescription:
+					goto handle_RfamDescription
 
 				case ffjtRnacentralAttrId:
 					goto handle_Id
@@ -119162,6 +119208,58 @@ handle_Md5:
 			outBuf := fs.Output.Bytes()
 
 			j.Md5 = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_RfamId:
+
+	/* handler: j.RfamId type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.RfamId = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_RfamDescription:
+
+	/* handler: j.RfamDescription type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.RfamDescription = string(string(outBuf))
 
 		}
 	}

@@ -548,7 +548,7 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			break
 		case "ontology":
 			// Process all ontology datasets at once
-			ontologyDatasets := []string{"go", "eco", "efo", "uberon", "cl", "mondo", "hpo", "oba", "pato", "obi", "xco", "bao"}
+			ontologyDatasets := []string{"go", "eco", "efo", "uberon", "cl", "mondo", "hpo", "doid", "oba", "pato", "obi", "xco", "bao"}
 			for _, ontoData := range ontologyDatasets {
 				// Check if child dataset should be skipped (already built and source unchanged)
 				if !d.forceRebuild && d.shouldSkipDataset(ontoData) {
@@ -585,6 +585,11 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 					c := ontology{source: ontoData, d: d, prefixURL: "http://purl.obolibrary.org/obo/", idPrefix: "CL:"}
 					d.datasets2 = append(d.datasets2, ontoData)
 					go c.update()
+				case "doid":
+					d.wg.Add(1)
+					dd := ontology{source: ontoData, d: d, prefixURL: "http://purl.obolibrary.org/obo/", idPrefix: "DOID:"}
+					d.datasets2 = append(d.datasets2, ontoData)
+					go dd.update()
 				case "mondo":
 					d.wg.Add(1)
 					m := mondo{source: ontoData, d: d}
@@ -652,6 +657,12 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			c := ontology{source: data, d: d, prefixURL: "http://purl.obolibrary.org/obo/", idPrefix: "CL:"}
 			d.datasets2 = append(d.datasets2, data)
 			go c.update()
+			break
+		case "doid":
+			d.wg.Add(1)
+			dd := ontology{source: data, d: d, prefixURL: "http://purl.obolibrary.org/obo/", idPrefix: "DOID:"}
+			d.datasets2 = append(d.datasets2, data)
+			go dd.update()
 			break
 		case "bgee":
 			d.wg.Add(1)

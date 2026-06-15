@@ -167,9 +167,9 @@ func (g *ontology) update() {
 
 				attr.Name = r.Childs["rdfs:label"][0].InnerText
 
-				// Add text search for all OWL-based ontologies (GO, ECO, EFO, UBERON, CL)
+				// Add text search for all OWL-based ontologies (GO, ECO, EFO, UBERON, CL, DOID)
 				// Enables keyword search by term names and synonyms
-				if g.source == "go" || g.source == "eco" || g.source == "efo" || g.source == "uberon" || g.source == "cl" {
+				if g.source == "go" || g.source == "eco" || g.source == "efo" || g.source == "uberon" || g.source == "cl" || g.source == "doid" {
 					// Index name + synonyms (full phrase + per-word) via the shared
 					// helper, which also adds hyphen-normalized keys so hyphenated
 					// terms are found whether or not the query uses the hyphen.

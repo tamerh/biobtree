@@ -71,6 +71,36 @@
     "test_entries_count": "100",
     "bucketMethod": "ontology"
   },
+  "doid": {
+    "aliases": "DOID,Disease Ontology,Human Disease Ontology",
+    "id": "751",
+    "name": "DOID",
+    "textPriority": "100",
+    "url": "https://disease-ontology.org/?id=£{id}",
+    "path": "http://purl.obolibrary.org/obo/doid.owl",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "name,[]synonyms",
+    "compact_fields": "name",
+    "test_entries_count": "100",
+    "bucketMethod": "ontology"
+  },
+  "doidparent": {
+    "name": "DOID Parent",
+    "id": "748",
+    "url": "https://disease-ontology.org/?id=£{id}",
+    "linkdataset": "doid",
+    "hasFilter": "yes",
+    "attrs": "name,[]synonyms"
+  },
+  "doidchild": {
+    "name": "DOID Child",
+    "id": "749",
+    "url": "https://disease-ontology.org/?id=£{id}",
+    "linkdataset": "doid",
+    "hasFilter": "yes",
+    "attrs": "name,[]synonyms"
+  },
   "uberon": {
     "aliases": "UBERON,Uber-anatomy ontology,Uberon",
     "id": "75",

@@ -174,6 +174,7 @@ DATASETS=(
     cl
     mondo
     hpo
+    doid
     oba
     pato
     obi

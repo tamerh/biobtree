@@ -263,6 +263,7 @@ Available datasets:
         'mesh': datasets_dir / "mesh" / "test_mesh.py",
         'uberon': datasets_dir / "uberon" / "test_uberon.py",
         'cl': datasets_dir / "cl" / "test_cl.py",
+        'doid': datasets_dir / "doid" / "test_doid.py",
         'oba': datasets_dir / "oba" / "test_oba.py",
         'pato': datasets_dir / "pato" / "test_pato.py",
         'obi': datasets_dir / "obi" / "test_obi.py",

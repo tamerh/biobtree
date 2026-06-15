@@ -9782,6 +9782,31 @@
       "should_fail": [
         "999999999"
       ]
+    },
+    {
+      "category": "alliance_disease",
+      "name": "gene to disease association (Alliance)",
+      "query": ">>*>>alliance_disease",
+      "why": "Cross-species + human gene-disease curation from the Alliance of Genome Resources (model-organism disease layer)",
+      "should_pass": [
+        "CFTR",
+        "HBB"
+      ],
+      "should_fail": [
+        "999999999"
+      ]
+    },
+    {
+      "category": "alliance_disease",
+      "name": "gene to disease ontology (DOID via Alliance)",
+      "query": ">>*>>alliance_disease>>doid",
+      "why": "Alliance gene-disease associations resolve to DOID disease-ontology terms",
+      "should_pass": [
+        "CFTR"
+      ],
+      "should_fail": [
+        "999999999"
+      ]
     }
   ]
 }

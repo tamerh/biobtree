@@ -107,6 +107,7 @@ Disease associations, clinical variants, rare diseases.
 | pharmgkb | PharmGKB pharmacogenomics | [README](pharmgkb.md) |
 | ncrna_disease | Curated ncRNA-disease associations (LncRNADisease + HMDD) | [README](ncrna_disease.md) |
 | ncrna_drug | ncRNA drug-resistance / drug-target (ncRNADrug) | [README](ncrna_drug.md) |
+| alliance_disease | Cross-species + human gene-disease curation (Alliance of Genome Resources) | [README](alliance_disease.md) |
 
 ---
 

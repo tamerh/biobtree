@@ -820,6 +820,12 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			d.datasets2 = append(d.datasets2, data)
 			go ndr.update()
 			break
+		case "alliance_disease":
+			d.wg.Add(1)
+			ad := allianceDisease{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go ad.update()
+			break
 		case "clinvar":
 			d.wg.Add(1)
 			cv := clinvarXML{source: data, d: d}

@@ -1,0 +1,93 @@
+# BioBTree dataset -> biolink node category map (KG exporter).
+#
+# Used to TYPE nodes and to choose canonical identifiers during normalization.
+# Only datasets that contribute NODES belong here. Datasets that only produce
+# EDGES (e.g. string_interaction, chembl_activity, depmap_dependency) are mapped
+# in mappings/predicates.yaml instead.
+#
+# Phase 0 scope: the MVP entity set (Gene, Protein, Disease, Drug/SmallMolecule,
+# Variant, Pathway) plus a first slice of BioBTree-differentiating node types
+# (ncRNA, cell line). Datasets absent from `datasets:` are UNCATEGORIZED — the
+# exporter logs and (in the MVP) skips them; expand coverage in later phases.
+#
+# Fields per dataset:
+#   category : biolink category CURIE for nodes from this dataset
+#   prefix   : CURIE prefix used to render this dataset's raw ids (see notes.md)
+#   note     : optional; flags special handling
+#
+# canonical_priority: per category, the dataset order used in Phase 1 to pick the
+# canonical CURIE when several datasets describe the same entity (first wins).
+# The rest of the ids become biolink `equivalent_identifiers`.
+
+canonical_priority:
+  "biolink:Gene": [hgnc, ensembl, entrez]
+  "biolink:Protein": [uniprot, uniparc]
+  "biolink:Disease": [mondo, doid, efo, orphanet, mim]
+  "biolink:SmallMolecule": [chebi, chembl_molecule, pubchem, gtopdb_ligand, hmdb, lipidmaps, swisslipids]
+  "biolink:Drug": [drugbank, chembl_molecule]
+  "biolink:SequenceVariant": [clinvar, dbsnp]
+  "biolink:PhenotypicFeature": [hpo, mp]
+  "biolink:Pathway": [reactome, msigdb]
+
+datasets:
+  # --- Genes -----------------------------------------------------------------
+  hgnc:        {category: "biolink:Gene", prefix: "HGNC"}
+  ensembl:     {category: "biolink:Gene", prefix: "ENSEMBL"}
+  entrez:      {category: "biolink:Gene", prefix: "NCBIGene"}
+
+  # --- Transcripts -----------------------------------------------------------
+  transcript:  {category: "biolink:Transcript", prefix: "ENSEMBL"}
+
+  # --- Proteins --------------------------------------------------------------
+  uniprot:     {category: "biolink:Protein", prefix: "UniProtKB"}
+  uniparc:     {category: "biolink:Protein", prefix: "UPI", note: "sequence archive; secondary to uniprot"}
+
+  # --- Diseases --------------------------------------------------------------
+  mondo:       {category: "biolink:Disease", prefix: "MONDO"}
+  doid:        {category: "biolink:Disease", prefix: "DOID"}
+  efo:         {category: "biolink:Disease", prefix: "EFO", note: "EFO is mixed; many terms are diseases"}
+  orphanet:    {category: "biolink:Disease", prefix: "Orphanet"}
+  mim:         {category: "biolink:Disease", prefix: "OMIM", note: "OMIM phenotype MIMs"}
+
+  # --- Phenotypes ------------------------------------------------------------
+  hpo:         {category: "biolink:PhenotypicFeature", prefix: "HP"}
+  mp:          {category: "biolink:PhenotypicFeature", prefix: "MP", note: "mouse phenotype (cross-species)"}
+
+  # --- Drugs / small molecules ----------------------------------------------
+  chebi:          {category: "biolink:SmallMolecule", prefix: "CHEBI"}
+  chembl_molecule: {category: "biolink:SmallMolecule", prefix: "CHEMBL.COMPOUND", note: "approved subset -> Drug via predicate qualifier"}
+  pubchem:        {category: "biolink:SmallMolecule", prefix: "PUBCHEM.COMPOUND"}
+  gtopdb_ligand:  {category: "biolink:SmallMolecule", prefix: "GTOPDB"}
+  hmdb:           {category: "biolink:SmallMolecule", prefix: "HMDB"}
+  lipidmaps:      {category: "biolink:SmallMolecule", prefix: "LIPIDMAPS"}
+  swisslipids:    {category: "biolink:SmallMolecule", prefix: "SWISSLIPID"}
+  drugbank:       {category: "biolink:Drug", prefix: "DRUGBANK"}
+
+  # --- Sequence variants -----------------------------------------------------
+  clinvar:     {category: "biolink:SequenceVariant", prefix: "CLINVAR"}
+  dbsnp:       {category: "biolink:SequenceVariant", prefix: "DBSNP", note: "dbsnp federation"}
+
+  # --- Pathways / gene sets --------------------------------------------------
+  reactome:    {category: "biolink:Pathway", prefix: "REACT"}
+  msigdb:      {category: "biolink:Pathway", prefix: "MSigDB", note: "gene sets; pathway-like"}
+
+  # --- Anatomy / cells -------------------------------------------------------
+  uberon:      {category: "biolink:GrossAnatomicalStructure", prefix: "UBERON"}
+  cl:          {category: "biolink:Cell", prefix: "CL"}
+
+  # --- Cell lines (differentiating) -----------------------------------------
+  cellosaurus: {category: "biolink:CellLine", prefix: "Cellosaurus"}
+
+  # --- Organisms -------------------------------------------------------------
+  taxonomy:    {category: "biolink:OrganismTaxon", prefix: "NCBITaxon"}
+
+  # --- Protein families / complexes -----------------------------------------
+  interpro:    {category: "biolink:ProteinFamily", prefix: "InterPro", note: "InterPro mixes families/domains/sites"}
+  corum:       {category: "biolink:MacromolecularComplex", prefix: "CORUM"}
+
+  # --- Non-coding RNA (differentiating) -------------------------------------
+  rnacentral:  {category: "biolink:NoncodingRNAProduct", prefix: "RNACENTRAL"}
+
+  # --- Deferred / aspect-dependent (NOT typed at dataset level) --------------
+  # go: category depends on term aspect (MF/BP/CC) -> resolved in Phase 2 from
+  #     the GO aspect attribute, not here.

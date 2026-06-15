@@ -28,9 +28,11 @@ class CategoryMap:
         self,
         entries: dict[str, CategoryEntry],
         canonical_priority: dict[str, list[str]],
+        identity_pairs: set[frozenset[str]] | None = None,
     ):
         self._entries = entries
         self._priority = canonical_priority
+        self._identity_pairs = identity_pairs or set()
 
     # -- construction -------------------------------------------------------
 
@@ -54,7 +56,12 @@ class CategoryMap:
                     f"categories.yaml: entry for {dataset!r} missing required field {e}"
                 ) from None
         priority = doc.get("canonical_priority", {}) or {}
-        return cls(entries, priority)
+        pairs = {
+            frozenset(p)
+            for p in (doc.get("identity_pairs", []) or [])
+            if len(p) == 2
+        }
+        return cls(entries, priority, pairs)
 
     # -- lookups ------------------------------------------------------------
 
@@ -76,6 +83,13 @@ class CategoryMap:
     def priority_for(self, category: str) -> list[str]:
         """Dataset order for choosing the canonical CURIE within a category."""
         return list(self._priority.get(category, []))
+
+    def is_identity_pair(self, dataset_a: str, dataset_b: str) -> bool:
+        """True if a cross-ref between these datasets means 'same entity'."""
+        return frozenset((dataset_a, dataset_b)) in self._identity_pairs
+
+    def identity_pairs(self) -> set[frozenset[str]]:
+        return set(self._identity_pairs)
 
     def datasets(self) -> list[str]:
         return list(self._entries)

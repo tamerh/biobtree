@@ -19,6 +19,17 @@
 # canonical CURIE when several datasets describe the same entity (first wins).
 # The rest of the ids become biolink `equivalent_identifiers`.
 
+# identity_pairs: same-category dataset pairs whose cross-references mean
+# "the SAME entity" (-> node merge), not a relationship. Conservative allowlist:
+# only genuine namespace-equivalences participate in clustering, so that
+# traversal-grade xrefs cannot over-merge distinct entities.
+# Phase 1 MVP scope: genes only (the dominant duplicate-node source). Disease
+# (through MONDO) and others are deferred until gene normalization is validated.
+identity_pairs:
+  - [hgnc, ensembl]
+  - [hgnc, entrez]
+  - [ensembl, entrez]
+
 canonical_priority:
   "biolink:Gene": [hgnc, ensembl, entrez]
   "biolink:Protein": [uniprot, uniparc]

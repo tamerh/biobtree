@@ -71,6 +71,217 @@
     "test_entries_count": "100",
     "bucketMethod": "ontology"
   },
+  "doid": {
+    "aliases": "DOID,Disease Ontology,Human Disease Ontology",
+    "id": "751",
+    "name": "DOID",
+    "textPriority": "100",
+    "url": "https://disease-ontology.org/?id=£{id}",
+    "path": "http://purl.obolibrary.org/obo/doid.owl",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "name,[]synonyms",
+    "compact_fields": "name",
+    "test_entries_count": "100",
+    "bucketMethod": "ontology"
+  },
+  "doidparent": {
+    "name": "DOID Parent",
+    "id": "748",
+    "url": "https://disease-ontology.org/?id=£{id}",
+    "linkdataset": "doid",
+    "hasFilter": "yes",
+    "attrs": "name,[]synonyms"
+  },
+  "doidchild": {
+    "name": "DOID Child",
+    "id": "749",
+    "url": "https://disease-ontology.org/?id=£{id}",
+    "linkdataset": "doid",
+    "hasFilter": "yes",
+    "attrs": "name,[]synonyms"
+  },
+  "upheno": {
+    "aliases": "uPheno,Unified Phenotype Ontology,UPHENO,cross-species phenotype",
+    "id": "782",
+    "name": "uPheno",
+    "textPriority": "80",
+    "url": "http://purl.obolibrary.org/obo/£{id}",
+    "path": "http://purl.obolibrary.org/obo/upheno.owl",
+    "pathSssom": "https://raw.githubusercontent.com/obophenotype/upheno-dev/master/src/mappings/upheno-cross-species.sssom.tsv",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "name,[]synonyms",
+    "compact_fields": "name",
+    "test_entries_count": "100",
+    "bucketMethod": "ontology"
+  },
+  "uphenoparent": {
+    "name": "uPheno Parent",
+    "id": "783",
+    "url": "http://purl.obolibrary.org/obo/£{id}",
+    "linkdataset": "upheno",
+    "hasFilter": "yes",
+    "attrs": "name,[]synonyms"
+  },
+  "uphenochild": {
+    "name": "uPheno Child",
+    "id": "784",
+    "url": "http://purl.obolibrary.org/obo/£{id}",
+    "linkdataset": "upheno",
+    "hasFilter": "yes",
+    "attrs": "name,[]synonyms"
+  },
+  "mp": {
+    "aliases": "MP,Mammalian Phenotype Ontology,mouse phenotype",
+    "id": "785",
+    "name": "MP",
+    "textPriority": "80",
+    "url": "http://purl.obolibrary.org/obo/£{id}",
+    "path": "http://purl.obolibrary.org/obo/mp.owl",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms",
+    "compact_fields": "type,name",
+    "test_entries_count": "100",
+    "bucketMethod": "ontology"
+  },
+  "mpparent": {
+    "name": "MP Parent",
+    "id": "786",
+    "url": "http://purl.obolibrary.org/obo/£{id}",
+    "linkdataset": "mp",
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms"
+  },
+  "mpchild": {
+    "name": "MP Child",
+    "id": "787",
+    "url": "http://purl.obolibrary.org/obo/£{id}",
+    "linkdataset": "mp",
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms"
+  },
+  "zp": {
+    "aliases": "ZP,Zebrafish Phenotype Ontology,zebrafish phenotype",
+    "id": "788",
+    "name": "ZP",
+    "textPriority": "80",
+    "url": "http://purl.obolibrary.org/obo/£{id}",
+    "path": "http://purl.obolibrary.org/obo/zp.owl",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms",
+    "compact_fields": "type,name",
+    "test_entries_count": "100",
+    "bucketMethod": "ontology"
+  },
+  "zpparent": {
+    "name": "ZP Parent",
+    "id": "789",
+    "url": "http://purl.obolibrary.org/obo/£{id}",
+    "linkdataset": "zp",
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms"
+  },
+  "zpchild": {
+    "name": "ZP Child",
+    "id": "790",
+    "url": "http://purl.obolibrary.org/obo/£{id}",
+    "linkdataset": "zp",
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms"
+  },
+  "xpo": {
+    "aliases": "XPO,Xenopus Phenotype Ontology,xenopus phenotype,frog phenotype",
+    "id": "791",
+    "name": "XPO",
+    "textPriority": "80",
+    "url": "http://purl.obolibrary.org/obo/£{id}",
+    "path": "http://purl.obolibrary.org/obo/xpo.owl",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms",
+    "compact_fields": "type,name",
+    "test_entries_count": "100",
+    "bucketMethod": "ontology"
+  },
+  "xpoparent": {
+    "name": "XPO Parent",
+    "id": "792",
+    "url": "http://purl.obolibrary.org/obo/£{id}",
+    "linkdataset": "xpo",
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms"
+  },
+  "xpochild": {
+    "name": "XPO Child",
+    "id": "793",
+    "url": "http://purl.obolibrary.org/obo/£{id}",
+    "linkdataset": "xpo",
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms"
+  },
+  "wbphenotype": {
+    "aliases": "WBPhenotype,C. elegans Phenotype Ontology,worm phenotype",
+    "id": "794",
+    "name": "WBPhenotype",
+    "textPriority": "80",
+    "url": "http://purl.obolibrary.org/obo/£{id}",
+    "path": "http://purl.obolibrary.org/obo/wbphenotype.owl",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms",
+    "compact_fields": "type,name",
+    "test_entries_count": "100",
+    "bucketMethod": "ontology"
+  },
+  "wbphenotypeparent": {
+    "name": "WBPhenotype Parent",
+    "id": "795",
+    "url": "http://purl.obolibrary.org/obo/£{id}",
+    "linkdataset": "wbphenotype",
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms"
+  },
+  "wbphenotypechild": {
+    "name": "WBPhenotype Child",
+    "id": "796",
+    "url": "http://purl.obolibrary.org/obo/£{id}",
+    "linkdataset": "wbphenotype",
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms"
+  },
+  "fypo": {
+    "aliases": "FYPO,Fission Yeast Phenotype Ontology,yeast phenotype",
+    "id": "797",
+    "name": "FYPO",
+    "textPriority": "80",
+    "url": "http://purl.obolibrary.org/obo/£{id}",
+    "path": "http://purl.obolibrary.org/obo/fypo.owl",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms",
+    "compact_fields": "type,name",
+    "test_entries_count": "100",
+    "bucketMethod": "ontology"
+  },
+  "fypoparent": {
+    "name": "FYPO Parent",
+    "id": "798",
+    "url": "http://purl.obolibrary.org/obo/£{id}",
+    "linkdataset": "fypo",
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms"
+  },
+  "fypochild": {
+    "name": "FYPO Child",
+    "id": "799",
+    "url": "http://purl.obolibrary.org/obo/£{id}",
+    "linkdataset": "fypo",
+    "hasFilter": "yes",
+    "attrs": "type,name,[]synonyms"
+  },
   "uberon": {
     "aliases": "UBERON,Uber-anatomy ontology,Uberon",
     "id": "75",

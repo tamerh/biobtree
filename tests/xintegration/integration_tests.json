@@ -9782,6 +9782,56 @@
       "should_fail": [
         "999999999"
       ]
+    },
+    {
+      "category": "alliance_disease",
+      "name": "gene to disease association (Alliance)",
+      "query": ">>*>>alliance_disease",
+      "why": "Cross-species + human gene-disease curation from the Alliance of Genome Resources (model-organism disease layer)",
+      "should_pass": [
+        "CFTR",
+        "HBB"
+      ],
+      "should_fail": [
+        "999999999"
+      ]
+    },
+    {
+      "category": "alliance_disease",
+      "name": "gene to disease ontology (DOID via Alliance)",
+      "query": ">>*>>alliance_disease>>doid",
+      "why": "Alliance gene-disease associations resolve to DOID disease-ontology terms",
+      "should_pass": [
+        "CFTR"
+      ],
+      "should_fail": [
+        "999999999"
+      ]
+    },
+    {
+      "category": "upheno",
+      "name": "human phenotype to uPheno cross-species hub",
+      "query": ">>hpo>>upheno",
+      "why": "HP phenotype terms link to uPheno grouping classes (the cross-species hub)",
+      "should_pass": [
+        "HP:0001844",
+        "HP:0003107"
+      ],
+      "should_fail": [
+        "HP:9999999"
+      ]
+    },
+    {
+      "category": "upheno",
+      "name": "human to mouse phenotype (cross-species via uPheno)",
+      "query": ">>hpo>>upheno>>mp",
+      "why": "A human HP phenotype reaches its mouse MP equivalents through the uPheno hub",
+      "should_pass": [
+        "HP:0001844"
+      ],
+      "should_fail": [
+        "HP:9999999"
+      ]
     }
   ]
 }

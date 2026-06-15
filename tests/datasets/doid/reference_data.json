@@ -1,0 +1,983 @@
+[
+  {
+    "id": "DOID:0001816",
+    "name": "angiosarcoma",
+    "synonyms": [
+      "hemangiosarcoma"
+    ],
+    "parents": [
+      "DOID:175"
+    ]
+  },
+  {
+    "id": "DOID:0002116",
+    "name": "pterygium",
+    "synonyms": [
+      "surfer's eye"
+    ],
+    "parents": [
+      "DOID:10124"
+    ]
+  },
+  {
+    "id": "DOID:0014667",
+    "name": "disease of metabolism",
+    "synonyms": [
+      "metabolic disease"
+    ],
+    "parents": [
+      "DOID:4"
+    ]
+  },
+  {
+    "id": "DOID:0040001",
+    "name": "shrimp allergy",
+    "synonyms": [],
+    "parents": [
+      "DOID:0060524"
+    ]
+  },
+  {
+    "id": "DOID:0040002",
+    "name": "aspirin allergy",
+    "synonyms": [
+      "ASA allergy",
+      "acetylsalicylic acid allergy"
+    ],
+    "parents": [
+      "DOID:0060500"
+    ]
+  },
+  {
+    "id": "DOID:0040003",
+    "name": "benzylpenicillin allergy",
+    "synonyms": [
+      "benzyl penicillin allergy",
+      "penicillin G allergy"
+    ],
+    "parents": [
+      "DOID:0060519"
+    ]
+  },
+  {
+    "id": "DOID:0040004",
+    "name": "amoxicillin allergy",
+    "synonyms": [],
+    "parents": [
+      "DOID:0060519"
+    ]
+  },
+  {
+    "id": "DOID:0040005",
+    "name": "ceftriaxone allergy",
+    "synonyms": [
+      "rocephin allergy"
+    ],
+    "parents": [
+      "DOID:0040021"
+    ]
+  },
+  {
+    "id": "DOID:0040006",
+    "name": "carbamazepine allergy",
+    "synonyms": [
+      "Tegretol allergy",
+      "carbamazepen allergy"
+    ],
+    "parents": [
+      "DOID:0060500"
+    ]
+  },
+  {
+    "id": "DOID:0040007",
+    "name": "abacavir allergy",
+    "synonyms": [
+      "ABC allergy"
+    ],
+    "parents": [
+      "DOID:0060500"
+    ]
+  },
+  {
+    "id": "DOID:0040008",
+    "name": "isoniazide allergy",
+    "synonyms": [
+      "INH allergy",
+      "isonicotinylhydrazide allergy"
+    ],
+    "parents": [
+      "DOID:0060500"
+    ]
+  },
+  {
+    "id": "DOID:0040009",
+    "name": "lidocaine allergy",
+    "synonyms": [
+      "Lidoderm allergy",
+      "lignocaine allergy",
+      "xylocaine allergy"
+    ],
+    "parents": [
+      "DOID:0060500"
+    ]
+  },
+  {
+    "id": "DOID:0040010",
+    "name": "mepivacaine allergy",
+    "synonyms": [
+      "Carbocaine allergy",
+      "Polocaine allergy"
+    ],
+    "parents": [
+      "DOID:0060500"
+    ]
+  },
+  {
+    "id": "DOID:0040011",
+    "name": "phenobarbital allergy",
+    "synonyms": [
+      "Luminal allergy",
+      "phenobarbitol allergy",
+      "phenobarbitone allergy"
+    ],
+    "parents": [
+      "DOID:0060500"
+    ]
+  },
+  {
+    "id": "DOID:0040012",
+    "name": "phenytoin allergy",
+    "synonyms": [
+      "Dilantin allergy"
+    ],
+    "parents": [
+      "DOID:0060500"
+    ]
+  },
+  {
+    "id": "DOID:0040013",
+    "name": "ranitidine allergy",
+    "synonyms": [
+      "Zantac allergy"
+    ],
+    "parents": [
+      "DOID:0060500"
+    ]
+  },
+  {
+    "id": "DOID:0040014",
+    "name": "corticosteroid allergy",
+    "synonyms": [],
+    "parents": [
+      "DOID:0060500"
+    ]
+  },
+  {
+    "id": "DOID:0040015",
+    "name": "sulfonamide allergy",
+    "synonyms": [],
+    "parents": [
+      "DOID:0060500"
+    ]
+  },
+  {
+    "id": "DOID:0040016",
+    "name": "sulfamethoxazole allergy",
+    "synonyms": [
+      "SMX allergy",
+      "SMZ allergy",
+      "sulphamethoxazole allergy"
+    ],
+    "parents": [
+      "DOID:0060500"
+    ]
+  },
+  {
+    "id": "DOID:0040017",
+    "name": "suprofen allergy",
+    "synonyms": [
+      "Profenal allergy"
+    ],
+    "parents": [
+      "DOID:0060500"
+    ]
+  },
+  {
+    "id": "DOID:0040018",
+    "name": "thiopental allergy",
+    "synonyms": [
+      "penthiobarbital allergy",
+      "pentothiobarbital allergy"
+    ],
+    "parents": [
+      "DOID:0060500"
+    ]
+  },
+  {
+    "id": "DOID:0040019",
+    "name": "D-mannitol allergy",
+    "synonyms": [
+      "mannitol allergy"
+    ],
+    "parents": [
+      "DOID:0060500"
+    ]
+  },
+  {
+    "id": "DOID:0040020",
+    "name": "cefotaxime allergy",
+    "synonyms": [],
+    "parents": [
+      "DOID:0040021"
+    ]
+  },
+  {
+    "id": "DOID:0040021",
+    "name": "cephalosporin allergy",
+    "synonyms": [],
+    "parents": [
+      "DOID:0060500"
+    ]
+  },
+  {
+    "id": "DOID:0040022",
+    "name": "amodiaquine allergy",
+    "synonyms": [
+      "Camoquin allergy",
+      "Flavoquine allergy"
+    ],
+    "parents": [
+      "DOID:0060500"
+    ]
+  },
+  {
+    "id": "DOID:0040023",
+    "name": "cefaclor allergy",
+    "synonyms": [
+      "Ceclor allergy",
+      "cephaclor allergy"
+    ],
+    "parents": [
+      "DOID:0040021"
+    ]
+  },
+  {
+    "id": "DOID:0040024",
+    "name": "ceftazidime allergy",
+    "synonyms": [
+      "Fortaz allergy",
+      "Tazicef allergy"
+    ],
+    "parents": [
+      "DOID:0040021"
+    ]
+  },
+  {
+    "id": "DOID:0040025",
+    "name": "cefuroxime allergy",
+    "synonyms": [
+      "Zinacef allergy",
+      "cephuroxime allergy"
+    ],
+    "parents": [
+      "DOID:0040021"
+    ]
+  },
+  {
+    "id": "DOID:0040026",
+    "name": "chlorhexidine allergy",
+    "synonyms": [],
+    "parents": [
+      "DOID:0060500"
+    ]
+  },
+  {
+    "id": "DOID:0040027",
+    "name": "cyclophosphamide allergy",
+    "synonyms": [
+      "cytophosphane allergy"
+    ],
+    "parents": [
+      "DOID:0060500"
+    ]
+  },
+  {
+    "id": "DOID:0040028",
+    "name": "succinylcholine allergy",
+    "synonyms": [
+      "dicholine succinate allergy",
+      "succinocholine allergy",
+      "sux allergy",
+      "suxamethonium allergy"
+    ],
+    "parents": [
+      "DOID:0060500"
+    ]
+  },
+  {
+    "id": "DOID:0040029",
+    "name": "trimethoprim allergy",
+    "synonyms": [
+      "Primsol allergy",
+      "TMP allergy",
+      "proloprim allergy"
+    ],
+    "parents": [
+      "DOID:0060500"
+    ]
+  },
+  {
+    "id": "DOID:0040030",
+    "name": "cefixime allergy",
+    "synonyms": [],
+    "parents": [
+      "DOID:0040021"
+    ]
+  },
+  {
+    "id": "DOID:0040031",
+    "name": "diclofenac allergy",
+    "synonyms": [
+      "Voltaren allergy"
+    ],
+    "parents": [
+      "DOID:0060500"
+    ]
+  },
+  {
+    "id": "DOID:0040032",
+    "name": "carbapenem allergy",
+    "synonyms": [],
+    "parents": [
+      "DOID:0060500"
+    ]
+  },
+  {
+    "id": "DOID:0040033",
+    "name": "piperacillin allergy",
+    "synonyms": [],
+    "parents": [
+      "DOID:0060519"
+    ]
+  },
+  {
+    "id": "DOID:0040034",
+    "name": "rocuronium allergy",
+    "synonyms": [
+      "Esmeron allergy",
+      "Zemuron allergy"
+    ],
+    "parents": [
+      "DOID:0060500"
+    ]
+  },
+  {
+    "id": "DOID:0040035",
+    "name": "sulfasalazine allergy",
+    "synonyms": [],
+    "parents": [
+      "DOID:0060500"
+    ]
+  },
+  {
+    "id": "DOID:0040036",
+    "name": "tubocurarine allergy",
+    "synonyms": [
+      "DTC allergy"
+    ],
+    "parents": [
+      "DOID:0060500"
+    ]
+  },
+  {
+    "id": "DOID:0040037",
+    "name": "aztreonam allergy",
+    "synonyms": [
+      "Azactam allergy",
+      "Primbactam allergy"
+    ],
+    "parents": [
+      "DOID:0060519"
+    ]
+  },
+  {
+    "id": "DOID:0040038",
+    "name": "meropenem allergy",
+    "synonyms": [
+      "Merrem allergy"
+    ],
+    "parents": [
+      "DOID:9415"
+    ]
+  },
+  {
+    "id": "DOID:0040040",
+    "name": "hexamethylene diisocyanate allergic asthma",
+    "synonyms": [
+      "allergic asthma to HDI",
+      "allergic asthma to HMDI"
+    ],
+    "parents": [
+      "DOID:0040041"
+    ]
+  },
+  {
+    "id": "DOID:0040041",
+    "name": "isocyanates allergic asthma",
+    "synonyms": [],
+    "parents": [
+      "DOID:9415"
+    ]
+  },
+  {
+    "id": "DOID:0040042",
+    "name": "diphenylmethane-4,4'-diisocyanate allergic asthma",
+    "synonyms": [
+      "allergic asthma to MDI"
+    ],
+    "parents": [
+      "DOID:0040041"
+    ]
+  },
+  {
+    "id": "DOID:0040043",
+    "name": "toluene meta-diisocyanate allergic asthma",
+    "synonyms": [
+      "allergic asthma to TDI"
+    ],
+    "parents": [
+      "DOID:0040041"
+    ]
+  },
+  {
+    "id": "DOID:0040044",
+    "name": "methyl isocyanate allergic asthma",
+    "synonyms": [
+      "allergic asthma to MIC"
+    ],
+    "parents": [
+      "DOID:0040041"
+    ]
+  },
+  {
+    "id": "DOID:0040045",
+    "name": "nickel allergic asthma",
+    "synonyms": [
+      "allergic asthma to Ni"
+    ],
+    "parents": [
+      "DOID:0060501",
+      "DOID:9415"
+    ]
+  },
+  {
+    "id": "DOID:0040046",
+    "name": "nickel allergic contact dermatitis",
+    "synonyms": [
+      "allergic contact dermatitis to Ni"
+    ],
+    "parents": [
+      "DOID:0060501",
+      "DOID:3042"
+    ]
+  },
+  {
+    "id": "DOID:0040047",
+    "name": "trimellitic anhydride allergic asthma",
+    "synonyms": [
+      "allergic asthma to TMA"
+    ],
+    "parents": [
+      "DOID:9415"
+    ]
+  },
+  {
+    "id": "DOID:0040048",
+    "name": "phthalic anhydride allergic asthma",
+    "synonyms": [],
+    "parents": [
+      "DOID:9415"
+    ]
+  },
+  {
+    "id": "DOID:0040049",
+    "name": "maleic anhydride allergic asthma",
+    "synonyms": [
+      "allergic asthma to MA"
+    ],
+    "parents": [
+      "DOID:9415"
+    ]
+  },
+  {
+    "id": "DOID:0040050",
+    "name": "tetrachlorophthalic anhydride allergic asthma",
+    "synonyms": [],
+    "parents": [
+      "DOID:9415"
+    ]
+  },
+  {
+    "id": "DOID:0040051",
+    "name": "hexahydrophthalic anhydride allergic asthma",
+    "synonyms": [
+      "allergic asthma to HHPA"
+    ],
+    "parents": [
+      "DOID:9415"
+    ]
+  },
+  {
+    "id": "DOID:0040052",
+    "name": "diphenylmethane-4,4'-diisocyanate allergic contact dermatitis",
+    "synonyms": [
+      "allergic contact dermatitis to MDI"
+    ],
+    "parents": [
+      "DOID:3042"
+    ]
+  },
+  {
+    "id": "DOID:0040053",
+    "name": "cobalt allergic contact dermatitis",
+    "synonyms": [
+      "allergic contact dermatitis to Co"
+    ],
+    "parents": [
+      "DOID:0060501",
+      "DOID:3042"
+    ]
+  },
+  {
+    "id": "DOID:0040054",
+    "name": "cobalt allergic asthma",
+    "synonyms": [
+      "Co allergic asthma"
+    ],
+    "parents": [
+      "DOID:0060501",
+      "DOID:9415"
+    ]
+  },
+  {
+    "id": "DOID:0040055",
+    "name": "palladium allergic contact dermatitis",
+    "synonyms": [
+      "allergic contact dermatitis to Pd"
+    ],
+    "parents": [
+      "DOID:0060501",
+      "DOID:3042"
+    ]
+  },
+  {
+    "id": "DOID:0040056",
+    "name": "chromium allergic contact dermatitis",
+    "synonyms": [],
+    "parents": [
+      "DOID:0060501",
+      "DOID:3042"
+    ]
+  },
+  {
+    "id": "DOID:0040057",
+    "name": "benzoic acid allergic contact dermatitis",
+    "synonyms": [
+      "allergic contact dermatitis to benzoate"
+    ],
+    "parents": [
+      "DOID:3042"
+    ]
+  },
+  {
+    "id": "DOID:0040058",
+    "name": "1,4-phenylenediamine allergic contact dermatitis",
+    "synonyms": [
+      "allergic contact dermatitis to PPD",
+      "allergic contact dermatitis to p-phenylenediamine"
+    ],
+    "parents": [
+      "DOID:3042"
+    ]
+  },
+  {
+    "id": "DOID:0040059",
+    "name": "potassium dichromate allergic contact dermatitis",
+    "synonyms": [],
+    "parents": [
+      "DOID:3042"
+    ]
+  },
+  {
+    "id": "DOID:0040060",
+    "name": "ketoprofen photoallergic dermatitis",
+    "synonyms": [
+      "photoallergic dermatitis to Orudis"
+    ],
+    "parents": [
+      "DOID:0060500",
+      "DOID:3818"
+    ]
+  },
+  {
+    "id": "DOID:0040061",
+    "name": "remazole black respiratory allergy",
+    "synonyms": [
+      "respiratory allergy to Reactive Black 5"
+    ],
+    "parents": [
+      "DOID:0060496"
+    ]
+  },
+  {
+    "id": "DOID:0040062",
+    "name": "chloramine T respiratory allergy",
+    "synonyms": [
+      "respiratory allergy to Chloraseptin",
+      "respiratory allergy to Chlorazol",
+      "respiratory allergy to Trichlorol"
+    ],
+    "parents": [
+      "DOID:0060496"
+    ]
+  },
+  {
+    "id": "DOID:0040063",
+    "name": "4-vinylcyclohexene dioxide respiratory allergy",
+    "synonyms": [
+      "respiratory allergy to vinyl cyclohexene diepoxide"
+    ],
+    "parents": [
+      "DOID:0060496"
+    ]
+  },
+  {
+    "id": "DOID:0040064",
+    "name": "carvone allergic contact dermatitis",
+    "synonyms": [
+      "allergic contact dermatitis to levo-carvone"
+    ],
+    "parents": [
+      "DOID:3042"
+    ]
+  },
+  {
+    "id": "DOID:0040065",
+    "name": "quinidine allergy",
+    "synonyms": [
+      "Kinidin allergy"
+    ],
+    "parents": [
+      "DOID:0060500"
+    ]
+  },
+  {
+    "id": "DOID:0040066",
+    "name": "melphalan allergy",
+    "synonyms": [
+      "Alkeran allergy"
+    ],
+    "parents": [
+      "DOID:0060500"
+    ]
+  },
+  {
+    "id": "DOID:0040067",
+    "name": "neomycin sulfate allergic contact dermatitis",
+    "synonyms": [
+      "allergic contact dermatitis to neomycin sulphate"
+    ],
+    "parents": [
+      "DOID:0060500",
+      "DOID:3042"
+    ]
+  },
+  {
+    "id": "DOID:0040068",
+    "name": "4-tert-butylphenol allergic contact dermatitis",
+    "synonyms": [
+      "allergic contact dermatitis to PTBP",
+      "allergic contact dermatitis to butylphen"
+    ],
+    "parents": [
+      "DOID:3042"
+    ]
+  },
+  {
+    "id": "DOID:0040069",
+    "name": "1-chloro-2,4-dinitrobenzene allergic contact dermatitis",
+    "synonyms": [
+      "allergic contact dermatitis to DNCB",
+      "allergic contact dermatitis to dinitrochlorobenzene"
+    ],
+    "parents": [
+      "DOID:3042"
+    ]
+  },
+  {
+    "id": "DOID:0040070",
+    "name": "co-trimoxazole allergy",
+    "synonyms": [
+      "Bactrim allergy",
+      "TMP/SMX allergy",
+      "cotrimoxazol allergy",
+      "trimethoprim/sulfamethoxazole allergy"
+    ],
+    "parents": [
+      "DOID:0060500"
+    ]
+  },
+  {
+    "id": "DOID:0040071",
+    "name": "sodium aurothiomalate allergy",
+    "synonyms": [
+      "gold sodium thiomalate allergy"
+    ],
+    "parents": [
+      "DOID:0060500"
+    ]
+  },
+  {
+    "id": "DOID:0040072",
+    "name": "parthenolide allergic contact dermatitis",
+    "synonyms": [
+      "allergic contact dermatitis to feverfew"
+    ],
+    "parents": [
+      "DOID:3042"
+    ]
+  },
+  {
+    "id": "DOID:0040073",
+    "name": "disodium cromoglycate allergy",
+    "synonyms": [
+      "DSCG allergy"
+    ],
+    "parents": [
+      "DOID:0060500"
+    ]
+  },
+  {
+    "id": "DOID:0040074",
+    "name": "formaldehyde allergic contact dermatitis",
+    "synonyms": [
+      "allergic contact dermatitis to formalin"
+    ],
+    "parents": [
+      "DOID:3042"
+    ]
+  },
+  {
+    "id": "DOID:0040075",
+    "name": "benzo[d]isothiazol-3-one allergic contact dermatitis",
+    "synonyms": [
+      "allergic contact dermatitis to BIT",
+      "allergic contact dermatitis to benzisothiazolone"
+    ],
+    "parents": [
+      "DOID:3042"
+    ]
+  },
+  {
+    "id": "DOID:0040076",
+    "name": "phthalyl group allergy",
+    "synonyms": [
+      "phthalyl allergy"
+    ],
+    "parents": [
+      "DOID:0060500"
+    ]
+  },
+  {
+    "id": "DOID:0040077",
+    "name": "alcuronium bromide allergy",
+    "synonyms": [],
+    "parents": [
+      "DOID:0060500"
+    ]
+  },
+  {
+    "id": "DOID:0040078",
+    "name": "gallamine allergy",
+    "synonyms": [],
+    "parents": [
+      "DOID:0060500"
+    ]
+  },
+  {
+    "id": "DOID:0040079",
+    "name": "2,4-dinitrophenyl allergic contact dermatitis",
+    "synonyms": [
+      "allergic contact dermatitis to DNP"
+    ],
+    "parents": [
+      "DOID:3042"
+    ]
+  },
+  {
+    "id": "DOID:0040080",
+    "name": "patent blue V allergy",
+    "synonyms": [],
+    "parents": [
+      "DOID:0060500"
+    ]
+  },
+  {
+    "id": "DOID:0040081",
+    "name": "acid anhydride respiratory allergy",
+    "synonyms": [],
+    "parents": [
+      "DOID:0060496"
+    ]
+  },
+  {
+    "id": "DOID:0040082",
+    "name": "oxirane allergy",
+    "synonyms": [
+      "ETO allergy",
+      "ethylene oxide allergy"
+    ],
+    "parents": [
+      "DOID:0060500"
+    ]
+  },
+  {
+    "id": "DOID:0040083",
+    "name": "Chlamydia pneumonia",
+    "synonyms": [],
+    "parents": [
+      "DOID:874"
+    ]
+  },
+  {
+    "id": "DOID:0040084",
+    "name": "Streptococcus pneumonia",
+    "synonyms": [],
+    "parents": [
+      "DOID:874"
+    ]
+  },
+  {
+    "id": "DOID:0040085",
+    "name": "bacterial sepsis",
+    "synonyms": [],
+    "parents": [
+      "DOID:104"
+    ]
+  },
+  {
+    "id": "DOID:0040086",
+    "name": "Polyomavirus-associated nephropathy",
+    "synonyms": [
+      "PVAN",
+      "polyomavirus associated nephropathy"
+    ],
+    "parents": [
+      "DOID:557",
+      "DOID:934"
+    ]
+  },
+  {
+    "id": "DOID:0040087",
+    "name": "autoimmune peripheral neuropathy",
+    "synonyms": [],
+    "parents": [
+      "DOID:0060033"
+    ]
+  },
+  {
+    "id": "DOID:0040088",
+    "name": "autoimmune uveitis",
+    "synonyms": [],
+    "parents": [
+      "DOID:0060030",
+      "DOID:3480"
+    ]
+  },
+  {
+    "id": "DOID:0040089",
+    "name": "autoimmune optic neuritis",
+    "synonyms": [],
+    "parents": [
+      "DOID:0060033"
+    ]
+  },
+  {
+    "id": "DOID:0040090",
+    "name": "autoimmune gastritis",
+    "synonyms": [],
+    "parents": [
+      "DOID:0060031",
+      "DOID:76"
+    ]
+  },
+  {
+    "id": "DOID:0040091",
+    "name": "autoimmune pancreatitis",
+    "synonyms": [],
+    "parents": [
+      "DOID:0060005",
+      "DOID:26"
+    ]
+  },
+  {
+    "id": "DOID:0040092",
+    "name": "juvenile ankylosing spondylitis",
+    "synonyms": [],
+    "parents": [
+      "DOID:7147"
+    ]
+  },
+  {
+    "id": "DOID:0040093",
+    "name": "drug-induced lupus erythematosus",
+    "synonyms": [
+      "DIL",
+      "DILE"
+    ],
+    "parents": [
+      "DOID:8857"
+    ]
+  },
+  {
+    "id": "DOID:0040094",
+    "name": "autoimmune glomerulonephritis",
+    "synonyms": [],
+    "parents": [
+      "DOID:0060049"
+    ]
+  },
+  {
+    "id": "DOID:0040095",
+    "name": "autoimmune cardiomyopathy",
+    "synonyms": [],
+    "parents": [
+      "DOID:0060051",
+      "DOID:114"
+    ]
+  },
+  {
+    "id": "DOID:0040096",
+    "name": "autoimmune atherosclerosis",
+    "synonyms": [],
+    "parents": [
+      "DOID:0060051"
+    ]
+  },
+  {
+    "id": "DOID:0040097",
+    "name": "autoimmune vasculitis",
+    "synonyms": [],
+    "parents": [
+      "DOID:0060051"
+    ]
+  },
+  {
+    "id": "DOID:0040098",
+    "name": "pemphigus gestationis",
+    "synonyms": [],
+    "parents": [
+      "DOID:9182"
+    ]
+  }
+]

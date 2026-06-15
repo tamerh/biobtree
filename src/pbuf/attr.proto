@@ -641,6 +641,21 @@ message NcrnaDrugAttr {
   string id = 100; // transient - populated at runtime from Xref.Identifier
 }
 
+// AllianceDiseaseAttr — one curated gene->disease (DOID) association from the
+// Alliance of Genome Resources harmonized disease file. Model-organism + human
+// direct curation (is_implicated_in / is_marker_for); the gene end links to the
+// per-species gene dataset (hgnc/mgi/rgd/zfin/sgd/wormbase/flybase/xenbase) and
+// the disease end to doid. (Atlas cross-species disease layer.)
+message AllianceDiseaseAttr {
+  string gene_symbol=1;
+  string species=2;
+  string association_type=3;        // is_implicated_in / is_marker_for
+  string disease_name=4;            // DOID term name
+  string evidence_code=5;           // ECO/DO evidence code
+  string source=6;                  // provenance, "Alliance"
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
 message ClinicalSubmission {
   string scv_id = 1;                        // SCV accession (e.g., SCV000123456)
   string submitter_name = 2;                // Organization that submitted

@@ -397,6 +397,20 @@
     "textPriority": "60",
     "bucketMethod": "alphanum"
   },
+  "alliance_disease": {
+    "id": "781",
+    "name": "Alliance Disease",
+    "aliases": "Alliance disease,AGR disease,Alliance of Genome Resources,model organism disease",
+    "url": "https://www.alliancegenome.org/disease/£{id}",
+    "path": "https://fms.alliancegenome.org/download/DISEASE-ALLIANCE_COMBINED.tsv.gz",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "gene_symbol,species,association_type,disease_name,evidence_code,source",
+    "compact_fields": "gene_symbol,species,association_type,disease_name",
+    "test_entries_count": "100",
+    "textPriority": "70",
+    "bucketMethod": "alphanum"
+  },
   "chembl_moleculeparent": {
     "name": "ChEMBL Molecule Parent",
     "id": "758",

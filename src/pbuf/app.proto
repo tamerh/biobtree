@@ -163,6 +163,7 @@ message Xref {
     NcrnaDiseaseAttr ncrna_disease=769;
     NcrnaInteractionAttr ncrna_interaction=770;
     NcrnaDrugAttr ncrna_drug=771;
+    AllianceDiseaseAttr alliance_disease=772;
     CellxgeneAttr cellxgene=73;
     CellxgeneCelltypeAttr cellxgene_celltype=74;
     ScxaAttr scxa=75;

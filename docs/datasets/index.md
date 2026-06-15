@@ -107,6 +107,7 @@ Disease associations, clinical variants, rare diseases.
 | pharmgkb | PharmGKB pharmacogenomics | [README](pharmgkb.md) |
 | ncrna_disease | Curated ncRNA-disease associations (LncRNADisease + HMDD) | [README](ncrna_disease.md) |
 | ncrna_drug | ncRNA drug-resistance / drug-target (ncRNADrug) | [README](ncrna_drug.md) |
+| alliance_disease | Cross-species + human gene-disease curation (Alliance of Genome Resources) | [README](alliance_disease.md) |
 
 ---
 
@@ -121,6 +122,13 @@ Controlled vocabularies and hierarchical classifications.
 | eco | Evidence & Conclusion Ontology | [README](eco.md) |
 | uberon | UBERON anatomy ontology | [README](uberon.md) |
 | cl | Cell Ontology | [README](cl.md) |
+| doid | Human Disease Ontology | [README](doid.md) |
+| upheno | uPheno cross-species phenotype hub | [README](upheno.md) |
+| mp | Mammalian Phenotype Ontology (mouse/rat) | [README](mp.md) |
+| zp | Zebrafish Phenotype Ontology | [README](zp.md) |
+| xpo | Xenopus Phenotype Ontology | [README](xpo.md) |
+| wbphenotype | C. elegans Phenotype Ontology | [README](wbphenotype.md) |
+| fypo | Fission Yeast Phenotype Ontology | [README](fypo.md) |
 | mesh | MeSH medical subject headings | [README](mesh.md) |
 | bao | BioAssay Ontology | [README](bao.md) |
 | oba | Ontology of Biological Attributes | [README](oba.md) |

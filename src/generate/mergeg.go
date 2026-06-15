@@ -1910,7 +1910,7 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)
 				xref.Attributes = &pbuf.Xref_Hgnc{attr}
-			case "go", "eco", "efo", "mondo", "uberon", "cl", "oba", "pato", "obi", "xco", "bao":
+			case "go", "eco", "efo", "mondo", "uberon", "cl", "doid", "upheno", "mp", "zp", "xpo", "wbphenotype", "fypo", "oba", "pato", "obi", "xco", "bao":
 				attr := &pbuf.OntologyAttr{}
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)
@@ -1945,6 +1945,11 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)
 				xref.Attributes = &pbuf.Xref_NcrnaDrug{attr}
+			case "alliance_disease":
+				attr := &pbuf.AllianceDiseaseAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_AllianceDisease{attr}
 			case "string":
 				attr := &pbuf.StringAttr{}
 				barr := []byte((*kvProp[k])[0].value)
@@ -2538,7 +2543,7 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 			// Set attributes based on dataset type
 			if valPropIdx[k] > 0 {
 				switch config.DataconfIDIntToString[xref.Dataset] {
-				case "go", "eco", "efo", "mondo", "cl", "oba", "pato", "obi", "xco", "bao":
+				case "go", "eco", "efo", "mondo", "cl", "doid", "upheno", "mp", "zp", "xpo", "wbphenotype", "fypo", "oba", "pato", "obi", "xco", "bao":
 					attr := &pbuf.OntologyAttr{}
 					barr := []byte((*kvProp[k])[0].value)
 					ffjson.Unmarshal(barr, attr)
@@ -2578,6 +2583,11 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 					barr := []byte((*kvProp[k])[0].value)
 					ffjson.Unmarshal(barr, attr)
 					xref.Attributes = &pbuf.Xref_NcrnaDrug{attr}
+				case "alliance_disease":
+					attr := &pbuf.AllianceDiseaseAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_AllianceDisease{attr}
 				case "string":
 					attr := &pbuf.StringAttr{}
 					barr := []byte((*kvProp[k])[0].value)

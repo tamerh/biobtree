@@ -191,8 +191,8 @@ func (n *ncrnaDrug) processRow(f []string, relation string, idLogFile *os.File) 
 		}
 	}
 
-	// PubMed
-	if pmid := get(0); pmid != "" {
+	// PubMed (numeric only — the pubmed bucket requires digits)
+	if pmid := get(0); isAllDigits(pmid) {
 		n.d.addXref(id, n.sourceID, pmid, "pubmed", false)
 	}
 

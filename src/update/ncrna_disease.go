@@ -159,8 +159,8 @@ func (n *ncrnaDisease) processRow(f []string, mondoID, efoID, hgncID, ensemblID 
 	// disease name -> MONDO / EFO via the shared matcher
 	n.mapDisease(id, disease, mondoID, efoID)
 
-	// PubMed citation
-	if pmid := get(11); pmid != "" && pmid != "nan" {
+	// PubMed citation (numeric only — the pubmed bucket requires digits)
+	if pmid := get(11); isAllDigits(pmid) {
 		n.d.addXref(id, n.sourceID, pmid, "pubmed", false)
 	}
 
@@ -282,7 +282,7 @@ func (n *ncrnaDisease) processHmddRow(f []string, mondoID, efoID, hgncID, ensemb
 	n.linkGene(id, mirnaGeneCandidates(mirna), hgncID, ensemblID)
 	n.mapDisease(id, disease, mondoID, efoID)
 
-	if pmid := get(1); pmid != "" && pmid != "nan" {
+	if pmid := get(1); isAllDigits(pmid) {
 		n.d.addXref(id, n.sourceID, pmid, "pubmed", false)
 	}
 	n.d.addXref(mirna, textLinkID, id, n.source, true)

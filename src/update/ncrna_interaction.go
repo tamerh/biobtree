@@ -174,10 +174,12 @@ func (n *ncrnaInteraction) processRow(f []string, idLogFile *os.File) bool {
 		n.d.addXref(interID, n.sourceID, gx.id, gx.dataset, false)
 	}
 
-	// PubMed citations (may be ;-separated)
+	// PubMed citations (may be ;-separated). NPInter's reference column is not
+	// always a PMID (prediction rows carry miRBase accessions / dataset ids), so
+	// only numeric values are linked as pubmed (the pubmed bucket requires digits).
 	for _, pmid := range strings.Split(get(9), ";") {
 		pmid = strings.TrimSpace(pmid)
-		if pmid != "" && pmid != "-" {
+		if isAllDigits(pmid) {
 			n.d.addXref(interID, n.sourceID, pmid, "pubmed", false)
 		}
 	}

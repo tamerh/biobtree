@@ -176,6 +176,12 @@ DATASETS=(
     mondo
     hpo
     doid
+    upheno
+    mp
+    zp
+    xpo
+    wbphenotype
+    fypo
     oba
     pato
     obi

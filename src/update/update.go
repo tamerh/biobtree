@@ -548,7 +548,7 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			break
 		case "ontology":
 			// Process all ontology datasets at once
-			ontologyDatasets := []string{"go", "eco", "efo", "uberon", "cl", "mondo", "hpo", "doid", "oba", "pato", "obi", "xco", "bao"}
+			ontologyDatasets := []string{"go", "eco", "efo", "uberon", "cl", "mondo", "hpo", "doid", "upheno", "mp", "zp", "xpo", "wbphenotype", "fypo", "oba", "pato", "obi", "xco", "bao"}
 			for _, ontoData := range ontologyDatasets {
 				// Check if child dataset should be skipped (already built and source unchanged)
 				if !d.forceRebuild && d.shouldSkipDataset(ontoData) {
@@ -590,6 +590,36 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 					dd := ontology{source: ontoData, d: d, prefixURL: "http://purl.obolibrary.org/obo/", idPrefix: "DOID:"}
 					d.datasets2 = append(d.datasets2, ontoData)
 					go dd.update()
+				case "mp":
+					d.wg.Add(1)
+					mpo := ontology{source: ontoData, d: d, prefixURL: "http://purl.obolibrary.org/obo/", idPrefix: "MP:"}
+					d.datasets2 = append(d.datasets2, ontoData)
+					go mpo.update()
+				case "zp":
+					d.wg.Add(1)
+					zpo := ontology{source: ontoData, d: d, prefixURL: "http://purl.obolibrary.org/obo/", idPrefix: "ZP:"}
+					d.datasets2 = append(d.datasets2, ontoData)
+					go zpo.update()
+				case "xpo":
+					d.wg.Add(1)
+					xpo := ontology{source: ontoData, d: d, prefixURL: "http://purl.obolibrary.org/obo/", idPrefix: "XPO:"}
+					d.datasets2 = append(d.datasets2, ontoData)
+					go xpo.update()
+				case "wbphenotype":
+					d.wg.Add(1)
+					wbp := ontology{source: ontoData, d: d, prefixURL: "http://purl.obolibrary.org/obo/", idPrefix: "WBPhenotype:"}
+					d.datasets2 = append(d.datasets2, ontoData)
+					go wbp.update()
+				case "fypo":
+					d.wg.Add(1)
+					fyp := ontology{source: ontoData, d: d, prefixURL: "http://purl.obolibrary.org/obo/", idPrefix: "FYPO:"}
+					d.datasets2 = append(d.datasets2, ontoData)
+					go fyp.update()
+				case "upheno":
+					d.wg.Add(1)
+					up := ontology{source: ontoData, d: d, prefixURL: "http://purl.obolibrary.org/obo/", idPrefix: "UPHENO:"}
+					d.datasets2 = append(d.datasets2, ontoData)
+					go up.update()
 				case "mondo":
 					d.wg.Add(1)
 					m := mondo{source: ontoData, d: d}
@@ -663,6 +693,42 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			dd := ontology{source: data, d: d, prefixURL: "http://purl.obolibrary.org/obo/", idPrefix: "DOID:"}
 			d.datasets2 = append(d.datasets2, data)
 			go dd.update()
+			break
+		case "mp":
+			d.wg.Add(1)
+			mpo := ontology{source: data, d: d, prefixURL: "http://purl.obolibrary.org/obo/", idPrefix: "MP:"}
+			d.datasets2 = append(d.datasets2, data)
+			go mpo.update()
+			break
+		case "zp":
+			d.wg.Add(1)
+			zpo := ontology{source: data, d: d, prefixURL: "http://purl.obolibrary.org/obo/", idPrefix: "ZP:"}
+			d.datasets2 = append(d.datasets2, data)
+			go zpo.update()
+			break
+		case "xpo":
+			d.wg.Add(1)
+			xpo := ontology{source: data, d: d, prefixURL: "http://purl.obolibrary.org/obo/", idPrefix: "XPO:"}
+			d.datasets2 = append(d.datasets2, data)
+			go xpo.update()
+			break
+		case "wbphenotype":
+			d.wg.Add(1)
+			wbp := ontology{source: data, d: d, prefixURL: "http://purl.obolibrary.org/obo/", idPrefix: "WBPhenotype:"}
+			d.datasets2 = append(d.datasets2, data)
+			go wbp.update()
+			break
+		case "fypo":
+			d.wg.Add(1)
+			fyp := ontology{source: data, d: d, prefixURL: "http://purl.obolibrary.org/obo/", idPrefix: "FYPO:"}
+			d.datasets2 = append(d.datasets2, data)
+			go fyp.update()
+			break
+		case "upheno":
+			d.wg.Add(1)
+			up := ontology{source: data, d: d, prefixURL: "http://purl.obolibrary.org/obo/", idPrefix: "UPHENO:"}
+			d.datasets2 = append(d.datasets2, data)
+			go up.update()
 			break
 		case "bgee":
 			d.wg.Add(1)

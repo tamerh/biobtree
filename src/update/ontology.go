@@ -3,6 +3,7 @@ package update
 import (
 	"biobtree/pbuf"
 	"bufio"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -167,9 +168,11 @@ func (g *ontology) update() {
 
 				attr.Name = r.Childs["rdfs:label"][0].InnerText
 
-				// Add text search for all OWL-based ontologies (GO, ECO, EFO, UBERON, CL, DOID)
-				// Enables keyword search by term names and synonyms
-				if g.source == "go" || g.source == "eco" || g.source == "efo" || g.source == "uberon" || g.source == "cl" || g.source == "doid" {
+				// Add text search for all OWL-based ontologies (GO, ECO, EFO, UBERON, CL,
+				// DOID, and the cross-species phenotype ontologies MP/ZP/XPO/WBPhenotype/FYPO).
+				// Enables keyword search by term names and synonyms.
+				if g.source == "go" || g.source == "eco" || g.source == "efo" || g.source == "uberon" || g.source == "cl" || g.source == "doid" || g.source == "upheno" ||
+					g.source == "mp" || g.source == "zp" || g.source == "xpo" || g.source == "wbphenotype" || g.source == "fypo" {
 					// Index name + synonyms (full phrase + per-word) via the shared
 					// helper, which also adds hyphen-normalized keys so hyphenated
 					// terms are found whether or not the query uses the hyphen.
@@ -205,6 +208,7 @@ func (g *ontology) update() {
 
 			// Check test limit
 			if config.IsTestMode() && shouldStopProcessing(testLimit, int(total)) {
+				g.processCrossSpeciesSssom()
 				g.d.progChan <- &progressInfo{dataset: g.source, done: true}
 				atomic.AddUint64(&g.d.totalParsedEntry, total)
 				return
@@ -214,8 +218,80 @@ func (g *ontology) update() {
 
 	}
 
+	g.processCrossSpeciesSssom()
 	g.d.progChan <- &progressInfo{dataset: g.source, done: true}
 	atomic.AddUint64(&g.d.totalParsedEntry, total)
+}
+
+// processCrossSpeciesSssom ingests the uPheno cross-species phenotype SSSOM
+// (configured via the dataset's "pathSssom"; only uPheno has it — a no-op for every
+// other ontology). It is the hub bridge: every row whose SUBJECT is a UPHENO grouping
+// class and whose OBJECT is a species phenotype term in a *registered* dataset becomes a
+// direct UPHENO<->species edge (addXref is bidirectional). Cross-species traversal then
+// flows through the hub, e.g. >>hpo>>upheno>>mp. Rows to unregistered prefixes are
+// skipped (no dangling nodes). Predicate is uniformly semapv:crossSpeciesExactMatch.
+func (g *ontology) processCrossSpeciesSssom() {
+	pathSssom := config.Dataconf[g.source]["pathSssom"]
+	if pathSssom == "" {
+		return
+	}
+	fr := config.Dataconf[g.source]["id"]
+
+	// Species phenotype prefix -> biobtree dataset; keep only loaded datasets so we
+	// never create edges into an unconfigured (would-be bare) dataset.
+	prefixToDataset := map[string]string{
+		"HP": "hpo", "MP": "mp", "ZP": "zp",
+		"XPO": "xpo", "WBPhenotype": "wbphenotype", "FYPO": "fypo",
+	}
+	registered := map[string]string{}
+	for prefix, ds := range prefixToDataset {
+		if _, ok := config.Dataconf[ds]; ok {
+			registered[prefix] = ds
+		}
+	}
+	if len(registered) == 0 {
+		return
+	}
+
+	resp, err := http.Get(pathSssom)
+	if err != nil {
+		log.Printf("uPheno: failed to fetch SSSOM %s: %v", pathSssom, err)
+		return
+	}
+	defer resp.Body.Close()
+
+	reader := bufio.NewReaderSize(resp.Body, fileBufSize)
+	var edges uint64
+	for {
+		line, rerr := reader.ReadString('\n')
+		if rerr != nil && rerr != io.EOF {
+			log.Printf("uPheno SSSOM read error: %v", rerr)
+			break
+		}
+		if len(line) > 0 {
+			line = strings.TrimRight(line, "\r\n")
+			// skip '#' metadata block and the column header row
+			if line != "" && !strings.HasPrefix(line, "#") && !strings.HasPrefix(line, "subject_id\t") {
+				f := strings.Split(line, "\t")
+				if len(f) >= 4 {
+					subject := strings.TrimSpace(f[0]) // UPHENO:xxxx
+					object := strings.TrimSpace(f[3])   // species term, e.g. MP:xxxx
+					if strings.HasPrefix(subject, g.idPrefix) {
+						if ci := strings.IndexByte(object, ':'); ci > 0 {
+							if ds, ok := registered[object[:ci]]; ok {
+								g.d.addXref(subject, fr, object, ds, false)
+								edges++
+							}
+						}
+					}
+				}
+			}
+		}
+		if rerr == io.EOF {
+			break
+		}
+	}
+	log.Printf("uPheno: created %d cross-species phenotype hub edges", edges)
 }
 
 // isOntologyStopWord returns true for common ontology terms that should not be indexed alone

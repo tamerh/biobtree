@@ -76,7 +76,7 @@ hpa_antibody: hpa, ensembl  # HPA validation antibody (reliability, antigen)
 rnacentral: uniprot, ensembl, intact, hgnc, refseq, ena, go  # go = Rfam-projected GO annotations; rfam_id/rfam_description are attrs on the entry
 ncrna_disease: hgnc, ensembl, mondo, efo, pubmed  # curated ncRNA->disease (LncRNADisease + HMDD); reach from the ncRNA gene
 ncrna_interaction: hgnc, ensembl, uniprot, pubmed  # experimentally-supported ncRNA->protein interactions (NPInter)
-ncrna_drug: hgnc, ensembl, chembl_molecule, drugbank, pubchem, pubmed  # ncRNA drug-resistance / drug-target (ncRNADrug)
+ncrna_drug: hgnc, ensembl, chembl_molecule, pubchem, pubmed  # ncRNA drug-resistance / drug-target (ncRNADrug)
 reactome: ensembl, uniprot, chebi, go, reactomeparent, reactomechild
 rhea: chebi, uniprot, go
 go: ensembl, uniprot, reactome, msigdb, swisslipids, bgee, interpro, goparent, gochild, hpa, rnacentral

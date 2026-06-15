@@ -276,6 +276,19 @@ WORKFLOW: Get entry → see xrefs → check EDGES for where they lead → follow
 RETURNS: All attributes + xref counts to connected datasets"""
 
 
+DESC_ATLAS = """Curated Sugi Atlas knowledge for genes, diseases, and drugs (built from biobtree's own data).
+
+SYNTAX: biobtree_atlas(entities=["TP53","imatinib"])
+
+CALL THIS FIRST for a gene/disease/drug question (what it is, its biology, disease/drug/clinical context) - returns a concise, citable digest to ground your answer. Cite the returned canonical_url.
+
+- Pass the entity name(s) from the question; covered entities return content + citation, uncovered ones are listed in not_covered.
+- Default returns a compact digest (Summary + Identifiers). Each result lists the page's `sections` (top-level and sub-sections); pass section="Disease & clinical" (use a name from `sections`) for one zone, or full=true for the entire page (large). For big sections, query one entity at a time; full=true and large sections across several entities may be trimmed to fit.
+- For entities not covered, or for specific ID mappings / cross-references / filters, use biobtree_map / biobtree_entry instead.
+
+RETURNS: per entity {type, canonical_url, content, sections} + not_covered list"""
+
+
 # =============================================================================
 # TOOL_DESCRIPTIONS dict - references the variables above
 # =============================================================================
@@ -284,6 +297,7 @@ TOOL_DESCRIPTIONS = {
     "biobtree_search": DESC_SEARCH,
     "biobtree_map": DESC_MAP,
     "biobtree_entry": DESC_ENTRY,
+    "biobtree_atlas": DESC_ATLAS,
 }
 
 
@@ -326,6 +340,15 @@ INPUT_SCHEMAS = {
             "dataset": {"type": "string", "description": "The dataset containing the entry"}
         },
         "required": ["identifier", "dataset"]
+    },
+    "biobtree_atlas": {
+        "type": "object",
+        "properties": {
+            "entities": {"type": "array", "items": {"type": "string"}, "description": "Gene symbols / disease names / drug names from the question"},
+            "section": {"type": "string", "description": "Return one section instead of the digest; use a name from the result's `sections` (e.g. 'Disease & clinical')"},
+            "full": {"type": "boolean", "description": "Return the entire page (large; may exceed output limits - avoid for multiple entities)"}
+        },
+        "required": ["entities"]
     }
 }
 

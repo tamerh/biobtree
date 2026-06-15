@@ -148,7 +148,7 @@ Tools available:
 - `biobtree_search` - Search 70+ databases
 - `biobtree_map` - Map through dataset chains
 - `biobtree_entry` - Get full entry details
-- `biobtree_meta` - List available datasets
+- `biobtree_atlas` - Curated Sugi Atlas summaries for genes, diseases, and drugs
 
 See [MCP Server Documentation](mcp-server/) for setup instructions.
 

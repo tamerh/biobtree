@@ -6,6 +6,7 @@ All definitions (TOOL_DESCRIPTIONS, INPUT_SCHEMAS) come from prompts.py.
 This file builds the tool objects and handles execution.
 """
 
+import asyncio
 import json
 import logging
 from typing import Any, Dict, List
@@ -37,6 +38,11 @@ MCP_TOOLS = [
         name="biobtree_entry",
         description=TOOL_DESCRIPTIONS["biobtree_entry"],
         inputSchema=INPUT_SCHEMAS["biobtree_entry"]
+    ),
+    Tool(
+        name="biobtree_atlas",
+        description=TOOL_DESCRIPTIONS["biobtree_atlas"],
+        inputSchema=INPUT_SCHEMAS["biobtree_atlas"]
     )
 ]
 
@@ -71,6 +77,14 @@ CHAT_TOOLS = [
             "name": "biobtree_entry",
             "description": TOOL_DESCRIPTIONS["biobtree_entry"],
             "parameters": INPUT_SCHEMAS["biobtree_entry"]
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "biobtree_atlas",
+            "description": TOOL_DESCRIPTIONS["biobtree_atlas"],
+            "parameters": INPUT_SCHEMAS["biobtree_atlas"]
         },
         # Cache control on last tool caches entire tools array
         "cache_control": {"type": "ephemeral"}
@@ -118,6 +132,17 @@ async def execute_tool(
                 identifier=arguments["identifier"],
                 dataset=arguments["dataset"]
             )
+        elif tool_name == "biobtree_atlas":
+            # Atlas pages come from sugi.bio (not the biobtree API). Whole page by
+            # default, so bypass the generic length cap below and return directly.
+            from .atlas import atlas_lookup
+            res = await asyncio.to_thread(
+                atlas_lookup,
+                arguments["entities"],
+                arguments.get("section"),
+                bool(arguments.get("full", False)),
+            )
+            return json.dumps(res, indent=2)
         else:
             return json.dumps({"error": f"Unknown tool: {tool_name}"})
 

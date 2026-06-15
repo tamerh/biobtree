@@ -31,8 +31,7 @@ Combined FastAPI REST API + MCP over SSE server for biobtree biological database
                          │  - biobtree_search                           │
                          │  - biobtree_map                              │
                          │  - biobtree_entry                            │
-                         │  - biobtree_meta                             │
-                         │  - biobtree_help                             │
+                         │  - biobtree_atlas                            │
                          └──────────────────────────────────────────────┘
 ```
 
@@ -88,8 +87,7 @@ The `/chat` endpoint provides conversational access to biobtree via LLMs:
 | `biobtree_search` | Search for identifiers across 70+ databases |
 | `biobtree_map` | Map identifiers through dataset chains |
 | `biobtree_entry` | Get full entry details |
-| `biobtree_meta` | List available datasets |
-| `biobtree_help` | Get schema reference (edges, filters, patterns) |
+| `biobtree_atlas` | Curated Sugi Atlas summaries for genes, diseases, and drugs |
 
 ## REST API Endpoints
 

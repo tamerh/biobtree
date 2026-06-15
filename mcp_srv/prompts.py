@@ -16,20 +16,21 @@ DESIGN PRINCIPLES:
 
 EDGES = """
 EDGES (what connects to what):
-ensembl: uniprot, go, transcript, exon, ortholog, paralog, hgnc, entrez, refseq, bgee, gwas, gencc, antibody, scxa, civic, intogen, hpa, hpa_antibody, pharmgkb_var_annotation
-hgnc: ensembl, uniprot, entrez, gencc, pharmgkb_gene, msigdb, clinvar, mim, refseq, alphafold, collectri, gwas, hpo, cellphonedb, civic, intogen, cellosaurus, clingen_gene_validity, clingen_dosage, clingen_variant, depmap, hpa, pharmgkb_var_annotation
+ensembl: uniprot, go, transcript, exon, ortholog, paralog, hgnc, entrez, refseq, bgee, gwas, gencc, antibody, scxa, civic, intogen, hpa, hpa_antibody, pharmgkb_var_annotation, chembl_mechanism, ncrna_disease, ncrna_interaction, ncrna_drug, alliance_disease
+hgnc: ensembl, uniprot, entrez, gencc, pharmgkb_gene, msigdb, clinvar, mim, refseq, alphafold, collectri, gwas, hpo, cellphonedb, civic, intogen, cellosaurus, clingen_gene_validity, clingen_dosage, clingen_variant, depmap, hpa, pharmgkb_var_annotation, chembl_mechanism, ncrna_disease, ncrna_interaction, ncrna_drug, alliance_disease
 entrez: ensembl, uniprot, refseq, go, biogrid, pubchem_activity, ctd_gene_interaction, dbsnp, civic, intogen, clingen_dosage, generif, depmap, depmap_dependency, hpa, pharmgkb_var_annotation
 refseq: ensembl, entrez, taxonomy, ccds, uniprot, mirdb
 mirdb: refseq
 transcript: ensembl, exon, ufeature, alphamissense
-uniprot: ensembl, alphafold, interpro, pfam, pdb, ufeature, intact, string, string_interaction, biogrid, biogrid_interaction, chembl_target, go, reactome, rhea, swisslipids, bindingdb, antibody, pubchem_activity, cellphonedb, jaspar, signor, diamond_similarity, esm2_similarity, alphamissense, cellosaurus, hpa
+uniprot: ensembl, alphafold, interpro, pfam, pdb, ufeature, intact, string, string_interaction, biogrid, biogrid_interaction, chembl_target, go, reactome, rhea, swisslipids, bindingdb, antibody, pubchem_activity, cellphonedb, jaspar, signor, diamond_similarity, esm2_similarity, alphamissense, cellosaurus, hpa, chembl_mechanism, ncrna_interaction
 alphafold: uniprot
 interpro: uniprot, go, interproparent, interprochild
-chembl_molecule: mesh, chembl_activity, chembl_target, pubchem, chebi, clinical_trials, chembl_moleculeparent, chembl_moleculechild  # parent=anhydrous/parent form, child=salt forms
+chembl_molecule: mesh, chembl_activity, chembl_target, pubchem, chebi, clinical_trials, chembl_moleculeparent, chembl_moleculechild, chembl_mechanism, ncrna_drug  # parent=anhydrous/parent form, child=salt forms
 chembl_activity: chembl_molecule, chembl_assay, bao
 chembl_assay: chembl_activity, chembl_target, chembl_document, bao
-chembl_target: chembl_assay, uniprot, chembl_molecule
-pubchem: chembl_molecule, chebi, hmdb, pubchem_activity, pubmed, patent_compound, bindingdb, ctd, pharmgkb
+chembl_target: chembl_assay, uniprot, chembl_molecule, chembl_mechanism
+chembl_mechanism: chembl_molecule, chembl_target, uniprot, hgnc, ensembl  # curated drug mechanism-of-action (incl. RNA therapeutics): drug >> chembl_mechanism, target/gene >> chembl_mechanism
+pubchem: chembl_molecule, chebi, hmdb, pubchem_activity, pubmed, patent_compound, bindingdb, ctd, pharmgkb, ncrna_drug
 pubchem_activity: pubchem, ensembl, uniprot
 chebi: pubchem, rhea, intact
 swisslipids: uniprot, go, chebi, uberon, cl
@@ -39,7 +40,9 @@ clinvar: hgnc, mondo, hpo, dbsnp, orphanet, civic_variant, cellosaurus, clingen_
 alphamissense: uniprot, transcript
 gwas: gwas_study, efo, dbsnp, hgnc, mondo
 gwas_study: gwas, efo, mondo
-mondo: gencc, clinvar, efo, mesh, hpo, clinical_trials, antibody, cellxgene, cellxgene_celltype, orphanet, mondoparent, mondochild, gwas, gwas_study, civic, intogen, cellosaurus, doid, mim, ncit, umls, medgen, gard, sctid, icd9, icd10cm, icd10who, icd11, nando, meddra, nord, uberon  # disease cross-refs + disease_has_location anatomy, from the Mondo OBO
+mondo: gencc, clinvar, efo, mesh, hpo, clinical_trials, antibody, cellxgene, cellxgene_celltype, orphanet, mondoparent, mondochild, gwas, gwas_study, civic, intogen, cellosaurus, doid, mim, ncit, umls, medgen, gard, sctid, icd9, icd10cm, icd10who, icd11, nando, meddra, nord, uberon, ncrna_disease  # disease cross-refs + disease_has_location anatomy, from the Mondo OBO
+doid: mondo, alliance_disease, doidparent, doidchild  # Disease Ontology (now a full ontology w/ hierarchy); reach MONDO + its disease graph via the mondo<->doid bridge
+alliance_disease: hgnc, mgi, rgd, zfin, sgd, wormbase, flybase, xenbase, doid, pubmed  # cross-species + human gene->disease (Alliance of Genome Resources); gene >> alliance_disease >> doid, or doid >> alliance_disease >> mgi/rgd/... for model-organism genes
 gencc: mondo, hpo, hgnc, ensembl
 clingen_gene_validity: hgnc, entrez, ensembl, mondo  # ClinGen gene-disease validity tier (Definitive..Refuted) + MOI
 clingen_dosage: entrez, hgnc, ensembl, mondo, mim, pubmed  # ClinGen haploinsufficiency/triplosensitivity per gene
@@ -70,12 +73,21 @@ hpa: ensembl, uniprot, hgnc, entrez, go, uberon, hpa_expression, hpa_pathology, 
 hpa_expression: hpa, uberon, cellosaurus  # per (gene,tissue/cell-line) RNA nTPM + IHC staining; reach genes-in-a-tissue via uberon >> hpa_expression
 hpa_pathology: hpa  # per (gene,cancer) prognostic survival association
 hpa_antibody: hpa, ensembl  # HPA validation antibody (reliability, antigen)
-rnacentral: uniprot, ensembl, intact, hgnc, refseq, ena
+rnacentral: uniprot, ensembl, intact, hgnc, refseq, ena, go  # go = Rfam-projected GO annotations; rfam_id/rfam_description are attrs on the entry
+ncrna_disease: hgnc, ensembl, mondo, efo, pubmed  # curated ncRNA->disease (LncRNADisease + HMDD); reach from the ncRNA gene
+ncrna_interaction: hgnc, ensembl, uniprot, pubmed  # experimentally-supported ncRNA->protein interactions (NPInter)
+ncrna_drug: hgnc, ensembl, chembl_molecule, drugbank, pubchem, pubmed  # ncRNA drug-resistance / drug-target (ncRNADrug)
 reactome: ensembl, uniprot, chebi, go, reactomeparent, reactomechild
 rhea: chebi, uniprot, go
-go: ensembl, uniprot, reactome, msigdb, swisslipids, bgee, interpro, goparent, gochild, hpa
-hpo: clinvar, gencc, mondo, msigdb, orphanet, mim, hmdb, hgnc, hpoparent, hpochild
-efo: gwas, mondo, cellxgene, efoparent, efochild
+go: ensembl, uniprot, reactome, msigdb, swisslipids, bgee, interpro, goparent, gochild, hpa, rnacentral
+hpo: clinvar, gencc, mondo, msigdb, orphanet, mim, hmdb, hgnc, hpoparent, hpochild, upheno
+efo: gwas, mondo, cellxgene, efoparent, efochild, ncrna_disease
+upheno: hpo, mp, zp, xpo, wbphenotype, fypo, uphenoparent, uphenochild  # cross-species phenotype hub: >>hpo>>upheno>>mp bridges human<->model-organism phenotypes (also mp/zp/xpo/wbphenotype/fypo)
+mp: upheno, mpparent, mpchild  # Mammalian Phenotype Ontology (mouse/rat)
+zp: upheno, zpparent, zpchild  # Zebrafish Phenotype Ontology
+xpo: upheno, xpoparent, xpochild  # Xenopus Phenotype Ontology
+wbphenotype: upheno, wbphenotypeparent, wbphenotypechild  # C. elegans Phenotype Ontology
+fypo: upheno, fypoparent, fypochild  # Fission Yeast Phenotype Ontology
 uberon: bgee, cellxgene, cellxgene_celltype, swisslipids, uberonparent, uberonchild, hpa, hpa_expression
 cl: bgee, cellxgene, cellxgene_celltype, scxa, scxa_gene_experiment, clparent, clchild
 taxonomy: ensembl, uniprot, bgee, biogrid, ctd_gene_interaction, taxparent, taxchild

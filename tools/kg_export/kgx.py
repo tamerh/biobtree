@@ -40,17 +40,20 @@ KNOWN_CATEGORIES = {
 }
 
 
-# Prefixes confirmed present in the biolink prefix map (verified against
-# biolink_model_prefix_map.json). Node CURIEs using a prefix outside this set
-# won't node-normalize cleanly with Monarch/Translator and are flagged by
-# validate(). Known offenders pending a bioregistry-aligned pass: Cellosaurus
-# (-> cellosaurus, CVCL_ banana), SWISSLIPID (-> SLM, zero-padded), InterPro
-# (-> interpro), CORUM, LIPIDMAPS, Orphanet (-> orphanet).
-BIOLINK_PREFIXES = {
+# Canonical prefixes: biolink prefix-map entries (verified against
+# biolink_model_prefix_map.json) PLUS bioregistry-verified prefixes for resources
+# absent from biolink's curated subset. Node CURIEs whose prefix is outside this
+# set are flagged by validate() as non-canonical (won't node-normalize cleanly).
+# Still non-canonical (documented in categories.yaml): SWISSLIPID (needs SLM +
+# zero-padded ids — an id transform, deferred).
+CANONICAL_PREFIXES = {
+    # biolink prefix map
     "UniProtKB", "ENSEMBL", "NCBIGene", "HGNC", "CHEBI", "CHEMBL.COMPOUND",
     "PUBCHEM.COMPOUND", "REACT", "GO", "MONDO", "DOID", "EFO", "OMIM", "HP",
     "MP", "UBERON", "CL", "NCBITaxon", "CLINVAR", "DBSNP", "DRUGBANK",
     "RNACENTRAL", "MSigDB", "HMDB", "GTOPDB",
+    # bioregistry-verified (absent from biolink's curated map)
+    "cellosaurus", "interpro", "corum", "lipidmaps", "orphanet",
 }
 
 
@@ -222,7 +225,7 @@ def validate(nodes_tsv: str | Path, edges_tsv: str | Path) -> dict:
             bad_node_curie += 1
         else:
             prefix = nid.split(":", 1)[0]
-            if prefix not in BIOLINK_PREFIXES:
+            if prefix not in CANONICAL_PREFIXES:
                 non_biolink_prefixes[prefix] += 1
         if len(parts) > 1 and parts[1] and parts[1] not in KNOWN_CATEGORIES:
             bad_category += 1

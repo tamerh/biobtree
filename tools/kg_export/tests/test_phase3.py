@@ -95,13 +95,13 @@ class ValidateTests(unittest.TestCase):
             tmp = Path(d)
             _write(tmp / "nodes.tsv", kgx.NODE_HEADER, [
                 "HGNC:1\tbiolink:Gene\tg\tHGNC:1\tinfores:biobtree",       # ok
-                "Cellosaurus:CVCL_1\tbiolink:CellLine\tc\tCellosaurus:CVCL_1\tinfores:biobtree",
-                "SWISSLIPID:10\tbiolink:SmallMolecule\ts\tSWISSLIPID:10\tinfores:biobtree",
+                "cellosaurus:CVCL_1\tbiolink:CellLine\tc\tcellosaurus:CVCL_1\tinfores:biobtree",  # canonical now
+                "SWISSLIPID:10\tbiolink:SmallMolecule\ts\tSWISSLIPID:10\tinfores:biobtree",  # still non-canonical
             ])
             _write(tmp / "edges.tsv", kgx.EDGE_HEADER, [])
             r = kgx.validate(tmp / "nodes.tsv", tmp / "edges.tsv")
-            self.assertEqual(r["non_biolink_prefixes"],
-                             {"Cellosaurus": 1, "SWISSLIPID": 1})
+            self.assertEqual(r["non_biolink_prefixes"], {"SWISSLIPID": 1})
+            self.assertNotIn("cellosaurus", r["non_biolink_prefixes"])
             self.assertNotIn("HGNC", r["non_biolink_prefixes"])
 
     def test_bad_category_detected(self):

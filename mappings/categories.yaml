@@ -61,7 +61,7 @@ datasets:
   mondo:       {category: "biolink:Disease", prefix: "MONDO"}
   doid:        {category: "biolink:Disease", prefix: "DOID"}
   efo:         {category: "biolink:Disease", prefix: "EFO", note: "EFO is mixed; many terms are diseases"}
-  orphanet:    {category: "biolink:Disease", prefix: "Orphanet"}
+  orphanet:    {category: "biolink:Disease", prefix: "orphanet", note: "bioregistry-preferred is ORPHA; orphanet (identifiers.org) chosen for Translator compat"}
   mim:         {category: "biolink:Disease", prefix: "OMIM", note: "OMIM phenotype MIMs"}
 
   # --- Phenotypes ------------------------------------------------------------
@@ -74,8 +74,8 @@ datasets:
   pubchem:        {category: "biolink:SmallMolecule", prefix: "PUBCHEM.COMPOUND"}
   gtopdb_ligand:  {category: "biolink:SmallMolecule", prefix: "GTOPDB"}
   hmdb:           {category: "biolink:SmallMolecule", prefix: "HMDB"}
-  lipidmaps:      {category: "biolink:SmallMolecule", prefix: "LIPIDMAPS"}
-  swisslipids:    {category: "biolink:SmallMolecule", prefix: "SWISSLIPID"}
+  lipidmaps:      {category: "biolink:SmallMolecule", prefix: "lipidmaps"}
+  swisslipids:    {category: "biolink:SmallMolecule", prefix: "SWISSLIPID", note: "DEFERRED: canonical is SLM with zero-padded 9-digit ids (needs an id transform), so left non-canonical for now"}
   drugbank:       {category: "biolink:Drug", prefix: "DRUGBANK"}
 
   # --- Sequence variants -----------------------------------------------------
@@ -91,14 +91,14 @@ datasets:
   cl:          {category: "biolink:Cell", prefix: "CL"}
 
   # --- Cell lines (differentiating) -----------------------------------------
-  cellosaurus: {category: "biolink:CellLine", prefix: "Cellosaurus"}
+  cellosaurus: {category: "biolink:CellLine", prefix: "cellosaurus", note: "ids keep CVCL_ -> cellosaurus:CVCL_xxxx"}
 
   # --- Organisms -------------------------------------------------------------
   taxonomy:    {category: "biolink:OrganismTaxon", prefix: "NCBITaxon"}
 
   # --- Protein families / complexes -----------------------------------------
-  interpro:    {category: "biolink:ProteinFamily", prefix: "InterPro", note: "InterPro mixes families/domains/sites"}
-  corum:       {category: "biolink:MacromolecularComplex", prefix: "CORUM"}
+  interpro:    {category: "biolink:ProteinFamily", prefix: "interpro", note: "InterPro mixes families/domains/sites; ids keep IPR"}
+  corum:       {category: "biolink:MacromolecularComplex", prefix: "corum"}
 
   # --- Non-coding RNA (differentiating) -------------------------------------
   rnacentral:  {category: "biolink:NoncodingRNAProduct", prefix: "RNACENTRAL"}

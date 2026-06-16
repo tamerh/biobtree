@@ -92,12 +92,13 @@ predicate/dup/non-biolink-prefix but isn't the full biolink check); expand node
 `biolink:NamedThing`); numeric **qualifiers** (IC50/score, clinical significance,
 trial phase).
 
-**CURIE prefix alignment (bioregistry):** `validate()` reports
-`non_biolink_prefixes`. Known offenders + correct forms (need a per-resource pass
-because of "banana"/padding nuances, so not hand-fixed yet): `Cellosaurus` →
-`cellosaurus` (ids keep the `CVCL_` banana), `SWISSLIPID` → `SLM` (zero-padded
-ids), `InterPro` → `interpro`, `Orphanet` → `orphanet`, `CORUM`/`LIPIDMAPS` →
-lowercase. (CLINVAR, DBSNP, MSigDB, GTOPDB, HMDB verified already canonical.)
+**CURIE prefix alignment (bioregistry) — mostly done.** Canonicalized (verified
+against bioregistry): `cellosaurus` (ids keep `CVCL_`), `interpro` (ids keep
+`IPR`), `corum`, `lipidmaps` (ids keep `LM…`), `orphanet`. CLINVAR, DBSNP,
+MSigDB, GTOPDB, HMDB were already canonical. `validate()` reports
+`non_biolink_prefixes` against the accepted set; the only remaining offender is
+**`SWISSLIPID` → `SLM`** (canonical ids are zero-padded 9-digit, needs an id
+transform — deferred; note some swisslipids xref values already arrive as `SLM:`).
 
 ## Edge dedup at assemble
 

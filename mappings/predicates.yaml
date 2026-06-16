@@ -141,3 +141,6 @@ reified:
 
   # --- Drug -> target (mechanism of action) ---------------------------------
   chembl_mechanism:      {kind: bipartite, subject: chembl_molecule, object: uniprot, predicate: "biolink:affects", note: "ChEMBL MoA drug->target"}
+  # GtoPdb curated ligand->target: entry links ligand + a gtopdb target id, which
+  # `via: gtopdb` resolves to the uniprot protein (gtopdb_sorted: gtopdb->uniprot).
+  gtopdb_interaction:    {kind: bipartite, subject: gtopdb_ligand, object: uniprot, via: gtopdb, predicate: "biolink:interacts_with", note: "GtoPdb curated affinity ligand->target"}

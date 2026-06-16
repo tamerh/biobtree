@@ -141,6 +141,28 @@ class BuildReifiedTests(unittest.TestCase):
             self.assertEqual(o, "UniProtKB:P9")
             self.assertEqual(p, "biolink:interacts_with")
 
+    def test_bipartite_via_resolution(self):
+        """gtopdb_interaction: ligand + gtopdb-target id; via gtopdb -> uniprot."""
+        gi, gl, gt, up = (self._id("gtopdb_interaction"), self._id("gtopdb_ligand"),
+                          self._id("gtopdb"), self._id("uniprot"))
+        with tempfile.TemporaryDirectory() as d:
+            tmp = Path(d)
+            # gtopdb forward: target T1 -> uniprot P1 (the resolution map)
+            self._write(tmp, "gtopdb_sorted.1.index.gz", [f"T1\t{gt}\tP1\t{up}"])
+            # interaction entry: ligand L1 + target T1
+            self._write(tmp, "gtopdb_interaction_sorted.1.index.gz", [
+                f"I1\t{gi}\tL1\t{gl}", f"I1\t{gi}\tT1\t{gt}",
+            ])
+            out = tmp / "r.tsv"
+            build_reified_edges(tmp, self.reg, self.cats, self.pm, out,
+                                datasets=["gtopdb_interaction"])
+            rows = [l.split("\t") for l in out.read_text().splitlines()[1:]]
+            self.assertEqual(len(rows), 1)
+            _id, s, p, o = rows[0][:4]
+            self.assertEqual(s, "GTOPDB:L1")           # ligand
+            self.assertEqual(o, "UniProtKB:P1")        # resolved target
+            self.assertEqual(p, "biolink:interacts_with")
+
     def test_bipartite_expression_with_canonicalization(self):
         bg, en, ub = self._id("bgee"), self._id("ensembl"), self._id("uberon")
         with tempfile.TemporaryDirectory() as d:

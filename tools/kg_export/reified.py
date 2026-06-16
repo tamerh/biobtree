@@ -106,6 +106,19 @@ def build_reified_edges(
                 continue
             stats.datasets_processed += 1
             primary = f"infores:{ds}"
+            # `via`: resolve an in-entry intermediate id (e.g. a GtoPdb target)
+            # to the real node (uniprot) using that dataset's forward index.
+            resolve_map = None
+            if rule.kind == "bipartite" and rule.via:
+                resolve_map = defaultdict(list)
+                for vf in sorted(glob.glob(str(index_dir / f"{rule.via}_sorted.*.index.gz"))):
+                    for raw in iter_index_file(vf, counter):
+                        if raw.is_property:
+                            continue
+                        if registry.name_for_id(raw.object_dataset_id) == rule.object:
+                            c = canonical(rule.object, raw.object)
+                            if c:
+                                resolve_map[raw.subject].append(c)
             # heap-merge the dataset's (independently subject-sorted) chunks so a
             # subject split across chunks is still grouped as one entry.
             merged = heapq.merge(
@@ -121,7 +134,7 @@ def build_reified_edges(
                 stats.lines += len(group)
                 for row in _emit_group(
                     group, rule, registry, categories, canonical,
-                    primary, max_edges_per_group, stats, kl, at,
+                    primary, max_edges_per_group, stats, kl, at, resolve_map,
                 ):
                     out.write(row)
                     stats.edges_written += 1
@@ -135,7 +148,8 @@ def build_reified_edges(
 
 
 def _emit_group(group, rule, registry, categories, canonical, primary,
-                max_edges_per_group, stats, knowledge_level, agent_type):
+                max_edges_per_group, stats, knowledge_level, agent_type,
+                resolve_map=None):
     """Yield KGX edge rows for one reified entry group (pairwise/star/bipartite)."""
     def edge(a, b):
         if not a or not b:
@@ -198,7 +212,20 @@ def _emit_group(group, rule, registry, categories, canonical, primary,
 
     else:  # bipartite
         subs = partners(rule.subject)
-        objs = partners(rule.object)
+        if rule.via and resolve_map is not None:
+            # object partners are the resolved nodes of the in-entry `via` ids
+            seen, objs = set(), []
+            for raw in group:
+                if raw.is_property:
+                    continue
+                if registry.name_for_id(raw.object_dataset_id) != rule.via:
+                    continue
+                for c in resolve_map.get(raw.object, []):
+                    if c not in seen:
+                        seen.add(c)
+                        objs.append(c)
+        else:
+            objs = partners(rule.object)
         if len(subs) * len(objs) > max_edges_per_group:
             stats.oversized_groups += 1
             return

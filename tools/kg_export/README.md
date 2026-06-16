@@ -87,9 +87,17 @@ Compliance follow-ups (post-review): map BioBTree datasets → **registered
 infores ids** (currently `infores:<dataset>`, well-formed but unregistered) and
 register `infores:biobtree`; run the **official KGX/biolink-model-toolkit
 validator** in CI (the internal `validate()` checks dangling/CURIE/category/
-predicate/dup but isn't the full biolink check); expand node `category` to the
-full biolink **ancestor chain** (currently leaf + `biolink:NamedThing`); numeric
-**qualifiers** (IC50/score, clinical significance, trial phase).
+predicate/dup/non-biolink-prefix but isn't the full biolink check); expand node
+`category` to the full biolink **ancestor chain** (currently leaf +
+`biolink:NamedThing`); numeric **qualifiers** (IC50/score, clinical significance,
+trial phase).
+
+**CURIE prefix alignment (bioregistry):** `validate()` reports
+`non_biolink_prefixes`. Known offenders + correct forms (need a per-resource pass
+because of "banana"/padding nuances, so not hand-fixed yet): `Cellosaurus` →
+`cellosaurus` (ids keep the `CVCL_` banana), `SWISSLIPID` → `SLM` (zero-padded
+ids), `InterPro` → `interpro`, `Orphanet` → `orphanet`, `CORUM`/`LIPIDMAPS` →
+lowercase. (CLINVAR, DBSNP, MSigDB, GTOPDB, HMDB verified already canonical.)
 
 ## Edge dedup at assemble
 

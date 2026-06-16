@@ -40,6 +40,20 @@ KNOWN_CATEGORIES = {
 }
 
 
+# Prefixes confirmed present in the biolink prefix map (verified against
+# biolink_model_prefix_map.json). Node CURIEs using a prefix outside this set
+# won't node-normalize cleanly with Monarch/Translator and are flagged by
+# validate(). Known offenders pending a bioregistry-aligned pass: Cellosaurus
+# (-> cellosaurus, CVCL_ banana), SWISSLIPID (-> SLM, zero-padded), InterPro
+# (-> interpro), CORUM, LIPIDMAPS, Orphanet (-> orphanet).
+BIOLINK_PREFIXES = {
+    "UniProtKB", "ENSEMBL", "NCBIGene", "HGNC", "CHEBI", "CHEMBL.COMPOUND",
+    "PUBCHEM.COMPOUND", "REACT", "GO", "MONDO", "DOID", "EFO", "OMIM", "HP",
+    "MP", "UBERON", "CL", "NCBITaxon", "CLINVAR", "DBSNP", "DRUGBANK",
+    "RNACENTRAL", "MSigDB", "HMDB", "GTOPDB",
+}
+
+
 def edge_id(subject: str, predicate: str, obj: str, primary: str) -> str:
     """Deterministic edge id (so reified/duplicate edges are identifiable)."""
     h = hashlib.md5(f"{subject}|{predicate}|{obj}|{primary}".encode()).hexdigest()
@@ -195,6 +209,7 @@ def validate(nodes_tsv: str | Path, edges_tsv: str | Path) -> dict:
     bad_node_curie = 0
     bad_category = 0
     duplicate_node_ids = 0
+    non_biolink_prefixes: dict[str, int] = defaultdict(int)
     for _, row in _read_rows(Path(nodes_tsv)):
         if not row:
             continue
@@ -205,6 +220,10 @@ def validate(nodes_tsv: str | Path, edges_tsv: str | Path) -> dict:
         node_ids.add(nid)
         if ":" not in nid:
             bad_node_curie += 1
+        else:
+            prefix = nid.split(":", 1)[0]
+            if prefix not in BIOLINK_PREFIXES:
+                non_biolink_prefixes[prefix] += 1
         if len(parts) > 1 and parts[1] and parts[1] not in KNOWN_CATEGORIES:
             bad_category += 1
 
@@ -244,6 +263,10 @@ def validate(nodes_tsv: str | Path, edges_tsv: str | Path) -> dict:
         "bad_predicate": bad_predicate,
         "duplicate_node_ids": duplicate_node_ids,
         "duplicate_edges": duplicate_edges,
+        # not gating (valid bioregistry prefixes can be outside biolink's curated
+        # map); surfaced for the bioregistry-alignment pass.
+        "non_biolink_prefixes": dict(sorted(
+            non_biolink_prefixes.items(), key=lambda kv: -kv[1])),
         "ok": all(
             v == 0
             for v in (

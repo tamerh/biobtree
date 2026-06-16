@@ -90,6 +90,20 @@ class ValidateTests(unittest.TestCase):
             self.assertEqual(r["dangling_object_edges"], 1)
             self.assertEqual(r["bad_predicate"], 1)
 
+    def test_non_biolink_prefix_flagged(self):
+        with tempfile.TemporaryDirectory() as d:
+            tmp = Path(d)
+            _write(tmp / "nodes.tsv", kgx.NODE_HEADER, [
+                "HGNC:1\tbiolink:Gene\tg\tHGNC:1\tinfores:biobtree",       # ok
+                "Cellosaurus:CVCL_1\tbiolink:CellLine\tc\tCellosaurus:CVCL_1\tinfores:biobtree",
+                "SWISSLIPID:10\tbiolink:SmallMolecule\ts\tSWISSLIPID:10\tinfores:biobtree",
+            ])
+            _write(tmp / "edges.tsv", kgx.EDGE_HEADER, [])
+            r = kgx.validate(tmp / "nodes.tsv", tmp / "edges.tsv")
+            self.assertEqual(r["non_biolink_prefixes"],
+                             {"Cellosaurus": 1, "SWISSLIPID": 1})
+            self.assertNotIn("HGNC", r["non_biolink_prefixes"])
+
     def test_bad_category_detected(self):
         with tempfile.TemporaryDirectory() as d:
             tmp = Path(d)

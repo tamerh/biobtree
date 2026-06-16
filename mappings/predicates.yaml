@@ -58,7 +58,7 @@ direct:
   "reactome>uniprot":  {predicate: "biolink:participates_in", flip: true}
   "uniprot>reactome":  {skip: "redundant with reactome>uniprot"}
   "transcript>reactome": {predicate: "biolink:participates_in"}
-  "msigdb>hgnc":       {predicate: "biolink:participates_in", flip: true, note: "gene set membership"}
+  "msigdb>hgnc":       {predicate: "biolink:participates_in", flip: true, note: "gene set membership; participates_in pending a biolink gene-set class"}
   "msigdb>entrez":     {skip: "gene dup of msigdb>hgnc (canonicalized)"}
 
   # --- Pathway -> small molecule --------------------------------------------
@@ -72,7 +72,7 @@ direct:
   "hmdb>uniprot":      {predicate: "biolink:interacts_with"}
 
   # --- Drug / metabolite -> disease -----------------------------------------
-  "chembl_molecule>efo": {predicate: "biolink:treats", note: "ChEMBL indications; refine treats vs in_clinical_trials_for via phase qualifier later"}
+  "chembl_molecule>efo": {predicate: "biolink:treats_or_applied_or_studied_to_treat", note: "ChEMBL indications incl. early phase; narrow to treats/in_clinical_trials_for via phase qualifier later"}
   "hmdb>orphanet":     {predicate: "biolink:associated_with"}
 
   # --- Disease -> phenotype -------------------------------------------------
@@ -105,11 +105,16 @@ reified:
   # --- Protein-protein interaction ------------------------------------------
   string_interaction: {kind: symmetric, partner: uniprot, predicate: "biolink:physically_interacts_with", note: "very large (~866M partner rows)"}
   intact:             {kind: symmetric, partner: uniprot, predicate: "biolink:physically_interacts_with"}
-  signor:             {kind: symmetric, partner: uniprot, predicate: "biolink:interacts_with", note: "directed regulation collapsed to interacts_with for MVP"}
+  # signor DEFERRED: it is a DIRECTED, signed causal regulation source; the
+  # reified partner lines don't distinguish regulator vs target, so emitting it
+  # as symmetric interacts_with would assert wrong semantics. Re-add as a
+  # directed `regulates` edge once role/sign is extracted.
 
   # --- Protein similarity / homology ----------------------------------------
-  diamond_similarity:  {kind: symmetric, partner: uniprot, predicate: "biolink:homologous_to", note: "DIAMOND sequence similarity"}
-  esm2_similarity:     {kind: symmetric, partner: uniprot, predicate: "biolink:similar_to", note: "ESM2 embedding similarity (not strict homology)"}
+  # Both are sequence/embedding SIMILARITY (evidence for, not assertion of,
+  # homology) -> similar_to. Reserve homologous_to/orthologous_to for Compara.
+  diamond_similarity:  {kind: symmetric, partner: uniprot, predicate: "biolink:similar_to", note: "DIAMOND sequence similarity"}
+  esm2_similarity:     {kind: symmetric, partner: uniprot, predicate: "biolink:similar_to", note: "ESM2 embedding similarity"}
 
   # --- Compound -> target bioactivity ---------------------------------------
   pubchem_activity: {kind: bipartite, subject: pubchem, object: uniprot, predicate: "biolink:interacts_with"}

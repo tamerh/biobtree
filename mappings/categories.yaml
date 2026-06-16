@@ -32,12 +32,14 @@ identity_pairs:
 
 canonical_priority:
   "biolink:Gene": [hgnc, ensembl, entrez]
-  "biolink:Protein": [uniprot, uniparc]
+  "biolink:Protein": [uniprot]
   "biolink:Disease": [mondo, doid, efo, orphanet, mim]
   "biolink:SmallMolecule": [chebi, chembl_molecule, pubchem, gtopdb_ligand, hmdb, lipidmaps, swisslipids]
-  "biolink:Drug": [drugbank, chembl_molecule]
+  "biolink:Drug": [drugbank]
   "biolink:SequenceVariant": [clinvar, dbsnp]
-  "biolink:PhenotypicFeature": [hpo, mp]
+  # HPO (human) and MP (mouse) are NOT the same entity — relate via uPheno, do
+  # not merge; kept apart (no identity_pairs across them).
+  "biolink:PhenotypicFeature": [hpo]
   "biolink:Pathway": [reactome, msigdb]
 
 datasets:
@@ -51,7 +53,9 @@ datasets:
 
   # --- Proteins --------------------------------------------------------------
   uniprot:     {category: "biolink:Protein", prefix: "UniProtKB"}
-  uniparc:     {category: "biolink:Protein", prefix: "UPI", note: "sequence archive; secondary to uniprot"}
+  # uniparc removed as a node: a UPI is a non-redundant SEQUENCE shared across
+  # many organisms/accessions, not a protein entity — typing it Protein risks
+  # over-merge. Model uniprot->uniparc as an edge later if needed.
 
   # --- Diseases --------------------------------------------------------------
   mondo:       {category: "biolink:Disease", prefix: "MONDO"}
@@ -80,7 +84,7 @@ datasets:
 
   # --- Pathways / gene sets --------------------------------------------------
   reactome:    {category: "biolink:Pathway", prefix: "REACT"}
-  msigdb:      {category: "biolink:Pathway", prefix: "MSigDB", note: "gene sets; pathway-like"}
+  msigdb:      {category: "biolink:Pathway", prefix: "MSigDB", note: "gene sets/signatures; Pathway is a mild overclaim but biolink has no GeneSet class"}
 
   # --- Anatomy / cells -------------------------------------------------------
   uberon:      {category: "biolink:GrossAnatomicalStructure", prefix: "UBERON"}

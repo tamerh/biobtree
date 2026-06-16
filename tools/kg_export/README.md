@@ -44,6 +44,23 @@ Design & roadmap: [`docs/kg_export/plan.md`](../../docs/kg_export/plan.md).
   predicate checks), and a `manifest.json` (counts, biolink version, data
   version, per-category/predicate/source breakdowns).
 
+## Bounded production run (measured)
+
+`run_bounded.sh` runs 22 core node datasets (≤400M each; excludes the giants
+pubchem/entrez/rnacentral/clinvar) → a real dump, to measure scale before the
+full run. Result on out_prod_v5:
+- **Nodes pass peak RSS ≈ 4.15 GB** (13.06M nodes, 22 datasets, ~7 min). The box
+  has 125 GB, so the full run (≈10× data) should fit in RAM — the B1 in-RAM
+  concern is **not a blocker on this hardware** (on-disk rework still good hygiene).
+- Dump: **13.06M nodes / 49.3M edges**, 18 categories; edge dedup removed 1.47M;
+  `bad_category`/`bad_predicate`/`duplicate_node_ids` = 0.
+- `status=INVALID`: ~11% dangling edges, dominated by **ENSEMBL (5.3M) + UniProtKB
+  (148k)** subjects. Root cause: biobtree's ensembl/uniprot are taxid-scoped to 16
+  model organisms, but bgee/intact/GO reference more species → those endpoints
+  have no node. **Fix to reach VALID: stub-node generation** at assemble (emit a
+  minimal `id + category` node, category from the CURIE prefix, for any edge
+  endpoint missing a node) — more robust than trying to build all-species nodes.
+
 ## Running a full build
 
 The builders write partial KGX files; `assemble` merges + serializes + validates.

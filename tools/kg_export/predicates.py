@@ -50,6 +50,8 @@ class ReifiedRule:
                             # whose <via>_sorted forward resolves to `object`
     resolve: str | None = None  # pairwise: 'symbol' -> field values are gene
                                 # symbols, resolved to `partner` ids by symbol map
+    require: dict | None = None  # pairwise: only emit if property fields match
+                                 # (e.g. {database_a: UNIPROT} to keep protein-protein)
     note: str | None = None
 
 
@@ -109,6 +111,7 @@ class PredicateMap:
                 object_field=cfg.get("object_field"),
                 via=cfg.get("via"),
                 resolve=cfg.get("resolve"),
+                require=cfg.get("require"),
                 note=cfg.get("note"),
             )
         return cls(direct, reified)

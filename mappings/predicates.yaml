@@ -117,6 +117,9 @@ reified:
   # collectri entry property names tf_gene/target_gene as SYMBOLS; resolve:symbol
   # maps them to HGNC ids so the edge is correctly directed TF->target.
   collectri: {kind: pairwise, partner: hgnc, subject_field: tf_gene, object_field: target_gene, resolve: symbol, predicate: "biolink:regulates", note: "CollecTRI signed TF->gene"}
+  # SIGNOR signed causal regulation; protein-protein subset (entity ids are bare
+  # uniprot accessions; require keeps database_a/b == UNIPROT). entity_a -> entity_b.
+  signor:    {kind: pairwise, partner: uniprot, subject_field: id_a, object_field: id_b, predicate: "biolink:regulates", require: {database_a: UNIPROT, database_b: UNIPROT}, note: "SIGNOR directed protein regulation"}
 
   # --- Protein similarity (star: query -> each hit; NOT a clique) ------------
   # Sequence/embedding SIMILARITY (evidence for, not assertion of, homology).
@@ -135,6 +138,7 @@ reified:
   bgee:         {kind: bipartite, subject: ensembl, object: uberon, predicate: "biolink:expressed_in"}
   scxa:         {kind: bipartite, subject: ensembl, object: uberon, predicate: "biolink:expressed_in"}
   fantom5_gene: {kind: bipartite, subject: hgnc, object: uberon, predicate: "biolink:expressed_in"}
+  hpa:          {kind: bipartite, subject: ensembl, object: uberon, predicate: "biolink:expressed_in", note: "Human Protein Atlas gene->tissue"}
 
   # --- Gene -> disease (curated/association layers; intermediate links gene+disease)
   gencc:                 {kind: bipartite, subject: hgnc, object: mondo, predicate: "biolink:gene_associated_with_condition", note: "GenCC gene-disease validity"}

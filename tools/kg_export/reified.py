@@ -209,6 +209,9 @@ def _emit_group(group, rule, registry, categories, canonical, primary,
                 d = json.loads(raw.object)
             except (ValueError, TypeError):
                 continue
+            if rule.require and any(str(d.get(k)) != str(v)
+                                    for k, v in rule.require.items()):
+                continue  # e.g. keep only protein-protein (database_a==UNIPROT)
             a_raw, b_raw = d.get(rule.subject_field), d.get(rule.object_field)
             if not a_raw or not b_raw:
                 continue

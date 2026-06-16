@@ -98,12 +98,24 @@ def resolve_xref(
     )
 
 
-def iter_index_file(path: str | Path) -> Iterator[RawXref]:
-    """Stream a (gzipped) sorted index file, yielding RawXref. Skips blank lines."""
+def iter_index_file(
+    path: str | Path, counter: dict | None = None
+) -> Iterator[RawXref]:
+    """Stream a (gzipped) sorted index file, yielding RawXref.
+
+    Blank lines are skipped. Malformed lines are skipped (not fatal) and, if a
+    ``counter`` dict is supplied, tallied under ``counter['malformed']`` — one
+    bad line must never abort a multi-hundred-million-line run.
+    """
     path = Path(path)
     opener = gzip.open if path.suffix == ".gz" else open
     with opener(path, "rt", encoding="utf-8") as fh:  # type: ignore[operator]
         for line in fh:
-            if not line.strip():
+            if not line or line.isspace():
                 continue
-            yield parse_index_line(line)
+            try:
+                yield parse_index_line(line)
+            except IndexParseError:
+                if counter is not None:
+                    counter["malformed"] = counter.get("malformed", 0) + 1
+                continue

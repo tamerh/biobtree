@@ -12,13 +12,21 @@ from __future__ import annotations
 
 
 def to_curie(prefix: str, local_id: str) -> str:
-    """Render a biolink CURIE from a dataset prefix and a raw BioBTree id."""
+    """Render a biolink CURIE from a dataset prefix and a raw BioBTree id.
+
+    - already prefixed in this namespace (``HGNC:100``)  -> normalize casing
+    - carries a *foreign* prefix (``CHEBI:1`` under HMDB) -> keep as-is, never
+      double-prefix (avoids invalid ``HMDB:CHEBI:1``)
+    - bare (``41``)                                       -> prepend the prefix
+    """
     local_id = local_id.strip()
     if not prefix:
         return local_id
     if local_id.lower().startswith(prefix.lower() + ":"):
-        # Already a CURIE in this namespace — normalize the prefix casing.
         return prefix + ":" + local_id.split(":", 1)[1]
+    if ":" in local_id:
+        # Already a CURIE in some other namespace; do not double-prefix.
+        return local_id
     return f"{prefix}:{local_id}"
 
 

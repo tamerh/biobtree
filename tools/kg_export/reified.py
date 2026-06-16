@@ -17,6 +17,7 @@ score/affinity qualifiers are a follow-up.
 from __future__ import annotations
 
 import glob
+import heapq
 import json
 from collections import defaultdict
 from dataclasses import dataclass, field
@@ -40,6 +41,7 @@ class ReifiedStats:
     edges_written: int = 0
     self_loops: int = 0
     oversized_groups: int = 0
+    malformed_lines: int = 0
     by_predicate: dict = field(default_factory=lambda: defaultdict(int))
     by_dataset: dict = field(default_factory=lambda: defaultdict(int))
 
@@ -50,11 +52,11 @@ class ReifiedStats:
         return d
 
 
-def _groups_by_subject(path):
-    """Yield lists of RawXref sharing the same subject (file is subject-sorted)."""
+def _groups_by_subject(rows):
+    """Yield lists of RawXref sharing the same subject from a subject-sorted stream."""
     current_subject = None
     bucket: list[RawXref] = []
-    for raw in iter_index_file(path):
+    for raw in rows:
         if raw.subject != current_subject:
             if bucket:
                 yield bucket
@@ -74,13 +76,14 @@ def build_reified_edges(
     id_map: dict[str, str] | None = None,
     stats_path: str | Path | None = None,
     datasets: list[str] | None = None,
-    max_partners: int = 100,
+    max_edges_per_group: int = 5000,
 ) -> ReifiedStats:
     index_dir = Path(index_dir)
     id_map = id_map or {}
     targets = datasets or predicates.reified_datasets()
 
     stats = ReifiedStats()
+    counter: dict = {}
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -105,26 +108,32 @@ def build_reified_edges(
                 continue
             stats.datasets_processed += 1
             primary = f"infores:{ds}"
-            for path in files:
-                for group in _groups_by_subject(path):
-                    stats.groups += 1
-                    stats.lines += len(group)
-                    for row in _emit_group(
-                        group, rule, registry, categories, canonical,
-                        primary, max_partners, stats,
-                    ):
-                        out.write(row)
-                        stats.edges_written += 1
-                        stats.by_predicate[rule.predicate] += 1
-                        stats.by_dataset[ds] += 1
+            # heap-merge the dataset's (independently subject-sorted) chunks so a
+            # subject split across chunks is still grouped as one entry.
+            merged = heapq.merge(
+                *(iter_index_file(f, counter) for f in files),
+                key=lambda r: r.subject,
+            )
+            for group in _groups_by_subject(merged):
+                stats.groups += 1
+                stats.lines += len(group)
+                for row in _emit_group(
+                    group, rule, registry, categories, canonical,
+                    primary, max_edges_per_group, stats,
+                ):
+                    out.write(row)
+                    stats.edges_written += 1
+                    stats.by_predicate[rule.predicate] += 1
+                    stats.by_dataset[ds] += 1
 
+    stats.malformed_lines = counter.get("malformed", 0)
     if stats_path:
         Path(stats_path).write_text(json.dumps(stats.to_json(), indent=2))
     return stats
 
 
 def _emit_group(group, rule, registry, categories, canonical, primary,
-                max_partners, stats):
+                max_edges_per_group, stats):
     """Yield KGX edge rows for one reified entry group."""
     def partners(role_dataset: str) -> list[str]:
         out = []
@@ -147,7 +156,8 @@ def _emit_group(group, rule, registry, categories, canonical, primary,
 
     if rule.kind == "symmetric":
         members = partners(rule.partner)
-        if len(members) > max_partners:
+        n = len(members)
+        if n * (n - 1) // 2 > max_edges_per_group:  # prospective undirected pairs
             stats.oversized_groups += 1
             return
         for a, b in combinations(sorted(members), 2):
@@ -158,7 +168,7 @@ def _emit_group(group, rule, registry, categories, canonical, primary,
     else:  # bipartite
         subs = partners(rule.subject)
         objs = partners(rule.object)
-        if len(subs) * len(objs) > max_partners:
+        if len(subs) * len(objs) > max_edges_per_group:  # prospective product
             stats.oversized_groups += 1
             return
         for a in subs:

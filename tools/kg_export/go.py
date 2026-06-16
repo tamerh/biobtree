@@ -25,7 +25,7 @@ from .categories import CategoryMap
 from .curie import to_curie
 from .datasets import DatasetRegistry
 from .index import iter_index_file
-from .nodes import extract_name
+from .nodes import extract_name, tsv_safe
 
 AGGREGATOR = "infores:biobtree"
 GO_PREFIX = "GO"
@@ -54,6 +54,7 @@ class GoStats:
     nodes_written: int = 0
     edges_written: int = 0
     edges_missing_aspect: int = 0
+    malformed_lines: int = 0
     by_predicate: dict = field(default_factory=lambda: defaultdict(int))
     by_source: dict = field(default_factory=lambda: defaultdict(int))
 
@@ -64,14 +65,14 @@ class GoStats:
         return d
 
 
-def build_go_terms(index_dir, registry) -> dict[str, tuple[str, str]]:
+def build_go_terms(index_dir, registry, counter=None) -> dict[str, tuple[str, str]]:
     """GO id -> (aspect, name) from go_sorted property lines."""
     terms: dict[str, tuple[str, str]] = {}
     go_id = registry.by_name("go")
     if not go_id:
         return terms
     for path in sorted(glob.glob(str(Path(index_dir) / "go_sorted.*.index.gz"))):
-        for raw in iter_index_file(path):
+        for raw in iter_index_file(path, counter):
             if not raw.is_property:
                 continue
             try:
@@ -98,8 +99,9 @@ def build_go(
     index_dir = Path(index_dir)
     id_map = id_map or {}
     stats = GoStats()
+    counter: dict = {}
 
-    terms = build_go_terms(index_dir, registry)
+    terms = build_go_terms(index_dir, registry, counter)
     stats.terms = len(terms)
     for aspect, _ in terms.values():
         stats.terms_by_aspect[aspect] += 1
@@ -112,7 +114,7 @@ def build_go(
         for go_id, (aspect, name) in terms.items():
             curie = to_curie(GO_PREFIX, go_id)
             category = ASPECT_CATEGORY[aspect]
-            out.write(f"{curie}\t{category}\t{name}\t{curie}\t{AGGREGATOR}\n")
+            out.write(f"{curie}\t{category}\t{tsv_safe(name)}\t{curie}\t{AGGREGATOR}\n")
             stats.nodes_written += 1
 
     # --- GO annotation edges ---------------------------------------------
@@ -133,7 +135,7 @@ def build_go(
         for src in annotation_sources:
             primary = f"infores:{src}"
             for path in sorted(glob.glob(str(index_dir / f"{src}_sorted.*.index.gz"))):
-                for raw in iter_index_file(path):
+                for raw in iter_index_file(path, counter):
                     if raw.is_property:
                         continue
                     if registry.name_for_id(raw.object_dataset_id) != "go":
@@ -153,6 +155,7 @@ def build_go(
                     stats.by_predicate[predicate] += 1
                     stats.by_source[src] += 1
 
+    stats.malformed_lines = counter.get("malformed", 0)
     if stats_path:
         Path(stats_path).write_text(json.dumps(stats.to_json(), indent=2))
     return stats

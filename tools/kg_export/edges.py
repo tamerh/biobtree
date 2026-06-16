@@ -34,6 +34,7 @@ class EdgeStats:
     dropped_not_node: int = 0  # an endpoint dataset isn't a typed node
     skipped: int = 0  # recognized pair, intentionally not emitted
     unmapped: int = 0  # pair has no predicate rule
+    malformed_lines: int = 0
     by_predicate: dict = field(default_factory=lambda: defaultdict(int))
     unmapped_pairs: dict = field(default_factory=lambda: defaultdict(int))
 
@@ -90,6 +91,7 @@ def build_edges(
         )
 
     stats = EdgeStats()
+    counter: dict = {}
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -107,7 +109,7 @@ def build_edges(
             if stop:
                 break
             stats.files_scanned += 1
-            for raw in iter_index_file(path):
+            for raw in iter_index_file(path, counter):
                 stats.lines += 1
                 if max_lines and stats.lines > max_lines:
                     stop = True
@@ -144,6 +146,7 @@ def build_edges(
                 stats.edges_written += 1
                 stats.by_predicate[rule.predicate] += 1
 
+    stats.malformed_lines = counter.get("malformed", 0)
     if stats_path:
         Path(stats_path).write_text(json.dumps(stats.to_json(), indent=2))
     return stats

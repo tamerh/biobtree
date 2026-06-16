@@ -34,6 +34,11 @@ _NAME_KEYS_SCALAR = ("symbol", "name", "label", "preferred_name")
 _NAME_KEYS_LIST = ("symbols", "names", "labels")
 
 
+def tsv_safe(text: str) -> str:
+    """Strip tab/newline so a free-text field can't break TSV columns."""
+    return text.replace("\t", " ").replace("\n", " ").replace("\r", " ")
+
+
 def extract_name(attr_json: str) -> str | None:
     try:
         d = json.loads(attr_json)
@@ -90,6 +95,7 @@ class NodeStats:
     merges: int = 0
     nodes_written: int = 0
     names_found: int = 0
+    malformed_lines: int = 0
     multi_member_clusters: int = 0
     mixed_category_clusters: int = 0
     by_category: dict = field(default_factory=lambda: defaultdict(int))
@@ -131,14 +137,15 @@ def build_nodes(
         files = sorted(glob.glob(str(index_dir / "*_sorted.*.index.gz")))
 
     uf = UnionFind()
-    node_dataset: dict[str, str] = {}  # node_key -> dataset
     names: dict[str, str] = {}  # node_key -> best-effort name
     stats = NodeStats()
+    counter: dict = {}
 
     def register(dataset: str, local_id: str) -> str:
+        # dataset is recoverable from the key (_split_key), so uf.parent is the
+        # single source of truth for node candidates — no parallel dict needed.
         key = _node_key(dataset, local_id)
         uf.add(key)
-        node_dataset[key] = dataset
         return key
 
     stop = False
@@ -146,7 +153,7 @@ def build_nodes(
         if stop:
             break
         stats.files_scanned += 1
-        for raw in iter_index_file(path):
+        for raw in iter_index_file(path, counter):
             stats.lines += 1
             if max_lines and stats.lines > max_lines:
                 stop = True
@@ -180,11 +187,12 @@ def build_nodes(
                 if uf.union(src_key, obj_key):
                     stats.merges += 1
 
-    stats.node_candidates = len(node_dataset)
+    stats.malformed_lines = counter.get("malformed", 0)
+    stats.node_candidates = len(uf.parent)
 
     # Group node keys into clusters by union-find root.
     clusters: dict[str, list[str]] = defaultdict(list)
-    for key in node_dataset:
+    for key in uf.parent:
         clusters[uf.find(key)].append(key)
 
     cluster_sizes: list[tuple[int, str]] = []
@@ -268,10 +276,8 @@ def _emit_cluster(
             if c != canonical:
                 id_map_fh.write(f"{c}\t{canonical}\n")
 
+    # prefer the canonical member's name, else any member's name
     name = ""
-    for k in members:
-        # prefer canonical member's name, else any
-        pass
     canonical_key = _node_key(canonical_ds, canonical_local)
     if canonical_key in names:
         name = names[canonical_key]
@@ -285,5 +291,6 @@ def _emit_cluster(
 
     stats.by_category[category] += 1
     return (
-        f"{canonical}\t{category}\t{name}\t{'|'.join(eq_ordered)}\t{PROVIDED_BY}\n"
+        f"{canonical}\t{category}\t{tsv_safe(name)}\t"
+        f"{'|'.join(eq_ordered)}\t{PROVIDED_BY}\n"
     )

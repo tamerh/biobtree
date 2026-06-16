@@ -118,17 +118,32 @@ python -m tools.kg_export nodes \
 - `mappings/categories.yaml` — node typing (authored).
 - `mappings/predicates.yaml` — edge predicate mapping (Phase 2).
 
-## Run tests
+## Testing (4 layers)
 
-From the repo root:
-
+**L1 — unit tests** (fast, no data; ~46 cases): parsing, normalization, dedup,
+reification, GO, assemble.
 ```bash
-python3 -m unittest tools.kg_export.tests.test_phase0 -v
+python3 -m unittest discover -s tools/kg_export/tests -p "test_*.py"
 ```
 
-Optional real-data smoke test — point at a built index dir (skipped if absent):
-
+**L2 — real-data smoke** (skipped unless an index dir is given): parses a real
+sorted file and resolves endpoints.
 ```bash
 BIOBTREE_INDEX_DIR=/data/biobtree/out/main/index \
-  python3 -m unittest tools.kg_export.tests.test_phase0 -v
+  python3 -m unittest discover -s tools/kg_export/tests -p "test_*.py"
 ```
+
+**L3 — structural validation**: `assemble` runs `validate()` (dangling edges,
+dup ids, bad categories/predicates) and stamps the manifest `status`.
+
+**L4 — golden-entity (semantic) tests** (slow, opt-in): builds nodes/edges from a
+real index dir and asserts known biology (BRCA1/TP53/EGFR normalization; a
+canonicalized `has_gene_product` edge).
+```bash
+BIOBTREE_INDEX_DIR=/data/biobtree/out_prod/main/index \
+  python3 -m unittest tools.kg_export.tests.test_golden -v
+```
+
+Other correctness cross-checks: compare per-predicate edge counts against
+`dataset_state.json`; run the official KGX/biolink-model-toolkit validator
+(deferred) for full biolink compliance.

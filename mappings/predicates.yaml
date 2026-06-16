@@ -148,6 +148,11 @@ reified:
   clingen_variant:       {kind: bipartite, subject: hgnc, object: mondo, predicate: "biolink:gene_associated_with_condition"}
   clingen_dosage:        {kind: bipartite, subject: hgnc, object: mondo, predicate: "biolink:gene_associated_with_condition", note: "dosage sensitivity"}
 
+  # --- ncRNA layers (subject is the ncRNA gene) -----------------------------
+  ncrna_disease:     {kind: bipartite, subject: hgnc, object: mondo, predicate: "biolink:associated_with", note: "ncRNA gene-disease"}
+  ncrna_drug:        {kind: bipartite, subject: hgnc, object: chembl_molecule, predicate: "biolink:associated_with", note: "ncRNA-drug response"}
+  ncrna_interaction: {kind: bipartite, subject: hgnc, object: uniprot, predicate: "biolink:interacts_with", note: "ncRNA-protein binding (large)"}
+
   # --- Drug -> target (mechanism of action) ---------------------------------
   chembl_mechanism:      {kind: bipartite, subject: chembl_molecule, object: uniprot, predicate: "biolink:affects", note: "ChEMBL MoA drug->target"}
   # GtoPdb curated ligand->target: entry links ligand + a gtopdb target id, which

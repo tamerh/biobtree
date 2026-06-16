@@ -163,6 +163,7 @@ DATASETS=(
     gnomad_constraint
     ctd
     drugcentral
+    faers
     msigdb
 
     # Patents

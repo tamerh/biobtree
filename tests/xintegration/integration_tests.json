@@ -38,7 +38,8 @@
     "changes_5.5": "Added MeSH bridge CTD tests, Reactome to Ensembl, CellXGene reverse mappings, clinical trials high-count, MeSH breast cancer hierarchy",
     "changes_8.0": "Added 50 new tests from multi-agent discovery session 2: patent_ip (4), clinical_trials_deep (3), rare_disease_deep (8), cell_type_biology (7), reverse_drug (4), ultra_long_chains (3), interpro_domain (4), gene_set_advanced (8), evidence_triangulation (3), metabolomics (7). New categories: patent_ip, clinical_trials_deep, rare_disease_deep, cell_type_biology, reverse_drug, ultra_long_chains, interpro_domain, gene_set_advanced, evidence_triangulation. Total: 448 tests.",
     "changes_8.7": "Added enzyme_biochemistry category (19 tests): BRENDA enzyme database integration tests. EC number lookups, kinetic parameters (Km, kcat) via brenda_kinetics, inhibitor data (Ki, IC50) via brenda_inhibitor, PubMed literature links, text search by enzyme/substrate/inhibitor names, and multi-hop queries for enzyme-centric analysis. Total: 577 tests.",
-    "changes_8.8": "Added UniProt\u2194BRENDA bidirectional mapping tests (12 tests): protein to EC classification, gene to EC via UniProt, EC to proteins/structures/domains/pathways/drug targets/clinical variants. Leverages UniProt xrefs to BRENDA for multi-hop enzyme-centric queries. Total: 589 tests."
+    "changes_8.8": "Added UniProt↔BRENDA bidirectional mapping tests (12 tests): protein to EC classification, gene to EC via UniProt, EC to proteins/structures/domains/pathways/drug targets/clinical variants. Leverages UniProt xrefs to BRENDA for multi-hop enzyme-centric queries. Total: 589 tests.",
+    "changes_faers": "Added faers category (3 tests): FAERS/openFDA drug adverse-event aggregates (id 802). Text search by drug name, chembl_molecule/pubchem normalization edges, PRR/report_count CEL filters. Co-occurrence (not causal), MedDRA PT strings only."
   },
   "test_categories": {
     "gene_mapping": "Gene symbol/ID to various resources (proteins, transcripts, GO terms)",
@@ -110,7 +111,8 @@
     "cellosaurus": "Cell-line knowledge resource (Cellosaurus, CC BY 4.0): cell lines as a connected hub - species, disease (NCIt/ORDO->orphanet/mondo), mutated genes (CC Sequence variation->hgnc/clinvar), tissue (uberon), COSMIC, ChEMBL cell line/target, literature, and CVCL hierarchy. Enables disease->cell-line-model and gene->cell-line routes.",
     "clingen_curation": "ClinGen expert curations (CC0): dosage sensitivity (haploinsufficiency/triplosensitivity per gene), gene-disease validity (evidence tier Definitive..Refuted), and variant pathogenicity (VCEP ACMG, bridged to ClinVar -> dbSNP/gene/disease).",
     "gene_dependency_function": "Gene essentiality, dependency and cited function (DepMap CC BY 4.0 + NCBI GeneRIF public domain): per-gene CRISPR essentiality aggregate, per-cell-line dependencies bridged to Cellosaurus, and cited one-line functional claims. Powers target tractability and RAG grounding.",
-    "drugcentral_drugs": "DrugCentral approved drugs: drug->target (MOA) and regulatory approval (FDA/EMA/PMDA)"
+    "drugcentral_drugs": "DrugCentral approved drugs: drug->target (MOA) and regulatory approval (FDA/EMA/PMDA)",
+    "faers": "FAERS (openFDA FDA Adverse Event Reporting System) drug -> adverse-reaction co-occurrence aggregates with PRR disproportionality signal. Tests text search by drug name, drug-name normalization edge to chembl_molecule/pubchem, and CEL filters on report_count/prr. NOTE: co-occurrence not causation; reactions are MedDRA PT strings only."
   },
   "tests": [
     {
@@ -9899,6 +9901,39 @@
       "should_fail": [
         "INVALID_DRUG"
       ]
+    },
+    {
+      "category": "faers",
+      "name": "Drug name text search to FAERS records",
+      "query": "",
+      "why": "A drug name resolves to its FAERS (drug, adverse-reaction) aggregate records",
+      "should_pass": [
+        "aspirin",
+        "gabapentin"
+      ],
+      "should_fail": [
+        "zzzznotadrug999"
+      ]
+    },
+    {
+      "category": "faers",
+      "name": "ChEMBL molecule to FAERS adverse events",
+      "query": ">>chembl_molecule>>faers",
+      "why": "Bridge a compound to its FAERS adverse-event profile via best-effort drug-name normalization",
+      "should_pass": [
+        "CHEMBL1201111"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "faers",
+      "name": "PubChem to FAERS adverse events",
+      "query": ">>pubchem>>faers",
+      "why": "Bridge a PubChem compound to its FAERS adverse-event records",
+      "should_pass": [
+        "68647"
+      ],
+      "should_fail": []
     }
   ]
 }

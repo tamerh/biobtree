@@ -3168,3 +3168,28 @@ message DrugcentralAttr {
   string id = 100; // transient - populated at runtime from Xref.Identifier
 }
 
+
+// FAERS - FDA Adverse Event Reporting System (Dataset ID: 802)
+// One entry per (drug, adverse-reaction) aggregate built from openFDA's
+// drug/event bulk download. Source: https://download.open.fda.gov/drug/event/
+// License: CC0 (https://open.fda.gov/license/).
+//
+// IMPORTANT caveat: within a single FAERS report, the listed drugs and the
+// listed reactions are NOT individually linked. A (drug, reaction) edge is
+// therefore report-level CO-OCCURRENCE, not a curated causal association.
+// We aggregate co-occurrences across all reports into a report_count and
+// compute a PRR (proportional reporting ratio) disproportionality signal so
+// users can filter reporting noise. PRR > 2 with report_count >= 3 is a common
+// signal-of-disproportionate-reporting heuristic; it is NOT proof of causality.
+// The reaction is the MedDRA Preferred Term STRING only (no MedDRA dictionary
+// is imported - MedDRA is license-restricted).
+message FaersAttr {
+  string drug_name = 1;        // normalized drug key (generic name, lowercased)
+  string reaction = 2;         // MedDRA Preferred Term string (verbatim from report)
+  int32 report_count = 3;      // # reports where this drug and reaction co-occur
+  double prr = 4;              // proportional reporting ratio (disproportionality)
+  int32 serious_count = 5;     // # of those reports flagged serious (serious==1)
+  string top_outcome = 6;      // most common reaction outcome code (1-6, see docs)
+  int32 drug_report_total = 7; // total reports mentioning this drug (PRR denominator context)
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}

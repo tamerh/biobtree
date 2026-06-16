@@ -1027,6 +1027,12 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			d.datasets2 = append(d.datasets2, data)
 			go dctrl.update()
 			break
+		case "faers":
+			d.wg.Add(1)
+			faersParser := faers{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go faersParser.update()
+			break
 		case "pharmgkb":
 			d.wg.Add(1)
 			pgkb := pharmgkb{source: data, d: d}

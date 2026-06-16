@@ -260,6 +260,9 @@ func extractField(xref *pbuf.Xref, field string) string {
 	if a := xref.GetCtdDiseaseAssociation(); a != nil {
 		return extractCtdDiseaseAssociationField(a, field)
 	}
+	if a := xref.GetFaers(); a != nil {
+		return extractFaersField(a, field)
+	}
 	if a := xref.GetUfeature(); a != nil {
 		return extractUfeatureField(a, field)
 	}
@@ -1179,6 +1182,10 @@ func ExtractSourceName(xref *pbuf.Xref) string {
 		genes := strings.Join(a.InferenceGeneSymbols, ";")
 		return fmt.Sprintf("%s → %s [%s]: %s", a.ChemicalName, a.DiseaseName, evidence, genes)
 	}
+	if a := xref.GetFaers(); a != nil {
+		// Format: "drug → reaction (n reports, PRR x.x)"
+		return fmt.Sprintf("%s → %s (%d reports, PRR %.1f)", a.DrugName, a.Reaction, a.ReportCount, a.Prr)
+	}
 	if a := xref.GetCellosaurus(); a != nil {
 		return a.Name
 	}
@@ -1432,6 +1439,28 @@ func extractCtdDiseaseAssociationField(a *pbuf.CtdDiseaseAssociationAttr, field 
 		return fmt.Sprintf("%.2f", a.InferenceScore)
 	case "pubmed_count":
 		return fmt.Sprintf("%d", a.PubmedCount)
+	default:
+		return ""
+	}
+}
+
+// extractFaersField extracts a field from FaersAttr
+func extractFaersField(a *pbuf.FaersAttr, field string) string {
+	switch field {
+	case "drug_name":
+		return a.DrugName
+	case "reaction":
+		return a.Reaction
+	case "report_count":
+		return fmt.Sprintf("%d", a.ReportCount)
+	case "prr":
+		return fmt.Sprintf("%.2f", a.Prr)
+	case "serious_count":
+		return fmt.Sprintf("%d", a.SeriousCount)
+	case "top_outcome":
+		return a.TopOutcome
+	case "drug_report_total":
+		return fmt.Sprintf("%d", a.DrugReportTotal)
 	default:
 		return ""
 	}

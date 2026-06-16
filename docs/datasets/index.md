@@ -161,6 +161,7 @@ Taxonomy, toxicogenomics, gene sets, and specialized datasets.
 |---------|-------------|---------------|
 | taxonomy | NCBI Taxonomy | [README](taxonomy.md) |
 | ctd | CTD toxicogenomics | [README](ctd.md) |
+| faers | FAERS drug adverse-event reports (openFDA) | [README](faers.md) |
 | msigdb | MSigDB gene sets | [README](msigdb.md) |
 
 ---

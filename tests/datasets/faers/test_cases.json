@@ -1,0 +1,10 @@
+{
+  "common_tests": [
+    {
+      "name": "Invalid FAERS id handling",
+      "type": "invalid_id",
+      "invalid_id": "FAERS_DEADBEEFDEADBEEF"
+    }
+  ],
+  "custom_tests": []
+}

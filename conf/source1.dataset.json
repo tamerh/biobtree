@@ -1085,6 +1085,24 @@
     "bucketMethod": "mesh",
     "xrefSort": "ctd:interactionScore;mesh:interactionScore"
   },
+  "faers": {
+    "id": "802",
+    "name": "FAERS",
+    "textPriority": "40",
+    "aliases": "openFDA,adverse event,adverse drug reaction,FAERS,FDA Adverse Event Reporting System,pharmacovigilance",
+    "url": "https://open.fda.gov/data/faers/",
+    "manifestUrl": "https://api.fda.gov/download.json",
+    "path": "https://download.open.fda.gov/drug/event/",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "testPartitions": "2",
+    "minReportCount": "2",
+    "attrs": "drug_name,reaction,report_count,prr,serious_count,top_outcome,drug_report_total",
+    "compact_fields": "drug_name,reaction,report_count,prr,serious_count",
+    "test_entries_count": "100",
+    "bucketMethod": "alphanum",
+    "xrefSort": "chembl_molecule:interactionScore;pubchem:interactionScore"
+  },
   "biogrid": {
     "id": "62",
     "name": "BioGRID",

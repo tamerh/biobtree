@@ -1,0 +1,11 @@
+{
+  "drugs": [
+    { "drug_name": "aspirin" },
+    { "drug_name": "gabapentin" },
+    { "drug_name": "ondansetron hydrochloride" }
+  ],
+  "compounds": [
+    { "chembl_id": "CHEMBL1201111", "drug_name": "ondansetron hydrochloride" },
+    { "pubchem_cid": "68647", "drug_name": "ondansetron hydrochloride" }
+  ]
+}

@@ -1317,6 +1317,11 @@ func (s *Service) execCelGo(query *query.Query, targetXref *pbuf.Xref) (bool, er
 			attr.Id = id
 			evalMap["ctd_disease_association"] = attr
 		}
+	case "faers":
+		if attr := targetXref.GetFaers(); attr != nil {
+			attr.Id = id
+			evalMap["faers"] = attr
+		}
 	case "biogrid":
 		if attr := targetXref.GetBiogrid(); attr != nil {
 			attr.Id = id

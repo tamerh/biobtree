@@ -2203,6 +2203,11 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)
 				xref.Attributes = &pbuf.Xref_CtdDiseaseAssociation{attr}
+			case "faers":
+				attr := &pbuf.FaersAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Faers{attr}
 			case "pharmgkb":
 				attr := &pbuf.PharmgkbAttr{}
 				barr := []byte((*kvProp[k])[0].value)
@@ -2829,6 +2834,11 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 					barr := []byte((*kvProp[k])[0].value)
 					ffjson.Unmarshal(barr, attr)
 					xref.Attributes = &pbuf.Xref_CtdDiseaseAssociation{attr}
+				case "faers":
+					attr := &pbuf.FaersAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_Faers{attr}
 				case "pharmgkb":
 					attr := &pbuf.PharmgkbAttr{}
 					barr := []byte((*kvProp[k])[0].value)

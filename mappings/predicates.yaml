@@ -113,6 +113,18 @@ reified:
   string_interaction: {kind: pairwise, partner: uniprot, subject_field: uniprot_a, object_field: uniprot_b, predicate: "biolink:physically_interacts_with", note: "very large (~866M rows)"}
   # signor DEFERRED: directed/signed causal regulation; needs role+sign.
 
+  # --- Cell-cell ligand-receptor signaling (member-level gene interactions) ---
+  # CellPhoneDB entries link two multi-gene COMPLEX partners. The index gene
+  # lists (hgnc/ensembl/entrez) are the UNION across both partners, so the
+  # edge-lines alone cannot tell which member is on which side. The property
+  # JSON, however, breaks the members out per side as symbol lists genes_a /
+  # genes_b; `cross` emits the faithful all-pairs cross-product (every partner_a
+  # member gene <-> every partner_b member gene), resolve:symbol -> HGNC ids.
+  # Predicate is the conservative biolink:interacts_with (directionality varies:
+  # Ligand-Receptor / Receptor-Receptor / Adhesion-Adhesion / Ligand-Ligand /
+  # Gap-Gap; a directional ligand->receptor refinement is a follow-up).
+  cellphonedb: {kind: pairwise, partner: hgnc, subject_field: genes_a, object_field: genes_b, resolve: symbol, cross: true, predicate: "biolink:interacts_with", note: "CellPhoneDB cell-cell signaling; member-gene all-pairs across the two complex partners"}
+
   # --- Directed transcriptional regulation (TF -> target gene) --------------
   # collectri entry property names tf_gene/target_gene as SYMBOLS; resolve:symbol
   # maps them to HGNC ids so the edge is correctly directed TF->target.
@@ -139,6 +151,20 @@ reified:
   scxa:         {kind: bipartite, subject: ensembl, object: uberon, predicate: "biolink:expressed_in"}
   fantom5_gene: {kind: bipartite, subject: hgnc, object: uberon, predicate: "biolink:expressed_in"}
   hpa:          {kind: bipartite, subject: ensembl, object: uberon, predicate: "biolink:expressed_in", note: "Human Protein Atlas gene->tissue"}
+  # FANTOM5 promoter (CAGE peak) is annotated to ONE gene (hgnc/ensembl) plus the
+  # tissues (uberon) it is expressed in -> gene->tissue expression, like
+  # fantom5_gene. The CAGE peak itself is NOT emitted as a node: its id is a raw
+  # genomic-coordinate / peak string with no registered biolink:RegulatoryRegion
+  # CURIE prefix (deferred — see report). The promoter also links cell types (cl);
+  # only one object dataset per bipartite rule, uberon chosen to match the other
+  # expression sources (bgee/scxa/hpa/fantom5_gene). cl-cell-type expression TODO.
+  fantom5_promoter: {kind: bipartite, subject: hgnc, object: uberon, predicate: "biolink:expressed_in", note: "FANTOM5 CAGE-peak promoter gene->tissue; cl(cell-type) expression deferred (one object/rule)"}
+  # fantom5_enhancer DEFERRED: the enhancer entry id is a genomic coordinate
+  # (chr10:100006233-100006603) with no stable CURIE for a biolink:RegulatoryRegion
+  # node, and its gene links are PROXIMITY-based (any gene within 500kb), not a
+  # curated regulatory assertion — so neither region->gene regulation (no stable
+  # region CURIE; proximity != regulates) nor a clean gene->tissue edge (enhancer
+  # associated_genes are by distance, not one expressed gene) is safe to author.
 
   # --- Gene -> disease (curated/association layers; intermediate links gene+disease)
   gencc:                 {kind: bipartite, subject: hgnc, object: mondo, predicate: "biolink:gene_associated_with_condition", note: "GenCC gene-disease validity"}

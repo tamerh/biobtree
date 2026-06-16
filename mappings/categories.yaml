@@ -106,3 +106,10 @@ datasets:
   # --- Deferred / aspect-dependent (NOT typed at dataset level) --------------
   # go: category depends on term aspect (MF/BP/CC) -> resolved in Phase 2 from
   #     the GO aspect attribute, not here.
+  # fantom5_promoter / fantom5_enhancer: regulatory regions. biolink:RegulatoryRegion
+  #     exists but has NO id_prefixes; the BioBTree entry ids are raw genomic
+  #     coordinates (chr10:100006233-100006603) or FANTOM5 CAGE-peak strings
+  #     (hg19::chr1:564571..564600,+;hg_1.1) with no registered CURIE prefix, so the
+  #     region is NOT emitted as a node. fantom5_promoter is instead modeled as
+  #     gene->tissue expression (reified in predicates.yaml). Revisit if a stable
+  #     region CURIE (e.g. via an ENCODE/SCREEN cCRE accession) becomes available.

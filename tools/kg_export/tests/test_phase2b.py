@@ -118,6 +118,48 @@ class BuildReifiedTests(unittest.TestCase):
             _id, s, p, o = rows[0][:4]
             self.assertEqual((s, p, o), ("HGNC:11998", "biolink:regulates", "HGNC:1784"))  # TF->target
 
+    def test_pairwise_cross_complex_members(self):
+        """cellphonedb: genes_a x genes_b all-pairs, symbol-resolved to HGNC.
+
+        partner_a={ALDH1A2}, partner_b={RARG,RXRG} -> 2 member-gene edges; the
+        union edge-lines (which mix both sides) must NOT be cliqued.
+        """
+        cp, hg = self._id("cellphonedb"), self._id("hgnc")
+        with tempfile.TemporaryDirectory() as d:
+            tmp = Path(d)
+            self._write(tmp, "hgnc_sorted.1.index.gz", [
+                f'HGNC:15472\t{hg}\t{{"symbols":["ALDH1A2"]}}\t-1',
+                f'HGNC:9866\t{hg}\t{{"symbols":["RARG"]}}\t-1',
+                f'HGNC:10479\t{hg}\t{{"symbols":["RXRG"]}}\t-1',
+            ])
+            prop = ('{"partner_a":"lig","partner_b":"rec",'
+                    '"directionality":"Ligand-Receptor",'
+                    '"genes_a":["ALDH1A2"],"genes_b":["RARG","RXRG"]}')
+            # the union edge-lines carry BOTH sides' members (no per-side info)
+            self._write(tmp, "cellphonedb_sorted.1.index.gz", [
+                f"CPI-1\t{cp}\tHGNC:15472\t{hg}",
+                f"CPI-1\t{cp}\tHGNC:9866\t{hg}",
+                f"CPI-1\t{cp}\tHGNC:10479\t{hg}",
+                f"CPI-1\t{cp}\t{prop}\t-1",
+            ])
+            out = tmp / "r.tsv"
+            stats = build_reified_edges(
+                tmp, self.reg, self.cats, self.pm, out, datasets=["cellphonedb"],
+            )
+            edges = {(r.split("\t")[1], r.split("\t")[3])
+                     for r in out.read_text().splitlines()[1:]}
+            self.assertEqual(stats.edges_written, 2)  # 1 x 2, NOT a 3-node clique
+            self.assertEqual(edges, {
+                ("HGNC:15472", "HGNC:9866"),
+                ("HGNC:15472", "HGNC:10479"),
+            })
+            # the two receptor members must not be wired to each other
+            self.assertNotIn(("HGNC:9866", "HGNC:10479"), edges)
+            for _id, s, p, o, *_ in (
+                l.split("\t") for l in out.read_text().splitlines()[1:]
+            ):
+                self.assertEqual(p, "biolink:interacts_with")
+
     def test_star_similarity_no_clique(self):
         """diamond: query -> each hit; never hit<->hit, never self."""
         dia, up = self._id("diamond_similarity"), self._id("uniprot")
@@ -205,6 +247,52 @@ class BuildReifiedTests(unittest.TestCase):
             self.assertEqual(s, "HGNC:1")  # ensembl gene canonicalized
             self.assertEqual(o, "UBERON:0000955")
             self.assertEqual(p, "biolink:expressed_in")
+
+    def test_bipartite_fantom5_promoter_gene_to_tissue(self):
+        """FANTOM5 promoter: gene(hgnc)->tissue(uberon) expression.
+
+        The promoter entry also links a cell type (cl) and the gene's other
+        namespaces (ensembl/entrez/taxonomy); only the hgnc->uberon edge is
+        emitted. The CAGE-peak region id itself is never a node endpoint.
+        """
+        fp = self._id("fantom5_promoter")
+        hg, en, ub, cl, tx = (self._id("hgnc"), self._id("ensembl"),
+                              self._id("uberon"), self._id("cl"), self._id("taxonomy"))
+        with tempfile.TemporaryDirectory() as d:
+            tmp = Path(d)
+            # one promoter entry (id "1") annotated to gene HGNC:42092, expressed
+            # in two tissues + one cell type; the property line is the CAGE peak.
+            self._write(tmp, "fantom5_promoter_sorted.1.index.gz", [
+                f"1\t{fp}\tHGNC:42092\t{hg}",
+                f"1\t{fp}\tENSG00000225972\t{en}",
+                f"1\t{fp}\t9606\t{tx}",
+                f"1\t{fp}\tUBERON:0002048\t{ub}",   # lung
+                f"1\t{fp}\tUBERON:0000178\t{ub}",   # blood
+                f"1\t{fp}\tCL:0000235\t{cl}",       # macrophage (ignored: object is uberon)
+                f'1\t{fp}\t{{"fantom5_peak_id":"hg19::chr1:564571..564600,+;hg_1.1","hgnc_id":"HGNC:42092"}}\t-1',
+            ])
+            out = tmp / "r.tsv"
+            stats = build_reified_edges(
+                tmp, self.reg, self.cats, self.pm, out,
+                datasets=["fantom5_promoter"],
+            )
+            edges = {(r.split("\t")[1], r.split("\t")[2], r.split("\t")[3])
+                     for r in out.read_text().splitlines()[1:]}
+            self.assertEqual(stats.edges_written, 2)  # 1 gene x 2 tissues
+            self.assertEqual(edges, {
+                ("HGNC:42092", "biolink:expressed_in", "UBERON:0002048"),
+                ("HGNC:42092", "biolink:expressed_in", "UBERON:0000178"),
+            })
+            # cell type is not the object dataset; no cl edge
+            self.assertNotIn(
+                ("HGNC:42092", "biolink:expressed_in", "CL:0000235"), edges)
+            # the CAGE-peak region id is never an endpoint
+            endpoints = {e[0] for e in edges} | {e[2] for e in edges}
+            self.assertNotIn("hg19::chr1:564571..564600,+;hg_1.1", endpoints)
+
+    def test_fantom5_enhancer_not_authored(self):
+        """fantom5_enhancer is intentionally NOT a reified rule (deferred)."""
+        self.assertIsNone(self.pm.reified_rule("fantom5_enhancer"))
 
 
 if __name__ == "__main__":

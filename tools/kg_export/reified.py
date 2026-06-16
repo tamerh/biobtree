@@ -223,6 +223,33 @@ def _emit_group(group, rule, registry, categories, canonical, primary,
             a_raw, b_raw = d.get(rule.subject_field), d.get(rule.object_field)
             if not a_raw or not b_raw:
                 continue
+            if rule.cross:
+                # subject_field/object_field are LISTS of member symbols (complexes);
+                # emit the faithful all-pairs cross-product, resolving each symbol.
+                a_ids, b_ids = [], []
+                for s in a_raw:
+                    rid = symbol_map.get(str(s)) if symbol_map is not None else str(s)
+                    c = canonical(rule.partner, rid) if rid else None
+                    if c and c not in a_ids:
+                        a_ids.append(c)
+                for s in b_raw:
+                    rid = symbol_map.get(str(s)) if symbol_map is not None else str(s)
+                    c = canonical(rule.partner, rid) if rid else None
+                    if c and c not in b_ids:
+                        b_ids.append(c)
+                if len(a_ids) * len(b_ids) > max_edges_per_group:
+                    stats.oversized_groups += 1
+                    continue
+                emitted = set()
+                for a in a_ids:
+                    for b in b_ids:
+                        if (a, b) in emitted:
+                            continue
+                        emitted.add((a, b))
+                        row = edge(a, b)
+                        if row:
+                            yield row
+                continue
             if symbol_map is not None:  # field values are gene symbols
                 a_id, b_id = symbol_map.get(str(a_raw)), symbol_map.get(str(b_raw))
                 if not a_id or not b_id:

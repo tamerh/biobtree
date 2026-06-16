@@ -130,3 +130,14 @@ reified:
   bgee:         {kind: bipartite, subject: ensembl, object: uberon, predicate: "biolink:expressed_in"}
   scxa:         {kind: bipartite, subject: ensembl, object: uberon, predicate: "biolink:expressed_in"}
   fantom5_gene: {kind: bipartite, subject: hgnc, object: uberon, predicate: "biolink:expressed_in"}
+
+  # --- Gene -> disease (curated/association layers; intermediate links gene+disease)
+  gencc:                 {kind: bipartite, subject: hgnc, object: mondo, predicate: "biolink:gene_associated_with_condition", note: "GenCC gene-disease validity"}
+  gwas:                  {kind: bipartite, subject: hgnc, object: mondo, predicate: "biolink:associated_with", note: "GWAS gene-trait"}
+  intogen:               {kind: bipartite, subject: hgnc, object: mondo, predicate: "biolink:gene_associated_with_condition", note: "intOGen cancer driver"}
+  clingen_gene_validity: {kind: bipartite, subject: hgnc, object: mondo, predicate: "biolink:gene_associated_with_condition"}
+  clingen_variant:       {kind: bipartite, subject: hgnc, object: mondo, predicate: "biolink:gene_associated_with_condition"}
+  clingen_dosage:        {kind: bipartite, subject: hgnc, object: mondo, predicate: "biolink:gene_associated_with_condition", note: "dosage sensitivity"}
+
+  # --- Drug -> target (mechanism of action) ---------------------------------
+  chembl_mechanism:      {kind: bipartite, subject: chembl_molecule, object: uniprot, predicate: "biolink:affects", note: "ChEMBL MoA drug->target"}

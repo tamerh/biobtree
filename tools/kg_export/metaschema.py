@@ -155,6 +155,87 @@ lay('dagre-LR');
         f.write(html.replace("__ELEMENTS__", elements))
 
 
+def render_explorer(triples, out_html):
+    """Combined viewer: Graph (edges revealed on node click) + Matrix grid."""
+    import json
+    def nid(c):
+        return c.split(":")[1]
+    cats = sorted({c for (s, _, o) in triples for c in (s, o)})
+    color = {nid(c): _PALETTE[i % len(_PALETTE)] for i, c in enumerate(cats)}
+    nodes = [{"data": {"id": nid(c), "label": nid(c), "color": color[nid(c)]}} for c in cats]
+    edges = []
+    for (s, p, o), ds in sorted(triples.items()):
+        pl = p.split(":")[1]
+        edges.append({"data": {"id": f"{nid(s)}|{pl}|{nid(o)}", "source": nid(s),
+                                "target": nid(o), "label": pl, "n": len(ds)}})
+    payload = json.dumps({"nodes": nodes, "edges": edges, "cats": [nid(c) for c in cats],
+                          "colors": color})
+    tmpl = r"""<!doctype html><html><head><meta charset='utf-8'>
+<script src='https://unpkg.com/cytoscape@3.28.1/dist/cytoscape.min.js'></script>
+<script src='https://unpkg.com/dagre@0.8.5/dist/dagre.min.js'></script>
+<script src='https://unpkg.com/cytoscape-dagre@2.5.0/cytoscape-dagre.js'></script>
+<style>html,body{margin:0;height:100%;font-family:sans-serif;font-size:13px}
+#bar{height:42px;display:flex;gap:6px;align-items:center;padding:0 10px;border-bottom:1px solid #ddd;flex-wrap:wrap}
+button{padding:4px 9px;cursor:pointer}.on{background:#e15759;color:#fff}
+#cy{width:100%;height:calc(100% - 42px);background:#fafafa}
+#matrix{height:calc(100% - 42px);overflow:auto;padding:10px;display:none}
+table{border-collapse:collapse}td,th{border:1px solid #eee;padding:2px 5px;font-size:11px;text-align:center}
+th.rot{height:120px;white-space:nowrap}th.rot div{transform:rotate(-60deg);width:18px}
+td.rh{text-align:right;font-weight:bold;white-space:nowrap}
+td.cell{cursor:default}.muted{color:#bbb}</style></head>
+<body><div id='bar'>
+<b>BioBTree KG schema</b>
+<button id='bG' class='on' onclick="view('g')">Graph</button>
+<button id='bM' onclick="view('m')">Matrix</button>
+<span id='gc'>| layout:
+<button onclick="lay('dagre-LR')">Layered&rarr;</button>
+<button onclick="lay('concentric')">Hubs</button>
+<button onclick="lay('cose')">Force</button>
+| edges:
+<button id='eC' class='on' onclick="emode('click')">on click</button>
+<button id='eA' onclick="emode('all')">show all</button>
+<span style='color:#888'>&nbsp;click a node to reveal its connections; bg to reset</span></span>
+</div>
+<div id='cy'></div><div id='matrix'></div>
+<script>
+var D=__PAYLOAD__;
+var cy=cytoscape({container:document.getElementById('cy'),elements:{nodes:D.nodes,edges:D.edges},
+ style:[
+  {selector:'node',style:{'background-color':'data(color)','label':'data(label)','font-size':11,'text-valign':'center','color':'#111','text-outline-color':'#fff','text-outline-width':2,'width':40,'height':40}},
+  {selector:'edge',style:{'label':'data(label)','font-size':8,'color':'#555','curve-style':'bezier','target-arrow-shape':'triangle','line-color':'#bbb','target-arrow-color':'#bbb','width':1.2,'text-rotation':'autorotate','text-background-color':'#fff','text-background-opacity':0.85}},
+  {selector:'edge.hidden',style:{'display':'none'}},
+  {selector:'.faded',style:{'opacity':0.12}},
+  {selector:'.hi',style:{'line-color':'#e15759','target-arrow-color':'#e15759','width':2.6,'color':'#900'}}
+ ]});
+var EMODE='click';
+function lay(name){var o={name:'cose'};
+ if(name=='dagre-LR')o={name:'dagre',rankDir:'LR',nodeSep:38,rankSep:150};
+ if(name=='concentric')o={name:'concentric',concentric:function(n){return n.degree()},levelWidth:function(){return 2},minNodeSpacing:45};
+ cy.layout(o).run();}
+function emode(m){EMODE=m;document.getElementById('eC').className=m=='click'?'on':'';document.getElementById('eA').className=m=='all'?'on':'';
+ if(m=='all'){cy.edges().removeClass('hidden');cy.elements().removeClass('faded hi');}
+ else{cy.edges().addClass('hidden');cy.elements().removeClass('faded hi');}}
+cy.on('tap','node',function(e){if(EMODE!='click')return;var n=e.target;
+ cy.edges().addClass('hidden');cy.elements().removeClass('faded hi');
+ var ce=n.connectedEdges();ce.removeClass('hidden').addClass('hi');
+ cy.elements().addClass('faded');n.closedNeighborhood().removeClass('faded');});
+cy.on('tap',function(e){if(e.target===cy&&EMODE=='click'){cy.edges().addClass('hidden');cy.elements().removeClass('faded hi');}});
+function view(v){var g=v=='g';document.getElementById('cy').style.display=g?'block':'none';
+ document.getElementById('matrix').style.display=g?'none':'block';
+ document.getElementById('gc').style.display=g?'inline':'none';
+ document.getElementById('bG').className=g?'on':'';document.getElementById('bM').className=g?'':'on';
+ if(!g&&!document.getElementById('matrix').dataset.built){buildMatrix();}}
+function buildMatrix(){var m={};D.edges.forEach(function(e){var k=e.data.source+'>'+e.data.target;(m[k]=m[k]||[]).push(e.data.label);});
+ var c=D.cats,h='<table><tr><th></th>';c.forEach(function(o){h+="<th class='rot'><div>"+o+"</div></th>";});h+='</tr>';
+ c.forEach(function(s){h+="<td class='rh' style='color:"+D.colors[s]+"'>"+s+"</td>";
+  c.forEach(function(o){var v=m[s+'>'+o];if(v){h+="<td class='cell' title='"+s+' &rarr; '+o+":\n"+v.join('\n')+"' style='background:"+D.colors[s]+"33'>"+(v.length>1?v.length:'&bull;')+"</td>";}else{h+="<td class='muted'></td>";}});h+='</tr>';});
+ h+='</table>';document.getElementById('matrix').innerHTML=h;document.getElementById('matrix').dataset.built=1;}
+lay('dagre-LR');emode('click');
+</script></body></html>"""
+    with open(out_html, "w") as f:
+        f.write(tmpl.replace("__PAYLOAD__", payload))
+
+
 def print_summary(triples):
     by_subj = defaultdict(list)
     for (s, p, o), ds in triples.items():
@@ -174,12 +255,14 @@ def main():
     ap.add_argument("--out", default=None, help="pyvis HTML output path")
     ap.add_argument("--mermaid", default=None, help="Mermaid HTML output path (cleaner)")
     ap.add_argument("--cytoscape", default=None, help="Cytoscape.js interactive HTML")
+    ap.add_argument("--explorer", default=None,
+                    help="Combined Graph (edges-on-click) + Matrix explorer HTML")
     ap.add_argument("--print", action="store_true", dest="show")
     a = ap.parse_args()
     cats = CategoryMap.load(a.categories)
     preds = PredicateMap.load(a.predicates)
     triples = schema_triples(cats, preds)
-    if a.show or not (a.out or a.mermaid or a.cytoscape):
+    if a.show or not (a.out or a.mermaid or a.cytoscape or a.explorer):
         print_summary(triples)
     if a.out:
         render_html(triples, a.out)
@@ -188,6 +271,9 @@ def main():
     if a.cytoscape:
         render_cytoscape(triples, a.cytoscape)
         print(f"wrote {a.cytoscape}: {len({c for (s,_,o) in triples for c in (s,o)})} node types, {len(triples)} edges")
+    if a.explorer:
+        render_explorer(triples, a.explorer)
+        print(f"wrote {a.explorer}: {len({c for (s,_,o) in triples for c in (s,o)})} node types, {len(triples)} edges")
 
 
 if __name__ == "__main__":

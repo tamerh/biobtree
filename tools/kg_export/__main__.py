@@ -185,8 +185,9 @@ def _cmd_assemble(args: argparse.Namespace) -> int:
     out_dir = Path(args.out_dir)
     node_inputs = [s.strip() for s in args.nodes.split(",") if s.strip()]
     edge_inputs = [s.strip() for s in args.edges.split(",") if s.strip()]
-    nodes_tsv = out_dir / "nodes.tsv"
-    edges_tsv = out_dir / "edges.tsv"
+    ext = ".gz" if args.gzip else ""
+    nodes_tsv = out_dir / ("nodes.tsv" + ext)
+    edges_tsv = out_dir / ("edges.tsv" + ext)
 
     t0 = time.time()
     n_nodes = kgx.merge_nodes(node_inputs, nodes_tsv)
@@ -197,8 +198,8 @@ def _cmd_assemble(args: argparse.Namespace) -> int:
         categories = CategoryMap.load(args.categories)
         stub_info = kgx.add_stub_nodes(nodes_tsv, edges_tsv, categories)
         n_nodes += stub_info["stubs_added"]
-    kgx.nodes_to_jsonl(nodes_tsv, out_dir / "nodes.jsonl")
-    kgx.edges_to_jsonl(edges_tsv, out_dir / "edges.jsonl")
+    kgx.nodes_to_jsonl(nodes_tsv, out_dir / ("nodes.jsonl" + ext))
+    kgx.edges_to_jsonl(edges_tsv, out_dir / ("edges.jsonl" + ext))
     report = kgx.validate(nodes_tsv, edges_tsv)
     mani = kgx.manifest(nodes_tsv, edges_tsv, args.data_version, report)
     mani["edge_dedup"] = edge_dedup
@@ -294,6 +295,7 @@ def main(argv: list[str] | None = None) -> int:
     a.add_argument("--categories", default="mappings/categories.yaml")
     a.add_argument("--stub-nodes", action="store_true",
                    help="emit minimal nodes for edge endpoints lacking one")
+    a.add_argument("--gzip", action="store_true", help="gzip the final TSV/JSONL")
     a.set_defaults(func=_cmd_assemble)
 
     args = parser.parse_args(argv)

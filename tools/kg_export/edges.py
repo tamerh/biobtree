@@ -54,7 +54,7 @@ def load_id_map(path: str | Path | None) -> dict[str, str]:
     p = Path(path)
     if not p.exists():
         return id_map
-    with p.open(encoding="utf-8") as fh:
+    with kgx.xopen(p, "rt") as fh:
         header = next(fh, "")  # skip header
         for line in fh:
             member, _, canonical = line.rstrip("\n").partition("\t")
@@ -99,7 +99,7 @@ def build_edges(
         return id_map.get(curie, curie)
 
     stop = False
-    with out_path.open("w", encoding="utf-8") as out:
+    with kgx.xopen(out_path, "wt") as out:
         out.write(kgx.EDGE_HEADER + "\n")
         for path in files:
             if stop:

@@ -110,7 +110,7 @@ def build_go(
     # --- GO nodes ---------------------------------------------------------
     nodes_out = Path(nodes_out)
     nodes_out.parent.mkdir(parents=True, exist_ok=True)
-    with nodes_out.open("w", encoding="utf-8") as out:
+    with kgx.xopen(nodes_out, "wt") as out:
         out.write("id\tcategory\tname\tequivalent_identifiers\tprovided_by\n")
         for go_id, (aspect, name) in terms.items():
             curie = to_curie(GO_PREFIX, go_id)
@@ -128,7 +128,7 @@ def build_go(
 
     edges_out = Path(edges_out)
     edges_out.parent.mkdir(parents=True, exist_ok=True)
-    with edges_out.open("w", encoding="utf-8") as out:
+    with kgx.xopen(edges_out, "wt") as out:
         out.write(kgx.EDGE_HEADER + "\n")
         for src in annotation_sources:
             primary = f"infores:{src}"

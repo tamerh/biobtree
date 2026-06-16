@@ -95,7 +95,7 @@ def build_reified_edges(
         curie = to_curie(prefix, local_id)
         return id_map.get(curie, curie)
 
-    with out_path.open("w", encoding="utf-8") as out:
+    with kgx.xopen(out_path, "wt") as out:
         out.write(kgx.EDGE_HEADER + "\n")
         for ds in targets:
             rule = predicates.reified_rule(ds)

@@ -20,6 +20,7 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from . import kgx
 from .categories import CategoryMap
 from .curie import to_curie
 from .datasets import DatasetRegistry
@@ -220,10 +221,10 @@ def build_nodes(
     id_map_fh = None
     if id_map_path:
         Path(id_map_path).parent.mkdir(parents=True, exist_ok=True)
-        id_map_fh = Path(id_map_path).open("w", encoding="utf-8")
+        id_map_fh = kgx.xopen(id_map_path, "wt")
         id_map_fh.write("member\tcanonical\n")
     try:
-        with out_path.open("w", encoding="utf-8") as out:
+        with kgx.xopen(out_path, "wt") as out:
             out.write("id\tcategory\tname\tequivalent_identifiers\tprovided_by\n")
             for members in clusters.values():
                 if len(members) > 1:

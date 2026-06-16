@@ -58,6 +58,15 @@ CANONICAL_PREFIXES = {
 }
 
 
+def xopen(path, mode="rt"):
+    """Open plain or gzipped by extension (.gz -> gzip), always text/utf-8."""
+    import gzip
+    path = str(path)
+    if path.endswith(".gz"):
+        return gzip.open(path, mode, encoding="utf-8")
+    return open(path, mode, encoding="utf-8")
+
+
 def edge_id(subject: str, predicate: str, obj: str, primary: str) -> str:
     """Deterministic edge id (so reified/duplicate edges are identifiable)."""
     h = hashlib.md5(f"{subject}|{predicate}|{obj}|{primary}".encode()).hexdigest()
@@ -82,7 +91,7 @@ def format_edge(
 
 
 def _read_rows(path: Path):
-    with path.open(encoding="utf-8") as fh:
+    with xopen(path, "rt") as fh:
         header = next(fh, "").rstrip("\n")
         for line in fh:
             yield header, line.rstrip("\n")
@@ -94,7 +103,7 @@ def merge_nodes(inputs: Iterable[str | Path], out_path: str | Path) -> int:
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     n = 0
-    with out_path.open("w", encoding="utf-8") as out:
+    with xopen(out_path, "wt") as out:
         out.write(NODE_HEADER + "\n")
         for inp in inputs:
             p = Path(inp)
@@ -129,9 +138,11 @@ def merge_edges(
     """
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
+    # temp files + sort spill go next to the output (on /data), NOT /tmp (small root)
+    tmp_dir = out_path.parent
+    body = Path(str(out_path) + ".body.tmp")
 
-    # 1. concatenate bodies (no headers) to a temp file
-    body = out_path.with_suffix(".body.tmp")
+    # 1. concatenate bodies (no headers, always plain so sort can read it)
     total = 0
     with body.open("w", encoding="utf-8") as fh:
         for inp in inputs:
@@ -145,18 +156,19 @@ def merge_edges(
 
     final = body
     if dedup and total and shutil.which("sort"):
-        srt = out_path.with_suffix(".sorted.tmp")
+        srt = Path(str(out_path) + ".sorted.tmp")
         env = {**os.environ, "LC_ALL": "C"}  # byte order, deterministic + fast
         subprocess.run(
-            ["sort", "-t", "\t", "-k1,1", "-u", "-o", str(srt), str(body)],
+            ["sort", "-T", str(tmp_dir), "-t", "\t", "-k1,1", "-u",
+             "-o", str(srt), str(body)],
             check=True, env=env,
         )
         body.unlink()
         final = srt
 
-    # 2. write header + (deduped) body to the output, counting kept rows
+    # 2. write header + (deduped) body to the output (gz by extension), counting
     kept = 0
-    with out_path.open("w", encoding="utf-8") as out:
+    with xopen(out_path, "wt") as out:
         out.write(EDGE_HEADER + "\n")
         with final.open(encoding="utf-8") as fb:
             for line in fb:
@@ -169,7 +181,7 @@ def merge_edges(
 def nodes_to_jsonl(nodes_tsv: str | Path, out_path: str | Path) -> int:
     cols = NODE_HEADER.split("\t")
     n = 0
-    with Path(out_path).open("w", encoding="utf-8") as out:
+    with xopen(out_path, "wt") as out:
         for _, row in _read_rows(Path(nodes_tsv)):
             if not row:
                 continue
@@ -198,7 +210,7 @@ def nodes_to_jsonl(nodes_tsv: str | Path, out_path: str | Path) -> int:
 def edges_to_jsonl(edges_tsv: str | Path, out_path: str | Path) -> int:
     cols = EDGE_HEADER.split("\t")
     n = 0
-    with Path(out_path).open("w", encoding="utf-8") as out:
+    with xopen(out_path, "wt") as out:
         for _, row in _read_rows(Path(edges_tsv)):
             if not row:
                 continue
@@ -269,7 +281,7 @@ def add_stub_nodes(nodes_tsv: str | Path, edges_tsv: str | Path, categories) -> 
                 untyped.add(ep)
 
     by_cat: Counter = Counter()
-    with Path(nodes_tsv).open("a", encoding="utf-8") as out:
+    with xopen(nodes_tsv, "at") as out:  # gz append = new member, readers concat fine
         for nid, cat in needed.items():
             out.write(f"{nid}\t{cat}\t\t{nid}\t{AGGREGATOR}\n")
             by_cat[cat] += 1

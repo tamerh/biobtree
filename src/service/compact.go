@@ -287,6 +287,9 @@ func extractField(xref *pbuf.Xref, field string) string {
 	if a := xref.GetDepmapDependency(); a != nil {
 		return extractDepmapDependencyField(a, field)
 	}
+	if a := xref.GetGnomadConstraint(); a != nil {
+		return extractGnomadConstraintField(a, field)
+	}
 	if a := xref.GetBindingdb(); a != nil {
 		return extractBindingdbField(a, field)
 	}
@@ -1224,6 +1227,9 @@ func ExtractSourceName(xref *pbuf.Xref) string {
 	if a := xref.GetDepmapDependency(); a != nil {
 		return a.CellLineName
 	}
+	if a := xref.GetGnomadConstraint(); a != nil {
+		return a.GeneSymbol
+	}
 
 	return ""
 }
@@ -2013,6 +2019,49 @@ func extractDepmapDependencyField(a *pbuf.DepmapDependencyAttr, field string) st
 		return a.OncotreeLineage
 	case "gene_effect":
 		return fmt.Sprintf("%.3f", a.GeneEffect)
+	default:
+		return ""
+	}
+}
+
+// extractGnomadConstraintField extracts a field from GnomadConstraintAttr.
+// Metric doubles use %g and render "" when 0 (absent/skipped during parse).
+func extractGnomadConstraintField(a *pbuf.GnomadConstraintAttr, field string) string {
+	dbl := func(v float64) string {
+		if v == 0 {
+			return ""
+		}
+		return fmt.Sprintf("%g", v)
+	}
+	switch field {
+	case "gene_symbol":
+		return a.GeneSymbol
+	case "gene_id":
+		return a.GeneId
+	case "transcript":
+		return a.Transcript
+	case "pli":
+		return dbl(a.Pli)
+	case "loeuf":
+		return dbl(a.Loeuf)
+	case "oe_lof":
+		return dbl(a.OeLof)
+	case "lof_z":
+		return dbl(a.LofZ)
+	case "oe_mis":
+		return dbl(a.OeMis)
+	case "mis_z":
+		return dbl(a.MisZ)
+	case "oe_syn":
+		return dbl(a.OeSyn)
+	case "syn_z":
+		return dbl(a.SynZ)
+	case "obs_lof":
+		return fmt.Sprintf("%d", a.ObsLof)
+	case "exp_lof":
+		return dbl(a.ExpLof)
+	case "constraint_flags":
+		return a.ConstraintFlags
 	default:
 		return ""
 	}

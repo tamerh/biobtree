@@ -10,6 +10,9 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
+import shutil
+import subprocess
 from collections import defaultdict
 from pathlib import Path
 from typing import Iterable
@@ -91,22 +94,58 @@ def merge_nodes(inputs: Iterable[str | Path], out_path: str | Path) -> int:
     return n
 
 
-def merge_edges(inputs: Iterable[str | Path], out_path: str | Path) -> int:
-    """Concatenate edge TSVs (no dedup; builders dedup by construction)."""
+def merge_edges(
+    inputs: Iterable[str | Path], out_path: str | Path, dedup: bool = True
+) -> dict:
+    """Concatenate edge TSVs and (by default) dedup by edge id.
+
+    The generate/merge step that builds BioBTree's LMDB only dedups xrefs
+    *per source key*; the same logical edge arriving via different keys (e.g. one
+    protein pair across two intact entries, or a gene-protein edge via two gene
+    namespaces) is collapsed by the query SERVICE at read time, not in storage.
+    A materialized KG has no read-time layer, so we dedup here — one edge per
+    deterministic id (subject|predicate|object|primary).
+
+    Dedup is an external ``sort -u`` on the id column (disk-spilling, so it scales
+    past RAM). Returns {input, written, removed}.
+    """
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    n = 0
-    with out_path.open("w", encoding="utf-8") as out:
-        out.write(EDGE_HEADER + "\n")
+
+    # 1. concatenate bodies (no headers) to a temp file
+    body = out_path.with_suffix(".body.tmp")
+    total = 0
+    with body.open("w", encoding="utf-8") as fh:
         for inp in inputs:
             p = Path(inp)
             if not p.exists():
                 continue
             for _, row in _read_rows(p):
                 if row:
-                    out.write(row + "\n")
-                    n += 1
-    return n
+                    fh.write(row + "\n")
+                    total += 1
+
+    final = body
+    if dedup and total and shutil.which("sort"):
+        srt = out_path.with_suffix(".sorted.tmp")
+        env = {**os.environ, "LC_ALL": "C"}  # byte order, deterministic + fast
+        subprocess.run(
+            ["sort", "-t", "\t", "-k1,1", "-u", "-o", str(srt), str(body)],
+            check=True, env=env,
+        )
+        body.unlink()
+        final = srt
+
+    # 2. write header + (deduped) body to the output, counting kept rows
+    kept = 0
+    with out_path.open("w", encoding="utf-8") as out:
+        out.write(EDGE_HEADER + "\n")
+        with final.open(encoding="utf-8") as fb:
+            for line in fb:
+                out.write(line)
+                kept += 1
+    final.unlink()
+    return {"input": total, "written": kept, "removed": total - kept}
 
 
 def nodes_to_jsonl(nodes_tsv: str | Path, out_path: str | Path) -> int:

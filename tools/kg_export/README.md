@@ -82,10 +82,19 @@ infores ids** (currently `infores:<dataset>`, well-formed but unregistered) and
 register `infores:biobtree`; run the **official KGX/biolink-model-toolkit
 validator** in CI (the internal `validate()` checks dangling/CURIE/category/
 predicate/dup but isn't the full biolink check); expand node `category` to the
-full biolink **ancestor chain** (currently leaf + `biolink:NamedThing`); **dedup
-edges** by id at assemble (duplicate_edges is surfaced in validation — PPI
-legitimately repeats the same pair across experiments); numeric **qualifiers**
-(IC50/score, clinical significance, trial phase).
+full biolink **ancestor chain** (currently leaf + `biolink:NamedThing`); numeric
+**qualifiers** (IC50/score, clinical significance, trial phase).
+
+## Edge dedup at assemble
+
+The generate/merge step that builds BioBTree's LMDB dedups xrefs only *per source
+key*; the same logical edge arriving via different keys (one protein pair across
+two intact entries, a gene-protein edge via two gene namespaces) is collapsed by
+the query **service** at read time, not in storage. A materialized KG has no
+read-time layer, so `assemble` dedups by the deterministic edge id via an
+external `sort -u` (disk-spilling → scales past RAM); the count collapsed is
+reported in `manifest.edge_dedup` (real example, intact: 12.83M → 7.26M edges,
+−5.56M duplicate PPI pairs; `validation.duplicate_edges` then 0).
 
 ## Modules
 

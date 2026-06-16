@@ -32,6 +32,30 @@ class MergeTests(unittest.TestCase):
             ids = [l.split("\t")[0] for l in out.read_text().splitlines()[1:]]
             self.assertEqual(sorted(ids), ["GO:1", "HGNC:1"])
 
+    def test_merge_edges_dedup_by_id(self):
+        with tempfile.TemporaryDirectory() as d:
+            tmp = Path(d)
+            # same logical edge from two sources -> same id -> collapses to one;
+            # a different edge survives.
+            e1 = kgx.format_edge("UniProtKB:A", "biolink:physically_interacts_with",
+                                 "UniProtKB:B", "infores:intact").rstrip("\n")
+            e2 = kgx.format_edge("UniProtKB:A", "biolink:physically_interacts_with",
+                                 "UniProtKB:C", "infores:intact").rstrip("\n")
+            _write(tmp / "e1.tsv", kgx.EDGE_HEADER, [e1, e2])
+            _write(tmp / "e2.tsv", kgx.EDGE_HEADER, [e1])  # duplicate of e1
+            out = tmp / "edges.tsv"
+            res = kgx.merge_edges([tmp / "e1.tsv", tmp / "e2.tsv"], out)
+            self.assertEqual(res["input"], 3)
+            self.assertEqual(res["written"], 2)
+            self.assertEqual(res["removed"], 1)
+            _write(tmp / "nodes.tsv", kgx.NODE_HEADER, [
+                "UniProtKB:A\tbiolink:Protein\ta\tUniProtKB:A\tinfores:biobtree",
+                "UniProtKB:B\tbiolink:Protein\tb\tUniProtKB:B\tinfores:biobtree",
+                "UniProtKB:C\tbiolink:Protein\tc\tUniProtKB:C\tinfores:biobtree",
+            ])
+            r = kgx.validate(tmp / "nodes.tsv", out)
+            self.assertEqual(r["duplicate_edges"], 0)
+
 
 class ValidateTests(unittest.TestCase):
     def _kg(self, tmp, edges):

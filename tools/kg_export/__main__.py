@@ -190,11 +190,13 @@ def _cmd_assemble(args: argparse.Namespace) -> int:
 
     t0 = time.time()
     n_nodes = kgx.merge_nodes(node_inputs, nodes_tsv)
-    n_edges = kgx.merge_edges(edge_inputs, edges_tsv)
+    edge_dedup = kgx.merge_edges(edge_inputs, edges_tsv)
+    n_edges = edge_dedup["written"]
     kgx.nodes_to_jsonl(nodes_tsv, out_dir / "nodes.jsonl")
     kgx.edges_to_jsonl(edges_tsv, out_dir / "edges.jsonl")
     report = kgx.validate(nodes_tsv, edges_tsv)
     mani = kgx.manifest(nodes_tsv, edges_tsv, args.data_version, report)
+    mani["edge_dedup"] = edge_dedup
     # publish gate: stamp the dump so an invalid graph can't be mistaken for a
     # release, and exit non-zero.
     mani["status"] = "VALID" if report["ok"] else "INVALID"
@@ -202,7 +204,11 @@ def _cmd_assemble(args: argparse.Namespace) -> int:
     dt = time.time() - t0
 
     print(f"assembled KGX dump in {out_dir}  status={mani['status']}", file=sys.stderr)
-    print(f"  nodes={n_nodes:,} edges={n_edges:,}", file=sys.stderr)
+    print(
+        f"  nodes={n_nodes:,} edges={n_edges:,} "
+        f"(deduped {edge_dedup['removed']:,} of {edge_dedup['input']:,})",
+        file=sys.stderr,
+    )
     print(f"  validation={report}", file=sys.stderr)
     print(f"  node_categories={mani['node_categories']}", file=sys.stderr)
     if not report["ok"]:

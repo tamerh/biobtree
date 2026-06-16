@@ -127,8 +127,11 @@ def build_reified_edges(
             # `via`: resolve an in-entry intermediate id (e.g. a GtoPdb target)
             # to the real node (uniprot) using that dataset's forward index.
             symbol_map = None
-            if rule.kind == "pairwise" and rule.resolve == "symbol":
-                symbol_map = build_symbol_map(index_dir, registry, rule.partner)
+            if rule.resolve == "symbol":
+                # pairwise resolves both fields via `partner`; bipartite resolves
+                # the (symbol-encoded) `object` partner.
+                sym_ds = rule.partner if rule.kind == "pairwise" else rule.object
+                symbol_map = build_symbol_map(index_dir, registry, sym_ds)
             resolve_map = None
             if rule.kind == "bipartite" and rule.via:
                 resolve_map = defaultdict(list)
@@ -184,7 +187,7 @@ def _emit_group(group, rule, registry, categories, canonical, primary,
             knowledge_level=knowledge_level, agent_type=agent_type,
         )
 
-    def partners(role_dataset, exclude=None):
+    def partners(role_dataset, exclude=None, symbols=None):
         seen, uniq = set(), []
         for raw in group:
             if raw.is_property:
@@ -193,7 +196,12 @@ def _emit_group(group, rule, registry, categories, canonical, primary,
                 continue
             if exclude is not None and raw.object == exclude:
                 continue
-            c = canonical(role_dataset, raw.object)
+            val = raw.object
+            if symbols is not None:  # object is a gene symbol -> resolve to id
+                val = symbols.get(raw.object)
+                if not val:
+                    continue
+            c = canonical(role_dataset, val)
             if c and c not in seen:
                 seen.add(c)
                 uniq.append(c)
@@ -255,6 +263,8 @@ def _emit_group(group, rule, registry, categories, canonical, primary,
                     if c not in seen:
                         seen.add(c)
                         objs.append(c)
+        elif rule.resolve == "symbol":  # object partner is symbol-encoded
+            objs = partners(rule.object, symbols=symbol_map)
         else:
             objs = partners(rule.object)
         if len(subs) * len(objs) > max_edges_per_group:

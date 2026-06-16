@@ -656,6 +656,20 @@ func extractDbsnpField(a *pbuf.DbsnpAttr, field string) string {
 		return a.ClinicalSignificance
 	case "variant_type":
 		return a.VariantType
+	case "variant_class":
+		return a.VariantClass
+	case "allele_frequency":
+		if a.AlleleFrequency != 0 {
+			return fmt.Sprintf("%g", a.AlleleFrequency)
+		}
+		return ""
+	case "gnomad_frequency":
+		if a.GnomadFrequency != 0 {
+			return fmt.Sprintf("%g", a.GnomadFrequency)
+		}
+		return ""
+	case "is_common":
+		return fmt.Sprintf("%t", a.IsCommon)
 	default:
 		return ""
 	}

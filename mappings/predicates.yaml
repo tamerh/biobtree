@@ -148,6 +148,11 @@ reified:
   clingen_variant:       {kind: bipartite, subject: hgnc, object: mondo, predicate: "biolink:gene_associated_with_condition"}
   clingen_dosage:        {kind: bipartite, subject: hgnc, object: mondo, predicate: "biolink:gene_associated_with_condition", note: "dosage sensitivity"}
 
+  # --- Pharmacogenomics (PharmGKB drug entry -> associated genes) ------------
+  # pharmgkb entry is a drug (its pubchem id) linked to associated genes encoded
+  # as SYMBOLS; resolve:symbol maps the object (hgnc) symbols to ids.
+  pharmgkb: {kind: bipartite, subject: pubchem, object: hgnc, resolve: symbol, predicate: "biolink:associated_with", note: "PharmGKB drug-gene pgx"}
+
   # --- ncRNA layers (subject is the ncRNA gene) -----------------------------
   ncrna_disease:     {kind: bipartite, subject: hgnc, object: mondo, predicate: "biolink:associated_with", note: "ncRNA gene-disease"}
   ncrna_drug:        {kind: bipartite, subject: hgnc, object: chembl_molecule, predicate: "biolink:associated_with", note: "ncRNA-drug response"}

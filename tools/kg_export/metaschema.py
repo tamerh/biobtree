@@ -73,6 +73,34 @@ def render_html(triples, out_html):
     net.write_html(out_html, notebook=False, open_browser=False)
 
 
+def render_mermaid(triples, out_html):
+    """A clean left-to-right Mermaid diagram (layered, readable)."""
+    def nid(cat):
+        return cat.split(":")[1]
+    cats = sorted({c for (s, _, o) in triples for c in (s, o)})
+    lines = ["graph LR"]
+    for c in cats:
+        lines.append(f'  {nid(c)}["{nid(c)}"]')
+    for (s, p, o), ds in sorted(triples.items()):
+        lines.append(f"  {nid(s)} -->|{p.split(':')[1]}| {nid(o)}")
+    # highlight the two hubs
+    lines.append("  classDef hub fill:#e15759,stroke:#900,color:#fff;")
+    lines.append("  class Gene,Protein hub;")
+    mermaid = "\n".join(lines)
+    html = (
+        "<!doctype html><html><head><meta charset='utf-8'>"
+        "<script src='https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js'></script>"
+        "<style>body{font-family:sans-serif;margin:0} .mermaid{width:100%}</style></head>"
+        "<body><h3 style='padding:8px'>BioBTree KG schema (node type —predicate→ node type)</h3>"
+        f"<pre class='mermaid'>\n{mermaid}\n</pre>"
+        "<script>mermaid.initialize({startOnLoad:true,maxTextSize:200000,"
+        "flowchart:{useMaxWidth:false,rankSpacing:90,nodeSpacing:50}});</script>"
+        "</body></html>"
+    )
+    with open(out_html, "w") as f:
+        f.write(html)
+
+
 def print_summary(triples):
     by_subj = defaultdict(list)
     for (s, p, o), ds in triples.items():
@@ -89,17 +117,20 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--categories", default="mappings/categories.yaml")
     ap.add_argument("--predicates", default="mappings/predicates.yaml")
-    ap.add_argument("--out", default=None, help="output HTML path")
+    ap.add_argument("--out", default=None, help="pyvis HTML output path")
+    ap.add_argument("--mermaid", default=None, help="Mermaid HTML output path (cleaner)")
     ap.add_argument("--print", action="store_true", dest="show")
     a = ap.parse_args()
     cats = CategoryMap.load(a.categories)
     preds = PredicateMap.load(a.predicates)
     triples = schema_triples(cats, preds)
-    if a.show or not a.out:
+    if a.show or not (a.out or a.mermaid):
         print_summary(triples)
     if a.out:
         render_html(triples, a.out)
-        print(f"\nwrote {a.out}: {len({c for (s,_,o) in triples for c in (s,o)})} node types, {len(triples)} schema edges")
+    if a.mermaid:
+        render_mermaid(triples, a.mermaid)
+        print(f"wrote {a.mermaid}: {len({c for (s,_,o) in triples for c in (s,o)})} node types, {len(triples)} edges")
 
 
 if __name__ == "__main__":

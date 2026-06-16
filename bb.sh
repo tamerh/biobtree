@@ -162,6 +162,7 @@ DATASETS=(
     depmap
     gnomad_constraint
     ctd
+    drugcentral
     msigdb
 
     # Patents

@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "biobtree-dev": {
+      "type": "stdio",
+      "command": "/data/miniconda3/envs/biobtree/bin/python",
+      "args": ["-m", "mcp_srv", "--mode", "stdio"],
+      "env": {
+        "BIOBTREE_URL": "http://localhost:9291"
+      }
+    }
+  }
+}

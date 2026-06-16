@@ -8,7 +8,7 @@
     "changes_10.6": "Added id_filter category (12 tests): Identifier filter tests. Tests filtering by entry identifier using id field (e.g., go[id==\"GO:0005886\"]). Covers single-hop id filters (ensembl, uniprot, go, mondo, chembl_molecule, hgnc, pdb, pubchem, chebi, efo, taxonomy, interpro), multi-hop chains with multiple filters including id, and combinations of id filter with other attribute filters. Total: 758 tests.",
     "changes_10.5": "Added chembl_pchembl_sorting category (4 tests): ChEMBL activity pChembl sorting validation. Tests that chembl_activity xrefs are sorted by pChembl descending (highest binding affinity first). Also added clinical_trials_phase_sorting category (4 tests): Clinical trials phase sorting validation. Tests that clinical_trials xrefs to MONDO/ChEMBL are sorted by phase (PHASE4 first). Total: 746 tests.",
     "changes_10.4": "Added not_found_tracking category (6 tests, 16 validations): Batch query not_found tracking validation. Tests stats.queried count, stats.mapped count, and not_found array for invalid input terms in lite mode. New validation types: not_found_contains, not_found_count, stats_queried, stats_mapped. Validates explicit tracking of failed input terms in batch mapping queries. Total: 738 tests.",
-    "changes_10.3": "Added ctd_interactions category (10 tests): CTD gene interaction and disease association sub-dataset tests. Updated 10 existing tests with new CTD architecture paths (ctd→ctd_gene_interaction→entrez instead of ctd→entrez, etc.). New aggregated data model with interaction descriptions, inference genes, species sorting, and PubMed literature as xrefs. Total: 722 tests.",
+    "changes_10.3": "Added ctd_interactions category (10 tests): CTD gene interaction and disease association sub-dataset tests. Updated 10 existing tests with new CTD architecture paths (ctd\u2192ctd_gene_interaction\u2192entrez instead of ctd\u2192entrez, etc.). New aggregated data model with interaction descriptions, inference genes, species sorting, and PubMed literature as xrefs. Total: 722 tests.",
     "changes_10.2": "Added brenda_kinetics_compact category (8 tests): BRENDA enzyme kinetics compact storage validation. Tests new pipe-delimited format (value|unit|organism|conditions|pubmed_id|comment), schema field validation, organism priority sorting (Homo sapiens first), and min/max value checks. New validation types: 'contains' for substring matching, array indexing support (e.g., km_values[0]). Total: 712 tests.",
     "changes_10.1": "Added mirdb_sorting category (4 tests): miRDB microRNA target prediction sorting validation. Tests species priority sorting (human miRNAs first) and prediction score ordering for refseq reverse xrefs. Total: 704 tests.",
     "changes_10.0": "Added signor_sorting category (4 tests): SIGNOR causal interaction sorting validation. Tests species priority sorting (human interactions first), confidence score ordering, and reverse xref sorting for uniprot and chebi targets. Total: 700 tests.",
@@ -22,23 +22,23 @@
     "changes_9.2": "Added fantom5_expression category (16 tests): FANTOM5 CAGE expression data integration tests. Gene symbol/Ensembl/HGNC/Entrez/UniProt to promoter mappings, promoter to Ensembl reverse mappings, gene-level expression lookups, enhancer associations, tissue (UBERON) and cell type (CL) expression mappings, multi-hop queries (disease to promoters, promoters to drug targets, gene expression to pathways, promoters to TF networks). Total: 653 tests.",
     "changes_9.1": "Added protein_structures_pdb category (18 tests): PDB protein structure database tests. Direct PDB ID lookup, UniProt/Gene to PDB mappings, experimental method filters (X-ray, cryo-EM, NMR), resolution filters, cross-references to GO/InterPro/Pfam/Taxonomy/PubMed, and multi-hop structure analysis workflows. Total: 637 tests.",
     "changes_9.0": "Added ligand_receptor category (15 tests): CellPhoneDB cell-cell communication tests. Direct interaction ID lookup, gene symbol to interactions, UniProt/Ensembl cross-references, directionality filters (Ligand-Receptor, Adhesion-Adhesion), classification filters, receptor/secreted partner tests, and multi-hop queries for single-cell analysis workflows. Total: 619 tests.",
-    "changes_8.9": "Added protein_embedding_similarity category (15 tests): ESM2 protein embedding similarity tests. Direct UniProt ID lookup, ESM2→UniProt cross-references, multi-hop queries (Gene→ESM2→UniProt, ESM2→AlphaFold structures, ESM2→ChEMBL drug targets, ESM2→Pathways), filter tests for top_similarity and similarity_count. Total: 604 tests.",
+    "changes_8.9": "Added protein_embedding_similarity category (15 tests): ESM2 protein embedding similarity tests. Direct UniProt ID lookup, ESM2\u2192UniProt cross-references, multi-hop queries (Gene\u2192ESM2\u2192UniProt, ESM2\u2192AlphaFold structures, ESM2\u2192ChEMBL drug targets, ESM2\u2192Pathways), filter tests for top_similarity and similarity_count. Total: 604 tests.",
     "changes_8.6": "Added protein_complexes category (12 tests): CORUM mammalian protein complex tests. Includes complex ID lookup, text search by name/gene, UniProt/Entrez/GO/PubMed/Taxonomy cross-references, subunit mappings, drug target complexes, and multi-hop queries. Total: 558 tests.",
     "changes_8.5": "Added causal_signaling category (12 tests): SIGNOR causal signaling network tests. Includes direct ID lookup, entity name search, UniProt/ChEBI/DrugBank cross-references, PubMed literature, taxonomy organism filtering, mechanism filters, and multi-hop signaling pathway queries. Total: 546 tests.",
     "changes_8.4": "Added transcription_regulation category (10 tests): CollecTRI TF-target gene regulatory network tests. Includes TF/target gene lookups, HGNC/Ensembl cross-references, PubMed literature links, and multi-hop regulatory network queries. Total: 534 tests.",
-    "changes_8.3": "Added human_gene_xrefs category (12 tests): tests for addHumanGeneXrefs migration (gene symbol → HGNC → human datasets). Verifies ClinVar, dbSNP, GWAS, HPO, Orphanet mappings go through HGNC for human-only results. Total: 524 tests.",
-    "changes_8.2": "Added SCXA single-cell expression tests (CL→scxa_gene_experiment, Gene→scxa_gene_experiment) and CellxGene celltype tests (CL/UBERON/MONDO→cellxgene_celltype). Total: 469 tests.",
+    "changes_8.3": "Added human_gene_xrefs category (12 tests): tests for addHumanGeneXrefs migration (gene symbol \u2192 HGNC \u2192 human datasets). Verifies ClinVar, dbSNP, GWAS, HPO, Orphanet mappings go through HGNC for human-only results. Total: 524 tests.",
+    "changes_8.2": "Added SCXA single-cell expression tests (CL\u2192scxa_gene_experiment, Gene\u2192scxa_gene_experiment) and CellxGene celltype tests (CL/UBERON/MONDO\u2192cellxgene_celltype). Total: 469 tests.",
     "changes_8.1": "Added advanced_multihop_pipelines category with 11 novel multi-hop queries (4-8 hops): BioGRID interaction to pathways, metabolite to rare disease genes, cell type to BioGRID/drugs/clinical trials, tissue to lipid pathways, phenotype to interaction network/clinical trials, pathway to diseases via ClinVar, Orphanet to ChEMBL/PubChem. Total: 459 tests.",
-    "changes_7.0": "Added tests for all 2026-02-04 fixes: BUG-018 (PharmGKB variant→clinical), BUG-020 (ClinVar→dbSNP), BUG-021 (RNACentral text search). Added rare_diseases category (Orphanet, MIM). Added metabolomics category (HMDB). Updated BUG-011/012/016 from known_issues to fixed. Added HPO alternative paths (orphanet, mim, hmdb).",
-    "changes_6.0": "Fixed BUG-014/015: MSigDB↔GO and MSigDB↔HPO bidirectional mappings. Fixed HGNC ID resolution (HGNC:#### vs gene symbol). Added MSigDB gene_sets test category.",
-    "changes_5.9": "Fixed BUG-013: UniProt↔BindingDB mapping now works. Parser extracts UniProt IDs from numbered chain columns (Chain 1-50).",
-    "changes_5.8": "Added HPO disease mapping tests (HPO↔OMIM, HPO↔Orphanet from phenotype.hpoa integration)",
+    "changes_7.0": "Added tests for all 2026-02-04 fixes: BUG-018 (PharmGKB variant\u2192clinical), BUG-020 (ClinVar\u2192dbSNP), BUG-021 (RNACentral text search). Added rare_diseases category (Orphanet, MIM). Added metabolomics category (HMDB). Updated BUG-011/012/016 from known_issues to fixed. Added HPO alternative paths (orphanet, mim, hmdb).",
+    "changes_6.0": "Fixed BUG-014/015: MSigDB\u2194GO and MSigDB\u2194HPO bidirectional mappings. Fixed HGNC ID resolution (HGNC:#### vs gene symbol). Added MSigDB gene_sets test category.",
+    "changes_5.9": "Fixed BUG-013: UniProt\u2194BindingDB mapping now works. Parser extracts UniProt IDs from numbered chain columns (Chain 1-50).",
+    "changes_5.8": "Added HPO disease mapping tests (HPO\u2194OMIM, HPO\u2194Orphanet from phenotype.hpoa integration)",
     "changes_5.7": "Fixed filter tests with .0 suffix for floats. Added AlphaFold, Bgee, PubChem Lipinski, GWAS pvalue_mlog, Clinical Trials filters",
     "changes_5.6": "Added comprehensive filter tests for PubChem, ChEMBL, ClinVar, AlphaMissense, PharmGKB, GenCC, GWAS, GO, UniProt, InterPro, Antibody datasets",
     "changes_5.5": "Added MeSH bridge CTD tests, Reactome to Ensembl, CellXGene reverse mappings, clinical trials high-count, MeSH breast cancer hierarchy",
     "changes_8.0": "Added 50 new tests from multi-agent discovery session 2: patent_ip (4), clinical_trials_deep (3), rare_disease_deep (8), cell_type_biology (7), reverse_drug (4), ultra_long_chains (3), interpro_domain (4), gene_set_advanced (8), evidence_triangulation (3), metabolomics (7). New categories: patent_ip, clinical_trials_deep, rare_disease_deep, cell_type_biology, reverse_drug, ultra_long_chains, interpro_domain, gene_set_advanced, evidence_triangulation. Total: 448 tests.",
     "changes_8.7": "Added enzyme_biochemistry category (19 tests): BRENDA enzyme database integration tests. EC number lookups, kinetic parameters (Km, kcat) via brenda_kinetics, inhibitor data (Ki, IC50) via brenda_inhibitor, PubMed literature links, text search by enzyme/substrate/inhibitor names, and multi-hop queries for enzyme-centric analysis. Total: 577 tests.",
-    "changes_8.8": "Added UniProt↔BRENDA bidirectional mapping tests (12 tests): protein to EC classification, gene to EC via UniProt, EC to proteins/structures/domains/pathways/drug targets/clinical variants. Leverages UniProt xrefs to BRENDA for multi-hop enzyme-centric queries. Total: 589 tests."
+    "changes_8.8": "Added UniProt\u2194BRENDA bidirectional mapping tests (12 tests): protein to EC classification, gene to EC via UniProt, EC to proteins/structures/domains/pathways/drug targets/clinical variants. Leverages UniProt xrefs to BRENDA for multi-hop enzyme-centric queries. Total: 589 tests."
   },
   "test_categories": {
     "gene_mapping": "Gene symbol/ID to various resources (proteins, transcripts, GO terms)",
@@ -81,7 +81,7 @@
     "evidence_triangulation": "Evidence triangulation and multi-database integration patterns",
     "ctd_interactions": "CTD chemical-gene interactions and chemical-disease associations. Sub-datasets with aggregated interaction descriptions, inference genes, species sorting, and PubMed literature links.",
     "advanced_multihop_pipelines": "Advanced multi-hop pipelines (4-8 hops): BioGRID network to pathways, metabolite to rare disease, cell type to drugs/interactions, phenotype to clinical trials, Orphanet to drug candidates",
-    "human_gene_xrefs": "Human gene cross-references via HGNC: tests for addHumanGeneXrefs (gene symbol → HGNC → ClinVar/dbSNP/GWAS/HPO/Orphanet). Ensures human-only gene mappings.",
+    "human_gene_xrefs": "Human gene cross-references via HGNC: tests for addHumanGeneXrefs (gene symbol \u2192 HGNC \u2192 ClinVar/dbSNP/GWAS/HPO/Orphanet). Ensures human-only gene mappings.",
     "transcription_regulation": "Transcription factor regulatory networks (CollecTRI): TF-target gene interactions with evidence from 12+ databases, regulation direction (activation/repression), confidence levels, and PubMed literature links.",
     "causal_signaling": "Causal signaling networks (SIGNOR): 114K+ manually curated causal relationships between proteins, chemicals, and phenotypes. Regulatory effects (up/down-regulates), mechanisms (phosphorylation, binding), confidence scores, and multi-organism support (human, mouse, rat).",
     "protein_complexes": "Protein complexes (CORUM): 7,969 experimentally characterized mammalian protein complexes. Subunit composition (UniProt/Entrez), GO functional annotations, PubMed literature, organism/taxonomy, drug target associations, and multi-hop queries for complex-centric analysis.",
@@ -109,7 +109,8 @@
     "somatic_cancer": "Somatic cancer drivers and clinical evidence (CIViC + intOGen): gene drivers with oncogene/TSG role, cancer->driver-gene routes, somatic clinical evidence (disease/therapy/level), and druggability. Complements the germline-only disease->gene routes (GenCC/GWAS/ClinVar/OMIM/Orphanet).",
     "cellosaurus": "Cell-line knowledge resource (Cellosaurus, CC BY 4.0): cell lines as a connected hub - species, disease (NCIt/ORDO->orphanet/mondo), mutated genes (CC Sequence variation->hgnc/clinvar), tissue (uberon), COSMIC, ChEMBL cell line/target, literature, and CVCL hierarchy. Enables disease->cell-line-model and gene->cell-line routes.",
     "clingen_curation": "ClinGen expert curations (CC0): dosage sensitivity (haploinsufficiency/triplosensitivity per gene), gene-disease validity (evidence tier Definitive..Refuted), and variant pathogenicity (VCEP ACMG, bridged to ClinVar -> dbSNP/gene/disease).",
-    "gene_dependency_function": "Gene essentiality, dependency and cited function (DepMap CC BY 4.0 + NCBI GeneRIF public domain): per-gene CRISPR essentiality aggregate, per-cell-line dependencies bridged to Cellosaurus, and cited one-line functional claims. Powers target tractability and RAG grounding."
+    "gene_dependency_function": "Gene essentiality, dependency and cited function (DepMap CC BY 4.0 + NCBI GeneRIF public domain): per-gene CRISPR essentiality aggregate, per-cell-line dependencies bridged to Cellosaurus, and cited one-line functional claims. Powers target tractability and RAG grounding.",
+    "drugcentral_drugs": "DrugCentral approved drugs: drug->target (MOA) and regulatory approval (FDA/EMA/PMDA)"
   },
   "tests": [
     {
@@ -625,7 +626,7 @@
       "category": "chembl_drug",
       "name": "ChEMBL Molecule to PubChem (UniChem)",
       "query": ">>chembl_molecule>>pubchem",
-      "why": "ChEMBL molecule to PubChem compound via UniChem mappings - enables disease→compound queries",
+      "why": "ChEMBL molecule to PubChem compound via UniChem mappings - enables disease\u2192compound queries",
       "should_pass": [
         "CHEMBL25"
       ],
@@ -635,7 +636,7 @@
       "category": "chembl_drug",
       "name": "EFO Disease to ChEMBL to PubChem",
       "query": ">>efo>>chembl_molecule>>pubchem",
-      "why": "Disease → ChEMBL molecule → PubChem compound path for drug discovery",
+      "why": "Disease \u2192 ChEMBL molecule \u2192 PubChem compound path for drug discovery",
       "should_pass": [
         "EFO:0000685"
       ],
@@ -2508,7 +2509,7 @@
       "category": "disease_drug",
       "name": "MONDO Disease to CTD via MeSH Bridge",
       "query": ">>mondo>>mesh>>ctd_disease_association>>ctd>>pubchem",
-      "why": "Disease to compounds via MeSH→ctd_disease_association→ctd→pubchem. Updated path for new CTD architecture.",
+      "why": "Disease to compounds via MeSH\u2192ctd_disease_association\u2192ctd\u2192pubchem. Updated path for new CTD architecture.",
       "should_pass": [
         "MONDO:0005148",
         "MONDO:0005044"
@@ -2541,7 +2542,7 @@
       "category": "disease_drug",
       "name": "CTD to EFO Disease Ontology",
       "query": ">>ctd>>ctd_disease_association>>mesh>>mondo>>efo",
-      "why": "CTD chemicals map to EFO via disease associations→MeSH→MONDO→EFO. D001241=Aspirin, D000082=Acetaminophen. Updated path for new CTD architecture.",
+      "why": "CTD chemicals map to EFO via disease associations\u2192MeSH\u2192MONDO\u2192EFO. D001241=Aspirin, D000082=Acetaminophen. Updated path for new CTD architecture.",
       "should_pass": [
         "D001241",
         "D000082"
@@ -4102,7 +4103,7 @@
       "category": "toxicogenomics",
       "name": "CTD Chemical to Gene Targets",
       "query": ">>ctd>>ctd_gene_interaction>>entrez",
-      "why": "Find genes affected by chemical exposure via gene interactions. Updated path: ctd→ctd_gene_interaction→entrez",
+      "why": "Find genes affected by chemical exposure via gene interactions. Updated path: ctd\u2192ctd_gene_interaction\u2192entrez",
       "should_pass": [
         "D000082"
       ],
@@ -4122,7 +4123,7 @@
       "category": "toxicogenomics",
       "name": "Disease to Toxic Chemicals via MeSH",
       "query": ">>mesh>>ctd_disease_association>>ctd",
-      "why": "Find chemicals associated with diseases via disease associations. D001943=Breast Neoplasms. Updated path: mesh→ctd_disease_association→ctd",
+      "why": "Find chemicals associated with diseases via disease associations. D001943=Breast Neoplasms. Updated path: mesh\u2192ctd_disease_association\u2192ctd",
       "should_pass": [
         "D001943"
       ],
@@ -4392,7 +4393,7 @@
       "category": "gene_mapping",
       "name": "GenCC to HGNC Direct (BUG-016 FIXED)",
       "query": ">>gencc>>hgnc",
-      "why": "FIXED: GenCC now maps directly to HGNC via gene_curie field. BRCA1 returns 9 GenCC entries → HGNC:1100.",
+      "why": "FIXED: GenCC now maps directly to HGNC via gene_curie field. BRCA1 returns 9 GenCC entries \u2192 HGNC:1100.",
       "should_pass": [
         "BRCA1"
       ],
@@ -4414,7 +4415,7 @@
       "_comment": "=== BUG FIXES VERIFIED 2026-02-04 ==="
     },
     {
-      "_comment": "BUG-018: PharmGKB variant↔clinical, BUG-020: ClinVar→dbSNP, BUG-021: RNACentral text search"
+      "_comment": "BUG-018: PharmGKB variant\u2194clinical, BUG-020: ClinVar\u2192dbSNP, BUG-021: RNACentral text search"
     },
     {
       "_comment": "Plus new datasets: Orphanet rare diseases, MIM/OMIM, HMDB metabolites"
@@ -4456,7 +4457,7 @@
       "category": "clinical_variants",
       "name": "Disease to Pathogenic Variants with rsIDs (BUG-020 FIXED)",
       "query": ">>mondo>>clinvar>>dbsnp",
-      "why": "FIXED: Full disease→ClinVar→dbSNP pipeline. Get variant rsIDs for a disease.",
+      "why": "FIXED: Full disease\u2192ClinVar\u2192dbSNP pipeline. Get variant rsIDs for a disease.",
       "should_pass": [
         "MONDO:0007739"
       ],
@@ -4659,7 +4660,7 @@
       "category": "rare_diseases",
       "name": "Rare Disease Gene Discovery Pipeline",
       "query": ">>mondo>>orphanet>>ensembl",
-      "why": "Full pipeline: disease → rare disease classification → associated genes. MONDO:0007947 (Marfan) maps to orphanet subtypes 284963/558, subtype 284963 has ensembl gene FBN1.",
+      "why": "Full pipeline: disease \u2192 rare disease classification \u2192 associated genes. MONDO:0007947 (Marfan) maps to orphanet subtypes 284963/558, subtype 284963 has ensembl gene FBN1.",
       "should_pass": [
         "MONDO:0007947"
       ],
@@ -4748,7 +4749,7 @@
       "category": "ontology_hierarchy",
       "name": "HPO to MONDO via ClinVar Bridge",
       "query": ">>hpo>>clinvar>>mondo",
-      "why": "Alternative to direct HPO→MONDO (limited to 579 terms). Via ClinVar returns 150+ MONDO diseases for HP:0001250.",
+      "why": "Alternative to direct HPO\u2192MONDO (limited to 579 terms). Via ClinVar returns 150+ MONDO diseases for HP:0001250.",
       "should_pass": [
         "HP:0001250"
       ],
@@ -5650,7 +5651,7 @@
       "category": "taxonomy_cross_species",
       "name": "Taxonomy to Toxicogenomics",
       "query": ">>taxonomy>>ctd_gene_interaction>>ctd",
-      "why": "Organism-specific chemical-gene data from CTD via gene interactions. Updated path: taxonomy→ctd_gene_interaction→ctd",
+      "why": "Organism-specific chemical-gene data from CTD via gene interactions. Updated path: taxonomy\u2192ctd_gene_interaction\u2192ctd",
       "should_pass": [
         "9606"
       ],
@@ -5681,7 +5682,7 @@
       "category": "taxonomy_cross_species",
       "name": "CTD Chemicals by Organism",
       "query": ">>ctd>>ctd_gene_interaction>>taxonomy",
-      "why": "Find species with toxicogenomic data for a chemical via gene interactions. Updated path: ctd→ctd_gene_interaction→taxonomy",
+      "why": "Find species with toxicogenomic data for a chemical via gene interactions. Updated path: ctd\u2192ctd_gene_interaction\u2192taxonomy",
       "should_pass": [
         "D000082"
       ],
@@ -9871,6 +9872,32 @@
       ],
       "should_fail": [
         "HP:9999999"
+      ]
+    },
+    {
+      "category": "drugcentral_drugs",
+      "name": "DrugCentral Drug Direct Lookup",
+      "query": ">>drugcentral",
+      "why": "Direct lookup of a DrugCentral drug by struct_id (amlodipine=183, alprazolam=136)",
+      "should_pass": [
+        "183",
+        "136",
+        "66"
+      ],
+      "should_fail": [
+        "INVALID_DRUG"
+      ]
+    },
+    {
+      "category": "drugcentral_drugs",
+      "name": "DrugCentral Drug to UniProt Target",
+      "query": ">>drugcentral>>uniprot",
+      "why": "Amlodipine (183) is a Ca-channel blocker; its targets include CACNA1C/CACNA1D - core drug->target edge",
+      "should_pass": [
+        "183"
+      ],
+      "should_fail": [
+        "INVALID_DRUG"
       ]
     }
   ]

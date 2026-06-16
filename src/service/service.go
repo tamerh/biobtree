@@ -211,6 +211,7 @@ func (s *Service) initWithDbDir(dbDir string) error {
 		cel.Types(&pbuf.DepmapAttr{}),
 		cel.Types(&pbuf.DepmapDependencyAttr{}),
 		cel.Types(&pbuf.GnomadConstraintAttr{}),
+		cel.Types(&pbuf.DrugcentralAttr{}),
 		cel.Types(&pbuf.CivicGeneAttr{}),
 		cel.Types(&pbuf.CivicVariantAttr{}),
 		cel.Types(&pbuf.CivicEvidenceAttr{}),
@@ -393,6 +394,8 @@ func (s *Service) initWithDbDir(dbDir string) error {
 			decls.NewIdent("depmap_dependency", decls.NewObjectType("pbuf.DepmapDependencyAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("gnomad_constraint", decls.NewObjectType("pbuf.GnomadConstraintAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("drugcentral", decls.NewObjectType("pbuf.DrugcentralAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("civic", decls.NewObjectType("pbuf.CivicGeneAttr"), nil)),
 		cel.Declarations(

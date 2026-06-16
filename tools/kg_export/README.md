@@ -28,8 +28,47 @@ Design & roadmap: [`docs/kg_export/plan.md`](../../docs/kg_export/plan.md).
   (subject→object) kinds in `predicates.yaml`. Real run (5 datasets, no
   string_interaction): 26.0M edges (intact PPI 11.1M, bgee expression 8.6M,
   chembl bioactivity 3.9M, depmap dependency 2.2M, fantom5 0.2M); depmap entrez
-  genes canonicalized to HGNC. **Next:** GO annotations (aspect-dependent) +
-  Phase 3 (JSONL, manifest, validator).
+  genes canonicalized to HGNC.
+- **Phase 2c (done):** GO annotations (aspect-dependent). GO terms typed by
+  `type` (MF→MolecularActivity, BP→BiologicalProcess, CC→CellularComponent);
+  annotation edges `enables`/`actively_involved_in`/`located_in`. Real run:
+  48,321 GO terms + 5.48M edges (uniprot+ensembl sources).
+- **Phase 3 (done):** assemble — merge partial node/edge TSVs (node dedup by id),
+  KGX JSON-Lines, lightweight structural validator (dangling-edge + CURIE +
+  predicate checks), and a `manifest.json` (counts, biolink version, data
+  version, per-category/predicate/source breakdowns).
+
+## Running a full build
+
+The builders write partial KGX files; `assemble` merges + serializes + validates.
+
+```bash
+IDX=/data/biobtree/out_prod/main/index
+# 1. nodes — IMPORTANT: cover ALL node datasets so edges resolve (no dangling).
+python -m tools.kg_export nodes  --index-dir $IDX \
+    --datasets hgnc,ensembl,entrez,uniprot,uberon,cl,cellosaurus,chebi,mondo,doid,efo,orphanet,mim,hpo,reactome,interpro,taxonomy,chembl_molecule,pubchem,hmdb,lipidmaps,swisslipids,rnacentral,msigdb,transcript \
+    --out out/kg/nodes.tsv --id-map out/kg/id_map.tsv --stats out/kg/nodes.stats.json
+# 2. edges (direct), reified, GO
+python -m tools.kg_export edges    --index-dir $IDX --id-map out/kg/id_map.tsv --out out/kg/edges_direct.tsv  --stats out/kg/edges.stats.json
+python -m tools.kg_export reified  --index-dir $IDX --id-map out/kg/id_map.tsv --out out/kg/edges_reified.tsv --stats out/kg/reified.stats.json
+python -m tools.kg_export go       --index-dir $IDX --id-map out/kg/id_map.tsv --nodes-out out/kg/go_nodes.tsv --edges-out out/kg/go_edges.tsv
+# 3. assemble
+python -m tools.kg_export assemble \
+    --nodes out/kg/nodes.tsv,out/kg/go_nodes.tsv \
+    --edges out/kg/edges_direct.tsv,out/kg/edges_reified.tsv,out/kg/go_edges.tsv \
+    --out-dir out/kg/dump --data-version <release>
+```
+
+> A partial nodes pass (e.g. hgnc-only) makes the validator report dangling
+> edges — that is expected; the nodes pass must cover every dataset that appears
+> as an edge endpoint.
+
+## Remaining / deferred edge types
+
+collectri (TF→gene; needs role disambiguation), ncrna_* (disease/interaction/
+drug), cellphonedb (ligand-receptor), gtopdb_interaction, signor direction,
+entrez>go (~119M), dbsnp>entrez (~769M). Numeric qualifiers (IC50/score, clinical
+significance, trial phase) on edges are a follow-up.
 
 ## Modules
 
@@ -43,7 +82,9 @@ Design & roadmap: [`docs/kg_export/plan.md`](../../docs/kg_export/plan.md).
 | `predicates.py` | `PredicateMap` — dataset pair → biolink predicate, from `mappings/predicates.yaml`. |
 | `edges.py` | Phase 2a: map direct xrefs → biolink edges, rewrite endpoints to canonical CURIEs → KGX `edges.tsv` + stats. |
 | `reified.py` | Phase 2b: join intermediate-entry datasets (PPI/similarity/bioactivity/expression) → reified KGX edges + stats. |
-| `__main__.py` | CLI: `python -m tools.kg_export {nodes,edges,reified} ...`. |
+| `go.py` | Phase 2c: GO term typing + aspect-dependent annotation edges. |
+| `kgx.py` | Phase 3: merge, JSON-Lines, structural validation, manifest. |
+| `__main__.py` | CLI: `python -m tools.kg_export {nodes,edges,reified,go,assemble} ...`. |
 
 ## Build nodes (CLI)
 

@@ -11,13 +11,16 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 import time
 from pathlib import Path
 
 from .categories import CategoryMap
 from .datasets import DatasetRegistry
+from . import kgx
 from .edges import build_edges, load_id_map
+from .go import build_go
 from .nodes import build_nodes
 from .predicates import PredicateMap
 from .reified import build_reified_edges
@@ -146,6 +149,63 @@ def _cmd_reified(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_go(args: argparse.Namespace) -> int:
+    registry = DatasetRegistry.load(args.conf)
+    categories = CategoryMap.load(args.categories)
+    id_map = load_id_map(args.id_map)
+    sources = tuple(d.strip() for d in args.sources.split(",") if d.strip())
+    t0 = time.time()
+    stats = build_go(
+        index_dir=args.index_dir,
+        registry=registry,
+        categories=categories,
+        nodes_out=args.nodes_out,
+        edges_out=args.edges_out,
+        id_map=id_map,
+        stats_path=args.stats,
+        annotation_sources=sources,
+    )
+    dt = time.time() - t0
+    print(f"GO nodes: {args.nodes_out}  edges: {args.edges_out}", file=sys.stderr)
+    print(
+        f"  terms={stats.terms:,} by_aspect={dict(stats.terms_by_aspect)}",
+        file=sys.stderr,
+    )
+    print(
+        f"  nodes={stats.nodes_written:,} edges={stats.edges_written:,} "
+        f"missing_aspect={stats.edges_missing_aspect:,}",
+        file=sys.stderr,
+    )
+    print(f"  by_predicate={dict(stats.by_predicate)}", file=sys.stderr)
+    print(f"  elapsed={dt:.1f}s", file=sys.stderr)
+    return 0
+
+
+def _cmd_assemble(args: argparse.Namespace) -> int:
+    out_dir = Path(args.out_dir)
+    node_inputs = [s.strip() for s in args.nodes.split(",") if s.strip()]
+    edge_inputs = [s.strip() for s in args.edges.split(",") if s.strip()]
+    nodes_tsv = out_dir / "nodes.tsv"
+    edges_tsv = out_dir / "edges.tsv"
+
+    t0 = time.time()
+    n_nodes = kgx.merge_nodes(node_inputs, nodes_tsv)
+    n_edges = kgx.merge_edges(edge_inputs, edges_tsv)
+    kgx.nodes_to_jsonl(nodes_tsv, out_dir / "nodes.jsonl")
+    kgx.edges_to_jsonl(edges_tsv, out_dir / "edges.jsonl")
+    report = kgx.validate(nodes_tsv, edges_tsv)
+    mani = kgx.manifest(nodes_tsv, edges_tsv, args.data_version, report)
+    (out_dir / "manifest.json").write_text(json.dumps(mani, indent=2))
+    dt = time.time() - t0
+
+    print(f"assembled KGX dump in {out_dir}", file=sys.stderr)
+    print(f"  nodes={n_nodes:,} edges={n_edges:,}", file=sys.stderr)
+    print(f"  validation={report}", file=sys.stderr)
+    print(f"  node_categories={mani['node_categories']}", file=sys.stderr)
+    print(f"  elapsed={dt:.1f}s", file=sys.stderr)
+    return 0 if report["ok"] else 2
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="kg_export")
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -185,6 +245,24 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--stats", default=None, help="output edge-stats JSON path")
     r.add_argument("--datasets", default=None, help="comma list to restrict")
     r.set_defaults(func=_cmd_reified)
+
+    g = sub.add_parser("go", help="build GO nodes + annotation edges")
+    g.add_argument("--index-dir", required=True, help="dir with *_sorted.*.index.gz")
+    g.add_argument("--conf", default="conf", help="dataset config dir")
+    g.add_argument("--categories", default="mappings/categories.yaml")
+    g.add_argument("--nodes-out", required=True, help="output GO nodes.tsv")
+    g.add_argument("--edges-out", required=True, help="output GO edges.tsv")
+    g.add_argument("--id-map", default=None, help="Phase 1 member->canonical map")
+    g.add_argument("--stats", default=None, help="output stats JSON path")
+    g.add_argument("--sources", default="uniprot,ensembl", help="annotation subjects")
+    g.set_defaults(func=_cmd_go)
+
+    a = sub.add_parser("assemble", help="merge -> JSONL -> validate -> manifest")
+    a.add_argument("--nodes", required=True, help="comma list of node TSVs")
+    a.add_argument("--edges", required=True, help="comma list of edge TSVs")
+    a.add_argument("--out-dir", required=True, help="output dir for the KGX dump")
+    a.add_argument("--data-version", default=None, help="biobtree data release tag")
+    a.set_defaults(func=_cmd_assemble)
 
     args = parser.parse_args(argv)
     return args.func(args)

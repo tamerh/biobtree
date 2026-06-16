@@ -67,6 +67,10 @@ direct:
   # --- Protein -> family ----------------------------------------------------
   "uniprot>interpro":  {predicate: "biolink:member_of"}
 
+  # --- ncRNA -> gene --------------------------------------------------------
+  "rnacentral>ensembl": {predicate: "biolink:gene_product_of", note: "ncRNA is the product of the gene"}
+  "rnacentral>go":      {skip: "GO aspect not resolvable in direct edges; add rnacentral as a go.py annotation source instead"}
+
   # --- Small molecule -> protein (metabolite/ligand) ------------------------
   "swisslipids>uniprot": {predicate: "biolink:interacts_with"}
   "hmdb>uniprot":      {predicate: "biolink:interacts_with"}

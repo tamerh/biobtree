@@ -2408,7 +2408,7 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)
 				xref.Attributes = &pbuf.Xref_Reactome{attr}
-			case "chembl_document", "chembl_assay", "chembl_activity", "chembl_molecule", "chembl_target", "chembl_target_component", "chembl_cell_line", "chembl_mechanism":
+			case "chembl_document", "chembl_assay", "chembl_activity", "chembl_molecule", "chembl_target", "chembl_cell_line", "chembl_mechanism":
 
 				if valPropIdx[k] > 1 {
 					finalAttr := pbuf.ChemblAttr{}

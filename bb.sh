@@ -90,7 +90,6 @@ DATASETS=(
     chembl_activity
     chembl_molecule
     chembl_target
-    chembl_target_component
     chembl_cell_line
     chembl_mechanism
 

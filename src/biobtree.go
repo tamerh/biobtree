@@ -46,7 +46,7 @@ var allDatasets = []string{"uniprot", "go", "eco", "efo", "hgnc", "chebi", "taxo
 	"interpro", "hmdb", "literature_mappings", "ensembl",
 	"uniparc", "uniref50", "uniref90", "uniref100", "my_data", "uniprot_unreviewed",
 	"ensembl_bacteria", "ensembl_fungi", "ensembl_metazoa", "ensembl_plants", "ensembl_protists",
-	"chembl_document", "chembl_assay", "chembl_activity", "chembl_molecule", "chembl_target", "chembl_target_component", "chembl_cell_line", "chembl_mechanism"}
+	"chembl_document", "chembl_assay", "chembl_activity", "chembl_molecule", "chembl_target", "chembl_cell_line", "chembl_mechanism"}
 
 func main() {
 

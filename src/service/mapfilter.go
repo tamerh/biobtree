@@ -1267,6 +1267,11 @@ func (s *Service) execCelGo(query *query.Query, targetXref *pbuf.Xref) (bool, er
 			attr.Id = id
 			evalMap["depmap_dependency"] = attr
 		}
+	case "gnomad_constraint":
+		if attr := targetXref.GetGnomadConstraint(); attr != nil {
+			attr.Id = id
+			evalMap["gnomad_constraint"] = attr
+		}
 	case "civic":
 		if attr := targetXref.GetCivic(); attr != nil {
 			attr.Id = id

@@ -3125,3 +3125,26 @@ message DepmapDependencyAttr {
   string id = 100; // transient - populated at runtime from Xref.Identifier
 }
 
+// gnomAD gene-level constraint metrics (Dataset ID: 800)
+// Germline-population counterpart to DepMap: per-gene loss-of-function /
+// missense / synonymous constraint from gnomAD v4.1 (GRCh38).
+// One record per gene (one representative transcript: MANE-select, else canonical).
+// Source: gnomad.v4.1.constraint_metrics.tsv (ODbL). Keyed by Ensembl gene id (ENSG).
+message GnomadConstraintAttr {
+  string gene_symbol = 1;          // HGNC symbol (e.g. "BRCA1")
+  string gene_id = 2;              // Ensembl gene id, no version (e.g. "ENSG00000012048")
+  string transcript = 3;          // representative transcript (ENST) the metrics are computed on
+  double pli = 4;                  // lof.pLI - probability of being loss-of-function intolerant (0-1)
+  double loeuf = 5;                // lof.oe_ci.upper - LOEUF, upper bound of o/e LoF CI (lower = more constrained)
+  double oe_lof = 6;               // lof.oe - observed/expected LoF ratio
+  double lof_z = 7;                // lof.z_score - LoF constraint z-score
+  double oe_mis = 8;               // mis.oe - observed/expected missense ratio
+  double mis_z = 9;                // mis.z_score - missense constraint z-score
+  double oe_syn = 10;              // syn.oe - observed/expected synonymous ratio
+  double syn_z = 11;               // syn.z_score - synonymous z-score
+  int32 obs_lof = 12;              // lof.obs - observed LoF variant count
+  double exp_lof = 13;             // lof.exp - expected LoF variant count
+  string constraint_flags = 14;    // QC flags (e.g. "outlier_mis"), empty/"[]" if none
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+

@@ -1028,6 +1028,20 @@
     "test_entries_count": "100",
     "bucketMethod": "alphanum"
   },
+  "gnomad_constraint": {
+    "id": "800",
+    "name": "gnomAD Constraint",
+    "textPriority": "75",
+    "path": "https://storage.googleapis.com/gcp-public-data--gnomad/release/4.1/constraint/gnomad.v4.1.constraint_metrics.tsv",
+    "aliases": "gnomAD,gnomAD constraint,pLI,LOEUF,gene constraint,loss-of-function intolerance",
+    "url": "https://gnomad.broadinstitute.org/gene/£{id}?dataset=gnomad_r4",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "gene_symbol,gene_id,transcript,pli,loeuf,oe_lof,lof_z,oe_mis,mis_z,oe_syn,syn_z,obs_lof,exp_lof,constraint_flags",
+    "compact_fields": "gene_symbol,pli,loeuf,mis_z",
+    "test_entries_count": "100",
+    "bucketMethod": "ensembl_hybrid"
+  },
   "bindingdb": {
     "id": "60",
     "name": "BindingDB",

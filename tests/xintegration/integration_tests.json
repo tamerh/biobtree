@@ -9635,6 +9635,46 @@
       ]
     },
     {
+      "category": "gene_dependency_function",
+      "name": "Gene to gnomAD constraint",
+      "query": ">>ensembl>>gnomad_constraint",
+      "why": "Germline LoF/missense intolerance (pLI/LOEUF/mis_z) for a gene",
+      "should_pass": [
+        "BRCA1",
+        "TP53",
+        "MLH1"
+      ],
+      "should_fail": [
+        "NOTREAL",
+        "FAKE123"
+      ]
+    },
+    {
+      "category": "gene_dependency_function",
+      "name": "Ensembl gene id to gnomAD constraint",
+      "query": ">>gnomad_constraint",
+      "why": "Direct ENSG lookup of constraint metrics (record keyed by Ensembl gene id)",
+      "should_pass": [
+        "ENSG00000012048"
+      ],
+      "should_fail": [
+        "ENSG00000000000"
+      ]
+    },
+    {
+      "category": "gene_dependency_function",
+      "name": "Constrained gene filter (LOEUF)",
+      "query": ">>ensembl>>gnomad_constraint[loeuf<0.35]",
+      "why": "Filter to strongly LoF-constrained genes (haploinsufficiency prioritization)",
+      "should_pass": [
+        "BRCA2",
+        "MLH1"
+      ],
+      "should_fail": [
+        "NOTREAL"
+      ]
+    },
+    {
       "category": "chembl_mechanism",
       "name": "Compound to curated mechanism of action",
       "query": ">>*>>chembl_mechanism",

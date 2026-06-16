@@ -204,6 +204,7 @@ message Xref {
     GenerifAttr generif=761;
     DepmapAttr depmap=762;
     DepmapDependencyAttr depmap_dependency=763;
+    GnomadConstraintAttr gnomad_constraint=773;
 
   }
 

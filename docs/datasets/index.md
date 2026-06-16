@@ -103,6 +103,7 @@ Disease associations, clinical variants, rare diseases.
 | generif | NCBI GeneRIF cited functional claims | [README](generif.md) |
 | depmap | DepMap CRISPR gene essentiality | [README](depmap.md) |
 | depmap_dependency | DepMap per-cell-line dependencies | [README](depmap_dependency.md) |
+| gnomad_constraint | gnomAD gene-level constraint (pLI/LOEUF/mis_z) | [README](gnomad_constraint.md) |
 | clinical_trials | ClinicalTrials.gov | [README](clinical_trials.md) |
 | pharmgkb | PharmGKB pharmacogenomics | [README](pharmgkb.md) |
 | ncrna_disease | Curated ncRNA-disease associations (LncRNADisease + HMDD) | [README](ncrna_disease.md) |

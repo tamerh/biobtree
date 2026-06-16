@@ -1003,6 +1003,12 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 		case "depmap_dependency":
 			// Processed by the depmap parser, skip standalone processing
 			break
+		case "gnomad_constraint":
+			d.wg.Add(1)
+			gc := gnomadConstraint{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go gc.update()
+			break
 		case "bindingdb":
 			d.wg.Add(1)
 			bdb := bindingdb{source: data, d: d}

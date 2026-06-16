@@ -160,6 +160,7 @@ DATASETS=(
     clingen_variant
     generif
     depmap
+    gnomad_constraint
     ctd
     msigdb
 

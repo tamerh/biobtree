@@ -57,6 +57,42 @@ class MergeTests(unittest.TestCase):
             self.assertEqual(r["duplicate_edges"], 0)
 
 
+class StubNodeTests(unittest.TestCase):
+    def test_stub_nodes_typed_from_prefix(self):
+        from tools.kg_export.categories import CategoryMap
+        cats = CategoryMap.load(
+            Path(__file__).resolve().parents[3] / "mappings" / "categories.yaml")
+        with tempfile.TemporaryDirectory() as d:
+            tmp = Path(d)
+            _write(tmp / "nodes.tsv", kgx.NODE_HEADER, [
+                "HGNC:1\tbiolink:Gene\tg\tHGNC:1\tinfores:biobtree",
+            ])
+            _write(tmp / "edges.tsv", kgx.EDGE_HEADER, [
+                # endpoints not in nodes: an ensembl gene, a protein, an untypeable id
+                kgx.format_edge("HGNC:1", "biolink:has_gene_product",
+                                "UniProtKB:P1", "infores:ensembl").rstrip("\n"),
+                kgx.format_edge("ENSEMBL:ENSG9", "biolink:expressed_in",
+                                "UBERON:1", "infores:bgee").rstrip("\n"),
+                kgx.format_edge("ENSEMBL:ENST9", "biolink:translates_to",
+                                "UniProtKB:P2", "infores:x").rstrip("\n"),
+                kgx.format_edge("JUNK:1", "biolink:related_to",
+                                "HGNC:1", "infores:x").rstrip("\n"),
+            ])
+            info = kgx.add_stub_nodes(tmp / "nodes.tsv", tmp / "edges.tsv", cats)
+            nodes = {l.split("\t")[0]: l.split("\t")[1]
+                     for l in (tmp / "nodes.tsv").read_text().splitlines()[1:]}
+            self.assertEqual(nodes["UniProtKB:P1"], "biolink:Protein")
+            self.assertEqual(nodes["ENSEMBL:ENSG9"], "biolink:Gene")
+            self.assertEqual(nodes["ENSEMBL:ENST9"], "biolink:Transcript")  # pattern
+            self.assertEqual(nodes["UBERON:1"], "biolink:GrossAnatomicalStructure")
+            self.assertNotIn("JUNK:1", nodes)  # untypeable -> left dangling
+            self.assertEqual(info["untyped_endpoints"], 1)
+            # after stubs, validation has no dangling except the untyped JUNK:1
+            r = kgx.validate(tmp / "nodes.tsv", tmp / "edges.tsv")
+            self.assertEqual(r["dangling_subject_edges"], 1)  # JUNK:1 subject
+            self.assertEqual(r["dangling_object_edges"], 0)
+
+
 class ValidateTests(unittest.TestCase):
     def _kg(self, tmp, edges):
         _write(tmp / "nodes.tsv", kgx.NODE_HEADER, [

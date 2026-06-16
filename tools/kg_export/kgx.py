@@ -11,9 +11,10 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 import shutil
 import subprocess
-from collections import defaultdict
+from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Iterable
 
@@ -204,6 +205,79 @@ def edges_to_jsonl(edges_tsv: str | Path, out_path: str | Path) -> int:
             out.write(json.dumps(dict(zip(cols, row.split("\t")))) + "\n")
             n += 1
     return n
+
+
+# prefix -> category for entities referenced by edges but not built as nodes
+# (taxid-scoped genes/proteins from broader sources). Known aliases for prefixes
+# whose dataset prefix differs from how xref values arrive.
+_STUB_ALIAS = {"SLM": "biolink:SmallMolecule"}
+
+
+def _prefix_category(categories) -> dict[str, str]:
+    """Build prefix -> biolink category from the category map (drops ambiguous)."""
+    m: dict[str, str] = {}
+    ambiguous: set[str] = set()
+    for ds in categories.datasets():
+        e = categories.entry_for(ds)
+        if e.prefix in m and m[e.prefix] != e.category:
+            ambiguous.add(e.prefix)
+        m[e.prefix] = e.category
+    for p in ambiguous:  # e.g. ENSEMBL (Gene vs Transcript) -> pattern below
+        m.pop(p, None)
+    m.update(_STUB_ALIAS)
+    return m
+
+
+def _stub_category(curie: str, pmap: dict[str, str]) -> str | None:
+    prefix, _, local = curie.partition(":")
+    if prefix in pmap:
+        return pmap[prefix]
+    if prefix == "ENSEMBL":  # ambiguous: disambiguate by id pattern
+        return "biolink:Transcript" if re.search(r"T\d", local) else "biolink:Gene"
+    return None
+
+
+def add_stub_nodes(nodes_tsv: str | Path, edges_tsv: str | Path, categories) -> dict:
+    """Append a minimal node for every edge endpoint that lacks one.
+
+    Taxid-scoped sources mean some edges reference genes/proteins biobtree
+    doesn't store as nodes; a materialized KG needs a node per endpoint. Category
+    is inferred from the CURIE prefix. Endpoints whose prefix can't be typed are
+    left (and counted) — they'll still show as dangling in validate().
+    """
+    pmap = _prefix_category(categories)
+    node_ids: set[str] = set()
+    for _, row in _read_rows(Path(nodes_tsv)):
+        if row:
+            node_ids.add(row.split("\t", 1)[0])
+
+    needed: dict[str, str] = {}
+    untyped: set[str] = set()
+    for _, row in _read_rows(Path(edges_tsv)):
+        if not row:
+            continue
+        parts = row.split("\t")
+        if len(parts) < 4:
+            continue
+        for ep in (parts[1], parts[3]):  # subject, object
+            if ep in node_ids or ep in needed or ep in untyped:
+                continue
+            cat = _stub_category(ep, pmap)
+            if cat:
+                needed[ep] = cat
+            else:
+                untyped.add(ep)
+
+    by_cat: Counter = Counter()
+    with Path(nodes_tsv).open("a", encoding="utf-8") as out:
+        for nid, cat in needed.items():
+            out.write(f"{nid}\t{cat}\t\t{nid}\t{AGGREGATOR}\n")
+            by_cat[cat] += 1
+    return {
+        "stubs_added": len(needed),
+        "untyped_endpoints": len(untyped),
+        "by_category": dict(by_cat),
+    }
 
 
 def validate(nodes_tsv: str | Path, edges_tsv: str | Path) -> dict:

@@ -192,11 +192,18 @@ def _cmd_assemble(args: argparse.Namespace) -> int:
     n_nodes = kgx.merge_nodes(node_inputs, nodes_tsv)
     edge_dedup = kgx.merge_edges(edge_inputs, edges_tsv)
     n_edges = edge_dedup["written"]
+    stub_info = None
+    if args.stub_nodes:
+        categories = CategoryMap.load(args.categories)
+        stub_info = kgx.add_stub_nodes(nodes_tsv, edges_tsv, categories)
+        n_nodes += stub_info["stubs_added"]
     kgx.nodes_to_jsonl(nodes_tsv, out_dir / "nodes.jsonl")
     kgx.edges_to_jsonl(edges_tsv, out_dir / "edges.jsonl")
     report = kgx.validate(nodes_tsv, edges_tsv)
     mani = kgx.manifest(nodes_tsv, edges_tsv, args.data_version, report)
     mani["edge_dedup"] = edge_dedup
+    if stub_info is not None:
+        mani["stub_nodes"] = stub_info
     # publish gate: stamp the dump so an invalid graph can't be mistaken for a
     # release, and exit non-zero.
     mani["status"] = "VALID" if report["ok"] else "INVALID"
@@ -209,6 +216,13 @@ def _cmd_assemble(args: argparse.Namespace) -> int:
         f"(deduped {edge_dedup['removed']:,} of {edge_dedup['input']:,})",
         file=sys.stderr,
     )
+    if stub_info is not None:
+        print(
+            f"  stub_nodes={stub_info['stubs_added']:,} "
+            f"untyped_endpoints={stub_info['untyped_endpoints']:,} "
+            f"{stub_info['by_category']}",
+            file=sys.stderr,
+        )
     print(f"  validation={report}", file=sys.stderr)
     print(f"  node_categories={mani['node_categories']}", file=sys.stderr)
     if not report["ok"]:
@@ -277,6 +291,9 @@ def main(argv: list[str] | None = None) -> int:
     a.add_argument("--edges", required=True, help="comma list of edge TSVs")
     a.add_argument("--out-dir", required=True, help="output dir for the KGX dump")
     a.add_argument("--data-version", default=None, help="biobtree data release tag")
+    a.add_argument("--categories", default="mappings/categories.yaml")
+    a.add_argument("--stub-nodes", action="store_true",
+                   help="emit minimal nodes for edge endpoints lacking one")
     a.set_defaults(func=_cmd_assemble)
 
     args = parser.parse_args(argv)

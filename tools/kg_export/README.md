@@ -57,9 +57,13 @@ full run. Result on out_prod_v5:
 - `status=INVALID`: ~11% dangling edges, dominated by **ENSEMBL (5.3M) + UniProtKB
   (148k)** subjects. Root cause: biobtree's ensembl/uniprot are taxid-scoped to 16
   model organisms, but bgee/intact/GO reference more species → those endpoints
-  have no node. **Fix to reach VALID: stub-node generation** at assemble (emit a
-  minimal `id + category` node, category from the CURIE prefix, for any edge
-  endpoint missing a node) — more robust than trying to build all-species nodes.
+  have no node. Fixed with **stub-node generation** (`assemble --stub-nodes`):
+  emits a minimal `id + category` node (category from the CURIE prefix; ENSEMBL
+  disambiguated by id pattern) for any edge endpoint missing a node. Re-assembled
+  bounded dump → **`status=VALID`**: 13.3M nodes / 49.3M edges, 250,774 stubs
+  (209k Gene + 42k Protein), dangling=0, dups=0. (`non_biolink_prefixes` still
+  lists SLM/swisslipids + ~90 trypanosome `TB927.*` data-quality ids — reported,
+  not gating.)
 
 ## Running a full build
 

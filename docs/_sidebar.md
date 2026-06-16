@@ -15,6 +15,9 @@
 - Datasets
   - [All Datasets](datasets/index.md)
 
+- Knowledge Graph Export
+  - [Overview](kg_export/index.md)
+
 - Development
   - [Overview](development/index.md)
   - [Adding Datasets](development/adding-datasets.md)

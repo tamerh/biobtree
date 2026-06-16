@@ -65,9 +65,10 @@ class ReifiedCrossChunkTests(unittest.TestCase):
                 fh.write(f"I1\t{ia}\tP2\t{up}\n")
             out = tmp / "r.tsv"
             build_reified_edges(tmp, reg, cats, pm, out, datasets=["intact"])
-            rows = [tuple(l.split("\t")) for l in out.read_text().splitlines()[1:]]
+            rows = [l.split("\t") for l in out.read_text().splitlines()[1:]]
             self.assertEqual(len(rows), 1)
-            self.assertEqual((rows[0][0], rows[0][2]), ("UniProtKB:P1", "UniProtKB:P2"))
+            # cols: id, subject, predicate, object, ...
+            self.assertEqual((rows[0][1], rows[0][3]), ("UniProtKB:P1", "UniProtKB:P2"))
 
 
 if __name__ == "__main__":

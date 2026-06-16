@@ -195,13 +195,22 @@ def _cmd_assemble(args: argparse.Namespace) -> int:
     kgx.edges_to_jsonl(edges_tsv, out_dir / "edges.jsonl")
     report = kgx.validate(nodes_tsv, edges_tsv)
     mani = kgx.manifest(nodes_tsv, edges_tsv, args.data_version, report)
+    # publish gate: stamp the dump so an invalid graph can't be mistaken for a
+    # release, and exit non-zero.
+    mani["status"] = "VALID" if report["ok"] else "INVALID"
     (out_dir / "manifest.json").write_text(json.dumps(mani, indent=2))
     dt = time.time() - t0
 
-    print(f"assembled KGX dump in {out_dir}", file=sys.stderr)
+    print(f"assembled KGX dump in {out_dir}  status={mani['status']}", file=sys.stderr)
     print(f"  nodes={n_nodes:,} edges={n_edges:,}", file=sys.stderr)
     print(f"  validation={report}", file=sys.stderr)
     print(f"  node_categories={mani['node_categories']}", file=sys.stderr)
+    if not report["ok"]:
+        print(
+            "  WARNING: validation FAILED — not a publishable release. "
+            "Re-run nodes with full dataset coverage.",
+            file=sys.stderr,
+        )
     print(f"  elapsed={dt:.1f}s", file=sys.stderr)
     return 0 if report["ok"] else 2
 

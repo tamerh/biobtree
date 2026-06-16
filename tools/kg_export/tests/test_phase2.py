@@ -108,7 +108,8 @@ class BuildEdgesTests(unittest.TestCase):
             )
             rows = [tuple(l.split("\t")) for l in out.read_text().splitlines()[1:]]
 
-            edges = {(s, p, o) for s, p, o, _, _ in rows}
+            # cols: id, subject, predicate, object, primary, agg, kl, at
+            edges = {(r[1], r[2], r[3]) for r in rows}
             self.assertIn(("CLINVAR:VAR1", "biolink:is_sequence_variant_of", "HGNC:1"), edges)
             # ensembl gene rewritten to canonical HGNC:1
             self.assertIn(("HGNC:1", "biolink:has_gene_product", "UniProtKB:P1"), edges)
@@ -130,8 +131,10 @@ class BuildEdgesTests(unittest.TestCase):
             out = tmp / "edges.tsv"
             build_edges(tmp, self.reg, self.cats, self.pm, out)
             row = out.read_text().splitlines()[1].split("\t")
-            self.assertEqual(row[3], "infores:clinvar")
-            self.assertEqual(row[4], "infores:biobtree")
+            # cols: id, subject, predicate, object, primary, agg, kl, at
+            self.assertEqual(row[4], "infores:clinvar")
+            self.assertEqual(row[5], "infores:biobtree")
+            self.assertEqual(row[6], "knowledge_assertion")
 
 
 if __name__ == "__main__":

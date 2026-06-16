@@ -63,12 +63,29 @@ python -m tools.kg_export assemble \
 > edges — that is expected; the nodes pass must cover every dataset that appears
 > as an edge endpoint.
 
-## Remaining / deferred edge types
+## Edge schema (KGX)
 
-collectri (TF→gene; needs role disambiguation), ncrna_* (disease/interaction/
-drug), cellphonedb (ligand-receptor), gtopdb_interaction, signor direction,
-entrez>go (~119M), dbsnp>entrez (~769M). Numeric qualifiers (IC50/score, clinical
-significance, trial phase) on edges are a follow-up.
+`id, subject, predicate, object, primary_knowledge_source,
+aggregator_knowledge_source, knowledge_level, agent_type`. Edge `id` is a
+deterministic hash of `subject|predicate|object|primary`. Curated source edges
+are `knowledge_assertion`/`manual_agent`; similarity edges (diamond/esm2) are
+`prediction`/`automated_agent`.
+
+## Remaining / deferred
+
+Edge types: collectri (TF→gene; needs role disambiguation), ncrna_*
+(disease/interaction/drug), cellphonedb, gtopdb_interaction, **signor** (directed
+regulation — needs role/sign), entrez>go (~119M), dbsnp>entrez (~769M).
+
+Compliance follow-ups (post-review): map BioBTree datasets → **registered
+infores ids** (currently `infores:<dataset>`, well-formed but unregistered) and
+register `infores:biobtree`; run the **official KGX/biolink-model-toolkit
+validator** in CI (the internal `validate()` checks dangling/CURIE/category/
+predicate/dup but isn't the full biolink check); expand node `category` to the
+full biolink **ancestor chain** (currently leaf + `biolink:NamedThing`); **dedup
+edges** by id at assemble (duplicate_edges is surfaced in validation — PPI
+legitimately repeats the same pair across experiments); numeric **qualifiers**
+(IC50/score, clinical significance, trial phase).
 
 ## Modules
 

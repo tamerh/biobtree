@@ -39,29 +39,43 @@ class ValidateTests(unittest.TestCase):
             "HGNC:1\tbiolink:Gene\tAAA\tHGNC:1\tinfores:biobtree",
             "UniProtKB:P1\tbiolink:Protein\tp1\tUniProtKB:P1\tinfores:biobtree",
         ])
-        _write(tmp / "edges.tsv", kgx.EDGE_HEADER, edges)
+        _write(tmp / "edges.tsv", kgx.EDGE_HEADER,
+               [e.rstrip("\n") for e in edges])
 
     def test_clean(self):
         with tempfile.TemporaryDirectory() as d:
             tmp = Path(d)
             self._kg(tmp, [
-                "HGNC:1\tbiolink:has_gene_product\tUniProtKB:P1\tinfores:ensembl\tinfores:biobtree",
+                kgx.format_edge("HGNC:1", "biolink:has_gene_product",
+                                "UniProtKB:P1", "infores:ensembl"),
             ])
             r = kgx.validate(tmp / "nodes.tsv", tmp / "edges.tsv")
-            self.assertTrue(r["ok"])
+            self.assertTrue(r["ok"], r)
             self.assertEqual(r["edges"], 1)
 
     def test_dangling_and_bad_predicate(self):
         with tempfile.TemporaryDirectory() as d:
             tmp = Path(d)
             self._kg(tmp, [
-                "HGNC:1\tbiolink:has_gene_product\tUniProtKB:MISSING\tinfores:x\tinfores:biobtree",
-                "HGNC:1\trelated_to\tUniProtKB:P1\tinfores:x\tinfores:biobtree",
+                kgx.format_edge("HGNC:1", "biolink:has_gene_product",
+                                "UniProtKB:MISSING", "infores:x"),
+                kgx.format_edge("HGNC:1", "related_to", "UniProtKB:P1", "infores:x"),
             ])
             r = kgx.validate(tmp / "nodes.tsv", tmp / "edges.tsv")
             self.assertFalse(r["ok"])
             self.assertEqual(r["dangling_object_edges"], 1)
             self.assertEqual(r["bad_predicate"], 1)
+
+    def test_bad_category_detected(self):
+        with tempfile.TemporaryDirectory() as d:
+            tmp = Path(d)
+            _write(tmp / "nodes.tsv", kgx.NODE_HEADER, [
+                "X:1\tbiolink:GeneSet\tx\tX:1\tinfores:biobtree",  # invalid class
+            ])
+            _write(tmp / "edges.tsv", kgx.EDGE_HEADER, [])
+            r = kgx.validate(tmp / "nodes.tsv", tmp / "edges.tsv")
+            self.assertEqual(r["bad_category"], 1)
+            self.assertFalse(r["ok"])
 
 
 class JsonlAndManifestTests(unittest.TestCase):
@@ -72,12 +86,19 @@ class JsonlAndManifestTests(unittest.TestCase):
                 "HGNC:1\tbiolink:Gene\tAAA\tHGNC:1|ENSEMBL:E1\tinfores:biobtree",
             ])
             _write(tmp / "edges.tsv", kgx.EDGE_HEADER, [
-                "HGNC:1\tbiolink:has_gene_product\tUniProtKB:P1\tinfores:ensembl\tinfores:biobtree",
+                kgx.format_edge("HGNC:1", "biolink:has_gene_product",
+                                "UniProtKB:P1", "infores:ensembl").rstrip("\n"),
             ])
             kgx.nodes_to_jsonl(tmp / "nodes.tsv", tmp / "nodes.jsonl")
             node = json.loads((tmp / "nodes.jsonl").read_text().splitlines()[0])
-            self.assertEqual(node["category"], ["biolink:Gene"])
+            self.assertEqual(node["category"], ["biolink:Gene", "biolink:NamedThing"])
             self.assertEqual(node["equivalent_identifiers"], ["HGNC:1", "ENSEMBL:E1"])
+
+            kgx.edges_to_jsonl(tmp / "edges.tsv", tmp / "edges.jsonl")
+            edge = json.loads((tmp / "edges.jsonl").read_text().splitlines()[0])
+            self.assertEqual(edge["subject"], "HGNC:1")
+            self.assertEqual(edge["knowledge_level"], "not_provided")
+            self.assertTrue(edge["id"].startswith("biobtree:"))
 
             m = kgx.manifest(tmp / "nodes.tsv", tmp / "edges.tsv", data_version="v5")
             self.assertEqual(m["node_count"], 1)
@@ -85,6 +106,7 @@ class JsonlAndManifestTests(unittest.TestCase):
             self.assertEqual(m["data_version"], "v5")
             self.assertEqual(m["edge_predicates"]["biolink:has_gene_product"], 1)
             self.assertEqual(m["node_categories"]["biolink:Gene"], 1)
+            self.assertIn("license", m)
 
 
 if __name__ == "__main__":

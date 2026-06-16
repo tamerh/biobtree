@@ -16,13 +16,12 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from . import kgx
 from .categories import CategoryMap
 from .curie import to_curie
 from .datasets import DatasetRegistry
 from .index import iter_index_file
 from .predicates import PredicateMap
-
-AGGREGATOR = "infores:biobtree"
 
 
 @dataclass
@@ -101,10 +100,7 @@ def build_edges(
 
     stop = False
     with out_path.open("w", encoding="utf-8") as out:
-        out.write(
-            "subject\tpredicate\tobject\tprimary_knowledge_source\t"
-            "aggregator_knowledge_source\n"
-        )
+        out.write(kgx.EDGE_HEADER + "\n")
         for path in files:
             if stop:
                 break
@@ -139,9 +135,13 @@ def build_edges(
                     subj = canonical(src_ds, raw.subject)
                     obj = canonical(obj_ds, raw.object)
 
+                # direct edges come from curated source DBs
                 out.write(
-                    f"{subj}\t{rule.predicate}\t{obj}\t"
-                    f"infores:{src_ds}\t{AGGREGATOR}\n"
+                    kgx.format_edge(
+                        subj, rule.predicate, obj, f"infores:{src_ds}",
+                        knowledge_level="knowledge_assertion",
+                        agent_type="manual_agent",
+                    )
                 )
                 stats.edges_written += 1
                 stats.by_predicate[rule.predicate] += 1

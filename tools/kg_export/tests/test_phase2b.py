@@ -77,9 +77,10 @@ class BuildReifiedTests(unittest.TestCase):
                 tmp, self.reg, self.cats, self.pm, out,
                 datasets=["intact"], stats_path=tmp / "s.json",
             )
-            rows = [tuple(l.split("\t")) for l in out.read_text().splitlines()[1:]]
+            rows = [l.split("\t") for l in out.read_text().splitlines()[1:]]
             self.assertEqual(len(rows), 1)
-            s, p, o, prim, agg = rows[0]
+            # cols: id, subject, predicate, object, primary, agg, kl, at
+            _id, s, p, o, prim = rows[0][:5]
             self.assertEqual((s, o), ("UniProtKB:P1", "UniProtKB:P2"))  # sorted
             self.assertEqual(p, "biolink:physically_interacts_with")
             self.assertEqual(prim, "infores:intact")
@@ -99,9 +100,9 @@ class BuildReifiedTests(unittest.TestCase):
             stats = build_reified_edges(
                 tmp, self.reg, self.cats, self.pm, out, datasets=["chembl_activity"],
             )
-            rows = [tuple(l.split("\t")) for l in out.read_text().splitlines()[1:]]
+            rows = [l.split("\t") for l in out.read_text().splitlines()[1:]]
             self.assertEqual(len(rows), 1)
-            s, p, o, prim, _ = rows[0]
+            _id, s, p, o = rows[0][:4]
             self.assertEqual(s, "CHEMBL.COMPOUND:CHEMBL5")
             self.assertEqual(o, "UniProtKB:P9")
             self.assertEqual(p, "biolink:interacts_with")
@@ -121,9 +122,9 @@ class BuildReifiedTests(unittest.TestCase):
                 tmp, self.reg, self.cats, self.pm, out,
                 datasets=["bgee"], id_map=id_map,
             )
-            rows = [tuple(l.split("\t")) for l in out.read_text().splitlines()[1:]]
+            rows = [l.split("\t") for l in out.read_text().splitlines()[1:]]
             self.assertEqual(len(rows), 1)
-            s, p, o, _, _ = rows[0]
+            _id, s, p, o = rows[0][:4]
             self.assertEqual(s, "HGNC:1")  # ensembl gene canonicalized
             self.assertEqual(o, "UBERON:0000955")
             self.assertEqual(p, "biolink:expressed_in")

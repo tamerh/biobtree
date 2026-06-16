@@ -24,13 +24,15 @@ from dataclasses import dataclass, field
 from itertools import combinations
 from pathlib import Path
 
+from . import kgx
 from .categories import CategoryMap
 from .curie import to_curie
 from .datasets import DatasetRegistry
 from .index import RawXref, iter_index_file
 from .predicates import PredicateMap, ReifiedRule
 
-AGGREGATOR = "infores:biobtree"
+# Similarity/homology datasets are computational predictions, not assertions.
+_PREDICTION_DATASETS = {"diamond_similarity", "esm2_similarity"}
 
 
 @dataclass
@@ -95,10 +97,7 @@ def build_reified_edges(
         return id_map.get(curie, curie)
 
     with out_path.open("w", encoding="utf-8") as out:
-        out.write(
-            "subject\tpredicate\tobject\tprimary_knowledge_source\t"
-            "aggregator_knowledge_source\n"
-        )
+        out.write(kgx.EDGE_HEADER + "\n")
         for ds in targets:
             rule = predicates.reified_rule(ds)
             if rule is None:
@@ -114,12 +113,16 @@ def build_reified_edges(
                 *(iter_index_file(f, counter) for f in files),
                 key=lambda r: r.subject,
             )
+            if ds in _PREDICTION_DATASETS:
+                kl, at = "prediction", "automated_agent"
+            else:
+                kl, at = "knowledge_assertion", "manual_agent"
             for group in _groups_by_subject(merged):
                 stats.groups += 1
                 stats.lines += len(group)
                 for row in _emit_group(
                     group, rule, registry, categories, canonical,
-                    primary, max_edges_per_group, stats,
+                    primary, max_edges_per_group, stats, kl, at,
                 ):
                     out.write(row)
                     stats.edges_written += 1
@@ -133,7 +136,7 @@ def build_reified_edges(
 
 
 def _emit_group(group, rule, registry, categories, canonical, primary,
-                max_edges_per_group, stats):
+                max_edges_per_group, stats, knowledge_level, agent_type):
     """Yield KGX edge rows for one reified entry group."""
     def partners(role_dataset: str) -> list[str]:
         out = []
@@ -164,7 +167,10 @@ def _emit_group(group, rule, registry, categories, canonical, primary,
             if a == b:
                 stats.self_loops += 1
                 continue
-            yield f"{a}\t{rule.predicate}\t{b}\t{primary}\t{AGGREGATOR}\n"
+            yield kgx.format_edge(
+                a, rule.predicate, b, primary,
+                knowledge_level=knowledge_level, agent_type=agent_type,
+            )
     else:  # bipartite
         subs = partners(rule.subject)
         objs = partners(rule.object)
@@ -176,4 +182,7 @@ def _emit_group(group, rule, registry, categories, canonical, primary,
                 if a == b:
                     stats.self_loops += 1
                     continue
-                yield f"{a}\t{rule.predicate}\t{b}\t{primary}\t{AGGREGATOR}\n"
+                yield kgx.format_edge(
+                    a, rule.predicate, b, primary,
+                    knowledge_level=knowledge_level, agent_type=agent_type,
+                )

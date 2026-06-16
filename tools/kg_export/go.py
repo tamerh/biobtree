@@ -21,6 +21,7 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from . import kgx
 from .categories import CategoryMap
 from .curie import to_curie
 from .datasets import DatasetRegistry
@@ -128,10 +129,7 @@ def build_go(
     edges_out = Path(edges_out)
     edges_out.parent.mkdir(parents=True, exist_ok=True)
     with edges_out.open("w", encoding="utf-8") as out:
-        out.write(
-            "subject\tpredicate\tobject\tprimary_knowledge_source\t"
-            "aggregator_knowledge_source\n"
-        )
+        out.write(kgx.EDGE_HEADER + "\n")
         for src in annotation_sources:
             primary = f"infores:{src}"
             for path in sorted(glob.glob(str(index_dir / f"{src}_sorted.*.index.gz"))):
@@ -150,7 +148,13 @@ def build_go(
                         continue
                     predicate = ASPECT_PREDICATE[aspect]
                     obj = to_curie(GO_PREFIX, raw.object)
-                    out.write(f"{subj}\t{predicate}\t{obj}\t{primary}\t{AGGREGATOR}\n")
+                    out.write(
+                        kgx.format_edge(
+                            subj, predicate, obj, primary,
+                            knowledge_level="knowledge_assertion",
+                            agent_type="manual_agent",
+                        )
+                    )
                     stats.edges_written += 1
                     stats.by_predicate[predicate] += 1
                     stats.by_source[src] += 1

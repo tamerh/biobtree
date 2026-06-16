@@ -8,17 +8,56 @@ manifest with counts.
 
 from __future__ import annotations
 
+import hashlib
 import json
 from collections import defaultdict
 from pathlib import Path
 from typing import Iterable
 
 NODE_HEADER = "id\tcategory\tname\tequivalent_identifiers\tprovided_by"
+# KGX edge columns: id + S/P/O + provenance + KL/AT (Translator-expected).
 EDGE_HEADER = (
-    "subject\tpredicate\tobject\tprimary_knowledge_source\t"
-    "aggregator_knowledge_source"
+    "id\tsubject\tpredicate\tobject\tprimary_knowledge_source\t"
+    "aggregator_knowledge_source\tknowledge_level\tagent_type"
 )
+AGGREGATOR = "infores:biobtree"
 BIOLINK_VERSION = "4.2.1"  # target Monarch release line; pin as needed
+
+# Leaf categories the exporter emits. Used by validate() to reject unknown
+# (e.g. invalid) categories. Keep in sync with categories.yaml + go.py.
+KNOWN_CATEGORIES = {
+    "biolink:Gene", "biolink:Protein", "biolink:Transcript", "biolink:Disease",
+    "biolink:PhenotypicFeature", "biolink:SmallMolecule", "biolink:Drug",
+    "biolink:SequenceVariant", "biolink:Pathway", "biolink:Cell",
+    "biolink:CellLine", "biolink:GrossAnatomicalStructure",
+    "biolink:OrganismTaxon", "biolink:ProteinFamily",
+    "biolink:MacromolecularComplex", "biolink:NoncodingRNAProduct",
+    "biolink:MolecularActivity", "biolink:BiologicalProcess",
+    "biolink:CellularComponent",
+}
+
+
+def edge_id(subject: str, predicate: str, obj: str, primary: str) -> str:
+    """Deterministic edge id (so reified/duplicate edges are identifiable)."""
+    h = hashlib.md5(f"{subject}|{predicate}|{obj}|{primary}".encode()).hexdigest()
+    return f"biobtree:{h[:16]}"
+
+
+def format_edge(
+    subject: str,
+    predicate: str,
+    obj: str,
+    primary: str,
+    *,
+    knowledge_level: str = "not_provided",
+    agent_type: str = "not_provided",
+) -> str:
+    """One KGX edge TSV row (trailing newline). Single source of column order."""
+    eid = edge_id(subject, predicate, obj, primary)
+    return (
+        f"{eid}\t{subject}\t{predicate}\t{obj}\t{primary}\t{AGGREGATOR}\t"
+        f"{knowledge_level}\t{agent_type}\n"
+    )
 
 
 def _read_rows(path: Path):
@@ -79,7 +118,16 @@ def nodes_to_jsonl(nodes_tsv: str | Path, out_path: str | Path) -> int:
                 continue
             vals = row.split("\t")
             d = dict(zip(cols, vals))
-            d["category"] = [d["category"]] if d.get("category") else []
+            # KGX category should be a list; include the universal root so
+            # consumers that query biolink:NamedThing match. (Full ancestor-chain
+            # expansion via biolink-model-toolkit is a follow-up.)
+            if d.get("category"):
+                cats = [d["category"]]
+                if d["category"] != "biolink:NamedThing":
+                    cats.append("biolink:NamedThing")
+                d["category"] = cats
+            else:
+                d["category"] = []
             d["equivalent_identifiers"] = (
                 d["equivalent_identifiers"].split("|")
                 if d.get("equivalent_identifiers")
@@ -103,29 +151,43 @@ def edges_to_jsonl(edges_tsv: str | Path, out_path: str | Path) -> int:
 
 
 def validate(nodes_tsv: str | Path, edges_tsv: str | Path) -> dict:
-    """Lightweight structural validation: dangling edges + basic shape checks."""
+    """Lightweight structural validation: dangling edges + shape + dup checks."""
     node_ids: set[str] = set()
     bad_node_curie = 0
+    bad_category = 0
+    duplicate_node_ids = 0
     for _, row in _read_rows(Path(nodes_tsv)):
         if not row:
             continue
-        nid = row.split("\t", 1)[0]
+        parts = row.split("\t")
+        nid = parts[0]
+        if nid in node_ids:
+            duplicate_node_ids += 1
         node_ids.add(nid)
         if ":" not in nid:
             bad_node_curie += 1
+        if len(parts) > 1 and parts[1] and parts[1] not in KNOWN_CATEGORIES:
+            bad_category += 1
 
+    # edge columns: id, subject, predicate, object, primary, agg, kl, at
     edges = 0
     dangling_subject = 0
     dangling_object = 0
     bad_predicate = 0
+    seen_edge_ids: set[str] = set()
+    duplicate_edges = 0
     for _, row in _read_rows(Path(edges_tsv)):
         if not row:
             continue
         parts = row.split("\t")
-        if len(parts) < 3:
+        if len(parts) < 4:
             continue
         edges += 1
-        subj, pred, obj = parts[0], parts[1], parts[2]
+        eid, subj, pred, obj = parts[0], parts[1], parts[2], parts[3]
+        if eid in seen_edge_ids:
+            duplicate_edges += 1
+        else:
+            seen_edge_ids.add(eid)
         if subj not in node_ids:
             dangling_subject += 1
         if obj not in node_ids:
@@ -139,11 +201,17 @@ def validate(nodes_tsv: str | Path, edges_tsv: str | Path) -> dict:
         "dangling_subject_edges": dangling_subject,
         "dangling_object_edges": dangling_object,
         "bad_node_curie": bad_node_curie,
+        "bad_category": bad_category,
         "bad_predicate": bad_predicate,
-        "ok": dangling_subject == 0
-        and dangling_object == 0
-        and bad_node_curie == 0
-        and bad_predicate == 0,
+        "duplicate_node_ids": duplicate_node_ids,
+        "duplicate_edges": duplicate_edges,
+        "ok": all(
+            v == 0
+            for v in (
+                dangling_subject, dangling_object, bad_node_curie,
+                bad_category, bad_predicate, duplicate_node_ids,
+            )
+        ),
     }
 
 
@@ -152,6 +220,7 @@ def manifest(
     edges_tsv: str | Path,
     data_version: str | None = None,
     validation: dict | None = None,
+    license: str = "https://www.gnu.org/licenses/agpl-3.0",
 ) -> dict:
     by_category: dict[str, int] = defaultdict(int)
     node_count = 0
@@ -169,18 +238,20 @@ def manifest(
         if not row:
             continue
         parts = row.split("\t")
-        if len(parts) < 4:
+        if len(parts) < 6:  # id, subject, predicate, object, primary, agg, ...
             continue
         edge_count += 1
-        by_predicate[parts[1]] += 1
-        by_source[parts[3]] += 1
+        by_predicate[parts[2]] += 1  # predicate
+        by_source[parts[4]] += 1  # primary_knowledge_source
 
     return {
         "name": "biobtree-kg",
         "data_version": data_version,
         "biolink_model_version": BIOLINK_VERSION,
+        "license": license,
+        "format": "kgx-tsv+jsonl",
         "generated_by": "tools.kg_export",
-        "knowledge_source": "infores:biobtree",
+        "knowledge_source": AGGREGATOR,
         "node_count": node_count,
         "edge_count": edge_count,
         "node_categories": dict(sorted(by_category.items(), key=lambda kv: -kv[1])),

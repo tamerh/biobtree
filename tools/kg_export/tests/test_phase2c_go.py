@@ -70,7 +70,8 @@ class GoTests(unittest.TestCase):
             self.assertEqual(nodes["GO:0008150"], "biolink:BiologicalProcess")
             self.assertEqual(nodes["GO:0005575"], "biolink:CellularComponent")
 
-            edges = {(r.split("\t")[0], r.split("\t")[1], r.split("\t")[2])
+            # cols: id, subject, predicate, object, ...
+            edges = {(r.split("\t")[1], r.split("\t")[2], r.split("\t")[3])
                      for r in e_out.read_text().splitlines()[1:]}
             self.assertIn(("UniProtKB:P1", "biolink:enables", "GO:0003674"), edges)
             self.assertIn(("UniProtKB:P1", "biolink:located_in", "GO:0005575"), edges)

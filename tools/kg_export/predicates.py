@@ -27,17 +27,25 @@ class PredicateRule:
 class ReifiedRule:
     """An intermediate-entry dataset whose entries link real entities.
 
-    kind == 'symmetric': all partners are `partner` dataset; emit undirected pairs.
-    kind == 'bipartite': entries link a `subject` partner and an `object` partner;
-        emit subject --predicate--> object.
+    kind == 'pairwise': each PROPERTY line's JSON names the real binary pair via
+        `subject_field`/`object_field` (both rendered with `partner`'s prefix).
+        Emits exactly the asserted pairs — no clique. (intact, string_interaction)
+    kind == 'star': the group key (subject) is one entity (`partner`); emit it to
+        each edge-line partner of `partner` dataset (excluding itself).
+        (diamond/esm2 similarity: query -> hits)
+    kind == 'bipartite': entries link a `subject`-role partner and an `object`-role
+        partner (by dataset); emit subject --predicate--> object. (bioactivity,
+        dependency, expression)
     """
 
     dataset: str
     kind: str
     predicate: str
-    partner: str | None = None  # symmetric
+    partner: str | None = None  # pairwise, star
     subject: str | None = None  # bipartite
     object: str | None = None  # bipartite
+    subject_field: str | None = None  # pairwise (JSON key)
+    object_field: str | None = None  # pairwise (JSON key)
     note: str | None = None
 
 
@@ -72,12 +80,18 @@ class PredicateMap:
             if not isinstance(cfg, dict):
                 raise ValueError(f"predicates.yaml reified: {ds!r} must be a mapping")
             kind = cfg.get("kind")
-            if kind not in ("symmetric", "bipartite"):
+            if kind not in ("pairwise", "star", "bipartite"):
                 raise ValueError(f"predicates.yaml reified {ds!r}: bad kind {kind!r}")
             if "predicate" not in cfg:
                 raise ValueError(f"predicates.yaml reified {ds!r}: needs 'predicate'")
-            if kind == "symmetric" and not cfg.get("partner"):
-                raise ValueError(f"predicates.yaml reified {ds!r}: symmetric needs 'partner'")
+            if kind == "pairwise" and not (
+                cfg.get("partner") and cfg.get("subject_field") and cfg.get("object_field")
+            ):
+                raise ValueError(
+                    f"predicates.yaml reified {ds!r}: pairwise needs partner+subject_field+object_field"
+                )
+            if kind == "star" and not cfg.get("partner"):
+                raise ValueError(f"predicates.yaml reified {ds!r}: star needs 'partner'")
             if kind == "bipartite" and not (cfg.get("subject") and cfg.get("object")):
                 raise ValueError(f"predicates.yaml reified {ds!r}: bipartite needs subject+object")
             reified[ds] = ReifiedRule(
@@ -87,6 +101,8 @@ class PredicateMap:
                 partner=cfg.get("partner"),
                 subject=cfg.get("subject"),
                 object=cfg.get("object"),
+                subject_field=cfg.get("subject_field"),
+                object_field=cfg.get("object_field"),
                 note=cfg.get("note"),
             )
         return cls(direct, reified)

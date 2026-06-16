@@ -21,7 +21,6 @@ import heapq
 import json
 from collections import defaultdict
 from dataclasses import dataclass, field
-from itertools import combinations
 from pathlib import Path
 
 from . import kgx
@@ -137,52 +136,74 @@ def build_reified_edges(
 
 def _emit_group(group, rule, registry, categories, canonical, primary,
                 max_edges_per_group, stats, knowledge_level, agent_type):
-    """Yield KGX edge rows for one reified entry group."""
-    def partners(role_dataset: str) -> list[str]:
-        out = []
+    """Yield KGX edge rows for one reified entry group (pairwise/star/bipartite)."""
+    def edge(a, b):
+        if not a or not b:
+            return None
+        if a == b:
+            stats.self_loops += 1
+            return None
+        return kgx.format_edge(
+            a, rule.predicate, b, primary,
+            knowledge_level=knowledge_level, agent_type=agent_type,
+        )
+
+    def partners(role_dataset, exclude=None):
+        seen, uniq = set(), []
         for raw in group:
             if raw.is_property:
                 continue
-            ds = registry.name_for_id(raw.object_dataset_id)
-            if ds == role_dataset:
-                c = canonical(ds, raw.object)
-                if c:
-                    out.append(c)
-        # de-dup, stable
-        seen = set()
-        uniq = []
-        for c in out:
-            if c not in seen:
+            if registry.name_for_id(raw.object_dataset_id) != role_dataset:
+                continue
+            if exclude is not None and raw.object == exclude:
+                continue
+            c = canonical(role_dataset, raw.object)
+            if c and c not in seen:
                 seen.add(c)
                 uniq.append(c)
         return uniq
 
-    if rule.kind == "symmetric":
-        members = partners(rule.partner)
-        n = len(members)
-        if n * (n - 1) // 2 > max_edges_per_group:  # prospective undirected pairs
+    if rule.kind == "pairwise":
+        # the real binary pairs are named in each property line's JSON; the
+        # partner SET is NOT pairwise-complete, so never clique it.
+        for raw in group:
+            if not raw.is_property:
+                continue
+            try:
+                d = json.loads(raw.object)
+            except (ValueError, TypeError):
+                continue
+            a_raw, b_raw = d.get(rule.subject_field), d.get(rule.object_field)
+            if not a_raw or not b_raw:
+                continue
+            row = edge(canonical(rule.partner, str(a_raw)),
+                       canonical(rule.partner, str(b_raw)))
+            if row:
+                yield row
+
+    elif rule.kind == "star":
+        # group key is the query entity; emit it -> each hit (never hit<->hit)
+        subj_raw = group[0].subject
+        subj = canonical(rule.partner, subj_raw)
+        if not subj:
+            return
+        objs = partners(rule.partner, exclude=subj_raw)
+        if len(objs) > max_edges_per_group:
             stats.oversized_groups += 1
             return
-        for a, b in combinations(sorted(members), 2):
-            if a == b:
-                stats.self_loops += 1
-                continue
-            yield kgx.format_edge(
-                a, rule.predicate, b, primary,
-                knowledge_level=knowledge_level, agent_type=agent_type,
-            )
+        for o in objs:
+            row = edge(subj, o)
+            if row:
+                yield row
+
     else:  # bipartite
         subs = partners(rule.subject)
         objs = partners(rule.object)
-        if len(subs) * len(objs) > max_edges_per_group:  # prospective product
+        if len(subs) * len(objs) > max_edges_per_group:
             stats.oversized_groups += 1
             return
         for a in subs:
             for b in objs:
-                if a == b:
-                    stats.self_loops += 1
-                    continue
-                yield kgx.format_edge(
-                    a, rule.predicate, b, primary,
-                    knowledge_level=knowledge_level, agent_type=agent_type,
-                )
+                row = edge(a, b)
+                if row:
+                    yield row

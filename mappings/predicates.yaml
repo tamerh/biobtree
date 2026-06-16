@@ -96,25 +96,23 @@ direct:
 
 # Reified edges (Phase 2b): an intermediate-entry dataset whose entries link the
 # real entities. Files are sorted by the entry id, so partners are joined in a
-# single streaming group-by pass.
-#   symmetric : all partners are `partner`; emit undirected pairs (deduped).
-#   bipartite : entries link a `subject` partner and an `object` partner.
-# Numeric score/affinity qualifiers (IC50 etc.) are a follow-up; edges here carry
-# the predicate + primary_knowledge_source.
+# single streaming group-by pass. Three kinds (see ReifiedRule):
+#   pairwise  : each property-line JSON names the real binary pair -> emit exactly
+#               those pairs (NO clique; the entry's partner SET is not pairwise-
+#               complete — only the asserted A_field/B_field pairs are real).
+#   star      : group key is one entity; emit it to each edge-line partner.
+#   bipartite : entries link a subject-role and object-role partner (by dataset).
+# Numeric score/affinity qualifiers (IC50, miscore, identity) are a follow-up.
 reified:
-  # --- Protein-protein interaction ------------------------------------------
-  string_interaction: {kind: symmetric, partner: uniprot, predicate: "biolink:physically_interacts_with", note: "very large (~866M partner rows)"}
-  intact:             {kind: symmetric, partner: uniprot, predicate: "biolink:physically_interacts_with"}
-  # signor DEFERRED: it is a DIRECTED, signed causal regulation source; the
-  # reified partner lines don't distinguish regulator vs target, so emitting it
-  # as symmetric interacts_with would assert wrong semantics. Re-add as a
-  # directed `regulates` edge once role/sign is extracted.
+  # --- Protein-protein interaction (pairwise: protein_a/b are the real pair) --
+  intact:             {kind: pairwise, partner: uniprot, subject_field: protein_a, object_field: protein_b, predicate: "biolink:physically_interacts_with"}
+  string_interaction: {kind: pairwise, partner: uniprot, subject_field: uniprot_a, object_field: uniprot_b, predicate: "biolink:physically_interacts_with", note: "very large (~866M rows)"}
+  # signor DEFERRED: directed/signed causal regulation; needs role+sign.
 
-  # --- Protein similarity / homology ----------------------------------------
-  # Both are sequence/embedding SIMILARITY (evidence for, not assertion of,
-  # homology) -> similar_to. Reserve homologous_to/orthologous_to for Compara.
-  diamond_similarity:  {kind: symmetric, partner: uniprot, predicate: "biolink:similar_to", note: "DIAMOND sequence similarity"}
-  esm2_similarity:     {kind: symmetric, partner: uniprot, predicate: "biolink:similar_to", note: "ESM2 embedding similarity"}
+  # --- Protein similarity (star: query -> each hit; NOT a clique) ------------
+  # Sequence/embedding SIMILARITY (evidence for, not assertion of, homology).
+  diamond_similarity:  {kind: star, partner: uniprot, predicate: "biolink:similar_to", note: "DIAMOND; query -> hits"}
+  esm2_similarity:     {kind: star, partner: uniprot, predicate: "biolink:similar_to", note: "ESM2; query -> hits"}
 
   # --- Compound -> target bioactivity ---------------------------------------
   pubchem_activity: {kind: bipartite, subject: pubchem, object: uniprot, predicate: "biolink:interacts_with"}

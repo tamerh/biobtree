@@ -52,23 +52,26 @@ class TsvSafeTests(unittest.TestCase):
 
 class ReifiedCrossChunkTests(unittest.TestCase):
     def test_subject_split_across_chunks_is_joined(self):
+        # star: a query's hits split across two chunks must group as one entry
         reg = DatasetRegistry.load(CONF_DIR)
         cats = CategoryMap.load(CATEGORIES_YAML)
         pm = PredicateMap.load(PREDICATES_YAML)
-        ia, up = reg.by_name("intact").numeric_id, reg.by_name("uniprot").numeric_id
+        dia = reg.by_name("diamond_similarity").numeric_id
+        up = reg.by_name("uniprot").numeric_id
         with tempfile.TemporaryDirectory() as d:
             tmp = Path(d)
-            # same interaction I1 split across two chunks -> must still pair P1,P2
-            with gzip.open(tmp / "intact_sorted.1.index.gz", "wt") as fh:
-                fh.write(f"I1\t{ia}\tP1\t{up}\n")
-            with gzip.open(tmp / "intact_sorted.2.index.gz", "wt") as fh:
-                fh.write(f"I1\t{ia}\tP2\t{up}\n")
+            with gzip.open(tmp / "diamond_similarity_sorted.1.index.gz", "wt") as fh:
+                fh.write(f"Q1\t{dia}\tHIT1\t{up}\n")
+            with gzip.open(tmp / "diamond_similarity_sorted.2.index.gz", "wt") as fh:
+                fh.write(f"Q1\t{dia}\tHIT2\t{up}\n")
             out = tmp / "r.tsv"
-            build_reified_edges(tmp, reg, cats, pm, out, datasets=["intact"])
-            rows = [l.split("\t") for l in out.read_text().splitlines()[1:]]
-            self.assertEqual(len(rows), 1)
-            # cols: id, subject, predicate, object, ...
-            self.assertEqual((rows[0][1], rows[0][3]), ("UniProtKB:P1", "UniProtKB:P2"))
+            build_reified_edges(tmp, reg, cats, pm, out, datasets=["diamond_similarity"])
+            edges = {(l.split("\t")[1], l.split("\t")[3])
+                     for l in out.read_text().splitlines()[1:]}
+            self.assertEqual(edges, {
+                ("UniProtKB:Q1", "UniProtKB:HIT1"),
+                ("UniProtKB:Q1", "UniProtKB:HIT2"),
+            })
 
 
 if __name__ == "__main__":

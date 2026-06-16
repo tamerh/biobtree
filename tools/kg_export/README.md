@@ -14,8 +14,11 @@ Design & roadmap: [`docs/kg_export/plan.md`](../../docs/kg_export/plan.md).
 - **Phase 1 (done):** node collection + typing + Option C normalization
   (own-clusters, gene-first) → KGX `nodes.tsv` with `equivalent_identifiers`,
   best-effort names, a merge-stats report, and an `id_map` (member→canonical).
-  Validated on real HGNC data (44,993 gene clusters, no over-merge; e.g. BRCA1 →
-  `HGNC:1100|ENSEMBL:ENSG00000012048|NCBIGene:672`).
+  Merge is **cardinality-aware**: only 1:1 identity mappings union; a many:1 xref
+  (e.g. two HGNC genes sharing one Ensembl id — SLC2A9-AS1 vs -AS3) is left
+  unmerged + counted (`ambiguous_identity_edges`), and `suspect_clusters` guards
+  that no cluster has >1 id from one namespace. e.g. BRCA1 →
+  `HGNC:1100|ENSEMBL:ENSG00000012048|NCBIGene:672`.
 - **Phase 2a (done):** direct (non-reified, non-GO) edges → KGX `edges.tsv`.
   Pair→predicate map (`mappings/predicates.yaml`) seeded from proposal §4 +
   prompts.py; endpoints rewritten to canonical CURIEs via the id_map; forward
@@ -23,12 +26,15 @@ Design & roadmap: [`docs/kg_export/plan.md`](../../docs/kg_export/plan.md).
   `related_to` catch-all). Real curated run: 33.4M edges across 14 biolink
   predicates.
 - **Phase 2b (done):** reified edges → KGX edges. Intermediate-entry datasets
-  (PPI, similarity, bioactivity, dependency, expression) joined by streaming
-  group-by on the entry id; symmetric (undirected pairs) and bipartite
-  (subject→object) kinds in `predicates.yaml`. Real run (5 datasets, no
-  string_interaction): 26.0M edges (intact PPI 11.1M, bgee expression 8.6M,
-  chembl bioactivity 3.9M, depmap dependency 2.2M, fantom5 0.2M); depmap entrez
-  genes canonicalized to HGNC.
+  joined by streaming group-by on the entry id, with three **kinds** that emit
+  only asserted edges (no clique fabrication):
+  - `pairwise` (intact, string_interaction): the real binary pair is named in
+    each property line's JSON (`protein_a`/`protein_b`) — emit exactly those.
+  - `star` (diamond/esm2 similarity): query → each hit (never hit↔hit).
+  - `bipartite` (chembl_activity, bgee, depmap, fantom5): subject-role × object-
+    role from edge lines.
+  Real intact run: **1.65M** asserted pairs (the earlier clique emitted 11.1M,
+  ~85% fabricated); depmap entrez genes canonicalized to HGNC.
 - **Phase 2c (done):** GO annotations (aspect-dependent). GO terms typed by
   `type` (MF→MolecularActivity, BP→BiologicalProcess, CC→CellularComponent);
   annotation edges `enables`/`actively_involved_in`/`located_in`. Real run:

@@ -98,6 +98,8 @@ class NodeStats:
     malformed_lines: int = 0
     multi_member_clusters: int = 0
     mixed_category_clusters: int = 0
+    ambiguous_identity_edges: int = 0  # many:1 xrefs left unmerged (over-merge guard)
+    suspect_clusters: int = 0  # clusters with >1 id from one namespace (should be 0)
     by_category: dict = field(default_factory=lambda: defaultdict(int))
     largest_clusters: list = field(default_factory=list)
 
@@ -148,6 +150,10 @@ def build_nodes(
         uf.add(key)
         return key
 
+    # identity edges are collected, not unioned immediately, so we can enforce
+    # 1:1 cardinality afterwards (avoids many:1-xref over-merge).
+    identity_edges: list[tuple[str, str, str, str]] = []
+
     stop = False
     for path in files:
         if stop:
@@ -184,11 +190,24 @@ def build_nodes(
                 and categories.is_identity_pair(src_ds, obj_ds)
                 and categories.category_for(src_ds) == categories.category_for(obj_ds)
             ):
-                if uf.union(src_key, obj_key):
-                    stats.merges += 1
+                identity_edges.append((src_key, src_ds, obj_key, obj_ds))
 
     stats.malformed_lines = counter.get("malformed", 0)
     stats.node_candidates = len(uf.parent)
+
+    # Cardinality-aware merge: only union 1:1 identity mappings. A node that maps
+    # to >1 node in the other namespace (many:1 xref, e.g. two HGNC genes sharing
+    # one Ensembl id) is NOT merged — better unmerged than wrongly collapsed.
+    nbr: dict[tuple[str, str], set] = defaultdict(set)
+    for a, da, b, db in identity_edges:
+        nbr[(a, db)].add(b)
+        nbr[(b, da)].add(a)
+    for a, da, b, db in identity_edges:
+        if len(nbr[(a, db)]) == 1 and len(nbr[(b, da)]) == 1:
+            if uf.union(a, b):
+                stats.merges += 1
+        else:
+            stats.ambiguous_identity_edges += 1
 
     # Group node keys into clusters by union-find root.
     clusters: dict[str, list[str]] = defaultdict(list)
@@ -207,6 +226,10 @@ def build_nodes(
         with out_path.open("w", encoding="utf-8") as out:
             out.write("id\tcategory\tname\tequivalent_identifiers\tprovided_by\n")
             for members in clusters.values():
+                if len(members) > 1:
+                    dsl = [_split_key(k)[0] for k in members]
+                    if len(dsl) != len(set(dsl)):  # >1 id from one namespace
+                        stats.suspect_clusters += 1
                 row = _emit_cluster(members, names, categories, stats, id_map_fh)
                 if row is None:
                     continue

@@ -20,6 +20,7 @@ from .datasets import DatasetRegistry
 from .edges import build_edges, load_id_map
 from .nodes import build_nodes
 from .predicates import PredicateMap
+from .reified import build_reified_edges
 
 
 def _cmd_nodes(args: argparse.Namespace) -> int:
@@ -107,6 +108,44 @@ def _cmd_edges(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_reified(args: argparse.Namespace) -> int:
+    registry = DatasetRegistry.load(args.conf)
+    categories = CategoryMap.load(args.categories)
+    predicates = PredicateMap.load(args.predicates)
+    id_map = load_id_map(args.id_map)
+    datasets = (
+        [d.strip() for d in args.datasets.split(",") if d.strip()]
+        if args.datasets
+        else None
+    )
+    t0 = time.time()
+    stats = build_reified_edges(
+        index_dir=args.index_dir,
+        registry=registry,
+        categories=categories,
+        predicates=predicates,
+        out_path=args.out,
+        id_map=id_map,
+        stats_path=args.stats,
+        datasets=datasets,
+    )
+    dt = time.time() - t0
+    print(f"reified edges.tsv written: {args.out}", file=sys.stderr)
+    print(
+        f"  datasets={stats.datasets_processed} groups={stats.groups:,} "
+        f"lines={stats.lines:,} id_map={len(id_map):,}",
+        file=sys.stderr,
+    )
+    print(
+        f"  edges_written={stats.edges_written:,} self_loops={stats.self_loops:,} "
+        f"oversized_groups={stats.oversized_groups:,}",
+        file=sys.stderr,
+    )
+    print(f"  by_dataset={dict(stats.by_dataset)}", file=sys.stderr)
+    print(f"  elapsed={dt:.1f}s", file=sys.stderr)
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="kg_export")
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -135,6 +174,17 @@ def main(argv: list[str] | None = None) -> int:
     e.add_argument("--datasets", default=None, help="comma list to restrict files")
     e.add_argument("--max-lines", type=int, default=None, help="cap lines (debug)")
     e.set_defaults(func=_cmd_edges)
+
+    r = sub.add_parser("reified", help="build reified KGX edges.tsv")
+    r.add_argument("--index-dir", required=True, help="dir with *_sorted.*.index.gz")
+    r.add_argument("--conf", default="conf", help="dataset config dir")
+    r.add_argument("--categories", default="mappings/categories.yaml")
+    r.add_argument("--predicates", default="mappings/predicates.yaml")
+    r.add_argument("--out", required=True, help="output edges.tsv path")
+    r.add_argument("--id-map", default=None, help="Phase 1 member->canonical map")
+    r.add_argument("--stats", default=None, help="output edge-stats JSON path")
+    r.add_argument("--datasets", default=None, help="comma list to restrict")
+    r.set_defaults(func=_cmd_reified)
 
     args = parser.parse_args(argv)
     return args.func(args)

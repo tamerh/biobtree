@@ -92,3 +92,34 @@ direct:
   # --- Gene-gene identity: handled by node normalization, never an edge ------
   "ensembl>entrez":    {skip: "identity pair -> node merge (Phase 1)"}
   "entrez>ensembl":    {skip: "identity pair -> node merge (Phase 1)"}
+
+
+# Reified edges (Phase 2b): an intermediate-entry dataset whose entries link the
+# real entities. Files are sorted by the entry id, so partners are joined in a
+# single streaming group-by pass.
+#   symmetric : all partners are `partner`; emit undirected pairs (deduped).
+#   bipartite : entries link a `subject` partner and an `object` partner.
+# Numeric score/affinity qualifiers (IC50 etc.) are a follow-up; edges here carry
+# the predicate + primary_knowledge_source.
+reified:
+  # --- Protein-protein interaction ------------------------------------------
+  string_interaction: {kind: symmetric, partner: uniprot, predicate: "biolink:physically_interacts_with", note: "very large (~866M partner rows)"}
+  intact:             {kind: symmetric, partner: uniprot, predicate: "biolink:physically_interacts_with"}
+  signor:             {kind: symmetric, partner: uniprot, predicate: "biolink:interacts_with", note: "directed regulation collapsed to interacts_with for MVP"}
+
+  # --- Protein similarity / homology ----------------------------------------
+  diamond_similarity:  {kind: symmetric, partner: uniprot, predicate: "biolink:homologous_to", note: "DIAMOND sequence similarity"}
+  esm2_similarity:     {kind: symmetric, partner: uniprot, predicate: "biolink:similar_to", note: "ESM2 embedding similarity (not strict homology)"}
+
+  # --- Compound -> target bioactivity ---------------------------------------
+  pubchem_activity: {kind: bipartite, subject: pubchem, object: uniprot, predicate: "biolink:interacts_with"}
+  chembl_activity:  {kind: bipartite, subject: chembl_molecule, object: uniprot, predicate: "biolink:interacts_with"}
+  bindingdb:        {kind: bipartite, subject: pubchem, object: uniprot, predicate: "biolink:interacts_with", note: "compound has several namespaces; pubchem chosen as subject"}
+
+  # --- Gene -> cell line dependency (cancer) --------------------------------
+  depmap_dependency: {kind: bipartite, subject: entrez, object: cellosaurus, predicate: "biolink:affects", note: "gene essentiality/dependency in a cell line"}
+
+  # --- Gene -> tissue expression --------------------------------------------
+  bgee:         {kind: bipartite, subject: ensembl, object: uberon, predicate: "biolink:expressed_in"}
+  scxa:         {kind: bipartite, subject: ensembl, object: uberon, predicate: "biolink:expressed_in"}
+  fantom5_gene: {kind: bipartite, subject: hgnc, object: uberon, predicate: "biolink:expressed_in"}

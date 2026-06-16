@@ -21,8 +21,15 @@ Design & roadmap: [`docs/kg_export/plan.md`](../../docs/kg_export/plan.md).
   prompts.py; endpoints rewritten to canonical CURIEs via the id_map; forward
   files only (reverse mirrors skipped); unmapped/skip pairs counted (no
   `related_to` catch-all). Real curated run: 33.4M edges across 14 biolink
-  predicates. **Next:** Phase 2b reified edges (PPI / similarity / bioactivity /
-  expression / cancer) + GO annotations.
+  predicates.
+- **Phase 2b (done):** reified edges → KGX edges. Intermediate-entry datasets
+  (PPI, similarity, bioactivity, dependency, expression) joined by streaming
+  group-by on the entry id; symmetric (undirected pairs) and bipartite
+  (subject→object) kinds in `predicates.yaml`. Real run (5 datasets, no
+  string_interaction): 26.0M edges (intact PPI 11.1M, bgee expression 8.6M,
+  chembl bioactivity 3.9M, depmap dependency 2.2M, fantom5 0.2M); depmap entrez
+  genes canonicalized to HGNC. **Next:** GO annotations (aspect-dependent) +
+  Phase 3 (JSONL, manifest, validator).
 
 ## Modules
 
@@ -34,8 +41,9 @@ Design & roadmap: [`docs/kg_export/plan.md`](../../docs/kg_export/plan.md).
 | `curie.py` | Render biolink CURIEs from dataset prefix + raw id (prefix-aware). |
 | `nodes.py` | Phase 1: union-find clustering, canonical-CURIE selection, name extraction → KGX `nodes.tsv` + `id_map` + stats. |
 | `predicates.py` | `PredicateMap` — dataset pair → biolink predicate, from `mappings/predicates.yaml`. |
-| `edges.py` | Phase 2: map xrefs → biolink edges, rewrite endpoints to canonical CURIEs → KGX `edges.tsv` + stats. |
-| `__main__.py` | CLI: `python -m tools.kg_export {nodes,edges} ...`. |
+| `edges.py` | Phase 2a: map direct xrefs → biolink edges, rewrite endpoints to canonical CURIEs → KGX `edges.tsv` + stats. |
+| `reified.py` | Phase 2b: join intermediate-entry datasets (PPI/similarity/bioactivity/expression) → reified KGX edges + stats. |
+| `__main__.py` | CLI: `python -m tools.kg_export {nodes,edges,reified} ...`. |
 
 ## Build nodes (CLI)
 

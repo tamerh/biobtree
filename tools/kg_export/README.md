@@ -13,9 +13,16 @@ Design & roadmap: [`docs/kg_export/plan.md`](../../docs/kg_export/plan.md).
   reader.
 - **Phase 1 (done):** node collection + typing + Option C normalization
   (own-clusters, gene-first) → KGX `nodes.tsv` with `equivalent_identifiers`,
-  best-effort names, and a merge-stats report. Validated on real HGNC data
-  (44,993 gene clusters, no over-merge; e.g. BRCA1 →
+  best-effort names, a merge-stats report, and an `id_map` (member→canonical).
+  Validated on real HGNC data (44,993 gene clusters, no over-merge; e.g. BRCA1 →
   `HGNC:1100|ENSEMBL:ENSG00000012048|NCBIGene:672`).
+- **Phase 2a (done):** direct (non-reified, non-GO) edges → KGX `edges.tsv`.
+  Pair→predicate map (`mappings/predicates.yaml`) seeded from proposal §4 +
+  prompts.py; endpoints rewritten to canonical CURIEs via the id_map; forward
+  files only (reverse mirrors skipped); unmapped/skip pairs counted (no
+  `related_to` catch-all). Real curated run: 33.4M edges across 14 biolink
+  predicates. **Next:** Phase 2b reified edges (PPI / similarity / bioactivity /
+  expression / cancer) + GO annotations.
 
 ## Modules
 
@@ -25,8 +32,10 @@ Design & roadmap: [`docs/kg_export/plan.md`](../../docs/kg_export/plan.md).
 | `categories.py` | `CategoryMap` — dataset → biolink category + CURIE prefix + identity pairs, from `mappings/categories.yaml`. |
 | `index.py` | Parse/stream sorted index lines (`RawXref`), distinguish edges from node properties (`-1` sentinel), resolve endpoints to categories. |
 | `curie.py` | Render biolink CURIEs from dataset prefix + raw id (prefix-aware). |
-| `nodes.py` | Phase 1: union-find clustering, canonical-CURIE selection, name extraction → KGX `nodes.tsv` + stats. |
-| `__main__.py` | CLI: `python -m tools.kg_export nodes ...`. |
+| `nodes.py` | Phase 1: union-find clustering, canonical-CURIE selection, name extraction → KGX `nodes.tsv` + `id_map` + stats. |
+| `predicates.py` | `PredicateMap` — dataset pair → biolink predicate, from `mappings/predicates.yaml`. |
+| `edges.py` | Phase 2: map xrefs → biolink edges, rewrite endpoints to canonical CURIEs → KGX `edges.tsv` + stats. |
+| `__main__.py` | CLI: `python -m tools.kg_export {nodes,edges} ...`. |
 
 ## Build nodes (CLI)
 

@@ -116,6 +116,7 @@ def build_nodes(
     categories: CategoryMap,
     out_path: str | Path,
     stats_path: str | Path | None = None,
+    id_map_path: str | Path | None = None,
     datasets: list[str] | None = None,
     max_lines: int | None = None,
 ) -> NodeStats:
@@ -189,17 +190,26 @@ def build_nodes(
     cluster_sizes: list[tuple[int, str]] = []
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    with out_path.open("w", encoding="utf-8") as out:
-        out.write("id\tcategory\tname\tequivalent_identifiers\tprovided_by\n")
-        for members in clusters.values():
-            row = _emit_cluster(members, names, categories, stats)
-            if row is None:
-                continue
-            out.write(row)
-            stats.nodes_written += 1
-            if len(members) > 1:
-                stats.multi_member_clusters += 1
-                cluster_sizes.append((len(members), row.split("\t", 1)[0]))
+    id_map_fh = None
+    if id_map_path:
+        Path(id_map_path).parent.mkdir(parents=True, exist_ok=True)
+        id_map_fh = Path(id_map_path).open("w", encoding="utf-8")
+        id_map_fh.write("member\tcanonical\n")
+    try:
+        with out_path.open("w", encoding="utf-8") as out:
+            out.write("id\tcategory\tname\tequivalent_identifiers\tprovided_by\n")
+            for members in clusters.values():
+                row = _emit_cluster(members, names, categories, stats, id_map_fh)
+                if row is None:
+                    continue
+                out.write(row)
+                stats.nodes_written += 1
+                if len(members) > 1:
+                    stats.multi_member_clusters += 1
+                    cluster_sizes.append((len(members), row.split("\t", 1)[0]))
+    finally:
+        if id_map_fh:
+            id_map_fh.close()
 
     cluster_sizes.sort(reverse=True)
     stats.largest_clusters = [
@@ -216,6 +226,7 @@ def _emit_cluster(
     names: dict[str, str],
     categories: CategoryMap,
     stats: NodeStats,
+    id_map_fh=None,
 ) -> str | None:
     parsed = [_split_key(k) for k in members]  # [(dataset, local_id), ...]
     cats = {categories.category_for(ds) for ds, _ in parsed}
@@ -250,6 +261,12 @@ def _emit_cluster(
         if c not in seen:
             seen.add(c)
             eq_ordered.append(c)
+
+    # id_map: every non-canonical member CURIE -> canonical (for edge rewriting).
+    if id_map_fh is not None and len(eq_ordered) > 1:
+        for c in eq_ordered:
+            if c != canonical:
+                id_map_fh.write(f"{c}\t{canonical}\n")
 
     name = ""
     for k in members:

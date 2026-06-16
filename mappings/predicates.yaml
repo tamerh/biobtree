@@ -1,0 +1,94 @@
+# BioBTree edge -> biolink predicate map (KG exporter, Phase 2).
+#
+# Keyed by ORDERED dataset pair "src>tgt" (the direction stored in src's forward
+# index file). The exporter reads only forward `<ds>_sorted` files.
+#
+# Per entry:
+#   predicate : biolink predicate CURIE for subject --pred--> object
+#   flip      : if true, emit object --pred--> subject (normalize to the biolink
+#               canonical direction)
+#   skip      : reason string; recognized pair we intentionally DON'T emit
+#               (reverse of an authored pair, or a gene-namespace duplicate).
+#               Skipped pairs are counted separately from truly-unmapped ones.
+#   note      : free text.
+#
+# DEDUP RULE: only genes are node-normalized (Phase 1), so only gene-endpoint
+# edges can duplicate across namespaces (ensembl/entrez/hgnc collapse to one
+# node). For those we author ONE gene namespace and `skip` the rest. Non-gene
+# edges (e.g. variant->mondo vs variant->orphanet) point at distinct nodes and
+# are all emitted.
+#
+# Scope: Phase 2a = direct (non-reified, non-GO) edges. Reified edges (PPI,
+# similarity, bioactivity, expression, cancer) and GO annotations come next.
+
+direct:
+  # --- Sequence variant -> gene ---------------------------------------------
+  "clinvar>hgnc":      {predicate: "biolink:is_sequence_variant_of"}
+  "clinvar>entrez":    {skip: "gene dup of clinvar>hgnc (canonicalized)"}
+  "clinvar>ensembl":   {skip: "gene dup of clinvar>hgnc (canonicalized)"}
+  "dbsnp>entrez":      {predicate: "biolink:is_sequence_variant_of", note: "very large (~769M); scope out of small runs"}
+
+  # --- Sequence variant -> disease / phenotype ------------------------------
+  "clinvar>mondo":     {predicate: "biolink:associated_with"}
+  "clinvar>orphanet":  {predicate: "biolink:associated_with"}
+  "clinvar>mim":       {predicate: "biolink:associated_with"}
+  "clinvar>hpo":       {predicate: "biolink:associated_with"}
+  "clinvar>dbsnp":     {skip: "xref to dbsnp id, not a distinct relationship"}
+  "clinvar>medgen":    {skip: "medgen not modeled as a node yet"}
+
+  # --- Gene/protein/cell line -> organism -----------------------------------
+  "entrez>taxonomy":   {predicate: "biolink:in_taxon", note: "all-species (~69M)"}
+  "ensembl>taxonomy":  {skip: "gene dup of entrez>taxonomy (canonicalized)"}
+  "uniprot>taxonomy":  {predicate: "biolink:in_taxon"}
+  "cellosaurus>taxonomy": {predicate: "biolink:in_taxon"}
+
+  # --- Gene -> protein (gene product) ---------------------------------------
+  "ensembl>uniprot":   {predicate: "biolink:has_gene_product"}
+  "uniprot>ensembl":   {skip: "reverse of ensembl>uniprot"}
+  "uniprot>entrez":    {skip: "reverse of ensembl>uniprot (other gene namespace)"}
+
+  # --- Gene <-> transcript <-> protein --------------------------------------
+  "ensembl>transcript": {predicate: "biolink:transcribed_from", flip: true, note: "transcript transcribed_from gene"}
+  "transcript>uniprot": {predicate: "biolink:translates_to"}
+  "uniprot>transcript": {skip: "reverse of transcript>uniprot"}
+
+  # --- Gene / protein / transcript -> pathway -------------------------------
+  "reactome>ensembl":  {predicate: "biolink:participates_in", flip: true, note: "gene participates_in pathway; larger than ensembl>reactome"}
+  "ensembl>reactome":  {skip: "redundant with reactome>ensembl"}
+  "reactome>uniprot":  {predicate: "biolink:participates_in", flip: true}
+  "uniprot>reactome":  {skip: "redundant with reactome>uniprot"}
+  "transcript>reactome": {predicate: "biolink:participates_in"}
+  "msigdb>hgnc":       {predicate: "biolink:participates_in", flip: true, note: "gene set membership"}
+  "msigdb>entrez":     {skip: "gene dup of msigdb>hgnc (canonicalized)"}
+
+  # --- Pathway -> small molecule --------------------------------------------
+  "reactome>chebi":    {predicate: "biolink:has_participant"}
+
+  # --- Protein -> family ----------------------------------------------------
+  "uniprot>interpro":  {predicate: "biolink:member_of"}
+
+  # --- Small molecule -> protein (metabolite/ligand) ------------------------
+  "swisslipids>uniprot": {predicate: "biolink:interacts_with"}
+  "hmdb>uniprot":      {predicate: "biolink:interacts_with"}
+
+  # --- Drug / metabolite -> disease -----------------------------------------
+  "chembl_molecule>efo": {predicate: "biolink:treats", note: "ChEMBL indications; refine treats vs in_clinical_trials_for via phase qualifier later"}
+  "hmdb>orphanet":     {predicate: "biolink:associated_with"}
+
+  # --- Disease -> phenotype -------------------------------------------------
+  "orphanet>hpo":      {predicate: "biolink:has_phenotype"}
+
+  # --- Cell line origins ----------------------------------------------------
+  "cellosaurus>uberon": {predicate: "biolink:derives_from"}
+  "cellosaurus>cl":    {predicate: "biolink:derives_from"}
+  "cellosaurus>mondo": {predicate: "biolink:associated_with", note: "cell line from diseased tissue"}
+
+  # --- Chemical cross-references (close match, not identity) -----------------
+  "pubchem>chebi":     {predicate: "biolink:close_match"}
+  "pubchem>chembl_molecule": {predicate: "biolink:close_match"}
+  "hmdb>pubchem":      {predicate: "biolink:close_match"}
+  "lipidmaps>pubchem": {predicate: "biolink:close_match"}
+
+  # --- Gene-gene identity: handled by node normalization, never an edge ------
+  "ensembl>entrez":    {skip: "identity pair -> node merge (Phase 1)"}
+  "entrez>ensembl":    {skip: "identity pair -> node merge (Phase 1)"}

@@ -1,4 +1,23 @@
 {
+  "drugcentral": {
+    "id": "801",
+    "name": "DrugCentral",
+    "textPriority": "85",
+    "aliases": "DrugCentral,approved drug,marketed drug,mechanism of action",
+    "url": "https://drugcentral.org/drugcard/£{id}",
+    "path": "https://unmtid-dbs.net/download/DrugCentral/2021_09_01/",
+    "interactionFile": "drug.target.interaction.tsv.gz",
+    "structuresFile": "structures.smiles.tsv",
+    "fdaApprovedUrl": "https://drugcentral.org/static/FDA_Approved.csv",
+    "emaApprovedUrl": "https://drugcentral.org/static/EMA_Approved.csv",
+    "pmdaApprovedUrl": "https://drugcentral.org/static/PMDA_Approved.csv",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "name,inn,cas_rn,inchikey,[]targets,[]moa_targets,[]action_types,target_count,fda_approved,ema_approved,pmda_approved",
+    "compact_fields": "name,inn,target_count,fda_approved,ema_approved,pmda_approved",
+    "test_entries_count": "100",
+    "bucketMethod": "numeric"
+  },
   "uniprot": {
     "group": "uniprot",
     "id": "1",

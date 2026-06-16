@@ -2153,6 +2153,11 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)
 				xref.Attributes = &pbuf.Xref_DepmapDependency{attr}
+			case "drugcentral":
+				attr := &pbuf.DrugcentralAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Drugcentral{attr}
 			case "civic":
 				attr := &pbuf.CivicGeneAttr{}
 				barr := []byte((*kvProp[k])[0].value)
@@ -2779,6 +2784,11 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 					barr := []byte((*kvProp[k])[0].value)
 					ffjson.Unmarshal(barr, attr)
 					xref.Attributes = &pbuf.Xref_DepmapDependency{attr}
+				case "drugcentral":
+					attr := &pbuf.DrugcentralAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_Drugcentral{attr}
 				case "civic":
 					attr := &pbuf.CivicGeneAttr{}
 					barr := []byte((*kvProp[k])[0].value)

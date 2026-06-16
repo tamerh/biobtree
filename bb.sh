@@ -161,6 +161,7 @@ DATASETS=(
     generif
     depmap
     ctd
+    drugcentral
     msigdb
 
     # Patents

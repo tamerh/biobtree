@@ -266,6 +266,9 @@ func extractField(xref *pbuf.Xref, field string) string {
 	if a := xref.GetCtd(); a != nil {
 		return extractCtdField(a, field)
 	}
+	if a := xref.GetDrugcentral(); a != nil {
+		return extractDrugcentralField(a, field)
+	}
 	if a := xref.GetGencc(); a != nil {
 		return extractGenccField(a, field)
 	}
@@ -1859,6 +1862,36 @@ func extractCtdField(a *pbuf.CtdAttr, field string) string {
 		return fmt.Sprintf("%d", a.DiseaseAssociationCount)
 	case "synonyms":
 		return strings.Join(a.Synonyms, ";")
+	default:
+		return ""
+	}
+}
+
+// extractDrugcentralField extracts a field from DrugcentralAttr
+func extractDrugcentralField(a *pbuf.DrugcentralAttr, field string) string {
+	switch field {
+	case "name":
+		return a.Name
+	case "inn":
+		return a.Inn
+	case "cas_rn":
+		return a.CasRn
+	case "inchikey":
+		return a.Inchikey
+	case "targets":
+		return strings.Join(a.Targets, ";")
+	case "moa_targets":
+		return strings.Join(a.MoaTargets, ";")
+	case "action_types":
+		return strings.Join(a.ActionTypes, ";")
+	case "target_count":
+		return fmt.Sprintf("%d", a.TargetCount)
+	case "fda_approved":
+		return fmt.Sprintf("%t", a.FdaApproved)
+	case "ema_approved":
+		return fmt.Sprintf("%t", a.EmaApproved)
+	case "pmda_approved":
+		return fmt.Sprintf("%t", a.PmdaApproved)
 	default:
 		return ""
 	}

@@ -55484,6 +55484,985 @@ done:
 }
 
 // MarshalJSON marshal bytes to json - template
+func (j *DrugcentralAttr) MarshalJSON() ([]byte, error) {
+	var buf fflib.Buffer
+	if j == nil {
+		buf.WriteString("null")
+		return buf.Bytes(), nil
+	}
+	err := j.MarshalJSONBuf(&buf)
+	if err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
+}
+
+// MarshalJSONBuf marshal buff to json - template
+func (j *DrugcentralAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
+	if j == nil {
+		buf.WriteString("null")
+		return nil
+	}
+	var err error
+	var obj []byte
+	_ = obj
+	_ = err
+	buf.WriteString(`{ `)
+	if len(j.Name) != 0 {
+		buf.WriteString(`"name":`)
+		fflib.WriteJsonString(buf, string(j.Name))
+		buf.WriteByte(',')
+	}
+	if len(j.Inn) != 0 {
+		buf.WriteString(`"inn":`)
+		fflib.WriteJsonString(buf, string(j.Inn))
+		buf.WriteByte(',')
+	}
+	if len(j.CasRn) != 0 {
+		buf.WriteString(`"cas_rn":`)
+		fflib.WriteJsonString(buf, string(j.CasRn))
+		buf.WriteByte(',')
+	}
+	if len(j.Inchikey) != 0 {
+		buf.WriteString(`"inchikey":`)
+		fflib.WriteJsonString(buf, string(j.Inchikey))
+		buf.WriteByte(',')
+	}
+	if len(j.Targets) != 0 {
+		buf.WriteString(`"targets":`)
+		if j.Targets != nil {
+			buf.WriteString(`[`)
+			for i, v := range j.Targets {
+				if i != 0 {
+					buf.WriteString(`,`)
+				}
+				fflib.WriteJsonString(buf, string(v))
+			}
+			buf.WriteString(`]`)
+		} else {
+			buf.WriteString(`null`)
+		}
+		buf.WriteByte(',')
+	}
+	if len(j.MoaTargets) != 0 {
+		buf.WriteString(`"moa_targets":`)
+		if j.MoaTargets != nil {
+			buf.WriteString(`[`)
+			for i, v := range j.MoaTargets {
+				if i != 0 {
+					buf.WriteString(`,`)
+				}
+				fflib.WriteJsonString(buf, string(v))
+			}
+			buf.WriteString(`]`)
+		} else {
+			buf.WriteString(`null`)
+		}
+		buf.WriteByte(',')
+	}
+	if len(j.ActionTypes) != 0 {
+		buf.WriteString(`"action_types":`)
+		if j.ActionTypes != nil {
+			buf.WriteString(`[`)
+			for i, v := range j.ActionTypes {
+				if i != 0 {
+					buf.WriteString(`,`)
+				}
+				fflib.WriteJsonString(buf, string(v))
+			}
+			buf.WriteString(`]`)
+		} else {
+			buf.WriteString(`null`)
+		}
+		buf.WriteByte(',')
+	}
+	if j.TargetCount != 0 {
+		buf.WriteString(`"target_count":`)
+		fflib.FormatBits2(buf, uint64(j.TargetCount), 10, j.TargetCount < 0)
+		buf.WriteByte(',')
+	}
+	if j.FdaApproved != false {
+		if j.FdaApproved {
+			buf.WriteString(`"fda_approved":true`)
+		} else {
+			buf.WriteString(`"fda_approved":false`)
+		}
+		buf.WriteByte(',')
+	}
+	if j.EmaApproved != false {
+		if j.EmaApproved {
+			buf.WriteString(`"ema_approved":true`)
+		} else {
+			buf.WriteString(`"ema_approved":false`)
+		}
+		buf.WriteByte(',')
+	}
+	if j.PmdaApproved != false {
+		if j.PmdaApproved {
+			buf.WriteString(`"pmda_approved":true`)
+		} else {
+			buf.WriteString(`"pmda_approved":false`)
+		}
+		buf.WriteByte(',')
+	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
+	buf.Rewind(1)
+	buf.WriteByte('}')
+	return nil
+}
+
+const (
+	ffjtDrugcentralAttrbase = iota
+	ffjtDrugcentralAttrnosuchkey
+
+	ffjtDrugcentralAttrName
+
+	ffjtDrugcentralAttrInn
+
+	ffjtDrugcentralAttrCasRn
+
+	ffjtDrugcentralAttrInchikey
+
+	ffjtDrugcentralAttrTargets
+
+	ffjtDrugcentralAttrMoaTargets
+
+	ffjtDrugcentralAttrActionTypes
+
+	ffjtDrugcentralAttrTargetCount
+
+	ffjtDrugcentralAttrFdaApproved
+
+	ffjtDrugcentralAttrEmaApproved
+
+	ffjtDrugcentralAttrPmdaApproved
+
+	ffjtDrugcentralAttrId
+)
+
+var ffjKeyDrugcentralAttrName = []byte("name")
+
+var ffjKeyDrugcentralAttrInn = []byte("inn")
+
+var ffjKeyDrugcentralAttrCasRn = []byte("cas_rn")
+
+var ffjKeyDrugcentralAttrInchikey = []byte("inchikey")
+
+var ffjKeyDrugcentralAttrTargets = []byte("targets")
+
+var ffjKeyDrugcentralAttrMoaTargets = []byte("moa_targets")
+
+var ffjKeyDrugcentralAttrActionTypes = []byte("action_types")
+
+var ffjKeyDrugcentralAttrTargetCount = []byte("target_count")
+
+var ffjKeyDrugcentralAttrFdaApproved = []byte("fda_approved")
+
+var ffjKeyDrugcentralAttrEmaApproved = []byte("ema_approved")
+
+var ffjKeyDrugcentralAttrPmdaApproved = []byte("pmda_approved")
+
+var ffjKeyDrugcentralAttrId = []byte("id")
+
+// UnmarshalJSON umarshall json - template of ffjson
+func (j *DrugcentralAttr) UnmarshalJSON(input []byte) error {
+	fs := fflib.NewFFLexer(input)
+	return j.UnmarshalJSONFFLexer(fs, fflib.FFParse_map_start)
+}
+
+// UnmarshalJSONFFLexer fast json unmarshall - template ffjson
+func (j *DrugcentralAttr) UnmarshalJSONFFLexer(fs *fflib.FFLexer, state fflib.FFParseState) error {
+	var err error
+	currentKey := ffjtDrugcentralAttrbase
+	_ = currentKey
+	tok := fflib.FFTok_init
+	wantedTok := fflib.FFTok_init
+
+mainparse:
+	for {
+		tok = fs.Scan()
+		//	println(fmt.Sprintf("debug: tok: %v  state: %v", tok, state))
+		if tok == fflib.FFTok_error {
+			goto tokerror
+		}
+
+		switch state {
+
+		case fflib.FFParse_map_start:
+			if tok != fflib.FFTok_left_bracket {
+				wantedTok = fflib.FFTok_left_bracket
+				goto wrongtokenerror
+			}
+			state = fflib.FFParse_want_key
+			continue
+
+		case fflib.FFParse_after_value:
+			if tok == fflib.FFTok_comma {
+				state = fflib.FFParse_want_key
+			} else if tok == fflib.FFTok_right_bracket {
+				goto done
+			} else {
+				wantedTok = fflib.FFTok_comma
+				goto wrongtokenerror
+			}
+
+		case fflib.FFParse_want_key:
+			// json {} ended. goto exit. woo.
+			if tok == fflib.FFTok_right_bracket {
+				goto done
+			}
+			if tok != fflib.FFTok_string {
+				wantedTok = fflib.FFTok_string
+				goto wrongtokenerror
+			}
+
+			kn := fs.Output.Bytes()
+			if len(kn) <= 0 {
+				// "" case. hrm.
+				currentKey = ffjtDrugcentralAttrnosuchkey
+				state = fflib.FFParse_want_colon
+				goto mainparse
+			} else {
+				switch kn[0] {
+
+				case 'a':
+
+					if bytes.Equal(ffjKeyDrugcentralAttrActionTypes, kn) {
+						currentKey = ffjtDrugcentralAttrActionTypes
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'c':
+
+					if bytes.Equal(ffjKeyDrugcentralAttrCasRn, kn) {
+						currentKey = ffjtDrugcentralAttrCasRn
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'e':
+
+					if bytes.Equal(ffjKeyDrugcentralAttrEmaApproved, kn) {
+						currentKey = ffjtDrugcentralAttrEmaApproved
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'f':
+
+					if bytes.Equal(ffjKeyDrugcentralAttrFdaApproved, kn) {
+						currentKey = ffjtDrugcentralAttrFdaApproved
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'i':
+
+					if bytes.Equal(ffjKeyDrugcentralAttrInn, kn) {
+						currentKey = ffjtDrugcentralAttrInn
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyDrugcentralAttrInchikey, kn) {
+						currentKey = ffjtDrugcentralAttrInchikey
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyDrugcentralAttrId, kn) {
+						currentKey = ffjtDrugcentralAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'm':
+
+					if bytes.Equal(ffjKeyDrugcentralAttrMoaTargets, kn) {
+						currentKey = ffjtDrugcentralAttrMoaTargets
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'n':
+
+					if bytes.Equal(ffjKeyDrugcentralAttrName, kn) {
+						currentKey = ffjtDrugcentralAttrName
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'p':
+
+					if bytes.Equal(ffjKeyDrugcentralAttrPmdaApproved, kn) {
+						currentKey = ffjtDrugcentralAttrPmdaApproved
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 't':
+
+					if bytes.Equal(ffjKeyDrugcentralAttrTargets, kn) {
+						currentKey = ffjtDrugcentralAttrTargets
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyDrugcentralAttrTargetCount, kn) {
+						currentKey = ffjtDrugcentralAttrTargetCount
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyDrugcentralAttrId, kn) {
+					currentKey = ffjtDrugcentralAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyDrugcentralAttrPmdaApproved, kn) {
+					currentKey = ffjtDrugcentralAttrPmdaApproved
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyDrugcentralAttrEmaApproved, kn) {
+					currentKey = ffjtDrugcentralAttrEmaApproved
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyDrugcentralAttrFdaApproved, kn) {
+					currentKey = ffjtDrugcentralAttrFdaApproved
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyDrugcentralAttrTargetCount, kn) {
+					currentKey = ffjtDrugcentralAttrTargetCount
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyDrugcentralAttrActionTypes, kn) {
+					currentKey = ffjtDrugcentralAttrActionTypes
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyDrugcentralAttrMoaTargets, kn) {
+					currentKey = ffjtDrugcentralAttrMoaTargets
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyDrugcentralAttrTargets, kn) {
+					currentKey = ffjtDrugcentralAttrTargets
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyDrugcentralAttrInchikey, kn) {
+					currentKey = ffjtDrugcentralAttrInchikey
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyDrugcentralAttrCasRn, kn) {
+					currentKey = ffjtDrugcentralAttrCasRn
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyDrugcentralAttrInn, kn) {
+					currentKey = ffjtDrugcentralAttrInn
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyDrugcentralAttrName, kn) {
+					currentKey = ffjtDrugcentralAttrName
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				currentKey = ffjtDrugcentralAttrnosuchkey
+				state = fflib.FFParse_want_colon
+				goto mainparse
+			}
+
+		case fflib.FFParse_want_colon:
+			if tok != fflib.FFTok_colon {
+				wantedTok = fflib.FFTok_colon
+				goto wrongtokenerror
+			}
+			state = fflib.FFParse_want_value
+			continue
+		case fflib.FFParse_want_value:
+
+			if tok == fflib.FFTok_left_brace || tok == fflib.FFTok_left_bracket || tok == fflib.FFTok_integer || tok == fflib.FFTok_double || tok == fflib.FFTok_string || tok == fflib.FFTok_bool || tok == fflib.FFTok_null {
+				switch currentKey {
+
+				case ffjtDrugcentralAttrName:
+					goto handle_Name
+
+				case ffjtDrugcentralAttrInn:
+					goto handle_Inn
+
+				case ffjtDrugcentralAttrCasRn:
+					goto handle_CasRn
+
+				case ffjtDrugcentralAttrInchikey:
+					goto handle_Inchikey
+
+				case ffjtDrugcentralAttrTargets:
+					goto handle_Targets
+
+				case ffjtDrugcentralAttrMoaTargets:
+					goto handle_MoaTargets
+
+				case ffjtDrugcentralAttrActionTypes:
+					goto handle_ActionTypes
+
+				case ffjtDrugcentralAttrTargetCount:
+					goto handle_TargetCount
+
+				case ffjtDrugcentralAttrFdaApproved:
+					goto handle_FdaApproved
+
+				case ffjtDrugcentralAttrEmaApproved:
+					goto handle_EmaApproved
+
+				case ffjtDrugcentralAttrPmdaApproved:
+					goto handle_PmdaApproved
+
+				case ffjtDrugcentralAttrId:
+					goto handle_Id
+
+				case ffjtDrugcentralAttrnosuchkey:
+					err = fs.SkipField(tok)
+					if err != nil {
+						return fs.WrapErr(err)
+					}
+					state = fflib.FFParse_after_value
+					goto mainparse
+				}
+			} else {
+				goto wantedvalue
+			}
+		}
+	}
+
+handle_Name:
+
+	/* handler: j.Name type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Name = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Inn:
+
+	/* handler: j.Inn type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Inn = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_CasRn:
+
+	/* handler: j.CasRn type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.CasRn = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Inchikey:
+
+	/* handler: j.Inchikey type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Inchikey = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Targets:
+
+	/* handler: j.Targets type=[]string kind=slice quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_left_brace && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for ", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+			j.Targets = nil
+		} else {
+
+			j.Targets = []string{}
+
+			wantVal := true
+
+			for {
+
+				var tmpJTargets string
+
+				tok = fs.Scan()
+				if tok == fflib.FFTok_error {
+					goto tokerror
+				}
+				if tok == fflib.FFTok_right_brace {
+					break
+				}
+
+				if tok == fflib.FFTok_comma {
+					if wantVal == true {
+						// TODO(pquerna): this isn't an ideal error message, this handles
+						// things like [,,,] as an array value.
+						return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
+					}
+					continue
+				} else {
+					wantVal = true
+				}
+
+				/* handler: tmpJTargets type=string kind=string quoted=false*/
+
+				{
+
+					{
+						if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+							return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+						}
+					}
+
+					if tok == fflib.FFTok_null {
+
+					} else {
+
+						outBuf := fs.Output.Bytes()
+
+						tmpJTargets = string(string(outBuf))
+
+					}
+				}
+
+				j.Targets = append(j.Targets, tmpJTargets)
+
+				wantVal = false
+			}
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_MoaTargets:
+
+	/* handler: j.MoaTargets type=[]string kind=slice quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_left_brace && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for ", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+			j.MoaTargets = nil
+		} else {
+
+			j.MoaTargets = []string{}
+
+			wantVal := true
+
+			for {
+
+				var tmpJMoaTargets string
+
+				tok = fs.Scan()
+				if tok == fflib.FFTok_error {
+					goto tokerror
+				}
+				if tok == fflib.FFTok_right_brace {
+					break
+				}
+
+				if tok == fflib.FFTok_comma {
+					if wantVal == true {
+						// TODO(pquerna): this isn't an ideal error message, this handles
+						// things like [,,,] as an array value.
+						return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
+					}
+					continue
+				} else {
+					wantVal = true
+				}
+
+				/* handler: tmpJMoaTargets type=string kind=string quoted=false*/
+
+				{
+
+					{
+						if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+							return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+						}
+					}
+
+					if tok == fflib.FFTok_null {
+
+					} else {
+
+						outBuf := fs.Output.Bytes()
+
+						tmpJMoaTargets = string(string(outBuf))
+
+					}
+				}
+
+				j.MoaTargets = append(j.MoaTargets, tmpJMoaTargets)
+
+				wantVal = false
+			}
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_ActionTypes:
+
+	/* handler: j.ActionTypes type=[]string kind=slice quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_left_brace && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for ", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+			j.ActionTypes = nil
+		} else {
+
+			j.ActionTypes = []string{}
+
+			wantVal := true
+
+			for {
+
+				var tmpJActionTypes string
+
+				tok = fs.Scan()
+				if tok == fflib.FFTok_error {
+					goto tokerror
+				}
+				if tok == fflib.FFTok_right_brace {
+					break
+				}
+
+				if tok == fflib.FFTok_comma {
+					if wantVal == true {
+						// TODO(pquerna): this isn't an ideal error message, this handles
+						// things like [,,,] as an array value.
+						return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
+					}
+					continue
+				} else {
+					wantVal = true
+				}
+
+				/* handler: tmpJActionTypes type=string kind=string quoted=false*/
+
+				{
+
+					{
+						if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+							return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+						}
+					}
+
+					if tok == fflib.FFTok_null {
+
+					} else {
+
+						outBuf := fs.Output.Bytes()
+
+						tmpJActionTypes = string(string(outBuf))
+
+					}
+				}
+
+				j.ActionTypes = append(j.ActionTypes, tmpJActionTypes)
+
+				wantVal = false
+			}
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_TargetCount:
+
+	/* handler: j.TargetCount type=int32 kind=int32 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for int32", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseInt(fs.Output.Bytes(), 10, 32)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.TargetCount = int32(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_FdaApproved:
+
+	/* handler: j.FdaApproved type=bool kind=bool quoted=false*/
+
+	{
+		if tok != fflib.FFTok_bool && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for bool", tok))
+		}
+	}
+
+	{
+		if tok == fflib.FFTok_null {
+
+		} else {
+			tmpb := fs.Output.Bytes()
+
+			if bytes.Compare([]byte{'t', 'r', 'u', 'e'}, tmpb) == 0 {
+
+				j.FdaApproved = true
+
+			} else if bytes.Compare([]byte{'f', 'a', 'l', 's', 'e'}, tmpb) == 0 {
+
+				j.FdaApproved = false
+
+			} else {
+				err = errors.New("unexpected bytes for true/false value")
+				return fs.WrapErr(err)
+			}
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_EmaApproved:
+
+	/* handler: j.EmaApproved type=bool kind=bool quoted=false*/
+
+	{
+		if tok != fflib.FFTok_bool && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for bool", tok))
+		}
+	}
+
+	{
+		if tok == fflib.FFTok_null {
+
+		} else {
+			tmpb := fs.Output.Bytes()
+
+			if bytes.Compare([]byte{'t', 'r', 'u', 'e'}, tmpb) == 0 {
+
+				j.EmaApproved = true
+
+			} else if bytes.Compare([]byte{'f', 'a', 'l', 's', 'e'}, tmpb) == 0 {
+
+				j.EmaApproved = false
+
+			} else {
+				err = errors.New("unexpected bytes for true/false value")
+				return fs.WrapErr(err)
+			}
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_PmdaApproved:
+
+	/* handler: j.PmdaApproved type=bool kind=bool quoted=false*/
+
+	{
+		if tok != fflib.FFTok_bool && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for bool", tok))
+		}
+	}
+
+	{
+		if tok == fflib.FFTok_null {
+
+		} else {
+			tmpb := fs.Output.Bytes()
+
+			if bytes.Compare([]byte{'t', 'r', 'u', 'e'}, tmpb) == 0 {
+
+				j.PmdaApproved = true
+
+			} else if bytes.Compare([]byte{'f', 'a', 'l', 's', 'e'}, tmpb) == 0 {
+
+				j.PmdaApproved = false
+
+			} else {
+				err = errors.New("unexpected bytes for true/false value")
+				return fs.WrapErr(err)
+			}
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+wantedvalue:
+	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
+wrongtokenerror:
+	return fs.WrapErr(fmt.Errorf("ffjson: wanted token: %v, but got token: %v output=%s", wantedTok, tok, fs.Output.String()))
+tokerror:
+	if fs.BigError != nil {
+		return fs.WrapErr(fs.BigError)
+	}
+	err = fs.Error.ToError()
+	if err != nil {
+		return fs.WrapErr(err)
+	}
+	panic("ffjson-generated: unreachable, please report bug.")
+done:
+
+	return nil
+}
+
+// MarshalJSON marshal bytes to json - template
 func (j *EnaAttr) MarshalJSON() ([]byte, error) {
 	var buf fflib.Buffer
 	if j == nil {

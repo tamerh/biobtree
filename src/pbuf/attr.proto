@@ -3125,3 +3125,23 @@ message DepmapDependencyAttr {
   string id = 100; // transient - populated at runtime from Xref.Identifier
 }
 
+// DrugCentral - curated approved/marketed drugs (Dataset ID: 801)
+// One entry per DrugCentral drug, keyed by DrugCentral struct_id.
+// Source: https://drugcentral.org (drug.target.interaction.tsv.gz, structures.smiles.tsv,
+//   FDA/EMA/PMDA approved CSVs), License CC BY-SA 4.0.
+// Captures the drug->target mechanism-of-action layer plus regulatory approval status.
+message DrugcentralAttr {
+  string name = 1;                 // drug name (INN / DrugCentral DRUG_NAME)
+  string inn = 2;                  // International Nonproprietary Name (from structures file)
+  string cas_rn = 3;               // CAS registry number
+  string inchikey = 4;             // InChIKey (structure identity, links to pubchem/chembl)
+  repeated string targets = 5;     // human target UniProt accessions (drug->target)
+  repeated string moa_targets = 6; // UniProt accessions flagged mechanism-of-action (MOA=1)
+  repeated string action_types = 7;// distinct action types (BLOCKER, AGONIST, INHIBITOR, ...)
+  int32 target_count = 8;          // number of distinct targets
+  bool fda_approved = 9;           // approved by US FDA
+  bool ema_approved = 10;          // approved by EMA (Europe)
+  bool pmda_approved = 11;         // approved by PMDA (Japan)
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+

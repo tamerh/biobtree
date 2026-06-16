@@ -55,6 +55,7 @@ Chemical compounds, drugs, binding affinity, and metabolism.
 | hmdb | Human Metabolome Database | [README](hmdb.md) |
 | bindingdb | Binding affinity measurements | [README](bindingdb.md) |
 | gtopdb | Guide to Pharmacology targets & ligands | [README](gtopdb.md) |
+| drugcentral | DrugCentral approved drugs (drug→target/MOA, FDA/EMA/PMDA approval) | [README](drugcentral.md) |
 | swisslipids | SwissLipids lipid structures | [README](swisslipids.md) |
 | lipidmaps | LIPID MAPS lipid classification | [README](lipidmaps.md) |
 | rhea | Rhea biochemical reactions | [README](rhea.md) |
@@ -177,6 +178,7 @@ clinvar: hgnc, mondo, hpo, dbsnp, orphanet
 go: ensembl, uniprot, reactome, msigdb, interpro
 gtopdb: uniprot, hgnc, gtopdb_ligand, gtopdb_interaction
 gtopdb_ligand: pubchem, chebi, chembl_molecule, gtopdb_interaction
+drugcentral: uniprot, hgnc (+ chembl_molecule/pubchem via InChIKey keyword)
 ```
 
 See [Edge Reference](../api/edge-reference.md) for complete connectivity map.

@@ -1015,6 +1015,12 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			d.datasets2 = append(d.datasets2, data)
 			go ctdParser.update()
 			break
+		case "drugcentral":
+			d.wg.Add(1)
+			dctrl := drugcentral{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go dctrl.update()
+			break
 		case "pharmgkb":
 			d.wg.Add(1)
 			pgkb := pharmgkb{source: data, d: d}

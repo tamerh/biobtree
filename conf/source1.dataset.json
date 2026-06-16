@@ -1128,7 +1128,6 @@
     "path": "https://download.open.fda.gov/drug/event/",
     "useLocalFile": "no",
     "hasFilter": "yes",
-    "testPartitions": "2",
     "minReportCount": "2",
     "attrs": "drug_name,reaction,report_count,prr,serious_count,top_outcome,drug_report_total",
     "compact_fields": "drug_name,reaction,report_count,prr,serious_count",

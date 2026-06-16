@@ -101,6 +101,60 @@ def render_mermaid(triples, out_html):
         f.write(html)
 
 
+def render_cytoscape(triples, out_html):
+    """Interactive Cytoscape.js viewer: layered (dagre)/concentric/force layouts,
+    predicate filter, click-to-highlight, colored by node type."""
+    import json
+    def nid(c):
+        return c.split(":")[1]
+    cats = sorted({c for (s, _, o) in triples for c in (s, o)})
+    color = {nid(c): _PALETTE[i % len(_PALETTE)] for i, c in enumerate(cats)}
+    nodes = [{"data": {"id": nid(c), "label": nid(c), "color": color[nid(c)]}} for c in cats]
+    edges = []
+    for (s, p, o), ds in sorted(triples.items()):
+        pl = p.split(":")[1]
+        edges.append({"data": {"id": f"{nid(s)}|{pl}|{nid(o)}", "source": nid(s),
+                                "target": nid(o), "label": pl, "n": len(ds)}})
+    elements = json.dumps({"nodes": nodes, "edges": edges})
+    html = """<!doctype html><html><head><meta charset='utf-8'>
+<script src='https://unpkg.com/cytoscape@3.28.1/dist/cytoscape.min.js'></script>
+<script src='https://unpkg.com/dagre@0.8.5/dist/dagre.min.js'></script>
+<script src='https://unpkg.com/cytoscape-dagre@2.5.0/cytoscape-dagre.js'></script>
+<style>html,body{margin:0;height:100%;font-family:sans-serif}
+#cy{width:100%;height:calc(100% - 44px);background:#fafafa}
+#bar{height:44px;display:flex;gap:8px;align-items:center;padding:0 10px;border-bottom:1px solid #ddd}
+button{padding:4px 10px;cursor:pointer}</style></head>
+<body><div id='bar'>
+<b>BioBTree KG schema</b>
+<button onclick="lay('dagre-LR')">Layered &rarr;</button>
+<button onclick="lay('dagre-TB')">Layered &darr;</button>
+<button onclick="lay('concentric')">Hubs center</button>
+<button onclick="lay('cose')">Force</button>
+<span style='color:#888'>click a node to focus its connections; double-click bg to reset</span>
+</div><div id='cy'></div>
+<script>
+var ELEMENTS=__ELEMENTS__;
+var cy=cytoscape({container:document.getElementById('cy'),elements:ELEMENTS,
+ style:[
+  {selector:'node',style:{'background-color':'data(color)','label':'data(label)','font-size':11,'text-valign':'center','color':'#111','text-outline-color':'#fff','text-outline-width':2,'width':42,'height':42}},
+  {selector:'edge',style:{'label':'data(label)','font-size':8,'color':'#555','curve-style':'bezier','target-arrow-shape':'triangle','line-color':'#bbb','target-arrow-color':'#bbb','width':1.2,'text-rotation':'autorotate','text-background-color':'#fff','text-background-opacity':0.8}},
+  {selector:'.faded',style:{'opacity':0.12}},
+  {selector:'.hi',style:{'line-color':'#e15759','target-arrow-color':'#e15759','width':2.5,'color':'#900'}}
+ ]});
+function lay(name){var o={name:'cose'};
+ if(name=='dagre-LR')o={name:'dagre',rankDir:'LR',nodeSep:40,rankSep:140};
+ if(name=='dagre-TB')o={name:'dagre',rankDir:'TB',nodeSep:40,rankSep:110};
+ if(name=='concentric')o={name:'concentric',concentric:function(n){return n.degree()},levelWidth:function(){return 2},minNodeSpacing:40};
+ cy.layout(o).run();}
+cy.on('tap','node',function(e){var n=e.target;cy.elements().addClass('faded');
+ var nb=n.closedNeighborhood();nb.removeClass('faded');nb.edges().addClass('hi');n.removeClass('faded');});
+cy.on('tap',function(e){if(e.target===cy){cy.elements().removeClass('faded hi');}});
+lay('dagre-LR');
+</script></body></html>"""
+    with open(out_html, "w") as f:
+        f.write(html.replace("__ELEMENTS__", elements))
+
+
 def print_summary(triples):
     by_subj = defaultdict(list)
     for (s, p, o), ds in triples.items():
@@ -119,18 +173,21 @@ def main():
     ap.add_argument("--predicates", default="mappings/predicates.yaml")
     ap.add_argument("--out", default=None, help="pyvis HTML output path")
     ap.add_argument("--mermaid", default=None, help="Mermaid HTML output path (cleaner)")
+    ap.add_argument("--cytoscape", default=None, help="Cytoscape.js interactive HTML")
     ap.add_argument("--print", action="store_true", dest="show")
     a = ap.parse_args()
     cats = CategoryMap.load(a.categories)
     preds = PredicateMap.load(a.predicates)
     triples = schema_triples(cats, preds)
-    if a.show or not (a.out or a.mermaid):
+    if a.show or not (a.out or a.mermaid or a.cytoscape):
         print_summary(triples)
     if a.out:
         render_html(triples, a.out)
     if a.mermaid:
         render_mermaid(triples, a.mermaid)
-        print(f"wrote {a.mermaid}: {len({c for (s,_,o) in triples for c in (s,o)})} node types, {len(triples)} edges")
+    if a.cytoscape:
+        render_cytoscape(triples, a.cytoscape)
+        print(f"wrote {a.cytoscape}: {len({c for (s,_,o) in triples for c in (s,o)})} node types, {len(triples)} edges")
 
 
 if __name__ == "__main__":

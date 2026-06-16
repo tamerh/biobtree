@@ -48,6 +48,8 @@ class ReifiedRule:
     object_field: str | None = None  # pairwise (JSON key)
     via: str | None = None  # bipartite: the in-entry intermediate id (dataset)
                             # whose <via>_sorted forward resolves to `object`
+    resolve: str | None = None  # pairwise: 'symbol' -> field values are gene
+                                # symbols, resolved to `partner` ids by symbol map
     note: str | None = None
 
 
@@ -106,6 +108,7 @@ class PredicateMap:
                 subject_field=cfg.get("subject_field"),
                 object_field=cfg.get("object_field"),
                 via=cfg.get("via"),
+                resolve=cfg.get("resolve"),
                 note=cfg.get("note"),
             )
         return cls(direct, reified)

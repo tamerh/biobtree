@@ -97,6 +97,27 @@ class BuildReifiedTests(unittest.TestCase):
             # the fabricated prey-prey pair must be absent
             self.assertNotIn(("UniProtKB:Q8NBT2", "UniProtKB:Q9BZD4"), edges)
 
+    def test_pairwise_symbol_resolution_directed(self):
+        """collectri: tf_gene/target_gene symbols resolved to HGNC, directed."""
+        co, hg = self._id("collectri"), self._id("hgnc")
+        with tempfile.TemporaryDirectory() as d:
+            tmp = Path(d)
+            # hgnc property lines provide symbol -> HGNC id
+            self._write(tmp, "hgnc_sorted.1.index.gz", [
+                f'HGNC:11998\t{hg}\t{{"symbols":["TP53"]}}\t-1',
+                f'HGNC:1784\t{hg}\t{{"symbols":["CDKN1A"]}}\t-1',
+            ])
+            self._write(tmp, "collectri_sorted.1.index.gz", [
+                f'TP53:CDKN1A\t{co}\t{{"tf_gene":"TP53","target_gene":"CDKN1A","regulation":"Activation"}}\t-1',
+                f"TP53:CDKN1A\t{co}\tHGNC:11998\t{hg}", f"TP53:CDKN1A\t{co}\tHGNC:1784\t{hg}",
+            ])
+            out = tmp / "r.tsv"
+            build_reified_edges(tmp, self.reg, self.cats, self.pm, out, datasets=["collectri"])
+            rows = [l.split("\t") for l in out.read_text().splitlines()[1:]]
+            self.assertEqual(len(rows), 1)
+            _id, s, p, o = rows[0][:4]
+            self.assertEqual((s, p, o), ("HGNC:11998", "biolink:regulates", "HGNC:1784"))  # TF->target
+
     def test_star_similarity_no_clique(self):
         """diamond: query -> each hit; never hit<->hit, never self."""
         dia, up = self._id("diamond_similarity"), self._id("uniprot")

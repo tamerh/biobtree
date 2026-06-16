@@ -113,6 +113,11 @@ reified:
   string_interaction: {kind: pairwise, partner: uniprot, subject_field: uniprot_a, object_field: uniprot_b, predicate: "biolink:physically_interacts_with", note: "very large (~866M rows)"}
   # signor DEFERRED: directed/signed causal regulation; needs role+sign.
 
+  # --- Directed transcriptional regulation (TF -> target gene) --------------
+  # collectri entry property names tf_gene/target_gene as SYMBOLS; resolve:symbol
+  # maps them to HGNC ids so the edge is correctly directed TF->target.
+  collectri: {kind: pairwise, partner: hgnc, subject_field: tf_gene, object_field: target_gene, resolve: symbol, predicate: "biolink:regulates", note: "CollecTRI signed TF->gene"}
+
   # --- Protein similarity (star: query -> each hit; NOT a clique) ------------
   # Sequence/embedding SIMILARITY (evidence for, not assertion of, homology).
   diamond_similarity:  {kind: star, partner: uniprot, predicate: "biolink:similar_to", note: "DIAMOND; query -> hits"}

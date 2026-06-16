@@ -53,6 +53,24 @@ class ReifiedStats:
         return d
 
 
+def build_symbol_map(index_dir, registry, dataset="hgnc"):
+    """symbol -> id for a gene dataset, from its property-line symbols/names."""
+    smap = {}
+    for f in sorted(glob.glob(str(Path(index_dir) / f"{dataset}_sorted.*.index.gz"))):
+        for raw in iter_index_file(f):
+            if not raw.is_property:
+                continue
+            try:
+                d = json.loads(raw.object)
+            except (ValueError, TypeError):
+                continue
+            syms = list(d.get("symbols", [])) + list(d.get("names", []))
+            for s in syms:
+                if s and s not in smap:
+                    smap[s] = raw.subject  # subject is the dataset id (e.g. HGNC:...)
+    return smap
+
+
 def _groups_by_subject(rows):
     """Yield lists of RawXref sharing the same subject from a subject-sorted stream."""
     current_subject = None
@@ -108,6 +126,9 @@ def build_reified_edges(
             primary = f"infores:{ds}"
             # `via`: resolve an in-entry intermediate id (e.g. a GtoPdb target)
             # to the real node (uniprot) using that dataset's forward index.
+            symbol_map = None
+            if rule.kind == "pairwise" and rule.resolve == "symbol":
+                symbol_map = build_symbol_map(index_dir, registry, rule.partner)
             resolve_map = None
             if rule.kind == "bipartite" and rule.via:
                 resolve_map = defaultdict(list)
@@ -134,7 +155,8 @@ def build_reified_edges(
                 stats.lines += len(group)
                 for row in _emit_group(
                     group, rule, registry, categories, canonical,
-                    primary, max_edges_per_group, stats, kl, at, resolve_map,
+                    primary, max_edges_per_group, stats, kl, at,
+                    resolve_map, symbol_map,
                 ):
                     out.write(row)
                     stats.edges_written += 1
@@ -149,7 +171,7 @@ def build_reified_edges(
 
 def _emit_group(group, rule, registry, categories, canonical, primary,
                 max_edges_per_group, stats, knowledge_level, agent_type,
-                resolve_map=None):
+                resolve_map=None, symbol_map=None):
     """Yield KGX edge rows for one reified entry group (pairwise/star/bipartite)."""
     def edge(a, b):
         if not a or not b:
@@ -190,8 +212,14 @@ def _emit_group(group, rule, registry, categories, canonical, primary,
             a_raw, b_raw = d.get(rule.subject_field), d.get(rule.object_field)
             if not a_raw or not b_raw:
                 continue
-            row = edge(canonical(rule.partner, str(a_raw)),
-                       canonical(rule.partner, str(b_raw)))
+            if symbol_map is not None:  # field values are gene symbols
+                a_id, b_id = symbol_map.get(str(a_raw)), symbol_map.get(str(b_raw))
+                if not a_id or not b_id:
+                    continue  # unresolved symbol -> skip
+                a, b = canonical(rule.partner, a_id), canonical(rule.partner, b_id)
+            else:
+                a, b = canonical(rule.partner, str(a_raw)), canonical(rule.partner, str(b_raw))
+            row = edge(a, b)
             if row:
                 yield row
 

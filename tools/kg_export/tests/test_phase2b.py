@@ -183,6 +183,48 @@ class BuildReifiedTests(unittest.TestCase):
             self.assertNotIn(("UniProtKB:HIT1", "UniProtKB:HIT2"), edges)  # no clique
             self.assertEqual(stats.edges_written, 2)
 
+    def test_bipartite_pharmgkb_variant_to_gene(self):
+        """pharmgkb_variant: rsID variant -> gene (hgnc); ignores ensembl dup,
+        the symbol field, and entries with no rsID."""
+        pv, db, hg, en = (self._id("pharmgkb_variant"), self._id("dbsnp"),
+                          self._id("hgnc"), self._id("ensembl"))
+        with tempfile.TemporaryDirectory() as d:
+            tmp = Path(d)
+            self._write(tmp, "pharmgkb_variant_sorted.1.index.gz", [
+                f"PA166153539\t{pv}\tRS699\t{db}",
+                f"PA166153539\t{pv}\tHGNC:333\t{hg}",
+                f"PA166153539\t{pv}\tENSG00000135744\t{en}",
+                f'PA166153539\t{pv}\t{{"variant_id":"PA166153539"}}\t-1',
+                f"PA999\t{pv}\tHGNC:1\t{hg}",  # no rsID -> emit nothing
+            ])
+            out = tmp / "r.tsv"
+            stats = build_reified_edges(tmp, self.reg, self.cats, self.pm, out,
+                                        datasets=["pharmgkb_variant"])
+            rows = [l.split("\t") for l in out.read_text().splitlines()[1:]]
+            self.assertEqual(stats.edges_written, 1)  # ensembl dup ignored
+            self.assertEqual(tuple(rows[0][1:4]),
+                             ("DBSNP:RS699", "biolink:is_sequence_variant_of", "HGNC:333"))
+
+    def test_pairwise_biogrid_require_physical(self):
+        """biogrid_interaction: physical pairs only; genetic dropped."""
+        bg, up = self._id("biogrid_interaction"), self._id("uniprot")
+        with tempfile.TemporaryDirectory() as d:
+            tmp = Path(d)
+            props = [
+                '{"interactor_a_id":"P39730","interactor_b_id":"P02309","experimental_system_type":"physical"}',
+                '{"interactor_a_id":"P39730","interactor_b_id":"P09440","experimental_system_type":"genetic"}',
+            ]
+            lines = [f"E1\t{bg}\tP39730\t{up}", f"E1\t{bg}\tP02309\t{up}",
+                     f"E1\t{bg}\tP09440\t{up}"] + [f"E1\t{bg}\t{p}\t-1" for p in props]
+            self._write(tmp, "biogrid_interaction_sorted.1.index.gz", lines)
+            out = tmp / "r.tsv"
+            stats = build_reified_edges(tmp, self.reg, self.cats, self.pm, out,
+                                        datasets=["biogrid_interaction"])
+            edges = {(r.split("\t")[1], r.split("\t")[3])
+                     for r in out.read_text().splitlines()[1:]}
+            self.assertEqual(stats.edges_written, 1)
+            self.assertEqual(edges, {("UniProtKB:P39730", "UniProtKB:P02309")})
+
     def test_bipartite_bioactivity(self):
         ca, cm, up = self._id("chembl_activity"), self._id("chembl_molecule"), self._id("uniprot")
         bao = self._id("bao")

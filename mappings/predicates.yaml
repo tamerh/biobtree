@@ -67,6 +67,16 @@ direct:
   # --- Protein -> family ----------------------------------------------------
   "uniprot>interpro":  {predicate: "biolink:member_of"}
 
+  # --- Enzyme activity / reactions (MolecularActivity nodes) ----------------
+  "uniprot>ec":        {predicate: "biolink:enables", note: "protein enables EC activity"}
+  "hgnc>ec":           {skip: "gene->EC; use uniprot>ec (protein-level)"}
+  "interpro>ec":       {skip: "family->EC, not a clean enables edge"}
+  "pdb>ec":            {skip: "structure->EC"}
+  "rhea>chebi":        {predicate: "biolink:has_participant"}
+  "rhea>uniprot":      {predicate: "biolink:enables", flip: true, note: "protein catalyzes reaction"}
+  "rhea>ec":           {skip: "activity<->activity, no clean predicate"}
+  "rhea>go":           {skip: "activity<->activity"}
+
   # --- ncRNA -> gene --------------------------------------------------------
   "rnacentral>ensembl": {predicate: "biolink:gene_product_of", note: "ncRNA is the product of the gene"}
   "rnacentral>go":      {skip: "GO aspect not resolvable in direct edges; add rnacentral as a go.py annotation source instead"}
@@ -111,6 +121,7 @@ reified:
   # --- Protein-protein interaction (pairwise: protein_a/b are the real pair) --
   intact:             {kind: pairwise, partner: uniprot, subject_field: protein_a, object_field: protein_b, predicate: "biolink:physically_interacts_with"}
   string_interaction: {kind: pairwise, partner: uniprot, subject_field: uniprot_a, object_field: uniprot_b, predicate: "biolink:physically_interacts_with", note: "very large (~866M rows)"}
+  biogrid_interaction: {kind: pairwise, partner: uniprot, subject_field: interactor_a_id, object_field: interactor_b_id, predicate: "biolink:physically_interacts_with", require: {experimental_system_type: physical}, note: "BioGRID; physical subset only (genetic dropped)"}
   # signor DEFERRED: directed/signed causal regulation; needs role+sign.
 
   # --- Cell-cell ligand-receptor signaling (member-level gene interactions) ---
@@ -178,6 +189,12 @@ reified:
   # pharmgkb entry is a drug (its pubchem id) linked to associated genes encoded
   # as SYMBOLS; resolve:symbol maps the object (hgnc) symbols to ids.
   pharmgkb: {kind: bipartite, subject: pubchem, object: hgnc, resolve: symbol, predicate: "biolink:associated_with", note: "PharmGKB drug-gene pgx"}
+  # PharmGKB variant layer: rsID variant -> gene (is_sequence_variant_of). Star
+  # alleles without an rsID emit nothing; mesh targets skipped (not a node).
+  # variant->drug deferred (drugs are free-text names, no id on these lines).
+  pharmgkb_variant:        {kind: bipartite, subject: dbsnp, object: hgnc, predicate: "biolink:is_sequence_variant_of", note: "PharmGKB curated variant->gene"}
+  pharmgkb_var_annotation: {kind: bipartite, subject: dbsnp, object: hgnc, predicate: "biolink:is_sequence_variant_of", note: "PharmGKB variant annotation->gene (rsID subset)"}
+  pharmgkb_clinical:       {kind: bipartite, subject: dbsnp, object: hgnc, predicate: "biolink:is_sequence_variant_of", note: "PharmGKB clinical annotation->gene (rsID subset)"}
 
   # --- ncRNA layers (subject is the ncRNA gene) -----------------------------
   ncrna_disease:     {kind: bipartite, subject: hgnc, object: mondo, predicate: "biolink:associated_with", note: "ncRNA gene-disease"}

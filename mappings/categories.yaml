@@ -103,6 +103,11 @@ datasets:
   # --- Non-coding RNA (differentiating) -------------------------------------
   rnacentral:  {category: "biolink:NoncodingRNAProduct", prefix: "RNACENTRAL"}
 
+  # --- Molecular activities / reactions (biolink MolecularActivity id_prefixes
+  # include EC, RHEA, GO -- verified) ----------------------------------------
+  ec:          {category: "biolink:MolecularActivity", prefix: "EC", note: "enzyme classification"}
+  rhea:        {category: "biolink:MolecularActivity", prefix: "RHEA", note: "biochemical reactions"}
+
   # --- Deferred / aspect-dependent (NOT typed at dataset level) --------------
   # go: category depends on term aspect (MF/BP/CC) -> resolved in Phase 2 from
   #     the GO aspect attribute, not here.

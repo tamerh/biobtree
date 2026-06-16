@@ -123,6 +123,30 @@ class BuildEdgesTests(unittest.TestCase):
             self.assertEqual(stats.dropped_not_node, 1)  # hgnc>refseq
             self.assertEqual(stats.unmapped_pairs["interpro>uniprot"], 1)
 
+    def test_enzyme_and_reaction_direct_edges(self):
+        """uniprot>ec (enables) + rhea>chebi/uniprot (participant/catalysis flip)."""
+        up, ec, rh, ch = (self._id("uniprot"), self._id("ec"),
+                          self._id("rhea"), self._id("chebi"))
+        with tempfile.TemporaryDirectory() as d:
+            tmp = Path(d)
+            self._write(tmp, "uniprot_sorted.1.index.gz", [
+                f"P1\t{up}\t3.2.2.6\t{ec}",
+                f"P1\t{up}\t1.1.1.-\t{ec}",
+            ])
+            self._write(tmp, "rhea_sorted.1.index.gz", [
+                f'RHEA:10000\t{rh}\t{{"equation":"x"}}\t-1',
+                f"RHEA:10000\t{rh}\tCHEBI:15377\t{ch}",
+                f"RHEA:10000\t{rh}\tP1\t{up}",
+            ])
+            out = tmp / "edges.tsv"
+            stats = build_edges(tmp, self.reg, self.cats, self.pm, out)
+            edges = {(r.split("\t")[1], r.split("\t")[2], r.split("\t")[3])
+                     for r in out.read_text().splitlines()[1:]}
+            self.assertIn(("UniProtKB:P1", "biolink:enables", "EC:3.2.2.6"), edges)
+            self.assertIn(("RHEA:10000", "biolink:has_participant", "CHEBI:15377"), edges)
+            self.assertIn(("UniProtKB:P1", "biolink:enables", "RHEA:10000"), edges)  # flip
+            self.assertEqual(stats.edges_written, 4)
+
     def test_primary_knowledge_source(self):
         cl, hg = self._id("clinvar"), self._id("hgnc")
         with tempfile.TemporaryDirectory() as d:

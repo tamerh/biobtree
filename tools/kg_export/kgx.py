@@ -55,6 +55,8 @@ CANONICAL_PREFIXES = {
     "RNACENTRAL", "MSigDB", "HMDB", "GTOPDB",
     # bioregistry-verified (absent from biolink's curated map)
     "cellosaurus", "interpro", "corum", "lipidmaps", "orphanet",
+    # MolecularActivity id_prefixes (verified in biolink MolecularActivity)
+    "EC", "RHEA",
 }
 
 

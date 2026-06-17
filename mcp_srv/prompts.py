@@ -82,9 +82,9 @@ rhea: chebi, uniprot, go
 go: ensembl, uniprot, reactome, msigdb, swisslipids, bgee, interpro, goparent, gochild, hpa, rnacentral
 hpo: clinvar, gencc, mondo, msigdb, orphanet, mim, hmdb, hgnc, hpoparent, hpochild, upheno
 efo: gwas, mondo, cellxgene, efoparent, efochild, ncrna_disease
-upheno: hpo, mp, zp, xpo, wbphenotype, fypo, uphenoparent, uphenochild  # cross-species phenotype hub: >>hpo>>upheno>>mp bridges human<->model-organism phenotypes (also mp/zp/xpo/wbphenotype/fypo)
-mp: upheno, mpparent, mpchild  # Mammalian Phenotype Ontology (mouse/rat)
-zp: upheno, zpparent, zpchild  # Zebrafish Phenotype Ontology
+upheno: hpo, mp, zp, xpo, wbphenotype, fypo, uphenoparent, uphenochild  # cross-species phenotype hub. A GENE's model-organism phenotypes are reached THROUGH hpo (genes are NOT linked directly to mp/upheno): >>hgnc>>hpo>>upheno>>mp (mouse), >>hgnc>>hpo>>upheno>>zp (zebrafish), ...>>xpo/wbphenotype/fypo. So gene->human HP phenotypes -> their cross-species equivalents.
+mp: upheno, mpparent, mpchild  # Mammalian Phenotype Ontology (mouse/rat). Reach from a gene via >>hgnc>>hpo>>upheno>>mp (NOT >>hgnc>>mp).
+zp: upheno, zpparent, zpchild  # Zebrafish Phenotype Ontology. Reach from a gene via >>hgnc>>hpo>>upheno>>zp.
 xpo: upheno, xpoparent, xpochild  # Xenopus Phenotype Ontology
 wbphenotype: upheno, wbphenotypeparent, wbphenotypechild  # C. elegans Phenotype Ontology
 fypo: upheno, fypoparent, fypochild  # Fission Yeast Phenotype Ontology

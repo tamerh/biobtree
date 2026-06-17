@@ -9668,10 +9668,10 @@
       "category": "gene_dependency_function",
       "name": "Constrained gene filter (LOEUF)",
       "query": ">>ensembl>>gnomad_constraint[loeuf<0.35]",
-      "why": "Filter to strongly LoF-constrained genes (haploinsufficiency prioritization)",
+      "why": "Filter to strongly LoF-constrained genes (haploinsufficiency prioritization). NOTE: population LoF-constraint != clinical importance — e.g. BRCA2/MLH1 tolerate heterozygous LoF (LOEUF ~0.6-0.8); use genuinely haploinsufficient genes like the dominant epilepsy SCN1A/SCN2A (LOEUF <0.2).",
       "should_pass": [
-        "BRCA2",
-        "MLH1"
+        "SCN1A",
+        "SCN2A"
       ],
       "should_fail": [
         "NOTREAL"

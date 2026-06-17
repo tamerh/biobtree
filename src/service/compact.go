@@ -266,6 +266,9 @@ func extractField(xref *pbuf.Xref, field string) string {
 	if a := xref.GetFaers(); a != nil {
 		return extractFaersField(a, field)
 	}
+	if a := xref.GetFaersReaction(); a != nil {
+		return extractFaersReactionField(a, field)
+	}
 	if a := xref.GetUfeature(); a != nil {
 		return extractUfeatureField(a, field)
 	}
@@ -1212,8 +1215,12 @@ func ExtractSourceName(xref *pbuf.Xref) string {
 		return fmt.Sprintf("%s → %s [%s]: %s", a.ChemicalName, a.DiseaseName, evidence, genes)
 	}
 	if a := xref.GetFaers(); a != nil {
-		// Format: "drug → reaction (n reports, PRR x.x)"
-		return fmt.Sprintf("%s → %s (%d reports, PRR %.1f)", a.DrugName, a.Reaction, a.ReportCount, a.Prr)
+		// Format: "drug (n reports, m reactions)"
+		return fmt.Sprintf("%s (%d reports, %d reactions)", a.DrugName, a.TotalReports, a.DistinctReactions)
+	}
+	if a := xref.GetFaersReaction(); a != nil {
+		// Format: "reaction (n reports, PRR x.x)"
+		return fmt.Sprintf("%s (%d reports, PRR %.1f)", a.Reaction, a.ReportCount, a.Prr)
 	}
 	if a := xref.GetCellosaurus(); a != nil {
 		return a.Name
@@ -1476,11 +1483,26 @@ func extractCtdDiseaseAssociationField(a *pbuf.CtdDiseaseAssociationAttr, field 
 	}
 }
 
-// extractFaersField extracts a field from FaersAttr
+// extractFaersField extracts a field from FaersAttr (MASTER, per-drug record)
 func extractFaersField(a *pbuf.FaersAttr, field string) string {
 	switch field {
 	case "drug_name":
 		return a.DrugName
+	case "total_reports":
+		return fmt.Sprintf("%d", a.TotalReports)
+	case "distinct_reactions":
+		return fmt.Sprintf("%d", a.DistinctReactions)
+	case "serious_reports":
+		return fmt.Sprintf("%d", a.SeriousReports)
+	default:
+		return ""
+	}
+}
+
+// extractFaersReactionField extracts a field from FaersReactionAttr (CHILD,
+// per drug,reaction record)
+func extractFaersReactionField(a *pbuf.FaersReactionAttr, field string) string {
+	switch field {
 	case "reaction":
 		return a.Reaction
 	case "report_count":
@@ -1489,10 +1511,8 @@ func extractFaersField(a *pbuf.FaersAttr, field string) string {
 		return fmt.Sprintf("%.2f", a.Prr)
 	case "serious_count":
 		return fmt.Sprintf("%d", a.SeriousCount)
-	case "top_outcome":
-		return a.TopOutcome
-	case "drug_report_total":
-		return fmt.Sprintf("%d", a.DrugReportTotal)
+	case "outcome":
+		return a.Outcome
 	default:
 		return ""
 	}

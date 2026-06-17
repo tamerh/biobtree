@@ -356,11 +356,13 @@ func (dc *drugcentral) createCrossRefs(structID string, entry *drugcentralEntry,
 		dc.d.addXref(entry.inn, textLinkID, structID, dc.source, true)
 	}
 
-	// InChIKey as a text keyword. ChEMBL also indexes its molecule InChIKeys as
-	// keywords, so a shared structure resolves drugcentral <-> chembl_molecule
-	// (and pubchem, which indexes synonyms) through the keyword index.
+	// InChIKey: index as a text keyword (searchable) AND resolve it through the
+	// lookup DB to the real chembl_molecule / pubchem nodes, adding graph edges so
+	// the drug is edge-reachable via map chains (e.g. chembl_molecule >> drugcentral),
+	// not merely co-findable by a shared keyword.
 	if entry.inchiKey != "" {
 		dc.d.addXref(entry.inchiKey, textLinkID, structID, dc.source, true)
+		dc.linkStructure(structID, entry.inchiKey, sourceID)
 	}
 
 	// Drug -> target (human UniProt accessions).
@@ -373,6 +375,51 @@ func (dc *drugcentral) createCrossRefs(structID string, entry *drugcentralEntry,
 	// Drug -> target gene (canonical HGNC / Entrez / Ensembl resolution).
 	for g := range entry.genes {
 		dc.d.addHumanGeneXrefsAll(g, structID, sourceID)
+	}
+}
+
+// linkStructure resolves a drug's InChIKey through the lookup DB to its
+// chembl_molecule / pubchem nodes and adds real xref edges, so a DrugCentral drug
+// is reachable via map chains (chembl_molecule >> drugcentral, drugcentral >>
+// pubchem, ...) — not only co-findable through a shared text keyword. ChEMBL
+// indexes molecule InChIKeys (and pubchem its synonyms), so the lookup returns
+// the matching compound nodes; we keep only chembl_molecule / pubchem targets.
+func (dc *drugcentral) linkStructure(structID, inchiKey, sourceID string) {
+	if dc.d.lookupService == nil {
+		return
+	}
+	result, err := dc.d.lookup(inchiKey)
+	if err != nil || result == nil {
+		return
+	}
+	chemblID := config.DataconfIDStringToInt["chembl_molecule"]
+	pubchemID := config.DataconfIDStringToInt["pubchem"]
+	seen := make(map[string]bool)
+	add := func(ds uint32, ident string) {
+		var name string
+		switch ds {
+		case chemblID:
+			name = "chembl_molecule"
+		case pubchemID:
+			name = "pubchem"
+		default:
+			return
+		}
+		key := name + "\t" + ident
+		if seen[key] {
+			return
+		}
+		seen[key] = true
+		dc.d.addXref(structID, sourceID, ident, name, false)
+	}
+	for _, x := range result.Results {
+		if x.IsLink {
+			for _, e := range x.Entries {
+				add(e.Dataset, e.Identifier)
+			}
+		} else {
+			add(x.Dataset, x.Identifier)
+		}
 	}
 }
 

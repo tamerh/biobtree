@@ -9852,6 +9852,30 @@
       ]
     },
     {
+      "category": "alliance_phenotype",
+      "name": "model-organism gene to phenotype association (Alliance)",
+      "query": ">>alliance_phenotype",
+      "why": "Model-organism gene-phenotype curation from the Alliance of Genome Resources (mouse gene -> phenotype records)",
+      "should_pass": [
+        "MGI:87853"
+      ],
+      "should_fail": [
+        "999999999"
+      ]
+    },
+    {
+      "category": "alliance_phenotype",
+      "name": "mouse gene to MP phenotype ontology (via Alliance)",
+      "query": ">>alliance_phenotype>>mp",
+      "why": "Alliance mouse gene-phenotype associations resolve to Mammalian Phenotype (MP) ontology terms",
+      "should_pass": [
+        "MGI:87853"
+      ],
+      "should_fail": [
+        "999999999"
+      ]
+    },
+    {
       "category": "upheno",
       "name": "human phenotype to uPheno cross-species hub",
       "query": ">>hpo>>upheno",

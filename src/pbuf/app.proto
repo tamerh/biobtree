@@ -207,6 +207,7 @@ message Xref {
     GnomadConstraintAttr gnomad_constraint=773;
     DrugcentralAttr drugcentral=774;
     FaersAttr faers=775;
+    AlliancePhenotypeAttr alliance_phenotype=776;
 
   }
 

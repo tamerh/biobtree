@@ -164,6 +164,9 @@ func extractField(xref *pbuf.Xref, field string) string {
 	if a := xref.GetAllianceDisease(); a != nil {
 		return extractAllianceDiseaseField(a, field)
 	}
+	if a := xref.GetAlliancePhenotype(); a != nil {
+		return extractAlliancePhenotypeField(a, field)
+	}
 	if a := xref.GetRefseq(); a != nil {
 		return extractRefseqField(a, field)
 	}
@@ -856,6 +859,26 @@ func extractNcrnaDrugField(a *pbuf.NcrnaDrugAttr, field string) string {
 		return a.DetectionMethod
 	case "condition":
 		return a.Condition
+	case "source":
+		return a.Source
+	default:
+		return ""
+	}
+}
+
+// extractAlliancePhenotypeField extracts a field from AlliancePhenotypeAttr
+func extractAlliancePhenotypeField(a *pbuf.AlliancePhenotypeAttr, field string) string {
+	switch field {
+	case "gene_symbol":
+		return a.GeneSymbol
+	case "species":
+		return a.Species
+	case "phenotype_term":
+		return a.PhenotypeTerm
+	case "phenotype_statement":
+		return a.PhenotypeStatement
+	case "evidence_code":
+		return a.EvidenceCode
 	case "source":
 		return a.Source
 	default:

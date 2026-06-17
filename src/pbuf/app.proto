@@ -208,6 +208,7 @@ message Xref {
     DrugcentralAttr drugcentral=774;
     FaersAttr faers=775;
     AlliancePhenotypeAttr alliance_phenotype=776;
+    FaersReactionAttr faers_reaction=777;
 
   }
 

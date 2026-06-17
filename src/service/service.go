@@ -225,6 +225,7 @@ func (s *Service) initWithDbDir(dbDir string) error {
 		cel.Types(&pbuf.CtdGeneInteraction{}),
 		cel.Types(&pbuf.CtdDiseaseAssociation{}),
 		cel.Types(&pbuf.FaersAttr{}),
+		cel.Types(&pbuf.FaersReactionAttr{}),
 		cel.Types(&pbuf.MsigdbAttr{}),
 		cel.Types(&pbuf.AlphaMissenseAttr{}),
 		cel.Types(&pbuf.AlphaMissenseTranscriptAttr{}),
@@ -420,6 +421,8 @@ func (s *Service) initWithDbDir(dbDir string) error {
 			decls.NewIdent("ctd_disease_association", decls.NewObjectType("pbuf.CtdDiseaseAssociationAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("faers", decls.NewObjectType("pbuf.FaersAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("faers_reaction", decls.NewObjectType("pbuf.FaersReactionAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("biogrid", decls.NewObjectType("pbuf.BiogridAttr"), nil)),
 		cel.Declarations(

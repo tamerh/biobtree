@@ -8,29 +8,41 @@ FAERS is the FDA's post-marketing pharmacovigilance database of spontaneous adve
 **About**: https://open.fda.gov/data/faers/
 **License**: **CC0 / Public Domain** — https://open.fda.gov/license/
 **Data Type**: Drug → adverse-reaction co-occurrence aggregates with a disproportionality signal (PRR)
-**Dataset ID**: 802
+**Dataset IDs**: `faers` (master, **802**), `faers_reaction` (child, **804**)
 
 ## Attribution
 Data courtesy of the U.S. Food & Drug Administration via the openFDA API. openFDA data is released into the public domain (CC0). This product uses publicly available data from the FDA but is **not endorsed by and does not reflect the views of the FDA**.
 
 ## Integration Architecture
 
-### Storage Model
-- **Primary Entries**: one entry per **(drug, adverse-reaction)** aggregate, keyed `FAERS_<sha1(drug|reaction)>` (e.g. `FAERS_5AD17CF786103F8C`). `bucketMethod: alphanum`.
-- **Searchable Text Links**: drug name and the reaction term both point at the aggregate record.
-- **Attributes Stored**: `drug_name`, `reaction` (MedDRA Preferred Term string), `report_count`, `prr`, `serious_count`, `top_outcome`, `drug_report_total`.
-- **Cross-References**: `chembl_molecule`, `pubchem` (best-effort, via drug-name resolution — see below).
+### Storage Model (master / child)
+FAERS uses a **master/child** layout so the drug↔compound linkage is consolidated to one node per drug and the per-reaction detail hangs off it:
+
+- **`faers` (MASTER, id 802)** — one entry per **drug**, keyed `FAERS_<sha1(drug)>` (e.g. `FAERS_80AE44850DC40259`). `bucketMethod: alphanum`.
+  - **Attributes**: `drug_name`, `total_reports` (total report mentions of this drug), `distinct_reactions`, `serious_reports`.
+  - **Cross-References**: `chembl_molecule`, `pubchem` — resolved **once per drug** (best-effort, via drug-name resolution — see below). This is the single place the drug is normalized to a compound.
+  - **Edges to children**: `faers >> faers_reaction`, **sorted by `report_count` DESC** (so the most-reported reactions survive the per-query result cap).
+  - **Searchable Text Link**: the drug name points at the master record.
+- **`faers_reaction` (CHILD, id 804)** — one entry per **(drug × reaction)** co-occurrence, keyed `FAERS_RX_<sha1(drug|reaction)>`. `bucketMethod: alphanum`.
+  - **Attributes**: `reaction` (MedDRA Preferred Term string), `report_count`, `prr`, `serious_count`, `outcome`.
+  - **Edge**: linked back to its parent `faers` master (bidirectional with the sorted master→child edge).
+  - **Searchable Text Link**: the reaction term points at the child record.
+
+So the access path is **`chembl_molecule >> faers >> faers_reaction`** (compound → drug AE summary → per-reaction detail, most-reported first). **Individual reports are never stored** — only the per-drug and per-(drug,reaction) aggregates.
 
 ### Source JSON fields parsed (per report)
 - `serious` — report-level seriousness flag (`"1"` = serious).
 - `patient.drug[].openfda.generic_name` / `.substance_name` / `.brand_name`, and `patient.drug[].medicinalproduct` — the drug-name normalization cascade (generic preferred).
 - `patient.reaction[].reactionmeddrapt` — the MedDRA Preferred Term **string** (stored verbatim; no MedDRA dictionary imported).
-- `patient.reaction[].reactionoutcome` — outcome code, aggregated into `top_outcome` (1=recovered, 2=recovering, 3=not recovered, 4=recovered with sequelae, 5=fatal, 6=unknown).
+- `patient.reaction[].reactionoutcome` — outcome code, aggregated per child reaction into `outcome` (the most common code: 1=recovered, 2=recovering, 3=not recovered, 4=recovered with sequelae, 5=fatal, 6=unknown).
 
 ### Processing
-FAERS is partitioned into ~1,700 quarterly files (~20M reports total). The parser streams each partition, and for every report folds the **cross product** of its distinct drugs × distinct reactions into `(drug, reaction)` aggregates, also tracking per-drug and per-reaction report totals. After aggregation it computes the PRR and writes records whose `report_count >= minReportCount` (default 2).
+FAERS is partitioned into ~1,700 quarterly files (~20M reports total). The parser streams each partition, and for every report folds the **cross product** of its distinct drugs × distinct reactions into `(drug, reaction)` aggregates, also tracking per-drug and per-reaction report totals. After aggregation it:
 
-- **Full corpus** is a production-reindex concern. For development/test builds the parser caps to `testPartitions` (default 2 most-recent partitions) so only a few hundred MB is fetched. Remove the cap (or set `testPartitions` high) for a full ingest.
+1. writes one **`faers_reaction` child** per `(drug, reaction)` pair whose `report_count >= minReportCount` (default 2), with its PRR / serious_count / outcome, and links it to its parent master sorted by `report_count` DESC;
+2. writes one **`faers` master** per drug, summing `total_reports` / `serious_reports` from the report-level marginals and counting `distinct_reactions` from the children that passed the threshold, and resolves the drug **once** to `chembl_molecule` / `pubchem`.
+
+- **Full corpus**: the config no longer caps partitions, so a production re-index ingests the full ~1,700-partition corpus. In **test mode** the parser auto-caps to the 2 most-recent partitions (`resolvePartitions` fallback) so the focused build only fetches a few hundred MB. A `testPartitions` config key, if set, overrides the cap in either mode.
 
 ## CRITICAL CAVEATS — read before using
 
@@ -45,21 +57,21 @@ FAERS is partitioned into ~1,700 quarterly files (~20M reports total). The parse
 
 ## Use Cases
 
-**1. Adverse events reported for a drug**
+**1. A drug's adverse-event summary, then its top reactions**
 ```
-Search: aspirin  (dataset filter: faers)
-→ FAERS (drug, reaction) records for aspirin, each with report_count and PRR
+aspirin >> faers                  → the drug's master (total_reports, distinct_reactions, serious_reports)
+aspirin >> faers >> faers_reaction → its reactions, most-reported first (report_count, PRR, serious_count)
 ```
 
-**2. Filter to disproportionately-reported, serious signals**
+**2. Filter to disproportionately-reported, serious signals (on the child)**
 ```
-map(faers).filter(prr > 2 && report_count >= 3)
+map(faers_reaction).filter(prr > 2 && report_count >= 3)
 ```
 
 **3. Bridge a chemical to its adverse-event profile**
 ```
->>chembl_molecule>>faers   or   >>pubchem>>faers
-→ adverse-reaction aggregates for the compound (where the drug name resolved)
+>>chembl_molecule>>faers>>faers_reaction   or   >>pubchem>>faers>>faers_reaction
+→ the compound's drug master and its per-reaction detail (where the drug name resolved)
 ```
 
 ## Configuration
@@ -74,12 +86,27 @@ map(faers).filter(prr > 2 && report_count >= 3)
   "path": "https://download.open.fda.gov/drug/event/",
   "useLocalFile": "no",
   "hasFilter": "yes",
-  "testPartitions": "2",
   "minReportCount": "2",
-  "attrs": "drug_name,reaction,report_count,prr,serious_count,top_outcome,drug_report_total",
-  "compact_fields": "drug_name,reaction,report_count,prr,serious_count",
+  "attrs": "drug_name,total_reports,distinct_reactions,serious_reports",
+  "compact_fields": "drug_name,total_reports,distinct_reactions",
   "test_entries_count": "100",
   "bucketMethod": "alphanum",
-  "xrefSort": "chembl_molecule:interactionScore;pubchem:interactionScore"
+  "childDatasets": "faers_reaction",
+  "xrefSort": "chembl_molecule:interactionScore;pubchem:interactionScore;faers_reaction:cellCount"
+},
+"faers_reaction": {
+  "id": "804",
+  "name": "FAERS Reaction",
+  "textPriority": "40",
+  "aliases": "FAERS reaction,adverse reaction,adverse event reaction,MedDRA preferred term",
+  "url": "https://open.fda.gov/data/faers/",
+  "useLocalFile": "no",
+  "hasFilter": "yes",
+  "attrs": "reaction,report_count,prr,serious_count,outcome",
+  "compact_fields": "reaction,report_count,prr",
+  "test_entries_count": "100",
+  "bucketMethod": "alphanum"
 }
 ```
+
+> The `faers_reaction:cellCount` entry in the master's `xrefSort` is what orders the `faers >> faers_reaction` edges by `report_count` (descending), so the most-reported reactions survive the per-query result cap.

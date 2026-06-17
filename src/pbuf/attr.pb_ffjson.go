@@ -60433,34 +60433,19 @@ func (j *FaersAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.WriteJsonString(buf, string(j.DrugName))
 		buf.WriteByte(',')
 	}
-	if len(j.Reaction) != 0 {
-		buf.WriteString(`"reaction":`)
-		fflib.WriteJsonString(buf, string(j.Reaction))
+	if j.TotalReports != 0 {
+		buf.WriteString(`"total_reports":`)
+		fflib.FormatBits2(buf, uint64(j.TotalReports), 10, j.TotalReports < 0)
 		buf.WriteByte(',')
 	}
-	if j.ReportCount != 0 {
-		buf.WriteString(`"report_count":`)
-		fflib.FormatBits2(buf, uint64(j.ReportCount), 10, j.ReportCount < 0)
+	if j.DistinctReactions != 0 {
+		buf.WriteString(`"distinct_reactions":`)
+		fflib.FormatBits2(buf, uint64(j.DistinctReactions), 10, j.DistinctReactions < 0)
 		buf.WriteByte(',')
 	}
-	if j.Prr != 0 {
-		buf.WriteString(`"prr":`)
-		fflib.AppendFloat(buf, float64(j.Prr), 'g', -1, 64)
-		buf.WriteByte(',')
-	}
-	if j.SeriousCount != 0 {
-		buf.WriteString(`"serious_count":`)
-		fflib.FormatBits2(buf, uint64(j.SeriousCount), 10, j.SeriousCount < 0)
-		buf.WriteByte(',')
-	}
-	if len(j.TopOutcome) != 0 {
-		buf.WriteString(`"top_outcome":`)
-		fflib.WriteJsonString(buf, string(j.TopOutcome))
-		buf.WriteByte(',')
-	}
-	if j.DrugReportTotal != 0 {
-		buf.WriteString(`"drug_report_total":`)
-		fflib.FormatBits2(buf, uint64(j.DrugReportTotal), 10, j.DrugReportTotal < 0)
+	if j.SeriousReports != 0 {
+		buf.WriteString(`"serious_reports":`)
+		fflib.FormatBits2(buf, uint64(j.SeriousReports), 10, j.SeriousReports < 0)
 		buf.WriteByte(',')
 	}
 	if len(j.Id) != 0 {
@@ -60479,34 +60464,22 @@ const (
 
 	ffjtFaersAttrDrugName
 
-	ffjtFaersAttrReaction
+	ffjtFaersAttrTotalReports
 
-	ffjtFaersAttrReportCount
+	ffjtFaersAttrDistinctReactions
 
-	ffjtFaersAttrPrr
-
-	ffjtFaersAttrSeriousCount
-
-	ffjtFaersAttrTopOutcome
-
-	ffjtFaersAttrDrugReportTotal
+	ffjtFaersAttrSeriousReports
 
 	ffjtFaersAttrId
 )
 
 var ffjKeyFaersAttrDrugName = []byte("drug_name")
 
-var ffjKeyFaersAttrReaction = []byte("reaction")
+var ffjKeyFaersAttrTotalReports = []byte("total_reports")
 
-var ffjKeyFaersAttrReportCount = []byte("report_count")
+var ffjKeyFaersAttrDistinctReactions = []byte("distinct_reactions")
 
-var ffjKeyFaersAttrPrr = []byte("prr")
-
-var ffjKeyFaersAttrSeriousCount = []byte("serious_count")
-
-var ffjKeyFaersAttrTopOutcome = []byte("top_outcome")
-
-var ffjKeyFaersAttrDrugReportTotal = []byte("drug_report_total")
+var ffjKeyFaersAttrSeriousReports = []byte("serious_reports")
 
 var ffjKeyFaersAttrId = []byte("id")
 
@@ -60578,8 +60551,8 @@ mainparse:
 						state = fflib.FFParse_want_colon
 						goto mainparse
 
-					} else if bytes.Equal(ffjKeyFaersAttrDrugReportTotal, kn) {
-						currentKey = ffjtFaersAttrDrugReportTotal
+					} else if bytes.Equal(ffjKeyFaersAttrDistinctReactions, kn) {
+						currentKey = ffjtFaersAttrDistinctReactions
 						state = fflib.FFParse_want_colon
 						goto mainparse
 					}
@@ -60592,39 +60565,18 @@ mainparse:
 						goto mainparse
 					}
 
-				case 'p':
-
-					if bytes.Equal(ffjKeyFaersAttrPrr, kn) {
-						currentKey = ffjtFaersAttrPrr
-						state = fflib.FFParse_want_colon
-						goto mainparse
-					}
-
-				case 'r':
-
-					if bytes.Equal(ffjKeyFaersAttrReaction, kn) {
-						currentKey = ffjtFaersAttrReaction
-						state = fflib.FFParse_want_colon
-						goto mainparse
-
-					} else if bytes.Equal(ffjKeyFaersAttrReportCount, kn) {
-						currentKey = ffjtFaersAttrReportCount
-						state = fflib.FFParse_want_colon
-						goto mainparse
-					}
-
 				case 's':
 
-					if bytes.Equal(ffjKeyFaersAttrSeriousCount, kn) {
-						currentKey = ffjtFaersAttrSeriousCount
+					if bytes.Equal(ffjKeyFaersAttrSeriousReports, kn) {
+						currentKey = ffjtFaersAttrSeriousReports
 						state = fflib.FFParse_want_colon
 						goto mainparse
 					}
 
 				case 't':
 
-					if bytes.Equal(ffjKeyFaersAttrTopOutcome, kn) {
-						currentKey = ffjtFaersAttrTopOutcome
+					if bytes.Equal(ffjKeyFaersAttrTotalReports, kn) {
+						currentKey = ffjtFaersAttrTotalReports
 						state = fflib.FFParse_want_colon
 						goto mainparse
 					}
@@ -60637,38 +60589,20 @@ mainparse:
 					goto mainparse
 				}
 
-				if fflib.AsciiEqualFold(ffjKeyFaersAttrDrugReportTotal, kn) {
-					currentKey = ffjtFaersAttrDrugReportTotal
+				if fflib.EqualFoldRight(ffjKeyFaersAttrSeriousReports, kn) {
+					currentKey = ffjtFaersAttrSeriousReports
 					state = fflib.FFParse_want_colon
 					goto mainparse
 				}
 
-				if fflib.AsciiEqualFold(ffjKeyFaersAttrTopOutcome, kn) {
-					currentKey = ffjtFaersAttrTopOutcome
+				if fflib.EqualFoldRight(ffjKeyFaersAttrDistinctReactions, kn) {
+					currentKey = ffjtFaersAttrDistinctReactions
 					state = fflib.FFParse_want_colon
 					goto mainparse
 				}
 
-				if fflib.EqualFoldRight(ffjKeyFaersAttrSeriousCount, kn) {
-					currentKey = ffjtFaersAttrSeriousCount
-					state = fflib.FFParse_want_colon
-					goto mainparse
-				}
-
-				if fflib.SimpleLetterEqualFold(ffjKeyFaersAttrPrr, kn) {
-					currentKey = ffjtFaersAttrPrr
-					state = fflib.FFParse_want_colon
-					goto mainparse
-				}
-
-				if fflib.AsciiEqualFold(ffjKeyFaersAttrReportCount, kn) {
-					currentKey = ffjtFaersAttrReportCount
-					state = fflib.FFParse_want_colon
-					goto mainparse
-				}
-
-				if fflib.SimpleLetterEqualFold(ffjKeyFaersAttrReaction, kn) {
-					currentKey = ffjtFaersAttrReaction
+				if fflib.EqualFoldRight(ffjKeyFaersAttrTotalReports, kn) {
+					currentKey = ffjtFaersAttrTotalReports
 					state = fflib.FFParse_want_colon
 					goto mainparse
 				}
@@ -60699,23 +60633,14 @@ mainparse:
 				case ffjtFaersAttrDrugName:
 					goto handle_DrugName
 
-				case ffjtFaersAttrReaction:
-					goto handle_Reaction
+				case ffjtFaersAttrTotalReports:
+					goto handle_TotalReports
 
-				case ffjtFaersAttrReportCount:
-					goto handle_ReportCount
+				case ffjtFaersAttrDistinctReactions:
+					goto handle_DistinctReactions
 
-				case ffjtFaersAttrPrr:
-					goto handle_Prr
-
-				case ffjtFaersAttrSeriousCount:
-					goto handle_SeriousCount
-
-				case ffjtFaersAttrTopOutcome:
-					goto handle_TopOutcome
-
-				case ffjtFaersAttrDrugReportTotal:
-					goto handle_DrugReportTotal
+				case ffjtFaersAttrSeriousReports:
+					goto handle_SeriousReports
 
 				case ffjtFaersAttrId:
 					goto handle_Id
@@ -60759,6 +60684,422 @@ handle_DrugName:
 
 	state = fflib.FFParse_after_value
 	goto mainparse
+
+handle_TotalReports:
+
+	/* handler: j.TotalReports type=int32 kind=int32 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for int32", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseInt(fs.Output.Bytes(), 10, 32)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.TotalReports = int32(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_DistinctReactions:
+
+	/* handler: j.DistinctReactions type=int32 kind=int32 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for int32", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseInt(fs.Output.Bytes(), 10, 32)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.DistinctReactions = int32(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_SeriousReports:
+
+	/* handler: j.SeriousReports type=int32 kind=int32 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for int32", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseInt(fs.Output.Bytes(), 10, 32)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.SeriousReports = int32(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Id:
+
+	/* handler: j.Id type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Id = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+wantedvalue:
+	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
+wrongtokenerror:
+	return fs.WrapErr(fmt.Errorf("ffjson: wanted token: %v, but got token: %v output=%s", wantedTok, tok, fs.Output.String()))
+tokerror:
+	if fs.BigError != nil {
+		return fs.WrapErr(fs.BigError)
+	}
+	err = fs.Error.ToError()
+	if err != nil {
+		return fs.WrapErr(err)
+	}
+	panic("ffjson-generated: unreachable, please report bug.")
+done:
+
+	return nil
+}
+
+// MarshalJSON marshal bytes to json - template
+func (j *FaersReactionAttr) MarshalJSON() ([]byte, error) {
+	var buf fflib.Buffer
+	if j == nil {
+		buf.WriteString("null")
+		return buf.Bytes(), nil
+	}
+	err := j.MarshalJSONBuf(&buf)
+	if err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
+}
+
+// MarshalJSONBuf marshal buff to json - template
+func (j *FaersReactionAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
+	if j == nil {
+		buf.WriteString("null")
+		return nil
+	}
+	var err error
+	var obj []byte
+	_ = obj
+	_ = err
+	buf.WriteString(`{ `)
+	if len(j.Reaction) != 0 {
+		buf.WriteString(`"reaction":`)
+		fflib.WriteJsonString(buf, string(j.Reaction))
+		buf.WriteByte(',')
+	}
+	if j.ReportCount != 0 {
+		buf.WriteString(`"report_count":`)
+		fflib.FormatBits2(buf, uint64(j.ReportCount), 10, j.ReportCount < 0)
+		buf.WriteByte(',')
+	}
+	if j.Prr != 0 {
+		buf.WriteString(`"prr":`)
+		fflib.AppendFloat(buf, float64(j.Prr), 'g', -1, 64)
+		buf.WriteByte(',')
+	}
+	if j.SeriousCount != 0 {
+		buf.WriteString(`"serious_count":`)
+		fflib.FormatBits2(buf, uint64(j.SeriousCount), 10, j.SeriousCount < 0)
+		buf.WriteByte(',')
+	}
+	if len(j.Outcome) != 0 {
+		buf.WriteString(`"outcome":`)
+		fflib.WriteJsonString(buf, string(j.Outcome))
+		buf.WriteByte(',')
+	}
+	if len(j.Id) != 0 {
+		buf.WriteString(`"id":`)
+		fflib.WriteJsonString(buf, string(j.Id))
+		buf.WriteByte(',')
+	}
+	buf.Rewind(1)
+	buf.WriteByte('}')
+	return nil
+}
+
+const (
+	ffjtFaersReactionAttrbase = iota
+	ffjtFaersReactionAttrnosuchkey
+
+	ffjtFaersReactionAttrReaction
+
+	ffjtFaersReactionAttrReportCount
+
+	ffjtFaersReactionAttrPrr
+
+	ffjtFaersReactionAttrSeriousCount
+
+	ffjtFaersReactionAttrOutcome
+
+	ffjtFaersReactionAttrId
+)
+
+var ffjKeyFaersReactionAttrReaction = []byte("reaction")
+
+var ffjKeyFaersReactionAttrReportCount = []byte("report_count")
+
+var ffjKeyFaersReactionAttrPrr = []byte("prr")
+
+var ffjKeyFaersReactionAttrSeriousCount = []byte("serious_count")
+
+var ffjKeyFaersReactionAttrOutcome = []byte("outcome")
+
+var ffjKeyFaersReactionAttrId = []byte("id")
+
+// UnmarshalJSON umarshall json - template of ffjson
+func (j *FaersReactionAttr) UnmarshalJSON(input []byte) error {
+	fs := fflib.NewFFLexer(input)
+	return j.UnmarshalJSONFFLexer(fs, fflib.FFParse_map_start)
+}
+
+// UnmarshalJSONFFLexer fast json unmarshall - template ffjson
+func (j *FaersReactionAttr) UnmarshalJSONFFLexer(fs *fflib.FFLexer, state fflib.FFParseState) error {
+	var err error
+	currentKey := ffjtFaersReactionAttrbase
+	_ = currentKey
+	tok := fflib.FFTok_init
+	wantedTok := fflib.FFTok_init
+
+mainparse:
+	for {
+		tok = fs.Scan()
+		//	println(fmt.Sprintf("debug: tok: %v  state: %v", tok, state))
+		if tok == fflib.FFTok_error {
+			goto tokerror
+		}
+
+		switch state {
+
+		case fflib.FFParse_map_start:
+			if tok != fflib.FFTok_left_bracket {
+				wantedTok = fflib.FFTok_left_bracket
+				goto wrongtokenerror
+			}
+			state = fflib.FFParse_want_key
+			continue
+
+		case fflib.FFParse_after_value:
+			if tok == fflib.FFTok_comma {
+				state = fflib.FFParse_want_key
+			} else if tok == fflib.FFTok_right_bracket {
+				goto done
+			} else {
+				wantedTok = fflib.FFTok_comma
+				goto wrongtokenerror
+			}
+
+		case fflib.FFParse_want_key:
+			// json {} ended. goto exit. woo.
+			if tok == fflib.FFTok_right_bracket {
+				goto done
+			}
+			if tok != fflib.FFTok_string {
+				wantedTok = fflib.FFTok_string
+				goto wrongtokenerror
+			}
+
+			kn := fs.Output.Bytes()
+			if len(kn) <= 0 {
+				// "" case. hrm.
+				currentKey = ffjtFaersReactionAttrnosuchkey
+				state = fflib.FFParse_want_colon
+				goto mainparse
+			} else {
+				switch kn[0] {
+
+				case 'i':
+
+					if bytes.Equal(ffjKeyFaersReactionAttrId, kn) {
+						currentKey = ffjtFaersReactionAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'o':
+
+					if bytes.Equal(ffjKeyFaersReactionAttrOutcome, kn) {
+						currentKey = ffjtFaersReactionAttrOutcome
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'p':
+
+					if bytes.Equal(ffjKeyFaersReactionAttrPrr, kn) {
+						currentKey = ffjtFaersReactionAttrPrr
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'r':
+
+					if bytes.Equal(ffjKeyFaersReactionAttrReaction, kn) {
+						currentKey = ffjtFaersReactionAttrReaction
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyFaersReactionAttrReportCount, kn) {
+						currentKey = ffjtFaersReactionAttrReportCount
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 's':
+
+					if bytes.Equal(ffjKeyFaersReactionAttrSeriousCount, kn) {
+						currentKey = ffjtFaersReactionAttrSeriousCount
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyFaersReactionAttrId, kn) {
+					currentKey = ffjtFaersReactionAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyFaersReactionAttrOutcome, kn) {
+					currentKey = ffjtFaersReactionAttrOutcome
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyFaersReactionAttrSeriousCount, kn) {
+					currentKey = ffjtFaersReactionAttrSeriousCount
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyFaersReactionAttrPrr, kn) {
+					currentKey = ffjtFaersReactionAttrPrr
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyFaersReactionAttrReportCount, kn) {
+					currentKey = ffjtFaersReactionAttrReportCount
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyFaersReactionAttrReaction, kn) {
+					currentKey = ffjtFaersReactionAttrReaction
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				currentKey = ffjtFaersReactionAttrnosuchkey
+				state = fflib.FFParse_want_colon
+				goto mainparse
+			}
+
+		case fflib.FFParse_want_colon:
+			if tok != fflib.FFTok_colon {
+				wantedTok = fflib.FFTok_colon
+				goto wrongtokenerror
+			}
+			state = fflib.FFParse_want_value
+			continue
+		case fflib.FFParse_want_value:
+
+			if tok == fflib.FFTok_left_brace || tok == fflib.FFTok_left_bracket || tok == fflib.FFTok_integer || tok == fflib.FFTok_double || tok == fflib.FFTok_string || tok == fflib.FFTok_bool || tok == fflib.FFTok_null {
+				switch currentKey {
+
+				case ffjtFaersReactionAttrReaction:
+					goto handle_Reaction
+
+				case ffjtFaersReactionAttrReportCount:
+					goto handle_ReportCount
+
+				case ffjtFaersReactionAttrPrr:
+					goto handle_Prr
+
+				case ffjtFaersReactionAttrSeriousCount:
+					goto handle_SeriousCount
+
+				case ffjtFaersReactionAttrOutcome:
+					goto handle_Outcome
+
+				case ffjtFaersReactionAttrId:
+					goto handle_Id
+
+				case ffjtFaersReactionAttrnosuchkey:
+					err = fs.SkipField(tok)
+					if err != nil {
+						return fs.WrapErr(err)
+					}
+					state = fflib.FFParse_after_value
+					goto mainparse
+				}
+			} else {
+				goto wantedvalue
+			}
+		}
+	}
 
 handle_Reaction:
 
@@ -60876,9 +61217,9 @@ handle_SeriousCount:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
-handle_TopOutcome:
+handle_Outcome:
 
-	/* handler: j.TopOutcome type=string kind=string quoted=false*/
+	/* handler: j.Outcome type=string kind=string quoted=false*/
 
 	{
 
@@ -60894,37 +61235,7 @@ handle_TopOutcome:
 
 			outBuf := fs.Output.Bytes()
 
-			j.TopOutcome = string(string(outBuf))
-
-		}
-	}
-
-	state = fflib.FFParse_after_value
-	goto mainparse
-
-handle_DrugReportTotal:
-
-	/* handler: j.DrugReportTotal type=int32 kind=int32 quoted=false*/
-
-	{
-		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
-			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for int32", tok))
-		}
-	}
-
-	{
-
-		if tok == fflib.FFTok_null {
-
-		} else {
-
-			tval, err := fflib.ParseInt(fs.Output.Bytes(), 10, 32)
-
-			if err != nil {
-				return fs.WrapErr(err)
-			}
-
-			j.DrugReportTotal = int32(tval)
+			j.Outcome = string(string(outBuf))
 
 		}
 	}

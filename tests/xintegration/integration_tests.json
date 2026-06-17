@@ -39,7 +39,7 @@
     "changes_8.0": "Added 50 new tests from multi-agent discovery session 2: patent_ip (4), clinical_trials_deep (3), rare_disease_deep (8), cell_type_biology (7), reverse_drug (4), ultra_long_chains (3), interpro_domain (4), gene_set_advanced (8), evidence_triangulation (3), metabolomics (7). New categories: patent_ip, clinical_trials_deep, rare_disease_deep, cell_type_biology, reverse_drug, ultra_long_chains, interpro_domain, gene_set_advanced, evidence_triangulation. Total: 448 tests.",
     "changes_8.7": "Added enzyme_biochemistry category (19 tests): BRENDA enzyme database integration tests. EC number lookups, kinetic parameters (Km, kcat) via brenda_kinetics, inhibitor data (Ki, IC50) via brenda_inhibitor, PubMed literature links, text search by enzyme/substrate/inhibitor names, and multi-hop queries for enzyme-centric analysis. Total: 577 tests.",
     "changes_8.8": "Added UniProt↔BRENDA bidirectional mapping tests (12 tests): protein to EC classification, gene to EC via UniProt, EC to proteins/structures/domains/pathways/drug targets/clinical variants. Leverages UniProt xrefs to BRENDA for multi-hop enzyme-centric queries. Total: 589 tests.",
-    "changes_faers": "Added faers category (3 tests): FAERS/openFDA drug adverse-event aggregates (id 802). Text search by drug name, chembl_molecule/pubchem normalization edges, PRR/report_count CEL filters. Co-occurrence (not causal), MedDRA PT strings only."
+    "changes_faers": "Refactored faers to master/child: faers MASTER (id 802, one per drug; total_reports/distinct_reactions/serious_reports; the single chembl_molecule/pubchem normalization node) + faers_reaction CHILD (id 804, one per drug-reaction; report_count/prr/serious_count/outcome). Master->child edges sorted by report_count DESC. Tests: drug-name text search, chembl_molecule/pubchem>>faers, full chembl_molecule>>faers>>faers_reaction chain, PRR/report_count CEL filters on the child. Co-occurrence (not causal), MedDRA PT strings only; individual reports NOT stored."
   },
   "test_categories": {
     "gene_mapping": "Gene symbol/ID to various resources (proteins, transcripts, GO terms)",
@@ -112,7 +112,7 @@
     "clingen_curation": "ClinGen expert curations (CC0): dosage sensitivity (haploinsufficiency/triplosensitivity per gene), gene-disease validity (evidence tier Definitive..Refuted), and variant pathogenicity (VCEP ACMG, bridged to ClinVar -> dbSNP/gene/disease).",
     "gene_dependency_function": "Gene essentiality, dependency and cited function (DepMap CC BY 4.0 + NCBI GeneRIF public domain): per-gene CRISPR essentiality aggregate, per-cell-line dependencies bridged to Cellosaurus, and cited one-line functional claims. Powers target tractability and RAG grounding.",
     "drugcentral_drugs": "DrugCentral approved drugs: drug->target (MOA) and regulatory approval (FDA/EMA/PMDA)",
-    "faers": "FAERS (openFDA FDA Adverse Event Reporting System) drug -> adverse-reaction co-occurrence aggregates with PRR disproportionality signal. Tests text search by drug name, drug-name normalization edge to chembl_molecule/pubchem, and CEL filters on report_count/prr. NOTE: co-occurrence not causation; reactions are MedDRA PT strings only."
+    "faers": "FAERS (openFDA FDA Adverse Event Reporting System), master/child. faers MASTER (id 802): one per drug, total_reports/distinct_reactions/serious_reports, the single chembl_molecule/pubchem normalization node. faers_reaction CHILD (id 804): one per (drug,reaction) co-occurrence with PRR disproportionality signal, linked to its master (most-reported first). Tests text search by drug name, compound>>faers and the full compound>>faers>>faers_reaction chain, and CEL filters on report_count/prr (on the child). NOTE: co-occurrence not causation; reactions are MedDRA PT strings only; individual reports NOT stored."
   },
   "tests": [
     {
@@ -9941,9 +9941,9 @@
     },
     {
       "category": "faers",
-      "name": "ChEMBL molecule to FAERS adverse events",
+      "name": "ChEMBL molecule to FAERS drug master",
       "query": ">>chembl_molecule>>faers",
-      "why": "Bridge a compound to its FAERS adverse-event profile via best-effort drug-name normalization",
+      "why": "Bridge a compound to its FAERS per-drug adverse-event master via best-effort drug-name normalization",
       "should_pass": [
         "CHEMBL1201111"
       ],
@@ -9951,9 +9951,19 @@
     },
     {
       "category": "faers",
-      "name": "PubChem to FAERS adverse events",
+      "name": "ChEMBL molecule to FAERS reactions (master->child chain)",
+      "query": ">>chembl_molecule>>faers>>faers_reaction",
+      "why": "Full master/child chain: a compound resolves to its drug master, then to its per-reaction detail (most-reported first)",
+      "should_pass": [
+        "CHEMBL1201111"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "faers",
+      "name": "PubChem to FAERS drug master",
       "query": ">>pubchem>>faers",
-      "why": "Bridge a PubChem compound to its FAERS adverse-event records",
+      "why": "Bridge a PubChem compound to its FAERS per-drug adverse-event master",
       "should_pass": [
         "68647"
       ],

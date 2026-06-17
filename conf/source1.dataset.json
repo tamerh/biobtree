@@ -1144,11 +1144,25 @@
     "useLocalFile": "no",
     "hasFilter": "yes",
     "minReportCount": "2",
-    "attrs": "drug_name,reaction,report_count,prr,serious_count,top_outcome,drug_report_total",
-    "compact_fields": "drug_name,reaction,report_count,prr,serious_count",
+    "attrs": "drug_name,total_reports,distinct_reactions,serious_reports",
+    "compact_fields": "drug_name,total_reports,distinct_reactions",
     "test_entries_count": "100",
     "bucketMethod": "alphanum",
-    "xrefSort": "chembl_molecule:interactionScore;pubchem:interactionScore"
+    "childDatasets": "faers_reaction",
+    "xrefSort": "chembl_molecule:interactionScore;pubchem:interactionScore;faers_reaction:cellCount"
+  },
+  "faers_reaction": {
+    "id": "804",
+    "name": "FAERS Reaction",
+    "textPriority": "40",
+    "aliases": "FAERS reaction,adverse reaction,adverse event reaction,MedDRA preferred term",
+    "url": "https://open.fda.gov/data/faers/",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "reaction,report_count,prr,serious_count,outcome",
+    "compact_fields": "reaction,report_count,prr",
+    "test_entries_count": "100",
+    "bucketMethod": "alphanum"
   },
   "biogrid": {
     "id": "62",

@@ -32,9 +32,16 @@ import (
 // Manifest: https://api.fda.gov/download.json  (lists every partition URL)
 // License: CC0 (https://open.fda.gov/license/)
 //
-// Entity model (mirrors ctd_disease_association's chemical->disease record):
+// Entity model (MASTER/CHILD):
 //
-//	one entry per (drug, adverse-reaction) AGGREGATE, keyed FAERS_<sha1(drug|reaction)>.
+//	faers           (MASTER) one record per DRUG, keyed FAERS_<sha1(drug)>. Holds
+//	                the drug's overall adverse-event summary (total_reports,
+//	                distinct_reactions, serious_reports) and is the SINGLE place the
+//	                drug is resolved to chembl_molecule / pubchem.
+//	faers_reaction  (CHILD)  one record per (drug, reaction) co-occurrence, keyed
+//	                FAERS_RX_<sha1(drug|reaction)>. Holds the per-reaction
+//	                report_count, PRR, serious_count and outcome, and is linked back
+//	                to its parent faers master (most-reported reaction first).
 //
 // IMPORTANT caveat: within a single FAERS report the listed drugs and the listed
 // reactions are NOT individually linked, so a (drug, reaction) edge is report-level
@@ -44,9 +51,13 @@ import (
 // STRING only - no MedDRA dictionary is imported (license-restricted).
 //
 // Drug-ID normalization to chembl_molecule / pubchem is best-effort, via runtime
-// name lookup of the openFDA generic_name (addXrefViaKeyword). biobtree has no
-// native UNII/RxNorm dataset, so the drug name is the practical bridge; edges are
-// guarded to only-configured datasets and only emitted when a name resolves.
+// name lookup of the openFDA generic_name (resolveDrugTo). biobtree has no native
+// UNII/RxNorm dataset, so the drug name is the practical bridge; edges are guarded
+// to only-configured datasets and only emitted when a name resolves. Because the
+// drug is now a single master record, this resolution happens ONCE per drug.
+//
+// NOTE: individual FAERS reports are NEVER stored - only the per-drug and
+// per-(drug,reaction) AGGREGATES are materialized.
 type faers struct {
 	source string
 	d      *DataUpdate
@@ -113,15 +124,17 @@ func (f *faers) update() {
 	log.Printf("FAERS: processing %d partition file(s)", len(partitions))
 
 	// Aggregation maps. drugTotals = total reports mentioning a drug (PRR denom),
-	// reactionTotals = total reports mentioning a reaction, pairs = (drug,reaction).
+	// reactionTotals = total reports mentioning a reaction, pairs = (drug,reaction),
+	// drugSerious = total serious reports mentioning a drug (master serious_reports).
 	pairs := make(map[string]*pairAgg)
 	drugTotals := make(map[string]int32)
 	reactionTotals := make(map[string]int32)
+	drugSerious := make(map[string]int32)
 	var totalReports int64
 
 	for i, url := range partitions {
 		log.Printf("FAERS: [%d/%d] downloading partition %s", i+1, len(partitions), url)
-		n := f.processPartition(url, pairs, drugTotals, reactionTotals)
+		n := f.processPartition(url, pairs, drugTotals, reactionTotals, drugSerious)
 		totalReports += n
 		log.Printf("FAERS: [%d/%d] partition done (%d reports, %d unique pairs so far)", i+1, len(partitions), n, len(pairs))
 	}
@@ -129,7 +142,7 @@ func (f *faers) update() {
 	log.Printf("FAERS: aggregation complete - %d reports, %d unique drugs, %d unique (drug,reaction) pairs",
 		totalReports, len(drugTotals), len(pairs))
 
-	f.saveEntries(pairs, drugTotals, reactionTotals, totalReports)
+	f.saveEntries(pairs, drugTotals, reactionTotals, drugSerious, totalReports)
 
 	log.Printf("FAERS: Processing complete (%.2fs)", time.Since(startTime).Seconds())
 	f.d.progChan <- &progressInfo{dataset: f.source, done: true}
@@ -218,7 +231,7 @@ func partitionRank(url string) int {
 
 // processPartition downloads one zipped-JSON partition and folds its reports into
 // the aggregation maps. Returns the number of reports processed.
-func (f *faers) processPartition(url string, pairs map[string]*pairAgg, drugTotals, reactionTotals map[string]int32) int64 {
+func (f *faers) processPartition(url string, pairs map[string]*pairAgg, drugTotals, reactionTotals, drugSerious map[string]int32) int64 {
 	resp, err := httpGetWithRetry(url, 3)
 	if err != nil {
 		log.Printf("FAERS: WARNING skipping partition %s: %v", url, err)
@@ -262,7 +275,7 @@ func (f *faers) processPartition(url string, pairs map[string]*pairAgg, drugTota
 		}
 
 		for ri := range ff.Results {
-			f.foldReport(&ff.Results[ri], pairs, drugTotals, reactionTotals)
+			f.foldReport(&ff.Results[ri], pairs, drugTotals, reactionTotals, drugSerious)
 			reports++
 		}
 	}
@@ -270,7 +283,7 @@ func (f *faers) processPartition(url string, pairs map[string]*pairAgg, drugTota
 }
 
 // foldReport adds one report's (drug x reaction) co-occurrences to the aggregates.
-func (f *faers) foldReport(r *faersReport, pairs map[string]*pairAgg, drugTotals, reactionTotals map[string]int32) {
+func (f *faers) foldReport(r *faersReport, pairs map[string]*pairAgg, drugTotals, reactionTotals, drugSerious map[string]int32) {
 	serious := r.Serious == "1"
 
 	// Distinct, normalized drug names for this report.
@@ -307,6 +320,9 @@ func (f *faers) foldReport(r *faersReport, pairs map[string]*pairAgg, drugTotals
 	// Per-report marginal totals (count each drug / reaction once per report).
 	for drug := range drugSet {
 		drugTotals[drug]++
+		if serious {
+			drugSerious[drug]++
+		}
 	}
 	for rxKey := range rxSet {
 		reactionTotals[rxKey]++
@@ -366,23 +382,51 @@ func normalizeFaersDrug(generic, substance, brand []string, medicinalProduct str
 	return name
 }
 
-// saveEntries materializes the aggregated pairs into FAERS records, computing PRR,
-// adding cross-references to chembl_molecule/pubchem (best-effort, name-resolved)
-// and text-indexing the drug name + reaction term.
-func (f *faers) saveEntries(pairs map[string]*pairAgg, drugTotals, reactionTotals map[string]int32, totalReports int64) {
-	sourceID := config.Dataconf[f.source]["id"]
+// drugAgg holds the per-drug master aggregate accumulated while iterating pairs.
+// total_reports / serious_reports come straight from the report-level marginal maps
+// (drugTotals / drugSerious); only distinct_reactions must be counted from the
+// children that actually pass minReportCount.
+type drugAgg struct {
+	distinctReactions int32
+}
 
-	var idLogFile *os.File
+// saveEntries materializes the aggregated pairs into the master/child records:
+//
+//	faers          - one MASTER record per drug, with chembl_molecule/pubchem edges
+//	                 (resolved ONCE per drug) and a per-drug adverse-event summary.
+//	faers_reaction - one CHILD record per (drug,reaction), linked back to its parent
+//	                 master via addXrefWithSortLevels (sorted by report_count DESC so
+//	                 the most-reported reactions survive the result cap).
+//
+// Only AGGREGATES are written; individual reports are never stored.
+func (f *faers) saveEntries(pairs map[string]*pairAgg, drugTotals, reactionTotals, drugSerious map[string]int32, totalReports int64) {
+	masterSource := f.source // "faers"
+	masterSourceID := config.Dataconf[masterSource]["id"]
+
+	childSource := "faers_reaction"
+	childSourceID := config.Dataconf[childSource]["id"]
+	hasChild := childSourceID != ""
+	if !hasChild {
+		log.Printf("FAERS: WARNING faers_reaction not configured - child records will be skipped")
+	}
+
+	var idLogFile, childIDLogFile *os.File
 	if config.IsTestMode() {
-		idLogFile = openIDLogFile(config.TestRefDir, f.source+"_ids.txt")
+		idLogFile = openIDLogFile(config.TestRefDir, masterSource+"_ids.txt")
 		if idLogFile != nil {
 			defer idLogFile.Close()
+		}
+		if hasChild {
+			childIDLogFile = openIDLogFile(config.TestRefDir, childSource+"_ids.txt")
+			if childIDLogFile != nil {
+				defer childIDLogFile.Close()
+			}
 		}
 	}
 
 	// minReportCount filters away singleton co-occurrence noise.
 	minReportCount := int32(2)
-	if v := config.Dataconf[f.source]["minReportCount"]; v != "" {
+	if v := config.Dataconf[masterSource]["minReportCount"]; v != "" {
 		if n, e := strconv.Atoi(v); e == nil && n > 0 {
 			minReportCount = int32(n)
 		}
@@ -392,17 +436,13 @@ func (f *faers) saveEntries(pairs map[string]*pairAgg, drugTotals, reactionTotal
 	_, hasChembl := config.Dataconf["chembl_molecule"]
 	_, hasPubchem := config.Dataconf["pubchem"]
 
-	// Cache per-unique-drug the chembl/pubchem identifiers a name resolved to, so we
-	// run ONE runtime lookup per drug instead of once per (drug,reaction) pair, then
-	// attach the cached targets to every record for that drug.
-	type drugTargets struct {
-		chembl  []string
-		pubchem []string
-	}
-	resolvedDrug := make(map[string]*drugTargets)
-
-	var savedCount int
 	N := float64(totalReports)
+
+	// Phase 1: emit CHILD records, accumulating the per-drug master aggregate from the
+	// reactions that actually pass minReportCount (so master.distinct_reactions counts
+	// exactly the children emitted, keeping master/child consistent).
+	masters := make(map[string]*drugAgg)
+	var childCount int
 
 	for _, agg := range pairs {
 		if agg.reportCount < minReportCount {
@@ -411,77 +451,115 @@ func (f *faers) saveEntries(pairs map[string]*pairAgg, drugTotals, reactionTotal
 
 		drugTotal := drugTotals[agg.drugName]
 		rxTotal := reactionTotals[agg.reaction]
-
 		prr := computePRR(agg.reportCount, drugTotal, rxTotal, N)
 
-		// Deterministic id from drug+reaction (kept short; key is uppercased on store).
-		id := faersID(agg.drugName, agg.reaction)
+		masterID := faersMasterID(agg.drugName)
+		childID := faersReactionID(agg.drugName, agg.reaction)
 
-		topOutcome := topKey(agg.outcomes)
-
-		attr := &pbuf.FaersAttr{
-			DrugName:        agg.drugName,
-			Reaction:        agg.reaction,
-			ReportCount:     agg.reportCount,
-			Prr:             prr,
-			SeriousCount:    agg.seriousCount,
-			TopOutcome:      topOutcome,
-			DrugReportTotal: drugTotal,
+		// Accumulate the per-drug master summary.
+		m, ok := masters[agg.drugName]
+		if !ok {
+			m = &drugAgg{}
+			masters[agg.drugName] = m
 		}
+		m.distinctReactions++
 
-		attrBytes, err := ffjson.Marshal(attr)
-		if err != nil {
-			log.Printf("FAERS: Error marshaling %s: %v", id, err)
-			continue
-		}
-		f.d.addProp3(id, sourceID, attrBytes)
-
-		// Sort edges so higher-PRR records surface first.
-		sortLevels := []string{
-			ComputeSortLevelValue(SortLevelInteractionScore, map[string]interface{}{"score": int(prr * 1000)}),
-		}
-
-		// Text search: drug name + reaction term, both pointing at this record.
-		if len(agg.drugName) >= 2 && len(agg.drugName) < 200 {
-			f.d.addXref(agg.drugName, textLinkID, id, f.source, true)
-		}
-		if len(agg.reaction) >= 3 && len(agg.reaction) < 200 {
-			f.d.addXref(agg.reaction, textLinkID, id, f.source, true)
-		}
-
-		// Drug-ID normalization: resolve the drug name to chembl_molecule / pubchem
-		// identifiers via runtime keyword lookup (best-effort), ONCE per unique drug,
-		// then attach the cached targets to this record. Guarded to configured datasets.
-		dt, seen := resolvedDrug[agg.drugName]
-		if !seen {
-			dt = &drugTargets{}
-			if hasChembl {
-				dt.chembl = f.resolveDrugTo(agg.drugName, "chembl_molecule")
+		if hasChild {
+			childAttr := &pbuf.FaersReactionAttr{
+				Reaction:     agg.reaction,
+				ReportCount:  agg.reportCount,
+				Prr:          prr,
+				SeriousCount: agg.seriousCount,
+				Outcome:      topKey(agg.outcomes),
 			}
-			if hasPubchem {
-				dt.pubchem = f.resolveDrugTo(agg.drugName, "pubchem")
+			attrBytes, err := ffjson.Marshal(childAttr)
+			if err != nil {
+				log.Printf("FAERS: Error marshaling reaction %s: %v", childID, err)
+				continue
 			}
-			resolvedDrug[agg.drugName] = dt
-		}
-		for _, cid := range dt.chembl {
-			f.d.addXrefWithSortLevels(id, sourceID, cid, "chembl_molecule", sortLevels)
-		}
-		for _, pid := range dt.pubchem {
-			f.d.addXrefWithSortLevels(id, sourceID, pid, "pubchem", sortLevels)
+			f.d.addProp3(childID, childSourceID, attrBytes)
+
+			// Link the child to its PARENT master, sorted by report_count DESC so the
+			// most-reported reactions survive the per-query result cap. cellCount uses a
+			// 12-digit inverted format (handles the full report_count range).
+			sortLevels := []string{
+				ComputeSortLevelValue(SortLevelCellCount, map[string]interface{}{"count": int64(agg.reportCount)}),
+			}
+			f.d.addXrefWithSortLevels(masterID, masterSourceID, childID, childSource, sortLevels)
+
+			// Text search: the reaction term points at this child record.
+			if len(agg.reaction) >= 3 && len(agg.reaction) < 200 {
+				f.d.addXref(agg.reaction, textLinkID, childID, childSource, true)
+			}
+
+			if childIDLogFile != nil {
+				childIDLogFile.WriteString(childID + "\n")
+			}
 		}
 
-		if idLogFile != nil {
-			idLogFile.WriteString(id + "\n")
-		}
-
-		savedCount++
-		if savedCount%100000 == 0 {
-			log.Printf("FAERS: saved %d records...", savedCount)
+		childCount++
+		if childCount%100000 == 0 {
+			log.Printf("FAERS: saved %d reaction (child) records...", childCount)
 		}
 	}
 
-	atomic.AddUint64(&f.d.totalParsedEntry, uint64(savedCount))
-	log.Printf("FAERS: Total records saved: %d (minReportCount=%d)", savedCount, minReportCount)
+	// Phase 2: emit MASTER records, one per drug, with the consolidated compound edges.
+	resolvedDrug := make(map[string]bool) // drugs already master-emitted (defensive)
+	var masterCount int
+
+	for drugName, m := range masters {
+		if resolvedDrug[drugName] {
+			continue
+		}
+		resolvedDrug[drugName] = true
+
+		masterID := faersMasterID(drugName)
+
+		attr := &pbuf.FaersAttr{
+			DrugName:          drugName,
+			TotalReports:      drugTotals[drugName],
+			DistinctReactions: m.distinctReactions,
+			SeriousReports:    drugSerious[drugName],
+		}
+		attrBytes, err := ffjson.Marshal(attr)
+		if err != nil {
+			log.Printf("FAERS: Error marshaling master %s: %v", masterID, err)
+			continue
+		}
+		f.d.addProp3(masterID, masterSourceID, attrBytes)
+
+		// Text search: the drug name points at this master record.
+		if len(drugName) >= 2 && len(drugName) < 200 {
+			f.d.addXref(drugName, textLinkID, masterID, masterSource, true)
+		}
+
+		// Drug-ID normalization: resolve the drug name ONCE to chembl_molecule /
+		// pubchem via runtime keyword lookup (best-effort), consolidating the
+		// drug<->compound linkage onto the single master. Guarded to configured datasets.
+		if hasChembl {
+			for _, cid := range f.resolveDrugTo(drugName, "chembl_molecule") {
+				f.d.addXref(masterID, masterSourceID, cid, "chembl_molecule", false)
+			}
+		}
+		if hasPubchem {
+			for _, pid := range f.resolveDrugTo(drugName, "pubchem") {
+				f.d.addXref(masterID, masterSourceID, pid, "pubchem", false)
+			}
+		}
+
+		if idLogFile != nil {
+			idLogFile.WriteString(masterID + "\n")
+		}
+
+		masterCount++
+		if masterCount%50000 == 0 {
+			log.Printf("FAERS: saved %d drug (master) records...", masterCount)
+		}
+	}
+
+	atomic.AddUint64(&f.d.totalParsedEntry, uint64(masterCount+childCount))
+	log.Printf("FAERS: Total records saved: %d masters (drugs) + %d reactions (minReportCount=%d)",
+		masterCount, childCount, minReportCount)
 }
 
 // computePRR returns the proportional reporting ratio for a (drug, reaction) pair.
@@ -516,10 +594,16 @@ func computePRR(pairCount, drugTotal, rxTotal int32, N float64) float64 {
 	return prr
 }
 
-// faersID builds a deterministic record id from the drug name and reaction.
-func faersID(drug, reaction string) string {
-	h := sha1.Sum([]byte(drug + "\x00" + reaction))
+// faersMasterID builds a deterministic MASTER (per-drug) record id from the drug name.
+func faersMasterID(drug string) string {
+	h := sha1.Sum([]byte(drug))
 	return "FAERS_" + hex.EncodeToString(h[:8]) // 16 hex chars - collision-safe at this scale
+}
+
+// faersReactionID builds a deterministic CHILD (per drug,reaction) record id.
+func faersReactionID(drug, reaction string) string {
+	h := sha1.Sum([]byte(drug + "\x00" + reaction))
+	return "FAERS_RX_" + hex.EncodeToString(h[:8]) // 16 hex chars - collision-safe at this scale
 }
 
 // topKey returns the map key with the highest count (deterministic tie-break by key).
@@ -539,7 +623,7 @@ func topKey(m map[string]int32) string {
 // identifiers it resolves to within targetDataset (e.g. chembl_molecule / pubchem).
 // Best-effort: returns nil when the lookup service is unavailable or no match. This
 // mirrors the dataset filtering inside addXrefViaKeyword but captures the resolved
-// IDs so the caller can attach the same target to every record for that drug.
+// IDs so the caller can attach the same target to the drug's master record.
 func (f *faers) resolveDrugTo(drugName, targetDataset string) []string {
 	if f.d.lookupService == nil {
 		return nil

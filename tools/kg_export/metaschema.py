@@ -155,8 +155,9 @@ lay('dagre-LR');
         f.write(html.replace("__ELEMENTS__", elements))
 
 
-def render_explorer(triples, out_html):
-    """Combined viewer: Graph (edges revealed on node click) + Matrix grid."""
+def render_explorer(triples, out_html, catmap=None):
+    """Combined viewer: Graph (edges revealed on node click) + Matrix grid,
+    with a right panel that lists the contributing BioBTree datasets on click."""
     import json
     def nid(c):
         return c.split(":")[1]
@@ -167,9 +168,17 @@ def render_explorer(triples, out_html):
     for (s, p, o), ds in sorted(triples.items()):
         pl = p.split(":")[1]
         edges.append({"data": {"id": f"{nid(s)}|{pl}|{nid(o)}", "source": nid(s),
-                                "target": nid(o), "label": pl, "n": len(ds)}})
+                                "target": nid(o), "label": pl,
+                                "n": len(ds), "datasets": sorted(ds)}})
+    # category -> the BioBTree node datasets typed as it (with CURIE prefix)
+    node_ds = defaultdict(list)
+    if catmap is not None:
+        for ds in sorted(catmap.datasets()):
+            e = catmap.entry_for(ds)
+            if e:
+                node_ds[nid(e.category)].append({"ds": ds, "prefix": e.prefix})
     payload = json.dumps({"nodes": nodes, "edges": edges, "cats": [nid(c) for c in cats],
-                          "colors": color})
+                          "colors": color, "nodeDatasets": node_ds})
     tmpl = r"""<!doctype html><html><head><meta charset='utf-8'>
 <script src='https://unpkg.com/cytoscape@3.28.1/dist/cytoscape.min.js'></script>
 <script src='https://unpkg.com/dagre@0.8.5/dist/dagre.min.js'></script>
@@ -177,12 +186,21 @@ def render_explorer(triples, out_html):
 <style>html,body{margin:0;height:100%;font-family:sans-serif;font-size:13px}
 #bar{height:42px;display:flex;gap:6px;align-items:center;padding:0 10px;border-bottom:1px solid #ddd;flex-wrap:wrap}
 button{padding:4px 9px;cursor:pointer}.on{background:#e15759;color:#fff}
-#cy{width:100%;height:calc(100% - 42px);background:#fafafa}
-#matrix{height:calc(100% - 42px);overflow:auto;padding:10px;display:none}
+#main{display:flex;height:calc(100% - 42px)}
+#left{flex:1;position:relative;min-width:0}
+#cy{width:100%;height:100%;background:#fafafa}
+#matrix{position:absolute;top:0;left:0;width:100%;height:100%;box-sizing:border-box;overflow:auto;padding:10px;display:none;background:#fff}
+#side{width:330px;border-left:1px solid #ddd;overflow:auto;padding:12px 14px;box-sizing:border-box;background:#fff}
 table{border-collapse:collapse}td,th{border:1px solid #eee;padding:2px 5px;font-size:11px;text-align:center}
 th.rot{height:120px;white-space:nowrap}th.rot div{transform:rotate(-60deg);width:18px}
 td.rh{text-align:right;font-weight:bold;white-space:nowrap}
-td.cell{cursor:default}.muted{color:#bbb}</style></head>
+td.cell{cursor:pointer}.muted{color:#bbb}
+#side h2{font-size:15px;margin:0 0 2px}#side h3{font-size:12px;color:#888;text-transform:uppercase;letter-spacing:.04em;margin:14px 0 5px}
+#side .hint{color:#aaa;font-size:12px;margin-top:8px}
+.ds{display:inline-block;font-family:monospace;font-size:11px;background:#f1f1f1;border-radius:3px;padding:1px 5px;margin:2px 3px 0 0}
+.rel{margin:4px 0;padding:5px 7px;border-radius:4px;background:#fafafa;border:1px solid #eee}
+.rel .p{font-weight:bold;color:#c0392b}.rel .c{color:#2c6}.rel .src{font-family:monospace;font-size:10px;color:#777;display:block;margin-top:2px}
+.swatch{display:inline-block;width:11px;height:11px;border-radius:2px;vertical-align:middle;margin-right:5px}</style></head>
 <body><div id='bar'>
 <b>BioBTree KG schema</b>
 <button id='bG' class='on' onclick="view('g')">Graph</button>
@@ -194,9 +212,10 @@ td.cell{cursor:default}.muted{color:#bbb}</style></head>
 | edges:
 <button id='eC' class='on' onclick="emode('click')">on click</button>
 <button id='eA' onclick="emode('all')">show all</button>
-<span style='color:#888'>&nbsp;click a node to reveal its connections; bg to reset</span></span>
+<span style='color:#888'>&nbsp;click a node to reveal connections + datasets</span></span>
 </div>
-<div id='cy'></div><div id='matrix'></div>
+<div id='main'><div id='left'><div id='cy'></div><div id='matrix'></div></div>
+<div id='side'><h2>Details</h2><div class='hint'>Click a node (or a matrix cell) to see the BioBTree datasets and relationships behind it.</div></div></div>
 <script>
 var D=__PAYLOAD__;
 var cy=cytoscape({container:document.getElementById('cy'),elements:{nodes:D.nodes,edges:D.edges},
@@ -215,11 +234,33 @@ function lay(name){var o={name:'cose'};
 function emode(m){EMODE=m;document.getElementById('eC').className=m=='click'?'on':'';document.getElementById('eA').className=m=='all'?'on':'';
  if(m=='all'){cy.edges().removeClass('hidden');cy.elements().removeClass('faded hi');}
  else{cy.edges().addClass('hidden');cy.elements().removeClass('faded hi');}}
-cy.on('tap','node',function(e){if(EMODE!='click')return;var n=e.target;
- cy.edges().addClass('hidden');cy.elements().removeClass('faded hi');
- var ce=n.connectedEdges();ce.removeClass('hidden').addClass('hi');
- cy.elements().addClass('faded');n.closedNeighborhood().removeClass('faded');});
-cy.on('tap',function(e){if(e.target===cy&&EMODE=='click'){cy.edges().addClass('hidden');cy.elements().removeClass('faded hi');}});
+cy.on('tap','node',function(e){var n=e.target;
+ if(EMODE=='click'){cy.edges().addClass('hidden');cy.elements().removeClass('faded hi');
+  var ce=n.connectedEdges();ce.removeClass('hidden').addClass('hi');
+  cy.elements().addClass('faded');n.closedNeighborhood().removeClass('faded');}
+ showNode(n.id());});
+cy.on('tap',function(e){if(e.target===cy){if(EMODE=='click'){cy.edges().addClass('hidden');cy.elements().removeClass('faded hi');}resetPanel();}});
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function dsChips(list){return list.map(function(d){return "<span class='ds'>"+esc(d)+"</span>";}).join('');}
+function resetPanel(){document.getElementById('side').innerHTML="<h2>Details</h2><div class='hint'>Click a node (or a matrix cell) to see the BioBTree datasets and relationships behind it.</div>";}
+function showNode(cat){var col=D.colors[cat]||'#888';
+ var nd=(D.nodeDatasets[cat]||[]);
+ var out=[],inc=[];
+ D.edges.forEach(function(e){var d=e.data;if(d.source==cat)out.push(d);if(d.target==cat)inc.push(d);});
+ var h="<h2><span class='swatch' style='background:"+col+"'></span>"+esc(cat)+"</h2>";
+ h+="<h3>Node datasets ("+nd.length+")</h3>";
+ h+=nd.length?"<div>"+nd.map(function(x){return "<span class='ds' title='CURIE prefix: "+esc(x.prefix)+"'>"+esc(x.ds)+"</span>";}).join('')+"</div>"
+            :"<div class='hint'>No primary node dataset — appears only as an edge endpoint / stub.</div>";
+ function relBlock(d,dir){var other=dir=='out'?d.target:d.source;var arrow=dir=='out'?'&rarr;':'&larr;';
+  return "<div class='rel'><span class='p'>"+esc(d.label)+"</span> "+arrow+" <span class='c'>"+esc(other)+"</span>"
+   +"<span class='src'>"+esc(d.datasets.join(', '))+"</span></div>";}
+ h+="<h3>Outgoing ("+out.length+")</h3>"+(out.length?out.map(function(d){return relBlock(d,'out');}).join(''):"<div class='hint'>none</div>");
+ h+="<h3>Incoming ("+inc.length+")</h3>"+(inc.length?inc.map(function(d){return relBlock(d,'in');}).join(''):"<div class='hint'>none</div>");
+ document.getElementById('side').innerHTML=h;}
+function showCell(s,o){var es=D.edges.filter(function(e){return e.data.source==s&&e.data.target==o;});
+ var h="<h2>"+esc(s)+" &rarr; "+esc(o)+"</h2><h3>Relationships ("+es.length+")</h3>";
+ h+=es.map(function(e){return "<div class='rel'><span class='p'>"+esc(e.data.label)+"</span><span class='src'>"+esc(e.data.datasets.join(', '))+"</span></div>";}).join('');
+ document.getElementById('side').innerHTML=h;}
 function view(v){var g=v=='g';document.getElementById('cy').style.display=g?'block':'none';
  document.getElementById('matrix').style.display=g?'none':'block';
  document.getElementById('gc').style.display=g?'inline':'none';
@@ -228,7 +269,7 @@ function view(v){var g=v=='g';document.getElementById('cy').style.display=g?'blo
 function buildMatrix(){var m={};D.edges.forEach(function(e){var k=e.data.source+'>'+e.data.target;(m[k]=m[k]||[]).push(e.data.label);});
  var c=D.cats,h='<table><tr><th></th>';c.forEach(function(o){h+="<th class='rot'><div>"+o+"</div></th>";});h+='</tr>';
  c.forEach(function(s){h+="<td class='rh' style='color:"+D.colors[s]+"'>"+s+"</td>";
-  c.forEach(function(o){var v=m[s+'>'+o];if(v){h+="<td class='cell' title='"+s+' &rarr; '+o+":\n"+v.join('\n')+"' style='background:"+D.colors[s]+"33'>"+(v.length>1?v.length:'&bull;')+"</td>";}else{h+="<td class='muted'></td>";}});h+='</tr>';});
+  c.forEach(function(o){var v=m[s+'>'+o];if(v){h+="<td class='cell' onclick=\"showCell('"+s+"','"+o+"')\" title='"+s+' &rarr; '+o+":\n"+v.join('\n')+"' style='background:"+D.colors[s]+"33'>"+(v.length>1?v.length:'&bull;')+"</td>";}else{h+="<td class='muted'></td>";}});h+='</tr>';});
  h+='</table>';document.getElementById('matrix').innerHTML=h;document.getElementById('matrix').dataset.built=1;}
 lay('dagre-LR');emode('click');
 </script></body></html>"""
@@ -272,7 +313,7 @@ def main():
         render_cytoscape(triples, a.cytoscape)
         print(f"wrote {a.cytoscape}: {len({c for (s,_,o) in triples for c in (s,o)})} node types, {len(triples)} edges")
     if a.explorer:
-        render_explorer(triples, a.explorer)
+        render_explorer(triples, a.explorer, cats)
         print(f"wrote {a.explorer}: {len({c for (s,_,o) in triples for c in (s,o)})} node types, {len(triples)} edges")
 
 

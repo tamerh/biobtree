@@ -656,6 +656,21 @@ message AllianceDiseaseAttr {
   string id = 100; // transient - populated at runtime from Xref.Identifier
 }
 
+// AlliancePhenotypeAttr — one curated gene->phenotype-term association from an
+// Alliance of Genome Resources per-MOD PHENOTYPE file. The experimentally-observed
+// phenotype layer of model-organism genes: the gene end links to the per-species
+// gene dataset (mgi/rgd/wormbase/xenbase) and the phenotype end to the model-organism
+// phenotype ontology (mp/zp/wbphenotype/xpo). (Atlas cross-species phenotype layer.)
+message AlliancePhenotypeAttr {
+  string gene_symbol=1;             // gene id/symbol (MOD-local accession)
+  string species=2;                 // routed gene dataset (mgi/rgd/wormbase/xenbase)
+  string phenotype_term=3;          // ontology term id (MP:/ZP:/WBPhenotype:/XPO:)
+  string phenotype_statement=4;     // free-text phenotype description
+  string evidence_code=5;           // evidence code, if present
+  string source=6;                  // provenance, "Alliance"
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
 message ClinicalSubmission {
   string scv_id = 1;                        // SCV accession (e.g., SCV000123456)
   string submitter_name = 2;                // Organization that submitted

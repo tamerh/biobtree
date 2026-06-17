@@ -1950,6 +1950,11 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)
 				xref.Attributes = &pbuf.Xref_AllianceDisease{attr}
+			case "alliance_phenotype":
+				attr := &pbuf.AlliancePhenotypeAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_AlliancePhenotype{attr}
 			case "string":
 				attr := &pbuf.StringAttr{}
 				barr := []byte((*kvProp[k])[0].value)
@@ -2603,6 +2608,11 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 					barr := []byte((*kvProp[k])[0].value)
 					ffjson.Unmarshal(barr, attr)
 					xref.Attributes = &pbuf.Xref_AllianceDisease{attr}
+				case "alliance_phenotype":
+					attr := &pbuf.AlliancePhenotypeAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_AlliancePhenotype{attr}
 				case "string":
 					attr := &pbuf.StringAttr{}
 					barr := []byte((*kvProp[k])[0].value)

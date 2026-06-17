@@ -279,6 +279,7 @@ func (s *Service) initWithDbDir(dbDir string) error {
 		cel.Types(&pbuf.EncodeCcreAttr{}),
 		cel.Types(&pbuf.StringAttr{}),
 		cel.Types(&pbuf.StringInteractionAttr{}),
+		cel.Types(&pbuf.AlliancePhenotypeAttr{}),
 		cel.Declarations(
 			decls.NewIdent("uniprot", decls.NewObjectType("pbuf.UniprotAttr"), nil)),
 		cel.Declarations(
@@ -499,6 +500,8 @@ func (s *Service) initWithDbDir(dbDir string) error {
 			decls.NewIdent("stringdb", decls.NewObjectType("pbuf.StringAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("string_interaction", decls.NewObjectType("pbuf.StringInteractionAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("alliance_phenotype", decls.NewObjectType("pbuf.AlliancePhenotypeAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("gtopdb", decls.NewObjectType("pbuf.GtopdbAttr"), nil)),
 		cel.Declarations(

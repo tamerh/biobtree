@@ -430,6 +430,21 @@
     "textPriority": "70",
     "bucketMethod": "alphanum"
   },
+  "alliance_phenotype": {
+    "id": "803",
+    "name": "Alliance Phenotype",
+    "aliases": "Alliance phenotype,AGR phenotype,model organism phenotype,Alliance of Genome Resources phenotype",
+    "url": "https://www.alliancegenome.org/gene/£{id}",
+    "path": "https://fms.alliancegenome.org/download/",
+    "files": "PHENOTYPE_MGI.json.gz,PHENOTYPE_RGD.json.gz,PHENOTYPE_WB.json.gz,PHENOTYPE_XBXL.json.gz,PHENOTYPE_XBXT.json.gz",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "gene_symbol,species,phenotype_term,phenotype_statement,evidence_code,source",
+    "compact_fields": "gene_symbol,species,phenotype_term,phenotype_statement",
+    "test_entries_count": "100",
+    "textPriority": "70",
+    "bucketMethod": "alphanum"
+  },
   "chembl_moleculeparent": {
     "name": "ChEMBL Molecule Parent",
     "id": "758",

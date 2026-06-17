@@ -106,6 +106,7 @@ DATASETS=(
     ncrna_disease
     ncrna_drug
     alliance_disease
+    alliance_phenotype
     gwas_study
     gwas
     # dbsnp   # separate 'dbsnp' federation — excluded for a main-only update

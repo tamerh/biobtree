@@ -1467,6 +1467,11 @@ func (s *Service) execCelGo(query *query.Query, targetXref *pbuf.Xref) (bool, er
 			attr.Id = id
 			evalMap["alliance_disease"] = attr
 		}
+	case "alliance_phenotype":
+		if attr := targetXref.GetAlliancePhenotype(); attr != nil {
+			attr.Id = id
+			evalMap["alliance_phenotype"] = attr
+		}
 	case "collectri":
 		if attr := targetXref.GetCollectri(); attr != nil {
 			attr.Id = id

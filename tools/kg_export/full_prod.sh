@@ -11,11 +11,11 @@ mkdir -p "$O"
 # Core node datasets (with names); stubs cover compounds/variants/ncRNA/etc.
 # Ontologies (disease/phenotype incl. cross-species uPheno family) materialized
 # so their subclass_of/close_match edges (step 4) don't dangle.
-NODE_DS=hgnc,ensembl,uniprot,transcript,mondo,doid,efo,orphanet,mim,hpo,mp,upheno,zp,xpo,wbphenotype,fypo,chebi,chembl_molecule,hmdb,lipidmaps,swisslipids,drugbank,reactome,msigdb,uberon,cl,cellosaurus,taxonomy,interpro,corum
+NODE_DS=hgnc,ensembl,uniprot,transcript,mondo,doid,efo,orphanet,mim,hpo,mp,upheno,zp,xpo,wbphenotype,fypo,oba,chebi,chembl_molecule,hmdb,lipidmaps,swisslipids,drugbank,reactome,msigdb,uberon,cl,cellosaurus,taxonomy,interpro,corum
 # Direct edges (incl. big high-value forwards: clinvar, rnacentral)
 EDGE_DS=ensembl,uniprot,reactome,msigdb,cellosaurus,hmdb,swisslipids,chembl_molecule,orphanet,transcript,clinvar,rnacentral
 # Reified (incl. string_interaction PPI + similarity stars + bioactivity)
-REIFIED_DS=intact,string_interaction,chembl_activity,pubchem_activity,bgee,depmap_dependency,fantom5_gene,diamond_similarity,esm2_similarity
+REIFIED_DS=intact,string_interaction,chembl_activity,pubchem_activity,bgee,depmap_dependency,fantom5_gene,diamond_similarity,esm2_similarity,gwas
 
 echo "### 1/7 nodes (peak-mem) $(date +%T)"
 /usr/bin/time -v $PY -m tools.kg_export nodes --index-dir $IDX --datasets $NODE_DS \

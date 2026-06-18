@@ -179,7 +179,7 @@ reified:
 
   # --- Gene -> disease (curated/association layers; intermediate links gene+disease)
   gencc:                 {kind: bipartite, subject: hgnc, object: mondo, predicate: "biolink:gene_associated_with_condition", note: "GenCC gene-disease validity"}
-  gwas:                  {kind: bipartite, subject: hgnc, object: mondo, predicate: "biolink:associated_with", note: "GWAS gene-trait"}
+  gwas:                  {kind: bipartite, subject: hgnc, object: mondo, extra_objects: [oba], predicate: "biolink:associated_with", note: "GWAS gene-trait: disease (mondo) + quantitative attribute (oba)"}
   intogen:               {kind: bipartite, subject: hgnc, object: mondo, predicate: "biolink:gene_associated_with_condition", note: "intOGen cancer driver"}
   clingen_gene_validity: {kind: bipartite, subject: hgnc, object: mondo, predicate: "biolink:gene_associated_with_condition"}
   clingen_variant:       {kind: bipartite, subject: hgnc, object: mondo, predicate: "biolink:gene_associated_with_condition"}

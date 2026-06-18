@@ -294,6 +294,8 @@ def _emit_group(group, rule, registry, categories, canonical, primary,
             objs = partners(rule.object, symbols=symbol_map)
         else:
             objs = partners(rule.object)
+            for extra in (rule.extra_objects or []):  # same predicate, more targets
+                objs = objs + [o for o in partners(extra) if o not in objs]
         if len(subs) * len(objs) > max_edges_per_group:
             stats.oversized_groups += 1
             return

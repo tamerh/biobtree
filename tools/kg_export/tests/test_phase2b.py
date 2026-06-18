@@ -336,6 +336,26 @@ class BuildReifiedTests(unittest.TestCase):
         """fantom5_enhancer is intentionally NOT a reified rule (deferred)."""
         self.assertIsNone(self.pm.reified_rule("fantom5_enhancer"))
 
+    def test_gwas_extra_objects_disease_and_attribute(self):
+        """gwas gene-trait emits to BOTH mondo (disease) and oba (attribute)."""
+        gw, hg, mo, ob = (self._id("gwas"), self._id("hgnc"),
+                          self._id("mondo"), self._id("oba"))
+        with tempfile.TemporaryDirectory() as d:
+            tmp = Path(d)
+            # one association group: gene + a disease trait + an attribute trait
+            self._write(tmp, "gwas_sorted.1.index.gz", [
+                f"GCST1_1\t{gw}\tHGNC:4883\t{hg}",
+                f"GCST1_1\t{gw}\tMONDO:0005150\t{mo}",
+                f"GCST1_1\t{gw}\tOBA:0000061\t{ob}",
+                f'GCST1_1\t{gw}\t{{"snp_id":"rs1"}}\t-1',
+            ])
+            out = tmp / "r.tsv"
+            build_reified_edges(tmp, self.reg, self.cats, self.pm, out, datasets=["gwas"])
+            edges = {(r.split("\t")[1], r.split("\t")[3])
+                     for r in out.read_text().splitlines()[1:]}
+            self.assertIn(("HGNC:4883", "MONDO:0005150"), edges)
+            self.assertIn(("HGNC:4883", "OBA:0000061"), edges)  # the extra object
+
 
 if __name__ == "__main__":
     unittest.main()

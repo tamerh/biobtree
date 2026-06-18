@@ -82,6 +82,8 @@ def schema_triples(cats: CategoryMap, preds: PredicateMap, registry: DatasetRegi
             add(c, r.predicate, c, ds)
         else:  # bipartite (object resolved via `via`/symbol is still rule.object)
             add(cats.category_for(r.subject), r.predicate, cats.category_for(r.object), ds)
+            for extra in (r.extra_objects or []):
+                add(cats.category_for(r.subject), r.predicate, cats.category_for(extra), ds)
 
     for src_ds, sc in _GO_SOURCES:
         for p, oc in _GO_EDGES:

@@ -79,6 +79,7 @@ datasets:
   xpo:         {category: "biolink:PhenotypicFeature", prefix: "XPO", note: "xenopus phenotype"}
   wbphenotype: {category: "biolink:PhenotypicFeature", prefix: "WBPhenotype", note: "C. elegans phenotype"}
   fypo:        {category: "biolink:PhenotypicFeature", prefix: "FYPO", note: "fission yeast phenotype"}
+  oba:         {category: "biolink:PhenotypicFeature", prefix: "OBA", note: "Ontology of Biological Attributes (GWAS quantitative traits); PhenotypicFeature is the closest existing biolink class (overclaim, cf. msigdb->Pathway)"}
 
   # --- Drugs / small molecules ----------------------------------------------
   chebi:          {category: "biolink:SmallMolecule", prefix: "CHEBI"}

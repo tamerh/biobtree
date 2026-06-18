@@ -57,6 +57,7 @@ CANONICAL_PREFIXES = {
     "cellosaurus", "interpro", "corum", "lipidmaps", "orphanet", "refseq",
     # cross-species phenotype ontologies (bioregistry preferred_prefix, verified)
     "UPHENO", "ZP", "XPO", "WBPhenotype", "FYPO",
+    "OBA",  # Ontology of Biological Attributes (GWAS quantitative traits)
     # MolecularActivity id_prefixes (verified in biolink MolecularActivity)
     "EC", "RHEA",
 }

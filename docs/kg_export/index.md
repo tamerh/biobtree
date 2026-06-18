@@ -24,7 +24,7 @@ query service, or MCP server.
 | `manifest.json` | counts, biolink version, data version, per-category/predicate/source breakdown, validation status |
 
 **Node columns**: `id, category, name, equivalent_identifiers, provided_by`
-**Edge columns**: `id, subject, predicate, object, primary_knowledge_source, aggregator_knowledge_source, knowledge_level, agent_type`
+**Edge columns**: `id, subject, predicate, object, primary_knowledge_source, aggregator_knowledge_source, knowledge_level, agent_type, has_evidence, qualifiers`
 
 CURIEs use biolink/bioregistry-canonical prefixes (`HGNC:`, `UniProtKB:`,
 `MONDO:`, `CHEMBL.COMPOUND:`, …). `aggregator_knowledge_source` is
@@ -40,6 +40,11 @@ HGNC:1100   biolink:Gene   BRCA1   HGNC:1100|ENSEMBL:ENSG00000012048|NCBIGene:67
 ```
 
 - **Typing**: dataset → biolink category (`mappings/categories.yaml`).
+- **Runtime-typed datasets**: a few datasets split into several categories by a
+  record field rather than a fixed mapping — **GO** by aspect (MolecularActivity/
+  BiologicalProcess/CellularComponent) and **RefSeq** by accession type (mRNA →
+  Transcript, ncRNA → NoncodingRNAProduct, NP_/XP_ → Protein). **OBA** biological
+  attributes are typed PhenotypicFeature (closest existing class for GWAS traits).
 - **Normalization** (gene-first): the HGNC/Ensembl/NCBIGene ids of one gene are
   merged into a single node. Merging is **cardinality-aware** — only 1:1
   mappings are merged, so two distinct genes that happen to share one Ensembl id
@@ -63,11 +68,31 @@ Each cross-reference / relation maps to a biolink predicate
 | gene/protein → GO term | `enables` / `actively_involved_in` / `located_in` (by aspect) |
 | drug → disease (ChEMBL) | `biolink:treats_or_applied_or_studied_to_treat` |
 | gene → tissue (Bgee) | `biolink:expressed_in` |
+| transcript → protein (RefSeq) | `biolink:translates_to` |
+| ontology term → parent term | `biolink:subclass_of` |
+| cross-ontology mapping | `biolink:close_match` |
+| gene → trait (GWAS) | `biolink:associated_with` |
 
 - **Reified relations** (PPI, similarity, bioactivity) are joined from their
   intermediate entries; only the *asserted* binary pairs are emitted (no clique
   fabrication).
+- **Ontology structure**: each ontology's `is_a` hierarchy (stored inline in
+  BioBTree as `<ont>parent`/`<ont>child` tags) is emitted as `subclass_of` —
+  including the full NCBI taxonomy tree. Cross-ontology mappings between
+  same-category namespaces (MONDO↔DOID/OMIM/Orphanet/EFO; the uPheno hub ↔
+  HP/MP/ZP/XPO/WBPhenotype/FYPO) are emitted as **`close_match`** — a deliberate
+  under-claim: BioBTree doesn't retain the source skos predicate and we don't
+  merge across namespaces, so `close_match` (not `exact_match`/`same_as`) is the
+  honest assertion. *Not* emitted as `subclass_of`: Reactome (sub-pathway is
+  `part_of`) and ChEMBL salt→parent (a chemical relation).
 - **Provenance**: every edge carries its `primary_knowledge_source`.
+- **Qualifiers & evidence**: edges carry optional `has_evidence` (ECO CURIEs) and
+  `qualifiers` (`slot=value`) columns. Currently populated: `assay_type` (BAO) on
+  every ChEMBL bioactivity edge. Deferred because BioBTree stores them at
+  entry/study level, not per edge: ECO evidence (per-protein, not per-annotation),
+  PATO quality (per GWAS study, never co-located with a mapped trait), XCO
+  condition (per metabolite). The schema is ready for them — and for numeric
+  qualifiers (IC50, confidence, trial phase) — once attachable.
 - **No catch-all**: pairs without a mapping are dropped and counted, never
   emitted as a generic `related_to`.
 - **Dedup**: the same logical edge arriving via different keys is collapsed to one
@@ -94,14 +119,21 @@ python -m tools.kg_export nodes  --index-dir $IDX --datasets <core list> \
 # 2. GO nodes + aspect-typed annotation edges
 python -m tools.kg_export go      --index-dir $IDX --id-map $O/id_map.tsv.gz \
     --nodes-out $O/go_nodes.tsv.gz --edges-out $O/go_edges.tsv.gz
-# 3. direct edges, 4. reified edges (PPI/similarity/bioactivity/expression)
+# 3. RefSeq transcript/protein/ncRNA nodes + edges (type-split)
+python -m tools.kg_export refseq  --index-dir $IDX --id-map $O/id_map.tsv.gz \
+    --nodes-out $O/refseq_nodes.tsv.gz --edges-out $O/refseq_edges.tsv.gz
+# 4. ontology hierarchy (subclass_of) + cross-ontology close_match
+python -m tools.kg_export ontology --index-dir $IDX --out $O/ontology_edges.tsv.gz
+# 5. direct edges, 6. reified edges (PPI/similarity/bioactivity/expression/GWAS)
 python -m tools.kg_export edges   --index-dir $IDX --id-map $O/id_map.tsv.gz --out $O/edges_direct.tsv.gz
 python -m tools.kg_export reified --index-dir $IDX --id-map $O/id_map.tsv.gz --out $O/edges_reified.tsv.gz
-# 5. assemble: merge + dedup + stub-nodes + JSONL + validate + manifest
-python -m tools.kg_export assemble --nodes $O/nodes.tsv.gz,$O/go_nodes.tsv.gz \
-    --edges $O/edges_direct.tsv.gz,$O/edges_reified.tsv.gz,$O/go_edges.tsv.gz \
+# 7. assemble: merge + dedup + stub-nodes + JSONL + validate + manifest
+python -m tools.kg_export assemble --nodes $O/nodes.tsv.gz,$O/go_nodes.tsv.gz,$O/refseq_nodes.tsv.gz \
+    --edges $O/edges_direct.tsv.gz,$O/edges_reified.tsv.gz,$O/go_edges.tsv.gz,$O/refseq_edges.tsv.gz,$O/ontology_edges.tsv.gz \
     --out-dir $O/dump --data-version <release> --stub-nodes --gzip
 ```
+
+The complete production pipeline is scripted in `tools/kg_export/full_prod.sh`.
 
 `.gz` paths produce compressed output (~6× smaller). Memory stays modest
 (~4 GB) because the giant datasets contribute *edges*, not nodes (stubs cover
@@ -124,5 +156,13 @@ planned follow-up.)
   export.
 - **Prefixes**: SwissLipids is emitted as `SWISSLIPID` pending canonical `SLM` +
   zero-padded ids; `validate()` reports any non-canonical prefixes.
-- **Qualifiers**: numeric edge qualifiers (IC50, confidence, trial phase) are a
-  follow-up; the underlying values are present in the index but not yet attached.
+- **Deferred qualifiers**: ECO evidence, PATO quality, XCO condition, and numeric
+  qualifiers (IC50, confidence, trial phase) are not yet attached — BioBTree
+  stores them at entry/study level, not per edge. The `has_evidence`/`qualifiers`
+  columns are in place; populating ECO needs a BioBTree-side change to emit
+  evidence per annotation.
+- **Ontologies left out**: ECO/PATO/OBA/BAO/XCO are qualifier/attribute
+  ontologies, not entity types — only OBA is emitted as nodes (GWAS traits); the
+  rest feed (or will feed) edge qualifiers. **OBI** is not emitted: in BioBTree it
+  is isolated (only its own internal hierarchy, no links to any other dataset) —
+  reported to the BioBTree team.

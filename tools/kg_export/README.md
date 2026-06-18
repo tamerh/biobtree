@@ -93,10 +93,13 @@ python -m tools.kg_export assemble \
 ## Edge schema (KGX)
 
 `id, subject, predicate, object, primary_knowledge_source,
-aggregator_knowledge_source, knowledge_level, agent_type`. Edge `id` is a
-deterministic hash of `subject|predicate|object|primary`. Curated source edges
-are `knowledge_assertion`/`manual_agent`; similarity edges (diamond/esm2) are
-`prediction`/`automated_agent`.
+aggregator_knowledge_source, knowledge_level, agent_type, has_evidence,
+qualifiers`. Edge `id` is a deterministic hash of `subject|predicate|object|primary`
+(plus `has_evidence|qualifiers` only when present, so plain edges keep stable ids
+and qualified variants stay distinct through dedup). Curated source edges are
+`knowledge_assertion`/`manual_agent`; similarity edges (diamond/esm2) are
+`prediction`/`automated_agent`. `has_evidence` is pipe-separated ECO CURIEs;
+`qualifiers` is `slot=v1,v2;slot2=v3` (e.g. `assay_type=BAO:...` on bioactivity).
 
 ## Remaining / deferred
 

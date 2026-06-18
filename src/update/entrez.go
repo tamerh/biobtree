@@ -258,6 +258,41 @@ func (e *entrez) parseDbXrefs(dbXrefsStr string, geneID string, fr string) {
 			if strings.HasPrefix(id, "HGNC:") {
 				e.d.addXref(geneID, fr, id, "hgnc", false)
 			}
+		// Model-organism gene databases (MGI/RGD/ZFIN/WormBase/Xenbase/SGD/FLYBASE).
+		// These connect a species' Entrez gene to its MOD gene id. Combined with the
+		// existing orthologentrez links, this bridges human genes to model-organism
+		// resources keyed by MOD ids (e.g. alliance_phenotype/alliance_disease):
+		//   human gene >> entrez >> orthologentrez (mouse entrez) >> mgi >> alliance_phenotype
+		// Id forms below are matched to alliancePhenotypeGeneTarget's key formats.
+		// (MOD datasets are optional; addXref skips silently if one isn't configured.)
+		case "MGI":
+			// dbXref is "MGI:MGI:104537" -> id keeps the "MGI:" prefix (matches MOD key)
+			if strings.HasPrefix(id, "MGI:") {
+				e.d.addXref(geneID, fr, id, "mgi", false)
+			}
+		case "RGD":
+			// bare accession (e.g. "2003")
+			e.d.addXref(geneID, fr, id, "rgd", false)
+		case "ZFIN":
+			if strings.HasPrefix(id, "ZDB-GENE-") {
+				e.d.addXref(geneID, fr, id, "zfin", false)
+			}
+		case "WormBase":
+			if strings.HasPrefix(id, "WBGene") {
+				e.d.addXref(geneID, fr, id, "wormbase", false)
+			}
+		case "Xenbase":
+			if strings.HasPrefix(id, "XB-GENE-") {
+				e.d.addXref(geneID, fr, id, "xenbase", false)
+			}
+		case "SGD":
+			if strings.HasPrefix(id, "S0") {
+				e.d.addXref(geneID, fr, id, "sgd", false)
+			}
+		case "FLYBASE":
+			if strings.HasPrefix(id, "FBgn") {
+				e.d.addXref(geneID, fr, id, "flybase", false)
+			}
 		// MIM (OMIM) - future integration
 		// case "MIM":
 		//     e.d.addXref(geneID, fr, id, "omim", false)

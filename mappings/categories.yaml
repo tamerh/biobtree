@@ -71,6 +71,14 @@ datasets:
   # --- Phenotypes ------------------------------------------------------------
   hpo:         {category: "biolink:PhenotypicFeature", prefix: "HP"}
   mp:          {category: "biolink:PhenotypicFeature", prefix: "MP", note: "mouse phenotype (cross-species)"}
+  # Cross-species phenotype ontologies (uPheno family). Bioregistry preferred
+  # prefixes (verified). Their subclass_of hierarchy + cross-species close_match
+  # links (e.g. to the uPheno hub) are emitted at runtime by ontology.py.
+  upheno:      {category: "biolink:PhenotypicFeature", prefix: "UPHENO", note: "uPheno cross-species phenotype hub"}
+  zp:          {category: "biolink:PhenotypicFeature", prefix: "ZP", note: "zebrafish phenotype"}
+  xpo:         {category: "biolink:PhenotypicFeature", prefix: "XPO", note: "xenopus phenotype"}
+  wbphenotype: {category: "biolink:PhenotypicFeature", prefix: "WBPhenotype", note: "C. elegans phenotype"}
+  fypo:        {category: "biolink:PhenotypicFeature", prefix: "FYPO", note: "fission yeast phenotype"}
 
   # --- Drugs / small molecules ----------------------------------------------
   chebi:          {category: "biolink:SmallMolecule", prefix: "CHEBI"}

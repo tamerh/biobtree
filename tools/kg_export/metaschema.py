@@ -38,6 +38,18 @@ _REFSEQ_EDGES = [
     ("biolink:Protein", "biolink:in_taxon", "biolink:OrganismTaxon"),
 ]
 
+# Ontology hierarchy/mappings (ontology.py): subclass_of self-loops for every
+# ontology-backed category, plus cross-ontology close_match where >1 namespace
+# shares a category (Disease: MONDO/DOID/EFO/Orphanet/OMIM; PhenotypicFeature:
+# HP/MP/uPheno/ZP/XPO/WBPhenotype/FYPO).
+_ONTOLOGY_SUBCLASS_CATS = (
+    "biolink:Disease", "biolink:PhenotypicFeature",
+    "biolink:GrossAnatomicalStructure", "biolink:Cell", "biolink:ProteinFamily",
+    "biolink:MolecularActivity", "biolink:BiologicalProcess",
+    "biolink:CellularComponent",
+)
+_ONTOLOGY_CLOSEMATCH_CATS = ("biolink:Disease", "biolink:PhenotypicFeature")
+
 _PALETTE = [
     "#4e79a7", "#f28e2b", "#59a14f", "#e15759", "#76b7b2", "#edc948",
     "#b07aa1", "#ff9da7", "#9c755f", "#bab0ac", "#86bc86", "#d37295",
@@ -76,6 +88,11 @@ def schema_triples(cats: CategoryMap, preds: PredicateMap):
 
     for sc, p, oc in _REFSEQ_EDGES:
         add(sc, p, oc, "refseq")
+
+    for c in _ONTOLOGY_SUBCLASS_CATS:
+        add(c, "biolink:subclass_of", c, "ontology")
+    for c in _ONTOLOGY_CLOSEMATCH_CATS:
+        add(c, "biolink:close_match", c, "ontology")
     return triples
 
 

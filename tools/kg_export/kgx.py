@@ -55,6 +55,8 @@ CANONICAL_PREFIXES = {
     "RNACENTRAL", "MSigDB", "HMDB", "GTOPDB",
     # bioregistry-verified (absent from biolink's curated map)
     "cellosaurus", "interpro", "corum", "lipidmaps", "orphanet", "refseq",
+    # cross-species phenotype ontologies (bioregistry preferred_prefix, verified)
+    "UPHENO", "ZP", "XPO", "WBPhenotype", "FYPO",
     # MolecularActivity id_prefixes (verified in biolink MolecularActivity)
     "EC", "RHEA",
 }

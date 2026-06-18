@@ -22,6 +22,7 @@ from . import kgx
 from .edges import build_edges, load_id_map
 from .go import build_go
 from .nodes import build_nodes
+from .ontology import build_ontology
 from .predicates import PredicateMap
 from .refseq import build_refseq
 from .reified import build_reified_edges
@@ -209,6 +210,29 @@ def _cmd_refseq(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_ontology(args: argparse.Namespace) -> int:
+    registry = DatasetRegistry.load(args.conf)
+    categories = CategoryMap.load(args.categories)
+    t0 = time.time()
+    stats = build_ontology(
+        index_dir=args.index_dir,
+        registry=registry,
+        categories=categories,
+        edges_out=args.out,
+        stats_path=args.stats,
+    )
+    dt = time.time() - t0
+    print(f"ontology edges.tsv written: {args.out}", file=sys.stderr)
+    print(
+        f"  ontologies={stats.ontologies} subclass_of={stats.subclass_edges:,} "
+        f"close_match={stats.close_match_edges:,} self_loops={stats.self_loops:,}",
+        file=sys.stderr,
+    )
+    print(f"  by_ontology={dict(stats.by_ontology)}", file=sys.stderr)
+    print(f"  elapsed={dt:.1f}s", file=sys.stderr)
+    return 0
+
+
 def _cmd_assemble(args: argparse.Namespace) -> int:
     out_dir = Path(args.out_dir)
     node_inputs = [s.strip() for s in args.nodes.split(",") if s.strip()]
@@ -324,6 +348,14 @@ def main(argv: list[str] | None = None) -> int:
     rs.add_argument("--id-map", default=None, help="Phase 1 member->canonical map")
     rs.add_argument("--stats", default=None, help="output stats JSON path")
     rs.set_defaults(func=_cmd_refseq)
+
+    on = sub.add_parser("ontology", help="build subclass_of + cross-ont close_match edges")
+    on.add_argument("--index-dir", required=True, help="dir with *_sorted.*.index.gz")
+    on.add_argument("--conf", default="conf", help="dataset config dir")
+    on.add_argument("--categories", default="mappings/categories.yaml")
+    on.add_argument("--out", required=True, help="output ontology edges.tsv")
+    on.add_argument("--stats", default=None, help="output stats JSON path")
+    on.set_defaults(func=_cmd_ontology)
 
     a = sub.add_parser("assemble", help="merge -> JSONL -> validate -> manifest")
     a.add_argument("--nodes", required=True, help="comma list of node TSVs")

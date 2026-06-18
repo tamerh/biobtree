@@ -99,9 +99,20 @@ expansion target — most fit existing mechanisms (direct or reified rules).
 - **ctd_disease_association** — its disease object is full MeSH; only the disease
   *subset* is now typed (via mesh.py), and CTD's chemical↔disease needs both ends
   resolved — revisit once MeSH disease nodes are wired as edge targets.
-- **encode_ccre, fantom5_enhancer** — **no regulatory→gene link in the index**
-  (encode_ccre→only taxonomy). Confirmed by the Atlas too: *not used there either*.
-  BioBTree-side finding: regulatory-region→target-gene edges aren't materialized.
+- **jaspar** — done (motif→TF protein). NOT a gap (BioBTree team confirmed): a
+  motif belongs to its TF, `uniprot→hgnc/ensembl` gives the TF gene, and the
+  TF→target regulation layer is CollecTRI (present + connected, ~100k edges each
+  to ensembl/entrez/hgnc). So `jaspar→uniprot→hgnc→collectri→target` is fully
+  traversable.
+- **fantom5_enhancer** — deferred by choice, not a gap. It already has ~1.2M
+  enhancer→gene edges, but they are **proximity-based** (nearest genes via the
+  gene-coordinate index), not curated regulation. Modeling it would need a
+  `RegulatoryRegion` node + a proximity/association predicate; curated regulation
+  would require ingesting FANTOM5's enhancer–TSS association file (a new source).
+- **encode_ccre** — deferred. The source (ENCODE/SCREEN BED9+1: coordinates +
+  cCRE class) ships **no target-gene assignments**, so there's nothing to link
+  from the registry — links only to taxonomy. Not a BioBTree bug; cCRE catalogs
+  don't include targets.
 - **brenda_kinetics / brenda_inhibitor** — free-text substrate/inhibitor (no
   CURIE) + numeric Km/Ki (needs numeric-qualifier support).
 

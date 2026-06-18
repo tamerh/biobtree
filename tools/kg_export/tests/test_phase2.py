@@ -147,6 +147,69 @@ class BuildEdgesTests(unittest.TestCase):
             self.assertIn(("UniProtKB:P1", "biolink:enables", "RHEA:10000"), edges)  # flip
             self.assertEqual(stats.edges_written, 4)
 
+    def test_brenda_enzyme_cluster_edges(self):
+        """BRENDA enzyme (EC) cluster:
+          * hmdb>brenda -> metabolite participates_in EC MolecularActivity
+          * uniprot>brenda -> SKIP (EC dup of uniprot>ec; brenda id == ec id space)
+          * brenda EC entries are NODES typed biolink:MolecularActivity (prefix EC)
+          * brenda's child links (brenda_kinetics/inhibitor) + pubmed refs are not
+            node datasets -> dropped_not_node (no spurious edges)
+        Substrate/inhibitor chemicals are free text (no CURIE) -> kinetics/inhibitor
+        reified edges are intentionally NOT authored (deferred).
+        """
+        hm, br, up, ec = (self._id("hmdb"), self._id("brenda"),
+                          self._id("uniprot"), self._id("ec"))
+        bk, bi, pm_ = (self._id("brenda_kinetics"), self._id("brenda_inhibitor"),
+                       self._id("pubmed"))
+        # brenda must be a typed node (MolecularActivity) so EC endpoints resolve
+        self.assertTrue(self.cats.is_node_dataset("brenda"))
+        self.assertEqual(self.cats.category_for("brenda"), "biolink:MolecularActivity")
+        self.assertEqual(self.cats.prefix_for("brenda"), "EC")
+        self.assertTrue(self.pm.rule_for("uniprot", "brenda").is_skip)
+
+        with tempfile.TemporaryDirectory() as d:
+            tmp = Path(d)
+            self._write(tmp, "hmdb_sorted.1.index.gz", [
+                f"HMDB0004085\t{hm}\t1.1.1.100\t{br}",   # metabolite -> EC activity
+                f'HMDB0004085\t{hm}\t{{"name":"x"}}\t-1',  # property -> skipped
+            ])
+            self._write(tmp, "uniprot_sorted.1.index.gz", [
+                f"P1\t{up}\t3.2.1.39\t{br}",             # uniprot>brenda -> skip (EC dup)
+                f"P1\t{up}\t3.2.1.39\t{ec}",             # the canonical uniprot>ec edge
+            ])
+            self._write(tmp, "brenda_sorted.1.index.gz", [
+                f'1.1.1.1\t{br}\t{{"recommended_name":"alcohol dehydrogenase"}}\t-1',
+                f"1.1.1.1\t{br}\t1.1.1.1|ETHANOL\t{bk}",   # -> kinetics key (not a node)
+                f"1.1.1.1\t{br}\t1.1.1.1|NAD+\t{bi}",      # -> inhibitor key (not a node)
+                f"1.1.1.1\t{br}\t12345\t{pm_}",            # -> pubmed (not a node)
+            ])
+            out = tmp / "edges.tsv"
+            stats = build_edges(tmp, self.reg, self.cats, self.pm, out)
+            edges = {(r.split("\t")[1], r.split("\t")[2], r.split("\t")[3])
+                     for r in out.read_text().splitlines()[1:]}
+            # only real edges: hmdb metabolite -> EC activity, and uniprot>ec
+            self.assertIn(
+                ("HMDB:HMDB0004085", "biolink:participates_in", "EC:1.1.1.100"), edges)
+            self.assertIn(("UniProtKB:P1", "biolink:enables", "EC:3.2.1.39"), edges)
+            self.assertEqual(stats.edges_written, 2)
+            # uniprot>brenda reached the skip rule (both endpoints are nodes)
+            self.assertEqual(stats.skipped, 1)
+            # the 3 brenda child/pubmed targets aren't node datasets -> dropped
+            self.assertEqual(stats.dropped_not_node, 3)
+            self.assertEqual(stats.unmapped, 0)
+            # no edge points at a kinetics/inhibitor reification key or a pubmed id
+            endpoints = {e[0] for e in edges} | {e[2] for e in edges}
+            self.assertNotIn("1.1.1.1|ETHANOL", endpoints)
+            self.assertNotIn("PMID:12345", endpoints)
+
+    def test_brenda_kinetics_inhibitor_not_reified(self):
+        """kinetics/inhibitor are NOT reified rules: their only structured object
+        is the free-text substrate/inhibitor (no CURIE) + numeric Km/Ki that
+        can't be qualifiers yet -> deferred, no edges fabricated."""
+        self.assertIsNone(self.pm.reified_rule("brenda_kinetics"))
+        self.assertIsNone(self.pm.reified_rule("brenda_inhibitor"))
+        self.assertIsNone(self.pm.reified_rule("brenda"))
+
     def test_primary_knowledge_source(self):
         cl, hg = self._id("clinvar"), self._id("hgnc")
         with tempfile.TemporaryDirectory() as d:

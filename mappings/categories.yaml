@@ -47,6 +47,19 @@ datasets:
   hgnc:        {category: "biolink:Gene", prefix: "HGNC"}
   ensembl:     {category: "biolink:Gene", prefix: "ENSEMBL"}
   entrez:      {category: "biolink:Gene", prefix: "NCBIGene"}
+  # Model-organism gene namespaces (Alliance of Genome Resources). All are
+  # biolink:Gene id_prefixes (verified). No identity_pairs with the human cluster
+  # (distinct-species genes must not merge).
+  mgi:         {category: "biolink:Gene", prefix: "MGI", note: "Mouse (MGI)"}
+  rgd:         {category: "biolink:Gene", prefix: "RGD", note: "Rat (RGD)"}
+  sgd:         {category: "biolink:Gene", prefix: "SGD", note: "Yeast (SGD)"}
+  zfin:        {category: "biolink:Gene", prefix: "ZFIN", note: "Zebrafish (ZFIN)"}
+  flybase:     {category: "biolink:Gene", prefix: "FB", note: "Fly (FlyBase); biobtree stores ids uppercased"}
+  wormbase:    {category: "biolink:Gene", prefix: "WB", note: "Worm (WormBase); biobtree stores ids uppercased"}
+  # Gene homology endpoints (Ensembl Compara). Objects are gene ids (mostly
+  # ENS*G; minority FlyBase/WormBase -> cross-species stubs).
+  ortholog:    {category: "biolink:Gene", prefix: "ENSEMBL", note: "Compara ortholog gene endpoint"}
+  paralog:     {category: "biolink:Gene", prefix: "ENSEMBL", note: "Compara paralog gene endpoint"}
 
   # --- Transcripts -----------------------------------------------------------
   transcript:  {category: "biolink:Transcript", prefix: "ENSEMBL"}
@@ -94,6 +107,7 @@ datasets:
   # --- Sequence variants -----------------------------------------------------
   clinvar:     {category: "biolink:SequenceVariant", prefix: "CLINVAR"}
   dbsnp:       {category: "biolink:SequenceVariant", prefix: "DBSNP", note: "dbsnp federation"}
+  civic_variant: {category: "biolink:SequenceVariant", prefix: "civic.vid", note: "CIViC curated cancer variant; bioregistry prefix civic.vid; NOT merged with clinvar/dbsnp (xref != identity)"}
 
   # --- Pathways / gene sets --------------------------------------------------
   reactome:    {category: "biolink:Pathway", prefix: "REACT"}
@@ -120,6 +134,12 @@ datasets:
   # include EC, RHEA, GO -- verified) ----------------------------------------
   ec:          {category: "biolink:MolecularActivity", prefix: "EC", note: "enzyme classification"}
   rhea:        {category: "biolink:MolecularActivity", prefix: "RHEA", note: "biochemical reactions"}
+  brenda:      {category: "biolink:MolecularActivity", prefix: "EC", note: "BRENDA enzyme entries keyed by EC number (same id space as ec); typed like ec"}
+
+  # --- Chemical entities -----------------------------------------------------
+  # CTD chemicals are MeSH-identified; ChemicalEntity (not SmallMolecule) since
+  # MeSH chemical records include mixtures/classes. MESH is a valid biolink prefix.
+  ctd:         {category: "biolink:ChemicalEntity", prefix: "MESH", note: "CTD chemical (MeSH-identified)"}
 
   # --- Deferred / aspect-dependent (NOT typed at dataset level) --------------
   # go: category depends on term aspect (MF/BP/CC) -> resolved in Phase 2 from

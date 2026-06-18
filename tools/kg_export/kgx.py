@@ -41,7 +41,7 @@ KNOWN_CATEGORIES = {
     "biolink:OrganismTaxon", "biolink:ProteinFamily",
     "biolink:MacromolecularComplex", "biolink:NoncodingRNAProduct",
     "biolink:MolecularActivity", "biolink:BiologicalProcess",
-    "biolink:CellularComponent",
+    "biolink:CellularComponent", "biolink:ChemicalEntity",
 }
 
 
@@ -62,6 +62,10 @@ CANONICAL_PREFIXES = {
     # cross-species phenotype ontologies (bioregistry preferred_prefix, verified)
     "UPHENO", "ZP", "XPO", "WBPhenotype", "FYPO",
     "OBA",  # Ontology of Biological Attributes (GWAS quantitative traits)
+    # Alliance model-organism gene namespaces (biolink Gene id_prefixes, verified)
+    "MGI", "RGD", "SGD", "ZFIN", "FB", "WB",
+    "MESH",        # biolink prefix map (CTD chemicals)
+    "civic.vid",   # bioregistry-canonical CIViC variant prefix
     # MolecularActivity id_prefixes (verified in biolink MolecularActivity)
     "EC", "RHEA",
 }

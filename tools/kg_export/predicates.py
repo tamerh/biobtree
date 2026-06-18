@@ -44,6 +44,10 @@ class ReifiedRule:
     partner: str | None = None  # pairwise, star
     subject: str | None = None  # bipartite
     object: str | None = None  # bipartite
+    extra_subjects: list | None = None  # bipartite (plain): additional SUBJECT
+                                        # datasets (e.g. alliance_disease: the gene
+                                        # appears in one of several species
+                                        # namespaces per entry)
     extra_objects: list | None = None  # bipartite (plain): additional object
                                        # datasets emitted with the same predicate
                                        # (e.g. gwas gene -> mondo AND oba traits)
@@ -118,6 +122,7 @@ class PredicateMap:
                 partner=cfg.get("partner"),
                 subject=cfg.get("subject"),
                 object=cfg.get("object"),
+                extra_subjects=cfg.get("extra_subjects"),
                 extra_objects=cfg.get("extra_objects"),
                 subject_field=cfg.get("subject_field"),
                 object_field=cfg.get("object_field"),

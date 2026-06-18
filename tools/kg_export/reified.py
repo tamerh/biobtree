@@ -30,8 +30,8 @@ from .datasets import DatasetRegistry
 from .index import RawXref, iter_index_file
 from .predicates import PredicateMap, ReifiedRule
 
-# Similarity/homology datasets are computational predictions, not assertions.
-_PREDICTION_DATASETS = {"diamond_similarity", "esm2_similarity"}
+# Computational predictions, not curated assertions (-> prediction/automated_agent).
+_PREDICTION_DATASETS = {"diamond_similarity", "esm2_similarity", "mirdb"}
 
 
 @dataclass
@@ -294,7 +294,16 @@ def _emit_group(group, rule, registry, categories, canonical, primary,
                 yield row
 
     else:  # bipartite
-        subs = partners(rule.subject)
+        # When `subject` is the reified dataset itself, the subject is the group
+        # KEY (e.g. miRDB: the miRNA is the entry id, only the targets are object
+        # lines), not an object-role line — render the key with the subject prefix.
+        if rule.subject == rule.dataset:
+            s = canonical(rule.subject, group[0].subject)
+            subs = [s] if s else []
+        else:
+            subs = partners(rule.subject)
+            for extra in (rule.extra_subjects or []):  # gene in several namespaces
+                subs = subs + [s for s in partners(extra) if s not in subs]
         if rule.via and resolve_map is not None:
             # object partners are the resolved nodes of the in-entry `via` ids
             seen, objs = set(), []

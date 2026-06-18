@@ -70,8 +70,36 @@ clearly-labeled `prediction` layer, separate from the asserted graph.
 ## Recommendation
 
 source2 needs no further coverage work. For source1, the Tier-A list is the real
-expansion target — ~12 dataset clusters. Most fit existing mechanisms (direct or
-reified rules); a few need a new node type (`RegulatoryRegion` for
-encode_ccre/fantom5_enhancer) or are best modeled with qualifiers (clinical
-significance on civic). Predictive and identifier/derived datasets stay out by
-design.
+expansion target — most fit existing mechanisms (direct or reified rules).
+
+## Tier-A status (after the agent batch)
+
+**Added** (verified against the real index; in `full_prod.sh`):
+
+| Cluster | Edges (full) | Modeling |
+|---|---|---|
+| alliance_disease | 50,732 | bipartite, cross-species gene→DOID (`gene_associated_with_condition`); needed a new `extra_subjects` field for the 6 MOD gene namespaces |
+| clinical_trials | 743,863 | bipartite drug→condition (`in_clinical_trials_for`) |
+| ctd_gene_interaction | 2,087,632 | bipartite chemical→gene (`affects`); new `biolink:ChemicalEntity` node (MESH) |
+| ortholog / paralog | ~53M | direct gene↔gene (`orthologous_to`/`paralogous_to`) via the ensembl forward |
+| civic (variant/evidence/assertion) | ~18,500 | variant→gene + variant→disease/drug (`civic.vid` SequenceVariant) |
+| cellxgene_celltype | 14,261 | bipartite cell-type→tissue (`located_in`) — *not* gene expression (no gene endpoint) |
+| brenda | 53 | direct metabolite→EC (`participates_in`); brenda typed MolecularActivity (EC) |
+
+**Deferred (with reason):**
+- **ctd_disease_association, mesh** — MeSH can't be cleanly node-typed (91% are
+  supplementary chemicals with no tree-number type field); typing it would
+  overclaim. MeSH stays an identifier/xref endpoint.
+- **mirdb** — targets are runtime-typed RefSeq transcripts; the reified builder
+  needs the RefSeq prefix wired in (small code change). miRNA ids are also miRBase
+  *names*, not MIMAT accessions (non-canonical CURIE).
+- **generif** — needs `biolink:Publication` nodes (PMID) + non-human gene stubs;
+  ~1.7M dangling endpoints otherwise.
+- **jaspar, encode_ccre, fantom5_enhancer** — **no regulatory→gene link exists in
+  the index** (jaspar→only TF protein; encode_ccre→only taxonomy). A BioBTree-side
+  finding: the regulatory-region→target-gene edges aren't materialized.
+- **brenda_kinetics / brenda_inhibitor** — free-text substrate/inhibitor (no
+  CURIE) + numeric Km/Ki (needs numeric-qualifier support).
+
+Predictive (alphafold/alphamissense/spliceai) and identifier/derived datasets
+stay out by design.

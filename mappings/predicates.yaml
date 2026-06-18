@@ -77,6 +77,24 @@ direct:
   "rhea>ec":           {skip: "activity<->activity, no clean predicate"}
   "rhea>go":           {skip: "activity<->activity"}
 
+  # --- BRENDA enzyme (EC) cluster. brenda entries are keyed by EC number (same
+  # id space as `ec`, typed MolecularActivity). hmdb gives the only metabolite->EC
+  # path (no hmdb>ec pair). uniprot>brenda duplicates uniprot>ec -> skip.
+  "hmdb>brenda":       {predicate: "biolink:participates_in", note: "metabolite participates in BRENDA enzyme (EC) activity"}
+  "uniprot>brenda":    {skip: "EC dup of uniprot>ec (brenda id == ec id space)"}
+  "brenda>brenda_kinetics":  {skip: "intra-cluster reification key (EC|substrate), not an edge; kinetics deferred (free-text chemical + numeric)"}
+  "brenda>brenda_inhibitor": {skip: "intra-cluster reification key (EC|inhibitor), not an edge; inhibitor deferred (free-text chemical + numeric)"}
+  "brenda>pubmed":     {skip: "literature reference; pubmed not a node"}
+
+  # --- Gene-gene homology (Ensembl Compara). Edges live in the ensembl forward
+  # file as ensembl-gene -> ortholog/paralog gene. Both predicates SYMMETRIC and
+  # stored BOTH directions (A->B and B->A). The <homology>->ensembl back-links are
+  # pure self-references (subj==obj) -> skip. NOTE: large (paralog ~43M edges).
+  "ensembl>ortholog":  {predicate: "biolink:orthologous_to"}
+  "ensembl>paralog":   {predicate: "biolink:paralogous_to"}
+  "ortholog>ensembl":  {skip: "self-reference anchor back-link (subj==obj)"}
+  "paralog>ensembl":   {skip: "self-reference anchor back-link (subj==obj)"}
+
   # --- ncRNA -> gene --------------------------------------------------------
   "rnacentral>ensembl": {predicate: "biolink:gene_product_of", note: "ncRNA is the product of the gene"}
   "rnacentral>go":      {skip: "GO aspect not resolvable in direct edges; add rnacentral as a go.py annotation source instead"}
@@ -181,6 +199,10 @@ reified:
   gencc:                 {kind: bipartite, subject: hgnc, object: mondo, predicate: "biolink:gene_associated_with_condition", note: "GenCC gene-disease validity"}
   gwas:                  {kind: bipartite, subject: hgnc, object: mondo, extra_objects: [efo, oba], predicate: "biolink:associated_with", note: "GWAS gene-trait: disease (mondo/efo) + quantitative attribute (oba). PATO quality NOT attached: it's a study-level attribute that never co-occurs with a mapped trait on the same association (entry-level, like eco/xco)"}
   intogen:               {kind: bipartite, subject: hgnc, object: mondo, predicate: "biolink:gene_associated_with_condition", note: "intOGen cancer driver"}
+  # Alliance of Genome Resources cross-species gene->disease. Each AGRD entry links
+  # ONE gene (in its species namespace: hgnc OR a MOD gene dataset, via extra_subjects)
+  # + ONE DOID disease. Orthology-inferred / negative assertions filtered at ingest.
+  alliance_disease:      {kind: bipartite, subject: hgnc, extra_subjects: [mgi, rgd, sgd, zfin, flybase, wormbase], object: doid, predicate: "biolink:gene_associated_with_condition", note: "Alliance gene-disease (cross-species MOD curation)"}
   clingen_gene_validity: {kind: bipartite, subject: hgnc, object: mondo, predicate: "biolink:gene_associated_with_condition"}
   clingen_variant:       {kind: bipartite, subject: hgnc, object: mondo, predicate: "biolink:gene_associated_with_condition"}
   clingen_dosage:        {kind: bipartite, subject: hgnc, object: mondo, predicate: "biolink:gene_associated_with_condition", note: "dosage sensitivity"}
@@ -206,3 +228,31 @@ reified:
   # GtoPdb curated ligand->target: entry links ligand + a gtopdb target id, which
   # `via: gtopdb` resolves to the uniprot protein (gtopdb_sorted: gtopdb->uniprot).
   gtopdb_interaction:    {kind: bipartite, subject: gtopdb_ligand, object: uniprot, via: gtopdb, predicate: "biolink:interacts_with", note: "GtoPdb curated affinity ligand->target"}
+
+  # --- CTD chemical -> gene (reified chem-gene interaction records) ----------
+  # ctd_disease_association DEFERRED: its disease object is the `mesh` dataset,
+  # which is not cleanly node-typeable (91% supplementary chemicals, no tree-type).
+  ctd_gene_interaction:  {kind: bipartite, subject: ctd, object: entrez, predicate: "biolink:affects", note: "CTD chemical->gene; interaction_actions mix increases/decreases/affects -> affects (entrez canonicalizes to HGNC for human)"}
+
+  # --- Drug -> condition in clinical trials (ClinicalTrials.gov) -------------
+  # Trial (NCT) links its drug(s) + condition(s); emit drug->condition. pubmed
+  # refs dropped (no Publication node). Trial phase/status: qualifier follow-up.
+  clinical_trials:       {kind: bipartite, subject: chembl_molecule, object: mondo, extra_objects: [efo], predicate: "biolink:in_clinical_trials_for", note: "ClinicalTrials.gov drug->condition"}
+
+  # --- Single-cell cell-type -> tissue localization (CZ CELLxGENE) ----------
+  # cellxgene_celltype entries are CELL TYPES (entry id CL_xxxx). The cl self-link
+  # is the subject; uberon tissues the object. This is cell-type localization, NOT
+  # gene expression (no gene endpoint). cellxgene (collection-level) deferred
+  # (entry is a study UUID, no node CURIE). Disease(mondo) links deferred (different
+  # predicate, one per rule). Bogus UNKNOWN entries lack a cl self-link -> emit nothing.
+  cellxgene_celltype:    {kind: bipartite, subject: cl, object: uberon, predicate: "biolink:located_in", note: "CZ CELLxGENE cell-type found_in tissue"}
+
+  # --- CIViC clinical cancer variant interpretation -------------------------
+  # variant->gene: civic_variant entry id IS the variant (group key, subject==dataset);
+  # `via: civic` resolves the parent feature to its gene. evidence/assertion are
+  # hubs co-presenting variant + disease(mondo) + therapy(chembl_molecule).
+  # Per-edge significance/evidence_level live in property JSON (not object lines) ->
+  # qualifier follow-up; both disease+drug share associated_with.
+  civic_variant:   {kind: bipartite, subject: civic_variant, object: hgnc, via: civic, predicate: "biolink:is_sequence_variant_of", note: "CIViC variant->gene (via parent feature)"}
+  civic_evidence:  {kind: bipartite, subject: civic_variant, object: mondo, extra_objects: [chembl_molecule], predicate: "biolink:associated_with", note: "CIViC evidence: variant->disease + variant->therapy"}
+  civic_assertion: {kind: bipartite, subject: civic_variant, object: mondo, extra_objects: [chembl_molecule], predicate: "biolink:associated_with", note: "CIViC assertion: variant->disease + variant->therapy"}

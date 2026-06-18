@@ -76,7 +76,11 @@ type panelGene struct {
 		HgncID       string                                `json:"hgnc_id"`
 		GeneSymbol   string                                `json:"gene_symbol"`
 		OmimGene     []string                              `json:"omim_gene"`
-		EnsemblGenes map[string]map[string]ensemblBuildRef `json:"ensembl_genes"`
+		// PanelApp returns ensembl_genes as the nested build dict for most genes
+		// but as a bare string ("") for some — decoding into a fixed map type would
+		// fail the WHOLE panel's unmarshal and drop all its genes. Keep it raw and
+		// parse defensively in extractGRCh38Ensembl.
+		EnsemblGenes json.RawMessage `json:"ensembl_genes"`
 	} `json:"gene_data"`
 }
 
@@ -163,7 +167,12 @@ func (p *panelapp) update() {
 			continue
 		}
 
-		// Fetch the panel's genes and emit one child per kept gene.
+		// Fetch the panel's genes and emit one child per kept gene. Pace the
+		// per-panel detail calls so the API doesn't throttle the 434-panel burst
+		// (proactive pacing avoids the long retry backoffs).
+		if !config.IsTestMode() {
+			time.Sleep(150 * time.Millisecond)
+		}
 		genes := p.fetchPanelGenes(baseURL, ps.ID)
 		for gi := range genes {
 			if p.saveGene(ps, &genes[gi], childSource, childSourceID, masterSourceID, panelID, childIDLogFile) {
@@ -327,7 +336,15 @@ func mapPanelappConfidence(level string) string {
 // ensembl_genes dict (ensembl_genes.<build>.<release>.ensembl_id), tolerating the
 // "GRch38" key casing variants and any release number under it. Falls back to ""
 // when no GRCh38 build is present.
-func extractGRCh38Ensembl(eg map[string]map[string]ensemblBuildRef) string {
+func extractGRCh38Ensembl(raw json.RawMessage) string {
+	if len(raw) == 0 {
+		return ""
+	}
+	// Tolerate the bare-string variant ("") PanelApp sometimes returns.
+	var eg map[string]map[string]ensemblBuildRef
+	if err := json.Unmarshal(raw, &eg); err != nil {
+		return ""
+	}
 	for build, releases := range eg {
 		if !strings.EqualFold(build, "GRCh38") {
 			continue

@@ -12,6 +12,9 @@ import argparse
 from collections import defaultdict
 
 from .categories import CategoryMap
+from .datasets import DatasetRegistry
+from .go import ASPECT_CATEGORY
+from .ontology import _ontology_targets
 from .predicates import PredicateMap
 
 # GO annotation sources (go.py): subject dataset -> category, and the 3 aspects.
@@ -38,17 +41,15 @@ _REFSEQ_EDGES = [
     ("biolink:Protein", "biolink:in_taxon", "biolink:OrganismTaxon"),
 ]
 
-# Ontology hierarchy/mappings (ontology.py): subclass_of self-loops for every
-# ontology-backed category, plus cross-ontology close_match where >1 namespace
-# shares a category (Disease: MONDO/DOID/EFO/Orphanet/OMIM; PhenotypicFeature:
-# HP/MP/uPheno/ZP/XPO/WBPhenotype/FYPO).
-_ONTOLOGY_SUBCLASS_CATS = (
-    "biolink:Disease", "biolink:PhenotypicFeature",
-    "biolink:GrossAnatomicalStructure", "biolink:Cell", "biolink:ProteinFamily",
-    "biolink:MolecularActivity", "biolink:BiologicalProcess",
-    "biolink:CellularComponent",
-)
-_ONTOLOGY_CLOSEMATCH_CATS = ("biolink:Disease", "biolink:PhenotypicFeature")
+# Ontology cross-ontology close_match (ontology.py) is emitted only by the hub
+# ontologies that carry the cross-references: MONDO (disease merge ontology) and
+# uPheno (cross-species phenotype hub). subclass_of contributors are derived per
+# ontology from the registry (see schema_triples), so the meta-graph panel shows
+# the real dataset names (mondo/doid/efo/...) instead of a generic "ontology".
+_ONTOLOGY_CLOSEMATCH_SOURCES = {
+    "biolink:Disease": ["mondo"],
+    "biolink:PhenotypicFeature": ["upheno"],
+}
 
 _PALETTE = [
     "#4e79a7", "#f28e2b", "#59a14f", "#e15759", "#76b7b2", "#edc948",
@@ -57,7 +58,7 @@ _PALETTE = [
 ]
 
 
-def schema_triples(cats: CategoryMap, preds: PredicateMap):
+def schema_triples(cats: CategoryMap, preds: PredicateMap, registry: DatasetRegistry | None = None):
     """(subject_category, predicate, object_category) -> set of contributing datasets."""
     triples: dict[tuple, set] = defaultdict(set)
 
@@ -89,10 +90,18 @@ def schema_triples(cats: CategoryMap, preds: PredicateMap):
     for sc, p, oc in _REFSEQ_EDGES:
         add(sc, p, oc, "refseq")
 
-    for c in _ONTOLOGY_SUBCLASS_CATS:
-        add(c, "biolink:subclass_of", c, "ontology")
-    for c in _ONTOLOGY_CLOSEMATCH_CATS:
-        add(c, "biolink:close_match", c, "ontology")
+    # Ontology hierarchy (ontology.py): attribute each subclass_of self-loop to
+    # the real source ontologies, and close_match to the hub ontologies.
+    if registry is not None:
+        for ds, _prefix, category, _parent_id in _ontology_targets(registry, cats):
+            if ds == "go":
+                for aspect_cat in ASPECT_CATEGORY.values():
+                    add(aspect_cat, "biolink:subclass_of", aspect_cat, "go")
+            else:
+                add(category, "biolink:subclass_of", category, ds)
+        for cat, sources in _ONTOLOGY_CLOSEMATCH_SOURCES.items():
+            for ds in sources:
+                add(cat, "biolink:close_match", cat, ds)
     return triples
 
 
@@ -337,6 +346,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--categories", default="mappings/categories.yaml")
     ap.add_argument("--predicates", default="mappings/predicates.yaml")
+    ap.add_argument("--conf", default="conf", help="dataset config dir (for ontology attribution)")
     ap.add_argument("--out", default=None, help="pyvis HTML output path")
     ap.add_argument("--mermaid", default=None, help="Mermaid HTML output path (cleaner)")
     ap.add_argument("--cytoscape", default=None, help="Cytoscape.js interactive HTML")
@@ -346,7 +356,8 @@ def main():
     a = ap.parse_args()
     cats = CategoryMap.load(a.categories)
     preds = PredicateMap.load(a.predicates)
-    triples = schema_triples(cats, preds)
+    registry = DatasetRegistry.load(a.conf)
+    triples = schema_triples(cats, preds, registry)
     if a.show or not (a.out or a.mermaid or a.cytoscape or a.explorer):
         print_summary(triples)
     if a.out:

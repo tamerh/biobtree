@@ -177,6 +177,11 @@ def render_explorer(triples, out_html, catmap=None):
             e = catmap.entry_for(ds)
             if e:
                 node_ds[nid(e.category)].append({"ds": ds, "prefix": e.prefix})
+    # GO is typed at runtime by term aspect (go.py), so it has no categories.yaml
+    # entry -- inject it as the node source for the three GO aspect categories.
+    for aspect_cat in ("biolink:MolecularActivity", "biolink:BiologicalProcess",
+                       "biolink:CellularComponent"):
+        node_ds[nid(aspect_cat)].append({"ds": "go", "prefix": "GO"})
     payload = json.dumps({"nodes": nodes, "edges": edges, "cats": [nid(c) for c in cats],
                           "colors": color, "nodeDatasets": node_ds})
     tmpl = r"""<!doctype html><html><head><meta charset='utf-8'>

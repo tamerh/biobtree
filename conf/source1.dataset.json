@@ -1160,7 +1160,7 @@
     "useLocalFile": "no",
     "hasFilter": "yes",
     "attrs": "reaction,report_count,prr,serious_count,outcome",
-    "compact_fields": "reaction,report_count,prr",
+    "compact_fields": "reaction,report_count,prr,serious_count,outcome",
     "test_entries_count": "100",
     "bucketMethod": "alphanum"
   },

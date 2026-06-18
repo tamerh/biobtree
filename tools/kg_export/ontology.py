@@ -50,7 +50,11 @@ CLOSE_MATCH = "biolink:close_match"
 SUBCLASS_CATEGORIES = {
     "biolink:Disease", "biolink:PhenotypicFeature",
     "biolink:GrossAnatomicalStructure", "biolink:Cell", "biolink:ProteinFamily",
+    "biolink:OrganismTaxon",  # NCBI taxonomy tree (parent taxon == subClassOf)
 }
+
+# Most ontologies name their hierarchy datasets ``<name>parent``; a few don't.
+PARENT_DATASET = {"taxonomy": "taxparent"}
 
 
 @dataclass
@@ -77,7 +81,7 @@ def _ontology_targets(registry: DatasetRegistry, categories: CategoryMap):
     names = set(categories.datasets())
     names.add("go")  # runtime-typed, but its hierarchy lives in go_sorted
     for ds in sorted(names):
-        parent = registry.by_name(ds + "parent")
+        parent = registry.by_name(PARENT_DATASET.get(ds, ds + "parent"))
         if not parent:
             continue
         if ds == "go":

@@ -75,6 +75,19 @@ class OntologyBuildTests(unittest.TestCase):
         self.assertIn(("UPHENO:0000001", "biolink:close_match", "HP:0000001"), edges)
         self.assertIn(("UPHENO:0000001", "biolink:close_match", "ZP:0000000"), edges)
 
+    def test_taxonomy_hierarchy_irregular_parent_dataset(self):
+        """NCBI taxonomy tree uses taxparent/taxchild (not taxonomyparent)."""
+        tax, par, ch = self._id("taxonomy"), self._id("taxparent"), self._id("taxchild")
+        lines = [
+            f"9606\t{tax}\t9605\t{par}",   # Homo sapiens subclass_of Homo
+            f"9606\t{tax}\t63221\t{ch}",   # child -> skipped (reverse)
+            f"9606\t{tax}\t9606\t{tax}",   # self -> skipped
+        ]
+        stats, edges = self._run("taxonomy_sorted.1.index.gz", lines)
+        self.assertIn(("NCBITaxon:9606", "biolink:subclass_of", "NCBITaxon:9605"), edges)
+        self.assertEqual(stats.subclass_edges, 1)
+        self.assertEqual(stats.close_match_edges, 0)
+
     def test_go_hierarchy_only_no_close_match(self):
         """GO is runtime-typed (3 aspects) -> subclass_of only, no close_match."""
         go, par = self._id("go"), self._id("goparent")

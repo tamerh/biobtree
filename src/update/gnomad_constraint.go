@@ -213,6 +213,11 @@ func (g *gnomadConstraint) update() {
 		// namespace (hgnc/entrez) via the symbol.
 		g.d.addProp3(ensg, sourceID, attrBytes)
 		g.d.addXref(ensg, sourceID, ensg, "ensembl", false)
+		// Link the constraint record to its representative Ensembl transcript so
+		// gene constraint is reachable via transcript (strip any version suffix).
+		if enst := strings.Split(attr.Transcript, ".")[0]; strings.HasPrefix(enst, "ENST") {
+			g.d.addXref(ensg, sourceID, enst, "transcript", false)
+		}
 		if symbol != "" {
 			g.d.addXref(symbol, textLinkID, ensg, g.source, true)
 			g.d.addHumanGeneXrefsAll(symbol, ensg, sourceID)

@@ -5,6 +5,7 @@ import (
 	"bufio"
 	"encoding/csv"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -298,9 +299,13 @@ func (m *depmap) update() {
 				}
 				if db, merr := ffjson.Marshal(&dattr); merr == nil {
 					m.d.addProp3(key, depDepID, db)
-					m.d.addXref(key, depDepID, geneID[j], "entrez", false)
+					// Attach the CRISPR gene-effect score as the edge evidence so a
+					// reverse traversal (entrez >> depmap_dependency, cellosaurus >>
+					// depmap_dependency) shows each cell line's essentiality score.
+					geneEffectEv := fmt.Sprintf("gene_effect=%.4f", f64)
+					m.d.addXrefWithEvidence(key, depDepID, geneID[j], "entrez", false, geneEffectEv)
 					if mi.rrid != "" {
-						m.d.addXref(key, depDepID, mi.rrid, "cellosaurus", false)
+						m.d.addXrefWithEvidence(key, depDepID, mi.rrid, "cellosaurus", false, geneEffectEv)
 					}
 					depEdges++
 				}

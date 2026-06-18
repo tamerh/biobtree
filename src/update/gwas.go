@@ -344,6 +344,22 @@ func (g *gwas) createCrossReferences(associationID string, snpIDs []string, sour
 		g.d.addXref(attr.StudyAccession, textLinkID, associationID, g.source, true)
 	}
 
+	// Per-association statistics attached to the association's xref edges as the
+	// evidence field, so a reverse traversal (rs123 >> gwas, trait >> gwas) shows
+	// each association's significance/effect. Empty -> plain edge.
+	gwasEvidence := ""
+	if attr.PValue > 0 {
+		gwasEvidence = fmt.Sprintf("p=%g", attr.PValue)
+	} else if attr.PvalueMlog > 0 {
+		gwasEvidence = fmt.Sprintf("pmlog=%g", attr.PvalueMlog)
+	}
+	if attr.OrBeta != "" {
+		if gwasEvidence != "" {
+			gwasEvidence += ";"
+		}
+		gwasEvidence += "or_beta=" + attr.OrBeta
+	}
+
 	// Create xrefs for ALL SNPs in this association
 	for _, snpID := range snpIDs {
 		// Text search: SNP ID searchable (finds all associations for this SNP)
@@ -354,7 +370,7 @@ func (g *gwas) createCrossReferences(associationID string, snpIDs []string, sour
 		// Only create xref if snpID is a valid rsID format (starts with "rs" followed by digits)
 		if _, exists := config.Dataconf["dbsnp"]; exists {
 			if isValidRsID(snpID) {
-				g.d.addXref(associationID, sourceID, snpID, "dbsnp", false)
+				g.d.addXrefWithEvidence(associationID, sourceID, snpID, "dbsnp", false, gwasEvidence)
 			}
 		}
 	}
@@ -384,7 +400,7 @@ func (g *gwas) createCrossReferences(associationID string, snpIDs []string, sour
 		targetDataset := getOntologyDataset(traitID)
 		if targetDataset != "" {
 			if _, exists := config.Dataconf[targetDataset]; exists {
-				g.d.addXref(associationID, sourceID, traitID, targetDataset, false)
+				g.d.addXrefWithEvidence(associationID, sourceID, traitID, targetDataset, false, gwasEvidence)
 			}
 		}
 	}

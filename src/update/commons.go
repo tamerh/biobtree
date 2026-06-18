@@ -11,6 +11,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -56,6 +57,21 @@ func httpGetWithRetry(url string, maxRetries int) (*http.Response, error) {
 
 		if resp.StatusCode == http.StatusOK {
 			return resp, nil
+		}
+
+		// On 429, honor the server's Retry-After (seconds, capped) so we wait out
+		// the rate-limit window instead of failing after a too-short backoff.
+		if resp.StatusCode == 429 {
+			if ra := strings.TrimSpace(resp.Header.Get("Retry-After")); ra != "" {
+				if secs, perr := strconv.Atoi(ra); perr == nil && secs > 0 {
+					wait := time.Duration(secs) * time.Second
+					if wait > 120*time.Second {
+						wait = 120 * time.Second
+					}
+					log.Printf("Rate-limited (429) on %s; honoring Retry-After %v", url, wait)
+					time.Sleep(wait)
+				}
+			}
 		}
 
 		// Close body for non-OK responses before retry

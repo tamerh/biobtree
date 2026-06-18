@@ -21,6 +21,7 @@ from .datasets import DatasetRegistry
 from . import kgx
 from .edges import build_edges, load_id_map
 from .go import build_go
+from .dbsnp import build_dbsnp
 from .nodes import build_nodes
 from .ontology import build_ontology
 from .predicates import PredicateMap
@@ -179,6 +180,32 @@ def _cmd_go(args: argparse.Namespace) -> int:
         file=sys.stderr,
     )
     print(f"  by_predicate={dict(stats.by_predicate)}", file=sys.stderr)
+    print(f"  elapsed={dt:.1f}s", file=sys.stderr)
+    return 0
+
+
+def _cmd_dbsnp(args: argparse.Namespace) -> int:
+    registry = DatasetRegistry.load(args.conf)
+    categories = CategoryMap.load(args.categories)
+    id_map = load_id_map(args.id_map)
+    t0 = time.time()
+    stats = build_dbsnp(
+        index_dir=args.index_dir,
+        registry=registry,
+        categories=categories,
+        nodes_out=args.nodes_out,
+        edges_out=args.edges_out,
+        id_map=id_map,
+        stats_path=args.stats,
+        max_variants=args.max_variants,
+    )
+    dt = time.time() - t0
+    print(f"dbSNP nodes: {args.nodes_out}  edges: {args.edges_out}", file=sys.stderr)
+    print(
+        f"  variants={stats.variants:,} nodes={stats.nodes_written:,} "
+        f"edges={stats.edges_written:,}",
+        file=sys.stderr,
+    )
     print(f"  elapsed={dt:.1f}s", file=sys.stderr)
     return 0
 
@@ -348,6 +375,17 @@ def main(argv: list[str] | None = None) -> int:
     rs.add_argument("--id-map", default=None, help="Phase 1 member->canonical map")
     rs.add_argument("--stats", default=None, help="output stats JSON path")
     rs.set_defaults(func=_cmd_refseq)
+
+    db = sub.add_parser("dbsnp", help="build dbSNP variant nodes + edges (OPT-IN; federation dir)")
+    db.add_argument("--index-dir", required=True, help="dbSNP federation index dir (out/dbsnp/index)")
+    db.add_argument("--conf", default="conf", help="dataset config dir")
+    db.add_argument("--categories", default="mappings/categories.yaml")
+    db.add_argument("--nodes-out", required=True, help="output dbSNP nodes.tsv")
+    db.add_argument("--edges-out", required=True, help="output dbSNP edges.tsv")
+    db.add_argument("--id-map", default=None, help="Phase 1 member->canonical map")
+    db.add_argument("--stats", default=None, help="output stats JSON path")
+    db.add_argument("--max-variants", type=int, default=None, help="cap variants (debug)")
+    db.set_defaults(func=_cmd_dbsnp)
 
     on = sub.add_parser("ontology", help="build subclass_of + cross-ont close_match edges")
     on.add_argument("--index-dir", required=True, help="dir with *_sorted.*.index.gz")

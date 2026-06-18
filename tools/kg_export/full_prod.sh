@@ -1,10 +1,16 @@
 #!/bin/bash
 # Full production run: core node datasets + stub-nodes, all high-value edge
 # datasets (incl. string_interaction PPI, clinvar, rnacentral, similarity),
-# gzip output. Defers dbsnp (769M) per scope decision. Reads index files only.
+# gzip output. Reads index files only.
+#
+# dbSNP is OPT-IN (WITH_DBSNP=1): it's a separate federation (~110 GB, ~1B
+# variants) used to produce TRUE total stats, not for the representative/
+# published dump. Set DBSNP_IDX to the federation index dir.
 set -e
 PY=/data/miniconda3/envs/biobtree/bin/python
 IDX=/data2/out_prod_v5/main/index
+DBSNP_IDX=${DBSNP_IDX:-/data2/out_prod_v5/dbsnp/index}
+WITH_DBSNP=${WITH_DBSNP:-0}
 O=out/kg/full
 mkdir -p "$O"
 
@@ -43,10 +49,18 @@ echo "### 6/7 reified edges $(date +%T)"
 $PY -m tools.kg_export reified --index-dir $IDX --id-map $O/id_map.tsv.gz --datasets $REIFIED_DS \
   --out $O/edges_reified.tsv.gz --stats $O/reified.stats.json
 
+DBSNP_NODES=""; DBSNP_EDGES=""
+if [ "$WITH_DBSNP" = "1" ]; then
+  echo "### 6b/7 dbSNP (OPT-IN federation -> true variant stats) $(date +%T)"
+  $PY -m tools.kg_export dbsnp --index-dir $DBSNP_IDX --id-map $O/id_map.tsv.gz \
+    --nodes-out $O/dbsnp_nodes.tsv.gz --edges-out $O/dbsnp_edges.tsv.gz --stats $O/dbsnp.stats.json
+  DBSNP_NODES=",$O/dbsnp_nodes.tsv.gz"; DBSNP_EDGES=",$O/dbsnp_edges.tsv.gz"
+fi
+
 echo "### 7/7 assemble (stub-nodes + gzip) $(date +%T)"
 $PY -m tools.kg_export assemble \
-  --nodes $O/nodes_core.tsv.gz,$O/go_nodes.tsv.gz,$O/refseq_nodes.tsv.gz \
-  --edges $O/edges_direct.tsv.gz,$O/edges_reified.tsv.gz,$O/go_edges.tsv.gz,$O/refseq_edges.tsv.gz,$O/ontology_edges.tsv.gz \
+  --nodes $O/nodes_core.tsv.gz,$O/go_nodes.tsv.gz,$O/refseq_nodes.tsv.gz$DBSNP_NODES \
+  --edges $O/edges_direct.tsv.gz,$O/edges_reified.tsv.gz,$O/go_edges.tsv.gz,$O/refseq_edges.tsv.gz,$O/ontology_edges.tsv.gz$DBSNP_EDGES \
   --out-dir $O/dump --data-version out_prod_v5_full --stub-nodes --gzip
 
 echo "### DONE $(date +%T)"; df -h /data | tail -1

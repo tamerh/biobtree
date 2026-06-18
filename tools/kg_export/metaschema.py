@@ -22,6 +22,22 @@ _GO_EDGES = [
     ("biolink:located_in", "biolink:CellularComponent"),
 ]
 
+# RefSeq (refseq.py): one dataset split by accession type into 3 node categories,
+# plus its typed cross-references. Kept here so the meta-graph reflects it.
+_REFSEQ_NODE_CATS = (
+    "biolink:Transcript", "biolink:NoncodingRNAProduct", "biolink:Protein",
+)
+_REFSEQ_EDGES = [
+    ("biolink:Transcript", "biolink:transcribed_from", "biolink:Gene"),
+    ("biolink:NoncodingRNAProduct", "biolink:transcribed_from", "biolink:Gene"),
+    ("biolink:Transcript", "biolink:translates_to", "biolink:Protein"),
+    ("biolink:Gene", "biolink:has_gene_product", "biolink:Protein"),
+    ("biolink:Protein", "biolink:same_as", "biolink:Protein"),
+    ("biolink:Transcript", "biolink:in_taxon", "biolink:OrganismTaxon"),
+    ("biolink:NoncodingRNAProduct", "biolink:in_taxon", "biolink:OrganismTaxon"),
+    ("biolink:Protein", "biolink:in_taxon", "biolink:OrganismTaxon"),
+]
+
 _PALETTE = [
     "#4e79a7", "#f28e2b", "#59a14f", "#e15759", "#76b7b2", "#edc948",
     "#b07aa1", "#ff9da7", "#9c755f", "#bab0ac", "#86bc86", "#d37295",
@@ -57,6 +73,9 @@ def schema_triples(cats: CategoryMap, preds: PredicateMap):
     for src_ds, sc in _GO_SOURCES:
         for p, oc in _GO_EDGES:
             add(sc, p, oc, f"go({src_ds})")
+
+    for sc, p, oc in _REFSEQ_EDGES:
+        add(sc, p, oc, "refseq")
     return triples
 
 
@@ -182,6 +201,9 @@ def render_explorer(triples, out_html, catmap=None):
     for aspect_cat in ("biolink:MolecularActivity", "biolink:BiologicalProcess",
                        "biolink:CellularComponent"):
         node_ds[nid(aspect_cat)].append({"ds": "go", "prefix": "GO"})
+    # RefSeq is likewise typed at runtime (refseq.py), split into 3 categories.
+    for rs_cat in _REFSEQ_NODE_CATS:
+        node_ds[nid(rs_cat)].append({"ds": "refseq", "prefix": "refseq"})
     payload = json.dumps({"nodes": nodes, "edges": edges, "cats": [nid(c) for c in cats],
                           "colors": color, "nodeDatasets": node_ds})
     tmpl = r"""<!doctype html><html><head><meta charset='utf-8'>

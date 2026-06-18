@@ -54,7 +54,7 @@ CANONICAL_PREFIXES = {
     "MP", "UBERON", "CL", "NCBITaxon", "CLINVAR", "DBSNP", "DRUGBANK",
     "RNACENTRAL", "MSigDB", "HMDB", "GTOPDB",
     # bioregistry-verified (absent from biolink's curated map)
-    "cellosaurus", "interpro", "corum", "lipidmaps", "orphanet",
+    "cellosaurus", "interpro", "corum", "lipidmaps", "orphanet", "refseq",
     # MolecularActivity id_prefixes (verified in biolink MolecularActivity)
     "EC", "RHEA",
 }

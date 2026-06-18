@@ -23,6 +23,7 @@ from .edges import build_edges, load_id_map
 from .go import build_go
 from .nodes import build_nodes
 from .predicates import PredicateMap
+from .refseq import build_refseq
 from .reified import build_reified_edges
 
 
@@ -181,6 +182,33 @@ def _cmd_go(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_refseq(args: argparse.Namespace) -> int:
+    registry = DatasetRegistry.load(args.conf)
+    categories = CategoryMap.load(args.categories)
+    id_map = load_id_map(args.id_map)
+    t0 = time.time()
+    stats = build_refseq(
+        index_dir=args.index_dir,
+        registry=registry,
+        categories=categories,
+        nodes_out=args.nodes_out,
+        edges_out=args.edges_out,
+        id_map=id_map,
+        stats_path=args.stats,
+    )
+    dt = time.time() - t0
+    print(f"RefSeq nodes: {args.nodes_out}  edges: {args.edges_out}", file=sys.stderr)
+    print(
+        f"  accessions={stats.accessions:,} nodes={stats.nodes_written:,} "
+        f"edges={stats.edges_written:,} untyped={stats.untyped:,}",
+        file=sys.stderr,
+    )
+    print(f"  by_category={dict(stats.by_category)}", file=sys.stderr)
+    print(f"  by_predicate={dict(stats.by_predicate)}", file=sys.stderr)
+    print(f"  elapsed={dt:.1f}s", file=sys.stderr)
+    return 0
+
+
 def _cmd_assemble(args: argparse.Namespace) -> int:
     out_dir = Path(args.out_dir)
     node_inputs = [s.strip() for s in args.nodes.split(",") if s.strip()]
@@ -286,6 +314,16 @@ def main(argv: list[str] | None = None) -> int:
     g.add_argument("--stats", default=None, help="output stats JSON path")
     g.add_argument("--sources", default="uniprot,ensembl", help="annotation subjects")
     g.set_defaults(func=_cmd_go)
+
+    rs = sub.add_parser("refseq", help="build RefSeq nodes + edges (type-split)")
+    rs.add_argument("--index-dir", required=True, help="dir with *_sorted.*.index.gz")
+    rs.add_argument("--conf", default="conf", help="dataset config dir")
+    rs.add_argument("--categories", default="mappings/categories.yaml")
+    rs.add_argument("--nodes-out", required=True, help="output RefSeq nodes.tsv")
+    rs.add_argument("--edges-out", required=True, help="output RefSeq edges.tsv")
+    rs.add_argument("--id-map", default=None, help="Phase 1 member->canonical map")
+    rs.add_argument("--stats", default=None, help="output stats JSON path")
+    rs.set_defaults(func=_cmd_refseq)
 
     a = sub.add_parser("assemble", help="merge -> JSONL -> validate -> manifest")
     a.add_argument("--nodes", required=True, help="comma list of node TSVs")

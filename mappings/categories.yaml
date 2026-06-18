@@ -50,6 +50,10 @@ datasets:
 
   # --- Transcripts -----------------------------------------------------------
   transcript:  {category: "biolink:Transcript", prefix: "ENSEMBL"}
+  # refseq: NOT listed here. One refseq dataset conflates Transcript (mRNA),
+  # NoncodingRNAProduct (ncRNA) and Protein (NP_/XP_) by the accession `type`
+  # field, so it is typed at runtime in refseq.py (like go.py splits GO by
+  # aspect). prefix "refseq" (bioregistry-canonical).
 
   # --- Proteins --------------------------------------------------------------
   uniprot:     {category: "biolink:Protein", prefix: "UniProtKB"}

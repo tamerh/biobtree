@@ -1,0 +1,10 @@
+{
+  "common_tests": [
+    {
+      "name": "Invalid PanelApp panel id handling",
+      "type": "invalid_id",
+      "invalid_id": "999999999"
+    }
+  ],
+  "custom_tests": []
+}

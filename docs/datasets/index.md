@@ -111,6 +111,7 @@ Disease associations, clinical variants, rare diseases.
 | ncrna_drug | ncRNA drug-resistance / drug-target (ncRNADrug) | [README](ncrna_drug.md) |
 | alliance_disease | Cross-species + human gene-disease curation (Alliance of Genome Resources) | [README](alliance_disease.md) |
 | alliance_phenotype | Model-organism gene-phenotype curation (Alliance of Genome Resources; MP/WBPhenotype/XPO) | [README](alliance_phenotype.md) |
+| panelapp | Clinical gene panels with traffic-light confidence (Genomics England PanelApp); master panel + per-gene child | [README](panelapp.md) |
 
 ---
 

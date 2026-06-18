@@ -266,6 +266,12 @@ func extractField(xref *pbuf.Xref, field string) string {
 	if a := xref.GetFaers(); a != nil {
 		return extractFaersField(a, field)
 	}
+	if a := xref.GetPanelapp(); a != nil {
+		return extractPanelappField(a, field)
+	}
+	if a := xref.GetPanelappGene(); a != nil {
+		return extractPanelappGeneField(a, field)
+	}
 	if a := xref.GetFaersReaction(); a != nil {
 		return extractFaersReactionField(a, field)
 	}
@@ -904,6 +910,42 @@ func extractAllianceDiseaseField(a *pbuf.AllianceDiseaseAttr, field string) stri
 		return a.EvidenceCode
 	case "source":
 		return a.Source
+	default:
+		return ""
+	}
+}
+
+// extractPanelappField extracts a field from PanelappAttr (MASTER, per-panel)
+func extractPanelappField(a *pbuf.PanelappAttr, field string) string {
+	switch field {
+	case "name":
+		return a.Name
+	case "disease_group":
+		return a.DiseaseGroup
+	case "disease_sub_group":
+		return a.DiseaseSubGroup
+	case "relevant_disorders":
+		return a.RelevantDisorders
+	case "version":
+		return a.Version
+	case "number_of_genes":
+		return fmt.Sprintf("%d", a.NumberOfGenes)
+	default:
+		return ""
+	}
+}
+
+// extractPanelappGeneField extracts a field from PanelappGeneAttr (CHILD, per gene)
+func extractPanelappGeneField(a *pbuf.PanelappGeneAttr, field string) string {
+	switch field {
+	case "gene_symbol":
+		return a.GeneSymbol
+	case "panel_name":
+		return a.PanelName
+	case "confidence":
+		return a.Confidence
+	case "mode_of_inheritance":
+		return a.ModeOfInheritance
 	default:
 		return ""
 	}

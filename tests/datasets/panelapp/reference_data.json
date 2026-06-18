@@ -1,0 +1,8 @@
+{
+  "panels": [
+    { "panel_id": "1207", "name": "Acute intermittent porphyria", "gene_symbol": "HMBS", "hgnc_id": "HGNC:4982" }
+  ],
+  "genes": [
+    { "gene_symbol": "HMBS", "panel_id": "1207" }
+  ]
+}

@@ -1164,6 +1164,34 @@
     "test_entries_count": "100",
     "bucketMethod": "alphanum"
   },
+  "panelapp": {
+    "id": "805",
+    "name": "PanelApp",
+    "textPriority": "60",
+    "aliases": "PanelApp,Genomics England PanelApp,GEL panel,clinical gene panel,gene panel",
+    "url": "https://panelapp.genomicsengland.co.uk/panels/£{id}/",
+    "path": "https://panelapp.genomicsengland.co.uk/api/v1/panels/",
+    "useLocalFile": "no",
+    "hasFilter": "no",
+    "attrs": "name,disease_group,disease_sub_group,relevant_disorders,version,number_of_genes",
+    "compact_fields": "name,disease_group,number_of_genes",
+    "test_entries_count": "20",
+    "bucketMethod": "numeric",
+    "childDatasets": "panelapp_gene"
+  },
+  "panelapp_gene": {
+    "id": "806",
+    "name": "PanelApp Gene",
+    "textPriority": "60",
+    "aliases": "PanelApp gene,Genomics England panel gene,panel gene",
+    "url": "https://panelapp.genomicsengland.co.uk/panels/£{id}/",
+    "useLocalFile": "no",
+    "hasFilter": "no",
+    "attrs": "gene_symbol,panel_name,confidence,mode_of_inheritance",
+    "compact_fields": "gene_symbol,confidence,panel_name",
+    "test_entries_count": "20",
+    "bucketMethod": "alphanum"
+  },
   "biogrid": {
     "id": "62",
     "name": "BioGRID",

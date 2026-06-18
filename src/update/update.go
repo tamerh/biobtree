@@ -1039,6 +1039,18 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			d.datasets2 = append(d.datasets2, data)
 			go faersParser.update()
 			break
+		case "panelapp":
+			d.wg.Add(1)
+			pa := panelapp{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			if _, exists := config.Dataconf["panelapp_gene"]; exists {
+				d.datasets2 = append(d.datasets2, "panelapp_gene")
+			}
+			go pa.update()
+			break
+		case "panelapp_gene":
+			// Produced by the panelapp parser; skip standalone processing.
+			break
 		case "pharmgkb":
 			d.wg.Add(1)
 			pgkb := pharmgkb{source: data, d: d}

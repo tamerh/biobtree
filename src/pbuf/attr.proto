@@ -3224,3 +3224,23 @@ message FaersReactionAttr {
   string outcome = 5;          // most common reaction outcome code (1-6, see docs)
   string id = 100; // transient - populated at runtime from Xref.Identifier
 }
+
+// PanelappAttr is the MASTER record: one per Genomics England PanelApp panel.
+message PanelappAttr {
+  string name = 1;                // panel name
+  string disease_group = 2;       // top-level disease grouping
+  string disease_sub_group = 3;   // disease sub-grouping
+  string relevant_disorders = 4;  // comma-joined R-codes / disorder names
+  string version = 5;             // panel version string
+  int32 number_of_genes = 6;      // genes on the panel (per panel stats)
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// PanelappGeneAttr is the CHILD record: one per (panel, gene) entry.
+message PanelappGeneAttr {
+  string gene_symbol = 1;          // HGNC gene symbol
+  string panel_name = 2;           // owning panel name
+  string confidence = 3;           // green / amber (mapped from level 3 / 2)
+  string mode_of_inheritance = 4;  // free-text mode of inheritance
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}

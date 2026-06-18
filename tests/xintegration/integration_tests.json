@@ -112,7 +112,8 @@
     "clingen_curation": "ClinGen expert curations (CC0): dosage sensitivity (haploinsufficiency/triplosensitivity per gene), gene-disease validity (evidence tier Definitive..Refuted), and variant pathogenicity (VCEP ACMG, bridged to ClinVar -> dbSNP/gene/disease).",
     "gene_dependency_function": "Gene essentiality, dependency and cited function (DepMap CC BY 4.0 + NCBI GeneRIF public domain): per-gene CRISPR essentiality aggregate, per-cell-line dependencies bridged to Cellosaurus, and cited one-line functional claims. Powers target tractability and RAG grounding.",
     "drugcentral_drugs": "DrugCentral approved drugs: drug->target (MOA) and regulatory approval (FDA/EMA/PMDA)",
-    "faers": "FAERS (openFDA FDA Adverse Event Reporting System), master/child. faers MASTER (id 802): one per drug, total_reports/distinct_reactions/serious_reports, the single chembl_molecule/pubchem normalization node. faers_reaction CHILD (id 804): one per (drug,reaction) co-occurrence with PRR disproportionality signal, linked to its master (most-reported first). Tests text search by drug name, compound>>faers and the full compound>>faers>>faers_reaction chain, and CEL filters on report_count/prr (on the child). NOTE: co-occurrence not causation; reactions are MedDRA PT strings only; individual reports NOT stored."
+    "faers": "FAERS (openFDA FDA Adverse Event Reporting System), master/child. faers MASTER (id 802): one per drug, total_reports/distinct_reactions/serious_reports, the single chembl_molecule/pubchem normalization node. faers_reaction CHILD (id 804): one per (drug,reaction) co-occurrence with PRR disproportionality signal, linked to its master (most-reported first). Tests text search by drug name, compound>>faers and the full compound>>faers>>faers_reaction chain, and CEL filters on report_count/prr (on the child). NOTE: co-occurrence not causation; reactions are MedDRA PT strings only; individual reports NOT stored.",
+    "panelapp": "Genomics England PanelApp clinical gene panels (CC BY 4.0), master/child. panelapp MASTER (id 805): one per panel (name/disease_group/version/number_of_genes). panelapp_gene CHILD (id 806): one per (panel,gene) with green/amber confidence + mode_of_inheritance, linked to its master and edged to hgnc/ensembl/mim/mondo. Only green (3) + amber (2) genes ingested. Tests gene symbol >>panelapp_gene, the panel >>panelapp>>panelapp_gene>>hgnc chain, and gene >>panelapp_gene>>mondo."
   },
   "tests": [
     {
@@ -9870,6 +9871,42 @@
       "why": "Alliance mouse gene-phenotype associations resolve to Mammalian Phenotype (MP) ontology terms",
       "should_pass": [
         "MGI:87853"
+      ],
+      "should_fail": [
+        "999999999"
+      ]
+    },
+    {
+      "category": "panelapp",
+      "name": "gene to PanelApp panel-gene record",
+      "query": ">>panelapp_gene",
+      "why": "A gene resolves to its Genomics England PanelApp clinical panel-gene record(s) (green/amber)",
+      "should_pass": [
+        "HMBS"
+      ],
+      "should_fail": [
+        "999999999"
+      ]
+    },
+    {
+      "category": "panelapp",
+      "name": "panel to its genes to HGNC (PanelApp master/child chain)",
+      "query": ">>panelapp>>panelapp_gene>>hgnc",
+      "why": "A PanelApp panel resolves to its gene records (master->child) and onward to HGNC genes",
+      "should_pass": [
+        "1207"
+      ],
+      "should_fail": [
+        "999999999"
+      ]
+    },
+    {
+      "category": "panelapp",
+      "name": "PanelApp panel-gene to MONDO disorder",
+      "query": ">>panelapp_gene>>mondo",
+      "why": "PanelApp panel-gene records carry MONDO disorder edges parsed from panel phenotype annotations",
+      "should_pass": [
+        "HMBS"
       ],
       "should_fail": [
         "999999999"

@@ -209,6 +209,8 @@ message Xref {
     FaersAttr faers=775;
     AlliancePhenotypeAttr alliance_phenotype=776;
     FaersReactionAttr faers_reaction=777;
+    PanelappAttr panelapp=778;
+    PanelappGeneAttr panelapp_gene=779;
 
   }
 

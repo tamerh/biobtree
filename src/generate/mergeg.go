@@ -2228,6 +2228,16 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)
 				xref.Attributes = &pbuf.Xref_FaersReaction{attr}
+			case "panelapp":
+				attr := &pbuf.PanelappAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Panelapp{attr}
+			case "panelapp_gene":
+				attr := &pbuf.PanelappGeneAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_PanelappGene{attr}
 			case "pharmgkb":
 				attr := &pbuf.PharmgkbAttr{}
 				barr := []byte((*kvProp[k])[0].value)
@@ -2879,6 +2889,16 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 					barr := []byte((*kvProp[k])[0].value)
 					ffjson.Unmarshal(barr, attr)
 					xref.Attributes = &pbuf.Xref_FaersReaction{attr}
+				case "panelapp":
+					attr := &pbuf.PanelappAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_Panelapp{attr}
+				case "panelapp_gene":
+					attr := &pbuf.PanelappGeneAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_PanelappGene{attr}
 				case "pharmgkb":
 					attr := &pbuf.PharmgkbAttr{}
 					barr := []byte((*kvProp[k])[0].value)

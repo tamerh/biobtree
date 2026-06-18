@@ -240,16 +240,21 @@ func (u *uniprot) processDbReference(entryid string, r *xmlparser.XMLElement) {
 		case "Reactome":
 			u.d.addXref(entryid, u.sourceID, v.Attrs["id"], v.Attrs["type"], false)
 		case "GO":
-			// Use bucketed xref for GO (has bucket config)
-			u.d.addXrefBucketed(entryid, u.sourceID, v.Attrs["id"], v.Attrs["type"], false)
+			// Capture this GO annotation's ECO evidence code so it can be attached
+			// per-annotation to the uniprot->go edge (not only as an entry-level
+			// uniprot->eco edge). Keep the eco edge too so the eco dataset stays
+			// reachable ("which evidence codes does this protein use").
+			ecoCode := ""
 			for _, z := range v.Childs["property"] {
-				switch z.Attrs["type"] {
-				case "evidence":
-					if strings.HasPrefix(z.Attrs["value"], "ECO:") {
-						u.d.addXref(entryid, u.sourceID, z.Attrs["value"], "eco", false)
+				if z.Attrs["type"] == "evidence" && strings.HasPrefix(z.Attrs["value"], "ECO:") {
+					if ecoCode == "" {
+						ecoCode = z.Attrs["value"]
 					}
+					u.d.addXref(entryid, u.sourceID, z.Attrs["value"], "eco", false)
 				}
 			}
+			// Use bucketed xref for GO (has bucket config); evidence empty -> plain bucketed.
+			u.d.addXrefBucketedWithEvidence(entryid, u.sourceID, v.Attrs["id"], v.Attrs["type"], false, ecoCode)
 		case "BindingDB":
 			// Skip - BindingDB creates proper bidirectional xrefs with numeric IDs
 			// UniProt's BindingDB dbReferences incorrectly use UniProt accessions as IDs

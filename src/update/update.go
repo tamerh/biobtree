@@ -2484,6 +2484,62 @@ func (d *DataUpdate) addXrefBucketed(key, from, value, valueFrom string, isLink 
 	}
 }
 
+// addXrefBucketedWithEvidence is addXrefBucketed plus an evidence code attached to
+// the edge (field index 4, matching addXrefFull's layout and mergeg's line[4] read,
+// surfaced as Xref.evidence). Used to attach a GO annotation's ECO code to the
+// uniprot->go edge so evidence is per-annotation, not just an entry-level uniprot->eco edge.
+func (d *DataUpdate) addXrefBucketedWithEvidence(key, from, value, valueFrom string, isLink bool, evidence string) {
+
+	if evidence == "" {
+		d.addXrefBucketed(key, from, value, valueFrom, isLink)
+		return
+	}
+
+	key = strings.TrimSpace(key)
+	value = strings.TrimSpace(value)
+
+	if len(key) == 0 || len(value) == 0 || len(from) == 0 {
+		return
+	}
+
+	if _, ok := config.Dataconf[valueFrom]; !isLink && !ok {
+		if val, _ := d.invalidXrefs.Get(valueFrom); val == nil {
+			d.invalidXrefs.Set(valueFrom, "true")
+		}
+		return
+	}
+
+	if _, ok := d.targetDatasets[valueFrom]; d.hasTargets && !ok && !isLink {
+		return
+	}
+
+	kup := strings.ToUpper(key)
+	vup := strings.ToUpper(value)
+
+	valueFromID := config.Dataconf[valueFrom]["id"]
+
+	// Same layout as addXrefBucketed but with evidence as field index 4
+	// (KEY FROM VALUE DATASETID EVIDENCE), before any dummy sort values.
+	forwardLine := kup + tab + from + tab + vup + tab + valueFromID + tab + evidence
+	reverseLine := vup + tab + valueFromID + tab + kup + tab + from + tab + evidence
+
+	sourceDatasetName := GetDatasetName(from)
+	if sourceDatasetName == "" {
+		sourceDatasetName = "unknown"
+	}
+	targetDatasetName := GetDatasetName(valueFromID)
+	if targetDatasetName == "" {
+		targetDatasetName = valueFrom
+	}
+
+	dummySortValues := GetDummySortValues(sourceDatasetName)
+	forwardLine += dummySortValues
+	reverseLine += dummySortValues
+
+	d.bucketPool.WriteForward(from, sourceDatasetName, kup, forwardLine, targetDatasetName)
+	d.bucketPool.WriteReverse(valueFromID, vup, reverseLine, sourceDatasetName)
+}
+
 // addProp3Bucketed routes properties through bucket system
 // Uses source-tagged directory structure for incremental updates
 func (d *DataUpdate) addProp3Bucketed(key, from string, attr []byte) {

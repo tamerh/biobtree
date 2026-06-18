@@ -171,7 +171,7 @@ func (p *panelapp) update() {
 		// per-panel detail calls so the API doesn't throttle the 434-panel burst
 		// (proactive pacing avoids the long retry backoffs).
 		if !config.IsTestMode() {
-			time.Sleep(150 * time.Millisecond)
+			time.Sleep(500 * time.Millisecond)
 		}
 		genes := p.fetchPanelGenes(baseURL, ps.ID)
 		for gi := range genes {
@@ -222,9 +222,10 @@ func (p *panelapp) fetchPanelList(baseURL string, testLimit int) []panelSummary 
 // fetchPanelGenes returns the genes of a single panel.
 func (p *panelapp) fetchPanelGenes(baseURL string, id int) []panelGene {
 	url := fmt.Sprintf("%s%d/", baseURL, id)
-	resp, err := httpGetWithRetry(url, 3)
+	resp, err := httpGetWithRetry(url, 6)
 	if err != nil {
-		log.Printf("PanelApp: WARNING fetching panel %d genes: %v", id, err)
+		// A dropped panel = lost genes; surface it loudly so incompleteness is visible.
+		log.Printf("PanelApp: ERROR panel %d genes unavailable after retries (genes lost): %v", id, err)
 		return nil
 	}
 	body, rerr := io.ReadAll(resp.Body)

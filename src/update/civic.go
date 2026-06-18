@@ -299,6 +299,15 @@ func (c *civic) processVariants(sourceID, geneSourceID string, vGene, vEntrez, v
 			c.d.addXref(vid, sourceID, feature, "civic", false)
 		}
 
+		// Link to the representative Ensembl transcript so the variant is reachable
+		// as civic_variant >> transcript >> ensembl (strip any version suffix).
+		if attr.RepresentativeTranscript != "" {
+			enst := strings.Split(attr.RepresentativeTranscript, ".")[0]
+			if strings.HasPrefix(enst, "ENST") {
+				c.d.addXref(vid, sourceID, enst, "transcript", false)
+			}
+		}
+
 		// ClinVar variation IDs (comma-separated, numeric only)
 		for _, cv := range splitList(attr.ClinvarIds) {
 			if isAllDigits(cv) {

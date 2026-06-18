@@ -303,7 +303,7 @@ func (f *faers) foldReport(r *faersReport, pairs map[string]*pairAgg, drugTotals
 	type rxInfo struct{ outcome string }
 	rxSet := make(map[string]rxInfo)
 	for _, rx := range r.Patient.Reaction {
-		pt := strings.TrimSpace(rx.ReactionMeddraPt)
+		pt := sanitizeFaersText(rx.ReactionMeddraPt)
 		if pt == "" {
 			continue
 		}
@@ -352,6 +352,23 @@ func (f *faers) foldReport(r *faersReport, pairs map[string]*pairAgg, drugTotals
 	}
 }
 
+// sanitizeFaersText scrubs free-text openFDA strings (drug names, reaction PTs) so
+// they are safe to use as raw keys/values in the tab-delimited, newline-separated
+// index format. openFDA names routinely embed tabs, newlines and runs of padding
+// spaces (e.g. "CELEXA\t/00582602/ (CITALOPRAM HYDROBROMIDE)"); a literal tab in a
+// key shifts every downstream field and crashes the merge with a "dataset id to
+// integer conversion" panic. Replace any control char with a space, then collapse
+// all whitespace to single spaces and trim.
+func sanitizeFaersText(s string) string {
+	s = strings.Map(func(r rune) rune {
+		if r < 0x20 || r == 0x7f {
+			return ' '
+		}
+		return r
+	}, s)
+	return strings.Join(strings.Fields(s), " ")
+}
+
 // normalizeFaersDrug picks the best normalized drug key for a report's drug entry,
 // preferring the openFDA generic_name (resolves to chembl/pubchem), then substance,
 // brand, then the verbatim medicinalproduct. Returns lowercased trimmed name.
@@ -374,7 +391,7 @@ func normalizeFaersDrug(generic, substance, brand []string, medicinalProduct str
 	if name == "" {
 		name = strings.TrimSpace(medicinalProduct)
 	}
-	name = strings.ToLower(name)
+	name = strings.ToLower(sanitizeFaersText(name))
 	// Guard against absurd / multi-ingredient blobs blowing up the key space.
 	if len(name) < 2 || len(name) > 120 {
 		return ""

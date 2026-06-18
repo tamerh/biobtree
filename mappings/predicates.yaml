@@ -95,6 +95,13 @@ direct:
   "ortholog>ensembl":  {skip: "self-reference anchor back-link (subj==obj)"}
   "paralog>ensembl":   {skip: "self-reference anchor back-link (subj==obj)"}
 
+  # --- TF binding motif (JASPAR). The motif is the TF protein's DNA-binding
+  # profile (Atlas: a gene's jaspar motifs mark it a transcription factor).
+  # jaspar_sorted: motif -> uniprot (TF) / taxonomy / pubmed.
+  "jaspar>uniprot":    {predicate: "biolink:directly_physically_interacts_with", note: "TF protein binds DNA matching this motif"}
+  "jaspar>taxonomy":   {predicate: "biolink:in_taxon"}
+  "jaspar>pubmed":     {skip: "motif literature citation (not modeled as an edge)"}
+
   # --- ncRNA -> gene --------------------------------------------------------
   "rnacentral>ensembl": {predicate: "biolink:gene_product_of", note: "ncRNA is the product of the gene"}
   "rnacentral>go":      {skip: "GO aspect not resolvable in direct edges; add rnacentral as a go.py annotation source instead"}
@@ -256,3 +263,12 @@ reified:
   civic_variant:   {kind: bipartite, subject: civic_variant, object: hgnc, via: civic, predicate: "biolink:is_sequence_variant_of", note: "CIViC variant->gene (via parent feature)"}
   civic_evidence:  {kind: bipartite, subject: civic_variant, object: mondo, extra_objects: [chembl_molecule], predicate: "biolink:associated_with", note: "CIViC evidence: variant->disease + variant->therapy"}
   civic_assertion: {kind: bipartite, subject: civic_variant, object: mondo, extra_objects: [chembl_molecule], predicate: "biolink:associated_with", note: "CIViC assertion: variant->disease + variant->therapy"}
+
+  # --- miRDB predicted miRNA -> target transcript (post-transcriptional). The
+  # miRNA is the group KEY (subject==dataset); objects are refseq transcripts
+  # (runtime-typed). PREDICTION (knowledge_level via _PREDICTION_DATASETS).
+  mirdb:           {kind: bipartite, subject: mirdb, object: refseq, predicate: "biolink:affects", note: "miRDB predicted miRNA->target transcript"}
+
+  # --- GeneRIF: publication mentions gene (entry links one pubmed + one entrez).
+  # Adds biolink:Publication (PMID) endpoints (mostly non-human gene + PMID stubs).
+  generif:         {kind: bipartite, subject: pubmed, object: entrez, predicate: "biolink:mentions", note: "GeneRIF pub->gene literature mention"}

@@ -42,6 +42,7 @@ KNOWN_CATEGORIES = {
     "biolink:MacromolecularComplex", "biolink:NoncodingRNAProduct",
     "biolink:MolecularActivity", "biolink:BiologicalProcess",
     "biolink:CellularComponent", "biolink:ChemicalEntity",
+    "biolink:MicroRNA", "biolink:NucleicAcidSequenceMotif", "biolink:Publication",
 }
 
 
@@ -64,8 +65,11 @@ CANONICAL_PREFIXES = {
     "OBA",  # Ontology of Biological Attributes (GWAS quantitative traits)
     # Alliance model-organism gene namespaces (biolink Gene id_prefixes, verified)
     "MGI", "RGD", "SGD", "ZFIN", "FB", "WB",
-    "MESH",        # biolink prefix map (CTD chemicals)
+    "MESH",        # biolink prefix map (CTD chemicals + MeSH diseases)
     "civic.vid",   # bioregistry-canonical CIViC variant prefix
+    "PMID",        # biolink Publication prefix (GeneRIF)
+    # NON-canonical (flagged, like SWISSLIPID): mirbase.mature (miRDB stores
+    # miRBase NAMES not MIMAT accessions); jaspar (no registered CURIE prefix).
     # MolecularActivity id_prefixes (verified in biolink MolecularActivity)
     "EC", "RHEA",
 }

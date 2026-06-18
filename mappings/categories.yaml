@@ -129,6 +129,18 @@ datasets:
 
   # --- Non-coding RNA (differentiating) -------------------------------------
   rnacentral:  {category: "biolink:NoncodingRNAProduct", prefix: "RNACENTRAL"}
+  # miRDB stores miRBase mature NAMES (cfa-let-7a), not MIMAT accessions, so the
+  # CURIE is non-canonical (flagged, not in CANONICAL_PREFIXES).
+  mirdb:       {category: "biolink:MicroRNA", prefix: "mirbase.mature", note: "miRDB miRNA (miRBase mature name)"}
+
+  # --- Regulatory / sequence features ---------------------------------------
+  # JASPAR TF binding motif (PWM). No registered CURIE prefix (locally coined) and
+  # biolink:NucleicAcidSequenceMotif has no id_prefixes -> non-canonical (flagged).
+  jaspar:      {category: "biolink:NucleicAcidSequenceMotif", prefix: "jaspar", note: "JASPAR TF binding motif"}
+
+  # --- Publications ----------------------------------------------------------
+  # GeneRIF gene->literature endpoints. PMID is the biolink Publication prefix.
+  pubmed:      {category: "biolink:Publication", prefix: "PMID", note: "PubMed citation (GeneRIF)"}
 
   # --- Molecular activities / reactions (biolink MolecularActivity id_prefixes
   # include EC, RHEA, GO -- verified) ----------------------------------------

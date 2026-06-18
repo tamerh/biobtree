@@ -12,6 +12,7 @@ from pathlib import Path
 from tools.kg_export.categories import CategoryMap
 from tools.kg_export.datasets import DatasetRegistry
 from tools.kg_export.edges import build_edges
+from tools.kg_export.mesh import build_mesh
 from tools.kg_export.predicates import PredicateMap
 from tools.kg_export.reified import build_reified_edges
 
@@ -122,11 +123,72 @@ class TierACoverageTests(unittest.TestCase):
             self.assertIn(("ENSEMBL:ENSG1", "biolink:paralogous_to", "ENSEMBL:ENSG2"), edges)
             self.assertEqual(stats.skipped, 2)  # the two self-ref back-links
 
-    def test_mesh_is_not_a_node(self):
-        """MeSH is multi-type (chemicals+diseases+...) with no usable type field on
-        91% of records -> deliberately NOT a node; reachable only as an xref endpoint."""
+    def test_mesh_is_not_a_categories_node(self):
+        """MeSH (multi-type, 91% untyped chemicals) is NOT a static categories node;
+        its disease subset is emitted by the mesh.py runtime builder instead."""
         self.assertFalse(self.cats.is_node_dataset("mesh"))
         self.assertIsNone(self.cats.category_for("mesh"))
+
+    # --- Atlas-validated deferrals, now added ---------------------------------
+
+    def test_mirdb_mirna_to_transcript(self):
+        """miRDB: miRNA (group key) -> refseq transcript (runtime-prefixed object)."""
+        mi, rs = self._id("mirdb"), self._id("refseq")
+        _, edges = self._reified("mirdb_sorted.1.index.gz", [
+            f'HSA-MIR-1\t{mi}\t{{"mirna_id":"hsa-mir-1"}}\t-1',
+            f"HSA-MIR-1\t{mi}\tNM_000001\t{rs}",
+        ], "mirdb")
+        self.assertIn(("mirbase.mature:HSA-MIR-1", "biolink:affects", "refseq:NM_000001"), edges)
+
+    def test_generif_pub_to_gene(self):
+        """GeneRIF: publication (PMID) -> gene (mentions)."""
+        gr, en, pm = self._id("generif"), self._id("entrez"), self._id("pubmed")
+        _, edges = self._reified("generif_sorted.1.index.gz", [
+            f"7157_111_0\t{gr}\t7157\t{en}", f"7157_111_0\t{gr}\t111\t{pm}",
+            f'7157_111_0\t{gr}\t{{"x":1}}\t-1',
+        ], "generif")
+        self.assertIn(("PMID:111", "biolink:mentions", "NCBIGene:7157"), edges)
+
+    def test_jaspar_motif_to_tf_protein(self):
+        """JASPAR motif -> TF protein (directly_physically_interacts_with) + in_taxon."""
+        ja, up, tx = self._id("jaspar"), self._id("uniprot"), self._id("taxonomy")
+        with tempfile.TemporaryDirectory() as d:
+            tmp = Path(d)
+            self._write(tmp, "jaspar_sorted.1.index.gz", [
+                f"MA0001.1\t{ja}\tP29383\t{up}", f"MA0001.1\t{ja}\t3702\t{tx}",
+                f'MA0001.1\t{ja}\t{{"name":"AGL3"}}\t-1',
+            ])
+            out = tmp / "e.tsv"
+            build_edges(tmp, self.reg, self.cats, self.pm, out)
+            edges = {(r.split("\t")[1], r.split("\t")[2], r.split("\t")[3])
+                     for r in out.read_text().splitlines()[1:]}
+            self.assertIn(("jaspar:MA0001.1", "biolink:directly_physically_interacts_with",
+                           "UniProtKB:P29383"), edges)
+            self.assertIn(("jaspar:MA0001.1", "biolink:in_taxon", "NCBITaxon:3702"), edges)
+
+    def test_mesh_disease_subset_and_close_match(self):
+        """mesh.py: only disease-tree (C*/F03*) MeSH -> Disease nodes; mondo->mesh
+        close_match for those; chemical-tree MeSH excluded."""
+        me, mo = self._id("mesh"), self._id("mondo")
+        with tempfile.TemporaryDirectory() as d:
+            tmp = Path(d)
+            self._write(tmp, "mesh_sorted.1.index.gz", [
+                f'D1\t{me}\t{{"tree_numbers":["C04.557"],"descriptor_name":"neoplasm"}}\t-1',
+                f'D2\t{me}\t{{"tree_numbers":["D02.491"],"descriptor_name":"a chemical"}}\t-1',
+            ])
+            self._write(tmp, "mondo_sorted.1.index.gz", [
+                f"MONDO:1\t{mo}\tD1\t{me}",   # disease mesh -> close_match
+                f"MONDO:2\t{mo}\tD2\t{me}",   # chemical mesh -> NOT emitted
+            ])
+            nout, eout = tmp / "n.tsv", tmp / "e.tsv"
+            stats = build_mesh(tmp, self.reg, self.cats, nout, eout)
+            nodes = {r.split("\t")[0]: r.split("\t")[1] for r in nout.read_text().splitlines()[1:]}
+            edges = {(r.split("\t")[1], r.split("\t")[2], r.split("\t")[3])
+                     for r in eout.read_text().splitlines()[1:]}
+            self.assertEqual(stats.disease_nodes, 1)  # only D1 (C-tree)
+            self.assertEqual(nodes.get("MESH:D1"), "biolink:Disease")
+            self.assertNotIn("MESH:D2", nodes)  # chemical tree excluded
+            self.assertEqual(edges, {("MONDO:1", "biolink:close_match", "MESH:D1")})
 
 
 if __name__ == "__main__":

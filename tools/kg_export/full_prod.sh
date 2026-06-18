@@ -17,11 +17,11 @@ mkdir -p "$O"
 # Core node datasets (with names); stubs cover compounds/variants/ncRNA/etc.
 # Ontologies (disease/phenotype incl. cross-species uPheno family) materialized
 # so their subclass_of/close_match edges (step 4) don't dangle.
-NODE_DS=hgnc,ensembl,uniprot,transcript,mondo,doid,efo,orphanet,mim,hpo,mp,upheno,zp,xpo,wbphenotype,fypo,oba,chebi,chembl_molecule,hmdb,lipidmaps,swisslipids,drugbank,reactome,msigdb,uberon,cl,cellosaurus,taxonomy,interpro,corum,mgi,rgd,sgd,zfin,flybase,wormbase,civic_variant,ctd,brenda
+NODE_DS=hgnc,ensembl,uniprot,transcript,mondo,doid,efo,orphanet,mim,hpo,mp,upheno,zp,xpo,wbphenotype,fypo,oba,chebi,chembl_molecule,hmdb,lipidmaps,swisslipids,drugbank,reactome,msigdb,uberon,cl,cellosaurus,taxonomy,interpro,corum,mgi,rgd,sgd,zfin,flybase,wormbase,civic_variant,ctd,brenda,jaspar,mirdb
 # Direct edges (incl. big high-value forwards: clinvar, rnacentral)
-EDGE_DS=ensembl,uniprot,reactome,msigdb,cellosaurus,hmdb,swisslipids,chembl_molecule,orphanet,transcript,clinvar,rnacentral
+EDGE_DS=ensembl,uniprot,reactome,msigdb,cellosaurus,hmdb,swisslipids,chembl_molecule,orphanet,transcript,clinvar,rnacentral,jaspar
 # Reified (incl. string_interaction PPI + similarity stars + bioactivity)
-REIFIED_DS=intact,string_interaction,chembl_activity,pubchem_activity,bgee,depmap_dependency,fantom5_gene,diamond_similarity,esm2_similarity,gwas,alliance_disease,clinical_trials,cellxgene_celltype,ctd_gene_interaction,civic_variant,civic_evidence,civic_assertion
+REIFIED_DS=intact,string_interaction,chembl_activity,pubchem_activity,bgee,depmap_dependency,fantom5_gene,diamond_similarity,esm2_similarity,gwas,alliance_disease,clinical_trials,cellxgene_celltype,ctd_gene_interaction,civic_variant,civic_evidence,civic_assertion,mirdb,generif
 
 echo "### 1/7 nodes (peak-mem) $(date +%T)"
 /usr/bin/time -v $PY -m tools.kg_export nodes --index-dir $IDX --datasets $NODE_DS \
@@ -41,6 +41,10 @@ echo "### 4/7 ontology (subclass_of + cross-ontology close_match) $(date +%T)"
 $PY -m tools.kg_export ontology --index-dir $IDX \
   --out $O/ontology_edges.tsv.gz --stats $O/ontology.stats.json
 
+echo "### 4b/7 MeSH disease subset (Disease nodes + mondo close_match) $(date +%T)"
+$PY -m tools.kg_export mesh --index-dir $IDX \
+  --nodes-out $O/mesh_nodes.tsv.gz --edges-out $O/mesh_edges.tsv.gz --stats $O/mesh.stats.json
+
 echo "### 5/7 direct edges $(date +%T)"
 $PY -m tools.kg_export edges --index-dir $IDX --id-map $O/id_map.tsv.gz --datasets $EDGE_DS \
   --out $O/edges_direct.tsv.gz --stats $O/edges.stats.json
@@ -59,8 +63,8 @@ fi
 
 echo "### 7/7 assemble (stub-nodes + gzip) $(date +%T)"
 $PY -m tools.kg_export assemble \
-  --nodes $O/nodes_core.tsv.gz,$O/go_nodes.tsv.gz,$O/refseq_nodes.tsv.gz$DBSNP_NODES \
-  --edges $O/edges_direct.tsv.gz,$O/edges_reified.tsv.gz,$O/go_edges.tsv.gz,$O/refseq_edges.tsv.gz,$O/ontology_edges.tsv.gz$DBSNP_EDGES \
+  --nodes $O/nodes_core.tsv.gz,$O/go_nodes.tsv.gz,$O/refseq_nodes.tsv.gz,$O/mesh_nodes.tsv.gz$DBSNP_NODES \
+  --edges $O/edges_direct.tsv.gz,$O/edges_reified.tsv.gz,$O/go_edges.tsv.gz,$O/refseq_edges.tsv.gz,$O/ontology_edges.tsv.gz,$O/mesh_edges.tsv.gz$DBSNP_EDGES \
   --out-dir $O/dump --data-version out_prod_v5_full --stub-nodes --gzip
 
 echo "### DONE $(date +%T)"; df -h /data | tail -1

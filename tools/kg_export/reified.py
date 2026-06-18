@@ -33,6 +33,11 @@ from .predicates import PredicateMap, ReifiedRule
 # Computational predictions, not curated assertions (-> prediction/automated_agent).
 _PREDICTION_DATASETS = {"diamond_similarity", "esm2_similarity", "mirdb"}
 
+# Runtime-typed datasets have no categories.yaml entry (their prefix lives in a
+# dedicated builder); supply it here so reified endpoints to them canonicalize
+# (e.g. miRDB -> refseq transcript). Keep in sync with refseq.py / go.py.
+_RUNTIME_PREFIXES = {"refseq": "refseq", "go": "GO"}
+
 
 @dataclass
 class ReifiedStats:
@@ -107,7 +112,7 @@ def build_reified_edges(
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
     def canonical(dataset: str, local_id: str) -> str | None:
-        prefix = categories.prefix_for(dataset)
+        prefix = categories.prefix_for(dataset) or _RUNTIME_PREFIXES.get(dataset)
         if not prefix:
             return None
         curie = to_curie(prefix, local_id)

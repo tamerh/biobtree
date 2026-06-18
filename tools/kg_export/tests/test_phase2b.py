@@ -39,6 +39,7 @@ class ReifiedRuleTests(unittest.TestCase):
         self.assertEqual((b.subject, b.object), ("chembl_molecule", "uniprot"))
 
     def test_reified_partners_are_real_node_datasets(self):
+        from tools.kg_export.reified import _RUNTIME_PREFIXES
         for ds in self.pm.reified_datasets():
             r = self.pm.reified_rule(ds)
             self.assertIn(ds, self.reg, f"{ds}: reified dataset not in conf")
@@ -46,8 +47,9 @@ class ReifiedRuleTests(unittest.TestCase):
                      else [r.subject, r.object])
             for role in roles:
                 self.assertIn(role, self.reg, f"{ds}: role {role} not in conf")
+                # categories.yaml node OR a runtime-typed dataset (refseq/go)
                 self.assertTrue(
-                    self.cats.is_node_dataset(role),
+                    self.cats.is_node_dataset(role) or role in _RUNTIME_PREFIXES,
                     f"{ds}: role {role} is not a typed node",
                 )
 

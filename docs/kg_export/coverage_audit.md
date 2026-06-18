@@ -86,18 +86,22 @@ expansion target — most fit existing mechanisms (direct or reified rules).
 | cellxgene_celltype | 14,261 | bipartite cell-type→tissue (`located_in`) — *not* gene expression (no gene endpoint) |
 | brenda | 53 | direct metabolite→EC (`participates_in`); brenda typed MolecularActivity (EC) |
 
-**Deferred (with reason):**
-- **ctd_disease_association, mesh** — MeSH can't be cleanly node-typed (91% are
-  supplementary chemicals with no tree-number type field); typing it would
-  overclaim. MeSH stays an identifier/xref endpoint.
-- **mirdb** — targets are runtime-typed RefSeq transcripts; the reified builder
-  needs the RefSeq prefix wired in (small code change). miRNA ids are also miRBase
-  *names*, not MIMAT accessions (non-canonical CURIE).
-- **generif** — needs `biolink:Publication` nodes (PMID) + non-human gene stubs;
-  ~1.7M dangling endpoints otherwise.
-- **jaspar, encode_ccre, fantom5_enhancer** — **no regulatory→gene link exists in
-  the index** (jaspar→only TF protein; encode_ccre→only taxonomy). A BioBTree-side
-  finding: the regulatory-region→target-gene edges aren't materialized.
+**Added in round 2** (Atlas-validated — checked how `/data/sugi-atlas` uses them):
+
+| Cluster | Edges (full) | Modeling | Atlas chain |
+|---|---|---|---|
+| mirdb | 6.65M | miRNA→transcript `affects` (prediction); reified `canonical()` falls back to the RefSeq runtime prefix | `>>hgnc>>refseq>>mirdb` |
+| generif | 1.70M | publication→gene `mentions`; new `biolink:Publication` (PMID) node | `>>entrez>>generif` |
+| jaspar | ~9k | TF-motif→protein `directly_physically_interacts_with` + `in_taxon`; new `biolink:NucleicAcidSequenceMotif` node | `>>uniprot>>jaspar` |
+| mesh (disease subset) | 3.3k | `mesh.py` builder: disease-tree (C*/F03*) MeSH → Disease nodes (5.2k of 355k) + `mondo→mesh` `close_match` | `>>mondo>>mesh`, `>>mesh>>clinical_trials` |
+
+**Still deferred (with reason):**
+- **ctd_disease_association** — its disease object is full MeSH; only the disease
+  *subset* is now typed (via mesh.py), and CTD's chemical↔disease needs both ends
+  resolved — revisit once MeSH disease nodes are wired as edge targets.
+- **encode_ccre, fantom5_enhancer** — **no regulatory→gene link in the index**
+  (encode_ccre→only taxonomy). Confirmed by the Atlas too: *not used there either*.
+  BioBTree-side finding: regulatory-region→target-gene edges aren't materialized.
 - **brenda_kinetics / brenda_inhibitor** — free-text substrate/inhibitor (no
   CURIE) + numeric Km/Ki (needs numeric-qualifier support).
 

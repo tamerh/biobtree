@@ -62,6 +62,14 @@ def schema_triples(cats: CategoryMap, preds: PredicateMap, registry: DatasetRegi
     """(subject_category, predicate, object_category) -> set of contributing datasets."""
     triples: dict[tuple, set] = defaultdict(set)
 
+    # runtime-typed datasets have no categories.yaml entry; supply the category an
+    # edge endpoint to them takes at the schema level (e.g. miRDB targets refseq
+    # transcripts). go is multi-aspect so left out (its edges come via _GO_EDGES).
+    runtime_cat = {"refseq": "biolink:Transcript"}
+
+    def cat_of(ds):
+        return cats.category_for(ds) or runtime_cat.get(ds)
+
     def add(sc, p, oc, ds):
         if sc and oc:
             triples[(sc, p, oc)].add(ds)
@@ -81,9 +89,9 @@ def schema_triples(cats: CategoryMap, preds: PredicateMap, registry: DatasetRegi
             c = cats.category_for(r.partner)
             add(c, r.predicate, c, ds)
         else:  # bipartite (object resolved via `via`/symbol is still rule.object)
-            add(cats.category_for(r.subject), r.predicate, cats.category_for(r.object), ds)
+            add(cat_of(r.subject), r.predicate, cat_of(r.object), ds)
             for extra in (r.extra_objects or []):
-                add(cats.category_for(r.subject), r.predicate, cats.category_for(extra), ds)
+                add(cat_of(r.subject), r.predicate, cat_of(extra), ds)
 
     for src_ds, sc in _GO_SOURCES:
         for p, oc in _GO_EDGES:

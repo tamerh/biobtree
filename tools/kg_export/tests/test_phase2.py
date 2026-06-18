@@ -192,10 +192,11 @@ class BuildEdgesTests(unittest.TestCase):
                 ("HMDB:HMDB0004085", "biolink:participates_in", "EC:1.1.1.100"), edges)
             self.assertIn(("UniProtKB:P1", "biolink:enables", "EC:3.2.1.39"), edges)
             self.assertEqual(stats.edges_written, 2)
-            # uniprot>brenda reached the skip rule (both endpoints are nodes)
-            self.assertEqual(stats.skipped, 1)
-            # the 3 brenda child/pubmed targets aren't node datasets -> dropped
-            self.assertEqual(stats.dropped_not_node, 3)
+            # skip rules: uniprot>brenda (EC dup) + brenda>pubmed (pubmed IS a
+            # Publication node now, so it reaches the skip rule, not dropped)
+            self.assertEqual(stats.skipped, 2)
+            # the 2 brenda kinetics/inhibitor reification keys aren't nodes -> dropped
+            self.assertEqual(stats.dropped_not_node, 2)
             self.assertEqual(stats.unmapped, 0)
             # no edge points at a kinetics/inhibitor reification key or a pubmed id
             endpoints = {e[0] for e in edges} | {e[2] for e in edges}

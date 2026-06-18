@@ -22,6 +22,7 @@ from . import kgx
 from .edges import build_edges, load_id_map
 from .go import build_go
 from .dbsnp import build_dbsnp
+from .mesh import build_mesh
 from .nodes import build_nodes
 from .ontology import build_ontology
 from .predicates import PredicateMap
@@ -210,6 +211,28 @@ def _cmd_dbsnp(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_mesh(args: argparse.Namespace) -> int:
+    registry = DatasetRegistry.load(args.conf)
+    categories = CategoryMap.load(args.categories)
+    t0 = time.time()
+    stats = build_mesh(
+        index_dir=args.index_dir,
+        registry=registry,
+        categories=categories,
+        nodes_out=args.nodes_out,
+        edges_out=args.edges_out,
+        stats_path=args.stats,
+    )
+    dt = time.time() - t0
+    print(f"MeSH disease nodes: {args.nodes_out}  edges: {args.edges_out}", file=sys.stderr)
+    print(
+        f"  descriptors={stats.descriptors:,} disease_nodes={stats.disease_nodes:,} "
+        f"close_match={stats.close_match_edges:,} elapsed={dt:.1f}s",
+        file=sys.stderr,
+    )
+    return 0
+
+
 def _cmd_refseq(args: argparse.Namespace) -> int:
     registry = DatasetRegistry.load(args.conf)
     categories = CategoryMap.load(args.categories)
@@ -386,6 +409,15 @@ def main(argv: list[str] | None = None) -> int:
     db.add_argument("--stats", default=None, help="output stats JSON path")
     db.add_argument("--max-variants", type=int, default=None, help="cap variants (debug)")
     db.set_defaults(func=_cmd_dbsnp)
+
+    me = sub.add_parser("mesh", help="build MeSH disease-subset nodes + mondo close_match")
+    me.add_argument("--index-dir", required=True, help="dir with *_sorted.*.index.gz")
+    me.add_argument("--conf", default="conf", help="dataset config dir")
+    me.add_argument("--categories", default="mappings/categories.yaml")
+    me.add_argument("--nodes-out", required=True, help="output MeSH disease nodes.tsv")
+    me.add_argument("--edges-out", required=True, help="output MeSH close_match edges.tsv")
+    me.add_argument("--stats", default=None, help="output stats JSON path")
+    me.set_defaults(func=_cmd_mesh)
 
     on = sub.add_parser("ontology", help="build subclass_of + cross-ont close_match edges")
     on.add_argument("--index-dir", required=True, help="dir with *_sorted.*.index.gz")

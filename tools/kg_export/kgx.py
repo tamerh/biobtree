@@ -22,7 +22,11 @@ NODE_HEADER = "id\tcategory\tname\tequivalent_identifiers\tprovided_by"
 # KGX edge columns: id + S/P/O + provenance + KL/AT (Translator-expected).
 EDGE_HEADER = (
     "id\tsubject\tpredicate\tobject\tprimary_knowledge_source\t"
-    "aggregator_knowledge_source\tknowledge_level\tagent_type"
+    "aggregator_knowledge_source\tknowledge_level\tagent_type\t"
+    # qualified-edge slots (biolink association). Empty for plain edges.
+    # has_evidence: pipe-separated ECO CURIEs. qualifiers: 'slot=v1,v2;slot2=v3'
+    # (e.g. assay_type=BAO:..., phenotypic_quality=PATO:...).
+    "has_evidence\tqualifiers"
 )
 AGGREGATOR = "infores:biobtree"
 BIOLINK_VERSION = "4.2.1"  # target Monarch release line; pin as needed
@@ -72,9 +76,20 @@ def xopen(path, mode="rt"):
     return open(path, mode, encoding="utf-8")
 
 
-def edge_id(subject: str, predicate: str, obj: str, primary: str) -> str:
-    """Deterministic edge id (so reified/duplicate edges are identifiable)."""
-    h = hashlib.md5(f"{subject}|{predicate}|{obj}|{primary}".encode()).hexdigest()
+def edge_id(
+    subject: str, predicate: str, obj: str, primary: str,
+    has_evidence: str = "", qualifiers: str = "",
+) -> str:
+    """Deterministic edge id (so reified/duplicate edges are identifiable).
+
+    Qualifiers/evidence are folded in ONLY when present, so plain edges keep the
+    same id as before and qualified variants of the same S/P/O stay distinct
+    (dedup is sort -u on this id, so identical ids would otherwise be dropped).
+    """
+    key = f"{subject}|{predicate}|{obj}|{primary}"
+    if has_evidence or qualifiers:
+        key += f"|{has_evidence}|{qualifiers}"
+    h = hashlib.md5(key.encode()).hexdigest()
     return f"biobtree:{h[:16]}"
 
 
@@ -86,12 +101,14 @@ def format_edge(
     *,
     knowledge_level: str = "not_provided",
     agent_type: str = "not_provided",
+    has_evidence: str = "",
+    qualifiers: str = "",
 ) -> str:
     """One KGX edge TSV row (trailing newline). Single source of column order."""
-    eid = edge_id(subject, predicate, obj, primary)
+    eid = edge_id(subject, predicate, obj, primary, has_evidence, qualifiers)
     return (
         f"{eid}\t{subject}\t{predicate}\t{obj}\t{primary}\t{AGGREGATOR}\t"
-        f"{knowledge_level}\t{agent_type}\n"
+        f"{knowledge_level}\t{agent_type}\t{has_evidence}\t{qualifiers}\n"
     )
 
 
@@ -219,7 +236,17 @@ def edges_to_jsonl(edges_tsv: str | Path, out_path: str | Path) -> int:
         for _, row in _read_rows(Path(edges_tsv)):
             if not row:
                 continue
-            out.write(json.dumps(dict(zip(cols, row.split("\t")))) + "\n")
+            d = dict(zip(cols, row.split("\t")))
+            # has_evidence -> list of CURIEs; qualifiers 'slot=v1,v2;..' -> dict
+            ev = d.get("has_evidence") or ""
+            d["has_evidence"] = ev.split("|") if ev else []
+            q = d.get("qualifiers") or ""
+            d["qualifiers"] = (
+                {kv.split("=", 1)[0]: kv.split("=", 1)[1].split(",")
+                 for kv in q.split(";") if "=" in kv}
+                if q else {}
+            )
+            out.write(json.dumps(d) + "\n")
             n += 1
     return n
 

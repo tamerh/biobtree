@@ -55,6 +55,10 @@ class ReifiedRule:
                                 # symbols, resolved to `partner` ids by symbol map
     require: dict | None = None  # pairwise: only emit if property fields match
                                  # (e.g. {database_a: UNIPROT} to keep protein-protein)
+    qualifiers: dict | None = None  # {slot_name: qualifier_dataset} — in-group
+                                    # partners of that dataset become edge
+                                    # qualifiers (e.g. {assay_type: bao} on
+                                    # bioactivity; {phenotypic_quality: pato} on gwas)
     cross: bool = False  # pairwise: subject_field/object_field are LISTS; emit the
                          # all-pairs cross-product (each subject member x each object
                          # member). Used when both endpoints are multi-gene complexes
@@ -120,6 +124,7 @@ class PredicateMap:
                 via=cfg.get("via"),
                 resolve=cfg.get("resolve"),
                 require=cfg.get("require"),
+                qualifiers=cfg.get("qualifiers"),
                 cross=bool(cfg.get("cross", False)),
                 note=cfg.get("note"),
             )

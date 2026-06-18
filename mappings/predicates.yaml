@@ -151,7 +151,7 @@ reified:
 
   # --- Compound -> target bioactivity ---------------------------------------
   pubchem_activity: {kind: bipartite, subject: pubchem, object: uniprot, predicate: "biolink:interacts_with"}
-  chembl_activity:  {kind: bipartite, subject: chembl_molecule, object: uniprot, predicate: "biolink:interacts_with"}
+  chembl_activity:  {kind: bipartite, subject: chembl_molecule, object: uniprot, predicate: "biolink:interacts_with", qualifiers: {assay_type: bao}}
   bindingdb:        {kind: bipartite, subject: pubchem, object: uniprot, predicate: "biolink:interacts_with", note: "compound has several namespaces; pubchem chosen as subject"}
 
   # --- Gene -> cell line dependency (cancer) --------------------------------
@@ -179,7 +179,7 @@ reified:
 
   # --- Gene -> disease (curated/association layers; intermediate links gene+disease)
   gencc:                 {kind: bipartite, subject: hgnc, object: mondo, predicate: "biolink:gene_associated_with_condition", note: "GenCC gene-disease validity"}
-  gwas:                  {kind: bipartite, subject: hgnc, object: mondo, extra_objects: [oba], predicate: "biolink:associated_with", note: "GWAS gene-trait: disease (mondo) + quantitative attribute (oba)"}
+  gwas:                  {kind: bipartite, subject: hgnc, object: mondo, extra_objects: [efo, oba], predicate: "biolink:associated_with", note: "GWAS gene-trait: disease (mondo/efo) + quantitative attribute (oba). PATO quality NOT attached: it's a study-level attribute that never co-occurs with a mapped trait on the same association (entry-level, like eco/xco)"}
   intogen:               {kind: bipartite, subject: hgnc, object: mondo, predicate: "biolink:gene_associated_with_condition", note: "intOGen cancer driver"}
   clingen_gene_validity: {kind: bipartite, subject: hgnc, object: mondo, predicate: "biolink:gene_associated_with_condition"}
   clingen_variant:       {kind: bipartite, subject: hgnc, object: mondo, predicate: "biolink:gene_associated_with_condition"}

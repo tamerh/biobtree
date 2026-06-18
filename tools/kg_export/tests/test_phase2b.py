@@ -336,6 +336,27 @@ class BuildReifiedTests(unittest.TestCase):
         """fantom5_enhancer is intentionally NOT a reified rule (deferred)."""
         self.assertIsNone(self.pm.reified_rule("fantom5_enhancer"))
 
+    def test_bioactivity_assay_type_qualifier(self):
+        """chembl_activity attaches the in-group BAO assay type as a qualifier."""
+        ca, cm, up, ba = (self._id("chembl_activity"), self._id("chembl_molecule"),
+                          self._id("uniprot"), self._id("bao"))
+        with tempfile.TemporaryDirectory() as d:
+            tmp = Path(d)
+            self._write(tmp, "chembl_activity_sorted.1.index.gz", [
+                f"CHEMBL_ACT_1\t{ca}\tCHEMBL25\t{cm}",
+                f"CHEMBL_ACT_1\t{ca}\tP35354\t{up}",
+                f"CHEMBL_ACT_1\t{ca}\tBAO:0000034\t{ba}",
+                f'CHEMBL_ACT_1\t{ca}\t{{"x":1}}\t-1',
+            ])
+            out = tmp / "r.tsv"
+            build_reified_edges(tmp, self.reg, self.cats, self.pm, out, datasets=["chembl_activity"])
+            rows = [l.split("\t") for l in out.read_text().splitlines()[1:]]
+            self.assertEqual(len(rows), 1)
+            # cols: id, s, p, o, primary, agg, kl, at, has_evidence, qualifiers
+            s, p, o, quals = rows[0][1], rows[0][2], rows[0][3], rows[0][9]
+            self.assertEqual((s, p, o), ("CHEMBL.COMPOUND:CHEMBL25", "biolink:interacts_with", "UniProtKB:P35354"))
+            self.assertEqual(quals, "assay_type=BAO:0000034")
+
     def test_gwas_extra_objects_disease_and_attribute(self):
         """gwas gene-trait emits to BOTH mondo (disease) and oba (attribute)."""
         gw, hg, mo, ob = (self._id("gwas"), self._id("hgnc"),

@@ -176,6 +176,22 @@ def _emit_group(group, rule, registry, categories, canonical, primary,
                 max_edges_per_group, stats, knowledge_level, agent_type,
                 resolve_map=None, symbol_map=None):
     """Yield KGX edge rows for one reified entry group (pairwise/star/bipartite)."""
+    # group-level qualifiers: in-group partners of each qualifier dataset (e.g.
+    # the BAO assay type / PATO quality attached to this whole entry).
+    qualifiers = ""
+    if rule.qualifiers:
+        parts = []
+        for slot, qds in rule.qualifiers.items():
+            vals = []
+            for raw in group:
+                if raw.is_property:
+                    continue
+                if registry.name_for_id(raw.object_dataset_id) == qds and raw.object not in vals:
+                    vals.append(raw.object)
+            if vals:
+                parts.append(f"{slot}={','.join(vals)}")
+        qualifiers = ";".join(parts)
+
     def edge(a, b):
         if not a or not b:
             return None
@@ -185,6 +201,7 @@ def _emit_group(group, rule, registry, categories, canonical, primary,
         return kgx.format_edge(
             a, rule.predicate, b, primary,
             knowledge_level=knowledge_level, agent_type=agent_type,
+            qualifiers=qualifiers,
         )
 
     def partners(role_dataset, exclude=None, symbols=None):

@@ -43,6 +43,7 @@ KNOWN_CATEGORIES = {
     "biolink:MolecularActivity", "biolink:BiologicalProcess",
     "biolink:CellularComponent", "biolink:ChemicalEntity",
     "biolink:MicroRNA", "biolink:NucleicAcidSequenceMotif", "biolink:Publication",
+    "biolink:DiseaseOrPhenotypicFeature",
 }
 
 
@@ -64,7 +65,7 @@ CANONICAL_PREFIXES = {
     "UPHENO", "ZP", "XPO", "WBPhenotype", "FYPO",
     "OBA",  # Ontology of Biological Attributes (GWAS quantitative traits)
     # Alliance model-organism gene namespaces (biolink Gene id_prefixes, verified)
-    "MGI", "RGD", "SGD", "ZFIN", "FB", "WB",
+    "MGI", "RGD", "SGD", "ZFIN", "FB", "WB", "Xenbase",
     "MESH",        # biolink prefix map (CTD chemicals + MeSH diseases)
     "civic.vid",   # bioregistry-canonical CIViC variant prefix
     "PMID",        # biolink Publication prefix (GeneRIF)

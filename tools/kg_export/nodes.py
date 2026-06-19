@@ -31,7 +31,7 @@ SEP = "\x1f"
 PROVIDED_BY = "infores:biobtree"
 
 # Best-effort name extraction from a property line's attribute JSON.
-_NAME_KEYS_SCALAR = ("symbol", "name", "label", "preferred_name")
+_NAME_KEYS_SCALAR = ("symbol", "name", "label", "preferred_name", "reaction")
 _NAME_KEYS_LIST = ("symbols", "names", "labels")
 
 

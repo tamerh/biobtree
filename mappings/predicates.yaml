@@ -210,6 +210,15 @@ reified:
   # ONE gene (in its species namespace: hgnc OR a MOD gene dataset, via extra_subjects)
   # + ONE DOID disease. Orthology-inferred / negative assertions filtered at ingest.
   alliance_disease:      {kind: bipartite, subject: hgnc, extra_subjects: [mgi, rgd, sgd, zfin, flybase, wormbase], object: doid, predicate: "biolink:gene_associated_with_condition", note: "Alliance gene-disease (cross-species MOD curation)"}
+  # Alliance gene->phenotype (cross-species; species-paired gene namespace ->
+  # species phenotype ontology, e.g. mgi/rgd->mp, wormbase->wbphenotype,
+  # xenbase->xpo). PubMed citation not an edge.
+  alliance_phenotype:    {kind: bipartite, subject: mgi, extra_subjects: [rgd, wormbase, xenbase, sgd, zfin, flybase, hgnc], object: mp, extra_objects: [wbphenotype, xpo, fypo, zp, hpo], predicate: "biolink:has_phenotype", note: "Alliance gene-phenotype (cross-species MOD curation)"}
+  # PanelApp (Genomics England) curated gene panels -> gene-disease. Only entries
+  # with a clean MONDO emit (OMIM mims are gene+phenotype mix -> not the disease).
+  # panelapp (panel container) has no typed disease -> no rule. Confidence
+  # (green/amber/red) is a property-JSON scalar -> qualifier follow-up.
+  panelapp_gene:         {kind: bipartite, subject: hgnc, object: mondo, predicate: "biolink:gene_associated_with_condition", note: "PanelApp curated gene-disease panel membership"}
   clingen_gene_validity: {kind: bipartite, subject: hgnc, object: mondo, predicate: "biolink:gene_associated_with_condition"}
   clingen_variant:       {kind: bipartite, subject: hgnc, object: mondo, predicate: "biolink:gene_associated_with_condition"}
   clingen_dosage:        {kind: bipartite, subject: hgnc, object: mondo, predicate: "biolink:gene_associated_with_condition", note: "dosage sensitivity"}
@@ -268,6 +277,13 @@ reified:
   # miRNA is the group KEY (subject==dataset); objects are refseq transcripts
   # (runtime-typed). PREDICTION (knowledge_level via _PREDICTION_DATASETS).
   mirdb:           {kind: bipartite, subject: mirdb, object: refseq, predicate: "biolink:affects", note: "miRDB predicted miRNA->target transcript"}
+
+  # --- FAERS drug -> adverse reaction (pharmacovigilance) -------------------
+  # faers entry is a drug-report HUB: drug (chembl_molecule; pubchem alternate) ->
+  # adverse reactions (faers_reaction nodes). ~9% of entries resolve to a drug
+  # CURIE (rest are free-text drug_name -> emit nothing). PRR/report_count are a
+  # numeric-qualifier follow-up. faers_reaction is the OBJECT (a node), no own rule.
+  faers:           {kind: bipartite, subject: chembl_molecule, extra_subjects: [pubchem], object: faers_reaction, predicate: "biolink:has_adverse_event", note: "FAERS drug->adverse reaction (openFDA)"}
 
   # --- GeneRIF: publication mentions gene (entry links one pubmed + one entrez).
   # Adds biolink:Publication (PMID) endpoints (mostly non-human gene + PMID stubs).

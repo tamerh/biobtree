@@ -56,6 +56,7 @@ datasets:
   zfin:        {category: "biolink:Gene", prefix: "ZFIN", note: "Zebrafish (ZFIN)"}
   flybase:     {category: "biolink:Gene", prefix: "FB", note: "Fly (FlyBase); biobtree stores ids uppercased"}
   wormbase:    {category: "biolink:Gene", prefix: "WB", note: "Worm (WormBase); biobtree stores ids uppercased"}
+  xenbase:     {category: "biolink:Gene", prefix: "Xenbase", note: "Frog (Xenbase); gene ids XB-GENE-* (alliance_phenotype)"}
   # Gene homology endpoints (Ensembl Compara). Objects are gene ids (mostly
   # ENS*G; minority FlyBase/WormBase -> cross-species stubs).
   ortholog:    {category: "biolink:Gene", prefix: "ENSEMBL", note: "Compara ortholog gene endpoint"}
@@ -141,6 +142,13 @@ datasets:
   # --- Publications ----------------------------------------------------------
   # GeneRIF gene->literature endpoints. PMID is the biolink Publication prefix.
   pubmed:      {category: "biolink:Publication", prefix: "PMID", note: "PubMed citation (GeneRIF)"}
+
+  # --- Adverse reactions -----------------------------------------------------
+  # FAERS adverse-reaction terms (MedDRA PTs), but the BioBTree id is an opaque
+  # hash with NO MedDRA code in the index -> locally-coined prefix (non-canonical,
+  # flagged). DiseaseOrPhenotypicFeature = the range of biolink:has_adverse_event
+  # (PTs mix diseases + symptoms; the superclass is the honest type).
+  faers_reaction: {category: "biolink:DiseaseOrPhenotypicFeature", prefix: "faers.reaction", note: "FAERS adverse reaction (MedDRA PT; opaque-hash id)"}
 
   # --- Molecular activities / reactions (biolink MolecularActivity id_prefixes
   # include EC, RHEA, GO -- verified) ----------------------------------------

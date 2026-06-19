@@ -74,3 +74,6 @@ skip:
   brenda_inhibitor: "free-text inhibitor + numeric Ki/IC50 (needs numeric qualifiers)"
   encode_ccre: "source ships no target-gene assignments (cCRE catalog only)"
   fantom5_enhancer: "enhancer->gene is proximity-based; curated needs enhancer-TSS source"
+  gnomad_constraint: "gene constraint scores (pLI/LOEUF) -- numeric gene attributes, needs node-attribute support (deferred)"
+  drugcentral: "conf entry present but not in the prod index build yet (no drugcentral_sorted file)"
+  panelapp: "panel container; disorder is free-text only -> no edge (gene-disease via panelapp_gene)"

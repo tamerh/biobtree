@@ -123,6 +123,55 @@ class TierACoverageTests(unittest.TestCase):
             self.assertIn(("ENSEMBL:ENSG1", "biolink:paralogous_to", "ENSEMBL:ENSG2"), edges)
             self.assertEqual(stats.skipped, 2)  # the two self-ref back-links
 
+    # --- New BioBTree datasets (round 3) --------------------------------------
+
+    def test_alliance_phenotype_cross_species(self):
+        """Alliance gene→phenotype: species-paired gene namespace -> phenotype
+        ontology (mgi/rgd->mp, wormbase->wbphenotype, xenbase->xpo); pubmed not wired."""
+        ap, mg, wb, xb, mp, wbp, xpo, pm = (
+            self._id("alliance_phenotype"), self._id("mgi"), self._id("wormbase"),
+            self._id("xenbase"), self._id("mp"), self._id("wbphenotype"),
+            self._id("xpo"), self._id("pubmed"))
+        _, edges = self._reified("alliance_phenotype_sorted.1.index.gz", [
+            f"AGRP1\t{ap}\tMGI:6478931\t{mg}", f"AGRP1\t{ap}\tMP:0009269\t{mp}",
+            f"AGRP1\t{ap}\t31738183\t{pm}", f'AGRP1\t{ap}\t{{"x":1}}\t-1',
+            f"AGRP2\t{ap}\tWBGENE00004857\t{wb}", f"AGRP2\t{ap}\tWBPhenotype:0002295\t{wbp}",
+            f"AGRP3\t{ap}\tXB-GENE-6255375\t{xb}", f"AGRP3\t{ap}\tXPO:0103424\t{xpo}",
+        ], "alliance_phenotype")
+        self.assertIn(("MGI:6478931", "biolink:has_phenotype", "MP:0009269"), edges)
+        self.assertIn(("WB:WBGENE00004857", "biolink:has_phenotype", "WBPhenotype:0002295"), edges)
+        self.assertIn(("Xenbase:XB-GENE-6255375", "biolink:has_phenotype", "XPO:0103424"), edges)
+        self.assertEqual(len(edges), 3)  # pubmed citation not wired
+
+    def test_faers_drug_to_adverse_reaction(self):
+        """FAERS hub -> drug(chembl/pubchem) x reaction; free-text-only drug emits nothing."""
+        fa, cm, pc, fr = (self._id("faers"), self._id("chembl_molecule"),
+                          self._id("pubchem"), self._id("faers_reaction"))
+        P = "biolink:has_adverse_event"
+        stats, edges = self._reified("faers_sorted.1.index.gz", [
+            f'FAERS_D1\t{fa}\t{{"drug_name":"aspirin"}}\t-1',
+            f"FAERS_D1\t{fa}\tCHEMBL25\t{cm}", f"FAERS_D1\t{fa}\t2244\t{pc}",
+            f"FAERS_D1\t{fa}\tFAERS_RX_AAA\t{fr}", f"FAERS_D1\t{fa}\tFAERS_RX_BBB\t{fr}",
+            f'FAERS_D2\t{fa}\t{{"drug_name":"unmapped"}}\t-1', f"FAERS_D2\t{fa}\tFAERS_RX_CCC\t{fr}",
+        ], "faers")
+        self.assertIn(("CHEMBL.COMPOUND:CHEMBL25", P, "faers.reaction:FAERS_RX_AAA"), edges)
+        self.assertIn(("PUBCHEM.COMPOUND:2244", P, "faers.reaction:FAERS_RX_BBB"), edges)
+        self.assertEqual(stats.edges_written, 4)  # 2 drug ids x 2 reactions; D2 emits 0
+
+    def test_panelapp_gene_to_disease(self):
+        """PanelApp: gene(HGNC) -> MONDO; OMIM mim + ensembl-dup not disease edges;
+        no-MONDO entry emits nothing."""
+        pg, hg, en, mi, mo = (self._id("panelapp_gene"), self._id("hgnc"),
+                              self._id("ensembl"), self._id("mim"), self._id("mondo"))
+        stats, edges = self._reified("panelapp_gene_sorted.1.index.gz", [
+            f"105_SMAD2\t{pg}\t601366\t{mi}", f"105_SMAD2\t{pg}\tENSG00000175387\t{en}",
+            f"105_SMAD2\t{pg}\tHGNC:6768\t{hg}", f"105_SMAD2\t{pg}\tMONDO:0018954\t{mo}",
+            f'105_SMAD2\t{pg}\t{{"confidence":"amber"}}\t-1',
+            f"1_ABL1\t{pg}\tHGNC:76\t{hg}",  # no MONDO -> nothing
+        ], "panelapp_gene")
+        self.assertEqual(stats.edges_written, 1)
+        self.assertIn(("HGNC:6768", "biolink:gene_associated_with_condition", "MONDO:0018954"), edges)
+
     def test_mesh_is_not_a_categories_node(self):
         """MeSH (multi-type, 91% untyped chemicals) is NOT a static categories node;
         its disease subset is emitted by the mesh.py runtime builder instead."""

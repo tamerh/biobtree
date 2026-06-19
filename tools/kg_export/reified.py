@@ -183,11 +183,12 @@ def _emit_group(group, rule, registry, categories, canonical, primary,
                 resolve_map=None, symbol_map=None):
     """Yield KGX edge rows for one reified entry group (pairwise/star/bipartite)."""
     # group-level qualifiers: in-group partners of each qualifier dataset (e.g.
-    # the BAO assay type / PATO quality attached to this whole entry).
+    # the BAO assay type / PATO quality), plus scalars pulled from the property JSON
+    # (e.g. p_value, confidence, splice score) -- attached to the whole entry.
     qualifiers = ""
-    if rule.qualifiers:
+    if rule.qualifiers or rule.qualifier_fields:
         parts = []
-        for slot, qds in rule.qualifiers.items():
+        for slot, qds in (rule.qualifiers or {}).items():
             vals = []
             for raw in group:
                 if raw.is_property:
@@ -196,6 +197,24 @@ def _emit_group(group, rule, registry, categories, canonical, primary,
                     vals.append(raw.object)
             if vals:
                 parts.append(f"{slot}={','.join(vals)}")
+        if rule.qualifier_fields:
+            for raw in group:
+                if not raw.is_property:
+                    continue
+                try:
+                    d = json.loads(raw.object)
+                except (ValueError, TypeError):
+                    continue
+                if not isinstance(d, dict):
+                    continue
+                for slot, key in rule.qualifier_fields.items():
+                    v = d.get(key)
+                    if v not in (None, "", []):
+                        # sanitize: the qualifiers column is `slot=v;slot=v`
+                        sv = str(v).replace(";", " ").replace("=", " ").replace(",", " ").strip()[:80]
+                        if sv:
+                            parts.append(f"{slot}={sv}")
+                break  # first property line holds the entry's scalars
         qualifiers = ";".join(parts)
 
     def edge(a, b):

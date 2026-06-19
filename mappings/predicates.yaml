@@ -237,7 +237,7 @@ reified:
 
   # --- Gene -> disease (curated/association layers; intermediate links gene+disease)
   gencc:                 {kind: bipartite, subject: hgnc, object: mondo, predicate: "biolink:gene_associated_with_condition", note: "GenCC gene-disease validity"}
-  gwas:                  {kind: bipartite, subject: hgnc, object: mondo, extra_objects: [efo, oba], predicate: "biolink:associated_with", note: "GWAS gene-trait: disease (mondo/efo) + quantitative attribute (oba). PATO quality NOT attached: it's a study-level attribute that never co-occurs with a mapped trait on the same association (entry-level, like eco/xco)"}
+  gwas:                  {kind: bipartite, subject: hgnc, object: mondo, extra_objects: [efo, oba], qualifier_fields: {p_value: p_value, odds_ratio_beta: or_beta}, predicate: "biolink:associated_with", note: "GWAS gene-trait: disease (mondo/efo) + quantitative attribute (oba); p_value/or_beta qualifiers"}
   intogen:               {kind: bipartite, subject: hgnc, object: mondo, predicate: "biolink:gene_associated_with_condition", note: "intOGen cancer driver"}
   # Alliance of Genome Resources cross-species gene->disease. Each AGRD entry links
   # ONE gene (in its species namespace: hgnc OR a MOD gene dataset, via extra_subjects)
@@ -251,7 +251,7 @@ reified:
   # with a clean MONDO emit (OMIM mims are gene+phenotype mix -> not the disease).
   # panelapp (panel container) has no typed disease -> no rule. Confidence
   # (green/amber/red) is a property-JSON scalar -> qualifier follow-up.
-  panelapp_gene:         {kind: bipartite, subject: hgnc, object: mondo, predicate: "biolink:gene_associated_with_condition", note: "PanelApp curated gene-disease panel membership"}
+  panelapp_gene:         {kind: bipartite, subject: hgnc, object: mondo, qualifier_fields: {confidence: confidence, inheritance: mode_of_inheritance}, predicate: "biolink:gene_associated_with_condition", note: "PanelApp curated gene-disease panel membership; confidence (green/amber/red) qualifier"}
   clingen_gene_validity: {kind: bipartite, subject: hgnc, object: mondo, predicate: "biolink:gene_associated_with_condition"}
   clingen_variant:       {kind: bipartite, subject: hgnc, object: mondo, predicate: "biolink:gene_associated_with_condition"}
   clingen_dosage:        {kind: bipartite, subject: hgnc, object: mondo, predicate: "biolink:gene_associated_with_condition", note: "dosage sensitivity"}
@@ -313,8 +313,8 @@ reified:
   # Per-edge significance/evidence_level live in property JSON (not object lines) ->
   # qualifier follow-up; both disease+drug share associated_with.
   civic_variant:   {kind: bipartite, subject: civic_variant, object: hgnc, via: civic, predicate: "biolink:is_sequence_variant_of", note: "CIViC variant->gene (via parent feature)"}
-  civic_evidence:  {kind: bipartite, subject: civic_variant, object: mondo, extra_objects: [chembl_molecule], predicate: "biolink:associated_with", note: "CIViC evidence: variant->disease + variant->therapy"}
-  civic_assertion: {kind: bipartite, subject: civic_variant, object: mondo, extra_objects: [chembl_molecule], predicate: "biolink:associated_with", note: "CIViC assertion: variant->disease + variant->therapy"}
+  civic_evidence:  {kind: bipartite, subject: civic_variant, object: mondo, extra_objects: [chembl_molecule], qualifier_fields: {significance: significance, evidence_level: evidence_level, evidence_direction: evidence_direction}, predicate: "biolink:associated_with", note: "CIViC evidence: variant->disease + variant->therapy; significance/evidence_level qualifiers"}
+  civic_assertion: {kind: bipartite, subject: civic_variant, object: mondo, extra_objects: [chembl_molecule], qualifier_fields: {significance: significance}, predicate: "biolink:associated_with", note: "CIViC assertion: variant->disease + variant->therapy"}
 
   # --- miRDB predicted miRNA -> target transcript (post-transcriptional). The
   # miRNA is the group KEY (subject==dataset); objects are refseq transcripts
@@ -341,8 +341,8 @@ reified:
   # as one clean CURIE (biobtree.variant:..). PREDICTION (knowledge_level via
   # _PREDICTION_DATASETS). Numeric score/am_pathogenicity are a qualifier follow-up.
   # variant-scale -> run only via --datasets / the WITH_PREDICTIONS gate.
-  spliceai:      {kind: bipartite, subject: spliceai, normalize_subject: true, object: hgnc, extra_objects: [ensembl, entrez], predicate: "biolink:affects", note: "SpliceAI predicted splice effect variant->gene"}
-  alphamissense: {kind: bipartite, subject: alphamissense, normalize_subject: true, object: transcript, predicate: "biolink:affects", note: "AlphaMissense predicted missense pathogenicity variant->transcript (alphamissense_transcript child + uniprot object deferred)"}
+  spliceai:      {kind: bipartite, subject: spliceai, normalize_subject: true, object: hgnc, extra_objects: [ensembl, entrez], qualifier_fields: {splice_score: score, splice_effect: effect}, predicate: "biolink:affects", note: "SpliceAI predicted splice effect variant->gene"}
+  alphamissense: {kind: bipartite, subject: alphamissense, normalize_subject: true, object: transcript, qualifier_fields: {pathogenicity: am_pathogenicity, pathogenicity_class: am_class}, predicate: "biolink:affects", note: "AlphaMissense predicted missense pathogenicity variant->transcript"}
 
   # --- GeneRIF: publication mentions gene (entry links one pubmed + one entrez).
   # Adds biolink:Publication (PMID) endpoints (mostly non-human gene + PMID stubs).

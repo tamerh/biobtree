@@ -66,6 +66,10 @@ class ReifiedRule:
                                     # partners of that dataset become edge
                                     # qualifiers (e.g. {assay_type: bao} on
                                     # bioactivity; {phenotypic_quality: pato} on gwas)
+    qualifier_fields: dict | None = None  # {slot_name: property_json_key} — pull a
+                                          # SCALAR from the group's property JSON onto
+                                          # the edge (e.g. {p_value: p_value} on gwas,
+                                          # {confidence: confidence} on panelapp)
     cross: bool = False  # pairwise: subject_field/object_field are LISTS; emit the
                          # all-pairs cross-product (each subject member x each object
                          # member). Used when both endpoints are multi-gene complexes
@@ -134,6 +138,7 @@ class PredicateMap:
                 resolve=cfg.get("resolve"),
                 require=cfg.get("require"),
                 qualifiers=cfg.get("qualifiers"),
+                qualifier_fields=cfg.get("qualifier_fields"),
                 cross=bool(cfg.get("cross", False)),
                 note=cfg.get("note"),
             )

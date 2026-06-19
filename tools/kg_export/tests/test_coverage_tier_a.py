@@ -346,6 +346,22 @@ class TierACoverageTests(unittest.TestCase):
             self.assertEqual(stats.edges_written, 0)
             self.assertEqual(stats.self_loops, 1)
 
+    def test_qualifier_fields_from_property_json(self):
+        """A scalar in the entry's property JSON (panelapp confidence) is pulled
+        onto the edge's qualifiers column."""
+        pg, hg, mo = self._id("panelapp_gene"), self._id("hgnc"), self._id("mondo")
+        with tempfile.TemporaryDirectory() as d:
+            tmp = Path(d)
+            self._write(tmp, "panelapp_gene_sorted.1.index.gz", [
+                f"105_SMAD2\t{pg}\tHGNC:6768\t{hg}", f"105_SMAD2\t{pg}\tMONDO:0018954\t{mo}",
+                f'105_SMAD2\t{pg}\t{{"confidence":"green","mode_of_inheritance":"BIALLELIC"}}\t-1',
+            ])
+            out = tmp / "r.tsv"
+            build_reified_edges(tmp, self.reg, self.cats, self.pm, out, datasets=["panelapp_gene"])
+            row = out.read_text().splitlines()[1].split("\t")  # cols 0..9; qualifiers=9
+            self.assertIn("confidence=green", row[9])
+            self.assertIn("inheritance=BIALLELIC", row[9])
+
     def test_mesh_is_not_a_categories_node(self):
         """MeSH (multi-type, 91% untyped chemicals) is NOT a static categories node;
         its disease subset is emitted by the mesh.py runtime builder instead."""

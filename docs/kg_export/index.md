@@ -65,15 +65,26 @@ HGNC:1100   biolink:Gene   BRCA1   HGNC:1100|ENSEMBL:ENSG00000012048|NCBIGene:67
   relationships stored inside the `ensembl`/`entrez` forwards, not their own
   entities. They contribute **edges** (`orthologous_to`/`paralogous_to`), so the
   meta-graph shows them as edges and excludes them from the node-dataset panel.
-- **Numeric/value node attributes**: a few datasets aren't entities or
-  relationships — their content **is a scalar about an existing entity**:
+- **Entry attributes → node properties** (`nodeattrs`): in BioBTree the entry holds
+  its full attribute set and `compact_fields` is just an inline-mapping convenience;
+  a materialized KG has no such split — a node *is* the entry — so each entry's
+  attributes are attached directly as node properties. This is what makes the API's
+  `/ws/filter` (CEL over attributes) reproducible as a Cypher `WHERE` (e.g.
+  `n.entrez_type = 'protein-coding'`, `n.ensembl_biotype = 'protein_coding'`). Keys
+  are **dataset-prefixed** so a merged node (HGNC+Ensembl+NCBIGene) collects every
+  namespace's attributes without collision. Mode `all` (default) carries every field
+  (scalars + scalar lists + one level of nested-dict flattening; lists-of-objects
+  skipped as heavy/relational); mode `compact` carries only the dataset's conf
+  `compact_fields` — the opt-in slim knob for heavy datasets. Config:
+  `mappings/node_attributes.yaml`.
+- **Numeric/value node attributes** (`attributes`): a few datasets aren't entities or
+  relationships — their content **is a scalar about a *different* existing entity**:
   `gnomad_constraint` (pLI/LOEUF on a gene), `depmap` (essentiality on a gene),
   `alphafold` (mean pLDDT on a protein), `alphamissense_transcript` (mean
-  pathogenicity on a transcript). These are pulled from the dataset's property
-  JSON, the subject is canonicalized to the entity's node CURIE, and the values
-  are merged onto that node as extra JSONL properties (`gnomad_pli`,
-  `alphafold_mean_plddt`, …). Config: `mappings/attributes.yaml`; built by the
-  `attributes` subcommand and merged at `assemble --node-attributes`.
+  pathogenicity on a transcript). The subject is canonicalized to that entity's node
+  CURIE and the values merged onto it (`gnomad_pli`, `alphafold_mean_plddt`, …).
+  Config: `mappings/attributes.yaml`. (Distinct from `nodeattrs`, which attaches an
+  entry's *own* attributes to its *own* node.)
 
 ## Edge model
 
@@ -147,6 +158,22 @@ service** (`/ws/entry`) to confirm it reproduces BioBTree's graph. Per-target ed
 counts match exactly across entity types — e.g. for `P38398` (BRCA1 protein):
 `string_interaction` 6120=6120, `corum` 40=40, `go` 71=71. The alignment check is
 codified as a test (`tests/test_alignment.py`).
+
+### API parity (what a Neo4j import can reproduce)
+
+The goal is that someone who imports the dump can ask the same things as the
+BioBTree API. Mapped against the four query types:
+
+| API | reproducible on the KG | how |
+|---|---|---|
+| `/ws/entry` (lookup by any id) | ✅ | `id` + `equivalent_identifiers` resolve any namespace to the node |
+| `/ws/map` (cross-dataset, multi-hop) | ✅ | map is stored-xref traversal (not transitive closure) and bidirectional → Cypher path match; same-entity id maps are folded into `equivalent_identifiers` |
+| `/ws/filter` (CEL over attributes) | ✅ | the `nodeattrs` layer puts entry attributes on nodes → `WHERE n.<ds>_<field> = …` |
+| `/ws/search` (text/keyword) | ⚠️ partial | a Neo4j full-text index covers the exported `name`; BioBTree's curated aliases/keywords are not yet exported (a `synonyms` property is the planned closer) |
+
+So traversal + id-resolution + attribute filtering are reproducible; only curated
+search aliases remain a gap. (Deliberately-deferred datasets, e.g. drugcentral, are
+adapted separately.)
 
 ## Building
 

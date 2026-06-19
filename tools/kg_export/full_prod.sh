@@ -91,11 +91,15 @@ $PY -m tools.kg_export structure --index-dir $IDX --id-map $O/id_map.tsv.gz \
   --edges-out $O/structure_edges.tsv.gz --attrs-out $O/structure_attrs.tsv.gz \
   --stats $O/structure.stats.json
 
+echo "### 6f/7 node attributes (entry attrs -> node props; makes /ws/filter queryable) $(date +%T)"
+$PY -m tools.kg_export nodeattrs --index-dir $IDX --id-map $O/id_map.tsv.gz \
+  --out $O/node_entry_attrs.tsv.gz --stats $O/node_entry_attrs.stats.json
+
 echo "### 7/7 assemble (stub-nodes + node-attributes + gzip) $(date +%T)"
 $PY -m tools.kg_export assemble \
   --nodes $O/nodes_core.tsv.gz,$O/go_nodes.tsv.gz,$O/refseq_nodes.tsv.gz,$O/mesh_nodes.tsv.gz$DBSNP_NODES \
   --edges $O/edges_direct.tsv.gz,$O/edges_reified.tsv.gz,$O/go_edges.tsv.gz,$O/refseq_edges.tsv.gz,$O/ontology_edges.tsv.gz,$O/mesh_edges.tsv.gz,$O/structure_edges.tsv.gz$PRED_EDGES$DBSNP_EDGES \
-  --node-attributes $O/node_attrs.tsv.gz,$O/structure_attrs.tsv.gz$DBSNP_ATTRS \
+  --node-attributes $O/node_attrs.tsv.gz,$O/structure_attrs.tsv.gz,$O/node_entry_attrs.tsv.gz$DBSNP_ATTRS \
   --out-dir $O/dump --data-version out_prod_v5_full --stub-nodes --gzip \
   --validate-mode streaming
 

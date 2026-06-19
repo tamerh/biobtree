@@ -27,6 +27,7 @@ from .mesh import build_mesh
 from .nodes import build_nodes
 from .ontology import build_ontology
 from .predicates import PredicateMap
+from .nodeattrs import build_node_attributes, load_config as load_nodeattr_config
 from .refseq import build_refseq
 from .reified import build_reified_edges
 from .structure import build_structure
@@ -338,6 +339,33 @@ def _cmd_structure(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_nodeattrs(args: argparse.Namespace) -> int:
+    registry = DatasetRegistry.load(args.conf)
+    categories = CategoryMap.load(args.categories)
+    config = load_nodeattr_config(args.config)
+    id_map = load_id_map(args.id_map)
+    t0 = time.time()
+    stats = build_node_attributes(
+        index_dir=args.index_dir,
+        registry=registry,
+        categories=categories,
+        config=config,
+        out_path=args.out,
+        id_map=id_map,
+        stats_path=args.stats,
+    )
+    dt = time.time() - t0
+    print(f"node-attribute table written: {args.out}", file=sys.stderr)
+    print(
+        f"  datasets={stats.datasets_processed} rows={stats.rows_written:,} "
+        f"fields={stats.fields_extracted:,}",
+        file=sys.stderr,
+    )
+    print(f"  by_dataset={dict(stats.by_dataset)}", file=sys.stderr)
+    print(f"  elapsed={dt:.1f}s", file=sys.stderr)
+    return 0
+
+
 def _cmd_assemble(args: argparse.Namespace) -> int:
     out_dir = Path(args.out_dir)
     node_inputs = [s.strip() for s in args.nodes.split(",") if s.strip()]
@@ -508,6 +536,16 @@ def main(argv: list[str] | None = None) -> int:
     st.add_argument("--id-map", default=None, help="Phase 1 member->canonical map")
     st.add_argument("--stats", default=None, help="output stats JSON path")
     st.set_defaults(func=_cmd_structure)
+
+    na = sub.add_parser("nodeattrs", help="build general node-attribute table (entry attrs -> node props)")
+    na.add_argument("--index-dir", required=True, help="dir with *_sorted.*.index.gz")
+    na.add_argument("--conf", default="conf", help="dataset config dir")
+    na.add_argument("--categories", default="mappings/categories.yaml")
+    na.add_argument("--config", default="mappings/node_attributes.yaml", help="node-attributes config")
+    na.add_argument("--out", required=True, help="output node-attribute table path")
+    na.add_argument("--id-map", default=None, help="Phase 1 member->canonical map")
+    na.add_argument("--stats", default=None, help="output stats JSON path")
+    na.set_defaults(func=_cmd_nodeattrs)
 
     at = sub.add_parser("attributes", help="build numeric/value NODE attribute table")
     at.add_argument("--index-dir", required=True, help="dir with *_sorted.*.index.gz")

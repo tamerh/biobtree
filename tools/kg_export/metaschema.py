@@ -210,10 +210,22 @@ lay('dagre-LR');
         f.write(html.replace("__ELEMENTS__", elements))
 
 
-def render_explorer(triples, out_html, catmap=None):
+def render_explorer(triples, out_html, catmap=None, primary_names=None):
     """Combined viewer: Graph (edges revealed on node click) + Matrix grid,
-    with a right panel that lists the contributing BioBTree datasets on click."""
+    with a right panel that lists the contributing BioBTree datasets on click.
+
+    Each node-dataset is tagged ``primary`` (own records -> named nodes; source1/
+    source2 + runtime builders) vs cross-reference (xref-only -> identifier/stub
+    nodes), so the panel separates rich sources from pure identifier namespaces.
+    """
     import json
+    primary_names = set(primary_names or ())
+    # runtime builders produce named nodes too -> primary
+    primary_names |= {"go", "refseq", "dbsnp", "mesh"}
+    # source1 datasets that are nonetheless identifier/relationship-only (no own
+    # entity records): Compara homology tags (endpoints are Ensembl genes) + the
+    # PMID literature map (a duplicate of pubmed). Present as cross-reference.
+    primary_names -= {"ortholog", "paralog", "literature_mappings"}
     def nid(c):
         return c.split(":")[1]
     cats = sorted({c for (s, _, o) in triples for c in (s, o)})
@@ -226,20 +238,22 @@ def render_explorer(triples, out_html, catmap=None):
                                 "target": nid(o), "label": pl,
                                 "n": len(ds), "datasets": sorted(ds)}})
     # category -> the BioBTree node datasets typed as it (with CURIE prefix)
+    def entry(ds, prefix):
+        return {"ds": ds, "prefix": prefix, "primary": ds in primary_names}
     node_ds = defaultdict(list)
     if catmap is not None:
         for ds in sorted(catmap.datasets()):
             e = catmap.entry_for(ds)
             if e:
-                node_ds[nid(e.category)].append({"ds": ds, "prefix": e.prefix})
+                node_ds[nid(e.category)].append(entry(ds, e.prefix))
     # GO is typed at runtime by term aspect (go.py), so it has no categories.yaml
     # entry -- inject it as the node source for the three GO aspect categories.
     for aspect_cat in ("biolink:MolecularActivity", "biolink:BiologicalProcess",
                        "biolink:CellularComponent"):
-        node_ds[nid(aspect_cat)].append({"ds": "go", "prefix": "GO"})
+        node_ds[nid(aspect_cat)].append(entry("go", "GO"))
     # RefSeq is likewise typed at runtime (refseq.py), split into 3 categories.
     for rs_cat in _REFSEQ_NODE_CATS:
-        node_ds[nid(rs_cat)].append({"ds": "refseq", "prefix": "refseq"})
+        node_ds[nid(rs_cat)].append(entry("refseq", "refseq"))
     payload = json.dumps({"nodes": nodes, "edges": edges, "cats": [nid(c) for c in cats],
                           "colors": color, "nodeDatasets": node_ds})
     tmpl = r"""<!doctype html><html><head><meta charset='utf-8'>
@@ -311,9 +325,13 @@ function showNode(cat){var col=D.colors[cat]||'#888';
  var out=[],inc=[];
  D.edges.forEach(function(e){var d=e.data;if(d.source==cat)out.push(d);if(d.target==cat)inc.push(d);});
  var h="<h2><span class='swatch' style='background:"+col+"'></span>"+esc(cat)+"</h2>";
- h+="<h3>Node datasets ("+nd.length+")</h3>";
- h+=nd.length?"<div>"+nd.map(function(x){return "<span class='ds' title='CURIE prefix: "+esc(x.prefix)+"'>"+esc(x.ds)+"</span>";}).join('')+"</div>"
-            :"<div class='hint'>No primary node dataset — appears only as an edge endpoint / stub.</div>";
+ function chips(list){return list.map(function(x){return "<span class='ds' title='CURIE prefix: "+esc(x.prefix)+"'>"+esc(x.ds)+"</span>";}).join('');}
+ var prim=nd.filter(function(x){return x.primary;}), xref=nd.filter(function(x){return !x.primary;});
+ h+="<h3>Primary sources ("+prim.length+")</h3>";
+ h+=prim.length?"<div>"+chips(prim)+"</div>":"<div class='hint'>none (runtime/stub only)</div>";
+ if(xref.length){h+="<h3>Cross-reference / identifiers ("+xref.length+")</h3>";
+  h+="<div class='hint' style='margin:0 0 4px'>xref-only namespaces (no own records in BioBTree) &rarr; typed but nameless stub nodes</div>";
+  h+="<div>"+chips(xref)+"</div>";}
  function relBlock(d,dir){var other=dir=='out'?d.target:d.source;var arrow=dir=='out'?'&rarr;':'&larr;';
   return "<div class='rel'><span class='p'>"+esc(d.label)+"</span> "+arrow+" <span class='c'>"+esc(other)+"</span>"
    +"<span class='src'>"+esc(d.datasets.join(', '))+"</span></div>";}
@@ -368,6 +386,15 @@ def main():
     preds = PredicateMap.load(a.predicates)
     registry = DatasetRegistry.load(a.conf)
     triples = schema_triples(cats, preds, registry)
+    # primary (own-records) datasets = source1 + source2; everything else typed as
+    # a node is a cross-reference/identifier namespace (xref1/xref2 -> stub nodes).
+    import json as _json
+    from pathlib import Path as _Path
+    primary_names = set()
+    for fn in ("source1.dataset.json", "source2.dataset.json"):
+        p = _Path(a.conf) / fn
+        if p.exists():
+            primary_names |= set(_json.loads(p.read_text()))
     if a.show or not (a.out or a.mermaid or a.cytoscape or a.explorer):
         print_summary(triples)
     if a.out:
@@ -378,7 +405,7 @@ def main():
         render_cytoscape(triples, a.cytoscape)
         print(f"wrote {a.cytoscape}: {len({c for (s,_,o) in triples for c in (s,o)})} node types, {len(triples)} edges")
     if a.explorer:
-        render_explorer(triples, a.explorer, cats)
+        render_explorer(triples, a.explorer, cats, primary_names)
         print(f"wrote {a.explorer}: {len({c for (s,_,o) in triples for c in (s,o)})} node types, {len(triples)} edges")
 
 

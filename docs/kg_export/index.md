@@ -52,6 +52,14 @@ HGNC:1100   biolink:Gene   BRCA1   HGNC:1100|ENSEMBL:ENSG00000012048|NCBIGene:67
 - **Stub nodes**: edges may reference entities BioBTree stores only for a subset
   of species (genes/proteins are taxid-scoped). A minimal `id + category` node is
   emitted for any such endpoint so the graph has no dangling edges.
+- **Primary vs cross-reference datasets**: a category is backed by two kinds of
+  dataset — *primary* sources with their own records (source1/source2 + the
+  runtime builders → named nodes, e.g. HGNC/Ensembl genes) and *cross-reference /
+  identifier* namespaces (BioBTree's xref layer, no own records → typed but
+  nameless stub nodes, e.g. the cross-species MGI/RGD/ZFIN/… genes, EC, OMIM,
+  PMID). They are genuinely distinct entities (a mouse gene ≠ a human gene), so
+  they stay separate nodes, not `equivalent_identifiers`. The meta-graph explorer
+  separates the two in each node's dataset panel.
 
 ## Edge model
 

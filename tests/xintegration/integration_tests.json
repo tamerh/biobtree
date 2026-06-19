@@ -38,7 +38,7 @@
     "changes_5.5": "Added MeSH bridge CTD tests, Reactome to Ensembl, CellXGene reverse mappings, clinical trials high-count, MeSH breast cancer hierarchy",
     "changes_8.0": "Added 50 new tests from multi-agent discovery session 2: patent_ip (4), clinical_trials_deep (3), rare_disease_deep (8), cell_type_biology (7), reverse_drug (4), ultra_long_chains (3), interpro_domain (4), gene_set_advanced (8), evidence_triangulation (3), metabolomics (7). New categories: patent_ip, clinical_trials_deep, rare_disease_deep, cell_type_biology, reverse_drug, ultra_long_chains, interpro_domain, gene_set_advanced, evidence_triangulation. Total: 448 tests.",
     "changes_8.7": "Added enzyme_biochemistry category (19 tests): BRENDA enzyme database integration tests. EC number lookups, kinetic parameters (Km, kcat) via brenda_kinetics, inhibitor data (Ki, IC50) via brenda_inhibitor, PubMed literature links, text search by enzyme/substrate/inhibitor names, and multi-hop queries for enzyme-centric analysis. Total: 577 tests.",
-    "changes_8.8": "Added UniProt↔BRENDA bidirectional mapping tests (12 tests): protein to EC classification, gene to EC via UniProt, EC to proteins/structures/domains/pathways/drug targets/clinical variants. Leverages UniProt xrefs to BRENDA for multi-hop enzyme-centric queries. Total: 589 tests.",
+    "changes_8.8": "Added UniProt\u2194BRENDA bidirectional mapping tests (12 tests): protein to EC classification, gene to EC via UniProt, EC to proteins/structures/domains/pathways/drug targets/clinical variants. Leverages UniProt xrefs to BRENDA for multi-hop enzyme-centric queries. Total: 589 tests.",
     "changes_faers": "Refactored faers to master/child: faers MASTER (id 802, one per drug; total_reports/distinct_reactions/serious_reports; the single chembl_molecule/pubchem normalization node) + faers_reaction CHILD (id 804, one per drug-reaction; report_count/prr/serious_count/outcome). Master->child edges sorted by report_count DESC. Tests: drug-name text search, chembl_molecule/pubchem>>faers, full chembl_molecule>>faers>>faers_reaction chain, PRR/report_count CEL filters on the child. Co-occurrence (not causal), MedDRA PT strings only; individual reports NOT stored."
   },
   "test_categories": {
@@ -9669,7 +9669,7 @@
       "category": "gene_dependency_function",
       "name": "Constrained gene filter (LOEUF)",
       "query": ">>ensembl>>gnomad_constraint[loeuf<0.35]",
-      "why": "Filter to strongly LoF-constrained genes (haploinsufficiency prioritization). NOTE: population LoF-constraint != clinical importance — e.g. BRCA2/MLH1 tolerate heterozygous LoF (LOEUF ~0.6-0.8); use genuinely haploinsufficient genes like the dominant epilepsy SCN1A/SCN2A (LOEUF <0.2).",
+      "why": "Filter to strongly LoF-constrained genes (haploinsufficiency prioritization). NOTE: population LoF-constraint != clinical importance \u2014 e.g. BRCA2/MLH1 tolerate heterozygous LoF (LOEUF ~0.6-0.8); use genuinely haploinsufficient genes like the dominant epilepsy SCN1A/SCN2A (LOEUF <0.2).",
       "should_pass": [
         "SCN1A",
         "SCN2A"
@@ -10003,6 +10003,58 @@
       "why": "Bridge a PubChem compound to its FAERS per-drug adverse-event master",
       "should_pass": [
         "68647"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "drugcentral_drugs",
+      "name": "DrugCentral Drug to ChEMBL Compound",
+      "query": ">>drugcentral>>chembl_molecule",
+      "why": "A DrugCentral drug ((S)-nicardipine=5) resolves to its ChEMBL molecule via shared InChIKey - the compound edge-reachability fix (Atlas regression)",
+      "should_pass": [
+        "5"
+      ],
+      "should_fail": [
+        "INVALID_DRUG"
+      ]
+    },
+    {
+      "category": "drugcentral_drugs",
+      "name": "ChEMBL Compound to DrugCentral Drug",
+      "query": ">>chembl_molecule>>drugcentral",
+      "why": "A ChEMBL compound (aspirin CHEMBL25) reaches its DrugCentral drug record - reverse compound edge",
+      "should_pass": [
+        "CHEMBL25"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "drugcentral_drugs",
+      "name": "DrugCentral Drug to PubChem Compound",
+      "query": ">>drugcentral>>pubchem",
+      "why": "A DrugCentral drug (5) resolves to its PubChem CID via shared structure",
+      "should_pass": [
+        "5"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "alliance_phenotype",
+      "name": "Model-organism gene to observed phenotypes",
+      "query": ">>mgi>>alliance_phenotype>>mp",
+      "why": "A model gene (mouse Trp53 MGI:104537) reaches its OBSERVED knockout/mutant MP phenotypes via Alliance phenotype records",
+      "should_pass": [
+        "MGI:104537"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "ncbi_datasets",
+      "name": "Entrez gene to MOD gene id",
+      "query": ">>entrez>>mgi",
+      "why": "A species' Entrez gene (mouse Brca1 12189) links to its MGI gene id via gene_info dbXrefs - the join underpinning the ortholog bridge",
+      "should_pass": [
+        "12189"
       ],
       "should_fail": []
     }

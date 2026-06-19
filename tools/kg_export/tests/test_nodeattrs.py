@@ -68,6 +68,24 @@ class NodeAttrTests(unittest.TestCase):
         self.assertIn("chebi_name", rows["CHEBI:2"])
         self.assertNotIn("chebi_definition", rows["CHEBI:2"])
 
+    def test_synonyms_aggregated_into_one_list(self):
+        """Alias fields collapse into a single deduped `synonym` list (unprefixed)."""
+        nid = self.reg.by_name("chebi").numeric_id
+        prop = json.dumps({"name": "X", "synonyms": ["aspirin", "ASA"], "iupac_names": ["2-acetoxybenzoic acid", "aspirin"]})
+        rows = self._run("chebi", [f"CHEBI:1\t{nid}\t{prop}\t-1"], {"synonyms": {"chebi": ["synonyms", "iupac_names"]}})
+        self.assertEqual(rows["CHEBI:1"]["synonym"], ["aspirin", "ASA", "2-acetoxybenzoic acid"])  # deduped, ordered
+        self.assertNotIn("chebi_name", rows["CHEBI:1"])  # chebi not in attrs config here
+
+    def test_synonyms_union_across_datasets_at_merge(self):
+        """A merged node collects synonyms from several datasets -- the merge unions
+        the `synonym` lists rather than clobbering."""
+        from tools.kg_export.attributes import merge_attr_dict
+        dst = {}
+        merge_attr_dict(dst, {"synonym": ["BRCA1", "BRCC1"]})       # from hgnc
+        merge_attr_dict(dst, {"synonym": ["BRCC1", "RNF53"], "entrez_symbol": "BRCA1"})  # from entrez
+        self.assertEqual(dst["synonym"], ["BRCA1", "BRCC1", "RNF53"])
+        self.assertEqual(dst["entrez_symbol"], "BRCA1")
+
     def test_id_map_canonicalizes_to_merged_node(self):
         """entrez gene attrs attach to the canonical (HGNC) gene node via id_map,
         and keys are dataset-prefixed so they don't collide with ensembl/hgnc attrs."""

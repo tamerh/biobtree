@@ -111,6 +111,22 @@ def build_attributes(
     return stats
 
 
+def merge_attr_dict(dst: dict, src: dict) -> None:
+    """Merge src into dst. List-valued keys are UNIONed (order-preserving), so a
+    node's `synonym` list accumulates across the datasets/rows that contribute it
+    (instead of the last one clobbering the rest); scalars are last-wins."""
+    for k, v in src.items():
+        cur = dst.get(k)
+        if isinstance(v, list) and isinstance(cur, list):
+            seen = set(cur)
+            for x in v:
+                if x not in seen:
+                    seen.add(x)
+                    cur.append(x)
+        else:
+            dst[k] = v
+
+
 def load_attributes(path: str | Path) -> dict[str, dict]:
     """Merge a node-attribute table into {node_id: {property: value, ...}}."""
     merged: dict[str, dict] = {}
@@ -127,5 +143,5 @@ def load_attributes(path: str | Path) -> dict[str, dict]:
                 attrs = json.loads(js)
             except (ValueError, TypeError):
                 continue
-            merged.setdefault(node, {}).update(attrs)
+            merge_attr_dict(merged.setdefault(node, {}), attrs)
     return merged

@@ -77,6 +77,14 @@ HGNC:1100   biolink:Gene   BRCA1   HGNC:1100|ENSEMBL:ENSG00000012048|NCBIGene:67
   skipped as heavy/relational); mode `compact` carries only the dataset's conf
   `compact_fields` — the opt-in slim knob for heavy datasets. Config:
   `mappings/node_attributes.yaml`.
+- **Synonyms** (`nodeattrs`, `synonyms:` config): BioBTree treats alias strings as
+  searchable links to the main entry, and ~all node datasets carry them (gene
+  symbols, protein/chemical/drug alt-names, and especially disease/phenotype
+  ontology synonyms). They're collected into a single, unprefixed `synonym` list per
+  node — a merged node **unions** synonyms from every contributing dataset (the
+  attribute merge unions list-valued keys) — so one Neo4j full-text index over
+  `synonym` reproduces BioBTree keyword search. Runtime-built datasets (GO/RefSeq)
+  are covered via a runtime-prefix fallback.
 - **Numeric/value node attributes** (`attributes`): a few datasets aren't entities or
   relationships — their content **is a scalar about a *different* existing entity**:
   `gnomad_constraint` (pLI/LOEUF on a gene), `depmap` (essentiality on a gene),
@@ -169,11 +177,11 @@ BioBTree API. Mapped against the four query types:
 | `/ws/entry` (lookup by any id) | ✅ | `id` + `equivalent_identifiers` resolve any namespace to the node |
 | `/ws/map` (cross-dataset, multi-hop) | ✅ | map is stored-xref traversal (not transitive closure) and bidirectional → Cypher path match; same-entity id maps are folded into `equivalent_identifiers` |
 | `/ws/filter` (CEL over attributes) | ✅ | the `nodeattrs` layer puts entry attributes on nodes → `WHERE n.<ds>_<field> = …` |
-| `/ws/search` (text/keyword) | ⚠️ partial | a Neo4j full-text index covers the exported `name`; BioBTree's curated aliases/keywords are not yet exported (a `synonyms` property is the planned closer) |
+| `/ws/search` (text/keyword) | ✅ | a Neo4j full-text index over `name` + the aggregated `synonym` list reproduces keyword search (synonyms collected from all node datasets, incl. disease/phenotype ontologies) |
 
-So traversal + id-resolution + attribute filtering are reproducible; only curated
-search aliases remain a gap. (Deliberately-deferred datasets, e.g. drugcentral, are
-adapted separately.)
+So all four query types are reproducible on a Neo4j import: entry lookup,
+multi-hop traversal, attribute filtering, and keyword/synonym search.
+(Deliberately-deferred datasets, e.g. drugcentral, are adapted separately.)
 
 ## Building
 

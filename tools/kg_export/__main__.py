@@ -21,7 +21,7 @@ from .datasets import DatasetRegistry
 from . import kgx
 from .edges import build_edges, load_id_map
 from .go import build_go
-from .attributes import build_attributes, load_attributes, load_config as load_attr_config
+from .attributes import build_attributes, load_attributes, merge_attr_dict, load_config as load_attr_config
 from .dbsnp import build_dbsnp
 from .mesh import build_mesh
 from .nodes import build_nodes
@@ -388,7 +388,7 @@ def _cmd_assemble(args: argparse.Namespace) -> int:
         node_attrs = {}
         for tbl in (s.strip() for s in args.node_attributes.split(",") if s.strip()):
             for node, props in load_attributes(tbl).items():
-                node_attrs.setdefault(node, {}).update(props)
+                merge_attr_dict(node_attrs.setdefault(node, {}), props)
     kgx.nodes_to_jsonl(nodes_tsv, out_dir / ("nodes.jsonl" + ext), attributes=node_attrs)
     kgx.edges_to_jsonl(edges_tsv, out_dir / ("edges.jsonl" + ext))
     if args.validate_mode == "streaming":

@@ -36,7 +36,12 @@ from .datasets import DatasetRegistry
 from .index import iter_index_file
 
 _MAX_STR = 500  # cap long free-text (summary/definition/comments) to keep nodes lean
+_MAX_SYNONYMS = 50  # cap synonym list length per node-dataset (chebi has hundreds)
 _SCALAR = (str, int, float, bool)
+
+# runtime-built datasets have no categories.yaml entry; their node ids use these
+# prefixes (matching go.py / refseq.py / mesh.py) so synonyms land on the right node.
+_RUNTIME_PREFIXES = {"go": "GO", "refseq": "refseq", "mesh": "MESH"}
 
 
 @dataclass
@@ -129,6 +134,40 @@ def _extract_compact(d: dict, ds: str, spec: list[tuple[list[str], bool]], exclu
     return out
 
 
+def _collect_synonyms(d: dict, fields: list[str]) -> list[str]:
+    """Gather a dataset's alias/synonym fields into one deduped string list (the
+    node's searchable `synonym` slot). Fields may be `synonyms`, `names`, nested
+    `molecule.altNames`, list-of-objects `[]x.y`, or scalar (`common_name`)."""
+    out: list[str] = []
+    seen: set[str] = set()
+
+    def add(x):
+        if isinstance(x, str):
+            x = x.strip()
+            if x and x not in seen and len(out) < _MAX_SYNONYMS:
+                seen.add(x)
+                out.append(_cap(x))
+
+    for f in fields:
+        path = f.split(".")
+        if len(path) == 1:
+            v = d.get(path[0])
+        else:
+            base = d.get(path[0])
+            if isinstance(base, dict):
+                v = base.get(path[1])
+            elif isinstance(base, list):
+                v = [x.get(path[1]) for x in base if isinstance(x, dict)]
+            else:
+                v = None
+        if isinstance(v, str):
+            add(v)
+        elif isinstance(v, list):
+            for x in v:
+                add(x)
+    return out
+
+
 def build_node_attributes(
     index_dir: str | Path,
     registry: DatasetRegistry,
@@ -143,27 +182,33 @@ def build_node_attributes(
     stats = NodeAttrStats()
     default_mode = (config.get("defaults") or {}).get("mode", "all")
     global_exclude = set(config.get("exclude") or [])
-    datasets = config.get("datasets") or {}
+    attr_datasets = config.get("datasets") or {}
+    syn_datasets = config.get("synonyms") or {}
 
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
     with kgx.xopen(out_path, "wt") as out:
-        for ds, dcfg in datasets.items():
-            dcfg = dcfg or {}
-            prefix = categories.prefix_for(ds)
+        for ds in sorted(set(attr_datasets) | set(syn_datasets)):
+            prefix = categories.prefix_for(ds) or _RUNTIME_PREFIXES.get(ds)
             if not prefix:
                 continue
             files = sorted(glob.glob(str(index_dir / f"{ds}_sorted.*.index.gz")))
             if not files:
                 continue
-            mode = dcfg.get("mode", default_mode)
-            exclude = global_exclude | set(dcfg.get("exclude") or [])
+            attr_cfg = attr_datasets.get(ds)  # None -> no prefixed attrs for this ds
+            syn_fields = syn_datasets.get(ds)  # None -> no synonyms for this ds
             spec = None
-            if mode == "compact":
-                meta = registry.by_name(ds)
-                raw = meta.raw if meta else {}
-                spec = _parse_compact(raw.get("compact_fields") or raw.get("attrs") or "")
+            exclude = global_exclude
+            mode = None
+            if attr_cfg is not None:
+                attr_cfg = attr_cfg or {}
+                mode = attr_cfg.get("mode", default_mode)
+                exclude = global_exclude | set(attr_cfg.get("exclude") or [])
+                if mode == "compact":
+                    meta = registry.by_name(ds)
+                    raw = meta.raw if meta else {}
+                    spec = _parse_compact(raw.get("compact_fields") or raw.get("attrs") or "")
             stats.datasets_processed += 1
             for path in files:
                 for raw in iter_index_file(path):
@@ -175,15 +220,21 @@ def build_node_attributes(
                         continue
                     if not isinstance(d, dict):
                         continue
-                    attrs = (_extract_compact(d, ds, spec, exclude) if mode == "compact"
-                             else _extract_all(d, ds, exclude))
-                    if not attrs:
+                    out_attrs: dict = {}
+                    if attr_cfg is not None:
+                        out_attrs.update(_extract_compact(d, ds, spec, exclude) if mode == "compact"
+                                         else _extract_all(d, ds, exclude))
+                    if syn_fields:
+                        syns = _collect_synonyms(d, syn_fields)
+                        if syns:
+                            out_attrs["synonym"] = syns
+                    if not out_attrs:
                         continue
                     node = to_curie(prefix, raw.subject)
                     node = id_map.get(node, node)
-                    out.write(f"{node}\t{json.dumps(attrs)}\n")
+                    out.write(f"{node}\t{json.dumps(out_attrs)}\n")
                     stats.rows_written += 1
-                    stats.fields_extracted += len(attrs)
+                    stats.fields_extracted += len(out_attrs)
                     stats.by_dataset[ds] += 1
 
     if stats_path:

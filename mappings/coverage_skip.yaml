@@ -9,10 +9,9 @@
 
 skip:
   # --- Predictive (separate prediction layer, deferred by decision) ----------
-  alphafold: "structure prediction (deferred)"
-  alphamissense: "variant-effect prediction (deferred)"
-  alphamissense_transcript: "variant-effect prediction (deferred)"
-  spliceai: "splice prediction (deferred)"
+  alphafold: "protein structure confidence (pLDDT) -- numeric node attribute, not an edge (needs node-attr support)"
+  alphamissense_transcript: "per-transcript MEAN pathogenicity -- numeric node attribute, not an edge"
+  # spliceai + alphamissense now covered (opt-in variant-effect prediction layer)
 
   # --- Qualifier / evidence / isolated ontologies ----------------------------
   eco: "evidence ontology -> edge qualifier (entry-level in BioBTree; deferred)"

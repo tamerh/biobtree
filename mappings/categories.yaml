@@ -114,6 +114,12 @@ datasets:
   clinvar:     {category: "biolink:SequenceVariant", prefix: "CLINVAR"}
   dbsnp:       {category: "biolink:SequenceVariant", prefix: "DBSNP", note: "dbsnp federation"}
   civic_variant: {category: "biolink:SequenceVariant", prefix: "civic.vid", note: "CIViC curated cancer variant; bioregistry prefix civic.vid; NOT merged with clinvar/dbsnp (xref != identity)"}
+  # Predicted variant-effect layer: spliceai + alphamissense subjects are variant
+  # COORDINATES (chr:pos:ref:alt), not rs-ids. Both share ONE locally-coined prefix
+  # so a variant in BOTH datasets is ONE node. No SequenceVariant id_prefix exists
+  # for a coordinate scheme -> non-canonical (flagged, like jaspar/fantom5.enhancer).
+  spliceai:      {category: "biolink:SequenceVariant", prefix: "biobtree.variant", note: "SpliceAI predicted splice-altering variant (coordinate id)"}
+  alphamissense: {category: "biolink:SequenceVariant", prefix: "biobtree.variant", note: "AlphaMissense predicted-pathogenicity missense variant (coordinate id)"}
 
   # --- Pathways / gene sets --------------------------------------------------
   reactome:    {category: "biolink:Pathway", prefix: "REACT"}

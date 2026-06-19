@@ -31,7 +31,8 @@ from .index import RawXref, iter_index_file
 from .predicates import PredicateMap, ReifiedRule
 
 # Computational predictions, not curated assertions (-> prediction/automated_agent).
-_PREDICTION_DATASETS = {"diamond_similarity", "esm2_similarity", "mirdb"}
+_PREDICTION_DATASETS = {"diamond_similarity", "esm2_similarity", "mirdb",
+                        "spliceai", "alphamissense"}
 
 # Runtime-typed datasets have no categories.yaml entry (their prefix lives in a
 # dedicated builder); supply it here so reified endpoints to them canonicalize
@@ -323,6 +324,11 @@ def _emit_group(group, rule, registry, categories, canonical, primary,
                     if val:
                         key_id = str(val).replace(":", "_").replace("-", "_")
                         break
+            elif rule.normalize_subject and key_id:
+                # The group key IS the stable id but is itself colon-bearing (a
+                # variant coordinate chr:pos:ref:alt); normalize to a colon-free
+                # local id so it renders one clean CURIE (spliceai/alphamissense).
+                key_id = str(key_id).replace(":", "_").replace("-", "_")
             s = canonical(rule.subject, key_id) if key_id else None
             subs = [s] if s else []
         else:

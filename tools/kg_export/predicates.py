@@ -52,6 +52,9 @@ class ReifiedRule:
                                        # datasets emitted with the same predicate
                                        # (e.g. gwas gene -> mondo AND oba traits)
     subject_field: str | None = None  # pairwise (JSON key)
+    normalize_subject: bool = False  # bipartite (subject==dataset): the group KEY is
+                                     # itself the stable id but colon-bearing (a variant
+                                     # coordinate chr:pos:ref:alt); normalize :/- -> _
     object_field: str | None = None  # pairwise (JSON key)
     via: str | None = None  # bipartite: the in-entry intermediate id (dataset)
                             # whose <via>_sorted forward resolves to `object`
@@ -126,6 +129,7 @@ class PredicateMap:
                 extra_objects=cfg.get("extra_objects"),
                 subject_field=cfg.get("subject_field"),
                 object_field=cfg.get("object_field"),
+                normalize_subject=bool(cfg.get("normalize_subject", False)),
                 via=cfg.get("via"),
                 resolve=cfg.get("resolve"),
                 require=cfg.get("require"),

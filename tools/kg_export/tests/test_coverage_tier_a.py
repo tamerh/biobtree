@@ -271,6 +271,50 @@ class TierACoverageTests(unittest.TestCase):
         skip = (yaml.safe_load((REPO_ROOT / "mappings" / "coverage_skip.yaml").read_text()) or {}).get("skip", {})
         self.assertIn("hpa_pathology", skip)
 
+    def test_spliceai_variant_to_gene_prediction(self):
+        """SpliceAI: coordinate variant (group key) -> gene; 3 gene namespaces
+        collapse to one; PREDICTION/automated_agent; coordinate colon-free."""
+        sp, en, el, hg = (self._id("spliceai"), self._id("entrez"),
+                          self._id("ensembl"), self._id("hgnc"))
+        id_map = {"ENSEMBL:ENSG00000107554": "HGNC:30373", "NCBIGene:23268": "HGNC:30373"}
+        with tempfile.TemporaryDirectory() as d:
+            tmp = Path(d)
+            self._write(tmp, "spliceai_sorted.1.index.gz", [
+                f"10:100000211:T:TC\t{sp}\t23268\t{en}",
+                f"10:100000211:T:TC\t{sp}\tENSG00000107554\t{el}",
+                f"10:100000211:T:TC\t{sp}\tHGNC:30373\t{hg}",
+                f'10:100000211:T:TC\t{sp}\t{{"effect":"acceptor_gain","score":0.23}}\t-1',
+            ])
+            out = tmp / "r.tsv"
+            build_reified_edges(tmp, self.reg, self.cats, self.pm, out,
+                                id_map=id_map, datasets=["spliceai"])
+            rows = [r.split("\t") for r in out.read_text().splitlines()[1:]]
+        edges = {(r[1], r[2], r[3]) for r in rows}
+        VAR = "biobtree.variant:10_100000211_T_TC"
+        self.assertEqual(edges, {(VAR, "biolink:affects", "HGNC:30373")})  # 3 ns -> 1 gene
+        self.assertEqual({r[6] for r in rows}, {"prediction"})
+        self.assertEqual({r[7] for r in rows}, {"automated_agent"})
+
+    def test_alphamissense_shared_variant_node(self):
+        """AlphaMissense -> ENSEMBL transcript (child id 66 + uniprot ignored); same
+        coordinate in spliceai + alphamissense -> identical CURIE (one node)."""
+        am, tr, atc, up = (self._id("alphamissense"), self._id("transcript"),
+                           self._id("alphamissense_transcript"), self._id("uniprot"))
+        stats, am_e = self._reified("alphamissense_sorted.1.index.gz", [
+            f"10:100042431:G:A\t{am}\tENST00000370418\t{tr}",
+            f"10:100042431:G:A\t{am}\tENST00000370418\t{atc}",   # child dup -> ignored
+            f"10:100042431:G:A\t{am}\tP15169\t{up}",             # uniprot -> not in rule
+            f'10:100042431:G:A\t{am}\t{{"am_class":"likely_benign"}}\t-1',
+        ], "alphamissense")
+        self.assertEqual(stats.edges_written, 1)
+        self.assertIn(("biobtree.variant:10_100042431_G_A", "biolink:affects",
+                       "ENSEMBL:ENST00000370418"), am_e)
+        sp, hg = self._id("spliceai"), self._id("hgnc")
+        _, sp_e = self._reified("spliceai_sorted.1.index.gz", [
+            f"10:100042431:G:A\t{sp}\tHGNC:1\t{hg}", f'10:100042431:G:A\t{sp}\t{{}}\t-1',
+        ], "spliceai")
+        self.assertEqual({s for s, _, _ in sp_e}, {"biobtree.variant:10_100042431_G_A"})
+
     def test_mesh_is_not_a_categories_node(self):
         """MeSH (multi-type, 91% untyped chemicals) is NOT a static categories node;
         its disease subset is emitted by the mesh.py runtime builder instead."""

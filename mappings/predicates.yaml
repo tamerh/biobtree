@@ -315,6 +315,15 @@ reified:
   # (junction also carries pubchem/chebi/hmdb for the same compound -> avoid 4x dup).
   patent: {kind: bipartite, subject: patent, object: chembl_molecule, via: patent_compound, predicate: "biolink:mentions", note: "SureChEMBL patent mentions compound (via junction)"}
 
+  # --- Predicted variant-effect layer (computational predictions; OPT-IN) ----
+  # spliceai/alphamissense subjects are variant COORDINATES (chr:pos:ref:alt), the
+  # group KEY (subject==dataset); normalize_subject renders the colon-bearing coord
+  # as one clean CURIE (biobtree.variant:..). PREDICTION (knowledge_level via
+  # _PREDICTION_DATASETS). Numeric score/am_pathogenicity are a qualifier follow-up.
+  # variant-scale -> run only via --datasets / the WITH_PREDICTIONS gate.
+  spliceai:      {kind: bipartite, subject: spliceai, normalize_subject: true, object: hgnc, extra_objects: [ensembl, entrez], predicate: "biolink:affects", note: "SpliceAI predicted splice effect variant->gene"}
+  alphamissense: {kind: bipartite, subject: alphamissense, normalize_subject: true, object: transcript, predicate: "biolink:affects", note: "AlphaMissense predicted missense pathogenicity variant->transcript (alphamissense_transcript child + uniprot object deferred)"}
+
   # --- GeneRIF: publication mentions gene (entry links one pubmed + one entrez).
   # Adds biolink:Publication (PMID) endpoints (mostly non-human gene + PMID stubs).
   generif:         {kind: bipartite, subject: pubmed, object: entrez, predicate: "biolink:mentions", note: "GeneRIF pub->gene literature mention"}

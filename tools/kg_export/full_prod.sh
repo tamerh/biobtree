@@ -11,6 +11,9 @@ PY=/data/miniconda3/envs/biobtree/bin/python
 IDX=/data2/out_prod_v5/main/index
 DBSNP_IDX=${DBSNP_IDX:-/data2/out_prod_v5/dbsnp/index}
 WITH_DBSNP=${WITH_DBSNP:-0}
+# Variant-effect PREDICTION layer (spliceai + alphamissense). OPT-IN: variant-scale
+# (~tens of millions of predicted variant->gene edges), for the full-stats run only.
+WITH_PREDICTIONS=${WITH_PREDICTIONS:-0}
 O=out/kg/full
 mkdir -p "$O"
 
@@ -53,6 +56,14 @@ echo "### 6/7 reified edges $(date +%T)"
 $PY -m tools.kg_export reified --index-dir $IDX --id-map $O/id_map.tsv.gz --datasets $REIFIED_DS \
   --out $O/edges_reified.tsv.gz --stats $O/reified.stats.json
 
+PRED_EDGES=""
+if [ "$WITH_PREDICTIONS" = "1" ]; then
+  echo "### 6c/7 variant-effect predictions (OPT-IN; spliceai + alphamissense) $(date +%T)"
+  $PY -m tools.kg_export reified --index-dir $IDX --id-map $O/id_map.tsv.gz \
+    --datasets spliceai,alphamissense --out $O/edges_predictions.tsv.gz --stats $O/predictions.stats.json
+  PRED_EDGES=",$O/edges_predictions.tsv.gz"
+fi
+
 DBSNP_NODES=""; DBSNP_EDGES=""
 if [ "$WITH_DBSNP" = "1" ]; then
   echo "### 6b/7 dbSNP (OPT-IN federation -> true variant stats) $(date +%T)"
@@ -64,7 +75,7 @@ fi
 echo "### 7/7 assemble (stub-nodes + gzip) $(date +%T)"
 $PY -m tools.kg_export assemble \
   --nodes $O/nodes_core.tsv.gz,$O/go_nodes.tsv.gz,$O/refseq_nodes.tsv.gz,$O/mesh_nodes.tsv.gz$DBSNP_NODES \
-  --edges $O/edges_direct.tsv.gz,$O/edges_reified.tsv.gz,$O/go_edges.tsv.gz,$O/refseq_edges.tsv.gz,$O/ontology_edges.tsv.gz,$O/mesh_edges.tsv.gz$DBSNP_EDGES \
+  --edges $O/edges_direct.tsv.gz,$O/edges_reified.tsv.gz,$O/go_edges.tsv.gz,$O/refseq_edges.tsv.gz,$O/ontology_edges.tsv.gz,$O/mesh_edges.tsv.gz$PRED_EDGES$DBSNP_EDGES \
   --out-dir $O/dump --data-version out_prod_v5_full --stub-nodes --gzip
 
 echo "### DONE $(date +%T)"; df -h /data | tail -1

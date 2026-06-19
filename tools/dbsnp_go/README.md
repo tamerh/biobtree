@@ -51,6 +51,16 @@ decompression itself parallelizes (a biobtree-side change) — with ~8–16 shar
 > they are a floor. A quiet full run — when CPU/IO aren't competing — should beat
 > them. Re-benchmark on an idle machine before treating any figure as the real cost.
 
+## Python parity (`../dbsnp_py/extract.py`)
+
+The same pattern in pure-Python multiprocessing (`zcat | python`, byte-chunks fanned
+to worker *processes* — no shared memory, so we ship chunks not objects) lands at
+**~251 MB/s / ~54 min full** vs Go's ~292 MB/s / ~47 min — **within ~13%**, identical
+output (same KGX rows, same md5 edge ids). Both are pinned to the single `zcat`
+decompression stream, so once enough workers exist the per-language parse speed stops
+mattering; Python just spends a few more cores under the same ceiling. **Conclusion:
+the KG base can stay pure Python** at negligible cost; Go is a marginal-speed fallback.
+
 ## Full-layer scale (extrapolated from measured densities)
 
 - ~1.1B `SequenceVariant` nodes

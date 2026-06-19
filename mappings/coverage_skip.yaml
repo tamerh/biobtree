@@ -39,7 +39,6 @@ skip:
   uniref50: "sequence cluster (identifier)"
   uniref90: "sequence cluster (identifier)"
   uniref100: "sequence cluster (identifier)"
-  literature_mappings: "literature mapping helper"
   bgee_evidence: "evidence detail of bgee expression"
   gwas_study: "study container (gwas associations covered)"
   string: "protein container (string_interaction covered)"
@@ -58,14 +57,9 @@ skip:
   pharmgkb_gene: "pharmgkb gene sub-entity (pharmgkb covered)"
   depmap: "gene essentiality (covered via depmap_dependency)"
   cellxgene: "CELLxGENE dataset/collection UUID (no node CURIE; celltype covered)"
-  patent_compound: "compound-namespace junction (numeric id, no own CURIE); resolved as the via-bridge in the reified patent->compound rule, not a node/edge of its own"
 
   # --- Deferred with reason (could be added later) ---------------------------
-  ctd_disease_association: "disease object is full MeSH (only disease-subset typed via mesh.py); revisit"
-  brenda_kinetics: "free-text substrate + numeric Km/kcat (needs numeric qualifiers)"
-  brenda_inhibitor: "free-text inhibitor + numeric Ki/IC50 (needs numeric qualifiers)"
   encode_ccre: "source ships no target-gene assignments (cCRE catalog only)"
-  fantom5_enhancer: "enhancer->gene is proximity-based; curated needs enhancer-TSS source"
   gnomad_constraint: "gene constraint scores (pLI/LOEUF) -- numeric gene attributes, needs node-attribute support (deferred)"
   drugcentral: "conf entry present but not in the prod index build yet (no drugcentral_sorted file)"
   panelapp: "panel container; disorder is free-text only -> no edge (gene-disease via panelapp_gene)"

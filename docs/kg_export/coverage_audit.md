@@ -1,19 +1,40 @@
 # KG Export — Dataset Coverage Audit
 
-Audit of `conf/source1.dataset.json` (125 datasets) and `conf/source2.dataset.json`
-(59) against what the KG exporter actually emits (nodes via `categories.yaml`,
-edges via `predicates.yaml` direct/reified, runtime builders `go`/`refseq`/`dbsnp`,
-and `ontology.py` hierarchy). Datasets in other conf files are derived /
-identifier-only and out of scope here.
+Audit of `conf/source1.dataset.json` + `conf/source2.dataset.json` against what the
+KG exporter emits (nodes via `categories.yaml`, edges via `predicates.yaml`
+direct/reified, runtime builders `go`/`refseq`/`dbsnp`/`mesh`, and `ontology.py`
+hierarchy). Datasets in other conf files (`xref*`) are derived / identifier-only
+and out of scope.
 
-| Source | Covered | Not covered |
-|---|---|---|
-| source1 | 62 / 125 | 63 |
-| source2 | 45 / 59 | 14 |
+## Automated drift check (run this when BioBTree changes)
+
+```bash
+python -m tools.kg_export.coverage_audit --conf /data/biobtree/conf
+```
+
+Classifies every source1/source2 dataset as **covered** / **skipped** / **UNEXPLAINED**
+and exits non-zero on any unexplained gap — so it doubles as a post-build / CI
+check. Backed by `mappings/coverage_skip.yaml`, which lists every *intentionally*
+uncovered dataset with a reason. The "covered" set is derived live from the
+mappings, so it stays current automatically.
+
+**Workflow when a new dataset appears (flagged UNEXPLAINED):**
+1. Sync conf if the worktree lags main:
+   `git checkout main -- conf/source1.dataset.json conf/source2.dataset.json`
+2. Run the audit; for each flagged dataset either **author coverage** (a rule /
+   runtime builder) or **add a `coverage_skip.yaml` entry** with a reason.
+3. Re-run until clean (0 unexplained).
+
+*("Improved connections" on existing datasets need no action — they live in the
+index data and flow through on re-export. Only new datasets need rules.)*
+
+## Current state
+
+191 source1+source2 datasets: **133 covered, 58 skipped (intentional), 0
+unexplained.** The historical narrative below records how the gaps were closed.
 
 "Not covered" is mostly **intentional** (identifier/derived, predictive, sub-entity
-of a covered dataset, or qualifier-role). The genuinely actionable gap is the
-**Tier-A** list below.
+of a covered dataset, or qualifier-role) — all enumerated in `coverage_skip.yaml`.
 
 ## source2 — effectively complete
 

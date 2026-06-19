@@ -1,7 +1,11 @@
 # BioBTree → Knowledge Graph export — implementation plan
 
 **Branch:** `kg-export`  **Worktree:** `/data/biobtree_kg`
-**Status:** approved for build (2026-06-15)
+**Status:** core export built + API-parity reached (2026-06-19). Layers done: nodes,
+node attributes (entry attrs + numeric + synonyms), direct/reified edges, ontology
+hierarchy, sub-gene/protein structure, first-class billion-scale dbSNP, memory-flat
+assemble. Live scope/details in `index.md`. Next: seed-driven published subgraph.
+(Original build plan below, approved 2026-06-15.)
 **Goal:** publish a **biolink-typed, normalized KGX graph** of what BioBTree already
 holds, so BioBTree can be registered as a `KnowledgeGraph` / `GraphProduct` in
 KG-Registry and the "built on a knowledge graph" claim becomes machine-checkable.

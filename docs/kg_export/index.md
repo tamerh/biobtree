@@ -15,6 +15,24 @@ query service, or MCP server.
 **Format**: KGX TSV + JSON-Lines, gzip-optional, with a manifest.
 **Tooling/dev detail**: `tools/kg_export/README.md`.
 
+### What's in it (layers)
+
+- **Nodes** — canonical entities (gene-first normalization; member ids folded into
+  `equivalent_identifiers`), biolink-typed; stub nodes for taxid-scoped endpoints.
+- **Node attributes** — each entry's attributes as node properties (`nodeattrs`),
+  numeric scalars (gnomAD/DepMap/AlphaFold), and a unified `synonym` list → makes
+  `/ws/filter` and `/ws/search` reproducible.
+- **Edges** — direct + reified relationships (PPI, bioactivity, expression, GWAS,
+  clinical, …) with provenance, ECO evidence, and qualifiers.
+- **Ontology** — `subclass_of` hierarchies (incl. the full NCBI taxonomy) +
+  cross-ontology `close_match`.
+- **Structure** — sub-gene/protein parts (exon / CDS / protein-feature).
+- **dbSNP** — first-class billion-scale variant layer (variant → gene/transcript,
+  rich attrs); `WITH_DBSNP=0` to skip.
+- **Assemble** — memory-flat (external-sort) so it scales to ~1.1B nodes; streaming
+  validate + manifest.
+- **API parity** — entry / map / filter / search all reproducible on a Neo4j import.
+
 ## Output
 
 | File | Contents |

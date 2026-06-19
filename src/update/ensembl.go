@@ -649,6 +649,16 @@ func (e *ensembl) update() {
 								if val.(*jsparser.JSON).ObjectVals["stable_id"] != nil {
 									stableID := val.(*jsparser.JSON).ObjectVals["stable_id"].(string)
 									if val.(*jsparser.JSON).ObjectVals["genome"] != nil && j.ObjectVals["genome"] != nil && val.(*jsparser.JSON).ObjectVals["genome"].(string) == j.ObjectVals["genome"].(string) {
+										// Paralogs are ENSG<->ENSG. We deliberately do NOT also project
+										// these into relatedentrez (which is entrez-keyed): doing so would
+										// require resolving BOTH this gene's and the paralog's entrez ids,
+										// but only this gene's "EntrezGene" xref is available in-record and
+										// the paralog's entrez id lives in a different (later/earlier) stream
+										// record. A correct join would need a full ENSG->entrez map built
+										// across the stream plus a second pass - a fragile cross-record join
+										// for partial coverage. Paralogs remain reachable as
+										// `entrez >> ensembl >> paralog`; route directly into relatedentrez
+										// later if/when a stable ENSG->entrez map is materialized. (change #6)
 										e.d.addXref2(entryid, fr, stableID, "paralog")
 										e.d.addXref2(stableID, paralogID, stableID, "ensembl")
 									} else {

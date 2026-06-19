@@ -1930,7 +1930,20 @@ const (
 	// Publication date: newest first. Pass {"date":"YYYY-MM-DD"} to
 	// ComputeSortLevelValue; inverts YYYYMMDD so the most recent sorts first.
 	SortLevelPublicationDate SortLevelType = "publicationDate"
+
+	// Distance: smallest first (ascending). Unlike the score-based levels above
+	// this is NOT inverted — a smaller genomic distance means a nearer neighbor
+	// and should sort first. Pass {"distance":int64} to ComputeSortLevelValue;
+	// the value is zero-padded to a fixed width so lexical-ascending == numeric
+	// ascending. Used by entrez neighborentrez (distance between adjacent genes).
+	SortLevelDistance SortLevelType = "distance"
 )
+
+// distanceSortWidth is the zero-pad width for SortLevelDistance values.
+// Genomic distances on a chromosome fit well within 12 digits (max human
+// chromosome ~250M bp); distances at/over this cap (or missing) sort last.
+const distanceSortWidth = 12
+const distanceSortMax = int64(999999999999) // 12 nines, sorts last
 
 // PhaseToSortScore converts clinical trial phase to sortable integer (0-1000)
 // Higher phases (more advanced) get higher scores, which invert to lower sort values
@@ -2003,6 +2016,18 @@ func ComputeSortLevelValue(levelType SortLevelType, params map[string]interface{
 			}
 		}
 		return "99999999" // missing/invalid date sorts last
+	case SortLevelDistance:
+		// Genomic distance, ascending (NOT inverted): nearest neighbor first.
+		// Zero-padded so lexical ascending order matches numeric ascending order.
+		// Missing/negative/over-cap distances are clamped to the max so they sort last.
+		dist := distanceSortMax
+		if d, ok := params["distance"].(int64); ok && d >= 0 {
+			dist = d
+		}
+		if dist > distanceSortMax {
+			dist = distanceSortMax
+		}
+		return fmt.Sprintf("%0*d", distanceSortWidth, dist)
 	default:
 		return ""
 	}

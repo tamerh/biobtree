@@ -550,7 +550,14 @@ func (e *entrez) processGeneOrthologs(fr string, testLimit int) {
 		}
 
 		// Create cross-reference: Entrez Gene → orthologentrez (which links to entrez)
+		// NCBI stores each ortholog pair only ONCE (one direction). Without the reverse
+		// edge, a query gene that happens to be on the "Other" side has no outgoing
+		// ortholog edge and the link-view returns just the query node ("returns self").
+		// Emit BOTH directions so the ortholog is reachable regardless of NCBI row order.
+		// This also fixes the human->model ortholog bridge used by
+		// `entrez >> orthologentrez >> mgi >> alliance_phenotype`.
 		e.d.addXref(geneID, fr, otherGeneID, "orthologentrez", false)
+		e.d.addXref(otherGeneID, fr, geneID, "orthologentrez", false)
 
 		total++
 
@@ -738,8 +745,13 @@ func (e *entrez) processGeneGroup(fr string, testLimit int) {
 		}
 		relationshipCounts[relationship]++
 
-		// Create cross-reference with relationship type
+		// Create cross-reference with relationship type.
+		// gene_group, like gene_orthologs, lists each pair only ONCE. Emit BOTH
+		// directions so either gene reaches the other (otherwise the "Other" gene
+		// has no outgoing edge and the link-view returns just the query node).
+		// The relationship label describes the pair, so it applies to both directions.
 		e.d.addXrefWithRelationship(geneID, fr, otherGeneID, "relatedentrez", false, relationship)
+		e.d.addXrefWithRelationship(otherGeneID, fr, geneID, "relatedentrez", false, relationship)
 
 		total++
 
@@ -754,6 +766,20 @@ func (e *entrez) processGeneGroup(fr string, testLimit int) {
 	for rel, count := range relationshipCounts {
 		log.Printf("[Entrez Gene]   - %s: %d", rel, count)
 	}
+}
+
+// encodeNeighborDistance turns a raw gene_neighbors distance string into the
+// zero-padded, ascending-sortable evidence value used for neighborentrez edges.
+// Empty/"-"/unparseable distances are clamped to the max (sort last).
+func encodeNeighborDistance(distStr string) string {
+	dist := distanceSortMax
+	distStr = strings.TrimSpace(distStr)
+	if distStr != "" && distStr != "-" {
+		if d, err := strconv.ParseInt(distStr, 10, 64); err == nil && d >= 0 {
+			dist = d
+		}
+	}
+	return ComputeSortLevelValue(SortLevelDistance, map[string]interface{}{"distance": dist})
 }
 
 // processGeneNeighbors processes gene_neighbors.gz for genomic position and neighbor cross-references
@@ -898,40 +924,56 @@ func (e *entrez) processGeneNeighbors(fr string, testLimit int) {
 			e.d.addXref(geneID, fr, refseqID, "refseq", false)
 		}
 
-		// Process left neighbor genes
+		// Neighbor edges carry a machine-sortable, zero-padded genomic distance in
+		// the EVIDENCE field (via SortLevelDistance) and the side in the RELATIONSHIP
+		// field. The distance is encoded ascending (nearest == smallest string) so a
+		// client/Atlas can rank neighbors nearest-first and take the closest N.
+		//
+		// NOTE on server-side sort: we intentionally do NOT route neighborentrez
+		// through addXrefWithSortLevels. The queried (forward) direction lives in the
+		// shared entrez/forward/ bucket alongside entrez->refseq/go/ensembl/... which
+		// carry NO sort columns; enabling forward sort levels on entrez (the only knob
+		// available, GetSortLevelCount("entrez")) would mis-strip those other edges and
+		// corrupt the merge. The reverse (neighborentrez/from_entrez/) could be sorted,
+		// but the link-view for `entrez >> neighborentrez` reads entrez's forward edges,
+		// so reverse sorting would not affect the served order. Hence distance is kept
+		// as evidence (consumer-sortable) rather than server-ordered. See report.
+
+		// Process left neighbor genes (distance to the left neighbor)
 		if leftGenesStr != "" && leftGenesStr != "-" {
+			leftDist := encodeNeighborDistance(leftDistStr)
 			leftGenes := strings.Split(leftGenesStr, "|")
 			for _, neighborID := range leftGenes {
 				neighborID = strings.TrimSpace(neighborID)
 				if neighborID != "" && neighborID != "-" {
-					// Use distance as evidence, relationship as type
-					e.d.addXrefFull(geneID, fr, neighborID, "neighborentrez", false, leftDistStr, "left_neighbor")
+					e.d.addXrefFull(geneID, fr, neighborID, "neighborentrez", false, leftDist, "left_neighbor")
 					leftNeighbors++
 				}
 			}
 		}
 
-		// Process right neighbor genes
+		// Process right neighbor genes (distance to the right neighbor)
 		if rightGenesStr != "" && rightGenesStr != "-" {
+			rightDist := encodeNeighborDistance(rightDistStr)
 			rightGenes := strings.Split(rightGenesStr, "|")
 			for _, neighborID := range rightGenes {
 				neighborID = strings.TrimSpace(neighborID)
 				if neighborID != "" && neighborID != "-" {
-					// Use distance as evidence, relationship as type
-					e.d.addXrefFull(geneID, fr, neighborID, "neighborentrez", false, rightDistStr, "right_neighbor")
+					e.d.addXrefFull(geneID, fr, neighborID, "neighborentrez", false, rightDist, "right_neighbor")
 					rightNeighbors++
 				}
 			}
 		}
 
-		// Process overlapping genes
+		// Process overlapping genes - distance 0 (closest possible), encoded so they
+		// rank first when a consumer sorts neighbors by the evidence distance.
 		if overlappingGenesStr != "" && overlappingGenesStr != "-" {
+			overlapDist := ComputeSortLevelValue(SortLevelDistance, map[string]interface{}{"distance": int64(0)})
 			overlappingGenes := strings.Split(overlappingGenesStr, "|")
 			for _, neighborID := range overlappingGenes {
 				neighborID = strings.TrimSpace(neighborID)
 				if neighborID != "" && neighborID != "-" {
-					// No distance for overlapping, just relationship type
-					e.d.addXrefWithRelationship(geneID, fr, neighborID, "neighborentrez", false, "overlapping")
+					e.d.addXrefFull(geneID, fr, neighborID, "neighborentrez", false, overlapDist, "overlapping")
 					overlapping++
 				}
 			}

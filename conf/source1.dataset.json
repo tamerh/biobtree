@@ -98,7 +98,7 @@
     "useLocalFile": "no",
     "hasFilter": "yes",
     "attrs": "name,symbol,type,[]synonyms,chromosome,summary,start_position,end_position,orientation,genomic_accession",
-    "compact_fields": "name,symbol,type",
+    "compact_fields": "name,symbol,type,chromosome,start_position,end_position,orientation",
     "test_entries_count": "1000",
     "bucketMethod": "numeric"
   },

@@ -237,12 +237,18 @@ def render_explorer(triples, out_html, catmap=None, primary_names=None):
         edges.append({"data": {"id": f"{nid(s)}|{pl}|{nid(o)}", "source": nid(s),
                                 "target": nid(o), "label": pl,
                                 "n": len(ds), "datasets": sorted(ds)}})
+    # Gene-LINKING datasets (biobtree linkdataset tags) carry gene<->gene edges,
+    # not gene nodes -- typed only so the edge engine resolves the endpoint. They
+    # show as the orthologous_to/paralogous_to edges, NOT in the node-dataset panel.
+    link_only = {"ortholog", "paralog", "orthologentrez", "relatedentrez", "neighborentrez"}
     # category -> the BioBTree node datasets typed as it (with CURIE prefix)
     def entry(ds, prefix):
         return {"ds": ds, "prefix": prefix, "primary": ds in primary_names}
     node_ds = defaultdict(list)
     if catmap is not None:
         for ds in sorted(catmap.datasets()):
+            if ds in link_only:
+                continue
             e = catmap.entry_for(ds)
             if e:
                 node_ds[nid(e.category)].append(entry(ds, e.prefix))

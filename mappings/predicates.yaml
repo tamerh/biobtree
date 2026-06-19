@@ -37,7 +37,7 @@ direct:
   "clinvar>medgen":    {skip: "medgen not modeled as a node yet"}
 
   # --- Gene/protein/cell line -> organism -----------------------------------
-  "entrez>taxonomy":   {predicate: "biolink:in_taxon", note: "all-species (~69M)"}
+  "entrez>taxonomy":   {skip: "all-species gene->taxon (~69M bulk); deferred (modeled-organism gene taxon comes via uniprot/refseq; re-enable for the full-stats run)"}
   "ensembl>taxonomy":  {skip: "gene dup of entrez>taxonomy (canonicalized)"}
   "uniprot>taxonomy":  {predicate: "biolink:in_taxon"}
   "cellosaurus>taxonomy": {predicate: "biolink:in_taxon"}
@@ -94,6 +94,11 @@ direct:
   "ensembl>paralog":   {predicate: "biolink:paralogous_to"}
   "ortholog>ensembl":  {skip: "self-reference anchor back-link (subj==obj)"}
   "paralog>ensembl":   {skip: "self-reference anchor back-link (subj==obj)"}
+  # NCBI gene orthology (entrez twin of ensembl>ortholog). relatedentrez +
+  # neighborentrez are also gene-linking tags but have no clean biolink predicate
+  # ("related gene" / genomic neighbor) -> deferred (coverage_skip.yaml).
+  "entrez>orthologentrez": {predicate: "biolink:orthologous_to"}
+  "orthologentrez>entrez": {skip: "self-reference anchor back-link (subj==obj)"}
 
   # --- TF binding motif (JASPAR). The motif is the TF protein's DNA-binding
   # profile (Atlas: a gene's jaspar motifs mark it a transcription factor).

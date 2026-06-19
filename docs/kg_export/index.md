@@ -60,6 +60,11 @@ HGNC:1100   biolink:Gene   BRCA1   HGNC:1100|ENSEMBL:ENSG00000012048|NCBIGene:67
   PMID). They are genuinely distinct entities (a mouse gene ≠ a human gene), so
   they stay separate nodes, not `equivalent_identifiers`. The meta-graph explorer
   separates the two in each node's dataset panel.
+- **Linking datasets**: a few source1 datasets (`ortholog`, `paralog`,
+  `orthologentrez`, …) are BioBTree *linkdataset* tags — auto-derived gene↔gene
+  relationships stored inside the `ensembl`/`entrez` forwards, not their own
+  entities. They contribute **edges** (`orthologous_to`/`paralogous_to`), so the
+  meta-graph shows them as edges and excludes them from the node-dataset panel.
 
 ## Edge model
 

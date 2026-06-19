@@ -59,8 +59,13 @@ datasets:
   xenbase:     {category: "biolink:Gene", prefix: "Xenbase", note: "Frog (Xenbase); gene ids XB-GENE-* (alliance_phenotype)"}
   # Gene homology endpoints (Ensembl Compara). Objects are gene ids (mostly
   # ENS*G; minority FlyBase/WormBase -> cross-species stubs).
-  ortholog:    {category: "biolink:Gene", prefix: "ENSEMBL", note: "Compara ortholog gene endpoint"}
-  paralog:     {category: "biolink:Gene", prefix: "ENSEMBL", note: "Compara paralog gene endpoint"}
+  # Gene-LINKING datasets (biobtree linkdataset tags inside the ensembl/entrez
+  # forwards): they carry gene<->gene relationships, NOT their own gene nodes.
+  # Typed Gene only so the edge engine resolves the endpoint; the meta-graph
+  # presents them as edges, not as node datasets.
+  ortholog:        {category: "biolink:Gene", prefix: "ENSEMBL", note: "Ensembl Compara ortholog (link tag in ensembl)"}
+  paralog:         {category: "biolink:Gene", prefix: "ENSEMBL", note: "Ensembl Compara paralog (link tag in ensembl)"}
+  orthologentrez:  {category: "biolink:Gene", prefix: "NCBIGene", note: "NCBI gene ortholog (link tag in entrez)"}
 
   # --- Transcripts -----------------------------------------------------------
   transcript:  {category: "biolink:Transcript", prefix: "ENSEMBL"}

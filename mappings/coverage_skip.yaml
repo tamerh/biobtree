@@ -32,9 +32,9 @@ skip:
 
   # --- Identifier / derived / structural (no entity value) -------------------
   my_data: "user-data placeholder"
-  neighborentrez: "entrez neighbor helper index"
-  relatedentrez: "entrez related helper index"
-  orthologentrez: "entrez ortholog helper index"
+  neighborentrez: "NCBI genomic-neighbor linking tag (gene<->gene); genomic adjacency has no clean biolink predicate -> deferred"
+  relatedentrez: "NCBI 'related gene' linking tag (gene<->gene); vague semantics, no clean biolink predicate -> deferred"
+  # orthologentrez now covered (entrez>orthologentrez -> orthologous_to)
   exon: "genomic sub-feature of transcripts"
   cds: "coding sequence sub-feature"
   ufeature: "UniProt sequence feature (sub-entity)"

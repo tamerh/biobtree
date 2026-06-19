@@ -1,0 +1,20 @@
+# Numeric/value NODE attributes: scalars pulled from a dataset's property JSON and
+# attached as properties to an EXISTING entity node (gene/protein/transcript).
+# These datasets are not nodes/edges of their own -- their content IS the value.
+# Merged into nodes.jsonl at assemble (`assemble --node-attributes ...`).
+#
+# entity = the dataset whose CURIE prefix + id_map canonicalizes the subject to
+# the node these attach to. fields = {output_property: property_json_key}.
+node_attributes:
+  gnomad_constraint:        # subject is an ENSG gene id -> the gene node
+    entity: ensembl
+    fields: {gnomad_pli: pli, gnomad_loeuf: loeuf, gnomad_oe_lof: oe_lof}
+  depmap:                   # subject is an entrez gene id -> the gene node
+    entity: entrez
+    fields: {depmap_gene_effect: mean_gene_effect, depmap_pct_dependent: pct_dependent}
+  alphafold:                # subject is a uniprot accession -> the protein node
+    entity: uniprot
+    fields: {alphafold_mean_plddt: global_metric}
+  alphamissense_transcript: # subject is an ENST id -> the transcript node
+    entity: transcript
+    fields: {mean_am_pathogenicity: mean_am_pathogenicity}

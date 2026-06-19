@@ -21,6 +21,7 @@ from .datasets import DatasetRegistry
 from . import kgx
 from .edges import build_edges, load_id_map
 from .go import build_go
+from .attributes import build_attributes, load_attributes, load_config as load_attr_config
 from .dbsnp import build_dbsnp
 from .mesh import build_mesh
 from .nodes import build_nodes
@@ -283,6 +284,33 @@ def _cmd_ontology(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_attributes(args: argparse.Namespace) -> int:
+    registry = DatasetRegistry.load(args.conf)
+    categories = CategoryMap.load(args.categories)
+    config = load_attr_config(args.config)
+    id_map = load_id_map(args.id_map)
+    t0 = time.time()
+    stats = build_attributes(
+        index_dir=args.index_dir,
+        registry=registry,
+        categories=categories,
+        config=config,
+        out_path=args.out,
+        id_map=id_map,
+        stats_path=args.stats,
+    )
+    dt = time.time() - t0
+    print(f"node-attributes table written: {args.out}", file=sys.stderr)
+    print(
+        f"  datasets={stats.datasets_processed} rows={stats.rows_written:,} "
+        f"fields={stats.fields_extracted:,}",
+        file=sys.stderr,
+    )
+    print(f"  by_dataset={dict(stats.by_dataset)}", file=sys.stderr)
+    print(f"  elapsed={dt:.1f}s", file=sys.stderr)
+    return 0
+
+
 def _cmd_assemble(args: argparse.Namespace) -> int:
     out_dir = Path(args.out_dir)
     node_inputs = [s.strip() for s in args.nodes.split(",") if s.strip()]
@@ -300,7 +328,8 @@ def _cmd_assemble(args: argparse.Namespace) -> int:
         categories = CategoryMap.load(args.categories)
         stub_info = kgx.add_stub_nodes(nodes_tsv, edges_tsv, categories)
         n_nodes += stub_info["stubs_added"]
-    kgx.nodes_to_jsonl(nodes_tsv, out_dir / ("nodes.jsonl" + ext))
+    node_attrs = load_attributes(args.node_attributes) if args.node_attributes else None
+    kgx.nodes_to_jsonl(nodes_tsv, out_dir / ("nodes.jsonl" + ext), attributes=node_attrs)
     kgx.edges_to_jsonl(edges_tsv, out_dir / ("edges.jsonl" + ext))
     report = kgx.validate(nodes_tsv, edges_tsv)
     mani = kgx.manifest(nodes_tsv, edges_tsv, args.data_version, report)
@@ -427,6 +456,16 @@ def main(argv: list[str] | None = None) -> int:
     on.add_argument("--stats", default=None, help="output stats JSON path")
     on.set_defaults(func=_cmd_ontology)
 
+    at = sub.add_parser("attributes", help="build numeric/value NODE attribute table")
+    at.add_argument("--index-dir", required=True, help="dir with *_sorted.*.index.gz")
+    at.add_argument("--conf", default="conf", help="dataset config dir")
+    at.add_argument("--categories", default="mappings/categories.yaml")
+    at.add_argument("--config", default="mappings/attributes.yaml", help="node-attributes config")
+    at.add_argument("--out", required=True, help="output node-attribute table path")
+    at.add_argument("--id-map", default=None, help="Phase 1 member->canonical map")
+    at.add_argument("--stats", default=None, help="output stats JSON path")
+    at.set_defaults(func=_cmd_attributes)
+
     a = sub.add_parser("assemble", help="merge -> JSONL -> validate -> manifest")
     a.add_argument("--nodes", required=True, help="comma list of node TSVs")
     a.add_argument("--edges", required=True, help="comma list of edge TSVs")
@@ -436,6 +475,8 @@ def main(argv: list[str] | None = None) -> int:
     a.add_argument("--stub-nodes", action="store_true",
                    help="emit minimal nodes for edge endpoints lacking one")
     a.add_argument("--gzip", action="store_true", help="gzip the final TSV/JSONL")
+    a.add_argument("--node-attributes", default=None,
+                   help="node-attribute table (from `attributes`) to merge into nodes.jsonl")
     a.set_defaults(func=_cmd_assemble)
 
     args = parser.parse_args(argv)

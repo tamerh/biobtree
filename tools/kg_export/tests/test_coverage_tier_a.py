@@ -429,6 +429,40 @@ class TierACoverageTests(unittest.TestCase):
             self.assertNotIn("MESH:D2", nodes)  # chemical tree excluded
             self.assertEqual(edges, {("MONDO:1", "biolink:close_match", "MESH:D1")})
 
+    # --- #1 part A: numeric/value NODE attributes -----------------------------
+
+    def test_node_attributes_from_property_json(self):
+        """gnomad_constraint pLI/LOEUF (subject=ENSG) becomes properties on the
+        gene node CURIE; id_map remaps to the canonical node; merged into JSONL."""
+        from tools.kg_export.attributes import build_attributes, load_attributes
+        from tools.kg_export import kgx
+        gn = self._id("gnomad_constraint")
+        config = {"gnomad_constraint": {"entity": "ensembl",
+                  "fields": {"gnomad_pli": "pli", "gnomad_loeuf": "loeuf"}}}
+        with tempfile.TemporaryDirectory() as d:
+            tmp = Path(d)
+            self._write(tmp, "gnomad_constraint_sorted.1.index.gz", [
+                f'ENSG00000000419\t{gn}\t{{"pli":1.9e-05,"loeuf":1.005,"oe_lof":0.69}}\t-1',
+                f"ENSG00000000419\t{gn}\tHGNC:3005\t{self._id('hgnc')}",  # non-property: ignored
+            ])
+            out = tmp / "attrs.tsv"
+            # id_map collapses the ensembl CURIE onto the canonical HGNC gene node
+            stats = build_attributes(tmp, self.reg, self.cats, config, out,
+                                     id_map={"ENSEMBL:ENSG00000000419": "HGNC:3005"})
+            self.assertEqual(stats.rows_written, 1)
+            merged = load_attributes(out)
+            self.assertEqual(merged, {"HGNC:3005": {"gnomad_pli": 1.9e-05, "gnomad_loeuf": 1.005}})
+
+            # and the merge actually lands on the node in nodes.jsonl
+            nodes_tsv = tmp / "nodes.tsv"
+            nodes_tsv.write_text(kgx.NODE_HEADER + "\nHGNC:3005\tbiolink:Gene\tABCB1\t\thgnc\n")
+            jsonl = tmp / "nodes.jsonl"
+            kgx.nodes_to_jsonl(nodes_tsv, jsonl, attributes=merged)
+            import json as _json
+            row = _json.loads(jsonl.read_text().splitlines()[0])
+            self.assertEqual(row["gnomad_pli"], 1.9e-05)
+            self.assertEqual(row["gnomad_loeuf"], 1.005)
+
 
 if __name__ == "__main__":
     unittest.main()

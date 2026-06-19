@@ -22,6 +22,7 @@ from pathlib import Path
 
 import yaml
 
+from .attributes import load_config as load_attr_config
 from .categories import CategoryMap
 from .predicates import PredicateMap
 
@@ -38,9 +39,10 @@ def _core_datasets(conf_dir: Path) -> set[str]:
     return out
 
 
-def covered_datasets(cats: CategoryMap, preds: PredicateMap) -> set[str]:
-    """Every dataset the exporter emits as a node or edge endpoint."""
-    cov: set[str] = set(cats.datasets()) | set(RUNTIME_BUILDERS)
+def covered_datasets(cats: CategoryMap, preds: PredicateMap,
+                     attr_datasets: set[str] | None = None) -> set[str]:
+    """Every dataset the exporter emits as a node, edge endpoint, or node attribute."""
+    cov: set[str] = set(cats.datasets()) | set(RUNTIME_BUILDERS) | set(attr_datasets or ())
     for key in preds.pairs():
         s, o = key.split(">")
         cov |= {s, o}
@@ -58,9 +60,9 @@ def covered_datasets(cats: CategoryMap, preds: PredicateMap) -> set[str]:
 
 
 def classify(conf_dir: Path, cats: CategoryMap, preds: PredicateMap,
-             skip: dict[str, str]) -> dict:
+             skip: dict[str, str], attr_datasets: set[str] | None = None) -> dict:
     core = _core_datasets(conf_dir)
-    cov = covered_datasets(cats, preds)
+    cov = covered_datasets(cats, preds, attr_datasets)
 
     def is_covered(ds: str) -> bool:
         if ds in cov:
@@ -91,13 +93,15 @@ def main(argv=None) -> int:
     ap.add_argument("--categories", default=str(repo / "mappings" / "categories.yaml"))
     ap.add_argument("--predicates", default=str(repo / "mappings" / "predicates.yaml"))
     ap.add_argument("--skip", default=str(repo / "mappings" / "coverage_skip.yaml"))
+    ap.add_argument("--attributes", default=str(repo / "mappings" / "attributes.yaml"))
     ap.add_argument("--quiet", action="store_true", help="only print the summary + gaps")
     a = ap.parse_args(argv)
 
     cats = CategoryMap.load(a.categories)
     preds = PredicateMap.load(a.predicates)
     skip = (yaml.safe_load(Path(a.skip).read_text()) or {}).get("skip", {})
-    r = classify(Path(a.conf), cats, preds, skip)
+    attr_datasets = set(load_attr_config(a.attributes))
+    r = classify(Path(a.conf), cats, preds, skip, attr_datasets)
 
     n = len(r["core"])
     print(f"BioBTree source1+source2 datasets: {n}")

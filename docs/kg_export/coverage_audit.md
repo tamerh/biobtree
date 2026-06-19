@@ -30,8 +30,10 @@ index data and flow through on re-export. Only new datasets need rules.)*
 
 ## Current state
 
-191 source1+source2 datasets: **133 covered, 58 skipped (intentional), 0
+191 source1+source2 datasets: **152 covered, 39 skipped (intentional), 0
 unexplained.** The historical narrative below records how the gaps were closed.
+(`gnomad_constraint`, `depmap`, `alphafold`, `alphamissense_transcript` moved from
+skipped → covered when numeric NODE attributes — `mappings/attributes.yaml` — landed.)
 
 "Not covered" is mostly **intentional** (identifier/derived, predictive, sub-entity
 of a covered dataset, or qualifier-role) — all enumerated in `coverage_skip.yaml`.
@@ -58,16 +60,20 @@ No action needed for source2 beyond the already-tracked qualifier work.
 *(`taxparent`/`taxchild` show as uncovered but are in fact consumed by `ontology.py`
 via the parent-dataset override.)*
 
-### Intentional — predictive (deferred by decision)
-`alphafold`, `alphamissense`, `alphamissense_transcript`, `spliceai`. A future
-clearly-labeled `prediction` layer, separate from the asserted graph.
+### Intentional — predictive (opt-in `prediction` layer)
+`alphamissense`, `spliceai` — emitted (with `knowledge_level=prediction`) only when
+`WITH_PREDICTIONS=1`, kept separate from the asserted graph.
+
+### Covered — numeric/value NODE attributes
+`gnomad_constraint` (pLI/LOEUF), `depmap` (essentiality), `alphafold` (mean pLDDT),
+`alphamissense_transcript` (per-transcript mean pathogenicity) attach as node
+properties via `mappings/attributes.yaml` (see index.md → *Node model*).
 
 ### Intentional — sub-entity, functionally covered via parent/sibling
 `chembl_assay`, `chembl_target`, `chembl_cell_line`, `chembl_document`,
 `pubchem_assay`, `hpa_expression`, `hpa_pathology`, `scxa_expression`,
-`scxa_gene_experiment`, `pharmgkb_gene`, `pharmgkb_guideline`, `depmap`
-(covered via `depmap_dependency`), `fantom5_enhancer` (deferred — needs a
-`RegulatoryRegion` node type).
+`scxa_gene_experiment`, `pharmgkb_gene`, `pharmgkb_guideline`,
+`fantom5_enhancer` (deferred — needs a `RegulatoryRegion` node type).
 
 ### Tier-A — genuine gaps (meaningful relationships NOT in the KG)
 

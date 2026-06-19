@@ -9,8 +9,7 @@
 
 skip:
   # --- Predictive (separate prediction layer, deferred by decision) ----------
-  alphafold: "protein structure confidence (pLDDT) -- numeric node attribute, not an edge (needs node-attr support)"
-  alphamissense_transcript: "per-transcript MEAN pathogenicity -- numeric node attribute, not an edge"
+  # alphafold, alphamissense_transcript now covered as numeric NODE attributes (mappings/attributes.yaml)
   # spliceai + alphamissense now covered (opt-in variant-effect prediction layer)
 
   # --- Qualifier / evidence / isolated ontologies ----------------------------
@@ -55,11 +54,9 @@ skip:
   scxa_expression: "single-cell expression detail (scxa covered)"
   scxa_gene_experiment: "scxa experiment container"
   pharmgkb_gene: "pharmgkb gene sub-entity (pharmgkb covered)"
-  depmap: "gene essentiality (covered via depmap_dependency)"
   cellxgene: "CELLxGENE dataset/collection UUID (no node CURIE; celltype covered)"
 
   # --- Deferred with reason (could be added later) ---------------------------
   encode_ccre: "source ships no target-gene assignments (cCRE catalog only)"
-  gnomad_constraint: "gene constraint scores (pLI/LOEUF) -- numeric gene attributes, needs node-attribute support (deferred)"
   drugcentral: "conf entry present but not in the prod index build yet (no drugcentral_sorted file)"
   panelapp: "panel container; disorder is free-text only -> no edge (gene-disease via panelapp_gene)"

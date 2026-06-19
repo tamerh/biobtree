@@ -212,8 +212,12 @@ def merge_edges(
     return {"input": total, "written": kept, "removed": total - kept}
 
 
-def nodes_to_jsonl(nodes_tsv: str | Path, out_path: str | Path) -> int:
+def nodes_to_jsonl(nodes_tsv: str | Path, out_path: str | Path,
+                   attributes: dict | None = None) -> int:
+    """Convert nodes.tsv -> nodes.jsonl, optionally merging numeric/value node
+    attributes ({node_id: {property: value}}, from attributes.py) as properties."""
     cols = NODE_HEADER.split("\t")
+    attributes = attributes or {}
     n = 0
     with xopen(out_path, "wt") as out:
         for _, row in _read_rows(Path(nodes_tsv)):
@@ -236,6 +240,9 @@ def nodes_to_jsonl(nodes_tsv: str | Path, out_path: str | Path) -> int:
                 if d.get("equivalent_identifiers")
                 else []
             )
+            extra = attributes.get(d.get("id"))
+            if extra:
+                d.update(extra)  # numeric/value node attributes (gnomad/alphafold/...)
             out.write(json.dumps(d) + "\n")
             n += 1
     return n

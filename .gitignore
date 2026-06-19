@@ -24,3 +24,6 @@ new_lookup/
 CLAUDE.md
 **/cachedist/
 dist/
+
+# pyvis meta-graph explorer assets (generated)
+lib/

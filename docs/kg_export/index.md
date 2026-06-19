@@ -65,6 +65,15 @@ HGNC:1100   biolink:Gene   BRCA1   HGNC:1100|ENSEMBL:ENSG00000012048|NCBIGene:67
   relationships stored inside the `ensembl`/`entrez` forwards, not their own
   entities. They contribute **edges** (`orthologous_to`/`paralogous_to`), so the
   meta-graph shows them as edges and excludes them from the node-dataset panel.
+- **Numeric/value node attributes**: a few datasets aren't entities or
+  relationships — their content **is a scalar about an existing entity**:
+  `gnomad_constraint` (pLI/LOEUF on a gene), `depmap` (essentiality on a gene),
+  `alphafold` (mean pLDDT on a protein), `alphamissense_transcript` (mean
+  pathogenicity on a transcript). These are pulled from the dataset's property
+  JSON, the subject is canonicalized to the entity's node CURIE, and the values
+  are merged onto that node as extra JSONL properties (`gnomad_pli`,
+  `alphafold_mean_plddt`, …). Config: `mappings/attributes.yaml`; built by the
+  `attributes` subcommand and merged at `assemble --node-attributes`.
 
 ## Edge model
 
@@ -100,12 +109,17 @@ Each cross-reference / relation maps to a biolink predicate
   `part_of`) and ChEMBL salt→parent (a chemical relation).
 - **Provenance**: every edge carries its `primary_knowledge_source`.
 - **Qualifiers & evidence**: edges carry optional `has_evidence` (ECO CURIEs) and
-  `qualifiers` (`slot=value`) columns. Currently populated: `assay_type` (BAO) on
-  every ChEMBL bioactivity edge. Deferred because BioBTree stores them at
-  entry/study level, not per edge: ECO evidence (per-protein, not per-annotation),
-  PATO quality (per GWAS study, never co-located with a mapped trait), XCO
-  condition (per metabolite). The schema is ready for them — and for numeric
-  qualifiers (IC50, confidence, trial phase) — once attachable.
+  `qualifiers` (`slot=value`) columns. Populated: `assay_type` (BAO) on every
+  ChEMBL bioactivity edge, plus **numeric/value qualifiers pulled from the entry's
+  property JSON** — e.g. `splice_score`/`splice_effect` (SpliceAI),
+  `pathogenicity` (AlphaMissense), `p_value`/`odds_ratio_beta` (GWAS),
+  `confidence`/`inheritance` (PanelApp), `significance`/`evidence_level` (CIViC).
+  Still deferred because BioBTree stores them at entry/study level, not per edge:
+  ECO evidence (per-protein, not per-annotation), PATO quality (per GWAS study,
+  never co-located with a mapped trait), XCO condition (per metabolite).
+- **Numeric node attributes**: scalars that describe an entity rather than relate
+  two (gnomAD constraint, DepMap essentiality, AlphaFold pLDDT, AlphaMissense
+  per-transcript mean) are attached as node properties — see *Node model* above.
 - **No catch-all**: pairs without a mapping are dropped and counted, never
   emitted as a generic `related_to`.
 - **Dedup**: the same logical edge arriving via different keys is collapsed to one
@@ -140,9 +154,12 @@ python -m tools.kg_export ontology --index-dir $IDX --out $O/ontology_edges.tsv.
 # 5. direct edges, 6. reified edges (PPI/similarity/bioactivity/expression/GWAS)
 python -m tools.kg_export edges   --index-dir $IDX --id-map $O/id_map.tsv.gz --out $O/edges_direct.tsv.gz
 python -m tools.kg_export reified --index-dir $IDX --id-map $O/id_map.tsv.gz --out $O/edges_reified.tsv.gz
-# 7. assemble: merge + dedup + stub-nodes + JSONL + validate + manifest
+# 6d. numeric/value NODE attributes (gnomad/depmap/alphafold/alphamissense_transcript)
+python -m tools.kg_export attributes --index-dir $IDX --id-map $O/id_map.tsv.gz --out $O/node_attrs.tsv.gz
+# 7. assemble: merge + dedup + stub-nodes + node-attributes + JSONL + validate + manifest
 python -m tools.kg_export assemble --nodes $O/nodes.tsv.gz,$O/go_nodes.tsv.gz,$O/refseq_nodes.tsv.gz \
     --edges $O/edges_direct.tsv.gz,$O/edges_reified.tsv.gz,$O/go_edges.tsv.gz,$O/refseq_edges.tsv.gz,$O/ontology_edges.tsv.gz \
+    --node-attributes $O/node_attrs.tsv.gz \
     --out-dir $O/dump --data-version <release> --stub-nodes --gzip
 ```
 

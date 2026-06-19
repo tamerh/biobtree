@@ -72,10 +72,15 @@ if [ "$WITH_DBSNP" = "1" ]; then
   DBSNP_NODES=",$O/dbsnp_nodes.tsv.gz"; DBSNP_EDGES=",$O/dbsnp_edges.tsv.gz"
 fi
 
-echo "### 7/7 assemble (stub-nodes + gzip) $(date +%T)"
+echo "### 6d/7 node attributes (numeric/value scalars: gnomad/depmap/alphafold/alphamissense_transcript) $(date +%T)"
+$PY -m tools.kg_export attributes --index-dir $IDX --id-map $O/id_map.tsv.gz \
+  --out $O/node_attrs.tsv.gz --stats $O/node_attrs.stats.json
+
+echo "### 7/7 assemble (stub-nodes + node-attributes + gzip) $(date +%T)"
 $PY -m tools.kg_export assemble \
   --nodes $O/nodes_core.tsv.gz,$O/go_nodes.tsv.gz,$O/refseq_nodes.tsv.gz,$O/mesh_nodes.tsv.gz$DBSNP_NODES \
   --edges $O/edges_direct.tsv.gz,$O/edges_reified.tsv.gz,$O/go_edges.tsv.gz,$O/refseq_edges.tsv.gz,$O/ontology_edges.tsv.gz,$O/mesh_edges.tsv.gz$PRED_EDGES$DBSNP_EDGES \
+  --node-attributes $O/node_attrs.tsv.gz \
   --out-dir $O/dump --data-version out_prod_v5_full --stub-nodes --gzip
 
 echo "### DONE $(date +%T)"; df -h /data | tail -1

@@ -1,0 +1,76 @@
+# Datasets intentionally NOT covered by the KG export, with reasons.
+# Used by `python -m tools.kg_export.coverage_audit` to keep the drift signal
+# clean: any source1/source2 dataset that is neither covered (a node/edge rule or
+# runtime builder) NOR listed here is flagged as an UNEXPLAINED gap (needs a
+# decision: add a rule, or add it here with a reason).
+#
+# When BioBTree adds a dataset: run the audit; for each flagged dataset either
+# author coverage or add it below.
+
+skip:
+  # --- Predictive (separate prediction layer, deferred by decision) ----------
+  alphafold: "structure prediction (deferred)"
+  alphamissense: "variant-effect prediction (deferred)"
+  alphamissense_transcript: "variant-effect prediction (deferred)"
+  spliceai: "splice prediction (deferred)"
+
+  # --- Qualifier / evidence / isolated ontologies ----------------------------
+  eco: "evidence ontology -> edge qualifier (entry-level in BioBTree; deferred)"
+  ecochild: "hierarchy tag of eco (not a node)"
+  ecoparent: "hierarchy tag of eco (not a node)"
+  pato: "quality ontology -> edge qualifier (deferred)"
+  patochild: "hierarchy tag of pato"
+  patoparent: "hierarchy tag of pato"
+  xco: "experimental-condition ontology -> edge qualifier (deferred)"
+  xcochild: "hierarchy tag of xco"
+  xcoparent: "hierarchy tag of xco"
+  obi: "ISOLATED in BioBTree (only internal hierarchy, no cross-dataset links)"
+  obichild: "hierarchy tag of obi"
+  obiparent: "hierarchy tag of obi"
+  baochild: "hierarchy tag of bao (bao itself used as assay_type qualifier)"
+  baoparent: "hierarchy tag of bao"
+
+  # --- Identifier / derived / structural (no entity value) -------------------
+  my_data: "user-data placeholder"
+  neighborentrez: "entrez neighbor helper index"
+  relatedentrez: "entrez related helper index"
+  orthologentrez: "entrez ortholog helper index"
+  exon: "genomic sub-feature of transcripts"
+  cds: "coding sequence sub-feature"
+  ufeature: "UniProt sequence feature (sub-entity)"
+  uniparc: "non-redundant sequence cluster (identifier)"
+  uniref50: "sequence cluster (identifier)"
+  uniref90: "sequence cluster (identifier)"
+  uniref100: "sequence cluster (identifier)"
+  literature_mappings: "literature mapping helper"
+  bgee_evidence: "evidence detail of bgee expression"
+  gwas_study: "study container (gwas associations covered)"
+  string: "protein container (string_interaction covered)"
+  biogrid: "container (biogrid_interaction covered)"
+  antibody: "antibody reagent (not an entity edge)"
+  hpa_antibody: "HPA antibody reagent"
+
+  # --- Sub-entity of a covered dataset (functionally covered via parent) ------
+  chembl_assay: "assay metadata (bioactivity covered via chembl_activity)"
+  chembl_target: "chembl target (covered via uniprot)"
+  chembl_cell_line: "chembl cell line (cellosaurus covers cell lines)"
+  chembl_document: "chembl literature container"
+  pubchem_assay: "assay metadata (pubchem_activity covered)"
+  hpa_expression: "HPA expression detail (hpa covered)"
+  hpa_pathology: "HPA pathology detail (hpa covered)"
+  scxa_expression: "single-cell expression detail (scxa covered)"
+  scxa_gene_experiment: "scxa experiment container"
+  pharmgkb_gene: "pharmgkb gene sub-entity (pharmgkb covered)"
+  pharmgkb_guideline: "pharmgkb guideline container"
+  pharmgkb_pathway: "pharmgkb pathway (low value; deferred)"
+  depmap: "gene essentiality (covered via depmap_dependency)"
+  cellxgene: "CELLxGENE dataset/collection UUID (no node CURIE; celltype covered)"
+  patent: "patent container (niche)"
+  patent_compound: "compound-patent link (niche)"
+
+  # --- Deferred with reason (could be added later) ---------------------------
+  ctd_disease_association: "disease object is full MeSH (only disease-subset typed via mesh.py); revisit"
+  brenda_kinetics: "free-text substrate + numeric Km/kcat (needs numeric qualifiers)"
+  brenda_inhibitor: "free-text inhibitor + numeric Ki/IC50 (needs numeric qualifiers)"
+  encode_ccre: "source ships no target-gene assignments (cCRE catalog only)"
+  fantom5_enhancer: "enhancer->gene is proximity-based; curated needs enhancer-TSS source"

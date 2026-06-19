@@ -51,8 +51,8 @@ class DbsnpBuildTests(unittest.TestCase):
             f'RS1000\t{ds}\t{{"rs_id":"rs1000"}}\t-1',
         ]
         stats, nodes, edges = self._run(lines)
-        self.assertEqual(nodes["DBSNP:RS10"], "biolink:SequenceVariant")
-        self.assertIn(("DBSNP:RS10", "biolink:is_sequence_variant_of", "NCBIGene:1021"), edges)
+        self.assertEqual(nodes["DBSNP:rs10"], "biolink:SequenceVariant")  # canonical lowercase id
+        self.assertIn(("DBSNP:rs10", "biolink:is_sequence_variant_of", "NCBIGene:1021"), edges)
         self.assertEqual(stats.nodes_written, 2)
         self.assertEqual(stats.edges_written, 2)  # transcript line not emitted in v1
 
@@ -64,7 +64,7 @@ class DbsnpBuildTests(unittest.TestCase):
         ]
         stats, _, edges = self._run(lines, id_map={"NCBIGene:1021": "HGNC:5"}, max_variants=1)
         self.assertEqual(stats.variants, 1)  # cap honored
-        self.assertIn(("DBSNP:RS1", "biolink:is_sequence_variant_of", "HGNC:5"), edges)
+        self.assertIn(("DBSNP:rs1", "biolink:is_sequence_variant_of", "HGNC:5"), edges)
 
 
 if __name__ == "__main__":

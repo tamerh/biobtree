@@ -107,7 +107,7 @@ def build_dbsnp(
         eout.write(kgx.EDGE_HEADER + "\n")
         for accession, block in _blocks(index_dir, counter, max_variants):
             stats.variants += 1
-            subj = to_curie(var_prefix, accession)
+            subj = to_curie(var_prefix, accession.lower())  # canonical: DBSNP:rs10
             prop = next((r.object for r in block if r.is_property), None)
             name = _name(prop) if prop else ""
             nout.write(f"{subj}\t{CATEGORY}\t{tsv_safe(name)}\t{subj}\t{AGGREGATOR}\n")

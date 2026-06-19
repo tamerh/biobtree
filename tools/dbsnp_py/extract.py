@@ -85,7 +85,7 @@ def worker(wid: int, q: Queue, out: str, with_attrs: bool, idm: dict, rq: Queue)
         if cur is None:
             return
         nv += 1
-        rs = cur.decode()
+        rs = cur.decode().lower()  # canonical dbSNP id is lowercase: DBSNP:rs10
         subj = "DBSNP:" + rs
         name = rs
         if with_attrs and prop is not None:

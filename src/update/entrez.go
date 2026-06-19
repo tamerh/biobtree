@@ -556,8 +556,16 @@ func (e *entrez) processGeneOrthologs(fr string, testLimit int) {
 		// Emit BOTH directions so the ortholog is reachable regardless of NCBI row order.
 		// This also fixes the human->model ortholog bridge used by
 		// `entrez >> orthologentrez >> mgi >> alliance_phenotype`.
-		e.d.addXref(geneID, fr, otherGeneID, "orthologentrez", false)
-		e.d.addXref(otherGeneID, fr, geneID, "orthologentrez", false)
+		// Use the link-dataset pattern (addXref2): the link edge PLUS a resolution
+		// registration so the orthologentrez entry resolves back to its entrez gene
+		// (mirrors ensembl paralog/ortholog). Without the registration, the injected
+		// `>>orthologentrez>>entrez` step has nothing to follow and returns the source
+		// ("returns self"). Bidirectional so it works regardless of NCBI row order.
+		orthoID := config.Dataconf["orthologentrez"]["id"]
+		e.d.addXref2(geneID, fr, otherGeneID, "orthologentrez")
+		e.d.addXref2(otherGeneID, orthoID, otherGeneID, "entrez")
+		e.d.addXref2(otherGeneID, fr, geneID, "orthologentrez")
+		e.d.addXref2(geneID, orthoID, geneID, "entrez")
 
 		total++
 
@@ -750,8 +758,14 @@ func (e *entrez) processGeneGroup(fr string, testLimit int) {
 		// directions so either gene reaches the other (otherwise the "Other" gene
 		// has no outgoing edge and the link-view returns just the query node).
 		// The relationship label describes the pair, so it applies to both directions.
+		// Link edge keeps the relationship type; addXref2 registers the link-view's
+		// resolution back to entrez (same fix as orthologentrez — without it the
+		// `>>relatedentrez>>entrez` step returns the source).
+		relID := config.Dataconf["relatedentrez"]["id"]
 		e.d.addXrefWithRelationship(geneID, fr, otherGeneID, "relatedentrez", false, relationship)
+		e.d.addXref2(otherGeneID, relID, otherGeneID, "entrez")
 		e.d.addXrefWithRelationship(otherGeneID, fr, geneID, "relatedentrez", false, relationship)
+		e.d.addXref2(geneID, relID, geneID, "entrez")
 
 		total++
 

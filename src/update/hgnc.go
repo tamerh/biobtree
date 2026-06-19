@@ -326,6 +326,7 @@ func hgncEntrezID(j *jsparser.JSON) string {
 // entrez members of each HGNC gene family, skipping families over familyMemberCap.
 func (e *hgnc) flushFamilyRelatedEdges(fr string, familyMembers map[string]map[string]struct{}) {
 	var families, edges, skipped uint64
+	relID := config.Dataconf["relatedentrez"]["id"]
 	for group, members := range familyMembers {
 		if len(members) < 2 {
 			continue // a single-member family has no co-member edges
@@ -339,6 +340,12 @@ func (e *hgnc) flushFamilyRelatedEdges(fr string, familyMembers map[string]map[s
 		ids := make([]string, 0, len(members))
 		for id := range members {
 			ids = append(ids, id)
+		}
+
+		// Register each member's link-view resolution back to entrez once, so
+		// `>>relatedentrez>>entrez` resolves (same fix as orthologentrez).
+		for _, id := range ids {
+			e.d.addXref2(id, relID, id, "entrez")
 		}
 
 		rel := "gene family: " + group

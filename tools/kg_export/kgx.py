@@ -43,7 +43,7 @@ KNOWN_CATEGORIES = {
     "biolink:MolecularActivity", "biolink:BiologicalProcess",
     "biolink:CellularComponent", "biolink:ChemicalEntity",
     "biolink:MicroRNA", "biolink:NucleicAcidSequenceMotif", "biolink:Publication",
-    "biolink:DiseaseOrPhenotypicFeature",
+    "biolink:DiseaseOrPhenotypicFeature", "biolink:RegulatoryRegion",
 }
 
 
@@ -69,6 +69,8 @@ CANONICAL_PREFIXES = {
     "MESH",        # biolink prefix map (CTD chemicals + MeSH diseases)
     "civic.vid",   # bioregistry-canonical CIViC variant prefix
     "PMID",        # biolink Publication prefix (GeneRIF)
+    "PHARMGKB.PATHWAYS",  # biolink prefix map (PharmGKB pgx pathways)
+    "chembl.cell", # bioregistry-registered (ChEMBL cell lines)
     # NON-canonical (flagged, like SWISSLIPID): mirbase.mature (miRDB stores
     # miRBase NAMES not MIMAT accessions); jaspar (no registered CURIE prefix).
     # MolecularActivity id_prefixes (verified in biolink MolecularActivity)

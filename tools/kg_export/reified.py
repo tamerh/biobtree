@@ -36,7 +36,7 @@ _PREDICTION_DATASETS = {"diamond_similarity", "esm2_similarity", "mirdb"}
 # Runtime-typed datasets have no categories.yaml entry (their prefix lives in a
 # dedicated builder); supply it here so reified endpoints to them canonicalize
 # (e.g. miRDB -> refseq transcript). Keep in sync with refseq.py / go.py.
-_RUNTIME_PREFIXES = {"refseq": "refseq", "go": "GO"}
+_RUNTIME_PREFIXES = {"refseq": "refseq", "go": "GO", "mesh": "MESH"}
 
 
 @dataclass
@@ -303,7 +303,27 @@ def _emit_group(group, rule, registry, categories, canonical, primary,
         # KEY (e.g. miRDB: the miRNA is the entry id, only the targets are object
         # lines), not an object-role line — render the key with the subject prefix.
         if rule.subject == rule.dataset:
-            s = canonical(rule.subject, group[0].subject)
+            # The subject is the group KEY (entry id). For most such datasets the
+            # entry id is itself meaningful (miRDB miRNA, CIViC variant). When it
+            # is only a build-local SURROGATE (fantom5_enhancer), the stable id
+            # lives in the property JSON: `subject_field` names that key, and a
+            # genomic coordinate (chr10:100006233-100006603) is normalized to a
+            # colon-free local id so it renders as one clean CURIE.
+            key_id = group[0].subject
+            if rule.subject_field:
+                key_id = None
+                for raw in group:
+                    if not raw.is_property:
+                        continue
+                    try:
+                        d = json.loads(raw.object)
+                    except (ValueError, TypeError):
+                        continue
+                    val = d.get(rule.subject_field)
+                    if val:
+                        key_id = str(val).replace(":", "_").replace("-", "_")
+                        break
+            s = canonical(rule.subject, key_id) if key_id else None
             subs = [s] if s else []
         else:
             subs = partners(rule.subject)

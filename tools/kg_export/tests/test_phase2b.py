@@ -334,9 +334,13 @@ class BuildReifiedTests(unittest.TestCase):
             endpoints = {e[0] for e in edges} | {e[2] for e in edges}
             self.assertNotIn("hg19::chr1:564571..564600,+;hg_1.1", endpoints)
 
-    def test_fantom5_enhancer_not_authored(self):
-        """fantom5_enhancer is intentionally NOT a reified rule (deferred)."""
-        self.assertIsNone(self.pm.reified_rule("fantom5_enhancer"))
+    def test_fantom5_enhancer_authored_as_regulatory_region(self):
+        """fantom5_enhancer is now a RegulatoryRegion -> gene (proximity) rule."""
+        r = self.pm.reified_rule("fantom5_enhancer")
+        self.assertIsNotNone(r)
+        self.assertEqual(r.subject_field, "fantom5_enhancer_id")  # coordinate id from JSON
+        self.assertEqual(r.predicate, "biolink:associated_with")
+        self.assertEqual(self.cats.category_for("fantom5_enhancer"), "biolink:RegulatoryRegion")
 
     def test_bioactivity_assay_type_qualifier(self):
         """chembl_activity attaches the in-group BAO assay type as a qualifier."""

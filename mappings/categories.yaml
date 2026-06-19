@@ -113,6 +113,7 @@ datasets:
   # --- Pathways / gene sets --------------------------------------------------
   reactome:    {category: "biolink:Pathway", prefix: "REACT"}
   msigdb:      {category: "biolink:Pathway", prefix: "MSigDB", note: "gene sets/signatures; Pathway is a mild overclaim but biolink has no GeneSet class"}
+  pharmgkb_pathway: {category: "biolink:Pathway", prefix: "PHARMGKB.PATHWAYS", note: "PharmGKB curated pgx pathways (biolink prefix map)"}
 
   # --- Anatomy / cells -------------------------------------------------------
   uberon:      {category: "biolink:GrossAnatomicalStructure", prefix: "UBERON"}
@@ -120,6 +121,7 @@ datasets:
 
   # --- Cell lines (differentiating) -----------------------------------------
   cellosaurus: {category: "biolink:CellLine", prefix: "cellosaurus", note: "ids keep CVCL_ -> cellosaurus:CVCL_xxxx"}
+  chembl_cell_line: {category: "biolink:CellLine", prefix: "chembl.cell", note: "ChEMBL cell line == Cellosaurus accession (bioregistry chembl.cell)"}
 
   # --- Organisms -------------------------------------------------------------
   taxonomy:    {category: "biolink:OrganismTaxon", prefix: "NCBITaxon"}
@@ -138,10 +140,17 @@ datasets:
   # JASPAR TF binding motif (PWM). No registered CURIE prefix (locally coined) and
   # biolink:NucleicAcidSequenceMotif has no id_prefixes -> non-canonical (flagged).
   jaspar:      {category: "biolink:NucleicAcidSequenceMotif", prefix: "jaspar", note: "JASPAR TF binding motif"}
+  # FANTOM5 enhancer (CAGE-defined). biolink:RegulatoryRegion has no id_prefixes;
+  # stable id is the genomic coordinate (property fantom5_enhancer_id), normalized
+  # to a colon-free local id. Prefix locally-coined / non-canonical (flagged).
+  fantom5_enhancer: {category: "biolink:RegulatoryRegion", prefix: "fantom5.enhancer", note: "FANTOM5 enhancer; coordinate-based id; non-canonical prefix"}
 
-  # --- Publications ----------------------------------------------------------
+  # --- Publications (literature + patents) -----------------------------------
   # GeneRIF gene->literature endpoints. PMID is the biolink Publication prefix.
   pubmed:      {category: "biolink:Publication", prefix: "PMID", note: "PubMed citation (GeneRIF)"}
+  literature_mappings: {category: "biolink:Publication", prefix: "PMID", note: "NCBI PMID/PMCID/DOI map; index ids are PMIDs (object of chembl_document)"}
+  chembl_document: {category: "biolink:Publication", prefix: "chembl.document", note: "ChEMBL document (paper/patent); non-canonical prefix (flagged)"}
+  patent:      {category: "biolink:Publication", prefix: "google.patent", note: "SureChEMBL patent; hyphenated accession -> non-canonical prefix (flagged)"}
 
   # --- Adverse reactions -----------------------------------------------------
   # FAERS adverse-reaction terms (MedDRA PTs), but the BioBTree id is an opaque

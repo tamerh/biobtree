@@ -53,20 +53,15 @@ skip:
   # --- Sub-entity of a covered dataset (functionally covered via parent) ------
   chembl_assay: "assay metadata (bioactivity covered via chembl_activity)"
   chembl_target: "chembl target (covered via uniprot)"
-  chembl_cell_line: "chembl cell line (cellosaurus covers cell lines)"
-  chembl_document: "chembl literature container"
   pubchem_assay: "assay metadata (pubchem_activity covered)"
   hpa_expression: "HPA expression detail (hpa covered)"
-  hpa_pathology: "HPA pathology detail (hpa covered)"
+  hpa_pathology: "HPA pathology = gene->cancer prognostic, but the cancer is FREE-TEXT only (no MONDO/cancer_id); the only typed endpoint is the gene -> no authorable edge (degenerates to self-loops). Revisit with a TCGA-cohort->MONDO map"
   scxa_expression: "single-cell expression detail (scxa covered)"
   scxa_gene_experiment: "scxa experiment container"
   pharmgkb_gene: "pharmgkb gene sub-entity (pharmgkb covered)"
-  pharmgkb_guideline: "pharmgkb guideline container"
-  pharmgkb_pathway: "pharmgkb pathway (low value; deferred)"
   depmap: "gene essentiality (covered via depmap_dependency)"
   cellxgene: "CELLxGENE dataset/collection UUID (no node CURIE; celltype covered)"
-  patent: "patent container (niche)"
-  patent_compound: "compound-patent link (niche)"
+  patent_compound: "compound-namespace junction (numeric id, no own CURIE); resolved as the via-bridge in the reified patent->compound rule, not a node/edge of its own"
 
   # --- Deferred with reason (could be added later) ---------------------------
   ctd_disease_association: "disease object is full MeSH (only disease-subset typed via mesh.py); revisit"

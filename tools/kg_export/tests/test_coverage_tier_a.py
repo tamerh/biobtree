@@ -95,6 +95,25 @@ class TierACoverageTests(unittest.TestCase):
         self.assertEqual(stats.edges_written, 1)  # chemical->gene; taxon+pubmed ignored
         self.assertIn(("MESH:C1", "biolink:affects", "NCBIGene:10257"), edges)
 
+    def test_ctd_disease_association(self):
+        """CTD chemical(ctd, MESH:C) -> disease(mesh, MESH:D/MESH:C descriptors);
+        pubmed + mim ignored; mesh object canonicalizes via _RUNTIME_PREFIXES."""
+        da, ctd, me, pm, mi = (self._id("ctd_disease_association"), self._id("ctd"),
+                               self._id("mesh"), self._id("pubmed"), self._id("mim"))
+        stats, edges = self._reified("ctd_disease_association_sorted.1.index.gz", [
+            f"C000015_D000067877\t{da}\tC000015\t{ctd}",
+            f"C000015_D000067877\t{da}\tD000067877\t{me}",
+            f"C000015_D000067877\t{da}\t31738183\t{pm}",
+            f"C000015_D000067877\t{da}\t209900\t{mi}",
+            f'C000015_D000067877\t{da}\t{{"inference_score":4.3}}\t-1',
+            # supplementary-concept (MESH:C...) disease object still emitted as an edge
+            f"C000015_C567384\t{da}\tC000015\t{ctd}",
+            f"C000015_C567384\t{da}\tC567384\t{me}",
+        ], "ctd_disease_association")
+        self.assertEqual(stats.edges_written, 2)  # chemical->disease only; pubmed+mim ignored
+        self.assertIn(("MESH:C000015", "biolink:associated_with", "MESH:D000067877"), edges)
+        self.assertIn(("MESH:C000015", "biolink:associated_with", "MESH:C567384"), edges)
+
     def test_civic_evidence_variant_to_disease_and_drug(self):
         ce, cv, mo, cm = (self._id("civic_evidence"), self._id("civic_variant"),
                           self._id("mondo"), self._id("chembl_molecule"))
@@ -171,6 +190,86 @@ class TierACoverageTests(unittest.TestCase):
         ], "panelapp_gene")
         self.assertEqual(stats.edges_written, 1)
         self.assertIn(("HGNC:6768", "biolink:gene_associated_with_condition", "MONDO:0018954"), edges)
+
+    def _direct(self, name, lines, ds):
+        with tempfile.TemporaryDirectory() as d:
+            tmp = Path(d)
+            self._write(tmp, name, lines)
+            out = tmp / "e.tsv"
+            stats = build_edges(tmp, self.reg, self.cats, self.pm, out, datasets=[ds])
+            edges = {(r.split("\t")[1], r.split("\t")[2], r.split("\t")[3])
+                     for r in out.read_text().splitlines()[1:]}
+            return stats, edges
+
+    # --- Skip-list reconsiderations now added ---------------------------------
+
+    def test_fantom5_enhancer_region_to_gene(self):
+        """enhancer (coordinate node from property fantom5_enhancer_id) -> gene
+        (associated_with, proximity); surrogate int id NOT used; taxon not wired."""
+        fe, hg, en, et, tx = (self._id("fantom5_enhancer"), self._id("hgnc"),
+                              self._id("ensembl"), self._id("entrez"), self._id("taxonomy"))
+        prop = '{"fantom5_enhancer_id":"chr10:100006233-100006603"}'
+        _, edges = self._reified("fantom5_enhancer_sorted.1.index.gz", [
+            f"7\t{fe}\tHGNC:10969\t{hg}", f"7\t{fe}\tENSG00000000003\t{en}",
+            f"7\t{fe}\t10257\t{et}", f"7\t{fe}\t9606\t{tx}", f"7\t{fe}\t{prop}\t-1",
+        ], "fantom5_enhancer")
+        EID = "fantom5.enhancer:chr10_100006233_100006603"
+        self.assertIn((EID, "biolink:associated_with", "HGNC:10969"), edges)
+        self.assertTrue(all("NCBITaxon" not in o for _, _, o in edges))
+        self.assertFalse(any(s == "fantom5.enhancer:7" for s, _, _ in edges))
+
+    def test_chembl_document_same_as_pmid(self):
+        cd, lm = self._id("chembl_document"), self._id("literature_mappings")
+        stats, edges = self._direct("chembl_document_sorted.1.index.gz", [
+            f"CHEMBL1121361\t{cd}\t7452684\t{lm}", f'CHEMBL1121361\t{cd}\t{{"x":1}}\t-1',
+        ], "chembl_document")
+        self.assertIn(("chembl.document:CHEMBL1121361", "biolink:same_as", "PMID:7452684"), edges)
+
+    def test_chembl_cell_line_same_as_cellosaurus(self):
+        cl, cv, tx = self._id("chembl_cell_line"), self._id("cellosaurus"), self._id("taxonomy")
+        _, edges = self._direct("chembl_cell_line_sorted.1.index.gz", [
+            f"CHEMBL3307242\t{cl}\tCVCL_2676\t{cv}", f"CHEMBL3307242\t{cl}\t9606\t{tx}",
+        ], "chembl_cell_line")
+        self.assertIn(("chembl.cell:CHEMBL3307242", "biolink:same_as", "cellosaurus:CVCL_2676"), edges)
+        self.assertIn(("chembl.cell:CHEMBL3307242", "biolink:in_taxon", "NCBITaxon:9606"), edges)
+
+    def test_patent_mentions_compound_via_junction(self):
+        pt, pc, cm = self._id("patent"), self._id("patent_compound"), self._id("chembl_molecule")
+        with tempfile.TemporaryDirectory() as d:
+            tmp = Path(d)
+            self._write(tmp, "patent_sorted.1.index.gz", [
+                f'CN-1003001-B\t{pt}\t{{"title":"x"}}\t-1', f"CN-1003001-B\t{pt}\t1005\t{pc}",
+            ])
+            self._write(tmp, "patent_compound_sorted.1.index.gz", [
+                f"1005\t{pc}\tCHEMBL253582\t{cm}", f"1005\t{pc}\t5988\t{self._id('pubchem')}",
+            ])
+            out = tmp / "r.tsv"
+            build_reified_edges(tmp, self.reg, self.cats, self.pm, out, datasets=["patent"])
+            edges = {(r.split("\t")[1], r.split("\t")[2], r.split("\t")[3])
+                     for r in out.read_text().splitlines()[1:]}
+            self.assertIn(("google.patent:CN-1003001-B", "biolink:mentions",
+                           "CHEMBL.COMPOUND:CHEMBL253582"), edges)
+
+    def test_pharmgkb_pathway_gene_membership(self):
+        pp, hg = self._id("pharmgkb_pathway"), self._id("hgnc")
+        with tempfile.TemporaryDirectory() as d:
+            tmp = Path(d)
+            self._write(tmp, "hgnc_sorted.1.index.gz", [f'HGNC:40\t{hg}\t{{"symbols":["ABCB1"]}}\t-1'])
+            self._write(tmp, "pharmgkb_pathway_sorted.1.index.gz", [
+                f"PA145011108\t{pp}\tABCB1\t{hg}", f'PA145011108\t{pp}\t{{"name":"Statin"}}\t-1',
+            ])
+            out = tmp / "r.tsv"
+            build_reified_edges(tmp, self.reg, self.cats, self.pm, out, datasets=["pharmgkb_pathway"])
+            edges = {(r.split("\t")[1], r.split("\t")[2], r.split("\t")[3])
+                     for r in out.read_text().splitlines()[1:]}
+            self.assertIn(("PHARMGKB.PATHWAYS:PA145011108", "biolink:has_participant", "HGNC:40"), edges)
+
+    def test_hpa_pathology_deferred(self):
+        """HPA pathology cancer is free-text only -> no edge (kept skipped)."""
+        import yaml
+        self.assertIsNone(self.pm.reified_rule("hpa_pathology"))
+        skip = (yaml.safe_load((REPO_ROOT / "mappings" / "coverage_skip.yaml").read_text()) or {}).get("skip", {})
+        self.assertIn("hpa_pathology", skip)
 
     def test_mesh_is_not_a_categories_node(self):
         """MeSH (multi-type, 91% untyped chemicals) is NOT a static categories node;

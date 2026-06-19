@@ -199,9 +199,16 @@ planned follow-up.)
 
 - **Taxid scope**: BioBTree's genes/proteins cover 16 model organisms; edges to
   entities outside that scope appear as stub nodes (typed, unnamed).
-- **Deferred edge types**: directed regulation (SIGNOR), ncRNA layers, CollecTRI,
-  and (by run choice) very large variant sets (dbSNP) are not in the default
-  export.
+- **Deferred edge types**: directed regulation (SIGNOR), ncRNA layers, and
+  CollecTRI are not in the default export.
+- **dbSNP (first-class, billion-scale)**: the dbSNP federation (~1.1B variants) is a
+  first-class layer — `variant -is_sequence_variant_of-> gene/transcript` plus rich
+  variant attributes. It lives in a separate ~118 GB-gz federation, so it's built by
+  a dedicated parallel extractor (`tools/dbsnp_py/extract.py`: `zcat` decompresses,
+  a Python multiprocessing pool parses/shards, ~1 hr/full pass) and wired into
+  `full_prod.sh` (`WITH_DBSNP=1`, default on; set `0` to skip). A real full run also
+  needs the billion-scale `assemble` rework (the in-memory validate node-id set
+  won't hold 1.1B) — tracked, pending.
 - **Prefixes**: SwissLipids is emitted as `SWISSLIPID` pending canonical `SLM` +
   zero-padded ids; `validate()` reports any non-canonical prefixes.
 - **Deferred qualifiers**: ECO evidence, PATO quality, XCO condition, and numeric

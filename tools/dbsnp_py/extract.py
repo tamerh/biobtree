@@ -42,6 +42,21 @@ def edge_id(subj: str, pred: str, obj: str) -> str:
     return "biobtree:" + h[:16]
 
 
+def load_id_map(path: str | None) -> dict:
+    """member CURIE -> canonical CURIE (Phase-1 map). Small (~219K rows), so each
+    worker can hold the full dict. Empty if no path."""
+    if not path:
+        return {}
+    m: dict = {}
+    with gzip.open(path, "rt") as fh:
+        next(fh, "")  # header
+        for line in fh:
+            member, _, canon = line.rstrip("\n").partition("\t")
+            if member and canon:
+                m[member] = canon
+    return m
+
+
 def _attrs_json(p: dict) -> str | None:
     out = {}
     for k in ("variant_type", "variant_class", "chromosome"):
@@ -57,7 +72,7 @@ def _attrs_json(p: dict) -> str | None:
     return json.dumps(out) if out else None
 
 
-def worker(wid: int, q: Queue, out: str, with_attrs: bool, rq: Queue) -> None:
+def worker(wid: int, q: Queue, out: str, with_attrs: bool, idm: dict, rq: Queue) -> None:
     nodes = gzip.open(f"{out}/dbsnp_nodes.{wid}.tsv.gz", "wt", compresslevel=1)
     edges = gzip.open(f"{out}/dbsnp_edges.{wid}.tsv.gz", "wt", compresslevel=1)
     attrs = gzip.open(f"{out}/dbsnp_attrs.{wid}.tsv.gz", "wt", compresslevel=1) if with_attrs else None
@@ -87,7 +102,8 @@ def worker(wid: int, q: Queue, out: str, with_attrs: bool, rq: Queue) -> None:
                     ar += 1
         nodes.write(f"{subj}\t{CATEGORY}\t{name}\t{subj}\t{AGG}\n")
         for g in genes:
-            obj = "NCBIGene:" + g.decode()
+            gc = "NCBIGene:" + g.decode()
+            obj = idm.get(gc, gc)  # canonicalize to the merged gene node (HGNC)
             edges.write(f"{edge_id(subj, PRED, obj)}\t{subj}\t{PRED}\t{obj}\t{PRIMARY}\t{AGG}\t{KL}\t{AT}\t\t\n")
             ge += 1
         for t in txs:
@@ -135,16 +151,20 @@ def main() -> int:
     ap.add_argument("--max-bytes", type=float, default=0, help="stop after N plaintext bytes (0=all)")
     ap.add_argument("--no-attrs", action="store_true")
     ap.add_argument("--chunk-mb", type=int, default=16)
+    ap.add_argument("--id-map", default=None, help="Phase-1 member->canonical map (gene canonicalization)")
     a = ap.parse_args()
 
     import os
     os.makedirs(a.out, exist_ok=True)
     with_attrs = not a.no_attrs
     maxb = int(a.max_bytes)
+    idm = load_id_map(a.id_map)
+    if a.id_map:
+        print(f"id_map loaded: {len(idm)} entries", file=sys.stderr)
 
     q: Queue = Queue(maxsize=a.workers * 4)
     rq: Queue = Queue()
-    procs = [Process(target=worker, args=(w, q, a.out, with_attrs, rq)) for w in range(a.workers)]
+    procs = [Process(target=worker, args=(w, q, a.out, with_attrs, idm, rq)) for w in range(a.workers)]
     for p in procs:
         p.start()
 

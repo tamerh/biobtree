@@ -3,14 +3,20 @@
 # datasets (incl. string_interaction PPI, clinvar, rnacentral, similarity),
 # gzip output. Reads index files only.
 #
-# dbSNP is OPT-IN (WITH_DBSNP=1): it's a separate federation (~110 GB, ~1B
-# variants) used to produce TRUE total stats, not for the representative/
-# published dump. Set DBSNP_IDX to the federation index dir.
+# dbSNP is a FIRST-CLASS layer (WITH_DBSNP=1 by default): a separate ~118 GB-gz
+# federation (~1.1B variants) extracted by tools/dbsnp_py/extract.py -- zcat
+# decompresses, a Python multiprocessing pool parses in parallel and shards KGX
+# output (~1 hr full pass on a quiet box). Set WITH_DBSNP=0 to skip it for the
+# faster/smaller runs used during alignment + assemble work.
+#
+# NOTE: a real FULL run with dbSNP needs the billion-scale `assemble` rework first
+# (the current validate builds an in-memory node-id set; 1.1B won't fit) -- pending.
 set -e
 PY=/data/miniconda3/envs/biobtree/bin/python
 IDX=/data2/out_prod_v5/main/index
-DBSNP_IDX=${DBSNP_IDX:-/data2/out_prod_v5/dbsnp/index}
-WITH_DBSNP=${WITH_DBSNP:-0}
+DBSNP_GZ=${DBSNP_GZ:-/data2/out_prod_v5/dbsnp/index/dbsnp_sorted.*.index.gz}
+WITH_DBSNP=${WITH_DBSNP:-1}
+DBSNP_WORKERS=${DBSNP_WORKERS:-12}
 # Variant-effect PREDICTION layer (spliceai + alphamissense). OPT-IN: variant-scale
 # (~tens of millions of predicted variant->gene edges), for the full-stats run only.
 WITH_PREDICTIONS=${WITH_PREDICTIONS:-0}
@@ -64,12 +70,15 @@ if [ "$WITH_PREDICTIONS" = "1" ]; then
   PRED_EDGES=",$O/edges_predictions.tsv.gz"
 fi
 
-DBSNP_NODES=""; DBSNP_EDGES=""
+DBSNP_NODES=""; DBSNP_EDGES=""; DBSNP_ATTRS=""
 if [ "$WITH_DBSNP" = "1" ]; then
-  echo "### 6b/7 dbSNP (OPT-IN federation -> true variant stats) $(date +%T)"
-  $PY -m tools.kg_export dbsnp --index-dir $DBSNP_IDX --id-map $O/id_map.tsv.gz \
-    --nodes-out $O/dbsnp_nodes.tsv.gz --edges-out $O/dbsnp_edges.tsv.gz --stats $O/dbsnp.stats.json
-  DBSNP_NODES=",$O/dbsnp_nodes.tsv.gz"; DBSNP_EDGES=",$O/dbsnp_edges.tsv.gz"
+  echo "### 6b/7 dbSNP federation (~1.1B variants -> gene+transcript edges, rich attrs) $(date +%T)"
+  mkdir -p $O/dbsnp
+  zcat $DBSNP_GZ | $PY tools/dbsnp_py/extract.py --workers $DBSNP_WORKERS \
+    --id-map $O/id_map.tsv.gz --out $O/dbsnp
+  DBSNP_NODES=",$(ls $O/dbsnp/dbsnp_nodes.*.tsv.gz | paste -sd,)"
+  DBSNP_EDGES=",$(ls $O/dbsnp/dbsnp_edges.*.tsv.gz | paste -sd,)"
+  DBSNP_ATTRS=",$(ls $O/dbsnp/dbsnp_attrs.*.tsv.gz | paste -sd,)"
 fi
 
 echo "### 6d/7 node attributes (numeric/value scalars: gnomad/depmap/alphafold/alphamissense_transcript) $(date +%T)"
@@ -85,7 +94,7 @@ echo "### 7/7 assemble (stub-nodes + node-attributes + gzip) $(date +%T)"
 $PY -m tools.kg_export assemble \
   --nodes $O/nodes_core.tsv.gz,$O/go_nodes.tsv.gz,$O/refseq_nodes.tsv.gz,$O/mesh_nodes.tsv.gz$DBSNP_NODES \
   --edges $O/edges_direct.tsv.gz,$O/edges_reified.tsv.gz,$O/go_edges.tsv.gz,$O/refseq_edges.tsv.gz,$O/ontology_edges.tsv.gz,$O/mesh_edges.tsv.gz,$O/structure_edges.tsv.gz$PRED_EDGES$DBSNP_EDGES \
-  --node-attributes $O/node_attrs.tsv.gz,$O/structure_attrs.tsv.gz \
+  --node-attributes $O/node_attrs.tsv.gz,$O/structure_attrs.tsv.gz$DBSNP_ATTRS \
   --out-dir $O/dump --data-version out_prod_v5_full --stub-nodes --gzip
 
 echo "### DONE $(date +%T)"; df -h /data | tail -1

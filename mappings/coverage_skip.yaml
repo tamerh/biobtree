@@ -34,9 +34,7 @@ skip:
   neighborentrez: "NCBI genomic-neighbor linking tag (gene<->gene); genomic adjacency has no clean biolink predicate -> deferred"
   relatedentrez: "NCBI 'related gene' linking tag (gene<->gene); vague semantics, no clean biolink predicate -> deferred"
   # orthologentrez now covered (entrez>orthologentrez -> orthologous_to)
-  exon: "genomic sub-feature of transcripts"
-  cds: "coding sequence sub-feature"
-  ufeature: "UniProt sequence feature (sub-entity)"
+  # exon/cds/ufeature now covered (sub-gene/protein structure layer)
   uniparc: "non-redundant sequence cluster (identifier)"
   uniref50: "sequence cluster (identifier)"
   uniref90: "sequence cluster (identifier)"

@@ -315,6 +315,37 @@ class TierACoverageTests(unittest.TestCase):
         ], "spliceai")
         self.assertEqual({s for s, _, _ in sp_e}, {"biobtree.variant:10_100042431_G_A"})
 
+    def test_transcript_has_part_exon_and_cds(self):
+        """transcript -> exon and -> cds become has_part."""
+        tx, ex, cd = self._id("transcript"), self._id("exon"), self._id("cds")
+        _, edges = self._direct("transcript_sorted.1.index.gz", [
+            f"ENST1\t{tx}\tENSE1\t{ex}", f"ENST1\t{tx}\tENSP1\t{cd}",
+            f'ENST1\t{tx}\t{{"biotype":"x"}}\t-1',
+        ], "transcript")
+        self.assertIn(("ENSEMBL:ENST1", "biolink:has_part", "ENSEMBL:ENSE1"), edges)
+        self.assertIn(("ENSEMBL:ENST1", "biolink:has_part", "ENSEMBL:ENSP1"), edges)
+
+    def test_ufeature_has_part_only_to_protein(self):
+        """protein has_part feature; pdb/pubmed objects are not edges; self-loop guard."""
+        uf, up, pdb, pm = (self._id("ufeature"), self._id("uniprot"),
+                           self._id("pdb"), self._id("pubmed"))
+        _, edges = self._direct("ufeature_sorted.1.index.gz", [
+            f'A0_F1\t{uf}\t{{"type":"domain"}}\t-1', f"A0_F1\t{uf}\tP12345\t{up}",
+            f"A0_F1\t{uf}\t1ABC\t{pdb}", f"A0_F1\t{uf}\t999\t{pm}",
+        ], "ufeature")
+        self.assertEqual(edges, {("UniProtKB:P12345", "biolink:has_part", "uniprot.feature:A0_F1")})
+
+    def test_direct_self_loop_dropped(self):
+        """A degenerate subj==obj edge (WormBase cds id == transcript id) is skipped."""
+        tx, cd = self._id("transcript"), self._id("cds")
+        with tempfile.TemporaryDirectory() as d:
+            tmp = Path(d)
+            self._write(tmp, "transcript_sorted.1.index.gz", [f"B0019.1.1\t{tx}\tB0019.1.1\t{cd}"])
+            out = tmp / "e.tsv"
+            stats = build_edges(tmp, self.reg, self.cats, self.pm, out, datasets=["transcript"])
+            self.assertEqual(stats.edges_written, 0)
+            self.assertEqual(stats.self_loops, 1)
+
     def test_mesh_is_not_a_categories_node(self):
         """MeSH (multi-type, 91% untyped chemicals) is NOT a static categories node;
         its disease subset is emitted by the mesh.py runtime builder instead."""

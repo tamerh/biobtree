@@ -32,6 +32,7 @@ class EdgeStats:
     edges_written: int = 0
     dropped_not_node: int = 0  # an endpoint dataset isn't a typed node
     skipped: int = 0  # recognized pair, intentionally not emitted
+    self_loops: int = 0  # subject == object (degenerate)
     unmapped: int = 0  # pair has no predicate rule
     malformed_lines: int = 0
     by_predicate: dict = field(default_factory=lambda: defaultdict(int))
@@ -134,6 +135,10 @@ def build_edges(
                 else:
                     subj = canonical(src_ds, raw.subject)
                     obj = canonical(obj_ds, raw.object)
+
+                if subj == obj:  # degenerate self-loop (e.g. WormBase cds id ==
+                    stats.self_loops += 1  # transcript id; both render under ENSEMBL)
+                    continue
 
                 # direct edges come from curated source DBs
                 out.write(

@@ -20,9 +20,9 @@ mkdir -p "$O"
 # Core node datasets (with names); stubs cover compounds/variants/ncRNA/etc.
 # Ontologies (disease/phenotype incl. cross-species uPheno family) materialized
 # so their subclass_of/close_match edges (step 4) don't dangle.
-NODE_DS=hgnc,ensembl,uniprot,transcript,mondo,doid,efo,orphanet,mim,hpo,mp,upheno,zp,xpo,wbphenotype,fypo,oba,chebi,chembl_molecule,hmdb,lipidmaps,swisslipids,drugbank,reactome,msigdb,uberon,cl,cellosaurus,taxonomy,interpro,corum,mgi,rgd,sgd,zfin,flybase,wormbase,civic_variant,ctd,brenda,jaspar,mirdb,xenbase,faers_reaction,fantom5_enhancer,pharmgkb_pathway,literature_mappings,chembl_document,patent,chembl_cell_line
+NODE_DS=hgnc,ensembl,uniprot,transcript,mondo,doid,efo,orphanet,mim,hpo,mp,upheno,zp,xpo,wbphenotype,fypo,oba,chebi,chembl_molecule,hmdb,lipidmaps,swisslipids,drugbank,reactome,msigdb,uberon,cl,cellosaurus,taxonomy,interpro,corum,mgi,rgd,sgd,zfin,flybase,wormbase,civic_variant,ctd,brenda,jaspar,mirdb,xenbase,faers_reaction,fantom5_enhancer,pharmgkb_pathway,literature_mappings,chembl_document,patent,chembl_cell_line,exon,cds,ufeature
 # Direct edges (incl. big high-value forwards: clinvar, rnacentral)
-EDGE_DS=ensembl,uniprot,reactome,msigdb,cellosaurus,hmdb,swisslipids,chembl_molecule,orphanet,transcript,clinvar,rnacentral,jaspar,chembl_document,chembl_cell_line,entrez
+EDGE_DS=ensembl,uniprot,reactome,msigdb,cellosaurus,hmdb,swisslipids,chembl_molecule,orphanet,transcript,clinvar,rnacentral,jaspar,chembl_document,chembl_cell_line,entrez,ufeature
 # Reified (incl. string_interaction PPI + similarity stars + bioactivity)
 REIFIED_DS=intact,string_interaction,chembl_activity,pubchem_activity,bgee,depmap_dependency,fantom5_gene,diamond_similarity,esm2_similarity,gwas,alliance_disease,clinical_trials,cellxgene_celltype,ctd_gene_interaction,civic_variant,civic_evidence,civic_assertion,mirdb,generif,alliance_phenotype,faers,panelapp_gene,ctd_disease_association,fantom5_enhancer,pharmgkb_pathway,pharmgkb_guideline,patent
 

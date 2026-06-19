@@ -44,6 +44,7 @@ KNOWN_CATEGORIES = {
     "biolink:CellularComponent", "biolink:ChemicalEntity",
     "biolink:MicroRNA", "biolink:NucleicAcidSequenceMotif", "biolink:Publication",
     "biolink:DiseaseOrPhenotypicFeature", "biolink:RegulatoryRegion",
+    "biolink:Exon", "biolink:CodingSequence", "biolink:ProteinDomain",
 }
 
 

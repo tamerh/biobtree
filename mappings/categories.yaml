@@ -69,6 +69,17 @@ datasets:
 
   # --- Transcripts -----------------------------------------------------------
   transcript:  {category: "biolink:Transcript", prefix: "ENSEMBL"}
+  # --- Sub-gene / protein structure (granular; large) ------------------------
+  # Ensembl exon (ENSE/ENSMUSE...) and CDS (= translation id ENSP/ENSMUSP). Both
+  # under ENSEMBL; their nodes MUST be built (NODE_DS) so ENSE/ENSP endpoints type
+  # correctly (the ENSEMBL stub disambiguator only knows Gene vs Transcript).
+  exon:        {category: "biolink:Exon", prefix: "ENSEMBL", note: "Ensembl exon (derived:ensembl); transcript has_part exon (~17M)"}
+  cds:         {category: "biolink:CodingSequence", prefix: "ENSEMBL", note: "Ensembl CDS = translation id (derived:ensembl); transcript has_part cds"}
+  # UniProt protein feature (HETEROGENEOUS: ~3% domains, rest sites/helices/signal
+  # peptides/...). ProteinDomain is the closest existing biolink class (mild
+  # overclaim, cf. msigdb->Pathway); feature `type` is a qualifier follow-up.
+  # Surrogate id <ACC>_F<n>, no registered CURIE -> locally-coined prefix (flagged).
+  ufeature:    {category: "biolink:ProteinDomain", prefix: "uniprot.feature", note: "UniProt protein feature (heterogeneous); surrogate id; non-canonical prefix"}
   # refseq: NOT listed here. One refseq dataset conflates Transcript (mRNA),
   # NoncodingRNAProduct (ncRNA) and Protein (NP_/XP_) by the accession `type`
   # field, so it is typed at runtime in refseq.py (like go.py splits GO by

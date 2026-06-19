@@ -52,6 +52,26 @@ direct:
   "transcript>uniprot": {predicate: "biolink:translates_to"}
   "uniprot>transcript": {skip: "reverse of transcript>uniprot"}
 
+  # --- Sub-gene / protein structure (transcript->exon/cds, protein->feature) --
+  # Forward direction for exon & cds is in transcript_sorted. exon=~17.3M (largest
+  # direct source after paralog), cds=~1.47M. These build from the already-read
+  # transcript forward; exon/cds nodes must be in NODE_DS (ENSE/ENSP typing).
+  "transcript>exon":   {predicate: "biolink:has_part", note: "transcript contains exon (~17.3M)"}
+  "transcript>cds":    {predicate: "biolink:has_part", note: "transcript contains coding sequence (~1.47M)"}
+  "exon>transcript":   {skip: "reverse of transcript>exon (_from_ mirror)"}
+  "cds>transcript":    {skip: "reverse of transcript>cds (_from_ mirror)"}
+  "cds>uniprot":       {skip: "cds id is Ensembl translation == uniprot; protein already linked via transcript>uniprot"}
+  # protein has_part feature (ufeature>uniprot flipped -> protein -> feature).
+  "ufeature>uniprot":  {predicate: "biolink:has_part", flip: true, note: "protein has_part feature"}
+  "ufeature>pdb":      {skip: "feature->structure xref"}
+  "ufeature>pubmed":   {skip: "feature evidence citation"}
+  "ufeature>sam":      {skip: "feature evidence source"}
+  "ufeature>pirsr":    {skip: "feature evidence source"}
+  "ufeature>rulebase": {skip: "feature evidence source"}
+  "ufeature>ena":      {skip: "feature evidence source"}
+  "ufeature>pir":      {skip: "feature evidence source"}
+  "ufeature>flybase":  {skip: "feature evidence source"}
+
   # --- Gene / protein / transcript -> pathway -------------------------------
   "reactome>ensembl":  {predicate: "biolink:participates_in", flip: true, note: "gene participates_in pathway; larger than ensembl>reactome"}
   "ensembl>reactome":  {skip: "redundant with reactome>ensembl"}

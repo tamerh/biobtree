@@ -47,6 +47,10 @@ more workers don't help. **To go below ~47 min** the source must be sharded so
 decompression itself parallelizes (a biobtree-side change) — with ~8–16 shards on
 32 cores this drops toward ~5–10 min.
 
+> Note: these numbers were measured on a **contended box** (other work running), so
+> they are a floor. A quiet full run — when CPU/IO aren't competing — should beat
+> them. Re-benchmark on an idle machine before treating any figure as the real cost.
+
 ## Full-layer scale (extrapolated from measured densities)
 
 - ~1.1B `SequenceVariant` nodes

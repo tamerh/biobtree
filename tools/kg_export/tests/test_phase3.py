@@ -32,6 +32,23 @@ class MergeTests(unittest.TestCase):
             ids = [l.split("\t")[0] for l in out.read_text().splitlines()[1:]]
             self.assertEqual(sorted(ids), ["GO:1", "HGNC:1"])
 
+    def test_merge_nodes_dedup_by_id_different_content(self):
+        """Same id from two files (different content) collapses to exactly one node
+        (sort-based dedup, memory-flat)."""
+        with tempfile.TemporaryDirectory() as d:
+            tmp = Path(d)
+            _write(tmp / "n1.tsv", kgx.NODE_HEADER, [
+                "DBSNP:RS1\tbiolink:SequenceVariant\trs1\tDBSNP:RS1\tinfores:biobtree",
+            ])
+            _write(tmp / "n2.tsv", kgx.NODE_HEADER, [
+                "DBSNP:RS1\tbiolink:SequenceVariant\t\tDBSNP:RS1\tinfores:biobtree",  # boundary dup, no name
+            ])
+            out = tmp / "nodes.tsv"
+            n = kgx.merge_nodes([tmp / "n1.tsv", tmp / "n2.tsv"], out)
+            ids = [l.split("\t")[0] for l in out.read_text().splitlines()[1:]]
+            self.assertEqual(n, 1)
+            self.assertEqual(ids, ["DBSNP:RS1"])
+
     def test_merge_edges_dedup_by_id(self):
         with tempfile.TemporaryDirectory() as d:
             tmp = Path(d)
@@ -149,6 +166,49 @@ class ValidateTests(unittest.TestCase):
             _write(tmp / "edges.tsv", kgx.EDGE_HEADER, [])
             r = kgx.validate(tmp / "nodes.tsv", tmp / "edges.tsv")
             self.assertEqual(r["bad_category"], 1)
+            self.assertFalse(r["ok"])
+
+
+class StreamingValidateTests(unittest.TestCase):
+    """validate_streaming: billion-scale gate -- shape checks streamed, dangling/dup
+    taken from the construction (merge/stub) stats instead of giant in-memory sets."""
+
+    def _kg(self, tmp, nodes, edges):
+        _write(tmp / "nodes.tsv", kgx.NODE_HEADER, nodes)
+        _write(tmp / "edges.tsv", kgx.EDGE_HEADER, edges)
+
+    def test_streaming_clean(self):
+        with tempfile.TemporaryDirectory() as d:
+            tmp = Path(d)
+            self._kg(tmp, [
+                "HGNC:1\tbiolink:Gene\tg\tHGNC:1\tinfores:biobtree",
+                "DBSNP:RS1\tbiolink:SequenceVariant\trs1\tDBSNP:RS1\tinfores:biobtree",
+            ], [kgx.format_edge("DBSNP:RS1", "biolink:is_sequence_variant_of",
+                                "HGNC:1", "infores:dbsnp").rstrip("\n")])
+            r = kgx.validate_streaming(tmp / "nodes.tsv", tmp / "edges.tsv",
+                                       removed_edges=12, stub_untyped=0)
+            self.assertEqual(r["mode"], "streaming")
+            self.assertTrue(r["ok"], r)
+            self.assertEqual(r["edges"], 1)
+            self.assertEqual(r["duplicate_edges_removed_at_merge"], 12)
+
+    def test_streaming_untyped_dangling_fails(self):
+        with tempfile.TemporaryDirectory() as d:
+            tmp = Path(d)
+            self._kg(tmp, ["HGNC:1\tbiolink:Gene\tg\tHGNC:1\tinfores:biobtree"], [])
+            r = kgx.validate_streaming(tmp / "nodes.tsv", tmp / "edges.tsv",
+                                       stub_untyped=3)
+            self.assertEqual(r["untyped_dangling_endpoints"], 3)
+            self.assertFalse(r["ok"])
+
+    def test_streaming_bad_predicate_and_category(self):
+        with tempfile.TemporaryDirectory() as d:
+            tmp = Path(d)
+            self._kg(tmp, ["X:1\tbiolink:GeneSet\tx\tX:1\tinfores:biobtree"],  # bad category
+                     [kgx.format_edge("X:1", "related_to", "X:1", "infores:x").rstrip("\n")])
+            r = kgx.validate_streaming(tmp / "nodes.tsv", tmp / "edges.tsv")
+            self.assertEqual(r["bad_category"], 1)
+            self.assertEqual(r["bad_predicate"], 1)
             self.assertFalse(r["ok"])
 
 

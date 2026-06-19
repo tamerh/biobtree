@@ -131,27 +131,55 @@ def _read_rows(path: Path):
             yield header, line.rstrip("\n")
 
 
+def _sort_file(src: Path, dst: Path, *key_args: str, uniq: bool = False,
+               tmp_dir: Path | None = None) -> None:
+    """External (disk-spilling) sort -- memory-flat at any scale. LC_ALL=C for
+    deterministic byte order. Used by the billion-scale merge/stub steps."""
+    args = ["sort", "-T", str(tmp_dir or src.parent), "-t", "\t", *key_args]
+    if uniq:
+        args.append("-u")
+    args += ["-o", str(dst), str(src)]
+    subprocess.run(args, check=True, env={**os.environ, "LC_ALL": "C"})
+
+
 def merge_nodes(inputs: Iterable[str | Path], out_path: str | Path) -> int:
-    """Concatenate node TSVs, de-duplicating by node id (first wins)."""
-    seen: set[str] = set()
+    """Concatenate node TSVs, de-duplicating by node id.
+
+    Dedup is an external ``sort -u`` on the id column (disk-spilling), so it scales
+    past RAM -- a billion-node graph (e.g. with the dbSNP layer) won't fit an
+    in-memory set. One line per id survives (content-identical dups collapse
+    cleanly; for the rare same-id/different-content case one is kept arbitrarily)."""
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    n = 0
-    with xopen(out_path, "wt") as out:
-        out.write(NODE_HEADER + "\n")
+    tmp_dir = out_path.parent
+    body = Path(str(out_path) + ".nbody.tmp")
+
+    total = 0
+    with body.open("w", encoding="utf-8") as fh:
         for inp in inputs:
             p = Path(inp)
             if not p.exists():
                 continue
             for _, row in _read_rows(p):
-                if not row:
-                    continue
-                node_id = row.split("\t", 1)[0]
-                if node_id in seen:
-                    continue
-                seen.add(node_id)
-                out.write(row + "\n")
+                if row:
+                    fh.write(row + "\n")
+                    total += 1
+
+    final = body
+    if total and shutil.which("sort"):
+        srt = Path(str(out_path) + ".nsorted.tmp")
+        _sort_file(body, srt, "-k1,1", uniq=True, tmp_dir=tmp_dir)
+        body.unlink()
+        final = srt
+
+    n = 0
+    with xopen(out_path, "wt") as out:
+        out.write(NODE_HEADER + "\n")
+        with final.open(encoding="utf-8") as fb:
+            for line in fb:
+                out.write(line)
                 n += 1
+    final.unlink()
     return n
 
 
@@ -307,38 +335,65 @@ def add_stub_nodes(nodes_tsv: str | Path, edges_tsv: str | Path, categories) -> 
     doesn't store as nodes; a materialized KG needs a node per endpoint. Category
     is inferred from the CURIE prefix. Endpoints whose prefix can't be typed are
     left (and counted) — they'll still show as dangling in validate().
+
+    Memory-flat (scales to a billion-edge graph): the "endpoints with no node" set
+    is computed by ``comm`` over the sorted-unique node ids and sorted-unique edge
+    endpoints, not an in-memory id set.
     """
     pmap = _prefix_category(categories)
-    node_ids: set[str] = set()
-    for _, row in _read_rows(Path(nodes_tsv)):
-        if row:
-            node_ids.add(row.split("\t", 1)[0])
+    nodes_tsv, edges_tsv = Path(nodes_tsv), Path(edges_tsv)
+    tmp = nodes_tsv.parent
 
-    needed: dict[str, str] = {}
-    untyped: set[str] = set()
-    for _, row in _read_rows(Path(edges_tsv)):
-        if not row:
-            continue
-        parts = row.split("\t")
-        if len(parts) < 4:
-            continue
-        for ep in (parts[1], parts[3]):  # subject, object
-            if ep in node_ids or ep in needed or ep in untyped:
+    # sorted-unique node ids
+    nids = Path(str(nodes_tsv) + ".nids.tmp")
+    with nids.open("w", encoding="utf-8") as fh:
+        for _, row in _read_rows(nodes_tsv):
+            if row:
+                fh.write(row.split("\t", 1)[0] + "\n")
+    nids_u = Path(str(nodes_tsv) + ".nids_u.tmp")
+    _sort_file(nids, nids_u, "-k1,1", uniq=True, tmp_dir=tmp)
+    nids.unlink()
+
+    # sorted-unique edge endpoints (subjects + objects)
+    eps = Path(str(nodes_tsv) + ".eps.tmp")
+    with eps.open("w", encoding="utf-8") as fh:
+        for _, row in _read_rows(edges_tsv):
+            if not row:
+                continue
+            parts = row.split("\t")
+            if len(parts) < 4:
+                continue
+            fh.write(parts[1] + "\n")
+            fh.write(parts[3] + "\n")
+    eps_u = Path(str(nodes_tsv) + ".eps_u.tmp")
+    _sort_file(eps, eps_u, "-k1,1", uniq=True, tmp_dir=tmp)
+    eps.unlink()
+
+    # comm -13: endpoints present in edges (file2) but absent from nodes (file1)
+    by_cat: Counter = Counter()
+    untyped = 0
+    env = {**os.environ, "LC_ALL": "C"}
+    proc = subprocess.Popen(
+        ["comm", "-13", str(nids_u), str(eps_u)],
+        stdout=subprocess.PIPE, env=env, text=True,
+    )
+    with xopen(nodes_tsv, "at") as out:  # gz append = new member, readers concat fine
+        for line in proc.stdout:
+            ep = line.rstrip("\n")
+            if not ep:
                 continue
             cat = _stub_category(ep, pmap)
             if cat:
-                needed[ep] = cat
+                out.write(f"{ep}\t{cat}\t\t{ep}\t{AGGREGATOR}\n")
+                by_cat[cat] += 1
             else:
-                untyped.add(ep)
-
-    by_cat: Counter = Counter()
-    with xopen(nodes_tsv, "at") as out:  # gz append = new member, readers concat fine
-        for nid, cat in needed.items():
-            out.write(f"{nid}\t{cat}\t\t{nid}\t{AGGREGATOR}\n")
-            by_cat[cat] += 1
+                untyped += 1
+    proc.wait()
+    nids_u.unlink()
+    eps_u.unlink()
     return {
-        "stubs_added": len(needed),
-        "untyped_endpoints": len(untyped),
+        "stubs_added": sum(by_cat.values()),
+        "untyped_endpoints": untyped,
         "by_category": dict(by_cat),
     }
 
@@ -414,6 +469,67 @@ def validate(nodes_tsv: str | Path, edges_tsv: str | Path) -> dict:
                 bad_category, bad_predicate, duplicate_node_ids,
             )
         ),
+    }
+
+
+def validate_streaming(
+    nodes_tsv: str | Path, edges_tsv: str | Path, *,
+    removed_edges: int = 0, stub_untyped: int = 0,
+) -> dict:
+    """Billion-scale validation: cheap streaming shape checks, with dedup/dangling
+    taken from the construction steps instead of giant in-memory sets.
+
+    The full graph (with the dbSNP layer) has ~1.1B nodes / ~3B edges -- the
+    ``node_ids`` / ``seen_edge_ids`` sets in ``validate()`` won't fit RAM. But the
+    properties they check are already *guaranteed by construction*: ``merge_nodes``
+    / ``merge_edges`` sort-dedup (so duplicates are 0; ``removed_edges`` records how
+    many edge dups collapsed), and ``add_stub_nodes`` materializes a node for every
+    typed endpoint (so the only dangling left is ``stub_untyped`` -- endpoints whose
+    prefix can't be typed). So here we only stream once for the per-row shape checks
+    (bad CURIE / category / predicate / non-canonical prefix) and fold in those
+    counts. Use ``validate()`` (exact, in-memory) for the small published subgraph.
+    """
+    bad_node_curie = bad_category = node_count = 0
+    non_biolink_prefixes: dict[str, int] = defaultdict(int)
+    for _, row in _read_rows(Path(nodes_tsv)):
+        if not row:
+            continue
+        parts = row.split("\t")
+        nid = parts[0]
+        node_count += 1
+        if ":" not in nid:
+            bad_node_curie += 1
+        elif nid.split(":", 1)[0] not in CANONICAL_PREFIXES:
+            non_biolink_prefixes[nid.split(":", 1)[0]] += 1
+        if len(parts) > 1 and parts[1] and parts[1] not in KNOWN_CATEGORIES:
+            bad_category += 1
+
+    edges = bad_predicate = 0
+    for _, row in _read_rows(Path(edges_tsv)):
+        if not row:
+            continue
+        parts = row.split("\t")
+        if len(parts) < 4:
+            continue
+        edges += 1
+        if not parts[2].startswith("biolink:"):
+            bad_predicate += 1
+
+    return {
+        "mode": "streaming",
+        "nodes": node_count,
+        "edges": edges,
+        "bad_node_curie": bad_node_curie,
+        "bad_category": bad_category,
+        "bad_predicate": bad_predicate,
+        # dangling/dup are guaranteed by the sort-based merge + stub steps; recorded
+        # from their stats rather than recomputed with billion-entry sets.
+        "untyped_dangling_endpoints": stub_untyped,
+        "duplicate_edges_removed_at_merge": removed_edges,
+        "non_biolink_prefixes": dict(sorted(
+            non_biolink_prefixes.items(), key=lambda kv: -kv[1])),
+        "ok": all(v == 0 for v in (
+            bad_node_curie, bad_category, bad_predicate, stub_untyped)),
     }
 
 

@@ -195,6 +195,18 @@ non-canonical CURIE prefixes. A VALID dump has zero dangling edges and zero
 duplicate node ids. (The full biolink-model-toolkit / KGX validator in CI is a
 planned follow-up.)
 
+**Billion-scale (memory-flat assemble).** The whole assemble runs in flat memory so
+it survives the dbSNP layer (~1.1B nodes / ~3B edges): `merge_nodes` and
+`merge_edges` dedup via external `sort -u` (disk-spill), and `add_stub_nodes`
+computes "endpoints with no node" by `comm` over sorted id lists — none of them
+hold a billion-entry Python set. Validation has two modes (`--validate-mode`):
+- `full` (default) — exact, in-memory `node_ids`/`edge_ids` sets. Used for the small
+  **published subgraph** (the real publish gate) and tests.
+- `streaming` — billion-scale: one streaming pass for the per-row shape checks
+  (CURIE/category/predicate/prefix), with dangling and duplicate counts taken from
+  the construction steps (sort-dedup removed counts; stub's untyped-endpoint count)
+  rather than recomputed with giant sets. `full_prod.sh` uses this.
+
 ## Coverage & limitations
 
 - **Taxid scope**: BioBTree's genes/proteins cover 16 model organisms; edges to
@@ -206,9 +218,9 @@ planned follow-up.)
   variant attributes. It lives in a separate ~118 GB-gz federation, so it's built by
   a dedicated parallel extractor (`tools/dbsnp_py/extract.py`: `zcat` decompresses,
   a Python multiprocessing pool parses/shards, ~1 hr/full pass) and wired into
-  `full_prod.sh` (`WITH_DBSNP=1`, default on; set `0` to skip). A real full run also
-  needs the billion-scale `assemble` rework (the in-memory validate node-id set
-  won't hold 1.1B) — tracked, pending.
+  `full_prod.sh` (`WITH_DBSNP=1`, default on; set `0` to skip). The assemble step is
+  memory-flat (sort-based merge/stub + `--validate-mode streaming`), so it survives
+  the billion-scale layer — see *Validation*.
 - **Prefixes**: SwissLipids is emitted as `SWISSLIPID` pending canonical `SLM` +
   zero-padded ids; `validate()` reports any non-canonical prefixes.
 - **Deferred qualifiers**: ECO evidence, PATO quality, XCO condition, and numeric

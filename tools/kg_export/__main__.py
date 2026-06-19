@@ -363,7 +363,18 @@ def _cmd_assemble(args: argparse.Namespace) -> int:
                 node_attrs.setdefault(node, {}).update(props)
     kgx.nodes_to_jsonl(nodes_tsv, out_dir / ("nodes.jsonl" + ext), attributes=node_attrs)
     kgx.edges_to_jsonl(edges_tsv, out_dir / ("edges.jsonl" + ext))
-    report = kgx.validate(nodes_tsv, edges_tsv)
+    if args.validate_mode == "streaming":
+        # billion-scale: shape checks streamed; dangling/dup from construction stats
+        report = kgx.validate_streaming(
+            nodes_tsv, edges_tsv,
+            removed_edges=edge_dedup["removed"],
+            stub_untyped=stub_info["untyped_endpoints"] if stub_info else 0,
+        )
+        if stub_info is None:
+            print("  WARNING: streaming validate without --stub-nodes can't confirm "
+                  "dangling edges; use --stub-nodes or --validate-mode full.", file=sys.stderr)
+    else:
+        report = kgx.validate(nodes_tsv, edges_tsv)
     mani = kgx.manifest(nodes_tsv, edges_tsv, args.data_version, report)
     mani["edge_dedup"] = edge_dedup
     if stub_info is not None:
@@ -517,6 +528,9 @@ def main(argv: list[str] | None = None) -> int:
     a.add_argument("--stub-nodes", action="store_true",
                    help="emit minimal nodes for edge endpoints lacking one")
     a.add_argument("--gzip", action="store_true", help="gzip the final TSV/JSONL")
+    a.add_argument("--validate-mode", choices=("full", "streaming"), default="full",
+                   help="full: exact in-memory validate (subgraph/small). streaming: "
+                        "billion-scale; shape checks + dangling/dup from construction")
     a.add_argument("--node-attributes", default=None,
                    help="node-attribute table(s) (comma list; from `attributes`/`structure`) "
                         "to merge into nodes.jsonl")

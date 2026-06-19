@@ -9,8 +9,9 @@
 # output (~1 hr full pass on a quiet box). Set WITH_DBSNP=0 to skip it for the
 # faster/smaller runs used during alignment + assemble work.
 #
-# NOTE: a real FULL run with dbSNP needs the billion-scale `assemble` rework first
-# (the current validate builds an in-memory node-id set; 1.1B won't fit) -- pending.
+# The assemble step is memory-flat (sort-based merge/stub + --validate-mode
+# streaming), so it survives the billion-scale dbSNP layer. Disk for sort spill goes
+# next to $O (on /data), so ensure scratch space before a full run.
 set -e
 PY=/data/miniconda3/envs/biobtree/bin/python
 IDX=/data2/out_prod_v5/main/index
@@ -95,6 +96,7 @@ $PY -m tools.kg_export assemble \
   --nodes $O/nodes_core.tsv.gz,$O/go_nodes.tsv.gz,$O/refseq_nodes.tsv.gz,$O/mesh_nodes.tsv.gz$DBSNP_NODES \
   --edges $O/edges_direct.tsv.gz,$O/edges_reified.tsv.gz,$O/go_edges.tsv.gz,$O/refseq_edges.tsv.gz,$O/ontology_edges.tsv.gz,$O/mesh_edges.tsv.gz,$O/structure_edges.tsv.gz$PRED_EDGES$DBSNP_EDGES \
   --node-attributes $O/node_attrs.tsv.gz,$O/structure_attrs.tsv.gz$DBSNP_ATTRS \
-  --out-dir $O/dump --data-version out_prod_v5_full --stub-nodes --gzip
+  --out-dir $O/dump --data-version out_prod_v5_full --stub-nodes --gzip \
+  --validate-mode streaming
 
 echo "### DONE $(date +%T)"; df -h /data | tail -1

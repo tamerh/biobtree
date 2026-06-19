@@ -31,6 +31,7 @@ from .nodeattrs import build_node_attributes, load_config as load_nodeattr_confi
 from .refseq import build_refseq
 from .reified import build_reified_edges
 from .structure import build_structure
+from .subgraph import build_subgraph, check_completeness, load_config as load_subgraph_config
 
 
 def _cmd_nodes(args: argparse.Namespace) -> int:
@@ -366,6 +367,29 @@ def _cmd_nodeattrs(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_subgraph(args: argparse.Namespace) -> int:
+    config = load_subgraph_config(args.config)
+    t0 = time.time()
+    stats = build_subgraph(
+        nodes_tsv=args.nodes, edges_tsv=args.edges, config=config,
+        out_nodes=args.out_nodes, out_edges=args.out_edges, stats_path=args.stats,
+    )
+    dt = time.time() - t0
+    print(f"subgraph nodes: {args.out_nodes}  edges: {args.out_edges}", file=sys.stderr)
+    print(
+        f"  spine={stats.spine_nodes:,} (human_anchor={stats.human_nodes:,}) "
+        f"nodes_out={stats.nodes_out:,} edges {stats.edges_out:,}/{stats.edges_in:,} "
+        f"(capped {stats.capped_dropped:,}, unanchored {stats.unanchored_dropped:,})",
+        file=sys.stderr,
+    )
+    if args.full_manifest:
+        mani = json.loads(Path(args.full_manifest).read_text())
+        comp = check_completeness(stats, mani)
+        print(f"  completeness={comp}", file=sys.stderr)
+    print(f"  elapsed={dt:.1f}s", file=sys.stderr)
+    return 0
+
+
 def _cmd_assemble(args: argparse.Namespace) -> int:
     out_dir = Path(args.out_dir)
     node_inputs = [s.strip() for s in args.nodes.split(",") if s.strip()]
@@ -556,6 +580,16 @@ def main(argv: list[str] | None = None) -> int:
     at.add_argument("--id-map", default=None, help="Phase 1 member->canonical map")
     at.add_argument("--stats", default=None, help="output stats JSON path")
     at.set_defaults(func=_cmd_attributes)
+
+    sg = sub.add_parser("subgraph", help="induced human-scoped + capped projection of the full dump")
+    sg.add_argument("--nodes", required=True, help="full dump nodes.tsv[.gz]")
+    sg.add_argument("--edges", required=True, help="full dump edges.tsv[.gz]")
+    sg.add_argument("--config", default="mappings/subgraph.yaml")
+    sg.add_argument("--out-nodes", required=True, help="output subgraph nodes.tsv[.gz]")
+    sg.add_argument("--out-edges", required=True, help="output subgraph edges.tsv[.gz]")
+    sg.add_argument("--full-manifest", default=None, help="full dump manifest.json for completeness check")
+    sg.add_argument("--stats", default=None, help="output stats JSON path")
+    sg.set_defaults(func=_cmd_subgraph)
 
     a = sub.add_parser("assemble", help="merge -> JSONL -> validate -> manifest")
     a.add_argument("--nodes", required=True, help="comma list of node TSVs")

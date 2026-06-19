@@ -260,6 +260,35 @@ hold a billion-entry Python set. Validation has two modes (`--validate-mode`):
   the construction steps (sort-dedup removed counts; stub's untyped-endpoint count)
   rather than recomputed with giant sets. `full_prod.sh` uses this.
 
+## Published subgraph
+
+The full graph (with dbSNP) is billion-scale; the **published subgraph** is a small,
+*working snapshot* of it — every node category and edge predicate present, just
+trimmed — so anyone can drop it into Neo4j and it behaves like BioBTree in miniature.
+It is an **induced projection of the assembled full dump** (`subgraph` command), not
+a separate build:
+
+- **Spine** = every *full-category* node (ontologies / disease / phenotype / pathway /
+  anatomy / taxon — small, species-agnostic) **+** the *scoped-category* nodes
+  (gene/protein/transcript/variant/compound/…) that belong to the configured `taxon`
+  (default human, `NCBITaxon:9606`). Human anchoring is by the `in_taxon` edges (+
+  HGNC genes).
+- **Edges** anchored on the spine are kept up to a **per-(node, predicate) cap** that
+  is tiered by source (`mappings/subgraph.yaml`: STRING 50, activity 100, variants
+  50, structure uncapped, …; small curated/ontology sources uncapped). Each kept edge
+  **pulls in its endpoints**, so capped compounds, variants, and cross-species genes
+  appear in bounded numbers — the cross-species/variant/chemical layers stay visible
+  without exploding.
+- **Attributes + synonyms** come back for free: the subgraph TSVs are re-assembled
+  with the same `--node-attributes` tables (they only attach to surviving nodes), so
+  it's query-equivalent too.
+- **Completeness** is asserted against the full manifest: every category/predicate
+  upstream must survive the trim (else a small dataset was dropped by mistake).
+
+Built as step 8 of `full_prod.sh` (`out_prod_v5_subgraph`), validated `full`
+(in-memory — it's small). The full run is deferred until the full graph + disk are
+ready; the extractor is built and tested.
+
 ## Coverage & limitations
 
 - **Taxid scope**: BioBTree's genes/proteins cover 16 model organisms; edges to

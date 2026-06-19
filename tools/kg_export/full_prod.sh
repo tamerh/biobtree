@@ -103,4 +103,15 @@ $PY -m tools.kg_export assemble \
   --out-dir $O/dump --data-version out_prod_v5_full --stub-nodes --gzip \
   --validate-mode streaming
 
+echo "### 8/8 published subgraph (human-scoped + per-source capped projection) $(date +%T)"
+ATTRS=$O/node_attrs.tsv.gz,$O/structure_attrs.tsv.gz,$O/node_entry_attrs.tsv.gz$DBSNP_ATTRS
+$PY -m tools.kg_export subgraph \
+  --nodes $O/dump/nodes.tsv.gz --edges $O/dump/edges.tsv.gz --config mappings/subgraph.yaml \
+  --out-nodes $O/sub/nodes.tsv.gz --out-edges $O/sub/edges.tsv.gz \
+  --full-manifest $O/dump/manifest.json --stats $O/sub/subgraph.stats.json
+$PY -m tools.kg_export assemble \
+  --nodes $O/sub/nodes.tsv.gz --edges $O/sub/edges.tsv.gz --node-attributes $ATTRS \
+  --out-dir $O/sub/dump --data-version out_prod_v5_subgraph --stub-nodes --gzip \
+  --validate-mode full
+
 echo "### DONE $(date +%T)"; df -h /data | tail -1

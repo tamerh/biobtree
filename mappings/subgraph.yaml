@@ -1,0 +1,80 @@
+# Seed-driven published subgraph: a working snapshot of the FULL graph with every
+# node category + edge predicate present, trimmed small by (a) scoping the
+# taxon-dependent spine to one organism and (b) capping the big relational datasets.
+# It is an induced projection of the assembled full dump -- not a separate build.
+#
+# Spine = every FULL-category node (ontologies/disease/phenotype/pathway/anatomy --
+# small, species-agnostic) + the SCOPED-category nodes (gene/protein/transcript/...)
+# that belong to `taxon`. Big-dataset edges anchored on the spine are kept up to a
+# per-(node, predicate) cap and pull in their capped neighbours (compounds, variants,
+# cross-species genes), so those layers show without exploding.
+
+taxon: "NCBITaxon:9606"          # human spine
+
+# kept in full (every node) -- these node sets are small and species-agnostic
+full_categories:
+  - biolink:Disease
+  - biolink:PhenotypicFeature
+  - biolink:Pathway
+  - biolink:MolecularActivity
+  - biolink:BiologicalProcess
+  - biolink:CellularComponent
+  - biolink:GrossAnatomicalStructure
+  - biolink:AnatomicalEntity
+  - biolink:Cell
+  - biolink:CellLine
+  - biolink:OrganismTaxon
+
+# taxon-scoped: kept for `taxon`; other-species/extra members enter only as capped
+# edge neighbours (so the graph stays human-centred but cross-species is visible)
+scoped_categories:
+  - biolink:Gene
+  - biolink:Protein
+  - biolink:Transcript
+  - biolink:NoncodingRNAProduct
+  - biolink:SequenceVariant
+  - biolink:Exon
+  - biolink:CodingSequence
+  - biolink:ProteinDomain
+  - biolink:SmallMolecule        # compounds number in the millions -> anchored, not full
+  - biolink:ChemicalEntity
+  - biolink:Drug
+  - biolink:MicroRNA
+  - biolink:NucleicAcidSequenceMotif
+  - biolink:RegulatoryRegion
+  - biolink:Publication
+
+# kept uncapped -- small curated/ontology edge sets (keyed by primary_knowledge_source
+# infores:<name>). Everything else uses default_cap / caps.
+full_sources:
+  - ontology
+  - go
+  - reactome
+  - mondo
+  - hpo
+  - civic
+  - panelapp
+  - alliance_disease
+  - clingen
+
+# per-(subject node, predicate) cap for big datasets, keyed by primary source.
+default_cap: 100
+caps:
+  string_interaction: 50
+  intact: 50
+  biogrid_interaction: 50
+  diamond_similarity: 25
+  esm2_similarity: 25
+  chembl_activity: 100
+  pubchem_activity: 50
+  bgee: 50
+  scxa: 50
+  cellxgene_celltype: 50
+  gwas: 100
+  dbsnp: 50               # variants per gene (annotated-first ordering applied upstream)
+  exon: 0                 # 0 = keep all (a human gene's exons/CDS are bounded)
+  cds: 0
+  ufeature: 0
+  ortholog: 25            # cross-species bridge (pulls in non-human orthologue)
+  paralog: 25
+  orthologentrez: 25

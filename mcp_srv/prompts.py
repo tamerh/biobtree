@@ -16,21 +16,28 @@ DESIGN PRINCIPLES:
 
 EDGES = """
 EDGES (what connects to what):
-ensembl: uniprot, go, transcript, exon, ortholog, paralog, hgnc, entrez, refseq, bgee, gwas, gencc, antibody, scxa, civic, intogen, hpa, hpa_antibody, pharmgkb_var_annotation, chembl_mechanism, ncrna_disease, ncrna_interaction, ncrna_drug, alliance_disease
-hgnc: ensembl, uniprot, entrez, gencc, pharmgkb_gene, msigdb, clinvar, mim, refseq, alphafold, collectri, gwas, hpo, cellphonedb, civic, intogen, cellosaurus, clingen_gene_validity, clingen_dosage, clingen_variant, depmap, hpa, pharmgkb_var_annotation, chembl_mechanism, ncrna_disease, ncrna_interaction, ncrna_drug, alliance_disease
-entrez: ensembl, uniprot, refseq, go, biogrid, pubchem_activity, ctd_gene_interaction, dbsnp, civic, intogen, clingen_dosage, generif, depmap, depmap_dependency, hpa, pharmgkb_var_annotation
+ensembl: uniprot, go, transcript, exon, ortholog, paralog, hgnc, entrez, refseq, bgee, gwas, gencc, antibody, scxa, civic, intogen, hpa, hpa_antibody, pharmgkb_var_annotation, chembl_mechanism, ncrna_disease, ncrna_interaction, ncrna_drug, alliance_disease, gnomad_constraint, drugcentral, panelapp_gene
+hgnc: ensembl, uniprot, entrez, gencc, pharmgkb_gene, msigdb, clinvar, mim, refseq, alphafold, collectri, gwas, hpo, cellphonedb, civic, intogen, cellosaurus, clingen_gene_validity, clingen_dosage, clingen_variant, depmap, hpa, pharmgkb_var_annotation, chembl_mechanism, ncrna_disease, ncrna_interaction, ncrna_drug, alliance_disease, drugcentral, panelapp_gene, gnomad_constraint
+entrez: ensembl, uniprot, refseq, go, biogrid, pubchem_activity, ctd_gene_interaction, dbsnp, civic, intogen, clingen_dosage, generif, depmap, depmap_dependency, hpa, pharmgkb_var_annotation, orthologentrez, relatedentrez, neighborentrez, mgi, rgd, zfin, wormbase, xenbase, sgd, flybase, gnomad_constraint, drugcentral
+orthologentrez: entrez  # cross-species gene orthologs (NCBI gene_orthologs, bidirectional). >>entrez>>orthologentrez gives ortholog genes across species (filter species via taxonomy). Bridges a human gene to model-organism resources, e.g. >>entrez>>orthologentrez>>mgi>>alliance_phenotype>>mp
+relatedentrez: entrez  # related genes (bidirectional): NCBI gene_group (functional gene/pseudogene/readthrough/region) + HGNC gene-family co-members
+neighborentrez: entrez  # genomic neighbors (left/right/overlapping); edge carries distance + side, neighbor strand/position in attrs; filter to genes via [type!="biological-region"]
+gnomad_constraint: ensembl, entrez, hgnc, transcript  # gene LoF constraint (pLI/LOEUF/oe_lof); reach via >>ensembl>>gnomad_constraint
+drugcentral: chembl_molecule, pubchem, uniprot, ensembl, hgnc, entrez  # approved drugs -> targets/MOA + FDA/EMA/PMDA approval; reach via name/INN/InChIKey or compound (chembl_molecule/pubchem >> drugcentral)
 refseq: ensembl, entrez, taxonomy, ccds, uniprot, mirdb
 mirdb: refseq
-transcript: ensembl, exon, ufeature, alphamissense
-uniprot: ensembl, alphafold, interpro, pfam, pdb, ufeature, intact, string, string_interaction, biogrid, biogrid_interaction, chembl_target, go, reactome, rhea, swisslipids, bindingdb, antibody, pubchem_activity, cellphonedb, jaspar, signor, diamond_similarity, esm2_similarity, alphamissense, cellosaurus, hpa, chembl_mechanism, ncrna_interaction
+transcript: ensembl, exon, ufeature, alphamissense, civic_variant, gnomad_constraint
+uniprot: ensembl, alphafold, interpro, pfam, pdb, ufeature, intact, string, string_interaction, biogrid, biogrid_interaction, chembl_target, go, reactome, rhea, swisslipids, bindingdb, antibody, pubchem_activity, cellphonedb, jaspar, signor, diamond_similarity, esm2_similarity, alphamissense, cellosaurus, hpa, chembl_mechanism, ncrna_interaction, drugcentral
 alphafold: uniprot
 interpro: uniprot, go, interproparent, interprochild
-chembl_molecule: mesh, chembl_activity, chembl_target, pubchem, chebi, clinical_trials, chembl_moleculeparent, chembl_moleculechild, chembl_mechanism, ncrna_drug  # parent=anhydrous/parent form, child=salt forms
+chembl_molecule: mesh, chembl_activity, chembl_target, pubchem, chebi, clinical_trials, chembl_moleculeparent, chembl_moleculechild, chembl_mechanism, ncrna_drug, faers, drugcentral  # parent=anhydrous/parent form, child=salt forms
 chembl_activity: chembl_molecule, chembl_assay, bao
 chembl_assay: chembl_activity, chembl_target, chembl_document, bao
 chembl_target: chembl_assay, uniprot, chembl_molecule, chembl_mechanism
 chembl_mechanism: chembl_molecule, chembl_target, uniprot, hgnc, ensembl  # curated drug mechanism-of-action (incl. RNA therapeutics): drug >> chembl_mechanism, target/gene >> chembl_mechanism
-pubchem: chembl_molecule, chebi, hmdb, pubchem_activity, pubmed, patent_compound, bindingdb, ctd, pharmgkb, ncrna_drug
+pubchem: chembl_molecule, chebi, hmdb, pubchem_activity, pubmed, patent_compound, bindingdb, ctd, pharmgkb, ncrna_drug, faers, drugcentral
+faers: chembl_molecule, pubchem, faers_reaction  # openFDA FAERS drug->adverse-event; faers (per-drug master) -> faers_reaction children (PRR), reach via drug name or compound. NOTE co-occurrence not causation
+faers_reaction: faers  # one per (drug,reaction): report_count, prr, serious_count, outcome; most-reported first
 pubchem_activity: pubchem, ensembl, uniprot
 chebi: pubchem, rhea, intact
 swisslipids: uniprot, go, chebi, uberon, cl
@@ -40,13 +47,16 @@ clinvar: hgnc, mondo, hpo, dbsnp, orphanet, civic_variant, cellosaurus, clingen_
 alphamissense: uniprot, transcript
 gwas: gwas_study, efo, dbsnp, hgnc, mondo
 gwas_study: gwas, efo, mondo
-mondo: gencc, clinvar, efo, mesh, hpo, clinical_trials, antibody, cellxgene, cellxgene_celltype, orphanet, mondoparent, mondochild, gwas, gwas_study, civic, intogen, cellosaurus, doid, mim, ncit, umls, medgen, gard, sctid, icd9, icd10cm, icd10who, icd11, nando, meddra, nord, uberon, ncrna_disease  # disease cross-refs + disease_has_location anatomy, from the Mondo OBO
+mondo: gencc, clinvar, efo, mesh, hpo, clinical_trials, antibody, cellxgene, cellxgene_celltype, orphanet, mondoparent, mondochild, gwas, gwas_study, civic, intogen, cellosaurus, doid, mim, ncit, umls, medgen, gard, sctid, icd9, icd10cm, icd10who, icd11, nando, meddra, nord, uberon, ncrna_disease, panelapp_gene  # disease cross-refs + disease_has_location anatomy, from the Mondo OBO
 doid: mondo, alliance_disease, doidparent, doidchild  # Disease Ontology (now a full ontology w/ hierarchy); reach MONDO + its disease graph via the mondo<->doid bridge
 alliance_disease: hgnc, mgi, rgd, zfin, sgd, wormbase, flybase, xenbase, doid, pubmed  # cross-species + human gene->disease (Alliance of Genome Resources); gene >> alliance_disease >> doid, or doid >> alliance_disease >> mgi/rgd/... for model-organism genes
+alliance_phenotype: mgi, rgd, wormbase, xenbase, mp, wbphenotype, xpo, pubmed  # model-organism gene -> OBSERVED knockout/mutant phenotypes (distinct from the upheno ontology-translation path). Reach the model gene directly (mgi/rgd/... >> alliance_phenotype >> mp), or from a human gene via >>entrez>>orthologentrez>>mgi>>alliance_phenotype>>mp
 gencc: mondo, hpo, hgnc, ensembl
 clingen_gene_validity: hgnc, entrez, ensembl, mondo  # ClinGen gene-disease validity tier (Definitive..Refuted) + MOI
 clingen_dosage: entrez, hgnc, ensembl, mondo, mim, pubmed  # ClinGen haploinsufficiency/triplosensitivity per gene
 clingen_variant: clinvar, hgnc, entrez, ensembl, mondo, pubmed  # ClinGen VCEP ACMG variant pathogenicity (clinvar bridges to dbsnp)
+panelapp: panelapp_gene  # Genomics England clinical gene panels (per-panel master); panel >> panelapp_gene >> hgnc for the panel's genes
+panelapp_gene: panelapp, hgnc, ensembl, mim, mondo  # one per (panel,gene), green/amber confidence + mode-of-inheritance; a gene's panels via >>hgnc (panelapp_gene) ; the panel's disease via mondo/mim
 clinical_trials: mondo, chembl_molecule
 pharmgkb: hgnc, dbsnp, mesh, pharmgkb_gene, pharmgkb_variant, pharmgkb_clinical, pharmgkb_guideline, pharmgkb_pathway
 pharmgkb_variant: pharmgkb_clinical, hgnc, mesh, dbsnp
@@ -83,10 +93,10 @@ go: ensembl, uniprot, reactome, msigdb, swisslipids, bgee, interpro, goparent, g
 hpo: clinvar, gencc, mondo, msigdb, orphanet, mim, hmdb, hgnc, hpoparent, hpochild, upheno
 efo: gwas, mondo, cellxgene, efoparent, efochild, ncrna_disease
 upheno: hpo, mp, zp, xpo, wbphenotype, fypo, uphenoparent, uphenochild  # cross-species phenotype hub. A GENE's model-organism phenotypes are reached THROUGH hpo (genes are NOT linked directly to mp/upheno): >>hgnc>>hpo>>upheno>>mp (mouse), >>hgnc>>hpo>>upheno>>zp (zebrafish), ...>>xpo/wbphenotype/fypo. So gene->human HP phenotypes -> their cross-species equivalents.
-mp: upheno, mpparent, mpchild  # Mammalian Phenotype Ontology (mouse/rat). Reach from a gene via >>hgnc>>hpo>>upheno>>mp (NOT >>hgnc>>mp).
+mp: upheno, mpparent, mpchild, alliance_phenotype  # Mammalian Phenotype Ontology (mouse/rat). Reach from a gene via >>hgnc>>hpo>>upheno>>mp (NOT >>hgnc>>mp); observed model phenotypes via alliance_phenotype.
 zp: upheno, zpparent, zpchild  # Zebrafish Phenotype Ontology. Reach from a gene via >>hgnc>>hpo>>upheno>>zp.
-xpo: upheno, xpoparent, xpochild  # Xenopus Phenotype Ontology
-wbphenotype: upheno, wbphenotypeparent, wbphenotypechild  # C. elegans Phenotype Ontology
+xpo: upheno, xpoparent, xpochild, alliance_phenotype  # Xenopus Phenotype Ontology
+wbphenotype: upheno, wbphenotypeparent, wbphenotypechild, alliance_phenotype  # C. elegans Phenotype Ontology
 fypo: upheno, fypoparent, fypochild  # Fission Yeast Phenotype Ontology
 uberon: bgee, cellxgene, cellxgene_celltype, swisslipids, uberonparent, uberonchild, hpa, hpa_expression
 cl: bgee, cellxgene, cellxgene_celltype, scxa, scxa_gene_experiment, clparent, clchild
@@ -96,7 +106,7 @@ eco: ecoparent, ecochild
 antibody: ensembl, uniprot, mondo, pdb
 msigdb: hgnc, entrez, go, hpo
 orphanet: hpo, uniprot, mondo, hgnc, clinvar, mim, mesh
-mim: clinvar, hpo, mondo, uniprot, ctd_disease_association
+mim: clinvar, hpo, mondo, uniprot, ctd_disease_association, panelapp_gene
 hmdb: pubchem, hpo, chebi, uniprot
 collectri: hgnc  # transcription factor → target gene interactions
 esm2_similarity: uniprot  # protein structural similarity
@@ -117,7 +127,7 @@ gtopdb: uniprot, hgnc, gtopdb_ligand, gtopdb_interaction  # drug targets (GPCRs,
 gtopdb_ligand: pubchem, chebi, chembl_molecule, gtopdb_interaction  # ligands/drugs with binding data
 gtopdb_interaction: gtopdb, gtopdb_ligand, pubmed  # target-ligand binding with affinity values
 civic: entrez, ensembl, civic_variant, civic_evidence, civic_assertion  # clinical interpretation of cancer variants
-civic_variant: civic, clinvar, civic_evidence, civic_assertion
+civic_variant: civic, clinvar, civic_evidence, civic_assertion, transcript
 civic_evidence: civic_variant, civic, mondo, chembl_molecule, pubmed, clinical_trials
 civic_assertion: civic_variant, civic, mondo, chembl_molecule
 intogen: hgnc, entrez, ensembl, mondo, pubmed  # cancer driver genes

@@ -29,6 +29,7 @@ from .ontology import build_ontology
 from .predicates import PredicateMap
 from .refseq import build_refseq
 from .reified import build_reified_edges
+from .structure import build_structure
 
 
 def _cmd_nodes(args: argparse.Namespace) -> int:
@@ -311,6 +312,32 @@ def _cmd_attributes(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_structure(args: argparse.Namespace) -> int:
+    registry = DatasetRegistry.load(args.conf)
+    categories = CategoryMap.load(args.categories)
+    id_map = load_id_map(args.id_map)
+    t0 = time.time()
+    stats = build_structure(
+        index_dir=args.index_dir,
+        registry=registry,
+        categories=categories,
+        edges_out=args.edges_out,
+        attrs_out=args.attrs_out,
+        id_map=id_map,
+        stats_path=args.stats,
+    )
+    dt = time.time() - t0
+    print(f"structure edges: {args.edges_out}  attrs: {args.attrs_out}", file=sys.stderr)
+    print(
+        f"  cds_translates_to={stats.cds_translates_to:,} "
+        f"feature_has_part={stats.feature_haspart:,} "
+        f"(with_evidence={stats.feature_with_evidence:,}) attr_rows={stats.attr_rows:,}",
+        file=sys.stderr,
+    )
+    print(f"  by_predicate={dict(stats.by_predicate)} elapsed={dt:.1f}s", file=sys.stderr)
+    return 0
+
+
 def _cmd_assemble(args: argparse.Namespace) -> int:
     out_dir = Path(args.out_dir)
     node_inputs = [s.strip() for s in args.nodes.split(",") if s.strip()]
@@ -328,7 +355,12 @@ def _cmd_assemble(args: argparse.Namespace) -> int:
         categories = CategoryMap.load(args.categories)
         stub_info = kgx.add_stub_nodes(nodes_tsv, edges_tsv, categories)
         n_nodes += stub_info["stubs_added"]
-    node_attrs = load_attributes(args.node_attributes) if args.node_attributes else None
+    node_attrs = None
+    if args.node_attributes:
+        node_attrs = {}
+        for tbl in (s.strip() for s in args.node_attributes.split(",") if s.strip()):
+            for node, props in load_attributes(tbl).items():
+                node_attrs.setdefault(node, {}).update(props)
     kgx.nodes_to_jsonl(nodes_tsv, out_dir / ("nodes.jsonl" + ext), attributes=node_attrs)
     kgx.edges_to_jsonl(edges_tsv, out_dir / ("edges.jsonl" + ext))
     report = kgx.validate(nodes_tsv, edges_tsv)
@@ -456,6 +488,16 @@ def main(argv: list[str] | None = None) -> int:
     on.add_argument("--stats", default=None, help="output stats JSON path")
     on.set_defaults(func=_cmd_ontology)
 
+    st = sub.add_parser("structure", help="build sub-gene/protein structure edges + attrs (exon/cds/ufeature)")
+    st.add_argument("--index-dir", required=True, help="dir with *_sorted.*.index.gz")
+    st.add_argument("--conf", default="conf", help="dataset config dir")
+    st.add_argument("--categories", default="mappings/categories.yaml")
+    st.add_argument("--edges-out", required=True, help="output structure edges.tsv")
+    st.add_argument("--attrs-out", required=True, help="output node-attribute table (coords/feature type)")
+    st.add_argument("--id-map", default=None, help="Phase 1 member->canonical map")
+    st.add_argument("--stats", default=None, help="output stats JSON path")
+    st.set_defaults(func=_cmd_structure)
+
     at = sub.add_parser("attributes", help="build numeric/value NODE attribute table")
     at.add_argument("--index-dir", required=True, help="dir with *_sorted.*.index.gz")
     at.add_argument("--conf", default="conf", help="dataset config dir")
@@ -476,7 +518,8 @@ def main(argv: list[str] | None = None) -> int:
                    help="emit minimal nodes for edge endpoints lacking one")
     a.add_argument("--gzip", action="store_true", help="gzip the final TSV/JSONL")
     a.add_argument("--node-attributes", default=None,
-                   help="node-attribute table (from `attributes`) to merge into nodes.jsonl")
+                   help="node-attribute table(s) (comma list; from `attributes`/`structure`) "
+                        "to merge into nodes.jsonl")
     a.set_defaults(func=_cmd_assemble)
 
     args = parser.parse_args(argv)

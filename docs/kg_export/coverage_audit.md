@@ -52,13 +52,20 @@ No action needed for source2 beyond the already-tracked qualifier work.
 
 ## source1 — not covered, by reason
 
-### Intentional — identifier / derived / structural (no KG action)
-`my_data`, `neighborentrez`, `relatedentrez`, `orthologentrez`, `exon`, `cds`,
-`ufeature`, `uniparc`, `uniref50`, `uniref90`, `uniref100`, `literature_mappings`,
-`bgee_evidence`, `gwas_study`, `string` (container; `string_interaction` covered),
+### Intentional — identifier / derived (no KG action)
+`my_data`, `neighborentrez`, `relatedentrez`, `uniparc`, `uniref50`, `uniref90`,
+`uniref100`, `literature_mappings`, `bgee_evidence`, `gwas_study`,
+`string` (container; `string_interaction` covered),
 `biogrid` (container; `biogrid_interaction` covered), `antibody`, `hpa_antibody`.
 *(`taxparent`/`taxchild` show as uncovered but are in fact consumed by `ontology.py`
 via the parent-dataset override.)*
+
+### Covered — sub-gene / protein structure layer
+`exon`, `cds`, `ufeature` are typed as nodes (`nodes` builder) **and** linked:
+`transcript has_part exon/cds` via the `edges` builder (`transcript>exon`/`>cds`);
+`cds translates_to protein` and `protein has_part feature` via the `structure`
+builder (~25M edges total; ~5M carry ECO evidence). See index.md → *Edge model →
+Sub-gene / protein structure*.
 
 ### Intentional — predictive (opt-in `prediction` layer)
 `alphamissense`, `spliceai` — emitted (with `knowledge_level=prediction`) only when

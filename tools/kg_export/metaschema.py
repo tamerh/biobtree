@@ -51,6 +51,14 @@ _ONTOLOGY_CLOSEMATCH_SOURCES = {
     "biolink:PhenotypicFeature": ["upheno"],
 }
 
+# Structure edges emitted by structure.py (not via predicate pairs): cds->protein
+# coding link and protein->feature containment. transcript has_part exon/cds come
+# from the `transcript>exon`/`transcript>cds` direct pairs (already in pairs()).
+_STRUCTURE_EDGES = [
+    ("biolink:CodingSequence", "biolink:translates_to", "biolink:Protein", "cds"),
+    ("biolink:Protein", "biolink:has_part", "biolink:ProteinDomain", "ufeature"),
+]
+
 _PALETTE = [
     "#4e79a7", "#f28e2b", "#59a14f", "#e15759", "#76b7b2", "#edc948",
     "#b07aa1", "#ff9da7", "#9c755f", "#bab0ac", "#86bc86", "#d37295",
@@ -99,6 +107,9 @@ def schema_triples(cats: CategoryMap, preds: PredicateMap, registry: DatasetRegi
 
     for sc, p, oc in _REFSEQ_EDGES:
         add(sc, p, oc, "refseq")
+
+    for sc, p, oc, ds in _STRUCTURE_EDGES:
+        add(sc, p, oc, ds)
 
     # Ontology hierarchy (ontology.py): attribute each subclass_of self-loop to
     # the real source ontologies, and close_match to the hub ontologies.

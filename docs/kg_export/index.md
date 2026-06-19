@@ -107,16 +107,31 @@ Each cross-reference / relation maps to a biolink predicate
   merge across namespaces, so `close_match` (not `exact_match`/`same_as`) is the
   honest assertion. *Not* emitted as `subclass_of`: Reactome (sub-pathway is
   `part_of`) and ChEMBL salt→parent (a chemical relation).
+- **Sub-gene / protein structure**: the granular structural sub-entities — Ensembl
+  **exons** and **CDS/translations**, UniProt **protein features** — are typed as
+  nodes by the standard `nodes` builder; their containment edges split across two
+  builders by which way the forward index carries the link. `transcript has_part
+  exon` and `transcript has_part cds` (~18.8M) come from the `edges` builder
+  (`transcript_sorted` carries them forward, mapped by `transcript>exon`/`>cds`).
+  The `structure` builder emits the rest: `cds translates_to protein` (the
+  Ensembl→UniProt coding link) and `protein has_part feature` — the latter is the
+  first place **ECO evidence actually lands**, with each feature's inline `evidences`
+  ECO codes written to `has_evidence` (~5M of ~5.8M feature edges). Feature
+  `type`/`description`/`location` and exon coordinates ride along as node
+  attributes. The whole layer (~25M edges) is emitted always-on; the seed-driven
+  published subgraph filters it to the structure of seed entities.
 - **Provenance**: every edge carries its `primary_knowledge_source`.
 - **Qualifiers & evidence**: edges carry optional `has_evidence` (ECO CURIEs) and
   `qualifiers` (`slot=value`) columns. Populated: `assay_type` (BAO) on every
-  ChEMBL bioactivity edge, plus **numeric/value qualifiers pulled from the entry's
-  property JSON** — e.g. `splice_score`/`splice_effect` (SpliceAI),
+  ChEMBL bioactivity edge; **ECO evidence on protein-feature `has_part` edges**
+  (from UniProt's inline `evidences`); plus **numeric/value qualifiers pulled from
+  the entry's property JSON** — e.g. `splice_score`/`splice_effect` (SpliceAI),
   `pathogenicity` (AlphaMissense), `p_value`/`odds_ratio_beta` (GWAS),
   `confidence`/`inheritance` (PanelApp), `significance`/`evidence_level` (CIViC).
   Still deferred because BioBTree stores them at entry/study level, not per edge:
-  ECO evidence (per-protein, not per-annotation), PATO quality (per GWAS study,
-  never co-located with a mapped trait), XCO condition (per metabolite).
+  ECO evidence elsewhere (per-protein annotation, not per GO term), PATO quality
+  (per GWAS study, never co-located with a mapped trait), XCO condition (per
+  metabolite).
 - **Numeric node attributes**: scalars that describe an entity rather than relate
   two (gnomAD constraint, DepMap essentiality, AlphaFold pLDDT, AlphaMissense
   per-transcript mean) are attached as node properties — see *Node model* above.
@@ -156,10 +171,13 @@ python -m tools.kg_export edges   --index-dir $IDX --id-map $O/id_map.tsv.gz --o
 python -m tools.kg_export reified --index-dir $IDX --id-map $O/id_map.tsv.gz --out $O/edges_reified.tsv.gz
 # 6d. numeric/value NODE attributes (gnomad/depmap/alphafold/alphamissense_transcript)
 python -m tools.kg_export attributes --index-dir $IDX --id-map $O/id_map.tsv.gz --out $O/node_attrs.tsv.gz
+# 6e. sub-gene/protein structure: has_part + translates_to edges (+ ECO evidence, coords)
+python -m tools.kg_export structure --index-dir $IDX --id-map $O/id_map.tsv.gz \
+    --edges-out $O/structure_edges.tsv.gz --attrs-out $O/structure_attrs.tsv.gz
 # 7. assemble: merge + dedup + stub-nodes + node-attributes + JSONL + validate + manifest
 python -m tools.kg_export assemble --nodes $O/nodes.tsv.gz,$O/go_nodes.tsv.gz,$O/refseq_nodes.tsv.gz \
-    --edges $O/edges_direct.tsv.gz,$O/edges_reified.tsv.gz,$O/go_edges.tsv.gz,$O/refseq_edges.tsv.gz,$O/ontology_edges.tsv.gz \
-    --node-attributes $O/node_attrs.tsv.gz \
+    --edges $O/edges_direct.tsv.gz,$O/edges_reified.tsv.gz,$O/go_edges.tsv.gz,$O/refseq_edges.tsv.gz,$O/ontology_edges.tsv.gz,$O/structure_edges.tsv.gz \
+    --node-attributes $O/node_attrs.tsv.gz,$O/structure_attrs.tsv.gz \
     --out-dir $O/dump --data-version <release> --stub-nodes --gzip
 ```
 

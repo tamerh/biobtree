@@ -15,6 +15,7 @@ from tools.kg_export.edges import build_edges
 from tools.kg_export.mesh import build_mesh
 from tools.kg_export.predicates import PredicateMap
 from tools.kg_export.reified import build_reified_edges
+from tools.kg_export.structure import build_structure
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 CONF = REPO_ROOT / "conf"
@@ -325,15 +326,16 @@ class TierACoverageTests(unittest.TestCase):
         self.assertIn(("ENSEMBL:ENST1", "biolink:has_part", "ENSEMBL:ENSE1"), edges)
         self.assertIn(("ENSEMBL:ENST1", "biolink:has_part", "ENSEMBL:ENSP1"), edges)
 
-    def test_ufeature_has_part_only_to_protein(self):
-        """protein has_part feature; pdb/pubmed objects are not edges; self-loop guard."""
-        uf, up, pdb, pm = (self._id("ufeature"), self._id("uniprot"),
-                           self._id("pdb"), self._id("pubmed"))
+    def test_ufeature_forward_links_are_all_skips(self):
+        """ufeature_sorted's forward objects are evidence/xref (pubmed/pdb/...), all
+        skipped by the `edges` builder. The real protein<->feature link is forward
+        as uniprot>ufeature and is emitted by structure.py (with ECO), not here."""
+        uf, pdb, pm = self._id("ufeature"), self._id("pdb"), self._id("pubmed")
         _, edges = self._direct("ufeature_sorted.1.index.gz", [
-            f'A0_F1\t{uf}\t{{"type":"domain"}}\t-1', f"A0_F1\t{uf}\tP12345\t{up}",
+            f'A0_F1\t{uf}\t{{"type":"domain"}}\t-1',
             f"A0_F1\t{uf}\t1ABC\t{pdb}", f"A0_F1\t{uf}\t999\t{pm}",
         ], "ufeature")
-        self.assertEqual(edges, {("UniProtKB:P12345", "biolink:has_part", "uniprot.feature:A0_F1")})
+        self.assertEqual(edges, set())
 
     def test_direct_self_loop_dropped(self):
         """A degenerate subj==obj edge (WormBase cds id == transcript id) is skipped."""
@@ -462,6 +464,54 @@ class TierACoverageTests(unittest.TestCase):
             row = _json.loads(jsonl.read_text().splitlines()[0])
             self.assertEqual(row["gnomad_pli"], 1.9e-05)
             self.assertEqual(row["gnomad_loeuf"], 1.005)
+
+    # --- #1b: sub-gene / protein structure layer ------------------------------
+
+    def _structure(self, files):
+        """Run build_structure over a temp index of {filename: [lines]} -> (edges, attrs)."""
+        with tempfile.TemporaryDirectory() as d:
+            tmp = Path(d)
+            for name, lines in files.items():
+                self._write(tmp, name, lines)
+            eout, aout = tmp / "s.tsv", tmp / "a.tsv"
+            stats = build_structure(tmp, self.reg, self.cats, eout, aout)
+            edges = [r.split("\t") for r in eout.read_text().splitlines()[1:]]
+            attrs = dict(r.split("\t", 1) for r in aout.read_text().splitlines())
+            return stats, edges, attrs
+
+    def test_structure_cds_translates_to_protein(self):
+        """cds_sorted non-property (cds -> uniprot) becomes CDS translates_to Protein;
+        coordinate property lines are NOT edges."""
+        cd, up = self._id("cds"), self._id("uniprot")
+        stats, edges, _ = self._structure({
+            "cds_sorted.1.index.gz": [
+                f"ENSP001\t{cd}\tP12345\t{up}",
+                f'ENSP001\t{cd}\t{{"start":1,"end":99,"frame":0}}\t-1',
+            ],
+        })
+        triples = {(s, p, o) for _, s, p, o, *_ in edges}
+        self.assertEqual(stats.cds_translates_to, 1)
+        self.assertIn(("ENSEMBL:ENSP001", "biolink:translates_to", "UniProtKB:P12345"), triples)
+
+    def test_structure_protein_has_part_feature_with_eco_and_attrs(self):
+        """ufeature: parent protein recovered from the feature id; has_part edge
+        carries ECO evidence; type/description/location land as node attributes."""
+        import json as _json
+        uf = self._id("ufeature")
+        stats, edges, attrs = self._structure({
+            "ufeature_sorted.1.index.gz": [
+                f'P12345_F1\t{uf}\t{{"type":"domain","description":"TIR","location":{{"begin":133,"end":266}},'
+                f'"evidences":[{{"type":"ECO:0000255"}},{{"type":"ECO:0000269"}}]}}\t-1',
+            ],
+        })
+        row = next(r for r in edges if r[3] == "uniprot.feature:P12345_F1")
+        self.assertEqual(row[1], "UniProtKB:P12345")          # subject = parent protein
+        self.assertEqual(row[2], "biolink:has_part")
+        self.assertEqual(row[8], "ECO:0000255|ECO:0000269")   # has_evidence column
+        self.assertEqual(stats.feature_with_evidence, 1)
+        a = _json.loads(attrs["uniprot.feature:P12345_F1"])
+        self.assertEqual(a, {"feature_type": "domain", "description": "TIR",
+                             "begin": 133, "end": 266})
 
 
 if __name__ == "__main__":

@@ -76,11 +76,16 @@ echo "### 6d/7 node attributes (numeric/value scalars: gnomad/depmap/alphafold/a
 $PY -m tools.kg_export attributes --index-dir $IDX --id-map $O/id_map.tsv.gz \
   --out $O/node_attrs.tsv.gz --stats $O/node_attrs.stats.json
 
+echo "### 6e/7 structure layer (exon/cds/ufeature has_part + cds translates_to + ECO evidence) $(date +%T)"
+$PY -m tools.kg_export structure --index-dir $IDX --id-map $O/id_map.tsv.gz \
+  --edges-out $O/structure_edges.tsv.gz --attrs-out $O/structure_attrs.tsv.gz \
+  --stats $O/structure.stats.json
+
 echo "### 7/7 assemble (stub-nodes + node-attributes + gzip) $(date +%T)"
 $PY -m tools.kg_export assemble \
   --nodes $O/nodes_core.tsv.gz,$O/go_nodes.tsv.gz,$O/refseq_nodes.tsv.gz,$O/mesh_nodes.tsv.gz$DBSNP_NODES \
-  --edges $O/edges_direct.tsv.gz,$O/edges_reified.tsv.gz,$O/go_edges.tsv.gz,$O/refseq_edges.tsv.gz,$O/ontology_edges.tsv.gz,$O/mesh_edges.tsv.gz$PRED_EDGES$DBSNP_EDGES \
-  --node-attributes $O/node_attrs.tsv.gz \
+  --edges $O/edges_direct.tsv.gz,$O/edges_reified.tsv.gz,$O/go_edges.tsv.gz,$O/refseq_edges.tsv.gz,$O/ontology_edges.tsv.gz,$O/mesh_edges.tsv.gz,$O/structure_edges.tsv.gz$PRED_EDGES$DBSNP_EDGES \
+  --node-attributes $O/node_attrs.tsv.gz,$O/structure_attrs.tsv.gz \
   --out-dir $O/dump --data-version out_prod_v5_full --stub-nodes --gzip
 
 echo "### DONE $(date +%T)"; df -h /data | tail -1

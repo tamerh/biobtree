@@ -13,7 +13,7 @@ skip:
   # spliceai + alphamissense now covered (opt-in variant-effect prediction layer)
 
   # --- Qualifier / evidence / isolated ontologies ----------------------------
-  eco: "evidence ontology -> edge qualifier (entry-level in BioBTree; deferred)"
+  eco: "ECO codes ARE used as edge has_evidence (e.g. GO annotations); ECO terms themselves not materialized as nodes (referenced, like in biolink)"
   ecochild: "hierarchy tag of eco (not a node)"
   ecoparent: "hierarchy tag of eco (not a node)"
   pato: "quality ontology -> edge qualifier (deferred)"

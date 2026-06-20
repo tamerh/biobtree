@@ -747,6 +747,13 @@ func (e *entrez) processGeneGroup(fr string, testLimit int) {
 			continue
 		}
 
+		// Skip self-pairs: gene_group is within-species and can list a gene against
+		// itself (e.g. a region parent row), which would otherwise make a gene appear
+		// in its own relatedentrez list. Orthologs never hit this (always cross-species).
+		if geneID == otherGeneID {
+			continue
+		}
+
 		// Log unknown relationship types but still process them
 		if _, known := relationshipCounts[relationship]; !known {
 			log.Printf("[Entrez Gene] Found relationship type: %s", relationship)

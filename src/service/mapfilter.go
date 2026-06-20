@@ -46,6 +46,27 @@ func (s *Service) MapFilterLite(ids []string, mapFilterQuery, page string) (*Map
 	var targetDataset string
 	var targetLiteFields []string
 
+	// Determine once whether any traversed edge in this result carries edge metadata.
+	// If so, the lite schema gains trailing `evidence` / `relationship` columns, kept
+	// consistent across every row (empty for targets whose edge had none) so the
+	// column count is fixed. evidence covers go/ECO, reactome TAS/IEA, gwas, depmap;
+	// relationship covers entrez gene_group / relatedentrez / orthologentrez.
+	hasEvidence := false
+	hasRelationship := false
+	for _, mapRes := range fullResult.Results {
+		for _, target := range mapRes.Targets {
+			if target.Evidence != "" {
+				hasEvidence = true
+			}
+			if target.Relationship != "" {
+				hasRelationship = true
+			}
+		}
+		if hasEvidence && hasRelationship {
+			break
+		}
+	}
+
 	// Track which input terms were found (for not_found calculation)
 	foundInputs := make(map[string]bool)
 
@@ -88,10 +109,22 @@ func (s *Service) MapFilterLite(ids []string, mapFilterQuery, page string) (*Map
 				targetDataset = config.DataconfIDIntToString[target.Dataset]
 				targetLiteFields = config.GetCompactFields(targetDataset)
 				response.Schema = GetCompactSchema(targetLiteFields)
+				if hasEvidence {
+					response.Schema += "|evidence"
+				}
+				if hasRelationship {
+					response.Schema += "|relationship"
+				}
 				response.Context.TargetDataset = targetDataset
 			}
 
 			row := GetCompactRow(target, targetLiteFields)
+			if hasEvidence {
+				row += "|" + escapePipe(target.Evidence)
+			}
+			if hasRelationship {
+				row += "|" + escapePipe(target.Relationship)
+			}
 			mapping.Targets = append(mapping.Targets, row)
 			response.Stats.Total++
 		}
@@ -944,6 +977,14 @@ func (s *Service) applyFilter(entry *pbuf.XrefEntry, q *query.Query) (bool, *pbu
 		// (e.g., LRG_321 listed as ensembl xref but not stored as primary entry)
 		return false, nil, nil
 	}
+
+	// Carry the traversed edge's evidence/relationship from the XrefEntry onto the
+	// target so it can be surfaced in the result. LookupByDataset returns a freshly
+	// unmarshaled Xref per call, so this mutation is local to this target. First-wins
+	// across duplicate edges: the dedup in xrefMapping skips already-seen targets
+	// before this lookup runs.
+	target.Evidence = entry.Evidence
+	target.Relationship = entry.Relationship
 
 	if len(q.Filter) == 0 {
 		return true, target, nil

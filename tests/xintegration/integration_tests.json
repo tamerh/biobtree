@@ -10057,6 +10057,36 @@
         "12189"
       ],
       "should_fail": []
+    },
+    {
+      "category": "edge_evidence",
+      "name": "GO annotation carries ECO evidence code",
+      "type": "validation",
+      "query": ">>uniprot>>go",
+      "identifier": "TP53",
+      "why": "Per-annotation ECO evidence code must be surfaced on the uniprot->go edge so consumers can distinguish experimental from electronic annotations",
+      "validations": [
+        {
+          "path": "targets",
+          "contains": "ECO:",
+          "description": "At least one GO target carries an ECO:* evidence code"
+        }
+      ]
+    },
+    {
+      "category": "edge_evidence",
+      "name": "Reactome pathway edge carries evidence code",
+      "type": "validation",
+      "query": ">>uniprot>>reactome",
+      "identifier": "TP53",
+      "why": "Reactome TAS/IEA evidence must be surfaced on the uniprot->reactome edge (same edge-evidence plumbing as GO/ECO)",
+      "validations": [
+        {
+          "path": "targets",
+          "contains": "TAS",
+          "description": "At least one Reactome target carries a TAS evidence code"
+        }
+      ]
     }
   ]
 }

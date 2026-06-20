@@ -220,6 +220,8 @@ message Xref {
   map<uint32,PageInfo> datasetPages=23;
   repeated string pages=24;
   string url =25; // transient
+  string evidence =800;     // transient - edge evidence carried from the traversed XrefEntry onto the target (e.g. ECO code, Reactome TAS/IEA)
+  string relationship =801; // transient - edge relationship carried from the traversed XrefEntry onto the target (e.g. entrez gene_group relationship)
 }
 
 message PageInfo {

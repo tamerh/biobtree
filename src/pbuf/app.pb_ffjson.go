@@ -9631,6 +9631,16 @@ func (j *Xref) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.WriteJsonString(buf, string(j.Url))
 		buf.WriteByte(',')
 	}
+	if len(j.Evidence) != 0 {
+		buf.WriteString(`"evidence":`)
+		fflib.WriteJsonString(buf, string(j.Evidence))
+		buf.WriteByte(',')
+	}
+	if len(j.Relationship) != 0 {
+		buf.WriteString(`"relationship":`)
+		fflib.WriteJsonString(buf, string(j.Relationship))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -9663,6 +9673,10 @@ const (
 	ffjtXrefPages
 
 	ffjtXrefUrl
+
+	ffjtXrefEvidence
+
+	ffjtXrefRelationship
 )
 
 var ffjKeyXrefDataset = []byte("dataset")
@@ -9688,6 +9702,10 @@ var ffjKeyXrefDatasetPages = []byte("datasetPages")
 var ffjKeyXrefPages = []byte("pages")
 
 var ffjKeyXrefUrl = []byte("url")
+
+var ffjKeyXrefEvidence = []byte("evidence")
+
+var ffjKeyXrefRelationship = []byte("relationship")
 
 // UnmarshalJSON umarshall json - template of ffjson
 func (j *Xref) UnmarshalJSON(input []byte) error {
@@ -9795,6 +9813,11 @@ mainparse:
 						currentKey = ffjtXrefEntries
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyXrefEvidence, kn) {
+						currentKey = ffjtXrefEvidence
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 'i':
@@ -9826,6 +9849,14 @@ mainparse:
 						goto mainparse
 					}
 
+				case 'r':
+
+					if bytes.Equal(ffjKeyXrefRelationship, kn) {
+						currentKey = ffjtXrefRelationship
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 'u':
 
 					if bytes.Equal(ffjKeyXrefUrl, kn) {
@@ -9834,6 +9865,18 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.EqualFoldRight(ffjKeyXrefRelationship, kn) {
+					currentKey = ffjtXrefRelationship
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyXrefEvidence, kn) {
+					currentKey = ffjtXrefEvidence
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.SimpleLetterEqualFold(ffjKeyXrefUrl, kn) {
@@ -9960,6 +10003,12 @@ mainparse:
 
 				case ffjtXrefUrl:
 					goto handle_Url
+
+				case ffjtXrefEvidence:
+					goto handle_Evidence
+
+				case ffjtXrefRelationship:
+					goto handle_Relationship
 
 				case ffjtXrefnosuchkey:
 					err = fs.SkipField(tok)
@@ -10518,6 +10567,58 @@ handle_Url:
 			outBuf := fs.Output.Bytes()
 
 			j.Url = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Evidence:
+
+	/* handler: j.Evidence type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Evidence = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Relationship:
+
+	/* handler: j.Relationship type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Relationship = string(string(outBuf))
 
 		}
 	}

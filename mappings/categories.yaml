@@ -66,6 +66,7 @@ datasets:
   ortholog:        {category: "biolink:Gene", prefix: "ENSEMBL", note: "Ensembl Compara ortholog (link tag in ensembl)"}
   paralog:         {category: "biolink:Gene", prefix: "ENSEMBL", note: "Ensembl Compara paralog (link tag in ensembl)"}
   orthologentrez:  {category: "biolink:Gene", prefix: "NCBIGene", note: "NCBI gene ortholog (link tag in entrez)"}
+  relatedentrez:   {category: "biolink:Gene", prefix: "NCBIGene", note: "NCBI gene_group related gene (link tag in entrez); relationship type (pseudogene/readthrough) carried as edge qualifier"}
 
   # --- Transcripts -----------------------------------------------------------
   transcript:  {category: "biolink:Transcript", prefix: "ENSEMBL"}

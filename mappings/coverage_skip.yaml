@@ -30,8 +30,8 @@ skip:
 
   # --- Identifier / derived / structural (no entity value) -------------------
   my_data: "user-data placeholder"
-  neighborentrez: "NCBI genomic-neighbor linking tag (gene<->gene); genomic adjacency has no clean biolink predicate -> deferred"
-  relatedentrez: "NCBI 'related gene' linking tag (gene<->gene); vague semantics, no clean biolink predicate -> deferred"
+  neighborentrez: "NCBI genomic-neighbor tag (left/right/overlapping); positional metadata, ~494K low-signal pairs -> deferred (relationship now capturable if wanted)"
+  # relatedentrez now covered: entrez>relatedentrez related_to + relationship qualifier
   # orthologentrez now covered (entrez>orthologentrez -> orthologous_to)
   # exon/cds/ufeature now covered (sub-gene/protein structure layer)
   uniparc: "non-redundant sequence cluster (identifier)"

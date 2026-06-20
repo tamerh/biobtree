@@ -89,6 +89,32 @@ def xopen(path, mode="rt"):
     return open(path, mode, encoding="utf-8")
 
 
+# GO/Reactome GAF evidence codes -> ECO CURIEs, so `has_evidence` is uniformly ECO
+# (BioBTree's index evidence field is ECO: for GO annotations but bare GAF codes for
+# Reactome — TAS/IEA/IEP). Standard GAF-code -> ECO mapping.
+_GAF_EVIDENCE_ECO = {
+    "EXP": "ECO:0000269", "IDA": "ECO:0000314", "IPI": "ECO:0000353",
+    "IMP": "ECO:0000315", "IGI": "ECO:0000316", "IEP": "ECO:0000270",
+    "HTP": "ECO:0006056", "HDA": "ECO:0007005", "HMP": "ECO:0007001",
+    "HGI": "ECO:0007003", "HEP": "ECO:0007007", "ISS": "ECO:0000250",
+    "ISO": "ECO:0000266", "ISA": "ECO:0000247", "ISM": "ECO:0000255",
+    "IGC": "ECO:0000317", "IBA": "ECO:0000318", "IBD": "ECO:0000319",
+    "IKR": "ECO:0000320", "IRD": "ECO:0000321", "RCA": "ECO:0000245",
+    "TAS": "ECO:0000304", "NAS": "ECO:0000303", "IC": "ECO:0000305",
+    "ND": "ECO:0000307", "IEA": "ECO:0000501",
+}
+
+
+def to_evidence_curie(ev: str | None) -> str:
+    """Normalize an index evidence field to an ECO CURIE: passthrough for `ECO:`,
+    GAF code (Reactome TAS/IEA/…) -> ECO, anything else -> "" (not evidence)."""
+    if not ev:
+        return ""
+    if ev.startswith("ECO:"):
+        return ev
+    return _GAF_EVIDENCE_ECO.get(ev.strip().upper(), "")
+
+
 def edge_id(
     subject: str, predicate: str, obj: str, primary: str,
     has_evidence: str = "", qualifiers: str = "",

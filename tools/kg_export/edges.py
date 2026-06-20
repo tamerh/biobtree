@@ -31,6 +31,7 @@ class EdgeStats:
     property_lines: int = 0
     edges_written: int = 0
     edges_with_evidence: int = 0  # has_evidence (ECO) forwarded from the index
+    edges_with_relationship: int = 0  # relationship qualifier forwarded from the index
     dropped_not_node: int = 0  # an endpoint dataset isn't a typed node
     skipped: int = 0  # recognized pair, intentionally not emitted
     self_loops: int = 0  # subject == object (degenerate)
@@ -142,19 +143,27 @@ def build_edges(
                     continue
 
                 # direct edges come from curated source DBs; forward the index
-                # evidence field as has_evidence when it's an ECO CURIE
-                ev = raw.evidence if raw.evidence and raw.evidence.startswith("ECO:") else ""
+                # edge-level fields: evidence (-> ECO) and relationship (-> qualifier,
+                # e.g. entrez gene_group "Related pseudogene" / "left_neighbor")
+                ev = kgx.to_evidence_curie(raw.evidence)
+                quals = ""
+                if raw.relationship:
+                    rel = raw.relationship.replace(";", " ").replace("=", " ").strip()[:80]
+                    if rel:
+                        quals = f"relationship={rel}"
                 out.write(
                     kgx.format_edge(
                         subj, rule.predicate, obj, f"infores:{src_ds}",
                         knowledge_level="knowledge_assertion",
                         agent_type="manual_agent",
-                        has_evidence=ev,
+                        has_evidence=ev, qualifiers=quals,
                     )
                 )
                 stats.edges_written += 1
                 if ev:
                     stats.edges_with_evidence += 1
+                if quals:
+                    stats.edges_with_relationship += 1
                 stats.by_predicate[rule.predicate] += 1
 
     stats.malformed_lines = counter.get("malformed", 0)

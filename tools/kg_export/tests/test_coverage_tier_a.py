@@ -215,6 +215,37 @@ class TierACoverageTests(unittest.TestCase):
         ], "drugcentral")
         self.assertEqual(edges, {("drugcentral:100", "biolink:affects", "UniProtKB:P10635")})
 
+    def test_gaf_evidence_mapped_to_eco(self):
+        """Index evidence field: ECO passthrough; GAF code (Reactome IEA/TAS) -> ECO;
+        anything else -> not evidence."""
+        from tools.kg_export import kgx
+        self.assertEqual(kgx.to_evidence_curie("ECO:0000314"), "ECO:0000314")
+        self.assertEqual(kgx.to_evidence_curie("IEA"), "ECO:0000501")
+        self.assertEqual(kgx.to_evidence_curie("TAS"), "ECO:0000304")
+        self.assertEqual(kgx.to_evidence_curie("bogus"), "")
+        self.assertEqual(kgx.to_evidence_curie(None), "")
+
+    def test_relatedentrez_related_to_with_relationship_and_reactome_evidence(self):
+        """entrez gene_group -> related_to with the relationship type as a qualifier;
+        Reactome IEA evidence is mapped to an ECO CURIE on has_evidence."""
+        en, re_, rx, ch = (self._id("entrez"), self._id("relatedentrez"),
+                           self._id("reactome"), self._id("chebi"))
+        with tempfile.TemporaryDirectory() as d:
+            tmp = Path(d)
+            self._write(tmp, "entrez_sorted.1.index.gz", [
+                f"1\t{en}\t999\t{re_}\t\tRelated pseudogene",   # evidence empty, relationship set
+            ])
+            self._write(tmp, "reactome_sorted.1.index.gz", [
+                f"R-HSA-1\t{rx}\tCHEBI:5\t{ch}\tIEA",            # GAF evidence -> ECO
+            ])
+            out = tmp / "e.tsv"
+            build_edges(tmp, self.reg, self.cats, self.pm, out, datasets=["entrez", "reactome"])
+            rows = [r.split("\t") for r in out.read_text().splitlines()[1:]]
+            rel = next(r for r in rows if r[2] == "biolink:related_to")
+            self.assertEqual(rel[9], "relationship=Related pseudogene")  # qualifiers col
+            rx_e = next(r for r in rows if r[1] == "REACT:R-HSA-1")
+            self.assertEqual(rx_e[8], "ECO:0000501")                      # has_evidence col (IEA->ECO)
+
     # --- Skip-list reconsiderations now added ---------------------------------
 
     def test_fantom5_enhancer_region_to_gene(self):

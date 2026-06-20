@@ -159,10 +159,15 @@ Each cross-reference / relation maps to a biolink predicate
   published subgraph filters it to the structure of seed entities.
 - **Provenance**: every edge carries its `primary_knowledge_source`.
 - **Qualifiers & evidence**: edges carry optional `has_evidence` (ECO CURIEs) and
-  `qualifiers` (`slot=value`) columns. Populated: **ECO evidence on GO annotation
-  edges** — the index ships a per-annotation ECO code in the edge's evidence field
-  (100% of `gene/protein → GO`), forwarded straight to `has_evidence`; the same
-  pass-through applies to any direct edge whose index line carries an `ECO:` code.
+  `qualifiers` (`slot=value`) columns, populated from the **two edge-level fields the
+  BioBTree index ships** (per its proto: `XrefEntry.evidence` + `.relationship`):
+  - **evidence → `has_evidence`**: per-annotation ECO on 100% of `gene/protein → GO`
+    edges; Reactome's GAF codes (TAS/IEA/IEP, ~1.7M edges) are mapped to ECO CURIEs
+    (`IEA→ECO:0000501`, `TAS→ECO:0000304`); any direct edge whose line carries an
+    `ECO:` or GAF code is forwarded.
+  - **relationship → `qualifiers`**: the NCBI `gene_group` relationship type
+    (`Related pseudogene`, `Readthrough sibling`, …) rides on the edge as
+    `relationship=…` (see `relatedentrez` below).
   Also `assay_type` (BAO) on every ChEMBL bioactivity edge; **ECO on protein-feature
   `has_part` edges** (UniProt inline `evidences`); plus **numeric/value qualifiers
   from the entry property JSON** — `splice_score`/`splice_effect` (SpliceAI),
@@ -175,7 +180,11 @@ Each cross-reference / relation maps to a biolink predicate
   two (gnomAD constraint, DepMap essentiality, AlphaFold pLDDT, AlphaMissense
   per-transcript mean) are attached as node properties — see *Node model* above.
 - **No catch-all**: pairs without a mapping are dropped and counted, never
-  emitted as a generic `related_to`.
+  emitted as a generic `related_to`. The one deliberate `related_to` is
+  `relatedentrez` (NCBI gene_group), where it's *self-documenting* — the specific
+  relationship type (pseudogene/readthrough/functional) is carried in the edge's
+  `relationship` qualifier, not silently generic. (`neighborentrez` genomic
+  neighbours stay deferred — positional, low signal.)
 - **Dedup**: the same logical edge arriving via different keys is collapsed to one
   (matching what the service serves at query time).
 

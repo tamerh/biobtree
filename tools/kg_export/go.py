@@ -149,7 +149,7 @@ def build_go(
                         continue
                     predicate = ASPECT_PREDICATE[aspect]
                     obj = to_curie(GO_PREFIX, raw.object)
-                    ev = raw.evidence if raw.evidence and raw.evidence.startswith("ECO:") else ""
+                    ev = kgx.to_evidence_curie(raw.evidence)
                     out.write(
                         kgx.format_edge(
                             subj, predicate, obj, primary,

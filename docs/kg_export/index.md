@@ -154,9 +154,16 @@ Each cross-reference / relation maps to a biolink predicate
   Ensembl→UniProt coding link) and `protein has_part feature` — the latter is the
   first place **ECO evidence actually lands**, with each feature's inline `evidences`
   ECO codes written to `has_evidence` (~5M of ~5.8M feature edges). Feature
-  `type`/`description`/`location` and exon coordinates ride along as node
+  `feature_type`/`description`/`location` and exon coordinates ride along as node
   attributes. The whole layer (~25M edges) is emitted always-on; the seed-driven
   published subgraph filters it to the structure of seed entities.
+  - **Honest feature typing** (biolink-model#1210 pattern): protein features are
+    heterogeneous (only ~3% are domains), so rather than overload the category, each
+    node keeps the general `biolink:ProteinDomain` bucket plus a specific **Sequence
+    Ontology term in a `type:` property** (e.g. signal peptide → `SO:0000418`,
+    transmembrane region → `SO:0001077`; exons → `SO:0000147`) — applying biolink's
+    own "general class + `type` ontology term" recommendation instead of minting a
+    class per feature. The raw label stays in `feature_type`.
 - **Provenance**: every edge carries its `primary_knowledge_source`.
 - **Qualifiers & evidence**: edges carry optional `has_evidence` (ECO CURIEs) and
   `qualifiers` (`slot=value`) columns, populated from the **two edge-level fields the

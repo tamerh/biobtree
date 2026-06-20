@@ -81,7 +81,7 @@ datasets:
   # peptides/...). ProteinDomain is the closest existing biolink class (mild
   # overclaim, cf. msigdb->Pathway); feature `type` is a qualifier follow-up.
   # Surrogate id <ACC>_F<n>, no registered CURIE -> locally-coined prefix (flagged).
-  ufeature:    {category: "biolink:ProteinDomain", prefix: "uniprot.feature", note: "UniProt protein feature (heterogeneous); surrogate id; non-canonical prefix"}
+  ufeature:    {category: "biolink:ProteinDomain", prefix: "uniprot.feature", note: "UniProt protein feature (heterogeneous): ProteinDomain is the general bucket (biolink's only sub-protein class) + a specific SO term in the node `type` property per biolink-model#1210 (structure.py _FEATURE_SO); raw type in `feature_type`"}
   # refseq: NOT listed here. One refseq dataset conflates Transcript (mRNA),
   # NoncodingRNAProduct (ncRNA) and Protein (NP_/XP_) by the accession `type`
   # field, so it is typed at runtime in refseq.py (like go.py splits GO by

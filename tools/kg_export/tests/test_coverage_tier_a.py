@@ -554,8 +554,9 @@ class TierACoverageTests(unittest.TestCase):
         self.assertEqual(row[8], "ECO:0000255|ECO:0000269")   # has_evidence column
         self.assertEqual(stats.feature_with_evidence, 1)
         a = _json.loads(attrs["uniprot.feature:P12345_F1"])
-        self.assertEqual(a, {"feature_type": "domain", "description": "TIR",
-                             "begin": 133, "end": 266})
+        # biolink #1210 pattern: raw feature_type + specific SO term in `type`
+        self.assertEqual(a, {"feature_type": "domain", "type": "SO:0000417",
+                             "description": "TIR", "begin": 133, "end": 266})
 
 
 if __name__ == "__main__":

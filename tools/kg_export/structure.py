@@ -60,6 +60,31 @@ class StructureStats:
         return d
 
 
+# UniProt feature type -> Sequence Ontology CURIE. Applies biolink's recommendation
+# (biolink-model#1210: a general category + a `type` property holding a specific
+# ontology term, rather than a class per feature). The node keeps `category:
+# biolink:ProteinDomain` (biolink's only sub-protein class) as the general bucket and
+# the raw human-readable `feature_type`; `type` is added only for feature types whose
+# SO id is unambiguous (so we never ship a guessed ontology id). Extend as needed.
+_FEATURE_SO = {
+    "domain": "SO:0000417",                         # polypeptide_domain
+    "signal peptide": "SO:0000418",                 # signal_peptide
+    "transit peptide": "SO:0000725",                # transit_peptide
+    "propeptide": "SO:0001062",                     # propeptide
+    "chain": "SO:0000419",                          # mature_protein_region
+    "binding site": "SO:0000409",                   # binding_site
+    "active site": "SO:0001104",                    # catalytic_residue
+    "transmembrane region": "SO:0001077",           # transmembrane_polypeptide_region
+    "disulfide bond": "SO:0001088",                 # disulfide_bond
+    "coiled-coil region": "SO:0001080",             # coiled_coil
+    "repeat": "SO:0001068",                         # polypeptide_repeat
+    "short sequence motif": "SO:0001067",           # polypeptide_motif
+    "region of interest": "SO:0000839",             # polypeptide_region
+    "compositionally biased region": "SO:0001066",  # compositionally_biased_region_of_peptide
+}
+_SO_EXON = "SO:0000147"  # exon
+
+
 def _files(index_dir: Path, stem: str) -> list[str]:
     return sorted(glob.glob(str(index_dir / f"{stem}_sorted.*.index.gz")))
 
@@ -155,7 +180,10 @@ def build_structure(
                 loc = d.get("location") or {}
                 attrs = {}
                 if d.get("type"):
-                    attrs["feature_type"] = d["type"]
+                    attrs["feature_type"] = d["type"]          # raw UniProt type (always)
+                    so = _FEATURE_SO.get(d["type"])
+                    if so:
+                        attrs["type"] = so                     # specific SO term (biolink #1210)
                 if d.get("description"):
                     attrs["description"] = str(d["description"])[:200]
                 if isinstance(loc, dict):
@@ -181,6 +209,7 @@ def build_structure(
                 attrs = {k: d[k] for k in ("start", "end", "strand", "seq_region")
                          if d.get(k) not in (None, "")}
                 if attrs:
+                    attrs["type"] = _SO_EXON  # all exons -> SO:exon (biolink #1210)
                     aout.write(f"{to_curie(ens, raw.subject)}\t{json.dumps(attrs)}\n")
                     stats.attr_rows += 1
 

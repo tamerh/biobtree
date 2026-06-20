@@ -425,8 +425,7 @@ a.ds:hover{background:#e8eef5;border-color:#cdd7e1}.ds b{font-family:monospace}.
  <div class='brand'><span class='logo'></span><span class='wm'>BioBTree <b>KG</b></span>
   <span class='tag'>the schema of BioBTree's biolink knowledge graph</span></div>
  <nav class='links'><span class='stat'></span>
-  <a href='./index.html'>Docs</a><a href='./sub/'>Subgraph</a>
-  <a href='https://github.com/tamerhuseyin/biobtree' target='_blank' rel='noopener'>GitHub</a></nav>
+  <a href='https://github.com/tamerh/biobtree' target='_blank' rel='noopener'>BioBTree on GitHub</a></nav>
 </div>
 <div id='bar'>
  <span class='seg'><button id='bG' class='on' onclick="view('g')">Graph</button><button id='bM' onclick="view('m')">Matrix</button></span>
@@ -455,8 +454,8 @@ a.ds:hover{background:#e8eef5;border-color:#cdd7e1}.ds b{font-family:monospace}.
  categories and the typed relationships between them, drawn from 150+ integrated biological datasets.
  Each node is a category; click it to see the contributing datasets (separated into <b>primary</b>
  sources with their own records and <b>cross-reference</b> namespaces that only supply identifiers)
- and the relationships it participates in. A separate importable <b>subgraph</b> (human + disease +
- molecule) and the full docs are linked in the header.</p></div>
+ and the relationships it participates in. This is the schema view; a separate importable
+ <b>subgraph</b> (human + disease + molecule) is published alongside it.</p></div>
 <div id='main'>
  <div id='left'>
   <div id='cy'></div>
@@ -468,7 +467,7 @@ a.ds:hover{background:#e8eef5;border-color:#cdd7e1}.ds b{font-family:monospace}.
  <div id='side'></div>
 </div>
 <div id='ftr'><span>BioBTree Knowledge Graph · schema view</span><span class='sp'></span>
- <a href='./index.html'>Docs</a><a href='./sub/'>Subgraph</a>
+ <a href='https://github.com/tamerh/biobtree' target='_blank' rel='noopener'>GitHub</a>
  <a href='https://biolink.github.io/biolink-model/' target='_blank' rel='noopener'>biolink-model</a><span>· CC BY 4.0</span></div>
 <script>
 var D=__PAYLOAD__;

@@ -159,16 +159,18 @@ Each cross-reference / relation maps to a biolink predicate
   published subgraph filters it to the structure of seed entities.
 - **Provenance**: every edge carries its `primary_knowledge_source`.
 - **Qualifiers & evidence**: edges carry optional `has_evidence` (ECO CURIEs) and
-  `qualifiers` (`slot=value`) columns. Populated: `assay_type` (BAO) on every
-  ChEMBL bioactivity edge; **ECO evidence on protein-feature `has_part` edges**
-  (from UniProt's inline `evidences`); plus **numeric/value qualifiers pulled from
-  the entry's property JSON** — e.g. `splice_score`/`splice_effect` (SpliceAI),
+  `qualifiers` (`slot=value`) columns. Populated: **ECO evidence on GO annotation
+  edges** — the index ships a per-annotation ECO code in the edge's evidence field
+  (100% of `gene/protein → GO`), forwarded straight to `has_evidence`; the same
+  pass-through applies to any direct edge whose index line carries an `ECO:` code.
+  Also `assay_type` (BAO) on every ChEMBL bioactivity edge; **ECO on protein-feature
+  `has_part` edges** (UniProt inline `evidences`); plus **numeric/value qualifiers
+  from the entry property JSON** — `splice_score`/`splice_effect` (SpliceAI),
   `pathogenicity` (AlphaMissense), `p_value`/`odds_ratio_beta` (GWAS),
   `confidence`/`inheritance` (PanelApp), `significance`/`evidence_level` (CIViC).
-  Still deferred because BioBTree stores them at entry/study level, not per edge:
-  ECO evidence elsewhere (per-protein annotation, not per GO term), PATO quality
-  (per GWAS study, never co-located with a mapped trait), XCO condition (per
-  metabolite).
+  Still deferred (BioBTree stores them at study level, not co-located with a mapped
+  edge): PATO quality (per GWAS study) and XCO condition (per metabolite); reified
+  edges don't yet forward per-partner evidence.
 - **Numeric node attributes**: scalars that describe an entity rather than relate
   two (gnomAD constraint, DepMap essentiality, AlphaFold pLDDT, AlphaMissense
   per-transcript mean) are attached as node properties — see *Node model* above.

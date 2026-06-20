@@ -54,6 +54,7 @@ class GoStats:
     terms_by_aspect: dict = field(default_factory=lambda: defaultdict(int))
     nodes_written: int = 0
     edges_written: int = 0
+    edges_with_evidence: int = 0
     edges_missing_aspect: int = 0
     malformed_lines: int = 0
     by_predicate: dict = field(default_factory=lambda: defaultdict(int))
@@ -148,13 +149,17 @@ def build_go(
                         continue
                     predicate = ASPECT_PREDICATE[aspect]
                     obj = to_curie(GO_PREFIX, raw.object)
+                    ev = raw.evidence if raw.evidence and raw.evidence.startswith("ECO:") else ""
                     out.write(
                         kgx.format_edge(
                             subj, predicate, obj, primary,
                             knowledge_level="knowledge_assertion",
                             agent_type="manual_agent",
+                            has_evidence=ev,
                         )
                     )
+                    if ev:
+                        stats.edges_with_evidence += 1
                     stats.edges_written += 1
                     stats.by_predicate[predicate] += 1
                     stats.by_source[src] += 1

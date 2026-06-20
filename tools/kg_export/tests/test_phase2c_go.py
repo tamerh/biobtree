@@ -55,8 +55,8 @@ class GoTests(unittest.TestCase):
             (tmp / "id_map.tsv").write_text("member\tcanonical\nENSEMBL:ENSG1\tHGNC:1\n")
             id_map = load_id_map(tmp / "id_map.tsv")
             self._write(tmp, "uniprot_sorted.1.index.gz", [
-                f"P1\t{up}\tGO:0003674\t{go}",   # MF -> enables
-                f"P1\t{up}\tGO:0005575\t{go}",   # CC -> located_in
+                f"P1\t{up}\tGO:0003674\t{go}\tECO:0000314",  # MF -> enables, w/ evidence
+                f"P1\t{up}\tGO:0005575\t{go}",   # CC -> located_in, no evidence
             ])
             self._write(tmp, "ensembl_sorted.1.index.gz", [
                 f"ENSG1\t{en}\tGO:0008150\t{go}",  # BP -> involved; gene canonicalized
@@ -79,6 +79,12 @@ class GoTests(unittest.TestCase):
             self.assertIn(("HGNC:1", "biolink:actively_involved_in", "GO:0008150"), edges)
             self.assertEqual(stats.edges_written, 3)
             self.assertEqual(stats.nodes_written, 3)
+            # ECO evidence forwarded to has_evidence (col 9); only the MF edge has it
+            rows = {r.split("\t")[1: 4][0] + "|" + r.split("\t")[2]: r.split("\t")
+                    for r in e_out.read_text().splitlines()[1:]}
+            mf = rows["UniProtKB:P1|biolink:enables"]
+            self.assertEqual(mf[8], "ECO:0000314")
+            self.assertEqual(stats.edges_with_evidence, 1)
 
 
 if __name__ == "__main__":

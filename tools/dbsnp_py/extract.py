@@ -72,7 +72,8 @@ def _attrs_json(p: dict) -> str | None:
     return json.dumps(out) if out else None
 
 
-def worker(wid: int, q: Queue, out: str, with_attrs: bool, idm: dict, rq: Queue) -> None:
+def worker(wid: int, q: Queue, out: str, with_attrs: bool, idm: dict, rq: Queue,
+           genes_filter: set | None = None) -> None:
     nodes = gzip.open(f"{out}/dbsnp_nodes.{wid}.tsv.gz", "wt", compresslevel=1)
     edges = gzip.open(f"{out}/dbsnp_edges.{wid}.tsv.gz", "wt", compresslevel=1)
     attrs = gzip.open(f"{out}/dbsnp_attrs.{wid}.tsv.gz", "wt", compresslevel=1) if with_attrs else None
@@ -83,6 +84,9 @@ def worker(wid: int, q: Queue, out: str, with_attrs: bool, idm: dict, rq: Queue)
     def flush(cur, genes, txs, prop):
         nonlocal nv, ge, te, ar
         if cur is None:
+            return
+        # showcase: keep only variants of the requested genes (entrez ids, bytes)
+        if genes_filter is not None and not any(g in genes_filter for g in genes):
             return
         nv += 1
         rs = cur.decode().lower()  # canonical dbSNP id is lowercase: DBSNP:rs10
@@ -152,6 +156,8 @@ def main() -> int:
     ap.add_argument("--no-attrs", action="store_true")
     ap.add_argument("--chunk-mb", type=int, default=16)
     ap.add_argument("--id-map", default=None, help="Phase-1 member->canonical map (gene canonicalization)")
+    ap.add_argument("--genes", default=None, help="showcase: file of entrez gene ids (one per line); "
+                                                  "keep only variants of these genes")
     a = ap.parse_args()
 
     import os
@@ -161,10 +167,14 @@ def main() -> int:
     idm = load_id_map(a.id_map)
     if a.id_map:
         print(f"id_map loaded: {len(idm)} entries", file=sys.stderr)
+    gf = None
+    if a.genes:
+        gf = {ln.strip().encode() for ln in open(a.genes) if ln.strip()}
+        print(f"gene filter: {len(gf)} entrez ids (showcase mode)", file=sys.stderr)
 
     q: Queue = Queue(maxsize=a.workers * 4)
     rq: Queue = Queue()
-    procs = [Process(target=worker, args=(w, q, a.out, with_attrs, idm, rq)) for w in range(a.workers)]
+    procs = [Process(target=worker, args=(w, q, a.out, with_attrs, idm, rq, gf)) for w in range(a.workers)]
     for p in procs:
         p.start()
 

@@ -305,6 +305,14 @@ a separate build:
   it's query-equivalent too.
 - **Completeness** is asserted against the full manifest: every category/predicate
   upstream must survive the trim (else a small dataset was dropped by mistake).
+- **Showcase** (`showcase` command, step 8b): the giant layers excluded above (dbSNP
+  variants, PubChem/ChEMBL bioactivity) are demonstrated on a *curated set of ~50
+  famous genes + ~50 famous drugs* (`mappings/showcase.yaml`) — proof-by-recognizable-
+  example (TP53's variants, EGFR's inhibitors), not the billions. It resolves the
+  gene symbols / compound names to ids from the index, extracts the bioactivity edges
+  whose compound or target is in the set, and writes an entrez gene-id list that
+  `tools/dbsnp_py/extract.py --genes` turns into the variants of just those genes
+  (one federation scan). Merged into the subgraph at assemble.
 
 Built as step 8 of `full_prod.sh` (`out_prod_v5_subgraph`), validated `full`
 (in-memory — it's small). The full run is deferred until the full graph + disk are

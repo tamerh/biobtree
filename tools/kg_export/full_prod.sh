@@ -106,11 +106,27 @@ $PY -m tools.kg_export assemble \
 echo "### 8/8 published subgraph (human-scoped + per-source capped projection) $(date +%T)"
 ATTRS=$O/node_attrs.tsv.gz,$O/structure_attrs.tsv.gz,$O/node_entry_attrs.tsv.gz$DBSNP_ATTRS
 $PY -m tools.kg_export subgraph \
-  --nodes $O/dump/nodes.tsv.gz --edges $O/dump/edges.tsv.gz --config mappings/subgraph.yaml \
+  --nodes $O/dump/nodes.tsv.gz --edges $O/dump/edges.tsv.gz --config mappings/subgraph.yaml --workers 8 \
   --out-nodes $O/sub/nodes.tsv.gz --out-edges $O/sub/edges.tsv.gz \
   --full-manifest $O/dump/manifest.json --stats $O/sub/subgraph.stats.json
+
+echo "### 8b/8 showcase (dbSNP + bioactivity for famous genes/compounds) $(date +%T)"
+mkdir -p $O/sub/showcase
+# resolve genes/compounds + bioactivity edges; writes the entrez gene-filter for dbSNP
+$PY -m tools.kg_export showcase --index-dir $IDX --id-map $O/id_map.tsv.gz \
+  --config mappings/showcase.yaml \
+  --out-nodes $O/sub/showcase/nodes.tsv.gz --out-edges $O/sub/showcase/edges.tsv.gz \
+  --gene-filter-out $O/sub/showcase/genes.txt --stats $O/sub/showcase/showcase.stats.json
+# dbSNP variants of just those genes (one federation scan filtered to the gene list)
+zcat $DBSNP_GZ | $PY tools/dbsnp_py/extract.py --workers $DBSNP_WORKERS \
+  --id-map $O/id_map.tsv.gz --genes $O/sub/showcase/genes.txt --out $O/sub/showcase/dbsnp
+SHOW_N=$O/sub/showcase/nodes.tsv.gz,$(ls $O/sub/showcase/dbsnp/dbsnp_nodes.*.tsv.gz | paste -sd,)
+SHOW_E=$O/sub/showcase/edges.tsv.gz,$(ls $O/sub/showcase/dbsnp/dbsnp_edges.*.tsv.gz | paste -sd,)
+SHOW_A=$(ls $O/sub/showcase/dbsnp/dbsnp_attrs.*.tsv.gz | paste -sd,)
+
 $PY -m tools.kg_export assemble \
-  --nodes $O/sub/nodes.tsv.gz --edges $O/sub/edges.tsv.gz --node-attributes $ATTRS \
+  --nodes $O/sub/nodes.tsv.gz,$SHOW_N --edges $O/sub/edges.tsv.gz,$SHOW_E \
+  --node-attributes $ATTRS,$SHOW_A \
   --out-dir $O/sub/dump --data-version out_prod_v5_subgraph --stub-nodes --gzip \
   --validate-mode full
 

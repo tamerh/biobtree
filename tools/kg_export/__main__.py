@@ -31,6 +31,7 @@ from .nodeattrs import build_node_attributes, load_config as load_nodeattr_confi
 from .refseq import build_refseq
 from .reified import build_reified_edges
 from .structure import build_structure
+from .showcase import build_showcase, load_config as load_showcase_config
 from .subgraph import build_subgraph, check_completeness, load_config as load_subgraph_config
 
 
@@ -367,6 +368,27 @@ def _cmd_nodeattrs(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_showcase(args: argparse.Namespace) -> int:
+    registry = DatasetRegistry.load(args.conf)
+    categories = CategoryMap.load(args.categories)
+    config = load_showcase_config(args.config)
+    id_map = load_id_map(args.id_map)
+    t0 = time.time()
+    stats = build_showcase(
+        index_dir=args.index_dir, registry=registry, categories=categories,
+        config=config, id_map=id_map, out_nodes=args.out_nodes, out_edges=args.out_edges,
+        gene_filter_out=args.gene_filter_out, stats_path=args.stats,
+    )
+    dt = time.time() - t0
+    print(f"showcase nodes: {args.out_nodes}  edges: {args.out_edges}", file=sys.stderr)
+    print(f"  genes={stats.genes_resolved} proteins={stats.proteins} "
+          f"compounds={stats.compounds_resolved} bioactivity_edges={stats.bioactivity_edges:,}",
+          file=sys.stderr)
+    print(f"  entrez gene-filter for dbSNP: {args.gene_filter_out}", file=sys.stderr)
+    print(f"  by_source={dict(stats.by_source)} elapsed={dt:.1f}s", file=sys.stderr)
+    return 0
+
+
 def _cmd_subgraph(args: argparse.Namespace) -> int:
     config = load_subgraph_config(args.config)
     t0 = time.time()
@@ -581,6 +603,19 @@ def main(argv: list[str] | None = None) -> int:
     at.add_argument("--id-map", default=None, help="Phase 1 member->canonical map")
     at.add_argument("--stats", default=None, help="output stats JSON path")
     at.set_defaults(func=_cmd_attributes)
+
+    sh = sub.add_parser("showcase", help="dbSNP+bioactivity showcase for the curated famous genes/compounds")
+    sh.add_argument("--index-dir", required=True, help="dir with *_sorted.*.index.gz")
+    sh.add_argument("--conf", default="conf", help="dataset config dir")
+    sh.add_argument("--categories", default="mappings/categories.yaml")
+    sh.add_argument("--config", default="mappings/showcase.yaml", help="showcase gene/compound lists")
+    sh.add_argument("--id-map", default=None, help="Phase 1 member->canonical map")
+    sh.add_argument("--out-nodes", required=True, help="output showcase nodes.tsv[.gz]")
+    sh.add_argument("--out-edges", required=True, help="output showcase edges.tsv[.gz] (bioactivity)")
+    sh.add_argument("--gene-filter-out", required=True,
+                    help="output entrez gene-id list -> feed to dbsnp extract.py --genes")
+    sh.add_argument("--stats", default=None, help="output stats JSON path")
+    sh.set_defaults(func=_cmd_showcase)
 
     sg = sub.add_parser("subgraph", help="induced human-scoped + capped projection of the full dump")
     sg.add_argument("--nodes", required=True, help="full dump nodes.tsv[.gz]")

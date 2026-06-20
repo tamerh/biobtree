@@ -59,6 +59,13 @@ _STRUCTURE_EDGES = [
     ("biolink:Protein", "biolink:has_part", "biolink:ProteinDomain", "ufeature"),
 ]
 
+# dbSNP layer (built by tools/dbsnp_py/extract.py, not a predicate pair): variant->gene
+# is already shown via the dbsnp>entrez pair; the variant->transcript consequence edge
+# isn't pair-derived, so surface it here.
+_DBSNP_EDGES = [
+    ("biolink:SequenceVariant", "biolink:is_sequence_variant_of", "biolink:Transcript", "dbsnp"),
+]
+
 _PALETTE = [
     "#4e79a7", "#f28e2b", "#59a14f", "#e15759", "#76b7b2", "#edc948",
     "#b07aa1", "#ff9da7", "#9c755f", "#bab0ac", "#86bc86", "#d37295",
@@ -109,6 +116,9 @@ def schema_triples(cats: CategoryMap, preds: PredicateMap, registry: DatasetRegi
         add(sc, p, oc, "refseq")
 
     for sc, p, oc, ds in _STRUCTURE_EDGES:
+        add(sc, p, oc, ds)
+
+    for sc, p, oc, ds in _DBSNP_EDGES:
         add(sc, p, oc, ds)
 
     # Ontology hierarchy (ontology.py): attribute each subclass_of self-loop to

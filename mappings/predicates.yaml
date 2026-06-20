@@ -126,8 +126,11 @@ direct:
   # a deliberate, self-documenting choice here, not a silent catch-all.
   "entrez>relatedentrez": {predicate: "biolink:related_to", note: "NCBI gene_group; type in relationship qualifier"}
   "relatedentrez>entrez": {skip: "self-reference anchor back-link (subj==obj)"}
-  # neighborentrez (left/right/overlapping genomic neighbours) stays deferred --
-  # positional metadata, ~494K low-signal pairs (coverage_skip.yaml).
+  # NCBI genomic neighbours (left/right/overlapping). No genomic-adjacency predicate
+  # in biolink, so related_to with the direction in the relationship qualifier --
+  # self-documenting, same pattern as relatedentrez.
+  "entrez>neighborentrez": {predicate: "biolink:related_to", note: "NCBI genomic neighbour; direction in relationship qualifier"}
+  "neighborentrez>entrez": {skip: "self-reference anchor back-link (subj==obj)"}
 
   # --- TF binding motif (JASPAR). The motif is the TF protein's DNA-binding
   # profile (Atlas: a gene's jaspar motifs mark it a transcription factor).

@@ -30,8 +30,9 @@ skip:
 
   # --- Identifier / derived / structural (no entity value) -------------------
   my_data: "user-data placeholder"
-  neighborentrez: "NCBI genomic-neighbor tag (left/right/overlapping); positional metadata, ~494K low-signal pairs -> deferred (relationship now capturable if wanted)"
-  # relatedentrez now covered: entrez>relatedentrez related_to + relationship qualifier
+  # relatedentrez + neighborentrez now covered: entrez>{related,neighbor}entrez ->
+  # related_to with the relationship type (pseudogene/readthrough / left/right/overlapping)
+  # carried as the edge relationship qualifier.
   # orthologentrez now covered (entrez>orthologentrez -> orthologous_to)
   # exon/cds/ufeature now covered (sub-gene/protein structure layer)
   uniparc: "non-redundant sequence cluster (identifier)"

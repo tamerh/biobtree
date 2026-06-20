@@ -180,11 +180,11 @@ Each cross-reference / relation maps to a biolink predicate
   two (gnomAD constraint, DepMap essentiality, AlphaFold pLDDT, AlphaMissense
   per-transcript mean) are attached as node properties — see *Node model* above.
 - **No catch-all**: pairs without a mapping are dropped and counted, never
-  emitted as a generic `related_to`. The one deliberate `related_to` is
-  `relatedentrez` (NCBI gene_group), where it's *self-documenting* — the specific
-  relationship type (pseudogene/readthrough/functional) is carried in the edge's
-  `relationship` qualifier, not silently generic. (`neighborentrez` genomic
-  neighbours stay deferred — positional, low signal.)
+  emitted as a generic `related_to`. The only deliberate `related_to` edges are
+  `relatedentrez` (NCBI gene_group) and `neighborentrez` (genomic neighbours), where
+  it's *self-documenting* — the specific relationship (pseudogene/readthrough, or
+  left/right/overlapping) is carried in the edge's `relationship` qualifier, not
+  silently generic.
 - **Dedup**: the same logical edge arriving via different keys is collapsed to one
   (matching what the service serves at query time).
 

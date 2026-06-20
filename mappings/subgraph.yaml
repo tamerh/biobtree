@@ -12,7 +12,10 @@
 
 taxon: "NCBITaxon:9606"          # human spine
 
-# kept in full (every node) -- small, species-agnostic node sets
+# kept in full (every node) -- small, species-agnostic node sets. The subgraph is
+# human + DISEASE + MOLECULE centric, so disease/phenotype ontologies AND the curated
+# molecule/drug datasets are full (the latter by prefix below, since they share the
+# SmallMolecule/Drug categories with the giant PubChem catalog).
 full_categories:
   - biolink:Disease
   - biolink:PhenotypicFeature
@@ -24,6 +27,20 @@ full_categories:
   - biolink:AnatomicalEntity
   - biolink:Cell
   - biolink:CellLine
+
+# node prefixes always kept in full (overrides scoped category). The CURATED
+# molecule/drug datasets -> molecule-centric, and their cross-refs (close_match) +
+# drug-target edges survive. The GIANT PubChem catalog (PUBCHEM.COMPOUND) is NOT here,
+# so it stays scoped (only compounds connected to the human core, not all ~100M).
+full_prefixes:
+  - CHEBI
+  - CHEMBL.COMPOUND
+  - DRUGBANK
+  - drugcentral
+  - GTOPDB
+  - HMDB
+  - lipidmaps
+  - SWISSLIPID
 
 # taxon-scoped: kept only for `taxon`; others enter only as edge neighbours. NOTE
 # OrganismTaxon is here (NOT full) so we don't drag in the entire ~2.7M-taxa NCBI

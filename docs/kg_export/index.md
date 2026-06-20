@@ -280,23 +280,26 @@ hold a billion-entry Python set. Validation has two modes (`--validate-mode`):
 
 ## Published subgraph
 
-The full graph (with dbSNP) is billion-scale; the **published subgraph** is a small,
-*working snapshot* of it — every node category and edge predicate present, just
+The full graph (with dbSNP) is billion-scale; the **published subgraph** is a
+**human + disease + molecule centric** *working snapshot* of it — every node category
+and edge predicate present at full richness, with only the *very large* datasets
 trimmed — so anyone can drop it into Neo4j and it behaves like BioBTree in miniature.
 It is an **induced projection of the assembled full dump** (`subgraph` command), not
 a separate build:
 
 - **Spine** = every *full-category* node (ontologies / disease / phenotype / pathway /
-  anatomy / taxon — small, species-agnostic) **+** the *scoped-category* nodes
-  (gene/protein/transcript/variant/compound/…) that belong to the configured `taxon`
-  (default human, `NCBITaxon:9606`). Human anchoring is by the `in_taxon` edges (+
-  HGNC genes).
-- **Edges** anchored on the spine are kept up to a **per-(node, predicate) cap** that
-  is tiered by source (`mappings/subgraph.yaml`: STRING 50, activity 100, variants
-  50, structure uncapped, …; small curated/ontology sources uncapped). Each kept edge
-  **pulls in its endpoints**, so capped compounds, variants, and cross-species genes
-  appear in bounded numbers — the cross-species/variant/chemical layers stay visible
-  without exploding.
+  anatomy) **+** every node whose prefix is a *curated molecule/drug dataset*
+  (`full_prefixes`: CHEBI / CHEMBL.COMPOUND / DRUGBANK / drugcentral / GTOPDB / HMDB /
+  lipidmaps / SWISSLIPID — so the molecule layer + its `close_match` cross-refs and
+  drug-target edges survive) **+** the *scoped-category* nodes
+  (gene/protein/transcript/variant/…) that belong to the configured `taxon` (default
+  human, `NCBITaxon:9606`, via `in_taxon` edges + HGNC genes). The taxonomy is scoped
+  (no whole-tree drag-in) and the giant PubChem catalog stays scoped (connected-only).
+- **Trim only the giants** — representative means full richness, so there is **no
+  default cap**; `mappings/subgraph.yaml` only caps the few giants (clinvar variants,
+  Bgee expression, ChEMBL/PubChem bioactivity) and `omit_sources` drops the largest
+  least-essential layers (dbSNP, ESM2/Diamond similarity). Each kept edge **pulls in
+  its endpoints**, so capped compounds/variants/cross-species genes still appear.
 - **Attributes + synonyms** come back for free: the subgraph TSVs are re-assembled
   with the same `--node-attributes` tables (they only attach to surviving nodes), so
   it's query-equivalent too.

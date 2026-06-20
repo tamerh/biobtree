@@ -84,6 +84,26 @@ class SubgraphTests(unittest.TestCase):
         self.assertIn("CHEMBL.COMPOUND:C1", kept_n)   # pulled in by the anchored edge
         self.assertIn(("CHEMBL.COMPOUND:C1", "biolink:affects", "HGNC:1"), kept_e)
 
+    def test_full_prefix_keeps_chemical_and_its_crossref(self):
+        """A curated chemical (CHEBI, in full_prefixes) is kept full despite being a
+        scoped category + non-human, and its close_match pulls in the PUBCHEM twin --
+        so molecule cross-refs (close_match) survive (the human/disease/molecule model)."""
+        cfg = dict(CONFIG)
+        cfg["full_prefixes"] = ["CHEBI"]
+        nodes = [
+            "HGNC:1\tbiolink:Gene\th\tHGNC:1\tinfores:biobtree",
+            "CHEBI:1\tbiolink:SmallMolecule\tc\tCHEBI:1\tinfores:biobtree",                # curated -> full
+            "PUBCHEM.COMPOUND:9\tbiolink:SmallMolecule\tp\tPUBCHEM.COMPOUND:9\tinfores:biobtree",  # scoped catalog
+        ]
+        edges = [
+            _edge("HGNC:1", "biolink:in_taxon", "NCBITaxon:9606", "infores:ensembl"),
+            _edge("CHEBI:1", "biolink:close_match", "PUBCHEM.COMPOUND:9", "infores:hmdb"),
+        ]
+        st, kept_n, kept_e = self._run(nodes, edges, cfg)
+        self.assertIn("CHEBI:1", kept_n)                       # full prefix, no anchor needed
+        self.assertIn("PUBCHEM.COMPOUND:9", kept_n)            # pulled in via close_match
+        self.assertIn(("CHEBI:1", "biolink:close_match", "PUBCHEM.COMPOUND:9"), kept_e)
+
     def test_unanchored_edge_dropped(self):
         nodes = ["HGNC:1\tbiolink:Gene\th\tHGNC:1\tinfores:biobtree"]
         edges = [

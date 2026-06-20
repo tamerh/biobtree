@@ -85,6 +85,7 @@ def build_subgraph(
 
     taxon = config.get("taxon", "NCBITaxon:9606")
     full_cats = set(config.get("full_categories") or [])
+    full_prefixes = set(config.get("full_prefixes") or [])
     scoped_cats = set(config.get("scoped_categories") or [])
     full_sources = set(config.get("full_sources") or [])
     omit_sources = set(config.get("omit_sources") or [])
@@ -111,7 +112,7 @@ def build_subgraph(
         if not row:
             continue
         nid, cat = node_cols(row)
-        if cat in full_cats or not cat:
+        if cat in full_cats or nid.split(":", 1)[0] in full_prefixes or not cat:
             spine.add(nid)
         elif cat in scoped_cats:
             if nid in human or nid.startswith("HGNC:"):
@@ -270,6 +271,7 @@ def _build_parallel(nodes_tsv, edges_tsv, config, out_nodes, out_edges, stats_pa
 
     taxon = config.get("taxon", "NCBITaxon:9606").encode()
     full_cats = set(config.get("full_categories") or [])
+    full_prefixes = set(config.get("full_prefixes") or [])
     scoped_cats = set(config.get("scoped_categories") or [])
     omit = {s.encode() for s in (config.get("omit_sources") or [])}
     # per-worker caps are independent, so divide the configured (total) cap by the
@@ -304,7 +306,7 @@ def _build_parallel(nodes_tsv, edges_tsv, config, out_nodes, out_edges, stats_pa
             parts = line.rstrip("\n").split("\t")
             nid, cat = parts[0], (parts[1] if len(parts) > 1 else "")
             nb = nid.encode()
-            if cat in full_cats or not cat:
+            if cat in full_cats or nid.split(":", 1)[0] in full_prefixes or not cat:
                 spine.add(nb)
             elif cat in scoped_cats:
                 if nb in human or nid.startswith("HGNC:"):

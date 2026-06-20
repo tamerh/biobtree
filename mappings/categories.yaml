@@ -35,7 +35,7 @@ canonical_priority:
   "biolink:Protein": [uniprot]
   "biolink:Disease": [mondo, doid, efo, orphanet, mim]
   "biolink:SmallMolecule": [chebi, chembl_molecule, pubchem, gtopdb_ligand, hmdb, lipidmaps, swisslipids]
-  "biolink:Drug": [drugbank]
+  "biolink:Drug": [drugbank, drugcentral]
   "biolink:SequenceVariant": [clinvar, dbsnp]
   # HPO (human) and MP (mouse) are NOT the same entity — relate via uPheno, do
   # not merge; kept apart (no identity_pairs across them).
@@ -120,6 +120,7 @@ datasets:
   lipidmaps:      {category: "biolink:SmallMolecule", prefix: "lipidmaps"}
   swisslipids:    {category: "biolink:SmallMolecule", prefix: "SWISSLIPID", note: "DEFERRED: canonical is SLM with zero-padded 9-digit ids (needs an id transform), so left non-canonical for now"}
   drugbank:       {category: "biolink:Drug", prefix: "DRUGBANK"}
+  drugcentral:    {category: "biolink:Drug", prefix: "drugcentral", note: "approved/marketed drugs; drug->target affects edges + chembl/pubchem xrefs"}
 
   # --- Sequence variants -----------------------------------------------------
   clinvar:     {category: "biolink:SequenceVariant", prefix: "CLINVAR"}

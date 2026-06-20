@@ -58,5 +58,4 @@ skip:
 
   # --- Deferred with reason (could be added later) ---------------------------
   encode_ccre: "source ships no target-gene assignments (cCRE catalog only)"
-  drugcentral: "conf entry present but not in the prod index build yet (no drugcentral_sorted file)"
   panelapp: "panel container; disorder is free-text only -> no edge (gene-disease via panelapp_gene)"

@@ -24,6 +24,7 @@ datasets:
   chembl_molecule: {}
   hmdb: {}
   drugbank: {}
+  drugcentral: {exclude: [targets, moa_targets]}   # targets are materialized as edges
   lipidmaps: {}
   swisslipids: {}
   pubchem: {}
@@ -72,6 +73,7 @@ synonyms:
   cellosaurus: [synonyms]
   civic_variant: [aliases]
   pharmgkb_pathway: [synonyms]
+  drugcentral: [inn]
   # disease / phenotype / anatomy ontologies (highest search value)
   mondo: [synonyms]
   doid: [synonyms]

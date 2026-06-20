@@ -202,6 +202,19 @@ class TierACoverageTests(unittest.TestCase):
                      for r in out.read_text().splitlines()[1:]}
             return stats, edges
 
+    def test_drugcentral_drug_to_target(self):
+        """DrugCentral drug -> protein target (affects); gene namespaces + chembl/
+        pubchem drug xrefs are skipped (modeled like chembl_mechanism)."""
+        dc, up, hg, en, cm, pc = (self._id("drugcentral"), self._id("uniprot"),
+                                  self._id("hgnc"), self._id("entrez"),
+                                  self._id("chembl_molecule"), self._id("pubchem"))
+        _, edges = self._direct("drugcentral_sorted.1.index.gz", [
+            f"100\t{dc}\tP10635\t{up}", f"100\t{dc}\tHGNC:2625\t{hg}",
+            f"100\t{dc}\t1565\t{en}", f"100\t{dc}\tCHEMBL630\t{cm}",
+            f"100\t{dc}\t2118\t{pc}", f'100\t{dc}\t{{"name":"ajmaline"}}\t-1',
+        ], "drugcentral")
+        self.assertEqual(edges, {("drugcentral:100", "biolink:affects", "UniProtKB:P10635")})
+
     # --- Skip-list reconsiderations now added ---------------------------------
 
     def test_fantom5_enhancer_region_to_gene(self):

@@ -146,6 +146,18 @@ direct:
   "swisslipids>uniprot": {predicate: "biolink:interacts_with"}
   "hmdb>uniprot":      {predicate: "biolink:interacts_with"}
 
+  # --- DrugCentral drug -> target (mechanism of action) ---------------------
+  # Forward drugcentral_sorted carries drug->{uniprot,hgnc,entrez,ensembl} targets +
+  # {chembl_molecule,pubchem} drug xrefs. Model drug->protein (affects), like
+  # chembl_mechanism; the gene namespaces are the same target reachable via the
+  # protein, and chembl/pubchem are identity xrefs -> skip to avoid redundancy.
+  "drugcentral>uniprot":         {predicate: "biolink:affects", note: "DrugCentral drug->target protein"}
+  "drugcentral>hgnc":            {skip: "target gene namespace (covered via drug->protein->gene)"}
+  "drugcentral>entrez":          {skip: "target gene namespace (redundant)"}
+  "drugcentral>ensembl":         {skip: "target gene namespace (redundant)"}
+  "drugcentral>chembl_molecule": {skip: "drug identity xref (DrugCentral drug == ChEMBL compound)"}
+  "drugcentral>pubchem":         {skip: "drug identity xref"}
+
   # --- Drug / metabolite -> disease -----------------------------------------
   "chembl_molecule>efo": {predicate: "biolink:treats_or_applied_or_studied_to_treat", note: "ChEMBL indications incl. early phase; narrow to treats/in_clinical_trials_for via phase qualifier later"}
   "hmdb>orphanet":     {predicate: "biolink:associated_with"}

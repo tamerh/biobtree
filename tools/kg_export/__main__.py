@@ -373,6 +373,7 @@ def _cmd_subgraph(args: argparse.Namespace) -> int:
     stats = build_subgraph(
         nodes_tsv=args.nodes, edges_tsv=args.edges, config=config,
         out_nodes=args.out_nodes, out_edges=args.out_edges, stats_path=args.stats,
+        workers=args.workers,
     )
     dt = time.time() - t0
     print(f"subgraph nodes: {args.out_nodes}  edges: {args.out_edges}", file=sys.stderr)
@@ -384,7 +385,7 @@ def _cmd_subgraph(args: argparse.Namespace) -> int:
     )
     if args.full_manifest:
         mani = json.loads(Path(args.full_manifest).read_text())
-        comp = check_completeness(stats, mani)
+        comp = check_completeness(stats, mani, config.get("expected_missing"))
         print(f"  completeness={comp}", file=sys.stderr)
     print(f"  elapsed={dt:.1f}s", file=sys.stderr)
     return 0
@@ -589,6 +590,7 @@ def main(argv: list[str] | None = None) -> int:
     sg.add_argument("--out-edges", required=True, help="output subgraph edges.tsv[.gz]")
     sg.add_argument("--full-manifest", default=None, help="full dump manifest.json for completeness check")
     sg.add_argument("--stats", default=None, help="output stats JSON path")
+    sg.add_argument("--workers", type=int, default=8, help="parallel workers (zcat | N); 1 = serial")
     sg.set_defaults(func=_cmd_subgraph)
 
     a = sub.add_parser("assemble", help="merge -> JSONL -> validate -> manifest")

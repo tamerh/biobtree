@@ -25,9 +25,12 @@ Config: mappings/subgraph.yaml. Completeness is asserted against the full manife
 
 from __future__ import annotations
 
+import gzip
 import json
+import subprocess
 from collections import defaultdict
 from dataclasses import dataclass, field
+from multiprocessing import Process, Queue
 from pathlib import Path
 
 import yaml
@@ -47,6 +50,7 @@ class SubgraphStats:
     edges_in: int = 0
     edges_out: int = 0
     capped_dropped: int = 0
+    omitted_dropped: int = 0
     unanchored_dropped: int = 0
     by_predicate: dict = field(default_factory=lambda: defaultdict(int))
     by_category: dict = field(default_factory=lambda: defaultdict(int))
@@ -69,7 +73,11 @@ def build_subgraph(
     out_nodes: str | Path,
     out_edges: str | Path,
     stats_path: str | Path | None = None,
+    workers: int = 1,
 ) -> SubgraphStats:
+    if workers and workers > 1:
+        return _build_parallel(nodes_tsv, edges_tsv, config, out_nodes, out_edges,
+                               stats_path, workers)
     nodes_tsv, edges_tsv = Path(nodes_tsv), Path(edges_tsv)
     out_nodes, out_edges = Path(out_nodes), Path(out_edges)
     out_nodes.parent.mkdir(parents=True, exist_ok=True)
@@ -79,8 +87,9 @@ def build_subgraph(
     full_cats = set(config.get("full_categories") or [])
     scoped_cats = set(config.get("scoped_categories") or [])
     full_sources = set(config.get("full_sources") or [])
+    omit_sources = set(config.get("omit_sources") or [])
     caps = dict(config.get("caps") or {})
-    default_cap = config.get("default_cap", 100)
+    default_cap = config.get("default_cap", 0)
 
     def node_cols(row: str):
         p = row.split("\t")
@@ -128,8 +137,11 @@ def build_subgraph(
                 stats.unanchored_dropped += 1
                 continue
             src = _source_name(primary)
+            if src in omit_sources:                    # giant layer dropped entirely
+                stats.omitted_dropped += 1
+                continue
             cap = 0 if src in full_sources else caps.get(src, default_cap)
-            if cap:  # cap > 0 -> bounded; 0 -> keep all
+            if cap:  # cap > 0 -> bounded; 0 -> keep all (representative default)
                 key = (subj, pred)
                 if cap_count[key] >= cap:
                     stats.capped_dropped += 1
@@ -158,15 +170,235 @@ def build_subgraph(
     return stats
 
 
-def check_completeness(stats: SubgraphStats, full_manifest: dict) -> dict:
+# --- parallel path (zcat | N workers) --------------------------------------------
+# The two full edge scans (in_taxon detect + filter) are the cost; we parallelize
+# both with the dbsnp-style pattern: a parent process pipes `zcat <edges>` (C zlib)
+# and hands newline-aligned byte chunks to worker processes. Caps become per-worker
+# APPROXIMATE (a node's edges may split across workers, so the effective cap is up to
+# workers*cap) -- fine for a representative graph, where caps only stop the giants
+# from exploding. Memory: the spine set is built in the parent and inherited by the
+# workers via fork.
+
+def _zcat_chunks(path: Path, q: Queue, n_workers: int, chunk_mb: int = 16):
+    """Pipe `zcat path` and put newline-aligned byte chunks on q; then n sentinels."""
+    proc = subprocess.Popen(["zcat", str(path)], stdout=subprocess.PIPE)
+    carry = b""
+    csize = chunk_mb << 20
+    while True:
+        buf = proc.stdout.read(csize)
+        if not buf:
+            break
+        buf = carry + buf
+        nl = buf.rfind(b"\n")
+        if nl < 0:
+            carry = buf
+            continue
+        q.put(buf[:nl + 1])
+        carry = buf[nl + 1:]
+    if carry:
+        q.put(carry)
+    proc.stdout.close()
+    proc.wait()
+    for _ in range(n_workers):
+        q.put(None)
+
+
+def _intaxon_worker(q: Queue, taxon: bytes, rq: Queue):
+    found: set = set()
+    while True:
+        chunk = q.get()
+        if chunk is None:
+            break
+        for line in chunk.split(b"\n"):
+            if not line:
+                continue
+            f = line.split(b"\t", 4)
+            if len(f) >= 4 and f[2] == b"biolink:in_taxon" and f[3] == taxon:
+                found.add(f[1])
+    rq.put(found)
+
+
+def _filter_worker(wid: int, q: Queue, spine: set, omit: set, caps: dict,
+                   default_cap: int, out_dir: Path, rq: Queue):
+    eout = gzip.open(out_dir / f"edges.{wid}.tsv.gz", "wb", compresslevel=1)
+    epout = gzip.open(out_dir / f"endpoints.{wid}.txt.gz", "wb", compresslevel=1)
+    cap_count: dict = defaultdict(int)
+    edges_out = capped = omitted = unanchored = 0
+    by_pred: dict = defaultdict(int)
+    while True:
+        chunk = q.get()
+        if chunk is None:
+            break
+        for line in chunk.split(b"\n"):
+            if not line:
+                continue
+            f = line.split(b"\t", 5)
+            if len(f) < 5:
+                continue
+            subj, pred, obj, primary = f[1], f[2], f[3], f[4]
+            if subj not in spine and obj not in spine:
+                unanchored += 1
+                continue
+            src = primary[8:] if primary.startswith(b"infores:") else primary
+            if src in omit:
+                omitted += 1
+                continue
+            cap = caps.get(src, default_cap)
+            if cap:
+                key = (subj, pred)
+                if cap_count[key] >= cap:
+                    capped += 1
+                    continue
+                cap_count[key] += 1
+            eout.write(line + b"\n")
+            epout.write(subj + b"\n")
+            epout.write(obj + b"\n")
+            edges_out += 1
+            by_pred[pred.decode()] += 1
+    eout.close()
+    epout.close()
+    rq.put((edges_out, capped, omitted, unanchored, dict(by_pred)))
+
+
+def _build_parallel(nodes_tsv, edges_tsv, config, out_nodes, out_edges, stats_path, workers):
+    nodes_tsv, edges_tsv = Path(nodes_tsv), Path(edges_tsv)
+    out_nodes, out_edges = Path(out_nodes), Path(out_edges)
+    out_nodes.parent.mkdir(parents=True, exist_ok=True)
+    tmp = out_edges.parent / "_sub_shards"
+    tmp.mkdir(parents=True, exist_ok=True)
+    stats = SubgraphStats()
+
+    taxon = config.get("taxon", "NCBITaxon:9606").encode()
+    full_cats = set(config.get("full_categories") or [])
+    scoped_cats = set(config.get("scoped_categories") or [])
+    omit = {s.encode() for s in (config.get("omit_sources") or [])}
+    # per-worker caps are independent, so divide the configured (total) cap by the
+    # worker count -> the summed effective cap ~= the configured cap (approximate).
+    caps = {k.encode(): max(1, v // workers)
+            for k, v in (config.get("caps") or {}).items() if v}
+    default_cap = config.get("default_cap", 0)
+    if default_cap:
+        default_cap = max(1, default_cap // workers)
+
+    # phase A: human anchor (subjects of in_taxon -> taxon), parallel
+    q: Queue = Queue(maxsize=workers * 4)
+    rq: Queue = Queue()
+    procs = [Process(target=_intaxon_worker, args=(q, taxon, rq)) for _ in range(workers)]
+    for p in procs:
+        p.start()
+    _zcat_chunks(edges_tsv, q, workers)
+    human: set = set()
+    for _ in procs:
+        human |= rq.get()
+    for p in procs:
+        p.join()
+    stats.human_nodes = len(human)
+
+    # phase B prep: spine (node ids as bytes), built in parent -> inherited by workers
+    spine: set = set()
+    with kgx.xopen(nodes_tsv, "rt") as fh:
+        next(fh, "")
+        for line in fh:
+            if not line.strip():
+                continue
+            parts = line.rstrip("\n").split("\t")
+            nid, cat = parts[0], (parts[1] if len(parts) > 1 else "")
+            nb = nid.encode()
+            if cat in full_cats or not cat:
+                spine.add(nb)
+            elif cat in scoped_cats:
+                if nb in human or nid.startswith("HGNC:"):
+                    spine.add(nb)
+            else:
+                spine.add(nb)
+    stats.spine_nodes = len(spine)
+    del human
+
+    # phase B: filter edges, parallel -> edge + endpoint shards
+    q = Queue(maxsize=workers * 4)
+    rq = Queue()
+    procs = [Process(target=_filter_worker,
+                     args=(w, q, spine, omit, caps, default_cap, tmp, rq))
+             for w in range(workers)]
+    for p in procs:
+        p.start()
+    _zcat_chunks(edges_tsv, q, workers)
+    for _ in procs:
+        eo, cap, om, un, bp = rq.get()
+        stats.edges_out += eo
+        stats.capped_dropped += cap
+        stats.omitted_dropped += om
+        stats.unanchored_dropped += un
+        for k, v in bp.items():
+            stats.by_predicate[k] += v
+    for p in procs:
+        p.join()
+
+    # keep_nodes = spine + endpoints of kept edges (from the endpoint shards)
+    keep: set = set(spine)
+    for w in range(workers):
+        with gzip.open(tmp / f"endpoints.{w}.txt.gz", "rb") as fh:
+            for line in fh:
+                keep.add(line.rstrip(b"\n"))
+    del spine
+
+    # concat edge shards into out_edges (with header)
+    with kgx.xopen(out_edges, "wt") as eout:
+        eout.write(kgx.EDGE_HEADER + "\n")
+    with open(out_edges, "ab") as eout:
+        for w in range(workers):
+            with open(tmp / f"edges.{w}.tsv.gz", "rb") as sh:
+                while True:
+                    b = sh.read(1 << 20)
+                    if not b:
+                        break
+                    eout.write(b)
+
+    # phase C: emit kept nodes (single pass; nodes file is small)
+    with kgx.xopen(out_nodes, "wt") as nout:
+        nout.write(kgx.NODE_HEADER + "\n")
+        with kgx.xopen(nodes_tsv, "rt") as fh:
+            next(fh, "")
+            for line in fh:
+                if not line.strip():
+                    continue
+                row = line.rstrip("\n")
+                parts = row.split("\t")
+                if parts[0].encode() in keep:
+                    nout.write(row + "\n")
+                    stats.nodes_out += 1
+                    stats.by_category[parts[1] if len(parts) > 1 else ""] += 1
+
+    # cleanup shards
+    for w in range(workers):
+        (tmp / f"edges.{w}.tsv.gz").unlink(missing_ok=True)
+        (tmp / f"endpoints.{w}.txt.gz").unlink(missing_ok=True)
+    try:
+        tmp.rmdir()
+    except OSError:
+        pass
+
+    if stats_path:
+        Path(stats_path).write_text(json.dumps(stats.to_json(), indent=2))
+    return stats
+
+
+def check_completeness(stats: SubgraphStats, full_manifest: dict,
+                       expected_missing: dict | None = None) -> dict:
     """Every category/predicate in the full graph must survive the trim, else the
-    snapshot isn't faithful (a small dataset was accidentally dropped)."""
+    snapshot isn't faithful (a small dataset was accidentally dropped). Predicates/
+    categories deliberately dropped (omitted giant layers, e.g. similar_to from the
+    omitted similarity sources) are declared in `expected_missing` and don't fail."""
+    expected_missing = expected_missing or {}
+    exp_preds = set(expected_missing.get("predicates") or [])
+    exp_cats = set(expected_missing.get("categories") or [])
     full_cats = set((full_manifest.get("node_categories") or {}).keys())
     full_preds = set((full_manifest.get("edge_predicates") or {}).keys())
-    missing_cats = sorted(full_cats - set(stats.by_category))
-    missing_preds = sorted(full_preds - set(stats.by_predicate))
+    missing_cats = sorted(full_cats - set(stats.by_category) - exp_cats)
+    missing_preds = sorted(full_preds - set(stats.by_predicate) - exp_preds)
     return {
         "ok": not missing_cats and not missing_preds,
         "missing_categories": missing_cats,
         "missing_predicates": missing_preds,
+        "expected_missing": sorted(exp_preds | exp_cats),
     }

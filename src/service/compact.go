@@ -550,6 +550,8 @@ func extractChemblField(a *pbuf.ChemblAttr, field string) string {
 			return mol.Desc
 		case "formula":
 			return mol.Formula
+		case "smiles":
+			return mol.Smiles
 		}
 	}
 	if tgt := a.GetTarget(); tgt != nil {

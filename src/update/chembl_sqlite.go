@@ -762,8 +762,10 @@ func (c *chemblSqlite) processMolecules(testLimit int) int64 {
 			Molecule: &pbuf.ChemblMolecule{
 				Name: entry.Name,
 				Type: entry.MoleculeType,
-				// Molecular properties DISABLED - redundant with PubChem (use >>chembl_molecule>>pubchem)
-				// Smiles:           entry.Smiles,
+				// SMILES kept inline so it can be a compact field (saves Atlas a
+				// >>chembl_molecule>>pubchem hop). Other molecular properties stay
+				// DISABLED - redundant with PubChem (use >>chembl_molecule>>pubchem).
+				Smiles: entry.Smiles,
 				// Inchi:            entry.Inchi,
 				// InchiKey:         entry.InchiKey,
 				// Formula:          entry.Formula,

@@ -66,6 +66,25 @@ def _source_name(primary: str) -> str:
     return primary.split(":", 1)[1] if primary.startswith("infores:") else primary
 
 
+def _parse_caps(config: dict) -> dict:
+    """Parse `caps` into {source: (n, by_object)}.
+
+    A cap value is either an int (cap per (subject, predicate)) or a mapping
+    {n: int, by: subject|object}. `by: object` caps per (object, predicate) --
+    needed when the spine node we want to bound is the edge's OBJECT, e.g.
+    clinvar variant--is_sequence_variant_of-->gene (cap variants *per gene* = per
+    object) or compound--interacts_with-->target (cap activities *per target*)."""
+    out = {}
+    for k, v in (config.get("caps") or {}).items():
+        if isinstance(v, dict):
+            n, by = v.get("n", 0), v.get("by", "subject")
+        else:
+            n, by = v, "subject"
+        if n:
+            out[k] = (int(n), by == "object")
+    return out
+
+
 def build_subgraph(
     nodes_tsv: str | Path,
     edges_tsv: str | Path,
@@ -89,7 +108,7 @@ def build_subgraph(
     scoped_cats = set(config.get("scoped_categories") or [])
     full_sources = set(config.get("full_sources") or [])
     omit_sources = set(config.get("omit_sources") or [])
-    caps = dict(config.get("caps") or {})
+    caps = _parse_caps(config)  # {source: (n, by_object)}
     default_cap = config.get("default_cap", 0)
 
     def node_cols(row: str):
@@ -141,9 +160,15 @@ def build_subgraph(
             if src in omit_sources:                    # giant layer dropped entirely
                 stats.omitted_dropped += 1
                 continue
-            cap = 0 if src in full_sources else caps.get(src, default_cap)
-            if cap:  # cap > 0 -> bounded; 0 -> keep all (representative default)
-                key = (subj, pred)
+            if src in full_sources:
+                entry = None
+            elif src in caps:
+                entry = caps[src]                        # (n, by_object)
+            else:
+                entry = (default_cap, False) if default_cap else None
+            if entry:  # bounded; absent -> keep all (representative default)
+                cap, by_obj = entry
+                key = (obj, pred) if by_obj else (subj, pred)
                 if cap_count[key] >= cap:
                     stats.capped_dropped += 1
                     continue
@@ -244,9 +269,12 @@ def _filter_worker(wid: int, q: Queue, spine: set, omit: set, caps: dict,
             if src in omit:
                 omitted += 1
                 continue
-            cap = caps.get(src, default_cap)
-            if cap:
-                key = (subj, pred)
+            entry = caps.get(src)
+            if entry is None and default_cap:
+                entry = (default_cap, False)
+            if entry:
+                cap, by_obj = entry
+                key = (obj, pred) if by_obj else (subj, pred)
                 if cap_count[key] >= cap:
                     capped += 1
                     continue
@@ -276,8 +304,9 @@ def _build_parallel(nodes_tsv, edges_tsv, config, out_nodes, out_edges, stats_pa
     omit = {s.encode() for s in (config.get("omit_sources") or [])}
     # per-worker caps are independent, so divide the configured (total) cap by the
     # worker count -> the summed effective cap ~= the configured cap (approximate).
-    caps = {k.encode(): max(1, v // workers)
-            for k, v in (config.get("caps") or {}).items() if v}
+    # value is (n, by_object); axis is preserved per source.
+    caps = {k.encode(): (max(1, n // workers), by_obj)
+            for k, (n, by_obj) in _parse_caps(config).items()}
     default_cap = config.get("default_cap", 0)
     if default_cap:
         default_cap = max(1, default_cap // workers)

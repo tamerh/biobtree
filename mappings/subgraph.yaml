@@ -66,11 +66,13 @@ scoped_categories:
 # default: NO cap -- representative means full richness. Only the giants below are
 # trimmed. (cap N = keep <=N per (subject,predicate); 0/absent = full.)
 default_cap: 0
+# A cap value is an int (cap per subject+predicate) or {n, by: subject|object}.
+# Use `by: object` when the spine node to bound is the edge OBJECT.
 caps:
-  clinvar: 50              # ~50 variants per gene (curated variants -- keep some)
-  bgee: 25                 # ~25 expressed_in per gene
-  pubchem_activity: 50     # ~50 bioactivities per target
-  chembl_activity: 50
+  clinvar: {n: 50, by: object}          # ~50 variants per gene (variant->gene, gene=object)
+  bgee: 25                              # ~25 expressed_in per gene (gene=subject)
+  pubchem_activity: {n: 50, by: object} # ~50 bioactivities per target (compound->target, target=object)
+  chembl_activity: {n: 50, by: object}
 
 # omit entirely -- giant + least-essential / deferred layers
 omit_sources:

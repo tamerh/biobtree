@@ -69,6 +69,23 @@ class SubgraphTests(unittest.TestCase):
         self.assertEqual(len(ppi), 2)                 # capped at 2
         self.assertEqual(st.capped_dropped, 2)
 
+    def test_object_axis_cap(self):
+        """Cap by OBJECT: clinvar variant--is_sequence_variant_of-->gene must cap
+        variants PER GENE (the gene is the object), not per variant."""
+        cfg = dict(CONFIG)
+        cfg["caps"] = {"clinvar": {"n": 2, "by": "object"}}
+        nodes = ["HGNC:1\tbiolink:Gene\th\tHGNC:1\tinfores:biobtree"]
+        nodes += [f"CLINVAR:{i}\tbiolink:SequenceVariant\tv\tCLINVAR:{i}\tinfores:biobtree"
+                  for i in range(3)]
+        edges = [_edge("HGNC:1", "biolink:in_taxon", "NCBITaxon:9606", "infores:ensembl")]
+        for i in range(3):  # 3 variants -> same gene; cap 2 (per object) keeps 2
+            edges.append(_edge(f"CLINVAR:{i}", "biolink:is_sequence_variant_of",
+                               "HGNC:1", "infores:clinvar"))
+        st, kept_n, kept_e = self._run(nodes, edges, cfg)
+        var = [e for e in kept_e if e[1] == "biolink:is_sequence_variant_of"]
+        self.assertEqual(len(var), 2)                 # 3 -> 2 (capped per gene/object)
+        self.assertEqual(st.capped_dropped, 1)
+
     def test_edge_pulls_in_capped_neighbour(self):
         """A compound (scoped, non-human) is NOT in the spine but enters via a kept
         edge from a human protein."""

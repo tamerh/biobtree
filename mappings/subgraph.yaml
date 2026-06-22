@@ -77,6 +77,7 @@ omit_sources:
   - esm2_similarity        # predicted protein similarity
   - diamond_similarity
   - dbsnp                  # billion-variant layer; clinvar gives curated variants
+  - patent                 # ~554M compound->patent literature edges; floods the projection
 
 # predicates/categories the omits intentionally remove -- so the completeness check
 # doesn't flag them as accidental drops

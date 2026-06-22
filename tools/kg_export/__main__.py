@@ -430,13 +430,29 @@ def _cmd_assemble(args: argparse.Namespace) -> int:
         categories = CategoryMap.load(args.categories)
         stub_info = kgx.add_stub_nodes(nodes_tsv, edges_tsv, categories)
         n_nodes += stub_info["stubs_added"]
-    node_attrs = None
+    # node-attribute join: concatenate the attr tables and sort by id, then let
+    # nodes_to_jsonl do a memory-flat sorted merge-join. (Loading them into a dict
+    # OOMs at full scale -- node_entry_attrs alone is ~138M rows.)
+    attr_path = None
     if args.node_attributes:
-        node_attrs = {}
-        for tbl in (s.strip() for s in args.node_attributes.split(",") if s.strip()):
-            for node, props in load_attributes(tbl).items():
-                merge_attr_dict(node_attrs.setdefault(node, {}), props)
-    kgx.nodes_to_jsonl(nodes_tsv, out_dir / ("nodes.jsonl" + ext), attributes=node_attrs)
+        tbls = [s.strip() for s in args.node_attributes.split(",") if s.strip()]
+        cat = out_dir / "node_attrs.concat.tmp"
+        with open(cat, "wt") as o:
+            for tbl in tbls:
+                p = Path(tbl)
+                if not p.exists():
+                    continue
+                with kgx.xopen(p, "rt") as fh:
+                    for line in fh:
+                        if "\t" in line:
+                            o.write(line if line.endswith("\n") else line + "\n")
+        attr_path = out_dir / "node_attrs.sorted.tmp"
+        kgx._sort_file(cat, attr_path, "-k1,1", tmp_dir=out_dir)
+        cat.unlink(missing_ok=True)
+    kgx.nodes_to_jsonl(nodes_tsv, out_dir / ("nodes.jsonl" + ext),
+                       attr_path=attr_path, merge_fn=merge_attr_dict, tmp_dir=out_dir)
+    if attr_path is not None:
+        Path(attr_path).unlink(missing_ok=True)
     kgx.edges_to_jsonl(edges_tsv, out_dir / ("edges.jsonl" + ext))
     if args.validate_mode == "streaming":
         # billion-scale: shape checks streamed; dangling/dup from construction stats

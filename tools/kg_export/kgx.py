@@ -9,6 +9,7 @@ manifest with counts.
 from __future__ import annotations
 
 import hashlib
+import io
 import json
 import os
 import re
@@ -80,13 +81,63 @@ CANONICAL_PREFIXES = {
 }
 
 
+# Cap parallelism so the build doesn't monopolize the machine (override via KG_NPROC).
+_NPROC = str(max(1, int(os.environ.get("KG_NPROC", min(16, os.cpu_count() or 16)))))
+
+
+class _ProcFile:
+    """Text file-like backed by a pigz subprocess (parallel gzip). Delegates I/O to
+    the wrapped text stream; close() drains/awaits the process (and the sink, for
+    writers) so the .gz is complete before we move on."""
+
+    def __init__(self, proc, stream, sink=None):
+        self._p, self._s, self._sink = proc, stream, sink
+
+    def __getattr__(self, k):
+        return getattr(self._s, k)
+
+    def __iter__(self):
+        return iter(self._s)
+
+    def __next__(self):
+        return next(self._s)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        self.close()
+
+    def close(self):
+        try:
+            self._s.close()      # writer: closes pigz stdin (it then drains); reader: closes pipe
+        except Exception:
+            pass
+        self._p.wait()
+        if self._sink is not None:
+            self._sink.close()
+            if self._p.returncode not in (0, None):
+                raise RuntimeError(f"pigz exited {self._p.returncode}")
+
+
 def xopen(path, mode="rt"):
-    """Open plain or gzipped by extension (.gz -> gzip), always text/utf-8."""
-    import gzip
+    """Open plain or gzipped by extension. .gz goes through pigz (parallel gzip)
+    when available -- a large speedup writing/reading the billion-row dumps on a
+    many-core box -- falling back to single-threaded gzip otherwise. Output is
+    byte-identical gzip either way."""
     path = str(path)
-    if path.endswith(".gz"):
-        return gzip.open(path, mode, encoding="utf-8")
-    return open(path, mode, encoding="utf-8")
+    if not path.endswith(".gz"):
+        return open(path, mode, encoding="utf-8")
+    if shutil.which("pigz"):
+        if "r" in mode:
+            p = subprocess.Popen(["pigz", "-dc", path], stdout=subprocess.PIPE)
+            return _ProcFile(p, io.TextIOWrapper(p.stdout, encoding="utf-8"))
+        sink = open(path, "ab" if "a" in mode else "wb")
+        p = subprocess.Popen(["pigz", "-p", _NPROC, "-c"],
+                             stdin=subprocess.PIPE, stdout=sink)
+        return _ProcFile(p, io.TextIOWrapper(p.stdin, encoding="utf-8"), sink=sink)
+    import gzip
+    return gzip.open(path, mode, encoding="utf-8")
 
 
 # GO/Reactome GAF evidence codes -> ECO CURIEs, so `has_evidence` is uniformly ECO
@@ -162,7 +213,10 @@ def _sort_file(src: Path, dst: Path, *key_args: str, uniq: bool = False,
                tmp_dir: Path | None = None) -> None:
     """External (disk-spilling) sort -- memory-flat at any scale. LC_ALL=C for
     deterministic byte order. Used by the billion-scale merge/stub steps."""
-    args = ["sort", "-T", str(tmp_dir or src.parent), "-t", "\t", *key_args]
+    args = ["sort", "-T", str(tmp_dir or src.parent), "-t", "\t",
+            "--parallel=" + _NPROC, "-S", "50%", *key_args]
+    if shutil.which("pigz"):
+        args.append("--compress-program=pigz")  # parallel-compress the spill files
     if uniq:
         args.append("-u")
     args += ["-o", str(dst), str(src)]
@@ -246,12 +300,7 @@ def merge_edges(
     final = body
     if dedup and total and shutil.which("sort"):
         srt = Path(str(out_path) + ".sorted.tmp")
-        env = {**os.environ, "LC_ALL": "C"}  # byte order, deterministic + fast
-        subprocess.run(
-            ["sort", "-T", str(tmp_dir), "-t", "\t", "-k1,1", "-u",
-             "-o", str(srt), str(body)],
-            check=True, env=env,
-        )
+        _sort_file(body, srt, "-k1,1", uniq=True, tmp_dir=tmp_dir)  # tuned: parallel + pigz spill
         body.unlink()
         final = srt
 
@@ -268,37 +317,88 @@ def merge_edges(
 
 
 def nodes_to_jsonl(nodes_tsv: str | Path, out_path: str | Path,
-                   attributes: dict | None = None) -> int:
-    """Convert nodes.tsv -> nodes.jsonl, optionally merging numeric/value node
-    attributes ({node_id: {property: value}}, from attributes.py) as properties."""
+                   attributes: dict | None = None, attr_path: str | Path | None = None,
+                   merge_fn=None, tmp_dir: Path | None = None) -> int:
+    """Convert nodes.tsv -> nodes.jsonl, optionally merging node attributes as props.
+
+    Two attribute sources (mutually exclusive):
+      - ``attributes``: an in-memory ``{node_id: {prop: val}}`` dict (small graphs).
+      - ``attr_path``:  a node-attribute table (``id<TAB>json`` lines) joined by a
+        memory-flat **sorted merge-join** -- the node body is sorted by id and walked
+        in lock-step with the (pre-sorted) attr file. This is what keeps assemble
+        memory-flat at billion-scale (a 138M-row attr table would OOM as a dict).
+    """
     cols = NODE_HEADER.split("\t")
     attributes = attributes or {}
+
+    def _shape(d: dict, extra: dict | None):
+        # KGX category should be a list; include the universal root so consumers that
+        # query biolink:NamedThing match.
+        if d.get("category"):
+            cats = [d["category"]]
+            if d["category"] != "biolink:NamedThing":
+                cats.append("biolink:NamedThing")
+            d["category"] = cats
+        else:
+            d["category"] = []
+        d["equivalent_identifiers"] = (
+            d["equivalent_identifiers"].split("|") if d.get("equivalent_identifiers") else [])
+        if extra:
+            d.update(extra)
+        return d
+
     n = 0
+    if attr_path is not None:
+        tmp = Path(tmp_dir or Path(out_path).parent)
+        # node body (no header), sorted by id to match the LC_ALL=C attr sort
+        nb = Path(str(out_path) + ".nbody.tmp")
+        with xopen(nodes_tsv, "rt") as fh, open(nb, "w") as o:
+            next(fh, "")
+            for line in fh:
+                if line.strip():
+                    o.write(line if line.endswith("\n") else line + "\n")
+        nbs = Path(str(out_path) + ".nbody.sorted.tmp")
+        _sort_file(nb, nbs, "-k1,1", tmp_dir=tmp)
+        nb.unlink(missing_ok=True)
+        af = xopen(attr_path, "rt")
+        a_line = af.readline()
+        with xopen(out_path, "wt") as out, open(nbs) as nf:
+            for line in nf:
+                row = line.rstrip("\n")
+                if not row:
+                    continue
+                d = dict(zip(cols, row.split("\t")))
+                nid = d.get("id") or ""
+                extra: dict = {}
+                while a_line:
+                    aid, _, ajs = a_line.rstrip("\n").partition("\t")
+                    if aid < nid:
+                        a_line = af.readline()
+                        continue
+                    if aid > nid:
+                        break
+                    try:
+                        props = json.loads(ajs)
+                    except (ValueError, TypeError):
+                        props = None
+                    if props:
+                        if merge_fn:
+                            merge_fn(extra, props)
+                        else:
+                            extra.update(props)
+                    a_line = af.readline()
+                out.write(json.dumps(_shape(d, extra)) + "\n")
+                n += 1
+        af.close()
+        nbs.unlink(missing_ok=True)
+        return n
+
     with xopen(out_path, "wt") as out:
         for _, row in _read_rows(Path(nodes_tsv)):
             if not row:
                 continue
-            vals = row.split("\t")
-            d = dict(zip(cols, vals))
-            # KGX category should be a list; include the universal root so
-            # consumers that query biolink:NamedThing match. (Full ancestor-chain
-            # expansion via biolink-model-toolkit is a follow-up.)
-            if d.get("category"):
-                cats = [d["category"]]
-                if d["category"] != "biolink:NamedThing":
-                    cats.append("biolink:NamedThing")
-                d["category"] = cats
-            else:
-                d["category"] = []
-            d["equivalent_identifiers"] = (
-                d["equivalent_identifiers"].split("|")
-                if d.get("equivalent_identifiers")
-                else []
-            )
-            extra = attributes.get(d.get("id"))
-            if extra:
-                d.update(extra)  # numeric/value node attributes (gnomad/alphafold/...)
-            out.write(json.dumps(d) + "\n")
+            d = dict(zip(cols, row.split("\t")))
+            out.write(json.dumps(_shape(d, attributes.get(d.get("id")))) + "\n")
             n += 1
     return n
 

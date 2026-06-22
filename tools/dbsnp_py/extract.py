@@ -1,6 +1,6 @@
 """dbSNP federation -> KGX, pure-Python multiprocessing (parity check vs the Go POC).
 
-Same pattern as tools/dbsnp_go: let `zcat` decompress (C zlib, ~328 MB/s ceiling on
+Same pattern as the Go POC: let `zcat` decompress (C zlib, ~328 MB/s ceiling on
 one stream) and pipe plaintext in; parallelize the per-variant CPU (json + format +
 md5) across workers. The catch vs Go: Python has no shared-memory workers (GIL ->
 processes), so data must be COPIED across the process boundary. We therefore ship

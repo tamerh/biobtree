@@ -27,3 +27,6 @@ dist/
 
 # pyvis meta-graph explorer assets (generated)
 lib/
+
+# KG one-off operational recovery scripts (not the canonical pipeline)
+tools/kg_export/resume_*.sh

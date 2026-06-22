@@ -573,6 +573,785 @@ if(LS&&LS.getItem('mg_view')=='m')view('m');
         f.write(tmpl.replace("__PAYLOAD__", payload))
 
 
+# --- poster / atlas view -----------------------------------------------------------
+# Eight thematic bands laid out 4x2, copied from the preprint Fig.1 (introduction.tex):
+# every biolink category lives in exactly one band, bands are colour-coded, and the
+# whole graph is shown at once (no click-to-expand) -- the "neat, everything-visible"
+# face. (key, label, color, grid_col, grid_row, [member categories])
+_POSTER_CLUSTERS = [
+    ("genes", "Genes & transcripts", "#e15759", 0, 0,
+     ["Gene", "Transcript", "Exon", "CodingSequence", "NoncodingRNAProduct",
+      "MicroRNA", "RegulatoryRegion", "NucleicAcidSequenceMotif"]),
+    ("proteins", "Proteins & structure", "#4f9d4f", 1, 0,
+     ["Protein", "ProteinDomain", "ProteinFamily"]),
+    ("expression", "Expression & anatomy", "#4ca39c", 2, 0,
+     ["Cell", "CellLine", "GrossAnatomicalStructure"]),
+    ("pathways", "Pathways & function", "#b07aa1", 3, 0,
+     ["Pathway", "MolecularActivity", "BiologicalProcess", "CellularComponent"]),
+    ("variants", "Variants & clinical", "#3aa6b5", 0, 1,
+     ["SequenceVariant"]),
+    ("diseases", "Diseases & phenotypes", "#4e79a7", 1, 1,
+     ["Disease", "DiseaseOrPhenotypicFeature", "PhenotypicFeature"]),
+    ("drugs", "Drugs & chemistry", "#d6a219", 2, 1,
+     ["SmallMolecule", "Drug", "ChemicalEntity"]),
+    ("other", "Cross-cutting", "#8a6bbf", 3, 1,
+     ["OrganismTaxon", "Publication"]),
+]
+_SLOT_W, _SLOT_H, _NODE_DX, _NODE_DY = 600, 470, 165, 108
+
+
+def _txt_color(hex_color):
+    """Readable text colour (black/white) for a given background hex."""
+    h = hex_color.lstrip("#")
+    r, g, b = (int(h[i:i + 2], 16) for i in (0, 2, 4))
+    return "#1b232c" if (0.299 * r + 0.587 * g + 0.114 * b) > 150 else "#ffffff"
+
+
+def _poster_positions():
+    """Seed (x, y) per category: a centred grid inside each band's 4x2 slot.
+    These are *seed* coordinates -- the `?edit` mode lets us drag + re-export them."""
+    import math
+    pos, cluster_of = {}, {}
+    for key, _lbl, _col, gc, gr, members in _POSTER_CLUSTERS:
+        n = len(members)
+        bcols = 1 if n == 1 else (2 if n <= 4 else 3)
+        brows = math.ceil(n / bcols)
+        gw, gh = (bcols - 1) * _NODE_DX, (brows - 1) * _NODE_DY
+        cx, cy = gc * _SLOT_W, gr * _SLOT_H
+        for i, m in enumerate(members):
+            r, c = divmod(i, bcols)
+            pos[m] = {"x": round(cx + c * _NODE_DX - gw / 2, 1),
+                      "y": round(cy + r * _NODE_DY - gh / 2, 1)}
+            cluster_of[m] = key
+    return pos, cluster_of
+
+
+def render_poster(triples, out_html, catmap=None, primary_names=None, registry=None):
+    """Static, everything-visible schema poster (preset band layout, faint edges with
+    hover-highlight, pan/zoom, no click panel). Inspired by the preprint TikZ figure.
+    Append `?edit` to the URL to drag nodes and copy a fresh position map."""
+    import json
+    primary_names = set(primary_names or ())
+    primary_names |= {"go", "refseq", "dbsnp", "mesh"}
+
+    def nid(c):
+        return c.split(":")[1]
+    cats = sorted({c for (s, _, o) in triples for c in (s, o)})
+    pos, cluster_of = _poster_positions()
+    clusters = [{"id": k, "label": lbl, "color": col} for k, lbl, col, _gc, _gr, _m in _POSTER_CLUSTERS]
+    band_color = {k: col for k, _l, col, _gc, _gr, _m in _POSTER_CLUSTERS}
+    # any category not placed in a band (e.g. a new one) -> drop into "other" + warn
+    for c in cats:
+        if nid(c) not in cluster_of:
+            cluster_of[nid(c)] = "other"
+            pos.setdefault(nid(c), {"x": 3 * _SLOT_W, "y": 1 * _SLOT_H + 200})
+            print(f"  [poster] WARNING: {nid(c)} has no band -> 'other'")
+
+    deg = defaultdict(int)
+    edges = []
+    for (s, p, o), ds in sorted(triples.items()):
+        si, oi, pl = nid(s), nid(o), p.split(":")[1]
+        deg[si] += 1
+        deg[oi] += 1
+        edges.append({"data": {"id": f"{si}|{pl}|{oi}", "source": si, "target": oi,
+                               "label": pl, "n": len(ds),
+                               "cross": cluster_of.get(si) != cluster_of.get(oi),
+                               "ev": p in _EVIDENCE_PREDS, "ql": p in _QUALIFIER_PREDS}})
+    # dataset counts per category (shown faintly on hover)
+    nds = defaultdict(int)
+    if catmap is not None:
+        link_only = {"ortholog", "paralog", "orthologentrez", "relatedentrez", "neighborentrez"}
+        for ds in catmap.datasets():
+            if ds in link_only:
+                continue
+            e = catmap.entry_for(ds)
+            if e:
+                nds[nid(e.category)] += 1
+
+    nodes = []
+    for c in cats:
+        i = nid(c)
+        k = cluster_of[i]
+        col = band_color[k]
+        nodes.append({"data": {"id": i, "label": i, "parent": "c_" + k, "color": col,
+                               "txt": _txt_color(col), "deg": deg[i],
+                               "blurb": _BLURBS.get(i, ""), "nds": nds.get(i, 0)},
+                      "position": pos[i]})
+    parents = [{"data": {"id": "c_" + c["id"], "label": c["label"], "color": c["color"],
+                         "band": True}} for c in clusters]
+
+    n_datasets = sum(nds.values())
+    payload = json.dumps({"parents": parents, "nodes": nodes, "edges": edges,
+                          "clusters": clusters,
+                          "meta": {"cats": len(cats), "edges": len(edges), "datasets": n_datasets}})
+    tmpl = _POSTER_TMPL
+    with open(out_html, "w") as f:
+        f.write(tmpl.replace("__PAYLOAD__", payload))
+
+
+_POSTER_TMPL = r"""<!doctype html><html lang='en'><head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width,initial-scale=1'>
+<title>BioBTree Knowledge Graph — schema</title>
+<meta name='description' content='The BioBTree biolink knowledge-graph schema at a glance: every node category and typed relationship, grouped into thematic bands.'>
+<link rel='icon' href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%234e79a7'/%3E%3Ccircle cx='10' cy='11' r='3.2' fill='%23fff'/%3E%3Ccircle cx='22' cy='10' r='3.2' fill='%23f28e2b'/%3E%3Ccircle cx='16' cy='23' r='3.2' fill='%2359a14f'/%3E%3Cpath d='M10 11 L22 10 M22 10 L16 23 M16 23 L10 11' stroke='%23fff' stroke-width='1.4' opacity='.7'/%3E%3C/svg%3E">
+<meta name='theme-color' content='#1f3a5f'>
+<script src='https://unpkg.com/cytoscape@3.28.1/dist/cytoscape.min.js'></script>
+<style>
+html,body{margin:0;height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#2c3744;-webkit-font-smoothing:antialiased}
+body{display:flex;flex-direction:column;height:100vh;overflow:hidden}
+#hdr{display:flex;align-items:baseline;gap:14px;padding:12px 20px 11px;background:#1f3a5f;color:#eaf0f6;flex:none}
+#hdr h1{font-size:16px;font-weight:600;margin:0;letter-spacing:.2px}
+#hdr .sub{font-size:12px;color:#aebfd2}
+#hdr .sp{flex:1}
+#hdr a{color:#cfe0f2;text-decoration:none;font-size:12px;border:1px solid #3c5d86;padding:3px 9px;border-radius:5px}
+#hdr a:hover{background:#28456b}
+#stage{position:relative;flex:1;min-height:0;background:#fbfcfe;
+ background-image:radial-gradient(#e7ecf3 1px,transparent 1px);background-size:26px 26px}
+#cy{position:absolute;inset:0}
+#legend{position:absolute;left:14px;bottom:14px;background:rgba(255,255,255,.94);border:1px solid #dde4ee;
+ border-radius:9px;padding:9px 11px;box-shadow:0 3px 14px rgba(31,58,95,.10);font-size:11.5px;max-width:240px}
+#legend .lt{font-weight:600;color:#42536a;margin:0 0 6px;font-size:10.5px;letter-spacing:.5px;text-transform:uppercase}
+#legend .row{display:flex;align-items:center;gap:7px;padding:2px 0;cursor:default}
+#legend .sw{width:12px;height:12px;border-radius:3px;flex:none}
+#hint{position:absolute;right:14px;bottom:14px;background:rgba(255,255,255,.92);border:1px solid #dde4ee;
+ border-radius:8px;padding:7px 11px;font-size:11.5px;color:#56657a;box-shadow:0 3px 14px rgba(31,58,95,.10)}
+#hint b{color:#33455c}
+#tip{position:absolute;display:none;pointer-events:none;background:#1f2a37;color:#eef3f9;font-size:12px;
+ padding:7px 10px;border-radius:7px;max-width:280px;box-shadow:0 4px 16px rgba(0,0,0,.28);line-height:1.4;z-index:9}
+#tip .tn{font-weight:600}#tip .tb{color:#b9c6d6;margin-top:2px}#tip .tm{color:#8fa6c0;margin-top:4px;font-size:11px}
+#toolbar{position:absolute;right:14px;top:14px;display:flex;gap:6px}
+#toolbar button{background:#fff;border:1px solid #d3dbe6;border-radius:7px;padding:6px 11px;font-size:12px;
+ color:#3a4a5e;cursor:pointer;box-shadow:0 2px 8px rgba(31,58,95,.07)}
+#toolbar button:hover{background:#eef3fa;border-color:#b9c7d8}
+#edit{position:absolute;left:50%;top:14px;transform:translateX(-50%);background:#e15759;color:#fff;
+ border:none;border-radius:7px;padding:7px 14px;font-size:12.5px;cursor:pointer;display:none;box-shadow:0 3px 12px rgba(225,87,89,.35)}
+#loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#7e8da0;font-size:13px;background:#fbfcfe;z-index:5;transition:opacity .4s}
+#loading.gone{opacity:0;pointer-events:none}
+</style></head><body>
+<div id='hdr'>
+ <h1>BioBTree Knowledge Graph</h1>
+ <span class='sub' id='counts'></span>
+ <span class='sp'></span>
+ <a href='https://github.com/tamerh/biobtree' target='_blank' rel='noopener'>GitHub</a>
+</div>
+<div id='stage'>
+ <div id='cy'></div>
+ <div id='loading'>building schema…</div>
+ <div id='toolbar'><button onclick='cy.fit(cy.elements(),50)'>Fit</button><button onclick='cy.zoom(cy.zoom()*1.2)'>+</button><button onclick='cy.zoom(cy.zoom()/1.2)'>−</button></div>
+ <button id='edit' onclick='copyPos()'>📋 Copy positions</button>
+ <div id='legend'><div class='lt'>Domains</div></div>
+ <div id='hint'><b>Hover</b> a node to trace its links · <b>drag</b> to pan · <b>scroll</b> to zoom</div>
+ <div id='tip'></div>
+</div>
+<script>
+var D=__PAYLOAD__;
+var EDIT=/[?&]edit\b/.test(location.search);
+document.getElementById('counts').textContent=D.meta.cats+' node categories · '+D.meta.edges+' relationship types · '+D.meta.datasets+' datasets';
+var els=[].concat(D.parents,D.nodes,D.edges);
+var cy=cytoscape({
+ container:document.getElementById('cy'),
+ elements:els,
+ layout:{name:'preset'},
+ wheelSensitivity:0.22,
+ minZoom:0.15,maxZoom:3,
+ style:[
+  {selector:'node[band]',style:{'shape':'round-rectangle','background-color':'data(color)','background-opacity':0.07,
+    'border-width':1.4,'border-color':'data(color)','border-opacity':0.55,'label':'data(label)',
+    'text-valign':'top','text-halign':'center','text-margin-y':-7,'font-size':14,'font-weight':600,
+    'color':'data(color)','padding':'26px','z-index':0,'events':'no'}},
+  {selector:'node[!band]',style:{'shape':'round-rectangle','background-color':'data(color)','label':'data(label)',
+    'color':'data(txt)','text-valign':'center','text-halign':'center','font-size':12,'font-weight':500,
+    'text-wrap':'wrap','text-max-width':'118px','width':'label','height':'label','padding':'9px',
+    'border-width':1.2,'border-color':'#ffffff','border-opacity':0.65,'z-index':10,
+    'transition-property':'opacity,border-color,border-width','transition-duration':'120ms'}},
+  {selector:'edge',style:{'curve-style':'bezier','width':1.3,'line-color':'#8aa0bb','opacity':0.16,
+    'target-arrow-shape':'triangle','target-arrow-color':'#8aa0bb','arrow-scale':0.6,
+    'font-size':10,'color':'#5a6b80','text-background-color':'#fff','text-background-opacity':0.9,
+    'text-background-padding':2,'z-index':1,
+    'transition-property':'opacity,width,line-color','transition-duration':'120ms'}},
+  {selector:'edge[?cross]',style:{'line-color':'#6f86a4','opacity':0.22}},
+  {selector:'edge[source = target]',style:{'curve-style':'bezier','loop-direction':'-45deg','loop-sweep':'-40deg'}},
+  {selector:'.faded',style:{'opacity':0.06}},
+  {selector:'node.faded',style:{'opacity':0.10}},
+  {selector:'edge.hot',style:{'opacity':0.95,'width':2.4,'line-color':'data(hotc)','target-arrow-color':'data(hotc)','label':'data(label)','z-index':20}},
+  {selector:'node.hot',style:{'opacity':1,'border-color':'#1f2a37','border-width':2.2,'z-index':30}}
+ ]
+});
+cy.nodes('[!band]').grabbable(EDIT);
+cy.nodes('[band]').ungrabify();
+cy.autoungrabify(!EDIT);
+cy.fit(cy.elements(),50);
+
+// build legend from clusters
+var lg=document.getElementById('legend');
+D.clusters.forEach(function(c){
+ var r=document.createElement('div');r.className='row';
+ r.innerHTML="<span class='sw' style='background:"+c.color+"'></span>"+c.label;
+ r.onmouseenter=function(){highlightCluster(c.id);};
+ r.onmouseleave=clearHi;
+ lg.appendChild(r);
+});
+
+// hover-highlight: dim everything except the node, its edges and neighbours
+var tip=document.getElementById('tip');
+function clearHi(){cy.elements().removeClass('faded hot');tip.style.display='none';}
+cy.on('mouseover','node[!band]',function(e){
+ var n=e.target,hood=n.closedNeighborhood();
+ cy.elements().addClass('faded');
+ hood.removeClass('faded');
+ n.addClass('hot');hood.nodes().difference(n).removeClass('faded');
+ var col=n.data('color');
+ n.connectedEdges().forEach(function(ed){ed.data('hotc',col);}).removeClass('faded').addClass('hot');
+ var d=n.data();
+ tip.innerHTML="<div class='tn'>"+d.id+"</div>"+(d.blurb?"<div class='tb'>"+d.blurb+"</div>":"")
+   +"<div class='tm'>"+d.deg+" relationships"+(d.nds?" · "+d.nds+" datasets":"")+"</div>";
+ tip.style.display='block';
+});
+cy.on('mousemove','node[!band]',function(e){
+ var p=e.renderedPosition,st=document.getElementById('stage').getBoundingClientRect();
+ tip.style.left=Math.min(p.x+16,st.width-296)+'px';tip.style.top=(p.y+16)+'px';
+});
+cy.on('mouseout','node[!band]',clearHi);
+
+function highlightCluster(cid){
+ cy.elements().addClass('faded');
+ var ns=cy.nodes("[!band][parent = 'c_"+cid+"']");
+ ns.removeClass('faded');
+ ns.connectedEdges().forEach(function(ed){ed.data('hotc',ed.source().data('color'));}).removeClass('faded').addClass('hot');
+ ns.connectedEdges().connectedNodes().removeClass('faded');
+}
+
+// edit mode: drag nodes, then copy a {id:{x,y}} map for baking back into the source
+if(EDIT){
+ document.getElementById('edit').style.display='block';
+ document.getElementById('hint').innerHTML="<b>EDIT MODE</b> · drag nodes, then Copy positions";
+}
+function copyPos(){
+ var m={};cy.nodes('[!band]').forEach(function(n){var p=n.position();m[n.id()]={x:Math.round(p.x*10)/10,y:Math.round(p.y*10)/10};});
+ var s=JSON.stringify(m,null,1);
+ navigator.clipboard.writeText(s).then(function(){var b=document.getElementById('edit');b.textContent='✓ copied';setTimeout(function(){b.textContent='📋 Copy positions';},1400);},function(){prompt('positions:',s);});
+}
+setTimeout(function(){var l=document.getElementById('loading');if(l)l.classList.add('gone');},250);
+</script></body></html>"""
+
+
+# --- ER / schema-flow view ---------------------------------------------------------
+# A left-to-right layered diagram (Graphviz dot) in the style of the preprint methods
+# figure: every biolink category is a rich "entity" box (header + blurb + example CURIE
+# + datasets + ontology badge), relationships are single labelled lines (parallel
+# predicates merged), and dot's crossing-minimisation keeps paths followable. Self-loop
+# predicates (subclass_of / close_match / same_as) become an in-box badge, not an edge.
+_ER_SELFLOOP_PREDS = {"subclass_of", "close_match", "same_as", "related_to"}
+# predicates demoted from drawn edges to an in-box badge: low-information "universal"
+# annotations whose target adds a hub of long crossing lines (every node is in_taxon
+# OrganismTaxon). Shown as a badge on the source box instead; the lone target node
+# (OrganismTaxon) then has no edges and is dropped from the diagram.
+_ER_BADGE_PREDS = {"in_taxon": "in OrganismTaxon"}
+# explicit biological left-to-right columns (central dogma + annotations); forces a
+# readable rank order so most relationships flow forward instead of crossing back.
+_ER_COLUMNS = [
+    ["SequenceVariant", "RegulatoryRegion", "NucleicAcidSequenceMotif", "MicroRNA"],
+    ["Gene"],
+    ["Transcript", "NoncodingRNAProduct", "Exon", "CodingSequence"],
+    ["Protein"],
+    ["ProteinDomain", "ProteinFamily", "Pathway", "MolecularActivity",
+     "BiologicalProcess", "CellularComponent", "Cell", "CellLine", "GrossAnatomicalStructure"],
+    ["Disease", "PhenotypicFeature", "DiseaseOrPhenotypicFeature"],
+    ["SmallMolecule", "Drug", "ChemicalEntity", "Publication"],
+]
+
+
+def _html_esc(s):
+    return str(s).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+
+def _er_collect(triples, catmap, registry):
+    """Per-category box content + merged relationship lines.
+    Returns (ds_of, example, rels, loops, badges)."""
+    def nid(c):
+        return c.split(":")[1]
+    # datasets + a representative example CURIE per category
+    link_only = {"ortholog", "paralog", "orthologentrez", "relatedentrez", "neighborentrez"}
+    ds_of = defaultdict(list)
+    example = {}
+    if catmap is not None:
+        for ds in sorted(catmap.datasets()):
+            if ds in link_only:
+                continue
+            e = catmap.entry_for(ds)
+            if not e:
+                continue
+            cat = nid(e.category)
+            ds_of[cat].append(ds)
+            if cat not in example:
+                ex = _EXAMPLE_LOCAL.get(ds)
+                if ex:
+                    example[cat] = ex if ":" in ex else to_curie(e.prefix, ex)
+    for ac in ("MolecularActivity", "BiologicalProcess", "CellularComponent"):
+        ds_of[ac].append("go")
+        example.setdefault(ac, "GO:0006915")
+    for rs in ("Transcript",):
+        if "refseq" not in ds_of[rs]:
+            ds_of[rs].append("refseq")
+
+    rels = defaultdict(set)          # (src,tgt) -> {predicate,...}
+    loops = defaultdict(set)         # cat -> {selfloop predicate,...}
+    badges = defaultdict(set)        # cat -> {demoted universal annotation,...}
+    for (s, p, o), _ds in triples.items():
+        si, oi, pl = nid(s), nid(o), p.split(":")[1]
+        if pl in _ER_BADGE_PREDS:
+            badges[si].add(_ER_BADGE_PREDS[pl])
+        elif si == oi:
+            loops[si].add(pl)
+        else:
+            rels[(si, oi)].add(pl)
+    return ds_of, example, rels, loops, badges
+
+
+def render_er(triples, out_html, catmap=None, primary_names=None, registry=None, png=None):
+    """ER/flow schema diagram via Graphviz dot (rankdir=LR). The published, everything-
+    visible, follow-the-paths face. Writes an HTML page (inline SVG + pan/zoom) and,
+    if `png` given, a PNG preview."""
+    import os
+    import sys
+    import graphviz
+    # the `dot` binary ships next to this interpreter (conda env); ensure it's findable
+    # even when the env isn't "activated" (e.g. invoked as /path/to/env/bin/python -m ...)
+    os.environ["PATH"] = os.path.dirname(sys.executable) + os.pathsep + os.environ.get("PATH", "")
+
+    def nid(c):
+        return c.split(":")[1]
+    cats = sorted({c for (s, _, o) in triples for c in (s, o)})
+    _pos, cluster_of = _poster_positions()
+    band_color = {k: col for k, _l, col, _gc, _gr, _m in _POSTER_CLUSTERS}
+    for c in cats:
+        cluster_of.setdefault(nid(c), "other")
+    ds_of, example, rels, loops, badges = _er_collect(triples, catmap, registry)
+    # drop nodes that, after demoting universal annotations, have no relationships at
+    # all (e.g. OrganismTaxon becomes a pure in_taxon target -> a badge, not a node).
+    linked = {x for pair in rels for x in pair}
+    drawn = [c for c in cats if nid(c) in linked]  # skip nodes left with only a self-loop
+
+    def box_label(cat):
+        col = band_color[cluster_of[cat]]
+        txt = _txt_color(col)
+        blurb = _BLURBS.get(cat, "")
+        dss = ds_of.get(cat, [])
+        ds_line = ", ".join(dss[:3]) + (f" +{len(dss) - 3}" if len(dss) > 3 else "")
+        rows = [f'<TR><TD ALIGN="CENTER" BGCOLOR="{col}" CELLPADDING="5">'
+                f'<FONT COLOR="{txt}" POINT-SIZE="12.5"><B>{_html_esc(cat)}</B></FONT></TD></TR>']
+        if blurb:
+            rows.append(f'<TR><TD ALIGN="LEFT"><FONT POINT-SIZE="8.5" COLOR="#5a6b80">'
+                        f'<I>{_html_esc(blurb)}</I></FONT></TD></TR>')
+        if cat in example:
+            rows.append(f'<TR><TD ALIGN="LEFT"><FONT POINT-SIZE="8.5" COLOR="#33455c">'
+                        f'e.g. {_html_esc(example[cat])}</FONT></TD></TR>')
+        if ds_line:
+            rows.append(f'<TR><TD ALIGN="LEFT"><FONT POINT-SIZE="8" COLOR="#7a8aa0">'
+                        f'{len(dss)} datasets &middot; {_html_esc(ds_line)}</FONT></TD></TR>')
+        meta_bits = []
+        if loops.get(cat):
+            meta_bits.append("&#8635; " + _html_esc(", ".join(sorted(loops[cat]))))
+        if badges.get(cat):
+            meta_bits.append("&#127760; " + _html_esc(", ".join(sorted(badges[cat]))))
+        for b in meta_bits:
+            rows.append(f'<TR><TD ALIGN="LEFT"><FONT POINT-SIZE="8" COLOR="#9270b8">'
+                        f'{b}</FONT></TD></TR>')
+        return ("<<TABLE BORDER=\"1\" COLOR=\"#c9d3e0\" CELLBORDER=\"0\" CELLSPACING=\"0\" "
+                "CELLPADDING=\"3\" BGCOLOR=\"white\">" + "".join(rows) + "</TABLE>>")
+
+    drawn_ids = {nid(c) for c in drawn}
+    g = graphviz.Digraph("er", format="svg")
+    g.attr(rankdir="LR", splines="ortho", nodesep="0.5", ranksep="1.6",
+           bgcolor="white", fontname="Helvetica", newrank="true", forcelabels="true")
+    g.attr("node", shape="plaintext", margin="0", fontname="Helvetica")
+    g.attr("edge", fontname="Helvetica", fontsize="8.5", color="#9aabc0",
+           arrowsize="0.6", penwidth="1.0")
+    for c in drawn:
+        g.node(nid(c), label=box_label(nid(c)))
+    # force the biological column order: rank=same per column + an invisible weighted
+    # chain between the first node of consecutive (present) columns.
+    present_cols = []
+    for col in _ER_COLUMNS:
+        pres = [c for c in col if c in drawn_ids]
+        if pres:
+            present_cols.append(pres)
+            with g.subgraph() as s:
+                s.attr(rank="same")
+                for c in pres:
+                    s.node(c)
+    for a, b in zip(present_cols, present_cols[1:]):
+        g.edge(a[0], b[0], style="invis", weight="20")
+    for (si, oi), preds in sorted(rels.items()):
+        col = band_color[cluster_of[si]]
+        lbl = "\\n".join(sorted(preds))
+        g.edge(si, oi, xlabel=lbl, color=col + "cc", fontcolor="#54657a")
+
+    svg = g.pipe(format="svg").decode("utf-8")
+    if png:
+        try:
+            with open(png, "wb") as f:
+                f.write(g.pipe(format="png"))
+        except Exception as e:  # pragma: no cover
+            print("  [er] png preview failed:", e)
+    # strip the XML prolog so the SVG drops straight into the page
+    svg = svg[svg.find("<svg"):]
+    meta = {"cats": len(drawn), "rels": len(rels),
+            "datasets": len({d for v in ds_of.values() for d in v})}
+    html = _ER_TMPL.replace("__SVG__", svg).replace(
+        "__META__", f"{meta['cats']} categories &middot; {meta['rels']} relationships "
+                    f"&middot; {meta['datasets']} datasets")
+    with open(out_html, "w") as f:
+        f.write(html)
+
+
+_ER_TMPL = r"""<!doctype html><html lang='en'><head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width,initial-scale=1'>
+<title>BioBTree Knowledge Graph — schema</title>
+<meta name='description' content='The BioBTree biolink knowledge-graph schema as an entity-relationship flow: every node category, its datasets and identifiers, and the typed relationships between them.'>
+<link rel='icon' href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%234e79a7'/%3E%3Ccircle cx='10' cy='11' r='3.2' fill='%23fff'/%3E%3Ccircle cx='22' cy='10' r='3.2' fill='%23f28e2b'/%3E%3Ccircle cx='16' cy='23' r='3.2' fill='%2359a14f'/%3E%3C/svg%3E">
+<meta name='theme-color' content='#1f3a5f'>
+<script src='https://unpkg.com/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js'></script>
+<style>
+html,body{margin:0;height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#2c3744}
+body{display:flex;flex-direction:column;height:100vh;overflow:hidden}
+#hdr{display:flex;align-items:baseline;gap:14px;padding:12px 20px 11px;background:#1f3a5f;color:#eaf0f6;flex:none}
+#hdr h1{font-size:16px;font-weight:600;margin:0}
+#hdr .sub{font-size:12px;color:#aebfd2}#hdr .sp{flex:1}
+#hdr a{color:#cfe0f2;text-decoration:none;font-size:12px;border:1px solid #3c5d86;padding:3px 9px;border-radius:5px}
+#hdr a:hover{background:#28456b}
+#stage{position:relative;flex:1;min-height:0;background:#fbfcfe;
+ background-image:radial-gradient(#e7ecf3 1px,transparent 1px);background-size:26px 26px}
+#wrap{position:absolute;inset:0}#wrap svg{width:100%;height:100%}
+#toolbar{position:absolute;right:14px;top:14px;display:flex;gap:6px}
+#toolbar button{background:#fff;border:1px solid #d3dbe6;border-radius:7px;padding:6px 11px;font-size:12px;color:#3a4a5e;cursor:pointer;box-shadow:0 2px 8px rgba(31,58,95,.07)}
+#toolbar button:hover{background:#eef3fa}
+#legend{position:absolute;left:14px;bottom:14px;background:rgba(255,255,255,.94);border:1px solid #dde4ee;border-radius:9px;padding:9px 11px;box-shadow:0 3px 14px rgba(31,58,95,.10);font-size:11.5px}
+#legend .lt{font-weight:600;color:#42536a;margin:0 0 6px;font-size:10.5px;letter-spacing:.5px;text-transform:uppercase}
+#legend .row{display:flex;align-items:center;gap:7px;padding:2px 0}
+#legend .sw{width:12px;height:12px;border-radius:3px;flex:none}
+#hint{position:absolute;right:14px;bottom:14px;background:rgba(255,255,255,.92);border:1px solid #dde4ee;border-radius:8px;padding:7px 11px;font-size:11.5px;color:#56657a;box-shadow:0 3px 14px rgba(31,58,95,.10)}
+</style></head><body>
+<div id='hdr'><h1>BioBTree Knowledge Graph</h1><span class='sub'>__META__</span>
+ <span class='sp'></span>
+ <a href='https://github.com/tamerh/biobtree' target='_blank' rel='noopener'>GitHub</a></div>
+<div id='stage'>
+ <div id='wrap'>__SVG__</div>
+ <div id='toolbar'><button onclick='pz.fit();pz.center()'>Fit</button><button onclick='pz.zoomIn()'>+</button><button onclick='pz.zoomOut()'>−</button></div>
+ <div id='legend'><div class='lt'>Domains</div></div>
+</div>
+<script>
+var LEG=[["#e15759","Genes & transcripts"],["#4f9d4f","Proteins & structure"],["#4ca39c","Expression & anatomy"],["#b07aa1","Pathways & function"],["#3aa6b5","Variants & clinical"],["#4e79a7","Diseases & phenotypes"],["#d6a219","Drugs & chemistry"],["#8a6bbf","Cross-cutting"]];
+document.querySelector('#legend').insertAdjacentHTML('beforeend',LEG.map(function(l){return "<div class='row'><span class='sw' style='background:"+l[0]+"'></span>"+l[1]+"</div>";}).join(''));
+var svg=document.querySelector('#wrap svg');svg.removeAttribute('width');svg.removeAttribute('height');
+var pz=svgPanZoom(svg,{controlIconsEnabled:false,fit:true,center:true,minZoom:0.2,maxZoom:8,zoomScaleSensitivity:0.3});
+window.addEventListener('resize',function(){pz.resize();pz.fit();pz.center();});
+</script></body></html>"""
+
+
+# --- neat domain-grouped views (edge bundling + arc), shared payload -----------------
+def _neat_payload(triples, catmap, registry):
+    """JSON payload for the bundling/arc views: domain-grouped nodes (with the rich box
+    info) + merged relationship lines. Reuses the ER collector so the two stay in sync."""
+    import json
+
+    def nid(c):
+        return c.split(":")[1]
+    cats = sorted({nid(c) for (s, _, o) in triples for c in (s, o)})
+    _pos, cluster_of = _poster_positions()
+    for c in cats:
+        cluster_of.setdefault(c, "other")
+    ds_of, example, rels, loops, badges = _er_collect(triples, catmap, registry)
+    linked = {x for pair in rels for x in pair}
+
+    deg = defaultdict(int)
+    for (s, o) in rels:
+        deg[s] += 1
+        deg[o] += 1
+    dom_color = {k: col for k, _l, col, _gc, _gr, _m in _POSTER_CLUSTERS}
+    dom_order = {k: i for i, (k, *_r) in enumerate(_POSTER_CLUSTERS)}
+    # node order: by domain (visual order), then hubs first within a domain
+    nodes_in = [c for c in cats if c in linked]
+    # only domains that actually contain a drawn node (every node must map to one, or
+    # the radial hierarchy is missing a leaf -> the bundle view crashes)
+    present = {cluster_of[c] for c in nodes_in}
+    domains = [{"key": k, "label": lbl, "color": col}
+               for k, lbl, col, _gc, _gr, _m in _POSTER_CLUSTERS if k in present]
+    nodes_in.sort(key=lambda c: (dom_order.get(cluster_of[c], 99), -deg[c], c))
+    nodes = [{"id": c, "domain": cluster_of[c], "color": dom_color[cluster_of[c]],
+              "blurb": _BLURBS.get(c, ""), "example": example.get(c, ""),
+              "datasets": ds_of.get(c, []), "nds": len(ds_of.get(c, [])),
+              "loops": sorted(loops.get(c, [])), "badges": sorted(badges.get(c, [])),
+              "deg": deg[c]} for c in nodes_in]
+    edges = [{"source": s, "target": o, "preds": sorted(p)} for (s, o), p in sorted(rels.items())]
+    return json.dumps({"nodes": nodes, "edges": edges, "domains": domains,
+                       "meta": {"cats": len(nodes), "rels": len(edges),
+                                "datasets": len({d for v in ds_of.values() for d in v})}})
+
+
+def render_bundle(triples, out_html, catmap=None, primary_names=None, registry=None):
+    """Radial hierarchical edge-bundling view (D3): nodes on a circle grouped by domain,
+    relationships bundled toward the centre. Hover a node to trace its links."""
+    with open(out_html, "w") as f:
+        f.write(_BUNDLE_TMPL.replace("__PAYLOAD__", _neat_payload(triples, catmap, registry)))
+
+
+def render_arc(triples, out_html, catmap=None, primary_names=None, registry=None):
+    """Arc-diagram view (D3): nodes in one row grouped into domain blocks, relationships
+    as semicircle arcs. Hover a node to trace its links."""
+    with open(out_html, "w") as f:
+        f.write(_ARC_TMPL.replace("__PAYLOAD__", _neat_payload(triples, catmap, registry)))
+
+
+_NEAT_HEAD = r"""<!doctype html><html lang='en'><head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width,initial-scale=1'>
+<title>BioBTree Knowledge Graph — schema</title>
+<meta name='description' content='The BioBTree biolink knowledge-graph schema, grouped by domain: every node category and the typed relationships between them.'>
+<link rel='icon' href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%234e79a7'/%3E%3Ccircle cx='10' cy='11' r='3.2' fill='%23fff'/%3E%3Ccircle cx='22' cy='10' r='3.2' fill='%23f28e2b'/%3E%3Ccircle cx='16' cy='23' r='3.2' fill='%2359a14f'/%3E%3C/svg%3E">
+<meta name='theme-color' content='#1f3a5f'>
+<script src='https://unpkg.com/d3@7.8.5/dist/d3.min.js'></script>
+<style>
+html,body{margin:0;height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#2c3744}
+body{display:flex;flex-direction:column;height:100vh;overflow:hidden}
+#hdr{display:flex;align-items:baseline;gap:14px;padding:12px 20px 11px;background:#1f3a5f;color:#eaf0f6;flex:none}
+#hdr .desc{font-size:13px;color:#cfe0f2;font-weight:400;line-height:1.4}#hdr .sp{flex:1}
+#hdr a{color:#cfe0f2;text-decoration:none;font-size:12px;border:1px solid #3c5d86;padding:3px 9px;border-radius:5px;white-space:nowrap}
+#hdr a:hover{background:#28456b}
+#stage{position:relative;flex:1;min-height:0;background:#fbfcfe;background-image:radial-gradient(#e7ecf3 1px,transparent 1px);background-size:26px 26px}
+#viz{width:100%;height:100%}
+.link{fill:none;stroke-opacity:.16}
+.node-dot{cursor:pointer}
+.node-lbl{font-size:11px;cursor:pointer;fill:#3a4658}
+.faded{opacity:.07}
+.lit{stroke-opacity:.95!important}
+text.hot{fill:#111;font-weight:600}
+.elbl{font-size:9.5px;fill:#33455c;text-anchor:middle;pointer-events:none;paint-order:stroke;stroke:#fbfcfe;stroke-width:3px;stroke-linejoin:round}
+/* dark mode (?dark): legible on a dark hero background */
+body.dark .node-lbl{fill:#cbd5e1}
+body.dark text.hot{fill:#fff}
+body.dark .link{stroke-opacity:.3}
+body.dark .elbl{fill:#e8eef7;stroke:#0f172a}
+body.dark #legend{color:#cbd5e1}
+#panel{position:absolute;right:0;top:0;width:300px;max-height:100%;overflow:auto;background:rgba(255,255,255,.97);border-left:1px solid #e2e8f1;box-shadow:-3px 0 16px rgba(31,58,95,.06);padding:16px 18px;box-sizing:border-box;transform:translateX(100%);transition:transform .18s}
+#panel.show{transform:none}
+#panel h2{margin:0 0 4px;font-size:15px;display:flex;align-items:center;gap:8px}
+#panel .sw{width:13px;height:13px;border-radius:3px;display:inline-block}
+#panel .dm{font-size:11px;color:#8295ab;text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px}
+#panel .bl{font-size:12.5px;color:#46566b;font-style:italic;margin:6px 0}
+#panel .kv{font-size:12px;margin:7px 0;color:#33455c}#panel .kv b{color:#5a6b80;font-weight:600}
+#panel .rel{font-size:11.5px;padding:3px 0;border-top:1px solid #eef2f7;color:#3a4658}
+#panel .rel .p{color:#8295ab}
+#panel .ds{font-size:11px;color:#7a8aa0;line-height:1.5}
+#legend{position:absolute;left:14px;bottom:14px;background:rgba(255,255,255,.94);border:1px solid #dde4ee;border-radius:9px;padding:9px 11px;box-shadow:0 3px 14px rgba(31,58,95,.10);font-size:11.5px}
+#legend .lt{font-weight:600;color:#42536a;margin:0 0 6px;font-size:10.5px;letter-spacing:.5px;text-transform:uppercase}
+#legend .row{display:flex;align-items:center;gap:7px;padding:1.5px 0;cursor:pointer}
+#legend .row.off{opacity:.35}
+#legend .sw{width:12px;height:12px;border-radius:3px;flex:none}
+#hint{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);background:rgba(255,255,255,.92);border:1px solid #dde4ee;border-radius:8px;padding:6px 12px;font-size:11.5px;color:#56657a;box-shadow:0 3px 14px rgba(31,58,95,.10)}
+#hint b{color:#33455c}
+</style></head><body>
+<div id='hdr'><span class='desc'>Each node is a biolink category; hover any node to trace its typed relationships across the BioBTree knowledge graph.</span>
+ <span class='sp'></span><a href='https://github.com/tamerh/biobtree' target='_blank' rel='noopener'>GitHub</a></div>
+<div id='stage'>
+ <svg id='viz'></svg>
+ <div id='legend'><div class='lt'>Domains</div></div>
+ <div id='panel'></div>
+ <div id='hint'><b>Hover</b> a node to trace its relationships</div>
+</div>
+<script>
+var D=__PAYLOAD__;
+// embedded in an iframe on the site: drop the header band + hint so only the graph
+// shows; the host page supplies the title/description/links as normal text.
+if(/[?&]embed\b/.test(location.search)){['hdr','hint'].forEach(function(id){var e=document.getElementById(id);if(e)e.style.display='none';});
+ // transparent so the host page's hero background shows through the iframe (keep the dots)
+ document.documentElement.style.background='transparent';document.body.style.background='transparent';
+ var _st=document.getElementById('stage');if(_st)_st.style.background='transparent';}
+if(/[?&]dark\b/.test(location.search))document.body.classList.add('dark');
+var byId={};D.nodes.forEach(function(n){byId[n.id]=n;});
+var adj={};D.nodes.forEach(function(n){adj[n.id]={out:[],in:[]};});
+D.edges.forEach(function(e){adj[e.source].out.push(e);adj[e.target].in.push(e);});
+var lg=d3.select('#legend');
+D.domains.forEach(function(dm){
+ lg.append('div').attr('class','row').html("<span class='sw' style='background:"+dm.color+"'></span>"+dm.label)
+   .on('mouseenter',function(){if(window._hlDomain)window._hlDomain(dm.key);})
+   .on('mouseleave',function(){if(window._clrHi)window._clrHi();});
+});
+function panel(n){
+ var p=d3.select('#panel');
+ var rels=adj[n.id].out.map(function(e){return {dir:'→',o:e.target,preds:e.preds};})
+   .concat(adj[n.id].in.map(function(e){return {dir:'←',o:e.source,preds:e.preds};}));
+ var h="<h2><span class='sw' style='background:"+n.color+"'></span>"+n.id+"</h2>";
+ h+="<div class='dm'>"+(D.domains.filter(function(d){return d.key==n.domain;})[0]||{label:n.domain}).label+"</div>";
+ if(n.blurb)h+="<div class='bl'>"+n.blurb+"</div>";
+ if(n.example)h+="<div class='kv'><b>example</b> "+n.example+"</div>";
+ if(n.datasets.length)h+="<div class='kv'><b>"+n.nds+" datasets</b></div><div class='ds'>"+n.datasets.join(', ')+"</div>";
+ if(n.loops.length)h+="<div class='kv'>↻ "+n.loops.join(', ')+"</div>";
+ if(n.badges.length)h+="<div class='kv'>🌐 "+n.badges.join(', ')+"</div>";
+ h+="<div class='kv' style='margin-top:10px'><b>"+rels.length+" relationships</b></div>";
+ rels.forEach(function(r){h+="<div class='rel'>"+r.dir+" "+r.o+" <span class='p'>"+r.preds.join(', ')+"</span></div>";});
+ p.html(h).classed('show',true);
+}
+function hidePanel(){d3.select('#panel').classed('show',false);}
+</script>
+"""
+
+
+_BUNDLE_TMPL = _NEAT_HEAD + r"""<script>
+(function(){
+ var svg=d3.select('#viz'),stage=document.getElementById('stage');
+ var g=svg.append('g');
+ var linkG=g.append('g'),nodeG=g.append('g'),labelG=g.append('g');
+ function layout(){
+  var W=stage.clientWidth,H=stage.clientHeight;
+  svg.attr('viewBox',[-W/2,-H/2,W,H]);
+  var R=Math.min(W,H)/2-150;
+  // hierarchy root -> domain -> category, then radial cluster
+  var rootData={name:'root',children:D.domains.map(function(dm){
+    return {name:dm.key,children:D.nodes.filter(function(n){return n.domain==dm.key;})
+      .map(function(n){return {name:n.id,data:n};})};})};
+  var root=d3.hierarchy(rootData);
+  d3.cluster().size([2*Math.PI,R])(root);
+  var leaves=root.leaves(),leafById={};
+  leaves.forEach(function(l){leafById[l.data.name]=l;});
+  var line=d3.lineRadial().curve(d3.curveBundle.beta(0.82)).radius(function(d){return d.y;}).angle(function(d){return d.x;});
+  var linkData=D.edges.filter(function(e){return leafById[e.source]&&leafById[e.target];})
+    .map(function(e){return {e:e,path:leafById[e.source].path(leafById[e.target])};});
+  var links=linkG.selectAll('path').data(linkData).join('path').attr('class','link')
+    .attr('d',function(d){return line(d.path);})
+    .attr('stroke',function(d){return byId[d.e.source].color;});
+  var nodes=nodeG.selectAll('g').data(leaves).join('g')
+    .attr('transform',function(d){return 'rotate('+(d.x*180/Math.PI-90)+') translate('+d.y+',0)';});
+  nodes.selectAll('circle').data(function(d){return [d];}).join('circle').attr('class','node-dot')
+    .attr('r',function(d){return 3+Math.min(6,d.data.data.deg*0.5);}).attr('fill',function(d){return d.data.data.color;});
+  nodes.selectAll('text').data(function(d){return [d];}).join('text').attr('class','node-lbl')
+    .attr('dy','0.31em').attr('x',function(d){return d.x<Math.PI?8:-8;})
+    .attr('text-anchor',function(d){return d.x<Math.PI?'start':'end';})
+    .attr('transform',function(d){return d.x>=Math.PI?'rotate(180)':null;})
+    .text(function(d){return d.data.name;});
+  function hl(id){
+   var inc={};links.classed('faded',true).classed('lit',false);labelG.selectAll('*').remove();
+   links.filter(function(d){return d.e.source==id||d.e.target==id;})
+     .classed('faded',false).classed('lit',true).raise()
+     .each(function(d){inc[d.e.source]=1;inc[d.e.target]=1;
+       var L=this.getTotalLength(),p=this.getPointAtLength(L*(d.e.source==id?0.8:0.2));
+       labelG.append('text').attr('class','elbl').attr('x',p.x).attr('y',p.y).text(d.e.preds.join(', '));});
+   nodes.classed('faded',function(d){return !inc[d.data.name];});
+   nodes.select('text').classed('hot',function(d){return d.data.name==id;});
+   panel(byId[id]);
+  }
+  function clr(){links.classed('faded',false).classed('lit',false);labelG.selectAll('*').remove();nodes.classed('faded',false);nodes.select('text').classed('hot',false);hidePanel();}
+  nodes.on('mouseover',function(_,d){hl(d.data.name);}).on('mouseout',clr);
+  // hovering a legend domain: light up every relationship touching that domain
+  window._hlDomain=function(key){
+   var inc={};links.classed('faded',true).classed('lit',false);labelG.selectAll('*').remove();
+   links.filter(function(d){return byId[d.e.source].domain==key||byId[d.e.target].domain==key;})
+     .classed('faded',false).classed('lit',true).raise()
+     .each(function(d){inc[d.e.source]=1;inc[d.e.target]=1;
+       var L=this.getTotalLength(),p=this.getPointAtLength(L/2);
+       labelG.append('text').attr('class','elbl').attr('x',p.x).attr('y',p.y).text(d.e.preds.join(', '));});
+   nodes.classed('faded',function(d){return !(d.data.data.domain==key||inc[d.data.name]);});
+   nodes.select('text').classed('hot',function(d){return d.data.data.domain==key;});
+  };
+  window._clrHi=clr;
+ }
+ layout();
+ svg.call(d3.zoom().scaleExtent([0.5,6]).on('zoom',function(ev){g.attr('transform',ev.transform);}));
+ window.addEventListener('resize',function(){g.selectAll('*').remove();linkG=g.append('g');nodeG=g.append('g');labelG=g.append('g');layout();});
+})();
+</script></body></html>"""
+
+
+_ARC_TMPL = _NEAT_HEAD + r"""<style>
+/* arc view: horizontal domain legend centred below the arc (overrides shared head) */
+#legend{left:50%;right:auto;bottom:0;transform:translateX(-50%);display:flex;flex-wrap:wrap;
+ justify-content:center;gap:8px 18px;max-width:92%;border:none;background:none;box-shadow:none;padding:0}
+#legend .lt{display:none}
+#legend .row{padding:0}
+#hint{left:auto;right:14px;transform:none}
+</style>
+<script>
+(function(){
+ var svg=d3.select('#viz'),stage=document.getElementById('stage');
+ var g=svg.append('g');var linkG=g.append('g'),nodeG=g.append('g'),labelG=g.append('g');
+ var SP=42,PADX=70,BASE_FRAC=0.62;
+ function layout(){
+  var H=stage.clientHeight;
+  var ids=D.nodes.map(function(n){return n.id;});
+  var W=PADX*2+(ids.length-1)*SP;
+  svg.attr('viewBox',[0,0,Math.max(W,stage.clientWidth),H]);
+  var x=d3.scalePoint().domain(ids).range([PADX,PADX+(ids.length-1)*SP]);
+  var base=H*BASE_FRAC;
+  var links=linkG.selectAll('path').data(D.edges).join('path').attr('class','link')
+    .attr('stroke',function(e){return byId[e.source].color;})
+    .attr('d',function(e){var x1=x(e.source),x2=x(e.target),r=Math.abs(x2-x1)/2;
+      return 'M'+x1+','+base+' A'+r+','+r+' 0 0 '+(x1<x2?1:0)+' '+x2+','+base;});
+  var nodes=nodeG.selectAll('g').data(D.nodes).join('g').attr('transform',function(n){return 'translate('+x(n.id)+','+base+')';});
+  nodes.append('rect').attr('class','node-dot').attr('x',-7).attr('y',-9).attr('width',14).attr('height',18).attr('rx',3).attr('fill',function(n){return n.color;});
+  nodes.append('text').attr('class','node-lbl').attr('transform','rotate(45)').attr('x',12).attr('y',2).text(function(n){return n.id;});
+  function hl(id){var inc={};
+   links.classed('faded',true).classed('lit',false);labelG.selectAll('*').remove();
+   links.filter(function(e){return e.source==id||e.target==id;}).classed('faded',false).classed('lit',true).raise()
+     .each(function(e){inc[e.source]=1;inc[e.target]=1;
+       var L=this.getTotalLength(),p=this.getPointAtLength(L/2);
+       labelG.append('text').attr('class','elbl').attr('x',p.x).attr('y',p.y-2).text(e.preds.join(', '));});
+   nodes.classed('faded',function(n){return !inc[n.id];});
+   nodes.select('text').classed('hot',function(n){return n.id==id;});
+   panel(byId[id]);
+  }
+  function clr(){links.classed('faded',false).classed('lit',false);labelG.selectAll('*').remove();nodes.classed('faded',false);nodes.select('text').classed('hot',false);hidePanel();}
+  // click a node -> trace ALL downstream paths (transitive closure over outgoing
+  // edges), sticky until you click empty space or the node again. hover = 1-hop peek.
+  var pinned=null;
+  function reachDir(id,dir){var seen={};seen[id]=1;var q=[id];while(q.length){var c=q.shift();
+    adj[c][dir].forEach(function(e){var nx=dir=='out'?e.target:e.source;if(!seen[nx]){seen[nx]=1;q.push(nx);}});}return seen;}
+  function showPaths(id){var seen=reachDir(id,'out');
+    if(Object.keys(seen).length<2)seen=reachDir(id,'in');   // sink node -> trace upstream paths instead
+    labelG.selectAll('*').remove();
+    links.classed('faded',true).classed('lit',false);
+    links.filter(function(e){return seen[e.source]&&seen[e.target];}).classed('faded',false).classed('lit',true).raise()
+      .each(function(e){var L=this.getTotalLength(),p=this.getPointAtLength(L/2);
+        labelG.append('text').attr('class','elbl').attr('x',p.x).attr('y',p.y-2).text(e.preds.join(', '));});
+    nodes.classed('faded',function(n){return !seen[n.id];});
+    nodes.select('text').classed('hot',function(n){return n.id==id;});
+    panel(byId[id]);}
+  nodes.on('mouseover',function(_,n){if(pinned&&pinned!=n.id)pinned=null;/* hovering another node drops the pin */ if(!pinned)hl(n.id);})
+       .on('mouseout',function(){if(!pinned)clr();})
+       .on('click',function(ev,n){ev.stopPropagation();if(pinned==n.id){pinned=null;clr();}else{pinned=n.id;showPaths(n.id);}});
+  svg.on('click',function(){if(pinned){pinned=null;clr();}});
+  // hovering a legend domain: light up every relationship touching that domain
+  window._hlDomain=function(key){
+   var inc={};links.classed('faded',true).classed('lit',false);labelG.selectAll('*').remove();
+   links.filter(function(e){return byId[e.source].domain==key||byId[e.target].domain==key;})
+     .classed('faded',false).classed('lit',true).raise()
+     .each(function(e){inc[e.source]=1;inc[e.target]=1;
+       var L=this.getTotalLength(),p=this.getPointAtLength(L/2);
+       labelG.append('text').attr('class','elbl').attr('x',p.x).attr('y',p.y-2).text(e.preds.join(', '));});
+   nodes.classed('faded',function(n){return !(n.domain==key||inc[n.id]);});
+   nodes.select('text').classed('hot',function(n){return n.domain==key;});
+  };
+  window._clrHi=function(){if(pinned)showPaths(pinned);else clr();};
+  // initial fit: frame the FULL rendered content (incl. the tallest arc + labels)
+  // with padding, biased slightly left so the big top arc is fully visible.
+  var bb=g.node().getBBox();
+  var pad=28;
+  var scale=Math.min((stage.clientWidth-pad*2)/bb.width,(stage.clientHeight-pad*2)/bb.height,1.3);
+  var freeX=stage.clientWidth-bb.width*scale;
+  var tx=Math.max(pad,freeX*0.5)-bb.x*scale;     // centred horizontally
+  var ty=pad-bb.y*scale;                          // top-padded -> tallest arc visible
+  var t=d3.zoomIdentity.translate(tx,ty).scale(scale);
+  // embedded (in an iframe on the site): static fit, no scroll/drag zoom hijack.
+  // full page: interactive pan/zoom, seeded from the fit.
+  if(EMBED){ g.attr('transform',t.toString()); }
+  else { svg.call(zoom); svg.call(zoom.transform,t); }
+ }
+ var EMBED=/[?&]embed\b/.test(location.search);
+ var zoom=d3.zoom().scaleExtent([0.3,5]).on('zoom',function(ev){g.attr('transform',ev.transform);});
+ layout();
+ window.addEventListener('resize',function(){g.selectAll('*').remove();linkG=g.append('g');nodeG=g.append('g');labelG=g.append('g');layout();});
+})();
+</script></body></html>"""
+
+
 def print_summary(triples):
     by_subj = defaultdict(list)
     for (s, p, o), ds in triples.items():
@@ -595,6 +1374,13 @@ def main():
     ap.add_argument("--cytoscape", default=None, help="Cytoscape.js interactive HTML")
     ap.add_argument("--explorer", default=None,
                     help="Combined Graph (edges-on-click) + Matrix explorer HTML")
+    ap.add_argument("--poster", default=None,
+                    help="Static everything-visible band poster HTML (preset layout)")
+    ap.add_argument("--er", default=None,
+                    help="ER/flow schema diagram HTML (Graphviz dot, rankdir=LR)")
+    ap.add_argument("--er-png", default=None, help="optional PNG preview for --er")
+    ap.add_argument("--bundle", default=None, help="Radial edge-bundling view HTML (D3)")
+    ap.add_argument("--arc", default=None, help="Arc-diagram view HTML (D3)")
     ap.add_argument("--print", action="store_true", dest="show")
     a = ap.parse_args()
     cats = CategoryMap.load(a.categories)
@@ -610,7 +1396,7 @@ def main():
         p = _Path(a.conf) / fn
         if p.exists():
             primary_names |= set(_json.loads(p.read_text()))
-    if a.show or not (a.out or a.mermaid or a.cytoscape or a.explorer):
+    if a.show or not (a.out or a.mermaid or a.cytoscape or a.explorer or a.poster or a.er or a.bundle or a.arc):
         print_summary(triples)
     if a.out:
         render_html(triples, a.out)
@@ -622,6 +1408,18 @@ def main():
     if a.explorer:
         render_explorer(triples, a.explorer, cats, primary_names, registry)
         print(f"wrote {a.explorer}: {len({c for (s,_,o) in triples for c in (s,o)})} node types, {len(triples)} edges")
+    if a.poster:
+        render_poster(triples, a.poster, cats, primary_names, registry)
+        print(f"wrote {a.poster}: {len({c for (s,_,o) in triples for c in (s,o)})} node types, {len(triples)} edges")
+    if a.er:
+        render_er(triples, a.er, cats, primary_names, registry, png=a.er_png)
+        print(f"wrote {a.er}: {len({c for (s,_,o) in triples for c in (s,o)})} node types, {len(triples)} edges")
+    if a.bundle:
+        render_bundle(triples, a.bundle, cats, primary_names, registry)
+        print(f"wrote {a.bundle}")
+    if a.arc:
+        render_arc(triples, a.arc, cats, primary_names, registry)
+        print(f"wrote {a.arc}")
 
 
 if __name__ == "__main__":

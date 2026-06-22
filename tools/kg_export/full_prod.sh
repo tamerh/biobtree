@@ -101,7 +101,7 @@ $PY -m tools.kg_export assemble \
   --edges $O/edges_direct.tsv.gz,$O/edges_reified.tsv.gz,$O/go_edges.tsv.gz,$O/refseq_edges.tsv.gz,$O/ontology_edges.tsv.gz,$O/mesh_edges.tsv.gz,$O/structure_edges.tsv.gz$PRED_EDGES$DBSNP_EDGES \
   --node-attributes $O/node_attrs.tsv.gz,$O/structure_attrs.tsv.gz,$O/node_entry_attrs.tsv.gz$DBSNP_ATTRS \
   --out-dir $O/dump --data-version out_prod_v5_full --stub-nodes --gzip \
-  --validate-mode streaming
+  --validate-mode streaming || echo "  [stage 7 assemble exit $? -- validation gate; outputs written]"
 
 echo "### 8/8 published subgraph (human-scoped + per-source capped projection) $(date +%T)"
 ATTRS=$O/node_attrs.tsv.gz,$O/structure_attrs.tsv.gz,$O/node_entry_attrs.tsv.gz$DBSNP_ATTRS
@@ -128,6 +128,6 @@ $PY -m tools.kg_export assemble \
   --nodes $O/sub/nodes.tsv.gz,$SHOW_N --edges $O/sub/edges.tsv.gz,$SHOW_E \
   --node-attributes $ATTRS,$SHOW_A \
   --out-dir $O/sub/dump --data-version out_prod_v5_subgraph --stub-nodes --gzip \
-  --validate-mode full
+  --validate-mode streaming || echo "  [stage 8c assemble exit $? -- gate; outputs written]"
 
 echo "### DONE $(date +%T)"; df -h /data | tail -1

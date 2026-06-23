@@ -49,7 +49,7 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--sandbox", action="store_true", help="use sandbox.zenodo.org")
     ap.add_argument("--dump", default="out/kg/full/sub/dump", help="subgraph dump dir")
-    ap.add_argument("--creator", default=os.environ.get("ZENODO_CREATOR", "Hür, Tamer"))
+    ap.add_argument("--creator", default=os.environ.get("ZENODO_CREATOR", "Gür, Tamer"))
     ap.add_argument("--affiliation", default=os.environ.get("ZENODO_AFFILIATION", ""))
     ap.add_argument("--version", default=os.environ.get("ZENODO_VERSION", "v1"))
     ap.add_argument("--preprint-doi", default=os.environ.get("ZENODO_PREPRINT_DOI", "10.5281/zenodo.18962899"),

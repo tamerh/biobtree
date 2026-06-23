@@ -52,6 +52,8 @@ def main() -> int:
     ap.add_argument("--creator", default=os.environ.get("ZENODO_CREATOR", "Hür, Tamer"))
     ap.add_argument("--affiliation", default=os.environ.get("ZENODO_AFFILIATION", ""))
     ap.add_argument("--version", default=os.environ.get("ZENODO_VERSION", "v1"))
+    ap.add_argument("--preprint-doi", default=os.environ.get("ZENODO_PREPRINT_DOI", "10.5281/zenodo.18962899"),
+                    help="BioBTree v2 preprint DOI to link as isSupplementTo (empty to skip)")
     args = ap.parse_args()
 
     token = os.environ.get("ZENODO_TOKEN")
@@ -110,7 +112,8 @@ def main() -> int:
         "related_identifiers": [
             {"relation": "isCompiledBy", "identifier": "https://github.com/tamerh/biobtree",
              "scheme": "url"},
-        ],
+        ] + ([{"relation": "isSupplementTo", "identifier": args.preprint_doi, "scheme": "doi"}]
+             if args.preprint_doi else []),
     }}
     r = s.put(f"{base}/deposit/depositions/{dep_id}", json=meta)
     r.raise_for_status()

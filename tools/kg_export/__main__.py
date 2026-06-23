@@ -430,30 +430,35 @@ def _cmd_assemble(args: argparse.Namespace) -> int:
         categories = CategoryMap.load(args.categories)
         stub_info = kgx.add_stub_nodes(nodes_tsv, edges_tsv, categories)
         n_nodes += stub_info["stubs_added"]
-    # node-attribute join: concatenate the attr tables and sort by id, then let
-    # nodes_to_jsonl do a memory-flat sorted merge-join. (Loading them into a dict
-    # OOMs at full scale -- node_entry_attrs alone is ~138M rows.)
-    attr_path = None
-    if args.node_attributes:
-        tbls = [s.strip() for s in args.node_attributes.split(",") if s.strip()]
-        cat = out_dir / "node_attrs.concat.tmp"
-        with open(cat, "wt") as o:
-            for tbl in tbls:
-                p = Path(tbl)
-                if not p.exists():
-                    continue
-                with kgx.xopen(p, "rt") as fh:
-                    for line in fh:
-                        if "\t" in line:
-                            o.write(line if line.endswith("\n") else line + "\n")
-        attr_path = out_dir / "node_attrs.sorted.tmp"
-        kgx._sort_file(cat, attr_path, "-k1,1", tmp_dir=out_dir)
-        cat.unlink(missing_ok=True)
-    kgx.nodes_to_jsonl(nodes_tsv, out_dir / ("nodes.jsonl" + ext),
-                       attr_path=attr_path, merge_fn=merge_attr_dict, tmp_dir=out_dir)
-    if attr_path is not None:
-        Path(attr_path).unlink(missing_ok=True)
-    kgx.edges_to_jsonl(edges_tsv, out_dir / ("edges.jsonl" + ext))
+    # JSONL (with the node-attribute join) is the heavy part: ~33GB of output + a
+    # ~30GB attr-concat temp. The subgraph projection reads only the full dump's TSV
+    # and re-joins attrs from the attr tables itself, so --no-jsonl skips all of it for
+    # the full dump (use JSONL only for the published subgraph, which Neo4j imports).
+    if not args.no_jsonl:
+        # node-attribute join: concatenate the attr tables and sort by id, then let
+        # nodes_to_jsonl do a memory-flat sorted merge-join. (Loading them into a dict
+        # OOMs at full scale -- node_entry_attrs alone is ~138M rows.)
+        attr_path = None
+        if args.node_attributes:
+            tbls = [s.strip() for s in args.node_attributes.split(",") if s.strip()]
+            cat = out_dir / "node_attrs.concat.tmp"
+            with open(cat, "wt") as o:
+                for tbl in tbls:
+                    p = Path(tbl)
+                    if not p.exists():
+                        continue
+                    with kgx.xopen(p, "rt") as fh:
+                        for line in fh:
+                            if "\t" in line:
+                                o.write(line if line.endswith("\n") else line + "\n")
+            attr_path = out_dir / "node_attrs.sorted.tmp"
+            kgx._sort_file(cat, attr_path, "-k1,1", tmp_dir=out_dir)
+            cat.unlink(missing_ok=True)
+        kgx.nodes_to_jsonl(nodes_tsv, out_dir / ("nodes.jsonl" + ext),
+                           attr_path=attr_path, merge_fn=merge_attr_dict, tmp_dir=out_dir)
+        if attr_path is not None:
+            Path(attr_path).unlink(missing_ok=True)
+        kgx.edges_to_jsonl(edges_tsv, out_dir / ("edges.jsonl" + ext))
     if args.validate_mode == "streaming":
         # billion-scale: shape checks streamed; dangling/dup from construction stats
         report = kgx.validate_streaming(
@@ -653,6 +658,9 @@ def main(argv: list[str] | None = None) -> int:
     a.add_argument("--stub-nodes", action="store_true",
                    help="emit minimal nodes for edge endpoints lacking one")
     a.add_argument("--gzip", action="store_true", help="gzip the final TSV/JSONL")
+    a.add_argument("--no-jsonl", action="store_true",
+                   help="skip JSONL + the node-attribute join (TSV only); for the full "
+                        "dump, whose JSONL nothing downstream reads (~33GB + ~1.5h saved)")
     a.add_argument("--validate-mode", choices=("full", "streaming"), default="full",
                    help="full: exact in-memory validate (subgraph/small). streaming: "
                         "billion-scale; shape checks + dangling/dup from construction")

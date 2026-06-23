@@ -4,7 +4,7 @@
 
 Biobtree is a data integration platform that:
 
-1. **Aggregates** data from 70+ biological databases
+1. **Aggregates** data from 80+ biological databases
 2. **Indexes** entries into a local LMDB database
 3. **Maps** cross-references between databases
 4. **Queries** via intuitive chain syntax

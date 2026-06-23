@@ -105,5 +105,5 @@ See [Development Guide](../development/) for more details.
 ## Next Steps
 
 - [Query Syntax](../api/query-syntax.md) - Learn chain queries and filters
-- [Datasets](../datasets/index.md) - Browse all 70+ supported databases
+- [Datasets](../datasets/index.md) - Browse all 80+ supported databases
 - [Configuration](configuration.md) - Customize settings

@@ -30,7 +30,7 @@ Add to Claude Desktop settings:
 
 | Tool | Description |
 |------|-------------|
-| `biobtree_search` | Search 70+ databases for identifiers |
+| `biobtree_search` | Search 80+ databases for identifiers |
 | `biobtree_map` | Map identifiers through dataset chains |
 | `biobtree_entry` | Get full details for an entry |
 | `biobtree_atlas` | Curated [Sugi Atlas](https://sugi.bio/atlas) summaries for genes, diseases, and drugs |

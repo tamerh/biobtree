@@ -1,6 +1,6 @@
 # Biobtree Documentation
 
-Welcome to the Biobtree documentation. Biobtree provides unified access to 70+ biological databases through intuitive chain queries.
+Welcome to the Biobtree documentation. Biobtree provides unified access to 80+ biological databases through intuitive chain queries.
 
 ## Quick Navigation
 
@@ -10,7 +10,7 @@ Welcome to the Biobtree documentation. Biobtree provides unified access to 70+ b
 | [Concepts](concepts/) | Architecture, data model, query model |
 | [API Reference](api/) | REST API, query syntax, filters |
 | [MCP Server](mcp-server/) | LLM integration, Claude Desktop setup |
-| [Datasets](datasets/index.md) | All 70+ supported databases |
+| [Datasets](datasets/index.md) | All 80+ supported databases |
 | [Knowledge Graph Export](kg_export/index.md) | Biolink/KGX export of the graph |
 | [Development](development/) | Contributing, adding datasets, testing |
 | [Internals](internals/) | Technical deep-dives (k-way merge, bucket system) |
@@ -100,7 +100,7 @@ curl "localhost:9292/ws/map/?i=TP53&m=>>ensembl>>uniprot&mode=lite"
 
 ## Dataset Categories
 
-Biobtree integrates 70+ databases across these categories:
+Biobtree integrates 80+ databases across these categories:
 
 | Category | Examples |
 |----------|----------|
@@ -146,7 +146,7 @@ python -m mcp_srv --mode http
 ```
 
 Tools available:
-- `biobtree_search` - Search 70+ databases
+- `biobtree_search` - Search 80+ databases
 - `biobtree_map` - Map through dataset chains
 - `biobtree_entry` - Get full entry details
 - `biobtree_atlas` - Curated Sugi Atlas summaries for genes, diseases, and drugs

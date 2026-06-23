@@ -148,7 +148,8 @@ def build_edges(
                 ev = kgx.to_evidence_curie(raw.evidence)
                 quals = ""
                 if raw.relationship:
-                    rel = raw.relationship.replace(";", " ").replace("=", " ").strip()[:80]
+                    rel = (raw.relationship.replace(";", " ").replace("=", " ")
+                           .replace("\t", " ").replace("\n", " ").replace("\r", " ").strip()[:80])
                     if rel:
                         quals = f"relationship={rel}"
                 out.write(

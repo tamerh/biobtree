@@ -211,7 +211,8 @@ def _emit_group(group, rule, registry, categories, canonical, primary,
                     v = d.get(key)
                     if v not in (None, "", []):
                         # sanitize: the qualifiers column is `slot=v;slot=v`
-                        sv = str(v).replace(";", " ").replace("=", " ").replace(",", " ").strip()[:80]
+                        sv = (str(v).replace(";", " ").replace("=", " ").replace(",", " ")
+                              .replace("\t", " ").replace("\n", " ").replace("\r", " ").strip()[:80])
                         if sv:
                             parts.append(f"{slot}={sv}")
                 break  # first property line holds the entry's scalars

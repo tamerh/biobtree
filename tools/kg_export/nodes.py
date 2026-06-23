@@ -31,7 +31,9 @@ SEP = "\x1f"
 PROVIDED_BY = "infores:biobtree"
 
 # Best-effort name extraction from a property line's attribute JSON.
-_NAME_KEYS_SCALAR = ("symbol", "name", "label", "preferred_name", "reaction")
+# "title" covers pubchem compounds + publications; chembl_molecule nests its name
+# under a {"molecule": {...}} wrapper (handled by the single-key descent below).
+_NAME_KEYS_SCALAR = ("symbol", "name", "label", "preferred_name", "title", "reaction")
 _NAME_KEYS_LIST = ("symbols", "names", "labels")
 
 
@@ -40,13 +42,7 @@ def tsv_safe(text: str) -> str:
     return text.replace("\t", " ").replace("\n", " ").replace("\r", " ")
 
 
-def extract_name(attr_json: str) -> str | None:
-    try:
-        d = json.loads(attr_json)
-    except (ValueError, TypeError):
-        return None
-    if not isinstance(d, dict):
-        return None
+def _scan_name(d: dict) -> str | None:
     for k in _NAME_KEYS_SCALAR:
         v = d.get(k)
         if isinstance(v, str) and v.strip():
@@ -56,6 +52,23 @@ def extract_name(attr_json: str) -> str | None:
         if isinstance(v, list) and v and isinstance(v[0], str) and v[0].strip():
             return v[0].strip()
     return None
+
+
+def extract_name(attr_json: str) -> str | None:
+    try:
+        d = json.loads(attr_json)
+    except (ValueError, TypeError):
+        return None
+    if not isinstance(d, dict):
+        return None
+    name = _scan_name(d)
+    # some datasets nest the record under a single wrapper key, e.g. chembl_molecule
+    # writes {"molecule": {... "name": ...}}; descend one level if the top has no name.
+    if name is None and len(d) == 1:
+        inner = next(iter(d.values()))
+        if isinstance(inner, dict):
+            name = _scan_name(inner)
+    return name
 
 
 class UnionFind:

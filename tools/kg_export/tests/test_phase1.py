@@ -49,6 +49,20 @@ class ExtractNameTests(unittest.TestCase):
         self.assertIsNone(extract_name("not json"))
         self.assertIsNone(extract_name('["a","b"]'))
 
+    def test_pubchem_title(self):
+        self.assertEqual(extract_name('{"cid":"1","title":"2-amino-1-phenylethanol"}'),
+                         "2-amino-1-phenylethanol")
+
+    def test_chembl_nested_wrapper(self):
+        # chembl_molecule nests the name under a single {"molecule": {...}} key
+        self.assertEqual(extract_name('{"molecule":{"type":"Small molecule","name":"OMEPRAZOLE"}}'),
+                         "OMEPRAZOLE")
+
+    def test_single_wrapper_only_when_no_toplevel_name(self):
+        # a top-level name wins; don't descend a non-dict single value
+        self.assertEqual(extract_name('{"name":"flat"}'), "flat")
+        self.assertIsNone(extract_name('{"molecule":{"type":"x"}}'))
+
 
 class BuildNodesTests(unittest.TestCase):
     def _write(self, d: Path, name: str, lines: list[str]) -> None:

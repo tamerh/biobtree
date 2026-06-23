@@ -12,7 +12,6 @@ Ingested data — and any cross-reference edges derived from it — **must be fr
 
 ## Somatic-cancer feature decision (2026-05-26 request → 2026-05-29 research)
 
-Full analysis: [`docs/somatic_cancer_feasibility.md`](docs/somatic_cancer_feasibility.md).
 
 | Dataset | License | Verdict |
 |---|---|---|

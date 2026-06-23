@@ -86,6 +86,29 @@ class SubgraphTests(unittest.TestCase):
         self.assertEqual(len(var), 2)                 # 3 -> 2 (capped per gene/object)
         self.assertEqual(st.capped_dropped, 1)
 
+    def test_structural_children_exon_pass3b(self):
+        """transcript--has_part-->exon must survive even though the Ensembl transcript
+        is only an endpoint (never in spine): pass 3b anchors children on kept subjects."""
+        cfg = dict(CONFIG)
+        cfg["scoped_categories"] = CONFIG["scoped_categories"] + ["biolink:Transcript", "biolink:Exon"]
+        nodes = [
+            "HGNC:1\tbiolink:Gene\th\tHGNC:1\tinfores:biobtree",
+            "ENSEMBL:T1\tbiolink:Transcript\tt\tENSEMBL:T1\tinfores:biobtree",   # endpoint only
+            "ENSEMBL:E1\tbiolink:Exon\te\tENSEMBL:E1\tinfores:biobtree",
+            "ENSEMBL:E2\tbiolink:Exon\te\tENSEMBL:E2\tinfores:biobtree",
+        ]
+        edges = [
+            _edge("HGNC:1", "biolink:in_taxon", "NCBITaxon:9606", "infores:ensembl"),
+            _edge("ENSEMBL:T1", "biolink:transcribed_from", "HGNC:1", "infores:ensembl"),  # T1 -> spine gene
+            _edge("ENSEMBL:T1", "biolink:has_part", "ENSEMBL:E1", "infores:ensembl"),
+            _edge("ENSEMBL:T1", "biolink:has_part", "ENSEMBL:E2", "infores:ensembl"),
+        ]
+        st, kept_n, kept_e = self._run(nodes, edges, cfg)
+        self.assertIn("ENSEMBL:T1", kept_n)                   # transcript kept (endpoint)
+        self.assertIn("ENSEMBL:E1", kept_n)                   # exon pulled in by pass 3b
+        self.assertIn("ENSEMBL:E2", kept_n)
+        self.assertEqual(len([e for e in kept_e if e[1] == "biolink:has_part"]), 2)
+
     def test_edge_pulls_in_capped_neighbour(self):
         """A compound (scoped, non-human) is NOT in the spine but enters via a kept
         edge from a human protein."""

@@ -85,6 +85,29 @@ def _parse_caps(config: dict) -> dict:
     return out
 
 
+def _structural_children(edges_tsv, out_edges, keep, stats, as_bytes=False) -> None:
+    """Pass 3b: keep `has_part` edges whose subject is already kept and whose object
+    is new -- i.e. the transcript->exon/cds children of transcripts that entered as
+    endpoints (never spine). Appends a gz member to out_edges and grows `keep` in
+    place. `keep` ids are str (serial) or bytes (parallel)."""
+    conv = (lambda s: s.encode()) if as_bytes else (lambda s: s)
+    with kgx.xopen(out_edges, "at") as eout, kgx.xopen(edges_tsv, "rt") as fh:
+        next(fh, "")
+        for line in fh:
+            row = line.rstrip("\n")
+            if not row:
+                continue
+            p = row.split("\t")
+            if len(p) < 5 or p[2] != "biolink:has_part":
+                continue
+            subj, obj = conv(p[1]), conv(p[3])
+            if subj in keep and obj not in keep:
+                eout.write(row + "\n")
+                stats.edges_out += 1
+                stats.by_predicate["biolink:has_part"] += 1
+                keep.add(obj)
+
+
 def build_subgraph(
     nodes_tsv: str | Path,
     edges_tsv: str | Path,
@@ -178,6 +201,14 @@ def build_subgraph(
             stats.by_predicate[pred] += 1
             keep_nodes.add(subj)
             keep_nodes.add(obj)
+
+    # --- pass 3b: anchor structural children on their already-kept subject ------
+    # transcript --has_part--> exon/cds lives on Ensembl transcripts, which enter
+    # only as edge endpoints (the in_taxon anchor is on RefSeq transcripts), so they
+    # are never in the spine and their children would be dropped as unanchored --
+    # removing the Exon category entirely. Keep a has_part edge whose subject is
+    # already kept and whose object is new (the exon/cds child).
+    _structural_children(edges_tsv, out_edges, keep_nodes, stats)
 
     # --- pass 4: emit the kept nodes -------------------------------------------
     with kgx.xopen(out_nodes, "wt") as nout:
@@ -384,6 +415,10 @@ def _build_parallel(nodes_tsv, edges_tsv, config, out_nodes, out_edges, stats_pa
                     if not b:
                         break
                     eout.write(b)
+
+    # pass 3b: anchor structural children (transcript --has_part--> exon/cds) on their
+    # kept transcript subject (Ensembl transcripts are endpoints-only, never spine).
+    _structural_children(edges_tsv, out_edges, keep, stats, as_bytes=True)
 
     # phase C: emit kept nodes (single pass; nodes file is small)
     with kgx.xopen(out_nodes, "wt") as nout:

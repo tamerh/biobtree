@@ -1,0 +1,207 @@
+# BioBTree dataset -> biolink node category map (KG exporter).
+#
+# Used to TYPE nodes and to choose canonical identifiers during normalization.
+# Only datasets that contribute NODES belong here. Datasets that only produce
+# EDGES (e.g. string_interaction, chembl_activity, depmap_dependency) are mapped
+# in mappings/predicates.yaml instead.
+#
+# Phase 0 scope: the MVP entity set (Gene, Protein, Disease, Drug/SmallMolecule,
+# Variant, Pathway) plus a first slice of BioBTree-differentiating node types
+# (ncRNA, cell line). Datasets absent from `datasets:` are UNCATEGORIZED — the
+# exporter logs and (in the MVP) skips them; expand coverage in later phases.
+#
+# Fields per dataset:
+#   category : biolink category CURIE for nodes from this dataset
+#   prefix   : CURIE prefix used to render this dataset's raw ids (see notes.md)
+#   note     : optional; flags special handling
+#
+# canonical_priority: per category, the dataset order used in Phase 1 to pick the
+# canonical CURIE when several datasets describe the same entity (first wins).
+# The rest of the ids become biolink `equivalent_identifiers`.
+
+# identity_pairs: same-category dataset pairs whose cross-references mean
+# "the SAME entity" (-> node merge), not a relationship. Conservative allowlist:
+# only genuine namespace-equivalences participate in clustering, so that
+# traversal-grade xrefs cannot over-merge distinct entities.
+# Phase 1 MVP scope: genes only (the dominant duplicate-node source). Disease
+# (through MONDO) and others are deferred until gene normalization is validated.
+identity_pairs:
+  - [hgnc, ensembl]
+  - [hgnc, entrez]
+  - [ensembl, entrez]
+
+canonical_priority:
+  "biolink:Gene": [hgnc, ensembl, entrez]
+  "biolink:Protein": [uniprot]
+  "biolink:Disease": [mondo, doid, efo, orphanet, mim]
+  "biolink:SmallMolecule": [chebi, chembl_molecule, pubchem, gtopdb_ligand, hmdb, lipidmaps, swisslipids]
+  "biolink:Drug": [drugbank, drugcentral]
+  "biolink:SequenceVariant": [clinvar, dbsnp]
+  # HPO (human) and MP (mouse) are NOT the same entity — relate via uPheno, do
+  # not merge; kept apart (no identity_pairs across them).
+  "biolink:PhenotypicFeature": [hpo]
+  "biolink:Pathway": [reactome, msigdb]
+
+datasets:
+  # --- Genes -----------------------------------------------------------------
+  hgnc:        {category: "biolink:Gene", prefix: "HGNC"}
+  ensembl:     {category: "biolink:Gene", prefix: "ENSEMBL"}
+  entrez:      {category: "biolink:Gene", prefix: "NCBIGene"}
+  # Model-organism gene namespaces (Alliance of Genome Resources). All are
+  # biolink:Gene id_prefixes (verified). No identity_pairs with the human cluster
+  # (distinct-species genes must not merge).
+  mgi:         {category: "biolink:Gene", prefix: "MGI", note: "Mouse (MGI)"}
+  rgd:         {category: "biolink:Gene", prefix: "RGD", note: "Rat (RGD)"}
+  sgd:         {category: "biolink:Gene", prefix: "SGD", note: "Yeast (SGD)"}
+  zfin:        {category: "biolink:Gene", prefix: "ZFIN", note: "Zebrafish (ZFIN)"}
+  flybase:     {category: "biolink:Gene", prefix: "FB", note: "Fly (FlyBase); biobtree stores ids uppercased"}
+  wormbase:    {category: "biolink:Gene", prefix: "WB", note: "Worm (WormBase); biobtree stores ids uppercased"}
+  xenbase:     {category: "biolink:Gene", prefix: "Xenbase", note: "Frog (Xenbase); gene ids XB-GENE-* (alliance_phenotype)"}
+  # Gene homology endpoints (Ensembl Compara). Objects are gene ids (mostly
+  # ENS*G; minority FlyBase/WormBase -> cross-species stubs).
+  # Gene-LINKING datasets (biobtree linkdataset tags inside the ensembl/entrez
+  # forwards): they carry gene<->gene relationships, NOT their own gene nodes.
+  # Typed Gene only so the edge engine resolves the endpoint; the meta-graph
+  # presents them as edges, not as node datasets.
+  ortholog:        {category: "biolink:Gene", prefix: "ENSEMBL", note: "Ensembl Compara ortholog (link tag in ensembl)"}
+  paralog:         {category: "biolink:Gene", prefix: "ENSEMBL", note: "Ensembl Compara paralog (link tag in ensembl)"}
+  orthologentrez:  {category: "biolink:Gene", prefix: "NCBIGene", note: "NCBI gene ortholog (link tag in entrez)"}
+  relatedentrez:   {category: "biolink:Gene", prefix: "NCBIGene", note: "NCBI gene_group related gene (link tag in entrez); relationship type (pseudogene/readthrough) carried as edge qualifier"}
+  neighborentrez:  {category: "biolink:Gene", prefix: "NCBIGene", note: "NCBI genomic neighbour (link tag in entrez); direction (left/right/overlapping) carried as edge qualifier"}
+
+  # --- Transcripts -----------------------------------------------------------
+  transcript:  {category: "biolink:Transcript", prefix: "ENSEMBL"}
+  # --- Sub-gene / protein structure (granular; large) ------------------------
+  # Ensembl exon (ENSE/ENSMUSE...) and CDS (= translation id ENSP/ENSMUSP). Both
+  # under ENSEMBL; their nodes MUST be built (NODE_DS) so ENSE/ENSP endpoints type
+  # correctly (the ENSEMBL stub disambiguator only knows Gene vs Transcript).
+  exon:        {category: "biolink:Exon", prefix: "ENSEMBL", note: "Ensembl exon (derived:ensembl); transcript has_part exon (~17M)"}
+  cds:         {category: "biolink:CodingSequence", prefix: "ENSEMBL", note: "Ensembl CDS = translation id (derived:ensembl); transcript has_part cds"}
+  # UniProt protein feature (HETEROGENEOUS: ~3% domains, rest sites/helices/signal
+  # peptides/...). ProteinDomain is the closest existing biolink class (mild
+  # overclaim, cf. msigdb->Pathway); feature `type` is a qualifier follow-up.
+  # Surrogate id <ACC>_F<n>, no registered CURIE -> locally-coined prefix (flagged).
+  ufeature:    {category: "biolink:ProteinDomain", prefix: "uniprot.feature", note: "UniProt protein feature (heterogeneous): ProteinDomain is the general bucket (biolink's only sub-protein class) + a specific SO term in the node `type` property per biolink-model#1210 (structure.py _FEATURE_SO); raw type in `feature_type`"}
+  # refseq: NOT listed here. One refseq dataset conflates Transcript (mRNA),
+  # NoncodingRNAProduct (ncRNA) and Protein (NP_/XP_) by the accession `type`
+  # field, so it is typed at runtime in refseq.py (like go.py splits GO by
+  # aspect). prefix "refseq" (bioregistry-canonical).
+
+  # --- Proteins --------------------------------------------------------------
+  uniprot:     {category: "biolink:Protein", prefix: "UniProtKB"}
+  # uniparc removed as a node: a UPI is a non-redundant SEQUENCE shared across
+  # many organisms/accessions, not a protein entity — typing it Protein risks
+  # over-merge. Model uniprot->uniparc as an edge later if needed.
+
+  # --- Diseases --------------------------------------------------------------
+  mondo:       {category: "biolink:Disease", prefix: "MONDO"}
+  doid:        {category: "biolink:Disease", prefix: "DOID"}
+  efo:         {category: "biolink:Disease", prefix: "EFO", note: "EFO is mixed; many terms are diseases"}
+  orphanet:    {category: "biolink:Disease", prefix: "orphanet", note: "bioregistry-preferred is ORPHA; orphanet (identifiers.org) chosen for Translator compat"}
+  mim:         {category: "biolink:Disease", prefix: "OMIM", note: "OMIM phenotype MIMs"}
+
+  # --- Phenotypes ------------------------------------------------------------
+  hpo:         {category: "biolink:PhenotypicFeature", prefix: "HP"}
+  mp:          {category: "biolink:PhenotypicFeature", prefix: "MP", note: "mouse phenotype (cross-species)"}
+  # Cross-species phenotype ontologies (uPheno family). Bioregistry preferred
+  # prefixes (verified). Their subclass_of hierarchy + cross-species close_match
+  # links (e.g. to the uPheno hub) are emitted at runtime by ontology.py.
+  upheno:      {category: "biolink:PhenotypicFeature", prefix: "UPHENO", note: "uPheno cross-species phenotype hub"}
+  zp:          {category: "biolink:PhenotypicFeature", prefix: "ZP", note: "zebrafish phenotype"}
+  xpo:         {category: "biolink:PhenotypicFeature", prefix: "XPO", note: "xenopus phenotype"}
+  wbphenotype: {category: "biolink:PhenotypicFeature", prefix: "WBPhenotype", note: "C. elegans phenotype"}
+  fypo:        {category: "biolink:PhenotypicFeature", prefix: "FYPO", note: "fission yeast phenotype"}
+  oba:         {category: "biolink:PhenotypicFeature", prefix: "OBA", note: "Ontology of Biological Attributes (GWAS quantitative traits); PhenotypicFeature is the closest existing biolink class (overclaim, cf. msigdb->Pathway)"}
+
+  # --- Drugs / small molecules ----------------------------------------------
+  chebi:          {category: "biolink:SmallMolecule", prefix: "CHEBI"}
+  chembl_molecule: {category: "biolink:SmallMolecule", prefix: "CHEMBL.COMPOUND", note: "approved subset -> Drug via predicate qualifier"}
+  pubchem:        {category: "biolink:SmallMolecule", prefix: "PUBCHEM.COMPOUND"}
+  gtopdb_ligand:  {category: "biolink:SmallMolecule", prefix: "GTOPDB"}
+  hmdb:           {category: "biolink:SmallMolecule", prefix: "HMDB"}
+  lipidmaps:      {category: "biolink:SmallMolecule", prefix: "lipidmaps"}
+  swisslipids:    {category: "biolink:SmallMolecule", prefix: "SWISSLIPID", note: "DEFERRED: canonical is SLM with zero-padded 9-digit ids (needs an id transform), so left non-canonical for now"}
+  drugbank:       {category: "biolink:Drug", prefix: "DRUGBANK"}
+  drugcentral:    {category: "biolink:Drug", prefix: "drugcentral", note: "approved/marketed drugs; drug->target affects edges + chembl/pubchem xrefs"}
+
+  # --- Sequence variants -----------------------------------------------------
+  clinvar:     {category: "biolink:SequenceVariant", prefix: "CLINVAR"}
+  dbsnp:       {category: "biolink:SequenceVariant", prefix: "DBSNP", note: "dbsnp federation"}
+  civic_variant: {category: "biolink:SequenceVariant", prefix: "civic.vid", note: "CIViC curated cancer variant; bioregistry prefix civic.vid; NOT merged with clinvar/dbsnp (xref != identity)"}
+  # Predicted variant-effect layer: spliceai + alphamissense subjects are variant
+  # COORDINATES (chr:pos:ref:alt), not rs-ids. Both share ONE locally-coined prefix
+  # so a variant in BOTH datasets is ONE node. No SequenceVariant id_prefix exists
+  # for a coordinate scheme -> non-canonical (flagged, like jaspar/fantom5.enhancer).
+  spliceai:      {category: "biolink:SequenceVariant", prefix: "biobtree.variant", note: "SpliceAI predicted splice-altering variant (coordinate id)"}
+  alphamissense: {category: "biolink:SequenceVariant", prefix: "biobtree.variant", note: "AlphaMissense predicted-pathogenicity missense variant (coordinate id)"}
+
+  # --- Pathways / gene sets --------------------------------------------------
+  reactome:    {category: "biolink:Pathway", prefix: "REACT"}
+  msigdb:      {category: "biolink:Pathway", prefix: "MSigDB", note: "gene sets/signatures; Pathway is a mild overclaim but biolink has no GeneSet class"}
+  pharmgkb_pathway: {category: "biolink:Pathway", prefix: "PHARMGKB.PATHWAYS", note: "PharmGKB curated pgx pathways (biolink prefix map)"}
+
+  # --- Anatomy / cells -------------------------------------------------------
+  uberon:      {category: "biolink:GrossAnatomicalStructure", prefix: "UBERON"}
+  cl:          {category: "biolink:Cell", prefix: "CL"}
+
+  # --- Cell lines (differentiating) -----------------------------------------
+  cellosaurus: {category: "biolink:CellLine", prefix: "cellosaurus", note: "ids keep CVCL_ -> cellosaurus:CVCL_xxxx"}
+  chembl_cell_line: {category: "biolink:CellLine", prefix: "chembl.cell", note: "ChEMBL cell line == Cellosaurus accession (bioregistry chembl.cell)"}
+
+  # --- Organisms -------------------------------------------------------------
+  taxonomy:    {category: "biolink:OrganismTaxon", prefix: "NCBITaxon"}
+
+  # --- Protein families / complexes -----------------------------------------
+  interpro:    {category: "biolink:ProteinFamily", prefix: "interpro", note: "InterPro mixes families/domains/sites; ids keep IPR"}
+  corum:       {category: "biolink:MacromolecularComplex", prefix: "corum"}
+
+  # --- Non-coding RNA (differentiating) -------------------------------------
+  rnacentral:  {category: "biolink:NoncodingRNAProduct", prefix: "RNACENTRAL"}
+  # miRDB stores miRBase mature NAMES (cfa-let-7a), not MIMAT accessions, so the
+  # CURIE is non-canonical (flagged, not in CANONICAL_PREFIXES).
+  mirdb:       {category: "biolink:MicroRNA", prefix: "mirbase.mature", note: "miRDB miRNA (miRBase mature name)"}
+
+  # --- Regulatory / sequence features ---------------------------------------
+  # JASPAR TF binding motif (PWM). No registered CURIE prefix (locally coined) and
+  # biolink:NucleicAcidSequenceMotif has no id_prefixes -> non-canonical (flagged).
+  jaspar:      {category: "biolink:NucleicAcidSequenceMotif", prefix: "jaspar", note: "JASPAR TF binding motif"}
+  # FANTOM5 enhancer (CAGE-defined). biolink:RegulatoryRegion has no id_prefixes;
+  # stable id is the genomic coordinate (property fantom5_enhancer_id), normalized
+  # to a colon-free local id. Prefix locally-coined / non-canonical (flagged).
+  fantom5_enhancer: {category: "biolink:RegulatoryRegion", prefix: "fantom5.enhancer", note: "FANTOM5 enhancer; coordinate-based id; non-canonical prefix"}
+
+  # --- Publications (literature + patents) -----------------------------------
+  # GeneRIF gene->literature endpoints. PMID is the biolink Publication prefix.
+  pubmed:      {category: "biolink:Publication", prefix: "PMID", note: "PubMed citation (GeneRIF)"}
+  literature_mappings: {category: "biolink:Publication", prefix: "PMID", note: "NCBI PMID/PMCID/DOI map; index ids are PMIDs (object of chembl_document)"}
+  chembl_document: {category: "biolink:Publication", prefix: "chembl.document", note: "ChEMBL document (paper/patent); non-canonical prefix (flagged)"}
+  patent:      {category: "biolink:Publication", prefix: "google.patent", note: "SureChEMBL patent; hyphenated accession -> non-canonical prefix (flagged)"}
+
+  # --- Adverse reactions -----------------------------------------------------
+  # FAERS adverse-reaction terms (MedDRA PTs), but the BioBTree id is an opaque
+  # hash with NO MedDRA code in the index -> locally-coined prefix (non-canonical,
+  # flagged). DiseaseOrPhenotypicFeature = the range of biolink:has_adverse_event
+  # (PTs mix diseases + symptoms; the superclass is the honest type).
+  faers_reaction: {category: "biolink:DiseaseOrPhenotypicFeature", prefix: "faers.reaction", note: "FAERS adverse reaction (MedDRA PT; opaque-hash id)"}
+
+  # --- Molecular activities / reactions (biolink MolecularActivity id_prefixes
+  # include EC, RHEA, GO -- verified) ----------------------------------------
+  ec:          {category: "biolink:MolecularActivity", prefix: "EC", note: "enzyme classification"}
+  rhea:        {category: "biolink:MolecularActivity", prefix: "RHEA", note: "biochemical reactions"}
+  brenda:      {category: "biolink:MolecularActivity", prefix: "EC", note: "BRENDA enzyme entries keyed by EC number (same id space as ec); typed like ec"}
+
+  # --- Chemical entities -----------------------------------------------------
+  # CTD chemicals are MeSH-identified; ChemicalEntity (not SmallMolecule) since
+  # MeSH chemical records include mixtures/classes. MESH is a valid biolink prefix.
+  ctd:         {category: "biolink:ChemicalEntity", prefix: "MESH", note: "CTD chemical (MeSH-identified)"}
+
+  # --- Deferred / aspect-dependent (NOT typed at dataset level) --------------
+  # go: category depends on term aspect (MF/BP/CC) -> resolved in Phase 2 from
+  #     the GO aspect attribute, not here.
+  # fantom5_promoter / fantom5_enhancer: regulatory regions. biolink:RegulatoryRegion
+  #     exists but has NO id_prefixes; the BioBTree entry ids are raw genomic
+  #     coordinates (chr10:100006233-100006603) or FANTOM5 CAGE-peak strings
+  #     (hg19::chr1:564571..564600,+;hg_1.1) with no registered CURIE prefix, so the
+  #     region is NOT emitted as a node. fantom5_promoter is instead modeled as
+  #     gene->tissue expression (reified in predicates.yaml). Revisit if a stable
+  #     region CURIE (e.g. via an ENCODE/SCREEN cCRE accession) becomes available.

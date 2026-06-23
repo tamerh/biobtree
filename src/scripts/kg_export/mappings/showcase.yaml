@@ -1,0 +1,126 @@
+# Showcase: demonstrate the GIANT layers (dbSNP variants, PubChem bioactivity) on a
+# small curated set, since they're excluded wholesale from the subgraph. The point is
+# proof-by-recognizable-example -- a reviewer sees TP53's variants and EGFR's
+# inhibitors, not 1B variants / 100M compounds.
+#
+# Built as a targeted extraction from the index (filtered to these), then merged into
+# the subgraph at assemble -- INDEPENDENT of the billion-scale full dump.
+#  - dbSNP showcase  : rs# variants of `genes` (variant -is_sequence_variant_of-> gene)
+#  - PubChem showcase: compounds with bioactivity against `genes`' proteins, PLUS the
+#                      `compounds` below and their connections (both gene- and
+#                      compound-centric, as requested).
+#
+# Genes are by SYMBOL and compounds by NAME; the extractor resolves them to canonical
+# ids via the index (so we don't hand-curate error-prone CURIEs here).
+
+genes:                 # ~50 famous disease / cancer / pharma / Mendelian genes
+  # cancer drivers
+  - BRCA1
+  - BRCA2
+  - TP53
+  - EGFR
+  - KRAS
+  - BRAF
+  - ALK
+  - PTEN
+  - PIK3CA
+  - MYC
+  - RB1
+  - APC
+  - VHL
+  - NF1
+  - RET
+  - MET
+  - ERBB2
+  - KIT
+  - ABL1
+  - JAK2
+  - FLT3
+  - IDH1
+  - MLH1
+  - MSH2
+  - CDKN2A
+  - ATM
+  - PALB2
+  # pharmacogenes / cardio channels
+  - ESR1
+  - AR
+  - LDLR
+  - CYP2D6
+  - CYP2C19
+  - VKORC1
+  - SCN5A
+  - KCNH2
+  # classic Mendelian disease
+  - CFTR
+  - HBB
+  - DMD
+  - HTT
+  - F8
+  - FBN1
+  - G6PD
+  - GBA
+  # neurodegeneration
+  - APP
+  - PSEN1
+  - SNCA
+  - SOD1
+  - MAPT
+  # metabolic / common
+  - INS
+  - APOE
+  - VEGFA
+
+compounds:             # ~50 famous drugs / compounds
+  # targeted oncology
+  - imatinib
+  - gefitinib
+  - erlotinib
+  - vemurafenib
+  - trastuzumab
+  - sorafenib
+  - sunitinib
+  - dasatinib
+  - tamoxifen
+  - pembrolizumab
+  - rituximab
+  - bevacizumab
+  # cytotoxic chemo
+  - methotrexate
+  - cisplatin
+  - doxorubicin
+  - paclitaxel
+  - fluorouracil
+  # common small molecules
+  - aspirin
+  - ibuprofen
+  - acetaminophen
+  - metformin
+  - warfarin
+  - clopidogrel
+  - atorvastatin
+  - simvastatin
+  - lisinopril
+  - losartan
+  - amlodipine
+  - metoprolol
+  - omeprazole
+  - sildenafil
+  - fluoxetine
+  - sertraline
+  - diazepam
+  - gabapentin
+  - morphine
+  - insulin
+  - levothyroxine
+  - prednisone
+  - albuterol
+  - montelukast
+  - furosemide
+  - hydrochlorothiazide
+  - amoxicillin
+  - ciprofloxacin
+  - azithromycin
+  - penicillin
+  - caffeine
+  - nicotine

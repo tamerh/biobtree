@@ -1,0 +1,62 @@
+# Datasets intentionally NOT covered by the KG export, with reasons.
+# Used by `python -m kg_export.coverage_audit` to keep the drift signal
+# clean: any source1/source2 dataset that is neither covered (a node/edge rule or
+# runtime builder) NOR listed here is flagged as an UNEXPLAINED gap (needs a
+# decision: add a rule, or add it here with a reason).
+#
+# When BioBTree adds a dataset: run the audit; for each flagged dataset either
+# author coverage or add it below.
+
+skip:
+  # --- Predictive (separate prediction layer, deferred by decision) ----------
+  # alphafold, alphamissense_transcript now covered as numeric NODE attributes (mappings/attributes.yaml)
+  # spliceai + alphamissense now covered (opt-in variant-effect prediction layer)
+
+  # --- Qualifier / evidence / isolated ontologies ----------------------------
+  eco: "ECO codes ARE used as edge has_evidence (e.g. GO annotations); ECO terms themselves not materialized as nodes (referenced, like in biolink)"
+  ecochild: "hierarchy tag of eco (not a node)"
+  ecoparent: "hierarchy tag of eco (not a node)"
+  pato: "quality ontology -> edge qualifier (deferred)"
+  patochild: "hierarchy tag of pato"
+  patoparent: "hierarchy tag of pato"
+  xco: "experimental-condition ontology -> edge qualifier (deferred)"
+  xcochild: "hierarchy tag of xco"
+  xcoparent: "hierarchy tag of xco"
+  obi: "ISOLATED in BioBTree (only internal hierarchy, no cross-dataset links)"
+  obichild: "hierarchy tag of obi"
+  obiparent: "hierarchy tag of obi"
+  baochild: "hierarchy tag of bao (bao itself used as assay_type qualifier)"
+  baoparent: "hierarchy tag of bao"
+
+  # --- Identifier / derived / structural (no entity value) -------------------
+  my_data: "user-data placeholder"
+  # relatedentrez + neighborentrez now covered: entrez>{related,neighbor}entrez ->
+  # related_to with the relationship type (pseudogene/readthrough / left/right/overlapping)
+  # carried as the edge relationship qualifier.
+  # orthologentrez now covered (entrez>orthologentrez -> orthologous_to)
+  # exon/cds/ufeature now covered (sub-gene/protein structure layer)
+  uniparc: "non-redundant sequence cluster (identifier)"
+  uniref50: "sequence cluster (identifier)"
+  uniref90: "sequence cluster (identifier)"
+  uniref100: "sequence cluster (identifier)"
+  bgee_evidence: "evidence detail of bgee expression"
+  gwas_study: "study container (gwas associations covered)"
+  string: "protein container (string_interaction covered)"
+  biogrid: "container (biogrid_interaction covered)"
+  antibody: "antibody reagent (not an entity edge)"
+  hpa_antibody: "HPA antibody reagent"
+
+  # --- Sub-entity of a covered dataset (functionally covered via parent) ------
+  chembl_assay: "assay metadata (bioactivity covered via chembl_activity)"
+  chembl_target: "chembl target (covered via uniprot)"
+  pubchem_assay: "assay metadata (pubchem_activity covered)"
+  hpa_expression: "HPA expression detail (hpa covered)"
+  hpa_pathology: "HPA pathology = gene->cancer prognostic, but the cancer is FREE-TEXT only (no MONDO/cancer_id); the only typed endpoint is the gene -> no authorable edge (degenerates to self-loops). Revisit with a TCGA-cohort->MONDO map"
+  scxa_expression: "single-cell expression detail (scxa covered)"
+  scxa_gene_experiment: "scxa experiment container"
+  pharmgkb_gene: "pharmgkb gene sub-entity (pharmgkb covered)"
+  cellxgene: "CELLxGENE dataset/collection UUID (no node CURIE; celltype covered)"
+
+  # --- Deferred with reason (could be added later) ---------------------------
+  encode_ccre: "source ships no target-gene assignments (cCRE catalog only)"
+  panelapp: "panel container; disorder is free-text only -> no edge (gene-disease via panelapp_gene)"

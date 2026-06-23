@@ -11,6 +11,7 @@ Welcome to the Biobtree documentation. Biobtree provides unified access to 70+ b
 | [API Reference](api/) | REST API, query syntax, filters |
 | [MCP Server](mcp-server/) | LLM integration, Claude Desktop setup |
 | [Datasets](datasets/index.md) | All 70+ supported databases |
+| [Knowledge Graph Export](kg_export/index.md) | Biolink/KGX export of the graph |
 | [Development](development/) | Contributing, adding datasets, testing |
 | [Internals](internals/) | Technical deep-dives (k-way merge, bucket system) |
 

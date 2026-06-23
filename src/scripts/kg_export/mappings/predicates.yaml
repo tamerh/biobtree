@@ -1,0 +1,373 @@
+# BioBTree edge -> biolink predicate map (KG exporter, Phase 2).
+#
+# Keyed by ORDERED dataset pair "src>tgt" (the direction stored in src's forward
+# index file). The exporter reads only forward `<ds>_sorted` files.
+#
+# Per entry:
+#   predicate : biolink predicate CURIE for subject --pred--> object
+#   flip      : if true, emit object --pred--> subject (normalize to the biolink
+#               canonical direction)
+#   skip      : reason string; recognized pair we intentionally DON'T emit
+#               (reverse of an authored pair, or a gene-namespace duplicate).
+#               Skipped pairs are counted separately from truly-unmapped ones.
+#   note      : free text.
+#
+# DEDUP RULE: only genes are node-normalized (Phase 1), so only gene-endpoint
+# edges can duplicate across namespaces (ensembl/entrez/hgnc collapse to one
+# node). For those we author ONE gene namespace and `skip` the rest. Non-gene
+# edges (e.g. variant->mondo vs variant->orphanet) point at distinct nodes and
+# are all emitted.
+#
+# Scope: Phase 2a = direct (non-reified, non-GO) edges. Reified edges (PPI,
+# similarity, bioactivity, expression, cancer) and GO annotations come next.
+
+direct:
+  # --- Sequence variant -> gene ---------------------------------------------
+  "clinvar>hgnc":      {predicate: "biolink:is_sequence_variant_of"}
+  "clinvar>entrez":    {skip: "gene dup of clinvar>hgnc (canonicalized)"}
+  "clinvar>ensembl":   {skip: "gene dup of clinvar>hgnc (canonicalized)"}
+  "dbsnp>entrez":      {predicate: "biolink:is_sequence_variant_of", note: "very large (~769M); scope out of small runs"}
+
+  # --- Sequence variant -> disease / phenotype ------------------------------
+  "clinvar>mondo":     {predicate: "biolink:associated_with"}
+  "clinvar>orphanet":  {predicate: "biolink:associated_with"}
+  "clinvar>mim":       {predicate: "biolink:associated_with"}
+  "clinvar>hpo":       {predicate: "biolink:associated_with"}
+  "clinvar>dbsnp":     {skip: "xref to dbsnp id, not a distinct relationship"}
+  "clinvar>medgen":    {skip: "medgen not modeled as a node yet"}
+
+  # --- Gene/protein/cell line -> organism -----------------------------------
+  "entrez>taxonomy":   {skip: "all-species gene->taxon (~69M bulk); deferred (modeled-organism gene taxon comes via uniprot/refseq; re-enable for the full-stats run)"}
+  "ensembl>taxonomy":  {skip: "gene dup of entrez>taxonomy (canonicalized)"}
+  "uniprot>taxonomy":  {predicate: "biolink:in_taxon"}
+  "cellosaurus>taxonomy": {predicate: "biolink:in_taxon"}
+
+  # --- Gene -> protein (gene product) ---------------------------------------
+  "ensembl>uniprot":   {predicate: "biolink:has_gene_product"}
+  "uniprot>ensembl":   {skip: "reverse of ensembl>uniprot"}
+  "uniprot>entrez":    {skip: "reverse of ensembl>uniprot (other gene namespace)"}
+
+  # --- Gene <-> transcript <-> protein --------------------------------------
+  "ensembl>transcript": {predicate: "biolink:transcribed_from", flip: true, note: "transcript transcribed_from gene"}
+  "transcript>uniprot": {predicate: "biolink:translates_to"}
+  "uniprot>transcript": {skip: "reverse of transcript>uniprot"}
+
+  # --- Sub-gene / protein structure (transcript->exon/cds; rest in structure.py) -
+  # transcript->exon/->cds containment IS carried forward in transcript_sorted, so
+  # it builds here (exon=~17.3M, the largest direct source after paralog; cds=~1.47M).
+  # exon/cds nodes must be in NODE_DS (ENSE/ENSP typing).
+  "transcript>exon":   {predicate: "biolink:has_part", note: "transcript contains exon (~17.3M)"}
+  "transcript>cds":    {predicate: "biolink:has_part", note: "transcript contains coding sequence (~1.47M)"}
+  "exon>transcript":   {skip: "reverse of transcript>exon (_from_ mirror)"}
+  "cds>transcript":    {skip: "reverse of transcript>cds (_from_ mirror)"}
+  # protein<->feature and cds->protein are emitted by the `structure` builder (the
+  # forward index carries protein->feature as uniprot>ufeature -- no rule direction
+  # here -- and the feature's ECO evidence + coords need the property line).
+  "cds>uniprot":       {skip: "cds translates_to protein -> structure.py (cds_sorted property line)"}
+  "uniprot>ufeature":  {skip: "protein has_part feature -> structure.py (+ ECO evidence)"}
+  "ufeature>uniprot":  {skip: "protein has_part feature -> structure.py (forward link is uniprot>ufeature)"}
+  "ufeature>pdb":      {skip: "feature->structure xref"}
+  "ufeature>pubmed":   {skip: "feature evidence citation"}
+  "ufeature>sam":      {skip: "feature evidence source"}
+  "ufeature>pirsr":    {skip: "feature evidence source"}
+  "ufeature>rulebase": {skip: "feature evidence source"}
+  "ufeature>ena":      {skip: "feature evidence source"}
+  "ufeature>pir":      {skip: "feature evidence source"}
+  "ufeature>flybase":  {skip: "feature evidence source"}
+
+  # --- Gene / protein / transcript -> pathway -------------------------------
+  "reactome>ensembl":  {predicate: "biolink:participates_in", flip: true, note: "gene participates_in pathway; larger than ensembl>reactome"}
+  "ensembl>reactome":  {skip: "redundant with reactome>ensembl"}
+  "reactome>uniprot":  {predicate: "biolink:participates_in", flip: true}
+  "uniprot>reactome":  {skip: "redundant with reactome>uniprot"}
+  "transcript>reactome": {predicate: "biolink:participates_in"}
+  "msigdb>hgnc":       {predicate: "biolink:participates_in", flip: true, note: "gene set membership; participates_in pending a biolink gene-set class"}
+  "msigdb>entrez":     {skip: "gene dup of msigdb>hgnc (canonicalized)"}
+
+  # --- Pathway -> small molecule --------------------------------------------
+  "reactome>chebi":    {predicate: "biolink:has_participant"}
+
+  # --- Protein -> family ----------------------------------------------------
+  "uniprot>interpro":  {predicate: "biolink:member_of"}
+
+  # --- Enzyme activity / reactions (MolecularActivity nodes) ----------------
+  "uniprot>ec":        {predicate: "biolink:enables", note: "protein enables EC activity"}
+  "hgnc>ec":           {skip: "gene->EC; use uniprot>ec (protein-level)"}
+  "interpro>ec":       {skip: "family->EC, not a clean enables edge"}
+  "pdb>ec":            {skip: "structure->EC"}
+  "rhea>chebi":        {predicate: "biolink:has_participant"}
+  "rhea>uniprot":      {predicate: "biolink:enables", flip: true, note: "protein catalyzes reaction"}
+  "rhea>ec":           {skip: "activity<->activity, no clean predicate"}
+  "rhea>go":           {skip: "activity<->activity"}
+
+  # --- BRENDA enzyme (EC) cluster. brenda entries are keyed by EC number (same
+  # id space as `ec`, typed MolecularActivity). hmdb gives the only metabolite->EC
+  # path (no hmdb>ec pair). uniprot>brenda duplicates uniprot>ec -> skip.
+  "hmdb>brenda":       {predicate: "biolink:participates_in", note: "metabolite participates in BRENDA enzyme (EC) activity"}
+  "uniprot>brenda":    {skip: "EC dup of uniprot>ec (brenda id == ec id space)"}
+  "brenda>brenda_kinetics":  {skip: "intra-cluster reification key (EC|substrate), not an edge; kinetics deferred (free-text chemical + numeric)"}
+  "brenda>brenda_inhibitor": {skip: "intra-cluster reification key (EC|inhibitor), not an edge; inhibitor deferred (free-text chemical + numeric)"}
+  "brenda>pubmed":     {skip: "literature reference; pubmed not a node"}
+
+  # --- Gene-gene homology (Ensembl Compara). Edges live in the ensembl forward
+  # file as ensembl-gene -> ortholog/paralog gene. Both predicates SYMMETRIC and
+  # stored BOTH directions (A->B and B->A). The <homology>->ensembl back-links are
+  # pure self-references (subj==obj) -> skip. NOTE: large (paralog ~43M edges).
+  "ensembl>ortholog":  {predicate: "biolink:orthologous_to"}
+  "ensembl>paralog":   {predicate: "biolink:paralogous_to"}
+  "ortholog>ensembl":  {skip: "self-reference anchor back-link (subj==obj)"}
+  "paralog>ensembl":   {skip: "self-reference anchor back-link (subj==obj)"}
+  # NCBI gene orthology (entrez twin of ensembl>ortholog).
+  "entrez>orthologentrez": {predicate: "biolink:orthologous_to"}
+  "orthologentrez>entrez": {skip: "self-reference anchor back-link (subj==obj)"}
+  # NCBI gene_group "related gene": pseudogene / readthrough / functional relatedness.
+  # No precise biolink predicate, but the gene_group relationship type is carried as
+  # the edge `relationship` qualifier (e.g. "Related pseudogene") -- so related_to is
+  # a deliberate, self-documenting choice here, not a silent catch-all.
+  "entrez>relatedentrez": {predicate: "biolink:related_to", note: "NCBI gene_group; type in relationship qualifier"}
+  "relatedentrez>entrez": {skip: "self-reference anchor back-link (subj==obj)"}
+  # NCBI genomic neighbours (left/right/overlapping). No genomic-adjacency predicate
+  # in biolink, so related_to with the direction in the relationship qualifier --
+  # self-documenting, same pattern as relatedentrez.
+  "entrez>neighborentrez": {predicate: "biolink:related_to", note: "NCBI genomic neighbour; direction in relationship qualifier"}
+  "neighborentrez>entrez": {skip: "self-reference anchor back-link (subj==obj)"}
+
+  # --- TF binding motif (JASPAR). The motif is the TF protein's DNA-binding
+  # profile (Atlas: a gene's jaspar motifs mark it a transcription factor).
+  # jaspar_sorted: motif -> uniprot (TF) / taxonomy / pubmed.
+  "jaspar>uniprot":    {predicate: "biolink:directly_physically_interacts_with", note: "TF protein binds DNA matching this motif"}
+  "jaspar>taxonomy":   {predicate: "biolink:in_taxon"}
+  "jaspar>pubmed":     {skip: "motif literature citation (not modeled as an edge)"}
+
+  # --- ChEMBL document / cell line; SureChEMBL patent junctions --------------
+  "chembl_document>literature_mappings": {predicate: "biolink:same_as", note: "ChEMBL document == its PMID publication"}
+  "chembl_cell_line>cellosaurus": {predicate: "biolink:same_as", note: "ChEMBL cell line == Cellosaurus accession (xref, not merge)"}
+  "chembl_cell_line>taxonomy":    {predicate: "biolink:in_taxon"}
+  "chembl_cell_line>efo":         {skip: "EFO id stored as EFO_xxx -> double-prefix render; low value, drop until id-normalized"}
+  "patent>patent_compound": {skip: "junction id; resolved via the reified patent->compound rule"}
+  "patent>patent_family":   {skip: "patent family grouping; not modeled as a node"}
+
+  # --- ncRNA -> gene --------------------------------------------------------
+  "rnacentral>ensembl": {predicate: "biolink:gene_product_of", note: "ncRNA is the product of the gene"}
+  "rnacentral>go":      {skip: "GO aspect not resolvable in direct edges; add rnacentral as a go.py annotation source instead"}
+
+  # --- Small molecule -> protein (metabolite/ligand) ------------------------
+  "swisslipids>uniprot": {predicate: "biolink:interacts_with"}
+  "hmdb>uniprot":      {predicate: "biolink:interacts_with"}
+
+  # --- DrugCentral drug -> target (mechanism of action) ---------------------
+  # Forward drugcentral_sorted carries drug->{uniprot,hgnc,entrez,ensembl} targets +
+  # {chembl_molecule,pubchem} drug xrefs. Model drug->protein (affects), like
+  # chembl_mechanism; the gene namespaces are the same target reachable via the
+  # protein, and chembl/pubchem are identity xrefs -> skip to avoid redundancy.
+  "drugcentral>uniprot":         {predicate: "biolink:affects", note: "DrugCentral drug->target protein"}
+  "drugcentral>hgnc":            {skip: "target gene namespace (covered via drug->protein->gene)"}
+  "drugcentral>entrez":          {skip: "target gene namespace (redundant)"}
+  "drugcentral>ensembl":         {skip: "target gene namespace (redundant)"}
+  "drugcentral>chembl_molecule": {skip: "drug identity xref (DrugCentral drug == ChEMBL compound)"}
+  "drugcentral>pubchem":         {skip: "drug identity xref"}
+
+  # --- Drug / metabolite -> disease -----------------------------------------
+  "chembl_molecule>efo": {predicate: "biolink:treats_or_applied_or_studied_to_treat", note: "ChEMBL indications incl. early phase; narrow to treats/in_clinical_trials_for via phase qualifier later"}
+  "hmdb>orphanet":     {predicate: "biolink:associated_with"}
+
+  # --- Disease -> phenotype -------------------------------------------------
+  "orphanet>hpo":      {predicate: "biolink:has_phenotype"}
+
+  # --- Cell line origins ----------------------------------------------------
+  "cellosaurus>uberon": {predicate: "biolink:derives_from"}
+  "cellosaurus>cl":    {predicate: "biolink:derives_from"}
+  "cellosaurus>mondo": {predicate: "biolink:associated_with", note: "cell line from diseased tissue"}
+
+  # --- Chemical cross-references (close match, not identity) -----------------
+  "pubchem>chebi":     {predicate: "biolink:close_match"}
+  "pubchem>chembl_molecule": {predicate: "biolink:close_match"}
+  "hmdb>pubchem":      {predicate: "biolink:close_match"}
+  "lipidmaps>pubchem": {predicate: "biolink:close_match"}
+
+  # --- Gene-gene identity: handled by node normalization, never an edge ------
+  "ensembl>entrez":    {skip: "identity pair -> node merge (Phase 1)"}
+  "entrez>ensembl":    {skip: "identity pair -> node merge (Phase 1)"}
+
+
+# Reified edges (Phase 2b): an intermediate-entry dataset whose entries link the
+# real entities. Files are sorted by the entry id, so partners are joined in a
+# single streaming group-by pass. Three kinds (see ReifiedRule):
+#   pairwise  : each property-line JSON names the real binary pair -> emit exactly
+#               those pairs (NO clique; the entry's partner SET is not pairwise-
+#               complete — only the asserted A_field/B_field pairs are real).
+#   star      : group key is one entity; emit it to each edge-line partner.
+#   bipartite : entries link a subject-role and object-role partner (by dataset).
+# Numeric score/affinity qualifiers (IC50, miscore, identity) are a follow-up.
+reified:
+  # --- Protein-protein interaction (pairwise: protein_a/b are the real pair) --
+  intact:             {kind: pairwise, partner: uniprot, subject_field: protein_a, object_field: protein_b, predicate: "biolink:physically_interacts_with"}
+  string_interaction: {kind: pairwise, partner: uniprot, subject_field: uniprot_a, object_field: uniprot_b, predicate: "biolink:physically_interacts_with", note: "very large (~866M rows)"}
+  biogrid_interaction: {kind: pairwise, partner: uniprot, subject_field: interactor_a_id, object_field: interactor_b_id, predicate: "biolink:physically_interacts_with", require: {experimental_system_type: physical}, note: "BioGRID; physical subset only (genetic dropped)"}
+  # signor DEFERRED: directed/signed causal regulation; needs role+sign.
+
+  # --- Cell-cell ligand-receptor signaling (member-level gene interactions) ---
+  # CellPhoneDB entries link two multi-gene COMPLEX partners. The index gene
+  # lists (hgnc/ensembl/entrez) are the UNION across both partners, so the
+  # edge-lines alone cannot tell which member is on which side. The property
+  # JSON, however, breaks the members out per side as symbol lists genes_a /
+  # genes_b; `cross` emits the faithful all-pairs cross-product (every partner_a
+  # member gene <-> every partner_b member gene), resolve:symbol -> HGNC ids.
+  # Predicate is the conservative biolink:interacts_with (directionality varies:
+  # Ligand-Receptor / Receptor-Receptor / Adhesion-Adhesion / Ligand-Ligand /
+  # Gap-Gap; a directional ligand->receptor refinement is a follow-up).
+  cellphonedb: {kind: pairwise, partner: hgnc, subject_field: genes_a, object_field: genes_b, resolve: symbol, cross: true, predicate: "biolink:interacts_with", note: "CellPhoneDB cell-cell signaling; member-gene all-pairs across the two complex partners"}
+
+  # --- Directed transcriptional regulation (TF -> target gene) --------------
+  # collectri entry property names tf_gene/target_gene as SYMBOLS; resolve:symbol
+  # maps them to HGNC ids so the edge is correctly directed TF->target.
+  collectri: {kind: pairwise, partner: hgnc, subject_field: tf_gene, object_field: target_gene, resolve: symbol, predicate: "biolink:regulates", note: "CollecTRI signed TF->gene"}
+  # SIGNOR signed causal regulation; protein-protein subset (entity ids are bare
+  # uniprot accessions; require keeps database_a/b == UNIPROT). entity_a -> entity_b.
+  signor:    {kind: pairwise, partner: uniprot, subject_field: id_a, object_field: id_b, predicate: "biolink:regulates", require: {database_a: UNIPROT, database_b: UNIPROT}, note: "SIGNOR directed protein regulation"}
+
+  # --- Protein similarity (star: query -> each hit; NOT a clique) ------------
+  # Sequence/embedding SIMILARITY (evidence for, not assertion of, homology).
+  diamond_similarity:  {kind: star, partner: uniprot, predicate: "biolink:similar_to", note: "DIAMOND; query -> hits"}
+  esm2_similarity:     {kind: star, partner: uniprot, predicate: "biolink:similar_to", note: "ESM2; query -> hits"}
+
+  # --- Compound -> target bioactivity ---------------------------------------
+  pubchem_activity: {kind: bipartite, subject: pubchem, object: uniprot, predicate: "biolink:interacts_with"}
+  chembl_activity:  {kind: bipartite, subject: chembl_molecule, object: uniprot, predicate: "biolink:interacts_with", qualifiers: {assay_type: bao}}
+  bindingdb:        {kind: bipartite, subject: pubchem, object: uniprot, predicate: "biolink:interacts_with", note: "compound has several namespaces; pubchem chosen as subject"}
+
+  # --- Gene -> cell line dependency (cancer) --------------------------------
+  depmap_dependency: {kind: bipartite, subject: entrez, object: cellosaurus, predicate: "biolink:affects", note: "gene essentiality/dependency in a cell line"}
+
+  # --- Gene -> tissue expression --------------------------------------------
+  bgee:         {kind: bipartite, subject: ensembl, object: uberon, predicate: "biolink:expressed_in"}
+  scxa:         {kind: bipartite, subject: ensembl, object: uberon, predicate: "biolink:expressed_in"}
+  fantom5_gene: {kind: bipartite, subject: hgnc, object: uberon, predicate: "biolink:expressed_in"}
+  hpa:          {kind: bipartite, subject: ensembl, object: uberon, predicate: "biolink:expressed_in", note: "Human Protein Atlas gene->tissue"}
+  # FANTOM5 promoter (CAGE peak) is annotated to ONE gene (hgnc/ensembl) plus the
+  # tissues (uberon) it is expressed in -> gene->tissue expression, like
+  # fantom5_gene. The CAGE peak itself is NOT emitted as a node: its id is a raw
+  # genomic-coordinate / peak string with no registered biolink:RegulatoryRegion
+  # CURIE prefix (deferred — see report). The promoter also links cell types (cl);
+  # only one object dataset per bipartite rule, uberon chosen to match the other
+  # expression sources (bgee/scxa/hpa/fantom5_gene). cl-cell-type expression TODO.
+  fantom5_promoter: {kind: bipartite, subject: hgnc, object: uberon, predicate: "biolink:expressed_in", note: "FANTOM5 CAGE-peak promoter gene->tissue; cl(cell-type) expression deferred (one object/rule)"}
+  # FANTOM5 enhancer -> gene. The entry id is a build-local surrogate int; the
+  # STABLE id is the coordinate in property-JSON fantom5_enhancer_id, so
+  # subject==dataset + subject_field renders the group key from that field (coord
+  # -> colon-free CURIE, RegulatoryRegion node). Links are PROXIMITY-based (genes
+  # within ~500kb), NOT curated regulation -> biolink:associated_with (not regulates).
+  fantom5_enhancer: {kind: bipartite, subject: fantom5_enhancer, subject_field: fantom5_enhancer_id, object: hgnc, extra_objects: [ensembl, entrez], predicate: "biolink:associated_with", note: "FANTOM5 enhancer->gene by genomic proximity (~500kb)"}
+
+  # --- Gene -> disease (curated/association layers; intermediate links gene+disease)
+  gencc:                 {kind: bipartite, subject: hgnc, object: mondo, predicate: "biolink:gene_associated_with_condition", note: "GenCC gene-disease validity"}
+  gwas:                  {kind: bipartite, subject: hgnc, object: mondo, extra_objects: [efo, oba], qualifier_fields: {p_value: p_value, odds_ratio_beta: or_beta}, predicate: "biolink:associated_with", note: "GWAS gene-trait: disease (mondo/efo) + quantitative attribute (oba); p_value/or_beta qualifiers"}
+  intogen:               {kind: bipartite, subject: hgnc, object: mondo, predicate: "biolink:gene_associated_with_condition", note: "intOGen cancer driver"}
+  # Alliance of Genome Resources cross-species gene->disease. Each AGRD entry links
+  # ONE gene (in its species namespace: hgnc OR a MOD gene dataset, via extra_subjects)
+  # + ONE DOID disease. Orthology-inferred / negative assertions filtered at ingest.
+  alliance_disease:      {kind: bipartite, subject: hgnc, extra_subjects: [mgi, rgd, sgd, zfin, flybase, wormbase], object: doid, predicate: "biolink:gene_associated_with_condition", note: "Alliance gene-disease (cross-species MOD curation)"}
+  # Alliance gene->phenotype (cross-species; species-paired gene namespace ->
+  # species phenotype ontology, e.g. mgi/rgd->mp, wormbase->wbphenotype,
+  # xenbase->xpo). PubMed citation not an edge.
+  alliance_phenotype:    {kind: bipartite, subject: mgi, extra_subjects: [rgd, wormbase, xenbase, sgd, zfin, flybase, hgnc], object: mp, extra_objects: [wbphenotype, xpo, fypo, zp, hpo], predicate: "biolink:has_phenotype", note: "Alliance gene-phenotype (cross-species MOD curation)"}
+  # PanelApp (Genomics England) curated gene panels -> gene-disease. Only entries
+  # with a clean MONDO emit (OMIM mims are gene+phenotype mix -> not the disease).
+  # panelapp (panel container) has no typed disease -> no rule. Confidence
+  # (green/amber/red) is a property-JSON scalar -> qualifier follow-up.
+  panelapp_gene:         {kind: bipartite, subject: hgnc, object: mondo, qualifier_fields: {confidence: confidence, inheritance: mode_of_inheritance}, predicate: "biolink:gene_associated_with_condition", note: "PanelApp curated gene-disease panel membership; confidence (green/amber/red) qualifier"}
+  clingen_gene_validity: {kind: bipartite, subject: hgnc, object: mondo, predicate: "biolink:gene_associated_with_condition"}
+  clingen_variant:       {kind: bipartite, subject: hgnc, object: mondo, predicate: "biolink:gene_associated_with_condition"}
+  clingen_dosage:        {kind: bipartite, subject: hgnc, object: mondo, predicate: "biolink:gene_associated_with_condition", note: "dosage sensitivity"}
+
+  # --- Pharmacogenomics (PharmGKB drug entry -> associated genes) ------------
+  # pharmgkb entry is a drug (its pubchem id) linked to associated genes encoded
+  # as SYMBOLS; resolve:symbol maps the object (hgnc) symbols to ids.
+  pharmgkb: {kind: bipartite, subject: pubchem, object: hgnc, resolve: symbol, predicate: "biolink:associated_with", note: "PharmGKB drug-gene pgx"}
+  # PharmGKB variant layer: rsID variant -> gene (is_sequence_variant_of). Star
+  # alleles without an rsID emit nothing; mesh targets skipped (not a node).
+  # variant->drug deferred (drugs are free-text names, no id on these lines).
+  pharmgkb_variant:        {kind: bipartite, subject: dbsnp, object: hgnc, predicate: "biolink:is_sequence_variant_of", note: "PharmGKB curated variant->gene"}
+  pharmgkb_var_annotation: {kind: bipartite, subject: dbsnp, object: hgnc, predicate: "biolink:is_sequence_variant_of", note: "PharmGKB variant annotation->gene (rsID subset)"}
+  pharmgkb_clinical:       {kind: bipartite, subject: dbsnp, object: hgnc, predicate: "biolink:is_sequence_variant_of", note: "PharmGKB clinical annotation->gene (rsID subset)"}
+  # PharmGKB pgx pathway (PA145... = a biolink:Pathway node, group key) -> member
+  # gene (symbols resolved to hgnc). Drug membership deferred (needs a 2nd object slot).
+  pharmgkb_pathway:        {kind: bipartite, subject: pharmgkb_pathway, object: hgnc, resolve: symbol, predicate: "biolink:has_participant", note: "PharmGKB pgx pathway -> member gene"}
+  # PharmGKB clinical guideline: gene(HGNC) + drug (PA-id -> pubchem via pharmgkb).
+  # The guideline itself is a container (no node CURIE) -> emit the gene-drug pgx edge.
+  pharmgkb_guideline:      {kind: bipartite, subject: hgnc, object: pubchem, via: pharmgkb, predicate: "biolink:associated_with", note: "PharmGKB guideline gene-drug pgx"}
+
+  # --- ncRNA layers (subject is the ncRNA gene) -----------------------------
+  ncrna_disease:     {kind: bipartite, subject: hgnc, object: mondo, predicate: "biolink:associated_with", note: "ncRNA gene-disease"}
+  ncrna_drug:        {kind: bipartite, subject: hgnc, object: chembl_molecule, predicate: "biolink:associated_with", note: "ncRNA-drug response"}
+  ncrna_interaction: {kind: bipartite, subject: hgnc, object: uniprot, predicate: "biolink:interacts_with", note: "ncRNA-protein binding (large)"}
+
+  # --- Drug -> target (mechanism of action) ---------------------------------
+  chembl_mechanism:      {kind: bipartite, subject: chembl_molecule, object: uniprot, predicate: "biolink:affects", note: "ChEMBL MoA drug->target"}
+  # GtoPdb curated ligand->target: entry links ligand + a gtopdb target id, which
+  # `via: gtopdb` resolves to the uniprot protein (gtopdb_sorted: gtopdb->uniprot).
+  gtopdb_interaction:    {kind: bipartite, subject: gtopdb_ligand, object: uniprot, via: gtopdb, predicate: "biolink:interacts_with", note: "GtoPdb curated affinity ligand->target"}
+
+  # --- CTD chemical -> gene / disease (reified chem-gene/chem-disease records) -
+  ctd_gene_interaction:  {kind: bipartite, subject: ctd, object: entrez, predicate: "biolink:affects", note: "CTD chemical->gene; interaction_actions mix increases/decreases/affects -> affects (entrez canonicalizes to HGNC for human)"}
+  # chemical (ctd, MESH:C) -> disease (mesh, MESH:D descriptor, runtime-typed by
+  # mesh.py). ~99.5% gene-INFERRED -> conservative associated_with (not treats/causes).
+  # mesh object canonicalizes via _RUNTIME_PREFIXES['mesh']. ~11% of disease objects
+  # are MESH:C supplementary records outside mesh.py's disease subset -> stub-typed
+  # ChemicalEntity (edge correct, node category wrong on that subset; mesh.py follow-up).
+  ctd_disease_association: {kind: bipartite, subject: ctd, object: mesh, predicate: "biolink:associated_with", note: "CTD chemical-disease (mostly gene-inferred)"}
+
+  # --- Drug -> condition in clinical trials (ClinicalTrials.gov) -------------
+  # Trial (NCT) links its drug(s) + condition(s); emit drug->condition. pubmed
+  # refs dropped (no Publication node). Trial phase/status: qualifier follow-up.
+  clinical_trials:       {kind: bipartite, subject: chembl_molecule, object: mondo, extra_objects: [efo], predicate: "biolink:in_clinical_trials_for", note: "ClinicalTrials.gov drug->condition"}
+
+  # --- Single-cell cell-type -> tissue localization (CZ CELLxGENE) ----------
+  # cellxgene_celltype entries are CELL TYPES (entry id CL_xxxx). The cl self-link
+  # is the subject; uberon tissues the object. This is cell-type localization, NOT
+  # gene expression (no gene endpoint). cellxgene (collection-level) deferred
+  # (entry is a study UUID, no node CURIE). Disease(mondo) links deferred (different
+  # predicate, one per rule). Bogus UNKNOWN entries lack a cl self-link -> emit nothing.
+  cellxgene_celltype:    {kind: bipartite, subject: cl, object: uberon, predicate: "biolink:located_in", note: "CZ CELLxGENE cell-type found_in tissue"}
+
+  # --- CIViC clinical cancer variant interpretation -------------------------
+  # variant->gene: civic_variant entry id IS the variant (group key, subject==dataset);
+  # `via: civic` resolves the parent feature to its gene. evidence/assertion are
+  # hubs co-presenting variant + disease(mondo) + therapy(chembl_molecule).
+  # Per-edge significance/evidence_level live in property JSON (not object lines) ->
+  # qualifier follow-up; both disease+drug share associated_with.
+  civic_variant:   {kind: bipartite, subject: civic_variant, object: hgnc, via: civic, predicate: "biolink:is_sequence_variant_of", note: "CIViC variant->gene (via parent feature)"}
+  civic_evidence:  {kind: bipartite, subject: civic_variant, object: mondo, extra_objects: [chembl_molecule], qualifier_fields: {significance: significance, evidence_level: evidence_level, evidence_direction: evidence_direction}, predicate: "biolink:associated_with", note: "CIViC evidence: variant->disease + variant->therapy; significance/evidence_level qualifiers"}
+  civic_assertion: {kind: bipartite, subject: civic_variant, object: mondo, extra_objects: [chembl_molecule], qualifier_fields: {significance: significance}, predicate: "biolink:associated_with", note: "CIViC assertion: variant->disease + variant->therapy"}
+
+  # --- miRDB predicted miRNA -> target transcript (post-transcriptional). The
+  # miRNA is the group KEY (subject==dataset); objects are refseq transcripts
+  # (runtime-typed). PREDICTION (knowledge_level via _PREDICTION_DATASETS).
+  mirdb:           {kind: bipartite, subject: mirdb, object: refseq, predicate: "biolink:affects", note: "miRDB predicted miRNA->target transcript"}
+
+  # --- FAERS drug -> adverse reaction (pharmacovigilance) -------------------
+  # faers entry is a drug-report HUB: drug (chembl_molecule; pubchem alternate) ->
+  # adverse reactions (faers_reaction nodes). ~9% of entries resolve to a drug
+  # CURIE (rest are free-text drug_name -> emit nothing). PRR/report_count are a
+  # numeric-qualifier follow-up. faers_reaction is the OBJECT (a node), no own rule.
+  faers:           {kind: bipartite, subject: chembl_molecule, extra_subjects: [pubchem], object: faers_reaction, predicate: "biolink:has_adverse_event", note: "FAERS drug->adverse reaction (openFDA)"}
+
+  # --- SureChEMBL patent -> compound (via patent_compound junction) ---------
+  # patent is the group KEY (subject==dataset); object lines are patent_compound
+  # junction ids, resolved to the compound via the junction's forward index.
+  # patent == biolink:Publication; chembl_molecule chosen as THE compound namespace
+  # (junction also carries pubchem/chebi/hmdb for the same compound -> avoid 4x dup).
+  patent: {kind: bipartite, subject: patent, object: chembl_molecule, via: patent_compound, predicate: "biolink:mentions", note: "SureChEMBL patent mentions compound (via junction)"}
+
+  # --- Predicted variant-effect layer (computational predictions; OPT-IN) ----
+  # spliceai/alphamissense subjects are variant COORDINATES (chr:pos:ref:alt), the
+  # group KEY (subject==dataset); normalize_subject renders the colon-bearing coord
+  # as one clean CURIE (biobtree.variant:..). PREDICTION (knowledge_level via
+  # _PREDICTION_DATASETS). Numeric score/am_pathogenicity are a qualifier follow-up.
+  # variant-scale -> run only via --datasets / the WITH_PREDICTIONS gate.
+  spliceai:      {kind: bipartite, subject: spliceai, normalize_subject: true, object: hgnc, extra_objects: [ensembl, entrez], qualifier_fields: {splice_score: score, splice_effect: effect}, predicate: "biolink:affects", note: "SpliceAI predicted splice effect variant->gene"}
+  alphamissense: {kind: bipartite, subject: alphamissense, normalize_subject: true, object: transcript, qualifier_fields: {pathogenicity: am_pathogenicity, pathogenicity_class: am_class}, predicate: "biolink:affects", note: "AlphaMissense predicted missense pathogenicity variant->transcript"}
+
+  # --- GeneRIF: publication mentions gene (entry links one pubmed + one entrez).
+  # Adds biolink:Publication (PMID) endpoints (mostly non-human gene + PMID stubs).
+  generif:         {kind: bipartite, subject: pubmed, object: entrez, predicate: "biolink:mentions", note: "GeneRIF pub->gene literature mention"}

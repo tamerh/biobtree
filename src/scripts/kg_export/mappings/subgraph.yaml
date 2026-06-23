@@ -1,0 +1,96 @@
+# Representative human subgraph: a working snapshot of the FULL graph with every node
+# category + edge predicate present and at FULL richness -- we only trim the few
+# GIANT datasets (cap or omit) and scope the taxon-dependent spine to human. Not a
+# seed/ego graph and not a uniformly-capped graph: keep everything full EXCEPT the
+# giants. It is an induced projection of the assembled full dump.
+#
+# Spine = every FULL-category node (ontologies/disease/phenotype/pathway/anatomy --
+# small, species-agnostic) + the SCOPED-category nodes (gene/protein/transcript/...,
+# incl. OrganismTaxon) that belong to `taxon`. Edges anchored on the spine are kept
+# in FULL by default; only the giants below are capped/omitted. Kept edges pull in
+# their endpoints (so non-human partners/compounds/variants appear in bounded numbers).
+
+taxon: "NCBITaxon:9606"          # human spine
+
+# kept in full (every node) -- small, species-agnostic node sets. The subgraph is
+# human + DISEASE + MOLECULE centric, so disease/phenotype ontologies AND the curated
+# molecule/drug datasets are full (the latter by prefix below, since they share the
+# SmallMolecule/Drug categories with the giant PubChem catalog).
+full_categories:
+  - biolink:Disease
+  - biolink:PhenotypicFeature
+  - biolink:Pathway
+  - biolink:MolecularActivity
+  - biolink:BiologicalProcess
+  - biolink:CellularComponent
+  - biolink:GrossAnatomicalStructure
+  - biolink:AnatomicalEntity
+  - biolink:Cell
+  - biolink:CellLine
+
+# node prefixes always kept in full (overrides scoped category). The CURATED
+# molecule/drug datasets -> molecule-centric, and their cross-refs (close_match) +
+# drug-target edges survive. The GIANT PubChem catalog (PUBCHEM.COMPOUND) is NOT here,
+# so it stays scoped (only compounds connected to the human core, not all ~100M).
+full_prefixes:
+  - CHEBI
+  - CHEMBL.COMPOUND
+  - DRUGBANK
+  - drugcentral
+  - GTOPDB
+  - HMDB
+  - lipidmaps
+  - SWISSLIPID
+
+# taxon-scoped: kept only for `taxon`; others enter only as edge neighbours. NOTE
+# OrganismTaxon is here (NOT full) so we don't drag in the entire ~2.7M-taxa NCBI
+# tree -- only the human taxon + taxa referenced by kept edges (e.g. orthologues).
+scoped_categories:
+  - biolink:Gene
+  - biolink:Protein
+  - biolink:Transcript
+  - biolink:NoncodingRNAProduct
+  - biolink:SequenceVariant
+  - biolink:Exon
+  - biolink:CodingSequence
+  - biolink:ProteinDomain
+  - biolink:SmallMolecule
+  - biolink:ChemicalEntity
+  - biolink:Drug
+  - biolink:MicroRNA
+  - biolink:NucleicAcidSequenceMotif
+  - biolink:RegulatoryRegion
+  - biolink:Publication
+  - biolink:OrganismTaxon          # referenced taxa only (human + orthologue species)
+
+# default: NO cap -- representative means full richness. Only the giants below are
+# trimmed. (cap N = keep <=N per (subject,predicate); 0/absent = full.)
+default_cap: 0
+# A cap value is an int (cap per subject+predicate) or {n, by: subject|object}.
+# Use `by: object` when the spine node to bound is the edge OBJECT.
+caps:
+  clinvar: {n: 50, by: object}          # ~50 variants per gene (variant->gene, gene=object)
+  bgee: 25                              # ~25 expressed_in per gene (gene=subject)
+  pubchem_activity: {n: 50, by: object} # ~50 bioactivities per target (compound->target, target=object)
+  chembl_activity: {n: 50, by: object}
+
+# omit entirely -- giant + least-essential / deferred layers
+omit_sources:
+  - esm2_similarity        # predicted protein similarity
+  - diamond_similarity
+  - dbsnp                  # billion-variant layer; clinvar gives curated variants
+  - patent                 # ~554M compound->patent literature edges; floods the projection
+  # --- license exclusions: keep the published bundle redistributable (CC BY-NC-SA) ---
+  # (predictions spliceai/alphamissense are already excluded upstream via WITH_PREDICTIONS=0)
+  - ctd                    # CTD custom terms: commercial use prohibited + downstream renegotiation
+  - ctd_gene_interaction   #   (its curated chemical-gene/-disease associations are the restricted content)
+  - ctd_disease_association
+  - panelapp_gene          # Genomics England PanelApp: no explicit redistribution license found
+  - mirdb                  # no explicit license; predicted miRNA targets (like other prediction layers)
+
+# predicates/categories the omits intentionally remove -- so the completeness check
+# doesn't flag them as accidental drops
+expected_missing:
+  predicates:
+    - biolink:similar_to   # only from the omitted similarity sources
+  categories: []

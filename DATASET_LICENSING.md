@@ -55,3 +55,27 @@ Batch reviewed alongside ClinGen.
 | **OFFSIDES / TWOSIDES** | no explicit license | 🔴 Rejected — ambiguous/not redistributable |
 
 Drug-safety gap is real but the clean path is **FDA FAERS (U.S. public domain)**, not SIDER/OFFSIDES, if/when wanted.
+
+## KG export redistribution (2026-06-23)
+
+The published **subgraph KGX export** (Zenodo download) is a stronger redistribution
+act than serving on the site, and a single license must cover the whole archive.
+Target: **CC BY-NC-SA 4.0** (non-commercial is the safe choice; share-alike is
+forced by ChEMBL/PharmGKB/DrugCentral anyway). NC also lets us keep the CC BY-NC
+sources (DrugBank, HMDB) rather than dropping them.
+
+Excluded from the export (`omit_sources` in `mappings/subgraph.yaml`):
+
+| Excluded | Reason |
+|---|---|
+| CTD (`ctd`, `ctd_gene_interaction`, `ctd_disease_association`) | custom terms: commercial prohibited + downstream renegotiation — not freely redistributable |
+| `panelapp_gene` | Genomics England: no explicit redistribution license found |
+| `mirdb` | no explicit license; predicted miRNA targets |
+| spliceai / alphamissense (predictions) | CC BY-NC; already excluded via `WITH_PREDICTIONS=0` |
+
+Kept (compatible with CC BY-NC-SA): DrugBank, HMDB (CC BY-NC); ChEMBL, PharmGKB,
+DrugCentral (CC BY-SA); everything else (CC0 / CC BY / public domain).
+**OMIM is kept** — our graph carries only bare MIM identifiers as cross-reference
+endpoints (no OMIM names/titles/text), so no OMIM content is redistributed.
+MSigDB: keep gene-set↔gene membership edges; KEGG-derived sets are noted as
+restricted in the release README.

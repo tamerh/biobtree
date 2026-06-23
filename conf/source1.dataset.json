@@ -98,7 +98,7 @@
     "useLocalFile": "no",
     "hasFilter": "yes",
     "attrs": "name,symbol,type,[]synonyms,chromosome,summary,start_position,end_position,orientation,genomic_accession",
-    "compact_fields": "name,symbol,type",
+    "compact_fields": "name,symbol,type,chromosome,start_position,end_position,orientation",
     "test_entries_count": "1000",
     "bucketMethod": "numeric"
   },
@@ -146,7 +146,7 @@
     "useLocalFile": "no",
     "hasFilter": "yes",
     "attrs": "cid,title,inchi_key,smiles,molecular_formula,molecular_weight,xlogp,hba,hbd,is_fda_approved,is_clinical_trial,is_natural_product,compound_type,[]synonyms,[]mesh_terms,[]pmids",
-    "compact_fields": "title,molecular_formula,is_fda_approved,compound_type,mesh_terms",
+    "compact_fields": "title,molecular_formula,smiles,is_fda_approved,compound_type,mesh_terms",
     "test_entries_count": "20",
     "pathDrugNames": "Extras/Drug-Names.tsv.gz",
     "pathXML": "CURRENT-Full/XML/",

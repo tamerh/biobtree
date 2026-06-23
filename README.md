@@ -8,6 +8,8 @@ BRCA1 >> ensembl >> uniprot >> pdb[resolution<2.0]
 
 This finds BRCA1 in Ensembl, maps to UniProt proteins, and returns high-resolution PDB structures — crossing three databases in a single line.
 
+🌐 **Website:** [sugi.bio/biobtree](https://sugi.bio/biobtree/)
+
     
 ## 🔗 Try It
 
@@ -43,6 +45,10 @@ https://sugi.bio/biobtree/api/entry?i=P38398&s=uniprot
 ## Q&A
 
 Browse biological questions answered with BioBTree: [sugi.bio/biobtree](https://sugi.bio/biobtree/)
+
+## 🕸️ Knowledge Graph
+
+BioBTree exports a biolink-typed [KGX](https://github.com/biolink/kgx) knowledge graph. A human-scoped, Neo4j-ready subgraph (~40M nodes / ~132M edges) is published on Zenodo under CC BY-NC-SA 4.0. See **[docs/kg_export](docs/kg_export/index.md)**.
 
 ## 📖 Documentation
 

@@ -80,6 +80,13 @@ omit_sources:
   - diamond_similarity
   - dbsnp                  # billion-variant layer; clinvar gives curated variants
   - patent                 # ~554M compound->patent literature edges; floods the projection
+  # --- license exclusions: keep the published bundle redistributable (CC BY-NC-SA) ---
+  # (predictions spliceai/alphamissense are already excluded upstream via WITH_PREDICTIONS=0)
+  - ctd                    # CTD custom terms: commercial use prohibited + downstream renegotiation
+  - ctd_gene_interaction   #   (its curated chemical-gene/-disease associations are the restricted content)
+  - ctd_disease_association
+  - panelapp_gene          # Genomics England PanelApp: no explicit redistribution license found
+  - mirdb                  # no explicit license; predicted miRNA targets (like other prediction layers)
 
 # predicates/categories the omits intentionally remove -- so the completeness check
 # doesn't flag them as accidental drops

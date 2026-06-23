@@ -38,3 +38,5 @@ docs/kg_export/viz/*.html
 .mcp.json
 genomes_ensembl.json
 out_prod
+DATASET_LICENSING.md
+KNOWN_ISSUES.md

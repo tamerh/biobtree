@@ -9,7 +9,7 @@ and out of scope.
 ## Automated drift check (run this when BioBTree changes)
 
 ```bash
-python -m tools.kg_export.coverage_audit --conf /data/biobtree/conf
+python -m kg_export.coverage_audit --conf /data/biobtree/conf
 ```
 
 Classifies every source1/source2 dataset as **covered** / **skipped** / **UNEXPLAINED**

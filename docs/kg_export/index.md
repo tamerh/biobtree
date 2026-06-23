@@ -13,7 +13,7 @@ count-for-count (see [Alignment](#alignment)). It does not touch the Go core,
 query service, or MCP server.
 
 **Format**: KGX TSV + JSON-Lines, gzip-optional, with a manifest.
-**Tooling/dev detail**: `tools/kg_export/README.md`.
+**Tooling/dev detail**: `src/scripts/kg_export/README.md`.
 
 ### What's in it (layers)
 
@@ -227,32 +227,32 @@ The export is a pipeline of CLI steps over a built index directory
 ```bash
 IDX=out_prod/main/index; O=out/kg
 # 1. nodes (genes/proteins/diseases/...) + canonical id_map
-python -m tools.kg_export nodes  --index-dir $IDX --datasets <core list> \
+python -m kg_export nodes  --index-dir $IDX --datasets <core list> \
     --out $O/nodes.tsv.gz --id-map $O/id_map.tsv.gz
 # 2. GO nodes + aspect-typed annotation edges
-python -m tools.kg_export go      --index-dir $IDX --id-map $O/id_map.tsv.gz \
+python -m kg_export go      --index-dir $IDX --id-map $O/id_map.tsv.gz \
     --nodes-out $O/go_nodes.tsv.gz --edges-out $O/go_edges.tsv.gz
 # 3. RefSeq transcript/protein/ncRNA nodes + edges (type-split)
-python -m tools.kg_export refseq  --index-dir $IDX --id-map $O/id_map.tsv.gz \
+python -m kg_export refseq  --index-dir $IDX --id-map $O/id_map.tsv.gz \
     --nodes-out $O/refseq_nodes.tsv.gz --edges-out $O/refseq_edges.tsv.gz
 # 4. ontology hierarchy (subclass_of) + cross-ontology close_match
-python -m tools.kg_export ontology --index-dir $IDX --out $O/ontology_edges.tsv.gz
+python -m kg_export ontology --index-dir $IDX --out $O/ontology_edges.tsv.gz
 # 5. direct edges, 6. reified edges (PPI/similarity/bioactivity/expression/GWAS)
-python -m tools.kg_export edges   --index-dir $IDX --id-map $O/id_map.tsv.gz --out $O/edges_direct.tsv.gz
-python -m tools.kg_export reified --index-dir $IDX --id-map $O/id_map.tsv.gz --out $O/edges_reified.tsv.gz
+python -m kg_export edges   --index-dir $IDX --id-map $O/id_map.tsv.gz --out $O/edges_direct.tsv.gz
+python -m kg_export reified --index-dir $IDX --id-map $O/id_map.tsv.gz --out $O/edges_reified.tsv.gz
 # 6d. numeric/value NODE attributes (gnomad/depmap/alphafold/alphamissense_transcript)
-python -m tools.kg_export attributes --index-dir $IDX --id-map $O/id_map.tsv.gz --out $O/node_attrs.tsv.gz
+python -m kg_export attributes --index-dir $IDX --id-map $O/id_map.tsv.gz --out $O/node_attrs.tsv.gz
 # 6e. sub-gene/protein structure: has_part + translates_to edges (+ ECO evidence, coords)
-python -m tools.kg_export structure --index-dir $IDX --id-map $O/id_map.tsv.gz \
+python -m kg_export structure --index-dir $IDX --id-map $O/id_map.tsv.gz \
     --edges-out $O/structure_edges.tsv.gz --attrs-out $O/structure_attrs.tsv.gz
 # 7. assemble: merge + dedup + stub-nodes + node-attributes + JSONL + validate + manifest
-python -m tools.kg_export assemble --nodes $O/nodes.tsv.gz,$O/go_nodes.tsv.gz,$O/refseq_nodes.tsv.gz \
+python -m kg_export assemble --nodes $O/nodes.tsv.gz,$O/go_nodes.tsv.gz,$O/refseq_nodes.tsv.gz \
     --edges $O/edges_direct.tsv.gz,$O/edges_reified.tsv.gz,$O/go_edges.tsv.gz,$O/refseq_edges.tsv.gz,$O/ontology_edges.tsv.gz,$O/structure_edges.tsv.gz \
     --node-attributes $O/node_attrs.tsv.gz,$O/structure_attrs.tsv.gz \
     --out-dir $O/dump --data-version <release> --stub-nodes --gzip
 ```
 
-The complete production pipeline is scripted in `tools/kg_export/full_prod.sh`.
+The complete production pipeline is scripted in `src/scripts/kg_export/full_prod.sh`.
 
 `.gz` paths produce compressed output (~6× smaller). Memory stays modest
 (~4 GB) because the giant datasets contribute *edges*, not nodes (stubs cover
@@ -311,7 +311,7 @@ a separate build:
   example (TP53's variants, EGFR's inhibitors), not the billions. It resolves the
   gene symbols / compound names to ids from the index, extracts the bioactivity edges
   whose compound or target is in the set, and writes an entrez gene-id list that
-  `tools/dbsnp_py/extract.py --genes` turns into the variants of just those genes
+  `src/scripts/dbsnp/extract.py --genes` turns into the variants of just those genes
   (one federation scan). Merged into the subgraph at assemble.
 
 Built as step 8 of `full_prod.sh` (`out_prod_v5_subgraph`), validated `full`
@@ -327,7 +327,7 @@ ready; the extractor is built and tested.
 - **dbSNP (first-class, billion-scale)**: the dbSNP federation (~1.1B variants) is a
   first-class layer — `variant -is_sequence_variant_of-> gene/transcript` plus rich
   variant attributes. It lives in a separate ~118 GB-gz federation, so it's built by
-  a dedicated parallel extractor (`tools/dbsnp_py/extract.py`: `zcat` decompresses,
+  a dedicated parallel extractor (`src/scripts/dbsnp/extract.py`: `zcat` decompresses,
   a Python multiprocessing pool parses/shards, ~1 hr/full pass) and wired into
   `full_prod.sh` (`WITH_DBSNP=1`, default on; set `0` to skip). The assemble step is
   memory-flat (sort-based merge/stub + `--validate-mode streaming`), so it survives

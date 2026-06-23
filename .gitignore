@@ -29,4 +29,4 @@ dist/
 lib/
 
 # KG one-off operational recovery scripts (not the canonical pipeline)
-tools/kg_export/resume_*.sh
+src/scripts/kg_export/resume_*.sh

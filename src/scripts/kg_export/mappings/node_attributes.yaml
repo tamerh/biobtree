@@ -1,0 +1,93 @@
+# Node attributes: each entry's own attributes attached to ITS node (node = entry),
+# making the BioBTree API's /ws/filter (CEL over attributes) reproducible as Cypher
+# WHERE on node properties. Keys are dataset-prefixed (entrez_symbol, ensembl_biotype)
+# so a merged node (HGNC+Ensembl+NCBIGene) collects every namespace's attrs cleanly.
+#
+# mode: all      (default) every field -- scalars + scalar lists kept, one level of
+#                nested dicts flattened (sequence.length -> uniprot_sequence_length);
+#                lists-of-objects skipped (heavy/relational). Long text capped.
+# mode: compact  only the dataset's conf compact_fields (the opt-in slim knob).
+#
+# dbSNP is NOT here -- its ~1.1B variants get attrs from src/scripts/dbsnp/extract.py.
+defaults:
+  mode: all
+exclude: []          # global field names dropped even in all-mode (none by default)
+
+datasets:
+  # core entities (merged gene node collects hgnc+ensembl+entrez attrs)
+  hgnc: {}
+  ensembl: {}
+  entrez: {}
+  uniprot: {exclude: [comments]}   # keep names/sequence; drop the long comment blob
+  # chemicals / drugs
+  chebi: {exclude: [definition]}
+  chembl_molecule: {}
+  hmdb: {}
+  drugbank: {}
+  drugcentral: {exclude: [targets, moa_targets]}   # targets are materialized as edges
+  lipidmaps: {}
+  swisslipids: {}
+  pubchem: {}
+  gtopdb: {}
+  # pathways / domains / structures
+  reactome: {}
+  interpro: {}
+  corum: {}
+  # organism / cells / phenotype hubs
+  taxonomy: {}
+  cellosaurus: {}
+  # model-organism genes
+  mgi: {}
+  rgd: {}
+  sgd: {}
+  zfin: {}
+  flybase: {}
+  wormbase: {}
+  xenbase: {}
+
+# Synonyms/aliases -> aggregated into ONE `synonym` list per node (unprefixed, so a
+# single Neo4j full-text index reproduces BioBTree keyword search). A merged node
+# unions synonyms from every contributing dataset. Covers all node-producing
+# datasets that carry alias fields -- core entities, chemicals/drugs, AND the
+# disease/phenotype/anatomy ontologies (where synonyms matter most for search).
+synonyms:
+  # core entities
+  uniprot: [names, alternative_names, submitted_names]
+  entrez: [synonyms]
+  hgnc: [aliases, names, prev_names, prev_symbols]
+  refseq: [synonyms]            # runtime-built (refseq prefix)
+  taxonomy: [common_name]
+  interpro: [names]
+  corum: [synonyms]
+  # chemicals / drugs / metabolites
+  chebi: [synonyms, iupac_names]
+  chembl_molecule: [molecule.altNames]
+  drugbank: [synonyms]
+  hmdb: [synonyms, iupacName]
+  lipidmaps: [synonyms]
+  swisslipids: [synonyms]
+  pubchem: [synonyms]
+  reactome: [alt_names]
+  brenda: [synonyms]
+  ctd: [synonyms]
+  cellosaurus: [synonyms]
+  civic_variant: [aliases]
+  pharmgkb_pathway: [synonyms]
+  drugcentral: [inn]
+  # disease / phenotype / anatomy ontologies (highest search value)
+  mondo: [synonyms]
+  doid: [synonyms]
+  efo: [synonyms]
+  orphanet: [synonyms]
+  mim: [synonyms]
+  hpo: [synonyms]
+  mp: [synonyms]
+  upheno: [synonyms]
+  zp: [synonyms]
+  xpo: [synonyms]
+  wbphenotype: [synonyms]
+  fypo: [synonyms]
+  uberon: [synonyms]
+  cl: [synonyms]
+  oba: [synonyms]
+  go: [synonyms]                # runtime-built (GO prefix)

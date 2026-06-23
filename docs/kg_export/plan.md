@@ -65,7 +65,7 @@ out_prod/main/index/*_sorted.*.index.gz   (+ dbsnp federation)
             ▼
    ┌──────────────────────┐     conf/*.dataset.json ──► id→name map
    │   kg exporter (py)    │     mappings/categories.yaml ──► node biolink type + CURIE priority
-   │  src: tools/kg_export │     mappings/predicates.yaml ──► (srcDS,objDS[,rel]) → biolink predicate
+   │  src: src/scripts/kg_export │     mappings/predicates.yaml ──► (srcDS,objDS[,rel]) → biolink predicate
    └──────────────────────┘
             │
    ┌────────┴─────────┐
@@ -87,7 +87,7 @@ Language: **Python** (lives alongside `mcp_srv/`, reuses its dataset-metadata
 patterns; the heavy lifting is gzip streaming + dict lookups, not CPU). Output is
 plain TSV/JSONL so downstream tooling (KGX, Neo4j, RDF) is standard.
 
-Location in repo: `tools/kg_export/` (code) + `mappings/` (authored tables) +
+Location in repo: `src/scripts/kg_export/` (code) + `mappings/` (authored tables) +
 `docs/kg_export/` (this plan + the eventual data dictionary).
 
 ---
@@ -180,7 +180,7 @@ Cellosaurus. Gene–disease is included but is not the headline.
 
 ## 7. Phased milestones (each is a shippable checkpoint)
 
-- **Phase 0 — scaffold + dictionaries.** `tools/kg_export/` skeleton; build the
+- **Phase 0 — scaffold + dictionaries.** `src/scripts/kg_export/` skeleton; build the
   numeric-`id → dataset name` map from configs; author `categories.yaml` for the
   MVP entity set (Gene, Protein, Disease, Drug, Variant, Pathway + the
   differentiating sets). *Deliverable:* loader that resolves any sorted file's

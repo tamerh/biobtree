@@ -220,8 +220,8 @@ func (s *signor) processFile(filePath, sourceID string, idLogFile *os.File, rema
 		tissueData := s.getField(row, colMap, "TISSUE_DATA")
 		directStr := s.getField(row, colMap, "DIRECT")
 		pmidStr := s.getField(row, colMap, "PMID")
-		// NOTE: SIGNOR removed the SCORE column from its release dump
-		// (see KNOWN_ISSUES.md). Score handling is disabled until/unless it
+		// NOTE: SIGNOR removed the SCORE column from its release dump.
+		// Score handling is disabled until/unless it
 		// returns; entries no longer carry a confidence score.
 		// scoreStr := s.getField(row, colMap, "SCORE")
 

@@ -114,10 +114,19 @@ class _ProcFile:
         except Exception:
             pass
         self._p.wait()
+        rc = self._p.returncode
         if self._sink is not None:
             self._sink.close()
-            if self._p.returncode not in (0, None):
-                raise RuntimeError(f"pigz exited {self._p.returncode}")
+            if rc not in (0, None):
+                raise RuntimeError(f"pigz write exited {rc}")
+        else:
+            # reader: rc -13 = SIGPIPE from an intentional early close (we stopped
+            # reading before EOF -- e.g. the attr-file reader in nodes_to_jsonl, which
+            # legitimately ends before the attr file). ANY other non-zero is a real
+            # decompression failure (truncated/corrupt .gz) that gzip.open would have
+            # raised -- don't let it pass as a silent short read.
+            if rc not in (0, None, -13):
+                raise RuntimeError(f"pigz read exited {rc} (corrupt/truncated gz?)")
 
 
 def xopen(path, mode="rt"):
@@ -519,18 +528,25 @@ def add_stub_nodes(nodes_tsv: str | Path, edges_tsv: str | Path, categories) -> 
         ["comm", "-13", str(nids_u), str(eps_u)],
         stdout=subprocess.PIPE, env=env, text=True,
     )
-    with xopen(nodes_tsv, "at") as out:  # gz append = new member, readers concat fine
-        for line in proc.stdout:
-            ep = line.rstrip("\n")
-            if not ep:
-                continue
-            cat = _stub_category(ep, pmap)
-            if cat:
-                out.write(f"{ep}\t{cat}\t\t{ep}\t{AGGREGATOR}\n")
-                by_cat[cat] += 1
-            else:
-                untyped += 1
-    proc.wait()
+    try:
+        with xopen(nodes_tsv, "at") as out:  # gz append = new member, readers concat fine
+            for line in proc.stdout:
+                ep = line.rstrip("\n")
+                if not ep:
+                    continue
+                cat = _stub_category(ep, pmap)
+                if cat:
+                    out.write(f"{ep}\t{cat}\t\t{ep}\t{AGGREGATOR}\n")
+                    by_cat[cat] += 1
+                else:
+                    untyped += 1
+    finally:
+        proc.stdout.close()
+        proc.wait()
+    # a failed `comm` (e.g. inputs not actually sorted, or killed) would silently
+    # yield zero stubs and mask the real cause -- fail loudly instead.
+    if proc.returncode not in (0, None):
+        raise RuntimeError(f"comm failed in add_stub_nodes (exit {proc.returncode})")
     nids_u.unlink()
     eps_u.unlink()
     return {

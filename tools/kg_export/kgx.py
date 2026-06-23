@@ -283,37 +283,52 @@ def merge_edges(
     out_path.parent.mkdir(parents=True, exist_ok=True)
     # temp files + sort spill go next to the output (on /data), NOT /tmp (small root)
     tmp_dir = out_path.parent
-    body = Path(str(out_path) + ".body.tmp")
-
-    # 1. concatenate bodies (no headers, always plain so sort can read it)
     total = 0
-    with body.open("w", encoding="utf-8") as fh:
+
+    if dedup and shutil.which("sort"):
+        # Stream rows STRAIGHT into `sort -u` -- no uncompressed .body.tmp (that was
+        # ~194GB for a billion edges and exhausted the disk); sort spills compressed.
+        srt = Path(str(out_path) + ".sorted.tmp")
+        args = ["sort", "-u", "-t", "\t", "-k1,1", "-T", str(tmp_dir),
+                "--parallel=" + _NPROC, "-S", "50%"]
+        if shutil.which("pigz"):
+            args.append("--compress-program=pigz")
+        args += ["-o", str(srt)]
+        sp = subprocess.Popen(args, stdin=subprocess.PIPE,
+                              env={**os.environ, "LC_ALL": "C"}, text=True)
         for inp in inputs:
             p = Path(inp)
             if not p.exists():
                 continue
             for _, row in _read_rows(p):
                 if row:
-                    fh.write(row + "\n")
+                    sp.stdin.write(row + "\n")
                     total += 1
+        sp.stdin.close()
+        if sp.wait() != 0:
+            raise RuntimeError(f"merge_edges sort failed (exit {sp.returncode})")
+        kept = 0
+        with xopen(out_path, "wt") as out:
+            out.write(EDGE_HEADER + "\n")
+            with open(srt, encoding="utf-8") as fb:
+                for line in fb:
+                    out.write(line)
+                    kept += 1
+        srt.unlink()
+        return {"input": total, "written": kept, "removed": total - kept}
 
-    final = body
-    if dedup and total and shutil.which("sort"):
-        srt = Path(str(out_path) + ".sorted.tmp")
-        _sort_file(body, srt, "-k1,1", uniq=True, tmp_dir=tmp_dir)  # tuned: parallel + pigz spill
-        body.unlink()
-        final = srt
-
-    # 2. write header + (deduped) body to the output (gz by extension), counting
-    kept = 0
+    # no-dedup fallback: stream straight to the gz output
     with xopen(out_path, "wt") as out:
         out.write(EDGE_HEADER + "\n")
-        with final.open(encoding="utf-8") as fb:
-            for line in fb:
-                out.write(line)
-                kept += 1
-    final.unlink()
-    return {"input": total, "written": kept, "removed": total - kept}
+        for inp in inputs:
+            p = Path(inp)
+            if not p.exists():
+                continue
+            for _, row in _read_rows(p):
+                if row:
+                    out.write(row + "\n")
+                    total += 1
+    return {"input": total, "written": total, "removed": 0}
 
 
 def nodes_to_jsonl(nodes_tsv: str | Path, out_path: str | Path,

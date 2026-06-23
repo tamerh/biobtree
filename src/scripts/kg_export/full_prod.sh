@@ -4,7 +4,7 @@
 # gzip output. Reads index files only.
 #
 # dbSNP is a FIRST-CLASS layer (WITH_DBSNP=1 by default): a separate ~118 GB-gz
-# federation (~1.1B variants) extracted by src/scripts/dbsnp/extract.py -- zcat
+# federation (~1.1B variants) extracted by src/scripts/kg_export/dbsnp_py/extract.py -- zcat
 # decompresses, a Python multiprocessing pool parses in parallel and shards KGX
 # output (~1 hr full pass on a quiet box). Set WITH_DBSNP=0 to skip it for the
 # faster/smaller runs used during alignment + assemble work.
@@ -76,7 +76,7 @@ DBSNP_NODES=""; DBSNP_EDGES=""; DBSNP_ATTRS=""
 if [ "$WITH_DBSNP" = "1" ]; then
   echo "### 6b/7 dbSNP federation (~1.1B variants -> gene+transcript edges, rich attrs) $(date +%T)"
   mkdir -p $O/dbsnp
-  zcat $DBSNP_GZ | $PY src/scripts/dbsnp/extract.py --workers $DBSNP_WORKERS \
+  zcat $DBSNP_GZ | $PY src/scripts/kg_export/dbsnp_py/extract.py --workers $DBSNP_WORKERS \
     --id-map $O/id_map.tsv.gz --out $O/dbsnp
   DBSNP_NODES=",$(ls $O/dbsnp/dbsnp_nodes.*.tsv.gz | paste -sd,)"
   DBSNP_EDGES=",$(ls $O/dbsnp/dbsnp_edges.*.tsv.gz | paste -sd,)"
@@ -119,7 +119,7 @@ $PY -m kg_export showcase --index-dir $IDX --id-map $O/id_map.tsv.gz \
   --out-nodes $O/sub/showcase/nodes.tsv.gz --out-edges $O/sub/showcase/edges.tsv.gz \
   --gene-filter-out $O/sub/showcase/genes.txt --stats $O/sub/showcase/showcase.stats.json
 # dbSNP variants of just those genes (one federation scan filtered to the gene list)
-zcat $DBSNP_GZ | $PY src/scripts/dbsnp/extract.py --workers $DBSNP_WORKERS \
+zcat $DBSNP_GZ | $PY src/scripts/kg_export/dbsnp_py/extract.py --workers $DBSNP_WORKERS \
   --id-map $O/id_map.tsv.gz --genes $O/sub/showcase/genes.txt --out $O/sub/showcase/dbsnp
 SHOW_N=$O/sub/showcase/nodes.tsv.gz,$(ls $O/sub/showcase/dbsnp/dbsnp_nodes.*.tsv.gz | paste -sd,)
 SHOW_E=$O/sub/showcase/edges.tsv.gz,$(ls $O/sub/showcase/dbsnp/dbsnp_edges.*.tsv.gz | paste -sd,)

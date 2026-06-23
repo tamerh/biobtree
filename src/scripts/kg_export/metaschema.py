@@ -62,7 +62,7 @@ _STRUCTURE_EDGES = [
     ("biolink:Protein", "biolink:has_part", "biolink:ProteinDomain", "ufeature"),
 ]
 
-# dbSNP layer (built by src/scripts/dbsnp/extract.py, not a predicate pair): variant->gene
+# dbSNP layer (built by src/scripts/kg_export/dbsnp_py/extract.py, not a predicate pair): variant->gene
 # is already shown via the dbsnp>entrez pair; the variant->transcript consequence edge
 # isn't pair-derived, so surface it here.
 _DBSNP_EDGES = [

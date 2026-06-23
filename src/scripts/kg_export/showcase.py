@@ -6,7 +6,7 @@ A targeted extraction from the index (filtered to mappings/showcase.yaml), merge
 the subgraph at assemble -- independent of the billion-scale full dump:
 
   1. resolve genes (symbol -> human entrez + canonical HGNC) and their UniProt proteins
-  2. write the entrez gene-id list -> `src/scripts/dbsnp/extract.py --genes` produces the
+  2. write the entrez gene-id list -> `src/scripts/kg_export/dbsnp_py/extract.py --genes` produces the
      dbSNP variant nodes/edges (one federation scan; run separately)
   3. resolve compounds (name -> ChEMBL / PubChem id, via name/synonyms)
   4. bioactivity: ChEMBL/PubChem activity groups whose compound OR target protein is in

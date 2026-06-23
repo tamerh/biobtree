@@ -28,7 +28,7 @@ python3 tests/run_tests.py cellosaurus                          # needs a server
 ## Known limitations / scope decisions
 
 - **Full ingest, nothing skipped.** All 167k cell lines (all species); every line is captured.
-- **Catalog cross-refs are attributes, not edges (for now).** DR resources that aren't biobtree datasets (ATCC, DepMap, GDSC, ECACC, Wikidata, BTO, CLO, …) are stored in `external_refs` rather than dropped. TODO (see `CELLOSAURUS_FEASIBILITY.md`): promote them to derived xref-only datasets using Cellosaurus's `Db_URL` templates.
+- **Catalog cross-refs are attributes, not edges (for now).** DR resources that aren't biobtree datasets (ATCC, DepMap, GDSC, ECACC, Wikidata, BTO, CLO, …) are stored in `external_refs` rather than dropped. TODO: promote them to derived xref-only datasets using Cellosaurus's `Db_URL` templates.
 - **ENCODE refs are biosamples** (`ENCBS…`), not cCREs, so they are NOT edged to `encode_ccre` — kept in `external_refs`.
 - **`CC` raw text is stored** in `comments`; structured CC mining covers Sequence variation / Derived from site / Cell type / mAb target / transformant. Deeper CC mining (HLA, STR) is future work.
 - Requires a `--lookupdb` build for the disease-name → MONDO resolution.

@@ -155,6 +155,17 @@ See [MCP Server Documentation](mcp-server/) for setup instructions.
 
 ---
 
+## Knowledge Graph Export
+
+Biobtree's index can be exported as a biolink-typed [KGX](https://github.com/biolink/kgx) knowledge graph — node categories, typed relationships, and evidence across the integrated databases.
+
+- **Full dump** — the complete graph (135M+ nodes, 1.1B+ edges), the reproducible source of truth.
+- **Published subgraph** — a human-scoped, Neo4j-ready projection (~40M nodes / ~132M edges), released on Zenodo under CC BY-NC-SA 4.0.
+
+See [Knowledge Graph Export](kg_export/index.md) for the data model, the build pipeline, and how to load it into Neo4j.
+
+---
+
 ## Resources
 
 - **Publication**: [F1000Research Article](https://f1000research.com/articles/8-145)

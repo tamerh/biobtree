@@ -171,7 +171,7 @@ func getDataReaderNew(datatype string, ftpAddr string, ftpPath string, filePath 
 		fileSize = fileStat.Size()
 		ext := filepath.Ext(file.Name())
 
-		if ext == ".gz" {
+		if ext == ".gz" || ext == ".bgz" {
 			gz, err := gzip.NewReader(file)
 			if err != nil {
 				file.Close()
@@ -208,7 +208,7 @@ func getDataReaderNew(datatype string, ftpAddr string, ftpPath string, filePath 
 		var gz *gzip.Reader
 		ext := filepath.Ext(filePath)
 
-		if ext == ".gz" {
+		if ext == ".gz" || ext == ".bgz" {
 			gz, err = gzip.NewReader(resp.Body)
 			if err != nil {
 				resp.Body.Close()
@@ -242,7 +242,7 @@ func getDataReaderNew(datatype string, ftpAddr string, ftpPath string, filePath 
 			var gz *gzip.Reader
 			ext := filepath.Ext(filePath)
 
-			if ext == ".gz" {
+			if ext == ".gz" || ext == ".bgz" {
 				gz, err = gzip.NewReader(resp.Body)
 				if err != nil {
 					resp.Body.Close()

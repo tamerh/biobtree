@@ -38,15 +38,26 @@ import (
 //   fafmax_faf95_max   filtering allele frequency (grpmax faf95)
 //   AF_<pop>           per-ancestry AF: afr amr eas nfe sas fin asj ami mid remaining
 //
-// TODO(coordinator / production ingest): real gnomAD v4 is federation-scale
-// (~786M variants across per-chromosome bgzipped VCFs). This scaffold builds
-// gnomad_variant as a NORMAL main-federation dataset; whether production lives in
-// the main federation or its own federation (like dbsnp) is the coordinator's
-// call at production-ingest time. Do NOT run a real gnomAD download or
-// --generate from this scaffold — the fixture is a tiny hand-crafted VCF only.
+// Production source: gnomAD v4.1 GENOMES sites VCF (~759M variants, whole-genome),
+// split one file PER CHROMOSOME, hosted on the AWS Registry of Open Data:
+//   https://gnomad-public-us-east-1.s3.amazonaws.com/release/4.1/vcf/genomes/
+//   gnomad.genomes.v4.1.sites.chr{CHR}.vcf.bgz   (CHR = 1..22, X, Y)
+// The conf "path" carries a "{CHR}" placeholder that update() expands over
+// gnomadV4Chromosomes; a placeholder-free path (the test fixture) is read as a
+// single file. Decision (2026-07): lives in the MAIN federation (not its own),
+// since coordinate keys can't be pattern-routed to a non-main federation.
+// INFO field names verified against the real v4.1 genomes VCF header.
 type gnomadVariant struct {
 	source string
 	d      *DataUpdate
+}
+
+// gnomadV4Chromosomes are the per-chromosome sites files in the gnomAD v4.1
+// genomes release: autosomes 1-22 plus X and Y. (Mitochondrial variants are a
+// separate gnomAD release and are not ingested here.)
+var gnomadV4Chromosomes = []string{
+	"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12",
+	"13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "X", "Y",
 }
 
 func (g *gnomadVariant) check(err error, operation string) {
@@ -77,16 +88,39 @@ func (g *gnomadVariant) update() {
 		dbsnpConfigured = true
 	}
 
-	g.parseAndSaveVariants(testLimit, idLogFile, sourceID, dbsnpConfigured)
+	// gnomAD v4.1 genomes ships one sites VCF PER CHROMOSOME. When the configured
+	// path carries the "{CHR}" placeholder we expand it over the autosomes + X + Y
+	// and stream each file in turn. A path without the placeholder (the test
+	// fixture) is processed as a single file.
+	pathTemplate := config.Dataconf[g.source]["path"]
+	var paths []string
+	if strings.Contains(pathTemplate, "{CHR}") {
+		for _, c := range gnomadV4Chromosomes {
+			paths = append(paths, strings.ReplaceAll(pathTemplate, "{CHR}", c))
+		}
+	} else {
+		paths = []string{pathTemplate}
+	}
 
-	log.Printf("gnomAD Variant: Processing complete (%.2fs)", time.Since(startTime).Seconds())
+	var total int64
+	for _, p := range paths {
+		if testLimit > 0 && total >= int64(testLimit) {
+			break
+		}
+		total += g.parseAndSaveVariants(p, testLimit, total, idLogFile, sourceID, dbsnpConfigured)
+	}
+
+	log.Printf("gnomAD Variant: Processing complete — %d variants across %d file(s) (%.2fs)",
+		total, len(paths), time.Since(startTime).Seconds())
 	g.d.progChan <- &progressInfo{dataset: g.source, done: true}
 }
 
-// parseAndSaveVariants streams the gnomAD sites VCF and emits one entry per
-// variant keyed chr:pos:ref:alt.
-func (g *gnomadVariant) parseAndSaveVariants(testLimit int, idLogFile *os.File, sourceID string, dbsnpConfigured bool) {
-	filePath := config.Dataconf[g.source]["path"]
+// parseAndSaveVariants streams one gnomAD sites VCF (a single per-chromosome
+// file in production, or the whole fixture in tests) and emits one entry per
+// variant keyed chr:pos:ref:alt. priorCount is the number of variants already
+// processed from earlier files, so the global testLimit is honored across the
+// per-chromosome loop. Returns the number of variants processed from THIS file.
+func (g *gnomadVariant) parseAndSaveVariants(filePath string, testLimit int, priorCount int64, idLogFile *os.File, sourceID string, dbsnpConfigured bool) int64 {
 	log.Printf("gnomAD Variant: Processing variants from %s", filePath)
 
 	br, gz, ftpFile, client, localFile, _, err := getDataReaderNew(g.source, "", "", filePath)
@@ -226,7 +260,7 @@ func (g *gnomadVariant) parseAndSaveVariants(testLimit int, idLogFile *os.File, 
 			log.Printf("gnomAD Variant: Processed %d variants...", entryCount)
 		}
 
-		if testLimit > 0 && entryCount >= int64(testLimit) {
+		if testLimit > 0 && priorCount+entryCount >= int64(testLimit) {
 			log.Printf("gnomAD Variant: [TEST MODE] Reached limit of %d variants", testLimit)
 			break
 		}
@@ -236,8 +270,9 @@ func (g *gnomadVariant) parseAndSaveVariants(testLimit int, idLogFile *os.File, 
 		}
 	}
 
-	log.Printf("gnomAD Variant: Processed %d variants (skipped %d malformed lines, %d dbsnp xrefs)",
-		entryCount, skippedCount, dbsnpXrefCount)
+	log.Printf("gnomAD Variant: Processed %d variants from %s (skipped %d malformed lines, %d dbsnp xrefs)",
+		entryCount, filePath, skippedCount, dbsnpXrefCount)
+	return entryCount
 }
 
 // parseVcfInfo splits a VCF INFO column ("A=1;B=2;FLAG") into a key->value map.

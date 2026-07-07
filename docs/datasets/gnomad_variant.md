@@ -13,10 +13,15 @@ pathogenic" (BA1/BS1) or "absent/rare in population databases" (PM2). It is a
 
 ## Source & format
 
-- **Release:** gnomAD v4 (GRCh38).
-- **Files:** per-chromosome, bgzipped **sites VCFs**
-  (`https://gnomad.broadinstitute.org/downloads`, ODC-ODbL). Sites VCFs are
-  split so each ALT is on its own row.
+- **Release:** gnomAD **v4.1 genomes** (GRCh38), whole-genome, ~759M variants.
+- **Files:** one bgzipped **sites VCF per chromosome** (autosomes 1–22 + X, Y),
+  on the AWS Registry of Open Data (no auth), ODC-ODbL:
+  ```
+  https://gnomad-public-us-east-1.s3.amazonaws.com/release/4.1/vcf/genomes/gnomad.genomes.v4.1.sites.chr{CHR}.vcf.bgz
+  ```
+  Sites VCFs are split so each ALT is on its own row. INFO field names were
+  verified against the real v4.1 genomes VCF header (incl. `AF_grpmax`, which
+  the browser also exposes). `.bgz` (BGZF) is gzip-compatible and read directly.
 - **Browser / entry URL:** `https://gnomad.broadinstitute.org/variant/{chr-pos-ref-alt}?dataset=gnomad_r4`
 
 ### VCF INFO fields consumed
@@ -67,11 +72,34 @@ it incompatible with the CC BY-NC-SA KG export — `gnomad_variant` must be
 **EXCLUDED from the KG export**, the same treatment as `spliceai` /
 `alphamissense`. (Documented here only; no export logic lives in this parser.)
 
-## Production-scale note (for the coordinator)
+## Production ingest
 
-Real gnomAD v4 is **federation-scale (~786M variants)** across per-chromosome
-VCFs. This dataset ships as a **normal main-federation scaffold** with a tiny
-hand-crafted fixture VCF (`tests/datasets/gnomad_variant/gnomad_variant_fixture.vcf`).
-Whether production lives in the **main federation or its own federation** (like
-`dbsnp`) is decided at production-ingest time by the coordinator. Do **not** run
-a real gnomAD download or `--generate` from this scaffold.
+**Decision (2026-07):** lives in the **main federation** (~759M genomes variants,
+est. ~130 GB / ~2 B KV added to main). It is *not* a separate federation —
+coordinate keys (`chr:pos:ref:alt`) can't be pattern-routed to a non-main
+federation, since main already owns that key format via `alphamissense`/
+`spliceai` (a dbsnp co-location attempt was reverted for exactly this reason).
+
+The parser is production-ready: `update()` expands a `{CHR}` placeholder in the
+conf `path` over chromosomes 1–22, X, Y and streams each per-chromosome bgz in
+turn (validated end-to-end against the real chrY file). The default conf keeps
+the **local fixture** so unit tests stay offline; switching to production is a
+one-time conf edit:
+
+```jsonc
+"gnomad_variant": {
+  ...
+  "path": "https://gnomad-public-us-east-1.s3.amazonaws.com/release/4.1/vcf/genomes/gnomad.genomes.v4.1.sites.chr{CHR}.vcf.bgz",
+  "useLocalFile": "no",
+  ...
+}
+```
+
+Then run the targeted ingest (main federation):
+```
+./bb.sh out_prod --only gnomad_variant --force --generate-after-main
+```
+Note this is a large, multi-hour, ~130 GB ingest that inflates main's generate
+time and pushes the in-memory assemble/validate set toward the billion-key
+range. The scaffold default (fixture + `useLocalFile: yes`) is what ships in
+git so tests remain fast and offline.

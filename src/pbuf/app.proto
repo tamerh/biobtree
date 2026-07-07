@@ -211,6 +211,9 @@ message Xref {
     FaersReactionAttr faers_reaction=777;
     PanelappAttr panelapp=778;
     PanelappGeneAttr panelapp_gene=779;
+    MavedbAttr mavedb=810;
+    ConservationAttr conservation=811;
+    GnomadVariantAttr gnomad_variant=812;
 
   }
 

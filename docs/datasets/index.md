@@ -33,6 +33,7 @@ Protein sequences, structures, domains, and features.
 | alphafold | AlphaFold predicted structures | [README](alphafold.md) |
 | alphamissense | AlphaMissense pathogenicity predictions | [README](alphamissense.md) |
 | alphamissense_transcript | Transcript-level pathogenicity | [README](alphamissense_transcript.md) |
+| conservation | Per-position evolutionary conservation (phyloP / GERP / phastCons), keyed chr:pos; UCSC+GERP primary sources | [README](conservation.md) |
 | pdb | Protein Data Bank structures | [README](pdb.md) |
 | interpro | Protein domains and families | [README](interpro.md) |
 | esm2_similarity | ESM2 embedding-based protein similarity | [README](esm2_similarity.md) |
@@ -105,6 +106,7 @@ Disease associations, clinical variants, rare diseases.
 | depmap | DepMap CRISPR gene essentiality | [README](depmap.md) |
 | depmap_dependency | DepMap per-cell-line dependencies | [README](depmap_dependency.md) |
 | gnomad_constraint | gnomAD gene-level constraint (pLI/LOEUF/mis_z) | [README](gnomad_constraint.md) |
+| gnomad_variant | gnomAD v4 per-variant, per-ancestry allele frequencies (AF/grpmax/FAF) | [README](gnomad_variant.md) |
 | clinical_trials | ClinicalTrials.gov | [README](clinical_trials.md) |
 | pharmgkb | PharmGKB pharmacogenomics | [README](pharmgkb.md) |
 | ncrna_disease | Curated ncRNA-disease associations (LncRNADisease + HMDD) | [README](ncrna_disease.md) |

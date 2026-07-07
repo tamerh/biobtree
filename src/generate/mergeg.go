@@ -2238,6 +2238,16 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)
 				xref.Attributes = &pbuf.Xref_PanelappGene{attr}
+			case "mavedb":
+				attr := &pbuf.MavedbAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Mavedb{attr}
+			case "conservation":
+				attr := &pbuf.ConservationAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Conservation{attr}
 			case "pharmgkb":
 				attr := &pbuf.PharmgkbAttr{}
 				barr := []byte((*kvProp[k])[0].value)
@@ -2393,6 +2403,11 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)
 				xref.Attributes = &pbuf.Xref_Msigdb{attr}
+			case "gnomad_variant":
+				attr := &pbuf.GnomadVariantAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_GnomadVariant{attr}
 			case "alphamissense":
 				attr := &pbuf.AlphaMissenseAttr{}
 				barr := []byte((*kvProp[k])[0].value)
@@ -2899,6 +2914,16 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 					barr := []byte((*kvProp[k])[0].value)
 					ffjson.Unmarshal(barr, attr)
 					xref.Attributes = &pbuf.Xref_PanelappGene{attr}
+				case "mavedb":
+					attr := &pbuf.MavedbAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_Mavedb{attr}
+				case "conservation":
+					attr := &pbuf.ConservationAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_Conservation{attr}
 				case "pharmgkb":
 					attr := &pbuf.PharmgkbAttr{}
 					barr := []byte((*kvProp[k])[0].value)
@@ -3029,6 +3054,11 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 					barr := []byte((*kvProp[k])[0].value)
 					ffjson.Unmarshal(barr, attr)
 					xref.Attributes = &pbuf.Xref_Msigdb{attr}
+				case "gnomad_variant":
+					attr := &pbuf.GnomadVariantAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_GnomadVariant{attr}
 				case "alphamissense":
 					attr := &pbuf.AlphaMissenseAttr{}
 					barr := []byte((*kvProp[k])[0].value)

@@ -272,6 +272,12 @@ func extractField(xref *pbuf.Xref, field string) string {
 	if a := xref.GetPanelappGene(); a != nil {
 		return extractPanelappGeneField(a, field)
 	}
+	if a := xref.GetMavedb(); a != nil {
+		return extractMavedbField(a, field)
+	}
+	if a := xref.GetConservation(); a != nil {
+		return extractConservationField(a, field)
+	}
 	if a := xref.GetFaersReaction(); a != nil {
 		return extractFaersReactionField(a, field)
 	}
@@ -307,6 +313,9 @@ func extractField(xref *pbuf.Xref, field string) string {
 	}
 	if a := xref.GetGnomadConstraint(); a != nil {
 		return extractGnomadConstraintField(a, field)
+	}
+	if a := xref.GetGnomadVariant(); a != nil {
+		return extractGnomadVariantField(a, field)
 	}
 	if a := xref.GetBindingdb(); a != nil {
 		return extractBindingdbField(a, field)
@@ -946,6 +955,32 @@ func extractPanelappGeneField(a *pbuf.PanelappGeneAttr, field string) string {
 		return a.Confidence
 	case "mode_of_inheritance":
 		return a.ModeOfInheritance
+	default:
+		return ""
+	}
+}
+
+// extractMavedbField extracts a field from MavedbAttr (per scored MAVE variant)
+func extractMavedbField(a *pbuf.MavedbAttr, field string) string {
+	switch field {
+	case "gene_symbol":
+		return a.GeneSymbol
+	case "score_set":
+		return a.ScoreSet
+	case "score_set_title":
+		return a.ScoreSetTitle
+	case "hgvs_pro":
+		return a.HgvsPro
+	case "hgvs_nt":
+		return a.HgvsNt
+	case "hgvs_splice":
+		return a.HgvsSplice
+	case "score":
+		return a.Score
+	case "uniprot":
+		return a.Uniprot
+	case "category":
+		return a.Category
 	default:
 		return ""
 	}
@@ -2275,6 +2310,51 @@ func extractMsigdbField(a *pbuf.MsigdbAttr, field string) string {
 	}
 }
 
+// extractGnomadVariantField extracts a field from GnomadVariantAttr (per-variant,
+// per-ancestry gnomAD v4 allele frequencies). Distinct from gnomad_constraint.
+func extractGnomadVariantField(a *pbuf.GnomadVariantAttr, field string) string {
+	switch field {
+	case "chromosome":
+		return a.Chromosome
+	case "position":
+		return fmt.Sprintf("%d", a.Position)
+	case "ref_allele":
+		return a.RefAllele
+	case "alt_allele":
+		return a.AltAllele
+	case "af":
+		return fmt.Sprintf("%g", a.Af)
+	case "af_grpmax":
+		return fmt.Sprintf("%g", a.AfGrpmax)
+	case "grpmax_ancestry":
+		return a.GrpmaxAncestry
+	case "faf":
+		return fmt.Sprintf("%g", a.Faf)
+	case "af_afr":
+		return fmt.Sprintf("%g", a.AfAfr)
+	case "af_amr":
+		return fmt.Sprintf("%g", a.AfAmr)
+	case "af_eas":
+		return fmt.Sprintf("%g", a.AfEas)
+	case "af_nfe":
+		return fmt.Sprintf("%g", a.AfNfe)
+	case "af_sas":
+		return fmt.Sprintf("%g", a.AfSas)
+	case "af_fin":
+		return fmt.Sprintf("%g", a.AfFin)
+	case "af_asj":
+		return fmt.Sprintf("%g", a.AfAsj)
+	case "af_ami":
+		return fmt.Sprintf("%g", a.AfAmi)
+	case "af_mid":
+		return fmt.Sprintf("%g", a.AfMid)
+	case "af_remaining":
+		return fmt.Sprintf("%g", a.AfRemaining)
+	default:
+		return ""
+	}
+}
+
 // extractAlphaMissenseField extracts a field from AlphaMissenseAttr
 func extractAlphaMissenseField(a *pbuf.AlphaMissenseAttr, field string) string {
 	switch field {
@@ -2304,6 +2384,25 @@ func extractAlphaMissenseTranscriptField(a *pbuf.AlphaMissenseTranscriptAttr, fi
 		return a.TranscriptId
 	case "mean_am_pathogenicity":
 		return fmt.Sprintf("%.3f", a.MeanAmPathogenicity)
+	default:
+		return ""
+	}
+}
+
+// extractConservationField extracts a field from ConservationAttr (per-position
+// phyloP / GERP / phastCons; keyed chr:pos)
+func extractConservationField(a *pbuf.ConservationAttr, field string) string {
+	switch field {
+	case "chromosome":
+		return a.Chromosome
+	case "position":
+		return fmt.Sprintf("%d", a.Position)
+	case "phylop":
+		return fmt.Sprintf("%.3f", a.Phylop)
+	case "gerp":
+		return fmt.Sprintf("%.3f", a.Gerp)
+	case "phastcons":
+		return fmt.Sprintf("%.3f", a.Phastcons)
 	default:
 		return ""
 	}

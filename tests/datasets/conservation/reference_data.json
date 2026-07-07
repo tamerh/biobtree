@@ -1,0 +1,12 @@
+{
+  "dataset": "conservation",
+  "dataset_id": 808,
+  "description": "Per-position evolutionary conservation (phyloP / GERP / phastCons), keyed chr:pos. Hand-crafted fixture (raw_data/conservation/conservation_hg38.tsv.gz).",
+  "positions": [
+    {"id": "1:69094", "chromosome": "1", "position": 69094, "phylop": 7.612, "gerp": 5.31, "phastcons": 1.0, "conserved": true},
+    {"id": "1:69096", "chromosome": "1", "position": 69096, "phylop": -1.23, "gerp": -2.41, "phastcons": 0.012, "conserved": false},
+    {"id": "17:43094464", "chromosome": "17", "position": 43094464, "phylop": 9.12, "gerp": 5.9, "phastcons": 1.0, "conserved": true},
+    {"id": "X:153296777", "chromosome": "X", "position": 153296777, "phylop": 4.56, "gerp": 3.21, "phastcons": 0.88, "conserved": true},
+    {"id": "MT:3243", "chromosome": "MT", "position": 3243, "phylop": 3.33, "gerp": 2.1, "phastcons": 0.66, "conserved": true}
+  ]
+}

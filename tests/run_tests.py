@@ -279,6 +279,7 @@ Available datasets:
         'alphafold': datasets_dir / "alphafold" / "test_alphafold.py",
         'alphamissense': datasets_dir / "alphamissense" / "test_alphamissense.py",
         'alphamissense_transcript': datasets_dir / "alphamissense_transcript" / "test_alphamissense_transcript.py",
+        'conservation': datasets_dir / "conservation" / "test_conservation.py",
         'rnacentral': datasets_dir / "rnacentral" / "test_rnacentral.py",
         'uniparc': datasets_dir / "uniparc" / "test_uniparc.py",
         'uniref50': datasets_dir / "uniref50" / "test_uniref50.py",

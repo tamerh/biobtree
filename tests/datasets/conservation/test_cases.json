@@ -1,0 +1,37 @@
+{
+  "test_suite": "Conservation Dataset Tests",
+  "dataset": "conservation",
+  "dataset_id": 808,
+  "description": "Per-position evolutionary conservation scores (phyloP470way / GERP++ / phastCons470way), keyed chr:pos (GRCh38/hg38), ref/alt-agnostic.",
+  "notes": "Fixture is hand-crafted (12 positions) — NOT real UCSC/GERP data. See docs/datasets/conservation.md.",
+  "test_cases": [
+    {
+      "id": "basic_lookup",
+      "description": "Basic per-position lookup by chr:pos ID",
+      "query_type": "lookup",
+      "sample_ids": ["1:69094", "17:43094464", "X:153296777"],
+      "expected": {
+        "has_results": true,
+        "required_fields": ["chromosome", "position", "phylop", "gerp", "phastcons"]
+      }
+    },
+    {
+      "id": "key_scheme",
+      "description": "Entry ID is chr:pos (2 colon-separated fields), NOT chr:pos:ref:alt",
+      "query_type": "format",
+      "expected": {
+        "id_pattern": "^[0-9XYM T]+:[0-9]+$"
+      }
+    },
+    {
+      "id": "filter_high_phylop",
+      "description": "CEL filter for highly-conserved positions (phyloP > 5.0)",
+      "query_type": "filter",
+      "filter_expression": "conservation.phylop > 5.0",
+      "expected": {
+        "has_results": true,
+        "min_phylop": 5.0
+      }
+    }
+  ]
+}

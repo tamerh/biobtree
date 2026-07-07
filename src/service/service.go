@@ -229,6 +229,7 @@ func (s *Service) initWithDbDir(dbDir string) error {
 		cel.Types(&pbuf.MsigdbAttr{}),
 		cel.Types(&pbuf.AlphaMissenseAttr{}),
 		cel.Types(&pbuf.AlphaMissenseTranscriptAttr{}),
+		cel.Types(&pbuf.GnomadVariantAttr{}),
 		cel.Types(&pbuf.PharmgkbAttr{}),
 		cel.Types(&pbuf.PharmgkbRelatedGene{}),
 		cel.Types(&pbuf.PharmgkbGeneAttr{}),
@@ -400,6 +401,8 @@ func (s *Service) initWithDbDir(dbDir string) error {
 		cel.Declarations(
 			decls.NewIdent("drugcentral", decls.NewObjectType("pbuf.DrugcentralAttr"), nil)),
 		cel.Declarations(
+			decls.NewIdent("mavedb", decls.NewObjectType("pbuf.MavedbAttr"), nil)),
+		cel.Declarations(
 			decls.NewIdent("civic", decls.NewObjectType("pbuf.CivicGeneAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("civic_variant", decls.NewObjectType("pbuf.CivicVariantAttr"), nil)),
@@ -435,6 +438,10 @@ func (s *Service) initWithDbDir(dbDir string) error {
 			decls.NewIdent("alphamissense", decls.NewObjectType("pbuf.AlphaMissenseAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("alphamissense_transcript", decls.NewObjectType("pbuf.AlphaMissenseTranscriptAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("conservation", decls.NewObjectType("pbuf.ConservationAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("gnomad_variant", decls.NewObjectType("pbuf.GnomadVariantAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("pharmgkb", decls.NewObjectType("pbuf.PharmgkbAttr"), nil)),
 		cel.Declarations(

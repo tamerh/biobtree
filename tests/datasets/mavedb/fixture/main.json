@@ -1,0 +1,54 @@
+[
+  {
+    "urn": "urn:mavedb:00000001-a-1",
+    "title": "UBE2I imputed functional score set (SUMO conjugation)",
+    "targetGenes": [
+      {
+        "name": "UBE2I",
+        "category": "protein_coding",
+        "externalIdentifiers": [
+          { "identifier": { "dbName": "Ensembl", "identifier": "ENSG00000103275" } },
+          { "identifier": { "dbName": "RefSeq", "identifier": "NM_003345" } },
+          { "identifier": { "dbName": "UniProt", "identifier": "P63279" } }
+        ],
+        "targetSequence": {
+          "taxonomy": { "code": 9606, "organismName": "Homo sapiens" }
+        }
+      }
+    ]
+  },
+  {
+    "urn": "urn:mavedb:00000002-a-1",
+    "title": "BRCA1 RING domain variant effect map",
+    "targetGenes": [
+      {
+        "name": "BRCA1",
+        "category": "protein_coding",
+        "externalIdentifiers": [
+          { "identifier": { "dbName": "Ensembl", "identifier": "ENSG00000012048" } },
+          { "identifier": { "dbName": "RefSeq", "identifier": "NM_007294" } },
+          { "identifier": { "dbName": "UniProt", "identifier": "P38398" } }
+        ],
+        "targetSequence": {
+          "taxonomy": { "code": 9606, "organismName": "Homo sapiens" }
+        }
+      }
+    ]
+  },
+  {
+    "urn": "urn:mavedb:00000009-a-1",
+    "title": "Non-human control assay (should be filtered out)",
+    "targetGenes": [
+      {
+        "name": "YAP1",
+        "category": "protein_coding",
+        "externalIdentifiers": [
+          { "identifier": { "dbName": "UniProt", "identifier": "Q9W6H2" } }
+        ],
+        "targetSequence": {
+          "taxonomy": { "code": 7227, "organismName": "Drosophila melanogaster" }
+        }
+      }
+    ]
+  }
+]

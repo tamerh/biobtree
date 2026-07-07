@@ -1313,6 +1313,11 @@ func (s *Service) execCelGo(query *query.Query, targetXref *pbuf.Xref) (bool, er
 			attr.Id = id
 			evalMap["gnomad_constraint"] = attr
 		}
+	case "mavedb":
+		if attr := targetXref.GetMavedb(); attr != nil {
+			attr.Id = id
+			evalMap["mavedb"] = attr
+		}
 	case "civic":
 		if attr := targetXref.GetCivic(); attr != nil {
 			attr.Id = id
@@ -1402,6 +1407,16 @@ func (s *Service) execCelGo(query *query.Query, targetXref *pbuf.Xref) (bool, er
 		if attr := targetXref.GetAlphamissenseTranscript(); attr != nil {
 			attr.Id = id
 			evalMap["alphamissense_transcript"] = attr
+		}
+	case "conservation":
+		if attr := targetXref.GetConservation(); attr != nil {
+			attr.Id = id
+			evalMap["conservation"] = attr
+		}
+	case "gnomad_variant":
+		if attr := targetXref.GetGnomadVariant(); attr != nil {
+			attr.Id = id
+			evalMap["gnomad_variant"] = attr
 		}
 	case "pharmgkb":
 		if attr := targetXref.GetPharmgkb(); attr != nil {

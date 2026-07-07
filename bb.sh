@@ -108,11 +108,14 @@ DATASETS=(
     alliance_disease
     alliance_phenotype
     panelapp
+    mavedb
     gwas_study
     gwas
     # dbsnp   # separate 'dbsnp' federation — excluded for a main-only update
+    gnomad_variant
     alphamissense
     alphamissense_transcript
+    conservation
 
     # Interactions & pathways
     intact

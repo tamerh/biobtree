@@ -1984,6 +1984,58 @@ message AlphaMissenseTranscriptAttr {
   string id = 100; // transient - populated at runtime from Xref.Identifier
 }
 
+// Conservation - per-position evolutionary conservation scores (Dataset ID: 808)
+// Keyed by genomic position "chr:pos" (GRCh38/hg38), ref/alt-agnostic.
+// NOTE: this differs from the variant datasets (alphamissense/spliceai/
+// gnomad_variant/clinvar) which key "chr:pos:ref:alt".
+//
+// Primary, freely-redistributable sources (dbNSFP itself is CC BY-NC-ND / No-
+// Derivatives and cannot be redistributed as a subset, so scores come from the
+// upstream providers):
+//   phylop     UCSC hg38 phyloP470way multiz track (hg38.phyloP470way.bw)
+//   phastcons  UCSC hg38 phastCons470way multiz track (hg38.phastCons470way.bw)
+//   gerp       GERP++ RS score (Ensembl Compara / UCSC)
+message ConservationAttr {
+  string chromosome = 1;   // Chromosome (1-22, X, Y, MT) - "chr" prefix stripped
+  int64 position = 2;      // 1-based genomic position (GRCh38/hg38)
+  double phylop = 3;       // UCSC phyloP470way score (can be negative = accelerated)
+  double gerp = 4;         // GERP++ RS score (rejected substitutions; higher = more constrained)
+  double phastcons = 5;    // UCSC phastCons470way score (0-1, probability of conservation)
+  string id = 100;         // transient - populated at runtime from Xref.Identifier
+}
+// gnomAD v4 per-variant population allele frequencies (Dataset ID: 809)
+// Separate from gene-level gnomad_constraint (id 800).
+// Keyed by chr:pos:ref:alt (GRCh38), same scheme as alphamissense / spliceai.
+// Source: gnomAD v4 sites VCF INFO fields. License: ODC-ODbL (share-alike;
+// EXCLUDED from the CC BY-NC-SA KG export, like spliceai / alphamissense).
+message GnomadVariantAttr {
+  // Genomic coordinates (GRCh38)
+  string chromosome = 1;        // Chromosome (1-22, X, Y)
+  int64 position = 2;           // 1-based genomic position
+  string ref_allele = 3;        // Reference allele
+  string alt_allele = 4;        // Alternate allele
+
+  // Global + group-max frequencies (VCF INFO: AF, AF_grpmax, grpmax)
+  double af = 5;                // Global allele frequency (INFO AF)
+  double af_grpmax = 6;         // Group-max allele frequency (INFO AF_grpmax; grpmax = popmax renamed in v4)
+  string grpmax_ancestry = 7;   // Ancestry group holding the grpmax AF (INFO grpmax)
+  double faf = 8;               // Filtering allele frequency, grpmax faf95 (INFO fafmax_faf95_max)
+
+  // Per-ancestry allele frequencies (VCF INFO: AF_<pop>)
+  double af_afr = 9;            // African / African-American
+  double af_amr = 10;           // Admixed American
+  double af_eas = 11;           // East Asian
+  double af_nfe = 12;           // Non-Finnish European
+  double af_sas = 13;           // South Asian
+  double af_fin = 14;           // Finnish
+  double af_asj = 15;           // Ashkenazi Jewish
+  double af_ami = 16;           // Amish
+  double af_mid = 17;           // Middle Eastern
+  double af_remaining = 18;     // Remaining / unassigned
+
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
 // PharmGKB - Pharmacogenomics Knowledge Base (Dataset ID: 110)
 // Drugs and chemicals with pharmacogenomic annotations
 // Source: https://www.pharmgkb.org/ (now https://www.clinpgx.org/)
@@ -3242,5 +3294,24 @@ message PanelappGeneAttr {
   string panel_name = 2;           // owning panel name
   string confidence = 3;           // green / amber (mapped from level 3 / 2)
   string mode_of_inheritance = 4;  // free-text mode of inheritance
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// MavedbAttr is one record per scored MaveDB variant (keyed by its stable
+// MAVE URN, e.g. "urn:mavedb:00000001-a-1#123"). MaveDB provides direct
+// EXPERIMENTAL functional evidence (Multiplexed Assays of Variant Effect,
+// PS3/BS3-grade) for protein/nucleotide variants. Each variant carries the
+// measured functional score plus the biological context of its owning score
+// set (target gene symbol, protein/nucleotide HGVS, score-set URN + title).
+message MavedbAttr {
+  string gene_symbol = 1;   // target gene symbol (from score-set targetGenes)
+  string score_set = 2;     // owning score-set URN (e.g. urn:mavedb:00000001-a-1)
+  string score_set_title = 3; // human-readable title of the owning score set
+  string hgvs_pro = 4;      // protein-level MAVE-HGVS (p.) when present
+  string hgvs_nt = 5;       // nucleotide-level MAVE-HGVS (c./n.) when present
+  string hgvs_splice = 6;   // splice-level MAVE-HGVS when present
+  string score = 7;         // measured functional score (raw string, may be NA)
+  string uniprot = 8;       // target UniProt accession when derivable
+  string category = 9;      // target gene category (e.g. protein_coding)
   string id = 100; // transient - populated at runtime from Xref.Identifier
 }

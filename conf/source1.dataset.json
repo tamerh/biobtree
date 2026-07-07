@@ -1076,6 +1076,20 @@
     "test_entries_count": "100",
     "bucketMethod": "ensembl_hybrid"
   },
+  "gnomad_variant": {
+    "id": "809",
+    "name": "gnomAD Variant",
+    "textPriority": "70",
+    "aliases": "gnomAD variant,gnomAD v4,gnomAD_variant,allele frequency,population frequency,BA1,BS1,PM2",
+    "url": "https://gnomad.broadinstitute.org/variant/£{id}?dataset=gnomad_r4",
+    "path": "tests/datasets/gnomad_variant/gnomad_variant_fixture.vcf",
+    "useLocalFile": "yes",
+    "hasFilter": "yes",
+    "attrs": "chromosome,position,ref_allele,alt_allele,af,af_grpmax,grpmax_ancestry,faf,af_afr,af_amr,af_eas,af_nfe,af_sas,af_fin,af_asj,af_ami,af_mid,af_remaining",
+    "compact_fields": "af,af_grpmax,grpmax_ancestry",
+    "test_entries_count": "100",
+    "bucketMethod": "alphanum"
+  },
   "bindingdb": {
     "id": "60",
     "name": "BindingDB",
@@ -1190,6 +1204,34 @@
     "attrs": "gene_symbol,panel_name,confidence,mode_of_inheritance",
     "compact_fields": "gene_symbol,confidence,panel_name",
     "test_entries_count": "20",
+    "bucketMethod": "alphanum"
+  },
+  "mavedb": {
+    "id": "807",
+    "name": "MaveDB",
+    "textPriority": "55",
+    "aliases": "MaveDB,Multiplexed Assays of Variant Effect,MAVE,functional assay,variant effect map,deep mutational scanning,DMS",
+    "url": "https://www.mavedb.org/score-sets/£{id}",
+    "path": "tests/datasets/mavedb/fixture/",
+    "useLocalFile": "yes",
+    "hasFilter": "yes",
+    "attrs": "gene_symbol,score_set,score_set_title,hgvs_pro,hgvs_nt,hgvs_splice,score,uniprot,category",
+    "compact_fields": "gene_symbol,score,score_set",
+    "test_entries_count": "500",
+    "bucketMethod": "alphanum"
+  },
+  "conservation": {
+    "id": "808",
+    "name": "Conservation",
+    "textPriority": "40",
+    "aliases": "phyloP,phastCons,GERP,evolutionary conservation,conservation score",
+    "url": "https://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&position=chr£{id}",
+    "path": "raw_data/conservation/conservation_hg38.tsv.gz",
+    "useLocalFile": "yes",
+    "hasFilter": "yes",
+    "attrs": "chromosome,position,phylop,gerp,phastcons",
+    "compact_fields": "phylop,gerp,phastcons",
+    "test_entries_count": "10000",
     "bucketMethod": "alphanum"
   },
   "biogrid": {

@@ -1051,6 +1051,12 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 		case "panelapp_gene":
 			// Produced by the panelapp parser; skip standalone processing.
 			break
+		case "mavedb":
+			d.wg.Add(1)
+			mv := mavedb{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go mv.update()
+			break
 		case "pharmgkb":
 			d.wg.Add(1)
 			pgkb := pharmgkb{source: data, d: d}
@@ -1108,6 +1114,12 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			d.datasets2 = append(d.datasets2, data)
 			go ms.update()
 			break
+		case "gnomad_variant":
+			d.wg.Add(1)
+			gv := gnomadVariant{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go gv.update()
+			break
 		case "alphamissense":
 			d.wg.Add(1)
 			am := alphamissense{source: data, d: d}
@@ -1119,6 +1131,12 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			amt := alphamissenseTranscript{source: data, d: d}
 			d.datasets2 = append(d.datasets2, data)
 			go amt.update()
+			break
+		case "conservation":
+			d.wg.Add(1)
+			cons := conservation{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go cons.update()
 			break
 		case "cellxgene":
 			d.wg.Add(1)

@@ -1,0 +1,41 @@
+{
+  "test_suite": "MaveDB Dataset Tests",
+  "dataset": "mavedb",
+  "dataset_id": 807,
+  "description": "Multiplexed Assays of Variant Effect \u2014 direct experimental functional evidence (PS3/BS3), CC0. Keyed by MaveDB variant URN; xrefs to uniprot/transcript/ensembl/hgnc via MAVE-HGVS target metadata.",
+  "notes": "Fixture is 3 small score sets (UBE2I / BRCA1 / YAP1) \u2014 NOT the full MaveDB. See docs/datasets/mavedb.md.",
+  "test_cases": [
+    {
+      "id": "basic_lookup",
+      "description": "Lookup a MaveDB variant URN returns functional-score fields",
+      "sample_ids": [
+        "URN:MAVEDB:00000001-A-1#1"
+      ],
+      "expected": {
+        "has_results": true,
+        "required_fields": [
+          "gene_symbol",
+          "score",
+          "score_set",
+          "uniprot"
+        ]
+      }
+    },
+    {
+      "id": "uniprot_join",
+      "description": "Protein reaches its functional-assay scores (P63279 -> UBE2I variants)",
+      "query": ">>uniprot>>mavedb",
+      "sample_ids": [
+        "P63279"
+      ],
+      "expected": {
+        "gene_symbol": "UBE2I"
+      }
+    },
+    {
+      "id": "deleterious_filter",
+      "description": "CEL filter by gene_symbol (score is a raw string incl. NA, so not numerically filterable \u2014 see follow-up)",
+      "filter_expression": "mavedb.gene_symbol == \"UBE2I\""
+    }
+  ]
+}

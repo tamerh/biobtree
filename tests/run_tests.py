@@ -280,6 +280,8 @@ Available datasets:
         'alphamissense': datasets_dir / "alphamissense" / "test_alphamissense.py",
         'alphamissense_transcript': datasets_dir / "alphamissense_transcript" / "test_alphamissense_transcript.py",
         'conservation': datasets_dir / "conservation" / "test_conservation.py",
+        'mavedb': datasets_dir / "mavedb" / "test_mavedb.py",
+        'gnomad_variant': datasets_dir / "gnomad_variant" / "test_gnomad_variant.py",
         'rnacentral': datasets_dir / "rnacentral" / "test_rnacentral.py",
         'uniparc': datasets_dir / "uniparc" / "test_uniparc.py",
         'uniref50': datasets_dir / "uniref50" / "test_uniref50.py",

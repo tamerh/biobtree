@@ -1,0 +1,11 @@
+{
+  "dataset": "gnomad_variant",
+  "dataset_id": 809,
+  "description": "gnomAD v4 per-variant population AF. Hand-crafted VCF fixture (tests/datasets/gnomad_variant/gnomad_variant_fixture.vcf). NOT real gnomAD data.",
+  "variants": [
+    {"id": "1:69094:G:A", "chromosome": "1", "position": 69094, "ref": "G", "alt": "A", "rsid": "rs2691305", "af": 0.152, "af_grpmax": 0.311, "grpmax_ancestry": "eas"},
+    {"id": "1:930165:G:A", "chromosome": "1", "position": 930165, "ref": "G", "alt": "A", "rsid": "rs1806509", "af": 0.0000123, "af_grpmax": 0.0000456, "grpmax_ancestry": "nfe"},
+    {"id": "17:43093464:C:T", "chromosome": "17", "position": 43093464, "ref": "C", "alt": "T", "rsid": "rs80357713", "af": 0.0000041, "af_grpmax": 0.0000112, "grpmax_ancestry": "nfe"},
+    {"id": "X:154360426:G:A", "chromosome": "X", "position": 154360426, "ref": "G", "alt": "A", "rsid": "rs28935468", "af": 0.031, "af_grpmax": 0.058, "grpmax_ancestry": "afr"}
+  ]
+}

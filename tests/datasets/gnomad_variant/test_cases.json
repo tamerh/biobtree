@@ -1,0 +1,12 @@
+{
+  "test_suite": "gnomAD v4 per-variant Dataset Tests",
+  "dataset": "gnomad_variant",
+  "dataset_id": 809,
+  "description": "Per-variant population allele frequencies (AF / grpmax / FAF / per-ancestry), keyed chr:pos:ref:alt (GRCh38). Distinct from gene-level gnomad_constraint (800).",
+  "notes": "Fixture is a hand-crafted tiny VCF (6 variants) — NOT real gnomAD data. See docs/datasets/gnomad_variant.md.",
+  "test_cases": [
+    {"id": "basic_lookup", "description": "Lookup by chr:pos:ref:alt returns AF fields", "sample_ids": ["1:69094:G:A", "X:154360426:G:A"], "expected": {"has_results": true, "required_fields": ["af", "af_grpmax", "grpmax_ancestry"]}},
+    {"id": "dbsnp_join", "description": "rsID reaches the variant via the dbsnp hub", "query": ">>dbsnp>>gnomad_variant", "sample_ids": ["rs2691305"], "expected": {"contains": "1:69094:G:A"}},
+    {"id": "rare_filter", "description": "CEL filter af<0.001 keeps rare variants (BA1/BS1/PM2)", "filter_expression": "gnomad_variant.af < 0.001"}
+  ]
+}

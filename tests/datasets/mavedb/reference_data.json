@@ -1,0 +1,13 @@
+{
+  "dataset": "mavedb",
+  "dataset_id": 807,
+  "description": "MaveDB functional-assay variant effects (CC0). Fixture: tests/datasets/mavedb/fixture/ (main.json + per-score-set CSVs).",
+  "score_sets": [
+    {"urn": "urn:mavedb:00000001-a-1", "gene": "UBE2I", "uniprot": "P63279"},
+    {"urn": "urn:mavedb:00000002-a-1", "gene": "BRCA1", "uniprot": "P38398"},
+    {"urn": "urn:mavedb:00000009-a-1", "gene": "YAP1", "uniprot": "Q9W6H2"}
+  ],
+  "variants": [
+    {"id": "URN:MAVEDB:00000001-A-1#1", "gene": "UBE2I", "uniprot": "P63279", "hgvs_pro": "p.Pro73Gln", "score": -0.0261761998757174}
+  ]
+}

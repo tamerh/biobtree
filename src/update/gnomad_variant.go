@@ -3,6 +3,7 @@ package update
 import (
 	"biobtree/pbuf"
 	"bufio"
+	"crypto/sha1"
 	"fmt"
 	"io"
 	"log"
@@ -13,6 +14,11 @@ import (
 
 	"github.com/pquerna/ffjson/ffjson"
 )
+
+// gnomadKeyAlleleCap bounds each ref/alt prefix kept in a hashed long-indel key
+// so the whole key stays well under LMDBMaxKeySize (511). The full ref/alt are
+// still stored in the attributes.
+const gnomadKeyAlleleCap = 200
 
 // gnomad_variant ingests gnomAD v4 per-variant, per-ancestry allele frequencies
 // from the gnomAD v4 sites VCF.
@@ -132,6 +138,7 @@ func (g *gnomadVariant) parseAndSaveVariants(filePath string, testLimit int, pri
 	var lineCount int64
 	var entryCount int64
 	var skippedCount int64
+	var longKeyCount int64
 	var dbsnpXrefCount int64
 
 	var totalRead int64
@@ -204,6 +211,29 @@ func (g *gnomadVariant) parseAndSaveVariants(filePath string, testLimit int, pri
 
 		entryID := fmt.Sprintf("%s:%d:%s:%s", chrom, pos, refAllele, altAllele)
 
+		// gnomAD whole-genome contains large indels whose full chr:pos:ref:alt key
+		// (embedding the entire ref/alt sequences) can exceed the LMDB key limit
+		// (511 bytes). Rather than drop the variant, key it by truncated-allele
+		// prefixes plus a short hash of the FULL ref/alt for uniqueness — the
+		// complete ref/alt stay in the attributes, so no data is lost. Such large
+		// indels don't exist in the SNV/short-variant datasets (alphamissense/
+		// spliceai), so this doesn't affect any positional join.
+		if len(entryID) > LMDBMaxKeySize {
+			refP, altP := refAllele, altAllele
+			if len(refP) > gnomadKeyAlleleCap {
+				refP = refP[:gnomadKeyAlleleCap]
+			}
+			if len(altP) > gnomadKeyAlleleCap {
+				altP = altP[:gnomadKeyAlleleCap]
+			}
+			h := sha1.Sum([]byte(refAllele + "|" + altAllele))
+			entryID = fmt.Sprintf("%s:%d:%s:%s:%x", chrom, pos, refP, altP, h[:8])
+			longKeyCount++
+			if longKeyCount <= 5 {
+				log.Printf("gnomAD Variant: long-allele indel at %s:%d -> hashed key (full ref/alt kept in attrs)", chrom, pos)
+			}
+		}
+
 		kv := parseVcfInfo(info)
 
 		attr := &pbuf.GnomadVariantAttr{
@@ -270,8 +300,8 @@ func (g *gnomadVariant) parseAndSaveVariants(filePath string, testLimit int, pri
 		}
 	}
 
-	log.Printf("gnomAD Variant: Processed %d variants from %s (skipped %d malformed lines, %d dbsnp xrefs)",
-		entryCount, filePath, skippedCount, dbsnpXrefCount)
+	log.Printf("gnomAD Variant: Processed %d variants from %s (skipped %d malformed lines, %d long-allele indels hashed, %d dbsnp xrefs)",
+		entryCount, filePath, skippedCount, longKeyCount, dbsnpXrefCount)
 	return entryCount
 }
 

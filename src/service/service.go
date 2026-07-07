@@ -1523,6 +1523,10 @@ func (s *Service) Search(ids []string, datasetFilters []uint32, page string, q *
 
 // Lookup performs a case-insensitive lookup with federation routing
 func (s *Service) Lookup(identifier string) (*pbuf.Result, error) {
+	// Large-indel variant coordinates whose full chr:pos:ref:alt exceeds the LMDB
+	// key limit are stored under a hashed key; apply the same transform so they
+	// remain findable by their full coordinate. No-op for normal identifiers.
+	identifier = util.NormalizeVariantLookupKey(identifier)
 	// LMDB keys are stored uppercase - normalize input
 	identifier = strings.ToUpper(identifier)
 
@@ -1591,6 +1595,9 @@ func (s *Service) Lookup(identifier string) (*pbuf.Result, error) {
 
 // LookupByDataset retrieves a specific Xref entry for an identifier in a dataset
 func (s *Service) LookupByDataset(identifier string, domainID uint32) (*pbuf.Xref, error) {
+	// Resolve over-long variant coordinates to their hashed storage key (no-op
+	// for normal identifiers and already-hashed keys, which are within the limit).
+	identifier = util.NormalizeVariantLookupKey(identifier)
 	// LMDB keys are stored uppercase - normalize input
 	identifier = strings.ToUpper(identifier)
 

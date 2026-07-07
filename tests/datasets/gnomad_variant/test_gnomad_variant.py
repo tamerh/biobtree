@@ -28,6 +28,10 @@ def _rows(data, attr_name):
     return out
 
 
+def _targets(data):
+    return [t for res in (data or {}).get("results", []) for t in res.get("targets", [])]
+
+
 class GnomadVariantTests:
     def __init__(self, runner: TestRunner):
         self.runner = runner
@@ -106,6 +110,34 @@ class GnomadVariantTests:
         return True, f"CEL filter af<0.001 kept {len(rows)} rare variants"
 
 
+    @test
+    def test_large_indel_findable_by_coordinate(self):
+        """A large indel whose full key exceeds the LMDB limit is still findable by
+        its full chr:pos:ref:alt (read-side hashing), with full alt kept in attrs"""
+        alt = "ACGTTGCA" * 65  # 520 bases -> full chr:pos:ref:alt key > 511 bytes
+        full = "3:5000000:A:" + alt
+        data = requests.get(f"{self.api}/ws/", params={"i": full, "d": "1"}, timeout=15).json()
+        rows = _rows(data, "GnomadVariant")
+        if not rows:
+            return False, "large indel NOT found by its full coordinate"
+        a = rows[0]["Attributes"]["GnomadVariant"]
+        if a.get("alt_allele") != alt:
+            return False, f"full alt allele not preserved (got {len(a.get('alt_allele') or '')}b)"
+        if abs(float(a.get("af", -1)) - 0.0007) > 1e-9:
+            return False, f"af mismatch: got {a.get('af')}, want 0.0007"
+        return True, f"large indel found by full coordinate; full {len(alt)}b alt preserved, af={a.get('af')}"
+
+    @test
+    def test_large_indel_findable_by_rsid(self):
+        """The same large indel is also reachable via the dbsnp rsID hub"""
+        data = requests.get(f"{self.api}/ws/map/",
+                            params={"i": "rs555555", "m": ">>dbsnp>>gnomad_variant"}, timeout=15).json()
+        for t in _targets(data):
+            if (t.get("Attributes") or {}).get("GnomadVariant", {}).get("position") == 5000000:
+                return True, "rs555555 >>dbsnp>>gnomad_variant reached the large indel"
+        return False, "large indel not reachable via the rsID hub"
+
+
 def main():
     script_dir = Path(__file__).parent
     reference_file = script_dir / "reference_data.json"
@@ -124,6 +156,8 @@ def main():
         custom.test_af_values,
         custom.test_dbsnp_rsid_join,
         custom.test_cel_filter_rare,
+        custom.test_large_indel_findable_by_coordinate,
+        custom.test_large_indel_findable_by_rsid,
     ]:
         runner.add_custom_test(m)
     runner.run_all_tests()

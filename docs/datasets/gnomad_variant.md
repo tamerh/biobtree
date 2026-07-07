@@ -58,6 +58,33 @@ mid, nfe, sas`.
 `chr:pos:ref:alt` (GRCh38), identical to `alphamissense` and `spliceai`
 (e.g. `1:69094:G:A`). Chromosome is normalized by stripping a leading `chr`.
 
+### Large indels (keys over the LMDB limit)
+
+gnomAD whole-genome contains large indels whose ref/alt sequences are hundreds
+of bases, so the full `chr:pos:ref:alt` would exceed LMDB's ~511-byte key limit
+(observed: a 569-byte key at `1:2522791`). These are **not dropped**. Instead
+`util.VariantKey` stores them under a bounded, deterministic key —
+truncated ref/alt prefixes (≤200 each) plus an 8-byte sha1 of the full ref/alt,
+e.g. `1:2522791:CTATA…:C:0a1b2c3d4e5f6a7b`. The **complete ref/alt remain in the
+record's attributes**, so no data is lost.
+
+**They stay findable two ways:**
+
+1. **By full coordinate.** The lookup path applies the identical transform
+   (`util.NormalizeVariantLookupKey` in `Service.Lookup` / `LookupByDataset`):
+   any query whose `chr:pos:ref:alt` exceeds the limit is hashed the same way
+   before hitting LMDB, so `1:2522791:<550-base alt>` resolves to the stored
+   entry. The write-side and read-side share one helper (`src/util/variantkey.go`)
+   so they cannot drift; a unit test asserts `NormalizeVariantLookupKey(full) ==
+   VariantKey(...)`.
+2. **By rsID.** The `→ dbsnp` xref (below) uses the same hashed key, so
+   `rsID >>dbsnp>>gnomad_variant` reaches the indel too (this is how Atlas
+   typically arrives — with an rsID, not a raw long coordinate).
+
+These large indels don't exist in the SNV/short-variant datasets
+(`alphamissense`/`spliceai`), so the hashed keys don't affect any positional
+join.
+
 ## Cross-references
 
 - **→ `dbsnp` by rsID.** Where the VCF `ID` column carries an `rs...` id, the

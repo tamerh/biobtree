@@ -2,8 +2,8 @@ package update
 
 import (
 	"biobtree/pbuf"
+	"biobtree/util"
 	"bufio"
-	"crypto/sha1"
 	"fmt"
 	"io"
 	"log"
@@ -14,11 +14,6 @@ import (
 
 	"github.com/pquerna/ffjson/ffjson"
 )
-
-// gnomadKeyAlleleCap bounds each ref/alt prefix kept in a hashed long-indel key
-// so the whole key stays well under LMDBMaxKeySize (511). The full ref/alt are
-// still stored in the attributes.
-const gnomadKeyAlleleCap = 200
 
 // gnomad_variant ingests gnomAD v4 per-variant, per-ancestry allele frequencies
 // from the gnomAD v4 sites VCF.
@@ -209,25 +204,13 @@ func (g *gnomadVariant) parseAndSaveVariants(filePath string, testLimit int, pri
 			altAllele = altAllele[:idx]
 		}
 
-		entryID := fmt.Sprintf("%s:%d:%s:%s", chrom, pos, refAllele, altAllele)
-
-		// gnomAD whole-genome contains large indels whose full chr:pos:ref:alt key
-		// (embedding the entire ref/alt sequences) can exceed the LMDB key limit
-		// (511 bytes). Rather than drop the variant, key it by truncated-allele
-		// prefixes plus a short hash of the FULL ref/alt for uniqueness — the
-		// complete ref/alt stay in the attributes, so no data is lost. Such large
-		// indels don't exist in the SNV/short-variant datasets (alphamissense/
-		// spliceai), so this doesn't affect any positional join.
-		if len(entryID) > LMDBMaxKeySize {
-			refP, altP := refAllele, altAllele
-			if len(refP) > gnomadKeyAlleleCap {
-				refP = refP[:gnomadKeyAlleleCap]
-			}
-			if len(altP) > gnomadKeyAlleleCap {
-				altP = altP[:gnomadKeyAlleleCap]
-			}
-			h := sha1.Sum([]byte(refAllele + "|" + altAllele))
-			entryID = fmt.Sprintf("%s:%d:%s:%s:%x", chrom, pos, refP, altP, h[:8])
+		// Large indels whose full chr:pos:ref:alt key would exceed the LMDB key
+		// limit get a bounded hashed key (util.VariantKey); the full ref/alt stay
+		// in the attributes below, so no data is lost, and the same transform on
+		// the lookup path (util.NormalizeVariantLookupKey) keeps them findable by
+		// their full coordinate.
+		entryID, hashed := util.VariantKey(chrom, pos, refAllele, altAllele)
+		if hashed {
 			longKeyCount++
 			if longKeyCount <= 5 {
 				log.Printf("gnomAD Variant: long-allele indel at %s:%d -> hashed key (full ref/alt kept in attrs)", chrom, pos)

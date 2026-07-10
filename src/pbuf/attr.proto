@@ -3313,5 +3313,6 @@ message MavedbAttr {
   string score = 7;         // measured functional score (raw string, may be NA)
   string uniprot = 8;       // target UniProt accession when derivable
   string category = 9;      // target gene category (e.g. protein_coding)
+  string license = 10;      // per-score-set data license shortName (e.g. "CC0", "CC BY-NC-SA 4.0")
   string id = 100; // transient - populated at runtime from Xref.Identifier
 }

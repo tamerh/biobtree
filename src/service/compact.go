@@ -981,6 +981,8 @@ func extractMavedbField(a *pbuf.MavedbAttr, field string) string {
 		return a.Uniprot
 	case "category":
 		return a.Category
+	case "license":
+		return a.License
 	default:
 		return ""
 	}

@@ -114,6 +114,19 @@ class MavedbTests:
         return True, f"CEL gene_symbol filter kept {len(rows)} UBE2I variants"
 
 
+    @test
+    def test_per_set_license(self):
+        """Each variant carries its score set's data license (CC0 vs CC BY-NC-SA)"""
+        for uniprot, want in [("P63279", "CC0"), ("P38398", "CC BY-NC-SA 4.0")]:
+            data = requests.get(f"{self.api}/ws/map/",
+                                params={"i": uniprot, "m": ">>uniprot>>mavedb"}, timeout=15).json()
+            lics = {(t.get("Attributes") or {}).get("Mavedb", {}).get("license") for t in _targets(data)}
+            lics = {l for l in lics if l}
+            if want not in lics:
+                return False, f"{uniprot}: expected license {want!r}, got {sorted(lics)}"
+        return True, "per-set license captured (UBE2I score set=CC0, BRCA1 score set=CC BY-NC-SA 4.0)"
+
+
 def main():
     script_dir = Path(__file__).parent
     reference_file = script_dir / "reference_data.json"
@@ -131,6 +144,7 @@ def main():
         custom.test_values_match_fixture,
         custom.test_uniprot_join,
         custom.test_cel_filter_gene,
+        custom.test_per_set_license,
     ]:
         runner.add_custom_test(m)
     runner.run_all_tests()

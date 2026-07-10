@@ -19,14 +19,21 @@ import (
 // functional-assay source in biobtree. It provides direct EXPERIMENTAL
 // functional evidence (PS3/BS3-grade) for protein/nucleotide variants.
 //
-// Data shape: MaveDB publishes a biannual (May/Nov) archive on Zenodo, plus a
-// live API at api.mavedb.org. We ingest the archive as a directory containing:
-//   - main.json  : a JSON array of score-set metadata objects, each mirroring
-//                  the api.mavedb.org score-set shape (urn, title, targetGenes
-//                  with externalIdentifiers + taxonomy).
-//   - <urn>.csv  : one MaveDB scores CSV per score set (the "#"/":" in the URN
-//                  are filesystem-sanitized to "_"). Columns:
+// Data shape: MaveDB publishes a biannual (May/Nov) bulk archive on Zenodo
+// (mavedb-dump.<ts>.zip), plus a live API at api.mavedb.org. The unzipped
+// archive is a directory containing:
+//   - main.json  : {title, asOf, experimentSets:[{experiments:[{scoreSets:[...]}]}]}
+//                  — score sets are nested under the Experiment Set / Experiment
+//                  hierarchy. Each score set has urn, title, license.shortName,
+//                  and targetGenes[] (name, category, externalIdentifiers,
+//                  targetSequence.taxonomy.taxId).
+//   - csv/<urn ":"→"-">.scores.csv : one scores CSV per score set. Columns:
 //                  accession,hgvs_nt,hgvs_splice,hgvs_pro,score,sd,se,...
+//                  (per-set *.counts.csv also exist but are not ingested).
+//
+// The per-score-set data LICENSE (license.shortName, e.g. "CC0") is stored on
+// every variant so the KG export can treat CC0 sets as public-domain and any
+// non-CC0 set under its own terms.
 //
 // KEY SCHEME: entries are keyed by the STABLE per-variant MAVE URN
 // (e.g. "urn:mavedb:00000001-a-1#123"). The functional evidence is made
@@ -50,7 +57,7 @@ func (m *mavedb) check(err error, operation string) {
 
 // mavedbTaxonomy mirrors the targetSequence.taxonomy block of a score set.
 type mavedbTaxonomy struct {
-	Code         int    `json:"code"`
+	TaxId        int    `json:"taxId"`
 	OrganismName string `json:"organismName"`
 }
 
@@ -72,11 +79,25 @@ type mavedbTargetGene struct {
 	} `json:"targetSequence"`
 }
 
-// mavedbScoreSet mirrors one score-set metadata object in main.json.
+// mavedbScoreSet mirrors one score-set metadata object.
 type mavedbScoreSet struct {
-	Urn         string             `json:"urn"`
-	Title       string             `json:"title"`
+	Urn     string `json:"urn"`
+	Title   string `json:"title"`
+	License struct {
+		ShortName string `json:"shortName"` // e.g. "CC0", "CC BY-NC-SA 4.0"
+	} `json:"license"`
 	TargetGenes []mavedbTargetGene `json:"targetGenes"`
+}
+
+// mavedbArchive mirrors the Zenodo bulk main.json, which nests score sets under
+// experimentSets[] -> experiments[] -> scoreSets[] (Experiment Set / Experiment
+// / Score Set hierarchy).
+type mavedbArchive struct {
+	ExperimentSets []struct {
+		Experiments []struct {
+			ScoreSets []mavedbScoreSet `json:"scoreSets"`
+		} `json:"experiments"`
+	} `json:"experimentSets"`
 }
 
 // resolved target context extracted from a score set's targetGenes.
@@ -99,8 +120,8 @@ func resolveTarget(ss *mavedbScoreSet) mavedbTarget {
 	tg := ss.TargetGenes[0]
 	t.gene = strings.TrimSpace(tg.Name)
 	t.category = strings.TrimSpace(tg.Category)
-	// Human only: taxonomy code 9606.
-	t.human = tg.TargetSequence.Taxonomy.Code == 9606
+	// Human only: taxonomy taxId 9606.
+	t.human = tg.TargetSequence.Taxonomy.TaxId == 9606
 	for _, ei := range tg.ExternalIdentifiers {
 		id := strings.TrimSpace(ei.Identifier.Identifier)
 		if id == "" {
@@ -190,18 +211,24 @@ func (m *mavedb) readScoreSets(dir string) []mavedbScoreSet {
 	data, err := io.ReadAll(bufio.NewReaderSize(f, fileBufSize))
 	m.check(err, "reading "+metaPath)
 
-	var scoreSets []mavedbScoreSet
-	if err := ffjson.Unmarshal(data, &scoreSets); err != nil {
+	var archive mavedbArchive
+	if err := ffjson.Unmarshal(data, &archive); err != nil {
 		m.check(err, "parsing "+metaPath)
+	}
+	var scoreSets []mavedbScoreSet
+	for _, es := range archive.ExperimentSets {
+		for _, exp := range es.Experiments {
+			scoreSets = append(scoreSets, exp.ScoreSets...)
+		}
 	}
 	return scoreSets
 }
 
-// scoreCSVName returns the filesystem-safe CSV file name for a score-set URN
-// (":" and "#" are not filesystem-friendly, so they are mapped to "_").
+// scoreCSVName returns the scores CSV path for a score-set URN, matching the
+// Zenodo bulk archive layout: csv/<urn with ":" -> "-">.scores.csv
+// (e.g. "urn:mavedb:00000001-a-1" -> "csv/urn-mavedb-00000001-a-1.scores.csv").
 func scoreCSVName(urn string) string {
-	safe := strings.NewReplacer(":", "_", "#", "_", "/", "_").Replace(urn)
-	return safe + ".csv"
+	return "csv/" + strings.ReplaceAll(urn, ":", "-") + ".scores.csv"
 }
 
 // processScoreSet parses the per-score-set scores CSV and emits one entry per
@@ -282,6 +309,7 @@ func (m *mavedb) processScoreSet(ss *mavedbScoreSet, tgt *mavedbTarget, sourceID
 			Score:         score,
 			Uniprot:       tgt.uniprot,
 			Category:      tgt.category,
+			License:       ss.License.ShortName,
 		}
 		b, err := ffjson.Marshal(&attr)
 		if err != nil {

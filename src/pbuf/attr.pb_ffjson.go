@@ -94209,6 +94209,11 @@ func (j *MavedbAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.WriteJsonString(buf, string(j.Category))
 		buf.WriteByte(',')
 	}
+	if len(j.License) != 0 {
+		buf.WriteString(`"license":`)
+		fflib.WriteJsonString(buf, string(j.License))
+		buf.WriteByte(',')
+	}
 	if len(j.Id) != 0 {
 		buf.WriteString(`"id":`)
 		fflib.WriteJsonString(buf, string(j.Id))
@@ -94241,6 +94246,8 @@ const (
 
 	ffjtMavedbAttrCategory
 
+	ffjtMavedbAttrLicense
+
 	ffjtMavedbAttrId
 )
 
@@ -94261,6 +94268,8 @@ var ffjKeyMavedbAttrScore = []byte("score")
 var ffjKeyMavedbAttrUniprot = []byte("uniprot")
 
 var ffjKeyMavedbAttrCategory = []byte("category")
+
+var ffjKeyMavedbAttrLicense = []byte("license")
 
 var ffjKeyMavedbAttrId = []byte("id")
 
@@ -94367,6 +94376,14 @@ mainparse:
 						goto mainparse
 					}
 
+				case 'l':
+
+					if bytes.Equal(ffjKeyMavedbAttrLicense, kn) {
+						currentKey = ffjtMavedbAttrLicense
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 's':
 
 					if bytes.Equal(ffjKeyMavedbAttrScoreSet, kn) {
@@ -94397,6 +94414,12 @@ mainparse:
 
 				if fflib.SimpleLetterEqualFold(ffjKeyMavedbAttrId, kn) {
 					currentKey = ffjtMavedbAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyMavedbAttrLicense, kn) {
+					currentKey = ffjtMavedbAttrLicense
 					state = fflib.FFParse_want_colon
 					goto mainparse
 				}
@@ -94498,6 +94521,9 @@ mainparse:
 
 				case ffjtMavedbAttrCategory:
 					goto handle_Category
+
+				case ffjtMavedbAttrLicense:
+					goto handle_License
 
 				case ffjtMavedbAttrId:
 					goto handle_Id
@@ -94743,6 +94769,32 @@ handle_Category:
 			outBuf := fs.Output.Bytes()
 
 			j.Category = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_License:
+
+	/* handler: j.License type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.License = string(string(outBuf))
 
 		}
 	}

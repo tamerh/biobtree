@@ -1215,8 +1215,8 @@
     "path": "tests/datasets/mavedb/fixture/",
     "useLocalFile": "yes",
     "hasFilter": "yes",
-    "attrs": "gene_symbol,score_set,score_set_title,hgvs_pro,hgvs_nt,hgvs_splice,score,uniprot,category",
-    "compact_fields": "gene_symbol,score,score_set",
+    "attrs": "gene_symbol,score_set,score_set_title,hgvs_pro,hgvs_nt,hgvs_splice,score,uniprot,category,license",
+    "compact_fields": "gene_symbol,score,score_set,license",
     "test_entries_count": "500",
     "bucketMethod": "alphanum"
   },

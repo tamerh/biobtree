@@ -732,8 +732,15 @@ func (s *Service) getDBForDataset(datasetID uint32) (db.Env, db.DBI) {
 			}
 		}
 	}
-	// Default to main federation
-	return s.federations["main"].env, s.federations["main"].dbi
+	// Default to main federation.
+	if fedDB, exists := s.federations["main"]; exists {
+		return fedDB.env, fedDB.dbi
+	}
+	// No main federation loaded — use any (avoids a nil-pointer deref).
+	for _, fedDB := range s.federations {
+		return fedDB.env, fedDB.dbi
+	}
+	return nil, 0
 }
 
 // getDBForIdentifier returns the database connection based on identifier pattern
@@ -756,8 +763,16 @@ func (s *Service) getDBForIdentifier(identifier string) (db.Env, db.DBI) {
 			return fedDB.env, fedDB.dbi
 		}
 	}
-	// Default to main federation
-	return s.federations["main"].env, s.federations["main"].dbi
+	// Default to main federation.
+	if fedDB, exists := s.federations["main"]; exists {
+		return fedDB.env, fedDB.dbi
+	}
+	// No main federation (e.g. a single-dataset build) — use any loaded one to
+	// avoid a nil-pointer deref; the Lookup fallback still searches the rest.
+	for _, fedDB := range s.federations {
+		return fedDB.env, fedDB.dbi
+	}
+	return nil, 0
 }
 
 // isRsID checks if the identifier looks like a dbSNP rsID
@@ -1585,6 +1600,24 @@ func (s *Service) Lookup(identifier string) (*pbuf.Result, error) {
 						}
 					}
 				}
+			}
+		}
+	}
+
+	// Cross-federation fallback: a bare identifier is pattern-routed to main by
+	// default (or dbsnp for rsIDs). If it isn't there, it may live in a variant
+	// federation whose keys can't be pattern-routed — coordinate keys
+	// (chr:pos / chr:pos:ref:alt) collide with main's own alphamissense/spliceai,
+	// so gnomad / conservation live in their own federations. Only runs on a
+	// primary miss, so normal hits pay nothing.
+	if len(r.Results) == 0 {
+		for _, fedDB := range s.federations {
+			if fedDB.env == env {
+				continue // already tried the pattern-routed federation
+			}
+			res, ferr := s.getLmdbResultFrom(identifier, fedDB.env, fedDB.dbi)
+			if ferr == nil && res != nil && len(res.Results) > 0 {
+				return res, nil
 			}
 		}
 	}

@@ -663,6 +663,13 @@ func (d *Merge) Merge(c *configs.Conf, keep bool, federation string) (uint64, ui
 	d.federationDir = filepath.Join(config.Appconf["outDir"], federation)
 	d.indexDir = filepath.Join(d.federationDir, "index")
 
+	// Point the LMDB map-size calc (db factory reads Appconf["indexDir"]) at THIS
+	// federation's index dir, so the map is sized from the federation's actual
+	// chunk size. Without this it used the stale global out/index and fell back to
+	// a totalKV estimate — which under-sized a freshly-populated federation (e.g.
+	// gnomad after a chunk move) and hit MDB_MAP_FULL.
+	config.Appconf["indexDir"] = d.indexDir
+
 	log.Printf("=== Generating federation: %s ===", federation)
 	log.Printf("Index directory: %s", d.indexDir)
 

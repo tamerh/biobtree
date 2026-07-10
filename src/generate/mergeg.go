@@ -1772,7 +1772,16 @@ func (d *Merge) close() {
 	mergeStats := make(map[string]interface{})
 	mergeStats["totalKey"] = d.totalKey
 	mergeStats["totalValue"] = d.totalValue
-	mergeStats["totalKVLine"] = d.totalkvLine
+	// totalKVLine drives the service's read-open map size. It comes from the
+	// per-federation edge count (dataset_state), which is 0 for a federation
+	// populated by a chunk-move rather than a fresh update (e.g. gnomad moved out
+	// of main). A 0 here makes the reader open with a 1GB map and only see a
+	// sliver of the data — so fall back to the actual merged KV count.
+	kvLine := d.totalkvLine
+	if kvLine < int64(d.totalValue) {
+		kvLine = int64(d.totalValue)
+	}
+	mergeStats["totalKVLine"] = kvLine
 	mergeStats["federation"] = d.federation
 	data, err := json.Marshal(mergeStats)
 	if err != nil {

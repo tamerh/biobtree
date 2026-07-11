@@ -1610,6 +1610,12 @@ func (s *Service) Lookup(identifier string) (*pbuf.Result, error) {
 	// (chr:pos / chr:pos:ref:alt) collide with main's own alphamissense/spliceai,
 	// so gnomad / conservation live in their own federations. Only runs on a
 	// primary miss, so normal hits pay nothing.
+	//
+	// MERGE across federations rather than returning the first hit: the same
+	// coordinate legitimately exists in multiple federations (e.g. dbsnp keeps a
+	// coordinate->rsID text link AND gnomad keeps the per-ancestry frequency
+	// entry). Returning only the first would shadow the others, so a coordinate
+	// query surfaces the dbsnp rsID entry and the gnomad_variant entry together.
 	if len(r.Results) == 0 {
 		for _, fedDB := range s.federations {
 			if fedDB.env == env {
@@ -1617,7 +1623,7 @@ func (s *Service) Lookup(identifier string) (*pbuf.Result, error) {
 			}
 			res, ferr := s.getLmdbResultFrom(identifier, fedDB.env, fedDB.dbi)
 			if ferr == nil && res != nil && len(res.Results) > 0 {
-				return res, nil
+				r.Results = append(r.Results, res.Results...)
 			}
 		}
 	}

@@ -1088,7 +1088,8 @@
     "attrs": "chromosome,position,ref_allele,alt_allele,af,af_grpmax,grpmax_ancestry,faf,af_afr,af_amr,af_eas,af_nfe,af_sas,af_fin,af_asj,af_ami,af_mid,af_remaining",
     "compact_fields": "af,af_grpmax,grpmax_ancestry",
     "test_entries_count": "100",
-    "bucketMethod": "alphanum"
+    "bucketMethod": "alphanum",
+    "federation": "gnomad"
   },
   "bindingdb": {
     "id": "60",

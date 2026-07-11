@@ -465,6 +465,7 @@ get_federation() {
     local dataset=$1
     case "$dataset" in
         dbsnp) echo "dbsnp" ;;
+        gnomad_variant) echo "gnomad" ;;
         *) echo "main" ;;
     esac
 }

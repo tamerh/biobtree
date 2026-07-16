@@ -139,7 +139,7 @@ Use: Identify which transcript isoforms are more critical
 - **Release Schedule**: Updates with AlphaMissense releases
 - **Current Version**: AlphaMissense v1.0 (2023)
 - **Data Format**: TSV (tab-separated values)
-- **License**: CC BY-NC-SA 4.0
+- **License**: CC BY 4.0 — **commercial use permitted** with attribution (the earlier CC BY-NC-SA restriction was lifted 2024-03-13)
 
 ## References
 

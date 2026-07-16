@@ -9,9 +9,11 @@ sources are unified into this one dataset, each association tagged with its `sou
 
 **Sources** (experimentally supported):
 - **LncRNADisease v3.0** — `website_alldata.tsv` — lncRNA + circRNA → disease
-  (`source="LncRNADisease"`). License: redistribution with citation.
+  (`source="LncRNADisease"`). License: **CC BY-NC** — redistribution+citation OK
+  on the public non-commercial site, **NOT commercially resellable**.
 - **HMDD v4** — `alldata_v4.txt` — miRNA → disease (`source="HMDD"`,
-  `ncrna_category="miRNA"`). License: CC BY-NC (acceptable; attribute).
+  `ncrna_category="miRNA"`). License: **CC BY-NC** — OK for the public
+  non-commercial site, **NOT resellable in a commercial product** (attribute).
 **Data type**: experimentally-supported ncRNA-disease associations
 
 ## Integration Architecture
@@ -51,5 +53,5 @@ from ncRNA symbol + disease + PubMed + method; references are via edges).
 
 ## Maintenance
 - **Update**: re-download `website_alldata.tsv` and re-index.
-- **License**: LncRNADisease v3.0 (redistribution with citation).
+- **License**: LncRNADisease v3.0 + HMDD v4 — both **CC BY-NC**: redistribution+citation OK on the non-commercial site, **not commercially resellable** (exclude from a paid product, or license / re-source).
 - **References**: Lin et al. *LncRNADisease v3.0* Nucleic Acids Research 2024.

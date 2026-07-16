@@ -5,7 +5,7 @@
 
 **Source**: https://depmap.org (CRISPRGeneEffect.csv + Model.csv)
 **Data Type**: Per-cell-line × gene dependency edge
-**License**: CC BY 4.0
+**License**: CC BY 4.0 label, **but Broad's Terms of Use additionally bar commercial use** (direct sale / incorporation into a product) — **not resellable without a Broad commercial license**
 **Dataset ID**: 144 (produced by the `depmap` parser)
 
 ## Integration Architecture
@@ -28,7 +28,7 @@
 ## Maintenance
 - **Update Frequency**: quarterly DepMap releases (with `depmap`)
 - **Data Format**: CSV (matrix)
-- **License**: CC BY 4.0
+- **License**: CC BY 4.0 label, **but Broad's Terms of Use additionally bar commercial use** (direct sale / incorporation into a product) — **not resellable without a Broad commercial license**
 
 ## References
 - **Website**: https://depmap.org

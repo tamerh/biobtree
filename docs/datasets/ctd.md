@@ -144,10 +144,10 @@ Use: Focus on human health relevance
 - **Release Schedule**: Monthly updates from CTD
 - **Data Format**: Tab-separated values (gzipped)
 - **Test Data**: 500 entries for fast testing
-- **License**: Free for academic use, citation required
+- **License**: Free for academic use, citation required; **commercial use prohibited** without written permission from MDI Bio Lab / NC State (not resellable)
 
 ## References
 
 - **Citation**: Davis AP, et al. (2025) Comparative Toxicogenomics Database (CTD): 2025 update. Nucleic Acids Res.
 - **Website**: https://ctdbase.org/
-- **License**: Free for academic use
+- **License**: Free for academic use; **commercial use prohibited** without a written CTD license

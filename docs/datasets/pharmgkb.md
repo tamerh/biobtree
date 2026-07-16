@@ -228,10 +228,10 @@ Use: Structural pharmacogenomics analysis
 - **Release Schedule**: Monthly updates from PharmGKB
 - **Data Format**: TSV files in ZIP archives, JSON for guidelines/pathways
 - **Test Data**: Full processing in test mode (small dataset)
-- **License**: Creative Commons (CC BY-SA 4.0)
+- **License**: CC BY-SA 4.0 — **but PharmGKB's Data Usage Policy forbids selling the data** (they run a paid commercial-licensee program); **not resellable without a PharmGKB commercial license**
 
 ## References
 
 - **Citation**: Whirl-Carrillo M, et al. (2025) PharmGKB: A worldwide resource for pharmacogenomics information. Nucleic Acids Res.
 - **Website**: https://www.clinpgx.org/
-- **License**: CC BY-SA 4.0
+- **License**: CC BY-SA 4.0 (commercial resale forbidden by PharmGKB's Data Usage Policy — needs a PharmGKB commercial license)

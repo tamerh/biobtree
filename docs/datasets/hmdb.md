@@ -154,4 +154,4 @@ Use: Comprehensive metabolite annotation across platforms
 
 - **Citation**: Wishart DS et al. HMDB 5.0: the Human Metabolome Database for 2022. Nucleic Acids Research.
 - **Website**: https://hmdb.ca/
-- **License**: Creative Commons Attribution-NonCommercial 4.0 - free for academic use
+- **License**: Creative Commons Attribution-NonCommercial 4.0 — free for academic use; **commercial use/redistribution requires written HMDB permission** (not resellable as-is)

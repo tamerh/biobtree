@@ -5,7 +5,7 @@ DepMap (Cancer Dependency Map, Broad Institute) provides genome-wide CRISPR knoc
 
 **Source**: https://depmap.org (CRISPRGeneEffect.csv)
 **Data Type**: Per-gene CRISPR Chronos gene-effect aggregate
-**License**: CC BY 4.0
+**License**: CC BY 4.0 label, **but Broad's Terms of Use additionally bar commercial use** (direct sale / incorporation into a product) — **not resellable without a Broad commercial license**
 **Dataset ID**: 143 (per-cell-line detail in `depmap_dependency`, id 144)
 
 ## Integration Architecture
@@ -33,7 +33,7 @@ A gene is counted as a dependency in a cell line when its Chronos **gene effect 
 ## Maintenance
 - **Update Frequency**: quarterly DepMap releases
 - **Data Format**: CSV (matrix)
-- **License**: CC BY 4.0
+- **License**: CC BY 4.0 label, **but Broad's Terms of Use additionally bar commercial use** (direct sale / incorporation into a product) — **not resellable without a Broad commercial license**
 
 ## References
 - **Website**: https://depmap.org

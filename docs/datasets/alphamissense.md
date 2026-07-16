@@ -165,11 +165,11 @@ Use: Focus analysis on variants predicted to be damaging
 - **Current Version**: AlphaMissense v1.0 (2023)
 - **Data Format**: TSV (tab-separated values)
 - **Test Data**: 10,000 variants
-- **License**: CC BY-NC-SA 4.0
+- **License**: CC BY 4.0 — **commercial use permitted** with attribution (the earlier CC BY-NC-SA restriction was lifted 2024-03-13; model weights were never released, so only the CC-BY score table is redistributed)
 
 ## References
 
 - **Citation**: Cheng J, et al. (2023) Accurate proteome-wide missense variant effect prediction with AlphaMissense. Science 381(6664):eadg7492.
 - **Website**: https://alphamissense.hegelab.org/
 - **Data**: https://console.cloud.google.com/storage/browser/dm_alphamissense
-- **License**: CC BY-NC-SA 4.0
+- **License**: CC BY 4.0 — **commercial use permitted** with attribution (the earlier CC BY-NC-SA restriction was lifted 2024-03-13; model weights were never released, so only the CC-BY score table is redistributed)

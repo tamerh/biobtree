@@ -51,5 +51,5 @@ conf `path` is a small test fixture.
 
 ```bash
 curl "http://localhost:9292/ws/entry/?i=P01116:G12D&s=saprot"
-curl "http://localhost:9292/ws/?i=P01116:G12D&d=1&f=saprot.saprot_llr<-5.0"
+curl "http://localhost:9292/ws/?i=P01116:G12D&s=saprot&d=1&f=saprot.saprot_llr<-5.0"
 ```

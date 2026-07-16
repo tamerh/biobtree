@@ -108,10 +108,15 @@ Recommendation: **option 1**. Left for review — no other datasets were modifie
 
 ## Query Examples
 
+`conservation` is its own federation, so route the query into it with
+`&s=conservation` (this is what makes the CEL filter see the conservation
+attributes; without it the lookup resolves against `main` and the filter is
+federation-shadowed).
+
 ```bash
 # Per-position lookup (chr:pos)
-curl "http://localhost:9292/ws/?i=17:43094464&d=1"
+curl "http://localhost:9292/ws/?i=17:43094464&s=conservation&d=1"
 
-# Filter for highly-conserved positions
-curl "http://localhost:9292/ws/?i=1:69094,1:69096&d=1&f=conservation.phylop>5.0"
+# Filter for highly-conserved positions (10:87864533 has phylop 11.83)
+curl "http://localhost:9292/ws/?i=10:87864533&s=conservation&d=1&f=conservation.phylop>5.0"
 ```

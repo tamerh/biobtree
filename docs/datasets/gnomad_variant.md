@@ -78,12 +78,36 @@ record's attributes**, so no data is lost.
    so they cannot drift; a unit test asserts `NormalizeVariantLookupKey(full) ==
    VariantKey(...)`.
 2. **By rsID.** The `→ dbsnp` xref (below) uses the same hashed key, so
-   `rsID >>dbsnp>>gnomad_variant` reaches the indel too (this is how Atlas
+   `rsID >> dbsnp >> gnomad_variant` reaches the indel too (this is how Atlas
    typically arrives — with an rsID, not a raw long coordinate).
 
 These large indels don't exist in the SNV/short-variant datasets
 (`alphamissense`/`spliceai`), so the hashed keys don't affect any positional
 join.
+
+## Query Examples
+
+Route into the `gnomad` federation with `&s=gnomad_variant` (a bare-coordinate
+search without it resolves against `main` and won't return the frequency record):
+
+```bash
+# Per-variant allele frequencies (chr:pos:ref:alt, GRCh38)
+curl "http://localhost:9292/ws/?i=20:32436128:C:A&s=gnomad_variant&d=1"
+
+# Rare variants only (grpmax AF filter)
+curl "http://localhost:9292/ws/?i=20:32436128:C:A&s=gnomad_variant&d=1&f=gnomad_variant.af_grpmax<0.001"
+```
+
+From an rsID, reach the frequency record through the dbsnp hub with a map chain
+(the chain's first hop declares the input's dataset, `>> dbsnp`):
+
+```
+rs371545683 >> dbsnp >> gnomad_variant      # -> the gnomad_variant record
+```
+
+served at `/ws/map/?i=rs371545683&m=>>dbsnp>>gnomad_variant`. The dbsnp record
+also carries `gnomad_frequency` as a direct attribute, so a plain
+`biobtree_entry` on the rsID surfaces the allele frequency without the hop.
 
 ## Cross-references
 
@@ -101,11 +125,15 @@ it incompatible with the CC BY-NC-SA KG export — `gnomad_variant` must be
 
 ## Production ingest
 
-**Decision (2026-07):** lives in the **main federation** (~759M genomes variants,
-est. ~130 GB / ~2 B KV added to main). It is *not* a separate federation —
-coordinate keys (`chr:pos:ref:alt`) can't be pattern-routed to a non-main
-federation, since main already owns that key format via `alphamissense`/
-`spliceai` (a dbsnp co-location attempt was reverted for exactly this reason).
+**Decision (2026-07, revised):** lives in its **own `gnomad` federation**
+(~759M genomes variants, 759M KV). It shares the `chr:pos:ref:alt` key format
+with `alphamissense`/`spliceai` (which live in `main`), so it **cannot** be
+reached by a bare-coordinate *pattern* search — `getDBForIdentifier` routes that
+key format to `main`, where `alphamissense` already owns it. It is instead
+reached by **direct federation routing**: an explicit `&s=gnomad_variant` (or
+`/ws/entry/`) resolves via `getDBForDataset` → the `gnomad` federation,
+regardless of key pattern. (An earlier note put it in `main` for this reason;
+the separate-federation approach + direct `s=` routing supersedes that.)
 
 The parser is production-ready: `update()` expands a `{CHR}` placeholder in the
 conf `path` over chromosomes 1–22, X, Y and streams each per-chromosome bgz in

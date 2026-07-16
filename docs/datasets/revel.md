@@ -65,5 +65,5 @@ REVEL CSV (`--revel.file raw_data/revel/revel_grch38_all.csv`, via `bb.sh`
 
 ```bash
 curl "http://localhost:9292/ws/entry/?i=1:943702:T:C&s=revel"
-curl "http://localhost:9292/ws/?i=1:943702:T:C&d=1&f=revel.revel>0.9"
+curl "http://localhost:9292/ws/?i=1:943702:T:C&s=revel&d=1&f=revel.revel>0.9"
 ```

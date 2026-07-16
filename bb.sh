@@ -68,6 +68,19 @@ OPTS_refseq="--genome-taxids ${TAXIDS}"
 OPTS_pubchem="--pubchem-sdf-workers 1"
 OPTS_patent="--bucket-sort-workers 8"
 OPTS_bgee="--bucket-sort-workers 8"
+# conservation: committed conf path points at the unit-test fixture (so
+# tests/run_tests.py works out of the box); prod/dev builds override it with the
+# real whole-genome TSV produced by src/scripts/conservation/conservation_prepare.py.
+OPTS_conservation="--conservation.file raw_data/conservation/conservation_hg38.tsv.gz"
+# revel: committed conf path is the test fixture; prod override = the real REVEL
+# v1.3 CSV extracted from raw_data/revel/revel-v1.3_all_chromosomes.zip.
+OPTS_revel="--revel.file raw_data/revel/revel_grch38_all.csv"
+# esm1b: committed conf path is the fixture; prod override = the melted whole-
+# proteome TSV from src/scripts/esm1b/esm1b_prepare.py.
+OPTS_esm1b="--esm1b.file raw_data/esm1b/esm1b_llr.tsv.gz"
+# saprot: committed conf path is the fixture; prod override = the bioyoda-computed
+# SaProt-650M LLR TSV.
+OPTS_saprot="--saprot.file /data/bioyoda/out_prod/work/saprot/saprot_llr.tsv.gz"
 
 # ----------------------------------------------------------------------------
 # DATASETS LIST - Order matters (foundations first)
@@ -116,6 +129,9 @@ DATASETS=(
     alphamissense
     alphamissense_transcript
     conservation
+    revel
+    esm1b
+    saprot
 
     # Interactions & pathways
     intact
@@ -466,6 +482,10 @@ get_federation() {
     case "$dataset" in
         dbsnp) echo "dbsnp" ;;
         gnomad_variant) echo "gnomad" ;;
+        conservation) echo "conservation" ;;
+        revel) echo "predictions" ;;
+        esm1b) echo "predictions" ;;
+        saprot) echo "predictions" ;;
         *) echo "main" ;;
     esac
 }

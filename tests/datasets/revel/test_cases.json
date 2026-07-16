@@ -1,0 +1,39 @@
+{
+  "test_suite": "REVEL Dataset Tests",
+  "dataset": "revel",
+  "dataset_id": 810,
+  "description": "REVEL ensemble missense pathogenicity scores, keyed chr:pos:ref:alt (GRCh38). Score 0-1, higher = more pathogenic. ClinGen/Pejaver-2022 calibrated PP3/BP4 thresholds.",
+  "notes": "Fixture hand-crafted (5 CSV rows -> 3 variants; one variant is a 2-transcript dedup, one row skipped for empty grch38_pos). NOT real REVEL data.",
+  "test_cases": [
+    {
+      "id": "basic_lookup",
+      "description": "Variant lookup by chr:pos:ref:alt ID resolves a Revel record",
+      "query_type": "lookup",
+      "sample_ids": ["1:35142:G:A", "10:87864533:G:A", "17:43097449:C:T"],
+      "expected": {
+        "has_results": true,
+        "required_fields": ["chromosome", "position", "ref_allele", "alt_allele", "revel"]
+      }
+    },
+    {
+      "id": "key_scheme",
+      "description": "Entry ID is chr:pos:ref:alt (3 colon-separated fields)",
+      "query_type": "format",
+      "expected": {"id_pattern": "^[0-9XYM]+:[0-9]+:[ACGT]+:[ACGT]+$"}
+    },
+    {
+      "id": "multitranscript_dedup",
+      "description": "Multi-transcript rows collapse to one variant with MAX REVEL + all transcript ids",
+      "query_type": "value",
+      "sample_ids": ["10:87864533:G:A"],
+      "expected": {"revel": 0.940, "transcript_count": 2}
+    },
+    {
+      "id": "filter_high_revel",
+      "description": "CEL filter for high-REVEL (revel > 0.5) keeps pathogenic-leaning variants",
+      "query_type": "filter",
+      "filter_expression": "revel.revel > 0.5",
+      "expected": {"has_results": true, "min_revel": 0.5}
+    }
+  ]
+}

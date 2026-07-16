@@ -1,0 +1,11 @@
+{
+  "test_suite": "SaProt Dataset Tests",
+  "dataset": "saprot",
+  "dataset_id": 812,
+  "description": "SaProt structure-aware protein-LM variant effect. Keyed uniprot:protein_variant. LLR <= 0, more negative = more damaging. Unsupervised second opinion to AlphaMissense.",
+  "notes": "Fixture hand-crafted. NOT real SaProt data.",
+  "test_cases": [
+    {"id": "basic_lookup", "query_type": "lookup", "sample_ids": ["P01116:G12D"], "expected": {"has_results": true, "required_fields": ["uniprot_id", "protein_variant", "saprot_llr"]}},
+    {"id": "filter_damaging", "query_type": "filter", "filter_expression": "saprot.saprot_llr < -5.0", "expected": {"has_results": true}}
+  ]
+}

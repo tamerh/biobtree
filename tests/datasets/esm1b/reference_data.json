@@ -1,0 +1,12 @@
+{
+  "dataset": "esm1b",
+  "dataset_id": 811,
+  "description": "ESM1b protein-LM variant effect (LLR, <=0, lower = more damaging), keyed uniprot:protein_variant. Hand-crafted fixture (tests/datasets/esm1b/esm1b_fixture.tsv), NOT real ESM1b data.",
+  "variants": [
+    {"id": "P01116:G12D", "uniprot_id": "P01116", "protein_variant": "G12D", "position": 12, "esm1b_llr": -7.412, "gene_symbol": "KRAS", "damaging": true},
+    {"id": "P01116:G12V", "uniprot_id": "P01116", "protein_variant": "G12V", "position": 12, "esm1b_llr": -6.821, "gene_symbol": "KRAS", "damaging": true},
+    {"id": "P60484:R130Q", "uniprot_id": "P60484", "protein_variant": "R130Q", "position": 130, "esm1b_llr": -4.512, "gene_symbol": "PTEN", "damaging": false},
+    {"id": "P60484:A123V", "uniprot_id": "P60484", "protein_variant": "A123V", "position": 123, "esm1b_llr": -1.203, "gene_symbol": "PTEN", "damaging": false},
+    {"id": "A0A1B0GUV7:M1K", "uniprot_id": "A0A1B0GUV7", "protein_variant": "M1K", "position": 1, "esm1b_llr": -9.788, "gene_symbol": "TEX48", "damaging": true}
+  ]
+}

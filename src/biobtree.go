@@ -46,7 +46,10 @@ var allDatasets = []string{"uniprot", "go", "eco", "efo", "hgnc", "chebi", "taxo
 	"interpro", "hmdb", "literature_mappings", "ensembl",
 	"uniparc", "uniref50", "uniref90", "uniref100", "my_data", "uniprot_unreviewed",
 	"ensembl_bacteria", "ensembl_fungi", "ensembl_metazoa", "ensembl_plants", "ensembl_protists",
-	"chembl_document", "chembl_assay", "chembl_activity", "chembl_molecule", "chembl_target", "chembl_cell_line", "chembl_mechanism"}
+	"chembl_document", "chembl_assay", "chembl_activity", "chembl_molecule", "chembl_target", "chembl_cell_line", "chembl_mechanism",
+	// variant-layer datasets whose committed conf path is a small test fixture;
+	// production ingest overrides it with --<dataset>.file (see bb.sh OPTS_*).
+	"conservation", "gnomad_variant", "mavedb", "revel", "esm1b", "saprot"}
 
 func main() {
 

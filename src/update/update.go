@@ -1138,6 +1138,24 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			d.datasets2 = append(d.datasets2, data)
 			go cons.update()
 			break
+		case "revel":
+			d.wg.Add(1)
+			rev := revel{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go rev.update()
+			break
+		case "esm1b":
+			d.wg.Add(1)
+			es := esm1b{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go es.update()
+			break
+		case "saprot":
+			d.wg.Add(1)
+			sp := saprot{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go sp.update()
+			break
 		case "cellxgene":
 			d.wg.Add(1)
 			cxg := cellxgene{source: data, d: d}

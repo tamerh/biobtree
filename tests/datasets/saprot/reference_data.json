@@ -1,0 +1,12 @@
+{
+  "dataset": "saprot",
+  "dataset_id": 812,
+  "description": "SaProt-650M structure-aware protein-LM variant effect (LLR, <=0, lower = more damaging), keyed uniprot:protein_variant. Hand-crafted fixture, NOT real SaProt data.",
+  "variants": [
+    {"id": "P01116:G12D", "uniprot_id": "P01116", "protein_variant": "G12D", "position": 12, "saprot_llr": -13.823, "gene_symbol": "KRAS", "damaging": true},
+    {"id": "P01116:G12V", "uniprot_id": "P01116", "protein_variant": "G12V", "position": 12, "saprot_llr": -12.500, "gene_symbol": "KRAS", "damaging": true},
+    {"id": "P60484:R130Q", "uniprot_id": "P60484", "protein_variant": "R130Q", "position": 130, "saprot_llr": -8.200, "gene_symbol": "PTEN", "damaging": true},
+    {"id": "P60484:A123V", "uniprot_id": "P60484", "protein_variant": "A123V", "position": 123, "saprot_llr": -2.100, "gene_symbol": "PTEN", "damaging": false},
+    {"id": "A0A075B6I0:M1A", "uniprot_id": "A0A075B6I0", "protein_variant": "M1A", "position": 1, "saprot_llr": -10.790, "gene_symbol": "IGLV8-61", "damaging": true}
+  ]
+}

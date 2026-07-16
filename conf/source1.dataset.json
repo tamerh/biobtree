@@ -1227,13 +1227,14 @@
     "textPriority": "40",
     "aliases": "phyloP,phastCons,GERP,evolutionary conservation,conservation score",
     "url": "https://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&position=chr£{id}",
-    "path": "raw_data/conservation/conservation_hg38.tsv.gz",
+    "path": "tests/datasets/conservation/conservation_hg38_fixture.tsv",
     "useLocalFile": "yes",
     "hasFilter": "yes",
     "attrs": "chromosome,position,phylop,gerp,phastcons",
     "compact_fields": "phylop,gerp,phastcons",
     "test_entries_count": "10000",
-    "bucketMethod": "alphanum"
+    "bucketMethod": "alphanum",
+    "federation": "conservation"
   },
   "biogrid": {
     "id": "62",
@@ -1291,6 +1292,51 @@
     "compact_fields": "mean_am_pathogenicity",
     "test_entries_count": "50000",
     "bucketMethod": "ensembl_hybrid"
+  },
+  "revel": {
+    "group": "revel",
+    "id": "810",
+    "name": "REVEL",
+    "aliases": "REVEL,Rare Exome Variant Ensemble Learner,ensemble missense predictor,missense pathogenicity",
+    "url": "https://sites.google.com/site/revelgenomics/",
+    "path": "tests/datasets/revel/revel_fixture.csv",
+    "useLocalFile": "yes",
+    "hasFilter": "yes",
+    "attrs": "chromosome,position,ref_allele,alt_allele,aaref,aaalt,revel,transcript_ids",
+    "compact_fields": "revel,aaref,aaalt",
+    "test_entries_count": "10000",
+    "bucketMethod": "alphanum",
+    "federation": "predictions"
+  },
+  "esm1b": {
+    "group": "esm1b",
+    "id": "811",
+    "name": "ESM1b",
+    "aliases": "ESM1b,ESM,protein language model,variant effect,LLR,evolutionary scale modeling",
+    "url": "https://huggingface.co/spaces/ntranoslab/esm_variants",
+    "path": "tests/datasets/esm1b/esm1b_fixture.tsv",
+    "useLocalFile": "yes",
+    "hasFilter": "yes",
+    "attrs": "uniprot_id,protein_variant,position,esm1b_llr,gene_symbol",
+    "compact_fields": "esm1b_llr,protein_variant",
+    "test_entries_count": "10000",
+    "bucketMethod": "alphanum",
+    "federation": "predictions"
+  },
+  "saprot": {
+    "group": "saprot",
+    "id": "812",
+    "name": "SaProt",
+    "aliases": "SaProt,structure-aware language model,3Di token,Foldseek",
+    "url": "https://github.com/westlake-repl/SaProt",
+    "path": "tests/datasets/saprot/saprot_fixture.tsv",
+    "useLocalFile": "yes",
+    "hasFilter": "yes",
+    "attrs": "uniprot_id,protein_variant,position,saprot_llr,gene_symbol",
+    "compact_fields": "saprot_llr,protein_variant",
+    "test_entries_count": "10000",
+    "bucketMethod": "alphanum",
+    "federation": "predictions"
   },
   "pharmgkb": {
     "checkURL": "https://api.clinpgx.org/v1/download/file/data/genes.zip",

@@ -329,6 +329,15 @@ func extractField(xref *pbuf.Xref, field string) string {
 	if a := xref.GetAlphamissenseTranscript(); a != nil {
 		return extractAlphaMissenseTranscriptField(a, field)
 	}
+	if a := xref.GetRevel(); a != nil {
+		return extractRevelField(a, field)
+	}
+	if a := xref.GetEsm1B(); a != nil {
+		return extractEsm1bField(a, field)
+	}
+	if a := xref.GetSaprot(); a != nil {
+		return extractSaprotField(a, field)
+	}
 	if a := xref.GetPharmgkb(); a != nil {
 		return extractPharmgkbField(a, field)
 	}
@@ -2405,6 +2414,67 @@ func extractConservationField(a *pbuf.ConservationAttr, field string) string {
 		return fmt.Sprintf("%.3f", a.Gerp)
 	case "phastcons":
 		return fmt.Sprintf("%.3f", a.Phastcons)
+	default:
+		return ""
+	}
+}
+
+// extractSaprotField extracts a field from SaprotAttr (structure-aware protein-LM
+// variant effect; keyed uniprot:protein_variant).
+func extractSaprotField(a *pbuf.SaprotAttr, field string) string {
+	switch field {
+	case "saprot_llr":
+		return fmt.Sprintf("%.3f", a.SaprotLlr)
+	case "protein_variant":
+		return a.ProteinVariant
+	case "uniprot_id":
+		return a.UniprotId
+	case "gene_symbol":
+		return a.GeneSymbol
+	case "position":
+		return fmt.Sprintf("%d", a.Position)
+	default:
+		return ""
+	}
+}
+
+// extractEsm1bField extracts a field from Esm1BAttr (protein-LM variant effect;
+// keyed uniprot:protein_variant).
+func extractEsm1bField(a *pbuf.Esm1BAttr, field string) string {
+	switch field {
+	case "esm1b_llr":
+		return fmt.Sprintf("%.3f", a.Esm1BLlr)
+	case "protein_variant":
+		return a.ProteinVariant
+	case "uniprot_id":
+		return a.UniprotId
+	case "gene_symbol":
+		return a.GeneSymbol
+	case "position":
+		return fmt.Sprintf("%d", a.Position)
+	default:
+		return ""
+	}
+}
+
+// extractRevelField extracts a field from RevelAttr (ensemble missense
+// pathogenicity; keyed chr:pos:ref:alt).
+func extractRevelField(a *pbuf.RevelAttr, field string) string {
+	switch field {
+	case "revel":
+		return fmt.Sprintf("%.3f", a.Revel)
+	case "aaref":
+		return a.Aaref
+	case "aaalt":
+		return a.Aaalt
+	case "chromosome":
+		return a.Chromosome
+	case "position":
+		return fmt.Sprintf("%d", a.Position)
+	case "ref_allele":
+		return a.RefAllele
+	case "alt_allele":
+		return a.AltAllele
 	default:
 		return ""
 	}

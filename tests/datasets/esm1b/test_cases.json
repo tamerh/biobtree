@@ -1,0 +1,36 @@
+{
+  "test_suite": "ESM1b Dataset Tests",
+  "dataset": "esm1b",
+  "dataset_id": 811,
+  "description": "ESM1b protein language-model variant effect. Keyed uniprot:protein_variant. LLR <= 0, more negative = more damaging. Joins to Atlas variants via (uniprot_id, protein_variant).",
+  "notes": "Fixture hand-crafted (5 rows across KRAS/PTEN/TEX48). NOT real ESM1b data.",
+  "test_cases": [
+    {
+      "id": "basic_lookup",
+      "description": "Lookup by uniprot:protein_variant resolves an Esm1b record",
+      "query_type": "lookup",
+      "sample_ids": ["P01116:G12D", "P60484:R130Q"],
+      "expected": {"has_results": true, "required_fields": ["uniprot_id", "protein_variant", "esm1b_llr"]}
+    },
+    {
+      "id": "key_scheme",
+      "description": "Entry ID is uniprot:protein_variant",
+      "query_type": "format",
+      "expected": {"id_pattern": "^[A-Z0-9-]+:[A-Z][0-9]+[A-Z]$"}
+    },
+    {
+      "id": "uniprot_xref",
+      "description": "Each ESM1b entry cross-references its UniProt protein",
+      "query_type": "xref",
+      "sample_ids": ["P01116:G12D"],
+      "expected": {"xref_dataset": "uniprot", "xref_id": "P01116"}
+    },
+    {
+      "id": "filter_damaging",
+      "description": "CEL filter esm1b_llr < -5 keeps damaging variants, drops tolerated",
+      "query_type": "filter",
+      "filter_expression": "esm1b.esm1b_llr < -5.0",
+      "expected": {"has_results": true}
+    }
+  ]
+}

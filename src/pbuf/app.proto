@@ -214,6 +214,9 @@ message Xref {
     MavedbAttr mavedb=810;
     ConservationAttr conservation=811;
     GnomadVariantAttr gnomad_variant=812;
+    RevelAttr revel=813;
+    Esm1BAttr esm1b=814;
+    SaprotAttr saprot=815;
 
   }
 

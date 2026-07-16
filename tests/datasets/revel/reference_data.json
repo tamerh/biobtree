@@ -1,0 +1,13 @@
+{
+  "dataset": "revel",
+  "dataset_id": 810,
+  "description": "REVEL ensemble missense pathogenicity (0-1), keyed chr:pos:ref:alt (GRCh38). Hand-crafted fixture (tests/datasets/revel/revel_fixture.csv), NOT real REVEL data.",
+  "variants": [
+    {"id": "1:35142:G:A", "chromosome": "1", "position": 35142, "ref": "G", "alt": "A", "revel": 0.027, "aaref": "T", "aaalt": "M", "transcript_ids": ["ENST00000417324", "ENST00000622660"], "note": "';'-separated transcript field split into two ids"},
+    {"id": "10:87864533:G:A", "chromosome": "10", "position": 87864533, "ref": "G", "alt": "A", "revel": 0.940, "aaref": "R", "aaalt": "H", "transcript_ids": ["ENST00000371953", "ENST00000618456"], "note": "max-REVEL dedup across two transcript rows (0.932, 0.940 -> 0.940)"},
+    {"id": "17:43097449:C:T", "chromosome": "17", "position": 43097449, "ref": "C", "alt": "T", "revel": 0.045, "aaref": "V", "aaalt": "M", "transcript_ids": ["ENST00000357654"]}
+  ],
+  "skipped": [
+    {"reason": "empty grch38_pos (ambiguous liftover)", "hg19": "17:41245900"}
+  ]
+}

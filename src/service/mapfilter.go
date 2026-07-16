@@ -1418,6 +1418,21 @@ func (s *Service) execCelGo(query *query.Query, targetXref *pbuf.Xref) (bool, er
 			attr.Id = id
 			evalMap["gnomad_variant"] = attr
 		}
+	case "revel":
+		if attr := targetXref.GetRevel(); attr != nil {
+			attr.Id = id
+			evalMap["revel"] = attr
+		}
+	case "esm1b":
+		if attr := targetXref.GetEsm1B(); attr != nil {
+			attr.Id = id
+			evalMap["esm1b"] = attr
+		}
+	case "saprot":
+		if attr := targetXref.GetSaprot(); attr != nil {
+			attr.Id = id
+			evalMap["saprot"] = attr
+		}
 	case "pharmgkb":
 		if attr := targetXref.GetPharmgkb(); attr != nil {
 			attr.Id = id

@@ -96,12 +96,22 @@ func (s *Service) initWithDbDir(dbDir string) error {
 		return err
 	}
 
-	// Set legacy fields to main federation for backward compatibility
+	// Set legacy fields to main federation for backward compatibility.
+	// If main is absent (single-federation deployment), fall back to any
+	// loaded federation (chosen deterministically) so legacy read paths that
+	// reference s.readEnv/s.readDbi remain valid.
 	if mainFed, ok := s.federations["main"]; ok {
 		s.readEnv = mainFed.env
 		s.readDbi = mainFed.dbi
+	} else if len(s.federations) > 0 {
+		names := s.getFederationNames()
+		sort.Strings(names)
+		fallback := s.federations[names[0]]
+		s.readEnv = fallback.env
+		s.readDbi = fallback.dbi
+		log.Printf("Main federation absent; using '%s' as legacy read federation", names[0])
 	} else {
-		return fmt.Errorf("main federation not found in %s - please make sure database was generated successfully", dbDir)
+		return fmt.Errorf("no federations found in %s - please make sure database was generated successfully", dbDir)
 	}
 
 	s.pager = &util.Pagekey{}
@@ -230,6 +240,9 @@ func (s *Service) initWithDbDir(dbDir string) error {
 		cel.Types(&pbuf.AlphaMissenseAttr{}),
 		cel.Types(&pbuf.AlphaMissenseTranscriptAttr{}),
 		cel.Types(&pbuf.GnomadVariantAttr{}),
+		cel.Types(&pbuf.RevelAttr{}),
+		cel.Types(&pbuf.Esm1BAttr{}),
+		cel.Types(&pbuf.SaprotAttr{}),
 		cel.Types(&pbuf.PharmgkbAttr{}),
 		cel.Types(&pbuf.PharmgkbRelatedGene{}),
 		cel.Types(&pbuf.PharmgkbGeneAttr{}),
@@ -443,6 +456,12 @@ func (s *Service) initWithDbDir(dbDir string) error {
 		cel.Declarations(
 			decls.NewIdent("gnomad_variant", decls.NewObjectType("pbuf.GnomadVariantAttr"), nil)),
 		cel.Declarations(
+			decls.NewIdent("revel", decls.NewObjectType("pbuf.RevelAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("esm1b", decls.NewObjectType("pbuf.Esm1BAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("saprot", decls.NewObjectType("pbuf.SaprotAttr"), nil)),
+		cel.Declarations(
 			decls.NewIdent("pharmgkb", decls.NewObjectType("pbuf.PharmgkbAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("pharmgkb_gene", decls.NewObjectType("pbuf.PharmgkbGeneAttr"), nil)),
@@ -631,7 +650,10 @@ func (s *Service) loadFederations(outDir string) error {
 		// Fallback: try to load from legacy location (direct outDir)
 		log.Printf("Main federation not found at %s, trying legacy location", mainDir)
 		if err := s.loadFederationLegacy("main", outDir); err != nil {
-			return fmt.Errorf("could not load main federation: %v", err)
+			// Main may legitimately be absent in a single-federation deployment
+			// (a standalone variant-layer server, or a per-dataset test build).
+			// Don't abort — continue loading the other federations below.
+			log.Printf("Main federation not loaded: %v (continuing with other federations)", err)
 		}
 	}
 

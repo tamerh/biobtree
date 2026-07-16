@@ -17,7 +17,7 @@ DESIGN PRINCIPLES:
 EDGES = """
 EDGES (what connects to what):
 ensembl: uniprot, go, transcript, exon, ortholog, paralog, hgnc, entrez, refseq, bgee, gwas, gencc, antibody, scxa, civic, intogen, hpa, hpa_antibody, pharmgkb_var_annotation, chembl_mechanism, ncrna_disease, ncrna_interaction, ncrna_drug, alliance_disease, gnomad_constraint, drugcentral, panelapp_gene
-hgnc: ensembl, uniprot, entrez, gencc, pharmgkb_gene, msigdb, clinvar, mim, refseq, alphafold, collectri, gwas, hpo, cellphonedb, civic, intogen, cellosaurus, clingen_gene_validity, clingen_dosage, clingen_variant, depmap, hpa, pharmgkb_var_annotation, chembl_mechanism, ncrna_disease, ncrna_interaction, ncrna_drug, alliance_disease, drugcentral, panelapp_gene, gnomad_constraint
+hgnc: ensembl, uniprot, entrez, gencc, pharmgkb_gene, msigdb, clinvar, mim, refseq, alphafold, collectri, gwas, hpo, cellphonedb, civic, intogen, cellosaurus, clingen_gene_validity, clingen_dosage, clingen_variant, depmap, hpa, pharmgkb_var_annotation, chembl_mechanism, ncrna_disease, ncrna_interaction, ncrna_drug, alliance_disease, drugcentral, panelapp_gene, gnomad_constraint, mavedb
 entrez: ensembl, uniprot, refseq, go, biogrid, pubchem_activity, ctd_gene_interaction, dbsnp, civic, intogen, clingen_dosage, generif, depmap, depmap_dependency, hpa, pharmgkb_var_annotation, orthologentrez, relatedentrez, neighborentrez, mgi, rgd, zfin, wormbase, xenbase, sgd, flybase, gnomad_constraint, drugcentral
 orthologentrez: entrez  # cross-species gene orthologs (NCBI gene_orthologs). >>entrez>>orthologentrez gives ortholog genes (filter species via taxonomy); reliable from model-organism genes (human-gene side currently incomplete)
 relatedentrez: entrez  # related genes (bidirectional): NCBI gene_group (functional gene/pseudogene/readthrough/region) + HGNC gene-family co-members
@@ -26,8 +26,8 @@ gnomad_constraint: ensembl, entrez, hgnc, transcript  # gene LoF constraint (pLI
 drugcentral: chembl_molecule, pubchem, uniprot, ensembl, hgnc, entrez  # approved drugs -> targets/MOA + FDA/EMA/PMDA approval; reach via name/INN/InChIKey or compound (chembl_molecule/pubchem >> drugcentral)
 refseq: ensembl, entrez, taxonomy, ccds, uniprot, mirdb
 mirdb: refseq
-transcript: ensembl, exon, ufeature, alphamissense, civic_variant, gnomad_constraint
-uniprot: ensembl, alphafold, interpro, pfam, pdb, ufeature, intact, string, string_interaction, biogrid, biogrid_interaction, chembl_target, go, reactome, rhea, swisslipids, bindingdb, antibody, pubchem_activity, cellphonedb, jaspar, signor, diamond_similarity, esm2_similarity, alphamissense, cellosaurus, hpa, chembl_mechanism, ncrna_interaction, drugcentral
+transcript: ensembl, exon, ufeature, alphamissense, civic_variant, gnomad_constraint, mavedb
+uniprot: ensembl, alphafold, interpro, pfam, pdb, ufeature, intact, string, string_interaction, biogrid, biogrid_interaction, chembl_target, go, reactome, rhea, swisslipids, bindingdb, antibody, pubchem_activity, cellphonedb, jaspar, signor, diamond_similarity, esm2_similarity, alphamissense, cellosaurus, hpa, chembl_mechanism, ncrna_interaction, drugcentral, mavedb
 alphafold: uniprot
 interpro: uniprot, go, interproparent, interprochild
 chembl_molecule: mesh, chembl_activity, chembl_target, pubchem, chebi, clinical_trials, chembl_moleculeparent, chembl_moleculechild, chembl_mechanism, ncrna_drug, faers, drugcentral  # parent=anhydrous/parent form, child=salt forms
@@ -45,6 +45,12 @@ lipidmaps: chebi, pubchem
 dbsnp: entrez, clinvar, pharmgkb_variant, alphamissense, spliceai, pharmgkb_var_annotation
 clinvar: hgnc, mondo, hpo, dbsnp, orphanet, civic_variant, cellosaurus, clingen_variant
 alphamissense: uniprot, transcript
+mavedb: uniprot, hgnc, ensembl, transcript  # deep-mutational-scanning functional variant scores (ACMG PS3/BS3); reach via gene/protein >> mavedb; per-variant score + hgvs_pro + license
+# VARIANT-EFFECT SCORES — look up by the variant's OWN key with biobtree_entry(dataset=..), NOT via >>chains:
+#   conservation    key "chr:pos" (GRCh38)          per-position phyloP / GERP / phastCons (also covers non-missense/splice positions)
+#   gnomad_variant  key "chr:pos:ref:alt" (GRCh38)  gnomAD v4.1 genomes allele freq (af, grpmax, per-ancestry); also xrefs dbsnp
+#   revel           key "chr:pos:ref:alt" (GRCh38)  REVEL ensemble missense pathogenicity (0-1, higher = pathogenic)
+#   saprot          key "uniprot:protein_variant"   SaProt protein-LM variant effect (LLR <=0, lower = more damaging), e.g. P01116:G12D
 gwas: gwas_study, efo, dbsnp, hgnc, mondo
 gwas_study: gwas, efo, mondo
 mondo: gencc, clinvar, efo, mesh, hpo, clinical_trials, antibody, cellxgene, cellxgene_celltype, orphanet, mondoparent, mondochild, gwas, gwas_study, civic, intogen, cellosaurus, doid, mim, ncit, umls, medgen, gard, sctid, icd9, icd10cm, icd10who, icd11, nando, meddra, nord, uberon, ncrna_disease, panelapp_gene  # disease cross-refs + disease_has_location anatomy, from the Mondo OBO

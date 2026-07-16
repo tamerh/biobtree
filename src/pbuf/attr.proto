@@ -1984,6 +1984,61 @@ message AlphaMissenseTranscriptAttr {
   string id = 100; // transient - populated at runtime from Xref.Identifier
 }
 
+// REVEL - ensemble missense pathogenicity score (Dataset ID: 810)
+// Keyed "chr:pos:ref:alt" (GRCh38/hg38), co-locates with AlphaMissense/SpliceAI.
+// Score is 0-1 (higher = more pathogenic). ClinGen SVI / Pejaver 2022 calibrated
+// PP3/BP4 thresholds: PP3_Strong >=0.932, PP3_Moderate [0.773,0.932),
+// PP3_Supporting [0.644,0.773), indeterminate (0.290,0.644),
+// BP4_Supporting (0.183,0.290], BP4_Moderate (0.016,0.183],
+// BP4_Strong (0.003,0.016], BP4_VeryStrong <=0.003.
+// Source: Ioannidis et al. 2016 AJHG (REVEL v1.3, Zenodo DOI 10.5281/zenodo.7072866,
+// ODbL) — ingest-only, excluded from the CC BY-NC-SA KG export.
+message RevelAttr {
+  string chromosome = 1;                          // Chromosome (1-22, X, Y)
+  int64 position = 2;                             // 1-based GRCh38 genomic position
+  string ref_allele = 3;                          // Reference allele
+  string alt_allele = 4;                          // Alternate allele
+  string aaref = 5;                               // Reference amino acid
+  string aaalt = 6;                               // Alternate amino acid
+  double revel = 7;                               // REVEL score (0-1, higher = more pathogenic)
+  repeated string transcript_ids = 8;             // Ensembl transcript IDs the score applies to
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// ESM1b - protein language-model variant effect (Dataset ID: 811)
+// Keyed "uniprot:protein_variant" (e.g. "P01116:G12D") — protein-level, NOT
+// genomic. Joins to Atlas variants via (uniprot_id, protein_variant), the same
+// single-letter WT+pos+mut notation AlphaMissense uses. LLR is the ESM1b
+// log-likelihood ratio: <=0, MORE NEGATIVE = more damaging (~0 to -20).
+// Source: Brandes et al. 2023 Nat Genet (isoform-aware whole-proteome release,
+// HuggingFace ntranoslab/esm_variants). Published scores are CC-BY-NC → ingest-
+// only, excluded from the CC BY-NC-SA KG export (a self-computed ESM run, being
+// MIT-model-derived, would be export-eligible).
+message Esm1BAttr {
+  string uniprot_id = 1;                          // UniProt accession / isoform (e.g. "P01116", "P01116-2")
+  string protein_variant = 2;                     // WT+pos+mut single-letter (e.g. "G12D")
+  int64 position = 3;                             // 1-based residue position
+  double esm1b_llr = 4;                           // ESM1b log-likelihood ratio (<=0, lower = more damaging)
+  string gene_symbol = 5;                         // Gene symbol (from isoform list)
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// SaProt - structure-aware protein language-model variant effect (Dataset ID: 812)
+// Keyed "uniprot:protein_variant" (e.g. "P01116:G12D"), same scheme as ESM1b.
+// LLR = log P(mut) - log P(wt), SaProt-650M wt-marginal: <=0, more negative = more
+// damaging. UNSUPERVISED and structure-aware (AlphaFold 3Di tokens via Foldseek) —
+// an independent second opinion to AlphaMissense (which is weakly supervised).
+// Source: SaProt (Su et al., ICLR 2024; westlake-repl/SaProt, MIT) — computed by
+// bioyoda from MIT weights, so the scores are ours → KG-export ELIGIBLE.
+message SaprotAttr {
+  string uniprot_id = 1;                          // UniProt accession / isoform
+  string protein_variant = 2;                     // WT+pos+mut single-letter (e.g. "G12D")
+  int64 position = 3;                             // 1-based residue position
+  double saprot_llr = 4;                          // SaProt log-likelihood ratio (<=0, lower = more damaging)
+  string gene_symbol = 5;                         // Gene symbol (from isoform list)
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
 // Conservation - per-position evolutionary conservation scores (Dataset ID: 808)
 // Keyed by genomic position "chr:pos" (GRCh38/hg38), ref/alt-agnostic.
 // NOTE: this differs from the variant datasets (alphamissense/spliceai/

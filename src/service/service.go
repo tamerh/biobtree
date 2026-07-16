@@ -1310,6 +1310,32 @@ func (s *Service) Search(ids []string, datasetFilters []uint32, page string, q *
 			return nil, err
 		}
 
+		// Dataset-filtered search: also consult each requested dataset's OWN
+		// federation directly (same routing as /ws/entry/'s LookupByDataset).
+		// Lookup() pattern-routes to main and only cross-federation-merges on a
+		// primary MISS, so a coordinate key that also exists in main (alphamissense/
+		// spliceai share chr:pos:ref:alt) shadows a same-keyed entry that lives in
+		// another federation (revel/gnomad_variant) — a dataset-filtered search would
+		// otherwise return nothing. Deduped so main-resident datasets aren't doubled;
+		// misses (id is not that dataset's key) are ignored.
+		if len(datasetFilters) > 0 {
+			for _, dfID := range datasetFilters {
+				already := false
+				for _, ex := range result.Results {
+					if ex.Dataset == dfID && !ex.IsLink {
+						already = true
+						break
+					}
+				}
+				if already {
+					continue
+				}
+				if dx, derr := s.LookupByDataset(id, dfID); derr == nil && dx != nil {
+					result.Results = append(result.Results, dx)
+				}
+			}
+		}
+
 		if pagingInfo != nil && !pagingInfo.resultIndexProcessed { // starts from last process id results
 			result.Results = result.Results[pagingInfo.resultIndex:] //todo slice bound out of range.
 			pagingInfo.resultIndexProcessed = true

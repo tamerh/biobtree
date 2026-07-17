@@ -884,6 +884,12 @@ if [[ "$CHECK_ONLY" == "true" ]]; then
     for dataset in "${DATASETS[@]}"; do
         check_dataset "$dataset"
     done
+    # The per-source check above is blind to version/date-pinned URLs (e.g. string
+    # v12.0, bindingdb _YYYYMM_) — it only inspects the frozen pinned file. Run the
+    # dedicated version-manifest checker to cover those.
+    echo ""
+    echo "Checking version/date-pinned datasets (manifest-based)..."
+    python3 "$(dirname "$0")/src/scripts/version_check/check_versions.py" || true
     exit 0
 fi
 

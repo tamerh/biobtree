@@ -1,0 +1,65 @@
+{
+  "_comment": "Version/date-pinned datasets that `biobtree check --all` CANNOT detect new releases for. The built-in check only inspects the frozen pinned URL (e.g. string v12.0, bindingdb _202606_), so a brand-new version at a NEW url is invisible to it, and a removed old file 404s at download time. This manifest defines, per dataset, how to discover the latest upstream version and where our pinned version lives in conf. Run: python3 src/scripts/version_check/check_versions.py [--fix]",
+  "conf_file": "conf/source1.dataset.json",
+  "datasets": {
+    "bindingdb": {
+      "method": "monthly_probe",
+      "conf_field": "path",
+      "current_regex": "_(\\d{6})_",
+      "url_template": "https://www.bindingdb.org/rwd/bind/downloads/BindingDB_All_{YYYYMM}_tsv.zip",
+      "reference": "https://www.bindingdb.org/rwd/bind/chemsearch/marvin/Download.jsp",
+      "note": "monthly release; only the latest month is kept, so a stale month 404s"
+    },
+    "string": {
+      "method": "dir_probe",
+      "conf_field": "path",
+      "current_regex": "\\.v(\\d+\\.\\d+)/",
+      "url_template": "https://stringdb-downloads.org/download/protein.info.v{V}/9606.protein.info.v{V}.txt.gz",
+      "candidates": ["12.0", "12.5", "13.0"],
+      "reference": "https://string-db.org/cgi/download",
+      "note": "bulk flat files can lag the web version (v12.5 web, v12.0 bulk). Fixing means bumping path + downloadUrlLinks/Aliases/Info + data_version."
+    },
+    "patent": {
+      "method": "manual",
+      "conf_field": "data_version",
+      "current_regex": "(\\d{4}-\\d{2}-\\d{2})",
+      "reference": "https://ftp.ebi.ac.uk/pub/databases/chembl/SureChEMBL/data/",
+      "note": "useLocalFile=yes (manual download); SureChEMBL is monthly — verify + re-fetch"
+    },
+    "msigdb": {
+      "method": "manual",
+      "conf_field": "path",
+      "current_regex": "_v(\\d{4}\\.\\d+)\\.",
+      "reference": "https://www.gsea-msigdb.org/gsea/downloads.jsp",
+      "note": "login-gated download; releases ~annually (2026.1, 2026.2, 2027.1 ...)"
+    },
+    "drugcentral": {
+      "method": "manual",
+      "conf_field": "path",
+      "current_regex": "/(\\d{4}_\\d{2}_\\d{2})/",
+      "reference": "https://unmtid-dbs.net/download/DrugCentral/",
+      "note": "pinned 2021_09_01; DrugCentral rarely re-releases; RED license (free-tier only)"
+    },
+    "gnomad_constraint": {
+      "method": "manual",
+      "conf_field": "path",
+      "current_regex": "release/([\\d.]+)/",
+      "reference": "https://gnomad.broadinstitute.org/downloads",
+      "note": "gnomAD v4.1 current; bump on a new major gnomAD release"
+    },
+    "mirdb": {
+      "method": "manual",
+      "conf_field": "path",
+      "current_regex": "_v([\\d.]+)_",
+      "reference": "https://mirdb.org/download.html",
+      "note": "v6.0 static; non-commercial (free-tier only)"
+    },
+    "cellphonedb": {
+      "method": "manual",
+      "conf_field": "data_version",
+      "current_regex": "v([\\d.]+)",
+      "reference": "https://github.com/ventolab/cellphonedb-data/releases",
+      "note": "manual curated download; v5.0 current"
+    }
+  }
+}

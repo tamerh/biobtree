@@ -1095,7 +1095,7 @@
     "id": "60",
     "name": "BindingDB",
     "textPriority": "70",
-    "path": "https://www.bindingdb.org/rwd/bind/downloads/BindingDB_All_202606_tsv.zip",
+    "path": "https://www.bindingdb.org/rwd/bind/downloads/BindingDB_All_202607_tsv.zip",
     "aliases": "BindingDB",
     "url": "https://www.bindingdb.org/bind/chemsearch/marvin/MolStructure.jsp?monession=£{id}",
     "useLocalFile": "no",

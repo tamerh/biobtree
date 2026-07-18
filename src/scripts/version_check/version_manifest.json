@@ -10,6 +10,15 @@
       "reference": "https://www.bindingdb.org/rwd/bind/chemsearch/marvin/Download.jsp",
       "note": "monthly release; only the latest month is kept, so a stale month 404s"
     },
+    "fantom5_enhancer": {
+      "method": "dir_probe",
+      "conf_field": "geneGFF3",
+      "current_regex": "GRCh38\\.(\\d+)\\.",
+      "url_template": "https://ftp.ensembl.org/pub/current_gff3/homo_sapiens/Homo_sapiens.GRCh38.{V}.chr.gff3.gz",
+      "candidates": ["115", "116", "117", "118", "119", "120"],
+      "reference": "https://ftp.ensembl.org/pub/current_gff3/homo_sapiens/",
+      "note": "enhancer→gene proximity mapping needs the Ensembl gene GFF3, whose filename hard-codes the Ensembl release (e.g. .116.). current_gff3 auto-tracks the dir but NOT the release number in the filename — bump geneGFF3 each Ensembl release or the download 404s and enhancer→gene xrefs silently vanish (bit us at 115→116)."
+    },
     "string": {
       "method": "dir_probe",
       "conf_field": "path",

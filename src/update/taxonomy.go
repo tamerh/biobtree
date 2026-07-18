@@ -63,7 +63,7 @@ func (t *taxonomy) update() {
 
 	p := xmlparser.NewXMLParser(br, "taxon").SkipElements([]string{"lineage"})
 
-	for r := range p.Stream() {
+	for r := range streamChecked(p, "taxonomy") {
 
 		elapsed := int64(time.Since(t.d.start).Seconds())
 		if elapsed > previous+t.d.progInterval {

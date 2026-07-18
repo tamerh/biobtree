@@ -253,7 +253,7 @@ func (p *patents) processPatents() (int, error) {
 	count := 0
 	var previous int64
 
-	for j := range parser.Stream() {
+	for j := range streamCheckedJSON(parser, "patent") {
 		count++
 
 		elapsed := int64(time.Since(p.d.start).Seconds())
@@ -397,7 +397,7 @@ func (p *patents) processCompounds() (int, error) {
 	count := 0
 	var previous int64
 
-	for j := range parser.Stream() {
+	for j := range streamCheckedJSON(parser, "patent") {
 		count++
 
 		elapsed := int64(time.Since(p.d.start).Seconds())
@@ -539,7 +539,7 @@ func (p *patents) processMappings() (int, error) {
 	count := 0
 	var previous int64
 
-	for j := range parser.Stream() {
+	for j := range streamCheckedJSON(parser, "patent") {
 		count++
 
 		elapsed := int64(time.Since(p.d.start).Seconds())
@@ -613,7 +613,7 @@ func (p *patents) buildPatentIDMap() (map[string]string, error) {
 	parser := jsparser.NewJSONParser(br, "patents")
 
 	var previous int64
-	for j := range parser.Stream() {
+	for j := range streamCheckedJSON(parser, "patent") {
 		elapsed := int64(time.Since(p.d.start).Seconds())
 		if elapsed > previous+p.d.progInterval {
 			kbytesPerSecond := int64(parser.TotalReadSize) / elapsed / 1024

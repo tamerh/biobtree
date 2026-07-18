@@ -109,7 +109,7 @@ func (e *hgnc) update() {
 	// O(n^2) edge explosion on huge groups (e.g. "Zinc fingers").
 	familyMembers := make(map[string]map[string]struct{})
 
-	for j := range p.Stream() {
+	for j := range streamCheckedJSON(p, "hgnc") {
 
 		elapsed := int64(time.Since(e.d.start).Seconds())
 		if elapsed > previous+e.d.progInterval {

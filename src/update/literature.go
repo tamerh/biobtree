@@ -165,7 +165,7 @@ func (l *literature) literatureMappings2NotUsed(source string) {
 
 			p := xmlparser.NewXMLParser(bbr, "PMC_ARTICLE").SkipElements([]string{"AuthorList,journalTitle"})
 
-			for r := range p.Stream() {
+			for r := range streamChecked(p, "literature") {
 				// accs
 				var pmid, doi, pmcid string
 				for _, v := range r.Childs["pmid"] {

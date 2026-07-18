@@ -106,7 +106,7 @@ func (u *uniparc) update() {
 		var entryid string
 		var fileEntries uint64
 
-		for r := range p.Stream() {
+		for r := range streamChecked(p, "uniparc") {
 
 			elapsed := int64(time.Since(u.d.start).Seconds())
 			totalRead += int64(p.TotalReadSize)

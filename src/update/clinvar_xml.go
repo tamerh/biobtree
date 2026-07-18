@@ -88,7 +88,7 @@ func (c *clinvarXML) parseAndSaveVCVFile(testLimit int, idLogFile *os.File) {
 	var previous int64
 
 	// Stream through VariationArchive elements
-	for variation := range parser.Stream() {
+	for variation := range streamChecked(parser, "clinvar") {
 
 		// Progress tracking
 		elapsed := int64(time.Since(c.d.start).Seconds())

@@ -64,7 +64,7 @@ func (u *uniref) update() {
 
 	var previous int64
 
-	for r := range p.Stream() {
+	for r := range streamChecked(p, "uniref") {
 
 		elapsed := int64(time.Since(u.d.start).Seconds())
 		if elapsed > previous+u.d.progInterval {

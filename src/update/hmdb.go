@@ -251,7 +251,7 @@ func (h *hmdb) update() {
 	var previous int64
 
 	// Store stream channel for proper cleanup
-	stream := p.Stream()
+	stream := streamChecked(p, "hmdb")
 	var stoppedEarly bool
 
 	for r := range stream {

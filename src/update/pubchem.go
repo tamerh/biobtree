@@ -204,7 +204,7 @@ func (p *pubchem) preloadSureChEMBLPatents() {
 	parser := jsparser.NewJSONParser(br, "patents")
 
 	count := 0
-	for j := range parser.Stream() {
+	for j := range streamCheckedJSON(parser, "pubchem") {
 		// Extract patent_number field (same as patents.go)
 		patentNumber := getString(j, "patent_number")
 		if patentNumber == "" {

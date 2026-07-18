@@ -68,7 +68,7 @@ func (g *ontology) update() {
 
 	p := xmlparser.NewXMLParser(br, "owl:Class").SkipElements([]string{"owl:Axiom"})
 
-	for r := range p.Stream() {
+	for r := range streamChecked(p, "ontology") {
 
 		previous = 0
 		start = time.Now()

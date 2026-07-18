@@ -631,7 +631,7 @@ func (e *ensembl) update() {
 
 				p := jsparser.NewJSONParser(br, "genes").SkipProps([]string{"lineage", "evidence", "coord_system", "sifts", "xrefs", "gene_tree_id", "orthology_type", "exons"})
 
-				for j := range p.Stream() {
+				for j := range streamCheckedJSON(p, "ensembl") {
 
 					if j.ObjectVals["id"] != nil {
 

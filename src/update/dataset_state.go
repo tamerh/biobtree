@@ -222,10 +222,27 @@ func SaveDatasetState(state *DatasetState, outDir string) error {
 	}
 
 	// Merge: add/update current datasets into disk state (only source datasets + textsearch)
+	// COMPLETENESS REGRESSION CHECK. A large unexplained drop in a dataset's edge/
+	// record count vs the previous build almost always means a SILENTLY truncated or
+	// incomplete source — e.g. the 2026-07 ClinVar case where a network stall cut the
+	// download to ~40% (4.5M -> 1.8M variants) and it merged partial data without an
+	// error. We flag any refreshed source that shrank >30% so it can't ship unnoticed.
+	var completenessWarnings []string
 	for name, info := range currentDatasets {
 		if IsSourceDataset(name) {
+			if old, ok := diskState.Datasets[name]; ok && old.TotalEdges > 1000 && info.TotalEdges > 0 {
+				ratio := float64(info.TotalEdges) / float64(old.TotalEdges)
+				if ratio < 0.7 {
+					drop := (1 - ratio) * 100
+					log.Printf("⚠️  COMPLETENESS WARNING [%s]: total edges %d -> %d (-%.0f%%) vs previous build — possible truncated/incomplete source; VERIFY before shipping", name, old.TotalEdges, info.TotalEdges, drop)
+					completenessWarnings = append(completenessWarnings, fmt.Sprintf("%s (-%.0f%%: %d->%d)", name, drop, old.TotalEdges, info.TotalEdges))
+				}
+			}
 			diskState.Datasets[name] = info
 		}
+	}
+	if len(completenessWarnings) > 0 {
+		log.Printf("⚠️⚠️  COMPLETENESS: %d dataset(s) shrank >30%% vs previous build — REVIEW for truncated/incomplete downloads before activating: %s", len(completenessWarnings), strings.Join(completenessWarnings, "; "))
 	}
 
 	// Filter out any non-source datasets that might exist in disk state

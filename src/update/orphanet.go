@@ -127,7 +127,7 @@ func (o *orphanet) parseProduct1(entries map[string]*orphaEntry, testLimit int, 
 	var processedCount int
 	var previous int64
 
-	for disorder := range parser.Stream() {
+	for disorder := range streamChecked(parser, "orphanet") {
 		// Progress tracking
 		elapsed := int64(time.Since(o.d.start).Seconds())
 		if elapsed > previous+o.d.progInterval {
@@ -252,7 +252,7 @@ func (o *orphanet) parseProduct4(entries map[string]*orphaEntry) int {
 
 	updatedCount := 0
 
-	for hpoSet := range parser.Stream() {
+	for hpoSet := range streamChecked(parser, "orphanet") {
 		// Get Disorder element
 		disorderList := hpoSet.Childs["Disorder"]
 		if disorderList == nil || len(disorderList) == 0 {
@@ -350,7 +350,7 @@ func (o *orphanet) parseProduct9(entries map[string]*orphaEntry) int {
 	parser := xmlparser.NewXMLParser(br, "Disorder")
 
 	updatedCount := 0
-	for disorder := range parser.Stream() {
+	for disorder := range streamChecked(parser, "orphanet") {
 		orphaCode := getXMLChildText(disorder, "OrphaCode")
 		if orphaCode == "" {
 			continue
@@ -413,7 +413,7 @@ func (o *orphanet) parseProduct9Ages(entries map[string]*orphaEntry) int {
 	parser := xmlparser.NewXMLParser(br, "Disorder")
 
 	updatedCount := 0
-	for disorder := range parser.Stream() {
+	for disorder := range streamChecked(parser, "orphanet") {
 		orphaCode := getXMLChildText(disorder, "OrphaCode")
 		if orphaCode == "" {
 			continue
@@ -472,7 +472,7 @@ func (o *orphanet) parseProduct6(entries map[string]*orphaEntry) int {
 	sourceID := config.Dataconf[o.source]["id"]
 	updatedCount := 0
 
-	for disorder := range parser.Stream() {
+	for disorder := range streamChecked(parser, "orphanet") {
 		orphaCode := getXMLChildText(disorder, "OrphaCode")
 		if orphaCode == "" {
 			continue

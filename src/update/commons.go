@@ -16,7 +16,53 @@ import (
 	"time"
 
 	"github.com/jlaffaye/ftp"
+	"github.com/tamerh/jsparser"
+	xmlparser "github.com/tamerh/xml-stream-parser"
 )
+
+// streamChecked wraps an xmlparser.Stream() and FAILS LOUDLY on any parse error
+// instead of silently ending the range. The upstream stream parser emits an
+// element with .Err set on a read/parse error (e.g. a truncated or corrupt
+// download producing invalid XML); a bare `for x := range p.Stream()` would
+// `continue` past that error element (it has no useful data) and finish as if
+// successful — silently shipping a PARTIAL dataset. That is exactly how a
+// truncated ClinVar download parsed only ~40% of records without an error.
+//
+// We never want to swallow a stream parse error: a partial dataset must abort the
+// update (log.Fatal exits this dataset's process; bb.sh marks it failed and moves
+// on), not merge incomplete data. Callers use `for x := range streamChecked(p, name)`.
+func streamChecked(p *xmlparser.XMLParser, dataset string) chan *xmlparser.XMLElement {
+	out := make(chan *xmlparser.XMLElement, 256)
+	go func() {
+		defer close(out)
+		for el := range p.Stream() {
+			if el.Err != nil {
+				log.Fatalf("FATAL [%s]: XML stream parse error (likely a truncated/corrupt download — refusing to ship partial data): %v", dataset, el.Err)
+			}
+			out <- el
+		}
+	}()
+	return out
+}
+
+// streamCheckedJSON is the JSON-parser counterpart of streamChecked: it fails
+// loudly on any jsparser stream error (truncated/corrupt download) instead of
+// silently ending the range and shipping a partial dataset. Same rationale as
+// streamChecked — the big NCBI JSON streams (ensembl, pubchem, hgnc, patents)
+// must abort the update on a short read, never merge incomplete data.
+func streamCheckedJSON(p *jsparser.JsonParser, dataset string) chan *jsparser.JSON {
+	out := make(chan *jsparser.JSON, 256)
+	go func() {
+		defer close(out)
+		for el := range p.Stream() {
+			if el.Err != nil {
+				log.Fatalf("FATAL [%s]: JSON stream parse error (likely a truncated/corrupt download — refusing to ship partial data): %v", dataset, el.Err)
+			}
+			out <- el
+		}
+	}()
+	return out
+}
 
 // httpClient is a custom HTTP client with timeouts configured for large file downloads
 // Note: No overall Timeout set - that would limit body reading time for large files

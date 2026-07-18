@@ -537,7 +537,7 @@ func (e *ensembl) taxidMap() map[string]int {
 
 	taxNameIDMap := map[string]int{}
 
-	for r := range p.Stream() {
+	for r := range streamChecked(p, "ensembl_meta") {
 
 		// id
 		id, err := strconv.Atoi(r.Attrs["taxId"])

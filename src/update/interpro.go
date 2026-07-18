@@ -59,7 +59,7 @@ func (i *interpro) update() {
 	var previous int64
 	attr := pbuf.InterproAttr{}
 
-	for r := range p.Stream() {
+	for r := range streamChecked(p, "interpro") {
 
 		elapsed := int64(time.Since(i.d.start).Seconds())
 		if elapsed > previous+i.d.progInterval {

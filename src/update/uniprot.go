@@ -569,7 +569,7 @@ func (u *uniprot) update(taxoids []int) {
 	//index := 0
 
 uniloop:
-	for r := range p.Stream() {
+	for r := range streamChecked(p, "uniprot") {
 
 		elapsed := int64(time.Since(u.d.start).Seconds())
 		if elapsed > previous+u.d.progInterval {

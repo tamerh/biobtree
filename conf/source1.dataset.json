@@ -596,7 +596,7 @@
     "url": "https://www.ncbi.nlm.nih.gov/clinvar/variation/£{id}",
     "useLocalFile": "no",
     "hasFilter": "yes",
-    "attrs": "variation_id,allele_id,name,type,chromosome,start,stop,reference_allele,alternate_allele,assembly,germline_classification,review_status,last_evaluated,number_submitters,gene_id,gene_symbol,hgnc_id,[]phenotype_list,[]phenotype_ids,[]hgvs_expressions,[]submissions,[]functional_consequences,evidence_support",
+    "attrs": "variation_id,allele_id,name,type,chromosome,start,stop,reference_allele,alternate_allele,assembly,germline_classification,germline_condition,germline_condition_id,review_status,last_evaluated,number_submitters,gene_id,gene_symbol,hgnc_id,[]phenotype_list,[]phenotype_ids,[]hgvs_expressions,[]submissions,[]functional_consequences,evidence_support",
     "compact_fields": "name,type,germline_classification,gene_symbol,review_status,chromosome",
     "test_entries_count": "10000",
     "bucketMethod": "numeric"

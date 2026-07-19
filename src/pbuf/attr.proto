@@ -720,6 +720,8 @@ message ClinvarAttr {
   // Associated Conditions
   repeated string phenotype_list =17;       // Human-readable condition names
   repeated string phenotype_ids =18;        // MedGen/MONDO/OMIM IDs
+  string germline_condition = 26;           // Preferred name of the aggregate germline condition (the defining condition the classification is FOR)
+  string germline_condition_id = 27;        // Its ontology id (MONDO preferred; else OMIM/MedGen/Orphanet/HPO)
 
   // Gene Association
   string gene_id =19;                       // Entrez Gene ID

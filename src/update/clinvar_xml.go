@@ -345,6 +345,14 @@ func (c *clinvarXML) createXrefs(variation *xmlparser.XMLElement, variationID, s
 	if classifiedRecords := variation.Childs["ClassifiedRecord"]; classifiedRecords != nil && len(classifiedRecords) > 0 {
 		classified := classifiedRecords[0]
 
+		// PRIORITY: extract the aggregate germline condition — the single defining
+		// condition the germline classification is FOR. ClinVar flags it with
+		// ContributesToAggregateClassification="true" and marks its Preferred name.
+		// We expose it as an explicit attr and emit its condition xref FIRST so
+		// >>clinvar>>mondo leads with the defining condition (not an alphabetically
+		// sorted neighbour like "Becker" ahead of "Duchenne").
+		c.extractAggregateCondition(classified, variationID, sourceID, attr, addXrefOnce)
+
 		// SimpleAllele XRefs
 		if simpleAlleles := classified.Childs["SimpleAllele"]; simpleAlleles != nil && len(simpleAlleles) > 0 {
 			allele := simpleAlleles[0]
@@ -563,10 +571,134 @@ func (c *clinvarXML) createXrefs(variation *xmlparser.XMLElement, variationID, s
 		}
 	}
 
-	// Remove duplicates from arrays
-	attr.PhenotypeList = uniqueStrings(attr.PhenotypeList)
-	attr.PhenotypeIds = uniqueStrings(attr.PhenotypeIds)
+	// Remove duplicates from arrays.
+	// Phenotypes use order-preserving dedup so the aggregate/defining condition
+	// (prepended by extractAggregateCondition) stays first — do NOT alphabetize
+	// them, which is what surfaced the wrong condition ahead of the defining one.
+	attr.PhenotypeList = uniqueStringsStable(attr.PhenotypeList)
+	attr.PhenotypeIds = uniqueStringsStable(attr.PhenotypeIds)
 	attr.HgvsExpressions = uniqueStrings(attr.HgvsExpressions)
+}
+
+// extractAggregateCondition finds the aggregate germline condition — the single
+// defining condition the germline classification is rendered FOR — and exposes it
+// as attr.GermlineCondition/GermlineConditionId, prepends it to the phenotype
+// arrays, and emits its condition xref first. In ClinVar VCV 2.x the aggregate
+// TraitSet is flagged ContributesToAggregateClassification="true" and its Trait
+// carries a Name with ElementValue Type="Preferred". The first such TraitSet with a
+// real (non-placeholder) preferred trait wins.
+func (c *clinvarXML) extractAggregateCondition(classified xmlparser.XMLElement, variationID, sourceID string, attr *pbuf.ClinvarAttr, addXrefOnce func(fromID, fromDataset, toID, toDataset string, isTextLink bool)) {
+	if attr.GermlineCondition != "" {
+		return
+	}
+	classifications := classified.Childs["Classifications"]
+	if len(classifications) == 0 {
+		return
+	}
+	for _, classification := range classifications {
+		for _, germline := range classification.Childs["GermlineClassification"] {
+			condLists := germline.Childs["ConditionList"]
+			if len(condLists) == 0 {
+				continue
+			}
+			for _, traitSet := range condLists[0].Childs["TraitSet"] {
+				if traitSet.Attrs["ContributesToAggregateClassification"] != "true" {
+					continue
+				}
+				for _, trait := range traitSet.Childs["Trait"] {
+					name := preferredTraitName(trait)
+					if name == "" || isPlaceholderCondition(name) {
+						continue
+					}
+					condID, condDB := bestTraitXref(trait)
+
+					attr.GermlineCondition = name
+					attr.GermlineConditionId = condID
+
+					// Prepend to phenotype arrays so the defining condition leads.
+					attr.PhenotypeList = append([]string{name}, attr.PhenotypeList...)
+					if condID != "" {
+						attr.PhenotypeIds = append([]string{condID}, attr.PhenotypeIds...)
+					}
+
+					// Emit the defining condition's xref first (deduped against later paths).
+					if condID != "" && condDB != "" {
+						if _, exists := config.Dataconf[condDB]; exists {
+							addXrefOnce(variationID, sourceID, condID, condDB, false)
+						}
+					}
+					return // first real aggregate condition wins
+				}
+			}
+		}
+	}
+}
+
+// preferredTraitName returns the Trait's Name whose ElementValue Type="Preferred";
+// falls back to the first non-empty name if no Preferred is present.
+func preferredTraitName(trait xmlparser.XMLElement) string {
+	var fallback string
+	for _, name := range trait.Childs["Name"] {
+		for _, elem := range name.Childs["ElementValue"] {
+			if elem.InnerText == "" {
+				continue
+			}
+			if elem.Attrs["Type"] == "Preferred" {
+				return elem.InnerText
+			}
+			if fallback == "" {
+				fallback = elem.InnerText
+			}
+		}
+	}
+	return fallback
+}
+
+// bestTraitXref returns the Trait's best condition xref (id, dataset), preferring
+// MONDO, then OMIM, MedGen, Orphanet, HPO. Returns "","" if none present.
+func bestTraitXref(trait xmlparser.XMLElement) (string, string) {
+	rank := map[string]int{"mondo": 1, "omim": 2, "medgen": 3, "orphanet": 4, "hpo": 5}
+	bestID, bestDB, bestRank := "", "", 99
+	for _, xref := range trait.Childs["XRef"] {
+		db := strings.ToLower(xref.Attrs["DB"])
+		if db == "human phenotype ontology" {
+			db = "hpo"
+		}
+		id := xref.Attrs["ID"]
+		if id == "" {
+			continue
+		}
+		if r, ok := rank[db]; ok && r < bestRank {
+			bestRank, bestID, bestDB = r, id, db
+		}
+	}
+	return bestID, bestDB
+}
+
+// isPlaceholderCondition reports whether a ClinVar condition name is a non-specific
+// placeholder that should not be treated as the defining aggregate condition.
+func isPlaceholderCondition(name string) bool {
+	switch strings.ToLower(strings.TrimSpace(name)) {
+	case "not specified", "not provided", "see cases", "":
+		return true
+	}
+	return false
+}
+
+// uniqueStringsStable removes duplicates while preserving first-seen order.
+func uniqueStringsStable(input []string) []string {
+	if len(input) == 0 {
+		return input
+	}
+	seen := make(map[string]bool, len(input))
+	result := make([]string, 0, len(input))
+	for _, item := range input {
+		if item != "" && !seen[item] {
+			seen[item] = true
+			result = append(result, item)
+		}
+	}
+	return result
 }
 
 // uniqueStrings removes duplicates from string slice

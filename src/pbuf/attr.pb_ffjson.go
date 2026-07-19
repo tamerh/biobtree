@@ -41961,6 +41961,16 @@ func (j *ClinvarAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		}
 		buf.WriteByte(',')
 	}
+	if len(j.GermlineCondition) != 0 {
+		buf.WriteString(`"germline_condition":`)
+		fflib.WriteJsonString(buf, string(j.GermlineCondition))
+		buf.WriteByte(',')
+	}
+	if len(j.GermlineConditionId) != 0 {
+		buf.WriteString(`"germline_condition_id":`)
+		fflib.WriteJsonString(buf, string(j.GermlineConditionId))
+		buf.WriteByte(',')
+	}
 	if len(j.GeneId) != 0 {
 		buf.WriteString(`"gene_id":`)
 		fflib.WriteJsonString(buf, string(j.GeneId))
@@ -42121,6 +42131,10 @@ const (
 
 	ffjtClinvarAttrPhenotypeIds
 
+	ffjtClinvarAttrGermlineCondition
+
+	ffjtClinvarAttrGermlineConditionId
+
 	ffjtClinvarAttrGeneId
 
 	ffjtClinvarAttrGeneSymbol
@@ -42173,6 +42187,10 @@ var ffjKeyClinvarAttrNumberSubmitters = []byte("number_submitters")
 var ffjKeyClinvarAttrPhenotypeList = []byte("phenotype_list")
 
 var ffjKeyClinvarAttrPhenotypeIds = []byte("phenotype_ids")
+
+var ffjKeyClinvarAttrGermlineCondition = []byte("germline_condition")
+
+var ffjKeyClinvarAttrGermlineConditionId = []byte("germline_condition_id")
 
 var ffjKeyClinvarAttrGeneId = []byte("gene_id")
 
@@ -42310,6 +42328,16 @@ mainparse:
 
 					if bytes.Equal(ffjKeyClinvarAttrGermlineClassification, kn) {
 						currentKey = ffjtClinvarAttrGermlineClassification
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyClinvarAttrGermlineCondition, kn) {
+						currentKey = ffjtClinvarAttrGermlineCondition
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyClinvarAttrGermlineConditionId, kn) {
+						currentKey = ffjtClinvarAttrGermlineConditionId
 						state = fflib.FFParse_want_colon
 						goto mainparse
 
@@ -42472,6 +42500,18 @@ mainparse:
 
 				if fflib.AsciiEqualFold(ffjKeyClinvarAttrGeneId, kn) {
 					currentKey = ffjtClinvarAttrGeneId
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyClinvarAttrGermlineConditionId, kn) {
+					currentKey = ffjtClinvarAttrGermlineConditionId
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyClinvarAttrGermlineCondition, kn) {
+					currentKey = ffjtClinvarAttrGermlineCondition
 					state = fflib.FFParse_want_colon
 					goto mainparse
 				}
@@ -42654,6 +42694,12 @@ mainparse:
 
 				case ffjtClinvarAttrPhenotypeIds:
 					goto handle_PhenotypeIds
+
+				case ffjtClinvarAttrGermlineCondition:
+					goto handle_GermlineCondition
+
+				case ffjtClinvarAttrGermlineConditionId:
+					goto handle_GermlineConditionId
 
 				case ffjtClinvarAttrGeneId:
 					goto handle_GeneId
@@ -43311,6 +43357,58 @@ handle_PhenotypeIds:
 
 				wantVal = false
 			}
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_GermlineCondition:
+
+	/* handler: j.GermlineCondition type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.GermlineCondition = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_GermlineConditionId:
+
+	/* handler: j.GermlineConditionId type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.GermlineConditionId = string(string(outBuf))
+
 		}
 	}
 

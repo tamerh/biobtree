@@ -2964,6 +2964,41 @@ func (d *DataUpdate) addHumanGeneXrefsAll(geneSymbol, sourceID, sourceDatasetID 
 	d.maybeLogGeneXrefStats()
 }
 
+// addHumanGeneXrefsViaEnsg cross-references a source entity to HGNC and Entrez by
+// resolving from an EXACT Ensembl gene id (ENSG) via the ensembl→hgnc / ensembl→entrez
+// mappings, rather than by gene symbol. Symbol lookup is alias-prone: e.g. "NME1" is a
+// former alias of the unrelated gene RMRP, so a symbol lookup can staple one gene's data
+// onto a neighbour (and a gene absent from the target namespace can mis-resolve to a
+// neighbour instead of returning nothing). Anchoring on the ENSG is exact and
+// alias-immune. Use this when the source record carries a reliable ENSG (e.g.
+// gnomad_constraint); the caller should link Ensembl directly since the ENSG is known.
+func (d *DataUpdate) addHumanGeneXrefsViaEnsg(ensgID, sourceID, sourceDatasetID string) {
+	if d.lookupService == nil {
+		return
+	}
+	d.addXrefViaEnsgMap(ensgID, sourceID, sourceDatasetID, ">>ensembl>>hgnc", "hgnc")
+	d.addXrefViaEnsgMap(ensgID, sourceID, sourceDatasetID, ">>ensembl>>entrez", "entrez")
+}
+
+// addXrefViaEnsgMap resolves ensgID through a map query and adds the first target as an
+// xref in targetDataset. When the mapping yields nothing it is a no-op — a gene absent
+// from the target namespace correctly gets no edge (rather than a wrong neighbour's).
+func (d *DataUpdate) addXrefViaEnsgMap(ensgID, sourceID, sourceDatasetID, query, targetDataset string) {
+	result, err := d.lookupService.MapFilterLite([]string{ensgID}, query, "")
+	if err != nil || result == nil {
+		return
+	}
+	for _, mapping := range result.Mappings {
+		if len(mapping.Targets) > 0 {
+			id := extractIDFromLiteTarget(mapping.Targets[0])
+			if id != "" {
+				d.addXref(sourceID, sourceDatasetID, id, targetDataset, false)
+				return
+			}
+		}
+	}
+}
+
 // maybeLogGeneXrefStats logs gene xref statistics every 100K lookups
 func (d *DataUpdate) maybeLogGeneXrefStats() {
 	d.geneXrefStats.Lock()

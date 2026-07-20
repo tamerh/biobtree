@@ -220,8 +220,13 @@ func (g *gnomadConstraint) update() {
 		}
 		if symbol != "" {
 			g.d.addXref(symbol, textLinkID, ensg, g.source, true)
-			g.d.addHumanGeneXrefsAll(symbol, ensg, sourceID)
 		}
+		// Gene-namespace xrefs anchored on the EXACT ENSG (alias-immune). Symbol
+		// lookup mis-links genes whose neighbours share a former-alias name — e.g.
+		// "NME1" is a former alias of the unrelated ncRNA RMRP, which made RMRP's
+		// HGNC resolve to NME1's constraint row. Ensembl is already linked directly
+		// above; hgnc/entrez resolve exactly from the ENSG.
+		g.d.addHumanGeneXrefsViaEnsg(ensg, ensg, sourceID)
 		if idLogFile != nil {
 			logProcessedID(idLogFile, ensg)
 		}

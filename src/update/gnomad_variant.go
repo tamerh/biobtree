@@ -32,33 +32,36 @@ import (
 // VCF rows also carry rsIDs in the ID column; where present we xref to `dbsnp`
 // by rsID so the frequency reaches the rsID hub.
 //
-// gnomAD v4 sites VCF INFO fields consumed:
-//   AF                 global allele frequency
-//   AF_grpmax          group-max AF (grpmax = popmax renamed in v4)
-//   grpmax             ancestry group holding the grpmax AF
-//   fafmax_faf95_max   filtering allele frequency (grpmax faf95)
-//   AF_<pop>           per-ancestry AF: afr amr eas nfe sas fin asj ami mid remaining
+// gnomAD v4.1 JOINT (exomes+genomes) sites VCF INFO fields consumed:
+//   AF_joint                global combined allele frequency (~1.05M alleles)
+//   AF_grpmax_joint         group-max combined AF (grpmax = popmax renamed in v4)
+//   grpmax_joint            ancestry group holding the grpmax AF
+//   fafmax_faf95_max_joint  filtering allele frequency (grpmax faf95)
+//   AF_joint_<pop>          per-ancestry AF: afr amr eas nfe sas fin asj ami mid remaining
 //
-// Production source: gnomAD v4.1 GENOMES sites VCF (~759M variants, whole-genome),
-// split one file PER CHROMOSOME, hosted on the AWS Registry of Open Data:
-//   https://gnomad-public-us-east-1.s3.amazonaws.com/release/4.1/vcf/genomes/
-//   gnomad.genomes.v4.1.sites.chr{CHR}.vcf.bgz   (CHR = 1..22, X, Y)
+// Production source: gnomAD v4.1 JOINT sites VCF (exomes+genomes combined), split
+// one file PER CHROMOSOME, hosted on the AWS Registry of Open Data:
+//   https://gnomad-public-us-east-1.s3.amazonaws.com/release/4.1/vcf/joint/
+//   gnomad.joint.v4.1.sites.chr{CHR}.vcf.bgz   (CHR = 1..22, X — NO Y in joint)
+// We read the joint callset (not genomes-only) so frequencies reflect the full
+// ~1.05M-allele combined sample rather than the ~68k genomes-only subset.
 // The conf "path" carries a "{CHR}" placeholder that update() expands over
 // gnomadV4Chromosomes; a placeholder-free path (the test fixture) is read as a
 // single file. Decision (2026-07): lives in the MAIN federation (not its own),
 // since coordinate keys can't be pattern-routed to a non-main federation.
-// INFO field names verified against the real v4.1 genomes VCF header.
+// INFO field names verified against the real v4.1 joint VCF header.
 type gnomadVariant struct {
 	source string
 	d      *DataUpdate
 }
 
 // gnomadV4Chromosomes are the per-chromosome sites files in the gnomAD v4.1
-// genomes release: autosomes 1-22 plus X and Y. (Mitochondrial variants are a
-// separate gnomAD release and are not ingested here.)
+// joint release: autosomes 1-22 plus X. NOTE: the joint (exomes+genomes) callset
+// has NO chrY file (Y is genomes-only), so Y is intentionally excluded here.
+// (Mitochondrial variants are a separate gnomAD release and are not ingested.)
 var gnomadV4Chromosomes = []string{
 	"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12",
-	"13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "X", "Y",
+	"13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "X",
 }
 
 func (g *gnomadVariant) check(err error, operation string) {
@@ -224,20 +227,24 @@ func (g *gnomadVariant) parseAndSaveVariants(filePath string, testLimit int, pri
 			Position:       pos,
 			RefAllele:      refAllele,
 			AltAllele:      altAllele,
-			Af:             infoFloat(kv, "AF"),
-			AfGrpmax:       infoFloat(kv, "AF_grpmax"),
-			GrpmaxAncestry: kv["grpmax"],
-			Faf:            infoFloat(kv, "fafmax_faf95_max"),
-			AfAfr:          infoFloat(kv, "AF_afr"),
-			AfAmr:          infoFloat(kv, "AF_amr"),
-			AfEas:          infoFloat(kv, "AF_eas"),
-			AfNfe:          infoFloat(kv, "AF_nfe"),
-			AfSas:          infoFloat(kv, "AF_sas"),
-			AfFin:          infoFloat(kv, "AF_fin"),
-			AfAsj:          infoFloat(kv, "AF_asj"),
-			AfAmi:          infoFloat(kv, "AF_ami"),
-			AfMid:          infoFloat(kv, "AF_mid"),
-			AfRemaining:    infoFloat(kv, "AF_remaining"),
+			// Combined exomes+genomes ("joint") callset fields — the v4.1 joint VCF
+			// exposes the ~1.05M-allele combined frequencies via _joint-suffixed
+			// INFO keys (per-ancestry as AF_joint_<pop>). The genomes-only VCF's bare
+			// AF/AF_grpmax fields cover only ~68k alleles and understate the sample.
+			Af:             infoFloat(kv, "AF_joint"),
+			AfGrpmax:       infoFloat(kv, "AF_grpmax_joint"),
+			GrpmaxAncestry: kv["grpmax_joint"],
+			Faf:            infoFloat(kv, "fafmax_faf95_max_joint"),
+			AfAfr:          infoFloat(kv, "AF_joint_afr"),
+			AfAmr:          infoFloat(kv, "AF_joint_amr"),
+			AfEas:          infoFloat(kv, "AF_joint_eas"),
+			AfNfe:          infoFloat(kv, "AF_joint_nfe"),
+			AfSas:          infoFloat(kv, "AF_joint_sas"),
+			AfFin:          infoFloat(kv, "AF_joint_fin"),
+			AfAsj:          infoFloat(kv, "AF_joint_asj"),
+			AfAmi:          infoFloat(kv, "AF_joint_ami"),
+			AfMid:          infoFloat(kv, "AF_joint_mid"),
+			AfRemaining:    infoFloat(kv, "AF_joint_remaining"),
 		}
 
 		attrBytes, merr := ffjson.Marshal(attr)

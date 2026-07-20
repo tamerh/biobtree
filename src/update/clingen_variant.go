@@ -21,7 +21,14 @@ func (c *clingenVariant) check(err error, operation string) {
 	checkWithContext(err, c.source, operation)
 }
 
-// splitCodes splits a comma/semicolon-separated code/id list into trimmed tokens.
+// splitCodes splits a comma/semicolon-separated code/id list into trimmed tokens,
+// normalizing multi-word ACMG strength modifiers to their canonical single-token form
+// (e.g. "PM3_Very Strong" -> "PM3_VeryStrong"). NOTE: the upstream ClinGen erepo
+// summary-CSV endpoint itself corrupts most Very-Strong rows before we see them,
+// dropping the word "Strong" (so "PM3_Very Strong" arrives as "PM3_Very" and "PS4_Very
+// Strong" as bare "PS4"). We cannot recover a word absent from the source; this only
+// canonicalizes the rows that arrive intact and guards against a downstream whitespace
+// re-split. The truncated rows are an upstream ClinGen data-quality bug (see KNOWN_ISSUES).
 func splitCodes(s string) []string {
 	if s == "" {
 		return nil
@@ -29,9 +36,77 @@ func splitCodes(s string) []string {
 	var out []string
 	for _, tok := range strings.FieldsFunc(s, func(r rune) bool { return r == ',' || r == ';' }) {
 		tok = strings.TrimSpace(tok)
-		if tok != "" {
-			out = append(out, tok)
+		if tok == "" {
+			continue
 		}
+		tok = strings.ReplaceAll(tok, "_Very Strong", "_VeryStrong")
+		tok = strings.ReplaceAll(tok, "_Stand Alone", "_Standalone")
+		// Deterministic completion of partial truncations: the ClinGen CSV sometimes
+		// drops only the second word, leaving "_Very" / "_Stand". No ACMG strength
+		// other than "Very Strong" starts with "Very" (nor any but "Stand Alone" with
+		// "Stand"), so these suffixes complete unambiguously without needing the summary.
+		if strings.HasSuffix(tok, "_Very") {
+			tok = strings.TrimSuffix(tok, "_Very") + "_VeryStrong"
+		} else if strings.HasSuffix(tok, "_Stand") {
+			tok = strings.TrimSuffix(tok, "_Stand") + "_Standalone"
+		}
+		out = append(out, tok)
+	}
+	return out
+}
+
+// codeBase returns an ACMG criterion code without any (possibly truncated) strength
+// suffix: "PS4"->"PS4", "PM3_Very"->"PM3", "PP1_Strong"->"PP1".
+func codeBase(code string) string {
+	if i := strings.IndexByte(code, '_'); i >= 0 {
+		return code[:i]
+	}
+	return code
+}
+
+// needsStrengthRecovery reports whether a structured ACMG code may have had its strength
+// dropped by the upstream ClinGen CSV export: a bare code (no suffix) or one truncated to
+// the "_Very" / "_Stand" artifact. Codes already carrying a full suffix are left alone.
+func needsStrengthRecovery(code string) bool {
+	if !strings.Contains(code, "_") {
+		return true
+	}
+	return strings.HasSuffix(code, "_Very") || strings.HasSuffix(code, "_Stand")
+}
+
+// recoverStrengthFromSummary backfills a dropped ACMG strength from the interpretation
+// summary, which (unlike the upstream CSV's Applied-Evidence-Codes column) preserves the
+// full "<CODE>_Very Strong" form. ClinGen only truncates the two MULTI-WORD strengths
+// ("Very Strong", "Stand Alone") — single-word strengths are never dropped — so recovery
+// only ever restores VeryStrong / Standalone, and only on an unambiguous summary match
+// (present as exactly one of the two). Otherwise the code is returned unchanged.
+func recoverStrengthFromSummary(code, summary string) string {
+	if summary == "" || !needsStrengthRecovery(code) {
+		return code
+	}
+	base := codeBase(code)
+	if base == "" {
+		return code
+	}
+	vs := strings.Contains(summary, base+"_VeryStrong") || strings.Contains(summary, base+"_Very Strong")
+	sa := strings.Contains(summary, base+"_Standalone") || strings.Contains(summary, base+"_Stand Alone")
+	switch {
+	case vs && !sa:
+		return base + "_VeryStrong"
+	case sa && !vs:
+		return base + "_Standalone"
+	}
+	return code
+}
+
+// recoverStrengths applies recoverStrengthFromSummary across a code list.
+func recoverStrengths(codes []string, summary string) []string {
+	if len(codes) == 0 || summary == "" {
+		return codes
+	}
+	out := make([]string, len(codes))
+	for i, c := range codes {
+		out[i] = recoverStrengthFromSummary(c, summary)
 	}
 	return out
 }
@@ -122,6 +197,11 @@ func (c *clingenVariant) update() {
 		geneSymbol := col("HGNC Gene Symbol")
 		mondoID := col("Mondo Id")
 
+		// The upstream ClinGen CSV drops multi-word ACMG strengths (Very Strong,
+		// Stand Alone) from the evidence-code columns, but the interpretation summary
+		// preserves them — recover the dropped strengths from it.
+		summaryText := col("Summary of interpretation")
+
 		attr := pbuf.ClingenVariantAttr{
 			VariationName:       col("Variation"),
 			ClinvarVariationId:  clinvarID,
@@ -131,9 +211,9 @@ func (c *clingenVariant) update() {
 			DiseaseMondoId:      mondoID,
 			Moi:                 col("Mode of Inheritance"),
 			Assertion:           col("Assertion"),
-			EvidenceCodesMet:    splitCodes(col("Applied Evidence Codes (Met)")),
-			EvidenceCodesNotMet: splitCodes(col("Applied Evidence Codes (Not Met)")),
-			Summary:             col("Summary of interpretation"),
+			EvidenceCodesMet:    recoverStrengths(splitCodes(col("Applied Evidence Codes (Met)")), summaryText),
+			EvidenceCodesNotMet: recoverStrengths(splitCodes(col("Applied Evidence Codes (Not Met)")), summaryText),
+			Summary:             summaryText,
 			Vcep:                col("Expert Panel"),
 			Guideline:           col("Guideline"),
 			ApprovalDate:        col("Approval Date"),

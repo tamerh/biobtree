@@ -1,6 +1,7 @@
 # gnomAD Variant (`gnomad_variant`, id 809)
 
-Per-variant, per-ancestry allele frequencies from the **gnomAD v4** sites VCF.
+Per-variant, per-ancestry allele frequencies from the **gnomAD v4.1 joint
+(exomes + genomes)** sites VCF.
 
 ## Why
 
@@ -13,35 +14,55 @@ pathogenic" (BA1/BS1) or "absent/rare in population databases" (PM2). It is a
 
 ## Source & format
 
-- **Release:** gnomAD **v4.1 genomes** (GRCh38), whole-genome, ~759M variants.
-- **Files:** one bgzipped **sites VCF per chromosome** (autosomes 1–22 + X, Y),
-  on the AWS Registry of Open Data (no auth), ODC-ODbL:
+- **Release:** gnomAD **v4.1 joint** (combined exomes+genomes, GRCh38), ~908M
+  variants. The joint callset carries the full ~1.05M-allele combined
+  frequencies; the genomes-only callset covers only ~68k alleles and understates
+  the sample, so we read joint.
+- **Files:** one bgzipped **sites VCF per chromosome** (autosomes 1–22 + X — the
+  joint callset has **no chrY**), on the AWS Registry of Open Data (no auth),
+  ODC-ODbL:
   ```
-  https://gnomad-public-us-east-1.s3.amazonaws.com/release/4.1/vcf/genomes/gnomad.genomes.v4.1.sites.chr{CHR}.vcf.bgz
+  https://gnomad-public-us-east-1.s3.amazonaws.com/release/4.1/vcf/joint/gnomad.joint.v4.1.sites.chr{CHR}.vcf.bgz
   ```
-  Sites VCFs are split so each ALT is on its own row. INFO field names were
-  verified against the real v4.1 genomes VCF header (incl. `AF_grpmax`, which
-  the browser also exposes). `.bgz` (BGZF) is gzip-compatible and read directly.
+  Sites VCFs are split so each ALT is on its own row. INFO field names (the
+  `_joint`-suffixed keys) were verified against the real v4.1 joint VCF header.
+  `.bgz` (BGZF) is gzip-compatible and read directly. The committed conf `path`
+  is the test fixture; prod builds point it at the joint URL above.
 - **Browser / entry URL:** `https://gnomad.broadinstitute.org/variant/{chr-pos-ref-alt}?dataset=gnomad_r4`
 
 ### VCF INFO fields consumed
 
-| INFO key            | Attr field        | Meaning                                                        |
-|---------------------|-------------------|---------------------------------------------------------------|
-| `AF`                | `af`              | Global allele frequency                                       |
-| `AF_grpmax`         | `af_grpmax`       | Group-max AF. **grpmax = popmax renamed in v4.**              |
-| `grpmax`            | `grpmax_ancestry` | Ancestry group holding the grpmax AF                          |
-| `fafmax_faf95_max`  | `faf`             | Filtering allele frequency (grpmax faf95); the BA1/BS1 metric |
-| `AF_afr`            | `af_afr`          | African / African-American                                    |
-| `AF_amr`            | `af_amr`          | Admixed American                                              |
-| `AF_eas`            | `af_eas`          | East Asian                                                    |
-| `AF_nfe`            | `af_nfe`          | Non-Finnish European                                          |
-| `AF_sas`            | `af_sas`          | South Asian                                                   |
-| `AF_fin`            | `af_fin`          | Finnish                                                       |
-| `AF_asj`            | `af_asj`          | Ashkenazi Jewish                                              |
-| `AF_ami`            | `af_ami`          | Amish (genomes)                                               |
-| `AF_mid`            | `af_mid`          | Middle Eastern                                                |
-| `AF_remaining`      | `af_remaining`    | Remaining / unassigned ancestry                              |
+All keys are the `_joint`-suffixed (combined exomes+genomes) INFO fields.
+
+| INFO key                 | Attr field        | Meaning                                                        |
+|--------------------------|-------------------|---------------------------------------------------------------|
+| `AF_joint`               | `af`              | Global allele frequency                                       |
+| `AF_grpmax_joint`        | `af_grpmax`       | Group-max AF. **grpmax = popmax renamed in v4.**              |
+| `grpmax_joint`           | `grpmax_ancestry` | Ancestry group holding the grpmax AF                          |
+| `fafmax_faf95_max_joint` | `faf`             | Filtering allele frequency (grpmax faf95); the BA1/BS1 metric |
+| `AF_joint_afr`           | `af_afr`          | African / African-American                                    |
+| `AF_joint_amr`           | `af_amr`          | Admixed American                                              |
+| `AF_joint_eas`           | `af_eas`          | East Asian                                                    |
+| `AF_joint_nfe`           | `af_nfe`          | Non-Finnish European                                          |
+| `AF_joint_sas`           | `af_sas`          | South Asian                                                   |
+| `AF_joint_fin`           | `af_fin`          | Finnish                                                       |
+| `AF_joint_asj`           | `af_asj`          | Ashkenazi Jewish                                              |
+| `AF_joint_ami`           | `af_ami`          | Amish                                                         |
+| `AF_joint_mid`           | `af_mid`          | Middle Eastern                                                |
+| `AF_joint_remaining`     | `af_remaining`    | Remaining / unassigned ancestry                              |
+
+### Limitations
+
+- **No dbSNP rsIDs in the joint VCF.** Unlike the genomes/exomes callsets, the
+  gnomAD v4.1 **joint** VCF leaves the ID column empty (`.`) and carries no rsID
+  in INFO — so `gnomad_variant` no longer emits a direct `gnomad_variant → dbsnp`
+  xref. This is not a lost linkage: dbSNP builds a `chr:pos:ref:alt → rsID` text
+  link, so a variant's rsID is still reachable through the shared coordinate key
+  (`<coord> >> dbsnp`, and `<rsid> >> dbsnp >> gnomad_variant`). Only the
+  redundant dataset-to-dataset edge from the gnomad side is dropped.
+- **Frequencies are combined**, not genome-only — values differ from (and are
+  better-powered than) the gnomAD-genomes browser view and the legacy
+  `dbsnp.gnomad_frequency` field.
 
 v4 genetic-ancestry groups: exomes `afr, amr, asj, eas, fin, mid, nfe,
 remaining, sas`; genomes add `ami`. The faf calculation uses `afr, amr, eas,

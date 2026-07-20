@@ -10127,25 +10127,31 @@
       "identifier": "20:32436128:C:A",
       "dataset_id": 809,
       "filter_dataset": "gnomad_variant",
-      "why": "gnomAD genomes AF by chr:pos:ref:alt (own federation)",
+      "why": "gnomAD v4.1 JOINT (combined exomes+genomes) AF by chr:pos:ref:alt (own federation)",
       "validations": [
         {
           "path": "GnomadVariant.af",
-          "min": 4e-05,
-          "max": 5e-05,
-          "description": "overall allele frequency"
+          "min": 1.5e-05,
+          "max": 1.8e-05,
+          "description": "overall (combined exomes+genomes) allele frequency"
         },
         {
           "path": "GnomadVariant.grpmax_ancestry",
           "expected": "eas",
           "description": "grpmax ancestry"
-        },
-        {
-          "xref_count": "dbsnp",
-          "min": 1,
-          "max": 5,
-          "description": "gnomAD variant cross-references its dbSNP rsID"
         }
+      ]
+    },
+    {
+      "category": "genomics",
+      "name": "dbSNP rsID reaches gnomAD variant (shared-coordinate linkage)",
+      "query": ">>dbsnp>>gnomad_variant",
+      "why": "gnomAD v4.1 joint VCF carries no rsIDs, so the direct gnomad_variant->dbsnp edge is dropped; the rsID->dbsnp->variant->frequency path survives via the shared chr:pos:ref:alt coordinate key",
+      "should_pass": [
+        "rs398124625"
+      ],
+      "should_fail": [
+        "rs99999999999"
       ]
     },
     {

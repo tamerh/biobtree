@@ -18,7 +18,7 @@ require (
 	github.com/urfave/cli v1.20.0
 	github.com/vbauerster/mpb v3.4.0+incompatible
 	google.golang.org/genproto v0.0.0-20201201144952-b05cb90ed32e
-	google.golang.org/grpc v1.79.3
+	google.golang.org/grpc v1.82.1
 	modernc.org/sqlite v1.34.4
 )
 
@@ -38,7 +38,7 @@ require (
 	golang.org/x/sys v0.45.0 // indirect
 	golang.org/x/term v0.43.0 // indirect
 	golang.org/x/text v0.37.0 // indirect
-	google.golang.org/protobuf v1.36.10 // indirect
+	google.golang.org/protobuf v1.36.11 // indirect
 	gopkg.in/yaml.v2 v2.2.4 // indirect
 	modernc.org/gc/v3 v3.0.0-20240107210532-573471604cb6 // indirect
 	modernc.org/libc v1.55.3 // indirect

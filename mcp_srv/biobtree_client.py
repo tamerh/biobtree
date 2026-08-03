@@ -30,6 +30,17 @@ logger = logging.getLogger(__name__)
 # biobtree rejects an unknown dataset name in a chain with: unknown dataset: 'x'
 _UNKNOWN_DATASET_RE = re.compile(r"unknown dataset:\s*'([^']+)'")
 
+# All CEL filter compile/type errors carry this marker. Rather than pattern-match
+# every variant (unquoted string, type mismatch, unknown field, ...), we append one
+# generic syntax hint whenever it appears — covers the common mistakes in one place.
+_CEL_ERROR_MARKER = "type-check error"
+_FILTER_SYNTAX_HINT = (
+    'Hint — filter syntax: quote string values (e.g. field=="Pathogenic"), '
+    "leave numbers unquoted (2 or 2.0) and booleans as true/false. Some "
+    "numeric-looking fields (e.g. pdb.resolution) are stored as strings — "
+    'compare them with == to a quoted value or .contains("…"), not < / >.'
+)
+
 
 class BiobtreeError(Exception):
     """Base exception for biobtree client errors."""
@@ -184,6 +195,10 @@ class BiobtreeClient:
         """
         if not message:
             return message
+        # CEL filter syntax/type errors: append one generic hint (covers unquoted
+        # strings, wrong types, etc.) so the caller can self-correct on retry.
+        if _CEL_ERROR_MARKER in message:
+            return f"{message}\n{_FILTER_SYNTAX_HINT}"
         match = _UNKNOWN_DATASET_RE.search(message)
         if not match:
             return message

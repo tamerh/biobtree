@@ -270,8 +270,8 @@ func (web *Web) search(w http.ResponseWriter, r *http.Request) {
 			errStr := errString{Err: err.Error()}
 			jb, _ := ffjson.Marshal(errStr)
 			buf.WriteString(string(jb))
-			w.Write([]byte(buf.String()))
 			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte(buf.String()))
 			return
 		}
 		ids, err = web.service.aliasIDs(qids[0][6:])
@@ -279,8 +279,8 @@ func (web *Web) search(w http.ResponseWriter, r *http.Request) {
 			errStr := errString{Err: err.Error()}
 			jb, _ := ffjson.Marshal(errStr)
 			buf.WriteString(string(jb))
-			w.Write([]byte(buf.String()))
 			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte(buf.String()))
 			return
 		}
 	} else {
@@ -320,8 +320,8 @@ func (web *Web) search(w http.ResponseWriter, r *http.Request) {
 				errStr := errString{Err: err.Error()}
 				jb, _ := ffjson.Marshal(errStr)
 				buf.WriteString(string(jb))
-				w.Write([]byte(buf.String()))
 				w.WriteHeader(http.StatusBadRequest)
+				w.Write([]byte(buf.String()))
 				return
 			}
 		}
@@ -343,8 +343,8 @@ func (web *Web) search(w http.ResponseWriter, r *http.Request) {
 			errStr := errString{Err: err.Error()}
 			jb, _ := ffjson.Marshal(errStr)
 			buf.WriteString(string(jb))
-			w.Write([]byte(buf.String()))
 			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(buf.String()))
 			return
 		}
 		jb, _ := ffjson.Marshal(res)
@@ -360,8 +360,8 @@ func (web *Web) search(w http.ResponseWriter, r *http.Request) {
 			jb, _ := ffjson.Marshal(errStr)
 			buf.WriteString(string(jb))
 			buf.WriteString("]")
-			w.Write([]byte(buf.String()))
 			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(buf.String()))
 			return
 		}
 
@@ -431,8 +431,8 @@ func (web *Web) mapFilter(w http.ResponseWriter, r *http.Request) {
 			errStr := errString{Err: err.Error()}
 			jb, _ := ffjson.Marshal(errStr)
 			buf.WriteString(string(jb))
-			w.Write([]byte(buf.String()))
 			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte(buf.String()))
 			return
 		}
 		ids, err = web.service.aliasIDs(qids[0][6:])
@@ -440,8 +440,8 @@ func (web *Web) mapFilter(w http.ResponseWriter, r *http.Request) {
 			errStr := errString{Err: err.Error()}
 			jb, _ := ffjson.Marshal(errStr)
 			buf.WriteString(string(jb))
-			w.Write([]byte(buf.String()))
 			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte(buf.String()))
 			return
 		}
 	} else {
@@ -476,8 +476,8 @@ func (web *Web) mapFilter(w http.ResponseWriter, r *http.Request) {
 			errStr := errString{Err: err.Error()}
 			jb, _ := ffjson.Marshal(errStr)
 			buf.WriteString(string(jb))
-			w.Write([]byte(buf.String()))
 			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte(buf.String()))
 			return
 		}
 		jb, _ := ffjson.Marshal(res)
@@ -489,8 +489,8 @@ func (web *Web) mapFilter(w http.ResponseWriter, r *http.Request) {
 			errStr := errString{Err: err.Error()}
 			jb, _ := ffjson.Marshal(errStr)
 			buf.WriteString(string(jb))
-			w.Write([]byte(buf.String()))
 			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte(buf.String()))
 			return
 		}
 

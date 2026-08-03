@@ -26,6 +26,19 @@ async def get_client() -> BiobtreeClient:
     return _client
 
 
+def _error_response(e: BiobtreeError) -> JSONResponse:
+    """Map a biobtree client error to an HTTP response.
+
+    A 4xx status from biobtree is a client/query error (bad filter, unknown
+    dataset, not found) — surface it as-is so callers get an actionable status
+    and message instead of a misleading 503. Reserve 503 for real upstream
+    failures (connection/timeout/5xx or an unknown status).
+    """
+    status = getattr(e, "status_code", None)
+    code = status if isinstance(status, int) and 400 <= status < 500 else 503
+    return JSONResponse(status_code=code, content={"error": str(e)})
+
+
 @router.get("/search")
 async def api_search(
     i: str = Query(..., description="Comma-separated identifiers to search"),
@@ -43,7 +56,7 @@ async def api_search(
         result = await biobtree.search(terms=i, dataset=s, page=p)
         return result
     except BiobtreeError as e:
-        return JSONResponse(status_code=503, content={"error": str(e)})
+        return _error_response(e)
 
 
 @router.get("/map")
@@ -63,7 +76,7 @@ async def api_map(
         result = await biobtree.map(terms=i, chain=m, page=p)
         return result
     except BiobtreeError as e:
-        return JSONResponse(status_code=503, content={"error": str(e)})
+        return _error_response(e)
 
 
 @router.get("/entry")
@@ -81,7 +94,7 @@ async def api_entry(
         result = await biobtree.entry(identifier=i, dataset=s)
         return result
     except BiobtreeError as e:
-        return JSONResponse(status_code=503, content={"error": str(e)})
+        return _error_response(e)
 
 
 @router.get("/meta")
@@ -96,7 +109,7 @@ async def api_meta():
         result = await biobtree.meta()
         return result
     except BiobtreeError as e:
-        return JSONResponse(status_code=503, content={"error": str(e)})
+        return _error_response(e)
 
 
 @router.get("/help")

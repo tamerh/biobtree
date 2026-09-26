@@ -68245,6 +68245,31 @@ func (j *GnomadVariantAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.AppendFloat(buf, float64(j.AfRemaining), 'g', -1, 64)
 		buf.WriteByte(',')
 	}
+	if j.Ac != 0 {
+		buf.WriteString(`"ac":`)
+		fflib.FormatBits2(buf, uint64(j.Ac), 10, j.Ac < 0)
+		buf.WriteByte(',')
+	}
+	if j.An != 0 {
+		buf.WriteString(`"an":`)
+		fflib.FormatBits2(buf, uint64(j.An), 10, j.An < 0)
+		buf.WriteByte(',')
+	}
+	if j.AcGrpmax != 0 {
+		buf.WriteString(`"ac_grpmax":`)
+		fflib.FormatBits2(buf, uint64(j.AcGrpmax), 10, j.AcGrpmax < 0)
+		buf.WriteByte(',')
+	}
+	if j.AnGrpmax != 0 {
+		buf.WriteString(`"an_grpmax":`)
+		fflib.FormatBits2(buf, uint64(j.AnGrpmax), 10, j.AnGrpmax < 0)
+		buf.WriteByte(',')
+	}
+	if j.Faf99 != 0 {
+		buf.WriteString(`"faf99":`)
+		fflib.AppendFloat(buf, float64(j.Faf99), 'g', -1, 64)
+		buf.WriteByte(',')
+	}
 	if len(j.Id) != 0 {
 		buf.WriteString(`"id":`)
 		fflib.WriteJsonString(buf, string(j.Id))
@@ -68295,6 +68320,16 @@ const (
 
 	ffjtGnomadVariantAttrAfRemaining
 
+	ffjtGnomadVariantAttrAc
+
+	ffjtGnomadVariantAttrAn
+
+	ffjtGnomadVariantAttrAcGrpmax
+
+	ffjtGnomadVariantAttrAnGrpmax
+
+	ffjtGnomadVariantAttrFaf99
+
 	ffjtGnomadVariantAttrId
 )
 
@@ -68333,6 +68368,16 @@ var ffjKeyGnomadVariantAttrAfAmi = []byte("af_ami")
 var ffjKeyGnomadVariantAttrAfMid = []byte("af_mid")
 
 var ffjKeyGnomadVariantAttrAfRemaining = []byte("af_remaining")
+
+var ffjKeyGnomadVariantAttrAc = []byte("ac")
+
+var ffjKeyGnomadVariantAttrAn = []byte("an")
+
+var ffjKeyGnomadVariantAttrAcGrpmax = []byte("ac_grpmax")
+
+var ffjKeyGnomadVariantAttrAnGrpmax = []byte("an_grpmax")
+
+var ffjKeyGnomadVariantAttrFaf99 = []byte("faf99")
 
 var ffjKeyGnomadVariantAttrId = []byte("id")
 
@@ -68463,6 +68508,26 @@ mainparse:
 						currentKey = ffjtGnomadVariantAttrAfRemaining
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyGnomadVariantAttrAc, kn) {
+						currentKey = ffjtGnomadVariantAttrAc
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyGnomadVariantAttrAn, kn) {
+						currentKey = ffjtGnomadVariantAttrAn
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyGnomadVariantAttrAcGrpmax, kn) {
+						currentKey = ffjtGnomadVariantAttrAcGrpmax
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyGnomadVariantAttrAnGrpmax, kn) {
+						currentKey = ffjtGnomadVariantAttrAnGrpmax
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 'c':
@@ -68477,6 +68542,11 @@ mainparse:
 
 					if bytes.Equal(ffjKeyGnomadVariantAttrFaf, kn) {
 						currentKey = ffjtGnomadVariantAttrFaf
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyGnomadVariantAttrFaf99, kn) {
+						currentKey = ffjtGnomadVariantAttrFaf99
 						state = fflib.FFParse_want_colon
 						goto mainparse
 					}
@@ -68517,6 +68587,36 @@ mainparse:
 
 				if fflib.SimpleLetterEqualFold(ffjKeyGnomadVariantAttrId, kn) {
 					currentKey = ffjtGnomadVariantAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyGnomadVariantAttrFaf99, kn) {
+					currentKey = ffjtGnomadVariantAttrFaf99
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyGnomadVariantAttrAnGrpmax, kn) {
+					currentKey = ffjtGnomadVariantAttrAnGrpmax
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyGnomadVariantAttrAcGrpmax, kn) {
+					currentKey = ffjtGnomadVariantAttrAcGrpmax
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyGnomadVariantAttrAn, kn) {
+					currentKey = ffjtGnomadVariantAttrAn
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyGnomadVariantAttrAc, kn) {
+					currentKey = ffjtGnomadVariantAttrAc
 					state = fflib.FFParse_want_colon
 					goto mainparse
 				}
@@ -68699,6 +68799,21 @@ mainparse:
 
 				case ffjtGnomadVariantAttrAfRemaining:
 					goto handle_AfRemaining
+
+				case ffjtGnomadVariantAttrAc:
+					goto handle_Ac
+
+				case ffjtGnomadVariantAttrAn:
+					goto handle_An
+
+				case ffjtGnomadVariantAttrAcGrpmax:
+					goto handle_AcGrpmax
+
+				case ffjtGnomadVariantAttrAnGrpmax:
+					goto handle_AnGrpmax
+
+				case ffjtGnomadVariantAttrFaf99:
+					goto handle_Faf99
 
 				case ffjtGnomadVariantAttrId:
 					goto handle_Id
@@ -69234,6 +69349,156 @@ handle_AfRemaining:
 			}
 
 			j.AfRemaining = float64(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Ac:
+
+	/* handler: j.Ac type=int64 kind=int64 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for int64", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseInt(fs.Output.Bytes(), 10, 64)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.Ac = int64(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_An:
+
+	/* handler: j.An type=int64 kind=int64 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for int64", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseInt(fs.Output.Bytes(), 10, 64)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.An = int64(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_AcGrpmax:
+
+	/* handler: j.AcGrpmax type=int64 kind=int64 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for int64", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseInt(fs.Output.Bytes(), 10, 64)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.AcGrpmax = int64(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_AnGrpmax:
+
+	/* handler: j.AnGrpmax type=int64 kind=int64 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for int64", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseInt(fs.Output.Bytes(), 10, 64)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.AnGrpmax = int64(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Faf99:
+
+	/* handler: j.Faf99 type=float64 kind=float64 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_double && tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for float64", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseFloat(fs.Output.Bytes(), 64)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.Faf99 = float64(tval)
 
 		}
 	}

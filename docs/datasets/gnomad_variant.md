@@ -12,6 +12,13 @@ per-population allele frequencies used to call a variant "too common to be
 pathogenic" (BA1/BS1) or "absent/rare in population databases" (PM2). It is a
 **separate dataset** from the gene-level `gnomad_constraint` (id 800).
 
+Alongside the frequencies it also carries the **allele counts** `ac`/`an`
+(overall) and `ac_grpmax`/`an_grpmax` — sampling depth, which lets a caller
+gauge confidence and recompute AF — and **both** filtering-allele-frequency
+confidence intervals `faf` (faf95) and `faf99`, the metrics ClinGen recommends
+for BA1/BS1/PM2. (`af` is already the combined exomes+genomes `AF_joint`, so it
+does not under-count exome-only sites; AC/AN add the depth behind it.)
+
 ## Source & format
 
 - **Release:** gnomAD **v4.1 joint** (combined exomes+genomes, GRCh38), ~908M
@@ -37,9 +44,14 @@ All keys are the `_joint`-suffixed (combined exomes+genomes) INFO fields.
 | INFO key                 | Attr field        | Meaning                                                        |
 |--------------------------|-------------------|---------------------------------------------------------------|
 | `AF_joint`               | `af`              | Global allele frequency                                       |
+| `AC_joint`               | `ac`              | Global allele count (sampling depth; int)                     |
+| `AN_joint`               | `an`              | Global allele number (sampling depth; int)                    |
 | `AF_grpmax_joint`        | `af_grpmax`       | Group-max AF. **grpmax = popmax renamed in v4.**              |
+| `AC_grpmax_joint`        | `ac_grpmax`       | Group-max allele count (int)                                  |
+| `AN_grpmax_joint`        | `an_grpmax`       | Group-max allele number (int)                                 |
 | `grpmax_joint`           | `grpmax_ancestry` | Ancestry group holding the grpmax AF                          |
 | `fafmax_faf95_max_joint` | `faf`             | Filtering allele frequency (grpmax faf95); the BA1/BS1 metric |
+| `fafmax_faf99_max_joint` | `faf99`           | Filtering allele frequency (grpmax faf99); ClinGen BA1/BS1/PM2 |
 | `AF_joint_afr`           | `af_afr`          | African / African-American                                    |
 | `AF_joint_amr`           | `af_amr`          | Admixed American                                              |
 | `AF_joint_eas`           | `af_eas`          | East Asian                                                    |

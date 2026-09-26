@@ -291,7 +291,12 @@ func (p *patents) processPatents() (int, error) {
 		ipcrList := getStringList(j, "ipcr")
 		ipcList := getStringList(j, "ipc")
 		eclaList := getStringList(j, "ecla")
-		asigneeList := getStringList(j, "asignee")
+		// SureChEMBL fixed the typo asignee->assignee in the 2026-09-22 dump;
+		// read the corrected key, fall back to the old misspelling for older dumps.
+		asigneeList := getStringList(j, "assignee")
+		if len(asigneeList) == 0 {
+			asigneeList = getStringList(j, "asignee")
+		}
 
 		// Store patent attributes
 		attr := pbuf.PatentAttr{

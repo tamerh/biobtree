@@ -235,6 +235,11 @@ func (g *gnomadVariant) parseAndSaveVariants(filePath string, testLimit int, pri
 			AfGrpmax:       infoFloat(kv, "AF_grpmax_joint"),
 			GrpmaxAncestry: kv["grpmax_joint"],
 			Faf:            infoFloat(kv, "fafmax_faf95_max_joint"),
+			Faf99:          infoFloat(kv, "fafmax_faf99_max_joint"),
+			Ac:             infoInt(kv, "AC_joint"),
+			An:             infoInt(kv, "AN_joint"),
+			AcGrpmax:       infoInt(kv, "AC_grpmax_joint"),
+			AnGrpmax:       infoInt(kv, "AN_grpmax_joint"),
 			AfAfr:          infoFloat(kv, "AF_joint_afr"),
 			AfAmr:          infoFloat(kv, "AF_joint_amr"),
 			AfEas:          infoFloat(kv, "AF_joint_eas"),
@@ -326,4 +331,18 @@ func infoFloat(kv map[string]string, key string) float64 {
 		return 0
 	}
 	return f
+}
+
+// infoInt parses an integer INFO value (AC/AN); missing / "." / unparseable
+// yields 0. gnomAD writes these as plain integers.
+func infoInt(kv map[string]string, key string) int64 {
+	v, ok := kv[key]
+	if !ok || v == "" || v == "." {
+		return 0
+	}
+	n, err := strconv.ParseInt(v, 10, 64)
+	if err != nil {
+		return 0
+	}
+	return n
 }

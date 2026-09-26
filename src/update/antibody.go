@@ -151,7 +151,9 @@ func (a *antibody) parseTheraSAbDab(testLimit int, idLogFile *os.File) {
 		format := strings.TrimSpace(getColumnValue(row, colMap, "Format"))
 		isotype := strings.TrimSpace(getColumnValue(row, colMap, "CH1 Isotype"))
 		lightChain := strings.TrimSpace(getColumnValue(row, colMap, "VD LC"))
-		clinicalStage := strings.TrimSpace(getColumnValue(row, colMap, "Highest_Clin_Trial"))
+		// TheraSAbDab suffixes this header with a release date, e.g.
+		// "Highest_Clin_Trial (Feb '25)", so match by prefix rather than exact name.
+		clinicalStage := strings.TrimSpace(getColumnValueByPrefix(row, colMap, "Highest_Clin_Trial"))
 		status := strings.TrimSpace(getColumnValue(row, colMap, "Est. Status"))
 
 		// Sequences - single sequences per antibody
@@ -167,8 +169,14 @@ func (a *antibody) parseTheraSAbDab(testLimit int, idLogFile *os.File) {
 		allConditions := strings.Join([]string{conditionsApproved, conditionsActive, conditionsDiscontinued}, ";")
 		indications := extractList(allConditions)
 
-		// PDB IDs - may not be in this CSV, extract from SAbDab column if available
-		pdbIDs := extractList(getColumnValue(row, colMap, "SAbDab"))
+		// PDB IDs live in the sequence-identity structure columns as "pdbid:chains"
+		// (e.g. "7vux:HL", bispecifics as "id:chains;id:chains", or "None").
+		// The old code read a non-existent "SAbDab" column, so xrefs were always empty.
+		pdbIDs := extractPDBIDs(
+			getColumnValue(row, colMap, "100% SI Structure"),
+			getColumnValue(row, colMap, "99% SI Structure"),
+			getColumnValue(row, colMap, "95-98% SI Structure"),
+		)
 
 		// Create protobuf entry with unified schema
 		entry := &pbuf.AntibodyAttr{
@@ -749,6 +757,42 @@ func getColumnValue(row []string, colMap map[string]int, columnName string) stri
 		return row[idx]
 	}
 	return ""
+}
+
+// getColumnValueByPrefix returns the first column whose header starts with the
+// given prefix. TheSAbDab appends a release date to some headers (e.g.
+// "Highest_Clin_Trial (Feb '25)"), so an exact-name lookup silently misses.
+func getColumnValueByPrefix(row []string, colMap map[string]int, prefix string) string {
+	for name, idx := range colMap {
+		if strings.HasPrefix(name, prefix) && idx < len(row) {
+			return row[idx]
+		}
+	}
+	return ""
+}
+
+// extractPDBIDs pulls PDB accessions out of TheraSAbDab structure columns whose
+// values look like "pdbid:chains" (semicolon-separated for bispecifics, "None"
+// when absent). It normalizes to the uppercase 4-char form used as the pdb
+// dataset key, filters "None"/invalid, and de-duplicates across all inputs.
+func extractPDBIDs(vals ...string) []string {
+	seen := map[string]bool{}
+	result := []string{}
+	for _, v := range vals {
+		for _, part := range strings.Split(v, ";") {
+			id := strings.TrimSpace(part)
+			if i := strings.IndexByte(id, ':'); i >= 0 {
+				id = id[:i]
+			}
+			id = strings.ToUpper(strings.TrimSpace(id))
+			if len(id) != 4 || id == "NONE" || seen[id] {
+				continue
+			}
+			seen[id] = true
+			result = append(result, id)
+		}
+	}
+	return result
 }
 
 // Helper function to extract sequences from comma/semicolon separated list

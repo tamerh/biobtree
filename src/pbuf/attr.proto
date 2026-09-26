@@ -2090,6 +2090,16 @@ message GnomadVariantAttr {
   double af_mid = 17;           // Middle Eastern
   double af_remaining = 18;     // Remaining / unassigned
 
+  // Allele counts + faf99 (VCF INFO: AC_joint, AN_joint, AC_grpmax_joint,
+  // AN_grpmax_joint, fafmax_faf99_max). AC/AN give sampling depth (and let a
+  // caller recompute AF / confidence); faf95 (faf) + faf99 are the ClinGen
+  // BA1/BS1/PM2 filtering-allele-frequency metrics.
+  int64 ac = 19;                // Global allele count (INFO AC_joint)
+  int64 an = 20;                // Global allele number (INFO AN_joint)
+  int64 ac_grpmax = 21;         // Group-max allele count (INFO AC_grpmax_joint)
+  int64 an_grpmax = 22;         // Group-max allele number (INFO AN_grpmax_joint)
+  double faf99 = 23;            // Filtering allele frequency, grpmax faf99 (INFO fafmax_faf99_max)
+
   string id = 100; // transient - populated at runtime from Xref.Identifier
 }
 

@@ -82,6 +82,37 @@ class GnomadVariantTests:
         return False, "No GnomadVariant record matched for value check"
 
     @test
+    def test_ac_an_faf99_values(self):
+        """AC / AN (sampling depth) and faf99 are populated and match the fixture"""
+        for v in self._variants():
+            if "ac" not in v:
+                continue
+            for r in _rows(self._get({"i": v["id"], "d": "1"}), "GnomadVariant"):
+                a = r["Attributes"]["GnomadVariant"]
+                if int(a.get("ac", -1)) != int(v["ac"]):
+                    return False, f"{v['id']} ac: got {a.get('ac')}, want {v['ac']}"
+                if int(a.get("an", -1)) != int(v["an"]):
+                    return False, f"{v['id']} an: got {a.get('an')}, want {v['an']}"
+                if abs(float(a.get("faf99", -1)) - float(v["faf99"])) > 1e-9:
+                    return False, f"{v['id']} faf99: got {a.get('faf99')}, want {v['faf99']}"
+                return True, (f"{v['id']} -> ac={a.get('ac')} an={a.get('an')} "
+                              f"faf99={a.get('faf99')}")
+        return False, "No GnomadVariant record carried ac/an/faf99"
+
+    @test
+    def test_cel_filter_by_allele_count(self):
+        """CEL filter on the new ac field works (ac >= 1000 keeps the common variants)"""
+        ids = ",".join(v["id"] for v in self._variants())
+        data = self._get({"i": ids, "d": "1", "f": "gnomad_variant.ac >= 1000"})
+        rows = _rows(data, "GnomadVariant")
+        if not rows:
+            return False, "ac filter returned no results"
+        for r in rows:
+            if int(r["Attributes"]["GnomadVariant"].get("ac", 0)) < 1000:
+                return False, f"filter leaked {r.get('identifier')} (ac<1000)"
+        return True, f"CEL filter ac>=1000 kept {len(rows)} variants"
+
+    @test
     def test_dbsnp_rsid_join(self):
         """rsID reaches the variant frequency via the dbsnp hub (rs2691305 -> 1:69094:G:A)"""
         data = requests.get(f"{self.api}/ws/map/",
@@ -154,6 +185,8 @@ def main():
         custom.test_variant_lookup,
         custom.test_key_scheme_chr_pos_ref_alt,
         custom.test_af_values,
+        custom.test_ac_an_faf99_values,
+        custom.test_cel_filter_by_allele_count,
         custom.test_dbsnp_rsid_join,
         custom.test_cel_filter_rare,
         custom.test_large_indel_findable_by_coordinate,

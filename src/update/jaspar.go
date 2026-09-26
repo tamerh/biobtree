@@ -56,8 +56,10 @@ func (j *jaspar) update() {
 	totalSaved += coreSaved
 	log.Printf("JASPAR: Saved %d CORE entries", coreSaved)
 
-	// Process UNVALIDATED collection (if not in test mode limit reached)
-	if testLimit == 0 || totalSaved < testLimit {
+	// Process UNVALIDATED collection (if not in test mode limit reached).
+	// GetTestLimit returns -1 in production (no limit), so treat <=0 as "no limit"
+	// — the old `== 0` check silently skipped UNVALIDATED in every prod build.
+	if testLimit <= 0 || totalSaved < testLimit {
 		unvalidatedPath := config.Dataconf[j.source]["pathUnvalidated"]
 		if unvalidatedPath != "" {
 			log.Printf("JASPAR: Processing UNVALIDATED collection from %s", unvalidatedPath)

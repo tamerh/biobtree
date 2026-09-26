@@ -37,7 +37,7 @@ import pandas as pd
 import argparse
 import re
 import glob
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from bs4 import BeautifulSoup
 from typing import List, Dict, Any, Optional
@@ -186,47 +186,42 @@ class AACTDownloader:
         })
 
     def get_latest_snapshot_info(self) -> dict:
-        """Get information about the latest AACT flat file snapshot.
+        """Get the latest AACT daily flat-file snapshot.
 
-        AACT serves dated daily flat-file exports at
-        /static/exported_files/daily/YYYY-MM-DD?source=web . The snapshot
-        listing page (/downloads/snapshots?type=flatfiles) lists them, and the
-        most recent ISO date is the latest snapshot.
-
-        (Replaces the previous DigitalOcean-Spaces link scraping, which broke
-        when AACT moved hosting and renamed the files in 2026.)
+        AACT's snapshot listing moved to a JS/auth-gated app in 2026
+        (/downloads/snapshots and the older Spaces link-scrape both 404 now),
+        so HTML scraping no longer works. The dated daily export is still served
+        at a stable, predictable URL:
+          https://aact.ctti-clinicaltrials.org/static/exported_files/daily/YYYY-MM-DD?source=web
+        (302 -> DigitalOcean Spaces zip; a date with no export returns 404).
+        Probe backward from today to find the most recent published date.
         """
-        listing_url = self.base_url.rstrip('/') + '/snapshots?type=flatfiles'
-        log(f"Fetching snapshot information from {listing_url}")
-
-        try:
-            response = self.session.get(listing_url, timeout=30)
-            response.raise_for_status()
-
-            # Dated daily-export paths; ISO dates sort lexicographically
-            dates = re.findall(r'/static/exported_files/daily/(\d{4}-\d{2}-\d{2})', response.text)
-            if not dates:
-                raise ValueError("No daily flat-file export links found on AACT snapshots page")
-
-            latest_date = max(dates)
-            origin = self.base_url.split('/downloads')[0]  # scheme://host
-            flat_file_url = f"{origin}/static/exported_files/daily/{latest_date}?source=web"
-
-            snapshot_info = {
-                'filename': f"aact_flat_files_{latest_date.replace('-', '')}.zip",
-                'url': flat_file_url,
-                'type': 'flat_files',
-                'snapshot_date': latest_date,
-            }
-            log(f"Found flat file snapshot: {snapshot_info['filename']} ({flat_file_url})")
-            return snapshot_info
-
-        except requests.RequestException as e:
-            log(f"ERROR: Failed to fetch snapshot information: {e}")
-            raise
-        except Exception as e:
-            log(f"ERROR: Failed to parse snapshot page: {e}")
-            raise
+        origin = self.base_url.split('/downloads')[0].rstrip('/')  # scheme://host
+        max_lookback = 7
+        today = datetime.now()
+        last_err = None
+        for delta in range(max_lookback + 1):
+            d = (today - timedelta(days=delta)).strftime('%Y-%m-%d')
+            url = f"{origin}/static/exported_files/daily/{d}?source=web"
+            try:
+                resp = self.session.head(url, timeout=30, allow_redirects=True)
+            except requests.RequestException as e:
+                last_err = e
+                log(f"WARNING: HEAD {url} failed: {e}")
+                continue
+            if resp.status_code == 200 and 'zip' in resp.headers.get('Content-Type', ''):
+                snapshot_info = {
+                    'filename': f"aact_flat_files_{d.replace('-', '')}.zip",
+                    'url': url,
+                    'type': 'flat_files',
+                    'snapshot_date': d,
+                }
+                log(f"Found flat file snapshot: {snapshot_info['filename']} ({url})")
+                return snapshot_info
+        raise ValueError(
+            f"No AACT daily flat-file export found in the last {max_lookback} days"
+            + (f" (last error: {last_err})" if last_err else "")
+        )
 
     def check_existing_snapshot(self, download_dir: str) -> Optional[str]:
         """Check if we have today's snapshot. Returns path if exists, None otherwise."""

@@ -100,6 +100,44 @@ class GnomadVariantTests:
         return False, "No GnomadVariant record carried ac/an/faf99"
 
     @test
+    def test_per_callset_ac_an_af(self):
+        """Per-callset exome/genome ac/an/af are populated and match the fixture"""
+        for v in self._variants():
+            if "ac_exomes" not in v:
+                continue
+            for r in _rows(self._get({"i": v["id"], "d": "1"}), "GnomadVariant"):
+                a = r["Attributes"]["GnomadVariant"]
+                for f in ("ac_exomes", "an_exomes", "ac_genomes", "an_genomes"):
+                    if int(a.get(f, -1)) != int(v[f]):
+                        return False, f"{v['id']} {f}: got {a.get(f)}, want {v[f]}"
+                if abs(float(a.get("af_exomes", -1)) - float(v["af_exomes"])) > 1e-9:
+                    return False, f"{v['id']} af_exomes: got {a.get('af_exomes')}, want {v['af_exomes']}"
+                return True, (f"{v['id']} -> exome ac/an={a.get('ac_exomes')}/{a.get('an_exomes')} "
+                              f"af_exomes={a.get('af_exomes')}; genome an={a.get('an_genomes')}")
+        return False, "No GnomadVariant record carried per-callset fields"
+
+    @test
+    def test_exome_only_af_dilution(self):
+        """For an exome-only variant, joint af < af_exomes (genome AN dilutes the joint) —
+        af_exomes is the correct single-callset frequency the caller should use"""
+        for v in self._variants():
+            if not v.get("exome_only"):
+                continue
+            for r in _rows(self._get({"i": v["id"], "d": "1"}), "GnomadVariant"):
+                a = r["Attributes"]["GnomadVariant"]
+                # genomes observed nothing (ac_genomes 0 -> af_genomes absent/0) but contribute AN
+                if int(a.get("ac_genomes", 0)) != 0:
+                    return False, f"{v['id']} expected ac_genomes=0"
+                if int(a.get("an_genomes", 0)) <= 0:
+                    return False, f"{v['id']} expected an_genomes>0 (dilution source)"
+                af_joint = float(a.get("af", 0))
+                af_ex = float(a.get("af_exomes", 0))
+                if not (af_joint < af_ex):
+                    return False, f"{v['id']} expected joint af {af_joint} < af_exomes {af_ex}"
+                return True, f"{v['id']} exome-only: joint af={af_joint} < af_exomes={af_ex} (dilution confirmed)"
+        return False, "No exome_only variant found to check dilution"
+
+    @test
     def test_cel_filter_by_allele_count(self):
         """CEL filter on the new ac field works (ac >= 1000 keeps the common variants)"""
         ids = ",".join(v["id"] for v in self._variants())
@@ -186,6 +224,8 @@ def main():
         custom.test_key_scheme_chr_pos_ref_alt,
         custom.test_af_values,
         custom.test_ac_an_faf99_values,
+        custom.test_per_callset_ac_an_af,
+        custom.test_exome_only_af_dilution,
         custom.test_cel_filter_by_allele_count,
         custom.test_dbsnp_rsid_join,
         custom.test_cel_filter_rare,

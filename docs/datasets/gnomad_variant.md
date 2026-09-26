@@ -16,8 +16,15 @@ Alongside the frequencies it also carries the **allele counts** `ac`/`an`
 (overall) and `ac_grpmax`/`an_grpmax` — sampling depth, which lets a caller
 gauge confidence and recompute AF — and **both** filtering-allele-frequency
 confidence intervals `faf` (faf95) and `faf99`, the metrics ClinGen recommends
-for BA1/BS1/PM2. (`af` is already the combined exomes+genomes `AF_joint`, so it
-does not under-count exome-only sites; AC/AN add the depth behind it.)
+for BA1/BS1/PM2.
+
+`af` is the canonical combined `AF_joint` (`ac`/`an`). Note the joint divides by
+the **combined** `an`, so for a variant observed in only one callset it is
+diluted by the other callset's allele number (e.g. an exome-only variant still
+carries the genomes' ~hundred-k `AN` in the denominator with 0 `AC`). The
+per-callset fields `af_exomes`/`af_genomes` (with their `ac`/`an`) are the
+callset-specific frequencies — use them to read single-callset variants
+correctly rather than reinterpreting `af`.
 
 ## Source & format
 
@@ -52,6 +59,12 @@ All keys are the `_joint`-suffixed (combined exomes+genomes) INFO fields.
 | `grpmax_joint`           | `grpmax_ancestry` | Ancestry group holding the grpmax AF                          |
 | `fafmax_faf95_max_joint` | `faf`             | Filtering allele frequency (grpmax faf95); the BA1/BS1 metric |
 | `fafmax_faf99_max_joint` | `faf99`           | Filtering allele frequency (grpmax faf99); ClinGen BA1/BS1/PM2 |
+| `AC_exomes`              | `ac_exomes`       | Exome-callset allele count (int)                              |
+| `AN_exomes`              | `an_exomes`       | Exome-callset allele number (int)                            |
+| `AF_exomes`              | `af_exomes`       | Exome-callset allele frequency (= ac_exomes/an_exomes)       |
+| `AC_genomes`             | `ac_genomes`      | Genome-callset allele count (int)                            |
+| `AN_genomes`             | `an_genomes`      | Genome-callset allele number (int)                           |
+| `AF_genomes`             | `af_genomes`      | Genome-callset allele frequency (= ac_genomes/an_genomes)    |
 | `AF_joint_afr`           | `af_afr`          | African / African-American                                    |
 | `AF_joint_amr`           | `af_amr`          | Admixed American                                              |
 | `AF_joint_eas`           | `af_eas`          | East Asian                                                    |

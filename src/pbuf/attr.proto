@@ -2100,6 +2100,18 @@ message GnomadVariantAttr {
   int64 an_grpmax = 22;         // Group-max allele number (INFO AN_grpmax_joint)
   double faf99 = 23;            // Filtering allele frequency, grpmax faf99 (INFO fafmax_faf99_max)
 
+  // Per-callset allele counts/frequencies (VCF INFO: AC/AN/AF_exomes and
+  // AC/AN/AF_genomes). The joint `af` divides by the COMBINED an, so for a
+  // variant seen in only one callset it dilutes by the other callset's AN;
+  // af_exomes/af_genomes are the callset-specific frequencies (ac/an within
+  // that callset) for correctly reading single-callset variants.
+  int64 ac_exomes = 24;         // Exome allele count (INFO AC_exomes)
+  int64 an_exomes = 25;         // Exome allele number (INFO AN_exomes)
+  double af_exomes = 26;        // Exome allele frequency (INFO AF_exomes = ac_exomes/an_exomes)
+  int64 ac_genomes = 27;        // Genome allele count (INFO AC_genomes)
+  int64 an_genomes = 28;        // Genome allele number (INFO AN_genomes)
+  double af_genomes = 29;       // Genome allele frequency (INFO AF_genomes = ac_genomes/an_genomes)
+
   string id = 100; // transient - populated at runtime from Xref.Identifier
 }
 

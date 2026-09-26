@@ -240,6 +240,14 @@ func (g *gnomadVariant) parseAndSaveVariants(filePath string, testLimit int, pri
 			An:             infoInt(kv, "AN_joint"),
 			AcGrpmax:       infoInt(kv, "AC_grpmax_joint"),
 			AnGrpmax:       infoInt(kv, "AN_grpmax_joint"),
+			// Per-callset (exomes vs genomes) — the joint af dilutes single-callset
+			// variants by the other callset's AN; af_exomes/af_genomes are canonical.
+			AcExomes:       infoInt(kv, "AC_exomes"),
+			AnExomes:       infoInt(kv, "AN_exomes"),
+			AfExomes:       infoFloat(kv, "AF_exomes"),
+			AcGenomes:      infoInt(kv, "AC_genomes"),
+			AnGenomes:      infoInt(kv, "AN_genomes"),
+			AfGenomes:      infoFloat(kv, "AF_genomes"),
 			AfAfr:          infoFloat(kv, "AF_joint_afr"),
 			AfAmr:          infoFloat(kv, "AF_joint_amr"),
 			AfEas:          infoFloat(kv, "AF_joint_eas"),

@@ -81,10 +81,16 @@ def extract_targets(conn: sqlite3.Connection, output_dir: str, test_mode: bool =
         td.species_group_flag,
         cs.accession AS uniprot_id,
         cs.description AS component_description
+    -- LEFT JOINs so EVERY target_dictionary row is emitted with its
+    -- name/type/organism; UniProt is attached only where a SWISS-PROT
+    -- component exists. The old INNER JOIN + WHERE db_source='SWISS-PROT'
+    -- silently dropped every target without a SWISS-PROT component (viral
+    -- proteins, protein complexes/families, non-protein targets), leaving
+    -- them as empty edge endpoints when referenced by drug_mechanism.
     FROM target_dictionary td
-    JOIN target_components tc ON td.tid = tc.tid
-    JOIN component_sequences cs ON tc.component_id = cs.component_id
-    WHERE cs.db_source = 'SWISS-PROT'
+    LEFT JOIN target_components tc ON td.tid = tc.tid
+    LEFT JOIN component_sequences cs ON tc.component_id = cs.component_id
+      AND cs.db_source = 'SWISS-PROT'
       AND cs.accession IS NOT NULL
       AND cs.accession != ''
     ORDER BY td.chembl_id, cs.accession

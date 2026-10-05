@@ -2339,8 +2339,30 @@ func extractGnomadVariantField(a *pbuf.GnomadVariantAttr, field string) string {
 		return fmt.Sprintf("%g", a.AfGrpmax)
 	case "grpmax_ancestry":
 		return a.GrpmaxAncestry
-	case "faf":
-		return fmt.Sprintf("%g", a.Faf)
+	case "faf95_joint":
+		return fmt.Sprintf("%g", a.Faf95Joint)
+	case "faf99_joint":
+		return fmt.Sprintf("%g", a.Faf99Joint)
+	case "ac":
+		return fmt.Sprintf("%d", a.Ac)
+	case "an":
+		return fmt.Sprintf("%d", a.An)
+	case "ac_grpmax":
+		return fmt.Sprintf("%d", a.AcGrpmax)
+	case "an_grpmax":
+		return fmt.Sprintf("%d", a.AnGrpmax)
+	case "ac_exomes":
+		return fmt.Sprintf("%d", a.AcExomes)
+	case "an_exomes":
+		return fmt.Sprintf("%d", a.AnExomes)
+	case "af_exomes":
+		return fmt.Sprintf("%g", a.AfExomes)
+	case "ac_genomes":
+		return fmt.Sprintf("%d", a.AcGenomes)
+	case "an_genomes":
+		return fmt.Sprintf("%d", a.AnGenomes)
+	case "af_genomes":
+		return fmt.Sprintf("%g", a.AfGenomes)
 	case "af_afr":
 		return fmt.Sprintf("%g", a.AfAfr)
 	case "af_amr":

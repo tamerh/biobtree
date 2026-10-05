@@ -1085,8 +1085,8 @@
     "path": "tests/datasets/gnomad_variant/gnomad_variant_fixture.vcf",
     "useLocalFile": "yes",
     "hasFilter": "yes",
-    "attrs": "chromosome,position,ref_allele,alt_allele,af,af_grpmax,grpmax_ancestry,faf,faf99,ac,an,ac_grpmax,an_grpmax,ac_exomes,an_exomes,af_exomes,ac_genomes,an_genomes,af_genomes,af_afr,af_amr,af_eas,af_nfe,af_sas,af_fin,af_asj,af_ami,af_mid,af_remaining",
-    "compact_fields": "af,ac,an,af_grpmax,grpmax_ancestry,faf,faf99,af_exomes,af_genomes",
+    "attrs": "chromosome,position,ref_allele,alt_allele,af,af_grpmax,grpmax_ancestry,faf95_joint,faf99_joint,ac,an,ac_grpmax,an_grpmax,ac_exomes,an_exomes,af_exomes,ac_genomes,an_genomes,af_genomes,af_afr,af_amr,af_eas,af_nfe,af_sas,af_fin,af_asj,af_ami,af_mid,af_remaining",
+    "compact_fields": "af,ac,an,af_grpmax,grpmax_ancestry,faf95_joint,faf99_joint,af_exomes,af_genomes",
     "test_entries_count": "100",
     "bucketMethod": "alphanum",
     "federation": "gnomad"

@@ -68190,9 +68190,9 @@ func (j *GnomadVariantAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.WriteJsonString(buf, string(j.GrpmaxAncestry))
 		buf.WriteByte(',')
 	}
-	if j.Faf != 0 {
-		buf.WriteString(`"faf":`)
-		fflib.AppendFloat(buf, float64(j.Faf), 'g', -1, 64)
+	if j.Faf95Joint != 0 {
+		buf.WriteString(`"faf95_joint":`)
+		fflib.AppendFloat(buf, float64(j.Faf95Joint), 'g', -1, 64)
 		buf.WriteByte(',')
 	}
 	if j.AfAfr != 0 {
@@ -68265,9 +68265,9 @@ func (j *GnomadVariantAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.FormatBits2(buf, uint64(j.AnGrpmax), 10, j.AnGrpmax < 0)
 		buf.WriteByte(',')
 	}
-	if j.Faf99 != 0 {
-		buf.WriteString(`"faf99":`)
-		fflib.AppendFloat(buf, float64(j.Faf99), 'g', -1, 64)
+	if j.Faf99Joint != 0 {
+		buf.WriteString(`"faf99_joint":`)
+		fflib.AppendFloat(buf, float64(j.Faf99Joint), 'g', -1, 64)
 		buf.WriteByte(',')
 	}
 	if j.AcExomes != 0 {
@@ -68328,7 +68328,7 @@ const (
 
 	ffjtGnomadVariantAttrGrpmaxAncestry
 
-	ffjtGnomadVariantAttrFaf
+	ffjtGnomadVariantAttrFaf95Joint
 
 	ffjtGnomadVariantAttrAfAfr
 
@@ -68358,7 +68358,7 @@ const (
 
 	ffjtGnomadVariantAttrAnGrpmax
 
-	ffjtGnomadVariantAttrFaf99
+	ffjtGnomadVariantAttrFaf99Joint
 
 	ffjtGnomadVariantAttrAcExomes
 
@@ -68389,7 +68389,7 @@ var ffjKeyGnomadVariantAttrAfGrpmax = []byte("af_grpmax")
 
 var ffjKeyGnomadVariantAttrGrpmaxAncestry = []byte("grpmax_ancestry")
 
-var ffjKeyGnomadVariantAttrFaf = []byte("faf")
+var ffjKeyGnomadVariantAttrFaf95Joint = []byte("faf95_joint")
 
 var ffjKeyGnomadVariantAttrAfAfr = []byte("af_afr")
 
@@ -68419,7 +68419,7 @@ var ffjKeyGnomadVariantAttrAcGrpmax = []byte("ac_grpmax")
 
 var ffjKeyGnomadVariantAttrAnGrpmax = []byte("an_grpmax")
 
-var ffjKeyGnomadVariantAttrFaf99 = []byte("faf99")
+var ffjKeyGnomadVariantAttrFaf99Joint = []byte("faf99_joint")
 
 var ffjKeyGnomadVariantAttrAcExomes = []byte("ac_exomes")
 
@@ -68624,13 +68624,13 @@ mainparse:
 
 				case 'f':
 
-					if bytes.Equal(ffjKeyGnomadVariantAttrFaf, kn) {
-						currentKey = ffjtGnomadVariantAttrFaf
+					if bytes.Equal(ffjKeyGnomadVariantAttrFaf95Joint, kn) {
+						currentKey = ffjtGnomadVariantAttrFaf95Joint
 						state = fflib.FFParse_want_colon
 						goto mainparse
 
-					} else if bytes.Equal(ffjKeyGnomadVariantAttrFaf99, kn) {
-						currentKey = ffjtGnomadVariantAttrFaf99
+					} else if bytes.Equal(ffjKeyGnomadVariantAttrFaf99Joint, kn) {
+						currentKey = ffjtGnomadVariantAttrFaf99Joint
 						state = fflib.FFParse_want_colon
 						goto mainparse
 					}
@@ -68711,8 +68711,8 @@ mainparse:
 					goto mainparse
 				}
 
-				if fflib.AsciiEqualFold(ffjKeyGnomadVariantAttrFaf99, kn) {
-					currentKey = ffjtGnomadVariantAttrFaf99
+				if fflib.AsciiEqualFold(ffjKeyGnomadVariantAttrFaf99Joint, kn) {
+					currentKey = ffjtGnomadVariantAttrFaf99Joint
 					state = fflib.FFParse_want_colon
 					goto mainparse
 				}
@@ -68801,8 +68801,8 @@ mainparse:
 					goto mainparse
 				}
 
-				if fflib.SimpleLetterEqualFold(ffjKeyGnomadVariantAttrFaf, kn) {
-					currentKey = ffjtGnomadVariantAttrFaf
+				if fflib.AsciiEqualFold(ffjKeyGnomadVariantAttrFaf95Joint, kn) {
+					currentKey = ffjtGnomadVariantAttrFaf95Joint
 					state = fflib.FFParse_want_colon
 					goto mainparse
 				}
@@ -68887,8 +68887,8 @@ mainparse:
 				case ffjtGnomadVariantAttrGrpmaxAncestry:
 					goto handle_GrpmaxAncestry
 
-				case ffjtGnomadVariantAttrFaf:
-					goto handle_Faf
+				case ffjtGnomadVariantAttrFaf95Joint:
+					goto handle_Faf95Joint
 
 				case ffjtGnomadVariantAttrAfAfr:
 					goto handle_AfAfr
@@ -68932,8 +68932,8 @@ mainparse:
 				case ffjtGnomadVariantAttrAnGrpmax:
 					goto handle_AnGrpmax
 
-				case ffjtGnomadVariantAttrFaf99:
-					goto handle_Faf99
+				case ffjtGnomadVariantAttrFaf99Joint:
+					goto handle_Faf99Joint
 
 				case ffjtGnomadVariantAttrAcExomes:
 					goto handle_AcExomes
@@ -69164,9 +69164,9 @@ handle_GrpmaxAncestry:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
-handle_Faf:
+handle_Faf95Joint:
 
-	/* handler: j.Faf type=float64 kind=float64 quoted=false*/
+	/* handler: j.Faf95Joint type=float64 kind=float64 quoted=false*/
 
 	{
 		if tok != fflib.FFTok_double && tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
@@ -69186,7 +69186,7 @@ handle_Faf:
 				return fs.WrapErr(err)
 			}
 
-			j.Faf = float64(tval)
+			j.Faf95Joint = float64(tval)
 
 		}
 	}
@@ -69614,9 +69614,9 @@ handle_AnGrpmax:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
-handle_Faf99:
+handle_Faf99Joint:
 
-	/* handler: j.Faf99 type=float64 kind=float64 quoted=false*/
+	/* handler: j.Faf99Joint type=float64 kind=float64 quoted=false*/
 
 	{
 		if tok != fflib.FFTok_double && tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
@@ -69636,7 +69636,7 @@ handle_Faf99:
 				return fs.WrapErr(err)
 			}
 
-			j.Faf99 = float64(tval)
+			j.Faf99Joint = float64(tval)
 
 		}
 	}

@@ -15,8 +15,8 @@ pathogenic" (BA1/BS1) or "absent/rare in population databases" (PM2). It is a
 Alongside the frequencies it also carries the **allele counts** `ac`/`an`
 (overall) and `ac_grpmax`/`an_grpmax` — sampling depth, which lets a caller
 gauge confidence and recompute AF — and **both** filtering-allele-frequency
-confidence intervals `faf` (faf95) and `faf99`, the metrics ClinGen recommends
-for BA1/BS1/PM2.
+confidence intervals `faf95_joint` and `faf99_joint` (joint exomes+genomes
+grpmax FAF), the metrics ClinGen v4 recommends for BA1/BS1/PM2.
 
 `af` is the canonical combined `AF_joint` (`ac`/`an`). Note the joint divides by
 the **combined** `an`, so for a variant observed in only one callset it is
@@ -57,8 +57,8 @@ All keys are the `_joint`-suffixed (combined exomes+genomes) INFO fields.
 | `AC_grpmax_joint`        | `ac_grpmax`       | Group-max allele count (int)                                  |
 | `AN_grpmax_joint`        | `an_grpmax`       | Group-max allele number (int)                                 |
 | `grpmax_joint`           | `grpmax_ancestry` | Ancestry group holding the grpmax AF                          |
-| `fafmax_faf95_max_joint` | `faf`             | Filtering allele frequency (grpmax faf95); the BA1/BS1 metric |
-| `fafmax_faf99_max_joint` | `faf99`           | Filtering allele frequency (grpmax faf99); ClinGen BA1/BS1/PM2 |
+| `fafmax_faf95_max_joint` | `faf95_joint`     | Joint (exomes+genomes) grpmax FAF95; ClinGen v4 BA1/BS1 metric |
+| `fafmax_faf99_max_joint` | `faf99_joint`     | Joint (exomes+genomes) grpmax FAF99; ClinGen BA1/BS1/PM2 |
 | `AC_exomes`              | `ac_exomes`       | Exome-callset allele count (int)                              |
 | `AN_exomes`              | `an_exomes`       | Exome-callset allele number (int)                            |
 | `AF_exomes`              | `af_exomes`       | Exome-callset allele frequency (= ac_exomes/an_exomes)       |

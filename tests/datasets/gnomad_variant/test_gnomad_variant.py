@@ -82,8 +82,8 @@ class GnomadVariantTests:
         return False, "No GnomadVariant record matched for value check"
 
     @test
-    def test_ac_an_faf99_values(self):
-        """AC / AN (sampling depth) and faf99 are populated and match the fixture"""
+    def test_ac_an_faf99_joint_values(self):
+        """AC / AN (sampling depth) and faf99_joint are populated and match the fixture"""
         for v in self._variants():
             if "ac" not in v:
                 continue
@@ -93,11 +93,11 @@ class GnomadVariantTests:
                     return False, f"{v['id']} ac: got {a.get('ac')}, want {v['ac']}"
                 if int(a.get("an", -1)) != int(v["an"]):
                     return False, f"{v['id']} an: got {a.get('an')}, want {v['an']}"
-                if abs(float(a.get("faf99", -1)) - float(v["faf99"])) > 1e-9:
-                    return False, f"{v['id']} faf99: got {a.get('faf99')}, want {v['faf99']}"
+                if abs(float(a.get("faf99_joint", -1)) - float(v["faf99_joint"])) > 1e-9:
+                    return False, f"{v['id']} faf99_joint: got {a.get('faf99_joint')}, want {v['faf99_joint']}"
                 return True, (f"{v['id']} -> ac={a.get('ac')} an={a.get('an')} "
-                              f"faf99={a.get('faf99')}")
-        return False, "No GnomadVariant record carried ac/an/faf99"
+                              f"faf99_joint={a.get('faf99_joint')}")
+        return False, "No GnomadVariant record carried ac/an/faf99_joint"
 
     @test
     def test_per_callset_ac_an_af(self):
@@ -223,7 +223,7 @@ def main():
         custom.test_variant_lookup,
         custom.test_key_scheme_chr_pos_ref_alt,
         custom.test_af_values,
-        custom.test_ac_an_faf99_values,
+        custom.test_ac_an_faf99_joint_values,
         custom.test_per_callset_ac_an_af,
         custom.test_exome_only_af_dilution,
         custom.test_cel_filter_by_allele_count,

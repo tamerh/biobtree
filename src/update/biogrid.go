@@ -246,12 +246,12 @@ func (b *biogrid) parseAndSaveInteractions(testLimit int, idLogFile *os.File) {
 		}
 
 		// Add to interactor A's aggregator
-		b.addToAggregator(interactorData, biogridA, interaction, row)
+		b.addToAggregator(interactorData, biogridA, interaction, row, true)
 
 		// Create reverse interaction (B→A) and add to B's aggregator
 		reverseInteraction := b.buildInteraction(row, biogridB, biogridA)
 		if reverseInteraction != nil {
-			b.addToAggregator(interactorData, biogridB, reverseInteraction, row)
+			b.addToAggregator(interactorData, biogridB, reverseInteraction, row, false)
 		}
 
 		processedCount++
@@ -302,7 +302,7 @@ type biogridAggregator struct {
 }
 
 // addToAggregator adds an interaction to the aggregator for a given interactor
-func (b *biogrid) addToAggregator(data map[string]*biogridAggregator, biogridID string, interaction *pbuf.BiogridInteraction, row []string) {
+func (b *biogrid) addToAggregator(data map[string]*biogridAggregator, biogridID string, interaction *pbuf.BiogridInteraction, row []string, isInteractorA bool) {
 	agg, exists := data[biogridID]
 	if !exists {
 		agg = &biogridAggregator{
@@ -312,27 +312,24 @@ func (b *biogrid) addToAggregator(data map[string]*biogridAggregator, biogridID 
 			experimentalSystems: make(map[string]bool),
 			pubmedIDs:           make(map[string]bool),
 		}
-		// TAB3 format has direct columns for Entrez ID and Symbol
-		// Column 1: Entrez Gene Interactor A
-		entrezA := b.getFieldByIndex(row, tab3EntrezA)
-		if entrezA != "-" {
-			agg.entrezID = entrezA
+		// Read the identity columns for THIS interactor's side. The aggregate is
+		// keyed by biogridID, which may be interactor A in one row and interactor
+		// B in another; reading the A-side columns unconditionally mislabeled a
+		// gene first seen on the B side with its partner's symbol/xrefs (#60).
+		entrezCol, symbolCol, swissCol, tremblCol, refseqCol := tab3EntrezA, tab3SymbolA, tab3SwissProtA, tab3TremblA, tab3RefseqA
+		if !isInteractorA {
+			entrezCol, symbolCol, swissCol, tremblCol, refseqCol = tab3EntrezB, tab3SymbolB, tab3SwissProtB, tab3TremblB, tab3RefseqB
 		}
 
-		// Column 7: Official Symbol Interactor A
-		symbolA := b.getFieldByIndex(row, tab3SymbolA)
-		if symbolA != "-" {
-			agg.symbol = symbolA
+		if entrez := b.getFieldByIndex(row, entrezCol); entrez != "-" {
+			agg.entrezID = entrez
 		}
-
-		// TAB3 format has direct columns for UniProt and RefSeq IDs
-		// Column 23: SWISS-PROT Accessions Interactor A
-		// Column 24: TREMBL Accessions Interactor A
-		// Column 25: REFSEQ Accessions Interactor A
-		agg.uniprotIDs = b.parseDelimitedIDs(b.getFieldByIndex(row, tab3SwissProtA))
-		tremblIDs := b.parseDelimitedIDs(b.getFieldByIndex(row, tab3TremblA))
-		agg.uniprotIDs = append(agg.uniprotIDs, tremblIDs...)
-		agg.refseqIDs = b.parseDelimitedIDs(b.getFieldByIndex(row, tab3RefseqA))
+		if symbol := b.getFieldByIndex(row, symbolCol); symbol != "-" {
+			agg.symbol = symbol
+		}
+		agg.uniprotIDs = b.parseDelimitedIDs(b.getFieldByIndex(row, swissCol))
+		agg.uniprotIDs = append(agg.uniprotIDs, b.parseDelimitedIDs(b.getFieldByIndex(row, tremblCol))...)
+		agg.refseqIDs = b.parseDelimitedIDs(b.getFieldByIndex(row, refseqCol))
 
 		data[biogridID] = agg
 	}

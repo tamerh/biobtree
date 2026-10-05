@@ -117,6 +117,23 @@ class GnomadVariantTests:
         return False, "No GnomadVariant record carried per-callset fields"
 
     @test
+    def test_per_callset_faf(self):
+        """Per-callset FAF (faf95/faf99 exomes/genomes) populated and match the fixture"""
+        for v in self._variants():
+            if "faf95_exomes" not in v:
+                continue
+            for r in _rows(self._get({"i": v["id"], "d": "1"}), "GnomadVariant"):
+                a = r["Attributes"]["GnomadVariant"]
+                for f in ("faf95_exomes", "faf99_exomes", "faf95_genomes", "faf99_genomes"):
+                    want = float(v[f])
+                    got = float(a.get(f, 0) or 0)
+                    if abs(got - want) > 1e-9:
+                        return False, f"{v['id']} {f}: got {a.get(f)}, want {want}"
+                return True, (f"{v['id']} -> faf95_exomes={a.get('faf95_exomes')} "
+                              f"faf95_genomes={a.get('faf95_genomes')}")
+        return False, "No GnomadVariant record carried per-callset FAF"
+
+    @test
     def test_exome_only_af_dilution(self):
         """For an exome-only variant, joint af < af_exomes (genome AN dilutes the joint) —
         af_exomes is the correct single-callset frequency the caller should use"""
@@ -225,6 +242,7 @@ def main():
         custom.test_af_values,
         custom.test_ac_an_faf99_joint_values,
         custom.test_per_callset_ac_an_af,
+        custom.test_per_callset_faf,
         custom.test_exome_only_af_dilution,
         custom.test_cel_filter_by_allele_count,
         custom.test_dbsnp_rsid_join,

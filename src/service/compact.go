@@ -2363,6 +2363,14 @@ func extractGnomadVariantField(a *pbuf.GnomadVariantAttr, field string) string {
 		return fmt.Sprintf("%d", a.AnGenomes)
 	case "af_genomes":
 		return fmt.Sprintf("%g", a.AfGenomes)
+	case "faf95_exomes":
+		return fmt.Sprintf("%g", a.Faf95Exomes)
+	case "faf99_exomes":
+		return fmt.Sprintf("%g", a.Faf99Exomes)
+	case "faf95_genomes":
+		return fmt.Sprintf("%g", a.Faf95Genomes)
+	case "faf99_genomes":
+		return fmt.Sprintf("%g", a.Faf99Genomes)
 	case "af_afr":
 		return fmt.Sprintf("%g", a.AfAfr)
 	case "af_amr":

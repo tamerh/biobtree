@@ -2112,6 +2112,13 @@ message GnomadVariantAttr {
   int64 an_genomes = 28;        // Genome allele number (INFO AN_genomes)
   double af_genomes = 29;       // Genome allele frequency (INFO AF_genomes = ac_genomes/an_genomes)
 
+  // Per-callset filtering allele frequencies (VCF INFO: fafmax_faf9X_max_exomes
+  // / _genomes). Callset-specific grpmax FAF, parallel to faf95_joint/faf99_joint.
+  double faf95_exomes = 30;     // Exome-callset grpmax FAF95 (INFO fafmax_faf95_max_exomes)
+  double faf99_exomes = 31;     // Exome-callset grpmax FAF99 (INFO fafmax_faf99_max_exomes)
+  double faf95_genomes = 32;    // Genome-callset grpmax FAF95 (INFO fafmax_faf95_max_genomes)
+  double faf99_genomes = 33;    // Genome-callset grpmax FAF99 (INFO fafmax_faf99_max_genomes)
+
   string id = 100; // transient - populated at runtime from Xref.Identifier
 }
 

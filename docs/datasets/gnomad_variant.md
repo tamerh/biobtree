@@ -65,6 +65,10 @@ All keys are the `_joint`-suffixed (combined exomes+genomes) INFO fields.
 | `AC_genomes`             | `ac_genomes`      | Genome-callset allele count (int)                            |
 | `AN_genomes`             | `an_genomes`      | Genome-callset allele number (int)                           |
 | `AF_genomes`             | `af_genomes`      | Genome-callset allele frequency (= ac_genomes/an_genomes)    |
+| `fafmax_faf95_max_exomes`  | `faf95_exomes`  | Exome-callset grpmax FAF95 |
+| `fafmax_faf99_max_exomes`  | `faf99_exomes`  | Exome-callset grpmax FAF99 |
+| `fafmax_faf95_max_genomes` | `faf95_genomes` | Genome-callset grpmax FAF95 |
+| `fafmax_faf99_max_genomes` | `faf99_genomes` | Genome-callset grpmax FAF99 |
 | `AF_joint_afr`           | `af_afr`          | African / African-American                                    |
 | `AF_joint_amr`           | `af_amr`          | Admixed American                                              |
 | `AF_joint_eas`           | `af_eas`          | East Asian                                                    |

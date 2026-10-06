@@ -1578,7 +1578,7 @@
     "url": "https://thebiogrid.org/interaction/£{id}",
     "hasFilter": "yes",
     "attrs": "interaction_id,experimental_system,experimental_system_type,author,publication,throughput,score,modification,qualifications,tags,source_database,interactor_a_id,interactor_a_symbol,interactor_a_organism,interactor_b_id,interactor_b_symbol,interactor_b_organism",
-    "compact_fields": "interactor_b_symbol,experimental_system",
+    "compact_fields": "interactor_a_symbol,interactor_a_organism,interactor_b_symbol,interactor_b_organism,experimental_system",
     "bucketMethod": "numeric",
     "xrefSort": "uniprot:speciesPriority;entrez:speciesPriority"
   },

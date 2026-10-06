@@ -1496,10 +1496,18 @@ func extractBiogridInteractionField(a *pbuf.BiogridInteractionAttr, field string
 	switch field {
 	case "interaction_id":
 		return a.InteractionId
+	case "interactor_a_symbol":
+		return a.InteractorASymbol
+	case "interactor_a_id":
+		return a.InteractorAId
+	case "interactor_a_organism":
+		return fmt.Sprintf("%d", a.InteractorAOrganism)
 	case "interactor_b_symbol":
 		return a.InteractorBSymbol
 	case "interactor_b_id":
 		return a.InteractorBId
+	case "interactor_b_organism":
+		return fmt.Sprintf("%d", a.InteractorBOrganism)
 	case "experimental_system":
 		return a.ExperimentalSystem
 	case "experimental_system_type":

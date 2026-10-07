@@ -87,3 +87,13 @@ Use: move between the two disease vocabularies for downstream mapping
 - **GitHub**: https://github.com/DiseaseOntology/HumanDiseaseOntology
 - **OBO Foundry**: http://obofoundry.org/ontology/doid.html
 - **License**: CC0 1.0 (public domain dedication)
+
+## Definition field
+
+The `doid` entry now exposes a `definition` field — the curated textual
+definition from doid.owl (`obo:IAO_0000115`), which for many diseases also
+names the hallmark clinical features in prose. Example — DOID:10652
+(Alzheimer's): "…characterized by memory lapses, confusion, emotional
+instability and progressive loss of mental ability…". (DO encodes `has_symptom`
+only inside this definition text, not as structured SYMP axioms, so there is no
+separate doid→symptom edge.)

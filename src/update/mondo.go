@@ -123,6 +123,8 @@ func (m *mondo) update() {
 			currentID = strings.TrimPrefix(line, "id: ")
 		} else if strings.HasPrefix(line, "name: ") {
 			attr.Name = strings.TrimPrefix(line, "name: ")
+		} else if strings.HasPrefix(line, "def: ") {
+			attr.Definition = extractDefText(line)
 		} else if strings.HasPrefix(line, "synonym: ") {
 			// Parse synonym line: synonym: "text" EXACT [refs]
 			synonym := extractSynonymText(line)
@@ -366,10 +368,12 @@ func (m *mondo) parseXref(line string, mondoID string, mondoDatasetID string) {
 		targetDatasetName = "nord"
 		targetID = strings.TrimPrefix(xrefID, "NORD:")
 	} else if strings.HasPrefix(xrefID, "HP:") {
-		// HPO - Human Phenotype Ontology (579 xrefs available)
-		// Phenotypic abnormalities in human disease
-		targetDatasetName = "hpo"
-		targetID = xrefID
+		// Mondo's HP: xrefs are MONDO:equivalentTo links to HPO's *disease class*
+		// (e.g. MONDO:0004975 -> HP:0002511 "Alzheimer disease"), NOT disease->phenotype
+		// annotations. Emitting them as a mondo->hpo edge made a disease surface as its
+		// own clinical feature (Atlas #issue). Skip them — genuine disease phenotypes
+		// reach HPO via the OMIM/Orphanet disease xrefs, not this equivalence class.
+		return
 	} else {
 		// Unknown xref type, skip
 		return

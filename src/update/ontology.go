@@ -164,6 +164,11 @@ func (g *ontology) update() {
 				}
 			}
 
+			// Curated textual definition (OWL annotation obo:IAO_0000115).
+			if r.Childs["obo:IAO_0000115"] != nil {
+				attr.Definition = r.Childs["obo:IAO_0000115"][0].InnerText
+			}
+
 			if r.Childs["rdfs:label"] != nil {
 
 				attr.Name = r.Childs["rdfs:label"][0].InnerText
@@ -275,7 +280,7 @@ func (g *ontology) processCrossSpeciesSssom() {
 				f := strings.Split(line, "\t")
 				if len(f) >= 4 {
 					subject := strings.TrimSpace(f[0]) // UPHENO:xxxx
-					object := strings.TrimSpace(f[3])   // species term, e.g. MP:xxxx
+					object := strings.TrimSpace(f[3])  // species term, e.g. MP:xxxx
 					if strings.HasPrefix(subject, g.idPrefix) {
 						if ci := strings.IndexByte(object, ':'); ci > 0 {
 							if ds, ok := registered[object[:ci]]; ok {

@@ -165,3 +165,18 @@ Use: Differential diagnosis based on patient symptoms
 - **GitHub**: https://github.com/monarch-initiative/mondo
 - **OBO Foundry**: http://obofoundry.org/ontology/mondo.html
 - **Documentation**: Part of the Monarch Initiative suite of resources
+
+## Definition field + the mondo↔HPO equivalence (clarification)
+
+The `mondo` entry now exposes a `definition` field — the curated textual
+definition (OBO `def:` / IAO:0000115), e.g. MONDO:0004975: "A progressive,
+neurodegenerative disease characterized by loss of function and death of nerve
+cells…". Most Mondo terms have one, so every disease page gets a description.
+
+**Mondo→HPO is NOT a disease→phenotype edge.** Mondo's `xref: HP:… {source=
+"MONDO:equivalentTo"}` links a disease to HPO's *equivalent class* (e.g.
+MONDO:0004975 ⇄ HP:0002511 "Alzheimer disease"), i.e. an equivalence/xref, not
+a phenotype annotation. Emitting it made a disease appear as its own clinical
+feature, so the `mondo → hpo` edge from these equivalence xrefs is **no longer
+created**. Genuine disease phenotypes reach HPO via the OMIM/Orphanet disease
+xrefs (`>>mondo>>omim`/`>>orphanet>>hpo`), not this class equivalence.

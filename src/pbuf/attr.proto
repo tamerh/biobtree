@@ -6,6 +6,7 @@ message OntologyAttr {
   string type =1;
   string name =2;
   repeated string synonyms=3;
+  string definition =4;   // curated textual definition (OBO def: / OWL IAO:0000115)
   string id = 100; // transient - populated at runtime from Xref.Identifier
 }
 

@@ -101966,6 +101966,11 @@ func (j *OntologyAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		}
 		buf.WriteByte(',')
 	}
+	if len(j.Definition) != 0 {
+		buf.WriteString(`"definition":`)
+		fflib.WriteJsonString(buf, string(j.Definition))
+		buf.WriteByte(',')
+	}
 	if len(j.Id) != 0 {
 		buf.WriteString(`"id":`)
 		fflib.WriteJsonString(buf, string(j.Id))
@@ -101986,6 +101991,8 @@ const (
 
 	ffjtOntologyAttrSynonyms
 
+	ffjtOntologyAttrDefinition
+
 	ffjtOntologyAttrId
 )
 
@@ -101994,6 +102001,8 @@ var ffjKeyOntologyAttrType = []byte("type")
 var ffjKeyOntologyAttrName = []byte("name")
 
 var ffjKeyOntologyAttrSynonyms = []byte("synonyms")
+
+var ffjKeyOntologyAttrDefinition = []byte("definition")
 
 var ffjKeyOntologyAttrId = []byte("id")
 
@@ -102058,6 +102067,14 @@ mainparse:
 			} else {
 				switch kn[0] {
 
+				case 'd':
+
+					if bytes.Equal(ffjKeyOntologyAttrDefinition, kn) {
+						currentKey = ffjtOntologyAttrDefinition
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 'i':
 
 					if bytes.Equal(ffjKeyOntologyAttrId, kn) {
@@ -102094,6 +102111,12 @@ mainparse:
 
 				if fflib.SimpleLetterEqualFold(ffjKeyOntologyAttrId, kn) {
 					currentKey = ffjtOntologyAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyOntologyAttrDefinition, kn) {
+					currentKey = ffjtOntologyAttrDefinition
 					state = fflib.FFParse_want_colon
 					goto mainparse
 				}
@@ -102141,6 +102164,9 @@ mainparse:
 
 				case ffjtOntologyAttrSynonyms:
 					goto handle_Synonyms
+
+				case ffjtOntologyAttrDefinition:
+					goto handle_Definition
 
 				case ffjtOntologyAttrId:
 					goto handle_Id
@@ -102279,6 +102305,32 @@ handle_Synonyms:
 
 				wantVal = false
 			}
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Definition:
+
+	/* handler: j.Definition type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Definition = string(string(outBuf))
+
 		}
 	}
 

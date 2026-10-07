@@ -50,7 +50,7 @@
     "path": "https://github.com/monarch-initiative/mondo/releases/latest/download/mondo.obo",
     "useLocalFile": "no",
     "hasFilter": "yes",
-    "attrs": "name,[]synonyms",
+    "attrs": "name,[]synonyms,definition",
     "compact_fields": "name",
     "test_entries_count": "100",
     "bucketMethod": "ontology"
@@ -80,7 +80,7 @@
     "path": "http://purl.obolibrary.org/obo/doid.owl",
     "useLocalFile": "no",
     "hasFilter": "yes",
-    "attrs": "name,[]synonyms",
+    "attrs": "name,[]synonyms,definition",
     "compact_fields": "name",
     "test_entries_count": "100",
     "bucketMethod": "ontology"

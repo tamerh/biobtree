@@ -118,6 +118,7 @@ Disease associations, clinical variants, rare diseases.
 | alliance_disease | Cross-species + human gene-disease curation (Alliance of Genome Resources) | [README](alliance_disease.md) |
 | alliance_phenotype | Model-organism gene-phenotype curation (Alliance of Genome Resources; MP/WBPhenotype/XPO) | [README](alliance_phenotype.md) |
 | panelapp | Clinical gene panels with traffic-light confidence (Genomics England PanelApp); master panel + per-gene child | [README](panelapp.md) |
+| wikidata_symptom | Common-disease symptoms/signs from Wikidata P780 (CC0), gated to Mondo/DOID; complements HPO's rare-disease-skewed phenotypes | [README](wikidata_symptom.md) |
 
 ---
 
@@ -186,6 +187,8 @@ ensembl: uniprot, go, transcript, exon, ortholog, paralog, hgnc, entrez, refseq,
 uniprot: ensembl, alphafold, interpro, pdb, go, reactome, chembl_target, string, intact, biogrid
 chembl_molecule: mesh, chembl_target, pubchem, chebi, clinical_trials
 clinvar: hgnc, mondo, hpo, dbsnp, orphanet
+mondo: doid, hpo, uberon, orphanet, mim, wikidata_symptom
+doid: mondo (bridge), wikidata_symptom
 go: ensembl, uniprot, reactome, msigdb, interpro
 gtopdb: uniprot, hgnc, gtopdb_ligand, gtopdb_interaction
 gtopdb_ligand: pubchem, chebi, chembl_molecule, gtopdb_interaction

@@ -33,9 +33,9 @@ import (
 
 // LMDB cursor operation constants (from lmdb-go)
 const (
-	cursorFirst = 0  // MDB_FIRST - Position at first key/data item
-	cursorLast  = 6  // MDB_LAST - Position at last key/data item
-	cursorNext  = 8  // MDB_NEXT - Position at next data item
+	cursorFirst = 0 // MDB_FIRST - Position at first key/data item
+	cursorLast  = 6 // MDB_LAST - Position at last key/data item
+	cursorNext  = 8 // MDB_NEXT - Position at next data item
 )
 
 // ============================================================================
@@ -58,12 +58,12 @@ type fileState struct {
 	gz        *gzip.Reader
 	r         *bufio.Reader
 	curKey    string
-	nextLine  [6]string   // Buffered next line (key, db, value, valuedb, evidence, relationship)
+	nextLine  [6]string // Buffered next line (key, db, value, valuedb, evidence, relationship)
 	eof       bool
 	complete  bool
 	fileName  string
 	linesRead int64
-	heapIndex int         // Index in the heap (for heap.Fix)
+	heapIndex int // Index in the heap (for heap.Fix)
 }
 
 // fileHeap implements heap.Interface for efficient minimum key finding
@@ -88,7 +88,7 @@ func (h *fileHeap) Pop() interface{} {
 	old := *h
 	n := len(old)
 	fs := old[n-1]
-	old[n-1] = nil  // avoid memory leak
+	old[n-1] = nil // avoid memory leak
 	fs.heapIndex = -1
 	*h = old[0 : n-1]
 	return fs
@@ -97,10 +97,10 @@ func (h *fileHeap) Pop() interface{} {
 // readJob represents a job for a worker to read the next key from a file
 type readJob struct {
 	fs          *fileState
-	skipUntil   string                // If non-empty, skip keys <= this value
-	resultCh    chan<- *fileState     // Channel to send result back
-	mergeCh     *chan kvMessage       // Channel to send kv data to
-	initialRead bool                  // If true, only read first key without sending to mergeCh
+	skipUntil   string            // If non-empty, skip keys <= this value
+	resultCh    chan<- *fileState // Channel to send result back
+	mergeCh     *chan kvMessage   // Channel to send kv data to
+	initialRead bool              // If true, only read first key without sending to mergeCh
 }
 
 // workerPool manages a pool of workers for reading files
@@ -282,7 +282,7 @@ func (wp *workerPool) readNextKey(fs *fileState, tmprun []rune, skipUntil string
 			// If we've moved to a different key, buffer this line and return
 			if len(key) > 0 && line[0] != key {
 				fs.nextLine = line
-				fs.curKey = line[0]  // Update curKey to the new key
+				fs.curKey = line[0] // Update curKey to the new key
 				return
 			}
 
@@ -338,25 +338,25 @@ func (wp *workerPool) readNextKey(fs *fileState, tmprun []rune, skipUntil string
 
 // MergeCheckpoint stores the state needed to resume a merge operation
 type MergeCheckpoint struct {
-	LastWrittenKey  string                 `json:"last_written_key"`
-	KeysWritten     uint64                 `json:"keys_written"`
-	TotalKeyWrite   uint64                 `json:"total_key_write"`
-	UidIndex        uint64                 `json:"uid_index"`
-	TotalLinkKey    uint64                 `json:"total_link_key"`
-	TotalKey        uint64                 `json:"total_key"`
-	TotalValue      uint64                 `json:"total_value"`
-	Timestamp       time.Time              `json:"timestamp"`
-	IndexDir        string                 `json:"index_dir"`
-	Version         int                    `json:"version"` // For future compatibility
-	FileStates      map[string]FileState   `json:"file_states"` // Track state of each chunk file
+	LastWrittenKey string               `json:"last_written_key"`
+	KeysWritten    uint64               `json:"keys_written"`
+	TotalKeyWrite  uint64               `json:"total_key_write"`
+	UidIndex       uint64               `json:"uid_index"`
+	TotalLinkKey   uint64               `json:"total_link_key"`
+	TotalKey       uint64               `json:"total_key"`
+	TotalValue     uint64               `json:"total_value"`
+	Timestamp      time.Time            `json:"timestamp"`
+	IndexDir       string               `json:"index_dir"`
+	Version        int                  `json:"version"`     // For future compatibility
+	FileStates     map[string]FileState `json:"file_states"` // Track state of each chunk file
 }
 
 // FileState tracks the processing state of a single chunk file
 type FileState struct {
-	FileName    string `json:"file_name"`
-	Completed   bool   `json:"completed"`    // True if file is fully processed
-	LastKey     string `json:"last_key"`     // Last key read from this file (for partial progress)
-	LinesRead   int64  `json:"lines_read"`   // Number of lines read
+	FileName  string `json:"file_name"`
+	Completed bool   `json:"completed"`  // True if file is fully processed
+	LastKey   string `json:"last_key"`   // Last key read from this file (for partial progress)
+	LinesRead int64  `json:"lines_read"` // Number of lines read
 }
 
 // DatasetMergeStats tracks per-dataset statistics during merge
@@ -417,33 +417,33 @@ type Merge struct {
 	keepUpdateFiles         bool
 	pager                   *util.Pagekey
 	totalkvLine             int64
-	totalEntrySize          int64                 // Sum of all entry sizes for progress based on keys written
+	totalEntrySize          int64 // Sum of all entry sizes for progress based on keys written
 	protoResBufferPool      *chan []*pbuf.XrefEntry
 	protoCountResBufferPool *chan []*pbuf.XrefDomainCount
 	// Federation support
-	federation              string  // Federation name (e.g., "main", "dbsnp")
-	indexDir                string  // Federation-specific index directory
-	dbDir                   string  // Federation-specific database directory (versioned, e.g., db_v3)
-	dbVersion               int     // Current database version number
-	federationDir           string  // Federation directory (e.g., out/main)
+	federation    string // Federation name (e.g., "main", "dbsnp")
+	indexDir      string // Federation-specific index directory
+	dbDir         string // Federation-specific database directory (versioned, e.g., db_v3)
+	dbVersion     int    // Current database version number
+	federationDir string // Federation directory (e.g., out/main)
 	// Checkpoint/resume fields
-	checkpointPath          string
-	checkpointInterval      int
-	keysSinceCheckpoint     int
-	resumeFromKey           string  // If resuming, skip keys <= this
-	isResuming              bool
-	lastCheckpointKey       string
-	completedFiles          map[string]FileState  // Track files that completed and were removed
-	checkpointFileStates    map[string]FileState  // File states from loaded checkpoint
+	checkpointPath       string
+	checkpointInterval   int
+	keysSinceCheckpoint  int
+	resumeFromKey        string // If resuming, skip keys <= this
+	isResuming           bool
+	lastCheckpointKey    string
+	completedFiles       map[string]FileState // Track files that completed and were removed
+	checkpointFileStates map[string]FileState // File states from loaded checkpoint
 	// Worker-based merge fields (replaces goroutine-per-file approach)
-	fileStates              []*fileState          // All file states
-	fileHeap                *fileHeap             // Min-heap for efficient minimum key finding
-	workerPool              *workerPool           // Worker pool for reading files
-	numWorkers              int                   // Number of workers (default 8)
-	tmprunSize              int                   // Buffer size for reading
-	lastProgressTime        time.Time             // Last time progress was logged
-	progressInterval        time.Duration         // Interval between progress logs
-	totalLinesRead          int64                 // Total lines read across all files for progress
+	fileStates       []*fileState  // All file states
+	fileHeap         *fileHeap     // Min-heap for efficient minimum key finding
+	workerPool       *workerPool   // Worker pool for reading files
+	numWorkers       int           // Number of workers (default 8)
+	tmprunSize       int           // Buffer size for reading
+	lastProgressTime time.Time     // Last time progress was logged
+	progressInterval time.Duration // Interval between progress logs
+	totalLinesRead   int64         // Total lines read across all files for progress
 }
 
 // saveCheckpoint saves the current merge progress to a checkpoint file
@@ -847,7 +847,7 @@ func (d *Merge) Merge(c *configs.Conf, keep bool, federation string) (uint64, ui
 // This is done in controlled batches to limit memory usage
 func (d *Merge) initialReadAllFiles() {
 	// Process files in batches to control memory
-	batchSize := d.numWorkers * 4  // Process 4x workers at a time
+	batchSize := d.numWorkers * 4 // Process 4x workers at a time
 	resultCh := make(chan *fileState, batchSize)
 
 	for i := 0; i < len(d.fileStates); i += batchSize {
@@ -992,7 +992,7 @@ func (d *Merge) updateHeapAfterRead(files []*fileState) {
 				fs.file.Close()
 				fs.file = nil
 			}
-			fs.r = nil  // Allow GC to collect bufio reader
+			fs.r = nil // Allow GC to collect bufio reader
 
 			// Track completed file
 			if d.completedFiles == nil {
@@ -1683,7 +1683,7 @@ func (d *Merge) init() {
 		} else if d.totalkvLine < 1000000000 { //1B
 			d.mergeTotalArrLen = 30000
 		} else {
-			d.mergeTotalArrLen = 50000  // Reduced from 720000
+			d.mergeTotalArrLen = 50000 // Reduced from 720000
 		}
 	}
 
@@ -1926,7 +1926,7 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)
 				xref.Attributes = &pbuf.Xref_Hgnc{attr}
-			case "go", "eco", "efo", "mondo", "uberon", "cl", "doid", "upheno", "mp", "zp", "xpo", "wbphenotype", "fypo", "oba", "pato", "obi", "xco", "bao":
+			case "go", "eco", "efo", "mondo", "uberon", "cl", "doid", "upheno", "mp", "zp", "xpo", "wbphenotype", "fypo", "oba", "pato", "obi", "xco", "bao", "wikidata_symptom":
 				attr := &pbuf.OntologyAttr{}
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)
@@ -2614,528 +2614,528 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 			continue
 		}
 		var xref = pbuf.Xref{}
-			did, err := strconv.ParseInt(k, 10, 16)
-			if err != nil {
-				panic("Error while converting to int16 for domain id->" + k)
-			}
-			xref.Dataset = uint32(did)
-			xref.Attributes = &pbuf.Xref_Empty{Empty: true}
+		did, err := strconv.ParseInt(k, 10, 16)
+		if err != nil {
+			panic("Error while converting to int16 for domain id->" + k)
+		}
+		xref.Dataset = uint32(did)
+		xref.Attributes = &pbuf.Xref_Empty{Empty: true}
 
-			// Set attributes based on dataset type
-			if valPropIdx[k] > 0 {
-				switch config.DataconfIDIntToString[xref.Dataset] {
-				case "go", "eco", "efo", "mondo", "cl", "doid", "upheno", "mp", "zp", "xpo", "wbphenotype", "fypo", "oba", "pato", "obi", "xco", "bao":
-					attr := &pbuf.OntologyAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_Ontology{attr}
-				case "hpo":
-					attr := &pbuf.HPOAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_HpoAttr{attr}
-				case "chebi":
-					attr := &pbuf.ChebiAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_Chebi{attr}
-				case "patent":
-					attr := &pbuf.PatentAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_Patent{attr}
-				case "clinical_trials":
-					attr := &pbuf.ClinicalTrialAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_ClinicalTrials{attr}
-				case "ncrna_disease":
-					attr := &pbuf.NcrnaDiseaseAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_NcrnaDisease{attr}
-				case "ncrna_interaction":
-					attr := &pbuf.NcrnaInteractionAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_NcrnaInteraction{attr}
-				case "ncrna_drug":
-					attr := &pbuf.NcrnaDrugAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_NcrnaDrug{attr}
-				case "alliance_disease":
-					attr := &pbuf.AllianceDiseaseAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_AllianceDisease{attr}
-				case "alliance_phenotype":
-					attr := &pbuf.AlliancePhenotypeAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_AlliancePhenotype{attr}
-				case "string":
-					attr := &pbuf.StringAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_Stringattr{attr}
-				case "string_interaction":
-					attr := &pbuf.StringInteractionAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_StringInteraction{attr}
-				case "alphafold":
-					// Merge multiple AlphaFoldAttr properties (FTP pLDDT + GCS PAE)
-					if valPropIdx[k] > 1 {
-						finalAttr := pbuf.AlphaFoldAttr{}
-						for a := 0; a < valPropIdx[k]; a++ {
-							barr := []byte((*kvProp[k])[a].value)
-							attr := &pbuf.AlphaFoldAttr{}
-							ffjson.Unmarshal(barr, attr)
-							if err := mergo.Merge(&finalAttr, attr, mergo.WithAppendSlice); err != nil {
-								panic(err)
-							}
-						}
-						xref.Attributes = &pbuf.Xref_Alphafold{&finalAttr}
-					} else {
+		// Set attributes based on dataset type
+		if valPropIdx[k] > 0 {
+			switch config.DataconfIDIntToString[xref.Dataset] {
+			case "go", "eco", "efo", "mondo", "cl", "doid", "upheno", "mp", "zp", "xpo", "wbphenotype", "fypo", "oba", "pato", "obi", "xco", "bao":
+				attr := &pbuf.OntologyAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Ontology{attr}
+			case "hpo":
+				attr := &pbuf.HPOAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_HpoAttr{attr}
+			case "chebi":
+				attr := &pbuf.ChebiAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Chebi{attr}
+			case "patent":
+				attr := &pbuf.PatentAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Patent{attr}
+			case "clinical_trials":
+				attr := &pbuf.ClinicalTrialAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_ClinicalTrials{attr}
+			case "ncrna_disease":
+				attr := &pbuf.NcrnaDiseaseAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_NcrnaDisease{attr}
+			case "ncrna_interaction":
+				attr := &pbuf.NcrnaInteractionAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_NcrnaInteraction{attr}
+			case "ncrna_drug":
+				attr := &pbuf.NcrnaDrugAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_NcrnaDrug{attr}
+			case "alliance_disease":
+				attr := &pbuf.AllianceDiseaseAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_AllianceDisease{attr}
+			case "alliance_phenotype":
+				attr := &pbuf.AlliancePhenotypeAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_AlliancePhenotype{attr}
+			case "string":
+				attr := &pbuf.StringAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Stringattr{attr}
+			case "string_interaction":
+				attr := &pbuf.StringInteractionAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_StringInteraction{attr}
+			case "alphafold":
+				// Merge multiple AlphaFoldAttr properties (FTP pLDDT + GCS PAE)
+				if valPropIdx[k] > 1 {
+					finalAttr := pbuf.AlphaFoldAttr{}
+					for a := 0; a < valPropIdx[k]; a++ {
+						barr := []byte((*kvProp[k])[a].value)
 						attr := &pbuf.AlphaFoldAttr{}
-						barr := []byte((*kvProp[k])[0].value)
 						ffjson.Unmarshal(barr, attr)
-						xref.Attributes = &pbuf.Xref_Alphafold{attr}
-					}
-				case "rnacentral":
-					if valPropIdx[k] > 1 {
-						finalAttr := pbuf.RnacentralAttr{}
-						for a := 0; a < valPropIdx[k]; a++ {
-							barr := []byte((*kvProp[k])[a].value)
-							attr := &pbuf.RnacentralAttr{}
-							ffjson.Unmarshal(barr, attr)
-							if err := mergo.Merge(&finalAttr, attr, mergo.WithAppendSlice); err != nil {
-								panic(err)
-							}
+						if err := mergo.Merge(&finalAttr, attr, mergo.WithAppendSlice); err != nil {
+							panic(err)
 						}
-						xref.Attributes = &pbuf.Xref_Rnacentral{&finalAttr}
-					} else {
-						attr := &pbuf.RnacentralAttr{}
-						barr := []byte((*kvProp[k])[0].value)
-						ffjson.Unmarshal(barr, attr)
-						xref.Attributes = &pbuf.Xref_Rnacentral{attr}
 					}
-				case "clinvar":
-					attr := &pbuf.ClinvarAttr{}
+					xref.Attributes = &pbuf.Xref_Alphafold{&finalAttr}
+				} else {
+					attr := &pbuf.AlphaFoldAttr{}
 					barr := []byte((*kvProp[k])[0].value)
 					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_Clinvar{attr}
-				case "lipidmaps":
-					attr := &pbuf.LipidmapsAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_Lipidmaps{attr}
-				case "swisslipids":
-					attr := &pbuf.SwisslipidsAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_Swisslipids{attr}
-				case "rhea":
-					attr := &pbuf.RheaAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_Rhea{attr}
-				case "gwas_study":
-					attr := &pbuf.GwasStudyAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_GwasStudy{attr}
-				case "gwas":
-					attr := &pbuf.GwasAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_Gwas{attr}
-				case "dbsnp":
-					attr := &pbuf.DbsnpAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_Dbsnp{attr}
-				case "intact":
-					attr := &pbuf.IntactAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_Intact{attr}
-				case "biogrid":
-					attr := &pbuf.BiogridAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_Biogrid{attr}
-				case "biogrid_interaction":
-					attr := &pbuf.BiogridInteractionAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_BiogridInteraction{attr}
-				case "diamond_similarity":
-					attr := &pbuf.DiamondSimilarityAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_DiamondSimilarity{attr}
-				case "esm2_similarity":
-					attr := &pbuf.Esm2SimilarityAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_Esm2Similarity{attr}
-				case "antibody":
-					attr := &pbuf.AntibodyAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_Antibody{attr}
-				case "pubchem":
-					attr := &pbuf.PubchemAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_Pubchem{attr}
-				case "pubchem_activity":
-					attr := &pbuf.PubchemActivityAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_PubchemActivity{attr}
-				case "pubchem_assay":
-					attr := &pbuf.PubchemAssayAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_PubchemAssay{attr}
-				case "mesh":
-					attr := &pbuf.MeshAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_Mesh{attr}
-				case "entrez":
-					// Merge multiple EntrezAttr properties (gene_info + gene_neighbors)
-					if valPropIdx[k] > 1 {
-						finalAttr := pbuf.EntrezAttr{}
-						for a := 0; a < valPropIdx[k]; a++ {
-							barr := []byte((*kvProp[k])[a].value)
-							attr := &pbuf.EntrezAttr{}
-							ffjson.Unmarshal(barr, attr)
-							if err := mergo.Merge(&finalAttr, attr, mergo.WithAppendSlice); err != nil {
-								panic(err)
-							}
-						}
-						xref.Attributes = &pbuf.Xref_Entrez{&finalAttr}
-					} else {
-						attr := &pbuf.EntrezAttr{}
-						barr := []byte((*kvProp[k])[0].value)
-						ffjson.Unmarshal(barr, attr)
-						xref.Attributes = &pbuf.Xref_Entrez{attr}
-					}
-				case "refseq":
-					attr := &pbuf.RefSeqAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_Refseq{attr}
-				case "gencc":
-					attr := &pbuf.GenccAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_Gencc{attr}
-				case "clingen_gene_validity":
-					attr := &pbuf.ClingenGeneValidityAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_ClingenGeneValidity{attr}
-				case "clingen_dosage":
-					attr := &pbuf.ClingenDosageAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_ClingenDosage{attr}
-				case "clingen_variant":
-					attr := &pbuf.ClingenVariantAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_ClingenVariant{attr}
-				case "generif":
-					attr := &pbuf.GenerifAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_Generif{attr}
-				case "depmap":
-					attr := &pbuf.DepmapAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_Depmap{attr}
-				case "depmap_dependency":
-					attr := &pbuf.DepmapDependencyAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_DepmapDependency{attr}
-				case "gnomad_constraint":
-					attr := &pbuf.GnomadConstraintAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_GnomadConstraint{attr}
-				case "drugcentral":
-					attr := &pbuf.DrugcentralAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_Drugcentral{attr}
-				case "civic":
-					attr := &pbuf.CivicGeneAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_Civic{attr}
-				case "civic_variant":
-					attr := &pbuf.CivicVariantAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_CivicVariant{attr}
-				case "civic_evidence":
-					attr := &pbuf.CivicEvidenceAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_CivicEvidence{attr}
-				case "civic_assertion":
-					attr := &pbuf.CivicAssertionAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_CivicAssertion{attr}
-				case "intogen":
-					attr := &pbuf.IntogenAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_Intogen{attr}
-				case "cellosaurus":
-					attr := &pbuf.CellosaurusAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_Cellosaurus{attr}
-				case "bindingdb":
-					attr := &pbuf.BindingdbAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_Bindingdb{attr}
-				case "ctd":
-					attr := &pbuf.CtdAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_Ctd{attr}
-				case "ctd_gene_interaction":
-					attr := &pbuf.CtdGeneInteractionAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_CtdGeneInteraction{attr}
-				case "ctd_disease_association":
-					attr := &pbuf.CtdDiseaseAssociationAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_CtdDiseaseAssociation{attr}
-				case "faers":
-					attr := &pbuf.FaersAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_Faers{attr}
-				case "faers_reaction":
-					attr := &pbuf.FaersReactionAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_FaersReaction{attr}
-				case "panelapp":
-					attr := &pbuf.PanelappAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_Panelapp{attr}
-				case "panelapp_gene":
-					attr := &pbuf.PanelappGeneAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_PanelappGene{attr}
-				case "mavedb":
-					attr := &pbuf.MavedbAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_Mavedb{attr}
-				case "conservation":
-					attr := &pbuf.ConservationAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_Conservation{attr}
-				case "pharmgkb":
-					attr := &pbuf.PharmgkbAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_Pharmgkb{attr}
-				case "pharmgkb_gene":
-					attr := &pbuf.PharmgkbGeneAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_PharmgkbGene{attr}
-				case "pharmgkb_clinical":
-					attr := &pbuf.PharmgkbClinicalAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_PharmgkbClinical{attr}
-				case "pharmgkb_variant":
-					attr := &pbuf.PharmgkbVariantAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_PharmgkbVariant{attr}
-				case "pharmgkb_guideline":
-					attr := &pbuf.PharmgkbGuidelineAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_PharmgkbGuideline{attr}
-				case "pharmgkb_pathway":
-					attr := &pbuf.PharmgkbPathwayAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_PharmgkbPathway{attr}
-				case "pharmgkb_var_annotation":
-					attr := &pbuf.PharmgkbVarAnnotationAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_PharmgkbVarAnnotation{attr}
-				case "hpa":
-					attr := &pbuf.HpaAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_Hpa{attr}
-				case "hpa_expression":
-					attr := &pbuf.HpaExpressionAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_HpaExpression{attr}
-				case "hpa_pathology":
-					attr := &pbuf.HpaPathologyAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_HpaPathology{attr}
-				case "hpa_antibody":
-					attr := &pbuf.HpaAntibodyAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_HpaAntibody{attr}
-				case "cellxgene":
-					attr := &pbuf.CellxgeneAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_Cellxgene{attr}
-				case "cellxgene_celltype":
-					attr := &pbuf.CellxgeneCelltypeAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_CellxgeneCelltype{attr}
-				case "scxa":
-					attr := &pbuf.ScxaAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_Scxa{attr}
-				case "scxa_expression":
-					attr := &pbuf.ScxaExpressionAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_ScxaExpression{attr}
-				case "scxa_gene_experiment":
-					attr := &pbuf.ScxaGeneExperimentAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_ScxaGeneExperiment{attr}
-				case "collectri":
-					attr := &pbuf.CollecTriAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_Collectri{attr}
-				case "signor":
-					attr := &pbuf.SignorAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_Signor{attr}
-				case "cellphonedb":
-					attr := &pbuf.CellphonedbAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_Cellphonedb{attr}
-				case "spliceai":
-					attr := &pbuf.SpliceAIAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_Spliceai{attr}
-				case "mirdb":
-					attr := &pbuf.MiRDBAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_Mirdb{attr}
-				case "fantom5_promoter":
-					attr := &pbuf.Fantom5PromoterAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_Fantom5Promoter{attr}
-				case "fantom5_enhancer":
-					attr := &pbuf.Fantom5EnhancerAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_Fantom5Enhancer{attr}
-				case "fantom5_gene":
-					attr := &pbuf.Fantom5GeneAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_Fantom5Gene{attr}
-				case "jaspar":
-					attr := &pbuf.JasparAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_Jaspar{attr}
-				case "msigdb":
-					attr := &pbuf.MsigdbAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_Msigdb{attr}
-				case "gnomad_variant":
-					attr := &pbuf.GnomadVariantAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_GnomadVariant{attr}
-				case "alphamissense":
-					attr := &pbuf.AlphaMissenseAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_Alphamissense{attr}
-				case "alphamissense_transcript":
-					attr := &pbuf.AlphaMissenseTranscriptAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_AlphamissenseTranscript{attr}
-				case "revel":
-					attr := &pbuf.RevelAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_Revel{attr}
-				case "esm1b":
-					attr := &pbuf.Esm1BAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_Esm1B{attr}
-				case "saprot":
-					attr := &pbuf.SaprotAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_Saprot{attr}
-				case "encode_ccre":
-					attr := &pbuf.EncodeCcreAttr{}
-					barr := []byte((*kvProp[k])[0].value)
-					ffjson.Unmarshal(barr, attr)
-					xref.Attributes = &pbuf.Xref_EncodeCcre{attr}
+					xref.Attributes = &pbuf.Xref_Alphafold{attr}
 				}
+			case "rnacentral":
+				if valPropIdx[k] > 1 {
+					finalAttr := pbuf.RnacentralAttr{}
+					for a := 0; a < valPropIdx[k]; a++ {
+						barr := []byte((*kvProp[k])[a].value)
+						attr := &pbuf.RnacentralAttr{}
+						ffjson.Unmarshal(barr, attr)
+						if err := mergo.Merge(&finalAttr, attr, mergo.WithAppendSlice); err != nil {
+							panic(err)
+						}
+					}
+					xref.Attributes = &pbuf.Xref_Rnacentral{&finalAttr}
+				} else {
+					attr := &pbuf.RnacentralAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_Rnacentral{attr}
+				}
+			case "clinvar":
+				attr := &pbuf.ClinvarAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Clinvar{attr}
+			case "lipidmaps":
+				attr := &pbuf.LipidmapsAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Lipidmaps{attr}
+			case "swisslipids":
+				attr := &pbuf.SwisslipidsAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Swisslipids{attr}
+			case "rhea":
+				attr := &pbuf.RheaAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Rhea{attr}
+			case "gwas_study":
+				attr := &pbuf.GwasStudyAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_GwasStudy{attr}
+			case "gwas":
+				attr := &pbuf.GwasAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Gwas{attr}
+			case "dbsnp":
+				attr := &pbuf.DbsnpAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Dbsnp{attr}
+			case "intact":
+				attr := &pbuf.IntactAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Intact{attr}
+			case "biogrid":
+				attr := &pbuf.BiogridAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Biogrid{attr}
+			case "biogrid_interaction":
+				attr := &pbuf.BiogridInteractionAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_BiogridInteraction{attr}
+			case "diamond_similarity":
+				attr := &pbuf.DiamondSimilarityAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_DiamondSimilarity{attr}
+			case "esm2_similarity":
+				attr := &pbuf.Esm2SimilarityAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Esm2Similarity{attr}
+			case "antibody":
+				attr := &pbuf.AntibodyAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Antibody{attr}
+			case "pubchem":
+				attr := &pbuf.PubchemAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Pubchem{attr}
+			case "pubchem_activity":
+				attr := &pbuf.PubchemActivityAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_PubchemActivity{attr}
+			case "pubchem_assay":
+				attr := &pbuf.PubchemAssayAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_PubchemAssay{attr}
+			case "mesh":
+				attr := &pbuf.MeshAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Mesh{attr}
+			case "entrez":
+				// Merge multiple EntrezAttr properties (gene_info + gene_neighbors)
+				if valPropIdx[k] > 1 {
+					finalAttr := pbuf.EntrezAttr{}
+					for a := 0; a < valPropIdx[k]; a++ {
+						barr := []byte((*kvProp[k])[a].value)
+						attr := &pbuf.EntrezAttr{}
+						ffjson.Unmarshal(barr, attr)
+						if err := mergo.Merge(&finalAttr, attr, mergo.WithAppendSlice); err != nil {
+							panic(err)
+						}
+					}
+					xref.Attributes = &pbuf.Xref_Entrez{&finalAttr}
+				} else {
+					attr := &pbuf.EntrezAttr{}
+					barr := []byte((*kvProp[k])[0].value)
+					ffjson.Unmarshal(barr, attr)
+					xref.Attributes = &pbuf.Xref_Entrez{attr}
+				}
+			case "refseq":
+				attr := &pbuf.RefSeqAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Refseq{attr}
+			case "gencc":
+				attr := &pbuf.GenccAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Gencc{attr}
+			case "clingen_gene_validity":
+				attr := &pbuf.ClingenGeneValidityAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_ClingenGeneValidity{attr}
+			case "clingen_dosage":
+				attr := &pbuf.ClingenDosageAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_ClingenDosage{attr}
+			case "clingen_variant":
+				attr := &pbuf.ClingenVariantAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_ClingenVariant{attr}
+			case "generif":
+				attr := &pbuf.GenerifAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Generif{attr}
+			case "depmap":
+				attr := &pbuf.DepmapAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Depmap{attr}
+			case "depmap_dependency":
+				attr := &pbuf.DepmapDependencyAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_DepmapDependency{attr}
+			case "gnomad_constraint":
+				attr := &pbuf.GnomadConstraintAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_GnomadConstraint{attr}
+			case "drugcentral":
+				attr := &pbuf.DrugcentralAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Drugcentral{attr}
+			case "civic":
+				attr := &pbuf.CivicGeneAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Civic{attr}
+			case "civic_variant":
+				attr := &pbuf.CivicVariantAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_CivicVariant{attr}
+			case "civic_evidence":
+				attr := &pbuf.CivicEvidenceAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_CivicEvidence{attr}
+			case "civic_assertion":
+				attr := &pbuf.CivicAssertionAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_CivicAssertion{attr}
+			case "intogen":
+				attr := &pbuf.IntogenAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Intogen{attr}
+			case "cellosaurus":
+				attr := &pbuf.CellosaurusAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Cellosaurus{attr}
+			case "bindingdb":
+				attr := &pbuf.BindingdbAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Bindingdb{attr}
+			case "ctd":
+				attr := &pbuf.CtdAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Ctd{attr}
+			case "ctd_gene_interaction":
+				attr := &pbuf.CtdGeneInteractionAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_CtdGeneInteraction{attr}
+			case "ctd_disease_association":
+				attr := &pbuf.CtdDiseaseAssociationAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_CtdDiseaseAssociation{attr}
+			case "faers":
+				attr := &pbuf.FaersAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Faers{attr}
+			case "faers_reaction":
+				attr := &pbuf.FaersReactionAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_FaersReaction{attr}
+			case "panelapp":
+				attr := &pbuf.PanelappAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Panelapp{attr}
+			case "panelapp_gene":
+				attr := &pbuf.PanelappGeneAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_PanelappGene{attr}
+			case "mavedb":
+				attr := &pbuf.MavedbAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Mavedb{attr}
+			case "conservation":
+				attr := &pbuf.ConservationAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Conservation{attr}
+			case "pharmgkb":
+				attr := &pbuf.PharmgkbAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Pharmgkb{attr}
+			case "pharmgkb_gene":
+				attr := &pbuf.PharmgkbGeneAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_PharmgkbGene{attr}
+			case "pharmgkb_clinical":
+				attr := &pbuf.PharmgkbClinicalAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_PharmgkbClinical{attr}
+			case "pharmgkb_variant":
+				attr := &pbuf.PharmgkbVariantAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_PharmgkbVariant{attr}
+			case "pharmgkb_guideline":
+				attr := &pbuf.PharmgkbGuidelineAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_PharmgkbGuideline{attr}
+			case "pharmgkb_pathway":
+				attr := &pbuf.PharmgkbPathwayAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_PharmgkbPathway{attr}
+			case "pharmgkb_var_annotation":
+				attr := &pbuf.PharmgkbVarAnnotationAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_PharmgkbVarAnnotation{attr}
+			case "hpa":
+				attr := &pbuf.HpaAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Hpa{attr}
+			case "hpa_expression":
+				attr := &pbuf.HpaExpressionAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_HpaExpression{attr}
+			case "hpa_pathology":
+				attr := &pbuf.HpaPathologyAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_HpaPathology{attr}
+			case "hpa_antibody":
+				attr := &pbuf.HpaAntibodyAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_HpaAntibody{attr}
+			case "cellxgene":
+				attr := &pbuf.CellxgeneAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Cellxgene{attr}
+			case "cellxgene_celltype":
+				attr := &pbuf.CellxgeneCelltypeAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_CellxgeneCelltype{attr}
+			case "scxa":
+				attr := &pbuf.ScxaAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Scxa{attr}
+			case "scxa_expression":
+				attr := &pbuf.ScxaExpressionAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_ScxaExpression{attr}
+			case "scxa_gene_experiment":
+				attr := &pbuf.ScxaGeneExperimentAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_ScxaGeneExperiment{attr}
+			case "collectri":
+				attr := &pbuf.CollecTriAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Collectri{attr}
+			case "signor":
+				attr := &pbuf.SignorAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Signor{attr}
+			case "cellphonedb":
+				attr := &pbuf.CellphonedbAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Cellphonedb{attr}
+			case "spliceai":
+				attr := &pbuf.SpliceAIAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Spliceai{attr}
+			case "mirdb":
+				attr := &pbuf.MiRDBAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Mirdb{attr}
+			case "fantom5_promoter":
+				attr := &pbuf.Fantom5PromoterAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Fantom5Promoter{attr}
+			case "fantom5_enhancer":
+				attr := &pbuf.Fantom5EnhancerAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Fantom5Enhancer{attr}
+			case "fantom5_gene":
+				attr := &pbuf.Fantom5GeneAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Fantom5Gene{attr}
+			case "jaspar":
+				attr := &pbuf.JasparAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Jaspar{attr}
+			case "msigdb":
+				attr := &pbuf.MsigdbAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Msigdb{attr}
+			case "gnomad_variant":
+				attr := &pbuf.GnomadVariantAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_GnomadVariant{attr}
+			case "alphamissense":
+				attr := &pbuf.AlphaMissenseAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Alphamissense{attr}
+			case "alphamissense_transcript":
+				attr := &pbuf.AlphaMissenseTranscriptAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_AlphamissenseTranscript{attr}
+			case "revel":
+				attr := &pbuf.RevelAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Revel{attr}
+			case "esm1b":
+				attr := &pbuf.Esm1BAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Esm1B{attr}
+			case "saprot":
+				attr := &pbuf.SaprotAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Saprot{attr}
+			case "encode_ccre":
+				attr := &pbuf.EncodeCcreAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_EncodeCcre{attr}
 			}
+		}
 
-			// No entries or counts for property-only entries
-			xref.Entries = []*pbuf.XrefEntry{}
-			xref.DatasetCounts = []*pbuf.XrefDomainCount{}
-			xref.Count = 0
+		// No entries or counts for property-only entries
+		xref.Entries = []*pbuf.XrefEntry{}
+		xref.DatasetCounts = []*pbuf.XrefDomainCount{}
+		xref.Count = 0
 
-			xrefs[index] = &xref
-			index++
-			d.totalKey++
-			// Track per-dataset keys for property-only entries
-			datasetID := uint32(did)
-			if d.perDatasetStats[datasetID] == nil {
-				d.perDatasetStats[datasetID] = &DatasetMergeStats{}
-			}
+		xrefs[index] = &xref
+		index++
+		d.totalKey++
+		// Track per-dataset keys for property-only entries
+		datasetID := uint32(did)
+		if d.perDatasetStats[datasetID] == nil {
+			d.perDatasetStats[datasetID] = &DatasetMergeStats{}
+		}
 		d.perDatasetStats[datasetID].Keys++
 	}
 

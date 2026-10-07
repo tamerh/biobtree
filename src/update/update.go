@@ -77,7 +77,7 @@ type DataUpdate struct {
 	skipEnsembl            bool
 	progChan               chan *progressInfo
 	progInterval           int64
-	lookupService          *service.Service // Service for database lookups
+	lookupService          *service.Service  // Service for database lookups
 	bucketPool             *HybridWriterPool // Bucket writer pool for optimized datasets
 	bucketWg               *sync.WaitGroup   // WaitGroup for bucket writers
 	useLookupDB            bool              // Flag to enable/disable lookup database loading
@@ -85,7 +85,7 @@ type DataUpdate struct {
 	forceRebuild           bool              // Flag to force reprocessing even if source unchanged
 	datasetState           *DatasetState     // State tracking for incremental updates
 	// Gene xref lookup statistics (for summary logging)
-	geneXrefStats          *geneXrefStats
+	geneXrefStats *geneXrefStats
 }
 
 // geneXrefStats tracks success/failure counts for gene symbol lookups
@@ -208,7 +208,7 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 	// select ensembls
 	ensembls := d.selectEnsembls()
 
-	for _,ens := range allEnsembls { // remove from here because ensembl handled differently after selection
+	for _, ens := range allEnsembls { // remove from here because ensembl handled differently after selection
 		if _, ok := d.inDatasets[ens]; ok {
 			delete(d.inDatasets, ens)
 		}
@@ -897,6 +897,12 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			ap := alliancePhenotype{source: data, d: d}
 			d.datasets2 = append(d.datasets2, data)
 			go ap.update()
+			break
+		case "wikidata_symptom":
+			d.wg.Add(1)
+			ws := wikidataSymptom{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go ws.update()
 			break
 		case "clinvar":
 			d.wg.Add(1)
@@ -2877,18 +2883,19 @@ func (d *DataUpdate) addHumanGeneXrefsViaEnsembl(geneSymbol, sourceID, sourceDat
 //
 // LOOKUP STRATEGY (Two-Phase Approach):
 // Each lookup (Entrez, Ensembl) uses a two-phase strategy:
-//   Phase 1: Direct text search with species filter
-//            - Entrez:  >>entrez[entrez.tax_id=="9606"]
-//            - Ensembl: >>ensembl[ensembl.genome=="homo_sapiens"]
-//   Phase 2: If Phase 1 fails, try via HGNC (no filter needed, HGNC is human-only)
-//            - Entrez:  >>hgnc>>entrez
-//            - Ensembl: >>hgnc>>ensembl
+//
+//	Phase 1: Direct text search with species filter
+//	         - Entrez:  >>entrez[entrez.tax_id=="9606"]
+//	         - Ensembl: >>ensembl[ensembl.genome=="homo_sapiens"]
+//	Phase 2: If Phase 1 fails, try via HGNC (no filter needed, HGNC is human-only)
+//	         - Entrez:  >>hgnc>>entrez
+//	         - Ensembl: >>hgnc>>ensembl
 //
 // WHY TWO PHASES?
-// - Phase 1 handles genes that exist directly in the target database with their symbol
-//   (e.g., LOC genes in Entrez, standard genes in Ensembl)
-// - Phase 2 handles genes with naming convention differences where HGNC provides
-//   the canonical mapping (e.g., MT-RNR2 -> HGNC:7471 -> entrez:4550)
+//   - Phase 1 handles genes that exist directly in the target database with their symbol
+//     (e.g., LOC genes in Entrez, standard genes in Ensembl)
+//   - Phase 2 handles genes with naming convention differences where HGNC provides
+//     the canonical mapping (e.g., MT-RNR2 -> HGNC:7471 -> entrez:4550)
 //
 // DATABASE COVERAGE COMPARISON (HGNC vs Entrez vs Ensembl):
 //
@@ -2954,9 +2961,10 @@ func (d *DataUpdate) addHumanGeneXrefsViaEnsembl(geneSymbol, sourceID, sourceDat
 // - Non-coding RNA genes (Y_RNA, snoRNAs) often in HGNC/Ensembl but not Entrez
 //
 // PARAMETERS:
-//   geneSymbol: Gene symbol (e.g., "BRCA1", "TP53", "LOC124900163", "MT-RNR2")
-//   sourceID: The source entity identifier (e.g., variant ID, disease ID)
-//   sourceDatasetID: The dataset ID of the source entity
+//
+//	geneSymbol: Gene symbol (e.g., "BRCA1", "TP53", "LOC124900163", "MT-RNR2")
+//	sourceID: The source entity identifier (e.g., variant ID, disease ID)
+//	sourceDatasetID: The dataset ID of the source entity
 func (d *DataUpdate) addHumanGeneXrefsAll(geneSymbol, sourceID, sourceDatasetID string) {
 	d.addHumanGeneXrefsViaHGNC(geneSymbol, sourceID, sourceDatasetID)
 	d.addHumanGeneXrefsViaEntrez(geneSymbol, sourceID, sourceDatasetID)
@@ -3185,7 +3193,6 @@ func (d *DataUpdate) addXrefEnsemblUniProtViaEntrez(entrezGeneID, sourceID, sour
 	}
 }
 
-
 func (d *DataUpdate) selectEnsembls() map[string]ensembl {
 
 	selectedEnsembls := []string{}
@@ -3352,7 +3359,7 @@ func (d *DataUpdate) lookupPage(pageKey string, datasetID uint32) (*pbuf.Xref, e
 // lookupHumanEntrezGene looks up a gene symbol and returns the HUMAN Entrez gene entry
 // Uses the service's MapFilterLite function with taxonomy filter for reliable lookup
 // Strategy: 1) Try >>entrez[filter] for direct matches (LOC genes, etc.)
-//           2) If not found, try >>hgnc>>entrez for genes with HGNC entries (synonym resolution)
+//  2. If not found, try >>hgnc>>entrez for genes with HGNC entries (synonym resolution)
 func (d *DataUpdate) lookupHumanEntrezGene(geneSymbol string, entrezDatasetID, taxDatasetID uint32) (*pbuf.XrefEntry, error) {
 	if d.lookupService == nil {
 		return nil, fmt.Errorf("lookup service not available")
@@ -3408,7 +3415,7 @@ func (d *DataUpdate) lookupHumanEntrezGene(geneSymbol string, entrezDatasetID, t
 // lookupHumanEnsemblGene looks up a gene symbol and returns the HUMAN Ensembl gene entry
 // Uses the service's MapFilterLite function with genome filter for reliable lookup
 // Strategy: 1) Try >>ensembl[filter] for direct matches
-//           2) If not found, try >>hgnc>>ensembl for genes with HGNC entries (synonym resolution)
+//  2. If not found, try >>hgnc>>ensembl for genes with HGNC entries (synonym resolution)
 func (d *DataUpdate) lookupHumanEnsemblGene(geneSymbol string, ensemblDatasetID uint32) (*pbuf.XrefEntry, error) {
 	if d.lookupService == nil {
 		return nil, fmt.Errorf("lookup service not available")

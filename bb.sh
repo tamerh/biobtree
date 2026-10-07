@@ -120,6 +120,7 @@ DATASETS=(
     ncrna_drug
     alliance_disease
     alliance_phenotype
+    wikidata_symptom
     panelapp
     mavedb
     gwas_study

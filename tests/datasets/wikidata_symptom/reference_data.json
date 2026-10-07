@@ -1,0 +1,17 @@
+{
+  "dataset": "wikidata_symptom",
+  "dataset_id": 813,
+  "description": "Wikidata P780 disease->symptom edges, gated to Mondo/DOID-mapped diseases. Committed fixture (tests/datasets/wikidata_symptom/wikidata_symptoms_fixture.tsv), a small real subset. Symptom terms reuse OntologyAttr with type=symptom, keyed by Wikidata QID.",
+  "symptoms": [
+    { "id": "Q86", "name": "headache", "mondo": "MONDO:0008000", "doid": "DOID:6364" },
+    { "id": "Q281289", "name": "photophobia", "mondo": "MONDO:0008000", "doid": "DOID:6364" },
+    { "id": "Q186889", "name": "nausea", "mondo": "MONDO:0008000", "doid": "DOID:6364" },
+    { "id": "Q127076", "name": "vomiting", "mondo": "MONDO:0008000", "doid": "DOID:6364" },
+    { "id": "Q35805", "name": "cough", "mondo": "", "doid": "DOID:2841" },
+    { "id": "Q517104", "name": "wheeze", "mondo": "", "doid": "DOID:2841" },
+    { "id": "Q693058", "name": "chest pain", "mondo": "", "doid": "DOID:2841" },
+    { "id": "Q635195", "name": "polydipsia", "mondo": "MONDO:0015887", "doid": "DOID:9352" },
+    { "id": "Q653267", "name": "polyphagia", "mondo": "MONDO:0015887", "doid": "DOID:9352" },
+    { "id": "Q1124286", "name": "polyuria", "mondo": "MONDO:0015887", "doid": "DOID:9352" }
+  ]
+}

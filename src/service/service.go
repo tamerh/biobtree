@@ -42,8 +42,8 @@ type federationDB struct {
 // Can be used by both web/CLI (with outDir) and update package (with lookupDbDir).
 type Service struct {
 	// Federation support: maps federation name to its database
-	federations              map[string]*federationDB
-	datasetFederation        map[uint32]string // cached: datasetID -> federation name
+	federations       map[string]*federationDB
+	datasetFederation map[uint32]string // cached: datasetID -> federation name
 	// Legacy fields for backward compatibility (point to main federation)
 	readEnv                  db.Env
 	readDbi                  db.DBI
@@ -335,6 +335,8 @@ func (s *Service) initWithDbDir(dbDir string) error {
 			decls.NewIdent("xco", decls.NewObjectType("pbuf.OntologyAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("bao", decls.NewObjectType("pbuf.OntologyAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("wikidata_symptom", decls.NewObjectType("pbuf.OntologyAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("interpro", decls.NewObjectType("pbuf.InterproAttr"), nil)),
 		cel.Declarations(
@@ -1239,7 +1241,6 @@ func (s *Service) searchPageInfo(page string) (*searchPageInfo, error) {
 
 }
 
-
 func (s *Service) makeLite(xref *pbuf.Xref) {
 	xref.Entries = nil
 	xref.DatasetPages = nil
@@ -1254,7 +1255,6 @@ func (s *Service) makeLiteAll(res *pbuf.Result) {
 	}
 
 }
-
 
 // containsDataset checks if a dataset is in the filter list
 // If the filter list is empty, all datasets are included
@@ -1280,7 +1280,6 @@ func (s *Service) Search(ids []string, datasetFilters []uint32, page string, q *
 	if !detail {
 		defer s.makeLiteAll(result)
 	}
-
 
 	var xrefs []*pbuf.Xref
 	totalResult := 0
@@ -1450,74 +1449,74 @@ func (s *Service) Search(ids []string, datasetFilters []uint32, page string, q *
 									continue
 								}
 
-							// Slice entries only on the resumption page (not earlier pages)
-							if pagingInfo != nil && pagingInfo.linkActive && !pagingInfo.linkIndexProcessed && pageIndex == pagingInfo.linkPageIndex {
-								xrefPage.Entries = xrefPage.Entries[pagingInfo.linkIndex:]
-								pagingInfo.linkIndexProcessed = true
-							}
-
-							// Use actualLinkIndex to track real array position for pagination
-							for actualLinkIndex, b := range xrefPage.Entries {
-
-								// Filter by dataset BEFORE fetching to avoid errors from missing entries in other datasets
-								if !containsDataset(datasetFilters, b.Dataset) {
-									continue
+								// Slice entries only on the resumption page (not earlier pages)
+								if pagingInfo != nil && pagingInfo.linkActive && !pagingInfo.linkIndexProcessed && pageIndex == pagingInfo.linkPageIndex {
+									xrefPage.Entries = xrefPage.Entries[pagingInfo.linkIndex:]
+									pagingInfo.linkIndexProcessed = true
 								}
 
-								xref2, err := s.LookupByDataset(b.Identifier, b.Dataset)
+								// Use actualLinkIndex to track real array position for pagination
+								for actualLinkIndex, b := range xrefPage.Entries {
 
-								if err != nil {
-									return nil, err
-								}
-
-								if totalResult == s.resultPageSize {
-									// Calculate actual position for pagination token
-									// actualLinkIndex is position in current (possibly sliced) array
-									// If we sliced the array on resumption, add the offset
-									actualPos := actualLinkIndex
-									if pagingInfo != nil && idIndex == pagingInfo.idIndex {
-										resultIndex = pagingInfo.resultIndex + resultIndex
-										// If we're on the same page we resumed from, add the slice offset
-										if pageIndex == pagingInfo.linkPageIndex {
-											actualPos += pagingInfo.linkIndex
-										}
+									// Filter by dataset BEFORE fetching to avoid errors from missing entries in other datasets
+									if !containsDataset(datasetFilters, b.Dataset) {
+										continue
 									}
 
-									result.Nextpage = strconv.Itoa(idIndex) + pagingSep2 + strconv.Itoa(resultIndex) + pagingSep2 + strconv.Itoa(pageIndex) + pagingSep2 + strconv.Itoa(actualPos)
-									result.Results = xrefs
-									return result, nil
-								}
+									xref2, err := s.LookupByDataset(b.Identifier, b.Dataset)
 
-								xref2.Keyword = id
-								xref2.Identifier = b.Identifier
+									if err != nil {
+										return nil, err
+									}
 
-								if q != nil {
-									q.MapDataset = config.DataconfIDIntToString[xref2.Dataset]
-									q.MapDatasetID = xref2.Dataset
-									if len(q.Filter) > 0 {
-										b, err := s.execCelGo(q, xref2)
-										if err != nil {
-											return nil, err
-										}
-										if b {
-
-											if _, ok := config.Dataconf[config.DataconfIDIntToString[xref2.Dataset]]["linkdataset"]; !ok {
-												xrefs = append(xrefs, xref2)
-												totalResult++
+									if totalResult == s.resultPageSize {
+										// Calculate actual position for pagination token
+										// actualLinkIndex is position in current (possibly sliced) array
+										// If we sliced the array on resumption, add the offset
+										actualPos := actualLinkIndex
+										if pagingInfo != nil && idIndex == pagingInfo.idIndex {
+											resultIndex = pagingInfo.resultIndex + resultIndex
+											// If we're on the same page we resumed from, add the slice offset
+											if pageIndex == pagingInfo.linkPageIndex {
+												actualPos += pagingInfo.linkIndex
 											}
+										}
 
+										result.Nextpage = strconv.Itoa(idIndex) + pagingSep2 + strconv.Itoa(resultIndex) + pagingSep2 + strconv.Itoa(pageIndex) + pagingSep2 + strconv.Itoa(actualPos)
+										result.Results = xrefs
+										return result, nil
+									}
+
+									xref2.Keyword = id
+									xref2.Identifier = b.Identifier
+
+									if q != nil {
+										q.MapDataset = config.DataconfIDIntToString[xref2.Dataset]
+										q.MapDatasetID = xref2.Dataset
+										if len(q.Filter) > 0 {
+											b, err := s.execCelGo(q, xref2)
+											if err != nil {
+												return nil, err
+											}
+											if b {
+
+												if _, ok := config.Dataconf[config.DataconfIDIntToString[xref2.Dataset]]["linkdataset"]; !ok {
+													xrefs = append(xrefs, xref2)
+													totalResult++
+												}
+
+											}
+										}
+									} else {
+
+										if _, ok := config.Dataconf[config.DataconfIDIntToString[xref2.Dataset]]["linkdataset"]; !ok {
+											xrefs = append(xrefs, xref2)
+											totalResult++
 										}
 									}
-								} else {
-
-									if _, ok := config.Dataconf[config.DataconfIDIntToString[xref2.Dataset]]["linkdataset"]; !ok {
-										xrefs = append(xrefs, xref2)
-										totalResult++
-									}
 								}
-							}
 
-						}
+							}
 						}
 					}
 				} else {

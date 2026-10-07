@@ -101,6 +101,20 @@
     "hasFilter": "yes",
     "attrs": "name,[]synonyms"
   },
+  "wikidata_symptom": {
+    "aliases": "Wikidata symptom,symptom,sign,P780",
+    "id": "813",
+    "name": "Wikidata Symptom",
+    "textPriority": "60",
+    "url": "https://www.wikidata.org/wiki/£{id}",
+    "path": "tests/datasets/wikidata_symptom/wikidata_symptoms_fixture.tsv",
+    "useLocalFile": "yes",
+    "hasFilter": "yes",
+    "attrs": "name",
+    "compact_fields": "name",
+    "test_entries_count": "100",
+    "bucketMethod": "alphanum"
+  },
   "upheno": {
     "aliases": "uPheno,Unified Phenotype Ontology,UPHENO,cross-species phenotype",
     "id": "782",

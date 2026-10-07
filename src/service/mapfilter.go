@@ -1103,7 +1103,7 @@ func (s *Service) execCelGo(query *query.Query, targetXref *pbuf.Xref) (bool, er
 			}
 			evalMap["hgnc"] = attr
 		}
-	case "go", "efo", "eco", "mondo", "uberon", "oba", "cl", "pato", "obi", "xco", "bao":
+	case "go", "efo", "eco", "mondo", "uberon", "oba", "cl", "pato", "obi", "xco", "bao", "wikidata_symptom":
 		if attr := targetXref.GetOntology(); attr != nil {
 			attr.Id = id
 			evalMap[query.MapDataset] = attr

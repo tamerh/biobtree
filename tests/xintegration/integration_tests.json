@@ -40,7 +40,8 @@
     "changes_8.7": "Added enzyme_biochemistry category (19 tests): BRENDA enzyme database integration tests. EC number lookups, kinetic parameters (Km, kcat) via brenda_kinetics, inhibitor data (Ki, IC50) via brenda_inhibitor, PubMed literature links, text search by enzyme/substrate/inhibitor names, and multi-hop queries for enzyme-centric analysis. Total: 577 tests.",
     "changes_8.8": "Added UniProt↔BRENDA bidirectional mapping tests (12 tests): protein to EC classification, gene to EC via UniProt, EC to proteins/structures/domains/pathways/drug targets/clinical variants. Leverages UniProt xrefs to BRENDA for multi-hop enzyme-centric queries. Total: 589 tests.",
     "changes_faers": "Refactored faers to master/child: faers MASTER (id 802, one per drug; total_reports/distinct_reactions/serious_reports; the single chembl_molecule/pubchem normalization node) + faers_reaction CHILD (id 804, one per drug-reaction; report_count/prr/serious_count/outcome). Master->child edges sorted by report_count DESC. Tests: drug-name text search, chembl_molecule/pubchem>>faers, full chembl_molecule>>faers>>faers_reaction chain, PRR/report_count CEL filters on the child. Co-occurrence (not causal), MedDRA PT strings only; individual reports NOT stored.",
-    "changes_variant_scores": "Added variant_scores category (6 tests): variant-layer datasets — conservation (phyloP/GERP/phastCons, chr:pos), gnomad_variant (v4.1 AF, chr:pos:ref:alt), revel (missense 0-1, chr:pos:ref:alt), saprot (structure-aware PLM LLR, uniprot:protein_variant), and mavedb reachable via >>uniprot>>mavedb / >>hgnc>>mavedb. esm1b omitted (deactivated). Total: 890 tests."
+    "changes_variant_scores": "Added variant_scores category (6 tests): variant-layer datasets — conservation (phyloP/GERP/phastCons, chr:pos), gnomad_variant (v4.1 AF, chr:pos:ref:alt), revel (missense 0-1, chr:pos:ref:alt), saprot (structure-aware PLM LLR, uniprot:protein_variant), and mavedb reachable via >>uniprot>>mavedb / >>hgnc>>mavedb. esm1b omitted (deactivated). Total: 890 tests.",
+    "changes_10.8": "Added disease_symptoms category (4 validation tests): Wikidata P780 disease<->symptom edges (wikidata_symptom), checked via wikidata_symptom xref_count on DOID/MONDO disease terms and the reverse (symptom -> diseases). Ontology terms are mapping targets, so these use the entry endpoint, not a map root. Total: 895 tests."
   },
   "test_categories": {
     "gene_mapping": "Gene symbol/ID to various resources (proteins, transcripts, GO terms)",
@@ -114,7 +115,8 @@
     "gene_dependency_function": "Gene essentiality, dependency and cited function (DepMap CC BY 4.0 + NCBI GeneRIF public domain): per-gene CRISPR essentiality aggregate, per-cell-line dependencies bridged to Cellosaurus, and cited one-line functional claims. Powers target tractability and RAG grounding.",
     "drugcentral_drugs": "DrugCentral approved drugs: drug->target (MOA) and regulatory approval (FDA/EMA/PMDA)",
     "faers": "FAERS (openFDA FDA Adverse Event Reporting System), master/child. faers MASTER (id 802): one per drug, total_reports/distinct_reactions/serious_reports, the single chembl_molecule/pubchem normalization node. faers_reaction CHILD (id 804): one per (drug,reaction) co-occurrence with PRR disproportionality signal, linked to its master (most-reported first). Tests text search by drug name, compound>>faers and the full compound>>faers>>faers_reaction chain, and CEL filters on report_count/prr (on the child). NOTE: co-occurrence not causation; reactions are MedDRA PT strings only; individual reports NOT stored.",
-    "panelapp": "Genomics England PanelApp clinical gene panels (CC BY 4.0), master/child. panelapp MASTER (id 805): one per panel (name/disease_group/version/number_of_genes). panelapp_gene CHILD (id 806): one per (panel,gene) with green/amber confidence + mode_of_inheritance, linked to its master and edged to hgnc/ensembl/mim/mondo. Only green (3) + amber (2) genes ingested. Tests gene symbol >>panelapp_gene, the panel >>panelapp>>panelapp_gene>>hgnc chain, and gene >>panelapp_gene>>mondo."
+    "panelapp": "Genomics England PanelApp clinical gene panels (CC BY 4.0), master/child. panelapp MASTER (id 805): one per panel (name/disease_group/version/number_of_genes). panelapp_gene CHILD (id 806): one per (panel,gene) with green/amber confidence + mode_of_inheritance, linked to its master and edged to hgnc/ensembl/mim/mondo. Only green (3) + amber (2) genes ingested. Tests gene symbol >>panelapp_gene, the panel >>panelapp>>panelapp_gene>>hgnc chain, and gene >>panelapp_gene>>mondo.",
+    "disease_symptoms": "Disease to symptom/sign mapping via Wikidata P780 (wikidata_symptom). Common-disease symptoms gated to Mondo/DOID-mapped diseases, complementing HPO's rare-disease-skewed phenotype annotations."
   },
   "tests": [
     {
@@ -10217,6 +10219,84 @@
         "PTEN"
       ],
       "should_fail": []
+    },
+    {
+      "category": "disease_symptoms",
+      "name": "Migraine (DOID) to Wikidata symptoms",
+      "type": "validation",
+      "query": "",
+      "filter_dataset": "doid",
+      "identifier": "DOID:6364",
+      "expected_identifier": "DOID:6364",
+      "why": "Common diseases carry few HPO phenotypes; Wikidata P780 supplies migraine's symptoms (headache, nausea, photophobia, vomiting), reached as a wikidata_symptom xref on the DOID term",
+      "validations": [
+        {
+          "xref_count": "wikidata_symptom",
+          "min": 3,
+          "max": 20,
+          "description": "migraine should carry several Wikidata symptom edges"
+        }
+      ]
+    },
+    {
+      "category": "disease_symptoms",
+      "name": "Type 2 diabetes (MONDO) to Wikidata symptoms",
+      "type": "validation",
+      "query": "",
+      "filter_dataset": "mondo",
+      "identifier": "MONDO:0015887",
+      "expected_identifier": "MONDO:0015887",
+      "why": "Common-disease symptoms reachable from the MONDO disease hub (polydipsia, polyphagia, polyuria)",
+      "validations": [
+        {
+          "xref_count": "wikidata_symptom",
+          "min": 2,
+          "max": 20,
+          "description": "type 2 diabetes should carry Wikidata symptom edges"
+        }
+      ]
+    },
+    {
+      "category": "disease_symptoms",
+      "name": "Asthma (DOID) to Wikidata symptoms",
+      "type": "validation",
+      "query": "",
+      "filter_dataset": "doid",
+      "identifier": "DOID:2841",
+      "expected_identifier": "DOID:2841",
+      "why": "Asthma symptoms (cough, wheeze, chest pain) via Wikidata P780, a disease with no MONDO mapping in the source",
+      "validations": [
+        {
+          "xref_count": "wikidata_symptom",
+          "min": 2,
+          "max": 20,
+          "description": "asthma should carry Wikidata symptom edges"
+        }
+      ]
+    },
+    {
+      "category": "disease_symptoms",
+      "name": "Wikidata symptom back to diseases",
+      "type": "validation",
+      "query": "",
+      "filter_dataset": "wikidata_symptom",
+      "identifier": "Q86",
+      "expected_identifier": "Q86",
+      "why": "The disease<->symptom edge is bidirectional: headache (Q86) resolves back to the many DOID and MONDO diseases that present it",
+      "validations": [
+        {
+          "xref_count": "doid",
+          "min": 10,
+          "max": 500,
+          "description": "headache presents in many DOID diseases"
+        },
+        {
+          "xref_count": "mondo",
+          "min": 10,
+          "max": 500,
+          "description": "headache presents in many MONDO diseases"
+        }
+      ]
     }
   ]
 }

@@ -133,8 +133,6 @@ func (w *wikidataSymptom) processFile(filePath string, idLogFile *os.File, testL
 		reader = bufio.NewReaderSize(br, 1024*1024)
 	}
 
-	mondoID := config.Dataconf["mondo"]["id"]
-	doidID := config.Dataconf["doid"]["id"]
 	saved := map[string]bool{} // symptom QID -> attr already written
 
 	var count uint64
@@ -149,7 +147,7 @@ func (w *wikidataSymptom) processFile(filePath string, idLogFile *os.File, testL
 		line = strings.TrimRight(line, "\r\n")
 
 		if line != "" && !strings.HasPrefix(line, "symptom_qid\t") { // skip header
-			if w.processRow(line, mondoID, doidID, saved, idLogFile) {
+			if w.processRow(line, saved, idLogFile) {
 				count++
 				if testLimit > 0 && int(count) >= testLimit {
 					break
@@ -164,7 +162,7 @@ func (w *wikidataSymptom) processFile(filePath string, idLogFile *os.File, testL
 }
 
 // columns: 0 symptom_qid, 1 symptom_label, 2 mondo, 3 doid
-func (w *wikidataSymptom) processRow(line, mondoID, doidID string, saved map[string]bool, idLogFile *os.File) bool {
+func (w *wikidataSymptom) processRow(line string, saved map[string]bool, idLogFile *os.File) bool {
 	f := strings.Split(line, "\t")
 	if len(f) < 4 {
 		return false
@@ -193,12 +191,18 @@ func (w *wikidataSymptom) processRow(line, mondoID, doidID string, saved map[str
 		}
 	}
 
-	// disease -> symptom edges (addXref is bidirectional).
+	// symptom -> disease edges, keyed FROM the wikidata_symptom record (same
+	// pattern as alliance_disease -> doid). addXref writes the forward edge into
+	// wikidata_symptom's own bucket and the reverse into the disease's
+	// from_wikidata_symptom bucket, so BOTH directions are owned by this parser's
+	// update. Keying from the disease instead (addXref(mondo, mondoID, sym, ...))
+	// routes the forward edge into mondo/doid's forward bucket, which is lost in
+	// incremental --only builds when the hub dataset is merged before this one.
 	if strings.HasPrefix(mondo, "MONDO:") {
-		w.d.addXref(mondo, mondoID, sym, w.source, false)
+		w.d.addXref(sym, w.sourceID, mondo, "mondo", false)
 	}
 	if strings.HasPrefix(doid, "DOID:") {
-		w.d.addXref(doid, doidID, sym, w.source, false)
+		w.d.addXref(sym, w.sourceID, doid, "doid", false)
 	}
 	return true
 }

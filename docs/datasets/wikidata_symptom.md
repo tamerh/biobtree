@@ -49,6 +49,12 @@ empty.
 - Disease → symptom edges onto the `mondo` and/or `doid` term for each kept statement, so
   both `>>mondo>>wikidata_symptom` / `>>doid>>wikidata_symptom` and the reverse
   (`Q86 >>doid`, `Q86 >>mondo`) resolve.
+- Disease → its own **Wikidata item** (`disease_qid`, column 5 of the extract) via the
+  `wikidata` namespace (dataset id 814, a childDataset of `wikidata_symptom`), so a disease
+  term links straight to its Wikidata page — e.g. `DOID:6364 → wikidata:Q133823` (migraine),
+  Alzheimer's → `Q11081`. This edge is keyed from the Wikidata item (not the disease), so the
+  reverse disease→wikidata edge lands in the hub's `from_wikidata` bucket and survives
+  incremental `--only` rebuilds.
 
 ### Scope / gating
 
@@ -106,6 +112,9 @@ curl "http://localhost:9292/ws/entry/?i=MONDO:0015887&s=mondo" # xrefs: wikidata
 
 # Find a symptom term by its label (text search)
 curl "http://localhost:9292/ws/?i=headache&d=0"                # -> Q86
+
+# Disease -> its Wikidata item (for linking a disease page to Wikidata)
+curl "http://localhost:9292/ws/entry/?i=DOID:6364&s=doid"      # xrefs: wikidata|1 (Q133823)
 ```
 
 ## Known Limitations

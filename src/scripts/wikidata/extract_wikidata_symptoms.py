@@ -24,11 +24,13 @@ toxicology items (poisons, drug toxicity) and are dropped as noise.
 
 Output (TSV, tab-separated, one row per disease-symptom edge)
 -------------------------------------------------------------
-    symptom_qid   symptom_label   mondo   doid
+    symptom_qid   symptom_label   mondo   doid   disease_qid
 
 `mondo` is normalised from Wikidata's `MONDO_xxxxxxx` to biobtree's
 `MONDO:xxxxxxx`; `doid` is already `DOID:xxxxx`. Either (not both) may be empty.
-Rows are de-duplicated on (symptom_qid, mondo, doid).
+`disease_qid` is the disease's own Wikidata item (e.g. Q11081 = Alzheimer's),
+exposed so a disease term can link directly to its Wikidata page.
+Rows are de-duplicated on (symptom_qid, mondo, doid, disease_qid).
 """
 
 import argparse
@@ -46,7 +48,9 @@ UA = "biobtree-wikidata-symptom/1.0 (https://biobtree.org; mailto:biobtree@biobt
 
 
 def _page(offset):
-    q = f"""SELECT ?s ?sLabel ?mondo ?doid WHERE {{
+    # ?d is the disease's Wikidata item (e.g. Q11081 = Alzheimer's); exposed so a
+    # disease term can link straight to its Wikidata page.
+    q = f"""SELECT ?d ?s ?sLabel ?mondo ?doid WHERE {{
       ?d wdt:P780 ?s .
       ?s rdfs:label ?sLabel . FILTER(LANG(?sLabel)="en")
       OPTIONAL {{ ?d wdt:P5270 ?mondo }}
@@ -89,17 +93,18 @@ def extract(test_mode=False):
     seen = set()
     out = []
     for r in rows:
+        disease = _local(r["d"]["value"])  # disease Wikidata QID, e.g. Q11081
         sym = _local(r["s"]["value"])
         label = r["sLabel"]["value"]
         mondo = r.get("mondo", {}).get("value", "")
         if mondo:
             mondo = _local(mondo).replace("MONDO_", "MONDO:")
         doid = r.get("doid", {}).get("value", "")  # P699 is already "DOID:xxxxx"
-        key = (sym, mondo, doid)
+        key = (sym, mondo, doid, disease)
         if key in seen:
             continue
         seen.add(key)
-        out.append((sym, label, mondo, doid))
+        out.append((sym, label, mondo, doid, disease))
     return out
 
 
@@ -114,11 +119,11 @@ def main():
     os.makedirs(os.path.dirname(os.path.abspath(args.output)), exist_ok=True)
     with open(args.output, "w", newline="") as f:
         w = csv.writer(f, delimiter="\t")
-        w.writerow(["symptom_qid", "symptom_label", "mondo", "doid"])
+        w.writerow(["symptom_qid", "symptom_label", "mondo", "doid", "disease_qid"])
         w.writerows(out)
 
-    diseases = {(m, d) for _, _, m, d in out}
-    symptoms = {s for s, _, _, _ in out}
+    diseases = {(m, d) for _, _, m, d, _ in out}
+    symptoms = {s for s, _, _, _, _ in out}
     print(f"wikidata_symptom: wrote {len(out)} disease-symptom edges "
           f"({len(diseases)} diseases, {len(symptoms)} symptom terms) to {args.output}",
           file=sys.stderr)

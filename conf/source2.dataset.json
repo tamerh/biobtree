@@ -112,7 +112,15 @@
     "hasFilter": "yes",
     "attrs": "name",
     "compact_fields": "name",
+    "childDatasets": "wikidata",
     "test_entries_count": "100",
+    "bucketMethod": "alphanum"
+  },
+  "wikidata": {
+    "aliases": "Wikidata,WD,QID",
+    "id": "814",
+    "name": "Wikidata",
+    "url": "https://www.wikidata.org/wiki/£{id}",
     "bucketMethod": "alphanum"
   },
   "upheno": {

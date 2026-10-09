@@ -133,7 +133,9 @@ func (w *wikidataSymptom) processFile(filePath string, idLogFile *os.File, testL
 		reader = bufio.NewReaderSize(br, 1024*1024)
 	}
 
-	saved := map[string]bool{} // symptom QID -> attr already written
+	wikidataID := config.Dataconf["wikidata"]["id"]
+	saved := map[string]bool{}  // symptom QID -> attr already written
+	linked := map[string]bool{} // disease QID|mondo|doid -> disease->wikidata edge already written
 
 	var count uint64
 	for {
@@ -147,7 +149,7 @@ func (w *wikidataSymptom) processFile(filePath string, idLogFile *os.File, testL
 		line = strings.TrimRight(line, "\r\n")
 
 		if line != "" && !strings.HasPrefix(line, "symptom_qid\t") { // skip header
-			if w.processRow(line, saved, idLogFile) {
+			if w.processRow(line, wikidataID, saved, linked, idLogFile) {
 				count++
 				if testLimit > 0 && int(count) >= testLimit {
 					break
@@ -161,8 +163,8 @@ func (w *wikidataSymptom) processFile(filePath string, idLogFile *os.File, testL
 	return count, nil
 }
 
-// columns: 0 symptom_qid, 1 symptom_label, 2 mondo, 3 doid
-func (w *wikidataSymptom) processRow(line string, saved map[string]bool, idLogFile *os.File) bool {
+// columns: 0 symptom_qid, 1 symptom_label, 2 mondo, 3 doid, 4 disease_qid
+func (w *wikidataSymptom) processRow(line, wikidataID string, saved, linked map[string]bool, idLogFile *os.File) bool {
 	f := strings.Split(line, "\t")
 	if len(f) < 4 {
 		return false
@@ -171,6 +173,10 @@ func (w *wikidataSymptom) processRow(line string, saved map[string]bool, idLogFi
 	label := strings.TrimSpace(f[1])
 	mondo := strings.TrimSpace(f[2])
 	doid := strings.TrimSpace(f[3])
+	disease := "" // disease's own Wikidata QID (column added later; tolerate 4-col rows)
+	if len(f) > 4 {
+		disease = strings.TrimSpace(f[4])
+	}
 
 	if sym == "" || (mondo == "" && doid == "") {
 		return false
@@ -203,6 +209,24 @@ func (w *wikidataSymptom) processRow(line string, saved map[string]bool, idLogFi
 	}
 	if strings.HasPrefix(doid, "DOID:") {
 		w.d.addXref(sym, w.sourceID, doid, "doid", false)
+	}
+
+	// disease -> its own Wikidata item (e.g. DOID:6364 -> Q11081), so a disease
+	// page links straight to Wikidata. Keyed FROM the Wikidata item (which lives
+	// in the `wikidata` namespace, a childDataset of wikidata_symptom), so the
+	// reverse disease->wikidata edge lands in mondo/doid's from_wikidata bucket
+	// and survives incremental --only builds. Emitted once per disease.
+	if strings.HasPrefix(disease, "Q") && wikidataID != "" {
+		lk := disease + "|" + mondo + "|" + doid
+		if !linked[lk] {
+			if strings.HasPrefix(mondo, "MONDO:") {
+				w.d.addXref(disease, wikidataID, mondo, "mondo", false)
+			}
+			if strings.HasPrefix(doid, "DOID:") {
+				w.d.addXref(disease, wikidataID, doid, "doid", false)
+			}
+			linked[lk] = true
+		}
 	}
 	return true
 }

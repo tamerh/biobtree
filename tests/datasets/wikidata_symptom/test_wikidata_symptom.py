@@ -76,6 +76,23 @@ class WikidataSymptomTests:
                     return False, f"{s['id']} missing {key} edge {want} (have {sorted(targets)})"
         return True, f"disease edges present for {len(self._symptoms())} symptoms"
 
+    def test_disease_wikidata_link(self):
+        """Each disease's own Wikidata item links to its mondo/doid term (wikidata namespace)"""
+        ref = self.runner.reference_data
+        diseases = ref.get("disease_wikidata", []) if isinstance(ref, dict) else []
+        for d in diseases:
+            qid = d["disease_qid"]
+            # the wikidata disease item resolves and links to the disease term(s)
+            targets = set()
+            for r in self._get({"i": qid, "d": "1"}).get("results", []):
+                if r.get("dataset_name") == "wikidata" and r.get("identifier") == qid:
+                    targets = {t.get("identifier") for t in (r.get("entries") or [])}
+            for key in ("mondo", "doid"):
+                want = d.get(key)
+                if want and want not in targets:
+                    return False, f"{qid} missing {key} link {want} (have {sorted(targets)})"
+        return True, f"disease->wikidata links present for {len(diseases)} diseases"
+
     def test_text_search_by_symptom_name(self):
         """A symptom is findable by its label via text search"""
         for s in self._symptoms():
@@ -100,6 +117,7 @@ def main():
         custom.test_symptom_entry_exists,
         custom.test_symptom_attr_type_and_name,
         custom.test_symptom_to_disease_edges,
+        custom.test_disease_wikidata_link,
         custom.test_text_search_by_symptom_name,
     ]:
         runner.add_custom_test(m)

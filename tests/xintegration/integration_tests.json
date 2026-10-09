@@ -10297,6 +10297,24 @@
           "description": "headache presents in many MONDO diseases"
         }
       ]
+    },
+    {
+      "category": "disease_symptoms",
+      "name": "Disease to Wikidata item",
+      "type": "validation",
+      "query": "",
+      "filter_dataset": "doid",
+      "identifier": "DOID:6364",
+      "expected_identifier": "DOID:6364",
+      "why": "Atlas links each disease page to its Wikidata item; migraine (DOID:6364) carries a wikidata xref (Q133823) from the P780 extract's disease QID",
+      "validations": [
+        {
+          "xref_count": "wikidata",
+          "min": 1,
+          "max": 5,
+          "description": "migraine should carry its Wikidata item as a wikidata xref"
+        }
+      ]
     }
   ]
 }

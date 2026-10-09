@@ -187,8 +187,22 @@ func (c *clinvarXML) buildClinvarAttr(variation *xmlparser.XMLElement) pbuf.Clin
 								attr.Chromosome = seqLoc.Attrs["Chr"]
 								attr.Start = parseIntOrZero(seqLoc.Attrs["start"])
 								attr.Stop = parseIntOrZero(seqLoc.Attrs["stop"])
-								attr.ReferenceAllele = seqLoc.Attrs["referenceAllele"]
-								attr.AlternateAllele = seqLoc.Attrs["alternateAllele"]
+								// ClinVar's VCV XML carries VCF-normalized alleles + position under
+								// the *VCF attributes; the plain referenceAllele/alternateAllele are
+								// present on only ~2% of records. Prefer VCF, fall back to plain.
+								if v := seqLoc.Attrs["referenceAlleleVCF"]; v != "" {
+									attr.ReferenceAllele = v
+								} else {
+									attr.ReferenceAllele = seqLoc.Attrs["referenceAllele"]
+								}
+								if v := seqLoc.Attrs["alternateAlleleVCF"]; v != "" {
+									attr.AlternateAllele = v
+								} else {
+									attr.AlternateAllele = seqLoc.Attrs["alternateAllele"]
+								}
+								// positionVCF differs from start for indels; needed to build a
+								// chr:pos:ref:alt key matching spliceai/gnomad/alphamissense/etc.
+								attr.PositionVcf = parseIntOrZero(seqLoc.Attrs["positionVCF"])
 
 								if assembly == "GRCh38" {
 									break // Found GRCh38, use it
@@ -291,6 +305,10 @@ func (c *clinvarXML) buildClinvarAttr(variation *xmlparser.XMLElement) pbuf.Clin
 			}
 		}
 	}
+
+	// number_submitters is derivable from the submission count (the field was
+	// advertised but never populated).
+	attr.NumberSubmitters = int32(len(attr.Submissions))
 
 	return attr
 }

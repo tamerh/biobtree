@@ -41909,6 +41909,11 @@ func (j *ClinvarAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.WriteJsonString(buf, string(j.Assembly))
 		buf.WriteByte(',')
 	}
+	if j.PositionVcf != 0 {
+		buf.WriteString(`"position_vcf":`)
+		fflib.FormatBits2(buf, uint64(j.PositionVcf), 10, j.PositionVcf < 0)
+		buf.WriteByte(',')
+	}
 	if len(j.GermlineClassification) != 0 {
 		buf.WriteString(`"germline_classification":`)
 		fflib.WriteJsonString(buf, string(j.GermlineClassification))
@@ -42119,6 +42124,8 @@ const (
 
 	ffjtClinvarAttrAssembly
 
+	ffjtClinvarAttrPositionVcf
+
 	ffjtClinvarAttrGermlineClassification
 
 	ffjtClinvarAttrReviewStatus
@@ -42175,6 +42182,8 @@ var ffjKeyClinvarAttrReferenceAllele = []byte("reference_allele")
 var ffjKeyClinvarAttrAlternateAllele = []byte("alternate_allele")
 
 var ffjKeyClinvarAttrAssembly = []byte("assembly")
+
+var ffjKeyClinvarAttrPositionVcf = []byte("position_vcf")
 
 var ffjKeyClinvarAttrGermlineClassification = []byte("germline_classification")
 
@@ -42396,7 +42405,12 @@ mainparse:
 
 				case 'p':
 
-					if bytes.Equal(ffjKeyClinvarAttrPhenotypeList, kn) {
+					if bytes.Equal(ffjKeyClinvarAttrPositionVcf, kn) {
+						currentKey = ffjtClinvarAttrPositionVcf
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyClinvarAttrPhenotypeList, kn) {
 						currentKey = ffjtClinvarAttrPhenotypeList
 						state = fflib.FFParse_want_colon
 						goto mainparse
@@ -42552,6 +42566,12 @@ mainparse:
 					goto mainparse
 				}
 
+				if fflib.EqualFoldRight(ffjKeyClinvarAttrPositionVcf, kn) {
+					currentKey = ffjtClinvarAttrPositionVcf
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
 				if fflib.EqualFoldRight(ffjKeyClinvarAttrAssembly, kn) {
 					currentKey = ffjtClinvarAttrAssembly
 					state = fflib.FFParse_want_colon
@@ -42676,6 +42696,9 @@ mainparse:
 
 				case ffjtClinvarAttrAssembly:
 					goto handle_Assembly
+
+				case ffjtClinvarAttrPositionVcf:
+					goto handle_PositionVcf
 
 				case ffjtClinvarAttrGermlineClassification:
 					goto handle_GermlineClassification
@@ -43100,6 +43123,36 @@ handle_Assembly:
 			outBuf := fs.Output.Bytes()
 
 			j.Assembly = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_PositionVcf:
+
+	/* handler: j.PositionVcf type=int32 kind=int32 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for int32", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseInt(fs.Output.Bytes(), 10, 32)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.PositionVcf = int32(tval)
 
 		}
 	}

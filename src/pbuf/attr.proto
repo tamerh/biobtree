@@ -711,6 +711,7 @@ message ClinvarAttr {
   string reference_allele =10;
   string alternate_allele =11;
   string assembly =12;                      // GRCh38 or GRCh37
+  int32 position_vcf =28;                   // VCF-normalized position (differs from `start` for indels); with ref/alt builds a chr:pos:ref:alt key
 
   // Clinical Significance
   string germline_classification =13;       // Pathogenic, Benign, VUS, etc.

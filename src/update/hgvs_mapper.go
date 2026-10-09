@@ -498,13 +498,16 @@ func (m *HGVSMapper) computeCNotation(tx *TranscriptInfo, position int64, ref, a
 		} else if position > tx.TxEnd {
 			consequence = "downstream"
 			return "", consequence
-		} else if position < tx.CdsStart || (isReverse && position > tx.CdsStart) {
+		} else if (!isReverse && position < tx.CdsStart) || (isReverse && position > tx.CdsEnd) {
+			// 5'UTR lies below the CDS on the + strand, above it on the - strand.
 			consequence = "5_utr"
-		} else if position > tx.CdsEnd || (isReverse && position < tx.CdsEnd) {
+		} else if (!isReverse && position > tx.CdsEnd) || (isReverse && position < tx.CdsStart) {
+			// 3'UTR lies above the CDS on the + strand, below it on the - strand.
 			consequence = "3_utr"
 		} else if inExon {
 			consequence = "coding"
 		} else {
+			// inside the genomic CDS span [CdsStart,CdsEnd] but not in an exon
 			consequence = "intronic"
 		}
 	} else {

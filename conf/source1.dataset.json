@@ -75,7 +75,7 @@
     "aliases": "dbSNP,rs,rsID,SNP,refSNP,Single Nucleotide Polymorphism",
     "url": "https://www.ncbi.nlm.nih.gov/snp/?term=£{id}",
     "hasFilter": "yes",
-    "attrs": "rs_id,build_id,chromosome,position,ref_allele,alt_allele,allele_frequency,gnomad_frequency,[]gene_names,[]gene_ids,[]pseudogene_names,[]pseudogene_ids,gene_locus,clinical_significance,variant_type,variant_class,sao,is_common,nsf,nsm,nsn,syn,u3,u5,ass,dss,intron,r3,r5,ssr,has_publication,has_pubmed_ref,has_genotypes,[]merged_rs_ids,[]pubmed_ids",
+    "attrs": "rs_id,build_id,chromosome,position,ref_allele,alt_allele,allele_frequency,gnomad_frequency,[]gene_names,[]gene_ids,[]pseudogene_names,[]pseudogene_ids,gene_locus,clinical_significance,variant_type,variant_class,sao,is_common,nsf,nsm,nsn,syn,u3,u5,ass,dss,intron,r3,r5,ssr,has_publication,has_pubmed_ref,has_genotypes,[]merged_rs_ids,[]pubmed_ids,[]gnomad_populations,[]thousand_genomes_populations,clinvar_variation_id,clinvar_accession,clinvar_review_status,[]clinvar_disease_ids,[]clinvar_disease_names,clinvar_origin,clinvar_hgvs,hgvs_mane,[]hgvs_transcripts",
     "compact_fields": "chromosome,position,ref_allele,alt_allele,gnomad_frequency,allele_frequency,clinical_significance,is_common,variant_class",
     "test_entries_count": "50000",
     "bucketMethod": "rsid",
@@ -1716,7 +1716,7 @@
     "path_product9_ages": "https://www.orphadata.com/data/xml/en_product9_ages.xml"
   },
   "spliceai": {
-    "data_version": "static (one-time build)",
+    "data_version": "Illumina precomputed (Broad tgg-viewer GRCh38 mirror); RAW scores; pre-filtered at delta>=0.2; GENCODE v24",
     "id": "124",
     "name": "SpliceAI",
     "aliases": "SpliceAI,splice prediction,splicing variant,splice site,delta score,splice donor,splice acceptor",

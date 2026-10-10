@@ -130,6 +130,7 @@ def parse_bed_file(filepath: str) -> Iterator[Dict]:
             if chrom is None:
                 continue
 
+            # The max-score allele (often an indel) — kept as before.
             yield {
                 "chromosome": chrom,
                 "position": pos,
@@ -139,6 +140,39 @@ def parse_bed_file(filepath: str) -> Iterator[Dict]:
                 "score": score,
                 "allele_info": allele_str,
             }
+
+            # Expand the per-allele SNV list. The release carries only
+            # allele_with_max_score, so ~2 of 3 SNV alts per position are
+            # otherwise dropped. SNPs= lists every scored SNV alt at the position
+            # ("A:0.31,_C:0.35,_T:0.32"); position + anchor ref are reconstructed
+            # from allele_with_max_score (ref = its first/anchor base). Each alt
+            # keeps its OWN per-allele score, not the interval max. Downstream
+            # dedup on (chr,pos,ref,alt,effect) merges any overlap with the max
+            # allele. No new download — SNPs= is already in the fetched file.
+            snps = annotations.get("SNPs", "")
+            if snps and ref:
+                snv_ref = ref[0]
+                for item in snps.split(","):
+                    item = item.strip().lstrip("_").strip()
+                    if ":" not in item:
+                        continue
+                    snv_alt, _, snv_score_str = item.partition(":")
+                    snv_alt = snv_alt.strip()
+                    if len(snv_alt) != 1 or snv_alt not in "ACGT" or snv_alt == snv_ref:
+                        continue
+                    try:
+                        snv_score = float(snv_score_str)
+                    except ValueError:
+                        continue
+                    yield {
+                        "chromosome": chrom,
+                        "position": pos,
+                        "ref_allele": snv_ref,
+                        "alt_allele": snv_alt,
+                        "effect": effect,
+                        "score": snv_score,
+                        "allele_info": f"{chrom}-{pos}-{snv_ref}-{snv_alt}",
+                    }
 
 
 def process_spliceai_data(

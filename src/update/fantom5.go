@@ -25,64 +25,64 @@ type fantom5 struct {
 
 // Fantom5Sample represents sample metadata from SDRF
 type Fantom5Sample struct {
-	SampleID    string // CNhs12345
-	SampleName  string // "brain, adult, donor1"
-	TissueID    string // UBERON:0000955
-	TissueName  string // "brain"
-	CellTypeID  string // CL:0000540
+	SampleID     string // CNhs12345
+	SampleName   string // "brain, adult, donor1"
+	TissueID     string // UBERON:0000955
+	TissueName   string // "brain"
+	CellTypeID   string // CL:0000540
 	CellTypeName string // "neuron"
 }
 
 // Fantom5Promoter represents aggregated promoter data
 type Fantom5Promoter struct {
-	ID              int    // Our numeric ID (1, 2, 3, ...)
-	PeakID          string // chr1:631073..631118,+
-	PeakName        string // p1@TP53
-	Chromosome      string
-	Start           int
-	End             int
-	Strand          string
-	GeneSymbol      string
-	GeneID          string // Ensembl
-	EntrezID        string
-	UniprotID       string
-	HgncID          string
-	TPMValues       map[string]float64 // sample_id -> TPM
-	TPMAverage      float64
-	TPMMax          float64
-	SamplesExpressed int
+	ID                int    // Our numeric ID (1, 2, 3, ...)
+	PeakID            string // chr1:631073..631118,+
+	PeakName          string // p1@TP53
+	Chromosome        string
+	Start             int
+	End               int
+	Strand            string
+	GeneSymbol        string
+	GeneID            string // Ensembl
+	EntrezID          string
+	UniprotID         string
+	HgncID            string
+	TPMValues         map[string]float64 // sample_id -> TPM
+	TPMAverage        float64
+	TPMMax            float64
+	SamplesExpressed  int
 	ExpressionBreadth string
-	TopTissues      []Fantom5TopExpr
-	TopCellTypes    []Fantom5TopExpr
+	TopTissues        []Fantom5TopExpr
+	TopCellTypes      []Fantom5TopExpr
 }
 
 // Fantom5Enhancer represents aggregated enhancer data
 type Fantom5Enhancer struct {
-	ID              int
-	EnhancerID      string // chr1:167440766-167441089
-	Chromosome      string
-	Start           int
-	End             int
-	TPMValues       map[string]float64
-	TPMAverage      float64
-	TPMMax          float64
+	ID               int
+	EnhancerID       string // chr1:167440766-167441089
+	Chromosome       string
+	Start            int
+	End              int
+	TPMValues        map[string]float64
+	TPMAverage       float64
+	TPMMax           float64
 	SamplesExpressed int
-	AssociatedGenes []string
-	TopTissues      []Fantom5TopExpr
+	AssociatedGenes  []string
+	TopTissues       []Fantom5TopExpr
 }
 
 // Fantom5Gene represents aggregated gene-level data
 type Fantom5Gene struct {
-	ID              int
-	GeneID          string
-	GeneSymbol      string
-	EntrezID        string
-	TPMValues       map[string]float64
-	TPMAverage      float64
-	TPMMax          float64
-	SamplesExpressed int
+	ID                int
+	GeneID            string
+	GeneSymbol        string
+	EntrezID          string
+	TPMValues         map[string]float64
+	TPMAverage        float64
+	TPMMax            float64
+	SamplesExpressed  int
 	ExpressionBreadth string
-	TopTissues      []Fantom5TopExpr
+	TopTissues        []Fantom5TopExpr
 }
 
 // Fantom5TopExpr represents a top expression entry
@@ -209,8 +209,15 @@ func (f *fantom5) processPromoters(testLimit int, idLogFile *os.File) {
 	peakNames := f.loadPeakNames()
 	log.Printf("[%s] Loaded names for %d peaks", f.source, len(peakNames))
 
+	// Step 3b: Load hg38 coordinates (keyed by peak ID) from the CAGE_peaks BED.
+	// The expression matrix's peak-ID column is an hg19-embedded stable ID
+	// (e.g. "hg19::chr15:43785304..43785361,-;hg_149612.1"), NOT an hg38 coord,
+	// so coordinates must come from pathCoordinates, not from the peak ID string.
+	promoterCoords := f.loadPromoterCoordinates()
+	log.Printf("[%s] Loaded hg38 coordinates for %d promoters", f.source, len(promoterCoords))
+
 	// Step 4: Process expression matrix and aggregate
-	promoters := f.parsePromoterExpression(sampleMeta, peakAnnotations, peakNames, testLimit, idLogFile)
+	promoters := f.parsePromoterExpression(sampleMeta, peakAnnotations, peakNames, promoterCoords, testLimit, idLogFile)
 	log.Printf("[%s] Processed %d promoters", f.source, len(promoters))
 
 	// Step 5: Calculate summaries and save
@@ -301,28 +308,28 @@ func (f *fantom5) parseTissueFromSampleName(name string) (string, string) {
 
 	// Map common tissue keywords to UBERON IDs
 	tissueMap := map[string]string{
-		"brain":       "UBERON:0000955",
-		"liver":       "UBERON:0002107",
-		"heart":       "UBERON:0000948",
-		"lung":        "UBERON:0002048",
-		"kidney":      "UBERON:0002113",
-		"spleen":      "UBERON:0002106",
-		"thymus":      "UBERON:0002370",
-		"pancreas":    "UBERON:0001264",
-		"stomach":     "UBERON:0000945",
-		"colon":       "UBERON:0001155",
-		"skin":        "UBERON:0002097",
-		"muscle":      "UBERON:0001630",
-		"bone":        "UBERON:0002481",
-		"blood":       "UBERON:0000178",
-		"adipose":     "UBERON:0001013",
-		"testis":      "UBERON:0000473",
-		"ovary":       "UBERON:0000992",
-		"placenta":    "UBERON:0001987",
-		"prostate":    "UBERON:0002367",
-		"breast":      "UBERON:0000310",
-		"thyroid":     "UBERON:0002046",
-		"adrenal":     "UBERON:0002369",
+		"brain":    "UBERON:0000955",
+		"liver":    "UBERON:0002107",
+		"heart":    "UBERON:0000948",
+		"lung":     "UBERON:0002048",
+		"kidney":   "UBERON:0002113",
+		"spleen":   "UBERON:0002106",
+		"thymus":   "UBERON:0002370",
+		"pancreas": "UBERON:0001264",
+		"stomach":  "UBERON:0000945",
+		"colon":    "UBERON:0001155",
+		"skin":     "UBERON:0002097",
+		"muscle":   "UBERON:0001630",
+		"bone":     "UBERON:0002481",
+		"blood":    "UBERON:0000178",
+		"adipose":  "UBERON:0001013",
+		"testis":   "UBERON:0000473",
+		"ovary":    "UBERON:0000992",
+		"placenta": "UBERON:0001987",
+		"prostate": "UBERON:0002367",
+		"breast":   "UBERON:0000310",
+		"thyroid":  "UBERON:0002046",
+		"adrenal":  "UBERON:0002369",
 	}
 
 	for tissue, uberonID := range tissueMap {
@@ -340,24 +347,24 @@ func (f *fantom5) parseCellTypeFromSampleName(name string) (string, string) {
 
 	// Map common cell type keywords to CL IDs
 	cellTypeMap := map[string]string{
-		"neuron":       "CL:0000540",
-		"astrocyte":    "CL:0000127",
-		"macrophage":   "CL:0000235",
-		"monocyte":     "CL:0000576",
-		"t cell":       "CL:0000084",
-		"b cell":       "CL:0000236",
-		"nk cell":      "CL:0000623",
-		"neutrophil":   "CL:0000775",
-		"fibroblast":   "CL:0000057",
-		"epithelial":   "CL:0000066",
-		"endothelial":  "CL:0000115",
-		"keratinocyte": "CL:0000312",
-		"hepatocyte":   "CL:0000182",
-		"cardiomyocyte":"CL:0000746",
-		"adipocyte":    "CL:0000136",
-		"osteoblast":   "CL:0000062",
-		"chondrocyte":  "CL:0000138",
-		"stem cell":    "CL:0000034",
+		"neuron":        "CL:0000540",
+		"astrocyte":     "CL:0000127",
+		"macrophage":    "CL:0000235",
+		"monocyte":      "CL:0000576",
+		"t cell":        "CL:0000084",
+		"b cell":        "CL:0000236",
+		"nk cell":       "CL:0000623",
+		"neutrophil":    "CL:0000775",
+		"fibroblast":    "CL:0000057",
+		"epithelial":    "CL:0000066",
+		"endothelial":   "CL:0000115",
+		"keratinocyte":  "CL:0000312",
+		"hepatocyte":    "CL:0000182",
+		"cardiomyocyte": "CL:0000746",
+		"adipocyte":     "CL:0000136",
+		"osteoblast":    "CL:0000062",
+		"chondrocyte":   "CL:0000138",
+		"stem cell":     "CL:0000034",
 	}
 
 	for cellType, clID := range cellTypeMap {
@@ -534,6 +541,7 @@ func (f *fantom5) parsePromoterExpression(
 	sampleMeta map[string]*Fantom5Sample,
 	peakAnnotations map[string]map[string]string,
 	peakNames map[string]string,
+	promoterCoords map[string]fantom5Coord,
 	testLimit int,
 	idLogFile *os.File,
 ) map[int]*Fantom5Promoter {
@@ -619,8 +627,13 @@ func (f *fantom5) parsePromoterExpression(
 
 		promoterID++
 
-		// Parse coordinates from peak ID (e.g., "chr1:631073..631118,+")
-		chr, start, end, strand := f.parseCoordinates(peakID)
+		// hg38 coordinates come from the CAGE_peaks BED (keyed by peak ID), NOT
+		// from the peak-ID string, which is the hg19-based stable identifier.
+		var chr, strand string
+		var start, end int
+		if c, ok := promoterCoords[peakID]; ok {
+			chr, start, end, strand = c.chr, c.start, c.end, c.strand
+		}
 
 		// Get peak name (p1@TP53) - from separate file or annotation
 		peakName := peakNames[peakID]
@@ -1035,6 +1048,70 @@ func (f *fantom5) processEnhancers(testLimit int, idLogFile *os.File) {
 }
 
 // loadEnhancerCoordinates loads enhancer BED file
+// fantom5Coord holds hg38 genomic coordinates for a CAGE peak.
+type fantom5Coord struct {
+	chr    string
+	start  int
+	end    int
+	strand string
+}
+
+// loadPromoterCoordinates reads the hg38 CAGE_peaks BED (pathCoordinates) and
+// maps each peak ID (BED name column, e.g. "hg19::chr15:43785304..43785361,-;
+// hg_149612.1") to its hg38 chr/start/end/strand. The peak ID is byte-identical
+// to the expression matrix's first column, so it joins the two files.
+func (f *fantom5) loadPromoterCoordinates() map[string]fantom5Coord {
+	coords := make(map[string]fantom5Coord)
+
+	basePath := config.Dataconf[f.source]["path"]
+	coordPath := config.Dataconf[f.source]["pathCoordinates"]
+	if coordPath == "" {
+		log.Printf("[%s] WARNING: no pathCoordinates configured; promoter coordinates will be empty", f.source)
+		return coords
+	}
+	fullPath := basePath + coordPath
+
+	log.Printf("[%s] Loading promoter hg38 coordinates from: %s", f.source, fullPath)
+
+	br, gz, ftpFile, client, localFile, _, err := getDataReaderNew(f.source, "", "", fullPath)
+	f.check(err, "opening promoter coordinates file")
+	defer func() {
+		if ftpFile != nil {
+			ftpFile.Close()
+		}
+		if localFile != nil {
+			localFile.Close()
+		}
+		if client != nil {
+			client.Quit()
+		}
+		if gz != nil {
+			gz.Close()
+		}
+	}()
+
+	scanner := bufio.NewScanner(br)
+	scanner.Buffer(make([]byte, 1024*1024), 1024*1024)
+	for scanner.Scan() {
+		line := scanner.Text()
+		if strings.HasPrefix(line, "#") || line == "" {
+			continue
+		}
+		fields := strings.Split(line, "\t")
+		if len(fields) < 6 {
+			continue
+		}
+		peakID := fields[3]
+		if peakID == "" {
+			continue
+		}
+		start, _ := strconv.Atoi(fields[1])
+		end, _ := strconv.Atoi(fields[2])
+		coords[peakID] = fantom5Coord{chr: fields[0], start: start, end: end, strand: fields[5]}
+	}
+	return coords
+}
+
 func (f *fantom5) loadEnhancerCoordinates(testLimit int, idLogFile *os.File) map[int]*Fantom5Enhancer {
 	enhancers := make(map[int]*Fantom5Enhancer)
 

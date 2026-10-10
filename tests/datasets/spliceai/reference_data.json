@@ -1,0 +1,12 @@
+{
+  "dataset": "spliceai",
+  "dataset_id": 124,
+  "description": "SpliceAI from the Ensembl MANE v1.4 VCF (raw, delta>=0.2). Hand-crafted fixture (spliceai_mane_fixture.vcf) exercising all-alts, the 4 delta scores, effect, and the <0.2 filter. NOT real data.",
+  "present": [
+    { "id": "2:175937343:C:A", "effect": "donor_loss", "ds_dl": "0.99", "gene": "LNPK" },
+    { "id": "2:175937343:C:G", "effect": "donor_loss", "ds_dl": "0.97", "gene": "LNPK" },
+    { "id": "2:175937343:C:T", "effect": "donor_loss", "ds_dl": "0.95", "gene": "LNPK" },
+    { "id": "8:42305277:T:C", "effect": "donor_gain", "ds_dl": "0.00", "gene": "IKBKB" }
+  ],
+  "absent": ["1:100000:A:G"]
+}

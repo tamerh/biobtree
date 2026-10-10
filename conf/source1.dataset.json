@@ -190,7 +190,7 @@
     "uniprotMappingPath": "https://ftp.ncbi.nlm.nih.gov/gene/DATA/gene_refseq_uniprotkb_collab.gz",
     "useLocalFile": "no",
     "hasFilter": "yes",
-    "attrs": "accession,type,status,symbol,description,[]synonyms,assembly,chromosome,start_position,end_position,orientation,genomic_accession,protein_accession,rna_accession,is_mane_select,is_mane_plus_clinical,ensembl_transcript,ensembl_protein,hgnc_id,ccds_id,uniprot_id,protein_length,molecular_weight,protein_name,taxid,organism,seq_length,mol_type,is_lrg,lrg_id,exon_count",
+    "attrs": "accession,type,status,symbol,description,[]synonyms,assembly,chromosome,start_position,end_position,orientation,genomic_accession,protein_accession,rna_accession,is_mane_select,is_mane_plus_clinical,ensembl_transcript,ensembl_protein,hgnc_id,ccds_id,uniprot_id,protein_length,molecular_weight,protein_name,taxid,organism,seq_length,mol_type,is_lrg,lrg_id",
     "compact_fields": "symbol,type,status,chromosome,is_mane_select",
     "test_entries_count": "100",
     "bucketMethod": "refseq"

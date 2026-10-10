@@ -1716,19 +1716,18 @@
     "path_product9_ages": "https://www.orphadata.com/data/xml/en_product9_ages.xml"
   },
   "spliceai": {
-    "data_version": "Illumina precomputed (Broad tgg-viewer GRCh38 mirror); RAW scores; pre-filtered at delta>=0.2; GENCODE v24",
+    "data_version": "Ensembl MANE v1.4 SpliceAI (SpliceAIv1.3.1), RAW scores, delta>=0.2, GRCh38",
     "id": "124",
     "name": "SpliceAI",
     "aliases": "SpliceAI,splice prediction,splicing variant,splice site,delta score,splice donor,splice acceptor",
     "url": "https://spliceailookup.broadinstitute.org/?variant=£{id}",
-    "path": "raw_data/spliceai/spliceai_filtered.tsv",
-    "useLocalFile": "yes",
+    "path": "https://ftp.ensembl.org/pub/current_variation/SpliceAI/spliceai_scores.raw.snv.ensembl_mane_v1.4.grch38.vcf.gz",
+    "useLocalFile": "no",
     "hasFilter": "yes",
-    "attrs": "chromosome,position,ref_allele,alt_allele,effect,score,gene_symbol,allele_info",
+    "attrs": "chromosome,position,ref_allele,alt_allele,effect,score,gene_symbol,ds_ag,ds_al,ds_dg,ds_dl,dp_ag,dp_al,dp_dg,dp_dl",
     "compact_fields": "gene_symbol,effect,score",
     "test_entries_count": "10000",
-    "bucketMethod": "alphanum",
-    "geneGFF3": "https://ftp.ensembl.org/pub/current_gff3/homo_sapiens/Homo_sapiens.GRCh38.115.chr.gff3.gz"
+    "bucketMethod": "alphanum"
   },
   "mirdb": {
     "id": "125",
@@ -1869,6 +1868,20 @@
     "attrs": "chromosome,start,end,repeat_type,repeat_class,repeat_name,repeat_family",
     "compact_fields": "repeat_type,repeat_class,repeat_name",
     "intervalIndex": "yes",
+    "test_entries_count": "2000",
+    "bucketMethod": "alphanum"
+  },
+  "pangolin": {
+    "id": "818",
+    "name": "Pangolin",
+    "data_version": "Zenodo 15649338 (hg38, GENCODE-masked), largest-ds>=0.2",
+    "aliases": "Pangolin,pangolin splice,pangolin score",
+    "url": "https://pangolin.broadinstitute.org/",
+    "path": "https://zenodo.org/api/records/15649338/files/Pangolin_hg38_snvs_masked.zip/content",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "chromosome,position,ref_allele,alt_allele,gene,score,effect,gain_score,loss_score,gain_pos,loss_pos",
+    "compact_fields": "gene,effect,score",
     "test_entries_count": "2000",
     "bucketMethod": "alphanum"
   },

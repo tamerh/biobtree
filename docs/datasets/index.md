@@ -113,6 +113,7 @@ Disease associations, clinical variants, rare diseases.
 | gnomad_rmc | gnomAD v4.1.1 regional missense constraint (sub-genic O/E; ClinGen-calibrated) | [README](gnomad_rmc.md) |
 | gnomad_gnocchi | gnomAD non-coding constraint (Gnocchi 1kb-window Z-score; intronic/UTR/intergenic) | [README](gnomad_gnocchi.md) |
 | repeat | Genomic repeats / low-complexity / segmental dups (UCSC: Dfam RepeatMasker, TRF, segdups) | [README](repeat.md) |
+| pangolin | Pangolin precomputed splice scores (independent of SpliceAI; coding SNVs) | [README](pangolin.md) |
 | gnomad_variant | gnomAD v4 per-variant, per-ancestry allele frequencies (AF/grpmax/FAF) | [README](gnomad_variant.md) |
 | clinical_trials | ClinicalTrials.gov | [README](clinical_trials.md) |
 | pharmgkb | PharmGKB pharmacogenomics | [README](pharmgkb.md) |

@@ -145,6 +145,7 @@ DATASETS=(
     gnomad_rmc
     gnomad_gnocchi
     repeat
+    pangolin
     corum
     cellphonedb
     bgee

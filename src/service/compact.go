@@ -425,6 +425,9 @@ func extractField(xref *pbuf.Xref, field string) string {
 	if a := xref.GetRepeat(); a != nil {
 		return extractRepeatField(a, field)
 	}
+	if a := xref.GetPangolin(); a != nil {
+		return extractPangolinField(a, field)
+	}
 	if a := xref.GetGtopdb(); a != nil {
 		return extractGtopdbField(a, field)
 	}
@@ -3077,6 +3080,22 @@ func extractSpliceAIField(a *pbuf.SpliceAIAttr, field string) string {
 		return a.GeneSymbol
 	case "allele_info":
 		return a.AlleleInfo
+	case "ds_ag":
+		return a.DsAg
+	case "ds_al":
+		return a.DsAl
+	case "ds_dg":
+		return a.DsDg
+	case "ds_dl":
+		return a.DsDl
+	case "dp_ag":
+		return a.DpAg
+	case "dp_al":
+		return a.DpAl
+	case "dp_dg":
+		return a.DpDg
+	case "dp_dl":
+		return a.DpDl
 	default:
 		return ""
 	}
@@ -3198,6 +3217,36 @@ func extractJasparField(a *pbuf.JasparAttr, field string) string {
 		return a.Species
 	case "version":
 		return fmt.Sprintf("%d", a.Version)
+	default:
+		return ""
+	}
+}
+
+// extractPangolinField extracts a field from PangolinAttr
+func extractPangolinField(a *pbuf.PangolinAttr, field string) string {
+	switch field {
+	case "chromosome":
+		return a.Chromosome
+	case "position":
+		return fmt.Sprintf("%d", a.Position)
+	case "ref_allele":
+		return a.RefAllele
+	case "alt_allele":
+		return a.AltAllele
+	case "gene":
+		return a.Gene
+	case "effect":
+		return a.Effect
+	case "score":
+		return fmt.Sprintf("%.4f", a.Score)
+	case "gain_score":
+		return a.GainScore
+	case "loss_score":
+		return a.LossScore
+	case "gain_pos":
+		return fmt.Sprintf("%d", a.GainPos)
+	case "loss_pos":
+		return fmt.Sprintf("%d", a.LossPos)
 	default:
 		return ""
 	}

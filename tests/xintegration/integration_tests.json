@@ -10396,6 +10396,29 @@
         "1:10200:A:G"
       ],
       "should_fail": []
+    },
+    {
+      "category": "clinical_variants",
+      "name": "SpliceAI MANE gene mapping",
+      "query": ">>hgnc>>spliceai",
+      "why": "SpliceAI (Ensembl MANE source) reachable from gene symbol; all alts + 4 deltas (#1/#2/#4)",
+      "should_pass": [
+        "BRCA1",
+        "LNPK",
+        "IKBKB"
+      ],
+      "should_fail": []
+    },
+    {
+      "category": "clinical_variants",
+      "name": "Gene to Pangolin splice scores",
+      "query": ">>ensembl>>pangolin",
+      "why": "Pangolin (independent of SpliceAI) reachable from gene via Ensembl (new dataset #19)",
+      "should_pass": [
+        "BRCA1",
+        "TP53"
+      ],
+      "should_fail": []
     }
   ]
 }

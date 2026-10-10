@@ -1359,6 +1359,12 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			d.datasets2 = append(d.datasets2, data)
 			go rp.update()
 			break
+		case "pangolin":
+			d.wg.Add(1)
+			pg := pangolin{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go pg.update()
+			break
 		default:
 			log.Fatal("ERROR Unrecognized dataset ->" + data)
 		}

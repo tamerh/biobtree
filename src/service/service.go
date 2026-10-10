@@ -534,6 +534,8 @@ func (s *Service) initWithDbDir(dbDir string) error {
 		cel.Declarations(
 			decls.NewIdent("repeat", decls.NewObjectType("pbuf.RepeatAttr"), nil)),
 		cel.Declarations(
+			decls.NewIdent("pangolin", decls.NewObjectType("pbuf.PangolinAttr"), nil)),
+		cel.Declarations(
 			decls.NewIdent("stringdb", decls.NewObjectType("pbuf.StringAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("string_interaction", decls.NewObjectType("pbuf.StringInteractionAttr"), nil)),

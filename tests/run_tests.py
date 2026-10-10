@@ -326,6 +326,8 @@ Available datasets:
         'encode_ccre': datasets_dir / "encode_ccre" / "test_encode_ccre.py",
         'fantom5': datasets_dir / "fantom5" / "test_fantom5.py",
         'gtopdb': datasets_dir / "gtopdb" / "test_gtopdb.py",
+        'spliceai': datasets_dir / "spliceai" / "test_spliceai.py",
+        'pangolin': datasets_dir / "pangolin" / "test_pangolin.py",
         'gnomad_rmc': datasets_dir / "gnomad_rmc" / "test_gnomad_rmc.py",
         'gnomad_gnocchi': datasets_dir / "gnomad_gnocchi" / "test_gnomad_gnocchi.py",
         'repeat': datasets_dir / "repeat" / "test_repeat.py",

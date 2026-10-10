@@ -1,0 +1,10 @@
+{
+  "dataset": "pangolin",
+  "dataset_id": 818,
+  "description": "Pangolin precomputed splice scores (Zenodo bulk, hg38, GENCODE-masked), per-variant chr:pos:ref:alt, filtered to largest-ds>=0.2. Test build uses a per-gene fixture (ENSG00000149596.tsv). NOT real data.",
+  "present": [
+    { "id": "20:44187187:T:G", "effect": "gain", "gain": "0.95", "gene": "ENSG00000149596" },
+    { "id": "20:44187187:T:C", "effect": "loss", "loss": "-0.88", "gene": "ENSG00000149596" }
+  ],
+  "absent": ["20:44187187:T:A"]
+}

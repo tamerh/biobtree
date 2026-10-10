@@ -219,6 +219,7 @@ message Xref {
     GnomadRmcAttr gnomad_rmc=816;
     GnomadGnocchiAttr gnomad_gnocchi=817;
     RepeatAttr repeat=818;
+    PangolinAttr pangolin=819;
     SaprotAttr saprot=815;
 
   }

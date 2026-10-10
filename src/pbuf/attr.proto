@@ -2850,10 +2850,20 @@ message SpliceAIAttr {
   int64 position = 2;              // Genomic position (GRCh38)
   string ref_allele = 3;           // Reference allele
   string alt_allele = 4;           // Alternate allele
-  string effect = 5;               // Splice effect: acceptor_loss, acceptor_gain, donor_loss, donor_gain
-  float score = 6;                 // Delta score (0.0-1.0, higher = more splice impact)
-  string gene_symbol = 7;          // Gene symbol (if available)
-  string allele_info = 8;          // Original allele string from BED (chr-pos-ref-alt)
+  string effect = 5;               // Dominant splice effect: acceptor_loss/gain, donor_loss/gain
+  float score = 6;                 // Max of the four delta scores (0-1, higher = more impact)
+  string gene_symbol = 7;          // MANE gene symbol (from the VCF)
+  string allele_info = 8;          // (legacy) original allele string; unused for the MANE source
+  // The four SpliceAI delta scores + their delta positions (offset from the
+  // variant), from the Ensembl MANE VCF. Strings so a meaningful 0.00 survives.
+  string ds_ag = 9;                // delta score acceptor gain
+  string ds_al = 10;               // delta score acceptor loss
+  string ds_dg = 11;               // delta score donor gain
+  string ds_dl = 12;               // delta score donor loss
+  string dp_ag = 13;               // delta position acceptor gain
+  string dp_al = 14;               // delta position acceptor loss
+  string dp_dg = 15;               // delta position donor gain
+  string dp_dl = 16;               // delta position donor loss
   string id = 100; // transient - populated at runtime from Xref.Identifier
 }
 
@@ -3031,6 +3041,25 @@ message RepeatAttr {
   string repeat_class = 5;        // RepeatMasker class (Simple_repeat, Satellite, SINE, LINE, LTR, ...) or type
   string repeat_name = 6;         // repeat name / TRF motif / partner region
   string repeat_family = 7;       // RepeatMasker family (where applicable)
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// Pangolin precomputed splice scores (Zeng & Li 2022), an independent splice
+// predictor to SpliceAI. Precomputed for all SNVs in protein-coding genes
+// (hg38, GENCODE-masked). Per-variant (chr:pos:ref:alt). score = the largest
+// delta (max of gain / |loss|); scores stored as strings so a 0.0 survives.
+message PangolinAttr {
+  string chromosome = 1;
+  int64 position = 2;
+  string ref_allele = 3;
+  string alt_allele = 4;
+  string gene = 5;                // Ensembl gene (ENSG)
+  float score = 6;                // largest delta (max of gain_score, |loss_score|)
+  string effect = 7;              // gain | loss
+  string gain_score = 8;
+  string loss_score = 9;
+  int32 gain_pos = 10;
+  int32 loss_pos = 11;
   string id = 100; // transient - populated at runtime from Xref.Identifier
 }
 

@@ -1625,6 +1625,11 @@ func (s *Service) execCelGo(query *query.Query, targetXref *pbuf.Xref) (bool, er
 			attr.Id = id
 			evalMap["repeat"] = attr
 		}
+	case "pangolin":
+		if attr := targetXref.GetPangolin(); attr != nil {
+			attr.Id = id
+			evalMap["pangolin"] = attr
+		}
 	case "encode_ccre":
 		if attr := targetXref.GetEncodeCcre(); attr != nil {
 			attr.Id = id

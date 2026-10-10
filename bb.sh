@@ -75,6 +75,9 @@ OPTS_conservation="--conservation.file raw_data/conservation/conservation_hg38.t
 # revel: committed conf path is the test fixture; prod override = the real REVEL
 # v1.3 CSV extracted from raw_data/revel/revel-v1.3_all_chromosomes.zip.
 OPTS_revel="--revel.file raw_data/revel/revel_grch38_all.csv"
+# gtex: conf path points at the prepared, variant-sorted TSV produced by
+# src/scripts/gtex/gtex_prepare.py (downloads the v10 eQTL+sQTL parquet tars,
+# emits raw_data/gtex/gtex_associations.sorted.tsv.gz). Run that script first.
 # esm1b: committed conf path is the fixture; prod override = the melted whole-
 # proteome TSV from src/scripts/esm1b/esm1b_prepare.py.
 OPTS_esm1b="--esm1b.file raw_data/esm1b/esm1b_llr.tsv.gz"
@@ -134,6 +137,7 @@ DATASETS=(
     alphamissense_transcript
     conservation
     revel
+    gtex
     esm1b
     saprot
 

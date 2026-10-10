@@ -243,6 +243,7 @@ func (s *Service) initWithDbDir(dbDir string) error {
 		cel.Types(&pbuf.RevelAttr{}),
 		cel.Types(&pbuf.CaddAttr{}),
 		cel.Types(&pbuf.JasparTfbsAttr{}),
+		cel.Types(&pbuf.GtexAttr{}),
 		cel.Types(&pbuf.Esm1BAttr{}),
 		cel.Types(&pbuf.SaprotAttr{}),
 		cel.Types(&pbuf.PharmgkbAttr{}),
@@ -465,6 +466,8 @@ func (s *Service) initWithDbDir(dbDir string) error {
 			decls.NewIdent("cadd", decls.NewObjectType("pbuf.CaddAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("jaspar_tfbs", decls.NewObjectType("pbuf.JasparTfbsAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("gtex", decls.NewObjectType("pbuf.GtexAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("esm1b", decls.NewObjectType("pbuf.Esm1BAttr"), nil)),
 		cel.Declarations(

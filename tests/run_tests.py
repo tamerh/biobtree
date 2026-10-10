@@ -283,6 +283,7 @@ Available datasets:
         'revel': datasets_dir / "revel" / "test_revel.py",
         'cadd': datasets_dir / "cadd" / "test_cadd.py",
         'jaspar_tfbs': datasets_dir / "jaspar_tfbs" / "test_jaspar_tfbs.py",
+        'gtex': datasets_dir / "gtex" / "test_gtex.py",
         'esm1b': datasets_dir / "esm1b" / "test_esm1b.py",
         'saprot': datasets_dir / "saprot" / "test_saprot.py",
         'mavedb': datasets_dir / "mavedb" / "test_mavedb.py",

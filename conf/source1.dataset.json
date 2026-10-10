@@ -1916,6 +1916,20 @@
     "test_entries_count": "2000",
     "bucketMethod": "alphanum"
   },
+  "gtex": {
+    "id": "820",
+    "name": "GTEx",
+    "data_version": "GTEx v10 cis-QTL significant pairs (eQTL + sQTL, full per-tissue)",
+    "aliases": "GTEx,eQTL,sQTL,expression QTL,splicing QTL,cis-QTL,tissue expression qtl",
+    "url": "https://www.gtexportal.org/home/snp/£{id}",
+    "path": "raw_data/gtex/gtex_associations.sorted.tsv.gz",
+    "useLocalFile": "yes",
+    "hasFilter": "yes",
+    "attrs": "qtl_count,genes,tissues,qtl_types",
+    "compact_fields": "qtl_count,genes,tissues,qtl_types",
+    "test_entries_count": "2000",
+    "bucketMethod": "alphanum"
+  },
   "cellosaurus": {
     "id": "757",
     "name": "Cellosaurus",

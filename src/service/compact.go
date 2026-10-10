@@ -338,6 +338,9 @@ func extractField(xref *pbuf.Xref, field string) string {
 	if a := xref.GetJasparTfbs(); a != nil {
 		return extractJasparTfbsField(a, field)
 	}
+	if a := xref.GetGtex(); a != nil {
+		return extractGtexField(a, field)
+	}
 	if a := xref.GetEsm1B(); a != nil {
 		return extractEsm1bField(a, field)
 	}
@@ -2541,6 +2544,46 @@ func extractJasparTfbsField(a *pbuf.JasparTfbsAttr, field string) string {
 		return a.BindingMatrixId
 	case "transcription_factors":
 		return strings.Join(a.TranscriptionFactors, ",")
+	}
+	return ""
+}
+
+// extractGtexField summarizes GtexAttr (GTEx cis-QTL associations) for compact
+// mode: counts and the distinct genes/tissues across its associations.
+func extractGtexField(a *pbuf.GtexAttr, field string) string {
+	switch field {
+	case "qtl_count":
+		return fmt.Sprintf("%d", len(a.Associations))
+	case "genes":
+		seen := map[string]bool{}
+		var out []string
+		for _, s := range a.Associations {
+			if s.GeneId != "" && !seen[s.GeneId] {
+				seen[s.GeneId] = true
+				out = append(out, s.GeneId)
+			}
+		}
+		return strings.Join(out, ",")
+	case "tissues":
+		seen := map[string]bool{}
+		var out []string
+		for _, s := range a.Associations {
+			if s.Tissue != "" && !seen[s.Tissue] {
+				seen[s.Tissue] = true
+				out = append(out, s.Tissue)
+			}
+		}
+		return strings.Join(out, ",")
+	case "qtl_types":
+		seen := map[string]bool{}
+		var out []string
+		for _, s := range a.Associations {
+			if s.QtlType != "" && !seen[s.QtlType] {
+				seen[s.QtlType] = true
+				out = append(out, s.QtlType)
+			}
+		}
+		return strings.Join(out, ",")
 	}
 	return ""
 }

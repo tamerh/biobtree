@@ -1377,6 +1377,12 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			d.datasets2 = append(d.datasets2, data)
 			go jt.update()
 			break
+		case "gtex":
+			d.wg.Add(1)
+			gx := gtex{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go gx.update()
+			break
 		default:
 			log.Fatal("ERROR Unrecognized dataset ->" + data)
 		}

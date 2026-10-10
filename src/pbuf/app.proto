@@ -222,6 +222,7 @@ message Xref {
     PangolinAttr pangolin=819;
     CaddAttr cadd=820;
     JasparTfbsAttr jaspar_tfbs=821;
+    GtexAttr gtex=822;
     SaprotAttr saprot=815;
 
   }

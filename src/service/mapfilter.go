@@ -1645,6 +1645,11 @@ func (s *Service) execCelGo(query *query.Query, targetXref *pbuf.Xref) (bool, er
 			attr.Id = id
 			evalMap["jaspar_tfbs"] = attr
 		}
+	case "gtex":
+		if attr := targetXref.GetGtex(); attr != nil {
+			attr.Id = id
+			evalMap["gtex"] = attr
+		}
 	case "signor":
 		if attr := targetXref.GetSignor(); attr != nil {
 			attr.Id = id

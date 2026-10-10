@@ -3089,6 +3089,23 @@ message JasparTfbsAttr {
   string id = 100;                          // transient - populated at runtime from Xref.Identifier
 }
 
+// GTEx cis-QTL associations (v10), keyed by variant chr:pos:ref:alt. One entry
+// per variant holds all its significant variant-gene associations across the 49
+// tissues (full per-tissue), each tagged eqtl/sqtl. Variant -> ensembl gene xref
+// per distinct gene, so gene >> gtex also resolves. Open-access QTL summary stats.
+message GtexAssoc {
+  string qtl_type = 1;     // eqtl | sqtl
+  string gene_id = 2;      // Ensembl gene (ENSG, version stripped)
+  string tissue = 3;       // GTEx tissue (from the per-tissue filename)
+  string slope = 4;        // regression slope / effect size (string: sign + a meaningful 0 kept)
+  string pval = 5;         // nominal p-value
+  string phenotype_id = 6; // sQTL intron-cluster phenotype id (empty for eqtl)
+}
+message GtexAttr {
+  repeated GtexAssoc associations = 1;
+  string id = 100;         // transient = chr:pos:ref:alt (variant key)
+}
+
 // ============================================================================
 // GtoPdb - IUPHAR/BPS Guide to Pharmacology
 // Expert-curated database of drug targets, ligands, and their interactions

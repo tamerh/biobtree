@@ -1,0 +1,10 @@
+{
+  "dataset": "gtex",
+  "dataset_id": 820,
+  "description": "GTEx v10 cis-QTL significant pairs (eQTL + sQTL, full per-tissue), keyed by variant chr:pos:ref:alt. One entry per variant holds all its tissue associations, each tagged eqtl/sqtl. Hand-crafted fixture (tests/datasets/gtex/gtex_fixture.tsv), NOT real GTEx data.",
+  "variants": [
+    {"id": "1:100000:A:G", "n_assoc": 3, "genes": ["ENSG00000111111"], "tissues": ["Whole_Blood", "Lung"], "qtl_types": ["eqtl", "sqtl"], "note": "aggregates 3 associations across tissues + both QTL types"},
+    {"id": "2:200000:C:T", "n_assoc": 1, "genes": ["ENSG00000222222"], "tissues": ["Brain_Cortex"], "qtl_types": ["eqtl"]},
+    {"id": "7:300000:G:A", "n_assoc": 1, "genes": ["ENSG00000333333"], "tissues": ["Muscle_Skeletal"], "qtl_types": ["sqtl"], "note": "sQTL carries a phenotype_id (intron cluster)"}
+  ]
+}

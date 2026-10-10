@@ -15,9 +15,8 @@ import (
 )
 
 type spliceai struct {
-	source   string
-	d        *DataUpdate
-	geneIdx  *GeneCoordinateIndex // Gene coordinate index for position-based lookup
+	source string
+	d      *DataUpdate
 }
 
 // Helper for context-aware error checking
@@ -25,14 +24,17 @@ func (s *spliceai) check(err error, operation string) {
 	checkWithContext(err, s.source, operation)
 }
 
-// Main update entry point
+// Main update entry point. Source: Ensembl MANE SpliceAI VCF
+// (spliceai_scores.raw.snv.ensembl_mane_v1.4.grch38.vcf.gz) — MANE v1.4 (current
+// annotation, superseding the old GENCODE-v24 Illumina tables), all SNV alts,
+// and the four delta scores. The gene symbol comes from the VCF, so no GFF3
+// coordinate index is needed.
 func (s *spliceai) update() {
 	defer s.d.wg.Done()
 
 	log.Println("SpliceAI: Starting data processing...")
 	startTime := time.Now()
 
-	// Test mode support
 	testLimit := config.GetTestLimit(s.source)
 	var idLogFile *os.File
 	if config.IsTestMode() {
@@ -46,242 +48,203 @@ func (s *spliceai) update() {
 	sourceID := config.Dataconf[s.source]["id"]
 	textLinkID := config.Dataconf["textlink"]["id"]
 
-	// Load gene coordinate index for position-based gene lookup
-	s.loadGeneCoordinateIndex()
-
-	// Process main TSV file
 	s.parseAndSaveVariants(testLimit, idLogFile, sourceID, textLinkID)
 
 	log.Printf("SpliceAI: Processing complete (%.2fs)", time.Since(startTime).Seconds())
-
-	// Signal completion to progress handler
 	s.d.progChan <- &progressInfo{dataset: s.source, done: true}
 }
 
-// loadGeneCoordinateIndex loads gene coordinates for position-based lookup from GFF3 file
-func (s *spliceai) loadGeneCoordinateIndex() {
-	gff3Path := config.Dataconf[s.source]["geneGFF3"]
-	if gff3Path == "" {
-		log.Println("SpliceAI: No geneGFF3 configured - variant-to-gene xrefs will not be created")
-		return
-	}
+// spliceaiScoreThreshold keeps only variants with a meaningful splice signal
+// (parity with the previously-ingested delta>=0.2 set); the raw MANE VCF carries
+// every SNV genome-wide, almost all with all-zero deltas.
+const spliceaiScoreThreshold = 0.2
 
-	idx, err := LoadHumanGeneCoordinatesFromGFF3(gff3Path)
-	if err != nil {
-		log.Printf("SpliceAI: Warning - could not load gene coordinates from GFF3: %v", err)
-		return
+// extractSpliceaiInfo pulls the SpliceAI annotation out of a VCF INFO column and
+// splits it into its 10 pipe fields:
+//
+//	ALLELE|SYMBOL|DS_AG|DS_AL|DS_DG|DS_DL|DP_AG|DP_AL|DP_DG|DP_DL
+//
+// Returns nil if absent/malformed. If several comma-separated annotations are
+// present (one per overlapping gene) the first is used.
+func extractSpliceaiInfo(info string) []string {
+	for _, kv := range strings.Split(info, ";") {
+		if strings.HasPrefix(kv, "SpliceAI=") {
+			v := strings.SplitN(strings.TrimPrefix(kv, "SpliceAI="), ",", 2)[0]
+			parts := strings.Split(v, "|")
+			if len(parts) >= 10 {
+				return parts
+			}
+			return nil
+		}
 	}
-
-	if idx != nil && idx.GeneCount() > 0 {
-		s.geneIdx = idx
-		log.Printf("SpliceAI: Loaded %d genes from GFF3 for coordinate-based lookup", idx.GeneCount())
-	}
+	return nil
 }
 
-// parseAndSaveVariants processes the SpliceAI TSV file
+// parseAndSaveVariants streams the MANE SpliceAI VCF, keeps variants whose max
+// delta >= threshold, and stores the four deltas + positions + dominant effect.
 func (s *spliceai) parseAndSaveVariants(testLimit int, idLogFile *os.File, sourceID, textLinkID string) {
-	filePath := config.Dataconf[s.source]["path"]
-	log.Printf("SpliceAI: Processing variants from %s", filePath)
+	var reader *bufio.Reader
+	if config.IsTestMode() {
+		// Read the committed plain-text fixture directly (conf useLocalFile=no is
+		// for the remote prod VCF, so getDataReaderNew can't open a local path).
+		file, ferr := os.Open("tests/datasets/spliceai/spliceai_mane_fixture.vcf")
+		s.check(ferr, "opening SpliceAI fixture")
+		defer file.Close()
+		log.Printf("SpliceAI: [TEST MODE] Processing fixture VCF")
+		reader = bufio.NewReaderSize(file, 1024*1024)
+	} else {
+		filePath := config.Dataconf[s.source]["path"]
+		log.Printf("SpliceAI: Processing MANE VCF from %s", filePath)
+		br, gz, ftpFile, client, localFile, _, err := getDataReaderNew(s.source, "", "", filePath)
+		s.check(err, "opening SpliceAI VCF")
+		defer closeReaders(gz, ftpFile, client, localFile)
+		if gz != nil {
+			reader = bufio.NewReaderSize(gz, 1024*1024)
+		} else {
+			reader = bufio.NewReaderSize(br, 1024*1024)
+		}
+	}
 
-	br, gz, ftpFile, client, localFile, _, err := getDataReaderNew(s.source, "", "", filePath)
-	s.check(err, "opening SpliceAI TSV file")
-	defer closeReaders(gz, ftpFile, client, localFile)
-
-	reader := bufio.NewReaderSize(br, 1024*1024)
-
-	var lineCount int64
-	var entryCount int64
-	var skippedCount int64
-	var skippedLongKeyCount int64
-
-	// Track effect type statistics
+	var lineCount, entryCount, skippedCount int64
 	effectCounts := make(map[string]int64)
-
-	// Progress tracking
-	var totalRead int64
-	var previous int64
+	var totalRead, previous int64
 
 	for {
 		line, readErr := reader.ReadString('\n')
 		if readErr != nil && readErr != io.EOF {
-			s.check(readErr, "reading SpliceAI TSV file")
+			s.check(readErr, "reading SpliceAI VCF")
 		}
 		if len(line) == 0 && readErr == io.EOF {
 			break
 		}
-
 		totalRead += int64(len(line))
 		lineCount++
-		line = strings.TrimSuffix(line, "\n")
-		line = strings.TrimSuffix(line, "\r")
+		line = strings.TrimRight(line, "\r\n")
 
-		// Skip header line
-		if lineCount == 1 && strings.HasPrefix(line, "chromosome") {
-			continue
-		}
-
-		// Skip comment lines
-		if strings.HasPrefix(line, "#") {
+		if line == "" || line[0] == '#' { // VCF headers / meta
 			if readErr == io.EOF {
 				break
 			}
 			continue
 		}
 
-		// TSV Format: chromosome	position	ref_allele	alt_allele	effect	score	allele_info
-		fields := strings.Split(line, "\t")
-		if len(fields) < 6 {
+		// VCF: CHROM POS ID REF ALT QUAL FILTER INFO
+		f := strings.Split(line, "\t")
+		if len(f) < 8 {
 			skippedCount++
-			if skippedCount <= 5 {
-				log.Printf("SpliceAI: SKIP line %d: Not enough fields (%d < 6)", lineCount, len(fields))
+			if readErr == io.EOF {
+				break
+			}
+			continue
+		}
+		chrom, posStr, refAllele, altAllele, info := f[0], f[1], f[3], f[4], f[7]
+
+		pos, perr := strconv.ParseInt(posStr, 10, 64)
+		if perr != nil {
+			skippedCount++
+			if readErr == io.EOF {
+				break
 			}
 			continue
 		}
 
-		chrom := fields[0]
-		posStr := fields[1]
-		refAllele := fields[2]
-		altAllele := fields[3]
-		effect := fields[4]
-		scoreStr := fields[5]
-		alleleInfo := ""
-		if len(fields) > 6 {
-			alleleInfo = fields[6]
-		}
-
-		// Parse position
-		pos, err := strconv.ParseInt(posStr, 10, 64)
-		if err != nil {
+		sa := extractSpliceaiInfo(info)
+		if sa == nil {
 			skippedCount++
-			if skippedCount <= 5 {
-				log.Printf("SpliceAI: SKIP line %d: Invalid position %q", lineCount, posStr)
+			if readErr == io.EOF {
+				break
+			}
+			continue
+		}
+		symbol := sa[1]
+		dsAG, _ := strconv.ParseFloat(sa[2], 64)
+		dsAL, _ := strconv.ParseFloat(sa[3], 64)
+		dsDG, _ := strconv.ParseFloat(sa[4], 64)
+		dsDL, _ := strconv.ParseFloat(sa[5], 64)
+
+		maxDS, effect := dsAG, "acceptor_gain"
+		if dsAL > maxDS {
+			maxDS, effect = dsAL, "acceptor_loss"
+		}
+		if dsDG > maxDS {
+			maxDS, effect = dsDG, "donor_gain"
+		}
+		if dsDL > maxDS {
+			maxDS, effect = dsDL, "donor_loss"
+		}
+		if maxDS < spliceaiScoreThreshold {
+			if readErr == io.EOF {
+				break
 			}
 			continue
 		}
 
-		// Parse score
-		score, err := strconv.ParseFloat(scoreStr, 32)
-		if err != nil {
-			skippedCount++
-			if skippedCount <= 5 {
-				log.Printf("SpliceAI: SKIP line %d: Invalid score %q", lineCount, scoreStr)
-			}
-			continue
-		}
-
-		// Use variant notation (chr:pos:ref:alt) as entry ID for xref compatibility with dbSNP
 		entryID := fmt.Sprintf("%s:%d:%s:%s", chrom, pos, refAllele, altAllele)
-
-		// Skip entries with keys too long for LMDB
 		if len(entryID) > LMDBMaxKeySize {
-			skippedLongKeyCount++
-			if skippedLongKeyCount <= 10 {
-				log.Printf("SpliceAI: SKIP long key (%d bytes > %d max): %s",
-					len(entryID), LMDBMaxKeySize, entryID[:100]+"...")
+			if readErr == io.EOF {
+				break
 			}
 			continue
 		}
 
-		// Track effect type statistics
 		effectCounts[effect]++
-
-		// Create attributes
 		attr := &pbuf.SpliceAIAttr{
 			Chromosome: chrom,
 			Position:   pos,
 			RefAllele:  refAllele,
 			AltAllele:  altAllele,
 			Effect:     effect,
-			Score:      float32(score),
-			GeneSymbol: "", // Will be populated by coordinate-based gene lookup
-			AlleleInfo: alleleInfo,
+			Score:      float32(maxDS),
+			GeneSymbol: symbol,
+			DsAg:       sa[2], DsAl: sa[3], DsDg: sa[4], DsDl: sa[5],
+			DpAg: sa[6], DpAl: sa[7], DpDg: sa[8], DpDl: sa[9],
 		}
 
-		// Create cross-references (this may update attr.GeneSymbol via coordinate lookup)
 		s.createCrossReferences(entryID, sourceID, textLinkID, attr)
 
-		// Index by chr:pos for position-based lookup
-		posKey := fmt.Sprintf("%s:%d", chrom, pos)
-		s.d.addXref(posKey, textLinkID, entryID, s.source, true)
+		// chr:pos text link for position-based lookup.
+		s.d.addXref(fmt.Sprintf("%s:%d", chrom, pos), textLinkID, entryID, s.source, true)
 
-		// Marshal and save (after xrefs so GeneSymbol is populated)
-		attrBytes, err := ffjson.Marshal(attr)
-		s.check(err, fmt.Sprintf("marshaling attributes for %s", entryID))
+		attrBytes, merr := ffjson.Marshal(attr)
+		s.check(merr, fmt.Sprintf("marshaling attributes for %s", entryID))
 		s.d.addProp3(entryID, sourceID, attrBytes)
 
-		// Log ID for test mode
 		if idLogFile != nil {
 			logProcessedID(idLogFile, entryID)
 		}
-
 		entryCount++
 
-		// Progress reporting
 		elapsed := int64(time.Since(s.d.start).Seconds())
 		if elapsed > previous+s.d.progInterval {
-			kbytesPerSecond := totalRead / elapsed / 1024
 			previous = elapsed
-			s.d.progChan <- &progressInfo{dataset: s.source, currentKBPerSec: kbytesPerSecond}
+			s.d.progChan <- &progressInfo{dataset: s.source, currentKBPerSec: totalRead / elapsed / 1024}
 		}
-
-		// Progress logging
 		if entryCount%1000000 == 0 {
 			log.Printf("SpliceAI: Processed %d variants...", entryCount)
 		}
-
-		// Test mode limit
 		if testLimit > 0 && entryCount >= int64(testLimit) {
 			log.Printf("SpliceAI: [TEST MODE] Reached limit of %d variants", testLimit)
 			break
 		}
-
 		if readErr == io.EOF {
 			break
 		}
 	}
 
-	// Log final statistics
-	log.Printf("SpliceAI: Processed %d variants (skipped %d malformed lines, %d long keys > %d bytes)",
-		entryCount, skippedCount, skippedLongKeyCount, LMDBMaxKeySize)
-
-	// Log effect type distribution
+	log.Printf("SpliceAI: Processed %d variants (skipped %d non-SpliceAI/malformed/below-threshold)", entryCount, skippedCount)
 	for effect, count := range effectCounts {
-		pct := float64(count) / float64(entryCount) * 100
-		log.Printf("SpliceAI: Effect %s: %d (%.1f%%)", effect, count, pct)
+		log.Printf("SpliceAI: Effect %s: %d", effect, count)
 	}
 }
 
-// createCrossReferences creates cross-references for SpliceAI variant entries
+// createCrossReferences wires the gene (from the VCF symbol) and the effect so
+// gene >> spliceai and effect text search resolve.
 func (s *spliceai) createCrossReferences(entryID, sourceID, textLinkID string, attr *pbuf.SpliceAIAttr) {
-
-	// Also index by effect type for text search
 	if attr.Effect != "" {
 		s.d.addXref(attr.Effect, textLinkID, entryID, s.source, true)
 	}
-
-	// Find overlapping genes using coordinate index and create gene xrefs
-	if s.geneIdx != nil {
-		overlappingGenes := s.geneIdx.FindOverlappingGenes(attr.Chromosome, attr.Position)
-		for _, gene := range overlappingGenes {
-
-			// Cross-reference via gene symbol to HGNC, Entrez, Ensembl
-			// This enables queries like: BRCA1 >> spliceai
-			if gene.Symbol != "" {
-				// Index gene symbol for text search
-				s.d.addXref(gene.Symbol, textLinkID, entryID, s.source, true)
-
-				// Add xrefs via gene databases using the standard pattern
-				// This creates: gene >> hgnc >> spliceai, gene >> entrez >> spliceai, gene >> ensembl >> spliceai
-				s.d.addHumanGeneXrefsAll(gene.Symbol, entryID, sourceID)
-
-				// Store gene symbol in the attribute if not already set
-				if attr.GeneSymbol == "" {
-					attr.GeneSymbol = gene.Symbol
-				} else if !strings.Contains(attr.GeneSymbol, gene.Symbol) {
-					// Append additional gene symbols (variant may overlap multiple genes)
-					attr.GeneSymbol = attr.GeneSymbol + "," + gene.Symbol
-				}
-			}
-		}
+	if attr.GeneSymbol != "" {
+		s.d.addXref(attr.GeneSymbol, textLinkID, entryID, s.source, true)
+		s.d.addHumanGeneXrefsAll(attr.GeneSymbol, entryID, sourceID)
 	}
 }

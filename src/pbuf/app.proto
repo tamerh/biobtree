@@ -220,6 +220,7 @@ message Xref {
     GnomadGnocchiAttr gnomad_gnocchi=817;
     RepeatAttr repeat=818;
     PangolinAttr pangolin=819;
+    CaddAttr cadd=820;
     SaprotAttr saprot=815;
 
   }

@@ -1,0 +1,15 @@
+{
+  "dataset": "cadd",
+  "dataset_id": 23,
+  "description": "CADD deleteriousness (PHRED-scaled C-score), keyed chr:pos:ref:alt (GRCh38). phred-only minimal layer (raw_score intentionally dropped to save ~21% disk). Reached by direct entry lookup, same as the conservation federation. Hand-crafted fixture (tests/datasets/cadd/cadd_fixture.tsv), NOT real CADD data.",
+  "variants": [
+    {"id": "1:69091:A:C", "chromosome": "1", "position": 69091, "ref": "A", "alt": "C", "phred": "3.421", "note": "benign-leaning"},
+    {"id": "1:69091:A:G", "chromosome": "1", "position": 69091, "ref": "A", "alt": "G", "phred": "24.800", "note": "same position, different alt -> distinct key, deleterious"},
+    {"id": "2:179431991:G:A", "chromosome": "2", "position": 179431991, "ref": "G", "alt": "A", "phred": "33.100", "note": "9-digit position"},
+    {"id": "2:179431991:G:T", "chromosome": "2", "position": 179431991, "ref": "G", "alt": "T", "phred": "1.200", "note": "benign"},
+    {"id": "7:117559593:G:A", "chromosome": "7", "position": 117559593, "ref": "G", "alt": "A", "phred": "35.900", "note": "highly deleterious (CFTR region)"},
+    {"id": "13:32316461:T:C", "chromosome": "13", "position": 32316461, "ref": "T", "alt": "C", "phred": "27.400"},
+    {"id": "17:43045712:C:T", "chromosome": "17", "position": 43045712, "ref": "C", "alt": "T", "phred": "18.600"},
+    {"id": "X:31224683:G:A", "chromosome": "X", "position": 31224683, "ref": "G", "alt": "A", "phred": "0.350", "note": "X chromosome, very benign"}
+  ]
+}

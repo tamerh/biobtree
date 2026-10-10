@@ -1885,6 +1885,22 @@
     "test_entries_count": "2000",
     "bucketMethod": "alphanum"
   },
+  "cadd": {
+    "id": "23",
+    "name": "CADD",
+    "data_version": "CADD GRCh38 v1.7 (whole-genome SNV + gnomAD indel)",
+    "aliases": "CADD,C-score,combined annotation dependent depletion,deleteriousness",
+    "url": "https://cadd.gs.washington.edu/",
+    "path": "https://krishna.gs.washington.edu/download/CADD/v1.7/GRCh38/whole_genome_SNVs.tsv.gz",
+    "pathIndel": "https://krishna.gs.washington.edu/download/CADD/v1.7/GRCh38/gnomad.genomes.r4.0.indel.tsv.gz",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "phred",
+    "compact_fields": "phred",
+    "federation": "cadd",
+    "test_entries_count": "2000",
+    "bucketMethod": "alphanum"
+  },
   "cellosaurus": {
     "id": "757",
     "name": "Cellosaurus",

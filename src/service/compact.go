@@ -332,6 +332,9 @@ func extractField(xref *pbuf.Xref, field string) string {
 	if a := xref.GetRevel(); a != nil {
 		return extractRevelField(a, field)
 	}
+	if a := xref.GetCadd(); a != nil {
+		return extractCaddField(a, field)
+	}
 	if a := xref.GetEsm1B(); a != nil {
 		return extractEsm1bField(a, field)
 	}
@@ -2505,6 +2508,16 @@ func extractEsm1bField(a *pbuf.Esm1BAttr, field string) string {
 	default:
 		return ""
 	}
+}
+
+// extractCaddField extracts a field from CaddAttr (CADD deleteriousness;
+// keyed chr:pos:ref:alt, phred only).
+func extractCaddField(a *pbuf.CaddAttr, field string) string {
+	switch field {
+	case "phred":
+		return a.Phred
+	}
+	return ""
 }
 
 // extractRevelField extracts a field from RevelAttr (ensemble missense

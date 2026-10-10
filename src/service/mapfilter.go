@@ -1430,6 +1430,11 @@ func (s *Service) execCelGo(query *query.Query, targetXref *pbuf.Xref) (bool, er
 			attr.Id = id
 			evalMap["revel"] = attr
 		}
+	case "cadd":
+		if attr := targetXref.GetCadd(); attr != nil {
+			attr.Id = id
+			evalMap["cadd"] = attr
+		}
 	case "esm1b":
 		if attr := targetXref.GetEsm1B(); attr != nil {
 			attr.Id = id

@@ -3063,6 +3063,17 @@ message PangolinAttr {
   string id = 100; // transient - populated at runtime from Xref.Identifier
 }
 
+// CADD deleteriousness score (Combined Annotation Dependent Depletion). Stored
+// MINIMALLY: only the scores, keyed by chr:pos:ref:alt (coords are the key, not
+// duplicated in the value) and with no reverse/text links — so it is ~1 KV per
+// variant, the smallest possible footprint for a genome-wide (~8.6B SNV) set.
+message CaddAttr {
+  string phred = 1;      // PHRED-scaled C-score (higher = more deleterious; ~20 = top 1%)
+  // raw_score intentionally omitted: PHRED is the normalized/recommended score and
+  // the only one queried; dropping the raw SVM score saves ~21% of the on-disk size.
+  string id = 100;       // transient = chr:pos:ref:alt (coords reconstructed from the key)
+}
+
 // ============================================================================
 // GtoPdb - IUPHAR/BPS Guide to Pharmacology
 // Expert-curated database of drug targets, ligands, and their interactions

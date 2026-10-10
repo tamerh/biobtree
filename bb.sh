@@ -126,6 +126,9 @@ DATASETS=(
     gwas_study
     gwas
     # dbsnp   # separate 'dbsnp' federation — excluded for a main-only update
+    # cadd    # separate 'cadd' federation (~350G, genome-wide SNVs) — excluded;
+             # build explicitly: ./bb.sh out_prod --only cadd --force --generate-after
+             # (its OUT_DIR/cadd dir is symlinked onto /data to keep it off /data2)
     gnomad_variant
     alphamissense
     alphamissense_transcript
@@ -491,6 +494,7 @@ get_federation() {
         revel) echo "predictions" ;;
         esm1b) echo "predictions" ;;
         saprot) echo "predictions" ;;
+        cadd) echo "cadd" ;;
         *) echo "main" ;;
     esac
 }

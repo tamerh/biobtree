@@ -23,13 +23,13 @@ import (
 // (mavedb-dump.<ts>.zip), plus a live API at api.mavedb.org. The unzipped
 // archive is a directory containing:
 //   - main.json  : {title, asOf, experimentSets:[{experiments:[{scoreSets:[...]}]}]}
-//                  — score sets are nested under the Experiment Set / Experiment
-//                  hierarchy. Each score set has urn, title, license.shortName,
-//                  and targetGenes[] (name, category, externalIdentifiers,
-//                  targetSequence.taxonomy.taxId).
+//     — score sets are nested under the Experiment Set / Experiment
+//     hierarchy. Each score set has urn, title, license.shortName,
+//     and targetGenes[] (name, category, externalIdentifiers,
+//     targetSequence.taxonomy.taxId).
 //   - csv/<urn ":"→"-">.scores.csv : one scores CSV per score set. Columns:
-//                  accession,hgvs_nt,hgvs_splice,hgvs_pro,score,sd,se,...
-//                  (per-set *.counts.csv also exist but are not ingested).
+//     accession,hgvs_nt,hgvs_splice,hgvs_pro,score,sd,se,...
+//     (per-set *.counts.csv also exist but are not ingested).
 //
 // The per-score-set data LICENSE (license.shortName, e.g. "CC0") is stored on
 // every variant so the KG export can treat CC0 sets as public-domain and any
@@ -102,12 +102,51 @@ type mavedbArchive struct {
 
 // resolved target context extracted from a score set's targetGenes.
 type mavedbTarget struct {
-	gene     string
-	category string
-	uniprot  string
-	refseq   string
-	ensembl  string
-	human    bool
+	gene      string
+	category  string
+	uniprot   string
+	refseq    string
+	ensembl   string
+	human     bool
+	multiGene bool // score set spans >1 target gene; each row names its own in the HGVS prefix
+}
+
+// mavedbRegionSuffix strips a trailing region qualifier (e.g. "HBB promoter" ->
+// "HBB", "SORT1 enhancer" -> "SORT1") so the symbol matches HGNC. Regulatory /
+// non-coding MPRA score sets carry these suffixes and would otherwise never
+// create a gene-hub edge.
+func mavedbRegionSuffix(gene string) string {
+	g := strings.TrimSpace(gene)
+	for _, suf := range []string{" promoter", " enhancer", " 5' UTR", " 3' UTR", " 5'UTR", " 3'UTR", " intron", " UTR"} {
+		if len(g) > len(suf) && strings.EqualFold(g[len(g)-len(suf):], suf) {
+			return strings.TrimSpace(g[:len(g)-len(suf)])
+		}
+	}
+	return g
+}
+
+// mavedbRowGene extracts the per-row gene from an HGVS string that carries a
+// "SYMBOL:" prefix (multi-gene score sets, e.g. "LMNA:n.127G>A" -> "LMNA").
+// Returns "" when the prefix is an accession (has a dot) or there is no HGVS
+// sequence notation after the colon.
+func mavedbRowGene(hgvs ...string) string {
+	isSeq := func(s string) bool {
+		return len(s) >= 2 && strings.ContainsRune("ncpgrm", rune(s[0])) && s[1] == '.'
+	}
+	for _, h := range hgvs {
+		i := strings.Index(h, ":")
+		if i <= 0 {
+			continue
+		}
+		prefix, rest := h[:i], h[i+1:]
+		if strings.Contains(prefix, ".") { // accession (NM_000518.5 etc.), not a gene
+			continue
+		}
+		if isSeq(rest) {
+			return prefix
+		}
+	}
+	return ""
 }
 
 // resolveTarget picks the first target gene and extracts the mappable anchors.
@@ -120,6 +159,7 @@ func resolveTarget(ss *mavedbScoreSet) mavedbTarget {
 	tg := ss.TargetGenes[0]
 	t.gene = strings.TrimSpace(tg.Name)
 	t.category = strings.TrimSpace(tg.Category)
+	t.multiGene = len(ss.TargetGenes) > 1
 	// Human only: taxonomy taxId 9606.
 	t.human = tg.TargetSequence.Taxonomy.TaxId == 9606
 	for _, ei := range tg.ExternalIdentifiers {
@@ -299,8 +339,18 @@ func (m *mavedb) processScoreSet(ss *mavedbScoreSet, tgt *mavedbTarget, sourceID
 			score = ""
 		}
 
+		// Per-row gene: multi-gene score sets (e.g. a localization screen spanning
+		// RHO, LMNA, ...) name each row's gene in the HGVS prefix; using
+		// TargetGenes[0] for every row mislabels them all as the first gene.
+		rowGene := tgt.gene
+		if tgt.multiGene {
+			if g := mavedbRowGene(hgvsNt, hgvsPro); g != "" {
+				rowGene = g
+			}
+		}
+
 		attr := pbuf.MavedbAttr{
-			GeneSymbol:    tgt.gene,
+			GeneSymbol:    rowGene,
 			ScoreSet:      ss.Urn,
 			ScoreSetTitle: ss.Title,
 			HgvsPro:       hgvsPro,
@@ -334,14 +384,20 @@ func (m *mavedb) processScoreSet(ss *mavedbScoreSet, tgt *mavedbTarget, sourceID
 			ensg := strings.SplitN(tgt.ensembl, ".", 2)[0]
 			m.d.addXrefWithEvidence(urn, sourceID, ensg, "ensembl", false, evidence)
 		}
-		// Gene-hub edge via HGNC so gene-symbol / hgnc >> mavedb resolves.
-		if tgt.gene != "" {
-			m.d.addHumanGeneXrefsViaHGNC(tgt.gene, urn, sourceID)
+		// Gene-hub edge via HGNC so gene-symbol / hgnc >> mavedb resolves. Strip
+		// any region suffix ("HBB promoter" -> "HBB") so regulatory/non-coding
+		// score sets are no longer orphaned off the gene hub.
+		hgncSym := mavedbRegionSuffix(rowGene)
+		if hgncSym != "" {
+			m.d.addHumanGeneXrefsViaHGNC(hgncSym, urn, sourceID)
 		}
 
 		// Text search: findable by the target gene symbol and score-set title.
-		if tgt.gene != "" {
-			m.d.addXref(tgt.gene, textLinkID, urn, m.source, true)
+		if rowGene != "" {
+			m.d.addXref(rowGene, textLinkID, urn, m.source, true)
+		}
+		if hgncSym != "" && hgncSym != rowGene {
+			m.d.addXref(hgncSym, textLinkID, urn, m.source, true)
 		}
 		if ss.Title != "" {
 			m.d.addXref(ss.Title, textLinkID, urn, m.source, true)

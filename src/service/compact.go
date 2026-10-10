@@ -8,12 +8,12 @@ import (
 
 // MapLiteResponse represents the LLM-friendly lite format response for map queries
 type MapLiteResponse struct {
-	Context    MapLiteContext  `json:"context"`
-	Stats      LiteStats       `json:"stats"`
-	Pagination LitePagination  `json:"pagination"`
-	Schema     string          `json:"schema"`
-	Mappings   []LiteMapping   `json:"mappings"`
-	NotFound   []string        `json:"not_found,omitempty"`
+	Context    MapLiteContext `json:"context"`
+	Stats      LiteStats      `json:"stats"`
+	Pagination LitePagination `json:"pagination"`
+	Schema     string         `json:"schema"`
+	Mappings   []LiteMapping  `json:"mappings"`
+	NotFound   []string       `json:"not_found,omitempty"`
 }
 
 // LiteMapping represents a single input-to-targets mapping group
@@ -415,6 +415,9 @@ func extractField(xref *pbuf.Xref, field string) string {
 	}
 	if a := xref.GetEncodeCcre(); a != nil {
 		return extractEncodeCcreField(a, field)
+	}
+	if a := xref.GetGnomadRmc(); a != nil {
+		return extractGnomadRmcField(a, field)
 	}
 	if a := xref.GetGtopdb(); a != nil {
 		return extractGtopdbField(a, field)
@@ -3189,6 +3192,42 @@ func extractJasparField(a *pbuf.JasparAttr, field string) string {
 		return a.Species
 	case "version":
 		return fmt.Sprintf("%d", a.Version)
+	default:
+		return ""
+	}
+}
+
+// extractGnomadRmcField extracts a field from GnomadRmcAttr
+func extractGnomadRmcField(a *pbuf.GnomadRmcAttr, field string) string {
+	switch field {
+	case "transcript":
+		return a.Transcript
+	case "chromosome":
+		return a.Chromosome
+	case "start":
+		return fmt.Sprintf("%d", a.Start)
+	case "end":
+		return fmt.Sprintf("%d", a.End)
+	case "obs":
+		return a.Obs
+	case "exp":
+		return a.Exp
+	case "oe":
+		return a.Oe
+	case "oe_chisq":
+		return a.OeChisq
+	case "oe_chisq_p":
+		return a.OeChisqP
+	case "constrained":
+		if a.Constrained {
+			return "true"
+		}
+		return "false"
+	case "is_high_coverage":
+		if a.IsHighCoverage {
+			return "true"
+		}
+		return "false"
 	default:
 		return ""
 	}

@@ -142,6 +142,7 @@ DATASETS=(
     collectri
     jaspar
     encode_ccre
+    gnomad_rmc
     corum
     cellphonedb
     bgee

@@ -2981,6 +2981,28 @@ message EncodeCcreAttr {
   string id = 100; // transient - populated at runtime from Xref.Identifier
 }
 
+// gnomAD v4.1.1 regional missense constraint (missense-constrained regions).
+// A transcript is split into sub-regions; each carries observed/expected
+// missense with the ClinGen-calibrated O/E (regions with oe below ~0.36 give
+// moderate pathogenic support). Interval-indexed: a variant chr:pos resolves to
+// the covering region.
+message GnomadRmcAttr {
+  string transcript = 1;          // Ensembl transcript (ENST, versionless)
+  string chromosome = 2;
+  int32 start = 3;                // region start (genomic)
+  int32 end = 4;                  // region end (genomic)
+  // obs/exp/oe/chisq are strings so a meaningful 0 (e.g. oe=0, the MOST
+  // constrained regions) is preserved — proto3 would drop a numeric 0.
+  string obs = 5;                 // observed missense in region
+  string exp = 6;                 // expected missense in region
+  string oe = 7;                  // observed/expected (the constraint metric)
+  string oe_chisq = 8;            // region O/E chi-square
+  string oe_chisq_p = 9;          // its p-value
+  bool constrained = 10;          // oe < 0.36 (ClinGen moderate pathogenic support)
+  bool is_high_coverage = 11;     // region in high-coverage sequence
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
 // ============================================================================
 // GtoPdb - IUPHAR/BPS Guide to Pharmacology
 // Expert-curated database of drug targets, ligands, and their interactions

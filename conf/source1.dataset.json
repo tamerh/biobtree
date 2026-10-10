@@ -1828,6 +1828,20 @@
     "bucketMethod": "alphanum",
     "intervalIndex": "yes"
   },
+  "gnomad_rmc": {
+    "id": "815",
+    "name": "gnomAD Regional Missense Constraint",
+    "aliases": "gnomAD RMC,regional missense constraint,missense constraint,missense-constrained region,MCR",
+    "url": "https://gnomad.broadinstitute.org/transcript/£{id}",
+    "path": "https://storage.googleapis.com/gcp-public-data--gnomad/papers/2026-rmc/gnomad_v4.1.1_all_mcrs.tsv",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "transcript,chromosome,start,end,obs,exp,oe,oe_chisq,oe_chisq_p,constrained,is_high_coverage",
+    "compact_fields": "transcript,oe,constrained",
+    "intervalIndex": "yes",
+    "test_entries_count": "1000",
+    "bucketMethod": "alphanum"
+  },
   "cellosaurus": {
     "id": "757",
     "name": "Cellosaurus",

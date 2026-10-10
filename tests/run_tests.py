@@ -326,6 +326,7 @@ Available datasets:
         'encode_ccre': datasets_dir / "encode_ccre" / "test_encode_ccre.py",
         'fantom5': datasets_dir / "fantom5" / "test_fantom5.py",
         'gtopdb': datasets_dir / "gtopdb" / "test_gtopdb.py",
+        'gnomad_rmc': datasets_dir / "gnomad_rmc" / "test_gnomad_rmc.py",
         'wikidata_symptom': datasets_dir / "wikidata_symptom" / "test_wikidata_symptom.py",
     }
 

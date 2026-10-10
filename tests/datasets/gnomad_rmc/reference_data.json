@@ -1,0 +1,8 @@
+{
+  "dataset": "gnomad_rmc",
+  "dataset_id": 815,
+  "description": "gnomAD v4.1.1 regional missense constraint (MCRs). Interval-indexed; a variant chr:pos resolves to the covering region. Built from gnomad_v4.1.1_all_mcrs.tsv (CC0, hg38). Test build is the first 1000 regions.",
+  "regions": [
+    { "id": "ENST00000641515:65565", "chr": "1", "pos": 67000, "transcript": "ENST00000641515", "oe": "0.0000e+00", "constrained": true }
+  ]
+}

@@ -528,6 +528,8 @@ func (s *Service) initWithDbDir(dbDir string) error {
 		cel.Declarations(
 			decls.NewIdent("encode_ccre", decls.NewObjectType("pbuf.EncodeCcreAttr"), nil)),
 		cel.Declarations(
+			decls.NewIdent("gnomad_rmc", decls.NewObjectType("pbuf.GnomadRmcAttr"), nil)),
+		cel.Declarations(
 			decls.NewIdent("stringdb", decls.NewObjectType("pbuf.StringAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("string_interaction", decls.NewObjectType("pbuf.StringInteractionAttr"), nil)),

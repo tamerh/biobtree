@@ -118,7 +118,8 @@
     "panelapp": "Genomics England PanelApp clinical gene panels (CC BY 4.0), master/child. panelapp MASTER (id 805): one per panel (name/disease_group/version/number_of_genes). panelapp_gene CHILD (id 806): one per (panel,gene) with green/amber confidence + mode_of_inheritance, linked to its master and edged to hgnc/ensembl/mim/mondo. Only green (3) + amber (2) genes ingested. Tests gene symbol >>panelapp_gene, the panel >>panelapp>>panelapp_gene>>hgnc chain, and gene >>panelapp_gene>>mondo.",
     "disease_symptoms": "Disease to symptom/sign mapping via Wikidata P780 (wikidata_symptom). Common-disease symptoms gated to Mondo/DOID-mapped diseases, complementing HPO's rare-disease-skewed phenotype annotations.",
     "ensembl_structure": "Ensembl transcript/exon structural fields (MANE flag, tsl, exon rank/phase) for variant annotation",
-    "interval_lookup": "Point-in-interval lookup: a variant coordinate (chr:pos or chr:pos:ref:alt) >> an interval-indexed dataset returns the features covering the position (Sugi #9/#10)."
+    "interval_lookup": "Point-in-interval lookup: a variant coordinate (chr:pos or chr:pos:ref:alt) >> an interval-indexed dataset returns the features covering the position (Sugi #9/#10).",
+    "regional_constraint": "gnomAD regional missense constraint (gnomad_rmc): a variant coordinate resolves to its covering constrained region."
   },
   "tests": [
     {
@@ -10356,6 +10357,19 @@
       ],
       "should_fail": [
         "1:10251"
+      ]
+    },
+    {
+      "category": "regional_constraint",
+      "name": "Variant to regional missense constraint",
+      "query": ">>gnomad_rmc",
+      "why": "A variant position maps to the gnomAD missense-constrained region covering it (new dataset #18)",
+      "should_pass": [
+        "1:67000",
+        "1:67000:C:A"
+      ],
+      "should_fail": [
+        "1:1"
       ]
     }
   ]

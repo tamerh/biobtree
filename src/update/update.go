@@ -1341,6 +1341,12 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			d.datasets2 = append(d.datasets2, data)
 			go ec.update()
 			break
+		case "gnomad_rmc":
+			d.wg.Add(1)
+			gr := gnomadRmc{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go gr.update()
+			break
 		default:
 			log.Fatal("ERROR Unrecognized dataset ->" + data)
 		}

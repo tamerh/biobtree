@@ -110,6 +110,7 @@ Disease associations, clinical variants, rare diseases.
 | depmap | DepMap CRISPR gene essentiality | [README](depmap.md) |
 | depmap_dependency | DepMap per-cell-line dependencies | [README](depmap_dependency.md) |
 | gnomad_constraint | gnomAD gene-level constraint (pLI/LOEUF/mis_z) | [README](gnomad_constraint.md) |
+| gnomad_rmc | gnomAD v4.1.1 regional missense constraint (sub-genic O/E; ClinGen-calibrated) | [README](gnomad_rmc.md) |
 | gnomad_variant | gnomAD v4 per-variant, per-ancestry allele frequencies (AF/grpmax/FAF) | [README](gnomad_variant.md) |
 | clinical_trials | ClinicalTrials.gov | [README](clinical_trials.md) |
 | pharmgkb | PharmGKB pharmacogenomics | [README](pharmgkb.md) |

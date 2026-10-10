@@ -1610,6 +1610,11 @@ func (s *Service) execCelGo(query *query.Query, targetXref *pbuf.Xref) (bool, er
 			attr.Id = id
 			evalMap["jaspar"] = attr
 		}
+	case "gnomad_rmc":
+		if attr := targetXref.GetGnomadRmc(); attr != nil {
+			attr.Id = id
+			evalMap["gnomad_rmc"] = attr
+		}
 	case "encode_ccre":
 		if attr := targetXref.GetEncodeCcre(); attr != nil {
 			attr.Id = id
@@ -1777,6 +1782,9 @@ func intervalOverlap(x *pbuf.Xref, chr string, pos int64) bool {
 	case x.GetEncodeCcre() != nil:
 		a := x.GetEncodeCcre()
 		cchr, cstart, cend = a.Chromosome, a.Start, a.End
+	case x.GetGnomadRmc() != nil:
+		a := x.GetGnomadRmc()
+		cchr, cstart, cend = a.Chromosome, int64(a.Start), int64(a.End)
 	case x.GetFantom5Enhancer() != nil:
 		a := x.GetFantom5Enhancer()
 		cchr, cstart, cend = a.Chromosome, int64(a.Start), int64(a.End)

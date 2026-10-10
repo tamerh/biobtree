@@ -218,6 +218,7 @@ message Xref {
     Esm1BAttr esm1b=814;
     GnomadRmcAttr gnomad_rmc=816;
     GnomadGnocchiAttr gnomad_gnocchi=817;
+    RepeatAttr repeat=818;
     SaprotAttr saprot=815;
 
   }

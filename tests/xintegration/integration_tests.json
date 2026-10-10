@@ -10385,6 +10385,17 @@
       "should_fail": [
         "1:1"
       ]
+    },
+    {
+      "category": "interval_lookup",
+      "name": "Variant to overlapping repeat region",
+      "query": ">>repeat",
+      "why": "A variant position maps to the repeat regions covering it; gives Microsatellite variants an annotation (new dataset #23)",
+      "should_pass": [
+        "1:10200",
+        "1:10200:A:G"
+      ],
+      "should_fail": []
     }
   ]
 }

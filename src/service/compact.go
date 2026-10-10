@@ -422,6 +422,9 @@ func extractField(xref *pbuf.Xref, field string) string {
 	if a := xref.GetGnomadGnocchi(); a != nil {
 		return extractGnomadGnocchiField(a, field)
 	}
+	if a := xref.GetRepeat(); a != nil {
+		return extractRepeatField(a, field)
+	}
 	if a := xref.GetGtopdb(); a != nil {
 		return extractGtopdbField(a, field)
 	}
@@ -3195,6 +3198,28 @@ func extractJasparField(a *pbuf.JasparAttr, field string) string {
 		return a.Species
 	case "version":
 		return fmt.Sprintf("%d", a.Version)
+	default:
+		return ""
+	}
+}
+
+// extractRepeatField extracts a field from RepeatAttr
+func extractRepeatField(a *pbuf.RepeatAttr, field string) string {
+	switch field {
+	case "chromosome":
+		return a.Chromosome
+	case "start":
+		return fmt.Sprintf("%d", a.Start)
+	case "end":
+		return fmt.Sprintf("%d", a.End)
+	case "repeat_type":
+		return a.RepeatType
+	case "repeat_class":
+		return a.RepeatClass
+	case "repeat_name":
+		return a.RepeatName
+	case "repeat_family":
+		return a.RepeatFamily
 	default:
 		return ""
 	}

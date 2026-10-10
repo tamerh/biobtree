@@ -3019,6 +3019,21 @@ message GnomadGnocchiAttr {
   string id = 100; // transient - populated at runtime from Xref.Identifier
 }
 
+// Genomic repeats / low-complexity / segmental-duplication regions (UCSC hg38:
+// Dfam-based rmskOutCurrent, simpleRepeat/TRF, genomicSuperDups). Gives ClinVar
+// Microsatellite-type and other repeat-region variants a repeat annotation.
+// Interval-indexed.
+message RepeatAttr {
+  string chromosome = 1;
+  int32 start = 2;
+  int32 end = 3;
+  string repeat_type = 4;         // repeatmasker | tandem_repeat | segmental_dup
+  string repeat_class = 5;        // RepeatMasker class (Simple_repeat, Satellite, SINE, LINE, LTR, ...) or type
+  string repeat_name = 6;         // repeat name / TRF motif / partner region
+  string repeat_family = 7;       // RepeatMasker family (where applicable)
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
 // ============================================================================
 // GtoPdb - IUPHAR/BPS Guide to Pharmacology
 // Expert-curated database of drug targets, ligands, and their interactions

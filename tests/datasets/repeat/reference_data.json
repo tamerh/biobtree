@@ -1,0 +1,8 @@
+{
+  "dataset": "repeat",
+  "dataset_id": 817,
+  "description": "UCSC hg38 repeat regions (Dfam rmskOutCurrent, simpleRepeat/TRF, genomicSuperDups). Interval-indexed; a variant chr:pos resolves to overlapping repeats. Test build = first 2000 rows per track.",
+  "positions": [
+    { "chr": "1", "pos": 10200, "expect_id": "RM:CHR1:10000-10468", "expect_type": "repeatmasker" }
+  ]
+}

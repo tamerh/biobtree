@@ -328,6 +328,7 @@ Available datasets:
         'gtopdb': datasets_dir / "gtopdb" / "test_gtopdb.py",
         'gnomad_rmc': datasets_dir / "gnomad_rmc" / "test_gnomad_rmc.py",
         'gnomad_gnocchi': datasets_dir / "gnomad_gnocchi" / "test_gnomad_gnocchi.py",
+        'repeat': datasets_dir / "repeat" / "test_repeat.py",
         'wikidata_symptom': datasets_dir / "wikidata_symptom" / "test_wikidata_symptom.py",
     }
 

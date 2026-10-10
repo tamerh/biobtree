@@ -1353,6 +1353,12 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			d.datasets2 = append(d.datasets2, data)
 			go gg.update()
 			break
+		case "repeat":
+			d.wg.Add(1)
+			rp := repeat{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go rp.update()
+			break
 		default:
 			log.Fatal("ERROR Unrecognized dataset ->" + data)
 		}

@@ -144,6 +144,7 @@ DATASETS=(
     encode_ccre
     gnomad_rmc
     gnomad_gnocchi
+    repeat
     corum
     cellphonedb
     bgee

@@ -1901,6 +1901,21 @@
     "test_entries_count": "2000",
     "bucketMethod": "alphanum"
   },
+  "jaspar_tfbs": {
+    "id": "819",
+    "name": "JASPAR TFBS",
+    "data_version": "Ensembl Regulatory Build motif features (GRCh38, JASPAR motifs within regulatory features)",
+    "aliases": "motif feature,TF binding site,regulatory motif,ensembl motif feature,tfbs prediction",
+    "url": "https://www.ensembl.org/Homo_sapiens/Regulation/Summary?rf=£{id}",
+    "path": "https://ftp.ensembl.org/pub/release-114/regulation/homo_sapiens/GRCh38/annotation/Homo_sapiens.GRCh38.motif_features.v114.gff3.gz",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "chromosome,start,end,score,strand,binding_matrix_id,[]transcription_factors",
+    "compact_fields": "score,binding_matrix_id,transcription_factors",
+    "intervalIndex": "yes",
+    "test_entries_count": "2000",
+    "bucketMethod": "alphanum"
+  },
   "cellosaurus": {
     "id": "757",
     "name": "Cellosaurus",

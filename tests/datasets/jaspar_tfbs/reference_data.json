@@ -1,0 +1,10 @@
+{
+  "dataset": "jaspar_tfbs",
+  "dataset_id": 819,
+  "description": "Ensembl Regulatory Build TF binding-site motif features (JASPAR motifs within regulatory features). Interval dataset keyed by motif id (ENSM...), queryable by variant position via >>jaspar_tfbs. Hand-crafted fixture (tests/datasets/jaspar_tfbs/jaspar_tfbs_fixture.gff3), NOT real Ensembl data.",
+  "positions": [
+    {"chr": "7", "pos": 5527155, "expect_id": "ENSM00000000101", "expect_tf": "HNF4A", "expect_matrix": "ENSPFM0290", "score": 9.12, "note": "inside 5527151-5527164"},
+    {"chr": "11", "pos": 5280610, "expect_id": "ENSM00000000103", "expect_tf": "GATA1", "expect_matrix": "ENSPFM0155", "score": 12.80, "note": "inside 5280600-5280617, high score"},
+    {"chr": "17", "pos": 43045715, "expect_id": "ENSM00000000104", "expect_tf": "SP1", "expect_matrix": "ENSPFM0001", "score": 3.07, "note": "inside 43045710-43045723, low score"}
+  ]
+}

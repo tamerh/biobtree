@@ -36,6 +36,7 @@ Protein sequences, structures, domains, and features.
 | conservation | Per-position evolutionary conservation (phyloP / GERP / phastCons), keyed chr:pos; UCSC+GERP primary sources | [README](conservation.md) |
 | revel | REVEL ensemble missense pathogenicity (0–1), keyed chr:pos:ref:alt; ClinGen PP3/BP4 calibrated | [README](revel.md) |
 | cadd | CADD genome-wide deleteriousness (PHRED C-score), keyed chr:pos:ref:alt; own ~350G federation, direct-lookup | [README](cadd.md) |
+| jaspar_tfbs | JASPAR TF binding-site motif features (Ensembl Regulatory Build), interval-queryable by variant position; TF→hgnc | [README](jaspar_tfbs.md) |
 | saprot | SaProt structure-aware protein-LM variant effect (LLR), keyed uniprot:protein_variant; unsupervised, in-house/export-clean | [README](saprot.md) |
 | esm1b | ESM1b protein-LM variant effect (LLR), keyed uniprot:protein_variant — DEACTIVATED (superseded by SaProt) | [README](esm1b.md) |
 | mavedb | MaveDB experimental functional-assay scores (deep mutational scanning; ACMG PS3/BS3) | [README](mavedb.md) |

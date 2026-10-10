@@ -1640,6 +1640,11 @@ func (s *Service) execCelGo(query *query.Query, targetXref *pbuf.Xref) (bool, er
 			attr.Id = id
 			evalMap["encode_ccre"] = attr
 		}
+	case "jaspar_tfbs":
+		if attr := targetXref.GetJasparTfbs(); attr != nil {
+			attr.Id = id
+			evalMap["jaspar_tfbs"] = attr
+		}
 	case "signor":
 		if attr := targetXref.GetSignor(); attr != nil {
 			attr.Id = id
@@ -1816,6 +1821,9 @@ func intervalOverlap(x *pbuf.Xref, chr string, pos int64) bool {
 		cchr, cstart, cend = a.Chromosome, int64(a.Start), int64(a.End)
 	case x.GetFantom5Promoter() != nil:
 		a := x.GetFantom5Promoter()
+		cchr, cstart, cend = a.Chromosome, int64(a.Start), int64(a.End)
+	case x.GetJasparTfbs() != nil:
+		a := x.GetJasparTfbs()
 		cchr, cstart, cend = a.Chromosome, int64(a.Start), int64(a.End)
 	default:
 		return false

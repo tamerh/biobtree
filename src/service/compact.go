@@ -335,6 +335,9 @@ func extractField(xref *pbuf.Xref, field string) string {
 	if a := xref.GetCadd(); a != nil {
 		return extractCaddField(a, field)
 	}
+	if a := xref.GetJasparTfbs(); a != nil {
+		return extractJasparTfbsField(a, field)
+	}
 	if a := xref.GetEsm1B(); a != nil {
 		return extractEsm1bField(a, field)
 	}
@@ -2516,6 +2519,28 @@ func extractCaddField(a *pbuf.CaddAttr, field string) string {
 	switch field {
 	case "phred":
 		return a.Phred
+	}
+	return ""
+}
+
+// extractJasparTfbsField extracts a field from JasparTfbsAttr (Ensembl
+// Regulatory Build TF binding-site motif feature).
+func extractJasparTfbsField(a *pbuf.JasparTfbsAttr, field string) string {
+	switch field {
+	case "chromosome":
+		return a.Chromosome
+	case "start":
+		return fmt.Sprintf("%d", a.Start)
+	case "end":
+		return fmt.Sprintf("%d", a.End)
+	case "score":
+		return a.Score
+	case "strand":
+		return a.Strand
+	case "binding_matrix_id":
+		return a.BindingMatrixId
+	case "transcription_factors":
+		return strings.Join(a.TranscriptionFactors, ",")
 	}
 	return ""
 }

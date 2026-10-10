@@ -221,6 +221,7 @@ message Xref {
     RepeatAttr repeat=818;
     PangolinAttr pangolin=819;
     CaddAttr cadd=820;
+    JasparTfbsAttr jaspar_tfbs=821;
     SaprotAttr saprot=815;
 
   }

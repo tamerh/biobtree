@@ -144,6 +144,7 @@ DATASETS=(
     signor
     collectri
     jaspar
+    jaspar_tfbs
     encode_ccre
     gnomad_rmc
     gnomad_gnocchi

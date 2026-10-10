@@ -3074,6 +3074,21 @@ message CaddAttr {
   string id = 100;       // transient = chr:pos:ref:alt (coords reconstructed from the key)
 }
 
+// TF binding-site motif feature from the Ensembl Regulatory Build (JASPAR motifs
+// mapped only within regulatory features — the scoped alternative to the 177GB
+// genome-wide scan). Interval dataset (chr/start/end), queryable by variant
+// position via /ws/map; links to the jaspar matrix and to each TF's hgnc gene.
+message JasparTfbsAttr {
+  string chromosome = 1;
+  int32 start = 2;
+  int32 end = 3;
+  string score = 4;                         // Ensembl motif score (string: a meaningful 0 is kept)
+  string strand = 5;
+  string binding_matrix_id = 6;             // Ensembl PFM id (ENSPFM...) -> jaspar matrix
+  repeated string transcription_factors = 7; // TF gene symbols (-> hgnc)
+  string id = 100;                          // transient - populated at runtime from Xref.Identifier
+}
+
 // ============================================================================
 // GtoPdb - IUPHAR/BPS Guide to Pharmacology
 // Expert-curated database of drug targets, ligands, and their interactions

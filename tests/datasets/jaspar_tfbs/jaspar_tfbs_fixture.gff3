@@ -1,0 +1,7 @@
+##gff-version 3
+##hand-crafted test fixture (NOT real Ensembl motif_features data)
+7	Ensembl	TF_binding_site	5527151	5527164	9.12	+	.	ID=ENSM00000000101;binding_matrix_id=ENSPFM0290;transcription_factor=HNF4A,NR2F1,RXRA
+7	Ensembl	TF_binding_site	5530601	5530614	6.44	-	.	ID=ENSM00000000102;binding_matrix_id=ENSPFM0012;transcription_factor=CTCF
+11	Ensembl	TF_binding_site	5280600	5280617	12.80	+	.	ID=ENSM00000000103;binding_matrix_id=ENSPFM0155;transcription_factor=GATA1,GATA2
+17	Ensembl	TF_binding_site	43045710	43045723	3.07	-	.	ID=ENSM00000000104;binding_matrix_id=ENSPFM0001;transcription_factor=SP1
+X	31224680	31224693	.	.	.	.	.	malformed_row_should_be_skipped

@@ -838,7 +838,7 @@
     "path": "derived:ensembl",
     "url": "https://www.ensembl.org/Multi/Search/Results?q=£{id};site=ensembl_all",
     "hasFilter": "yes",
-    "attrs": "start,end,strand,seq_region,frame",
+    "attrs": "start,end,strand,seq_region,frame,rank",
     "compact_fields": "start,end,strand,seq_region,frame"
   },
   "ortholog": {

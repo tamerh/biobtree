@@ -330,6 +330,7 @@ func (e *ensembl) update() {
 			var currTranscript *pbuf.EnsemblAttr
 			var currTranscriptID string
 			var currGeneID string
+			var cdsRank int32 // per-transcript CDS segment counter (GFF3 order)
 
 		scanLoop:
 			for scanner.Scan() {
@@ -461,6 +462,7 @@ func (e *ensembl) update() {
 						}
 
 						currTranscript = &pbuf.EnsemblAttr{}
+						cdsRank = 0 // reset CDS segment counter for the new transcript
 
 						if _, ok := sourceMap[fields[1]]; ok {
 							currTranscript.Source = sourceMap[fields[1]]
@@ -543,10 +545,24 @@ func (e *ensembl) update() {
 							}
 						}
 
-						b, _ := ffjson.Marshal(attr)
-						e.d.addProp3(idAttr[1], ensemblProteinID, b)
+						// Every CDS segment of a transcript shares one ID=CDS:ENSP
+						// in the GFF3; keying by that bare ENSP collapsed the whole
+						// CDS to a single surviving block. Key each segment by
+						// ENSP:start and carry a per-transcript rank so the full
+						// CDS model is retrievable via >>transcript>>cds. The ENSP
+						// stays the key prefix (and the eprotein edge below) so the
+						// protein is still identifiable.
+						ensp := idAttr[1]
+						cdsRank++
+						attr.Rank = cdsRank
+						segKey := ensp + ":" + fields[3]
 
-						e.d.addXref(currTranscriptID, ensemblTranscriptID, idAttr[1], "eprotein", false)
+						b, _ := ffjson.Marshal(attr)
+						e.d.addProp3(segKey, ensemblProteinID, b)
+
+						// transcript -> each CDS segment, so >>transcript>>cds
+						// returns the full ordered model (ENSP is the key prefix).
+						e.d.addXref(currTranscriptID, ensemblTranscriptID, segKey, "eprotein", false)
 
 					}
 				} else if fields[2] == "exon" {

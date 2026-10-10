@@ -10329,6 +10329,18 @@
         "MLH1"
       ],
       "should_fail": []
+    },
+    {
+      "category": "ensembl_structure",
+      "name": "Transcript to full CDS model",
+      "query": ">>hgnc>>ensembl>>transcript>>cds",
+      "why": "CDS segments are now keyed individually (ENSP:start) so the full multi-exon CDS model is retrievable, not one collapsed block (Sugi ask #8)",
+      "should_pass": [
+        "BRCA1",
+        "TP53",
+        "MLH1"
+      ],
+      "should_fail": []
     }
   ]
 }

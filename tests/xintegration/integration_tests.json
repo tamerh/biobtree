@@ -117,7 +117,8 @@
     "faers": "FAERS (openFDA FDA Adverse Event Reporting System), master/child. faers MASTER (id 802): one per drug, total_reports/distinct_reactions/serious_reports, the single chembl_molecule/pubchem normalization node. faers_reaction CHILD (id 804): one per (drug,reaction) co-occurrence with PRR disproportionality signal, linked to its master (most-reported first). Tests text search by drug name, compound>>faers and the full compound>>faers>>faers_reaction chain, and CEL filters on report_count/prr (on the child). NOTE: co-occurrence not causation; reactions are MedDRA PT strings only; individual reports NOT stored.",
     "panelapp": "Genomics England PanelApp clinical gene panels (CC BY 4.0), master/child. panelapp MASTER (id 805): one per panel (name/disease_group/version/number_of_genes). panelapp_gene CHILD (id 806): one per (panel,gene) with green/amber confidence + mode_of_inheritance, linked to its master and edged to hgnc/ensembl/mim/mondo. Only green (3) + amber (2) genes ingested. Tests gene symbol >>panelapp_gene, the panel >>panelapp>>panelapp_gene>>hgnc chain, and gene >>panelapp_gene>>mondo.",
     "disease_symptoms": "Disease to symptom/sign mapping via Wikidata P780 (wikidata_symptom). Common-disease symptoms gated to Mondo/DOID-mapped diseases, complementing HPO's rare-disease-skewed phenotype annotations.",
-    "ensembl_structure": "Ensembl transcript/exon structural fields (MANE flag, tsl, exon rank/phase) for variant annotation"
+    "ensembl_structure": "Ensembl transcript/exon structural fields (MANE flag, tsl, exon rank/phase) for variant annotation",
+    "interval_lookup": "Point-in-interval lookup: a variant coordinate (chr:pos or chr:pos:ref:alt) >> an interval-indexed dataset returns the features covering the position (Sugi #9/#10)."
   },
   "tests": [
     {
@@ -10341,6 +10342,21 @@
         "MLH1"
       ],
       "should_fail": []
+    },
+    {
+      "category": "interval_lookup",
+      "name": "Coordinate to overlapping cCRE",
+      "query": ">>encode_ccre",
+      "why": "A variant position maps to the ENCODE cCREs covering it (new point-in-interval primitive)",
+      "should_pass": [
+        "1:10100",
+        "1:10033",
+        "chr1:10100",
+        "1:10100:C:A"
+      ],
+      "should_fail": [
+        "1:10251"
+      ]
     }
   ]
 }

@@ -199,6 +199,13 @@ func (s *Service) MapFilterWithLimit(ids []string, mapFilterQuery, page string, 
 		return nil, err
 	}
 
+	// Point-in-interval query: a coordinate input (chr:pos or chr:pos:ref:alt)
+	// into an interval-indexed dataset (intervalIndex=yes) returns the intervals
+	// that COVER the position. Served through this same endpoint (no new API).
+	if target, ok := s.intervalQueryTarget(queries, ids); ok {
+		return s.intervalMapFilter(ids, target, maxResults), nil
+	}
+
 	newRootPage, pages, err := s.parsePagingKey(page)
 
 	if err != nil {
@@ -1679,4 +1686,150 @@ func (s *Service) execCelGo(query *query.Query, targetXref *pbuf.Xref) (bool, er
 	}
 	return false, nil
 
+}
+
+// --- Point-in-interval query (Sugi #9/#10) -------------------------------
+// A coordinate input into an interval-indexed dataset returns the intervals
+// covering the position, reusing the bin index written by update.addInterval.
+// These constants MUST match update.IntervalBinSize / IntervalBinKey.
+const svcIntervalBinSize int64 = 16384
+
+// svcNormalizeChr mirrors update.NormalizeChr (strip a leading chr/Chr/CHR).
+func svcNormalizeChr(chr string) string {
+	if len(chr) > 3 {
+		p := strings.ToLower(chr[:3])
+		if p == "chr" {
+			return chr[3:]
+		}
+	}
+	return chr
+}
+
+// isChromosomeToken reports whether s is a human chromosome name (1-22, X, Y,
+// MT, M). This both validates coordinate inputs and prevents the BIN:<chr>:<bin>
+// keyword (chr token "BIN") from being re-parsed as a coordinate in the
+// recursive sub-call.
+func isChromosomeToken(s string) bool {
+	switch strings.ToUpper(s) {
+	case "X", "Y", "MT", "M":
+		return true
+	}
+	if len(s) < 1 || len(s) > 2 {
+		return false
+	}
+	for _, c := range s {
+		if c < '0' || c > '9' {
+			return false
+		}
+	}
+	return true
+}
+
+// parseCoordinate extracts (chr, pos) from "chr:pos" or a variant key
+// "chr:pos:ref:alt". Returns ok=false for non-coordinate ids (gene symbols,
+// accessions, the BIN keyword, ...).
+func parseCoordinate(id string) (string, int64, bool) {
+	parts := strings.Split(strings.TrimSpace(id), ":")
+	if len(parts) < 2 {
+		return "", 0, false
+	}
+	chr := svcNormalizeChr(parts[0])
+	if !isChromosomeToken(chr) {
+		return "", 0, false
+	}
+	pos, err := strconv.ParseInt(parts[1], 10, 64)
+	if err != nil || pos < 0 {
+		return "", 0, false
+	}
+	return chr, pos, true
+}
+
+// intervalQueryTarget returns the target dataset when this is a single-hop
+// interval query: one map hop into an intervalIndex=yes dataset, and every id a
+// coordinate.
+func (s *Service) intervalQueryTarget(queries []query.Query, ids []string) (string, bool) {
+	if len(queries) != 1 {
+		return "", false
+	}
+	target := queries[0].MapDataset
+	if target == "" || config.Dataconf[target]["intervalIndex"] != "yes" {
+		return "", false
+	}
+	if len(queries[0].Filter) > 0 {
+		return "", false // filters on the interval hop not supported yet
+	}
+	if len(ids) == 0 {
+		return "", false
+	}
+	for _, id := range ids {
+		if _, _, ok := parseCoordinate(id); !ok {
+			return "", false
+		}
+	}
+	return target, true
+}
+
+// intervalOverlap reports whether the interval entry x covers position pos on chr.
+func intervalOverlap(x *pbuf.Xref, chr string, pos int64) bool {
+	var cchr string
+	var cstart, cend int64
+	switch {
+	case x.GetEncodeCcre() != nil:
+		a := x.GetEncodeCcre()
+		cchr, cstart, cend = a.Chromosome, a.Start, a.End
+	case x.GetFantom5Enhancer() != nil:
+		a := x.GetFantom5Enhancer()
+		cchr, cstart, cend = a.Chromosome, int64(a.Start), int64(a.End)
+	case x.GetFantom5Promoter() != nil:
+		a := x.GetFantom5Promoter()
+		cchr, cstart, cend = a.Chromosome, int64(a.Start), int64(a.End)
+	default:
+		return false
+	}
+	return svcNormalizeChr(cchr) == chr && cstart <= pos && pos <= cend
+}
+
+// intervalMapFilter resolves each coordinate id to the intervals covering it:
+// compute bin(pos), resolve the BIN keyword to candidate intervals (reusing the
+// normal map machinery), then keep those that actually span pos. Returns the
+// standard MapFilterResult (source = the coordinate, targets = covering intervals).
+func (s *Service) intervalMapFilter(ids []string, target string, maxResults int) *pbuf.MapFilterResult {
+	result := &pbuf.MapFilterResult{}
+	targetID := config.DataconfIDStringToInt[target]
+
+	for _, id := range ids {
+		chr, pos, ok := parseCoordinate(id)
+		if !ok {
+			continue
+		}
+		bin := pos / svcIntervalBinSize
+		binKey := "BIN:" + chr + ":" + strconv.FormatInt(bin, 10)
+
+		mf := &pbuf.MapFilter{Source: &pbuf.Xref{Identifier: strings.ToUpper(id)}}
+
+		sub, err := s.MapFilterWithLimit([]string{binKey}, ">>"+target, "", maxResults)
+		if err == nil && sub != nil {
+			seen := map[string]bool{}
+			add := func(x *pbuf.Xref) {
+				if x == nil || x.Dataset != targetID || seen[x.Identifier] {
+					return
+				}
+				if intervalOverlap(x, chr, pos) {
+					seen[x.Identifier] = true
+					mf.Targets = append(mf.Targets, x)
+				}
+			}
+			for _, r := range sub.Results {
+				add(r.Source)
+				for _, t := range r.Targets {
+					add(t)
+				}
+			}
+		}
+		result.Results = append(result.Results, mf)
+	}
+	if len(result.Results) == 0 {
+		result.Message = "No results found"
+	}
+	return result
 }

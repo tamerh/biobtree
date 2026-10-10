@@ -2419,6 +2419,11 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)
 				xref.Attributes = &pbuf.Xref_GnomadRmc{attr}
+			case "gnomad_gnocchi":
+				attr := &pbuf.GnomadGnocchiAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_GnomadGnocchi{attr}
 			case "msigdb":
 				attr := &pbuf.MsigdbAttr{}
 				barr := []byte((*kvProp[k])[0].value)
@@ -3130,6 +3135,11 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)
 				xref.Attributes = &pbuf.Xref_GnomadRmc{attr}
+			case "gnomad_gnocchi":
+				attr := &pbuf.GnomadGnocchiAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_GnomadGnocchi{attr}
 			}
 		}
 

@@ -1842,6 +1842,20 @@
     "test_entries_count": "1000",
     "bucketMethod": "alphanum"
   },
+  "gnomad_gnocchi": {
+    "id": "816",
+    "name": "gnomAD Non-coding Constraint (Gnocchi)",
+    "aliases": "gnomAD Gnocchi,Gnocchi,non-coding constraint,genomic constraint,noncoding constraint",
+    "url": "https://gnomad.broadinstitute.org/region/£{id}",
+    "path": "https://storage.googleapis.com/gcp-public-data--gnomad/release/3.1/secondary_analyses/genomic_constraint/constraint_z_genome_1kb.qc.download.txt.gz",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "chromosome,start,end,z,oe,obs,exp,possible",
+    "compact_fields": "z,oe",
+    "intervalIndex": "yes",
+    "test_entries_count": "2000",
+    "bucketMethod": "alphanum"
+  },
   "cellosaurus": {
     "id": "757",
     "name": "Cellosaurus",

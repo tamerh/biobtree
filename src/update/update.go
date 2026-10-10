@@ -1347,6 +1347,12 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			d.datasets2 = append(d.datasets2, data)
 			go gr.update()
 			break
+		case "gnomad_gnocchi":
+			d.wg.Add(1)
+			gg := gnomadGnocchi{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go gg.update()
+			break
 		default:
 			log.Fatal("ERROR Unrecognized dataset ->" + data)
 		}

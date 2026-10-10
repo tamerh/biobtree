@@ -419,6 +419,9 @@ func extractField(xref *pbuf.Xref, field string) string {
 	if a := xref.GetGnomadRmc(); a != nil {
 		return extractGnomadRmcField(a, field)
 	}
+	if a := xref.GetGnomadGnocchi(); a != nil {
+		return extractGnomadGnocchiField(a, field)
+	}
 	if a := xref.GetGtopdb(); a != nil {
 		return extractGtopdbField(a, field)
 	}
@@ -3192,6 +3195,30 @@ func extractJasparField(a *pbuf.JasparAttr, field string) string {
 		return a.Species
 	case "version":
 		return fmt.Sprintf("%d", a.Version)
+	default:
+		return ""
+	}
+}
+
+// extractGnomadGnocchiField extracts a field from GnomadGnocchiAttr
+func extractGnomadGnocchiField(a *pbuf.GnomadGnocchiAttr, field string) string {
+	switch field {
+	case "chromosome":
+		return a.Chromosome
+	case "start":
+		return fmt.Sprintf("%d", a.Start)
+	case "end":
+		return fmt.Sprintf("%d", a.End)
+	case "z":
+		return a.Z
+	case "oe":
+		return a.Oe
+	case "obs":
+		return a.Obs
+	case "exp":
+		return a.Exp
+	case "possible":
+		return a.Possible
 	default:
 		return ""
 	}

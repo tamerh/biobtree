@@ -3003,6 +3003,22 @@ message GnomadRmcAttr {
   string id = 100; // transient - populated at runtime from Xref.Identifier
 }
 
+// gnomAD non-coding genomic constraint (Gnocchi, Chen et al. Nature 2024):
+// genome-wide 1 kb windows with a depletion-of-variation Z-score (higher = more
+// constrained). The only per-position constraint signal for intronic/UTR/
+// intergenic variants. Interval-indexed. Metrics are strings for full fidelity.
+message GnomadGnocchiAttr {
+  string chromosome = 1;
+  int32 start = 2;                // window start
+  int32 end = 3;                  // window end (1 kb)
+  string z = 4;                   // Gnocchi constraint Z-score (the metric)
+  string oe = 5;                  // observed/expected
+  string obs = 6;                 // observed variants
+  string exp = 7;                 // expected variants
+  string possible = 8;            // possible variants in the window
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
 // ============================================================================
 // GtoPdb - IUPHAR/BPS Guide to Pharmacology
 // Expert-curated database of drug targets, ligands, and their interactions

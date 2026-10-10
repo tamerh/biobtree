@@ -1,0 +1,8 @@
+{
+  "dataset": "gnomad_gnocchi",
+  "dataset_id": 816,
+  "description": "gnomAD non-coding genomic constraint (Gnocchi), 1kb windows with Z-score. Interval-indexed; a variant chr:pos resolves to its covering window. Built from constraint_z_genome_1kb.qc (CC0, hg38). Test build is the first 2000 windows.",
+  "windows": [
+    { "id": "chr1-786000-787000", "chr": "1", "pos": 786500, "z": "4.388539137502542" }
+  ]
+}

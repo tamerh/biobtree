@@ -143,6 +143,7 @@ DATASETS=(
     jaspar
     encode_ccre
     gnomad_rmc
+    gnomad_gnocchi
     corum
     cellphonedb
     bgee

@@ -327,6 +327,7 @@ Available datasets:
         'fantom5': datasets_dir / "fantom5" / "test_fantom5.py",
         'gtopdb': datasets_dir / "gtopdb" / "test_gtopdb.py",
         'gnomad_rmc': datasets_dir / "gnomad_rmc" / "test_gnomad_rmc.py",
+        'gnomad_gnocchi': datasets_dir / "gnomad_gnocchi" / "test_gnomad_gnocchi.py",
         'wikidata_symptom': datasets_dir / "wikidata_symptom" / "test_wikidata_symptom.py",
     }
 

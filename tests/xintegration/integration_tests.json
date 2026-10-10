@@ -10371,6 +10371,20 @@
       "should_fail": [
         "1:1"
       ]
+    },
+    {
+      "category": "regional_constraint",
+      "name": "Variant to non-coding constraint window",
+      "query": ">>gnomad_gnocchi",
+      "why": "A variant position maps to its Gnocchi non-coding constraint window (new dataset #17)",
+      "should_pass": [
+        "1:783500",
+        "1:786500",
+        "1:786500:A:G"
+      ],
+      "should_fail": [
+        "1:1"
+      ]
     }
   ]
 }

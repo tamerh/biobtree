@@ -217,6 +217,7 @@ message Xref {
     RevelAttr revel=813;
     Esm1BAttr esm1b=814;
     GnomadRmcAttr gnomad_rmc=816;
+    GnomadGnocchiAttr gnomad_gnocchi=817;
     SaprotAttr saprot=815;
 
   }

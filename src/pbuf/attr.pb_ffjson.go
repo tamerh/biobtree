@@ -58404,6 +58404,42 @@ func (j *EnsemblAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.FormatBits2(buf, uint64(j.Frame), 10, j.Frame < 0)
 		buf.WriteByte(',')
 	}
+	if j.Rank != 0 {
+		buf.WriteString(`"rank":`)
+		fflib.FormatBits2(buf, uint64(j.Rank), 10, j.Rank < 0)
+		buf.WriteByte(',')
+	}
+	if len(j.Phase) != 0 {
+		buf.WriteString(`"phase":`)
+		fflib.WriteJsonString(buf, string(j.Phase))
+		buf.WriteByte(',')
+	}
+	if len(j.EndPhase) != 0 {
+		buf.WriteString(`"end_phase":`)
+		fflib.WriteJsonString(buf, string(j.EndPhase))
+		buf.WriteByte(',')
+	}
+	if j.ManeSelect != false {
+		if j.ManeSelect {
+			buf.WriteString(`"mane_select":true`)
+		} else {
+			buf.WriteString(`"mane_select":false`)
+		}
+		buf.WriteByte(',')
+	}
+	if j.ManePlusClinical != false {
+		if j.ManePlusClinical {
+			buf.WriteString(`"mane_plus_clinical":true`)
+		} else {
+			buf.WriteString(`"mane_plus_clinical":false`)
+		}
+		buf.WriteByte(',')
+	}
+	if len(j.Tsl) != 0 {
+		buf.WriteString(`"tsl":`)
+		fflib.WriteJsonString(buf, string(j.Tsl))
+		buf.WriteByte(',')
+	}
 	if len(j.Id) != 0 {
 		buf.WriteString(`"id":`)
 		fflib.WriteJsonString(buf, string(j.Id))
@@ -58450,6 +58486,18 @@ const (
 
 	ffjtEnsemblAttrFrame
 
+	ffjtEnsemblAttrRank
+
+	ffjtEnsemblAttrPhase
+
+	ffjtEnsemblAttrEndPhase
+
+	ffjtEnsemblAttrManeSelect
+
+	ffjtEnsemblAttrManePlusClinical
+
+	ffjtEnsemblAttrTsl
+
 	ffjtEnsemblAttrId
 )
 
@@ -58484,6 +58532,18 @@ var ffjKeyEnsemblAttrVersion = []byte("version")
 var ffjKeyEnsemblAttrSource = []byte("source")
 
 var ffjKeyEnsemblAttrFrame = []byte("frame")
+
+var ffjKeyEnsemblAttrRank = []byte("rank")
+
+var ffjKeyEnsemblAttrPhase = []byte("phase")
+
+var ffjKeyEnsemblAttrEndPhase = []byte("end_phase")
+
+var ffjKeyEnsemblAttrManeSelect = []byte("mane_select")
+
+var ffjKeyEnsemblAttrManePlusClinical = []byte("mane_plus_clinical")
+
+var ffjKeyEnsemblAttrTsl = []byte("tsl")
 
 var ffjKeyEnsemblAttrId = []byte("id")
 
@@ -58575,6 +58635,11 @@ mainparse:
 						currentKey = ffjtEnsemblAttrEnd
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyEnsemblAttrEndPhase, kn) {
+						currentKey = ffjtEnsemblAttrEndPhase
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 'f':
@@ -58601,10 +58666,39 @@ mainparse:
 						goto mainparse
 					}
 
+				case 'm':
+
+					if bytes.Equal(ffjKeyEnsemblAttrManeSelect, kn) {
+						currentKey = ffjtEnsemblAttrManeSelect
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyEnsemblAttrManePlusClinical, kn) {
+						currentKey = ffjtEnsemblAttrManePlusClinical
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 'n':
 
 					if bytes.Equal(ffjKeyEnsemblAttrName, kn) {
 						currentKey = ffjtEnsemblAttrName
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'p':
+
+					if bytes.Equal(ffjKeyEnsemblAttrPhase, kn) {
+						currentKey = ffjtEnsemblAttrPhase
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'r':
+
+					if bytes.Equal(ffjKeyEnsemblAttrRank, kn) {
+						currentKey = ffjtEnsemblAttrRank
 						state = fflib.FFParse_want_colon
 						goto mainparse
 					}
@@ -58628,6 +58722,14 @@ mainparse:
 
 					} else if bytes.Equal(ffjKeyEnsemblAttrSource, kn) {
 						currentKey = ffjtEnsemblAttrSource
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 't':
+
+					if bytes.Equal(ffjKeyEnsemblAttrTsl, kn) {
+						currentKey = ffjtEnsemblAttrTsl
 						state = fflib.FFParse_want_colon
 						goto mainparse
 					}
@@ -58667,6 +58769,42 @@ mainparse:
 
 				if fflib.SimpleLetterEqualFold(ffjKeyEnsemblAttrId, kn) {
 					currentKey = ffjtEnsemblAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyEnsemblAttrTsl, kn) {
+					currentKey = ffjtEnsemblAttrTsl
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyEnsemblAttrManePlusClinical, kn) {
+					currentKey = ffjtEnsemblAttrManePlusClinical
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyEnsemblAttrManeSelect, kn) {
+					currentKey = ffjtEnsemblAttrManeSelect
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyEnsemblAttrEndPhase, kn) {
+					currentKey = ffjtEnsemblAttrEndPhase
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyEnsemblAttrPhase, kn) {
+					currentKey = ffjtEnsemblAttrPhase
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyEnsemblAttrRank, kn) {
+					currentKey = ffjtEnsemblAttrRank
 					state = fflib.FFParse_want_colon
 					goto mainparse
 				}
@@ -58831,6 +58969,24 @@ mainparse:
 
 				case ffjtEnsemblAttrFrame:
 					goto handle_Frame
+
+				case ffjtEnsemblAttrRank:
+					goto handle_Rank
+
+				case ffjtEnsemblAttrPhase:
+					goto handle_Phase
+
+				case ffjtEnsemblAttrEndPhase:
+					goto handle_EndPhase
+
+				case ffjtEnsemblAttrManeSelect:
+					goto handle_ManeSelect
+
+				case ffjtEnsemblAttrManePlusClinical:
+					goto handle_ManePlusClinical
+
+				case ffjtEnsemblAttrTsl:
+					goto handle_Tsl
 
 				case ffjtEnsemblAttrId:
 					goto handle_Id
@@ -59294,6 +59450,184 @@ handle_Frame:
 			}
 
 			j.Frame = int32(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Rank:
+
+	/* handler: j.Rank type=int32 kind=int32 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for int32", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseInt(fs.Output.Bytes(), 10, 32)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.Rank = int32(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Phase:
+
+	/* handler: j.Phase type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Phase = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_EndPhase:
+
+	/* handler: j.EndPhase type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.EndPhase = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_ManeSelect:
+
+	/* handler: j.ManeSelect type=bool kind=bool quoted=false*/
+
+	{
+		if tok != fflib.FFTok_bool && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for bool", tok))
+		}
+	}
+
+	{
+		if tok == fflib.FFTok_null {
+
+		} else {
+			tmpb := fs.Output.Bytes()
+
+			if bytes.Compare([]byte{'t', 'r', 'u', 'e'}, tmpb) == 0 {
+
+				j.ManeSelect = true
+
+			} else if bytes.Compare([]byte{'f', 'a', 'l', 's', 'e'}, tmpb) == 0 {
+
+				j.ManeSelect = false
+
+			} else {
+				err = errors.New("unexpected bytes for true/false value")
+				return fs.WrapErr(err)
+			}
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_ManePlusClinical:
+
+	/* handler: j.ManePlusClinical type=bool kind=bool quoted=false*/
+
+	{
+		if tok != fflib.FFTok_bool && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for bool", tok))
+		}
+	}
+
+	{
+		if tok == fflib.FFTok_null {
+
+		} else {
+			tmpb := fs.Output.Bytes()
+
+			if bytes.Compare([]byte{'t', 'r', 'u', 'e'}, tmpb) == 0 {
+
+				j.ManePlusClinical = true
+
+			} else if bytes.Compare([]byte{'f', 'a', 'l', 's', 'e'}, tmpb) == 0 {
+
+				j.ManePlusClinical = false
+
+			} else {
+				err = errors.New("unexpected bytes for true/false value")
+				return fs.WrapErr(err)
+			}
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Tsl:
+
+	/* handler: j.Tsl type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Tsl = string(string(outBuf))
 
 		}
 	}

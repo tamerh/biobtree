@@ -116,7 +116,8 @@
     "drugcentral_drugs": "DrugCentral approved drugs: drug->target (MOA) and regulatory approval (FDA/EMA/PMDA)",
     "faers": "FAERS (openFDA FDA Adverse Event Reporting System), master/child. faers MASTER (id 802): one per drug, total_reports/distinct_reactions/serious_reports, the single chembl_molecule/pubchem normalization node. faers_reaction CHILD (id 804): one per (drug,reaction) co-occurrence with PRR disproportionality signal, linked to its master (most-reported first). Tests text search by drug name, compound>>faers and the full compound>>faers>>faers_reaction chain, and CEL filters on report_count/prr (on the child). NOTE: co-occurrence not causation; reactions are MedDRA PT strings only; individual reports NOT stored.",
     "panelapp": "Genomics England PanelApp clinical gene panels (CC BY 4.0), master/child. panelapp MASTER (id 805): one per panel (name/disease_group/version/number_of_genes). panelapp_gene CHILD (id 806): one per (panel,gene) with green/amber confidence + mode_of_inheritance, linked to its master and edged to hgnc/ensembl/mim/mondo. Only green (3) + amber (2) genes ingested. Tests gene symbol >>panelapp_gene, the panel >>panelapp>>panelapp_gene>>hgnc chain, and gene >>panelapp_gene>>mondo.",
-    "disease_symptoms": "Disease to symptom/sign mapping via Wikidata P780 (wikidata_symptom). Common-disease symptoms gated to Mondo/DOID-mapped diseases, complementing HPO's rare-disease-skewed phenotype annotations."
+    "disease_symptoms": "Disease to symptom/sign mapping via Wikidata P780 (wikidata_symptom). Common-disease symptoms gated to Mondo/DOID-mapped diseases, complementing HPO's rare-disease-skewed phenotype annotations.",
+    "ensembl_structure": "Ensembl transcript/exon structural fields (MANE flag, tsl, exon rank/phase) for variant annotation"
   },
   "tests": [
     {
@@ -10315,6 +10316,19 @@
           "description": "migraine should carry its Wikidata item as a wikidata xref"
         }
       ]
+    },
+    {
+      "category": "ensembl_structure",
+      "name": "Transcript MANE Select flag",
+      "query": ">>hgnc>>ensembl>>transcript[mane_select==true]",
+      "why": "Atlas needs the MANE Select transcript directly off `transcript`, not via the refseq[is_mane_select] bridge (Sugi ask #7)",
+      "should_pass": [
+        "BRCA1",
+        "TP53",
+        "EGFR",
+        "MLH1"
+      ],
+      "should_fail": []
     }
   ]
 }

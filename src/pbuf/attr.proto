@@ -78,6 +78,12 @@ message EnsemblAttr {
   int32 version =14;
   string source =15;
   int32 frame =16;
+  int32 rank =17;                 // exon: 1-based rank within the transcript (from GFF3 rank=)
+  string phase =18;               // exon: ensembl_phase (string so -1/0 are preserved)
+  string end_phase =19;           // exon: ensembl_end_phase
+  bool mane_select =20;           // transcript: MANE Select (from tag=MANE_Select)
+  bool mane_plus_clinical =21;    // transcript: MANE Plus Clinical
+  string tsl =22;                 // transcript: transcript_support_level (1-5 or NA)
   string id = 100; // transient - populated at runtime from Xref.Identifier
 }
 

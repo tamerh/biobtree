@@ -501,6 +501,21 @@ func (e *ensembl) update() {
 
 						}
 
+						// MANE flags + TSL. Ensembl GFF3 puts tags in a single
+						// comma-separated tag= value (e.g. "...,MANE_Select").
+						if tag := attrsMap["tag"]; tag != "" {
+							if strings.Contains(tag, "MANE_Select") {
+								currTranscript.ManeSelect = true
+							}
+							if strings.Contains(tag, "MANE_Plus_Clinical") {
+								currTranscript.ManePlusClinical = true
+							}
+						}
+						if tsl, ok := attrsMap["transcript_support_level"]; ok && tsl != "" {
+							// may be "NA (assigned to previous version 2)" — keep first token
+							currTranscript.Tsl = strings.Fields(tsl)[0]
+						}
+
 					case "CDS":
 
 						attr := pbuf.EnsemblAttr{}
@@ -556,6 +571,19 @@ func (e *ensembl) update() {
 						c, err = strconv.Atoi(fields[4])
 						if err == nil {
 							attr.End = int32(c)
+						}
+
+						// exon rank + phase (so rank need not be re-derived by sorting)
+						if r, ok := attrsMap["rank"]; ok {
+							if rn, rerr := strconv.Atoi(r); rerr == nil {
+								attr.Rank = int32(rn)
+							}
+						}
+						if p, ok := attrsMap["ensembl_phase"]; ok {
+							attr.Phase = p
+						}
+						if p, ok := attrsMap["ensembl_end_phase"]; ok {
+							attr.EndPhase = p
 						}
 
 						b, _ := ffjson.Marshal(attr)
@@ -616,169 +644,169 @@ func (e *ensembl) update() {
 		if config.IsTestMode() {
 		} else {
 
-		for _, paths := range e.jsonPaths {
+			for _, paths := range e.jsonPaths {
 
-			for _, path := range paths {
+				for _, path := range paths {
 
-				previous = 0
-				start = time.Now()
+					previous = 0
+					start = time.Now()
 
-				br, _, ftpFile, client, localFile, _, err := getDataReaderNew("ensembl", e.ftpAddress, "", path)
-				if err != nil {
-					log.Printf("Warning: Failed to retrieve JSON file at path %s: %v - skipping", path, err)
-					continue
-				}
+					br, _, ftpFile, client, localFile, _, err := getDataReaderNew("ensembl", e.ftpAddress, "", path)
+					if err != nil {
+						log.Printf("Warning: Failed to retrieve JSON file at path %s: %v - skipping", path, err)
+						continue
+					}
 
-				p := jsparser.NewJSONParser(br, "genes").SkipProps([]string{"lineage", "evidence", "coord_system", "sifts", "xrefs", "gene_tree_id", "orthology_type", "exons"})
+					p := jsparser.NewJSONParser(br, "genes").SkipProps([]string{"lineage", "evidence", "coord_system", "sifts", "xrefs", "gene_tree_id", "orthology_type", "exons"})
 
-				for j := range streamCheckedJSON(p, "ensembl") {
+					for j := range streamCheckedJSON(p, "ensembl") {
 
-					if j.ObjectVals["id"] != nil {
+						if j.ObjectVals["id"] != nil {
 
-						elapsed := int64(time.Since(start).Seconds())
-						if elapsed > previous+e.d.progInterval {
-							kbytesPerSecond := int64(p.TotalReadSize) / elapsed / 1024
-							previous = elapsed
-							e.d.progChan <- &progressInfo{dataset: e.source, currentKBPerSec: kbytesPerSecond}
-						}
+							elapsed := int64(time.Since(start).Seconds())
+							if elapsed > previous+e.d.progInterval {
+								kbytesPerSecond := int64(p.TotalReadSize) / elapsed / 1024
+								previous = elapsed
+								e.d.progChan <- &progressInfo{dataset: e.source, currentKBPerSec: kbytesPerSecond}
+							}
 
-						entryid := j.ObjectVals["id"].(string)
+							entryid := j.ObjectVals["id"].(string)
 
-						if j.ObjectVals["homologues"] != nil {
-							for _, val := range j.ObjectVals["homologues"].(*jsparser.JSON).ArrayVals {
-								if val.(*jsparser.JSON).ObjectVals["stable_id"] != nil {
-									stableID := val.(*jsparser.JSON).ObjectVals["stable_id"].(string)
-									if val.(*jsparser.JSON).ObjectVals["genome"] != nil && j.ObjectVals["genome"] != nil && val.(*jsparser.JSON).ObjectVals["genome"].(string) == j.ObjectVals["genome"].(string) {
-										// Paralogs are ENSG<->ENSG. We deliberately do NOT also project
-										// these into relatedentrez (which is entrez-keyed): doing so would
-										// require resolving BOTH this gene's and the paralog's entrez ids,
-										// but only this gene's "EntrezGene" xref is available in-record and
-										// the paralog's entrez id lives in a different (later/earlier) stream
-										// record. A correct join would need a full ENSG->entrez map built
-										// across the stream plus a second pass - a fragile cross-record join
-										// for partial coverage. Paralogs remain reachable as
-										// `entrez >> ensembl >> paralog`; route directly into relatedentrez
-										// later if/when a stable ENSG->entrez map is materialized. (change #6)
-										e.d.addXref2(entryid, fr, stableID, "paralog")
-										e.d.addXref2(stableID, paralogID, stableID, "ensembl")
-									} else {
-										if e.d.orthologsAllActive {
-											e.d.addXref2(entryid, fr, stableID, "ortholog")
-											e.d.addXref2(stableID, orthologID, stableID, "ensembl")
-										} else if e.d.orthologsActive && val.(*jsparser.JSON).ObjectVals["genome"] != nil {
-											if _, ok := e.orthologGenomes[val.(*jsparser.JSON).ObjectVals["genome"].(string)]; ok {
+							if j.ObjectVals["homologues"] != nil {
+								for _, val := range j.ObjectVals["homologues"].(*jsparser.JSON).ArrayVals {
+									if val.(*jsparser.JSON).ObjectVals["stable_id"] != nil {
+										stableID := val.(*jsparser.JSON).ObjectVals["stable_id"].(string)
+										if val.(*jsparser.JSON).ObjectVals["genome"] != nil && j.ObjectVals["genome"] != nil && val.(*jsparser.JSON).ObjectVals["genome"].(string) == j.ObjectVals["genome"].(string) {
+											// Paralogs are ENSG<->ENSG. We deliberately do NOT also project
+											// these into relatedentrez (which is entrez-keyed): doing so would
+											// require resolving BOTH this gene's and the paralog's entrez ids,
+											// but only this gene's "EntrezGene" xref is available in-record and
+											// the paralog's entrez id lives in a different (later/earlier) stream
+											// record. A correct join would need a full ENSG->entrez map built
+											// across the stream plus a second pass - a fragile cross-record join
+											// for partial coverage. Paralogs remain reachable as
+											// `entrez >> ensembl >> paralog`; route directly into relatedentrez
+											// later if/when a stable ENSG->entrez map is materialized. (change #6)
+											e.d.addXref2(entryid, fr, stableID, "paralog")
+											e.d.addXref2(stableID, paralogID, stableID, "ensembl")
+										} else {
+											if e.d.orthologsAllActive {
 												e.d.addXref2(entryid, fr, stableID, "ortholog")
 												e.d.addXref2(stableID, orthologID, stableID, "ensembl")
+											} else if e.d.orthologsActive && val.(*jsparser.JSON).ObjectVals["genome"] != nil {
+												if _, ok := e.orthologGenomes[val.(*jsparser.JSON).ObjectVals["genome"].(string)]; ok {
+													e.d.addXref2(entryid, fr, stableID, "ortholog")
+													e.d.addXref2(stableID, orthologID, stableID, "ensembl")
+												}
 											}
 										}
 									}
 								}
 							}
-						}
 
-						// maybe these values from configuration
-						e.xrefRefSeq(j, entryid, fr, "RefSeq_peptide")
-						e.xref(j, entryid, fr, "EntrezGene", "GeneID")
-						e.xref(j, entryid, fr, "Reactome", "Reactome")
-						e.xref(j, entryid, fr, "Uniprot/SPTREMBL", "uniprot")
-						e.xref(j, entryid, fr, "KEGG_Enzyme", "KEGG")
-						e.xref(j, entryid, fr, "CDD", "CDD")
-						e.xrefRefSeq(j, entryid, fr, "RefSeq_mRNA")
-						e.xref(j, entryid, fr, "CCDS", "CCDS")
-						e.xref(j, entryid, fr, "Uniprot/SWISSPROT", "uniprot")
-						e.xref(j, entryid, fr, "UCSC", "UCSC")
-						e.xrefRefSeq(j, entryid, fr, "RefSeq_ncRNA_predicted")
-						e.xrefGO(j, entryid, fr) // go terms are also under xrefs with source information.
-						// e.xref(j, entryid, fr, "HGNC", "hgnc")
+							// maybe these values from configuration
+							e.xrefRefSeq(j, entryid, fr, "RefSeq_peptide")
+							e.xref(j, entryid, fr, "EntrezGene", "GeneID")
+							e.xref(j, entryid, fr, "Reactome", "Reactome")
+							e.xref(j, entryid, fr, "Uniprot/SPTREMBL", "uniprot")
+							e.xref(j, entryid, fr, "KEGG_Enzyme", "KEGG")
+							e.xref(j, entryid, fr, "CDD", "CDD")
+							e.xrefRefSeq(j, entryid, fr, "RefSeq_mRNA")
+							e.xref(j, entryid, fr, "CCDS", "CCDS")
+							e.xref(j, entryid, fr, "Uniprot/SWISSPROT", "uniprot")
+							e.xref(j, entryid, fr, "UCSC", "UCSC")
+							e.xrefRefSeq(j, entryid, fr, "RefSeq_ncRNA_predicted")
+							e.xrefGO(j, entryid, fr) // go terms are also under xrefs with source information.
+							// e.xref(j, entryid, fr, "HGNC", "hgnc")
 
-						if e.d.orthologsAllActive {
-							e.xref(j, entryid, fr, "Interpro", "interpro")
-							e.xref(j, entryid, fr, "HPA", "hpa_antibody")
-							e.xref(j, entryid, fr, "ArrayExpress", "ExpressionAtlas")
-							e.xref(j, entryid, fr, "GENE3D", "CATHGENE3D")
-							e.xref(j, entryid, fr, "MIM_GENE", "MIM")
-							e.xref(j, entryid, fr, "PANTHER", "PANTHER")
-							e.xref(j, entryid, fr, "RNAcentral", "RNAcentral")
-							e.xref(j, entryid, fr, "protein_id", "EMBL")
-							e.xref(j, entryid, fr, "EMBL", "EMBL")
-							e.xref(j, entryid, fr, "TIGRfam", "TIGRFAMs")
-							e.xref(j, entryid, fr, "ChEMBL", "ChEMBL")
-							e.xref(j, entryid, fr, "UniParc", "uniparc")
-							e.xref(j, entryid, fr, "PDB", "PDB")
-							e.xref(j, entryid, fr, "SuperFamily", "SUPFAM")
-							e.xref(j, entryid, fr, "Prosite_profiles", "PROSITE")
-							e.xref(j, entryid, fr, "Pfam", "Pfam")
-							e.xref(j, entryid, fr, "Prosite_patterns", "PROSITE")
-							e.xref(j, entryid, fr, "HAMAP", "HAMAP")
-						}
+							if e.d.orthologsAllActive {
+								e.xref(j, entryid, fr, "Interpro", "interpro")
+								e.xref(j, entryid, fr, "HPA", "hpa_antibody")
+								e.xref(j, entryid, fr, "ArrayExpress", "ExpressionAtlas")
+								e.xref(j, entryid, fr, "GENE3D", "CATHGENE3D")
+								e.xref(j, entryid, fr, "MIM_GENE", "MIM")
+								e.xref(j, entryid, fr, "PANTHER", "PANTHER")
+								e.xref(j, entryid, fr, "RNAcentral", "RNAcentral")
+								e.xref(j, entryid, fr, "protein_id", "EMBL")
+								e.xref(j, entryid, fr, "EMBL", "EMBL")
+								e.xref(j, entryid, fr, "TIGRfam", "TIGRFAMs")
+								e.xref(j, entryid, fr, "ChEMBL", "ChEMBL")
+								e.xref(j, entryid, fr, "UniParc", "uniparc")
+								e.xref(j, entryid, fr, "PDB", "PDB")
+								e.xref(j, entryid, fr, "SuperFamily", "SUPFAM")
+								e.xref(j, entryid, fr, "Prosite_profiles", "PROSITE")
+								e.xref(j, entryid, fr, "Pfam", "Pfam")
+								e.xref(j, entryid, fr, "Prosite_patterns", "PROSITE")
+								e.xref(j, entryid, fr, "HAMAP", "HAMAP")
+							}
 
-						if j.ObjectVals["transcripts"] != nil {
-							for _, val := range j.ObjectVals["transcripts"].(*jsparser.JSON).ArrayVals {
-								tentryid := val.(*jsparser.JSON).ObjectVals["id"].(string)
+							if j.ObjectVals["transcripts"] != nil {
+								for _, val := range j.ObjectVals["transcripts"].(*jsparser.JSON).ArrayVals {
+									tentryid := val.(*jsparser.JSON).ObjectVals["id"].(string)
 
-								if val.(*jsparser.JSON).ObjectVals["translations"] != nil {
-									for _, eprotein := range val.(*jsparser.JSON).ObjectVals["translations"].(*jsparser.JSON).ArrayVals {
-										e.xref(eprotein.(*jsparser.JSON), eprotein.(*jsparser.JSON).ObjectVals["id"].(string), ensemblProteinID, "Uniprot/SWISSPROT", "uniprot")
-										e.xref(eprotein.(*jsparser.JSON), eprotein.(*jsparser.JSON).ObjectVals["id"].(string), ensemblProteinID, "Uniprot/SPTREMBL", "uniprot")
+									if val.(*jsparser.JSON).ObjectVals["translations"] != nil {
+										for _, eprotein := range val.(*jsparser.JSON).ObjectVals["translations"].(*jsparser.JSON).ArrayVals {
+											e.xref(eprotein.(*jsparser.JSON), eprotein.(*jsparser.JSON).ObjectVals["id"].(string), ensemblProteinID, "Uniprot/SWISSPROT", "uniprot")
+											e.xref(eprotein.(*jsparser.JSON), eprotein.(*jsparser.JSON).ObjectVals["id"].(string), ensemblProteinID, "Uniprot/SPTREMBL", "uniprot")
+										}
 									}
-								}
 
-								e.xrefRefSeq(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "RefSeq_peptide")
-								e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "EntrezGene", "GeneID")
-								e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "Reactome", "Reactome")
-								e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "Uniprot/SPTREMBL", "uniprot")
-								e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "KEGG_Enzyme", "KEGG")
-								e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "CDD", "CDD")
-								e.xrefRefSeq(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "RefSeq_mRNA")
-								e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "CCDS", "CCDS")
-								e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "Uniprot/SWISSPROT", "uniprot")
-								e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "UCSC", "UCSC")
-								e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "Uniprot_gn", "uniprot")
-								e.xrefRefSeq(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "RefSeq_ncRNA_predicted")
-								// e.xref(val, tentryid, ensemblTranscriptID, "HGNC", "hgnc")
-								e.xrefGO(val.(*jsparser.JSON), tentryid, ensemblTranscriptID)
-								if e.d.orthologsAllActive {
-									e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "Interpro", "interpro")
-									e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "HPA", "hpa_antibody")
-									e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "ArrayExpress", "ExpressionAtlas")
-									e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "GENE3D", "CATHGENE3D")
-									e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "MIM_GENE", "MIM")
-									e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "PANTHER", "PANTHER")
-									e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "RNAcentral", "RNAcentral")
-									e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "protein_id", "EMBL")
-									e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "EMBL", "EMBL")
-									e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "TIGRfam", "TIGRFAMs")
-									e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "ChEMBL", "ChEMBL")
-									e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "UniParc", "uniparc")
-									e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "PDB", "PDB")
-									e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "SuperFamily", "SUPFAM")
-									e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "Prosite_profiles", "PROSITE")
-									e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "Pfam", "Pfam")
-									e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "Prosite_patterns", "PROSITE")
-									e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "HAMAP", "HAMAP")
-								}
+									e.xrefRefSeq(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "RefSeq_peptide")
+									e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "EntrezGene", "GeneID")
+									e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "Reactome", "Reactome")
+									e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "Uniprot/SPTREMBL", "uniprot")
+									e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "KEGG_Enzyme", "KEGG")
+									e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "CDD", "CDD")
+									e.xrefRefSeq(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "RefSeq_mRNA")
+									e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "CCDS", "CCDS")
+									e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "Uniprot/SWISSPROT", "uniprot")
+									e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "UCSC", "UCSC")
+									e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "Uniprot_gn", "uniprot")
+									e.xrefRefSeq(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "RefSeq_ncRNA_predicted")
+									// e.xref(val, tentryid, ensemblTranscriptID, "HGNC", "hgnc")
+									e.xrefGO(val.(*jsparser.JSON), tentryid, ensemblTranscriptID)
+									if e.d.orthologsAllActive {
+										e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "Interpro", "interpro")
+										e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "HPA", "hpa_antibody")
+										e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "ArrayExpress", "ExpressionAtlas")
+										e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "GENE3D", "CATHGENE3D")
+										e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "MIM_GENE", "MIM")
+										e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "PANTHER", "PANTHER")
+										e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "RNAcentral", "RNAcentral")
+										e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "protein_id", "EMBL")
+										e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "EMBL", "EMBL")
+										e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "TIGRfam", "TIGRFAMs")
+										e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "ChEMBL", "ChEMBL")
+										e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "UniParc", "uniparc")
+										e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "PDB", "PDB")
+										e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "SuperFamily", "SUPFAM")
+										e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "Prosite_profiles", "PROSITE")
+										e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "Pfam", "Pfam")
+										e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "Prosite_patterns", "PROSITE")
+										e.xref(val.(*jsparser.JSON), tentryid, ensemblTranscriptID, "HAMAP", "HAMAP")
+									}
 
+								}
 							}
 						}
+						total++
 					}
-					total++
+
+					if ftpFile != nil {
+						ftpFile.Close()
+					}
+					if localFile != nil {
+						localFile.Close()
+					}
+
+					if client != nil {
+						client.Quit()
+					}
+
+					time.Sleep(time.Duration(e.pauseDurationSeconds) * time.Second) // for not to kicked out from ensembl ftp
 				}
 
-				if ftpFile != nil {
-					ftpFile.Close()
-				}
-				if localFile != nil {
-					localFile.Close()
-				}
-
-				if client != nil {
-					client.Quit()
-				}
-
-				time.Sleep(time.Duration(e.pauseDurationSeconds) * time.Second) // for not to kicked out from ensembl ftp
 			}
-
-		}
 		} // End of else block for test mode skip
 	}
 
@@ -791,52 +819,52 @@ func (e *ensembl) update() {
 	if config.IsTestMode() {
 	} else {
 
-	for _, path := range e.biomartPaths {
-		// first get the probset machine name
-		f := strings.Split(path, "/")
-		probsetMachine := strings.Split(f[len(f)-1], "__")[1][4:]
-		probsetConf := config.Dataconf[probsetMachine]
+		for _, path := range e.biomartPaths {
+			// first get the probset machine name
+			f := strings.Split(path, "/")
+			probsetMachine := strings.Split(f[len(f)-1], "__")[1][4:]
+			probsetConf := config.Dataconf[probsetMachine]
 
-		if probsetConf != nil {
-			fr2 := config.Dataconf[probsetMachine]["id"]
-			br2, _, ftpFile2, client, localFile2, _, err := getDataReaderNew(probsetMachine, e.ftpAddress, "", path)
-			if err != nil {
-				log.Printf("Warning: Failed to retrieve biomart file at path %s: %v - skipping", path, err)
-				continue
-			}
-
-			scanner := bufio.NewScanner(br2)
-			for scanner.Scan() {
-
-				elapsed := int64(time.Since(start).Seconds())
-				if elapsed > previous+e.d.progInterval {
-					kbytesPerSecond := int64(totalRead) / elapsed / 1024
-					previous = elapsed
-					e.d.progChan <- &progressInfo{dataset: e.source, currentKBPerSec: kbytesPerSecond}
+			if probsetConf != nil {
+				fr2 := config.Dataconf[probsetMachine]["id"]
+				br2, _, ftpFile2, client, localFile2, _, err := getDataReaderNew(probsetMachine, e.ftpAddress, "", path)
+				if err != nil {
+					log.Printf("Warning: Failed to retrieve biomart file at path %s: %v - skipping", path, err)
+					continue
 				}
-				s := scanner.Text()
-				t := strings.Split(s, "\t")
-				if len(t) == 3 && t[2] != "\\N" && t[1] != "\\N" {
-					e.d.addXref(t[2], fr2, t[1], "transcript", false)
+
+				scanner := bufio.NewScanner(br2)
+				for scanner.Scan() {
+
+					elapsed := int64(time.Since(start).Seconds())
+					if elapsed > previous+e.d.progInterval {
+						kbytesPerSecond := int64(totalRead) / elapsed / 1024
+						previous = elapsed
+						e.d.progChan <- &progressInfo{dataset: e.source, currentKBPerSec: kbytesPerSecond}
+					}
+					s := scanner.Text()
+					t := strings.Split(s, "\t")
+					if len(t) == 3 && t[2] != "\\N" && t[1] != "\\N" {
+						e.d.addXref(t[2], fr2, t[1], "transcript", false)
+					}
+					totalRead = totalRead + len(s) + 1
 				}
-				totalRead = totalRead + len(s) + 1
-			}
-			if ftpFile2 != nil {
-				ftpFile2.Close()
-			}
-			if localFile2 != nil {
-				localFile2.Close()
-			}
+				if ftpFile2 != nil {
+					ftpFile2.Close()
+				}
+				if localFile2 != nil {
+					localFile2.Close()
+				}
 
-			if client != nil {
-				client.Quit()
-			}
+				if client != nil {
+					client.Quit()
+				}
 
-		} else {
-			log.Println("Warn: new prob mapping found. It must be defined in configuration", probsetMachine)
+			} else {
+				log.Println("Warn: new prob mapping found. It must be defined in configuration", probsetMachine)
+			}
+			time.Sleep(time.Duration(e.pauseDurationSeconds) * time.Second) // for not to kicked out from ensembl ftp
 		}
-		time.Sleep(time.Duration(e.pauseDurationSeconds) * time.Second) // for not to kicked out from ensembl ftp
-	}
 	} // End of else block for test mode skip
 
 	e.d.progChan <- &progressInfo{dataset: e.source, done: true}
@@ -879,7 +907,7 @@ func (e *ensembl) xrefGO(j *jsparser.JSON, entryid, from string) {
 
 }
 
-//xrefProps := []string{"name", "description", "start", "end", "biotype", "genome", "strand", "seq_region_name"}
+// xrefProps := []string{"name", "description", "start", "end", "biotype", "genome", "strand", "seq_region_name"}
 func (e *ensembl) xrefProp(j *jsparser.JSON, entryid, from string) {
 
 	attr := pbuf.EnsemblAttr{}

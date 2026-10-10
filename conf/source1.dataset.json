@@ -828,8 +828,8 @@
     "plantsUrl": "http://plants.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
     "protistsUrl": "http://protists.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
     "hasFilter": "yes",
-    "attrs": "start,end,strand,seq_region",
-    "compact_fields": "start,end,strand,seq_region"
+    "attrs": "start,end,strand,seq_region,rank,phase,end_phase",
+    "compact_fields": "start,end,strand,seq_region,rank"
   },
   "cds": {
     "aliases": "eprotein",
@@ -869,7 +869,7 @@
     "plantsUrl": "http://plants.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
     "protistsUrl": "http://protists.ensembl.org/Multi/Search/Results?species=all;idx=;q=£{id};;site=ensemblunit",
     "hasFilter": "yes",
-    "attrs": "name,start,end,biotype,strand,seq_region,utr5Start,utr5End,utr3Start,utr3End,source",
+    "attrs": "name,start,end,biotype,strand,seq_region,utr5Start,utr5End,utr3Start,utr3End,source,mane_select,mane_plus_clinical,tsl",
     "compact_fields": "biotype,start,end,strand,seq_region,utr5Start,utr5End,utr3Start,utr3End"
   },
   "ufeature": {

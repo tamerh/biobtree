@@ -2371,6 +2371,43 @@ func (d *DataUpdate) addTextLinkWithPriority(key string, from string, value stri
 	d.bucketPool.WriteReverse(TextSearchDatasetID, kup, dataLine, valueFrom)
 }
 
+// IntervalBinSize is the genomic bin width (2^14) for the point-in-interval
+// index. An interval is indexed under a BIN:<chr>:<bin> keyword for every bin it
+// spans, so a position query reaches overlapping intervals by computing
+// bin(pos) and looking up that one keyword, then filtering by exact overlap.
+const IntervalBinSize int64 = 16384
+
+// IntervalBinPrefix namespaces interval-bin keywords inside the shared keyword
+// index (users never type these, so there is no collision with text search).
+const IntervalBinPrefix = "BIN:"
+
+// NormalizeChr strips a leading "chr"/"Chr" so interval bins and variant keys
+// (which use "1", "X", ... not "chr1") share one chromosome representation.
+func NormalizeChr(chr string) string {
+	if len(chr) > 3 && (chr[:3] == "chr" || chr[:3] == "Chr" || chr[:3] == "CHR") {
+		return chr[3:]
+	}
+	return chr
+}
+
+// IntervalBinKey builds the keyword for a chromosome + bin number.
+func IntervalBinKey(chr string, bin int64) string {
+	return IntervalBinPrefix + NormalizeChr(chr) + ":" + strconv.FormatInt(bin, 10)
+}
+
+// addInterval indexes an interval entry [start,end] on chr so a point-in-interval
+// query can retrieve it. It writes one keyword link per spanned bin, reusing the
+// text-link (keyword) index. start/end are stored as-is on the entry; the bins
+// are purely a reverse index into it.
+func (d *DataUpdate) addInterval(id, dataset, chr string, start, end int64) {
+	if id == "" || chr == "" || end < start || start < 0 {
+		return
+	}
+	for b := start / IntervalBinSize; b <= end/IntervalBinSize; b++ {
+		d.addXref(IntervalBinKey(chr, b), textLinkID, id, dataset, true)
+	}
+}
+
 // this is similar with addXref but for only link datasets like orthologes,paralogs where no need text link checking and reverse mapping creation
 func (d *DataUpdate) addXref2(key string, from string, value string, valueFrom string) {
 

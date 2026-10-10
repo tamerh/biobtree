@@ -175,4 +175,7 @@ func (e *encode_ccre) createCrossReferences(ccreID, sourceID string,
 
 	// 3. Cross-reference to taxonomy (human only - GRCh38)
 	e.d.addXref(ccreID, sourceID, "9606", "taxonomy", false)
+
+	// 4. Point-in-interval index: a variant's chr:pos can reach overlapping cCREs.
+	e.d.addInterval(ccreID, e.source, attr.Chromosome, attr.Start, attr.End)
 }

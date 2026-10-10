@@ -1762,7 +1762,8 @@
     "attrs": "fantom5_peak_id,fantom5_peak_name,chromosome,start,end,strand,gene_symbol,gene_id,entrez_id,uniprot_id,hgnc_id,tpm_average,tpm_max,samples_expressed,expression_breadth,[]top_tissues,[]top_cell_types",
     "compact_fields": "gene_symbol,chromosome,strand,tpm_average,samples_expressed",
     "test_entries_count": "1000",
-    "bucketMethod": "numeric"
+    "bucketMethod": "numeric",
+    "intervalIndex": "yes"
   },
   "fantom5_enhancer": {
     "id": "127",
@@ -1780,7 +1781,8 @@
     "attrs": "fantom5_enhancer_id,chromosome,start,end,tpm_average,tpm_max,samples_expressed,[]associated_genes,[]top_tissues",
     "compact_fields": "chromosome,tpm_average,samples_expressed,associated_genes",
     "test_entries_count": "500",
-    "bucketMethod": "numeric"
+    "bucketMethod": "numeric",
+    "intervalIndex": "yes"
   },
   "fantom5_gene": {
     "id": "128",
@@ -1823,7 +1825,8 @@
     "attrs": "ccre_id,ccre_class,chromosome,start,end",
     "compact_fields": "ccre_class,chromosome",
     "test_entries_count": "1000",
-    "bucketMethod": "alphanum"
+    "bucketMethod": "alphanum",
+    "intervalIndex": "yes"
   },
   "cellosaurus": {
     "id": "757",

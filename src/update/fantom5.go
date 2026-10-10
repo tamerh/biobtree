@@ -931,6 +931,9 @@ func (f *fantom5) savePromoters(promoters map[int]*Fantom5Promoter) {
 		f.check(err, "marshaling promoter attributes")
 		f.d.addProp3(idStr, fr, attrBytes)
 
+		// Point-in-interval index (hg38 coords now populated, Sugi #11).
+		f.d.addInterval(idStr, f.source, promoter.Chromosome, int64(promoter.Start), int64(promoter.End))
+
 		// Create cross-references
 		f.createPromoterReferences(idStr, promoter)
 
@@ -1483,6 +1486,9 @@ func (f *fantom5) saveEnhancers(enhancers map[int]*Fantom5Enhancer) {
 		attrBytes, err := ffjson.Marshal(attr)
 		f.check(err, "marshaling enhancer attributes")
 		f.d.addProp3(idStr, fr, attrBytes)
+
+		// Point-in-interval index: a variant's chr:pos can reach overlapping enhancers.
+		f.d.addInterval(idStr, "fantom5_enhancer", enhancer.Chromosome, int64(enhancer.Start), int64(enhancer.End))
 
 		// Create references (use "fantom5_enhancer" not parent f.source)
 		f.d.addXref(enhancer.EnhancerID, textLinkID, idStr, "fantom5_enhancer", true)

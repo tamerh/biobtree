@@ -913,6 +913,27 @@ func (s *Service) meta() *pbuf.MetaResponse {
 					datasetConf["attrs"] = config.Dataconf[k]["attrs"]
 				}
 
+				// keyScheme: how a client addresses this dataset. Explicit conf
+				// field when set, else derived from intervalIndex. Lets API
+				// consumers tell "chr:pos:ref:alt" from "interval (query by
+				// position)" from "own accession" without reading the source.
+				if ks := config.Dataconf[k]["keyScheme"]; ks != "" {
+					datasetConf["keyScheme"] = ks
+				} else if config.Dataconf[k]["intervalIndex"] == "yes" {
+					datasetConf["keyScheme"] = "interval; query by variant position (chr:pos)"
+				}
+
+				// data_version carries source version + any reporting threshold
+				// (e.g. SpliceAI delta>=0.2), so a missing score can be read as
+				// "below threshold" rather than "not assessed".
+				if dv := config.Dataconf[k]["data_version"]; dv != "" {
+					datasetConf["data_version"] = dv
+				}
+				// Explicit, parseable reporting threshold where a dataset is filtered.
+				if th := config.Dataconf[k]["threshold"]; th != "" {
+					datasetConf["threshold"] = th
+				}
+
 				datasetConf["id"] = k
 
 				keyvals.Keyvalues = datasetConf
@@ -924,6 +945,15 @@ func (s *Service) meta() *pbuf.MetaResponse {
 	meta.Results = results
 	return &meta
 
+}
+
+// jsonString returns s as a properly-quoted+escaped JSON string literal.
+func jsonString(s string) string {
+	b, err := json.Marshal(s)
+	if err != nil {
+		return `""`
+	}
+	return string(b)
 }
 
 func (s *Service) metajson() string {
@@ -1057,6 +1087,20 @@ func (s *Service) metajson() string {
 
 		if _, ok := config.Dataconf[k]["attrs"]; ok {
 			b.WriteString(`"attrs":"` + config.Dataconf[k]["attrs"] + `",`)
+		}
+
+		// keyScheme: how a client addresses this dataset (chr:pos:ref:alt vs
+		// interval-by-position vs own accession). Explicit conf field, else derived
+		// from intervalIndex. Lets API consumers resolve addressing without reading
+		// the source. threshold: the dataset's reporting cutoff (filtered datasets),
+		// so a missing score reads as "below threshold", not "not assessed".
+		if ks := config.Dataconf[k]["keyScheme"]; ks != "" {
+			b.WriteString(`"keyScheme":` + jsonString(ks) + `,`)
+		} else if config.Dataconf[k]["intervalIndex"] == "yes" {
+			b.WriteString(`"keyScheme":"interval; query by variant position (chr:pos)",`)
+		}
+		if th := config.Dataconf[k]["threshold"]; th != "" {
+			b.WriteString(`"threshold":` + jsonString(th) + `,`)
 		}
 
 		// Lineage: derivedFrom (explicit), else childDatasets/derived: parent.

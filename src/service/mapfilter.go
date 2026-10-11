@@ -1844,6 +1844,13 @@ func (s *Service) intervalMapFilter(ids []string, target string, maxResults int)
 	result := &pbuf.MapFilterResult{}
 	targetID := config.DataconfIDStringToInt[target]
 
+	// The BIN:<chr>:<bin> keyword namespace is PER-FEDERATION. Resolve the BIN
+	// keyword (and the interval entries it links to) in the TARGET dataset's OWN
+	// federation. The general main-first lookup would otherwise return main's
+	// BIN:<chr>:<bin> and mask an interval dataset living in a non-main federation
+	// (e.g. gnomad_rmc / gnomad_gnocchi in the gnomad federation).
+	env, dbi := s.getDBForDataset(targetID)
+
 	for _, id := range ids {
 		chr, pos, ok := parseCoordinate(id)
 		if !ok {
@@ -1854,22 +1861,28 @@ func (s *Service) intervalMapFilter(ids []string, target string, maxResults int)
 
 		mf := &pbuf.MapFilter{Source: &pbuf.Xref{Identifier: strings.ToUpper(id)}}
 
-		sub, err := s.MapFilterWithLimit([]string{binKey}, ">>"+target, "", maxResults)
-		if err == nil && sub != nil {
+		// Read the BIN keyword straight from the target's federation. Its linked
+		// entries (addInterval stores them with Dataset = the interval dataset id)
+		// are the candidate intervals for this bin.
+		if binRes, err := s.getLmdbResultFrom(binKey, env, dbi); err == nil && binRes != nil {
 			seen := map[string]bool{}
-			add := func(x *pbuf.Xref) {
-				if x == nil || x.Dataset != targetID || seen[x.Identifier] {
-					return
-				}
-				if intervalOverlap(x, chr, pos) {
-					seen[x.Identifier] = true
-					mf.Targets = append(mf.Targets, x)
-				}
-			}
-			for _, r := range sub.Results {
-				add(r.Source)
-				for _, t := range r.Targets {
-					add(t)
+			for _, x := range binRes.Results {
+				for _, e := range x.Entries {
+					if e == nil || e.Dataset != targetID || e.Identifier == "" || seen[e.Identifier] {
+						continue
+					}
+					seen[e.Identifier] = true
+					full, ferr := s.LookupFullEntry(e.Identifier, targetID)
+					if ferr != nil || full == nil {
+						continue
+					}
+					full.Identifier = strings.ToUpper(e.Identifier)
+					if intervalOverlap(full, chr, pos) {
+						mf.Targets = append(mf.Targets, full)
+						if maxResults > 0 && len(mf.Targets) >= maxResults {
+							break
+						}
+					}
 				}
 			}
 		}

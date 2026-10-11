@@ -40,14 +40,25 @@ func GetDBVersions(federationDir string) ([]int, error) {
 
 	var versions []int
 	for _, entry := range entries {
-		if !entry.IsDir() {
+		matches := dbVersionRegex.FindStringSubmatch(entry.Name())
+		if matches == nil {
 			continue
 		}
-		matches := dbVersionRegex.FindStringSubmatch(entry.Name())
-		if matches != nil {
-			v, _ := strconv.Atoi(matches[1])
-			versions = append(versions, v)
+		// Count real db_vN dirs AND db_vN symlinks that resolve to a dir. A large
+		// version can be stored on another disk (e.g. /data overflow) and linked in
+		// as a db_vN symlink; it is still a real version and MUST be counted, or the
+		// next-version computation would collide with it and overwrite a live DB.
+		if entry.IsDir() {
+			// real directory
+		} else if entry.Type()&os.ModeSymlink != 0 {
+			if fi, serr := os.Stat(filepath.Join(federationDir, entry.Name())); serr != nil || !fi.IsDir() {
+				continue
+			}
+		} else {
+			continue
 		}
+		v, _ := strconv.Atoi(matches[1])
+		versions = append(versions, v)
 	}
 
 	sort.Ints(versions)

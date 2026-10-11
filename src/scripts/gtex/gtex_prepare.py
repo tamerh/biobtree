@@ -20,12 +20,18 @@ Requires: pyarrow (conda env biobtree). Run from the repo root.
 """
 import os
 import sys
+import io
 import gzip
 import tarfile
 import subprocess
 import urllib.request
 
 import pyarrow.parquet as pq
+
+# eQTL signif_pairs has no phenotype_id (phenotype == gene); sQTL has both. Read
+# only the columns a given file actually has, and derive a missing gene_id from
+# the sQTL phenotype_id (…:clu_N:ENSG…).
+WANT = ["variant_id", "gene_id", "slope", "pval_nominal", "phenotype_id"]
 
 BUCKET = "https://storage.googleapis.com/adult-gtex/bulk-qtl/v10/single-tissue-cis-qtl"
 TARS = {"eqtl": "GTEx_Analysis_v10_eQTL.tar", "sqtl": "GTEx_Analysis_v10_sQTL.tar"}
@@ -64,11 +70,13 @@ def process_tar(path, qtl_type, out):
             f = tar.extractfile(m)
             if f is None:
                 continue
-            table = pq.read_table(f, columns=["variant_id", "gene_id", "slope",
-                                              "pval_nominal", "phenotype_id"])
-            d = table.to_pydict()
+            bio = io.BytesIO(f.read())  # seekable: lets us inspect schema then read
+            names = set(pq.ParquetFile(bio).schema_arrow.names)
+            bio.seek(0)
+            cols = [c for c in WANT if c in names]
+            d = pq.read_table(bio, columns=cols).to_pydict()
             vids = d["variant_id"]
-            genes = d["gene_id"]
+            genes = d.get("gene_id", [""] * len(vids))
             slopes = d["slope"]
             pvals = d["pval_nominal"]
             phenos = d.get("phenotype_id", [""] * len(vids))
@@ -77,7 +85,14 @@ def process_tar(path, qtl_type, out):
                 if vk is None:
                     continue
                 gene = (genes[i] or "").split(".")[0]  # strip ENSG version
-                pheno = phenos[i] if qtl_type == "sqtl" and phenos[i] else ""
+                pheno = phenos[i] or ""
+                # sQTL: derive gene from phenotype_id (…:clu_N:ENSG…) if no gene col
+                if not gene and pheno:
+                    tail = pheno.split(":")[-1]
+                    if tail.startswith("ENSG"):
+                        gene = tail.split(".")[0]
+                if qtl_type != "sqtl":
+                    pheno = ""
                 out.write(f"{vk}\t{qtl_type}\t{gene}\t{tissue}\t{slopes[i]}\t{pvals[i]}\t{pheno}\n")
                 n += 1
             print(f"  {qtl_type} {tissue}: {len(vids)} pairs", flush=True)

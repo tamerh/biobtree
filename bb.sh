@@ -495,6 +495,8 @@ get_federation() {
     case "$dataset" in
         dbsnp) echo "dbsnp" ;;
         gnomad_variant) echo "gnomad" ;;
+        gnomad_rmc) echo "gnomad" ;;
+        gnomad_gnocchi) echo "gnomad" ;;
         conservation) echo "conservation" ;;
         revel) echo "predictions" ;;
         esm1b) echo "predictions" ;;

@@ -1829,6 +1829,7 @@
   },
   "gnomad_rmc": {
     "id": "815",
+    "federation": "gnomad",
     "name": "gnomAD Regional Missense Constraint",
     "aliases": "gnomAD RMC,regional missense constraint,missense constraint,missense-constrained region,MCR",
     "url": "https://gnomad.broadinstitute.org/transcript/£{id}",
@@ -1843,6 +1844,7 @@
   },
   "gnomad_gnocchi": {
     "id": "816",
+    "federation": "gnomad",
     "name": "gnomAD Non-coding Constraint (Gnocchi)",
     "aliases": "gnomAD Gnocchi,Gnocchi,non-coding constraint,genomic constraint,noncoding constraint",
     "url": "https://gnomad.broadinstitute.org/region/£{id}",

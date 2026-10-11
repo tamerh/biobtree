@@ -1886,7 +1886,11 @@ func (s *Service) intervalMapFilter(ids []string, target string, maxResults int)
 				}
 			}
 		}
-		result.Results = append(result.Results, mf)
+		// Only emit a result for positions that actually fall in an interval; a
+		// coordinate covered by no interval returns nothing (not a source-only row).
+		if len(mf.Targets) > 0 {
+			result.Results = append(result.Results, mf)
+		}
 	}
 	if len(result.Results) == 0 {
 		result.Message = "No results found"

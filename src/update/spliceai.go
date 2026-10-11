@@ -113,6 +113,47 @@ func nextData(reader *bufio.Reader) []string {
 }
 
 func variantKey(f []string) string { return f[0] + ":" + f[1] + ":" + f[3] + ":" + f[4] }
+func posKey(f []string) string     { return f[0] + ":" + f[1] }
+
+// groupReader yields consecutive VCF data rows that share the same (chrom,pos),
+// using a one-row lookahead. Raw and masked VCFs list the same positions in the
+// same order, but the ALT rows within a position can be ordered differently, so
+// callers match within a group by full key rather than assuming row alignment.
+type groupReader struct {
+	r       *bufio.Reader
+	pending []string
+	done    bool
+}
+
+func (g *groupReader) next() [][]string {
+	if g.done {
+		return nil
+	}
+	first := g.pending
+	g.pending = nil
+	if first == nil {
+		if first = nextData(g.r); first == nil {
+			g.done = true
+			return nil
+		}
+	}
+	group := [][]string{first}
+	pk := posKey(first)
+	for {
+		row := nextData(g.r)
+		if row == nil {
+			g.done = true
+			break
+		}
+		if posKey(row) == pk {
+			group = append(group, row)
+		} else {
+			g.pending = row
+			break
+		}
+	}
+	return group
+}
 
 // extractSpliceaiInfo pulls the SpliceAI annotation out of a VCF INFO column and
 // splits it into its 10 pipe fields:
@@ -148,35 +189,59 @@ func (s *spliceai) processSNVs(rawPath, maskedPath string, isFixture bool, testL
 		defer closeMasked()
 	}
 
-	var count, mismatch int64
+	rawG := &groupReader{r: raw}
+	var maskedG *groupReader
+	var maskedPending [][]string // a masked group read ahead but not yet consumed
+	if masked != nil {
+		maskedG = &groupReader{r: masked}
+	}
+
+	var count, groupMismatch int64
 	for {
-		rf := nextData(raw)
-		if rf == nil {
+		rg := rawG.next()
+		if rg == nil {
 			break
 		}
-		var md [4]string // ds_ag/al/dg/dl masked
-		if masked != nil {
-			mf := nextData(masked)
-			if mf != nil && variantKey(mf) == variantKey(rf) {
-				if msa := extractSpliceaiInfo(mf[7]); msa != nil {
-					md = [4]string{msa[2], msa[3], msa[4], msa[5]}
-				}
-			} else if mf != nil {
-				mismatch++
-				if mismatch <= 5 {
-					log.Printf("SpliceAI: masked/raw key mismatch (raw=%s masked=%s) — masked left empty for this variant", variantKey(rf), variantKey(mf))
+		// Build the masked delta map for this position (same (chr,pos) group in the
+		// masked VCF; alts within it may be in a different order, so key by full id).
+		mmap := map[string][4]string{}
+		if maskedG != nil {
+			mg := maskedPending
+			maskedPending = nil
+			if mg == nil {
+				mg = maskedG.next()
+			}
+			if mg != nil {
+				if posKey(mg[0]) == posKey(rg[0]) {
+					for _, mr := range mg {
+						if msa := extractSpliceaiInfo(mr[7]); msa != nil {
+							mmap[variantKey(mr)] = [4]string{msa[2], msa[3], msa[4], msa[5]}
+						}
+					}
+				} else {
+					// position-group misalignment (should not happen — same variant
+					// set/order); keep the masked group for the next raw group and
+					// leave this one's masked empty rather than mis-assign.
+					maskedPending = mg
+					groupMismatch++
+					if groupMismatch <= 5 {
+						log.Printf("SpliceAI: masked/raw position mismatch (raw=%s masked=%s) — masked left empty here", posKey(rg[0]), posKey(mg[0]))
+					}
 				}
 			}
 		}
-		if s.storeVariant(rf, md, idLogFile, sourceID, textLinkID) {
-			count++
-			if testLimit > 0 && already+count >= int64(testLimit) {
-				break
+		for _, rr := range rg {
+			md := mmap[variantKey(rr)] // zero value [4]string{} if no masked match
+			if s.storeVariant(rr, md, idLogFile, sourceID, textLinkID) {
+				count++
 			}
+		}
+		if testLimit > 0 && already+count >= int64(testLimit) {
+			break
 		}
 	}
-	if mismatch > 0 {
-		log.Printf("SpliceAI: WARNING — %d raw/masked key mismatches (masked left empty); check VCF row alignment", mismatch)
+	if groupMismatch > 0 {
+		log.Printf("SpliceAI: WARNING — %d raw/masked position-group mismatches (masked left empty); check VCF alignment", groupMismatch)
 	}
 	log.Printf("SpliceAI: SNVs — stored %d variants", count)
 	return count

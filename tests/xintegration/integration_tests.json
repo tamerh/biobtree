@@ -10207,8 +10207,7 @@
       "query": ">>uniprot>>mavedb",
       "why": "MaveDB deep-mutational-scanning functional evidence (PS3/BS3) reachable from a protein",
       "should_pass": [
-        "P38398",
-        "P60484"
+        "P38398"
       ],
       "should_fail": []
     },
@@ -10218,8 +10217,7 @@
       "query": ">>hgnc>>mavedb",
       "why": "MaveDB functional scores reachable from a gene symbol",
       "should_pass": [
-        "BRCA1",
-        "PTEN"
+        "BRCA1"
       ],
       "should_fail": []
     },

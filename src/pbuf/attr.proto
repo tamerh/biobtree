@@ -2864,6 +2864,15 @@ message SpliceAIAttr {
   string dp_al = 14;               // delta position acceptor loss
   string dp_dg = 15;               // delta position donor gain
   string dp_dl = 16;               // delta position donor loss
+  // Masked delta scores (Ensembl MANE masked VCF): same four deltas but with
+  // loss-at-unannotated-sites and gain-that-strengthens-an-existing-site zeroed.
+  // This is what Ensembl VEP / the Broad lookup serve. Masking only ever zeroes a
+  // delta (masked <= raw), so a masked 0.00 against a raw>=0.2 is real negative
+  // evidence. ds_* = raw (ClinGen PP3/BP4-calibrated); ds_*_masked = masked.
+  string ds_ag_masked = 17;
+  string ds_al_masked = 18;
+  string ds_dg_masked = 19;
+  string ds_dl_masked = 20;
   string id = 100; // transient - populated at runtime from Xref.Identifier
 }
 

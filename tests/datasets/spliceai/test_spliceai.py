@@ -52,12 +52,44 @@ class SpliceaiTests:
                 return False, f"missing delta field {k}"
         return True, f"4 deltas+positions present (DS_DG={a.get('ds_dg')})"
 
+    def test_masked_deltas(self):
+        """Masked deltas are merged per variant; masked 0 vs raw>=0.2 = negative evidence"""
+        # IKBKB: raw donor-gain 0.98, masking zeroes it (strengthens existing site)
+        a = self._attr("8:42305277:T:C")
+        if a is None:
+            return False, "IKBKB variant missing"
+        if a.get("ds_dg") != "0.98":
+            return False, f"raw ds_dg {a.get('ds_dg')!r} != 0.98"
+        if a.get("ds_dg_masked") != "0.00":
+            return False, f"masked ds_dg_masked {a.get('ds_dg_masked')!r} != 0.00 (should be masked to 0)"
+        # LNPK: real donor-loss site, masked == raw
+        b = self._attr("2:175937343:C:A")
+        if b is None or b.get("ds_dl") != "0.99" or b.get("ds_dl_masked") != "0.99":
+            return False, f"LNPK masked mismatch: ds_dl={b and b.get('ds_dl')} masked={b and b.get('ds_dl_masked')}"
+        return True, "masked merged: IKBKB raw 0.98/masked 0.00, LNPK raw=masked 0.99"
+
+    def test_indels_present(self):
+        """Illumina indel scores are ingested (Ensembl is SNV-only)"""
+        d = self._attr("2:175937340:CA:C")  # deletion, acceptor loss 0.34
+        if d is None:
+            return False, "indel 2:175937340:CA:C missing"
+        if d.get("ds_al") != "0.34" or d.get("effect") != "acceptor_loss":
+            return False, f"indel deltas wrong: ds_al={d.get('ds_al')} effect={d.get('effect')}"
+        ins = self._attr("17:43045703:C:CT")  # insertion, donor gain 0.46
+        if ins is None or ins.get("ds_dg") != "0.46":
+            return False, f"insertion 17:43045703:C:CT missing or wrong (ds_dg={ins and ins.get('ds_dg')})"
+        # indels have no masked file -> masked deltas empty
+        if d.get("ds_al_masked"):
+            return False, f"indel should have empty masked (got {d.get('ds_al_masked')!r})"
+        return True, "indels ingested: CA>C (AL 0.34), C>CT (DG 0.46), masked empty"
+
 
 def main():
     script_dir = Path(__file__).parent
     runner = TestRunner(os.environ.get('BIOBTREE_API_URL', 'http://localhost:9292'), script_dir / "reference_data.json")
     c = SpliceaiTests(runner)
-    for m in [c.test_all_alts_present, c.test_below_threshold_filtered, c.test_four_deltas_stored]:
+    for m in [c.test_all_alts_present, c.test_below_threshold_filtered, c.test_four_deltas_stored,
+              c.test_masked_deltas, c.test_indels_present]:
         runner.add_custom_test(m)
     runner.run_all_tests()
     return runner.print_summary()

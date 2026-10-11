@@ -2,11 +2,27 @@
 
 ## Overview
 
-Per-variant splice-disruption predictions. biobtree now sources SpliceAI from the
-**Ensembl MANE** VCF (`spliceai_scores.raw.snv.ensembl_mane_v1.4.grch38.vcf.gz`) — MANE
-v1.4 (current annotation, replacing the old GENCODE-v24 Illumina precomputed tables), all
-SNV alts, and the **four delta scores**. Keyed `chr:pos:ref:alt` (GRCh38). Loaded at the
-**raw**, **delta ≥ 0.2** threshold (ClinGen's Walker et al. calibration used raw).
+Per-variant splice-disruption predictions. biobtree sources SpliceAI from the
+**Ensembl MANE** VCFs (MANE v1.4, replacing the old GENCODE-v24 Illumina tables), all
+SNV alts, and the **four delta scores**. Keyed `chr:pos:ref:alt` (GRCh38). Kept at
+**raw delta ≥ 0.2** (ClinGen SVI's Walker et al. 2023 PP3/BP4 calibration used raw).
+
+Three sources merge into the single `spliceai` dataset (one entry per variant):
+- `path` — raw SNV scores → `ds_ag/al/dg/dl` (+ positions `dp_*`)
+- `pathMasked` — masked SNV scores → `ds_ag_masked/al/dg/dl`. Masking zeroes a loss
+  at an unannotated site and a gain that only strengthens an existing site; this is
+  what **Ensembl VEP** and the **Broad lookup** serve. Masking only ever zeroes a
+  delta (`masked ≤ raw`), so `raw ≥ 0.2` is already the raw∪masked union — no variant
+  is masked-only. A kept variant can therefore carry all-zero masked deltas, which is
+  real negative evidence ("masked says no effect"), distinct from "not in the release".
+- `pathIndel` — Illumina GENCODE-based **indel** scores (Ensembl publishes SNV-only).
+  Raw-only (no masked indel file exists); `ds_*_masked` are empty for indels. GENCODE-
+  rather than MANE-based, so not an exact transcript match to the SNV set. Same CC BY-NC
+  licence; KG-excluded like the SNV scores.
+
+**Which to display:** `ds_*` (raw) is the ClinGen-calibrated set for PP3/BP4; `ds_*_masked`
+matches VEP/Broad. `/ws/meta` carries `scoreVariant`, `threshold` and `keyScheme` so a
+consumer can render the right sentence (and tell "below threshold" from "not assessed").
 
 ## Attributes
 `chromosome`, `position`, `ref_allele`, `alt_allele`, `effect` (dominant: acceptor/donor

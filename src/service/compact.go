@@ -3177,6 +3177,14 @@ func extractSpliceAIField(a *pbuf.SpliceAIAttr, field string) string {
 		return a.DpDg
 	case "dp_dl":
 		return a.DpDl
+	case "ds_ag_masked":
+		return a.DsAgMasked
+	case "ds_al_masked":
+		return a.DsAlMasked
+	case "ds_dg_masked":
+		return a.DsDgMasked
+	case "ds_dl_masked":
+		return a.DsDlMasked
 	default:
 		return ""
 	}

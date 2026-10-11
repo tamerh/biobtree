@@ -831,7 +831,8 @@
     "protistsUrl": "http://protists.ensembl.org/Multi/Search/Results?species=all;idx=;q=\u00a3{id};;site=ensemblunit",
     "hasFilter": "yes",
     "attrs": "start,end,strand,seq_region,rank,phase,end_phase",
-    "compact_fields": "start,end,strand,seq_region,rank"
+    "compact_fields": "start,end,strand,seq_region,rank",
+    "keyScheme": "Ensembl exon ID (ENSE\u2026)"
   },
   "cds": {
     "aliases": "eprotein",
@@ -841,7 +842,8 @@
     "url": "https://www.ensembl.org/Multi/Search/Results?q=\u00a3{id};site=ensembl_all",
     "hasFilter": "yes",
     "attrs": "start,end,strand,seq_region,frame,rank",
-    "compact_fields": "start,end,strand,seq_region,frame"
+    "compact_fields": "start,end,strand,seq_region,frame",
+    "keyScheme": "Ensembl protein ID + CDS segment number (ENSP\u2026:N); reached via transcript >> eprotein"
   },
   "ortholog": {
     "name": "Ortholog",
@@ -872,7 +874,8 @@
     "protistsUrl": "http://protists.ensembl.org/Multi/Search/Results?species=all;idx=;q=\u00a3{id};;site=ensemblunit",
     "hasFilter": "yes",
     "attrs": "name,start,end,biotype,strand,seq_region,utr5Start,utr5End,utr3Start,utr3End,source,mane_select,mane_plus_clinical,tsl",
-    "compact_fields": "biotype,start,end,strand,seq_region,utr5Start,utr5End,utr3Start,utr3End"
+    "compact_fields": "biotype,start,end,strand,seq_region,utr5Start,utr5End,utr3Start,utr3End",
+    "keyScheme": "Ensembl transcript ID (ENST\u2026)"
   },
   "ufeature": {
     "group": "uniprot",
@@ -1222,7 +1225,8 @@
     "attrs": "gene_symbol,score_set,score_set_title,hgvs_pro,hgvs_nt,hgvs_splice,score,uniprot,category,license",
     "compact_fields": "gene_symbol,hgvs_pro,score,score_set,license",
     "test_entries_count": "500",
-    "bucketMethod": "alphanum"
+    "bucketMethod": "alphanum",
+    "keyScheme": "MaveDB urn (score set urn:mavedb:XXXXXXXX-a-N; variant urn:mavedb:\u2026#N)"
   },
   "conservation": {
     "id": "808",
@@ -1723,7 +1727,7 @@
     "path_product9_ages": "https://www.orphadata.com/data/xml/en_product9_ages.xml"
   },
   "spliceai": {
-    "data_version": "Ensembl MANE v1.4 SpliceAI (SpliceAIv1.3.1), RAW scores, delta>=0.2, GRCh38",
+    "data_version": "Ensembl MANE v1.4 SpliceAI (SpliceAIv1.3.1), RAW+MASKED SNV (delta>=0.2 on raw) + Illumina GENCODE indels, GRCh38",
     "id": "124",
     "name": "SpliceAI",
     "aliases": "SpliceAI,splice prediction,splicing variant,splice site,delta score,splice donor,splice acceptor",
@@ -1731,12 +1735,15 @@
     "path": "https://ftp.ensembl.org/pub/current_variation/SpliceAI/spliceai_scores.raw.snv.ensembl_mane_v1.4.grch38.vcf.gz",
     "useLocalFile": "no",
     "hasFilter": "yes",
-    "attrs": "chromosome,position,ref_allele,alt_allele,effect,score,gene_symbol,ds_ag,ds_al,ds_dg,ds_dl,dp_ag,dp_al,dp_dg,dp_dl",
-    "compact_fields": "gene_symbol,effect,score",
+    "attrs": "chromosome,position,ref_allele,alt_allele,effect,score,gene_symbol,ds_ag,ds_al,ds_dg,ds_dl,dp_ag,dp_al,dp_dg,dp_dl,ds_ag_masked,ds_al_masked,ds_dg_masked,ds_dl_masked",
+    "compact_fields": "gene_symbol,effect,score,ds_ag,ds_al,ds_dg,ds_dl,ds_ag_masked,ds_al_masked,ds_dg_masked,ds_dl_masked",
     "test_entries_count": "10000",
     "bucketMethod": "alphanum",
     "keyScheme": "chr:pos:ref:alt",
-    "threshold": "reported only if max SpliceAI delta (DS_AG/AL/DG/DL) >= 0.2; a variant absent from this dataset is below threshold (no predicted splice effect), not 'not assessed'"
+    "threshold": "reported only if max SpliceAI delta (DS_AG/AL/DG/DL) >= 0.2; a variant absent from this dataset is below threshold (no predicted splice effect), not 'not assessed'",
+    "pathMasked": "https://ftp.ensembl.org/pub/current_variation/SpliceAI/spliceai_scores.masked.snv.ensembl_mane_v1.4.grch38.vcf.gz",
+    "pathIndel": "https://krishna.gs.washington.edu/download/SpliceAI/spliceai_scores.raw.indel.hg38.vcf.gz",
+    "scoreVariant": "ds_* = raw (ClinGen SVI PP3/BP4-calibrated, Walker 2023); ds_*_masked = masked (what Ensembl VEP and the Broad lookup serve). Indel scores (GENCODE-based Illumina source) are raw-only."
   },
   "mirdb": {
     "id": "125",

@@ -933,6 +933,9 @@ func (s *Service) meta() *pbuf.MetaResponse {
 				if th := config.Dataconf[k]["threshold"]; th != "" {
 					datasetConf["threshold"] = th
 				}
+				if sv := config.Dataconf[k]["scoreVariant"]; sv != "" {
+					datasetConf["scoreVariant"] = sv
+				}
 
 				datasetConf["id"] = k
 
@@ -1101,6 +1104,11 @@ func (s *Service) metajson() string {
 		}
 		if th := config.Dataconf[k]["threshold"]; th != "" {
 			b.WriteString(`"threshold":` + jsonString(th) + `,`)
+		}
+		// scoreVariant: which release/variant of a score a dataset serves
+		// (e.g. SpliceAI raw vs masked) — changes what an absent score means.
+		if sv := config.Dataconf[k]["scoreVariant"]; sv != "" {
+			b.WriteString(`"scoreVariant":` + jsonString(sv) + `,`)
 		}
 
 		// Lineage: derivedFrom (explicit), else childDatasets/derived: parent.

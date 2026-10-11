@@ -141371,6 +141371,26 @@ func (j *SpliceAIAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.WriteJsonString(buf, string(j.DpDl))
 		buf.WriteByte(',')
 	}
+	if len(j.DsAgMasked) != 0 {
+		buf.WriteString(`"ds_ag_masked":`)
+		fflib.WriteJsonString(buf, string(j.DsAgMasked))
+		buf.WriteByte(',')
+	}
+	if len(j.DsAlMasked) != 0 {
+		buf.WriteString(`"ds_al_masked":`)
+		fflib.WriteJsonString(buf, string(j.DsAlMasked))
+		buf.WriteByte(',')
+	}
+	if len(j.DsDgMasked) != 0 {
+		buf.WriteString(`"ds_dg_masked":`)
+		fflib.WriteJsonString(buf, string(j.DsDgMasked))
+		buf.WriteByte(',')
+	}
+	if len(j.DsDlMasked) != 0 {
+		buf.WriteString(`"ds_dl_masked":`)
+		fflib.WriteJsonString(buf, string(j.DsDlMasked))
+		buf.WriteByte(',')
+	}
 	if len(j.Id) != 0 {
 		buf.WriteString(`"id":`)
 		fflib.WriteJsonString(buf, string(j.Id))
@@ -141417,6 +141437,14 @@ const (
 
 	ffjtSpliceAIAttrDpDl
 
+	ffjtSpliceAIAttrDsAgMasked
+
+	ffjtSpliceAIAttrDsAlMasked
+
+	ffjtSpliceAIAttrDsDgMasked
+
+	ffjtSpliceAIAttrDsDlMasked
+
 	ffjtSpliceAIAttrId
 )
 
@@ -141451,6 +141479,14 @@ var ffjKeySpliceAIAttrDpAl = []byte("dp_al")
 var ffjKeySpliceAIAttrDpDg = []byte("dp_dg")
 
 var ffjKeySpliceAIAttrDpDl = []byte("dp_dl")
+
+var ffjKeySpliceAIAttrDsAgMasked = []byte("ds_ag_masked")
+
+var ffjKeySpliceAIAttrDsAlMasked = []byte("ds_al_masked")
+
+var ffjKeySpliceAIAttrDsDgMasked = []byte("ds_dg_masked")
+
+var ffjKeySpliceAIAttrDsDlMasked = []byte("ds_dl_masked")
 
 var ffjKeySpliceAIAttrId = []byte("id")
 
@@ -141577,6 +141613,26 @@ mainparse:
 						currentKey = ffjtSpliceAIAttrDpDl
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeySpliceAIAttrDsAgMasked, kn) {
+						currentKey = ffjtSpliceAIAttrDsAgMasked
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeySpliceAIAttrDsAlMasked, kn) {
+						currentKey = ffjtSpliceAIAttrDsAlMasked
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeySpliceAIAttrDsDgMasked, kn) {
+						currentKey = ffjtSpliceAIAttrDsDgMasked
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeySpliceAIAttrDsDlMasked, kn) {
+						currentKey = ffjtSpliceAIAttrDsDlMasked
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 'e':
@@ -141631,6 +141687,30 @@ mainparse:
 
 				if fflib.SimpleLetterEqualFold(ffjKeySpliceAIAttrId, kn) {
 					currentKey = ffjtSpliceAIAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeySpliceAIAttrDsDlMasked, kn) {
+					currentKey = ffjtSpliceAIAttrDsDlMasked
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeySpliceAIAttrDsDgMasked, kn) {
+					currentKey = ffjtSpliceAIAttrDsDgMasked
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeySpliceAIAttrDsAlMasked, kn) {
+					currentKey = ffjtSpliceAIAttrDsAlMasked
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeySpliceAIAttrDsAgMasked, kn) {
+					currentKey = ffjtSpliceAIAttrDsAgMasked
 					state = fflib.FFParse_want_colon
 					goto mainparse
 				}
@@ -141795,6 +141875,18 @@ mainparse:
 
 				case ffjtSpliceAIAttrDpDl:
 					goto handle_DpDl
+
+				case ffjtSpliceAIAttrDsAgMasked:
+					goto handle_DsAgMasked
+
+				case ffjtSpliceAIAttrDsAlMasked:
+					goto handle_DsAlMasked
+
+				case ffjtSpliceAIAttrDsDgMasked:
+					goto handle_DsDgMasked
+
+				case ffjtSpliceAIAttrDsDlMasked:
+					goto handle_DsDlMasked
 
 				case ffjtSpliceAIAttrId:
 					goto handle_Id
@@ -142230,6 +142322,110 @@ handle_DpDl:
 			outBuf := fs.Output.Bytes()
 
 			j.DpDl = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_DsAgMasked:
+
+	/* handler: j.DsAgMasked type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.DsAgMasked = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_DsAlMasked:
+
+	/* handler: j.DsAlMasked type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.DsAlMasked = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_DsDgMasked:
+
+	/* handler: j.DsDgMasked type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.DsDgMasked = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_DsDlMasked:
+
+	/* handler: j.DsDlMasked type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.DsDlMasked = string(string(outBuf))
 
 		}
 	}

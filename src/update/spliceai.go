@@ -19,16 +19,23 @@ type spliceai struct {
 	d      *DataUpdate
 }
 
-// Helper for context-aware error checking
 func (s *spliceai) check(err error, operation string) {
 	checkWithContext(err, s.source, operation)
 }
 
-// Main update entry point. Source: Ensembl MANE SpliceAI VCF
-// (spliceai_scores.raw.snv.ensembl_mane_v1.4.grch38.vcf.gz) — MANE v1.4 (current
-// annotation, superseding the old GENCODE-v24 Illumina tables), all SNV alts,
-// and the four delta scores. The gene symbol comes from the VCF, so no GFF3
-// coordinate index is needed.
+// spliceaiScoreThreshold keeps only variants with a meaningful splice signal
+// (parity with the delta>=0.2 set). Masking only ever zeroes a delta, so
+// masked <= raw and "raw max >= 0.2" is already the union of raw/masked — no
+// variant is masked-only. A kept variant may therefore carry all-zero masked
+// deltas, which is exactly the negative evidence we want to expose.
+const spliceaiScoreThreshold = 0.2
+
+// Main update entry point. SpliceAI from the Ensembl MANE VCFs (MANE v1.4):
+//   - path:       raw SNV scores (ClinGen SVI PP3/BP4-calibrated, Walker 2023)
+//   - pathMasked: masked SNV scores (what Ensembl VEP / the Broad lookup serve);
+//     carried as ds_*_masked, merged per variant via a lockstep read
+//   - pathIndel:  Illumina GENCODE-based indel scores (raw-only; Ensembl is
+//     SNV-only), appended as additional variants
 func (s *spliceai) update() {
 	defer s.d.wg.Done()
 
@@ -48,24 +55,71 @@ func (s *spliceai) update() {
 	sourceID := config.Dataconf[s.source]["id"]
 	textLinkID := config.Dataconf["textlink"]["id"]
 
-	s.parseAndSaveVariants(testLimit, idLogFile, sourceID, textLinkID)
+	var total int64
+	if config.IsTestMode() {
+		total += s.processSNVs("tests/datasets/spliceai/spliceai_mane_fixture.vcf",
+			"tests/datasets/spliceai/spliceai_masked_fixture.vcf", true, testLimit, total, idLogFile, sourceID, textLinkID)
+		total += s.processIndels("tests/datasets/spliceai/spliceai_indel_fixture.vcf", true, testLimit, total, idLogFile, sourceID, textLinkID)
+	} else {
+		total += s.processSNVs(config.Dataconf[s.source]["path"], config.Dataconf[s.source]["pathMasked"],
+			false, testLimit, total, idLogFile, sourceID, textLinkID)
+		if ip := config.Dataconf[s.source]["pathIndel"]; ip != "" {
+			total += s.processIndels(ip, false, testLimit, total, idLogFile, sourceID, textLinkID)
+		}
+	}
 
-	log.Printf("SpliceAI: Processing complete (%.2fs)", time.Since(startTime).Seconds())
+	log.Printf("SpliceAI: Processing complete (%.2fs), %d variants", time.Since(startTime).Seconds(), total)
 	s.d.progChan <- &progressInfo{dataset: s.source, done: true}
 }
 
-// spliceaiScoreThreshold keeps only variants with a meaningful splice signal
-// (parity with the previously-ingested delta>=0.2 set); the raw MANE VCF carries
-// every SNV genome-wide, almost all with all-zero deltas.
-const spliceaiScoreThreshold = 0.2
+// openVCF returns a line reader for a VCF path (local fixture or remote gz) plus
+// a cleanup func.
+func (s *spliceai) openVCF(path string, isFixture bool) (*bufio.Reader, func()) {
+	if isFixture {
+		f, err := os.Open(path)
+		s.check(err, "opening SpliceAI fixture "+path)
+		return bufio.NewReaderSize(f, 1<<20), func() { f.Close() }
+	}
+	br, gz, ftpFile, client, localFile, _, err := getDataReaderNew(s.source, "", "", path)
+	s.check(err, "opening SpliceAI VCF "+path)
+	r := br
+	if gz != nil {
+		r = bufio.NewReaderSize(gz, 1<<20)
+	} else {
+		r = bufio.NewReaderSize(br, 1<<20)
+	}
+	return r, func() { closeReaders(gz, ftpFile, client, localFile) }
+}
+
+// nextData returns the next VCF data line's tab fields (>=8), skipping headers
+// and blanks. Returns nil at EOF.
+func nextData(reader *bufio.Reader) []string {
+	for {
+		line, rerr := reader.ReadString('\n')
+		if len(line) == 0 && rerr == io.EOF {
+			return nil
+		}
+		line = strings.TrimRight(line, "\r\n")
+		if line != "" && line[0] != '#' {
+			f := strings.Split(line, "\t")
+			if len(f) >= 8 {
+				return f
+			}
+		}
+		if rerr == io.EOF {
+			return nil
+		}
+	}
+}
+
+func variantKey(f []string) string { return f[0] + ":" + f[1] + ":" + f[3] + ":" + f[4] }
 
 // extractSpliceaiInfo pulls the SpliceAI annotation out of a VCF INFO column and
 // splits it into its 10 pipe fields:
 //
 //	ALLELE|SYMBOL|DS_AG|DS_AL|DS_DG|DS_DL|DP_AG|DP_AL|DP_DG|DP_DL
 //
-// Returns nil if absent/malformed. If several comma-separated annotations are
-// present (one per overlapping gene) the first is used.
+// Returns nil if absent/malformed; the first annotation is used if several.
 func extractSpliceaiInfo(info string) []string {
 	for _, kv := range strings.Split(info, ";") {
 		if strings.HasPrefix(kv, "SpliceAI=") {
@@ -80,161 +134,137 @@ func extractSpliceaiInfo(info string) []string {
 	return nil
 }
 
-// parseAndSaveVariants streams the MANE SpliceAI VCF, keeps variants whose max
-// delta >= threshold, and stores the four deltas + positions + dominant effect.
-func (s *spliceai) parseAndSaveVariants(testLimit int, idLogFile *os.File, sourceID, textLinkID string) {
-	var reader *bufio.Reader
-	if config.IsTestMode() {
-		// Read the committed plain-text fixture directly (conf useLocalFile=no is
-		// for the remote prod VCF, so getDataReaderNew can't open a local path).
-		file, ferr := os.Open("tests/datasets/spliceai/spliceai_mane_fixture.vcf")
-		s.check(ferr, "opening SpliceAI fixture")
-		defer file.Close()
-		log.Printf("SpliceAI: [TEST MODE] Processing fixture VCF")
-		reader = bufio.NewReaderSize(file, 1024*1024)
-	} else {
-		filePath := config.Dataconf[s.source]["path"]
-		log.Printf("SpliceAI: Processing MANE VCF from %s", filePath)
-		br, gz, ftpFile, client, localFile, _, err := getDataReaderNew(s.source, "", "", filePath)
-		s.check(err, "opening SpliceAI VCF")
-		defer closeReaders(gz, ftpFile, client, localFile)
-		if gz != nil {
-			reader = bufio.NewReaderSize(gz, 1024*1024)
-		} else {
-			reader = bufio.NewReaderSize(br, 1024*1024)
-		}
+// processSNVs streams the raw SNV VCF and, in lockstep, the masked SNV VCF (same
+// MANE SNV rows in the same order), matching by full variant key. A kept variant
+// (raw max >= threshold) stores raw deltas + the matched masked deltas.
+func (s *spliceai) processSNVs(rawPath, maskedPath string, isFixture bool, testLimit int, already int64, idLogFile *os.File, sourceID, textLinkID string) int64 {
+	raw, closeRaw := s.openVCF(rawPath, isFixture)
+	defer closeRaw()
+
+	var masked *bufio.Reader
+	if maskedPath != "" {
+		var closeMasked func()
+		masked, closeMasked = s.openVCF(maskedPath, isFixture)
+		defer closeMasked()
 	}
 
-	var lineCount, entryCount, skippedCount int64
-	effectCounts := make(map[string]int64)
-	var totalRead, previous int64
-
+	var count, mismatch int64
 	for {
-		line, readErr := reader.ReadString('\n')
-		if readErr != nil && readErr != io.EOF {
-			s.check(readErr, "reading SpliceAI VCF")
-		}
-		if len(line) == 0 && readErr == io.EOF {
+		rf := nextData(raw)
+		if rf == nil {
 			break
 		}
-		totalRead += int64(len(line))
-		lineCount++
-		line = strings.TrimRight(line, "\r\n")
-
-		if line == "" || line[0] == '#' { // VCF headers / meta
-			if readErr == io.EOF {
+		var md [4]string // ds_ag/al/dg/dl masked
+		if masked != nil {
+			mf := nextData(masked)
+			if mf != nil && variantKey(mf) == variantKey(rf) {
+				if msa := extractSpliceaiInfo(mf[7]); msa != nil {
+					md = [4]string{msa[2], msa[3], msa[4], msa[5]}
+				}
+			} else if mf != nil {
+				mismatch++
+				if mismatch <= 5 {
+					log.Printf("SpliceAI: masked/raw key mismatch (raw=%s masked=%s) — masked left empty for this variant", variantKey(rf), variantKey(mf))
+				}
+			}
+		}
+		if s.storeVariant(rf, md, idLogFile, sourceID, textLinkID) {
+			count++
+			if testLimit > 0 && already+count >= int64(testLimit) {
 				break
 			}
-			continue
-		}
-
-		// VCF: CHROM POS ID REF ALT QUAL FILTER INFO
-		f := strings.Split(line, "\t")
-		if len(f) < 8 {
-			skippedCount++
-			if readErr == io.EOF {
-				break
-			}
-			continue
-		}
-		chrom, posStr, refAllele, altAllele, info := f[0], f[1], f[3], f[4], f[7]
-
-		pos, perr := strconv.ParseInt(posStr, 10, 64)
-		if perr != nil {
-			skippedCount++
-			if readErr == io.EOF {
-				break
-			}
-			continue
-		}
-
-		sa := extractSpliceaiInfo(info)
-		if sa == nil {
-			skippedCount++
-			if readErr == io.EOF {
-				break
-			}
-			continue
-		}
-		symbol := sa[1]
-		dsAG, _ := strconv.ParseFloat(sa[2], 64)
-		dsAL, _ := strconv.ParseFloat(sa[3], 64)
-		dsDG, _ := strconv.ParseFloat(sa[4], 64)
-		dsDL, _ := strconv.ParseFloat(sa[5], 64)
-
-		maxDS, effect := dsAG, "acceptor_gain"
-		if dsAL > maxDS {
-			maxDS, effect = dsAL, "acceptor_loss"
-		}
-		if dsDG > maxDS {
-			maxDS, effect = dsDG, "donor_gain"
-		}
-		if dsDL > maxDS {
-			maxDS, effect = dsDL, "donor_loss"
-		}
-		if maxDS < spliceaiScoreThreshold {
-			if readErr == io.EOF {
-				break
-			}
-			continue
-		}
-
-		entryID := fmt.Sprintf("%s:%d:%s:%s", chrom, pos, refAllele, altAllele)
-		if len(entryID) > LMDBMaxKeySize {
-			if readErr == io.EOF {
-				break
-			}
-			continue
-		}
-
-		effectCounts[effect]++
-		attr := &pbuf.SpliceAIAttr{
-			Chromosome: chrom,
-			Position:   pos,
-			RefAllele:  refAllele,
-			AltAllele:  altAllele,
-			Effect:     effect,
-			Score:      float32(maxDS),
-			GeneSymbol: symbol,
-			DsAg:       sa[2], DsAl: sa[3], DsDg: sa[4], DsDl: sa[5],
-			DpAg: sa[6], DpAl: sa[7], DpDg: sa[8], DpDl: sa[9],
-		}
-
-		s.createCrossReferences(entryID, sourceID, textLinkID, attr)
-
-		// chr:pos text link for position-based lookup.
-		s.d.addXref(fmt.Sprintf("%s:%d", chrom, pos), textLinkID, entryID, s.source, true)
-
-		attrBytes, merr := ffjson.Marshal(attr)
-		s.check(merr, fmt.Sprintf("marshaling attributes for %s", entryID))
-		s.d.addProp3(entryID, sourceID, attrBytes)
-
-		if idLogFile != nil {
-			logProcessedID(idLogFile, entryID)
-		}
-		entryCount++
-
-		elapsed := int64(time.Since(s.d.start).Seconds())
-		if elapsed > previous+s.d.progInterval {
-			previous = elapsed
-			s.d.progChan <- &progressInfo{dataset: s.source, currentKBPerSec: totalRead / elapsed / 1024}
-		}
-		if entryCount%1000000 == 0 {
-			log.Printf("SpliceAI: Processed %d variants...", entryCount)
-		}
-		if testLimit > 0 && entryCount >= int64(testLimit) {
-			log.Printf("SpliceAI: [TEST MODE] Reached limit of %d variants", testLimit)
-			break
-		}
-		if readErr == io.EOF {
-			break
 		}
 	}
-
-	log.Printf("SpliceAI: Processed %d variants (skipped %d non-SpliceAI/malformed/below-threshold)", entryCount, skippedCount)
-	for effect, count := range effectCounts {
-		log.Printf("SpliceAI: Effect %s: %d", effect, count)
+	if mismatch > 0 {
+		log.Printf("SpliceAI: WARNING — %d raw/masked key mismatches (masked left empty); check VCF row alignment", mismatch)
 	}
+	log.Printf("SpliceAI: SNVs — stored %d variants", count)
+	return count
+}
+
+// processIndels streams the Illumina indel VCF (raw-only; no masked file exists).
+func (s *spliceai) processIndels(path string, isFixture bool, testLimit int, already int64, idLogFile *os.File, sourceID, textLinkID string) int64 {
+	r, cl := s.openVCF(path, isFixture)
+	defer cl()
+	var count int64
+	for {
+		f := nextData(r)
+		if f == nil {
+			break
+		}
+		if s.storeVariant(f, [4]string{}, idLogFile, sourceID, textLinkID) {
+			count++
+			if testLimit > 0 && already+count >= int64(testLimit) {
+				break
+			}
+		}
+	}
+	log.Printf("SpliceAI: indels — stored %d variants", count)
+	return count
+}
+
+// storeVariant parses one VCF row, applies the raw>=threshold filter, and stores
+// the SpliceAIAttr (raw deltas + the supplied masked deltas) plus cross-refs.
+func (s *spliceai) storeVariant(f []string, maskedDeltas [4]string, idLogFile *os.File, sourceID, textLinkID string) bool {
+	chrom, posStr, refAllele, altAllele, info := f[0], f[1], f[3], f[4], f[7]
+	pos, perr := strconv.ParseInt(posStr, 10, 64)
+	if perr != nil {
+		return false
+	}
+	sa := extractSpliceaiInfo(info)
+	if sa == nil {
+		return false
+	}
+	dsAG, _ := strconv.ParseFloat(sa[2], 64)
+	dsAL, _ := strconv.ParseFloat(sa[3], 64)
+	dsDG, _ := strconv.ParseFloat(sa[4], 64)
+	dsDL, _ := strconv.ParseFloat(sa[5], 64)
+
+	maxDS, effect := dsAG, "acceptor_gain"
+	if dsAL > maxDS {
+		maxDS, effect = dsAL, "acceptor_loss"
+	}
+	if dsDG > maxDS {
+		maxDS, effect = dsDG, "donor_gain"
+	}
+	if dsDL > maxDS {
+		maxDS, effect = dsDL, "donor_loss"
+	}
+	if maxDS < spliceaiScoreThreshold {
+		return false
+	}
+
+	entryID := fmt.Sprintf("%s:%d:%s:%s", chrom, pos, refAllele, altAllele)
+	if len(entryID) > LMDBMaxKeySize {
+		return false
+	}
+
+	attr := &pbuf.SpliceAIAttr{
+		Chromosome: chrom,
+		Position:   pos,
+		RefAllele:  refAllele,
+		AltAllele:  altAllele,
+		Effect:     effect,
+		Score:      float32(maxDS),
+		GeneSymbol: sa[1],
+		DsAg:       sa[2], DsAl: sa[3], DsDg: sa[4], DsDl: sa[5],
+		DpAg: sa[6], DpAl: sa[7], DpDg: sa[8], DpDl: sa[9],
+		DsAgMasked: maskedDeltas[0], DsAlMasked: maskedDeltas[1],
+		DsDgMasked: maskedDeltas[2], DsDlMasked: maskedDeltas[3],
+	}
+
+	s.createCrossReferences(entryID, sourceID, textLinkID, attr)
+	// chr:pos text link for position-based lookup.
+	s.d.addXref(fmt.Sprintf("%s:%d", chrom, pos), textLinkID, entryID, s.source, true)
+
+	attrBytes, merr := ffjson.Marshal(attr)
+	s.check(merr, fmt.Sprintf("marshaling attributes for %s", entryID))
+	s.d.addProp3(entryID, sourceID, attrBytes)
+
+	if idLogFile != nil {
+		logProcessedID(idLogFile, entryID)
+	}
+	return true
 }
 
 // createCrossReferences wires the gene (from the VCF symbol) and the effect so

@@ -1383,6 +1383,12 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			d.datasets2 = append(d.datasets2, data)
 			go gx.update()
 			break
+		case "gtex_egene":
+			d.wg.Add(1)
+			ge := gtexEgene{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go ge.update()
+			break
 		default:
 			log.Fatal("ERROR Unrecognized dataset ->" + data)
 		}

@@ -2449,6 +2449,11 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)
 				xref.Attributes = &pbuf.Xref_Gtex{attr}
+			case "gtex_egene":
+				attr := &pbuf.GtexEgeneAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_GtexEgene{attr}
 			case "msigdb":
 				attr := &pbuf.MsigdbAttr{}
 				barr := []byte((*kvProp[k])[0].value)
@@ -3190,6 +3195,11 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)
 				xref.Attributes = &pbuf.Xref_Gtex{attr}
+			case "gtex_egene":
+				attr := &pbuf.GtexEgeneAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_GtexEgene{attr}
 			}
 		}
 

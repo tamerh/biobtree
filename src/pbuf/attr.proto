@@ -3115,6 +3115,23 @@ message GtexAttr {
   string id = 100;         // transient = chr:pos:ref:alt (variant key)
 }
 
+// GTEx gene-level eGene/sGene summary. One record per Ensembl gene (ENSG),
+// holding the per-tissue eGene (eQTL) / sGene (sQTL) call that the variant-keyed
+// `gtex` dataset cannot be aggregated back into. Reachable as ensembl >> gtex_egene.
+message GtexEgeneTissue {
+  string qtl_type = 1;     // eqtl (eGene) | sqtl (sGene)
+  string tissue = 2;       // GTEx tissue (from the per-tissue filename)
+  bool is_egene = 3;       // genome-wide significant in this tissue (qval <= 0.05)
+  string qval = 4;         // storey q-value (string: a meaningful 0 kept)
+  string lead_variant = 5; // top association variant key chr:pos:ref:alt
+  string slope = 6;        // lead-variant effect size (string: sign + 0 kept)
+}
+message GtexEgeneAttr {
+  string gene_name = 1;              // GTEx gene symbol
+  repeated GtexEgeneTissue tissues = 2;
+  string id = 100;                   // transient = ENSG (version stripped)
+}
+
 // ============================================================================
 // GtoPdb - IUPHAR/BPS Guide to Pharmacology
 // Expert-curated database of drug targets, ligands, and their interactions

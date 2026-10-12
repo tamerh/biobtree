@@ -1,0 +1,9 @@
+{
+  "dataset": "gtex_egene",
+  "dataset_id": 821,
+  "description": "GTEx v10 gene-level eGene/sGene summary, keyed by Ensembl gene (ENSG). One entry per gene holds its per-tissue eQTL/sQTL call (is_egene, qval, lead variant, slope). Reachable as ensembl >> gtex_egene. Hand-crafted fixture (tests/datasets/gtex_egene/gtex_egene_fixture.tsv), NOT real GTEx data.",
+  "genes": [
+    {"id": "ENSG00000141510", "gene_name": "TP53", "n_tissues": 3, "egene_count": 2, "tissues": ["Whole_Blood", "Lung"], "qtl_types": ["eqtl", "sqtl"], "note": "3 tissue rows; 2 are significant eGene/sGene (both Whole_Blood), Lung eQTL below threshold"},
+    {"id": "ENSG00000012048", "gene_name": "BRCA1", "n_tissues": 1, "egene_count": 1, "tissues": ["Breast_Mammary_Tissue"], "qtl_types": ["eqtl"]}
+  ]
+}

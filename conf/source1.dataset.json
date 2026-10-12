@@ -598,7 +598,7 @@
     "useLocalFile": "no",
     "hasFilter": "yes",
     "attrs": "variation_id,allele_id,name,type,dbsnp_id,chromosome,start,stop,position_vcf,reference_allele,alternate_allele,assembly,germline_classification,germline_condition,germline_condition_id,review_status,last_evaluated,number_submitters,gene_id,gene_symbol,hgnc_id,[]phenotype_list,[]phenotype_ids,[]hgvs_expressions,[]submissions,[]functional_consequences",
-    "compact_fields": "name,type,germline_classification,gene_symbol,review_status,chromosome",
+    "compact_fields": "name,type,germline_classification,gene_symbol,review_status,chromosome,number_submitters,position_vcf,reference_allele,alternate_allele",
     "test_entries_count": "10000",
     "bucketMethod": "numeric",
     "keyScheme": "ClinVar VariationID; a chr:pos:ref:alt key is derivable from the chromosome + position_vcf + reference_allele + alternate_allele attributes"
@@ -874,7 +874,7 @@
     "protistsUrl": "http://protists.ensembl.org/Multi/Search/Results?species=all;idx=;q=\u00a3{id};;site=ensemblunit",
     "hasFilter": "yes",
     "attrs": "name,start,end,biotype,strand,seq_region,utr5Start,utr5End,utr3Start,utr3End,source,mane_select,mane_plus_clinical,tsl",
-    "compact_fields": "biotype,start,end,strand,seq_region,utr5Start,utr5End,utr3Start,utr3End",
+    "compact_fields": "biotype,start,end,strand,seq_region,utr5Start,utr5End,utr3Start,utr3End,mane_select,mane_plus_clinical,tsl",
     "keyScheme": "Ensembl transcript ID (ENST\u2026)"
   },
   "ufeature": {
@@ -1953,6 +1953,19 @@
     "test_entries_count": "2000",
     "bucketMethod": "alphanum",
     "keyScheme": "chr:pos:ref:alt"
+  },
+  "gtex_egene": {
+    "id": "821",
+    "name": "GTEx eGene",
+    "aliases": "GTEx eGene,eGene,sGene,GTEx gene-level,gtex gene",
+    "attrs": "gene_name,egene_count,egene_tissues,qtl_types",
+    "compact_fields": "gene_name,egene_count,egene_tissues,qtl_types",
+    "bucketMethod": "ensembl_hybrid",
+    "data_version": "GTEx v10 gene-level eGene/sGene (eQTL + sQTL, per tissue)",
+    "path": "raw_data/gtex/gtex_egenes.sorted.tsv.gz",
+    "useLocalFile": "yes",
+    "url": "https://www.gtexportal.org/home/gene/\u00a3{id}",
+    "test_entries_count": "500"
   },
   "cellosaurus": {
     "id": "757",

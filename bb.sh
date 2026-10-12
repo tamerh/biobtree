@@ -138,6 +138,7 @@ DATASETS=(
     conservation
     revel
     gtex
+    gtex_egene
     esm1b
     saprot
 

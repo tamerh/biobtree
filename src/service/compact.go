@@ -341,6 +341,9 @@ func extractField(xref *pbuf.Xref, field string) string {
 	if a := xref.GetGtex(); a != nil {
 		return extractGtexField(a, field)
 	}
+	if a := xref.GetGtexEgene(); a != nil {
+		return extractGtexEgeneField(a, field)
+	}
 	if a := xref.GetEsm1B(); a != nil {
 		return extractEsm1bField(a, field)
 	}
@@ -539,6 +542,18 @@ func extractEnsemblField(a *pbuf.EnsemblAttr, field string) string {
 		return fmt.Sprintf("%d", a.Utr3End)
 	case "source":
 		return a.Source
+	case "mane_select":
+		if a.ManeSelect {
+			return "true"
+		}
+		return "false"
+	case "mane_plus_clinical":
+		if a.ManePlusClinical {
+			return "true"
+		}
+		return "false"
+	case "tsl":
+		return a.Tsl
 	default:
 		return ""
 	}
@@ -694,6 +709,20 @@ func extractClinvarField(a *pbuf.ClinvarAttr, field string) string {
 		return a.ReviewStatus
 	case "gene_symbol":
 		return a.GeneSymbol
+	case "number_submitters":
+		if a.NumberSubmitters != 0 {
+			return fmt.Sprintf("%d", a.NumberSubmitters)
+		}
+		return ""
+	case "position_vcf":
+		if a.PositionVcf != 0 {
+			return fmt.Sprintf("%d", a.PositionVcf)
+		}
+		return ""
+	case "reference_allele":
+		return a.ReferenceAllele
+	case "alternate_allele":
+		return a.AlternateAllele
 	default:
 		return ""
 	}
@@ -2581,6 +2610,45 @@ func extractGtexField(a *pbuf.GtexAttr, field string) string {
 			if s.QtlType != "" && !seen[s.QtlType] {
 				seen[s.QtlType] = true
 				out = append(out, s.QtlType)
+			}
+		}
+		return strings.Join(out, ",")
+	}
+	return ""
+}
+
+// extractGtexEgeneField summarizes GtexEgeneAttr (GTEx gene-level eGene/sGene)
+// for compact mode: gene symbol, the tissues where the gene is a significant
+// eGene/sGene, and the QTL types present.
+func extractGtexEgeneField(a *pbuf.GtexEgeneAttr, field string) string {
+	switch field {
+	case "gene_name":
+		return a.GeneName
+	case "egene_count":
+		n := 0
+		for _, t := range a.Tissues {
+			if t.IsEgene {
+				n++
+			}
+		}
+		return fmt.Sprintf("%d", n)
+	case "egene_tissues":
+		seen := map[string]bool{}
+		var out []string
+		for _, t := range a.Tissues {
+			if t.IsEgene && t.Tissue != "" && !seen[t.Tissue] {
+				seen[t.Tissue] = true
+				out = append(out, t.Tissue)
+			}
+		}
+		return strings.Join(out, ",")
+	case "qtl_types":
+		seen := map[string]bool{}
+		var out []string
+		for _, t := range a.Tissues {
+			if t.QtlType != "" && !seen[t.QtlType] {
+				seen[t.QtlType] = true
+				out = append(out, t.QtlType)
 			}
 		}
 		return strings.Join(out, ",")

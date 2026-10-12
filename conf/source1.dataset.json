@@ -1741,7 +1741,7 @@
     "bucketMethod": "alphanum",
     "keyScheme": "chr:pos:ref:alt",
     "threshold": "reported only if max SpliceAI delta (DS_AG/AL/DG/DL) >= 0.2; a variant absent from this dataset is below threshold (no predicted splice effect), not 'not assessed'",
-    "pathMasked": "https://ftp.ensembl.org/pub/current_variation/SpliceAI/spliceai_scores.masked.snv.ensembl_mane_v1.4.grch38.vcf.gz",
+    "pathMasked": "",
     "pathIndel": "",
     "scoreVariant": "ds_* = raw (ClinGen SVI PP3/BP4-calibrated, Walker 2023); ds_*_masked = masked (what Ensembl VEP and the Broad lookup serve); a raw>=0.2 variant with empty/zero masked = masked predicts no effect"
   },

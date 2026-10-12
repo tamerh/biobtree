@@ -96,9 +96,7 @@ func (s *spliceai) openVCF(path string, isFixture bool) (*bufio.Reader, func()) 
 func nextData(reader *bufio.Reader) []string {
 	for {
 		line, rerr := reader.ReadString('\n')
-		if len(line) == 0 && rerr == io.EOF {
-			return nil
-		}
+		// Yield the final partial line (last record with no trailing newline).
 		line = strings.TrimRight(line, "\r\n")
 		if line != "" && line[0] != '#' {
 			f := strings.Split(line, "\t")
@@ -106,7 +104,16 @@ func nextData(reader *bufio.Reader) []string {
 				return f
 			}
 		}
-		if rerr == io.EOF {
+		if rerr != nil {
+			// io.EOF is a clean end. ANY OTHER error means the (gzip/HTTP) stream
+			// was truncated or corrupted mid-flight — a multi-GB VCF streamed over
+			// FTP can do this. The old code only checked io.EOF, so a non-EOF error
+			// with an empty line spun this loop forever (ReadString keeps returning
+			// "",err): 100% CPU, flat RSS, no output. Fail loudly instead of hanging
+			// or silently truncating the dataset.
+			if rerr != io.EOF {
+				log.Fatalf("spliceai: VCF stream read error (truncated/corrupt? re-run the build): %v", rerr)
+			}
 			return nil
 		}
 	}

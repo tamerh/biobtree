@@ -115,6 +115,45 @@ func nextData(reader *bufio.Reader) []string {
 func variantKey(f []string) string { return f[0] + ":" + f[1] + ":" + f[3] + ":" + f[4] }
 func posKey(f []string) string     { return f[0] + ":" + f[1] }
 
+// chrRank maps a chromosome to karyotype sort order (1-22, X, Y, MT) so the
+// raw/masked merge-join can decide which file is behind. Both SpliceAI VCFs are
+// karyotype-sorted; an unknown contig sorts last.
+func chrRank(chrom string) int {
+	c := strings.TrimPrefix(strings.TrimPrefix(chrom, "chr"), "CHR")
+	switch c {
+	case "X":
+		return 23
+	case "Y":
+		return 24
+	case "M", "MT":
+		return 25
+	}
+	if n, err := strconv.Atoi(c); err == nil {
+		return n
+	}
+	return 1000
+}
+
+// cmpPos compares two VCF rows by (chrRank, position): <0 if a is before b.
+func cmpPos(a, b []string) int {
+	if ra, rb := chrRank(a[0]), chrRank(b[0]); ra != rb {
+		if ra < rb {
+			return -1
+		}
+		return 1
+	}
+	pa, _ := strconv.ParseInt(a[1], 10, 64)
+	pb, _ := strconv.ParseInt(b[1], 10, 64)
+	switch {
+	case pa < pb:
+		return -1
+	case pa > pb:
+		return 1
+	default:
+		return 0
+	}
+}
+
 // groupReader yields consecutive VCF data rows that share the same (chrom,pos),
 // using a one-row lookahead. Raw and masked VCFs list the same positions in the
 // same order, but the ALT rows within a position can be ordered differently, so
@@ -191,43 +230,36 @@ func (s *spliceai) processSNVs(rawPath, maskedPath string, isFixture bool, testL
 
 	rawG := &groupReader{r: raw}
 	var maskedG *groupReader
-	var maskedPending [][]string // a masked group read ahead but not yet consumed
+	var mg [][]string // current masked position-group (lookahead)
 	if masked != nil {
 		maskedG = &groupReader{r: masked}
+		mg = maskedG.next()
 	}
 
-	var count, groupMismatch int64
+	// Merge-join by (chrRank, pos). For each raw position-group: advance masked past
+	// any masked-only positions (behind raw), then if masked is AT the same position
+	// build the per-key masked-delta map (alts within the group may be reordered),
+	// else masked is ahead -> this is a raw-only position (masked stays empty).
+	var count, rawOnly int64
 	for {
 		rg := rawG.next()
 		if rg == nil {
 			break
 		}
-		// Build the masked delta map for this position (same (chr,pos) group in the
-		// masked VCF; alts within it may be in a different order, so key by full id).
 		mmap := map[string][4]string{}
 		if maskedG != nil {
-			mg := maskedPending
-			maskedPending = nil
-			if mg == nil {
+			for mg != nil && cmpPos(mg[0], rg[0]) < 0 {
 				mg = maskedG.next()
 			}
-			if mg != nil {
-				if posKey(mg[0]) == posKey(rg[0]) {
-					for _, mr := range mg {
-						if msa := extractSpliceaiInfo(mr[7]); msa != nil {
-							mmap[variantKey(mr)] = [4]string{msa[2], msa[3], msa[4], msa[5]}
-						}
-					}
-				} else {
-					// position-group misalignment (should not happen — same variant
-					// set/order); keep the masked group for the next raw group and
-					// leave this one's masked empty rather than mis-assign.
-					maskedPending = mg
-					groupMismatch++
-					if groupMismatch <= 5 {
-						log.Printf("SpliceAI: masked/raw position mismatch (raw=%s masked=%s) — masked left empty here", posKey(rg[0]), posKey(mg[0]))
+			if mg != nil && cmpPos(mg[0], rg[0]) == 0 {
+				for _, mr := range mg {
+					if msa := extractSpliceaiInfo(mr[7]); msa != nil {
+						mmap[variantKey(mr)] = [4]string{msa[2], msa[3], msa[4], msa[5]}
 					}
 				}
+				mg = maskedG.next()
+			} else {
+				rawOnly++
 			}
 		}
 		for _, rr := range rg {
@@ -240,10 +272,7 @@ func (s *spliceai) processSNVs(rawPath, maskedPath string, isFixture bool, testL
 			break
 		}
 	}
-	if groupMismatch > 0 {
-		log.Printf("SpliceAI: WARNING — %d raw/masked position-group mismatches (masked left empty); check VCF alignment", groupMismatch)
-	}
-	log.Printf("SpliceAI: SNVs — stored %d variants", count)
+	log.Printf("SpliceAI: SNVs — stored %d variants (%d raw-only positions had no masked row)", count, rawOnly)
 	return count
 }
 

@@ -68,6 +68,17 @@ class SpliceaiTests:
             return False, f"LNPK masked mismatch: ds_dl={b and b.get('ds_dl')} masked={b and b.get('ds_dl_masked')}"
         return True, "masked merged: IKBKB raw 0.98/masked 0.00, LNPK raw=masked 0.99"
 
+    def test_raw_only_empty_masked(self):
+        """A position the masked VCF omits is kept from raw with empty masked deltas"""
+        a = self._attr("1:200000:C:A")  # raw acceptor-loss 0.30; masked VCF omits this position
+        if a is None:
+            return False, "raw-only variant 1:200000:C:A missing (merge-join should keep it)"
+        if a.get("ds_al") != "0.30" or a.get("effect") != "acceptor_loss":
+            return False, f"raw-only deltas wrong: ds_al={a.get('ds_al')} effect={a.get('effect')}"
+        if a.get("ds_al_masked"):
+            return False, f"masked should be empty for a masked-omitted position (got {a.get('ds_al_masked')!r})"
+        return True, "raw-only position kept (AL 0.30) with empty masked (merge-join skipped it correctly)"
+
     def test_indels_present(self):
         """Illumina indel scores are ingested (Ensembl is SNV-only)"""
         d = self._attr("2:175937340:CA:C")  # deletion, acceptor loss 0.34
@@ -89,7 +100,7 @@ def main():
     runner = TestRunner(os.environ.get('BIOBTREE_API_URL', 'http://localhost:9292'), script_dir / "reference_data.json")
     c = SpliceaiTests(runner)
     for m in [c.test_all_alts_present, c.test_below_threshold_filtered, c.test_four_deltas_stored,
-              c.test_masked_deltas, c.test_indels_present]:
+              c.test_masked_deltas, c.test_raw_only_empty_masked, c.test_indels_present]:
         runner.add_custom_test(m)
     runner.run_all_tests()
     return runner.print_summary()

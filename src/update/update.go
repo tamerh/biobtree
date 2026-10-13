@@ -904,6 +904,12 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			d.datasets2 = append(d.datasets2, data)
 			go ws.update()
 			break
+		case "wikidata":
+			d.wg.Add(1)
+			wd := wikidata{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go wd.update()
+			break
 		case "clinvar":
 			d.wg.Add(1)
 			cv := clinvarXML{source: data, d: d}

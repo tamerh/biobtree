@@ -1,0 +1,10 @@
+{
+  "dataset": "wikidata",
+  "dataset_id": 814,
+  "description": "Full disease->Wikidata-item (QID) mapping from P5270 (Mondo) / P699 (DOID), symptom-independent. Reachable as mondo/doid >> wikidata. Hand-crafted fixture, NOT live Wikidata.",
+  "diseases": [
+    {"id": "MONDO:0004975", "qid": "Q11081"},
+    {"id": "DOID:1935", "qid": "Q166228", "note": "Bardet-Biedl — Atlas gap case"},
+    {"id": "MONDO:0005148", "qid": "Q124407", "note": "no symptom edge, still mapped"}
+  ]
+}

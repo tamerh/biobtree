@@ -112,7 +112,6 @@
     "hasFilter": "yes",
     "attrs": "name",
     "compact_fields": "name",
-    "childDatasets": "wikidata",
     "test_entries_count": "100",
     "bucketMethod": "alphanum"
   },
@@ -121,7 +120,10 @@
     "id": "814",
     "name": "Wikidata",
     "url": "https://www.wikidata.org/wiki/£{id}",
-    "bucketMethod": "alphanum"
+    "bucketMethod": "alphanum",
+    "path": "tests/datasets/wikidata/wikidata_diseases_fixture.tsv",
+    "useLocalFile": "yes",
+    "test_entries_count": "200"
   },
   "upheno": {
     "aliases": "uPheno,Unified Phenotype Ontology,UPHENO,cross-species phenotype",

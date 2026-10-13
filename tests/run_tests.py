@@ -336,6 +336,7 @@ Available datasets:
         'gnomad_gnocchi': datasets_dir / "gnomad_gnocchi" / "test_gnomad_gnocchi.py",
         'repeat': datasets_dir / "repeat" / "test_repeat.py",
         'wikidata_symptom': datasets_dir / "wikidata_symptom" / "test_wikidata_symptom.py",
+        'wikidata': datasets_dir / "wikidata" / "test_wikidata.py",
     }
 
     # Parse dataset selection

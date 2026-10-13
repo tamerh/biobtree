@@ -124,6 +124,7 @@ DATASETS=(
     alliance_disease
     alliance_phenotype
     wikidata_symptom
+    wikidata
     panelapp
     mavedb
     gwas_study

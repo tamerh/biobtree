@@ -3083,6 +3083,15 @@ message CaddAttr {
   string id = 100;       // transient = chr:pos:ref:alt (coords reconstructed from the key)
 }
 
+// GPN-MSA allele-specific genomic language-model score (Benegas et al. 2025).
+// Allele-aware complement to phyloP/phastCons (position-only). Stored minimally
+// like CADD: key chr:pos:ref:alt -> {score}, 1 KV per variant, own `gpn_msa`
+// federation (~9B SNVs). Raw score, NOT ACMG-calibrated (evidence, not classifier).
+message GpnMsaAttr {
+  string score = 1;      // GPN-MSA score (lower = more constrained/deleterious)
+  string id = 100;       // transient = chr:pos:ref:alt (coords reconstructed from the key)
+}
+
 // TF binding-site motif feature from the Ensembl Regulatory Build (JASPAR motifs
 // mapped only within regulatory features — the scoped alternative to the 177GB
 // genome-wide scan). Interval dataset (chr/start/end), queryable by variant

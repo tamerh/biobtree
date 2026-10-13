@@ -133,6 +133,9 @@ DATASETS=(
     # cadd    # separate 'cadd' federation (~350G, genome-wide SNVs) — excluded;
              # build explicitly: ./bb.sh out_prod --only cadd --force --generate-after
              # (its OUT_DIR/cadd dir is symlinked onto /data to keep it off /data2)
+    # gpn_msa # separate 'gpn_msa' federation (~360G, ~9B genome-wide SNVs) — excluded;
+             # build explicitly: ./bb.sh out_prod --only gpn_msa --force --generate-after
+             # (build its dir on /data like cadd to keep it off /data2)
     gnomad_variant
     alphamissense
     alphamissense_transcript
@@ -504,6 +507,7 @@ get_federation() {
         esm1b) echo "predictions" ;;
         saprot) echo "predictions" ;;
         cadd) echo "cadd" ;;
+        gpn_msa) echo "gpn_msa" ;;
         *) echo "main" ;;
     esac
 }

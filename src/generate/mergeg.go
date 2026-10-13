@@ -2439,6 +2439,11 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)
 				xref.Attributes = &pbuf.Xref_Cadd{attr}
+			case "gpn_msa":
+				attr := &pbuf.GpnMsaAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_GpnMsa{attr}
 			case "jaspar_tfbs":
 				attr := &pbuf.JasparTfbsAttr{}
 				barr := []byte((*kvProp[k])[0].value)
@@ -3185,6 +3190,11 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)
 				xref.Attributes = &pbuf.Xref_Cadd{attr}
+			case "gpn_msa":
+				attr := &pbuf.GpnMsaAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_GpnMsa{attr}
 			case "jaspar_tfbs":
 				attr := &pbuf.JasparTfbsAttr{}
 				barr := []byte((*kvProp[k])[0].value)

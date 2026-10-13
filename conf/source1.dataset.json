@@ -1924,6 +1924,22 @@
     "bucketMethod": "alphanum",
     "keyScheme": "chr:pos:ref:alt"
   },
+  "gpn_msa": {
+    "id": "822",
+    "name": "GPN-MSA",
+    "aliases": "GPN-MSA,GPN,genomic language model,genomic LM score",
+    "attrs": "score",
+    "compact_fields": "score",
+    "bucketMethod": "alphanum",
+    "data_version": "GPN-MSA hg38 (Benegas et al. 2025; allele-specific genomic LM score, SNV-only)",
+    "federation": "gpn_msa",
+    "hasFilter": "yes",
+    "keyScheme": "chr:pos:ref:alt",
+    "path": "https://huggingface.co/datasets/songlab/gpn-msa-hg38-scores/resolve/main/scores.tsv.bgz",
+    "useLocalFile": "no",
+    "url": "https://huggingface.co/datasets/songlab/gpn-msa-hg38-scores",
+    "test_entries_count": "2000"
+  },
   "jaspar_tfbs": {
     "id": "819",
     "name": "JASPAR TFBS",

@@ -1,0 +1,10 @@
+# GPN-MSA hg38 hand-crafted test fixture (NOT real GPN-MSA data)
+# chrom	pos	ref	alt	score   (more negative = more constrained/deleterious)
+1	69091	A	C	-0.52
+1	69091	A	G	-8.10
+2	179431991	G	A	-9.30
+2	179431991	G	T	-0.11
+7	117559593	G	A	-7.80
+13	32316461	T	C	-6.40
+17	43045712	C	T	-3.20
+X	31224683	G	A	-0.05

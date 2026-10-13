@@ -335,6 +335,9 @@ func extractField(xref *pbuf.Xref, field string) string {
 	if a := xref.GetCadd(); a != nil {
 		return extractCaddField(a, field)
 	}
+	if a := xref.GetGpnMsa(); a != nil {
+		return extractGpnMsaField(a, field)
+	}
 	if a := xref.GetJasparTfbs(); a != nil {
 		return extractJasparTfbsField(a, field)
 	}
@@ -2551,6 +2554,16 @@ func extractCaddField(a *pbuf.CaddAttr, field string) string {
 	switch field {
 	case "phred":
 		return a.Phred
+	}
+	return ""
+}
+
+// extractGpnMsaField extracts a field from GpnMsaAttr (GPN-MSA genomic-LM score;
+// keyed chr:pos:ref:alt, score only).
+func extractGpnMsaField(a *pbuf.GpnMsaAttr, field string) string {
+	switch field {
+	case "score":
+		return a.Score
 	}
 	return ""
 }

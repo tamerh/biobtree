@@ -282,6 +282,7 @@ Available datasets:
         'conservation': datasets_dir / "conservation" / "test_conservation.py",
         'revel': datasets_dir / "revel" / "test_revel.py",
         'cadd': datasets_dir / "cadd" / "test_cadd.py",
+        'gpn_msa': datasets_dir / "gpn_msa" / "test_gpn_msa.py",
         'jaspar_tfbs': datasets_dir / "jaspar_tfbs" / "test_jaspar_tfbs.py",
         'gtex': datasets_dir / "gtex" / "test_gtex.py",
         'gtex_egene': datasets_dir / "gtex_egene" / "test_gtex_egene.py",

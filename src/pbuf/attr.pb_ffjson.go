@@ -72121,7 +72121,7 @@ done:
 }
 
 // MarshalJSON marshal bytes to json - template
-func (j *GpnMsaAttr) MarshalJSON() ([]byte, error) {
+func (j *GpnStarAttr) MarshalJSON() ([]byte, error) {
 	var buf fflib.Buffer
 	if j == nil {
 		buf.WriteString("null")
@@ -72135,7 +72135,7 @@ func (j *GpnMsaAttr) MarshalJSON() ([]byte, error) {
 }
 
 // MarshalJSONBuf marshal buff to json - template
-func (j *GpnMsaAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
+func (j *GpnStarAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 	if j == nil {
 		buf.WriteString("null")
 		return nil
@@ -72161,28 +72161,28 @@ func (j *GpnMsaAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 }
 
 const (
-	ffjtGpnMsaAttrbase = iota
-	ffjtGpnMsaAttrnosuchkey
+	ffjtGpnStarAttrbase = iota
+	ffjtGpnStarAttrnosuchkey
 
-	ffjtGpnMsaAttrScore
+	ffjtGpnStarAttrScore
 
-	ffjtGpnMsaAttrId
+	ffjtGpnStarAttrId
 )
 
-var ffjKeyGpnMsaAttrScore = []byte("score")
+var ffjKeyGpnStarAttrScore = []byte("score")
 
-var ffjKeyGpnMsaAttrId = []byte("id")
+var ffjKeyGpnStarAttrId = []byte("id")
 
 // UnmarshalJSON umarshall json - template of ffjson
-func (j *GpnMsaAttr) UnmarshalJSON(input []byte) error {
+func (j *GpnStarAttr) UnmarshalJSON(input []byte) error {
 	fs := fflib.NewFFLexer(input)
 	return j.UnmarshalJSONFFLexer(fs, fflib.FFParse_map_start)
 }
 
 // UnmarshalJSONFFLexer fast json unmarshall - template ffjson
-func (j *GpnMsaAttr) UnmarshalJSONFFLexer(fs *fflib.FFLexer, state fflib.FFParseState) error {
+func (j *GpnStarAttr) UnmarshalJSONFFLexer(fs *fflib.FFLexer, state fflib.FFParseState) error {
 	var err error
-	currentKey := ffjtGpnMsaAttrbase
+	currentKey := ffjtGpnStarAttrbase
 	_ = currentKey
 	tok := fflib.FFTok_init
 	wantedTok := fflib.FFTok_init
@@ -72228,7 +72228,7 @@ mainparse:
 			kn := fs.Output.Bytes()
 			if len(kn) <= 0 {
 				// "" case. hrm.
-				currentKey = ffjtGpnMsaAttrnosuchkey
+				currentKey = ffjtGpnStarAttrnosuchkey
 				state = fflib.FFParse_want_colon
 				goto mainparse
 			} else {
@@ -72236,35 +72236,35 @@ mainparse:
 
 				case 'i':
 
-					if bytes.Equal(ffjKeyGpnMsaAttrId, kn) {
-						currentKey = ffjtGpnMsaAttrId
+					if bytes.Equal(ffjKeyGpnStarAttrId, kn) {
+						currentKey = ffjtGpnStarAttrId
 						state = fflib.FFParse_want_colon
 						goto mainparse
 					}
 
 				case 's':
 
-					if bytes.Equal(ffjKeyGpnMsaAttrScore, kn) {
-						currentKey = ffjtGpnMsaAttrScore
+					if bytes.Equal(ffjKeyGpnStarAttrScore, kn) {
+						currentKey = ffjtGpnStarAttrScore
 						state = fflib.FFParse_want_colon
 						goto mainparse
 					}
 
 				}
 
-				if fflib.SimpleLetterEqualFold(ffjKeyGpnMsaAttrId, kn) {
-					currentKey = ffjtGpnMsaAttrId
+				if fflib.SimpleLetterEqualFold(ffjKeyGpnStarAttrId, kn) {
+					currentKey = ffjtGpnStarAttrId
 					state = fflib.FFParse_want_colon
 					goto mainparse
 				}
 
-				if fflib.EqualFoldRight(ffjKeyGpnMsaAttrScore, kn) {
-					currentKey = ffjtGpnMsaAttrScore
+				if fflib.EqualFoldRight(ffjKeyGpnStarAttrScore, kn) {
+					currentKey = ffjtGpnStarAttrScore
 					state = fflib.FFParse_want_colon
 					goto mainparse
 				}
 
-				currentKey = ffjtGpnMsaAttrnosuchkey
+				currentKey = ffjtGpnStarAttrnosuchkey
 				state = fflib.FFParse_want_colon
 				goto mainparse
 			}
@@ -72281,13 +72281,13 @@ mainparse:
 			if tok == fflib.FFTok_left_brace || tok == fflib.FFTok_left_bracket || tok == fflib.FFTok_integer || tok == fflib.FFTok_double || tok == fflib.FFTok_string || tok == fflib.FFTok_bool || tok == fflib.FFTok_null {
 				switch currentKey {
 
-				case ffjtGpnMsaAttrScore:
+				case ffjtGpnStarAttrScore:
 					goto handle_Score
 
-				case ffjtGpnMsaAttrId:
+				case ffjtGpnStarAttrId:
 					goto handle_Id
 
-				case ffjtGpnMsaAttrnosuchkey:
+				case ffjtGpnStarAttrnosuchkey:
 					err = fs.SkipField(tok)
 					if err != nil {
 						return fs.WrapErr(err)

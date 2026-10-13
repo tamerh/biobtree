@@ -1377,9 +1377,9 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			d.datasets2 = append(d.datasets2, data)
 			go cd.update()
 			break
-		case "gpn_msa":
+		case "gpn_star":
 			d.wg.Add(1)
-			gm := gpnMsa{source: data, d: d}
+			gm := gpnStar{source: data, d: d}
 			d.datasets2 = append(d.datasets2, data)
 			go gm.update()
 			break

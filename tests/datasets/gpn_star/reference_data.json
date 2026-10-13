@@ -1,7 +1,7 @@
 {
-  "dataset": "gpn_msa",
+  "dataset": "gpn_star",
   "dataset_id": 822,
-  "description": "GPN-MSA allele-specific genomic LM score (Benegas et al. 2025), keyed chr:pos:ref:alt (GRCh38), score-only, own federation. Hand-crafted fixture, NOT real GPN-MSA data.",
+  "description": "GPN-Star allele-specific genomic LM score (Benegas et al. 2025), keyed chr:pos:ref:alt (GRCh38), score-only, own federation. Hand-crafted fixture, NOT real GPN-Star data.",
   "variants": [
     {"id": "1:69091:A:C", "score": -0.52},
     {"id": "1:69091:A:G", "score": -8.10},

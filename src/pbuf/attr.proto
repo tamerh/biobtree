@@ -3083,12 +3083,18 @@ message CaddAttr {
   string id = 100;       // transient = chr:pos:ref:alt (coords reconstructed from the key)
 }
 
-// GPN-MSA allele-specific genomic language-model score (Benegas et al. 2025).
-// Allele-aware complement to phyloP/phastCons (position-only). Stored minimally
-// like CADD: key chr:pos:ref:alt -> {score}, 1 KV per variant, own `gpn_msa`
-// federation (~9B SNVs). Raw score, NOT ACMG-calibrated (evidence, not classifier).
-message GpnMsaAttr {
-  string score = 1;      // GPN-MSA score (lower = more constrained/deleterious)
+// GPN-Star phylogeny-aware genomic language-model score (Benegas et al., Nature
+// 2026; supersedes GPN-MSA). We use the V (100-vertebrate) model's
+// mutation-rate-CALIBRATED LLR (`llr_calibrated`): lower = more
+// constrained/deleterious. Vertebrate chosen deliberately — orthogonal to our
+// existing conservation (UCSC phyloP470way, MAMMALIAN); the M/447-mammal model
+// would double-count that. mutation-rate-calibrated removes the local-rate
+// confound (what Gnocchi corrects), so this is a genuine extra evolutionary axis.
+// Stored minimally like CADD: key chr:pos:ref:alt -> {score}, 1 KV per variant,
+// own `gpn_star` federation (~9B SNVs). Apache-2.0 (export-clean). SNV-only.
+// NOT ACMG-calibrated by any body -> context/evidence, not a weighted signal.
+message GpnStarAttr {
+  string score = 1;      // GPN-Star-V llr_calibrated (lower = more constrained)
   string id = 100;       // transient = chr:pos:ref:alt (coords reconstructed from the key)
 }
 

@@ -1238,6 +1238,7 @@
     "useLocalFile": "yes",
     "hasFilter": "yes",
     "attrs": "chromosome,position,phylop,gerp,phastcons",
+    "data_version": "UCSC hg38 phyloP 470-way + phastCons 470-way (Zoonomia-based MAMMALIAN alignment, 470 species); GERP++ RS from Ensembl ~90-mammal Compara. GRCh38.",
     "compact_fields": "phylop,gerp,phastcons",
     "test_entries_count": "10000",
     "bucketMethod": "alphanum",
@@ -1924,20 +1925,21 @@
     "bucketMethod": "alphanum",
     "keyScheme": "chr:pos:ref:alt"
   },
-  "gpn_msa": {
+  "gpn_star": {
     "id": "822",
-    "name": "GPN-MSA",
-    "aliases": "GPN-MSA,GPN,genomic language model,genomic LM score",
+    "name": "GPN-Star",
+    "aliases": "GPN-Star,GPN,GPN-Star-V,genomic language model,vertebrate constraint",
     "attrs": "score",
     "compact_fields": "score",
     "bucketMethod": "alphanum",
-    "data_version": "GPN-MSA hg38 (Benegas et al. 2025; allele-specific genomic LM score, SNV-only)",
-    "federation": "gpn_msa",
+    "data_version": "GPN-Star V (100-vertebrate) mutation-rate-calibrated LLR, hg38 (Benegas et al., Nature 2026). Vertebrate chosen as orthogonal to our mammalian phyloP470way conservation. NOT ACMG-calibrated: context/evidence, not a weighted signal.",
+    "scoreVariant": "GPN-Star-V llr_calibrated (lower = more constrained/deleterious); not ACMG-calibrated",
+    "federation": "gpn_star",
     "hasFilter": "yes",
     "keyScheme": "chr:pos:ref:alt",
-    "path": "https://huggingface.co/datasets/songlab/gpn-msa-hg38-scores/resolve/main/scores.tsv.bgz",
-    "useLocalFile": "no",
-    "url": "https://huggingface.co/datasets/songlab/gpn-msa-hg38-scores",
+    "path": "raw_data/gpn_star/gpn_star_v.tsv.gz",
+    "useLocalFile": "yes",
+    "url": "https://huggingface.co/datasets/songlab/gpn-star-scores",
     "test_entries_count": "2000"
   },
   "jaspar_tfbs": {

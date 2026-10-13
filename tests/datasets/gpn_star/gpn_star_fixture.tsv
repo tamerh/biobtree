@@ -1,4 +1,4 @@
-# GPN-MSA hg38 hand-crafted test fixture (NOT real GPN-MSA data)
+# GPN-Star hg38 hand-crafted test fixture (NOT real GPN-Star data)
 # chrom	pos	ref	alt	score   (more negative = more constrained/deleterious)
 1	69091	A	C	-0.52
 1	69091	A	G	-8.10

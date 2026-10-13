@@ -23672,7 +23672,7 @@ done:
 }
 
 // MarshalJSON marshal bytes to json - template
-func (j *Xref_GpnMsa) MarshalJSON() ([]byte, error) {
+func (j *Xref_GpnStar) MarshalJSON() ([]byte, error) {
 	var buf fflib.Buffer
 	if j == nil {
 		buf.WriteString("null")
@@ -23686,7 +23686,7 @@ func (j *Xref_GpnMsa) MarshalJSON() ([]byte, error) {
 }
 
 // MarshalJSONBuf marshal buff to json - template
-func (j *Xref_GpnMsa) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
+func (j *Xref_GpnStar) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 	if j == nil {
 		buf.WriteString("null")
 		return nil
@@ -23695,43 +23695,43 @@ func (j *Xref_GpnMsa) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 	var obj []byte
 	_ = obj
 	_ = err
-	if j.GpnMsa != nil {
-		buf.WriteString(`{"GpnMsa":`)
+	if j.GpnStar != nil {
+		buf.WriteString(`{"GpnStar":`)
 
 		{
 
-			err = j.GpnMsa.MarshalJSONBuf(buf)
+			err = j.GpnStar.MarshalJSONBuf(buf)
 			if err != nil {
 				return err
 			}
 
 		}
 	} else {
-		buf.WriteString(`{"GpnMsa":null`)
+		buf.WriteString(`{"GpnStar":null`)
 	}
 	buf.WriteByte('}')
 	return nil
 }
 
 const (
-	ffjtXref_GpnMsabase = iota
-	ffjtXref_GpnMsanosuchkey
+	ffjtXref_GpnStarbase = iota
+	ffjtXref_GpnStarnosuchkey
 
-	ffjtXref_GpnMsaGpnMsa
+	ffjtXref_GpnStarGpnStar
 )
 
-var ffjKeyXref_GpnMsaGpnMsa = []byte("GpnMsa")
+var ffjKeyXref_GpnStarGpnStar = []byte("GpnStar")
 
 // UnmarshalJSON umarshall json - template of ffjson
-func (j *Xref_GpnMsa) UnmarshalJSON(input []byte) error {
+func (j *Xref_GpnStar) UnmarshalJSON(input []byte) error {
 	fs := fflib.NewFFLexer(input)
 	return j.UnmarshalJSONFFLexer(fs, fflib.FFParse_map_start)
 }
 
 // UnmarshalJSONFFLexer fast json unmarshall - template ffjson
-func (j *Xref_GpnMsa) UnmarshalJSONFFLexer(fs *fflib.FFLexer, state fflib.FFParseState) error {
+func (j *Xref_GpnStar) UnmarshalJSONFFLexer(fs *fflib.FFLexer, state fflib.FFParseState) error {
 	var err error
-	currentKey := ffjtXref_GpnMsabase
+	currentKey := ffjtXref_GpnStarbase
 	_ = currentKey
 	tok := fflib.FFTok_init
 	wantedTok := fflib.FFTok_init
@@ -23777,7 +23777,7 @@ mainparse:
 			kn := fs.Output.Bytes()
 			if len(kn) <= 0 {
 				// "" case. hrm.
-				currentKey = ffjtXref_GpnMsanosuchkey
+				currentKey = ffjtXref_GpnStarnosuchkey
 				state = fflib.FFParse_want_colon
 				goto mainparse
 			} else {
@@ -23785,21 +23785,21 @@ mainparse:
 
 				case 'G':
 
-					if bytes.Equal(ffjKeyXref_GpnMsaGpnMsa, kn) {
-						currentKey = ffjtXref_GpnMsaGpnMsa
+					if bytes.Equal(ffjKeyXref_GpnStarGpnStar, kn) {
+						currentKey = ffjtXref_GpnStarGpnStar
 						state = fflib.FFParse_want_colon
 						goto mainparse
 					}
 
 				}
 
-				if fflib.EqualFoldRight(ffjKeyXref_GpnMsaGpnMsa, kn) {
-					currentKey = ffjtXref_GpnMsaGpnMsa
+				if fflib.EqualFoldRight(ffjKeyXref_GpnStarGpnStar, kn) {
+					currentKey = ffjtXref_GpnStarGpnStar
 					state = fflib.FFParse_want_colon
 					goto mainparse
 				}
 
-				currentKey = ffjtXref_GpnMsanosuchkey
+				currentKey = ffjtXref_GpnStarnosuchkey
 				state = fflib.FFParse_want_colon
 				goto mainparse
 			}
@@ -23816,10 +23816,10 @@ mainparse:
 			if tok == fflib.FFTok_left_brace || tok == fflib.FFTok_left_bracket || tok == fflib.FFTok_integer || tok == fflib.FFTok_double || tok == fflib.FFTok_string || tok == fflib.FFTok_bool || tok == fflib.FFTok_null {
 				switch currentKey {
 
-				case ffjtXref_GpnMsaGpnMsa:
-					goto handle_GpnMsa
+				case ffjtXref_GpnStarGpnStar:
+					goto handle_GpnStar
 
-				case ffjtXref_GpnMsanosuchkey:
+				case ffjtXref_GpnStarnosuchkey:
 					err = fs.SkipField(tok)
 					if err != nil {
 						return fs.WrapErr(err)
@@ -23833,22 +23833,22 @@ mainparse:
 		}
 	}
 
-handle_GpnMsa:
+handle_GpnStar:
 
-	/* handler: j.GpnMsa type=pbuf.GpnMsaAttr kind=struct quoted=false*/
+	/* handler: j.GpnStar type=pbuf.GpnStarAttr kind=struct quoted=false*/
 
 	{
 		if tok == fflib.FFTok_null {
 
-			j.GpnMsa = nil
+			j.GpnStar = nil
 
 		} else {
 
-			if j.GpnMsa == nil {
-				j.GpnMsa = new(GpnMsaAttr)
+			if j.GpnStar == nil {
+				j.GpnStar = new(GpnStarAttr)
 			}
 
-			err = j.GpnMsa.UnmarshalJSONFFLexer(fs, fflib.FFParse_want_key)
+			err = j.GpnStar.UnmarshalJSONFFLexer(fs, fflib.FFParse_want_key)
 			if err != nil {
 				return err
 			}

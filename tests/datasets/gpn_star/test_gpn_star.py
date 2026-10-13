@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 """
-GPN-MSA test suite.
+GPN-Star test suite.
 
-Validates biobtree's GPN-MSA layer — allele-specific genomic language-model
+Validates biobtree's GPN-Star layer — allele-specific genomic language-model
 score (Benegas et al. 2025), the allele-aware complement to phyloP/phastCons.
 More negative = more constrained/deleterious. Raw score, NOT ACMG-calibrated.
 
 KEY SCHEME: "chr:pos:ref:alt" (GRCh38), score-only. Each (ref,alt) at a position
 is a distinct key. Reached by DIRECT ENTRY LOOKUP of the variant key (no reverse/
-gene links) — same access pattern as cadd/conservation. Own `gpn_msa` federation.
+gene links) — same access pattern as cadd/conservation. Own `gpn_star` federation.
 
 Data under test is the hand-crafted fixture
-(tests/datasets/gpn_msa/gpn_msa_fixture.tsv), NOT real GPN-MSA data.
+(tests/datasets/gpn_star/gpn_star_fixture.tsv), NOT real GPN-Star data.
 """
 import sys, os, re, requests
 from pathlib import Path
@@ -23,7 +23,7 @@ def _attr_rows(data, attr_name):
     return [r for r in (data or {}).get("results", []) if attr_name in (r.get("Attributes") or {})]
 
 
-class GpnMsaTests:
+class GpnStarTests:
     def __init__(self, runner: TestRunner):
         self.runner = runner
 
@@ -32,33 +32,33 @@ class GpnMsaTests:
         return ref.get("variants", []) if isinstance(ref, dict) else []
 
     def _find(self, vid):
-        for r in _attr_rows(self.runner.lookup(vid), "GpnMsa"):
+        for r in _attr_rows(self.runner.lookup(vid), "GpnStar"):
             if r.get("identifier") == vid:
-                return r["Attributes"]["GpnMsa"]
+                return r["Attributes"]["GpnStar"]
         return None
 
     @test
     def test_variant_lookup(self):
-        """A chr:pos:ref:alt id resolves to a GPN-MSA record with the score field"""
+        """A chr:pos:ref:alt id resolves to a GPN-Star record with the score field"""
         for v in self._variants():
             a = self._find(v["id"])
             if a is not None:
                 if "score" not in a:
                     return False, f"{v['id']} missing 'score' field"
                 return True, f"{v['id']} -> score={a.get('score')}"
-        return False, "No chr:pos:ref:alt id resolved to a GPN-MSA record"
+        return False, "No chr:pos:ref:alt id resolved to a GPN-Star record"
 
     @test
     def test_key_scheme_chr_pos_ref_alt(self):
         """Entry ID is chr:pos:ref:alt"""
         pat = re.compile(r"^[0-9XYM]+:[0-9]+:[ACGT]+:[ACGT]+$")
         for v in self._variants():
-            for r in _attr_rows(self.runner.lookup(v["id"]), "GpnMsa"):
+            for r in _attr_rows(self.runner.lookup(v["id"]), "GpnStar"):
                 ident = r.get("identifier", "")
                 if not pat.match(ident):
                     return False, f"key '{ident}' not chr:pos:ref:alt"
                 return True, f"key scheme OK: '{ident}'"
-        return False, "No GPN-MSA record found to check key scheme"
+        return False, "No GPN-Star record found to check key scheme"
 
     @test
     def test_score_values(self):
@@ -73,7 +73,7 @@ class GpnMsaTests:
                 return False, f"{v['id']} score: got {got}, want {v['score']}"
             checked += 1
         if checked == 0:
-            return False, "No GPN-MSA record matched for value check"
+            return False, "No GPN-Star record matched for value check"
         return True, f"{checked} score(s) match the fixture (incl. negative sign)"
 
     @test
@@ -89,17 +89,17 @@ class GpnMsaTests:
 
     @test
     def test_cel_filter_constrained(self):
-        """CEL filter double(gpn_msa.score) < -5 keeps constrained variants, drops tolerant"""
+        """CEL filter double(gpn_star.score) < -5 keeps constrained variants, drops tolerant"""
         ids = ",".join(v["id"] for v in self._variants())
-        url = f"{self.runner.api_url}/ws/?i={ids}&d=1&f=double(gpn_msa.score)<-5.0"
+        url = f"{self.runner.api_url}/ws/?i={ids}&d=1&f=double(gpn_star.score)<-5.0"
         resp = requests.get(url, timeout=15)
         if resp.status_code != 200:
             return False, f"HTTP {resp.status_code}: {resp.text[:200]}"
-        rows = _attr_rows(resp.json(), "GpnMsa")
+        rows = _attr_rows(resp.json(), "GpnStar")
         if not rows:
-            return False, "filter returned no GPN-MSA results"
+            return False, "filter returned no GPN-Star results"
         for r in rows:
-            sv = float(r["Attributes"]["GpnMsa"].get("score", 0.0))
+            sv = float(r["Attributes"]["GpnStar"].get("score", 0.0))
             if sv >= -5.0:
                 return False, f"filter leaked {r.get('identifier')} score={sv}"
         idents = {r.get("identifier") for r in rows}
@@ -116,7 +116,7 @@ def main():
         print(f"Error: {reference_file} not found")
         return 1
     runner = TestRunner(api_url, reference_file)
-    custom = GpnMsaTests(runner)
+    custom = GpnStarTests(runner)
     for m in [
         custom.test_variant_lookup,
         custom.test_key_scheme_chr_pos_ref_alt,

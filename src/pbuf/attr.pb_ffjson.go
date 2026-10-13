@@ -72150,6 +72150,11 @@ func (j *GpnStarAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.WriteJsonString(buf, string(j.Score))
 		buf.WriteByte(',')
 	}
+	if len(j.AbsLlr) != 0 {
+		buf.WriteString(`"abs_llr":`)
+		fflib.WriteJsonString(buf, string(j.AbsLlr))
+		buf.WriteByte(',')
+	}
 	if len(j.Id) != 0 {
 		buf.WriteString(`"id":`)
 		fflib.WriteJsonString(buf, string(j.Id))
@@ -72166,10 +72171,14 @@ const (
 
 	ffjtGpnStarAttrScore
 
+	ffjtGpnStarAttrAbsLlr
+
 	ffjtGpnStarAttrId
 )
 
 var ffjKeyGpnStarAttrScore = []byte("score")
+
+var ffjKeyGpnStarAttrAbsLlr = []byte("abs_llr")
 
 var ffjKeyGpnStarAttrId = []byte("id")
 
@@ -72234,6 +72243,14 @@ mainparse:
 			} else {
 				switch kn[0] {
 
+				case 'a':
+
+					if bytes.Equal(ffjKeyGpnStarAttrAbsLlr, kn) {
+						currentKey = ffjtGpnStarAttrAbsLlr
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 'i':
 
 					if bytes.Equal(ffjKeyGpnStarAttrId, kn) {
@@ -72254,6 +72271,12 @@ mainparse:
 
 				if fflib.SimpleLetterEqualFold(ffjKeyGpnStarAttrId, kn) {
 					currentKey = ffjtGpnStarAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyGpnStarAttrAbsLlr, kn) {
+					currentKey = ffjtGpnStarAttrAbsLlr
 					state = fflib.FFParse_want_colon
 					goto mainparse
 				}
@@ -72283,6 +72306,9 @@ mainparse:
 
 				case ffjtGpnStarAttrScore:
 					goto handle_Score
+
+				case ffjtGpnStarAttrAbsLlr:
+					goto handle_AbsLlr
 
 				case ffjtGpnStarAttrId:
 					goto handle_Id
@@ -72320,6 +72346,32 @@ handle_Score:
 			outBuf := fs.Output.Bytes()
 
 			j.Score = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_AbsLlr:
+
+	/* handler: j.AbsLlr type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.AbsLlr = string(string(outBuf))
 
 		}
 	}

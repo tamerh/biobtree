@@ -2564,6 +2564,8 @@ func extractGpnStarField(a *pbuf.GpnStarAttr, field string) string {
 	switch field {
 	case "score":
 		return a.Score
+	case "abs_llr":
+		return a.AbsLlr
 	}
 	return ""
 }

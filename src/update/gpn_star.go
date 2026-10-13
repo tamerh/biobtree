@@ -16,11 +16,15 @@ import (
 
 // gpnStar ingests GPN-Star phylogeny-aware genomic language-model scores
 // (Benegas et al., Nature 2026; supersedes GPN-MSA) — specifically the V
-// (100-vertebrate) model's mutation-rate-CALIBRATED LLR. Chosen over the M
-// (447-mammal) model because our conservation score is already UCSC phyloP470way
-// (mammalian) — M would double-count it; V is a different, deeper (vertebrate)
-// species set, so it adds an orthogonal evolutionary axis. The calibration
-// removes the local-mutation-rate confound (what Gnocchi corrects).
+// (100-vertebrate) model's mutation-rate-CALIBRATED scores. V is shipped FIRST
+// as a product choice: it leads the ClinVar/coding AUPRC (0.907) that a germline
+// variant reference mostly answers. This is NOT the paper's default — the paper
+// frames model choice as timescale-dependent and names no canonical model. M
+// (447-mammal) is a planned SECOND model for non-coding (V alone is incomplete
+// there); P (243-primate) is skipped (never wins a clinically relevant
+// benchmark). Note M is NOT redundant with our mammalian phyloP470way: GPN-Star
+// beats phyloP at every matched depth (redundancy of timescale != of signal).
+// The calibration removes the local-mutation-rate confound (what Gnocchi corrects).
 // Stored minimally like CADD: key chr:pos:ref:alt -> {score}, no coord
 // duplication and no links, so exactly 1 KV per variant — smallest footprint for
 // a genome-wide (~9B SNV) set. Direct entry lookup (same as cadd/conservation).
@@ -91,7 +95,7 @@ func (g *gpnStar) processFile(filePath string, idLogFile *os.File, testLimit int
 	return g.processReader(reader, idLogFile, testLimit, already), nil
 }
 
-// columns: 0 chrom, 1 pos, 2 ref, 3 alt, 4 score
+// columns: 0 chrom, 1 pos, 2 ref, 3 alt, 4 score (llr_calibrated), 5 abs_llr
 func (g *gpnStar) processReader(reader *bufio.Reader, idLogFile *os.File, testLimit int, already uint64) uint64 {
 	var count uint64
 	for {
@@ -112,7 +116,11 @@ func (g *gpnStar) processReader(reader *bufio.Reader, idLogFile *os.File, testLi
 				if _, perr := strconv.ParseInt(f[1], 10, 64); perr == nil {
 					entryID := chrom + ":" + f[1] + ":" + f[2] + ":" + f[3]
 					if len(entryID) <= LMDBMaxKeySize {
-						attr := &pbuf.GpnStarAttr{Score: f[4]}
+						absLlr := ""
+						if len(f) >= 6 {
+							absLlr = f[5]
+						}
+						attr := &pbuf.GpnStarAttr{Score: f[4], AbsLlr: absLlr}
 						if b, err := ffjson.Marshal(attr); err == nil {
 							g.d.addProp3(entryID, g.sourceID, b)
 						}

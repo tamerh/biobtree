@@ -11,7 +11,7 @@ Parquet. We take the **V (100-vertebrate)** model's mutation-rate-CALIBRATED LLR
 Go can't read Parquet, so this script (like gtex_prepare.py) downloads each
 `llr_chr{N}.parquet` and converts to the TSV the Go parser reads:
 
-    chrom<TAB>pos<TAB>ref<TAB>alt<TAB>score     (score = llr_calibrated)
+    chrom<TAB>pos<TAB>ref<TAB>alt<TAB>score<TAB>abs_llr   (score = llr_calibrated)
 
 chrom is emitted WITHOUT a 'chr' prefix (biobtree variant keys are 1:pos:ref:alt).
 No external sort: the Go side is addProp3 (1 KV/variant) and the generate bucket
@@ -32,7 +32,7 @@ BASE = f"https://huggingface.co/datasets/songlab/gpn-star-scores/resolve/main/da
 OUT_DIR = "raw_data/gpn_star"
 OUT_GZ = os.path.join(OUT_DIR, "gpn_star_v.tsv.gz")
 CHROMS = [str(i) for i in range(1, 23)] + ["X", "Y"]
-WANT = ["chrom", "pos", "ref", "alt", "llr_calibrated"]
+WANT = ["chrom", "pos", "ref", "alt", "llr_calibrated", "abs_llr_calibrated"]
 
 
 def download(chrom):
@@ -62,7 +62,8 @@ def main():
             # stream in record batches so a 4.6 GB parquet never loads fully
             for batch in pf.iter_batches(columns=cols, batch_size=1_000_000):
                 d = batch.to_pydict()
-                ch = d["chrom"]; pos = d["pos"]; ref = d["ref"]; alt = d["alt"]; llr = d["llr_calibrated"]
+                ch = d["chrom"]; pos = d["pos"]; ref = d["ref"]; alt = d["alt"]
+                llr = d["llr_calibrated"]; absllr = d.get("abs_llr_calibrated", [None] * len(pos))
                 for i in range(len(pos)):
                     c = ch[i]
                     if c.startswith("chr") or c.startswith("CHR"):
@@ -70,7 +71,8 @@ def main():
                     s = llr[i]
                     if s is None:
                         continue
-                    out.write(f"{c}\t{pos[i]}\t{ref[i]}\t{alt[i]}\t{s}\n")
+                    a = absllr[i]
+                    out.write(f"{c}\t{pos[i]}\t{ref[i]}\t{alt[i]}\t{s}\t{'' if a is None else a}\n")
                     rows += 1
                     n += 1
             print(f"  chr{chrom}: {rows} rows (total {n})", flush=True)

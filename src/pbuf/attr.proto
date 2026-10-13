@@ -3085,16 +3085,20 @@ message CaddAttr {
 
 // GPN-Star phylogeny-aware genomic language-model score (Benegas et al., Nature
 // 2026; supersedes GPN-MSA). We use the V (100-vertebrate) model's
-// mutation-rate-CALIBRATED LLR (`llr_calibrated`): lower = more
-// constrained/deleterious. Vertebrate chosen deliberately — orthogonal to our
-// existing conservation (UCSC phyloP470way, MAMMALIAN); the M/447-mammal model
-// would double-count that. mutation-rate-calibrated removes the local-rate
-// confound (what Gnocchi corrects), so this is a genuine extra evolutionary axis.
-// Stored minimally like CADD: key chr:pos:ref:alt -> {score}, 1 KV per variant,
-// own `gpn_star` federation (~9B SNVs). Apache-2.0 (export-clean). SNV-only.
-// NOT ACMG-calibrated by any body -> context/evidence, not a weighted signal.
+// mutation-rate-CALIBRATED scores. The calibration removes the local-mutation-rate
+// confound (raw LLR correlates with Roulette rate at rho~0.31-0.34; Gnocchi exists
+// to remove exactly that) — so these are a genuine extra evolutionary axis, not a
+// re-expression of mutation rate. V is shipped first as a PRODUCT choice (it leads
+// the ClinVar/coding AUPRC a germline reference mostly answers) — the paper names
+// no canonical model (choice is timescale-dependent). M (447-mammal, non-coding)
+// is a planned second; GPN-Star beats phyloP at every matched depth, so M is NOT
+// redundant with our mammalian phyloP470way. Stored minimally like CADD:
+// key chr:pos:ref:alt -> {score, abs_llr}, own `gpn_star` federation (~9B SNVs).
+// Apache-2.0 (export-clean). SNV-only. NOT ACMG-calibrated -> context, not a
+// weighted signal.
 message GpnStarAttr {
-  string score = 1;      // GPN-Star-V llr_calibrated (lower = more constrained)
+  string score = 1;      // llr_calibrated (signed; lower = more constrained)
+  string abs_llr = 2;    // abs_llr_calibrated (magnitude)
   string id = 100;       // transient = chr:pos:ref:alt (coords reconstructed from the key)
 }
 

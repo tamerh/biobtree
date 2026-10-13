@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"os"
 	"path/filepath"
 	"sort"
 	"strconv"
@@ -33,9 +34,10 @@ const pagingSep4 = "]["
 
 // federationDB holds the database connection for a single federation
 type federationDB struct {
-	env  db.Env
-	dbi  db.DBI
-	meta map[string]interface{}
+	env       db.Env
+	dbi       db.DBI
+	meta      map[string]interface{}
+	dbVersion string // the db_vN the `db` symlink resolved to at load (true data provenance)
 }
 
 // Service provides database lookup and query functionality.
@@ -717,13 +719,21 @@ func (s *Service) loadFederation(name, dir string) error {
 	db1 := db.DB{}
 	env, dbi := db1.OpenDBNew(false, totalKV, fedAppconf)
 
-	s.federations[name] = &federationDB{
-		env:  env,
-		dbi:  dbi,
-		meta: meta,
+	// Resolve the `db` symlink to the actual db_vN so meta can report the
+	// genuinely-loaded data version (not the shared, config-derived last_built).
+	dbVersion := ""
+	if target, lerr := os.Readlink(filepath.Join(dir, "db")); lerr == nil {
+		dbVersion = filepath.Base(target)
 	}
 
-	log.Printf("Loaded federation '%s' from %s (totalKV: %d)", name, dir, totalKV)
+	s.federations[name] = &federationDB{
+		env:       env,
+		dbi:       dbi,
+		meta:      meta,
+		dbVersion: dbVersion,
+	}
+
+	log.Printf("Loaded federation '%s' from %s (totalKV: %d, version: %s)", name, dir, totalKV, dbVersion)
 	return nil
 }
 
@@ -936,6 +946,12 @@ func (s *Service) meta() *pbuf.MetaResponse {
 				if sv := config.Dataconf[k]["scoreVariant"]; sv != "" {
 					datasetConf["scoreVariant"] = sv
 				}
+				// data_db_version: the db_vN this running server actually loaded for
+				// the dataset's federation — real data provenance, unlike the shared
+				// config-derived last_built.
+				if dbv := s.datasetDBVersion(k); dbv != "" {
+					datasetConf["data_db_version"] = dbv
+				}
 
 				datasetConf["id"] = k
 
@@ -948,6 +964,22 @@ func (s *Service) meta() *pbuf.MetaResponse {
 	meta.Results = results
 	return &meta
 
+}
+
+// datasetDBVersion returns the db_vN actually loaded for a dataset's federation
+// (true data provenance), e.g. "db_v52". Empty if unknown. Unlike the shared,
+// config-derived `last_built`/`data_version`, this reflects which indexed data a
+// running container really opened — so a consumer can tell prod(db_v51) from
+// staging(db_v52) even when both read the same dataset_state.json.
+func (s *Service) datasetDBVersion(datasetKey string) string {
+	fed := config.Dataconf[datasetKey]["federation"]
+	if fed == "" {
+		fed = "main"
+	}
+	if f, ok := s.federations[fed]; ok && f != nil {
+		return f.dbVersion
+	}
+	return ""
 }
 
 // jsonString returns s as a properly-quoted+escaped JSON string literal.
@@ -1109,6 +1141,13 @@ func (s *Service) metajson() string {
 		// (e.g. SpliceAI raw vs masked) — changes what an absent score means.
 		if sv := config.Dataconf[k]["scoreVariant"]; sv != "" {
 			b.WriteString(`"scoreVariant":` + jsonString(sv) + `,`)
+		}
+		// data_db_version: the db_vN this running server actually loaded for the
+		// dataset's federation — true data provenance, unlike last_built (which is
+		// read from the shared, config-derived dataset_state.json and so is the same
+		// on two containers serving different db versions).
+		if dbv := s.datasetDBVersion(k); dbv != "" {
+			b.WriteString(`"data_db_version":"` + dbv + `",`)
 		}
 
 		// Lineage: derivedFrom (explicit), else childDatasets/derived: parent.

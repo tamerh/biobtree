@@ -32,6 +32,7 @@
 	"disableEnsemblReleaseCheck": "y",
 	"disableRemoteConfigCheck": "y",
 	"dbBackend": "lmdb",
+	"lmdbReadonly": "yes",
 	"lmdbSafetyFactor": "20",
 	"lookupDbDir": "out_prod/",
 	"tmpRuneSize": "10000000",

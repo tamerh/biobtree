@@ -2566,6 +2566,8 @@ func extractGpnStarField(a *pbuf.GpnStarAttr, field string) string {
 		return a.Score
 	case "abs_llr":
 		return a.AbsLlr
+	case "entropy":
+		return a.Entropy
 	}
 	return ""
 }

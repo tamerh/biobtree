@@ -3099,6 +3099,7 @@ message CaddAttr {
 message GpnStarAttr {
   string score = 1;      // llr_calibrated (signed; lower = more constrained)
   string abs_llr = 2;    // abs_llr_calibrated (magnitude)
+  string entropy = 3;    // entropy_calibrated (per-POSITION info content; same for all alts at a pos)
   string id = 100;       // transient = chr:pos:ref:alt (coords reconstructed from the key)
 }
 

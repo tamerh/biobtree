@@ -1,10 +1,10 @@
 # GPN-Star-V hg38 hand-crafted test fixture (NOT real GPN-Star data)
-# chrom	pos	ref	alt	score(llr_calibrated)	abs_llr   (more negative = more constrained)
-1	69091	A	C	-0.52	0.52
-1	69091	A	G	-8.10	8.10
-2	179431991	G	A	-9.30	9.30
-2	179431991	G	T	-0.11	0.11
-7	117559593	G	A	-7.80	7.80
-13	32316461	T	C	-6.40	6.40
-17	43045712	C	T	-3.20	3.20
-X	31224683	G	A	-0.05	0.05
+# chrom	pos	ref	alt	score(llr_calibrated)	abs_llr	entropy(per-pos)
+1	69091	A	C	-0.52	0.52	1.42
+1	69091	A	G	-8.10	8.10	1.42
+2	179431991	G	A	-9.30	9.30	0.88
+2	179431991	G	T	-0.11	0.11	0.88
+7	117559593	G	A	-7.80	7.80	0.54
+13	32316461	T	C	-6.40	6.40	1.10
+17	43045712	C	T	-3.20	3.20	1.77
+X	31224683	G	A	-0.05	0.05	1.95

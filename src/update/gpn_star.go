@@ -95,7 +95,7 @@ func (g *gpnStar) processFile(filePath string, idLogFile *os.File, testLimit int
 	return g.processReader(reader, idLogFile, testLimit, already), nil
 }
 
-// columns: 0 chrom, 1 pos, 2 ref, 3 alt, 4 score (llr_calibrated), 5 abs_llr
+// columns: 0 chrom, 1 pos, 2 ref, 3 alt, 4 score (llr_calibrated), 5 abs_llr, 6 entropy
 func (g *gpnStar) processReader(reader *bufio.Reader, idLogFile *os.File, testLimit int, already uint64) uint64 {
 	var count uint64
 	for {
@@ -116,11 +116,14 @@ func (g *gpnStar) processReader(reader *bufio.Reader, idLogFile *os.File, testLi
 				if _, perr := strconv.ParseInt(f[1], 10, 64); perr == nil {
 					entryID := chrom + ":" + f[1] + ":" + f[2] + ":" + f[3]
 					if len(entryID) <= LMDBMaxKeySize {
-						absLlr := ""
+						absLlr, entropy := "", ""
 						if len(f) >= 6 {
 							absLlr = f[5]
 						}
-						attr := &pbuf.GpnStarAttr{Score: f[4], AbsLlr: absLlr}
+						if len(f) >= 7 {
+							entropy = f[6]
+						}
+						attr := &pbuf.GpnStarAttr{Score: f[4], AbsLlr: absLlr, Entropy: entropy}
 						if b, err := ffjson.Marshal(attr); err == nil {
 							g.d.addProp3(entryID, g.sourceID, b)
 						}

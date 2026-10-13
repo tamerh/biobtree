@@ -72155,6 +72155,11 @@ func (j *GpnStarAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.WriteJsonString(buf, string(j.AbsLlr))
 		buf.WriteByte(',')
 	}
+	if len(j.Entropy) != 0 {
+		buf.WriteString(`"entropy":`)
+		fflib.WriteJsonString(buf, string(j.Entropy))
+		buf.WriteByte(',')
+	}
 	if len(j.Id) != 0 {
 		buf.WriteString(`"id":`)
 		fflib.WriteJsonString(buf, string(j.Id))
@@ -72173,12 +72178,16 @@ const (
 
 	ffjtGpnStarAttrAbsLlr
 
+	ffjtGpnStarAttrEntropy
+
 	ffjtGpnStarAttrId
 )
 
 var ffjKeyGpnStarAttrScore = []byte("score")
 
 var ffjKeyGpnStarAttrAbsLlr = []byte("abs_llr")
+
+var ffjKeyGpnStarAttrEntropy = []byte("entropy")
 
 var ffjKeyGpnStarAttrId = []byte("id")
 
@@ -72251,6 +72260,14 @@ mainparse:
 						goto mainparse
 					}
 
+				case 'e':
+
+					if bytes.Equal(ffjKeyGpnStarAttrEntropy, kn) {
+						currentKey = ffjtGpnStarAttrEntropy
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 'i':
 
 					if bytes.Equal(ffjKeyGpnStarAttrId, kn) {
@@ -72271,6 +72288,12 @@ mainparse:
 
 				if fflib.SimpleLetterEqualFold(ffjKeyGpnStarAttrId, kn) {
 					currentKey = ffjtGpnStarAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyGpnStarAttrEntropy, kn) {
+					currentKey = ffjtGpnStarAttrEntropy
 					state = fflib.FFParse_want_colon
 					goto mainparse
 				}
@@ -72309,6 +72332,9 @@ mainparse:
 
 				case ffjtGpnStarAttrAbsLlr:
 					goto handle_AbsLlr
+
+				case ffjtGpnStarAttrEntropy:
+					goto handle_Entropy
 
 				case ffjtGpnStarAttrId:
 					goto handle_Id
@@ -72372,6 +72398,32 @@ handle_AbsLlr:
 			outBuf := fs.Output.Bytes()
 
 			j.AbsLlr = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Entropy:
+
+	/* handler: j.Entropy type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Entropy = string(string(outBuf))
 
 		}
 	}

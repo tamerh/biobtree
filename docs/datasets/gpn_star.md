@@ -29,19 +29,19 @@ weighted or ACMG-labeled signal** (same status as raw CADD). **SNV-only** (no in
 ## Access
 
 ```
-/ws/?i=1:69091:A:G&s=gpn_star&d=1            # -> GpnStar { score }
+/ws/?i=1:69091:A:G&s=gpn_star&d=1            # -> GpnStar { score (llr_calibrated), abs_llr, entropy }
 /ws/?i=<ids>&d=1&f=double(gpn_star.score)<-5.0   # filter by constraint
 ```
 
 ## Source & build
 
 - **Source:** HuggingFace `songlab/gpn-star-scores` (Apache-2.0),
-  `data/gpn-star-hg38-v100-200m/llr/llr_chr{1..22,X,Y}.parquet` (~59 GB),
-  columns `chrom pos ref alt llr_calibrated abs_llr_calibrated`.
+  `data/gpn-star-hg38-v100-200m/`: `llr/llr_chr{1..22,X,Y}.parquet` (~59 GB, per
+  pos×alt: `chrom pos ref alt llr_calibrated abs_llr_calibrated`) + `entropy/entropy_chr*.parquet`
+  (~17 GB, per POSITION: `chrom pos ref entropy_calibrated`).
 - **Prep (Go can't read Parquet):** `python3 src/scripts/gpn_star/gpn_star_prepare.py`
-  downloads each chromosome parquet and emits
-  `raw_data/gpn_star/gpn_star_v.tsv.gz` (`chrom pos ref alt score`, chrom without
-  `chr`). No external sort — the Go side is `addProp3` and generate buckets/sorts.
+  downloads both parquet sets per chromosome, streams a by-position merge (entropy is 1 row/pos, applied to all alts), and emits
+  `raw_data/gpn_star/gpn_star_v.tsv.gz` (`chrom pos ref alt score abs_llr entropy`, chrom without `chr`). No external sort — the Go side is `addProp3` and generate buckets/sorts.
 - **Build (own federation, ~360 GB, ~12–15h):**
   ```
   python3 src/scripts/gpn_star/gpn_star_prepare.py

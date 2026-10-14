@@ -189,6 +189,10 @@ func main() {
 			Name:  "federation",
 			Usage: "Generate specific federation only (e.g., 'main', 'dbsnp'). Default: generate all federations",
 		},
+		cli.StringFlag{
+			Name:  "db-ext-dir",
+			Usage: "Overflow directory for NEW db versions created by generate (e.g. /data/out_prod_ext). If set, the new db_vN is created as <db-ext-dir>/<federation>/db_vN and symlinked into the federation dir, keeping large versions off the primary disk. Numbering/activation are unchanged.",
+		},
 	}
 
 	// add dataset local flags
@@ -669,6 +673,12 @@ func runGenerateCommand(c *cli.Context) error {
 	lmdbSafetyFactor := c.GlobalString("lmdb-safety-factor")
 	if len(lmdbSafetyFactor) > 0 {
 		config.Appconf["lmdbSafetyFactor"] = lmdbSafetyFactor
+	}
+
+	// Overflow dir: create the new db version on a second disk (symlinked in).
+	if dbExtDir := c.GlobalString("db-ext-dir"); len(dbExtDir) > 0 {
+		config.Appconf["dbExtDir"] = dbExtDir
+		log.Printf("DB overflow dir set: new versions will be created under %s/<federation>/ and symlinked in", dbExtDir)
 	}
 
 	cpu := c.GlobalInt(" maxcpu")

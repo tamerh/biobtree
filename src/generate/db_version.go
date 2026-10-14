@@ -115,8 +115,16 @@ func GetNextVersionDir(federationDir string) (string, int, error) {
 }
 
 // CreateVersionedDBDir creates a new versioned db directory for the current build
-// Returns the path to the new directory and its version number
-func CreateVersionedDBDir(federationDir string) (string, int, error) {
+// Returns the path to the new directory and its version number.
+//
+// When extDir is non-empty (overflow mode), the real db_vN directory is created
+// under extDir/<federation>/db_vN (a second disk, e.g. /data) and linked into the
+// federation dir as a db_vN symlink; the symlink is returned, so the rest of the
+// pipeline writes through it and the DB physically lives on extDir. GetDBVersions
+// counts that symlink as version N, so numbering, activation and future builds
+// behave exactly as for an in-place version — large versions are just kept off the
+// primary disk. When extDir is empty, db_vN is a real dir in federationDir (default).
+func CreateVersionedDBDir(federationDir, extDir string) (string, int, error) {
 	// Ensure federation directory exists
 	if err := os.MkdirAll(federationDir, 0755); err != nil {
 		return "", 0, fmt.Errorf("failed to create federation dir: %w", err)
@@ -125,6 +133,28 @@ func CreateVersionedDBDir(federationDir string) (string, int, error) {
 	nextDir, version, err := GetNextVersionDir(federationDir)
 	if err != nil {
 		return "", 0, err
+	}
+
+	if extDir != "" {
+		realDir := filepath.Join(extDir, filepath.Base(federationDir), fmt.Sprintf("db_v%d", version))
+		log.Printf("Creating versioned database directory on overflow disk: %s -> %s (version %d)", nextDir, realDir, version)
+		if err := os.MkdirAll(realDir, 0700); err != nil {
+			return "", 0, fmt.Errorf("failed to create overflow db dir %s: %w", realDir, err)
+		}
+		// Clear only a stale/dangling db_vN symlink (never a real directory) so the
+		// link can be created; a real dir here would be an unexpected collision.
+		if fi, lerr := os.Lstat(nextDir); lerr == nil {
+			if fi.Mode()&os.ModeSymlink == 0 {
+				return "", 0, fmt.Errorf("%s already exists and is not a symlink", nextDir)
+			}
+			if err := os.Remove(nextDir); err != nil {
+				return "", 0, fmt.Errorf("failed to clear stale symlink %s: %w", nextDir, err)
+			}
+		}
+		if err := os.Symlink(realDir, nextDir); err != nil {
+			return "", 0, fmt.Errorf("failed to symlink %s -> %s: %w", nextDir, realDir, err)
+		}
+		return nextDir, version, nil
 	}
 
 	log.Printf("Creating versioned database directory: %s (version %d)", nextDir, version)

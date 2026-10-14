@@ -707,7 +707,7 @@ func (d *Merge) Merge(c *configs.Conf, keep bool, federation string) (uint64, ui
 	} else {
 		// Fresh start: create a new versioned directory
 		var err error
-		d.dbDir, d.dbVersion, err = CreateVersionedDBDir(d.federationDir)
+		d.dbDir, d.dbVersion, err = CreateVersionedDBDir(d.federationDir, config.Appconf["dbExtDir"])
 		if err != nil {
 			log.Fatalf("Failed to create versioned db directory: %v", err)
 		}

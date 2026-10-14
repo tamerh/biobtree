@@ -355,6 +355,21 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+# ----------------------------------------------------------------------------
+# DB overflow disk. /data2 (primary) is too tight to hold a new main version
+# alongside the active one, so NEW prod db versions are created on /data
+# (/data/out_prod_ext/<federation>/db_vN) and symlinked into the federation dir.
+# Numbering/activation are unchanged (generate's --db-ext-dir + CreateVersionedDBDir
+# handle the symlink). Dev ('out') builds stay in place. Override by exporting
+# DB_EXT_DIR before invoking, or set to "" to disable.
+# ----------------------------------------------------------------------------
+: "${DB_EXT_DIR:=}"
+if [[ -z "$DB_EXT_DIR" && "$OUT_DIR" == "out_prod" ]]; then
+    DB_EXT_DIR="/data/out_prod_ext"
+fi
+DB_EXT_OPT=""
+[[ -n "$DB_EXT_DIR" ]] && DB_EXT_OPT="--db-ext-dir $DB_EXT_DIR"
+
 # ============================================================================
 # HELPER FUNCTIONS
 # ============================================================================
@@ -1080,8 +1095,8 @@ if [[ -n "$ONLY_DATASET" ]]; then
             pre_generate_cleanup "$FEDERATION"
 
             if [[ "$DRY_RUN" == "true" ]]; then
-                echo "[DRY RUN] ./biobtree --out-dir \"$OUT_DIR\" --federation \"$FEDERATION\" --lmdb-safety-factor 10 generate"
-            elif ./biobtree --out-dir "$OUT_DIR" --federation "$FEDERATION" --lmdb-safety-factor 10 generate > "$GEN_LOG" 2>&1; then
+                echo "[DRY RUN] ./biobtree --out-dir \"$OUT_DIR\" --federation \"$FEDERATION\" $DB_EXT_OPT --lmdb-safety-factor 10 generate"
+            elif ./biobtree --out-dir "$OUT_DIR" --federation "$FEDERATION" $DB_EXT_OPT --lmdb-safety-factor 10 generate > "$GEN_LOG" 2>&1; then
                 echo "✓ Generate complete ($FEDERATION federation)"
 
                 # Show version info
@@ -1111,8 +1126,8 @@ if [[ -n "$ONLY_DATASET" ]]; then
             done
 
             if [[ "$DRY_RUN" == "true" ]]; then
-                echo "[DRY RUN] ./biobtree --out-dir \"$OUT_DIR\" --lmdb-safety-factor 10 generate"
-            elif ./biobtree --out-dir "$OUT_DIR" --lmdb-safety-factor 10 generate > "$GEN_LOG" 2>&1; then
+                echo "[DRY RUN] ./biobtree --out-dir \"$OUT_DIR\" $DB_EXT_OPT --lmdb-safety-factor 10 generate"
+            elif ./biobtree --out-dir "$OUT_DIR" $DB_EXT_OPT --lmdb-safety-factor 10 generate > "$GEN_LOG" 2>&1; then
                 echo "✓ Generate complete (all federations)"
 
                 # Show version info for each federation
@@ -1154,8 +1169,8 @@ if [[ "$GENERATE_ONLY" == "true" ]]; then
         pre_generate_cleanup "$FEDERATION"
 
         if [[ "$DRY_RUN" == "true" ]]; then
-            echo "[DRY RUN] ./biobtree --out-dir \"$OUT_DIR\" --federation \"$FEDERATION\" --lmdb-safety-factor 10 generate"
-        elif ./biobtree --out-dir "$OUT_DIR" --federation "$FEDERATION" --lmdb-safety-factor 10 generate > "$GEN_LOG" 2>&1; then
+            echo "[DRY RUN] ./biobtree --out-dir \"$OUT_DIR\" --federation \"$FEDERATION\" $DB_EXT_OPT --lmdb-safety-factor 10 generate"
+        elif ./biobtree --out-dir "$OUT_DIR" --federation "$FEDERATION" $DB_EXT_OPT --lmdb-safety-factor 10 generate > "$GEN_LOG" 2>&1; then
             echo "✓ Generate complete ($FEDERATION federation)"
 
             # Show version info
@@ -1185,8 +1200,8 @@ if [[ "$GENERATE_ONLY" == "true" ]]; then
         done
 
         if [[ "$DRY_RUN" == "true" ]]; then
-            echo "[DRY RUN] ./biobtree --out-dir \"$OUT_DIR\" --lmdb-safety-factor 10 generate"
-        elif ./biobtree --out-dir "$OUT_DIR" --lmdb-safety-factor 10 generate > "$GEN_LOG" 2>&1; then
+            echo "[DRY RUN] ./biobtree --out-dir \"$OUT_DIR\" $DB_EXT_OPT --lmdb-safety-factor 10 generate"
+        elif ./biobtree --out-dir "$OUT_DIR" $DB_EXT_OPT --lmdb-safety-factor 10 generate > "$GEN_LOG" 2>&1; then
             echo "✓ Generate complete (all federations)"
 
             # Show version info for each federation

@@ -67,6 +67,8 @@ func (m *mondo) update() {
 	var currentID string
 	var attr pbuf.OntologyAttr
 	var parents []string
+	var replacedBy string
+	var consider []string
 	inTerm := false
 	isObsolete := false
 
@@ -100,11 +102,18 @@ func (m *mondo) update() {
 				if config.IsTestMode() && shouldStopProcessing(testLimit, int(total)) {
 					goto done
 				}
+			} else if inTerm && currentID != "" && isObsolete {
+				// Obsolete term: don't ingest its content, but redirect it to its
+				// replacement so the retired id still resolves (Atlas: MONDO:0008284
+				// returned "not found"). replaced_by is authoritative; else consider.
+				m.saveObsoleteRedirect(currentID, fr, replacedBy, consider)
 			}
 
 			// Reset for new term
 			inTerm = true
 			isObsolete = false
+			replacedBy = ""
+			consider = nil
 			currentID = ""
 			parents = []string{}
 			attr = pbuf.OntologyAttr{
@@ -146,6 +155,10 @@ func (m *mondo) update() {
 			m.parseDiseaseLocation(line, currentID, fr)
 		} else if strings.HasPrefix(line, "is_obsolete: true") {
 			isObsolete = true
+		} else if strings.HasPrefix(line, "replaced_by: MONDO:") {
+			replacedBy = firstToken(strings.TrimPrefix(line, "replaced_by: "))
+		} else if strings.HasPrefix(line, "consider: MONDO:") {
+			consider = append(consider, firstToken(strings.TrimPrefix(line, "consider: ")))
 		}
 	}
 
@@ -159,6 +172,8 @@ func (m *mondo) update() {
 		if idLogFile != nil {
 			logProcessedID(idLogFile, currentID)
 		}
+	} else if inTerm && currentID != "" && isObsolete {
+		m.saveObsoleteRedirect(currentID, fr, replacedBy, consider)
 	}
 
 done:
@@ -168,6 +183,31 @@ done:
 
 	m.d.progChan <- &progressInfo{dataset: m.source, done: true}
 	atomic.AddUint64(&m.d.totalParsedEntry, total)
+}
+
+// firstToken returns the first whitespace-delimited token (strips any trailing
+// " ! label" or comment on an OBO value line).
+func firstToken(s string) string {
+	if i := strings.IndexAny(s, " \t"); i >= 0 {
+		return s[:i]
+	}
+	return strings.TrimSpace(s)
+}
+
+// saveObsoleteRedirect links a retired MONDO term to its successor(s) within mondo
+// so the obsolete id still resolves (e.g. MONDO:0008284 >> mondo -> replacement),
+// instead of 404ing. replaced_by is authoritative; fall back to consider. Keyed
+// FROM the obsolete record so the forward edge lives in mondo's own bucket.
+func (m *mondo) saveObsoleteRedirect(id, fr, replacedBy string, consider []string) {
+	if replacedBy != "" {
+		m.d.addXref(id, fr, replacedBy, "mondo", false)
+		return
+	}
+	for _, c := range consider {
+		if c != "" {
+			m.d.addXref(id, fr, c, "mondo", false)
+		}
+	}
 }
 
 func (m *mondo) saveEntry(id string, datasetID string, attr *pbuf.OntologyAttr) {

@@ -18,6 +18,67 @@ type clinvarXML struct {
 	d      *DataUpdate
 }
 
+// selectPrimaryGene picks the gene a ClinVar variant is actually in, from a
+// GeneList that may hold several overlapping loci. Priority:
+//  1. the gene whose Symbol appears in the HGVS VariationName —
+//     "NM_006941.4(SOX10):..." names SOX10, ClinVar's canonical/preferred gene;
+//  2. the submitter-asserted gene (Source="submitted") over a computed overlap
+//     (Source="calculated");
+//  3. a gene flagged RelationshipType="within single gene";
+//  4. the first gene (the historical behaviour) as a last resort.
+//
+// This both lands the variant on the correct gene and stops the overlapping
+// neighbour from collecting variants that aren't its own. Returns nil only when
+// the list is empty.
+func selectPrimaryGene(genes []xmlparser.XMLElement, variationName string) *xmlparser.XMLElement {
+	switch len(genes) {
+	case 0:
+		return nil
+	case 1:
+		return &genes[0]
+	}
+	nameSym := geneSymbolFromVariationName(variationName)
+	var submitted, singleGene *xmlparser.XMLElement
+	for i := range genes {
+		g := &genes[i]
+		if nameSym != "" && strings.EqualFold(g.Attrs["Symbol"], nameSym) {
+			return g
+		}
+		if submitted == nil && g.Attrs["Source"] == "submitted" {
+			submitted = g
+		}
+		if singleGene == nil && g.Attrs["RelationshipType"] == "within single gene" {
+			singleGene = g
+		}
+	}
+	if submitted != nil {
+		return submitted
+	}
+	if singleGene != nil {
+		return singleGene
+	}
+	return &genes[0]
+}
+
+// geneSymbolFromVariationName extracts the gene symbol ClinVar embeds in a
+// variant's HGVS name — the first parenthesised token:
+// "NM_006941.4(SOX10):c.565G>T (p.Glu189Ter)" -> "SOX10". Returns "" when there
+// is no such token (e.g. cytogenetic / CNV names). The caller trusts the result
+// only when it matches a Symbol already in the GeneList, so a stray capture
+// (e.g. "chr22:...") is harmless.
+func geneSymbolFromVariationName(name string) string {
+	open := strings.IndexByte(name, '(')
+	if open < 0 {
+		return ""
+	}
+	rest := name[open+1:]
+	closeIdx := strings.IndexByte(rest, ')')
+	if closeIdx < 0 {
+		return ""
+	}
+	return strings.TrimSpace(rest[:closeIdx])
+}
+
 // parseIntOrZero converts string to int32, returning 0 for empty or invalid input
 func parseIntOrZero(s string) int32 {
 	if s == "" || s == "-" {
@@ -158,9 +219,14 @@ func (c *clinvarXML) buildClinvarAttr(variation *xmlparser.XMLElement) pbuf.Clin
 				attr.Type = varType[0].InnerText
 			}
 
-			// GeneList
+			// GeneList — a variant may list several genes when it sits in a region
+			// of overlapping loci. ClinVar often lists a computed-overlap neighbour
+			// BEFORE the real gene (e.g. POLR2F "calculated" before SOX10 "submitted"
+			// for NM_006941.4(SOX10):...), so taking the first gene files the variant
+			// under the wrong HGNC id — and starves the correct gene of its variants.
+			// Select the primary gene instead (HGVS-named gene, else submitter-asserted).
 			if genes := allele.Childs["GeneList"]; genes != nil && len(genes) > 0 {
-				for _, gene := range genes[0].Childs["Gene"] {
+				if gene := selectPrimaryGene(genes[0].Childs["Gene"], attr.Name); gene != nil {
 					if geneID := gene.Attrs["GeneID"]; geneID != "" {
 						attr.GeneId = geneID
 					}
@@ -170,7 +236,6 @@ func (c *clinvarXML) buildClinvarAttr(variation *xmlparser.XMLElement) pbuf.Clin
 					if hgncID := gene.Attrs["HGNC_ID"]; hgncID != "" {
 						attr.HgncId = hgncID
 					}
-					break // Use first gene
 				}
 			}
 

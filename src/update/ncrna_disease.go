@@ -303,6 +303,12 @@ func mirnaGeneCandidates(name string) []string {
 	if i := strings.Index(s, "-"); i >= 0 && i <= 4 { // strip species prefix (HSA-, MMU-, ...)
 		s = s[i+1:]
 	}
+	// strip mature arm suffix (-5P / -3P) so "MIR-21-5P" -> "MIR-21" -> "MIR21"
+	if i := strings.Index(s, "-5P"); i >= 0 {
+		s = s[:i]
+	} else if i := strings.Index(s, "-3P"); i >= 0 {
+		s = s[:i]
+	}
 	s = strings.ReplaceAll(s, "-", "")
 	if strings.HasPrefix(s, "LET") {
 		s = "MIR" + s

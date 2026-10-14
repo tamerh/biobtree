@@ -51,6 +51,38 @@ func (m *mirdb) check(err error, operation string) {
 	checkWithContext(err, m.source, operation)
 }
 
+// matureMirnaToMirGeneSymbol maps a human mature miRNA name to its candidate HGNC
+// MIR gene symbol (hsa-miR-21-5p -> MIR21, hsa-let-7a-5p -> MIRLET7A). Returns ""
+// for non-human names or ones it can't parse. The caller resolves the symbol
+// against HGNC and only creates the xref when it matches a real gene, so ambiguous
+// multi-copy names whose candidate has no single HGNC symbol (miR-1 -> MIR1-1 /
+// MIR1-2) resolve to nothing and are safely dropped rather than mis-linked.
+func matureMirnaToMirGeneSymbol(name string) string {
+	if !strings.HasPrefix(name, "hsa-") {
+		return ""
+	}
+	s := strings.TrimPrefix(name, "hsa-")
+
+	// Strip the arm suffix (-5p / -3p, optionally with a trailing ".N").
+	if i := strings.Index(s, "-5p"); i >= 0 {
+		s = s[:i]
+	} else if i := strings.Index(s, "-3p"); i >= 0 {
+		s = s[:i]
+	}
+
+	var sym string
+	switch {
+	case strings.HasPrefix(s, "miR-"):
+		sym = "MIR" + strings.TrimPrefix(s, "miR-")
+	case strings.HasPrefix(s, "let-"):
+		sym = "MIRLET" + strings.TrimPrefix(s, "let-")
+	default:
+		return ""
+	}
+	// HGNC MIR symbols carry no dashes (MIR21, MIR146A, MIRLET7A).
+	return strings.ToUpper(strings.ReplaceAll(sym, "-", ""))
+}
+
 // Main update entry point
 func (m *mirdb) update() {
 	defer m.d.wg.Done()
@@ -327,6 +359,13 @@ func (m *mirdb) parseAndSavePredictions(testLimit int, idLogFile *os.File, sourc
 				ComputeSortLevelValue(SortLevelInteractionScore, map[string]interface{}{"score": scoreInt}),
 			}
 			m.d.addXrefWithSortLevels(mirnaID, sourceID, t.RefSeqID, "refseq", sortLevels)
+		}
+
+		// Link the mature miRNA to its MIR gene (Atlas #4): hsa-miR-21-5p -> MIR21.
+		// The resolver only links if the candidate symbol is a real HGNC gene, so
+		// ambiguous multi-copy names (miR-1 -> MIR1-1/MIR1-2) are safely dropped.
+		if sym := matureMirnaToMirGeneSymbol(mirnaID); sym != "" {
+			m.d.addHumanGeneXrefsViaHGNC(sym, mirnaID, sourceID)
 		}
 
 		// Log ID for test mode

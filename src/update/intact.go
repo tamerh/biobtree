@@ -354,72 +354,83 @@ func (i *intact) parseAndSaveInteractions(testLimit int, idLogFile *os.File) {
 		confidenceScore := i.extractConfidenceScore(getField(row, colMap, "Confidence value(s)"))
 		confidenceScoreInt := int(math.Round(confidenceScore * 1000))
 
+		// Spoke-expanded rows are a bait paired with each prey of an n-ary complex
+		// (a large pulldown), not observed binary interactions. Cross-referencing
+		// the interaction to every such member massively over-links proteins (Atlas:
+		// EBI-10992821 → ~56 UniProt; TMEM126A → 87 "interactions", 1 real). So for
+		// spoke-expanded rows we keep the interaction entry (direct lookup by id) but
+		// SKIP the interactor cross-refs, so they don't pollute protein→interaction.
+		expansion := strings.ToLower(getField(row, colMap, "Expansion method(s)"))
+		isSpoke := strings.Contains(expansion, "spoke")
+
 		// Create cross-references based on interactor types
 		// interaction (IntAct) → UniProt proteins (with species priority + confidence score sorting)
-		if hasProteinA {
-			taxIDAStr := strconv.Itoa(int(taxidA))
-			sortLevelsA := []string{
-				ComputeSortLevelValue(SortLevelSpeciesPriority, map[string]interface{}{"taxID": taxIDAStr}),
-				ComputeSortLevelValue(SortLevelInteractionScore, map[string]interface{}{"score": confidenceScoreInt}),
+		if !isSpoke {
+			if hasProteinA {
+				taxIDAStr := strconv.Itoa(int(taxidA))
+				sortLevelsA := []string{
+					ComputeSortLevelValue(SortLevelSpeciesPriority, map[string]interface{}{"taxID": taxIDAStr}),
+					ComputeSortLevelValue(SortLevelInteractionScore, map[string]interface{}{"score": confidenceScoreInt}),
+				}
+				i.d.addXrefWithSortLevels(interactionID, sourceID, proteinA, "uniprot", sortLevelsA)
 			}
-			i.d.addXrefWithSortLevels(interactionID, sourceID, proteinA, "uniprot", sortLevelsA)
-		}
-		if hasProteinB && proteinA != proteinB {
-			taxIDBStr := strconv.Itoa(int(taxidB))
-			sortLevelsB := []string{
-				ComputeSortLevelValue(SortLevelSpeciesPriority, map[string]interface{}{"taxID": taxIDBStr}),
-				ComputeSortLevelValue(SortLevelInteractionScore, map[string]interface{}{"score": confidenceScoreInt}),
+			if hasProteinB && proteinA != proteinB {
+				taxIDBStr := strconv.Itoa(int(taxidB))
+				sortLevelsB := []string{
+					ComputeSortLevelValue(SortLevelSpeciesPriority, map[string]interface{}{"taxID": taxIDBStr}),
+					ComputeSortLevelValue(SortLevelInteractionScore, map[string]interface{}{"score": confidenceScoreInt}),
+				}
+				i.d.addXrefWithSortLevels(interactionID, sourceID, proteinB, "uniprot", sortLevelsB)
 			}
-			i.d.addXrefWithSortLevels(interactionID, sourceID, proteinB, "uniprot", sortLevelsB)
-		}
 
-		// interaction (IntAct) → ChEBI compounds
-		if hasChEBIA {
-			i.d.addXref(interactionID, sourceID, chebiA, "chebi", false)
-		}
-		if hasChEBIB && chebiA != chebiB {
-			i.d.addXref(interactionID, sourceID, chebiB, "chebi", false)
-		}
+			// interaction (IntAct) → ChEBI compounds
+			if hasChEBIA {
+				i.d.addXref(interactionID, sourceID, chebiA, "chebi", false)
+			}
+			if hasChEBIB && chebiA != chebiB {
+				i.d.addXref(interactionID, sourceID, chebiB, "chebi", false)
+			}
 
-		// interaction (IntAct) → RNAcentral
-		if hasRNAA {
-			i.d.addXref(interactionID, sourceID, rnaA, "rnacentral", false)
-		}
-		if hasRNAB && rnaA != rnaB {
-			i.d.addXref(interactionID, sourceID, rnaB, "rnacentral", false)
-		}
+			// interaction (IntAct) → RNAcentral
+			if hasRNAA {
+				i.d.addXref(interactionID, sourceID, rnaA, "rnacentral", false)
+			}
+			if hasRNAB && rnaA != rnaB {
+				i.d.addXref(interactionID, sourceID, rnaB, "rnacentral", false)
+			}
 
-		// NEW: interaction (IntAct) → Ensembl genes
-		if hasEnsemblGeneA {
-			i.d.addXref(interactionID, sourceID, ensemblGeneA, "ensembl", false)
-		}
-		if hasEnsemblGeneB && ensemblGeneA != ensemblGeneB {
-			i.d.addXref(interactionID, sourceID, ensemblGeneB, "ensembl", false)
-		}
+			// NEW: interaction (IntAct) → Ensembl genes
+			if hasEnsemblGeneA {
+				i.d.addXref(interactionID, sourceID, ensemblGeneA, "ensembl", false)
+			}
+			if hasEnsemblGeneB && ensemblGeneA != ensemblGeneB {
+				i.d.addXref(interactionID, sourceID, ensemblGeneB, "ensembl", false)
+			}
 
-		// NEW: interaction (IntAct) → Ensembl transcripts (for mRNA-miRNA)
-		if hasTranscriptA {
-			i.d.addXref(interactionID, sourceID, transcriptA, "transcript", false)
-		}
-		if hasTranscriptB && transcriptA != transcriptB {
-			i.d.addXref(interactionID, sourceID, transcriptB, "transcript", false)
-		}
+			// NEW: interaction (IntAct) → Ensembl transcripts (for mRNA-miRNA)
+			if hasTranscriptA {
+				i.d.addXref(interactionID, sourceID, transcriptA, "transcript", false)
+			}
+			if hasTranscriptB && transcriptA != transcriptB {
+				i.d.addXref(interactionID, sourceID, transcriptB, "transcript", false)
+			}
 
-		// NEW: interaction (IntAct) → RefSeq (if available)
-		if refseqA != "" {
-			i.d.addXref(interactionID, sourceID, refseqA, "refseq", false)
-		}
-		if refseqB != "" && refseqA != refseqB {
-			i.d.addXref(interactionID, sourceID, refseqB, "refseq", false)
-		}
+			// NEW: interaction (IntAct) → RefSeq (if available)
+			if refseqA != "" {
+				i.d.addXref(interactionID, sourceID, refseqA, "refseq", false)
+			}
+			if refseqB != "" && refseqA != refseqB {
+				i.d.addXref(interactionID, sourceID, refseqB, "refseq", false)
+			}
 
-		// NEW: interaction (IntAct) → Reactome (if available)
-		if reactomeA != "" {
-			i.d.addXref(interactionID, sourceID, reactomeA, "reactome", false)
-		}
-		if reactomeB != "" && reactomeA != reactomeB {
-			i.d.addXref(interactionID, sourceID, reactomeB, "reactome", false)
-		}
+			// NEW: interaction (IntAct) → Reactome (if available)
+			if reactomeA != "" {
+				i.d.addXref(interactionID, sourceID, reactomeA, "reactome", false)
+			}
+			if reactomeB != "" && reactomeA != reactomeB {
+				i.d.addXref(interactionID, sourceID, reactomeB, "reactome", false)
+			}
+		} // end if !isSpoke
 
 		// Text search: interaction_id → interaction entry
 		i.d.addXref(interactionID, textLinkID, interactionID, i.source, true)

@@ -425,9 +425,10 @@ func (h *hpo) parsePhenotypeAnnotations(path string) {
 			continue
 		}
 
-		// Only process phenotype associations (aspect P)
-		// Skip: I (inheritance), C (clinical course), M (modifier), H (history)
-		if aspect != "P" {
+		// Process phenotype (P) and inheritance (I) associations. Inheritance terms
+		// (e.g. HP:0000007 autosomal recessive) are what Atlas wants on the disease
+		// page. Skip: C (clinical course), M (modifier), H (history).
+		if aspect != "P" && aspect != "I" {
 			continue
 		}
 
@@ -448,6 +449,15 @@ func (h *hpo) parsePhenotypeAnnotations(path string) {
 			}
 			if f != "" {
 				evidenceStr = evidence + ";freq=" + f
+			}
+		}
+		// Tag inheritance-aspect rows so a consumer can distinguish a mode-of-
+		// inheritance term (HP:0000007 ...) from a phenotypic abnormality.
+		if aspect == "I" {
+			if evidenceStr == "" {
+				evidenceStr = "aspect=inheritance"
+			} else {
+				evidenceStr = evidenceStr + ";aspect=inheritance"
 			}
 		}
 

@@ -779,9 +779,8 @@
       "category": "protein_interactions",
       "name": "RNAcentral to IntAct Interactions (Protein-RNA)",
       "query": ">>rnacentral>>intact",
-      "why": "Find protein-RNA interactions - critical for RNA biology and RBP analysis",
+      "why": "Find protein-RNA interactions - critical for RNA biology and RBP analysis (URS00002D9DEC dropped: its intact records were all spoke-expanded, now correctly removed per Atlas #2)",
       "should_pass": [
-        "URS00002D9DEC",
         "URS00002AFD52"
       ],
       "should_fail": []
@@ -790,9 +789,9 @@
       "category": "protein_interactions",
       "name": "RNAcentral to Interacting Proteins via IntAct",
       "query": ">>rnacentral>>intact>>uniprot",
-      "why": "Map RNAs to their binding proteins - essential for RNA-protein complex analysis",
+      "why": "Map RNAs to their binding proteins - essential for RNA-protein complex analysis (was URS00002D9DEC, replaced with URS00002AFD52 which has genuine binary intact interactions after the Atlas #2 spoke-expansion fix)",
       "should_pass": [
-        "URS00002D9DEC"
+        "URS00002AFD52"
       ],
       "should_fail": []
     },
@@ -814,10 +813,9 @@
       "category": "protein_interactions",
       "name": "Protein to Small Molecule Partners via IntAct",
       "query": ">>uniprot>>intact>>chebi",
-      "why": "Find small molecules that interact with a protein - ligand discovery",
+      "why": "Find small molecules that interact with a protein - ligand discovery (P63073 dropped: its intact->chebi links were spoke-expanded, now correctly removed per Atlas #2; it still has 20 genuine binary intact records)",
       "should_pass": [
-        "P06730",
-        "P63073"
+        "P06730"
       ],
       "should_fail": []
     },

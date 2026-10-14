@@ -2119,6 +2119,12 @@ func extractDrugcentralField(a *pbuf.DrugcentralAttr, field string) string {
 		return fmt.Sprintf("%t", a.EmaApproved)
 	case "pmda_approved":
 		return fmt.Sprintf("%t", a.PmdaApproved)
+	case "indications":
+		return strings.Join(a.Indications, ";")
+	case "atc_codes":
+		return strings.Join(a.AtcCodes, ";")
+	case "atc_classes":
+		return strings.Join(a.AtcClasses, ";")
 	default:
 		return ""
 	}

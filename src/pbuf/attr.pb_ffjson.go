@@ -56981,6 +56981,54 @@ func (j *DrugcentralAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		}
 		buf.WriteByte(',')
 	}
+	if len(j.Indications) != 0 {
+		buf.WriteString(`"indications":`)
+		if j.Indications != nil {
+			buf.WriteString(`[`)
+			for i, v := range j.Indications {
+				if i != 0 {
+					buf.WriteString(`,`)
+				}
+				fflib.WriteJsonString(buf, string(v))
+			}
+			buf.WriteString(`]`)
+		} else {
+			buf.WriteString(`null`)
+		}
+		buf.WriteByte(',')
+	}
+	if len(j.AtcCodes) != 0 {
+		buf.WriteString(`"atc_codes":`)
+		if j.AtcCodes != nil {
+			buf.WriteString(`[`)
+			for i, v := range j.AtcCodes {
+				if i != 0 {
+					buf.WriteString(`,`)
+				}
+				fflib.WriteJsonString(buf, string(v))
+			}
+			buf.WriteString(`]`)
+		} else {
+			buf.WriteString(`null`)
+		}
+		buf.WriteByte(',')
+	}
+	if len(j.AtcClasses) != 0 {
+		buf.WriteString(`"atc_classes":`)
+		if j.AtcClasses != nil {
+			buf.WriteString(`[`)
+			for i, v := range j.AtcClasses {
+				if i != 0 {
+					buf.WriteString(`,`)
+				}
+				fflib.WriteJsonString(buf, string(v))
+			}
+			buf.WriteString(`]`)
+		} else {
+			buf.WriteString(`null`)
+		}
+		buf.WriteByte(',')
+	}
 	if len(j.Id) != 0 {
 		buf.WriteString(`"id":`)
 		fflib.WriteJsonString(buf, string(j.Id))
@@ -57017,6 +57065,12 @@ const (
 
 	ffjtDrugcentralAttrPmdaApproved
 
+	ffjtDrugcentralAttrIndications
+
+	ffjtDrugcentralAttrAtcCodes
+
+	ffjtDrugcentralAttrAtcClasses
+
 	ffjtDrugcentralAttrId
 )
 
@@ -57041,6 +57095,12 @@ var ffjKeyDrugcentralAttrFdaApproved = []byte("fda_approved")
 var ffjKeyDrugcentralAttrEmaApproved = []byte("ema_approved")
 
 var ffjKeyDrugcentralAttrPmdaApproved = []byte("pmda_approved")
+
+var ffjKeyDrugcentralAttrIndications = []byte("indications")
+
+var ffjKeyDrugcentralAttrAtcCodes = []byte("atc_codes")
+
+var ffjKeyDrugcentralAttrAtcClasses = []byte("atc_classes")
 
 var ffjKeyDrugcentralAttrId = []byte("id")
 
@@ -57111,6 +57171,16 @@ mainparse:
 						currentKey = ffjtDrugcentralAttrActionTypes
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyDrugcentralAttrAtcCodes, kn) {
+						currentKey = ffjtDrugcentralAttrAtcCodes
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyDrugcentralAttrAtcClasses, kn) {
+						currentKey = ffjtDrugcentralAttrAtcClasses
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 'c':
@@ -57146,6 +57216,11 @@ mainparse:
 
 					} else if bytes.Equal(ffjKeyDrugcentralAttrInchikey, kn) {
 						currentKey = ffjtDrugcentralAttrInchikey
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyDrugcentralAttrIndications, kn) {
+						currentKey = ffjtDrugcentralAttrIndications
 						state = fflib.FFParse_want_colon
 						goto mainparse
 
@@ -57196,6 +57271,24 @@ mainparse:
 
 				if fflib.SimpleLetterEqualFold(ffjKeyDrugcentralAttrId, kn) {
 					currentKey = ffjtDrugcentralAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyDrugcentralAttrAtcClasses, kn) {
+					currentKey = ffjtDrugcentralAttrAtcClasses
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyDrugcentralAttrAtcCodes, kn) {
+					currentKey = ffjtDrugcentralAttrAtcCodes
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyDrugcentralAttrIndications, kn) {
+					currentKey = ffjtDrugcentralAttrIndications
 					state = fflib.FFParse_want_colon
 					goto mainparse
 				}
@@ -57315,6 +57408,15 @@ mainparse:
 
 				case ffjtDrugcentralAttrPmdaApproved:
 					goto handle_PmdaApproved
+
+				case ffjtDrugcentralAttrIndications:
+					goto handle_Indications
+
+				case ffjtDrugcentralAttrAtcCodes:
+					goto handle_AtcCodes
+
+				case ffjtDrugcentralAttrAtcClasses:
+					goto handle_AtcClasses
 
 				case ffjtDrugcentralAttrId:
 					goto handle_Id
@@ -57788,6 +57890,228 @@ handle_PmdaApproved:
 				return fs.WrapErr(err)
 			}
 
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Indications:
+
+	/* handler: j.Indications type=[]string kind=slice quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_left_brace && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for ", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+			j.Indications = nil
+		} else {
+
+			j.Indications = []string{}
+
+			wantVal := true
+
+			for {
+
+				var tmpJIndications string
+
+				tok = fs.Scan()
+				if tok == fflib.FFTok_error {
+					goto tokerror
+				}
+				if tok == fflib.FFTok_right_brace {
+					break
+				}
+
+				if tok == fflib.FFTok_comma {
+					if wantVal == true {
+						// TODO(pquerna): this isn't an ideal error message, this handles
+						// things like [,,,] as an array value.
+						return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
+					}
+					continue
+				} else {
+					wantVal = true
+				}
+
+				/* handler: tmpJIndications type=string kind=string quoted=false*/
+
+				{
+
+					{
+						if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+							return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+						}
+					}
+
+					if tok == fflib.FFTok_null {
+
+					} else {
+
+						outBuf := fs.Output.Bytes()
+
+						tmpJIndications = string(string(outBuf))
+
+					}
+				}
+
+				j.Indications = append(j.Indications, tmpJIndications)
+
+				wantVal = false
+			}
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_AtcCodes:
+
+	/* handler: j.AtcCodes type=[]string kind=slice quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_left_brace && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for ", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+			j.AtcCodes = nil
+		} else {
+
+			j.AtcCodes = []string{}
+
+			wantVal := true
+
+			for {
+
+				var tmpJAtcCodes string
+
+				tok = fs.Scan()
+				if tok == fflib.FFTok_error {
+					goto tokerror
+				}
+				if tok == fflib.FFTok_right_brace {
+					break
+				}
+
+				if tok == fflib.FFTok_comma {
+					if wantVal == true {
+						// TODO(pquerna): this isn't an ideal error message, this handles
+						// things like [,,,] as an array value.
+						return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
+					}
+					continue
+				} else {
+					wantVal = true
+				}
+
+				/* handler: tmpJAtcCodes type=string kind=string quoted=false*/
+
+				{
+
+					{
+						if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+							return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+						}
+					}
+
+					if tok == fflib.FFTok_null {
+
+					} else {
+
+						outBuf := fs.Output.Bytes()
+
+						tmpJAtcCodes = string(string(outBuf))
+
+					}
+				}
+
+				j.AtcCodes = append(j.AtcCodes, tmpJAtcCodes)
+
+				wantVal = false
+			}
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_AtcClasses:
+
+	/* handler: j.AtcClasses type=[]string kind=slice quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_left_brace && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for ", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+			j.AtcClasses = nil
+		} else {
+
+			j.AtcClasses = []string{}
+
+			wantVal := true
+
+			for {
+
+				var tmpJAtcClasses string
+
+				tok = fs.Scan()
+				if tok == fflib.FFTok_error {
+					goto tokerror
+				}
+				if tok == fflib.FFTok_right_brace {
+					break
+				}
+
+				if tok == fflib.FFTok_comma {
+					if wantVal == true {
+						// TODO(pquerna): this isn't an ideal error message, this handles
+						// things like [,,,] as an array value.
+						return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
+					}
+					continue
+				} else {
+					wantVal = true
+				}
+
+				/* handler: tmpJAtcClasses type=string kind=string quoted=false*/
+
+				{
+
+					{
+						if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+							return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+						}
+					}
+
+					if tok == fflib.FFTok_null {
+
+					} else {
+
+						outBuf := fs.Output.Bytes()
+
+						tmpJAtcClasses = string(string(outBuf))
+
+					}
+				}
+
+				j.AtcClasses = append(j.AtcClasses, tmpJAtcClasses)
+
+				wantVal = false
+			}
 		}
 	}
 

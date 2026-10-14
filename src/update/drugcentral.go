@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"sort"
 	"strings"
 	"sync/atomic"
@@ -43,8 +44,17 @@ import (
 // (they live only in the DrugCentral PostgreSQL dump / live instance), so they
 // are intentionally out of scope here rather than producing half-baked edges.
 type drugcentral struct {
-	source string
-	d      *DataUpdate
+	source  string
+	d       *DataUpdate
+	medical *MedicalTermMappings
+}
+
+// drugcentralExtras holds the indication + ATC data parsed from the DrugCentral
+// pg_dump (these are not in the static TSV/CSV downloads).
+type drugcentralExtras struct {
+	indications map[string][]string // struct_id -> on-label indication disease names
+	atcCodes    map[string][]string // struct_id -> WHO ATC codes (e.g. P01BA06)
+	atcClasses  map[string][]string // struct_id -> distinct ATC class names (l2/l3/l4)
 }
 
 func (dc *drugcentral) check(err error, operation string) {
@@ -101,8 +111,16 @@ func (dc *drugcentral) update() {
 	entries := dc.loadInteractions(structures, testLimit)
 	log.Printf("DrugCentral: aggregated %d drugs from interactions", len(entries))
 
+	// Phase 3b: indications + ATC classification from the pg_dump (not in the
+	// static downloads). Disease-name -> ontology resolution for indication edges
+	// needs the medical-term matcher and the lookup DB.
+	dc.medical = LoadMedicalTermMappings()
+	extras := dc.loadPgDumpExtras()
+	log.Printf("DrugCentral: pg_dump extras: %d drugs w/ indications, %d w/ ATC codes",
+		len(extras.indications), len(extras.atcCodes))
+
 	// Phase 4: save entries + cross-references
-	dc.saveEntries(entries, fdaApproved, emaApproved, pmdaApproved, idLogFile)
+	dc.saveEntries(entries, fdaApproved, emaApproved, pmdaApproved, extras, idLogFile)
 
 	log.Printf("DrugCentral: Processing complete (%.2fs)", time.Since(startTime).Seconds())
 	dc.d.progChan <- &progressInfo{dataset: dc.source, done: true}
@@ -299,8 +317,136 @@ func (dc *drugcentral) loadInteractions(structures map[string]*drugcentralStruct
 	return entries
 }
 
+// loadPgDumpExtras reads the indication + ATC tables that DrugCentral ships only
+// in its ~1 GB PostgreSQL dump. src/scripts/drugcentral/drugcentral_prepare.py
+// extracts the three small tables once into extrasDir (atc.tsv, struct2atc.tsv,
+// omop_indications.tsv); this reads those local files (verbatim pg_dump rows).
+// If extrasDir / the files are absent the drug entries are still built, just
+// without indications/ATC — so a build without the prep step still succeeds.
+func (dc *drugcentral) loadPgDumpExtras() *drugcentralExtras {
+	ex := &drugcentralExtras{
+		indications: make(map[string][]string),
+		atcCodes:    make(map[string][]string),
+		atcClasses:  make(map[string][]string),
+	}
+	dir := config.Dataconf[dc.source]["extrasDir"]
+	if dir == "" {
+		log.Println("DrugCentral: extrasDir not configured — skipping indications/ATC")
+		return ex
+	}
+
+	atcClassByCode := make(map[string][]string) // code -> [l2,l3,l4] names (mono codes only)
+	structToCodes := make(map[string][]string)  // struct_id -> codes (dedup below)
+	indicationSeen := make(map[string]map[string]bool)
+
+	// atc.tsv: id,code,chem,l1c,l1n,l2c,l2n,l3c,l3n,l4c,l4n,count.
+	// Class names are taken only from single-substance (mono) codes — combination
+	// products (chemical_substance "X and Y") would otherwise attach misleading
+	// classes to a drug (e.g. amlodipine -> "HMG CoA reductase inhibitors" from a
+	// statin combo). The combo CODES are still kept (below) for completeness/search.
+	dc.readExtrasFile(filepath.Join(dir, "atc.tsv"), func(f []string) {
+		if len(f) < 11 {
+			return
+		}
+		code := f[1]
+		if code == "" || strings.Contains(f[2], " and ") {
+			return // skip combination products for class derivation
+		}
+		var classes []string
+		for _, i := range []int{6, 8, 10} { // l2_name, l3_name, l4_name
+			if v := pgNullTrim(f[i]); v != "" {
+				classes = append(classes, v)
+			}
+		}
+		if len(classes) > 0 {
+			atcClassByCode[code] = classes
+		}
+	})
+
+	// struct2atc.tsv: struct_id,atc_code,id
+	dc.readExtrasFile(filepath.Join(dir, "struct2atc.tsv"), func(f []string) {
+		if len(f) >= 2 && f[0] != "" && f[1] != "" {
+			structToCodes[f[0]] = append(structToCodes[f[0]], f[1])
+		}
+	})
+
+	// omop_indications.tsv: id,struct_id,concept_id,relationship_name,concept_name,...
+	// (prep already filtered to relationship_name='indication'; re-checked here).
+	dc.readExtrasFile(filepath.Join(dir, "omop_indications.tsv"), func(f []string) {
+		if len(f) < 5 || f[3] != "indication" {
+			return
+		}
+		sid, name := f[1], pgNullTrim(f[4])
+		if sid == "" || name == "" {
+			return
+		}
+		if indicationSeen[sid] == nil {
+			indicationSeen[sid] = make(map[string]bool)
+		}
+		if !indicationSeen[sid][name] {
+			indicationSeen[sid][name] = true
+			ex.indications[sid] = append(ex.indications[sid], name)
+		}
+	})
+
+	// Post-process: per struct_id, distinct codes and the union of their class names.
+	for sid, codes := range structToCodes {
+		seenCode := make(map[string]bool)
+		seenClass := make(map[string]bool)
+		for _, code := range codes {
+			if !seenCode[code] {
+				seenCode[code] = true
+				ex.atcCodes[sid] = append(ex.atcCodes[sid], code)
+			}
+			for _, cls := range atcClassByCode[code] {
+				if !seenClass[cls] {
+					seenClass[cls] = true
+					ex.atcClasses[sid] = append(ex.atcClasses[sid], cls)
+				}
+			}
+		}
+	}
+	return ex
+}
+
+// readExtrasFile reads a tab-separated DrugCentral extras file, calling fn with
+// the split fields of each row. A missing file is logged and skipped (the prep
+// step may not have been run), not fatal.
+func (dc *drugcentral) readExtrasFile(path string, fn func(fields []string)) {
+	file, err := os.Open(filepath.FromSlash(path))
+	if err != nil {
+		log.Printf("DrugCentral: extras file %s not found (%v) — skipping", path, err)
+		return
+	}
+	defer file.Close()
+
+	br := bufio.NewReaderSize(file, 1024*1024)
+	for {
+		line, err := br.ReadString('\n')
+		if len(line) > 0 {
+			fn(strings.Split(strings.TrimRight(line, "\r\n"), "\t"))
+		}
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			log.Printf("DrugCentral: error reading %s: %v", path, err)
+			return
+		}
+	}
+}
+
+// pgNullTrim maps the pg_dump NULL token "\N" to the empty string.
+func pgNullTrim(s string) string {
+	s = strings.TrimSpace(s)
+	if s == `\N` {
+		return ""
+	}
+	return s
+}
+
 // saveEntries marshals and stores each drug entry and creates its cross-references.
-func (dc *drugcentral) saveEntries(entries map[string]*drugcentralEntry, fda, ema, pmda map[string]bool, idLogFile *os.File) {
+func (dc *drugcentral) saveEntries(entries map[string]*drugcentralEntry, fda, ema, pmda map[string]bool, extras *drugcentralExtras, idLogFile *os.File) {
 	sourceID := config.Dataconf[dc.source]["id"]
 	var savedCount int
 
@@ -321,6 +467,9 @@ func (dc *drugcentral) saveEntries(entries map[string]*drugcentralEntry, fda, em
 			FdaApproved:  fda[structID],
 			EmaApproved:  ema[structID],
 			PmdaApproved: pmda[structID],
+			Indications:  extras.indications[structID],
+			AtcCodes:     extras.atcCodes[structID],
+			AtcClasses:   extras.atcClasses[structID],
 		}
 
 		attrBytes, err := ffjson.Marshal(attr)
@@ -330,7 +479,7 @@ func (dc *drugcentral) saveEntries(entries map[string]*drugcentralEntry, fda, em
 		}
 		dc.d.addProp3(structID, sourceID, attrBytes)
 
-		dc.createCrossRefs(structID, entry, sourceID, targets)
+		dc.createCrossRefs(structID, entry, sourceID, targets, extras)
 
 		if idLogFile != nil {
 			idLogFile.WriteString(structID + "\n")
@@ -344,10 +493,28 @@ func (dc *drugcentral) saveEntries(entries map[string]*drugcentralEntry, fda, em
 
 	atomic.AddUint64(&dc.d.totalParsedEntry, uint64(savedCount))
 	log.Printf("DrugCentral: Total drug entries saved: %d", savedCount)
+
+	// Quantify drugs that carry indications/ATC but have no human-target
+	// interaction entry (so they are not emitted today). Reported, not ingested —
+	// expanding the entry universe to all DrugCentral drugs is a separate decision.
+	var indOnly, atcOnly int
+	for sid := range extras.indications {
+		if _, ok := entries[sid]; !ok {
+			indOnly++
+		}
+	}
+	for sid := range extras.atcCodes {
+		if _, ok := entries[sid]; !ok {
+			atcOnly++
+		}
+	}
+	if indOnly > 0 || atcOnly > 0 {
+		log.Printf("DrugCentral: %d drugs with indications and %d with ATC have no interaction entry (not emitted)", indOnly, atcOnly)
+	}
 }
 
 // createCrossRefs builds text-search keywords and database edges for a drug.
-func (dc *drugcentral) createCrossRefs(structID string, entry *drugcentralEntry, sourceID string, targets []string) {
+func (dc *drugcentral) createCrossRefs(structID string, entry *drugcentralEntry, sourceID string, targets []string, extras *drugcentralExtras) {
 	// Text search: drug name and INN.
 	if entry.name != "" {
 		dc.d.addXref(entry.name, textLinkID, structID, dc.source, true)
@@ -376,6 +543,45 @@ func (dc *drugcentral) createCrossRefs(structID string, entry *drugcentralEntry,
 	for g := range entry.genes {
 		dc.d.addHumanGeneXrefsAll(g, structID, sourceID)
 	}
+
+	// ATC codes: index as searchable text keywords, so "P01BA06" finds the drug.
+	for _, code := range extras.atcCodes[structID] {
+		dc.d.addXref(code, textLinkID, structID, dc.source, true)
+	}
+
+	// On-label indications: resolve each disease name to the MONDO/EFO ontology
+	// (precise whole-term matcher, same path ncrna_disease uses) and add a
+	// drug -> disease edge, so approved indications surface on both drug and
+	// disease pages (the donepezil/memantine -> Alzheimer's gap Atlas reported).
+	dc.linkIndications(structID, sourceID, extras.indications[structID])
+}
+
+// linkIndications resolves indication disease names to ontology ids and adds
+// drug -> mondo / drug -> efo edges.
+func (dc *drugcentral) linkIndications(structID, sourceID string, indications []string) {
+	if len(indications) == 0 || dc.d.lookupService == nil {
+		return
+	}
+	mondoID := config.DataconfIDStringToInt["mondo"]
+	efoID := config.DataconfIDStringToInt["efo"]
+	mapTo := func(ontID uint32, ds string) {
+		if ontID == 0 {
+			return
+		}
+		seen := make(map[string]bool)
+		for _, name := range indications {
+			for _, dc2 := range diseaseNameVariants(name) {
+				for o := range collectOntologyIDs(dc.d, dc.medical, dc2, ontID) {
+					if !seen[o] {
+						seen[o] = true
+						dc.d.addXref(structID, sourceID, o, ds, false)
+					}
+				}
+			}
+		}
+	}
+	mapTo(mondoID, "mondo")
+	mapTo(efoID, "efo")
 }
 
 // linkStructure resolves a drug's InChIKey through the lookup DB to its

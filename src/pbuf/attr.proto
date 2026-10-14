@@ -3483,8 +3483,10 @@ message GnomadConstraintAttr {
 // DrugCentral - curated approved/marketed drugs (Dataset ID: 801)
 // One entry per DrugCentral drug, keyed by DrugCentral struct_id.
 // Source: https://drugcentral.org (drug.target.interaction.tsv.gz, structures.smiles.tsv,
-//   FDA/EMA/PMDA approved CSVs), License CC BY-SA 4.0.
-// Captures the drug->target mechanism-of-action layer plus regulatory approval status.
+//   FDA/EMA/PMDA approved CSVs, and the DrugCentral pg_dump for indications + ATC),
+//   License CC BY-SA 4.0.
+// Captures the drug->target mechanism-of-action layer plus regulatory approval status,
+// on-label indications and WHO ATC therapeutic classification.
 message DrugcentralAttr {
   string name = 1;                 // drug name (INN / DrugCentral DRUG_NAME)
   string inn = 2;                  // International Nonproprietary Name (from structures file)
@@ -3497,6 +3499,9 @@ message DrugcentralAttr {
   bool fda_approved = 9;           // approved by US FDA
   bool ema_approved = 10;          // approved by EMA (Europe)
   bool pmda_approved = 11;         // approved by PMDA (Japan)
+  repeated string indications = 12;// on-label indications (DrugCentral omop_relationship, relationship_name='indication'); disease concept names
+  repeated string atc_codes = 13;  // WHO ATC codes for this drug (DrugCentral struct2atc), e.g. P01BA06
+  repeated string atc_classes = 14;// ATC therapeutic class names (distinct level-2/3/4 names from the atc table), e.g. ANTIMALARIALS
   string id = 100; // transient - populated at runtime from Xref.Identifier
 }
 

@@ -338,6 +338,7 @@ Available datasets:
         'repeat': datasets_dir / "repeat" / "test_repeat.py",
         'wikidata_symptom': datasets_dir / "wikidata_symptom" / "test_wikidata_symptom.py",
         'wikidata': datasets_dir / "wikidata" / "test_wikidata.py",
+        'drugcentral': datasets_dir / "drugcentral" / "test_drugcentral.py",
     }
 
     # Parse dataset selection

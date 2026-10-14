@@ -85,6 +85,48 @@ class DrugcentralTests:
         return True, f"MOA target {AMLODIPINE_MOA_TARGET} present"
 
     @test
+    def test_atc_classification(self):
+        """Drug carries WHO ATC codes + class names (DrugCentral pg_dump)."""
+        data = self._map(AMLODIPINE, ">>drugcentral")
+        if not data or not data.get("results"):
+            return False, f"No drugcentral record for {AMLODIPINE}"
+        attrs = data["results"][0]["source"].get("Attributes", {}).get("Drugcentral", {})
+        codes = attrs.get("atc_codes", [])
+        classes = attrs.get("atc_classes", [])
+        if "C08CA01" not in codes:
+            return False, f"amlodipine mono ATC code C08CA01 not in {codes[:10]}"
+        if "CALCIUM CHANNEL BLOCKERS" not in classes:
+            return False, f"expected CCB class, got {classes[:10]}"
+        # Combination-product classes must NOT leak onto the mono drug.
+        if any("HMG CoA" in c for c in classes):
+            return False, f"combo-product class leaked into atc_classes: {classes}"
+        return True, f"ATC codes={len(codes)} classes={classes}"
+
+    @test
+    def test_indications(self):
+        """Drug carries on-label indications (DrugCentral omop_relationship)."""
+        data = self._map(AMLODIPINE, ">>drugcentral")
+        if not data or not data.get("results"):
+            return False, f"No drugcentral record for {AMLODIPINE}"
+        attrs = data["results"][0]["source"].get("Attributes", {}).get("Drugcentral", {})
+        inds = attrs.get("indications", [])
+        if not any("ypertensi" in i for i in inds):
+            return False, f"expected a hypertension indication, got {inds[:10]}"
+        return True, f"{len(inds)} indications incl. hypertension"
+
+    @test
+    def test_text_search_atc_code(self):
+        """ATC code is indexed as a searchable keyword -> struct_id."""
+        url = f"{self.runner.api_url}/ws/search/?i=C08CA01&s=drugcentral"
+        resp = requests.get(url, timeout=30)
+        if resp.status_code != 200:
+            return False, f"HTTP {resp.status_code}"
+        ids = [r.get("identifier") for r in resp.json().get("results", [])]
+        if AMLODIPINE not in ids:
+            return False, f"struct_id {AMLODIPINE} not found for C08CA01: {ids[:10]}"
+        return True, "ATC code C08CA01 search resolves to amlodipine"
+
+    @test
     def test_text_search_name(self):
         """Text search by drug name resolves to the struct_id."""
         url = f"{self.runner.api_url}/ws/search/?i=amlodipine&s=drugcentral"

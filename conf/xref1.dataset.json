@@ -176,7 +176,9 @@
     "name": "MIM",
     "id": "214",
     "url": "https://www.omim.org/entry/\u00a3{id}",
-    "bucketMethod": "alphanum"
+    "bucketMethod": "alphanum",
+    "attrs": "name",
+    "compact_fields": "name"
   },
   "metacyc": {
     "aliases": "MetaCyc,MetaCyc accession,METACYC",

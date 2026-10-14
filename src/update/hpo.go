@@ -179,7 +179,8 @@ phase2:
 }
 
 // extractDefText extracts the quoted definition from an OBO "def:" line:
-//   def: "Some text." [PMID:123, HPO:probinson]
+//
+//	def: "Some text." [PMID:123, HPO:probinson]
 func extractDefText(line string) string {
 	line = strings.TrimPrefix(line, "def: ")
 	if len(line) < 2 || line[0] != '"' {
@@ -218,7 +219,6 @@ func (h *hpo) saveEntry(id string, datasetID string, attr *pbuf.HPOAttr) {
 		h.d.addXref(term, textLinkID, id, h.source, true)
 	}
 }
-
 
 // extractHPOParentID extracts the parent HP ID from an is_a line
 // Example: is_a: HP:0000001 ! All
@@ -376,6 +376,11 @@ func (h *hpo) parsePhenotypeAnnotations(path string) {
 
 	// Get dataset ID for HPO
 	hpoDatasetID := config.Dataconf[h.source]["id"]
+	// MIM is a passive xref target with no name of its own, so phenotype MIMs show
+	// as bare numbers (Atlas #6). phenotype.hpoa carries the disease label (field 1),
+	// license-clean (HPO, CC) — use it to name the OMIM `mim` entry, once per mim.
+	mimDatasetID := config.Dataconf["mim"]["id"]
+	mimNamed := map[string]bool{}
 
 	if config.Dataconf[h.source]["useLocalFile"] == "yes" {
 		file, err := os.Open(filepath.FromSlash(path))
@@ -413,12 +418,13 @@ func (h *hpo) parsePhenotypeAnnotations(path string) {
 			continue
 		}
 
-		databaseID := fields[0]   // OMIM:619340, ORPHA:558, MONDO:xxx
-		qualifier := fields[2]    // "NOT" or empty
-		hpoID := fields[3]        // HP:0011097
-		evidence := fields[5]     // PCS, TAS, IEA
-		frequency := fields[7]    // "1/2" or "HP:0040283" (optional)
-		aspect := fields[10]      // P, I, C, M, H
+		databaseID := fields[0]  // OMIM:619340, ORPHA:558, MONDO:xxx
+		diseaseName := fields[1] // disease label (used to name the mim entry)
+		qualifier := fields[2]   // "NOT" or empty
+		hpoID := fields[3]       // HP:0011097
+		evidence := fields[5]    // PCS, TAS, IEA
+		frequency := fields[7]   // "1/2" or "HP:0040283" (optional)
+		aspect := fields[10]     // P, I, C, M, H
 
 		// Skip negative associations (NOT qualifier)
 		if qualifier == "NOT" {
@@ -471,6 +477,14 @@ func (h *hpo) parsePhenotypeAnnotations(path string) {
 			// MIM uses numeric IDs without prefix
 			targetID = strings.TrimPrefix(databaseID, "OMIM:")
 			omimCount++
+			// Name the mim entry from the disease label (once), so it no longer
+			// renders as a bare number.
+			if mimDatasetID != "" && diseaseName != "" && !mimNamed[targetID] {
+				mimNamed[targetID] = true
+				if b, err := ffjson.Marshal(&pbuf.OntologyAttr{Name: diseaseName, Type: "disease"}); err == nil {
+					h.d.addProp3(targetID, mimDatasetID, b)
+				}
+			}
 		case strings.HasPrefix(databaseID, "ORPHA:"):
 			targetDataset = "orphanet"
 			// Orphanet uses numeric IDs only (e.g., "558" not "ORPHA:558")
@@ -507,9 +521,9 @@ func (h *hpo) parsePhenotypeAnnotations(path string) {
 
 	// Log annotation statistics
 	if annotationCount > 0 {
-		_ = omimCount   // Used for potential debug logging
-		_ = orphaCount  // Used for potential debug logging
-		_ = mondoCount  // Used for potential debug logging
+		_ = omimCount  // Used for potential debug logging
+		_ = orphaCount // Used for potential debug logging
+		_ = mondoCount // Used for potential debug logging
 		// log.Printf("[HPO] Parsed %d disease-phenotype annotations (OMIM: %d, Orphanet: %d, MONDO: %d)",
 		//     annotationCount, omimCount, orphaCount, mondoCount)
 	}

@@ -616,6 +616,31 @@ activate_db_version() {
 }
 
 # Cleanup old versions, keeping the last N
+# Remove a db version directory, handling the /data overflow case. An overflow
+# version is a db_vN SYMLINK into <ext>/<fed>/db_vN, so a plain `rm -rf` on it
+# deletes only the link and ORPHANS the large real dir on the other disk. Resolve
+# and remove the real target first, then the symlink. The target is removed only
+# when it lives under a recognized overflow area, so a stray/foreign symlink is
+# never followed and deleted.
+remove_db_version() {
+    local path=$1
+    if [[ ! -L "$path" ]]; then
+        rm -rf "$path"
+        return
+    fi
+    local target
+    target=$(readlink -f "$path" 2>/dev/null)
+    local safe="no"
+    [[ "$target" == */out_prod_ext/* ]] && safe="yes"
+    [[ -n "$DB_EXT_DIR" && "$target" == "$DB_EXT_DIR"/* ]] && safe="yes"
+    if [[ -n "$target" && "$safe" == "yes" ]]; then
+        rm -rf "$target"
+    elif [[ -n "$target" ]]; then
+        echo "  WARNING: $path -> $target is outside the overflow area; removing symlink only, NOT the target"
+    fi
+    rm -f "$path"
+}
+
 cleanup_old_versions() {
     local federation=$1
     local keep=${2:-2}
@@ -640,7 +665,7 @@ cleanup_old_versions() {
             continue
         fi
         echo "  Removing db_v$ver..."
-        rm -rf "$fed_dir/db_v$ver"
+        remove_db_version "$fed_dir/db_v$ver"
     done
 }
 
@@ -676,7 +701,7 @@ pre_generate_cleanup() {
             echo "  [DRY RUN] would remove db_v$ver"
         else
             echo "  Removing db_v$ver ($(du -sh "$fed_dir/db_v$ver" 2>/dev/null | cut -f1))..."
-            rm -rf "$fed_dir/db_v$ver"
+            remove_db_version "$fed_dir/db_v$ver"
         fi
     done
 }

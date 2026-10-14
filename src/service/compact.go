@@ -2458,6 +2458,38 @@ func extractGnomadVariantField(a *pbuf.GnomadVariantAttr, field string) string {
 		return fmt.Sprintf("%g", a.AfMid)
 	case "af_remaining":
 		return fmt.Sprintf("%g", a.AfRemaining)
+	case "nhomalt":
+		return fmt.Sprintf("%d", a.Nhomalt)
+	case "ac_xx":
+		return fmt.Sprintf("%d", a.AcXx)
+	case "an_xx":
+		return fmt.Sprintf("%d", a.AnXx)
+	case "nhomalt_xx":
+		return fmt.Sprintf("%d", a.NhomaltXx)
+	case "ac_xy":
+		return fmt.Sprintf("%d", a.AcXy)
+	case "an_xy":
+		return fmt.Sprintf("%d", a.AnXy)
+	case "nhomalt_xy":
+		return fmt.Sprintf("%d", a.NhomaltXy)
+	case "filters":
+		return a.Filters
+	case "exomes_filters":
+		return a.ExomesFilters
+	case "genomes_filters":
+		return a.GenomesFilters
+	case "is_mito":
+		return fmt.Sprintf("%t", a.IsMito)
+	case "ac_hom":
+		return fmt.Sprintf("%d", a.AcHom)
+	case "ac_het":
+		return fmt.Sprintf("%d", a.AcHet)
+	case "af_hom":
+		return fmt.Sprintf("%g", a.AfHom)
+	case "af_het":
+		return fmt.Sprintf("%g", a.AfHet)
+	case "max_heteroplasmy":
+		return fmt.Sprintf("%g", a.MaxHeteroplasmy)
 	default:
 		return ""
 	}

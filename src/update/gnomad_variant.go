@@ -111,11 +111,26 @@ func (g *gnomadVariant) update() {
 		if testLimit > 0 && total >= int64(testLimit) {
 			break
 		}
-		total += g.parseAndSaveVariants(p, testLimit, total, idLogFile, sourceID, dbsnpConfigured)
+		total += g.parseAndSaveVariants(p, testLimit, total, idLogFile, sourceID, dbsnpConfigured, false)
 	}
 
-	log.Printf("gnomAD Variant: Processing complete — %d variants across %d file(s) (%.2fs)",
-		total, len(paths), time.Since(startTime).Seconds())
+	// Mitochondrial callset: a SEPARATE gnomAD v3.1 chrM VCF with a heteroplasmic
+	// schema (ac_hom/ac_het/af_hom/af_het/an/max_hl), not part of the v4.1 joint
+	// per-chromosome files above. Without it, chrM variants return nothing and a
+	// consumer reads that as "absent from gnomAD" — a false rarity claim.
+	if mitoPath := config.Dataconf[g.source]["mitoPath"]; mitoPath != "" {
+		remote := strings.HasPrefix(mitoPath, "http") || strings.HasPrefix(mitoPath, "ftp")
+		if config.IsTestMode() && remote {
+			// Don't fetch the real multi-MB mito VCF in tests; a local fixture via
+			// --gnomad-mito-file is still processed.
+			log.Printf("gnomAD Variant: [TEST MODE] skipping remote mito VCF %s", mitoPath)
+		} else if testLimit <= 0 || total < int64(testLimit) {
+			total += g.parseAndSaveVariants(mitoPath, testLimit, total, idLogFile, sourceID, dbsnpConfigured, true)
+		}
+	}
+
+	log.Printf("gnomAD Variant: Processing complete — %d variants (incl. chrM) (%.2fs)",
+		total, time.Since(startTime).Seconds())
 	g.d.progChan <- &progressInfo{dataset: g.source, done: true}
 }
 
@@ -124,7 +139,7 @@ func (g *gnomadVariant) update() {
 // variant keyed chr:pos:ref:alt. priorCount is the number of variants already
 // processed from earlier files, so the global testLimit is honored across the
 // per-chromosome loop. Returns the number of variants processed from THIS file.
-func (g *gnomadVariant) parseAndSaveVariants(filePath string, testLimit int, priorCount int64, idLogFile *os.File, sourceID string, dbsnpConfigured bool) int64 {
+func (g *gnomadVariant) parseAndSaveVariants(filePath string, testLimit int, priorCount int64, idLogFile *os.File, sourceID string, dbsnpConfigured bool, isMito bool) int64 {
 	log.Printf("gnomAD Variant: Processing variants from %s", filePath)
 
 	br, gz, ftpFile, client, localFile, _, err := getDataReaderNew(g.source, "", "", filePath)
@@ -185,11 +200,17 @@ func (g *gnomadVariant) parseAndSaveVariants(filePath string, testLimit int, pri
 		idField := fields[2]
 		refAllele := fields[3]
 		altAllele := fields[4]
+		filterCol := fields[6]
 		info := fields[7]
 
 		// Normalize chromosome (strip "chr" prefix if present).
 		if strings.HasPrefix(chrom, "chr") {
 			chrom = chrom[3:]
+		}
+		// Mitochondrial variants are keyed under the standard "MT" token (the gnomAD
+		// mito VCF uses chrM -> "M"); we also emit an "M" alias below for discovery.
+		if isMito || chrom == "M" {
+			chrom = "MT"
 		}
 
 		pos, perr := strconv.ParseInt(posStr, 10, 64)
@@ -264,9 +285,44 @@ func (g *gnomadVariant) parseAndSaveVariants(filePath string, testLimit int, pri
 			AfRemaining:    infoFloat(kv, "AF_joint_remaining"),
 		}
 
+		// FILTER column applies to both callsets (joint filter / mito filter).
+		attr.Filters = filterCol
+
+		if isMito {
+			// gnomAD v3.1 mitochondrial callset — heteroplasmic schema. The nuclear
+			// _joint fields set above are absent here (left zero); these apply instead.
+			attr.IsMito = true
+			attr.An = infoInt(kv, "AN")
+			attr.AcHom = infoInt(kv, "AC_hom")
+			attr.AcHet = infoInt(kv, "AC_het")
+			attr.AfHom = infoFloat(kv, "AF_hom")
+			attr.AfHet = infoFloat(kv, "AF_het")
+			attr.MaxHeteroplasmy = infoFloat(kv, "max_hl")
+		} else {
+			// Homozygote count + sex split (the decisive recessive numbers).
+			attr.Nhomalt = infoInt(kv, "nhomalt_joint")
+			attr.AcXx = infoInt(kv, "AC_joint_XX")
+			attr.AnXx = infoInt(kv, "AN_joint_XX")
+			attr.NhomaltXx = infoInt(kv, "nhomalt_joint_XX")
+			attr.AcXy = infoInt(kv, "AC_joint_XY")
+			attr.AnXy = infoInt(kv, "AN_joint_XY")
+			attr.NhomaltXy = infoInt(kv, "nhomalt_joint_XY")
+			// Per-callset filter detail (AC0, AS_VQSR, ...).
+			attr.ExomesFilters = kv["exomes_filters"]
+			attr.GenomesFilters = kv["genomes_filters"]
+		}
+
 		attrBytes, merr := ffjson.Marshal(attr)
 		g.check(merr, fmt.Sprintf("marshaling attributes for %s", entryID))
 		g.d.addProp3(entryID, sourceID, attrBytes)
+
+		// Mito entries are keyed "MT:..."; also emit an "M:..." alias so a consumer
+		// querying either token finds the variant (mito callset is tiny, ~10.8K).
+		if isMito {
+			if mKey, _ := util.VariantKey("M", pos, refAllele, altAllele); mKey != entryID {
+				g.d.addProp3(mKey, sourceID, attrBytes)
+			}
+		}
 
 		if idLogFile != nil {
 			logProcessedID(idLogFile, entryID)

@@ -2126,6 +2126,29 @@ message GnomadVariantAttr {
   double faf99_exomes = 31;     // Exome-callset grpmax FAF99 (INFO fafmax_faf99_max_exomes)
   double faf95_genomes = 32;    // Genome-callset grpmax FAF95 (INFO fafmax_faf95_max_genomes)
   double faf99_genomes = 33;    // Genome-callset grpmax FAF99 (INFO fafmax_faf99_max_genomes)
+  // Homozygote + sex split (v4.1 joint nuclear callset). nhomalt is the decisive
+  // recessive number (homozygous-alt individuals); on X/Y non-PAR nhomalt_xy is
+  // effectively the hemizygous count.
+  int64 nhomalt = 34;           // nhomalt_joint
+  int64 ac_xx = 35;             // AC_joint_XX
+  int64 an_xx = 36;             // AN_joint_XX
+  int64 nhomalt_xx = 37;        // nhomalt_joint_XX
+  int64 ac_xy = 38;             // AC_joint_XY
+  int64 an_xy = 39;             // AN_joint_XY
+  int64 nhomalt_xy = 40;        // nhomalt_joint_XY (hemizygous on X/Y non-PAR)
+  // Quality filters — so a filtered allele is not presented as if it were clean.
+  string filters = 41;          // VCF FILTER column: joint PASS/BOTH_FILTERED/EXOMES_FILTERED/GENOMES_FILTERED (or the mito filter for chrM)
+  string exomes_filters = 42;   // INFO exomes_filters (per-callset detail: AC0, AS_VQSR, ...)
+  string genomes_filters = 43;  // INFO genomes_filters
+  // Mitochondrial callset (gnomAD v3.1 chrM — heteroplasmic, a separate schema from
+  // the nuclear diploid fields above). is_mito marks chrM entries; for them the
+  // nuclear af/ac fields are empty and these apply instead (an holds the mito AN).
+  bool is_mito = 44;            // true for chrM entries
+  int64 ac_hom = 45;            // AC_hom — homoplasmic allele count (heteroplasmy >= 0.95)
+  int64 ac_het = 46;            // AC_het — heteroplasmic allele count (0.10 <= hl < 0.95)
+  double af_hom = 47;           // AF_hom
+  double af_het = 48;           // AF_het
+  double max_heteroplasmy = 49; // max_hl — maximum heteroplasmy level observed for the variant
 
   string id = 100; // transient - populated at runtime from Xref.Identifier
 }

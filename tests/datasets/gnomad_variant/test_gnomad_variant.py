@@ -82,6 +82,20 @@ class GnomadVariantTests:
         return False, "No GnomadVariant record matched for value check"
 
     @test
+    def test_homozygote_and_filters(self):
+        """nhomalt + XX/XY split + quality filters populated (gnomAD batch-1 fields)"""
+        for r in _rows(self._get({"i": "1:69094:G:A", "d": "1"}), "GnomadVariant"):
+            a = r["Attributes"]["GnomadVariant"]
+            if int(a.get("nhomalt", 0)) != 3399:
+                return False, f"nhomalt: got {a.get('nhomalt')}, want 3399"
+            if int(a.get("nhomalt_xx", 0)) != 1700 or int(a.get("nhomalt_xy", 0)) != 1699:
+                return False, f"XX/XY nhomalt: got {a.get('nhomalt_xx')}/{a.get('nhomalt_xy')}"
+            if a.get("filters") != "PASS" or a.get("genomes_filters") != "AC0":
+                return False, f"filters={a.get('filters')} genomes_filters={a.get('genomes_filters')}"
+            return True, f"nhomalt=3399 XX/XY={a.get('nhomalt_xx')}/{a.get('nhomalt_xy')} genomes_filters=AC0"
+        return False, "1:69094:G:A not found"
+
+    @test
     def test_ac_an_faf99_joint_values(self):
         """AC / AN (sampling depth) and faf99_joint are populated and match the fixture"""
         for v in self._variants():

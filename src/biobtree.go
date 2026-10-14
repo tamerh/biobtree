@@ -193,6 +193,11 @@ func main() {
 			Name:  "db-ext-dir",
 			Usage: "Overflow directory for NEW db versions created by generate (e.g. /data/out_prod_ext). If set, the new db_vN is created as <db-ext-dir>/<federation>/db_vN and symlinked into the federation dir, keeping large versions off the primary disk. Numbering/activation are unchanged.",
 		},
+		cli.StringFlag{
+			Name:   "gnomad-mito-file",
+			Hidden: true,
+			Usage:  "Override the gnomad_variant mitochondrial chrM VCF path (local file; for testing or a pre-fetched copy)",
+		},
 	}
 
 	// add dataset local flags
@@ -596,6 +601,14 @@ func runUpdateCommand(c *cli.Context) error {
 		if len(c.GlobalString(dset+".file")) > 0 {
 			config.Dataconf[dset]["path"] = c.GlobalString(dset + ".file")
 			config.Dataconf[dset]["useLocalFile"] = "yes"
+		}
+	}
+
+	// Override the gnomAD mitochondrial chrM VCF path (local file for testing, or a
+	// pre-fetched copy). The parser reads mitoPath in addition to the nuclear files.
+	if mf := c.GlobalString("gnomad-mito-file"); len(mf) > 0 {
+		if _, ok := config.Dataconf["gnomad_variant"]; ok {
+			config.Dataconf["gnomad_variant"]["mitoPath"] = mf
 		}
 	}
 

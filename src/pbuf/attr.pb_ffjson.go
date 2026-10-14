@@ -70684,6 +70684,89 @@ func (j *GnomadVariantAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.AppendFloat(buf, float64(j.Faf99Genomes), 'g', -1, 64)
 		buf.WriteByte(',')
 	}
+	if j.Nhomalt != 0 {
+		buf.WriteString(`"nhomalt":`)
+		fflib.FormatBits2(buf, uint64(j.Nhomalt), 10, j.Nhomalt < 0)
+		buf.WriteByte(',')
+	}
+	if j.AcXx != 0 {
+		buf.WriteString(`"ac_xx":`)
+		fflib.FormatBits2(buf, uint64(j.AcXx), 10, j.AcXx < 0)
+		buf.WriteByte(',')
+	}
+	if j.AnXx != 0 {
+		buf.WriteString(`"an_xx":`)
+		fflib.FormatBits2(buf, uint64(j.AnXx), 10, j.AnXx < 0)
+		buf.WriteByte(',')
+	}
+	if j.NhomaltXx != 0 {
+		buf.WriteString(`"nhomalt_xx":`)
+		fflib.FormatBits2(buf, uint64(j.NhomaltXx), 10, j.NhomaltXx < 0)
+		buf.WriteByte(',')
+	}
+	if j.AcXy != 0 {
+		buf.WriteString(`"ac_xy":`)
+		fflib.FormatBits2(buf, uint64(j.AcXy), 10, j.AcXy < 0)
+		buf.WriteByte(',')
+	}
+	if j.AnXy != 0 {
+		buf.WriteString(`"an_xy":`)
+		fflib.FormatBits2(buf, uint64(j.AnXy), 10, j.AnXy < 0)
+		buf.WriteByte(',')
+	}
+	if j.NhomaltXy != 0 {
+		buf.WriteString(`"nhomalt_xy":`)
+		fflib.FormatBits2(buf, uint64(j.NhomaltXy), 10, j.NhomaltXy < 0)
+		buf.WriteByte(',')
+	}
+	if len(j.Filters) != 0 {
+		buf.WriteString(`"filters":`)
+		fflib.WriteJsonString(buf, string(j.Filters))
+		buf.WriteByte(',')
+	}
+	if len(j.ExomesFilters) != 0 {
+		buf.WriteString(`"exomes_filters":`)
+		fflib.WriteJsonString(buf, string(j.ExomesFilters))
+		buf.WriteByte(',')
+	}
+	if len(j.GenomesFilters) != 0 {
+		buf.WriteString(`"genomes_filters":`)
+		fflib.WriteJsonString(buf, string(j.GenomesFilters))
+		buf.WriteByte(',')
+	}
+	if j.IsMito != false {
+		if j.IsMito {
+			buf.WriteString(`"is_mito":true`)
+		} else {
+			buf.WriteString(`"is_mito":false`)
+		}
+		buf.WriteByte(',')
+	}
+	if j.AcHom != 0 {
+		buf.WriteString(`"ac_hom":`)
+		fflib.FormatBits2(buf, uint64(j.AcHom), 10, j.AcHom < 0)
+		buf.WriteByte(',')
+	}
+	if j.AcHet != 0 {
+		buf.WriteString(`"ac_het":`)
+		fflib.FormatBits2(buf, uint64(j.AcHet), 10, j.AcHet < 0)
+		buf.WriteByte(',')
+	}
+	if j.AfHom != 0 {
+		buf.WriteString(`"af_hom":`)
+		fflib.AppendFloat(buf, float64(j.AfHom), 'g', -1, 64)
+		buf.WriteByte(',')
+	}
+	if j.AfHet != 0 {
+		buf.WriteString(`"af_het":`)
+		fflib.AppendFloat(buf, float64(j.AfHet), 'g', -1, 64)
+		buf.WriteByte(',')
+	}
+	if j.MaxHeteroplasmy != 0 {
+		buf.WriteString(`"max_heteroplasmy":`)
+		fflib.AppendFloat(buf, float64(j.MaxHeteroplasmy), 'g', -1, 64)
+		buf.WriteByte(',')
+	}
 	if len(j.Id) != 0 {
 		buf.WriteString(`"id":`)
 		fflib.WriteJsonString(buf, string(j.Id))
@@ -70764,6 +70847,38 @@ const (
 
 	ffjtGnomadVariantAttrFaf99Genomes
 
+	ffjtGnomadVariantAttrNhomalt
+
+	ffjtGnomadVariantAttrAcXx
+
+	ffjtGnomadVariantAttrAnXx
+
+	ffjtGnomadVariantAttrNhomaltXx
+
+	ffjtGnomadVariantAttrAcXy
+
+	ffjtGnomadVariantAttrAnXy
+
+	ffjtGnomadVariantAttrNhomaltXy
+
+	ffjtGnomadVariantAttrFilters
+
+	ffjtGnomadVariantAttrExomesFilters
+
+	ffjtGnomadVariantAttrGenomesFilters
+
+	ffjtGnomadVariantAttrIsMito
+
+	ffjtGnomadVariantAttrAcHom
+
+	ffjtGnomadVariantAttrAcHet
+
+	ffjtGnomadVariantAttrAfHom
+
+	ffjtGnomadVariantAttrAfHet
+
+	ffjtGnomadVariantAttrMaxHeteroplasmy
+
 	ffjtGnomadVariantAttrId
 )
 
@@ -70832,6 +70947,38 @@ var ffjKeyGnomadVariantAttrFaf99Exomes = []byte("faf99_exomes")
 var ffjKeyGnomadVariantAttrFaf95Genomes = []byte("faf95_genomes")
 
 var ffjKeyGnomadVariantAttrFaf99Genomes = []byte("faf99_genomes")
+
+var ffjKeyGnomadVariantAttrNhomalt = []byte("nhomalt")
+
+var ffjKeyGnomadVariantAttrAcXx = []byte("ac_xx")
+
+var ffjKeyGnomadVariantAttrAnXx = []byte("an_xx")
+
+var ffjKeyGnomadVariantAttrNhomaltXx = []byte("nhomalt_xx")
+
+var ffjKeyGnomadVariantAttrAcXy = []byte("ac_xy")
+
+var ffjKeyGnomadVariantAttrAnXy = []byte("an_xy")
+
+var ffjKeyGnomadVariantAttrNhomaltXy = []byte("nhomalt_xy")
+
+var ffjKeyGnomadVariantAttrFilters = []byte("filters")
+
+var ffjKeyGnomadVariantAttrExomesFilters = []byte("exomes_filters")
+
+var ffjKeyGnomadVariantAttrGenomesFilters = []byte("genomes_filters")
+
+var ffjKeyGnomadVariantAttrIsMito = []byte("is_mito")
+
+var ffjKeyGnomadVariantAttrAcHom = []byte("ac_hom")
+
+var ffjKeyGnomadVariantAttrAcHet = []byte("ac_het")
+
+var ffjKeyGnomadVariantAttrAfHom = []byte("af_hom")
+
+var ffjKeyGnomadVariantAttrAfHet = []byte("af_het")
+
+var ffjKeyGnomadVariantAttrMaxHeteroplasmy = []byte("max_heteroplasmy")
 
 var ffjKeyGnomadVariantAttrId = []byte("id")
 
@@ -71012,12 +71159,60 @@ mainparse:
 						currentKey = ffjtGnomadVariantAttrAfGenomes
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyGnomadVariantAttrAcXx, kn) {
+						currentKey = ffjtGnomadVariantAttrAcXx
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyGnomadVariantAttrAnXx, kn) {
+						currentKey = ffjtGnomadVariantAttrAnXx
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyGnomadVariantAttrAcXy, kn) {
+						currentKey = ffjtGnomadVariantAttrAcXy
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyGnomadVariantAttrAnXy, kn) {
+						currentKey = ffjtGnomadVariantAttrAnXy
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyGnomadVariantAttrAcHom, kn) {
+						currentKey = ffjtGnomadVariantAttrAcHom
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyGnomadVariantAttrAcHet, kn) {
+						currentKey = ffjtGnomadVariantAttrAcHet
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyGnomadVariantAttrAfHom, kn) {
+						currentKey = ffjtGnomadVariantAttrAfHom
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyGnomadVariantAttrAfHet, kn) {
+						currentKey = ffjtGnomadVariantAttrAfHet
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 'c':
 
 					if bytes.Equal(ffjKeyGnomadVariantAttrChromosome, kn) {
 						currentKey = ffjtGnomadVariantAttrChromosome
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'e':
+
+					if bytes.Equal(ffjKeyGnomadVariantAttrExomesFilters, kn) {
+						currentKey = ffjtGnomadVariantAttrExomesFilters
 						state = fflib.FFParse_want_colon
 						goto mainparse
 					}
@@ -71053,6 +71248,11 @@ mainparse:
 						currentKey = ffjtGnomadVariantAttrFaf99Genomes
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyGnomadVariantAttrFilters, kn) {
+						currentKey = ffjtGnomadVariantAttrFilters
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 'g':
@@ -71061,12 +71261,48 @@ mainparse:
 						currentKey = ffjtGnomadVariantAttrGrpmaxAncestry
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyGnomadVariantAttrGenomesFilters, kn) {
+						currentKey = ffjtGnomadVariantAttrGenomesFilters
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 'i':
 
-					if bytes.Equal(ffjKeyGnomadVariantAttrId, kn) {
+					if bytes.Equal(ffjKeyGnomadVariantAttrIsMito, kn) {
+						currentKey = ffjtGnomadVariantAttrIsMito
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyGnomadVariantAttrId, kn) {
 						currentKey = ffjtGnomadVariantAttrId
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'm':
+
+					if bytes.Equal(ffjKeyGnomadVariantAttrMaxHeteroplasmy, kn) {
+						currentKey = ffjtGnomadVariantAttrMaxHeteroplasmy
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'n':
+
+					if bytes.Equal(ffjKeyGnomadVariantAttrNhomalt, kn) {
+						currentKey = ffjtGnomadVariantAttrNhomalt
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyGnomadVariantAttrNhomaltXx, kn) {
+						currentKey = ffjtGnomadVariantAttrNhomaltXx
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyGnomadVariantAttrNhomaltXy, kn) {
+						currentKey = ffjtGnomadVariantAttrNhomaltXy
 						state = fflib.FFParse_want_colon
 						goto mainparse
 					}
@@ -71091,6 +71327,102 @@ mainparse:
 
 				if fflib.SimpleLetterEqualFold(ffjKeyGnomadVariantAttrId, kn) {
 					currentKey = ffjtGnomadVariantAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyGnomadVariantAttrMaxHeteroplasmy, kn) {
+					currentKey = ffjtGnomadVariantAttrMaxHeteroplasmy
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyGnomadVariantAttrAfHet, kn) {
+					currentKey = ffjtGnomadVariantAttrAfHet
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyGnomadVariantAttrAfHom, kn) {
+					currentKey = ffjtGnomadVariantAttrAfHom
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyGnomadVariantAttrAcHet, kn) {
+					currentKey = ffjtGnomadVariantAttrAcHet
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyGnomadVariantAttrAcHom, kn) {
+					currentKey = ffjtGnomadVariantAttrAcHom
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyGnomadVariantAttrIsMito, kn) {
+					currentKey = ffjtGnomadVariantAttrIsMito
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyGnomadVariantAttrGenomesFilters, kn) {
+					currentKey = ffjtGnomadVariantAttrGenomesFilters
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyGnomadVariantAttrExomesFilters, kn) {
+					currentKey = ffjtGnomadVariantAttrExomesFilters
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyGnomadVariantAttrFilters, kn) {
+					currentKey = ffjtGnomadVariantAttrFilters
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyGnomadVariantAttrNhomaltXy, kn) {
+					currentKey = ffjtGnomadVariantAttrNhomaltXy
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyGnomadVariantAttrAnXy, kn) {
+					currentKey = ffjtGnomadVariantAttrAnXy
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyGnomadVariantAttrAcXy, kn) {
+					currentKey = ffjtGnomadVariantAttrAcXy
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyGnomadVariantAttrNhomaltXx, kn) {
+					currentKey = ffjtGnomadVariantAttrNhomaltXx
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyGnomadVariantAttrAnXx, kn) {
+					currentKey = ffjtGnomadVariantAttrAnXx
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyGnomadVariantAttrAcXx, kn) {
+					currentKey = ffjtGnomadVariantAttrAcXx
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyGnomadVariantAttrNhomalt, kn) {
+					currentKey = ffjtGnomadVariantAttrNhomalt
 					state = fflib.FFParse_want_colon
 					goto mainparse
 				}
@@ -71408,6 +71740,54 @@ mainparse:
 
 				case ffjtGnomadVariantAttrFaf99Genomes:
 					goto handle_Faf99Genomes
+
+				case ffjtGnomadVariantAttrNhomalt:
+					goto handle_Nhomalt
+
+				case ffjtGnomadVariantAttrAcXx:
+					goto handle_AcXx
+
+				case ffjtGnomadVariantAttrAnXx:
+					goto handle_AnXx
+
+				case ffjtGnomadVariantAttrNhomaltXx:
+					goto handle_NhomaltXx
+
+				case ffjtGnomadVariantAttrAcXy:
+					goto handle_AcXy
+
+				case ffjtGnomadVariantAttrAnXy:
+					goto handle_AnXy
+
+				case ffjtGnomadVariantAttrNhomaltXy:
+					goto handle_NhomaltXy
+
+				case ffjtGnomadVariantAttrFilters:
+					goto handle_Filters
+
+				case ffjtGnomadVariantAttrExomesFilters:
+					goto handle_ExomesFilters
+
+				case ffjtGnomadVariantAttrGenomesFilters:
+					goto handle_GenomesFilters
+
+				case ffjtGnomadVariantAttrIsMito:
+					goto handle_IsMito
+
+				case ffjtGnomadVariantAttrAcHom:
+					goto handle_AcHom
+
+				case ffjtGnomadVariantAttrAcHet:
+					goto handle_AcHet
+
+				case ffjtGnomadVariantAttrAfHom:
+					goto handle_AfHom
+
+				case ffjtGnomadVariantAttrAfHet:
+					goto handle_AfHet
+
+				case ffjtGnomadVariantAttrMaxHeteroplasmy:
+					goto handle_MaxHeteroplasmy
 
 				case ffjtGnomadVariantAttrId:
 					goto handle_Id
@@ -72393,6 +72773,479 @@ handle_Faf99Genomes:
 			}
 
 			j.Faf99Genomes = float64(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Nhomalt:
+
+	/* handler: j.Nhomalt type=int64 kind=int64 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for int64", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseInt(fs.Output.Bytes(), 10, 64)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.Nhomalt = int64(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_AcXx:
+
+	/* handler: j.AcXx type=int64 kind=int64 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for int64", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseInt(fs.Output.Bytes(), 10, 64)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.AcXx = int64(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_AnXx:
+
+	/* handler: j.AnXx type=int64 kind=int64 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for int64", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseInt(fs.Output.Bytes(), 10, 64)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.AnXx = int64(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_NhomaltXx:
+
+	/* handler: j.NhomaltXx type=int64 kind=int64 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for int64", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseInt(fs.Output.Bytes(), 10, 64)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.NhomaltXx = int64(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_AcXy:
+
+	/* handler: j.AcXy type=int64 kind=int64 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for int64", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseInt(fs.Output.Bytes(), 10, 64)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.AcXy = int64(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_AnXy:
+
+	/* handler: j.AnXy type=int64 kind=int64 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for int64", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseInt(fs.Output.Bytes(), 10, 64)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.AnXy = int64(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_NhomaltXy:
+
+	/* handler: j.NhomaltXy type=int64 kind=int64 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for int64", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseInt(fs.Output.Bytes(), 10, 64)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.NhomaltXy = int64(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Filters:
+
+	/* handler: j.Filters type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Filters = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_ExomesFilters:
+
+	/* handler: j.ExomesFilters type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.ExomesFilters = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_GenomesFilters:
+
+	/* handler: j.GenomesFilters type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.GenomesFilters = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_IsMito:
+
+	/* handler: j.IsMito type=bool kind=bool quoted=false*/
+
+	{
+		if tok != fflib.FFTok_bool && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for bool", tok))
+		}
+	}
+
+	{
+		if tok == fflib.FFTok_null {
+
+		} else {
+			tmpb := fs.Output.Bytes()
+
+			if bytes.Compare([]byte{'t', 'r', 'u', 'e'}, tmpb) == 0 {
+
+				j.IsMito = true
+
+			} else if bytes.Compare([]byte{'f', 'a', 'l', 's', 'e'}, tmpb) == 0 {
+
+				j.IsMito = false
+
+			} else {
+				err = errors.New("unexpected bytes for true/false value")
+				return fs.WrapErr(err)
+			}
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_AcHom:
+
+	/* handler: j.AcHom type=int64 kind=int64 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for int64", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseInt(fs.Output.Bytes(), 10, 64)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.AcHom = int64(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_AcHet:
+
+	/* handler: j.AcHet type=int64 kind=int64 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for int64", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseInt(fs.Output.Bytes(), 10, 64)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.AcHet = int64(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_AfHom:
+
+	/* handler: j.AfHom type=float64 kind=float64 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_double && tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for float64", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseFloat(fs.Output.Bytes(), 64)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.AfHom = float64(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_AfHet:
+
+	/* handler: j.AfHet type=float64 kind=float64 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_double && tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for float64", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseFloat(fs.Output.Bytes(), 64)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.AfHet = float64(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_MaxHeteroplasmy:
+
+	/* handler: j.MaxHeteroplasmy type=float64 kind=float64 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_double && tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for float64", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseFloat(fs.Output.Bytes(), 64)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.MaxHeteroplasmy = float64(tval)
 
 		}
 	}

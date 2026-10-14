@@ -598,9 +598,17 @@ func runUpdateCommand(c *cli.Context) error {
 
 	// check local file path settings
 	for _, dset := range allDatasets {
-		if len(c.GlobalString(dset+".file")) > 0 {
-			config.Dataconf[dset]["path"] = c.GlobalString(dset + ".file")
-			config.Dataconf[dset]["useLocalFile"] = "yes"
+		if f := c.GlobalString(dset + ".file"); len(f) > 0 {
+			config.Dataconf[dset]["path"] = f
+			// A remote URL must be DOWNLOADED, not opened as a local file. Only a
+			// genuine local path sets useLocalFile=yes; http/ftp overrides keep the
+			// downloader path (this lets e.g. gnomad_variant be pointed at its joint
+			// URL via --gnomad_variant.file without hand-editing conf).
+			if strings.HasPrefix(f, "http://") || strings.HasPrefix(f, "https://") || strings.HasPrefix(f, "ftp://") {
+				config.Dataconf[dset]["useLocalFile"] = "no"
+			} else {
+				config.Dataconf[dset]["useLocalFile"] = "yes"
+			}
 		}
 	}
 

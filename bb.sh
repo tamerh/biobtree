@@ -84,6 +84,12 @@ OPTS_esm1b="--esm1b.file raw_data/esm1b/esm1b_llr.tsv.gz"
 # saprot: committed conf path is the fixture; prod override = the bioyoda-computed
 # SaProt-650M LLR TSV.
 OPTS_saprot="--saprot.file /data/bioyoda/out_prod/work/saprot/saprot_llr.tsv.gz"
+# gnomad_variant: committed conf 'path' is the offline test fixture; prod builds
+# point it at the real gnomAD v4.1 joint per-chromosome URL ({CHR} expanded over
+# 1-22,X). http scheme -> downloader (not local-file). Mito chrM comes from the
+# separate conf 'mitoPath'. So `bb.sh out_prod --only gnomad_variant ...` does a
+# full prod build with no conf edit.
+OPTS_gnomad_variant="--gnomad_variant.file https://gnomad-public-us-east-1.s3.amazonaws.com/release/4.1/vcf/joint/gnomad.joint.v4.1.sites.chr{CHR}.vcf.bgz"
 
 # ----------------------------------------------------------------------------
 # DATASETS LIST - Order matters (foundations first)
@@ -1055,6 +1061,25 @@ if [[ "$RUN_TESTS" == "true" ]]; then
     fi
     exit $?
 fi
+
+# ---------------------------------------------------------------------------
+# STAGING = `./bb.sh out_prod --web`
+#
+# This serves out_prod DIRECTLY on :9291 (--prod). There is NO separate staging
+# data folder — staging reads the same out_prod that `--activate` flips, so a
+# restart alone picks up a newly activated version. (An earlier `/data/staging_out`
+# mirror existed only for a planned read-only/`chattr +i` prod lockdown that was
+# abandoned; it is gone — do not reintroduce it.)
+#
+# Deploy/test cycle — all via bb.sh + the prod script, nothing hand-edited:
+#   1. regen:    ./bb.sh out_prod --only <ds> --force --generate-after[-main]
+#   2. activate: ./bb.sh out_prod --activate <ver> --federation <fed>   (flips <fed>/db)
+#   3. staging:  ./bb.sh out_prod --web        (restart; serves the activated ver on :9291)
+#   4. test:     ./bb.sh --test                (integration suite vs :9291)
+#   5. prod:     /data/ext/deploy/rebuild.sh   (separate; bakes out_prod into the image)
+# Prod is unaffected by --activate (it keeps serving its old mmap'd inode) until
+# rebuild.sh runs, so staging testing never risks prod.
+# ---------------------------------------------------------------------------
 
 # Web server mode
 if [[ "$WEB_SERVER" == "true" ]]; then

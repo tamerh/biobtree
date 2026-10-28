@@ -712,6 +712,26 @@ pre_generate_cleanup() {
     done
 }
 
+# Enumerate ALL federations present in OUT_DIR (any subdir with a db symlink or a
+# db_vN entry), 'main' first. Replaces the old hardcoded "main dbsnp" lists so every
+# federation (gnomad, cadd, conservation, predictions, gpn_star, ...) is covered by
+# --status / --db-versions / --cleanup / bare --activate. Works whether a version is a
+# real dir (/data2) or a /data-overflow symlink (both appear as db_v* entries here).
+get_all_federations() {
+    local feds=() d name
+    if [[ -e "$OUT_DIR/main/db" ]] || ls -d "$OUT_DIR"/main/db_v* >/dev/null 2>&1; then
+        feds+=("main")
+    fi
+    for d in "$OUT_DIR"/*/; do
+        name=$(basename "$d")
+        [[ "$name" == "main" ]] && continue
+        if [[ -e "$d/db" ]] || ls -d "$d"/db_v* >/dev/null 2>&1; then
+            feds+=("$name")
+        fi
+    done
+    echo "${feds[@]}"
+}
+
 # Show db versions for all federations
 show_db_versions() {
     echo ""
@@ -721,7 +741,7 @@ show_db_versions() {
     echo "Output directory: $OUT_DIR"
     echo ""
 
-    for federation in main dbsnp; do
+    for federation in $(get_all_federations); do
         local fed_dir="$OUT_DIR/$federation"
         if [[ ! -d "$fed_dir" ]]; then
             continue
@@ -990,7 +1010,7 @@ if [[ "$DO_ACTIVATE" == "true" ]]; then
     if [[ -n "$FEDERATION" ]]; then
         activate_federations="$FEDERATION"
     else
-        activate_federations="main dbsnp"
+        activate_federations="$(get_all_federations)"
         if [[ -n "$ACTIVATE_VERSION" ]]; then
             echo "ERROR: a specific version (--activate $ACTIVATE_VERSION) needs --federation,"
             echo "       because federations have independent version numbers."
@@ -1039,7 +1059,7 @@ if [[ "$DO_CLEANUP" == "true" ]]; then
     echo "Keeping last $CLEANUP_KEEP version(s)"
     echo ""
 
-    for federation in main dbsnp; do
+    for federation in $(get_all_federations); do
         fed_dir="$OUT_DIR/$federation"
         if [[ ! -d "$fed_dir" ]]; then
             continue
@@ -1171,7 +1191,7 @@ if [[ -n "$ONLY_DATASET" ]]; then
             rotate_log "$GEN_LOG"
             echo "Log: $GEN_LOG"
 
-            for federation in main dbsnp; do
+            for federation in $(get_all_federations); do
                 pre_generate_cleanup "$federation"
             done
 
@@ -1183,7 +1203,7 @@ if [[ -n "$ONLY_DATASET" ]]; then
                 # Show version info for each federation
                 echo ""
                 echo "Version Summary:"
-                for federation in main dbsnp; do
+                for federation in $(get_all_federations); do
                     fed_dir="$OUT_DIR/$federation"
                     if [[ ! -d "$fed_dir" ]]; then
                         continue
@@ -1245,7 +1265,7 @@ if [[ "$GENERATE_ONLY" == "true" ]]; then
         rotate_log "$GEN_LOG"
         echo "Log: $GEN_LOG"
 
-        for federation in main dbsnp; do
+        for federation in $(get_all_federations); do
             pre_generate_cleanup "$federation"
         done
 
@@ -1257,7 +1277,7 @@ if [[ "$GENERATE_ONLY" == "true" ]]; then
             # Show version info for each federation
             echo ""
             echo "Version Summary:"
-            for federation in main dbsnp; do
+            for federation in $(get_all_federations); do
                 fed_dir="$OUT_DIR/$federation"
                 if [[ ! -d "$fed_dir" ]]; then
                     continue

@@ -228,11 +228,21 @@ func SaveDatasetState(state *DatasetState, outDir string) error {
 	// download to ~40% (4.5M -> 1.8M variants) and it merged partial data without an
 	// error. We flag any refreshed source that shrank >30% so it can't ship unnoticed.
 	var completenessWarnings []string
+	var emptyCollapses []string
 	for name, info := range currentDatasets {
 		if IsSourceDataset(name) {
-			if old, ok := diskState.Datasets[name]; ok && old.TotalEdges > 1000 && info.TotalEdges > 0 {
-				ratio := float64(info.TotalEdges) / float64(old.TotalEdges)
-				if ratio < 0.7 {
+			if old, ok := diskState.Datasets[name]; ok && old.TotalEdges > 1000 {
+				if info.TotalEdges == 0 {
+					// A source that previously had substantial data now produces NOTHING.
+					// Almost always a moved/empty/failed download (e.g. a redirect stub, a
+					// 200-with-empty-body, or a truncation to zero) — NOT a real change. We
+					// refuse to overwrite good data with nothing: record it and abort below,
+					// BEFORE the new (empty) state is written, so the on-disk state and the
+					// active DB are preserved.
+					emptyCollapses = append(emptyCollapses, fmt.Sprintf("%s (%d edges -> 0)", name, old.TotalEdges))
+					continue // do NOT overwrite this dataset's good state in memory
+				}
+				if ratio := float64(info.TotalEdges) / float64(old.TotalEdges); ratio < 0.7 {
 					drop := (1 - ratio) * 100
 					log.Printf("⚠️  COMPLETENESS WARNING [%s]: total edges %d -> %d (-%.0f%%) vs previous build — possible truncated/incomplete source; VERIFY before shipping", name, old.TotalEdges, info.TotalEdges, drop)
 					completenessWarnings = append(completenessWarnings, fmt.Sprintf("%s (-%.0f%%: %d->%d)", name, drop, old.TotalEdges, info.TotalEdges))
@@ -240,6 +250,12 @@ func SaveDatasetState(state *DatasetState, outDir string) error {
 			}
 			diskState.Datasets[name] = info
 		}
+	}
+	// Hard stop on empty-source collapse: abort before persisting state, so the
+	// update exits non-zero -> bb.sh skips generate and the live DB is never
+	// clobbered with empty data. Fix the source and re-run (--force) to recover.
+	if len(emptyCollapses) > 0 {
+		log.Fatalf("❌ EMPTY-SOURCE ABORT: %d dataset(s) built to ZERO edges from a previously-populated source — refusing to save/ship empty data (likely a moved/empty/failed download): %s", len(emptyCollapses), strings.Join(emptyCollapses, "; "))
 	}
 	if len(completenessWarnings) > 0 {
 		log.Printf("⚠️⚠️  COMPLETENESS: %d dataset(s) shrank >30%% vs previous build — REVIEW for truncated/incomplete downloads before activating: %s", len(completenessWarnings), strings.Join(completenessWarnings, "; "))

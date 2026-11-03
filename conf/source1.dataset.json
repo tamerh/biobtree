@@ -688,7 +688,7 @@
     "group": "gwas",
     "id": "36",
     "name": "GWAS Study",
-    "path": "ftp://ftp.ebi.ac.uk/pub/databases/gwas/releases/latest/gwas-catalog-download-studies-v1.0.3.1.txt",
+    "path": "ftp://ftp.ebi.ac.uk/pub/databases/gwas/releases/latest/gwas-catalog-download-studies-v1.0.3.1.tsv",
     "aliases": "GWAS Study,gwas study,GWAS Catalog,gwascatalog,genome-wide association study",
     "url": "https://www.ebi.ac.uk/gwas/studies/\u00a3{id}",
     "useLocalFile": "no",

@@ -102,8 +102,15 @@ func (s *scxaExpression) update() {
 		log.Printf("SCXA_EXPRESSION: [TEST MODE] Processing up to %d genes", testLimit)
 	}
 
-	// Get list of experiments from FTP
-	experiments := s.fetchExperimentList()
+	// Get list of experiments from FTP. A failed or empty listing means the source
+	// is unreachable/moved — abort instead of overwriting good data with nothing.
+	experiments, err := s.fetchExperimentList()
+	if err != nil {
+		log.Fatalf("SCXA_EXPRESSION: aborting — could not fetch experiment list: %v", err)
+	}
+	if len(experiments) == 0 {
+		log.Fatalf("SCXA_EXPRESSION: aborting — experiment listing returned 0 experiments (source moved/empty?)")
+	}
 	log.Printf("SCXA_EXPRESSION: Found %d experiments on FTP", len(experiments))
 
 	// Process all experiments and aggregate gene data
@@ -121,20 +128,20 @@ func (s *scxaExpression) update() {
 }
 
 // fetchExperimentList gets list of experiment directories from FTP
-func (s *scxaExpression) fetchExperimentList() []string {
+func (s *scxaExpression) fetchExperimentList() ([]string, error) {
 	log.Printf("SCXA_EXPRESSION: Fetching experiment list from %s", scxaExpressionFtpBase)
 
-	resp, err := http.Get(scxaExpressionFtpBase)
+	resp, err := httpGetWithRetry(scxaExpressionFtpBase, 3)
 	if err != nil {
 		log.Printf("SCXA_EXPRESSION: Error fetching FTP listing: %v", err)
-		return nil
+		return nil, err
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Printf("SCXA_EXPRESSION: Error reading FTP listing: %v", err)
-		return nil
+		return nil, err
 	}
 
 	// Parse experiment IDs from HTML directory listing
@@ -152,7 +159,7 @@ func (s *scxaExpression) fetchExperimentList() []string {
 	}
 
 	sort.Strings(experiments)
-	return experiments
+	return experiments, nil
 }
 
 // processAllExperiments processes marker_stats files from all experiments
@@ -227,7 +234,7 @@ func (s *scxaExpression) fetchExperimentSpecies(expID string) int32 {
 // fetchSpeciesFromCondensedSDRF extracts species from condensed-sdrf.tsv
 func (s *scxaExpression) fetchSpeciesFromCondensedSDRF(expID string) int32 {
 	url := scxaExpressionFtpBase + expID + "/" + expID + ".condensed-sdrf.tsv"
-	resp, err := http.Get(url)
+	resp, err := httpGetWithRetry(url, 1)
 	if err != nil {
 		return 0
 	}
@@ -261,7 +268,7 @@ func (s *scxaExpression) fetchSpeciesFromCondensedSDRF(expID string) int32 {
 // fetchSpeciesFromCellMetadata extracts species from cell_metadata.tsv (organism column)
 func (s *scxaExpression) fetchSpeciesFromCellMetadata(expID string) int32 {
 	url := scxaExpressionFtpBase + expID + "/" + expID + ".cell_metadata.tsv"
-	resp, err := http.Get(url)
+	resp, err := httpGetWithRetry(url, 1)
 	if err != nil {
 		return 0
 	}
@@ -333,7 +340,7 @@ func (s *scxaExpression) processExperimentMarkerStats(expID string, geneData map
 	// Try marker_stats_filtered_normalised.tsv first
 	url := scxaExpressionFtpBase + expID + "/" + expID + ".marker_stats_filtered_normalised.tsv"
 
-	resp, err := http.Get(url)
+	resp, err := httpGetWithRetry(url, 1)
 	if err != nil {
 		return false
 	}
@@ -500,7 +507,7 @@ func (s *scxaExpression) processExperimentCellTypeMarkers(expID string, geneData
 	// Try to fetch the inferred_cell_type file
 	url := scxaExpressionFtpBase + expID + "/" + expID + ".marker_genes_inferred_cell_type_-_ontology_labels.tsv"
 
-	resp, err := http.Get(url)
+	resp, err := httpGetWithRetry(url, 1)
 	if err != nil {
 		return false
 	}
@@ -647,7 +654,7 @@ func (s *scxaExpression) fetchCellTypeCLMapping(expID string) map[string]string 
 
 	// Try cell_metadata.tsv first
 	url := scxaExpressionFtpBase + expID + "/" + expID + ".cell_metadata.tsv"
-	resp, err := http.Get(url)
+	resp, err := httpGetWithRetry(url, 1)
 	if err == nil && resp.StatusCode == http.StatusOK {
 		defer resp.Body.Close()
 		mapping = s.parseCellTypeMappingFromMetadata(resp.Body)
@@ -660,7 +667,7 @@ func (s *scxaExpression) fetchCellTypeCLMapping(expID string) map[string]string 
 
 	// Fallback to condensed-sdrf.tsv
 	url = scxaExpressionFtpBase + expID + "/" + expID + ".condensed-sdrf.tsv"
-	resp, err = http.Get(url)
+	resp, err = httpGetWithRetry(url, 1)
 	if err == nil && resp.StatusCode == http.StatusOK {
 		defer resp.Body.Close()
 		mapping = s.parseCellTypeMappingFromSDRF(resp.Body)

@@ -245,6 +245,80 @@ DATASETS=(
     refseq
 )
 
+# ----------------------------------------------------------------------------
+# --only validation
+# ----------------------------------------------------------------------------
+# A dataset that a parent declares in `childDatasets` is built BY that parent.
+# It has no standalone parser: running it with --only still cleans up its bucket
+# files in Phase 1, then the dispatch no-op writes nothing back — silently
+# wiping the data (2026-10-28: gtopdb_ligand + gtopdb_interaction were lost this
+# way; scxa_gene_experiment before that). Refuse those names and point at the
+# parent, and reject names that are neither in DATASETS nor in conf (typos).
+#
+# A child that is itself a first-class DATASETS entry (e.g. scxa_expression) is
+# allowed — it has its own parser and is safe to run standalone.
+validate_only_datasets() {
+    local list="$1"
+    local -a requested
+    IFS=',' read -ra requested <<< "$list"
+    local bad=0 d r found verdict
+    for d in "${requested[@]}"; do
+        d=$(echo "$d" | xargs)
+        [[ -z "$d" ]] && continue
+
+        found="no"
+        for r in "${DATASETS[@]}"; do
+            if [[ "$r" == "$d" ]]; then found="yes"; break; fi
+        done
+        [[ "$found" == "yes" ]] && continue
+
+        verdict=$(python3 - "$d" <<'PY'
+import json, sys
+name = sys.argv[1]
+merged = {}
+for f in ("conf/source1.dataset.json", "conf/source2.dataset.json",
+          "conf/xref1.dataset.json", "conf/xref2.optional.dataset.json"):
+    try:
+        with open(f) as fh:
+            merged.update(json.load(fh))
+    except Exception:
+        pass
+if name not in merged:
+    print("unknown")
+    raise SystemExit
+
+def kids(cfg):
+    return [c.strip() for c in (cfg.get("childDatasets") or "").split(",") if c.strip()]
+
+parents = [p for p, cfg in merged.items() if name in kids(cfg) and p != name]
+if not parents:
+    print("ok")
+    raise SystemExit
+# Prefer the most specific builder: drop a parent that is itself an ancestor of
+# another candidate (e.g. scxa_gene_experiment -> scxa_expression, not scxa).
+specific = [p for p in parents
+            if not any(q != p and q in kids(merged.get(p, {})) for q in parents)]
+print("child:" + ",".join(specific or parents))
+PY
+)
+        case "$verdict" in
+            ok) ;;
+            child:*)
+                local parents="${verdict#child:}"
+                local suggestion="${parents%%,*}"
+                echo "✗ ERROR: '$d' is a derived dataset built by '$suggestion'."
+                echo "         It has no standalone parser — running it deletes its index"
+                echo "         files and writes nothing back. Run the parent instead:"
+                echo "             $0 $OUT_DIR --only $suggestion"
+                bad=1 ;;
+            *)
+                echo "✗ ERROR: unknown dataset '$d' (not in DATASETS or conf)."
+                bad=1 ;;
+        esac
+    done
+    return $bad
+}
+
 # ============================================================================
 # ARGUMENT PARSING
 # ============================================================================
@@ -262,6 +336,8 @@ show_help() {
     echo "  --check           Check for source changes without updating"
     echo "  --from <dataset>  Resume from specific dataset"
     echo "  --only <datasets> Run specific dataset(s), comma-separated (e.g., uniprot,hgnc,go)"
+    echo "                    Derived child datasets (e.g. gtopdb_ligand) are refused —"
+    echo "                    run their parent (gtopdb) instead."
     echo "  --generate        Run generate phase only (build database)"
     echo "  --generate-after  Run generate after --only completes successfully"
     echo "  --generate-after-main  Like --generate-after but only the 'main' federation"
@@ -1122,6 +1198,13 @@ fi
 
 # Selected datasets mode (supports comma-separated list)
 if [[ -n "$ONLY_DATASET" ]]; then
+    # Refuse derived-child / unknown names BEFORE anything is cleaned up.
+    if ! validate_only_datasets "$ONLY_DATASET"; then
+        echo ""
+        echo "✗ Refusing to run: fix the --only list. Nothing was processed."
+        exit 1
+    fi
+
     # Split by comma into array
     IFS=',' read -ra SELECTED_DATASETS <<< "$ONLY_DATASET"
 

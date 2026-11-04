@@ -15,16 +15,30 @@ Design (see ATLAS_MCP_INTEGRATION.md):
 
 import json
 import logging
+import os
 import re
+import ssl
 import urllib.error
 import urllib.request
 
 logger = logging.getLogger(__name__)
 
-ATLAS_BASE = "https://sugi.bio/atlas"
+# ATLAS_URL lets the deployment point the fetch at an internal origin. In prod it is the
+# public URL but DNS-routed (via the container's extra_hosts) to the host's own nginx, so
+# the fetch bypasses Cloudflare's bot challenge. Default stays public for dev/local use.
+ATLAS_BASE = os.environ.get("ATLAS_URL", "https://sugi.bio/atlas").rstrip("/")
 MANIFEST_URL = ATLAS_BASE + "/manifest.json"
 ATLAS_TYPES = ("gene", "disease", "drug")
 _UA = {"User-Agent": "biobtree-mcp"}
+
+# The host origin presents a Cloudflare Origin CA cert, which is not in the public trust
+# store, so verified TLS fails on this host-local hop. ATLAS_INSECURE_TLS=1 (set in the
+# prod compose) skips verification for the Atlas fetch only; unset = normal verification.
+_SSL_CTX = None
+if ATLAS_BASE.startswith("https") and os.environ.get("ATLAS_INSECURE_TLS") == "1":
+    _SSL_CTX = ssl.create_default_context()
+    _SSL_CTX.check_hostname = False
+    _SSL_CTX.verify_mode = ssl.CERT_NONE
 
 _manifest = None  # cached at first use; None until loaded
 
@@ -37,7 +51,7 @@ def _load_manifest():
     data = {t: {} for t in ATLAS_TYPES}
     try:
         req = urllib.request.Request(MANIFEST_URL, headers=_UA)
-        with urllib.request.urlopen(req, timeout=90) as r:
+        with urllib.request.urlopen(req, timeout=90, context=_SSL_CTX) as r:
             m = json.load(r)
         for t in ATLAS_TYPES:
             if isinstance(m.get(t), dict):
@@ -49,8 +63,14 @@ def _load_manifest():
     return _manifest
 
 
-def _slugify(name):
-    return re.sub(r"[^a-z0-9]+", "-", name.strip().lower()).strip("-")
+def _slug_for(t, name):
+    """Type-aware slug for the manifest-miss fallback. Gene pages are keyed by the exact
+    HGNC symbol (uppercase, hyphens kept: TP53, A1BG-AS1), so we must NOT lowercase them;
+    disease/drug pages use lowercase-hyphenated slugs."""
+    n = name.strip()
+    if t == "gene":
+        return re.sub(r"[^A-Za-z0-9-]+", "-", n).strip("-").upper()
+    return re.sub(r"[^a-z0-9]+", "-", n.lower()).strip("-")
 
 
 def _resolve(name):
@@ -59,25 +79,34 @@ def _resolve(name):
     n = name.strip()
     out = []
     for t in ATLAS_TYPES:
-        slug = m[t].get(n) or m[t].get(n.lower())
+        # Try verbatim, then lower (disease/drug), then upper (gene symbols like TP53).
+        slug = m[t].get(n) or m[t].get(n.lower()) or m[t].get(n.upper())
         if slug:
             out.append((t, slug))
     return out or None
 
 
 def _fetch_md(t, slug):
+    """Return (body, canonical_url, error). error is None on a 200 hit or a clean 404
+    (page genuinely absent); it is a short string only when the fetch itself failed
+    (challenge/block/5xx/network) — which is NOT the same as "not covered", so callers
+    can tell a blocked fetch from an absent page instead of silently merging them."""
     url = "%s/%s/%s/index.md" % (ATLAS_BASE, t, slug)
     try:
         req = urllib.request.Request(url, headers=_UA)
-        with urllib.request.urlopen(req, timeout=30) as r:
+        with urllib.request.urlopen(req, timeout=30, context=_SSL_CTX) as r:
             if r.status == 200:
                 body = r.read().decode("utf-8", "replace")
-                return body, "%s/%s/%s/" % (ATLAS_BASE, t, slug)
-    except urllib.error.HTTPError:
-        return None, None
+                return body, "%s/%s/%s/" % (ATLAS_BASE, t, slug), None
+            return None, None, "HTTP %s" % r.status
+    except urllib.error.HTTPError as e:
+        if e.code == 404:
+            return None, None, None
+        logger.warning("Atlas fetch blocked/failed %s -> HTTP %s", url, e.code)
+        return None, None, "HTTP %s" % e.code
     except Exception as e:
         logger.warning("Atlas md fetch failed %s: %s", url, e)
-    return None, None
+        return None, None, str(e)
 
 
 def _headings(md):
@@ -170,21 +199,25 @@ def atlas_lookup(entities, section=None, full=False):
     Default content is the compact digest (Summary + Identifiers); section= returns one
     zone; full=True returns the whole page (large).
     """
-    results, not_covered = [], []
+    results, not_covered, fetch_errors = [], [], []
     for name in entities or []:
         if not name or not name.strip():
             continue
         resolved = _resolve(name)
-        # Manifest miss -> slugify + try each type (recovers brand-new pages).
-        candidates = resolved if resolved else [(t, _slugify(name)) for t in ATLAS_TYPES]
-        hit = None
+        # Manifest miss -> type-aware slug + try each type (recovers brand-new pages).
+        candidates = resolved if resolved else [(t, _slug_for(t, name)) for t in ATLAS_TYPES]
+        hit, errored = None, False
         for (t, slug) in candidates:
-            md, canonical = _fetch_md(t, slug)
+            md, canonical, err = _fetch_md(t, slug)
             if md:
                 hit = (t, md, canonical)
                 break
+            if err:
+                errored = True
         if not hit:
-            not_covered.append(name)
+            # A blocked/failed fetch is reported apart from a genuine "not covered" so a
+            # transport problem never masquerades as missing coverage.
+            (fetch_errors if errored else not_covered).append(name)
             continue
         t, md, canonical = hit
         item = {
@@ -206,4 +239,7 @@ def atlas_lookup(entities, section=None, full=False):
             item["content"] = _digest(md)
         results.append(item)
     _enforce_budget(results)
-    return {"results": results, "not_covered": not_covered}
+    out = {"results": results, "not_covered": not_covered}
+    if fetch_errors:
+        out["fetch_errors"] = fetch_errors
+    return out

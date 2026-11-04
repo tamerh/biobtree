@@ -182,6 +182,30 @@ class PDBTests:
         return True, f"{pdb_id} has {polymer_count} polymer chains"
 
     @test
+    def test_chain_coverage(self):
+        """Check chain IDs and UniProt residue ranges are populated"""
+        # 101M is myoglobin (P02185): a protein entry with a SIFTS mapping.
+        pdb_id = "101M"
+        data = self.runner.lookup(pdb_id)
+
+        if not data or not data.get("results"):
+            return False, f"No results for {pdb_id}"
+
+        attr = data["results"][0].get("Attributes", {}).get("Pdb", {})
+        if not attr:
+            return True, f"{pdb_id} found (attrs in full build only)"
+
+        chain_count = attr.get("chain_count", 0)
+        if chain_count <= 0:
+            return False, f"{pdb_id} chain_count=0 (chains not populated)"
+        if not attr.get("chains"):
+            return False, f"{pdb_id} chains empty"
+        if not attr.get("chain_ranges"):
+            return False, f"{pdb_id} chain_ranges empty"
+
+        return True, f"{pdb_id} chains={attr['chains']} ranges={attr['chain_ranges']}"
+
+    @test
     def test_structure_title(self):
         """Check structure is searchable and has reference title"""
         entry = next(
@@ -274,6 +298,7 @@ def main():
         custom_tests.test_uniprot_xref,
         custom_tests.test_go_xref,
         custom_tests.test_multiple_chains,
+        custom_tests.test_chain_coverage,
         custom_tests.test_structure_title,
         custom_tests.test_reverse_lookup_uniprot_to_pdb,
     ]:

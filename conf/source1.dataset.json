@@ -1712,8 +1712,8 @@
     "siftsPath": "https://ftp.ebi.ac.uk/pub/databases/msd/sifts/flatfiles/csv/",
     "useLocalFile": "no",
     "hasFilter": "yes",
-    "attrs": "title,header,resolution,method,molecule_type,release_date,source_organism,[]authors,chain_count,chains",
-    "compact_fields": "title,method,resolution,source_organism,chain_count,header",
+    "attrs": "title,header,resolution,method,molecule_type,release_date,source_organism,[]authors,chain_count,chains,chain_ranges,chain_mappings",
+    "compact_fields": "title,method,resolution,source_organism,chain_count,chain_ranges,header",
     "test_entries_count": "500",
     "bucketMethod": "alphanum"
   },

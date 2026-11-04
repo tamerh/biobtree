@@ -121,7 +121,25 @@ message  PdbAttr {
   string molecule_type = 8;    // Molecule type: prot, nuc, prot-nuc, other
   repeated string authors = 9; // Author list
   int32 chain_count = 10;      // Number of polymer chains
+  // Per-chain UniProt residue coverage from SIFTS. One entry per observed
+  // segment, so gaps (unmodelled loops) are visible rather than implied covered.
+  repeated PdbChainMapping chain_mappings = 11;
+  // Compact overall span per chain, UniProt style: "A/B/C/D=1-390".
+  // Multiple groups are ';'-separated; when the structure maps to more than
+  // one protein each group is prefixed (e.g. "Q8TDI8:A=86-137").
+  string chain_ranges = 12;
   string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
+// PdbChainMapping is one observed segment of a PDB chain mapped onto a
+// UniProt entry by SIFTS (uniprot_segments_observed.csv.gz).
+message PdbChainMapping {
+  string chain = 1;          // PDB chain ID (e.g. "A")
+  string uniprot = 2;        // UniProt accession (e.g. "Q8TDI8")
+  int32 uniprot_start = 3;   // First UniProt residue observed (SP_BEG)
+  int32 uniprot_end = 4;     // Last UniProt residue observed (SP_END)
+  int32 pdb_start = 5;       // Corresponding first PDB residue (PDB_BEG)
+  int32 pdb_end = 6;         // Corresponding last PDB residue (PDB_END)
 }
 
 message  DrugbankAttr {

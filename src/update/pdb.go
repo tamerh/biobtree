@@ -49,11 +49,11 @@ func (p *pdb) update() {
 	// Chain inventory comes from SIFTS first because entries.idx has no chain
 	// information (this is what left chain_count at 0 on every entry).
 	siftsPath := config.Dataconf[p.source]["siftsPath"]
-	chainMap := map[string][]string{}
+	var chainData *pdbChainData
 	if siftsPath != "" {
-		chainMap = p.parseSiftsChains(siftsPath)
+		chainData = p.parseSiftsChains(siftsPath)
 	}
-	processedIDs := p.parseEntriesIdx(testLimit, idLogFile, chainMap)
+	processedIDs := p.parseEntriesIdx(testLimit, idLogFile, chainData)
 
 	// Phase 2: Parse SIFTS files for cross-references (only for entries we processed)
 	if siftsPath != "" {
@@ -76,7 +76,7 @@ func (p *pdb) update() {
 }
 
 // parseEntriesIdx parses the main PDB entries.idx file
-func (p *pdb) parseEntriesIdx(testLimit int, idLogFile *os.File, chainMap map[string][]string) map[string]bool {
+func (p *pdb) parseEntriesIdx(testLimit int, idLogFile *os.File, chainData *pdbChainData) map[string]bool {
 	filePath := config.Dataconf[p.source]["path"]
 	log.Printf("PDB: Downloading entries.idx from %s", filePath)
 
@@ -163,8 +163,14 @@ func (p *pdb) parseEntriesIdx(testLimit int, idLogFile *os.File, chainMap map[st
 			}
 		}
 
-		// Build attribute
-		chains := chainMap[pdbID]
+		// Build attribute. Chain inventory and residue coverage come from
+		// SIFTS; entries.idx has neither.
+		var chains []string
+		var mappings []*pbuf.PdbChainMapping
+		if chainData != nil {
+			chains = chainData.chains[pdbID]
+			mappings = chainData.mappings[pdbID]
+		}
 		attr := &pbuf.PdbAttr{
 			Method:         method,
 			Resolution:     resolution,
@@ -176,6 +182,8 @@ func (p *pdb) parseEntriesIdx(testLimit int, idLogFile *os.File, chainMap map[st
 			Authors:        authors,
 			Chains:         strings.Join(chains, ","),
 			ChainCount:     int32(len(chains)),
+			ChainMappings:  mappings,
+			ChainRanges:    formatChainRanges(mappings),
 		}
 
 		// Marshal and store attributes
@@ -750,14 +758,27 @@ func pdbStringToInt(s string, defaultVal int32) int32 {
 	return int32(val)
 }
 
-// parseSiftsChains builds a PDB -> polymer chain inventory from SIFTS. entries.idx
-// carries no chain information, so this is the only source for chains/chain_count.
-// Both the UniProt and taxonomy mappings are unioned so structures without a
-// UniProt mapping still get their chains counted.
-func (p *pdb) parseSiftsChains(basePath string) map[string][]string {
-	sets := make(map[string]map[string]bool)
+// pdbChainData holds the per-entry polymer chain inventory and the SIFTS
+// chain -> UniProt residue mappings used for coverage reporting.
+type pdbChainData struct {
+	chains   map[string][]string
+	mappings map[string][]*pbuf.PdbChainMapping
+}
 
-	for _, file := range []string{"pdb_chain_uniprot.csv.gz", "pdb_chain_taxonomy.csv.gz"} {
+// parseSiftsChains builds a PDB -> polymer chain inventory and per-chain
+// UniProt residue coverage from SIFTS. entries.idx carries no chain
+// information, so this is the only source for chains/chain_count.
+//
+// uniprot_segments_observed gives the observed (modelled) segments, so gaps are
+// preserved. pdb_chain_uniprot supplies the full mapped span and acts as a
+// fallback for chains that have no observed segments. pdb_chain_taxonomy is
+// unioned in so structures without a UniProt mapping still get their chains.
+func (p *pdb) parseSiftsChains(basePath string) *pdbChainData {
+	chainSets := make(map[string]map[string]bool)
+	overall := make(map[string][]*pbuf.PdbChainMapping)
+	observed := make(map[string][]*pbuf.PdbChainMapping)
+
+	for _, file := range []string{"pdb_chain_uniprot.csv.gz", "pdb_chain_taxonomy.csv.gz", "uniprot_segments_observed.csv.gz"} {
 		url := basePath + file
 		log.Printf("PDB: Downloading chain inventory from %s", url)
 
@@ -767,23 +788,34 @@ func (p *pdb) parseSiftsChains(basePath string) map[string][]string {
 			continue
 		}
 
-		if err := scanChainInventory(br, sets); err != nil {
-			log.Printf("PDB: Warning - error reading chain inventory %s: %v", file, err)
+		var scanErr error
+		switch file {
+		case "pdb_chain_uniprot.csv.gz":
+			scanErr = scanPdbChainMappings(br, chainSets, overall)
+		case "uniprot_segments_observed.csv.gz":
+			scanErr = scanPdbChainMappings(br, chainSets, observed)
+		default:
+			scanErr = scanChainInventory(br, chainSets)
+		}
+		if scanErr != nil {
+			log.Printf("PDB: Warning - error reading chain inventory %s: %v", file, scanErr)
 		}
 		closer.Close()
 	}
 
-	out := make(map[string][]string, len(sets))
-	for pdbID, set := range sets {
+	chains := make(map[string][]string, len(chainSets))
+	for pdbID, set := range chainSets {
 		list := make([]string, 0, len(set))
 		for chain := range set {
 			list = append(list, chain)
 		}
 		sort.Strings(list)
-		out[pdbID] = list
+		chains[pdbID] = list
 	}
-	log.Printf("PDB: Chain inventory built for %d entries", len(out))
-	return out
+
+	mappings := mergePdbChainMappings(overall, observed)
+	log.Printf("PDB: Chain inventory built for %d entries (%d with residue mappings)", len(chains), len(mappings))
+	return &pdbChainData{chains: chains, mappings: mappings}
 }
 
 // scanChainInventory reads a SIFTS chain CSV (PDB,CHAIN,...) into sets.
@@ -806,12 +838,183 @@ func scanChainInventory(r io.Reader, sets map[string]map[string]bool) error {
 		if pdbID == "" || chain == "" {
 			continue
 		}
-		if sets[pdbID] == nil {
-			sets[pdbID] = make(map[string]bool)
-		}
-		sets[pdbID][chain] = true
+		addChain(sets, pdbID, chain)
 	}
 	return scanner.Err()
+}
+
+// scanPdbChainMappings reads a SIFTS CSV with the shared
+// PDB,CHAIN,SP_PRIMARY,RES_BEG,RES_END,PDB_BEG,PDB_END,SP_BEG,SP_END layout
+// (pdb_chain_uniprot and uniprot_segments_observed) into chain sets and
+// per-entry residue mappings.
+func scanPdbChainMappings(r io.Reader, sets map[string]map[string]bool, out map[string][]*pbuf.PdbChainMapping) error {
+	scanner := bufio.NewScanner(r)
+	const maxCapacity = 1024 * 1024
+	scanner.Buffer(make([]byte, maxCapacity), maxCapacity)
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		if line == "" || strings.HasPrefix(line, "#") || strings.HasPrefix(line, "PDB,") {
+			continue
+		}
+		fields := strings.Split(line, ",")
+		if len(fields) < 9 {
+			continue
+		}
+		pdbID := strings.ToUpper(strings.TrimSpace(fields[0]))
+		chain := strings.TrimSpace(fields[1])
+		uniprot := strings.TrimSpace(fields[2])
+		if pdbID == "" || chain == "" {
+			continue
+		}
+		addChain(sets, pdbID, chain)
+		if uniprot == "" {
+			continue
+		}
+		spBeg := pdbStringToInt(strings.TrimSpace(fields[7]), 0)
+		spEnd := pdbStringToInt(strings.TrimSpace(fields[8]), 0)
+		if spBeg <= 0 || spEnd < spBeg {
+			continue
+		}
+		out[pdbID] = append(out[pdbID], &pbuf.PdbChainMapping{
+			Chain:        chain,
+			Uniprot:      uniprot,
+			UniprotStart: spBeg,
+			UniprotEnd:   spEnd,
+			PdbStart:     pdbStringToInt(strings.TrimSpace(fields[5]), 0),
+			PdbEnd:       pdbStringToInt(strings.TrimSpace(fields[6]), 0),
+		})
+	}
+	return scanner.Err()
+}
+
+func addChain(sets map[string]map[string]bool, pdbID, chain string) {
+	if sets[pdbID] == nil {
+		sets[pdbID] = make(map[string]bool)
+	}
+	sets[pdbID][chain] = true
+}
+
+// mergePdbChainMappings prefers observed segments and falls back to the full
+// pdb_chain_uniprot span for any (chain, UniProt) pair without observed data.
+func mergePdbChainMappings(overall, observed map[string][]*pbuf.PdbChainMapping) map[string][]*pbuf.PdbChainMapping {
+	out := make(map[string][]*pbuf.PdbChainMapping, len(overall)+len(observed))
+	for pdbID, list := range overall {
+		out[pdbID] = append(out[pdbID], list...)
+	}
+	for pdbID, list := range observed {
+		seen := make(map[string]bool, len(list))
+		for _, m := range list {
+			seen[m.Chain+"|"+m.Uniprot] = true
+		}
+		filtered := out[pdbID][:0]
+		for _, m := range out[pdbID] {
+			if !seen[m.Chain+"|"+m.Uniprot] {
+				filtered = append(filtered, m)
+			}
+		}
+		out[pdbID] = append(filtered, list...)
+	}
+	for pdbID, list := range out {
+		sort.Slice(list, func(i, j int) bool {
+			if list[i].Chain != list[j].Chain {
+				return list[i].Chain < list[j].Chain
+			}
+			if list[i].Uniprot != list[j].Uniprot {
+				return list[i].Uniprot < list[j].Uniprot
+			}
+			return list[i].UniprotStart < list[j].UniprotStart
+		})
+		out[pdbID] = list
+	}
+	return out
+}
+
+// formatChainRanges collapses per-chain mappings into the compact UniProt-style
+// form "A/B/C/D=1-390". The span is the min/max observed residue per
+// (chain, UniProt). When the structure maps to more than one protein each
+// group is prefixed, e.g. "Q8TDI8:A=86-137;O75838:B=2-187".
+func formatChainRanges(mappings []*pbuf.PdbChainMapping) string {
+	if len(mappings) == 0 {
+		return ""
+	}
+
+	type chainKey struct {
+		chain   string
+		uniprot string
+	}
+	type span struct {
+		start int32
+		end   int32
+	}
+	spans := make(map[chainKey]span)
+	uniprots := make(map[string]bool)
+	for _, m := range mappings {
+		if m == nil || m.Chain == "" || m.Uniprot == "" || m.UniprotStart <= 0 || m.UniprotEnd < m.UniprotStart {
+			continue
+		}
+		uniprots[m.Uniprot] = true
+		k := chainKey{chain: m.Chain, uniprot: m.Uniprot}
+		s, ok := spans[k]
+		if !ok {
+			spans[k] = span{start: m.UniprotStart, end: m.UniprotEnd}
+			continue
+		}
+		if m.UniprotStart < s.start {
+			s.start = m.UniprotStart
+		}
+		if m.UniprotEnd > s.end {
+			s.end = m.UniprotEnd
+		}
+		spans[k] = s
+	}
+	if len(spans) == 0 {
+		return ""
+	}
+
+	type groupKey struct {
+		uniprot string
+		start   int32
+		end     int32
+	}
+	groups := make(map[groupKey][]string)
+	for k, s := range spans {
+		g := groupKey{uniprot: k.uniprot, start: s.start, end: s.end}
+		groups[g] = append(groups[g], k.chain)
+	}
+
+	keys := make([]groupKey, 0, len(groups))
+	for g := range groups {
+		sort.Strings(groups[g])
+		keys = append(keys, g)
+	}
+	sort.Slice(keys, func(i, j int) bool {
+		if keys[i].uniprot != keys[j].uniprot {
+			return keys[i].uniprot < keys[j].uniprot
+		}
+		// Order by first chain so "A=3-187;B=2-187" reads naturally even when
+		// the spans differ by a residue.
+		ci, cj := groups[keys[i]][0], groups[keys[j]][0]
+		if ci != cj {
+			return ci < cj
+		}
+		if keys[i].start != keys[j].start {
+			return keys[i].start < keys[j].start
+		}
+		return keys[i].end < keys[j].end
+	})
+
+	multi := len(uniprots) > 1
+	parts := make([]string, 0, len(keys))
+	for _, g := range keys {
+		chains := groups[g]
+		part := strings.Join(chains, "/") + "=" + strconv.Itoa(int(g.start)) + "-" + strconv.Itoa(int(g.end))
+		if multi {
+			part = g.uniprot + ":" + part
+		}
+		parts = append(parts, part)
+	}
+	return strings.Join(parts, ";")
 }
 
 // parseSiftsScop parses pdb_chain_scop_uniprot.csv.gz for SCOP domain mappings.

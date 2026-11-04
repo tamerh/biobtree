@@ -112999,6 +112999,41 @@ func (j *PdbAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.FormatBits2(buf, uint64(j.ChainCount), 10, j.ChainCount < 0)
 		buf.WriteByte(',')
 	}
+	if len(j.ChainMappings) != 0 {
+		buf.WriteString(`"chain_mappings":`)
+		if j.ChainMappings != nil {
+			buf.WriteString(`[`)
+			for i, v := range j.ChainMappings {
+				if i != 0 {
+					buf.WriteString(`,`)
+				}
+
+				{
+
+					if v == nil {
+						buf.WriteString("null")
+					} else {
+
+						err = v.MarshalJSONBuf(buf)
+						if err != nil {
+							return err
+						}
+
+					}
+
+				}
+			}
+			buf.WriteString(`]`)
+		} else {
+			buf.WriteString(`null`)
+		}
+		buf.WriteByte(',')
+	}
+	if len(j.ChainRanges) != 0 {
+		buf.WriteString(`"chain_ranges":`)
+		fflib.WriteJsonString(buf, string(j.ChainRanges))
+		buf.WriteByte(',')
+	}
 	if len(j.Id) != 0 {
 		buf.WriteString(`"id":`)
 		fflib.WriteJsonString(buf, string(j.Id))
@@ -113033,6 +113068,10 @@ const (
 
 	ffjtPdbAttrChainCount
 
+	ffjtPdbAttrChainMappings
+
+	ffjtPdbAttrChainRanges
+
 	ffjtPdbAttrId
 )
 
@@ -113055,6 +113094,10 @@ var ffjKeyPdbAttrMoleculeType = []byte("molecule_type")
 var ffjKeyPdbAttrAuthors = []byte("authors")
 
 var ffjKeyPdbAttrChainCount = []byte("chain_count")
+
+var ffjKeyPdbAttrChainMappings = []byte("chain_mappings")
+
+var ffjKeyPdbAttrChainRanges = []byte("chain_ranges")
 
 var ffjKeyPdbAttrId = []byte("id")
 
@@ -113138,6 +113181,16 @@ mainparse:
 						currentKey = ffjtPdbAttrChainCount
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffjKeyPdbAttrChainMappings, kn) {
+						currentKey = ffjtPdbAttrChainMappings
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyPdbAttrChainRanges, kn) {
+						currentKey = ffjtPdbAttrChainRanges
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 'h':
@@ -113202,6 +113255,18 @@ mainparse:
 
 				if fflib.SimpleLetterEqualFold(ffjKeyPdbAttrId, kn) {
 					currentKey = ffjtPdbAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyPdbAttrChainRanges, kn) {
+					currentKey = ffjtPdbAttrChainRanges
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyPdbAttrChainMappings, kn) {
+					currentKey = ffjtPdbAttrChainMappings
 					state = fflib.FFParse_want_colon
 					goto mainparse
 				}
@@ -113312,6 +113377,12 @@ mainparse:
 
 				case ffjtPdbAttrChainCount:
 					goto handle_ChainCount
+
+				case ffjtPdbAttrChainMappings:
+					goto handle_ChainMappings
+
+				case ffjtPdbAttrChainRanges:
+					goto handle_ChainRanges
 
 				case ffjtPdbAttrId:
 					goto handle_Id
@@ -113642,6 +113713,106 @@ handle_ChainCount:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
+handle_ChainMappings:
+
+	/* handler: j.ChainMappings type=[]*pbuf.PdbChainMapping kind=slice quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_left_brace && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for ", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+			j.ChainMappings = nil
+		} else {
+
+			j.ChainMappings = []*PdbChainMapping{}
+
+			wantVal := true
+
+			for {
+
+				var tmpJChainMappings *PdbChainMapping
+
+				tok = fs.Scan()
+				if tok == fflib.FFTok_error {
+					goto tokerror
+				}
+				if tok == fflib.FFTok_right_brace {
+					break
+				}
+
+				if tok == fflib.FFTok_comma {
+					if wantVal == true {
+						// TODO(pquerna): this isn't an ideal error message, this handles
+						// things like [,,,] as an array value.
+						return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
+					}
+					continue
+				} else {
+					wantVal = true
+				}
+
+				/* handler: tmpJChainMappings type=*pbuf.PdbChainMapping kind=ptr quoted=false*/
+
+				{
+					if tok == fflib.FFTok_null {
+
+						tmpJChainMappings = nil
+
+					} else {
+
+						if tmpJChainMappings == nil {
+							tmpJChainMappings = new(PdbChainMapping)
+						}
+
+						err = tmpJChainMappings.UnmarshalJSONFFLexer(fs, fflib.FFParse_want_key)
+						if err != nil {
+							return err
+						}
+					}
+					state = fflib.FFParse_after_value
+				}
+
+				j.ChainMappings = append(j.ChainMappings, tmpJChainMappings)
+
+				wantVal = false
+			}
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_ChainRanges:
+
+	/* handler: j.ChainRanges type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.ChainRanges = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
 handle_Id:
 
 	/* handler: j.Id type=string kind=string quoted=false*/
@@ -113661,6 +113832,472 @@ handle_Id:
 			outBuf := fs.Output.Bytes()
 
 			j.Id = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+wantedvalue:
+	return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
+wrongtokenerror:
+	return fs.WrapErr(fmt.Errorf("ffjson: wanted token: %v, but got token: %v output=%s", wantedTok, tok, fs.Output.String()))
+tokerror:
+	if fs.BigError != nil {
+		return fs.WrapErr(fs.BigError)
+	}
+	err = fs.Error.ToError()
+	if err != nil {
+		return fs.WrapErr(err)
+	}
+	panic("ffjson-generated: unreachable, please report bug.")
+done:
+
+	return nil
+}
+
+// MarshalJSON marshal bytes to json - template
+func (j *PdbChainMapping) MarshalJSON() ([]byte, error) {
+	var buf fflib.Buffer
+	if j == nil {
+		buf.WriteString("null")
+		return buf.Bytes(), nil
+	}
+	err := j.MarshalJSONBuf(&buf)
+	if err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
+}
+
+// MarshalJSONBuf marshal buff to json - template
+func (j *PdbChainMapping) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
+	if j == nil {
+		buf.WriteString("null")
+		return nil
+	}
+	var err error
+	var obj []byte
+	_ = obj
+	_ = err
+	buf.WriteString(`{ `)
+	if len(j.Chain) != 0 {
+		buf.WriteString(`"chain":`)
+		fflib.WriteJsonString(buf, string(j.Chain))
+		buf.WriteByte(',')
+	}
+	if len(j.Uniprot) != 0 {
+		buf.WriteString(`"uniprot":`)
+		fflib.WriteJsonString(buf, string(j.Uniprot))
+		buf.WriteByte(',')
+	}
+	if j.UniprotStart != 0 {
+		buf.WriteString(`"uniprot_start":`)
+		fflib.FormatBits2(buf, uint64(j.UniprotStart), 10, j.UniprotStart < 0)
+		buf.WriteByte(',')
+	}
+	if j.UniprotEnd != 0 {
+		buf.WriteString(`"uniprot_end":`)
+		fflib.FormatBits2(buf, uint64(j.UniprotEnd), 10, j.UniprotEnd < 0)
+		buf.WriteByte(',')
+	}
+	if j.PdbStart != 0 {
+		buf.WriteString(`"pdb_start":`)
+		fflib.FormatBits2(buf, uint64(j.PdbStart), 10, j.PdbStart < 0)
+		buf.WriteByte(',')
+	}
+	if j.PdbEnd != 0 {
+		buf.WriteString(`"pdb_end":`)
+		fflib.FormatBits2(buf, uint64(j.PdbEnd), 10, j.PdbEnd < 0)
+		buf.WriteByte(',')
+	}
+	buf.Rewind(1)
+	buf.WriteByte('}')
+	return nil
+}
+
+const (
+	ffjtPdbChainMappingbase = iota
+	ffjtPdbChainMappingnosuchkey
+
+	ffjtPdbChainMappingChain
+
+	ffjtPdbChainMappingUniprot
+
+	ffjtPdbChainMappingUniprotStart
+
+	ffjtPdbChainMappingUniprotEnd
+
+	ffjtPdbChainMappingPdbStart
+
+	ffjtPdbChainMappingPdbEnd
+)
+
+var ffjKeyPdbChainMappingChain = []byte("chain")
+
+var ffjKeyPdbChainMappingUniprot = []byte("uniprot")
+
+var ffjKeyPdbChainMappingUniprotStart = []byte("uniprot_start")
+
+var ffjKeyPdbChainMappingUniprotEnd = []byte("uniprot_end")
+
+var ffjKeyPdbChainMappingPdbStart = []byte("pdb_start")
+
+var ffjKeyPdbChainMappingPdbEnd = []byte("pdb_end")
+
+// UnmarshalJSON umarshall json - template of ffjson
+func (j *PdbChainMapping) UnmarshalJSON(input []byte) error {
+	fs := fflib.NewFFLexer(input)
+	return j.UnmarshalJSONFFLexer(fs, fflib.FFParse_map_start)
+}
+
+// UnmarshalJSONFFLexer fast json unmarshall - template ffjson
+func (j *PdbChainMapping) UnmarshalJSONFFLexer(fs *fflib.FFLexer, state fflib.FFParseState) error {
+	var err error
+	currentKey := ffjtPdbChainMappingbase
+	_ = currentKey
+	tok := fflib.FFTok_init
+	wantedTok := fflib.FFTok_init
+
+mainparse:
+	for {
+		tok = fs.Scan()
+		//	println(fmt.Sprintf("debug: tok: %v  state: %v", tok, state))
+		if tok == fflib.FFTok_error {
+			goto tokerror
+		}
+
+		switch state {
+
+		case fflib.FFParse_map_start:
+			if tok != fflib.FFTok_left_bracket {
+				wantedTok = fflib.FFTok_left_bracket
+				goto wrongtokenerror
+			}
+			state = fflib.FFParse_want_key
+			continue
+
+		case fflib.FFParse_after_value:
+			if tok == fflib.FFTok_comma {
+				state = fflib.FFParse_want_key
+			} else if tok == fflib.FFTok_right_bracket {
+				goto done
+			} else {
+				wantedTok = fflib.FFTok_comma
+				goto wrongtokenerror
+			}
+
+		case fflib.FFParse_want_key:
+			// json {} ended. goto exit. woo.
+			if tok == fflib.FFTok_right_bracket {
+				goto done
+			}
+			if tok != fflib.FFTok_string {
+				wantedTok = fflib.FFTok_string
+				goto wrongtokenerror
+			}
+
+			kn := fs.Output.Bytes()
+			if len(kn) <= 0 {
+				// "" case. hrm.
+				currentKey = ffjtPdbChainMappingnosuchkey
+				state = fflib.FFParse_want_colon
+				goto mainparse
+			} else {
+				switch kn[0] {
+
+				case 'c':
+
+					if bytes.Equal(ffjKeyPdbChainMappingChain, kn) {
+						currentKey = ffjtPdbChainMappingChain
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'p':
+
+					if bytes.Equal(ffjKeyPdbChainMappingPdbStart, kn) {
+						currentKey = ffjtPdbChainMappingPdbStart
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyPdbChainMappingPdbEnd, kn) {
+						currentKey = ffjtPdbChainMappingPdbEnd
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'u':
+
+					if bytes.Equal(ffjKeyPdbChainMappingUniprot, kn) {
+						currentKey = ffjtPdbChainMappingUniprot
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyPdbChainMappingUniprotStart, kn) {
+						currentKey = ffjtPdbChainMappingUniprotStart
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyPdbChainMappingUniprotEnd, kn) {
+						currentKey = ffjtPdbChainMappingUniprotEnd
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyPdbChainMappingPdbEnd, kn) {
+					currentKey = ffjtPdbChainMappingPdbEnd
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyPdbChainMappingPdbStart, kn) {
+					currentKey = ffjtPdbChainMappingPdbStart
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.AsciiEqualFold(ffjKeyPdbChainMappingUniprotEnd, kn) {
+					currentKey = ffjtPdbChainMappingUniprotEnd
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyPdbChainMappingUniprotStart, kn) {
+					currentKey = ffjtPdbChainMappingUniprotStart
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyPdbChainMappingUniprot, kn) {
+					currentKey = ffjtPdbChainMappingUniprot
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyPdbChainMappingChain, kn) {
+					currentKey = ffjtPdbChainMappingChain
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				currentKey = ffjtPdbChainMappingnosuchkey
+				state = fflib.FFParse_want_colon
+				goto mainparse
+			}
+
+		case fflib.FFParse_want_colon:
+			if tok != fflib.FFTok_colon {
+				wantedTok = fflib.FFTok_colon
+				goto wrongtokenerror
+			}
+			state = fflib.FFParse_want_value
+			continue
+		case fflib.FFParse_want_value:
+
+			if tok == fflib.FFTok_left_brace || tok == fflib.FFTok_left_bracket || tok == fflib.FFTok_integer || tok == fflib.FFTok_double || tok == fflib.FFTok_string || tok == fflib.FFTok_bool || tok == fflib.FFTok_null {
+				switch currentKey {
+
+				case ffjtPdbChainMappingChain:
+					goto handle_Chain
+
+				case ffjtPdbChainMappingUniprot:
+					goto handle_Uniprot
+
+				case ffjtPdbChainMappingUniprotStart:
+					goto handle_UniprotStart
+
+				case ffjtPdbChainMappingUniprotEnd:
+					goto handle_UniprotEnd
+
+				case ffjtPdbChainMappingPdbStart:
+					goto handle_PdbStart
+
+				case ffjtPdbChainMappingPdbEnd:
+					goto handle_PdbEnd
+
+				case ffjtPdbChainMappingnosuchkey:
+					err = fs.SkipField(tok)
+					if err != nil {
+						return fs.WrapErr(err)
+					}
+					state = fflib.FFParse_after_value
+					goto mainparse
+				}
+			} else {
+				goto wantedvalue
+			}
+		}
+	}
+
+handle_Chain:
+
+	/* handler: j.Chain type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Chain = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Uniprot:
+
+	/* handler: j.Uniprot type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			j.Uniprot = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_UniprotStart:
+
+	/* handler: j.UniprotStart type=int32 kind=int32 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for int32", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseInt(fs.Output.Bytes(), 10, 32)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.UniprotStart = int32(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_UniprotEnd:
+
+	/* handler: j.UniprotEnd type=int32 kind=int32 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for int32", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseInt(fs.Output.Bytes(), 10, 32)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.UniprotEnd = int32(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_PdbStart:
+
+	/* handler: j.PdbStart type=int32 kind=int32 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for int32", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseInt(fs.Output.Bytes(), 10, 32)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.PdbStart = int32(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_PdbEnd:
+
+	/* handler: j.PdbEnd type=int32 kind=int32 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for int32", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseInt(fs.Output.Bytes(), 10, 32)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.PdbEnd = int32(tval)
 
 		}
 	}

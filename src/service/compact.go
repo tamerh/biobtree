@@ -804,6 +804,8 @@ func extractPdbField(a *pbuf.PdbAttr, field string) string {
 		return fmt.Sprintf("%d", a.ChainCount)
 	case "chains":
 		return a.Chains
+	case "chain_ranges":
+		return a.ChainRanges
 	default:
 		return ""
 	}

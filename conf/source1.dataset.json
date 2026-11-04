@@ -574,8 +574,8 @@
     "largeProteinBackfill": "yes",
     "useLocalFile": "no",
     "hasFilter": "yes",
-    "attrs": "global_metric,fraction_plddt_very_high,fraction_plddt_confident,fraction_plddt_low,fraction_plddt_very_low,model_entity_id,gene,max_pae,mean_pae,fraction_pae_confident,version,fragment_number,sequence_length",
-    "compact_fields": "gene,global_metric,sequence_length,fraction_plddt_very_high",
+    "attrs": "global_metric,fraction_plddt_very_high,fraction_plddt_confident,fraction_plddt_low,fraction_plddt_very_low,model_entity_id,version,fragment_number,sequence_length,plddt_start",
+    "compact_fields": "global_metric,sequence_length,fraction_plddt_very_high",
     "test_entries_count": "20",
     "bucketMethod": "alphabetic"
   },
@@ -1712,7 +1712,7 @@
     "siftsPath": "https://ftp.ebi.ac.uk/pub/databases/msd/sifts/flatfiles/csv/",
     "useLocalFile": "no",
     "hasFilter": "yes",
-    "attrs": "title,header,resolution,method,molecule_type,release_date,source_organism,[]authors,chain_count",
+    "attrs": "title,header,resolution,method,molecule_type,release_date,source_organism,[]authors,chain_count,chains",
     "compact_fields": "title,method,resolution,source_organism,chain_count,header",
     "test_entries_count": "500",
     "bucketMethod": "alphanum"

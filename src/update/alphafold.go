@@ -152,8 +152,8 @@ func (a *alphafoldProcessor) processTarFile(filePath string, idLogFile *os.File,
 			continue
 		}
 
-		// Parse PDB file and extract pLDDT scores
-		plddt, err := a.parsePDBFile(gzReader)
+		// Parse PDB file and extract per-residue pLDDT scores
+		plddt, plddtStart, err := a.parsePDBFile(gzReader)
 		gzReader.Close() // Close gzip reader after parsing
 		if err != nil {
 			log.Printf("Warning: Error parsing PDB file %s: %v", header.Name, err)
@@ -177,6 +177,8 @@ func (a *alphafoldProcessor) processTarFile(filePath string, idLogFile *os.File,
 			Gene:                   "", // Will be populated from UniProt if needed
 			FragmentNumber:         int32(fragmentNum),
 			SequenceLength:         int32(len(plddt)),
+			Plddt:                  plddt,
+			PlddtStart:             plddtStart,
 		}
 
 		// Marshal and store on UniProt ID
@@ -265,11 +267,18 @@ func extractIDsFromFilename(filename string) (uniprotID string, modelID string, 
 	return uniprotID, modelID, fragmentNum
 }
 
-// Parse PDB file and extract pLDDT scores from B-factor column
-func (a *alphafoldProcessor) parsePDBFile(reader io.Reader) ([]float64, error) {
+// Parse PDB file and extract one pLDDT score per residue from the B-factor column.
+// AlphaFold writes the same pLDDT to every atom of a residue, so we deduplicate on
+// (chain, resSeq, iCode) — using len(plddt) directly counts ATOMS (~8 per residue),
+// which is what made sequence_length ~7.8x too large.
+// Returns the per-residue scores in residue order plus the first residue number.
+func (a *alphafoldProcessor) parsePDBFile(reader io.Reader) ([]float64, int32, error) {
 	var plddtScores []float64
+	seen := make(map[string]bool)
+	var start int32 = -1
 
 	scanner := bufio.NewScanner(reader)
+	scanner.Buffer(make([]byte, 0, 64*1024), 1024*1024)
 	for scanner.Scan() {
 		line := scanner.Text()
 
@@ -278,8 +287,23 @@ func (a *alphafoldProcessor) parsePDBFile(reader io.Reader) ([]float64, error) {
 			continue
 		}
 
-		// PDB format: B-factor is in columns 61-66 (0-indexed: 60-66)
+		// PDB format: chain at col 22, resSeq at 23-26, iCode at 27,
+		// B-factor at columns 61-66 (0-indexed: 60-66)
 		if len(line) < 66 {
+			continue
+		}
+
+		chain := ""
+		if len(line) > 21 {
+			chain = string(line[21])
+		}
+		resSeq := strings.TrimSpace(line[22:26])
+		iCode := ""
+		if len(line) > 26 {
+			iCode = strings.TrimSpace(line[26:27])
+		}
+		key := chain + "|" + resSeq + "|" + iCode
+		if seen[key] {
 			continue
 		}
 
@@ -289,18 +313,28 @@ func (a *alphafoldProcessor) parsePDBFile(reader io.Reader) ([]float64, error) {
 			continue
 		}
 
+		seen[key] = true
 		plddtScores = append(plddtScores, bFactor)
+
+		if start < 0 {
+			if n, err := strconv.Atoi(resSeq); err == nil {
+				start = int32(n)
+			}
+		}
 	}
 
 	if err := scanner.Err(); err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	if len(plddtScores) == 0 {
-		return nil, fmt.Errorf("no pLDDT scores found")
+		return nil, 0, fmt.Errorf("no pLDDT scores found")
+	}
+	if start < 0 {
+		start = 1
 	}
 
-	return plddtScores, nil
+	return plddtScores, start, nil
 }
 
 // PLDDTFractions holds fraction of residues in each confidence category
@@ -362,6 +396,7 @@ type afPrediction struct {
 	PdbUrl           string `json:"pdbUrl"`
 	UniprotStart     int    `json:"uniprotStart"`
 	UniprotEnd       int    `json:"uniprotEnd"`
+	Gene             string `json:"gene"`
 }
 
 // processLargeProteins backfills AlphaFold structures for large proteins that the
@@ -381,6 +416,11 @@ type afPrediction struct {
 // error logs a warning and processing continues.
 func (a *alphafoldProcessor) processLargeProteins(idLogFile *os.File) uint64 {
 	if config.Dataconf[a.source]["largeProteinBackfill"] != "yes" {
+		return 0
+	}
+	// Test mode must not make thousands of live API calls.
+	if config.IsTestMode() {
+		log.Printf("AlphaFold: skipping large-protein backfill in test mode")
 		return 0
 	}
 
@@ -511,11 +551,19 @@ func (a *alphafoldProcessor) aggregateModels(acc string, models []afPrediction) 
 	var veryHigh, confident, low, veryLow int
 	modelCount := 0
 
+	// Per-residue pLDDT is only stored when there is exactly ONE canonical model
+	// (the complete sequence). Fragmented/isoform proteins have no single
+	// contiguous residue array, so they keep aggregates only.
+	var canonicalScores []float64
+	var canonicalStart int32
+	canonicalCount := 0
+	gene := ""
+
 	for _, m := range models {
 		if m.PdbUrl == "" {
 			continue
 		}
-		plddt, err := a.fetchPDBPlddt(m.PdbUrl)
+		plddt, start, err := a.fetchPDBPlddt(m.PdbUrl)
 		if err != nil || len(plddt) == 0 {
 			continue
 		}
@@ -533,13 +581,22 @@ func (a *alphafoldProcessor) aggregateModels(acc string, models []afPrediction) 
 		}
 		totalResidues += len(plddt)
 		modelCount++
+
+		if isCanonicalAlphaFoldModel(acc, m.EntryId) {
+			canonicalCount++
+			canonicalScores = plddt
+			canonicalStart = start
+		}
+		if gene == "" && m.Gene != "" {
+			gene = m.Gene
+		}
 	}
 
 	if totalResidues == 0 {
 		return nil
 	}
 	total := float64(totalResidues)
-	return &pbuf.AlphaFoldAttr{
+	attr := &pbuf.AlphaFoldAttr{
 		GlobalMetric:           sum / total,
 		FractionPlddtVeryHigh:  float64(veryHigh) / total,
 		FractionPlddtConfident: float64(confident) / total,
@@ -549,19 +606,35 @@ func (a *alphafoldProcessor) aggregateModels(acc string, models []afPrediction) 
 		FragmentNumber:         int32(modelCount),
 		SequenceLength:         int32(totalResidues),
 		Version:                6,
+		Gene:                   gene,
 	}
+	if canonicalCount == 1 {
+		attr.Plddt = canonicalScores
+		attr.PlddtStart = canonicalStart
+	}
+	return attr
 }
 
-// fetchPDBPlddt downloads a (non-gzipped) AlphaFold PDB file and extracts pLDDT
-// scores from the B-factor column, reusing the tar-path PDB parser.
-func (a *alphafoldProcessor) fetchPDBPlddt(pdbURL string) ([]float64, error) {
+// isCanonicalAlphaFoldModel reports whether entryID is the canonical model for
+// acc (AF-{acc}-F1, AF-{acc}-F2, ...) rather than an isoform (AF-{acc}-2-F1).
+func isCanonicalAlphaFoldModel(acc, entryID string) bool {
+	prefix := "AF-" + acc + "-F"
+	if !strings.HasPrefix(entryID, prefix) {
+		return false
+	}
+	return !strings.Contains(entryID[len(prefix):], "-")
+}
+
+// fetchPDBPlddt downloads a (non-gzipped) AlphaFold PDB file and extracts
+// per-residue pLDDT scores from the B-factor column, reusing the tar-path parser.
+func (a *alphafoldProcessor) fetchPDBPlddt(pdbURL string) ([]float64, int32, error) {
 	resp, err := httpGetWithRetry(pdbURL, 2)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
-		return nil, fmt.Errorf("PDB download status %d", resp.StatusCode)
+		return nil, 0, fmt.Errorf("PDB download status %d", resp.StatusCode)
 	}
 	return a.parsePDBFile(resp.Body)
 }

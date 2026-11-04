@@ -577,6 +577,10 @@ message AlphaFoldAttr {
   // Fragment information (for large proteins split into multiple fragments)
   int32 fragment_number =12;                // Fragment number (1, 2, 3...) from model ID (AF-xxxx-F1)
   int32 sequence_length =13;                // Length of this fragment/structure in residues
+  // Per-residue pLDDT confidence, in residue order starting at plddt_start.
+  // Sourced from the B-factor column of the AlphaFold PDB (one value per residue).
+  repeated double plddt =14;
+  int32 plddt_start =15;                    // Residue number of plddt[0] (fragments don't start at 1)
   string id = 100; // transient - populated at runtime from Xref.Identifier
 }
 

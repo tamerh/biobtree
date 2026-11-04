@@ -1420,6 +1420,27 @@ func (j *AlphaFoldAttr) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.FormatBits2(buf, uint64(j.SequenceLength), 10, j.SequenceLength < 0)
 		buf.WriteByte(',')
 	}
+	if len(j.Plddt) != 0 {
+		buf.WriteString(`"plddt":`)
+		if j.Plddt != nil {
+			buf.WriteString(`[`)
+			for i, v := range j.Plddt {
+				if i != 0 {
+					buf.WriteString(`,`)
+				}
+				fflib.AppendFloat(buf, float64(v), 'g', -1, 64)
+			}
+			buf.WriteString(`]`)
+		} else {
+			buf.WriteString(`null`)
+		}
+		buf.WriteByte(',')
+	}
+	if j.PlddtStart != 0 {
+		buf.WriteString(`"plddt_start":`)
+		fflib.FormatBits2(buf, uint64(j.PlddtStart), 10, j.PlddtStart < 0)
+		buf.WriteByte(',')
+	}
 	if len(j.Id) != 0 {
 		buf.WriteString(`"id":`)
 		fflib.WriteJsonString(buf, string(j.Id))
@@ -1460,6 +1481,10 @@ const (
 
 	ffjtAlphaFoldAttrSequenceLength
 
+	ffjtAlphaFoldAttrPlddt
+
+	ffjtAlphaFoldAttrPlddtStart
+
 	ffjtAlphaFoldAttrId
 )
 
@@ -1488,6 +1513,10 @@ var ffjKeyAlphaFoldAttrVersion = []byte("version")
 var ffjKeyAlphaFoldAttrFragmentNumber = []byte("fragment_number")
 
 var ffjKeyAlphaFoldAttrSequenceLength = []byte("sequence_length")
+
+var ffjKeyAlphaFoldAttrPlddt = []byte("plddt")
+
+var ffjKeyAlphaFoldAttrPlddtStart = []byte("plddt_start")
 
 var ffjKeyAlphaFoldAttrId = []byte("id")
 
@@ -1624,6 +1653,19 @@ mainparse:
 						goto mainparse
 					}
 
+				case 'p':
+
+					if bytes.Equal(ffjKeyAlphaFoldAttrPlddt, kn) {
+						currentKey = ffjtAlphaFoldAttrPlddt
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffjKeyAlphaFoldAttrPlddtStart, kn) {
+						currentKey = ffjtAlphaFoldAttrPlddtStart
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 's':
 
 					if bytes.Equal(ffjKeyAlphaFoldAttrSequenceLength, kn) {
@@ -1644,6 +1686,18 @@ mainparse:
 
 				if fflib.SimpleLetterEqualFold(ffjKeyAlphaFoldAttrId, kn) {
 					currentKey = ffjtAlphaFoldAttrId
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.EqualFoldRight(ffjKeyAlphaFoldAttrPlddtStart, kn) {
+					currentKey = ffjtAlphaFoldAttrPlddtStart
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.SimpleLetterEqualFold(ffjKeyAlphaFoldAttrPlddt, kn) {
+					currentKey = ffjtAlphaFoldAttrPlddt
 					state = fflib.FFParse_want_colon
 					goto mainparse
 				}
@@ -1781,6 +1835,12 @@ mainparse:
 
 				case ffjtAlphaFoldAttrSequenceLength:
 					goto handle_SequenceLength
+
+				case ffjtAlphaFoldAttrPlddt:
+					goto handle_Plddt
+
+				case ffjtAlphaFoldAttrPlddtStart:
+					goto handle_PlddtStart
 
 				case ffjtAlphaFoldAttrId:
 					goto handle_Id
@@ -2174,6 +2234,114 @@ handle_SequenceLength:
 			}
 
 			j.SequenceLength = int32(tval)
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_Plddt:
+
+	/* handler: j.Plddt type=[]float64 kind=slice quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_left_brace && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for ", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+			j.Plddt = nil
+		} else {
+
+			j.Plddt = []float64{}
+
+			wantVal := true
+
+			for {
+
+				var tmpJPlddt float64
+
+				tok = fs.Scan()
+				if tok == fflib.FFTok_error {
+					goto tokerror
+				}
+				if tok == fflib.FFTok_right_brace {
+					break
+				}
+
+				if tok == fflib.FFTok_comma {
+					if wantVal == true {
+						// TODO(pquerna): this isn't an ideal error message, this handles
+						// things like [,,,] as an array value.
+						return fs.WrapErr(fmt.Errorf("wanted value token, but got token: %v", tok))
+					}
+					continue
+				} else {
+					wantVal = true
+				}
+
+				/* handler: tmpJPlddt type=float64 kind=float64 quoted=false*/
+
+				{
+					if tok != fflib.FFTok_double && tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+						return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for float64", tok))
+					}
+				}
+
+				{
+
+					if tok == fflib.FFTok_null {
+
+					} else {
+
+						tval, err := fflib.ParseFloat(fs.Output.Bytes(), 64)
+
+						if err != nil {
+							return fs.WrapErr(err)
+						}
+
+						tmpJPlddt = float64(tval)
+
+					}
+				}
+
+				j.Plddt = append(j.Plddt, tmpJPlddt)
+
+				wantVal = false
+			}
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_PlddtStart:
+
+	/* handler: j.PlddtStart type=int32 kind=int32 quoted=false*/
+
+	{
+		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
+			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for int32", tok))
+		}
+	}
+
+	{
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			tval, err := fflib.ParseInt(fs.Output.Bytes(), 10, 32)
+
+			if err != nil {
+				return fs.WrapErr(err)
+			}
+
+			j.PlddtStart = int32(tval)
 
 		}
 	}

@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 	"sync/atomic"
@@ -44,11 +45,17 @@ func (p *pdb) update() {
 		log.Printf("PDB: [TEST MODE] Processing up to %d entries", testLimit)
 	}
 
-	// Phase 1: Parse entries.idx for core metadata and store attributes
-	processedIDs := p.parseEntriesIdx(testLimit, idLogFile)
+	// Phase 1: Parse entries.idx for core metadata and store attributes.
+	// Chain inventory comes from SIFTS first because entries.idx has no chain
+	// information (this is what left chain_count at 0 on every entry).
+	siftsPath := config.Dataconf[p.source]["siftsPath"]
+	chainMap := map[string][]string{}
+	if siftsPath != "" {
+		chainMap = p.parseSiftsChains(siftsPath)
+	}
+	processedIDs := p.parseEntriesIdx(testLimit, idLogFile, chainMap)
 
 	// Phase 2: Parse SIFTS files for cross-references (only for entries we processed)
-	siftsPath := config.Dataconf[p.source]["siftsPath"]
 	if siftsPath != "" {
 		p.parseSiftsUniprot(siftsPath, processedIDs)
 		p.parseSiftsTaxonomy(siftsPath, processedIDs)
@@ -58,6 +65,8 @@ func (p *pdb) update() {
 		p.parseSiftsInterpro(siftsPath, processedIDs)
 		p.parseSiftsPubmed(siftsPath, processedIDs)
 		p.parseSiftsCath(siftsPath, processedIDs)
+		p.parseSiftsScop(siftsPath, processedIDs)
+		p.parseSiftsEnsembl(siftsPath, processedIDs)
 	}
 
 	log.Printf("PDB: Processing complete (%.2fs)", time.Since(startTime).Seconds())
@@ -67,7 +76,7 @@ func (p *pdb) update() {
 }
 
 // parseEntriesIdx parses the main PDB entries.idx file
-func (p *pdb) parseEntriesIdx(testLimit int, idLogFile *os.File) map[string]bool {
+func (p *pdb) parseEntriesIdx(testLimit int, idLogFile *os.File, chainMap map[string][]string) map[string]bool {
 	filePath := config.Dataconf[p.source]["path"]
 	log.Printf("PDB: Downloading entries.idx from %s", filePath)
 
@@ -155,6 +164,7 @@ func (p *pdb) parseEntriesIdx(testLimit int, idLogFile *os.File) map[string]bool
 		}
 
 		// Build attribute
+		chains := chainMap[pdbID]
 		attr := &pbuf.PdbAttr{
 			Method:         method,
 			Resolution:     resolution,
@@ -164,6 +174,8 @@ func (p *pdb) parseEntriesIdx(testLimit int, idLogFile *os.File) map[string]bool
 			SourceOrganism: sourceOrganism,
 			MoleculeType:   moleculeType,
 			Authors:        authors,
+			Chains:         strings.Join(chains, ","),
+			ChainCount:     int32(len(chains)),
 		}
 
 		// Marshal and store attributes
@@ -736,4 +748,193 @@ func pdbStringToInt(s string, defaultVal int32) int32 {
 		return defaultVal
 	}
 	return int32(val)
+}
+
+// parseSiftsChains builds a PDB -> polymer chain inventory from SIFTS. entries.idx
+// carries no chain information, so this is the only source for chains/chain_count.
+// Both the UniProt and taxonomy mappings are unioned so structures without a
+// UniProt mapping still get their chains counted.
+func (p *pdb) parseSiftsChains(basePath string) map[string][]string {
+	sets := make(map[string]map[string]bool)
+
+	for _, file := range []string{"pdb_chain_uniprot.csv.gz", "pdb_chain_taxonomy.csv.gz"} {
+		url := basePath + file
+		log.Printf("PDB: Downloading chain inventory from %s", url)
+
+		br, closer, err := p.downloadGzippedCSV(url)
+		if err != nil {
+			log.Printf("PDB: Warning - could not download chain inventory %s: %v", file, err)
+			continue
+		}
+
+		if err := scanChainInventory(br, sets); err != nil {
+			log.Printf("PDB: Warning - error reading chain inventory %s: %v", file, err)
+		}
+		closer.Close()
+	}
+
+	out := make(map[string][]string, len(sets))
+	for pdbID, set := range sets {
+		list := make([]string, 0, len(set))
+		for chain := range set {
+			list = append(list, chain)
+		}
+		sort.Strings(list)
+		out[pdbID] = list
+	}
+	log.Printf("PDB: Chain inventory built for %d entries", len(out))
+	return out
+}
+
+// scanChainInventory reads a SIFTS chain CSV (PDB,CHAIN,...) into sets.
+func scanChainInventory(r io.Reader, sets map[string]map[string]bool) error {
+	scanner := bufio.NewScanner(r)
+	const maxCapacity = 1024 * 1024
+	scanner.Buffer(make([]byte, maxCapacity), maxCapacity)
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		if line == "" || strings.HasPrefix(line, "#") || strings.HasPrefix(line, "PDB,") {
+			continue
+		}
+		fields := strings.Split(line, ",")
+		if len(fields) < 2 {
+			continue
+		}
+		pdbID := strings.ToUpper(strings.TrimSpace(fields[0]))
+		chain := strings.TrimSpace(fields[1])
+		if pdbID == "" || chain == "" {
+			continue
+		}
+		if sets[pdbID] == nil {
+			sets[pdbID] = make(map[string]bool)
+		}
+		sets[pdbID][chain] = true
+	}
+	return scanner.Err()
+}
+
+// parseSiftsScop parses pdb_chain_scop_uniprot.csv.gz for SCOP domain mappings.
+// Columns: PDB,CHAIN,SP_PRIMARY,SUNID,SCOP_ID
+func (p *pdb) parseSiftsScop(basePath string, processedIDs map[string]bool) {
+	url := basePath + "pdb_chain_scop_uniprot.csv.gz"
+	log.Printf("PDB: Downloading SCOP mappings from %s", url)
+
+	br, closer, err := p.downloadGzippedCSV(url)
+	if err != nil {
+		log.Printf("PDB: Warning - could not download SCOP mappings: %v", err)
+		return
+	}
+	defer closer.Close()
+
+	sourceID := config.Dataconf[p.source]["id"]
+	var count int
+	seenPairs := make(map[string]bool)
+
+	err = scanScopMappings(br, func(pdbID, scopID string) {
+		if len(processedIDs) > 0 && !processedIDs[pdbID] {
+			return
+		}
+		pairKey := pdbID + ":" + scopID
+		if seenPairs[pairKey] {
+			return
+		}
+		seenPairs[pairKey] = true
+		p.d.addXref(pdbID, sourceID, scopID, "scop", false)
+		count++
+	})
+	if err != nil {
+		log.Printf("PDB: Warning - error reading SCOP mappings: %v", err)
+	}
+
+	log.Printf("PDB: Added %d SCOP cross-references", count)
+}
+
+// scanScopMappings reads pdb_chain_scop_uniprot.csv.gz rows
+// (PDB,CHAIN,SP_PRIMARY,SUNID,SCOP_ID) and emits the SCOP domain id.
+func scanScopMappings(r io.Reader, emit func(pdbID, scopID string)) error {
+	scanner := bufio.NewScanner(r)
+	const maxCapacity = 1024 * 1024
+	scanner.Buffer(make([]byte, maxCapacity), maxCapacity)
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		if line == "" || strings.HasPrefix(line, "#") || strings.HasPrefix(line, "PDB,") {
+			continue
+		}
+		fields := strings.Split(line, ",")
+		if len(fields) < 5 {
+			continue
+		}
+		pdbID := strings.ToUpper(strings.TrimSpace(fields[0]))
+		scopID := strings.TrimSpace(fields[4])
+		if pdbID == "" || scopID == "" {
+			continue
+		}
+		emit(pdbID, scopID)
+	}
+	return scanner.Err()
+}
+
+// parseSiftsEnsembl parses pdb_chain_ensembl.csv.gz for Ensembl gene mappings.
+// Columns: PDB,CHAIN,SP_PRIMARY,GENE_ID,TRANSCRIPT_ID,TRANSLATION_ID,EXON_ID
+func (p *pdb) parseSiftsEnsembl(basePath string, processedIDs map[string]bool) {
+	url := basePath + "pdb_chain_ensembl.csv.gz"
+	log.Printf("PDB: Downloading Ensembl mappings from %s", url)
+
+	br, closer, err := p.downloadGzippedCSV(url)
+	if err != nil {
+		log.Printf("PDB: Warning - could not download Ensembl mappings: %v", err)
+		return
+	}
+	defer closer.Close()
+
+	sourceID := config.Dataconf[p.source]["id"]
+	var count int
+	seenPairs := make(map[string]bool)
+
+	err = scanEnsemblMappings(br, func(pdbID, ensemblID string) {
+		if len(processedIDs) > 0 && !processedIDs[pdbID] {
+			return
+		}
+		pairKey := pdbID + ":" + ensemblID
+		if seenPairs[pairKey] {
+			return
+		}
+		seenPairs[pairKey] = true
+		p.d.addXref(pdbID, sourceID, ensemblID, "ensembl", false)
+		count++
+	})
+	if err != nil {
+		log.Printf("PDB: Warning - error reading Ensembl mappings: %v", err)
+	}
+
+	log.Printf("PDB: Added %d Ensembl cross-references", count)
+}
+
+// scanEnsemblMappings reads pdb_chain_ensembl.csv.gz rows
+// (PDB,CHAIN,SP_PRIMARY,GENE_ID,TRANSCRIPT_ID,TRANSLATION_ID,EXON_ID)
+// and emits the Ensembl gene id.
+func scanEnsemblMappings(r io.Reader, emit func(pdbID, ensemblID string)) error {
+	scanner := bufio.NewScanner(r)
+	const maxCapacity = 1024 * 1024
+	scanner.Buffer(make([]byte, maxCapacity), maxCapacity)
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		if line == "" || strings.HasPrefix(line, "#") || strings.HasPrefix(line, "PDB,") {
+			continue
+		}
+		fields := strings.Split(line, ",")
+		if len(fields) < 4 {
+			continue
+		}
+		pdbID := strings.ToUpper(strings.TrimSpace(fields[0]))
+		ensemblID := strings.TrimSpace(fields[3])
+		if pdbID == "" || ensemblID == "" {
+			continue
+		}
+		emit(pdbID, ensemblID)
+	}
+	return scanner.Err()
 }

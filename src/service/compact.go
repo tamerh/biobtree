@@ -1696,6 +1696,8 @@ func extractAlphafoldField(a *pbuf.AlphaFoldAttr, field string) string {
 		return fmt.Sprintf("%d", a.FragmentNumber)
 	case "sequence_length":
 		return fmt.Sprintf("%d", a.SequenceLength)
+	case "plddt_start":
+		return fmt.Sprintf("%d", a.PlddtStart)
 	default:
 		return ""
 	}

@@ -557,6 +557,8 @@ func (a *alphafoldProcessor) aggregateModels(acc string, models []afPrediction) 
 	var canonicalScores []float64
 	var canonicalStart int32
 	canonicalCount := 0
+	canonicalResidues := 0
+	maxModelResidues := 0
 	gene := ""
 
 	for _, m := range models {
@@ -581,9 +583,13 @@ func (a *alphafoldProcessor) aggregateModels(acc string, models []afPrediction) 
 		}
 		totalResidues += len(plddt)
 		modelCount++
+		if len(plddt) > maxModelResidues {
+			maxModelResidues = len(plddt)
+		}
 
 		if isCanonicalAlphaFoldModel(acc, m.EntryId) {
 			canonicalCount++
+			canonicalResidues += len(plddt)
 			canonicalScores = plddt
 			canonicalStart = start
 		}
@@ -595,6 +601,13 @@ func (a *alphafoldProcessor) aggregateModels(acc string, models []afPrediction) 
 	if totalResidues == 0 {
 		return nil
 	}
+	// SequenceLength describes the protein, not the sum of every isoform model.
+	// Canonical fragments (AF-xxx-F1, AF-xxx-F2, ...) add up to the full sequence;
+	// if only isoforms exist, use the longest model as the best estimate.
+	sequenceLength := canonicalResidues
+	if sequenceLength == 0 {
+		sequenceLength = maxModelResidues
+	}
 	total := float64(totalResidues)
 	attr := &pbuf.AlphaFoldAttr{
 		GlobalMetric:           sum / total,
@@ -604,7 +617,7 @@ func (a *alphafoldProcessor) aggregateModels(acc string, models []afPrediction) 
 		FractionPlddtVeryLow:   float64(veryLow) / total,
 		ModelEntityId:          "AF-" + acc + "-F1",
 		FragmentNumber:         int32(modelCount),
-		SequenceLength:         int32(totalResidues),
+		SequenceLength:         int32(sequenceLength),
 		Version:                6,
 		Gene:                   gene,
 	}

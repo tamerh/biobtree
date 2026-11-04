@@ -135,6 +135,16 @@ func httpGetWithRetry(url string, maxRetries int) (*http.Response, error) {
 	return nil, fmt.Errorf("failed after %d retries: %v", maxRetries, lastErr)
 }
 
+// ebiHTTPFallback rewrites an EBI HTTPS URL to its HTTP equivalent. EBI's
+// HTTPS endpoint intermittently refuses connections from this host while the
+// HTTP endpoint stays available; the data is public and identical.
+func ebiHTTPFallback(rawURL string) (string, bool) {
+	if strings.HasPrefix(rawURL, "https://ftp.ebi.ac.uk/") {
+		return "http://" + strings.TrimPrefix(rawURL, "https://"), true
+	}
+	return "", false
+}
+
 // isTransientError checks if an error is transient and worth retrying
 // Conservative list - only clear network transient failures
 func isTransientError(err error) bool {
@@ -244,6 +254,12 @@ func getDataReaderNew(datatype string, ftpAddr string, ftpPath string, filePath 
 	// Handle direct HTTPS URLs (e.g., STRING, HGNC, etc.)
 	if strings.HasPrefix(filePath, "https://") || strings.HasPrefix(filePath, "http://") {
 		resp, err := httpGetWithRetry(filePath, 3)
+		if err != nil {
+			if httpURL, ok := ebiHTTPFallback(filePath); ok {
+				log.Printf("HTTPS failed for %s; retrying over HTTP", filePath)
+				resp, err = httpGetWithRetry(httpURL, 3)
+			}
+		}
 		if err != nil {
 			return nil, nil, nil, nil, nil, 0, fmt.Errorf("HTTP GET failed for %s: %v", filePath, err)
 		}

@@ -4,6 +4,7 @@ import (
 	"biobtree/pbuf"
 	"bufio"
 	"compress/gzip"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -236,26 +237,44 @@ func (p *pdb) parseEntriesIdx(testLimit int, idLogFile *os.File, chainData *pdbC
 	return processedIDs
 }
 
-// downloadGzippedCSV downloads a gzipped CSV file and returns a reader
+// downloadGzippedCSV opens a gzipped CSV file and returns a reader. It accepts
+// http(s) URLs, a local path, or a file:// URL (useful for offline builds).
 func (p *pdb) downloadGzippedCSV(url string) (*bufio.Reader, io.Closer, error) {
-	resp, err := http.Get(url)
+	var body io.ReadCloser
+
+	if strings.HasPrefix(url, "http://") || strings.HasPrefix(url, "https://") {
+		resp, err := httpGetWithRetry(url, 3)
+		if err != nil {
+			if httpURL, ok := ebiHTTPFallback(url); ok {
+				log.Printf("PDB: HTTPS failed for %s; retrying over HTTP", url)
+				resp, err = httpGetWithRetry(httpURL, 3)
+			}
+		}
+		if err != nil {
+			return nil, nil, err
+		}
+		if resp.StatusCode != http.StatusOK {
+			resp.Body.Close()
+			return nil, nil, fmt.Errorf("HTTP status %d for %s", resp.StatusCode, url)
+		}
+		body = resp.Body
+	} else {
+		path := strings.TrimPrefix(url, "file://")
+		f, err := os.Open(path)
+		if err != nil {
+			return nil, nil, err
+		}
+		body = f
+	}
+
+	gz, err := gzip.NewReader(body)
 	if err != nil {
+		body.Close()
 		return nil, nil, err
 	}
 
-	if resp.StatusCode != http.StatusOK {
-		resp.Body.Close()
-		return nil, nil, err
-	}
-
-	gz, err := gzip.NewReader(resp.Body)
-	if err != nil {
-		resp.Body.Close()
-		return nil, nil, err
-	}
-
-	// Return a combined closer that closes both gz and resp.Body
-	closer := &multiCloser{closers: []io.Closer{gz, resp.Body}}
+	// Return a combined closer that closes both gz and the underlying reader
+	closer := &multiCloser{closers: []io.Closer{gz, body}}
 	return bufio.NewReader(gz), closer, nil
 }
 

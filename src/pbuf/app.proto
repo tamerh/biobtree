@@ -226,6 +226,7 @@ message Xref {
     GtexEgeneAttr gtex_egene=823;
     GpnStarAttr gpn_star=824;
     VegaAttr vega=825;
+    ChipAtlasTfbsAttr chip_atlas_tfbs=826;
     SaprotAttr saprot=815;
 
   }

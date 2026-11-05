@@ -161,6 +161,7 @@ DATASETS=(
     collectri
     jaspar
     jaspar_tfbs
+    chip_atlas_tfbs
     encode_ccre
     gnomad_rmc
     gnomad_gnocchi

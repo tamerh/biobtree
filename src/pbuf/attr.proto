@@ -3647,3 +3647,26 @@ message MavedbAttr {
   string license = 10;      // per-score-set data license shortName (e.g. "CC0", "CC BY-NC-SA 4.0")
   string id = 100; // transient - populated at runtime from Xref.Identifier
 }
+
+// ============================================================================
+// ChIP-Atlas TF binding sites (Dataset ID: 824)
+// Source: https://chip-atlas.org (CC BY 4.0)
+//
+// One entry per (genome, TF, TSS-window). Targets are genes whose TSS falls
+// within +/- distance_kb of a ChIP-seq peak for the TF. The target table is
+// aggregated across all experiments for that antigen; the per-experiment
+// columns are summarised into experiment_count / cell_type_count.
+// ============================================================================
+message ChipAtlasTfbsAttr {
+  string tf = 1;                  // antigen / TF symbol (e.g. "TP53")
+  string genome = 2;              // assembly (hg38, mm10, ...)
+  string tax_id = 3;              // NCBI taxonomy id for the species
+  int32 distance_kb = 4;          // TSS window: 1, 5, or 10 kb
+  int32 target_count = 5;         // number of target genes in this window
+  int32 experiment_count = 6;     // ChIP-seq experiments aggregated
+  int32 cell_type_count = 7;      // distinct cell types among those experiments
+  repeated string cell_types = 8; // distinct cell types (capped)
+  string top_targets_schema = 9;  // "target|avg_score"
+  repeated string top_targets = 10; // top targets by average MACS2 score
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}

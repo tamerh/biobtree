@@ -296,6 +296,9 @@ func extractField(xref *pbuf.Xref, field string) string {
 	if a := xref.GetVega(); a != nil {
 		return extractVegaField(a, field)
 	}
+	if a := xref.GetChipAtlasTfbs(); a != nil {
+		return extractChipAtlasTfbsField(a, field)
+	}
 	if a := xref.GetClingenGeneValidity(); a != nil {
 		return extractClingenGeneValidityField(a, field)
 	}
@@ -1283,6 +1286,9 @@ func ExtractSourceName(xref *pbuf.Xref) string {
 	if a := xref.GetVega(); a != nil {
 		return a.Name
 	}
+	if a := xref.GetChipAtlasTfbs(); a != nil {
+		return a.Tf
+	}
 	if a := xref.GetUniprot(); a != nil {
 		if len(a.Names) > 0 {
 			return a.Names[0]
@@ -2187,6 +2193,34 @@ func extractVegaField(a *pbuf.VegaAttr, field string) string {
 		return a.EnsemblId
 	case "gene_id":
 		return a.GeneId
+	default:
+		return ""
+	}
+}
+
+// extractChipAtlasTfbsField extracts a field from ChipAtlasTfbsAttr
+func extractChipAtlasTfbsField(a *pbuf.ChipAtlasTfbsAttr, field string) string {
+	switch field {
+	case "tf":
+		return a.Tf
+	case "genome":
+		return a.Genome
+	case "tax_id":
+		return a.TaxId
+	case "distance_kb":
+		return fmt.Sprintf("%d", a.DistanceKb)
+	case "target_count":
+		return fmt.Sprintf("%d", a.TargetCount)
+	case "experiment_count":
+		return fmt.Sprintf("%d", a.ExperimentCount)
+	case "cell_type_count":
+		return fmt.Sprintf("%d", a.CellTypeCount)
+	case "cell_types":
+		return strings.Join(a.CellTypes, ",")
+	case "top_targets_schema":
+		return a.TopTargetsSchema
+	case "top_targets":
+		return strings.Join(a.TopTargets, ",")
 	default:
 		return ""
 	}

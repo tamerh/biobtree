@@ -217,6 +217,7 @@ func (s *Service) initWithDbDir(dbDir string) error {
 		cel.Types(&pbuf.RefSeqAttr{}),
 		cel.Types(&pbuf.GenccAttr{}),
 		cel.Types(&pbuf.VegaAttr{}),
+		cel.Types(&pbuf.ChipAtlasTfbsAttr{}),
 		cel.Types(&pbuf.ClingenGeneValidityAttr{}),
 		cel.Types(&pbuf.ClingenDosageAttr{}),
 		cel.Types(&pbuf.ClingenVariantAttr{}),
@@ -408,6 +409,8 @@ func (s *Service) initWithDbDir(dbDir string) error {
 			decls.NewIdent("gencc", decls.NewObjectType("pbuf.GenccAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("vega", decls.NewObjectType("pbuf.VegaAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("chip_atlas_tfbs", decls.NewObjectType("pbuf.ChipAtlasTfbsAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("clingen_gene_validity", decls.NewObjectType("pbuf.ClingenGeneValidityAttr"), nil)),
 		cel.Declarations(

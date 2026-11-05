@@ -209,7 +209,7 @@ Examples:
   %(prog)s hmdb,go,taxonomy   # Run multiple specific tests
 
 Available datasets:
-  uniprot, go, taxonomy, eco, efo, chebi, interpro, hmdb, lipidmaps, swisslipids, chembl, ensembl, mondo, hpo, mesh, uberon, cl, oba, pato, obi, xco, bgee, patent, clinical_trials, clinvar, string, reactome, rhea, alphafold, alphamissense, alphamissense_transcript, rnacentral, uniparc, uniref50, uniref90, uniref100, gwas_study, gwas, dbsnp, intact, diamond_similarity, antibody, pubchem, entrez, refseq, gencc, clingen_gene_validity, clingen_dosage, clingen_variant, generif, depmap, depmap_dependency, bindingdb, ctd, msigdb, collectri, signor
+  uniprot, go, taxonomy, eco, efo, chebi, interpro, hmdb, lipidmaps, swisslipids, chembl, ensembl, mondo, hpo, mesh, uberon, cl, oba, pato, obi, xco, bgee, patent, clinical_trials, clinvar, string, reactome, rhea, alphafold, alphamissense, alphamissense_transcript, rnacentral, uniparc, uniref50, uniref90, uniref100, gwas_study, gwas, dbsnp, intact, diamond_similarity, antibody, pubchem, entrez, refseq, gencc, clingen_gene_validity, clingen_dosage, clingen_variant, generif, depmap, depmap_dependency, bindingdb, ctd, msigdb, collectri, signor, chip_atlas_tfbs
 
   Temporarily disabled (Ensembl Genomes API SSL issues):
   ensembl_bacteria, ensembl_fungi, ensembl_metazoa, ensembl_plants, ensembl_protists
@@ -339,6 +339,7 @@ Available datasets:
         'wikidata_symptom': datasets_dir / "wikidata_symptom" / "test_wikidata_symptom.py",
         'wikidata': datasets_dir / "wikidata" / "test_wikidata.py",
         'drugcentral': datasets_dir / "drugcentral" / "test_drugcentral.py",
+        'chip_atlas_tfbs': datasets_dir / "chip_atlas_tfbs" / "test_chip_atlas_tfbs.py",
     }
 
     # Parse dataset selection
@@ -413,6 +414,12 @@ Available datasets:
         # STRING requires UniProt for mapping
         if 'uniprot' not in build_datasets:
             build_datasets.append('uniprot')
+
+    # ChIP-Atlas: build hgnc + entrez so the TF/target chains can be tested
+    if 'chip_atlas_tfbs' in selected_datasets:
+        for ds in ('hgnc', 'entrez'):
+            if ds not in build_datasets:
+                build_datasets.append(ds)
 
     # Handle RefSeq dataset: requires taxonomy ID for genome-based data
     if 'refseq' in selected_datasets:

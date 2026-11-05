@@ -1,6 +1,6 @@
 # Dataset Reference
 
-Biobtree integrates **78 datasets** across major biological domains. Each dataset has detailed documentation including storage model, use cases, and query examples.
+Biobtree integrates **79 datasets** across major biological domains. Each dataset has detailed documentation including storage model, use cases, and query examples.
 
 ---
 
@@ -37,6 +37,7 @@ Protein sequences, structures, domains, and features.
 | revel | REVEL ensemble missense pathogenicity (0–1), keyed chr:pos:ref:alt; ClinGen PP3/BP4 calibrated | [README](revel.md) |
 | cadd | CADD genome-wide deleteriousness (PHRED C-score), keyed chr:pos:ref:alt; own ~350G federation, direct-lookup | [README](cadd.md) |
 | jaspar_tfbs | JASPAR TF binding-site motif features (Ensembl Regulatory Build), interval-queryable by variant position; TF→hgnc | [README](jaspar_tfbs.md) |
+| chip_atlas_tfbs | ChIP-Atlas experimentally called TF target genes (TSS ±1 kb, all genomes); TF→hgnc/entrez | [README](chip_atlas_tfbs.md) |
 | gtex | GTEx v10 cis-QTL (eQTL + sQTL) per-variant tissue associations, keyed chr:pos:ref:alt; variant→ensembl gene | [README](gtex.md) |
 | saprot | SaProt structure-aware protein-LM variant effect (LLR), keyed uniprot:protein_variant; unsupervised, in-house/export-clean | [README](saprot.md) |
 | esm1b | ESM1b protein-LM variant effect (LLR), keyed uniprot:protein_variant — DEACTIVATED (superseded by SaProt) | [README](esm1b.md) |

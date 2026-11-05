@@ -243,10 +243,11 @@ async def execute_tool(
             )
             return _truncate_result(res, max_result_length)
         elif tool_name == "biobtree_enrich":
-            from .enrich import enrich_genes
-            res = await enrich_genes(
-                client,
-                arguments["genes"],
+            genes = arguments["genes"]
+            if isinstance(genes, str):
+                genes = [g.strip() for g in genes.split(",") if g.strip()]
+            res = await client.enrich(
+                genes,
                 arguments.get("collection", "C5:GO"),
                 int(arguments.get("limit", 20)),
             )

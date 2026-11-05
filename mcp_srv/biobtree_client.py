@@ -344,6 +344,29 @@ class BiobtreeClient:
             result.pop("not_found", None)
         return result
 
+    async def enrich(
+        self,
+        genes: list,
+        collection: str = "C5:GO",
+        limit: int = 20,
+    ) -> dict:
+        """Gene-set over-representation over MSigDB.
+
+        Args:
+            genes: HGNC symbols or IDs
+            collection: MSigDB collection (default C5:GO)
+            limit: maximum enriched terms to return
+
+        Returns:
+            Ranked enrichment result from /ws/enrich/
+        """
+        params = {
+            "i": ",".join(str(g) for g in genes),
+            "collection": collection,
+            "limit": limit,
+        }
+        return await self._request("/ws/enrich/", params)
+
     async def entry(
         self,
         identifier: str,

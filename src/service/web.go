@@ -3,12 +3,14 @@ package service
 import (
 	"biobtree/configs"
 	"biobtree/query"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 	_ "net/http/pprof" // Register pprof handlers
 	"os/exec"
 	"runtime"
+	"strconv"
 	"strings"
 	"sync/atomic"
 	"time"
@@ -59,12 +61,15 @@ func (web *Web) Start(c *configs.Conf, nowebpopup bool, prodMode bool) {
 	metaGz := gziphandler.GzipHandler(http.HandlerFunc(web.meta))
 	searchEntryGz := gziphandler.GzipHandler(http.HandlerFunc(web.entry))
 	mapFilterGz := gziphandler.GzipHandler(http.HandlerFunc(web.mapFilter))
+	enrichGz := gziphandler.GzipHandler(http.HandlerFunc(web.enrich))
 
 	http.Handle("/ws/", searchGz)
 	http.Handle("/ws/meta", metaGz)
 	http.Handle("/ws/meta/", metaGz)
 	http.Handle("/ws/entry/", searchEntryGz)
 	http.Handle("/ws/map/", mapFilterGz)
+	http.Handle("/ws/enrich/", enrichGz)
+	http.Handle("/ws/enrich", enrichGz)
 
 	//web ui
 	fs := http.FileServer(http.Dir("website"))
@@ -504,6 +509,57 @@ func (web *Web) mapFilter(w http.ResponseWriter, r *http.Request) {
 
 	w.Write([]byte(buf.String()))
 
+}
+
+// enrich handles /ws/enrich/: gene-set over-representation over MSigDB.
+// Params: i (comma-separated genes, required), collection (default C5:GO),
+// limit (default 20).
+func (web *Web) enrich(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add("content-type", "application/json")
+	w.Header().Add("Access-Control-Allow-Origin", "*")
+
+	if err := web.checkRequest(r); err != nil {
+		writeEnrichError(w, err, http.StatusBadRequest)
+		return
+	}
+
+	qids, ok := r.URL.Query()["i"]
+	if !ok || len(qids[0]) < 1 {
+		writeEnrichError(w, fmt.Errorf("i param is missing"), http.StatusBadRequest)
+		return
+	}
+
+	ids := strings.Split(qids[0], ",")
+	for i := range ids {
+		ids[i] = strings.TrimSpace(ids[i])
+	}
+
+	collection := r.URL.Query().Get("collection")
+	limit := 20
+	if v := r.URL.Query().Get("limit"); v != "" {
+		if n, err := strconv.Atoi(v); err == nil {
+			limit = n
+		}
+	}
+
+	res, err := web.service.Enrich(ids, collection, limit)
+	if err != nil {
+		writeEnrichError(w, err, http.StatusBadRequest)
+		return
+	}
+
+	jb, err := json.Marshal(res)
+	if err != nil {
+		writeEnrichError(w, err, http.StatusInternalServerError)
+		return
+	}
+	w.Write(jb)
+}
+
+func writeEnrichError(w http.ResponseWriter, err error, status int) {
+	jb, _ := json.Marshal(errString{Err: err.Error()})
+	w.WriteHeader(status)
+	w.Write(jb)
 }
 
 type errString struct {

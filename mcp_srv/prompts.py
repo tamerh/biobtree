@@ -25,7 +25,7 @@ neighborentrez: entrez  # genomic neighbors (left/right/overlapping); edge carri
 gnomad_constraint: ensembl, entrez, hgnc, transcript  # gene LoF constraint (pLI/LOEUF/oe_lof); reach via >>ensembl>>gnomad_constraint
 drugcentral: chembl_molecule, pubchem, uniprot, ensembl, hgnc, entrez  # approved drugs -> targets/MOA + FDA/EMA/PMDA approval; reach via name/INN/InChIKey or compound (chembl_molecule/pubchem >> drugcentral)
 refseq: ensembl, entrez, taxonomy, ccds, uniprot, mirdb
-mirdb: refseq
+mirdb: refseq, hgnc, entrez  # gene-level: >>hgnc>>mirdb (reliable); >>hgnc>>refseq>>mirdb only sees one RefSeq transcript
 transcript: ensembl, exon, ufeature, alphamissense, civic_variant, gnomad_constraint, mavedb
 uniprot: ensembl, alphafold, interpro, pfam, pdb, ufeature, intact, string, string_interaction, biogrid, biogrid_interaction, chembl_target, go, reactome, rhea, swisslipids, bindingdb, antibody, pubchem_activity, cellphonedb, jaspar, signor, diamond_similarity, esm2_similarity, alphamissense, cellosaurus, hpa, chembl_mechanism, ncrna_interaction, drugcentral, mavedb
 alphafold: uniprot
@@ -237,6 +237,11 @@ response, not the total number of matches.
 TRUNCATION: if truncated is true, data holds `returned` of `total` rows (cut at
 a whole-element boundary). The continuation token is invalidated because it
 refers to the untruncated page; narrow the query instead of paginating.
+
+NOT_FOUND: for identifier-shaped terms (e.g. CTB-180A7.6, RP11-476M19.1) the
+response may carry `not_found` plus a `hint` when no gene/protein/disease/drug
+entry matched. The rows are interaction/annotation records; do not retry the
+same term. If you expected a gene, it may be absent from this database version.
 
 RETURNS: id | dataset | name | xref_count"""
 

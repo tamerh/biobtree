@@ -1897,11 +1897,62 @@ func (s *Service) entryLite(identifier string, datasetID uint32) (*EntryLiteResp
 // searchLite performs search and returns lite format response
 // Returns pipe-delimited data rows: id|dataset|name|xref_count
 func (s *Service) searchLite(ids []string, datasetFilters []uint32, page string, datasetFilter string) (*SearchLiteResponse, error) {
-	// Use the main search function with detail=true to get attributes for name extraction
-	fullResult, err := s.Search(ids, datasetFilters, page, nil, true, false)
-	if err != nil {
-		return nil, err
+	// Collect a bounded number of results so identifier-shaped queries can be
+	// ranked before the caller sees them. Search() paginates in index order;
+	// following a few pages here keeps the ranking honest for the common case
+	// (a handful to a few dozen hits) without materialising huge result sets.
+	const collectCap = 150
+
+	var collected []*pbuf.Xref
+	next := page
+
+	// Identifier-shaped search is where text-search order hurts most: a
+	// common miRNA name can have hundreds of ncrna_interaction rows ahead of
+	// the mirdb entry. When the caller has not filtered datasets, fetch the
+	// primary entity namespaces first so the entity is never buried by the
+	// collection cap. Only on the first page.
+	if page == "" && len(datasetFilters) == 0 {
+		if primaryIDs := searchPrimaryDatasetIDs(); len(primaryIDs) > 0 {
+			if primaryResult, perr := s.Search(ids, primaryIDs, "", nil, true, false); perr == nil {
+				collected = append(collected, primaryResult.Results...)
+			}
+		}
 	}
+
+	for {
+		fullResult, err := s.Search(ids, datasetFilters, next, nil, true, false)
+		if err != nil {
+			return nil, err
+		}
+		collected = append(collected, fullResult.Results...)
+		next = fullResult.Nextpage
+		if next == "" || len(collected) >= collectCap {
+			break
+		}
+	}
+
+	// Preserve the caller's input order, then rank within each input:
+	// exact identifier match, primary entity datasets, then everything else.
+	order := make(map[string]int, len(ids))
+	for i, id := range ids {
+		order[strings.ToUpper(strings.TrimSpace(id))] = i
+	}
+	inputIndex := func(x *pbuf.Xref) int {
+		if i, ok := order[strings.ToUpper(x.Keyword)]; ok {
+			return i
+		}
+		if i, ok := order[strings.ToUpper(x.Identifier)]; ok {
+			return i
+		}
+		return len(ids)
+	}
+	sort.SliceStable(collected, func(i, j int) bool {
+		ki, kj := inputIndex(collected[i]), inputIndex(collected[j])
+		if ki != kj {
+			return ki < kj
+		}
+		return searchResultRank(collected[i], collected[i].Keyword) < searchResultRank(collected[j], collected[j].Keyword)
+	})
 
 	response := &SearchLiteResponse{
 		Context: SearchLiteContext{
@@ -1912,39 +1963,121 @@ func (s *Service) searchLite(ids []string, datasetFilters []uint32, page string,
 			Total: 0,
 		},
 		Pagination: LitePagination{
-			HasNext:   fullResult.Nextpage != "",
-			NextToken: fullResult.Nextpage,
+			HasNext:   next != "",
+			NextToken: next,
 		},
 		Schema: "id|dataset|name|xref_count",
 	}
 
-	// Track seen IDs to avoid duplicates
 	seenIDs := make(map[string]bool)
-
-	for _, xref := range fullResult.Results {
+	hasPrimary := false
+	for _, xref := range collected {
 		datasetName := config.DataconfIDIntToString[xref.Dataset]
-
-		// Note: Dataset filtering is already done in Search() via datasetFilters parameter
-		// No need for additional filtering here
+		if searchDatasetTier(datasetName) == 0 {
+			hasPrimary = true
+		}
 
 		identifier := xref.Identifier
 		if identifier == "" {
 			identifier = xref.Keyword
 		}
-
-		// Create unique key to avoid duplicates
 		uniqueKey := identifier + ":" + datasetName
 		if seenIDs[uniqueKey] {
 			continue
 		}
 		seenIDs[uniqueKey] = true
 
-		row := GetSearchCompactRow(xref, datasetName)
-		response.Data = append(response.Data, row)
+		response.Data = append(response.Data, GetSearchCompactRow(xref, datasetName))
 		response.Stats.Total++
 	}
 
+	// An identifier-shaped term that matched no primary entity is the noisy
+	// failure mode: e.g. CTB-180A7.6 only has ncrna_interaction rows, so a
+	// caller looking for a gene would retry until it runs out of iterations.
+	// Keep the rows but say clearly that no entity matched.
+	if !hasPrimary {
+		for _, id := range ids {
+			if identifierShaped(id) {
+				response.NotFound = append(response.NotFound, strings.TrimSpace(id))
+			}
+		}
+		if len(response.NotFound) > 0 {
+			response.Hint = "No primary gene/protein/disease/drug entry matched. The rows are interaction or annotation records; if you expected a gene, it may be absent from this database version. Do not retry the same term. Use a dataset filter (s=ncrna_interaction) if you really want all interaction rows."
+			// Do not make the caller page through dozens of interaction rows
+			// for a term that is not an entity. A short sample is enough to
+			// show what matched.
+			const sample = 10
+			if len(response.Data) > sample {
+				response.Data = response.Data[:sample]
+				response.Stats.Total = len(response.Data)
+				response.Pagination.HasNext = false
+				response.Pagination.NextToken = ""
+			}
+		}
+	}
+
 	return response, nil
+}
+
+// searchPrimaryDatasetIDs returns the configured IDs of the primary entity
+// namespaces, for the pre-pass in searchLite.
+func searchPrimaryDatasetIDs() []uint32 {
+	ids := make([]uint32, 0, len(searchPrimaryDatasets))
+	for name := range searchPrimaryDatasets {
+		if id, ok := config.DataconfIDStringToInt[name]; ok {
+			ids = append(ids, id)
+		}
+	}
+	sort.Slice(ids, func(i, j int) bool { return ids[i] < ids[j] })
+	return ids
+}
+
+// searchPrimaryDatasets are entity-level namespaces. A hit here is what a
+// caller normally means by "this identifier exists".
+var searchPrimaryDatasets = map[string]bool{
+	"hgnc": true, "ensembl": true, "entrez": true, "refseq": true,
+	"uniprot": true, "vega": true, "mirdb": true,
+	"chembl_molecule": true, "mondo": true, "hpo": true, "go": true,
+	"reactome": true, "chebi": true, "pubchem": true, "orphanet": true,
+	"doid": true, "efo": true, "mesh": true, "taxonomy": true,
+}
+
+// searchInteractionDatasets are relationship/annotation namespaces: useful
+// once the entity is known, but noisy as the first answer to an identifier.
+var searchInteractionDatasets = map[string]bool{
+	"ncrna_interaction": true, "biogrid_interaction": true, "intact": true,
+	"string_interaction": true, "signor": true, "collectri": true,
+	"corum": true, "cellphonedb": true, "ncrna_disease": true,
+	"ncrna_drug": true,
+}
+
+func searchDatasetTier(name string) int {
+	if searchPrimaryDatasets[name] {
+		return 0
+	}
+	if searchInteractionDatasets[name] {
+		return 2
+	}
+	return 1
+}
+
+func searchResultRank(x *pbuf.Xref, query string) int {
+	score := searchDatasetTier(config.DataconfIDIntToString[x.Dataset]) * 10
+	if query != "" && strings.EqualFold(x.Identifier, query) {
+		score -= 5
+	}
+	return score
+}
+
+// identifierShaped recognises hyphen/dot terms such as CTB-180A7.6 or
+// RP11-476M19.1, where exact entity lookup is expected. Natural-language
+// phrases ("breast cancer") are left alone.
+func identifierShaped(term string) bool {
+	term = strings.TrimSpace(term)
+	if len(term) < 4 || strings.ContainsAny(term, " \t") {
+		return false
+	}
+	return strings.ContainsAny(term, "-.")
 }
 
 // =============================================================================

@@ -44,6 +44,12 @@ type SearchLiteResponse struct {
 	Pagination LitePagination    `json:"pagination"`
 	Schema     string            `json:"schema"`
 	Data       []string          `json:"data"`
+	// NotFound is set when an identifier-shaped query has no primary entity
+	// match (gene/protein/disease/drug). Results may still contain
+	// interaction/annotation rows, but the caller should not keep retrying
+	// the same term as if it were a gene.
+	NotFound []string `json:"not_found,omitempty"`
+	Hint     string   `json:"hint,omitempty"`
 }
 
 // SearchLiteContext provides context about the search query

@@ -38,6 +38,11 @@ hsa-miR-21-5p	NM_001234	95.5
 
 ## Cross-References Created
 - **RefSeq**: Each miRNA links to all its predicted target RefSeq transcripts
+- **hgnc / entrez**: Each miRNA also links from the target **gene**, so
+  `hgnc >> mirdb` (and `entrez >> mirdb`) lists the miRNAs predicted to target
+  that gene. This is the reliable gene-level chain; `hgnc >> refseq >> mirdb`
+  only sees the single RefSeq transcript carried by the HGNC→RefSeq edge and
+  can miss targets.
 - **Text search**: miRNA IDs and short names (without species prefix)
 
 ## Example Queries
@@ -52,6 +57,15 @@ curl "http://localhost:9292/ws/?i=hsa-miR-21-5p"
 curl "http://localhost:9292/ws/map/?i=hsa-miR-21-5p&m=>>mirdb>>refseq"
 ```
 
+### Map a gene to its predicted miRNAs
+```
+curl "http://localhost:9292/ws/map/?i=HECTD1&m=>>hgnc>>mirdb"
+```
+
+Use `>>hgnc>>mirdb` rather than `>>hgnc>>refseq>>mirdb`: the HGNC→RefSeq edge
+carries one transcript, while miRDB is keyed at the transcript level and can
+target a different isoform.
+
 ### Filter by target count
 ```
 curl "http://localhost:9292/ws/map/?i=hsa-miR-21-5p&m=>>mirdb[target_count>500]"
@@ -64,7 +78,9 @@ curl "http://localhost:9292/ws/map/?i=hsa-miR-21-5p&m=>>mirdb[max_score>90.0]"
 
 ## Known Limitations
 - Score thresholds: Only predictions with score >= 50 are included in miRDB source data
-- No gene symbol mapping: miRDB uses RefSeq transcript IDs, not gene symbols
+- Source predictions are RefSeq transcript IDs; the gene-level hgnc/entrez
+  edges are resolved from those transcripts, so a gene is present when at
+  least one of its RefSeq targets resolves.
 - No experimental validation flags: All predictions are computational
 
 ## Test Cases

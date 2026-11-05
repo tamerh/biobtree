@@ -167,7 +167,7 @@ Gene expression, tissue specificity, single-cell data.
 | cellxgene | CELLxGENE Census single-cell | [README](cellxgene.md) |
 | scxa | Single Cell Expression Atlas | [README](scxa.md) |
 | fantom5 | FANTOM5 CAGE expression | [README](fantom5.md) |
-| mirdb | miRDB microRNA targets | [README](mirdb.md) |
+| mirdb | miRDB microRNA targets (miRNA→RefSeq; gene→miRNA via hgnc/entrez) | [README](mirdb.md) |
 | rnacentral | RNACentral non-coding RNAs | [README](rnacentral.md) |
 
 ---

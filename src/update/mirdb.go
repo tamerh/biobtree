@@ -28,6 +28,69 @@ type mirdb struct {
 	d      *DataUpdate
 }
 
+// mirdbGeneResolver maps a miRDB target RefSeq transcript to its gene, so the
+// miRNA can be linked from the gene (hgnc/entrez) instead of only from one
+// RefSeq transcript. The hgnc->refseq edge carries a single transcript, which
+// is why hgnc >> refseq >> mirdb misses targets; hgnc >> mirdb is the reliable
+// gene-level chain.
+type mirdbGeneResolver struct {
+	d        *DataUpdate
+	refseqID uint32
+	cache    map[string]mirdbResolvedGene
+}
+
+type mirdbResolvedGene struct {
+	dataset string
+	id      string
+	ok      bool
+}
+
+func newMirdbGeneResolver(d *DataUpdate) *mirdbGeneResolver {
+	r := &mirdbGeneResolver{d: d, cache: make(map[string]mirdbResolvedGene)}
+	if v, ok := config.Dataconf["refseq"]["id"]; ok {
+		fmt.Sscanf(v, "%d", &r.refseqID)
+	}
+	return r
+}
+
+func (r *mirdbGeneResolver) resolve(refseqID string) (string, string, bool) {
+	refseqID = strings.TrimSpace(refseqID)
+	if refseqID == "" {
+		return "", "", false
+	}
+	if v, ok := r.cache[refseqID]; ok {
+		return v.dataset, v.id, v.ok
+	}
+	if r.d.lookupService == nil || r.refseqID == 0 {
+		r.cache[refseqID] = mirdbResolvedGene{}
+		return "", "", false
+	}
+
+	// Human RefSeq entries carry the HGNC id directly.
+	if x, err := r.d.lookupFullEntry(refseqID, r.refseqID); err == nil && x != nil {
+		if a := x.GetRefseq(); a != nil && a.HgncId != "" {
+			r.cache[refseqID] = mirdbResolvedGene{dataset: "hgnc", id: a.HgncId, ok: true}
+			return "hgnc", a.HgncId, true
+		}
+	}
+
+	// Other species: resolve the transcript to its Entrez gene.
+	res, err := r.d.lookupService.MapFilterLite([]string{refseqID}, ">>refseq>>entrez", "")
+	if err == nil && res != nil {
+		for _, m := range res.Mappings {
+			if len(m.Targets) > 0 {
+				id := extractIDFromLiteTarget(m.Targets[0])
+				if id != "" {
+					r.cache[refseqID] = mirdbResolvedGene{dataset: "entrez", id: id, ok: true}
+					return "entrez", id, true
+				}
+			}
+		}
+	}
+	r.cache[refseqID] = mirdbResolvedGene{}
+	return "", "", false
+}
+
 // Species prefix to full name mapping
 var mirdbSpeciesMap = map[string]string{
 	"hsa": "Homo sapiens",
@@ -265,6 +328,10 @@ func (m *mirdb) parseAndSavePredictions(testLimit int, idLogFile *os.File, sourc
 	// Track species distribution
 	speciesCount := make(map[string]int)
 
+	// Resolve target transcripts to genes once; the same RefSeq ids recur
+	// across many miRNAs.
+	geneResolver := newMirdbGeneResolver(m.d)
+
 	for mirnaID, targets := range mirnaTargets {
 		// Progress reporting
 		elapsed := int64(time.Since(m.d.start).Seconds())
@@ -346,6 +413,7 @@ func (m *mirdb) parseAndSavePredictions(testLimit int, idLogFile *os.File, sourc
 			taxID = "0" // Unknown species gets lowest priority
 		}
 
+		seenGenes := make(map[string]bool)
 		for _, t := range targets {
 			// Scale score from 0-100 to 0-1000 for interactionScore
 			// Use math.Round to avoid float32 precision truncation (98.6 → 985.999 → 985)
@@ -359,6 +427,21 @@ func (m *mirdb) parseAndSavePredictions(testLimit int, idLogFile *os.File, sourc
 				ComputeSortLevelValue(SortLevelInteractionScore, map[string]interface{}{"score": scoreInt}),
 			}
 			m.d.addXrefWithSortLevels(mirnaID, sourceID, t.RefSeqID, "refseq", sortLevels)
+
+			// Gene-level edge: hgnc/entrez -> mirdb. This is the reliable
+			// chain for a gene (hgnc >> refseq >> mirdb only sees the single
+			// transcript carried by the HGNC->RefSeq edge).
+			if ds, id, ok := geneResolver.resolve(t.RefSeqID); ok {
+				key := ds + ":" + id
+				if !seenGenes[key] {
+					seenGenes[key] = true
+					// 'from' is the owning dataset ID (hgnc/entrez), not its name.
+					fromID := config.Dataconf[ds]["id"]
+					if fromID != "" {
+						m.d.addXref(id, fromID, mirnaID, m.source, false)
+					}
+				}
+			}
 		}
 
 		// Link the mature miRNA to its MIR gene (Atlas #4): hsa-miR-21-5p -> MIR21.

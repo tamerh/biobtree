@@ -407,7 +407,7 @@ func (s *Service) initWithDbDir(dbDir string) error {
 		cel.Declarations(
 			decls.NewIdent("gencc", decls.NewObjectType("pbuf.GenccAttr"), nil)),
 		cel.Declarations(
-			decls.NewIdent("vega_gene", decls.NewObjectType("pbuf.VegaAttr"), nil)),
+			decls.NewIdent("vega", decls.NewObjectType("pbuf.VegaAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("clingen_gene_validity", decls.NewObjectType("pbuf.ClingenGeneValidityAttr"), nil)),
 		cel.Declarations(

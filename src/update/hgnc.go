@@ -131,7 +131,7 @@ func (e *hgnc) update() {
 			a("ena", "EMBL", j, entryid)
 			a("ccds_id", "CCDS", j, entryid)
 			a("enzyme_id", "Intenz", j, entryid)
-			a("vega_id", "VEGA", j, entryid)
+			a("vega_id", "vega", j, entryid)
 			a("ensembl_gene_id", "Ensembl", j, entryid)
 			a("pubmed_id", "PubMed", j, entryid)
 			a("refseq_accession", "RefSeq", j, entryid)

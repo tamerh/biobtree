@@ -985,7 +985,7 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			d.datasets2 = append(d.datasets2, data)
 			go gc.update()
 			break
-		case "vega_gene":
+		case "vega":
 			d.wg.Add(1)
 			vg := vega{source: data, d: d}
 			d.datasets2 = append(d.datasets2, data)

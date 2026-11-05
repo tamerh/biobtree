@@ -2144,7 +2144,7 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)
 				xref.Attributes = &pbuf.Xref_Gencc{attr}
-			case "vega_gene":
+			case "vega":
 				attr := &pbuf.VegaAttr{}
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)
@@ -2885,7 +2885,7 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)
 				xref.Attributes = &pbuf.Xref_Gencc{attr}
-			case "vega_gene":
+			case "vega":
 				attr := &pbuf.VegaAttr{}
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)

@@ -324,7 +324,7 @@ func getPrimarySourceFileDefault(datasetName string) string {
 		// EBI datasets
 		"chebi":      "https://ftp.ebi.ac.uk/pub/databases/chebi/Flat_file_tab_delimited/compounds.tsv.gz",
 		"rnacentral": "https://ftp.ebi.ac.uk/pub/databases/RNAcentral/current_release/sequences/rnacentral_active.fasta.gz",
-		"vega_gene":  "https://ftp.ensembl.org/pub/vega/human/Homo_sapiens.VEGA68.68.gtf.gz",
+		"vega":       "https://ftp.ensembl.org/pub/vega/human/Homo_sapiens.VEGA68.68.gtf.gz",
 
 		// Ontologies with multiple files
 		"hpo": "https://github.com/obophenotype/human-phenotype-ontology/releases/download/v2025-11-24/hp-base.obo",

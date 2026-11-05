@@ -983,13 +983,13 @@
     "test_entries_count": "100",
     "bucketMethod": "alphabetic"
   },
-  "vega_gene": {
+  "vega": {
     "id": "823",
-    "name": "VEGA Gene",
+    "name": "VEGA",
     "textPriority": "80",
     "path": "https://ftp.ensembl.org/pub/vega/human/Homo_sapiens.VEGA68.68.gtf.gz",
     "ensemblMapPath": "https://ftp.ensembl.org/pub/vega/human/vega68_ens87_IDs.txt.gz",
-    "aliases": "VEGA Gene,VEGA68,Vertebrate Genome Annotation,clone-based gene",
+    "aliases": "VEGA,VEGA Gene,VEGA68,Vertebrate Genome Annotation,clone-based gene",
     "url": "",
     "useLocalFile": "no",
     "hasFilter": "yes",

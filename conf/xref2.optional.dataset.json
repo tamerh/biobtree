@@ -791,12 +791,6 @@
     "id": "739",
     "url": "https://www.vectorbase.org/id/£{id}"
   },
-  "vega": {
-    "aliases": "VEGA",
-    "name": "VEGA",
-    "id": "740",
-    "url": "http://vega.archive.ensembl.org/Multi/Search/Results?q=£{id};site=vega"
-  },
   "vsdb": {
     "aliases": "VSDB,VSDB accession",
     "name": "VSDB",

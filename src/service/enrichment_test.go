@@ -42,12 +42,23 @@ func TestSplitEscapedPipe(t *testing.T) {
 }
 
 func TestNormalizeEnrichCollection(t *testing.T) {
-	base, prefix := normalizeEnrichCollection("C5:GO:BP")
-	if base != "C5:GO" || prefix != "GOBP_" {
-		t.Fatalf("got %q %q", base, prefix)
+	cases := []struct {
+		in, base, prefix string
+	}{
+		{"C5:GO:BP", "C5:GO", "GOBP_"},
+		{"C5:GO:MF", "C5:GO", "GOMF_"},
+		{"C5:GO:CC", "C5:GO", "GOCC_"},
+		// C2:CP is mixed; documented sub-collections must narrow by name.
+		{"C2:CP:REACTOME", "C2:CP", "REACTOME_"},
+		{"C2:CP:PID", "C2:CP", "PID_"},
+		{"C2:CP:BIOCARTA", "C2:CP", "BIOCARTA_"},
+		{"C2:CP:KEGG", "C2:CP", "KEGG_"},
+		{"C2:CP", "C2:CP", ""},
 	}
-	base, prefix = normalizeEnrichCollection("C2:CP:REACTOME")
-	if base != "C2:CP:REACTOME" || prefix != "" {
-		t.Fatalf("got %q %q", base, prefix)
+	for _, c := range cases {
+		base, prefix := normalizeEnrichCollection(c.in)
+		if base != c.base || prefix != c.prefix {
+			t.Errorf("normalizeEnrichCollection(%q) = %q %q, want %q %q", c.in, base, prefix, c.base, c.prefix)
+		}
 	}
 }

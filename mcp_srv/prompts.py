@@ -353,12 +353,16 @@ USE FOR:
 DEFAULTS: collection="C5:GO" (GO BP/MF/CC); limit=20.
 - collection="C5:GO:BP" narrows to biological process, "C5:GO:MF" to
   molecular function, "C5:GO:CC" to cellular component.
-- Other MSigDB collections: "C2:CP:REACTOME", "C2:CGP", "H", etc.
-- Inputs must be HGNC symbols/IDs. Use biobtree_map first if you only have
-  Ensembl/UniProt IDs.
+- Other MSigDB collections: "C2:CP:REACTOME", "C2:CP:PID", "C2:CGP", "H", etc.
+- Inputs must be HGNC symbols/IDs. Official symbols are resolved exactly (an
+  ambiguous symbol such as "AR" is not expanded to every alias hit). Use
+  biobtree_map first if you only have Ensembl/UniProt IDs.
+- If `truncated` is true the internal page limit was reached before all input
+  pages were read; split the gene list and re-run.
 
 RETURNS: query summary + ranked terms {id, name, collection, overlap,
-set_size, fold, p, fdr}."""
+set_size, fold, p, fdr}. `query.input_genes` echoes the inputs, `query.genes`
+are the resolved HGNC ids, and `not_found` lists inputs that did not map."""
 
 
 # =============================================================================

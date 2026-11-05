@@ -2097,6 +2097,18 @@ func (s *Service) Close() {
 // This searches through text link results (IsLink=true) and finds entries matching the dataset.
 // Handles both inline entries and paginated entries.
 func (s *Service) LookupInDataset(identifier string, datasetID uint32) (*pbuf.XrefEntry, error) {
+	entries, err := s.LookupAllInDataset(identifier, datasetID)
+	if err != nil || len(entries) == 0 {
+		return nil, err
+	}
+	return entries[0], nil
+}
+
+// LookupAllInDataset returns every text-link entry for identifier that belongs
+// to datasetID, following continuation pages. It is used where a single first
+// hit is not enough (e.g. resolving an ambiguous gene symbol to the entry
+// whose official symbol is an exact match).
+func (s *Service) LookupAllInDataset(identifier string, datasetID uint32) ([]*pbuf.XrefEntry, error) {
 	result, err := s.Lookup(identifier)
 	if err != nil {
 		return nil, err
@@ -2106,45 +2118,59 @@ func (s *Service) LookupInDataset(identifier string, datasetID uint32) (*pbuf.Xr
 	}
 
 	identifier = strings.ToUpper(identifier)
+	var out []*pbuf.XrefEntry
+	seen := make(map[string]bool)
 
-	// Search through results - look in IsLink entries for the target dataset
+	add := func(entry *pbuf.XrefEntry) {
+		if entry == nil || entry.Dataset != datasetID {
+			return
+		}
+		key := entry.Identifier
+		if seen[key] {
+			return
+		}
+		seen[key] = true
+		out = append(out, entry)
+	}
+
 	for _, xref := range result.Results {
 		if xref.IsLink {
-			// Check inline entries first
 			for _, entry := range xref.Entries {
-				if entry.Dataset == datasetID {
-					return entry, nil
+				add(entry)
+			}
+			// Pages are stored per target dataset (DatasetPages) in the text
+			// index; xref.Pages is a legacy/expanded view. Check the requested
+			// dataset first so an exact symbol on a continuation page is found.
+			seenPages := make(map[string]bool)
+			addPage := func(page string, pageDataset uint32) {
+				if page == "" || seenPages[page] {
+					return
+				}
+				seenPages[page] = true
+				pageKey := identifier + pageKeySep + config.DataconfIDToPageKey[0] + page
+				pageResult, perr := s.LookupPage(pageKey, pageDataset)
+				if perr != nil || pageResult == nil {
+					return
+				}
+				for _, entry := range pageResult.Entries {
+					add(entry)
 				}
 			}
-
-			// Check paginated entries if not found inline
+			if pi, ok := xref.DatasetPages[datasetID]; ok && pi != nil {
+				for _, page := range pi.Pages {
+					addPage(page, datasetID)
+				}
+			}
 			if len(xref.Pages) > 0 {
 				for _, page := range xref.Pages {
-					// Build page key: rootKey + \x00 + datasetKey(2 chars) + pageIndex
-					pageKey := identifier + pageKeySep + config.DataconfIDToPageKey[0] + page
-					pageResult, err := s.LookupPage(pageKey, xref.Dataset)
-					if err != nil {
-						continue
-					}
-					if pageResult != nil {
-						for _, entry := range pageResult.Entries {
-							if entry.Dataset == datasetID {
-								return entry, nil
-							}
-						}
-					}
+					addPage(page, xref.Dataset)
 				}
 			}
 		} else if xref.Dataset == datasetID {
-			// Direct match (non-link result)
-			return &pbuf.XrefEntry{
-				Dataset:    xref.Dataset,
-				Identifier: xref.Identifier,
-			}, nil
+			add(&pbuf.XrefEntry{Dataset: xref.Dataset, Identifier: xref.Identifier})
 		}
 	}
-
-	return nil, nil // No entry found for this dataset
+	return out, nil
 }
 
 // LookupFullEntry fetches the full Xref with attributes for a specific identifier in a dataset.

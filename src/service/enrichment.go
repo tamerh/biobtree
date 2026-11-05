@@ -31,7 +31,8 @@ var collectionTotals = map[string]int{
 }
 
 type EnrichmentQuery struct {
-	Genes       []string `json:"genes"`
+	Genes       []string `json:"genes"`       // resolved HGNC ids used for the test
+	InputGenes  []string `json:"input_genes"` // terms exactly as the caller passed them
 	MappedGenes int      `json:"mapped_genes"`
 	Collection  string   `json:"collection"`
 	Background  int      `json:"background"`
@@ -54,6 +55,11 @@ type EnrichmentResult struct {
 	TestedSets   int              `json:"tested_sets"`
 	NotFound     []string         `json:"not_found,omitempty"`
 	PagesFetched int              `json:"pages_fetched,omitempty"`
+	// Truncated is true when the service stopped at the internal page limit
+	// before consuming every input page. The result is usable but incomplete;
+	// split a long gene list into smaller batches or raise the limit.
+	Truncated bool `json:"truncated,omitempty"`
+	PageLimit int  `json:"page_limit,omitempty"`
 }
 
 type enrichSet struct {
@@ -81,17 +87,28 @@ func (s *Service) Enrich(ids []string, collection string, limit int) (*Enrichmen
 	baseCollection, namePrefix := normalizeEnrichCollection(collection)
 	sets := make(map[string]*enrichSet)
 	mappedGenes := make(map[string]bool)
-	notFound := make(map[string]bool)
+	mappedInputs := make(map[string]bool)
+
+	// Resolve symbols to a single HGNC id before querying. The map path's text
+	// search is deliberately broad ("AR" matches four genes), which inflates
+	// both the overlap and the cohort. Exact official symbols (and explicit
+	// HGNC ids) are unambiguous; anything else falls back to its original term.
+	resolvedIDs, inputToResolved := s.resolveEnrichInputs(ids)
 
 	page := ""
 	pages := 0
+	truncated := false
+	pageLimit := 100
 	for {
-		res, err := s.MapFilterLite(ids, ">>hgnc>>msigdb", page)
+		res, err := s.MapFilterLite(resolvedIDs, ">>hgnc>>msigdb", page)
 		if err != nil {
 			return nil, err
 		}
 
 		for _, m := range res.Mappings {
+			if m.Input != "" {
+				mappedInputs[strings.ToUpper(strings.TrimSpace(m.Input))] = true
+			}
 			gene := m.Source
 			if i := strings.Index(gene, "|"); i >= 0 {
 				gene = gene[:i]
@@ -99,6 +116,9 @@ func (s *Service) Enrich(ids []string, collection string, limit int) (*Enrichmen
 			gene = strings.TrimSpace(gene)
 			if gene == "" {
 				gene = strings.TrimSpace(m.Input)
+			}
+			if gene != "" {
+				mappedGenes[gene] = true
 			}
 
 			for _, target := range m.Targets {
@@ -132,30 +152,58 @@ func (s *Service) Enrich(ids []string, collection string, limit int) (*Enrichmen
 			}
 		}
 
-		// Only the first page's not_found is authoritative; later pages repeat
-		// the input terms there even after mapping.
-		if pages == 0 {
-			for _, nf := range res.NotFound {
-				notFound[nf] = true
-			}
-		}
-
 		page = res.Pagination.NextToken
 		pages++
-		if page == "" || pages >= 100 {
+		if page == "" {
 			break
+		}
+		if pages >= pageLimit {
+			truncated = true
+			break
+		}
+	}
+
+	// Compute not_found from the resolved inputs, not from the map pages.
+	// The service repeats not_found per page for long lists; deriving it from
+	// which resolved ids actually appeared is authoritative.
+	notFound := make(map[string]bool)
+	for _, raw := range ids {
+		key := strings.ToUpper(strings.TrimSpace(raw))
+		if key == "" {
+			continue
+		}
+		rid := inputToResolved[key]
+		if mappedInputs[key] || (rid != "" && mappedGenes[rid]) {
+			continue
+		}
+		// mappedGenes is keyed by the source id as returned by the map; accept
+		// a case-insensitive lookup for the resolved id too.
+		found := false
+		for g := range mappedGenes {
+			if strings.EqualFold(g, rid) {
+				found = true
+				break
+			}
+		}
+		if !found {
+			notFound[raw] = true
 		}
 	}
 
 	result := &EnrichmentResult{
 		Query: EnrichmentQuery{
 			Genes:       sortedKeys(mappedGenes),
+			InputGenes:  ids,
 			MappedGenes: len(mappedGenes),
 			Collection:  collection,
 			Background:  msigdbBackground,
 		},
 		Results:      []EnrichmentTerm{},
 		PagesFetched: pages,
+		Truncated:    truncated,
+	}
+	if truncated {
+		result.PageLimit = pageLimit
 	}
 	if len(notFound) > 0 {
 		result.NotFound = sortedKeys(notFound)
@@ -173,6 +221,12 @@ func (s *Service) Enrich(ids []string, collection string, limit int) (*Enrichmen
 			continue
 		}
 		K := es.SetSize
+		if k > K {
+			// The set metadata says it has fewer genes than the input matched.
+			// This is a data inconsistency (historically caused by ambiguous
+			// symbol resolution); publishing p=0 here would be wrong.
+			continue
+		}
 		p := hypergeomSF(k, msigdbBackground, K, n)
 		fold := (float64(k) / float64(n)) / (float64(K) / float64(msigdbBackground))
 		terms = append(terms, EnrichmentTerm{
@@ -222,6 +276,67 @@ func (s *Service) Enrich(ids []string, collection string, limit int) (*Enrichmen
 	return result, nil
 }
 
+// resolveEnrichInputs maps caller terms to one HGNC id each. Explicit HGNC ids
+// are kept; official gene symbols are resolved by exact symbol match. Anything
+// else (Ensembl/RefSeq/alias) is passed through unchanged and left to the map
+// path.
+func (s *Service) resolveEnrichInputs(ids []string) ([]string, map[string]string) {
+	resolved := make([]string, 0, len(ids))
+	inputToResolved := make(map[string]string, len(ids))
+	seen := make(map[string]bool)
+
+	for _, raw := range ids {
+		term := strings.TrimSpace(raw)
+		if term == "" {
+			continue
+		}
+		key := strings.ToUpper(term)
+		rid := term
+		if !strings.HasPrefix(key, "HGNC:") {
+			if id := s.resolveExactHgncSymbol(term); id != "" {
+				rid = id
+			}
+		}
+		inputToResolved[key] = rid
+		rkey := strings.ToUpper(rid)
+		if !seen[rkey] {
+			seen[rkey] = true
+			resolved = append(resolved, rid)
+		}
+	}
+	return resolved, inputToResolved
+}
+
+// resolveExactHgncSymbol returns the HGNC id whose official symbol equals the
+// supplied term, or "" when there is no exact symbol match. Text search alone
+// is too broad for this job (AR matches four genes).
+func (s *Service) resolveExactHgncSymbol(symbol string) string {
+	hgncID, ok := config.DataconfIDStringToInt["hgnc"]
+	if !ok || hgncID == 0 {
+		return ""
+	}
+	entries, err := s.LookupAllInDataset(symbol, hgncID)
+	if err != nil {
+		return ""
+	}
+	for _, e := range entries {
+		full, ferr := s.LookupFullEntry(e.Identifier, hgncID)
+		if ferr != nil || full == nil {
+			continue
+		}
+		a := full.GetHgnc()
+		if a == nil {
+			continue
+		}
+		for _, candidate := range a.Symbols {
+			if strings.EqualFold(candidate, symbol) {
+				return e.Identifier
+			}
+		}
+	}
+	return ""
+}
+
 // normalizeEnrichCollection returns the base collection and optional name
 // prefix. The map response stores all GO sets as "C5:GO"; a request for
 // "C5:GO:BP" is narrowed with the GOBP_ name prefix.
@@ -239,6 +354,21 @@ func normalizeEnrichCollection(collection string) (string, string) {
 			return "C5:GO", "GOMF_"
 		case "CC":
 			return "C5:GO", "GOCC_"
+		}
+	}
+	// C2:CP is a mixed collection (Reactome + PID + BioCarta + KEGG). The
+	// documented sub-collection names select one contributor by name prefix.
+	if strings.HasPrefix(collection, "C2:CP:") {
+		ns := strings.ToUpper(strings.TrimPrefix(collection, "C2:CP:"))
+		switch ns {
+		case "REACTOME":
+			return "C2:CP", "REACTOME_"
+		case "PID":
+			return "C2:CP", "PID_"
+		case "BIOCARTA":
+			return "C2:CP", "BIOCARTA_"
+		case "KEGG":
+			return "C2:CP", "KEGG_"
 		}
 	}
 	return collection, ""

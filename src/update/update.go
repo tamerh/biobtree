@@ -2804,6 +2804,9 @@ func (d *DataUpdate) addXrefViaKeyword(keyword string, keywordDataset string, ta
 
 	// processEntry filters, guards, and creates the xref for one looked-up entry.
 	// Shared by the root-page entries and the continuation-page entries below.
+	// The same entry can appear in both the root page and a continuation page;
+	// dedupe so the forward bucket does not carry duplicate edges.
+	added := make(map[string]bool)
 	processEntry := func(entry *pbuf.XrefEntry) {
 		if hasFilter && entry.Dataset != filterID {
 			return
@@ -2822,11 +2825,40 @@ func (d *DataUpdate) addXrefViaKeyword(keyword string, keywordDataset string, ta
 				return
 			}
 		}
+		// HGNC text search is alias-broad: "AR" matches four genes, "MET"
+		// three. For gene-symbol datasets such as MSigDB we want one gene per
+		// official symbol, not every alias hit (which inflates set members and
+		// can make overlap exceed the set size).
+		if keywordDataset == "hgnc" && hasFilter {
+			full, ferr := d.lookupFullEntry(entry.Identifier, filterID)
+			if ferr != nil || full == nil {
+				return
+			}
+			a := full.GetHgnc()
+			if a == nil {
+				return
+			}
+			exact := false
+			for _, candidate := range a.Symbols {
+				if strings.EqualFold(candidate, keyword) {
+					exact = true
+					break
+				}
+			}
+			if !exact {
+				return
+			}
+		}
 		xrefTargetDataset := keywordDataset
 		if xrefTargetDataset == "" {
 			xrefTargetDataset = resolvedDatasetName
 		}
 		// Create xref FROM the source (targetValue/targetDataset) TO the entry.
+		key := strconv.FormatUint(uint64(entry.Dataset), 10) + ":" + entry.Identifier
+		if added[key] {
+			return
+		}
+		added[key] = true
 		d.addXref(targetValue, from, entry.Identifier, xrefTargetDataset, isLink)
 	}
 

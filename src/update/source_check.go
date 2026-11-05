@@ -316,14 +316,15 @@ func getPrimarySourceFileDefault(datasetName string) string {
 	// For multi-file datasets, this specifies which single file to check for changes
 	primaryFiles := map[string]string{
 		// NCBI datasets
-		"entrez":             "https://ftp.ncbi.nlm.nih.gov/gene/DATA/gene_info.gz",
-		"dbsnp":              "https://ftp.ncbi.nlm.nih.gov/snp/latest_release/VCF/GCF_000001405.40.gz",
-		"refseq":             "https://ftp.ncbi.nlm.nih.gov/genomes/refseq/vertebrate_mammalian/assembly_summary.txt",
+		"entrez":              "https://ftp.ncbi.nlm.nih.gov/gene/DATA/gene_info.gz",
+		"dbsnp":               "https://ftp.ncbi.nlm.nih.gov/snp/latest_release/VCF/GCF_000001405.40.gz",
+		"refseq":              "https://ftp.ncbi.nlm.nih.gov/genomes/refseq/vertebrate_mammalian/assembly_summary.txt",
 		"literature_mappings": "https://ftp.ncbi.nlm.nih.gov/pub/pmc/DOI/PMID_PMCID_DOI.csv.gz",
 
 		// EBI datasets
 		"chebi":      "https://ftp.ebi.ac.uk/pub/databases/chebi/Flat_file_tab_delimited/compounds.tsv.gz",
 		"rnacentral": "https://ftp.ebi.ac.uk/pub/databases/RNAcentral/current_release/sequences/rnacentral_active.fasta.gz",
+		"vega_gene":  "https://ftp.ensembl.org/pub/vega/human/Homo_sapiens.VEGA68.68.gtf.gz",
 
 		// Ontologies with multiple files
 		"hpo": "https://github.com/obophenotype/human-phenotype-ontology/releases/download/v2025-11-24/hp-base.obo",

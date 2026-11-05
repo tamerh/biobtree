@@ -293,6 +293,9 @@ func extractField(xref *pbuf.Xref, field string) string {
 	if a := xref.GetGencc(); a != nil {
 		return extractGenccField(a, field)
 	}
+	if a := xref.GetVega(); a != nil {
+		return extractVegaField(a, field)
+	}
 	if a := xref.GetClingenGeneValidity(); a != nil {
 		return extractClingenGeneValidityField(a, field)
 	}
@@ -1277,6 +1280,9 @@ func ExtractSourceName(xref *pbuf.Xref) string {
 	if a := xref.GetEnsembl(); a != nil {
 		return a.Name
 	}
+	if a := xref.GetVega(); a != nil {
+		return a.Name
+	}
 	if a := xref.GetUniprot(); a != nil {
 		if len(a.Names) > 0 {
 			return a.Names[0]
@@ -2157,6 +2163,30 @@ func extractGenccField(a *pbuf.GenccAttr, field string) string {
 		return a.SubmitterTitle
 	case "uuid":
 		return a.Uuid
+	default:
+		return ""
+	}
+}
+
+// extractVegaField extracts a field from VegaAttr
+func extractVegaField(a *pbuf.VegaAttr, field string) string {
+	switch field {
+	case "name":
+		return a.Name
+	case "chromosome":
+		return a.Chromosome
+	case "start":
+		return fmt.Sprintf("%d", a.Start)
+	case "end":
+		return fmt.Sprintf("%d", a.End)
+	case "strand":
+		return a.Strand
+	case "biotype":
+		return a.Biotype
+	case "ensembl_id":
+		return a.EnsemblId
+	case "gene_id":
+		return a.GeneId
 	default:
 		return ""
 	}

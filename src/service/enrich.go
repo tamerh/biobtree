@@ -242,6 +242,10 @@ func setAttributeId(xref *pbuf.Xref) {
 		if attr.Gencc != nil {
 			attr.Gencc.Id = xref.Identifier
 		}
+	case *pbuf.Xref_Vega:
+		if attr.Vega != nil {
+			attr.Vega.Id = xref.Identifier
+		}
 	case *pbuf.Xref_Bindingdb:
 		if attr.Bindingdb != nil {
 			attr.Bindingdb.Id = xref.Identifier

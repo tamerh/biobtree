@@ -225,6 +225,7 @@ message Xref {
     GtexAttr gtex=822;
     GtexEgeneAttr gtex_egene=823;
     GpnStarAttr gpn_star=824;
+    VegaAttr vega=825;
     SaprotAttr saprot=815;
 
   }

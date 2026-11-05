@@ -1712,6 +1712,22 @@ message BindingdbAttr {
 // GenCC - Gene Curation Coalition (Dataset ID: 747)
 // Gene-disease validity curations from multiple sources
 // Source: https://thegencc.org/
+// VEGA - Vertebrate Genome Annotation (archived release 68, Feb 2017)
+// Source: https://ftp.ensembl.org/pub/vega/human/Homo_sapiens.VEGA68.68.gtf.gz
+// VEGA gene names include legacy GRCh38 clone names (RP11-, CTB-) that are
+// absent from current HGNC/Ensembl/NCBI Gene.
+message VegaAttr {
+  string name = 1;          // VEGA gene name (e.g. "RP11-476M19.1")
+  string chromosome = 2;    // seq_region (e.g. "12")
+  int32 start = 3;          // 1-based start
+  int32 end = 4;            // 1-based end
+  string strand = 5;        // "+" or "-"
+  string biotype = 6;       // e.g. "lincRNA", "processed_pseudogene"
+  string ensembl_id = 7;    // mapped Ensembl gene ID (e.g. "ENSG00000243507")
+  string gene_id = 8;       // VEGA stable ID (e.g. "OTTHUMG00000157395")
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}
+
 message GenccAttr {
   // Unique identifier for this curation
   string uuid = 1;                              // GenCC UUID for the submission

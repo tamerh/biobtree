@@ -1,6 +1,6 @@
 # Dataset Reference
 
-Biobtree integrates **79 datasets** across major biological domains. Each dataset has detailed documentation including storage model, use cases, and query examples.
+Biobtree integrates **80 datasets** across major biological domains. Each dataset has detailed documentation including storage model, use cases, and query examples.
 
 ---
 
@@ -80,6 +80,7 @@ Biological pathways, protein-protein interactions, signaling networks.
 | Dataset | Description | Documentation |
 |---------|-------------|---------------|
 | reactome | Reactome pathways | [README](reactome.md) |
+| wikipathways | WikiPathways community pathways (18 species; WPID→hgnc/entrez) | [README](wikipathways.md) |
 | signor | SIGNOR causal signaling networks | [README](signor.md) |
 | intact | IntAct protein interactions | [README](intact.md) |
 | string | STRING protein networks | [README](string.md) |

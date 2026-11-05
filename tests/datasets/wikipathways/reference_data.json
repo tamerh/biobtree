@@ -1,0 +1,12 @@
+{
+  "dataset": "wikipathways",
+  "dataset_id": 825,
+  "description": "WikiPathways GMT release: one entry per pathway (WPID), genes as Entrez ids; human pathways also get direct HGNC edges.",
+  "entries": [
+    {"id": "WP100", "name": "Glutathione metabolism", "species": "Homo sapiens", "tax_id": "9606", "min_genes": 19, "expect_hgnc": true},
+    {"id": "WP1000", "name": "Arachidonate epoxygenase epoxide hydrolase", "species": "Bos taurus", "tax_id": "9913", "min_genes": 1, "expect_hgnc": false},
+    {"id": "WP110", "name": "Translation factors", "species": "Caenorhabditis elegans", "tax_id": "6239", "min_genes": 1, "expect_hgnc": false},
+    {"id": "WP1221", "name": "Heme biosynthesis", "species": "Anopheles gambiae", "tax_id": "7165", "min_genes": 1, "expect_hgnc": false},
+    {"id": "WP101", "name": "Synthesis and degradation of ketone bodies", "species": "Drosophila melanogaster", "tax_id": "7227", "min_genes": 1, "expect_hgnc": false}
+  ]
+}

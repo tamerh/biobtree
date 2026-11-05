@@ -111,6 +111,7 @@ mesh: pharmgkb, ctd, ctd_disease_association, pubchem, mondo, chembl_molecule, m
 eco: ecoparent, ecochild
 antibody: ensembl, uniprot, mondo, pdb
 msigdb: hgnc, entrez, go, hpo
+wikipathways: hgnc, entrez
 orphanet: hpo, uniprot, mondo, hgnc, clinvar, mim, mesh
 mim: clinvar, hpo, mondo, uniprot, ctd_disease_association, panelapp_gene
 hmdb: pubchem, hpo, chebi, uniprot

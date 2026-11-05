@@ -3670,3 +3670,19 @@ message ChipAtlasTfbsAttr {
   repeated string top_targets = 10; // top targets by average MACS2 score
   string id = 100; // transient - populated at runtime from Xref.Identifier
 }
+
+// ============================================================================
+// WikiPathways (Dataset ID: 825)
+// Source: https://www.wikipathways.org (CC0)
+//
+// One entry per pathway (WPID). Genes are Entrez ids in the released GMT
+// files; human pathways also get direct HGNC edges where Entrez resolves.
+// ============================================================================
+message WikipathwaysAttr {
+  string name = 1;       // pathway name
+  string species = 2;    // species name (e.g. "Homo sapiens")
+  string tax_id = 3;     // NCBI taxonomy id
+  int32 gene_count = 4;  // number of unique genes in the pathway
+  string release = 5;    // WikiPathways release (e.g. "WikiPathways_20261010")
+  string id = 100;       // transient - populated at runtime from Xref.Identifier
+}

@@ -997,6 +997,12 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			d.datasets2 = append(d.datasets2, data)
 			go ca.update()
 			break
+		case "wikipathways":
+			d.wg.Add(1)
+			wp := wikipathways{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go wp.update()
+			break
 		case "clingen_gene_validity":
 			d.wg.Add(1)
 			cgv := clingenGeneValidity{source: data, d: d}

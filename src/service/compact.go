@@ -305,6 +305,9 @@ func extractField(xref *pbuf.Xref, field string) string {
 	if a := xref.GetChipAtlasTfbs(); a != nil {
 		return extractChipAtlasTfbsField(a, field)
 	}
+	if a := xref.GetWikipathways(); a != nil {
+		return extractWikipathwaysField(a, field)
+	}
 	if a := xref.GetClingenGeneValidity(); a != nil {
 		return extractClingenGeneValidityField(a, field)
 	}
@@ -1295,6 +1298,9 @@ func ExtractSourceName(xref *pbuf.Xref) string {
 	if a := xref.GetChipAtlasTfbs(); a != nil {
 		return a.Tf
 	}
+	if a := xref.GetWikipathways(); a != nil {
+		return a.Name
+	}
 	if a := xref.GetUniprot(); a != nil {
 		if len(a.Names) > 0 {
 			return a.Names[0]
@@ -2199,6 +2205,24 @@ func extractVegaField(a *pbuf.VegaAttr, field string) string {
 		return a.EnsemblId
 	case "gene_id":
 		return a.GeneId
+	default:
+		return ""
+	}
+}
+
+// extractWikipathwaysField extracts a field from WikipathwaysAttr
+func extractWikipathwaysField(a *pbuf.WikipathwaysAttr, field string) string {
+	switch field {
+	case "name":
+		return a.Name
+	case "species":
+		return a.Species
+	case "tax_id":
+		return a.TaxId
+	case "gene_count":
+		return fmt.Sprintf("%d", a.GeneCount)
+	case "release":
+		return a.Release
 	default:
 		return ""
 	}

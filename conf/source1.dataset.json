@@ -983,6 +983,22 @@
     "test_entries_count": "100",
     "bucketMethod": "alphabetic"
   },
+  "wikipathways": {
+    "id": "825",
+    "name": "WikiPathways",
+    "textPriority": "80",
+    "data_version": "WikiPathways current GMT release",
+    "aliases": "WikiPathways,Wiki Pathways,WP pathway,community pathway",
+    "url": "https://www.wikipathways.org/instance/\u00a3{id}",
+    "path": "https://data.wikipathways.org/current/gmt/",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "name,species,tax_id,gene_count,release",
+    "compact_fields": "name,species,gene_count",
+    "test_entries_count": "200",
+    "test_species_limit": "3",
+    "bucketMethod": "alphabetic"
+  },
   "chip_atlas_tfbs": {
     "id": "824",
     "name": "ChIP-Atlas TFBS",

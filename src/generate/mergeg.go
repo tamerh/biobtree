@@ -2154,6 +2154,11 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)
 				xref.Attributes = &pbuf.Xref_ChipAtlasTfbs{attr}
+			case "wikipathways":
+				attr := &pbuf.WikipathwaysAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Wikipathways{attr}
 			case "clingen_gene_validity":
 				attr := &pbuf.ClingenGeneValidityAttr{}
 				barr := []byte((*kvProp[k])[0].value)
@@ -2900,6 +2905,11 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)
 				xref.Attributes = &pbuf.Xref_ChipAtlasTfbs{attr}
+			case "wikipathways":
+				attr := &pbuf.WikipathwaysAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_Wikipathways{attr}
 			case "clingen_gene_validity":
 				attr := &pbuf.ClingenGeneValidityAttr{}
 				barr := []byte((*kvProp[k])[0].value)

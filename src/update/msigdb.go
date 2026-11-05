@@ -442,8 +442,9 @@ func (m *msigdb) getExternalTerms(db *sql.DB, geneSetID int) (goTerms, hpoTerms 
 func (m *msigdb) createReferences(systematicName, standardName, collectionName string,
 	geneSymbols, entrezIDs []string, pmid string, goTerms, hpoTerms []string) {
 
-	// 1. Text search: systematic name (M5890) → MSigDB
-	m.d.addXref(systematicName, textLinkID, systematicName, m.source, true)
+	// The systematic name (M5890) is the primary key, so it must not also be
+	// a self text-link: that makes Lookup(M5890) return both the entry and a
+	// link, duplicating every map result.
 
 	// 2. Text search: standard name (HALLMARK_APOPTOSIS) → MSigDB
 	if standardName != "" {

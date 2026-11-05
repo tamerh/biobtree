@@ -231,6 +231,12 @@ QUERY PATTERNS (choose based on question):
 - Follow connections relevant to your question
 - Build chain: Drug → Target → [connections] → Disease
 
+PAGINATION: if pagination.has_next is true there are more rows — call again
+with page=<pagination.next_token>. stats.total is the number of rows in THIS
+response, not the total number of matches.
+TRUNCATION: if truncated is true, data holds `returned` of `total` rows (cut at
+a whole-element boundary); narrow the query or paginate for the rest.
+
 RETURNS: id | dataset | name | xref_count"""
 
 
@@ -261,7 +267,7 @@ WARNING - GO terms with high xref_count (>100):
 - Instead: search drug class for condition → verify targets this GO term
 
 DISEASE GENE PATTERNS:
-- >>mondo>>gencc>>hgnc (curated)
+- >>mondo>>gencc (returns gene_symbol) or >>mondo>>gencc>>hgnc (curated)
 - >>mondo>>clinvar>>hgnc (variant-based)
 - >>hgnc>>clingen_gene_validity (ClinGen evidence tier), >>hgnc>>clingen_dosage (haploinsufficiency), >>hgnc>>clingen_variant>>clinvar (ACMG, then dbsnp)
 
@@ -281,6 +287,12 @@ DISCOVERY APPROACH:
 - Use biobtree_entry to see xrefs (what's connected)
 - Use EDGES above to see where each dataset leads
 - Build chains based on what connections exist for YOUR entity
+
+PAGINATION: if pagination.has_next is true there are more rows — call again
+with page=<pagination.next_token>. stats.total is the number of rows in THIS
+response, not the total number of matches.
+TRUNCATION: if truncated is true, data holds `returned` of `total` rows (cut at
+a whole-element boundary); narrow the query or paginate for the rest.
 
 RETURNS: mapped identifiers with dataset and name
 """

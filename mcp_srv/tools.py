@@ -96,6 +96,91 @@ CHAT_TOOLS = [
 # Tool Execution
 # =============================================================================
 
+def _compact_json(obj: Any) -> str:
+    """Compact JSON for tool results (no pretty-print whitespace)."""
+    return json.dumps(obj, separators=(",", ":"), ensure_ascii=False)
+
+
+def _payload_list_key(result: Any) -> Any:
+    """Return the key of the primary list payload, or None."""
+    if isinstance(result, dict):
+        for key in ("data", "mappings", "results", "entries", "targets"):
+            if isinstance(result.get(key), list):
+                return key
+    return None
+
+
+def _truncate_result(result: Any, max_len: int) -> str:
+    """Serialize a tool result, truncating at an element boundary if needed.
+
+    A model cannot parse a JSON string cut mid-token, so when the payload is
+    too large we keep as many complete elements as fit and add
+    `truncated`/`returned`/`total` metadata. The rest of the response
+    (stats, pagination, context) is preserved so the caller can continue.
+    """
+    text = _compact_json(result)
+    if len(text) <= max_len:
+        return text
+
+    if isinstance(result, list):
+        container = {"data": result}
+        key = "data"
+    elif isinstance(result, dict):
+        key = _payload_list_key(result)
+        if key is None:
+            return _compact_json({
+                "truncated": True,
+                "returned": 0,
+                "total": 0,
+                "error": "result too large to return",
+                "preview": text[:max(0, max_len - 200)],
+            })
+        container = result
+    else:
+        return _compact_json({
+            "truncated": True,
+            "returned": 0,
+            "total": 0,
+            "error": "result too large to return",
+            "preview": text[:max(0, max_len - 200)],
+        })
+
+    items = container[key]
+    total = len(items)
+
+    def candidate(n: int) -> dict:
+        c = dict(container)
+        c[key] = items[:n]
+        c["truncated"] = True
+        c["returned"] = n
+        c["total"] = total
+        return c
+
+    # Largest prefix that still fits (including the truncation metadata), so
+    # the cut lands between elements and the result stays valid JSON.
+    lo, hi, best = 0, total, 0
+    while lo <= hi:
+        mid = (lo + hi) // 2
+        if len(_compact_json(candidate(mid))) <= max_len:
+            best = mid
+            lo = mid + 1
+        else:
+            hi = mid - 1
+
+    out = _compact_json(candidate(best))
+    if len(out) <= max_len:
+        return out
+
+    # Even the metadata is too large; return a valid minimal envelope.
+    return _compact_json({
+        "truncated": True,
+        "returned": 0,
+        "total": total,
+        "error": "result metadata too large",
+        "data": [],
+    })
+
+
 async def execute_tool(
     tool_name: str,
     arguments: Dict[str, Any],
@@ -133,8 +218,9 @@ async def execute_tool(
                 dataset=arguments["dataset"]
             )
         elif tool_name == "biobtree_atlas":
-            # Atlas pages come from sugi.bio (not the biobtree API). Whole page by
-            # default, so bypass the generic length cap below and return directly.
+            # Atlas pages come from sugi.bio (not the biobtree API). The Atlas
+            # helper already trims section content; this still guarantees the
+            # final JSON stays valid if the envelope exceeds the limit.
             from .atlas import atlas_lookup
             res = await asyncio.to_thread(
                 atlas_lookup,
@@ -142,21 +228,15 @@ async def execute_tool(
                 arguments.get("section"),
                 bool(arguments.get("full", False)),
             )
-            return json.dumps(res, indent=2)
+            return _truncate_result(res, max_result_length)
         else:
-            return json.dumps({"error": f"Unknown tool: {tool_name}"})
+            return _compact_json({"error": f"Unknown tool: {tool_name}"})
 
-        # Format result
-        result_str = json.dumps(result, indent=2)
-
-        # Truncate large results to avoid token limits
-        if len(result_str) > max_result_length:
-            result_str = result_str[:max_result_length] + "\n... [truncated]"
-
-        return result_str
+        # Compact JSON keeps token cost down; truncate only at element boundaries.
+        return _truncate_result(result, max_result_length)
 
     except BiobtreeError as e:
-        return json.dumps({"error": str(e)})
+        return _compact_json({"error": str(e)})
     except Exception as e:
         logger.exception(f"Tool execution error: {e}")
-        return json.dumps({"error": str(e)})
+        return _compact_json({"error": str(e)})

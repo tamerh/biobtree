@@ -1,0 +1,22 @@
+##fileformat=VCFv4.2
+##FILTER=<ID=PASS,Description="All filters passed">
+##ALT=<ID=DUP,Description="Duplication">
+##ALT=<ID=DEL,Description="Deletion">
+##ALT=<ID=INV,Description="Inversion">
+##ALT=<ID=BND,Description="Breakend">
+##INFO=<ID=SVTYPE,Number=1,Type=String,Description="Type of structural variant">
+##INFO=<ID=END,Number=1,Type=Integer,Description="End position of the structural variant">
+##INFO=<ID=SVLEN,Number=1,Type=Integer,Description="SV length">
+##INFO=<ID=AF,Number=A,Type=Float,Description="Allele frequency">
+##INFO=<ID=AC,Number=A,Type=Integer,Description="Allele count">
+##INFO=<ID=AN,Number=1,Type=Integer,Description="Allele number">
+##INFO=<ID=GRPMAX_AF,Number=1,Type=Float,Description="Group max allele frequency">
+##INFO=<ID=PREDICTED_COPY_GAIN,Number=.,Type=String,Description="Gene with predicted copy gain">
+##INFO=<ID=PREDICTED_LOF,Number=.,Type=String,Description="Gene with predicted loss of function">
+##INFO=<ID=PREDICTED_INTRONIC,Number=.,Type=String,Description="Gene with intronic SV">
+##INFO=<ID=PREDICTED_NEAREST_TSS,Number=.,Type=String,Description="Nearest TSS">
+##CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
+chr1	10000	gnomAD-SV_v3_DUP_chr1_test1	N	<DUP>	134	PASS	SVTYPE=DUP;END=295666;SVLEN=285666;AF=0.001997;AC=139;AN=69594;GRPMAX_AF=0.005325;AF_nfe=0.000349;PREDICTED_COPY_GAIN=OR4F5
+chr1	14874	gnomAD-SV_v3_DEL_chr1_test2	N	<DEL>	200	PASS	SVTYPE=DEL;END=7467242;SVLEN=-7452369;AF=0.01;AC=700;AN=70000;GRPMAX_AF=0.02;PREDICTED_LOF=TP53
+chr2	10000	gnomAD-SV_v3_BND_chr2_test3	N	<BND>	260	HIGH_NCR	SVTYPE=BND;CHR2=chr3;END=10434;END2=242183515;POS2=242183514;AF=0.1;AC=1000;AN=10000;PREDICTED_NEAREST_TSS=OR4F5
+chr3	50000	gnomAD-SV_v3_INV_chr3_test4	N	<INV>	80	PASS	SVTYPE=INV;END=150000;SVLEN=100000;AF=0.0001;AC=7;AN=70000;PREDICTED_INTRONIC=BRCA1

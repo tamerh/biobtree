@@ -2164,6 +2164,11 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)
 				xref.Attributes = &pbuf.Xref_Dbvar{attr}
+			case "gnomad_sv":
+				attr := &pbuf.GnomadSvAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_GnomadSv{attr}
 			case "clingen_gene_validity":
 				attr := &pbuf.ClingenGeneValidityAttr{}
 				barr := []byte((*kvProp[k])[0].value)
@@ -2920,6 +2925,11 @@ func (d *Merge) toProtoRoot(id string, kv map[string]*[]kvMessage, valIdx map[st
 				barr := []byte((*kvProp[k])[0].value)
 				ffjson.Unmarshal(barr, attr)
 				xref.Attributes = &pbuf.Xref_Dbvar{attr}
+			case "gnomad_sv":
+				attr := &pbuf.GnomadSvAttr{}
+				barr := []byte((*kvProp[k])[0].value)
+				ffjson.Unmarshal(barr, attr)
+				xref.Attributes = &pbuf.Xref_GnomadSv{attr}
 			case "clingen_gene_validity":
 				attr := &pbuf.ClingenGeneValidityAttr{}
 				barr := []byte((*kvProp[k])[0].value)

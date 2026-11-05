@@ -3709,3 +3709,38 @@ message DbvarAttr {
   bool somatic = 12;
   string id = 100; // transient - populated at runtime from Xref.Identifier
 }
+
+// ============================================================================
+// gnomAD structural variants (Dataset ID: 827)
+// Source: https://gnomad.broadinstitute.org (CC0)
+//
+// gnomAD v4.1 SV sites VCF: one entry per structural-variant site, keyed by
+// the VCF ID. Population allele frequencies and the PREDICTED_* gene
+// annotations are kept; the raw per-genotype fields are not.
+// ============================================================================
+message GnomadSvAttr {
+  string chromosome = 1;
+  int64 start = 2;
+  int64 end = 3;
+  string svtype = 4;       // DEL, DUP, INS, INV, CNV, BND, CPX
+  string svlen = 5;
+  string af = 6;           // global allele frequency
+  string ac = 7;
+  string an = 8;
+  string grpmax_af = 9;
+  string filters = 10;
+  string cpx_type = 11;
+  string af_afr = 12;
+  string af_amr = 13;
+  string af_asj = 14;
+  string af_eas = 15;
+  string af_fin = 16;
+  string af_mid = 17;
+  string af_nfe = 18;
+  string af_rmi = 19;
+  string af_sas = 20;
+  repeated string predicted_genes = 21;   // genes in PREDICTED_* annotations
+  repeated string predicted_effects = 22; // e.g. LOF:TP53, COPY_GAIN:OR4F5
+  bool intergenic = 23;
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}

@@ -220,6 +220,7 @@ func (s *Service) initWithDbDir(dbDir string) error {
 		cel.Types(&pbuf.ChipAtlasTfbsAttr{}),
 		cel.Types(&pbuf.WikipathwaysAttr{}),
 		cel.Types(&pbuf.DbvarAttr{}),
+		cel.Types(&pbuf.GnomadSvAttr{}),
 		cel.Types(&pbuf.ClingenGeneValidityAttr{}),
 		cel.Types(&pbuf.ClingenDosageAttr{}),
 		cel.Types(&pbuf.ClingenVariantAttr{}),
@@ -417,6 +418,8 @@ func (s *Service) initWithDbDir(dbDir string) error {
 			decls.NewIdent("wikipathways", decls.NewObjectType("pbuf.WikipathwaysAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("dbvar", decls.NewObjectType("pbuf.DbvarAttr"), nil)),
+		cel.Declarations(
+			decls.NewIdent("gnomad_sv", decls.NewObjectType("pbuf.GnomadSvAttr"), nil)),
 		cel.Declarations(
 			decls.NewIdent("clingen_gene_validity", decls.NewObjectType("pbuf.ClingenGeneValidityAttr"), nil)),
 		cel.Declarations(

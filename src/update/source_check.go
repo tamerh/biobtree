@@ -328,6 +328,7 @@ func getPrimarySourceFileDefault(datasetName string) string {
 		"chip_atlas_tfbs": "https://chip-atlas.dbcls.jp/data/metadata/analysisList.tab",
 		"wikipathways":    "https://data.wikipathways.org/current/gmt/",
 		"dbvar":           "https://ftp.ncbi.nlm.nih.gov/pub/dbVar/data/Homo_sapiens/by_assembly/GRCh38/vcf/",
+		"gnomad_sv":       "https://storage.googleapis.com/gcp-public-data--gnomad/release/4.1/genome_sv/gnomad.v4.1.sv.sites.vcf.gz",
 
 		// Ontologies with multiple files
 		"hpo": "https://github.com/obophenotype/human-phenotype-ontology/releases/download/v2025-11-24/hp-base.obo",

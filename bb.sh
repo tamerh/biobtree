@@ -167,6 +167,7 @@ DATASETS=(
     encode_ccre
     gnomad_rmc
     gnomad_gnocchi
+    gnomad_sv
     repeat
     pangolin
     corum
@@ -603,6 +604,7 @@ get_federation() {
         gnomad_variant) echo "gnomad" ;;
         gnomad_rmc) echo "gnomad" ;;
         gnomad_gnocchi) echo "gnomad" ;;
+        gnomad_sv) echo "gnomad" ;;
         conservation) echo "conservation" ;;
         revel) echo "predictions" ;;
         esm1b) echo "predictions" ;;

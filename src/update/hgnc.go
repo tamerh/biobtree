@@ -277,9 +277,10 @@ func (e *hgnc) update() {
 		total++
 		entryCount++
 
-		// Test mode: check if limit reached
+		// Test mode: check if limit reached. Do not signal done here: the
+		// single send after flush is the completion signal. Sending twice can
+		// close the progress channel while another copy is still in flight.
 		if config.IsTestMode() && shouldStopProcessing(testLimit, int(entryCount)) {
-			e.d.progChan <- &progressInfo{dataset: "hgnc", done: true}
 			break
 		}
 	}

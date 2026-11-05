@@ -311,6 +311,9 @@ func extractField(xref *pbuf.Xref, field string) string {
 	if a := xref.GetDbvar(); a != nil {
 		return extractDbvarField(a, field)
 	}
+	if a := xref.GetGnomadSv(); a != nil {
+		return extractGnomadSvField(a, field)
+	}
 	if a := xref.GetClingenGeneValidity(); a != nil {
 		return extractClingenGeneValidityField(a, field)
 	}
@@ -1310,6 +1313,9 @@ func ExtractSourceName(xref *pbuf.Xref) string {
 		}
 		return a.Description
 	}
+	if a := xref.GetGnomadSv(); a != nil {
+		return a.Svtype + " " + a.Chromosome + ":" + fmt.Sprintf("%d-%d", a.Start, a.End)
+	}
 	if a := xref.GetUniprot(); a != nil {
 		if len(a.Names) > 0 {
 			return a.Names[0]
@@ -2214,6 +2220,63 @@ func extractVegaField(a *pbuf.VegaAttr, field string) string {
 		return a.EnsemblId
 	case "gene_id":
 		return a.GeneId
+	default:
+		return ""
+	}
+}
+
+// extractGnomadSvField extracts a field from GnomadSvAttr
+func extractGnomadSvField(a *pbuf.GnomadSvAttr, field string) string {
+	switch field {
+	case "chromosome":
+		return a.Chromosome
+	case "start":
+		return fmt.Sprintf("%d", a.Start)
+	case "end":
+		return fmt.Sprintf("%d", a.End)
+	case "svtype":
+		return a.Svtype
+	case "svlen":
+		return a.Svlen
+	case "af":
+		return a.Af
+	case "ac":
+		return a.Ac
+	case "an":
+		return a.An
+	case "grpmax_af":
+		return a.GrpmaxAf
+	case "filters":
+		return a.Filters
+	case "cpx_type":
+		return a.CpxType
+	case "af_afr":
+		return a.AfAfr
+	case "af_amr":
+		return a.AfAmr
+	case "af_asj":
+		return a.AfAsj
+	case "af_eas":
+		return a.AfEas
+	case "af_fin":
+		return a.AfFin
+	case "af_mid":
+		return a.AfMid
+	case "af_nfe":
+		return a.AfNfe
+	case "af_rmi":
+		return a.AfRmi
+	case "af_sas":
+		return a.AfSas
+	case "predicted_genes":
+		return strings.Join(a.PredictedGenes, ",")
+	case "predicted_effects":
+		return strings.Join(a.PredictedEffects, ",")
+	case "intergenic":
+		if a.Intergenic {
+			return "true"
+		}
+		return "false"
 	default:
 		return ""
 	}

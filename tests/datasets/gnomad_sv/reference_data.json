@@ -1,0 +1,11 @@
+{
+  "dataset": "gnomad_sv",
+  "dataset_id": 827,
+  "description": "gnomAD v4.1 SV sites VCF: one entry per SV, population AFs and PREDICTED_* gene annotations, in the gnomad federation.",
+  "entries": [
+    {"id": "gnomAD-SV_v3_DUP_chr1_test1", "chromosome": "1", "start": 10000, "end": 295666, "svtype": "DUP", "af": "0.001997", "gene": "OR4F5", "interval": true},
+    {"id": "gnomAD-SV_v3_DEL_chr1_test2", "chromosome": "1", "start": 14874, "end": 7467242, "svtype": "DEL", "af": "0.01", "gene": "TP53", "interval": false},
+    {"id": "gnomAD-SV_v3_BND_chr2_test3", "chromosome": "2", "start": 10000, "end": 10434, "svtype": "BND", "af": "0.1", "gene": null, "interval": false},
+    {"id": "gnomAD-SV_v3_INV_chr3_test4", "chromosome": "3", "start": 50000, "end": 150000, "svtype": "INV", "af": "0.0001", "gene": "BRCA1", "interval": true}
+  ]
+}

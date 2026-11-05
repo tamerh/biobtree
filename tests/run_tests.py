@@ -209,7 +209,7 @@ Examples:
   %(prog)s hmdb,go,taxonomy   # Run multiple specific tests
 
 Available datasets:
-  uniprot, go, taxonomy, eco, efo, chebi, interpro, hmdb, lipidmaps, swisslipids, chembl, ensembl, mondo, hpo, mesh, uberon, cl, oba, pato, obi, xco, bgee, patent, clinical_trials, clinvar, string, reactome, rhea, alphafold, alphamissense, alphamissense_transcript, rnacentral, uniparc, uniref50, uniref90, uniref100, gwas_study, gwas, dbsnp, intact, diamond_similarity, antibody, pubchem, entrez, refseq, gencc, clingen_gene_validity, clingen_dosage, clingen_variant, generif, depmap, depmap_dependency, bindingdb, ctd, msigdb, collectri, signor, chip_atlas_tfbs, wikipathways, dbvar
+  uniprot, go, taxonomy, eco, efo, chebi, interpro, hmdb, lipidmaps, swisslipids, chembl, ensembl, mondo, hpo, mesh, uberon, cl, oba, pato, obi, xco, bgee, patent, clinical_trials, clinvar, string, reactome, rhea, alphafold, alphamissense, alphamissense_transcript, rnacentral, uniparc, uniref50, uniref90, uniref100, gwas_study, gwas, dbsnp, intact, diamond_similarity, antibody, pubchem, entrez, refseq, gencc, clingen_gene_validity, clingen_dosage, clingen_variant, generif, depmap, depmap_dependency, bindingdb, ctd, msigdb, collectri, signor, chip_atlas_tfbs, wikipathways, dbvar, gnomad_sv
 
   Temporarily disabled (Ensembl Genomes API SSL issues):
   ensembl_bacteria, ensembl_fungi, ensembl_metazoa, ensembl_plants, ensembl_protists
@@ -342,6 +342,7 @@ Available datasets:
         'chip_atlas_tfbs': datasets_dir / "chip_atlas_tfbs" / "test_chip_atlas_tfbs.py",
         'wikipathways': datasets_dir / "wikipathways" / "test_wikipathways.py",
         'dbvar': datasets_dir / "dbvar" / "test_dbvar.py",
+        'gnomad_sv': datasets_dir / "gnomad_sv" / "test_gnomad_sv.py",
     }
 
     # Parse dataset selection
@@ -428,6 +429,11 @@ Available datasets:
         for ds in ('hgnc', 'entrez'):
             if ds not in build_datasets:
                 build_datasets.append(ds)
+
+    # gnomAD SV: hgnc is needed for the PREDICTED_* gene xrefs
+    if 'gnomad_sv' in selected_datasets:
+        if 'hgnc' not in build_datasets:
+            build_datasets.append('hgnc')
 
     # Handle RefSeq dataset: requires taxonomy ID for genome-based data
     if 'refseq' in selected_datasets:

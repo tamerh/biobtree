@@ -983,6 +983,24 @@
     "test_entries_count": "100",
     "bucketMethod": "alphabetic"
   },
+  "gnomad_sv": {
+    "id": "827",
+    "name": "gnomAD SV",
+    "textPriority": "70",
+    "data_version": "gnomAD v4.1 structural variants (SV sites VCF)",
+    "aliases": "gnomAD SV,gnomAD structural variant,symbolic SV",
+    "url": "https://gnomad.broadinstitute.org/variant/\u00a3{id}?dataset=gnomad_sv_r4",
+    "path": "https://storage.googleapis.com/gcp-public-data--gnomad/release/4.1/genome_sv/gnomad.v4.1.sv.sites.vcf.gz",
+    "testPath": "tests/datasets/gnomad_sv/gnomad_sv_fixture.vcf",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "chromosome,start,end,svtype,svlen,af,ac,an,grpmax_af,filters,cpx_type,af_afr,af_amr,af_asj,af_eas,af_fin,af_mid,af_nfe,af_rmi,af_sas,[]predicted_genes,[]predicted_effects,intergenic",
+    "compact_fields": "svtype,end,af,grpmax_af,filters",
+    "test_entries_count": "100",
+    "bucketMethod": "alphanum",
+    "federation": "gnomad",
+    "intervalIndex": "yes"
+  },
   "dbvar": {
     "id": "826",
     "name": "dbVar",

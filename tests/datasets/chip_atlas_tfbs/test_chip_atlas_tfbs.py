@@ -95,6 +95,19 @@ class ChipAtlasTests:
         return True, f"Acaa2 mm10 -> {len(targets)} Entrez targets"
 
     @test
+    def test_multi_distance_windows(self):
+        """The same TF has separate +/-1 kb and +/-5 kb entries, and 5 kb is not smaller"""
+        a1 = self._attr("CHIPATLAS:hg38:AATF:1")
+        a5 = self._attr("CHIPATLAS:hg38:AATF:5")
+        if a1 is None or a5 is None:
+            return False, "missing AATF 1 kb or 5 kb entry"
+        if a1.get("distance_kb") != 1 or a5.get("distance_kb") != 5:
+            return False, f"distances {a1.get('distance_kb')}/{a5.get('distance_kb')}"
+        if int(a5.get("target_count") or 0) < int(a1.get("target_count") or 0):
+            return False, f"5 kb targets {a5.get('target_count')} < 1 kb {a1.get('target_count')}"
+        return True, f"AATF hg38: 1 kb={a1['target_count']} targets, 5 kb={a5['target_count']} targets"
+
+    @test
     def test_all_genomes_present(self):
         """Every requested ChIP-Atlas genome has at least one entry"""
         genomes = set()
@@ -158,6 +171,7 @@ def main():
         c.test_entry_attributes,
         c.test_human_targets_link_to_hgnc,
         c.test_nonhuman_targets_link_to_entrez,
+        c.test_multi_distance_windows,
         c.test_all_genomes_present,
         c.test_reachable_from_hgnc,
     ]:

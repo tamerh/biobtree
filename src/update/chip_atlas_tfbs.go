@@ -135,10 +135,19 @@ func (c *chipAtlasTfbs) update() {
 	analysisPath := config.Dataconf[c.source]["path"]
 	targetTemplate := config.Dataconf[c.source]["targetPath"]
 	genomes := strings.Split(config.Dataconf[c.source]["genomes"], ",")
-	distance := config.Dataconf[c.source]["distance"]
-	if distance == "" {
-		distance = "1"
+	distances := config.Dataconf[c.source]["distances"]
+	if distances == "" {
+		distances = config.Dataconf[c.source]["distance"]
 	}
+	if distances == "" {
+		distances = "1"
+	}
+	if config.IsTestMode() {
+		if td := config.Dataconf[c.source]["test_distances"]; td != "" {
+			distances = td
+		}
+	}
+	distanceList := strings.Split(distances, ",")
 
 	testLimit := config.GetTestLimit(c.source)
 	testTFLimit := 0
@@ -180,65 +189,71 @@ func (c *chipAtlasTfbs) update() {
 		tfs := byGenome[genome]
 		sort.Strings(tfs)
 
-		processed := 0
-		for _, tf := range tfs {
-			if testTFLimit > 0 && processed >= testTFLimit {
-				break
-			}
-			if testLimit > 0 && int(totalEntries) >= testLimit {
-				break
-			}
-
-			url := strings.NewReplacer(
-				"{genome}", genome,
-				"{tf}", tf,
-				"{distance}", distance,
-			).Replace(targetTemplate)
-
-			attr, targets, err := c.readTargetTable(url, tf, genome, taxID, distance)
-			if err != nil {
-				log.Printf("ChIP-Atlas: %s %s: %v", genome, tf, err)
+		for _, distance := range distanceList {
+			distance = strings.TrimSpace(distance)
+			if distance == "" {
 				continue
 			}
-			if attr == nil || len(targets) == 0 {
-				continue
-			}
+			processed := 0
+			for _, tf := range tfs {
+				if testTFLimit > 0 && processed >= testTFLimit {
+					break
+				}
+				if testLimit > 0 && int(totalEntries) >= testLimit {
+					break
+				}
 
-			entryID := fmt.Sprintf("CHIPATLAS:%s:%s:%s", genome, tf, distance)
-			if b, merr := ffjson.Marshal(attr); merr == nil {
-				c.d.addProp3(entryID, sourceID, b)
-			} else {
-				log.Printf("ChIP-Atlas: marshal %s: %v", entryID, merr)
-			}
+				url := strings.NewReplacer(
+					"{genome}", genome,
+					"{tf}", tf,
+					"{distance}", distance,
+				).Replace(targetTemplate)
 
-			// The TF itself: HGNC for human, Entrez for other species, so
-			// >>hgnc>>chip_atlas_tfbs / >>entrez>>chip_atlas_tfbs resolve.
-			if ds, id, ok := resolver.resolve(tf, taxID); ok {
-				c.d.addXref(id, ds, entryID, sourceID, false)
-			}
-
-			// Target genes.
-			for _, target := range targets {
-				ds, id, ok := resolver.resolve(target, taxID)
-				if !ok {
+				attr, targets, err := c.readTargetTable(url, tf, genome, taxID, distance)
+				if err != nil {
+					log.Printf("ChIP-Atlas: %s %s: %v", genome, tf, err)
 					continue
 				}
-				c.d.addXref(entryID, sourceID, id, ds, false)
-				totalResolved++
-			}
+				if attr == nil || len(targets) == 0 {
+					continue
+				}
 
-			totalEntries++
-			totalTargets += int64(len(targets))
-			processed++
+				entryID := fmt.Sprintf("CHIPATLAS:%s:%s:%s", genome, tf, distance)
+				if b, merr := ffjson.Marshal(attr); merr == nil {
+					c.d.addProp3(entryID, sourceID, b)
+				} else {
+					log.Printf("ChIP-Atlas: marshal %s: %v", entryID, merr)
+				}
 
-			if idLogFile != nil {
-				logProcessedID(idLogFile, entryID)
-			}
+				// The TF itself: HGNC for human, Entrez for other species, so
+				// >>hgnc>>chip_atlas_tfbs / >>entrez>>chip_atlas_tfbs resolve.
+				if ds, id, ok := resolver.resolve(tf, taxID); ok {
+					c.d.addXref(id, ds, entryID, sourceID, false)
+				}
 
-			elapsed := int64(time.Since(startTime).Seconds())
-			if elapsed > previous+int64(c.d.progInterval) {
-				previous = elapsed
-				c.d.progChan <- &progressInfo{dataset: c.source, currentKBPerSec: 0}
+				// Target genes.
+				for _, target := range targets {
+					ds, id, ok := resolver.resolve(target, taxID)
+					if !ok {
+						continue
+					}
+					c.d.addXref(entryID, sourceID, id, ds, false)
+					totalResolved++
+				}
+
+				totalEntries++
+				totalTargets += int64(len(targets))
+				processed++
+
+				if idLogFile != nil {
+					logProcessedID(idLogFile, entryID)
+				}
+
+				elapsed := int64(time.Since(startTime).Seconds())
+				if elapsed > previous+int64(c.d.progInterval) {
+					previous = elapsed
+					c.d.progChan <- &progressInfo{dataset: c.source, currentKBPerSec: 0}
+				}
 			}
 		}
 	}

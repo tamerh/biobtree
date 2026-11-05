@@ -21,8 +21,9 @@ One entry per `(genome, TF, TSS window)`:
 CHIPATLAS:hg38:TP53:1
 ```
 
-`1` is the TSS window in kb (±1 kb, promoter). Targets are genes whose TSS
-falls within that window of a ChIP-seq peak for the TF.
+`1` is the TSS window in kb (±1 kb, promoter). Separate entries exist for
+±1, ±5 and ±10 kb; targets are genes whose TSS falls within that window of a
+ChIP-seq peak for the TF.
 
 ```
 # TF -> target genes
@@ -43,7 +44,7 @@ the same symbol.
 | `tf` | antigen / TF symbol (e.g. `TP53`) |
 | `genome` | assembly (`hg38`, `mm10`, …) |
 | `tax_id` | NCBI taxonomy id |
-| `distance_kb` | TSS window (1, 5, or 10 kb; currently 1) |
+| `distance_kb` | TSS window (1, 5, or 10 kb) |
 | `target_count` | number of target genes in this window |
 | `experiment_count` | ChIP-seq experiments aggregated into the table |
 | `cell_type_count` | distinct cell types among those experiments |
@@ -68,6 +69,5 @@ the same symbol.
 - This is the **Target Genes** product. Peak-level data (Peak Browser,
   per-experiment BED/BigWig) is not ingested; it is a separate, much larger
   dataset.
-- Only the ±1 kb promoter window is ingested in the first pass. ±5/10 kb are
-  the same tables with a different `distance` and can be added as further
-  entries without a schema change.
+- All three TSS windows (±1, ±5, ±10 kb) are ingested as separate entries, so
+  the same TF can be queried at promoter or broader-window resolution.

@@ -986,19 +986,20 @@
   "chip_atlas_tfbs": {
     "id": "824",
     "name": "ChIP-Atlas TFBS",
-    "data_version": "ChIP-Atlas Target Genes (all genomes, TSS +/-1 kb)",
+    "data_version": "ChIP-Atlas Target Genes (all genomes, TSS +/-1/5/10 kb)",
     "aliases": "ChIP-Atlas,ChIP Atlas,ChIP-seq,TF target genes,target genes,promoter binding,experimental TFBS",
     "url": "https://chip-atlas.org/target_genes",
     "path": "https://chip-atlas.dbcls.jp/data/metadata/analysisList.tab",
     "targetPath": "https://chip-atlas.dbcls.jp/data/{genome}/target/{tf}.{distance}.tsv",
     "genomes": "hg38,hg19,mm10,mm9,rn6,dm6,dm3,ce11,ce10,sacCer3,TAIR12",
-    "distance": "1",
+    "distances": "1,5,10",
+    "test_distances": "1,5",
     "useLocalFile": "no",
     "hasFilter": "yes",
     "attrs": "tf,genome,tax_id,distance_kb,target_count,experiment_count,cell_type_count,[]cell_types,top_targets_schema,[]top_targets",
     "compact_fields": "tf,genome,distance_kb,target_count,experiment_count,cell_type_count",
     "test_entries_count": "30",
-    "test_tf_limit": "2",
+    "test_tf_limit": "1",
     "bucketMethod": "alphabetic"
   },
   "vega": {

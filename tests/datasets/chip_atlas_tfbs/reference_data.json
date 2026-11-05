@@ -3,16 +3,122 @@
   "dataset_id": 824,
   "description": "ChIP-Atlas Target Genes: one entry per (genome, TF, TSS window), targets are genes whose TSS is within the window of a ChIP-seq peak. Test build processes the first two TFs per genome.",
   "entries": [
-    {"id": "CHIPATLAS:hg38:AATF:1", "tf": "AATF", "genome": "hg38", "tax_id": "9606", "distance_kb": 1, "min_targets": 1, "target_dataset": "hgnc"},
-    {"id": "CHIPATLAS:hg19:AATF:1", "tf": "AATF", "genome": "hg19", "tax_id": "9606", "distance_kb": 1, "min_targets": 1, "target_dataset": "hgnc"},
-    {"id": "CHIPATLAS:mm10:Acaa2:1", "tf": "Acaa2", "genome": "mm10", "tax_id": "10090", "distance_kb": 1, "min_targets": 100, "target_dataset": "entrez"},
-    {"id": "CHIPATLAS:mm9:Acaa2:1", "tf": "Acaa2", "genome": "mm9", "tax_id": "10090", "distance_kb": 1, "min_targets": 100, "target_dataset": "entrez"},
-    {"id": "CHIPATLAS:rn6:Ahr:1", "tf": "Ahr", "genome": "rn6", "tax_id": "10116", "distance_kb": 1, "min_targets": 1, "target_dataset": "entrez"},
-    {"id": "CHIPATLAS:dm6:AGO2:1", "tf": "AGO2", "genome": "dm6", "tax_id": "7227", "distance_kb": 1, "min_targets": 100, "target_dataset": "entrez"},
-    {"id": "CHIPATLAS:dm3:AGO2:1", "tf": "AGO2", "genome": "dm3", "tax_id": "7227", "distance_kb": 1, "min_targets": 100, "target_dataset": "entrez"},
-    {"id": "CHIPATLAS:ce11:aha-1:1", "tf": "aha-1", "genome": "ce11", "tax_id": "6239", "distance_kb": 1, "min_targets": 1, "target_dataset": "entrez"},
-    {"id": "CHIPATLAS:ce10:aha-1:1", "tf": "aha-1", "genome": "ce10", "tax_id": "6239", "distance_kb": 1, "min_targets": 1, "target_dataset": "entrez"},
-    {"id": "CHIPATLAS:sacCer3:ABF1:1", "tf": "ABF1", "genome": "sacCer3", "tax_id": "559292", "distance_kb": 1, "min_targets": 1, "target_dataset": "entrez"},
-    {"id": "CHIPATLAS:TAIR12:AGL20:1", "tf": "AGL20", "genome": "TAIR12", "tax_id": "3702", "distance_kb": 1, "min_targets": 100, "target_dataset": "entrez"}
+    {
+      "id": "CHIPATLAS:hg38:AATF:1",
+      "tf": "AATF",
+      "genome": "hg38",
+      "tax_id": "9606",
+      "distance_kb": 1,
+      "min_targets": 1,
+      "target_dataset": "hgnc"
+    },
+    {
+      "id": "CHIPATLAS:hg19:AATF:1",
+      "tf": "AATF",
+      "genome": "hg19",
+      "tax_id": "9606",
+      "distance_kb": 1,
+      "min_targets": 1,
+      "target_dataset": "hgnc"
+    },
+    {
+      "id": "CHIPATLAS:mm10:Acaa2:1",
+      "tf": "Acaa2",
+      "genome": "mm10",
+      "tax_id": "10090",
+      "distance_kb": 1,
+      "min_targets": 100,
+      "target_dataset": "entrez"
+    },
+    {
+      "id": "CHIPATLAS:mm9:Acaa2:1",
+      "tf": "Acaa2",
+      "genome": "mm9",
+      "tax_id": "10090",
+      "distance_kb": 1,
+      "min_targets": 100,
+      "target_dataset": "entrez"
+    },
+    {
+      "id": "CHIPATLAS:rn6:Ahr:1",
+      "tf": "Ahr",
+      "genome": "rn6",
+      "tax_id": "10116",
+      "distance_kb": 1,
+      "min_targets": 1,
+      "target_dataset": "entrez"
+    },
+    {
+      "id": "CHIPATLAS:dm6:AGO2:1",
+      "tf": "AGO2",
+      "genome": "dm6",
+      "tax_id": "7227",
+      "distance_kb": 1,
+      "min_targets": 100,
+      "target_dataset": "entrez"
+    },
+    {
+      "id": "CHIPATLAS:dm3:AGO2:1",
+      "tf": "AGO2",
+      "genome": "dm3",
+      "tax_id": "7227",
+      "distance_kb": 1,
+      "min_targets": 100,
+      "target_dataset": "entrez"
+    },
+    {
+      "id": "CHIPATLAS:ce11:aha-1:1",
+      "tf": "aha-1",
+      "genome": "ce11",
+      "tax_id": "6239",
+      "distance_kb": 1,
+      "min_targets": 1,
+      "target_dataset": "entrez"
+    },
+    {
+      "id": "CHIPATLAS:ce10:aha-1:1",
+      "tf": "aha-1",
+      "genome": "ce10",
+      "tax_id": "6239",
+      "distance_kb": 1,
+      "min_targets": 1,
+      "target_dataset": "entrez"
+    },
+    {
+      "id": "CHIPATLAS:sacCer3:ABF1:1",
+      "tf": "ABF1",
+      "genome": "sacCer3",
+      "tax_id": "559292",
+      "distance_kb": 1,
+      "min_targets": 1,
+      "target_dataset": "entrez"
+    },
+    {
+      "id": "CHIPATLAS:TAIR12:AGL20:1",
+      "tf": "AGL20",
+      "genome": "TAIR12",
+      "tax_id": "3702",
+      "distance_kb": 1,
+      "min_targets": 100,
+      "target_dataset": "entrez"
+    },
+    {
+      "id": "CHIPATLAS:hg38:AATF:5",
+      "tf": "AATF",
+      "genome": "hg38",
+      "tax_id": "9606",
+      "distance_kb": 5,
+      "min_targets": 1,
+      "target_dataset": "hgnc"
+    },
+    {
+      "id": "CHIPATLAS:mm10:Acaa2:5",
+      "tf": "Acaa2",
+      "genome": "mm10",
+      "tax_id": "10090",
+      "distance_kb": 5,
+      "min_targets": 100,
+      "target_dataset": "entrez"
+    }
   ]
 }

@@ -3686,3 +3686,26 @@ message WikipathwaysAttr {
   string release = 5;    // WikiPathways release (e.g. "WikiPathways_20261010")
   string id = 100;       // transient - populated at runtime from Xref.Identifier
 }
+
+// ============================================================================
+// dbVar structural variants (Dataset ID: 826)
+// Source: https://www.ncbi.nlm.nih.gov/dbvar/ (NCBI public domain)
+//
+// Clinical variant_call records from the GRCh38 VCF. Keyed by dbVar call id
+// (nssv...). Coordinates are 1-based; END is the VCF INFO/END or POS.
+// ============================================================================
+message DbvarAttr {
+  string chromosome = 1;
+  int64 start = 2;
+  int64 end = 3;
+  string svtype = 4;                  // DEL, DUP, INS, INV, CNV, BND, ...
+  string svlen = 5;                   // signed length string (may be absent)
+  string clinical_significance = 6;   // Pathogenic, Likely pathogenic, VUS, ...
+  string origin = 7;                  // germline, de novo, somatic, ...
+  repeated string phenotype_ids = 8;  // MONDO/OMIM/Orphanet/MedGen/MeSH ids
+  repeated string clinvar_accessions = 9; // VCV/RCV accessions
+  string region_id = 10;              // parent dbVar region (nsv...)
+  string description = 11;            // dbVar DESC
+  bool somatic = 12;
+  string id = 100; // transient - populated at runtime from Xref.Identifier
+}

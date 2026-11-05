@@ -308,6 +308,9 @@ func extractField(xref *pbuf.Xref, field string) string {
 	if a := xref.GetWikipathways(); a != nil {
 		return extractWikipathwaysField(a, field)
 	}
+	if a := xref.GetDbvar(); a != nil {
+		return extractDbvarField(a, field)
+	}
 	if a := xref.GetClingenGeneValidity(); a != nil {
 		return extractClingenGeneValidityField(a, field)
 	}
@@ -1301,6 +1304,12 @@ func ExtractSourceName(xref *pbuf.Xref) string {
 	if a := xref.GetWikipathways(); a != nil {
 		return a.Name
 	}
+	if a := xref.GetDbvar(); a != nil {
+		if a.Svtype != "" {
+			return a.Svtype + " " + a.Chromosome + ":" + fmt.Sprintf("%d-%d", a.Start, a.End)
+		}
+		return a.Description
+	}
 	if a := xref.GetUniprot(); a != nil {
 		if len(a.Names) > 0 {
 			return a.Names[0]
@@ -2205,6 +2214,41 @@ func extractVegaField(a *pbuf.VegaAttr, field string) string {
 		return a.EnsemblId
 	case "gene_id":
 		return a.GeneId
+	default:
+		return ""
+	}
+}
+
+// extractDbvarField extracts a field from DbvarAttr
+func extractDbvarField(a *pbuf.DbvarAttr, field string) string {
+	switch field {
+	case "chromosome":
+		return a.Chromosome
+	case "start":
+		return fmt.Sprintf("%d", a.Start)
+	case "end":
+		return fmt.Sprintf("%d", a.End)
+	case "svtype":
+		return a.Svtype
+	case "svlen":
+		return a.Svlen
+	case "clinical_significance":
+		return a.ClinicalSignificance
+	case "origin":
+		return a.Origin
+	case "phenotype_ids":
+		return strings.Join(a.PhenotypeIds, ",")
+	case "clinvar_accessions":
+		return strings.Join(a.ClinvarAccessions, ",")
+	case "region_id":
+		return a.RegionId
+	case "description":
+		return a.Description
+	case "somatic":
+		if a.Somatic {
+			return "true"
+		}
+		return "false"
 	default:
 		return ""
 	}

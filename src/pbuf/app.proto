@@ -228,6 +228,7 @@ message Xref {
     VegaAttr vega=825;
     ChipAtlasTfbsAttr chip_atlas_tfbs=826;
     WikipathwaysAttr wikipathways=827;
+    DbvarAttr dbvar=828;
     SaprotAttr saprot=815;
 
   }

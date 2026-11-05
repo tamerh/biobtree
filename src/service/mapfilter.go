@@ -1846,6 +1846,9 @@ func intervalOverlap(x *pbuf.Xref, chr string, pos int64) bool {
 	case x.GetJasparTfbs() != nil:
 		a := x.GetJasparTfbs()
 		cchr, cstart, cend = a.Chromosome, int64(a.Start), int64(a.End)
+	case x.GetDbvar() != nil:
+		a := x.GetDbvar()
+		cchr, cstart, cend = a.Chromosome, a.Start, a.End
 	default:
 		return false
 	}

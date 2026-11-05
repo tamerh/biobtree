@@ -327,6 +327,7 @@ func getPrimarySourceFileDefault(datasetName string) string {
 		"vega":            "https://ftp.ensembl.org/pub/vega/human/Homo_sapiens.VEGA68.68.gtf.gz",
 		"chip_atlas_tfbs": "https://chip-atlas.dbcls.jp/data/metadata/analysisList.tab",
 		"wikipathways":    "https://data.wikipathways.org/current/gmt/",
+		"dbvar":           "https://ftp.ncbi.nlm.nih.gov/pub/dbVar/data/Homo_sapiens/by_assembly/GRCh38/vcf/",
 
 		// Ontologies with multiple files
 		"hpo": "https://github.com/obophenotype/human-phenotype-ontology/releases/download/v2025-11-24/hp-base.obo",

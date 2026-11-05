@@ -1003,6 +1003,12 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			d.datasets2 = append(d.datasets2, data)
 			go wp.update()
 			break
+		case "dbvar":
+			d.wg.Add(1)
+			dv := dbvar{source: data, d: d}
+			d.datasets2 = append(d.datasets2, data)
+			go dv.update()
+			break
 		case "clingen_gene_validity":
 			d.wg.Add(1)
 			cgv := clingenGeneValidity{source: data, d: d}

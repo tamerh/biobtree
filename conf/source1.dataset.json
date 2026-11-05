@@ -983,6 +983,23 @@
     "test_entries_count": "100",
     "bucketMethod": "alphabetic"
   },
+  "dbvar": {
+    "id": "826",
+    "name": "dbVar",
+    "textPriority": "75",
+    "data_version": "dbVar GRCh38 clinical variant calls",
+    "aliases": "dbVar,structural variant,structural variants,CNV,copy number variant,deletion,duplication,inversion,translocation",
+    "url": "https://www.ncbi.nlm.nih.gov/dbvar/variants/\u00a3{id}/",
+    "path": "https://ftp.ncbi.nlm.nih.gov/pub/dbVar/data/Homo_sapiens/by_assembly/GRCh38/vcf/",
+    "files": "GRCh38.variant_call.clinical.pathogenic_or_likely_pathogenic.vcf.gz,GRCh38.variant_call.clinical.uncertain_significance.vcf.gz,GRCh38.variant_call.clinical.conflicting_or_other.vcf.gz,GRCh38.variant_call.clinical.benign_or_likely_benign.vcf.gz",
+    "useLocalFile": "no",
+    "hasFilter": "yes",
+    "attrs": "chromosome,start,end,svtype,svlen,clinical_significance,origin,[]phenotype_ids,[]clinvar_accessions,region_id,description,somatic",
+    "compact_fields": "svtype,start,end,clinical_significance",
+    "test_entries_count": "500",
+    "bucketMethod": "alphabetic",
+    "intervalIndex": "yes"
+  },
   "wikipathways": {
     "id": "825",
     "name": "WikiPathways",

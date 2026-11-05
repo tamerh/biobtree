@@ -44,6 +44,7 @@ swisslipids: uniprot, go, chebi, uberon, cl
 lipidmaps: chebi, pubchem
 dbsnp: entrez, clinvar, pharmgkb_variant, alphamissense, spliceai, pharmgkb_var_annotation
 clinvar: hgnc, mondo, hpo, dbsnp, orphanet, civic_variant, cellosaurus, clingen_variant
+dbvar: clinvar, mondo, mim, orphanet, medgen, mesh, hpo, pubmed
 alphamissense: uniprot, transcript
 mavedb: uniprot, hgnc, ensembl, transcript  # deep-mutational-scanning functional variant scores (ACMG PS3/BS3); reach via gene/protein >> mavedb; per-variant score + hgvs_pro + license
 # VARIANT-EFFECT SCORES — look up by the variant's OWN key with biobtree_entry(dataset=..), NOT via >>chains:

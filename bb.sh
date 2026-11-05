@@ -163,6 +163,7 @@ DATASETS=(
     jaspar_tfbs
     chip_atlas_tfbs
     wikipathways
+    dbvar
     encode_ccre
     gnomad_rmc
     gnomad_gnocchi

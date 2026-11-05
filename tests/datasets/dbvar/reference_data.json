@@ -1,0 +1,10 @@
+{
+  "dataset": "dbvar",
+  "dataset_id": 826,
+  "description": "dbVar clinical structural variants (GRCh38 variant_call clinical VCFs): one entry per nssv call, with phenotype/ClinVar/PubMed xrefs and an interval index.",
+  "entries": [
+    {"id": "nssv16255736", "chromosome": "1", "start": 10001, "end": 5532775, "svtype": "DEL", "clinical_significance": "Pathogenic", "min_clinvar": 1, "min_mim": 1},
+    {"id": "nssv18792863", "chromosome": "1", "start": 10001, "end": 2649537, "svtype": "DEL", "clinical_significance": "Pathogenic", "min_clinvar": 1, "min_mim": 1},
+    {"id": "nssv15124731", "chromosome": "1", "start": 14874, "end": 7467242, "svtype": "DEL", "clinical_significance": "Pathogenic", "min_clinvar": 1, "min_mim": 0}
+  ]
+}

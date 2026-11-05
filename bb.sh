@@ -1007,6 +1007,16 @@ run_tests() {
     echo "Test script: $test_script"
     echo ""
 
+    # MCP helper unit tests (compact/truncation, Atlas sections, enrich
+    # registration/dispatch). No server or MCP runtime required.
+    local unit_script="$(dirname "$0")/tests/test_mcp_helpers.py"
+    local unit_code=0
+    if [[ -f "$unit_script" ]]; then
+        echo "--- MCP helper unit tests ---"
+        python3 "$unit_script" || unit_code=$?
+        echo ""
+    fi
+
     # Run the integration tests
     local extra_args=""
     if [[ "$use_mcp" == "true" ]]; then
@@ -1016,7 +1026,7 @@ run_tests() {
     python3 "$test_script" --server "$server_url" $extra_args
     local exit_code=$?
 
-    if [[ $exit_code -eq 0 ]]; then
+    if [[ $exit_code -eq 0 && $unit_code -eq 0 ]]; then
         echo ""
         echo "✓ All integration tests passed"
     else
@@ -1024,7 +1034,10 @@ run_tests() {
         echo "✗ Some integration tests failed"
     fi
 
-    return $exit_code
+    if [[ $exit_code -ne 0 ]]; then
+        return $exit_code
+    fi
+    return $unit_code
 }
 
 # ============================================================================

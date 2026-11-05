@@ -55,7 +55,8 @@
     "gene_expression": "Tissue and cell-specific expression (Bgee, UBERON, CL)",
     "gwas_genetics": "Disease-SNP associations and population genetics (GWAS)",
     "lipid_metabolism": "Lipid structures and metabolism (SwissLipids)",
-    "protein_structures": "3D structure predictions (AlphaFold)",
+    "protein_structures": "3D structure predictions (AlphaFold) and PDB chain/residue coverage",
+    "gene_set_enrichment": "MSigDB gene-set over-representation via /ws/enrich/ (hypergeometric + BH-FDR)",
     "clinical_variants": "Clinical variant interpretation via ClinVar",
     "ncbi_datasets": "NCBI/Entrez Gene, RefSeq, PubChem compound mappings",
     "data_validation": "Data quality validation - attribute correctness, counts, known facts",
@@ -10415,6 +10416,86 @@
         "TP53"
       ],
       "should_fail": []
+    },
+    {
+      "type": "validation",
+      "category": "protein_structures",
+      "name": "PDB chain and residue coverage (8XOQ)",
+      "identifier": "8XOQ",
+      "dataset_id": 122,
+      "filter_dataset": "pdb",
+      "query": "",
+      "why": "SIFTS chain mappings expose which UniProt residues each PDB chain covers, so a structure's residue-level coverage is queryable, not just the PDB id.",
+      "validations": [
+        {"path": "Pdb.chain_count", "description": "chain_count == 2", "expected": 2},
+        {"path": "Pdb.chains", "description": "chains contains A", "contains": "A"},
+        {"path": "Pdb.chains", "description": "chains contains B", "contains": "B"},
+        {"path": "Pdb.chain_ranges", "description": "compact chain_ranges present", "min_length": 20},
+        {"path": "Pdb.chain_mappings", "description": "chain_mappings has >= 1 segment", "min_items": 1}
+      ]
+    },
+    {
+      "type": "validation",
+      "category": "protein_structures",
+      "name": "AlphaFold per-residue pLDDT (Q8TDI8)",
+      "identifier": "Q8TDI8",
+      "dataset_id": 29,
+      "filter_dataset": "alphafold",
+      "query": "",
+      "why": "Per-residue pLDDT and the canonical sequence length are stored on the AlphaFold attribute so confidence is readable at residue resolution.",
+      "validations": [
+        {"path": "Alphafold.sequence_length", "description": "sequence_length == 760", "expected": 760},
+        {"path": "Alphafold.plddt_start", "description": "plddt_start == 1", "expected": 1},
+        {"path": "Alphafold.plddt", "description": "plddt has one value per residue (760)", "min_items": 760}
+      ]
+    },
+    {
+      "type": "enrich",
+      "category": "gene_set_enrichment",
+      "name": "GeneTuring M22795 gene list",
+      "genes": ["ACSL1", "ACSL5", "AKT1", "AKT2", "CD36", "IRS2", "SLC27A1", "SLC27A5", "SLC2A1", "THBS1"],
+      "collection": "C5:GO",
+      "limit": 10,
+      "expected_mapped": 10,
+      "min_results": 5,
+      "expected_top": "GOBP_LONG_CHAIN_FATTY_ACID_IMPORT_ACROSS_PLASMA_MEMBRANE",
+      "max_top_fdr": 1e-06,
+      "min_tested_sets": 100,
+      "why": "One /ws/enrich/ call reproduces the curated GeneTuring answer: the 10-gene set is most specifically explained by long-chain fatty-acid import."
+    },
+    {
+      "type": "enrich",
+      "category": "gene_set_enrichment",
+      "name": "Enrichment deduplicates aliases",
+      "genes": ["TP53", "HGNC:11998"],
+      "collection": "C5:GO",
+      "limit": 5,
+      "expected_mapped": 1,
+      "min_results": 1,
+      "why": "A symbol and its HGNC ID resolve to the same gene, so they must count once in the hypergeometric background."
+    },
+    {
+      "type": "enrich",
+      "category": "gene_set_enrichment",
+      "name": "Enrichment GO namespace narrowing",
+      "genes": ["TP53", "BRCA1"],
+      "collection": "C5:GO:BP",
+      "limit": 5,
+      "expected_mapped": 2,
+      "min_results": 1,
+      "name_prefix": "GOBP_",
+      "why": "C5:GO:BP narrows the C5:GO collection to biological-process terms by name prefix."
+    },
+    {
+      "type": "enrich",
+      "category": "gene_set_enrichment",
+      "name": "Enrichment handles unknown genes",
+      "genes": ["NOTAREALGENE123"],
+      "collection": "C5:GO",
+      "limit": 5,
+      "expected_mapped": 0,
+      "min_results": 0,
+      "why": "An unmapped gene returns an empty ranked list rather than an error."
     }
   ]
 }

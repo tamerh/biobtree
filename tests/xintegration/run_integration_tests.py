@@ -113,6 +113,8 @@ class IntegrationTestRunner:
                 continue
             if test.get('type') == 'validation':
                 total_identifiers += len(test.get('validations', []))
+            elif test.get('type') == 'enrich':
+                total_identifiers += 1
             else:
                 total_identifiers += len(test.get('should_pass', [])) + len(test.get('should_fail', []))
 
@@ -125,6 +127,8 @@ class IntegrationTestRunner:
                 continue
             if test.get('type') == 'validation':
                 self.run_validation_test(test)
+            elif test.get('type') == 'enrich':
+                self.run_enrich_test(test)
             else:
                 self.run_test(test)
 
@@ -273,6 +277,110 @@ class IntegrationTestRunner:
             self.results.append(result)
             self.print_validation_result(result)
 
+    def run_enrich_test(self, test):
+        """Execute a gene-set enrichment test against /ws/enrich/.
+
+        Checks the ranked result shape rather than just "has results": the number
+        of mapped genes, the top term (specificity), its FDR, and optional
+        collection/name-prefix constraints.
+        """
+        import time
+
+        print(f"{Colors.BLUE}[{test['name']}]{Colors.END} /ws/enrich/ (enrichment)")
+        if self.verbose:
+            print(f"  Why: {test['why']}")
+
+        params = {
+            'i': ','.join(test.get('genes') or []),
+            'limit': test.get('limit', 20),
+        }
+        if test.get('collection'):
+            params['collection'] = test['collection']
+        url = f"{self.server}/ws/enrich/"
+
+        def record(desc, passed, error=None):
+            self.results.append({
+                'test_name': test['name'],
+                'query': '/ws/enrich/',
+                'identifier': test['name'],
+                'expected_pass': True,
+                'passed': passed,
+                'error': error,
+                'url': f"{url}?{urlencode(params)}",
+                'why': test['why'],
+                'validation_desc': desc,
+                'response_time_ms': elapsed_ms,
+            })
+            self.print_validation_result(self.results[-1])
+
+        try:
+            start = time.time()
+            response = requests.get(url, params=params, timeout=test.get('timeout', 120))
+            elapsed_ms = (time.time() - start) * 1000
+            response.raise_for_status()
+            data = response.json()
+        except Exception as e:
+            elapsed_ms = 0
+            record('enrich request', False, str(e))
+            return
+
+        query = data.get('query') or {}
+        results = data.get('results') or []
+
+        expected_mapped = test.get('expected_mapped')
+        if expected_mapped is not None:
+            got = query.get('mapped_genes', 0)
+            record(
+                f"mapped_genes == {expected_mapped} (got {got})",
+                got == expected_mapped,
+                None if got == expected_mapped else f"expected {expected_mapped}, got {got}",
+            )
+
+        min_results = test.get('min_results')
+        if min_results is not None:
+            record(
+                f"results >= {min_results} (got {len(results)})",
+                len(results) >= min_results,
+                None if len(results) >= min_results else f"expected >= {min_results}, got {len(results)}",
+            )
+
+        expected_top = test.get('expected_top')
+        if expected_top:
+            allowed = expected_top if isinstance(expected_top, list) else [expected_top]
+            got = results[0].get('name') if results else None
+            record(
+                f"top term is {allowed[0] if len(allowed) == 1 else 'one of ' + str(allowed)} (got {got})",
+                got in allowed,
+                None if got in allowed else f"expected {allowed}, got {got}",
+            )
+
+        max_top_fdr = test.get('max_top_fdr')
+        if max_top_fdr is not None:
+            got = results[0].get('fdr') if results else None
+            record(
+                f"top FDR <= {max_top_fdr:g} (got {got})",
+                got is not None and got <= max_top_fdr,
+                None if got is not None and got <= max_top_fdr else f"expected <= {max_top_fdr}, got {got}",
+            )
+
+        name_prefix = test.get('name_prefix')
+        if name_prefix:
+            bad = [r.get('name') for r in results if not str(r.get('name', '')).startswith(name_prefix)]
+            record(
+                f"all {len(results)} terms start with {name_prefix}",
+                not bad,
+                None if not bad else f"non-matching: {bad[:3]}",
+            )
+
+        min_tested = test.get('min_tested_sets')
+        if min_tested is not None:
+            got = data.get('tested_sets', 0)
+            record(
+                f"tested_sets >= {min_tested} (got {got})",
+                got >= min_tested,
+                None if got >= min_tested else f"expected >= {min_tested}, got {got}",
+            )
+
     def run_single_validation(self, test, entry, data, validation, url, elapsed_ms=0):
         """Run a single validation check"""
         path = validation.get('path', '')
@@ -334,6 +442,13 @@ class IntegrationTestRunner:
                 if not passed:
                     return {**result_base, 'passed': False, 'error': f"Mapping total is 0"}
             return {**result_base, 'passed': True, 'has_results': True}
+        elif 'min_items' in validation:
+            # List cardinality (e.g. per-residue pLDDT, chain mappings). Unlike
+            # min_length this counts elements, not characters of str(list).
+            got = len(value) if isinstance(value, (list, tuple, str)) else 0
+            passed = got >= validation['min_items']
+            if not passed:
+                return {**result_base, 'passed': False, 'error': f"Expected >= {validation['min_items']} items, got {got}"}
         elif 'expected' in validation:
             passed = value == validation['expected']
             if not passed:

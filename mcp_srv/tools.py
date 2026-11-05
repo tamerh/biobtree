@@ -43,6 +43,11 @@ MCP_TOOLS = [
         name="biobtree_atlas",
         description=TOOL_DESCRIPTIONS["biobtree_atlas"],
         inputSchema=INPUT_SCHEMAS["biobtree_atlas"]
+    ),
+    Tool(
+        name="biobtree_enrich",
+        description=TOOL_DESCRIPTIONS["biobtree_enrich"],
+        inputSchema=INPUT_SCHEMAS["biobtree_enrich"]
     )
 ]
 
@@ -85,6 +90,14 @@ CHAT_TOOLS = [
             "name": "biobtree_atlas",
             "description": TOOL_DESCRIPTIONS["biobtree_atlas"],
             "parameters": INPUT_SCHEMAS["biobtree_atlas"]
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "biobtree_enrich",
+            "description": TOOL_DESCRIPTIONS["biobtree_enrich"],
+            "parameters": INPUT_SCHEMAS["biobtree_enrich"]
         },
         # Cache control on last tool caches entire tools array
         "cache_control": {"type": "ephemeral"}
@@ -227,6 +240,15 @@ async def execute_tool(
                 arguments["entities"],
                 arguments.get("section"),
                 bool(arguments.get("full", False)),
+            )
+            return _truncate_result(res, max_result_length)
+        elif tool_name == "biobtree_enrich":
+            from .enrich import enrich_genes
+            res = await enrich_genes(
+                client,
+                arguments["genes"],
+                arguments.get("collection", "C5:GO"),
+                int(arguments.get("limit", 20)),
             )
             return _truncate_result(res, max_result_length)
         else:

@@ -329,6 +329,28 @@ CALL THIS FIRST for a gene/disease/drug question (what it is, its biology, disea
 RETURNS: per entity {type, canonical_url, content, sections} + not_covered list"""
 
 
+DESC_ENRICH = """Gene-set over-representation for a list of genes.
+
+SYNTAX: biobtree_enrich(genes=["TP53","BRCA1",...], collection="C5:GO", limit=20)
+
+USE FOR:
+- "Which GO term / pathway describes these genes?"
+- Gene-set enrichment from a list of HGNC symbols or IDs.
+- Returns MSigDB sets over-represented among the input genes using a
+  hypergeometric test and BH-FDR, restricted to set sizes 5-500 and ranked
+  by fold enrichment (p and FDR are reported for filtering).
+
+DEFAULTS: collection="C5:GO" (GO BP/MF/CC); limit=20.
+- collection="C5:GO:BP" narrows to biological process, "C5:GO:MF" to
+  molecular function, "C5:GO:CC" to cellular component.
+- Other MSigDB collections: "C2:CP:REACTOME", "C2:CGP", "H", etc.
+- Inputs must be HGNC symbols/IDs. Use biobtree_map first if you only have
+  Ensembl/UniProt IDs.
+
+RETURNS: query summary + ranked terms {id, name, collection, overlap,
+set_size, fold, p, fdr}."""
+
+
 # =============================================================================
 # TOOL_DESCRIPTIONS dict - references the variables above
 # =============================================================================
@@ -338,6 +360,7 @@ TOOL_DESCRIPTIONS = {
     "biobtree_map": DESC_MAP,
     "biobtree_entry": DESC_ENTRY,
     "biobtree_atlas": DESC_ATLAS,
+    "biobtree_enrich": DESC_ENRICH,
 }
 
 
@@ -389,6 +412,15 @@ INPUT_SCHEMAS = {
             "full": {"type": "boolean", "description": "Return the entire page (large; may exceed output limits - avoid for multiple entities)"}
         },
         "required": ["entities"]
+    },
+    "biobtree_enrich": {
+        "type": "object",
+        "properties": {
+            "genes": {"type": "array", "items": {"type": "string"}, "description": "HGNC symbols or IDs"},
+            "collection": {"type": "string", "description": "MSigDB collection (default C5:GO; also C5:GO:BP/MF/CC, C2:CP:REACTOME, C2:CGP, H, ...)"},
+            "limit": {"type": "integer", "description": "Maximum enriched terms to return (default 20, max 100)"}
+        },
+        "required": ["genes"]
     }
 }
 

@@ -9686,10 +9686,10 @@
       "category": "chembl_mechanism",
       "name": "Compound to curated mechanism of action",
       "query": ">>*>>chembl_mechanism",
-      "why": "Curated drug MOA (target + action_type), distinct from promiscuous bioactivity (Atlas #49)",
+      "why": "Curated drug MOA (target + action_type), distinct from promiscuous bioactivity (Atlas #49). ChEMBL 37 has no curated drug_mechanism row for imatinib, so use RNA therapeutics (inclisiran, patisiran) which do.",
       "should_pass": [
-        "imatinib",
-        "inclisiran"
+        "inclisiran",
+        "patisiran"
       ],
       "should_fail": [
         "999999999"

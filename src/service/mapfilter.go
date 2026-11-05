@@ -469,7 +469,17 @@ func (s *Service) parsePagingKey(key string) (string, map[string]map[uint32]map[
 
 	for _, perkey := range keys2 {
 
+		// A page token joins per-input segments with "][" and terminates with
+		// the same separator, so the split yields a trailing empty segment.
+		// Skip it instead of failing on it.
+		if strings.TrimSpace(perkey) == "" {
+			continue
+		}
+
 		perkeyVals := strings.Split(perkey, pagingSep2) // ,
+		if len(perkeyVals) < 2 {
+			return "", nil, fmt.Errorf("Invalid paging request key")
+		}
 
 		domainID, err := strconv.Atoi(perkeyVals[1])
 		if err != nil {
@@ -506,13 +516,14 @@ func (s *Service) parsePagingKey(key string) (string, map[string]map[uint32]map[
 		} else {
 			res[perkeyVals[0]][uint32(domainID)] = idPages
 		}
-
-		return rootPage, res, nil
-
 	}
 
-	err := fmt.Errorf("Invalid paging request paging request starts with e or r")
-	return "", nil, err
+	if len(res) == 0 {
+		err := fmt.Errorf("Invalid paging request paging request starts with e or r")
+		return "", nil, err
+	}
+
+	return rootPage, res, nil
 
 }
 

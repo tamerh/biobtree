@@ -128,8 +128,14 @@ def _truncate_result(result: Any, max_len: int) -> str:
 
     A model cannot parse a JSON string cut mid-token, so when the payload is
     too large we keep as many complete elements as fit and add
-    `truncated`/`returned`/`total` metadata. The rest of the response
-    (stats, pagination, context) is preserved so the caller can continue.
+    `truncated`/`returned`/`total` metadata.
+
+    A continuation token from the service describes the UNTRUNCATED page: it
+    resumes after the last element the service returned, not after the last
+    element kept here. Following it would silently skip the dropped elements,
+    so truncation invalidates it (`has_next=false`, `next_token` removed) and
+    reports `dropped_inputs` (map/search rows cut from the tail) for the
+    caller to re-query in smaller batches.
     """
     text = _compact_json(result)
     if len(text) <= max_len:
@@ -167,6 +173,29 @@ def _truncate_result(result: Any, max_len: int) -> str:
         c["truncated"] = True
         c["returned"] = n
         c["total"] = total
+
+        # The service token points past the whole page, so it cannot express
+        # "resume after item n". Drop it rather than let the caller skip data.
+        pagination = c.get("pagination")
+        if isinstance(pagination, dict) and (
+            pagination.get("next_token") or pagination.get("has_next")
+        ):
+            pagination = dict(pagination)
+            pagination["has_next"] = False
+            pagination.pop("next_token", None)
+            pagination["invalidated_by_truncation"] = True
+            c["pagination"] = pagination
+
+        # Tell the caller which inputs to re-query (map) or which rows were cut.
+        dropped_inputs = []
+        for item in items[n:]:
+            if isinstance(item, dict):
+                value = item.get("input")
+                if isinstance(value, str) and value and value not in dropped_inputs:
+                    dropped_inputs.append(value)
+        if dropped_inputs:
+            c["dropped_inputs"] = dropped_inputs
+
         return c
 
     # Largest prefix that still fits (including the truncation metadata), so

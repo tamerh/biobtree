@@ -10496,6 +10496,17 @@
       "expected_mapped": 0,
       "min_results": 0,
       "why": "An unmapped gene returns an empty ranked list rather than an error."
+    },
+    {
+      "type": "pagination",
+      "category": "gene_set_enrichment",
+      "name": "Multi-gene map pagination keeps all inputs",
+      "terms": ["ACSL1", "ACSL5", "AKT1", "AKT2", "CD36", "IRS2", "SLC27A1", "SLC27A5", "SLC2A1", "THBS1"],
+      "query": ">>hgnc>>msigdb",
+      "expected_inputs": 10,
+      "min_pages": 2,
+      "max_pages": 40,
+      "why": "Regression: parsePagingKey returned after the first per-input segment, so page 2+ carried one input and 9 genes were silently lost."
     }
   ]
 }

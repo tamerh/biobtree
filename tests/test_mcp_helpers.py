@@ -83,9 +83,28 @@ class TestCompactAndTruncate(unittest.TestCase):
         self.assertEqual(parsed["total"], 1000)
         self.assertLess(parsed["returned"], 1000)
         self.assertEqual(len(parsed["data"]), parsed["returned"])
-        # Envelope metadata survives so the caller can page.
-        self.assertEqual(parsed["pagination"]["next_token"], "tok")
+        # The service token covers the untruncated page, so it must be dropped
+        # rather than let the caller skip the elements we cut.
+        self.assertFalse(parsed["pagination"]["has_next"])
+        self.assertNotIn("next_token", parsed["pagination"])
+        self.assertTrue(parsed["pagination"]["invalidated_by_truncation"])
         self.assertEqual(parsed["stats"]["total"], 1000)
+
+    def test_truncation_reports_dropped_map_inputs(self):
+        mappings = [
+            {"input": f"GENE{i}", "source": f"HGNC:{i}|g{i}", "targets": ["t" * 60] * 80}
+            for i in range(20)
+        ]
+        payload = {
+            "stats": {"queried": 20, "total": 1600, "mapped": 20},
+            "pagination": {"has_next": True, "next_token": "tok"},
+            "mappings": mappings,
+        }
+        parsed = json.loads(tools._truncate_result(payload, 4000))
+        self.assertTrue(parsed["truncated"])
+        self.assertLess(parsed["returned"], 20)
+        self.assertEqual(len(parsed["dropped_inputs"]), 20 - parsed["returned"])
+        self.assertIn("GENE19", parsed["dropped_inputs"])
 
     def test_large_list_is_wrapped_in_data(self):
         out = tools._truncate_result(["y" * 40 for _ in range(500)], 1000)

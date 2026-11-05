@@ -203,14 +203,15 @@ func (s *Service) Enrich(ids []string, collection string, limit int) (*Enrichmen
 		terms[i].FDR = qvals[i]
 	}
 
-	// Rank by fold (specificity), matching the Atlas enrichment; p/FDR are
-	// reported so the caller can apply its own significance cutoff.
+	// Rank by significance (FDR) first, then fold. Fold alone promotes tiny
+	// sets (e.g. 2/6) above a stronger 3/10 overlap; ORA convention is to lead
+	// with the multiple-testing-corrected p-value while still reporting fold.
 	sort.Slice(terms, func(i, j int) bool {
-		if terms[i].Fold != terms[j].Fold {
-			return terms[i].Fold > terms[j].Fold
-		}
 		if terms[i].FDR != terms[j].FDR {
 			return terms[i].FDR < terms[j].FDR
+		}
+		if terms[i].Fold != terms[j].Fold {
+			return terms[i].Fold > terms[j].Fold
 		}
 		return terms[i].Overlap > terms[j].Overlap
 	})

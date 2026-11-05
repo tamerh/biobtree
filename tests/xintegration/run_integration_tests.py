@@ -115,6 +115,8 @@ class IntegrationTestRunner:
                 total_identifiers += len(test.get('validations', []))
             elif test.get('type') == 'enrich':
                 total_identifiers += 1
+            elif test.get('type') == 'pagination':
+                total_identifiers += 1
             else:
                 total_identifiers += len(test.get('should_pass', [])) + len(test.get('should_fail', []))
 
@@ -129,6 +131,8 @@ class IntegrationTestRunner:
                 self.run_validation_test(test)
             elif test.get('type') == 'enrich':
                 self.run_enrich_test(test)
+            elif test.get('type') == 'pagination':
+                self.run_pagination_test(test)
             else:
                 self.run_test(test)
 
@@ -276,6 +280,94 @@ class IntegrationTestRunner:
             result = self.run_single_validation(test, entry, data, validation, full_url, elapsed_ms)
             self.results.append(result)
             self.print_validation_result(result)
+
+    def run_pagination_test(self, test):
+        """Follow a map query through every page and assert no input is lost.
+
+        Regression for parsePagingKey returning after the first per-input page
+        segment: page 2+ used to carry one input and silently drop the rest.
+        """
+        import time
+
+        print(f"{Colors.BLUE}[{test['name']}]{Colors.END} {test['query']} (pagination)")
+        if self.verbose:
+            print(f"  Why: {test['why']}")
+
+        terms = ','.join(test.get('terms') or [])
+        query = test['query']
+        page = None
+        pages = 0
+        sources = set()
+        has_next = True
+        min_pages = test.get('min_pages', 2)
+        max_pages = test.get('max_pages', 40)
+
+        def record(desc, passed, error=None):
+            self.results.append({
+                'test_name': test['name'],
+                'query': query,
+                'identifier': test['name'],
+                'expected_pass': True,
+                'passed': passed,
+                'error': error,
+                'url': f"{self.server}/ws/map/",
+                'why': test['why'],
+                'validation_desc': desc,
+                'response_time_ms': elapsed_ms,
+            })
+            self.print_validation_result(self.results[-1])
+
+        elapsed_ms = 0
+        try:
+            while has_next and pages < max_pages:
+                if self.use_mcp:
+                    params = {'i': terms, 'm': query}
+                    url = f"{self.server}/api/map"
+                else:
+                    params = {'i': terms, 'm': query, 'mode': 'lite'}
+                    url = f"{self.server}/ws/map/"
+                if page:
+                    params['p'] = page
+
+                start = time.time()
+                response = requests.get(url, params=params, timeout=test.get('timeout', 180))
+                elapsed_ms += (time.time() - start) * 1000
+                response.raise_for_status()
+                data = response.json()
+
+                for mapping in data.get('mappings') or []:
+                    source = mapping.get('source')
+                    sid = source.split('|')[0] if isinstance(source, str) else None
+                    if sid:
+                        sources.add(sid)
+                    elif mapping.get('input'):
+                        sources.add(mapping['input'])
+
+                pagination = data.get('pagination') or {}
+                page = pagination.get('next_token')
+                has_next = bool(pagination.get('has_next')) and bool(page)
+                pages += 1
+        except Exception as e:
+            record('pagination walk', False, str(e))
+            return
+
+        record(
+            f"followed >= {min_pages} pages (got {pages})",
+            pages >= min_pages,
+            None if pages >= min_pages else f"expected >= {min_pages}, got {pages}",
+        )
+        expected_inputs = test.get('expected_inputs')
+        if expected_inputs is not None:
+            record(
+                f"all {expected_inputs} inputs survive pagination (got {len(sources)})",
+                len(sources) == expected_inputs,
+                None if len(sources) == expected_inputs else f"expected {expected_inputs}, got {len(sources)}: {sorted(sources)}",
+            )
+        record(
+            'pagination terminated within max_pages',
+            not has_next,
+            None if not has_next else f"still has_next after {pages} pages",
+        )
 
     def run_enrich_test(self, test):
         """Execute a gene-set enrichment test against /ws/enrich/.

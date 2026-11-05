@@ -231,11 +231,12 @@ QUERY PATTERNS (choose based on question):
 - Follow connections relevant to your question
 - Build chain: Drug → Target → [connections] → Disease
 
-PAGINATION: if pagination.has_next is true there are more rows — call again
-with page=<pagination.next_token>. stats.total is the number of rows in THIS
+PAGINATION: if pagination.has_next is true there are more hits — call again
+with page=<pagination.next_token>. stats.total is the number of hits in THIS
 response, not the total number of matches.
 TRUNCATION: if truncated is true, data holds `returned` of `total` rows (cut at
-a whole-element boundary); narrow the query or paginate for the rest.
+a whole-element boundary). The continuation token is invalidated because it
+refers to the untruncated page; narrow the query instead of paginating.
 
 RETURNS: id | dataset | name | xref_count"""
 
@@ -288,11 +289,15 @@ DISCOVERY APPROACH:
 - Use EDGES above to see where each dataset leads
 - Build chains based on what connections exist for YOUR entity
 
-PAGINATION: if pagination.has_next is true there are more rows — call again
-with page=<pagination.next_token>. stats.total is the number of rows in THIS
-response, not the total number of matches.
-TRUNCATION: if truncated is true, data holds `returned` of `total` rows (cut at
-a whole-element boundary); narrow the query or paginate for the rest.
+PAGINATION: if pagination.has_next is true this page has more targets — call
+again with page=<pagination.next_token>. stats.total is the number of target
+rows in THIS response (summed across inputs), not the number of inputs;
+stats.mapped is how many inputs have rows in THIS response.
+TRUNCATION: if truncated is true, `mappings` holds `returned` of `total`
+mappings (cut at a whole-mapping boundary). The service's continuation token
+covers the untruncated page, so truncation invalidates it; `dropped_inputs`
+lists the inputs that were cut. Re-issue the map with fewer terms (or re-query
+just the dropped inputs) — do NOT page, which would skip them.
 
 RETURNS: mapped identifiers with dataset and name
 """
@@ -338,7 +343,7 @@ USE FOR:
 - Gene-set enrichment from a list of HGNC symbols or IDs.
 - Returns MSigDB sets over-represented among the input genes using a
   hypergeometric test and BH-FDR, restricted to set sizes 5-500 and ranked
-  by fold enrichment (p and FDR are reported for filtering).
+  by FDR, then fold enrichment (p is also reported).
 
 DEFAULTS: collection="C5:GO" (GO BP/MF/CC); limit=20.
 - collection="C5:GO:BP" narrows to biological process, "C5:GO:MF" to

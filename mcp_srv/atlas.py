@@ -109,18 +109,31 @@ def _fetch_md(t, slug):
         return None, None, str(e)
 
 
+def _heading_level(ln):
+    """Return (level, title) for a Markdown heading of level 2-4, else (0, "")."""
+    if not ln.startswith("#"):
+        return 0, ""
+    n = 0
+    while n < len(ln) and ln[n] == "#":
+        n += 1
+    if n < 2 or n > 4 or n >= len(ln) or ln[n] != " ":
+        return 0, ""
+    return n, ln[n + 1:].strip()
+
+
 def _headings(md):
-    """Section names (## and ###), in document order — the valid `section=` values.
+    """Section names (##, ### and ####), in document order — the valid `section=` values.
     Including sub-sections makes zones like 'Expression profiles' / 'Tissue specificity'
-    discoverable, not just the top-level sections. De-duplicated (case-insensitive,
-    first occurrence wins) so the list stays clean when a ## and ### share a name."""
+    / 'Enriched among interaction partners' discoverable, not just the top-level
+    sections. De-duplicated (case-insensitive, first occurrence wins) so the list stays
+    clean when a ## and ### share a name."""
     out, seen = [], set()
     for ln in md.splitlines():
-        name = None
-        if ln.startswith("## "):
-            name = ln[3:].strip()
-        elif ln.startswith("### "):
-            name = ln[4:].strip()
+        level, name = _heading_level(ln)
+        if not level or not name:
+            continue
+        # Drop the trailing {#anchor} so `section=` values are the readable title.
+        name = re.sub(r"\s*\{#[^}]*\}\s*$", "", name).strip()
         if name and name.lower() not in seen:
             seen.add(name.lower())
             out.append(name)
@@ -142,17 +155,17 @@ def _block(md, name, levels=("## ",)):
     of `levels`, from that heading until the next heading of same-or-higher level.
     Returns None if no heading matches."""
     target = name.strip().lower()
-    out, capturing, cap_prefix = [], False, None
+    out, capturing, cap_level = [], False, 0
     for ln in md.splitlines():
-        is_h2, is_h3 = ln.startswith("## "), ln.startswith("### ")
+        level, _ = _heading_level(ln)
         if capturing:
-            if is_h2 or (cap_prefix == "### " and is_h3):
+            if level and level <= cap_level:
                 break
             out.append(ln)
             continue
         for lvl in levels:
             if ln.startswith(lvl) and target in ln[len(lvl):].strip().lower():
-                capturing, cap_prefix = True, lvl
+                capturing, cap_level = True, len(lvl) - 1
                 out.append(ln)
                 break
     return "\n".join(out).strip() if capturing else None
@@ -229,7 +242,7 @@ def atlas_lookup(entities, section=None, full=False):
         if full:
             item["content"] = md
         elif section:
-            blk = _block(md, section, levels=("## ", "### "))
+            blk = _block(md, section, levels=("## ", "### ", "#### "))
             if blk is not None:
                 item["content"] = blk
             else:

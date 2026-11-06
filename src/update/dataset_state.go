@@ -73,7 +73,7 @@ type DatasetBuildInfo struct {
 	// Derived views of the two counters above. These disambiguate what
 	// "total_edges" means; see docs/internal/dataset-statistics.md.
 	Properties  int64 `json:"properties,omitempty"`   // forward rows for "entry" (node payload, not edges)
-	XrefsOut    int64 `json:"xrefs_out,omitempty"`    // entity-to-entity xrefs (forward rows minus properties)
+	XrefEdges   int64 `json:"xref_edges,omitempty"`   // entity-to-entity xrefs (forward rows minus properties)
 	IndexEdges  int64 `json:"index_edges,omitempty"`  // text/interval index edges (reverse "textsearch" rows)
 	StorageRows int64 `json:"storage_rows,omitempty"` // sum(forward)+sum(reverse), alias of TotalEdges
 	// Source metadata
@@ -144,7 +144,7 @@ func LoadDatasetState(outDir string) (*DatasetState, error) {
 	// The next build will populate forward_edges/reverse_edges/total_edges correctly
 	oldFormatCount := 0
 	for _, info := range state.Datasets {
-		// Backfill the derived views (properties/xrefs_out/index_edges/
+		// Backfill the derived views (properties/xref_edges/index_edges/
 		// storage_rows) for state written by older binaries.
 		state.recalculateTotal(info)
 		if info.TotalEdges == 0 && len(info.ForwardEdges) == 0 {
@@ -749,7 +749,7 @@ func forwardRows(info *DatasetBuildInfo) int64 {
 	if info == nil {
 		return 0
 	}
-	return info.Properties + info.XrefsOut
+	return info.Properties + info.XrefEdges
 }
 
 // recalculateTotal updates TotalEdges and the derived views from the two raw
@@ -767,7 +767,7 @@ func (s *DatasetState) recalculateTotal(info *DatasetBuildInfo) {
 	info.TotalEdges = forward + reverse
 	info.StorageRows = info.TotalEdges
 	info.Properties = info.ForwardEdges["entry"]
-	info.XrefsOut = forward - info.Properties
+	info.XrefEdges = forward - info.Properties
 	info.IndexEdges = info.ReverseEdges["textsearch"]
 }
 

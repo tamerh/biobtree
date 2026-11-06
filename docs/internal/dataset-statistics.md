@@ -234,7 +234,7 @@ do not exist anywhere in main's index.
 | field | meaning |
 |---|---|
 | `properties` | `forward_edges["entry"]` |
-| `xrefs_out` | sum(forward) - properties |
+| `xref_edges` | sum(forward) - properties |
 | `index_edges` | `reverse_edges["textsearch"]` |
 | `storage_rows` | sum(forward) + sum(reverse), same as `total_edges` |
 
@@ -260,7 +260,7 @@ files there belong to the interrupted run.
 Verified:
 
 - tiny GO: 19 rows -> after `msigdb`-only still 19 rows (previously 2)
-- normal `wikipathways` update: `{total 163445, properties 1956, xrefs_out 76039,
+- normal `wikipathways` update: `{total 163445, properties 1956, xref_edges 76039,
   index_edges 9411, storage_rows 163445}`
 - `python3 tests/run_tests.py wikipathways` passes
 
@@ -281,7 +281,7 @@ keeping `1956 / 78687`.
 
 ### Completeness on forward rows (B4)
 
-The check now compares `properties + xrefs_out` (`forwardRows`) instead of the
+The check now compares `properties + xref_edges` (`forwardRows`) instead of the
 mixed storage total, so text/interval volume cannot mask a real drop and
 property-only datasets (e.g. cadd) are not treated as empty. `SaveDatasetState`
 backfills derived views on the state it re-reads, so old files are handled.

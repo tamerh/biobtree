@@ -77,7 +77,7 @@ pharmgkb_pathway: hgnc, pharmgkb
 pharmgkb_var_annotation: hgnc, entrez, ensembl, dbsnp, pubmed  # per-publication variant-annotation evidence (finding sentence, PMID, significance, study stats) beneath pharmgkb_clinical; reach via gene or rsID
 ctd: mesh, ctd_gene_interaction, ctd_disease_association, pubchem
 ctd_gene_interaction: ctd, entrez, taxonomy, pubmed
-ctd_disease_association: ctd, mesh, mim, pubmed
+ctd_disease_association: ctd, mesh, mim, pubmed, hgnc  # hgnc = CTD-INFERRED chemical-disease-gene links (strongest 10 genes, relationship="inferred"); NOT curated gene-disease associations
 intact: uniprot, chebi, rnacentral
 string: uniprot, string_interaction
 string_interaction: string, uniprot

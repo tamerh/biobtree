@@ -90,6 +90,8 @@ Use: Focus on human health relevance
 - CTD → EFO (Experimental Factor Ontology via MeSH)
 - CTD → Taxonomy (organism context for interactions)
 - CTD → PubChem (compound structure linking)
+- `ctd_disease_association` → HGNC (CTD **inferred** genes; strongest 10 per
+  association, marked `relationship="inferred"` — not curated gene–disease links)
 
 ## Performance
 
@@ -103,7 +105,10 @@ Use: Focus on human health relevance
 
 - **Gene-disease file excluded**: CTD_genes_diseases.tsv is ~100M rows; currently not processed to avoid excessive size
 - **Aggregation limits**: Top 50 gene interactions and 30 disease associations stored per chemical
-- **Inferred associations**: Many chemical-disease links are inferred via gene triangulation
+- **Inferred associations**: Many chemical-disease links are inferred via gene triangulation.
+  The inference genes are exposed as `ctd_disease_association → hgnc` edges with
+  `relationship="inferred"`, capped to the 10 strongest by inference score. They
+  are not curated gene–disease associations; use ClinGen/GenCC/MONDO for those.
 - **PubChem format**: Some PubChem CIDs in CTD include "CID:" prefix requiring normalization
 
 ## Data Model
@@ -130,6 +135,8 @@ Use: Focus on human health relevance
 - Disease name and ID (MeSH/OMIM)
 - Direct evidence type
 - Inference score
+- `inference_gene_symbols`: strongest 10 inference genes
+- `→ hgnc` xrefs for those genes, with `relationship="inferred"`
 - OMIM and PubMed references
 
 ## Future Work

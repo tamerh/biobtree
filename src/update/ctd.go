@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 	"sync/atomic"
@@ -58,6 +59,12 @@ type ctdChemicalEntry struct {
 
 func (c *ctd) update() {
 	defer c.d.wg.Done()
+
+	// This parser writes three datasets but reports progress only as "ctd".
+	// Mark the children as rebuilt so their statistics are replaced rather
+	// than kept from the previous run.
+	c.d.markParsedDataset("ctd_gene_interaction")
+	c.d.markParsedDataset("ctd_disease_association")
 
 	log.Println("CTD: Starting comprehensive data processing...")
 	startTime := time.Now()
@@ -210,10 +217,10 @@ type geneInteractionAggregated struct {
 	geneID       string
 	organism     string
 	organismID   int32
-	geneForms    map[string]bool   // unique gene forms
-	interactions []string          // all interaction descriptions
-	actions      map[string]bool   // unique interaction actions
-	pubmedIDs    map[string]bool   // unique PubMed IDs
+	geneForms    map[string]bool // unique gene forms
+	interactions []string        // all interaction descriptions
+	actions      map[string]bool // unique interaction actions
+	pubmedIDs    map[string]bool // unique PubMed IDs
 }
 
 // diseaseAssociationAggregated holds aggregated data for a unique chemical-disease association
@@ -222,11 +229,71 @@ type diseaseAssociationAggregated struct {
 	chemName          string
 	diseaseName       string
 	diseaseID         string
-	directEvidence    map[string]bool   // unique direct evidence types
-	inferenceGenes    map[string]bool   // unique inference gene symbols
-	maxInferenceScore float64           // maximum inference score
-	omimIDs           map[string]bool   // unique OMIM IDs
-	pubmedIDs         map[string]bool   // unique PubMed IDs
+	directEvidence    map[string]bool    // unique direct evidence types
+	inferenceGenes    map[string]float64 // inference gene symbol -> best score
+	maxInferenceScore float64            // maximum inference score
+	omimIDs           map[string]bool    // unique OMIM IDs
+	pubmedIDs         map[string]bool    // unique PubMed IDs
+}
+
+// ctdInferenceGeneCap bounds how many inferred genes are attached to one
+// chemical-disease association. CTD inference lists can be long and noisy; keep
+// the strongest genes by inference score instead of an arbitrary subset.
+const ctdInferenceGeneCap = 10
+
+// ctdGeneResolver maps an inference gene symbol to its official HGNC id, with
+// a cache because the same symbols repeat across millions of associations.
+type ctdGeneResolver struct {
+	d      *DataUpdate
+	hgncID uint32
+	cache  map[string]string // upper symbol -> hgnc id ("" if unresolved)
+}
+
+func newCtdGeneResolver(d *DataUpdate) *ctdGeneResolver {
+	r := &ctdGeneResolver{d: d, cache: make(map[string]string)}
+	if idStr, ok := config.Dataconf["hgnc"]["id"]; ok {
+		fmt.Sscanf(idStr, "%d", &r.hgncID)
+	}
+	return r
+}
+
+func (r *ctdGeneResolver) resolve(symbol string) (string, bool) {
+	symbol = strings.TrimSpace(symbol)
+	if symbol == "" || r.d.lookupService == nil || r.hgncID == 0 {
+		return "", false
+	}
+	key := strings.ToUpper(symbol)
+	if v, ok := r.cache[key]; ok {
+		return v, v != ""
+	}
+	r.cache[key] = "" // unresolved sentinel
+
+	entries, err := r.d.lookupService.LookupAllInDataset(symbol, r.hgncID)
+	if err != nil {
+		return "", false
+	}
+	for _, entry := range entries {
+		full, ferr := r.d.lookupFullEntry(entry.Identifier, r.hgncID)
+		if ferr != nil || full == nil {
+			continue
+		}
+		a := full.GetHgnc()
+		if a == nil {
+			continue
+		}
+		exact := false
+		for _, candidate := range a.Symbols {
+			if strings.EqualFold(candidate, symbol) {
+				exact = true
+				break
+			}
+		}
+		if exact {
+			r.cache[key] = entry.Identifier
+			return entry.Identifier, true
+		}
+	}
+	return "", false
 }
 
 // loadChemGeneInteractions reads CTD_chem_gene_ixns.tsv.gz and saves each interaction
@@ -509,7 +576,7 @@ func (c *ctd) loadChemDiseaseAssociations(chemicals map[string]*ctdChemicalEntry
 				diseaseName:       fields[3],
 				diseaseID:         diseaseID,
 				directEvidence:    make(map[string]bool),
-				inferenceGenes:    make(map[string]bool),
+				inferenceGenes:    make(map[string]float64),
 				maxInferenceScore: 0,
 				omimIDs:           make(map[string]bool),
 				pubmedIDs:         make(map[string]bool),
@@ -522,17 +589,21 @@ func (c *ctd) loadChemDiseaseAssociations(chemicals map[string]*ctdChemicalEntry
 			agg.directEvidence[fields[5]] = true
 		}
 
-		// Add inference gene symbol
-		if len(fields) > 6 && fields[6] != "" {
-			agg.inferenceGenes[fields[6]] = true
-		}
-
-		// Track max inference score
+		// Inference score for this row (shared by the gene and the association)
+		var inferenceScore float64
 		if len(fields) > 7 && fields[7] != "" {
 			if score, err := strconv.ParseFloat(fields[7], 64); err == nil {
-				if score > agg.maxInferenceScore {
-					agg.maxInferenceScore = score
-				}
+				inferenceScore = score
+			}
+		}
+		if inferenceScore > agg.maxInferenceScore {
+			agg.maxInferenceScore = inferenceScore
+		}
+
+		// Add inference gene symbol, keeping its best score for ranking
+		if len(fields) > 6 && fields[6] != "" {
+			if inferenceScore > agg.inferenceGenes[fields[6]] {
+				agg.inferenceGenes[fields[6]] = inferenceScore
 			}
 		}
 
@@ -560,16 +631,37 @@ func (c *ctd) loadChemDiseaseAssociations(chemicals map[string]*ctdChemicalEntry
 	log.Printf("CTD: Aggregated %d rows into %d unique disease associations", rowCount, len(aggregated))
 
 	// Second pass: create entries and xrefs from aggregated data
+	geneResolver := newCtdGeneResolver(c.d)
 	var savedCount int
+	var geneEdges int64
 	for associationID, agg := range aggregated {
 		// Convert maps to slices
 		var directEvidence []string
 		for ev := range agg.directEvidence {
 			directEvidence = append(directEvidence, ev)
 		}
-		var inferenceGenes []string
-		for gene := range agg.inferenceGenes {
-			inferenceGenes = append(inferenceGenes, gene)
+
+		// Rank inference genes by their best score, strongest first.
+		type scoredGene struct {
+			symbol string
+			score  float64
+		}
+		ranked := make([]scoredGene, 0, len(agg.inferenceGenes))
+		for gene, score := range agg.inferenceGenes {
+			ranked = append(ranked, scoredGene{symbol: gene, score: score})
+		}
+		sort.Slice(ranked, func(i, j int) bool {
+			if ranked[i].score != ranked[j].score {
+				return ranked[i].score > ranked[j].score
+			}
+			return ranked[i].symbol < ranked[j].symbol
+		})
+		if len(ranked) > ctdInferenceGeneCap {
+			ranked = ranked[:ctdInferenceGeneCap]
+		}
+		inferenceGenes := make([]string, len(ranked))
+		for i, g := range ranked {
+			inferenceGenes[i] = g.symbol
 		}
 		var omimIDs []string
 		for omim := range agg.omimIDs {
@@ -578,11 +670,6 @@ func (c *ctd) loadChemDiseaseAssociations(chemicals map[string]*ctdChemicalEntry
 		var pubmedIDs []string
 		for pmid := range agg.pubmedIDs {
 			pubmedIDs = append(pubmedIDs, pmid)
-		}
-
-		// Limit inference genes to prevent huge entries
-		if len(inferenceGenes) > 50 {
-			inferenceGenes = inferenceGenes[:50]
 		}
 
 		// Build association attribute (PubMed/OMIM IDs stored as xrefs, not in attr)
@@ -645,6 +732,18 @@ func (c *ctd) loadChemDiseaseAssociations(chemicals map[string]*ctdChemicalEntry
 			}
 		}
 
+		// ctd_disease_association → hgnc: CTD-inferred chemical-disease-gene
+		// links, NOT curated gene-disease associations. relationship="inferred"
+		// marks them and only the strongest inference genes are kept.
+		if _, exists := config.Dataconf["hgnc"]; exists {
+			for _, gene := range inferenceGenes {
+				if hgncID, ok := geneResolver.resolve(gene); ok {
+					c.d.addXrefWithRelationship(associationID, diseaseAssocSourceID, hgncID, "hgnc", false, "inferred")
+					geneEdges++
+				}
+			}
+		}
+
 		// Increment count in chemical entry
 		if chemEntry, exists := chemicals[agg.chemID]; exists {
 			chemEntry.diseaseAssociationCount++
@@ -658,6 +757,7 @@ func (c *ctd) loadChemDiseaseAssociations(chemicals map[string]*ctdChemicalEntry
 
 	atomic.AddUint64(&c.d.totalParsedEntry, uint64(savedCount))
 	log.Printf("CTD: Total disease associations processed: %d rows, saved: %d unique", rowCount, savedCount)
+	log.Printf("CTD: added %d inferred gene→hgnc edges (max %d genes per association)", geneEdges, ctdInferenceGeneCap)
 }
 
 // saveEntries saves all chemical entries and creates cross-references
@@ -711,16 +811,16 @@ func (c *ctd) buildCtdAttr(entry *ctdChemicalEntry) *pbuf.CtdAttr {
 	}
 
 	return &pbuf.CtdAttr{
-		ChemicalId:              entry.chemicalID,
-		ChemicalName:            entry.chemicalName,
-		CasRn:                   entry.casRN,
-		Definition:              entry.definition,
-		Synonyms:                entry.synonyms,
-		MeshTreeNumbers:         entry.treeNumbers,
-		PubchemCid:              entry.pubchemCID,
-		InchiKey:                entry.inchiKey,
+		ChemicalId:      entry.chemicalID,
+		ChemicalName:    entry.chemicalName,
+		CasRn:           entry.casRN,
+		Definition:      entry.definition,
+		Synonyms:        entry.synonyms,
+		MeshTreeNumbers: entry.treeNumbers,
+		PubchemCid:      entry.pubchemCID,
+		InchiKey:        entry.inchiKey,
 		// Gene interactions stored separately in ctd_gene_interaction
-		GeneInteractionCount:    entry.geneInteractionCount,
+		GeneInteractionCount: entry.geneInteractionCount,
 		// Disease associations stored separately in ctd_disease_association
 		DiseaseAssociationCount: entry.diseaseAssociationCount,
 		InferredGenes:           inferredGenes,

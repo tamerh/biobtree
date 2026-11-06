@@ -77,6 +77,7 @@ type DataUpdate struct {
 	skipEnsembl            bool
 	progChan               chan *progressInfo
 	progWg                 sync.WaitGroup  // waits for showProgres to drain before stats are applied
+	parsedMu               sync.Mutex      // guards parsedDatasets (parsers and showProgres write it)
 	parsedDatasets         map[string]bool // datasets whose parser completed in this run
 	progInterval           int64
 	lookupService          *service.Service  // Service for database lookups
@@ -1589,6 +1590,24 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 //
 // For datasets that are replaced, both maps are assigned even when empty, so a
 // dataset that now produces no edges does not keep stale counters.
+// markParsedDataset records that a dataset's own parser ran in this run. Most
+// datasets report progress under their own name; composite parsers such as CTD
+// write several datasets and call this for the children.
+func (d *DataUpdate) markParsedDataset(name string) {
+	if name == "" {
+		return
+	}
+	d.parsedMu.Lock()
+	d.parsedDatasets[name] = true
+	d.parsedMu.Unlock()
+}
+
+func (d *DataUpdate) isParsedDataset(name string) bool {
+	d.parsedMu.Lock()
+	defer d.parsedMu.Unlock()
+	return d.parsedDatasets[name]
+}
+
 // mergeDurations adds two per-dataset duration maps (e.g. sort + concatenate).
 func mergeDurations(a, b map[string]time.Duration) map[string]time.Duration {
 	out := make(map[string]time.Duration, len(a)+len(b))
@@ -1625,10 +1644,10 @@ func (d *DataUpdate) applyEdgeStats(concatDuration time.Duration, perDatasetDura
 		}
 	}
 
-	skipped := 0
+	var skippedNames []string
 	for datasetName := range allDatasetsWithStats {
-		if onlyParsed && !d.parsedDatasets[datasetName] {
-			skipped++
+		if onlyParsed && !d.isParsedDataset(datasetName) {
+			skippedNames = append(skippedNames, datasetName)
 			continue
 		}
 
@@ -1653,8 +1672,9 @@ func (d *DataUpdate) applyEdgeStats(concatDuration time.Duration, perDatasetDura
 		d.datasetState.SetPostProcessDuration(datasetName, duration)
 	}
 
-	if skipped > 0 {
-		log.Printf("Edge stats: kept previous counters for %d dataset(s) not rebuilt in this run (cross-dataset writes)", skipped)
+	if len(skippedNames) > 0 {
+		sort.Strings(skippedNames)
+		log.Printf("Edge stats: kept previous counters for %d dataset(s) not rebuilt in this run: %v", len(skippedNames), skippedNames)
 	}
 }
 
@@ -1676,7 +1696,7 @@ func (d *DataUpdate) showProgres() {
 		// msigdb writing GO terms from GO's id) must not replace the target's
 		// statistics with just the subset they contributed in this run.
 		if info.done && !info.mergeOnly {
-			d.parsedDatasets[info.dataset] = true
+			d.markParsedDataset(info.dataset)
 		}
 
 		if info.done && d.datasetState != nil {

@@ -102,7 +102,11 @@ func (w *wikipathways) update() {
 			break
 		}
 		url := strings.TrimRight(base, "/") + "/" + f.Filename
-		processed, genes, err := w.processFile(url, f, sourceID, testSpeciesLimit, testLimit-int(totalEntries), idLogFile, resolver)
+		remaining := 0
+		if testLimit > 0 {
+			remaining = testLimit - int(totalEntries)
+		}
+		processed, genes, err := w.processFile(url, f, sourceID, testSpeciesLimit, remaining, idLogFile, resolver)
 		if err != nil {
 			log.Printf("WikiPathways: %s: %v", f.Filename, err)
 			continue
@@ -135,7 +139,9 @@ func (w *wikipathways) listFiles(base string) ([]wpGMTFile, error) {
 	latest := make(map[string]wpGMTFile)
 	scanner := bufio.NewScanner(br)
 	scanner.Buffer(make([]byte, 0, 64*1024), 1024*1024)
+	lines := 0
 	for scanner.Scan() {
+		lines++
 		for _, m := range wikipathwaysFileRe.FindAllStringSubmatch(scanner.Text(), -1) {
 			release, speciesFile := m[1], m[2]
 			species := strings.ReplaceAll(speciesFile, "_", " ")
@@ -152,6 +158,7 @@ func (w *wikipathways) listFiles(base string) ([]wpGMTFile, error) {
 	if err := scanner.Err(); err != nil {
 		return nil, err
 	}
+	log.Printf("WikiPathways: listing %s: %d lines, %d species files", base, lines, len(latest))
 
 	files := make([]wpGMTFile, 0, len(latest))
 	for _, f := range latest {
@@ -162,10 +169,6 @@ func (w *wikipathways) listFiles(base string) ([]wpGMTFile, error) {
 }
 
 func (w *wikipathways) processFile(url string, f wpGMTFile, sourceID string, speciesLimit, remaining int, idLogFile *os.File, resolver *wikipathwaysResolver) (int, int64, error) {
-	if remaining <= 0 {
-		return 0, 0, nil
-	}
-
 	br, gz, ftpFile, client, localFile, _, err := getDataReaderNew(w.source, "", "", url)
 	if err != nil {
 		return 0, 0, err
@@ -182,7 +185,7 @@ func (w *wikipathways) processFile(url string, f wpGMTFile, sourceID string, spe
 		if speciesLimit > 0 && entries >= speciesLimit {
 			break
 		}
-		if entries >= remaining {
+		if remaining > 0 && entries >= remaining {
 			break
 		}
 		line := strings.TrimRight(scanner.Text(), "\r")

@@ -435,11 +435,10 @@ func (m *mirdb) parseAndSavePredictions(testLimit int, idLogFile *os.File, sourc
 				key := ds + ":" + id
 				if !seenGenes[key] {
 					seenGenes[key] = true
-					// 'from' is the owning dataset ID (hgnc/entrez), not its name.
-					fromID := config.Dataconf[ds]["id"]
-					if fromID != "" {
-						m.d.addXref(id, fromID, mirnaID, m.source, false)
-					}
+					// Write from the miRNA to the gene. The reverse edge
+					// (gene -> miRNA) is what makes hgnc >> mirdb work, and it
+					// is merged during the mirdb update without rebuilding hgnc.
+					m.d.addXref(mirnaID, sourceID, id, ds, false)
 				}
 			}
 		}

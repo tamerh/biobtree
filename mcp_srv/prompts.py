@@ -17,8 +17,8 @@ DESIGN PRINCIPLES:
 EDGES = """
 EDGES (what connects to what):
 ensembl: uniprot, go, transcript, exon, ortholog, paralog, hgnc, entrez, refseq, bgee, gwas, gencc, antibody, scxa, civic, intogen, hpa, hpa_antibody, pharmgkb_var_annotation, chembl_mechanism, ncrna_disease, ncrna_interaction, ncrna_drug, alliance_disease, gnomad_constraint, drugcentral, panelapp_gene
-hgnc: ensembl, uniprot, entrez, gencc, pharmgkb_gene, msigdb, clinvar, mim, refseq, alphafold, collectri, gwas, hpo, cellphonedb, civic, intogen, cellosaurus, clingen_gene_validity, clingen_dosage, clingen_variant, depmap, hpa, pharmgkb_var_annotation, chembl_mechanism, ncrna_disease, ncrna_interaction, ncrna_drug, alliance_disease, drugcentral, panelapp_gene, gnomad_constraint, mavedb
-entrez: ensembl, uniprot, refseq, go, biogrid, pubchem_activity, ctd_gene_interaction, dbsnp, civic, intogen, clingen_dosage, generif, depmap, depmap_dependency, hpa, pharmgkb_var_annotation, orthologentrez, relatedentrez, neighborentrez, mgi, rgd, zfin, wormbase, xenbase, sgd, flybase, gnomad_constraint, drugcentral
+hgnc: ensembl, uniprot, entrez, gencc, pharmgkb_gene, msigdb, clinvar, mim, refseq, alphafold, collectri, gwas, hpo, cellphonedb, civic, intogen, cellosaurus, clingen_gene_validity, clingen_dosage, clingen_variant, depmap, hpa, pharmgkb_var_annotation, chembl_mechanism, ncrna_disease, ncrna_interaction, ncrna_drug, alliance_disease, drugcentral, panelapp_gene, gnomad_constraint, mavedb, vega, chip_atlas_tfbs, wikipathways
+entrez: ensembl, uniprot, refseq, go, biogrid, pubchem_activity, ctd_gene_interaction, dbsnp, civic, intogen, clingen_dosage, generif, depmap, depmap_dependency, hpa, pharmgkb_var_annotation, orthologentrez, relatedentrez, neighborentrez, mgi, rgd, zfin, wormbase, xenbase, sgd, flybase, gnomad_constraint, drugcentral, chip_atlas_tfbs, wikipathways
 orthologentrez: entrez  # cross-species gene orthologs (NCBI gene_orthologs). >>entrez>>orthologentrez gives ortholog genes (filter species via taxonomy); reliable from model-organism genes (human-gene side currently incomplete)
 relatedentrez: entrez  # related genes (bidirectional): NCBI gene_group (functional gene/pseudogene/readthrough/region) + HGNC gene-family co-members
 neighborentrez: entrez  # genomic neighbors (left/right/overlapping); edge carries distance + side, neighbor strand/position in attrs; filter to genes via [type!="biological-region"]
@@ -46,6 +46,8 @@ dbsnp: entrez, clinvar, pharmgkb_variant, alphamissense, spliceai, pharmgkb_var_
 clinvar: hgnc, mondo, hpo, dbsnp, orphanet, civic_variant, cellosaurus, clingen_variant
 dbvar: clinvar, mondo, mim, orphanet, medgen, mesh, hpo, pubmed
 gnomad_sv: hgnc
+vega: ensembl  # VEGA/OTTHUMG transcript IDs -> ensembl gene
+chip_atlas_tfbs: hgnc, entrez  # ChIP-Atlas TF binding sites; entries are keyed by the TARGET gene, the TF is the edge source. No text search by TF name: reach via >>hgnc>>chip_atlas_tfbs or >>entrez>>chip_atlas_tfbs; filter tf=="CTCF"
 alphamissense: uniprot, transcript
 mavedb: uniprot, hgnc, ensembl, transcript  # deep-mutational-scanning functional variant scores (ACMG PS3/BS3); reach via gene/protein >> mavedb; per-variant score + hgvs_pro + license
 # VARIANT-EFFECT SCORES — look up by the variant's OWN key with biobtree_entry(dataset=..), NOT via >>chains:

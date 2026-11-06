@@ -1013,7 +1013,7 @@
     "useLocalFile": "no",
     "hasFilter": "yes",
     "attrs": "chromosome,start,end,svtype,svlen,clinical_significance,origin,[]phenotype_ids,[]clinvar_accessions,region_id,description,somatic",
-    "compact_fields": "svtype,start,end,clinical_significance",
+    "compact_fields": "chromosome,svtype,start,end,svlen,clinical_significance,origin,clinvar_accessions",
     "test_entries_count": "500",
     "bucketMethod": "alphabetic",
     "intervalIndex": "yes"

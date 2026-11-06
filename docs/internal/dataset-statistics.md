@@ -382,6 +382,51 @@ second generate to succeed: the second run appends into the existing dev DB and
 can panic with `MDB_KEYEXIST` on the `GENOME` meta key. The update/state part
 still completes, which is what the clobber check needs.
 
+## Verified counts (authoritative for the paper)
+
+The state counters are **write-time**. The merge dedups each xref by
+`key + target dataset + value`, and some datasets write duplicates (GO 6.9%
+within one file, string 2x), so the state overcounts. Stale sorted files from
+older chunk runs add more copies (the merge dedups them too).
+
+`src/cmd/statsverify` recomputes the post-dedup numbers from the sorted index
+files:
+
+```bash
+cd src
+go run ./cmd/statsverify \
+  -index ../out_prod/main/index \
+  -state ../out_prod/dataset_state.json \
+  -conf ../conf \
+  > ../out_prod/stats_verified_main.csv
+```
+
+Output columns: `dataset, multi_file, nodes_state, nodes_actual, nodes_delta,
+edges_out_state, edges_out_actual, edges_out_delta, index_edges_state,
+index_edges_actual, index_edges_delta, edges_in_actual`.
+
+Rules it applies:
+
+- `nodes` = unique keys that have an entry/property row (target `-1`).
+- `edges_out` = unique `(key, target dataset, value)` rows in
+  `{dataset}_sorted`.
+- `index_edges` = unique `(key, value)` rows in `textsearch_{dataset}_sorted`.
+- `edges_in` = sum of other datasets' unique out-edges whose target is this
+  dataset. Only complete when every dataset in the same index directory is
+  scanned.
+- If a dataset has several `{dataset}_sorted.*` files (stale chunk runs), the
+  newest is used and `multi_file=yes` is reported.
+
+Known current caveats:
+
+- `cellxgene_celltype` still differs after newest-file selection; rebuild or
+  clean its stale files before using its numbers.
+- Counts are per federation index directory. Main is done
+  (`out_prod/stats_verified_main.csv` / `.json`); other federations need a
+  separate run for complete cross-federation inbound.
+- `edges_in` excludes cross-federation inbound when only one index dir is
+  scanned.
+
 ## Verification commands
 
 ```bash

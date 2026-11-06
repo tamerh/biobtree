@@ -425,11 +425,19 @@ Known current caveats:
 
 - `cellxgene_celltype` still differs after newest-file selection; rebuild or
   clean its stale files before using its numbers.
-- Counts are per federation index directory. Main is done
-  (`out_prod/stats_verified_main.csv` / `.json`); other federations need a
-  separate run for complete cross-federation inbound.
-- `edges_in` excludes cross-federation inbound when only one index dir is
-  scanned.
+- `esm1b` (predictions) and `protein_similarity` (main) have **no sorted index
+  files** in `out_prod`; their state rows are stale and they are absent from the
+  verified table. Rebuild them before any generate, otherwise the new DB will
+  silently omit them.
+- A dataset whose properties are written more than once has
+  `state properties > verified nodes`, which makes `state xref_edges`
+  (= forward writes − property writes) *lower* than the verified unique xrefs.
+  This is why a few datasets show `edges_out_actual > edges_out_state`; it is
+  not missing data. Use the verified columns.
+- Counts are per federation index directory. Run with all six `index` dirs for
+  complete cross-federation inbound. Results: `out_prod/stats_verified_all.csv`
+  / `.json` (CTD rows refreshed after its update; raw scan kept as
+  `stats_verified_all_scan.csv`).
 
 ## Verification commands
 

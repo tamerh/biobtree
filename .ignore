@@ -1,0 +1,18 @@
+# Search exclusions for ripgrep-based tools (agents, editors).
+# These files are either generated or large data fixtures; searching them
+# produces huge matches and wastes context. Explicit file paths still work.
+
+# Generated protobuf code — edit the .proto and run `make proto`.
+src/pbuf/*.pb.go
+src/pbuf/*_ffjson.go
+
+# Generated genome path manifests.
+src/ensembl/*.paths.json
+conf/ensembl/*.paths.json
+
+# Large test fixtures (reference data, ontology dumps, archives).
+tests/datasets/**/reference_data*.json
+tests/datasets/**/*.obo
+tests/datasets/**/*.xml
+tests/datasets/**/*.gz
+tests/datasets/**/*.zip

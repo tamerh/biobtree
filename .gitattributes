@@ -1,0 +1,5 @@
+# Generated code and large fixtures: never expand their diffs.
+# Review the .proto (for generated code) or the source data instead.
+src/pbuf/*.pb.go       -diff linguist-generated
+src/pbuf/*_ffjson.go   -diff linguist-generated
+tests/datasets/**/reference_data*.json -diff

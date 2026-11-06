@@ -47,7 +47,7 @@ clinvar: hgnc, mondo, hpo, dbsnp, orphanet, civic_variant, cellosaurus, clingen_
 dbvar: clinvar, mondo, mim, orphanet, medgen, mesh, hpo, pubmed
 gnomad_sv: hgnc
 vega: ensembl  # VEGA/OTTHUMG transcript IDs -> ensembl gene
-chip_atlas_tfbs: hgnc, entrez  # ChIP-Atlas TF binding sites; entries are keyed by the TARGET gene, the TF is the edge source. No text search by TF name: reach via >>hgnc>>chip_atlas_tfbs or >>entrez>>chip_atlas_tfbs; filter tf=="CTCF"
+chip_atlas_tfbs: hgnc, entrez  # ChIP-Atlas TF binding sites; entries are keyed by the TARGET gene and the TF is the edge source. A >>hgnc>>chip_atlas_tfbs chain from a TF gene is already TF-specific, so no tf filter is needed. No text search by TF name: reach via >>hgnc>>chip_atlas_tfbs or >>entrez>>chip_atlas_tfbs
 alphamissense: uniprot, transcript
 mavedb: uniprot, hgnc, ensembl, transcript  # deep-mutational-scanning functional variant scores (ACMG PS3/BS3); reach via gene/protein >> mavedb; per-variant score + hgvs_pro + license
 # VARIANT-EFFECT SCORES — look up by the variant's OWN key with biobtree_entry(dataset=..), NOT via >>chains:

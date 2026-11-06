@@ -425,10 +425,12 @@ Known current caveats:
 
 - `cellxgene_celltype` still differs after newest-file selection; rebuild or
   clean its stale files before using its numbers.
-- `esm1b` (predictions) and `protein_similarity` (main) have **no sorted index
-  files** in `out_prod`; their state rows are stale and they are absent from the
-  verified table. Rebuild them before any generate, otherwise the new DB will
-  silently omit them.
+- `esm1b` and `protein_similarity` were removed from the state on 2026-11-06
+  (backup: `out_prod/dataset_state.json.bak-20261106`). `esm1b` is intentionally
+  off (config points at a test fixture; it is not in the predictions DB).
+  `protein_similarity` is the legacy predecessor of `diamond_similarity` and had
+  no index files. Both are excluded from the verified table. `diamond_similarity`
+  remains, but its source snapshot is currently missing so it cannot be rebuilt.
 - A dataset whose properties are written more than once has
   `state properties > verified nodes`, which makes `state xref_edges`
   (= forward writes − property writes) *lower* than the verified unique xrefs.

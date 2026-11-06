@@ -12,6 +12,7 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"time"
 )
 
 // KeepBucketFiles when set to true, preserves bucket files after sorting for debugging
@@ -469,6 +470,7 @@ type sortJob struct {
 	useUnixSort    bool
 	sortFields     string // Custom sort fields (e.g., "-k1,1 -k5,5r" for evidence sorting)
 	sortLevelCount int    // Number of trailing sort level fields to strip (0 = use static config)
+	datasetName    string // dataset this bucket belongs to (for per-dataset timing)
 }
 
 // extractSourceFromPath extracts the source dataset name from a bucket file path
@@ -621,7 +623,7 @@ func extractSortKey(line string, baseFields int) string {
 // Uses BucketSortWorkers from config if numWorkers is 0
 // Skips datasets with SkipBucketSort=true in their config
 // Uses global BucketSortMethod setting for sort method selection
-func SortAllBuckets(pool *HybridWriterPool, numWorkers int) error {
+func SortAllBuckets(pool *HybridWriterPool, numWorkers int) (map[string]time.Duration, error) {
 	if numWorkers <= 0 {
 		numWorkers = BucketSortWorkers
 	}
@@ -646,6 +648,7 @@ func SortAllBuckets(pool *HybridWriterPool, numWorkers int) error {
 					filePath:    bucket.filePath,
 					useUnixSort: useUnixSort,
 					sortFields:  writer.config.SortFields,
+					datasetName: targetDataset,
 				}
 
 				// Check if this file has sort levels (forward or reverse xrefs)
@@ -685,7 +688,7 @@ func SortAllBuckets(pool *HybridWriterPool, numWorkers int) error {
 	}
 
 	if len(filesToSort) == 0 {
-		return nil
+		return map[string]time.Duration{}, nil
 	}
 
 	fmt.Printf("Sorting %d bucket files with %d workers\n", len(filesToSort), numWorkers)
@@ -700,6 +703,8 @@ func SortAllBuckets(pool *HybridWriterPool, numWorkers int) error {
 	// Worker pool
 	var wg sync.WaitGroup
 	errors := make(chan error, len(filesToSort))
+	sortDurations := make(map[string]time.Duration)
+	var sortDurMu sync.Mutex
 
 	for i := 0; i < numWorkers; i++ {
 		wg.Add(1)
@@ -709,6 +714,7 @@ func SortAllBuckets(pool *HybridWriterPool, numWorkers int) error {
 				var err error
 				sortFields := job.sortFields
 				stripField := 0
+				jobStart := time.Now()
 
 				// Handle dynamic sort levels (for reverse xrefs with sortLevelCount > 0)
 				if job.sortLevelCount > 0 {
@@ -731,6 +737,9 @@ func SortAllBuckets(pool *HybridWriterPool, numWorkers int) error {
 				if err != nil {
 					errors <- fmt.Errorf("sorting %s: %w", job.filePath, err)
 				}
+				sortDurMu.Lock()
+				sortDurations[job.datasetName] += time.Since(jobStart)
+				sortDurMu.Unlock()
 			}
 		}()
 	}
@@ -740,18 +749,18 @@ func SortAllBuckets(pool *HybridWriterPool, numWorkers int) error {
 
 	// Check for errors
 	for err := range errors {
-		return err // Return first error
+		return nil, err // Return first error
 	}
 
 	fmt.Printf("Sorting complete for %d bucket files\n", len(filesToSort))
-	return nil
+	return sortDurations, nil
 }
 
 // bucketReader holds state for reading from a single sorted bucket file during k-way merge
 // Supports both compressed (.txt.gz) and uncompressed (.txt) files
 type bucketReader struct {
 	file     *os.File
-	gzReader *gzip.Reader  // nil if uncompressed
+	gzReader *gzip.Reader // nil if uncompressed
 	reader   *bufio.Reader
 	curLine  string // Current line (including newline)
 	curKey   string // Current key (first field)
@@ -811,9 +820,10 @@ func (br *bucketReader) readNext() {
 
 // BucketStats holds statistics for bucket concatenation
 type BucketStats struct {
-	TotalLines       uint64                       // Total lines written across all datasets
-	PerDataset       map[string]uint64            // Lines written per dataset name (total)
-	PerDatasetSource map[string]map[string]uint64 // Lines per dataset per source (dataset -> source -> lines)
+	TotalLines         uint64                       // Total lines written across all datasets
+	PerDataset         map[string]uint64            // Lines written per dataset name (total)
+	PerDatasetSource   map[string]map[string]uint64 // Lines per dataset per source (dataset -> source -> lines)
+	PerDatasetDuration map[string]time.Duration     // Concatenation time per dataset name
 }
 
 // concatenateJob holds the info needed to concatenate one dataset
@@ -827,11 +837,12 @@ type concatenateJob struct {
 
 // concatenateResult holds the result of concatenating one dataset
 type concatenateResult struct {
-	datasetName   string
-	lines         uint64
+	datasetName    string
+	lines          uint64
 	perSourceLines map[string]uint64 // Lines per source (forward, uniprot, ensembl, etc.)
-	err           error
-	skipped       bool // true if dataset was already merged (skip on recovery)
+	err            error
+	skipped        bool          // true if dataset was already merged (skip on recovery)
+	duration       time.Duration // concatenation time for this dataset
 }
 
 // ConcatenateBuckets merges all sorted bucket files for a dataset into one
@@ -852,8 +863,9 @@ func ConcatenateBucketsFederated(pool *HybridWriterPool, outDir string, chunkIdx
 
 	// Aggregate stats across all federations
 	totalStats := &BucketStats{
-		PerDataset:       make(map[string]uint64),
-		PerDatasetSource: make(map[string]map[string]uint64),
+		PerDataset:         make(map[string]uint64),
+		PerDatasetSource:   make(map[string]map[string]uint64),
+		PerDatasetDuration: make(map[string]time.Duration),
 	}
 
 	for _, federation := range federations {
@@ -879,6 +891,9 @@ func ConcatenateBucketsFederated(pool *HybridWriterPool, outDir string, chunkIdx
 			totalStats.TotalLines += stats.TotalLines
 			for ds, lines := range stats.PerDataset {
 				totalStats.PerDataset[ds] += lines
+			}
+			for ds, d := range stats.PerDatasetDuration {
+				totalStats.PerDatasetDuration[ds] += d
 			}
 			for ds, sources := range stats.PerDatasetSource {
 				if totalStats.PerDatasetSource[ds] == nil {
@@ -914,8 +929,9 @@ func ConcatenateBucketsParallel(pool *HybridWriterPool, indexDir, outDir string,
 	}
 
 	stats := &BucketStats{
-		PerDataset:       make(map[string]uint64),
-		PerDatasetSource: make(map[string]map[string]uint64),
+		PerDataset:         make(map[string]uint64),
+		PerDatasetSource:   make(map[string]map[string]uint64),
+		PerDatasetDuration: make(map[string]time.Duration),
 	}
 
 	// Collect all jobs
@@ -940,7 +956,9 @@ func ConcatenateBucketsParallel(pool *HybridWriterPool, indexDir, outDir string,
 				isAlreadyMerged := job.datasetState != nil && job.datasetState.GetDatasetStatus(datasetName) == StatusMerged
 
 				// Do the actual merge (will skip sources that already have output files)
+				datasetStart := time.Now()
 				lines, perSourceLines, err := concatenateOneDatasetIncremental(job.writerKey, job.writer, job.indexDir, chunkIdx, isAlreadyMerged)
+				datasetDuration := time.Since(datasetStart)
 
 				// After successful merge, mark as merged and save state immediately
 				// This ensures crash recovery knows this dataset is done
@@ -958,6 +976,7 @@ func ConcatenateBucketsParallel(pool *HybridWriterPool, indexDir, outDir string,
 					lines:          lines,
 					perSourceLines: perSourceLines,
 					err:            err,
+					duration:       datasetDuration,
 				}
 			}
 		}()
@@ -993,6 +1012,7 @@ func ConcatenateBucketsParallel(pool *HybridWriterPool, indexDir, outDir string,
 		}
 		stats.TotalLines += result.lines
 		stats.PerDataset[result.datasetName] += result.lines
+		stats.PerDatasetDuration[result.datasetName] += result.duration
 
 		// Store per-source breakdown
 		if result.perSourceLines != nil && len(result.perSourceLines) > 0 {
@@ -1024,8 +1044,9 @@ func ConcatenateBucketsParallelFiltered(pool *HybridWriterPool, indexDir, outDir
 	}
 
 	stats := &BucketStats{
-		PerDataset:       make(map[string]uint64),
-		PerDatasetSource: make(map[string]map[string]uint64),
+		PerDataset:         make(map[string]uint64),
+		PerDatasetSource:   make(map[string]map[string]uint64),
+		PerDatasetDuration: make(map[string]time.Duration),
 	}
 
 	// Get federation mapping from pool
@@ -1079,7 +1100,9 @@ func ConcatenateBucketsParallelFiltered(pool *HybridWriterPool, indexDir, outDir
 
 				isAlreadyMerged := job.datasetState != nil && job.datasetState.GetDatasetStatus(datasetName) == StatusMerged
 
+				datasetStart := time.Now()
 				lines, perSourceLines, err := concatenateOneDatasetIncremental(job.writerKey, job.writer, job.indexDir, chunkIdx, isAlreadyMerged)
+				datasetDuration := time.Since(datasetStart)
 
 				if err == nil && job.datasetState != nil {
 					job.datasetState.MarkDatasetsMerged([]string{datasetName})
@@ -1095,6 +1118,7 @@ func ConcatenateBucketsParallelFiltered(pool *HybridWriterPool, indexDir, outDir
 					lines:          lines,
 					perSourceLines: perSourceLines,
 					err:            err,
+					duration:       datasetDuration,
 				}
 			}
 		}()
@@ -1130,6 +1154,7 @@ func ConcatenateBucketsParallelFiltered(pool *HybridWriterPool, indexDir, outDir
 		}
 		stats.TotalLines += result.lines
 		stats.PerDataset[result.datasetName] += result.lines
+		stats.PerDatasetDuration[result.datasetName] += result.duration
 
 		if result.perSourceLines != nil && len(result.perSourceLines) > 0 {
 			if stats.PerDatasetSource[result.datasetName] == nil {
@@ -1407,6 +1432,7 @@ func concatenateSourceFiles(datasetName string, writer *DatasetBucketWriter, fil
 // Output format:
 //   - {datasetName}_sorted.{chunkIdx}.index.gz - dataset's own data (from forward/)
 //   - {datasetName}_from_{source}_sorted.{chunkIdx}.index.gz - xrefs from other datasets (from from_*/)
+//
 // Returns total lines, per-source breakdown, and error
 func concatenateOneDataset(writerKey string, writer *DatasetBucketWriter, indexDir string, chunkIdx string) (uint64, map[string]uint64, error) {
 	// Delegate to incremental version with isAlreadyMerged=false (process all sources)
@@ -1740,8 +1766,9 @@ func ConcatenateBucketsForDataset(datasetName string, indexDir string, isDerived
 // Processes both regular and derived datasets
 func SortAndConcatenateAllDatasets(configs map[string]*BucketConfig, indexDir string, chunkIdx string, numWorkers int) (*BucketStats, error) {
 	stats := &BucketStats{
-		PerDataset:       make(map[string]uint64),
-		PerDatasetSource: make(map[string]map[string]uint64),
+		PerDataset:         make(map[string]uint64),
+		PerDatasetSource:   make(map[string]map[string]uint64),
+		PerDatasetDuration: make(map[string]time.Duration),
 	}
 
 	if numWorkers <= 0 {

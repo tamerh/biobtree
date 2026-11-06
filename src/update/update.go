@@ -76,6 +76,8 @@ type DataUpdate struct {
 	orthologsAllActive     bool
 	skipEnsembl            bool
 	progChan               chan *progressInfo
+	progWg                 sync.WaitGroup  // waits for showProgres to drain before stats are applied
+	parsedDatasets         map[string]bool // datasets whose parser completed in this run
 	progInterval           int64
 	lookupService          *service.Service  // Service for database lookups
 	bucketPool             *HybridWriterPool // Bucket writer pool for optimized datasets
@@ -169,6 +171,7 @@ func NewDataUpdate(datasets map[string]bool, targetDatasets, ensemblSpecies, ens
 		selectedTaxids:         genometaxids,
 		progInterval:           int64(progInterval),
 		progChan:               make(chan *progressInfo, 1000),
+		parsedDatasets:         make(map[string]bool),
 		start:                  time.Now(),
 		inDatasets:             datasets,
 		orthologsIDs:           orthologIDs,
@@ -268,8 +271,9 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 		// Sort all bucket files
 		log.Println("Sorting bucket files...")
 		concatStart := time.Now()
-		if err := SortAllBuckets(d.bucketPool, 0); err != nil {
-			log.Printf("Error sorting buckets: %v", err)
+		sortDurations, sortErr := SortAllBuckets(d.bucketPool, 0)
+		if sortErr != nil {
+			log.Printf("Error sorting buckets: %v", sortErr)
 		}
 
 		// Concatenate buckets and move to index directory (federated)
@@ -287,44 +291,9 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			for datasetName, lineCount := range bucketStats.PerDataset {
 				d.addKVStat(datasetName, lineCount)
 			}
-			// Save forward and reverse edge counts from bucket writer stats
-			if d.datasetState != nil {
-				// Get edge stats from bucket writer (source → target → count)
-				forwardStats := d.bucketPool.GetForwardXrefStats()
-				reverseStats := d.bucketPool.GetReverseXrefStats()
-
-				// Collect all datasets that have stats (includes ensembl which is removed from inDatasets)
-				allDatasetsWithStats := make(map[string]bool)
-				for datasetName := range forwardStats {
-					allDatasetsWithStats[datasetName] = true
-				}
-				for datasetName := range reverseStats {
-					allDatasetsWithStats[datasetName] = true
-				}
-
-				for datasetName := range allDatasetsWithStats {
-					// Forward edges: from bucket writer (target → count, "entry" for properties)
-					if targets, ok := forwardStats[datasetName]; ok && len(targets) > 0 {
-						forwardEdges := make(map[string]int64)
-						for target, count := range targets {
-							forwardEdges[target] = int64(count)
-						}
-						d.datasetState.SetForwardEdges(datasetName, forwardEdges)
-					}
-
-					// Reverse edges: from bucket writer stats (edges this dataset wrote to other datasets)
-					if targets, ok := reverseStats[datasetName]; ok && len(targets) > 0 {
-						reverseEdges := make(map[string]int64)
-						for target, count := range targets {
-							reverseEdges[target] = int64(count)
-						}
-						d.datasetState.SetReverseEdges(datasetName, reverseEdges)
-					}
-
-					// Set concat duration for this dataset
-					d.datasetState.SetPostProcessDuration(datasetName, concatDuration)
-				}
-			}
+			// Resume path: every bucket file belongs to a dataset that was parsed
+			// in the interrupted run, so replace all stats.
+			d.applyEdgeStats(concatDuration, mergeDurations(sortDurations, bucketStats.PerDatasetDuration), false)
 		}
 		log.Printf("Bucket processing complete (%d lines after deduplication)", bucketLines)
 
@@ -1443,9 +1412,14 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 	}
 	fmt.Println("")
 
-	go d.showProgres()
+	d.progWg.Add(1)
+	go func() {
+		defer d.progWg.Done()
+		d.showProgres()
+	}()
 
 	d.wg.Wait()
+	d.progWg.Wait()
 
 	// Close bucket writers and wait for them to finish
 	var bucketLines uint64
@@ -1464,8 +1438,9 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 		// Sort all bucket files
 		log.Println("Sorting bucket files...")
 		concatStart := time.Now()
-		if err := SortAllBuckets(d.bucketPool, 0); err != nil { // 0 uses BucketSortWorkers from config
-			log.Printf("Error sorting buckets: %v", err)
+		sortDurations, sortErr := SortAllBuckets(d.bucketPool, 0) // 0 uses BucketSortWorkers from config
+		if sortErr != nil {
+			log.Printf("Error sorting buckets: %v", sortErr)
 		}
 
 		// Concatenate buckets and move to index directory (federated)
@@ -1482,44 +1457,10 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 			for datasetName, lineCount := range bucketStats.PerDataset {
 				d.addKVStat(datasetName, lineCount)
 			}
-			// Save forward and reverse edge counts from bucket writer stats
-			if d.datasetState != nil {
-				// Get edge stats from bucket writer (source → target → count)
-				forwardStats := d.bucketPool.GetForwardXrefStats()
-				reverseStats := d.bucketPool.GetReverseXrefStats()
-
-				// Collect all datasets that have stats (includes ensembl which is removed from inDatasets)
-				allDatasetsWithStats := make(map[string]bool)
-				for datasetName := range forwardStats {
-					allDatasetsWithStats[datasetName] = true
-				}
-				for datasetName := range reverseStats {
-					allDatasetsWithStats[datasetName] = true
-				}
-
-				for datasetName := range allDatasetsWithStats {
-					// Forward edges: from bucket writer (target → count, "entry" for properties)
-					if targets, ok := forwardStats[datasetName]; ok && len(targets) > 0 {
-						forwardEdges := make(map[string]int64)
-						for target, count := range targets {
-							forwardEdges[target] = int64(count)
-						}
-						d.datasetState.SetForwardEdges(datasetName, forwardEdges)
-					}
-
-					// Reverse edges: from bucket writer stats (edges this dataset wrote to other datasets)
-					if targets, ok := reverseStats[datasetName]; ok && len(targets) > 0 {
-						reverseEdges := make(map[string]int64)
-						for target, count := range targets {
-							reverseEdges[target] = int64(count)
-						}
-						d.datasetState.SetReverseEdges(datasetName, reverseEdges)
-					}
-
-					// Set concat duration for this dataset
-					d.datasetState.SetPostProcessDuration(datasetName, concatDuration)
-				}
-			}
+			// Only datasets whose own parser ran in this run may replace their
+			// stats. Cross-dataset writes (msigdb -> go, old mirdb -> hgnc) only
+			// represent a subset of the target's edges and must not clobber it.
+			d.applyEdgeStats(concatDuration, mergeDurations(sortDurations, bucketStats.PerDatasetDuration), true)
 		}
 
 		// Handle "merge only" datasets (status=processed, bucket files exist but not in pool)
@@ -1633,6 +1574,90 @@ func (d *DataUpdate) Update() (uint64, uint64) {
 
 }
 
+// applyEdgeStats records the forward/reverse line counts accumulated by the
+// bucket writers in this run.
+//
+// onlyParsed=true is the normal path: a dataset's statistics are replaced only
+// if its own parser completed in this run. Some parsers write edges attributed
+// to another dataset (e.g. msigdb writes GO terms from GO's dataset id); those
+// counters are a subset of the target's edges and would otherwise wipe the
+// target's real statistics. Datasets that were not rebuilt keep their previous
+// numbers.
+//
+// onlyParsed=false is used by the resume path, where every bucket file belongs
+// to a dataset parsed in the interrupted run.
+//
+// For datasets that are replaced, both maps are assigned even when empty, so a
+// dataset that now produces no edges does not keep stale counters.
+// mergeDurations adds two per-dataset duration maps (e.g. sort + concatenate).
+func mergeDurations(a, b map[string]time.Duration) map[string]time.Duration {
+	out := make(map[string]time.Duration, len(a)+len(b))
+	for name, duration := range a {
+		out[name] += duration
+	}
+	for name, duration := range b {
+		out[name] += duration
+	}
+	return out
+}
+
+func (d *DataUpdate) applyEdgeStats(concatDuration time.Duration, perDatasetDuration map[string]time.Duration, onlyParsed bool) {
+	if d.datasetState == nil || d.bucketPool == nil {
+		return
+	}
+
+	forwardStats := d.bucketPool.GetForwardXrefStats()
+	reverseStats := d.bucketPool.GetReverseXrefStats()
+
+	allDatasetsWithStats := make(map[string]bool, len(forwardStats)+len(reverseStats))
+	for datasetName := range forwardStats {
+		allDatasetsWithStats[datasetName] = true
+	}
+	for datasetName := range reverseStats {
+		allDatasetsWithStats[datasetName] = true
+	}
+	if onlyParsed {
+		// Include parsed datasets that produced no edges at all, so a rebuild
+		// that now yields nothing clears its old counters instead of leaving
+		// them behind.
+		for datasetName := range d.parsedDatasets {
+			allDatasetsWithStats[datasetName] = true
+		}
+	}
+
+	skipped := 0
+	for datasetName := range allDatasetsWithStats {
+		if onlyParsed && !d.parsedDatasets[datasetName] {
+			skipped++
+			continue
+		}
+
+		forwardEdges := make(map[string]int64, len(forwardStats[datasetName]))
+		for target, count := range forwardStats[datasetName] {
+			forwardEdges[target] = int64(count)
+		}
+		reverseEdges := make(map[string]int64, len(reverseStats[datasetName]))
+		for target, count := range reverseStats[datasetName] {
+			reverseEdges[target] = int64(count)
+		}
+
+		d.datasetState.SetForwardEdges(datasetName, forwardEdges)
+		d.datasetState.SetReverseEdges(datasetName, reverseEdges)
+
+		// Prefer this dataset's own concatenation time. The fallback (whole-run
+		// duration) only applies to parsed datasets that produced no stats.
+		duration := concatDuration
+		if perDataset, ok := perDatasetDuration[datasetName]; ok {
+			duration = perDataset
+		}
+		d.datasetState.SetPostProcessDuration(datasetName, duration)
+	}
+
+	if skipped > 0 {
+		log.Printf("Edge stats: kept previous counters for %d dataset(s) not rebuilt in this run (cross-dataset writes)", skipped)
+	}
+}
+
 func (d *DataUpdate) showProgres() {
 
 	latestProg := map[string]progressInfo{}
@@ -1647,6 +1672,13 @@ func (d *DataUpdate) showProgres() {
 		// Phase 1: Mark as "processed" when dataset finishes writing bucket files
 		// Phase 2: Mark as "merged" after successful merge (done in Update() after wgBmerge.Wait())
 		// This ensures: if merge fails, next run can skip processing and just re-merge
+		// Record datasets whose parser actually ran. Cross-dataset writes (e.g.
+		// msigdb writing GO terms from GO's id) must not replace the target's
+		// statistics with just the subset they contributed in this run.
+		if info.done && !info.mergeOnly {
+			d.parsedDatasets[info.dataset] = true
+		}
+
 		if info.done && d.datasetState != nil {
 			// Skip state update for merge-only datasets - they're already processed
 			// and we don't want to overwrite their build_duration from the original run
@@ -1655,7 +1687,7 @@ func (d *DataUpdate) showProgres() {
 				if props, ok := config.Dataconf[info.dataset]; ok {
 					sourceURL = props["path"]
 				}
-				d.datasetState.MarkDatasetProcessed(info.dataset, 0, time.Since(d.start))
+				d.datasetState.MarkDatasetProcessed(info.dataset, time.Since(d.start))
 				if sourceURL != "" {
 					if dsInfo := d.datasetState.GetDatasetInfo(info.dataset); dsInfo != nil {
 						dsInfo.SourceURL = sourceURL

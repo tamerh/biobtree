@@ -828,7 +828,7 @@ func (d *Merge) Merge(c *configs.Conf, keep bool, federation string) (uint64, ui
 		for datasetID, stats := range d.perDatasetStats {
 			perDatasetStatsMap[datasetID] = [2]uint64{stats.Keys, stats.Values}
 		}
-		state.SetAllDatasetDBStats(perDatasetStatsMap, config.DataconfIDIntToString)
+		state.SetAllDatasetDBStats(d.federation, perDatasetStatsMap, config.DataconfIDIntToString)
 		log.Printf("Per-dataset DB stats: %d datasets tracked", len(d.perDatasetStats))
 		if err := update.SaveDatasetState(state, outDir); err != nil {
 			log.Printf("Warning: Failed to save DB write stats to state file: %v", err)
@@ -1526,6 +1526,7 @@ func (d *Merge) init() {
 	// 2. forward_edges from OTHER federations when they point to datasets in THIS federation
 	var totalEdges int64
 	var crossFedEdges int64
+	var crossFedOut int64
 	var datasetCount int
 	stateFile := filepath.Join(config.Appconf["outDir"], "dataset_state.json")
 	if stateData, err := ioutil.ReadFile(stateFile); err == nil {
@@ -1561,11 +1562,37 @@ func (d *Merge) init() {
 							totalEdges += int64(te)
 							datasetCount++
 						}
+						// Its reverse rows live in the TARGET dataset's federation.
+						// Rows written into another federation are not read by this
+						// generate, so subtract them from this federation's estimate.
+						if reverseEdges, ok := info["reverse_edges"].(map[string]interface{}); ok {
+							for targetDS, edgeCount := range reverseEdges {
+								if targetDS == "entry" || targetDS == "textsearch" {
+									continue
+								}
+								targetFed := datasetFederationMap[targetDS]
+								if targetFed == "" {
+									targetFed = "main"
+								}
+								if targetFed != d.federation {
+									if count, ok := edgeCount.(float64); ok {
+										crossFedOut += int64(count)
+									}
+								}
+							}
+						}
 					} else {
 						// Dataset belongs to a DIFFERENT federation
 						// Check if it has forward_edges to datasets in OUR federation
 						if forwardEdges, ok := info["forward_edges"].(map[string]interface{}); ok {
 							for targetDS, edgeCount := range forwardEdges {
+								// "entry" (properties) and "textsearch" (text/interval
+								// index) are pseudo-targets, not datasets. Their rows
+								// live in their own federation's index and must not be
+								// counted as incoming edges here.
+								if targetDS == "entry" || targetDS == "textsearch" {
+									continue
+								}
 								// Check if target dataset is in our federation
 								targetFed := datasetFederationMap[targetDS]
 								if targetFed == "" {
@@ -1581,9 +1608,12 @@ func (d *Merge) init() {
 					}
 				}
 			}
-			log.Printf("Federation '%s': total edges from %d datasets = %d, cross-federation incoming edges = %d",
-				d.federation, datasetCount, totalEdges, crossFedEdges)
-			totalEdges += crossFedEdges
+			log.Printf("Federation '%s': total edges from %d datasets = %d, cross-federation incoming edges = %d, cross-federation outgoing rows = %d",
+				d.federation, datasetCount, totalEdges, crossFedEdges, crossFedOut)
+			totalEdges += crossFedEdges - crossFedOut
+			if totalEdges < 0 {
+				totalEdges = 0
+			}
 		}
 	} else {
 		log.Printf("Warning: could not read dataset_state.json: %v", err)

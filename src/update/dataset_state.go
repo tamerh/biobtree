@@ -70,6 +70,12 @@ type DatasetBuildInfo struct {
 	ForwardEdges map[string]int64 `json:"forward_edges,omitempty"` // Edges from source data (target -> count, "entry" for properties)
 	ReverseEdges map[string]int64 `json:"reverse_edges,omitempty"` // Edges written to other datasets (target -> count)
 	TotalEdges   int64            `json:"total_edges,omitempty"`   // sum(ForwardEdges) + sum(ReverseEdges)
+	// Derived views of the two counters above. These disambiguate what
+	// "total_edges" means; see docs/internal/dataset-statistics.md.
+	Properties  int64 `json:"properties,omitempty"`   // forward rows for "entry" (node payload, not edges)
+	XrefsOut    int64 `json:"xrefs_out,omitempty"`    // entity-to-entity xrefs (forward rows minus properties)
+	IndexEdges  int64 `json:"index_edges,omitempty"`  // text/interval index edges (reverse "textsearch" rows)
+	StorageRows int64 `json:"storage_rows,omitempty"` // sum(forward)+sum(reverse), alias of TotalEdges
 	// Source metadata
 	SourceURL      string    `json:"source_url,omitempty"`      // Actual URL used for download
 	SourceVersion  string    `json:"source_version,omitempty"`  // e.g., "2024.01" for UniProt release
@@ -78,10 +84,10 @@ type DatasetBuildInfo struct {
 	SourceETag     string    `json:"source_etag,omitempty"`     // HTTP ETag if available
 	SourceChecksum string    `json:"source_checksum,omitempty"` // MD5/SHA if available
 	// Build metadata
-	TouchedDatasets     []string `json:"touched_datasets,omitempty"`     // Datasets that received reverse xrefs
-	XrefCount           int64    `json:"xref_count,omitempty"`           // Number of xrefs created
-	ProcessDuration     string   `json:"process_duration,omitempty"`     // Processing/parsing phase duration (e.g., "1m30s")
-	PostProcessDuration string   `json:"post_process_duration,omitempty"` // Sort/concatenation phase duration (e.g., "45s")
+	TouchedDatasets []string `json:"touched_datasets,omitempty"` // Datasets that received reverse xrefs
+
+	ProcessDuration     string `json:"process_duration,omitempty"`      // Processing/parsing phase duration (e.g., "1m30s")
+	PostProcessDuration string `json:"post_process_duration,omitempty"` // Sort/concatenation phase duration (e.g., "45s")
 	// DB write stats - populated after generate/merge phase completes
 	DBKeys   int64 `json:"db_keys,omitempty"`   // Keys written to database for this dataset
 	DBValues int64 `json:"db_values,omitempty"` // Values/xrefs written to database for this dataset
@@ -138,6 +144,9 @@ func LoadDatasetState(outDir string) (*DatasetState, error) {
 	// The next build will populate forward_edges/reverse_edges/total_edges correctly
 	oldFormatCount := 0
 	for _, info := range state.Datasets {
+		// Backfill the derived views (properties/xrefs_out/index_edges/
+		// storage_rows) for state written by older binaries.
+		state.recalculateTotal(info)
 		if info.TotalEdges == 0 && len(info.ForwardEdges) == 0 {
 			oldFormatCount++
 		}
@@ -220,6 +229,11 @@ func SaveDatasetState(state *DatasetState, outDir string) error {
 	} else {
 		diskState = NewDatasetState()
 	}
+	// Backfill derived views so the completeness check below always has them,
+	// even when reading state written by an older binary.
+	for _, info := range diskState.Datasets {
+		diskState.recalculateTotal(info)
+	}
 
 	// Merge: add/update current datasets into disk state (only source datasets + textsearch)
 	// COMPLETENESS REGRESSION CHECK. A large unexplained drop in a dataset's edge/
@@ -231,21 +245,26 @@ func SaveDatasetState(state *DatasetState, outDir string) error {
 	var emptyCollapses []string
 	for name, info := range currentDatasets {
 		if IsSourceDataset(name) {
-			if old, ok := diskState.Datasets[name]; ok && old.TotalEdges > 1000 {
-				if info.TotalEdges == 0 {
+			// Compare forward rows (properties + entity xrefs) rather than
+			// storage_rows: the latter double counts xrefs and includes text and
+			// interval index rows, which can mask a real loss of source records.
+			oldRows := forwardRows(diskState.Datasets[name])
+			newRows := forwardRows(info)
+			if oldRows > 1000 {
+				if newRows == 0 {
 					// A source that previously had substantial data now produces NOTHING.
 					// Almost always a moved/empty/failed download (e.g. a redirect stub, a
 					// 200-with-empty-body, or a truncation to zero) — NOT a real change. We
 					// refuse to overwrite good data with nothing: record it and abort below,
 					// BEFORE the new (empty) state is written, so the on-disk state and the
 					// active DB are preserved.
-					emptyCollapses = append(emptyCollapses, fmt.Sprintf("%s (%d edges -> 0)", name, old.TotalEdges))
+					emptyCollapses = append(emptyCollapses, fmt.Sprintf("%s (%d rows -> 0)", name, oldRows))
 					continue // do NOT overwrite this dataset's good state in memory
 				}
-				if ratio := float64(info.TotalEdges) / float64(old.TotalEdges); ratio < 0.7 {
+				if ratio := float64(newRows) / float64(oldRows); ratio < 0.7 {
 					drop := (1 - ratio) * 100
-					log.Printf("⚠️  COMPLETENESS WARNING [%s]: total edges %d -> %d (-%.0f%%) vs previous build — possible truncated/incomplete source; VERIFY before shipping", name, old.TotalEdges, info.TotalEdges, drop)
-					completenessWarnings = append(completenessWarnings, fmt.Sprintf("%s (-%.0f%%: %d->%d)", name, drop, old.TotalEdges, info.TotalEdges))
+					log.Printf("⚠️  COMPLETENESS WARNING [%s]: forward rows %d -> %d (-%.0f%%) vs previous build — possible truncated/incomplete source; VERIFY before shipping", name, oldRows, newRows, drop)
+					completenessWarnings = append(completenessWarnings, fmt.Sprintf("%s (-%.0f%%: %d->%d)", name, drop, oldRows, newRows))
 				}
 			}
 			diskState.Datasets[name] = info
@@ -455,7 +474,7 @@ func formatDuration(d time.Duration) string {
 
 // MarkDatasetProcessed marks a dataset as processed (bucket files written, awaiting merge)
 // This is set when dataset processing completes successfully
-func (s *DatasetState) MarkDatasetProcessed(datasetName string, xrefCount int64, duration time.Duration) {
+func (s *DatasetState) MarkDatasetProcessed(datasetName string, duration time.Duration) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -473,14 +492,13 @@ func (s *DatasetState) MarkDatasetProcessed(datasetName string, xrefCount int64,
 
 	info.Status = StatusProcessed
 	info.LastBuildTime = time.Now().Truncate(time.Second)
-	info.XrefCount = xrefCount
 	info.ProcessDuration = formatDuration(duration)
 }
 
 // MarkDatasetBuilt is deprecated - use MarkDatasetProcessed instead
 // Kept for backward compatibility
-func (s *DatasetState) MarkDatasetBuilt(datasetName string, xrefCount int64, duration time.Duration) {
-	s.MarkDatasetProcessed(datasetName, xrefCount, duration)
+func (s *DatasetState) MarkDatasetBuilt(datasetName string, duration time.Duration) {
+	s.MarkDatasetProcessed(datasetName, duration)
 }
 
 // SetPostProcessDuration sets the sort/concatenation phase duration for a dataset
@@ -653,7 +671,7 @@ func (s *DatasetState) SetDatasetDBStats(datasetName string, keys, values uint64
 // perDatasetStats is a map of dataset ID (uint32) to {keys, values}
 // datasetIDToName is a map converting dataset IDs to names (from config.DataconfIDIntToString)
 // Only updates existing dataset entries - does NOT create new entries for derived datasets
-func (s *DatasetState) SetAllDatasetDBStats(perDatasetStats map[uint32][2]uint64, datasetIDToName map[uint32]string) {
+func (s *DatasetState) SetAllDatasetDBStats(federation string, perDatasetStats map[uint32][2]uint64, datasetIDToName map[uint32]string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -661,6 +679,7 @@ func (s *DatasetState) SetAllDatasetDBStats(perDatasetStats map[uint32][2]uint64
 		return // No datasets to update
 	}
 
+	seen := make(map[string]bool, len(perDatasetStats))
 	for datasetID, stats := range perDatasetStats {
 		// Skip dataset ID 0 (textsearch/link dataset - not a regular dataset)
 		if datasetID == 0 {
@@ -680,6 +699,32 @@ func (s *DatasetState) SetAllDatasetDBStats(perDatasetStats map[uint32][2]uint64
 		}
 		info.DBKeys = int64(stats[0])
 		info.DBValues = int64(stats[1])
+		seen[datasetName] = true
+	}
+
+	// A dataset in this federation that contributed no rows must be reset, not
+	// left with the counts from a previous generate. Without this, a dataset
+	// that shrinks to zero keeps stale db_keys/db_values forever.
+	zeroed := 0
+	for datasetName, info := range s.Datasets {
+		if seen[datasetName] {
+			continue
+		}
+		fed := info.Federation
+		if fed == "" {
+			fed = "main"
+		}
+		if fed != federation {
+			continue
+		}
+		if info.DBKeys != 0 || info.DBValues != 0 {
+			zeroed++
+		}
+		info.DBKeys = 0
+		info.DBValues = 0
+	}
+	if zeroed > 0 {
+		log.Printf("Reset DB stats for %d dataset(s) in federation '%s' that wrote no rows this generate", zeroed, federation)
 	}
 }
 
@@ -696,16 +741,34 @@ func (s *DatasetState) getOrCreateDataset(name string) *DatasetBuildInfo {
 	return info
 }
 
-// recalculateTotal updates TotalEdges = sum(ForwardEdges) + sum(ReverseEdges)
+// forwardRows is the stable record count used by the completeness check:
+// entry properties plus entity-to-entity xrefs. It excludes text/interval index
+// rows and the reverse copies, so it does not shrink or grow for reasons
+// unrelated to the source data.
+func forwardRows(info *DatasetBuildInfo) int64 {
+	if info == nil {
+		return 0
+	}
+	return info.Properties + info.XrefsOut
+}
+
+// recalculateTotal updates TotalEdges and the derived views from the two raw
+// counters. TotalEdges/storage_rows count both storage directions, so they are
+// row counts, not logical edge counts; the distinction is intentional.
 func (s *DatasetState) recalculateTotal(info *DatasetBuildInfo) {
-	var total int64
+	var forward, reverse int64
 	for _, count := range info.ForwardEdges {
-		total += count
+		forward += count
 	}
 	for _, count := range info.ReverseEdges {
-		total += count
+		reverse += count
 	}
-	info.TotalEdges = total
+
+	info.TotalEdges = forward + reverse
+	info.StorageRows = info.TotalEdges
+	info.Properties = info.ForwardEdges["entry"]
+	info.XrefsOut = forward - info.Properties
+	info.IndexEdges = info.ReverseEdges["textsearch"]
 }
 
 // SetForwardEdges sets the forward edge counts for a dataset (target -> count)
@@ -738,7 +801,7 @@ func (s *DatasetState) AddReverseEdges(datasetName, targetName string, count int
 	if info.ReverseEdges == nil {
 		info.ReverseEdges = make(map[string]int64)
 	}
-	info.ReverseEdges[targetName] = count
+	info.ReverseEdges[targetName] += count
 	s.recalculateTotal(info)
 }
 

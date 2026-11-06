@@ -50,6 +50,13 @@ type SearchLiteResponse struct {
 	// the same term as if it were a gene.
 	NotFound []string `json:"not_found,omitempty"`
 	Hint     string   `json:"hint,omitempty"`
+	// Provenance for identifier-shaped queries. MatchedNamespace is the
+	// dataset of the top-ranked match; PeripheralMatch is true when the query
+	// matched only non-core namespaces (e.g. vega transcripts) and no exact
+	// core entity. MoreResults counts rows omitted by the relevance cap.
+	MatchedNamespace string `json:"matched_namespace,omitempty"`
+	PeripheralMatch  bool   `json:"peripheral_match,omitempty"`
+	MoreResults      int    `json:"more_results,omitempty"`
 }
 
 // SearchLiteContext provides context about the search query

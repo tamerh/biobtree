@@ -239,6 +239,11 @@ QUERY PATTERNS (choose based on question):
 PAGINATION: if pagination.has_next is true there are more hits — call again
 with page=<pagination.next_token>. stats.total is the number of hits in THIS
 response, not the total number of matches.
+IDENTIFIER-SHAPED QUERIES: matched_namespace names the dataset of the best hit.
+If peripheral_match is true, only peripheral namespaces (e.g. vega transcripts,
+interaction rows) matched and no core gene/protein/disease/drug entity did — do
+not retry the same term; filter by dataset if you need the remaining rows.
+more_results counts rows omitted by the relevance cap.
 TRUNCATION: if truncated is true, data holds `returned` of `total` rows (cut at
 a whole-element boundary). The continuation token is invalidated because it
 refers to the untruncated page; narrow the query instead of paginating.

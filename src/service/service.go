@@ -1980,6 +1980,8 @@ func (s *Service) searchLite(ids []string, datasetFilters []uint32, page string,
 
 	seenIDs := make(map[string]bool)
 	hasPrimary := false
+	hasExact := false
+	rowDatasets := make([]string, 0, len(collected))
 	for _, xref := range collected {
 		datasetName := config.DataconfIDIntToString[xref.Dataset]
 		if searchDatasetTier(datasetName) == 0 {
@@ -1996,8 +1998,46 @@ func (s *Service) searchLite(ids []string, datasetFilters []uint32, page string,
 		}
 		seenIDs[uniqueKey] = true
 
+		for _, id := range ids {
+			if strings.EqualFold(identifier, strings.TrimSpace(id)) {
+				hasExact = true
+				break
+			}
+		}
+
 		response.Data = append(response.Data, GetSearchCompactRow(xref, datasetName))
+		rowDatasets = append(rowDatasets, datasetName)
 		response.Stats.Total++
+	}
+	if len(rowDatasets) > 0 {
+		response.MatchedNamespace = rowDatasets[0]
+	}
+
+	// Identifier-shaped queries can match dozens of peripheral rows. Ranked
+	// rows already put exact/primary hits first; cap the tail so the caller
+	// is not flooded, and say what matched and how much was omitted.
+	idShaped := false
+	for _, id := range ids {
+		if identifierShaped(id) {
+			idShaped = true
+			break
+		}
+	}
+	if idShaped {
+		if response.MatchedNamespace != "" && !coreEntityDatasets[response.MatchedNamespace] && !hasExact {
+			response.PeripheralMatch = true
+		}
+		capRows := 20
+		if !hasPrimary {
+			capRows = 10
+		}
+		if len(response.Data) > capRows {
+			response.MoreResults = len(response.Data) - capRows
+			response.Data = response.Data[:capRows]
+			response.Stats.Total = capRows
+			response.Pagination.HasNext = false
+			response.Pagination.NextToken = ""
+		}
 	}
 
 	// An identifier-shaped term that matched no primary entity is the noisy
@@ -2012,16 +2052,6 @@ func (s *Service) searchLite(ids []string, datasetFilters []uint32, page string,
 		}
 		if len(response.NotFound) > 0 {
 			response.Hint = "No primary gene/protein/disease/drug entry matched. The rows are interaction or annotation records; if you expected a gene, it may be absent from this database version. Do not retry the same term. Use a dataset filter (s=ncrna_interaction) if you really want all interaction rows."
-			// Do not make the caller page through dozens of interaction rows
-			// for a term that is not an entity. A short sample is enough to
-			// show what matched.
-			const sample = 10
-			if len(response.Data) > sample {
-				response.Data = response.Data[:sample]
-				response.Stats.Total = len(response.Data)
-				response.Pagination.HasNext = false
-				response.Pagination.NextToken = ""
-			}
 		}
 	}
 
@@ -2049,6 +2079,18 @@ var searchPrimaryDatasets = map[string]bool{
 	"chembl_molecule": true, "mondo": true, "hpo": true, "go": true,
 	"reactome": true, "chebi": true, "pubchem": true, "orphanet": true,
 	"doid": true, "efo": true, "mesh": true, "taxonomy": true,
+}
+
+// coreEntityDatasets are the namespaces a caller usually means when an
+// identifier-shaped term should resolve to a first-class entity (gene,
+// protein, disease, drug, ontology term). Transcript collections such as vega
+// and miRNA-target sets such as mirdb are deliberately excluded: they can
+// match a clone/alias, but should not suppress the peripheral-match signal.
+var coreEntityDatasets = map[string]bool{
+	"hgnc": true, "ensembl": true, "entrez": true, "refseq": true,
+	"uniprot": true, "chembl_molecule": true, "mondo": true, "hpo": true,
+	"orphanet": true, "doid": true, "efo": true, "mesh": true, "go": true,
+	"reactome": true, "chebi": true, "pubchem": true, "taxonomy": true,
 }
 
 // searchInteractionDatasets are relationship/annotation namespaces: useful

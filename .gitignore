@@ -22,6 +22,8 @@ new_lookup/
 .claude/
 .gemini/
 CLAUDE.md
+AGENTS.md
+.env.mk
 **/cachedist/
 dist/
 
